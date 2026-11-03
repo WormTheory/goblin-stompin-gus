@@ -6,7 +6,7 @@ Open the file in a browser to play.
 
 ## Ground rules
 - `game/index.html` is the only deliverable. Keep it one file — no build step, no bundler.
-- No trademark logos or real brand names anywhere in the game.
+- Parody of real brands is welcome and part of the humour (names like "Goblin Walmart"). Draw parody logos rather than copying real artwork.
 - Comments are plain English, explaining *why*, often in parentheses. Match the existing style.
 - **Bump `SAVE_KEY`** (currently `'goblin-city-v42'`) whenever world generation changes, so old saves don't load into a different world.
 - Make edits with exact, unique string replacements. Many identifiers repeat, so check for a single match before replacing.
