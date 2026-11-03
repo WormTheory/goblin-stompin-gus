@@ -758,7 +758,7 @@ function horizHidden(cx,cy,cz,hr,top){
     if(!o.isInstancedMesh&&horizHidden(sp.center.x,sp.center.y,sp.center.z,sp.radius,sp.center.y+sp.radius))return false;   // (over the horizon)
     const d=Math.hypot(sp.center.x-CURVE_CAM.x,sp.center.z-CURVE_CAM.z),r=sp.radius,lo=k*Math.max(0,d-r)**2,hi=k*(d+r)**2;
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v47';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v48';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -1051,35 +1051,41 @@ function hash2(x,z){let h=Math.imul(x,374761393)+Math.imul(z,668265263)+Math.imu
 // building gets to match. Each kind of place has a few to pick from, so the city isn't all one chain ----
 const BR=(n,bg,fg,ac,icon,o)=>Object.assign({n,bg,fg,ac,icon},o||{});
 const BRANDS={
-  grocery:[BR('WAL-MART','#0b5cad','#ffffff','#ffc220','cart',{wall:PAINT_BLUE,neon:NEON_Y,awn:'none'}),BR('TARGET','#ffffff','#cc0000','#cc0000','bag',{wall:STUCCO,neon:NEON_R,awn:'r'}),
+  grocery:[BR('WAL-MART','#0b5cad','#ffffff','#ffc220','spark',{wall:PAINT_BLUE,neon:NEON_Y,awn:'none'}),BR('TARGET','#ffffff','#cc0000','#cc0000','eyeball',{wall:STUCCO,neon:NEON_R,awn:'r'}),
     BR('KROGER','#1f4fa3','#ffffff','#9fc3ff','basket',{wall:STUCCO,neon:NEON_B,awn:'none'}),BR('COSTCO','#ffffff','#e31837','#005daa','box',{wall:CONCRETE,neon:NEON_R,awn:'none'}),
-    BR('WHOLE FOODS','#00674b','#ffffff','#b8e08a','leaf',{wall:PAINT_GREEN,neon:NEON_G,awn:'g'}),BR('ALDI','#00205b','#ffffff','#f6a01a','tag',{wall:PAINT_NAVY,neon:NEON_O,awn:'none'})],
+    BR('WHOLE FOODS','#00674b','#ffffff','#b8e08a','leaf',{wall:PAINT_GREEN,neon:NEON_G,awn:'g'}),BR('ALDI','#00205b','#ffffff','#f6a01a','tag',{wall:PAINT_NAVY,neon:NEON_O,awn:'none'}),
+    BR("TRADER JOE'S",'#c8102e','#ffffff','#ffffff','leaf',{wall:PLANKS,neon:NEON_R,awn:'r'}),BR('PIGGLY WIGGLY','#d7141a','#ffffff','#ffffff','basket',{wall:STUCCO,neon:NEON_R,awn:'r'})],
   // superstores and warehouse clubs (wh: warehouse racking instead of aisles of shelves)
-  bigbox:[BR('WAL-MART','#0b5cad','#ffffff','#ffc220','cart',{wall:PAINT_BLUE,neon:NEON_Y,a:179000}),BR('TARGET','#ffffff','#cc0000','#cc0000','bag',{wall:STUCCO,neon:NEON_R,a:130000}),
+  bigbox:[BR('WAL-MART','#0b5cad','#ffffff','#ffc220','spark',{wall:PAINT_BLUE,neon:NEON_Y,a:179000}),BR('TARGET','#ffffff','#cc0000','#cc0000','eyeball',{wall:STUCCO,neon:NEON_R,a:130000}),
     BR('MEIJER','#ffffff','#d6001c','#00539f','cart',{wall:PAINT_WHITE,neon:NEON_B,a:200000}),BR('KMART','#e2231a','#ffffff','#ffffff','tag',{wall:PAINT_RED,neon:NEON_R,a:94000,nofood:true}),
-    BR('COSTCO','#ffffff','#e31837','#005daa','box',{wall:CONCRETE,neon:NEON_R,a:146000,wh:true}),BR("SAM'S CLUB",'#0067a0','#ffffff','#ffffff','box',{wall:PAINT_NAVY,neon:NEON_B,a:120000,wh:true})],
+    BR('COSTCO','#ffffff','#e31837','#005daa','box',{wall:CONCRETE,neon:NEON_R,a:146000,wh:true}),BR("SAM'S CLUB",'#0067a0','#ffffff','#ffffff','box',{wall:PAINT_NAVY,neon:NEON_B,a:120000,wh:true}),
+    BR('HOME DEPOT','#f96302','#ffffff','#ffffff','box',{wall:PAINT_ORANGE,neon:NEON_O,a:105000,wh:true}),BR("LOWE'S",'#004990','#ffffff','#ffffff','house',{wall:PAINT_NAVY,neon:NEON_B,a:112000,wh:true})],
   // supermarkets (and one electronics store of the same size)
   market:[BR('KROGER','#1f4fa3','#ffffff','#9fc3ff','basket',{wall:STUCCO,neon:NEON_B,a:61000}),BR('SAFEWAY','#e21a2c','#ffffff','#ffffff','basket',{wall:STUCCO,neon:NEON_R,a:47500}),
     BR('PUBLIX','#3d8b37','#ffffff','#ffffff','cart',{wall:STUCCO,neon:NEON_G,a:48000}),BR('WHOLE FOODS','#00674b','#ffffff','#b8e08a','leaf',{wall:PAINT_GREEN,neon:NEON_G,a:38000}),
     BR('ALDI','#00205b','#ffffff','#f6a01a','tag',{wall:PAINT_NAVY,neon:NEON_O,a:12000}),BR('BEST BUY','#0046be','#fff200','#fff200','tv',{wall:PAINT_BLUE,neon:NEON_Y,a:38000,tech:true})],
   // freestanding drugstores and dollar stores
   drug:[BR('CVS','#cc0000','#ffffff','#ffffff','pill',{wall:BRICK,neon:NEON_R,a:11000}),BR('WALGREENS','#e31837','#ffffff','#ffffff','pill',{wall:BRICK,neon:NEON_R,a:14500}),
-    BR('DOLLAR GENERAL','#ffd100','#000000','#000000','dollar',{wall:PAINT_YELLOW,neon:NEON_Y,a:8500})],
-  gas:[BR('SHELL','#fbce07','#dd1d21','#dd1d21','drop',{wall:PAINT_YELLOW,neon:NEON_R}),BR('EXXON','#ffffff','#e1251b','#1b3f94','pump',{wall:PAINT_WHITE,neon:NEON_R}),
+    BR('DOLLAR GENERAL','#ffd100','#000000','#000000','dollar',{wall:PAINT_YELLOW,neon:NEON_Y,a:8500}),
+    BR('RITE AID','#0a4b9c','#ffffff','#e31837','pill',{wall:BRICK,neon:NEON_B,a:11000}),BR('FAMILY DOLLAR','#e4002b','#ffffff','#ffffff','dollar',{wall:PAINT_RED,neon:NEON_R,a:8000})],
+  gas:[BR('SHELL','#fbce07','#dd1d21','#dd1d21','scallop',{wall:PAINT_YELLOW,neon:NEON_R}),BR('EXXON','#ffffff','#e1251b','#1b3f94','pump',{wall:PAINT_WHITE,neon:NEON_R}),
     BR('BP','#007f3e','#ffffff','#ffe600','drop',{wall:PAINT_GREEN,neon:NEON_Y}),BR('CHEVRON','#ffffff','#0054a4','#e2231a','pump',{wall:PAINT_WHITE,neon:NEON_B}),
-    BR('7-ELEVEN','#ffffff','#008163','#f47a20','cup',{wall:PAINT_WHITE,neon:NEON_O})],
+    BR('7-ELEVEN','#ffffff','#008163','#f47a20','cup',{wall:PAINT_WHITE,neon:NEON_O}),
+    BR('TEXACO','#e1251b','#ffffff','#ffffff','badge',{wall:PAINT_RED,neon:NEON_R}),BR('MOBIL','#ffffff','#0a3a8a','#e1251b','pump',{wall:PAINT_WHITE,neon:NEON_B}),BR("BUC-EE'S",'#e2231a','#ffd200','#ffd200','skull',{wall:PAINT_RED,neon:NEON_Y}),BR('WAWA','#a6192e','#ffd200','#ffd200','cup',{wall:BRICK,neon:NEON_R})],
   diner:[BR('WAFFLE HOUSE','#ffd200','#111111','#111111','waffle',{wall:PAINT_WHITE,neon:NEON_Y,a:1650})],
-  fastfood:[BR("McDONALD'S",'#da291c','#ffc72c','#ffc72c','burger',{wall:PAINT_RED,neon:NEON_Y,a:4300}),BR('BURGER KING','#f5ebdc','#d62300','#502314','burger',{wall:PAINT_ORANGE,neon:NEON_B,a:3000}),
-    BR("ARBY'S",'#d71920','#ffffff','#ffffff','sandwich',{wall:PAINT_RED,neon:NEON_R,a:3000}),BR('BY-THE-BUCKET','#ffd23f','#b3261e','#b3261e','bucket',{wall:PAINT_YELLOW,neon:NEON_R,a:2500})],
+  fastfood:[BR("McDONALD'S",'#da291c','#ffc72c','#ffc72c','arches',{wall:PAINT_RED,neon:NEON_Y,a:4300}),BR('BURGER KING','#f5ebdc','#d62300','#502314','burger',{wall:PAINT_ORANGE,neon:NEON_B,a:3000}),
+    BR("ARBY'S",'#d71920','#ffffff','#ffffff','sandwich',{wall:PAINT_RED,neon:NEON_R,a:3000}),BR('BY-THE-BUCKET','#ffd23f','#b3261e','#b3261e','bucket',{wall:PAINT_YELLOW,neon:NEON_R,a:2500}),
+    BR("WENDY'S",'#e2203d','#ffffff','#ffffff','burger',{wall:PAINT_RED,neon:NEON_R,a:3000}),BR('TACO BELL','#702082','#ffffff','#ffd200','bolt',{wall:PAINT_NAVY,neon:NEON_M,a:2500}),BR('KFC','#a3080c','#ffffff','#ffffff','bucket',{wall:PAINT_RED,neon:NEON_R,a:2600}),BR('CHICK-FIL-A','#e51636','#ffffff','#ffffff','sandwich',{wall:BRICK,neon:NEON_R,a:4500}),BR('WHITE CASTLE','#ffffff','#0b3a8c','#0b3a8c','house',{wall:PAINT_WHITE,neon:NEON_B,a:2500}),BR('DAIRY QUEEN','#e51636','#ffffff','#0a5cab','cup',{wall:PAINT_RED,neon:NEON_B,a:2800})],
   sitdown:[BR("APPLEBEE'S",'#b5121b','#ffffff','#ffffff','fork',{wall:BRICK,neon:NEON_R,a:5400}),BR("CHILI'S",'#ffffff','#c8102e','#2e7d32','fork',{wall:STUCCO,neon:NEON_R,a:5800}),
     BR('CRACKER BARREL','#5b3a1c','#f2c14e','#f2c14e','house',{wall:PLANKS,neon:NEON_Y,a:9500,store:true}),BR('GOLDEN CORRAL','#7b1f1f','#f6c445','#f6c445','fork',{wall:STUCCO,neon:NEON_Y,a:10000,buffet:true}),
     BR('OLIVE GARDEN','#4e5b31','#ffffff','#c9b26b','leaf',{wall:STUCCO,neon:NEON_G,a:7800}),BR('TEXAS ROADHOUSE','#7a1712','#ffffff','#ffffff','badge',{wall:PLANKS,neon:NEON_R,a:7200}),
     BR('CHEESECAKE FACTORY','#3b2a20','#e8d3a8','#e8d3a8','cake',{wall:STUCCO,neon:NEON_O,a:10000}),
-    BR("DENNY'S",'#fdd20a','#c8102e','#c8102e','egg',{wall:PAINT_YELLOW,neon:NEON_R,a:4800}),BR('IHOP','#0b4ea2','#ffffff','#e4002b','pancakes',{wall:PAINT_BLUE,neon:NEON_R,a:5000})],
+    BR("DENNY'S",'#fdd20a','#c8102e','#c8102e','egg',{wall:PAINT_YELLOW,neon:NEON_R,a:4800}),BR('IHOP','#0b4ea2','#ffffff','#e4002b','pancakes',{wall:PAINT_BLUE,neon:NEON_R,a:5000}),
+    BR('RED LOBSTER','#b5121b','#ffffff','#ffffff','fish',{wall:PLANKS,neon:NEON_R,a:7000}),BR('OUTBACK','#6a2c12','#ffd27a','#ffd27a','badge',{wall:PLANKS,neon:NEON_O,a:6500}),BR('HOOTERS','#f26522','#ffffff','#ffffff','eyeball',{wall:PLANKS,neon:NEON_O,a:5500}),BR('BUFFALO WILD WINGS','#111111','#ffc72c','#ffc72c','flame',{wall:BRICK,neon:NEON_Y,a:6000})],
   pizza:[BR('PIZZA HUT','#ee3124','#ffffff','#ffffff','pizza',{wall:PAINT_RED,neon:NEON_R,a:3000}),BR("DOMINO'S",'#006491','#ffffff','#e31837','pizza',{wall:PAINT_BLUE,neon:NEON_R,a:1300}),
-    BR("PAPA JOHN'S",'#ffffff','#006a31','#d82a2a','pizza',{wall:PAINT_GREEN,neon:NEON_R,a:1300}),BR('LITTLE CAESARS','#ff6900','#ffffff','#111111','pizza',{wall:PAINT_ORANGE,neon:NEON_O,a:1400})],
-  cafe:[BR('STARBUCKS','#00704a','#ffffff','#ffffff','cup',{wall:PLANKS,neon:NEON_G,a:2000}),BR("DUNKIN'",'#ffffff','#ff671f','#da1884','donut',{wall:PAINT_ORANGE,neon:NEON_M,a:1800}),
-    BR('TIM HORTONS','#c8102e','#ffffff','#ffffff','cup',{wall:BRICK,neon:NEON_R,a:2500})],
+    BR("PAPA JOHN'S",'#ffffff','#006a31','#d82a2a','pizza',{wall:PAINT_GREEN,neon:NEON_R,a:1300}),BR('LITTLE CAESARS','#ff6900','#ffffff','#111111','pizza',{wall:PAINT_ORANGE,neon:NEON_O,a:1400}),BR('CHUCK E. CHEESE','#6a2c91','#ffd200','#ffd200','skull',{wall:PAINT_NAVY,neon:NEON_M,a:3000})],
+  cafe:[BR('STARBUCKS','#00704a','#ffffff','#ffffff','crown',{wall:PLANKS,neon:NEON_G,a:2000}),BR("DUNKIN'",'#ffffff','#ff671f','#da1884','donut',{wall:PAINT_ORANGE,neon:NEON_M,a:1800}),
+    BR('TIM HORTONS','#c8102e','#ffffff','#ffffff','cup',{wall:BRICK,neon:NEON_R,a:2500}),BR('PANERA','#4a5a24','#ffffff','#e0c98a','sandwich',{wall:STUCCO,neon:NEON_G,a:3500})],
   hospital:[BR('HOSPITAL','#ffffff','#0d47a1','#e53935','cross'),BR('GENERAL HOSPITAL','#0d47a1','#ffffff','#ff5252','cross'),BR('MERCY HOSPITAL','#ffffff','#b71c1c','#b71c1c','cross'),
     BR('MEDICAL CENTER','#00796b','#ffffff','#ffffff','cross'),BR('MEMORIAL HOSPITAL','#ffffff','#1565c0','#e53935','cross'),BR('REGIONAL HOSPITAL','#ffffff','#00695c','#00695c','cross')],
   police:[BR('POLICE','#0d1b4a','#ffffff','#ffd54f','badge'),BR('POLICE DEPT.','#0d1b4a','#ffffff','#90caf9','badge'),BR('POLICE PRECINCT','#1a237e','#ffffff','#ffd54f','badge')],
@@ -1089,9 +1095,10 @@ const BRANDS={
   office:[BR('BANK OF AMERICA','#012169','#ffffff','#e31837','bank'),BR('CHASE','#117aca','#ffffff','#ffffff','bank'),BR('WELLS FARGO','#d71e28','#ffcd41','#ffcd41','bank'),
     BR('AMAZON','#232f3e','#ffffff','#ff9900','box'),BR('GOOGLE','#ffffff','#4285f4','#ea4335','globe'),BR('MICROSOFT','#ffffff','#5e5e5e','#00a4ef','globe'),
     BR('AT&T','#ffffff','#00a8e0','#00a8e0','phone'),BR('VERIZON','#000000','#ffffff','#ee0000','phone'),BR('STATE FARM','#ffffff','#e31837','#e31837','house'),
-    BR('FEDEX','#4d148c','#ffffff','#ff6600','box')],
+    BR('FEDEX','#4d148c','#ffffff','#ff6600','box'),
+    BR('APPLE','#111111','#ffffff','#b8e08a','wormapple'),BR('TESLA','#111111','#ffffff','#e31837','bolt'),BR('NETFLIX','#111111','#e50914','#e50914','film'),BR('META','#ffffff','#0668e1','#0668e1','eyeball'),BR('GEICO','#00447c','#ffffff','#ffd200','skull'),BR('UPS','#351c15','#ffb500','#ffb500','box')],
   base:[BR('ARMY BASE','#2e3a1e','#f0e2b0','#c8a84a','badge')],airport:[BR('AIRPORT','#0d2a5a','#ffffff','#5ad0ff','globe'),BR('INTERNATIONAL','#1a1a2a','#ffffff','#ffd23a','globe')],
-  nasa:[BR('NASA','#0b3d91','#ffffff','#fc3d21','globe')],theme:[BR('FUN PARK','#c8202a','#ffe23a','#ffffff','globe'),BR('ADVENTURE LAND','#1a5a2a','#ffe23a','#ff7a2a','globe')],
+  nasa:[BR('NASA','#0b3d91','#ffffff','#fc3d21','globe')],theme:[BR('FUN PARK','#c8202a','#ffe23a','#ffffff','globe'),BR('ADVENTURE LAND','#1a5a2a','#ffe23a','#ff7a2a','globe'),BR('SIX FLAGS','#0a3a8a','#ffffff','#e31837','badge'),BR('DISNEY WORLD','#0a3a8a','#ffffff','#ffd23a','crown')],
   nuclear:[BR('NUCLEAR','#2a2a10','#ffe23a','#ffe23a','bolt')],
   arena:[BR('ARENA','#1a1a2a','#ffffff','#ff7a2a','globe'),BR('SPORTS CENTER','#0d2a5a','#ffffff','#ffd23a','globe')],
   campus:[BR('UNIVERSITY','#5a0a1a','#f6ead0','#d4af37','book'),BR('STATE COLLEGE','#0d2a5a','#ffffff','#d4af37','book')],
@@ -1103,21 +1110,21 @@ const BRANDS={
   ikea:[BR('IKEA','#0058a3','#ffda1a','#ffda1a','box')],
   museum:[BR('MUSEUM','#2a2a2a','#f6ead0','#c8a24a','bone'),BR('NATURAL HISTORY','#1d3048','#ffffff','#d8b46a','bone'),BR('ART MUSEUM','#5a1a1a','#ffffff','#e8c87a','mask')],
   aquarium:[BR('AQUARIUM','#0a4a7a','#ffffff','#5ad0ff','fish'),BR('SEA WORLD','#003a5a','#ffe9a0','#4ac8e8','fish')],
-  casino:[BR('JACKPOT','#3a0010','#ffd23a','#ff3a8c','dollar'),BR('GOLD RUSH','#101010','#ffcf40','#ffcf40','dollar'),BR('LUCKY STRIKE','#0a2a10','#ffe23a','#ff4a3a','dollar')],
+  casino:[BR('JACKPOT','#3a0010','#ffd23a','#ff3a8c','dollar'),BR('GOLD RUSH','#101010','#ffcf40','#ffcf40','dollar'),BR('LUCKY STRIKE','#0a2a10','#ffe23a','#ff4a3a','dollar'),BR('CAESARS PALACE','#1a1030','#ffd23a','#ffd23a','crown'),BR('BELLAGIO','#0a2a3a','#f6e2b0','#f6e2b0','drop')],
   school:[BR('ELEMENTARY','#7a1a1a','#ffffff','#ffd23a','book'),BR('HIGH SCHOOL','#0d2a5a','#ffffff','#ffd23a','book'),BR('MIDDLE SCHOOL','#1a4a2a','#ffffff','#f0e2b0','book')],
   factory:[BR('STEEL WORKS','#3a2a20','#ffb070','#ff7a2a','bolt'),BR('CANNERY','#f4efe2','#7a3b16','#d0763a','bucket'),BR('CHEMICAL CO','#1a3a2a','#c6ff00','#c6ff00','drop'),BR('AUTO PLANT','#1a1a2a','#ffffff','#e53935','car')],
   datacenter:[BR('DATA CENTER','#101820','#7ad0ff','#7ad0ff','tv')],
   electric:[BR('POWER & LIGHT','#1a2a4a','#ffe23a','#ffe23a','bolt')],
   nursery:[BR('NURSERY','#2e5d1e','#ffffff','#a6e36a','leaf'),BR('GARDEN CENTRE','#4a6a20','#fff6d0','#e6c84a','leaf')],
-  dealer:[BR('MOTORS','#0d2a5a','#ffffff','#e53935','car'),BR('AUTO MALL','#b71c1c','#ffffff','#ffd23a','car'),BR('USED CARS','#f9a825','#1a1a1a','#1a1a1a','car')],
+  dealer:[BR('MOTORS','#0d2a5a','#ffffff','#e53935','car'),BR('AUTO MALL','#b71c1c','#ffffff','#ffd23a','car'),BR('USED CARS','#f9a825','#1a1a1a','#1a1a1a','car'),BR('FORD','#00366b','#ffffff','#ffffff','car'),BR('TOYOTA','#ffffff','#d71920','#d71920','car'),BR('CARMAX','#003a70','#ffd200','#ffd200','car')],
   armory:[BR('ARMORY','#3a2a1a','#f0e2b0','#b8962a','badge')],
   theater:[BR('THEATRE','#5a0a1a','#ffe9b0','#d4af37','mask'),BR('OPERA HOUSE','#1a1030','#f6e2b0','#d4af37','mask')],
   stocks:[BR('STOCK EXCHANGE','#0b2a1a','#e8f6e8','#d4af37','chart')],
   library:[BR('LIBRARY','#3e2a1a','#f6ead0','#d8b46a','book'),BR('PUBLIC LIBRARY','#1d3048','#ffffff','#9ec3e6','book')],
-  cinema:[BR('CINEMA','#7a0e14','#ffe27a','#ffd23a','film'),BR('PICTURE HOUSE','#1a1a2a','#ffd23a','#ff4a4a','film'),BR('MOVIE PALACE','#3a0a4a','#ffffff','#ffcc33','film')],
+  cinema:[BR('CINEMA','#7a0e14','#ffe27a','#ffd23a','film'),BR('PICTURE HOUSE','#1a1a2a','#ffd23a','#ff4a4a','film'),BR('MOVIE PALACE','#3a0a4a','#ffffff','#ffcc33','film'),BR('AMC','#111111','#ff2a2a','#ff2a2a','film'),BR('REGAL','#3a0a4a','#ffd23a','#ffd23a','crown')],
   radio:[BR('RADIO 99.9','#b71c1c','#ffffff','#ffcdd2','mic'),BR('ROCK FM','#111111','#ff9a2a','#ff9a2a','mic')],
   news:[BR('NEWS 7','#0d2a5a','#ffffff','#e53935','tv'),BR('EYEWITNESS NEWS','#b71c1c','#ffffff','#ffffff','tv')],
-  bank:[BR('SAVINGS & LOAN','#0b3d2e','#ffe9a8','#d4b45a','bank'),BR('TRUST BANK','#14234a','#ffffff','#c8a24a','bank'),BR('GOLD VAULT','#2a2210','#ffd54f','#ffd54f','dollar')],
+  bank:[BR('SAVINGS & LOAN','#0b3d2e','#ffe9a8','#d4b45a','bank'),BR('TRUST BANK','#14234a','#ffffff','#c8a24a','bank'),BR('GOLD VAULT','#2a2210','#ffd54f','#ffd54f','dollar'),BR('CITIBANK','#003b70','#ffffff','#e31837','bank'),BR('CAPITAL ONE','#004879','#ffffff','#d22e1e','bank')],
   disco:[BR('DISCO','#2a0a3a','#ff6ad5','#6ae8ff','globe'),BR('NIGHT FEVER','#120a2a','#ffe23a','#ff3a8c','globe')],
   club:[BR('SLIME PIT','#0a1a0a','#7aff4a','#7aff4a','skull'),BR('ROTTEN TOOTH','#1a0a0a','#ff4a3a','#9aff6a','skull'),BR('KING','#101010','#c6ff00','#c6ff00','skull')],
   // the little shops: made-up names (the sign reads GOBLIN + the name)
@@ -1129,7 +1136,8 @@ const BRANDS={
   soup:[BR('SOUP KITCHEN','#f4efe2','#7a3b16','#d0763a','bowl'),BR('COMMUNITY MEALS','#e9f1e4','#2f5d34','#8bb46a','bowl')],
   shop:[BR('CVS','#cc0000','#ffffff','#ffffff','pill'),BR('WALGREENS','#e31837','#ffffff','#ffffff','pill'),BR('GAMESTOP','#000000','#ffffff','#e10600','gamepad'),
     BR('SUBWAY','#008938','#ffc20e','#ffffff','sandwich'),BR('RADIOSHACK','#e31b23','#ffffff','#ffffff','bolt'),
-    BR('FOOT LOCKER','#000000','#ffffff','#e31837','shoe'),BR('BLOCKBUSTER','#003b8e','#ffd200','#ffd200','tv')]};
+    BR('FOOT LOCKER','#000000','#ffffff','#e31837','shoe'),BR('BLOCKBUSTER','#003b8e','#ffd200','#ffd200','tv'),
+    BR('HOT TOPIC','#111111','#ff2a6a','#ff2a6a','skull'),BR('SEPHORA','#111111','#ffffff','#ffffff','flame'),BR('MATTRESS FIRM','#e31837','#ffffff','#ffffff','house'),BR('THE UPS STORE','#351c15','#ffb500','#ffb500','box'),BR('BATH & BODY WORKS','#ffffff','#0a3a8a','#0a3a8a','drop'),BR('H&R BLOCK','#00a651','#ffffff','#ffffff','dollar')]};
 // give a building a brand (h: a seeded 0..1) and repaint it to match
 const brandPick=(cat,h)=>{const L=BRANDS[cat];return L[Math.min(L.length-1,Math.floor(h*L.length))];};
 const areaBl=(B,k)=>(B.a||3000)/22*(k||1);
@@ -13004,6 +13012,13 @@ function signIcon(x,ic,cx,cy,s,c){
     case'film':R(-s,-s*.65,s*2,s*1.3);x.fillStyle=x.strokeStyle;x.save();x.globalCompositeOperation='destination-out';for(let i=0;i<5;i++){R(-s*.85+i*s*.4,-s*.55,s*.2,s*.18);R(-s*.85+i*s*.4,s*.37,s*.2,s*.18);}x.restore();break;
     case'mic':x.beginPath();x.ellipse(0,-s*.35,s*.38,s*.55,0,0,Math.PI*2);x.fill();x.lineWidth=s*.14;x.beginPath();x.arc(0,-s*.2,s*.62,0.1,Math.PI-0.1);x.stroke();R(-s*.07,s*.42,s*.14,s*.4);R(-s*.4,s*.8,s*.8,s*.14);break;
     case'skull':x.beginPath();x.arc(0,-s*.2,s*.75,Math.PI*0.9,Math.PI*2.1);x.lineTo(s*.45,s*.75);x.lineTo(-s*.45,s*.75);x.closePath();x.fill();x.save();x.globalCompositeOperation='destination-out';C(-s*.3,-s*.15,s*.2);C(s*.3,-s*.15,s*.2);R(-s*.06,s*.15,s*.12,s*.22);x.restore();break;
+    // parody logos: the goblin versions (a spark made of claws, a bloodshot bullseye, drooping arches, a chipped shell...)
+    case'spark':x.lineWidth=s*.24;x.lineCap='round';for(let i=0;i<6;i++){const a=i*Math.PI/3+Math.PI/6,w=i%2?0.08:-0.08;L([[Math.cos(a)*s*.32,Math.sin(a)*s*.32],[Math.cos(a+w)*s,Math.sin(a+w)*s]]);}break;
+    case'eyeball':x.lineWidth=s*.24;x.beginPath();x.arc(0,0,s*.82,0,Math.PI*2);x.stroke();C(0,0,s*.36);x.save();x.lineWidth=s*.07;for(const a of [0.5,2.2,3.9,5.3]){L([[Math.cos(a)*s*.48,Math.sin(a)*s*.48],[Math.cos(a+.25)*s*.68,Math.sin(a+.25)*s*.68]]);}x.restore();break;
+    case'arches':x.lineWidth=s*.32;x.beginPath();x.moveTo(-s*.95,s*.95);x.quadraticCurveTo(-s*.75,-s*1.25,-s*.28,-s*.4);x.quadraticCurveTo(-s*.08,s*.1,0,s*.35);x.quadraticCurveTo(s*.08,s*.1,s*.28,-s*.4);x.quadraticCurveTo(s*.75,-s*1.25,s*.95,s*.95);x.stroke();C(-s*.95,s*1.0,s*.17);C(0,s*.5,s*.14);break;
+    case'scallop':x.beginPath();x.moveTo(0,s*.95);for(let i=0;i<=6;i++){const a=Math.PI+i*Math.PI/6,rr=i%2?s*.82:s;x.lineTo(Math.cos(a)*rr,Math.sin(a)*rr-s*.05);}x.closePath();x.fill();x.save();x.globalCompositeOperation='destination-out';x.lineWidth=s*.1;for(const q of [-.55,-.2,.2,.55])L([[0,s*.75],[q*s*1.3,-s*.75]]);F([[s*.45,-s*.95],[s*.95,-s*.95],[s*.95,-s*.35]]);x.restore();break;
+    case'crown':F([[-s,s*.65],[-s,-s*.55],[-s*.5,s*.05],[0,-s*.85],[s*.5,s*.05],[s,-s*.55],[s,s*.65]]);x.save();x.globalCompositeOperation='destination-out';C(-s*.35,s*.25,s*.13);C(s*.35,s*.25,s*.13);x.restore();break;
+    case'wormapple':x.beginPath();x.arc(-s*.28,s*.1,s*.62,0,Math.PI*2);x.arc(s*.28,s*.1,s*.62,0,Math.PI*2);x.fill();R(-s*.06,-s*.95,s*.12,s*.45);x.save();x.globalCompositeOperation='destination-out';C(s*.72,-s*.2,s*.32);x.restore();C(s*.62,-s*.42,s*.12);C(s*.78,-s*.55,s*.1);break;
     case'bottle':R(-s*.15,-s,s*.3,s*.5);F([[-s*.15,-s*.5],[s*.15,-s*.5],[s*.45,-s*.15],[s*.45,s],[-s*.45,s],[-s*.45,-s*.15]]);break;
   }
   x.restore();
@@ -13023,7 +13038,16 @@ const ADS=[
   {h:'CAVE BURGER',t:'Open late \u00b7 Exit 12',icon:'burger',bg:'#e65100',fg:'#ffffff',ac:'#ffee58'},
   {h:'SNOTWELL BANK',t:'Your gold is safe with us*',icon:'bank',bg:'#004d40',fg:'#ffffff',ac:'#ffd740'},
   {h:'THE GREAT ROCK',t:"World's 2nd largest rock \u00b7 40 mi",icon:'globe',bg:'#0277bd',fg:'#ffffff',ac:'#ffcc80'},
-  {h:'DRIVE SAFE',t:'Goblins brake for hippos',icon:'bolt',bg:'#2e7d32',fg:'#ffffff',ac:'#ffffff'}];
+  {h:'DRIVE SAFE',t:'Goblins brake for hippos',icon:'bolt',bg:'#2e7d32',fg:'#ffffff',ac:'#ffffff'},
+  {h:"GOBLIN McDONALD'S",t:"I'm bitin' it",icon:'arches',bg:'#da291c',fg:'#ffc72c',ac:'#ffc72c'},
+  {h:'GOBLIN WAL-MART',t:'Save money. Lose teeth.',icon:'spark',bg:'#0b5cad',fg:'#ffffff',ac:'#ffc220'},
+  {h:'GOBLIN WAFFLE HOUSE',t:'Open through every hippo',icon:'waffle',bg:'#ffd200',fg:'#111111',ac:'#111111'},
+  {h:'GOBLIN GEICO',t:'15 minutes could save you 15 teeth',icon:'skull',bg:'#00447c',fg:'#ffffff',ac:'#ffd200'},
+  {h:'GOBLIN NIKE',t:'Just stomp it.',icon:'shoe',bg:'#111111',fg:'#ffffff',ac:'#ff6a00'},
+  {h:'GOBLIN COCA-COLA',t:'Open slimyness',icon:'bottle',bg:'#d71920',fg:'#ffffff',ac:'#ffffff'},
+  {h:'GOBLIN RED BULL',t:'Gives you warts',icon:'bolt',bg:'#0a2a5a',fg:'#ffd200',ac:'#e31837'},
+  {h:'GOBLIN APPLE',t:'Think different. Think worm.',icon:'wormapple',bg:'#111111',fg:'#ffffff',ac:'#b8e08a'},
+  {h:'GOBLIN STARBUCKS',t:'Your name, spelled wrong, in mud',icon:'crown',bg:'#00704a',fg:'#ffffff',ac:'#ffffff'}];
 const AD_N=ADS.length,adCache=[];
 function adMat(i){
   if(adCache[i])return adCache[i];const A=ADS[i%AD_N];
