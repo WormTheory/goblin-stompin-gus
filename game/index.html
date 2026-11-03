@@ -758,7 +758,7 @@ function horizHidden(cx,cy,cz,hr,top){
     if(!o.isInstancedMesh&&horizHidden(sp.center.x,sp.center.y,sp.center.z,sp.radius,sp.center.y+sp.radius))return false;   // (over the horizon)
     const d=Math.hypot(sp.center.x-CURVE_CAM.x,sp.center.z-CURVE_CAM.z),r=sp.radius,lo=k*Math.max(0,d-r)**2,hi=k*(d+r)**2;
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v69';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v70';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -4541,6 +4541,42 @@ function furniture(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
 const FURN_SEEN=new Set();
 const FURN_IDS=new Set([SOFA,BED,FRIDGE,SHELF,CRATE,LEAVES,SCREEN,PLANKS]);
 const SHOP_ROOMS=new Set(['books','dentist','dispo','guns','dealer','armory','grocery','market','drug','bigbox','ikea']);
+// rooms in a row or rows between x0 and x1, each row with a corridor in front of it (corr wide), its door opening on that
+function roomGrid(x0,x1,y0,y1,colW,rowH,corr,kinds,start){
+  const out=[];let n=start||0;
+  for(let y=y0;y+corr+Math.min(rowH,4)<=y1;){const v0=y+corr,left=y1-v0,h=left<rowH+corr+Math.min(rowH,4)?left:rowH;
+    const nc=Math.max(1,Math.floor((x1-x0)/colW)),w=(x1-x0)/nc;
+    for(let c=0;c<nc;c++){out.push({u0:Math.round(x0+c*w),u1:Math.round(x0+(c+1)*w),v0,v1:v0+h,k:kinds[n++%kinds.length]});}
+    y=v0+h;}
+  return out;
+}
+const roomAt=(L,u,v)=>{for(const R of L)if(u>=R.u0&&u<R.u1&&v>=R.v0&&v<R.v1)return R;return null;};
+// a room's wall block at a cell in it (its door left open, in the wall towards its corridor), or -1 for inside it
+function roomWall(R,u,v,level){
+  if(u!==R.u0&&u!==R.u1-1&&v!==R.v0&&v!==R.v1-1)return -1;
+  if(v===R.v0&&u>R.u0&&u<R.u1-1&&Math.abs(u-((R.u0+R.u1)>>1))<=1&&level<=2)return AIR;
+  return PAINT_WHITE;
+}
+// a police station's rooms: a lobby across the front, a hall up the middle from the doors, rooms either side
+const POL_G=['cells','armory','evidence','break','interview','squad','locker','squad','squad','evidence','cells','squad'],POL_U=['squad','break','evidence','squad','interview','locker','squad','squad','armory','squad'];
+function policeRooms(b,I,J,n){
+  const c=b._pr||(b._pr=new Map());let L=c.get(n);if(L)return L;
+  const big=J>=14||I>=24,front=big?Math.min(8,Math.floor(J*.4)):Math.min(3,Math.floor(J*.34)),cu=I>>1,colW=big?11:9,rowH=big?8:J-front,corr=big?2:0,K=n===0?POL_G:POL_U,y0=n===0?front:big?2:0;
+  L=[...roomGrid(0,cu-2,y0,J,colW,rowH,corr,K,n),...roomGrid(cu+3,I,y0,J,colW,rowH,corr,K,n+(n===0?1:3))];
+  c.set(n,L);return L;
+}
+// a big hospital's ground floor: more rooms behind the lobby, and behind the emergency department
+function hospRooms(b,I,J){
+  if(b._hr)return b._hr;const E=b.er,cu=I>>1;let L=[];
+  if(J>=24&&(!E||E.mode==='front')){
+    const uR=E?E.u0:cu+3,vL=20;
+    L=roomGrid(13,cu-2,vL,J,7,J-vL-2,2,['pharmacy','xray','exam','lab','exam','gift']);
+    L.push(...roomGrid(0,8,1,vL-1,8,5,1,['admissions','chapel','gift']));   // (and down the far side of the lobby, opening on to it)
+    if(!E)L.push(...roomGrid(cu+3,I,vL,J,7,J-vL-2,2,['exam','lab','exam','supply','staff','ct']));
+    else if(J-E.v1>=5)L.push(...roomGrid(uR+1,I,E.v1+1,J,8,J-E.v1-1,0,['ct','supply','staff','exam','xray','lab']));
+  }
+  return b._hr=L;
+}
 // (a hospital's upper floors, in turn: wards, private rooms, operating theatres. Small ones are all wards.)
 function hospFloor(b,n){return n>0&&b.x1-b.x0>=20&&b.z1-b.z0>=16?n%3===1?0:n%3===2?1:2:0;}
 const CIVIC_ROOMS=new Set(['school','library','police','firehall','cells','courtroom']);
@@ -4596,8 +4632,10 @@ function furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
       if(level===0&&iv===J-1&&iu<=2)return PLANKS;
       return AIR;
     case 'police':
-      // the holding cells across the back of the ground floor: steel bars, a way in. (The rest: see civicRoom.)
-      if(floorNo===0&&iv===J-3&&iu<I-3)return level<=3&&(iu%2===0||level===0||level===3)&&!(iu===2&&level<=2)?METAL:AIR;
+      // the rooms' walls: a door in each onto its corridor. (Their furniture: see civicRoom.)
+      {const R=roomAt(policeRooms(b,I,J,floorNo),iu,iv);if(R){const w=roomWall(R,iu,iv,level);if(w!==-1)return w;
+        // the holding cells: a row along the back of the room, walled apart, barred fronts with a way into each
+        if(R.k==='cells'&&R.v1-R.v0>=7){const cv=R.v1-5,c=(iu-R.u0)%3;if(iv===cv)return c===2&&level<=2?AIR:level===0||level===3||iu%2===0?METAL:AIR;if(iv>cv&&c===0)return CONCRETE;}}}
       return AIR;
     case 'hosp':{
       // the main lobby (left of the doors): an L-shaped reception desk with monitors and a lit sign, rows of
@@ -4619,6 +4657,7 @@ function furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
       // (a blue sign hung above the reception desk; the desk, seats and so on are props: see hospProps)
       const d0=Math.max(2,cu-11),d1=cu-2;
       if(iv===7&&iu>=d0+2&&iu<=d1-1&&level===4)return NEON_B;
+      {const R=roomAt(hospRooms(b,I,J),iu,iv);if(R){const w=roomWall(R,iu,iv,level);if(w!==-1)return w===PAINT_WHITE?HOSPW:w;}}
       return AIR;}
     case 'books':case 'dispo':case 'dealer':case 'armory':case 'market':case 'drug':case 'bigbox':case 'grocery':return AIR;   // (props: see shopRoom)
     case 'dentist':
@@ -5079,7 +5118,25 @@ function onStair(g,B){
   return false;
 }
 // where a goblin on its way up or down a building's stairs should head next (world coordinates), or null if it can't
+// where next, for a goblin finding its way between a building's rooms to (tx,tz): out by its door, along the corridors and
+// the hall, in by the other room's door. Null if there's nothing in the way but the open floor.
+function roomStep(g,B,tx,tz){
+  const b=B.b,fl=g.pos.y-G,gf=b.gf||FH,n=fl<gf?0:1+Math.floor((fl-gf-1)/FH),I=b.x1-b.x0-2,J=b.z1-b.z0-2;
+  const L=b.ground==='police'?policeRooms(b,I,J,n):b.ground==='hosp'&&n===0?hospRooms(b,I,J):null;if(!L||!L.length)return null;
+  const X0=B.px*CELL+b.x0+1,Z0=B.pz*CELL+b.z0+1,u=g.pos.x-X0,v=g.pos.z-Z0,U=tx-X0,V=tz-Z0,A=roomAt(L,Math.floor(u),Math.floor(v)),T=roomAt(L,Math.floor(U),Math.floor(V));
+  if(A&&A===T)return null;
+  const P=(a,c)=>({x:X0+a,z:Z0+c}),du=R=>((R.u0+R.u1)>>1)+.5,cu=((b.x0+b.x1)>>1)-b.x0-1+.5;
+  if(A)return Math.abs(u-du(A))<1?P(du(A),A.v0-1.2):P(du(A),A.v0+1.4);
+  if(T&&v>T.v0-2.6&&v<T.v0+1)return Math.abs(u-du(T))<1?P(du(T),T.v0+1.5):P(du(T),T.v0-1);
+  const vt=T?T.v0-1:V;if(Math.abs(v-vt)<=2)return null;
+  return Math.abs(u-cu)>1.4?P(cu,v):P(cu,vt);
+}
 function stairPoint(g,B,up){
+  const r=stairRun(g,B,up);
+  if(r&&!onStair(g,B)){const e=roomStep(g,B,r.x,r.z);if(e)return e;}
+  return r;
+}
+function stairRun(g,B,up){
   const b=B.b,S=b.stair,alongX=S.ax==='x',R0=(alongX?B.px:B.pz)*CELL+S.r0,cW=(alongX?B.pz:B.px)*CELL+(S.c0+S.c1)/2,gR=alongX?g.pos.x:g.pos.z,gC=alongX?g.pos.z:g.pos.x;
   const Y=stairFloors(b);let n=0;while(n+1<Y.length&&Y[n+1]<=g.pos.y+0.6)n++;
   if(up?n+1>=Y.length:n===0&&g.pos.y<Y[0]+0.6)return null;
@@ -11383,6 +11440,8 @@ function updateGoblins(dt){
         // (once on a flight, it finishes it, even if the hippo's now nearly level)
         if(!sr&&B&&B.b.stair&&g.stUp!==undefined&&onStair(g,B))sr=stairPoint(g,B,g.stUp);
         if(!sr){g.trip=null;g.stUp=undefined;}}
+      // (a hippo on this floor, in another room: go round by the doors)
+      if(!sr&&g.stun<=0&&!copIdle&&Math.abs(ddy)<=2.5&&d<=16){const B=bldgAt(Math.floor(g.pos.x),Math.floor(g.pos.z));if(B)sr=roomStep(g,B,g.pos.x+dx,g.pos.z+dz);}
       const lurk=(g.indoor&&(d>16||Math.abs(ddy)>3)||copIdle)&&!sr;
       if(playing&&g.stun<=0&&lurk){
         g.wtT=(g.wtT||0)-dt;if(!g.wt||g.wtT<=0){g.wt=copIdle?copSpot(g):Math.random()<0.5?indoorWander(g):null;g.wtT=2+Math.random()*3;if(!copIdle&&Math.random()<0.08)g.trip={up:Math.random()<0.5,t:14,y0:g.pos.y};}
@@ -12735,6 +12794,10 @@ const PROPS={
   judge:[[P_WOOD,0,.7,0,3,1.4,.8],[0x7a4a2a,0,1.43,0,3.1,.06,.9],[P_DARK,.5,1.5,.1,.3,.08,.1]],
   // the witness box
   wbox:[[P_WOOD,0,.5,.3,1,1,.06],[P_WOOD,-.47,.5,0,.06,1,.66],[P_WOOD,.47,.5,0,.06,1,.66],[P_DARK,.2,1.1,.3,.05,.2,.05]],
+  // a body scanner: a white ring and its sliding bed
+  scanner:[[P_WHITE,0,.85,-.5,1.8,1.7,.5],[0x2a2e33,0,.85,-.24,.8,.8,.02],[P_STEEL,0,.5,.4,.5,.4,1.3],[0x3f9c9c,0,.72,.3,.56,.06,1.6]],
+  // a notice board, or a whiteboard in the tint
+  board:[[P_WOOD,0,1.4,0,1.5,.9,.04],[PT,0,1.4,.025,1.4,.8,.01],[P_WHITE,-.3,1.5,.035,.3,.34,.01],[0xd8b13a,.25,1.3,.035,.3,.26,.01]],
   // a deep fryer: a steel case, two baskets in hot oil
   fryer:[[P_STEEL,0,.42,0,.96,.84,.7],[0xd8a030,0,.85,.03,.8,.02,.5],[P_DARK,-.2,.92,.03,.3,.14,.36],[P_DARK,.2,.92,.03,.3,.14,.36],[P_DARK,0,.4,.355,.7,.3,.01]],
   // a drinks machine, on a counter
@@ -12823,6 +12886,19 @@ function hospProps(b,px,pz,floorNo){
     }
     return L;
   }
+  // the rooms behind the lobby and the ER
+  for(const R of hospRooms(b,I,J)){const x0=R.u0+1,x1=R.u1-1,y0=R.v0+1,y1=R.v1-1,mx=(x0+x1)/2,my=(y0+y1)/2;
+    if(R.k==='pharmacy'){for(let u=x0+.5;u<x1;u++){add('shelf3',u,y1-.5,Math.PI,0xd8dce0);add('bar',u,y0+1,0,0x2f8a8a);}add('monitor',mx,y0+1,Math.PI);add('swivel',mx,y0+1.8,Math.PI);}
+    else if(R.k==='xray'){add('optable',mx,my,0);add('oplamp',mx-1.4,my,0);add('xray',mx,y1-.1,Math.PI);add('desk',x1-.9,y0+.8,-Math.PI/2);add('swivel',x1-1.7,y0+.8,-Math.PI/2);}
+    else if(R.k==='exam'){add('gurney',mx,y1-1.2,0);add('vitals',mx-1,y1-.6,Math.PI);add('cabinet',x1-.5,y1-.6,-Math.PI/2);add('basin',x0+.3,y0+.8,Math.PI/2);add('chair',x1-.6,y0+.7,-Math.PI/2,P_SEAT[0]);add('swivel',mx+.8,y0+1,0);}
+    else if(R.k==='lab'){for(let u=x0+.5;u<x1;u++)add('prep',u,y1-.5,Math.PI);add('fridge2',x0+.5,y0+.5,Math.PI/2);add('fridge2',x0+.5,y0+1.5,Math.PI/2);add('desk',mx,my,Math.PI);add('swivel',mx,my+.8,Math.PI);}
+    else if(R.k==='gift'){for(let u=x0+.5;u<x1;u++)add('shelf2',u,y1-.5,Math.PI,P_GOODS[Math.floor(u)%P_GOODS.length]);add('bar',x0+1.5,y0+.8,0,0xd96a8a);add('monitor',x0+1.5,y0+.8,Math.PI);add('plant',x1-.5,y0+.5,0);add('plant',x1-.5,my,1);add('toys',mx,my,0,0xd96a8a);}
+    else if(R.k==='admissions'){for(let u=x0+1;u<x1-.5;u+=2.4){add('desk',u,y0+1.3,0);add('swivel',u,y0+.5,0);add('chair',u,y0+2.2,Math.PI,P_SEAT[0]);}add('cabinet',x1-.5,y1-.5,-Math.PI/2);}
+    else if(R.k==='chapel'){for(let v=y0+.6;v<y1-1;v+=1.4)for(const u of [x0+1.4,x1-1.4])add('bench',u,v,0);add('rtable',mx,y1-.6,0,0x7a2a2a);add('flamp',x0+.5,y1-.5,0);add('flamp',x1-.5,y1-.5,0);}
+    else if(R.k==='ct'){add('scanner',mx,my,0);add('desk',x0+1,y0+.7,Math.PI/2);add('swivel',x0+.4,y0+.7,Math.PI/2);add('gurney',x1-.8,y1-1.2,0);add('cabinet',x1-.5,y0+.6,-Math.PI/2);}
+    else if(R.k==='supply'){for(let u=x0+.5;u<x1;u++)add('shelf3',u,y1-.5,Math.PI,0xd8dce0);for(let u=x0+.8;u<x1;u+=2)add('cabinet',u,my,0);add('gurney',x1-.8,y0+.8,Math.PI/2);}
+    else{add('rtable',mx-1,my,0,P_WHITE);add('chair',mx-1.7,my,Math.PI/2,P_SEAT[0]);add('chair',mx-.3,my,-Math.PI/2,P_SEAT[0]);add('fridge2',x1-.5,y1-.6,-Math.PI/2);add('vending',x1-.5,y0+.7,-Math.PI/2);add('locker',x0+.5,y1-.4,Math.PI);}
+  }
   // the ground floor: main reception, the waiting area, and the emergency department if it has one
   const cu=I>>1,E=b.er,front=E&&E.mode==='front';
   const desks=(a0,a1)=>{for(let u=a0;u+2<=a1+1;u+=2)add('counter',u+1,5.5,0);for(let u=a0+1;u+1.5<=a1;u+=3){add('desk',u+.7,6.6,Math.PI);add('swivel',u+.7,7.4,Math.PI);}};
@@ -12830,13 +12906,29 @@ function hospProps(b,px,pz,floorNo){
   if(!front)desks(cu+2,Math.min(I-3,cu+11));
   add('counter',d0,3.5,Math.PI/2);
   // rows of waiting seats, facing the doors
-  for(let v=9;v<=(E&&!front?E.v0-3:18);v+=3)for(let u=3;u+2<=(front?cu-3:I-3);u+=2.2){if(Math.abs(u-cu)<3)continue;if(r(u,v,10)<.12)continue;add('seats',u,v,Math.PI,P_SEAT[Math.floor(u/8)%2]);}
+  const lobR=hospRooms(b,I,J).length>0;
+  for(let v=9;v<=(E&&!front?E.v0-3:lobR?14:18);v+=lobR?1.7:3)for(let u=lobR?10:3;u+2<=(front?cu-3:I-3);u+=2.2){if(Math.abs(u-cu)<3)continue;if(r(u,v,10)<.12)continue;add('seats',u,v,Math.PI,P_SEAT[Math.floor(u/8)%2]);}
   add('plant',.8,.8,0);add('plant',I-.8,.8,0);add('vending',1,(E&&!front?E.v0-2:J-2),Math.PI/2);
   // a little cafe and a gift shop down the far side of the lobby, if there's room
-  if(J>=24&&!(E&&!front)){for(let u=2;u+2<=Math.min(cu-3,12);u+=3.2){add('rtable',u,J-5,0,P_WHITE);add('chair',u-.68,J-5,Math.PI/2,0x3f6b8c);add('chair',u+.68,J-5,-Math.PI/2,0x3f6b8c);}
-    for(let u=1.5;u<6;u++){add('bar',u,J-2.6,Math.PI,0x2f8a8a);if(u%2>1)add('shelf2',u,J-.8,Math.PI,P_GOODS[Math.floor(u)%P_GOODS.length]);}add('espresso',3.5,J-2.6,Math.PI,0,.9);}
+  if(J>=24&&!(E&&!front)){for(let u=10.5;u+2<=cu-3;u+=3.2){add('rtable',u,16.2,0,P_WHITE);add('chair',u-.68,16.2,Math.PI/2,0x3f6b8c);add('chair',u+.68,16.2,-Math.PI/2,0x3f6b8c);}
+    for(let u=9.5;u<Math.min(cu-3,17);u++)add('bar',u,18.4,Math.PI,0x2f8a8a);add('espresso',12.5,18.4,Math.PI,0,.9);add('monitor',10.5,18.4,Math.PI,0,.9);
+    for(let v=9.5;v<19&&front;v+=1.2)add('vending',E.u0-.5,v,-Math.PI/2);add('wheelchair',cu-2.6,3,0);add('wheelchair',cu+2.6,3,0);add('plant',cu-3.4,4.6,1);
+    // more seats along the front wall, a row of plants, an information desk in the middle of it all
+    for(let u=10;u<cu-3;u+=2.2)add('seats',u,.6,0,P_SEAT[1]);for(let u=10;u<cu-3;u+=4.4){add('plant',u,3.4,u);add('plant',u+2.2,7.6,u+1);}
+    for(const u of [cu-4.6,cu-3.4])add('counter',u,8,Math.PI/2);add('monitor',cu-4,8,0,0,.9);add('board',cu-6,.1,0,0x2f8a8a);}
   const vG=E&&!front?E.v0-2:J-2;for(let u=3;u<(front?E.u0:I)-1;u+=5)if(r(u,vG,11)<.6)add('gurney',u+.5,vG+.3,Math.PI/2);else if(r(u,vG,12)<.5)add('wheelchair',u+.5,vG,Math.PI);
   if(E){
+    // resuscitation bays by the ambulance doors, a second row of treatment bays facing the first, gurneys ready, seats for those waiting
+    if(front){const aL=E.u0+1,aR=I,ec=E.door-b.x0-1;
+      for(const sg of [-1,1])for(let i=0;i<2;i++){const u=ec+sg*(6.5+i*3.4);if(u<aL+1||u>aR-1)continue;add('bed',u,2.6,0,P_WHITE);add('vitals',u-1,1.6,0);add('oplamp',u+1,3.2,0);add('cart',u+1.2,1.2,0);}
+      for(let u=aL+1.5;u<aR-1;u+=3.4){if(Math.abs(u-ec)<3)continue;add('curtain',u-1.7,E.v1-7.5,0);add('bed',u,E.v1-8.2,0,blanket(u,5));add('vitals',u-.9,E.v1-9,0);if(r(u,5,15)<.6)add('drip',u+.9,E.v1-9,0);}
+      for(const u of [ec-2.8,ec+2.8])add('gurney',u,5.4,0);add('wheelchair',ec-4.5,5,.6);add('wheelchair',ec+4.5,5,-.6);
+      for(let v=7;v<E.v1-10;v+=2.2)add('seats',aL+.8,v,Math.PI/2,P_SEAT[1]);add('cabinet',aL+.5,E.v1-1.6,Math.PI/2);add('vending',aL+.5,5,Math.PI/2);
+      // a line of bays along the outside wall too, with their curtains; kit parked between them; a desk for the paperwork
+      for(let v=6.6;v<E.v1-3;v+=3){add('curtain',aR-1.2,v-1.5,Math.PI/2);add('bed',aR-1.1,v,-Math.PI/2,blanket(aR,v));add('vitals',aR-.4,v-.9,-Math.PI/2);add('cabinet',aR-.4,v+1,-Math.PI/2);}
+      for(let u=aL+3.2;u<aR-3;u+=6.8){add('cart',u,E.v1-5,.3);add('drip',u+1.4,E.v1-5.2,0);add('gurney',u+3.2,7.4,Math.PI/2);}
+      add('desk',aL+2.2,E.v1-4,Math.PI/2);add('swivel',aL+1.4,E.v1-4,Math.PI/2);add('board',aL+.1,E.v1-6,Math.PI/2,P_WHITE);
+    }
     // the ER in its own frame: a runs along the wall with its doors, d goes in from it
     const ex0=b.x0,ez0=b.z0,ea=front?E.door-ex0-1:E.door-ez0-1,aLo=front?E.u0+1:E.v0+1,aHi=front?I:J,depth=front?E.v1:I;
     const W=(a,d)=>front?[a,d]:[I-d,a],Y=front?0:-Math.PI/2;   // (from the ER's frame to the hospital's: d's way is +z, or -x)
@@ -13062,13 +13154,46 @@ function civicRoom(b,px,pz,floorNo,L,kd){
     for(let v=vS+.5;v<J-.5;v+=3)for(let u=.5;u<I;u++){if(Math.abs(u-cu)<1.1)continue;add('bookcase',u,v,0,pick(P_GOODS,u,v,1));}
     for(let u=.5;u<I;u++){if(Math.abs(u-cu)<1.1)continue;add('bookcase',u,J-.5,PI,pick(P_GOODS,u,J,2));}
   }else if(kd==='police'){
-    const desks=(v0)=>{for(let v=v0;v<J-(floorNo?1:4);v+=3)for(let u=1.5;u<I-1;u+=3.2){add('desk',u,v,0);add('swivel',u,v-.8,0,0,0,true);}};
+    const Rs=policeRooms(b,I,J,floorNo);
     if(!floorNo){
-      // the front desk behind its counter, a bench to wait on; desks behind; lockers; the holding cells at the back with a bunk in each
-      for(let u=1;u<I-4;u++)add('counter',u+.5,2.4,0);add('monitor',cu-2,2.4,PI,0,.9);add('seats',1.2,.8,0,0x35506b);add('flag',I-.8,.8,0);desks(5);
-      for(let v=4;v<J-3;v+=1)add('locker',I-.5,v+.5,-HP);
-      for(let u=1;u<I-4;u+=2.6){add('bunk',u,J-.9,PI,0x7d8a8f);add('toilet',u+1.2,J-.5,PI);}
-    }else{desks(1.6);for(let u=.5;u<4;u++)add('shelf3',u,J-.5,PI,0xbf9a6a);add('rtable',I-2,J-1.6,0,0x46505a);add('chair',I-2.7,J-1.6,HP,0x46505a,0,true);add('chair',I-1.3,J-1.6,-HP,0x46505a,0,true);}
+      // the lobby: the front desk behind its glass, seats to wait on, a notice board, the flag; the way on is past the desk
+      const vD=Math.min(5.6,Math.max(1.6,(Rs[0]?Rs[0].v0:J)-1.6));
+      for(let u=Math.max(.5,cu-8);u<cu-1.6;u++)add('teller',u,vD,PI,0x1c2a5a);for(let u=cu+2.1;u<Math.min(I,cu+7);u++)add('teller',u,vD,PI,0x1c2a5a);
+      add('monitor',cu-3,vD+.5,0,0,.95);add('monitor',cu+3.1,vD+.5,0,0,.95);add('swivel',cu-3,vD+1.2,PI,0,0,true);
+      add('seats',1.2,.8,0,0x35506b);add('seats',I-1.2,.8,0,0x35506b);add('board',cu-5,.1,0,0xd8dce0);add('flag',.7,vD-1,0);add('plant',I-.6,vD-1,0);
+    }else if(J>=10)for(let u=2;u<I-2;u+=4){add('locker',u,.4,0);add('plant',u+2,.5,1);}
+    for(const R of Rs){const x0=R.u0+1,x1=R.u1-1,y0=R.v0+1,y1=R.v1-1,w=x1-x0,h=y1-y0,mx=(x0+x1)/2;
+      if(R.k==='cells'&&h>=5){
+        // a bunk and a toilet behind the bars of each, a guard's desk, a bench along the corridor
+        for(let u=R.u0+1.5;u+1<R.u1;u+=3){add('bunk',u-.1,y1-1.1,PI,0x7d8a8f);add('toilet',u+.7,y1-.4,PI);add('basin',u+.7,y1-2.6,HP);}
+        add('desk',x0+1.2,y0+.8,HP);add('swivel',x0+.5,y0+.8,HP,0,0,true);add('bench',x1-1.2,y0+.5,0,0,0,true);add('locker',x1-.4,y0+1.2,-HP);
+      }else if(R.k==='cells'){for(let u=x0+.8;u+.5<x1;u+=2.2){add('bunk',u,y1-1,PI,0x7d8a8f);add('toilet',u+1,y1-.4,PI);}}
+      else if(R.k==='armory'){
+        // rifles round the walls, racks of crates, the safe, a counter to sign things out over
+        for(let v=y0+.5;v<y1;v++){add('gunrack',x0+.3,v,HP);add('gunrack',x1-.3,v,-HP);}
+        for(let u=x0+1.5;u<x1-1;u++)add('gunrack',u,y1-.3,PI);
+        for(let u=x0+1.5;u<x1-1;u+=2)add('pcrate',u,(y0+y1)/2,0);add('safe',x1-1.3,y1-1,PI);
+        add('bar',x0+1.5,y0+.6,0,0x46505a);add('monitor',x0+1.5,y0+.6,PI,0,.9);
+      }else if(R.k==='evidence'){
+        // rows of shelves of boxes, the clerk behind a counter by the door
+        for(let v=y0+2.5;v<y1;v+=2)for(let u=x0+.5;u<x1;u++)add('shelf3',u,v,0,0xbf9a6a);
+        add('bar',x0+1.5,y0+.6,0,0x5a3a22);add('monitor',x0+1.5,y0+.6,PI,0,.9);add('swivel',x0+1.5,y0+1.4,PI,0,0,true);add('pcrate',x1-1,y0+.6,0);
+      }else if(R.k==='break'){
+        // a table, a sofa and the television, the kitchenette, the vending machine
+        add('rtable',x0+1.5,y0+1.6,0,P_WHITE);add('chair',x0+.8,y0+1.6,HP,0x35506b,0,true);add('chair',x0+2.2,y0+1.6,-HP,0x35506b,0,true);
+        let u=x0+.5;for(const t of ['fridge2','sink','range','prep'])if(u<x1){add(t,u,y1-.5,PI,0xd8dce0);u++;}
+        add('vending',x1-.5,y1-.6,-HP);for(let i=0;i<3&&x1-1.5-i>x0+3;i++)add('sofa',x1-1.5-i,y0+.6,0,0x3f6b8c);add('tv',x1-2.5,y0+2.8,PI,0,.62);add('table',x1-2.5,y0+2.8,PI);
+      }else if(R.k==='interview'){
+        // a bare table, two chairs, the camera in the corner, a mirror along a wall
+        add('rtable',mx,(y0+y1)/2,0,0x46505a);add('chair',mx-.7,(y0+y1)/2,HP,0x46505a,0,true);add('chair',mx+.7,(y0+y1)/2,-HP,0x46505a,0,true);add('tvcam',x0+.6,y1-.6,HP);add('board',x1-.1,(y0+y1)/2,-HP,0x9fb7c6);
+      }else if(R.k==='locker'){
+        for(let u=x0+.5;u<x1;u++){add('locker',u,y1-.4,PI);if(h>=4)add('locker',u,y0+.4,0);}add('bench',mx,(y0+y1)/2,0,0,0,true);add('basin',x1-.5,(y0+y1)/2+1,-HP);
+      }else{
+        // the squad room: desks facing each other, the whiteboard, a coffee machine, cases on the wall
+        for(let v=y0+1.4;v<y1-.8;v+=3)for(let u=x0+1;u<x1-.6;u+=2.6){add('desk',u,v,0);add('swivel',u,v-.8,0,0,0,true);}
+        add('board',mx,y1-.1,PI,P_WHITE);add('fridge2',x1-.5,y0+.6,-HP);add('plant',x0+.5,y0+.5,0);
+      }
+    }
   }else if(kd==='firehall'){
     // the engines' floor stays clear: only their kit along the back of it and down the far wall
     for(let u=.5;u<I;u++)add('gearrack',u,7,PI);
