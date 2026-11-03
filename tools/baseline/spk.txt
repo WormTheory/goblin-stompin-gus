@@ -1,0 +1,3 @@
+hold 5 frames: level 0 spikes 1 ["2.1@4.0"] goblin hp 81,99,99 live now 1
+hold 70 frames: level 1 spikes 2 ["2.1@4.2","3.4@8.2"] goblin hp 65,89,99 live now 2
+hold 130 frames: level 2 spikes 3 ["2.1@4.4","3.4@9.0","4.6@15.2"] goblin hp 64,64,89 live now 3

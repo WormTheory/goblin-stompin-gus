@@ -1,0 +1,3 @@
+dash pad {"kb":[],"pad":[3]} cap null
+start cancels null {"kb":["Space"],"pad":[0]}
+L2 to jump {"kb":["Space"],"pad":[0,6]} sprint {"kb":[],"pad":[]}

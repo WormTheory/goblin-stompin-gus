@@ -1,0 +1,11 @@
+spot -4000 3366 plains 3s in N ms cars alive 0 on routes 0
+spot -1686 -2316 plains 3s in N ms cars alive 0 on routes 0
+spot 1835 262 plains 3s in N ms cars alive 0 on routes 0
+spot -1366 2016 plains 3s in N ms cars alive 0 on routes 0
+spot 2041 343 plains 3s in N ms cars alive 0 on routes 0
+spot 1476 1087 town 3s in N ms cars alive 3 on routes 0
+spot 2534 -2064 plains 3s in N ms cars alive 0 on routes 0
+spot -1006 1663 plains 3s in N ms cars alive 0 on routes 0
+spot 1584 -3569 plains 3s in N ms cars alive 0 on routes 0
+spot 1471 -257 plains 3s in N ms cars alive 0 on routes 0
+errors 0 []

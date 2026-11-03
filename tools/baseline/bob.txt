@@ -1,0 +1,2 @@
+rocket frames 90 rig y range 0.025 roll range 0.027
+walking rig y range 0.078

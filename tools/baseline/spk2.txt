@@ -1,0 +1,4 @@
+open ground spikes 4.4@y44,9.0@y44,15.2@y44 | blocks left 0/0
+wall at the 2nd spike spikes 4.4@y44,9.0@y44,15.2@y44 | blocks left 24/42
+bench at the 3rd spike spikes 4.4@y44,9.0@y44,15.2@y44 | blocks left 4/15
+tall wall at the 1st, block on the 2nd spikes 4.4@y44,9.0@y44,15.2@y44 | blocks left 81/138

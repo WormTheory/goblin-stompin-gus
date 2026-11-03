@@ -1,0 +1,17 @@
+dash tap then jump long jump: false
+dash combined button tap then jump long jump: true
+roll tap then jump long jump: false
+roll combined button tap then jump long jump: true
+run then jump long jump: true
+dash: hold combined button, jump before it goes off long jump: true
+roll: hold combined button, jump before it goes off long jump: true
+...and no dash went off afterwards: true
+dash: tap combined, jump 1 frames after release long jump: true
+dash: tap combined, jump 3 frames after release long jump: true
+dash: tap combined, jump 5 frames after release long jump: true
+dash: tap combined, jump 12 frames after release long jump: false
+roll: tap combined, jump 1 frames after release long jump: true
+roll: tap combined, jump 3 frames after release long jump: true
+roll: tap combined, jump 5 frames after release long jump: true
+roll: tap combined, jump 12 frames after release long jump: false
+dedicated Dash button, jump 2 frames after long jump: false

@@ -1,0 +1,2 @@
+straight up: body pitch avg 0.000 rkK 1.00
+forward: body pitch avg 0.084 leg avg 0.088 total 0.18

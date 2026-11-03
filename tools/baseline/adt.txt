@@ -1,0 +1,3 @@
+jump then L2 in air: true
+L2 held through jump: false
+L2 on ground only: false

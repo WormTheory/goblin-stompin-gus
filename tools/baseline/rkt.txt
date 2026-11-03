@@ -1,0 +1,4 @@
+off, hold 3s {"rise":1.7,"rocketFrames":0,"flameFrames":0,"stamLeft":100}
+on, tap {"rise":1,"rocketFrames":0,"flameFrames":0,"stamLeft":100}
+on, hold 3s {"rise":9.8,"rocketFrames":162,"flameFrames":162,"stamLeft":57}
+on, hold 8s {"rise":20.4,"rocketFrames":379,"flameFrames":379,"stamLeft":0}

@@ -1,0 +1,5 @@
+start city 2s ok, ms N
+routes built 131 country L1135 x+ | country L1678 z- | country L606 z+ | country L1090 x+
+on a country route mid, ms N ground 45 surface 12
+genChunk ms per chunk near route 1.975
+errors 0 []

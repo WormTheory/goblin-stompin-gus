@@ -1,0 +1,3 @@
+village -3 -3 at plot -113 -106
+intact 5h/18c/9s destroyed 0
+all destroyed 0h/0c/0s destroyed 0

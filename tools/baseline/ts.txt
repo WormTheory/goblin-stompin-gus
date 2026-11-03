@@ -1,0 +1,3 @@
+country routes 336 long 195 truck stops 131
+nearest -510 -918 normal 0.45 0.89
+view -496 -892 plot -16 -28 tsPlot true

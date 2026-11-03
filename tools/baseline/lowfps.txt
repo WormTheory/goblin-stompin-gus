@@ -1,0 +1,5 @@
+frame N ms: hold B -> run true, dash false; tap B -> dash true
+frame N ms: hold B -> run true, dash false; tap B -> dash true
+frame N ms: hold B -> run true, dash false; tap B -> dash true
+frame N ms: hold B -> run true, dash false; tap B -> dash true
+frame N ms: hold B -> run true, dash false; tap B -> dash true

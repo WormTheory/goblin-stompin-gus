@@ -1,0 +1,12 @@
+grounded true pos 10.5 45.0 10.5 state walk paused false true false
+Shift tap {"dodge":true,"run":false,"jump":false}
+Shift hold {"dodge":false,"run":true,"jump":false}
+L2 hold (10 frames) {"dodge":false,"run":true,"jump":false} charging true
+L2 tap {"dodge":false,"run":false,"jump":false}
+B tap {"dodge":true,"run":false,"jump":false}
+F (dash) held 20f {"dodge":true,"run":false,"jump":false}
+G (sprint) 20f {"dodge":false,"run":true,"jump":false} true
+jump binds {"kb":["KeyJ"],"pad":[0]}
+Space after rebind {"dodge":false,"run":false,"jump":false}
+J {"dodge":false,"run":false,"jump":true}
+after stealing J for bite: jump {"kb":[],"pad":[0]} bite {"kb":["Mouse0","KeyJ"],"pad":[2,5]}

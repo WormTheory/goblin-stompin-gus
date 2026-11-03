@@ -1,0 +1,2 @@
+at the farm {"visibleRotors":2,"hidden":0,"rotorsWithoutRealTower":0}
+400 away {"visibleRotors":0,"hidden":0,"rotorsWithoutRealTower":0}

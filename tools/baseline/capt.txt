@@ -1,0 +1,4 @@
+charge true full true stomp level [ 2, 180 ] pound level/hover frames [ 2, 120 ]
+charge true full false stomp level [ 1, 180 ] pound level/hover frames [ 1, 60 ]
+charge false full false stomp level [ 0, 21 ] pound level/hover frames [ 0, 0 ]
+stomp off -> [ -1, null ] walk

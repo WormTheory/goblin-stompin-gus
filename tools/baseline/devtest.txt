@@ -1,0 +1,26 @@
+walk      frames N ms N rise 0.00 moved 8.40 hits {}
+dodge     frames N ms N rise 0.11 moved 4.01 hits {}
+trample   frames N ms N rise 0.00 moved 18.44 hits {"dmg:cap":132,"block:cyl":19}
+jump      frames N ms N rise 1.73 moved 0.00 hits {}
+djump     frames N ms N rise 3.00 moved 0.00 hits {}
+longJump  frames N ms N rise 1.21 moved 19.76 hits {"dmg:cap":61,"block:cyl":3}
+roll      frames N ms N rise 0.37 moved 8.90 hits {"block:sph":9,"block:box":9,"dmg:cap":9}
+blastDash frames N ms N rise 0.05 moved 17.33 hits {"dmg:cap":18,"block:sph":14,"block:box":14}
+blastAirDash frames N ms N rise 1.88 moved 18.19 hits {"dmg:cap":16,"block:sph":13,"block:box":13}
+blastJump frames N ms N rise 3.80 moved 42.97 hits {"dmg:cap":120,"block:cyl":3,"block:sph":23}
+dash      frames N ms N rise 1.78 moved 8.21 hits {"dmg:cap":34}
+bite      frames N ms N rise 0.00 moved 1.40 hits {"block:box":1,"dmg:slot":1}
+bite2     frames N ms N rise 0.00 moved 2.80 hits {"block:box":2,"dmg:slot":2}
+upper     frames N ms N rise 0.00 moved 4.60 hits {"block:box":3,"dmg:slot":3}
+airBite   frames N ms N rise 1.73 moved 1.30 hits {"block:box":1,"dmg:slot":1}
+stomp1    frames N ms N rise 0.00 moved 0.00 hits {"block:box":1,"dmg:cap":1}
+stomp2    frames N ms N rise 0.00 moved 0.00 hits {"block:box":1,"dmg:cap":1}
+groundSpike frames N ms N rise 0.00 moved 0.00 hits {"block:box":4,"dmg:cap":4}
+stomp3    frames N ms N rise 0.00 moved 0.00 hits {"block:box":1,"dmg:cap":1}
+pound     frames N ms N rise 1.90 moved 0.00 hits {"block:box":1,"dmg:cap":1}
+pound2    frames N ms N rise 3.21 moved 0.00 hits {"block:box":1,"dmg:cap":1}
+pound3    frames N ms N rise 3.76 moved 0.00 hits {"block:box":1,"dmg:cap":1}
+crash     frames N ms N rise 11.99 moved 0.00 hits {"block:box":1,"dmg:cap":1}
+stomp1 as a cone: ["cone {\"x\":500000.5,\"y\":45,\"z\":500001.8,\"len\":6,\"r\":4.199999999999999,\"rot\":0}"]
+jump with launch 19: rise 7.06
+real world untouched: true player still at  0.00 chunks 346 -> 346

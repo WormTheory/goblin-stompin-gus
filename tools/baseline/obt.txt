@@ -1,0 +1,3 @@
+tab obit
+OBP root true r true
+frames ok

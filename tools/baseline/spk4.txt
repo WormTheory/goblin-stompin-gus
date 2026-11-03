@@ -1,0 +1,27 @@
+spike at 4.4 root y 44 ground block at y 44 now 0 | block below 0
+spike at 9.0 root y 44 ground block at y 44 now 0 | block below 2
+spike at 15.2 root y 44 ground block at y 44 now 0 | block below 2
+spike 4.4 r 0.67 crater at ground level:
+.......
+.......
+.......
+.......
+###.###
+#######
+#######
+spike 9.0 r 1.08 crater at ground level:
+#######
+#######
+##...##
+##...##
+##...##
+#######
+#######
+spike 15.2 r 1.48 crater at ground level:
+#######
+###.###
+##...##
+#.....#
+##...##
+###.###
+#######
