@@ -758,7 +758,7 @@ function horizHidden(cx,cy,cz,hr,top){
     if(!o.isInstancedMesh&&horizHidden(sp.center.x,sp.center.y,sp.center.z,sp.radius,sp.center.y+sp.radius))return false;   // (over the horizon)
     const d=Math.hypot(sp.center.x-CURVE_CAM.x,sp.center.z-CURVE_CAM.z),r=sp.radius,lo=k*Math.max(0,d-r)**2,hi=k*(d+r)**2;
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v68';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v69';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -1125,6 +1125,7 @@ const BRANDS={
   armory:[BR('ARMORY','#3a2a1a','#f0e2b0','#b8962a','badge')],
   theater:[BR('THEATRE','#5a0a1a','#ffe9b0','#d4af37','mask'),BR('OPERA HOUSE','#1a1030','#f6e2b0','#d4af37','mask')],
   stocks:[BR('STOCK EXCHANGE','#0b2a1a','#e8f6e8','#d4af37','chart')],
+  courthouse:[BR('COURTHOUSE','#23263a','#f6ead0','#c8a24a','bank'),BR('HALL OF JUSTICE','#3a2a1a','#ffffff','#d8b46a','bank')],
   library:[BR('LIBRARY','#3e2a1a','#f6ead0','#d8b46a','book'),BR('PUBLIC LIBRARY','#1d3048','#ffffff','#9ec3e6','book')],
   cinema:[BR('CINEMA','#7a0e14','#ffe27a','#ffd23a','film'),BR('PICTURE HOUSE','#1a1a2a','#ffd23a','#ff4a4a','film'),BR('MOVIE PALACE','#3a0a4a','#ffffff','#ffcc33','film'),BR('AMC','#111111','#ff2a2a','#ff2a2a','amc'),BR('REGAL','#3a0a4a','#ffd23a','#ffd23a','crown')],
   radio:[BR('RADIO 99.9','#b71c1c','#ffffff','#ffcdd2','mic'),BR('ROCK FM','#111111','#ff9a2a','#ff9a2a','mic')],
@@ -2779,7 +2780,7 @@ function tsAt(x,z){
 // ---- street furniture laid out with the plots: benches and litter bins ----
 // Along the pavements of the busier blocks (shops, restaurants, offices, the hospital...), on any side with a street:
 // often a bench facing the road with a bin beside it, sometimes just a bin; in a park, benches facing the paths.
-const FURN_T=new Set(['jail','lab','datacenter','electric','dealer','theater','stocks','armory','farmers','church','library','cinema','bank','news','disco','club','court','shops','bell','tower','mid','large','city','food','fastfood','sitdown','grocery','plaza','police','hospital','build','fire']);
+const FURN_T=new Set(['courthouse','jail','lab','datacenter','electric','dealer','theater','stocks','armory','farmers','church','library','cinema','bank','news','disco','club','court','shops','bell','tower','mid','large','city','food','fastfood','sitdown','grocery','plaza','police','hospital','build','fire']);
 const furnC=new Map();
 function streetFurn(px,pz){
   const k=px*100003+pz;let v=furnC.get(k);if(v)return v;v=[];
@@ -3750,9 +3751,9 @@ const B3_MIX={city:[['derelict',0.02],['stocks',0.006],['theater',0.012],['deale
   village:[['derelict',0.02],['trailers',0.025],['nursery',0.02],['farmers',0.015],['mansion',0.006]]};
 const B4_MIX={city:[['datacenter',0.008],['electric',0.008]],large:[['datacenter',0.006],['electric',0.01]],small:[['electric',0.01]],suburb:[['datacenter',0.008]],village:[['electric',0.006]]};
 const B5_MIX={city:[['lab',0.006]],large:[['lab',0.005],['jail',0.01]],small:[['jail',0.02]],suburb:[['jail',0.006]],village:[['jail',0.015]]};
-const B2_MIX={city:[['church',0.02],['library',0.02],['news',0.016],['bank',0.035],['disco',0.016],['club',0.018],['cemetery',0.01],['radio',0.006]],
-  large:[['church',0.025],['library',0.02],['news',0.01],['bank',0.03],['disco',0.012],['club',0.014],['cemetery',0.015],['radio',0.01]],
-  small:[['court',0.01],['church',0.035],['library',0.02],['bank',0.025],['club',0.01],['cemetery',0.02],['radio',0.015]],
+const B2_MIX={city:[['courthouse',0.012],['church',0.02],['library',0.02],['news',0.016],['bank',0.035],['disco',0.016],['club',0.018],['cemetery',0.01],['radio',0.006]],
+  large:[['courthouse',0.014],['church',0.025],['library',0.02],['news',0.01],['bank',0.03],['disco',0.012],['club',0.014],['cemetery',0.015],['radio',0.01]],
+  small:[['courthouse',0.01],['court',0.01],['church',0.035],['library',0.02],['bank',0.025],['club',0.01],['cemetery',0.02],['radio',0.015]],
   suburb:[['court',0.02],['church',0.025],['library',0.015],['bank',0.015],['cemetery',0.01],['radio',0.008]],
   village:[['church',0.045],['bank',0.02],['cemetery',0.03],['radio',0.012],['library',0.012]]};
 function baseType(px,pz){
@@ -4082,7 +4083,7 @@ function plotInfo(px,pz){
     else mk(PL0+1,PL1-1,PL0+1,PL1-1,10,[0,1,2,3]);
   } else if(type==='police'){
     const b=base({x0:PL0+1,x1:PL1-1,z0:PC-3,z1:PL1-1,top:G+storeys(stnTier(px,pz)>1?12:7),wall:POLICE,win:WIN_BLUE,band:SIDEWALK,neon:'police',kind:'police',ground:'police',floor:FLOORT,door:2});
-    b.detailTop=b.top-1;brandOn(b,'police',r(140));p.b.push(b);
+    b.detailTop=b.top-1;brandOn(b,'police',r(140));b.stair={ax:'x',c0:b.z0+1,c1:b.z0+3,r0:((b.x0+b.x1)>>1)+2,L:FH};p.b.push(b);
   } else if(type==='garage'){
     // multi-storey car park: open sides, ramps between levels, cars in the bays
     const b=base({x0:PL0,x1:PL1,z0:PL0,z1:PL1,style:'garage',top:G+FH*(2+Math.floor(r(2)*3)),wall:CONCRETE,win:CONCRETE,kind:'garage',ground:'garage',floor:ASPHALT,door:0});
@@ -4249,6 +4250,10 @@ function plotInfo(px,pz){
     // the steeple, at the front corner
     const sw=big?5:4,st=base({x0:x0+W,x1:x0+W+sw,z0,z1:z0+sw,top:G+(big?34:26),style:'steeple',wall:nave.wall,win:STAINED,kind:'landmark',ground:'landmark',floor:nave.wall,door:2});
     st.trim=nave.trim;st.noIndoor=true;st.detailTop=st.top;st.doorSpec=null;st.shaft=big?18:13;p.b.push(st);
+  } else if(type==='courthouse'){
+    // a courthouse: stone and columns, a lobby with its metal detector, one tall courtroom behind it. (See civicRoom.)
+    const b=base({x0:PL0+1,x1:PL1-1,z0:PL0+5,z1:PL1-1,gf:9,top:G+9,wall:r(81)<0.5?MARBLE:STONE,win:WIN_WARM,band:MARBLE,kind:'office',ground:'courtroom',floor:PLANKS,door:2});
+    b.doorSpec={w:1,h:4,k:'wood'};b.detailTop=b.top-1;brandOn(b,'courthouse',r(150));p.b.push(b);p.b.push(portico(b,3,G+8));
   } else if(type==='library'){
     // a branch library in the smaller places; a grand one (stone, columns across the front) in the big ones
     const ty=setType(px,pz),big=ty==='city'||ty==='large';
@@ -4536,8 +4541,11 @@ function furniture(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
 const FURN_SEEN=new Set();
 const FURN_IDS=new Set([SOFA,BED,FRIDGE,SHELF,CRATE,LEAVES,SCREEN,PLANKS]);
 const SHOP_ROOMS=new Set(['books','dentist','dispo','guns','dealer','armory','grocery','market','drug','bigbox','ikea']);
+// (a hospital's upper floors, in turn: wards, private rooms, operating theatres. Small ones are all wards.)
+function hospFloor(b,n){return n>0&&b.x1-b.x0>=20&&b.z1-b.z0>=16?n%3===1?0:n%3===2?1:2:0;}
+const CIVIC_ROOMS=new Set(['school','library','police','firehall','cells','courtroom']);
 const WORK_ROOMS=new Set(['office','lobby','bank','radio','news','stocks']);
-function roomFloor(b,rz){return b.eat?(rz>=b.z1-(b.eatTile||6)?FLOORT:b.floor):SHOP_ROOMS.has(b.ground)||WORK_ROOMS.has(b.ground)&&b.floor!==PLANKS?b.floor:0;}
+function roomFloor(b,rz){return b.eat?(rz>=b.z1-(b.eatTile||6)?FLOORT:b.floor):SHOP_ROOMS.has(b.ground)||CIVIC_ROOMS.has(b.ground)&&b.ground!=='firehall'&&b.ground!=='cells'||WORK_ROOMS.has(b.ground)&&b.floor!==PLANKS?b.floor:0;}
 function furnTurns(v,b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
   if(v===SOFA||v===BED||v===FRIDGE||v===SHELF)return true;
   flo(b,fl);const lvl=FL_LVL,top=(FL_NO===0?(b.gf||FH)-2:FH-2);
@@ -4588,10 +4596,8 @@ function furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
       if(level===0&&iv===J-1&&iu<=2)return PLANKS;
       return AIR;
     case 'police':
-      if(level===0&&iv===1&&iu>=1&&iu<=4)return PLANKS;
-      if(level===1&&iv===1&&iu===2)return SCREEN;
-      if(iv===J-2&&iu%2===0)return METAL;
-      if(level===0&&iv===J-1&&iu%4===1)return BED;
+      // the holding cells across the back of the ground floor: steel bars, a way in. (The rest: see civicRoom.)
+      if(floorNo===0&&iv===J-3&&iu<I-3)return level<=3&&(iu%2===0||level===0||level===3)&&!(iu===2&&level<=2)?METAL:AIR;
       return AIR;
     case 'hosp':{
       // the main lobby (left of the doors): an L-shaped reception desk with monitors and a lit sign, rows of
@@ -4625,14 +4631,10 @@ function furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
       if(iv===J-5){if(iu>=I-3&&iu<=I-2&&level<=2)return AIR;if(iu>=2&&iu<I-5&&(level===1||level===2))return GLASS;return CONCRETE;}
       if(iv>J-5&&(iu===4||iu===9))return level<=1?CONCRETE:AIR;
       return AIR;
-    case 'library':
-      // the stacks: rows of tall shelves across the back; reading tables and chairs at the front; computers along a
-      // wall; the librarian's desk by the door
-      if(level<=2&&iv>=Math.floor(J/2)&&iv%3===1&&iv<J-1&&iu!==I-1&&Math.abs(iu-(I>>1))>1)return SHELF;   // (an aisle down the middle)
-      if(level<=2&&iv===J-1&&Math.abs(iu-(I>>1))>1)return SHELF;
-      if(level===0&&iv>=2&&iv<Math.floor(J/2)-1&&iu>=1&&iu<I-2&&iu%4!==0){const q=iv%3;if(q===0)return PLANKS;if(q===2)return SEAT_B;}
-      if(iu===I-1&&iv>=2&&iv<Math.floor(J/2)){if(level===0)return PLANKS;if(level===1&&iv%2===0)return SCREEN;}
-      if(iu===0&&iv===1){if(level===0)return PLANKS;if(level===1)return SCREEN;}
+    case 'library':return AIR;   // (props: see civicRoom)
+    case 'courtroom':
+      // the wall between the lobby and the courtroom (the way through's kept clear)
+      if(iv===3&&level<=6)return STONE;
       return AIR;
     case 'cinema':{
       // the lobby across the front: ticket desks either side of the doors, the long snack bar, an arcade corner, posters
@@ -4763,14 +4765,11 @@ function furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
       if(b.stairHall&&(floorNo||!b.stairHall[2])&&a>b.stairHall[0]-1&&a<=b.stairHall[1])return AIR;
       if(!floorNo&&a>=Wl-12){   // the gym: hoops at both ends, bleachers down one side
         if(a===Wl-12){if(Math.abs(c-(Wc>>1))<=1&&level<=2)return AIR;return level<=3?CONCRETE:AIR;}
-        if((a===Wl-11||a===Wl-1)&&Math.abs(c-(Wc>>1))<1){if(level===2)return PAINT_WHITE;return AIR;}
         if(c<=1&&a>Wl-11&&level<=c)return SEAT_B;return AIR;}
-      if(!floorNo&&a<10){if(a===1&&c>=1&&c<=Wc-2){if(level===0)return c%3?PLANKS:FRIDGE;}if(a>=3&&a<=8&&c%3===1&&c<Wc-1&&level===0)return a%2?PLANKS:SEAT_B;if(a===9){if(Math.abs(c-(Wc>>1))<=1&&level<=2)return AIR;return level<=3?CONCRETE:AIR;}return AIR;}
+      if(!floorNo&&a<10){if(a===9){if(Math.abs(c-(Wc>>1))<=1&&level<=2)return AIR;return level<=3?CONCRETE:AIR;}return AIR;}
       // classrooms: a wall every 8, the blackboard on it, rows of desks and chairs facing it, the teacher's desk
       const k=(a-10)%8;
       if(k===0){if(Math.abs(c-(Wc>>1))<=1&&level<=2)return AIR;if(level===1||level===2)return c%2&&c>1&&c<Wc-2?PAINT_DARK:SIDING;return level<=3?SIDING:AIR;}
-      if(k===2&&c===2&&level===0)return PLANKS;
-      if(k>=3&&k<=6&&c>=1&&c<Wc-1&&Math.abs(c-(Wc>>1))>1&&level===0)return k%2?PLANKS:SEAT_B;
       return AIR;}
     case 'factory':{
       // the production lines: conveyors with crates riding them, machines between; what it makes decides the rest
@@ -4795,9 +4794,6 @@ function furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
       const front=c===mid-2||c===mid+2;
       if(a%4===0){STRUCT=true;return CONCRETE;}   // walls between the cells
       if(front){if(a%4===2&&level<=2)return AIR;return level<=3?(level%2===0||a%2?METAL:AIR):AIR;}   // the bars (the door bars left open)
-      const back=c===0||c===Wc-1;
-      if(back&&a%4===1&&level<=1)return BED;
-      if(back&&a%4===3&&level===0)return PAINT_WHITE;
       return AIR;}
     case 'lab':{
       // vats bubbling green, tall glass tanks with something dark floating in each, cages, Tesla coils, the workbenches
@@ -4850,14 +4846,13 @@ function furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
       if(level===5&&iv%4===2&&iu%4===2)return LAMP;
       return AIR;
     case 'firehall':
-      // the engine floor: kept clear for the engines; lockers and kit along the back, a pole down from upstairs
-      if(iv>=J-2&&iu>=10&&level<=2)return iu%2?SHELF:CRATE;   // (clear of the stairs: their foot and their head are along here)
-      if(iu===I-1&&iv%4===1&&level<=1)return METAL;
-      if(iu===I-2&&iv===J-4&&level>=0)return METAL;
+      // the engine floor is kept clear for the engines (their kit's props: see civicRoom)
       return AIR;
     case 'ward':
       // just the pillars: the beds, monitors and nurses' stations are props (see hospProps)
       if(iu%8===4&&iv%8===3){STRUCT=true;return CONCRETE;}
+      // private rooms or operating theatres either side of a corridor, on some floors
+      if(hospFloor(b,floorNo)){const cv=J>>1;if(iv===cv-3||iv===cv+2)return iu%8>=2&&iu%8<=6&&level<=2?AIR:HOSPW;if((iv<cv-3||iv>cv+2)&&iu%8===0)return HOSPW;}
       return AIR;
   }
   return AIR;
@@ -11057,7 +11052,7 @@ function addCiv(){
 for(let i=0;i<14;i++)addCiv();
 // staff: a separate few townsfolk who work in the shops, restaurants, hospitals and stations near you, in uniform
 for(let i=0;i<24;i++){addCiv();goblins[goblins.length-1].staff=true;}
-const STAFF_CAP={base:4,airport:4,nasa:4,nuclear:3,campus:4,prison:4,jail:2,water:2,power:4,zoo:2,lab:3,ikea:6,museum:3,aquarium:3,casino:6,school:5,factory:5,datacenter:1,electric:2,dealer:3,armory:2,theater:3,stocks:4,nursery:2,library:2,cinema:3,radio:2,news:4,bank:3,disco:3,club:3,books:1,dentist:2,dispo:1,guns:1,bar:2,soup:3,bigbox:8,market:5,drug:3,grocery:3,hospital:5,police:3,fire:3,sitdown:4,fastfood:3,kiosk:2,diner:2,pizza:2,cafe:2,shop:2};
+const STAFF_CAP={courthouse:3,base:4,airport:4,nasa:4,nuclear:3,campus:4,prison:4,jail:2,water:2,power:4,zoo:2,lab:3,ikea:6,museum:3,aquarium:3,casino:6,school:5,factory:5,datacenter:1,electric:2,dealer:3,armory:2,theater:3,stocks:4,nursery:2,library:2,cinema:3,radio:2,news:4,bank:3,disco:3,club:3,books:1,dentist:2,dispo:1,guns:1,bar:2,soup:3,bigbox:8,market:5,drug:3,grocery:3,hospital:5,police:3,fire:3,sitdown:4,fastfood:3,kiosk:2,diner:2,pizza:2,cafe:2,shop:2};
 const STAFF_JOBS={bigbox:['Cashier','Greeter','Stocker','Shift manager','Electronics associate','Cart wrangler'],grocery:['Cashier','Stocker','Deli clerk','Bagger','Produce clerk'],market:['Cashier','Stocker','Deli clerk','Bagger','Produce clerk','Butcher'],drug:['Pharmacist','Pharmacy tech','Cashier','Stocker'],
   hospital:['Nurse','Doctor','Orderly','Surgeon','Paramedic','Receptionist'],police:['Police officer','Desk sergeant','Detective'],fire:['Firefighter','Fire captain'],
   sitdown:['Server','Host','Line cook','Bartender'],fastfood:['Fry cook','Cashier','Drive-thru attendant','Shift manager'],kiosk:['Gas station attendant','Clerk'],
@@ -11067,7 +11062,7 @@ const STAFF_JOBS={bigbox:['Cashier','Greeter','Stocker','Shift manager','Electro
   ikea:['Co-worker','Cashier','Meatball cook','Warehouse picker'],museum:['Curator','Guard','Guide','Gift shop clerk'],aquarium:['Aquarist','Guide','Ticket clerk'],casino:['Croupier','Cashier','Security','Waitress','Pit boss'],
   school:['Teacher','Principal','Janitor','Lunch lady'],factory:['Machinist','Foreman','Forklift driver','Welder'],datacenter:['Systems engineer'],electric:['Lineman','Clerk'],
   dealer:['Car salesman','Sales manager','Mechanic'],armory:['Quartermaster','Guard'],theater:['Usher','Stagehand','Actor','Box office clerk'],stocks:['Trader','Broker','Analyst'],nursery:['Gardener','Clerk'],
-  library:['Librarian','Library assistant'],cinema:['Usher','Projectionist','Snack-bar clerk'],radio:['DJ','Producer'],news:['News anchor','Camera operator','Reporter','Producer'],bank:['Bank teller','Loan officer','Security guard','Bank manager'],disco:['DJ','Bartender','Bouncer'],club:['Bouncer','Bartender','Sound tech'],
+  courthouse:['Judge','Bailiff','Court clerk','Lawyer'],library:['Librarian','Library assistant'],cinema:['Usher','Projectionist','Snack-bar clerk'],radio:['DJ','Producer'],news:['News anchor','Camera operator','Reporter','Producer'],bank:['Bank teller','Loan officer','Security guard','Bank manager'],disco:['DJ','Bartender','Bouncer'],club:['Bouncer','Bartender','Sound tech'],
   books:['Bookseller'],dentist:['Dentist','Dental hygienist','Receptionist'],dispo:['Budtender'],guns:['Gunsmith','Clerk'],bar:['Bartender','Bouncer'],soup:['Cook','Volunteer','Server']};
 const STAFF_JOBS_BY={COSTCO:['Forklift driver','Cashier','Sample lady','Membership clerk'],"SAM'S CLUB":['Forklift driver','Cashier','Membership clerk'],'DOLLAR GENERAL':['Cashier','Stocker'],CVS:['Pharmacist','Cashier','Pharmacy tech'],WALGREENS:['Pharmacist','Cashier','Pharmacy tech'],SUBWAY:['Sandwich artist'],GAMESTOP:['Sales clerk','Store manager'],
   'BEST BUY':['Geek squad agent','Sales associate'],'WAFFLE HOUSE':['Grill operator','Waitress'],STARBUCKS:['Barista'],"DUNKIN'":['Barista','Donut fryer']};
@@ -12724,6 +12719,22 @@ const PROPS={
   onair:[[P_DARK,0,0,0,.8,.3,.04],[PG+0xff3030,0,0,.03,.72,.22,.01]],
   // a television camera on its tripod
   tvcam:[[P_DARK,0,.3,0,.04,.6,.04],[P_DARK,0,.04,0,.5,.04,.05],[P_DARK,0,.04,0,.05,.04,.5],[P_STEEL,0,.72,0,.06,.3,.06],[P_DARK,0,1.02,.06,.3,.32,.64],[0x2a2e33,0,1.02,.42,.2,.2,.1]],
+  // a pupil's desk
+  sdesk:[[P_WOOD,0,.5,0,.8,.05,.5],[P_STEEL,-.34,.24,0,.04,.48,.4],[P_STEEL,.34,.24,0,.04,.48,.4],[0xd8dce0,-.14,.53,.04,.24,.02,.16]],
+  // a basketball hoop on the wall
+  hoop:[[P_STEEL,0,1.8,-.3,.1,3.6,.1],[P_WHITE,0,3,-.1,1.1,.7,.05],[0xd8742a,0,2.74,.12,.42,.03,.42]],
+  // firefighters' kit on its pegs
+  gearrack:[[P_STEEL,0,.9,-.18,.96,1.8,.05],[0xd8b13a,-.26,1.1,-.02,.32,.8,.24],[0xd8b13a,.26,1.1,-.02,.32,.8,.24],[0xc83a32,-.26,1.66,-.02,.26,.2,.26],[0xc83a32,.26,1.66,-.02,.26,.2,.26],[P_DARK,-.26,.3,.02,.26,.3,.34],[P_DARK,.26,.3,.02,.26,.3,.34]],
+  // an operating table
+  optable:[[P_STEEL,0,.42,0,.3,.8,.5],[0x3f9c9c,0,.86,0,.66,.08,1.8],[P_DARK,0,.04,0,.7,.08,.8]],
+  // the big lamp over it
+  oplamp:[[P_STEEL,0,1.3,0,.06,2.6,.06],[P_STEEL,.35,2.5,0,.7,.05,.05],[PG+0xfff4c8,.7,2.4,0,.6,.1,.6],[P_DARK,0,.04,0,.5,.08,.5]],
+  // a metal detector to walk through
+  detector:[[0xd8dce0,-.6,1.1,0,.12,2.2,.3],[0xd8dce0,.6,1.1,0,.12,2.2,.3],[0xd8dce0,0,2.2,0,1.32,.14,.3],[PG+0x4ad66a,0,2.2,.16,.2,.06,.01]],
+  // the judge's bench: a high wooden front, the gavel on top
+  judge:[[P_WOOD,0,.7,0,3,1.4,.8],[0x7a4a2a,0,1.43,0,3.1,.06,.9],[P_DARK,.5,1.5,.1,.3,.08,.1]],
+  // the witness box
+  wbox:[[P_WOOD,0,.5,.3,1,1,.06],[P_WOOD,-.47,.5,0,.06,1,.66],[P_WOOD,.47,.5,0,.06,1,.66],[P_DARK,.2,1.1,.3,.05,.2,.05]],
   // a deep fryer: a steel case, two baskets in hot oil
   fryer:[[P_STEEL,0,.42,0,.96,.84,.7],[0xd8a030,0,.85,.03,.8,.02,.5],[P_DARK,-.2,.92,.03,.3,.14,.36],[P_DARK,.2,.92,.03,.3,.14,.36],[P_DARK,0,.4,.355,.7,.3,.01]],
   // a drinks machine, on a counter
@@ -12776,6 +12787,20 @@ function hospProps(b,px,pz,floorNo){
   const r=(u,v,n)=>hash2(Math.floor(u*4)+px*977+n*131+floorNo*7,Math.floor(v*4)+pz*613+n*53);
   const add=(type,u,v,yaw,tint)=>{if(u<.2||v<.2||u>I-.2||v>J-.2)return;if(b.stair){const a=b.stair.ax==='x'?U0+u-px*CELL:V0+v-pz*CELL,c=b.stair.ax==='x'?V0+v-pz*CELL:U0+u-px*CELL;if(a>=b.stair.r0-2.5&&a<b.stair.r0+b.stair.L+2&&c>=b.stair.c0-1.5&&c<b.stair.c1+1.5)return;}L.push({prop:true,type,x:U0+u,z:V0+v,y0,yaw,tint,rad:.5,key:'p'+Math.round((U0+u)*4)+','+Math.round((V0+v)*4)+','+y0+type});};
   const blanket=(u,v)=>P_BLANKET[Math.floor(r(u,v,3)*P_BLANKET.length)];
+  const ft=hospFloor(b,floorNo);
+  if(ft){
+    // rooms either side of a corridor, eight wide: private rooms (a bed, a monitor, a visitor's chair, its own washbasin) or
+    // operating theatres (the table under its lamp, the crash cart, the monitor, scrub sinks); trolleys left along the corridor
+    const cv=J>>1;
+    for(let k=0;8*k+8<=I+1;k++){const x=8*k+4;
+      for(const [v,yaw,sx] of [[1.6,0,1],[J-1.6,Math.PI,-1]]){
+        if(ft===1){add('bed',x,v-sx*.1,yaw,blanket(x,v));add('vitals',x-1.1,v-sx*.3,yaw);add('drip',x+1,v-sx*.2,yaw);add('chair',x+2.4,v+sx*.6,yaw+Math.PI/2,P_SEAT[0]);add('basin',x-2.8,v-sx*1.2,yaw);add('cabinet',x+2.8,v-sx*1.1,yaw);}
+        else{add('optable',x,v+sx*.6,yaw);add('oplamp',x-1.5,v+sx*.6,yaw);add('vitals',x+1.4,v+sx*.2,yaw);add('cart',x+1.5,v+sx*1.4,yaw);add('cabinet',x-2.8,v-sx*1.1,yaw);add('basin',x+2.8,v-sx*1.2,yaw);add('swivel',x-.9,v+sx*1.3,yaw);}
+      }
+      if(k%2===0)add(ft===1?'wheelchair':'gurney',x+3,cv-.1,Math.PI/2);else if(k%4===1){add('counter',x,cv+.9,Math.PI);add('plant',x+3,cv+1.1,0);}
+    }
+    return L;
+  }
   if(floorNo>0||b.ground==='ward'){
     // the wards: every 8 rows, two facing rows of beds with an aisle between; a nurses' station here and there down the aisle
     for(let k=0;8*k+1<J;k++){const v0=8*k;
@@ -12807,6 +12832,9 @@ function hospProps(b,px,pz,floorNo){
   // rows of waiting seats, facing the doors
   for(let v=9;v<=(E&&!front?E.v0-3:18);v+=3)for(let u=3;u+2<=(front?cu-3:I-3);u+=2.2){if(Math.abs(u-cu)<3)continue;if(r(u,v,10)<.12)continue;add('seats',u,v,Math.PI,P_SEAT[Math.floor(u/8)%2]);}
   add('plant',.8,.8,0);add('plant',I-.8,.8,0);add('vending',1,(E&&!front?E.v0-2:J-2),Math.PI/2);
+  // a little cafe and a gift shop down the far side of the lobby, if there's room
+  if(J>=24&&!(E&&!front)){for(let u=2;u+2<=Math.min(cu-3,12);u+=3.2){add('rtable',u,J-5,0,P_WHITE);add('chair',u-.68,J-5,Math.PI/2,0x3f6b8c);add('chair',u+.68,J-5,-Math.PI/2,0x3f6b8c);}
+    for(let u=1.5;u<6;u++){add('bar',u,J-2.6,Math.PI,0x2f8a8a);if(u%2>1)add('shelf2',u,J-.8,Math.PI,P_GOODS[Math.floor(u)%P_GOODS.length]);}add('espresso',3.5,J-2.6,Math.PI,0,.9);}
   const vG=E&&!front?E.v0-2:J-2;for(let u=3;u<(front?E.u0:I)-1;u+=5)if(r(u,vG,11)<.6)add('gurney',u+.5,vG+.3,Math.PI/2);else if(r(u,vG,12)<.5)add('wheelchair',u+.5,vG,Math.PI);
   if(E){
     // the ER in its own frame: a runs along the wall with its doors, d goes in from it
@@ -13004,6 +13032,67 @@ function workRoom(b,px,pz,floorNo,L,kind){
     desks(1.6,J-3,2.4,3);
   }
 }
+// public buildings
+function civicRoom(b,px,pz,floorNo,L,kd){
+  const {I,J,add,hg}=floorKit(b,px,pz,floorNo,L,false),cu=I/2,PI=Math.PI,HP=Math.PI/2,pick=(A,a,c,n)=>A[Math.floor(hg(a,c,n)*A.length)%A.length];
+  const long=I>=J,Wl=long?I:J,Wc=long?J:I,S=b.stairHall;
+  // (a runs along the building and c across it, whichever way it lies: backTo says which way a thing's back faces)
+  const put=(type,a,c,back,tint,yo,low)=>{if(S&&a>S[0]-1&&a<=S[1]+1&&(floorNo||!S[2]))return;const yaw=back==='+a'?(long?-HP:PI):back==='-a'?(long?HP:0):back==='+c'?(long?PI:-HP):(long?0:HP);add(type,long?a:c,long?c:a,yaw,tint,yo,low);};
+  if(kd==='school'){
+    const mid=Wc/2;
+    if(!floorNo){
+      // the cafeteria: the serving counter and its pots, long tables and benches
+      for(let c=1;c<Wc-1;c++){put('bar',1.5,c+.5,'-a',0x7d8a8f);if(c%3===1)put('pot',1.5,c+.5,'-a',0,.9);else if(c%3===2)put('fridge2',.5,c+.5,'-a');}
+      for(const a of [4,7])for(let c=1.2;c<Wc-1.2;c+=2){if(Math.abs(c-mid)<1.6)continue;put('ltable',a,c,long?'+a':'-a');put('bench',a-.74,c,long?'+a':'-a',0,0,true);put('bench',a+.74,c,long?'+a':'-a',0,0,true);}
+      // the gym's hoops
+      put('hoop',Wl-11.6,mid,'-a');put('hoop',Wl-.4,mid,'+a');
+    }
+    // the classrooms: a teacher's desk at the board, pupils' desks and chairs in rows facing it
+    const lim=floorNo?Wl:Wl-12;
+    for(let w=floorNo?2:10;w+7<=lim;w+=8){
+      put('desk',w+1.8,2.2,'+a');put('swivel',w+1.05,2.2,'-a',0,0,true);put('plant',w+6.6,.5,'-c');
+      for(const a of [w+3.4,w+5.4])for(let c=1.4;c<Wc-.8;c+=1.4){if(Math.abs(c-mid)<1.6)continue;put('sdesk',a,c,'+a');put('chair',a+.56,c,'+a',pick(P_SEAT,w,1,1),0,true);}
+    }
+  }else if(kd==='library'){
+    // the librarian's desk by the door, reading tables at the front, the computers, then the stacks with an aisle down the middle
+    const vS=Math.floor(J/2);
+    if(!floorNo){for(let u=1;u<4;u++)add('bar',u+.5,1.3,PI,0x5a3a22);add('monitor',2.5,1.3,PI,0,.9);add('swivel',2.5,2.1,PI,0,0,true);}
+    for(let u=cu+2.5;u<I-1;u+=3.2)for(let v=1.6;v<vS-1;v+=2.8){add('rtable',u,v,0,0x5a3a22);add('chair',u-.68,v,HP,0x35506b,0,true);add('chair',u+.68,v,-HP,0x35506b,0,true);add('flamp',u,v,0,0,.64);}
+    for(let v=floorNo?1.5:3.5;v<vS-.5;v+=2){add('desk',1.2,v,HP);add('swivel',2,v,HP,0,0,true);}
+    for(let v=vS+.5;v<J-.5;v+=3)for(let u=.5;u<I;u++){if(Math.abs(u-cu)<1.1)continue;add('bookcase',u,v,0,pick(P_GOODS,u,v,1));}
+    for(let u=.5;u<I;u++){if(Math.abs(u-cu)<1.1)continue;add('bookcase',u,J-.5,PI,pick(P_GOODS,u,J,2));}
+  }else if(kd==='police'){
+    const desks=(v0)=>{for(let v=v0;v<J-(floorNo?1:4);v+=3)for(let u=1.5;u<I-1;u+=3.2){add('desk',u,v,0);add('swivel',u,v-.8,0,0,0,true);}};
+    if(!floorNo){
+      // the front desk behind its counter, a bench to wait on; desks behind; lockers; the holding cells at the back with a bunk in each
+      for(let u=1;u<I-4;u++)add('counter',u+.5,2.4,0);add('monitor',cu-2,2.4,PI,0,.9);add('seats',1.2,.8,0,0x35506b);add('flag',I-.8,.8,0);desks(5);
+      for(let v=4;v<J-3;v+=1)add('locker',I-.5,v+.5,-HP);
+      for(let u=1;u<I-4;u+=2.6){add('bunk',u,J-.9,PI,0x7d8a8f);add('toilet',u+1.2,J-.5,PI);}
+    }else{desks(1.6);for(let u=.5;u<4;u++)add('shelf3',u,J-.5,PI,0xbf9a6a);add('rtable',I-2,J-1.6,0,0x46505a);add('chair',I-2.7,J-1.6,HP,0x46505a,0,true);add('chair',I-1.3,J-1.6,-HP,0x46505a,0,true);}
+  }else if(kd==='firehall'){
+    // the engines' floor stays clear: only their kit along the back of it and down the far wall
+    for(let u=.5;u<I;u++)add('gearrack',u,7,PI);
+    for(let v=.5;v<7;v+=1)add('gearrack',I-.3,v,-HP);
+  }else if(kd==='crew'){
+    // upstairs: the crew's bunks, a table, a sofa in front of the television, a kitchen
+    for(let u=1;u<I-1;u+=2)add('bunk',u,1,0,0xc83a32);
+    for(const u of [1.5,3.5]){add('rtable',u,4,0,P_WHITE);add('chair',u-.68,4,HP,0xc83a32,0,true);add('chair',u+.68,4,-HP,0xc83a32,0,true);}
+    for(let i=0;i<3;i++)add('sofa',6+i,3.4,0,0x3f6b8c);add('tv',7,5.4,PI,0,.62);add('table',7,5.4,PI);
+    add('fridge2',I-.5,3.5,-HP);add('range',I-.5,4.5,-HP);add('sink',I-.5,5.5,-HP);
+  }else if(kd==='cells'){
+    // a bunk and a toilet in each cell, a guard's table at the door
+    for(let a=1;a<Wl-1;a+=4){if(S&&a>=S[0])break;for(const [c,back] of [[.9,'-c'],[Wc-.9,'+c']]){put('bunk',a+.5,c,back,0x7d8a8f);put('toilet',a+2.5,c-(back==='-c'?.3:-.3),back);}}
+    put('rtable',1,Wc/2,'-a',0x46505a);put('swivel',1,Wc/2+.8,'+c',0,0,true);
+  }else if(kd==='courtroom'){
+    // the lobby: the metal detector across the way in, a guard's desk, a bench. The courtroom: the public benches, the
+    // lawyers' tables, the witness box, the jury down one side, the judge at the far end between the flags
+    add('detector',cu,1.6,0,{door:1});add('desk',2.5,1.4,HP);add('swivel',1.7,1.4,HP,0,0,true);add('seats',I-1.2,1.4,-HP,0x7a2a2a);
+    for(const v of [5,6.4])for(const u of [1.5,3.2,5,I-1.5,I-3.2,I-5])add('bench',u,v,0,0,0,true);
+    for(const u of [cu-3,cu+3]){add('rtable',u,J-3.4,0,0x5a3a22);add('chair',u,J-4.1,0,0x35506b,0,true);}
+    add('judge',cu,J-1.2,PI);add('chair',cu,J-.5,PI,0x7a2a2a,.6,true);add('wbox',cu+2.6,J-1.6,0);add('flag',cu-3,J-.5,PI);add('flag',cu+4,J-.5,PI);
+    for(const v of [J-5,J-3.4])add('seats',I-.9,v,-HP,0x5a3a22);
+  }
+}
 // a mall's floor: its shops, the benches down its concourses, and on the ground floor the food court round the fountain
 function mallProps(b,px,pz,n,L){
   const y0=n===0?G+1:G+b.gf+1+FH*(n-1),W=b.x1-b.x0,D=b.z1-b.z0,[hx,hz]=b._fp,PI=Math.PI,HP=PI/2;
@@ -13115,6 +13204,8 @@ function furnProps(b,px,pz,floorNo){
   if(b.style==='mall'){mallProps(b,px,pz,floorNo,L);return L;}
   if(b.home){homeRoom(b,px,pz,floorNo,L);return L;}
   {const kd=floorNo===0?b.ground:b.kind;
+   if(CIVIC_ROOMS.has(kd)){civicRoom(b,px,pz,floorNo,L,kd);return L;}
+   if(b.ground==='firehall'&&floorNo>0){civicRoom(b,px,pz,floorNo,L,'crew');return L;}
    if(WORK_ROOMS.has(kd)){workRoom(b,px,pz,floorNo,L,kd);return L;}
    if(kd==='apartment'&&!b.eat&&b.style==='normal'){aptFloor(b,px,pz,floorNo,L);return L;}}
   if(b.eat&&floorNo===0){restProps(b,px,pz,L);return L;}
@@ -14015,7 +14106,7 @@ function bSpot(b,px,pz,side,inset,yc,h,aspect,out){
 }
 // the front first; failing that (something built right up against it), whichever other side has room
 function bSpotAny(b,px,pz,inset,yc,h,out){for(const sd of [b.door,(b.door+2)%4,b.door^1,(b.door+2)%4^1])if(bSpot(b,px,pz,sd,inset,yc,h,4,out))return;}
-const SMALL_SHOPS=new Set(['books','dentist','dispo','guns','bar','soup']),B2_SIGNS=new Set(['library','radio','news','bank','disco','club','dealer','armory','theater','stocks','nursery','museum','aquarium','school','datacenter','electric','casino','factory','campus','prison','jail','water','power','lab','arena','base','airport','nuclear']);
+const SMALL_SHOPS=new Set(['books','dentist','dispo','guns','bar','soup']),B2_SIGNS=new Set(['courthouse','library','radio','news','bank','disco','club','dealer','armory','theater','stocks','nursery','museum','aquarium','school','datacenter','electric','casino','factory','campus','prison','jail','water','power','lab','arena','base','airport','nuclear']);
 function brandSpots(b,px,pz){
   if(b._signs)return b._signs;
   const out=[],cat=b.signCat,tierOn=b.tier>0&&(b.x1-b.x0)>=8,ins=tierOn?2:0;
@@ -15668,7 +15759,7 @@ document.getElementById('confirmYes').addEventListener('click',()=>{
 // ---- test worlds: a checklist of every kind of structure; the world is then built with only the ones left ticked ----
 const TEST_KEY='goblin-stompin-gus-test';
 const TEST_GROUPS=[
-  ['Town blocks',[['tower','Office towers'],['mid','Mid-rise blocks'],['homes','Houses'],['shops','Little shops'],['park','Parks'],['plaza','Plazas'],['gas','Gas stations'],['food','Restaurants'],['fastfood','Fast food'],['fire','Fire stations'],['police','Police stations'],['build','Construction sites'],['wtower','Water towers'],['bell','Bell towers'],['church','Churches'],['cemetery','Cemeteries'],['library','Libraries'],['bank','Banks'],['news','TV news'],['radio','Radio stations'],['disco','Discos'],['club','Night clubs'],['court','Basketball courts'],['derelict','Derelict buildings'],['mansion','Mansions'],['trailers','Trailer parks'],['camp','Encampments'],['farmers',"Farmers' markets"],['nursery','Tree nurseries'],['dealer','Car dealers'],['armory','Armories'],['theater','Theatres'],['stocks','Stock exchange'],['datacenter','Data centers'],['electric','Electric company'],['lab','Goblin labs'],['jail','Jails']]],
+  ['Town blocks',[['courthouse','Courthouses'],['tower','Office towers'],['mid','Mid-rise blocks'],['homes','Houses'],['shops','Little shops'],['park','Parks'],['plaza','Plazas'],['gas','Gas stations'],['food','Restaurants'],['fastfood','Fast food'],['fire','Fire stations'],['police','Police stations'],['build','Construction sites'],['wtower','Water towers'],['bell','Bell towers'],['church','Churches'],['cemetery','Cemeteries'],['library','Libraries'],['bank','Banks'],['news','TV news'],['radio','Radio stations'],['disco','Discos'],['club','Night clubs'],['court','Basketball courts'],['derelict','Derelict buildings'],['mansion','Mansions'],['trailers','Trailer parks'],['camp','Encampments'],['farmers',"Farmers' markets"],['nursery','Tree nurseries'],['dealer','Car dealers'],['armory','Armories'],['theater','Theatres'],['stocks','Stock exchange'],['datacenter','Data centers'],['electric','Electric company'],['lab','Goblin labs'],['jail','Jails']]],
   ['Big sites',[['hospital','Hospitals'],['garage','Car parks'],['mega','Mega-buildings'],['market','Supermarkets'],['drug','Drugstores'],['sitdown','Sit-down restaurants'],['mall','Malls'],['bigbox','Superstores'],['ikea','Furniture superstores'],['cathedral','Cathedrals'],['museum','Museums'],['aquarium','Aquariums'],['casino','Casinos'],['school','Schools'],['factory','Factories'],['cinema','Cinemas'],['stadium','Stadiums'],['arena','Arenas'],['campus','Universities'],['prison','Prisons'],['water','Water works'],['power','Power stations'],['nuclear','Nuclear plants'],['zoo','Zoos'],['studio','Film studios'],['theme','Theme parks'],['bigpark','Big parks'],['hood','Housing estates'],['capitol','The capitol']]],
   ['Countryside',[['farm','Farms'],['truckstop','Truck stops'],['dump','Garbage dumps'],['mine','Mines'],['quarry','Quarries'],['lumber','Lumber camps'],['campsite','Campsites'],['cult','Cult altars'],['wrecks','Abandoned cars'],['tower5g','5G towers'],['prepper','Prepper compounds'],['militia','Militia compounds'],['ruins','Ruins'],['thieves',"Thieves' hideouts"],['wind','Wind farms'],['airport','Airports'],['nasa','Launch sites'],['base','Military bases'],['bunker','Bunkers'],['pylons','Power lines'],['billboards','Billboards'],['tolls','Toll plazas']]],
   ['Railways',[['rail','Railways'],['station','Train stations']]],
