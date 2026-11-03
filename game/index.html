@@ -758,7 +758,7 @@ function horizHidden(cx,cy,cz,hr,top){
     if(!o.isInstancedMesh&&horizHidden(sp.center.x,sp.center.y,sp.center.z,sp.radius,sp.center.y+sp.radius))return false;   // (over the horizon)
     const d=Math.hypot(sp.center.x-CURVE_CAM.x,sp.center.z-CURVE_CAM.z),r=sp.radius,lo=k*Math.max(0,d-r)**2,hi=k*(d+r)**2;
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v45';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v47';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -1344,6 +1344,7 @@ function coastInfo(p,px,pz,r,base){
   } else if(t==='harbor'){
     // the town's side, and how far out the sea wall stands (where the shore runs, squared off)
     const land=N4.find(([a,b])=>settlementAt(px+a,pz+b));p.land=land;const [a,b]=land;
+    p.rdW=a?segOpen(px+a,pz,1):segOpen(px,pz+b,0);p.rdU=a?segOpen(a<0?px:px+1,pz,0):segOpen(px,b<0?pz:pz+1,1);
     let Q=22;for(let u=4;u<28;u++){const rx=a>0?CELL-1-u:a<0?u:16,rz=b>0?CELL-1-u:b<0?u:16;if(seaBlk(px*CELL+rx,pz*CELL+rz)>=SEA_T){Q=u;break;}}
     p.Q=Math.max(8,Math.min(22,Q));
     p.boats=[];for(const [wc,i] of [[5,0],[15,1],[27,2]]){const L=8+Math.floor(r(160+i)*4);const a0=p.Q+3;if(a0+L>CELL||r(170+i)>=0.8)continue;
@@ -1382,11 +1383,15 @@ function coastD(x,z){
   const v=seaBlk(x,z),gx=seaBlk(x+2,z)-seaBlk(x-2,z),gz=seaBlk(x,z+2)-seaBlk(x,z-2);
   return (v-SEA_T)/Math.max(Math.hypot(gx,gz)/4,0.0004);
 }
-const oceanDepth=cd=>Math.max(1,Math.min(28,1+Math.floor(cd*0.33)));
+// how deep the sea is here, from the broad shape of the coast rather than the distance to the shoreline: that distance is
+// worked out from how fast the value's changing, which jumps about, and left pits and steps all over the sea bed
+const oceanDepth=(x,z)=>Math.max(1,Math.min(28,1+Math.floor(Math.max(0,seaV(x/CELL,z/CELL)-SEA_T)/0.0006*0.33)));
 // the sea bed and the water over it: shelving gently from the shore, out to deep ocean; sand, then gravel further out,
 // kelp in the shallows and on the shelf, the odd rock
 function seaWater(col,x,z,minD,cd){
-  if(cd===undefined)cd=coastD(x,z);const d=Math.max(minD||1,oceanDepth(cd)),f=G-d-1,h=hash2(x*13+5,z*7+3);
+  if(cd===undefined)cd=coastD(x,z);
+  // (shelving up to any nearby land, so a little island sits on a shoal and not on a pillar out of deep water)
+  const d=Math.max(minD||1,Math.min(oceanDepth(x,z),1+Math.floor(Math.max(0,cd)*0.6))),f=G-d-1,h=hash2(x*13+5,z*7+3);
   for(let y=f-2;y<f;y++)col(y,SAND);col(f,d>14?(h<0.5?GRAVEL:SAND):SAND);for(let y=G-d;y<=G;y++)col(y,WATER);
   if(d>=5&&d<=20&&h<0.035){const n=Math.min(d-2,2+Math.floor(hash2(x,z*5)*6));for(let y=f+1;y<=f+n;y++)col(y,LEAVES);}   // kelp
   else if(h>0.994){col(f+1,MOSSSTONE);if(h>0.998)col(f+2,MOSSSTONE);}
@@ -1401,14 +1406,22 @@ function natCoast(col,x,z,kind){
 // near the water but dry: the beach or the cliffs (also reaching into the plains blocks along the shore). True if done
 const nearSeaC=new Map();
 function nearSea(px,pz){const k=px*100003+pz;let v=nearSeaC.get(k);if(v===undefined){v=false;for(let a=-1;a<=1&&!v;a++)for(let b=-1;b<=1&&!v;b++)if(seaPlot(px+a,pz+b))v=true;if(nearSeaC.size>100000)nearSeaC.clear();nearSeaC.set(k,v);}return v;}
+// how much of a town's wide beach this spot is (0..1), blended across the blocks so the sand widens and narrows gradually
+// instead of jumping at a block's edge
+function beachK(x,z,orHarbor){
+  const fx=x/CELL-0.5,fz=z/CELL-0.5,i=Math.floor(fx),j=Math.floor(fz),u=fx-i,v=fz-j,b=(p,q)=>{const t=coastType(p,q);return t==='beach'||orHarbor&&t==='harbor'?1:0;},s=t=>t*t*(3-2*t),su=s(u),sv=s(v);
+  return (b(i,j)*(1-su)+b(i+1,j)*su)*(1-sv)+(b(i,j+1)*(1-su)+b(i+1,j+1)*su)*sv;
+}
 function natLand(col,x,z,kind,cd){
-  const w=-cd,rocky=kind!=='beach'&&gridNoise(x/CELL,z/CELL,7,77)>0.12;
-  if(rocky&&w<10){
-    const ph=Math.max(0,plainsH(x,z)),h=Math.round(w<3?w*2.4:7+(ph-7)*Math.min(1,(w-3)/7));
-    for(let y=G-2;y<G+h;y++)col(y,hash2(x*3+y,z*5)<0.3?MOSSSTONE:STONE);col(G+h,w<3?STONE:GRASS);return true;}
-  const bw=kind==='beach'?20:7;
+  const w=-cd,bk=beachK(x,z);   // (and no cliffs in front of a town's harbour either: see below)
+  // cliffs rise out of the beach as the noise climbs, instead of standing up suddenly beside it
+  const rk=Math.max(0,Math.min(1,(gridNoise(x/CELL,z/CELL,7,77)-0.06)/0.14))*(1-beachK(x,z,1));
+  if(rk>0&&w<10){
+    const ph=Math.max(0,plainsH(x,z)),h0=w<3?w*2.4:7+(ph-7)*Math.min(1,(w-3)/7),h=Math.round(h0*rk);
+    if(h>0||rk>0.5){for(let y=G-2;y<G+h;y++)col(y,hash2(x*3+y,z*5)<0.3?MOSSSTONE:STONE);col(G+h,w<3||rk<0.6?STONE:GRASS);return true;}}
+  const bw=7+13*bk;
   if(w<bw){col(G,SAND);col(G-1,SAND);col(G-2,SAND);
-    if(w>bw-4&&gridNoise(x/6,z/6,1,91)>0){col(G+1,SAND);if(hash2(x*5+1,z*3+7)<0.08)col(G+2,LEAVES);}   // the dunes, with marram grass
+    if(w>bw-4&&w>4&&gridNoise(x/6,z/6,1,91)>0){col(G+1,SAND);if(hash2(x*5+1,z*3+7)<0.08)col(G+2,LEAVES);}   // the dunes, with marram grass
     return true;}
   return false;
 }
@@ -2332,13 +2345,15 @@ function seaColumn(a,col,px,pz,rx,rz,lx,lz,x,z){
   const t=plotType(px,pz),P=plotInfo(px,pz);
   if(t==='yard'||t==='navy'){yardColumn(a,col,P,px,pz,rx,rz,lx,lz,x,z);return;}
   if(t==='basin'||t==='nbasin'){
-    for(let y=G-10;y<=G;y++)col(y,WATER);col(G-11,SAND);
+    // dredged out to 11 blocks at the quays, shelving up to the natural sea bed at any open edge
+    {let e=99;for(const [a,b] of N4){if(['basin','nbasin','yard','navy'].includes(plotType(px+a,pz+b)))continue;e=Math.min(e,a>0?CELL-1-rx:a<0?rx:b>0?CELL-1-rz:rz);}
+     const d=Math.max(oceanDepth(x,z),Math.min(11,oceanDepth(x,z)+e));for(let y=G-d;y<=G;y++)col(y,WATER);col(G-d-1,SAND);}
     if(P.ship){const S=P.ship,[sa,sb]=S.side,tt=fromSide(sa,sb,rx,rz),al=alongSide(sa,sb,rx,rz),A=al-((CELL-S.L)>>1),C=tt-(2+S.hw);
       for(let y=G-4;y<=G+16;y++){const v=shipBlock(S.k,S.L,S.hw,A,C,y,0,px*7+pz*13);if(v!==null)col(y,v);}}
     craneCol(col,x,z);return;}
   if(t==='harbor'){harborColumn(col,P,rx,rz,x,z);return;}
   if(t==='rig'){seaWater(col,x,z);rigColumn(col,rx-16,rz-16);return;}
-  if(t==='wreck'){seaWater(col,x,z);const cd=coastD(px*CELL+16,pz*CELL+16),d=oceanDepth(cd),dy=4-d;
+  if(t==='wreck'){seaWater(col,x,z);const d=oceanDepth(px*CELL+16,pz*CELL+16),dy=4-d;
     for(let y=G-d;y<=G-d+16;y++){const v=shipBlock('cargo',28,4,rx-2,rz-16,y,dy,px*3+pz);if(v===null)continue;if(v!==AIR)col(y,hash2(x+y*7,z)<0.45?RUST:hash2(x,z+y)<0.5?MOSSSTONE:METAL);}return;}
   if(t==='beach'){const wet=natCoast(col,x,z,'beach');if(!wet)beachColumn(col,P,rx,rz,x,z);return;}
   const wet=natCoast(col,x,z);
@@ -2418,7 +2433,8 @@ function harborColumn(col,P,rx,rz,x,z){
   if(!wet(x,z)){
     for(let y=G+1;y<G+4;y++)col(y,AIR);col(G-1,STONE);
     const wall=wet(x+1,z)||wet(x-1,z)||wet(x,z+1)||wet(x,z-1);
-    const road=w<ROADW||u<ROADW&&(la<0||lb<0);
+    // (roads only where a street of the town actually comes through, not strips of tarmac running off into the grass)
+    const road=w<ROADW&&P.rdW||u<ROADW&&(la<0||lb<0)&&P.rdU;
     if(!road&&!wall&&coastD(x,z)<-9){plainsColumn(col,x,z);return;}   // (back from the front: grass)
     col(G,road?ASPHALT:wall?STONE:COBBLE);
     if(wall&&!pier)col(G+1,FENCE);
@@ -2426,7 +2442,8 @@ function harborColumn(col,P,rx,rz,x,z){
       if(mod(x+z,9)===0){col(G+1,METAL);col(G+2,METAL);col(G+3,LAMP);}
       else if(mod(x*3+z,13)===0)col(G+1,SEAT_B);}
     return;}
-  seaWater(col,x,z,4);
+  {let e=99;for(const [a,b] of N4){if(plotType(P.px+a,P.pz+b)==='harbor'||settlementAt(P.px+a,P.pz+b))continue;e=Math.min(e,a>0?CELL-1-rx:a<0?rx:b>0?CELL-1-rz:rz);}
+   seaWater(col,x,z,Math.min(4,1+(e>>1)));}   // (dredged for the boats, shelving back up at its open edges)
   if(pier){col(G,PLANKS);for(let y=G+1;y<G+3;y++)col(y,AIR);
     if(u%4===1&&(w===9||w===11||w===21||w===23))for(let y=G-6;y<G;y++)col(y,LOG);
     return;}
@@ -5242,7 +5259,7 @@ function joinColumn(col,J,c,a,x,z){
   }
 }
 function plainsColumn(col,x,z,noShore){
-  if(!noShore&&nearSea(Math.floor(x/CELL),Math.floor(z/CELL))){const cd=coastD(x,z);if(cd>-10&&cd<0&&natLand(col,x,z,null,cd))return;}
+  if(!noShore&&nearSea(Math.floor(x/CELL),Math.floor(z/CELL))){const cd=coastD(x,z);if(cd>=0){seaWater(col,x,z,1,cd);return;}if(cd>-22&&natLand(col,x,z,null,cd))return;}
   const h=plainsH(x,z);
   if(h<0){col(G-1,SAND);col(G,WATER);return;}
   for(let y=G;y<G+h;y++)col(y,DIRT);col(G+h,GRASS);

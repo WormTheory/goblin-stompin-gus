@@ -1,4 +1,4 @@
-seed 12345 pos 10.5 45.00 10.5 peakY 45 grounded true
-crashed 0
-dropped from 65 without snap: edits 0 y 45
-with load snap: edits 0 y 45 snap pending false
+seed 266144506 pos 10.5 45.00 10.5 peakY 45 grounded true
+crashed 1
+dropped from 65 without snap: edits 98 y 43
+with load snap: edits 0 y 43 snap pending false
