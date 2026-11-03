@@ -5143,7 +5143,7 @@ function stairRun(g,B,up){
   if(b.stairHall&&!onStair(g,B)){const I=b.x1-b.x0-2,J=b.z1-b.z0-2,long=I>=J,iu=g.pos.x-B.px*CELL-b.x0-1,iv=g.pos.z-B.pz*CELL-b.z0-1,a=long?iu:iv,c=long?iv:iu,mid=((long?J:I)>>1)+0.5,h=b.stairHall;
     if(a<h[0]||a>h[1]+1){const P=(pa,pc)=>({x:B.px*CELL+b.x0+1+(long?pa:pc),z:B.pz*CELL+b.z0+1+(long?pc:pa)});return Math.abs(c-mid)>0.8?P(a,mid):P(a<h[0]?a+3:a-3,mid);}}
   // (coming at it from the wrong end: round the side first, not over the rails or into its solid back)
-  if(!onStair(g,B)){const half=(S.c1-S.c0)/2,dirC=((alongX?b.z0+b.z1:b.x0+b.x1)/2-(S.c0+S.c1)/2)>=0?1:-1,aside=cW+dirC*(half+(up||S.L<=FH?1.6:2.2)),wrong=up?gR>R0-0.3:gR<R0+S.L+0.3;
+  if(!onStair(g,B)){const half=(S.c1-S.c0)/2,dirC=((alongX?b.z0+b.z1:b.x0+b.x1)/2-(S.c0+S.c1)/2)>=0?1:-1,aside=cW+dirC*(half+1.6),wrong=up?gR>R0-0.3:gR<R0+S.L+0.3;
     if(wrong&&Math.abs(gC-cW)<half+3){const to=Math.abs(gC-aside)<0.7?{r:up?R0-1.4:R0+S.L+0.6,c:aside}:{r:gR,c:aside};return alongX?{x:to.r,z:to.c}:{x:to.c,z:to.r};}}
   let R;
   if(onStair(g,B))R=up?R0+S.L+1:R0-0.6;   // (on the flight: on to the end of it)
@@ -13108,7 +13108,7 @@ function floorKit(b,px,pz,floorNo,L,turn){
   const add=(type,u0,v0,yaw0,tint,yo,low)=>{
     const u=d===2?u0:d===3?u0:d===0?v0:I-v0,v=d===2?v0:d===3?J-v0:u0,yaw=(yaw0||0)*(d===0?-1:1)+(d===3?Math.PI:d===0?Math.PI/2:d===1?-Math.PI/2:0);
     if(u<.15||v<.15||u>I-.15||v>J-.15)return;const rx=X0+u,rz=Z0+v;
-    if(S){const r=(S.ax==='x'?rx:rz)-S.r0,c=S.ax==='x'?rz:rx;if(c>=S.c0-.8&&c<S.c1+.8&&r>=-3.6&&r<S.L+3.6)return;if(c>=S.c0-3&&c<S.c1+3&&(r>=-3&&r<.6||r>=S.L-.6&&r<S.L+3))return;}   // (and room to walk round to either end of it)
+    if(S){const r=(S.ax==='x'?rx:rz)-S.r0,c=S.ax==='x'?rz:rx;if(c>=S.c0-.8&&c<S.c1+.8&&r>=-3.6&&r<S.L+3.6)return;if(c>=S.c0-3&&c<S.c1+3&&(S.L>FH?r>=-3&&r<S.L+3:r>=-3&&r<.6||r>=S.L-.6&&r<S.L+3))return;}   // (and room to walk round to either end of it)
     if(floorNo===0&&!tint?.door&&(b.door>=2?Math.abs(rx-cx-.5)<2&&(b.door===2?rz<Z0+3.2:rz>Z0+J-3.2):Math.abs(rz-cz-.5)<2&&(b.door===0?rx<X0+3.2:rx>X0+I-3.2)))return;
     const X=px*CELL+rx,Z=pz*CELL+rz;L.push({prop:true,type,x:X,z:Z,y0:y0+(yo||0),yaw,tint,rad:.5,low,key:'p'+Math.round(X*4)+','+Math.round(Z*4)+','+y0+type});};
   return{I,J,add,hg:(a,c,n)=>hash2(Math.floor(a)*7+px*31+floorNo*3+n,Math.floor(c)*11+pz*17+n)};
