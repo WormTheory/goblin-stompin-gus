@@ -1,0 +1,20 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1200,height:900}});
+const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.route('**/*',r=>r.request().url().startsWith('file:')?r.continue():r.abort());
+await p.goto('file://'+process.cwd()+'/ui.html');await p.waitForTimeout(1500);
+await p.evaluate(()=>{const b=document.getElementById('tabBtnControls')||[...document.querySelectorAll('button')].find(x=>/controls/i.test(x.textContent));b&&b.click();});
+await p.waitForTimeout(400);
+await p.evaluate(()=>{const pane=document.getElementById('tabControls');pane.scrollTop=9999;});
+await p.screenshot({path:'ui1.png'});
+// click Sprint keyboard slot then press KeyG
+await p.click('.rbs[data-a="sprint"][data-d="kb"][data-i="0"]');await p.waitForTimeout(200);
+await p.screenshot({path:'ui2.png'});
+await p.keyboard.press('KeyG');await p.waitForTimeout(200);
+await p.click('.rbs[data-a="jump"][data-d="kb"][data-i="1"]');await p.waitForTimeout(250);
+await p.mouse.down({button:'right'});await p.mouse.up({button:'right'});await p.waitForTimeout(500);
+await p.evaluate(()=>{const pane=document.getElementById('tabControls');pane.scrollTop=9999;});
+await p.screenshot({path:'ui3.png'});
+console.log(await p.evaluate(()=>localStorage.getItem('goblin-binds-v1')));
+await p.setViewportSize({width:390,height:800});await p.waitForTimeout(300);await p.evaluate(()=>{const pane=document.getElementById('tabControls');pane.scrollTop=9999;});await p.screenshot({path:'ui4.png'});
+console.log(errs.join('\n')||'no errors');await b.close();})();

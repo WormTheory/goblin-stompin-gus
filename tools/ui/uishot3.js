@@ -1,0 +1,11 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1200,height:1000}});
+const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.route('**/*',r=>r.request().url().startsWith('file:')?r.continue():r.abort());
+await p.goto('file://'+process.cwd()+'/ui.html');await p.waitForTimeout(1500);
+await p.evaluate(()=>{document.getElementById('tabBtnCustom').click();});await p.waitForTimeout(300);
+await p.click('#abilList .tog[data-k="stomp"]');await p.click('#abilList .tog[data-k="triple"]');await p.waitForTimeout(200);
+await p.screenshot({path:'ab1.png'});
+await p.evaluate(()=>{document.getElementById('tabCustom').scrollTop=9999;});await p.waitForTimeout(200);await p.screenshot({path:'ab3.png'});
+console.log(await p.evaluate(()=>localStorage.getItem('goblin-stompin-gus-abilities')));
+console.log(errs.join('\n')||'no errors');await b.close();})();

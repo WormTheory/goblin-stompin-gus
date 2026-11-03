@@ -1,0 +1,6 @@
+node_modules/
+tools/tests/g.js
+tools/map/g.js
+tools/ui/ui.html
+*.png
+*.ppm

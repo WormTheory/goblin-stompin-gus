@@ -1,0 +1,3 @@
+# (Keep LF everywhere, even on Windows, because the tests find the game's closing lines with a \n regex.)
+* text=auto eol=lf
+*.png binary

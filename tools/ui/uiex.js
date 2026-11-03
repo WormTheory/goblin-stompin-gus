@@ -1,0 +1,14 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1200,height:1000}});
+const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.route('**/*',r=>r.request().url().startsWith('file:')?r.continue():r.abort());
+await p.goto('file://'+process.cwd()+'/ui.html');await p.waitForTimeout(1500);
+await p.evaluate(()=>{document.getElementById('tabBtnCustom').click();});await p.waitForTimeout(300);
+const st=()=>p.evaluate(()=>['roll','blastDash','blastAirDash'].map(k=>k+':'+document.querySelector('#abilList .tog[data-k="'+k+'"]').getAttribute('aria-checked')).join(' '));
+console.log('start',await st());
+await p.click('#abilList .tog[data-k="roll"]');console.log('roll on',await st());
+await p.click('#abilList .tog[data-k="blastDash"]');console.log('blast dash on',await st());
+await p.click('#abilList .tog[data-k="roll"]');console.log('roll on again',await st());
+await p.click('#abilList .tog[data-k="blastAirDash"]');console.log('blast air on',await st());
+await p.evaluate(()=>{document.getElementById('tabCustom').scrollTop=300;});await p.waitForTimeout(200);await p.screenshot({path:'abx.png'});
+console.log(errs.join('\n')||'no errors');await b.close();})();
