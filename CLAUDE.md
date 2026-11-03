@@ -22,6 +22,12 @@ bash tools/run_tests.sh rollt spk lean  # any named suites from tools/tests/
 SEED=7 bash tools/run_tests.sh maptest  # Math.random is seeded from SEED
 ```
 
+The suites only print measurements and never fail on a wrong result, so compare output against the saved baseline:
+```bash
+bash tools/baseline.sh                  # rewrites tools/baseline/*.txt with timings masked
+git diff tools/baseline                 # shows what a change altered; commit it if the change was intended
+```
+
 How a test works (see the first ~40 lines of `tools/tests/dead6.js`, which is the standard header):
 - **Loading the game.** `mkg.py` copies the main `<script>` (the one after the three.js tag) into `g.js`. Each test reads `g.js` and seeds `Math.random`.
 - **Reaching internals.** A regex swaps the closing `requestAnimationFrame(frame);\n})();` for `window.__t={...}`, which exposes the functions that test needs. If you add an internal a test must reach, add it to that test's `window.__t={` list.
