@@ -758,7 +758,7 @@ function horizHidden(cx,cy,cz,hr,top){
     if(!o.isInstancedMesh&&horizHidden(sp.center.x,sp.center.y,sp.center.z,sp.radius,sp.center.y+sp.radius))return false;   // (over the horizon)
     const d=Math.hypot(sp.center.x-CURVE_CAM.x,sp.center.z-CURVE_CAM.z),r=sp.radius,lo=k*Math.max(0,d-r)**2,hi=k*(d+r)**2;
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v66';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v67';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -3765,9 +3765,9 @@ function baseType0(px,pz){
   // a row of two little shops (bookshop, dentist, dispensary, gun shop, bar, soup kitchen); a water tower out in the
   // smaller places and the suburbs; a bell tower on its green, mostly in the small towns and villages
   {const u=hash2(px*61+5,pz*43+9);
-   if(u<0.075)return'shops';
-   if((ty==='small'||ty==='village'||ty==='suburb')&&u<0.092)return'wtower';
-   if((ty==='small'||ty==='village')&&u<0.112||(ty==='large'||ty==='city')&&u<0.086)return'bell';}
+   if(u<0.11)return'shops';
+   if((ty==='small'||ty==='village'||ty==='suburb')&&u<0.127)return'wtower';
+   if((ty==='small'||ty==='village')&&u<0.147||(ty==='large'||ty==='city')&&u<0.121)return'bell';}
   // churches, cemeteries, libraries, cinemas, radio and TV news, banks, discos and night clubs: how common each is
   // depends on the kind of place
   {const T2=B2_MIX[ty]||B2_MIX.small;let v=hash2(px*83+1,pz*29+7);for(const [k,p] of T2){if(v<p)return k;v-=p;}}
@@ -4092,7 +4092,7 @@ function plotInfo(px,pz){
     b.detailTop=b.top-1;brandOn(b,'hospital',r(140));p.b.push(b);
   } else if(type==='grocery'){
     // one big, tall-ceilinged supermarket at the back of a car park
-    const b=base({x0:PL0+1,x1:PL1-1,z0:PC-1,z1:PL1-1,gf:7,top:G+7,wall:r(2)<0.5?BRICK:CONCRETE,win:GLASS,kind:'grocery',ground:'grocery',floor:FLOORT,door:2,front:true,neon:NEON_G});
+    const b=base({x0:PL0+1,x1:PL1-1,z0:PL0+6,z1:PL1-1,gf:7,top:G+7,wall:r(2)<0.5?BRICK:CONCRETE,win:GLASS,kind:'grocery',ground:'grocery',floor:FLOORT,door:2,front:true,neon:NEON_G});
     b.detailTop=b.top-1;brandOn(b,'grocery',r(140));p.b.push(b);
   } else if(type==='homes'){
     // a little residential street: up to four houses with gable roofs, front doors facing the road
@@ -4113,18 +4113,12 @@ function plotInfo(px,pz){
       b.roof=Math.floor((alongX?(z1-z0):(x1-x0))/2);b.detailTop=b.top;p.b.push(b);
     }
   } else if(type==='shops'){
-    // two little shops side by side, glass fronts onto a paved forecourt: two of a bookshop, a dentist's, a
-    // dispensary, a gun shop (bars over its windows), a bar and a soup kitchen (those two run deeper)
-    // (A bar or a soup kitchen has a whole block, with a kitchen of its own: see restProps. A bar gets tables outside too.)
-    const kinds=['books','dentist','dispo','guns','bar','soup'],k0=Math.floor(r(80)*6);let k1=Math.floor(r(81)*3);if(k1>=k0)k1++;
-    const walls=[BRICK,SIDING,CONCRETE,STUCCO,SIDING_Y,BRICK];
-    if(k0>=4){const kd=kinds[k0],b=base({x0:PL0+1,x1:PL1-1,z0:PL0+4,z1:PL1-1,gf:6,top:G+6,wall:walls[Math.floor(r(84)*walls.length)],win:GLASS,kind:'apartment',ground:kd,floor:kd==='bar'?PLANKS:CHECKER,door:2,front:true,neon:kd==='bar'?NEON_O:NEON_B});
-      b.detailTop=b.top-1;b.eat=true;brandOn(b,kd,r(150));p.b.push(b);if(kd==='bar')p.patio={z0:PL0,z1:PL0+4};}
-    else [k0,k1].forEach((ki,q)=>{const kd=kinds[ki],deep=false,x0=PL0+1+q*8;
-      const b=base({x0,x1:x0+8,z0:PL0+5,z1:PL0+5+(deep?13:10),top:G+(kd==='dentist'&&r(82+q)<0.5?2*FH:FH),wall:kd==='guns'?BRICK:walls[Math.floor(r(84+q)*walls.length)],win:GLASS,
-        kind:kd==='dentist'?'office':'apartment',ground:kd,floor:kd==='bar'?PLANKS:kd==='soup'?CHECKER:FLOORT,door:2,front:true,neon:kd==='bar'?NEON_O:kd==='dispo'?NEON_G:kd==='guns'?NEON_R:NEON_B});
-      if(kd==='guns')b.barred=true;
-      b.detailTop=b.top-1;brandOn(b,kd,r(150+q));p.b.push(b);});
+    // a little shop filling its block, a glass front onto a paved forecourt: a bookshop, a dentist's, a dispensary, a gun
+    // shop (bars over its windows), a bar or a soup kitchen. (Their rooms: see restProps and shopRoom. A bar gets tables outside.)
+    const kinds=['books','dentist','dispo','guns','bar','soup'],kd=kinds[Math.floor(r(80)*6)],walls=[BRICK,SIDING,CONCRETE,STUCCO,SIDING_Y,BRICK];
+    const b=base({x0:PL0+1,x1:PL1-1,z0:PL0+4,z1:PL1-1,gf:6,top:G+6,wall:kd==='guns'?BRICK:walls[Math.floor(r(84)*walls.length)],win:GLASS,kind:kd==='dentist'?'office':'apartment',ground:kd,floor:kd==='books'||kd==='bar'||kd==='dispo'?PLANKS:kd==='soup'?CHECKER:kd==='guns'?CONCRETE:FLOORT,door:2,front:true,neon:kd==='bar'?NEON_O:kd==='dispo'?NEON_G:kd==='guns'?NEON_R:NEON_B});
+    if(kd==='guns')b.barred=true;if(kd==='bar'||kd==='soup')b.eat=true;
+    b.detailTop=b.top-1;brandOn(b,kd,r(150));p.b.push(b);if(kd==='bar')p.patio={z0:PL0,z1:PL0+4};
   } else if(type==='derelict'){
     // an abandoned building: boarded-up and broken windows, holes in its walls and roof, the floors half fallen in,
     // rubble and weeds round it behind a sagging chain-link fence
@@ -4547,6 +4541,8 @@ function furniture(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
 // new ones while its chunks stay, and its rooms would come up empty.)
 const FURN_SEEN=new Set();
 const FURN_IDS=new Set([SOFA,BED,FRIDGE,SHELF,CRATE,LEAVES,SCREEN,PLANKS]);
+const SHOP_ROOMS=new Set(['books','dentist','dispo','guns','dealer','armory','grocery','market','drug','bigbox','ikea']);
+function roomFloor(b,rz){return b.eat?(rz>=b.z1-(b.eatTile||6)?FLOORT:b.floor):SHOP_ROOMS.has(b.ground)?b.floor:0;}
 function furnTurns(v,b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
   if(v===SOFA||v===BED||v===FRIDGE||v===SHELF)return true;
   flo(b,fl);const lvl=FL_LVL,top=(FL_NO===0?(b.gf||FH)-2:FH-2);
@@ -4592,6 +4588,7 @@ function furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
       if(level===1&&iu===(I>>1)&&iv===J-1&&h<0.5)return SCREEN;
       return AIR;
     case 'shop':
+      if(b.signCat==='kiosk')return AIR;   // (a gas station's: see shopRoom)
       if(iv%3===1&&iu>=1&&iu<I-1&&level<=1)return(level===1&&h<0.3)?CRATE:SHELF;
       if(level===0&&iv===J-1&&iu<=2)return PLANKS;
       return AIR;
@@ -4622,37 +4619,16 @@ function furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
       const d0=Math.max(2,cu-11),d1=cu-2;
       if(iv===7&&iu>=d0+2&&iu<=d1-1&&level===4)return NEON_B;
       return AIR;}
-    case 'books':
-      // shelves all down both walls, low shelves by the aisle, the till at the back, an armchair in the corner
-      if(level<=2&&(iu===0||iu===I-1)&&iv>=1&&iv<J-1)return SHELF;
-      if(level<=1&&iu===1&&iv>=1&&iv<J-2&&iv%2===1)return SHELF;
-      if(iv===J-1&&iu===I-1){if(level===0)return PLANKS;if(level===1)return SCREEN;}
-      if(iv===J-1&&iu===0&&level===0)return SOFA;
-      if(iv===0&&level<=1&&(iu===0||iu===I-1))return LEAVES;
-      return AIR;
+    case 'books':case 'dispo':case 'dealer':case 'armory':case 'market':case 'drug':case 'bigbox':case 'grocery':return AIR;   // (props: see shopRoom)
     case 'dentist':
-      // a waiting room at the front (chairs, a fish tank), a partition, the surgery behind: reclining chairs under
-      // their lamps, an x-ray screen, cabinets
-      if(iv>=1&&iv<=2&&(iu===0||iu===I-1)&&level===0)return SOFA;
-      if(iv===3&&iu===I-1){if(level===0)return CRATE;if(level===1)return NEON_B;}
-      if(iv===Math.floor(J/2)&&(iu<=1||iu===I-1)&&level<=2)return SIDING;
-      if(iv===J-2&&(iu===0||iu===I-1)){if(level===0)return SOFA;if(level===2)return LAMP;}
-      if(iv===J-1&&iu===1&&level===1)return SCREEN;
-      if(iv===J-1&&iu===I-1&&level<=1)return FRIDGE;
-      return AIR;
-    case 'dispo':
-      // glass display counters, jars on the shelves behind, potted plants
-      if(iv===J-3&&(iu<=1||iu===I-1)&&level===0)return GLASS;
-      if(iv===J-1&&level<=2)return SHELF;
-      if(iv===1&&(iu===0||iu===I-1)){if(level===0)return FLOWER;if(level===1)return LEAVES;}
-      if(iv===J-3&&iu===0&&level===1)return SCREEN;
+      // the waiting room, a wall with a door, three surgeries behind it
+      if(iv===J-5&&!(iu>=I-3&&iu<=I-2&&level<=2))return SIDING;
+      if(iv>J-5&&(iu===4||iu===9))return level<=2?SIDING:AIR;
       return AIR;
     case 'guns':
-      // racks of guns on the walls, ammo crates, a long glass counter, a target on the wall
-      if(iv===J-1){if(level===0)return CRATE;if(level<=2)return RUST;}
-      if((iu===0||iu===I-1)&&iv>=2&&iv<J-1&&level>=1&&level<=2)return METAL;
-      if(iv===J-3&&(iu<=1||iu===I-1)&&level===0)return GLASS;
-      if(iu===0&&iv===1&&level===2)return NEON_R;
+      // the shop, a wall with a door and a window on to it, the range behind: lanes with low walls between
+      if(iv===J-5){if(iu>=I-3&&iu<=I-2&&level<=2)return AIR;if(iu>=2&&iu<I-5&&(level===1||level===2))return GLASS;return CONCRETE;}
+      if(iv>J-5&&(iu===4||iu===9))return level<=1?CONCRETE:AIR;
       return AIR;
     case 'library':
       // the stacks: rows of tall shelves across the back; reading tables and chairs at the front; computers along a
@@ -4732,18 +4708,6 @@ function furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
       if(iu===I-1&&iv>=1&&iv<=4&&level===0)return SOFA;
       if((iu===0||iu===I-1)&&level===4)return NEON_G;
       return AIR;
-    case 'dealer':
-      // the sales desks at the back (the cars on show stand on the open floor)
-      if(iv===J-1&&iu%4===1){if(level===0)return PLANKS;if(level===1)return SCREEN;}
-      if(iv===J-2&&iu%4===1&&level===0)return SEAT_B;
-      if(iv===0&&(iu===0||iu===I-1)&&level<=1)return LEAVES;
-      return AIR;
-    case 'armory':
-      // the drill hall: wide open, racks of rifles and crates down the sides, the flags at the far end
-      if((iu===0||iu===I-1)&&iv>=1&&iv<J-1){if(level===0)return iv%3===0?CRATE:AIR;if(level>=1&&level<=2)return iv%2?METAL:RUST;}
-      if(iv===J-1&&level>=2&&level<=4&&(iu===(I>>1)-2||iu===(I>>1)+2))return level===4?PAINT_RED:METAL;
-      if(iv===J-1&&level===0&&iu%3===1)return CRATE;
-      return AIR;
     case 'theater':{
       // the lobby; then the hall: the stalls, a balcony over the back of them, the orchestra pit, the stage
       if(iv<=1){if(iv===1&&(iu<=1||iu>=I-2)&&level===0)return SOFA;return AIR;}
@@ -4762,20 +4726,9 @@ function furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
       if(iv>=2&&iv<J-2&&iv%3===1&&iu>=1&&iu<=I-2&&Math.abs(iu-(I>>1))>1){if(level===0)return PLANKS;if(level===1)return iu%2?SCREEN:AIR;}
       return AIR;
     case 'ikea':{
-      // the warehouse at the back: long racks of flat boxes, aisles between; the showroom: room after furnished room;
-      // the cafeteria by the windows
+      // the walls of the room sets (their furniture, and the warehouse behind, are props: see shopRoom)
       const wv=Math.floor(J*0.6);
-      if(iv>=wv){if(iv%4===1&&iu%12!==0&&iu>0&&iu<I-1&&level<=6)return level%2?METAL:CRATE;return AIR;}
-      if(iu>I*0.72&&iv<=Math.floor(J*0.35)){if(iv===0&&level===0&&iu%3===0)return FRIDGE;if(iu%3===1&&iv%3===2){if(level===0)return PLANKS;}if(iu%3===1&&iv%3===1&&level===0)return SEAT_B;return AIR;}
-      if(iv>=2&&iv<wv-1){const k=Math.floor(iu/8),u=iu%8;
-        if(u===0&&level<=3&&iv!==Math.floor((2+wv)/2)&&iv!==Math.floor((2+wv)/2)+1)return PAINT_WHITE;
-        if(level===0){const set=k%4;
-          if(set===0){if(u>=2&&u<=4&&iv===3)return BED;if(u===6&&iv===3)return SHELF;}
-          if(set===1){if(u>=2&&u<=5&&iv===3)return SOFA;if(u>=3&&u<=4&&iv===5)return PLANKS;}
-          if(set===2){if(u>=2&&u<=5&&iv===4)return PLANKS;if((u===2||u===5)&&(iv===3||iv===5))return SEAT_B;}
-          if(set===3&&iv===3&&u>=1&&u<=6)return iu%2?SHELF:FRIDGE;}
-        if(level<=1&&k%4===0&&u===6&&iv===3)return SHELF;
-        if(level===2&&u===1&&iv===3)return LAMP;}
+      if(iv>=2&&iv<wv-1&&iu<I*0.72&&level<=3&&(iu%8===0&&(iv-2)%9>=3&&(iv-2)%9<=7||(iv-2)%9===0&&iu%8!==3&&iu%8!==4))return PAINT_WHITE;
       return AIR;}
     case 'museum':{
       // the lobby (gift shop, ticket desk), then galleries between white walls down the length of the building:
@@ -4926,50 +4879,6 @@ function furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
       // just the pillars: the beds, monitors and nurses' stations are props (see hospProps)
       if(iu%8===4&&iv%8===3){STRUCT=true;return CONCRETE;}
       return AIR;
-    case 'market':{
-      // checkouts by the doors, produce bins just inside, aisles of shelving, a deli counter, fridges and freezers along the back
-      // (an electronics store instead: shelves topped with screens, a wall of TVs at the back)
-      const tech=b.brand&&b.brand.tech,small=I<26;
-      if(iv<=1)return AIR;
-      if(iv===2){if(iu%5===1&&iu>2&&iu<I-3){if(level===0)return PLANKS;if(level===1)return SCREEN;}return AIR;}
-      if(iv>=J-1)return level<=2?(tech?(level>=1?SCREEN:SHELF):FRIDGE):AIR;
-      if(iv<5||iu<=1||iu>=I-2||iv>=J-3)return AIR;
-      const prod=!tech&&iu<Math.round(I*0.22);
-      if(prod){if(iv%3===0&&iu%3!==0){if(level===0)return CRATE;if(level===1)return(iu+iv)%2?LEAVES:FLOWER;}return AIR;}
-      if(!tech&&!small&&iu>I-8&&iv>J-8){if(iv===J-7&&level===0)return PLANKS;if(iv===J-7&&level===1)return FRIDGE;return AIR;}   // the deli counter
-      if(Math.abs(iv-(J>>1))<=1&&!small)return AIR;   // a cross aisle
-      if(iu%3===0){if(tech)return level<=1?SHELF:level===2?(iv%2?SCREEN:AIR):AIR;return level<=2?(small&&level===0?CRATE:SHELF):AIR;}
-      return AIR;}
-    case 'drug':{
-      // tills by the door, aisles of shelves, a cooler wall down one side, the pharmacy counter across the back
-      if(iv<=1)return AIR;
-      if(iv===2&&iu>=I-6&&iu<I-1){if(level===0)return PLANKS;if(level===1&&iu%3===0)return SCREEN;return AIR;}
-      if(iu===I-1&&iv>3)return level<=2?FRIDGE:AIR;
-      if(iv>=J-3){if(iv===J-3&&iu>=2&&iu<I-3){if(level===0)return PLANKS;if(level===1&&iu%4===2)return SCREEN;}if(iv>=J-1)return level<=2?SHELF:AIR;return AIR;}
-      if(iv>=5&&iv<J-5&&iu>=1&&iu<I-3&&iu%3===1)return level<=1?SHELF:AIR;
-      return AIR;}
-    case 'bigbox':{
-      // checkouts across the front, long aisles running back from them (a wide main aisle down the middle and a
-      // cross aisle halfway), general merchandise on one side, electronics in the middle, groceries with chillers on the other
-      const ent=b.bigbox.some(e=>Math.abs(rx-e)<=3),mid=J>>1,zone=iu<I*0.38?0:iu<I*0.6?1:2;
-      if(iv<=1||ent&&iv<=4)return AIR;
-      if(iv===3){if(iu%4===2&&!ent){if(level===0)return PLANKS;if(level===1&&iu%8===2)return SCREEN;}return AIR;}
-      if(iv>=J-1)return level<=2?(zone===2?FRIDGE:SHELF):AIR;
-      if(iv<6||Math.abs(iv-mid)<=1||iv>=J-3||iu<=1||iu>=I-2)return(level===0&&h<0.015)?CRATE:AIR;
-      if(b.brand&&b.brand.wh){if(iu%5===0)return level<=1?SHELF:level<=5?(level%2?METAL:CRATE):AIR;return AIR;}   // warehouse racking, pallets up to the roof
-      if(iu%3===0){
-        if(zone===2&&!(b.brand&&b.brand.nofood))return level<=2?(Math.floor(iu/3)%2?FRIDGE:SHELF):AIR;
-        if(zone===1)return level<=1?SHELF:level===2?(iv%3===0?SCREEN:AIR):AIR;
-        return level<=3?(level===3&&h<0.3?CRATE:SHELF):AIR;
-      }
-      return AIR;}
-    case 'grocery':
-      // aisles of shelving three high, chiller cabinets along the back, checkouts by the doors
-      if(iv>=J-1&&level<=2)return FRIDGE;
-      if(iv>=4&&iv<J-2&&(iv-4)%3===0&&iu>=1&&iu<I-1&&(iu+1)%9!==0&&level<=2)return level===2&&h<0.25?CRATE:SHELF;
-      if(iv===1&&iu%4===1&&iu<I-1){if(level===0)return PLANKS;if(level===1)return SCREEN;}
-      if(level===0&&iv===J-2&&h<0.12)return CRATE;
-      return AIR;
   }
   return AIR;
 }
@@ -5069,19 +4978,14 @@ function mallCutBlock(b,cut,u,v,W,D,lvl,n){
       if(corner&&lvl<=2)return METAL;
       if(lvl===3)return(kx>0)===(kz>0)?AWN_R:AWN_G;
       if(lvl===4&&a<1&&c<1)return MALL_SIGNS[(kx>0?1:0)+(kz>0?2:0)];
-      if(lvl===0&&(a>=1||c>=1))return CRATE;      // the counter
       return AIR;
     }
   }
   if(du>A-3&&dv>A-3)return lvl<=1?LEAVES:AIR;    // planters in the corners
-  if(!hall&&d>8){
-    const tu=((u%5)+5)%5,tv=((v%5)+5)%5;
-    if(lvl===0&&tu===2&&tv===2)return PLANKS;                 // a table
-    if(lvl===0&&tu===2&&(tv===1||tv===3))return SOFA;         // and its seats
-  }
-  return AIR;
+  return AIR;   // (the food court's tables are props: see mallProps)
 }
 function mallAt(b,rx,rz,y,px,pz){
+  if(!b._fp){b._fp=[px,pz];FURN_SEEN.add(px+','+pz+','+b.x0+','+b.z0);}
   const fl=y-G,u=rx-b.x0,v=rz-b.z0,W=b.x1-b.x0,D=b.z1-b.z0;
   const ex=u===0||u===W-1,ez=v===0||v===D-1;
   flo(b,fl);const n=FL_NO,lvl=FL_LVL;
@@ -5125,7 +5029,6 @@ function mallAt(b,rx,rz,y,px,pz){
     {const e=escAt(n,q,u);if(e){if(lvl<e.i)return CONCRETE;if(lvl===e.i)return rampId(e.dir,0);return AIR;}}
     // planters and benches down the middle
     if(lvl===0&&n===0&&(q===10||q===11)&&u%16===8)return LEAVES;
-    if(lvl===0&&(q===10||q===11)&&u%16===12&&h<0.6)return PLANKS;
     if(u%16===0&&(q===8||q===13)){STRUCT=true;return CONCRETE;}
     return AIR;
   }
@@ -5145,15 +5048,7 @@ function mallAt(b,rx,rz,y,px,pz){
     return GLASS;
   }
   if(front&&last)return lvl===3?MALL_SIGNS[Math.floor(h*MALL_SIGNS.length)]:CONCRETE;
-  // inside the shop: what it sells
-  if(lvl>2)return AIR;
-  const kind=Math.floor(h*5),iu=uu-1,iq=q<4?q:7-q;
-  if(kind===0){if(iq>=2&&iu%3===1&&lvl<=1)return lvl===1?AWN_R:AWN_G;}              // clothes racks
-  else if(kind===1){if(iq===3&&iu<6&&lvl===0)return PLANKS;if(iq===3&&iu%2===0&&lvl===1)return SCREEN;}   // electronics
-  else if(kind===2){if(iq===3&&lvl<=2)return FRIDGE;if(iq===1&&iu%3===1&&lvl===0)return PLANKS;}          // food
-  else if(kind===3){if((iq===2||iq===3)&&iu%2===0&&lvl<=1)return CRATE;}                                  // toys
-  else{if(iq===3&&lvl<=2)return SHELF;if(iq===1&&iu>=2&&iu<=4&&lvl===0)return SHELF;}                     // books
-  return AIR;
+  return AIR;   // (inside the shop, what it sells is props: see mallProps)
 }
 // a house's gable roof above its top floor: shingles stepping in toward the ridge, wall filling the gable ends
 function houseRoof(b,rx,rz,y){
@@ -5803,7 +5698,7 @@ function superColumn(a,col,S,x,z,lx,lz){
   if(S.kind==='school'&&S.w>=3&&B0){const cxs=(B0.x0+B0.x1)>>1,du=Math.abs(ux-cxs);
     // the way in: a white canopy on posts over the front steps
     if(du<=4&&uz>=B0.z0-4&&uz<B0.z0){col(G+5,PAINT_WHITE);if(du===4&&uz===B0.z0-4)for(let y=G+1;y<=G+4;y++)col(y,PAINT_WHITE);}}
-  for(let bi=0;bi<P.b.length;bi++){const b=P.b[bi];if(ux>=b.x0&&ux<b.x1&&uz>=b.z0&&uz<b.z1){if(b.eat)col(G,uz>=b.z1-(b.eatTile||6)?FLOORT:b.floor);buildingColumn(a,lx,lz,ux,uz,b,collapses[S.ax+','+S.az+','+bi],S.ax,S.az);
+  for(let bi=0;bi<P.b.length;bi++){const b=P.b[bi];if(ux>=b.x0&&ux<b.x1&&uz>=b.z0&&uz<b.z1){if(roomFloor(b,uz))col(G,roomFloor(b,uz));buildingColumn(a,lx,lz,ux,uz,b,collapses[S.ax+','+S.az+','+bi],S.ax,S.az);
     // and on the roof, the school's little clock tower, standing over the entrance
     if(S.kind==='school'&&S.w>=3&&bi===0&&collapses[S.ax+','+S.az+',0']===undefined){const du=Math.abs(ux-((b.x0+b.x1)>>1)),dv=uz-b.z0;
       if(du<=3&&dv>=0&&dv<=6){const edge=du===3||dv===0||dv===6,T0=b.top+1;
@@ -6585,7 +6480,7 @@ function genChunk(cx,cz){
           if((rx===b.x1+3||rx===b.x0-2)&&rz>=b.z0&&rz<b.z1&&(rz%2))col(G,LANE);}
         else if(P.type==='sitdown'&&rz<P.b[0].z0){const b=P.b[0];if(Math.abs(rx-((b.x0+b.x1)>>1))<=3&&rz===b.z0-1){col(G+5,(b.brand&&b.brand.wall)===PLANKS?PLANKS:AWN_R);}if(rz<b.z0-1&&rx%5===2&&rz===PL0+1){col(G+1,FLOWER);}}
         {const L=lotAt(P,rx,rz);if(L)col(G,lotMark(L,rx,rz)?lotLine(L):ASPHALT);}
-        for(let bi=0;bi<P.b.length;bi++){const b=P.b[bi];if(rx>=b.x0&&rx<b.x1&&rz>=b.z0&&rz<b.z1){if(b.style==='house')col(G,b.floor);else if(b.eat)col(G,rz>=b.z1-(b.eatTile||6)?FLOORT:b.floor);buildingColumn(a,lx,lz,rx,rz,b,collapses[Math.floor(x/CELL)+','+Math.floor(z/CELL)+','+bi],Math.floor(x/CELL),Math.floor(z/CELL));break;}}
+        for(let bi=0;bi<P.b.length;bi++){const b=P.b[bi];if(rx>=b.x0&&rx<b.x1&&rz>=b.z0&&rz<b.z1){if(b.style==='house')col(G,b.floor);else if(roomFloor(b,rz))col(G,roomFloor(b,rz));buildingColumn(a,lx,lz,rx,rz,b,collapses[Math.floor(x/CELL)+','+Math.floor(z/CELL)+','+bi],Math.floor(x/CELL),Math.floor(z/CELL));break;}}
       }
     }
   }
@@ -12777,6 +12672,52 @@ const PROPS={
   pcase:[[PT,0,.33,0,1,.66,.66],[0xcfeaf5,0,.82,0,1,.32,.66],[0xe0a95a,-.24,.76,0,.3,.14,.3],[0xd96a8a,.22,.76,0,.3,.14,.3]],
   // a coffee machine
   espresso:[[P_STEEL,0,.18,0,.5,.36,.34],[P_DARK,0,.08,.14,.34,.03,.12],[P_DARK,-.12,.3,.2,.06,.06,.08],[P_DARK,.12,.3,.2,.06,.06,.08]],
+  // a supermarket checkout: a belt, the till, the bagging end
+  checkout:[[P_DARK,0,.4,0,.62,.8,1.9],[0x3a3f45,0,.81,.3,.5,.02,1.2],[P_STEEL,0,.81,-.68,.56,.02,.5],[P_DARK,.2,1.02,-.3,.1,.34,.1],[P_DARK,.2,1.22,-.3,.34,.24,.04],[P_SCREEN,.2,1.22,-.275,.3,.2,.01],[PG+0xffe066,0,1.6,-.74,.06,.5,.06]],
+  // a shopping trolley
+  trolley:[[P_DARK,-.22,.05,-.28,.07,.1,.07],[P_DARK,.22,.05,-.28,.07,.1,.07],[P_DARK,-.22,.05,.28,.07,.1,.07],[P_DARK,.22,.05,.28,.07,.1,.07],[P_STEEL,0,.16,0,.52,.03,.7],[P_STEEL,0,.5,0,.56,.04,.76],[P_STEEL,-.27,.34,0,.03,.3,.74],[P_STEEL,.27,.34,0,.03,.3,.74],[P_STEEL,0,.34,.36,.54,.3,.03],[P_STEEL,0,.34,-.36,.54,.3,.03],[0xc83a32,0,.62,-.42,.56,.05,.05]],
+  // a bin of fruit and veg, tilted forward in its crate
+  bin:[[P_WOOD,0,.3,0,.94,.6,.94],[PT,0,.62,0,.84,.08,.84],[PT,-.2,.7,.2,.24,.1,.24],[PT,.22,.7,-.18,.24,.1,.24]],
+  // a sign hung over an aisle
+  aislesign:[[P_STEEL,0,.5,0,.03,1,.03],[PT,0,0,0,.08,.5,1.3],[P_WHITE,0,0,0,.09,.1,.9]],
+  // a flat television
+  tv:[[P_DARK,0,.34,0,.86,.56,.05],[P_SCREEN,0,.34,.03,.78,.48,.01],[P_DARK,0,.03,0,.34,.05,.2]],
+  // a tall bookcase: spines in rows, each row a colour or two
+  bookcase:[[P_WOOD,0,1.3,-.14,.98,2.6,.06],[P_WOOD,-.47,1.3,0,.05,2.6,.34],[P_WOOD,.47,1.3,0,.05,2.6,.34],[P_WOOD,0,.05,0,.92,.1,.34],[P_WOOD,0,.85,0,.92,.04,.34],[P_WOOD,0,1.65,0,.92,.04,.34],[PT,-.2,.42,.02,.46,.6,.24],[0x4f86c6,.26,.42,.02,.36,.6,.24],[0xd8b13a,-.22,1.22,.02,.42,.6,.24],[PT,.24,1.22,.02,.4,.6,.24],[0x5aa469,-.1,2.02,.02,.6,.6,.24],[0xc9553f,.36,2.02,.02,.14,.6,.24]],
+  // a dentist's chair: a reclining seat on a pillar, a headrest, a little tray on an arm
+  dchair:[[P_STEEL,0,.16,0,.5,.1,.6],[P_STEEL,0,.32,0,.14,.24,.14],[0x3f9c9c,0,.46,.1,.5,.1,.96],[0x3f9c9c,0,.68,-.52,.5,.46,.1],[0x3f9c9c,0,.94,-.6,.26,.16,.08],[P_STEEL,.42,.74,-.1,.03,.5,.03],[P_WHITE,.42,1,.1,.3,.03,.26]],
+  // its lamp, on a long arm
+  dlamp:[[P_STEEL,0,1.1,-.5,.05,2.2,.05],[P_STEEL,0,2.1,-.1,.05,.05,.8],[PG+0xfff4c8,0,1.98,.3,.4,.06,.26]],
+  // an X-ray lit up on the wall
+  xray:[[P_DARK,0,1.4,0,.7,.56,.04],[PG+0xcfe6ef,0,1.4,.025,.62,.48,.01],[0x6a7c86,0,1.4,.035,.12,.34,.01]],
+  // a fish tank on a stand
+  fishtank:[[P_WOOD,0,.3,0,.96,.6,.46],[0x3a7fa0,0,.84,0,.96,.48,.46],[PG+0x63c8e6,0,.86,.235,.9,.42,.01],[0xe08a3c,-.2,.9,.245,.14,.06,.01],[0xd8b13a,.22,.78,.245,.14,.06,.01],[0x3f8f3f,.36,.72,.245,.06,.2,.01]],
+  // a glass display counter, its goods in the prop's tint
+  gcase:[[P_DARK,0,.28,0,1,.56,.66],[0xcfeaf5,0,.76,0,1,.4,.66],[PT,-.26,.64,0,.3,.1,.34],[PT,.2,.64,.04,.34,.1,.3],[P_STEEL,0,.97,0,1.02,.03,.68]],
+  // shelves of jars
+  jars:[[P_WOOD,0,1.05,-.1,.98,2.1,.08],[P_WOOD,0,.7,.02,.98,.04,.26],[P_WOOD,0,1.3,.02,.98,.04,.26],[PT,-.3,.82,.02,.18,.2,.16],[PT,0,.82,.02,.18,.2,.16],[PT,.3,.82,.02,.18,.2,.16],[PT,-.3,1.42,.02,.18,.2,.16],[PT,0,1.42,.02,.18,.2,.16],[PT,.3,1.42,.02,.18,.2,.16]],
+  // a rack of rifles on a wall
+  gunrack:[[P_WOOD,0,1.3,-.2,.96,1.2,.06],[P_DARK,-.3,1.3,-.14,.08,1,.06],[P_DARK,0,1.3,-.14,.08,1,.06],[P_DARK,.3,1.3,-.14,.08,1,.06],[P_WOOD,-.3,.86,-.14,.1,.2,.08],[P_WOOD,0,.86,-.14,.1,.2,.08],[P_WOOD,.3,.86,-.14,.1,.2,.08]],
+  // a paper target at the end of a lane
+  target:[[P_WHITE,0,1.2,0,.6,.9,.02],[P_DARK,0,1.2,.015,.4,.6,.01],[0xd32f2f,0,1.2,.025,.14,.2,.01]],
+  // a wooden crate of something
+  pcrate:[[P_WOOD,0,.3,0,.86,.6,.66],[P_DARK,0,.62,0,.9,.04,.7],[P_DARK,-.3,.3,.34,.05,.6,.02],[P_DARK,.3,.3,.34,.05,.6,.02]],
+  // pallet racking, up towards the warehouse roof
+  pallet:[[0x2b5fb8,-.47,2.4,0,.06,4.8,.8],[0x2b5fb8,.47,2.4,0,.06,4.8,.8],[0xd8742a,0,.2,0,.94,.05,.8],[0xd8742a,0,1.8,0,.94,.05,.8],[0xd8742a,0,3.4,0,.94,.05,.8],[PT,0,.8,0,.82,1.1,.7],[0xbf9a6a,0,2.4,0,.82,1.1,.7],[PT,0,4,0,.82,1.1,.7]],
+  // a rail of clothes
+  clothes:[[P_STEEL,-.42,.65,0,.04,1.3,.04],[P_STEEL,.42,.65,0,.04,1.3,.04],[P_STEEL,0,1.28,0,.88,.03,.03],[P_DARK,0,.03,0,.96,.05,.4],[PT,-.26,.85,0,.26,.82,.36],[0x46505a,0,.85,0,.2,.82,.36],[PT,.26,.85,0,.26,.82,.36]],
+  // a shop-window dummy, dressed in the prop's tint
+  mannequin:[[P_DARK,0,.03,0,.36,.05,.36],[P_WHITE,0,.42,0,.08,.76,.08],[PT,0,.92,0,.36,.5,.2],[P_WHITE,0,1.3,0,.2,.22,.2]],
+  // a flag on a stand
+  flag:[[P_DARK,0,.04,0,.4,.08,.4],[P_STEEL,0,1.3,0,.05,2.6,.05],[0xc83a32,.34,2.2,0,.62,.4,.02],[P_WHITE,.34,2,0,.62,.08,.02],[0x2b5fb8,.16,2.3,.01,.26,.2,.02]],
+  // a row of grey lockers
+  locker:[[0x6b7780,0,.8,0,.96,1.6,.5],[P_DARK,0,.8,.255,.01,1.56,.01],[P_DARK,-.24,1.1,.255,.04,.12,.01],[P_DARK,.24,1.1,.255,.04,.12,.01]],
+  // a tall lamp in a showroom
+  flamp:[[P_DARK,0,.03,0,.34,.05,.34],[P_STEEL,0,.75,0,.04,1.45,.04],[PG+0xfff0c0,0,1.55,0,.4,.3,.4]],
+  // a toy shop's stack of boxes, in bright colours
+  toys:[[PT,0,.3,0,.84,.6,.66],[0xd8b13a,-.18,.78,0,.4,.36,.5],[0x5aa469,.22,.72,.05,.3,.24,.4],[0xa86bc0,0,1.14,0,.3,.36,.3]],
+  // a car on show, polished up
+  showcar:[[PT,0,.42,0,1.5,.42,3],[PT,0,.84,-.1,1.36,.42,1.5],[0x9fd0e6,0,.86,.66,1.3,.3,.04],[0x9fd0e6,0,.86,-.86,1.3,.3,.04],[P_DARK,-.72,.24,.92,.2,.48,.5],[P_DARK,.72,.24,.92,.2,.48,.5],[P_DARK,-.72,.24,-.92,.2,.48,.5],[P_DARK,.72,.24,-.92,.2,.48,.5]],
   // a deep fryer: a steel case, two baskets in hot oil
   fryer:[[P_STEEL,0,.42,0,.96,.84,.7],[0xd8a030,0,.85,.03,.8,.02,.5],[P_DARK,-.2,.92,.03,.3,.14,.36],[P_DARK,.2,.92,.03,.3,.14,.36],[P_DARK,0,.4,.355,.7,.3,.01]],
   // a drinks machine, on a counter
@@ -12878,6 +12819,123 @@ function hospProps(b,px,pz,floorNo){
   }
   return L;
 }
+// the props of any room set out by hand: u and v from just inside its walls (v back from the door), yaw 0 with its back to
+// the front wall, PI to the back wall, PI/2 to the left, -PI/2 to the right
+function roomKit(b,px,pz,L,y0=G+1){
+  const U0=px*CELL+b.x0+1,V0=pz*CELL+b.z0+1;
+  return{I:b.x1-b.x0-2,J:b.z1-b.z0-2,add:(type,u,v,yaw,tint,yo,low)=>{const X=U0+u,Z=V0+v;L.push({prop:true,type,x:X,z:Z,y0:y0+(yo||0),yaw:yaw||0,tint,rad:.5,low,key:'p'+Math.round(X*4)+','+Math.round(Z*4)+','+y0+type});}};
+}
+const P_FRUIT=[0xc9553f,0x5aa469,0xe08a3c,0xd8b13a,0x9c3f8c],P_JAR=[0x5aa469,0x3f8f4a,0x8fbf5a],P_CLOTH=[0x3f6b8c,0xc83a32,0xd8b13a,0x77608f,0x5d7a45,0xd96a8a];
+// a shop or a store: checkouts by the doors, trolleys, aisles, and whatever it's known for
+function shopRoom(b,px,pz,L){
+  const {I,J,add}=roomKit(b,px,pz,L),kind=b.ground,cu=I/2,hg=(a,c,n)=>hash2(Math.floor(a)*7+px*31+n,Math.floor(c)*11+pz*17+n),tint=(A,a,c)=>A[Math.floor(hg(a,c,5)*A.length)%A.length];
+  const PI=Math.PI,HP=PI/2,till=(u,v,yaw)=>add('monitor',u,v,yaw,0,.9),counter=(u0,u1,v,t)=>{for(let u=u0;u<u1;u++)add('bar',u+.5,v,PI,t);};
+  const person=(u,v,yaw,t)=>{add('rtable',u,v,0,t);add('chair',u-.68,v,HP,t,0,true);add('chair',u+.68,v,-HP,t,0,true);};
+  if(kind==='books'){
+    // bookcases all round the walls and in two runs down the room, a table of new books, a till by the door, a reading corner
+    for(let v=2;v<J;v++){add('bookcase',.5,v+.5,HP,tint(P_GOODS,0,v));add('bookcase',I-.5,v+.5,-HP,tint(P_GOODS,1,v));}
+    for(let u=1.5;u<I-1;u++)add('bookcase',u,J-.5,PI,tint(P_GOODS,u,J));
+    for(const u of [3.5,I-3.5])for(let v=4;v<J-3;v++)add('bookcase',u,v+.5,u<cu?HP:-HP,tint(P_GOODS,u,v));
+    counter(1,4,1.3,0x5a3a22);till(2.5,1.3,PI);add('rtable',I-3,1.6,0,0xc9553f);add('sofa',cu-1,J-2.5,0,0x8a4b3a);add('sofa',cu+1,J-2.5,0,0x8a4b3a);add('plant',I-.5,.5,0);
+  }else if(kind==='dentist'){
+    // reception, the waiting chairs, a fish tank; three surgeries behind the wall, each with its chair, lamp, cabinet and X-ray
+    const W=J-5;counter(cu+2,I-1,W-1.5,0xd8dce0);till(I-2.5,W-1.5,PI);add('swivel',I-2.5,W-.6,PI);
+    for(let v=1;v<W-2;v+=2){add('seats',.6,v+.5,HP,0x3f9c9c);}add('rtable',2.4,1.5,0,0xd8dce0);add('fishtank',I-.5,1.5,-HP);add('plant',.5,W-.5,0);add('plant',I-.5,.5,0);
+    for(const u of [2,7,12]){add('dchair',u,J-2,0);add('dlamp',u-1.2,J-2.1,0);add('cabinet',u+1.1,J-.5,PI);add('xray',u-1,J-.1,PI);add('swivel',u+1.2,J-2.8,.5);}
+  }else if(kind==='dispo'){
+    // glass counters across the room with the jars behind, plants everywhere, a bench to wait on
+    const v=J-4;for(let u=1;u<I-1;u++){if(Math.abs(u+.5-cu)<1)continue;add('gcase',u+.5,v,PI,P_JAR[u%3]);add('jars',u+.5,J-.3,PI,P_JAR[(u+1)%3]);}
+    till(2.5,v,PI);till(I-2.5,v,PI);
+    for(let v2=1;v2<v-1;v2+=2){add('plant',.5,v2+.5,v2);add('plant',I-.5,v2+.5,v2+1);}
+    add('seats',3,.6,0,0x5d7a45);add('seats',I-3,.6,0,0x5d7a45);add('rtable',3,3,0,0x5a3a22);add('rtable',I-3,3,0,0x5a3a22);
+  }else if(kind==='guns'){
+    // rifles round the walls, a long glass counter of pistols, ammunition in crates; the range through the back
+    const W=J-5;for(let v=1;v<W;v++){add('gunrack',.3,v+.5,HP);add('gunrack',I-.3,v+.5,-HP);}
+    for(let u=1;u<I-5;u++){add('gcase',u+.5,W-1.6,PI,0x2a2e33);}till(3.5,W-1.6,PI);
+    for(const [u,v] of [[3,1.6],[4.2,1.6],[I-3,1.6],[I-4.2,1.6],[I-1.8,2.8]])add('pcrate',u,v,0);
+    for(const u of [2,7,12]){add('target',u,J-.2,PI);counter(u-.5,u+.5,W+.8,0x46505a);}
+  }else if(kind==='dealer'){
+    // the sales desks along the back (the cars on show stand on the open floor), a plant at each corner
+    for(let u=1.5;u<I-1;u+=4){add('desk',u,J-1.4,0);add('swivel',u,J-.6,PI);add('chair',u-.4,J-2.4,PI,0x35506b,0,true);add('chair',u+.4,J-2.4,PI,0x35506b,0,true);}
+    add('plant',.5,.5,0);add('plant',I-.5,.5,0);add('vending',.5,J-.5,HP);add('showcar',cu-2.7,J/2-.8,.5,tint(P_CLOTH,1,1));add('showcar',cu+2.7,J/2-.8,-.5,tint(P_CLOTH,2,2));
+  }else if(kind==='armory'){
+    // the drill hall: rifle racks and lockers down the sides, crates, the duty desk, the flags at the far end
+    for(let v=1;v<J-1;v++){if(v%3===1){add('locker',.4,v+.5,HP);add('locker',I-.4,v+.5,-HP);}else{add('gunrack',.3,v+.5,HP);add('gunrack',I-.3,v+.5,-HP);}}
+    for(let u=1.5;u<I-1;u+=2.4)if(Math.abs(u-cu)>1.4)add('pcrate',u,J-.6,PI);
+    add('flag',cu-2,J-1.4,PI);add('flag',cu+2,J-1.4,PI);add('desk',2.5,1.6,PI);add('swivel',2.5,2.4,PI);
+  }else if(kind==='shop'){
+    // a gas station's: cold drinks along the back, snacks in low rows, the till and the hot food by the door
+    for(let u=.5;u<I;u++)add('fridge2',u,J-.5,PI);
+    for(let u=1.5;u<I-7;u++){add('shelf2',u,1.8,0,tint(P_GOODS,u,2));}
+    counter(I-5,I,1.3,0xc83a32);till(I-2.5,1.3,PI);add('espresso',I-4.5,1.3,PI,0,.9);add('pot',I-1.5,1.3,PI,0,.9);
+  }else if(kind==='ikea'){
+    // room after furnished room; the cafeteria by the windows; the warehouse at the back, racks up to the roof
+    const wv=Math.floor(J*.6),ve=wv-2;
+    for(let u=4;u<I-1;u+=4)for(let v=wv+1;v<J-1;v+=4){if(u%12<4)continue;for(let d=0;d<3;d++)add('pallet',u+.5,v+d,HP,tint(P_GOODS,u,v));}
+    for(let c=0;8*c+8<I*.72;c++)for(let r=0;2+9*r+9<wv;r++){const k=(c+r)%4,x=8*c,vb=3+9*r,yb=vb+1.5;
+      if(k===0){add('homebed',x+2.5,yb+.3,0,tint(P_BLANKET,c,r));add('homebed',x+5.5,yb+.3,0,tint(P_BLANKET,r,c));add('flamp',x+4,yb-.6,0);add('shelf2',x+1.5,yb+5,PI,tint(P_GOODS,c,r));}
+      else if(k===1){for(let i=0;i<4;i++)add('sofa',x+2.5+i,yb-.4,0,tint(P_SOFA,c,r));add('table',x+4,yb+1.6,0);add('table',x+4,yb+5,PI);add('tv',x+4,yb+5,PI,0,.62);add('flamp',x+1.4,yb-.4,0);add('plant',x+6.6,yb-.4,0);}
+      else if(k===2){for(const a of [3,4,5]){add('rtable',x+a,yb+1.8,0,P_WHITE);add('chair',x+a,yb+1.12,0,0x9c6c3e,0,true);add('chair',x+a,yb+2.48,PI,0x9c6c3e,0,true);}add('shelf2',x+1.5,yb-.4,0,0xd8dce0);add('flamp',x+6.6,yb-.4,0);}
+      else{for(const [i,t] of ['range','sink','prep','prep','fridge2'].entries())add(t,x+1.8+i,yb-.4,0,0xc9a24a);for(const a of [3,4,5])add('prep',x+a,yb+3,0);}}
+    const uc=Math.ceil(I*.72);for(let u=uc+1;u<I-1;u+=3)for(let v=2.5;v<J*.33;v+=3)person(u,v,0,0x9c6c3e);
+    counter(uc,I-1,.8,0x2b5fb8);
+  }else{
+    // the aisles: a supermarket, a drug store, a superstore or an electronics store
+    const doors=b.bigbox?b.bigbox.map(e=>e-(b.x0+1)):[cu],near=u=>doors.some(d=>Math.abs(u-d)<3.5),big=J>=14,vC=big?2.6:1.5,v0=big?6:3.4,v1=J-(big?3:2.2),tech=b.brand&&b.brand.tech,wh=b.brand&&b.brand.wh,nofood=b.brand&&b.brand.nofood;
+    for(let u=kind==='drug'?1.5:2.5;u<(kind==='drug'?I-6:I-2);u+=kind==='bigbox'?4:3.2)if(!near(u)){add('checkout',u,vC,0);add('swivel',u+.7,vC-.1,HP,0,0,true);}
+    if(kind==='drug')counter(I-6,I-1,1.5,0xc83a32),till(I-3.5,1.5,PI);
+    for(const d of doors)for(const sg of [-1,1])for(let i=0;i<3;i++)add('trolley',Math.max(.6,Math.min(I-.6,d+sg*(3+i*.7))),.6,0);
+    const col=u=>kind==='bigbox'?(u<I*.38?0:u<I*.6?1:2):0,produce=u=>!tech&&(kind==='market'||kind==='grocery'||kind==='bigbox'&&!nofood&&u>I*.82)&&(kind==='bigbox'?true:u<I*.24);
+    const signs=new Set();
+    for(let u=kind==='drug'?1:2;u<(kind==='drug'?I-3:I-1);u+=3){
+      const prod=produce(u),z=col(u);
+      for(let v=v0;v<v1;v+=1){const vc=Math.floor(v)+.5;
+        if(big&&Math.abs(vc-J/2)<2||near(u)&&vc<v0+2)continue;
+        if(prod){if(Math.floor(v)%2===0)add('bin',u+.5,vc,0,tint(P_FRUIT,u,v));continue;}
+        const t=tint(P_GOODS,u,Math.floor(v/5));
+        if(wh)add('pallet',u+.5,vc,HP,t);
+        else if(tech||kind==='bigbox'&&z===1){add('shelf2',u+.5,vc,HP,t);if(Math.floor(v)%2===0)add('tv',u+.5,vc,HP,0,1.95);}
+        else if(kind==='bigbox'&&z===0&&Math.floor(u)%2===0)add('clothes',u+.5,vc,HP,tint(P_CLOTH,u,v));
+        else if(kind==='bigbox'&&z===2&&!nofood&&Math.floor(u/3)%2)add('fridge3',u+.5,vc,HP);
+        else add(kind==='drug'?'shelf2':kind==='bigbox'?'shelf4':'shelf3',u+.5,vc,HP,t);}
+      if(!prod&&big&&!signs.has(u)){signs.add(u);add('aislesign',u+2,(v0+v1)/2,0,0x2b5fb8,(b.gf||7)-2.4,true);}
+    }
+    // along the back: fridges, or the wall of TVs, or the pharmacy
+    if(kind==='drug'){for(let u=1.5;u<I-1;u++){add('shelf3',u,J-.5,PI,0xd8dce0);if(u<I-3)add('bar',u,J-2.2,PI,P_WHITE);}till(cu,J-2.2,PI);till(cu-3,J-2.2,PI);for(let v=4;v<J-3;v++)add('fridge3',I-.5,v+.5,-HP);}
+    else for(let u=.5;u<I;u++){
+      if(tech||kind==='bigbox'&&col(u)===1){add('shelf2',u,J-.5,PI,0x46505a);add('tv',u,J-.5,PI,0,1.95);}
+      else if(kind==='bigbox'&&(col(u)===0||nofood))add('shelf4',u,J-.5,PI,tint(P_GOODS,u,J));
+      else add('fridge3',u,J-.5,PI);}
+    // the deli counter
+    if((kind==='market'||kind==='grocery')&&!tech&&big){for(let u=I-8;u<I-1;u++)add(u%2?'pcase':'bar',u+.5,J-2.8,PI,0xc83a32);till(I-4.5,J-2.8,PI);}
+  }
+}
+// a mall's floor: its shops, the benches down its concourses, and on the ground floor the food court round the fountain
+function mallProps(b,px,pz,n,L){
+  const y0=n===0?G+1:G+b.gf+1+FH*(n-1),W=b.x1-b.x0,D=b.z1-b.z0,[hx,hz]=b._fp,PI=Math.PI,HP=PI/2;
+  const add=(type,u,v,yaw,tint,yo,low)=>{const X=px*CELL+b.x0+u,Z=pz*CELL+b.z0+v;L.push({prop:true,type,x:X,z:Z,y0:y0+(yo||0),yaw:yaw||0,tint,rad:.5,low,key:'p'+Math.round(X*4)+','+Math.round(Z*4)+','+y0+type});};
+  for(let v=1;v+6<D-1;v++){if((v+7)%14!==1)continue;const cIdx=Math.floor((v+7)/14);
+    for(let u0=1;u0+8<W-1;u0+=8){let ok=true;for(let a=u0-1;a<=u0+8&&ok;a++)for(let c=v-1;c<=v+6&&ok;c++)if(mallCut(a,c,W,D))ok=false;if(!ok)continue;
+      const unit=Math.floor((u0-1)/8),h=hash2(hx*131+unit*17+cIdx*7+n*3,hz*97+unit*5+cIdx*11+n),kind=Math.floor(h*5),x=u0+1,t=(a,c,A)=>A[Math.floor(hash2(u0*7+a+n,v*5+c)*A.length)%A.length];
+      // the shop runs right through, a door at each end: its goods along the sides and down the middle, the till to one side
+      add('bar',x+.5,v+1,HP,0x46505a);add('monitor',x+.5,v+1,HP,0,.9);
+      if(kind===0){for(let c=1;c<5;c++)for(const a of [1.5,5.5])add('clothes',x+a,v+c+.5,HP,t(a,c,P_CLOTH));add('mannequin',x+2.2,v+.5,0,t(0,0,P_CLOTH));add('mannequin',x+4.8,v+5.4,PI,t(1,0,P_CLOTH));add('flamp',x+6.4,v+3,0);}
+      else if(kind===1){for(let a=0;a<7;a++){add('shelf2',x+a+.5,v+3,0,0x46505a);if(a%2===0)add('tv',x+a+.5,v+3,0,0,1.95);}add('bar',x+5.5,v+1,0,0x46505a);add('tv',x+5.5,v+1,0,0,.9);}
+      else if(kind===2){for(let a=0;a<7;a++)add('fridge2',x+a+.5,v+5.3,PI);for(const a of [2,4.8])add('rtable',x+a,v+2.8,0,P_WHITE),add('chair',x+a-.68,v+2.8,HP,0xc83a32,0,true),add('chair',x+a+.68,v+2.8,-HP,0xc83a32,0,true);}
+      else if(kind===3){for(let c=1;c<5;c++)for(const a of [1.5,3.5,5.5])add('toys',x+a,v+c+.5,0,t(a,c,P_GOODS));}
+      else{for(let a=0;a<7;a++)add('bookcase',x+a+.5,v+5.3,PI,t(a,1,P_GOODS));for(const a of [2,4.8])add('bookcase',x+a,v+3,HP,t(a,2,P_GOODS));add('sofa',x+6,v+1.2,-HP,0x8a4b3a);}
+    }
+  }
+  // benches along the middle of each concourse
+  for(let v=1;v<D-1;v++){if((v+7)%14!==10)continue;for(let u=12;u<W-2;u+=16)if(!mallCut(u,v,W,D)&&n===0)add('bench',u+.5,v+1,HP,0,0,true);}
+  if(n>0)return;
+  // the food court
+  const A=Math.min(18,Math.floor(Math.min(W,D)*.17));
+  for(let u=0;u<W;u++)for(let v=0;v<D;v++){if(((u%5)+5)%5!==2||((v%5)+5)%5!==2||mallCut(u,v,W,D)!=='atrium')continue;const cu=u+.5-W/2,cv=v+.5-D/2,du=Math.abs(cu),dv=Math.abs(cv);if(du<4||dv<4||Math.hypot(cu,cv)<=8||du>A-3&&dv>A-3||[[-11,-11],[11,-11],[-11,11],[11,11]].some(k=>Math.abs(cu-k[0])<3&&Math.abs(cv-k[1])<3))continue;
+    add('rtable',u+.5,v+.5,0,P_WHITE);for(const [a,c,y] of [[-.68,0,HP],[.68,0,-HP],[0,-.68,0],[0,.68,PI]])add('chair',u+.5+a,v+.5+c,y,0xc83a32,0,true);}
+  // the kiosks' counters
+  for(const [kx,kz] of [[-11,-11],[11,-11],[-11,11],[11,11]]){const u=kx+W/2,v=kz+D/2;for(const [a,c,y] of [[0,-1,0],[0,1,PI],[-1,0,HP],[1,0,-HP]])add('bar',u+a,v+c,y,0xc83a32);add('monitor',u,v-1,0,0,.9);}
+}
 // a little restaurant: the dining room at the front, the counter with its tills across it, the kitchen behind the wall
 const P_EAT={diner:[0xc4342c,0xc4342c,0x2f6f7a],pizza:[0x3f8f4a,0xc8392f,0x7a4a2a],cafe:[0x6b4a32,0xe6dcc8,0x5d7a45],fastfood:[0xc4342c,0xe8c23a,0xc4342c],sitdown:[0x5a3a22,0xd8c8a8,0x7a2a2a],bar:[0x3a2416,0x5a3a22,0x7a2a2a],soup:[0x7d8a8f,0,0]};
 function restProps(b,px,pz,L){
@@ -12960,7 +13018,9 @@ function patioProps(P,px,pz){
 const P_SOFA=[0x8a4b3a,0x3f6b8c,0x5d7a45,0x77608f,0xb08a3e],P_GOODS=[0xc9553f,0x4f86c6,0xd8b13a,0x5aa469,0xa86bc0,0xe08a3c];
 function furnProps(b,px,pz,floorNo){
   const c=b._props||(b._props=new Map());let L=c.get(floorNo);if(L)return L;L=[];c.set(floorNo,L);
+  if(b.style==='mall'){mallProps(b,px,pz,floorNo,L);return L;}
   if(b.eat&&floorNo===0){restProps(b,px,pz,L);return L;}
+  if(floorNo===0&&(SHOP_ROOMS.has(b.ground)||b.signCat==='kiosk')){shopRoom(b,px,pz,L);return L;}
   const gf=b.gf||FH,fl0=floorNo===0?1:gf+FH*(floorNo-1)+1,nl=floorNo===0?gf-1:FH-1,[hx,hz]=b._fp;
   const tierOn=b.tier>0&&(b.x1-b.x0)>=8,up=tierOn&&G+fl0>b.tier,ex0=up?b.x0+2:b.x0,ex1=up?b.x1-2:b.x1,ez0=up?b.z0+2:b.z0,ez1=up?b.z1-2:b.z1;
   const st=STRUCT,raw=(x,z,l)=>l<0||l>=nl?AIR:furnRaw(b,x,z,fl0+l,ex0,ex1,ez0,ez1,hx,hz),turns=(v,x,z,l)=>FURN_IDS.has(v)&&furnTurns(v,b,x,z,fl0+l,ex0,ex1,ez0,ez1,hx,hz);
@@ -12981,7 +13041,7 @@ function furnProps(b,px,pz,floorNo){
         if(raw(rx,rz,l-1)===v)continue;   // (counted from the foot of the stack)
         let n=1;while(l+n<nl&&(raw(rx,rz,l+n)===v||v===SHELF&&raw(rx,rz,l+n)===CRATE))n++;
         const d=back(l,v);
-        if(v===SHELF)put('shelf'+Math.min(n,4),yawOf(d),pick(P_GOODS,rx,rz));
+        if(v===SHELF)put('shelf'+Math.min(n,4),yawOf(d),raw(rx,rz-1,l)===SHELF||raw(rx,rz+1,l)===SHELF?pick(P_GOODS,rx,Math.floor(rz/4)):pick(P_GOODS,Math.floor(rx/4),rz));
         else if(v===FRIDGE)put('fridge'+Math.min(n,3),yawOf(d));
         else put(n>=2?'bunk':'homebed',yawOf(d),pick(P_BLANKET,rx,rz),[-d[0]*.3,-d[1]*.3]);
       }else if(v===SOFA)put('sofa',yawOf(back(l,v)),pick(P_SOFA,rx,rz));

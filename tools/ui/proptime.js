@@ -15,7 +15,7 @@ const list=await p.evaluate(()=>{const G=window.__G,C=32,out=[],seen=new Set();
   for(let r=0;r<90;r++)for(let i=-r;i<=r;i++)for(const [x,z] of [[i,-r],[i,r],[-r,i],[r,i]]){
     const s=G.superOf(x,z),ax=s?s.ax:x,az=s?s.az:z;
     for(const q of G.plotInfo(ax,az).b){const k=q.ground||q.kind;if(seen.has(k))continue;seen.add(k);out.push([k,(q.x1-q.x0)*(q.z1-q.z0),ax*C+(q.x0+q.x1)/2,az*C+(q.z0+q.z1)/2]);}}
-  return out.sort((a,c)=>c[1]-a[1]).filter(a=>['bigbox','grocery','market','drug','ikea','office','school','apartment'].includes(a[0])).slice(0,6);});
+  return out.sort((a,c)=>c[1]-a[1]).filter(a=>['bigbox','grocery','market','drug','ikea','office','school','apartment','shop'].includes(a[0])).slice(0,6);});
 for(const [k,area,x,z] of list){
   await p.evaluate(([x,z])=>{clearInterval(window.__hold);const P=window.__G.players[0];window.__hold=setInterval(()=>{P.pos.set(x,46,z);P.vy=0;P.hp=999;},20);},[x,z]);
   await p.waitForTimeout(9000);
