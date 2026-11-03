@@ -53,6 +53,8 @@ for(const k of process.env.STAIR_KINDS?process.env.STAIR_KINDS.split(','):['fire
   // somewhere on the far side of the room from the shaft, on each floor
   const spot=(y,far)=>{const cx=(b.x0+b.x1)/2,cz=(b.z0+b.z1)/2,cl=(v,a,c)=>Math.max(a+1.5,Math.min(c-1.5,v));return {x:X0+cl(cx+(al?far:0),b.x0,b.x1),y,z:Z0+cl(cz+(al?0:far),b.z0,b.z1)};};
   const run=(from,to,label)=>{const s0=spot(from,-5),s1=spot(to,4);
+    // (not inside the stairs' own railing or fill, in a narrow building)
+    for(const q of [s0,s1])for(let i=0;i<6&&T.get(Math.floor(q.x),Math.floor(q.y),Math.floor(q.z));i++){if(al)q.z+=(q.z-Z0<(b.z0+b.z1)/2?1:-1)*0;q.x+=(al?-1:0);q.z+=(al?0:-1);}
     if(k==='campus'){s1.x=al?X0+S.r0+S.L+8:s1.x;s0.x=al?X0+S.r0+S.L+24:s0.x;}   // (the library's so long a hippo at the far end wouldn't be near enough to keep the goblin in play)
     for(let i=0;i<30;i++){A.pos.set(s1.x,s1.y,s1.z);step(1);}
     gob.state='chase';gob.hp=99;gob.stun=0;gob.indoor=true;gob.civ=false;gob.root.visible=true;gob.pos.set(s0.x,s0.y,s0.z);gob.vy=0;gob.t=0;gob.detour=0;gob.trip=null;
@@ -63,7 +65,7 @@ for(const k of process.env.STAIR_KINDS?process.env.STAIR_KINDS.split(','):['fire
   run(Y[0],Y[1],'up');run(Y[1],Y[0],'down');
   // and Gus, walking up it from the foot
   {gob.state='wait';gob.root.visible=false;const cw=(S.c0+S.c1)/2,fx=al?X0+S.r0-1:X0+cw,fz=al?Z0+cw:Z0+S.r0-1;A.pos.set(fx,Y[0],fz);A.vy=0;A.heading=al?Math.PI/2:0;A.cam.yaw=A.heading+Math.PI;A.cam.pitch=-0.2;A.state='walk';A.mvx=A.mvz=0;
-   T.keys.add('KeyW');let top=A.pos.y,ed0=Object.keys(T.edits||{}).length;for(let i=0;i<360&&top<Y[1]-0.2;i++){A.hp=999;for(const g of T.goblins)if(g.state==='chase'){g.state='wait';g.t=-1e9;g.root.visible=false;}now+=16.7;T.frame(now);A.cam.yaw=A.heading+Math.PI;top=Math.max(top,A.pos.y);}T.keys.delete('KeyW');
+   T.keys.add('KeyW');let top=A.pos.y,ed0=Object.keys(T.edits||{}).length;for(let i=0;i<1200&&top<Y[1]-0.2;i++){A.hp=999;for(const g of T.goblins)if(g.state==='chase'){g.state='wait';g.t=-1e9;g.root.visible=false;}now+=16.7;T.frame(now);A.cam.yaw=A.heading+Math.PI;top=Math.max(top,A.pos.y);}T.keys.delete('KeyW');
    console.log(k,'Gus',top>=Y[1]-0.2?'got to the top':'stopped at y '+top.toFixed(1)+' of '+Y[1]);}
 }
 process.exit(0);

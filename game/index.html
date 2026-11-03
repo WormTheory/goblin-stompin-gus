@@ -758,7 +758,7 @@ function horizHidden(cx,cy,cz,hr,top){
     if(!o.isInstancedMesh&&horizHidden(sp.center.x,sp.center.y,sp.center.z,sp.radius,sp.center.y+sp.radius))return false;   // (over the horizon)
     const d=Math.hypot(sp.center.x-CURVE_CAM.x,sp.center.z-CURVE_CAM.z),r=sp.radius,lo=k*Math.max(0,d-r)**2,hi=k*(d+r)**2;
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v72';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v73';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -3851,7 +3851,7 @@ function plotInfo(px,pz){
     // whatever it is sits on the anchor block, its footprint running across the vanished streets
     if(S.kind==='capitol'&&px===S.ax&&pz===S.az){
       const g=capGeo(),b=base({x0:PL0+g.px0,x1:PL0+g.px1,z0:PL0+g.pz0,z1:PL0+g.pz1,style:'capitol',top:G+60,wall:HOSPW,win:WIN_WARM,kind:'capitol',ground:'capitol',floor:FLOORT,door:2,farSkip:true});
-      b.detailTop=b.top;b._stY=[G+4,G+9,G+14,G+19];b.stair={ax:'z',c0:PL0+g.c-32,c1:PL0+g.c-29,r0:PL0+g.bf+8,L:FH};p.b.push(b);
+      b.detailTop=b.top;b._stY=[G+4,G+9,G+14,G+19];b.stair={ax:'z',c0:PL0+g.c-32,c1:PL0+g.c-29,r0:PL0+g.bf+8,L:FH};b.east={_stY:b._stY,detailTop:b.top,stair:{ax:'z',c0:PL0+g.c+28,c1:PL0+g.c+31,r0:PL0+g.bf+8,L:FH}};p.b.push(b);
     }
     else if(S.kind!=='stadium'&&S.kind!=='bigpark'&&px===S.ax&&pz===S.az){
       const W=(S.w-1)*CELL,D=(S.h-1)*CELL,big=S.w*S.h>2;
@@ -4118,7 +4118,7 @@ function plotInfo(px,pz){
     const walls=[SIDING,SIDING_Y,BRICK,PLANKS],sub=zoneAt(px,pz)==='suburb',solo=sub&&r(90)<0.3;
     const mk=(z0,z1,door,n,two)=>{const b=base({x0:PL0+1,x1:PL1-1,z0,z1,style:'house',top:G+(two?2*FH:FH),wall:walls[Math.floor(r(n)*walls.length)],win:WIN_WARM,kind:'apartment',ground:'apartment',floor:PLANKS,door,ridgeX:true});
       b.home=true;b.roof=Math.floor((z1-z0)/2);b.detailTop=b.top;
-      if(two)b.stair=door===2?{ax:'x',c0:z1-3,c1:z1-1,r0:((b.x0+b.x1)>>1)+2,L:FH}:{ax:'x',c0:z0+1,c1:z0+3,r0:((b.x0+b.x1)>>1)+2,L:FH};
+      if(two)b.stair=door===2?{ax:'x',c0:z1-3,c1:z1-1,r0:((b.x0+b.x1)>>1)+1,L:FH}:{ax:'x',c0:z0+1,c1:z0+3,r0:((b.x0+b.x1)>>1)+1,L:FH};
       p.b.push(b);};
     if(solo)mk(PL0+4,PL1-2,2,96,r(94)<0.4);
     else{if(r(50)>=0.1)mk(PL0+1,PC-1,2,96,r(53)<(sub?0.15:0.6));if(r(60)>=0.1)mk(PC+1,PL1-1,3,97,r(63)<(sub?0.15:0.6));}
@@ -4376,7 +4376,7 @@ function plotInfo(px,pz){
     b.detailTop=b.top-1;brandOn(b,'gas',r(140));b.signCat='kiosk';p.b.push(b);p.stall=0;
   } else if(type==='gas'){
     // the shop across the back; the great canopy and its pumps fill the front (laid out with the forecourt in genChunk)
-    const b=base({x0:PL0+1,x1:PL1-1,z0:PL1-7,z1:PL1-1,top:G+FH,wall:BRICK,win:GLASS,kind:'shop',ground:'shop',floor:FLOORT,door:2,neon:NEON_R,front:true});
+    const b=base({x0:PL0+1,x1:PL1-1,z0:PL1-8,z1:PL1-1,top:G+FH,wall:BRICK,win:GLASS,kind:'shop',ground:'shop',floor:FLOORT,door:2,neon:NEON_R,front:true});
     b.detailTop=b.top-1;brandOn(b,'gas',r(140));b.signCat='kiosk';p.b.push(b);
   }
   if(type==='park'&&!p.pond&&r(35)<0.45){p.statue=true;p.b.push(monument('statue',r));}
@@ -4613,6 +4613,8 @@ function furnTurns(v,b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
   let n=0;for(let i=-1;i<=1;i++)for(let k=-1;k<=1;k++)if((i||k)&&rx+i>ex0&&rx+i<ex1-1&&rz+k>ez0&&rz+k<ez1-1&&at(rx+i,rz+k,fl)===PLANKS)n++;
   return n<5;
 }
+// (no pillars in the way along the side of a flight of stairs: that's how you get round to its far end)
+function byStairs(b,rx,rz){const S=b.stair;if(!S)return false;const c=S.ax==='x'?rz:rx;return c>=S.c0-4&&c<S.c1+4;}
 function furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
   const W=ex1-ex0,D=ez1-ez0,I=W-2,J=D-2,iu=rx-ex0-1,iv=rz-ez0-1;
   flo(b,fl);const level=FL_LVL,floorNo=FL_NO,kind=floorNo===0?b.ground:b.kind;
@@ -4621,10 +4623,10 @@ function furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
   const h=hash2(px*977+rx*31+floorNo*7,pz*613+rz*17+floorNo*3);
   switch(kind){
     case 'lobby':
-      if(iu%4===1&&iv%4===1)return CONCRETE;   // (the pillars. The rest is props: see workRoom.)
+      if(iu%4===1&&iv%4===1&&!byStairs(b,rx,rz))return CONCRETE;   // (the pillars. The rest is props: see workRoom.)
       return AIR;
     case 'office':
-      if(iu%4===1&&iv%4===1)return CONCRETE;
+      if(iu%4===1&&iv%4===1&&!byStairs(b,rx,rz))return CONCRETE;
       // a glass meeting room in the corner, when the floor's big enough
       if(I>=12&&J>=12&&level<=2&&(iu===I-6&&iv<=1||iv===4&&iu>=I-3))return GLASS;
       return AIR;
@@ -6136,7 +6138,7 @@ function capitolAt(b,rx,rz,y){
     if(yy===24)return wall&&(u+v)%2===0?HOSPW:AIR;   // balustrade
     if(wall){STRUCT=true;const lv=(yy-4)%FH;if(lv>=1&&lv<=2&&((ad>=39?v:u)%3===1))return WIN_WARM;return HOSPW;}
     const lv=(yy-4)%FH;
-    if(b.stair){FL_SLAB=lv===4;const st=stairAt(b,rx,rz,y);if(st!==undefined)return st;}
+    if(b.stair){FL_SLAB=lv===4;const st=stairAt(b,rx,rz,y);if(st!==undefined)return st;const se=stairAt(b.east,rx,rz,y);if(se!==undefined)return se;}   // (a flight up each wing)
     if(lv===4)return(u%4===0&&v%4===2)?LAMP:FLOORT;
     if(lv===0&&u%6===2&&v%6===3)return PLANKS;
     if(lv===1&&u%6===2&&v%6===3&&(u+v)%12<6)return SCREEN;
@@ -8156,11 +8158,15 @@ const pBoxC=q=>({x:q.pos.x+Math.sin(q.heading)*P_OFF,z:q.pos.z+Math.cos(q.headin
 // the same box is his body for bumping into things: would it overlap a wall (anything solid above a single step up) or
 // a car (that he isn't standing on top of) with him at (x,z) facing h?
 const PB_LAT=[-P_HX*0.95,0,P_HX*0.95],PB_ALONG=[-1.42,-0.5,0.5,1.42].map(v=>v*ES),PB_YS=[1.25*ES,1.95*ES];
+// (the solid fill under a flight of stairs isn't in the way of a long body walking up: its nose is over the next steps)
+function underSteps(x,y,z){for(let k=1;k<=4;k++){const v=get(x,y+k,z);if(!v||!BLOCK[v].solid)return false;if(BLOCK[v].stair)return true;}return false;}
 function bodyHits(p,x,z,h){
   const s=Math.sin(h),c=Math.cos(h);
+  // (climbing a flight his nose reaches the landing before his feet do: the lip of a floor doesn't stop him there)
+  let onSteps=false;{const xi=Math.floor(x),zi=Math.floor(z),y0=Math.floor(p.pos.y);for(let k=-1;k<=1&&!onSteps;k++){const v=get(xi,y0+k,zi);if(v&&BLOCK[v].stair)onSteps=true;}}
   for(const b of PB_ALONG)for(const a of PB_LAT){if(a===0&&b>-1&&b<1)continue;   // (just the edge of the box)
     const wx=Math.floor(x+a*c+b*s),wz=Math.floor(z-a*s+b*c);
-    for(const yy of PB_YS){const bl=get(wx,Math.floor(p.pos.y+yy),wz);if(bl&&BLOCK[bl].solid&&!BLOCK[bl].ramp)return true;}}
+    for(const yy of PB_YS){const fy=Math.floor(p.pos.y+yy),bl=get(wx,fy,wz);if(bl&&BLOCK[bl].solid&&!BLOCK[bl].ramp&&!underSteps(wx,fy,wz)&&!(onSteps&&!solidAt(wx,fy+1,wz)))return true;}}
   const bx=x+s*P_OFF,bz=z+c*P_OFF;
   for(const cr of cars){if(!cr.alive||cr===p.standCar||Math.abs(cr.pos.x-bx)>cr.hz+4||Math.abs(cr.pos.z-bz)>cr.hz+4)continue;
     if(p.pos.y>=cr.pos.y+cr.hy-0.45||p.pos.y+P_HY<=cr.pos.y)continue;
@@ -9111,6 +9117,8 @@ function updatePlayer(p,dt){
       } else {
         const d0=LT?Math.hypot(p.pos.x-LT.pos.x,p.pos.z-LT.pos.z):0;
         p.pos.x+=mvx*sp*dt;p.pos.z+=mvz*sp*dt;
+        // (on a flight of stairs he keeps up with the steps, however quick he's walking)
+        if(p.grounded){const xi=Math.floor(p.pos.x),zi=Math.floor(p.pos.z),y0=Math.floor(p.pos.y);for(let k=0;k<=3;k++){const bl=get(xi,y0+k,zi);if(bl&&BLOCK[bl].stair){const top=y0+k+rampH(bl,p.pos.x-xi,p.pos.z-zi);if(top>p.pos.y)p.pos.y=top;break;}}}
         // pure strafing circles the target at the same distance
         if(LT&&Math.abs(iz)<0.35&&d0>1.5){const ex=p.pos.x-LT.pos.x,ez=p.pos.z-LT.pos.z,e=Math.hypot(ex,ez)||1,nx=LT.pos.x+ex/e*d0,nz=LT.pos.z+ez/e*d0;if(canStand(nx,nz,p.pos.y)){p.pos.x=nx;p.pos.z=nz;}}
         moving=true;p.lastSp=sp;p.phase+=dt*sp*3.4*(charge?0.45:1);if(tramp&&!hbOn('trample')){hitGoblins(frontX,frontZ,AB.trample.hitR,AB.trample.dmg,'Trampled',p.pos.y);
@@ -13015,7 +13023,7 @@ function shopRoom(b,px,pz,L){
   }else if(kind==='shop'){
     // a gas station's: cold drinks along the back, snacks in low rows, the till and the hot food by the door
     for(let u=.5;u<I;u++)add('fridge2',u,J-.5,PI);
-    for(let u=1.5;u<I-7;u++){add('shelf2',u,1.8,0,tint(P_GOODS,u,2));}
+    for(let v=1.8;v<J-1.4;v+=2.2)for(let u=1.5;u<I-7;u++)add('shelf2',u,v,0,tint(P_GOODS,u,v));
     counter(I-5,I,1.3,0xc83a32);till(I-2.5,1.3,PI);add('espresso',I-4.5,1.3,PI,0,.9);add('pot',I-1.5,1.3,PI,0,.9);
   }else if(kind==='ikea'){
     // room after furnished room; the cafeteria by the windows; the warehouse at the back, racks up to the roof
@@ -13483,7 +13491,7 @@ const propCells=new Map(),propCK=(x,y,z)=>Math.floor(x)*4194304+Math.floor(z)*10
 // for a while shoves the next one over, so a room packed with desks can't pen it in. Gus gets no points for that.)
 function gobGround(x,z,y,g,dt){
   const k=propCK(x,y+.2,z),f=propCells.get(k);if(!f)return groundAt(x,z,y);
-  if(g){g.shove=(g.shove||0)+dt;if(g.shove>1.2){g.shove=0;propCells.delete(k);if(knockFix(f,f.x-g.pos.x,f.z-g.pos.z))score-=5;return groundAt(x,z,y);}}
+  if(g){g.shove=(g.shove||0)+dt;if(g.shove>0.6){g.shove=0;propCells.delete(k);if(knockFix(f,f.x-g.pos.x,f.z-g.pos.z))score-=5;return groundAt(x,z,y);}}
   return y+9;
 }
 function refreshProps(){
