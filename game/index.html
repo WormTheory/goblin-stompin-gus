@@ -758,7 +758,7 @@ function horizHidden(cx,cy,cz,hr,top){
     if(!o.isInstancedMesh&&horizHidden(sp.center.x,sp.center.y,sp.center.z,sp.radius,sp.center.y+sp.radius))return false;   // (over the horizon)
     const d=Math.hypot(sp.center.x-CURVE_CAM.x,sp.center.z-CURVE_CAM.z),r=sp.radius,lo=k*Math.max(0,d-r)**2,hi=k*(d+r)**2;
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v70';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v71';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -4581,7 +4581,7 @@ function hospRooms(b,I,J){
 function hospFloor(b,n){return n>0&&b.x1-b.x0>=20&&b.z1-b.z0>=16?n%3===1?0:n%3===2?1:2:0;}
 const CIVIC_ROOMS=new Set(['school','library','police','firehall','cells','courtroom']);
 const WORK_ROOMS=new Set(['office','lobby','bank','radio','news','stocks']);
-function roomFloor(b,rz){return b.eat?(rz>=b.z1-(b.eatTile||6)?FLOORT:b.floor):SHOP_ROOMS.has(b.ground)||CIVIC_ROOMS.has(b.ground)&&b.ground!=='firehall'&&b.ground!=='cells'||WORK_ROOMS.has(b.ground)&&b.floor!==PLANKS?b.floor:0;}
+function roomFloor(b,rz){return VENUE_ROOMS.has(b.ground)?b.floor:b.eat?(rz>=b.z1-(b.eatTile||6)?FLOORT:b.floor):SHOP_ROOMS.has(b.ground)||CIVIC_ROOMS.has(b.ground)&&b.ground!=='firehall'&&b.ground!=='cells'||WORK_ROOMS.has(b.ground)&&b.floor!==PLANKS?b.floor:0;}
 function furnTurns(v,b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
   if(v===SOFA||v===BED||v===FRIDGE||v===SHELF)return true;
   flo(b,fl);const lvl=FL_LVL,top=(FL_NO===0?(b.gf||FH)-2:FH-2);
@@ -4678,11 +4678,8 @@ function furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
     case 'cinema':{
       // the lobby across the front: ticket desks either side of the doors, the long snack bar, an arcade corner, posters
       if(iv<=9){
-        if(iv===2&&(iu===3||iu===4||iu===I-4||iu===I-5)){if(level===0)return PLANKS;if(level===1)return SCREEN;}
-        if(iv===7&&iu>=6&&iu<=I-7&&Math.abs(iu-(I>>1))>2){if(level===0)return iu%4===0?FRIDGE:PLANKS;if(level===1&&iu%4===2)return SCREEN;if(level===3)return NEON_R;}
-        if(iu<=2&&iv>=3&&iv<=6&&level<=1)return level?SCREEN:PAINT_DARK;
+        if(iv===7&&iu>=6&&iu<=I-7&&Math.abs(iu-(I>>1))>2&&level===3)return NEON_R;
         if(iv===9&&level>=2&&level<=4&&iu%6===1)return[PAINT_RED,PAINT_BLUE,PAINT_YELLOW,PAINT_GREEN][(iu/6|0)%4];
-        if(iv===0&&(iu===1||iu===I-2)&&level<=1)return LEAVES;
         return AIR;}
       // the wall behind the lobby, with the way through to the corridor
       if(iv===10){if(Math.abs(iu-(I>>1))<=2&&level<=3)return AIR;STRUCT=true;return CONCRETE;}
@@ -4715,30 +4712,23 @@ function furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
         if(vu>=0&&vu<=5&&iv>J-6){if(level===0&&(vu+iv)%2===0)return GOLD;if(level===1&&vu%2===0&&iv%2===0)return GOLD;return AIR;}}
       return AIR;}
     case 'disco':
-      // the dance floor (it lights up) in the middle, the DJ's booth at the back, speakers, the bar down one side
-      if(iv>=J-2&&Math.abs(iu-(I>>1))<=2){if(level===0)return PLANKS;if(level===1)return iu===(I>>1)?SCREEN:NEON_M;}
-      if(iv>=J-2&&(iu<=1||iu>=I-2)&&level<=2)return PAINT_DARK;
-      if(iu===I-1&&iv>=2&&iv<=6&&level===0)return PLANKS;
-      if(iu===I-1&&iv>=2&&iv<=6&&level===2)return NEON_B;
-      if(iu===0&&iv>=2&&iv<=J-4&&iv%3===0&&level===0)return SOFA;
+      // (the dance floor's lights are drawn over the floor; the DJ, the bar and the sofas are props: see venueRoom)
       return AIR;
     case 'club':
       // a stage across the back with amps stacked on it and a mic stand; the bar down one side; the VIP sofas; green
       // neon all round up near the ceiling
-      if(iv>=J-4){if(level===0)return PLANKS;if(iv===J-1&&(iu<=1||iu>=I-2)&&level<=3)return PAINT_DARK;if(iv===J-3&&iu===(I>>1)&&level===1)return METAL;return AIR;}
-      if(iu===0&&iv>=2&&iv<=J-7&&level===0)return PLANKS;
-      if(iu===I-1&&iv>=1&&iv<=4&&level===0)return SOFA;
+      if(iv>=J-4){if(level===0)return PLANKS;return AIR;}
       if((iu===0||iu===I-1)&&level===4)return NEON_G;
       return AIR;
     case 'theater':{
       // the lobby; then the hall: the stalls, a balcony over the back of them, the orchestra pit, the stage
-      if(iv<=1){if(iv===1&&(iu<=1||iu>=I-2)&&level===0)return SOFA;return AIR;}
+      if(iv<=1)return AIR;
       if(iv===2){if(Math.abs(iu-(I>>1))<=1&&level<=3)return AIR;STRUCT=true;return level<=4?CONCRETE:AIR;}
       if(level===5&&iv>=2&&iv<=4)return PLANKS;                                       // the balcony floor
       if(level===6&&iv>=3&&iv<=4&&iu>=1&&iu<=I-2&&iu!==(I>>1))return SEAT_R;
       if(level===6&&iv===5)return METAL;                                                // its rail
       if(iv>=3&&iv<=6&&level===0&&iu>=1&&iu<=I-2&&Math.abs(iu-(I>>1))>0)return SEAT_R;
-      if(iv===7){if(level===0&&iu%2===1)return METAL;return AIR;}                       // the pit (music stands)
+      if(iv===7)return AIR;                                                             // the pit
       if(iv===8){if(iu<=1||iu>=I-2)return level<=9?(STRUCT=true,CONCRETE):AIR;if(iu===2||iu===I-3)return level<=7?AWN_R:CONCRETE;if(level>=8)return AWN_R;return AIR;}   // the arch and its curtains
       if(iv>8){if(level===0)return PLANKS;if(iv===J-1&&level<=7)return PAINT_DARK;}
       return AIR;}
@@ -4754,11 +4744,11 @@ function furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
     case 'museum':{
       // the lobby (gift shop, ticket desk), then galleries between white walls down the length of the building:
       // paintings, sculpture, the dinosaur
-      if(iv<=3){if(iu<=4&&iv>=1&&iv<=2&&level<=1)return SHELF;if(iu>=I-5&&iu<=I-2&&iv===2){if(level===0)return PLANKS;if(level===1)return SCREEN;}return AIR;}
+      if(iv<=3)return AIR;
       const long=I>=J,a=long?iu:iv-4,c=long?iv:iu,Wc=long?J:I,g=Math.floor(a/14),u=a%14,kind2=(g+(floorNo||0))%3,cvv=long?Math.floor((J+4)/2):(I>>1);
       if(u===0&&a>0){if(Math.abs(c-cvv)<=1&&level<=3)return AIR;if(level<=6){if(level>=2&&level<=3&&c%4!==0)return [PAINT_RED,PAINT_BLUE,PAINT_YELLOW,PAINT_GREEN,PAINT_ORANGE][(c+g)%5];return PAINT_WHITE;}return AIR;}
       if((c===Wc-1||c===0)&&level>=2&&level<=3&&u%4!==0&&u>1)return [PAINT_BLUE,PAINT_ORANGE,PAINT_RED,PAINT_GREEN][(a>>2)%4];
-      if(kind2===1){if((u===4||u===10)&&c%6===2){if(level===0)return MARBLE;if(level<=2)return u===4?MARBLE:BRONZE;}return AIR;}
+      if(kind2===1)return AIR;
       if(kind2===2){
         // the dinosaur: a long spine on two pairs of legs, ribs, a neck rising to the head, a tail sweeping down
         const dv=Math.abs(c-cvv),bone=STUCCO;
@@ -4769,13 +4759,12 @@ function furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
         if(dv===0&&((u===12&&level===4)||(u===13&&level===3)))return bone;
         if(dv>=2&&dv<=3&&(u===1||u===13)&&level===0)return METAL;   // (the rope posts)
         return AIR;}
-      if(u===7&&c%5===3){if(level===0)return PLANKS;if(level===1)return GLASS;}
       return AIR;}
     case 'aquarium':{
       // tanks (glass fronts, sand, weed, water to the ceiling) down both long sides of the walkway, and in the middle a
       // great tank the walkway tunnels right through
       const long=I>=J,a=long?iu:iv,c=long?iv:iu,Wl=long?I:J,Wc=long?J:I,cw=(Wc-1)/2;
-      if(a<4){if(a===2&&Math.abs(c-cw)>2&&c%3===0&&level===0)return PLANKS;if(a===0&&(c===0||c===Wc-1)&&level<=1)return SHELF;return AIR;}
+      if(a<4)return AIR;
       const tl=Math.floor(Wl/2)-5,th=Math.floor(Wl/2)+5;
       if(a>=tl&&a<=th){   // the tunnel tank
         const walk=Math.abs(c-cw)<=1.6;
@@ -4789,13 +4778,9 @@ function furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
         if(level===0)return SAND;if(level<=6)return(level<=3&&(a*3+c)%7===0)?LEAVES:WATER;return AIR;}
       return AIR;}
     case 'casino':{
-      // slot machines in rows, the tables (green baize, stools), the cashier's cage at the back, the food court down one side
-      if(iu>=I-8){if(iu===I-1){if(level===0)return iv%4===0?FRIDGE:PLANKS;if(level===3&&iv%4===2)return [NEON_R,NEON_G,NEON_B,NEON_O][(iv>>2)%4];return AIR;}
-        if(iu>=I-7&&iu<=I-3&&iv%3===1&&level===0)return iu%2?PLANKS:SEAT_B;return AIR;}
-      if(iv>=J-3&&iu<=7){if(iv===J-3){if(level===0)return PLANKS;if(level<=3)return iu%2?METAL:AIR;}return AIR;}
-      const sl=Math.floor(J*0.55);
-      if(iv>=2&&iv<sl&&iv%4===2&&iu%12!==0){if(level===0)return PAINT_RED;if(level===1)return SCREEN;if(level===2)return(iu%2?NEON_Y:NEON_M);return AIR;}
-      if(iv>=sl&&iv<J-4){const tu=iu%9,tv=(iv-sl)%5;if(tu>=2&&tu<=5&&tv>=1&&tv<=2&&level===0)return FIELD;if((tu===1||tu===6)&&tv>=1&&tv<=2&&level===0)return SEAT_R;}
+      // the cashier's cage at the back, the signs over the food court. (Slot machines, tables and all: see venueRoom.)
+      if(iu===I-1&&level===3&&iv%4===2)return [NEON_R,NEON_G,NEON_B,NEON_O][(iv>>2)%4];
+      if(iv===J-3&&iu<=7){if(level===0)return PLANKS;if(level<=3)return iu%2?METAL:AIR;}
       return AIR;}
     case 'school':{
       // ground floor: the cafeteria, classrooms, the gym at the far end; upstairs: classrooms
@@ -4814,8 +4799,6 @@ function furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
       // the production lines: conveyors with crates riding them, machines between; what it makes decides the rest
       const long=b.alongX,a=long?iu:iv,c=long?iv:iu,Wc=long?J:I,fk=b.fkind||'food';
       if(fk==='steel'&&Math.abs(c-(Wc>>1))<=1&&a>=6&&a<=9){if(level<=2)return(a===7||a===8)&&c===(Wc>>1)?NEON_O:RUST;return level===3?METAL:AIR;}
-      if(c%6===2&&a>=2&&a<(long?I:J)-2){if(level===0)return METAL;if(level===1&&a%4===0)return fk==='cars'?PAINT_RED:CRATE;return AIR;}
-      if(c%6===4&&a%8<=1&&a>=2){if(level<=1)return fk==='chem'?METAL:PAINT_YELLOW;if(level===2&&a%8===0)return fk==='food'?METAL:RUST;}
       if(fk==='chem'&&c%6===0&&level===5&&a>1)return METAL;   // pipes overhead
       return AIR;}
     case 'lecture':{
@@ -4837,12 +4820,9 @@ function furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
     case 'lab':{
       // vats bubbling green, tall glass tanks with something dark floating in each, cages, Tesla coils, the workbenches
       const cvv=J>>1;
-      if((iu===2||iu===I-3)&&iv%5===2&&iv<J-2){if(level===0)return METAL;if(level===1)return NEON_G;if(level===2)return METAL;return AIR;}   // vats
       if(iv===J-1&&iu%3===1&&iu>0&&iu<I-1){if(level<=4){if(level===2||level===3)return iu%2?PAINT_DARK:NEON_G;return GLASS;}if(level===5)return METAL;}   // tanks
       if(iv===1&&iu%4===1&&iu<I-2&&level<=2)return level===2?METAL:CHAINLINK;   // cages
       if((iu===5||iu===I-6)&&iv===cvv){if(level<=4)return METAL;if(level===5)return NEON_B;}   // the coils
-      if(iu===Math.floor(I/2)&&iv>=3&&iv<=J-4&&level===0)return PLANKS;
-      if(iu===Math.floor(I/2)&&iv>=3&&iv<=J-4&&level===1&&iv%2===0)return SCREEN;
       return AIR;}
     case 'turbine':{
       // the turbine hall: great generator sets in a row down the middle, the control desks along one wall
@@ -4852,14 +4832,9 @@ function furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
       if(level===8&&(c===2||c===Wc-3))return METAL;   // the crane rails
       return AIR;}
     case 'barracks':
-      // bunks in rows down both walls, a locker at the foot of each
-      if((iu%3===1)&&(iv===0||iv===J-1)){if(level<=1)return BED;}
-      if((iu%3===1)&&(iv===1||iv===J-2)&&level<=2)return METAL;
       return AIR;
     case 'terminal':
       // the check-in desks, rows of seats at the gates, the screens of departures
-      if(iv===J-2&&iu%4===1&&iu<I-1){if(level===0)return PLANKS;if(level===1)return SCREEN;}
-      if(iv>=2&&iv<=J-5&&iv%3===0&&iu%6!==0&&level===0)return SEAT_B;
       if(iv===J-1&&level===3&&iu%5===2)return SCREEN;
       return AIR;
     case 'mission':
@@ -4870,9 +4845,8 @@ function furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
     case 'stage':{
       // a sound stage: a set built in the middle of the bare floor (a living room's walls), cameras and lights round it
       const cu=I>>1,cvv=J>>1;
-      if(Math.abs(iu-cu)<=4&&Math.abs(iv-cvv)<=4){if((iu===cu-4||iv===cvv+4)&&level<=4)return iu===cu-4?STUCCO:SIDING;if(level===0&&iu===cu&&iv===cvv)return SOFA;if(level===0&&iu===cu+2&&iv===cvv)return PLANKS;return AIR;}
+      if(Math.abs(iu-cu)<=4&&Math.abs(iv-cvv)<=4){if((iu===cu-4||iv===cvv+4)&&level<=4)return iu===cu-4?STUCCO:SIDING;return AIR;}
       if(Math.abs(iu-cu)===6&&iv%4===1){if(level<=3)return METAL;if(level===4)return LAMP;}
-      if(iv===2&&iu%5===2&&level<=1)return level?SCREEN:METAL;
       return AIR;}
     case 'diner':case 'pizza':case 'cafe':case 'fastfood':case 'bar':case 'soup':
       // the wall across the back of the room, with the kitchen behind it: a serving hatch, a way through, the lit menu
@@ -5910,9 +5884,7 @@ function churchAt(b,rx,rz,y){
   // the altar on a step at the far end, a gold cross behind it, candles
   if(v>=D-3){if(fl===1&&v<=D-2&&Math.abs(iu)<=W/2-1)return MARBLE;if(fl===2&&v===D-3&&Math.abs(iu)<=1)return iu?LAMP:MARBLE;
     if(v===D-2&&iu===0&&fl>=4&&fl<=7)return GOLD;if(v===D-2&&Math.abs(iu)===1&&fl===6)return GOLD;return AIR;}
-  // pews, either side of the aisle
-  if(fl===1&&v>=3&&v<D-4&&v%2===1&&Math.abs(iu)>=2)return PLANKS;
-  return AIR;
+  return AIR;   // (the pews are props: see venueRoom)
 }
 function steepleAt(b,rx,rz,y){
   const u=rx-b.x0,v=rz-b.z0,W=b.x1-b.x0,fl=y-G,S=b.shaft,edge=u===0||u===W-1||v===0||v===W-1,corner=(u===0||u===W-1)&&(v===0||v===W-1);
@@ -5974,8 +5946,8 @@ function cathedralAt(b,rx,rz,y){
   // inside: pews down the nave, the choir stalls, the altar and a gold cross
   if(c>nc0&&c<nc1){
     if(a>=Lw-4){if(fl===1&&a<=Lw-3&&Math.abs(c-mid)<=2)return MARBLE;if(a===Lw-2&&Math.abs(c-mid)<1&&fl>=6&&fl<=11)return GOLD;if(a===Lw-2&&Math.abs(c-mid)<2.6&&Math.abs(c-mid)>=1&&fl===9)return GOLD;return AIR;}
-    if(a>=Lw-11&&a<Lw-5){if((c===nc0+1||c===nc1-1)&&fl<=2)return PLANKS;return AIR;}
-    if(fl===1&&a>=8&&a%2===0&&Math.abs(c-mid)>1.6)return PLANKS;}
+    if(a>=Lw-11&&a<Lw-5)return AIR;
+    }
   return AIR;
 }
 // round things in a factory yard: a smokestack (brick, banded, hollow), a silo (tall, a cone on top), a tank (squat)
@@ -6396,7 +6368,7 @@ function genChunk(cx,cz){
       else if(plotType(qx,qz)==='truckstop'){plainsColumn(col,x,z);const P=plotInfo(qx,qz);for(let bi=0;bi<P.b.length;bi++){const b=P.b[bi];if(rx>=b.x0&&rx<b.x1&&rz>=b.z0&&rz<b.z1){col(G,b.floor);buildingColumn(a,lx,lz,rx,rz,b,collapses[qx+','+qz+','+bi],qx,qz);break;}}}
       else if(plotType(qx,qz)==='dump')dumpColumn(a,col,qx,qz,rx,rz,lx,lz,x,z);
       else if(plotType(qx,qz)==='castle')castleColumn(a,col,qx,qz,rx,rz,lx,lz,x,z);
-      else if(bigPlainsAt(qx,qz)){const B=bigPlainsAt(qx,qz);bigColumn(col,B,x-B.ax*CELL,z-B.az*CELL,x,z);plotBuildings(a,lx,lz,rx,rz,x,z,plotInfo(qx,qz));}
+      else if(bigPlainsAt(qx,qz)){const B=bigPlainsAt(qx,qz);bigColumn(col,B,x-B.ax*CELL,z-B.az*CELL,x,z);{const Pq=plotInfo(qx,qz);for(const b of Pq.b)if(!b.noIndoor&&rx>=b.x0&&rx<b.x1&&rz>=b.z0&&rz<b.z1)col(G,b.floor);plotBuildings(a,lx,lz,rx,rz,x,z,Pq);}}
       else if(plotType(qx,qz)==='farm')farmColumn(a,col,qx,qz,rx,rz,lx,lz,x,z);
       else if((rx<ROADW||rz<ROADW)&&linkRoad(col,qx,qz,rx,rz,x,z)){}
       else if(farmlandOf(qx,qz))farmlandColumn(col,farmlandOf(qx,qz),qx,qz,rx,rz,x,z);
@@ -12798,6 +12770,30 @@ const PROPS={
   scanner:[[P_WHITE,0,.85,-.5,1.8,1.7,.5],[0x2a2e33,0,.85,-.24,.8,.8,.02],[P_STEEL,0,.5,.4,.5,.4,1.3],[0x3f9c9c,0,.72,.3,.56,.06,1.6]],
   // a notice board, or a whiteboard in the tint
   board:[[P_WOOD,0,1.4,0,1.5,.9,.04],[PT,0,1.4,.025,1.4,.8,.01],[P_WHITE,-.3,1.5,.035,.3,.34,.01],[0xd8b13a,.25,1.3,.035,.3,.26,.01]],
+  // a church pew: a seat and a high back, a block's length of one
+  pew:[[P_WOOD,0,.4,.02,1,.06,.4],[P_WOOD,0,.6,-.18,1,.5,.05],[P_WOOD,0,.2,.1,1,.4,.05]],
+  // a cinema's popcorn machine, lit up
+  popcorn:[[0xc83a32,0,.3,0,.56,.6,.46],[PG+0xffe9a0,0,.84,0,.56,.5,.46],[0xc83a32,0,1.14,0,.6,.1,.5]],
+  // an arcade cabinet
+  arcade:[[P_DARK,0,.8,0,.66,1.6,.6],[P_SCREEN,0,1.08,.305,.5,.36,.01],[PT,0,.74,.3,.56,.1,.1],[PT,0,1.5,.305,.6,.14,.01]],
+  // a tall speaker
+  speaker:[[P_DARK,0,.9,0,.8,1.8,.56],[0x3a3f45,0,1.32,.285,.4,.4,.01],[0x3a3f45,0,.56,.285,.56,.56,.01]],
+  // a microphone on its stand
+  micstand:[[P_DARK,0,.03,0,.3,.05,.3],[P_STEEL,0,.6,0,.03,1.2,.03],[P_DARK,0,1.22,.03,.08,.12,.08]],
+  // a music stand
+  musicstand:[[P_DARK,0,.03,0,.24,.05,.24],[P_STEEL,0,.42,0,.03,.8,.03],[P_DARK,0,.85,.03,.34,.24,.02],[P_WHITE,0,.85,.045,.3,.2,.01]],
+  // a statue on its plinth, in the tint
+  statue:[[P_WHITE,0,.4,0,.8,.8,.8],[PT,0,1.2,0,.3,.8,.3],[PT,0,1.72,0,.24,.26,.24],[PT,-.26,1.34,0,.14,.5,.14],[PT,.26,1.34,0,.14,.5,.14]],
+  // a slot machine, with its stool's worth of lights
+  slot:[[0xc83a32,0,.62,0,.8,1.24,.56],[P_SCREEN,0,.92,.285,.56,.36,.01],[PG+0xffd23a,0,1.32,.1,.76,.14,.4],[P_DARK,0,.56,.3,.6,.1,.1],[P_STEEL,.45,.9,.1,.04,.4,.04]],
+  // a gaming table: green baize on a wooden edge
+  ptable:[[P_WOOD,0,.6,0,3.4,.12,1.8],[0x1f7a44,0,.67,0,3.1,.02,1.5],[P_DARK,0,.28,0,1.2,.56,.5],[0xc83a32,-.6,.7,.2,.2,.04,.2],[P_WHITE,.5,.7,-.2,.3,.03,.2]],
+  // a stretch of conveyor, a box riding it, in the tint
+  conveyor:[[P_DARK,-.4,.28,0,.08,.56,.8],[P_DARK,.4,.28,0,.08,.56,.8],[0x3a3f45,0,.6,0,1,.06,.86],[P_STEEL,0,.68,0,1,.02,.7]],
+  // a machine beside the line
+  machine:[[PT,0,.75,0,1.5,1.5,1.3],[P_DARK,0,.9,.655,.9,.5,.02],[PG+0x4ad66a,.5,1.3,.655,.14,.14,.02],[PG+0xff4a3a,.26,1.3,.655,.14,.14,.02],[P_STEEL,0,1.65,0,.3,.3,.3]],
+  // a lab's vat, bubbling
+  vat:[[P_STEEL,0,.5,0,.9,1,.9],[PG+0x7aff5a,0,1.04,0,.74,.08,.74],[P_STEEL,0,1.2,.4,.08,.4,.08],[P_DARK,.5,.3,0,.1,.5,.1]],
   // a deep fryer: a steel case, two baskets in hot oil
   fryer:[[P_STEEL,0,.42,0,.96,.84,.7],[0xd8a030,0,.85,.03,.8,.02,.5],[P_DARK,-.2,.92,.03,.3,.14,.36],[P_DARK,.2,.92,.03,.3,.14,.36],[P_DARK,0,.4,.355,.7,.3,.01]],
   // a drinks machine, on a counter
@@ -13218,6 +13214,92 @@ function civicRoom(b,px,pz,floorNo,L,kd){
     for(const v of [J-5,J-3.4])add('seats',I-.9,v,-HP,0x5a3a22);
   }
 }
+// places to go, and places of work
+const VENUE_ROOMS=new Set(['cinema','disco','club','theater','museum','aquarium','casino','factory','lab','barracks','terminal','stage']);
+function venueRoom(b,px,pz,floorNo,L,kd){
+  const {I,J,add,hg}=floorKit(b,px,pz,floorNo,L,false),cu=I/2,PI=Math.PI,HP=Math.PI/2,pick=(A,a,c,n)=>A[Math.floor(hg(a,c,n)*A.length)%A.length];
+  const set=(u,v,t,c)=>{add('rtable',u,v,0,t);add('chair',u-.68,v,HP,c,0,true);add('chair',u+.68,v,-HP,c,0,true);};
+  const barRun=(u0,u1,v,t,yaw)=>{for(let u=u0;u<u1;u++)add('bar',u+.5,v,yaw===undefined?PI:yaw,t);};
+  const lg=kd==='factory'?!!b.alongX:I>=J,PT2=(a,c)=>lg?[a,c]:[c,a];
+  const put=(type,a,c,back,tint,yo,low)=>{const [u,v]=PT2(a,c),yaw=back==='+a'?(lg?-HP:PI):back==='-a'?(lg?HP:0):back==='+c'?(lg?PI:-HP):(lg?0:HP);add(type,u,v,yaw,tint,yo,low);};
+  if(kd==='cinema'){
+    // ticket windows either side of the doors, the snack bar and its popcorn, an arcade, plants
+    for(const u of [3.5,4.5,I-4.5,I-3.5]){add('teller',u,2.5,PI,0xc83a32);add('monitor',u,3,0,0,.95);}
+    for(let u=6;u<I-6;u++){if(Math.abs(u+.5-cu)<3)continue;add('bar',u+.5,7.5,PI,0xc83a32);if(u%4===0)add('popcorn',u+.5,7.5,PI,0,.9);else if(u%4===2)add('soda',u+.5,7.5,PI,0,.9);add('fridge2',u+.5,9-.1,PI);}
+    for(let v=3.5;v<7;v++)add('arcade',.5,v,HP,pick(P_GOODS,1,v,1));for(let v=3.5;v<7;v++)add('arcade',2,v,-HP,pick(P_GOODS,2,v,2));
+    add('plant',1.5,.5,0);add('plant',I-1.5,.5,1);for(const u of [cu-6,cu+6])add('rtable',u,5,0,0xc83a32);
+  }else if(kd==='disco'||kd==='club'){
+    // booths and sofas down one wall, the bar and its bottles down the other, tables between; the DJ's booth and the
+    // speakers (a club has a stage for its band instead, amps stacked up, a microphone at the front)
+    const J1=kd==='club'?J-4:J-2;
+    for(let v=2;v<J1-1;v+=2.8){add('rtable',1.3,v,0,0x2a2e33);add('booth',1.3,v-.82,0,kd==='club'?0x1f7a44:0xa86bc0,0,true);add('booth',1.3,v+.82,PI,kd==='club'?0x1f7a44:0xa86bc0,0,true);}
+    for(let v=1.5;v<Math.min(J1-1,9);v++){add('bar',I-2,v,-HP,0x2a2e33);add('stool',I-2.9,v,0,0xc83a32,0,true);add('bottles',I-.3,v,-HP);}add('taps',I-2,3.5,-HP,0,.9);add('monitor',I-2,1.5,-HP,0,.9);
+    if(kd==='club'){for(const u of [1,2.2,I-2.2,I-1])add('speaker',u,J-.8,PI,0,1);add('speaker',1.6,J-.8,PI,0,2.8);add('speaker',I-1.6,J-.8,PI,0,2.8);add('micstand',cu,J-3,0,0,1);add('micstand',cu-3,J-2.4,0,0,1);add('mixer',cu+2,J-1,PI,0,1);for(const u of [4,cu,I-5])set(u,2.4,0x2a2e33,0x3a3f45);}
+    else{for(const u of [cu-1,cu,cu+1])add('mixer',u,J-1,PI);add('swivel',cu,J-1.9,PI,0,0,true);for(const u of [1,2,I-2,I-1])add('speaker',u,J-.9,PI);}
+  }else if(kd==='theater'){
+    // the lobby's sofas, the ticket desk; the band in the pit
+    for(const u of [.5,1.5,I-1.5,I-.5])add('sofa',u,1.5,PI,0x7a2a2a);add('plant',cu-3,.5,0);add('plant',cu+3,.5,1);
+    for(let u=1.5;u<I-1;u+=2){add('musicstand',u,7.3,PI);add('chair',u,7.9,PI,0x46505a,0,true);}
+  }else if(kd==='museum'){
+    // the ticket desk and gift shop inside the doors; in the galleries, glass cases and statues on plinths, benches to rest on
+    for(let u=.5;u<4;u++)add('shelf2',u,1.5,PI,pick(P_GOODS,u,1,1));barRun(I-5,I-2,2.5,0x5a3a22);add('monitor',I-3.5,2.5,PI,0,.9);
+    const lgM=I>=J,Wa=lgM?I:J-4,Wc=lgM?J:I,cvv=lgM?Math.floor((J+4)/2):I>>1;
+    const P2=(a,c,type,yaw,t)=>{const [u,v]=lgM?[a,c]:[c,a+4];add(type,u,v,yaw,t);};
+    for(let g=0;14*g<Wa;g++){const a0=14*g,kind2=(g+(floorNo||0))%3;
+      if(kind2===0)for(let c=3.5;c<Wc;c+=5)P2(a0+7.5,c,'gcase',0,pick(P_GOODS,g,c,3));
+      else if(kind2===1)for(const u of [4.5,10.5])for(let c=2.5;c<Wc;c+=6)P2(a0+u,c,'statue',0,u<7?0xd8dce0:0x9c7a3e);
+      if(kind2!==2){P2(a0+4,cvv+.5,'bench',lgM?HP:0);P2(a0+10,cvv+.5,'bench',lgM?HP:0);}
+    }
+  }else if(kd==='aquarium'){
+    // tickets and a gift shop inside the doors, benches along the walkway
+    const Wc=lg?J:I,cw=Wc/2,Wl=lg?I:J,tl=Math.floor(Wl/2)-5,th=Math.floor(Wl/2)+5;
+    for(let c=1.5;c<Wc-1;c+=3)if(Math.abs(c-cw)>2.4)put('teller',2.5,c,'-a',0x2b5fb8);
+    put('shelf2',.6,1,'-a',0x63c8e6);put('shelf2',.6,Wc-1,'-a',0x63c8e6);put('plant',3.4,1,'-a');put('plant',3.4,Wc-1,'-a');
+    for(const [a0,a1] of [[7,tl-2],[th+3,Wl-3]])for(let a=a0;a<a1;a+=5)for(const c of [4.8,Wc-4.8])if(Math.abs(c-cw)>1)put('bench',a,c,'-a',0,0,true);
+  }else if(kd==='casino'){
+    // rows of slot machines back to back, the gaming tables with their stools, the cashier and a safe, the food court
+    const sl=Math.floor(J*.55);
+    for(let v=2;v<sl;v+=4)for(let u=1;u<I-9;u++){if(u%12===0)continue;add('slot',u+.5,v+.5,v%8===2?PI:0);add('stool',u+.5,v+(v%8===2?-.4:1.4),0,0xc83a32,0,true);}
+    for(let v=sl+2;v<J-4;v+=5)for(let u=4;u<I-11;u+=9){add('ptable',u,v,0);for(const a of [-1.2,0,1.2])for(const sg of [-1,1])add('stool',u+a,v+sg*1.3,0,0xc83a32,0,true);}
+    for(let u=1.5;u<7;u+=2)add('monitor',u,J-3,0,0,.95);add('safe',1.5,J-.8,PI);add('safe',3,J-.8,PI);add('locker',5,J-.4,PI);
+    for(let v=.5;v<J;v++){if(Math.floor(v)%4===0)add('fridge2',I-.5,v,-HP);else add('bar',I-.8,v,-HP,0x2f8a8a);}
+    for(let u=I-7;u<I-3;u+=3)for(let v=1.5;v<J-1;v+=3)set(u,v,P_WHITE,0xc83a32);
+  }else if(kd==='factory'){
+    // the production lines: conveyors with goods riding them, machines beside them, stacks of crates, a foreman's desk
+    const La=lg?I:J,Wc=lg?J:I,fk=b.fkind||'food',goods=fk==='cars'?'showcar':'pcrate',mt=fk==='chem'?0x46505a:fk==='steel'?0x7a4a2a:0xd8b13a;
+    for(let c=2;c<Wc;c+=6){for(let a=2;a<La-2;a++)put('conveyor',a+.5,c+.5,'-c');for(let a=4;a<La-3;a+=fk==='cars'?8:4)put(goods,a+.5,c+.5,'-c',pick(P_CLOTH,a,c,1),.7);}
+    for(let c=4;c+1<Wc;c+=6)for(let a=2;a<La-2;a+=8)put(fk==='chem'?'vat':'machine',a+1,c+.5,'-c',mt);
+    for(let c=1;c<Wc;c+=3)put('locker',.4,c,'-a');put('desk',La-1.5,1.5,'+a');put('swivel',La-2.3,1.5,'+a',0,0,true);for(let c=Wc-2;c>Wc-8&&c>2;c-=1.2)put('pcrate',La-1,c,'+a');
+  }else if(kd==='lab'){
+    // bubbling vats, a long bench down the middle with its screens and glassware
+    for(const u of [2.5,I-2.5])for(let v=2.5;v<J-2;v+=5)add('vat',u,v,0);
+    for(let v=3.5;v<J-3;v++){add('prep',cu,v,HP);if(Math.floor(v)%2)add('monitor',cu,v,HP,0,.9);}add('swivel',cu-1,5,HP,0,0,true);add('swivel',cu+1,8,-HP,0,0,true);
+  }else if(kd==='barracks'){
+    // bunks down both walls, a locker at the foot of each, a table or two down the middle, the flag at the end
+    for(let u=1.5;u<I-1;u+=3){add('bunk',u,.9,0,0x4a5a3a);add('locker',u,2.2,PI);add('bunk',u,J-.9,PI,0x4a5a3a);add('locker',u,J-2.2,0);}
+    if(J>=8)for(let u=3;u<I-2;u+=6)set(u,J/2,0x5a3a22,0x46505a);add('flag',I-.7,J/2,-HP);
+  }else if(kd==='terminal'){
+    // check-in desks and the belt behind them, rows of seats at the gates, luggage, vending machines
+    for(let u=1.5;u<I-1;u+=4){add('bar',u,J-2,0,0x2b5fb8);add('bar',u+1,J-2,0,0x2b5fb8);add('monitor',u,J-2,0,0,.9);add('swivel',u,J-1.2,PI,0,0,true);}
+    for(let u=.5;u<I;u++)add('conveyor',u,J-.5,HP);for(let u=2;u<I-2;u+=7)add('pcrate',u,J-.5,0,0,.7);
+    for(let v=3;v<J-5;v+=3)for(let u=1.2;u<I-1;u+=2.2){if(Math.floor(u)%6===0)continue;add('seats',u,v,v%6===3?0:PI,0x2b5fb8);}
+    add('vending',.5,1.5,HP);add('vending',I-.5,1.5,-HP);add('plant',.5,.5,0);add('plant',I-.5,.5,1);
+  }else if(kd==='stage'){
+    // the set: a sofa and a table in its fake living room; cameras and a director's desk facing it, cases of kit
+    const c2=I>>1,cv=J>>1;for(const u of [c2-1,c2,c2+1])add('sofa',u+.5,cv+1.5,PI,0x3f6b8c);add('table',c2+.5,cv-.5,0);add('plant',c2+3,cv+3,0);
+    for(const u of [c2-6,c2,c2+6])add('tvcam',u+.5,cv-7,0);add('desk',c2+.5,cv-10,0);add('swivel',c2+.5,cv-10.8,0,0,0,true);for(let u=1.5;u<I-1;u+=4)add('pcrate',u,1,0);
+  }
+}
+// church pews (a church's frame: u across from its middle, v in from its doors. A cathedral's: a along, c across.)
+function pewProps(b,px,pz,L){
+  const y0=G+1,X0=px*CELL,Z0=pz*CELL,push=(type,rx,rz,yaw,t)=>{const X=X0+rx+.5,Z=Z0+rz+.5;L.push({prop:true,type,x:X,z:Z,y0,yaw,tint:t,rad:.5,key:'p'+Math.round(X*4)+','+Math.round(Z*4)+','+y0+type});};
+  if(b.style==='church'){const W=b.x1-b.x0,D=b.z1-b.z0,cx=(b.x0+b.x1)>>1;
+    for(let v=3;v<D-4;v+=2)for(let x=b.x0+1;x<b.x1-1;x++){if(Math.abs(x-cx)<2)continue;push('pew',x,b.z0+v,0);}
+    return;}
+  const alX=!!b.alongX,Lw=alX?b.x1-b.x0:b.z1-b.z0,Cw=alX?b.z1-b.z0:b.x1-b.x0,nc0=3,nc1=Cw-4,mid=(Cw-1)/2;
+  for(let a=8;a<Lw-11;a+=2)for(let c=nc0+1;c<nc1;c++){if(Math.abs(c-mid)<=1.6)continue;alX?push('pew',b.x0+a,b.z0+c,HP_):push('pew',b.x0+c,b.z0+a,0);}
+  for(let a=Lw-11;a<Lw-5;a++)for(const [c,sg] of [[nc0+1,1],[nc1-1,-1]])alX?push('pew',b.x0+a,b.z0+c,sg>0?0:PI_):push('pew',b.x0+c,b.z0+a,sg>0?-HP_:HP_);
+}
 // a mall's floor: its shops, the benches down its concourses, and on the ground floor the food court round the fountain
 function mallProps(b,px,pz,n,L){
   const y0=n===0?G+1:G+b.gf+1+FH*(n-1),W=b.x1-b.x0,D=b.z1-b.z0,[hx,hz]=b._fp,PI=Math.PI,HP=PI/2;
@@ -13327,8 +13409,10 @@ const P_SOFA=[0x8a4b3a,0x3f6b8c,0x5d7a45,0x77608f,0xb08a3e],P_GOODS=[0xc9553f,0x
 function furnProps(b,px,pz,floorNo){
   const c=b._props||(b._props=new Map());let L=c.get(floorNo);if(L)return L;L=[];c.set(floorNo,L);
   if(b.style==='mall'){mallProps(b,px,pz,floorNo,L);return L;}
+  if(b.style==='church'||b.style==='cathedral'){if(floorNo===0)pewProps(b,px,pz,L);return L;}
   if(b.home){homeRoom(b,px,pz,floorNo,L);return L;}
   {const kd=floorNo===0?b.ground:b.kind;
+   if(VENUE_ROOMS.has(kd)){venueRoom(b,px,pz,floorNo,L,kd);return L;}
    if(CIVIC_ROOMS.has(kd)){civicRoom(b,px,pz,floorNo,L,kd);return L;}
    if(b.ground==='firehall'&&floorNo>0){civicRoom(b,px,pz,floorNo,L,'crew');return L;}
    if(WORK_ROOMS.has(kd)){workRoom(b,px,pz,floorNo,L,kd);return L;}
@@ -13383,9 +13467,9 @@ function refreshProps(){
       if(P.patio&&!seen.has(P)){seen.add(P);
         for(const f of patioProps(P,ax,az)){if(Math.abs(f.x-p.pos.x)>R||Math.abs(f.z-p.pos.z)>R)continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);if(!chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS))))continue;
           if(get(fx,f.y0-1,fz)===AIR||get(fx,f.y0,fz)!==AIR)continue;activeProps.push(f);drawProp(f);if(!f.low&&!downFix.has(f.key)&&!falling.has(f.key))propCells.set(propCK(f.x,f.y0,f.z),f);}}
-      for(const b of P.b){const ward=b.kind==='ward';if(seen.has(b))continue;if(!ward&&!b._fp){if(!FURN_SEEN.has(ax+','+az+','+b.x0+','+b.z0))continue;b._fp=[ax,az];}seen.add(b);   // (a site's other blocks: they're all listed on its first plot)
+      for(const b of P.b){const ward=b.kind==='ward';if(seen.has(b))continue;if(!ward&&!b._fp){if(b.style!=='church'&&b.style!=='cathedral'&&!FURN_SEEN.has(ax+','+az+','+b.x0+','+b.z0))continue;b._fp=[ax,az];}seen.add(b);   // (a site's other blocks: they're all listed on its first plot)
         // the floors in sight: the one you're on and the ones either side (you can't see the others through the slabs)
-        const f0=Math.floor((p.pos.y-G-1-b.gf)/FH)+1;
+        const f0=Math.max(0,Math.floor((p.pos.y-G-1-b.gf)/FH)+1);
         for(let n=Math.max(0,f0-1);n<=f0+1;n++){const y0=n===0?G+1:G+b.gf+1+FH*(n-1);if(y0>Math.min(b.detailTop,b.top-1)-2)break;
           const RF=n===f0?R:18;   // (the floors above and below only matter close to, through a hole or from the stairs)
           for(const f of (ward?hospProps:furnProps)(b,ax,az,n)){if(Math.abs(f.x-p.pos.x)>RF||Math.abs(f.z-p.pos.z)>RF)continue;
