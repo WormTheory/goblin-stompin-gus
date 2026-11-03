@@ -8,7 +8,7 @@ Open the file in a browser to play.
 - `game/index.html` is the only deliverable. Keep it one file — no build step, no bundler.
 - Parody of real brands is welcome and part of the humour (names like "Goblin Walmart"). Draw parody logos rather than copying real artwork.
 - Comments are plain English, explaining *why*, often in parentheses. Match the existing style.
-- **Bump `SAVE_KEY`** (currently `'goblin-city-v53'`) whenever world generation changes, so old saves don't load into a different world.
+- **Bump `SAVE_KEY`** (currently `'goblin-city-v55'`) whenever world generation changes, so old saves don't load into a different world.
 - Make edits with exact, unique string replacements. Many identifiers repeat, so check for a single match before replacing.
 - After every change: run the tests (below) before calling it done.
 
@@ -87,7 +87,7 @@ It renders in software, so the picture is right but the frame rate says nothing 
   - controller menu navigation `menuNav` (spatial up/down)
 - **Abilities menu:** rows `.abil2 > .ab-row`, upgrades in `.ab-up`, toggles use `data-base`, `data-prev`, `data-excl` (roll ⟷ blastDash).
 - **Props:** furniture made of small boxes rather than whole blocks, in proportion to the goblins (about 1.4 tall): models in `PROPS`, placed by `hospProps`, drawn by `refreshProps` as instanced boxes near the player, knocked down by `knockProps`. Hospitals only so far.
-- **Stairs:** a building with `b.stair` gets a walled flight per storey (`stairAt`), and goblins chase a hippo between floors with `stairPoint`/`onStair`. Fire stations and schools so far; suite `stairs` tests going up and down.
+- **Stairs:** a building with `b.stair` gets a railed flight per storey (`stairAt`) of stair blocks (`stairId`: a ramp underfoot, drawn as steps), and goblins chase a hippo between floors with `stairPoint`/`onStair`. Fire stations and schools so far; suite `stairs` tests going up and down.
 - **Dev tab:** `DEV_ABIL`, `DEV_SCRIPT`, sandbox `SBX`, Structures previewer (`ST`, `stBuildList` — built lazily because `TEST_GROUPS` is defined later).
 
 ## What each test suite covers (tools/tests)

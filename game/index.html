@@ -758,7 +758,7 @@ function horizHidden(cx,cy,cz,hr,top){
     if(!o.isInstancedMesh&&horizHidden(sp.center.x,sp.center.y,sp.center.z,sp.radius,sp.center.y+sp.radius))return false;   // (over the horizon)
     const d=Math.hypot(sp.center.x-CURVE_CAM.x,sp.center.z-CURVE_CAM.z),r=sp.radius,lo=k*Math.max(0,d-r)**2,hi=k*(d+r)**2;
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v53';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v55';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -814,10 +814,12 @@ const AIR=0,GRASS=1,DIRT=2,STONE=3,LOG=4,LEAVES=5,SAND=6,PLANKS=7,GLASS=8,WATER=
   // monuments: white marble and green-bronze statuary
   MARBLE=131,BRONZE=132,
   // courts and cemeteries, church glass, a bank's gold
-  COURT=133,COURT_L=134,CHAINLINK=135,GRAVE=136,GRAVEX=137,STAINED=138,GOLD=139;
+  COURT=133,COURT_L=134,CHAINLINK=135,GRAVE=136,GRAVEX=137,STAINED=138,GOLD=139,
+  STAIR0=140,   // stairs: 3 materials (concrete, steel, wood) x 4 directions, up to 151
+  RAILPOST=152;   // a slim steel post (the bars between posts are drawn as fixtures)
 // ramps: 4 directions (the way it rises: +x, -x, +z, -z) x 3 shapes (a full 0->1 slope, or the low and high halves
 // of a gentle slope that takes two blocks to climb one). rampId(dir,kind)
-const rampId=(dir,kind)=>RAMP0+dir*3+kind,rampLineId=(dir,kind,t)=>RAMPL0+t*12+dir*3+kind;
+const stairId=(dir,mat)=>STAIR0+(mat||0)*4+dir,rampId=(dir,kind)=>RAMP0+dir*3+kind,rampLineId=(dir,kind,t)=>RAMPL0+t*12+dir*3+kind;
 const BLOCK=[];
 BLOCK[AIR]      ={};
 BLOCK[GRASS]    ={tiles:[0,2,1],solid:true};
@@ -876,6 +878,9 @@ BLOCK[SIDING_Y] ={tiles:[8,8,52],solid:true};
 for(let d=0;d<4;d++)for(let k=0;k<3;k++)BLOCK[rampId(d,k)]={tiles:[13,13,16],solid:true,transparent:true,ramp:{dir:d,h0:k===2?0.5:0,h1:k===1?0.5:1}};
 // (the line tiles run along the slope: the along-x versions for ramps rising in x)
 for(let t=0;t<3;t++)for(let d=0;d<4;d++)for(let k=0;k<3;k++)BLOCK[rampLineId(d,k,t)]={tiles:[(d<2?[28,44,58]:[14,43,57])[t],13,16],solid:true,transparent:true,ramp:{dir:d,h0:k===2?0.5:0,h1:k===1?0.5:1}};
+// stairs: underfoot they're a smooth slope, like a ramp, so nothing has to hop up them; they're only drawn as steps
+for(let m=0;m<3;m++)for(let d=0;d<4;d++)BLOCK[stairId(d,m)]={tiles:[[15,16,16],[18,18,18],[8,8,8]][m],solid:true,transparent:true,stair:true,ramp:{dir:d,h0:0,h1:1}};
+BLOCK[RAILPOST]={tiles:[18,18,18],solid:true,transparent:true,brittle:true,thin:0.07,post:true};
 // football stadium
 BLOCK[SEAT_B]   ={tiles:[53,16,53],solid:true};
 BLOCK[SEAT_R]   ={tiles:[54,16,54],solid:true};
@@ -3801,12 +3806,12 @@ function plotInfo(px,pz){
         if(S.w>=3){
           // the big kind: a long two-storey block set back behind its bus lane and front lawn, the playground and playing field behind
           const b=base({x0:PL0+10,x1:PL0+70,z0:PL0+14,z1:PL0+32,top:G+2*FH,wall:BRICK,win:WIN_WARM,band:CONCRETE,kind:'school',ground:'school',floor:FLOORT,door:2});
-          b.doorSpec={w:1,h:4,k:'glass'};b.detailTop=b.top-1;brandOn(b,'school',r(140));b.stair={ax:'z',c0:b.x0+22,c1:b.x0+24,r0:b.z0+11,L:FH};p.b.push(b);
+          b.doorSpec={w:1,h:4,k:'glass'};b.detailTop=b.top-1;brandOn(b,'school',r(140));b.stair={ax:'z',c0:b.x0+22,c1:b.x0+26,r0:b.z0+11,L:FH};p.b.push(b);
           p.school={px0:PL0+1,px1:PL0+SW-1,pz0:b.z1+2,pz1:PL0+SD-1,big:true};p.buses=true;
         } else {
         const b=wide?base({x0:PL0+1,x1:PL0+28,z0:PL0+5,z1:PL0+SD-1,top:G+2*FH,wall:BRICK,win:WIN_WARM,band:CONCRETE,kind:'school',ground:'school',floor:FLOORT,door:2})
                     :base({x0:PL0+1,x1:PL0+SW-1,z0:PL0+5,z1:PL0+26,top:G+2*FH,wall:BRICK,win:WIN_WARM,band:CONCRETE,kind:'school',ground:'school',floor:FLOORT,door:2});
-        b.doorSpec={w:1,h:4,k:'glass'};b.detailTop=b.top-1;brandOn(b,'school',r(140));b.stair=wide?{ax:'x',c0:b.z0+12,c1:b.z0+14,r0:b.x0+7,L:FH}:{ax:'z',c0:b.x0+12,c1:b.x0+14,r0:b.z0+7,L:FH};p.b.push(b);
+        b.doorSpec={w:1,h:4,k:'glass'};b.detailTop=b.top-1;brandOn(b,'school',r(140));b.stair=wide?{ax:'x',c0:b.z0+12,c1:b.z0+15,r0:b.x0+7,L:FH}:{ax:'z',c0:b.x0+12,c1:b.x0+15,r0:b.z0+7,L:FH};p.b.push(b);
         p.school=wide?{px0:b.x1+2,px1:PL0+SW-1,pz0:PL0+1,pz1:PL0+SD-1}:{px0:PL0+1,px1:PL0+SW-1,pz0:b.z1+2,pz1:PL0+SD-1};p.buses=true;
         }
       } else if(S.kind==='factory'){
@@ -4203,7 +4208,7 @@ function plotInfo(px,pz){
     // (a city's has three bays and a hose tower; a large town's two and a shorter tower; a small town's or village's just one)
     const nb=stnTier(px,pz),fx1=PL0+14,gf=7;
     const b=base({x0:PL0+1,x1:fx1,z0:PL0+4,z1:PL1-1,gf,top:G+gf+FH,wall:BRICK,win:WIN_WARM,band:PAINT_RED,kind:'apartment',ground:'firehall',floor:FLOORT,door:2,neon:NEON_R});
-    b.bays=[PL0+3,PL0+7,PL0+11].slice(0,nb);b.allBays=true;b.detailTop=b.top-1;brandOn(b,'fire',r(140));b.stair={ax:'x',c0:PL1-4,c1:PL1-2,r0:PL0+3,L:gf};p.b.push(b);
+    b.bays=[PL0+3,PL0+7,PL0+11].slice(0,nb);b.allBays=true;b.detailTop=b.top-1;brandOn(b,'fire',r(140));b.stair={ax:'x',c0:PL1-5,c1:PL1-2,r0:PL0+3,L:gf,m:1};p.b.push(b);
     // the hose-drying tower: what makes it a fire station from anywhere in town
     {const t2=base({x0:fx1,x1:fx1+3,z0:PL1-6,z1:PL1-1,top:G+(nb===3?6:nb===2?5:4)*FH,wall:BRICK,win:WIN_WARM,band:PAINT_RED,kind:'office',ground:'office',floor:FLOORT,door:0});
      t2.detailTop=t2.top-1;p.b.push(t2);}
@@ -5066,10 +5071,18 @@ function siteAt(b,rx,rz,y){
 // plot's coordinates. On any floor, you go up from the near end and come off at the far end of the next floor up. ----
 function stairFloors(b){if(b._stY)return b._stY;const o=[G+1];for(let y=G+(b.gf||FH)+1;y<=b.detailTop;y+=FH)o.push(y);return b._stY=o;}
 function stairAt(b,rx,rz,y){
-  const S=b.stair,r=(S.ax==='x'?rx:rz)-S.r0,c=S.ax==='x'?rz:rx;if(r<0||r>=S.L||c<S.c0-1||c>S.c1)return;
-  if(c===S.c0-1||c===S.c1){STRUCT=true;return CONCRETE;}   // (the shaft's walls: nothing walks off the side into it)
-  const Y=stairFloors(b);
-  for(let n=0;n+1<Y.length;n++){const base=S.L-(Y[n+1]-Y[n]);if(r<base)continue;const sy=Y[n]+r-base;if(y===sy){STRUCT=true;return CONCRETE;}if(y>sy&&y<=sy+3)return AIR;}
+  const S=b.stair,r=(S.ax==='x'?rx:rz)-S.r0,c=S.ax==='x'?rz:rx;if(r<-1||r>=S.L||c<S.c0-1||c>S.c1)return;
+  const Y=stairFloors(b),side=c===S.c0-1||c===S.c1,dir=S.ax==='x'?0:2;
+  for(let n=0;n+1<Y.length;n++){const L=Y[n+1]-Y[n],base=S.L-L,hole=base+Math.max(0,L-4);   // (hole: the first row with the floor above cut away for headroom)
+    // a rail round the opening in the floor above: down both sides, and across its far end
+    if(y===Y[n+1]&&(side?r>=hole-1:r===hole-1))return RAILPOST;
+    if(r<base)continue;const sy=Y[n]+r-base;
+    if(side){   // up each side: solid to the steps, a handrail on top of that, and open above it
+      if(y>=Y[n]&&y<=sy){STRUCT=true;return CONCRETE;}if(y===sy+1)return RAILPOST;continue;}
+    if(y===sy){STRUCT=true;return stairId(dir,S.m);}
+    if(y===sy-1&&y>=Y[n]){STRUCT=true;return CONCRETE;}   // (the concrete under the steps)
+    if(y>sy&&y<=sy+3)return AIR;}
+  if(r<0||side)return;
   return FL_SLAB?undefined:AIR;
 }
 // is a goblin actually on one of the flights (not just standing on the floor beside or above it)?
@@ -6620,6 +6633,7 @@ function emitBox(out,X,Y,Z,x0,y0,z0,x1,y1,z1,tile,skip,sky){
 // fence too (or a wall it butts up against); on its own, along whichever way it would most likely run
 const FENCEISH=b=>b===FENCE||b===FENCE_W||b===CHAINLINK;
 function emitFence(out,X,Y,Z,b,info,xm,xp,zm,zp,up,sky){
+  if(info.post){emitBox(out,X,Y,Z,0.43,0,0.43,0.57,0.98,0.57,info.tiles[2],()=>false,sky);return;}
   const t=info.thin,tile=info.tiles[2],con=n=>FENCEISH(n)||(n&&BLOCK[n].solid&&!BLOCK[n].transparent&&!BLOCK[n].brittle);
   let cx0=con(xm),cx1=con(xp),cz0=con(zm),cz1=con(zp);
   if(!cx0&&!cx1&&!cz0&&!cz1){cx0=cx1=true;}
@@ -6644,6 +6658,17 @@ function emitRamp(out,X,Y,Z,info){
     out.i.push(i0,i0+1,i0+2,i0+2,i0+1,i0+3);
   };
   const top=info.tiles[0],side=info.tiles[2];
+  if(info.stair){
+    // three steps to the block, each a tread and a riser, with a stepped profile down either side
+    const N=3,along=R.dir<2,P=(t,c,h)=>{const q=R.dir%2?1-t:t;return along?[q,h,c]:[c,h,q];},nA=R.dir===0?[-1,0,0]:R.dir===1?[1,0,0]:R.dir===2?[0,0,-1]:[0,0,1];
+    const uvT=v=>[v[0],v[2]],uvR=along?v=>[v[2],v[1]]:v=>[v[0],v[1]],uvS=along?v=>[v[0],v[1]]:v=>[v[2],v[1]];
+    for(let i=0;i<N;i++){const t0=i/N,t1=(i+1)/N,h0=i/N,h1=(i+1)/N;
+      quad([P(t0,0,h1),P(t1,0,h1),P(t0,1,h1),P(t1,1,h1)],[0,1,0],top,1,uvT);                       // the tread
+      quad([P(t0,0,h0),P(t0,1,h0),P(t0,0,h1),P(t0,1,h1)],nA,side,0.62,uvR);                         // the riser, darker so the steps show
+      for(const c of [0,1]){const n=along?[0,0,c?1:-1]:[c?1:-1,0,0];quad([P(t0,c,0),P(t1,c,0),P(t0,c,h1),P(t1,c,h1)],n,side,along?0.68:0.8,uvS);}}   // the sides
+    quad([P(0,0,0),P(1,0,0),P(0,1,0),P(1,1,0)],[0,-1,0],side,0.55,uvT);
+    quad([P(1,0,0),P(1,1,0),P(1,0,1),P(1,1,1)],[-nA[0],0,-nA[2]],side,0.6,uvR);
+    return;}
   // sloped top: A=(0,H00,0) B=(1,H10,0) C=(0,H01,1) D=(1,H11,1); normal points up-ish
   quad([[0,H00,0],[1,H10,0],[0,H01,1],[1,H11,1]],[0,1,0],top,1,v=>[v[0],v[2]]);
   quad([[0,0,0],[1,0,0],[0,0,1],[1,0,1]],[0,-1,0],side,0.55,v=>[v[0],v[2]]);
@@ -7293,7 +7318,7 @@ function crushDisc(x,y,z,R,h,opt={}){
     const bx=Math.floor(x)+dx,by=y0+dy,bz=Math.floor(z)+dz;if(by<1||by>=H)continue;
     {const nx=Math.max(bx,Math.min(bx+1,x))-x,nz=Math.max(bz,Math.min(bz+1,z))-z;if(nx*nx+nz*nz>R*R)continue;}   // any block the circle reaches into
     if(SC){SC.push(bx,by,bz);continue;}
-    const b=get(bx,by,bz);if(b===AIR||b===WATER||b===BEDROCK||BLOCK[b].ramp)continue;
+    const b=get(bx,by,bz);if(b===AIR||b===WATER||b===BEDROCK||BLOCK[b].ramp&&!BLOCK[b].stair)continue;
     setRaw(bx,by,bz,AIR);addEdit(bx,by,bz,AIR);broken.push({x:bx,y:by,z:bz,b});
     for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((bx+ox)/CS),Math.floor((bz+oz)/CS)));
   }
@@ -12608,6 +12633,23 @@ function refreshProps(){
       }
     }
   }
+  // the handrails: a bar sloping up from post to post beside each flight (gone where a post's been knocked out)
+  fallMatrix(0,0,0,0);
+  for(const p of players){if(!p.active)continue;
+    for(let px=Math.floor((p.pos.x-30)/CELL);px<=Math.floor((p.pos.x+30)/CELL);px++)for(let pz=Math.floor((p.pos.z-30)/CELL);pz<=Math.floor((p.pos.z+30)/CELL);pz++){
+      if(biomeOf(px,pz)!=='city')continue;const Sx=superOf(px,pz);if(Sx&&(Sx.ax!==px||Sx.az!==pz))continue;
+      for(const b of plotInfo(px,pz).b){const S=b.stair;if(!S)continue;const al=S.ax==='x',R0=(al?px:pz)*CELL+S.r0,CC=(al?pz:px)*CELL,Y=stairFloors(b);
+        if(Math.abs((al?R0:CC+S.c0)-p.pos.x)>40||Math.abs((al?CC+S.c0:R0)-p.pos.z)>40)continue;
+        for(let n=0;n+1<Y.length;n++){const L=Y[n+1]-Y[n],base=S.L-L;
+          for(const c of [S.c0-1,S.c1])for(let r=base;r+1<S.L;r++){const sy=Y[n]+r-base,X=al?R0+r:CC+c,Z=al?CC+c:R0+r,X2=al?X+1:X,Z2=al?Z:Z+1;
+            if(!chunks.has(ckey(Math.floor(X/CS),Math.floor(Z/CS)))||get(X,sy+1,Z)!==RAILPOST||get(X2,sy+2,Z2)!==RAILPOST)continue;
+            pushSeg([X+.5,sy+1.95,Z+.5],[X2+.5,sy+2.95,Z2+.5],0.1);}
+          // and level bars round the opening in the floor above
+          {const yU=Y[n+1],hole=base+Math.max(0,L-4)-1,post=(r,c)=>{const X=al?R0+r:CC+c,Z=al?CC+c:R0+r;return chunks.has(ckey(Math.floor(X/CS),Math.floor(Z/CS)))&&get(X,yU,Z)===RAILPOST?[X+.5,yU+.95,Z+.5]:null;};
+           for(const c of [S.c0-1,S.c1])for(let r=hole;r+1<S.L;r++){const A=post(r,c),B=post(r+1,c);if(A&&B)pushSeg(A,B,0.1);}
+           for(let c=S.c0-1;c<S.c1;c++){const A=post(hole,c),B=post(hole,c+1);if(A&&B)pushSeg(A,B,0.1);}}}}
+    }}
+  FIX_BAR.count=nBar;FIX_BAR.instanceMatrix.needsUpdate=true;
   PROP_L.count=nPropL;PROP_G.count=nPropG;PROP_L.instanceMatrix.needsUpdate=true;PROP_G.instanceMatrix.needsUpdate=true;
   if(PROP_L.instanceColor)PROP_L.instanceColor.needsUpdate=true;if(PROP_G.instanceColor)PROP_G.instanceColor.needsUpdate=true;
 }

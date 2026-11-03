@@ -1,6 +1,8 @@
-fire stair {"ax":"x","c0":25,"c1":27,"r0":14,"L":7} floors [45,52] plot 5 5
+fire stair {"ax":"x","c0":24,"c1":27,"r0":14,"L":7,"m":1} floors [45,52] plot 5 5
 fire up reached in 4s floors 45 52
-fire down reached in 7s floors 52 45
-school stair {"ax":"z","c0":43,"c1":45,"r0":36,"L":5} floors [45,50] plot 42 20
+fire down reached in 4s floors 52 45
+fire Gus stopped at y 46.2 of 52
+school stair {"ax":"z","c0":43,"c1":47,"r0":36,"L":5} floors [45,50] plot 42 20
 school up reached in 6s floors 45 50
-school down reached in 7s floors 50 45
+school down reached in 6s floors 50 45
+school Gus stopped at y 46.2 of 50
