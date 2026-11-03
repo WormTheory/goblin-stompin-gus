@@ -42,8 +42,8 @@ const [A,B]=T.players;const S=n=>{for(let i=0;i<n;i++){now+=16.7;T.frame(now);}}
 const RAD=+(process.argv[2]||18),CELL=32,G=44,CS=16,BL=T.BLOCK;
 const names={};const blkSrc=src0.slice(src0.indexOf('const AIR=0'),src0.indexOf('const AIR=0')+3000);for(const m of blkSrc.matchAll(/([A-Z_0-9]+)=(\d+)/g))names[+m[2]]=m[1];
 const nm=b=>names[b]||b;
-const OK_DECK=new Set([12,13,14,16]);
-const roadish=b=>{const B=BL[b];return !!b&&(b===12||b===13||b===14||b===16||!!(B&&B.ramp)||(names[b]||'').match(/^(LINE|LANE|CROSS)/));};
+const OK_DECK=new Set([12,13,14,16]);   // (a sewer manhole in the road counts as road)
+const roadish=b=>{const B=BL[b];return !!b&&(names[b]==='METAL'||b===12||b===13||b===14||b===16||!!(B&&B.ramp)||(names[b]||'').match(/^(LINE|LANE|CROSS)/));};
 const out={deadNoRoute:[],deadNoRamp:[],breaks:[],clip:[],touch:[],rampFoot:[]};let spans=0,routes=0,deckCols=0;
 const col=(ax,a,c)=>ax==='x'?[a,c]:[c,a];
 const roadY=(x,z,y0,lim)=>{for(let d=0;d<=lim;d++){for(const y of d?[y0+d,y0-d]:[y0]){const b=T.get(x,y,z);if(roadish(b))return y;}}return null;};

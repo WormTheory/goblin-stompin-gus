@@ -1,3 +1,3 @@
 barrier-on-road columns 53 multi 114 motos 7
 [[393,-2501,"country","moto"],[2170,-34,"country/country","moto"]]
-[[397,-2501,"moto:1232/1236@-9.5 country:47/869@-8.5"],[2170,-37,"moto:866/870@-8.5 country:28/1172@9.5 country:28/2094@9.5"]]
+[[397,-2501,"moto:1232/1236@-9.5 country:48/750@-8.5"],[2170,-37,"moto:866/870@-8.5 country:28/1172@9.5 country:28/2078@9.5"]]

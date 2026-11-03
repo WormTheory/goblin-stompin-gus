@@ -1,5 +1,5 @@
 kinds 102 total ms N missing  slow N
-tower {"ax":0,"az":-1,"w":1,"h":1} mesh ms N verts 44212
-airport {"ax":18,"az":18,"w":6,"h":2} mesh ms N verts 169384
-hospital {"ax":7,"az":-6,"w":1,"h":2} mesh ms N verts 71368
+tower {"ax":-1,"az":-1,"w":1,"h":1} mesh ms N verts 45484
+airport {"ax":-18,"az":26,"w":6,"h":2} mesh ms N verts 171028
+hospital {"ax":7,"az":-6,"w":1,"h":2} mesh ms N verts 75256
 sewers {"ax":0,"az":2,"w":1,"h":1} mesh ms N verts 53448

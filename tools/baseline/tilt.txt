@@ -1,1 +1,1 @@
-{"tip":8,"straight":7,"none":9} null null null null null null
+{"tip":14,"straight":5,"none":5} null null null null null null

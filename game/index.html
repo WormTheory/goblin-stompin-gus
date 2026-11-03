@@ -758,7 +758,7 @@ function horizHidden(cx,cy,cz,hr,top){
     if(!o.isInstancedMesh&&horizHidden(sp.center.x,sp.center.y,sp.center.z,sp.radius,sp.center.y+sp.radius))return false;   // (over the horizon)
     const d=Math.hypot(sp.center.x-CURVE_CAM.x,sp.center.z-CURVE_CAM.z),r=sp.radius,lo=k*Math.max(0,d-r)**2,hi=k*(d+r)**2;
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v56';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v57';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -1162,12 +1162,12 @@ const superCache=new Map();
 // ---- settlements: the land is open plains, with separate places dotted across it on a loose grid (about 22 blocks
 // apart): cities, large towns, small towns and villages. You start in the middle of a city. Each place is a ragged,
 // roughly square patch of streets; everything between is plains. ----
-const SET_SP=36,SET_R={city:[10,3],large:[5.5,1.5],small:[3,1.2],village:[1.6,0.8]},setCache=new Map(),setAtCache=new Map(),zoneCache=new Map();
+const SET_SP=36,SET_R={city:[13,4],large:[7,2],small:[3,1.2],village:[1.6,0.8]},setCache=new Map(),setAtCache=new Map(),zoneCache=new Map();
 function settlementLat(rx,rz){
   const k=rx*100003+rz;let S=setCache.get(k);if(S)return S;
   let type;if(rx===0&&rz===0)type='city';else{const h=hash2(rx*577+31,rz*331+17);type=h<0.14?'city':h<0.38?'large':h<0.68?'small':'village';}
   const [r0,rv]=SET_R[type];// (each place is nudged off its grid point on its own, up to 11 blocks either way, so they don't line up)
-  S={rx,rz,type,R:rx===0&&rz===0?12:r0+hash2(rx*41+3,rz*59+5)*rv,cx:rx===0&&rz===0?0:rx*SET_SP+Math.round((hash2(rx*733+rz*97+1,rz*311+5)-0.5)*22),cz:rx===0&&rz===0?0:rz*SET_SP+Math.round((hash2(rz*733+rx*89+2,rx*271+9)-0.5)*22)};
+  S={rx,rz,type,R:rx===0&&rz===0?15:r0+hash2(rx*41+3,rz*59+5)*rv,cx:rx===0&&rz===0?0:rx*SET_SP+Math.round((hash2(rx*733+rz*97+1,rz*311+5)-0.5)*22),cz:rx===0&&rz===0?0:rz*SET_SP+Math.round((hash2(rz*733+rx*89+2,rx*271+9)-0.5)*22)};
   setCache.set(k,S);return S;
 }
 // ---- every place has a name: made up from its spot on the map (so it's always the same) out of goblin-ish bits ----
@@ -3066,30 +3066,52 @@ function pylonColumn(col,x,z){
 // ---- garbage dumps: now and then, a block of the plains right on the edge of a place is the town dump, its gate
 // facing the town. dumpAt: the side the town is on (0 -x, 1 +x, 2 -z, 3 +z), or null ----
 const dumpC=new Map();
+// A garbage dump: four blocks by four, out past the last houses, where one of the town's streets comes to an end. That
+// street carries on through a gate as a gravel road into the middle of it.
+const dumpSC=new Map();
+function dumpSite(ax,az){
+  const k=ax*100003+az;let v=dumpSC.get(k);if(v!==undefined)return v;dumpSC.set(k,null);v=null;   // (null while it's worked out)
+  if(hash2(ax*389+11,az*167+3)<0.22){
+    let ok=true;
+    for(let i=0;i<4&&ok;i++)for(let j=0;j<4&&ok;j++){const px=ax+i,pz=az+j;if(biomeOf(px,pz)!=='plains'||railPlot(px,pz)||bigPlainsAt(px,pz)||plotNearLines(px,pz,4)||farmK(px,pz)!==null||rivPlotNear(px,pz)||[[4,4],[28,4],[4,28],[28,28],[16,16]].some(([a,b])=>tsAt(px*CELL+a,pz*CELL+b)))ok=false;}
+    // a street ending at one of its sides: (side, i) -- 0 low x, 1 high x, 2 low z, 3 high z; i blocks along that side
+    if(ok)for(const i of [1,2,0,3]){if(v)break;for(let side=0;side<4&&!v;side++){
+      const open=side===0?segBase(ax-1,az+i,1):side===1?segBase(ax+4,az+i,1):side===2?segBase(ax+i,az-1,0):segBase(ax+i,az+4,0);
+      if(open)v={ax,az,side,i};}}
+  }
+  dumpSC.set(k,v);return v;
+}
 function dumpAt(px,pz){
   if(TEST_OFF.has('dump'))return null;
-  const k=px*100003+pz;let v=dumpC.get(k);if(v!==undefined)return v;v=null;
-  if(hash2(px*389+11,pz*167+3)<0.035&&biomeOf(px,pz)==='plains'){
-    const nb=[[px-1,pz],[px+1,pz],[px,pz-1],[px,pz+1]].findIndex(([a,b])=>settlementAt(a,b)&&!superOf(a,b));
-    if(nb>=0&&!bigPlainsAt(px,pz)&&!plotNearLines(px,pz,4)&&farmK(px,pz)===null&&![[4,4],[28,4],[4,28],[28,28],[16,16]].some(([a,b])=>tsAt(px*CELL+a,pz*CELL+b))&&!rivPlotNear(px,pz))v=nb;}
-  dumpC.set(k,v);return v;
+  return dumpSite(Math.floor(px/4)*4,Math.floor(pz/4)*4);
+}
+// the street's last junction, right on the dump's high side: paved through to the gate
+function dumpGateAt(ix,iz){
+  if(TEST_OFF.has('dump'))return false;
+  const A=dumpSite(Math.floor((ix-1)/4)*4,Math.floor(iz/4)*4);if(A&&A.side===1&&A.ax+4===ix&&A.az+A.i===iz)return true;
+  const B=dumpSite(Math.floor(ix/4)*4,Math.floor((iz-1)/4)*4);return !!B&&B.side===3&&B.az+4===iz&&B.ax+B.i===ix;
 }
 function dumpColumn(a,col,px,pz,rx,rz,lx,lz,x,z){
-  col(G-1,DIRT);col(G,(rx*3+rz)%5===0?DIRT:GRAVEL);for(let y=G+1;y<G+12;y++)col(y,AIR);
-  const side=dumpAt(px,pz),gateA=side<2?rz:rx,edgeOut=side===0?rx===0:side===1?rx===CELL-1:side===2?rz===0:rz===CELL-1;
-  // the fence, with the gate (and a gravel road) on the town side
-  if(rx===0||rz===0||rx===CELL-1||rz===CELL-1){if(edgeOut&&Math.abs(gateA-PC)<=2)return;for(let y=G+1;y<=G+3;y++)col(y,CHAINLINK);return;}
-  // the sorting shed by the gate: a rusty tin shed, open on its long side
-  const sx=side===0?[2,9]:side===1?[CELL-10,CELL-3]:[PC+4,PC+12],sz=side===2?[2,8]:side===3?[CELL-9,CELL-3]:[PC+4,PC+10];
-  if(rx>=sx[0]&&rx<=sx[1]&&rz>=sz[0]&&rz<=sz[1]){const e=rx===sx[0]||rx===sx[1]||rz===sz[0]||rz===sz[1],open=side<2?rz===sz[0]:rx===sx[0];col(G,CONCRETE);if(e&&!open)for(let y=G+1;y<=G+4;y++)col(y,RUST);col(G+5,METAL);
-    if(!e&&(rx+rz)%3===0)col(G+1,CRATE);return;}
-  // mounds of rubbish: dirt and gravel, bin bags, crates, scrap, a few things that were once bright colours
-  let h=0;for(let i=0;i<3;i++){const mx=6+hash2(px*7+i,pz*3+i*5)*20,mz=6+hash2(px*11+i*3,pz*13+i)*20,rr=6+hash2(px+i*9,pz+i*7)*4,d=Math.hypot(rx-mx,rz-mz);h=Math.max(h,7*(1-(d/rr)**2));}
+  const D=dumpAt(px,pz),SZ=4*CELL,U=x-D.ax*CELL,V=z-D.az*CELL,hs=(k,n)=>hash2(D.ax*(7+k)+n*3,D.az*(11+k)+n*5);
+  col(G-1,DIRT);col(G,(U*3+V)%5===0?DIRT:GRAVEL);for(let y=G+1;y<G+18;y++)col(y,AIR);
+  // d: how far in from the gate's side; w: along that side; g: the road's near edge along it (it lines up with the street outside)
+  const d=D.side===0?U:D.side===1?SZ-1-U:D.side===2?V:SZ-1-V,w=D.side<2?V:U,g=D.i*CELL,road=w>=g&&w<g+ROADW&&d<92;
+  // the fence, with the gate where the road comes through
+  if(U===0||V===0||U===SZ-1||V===SZ-1){if(d===0&&road)return;for(let y=G+1;y<=G+3;y++)col(y,CHAINLINK);return;}
+  if(road){col(G,d<16?ASPHALT:GRAVEL);return;}
+  // the sorting shed by the gate: a rusty tin shed, open on the side facing the road
+  {const sa=d-6,sb=w-(g+ROADW+2);if(sa>=0&&sa<=18&&sb>=0&&sb<=11){const e=sa===0||sa===18||sb===0||sb===11;col(G,CONCRETE);if(e&&sb!==0)for(let y=G+1;y<=G+5;y++)col(y,RUST);col(G+6,METAL);if(!e&&(U+V)%3===0)col(G+1,CRATE);return;}}
+  // the weighbridge hut on the other side of the road
+  {const sa=d-5,sb=g-3-w;if(sa>=0&&sa<=4&&sb>=0&&sb<=3){col(G,CONCRETE);const e=sa===0||sa===4||sb===0||sb===3;if(e){for(let y=G+1;y<=G+3;y++)col(y,y===G+2&&sa===2?GLASS:PAINT_WHITE);}col(G+4,METAL);return;}}
+  // great mounds of rubbish: dirt and gravel, bin bags, crates, scrap, a few things that were once bright colours
+  let h=0;for(let i=0;i<16;i++){const mx=10+hs(0,i)*(SZ-20),mz=10+hs(1,i)*(SZ-20),rr=9+hs(2,i)*9,top=6+hs(3,i)*8,q=Math.hypot(U-mx,V-mz);h=Math.max(h,top*(1-(q/rr)**2));}
+  // (kept off the road and clear of the yard by the gate)
+  {const off=Math.abs(w-(g+ROADW/2))-ROADW/2;if(d<26&&off<22)h=0;else if(d<96&&off<6)h=Math.min(h,off*0.8);else if(d<96)h=Math.min(h,Math.max(0,off*0.9));}
   h=Math.floor(h+hash2(x*5+1,z*7+3)*1.6);
   const JUNK=[GRAVEL,GRAVEL,DIRT,PAINT_DARK,PAINT_DARK,CRATE,RUST,PAINT_GREEN,PLANKS,METAL,PAINT_WHITE,PAINT_BLUE];
-  for(let y=1;y<=h;y++)col(G+y,JUNK[Math.floor(hash2(x*31+y*7,z*17+y*3)*JUNK.length)]);
-  // two bulldozers parked on the flat
-  for(const [bx,bz] of [[PC-6,PC+7],[PC+5,PC-7]]){const u=rx-bx,v=rz-bz;if(u<0||u>2||v<-1||v>3||h>0)continue;
+  for(let y=1;y<=h&&y<17;y++)col(G+y,JUNK[Math.floor(hash2(x*31+y*7,z*17+y*3)*JUNK.length)]);
+  // bulldozers parked on the flat, by the road's far end
+  for(const [ba,bb] of [[96,-2],[100,10],[84,-12],[88,14]]){const u=d-ba,v=w-(g+bb);if(u<0||u>2||v<-1||v>3||h>0)continue;
     if(v===-1){col(G+1,METAL);col(G+2,METAL);return;}   // the blade
     col(G+1,PAINT_DARK);if(v>=0&&v<=2&&u<=2){col(G+2,PAINT_YELLOW);if(v>=1&&u>=0&&u<=2)col(G+3,u===1?GLASS:PAINT_YELLOW);if(v>=1)col(G+4,PAINT_YELLOW);}return;}
 }
@@ -3480,6 +3502,7 @@ function macroOf1(px,pz){
       else if(h<0.25)M={ax:mx*6+off,az:mz*6+off2,w:4,h:4,kind:'bigbox'};   // a superstore: 16 blocks, most of it car park
       else if(h<0.40)M=hash2(mx+17,mz+19)<0.5?{ax:mx*6,az:mz*6,w:6,h:6,kind:'hood'}:{ax:mx*6+off,az:mz*6+off2,w:4,h:4,kind:'hood'};
       else if(h<0.50)M={ax:mx*6+off,az:mz*6+off2,w:3,h:3,kind:'school'};   // a school with proper grounds: 3x3 blocks
+      if(M&&!siteFits(M.kind,M.ax+M.w/2,M.az+M.h/2))M=null;
       {const ty=M&&setType(M.ax,M.az);if(M&&M.kind==='school'&&ty!=='city'&&ty!=='large'&&ty!=='suburb')M=null;if(M&&(M.kind==='stadium'||M.kind==='bigpark')&&ty!=='city')M=null;if(M&&(M.kind==='mall'||M.kind==='bigbox')&&ty!=='city'&&ty!=='large'&&ty!=='suburb')M=null;if(M&&M.kind==='hood'&&ty==='village')M=null;
        if(!M&&h<0.62&&setType(mx*6+3,mz*6+3)==='suburb')M=hash2(mx+17,mz+19)<0.5?{ax:mx*6,az:mz*6,w:6,h:6,kind:'hood'}:{ax:mx*6+off,az:mz*6+off2,w:4,h:4,kind:'hood'};}   // suburbs: housing estates
       if(M&&(rectRail(M.ax,M.az,M.w,M.h)||rectRiver(M.ax,M.az,M.w,M.h)||rectPlains(M.ax,M.az,M.w,M.h)||rectClover(M.ax,M.az,M.w,M.h)||rectRamp(M.ax,M.az,M.w,M.h)||rectCuts(M.ax,M.az,M.w,M.h)||M.kind!=='hood'&&rectHighway(M.ax,M.az,M.w,M.h)))M=null;
@@ -3505,7 +3528,8 @@ function superOf(px,pz){
     S=null;
     const hitsM=M&&gx*2<M.ax+M.w&&gx*2+2>M.ax&&gz*2<M.az+M.h&&gz*2+2>M.az;
     let gk=Math.max(Math.abs(gx),Math.abs(gz))>=2&&!hitsM?groupKind(gx,gz):null;
-    if(gk){const ty=setType(gx*2,gz*2),kn=gk.slice(0,-1),OK={city:null,large:['hospital','garage','police','market','drug','sitdown','school','factory','museum','aquarium','casino','cathedral','ikea','cinema','arena','campus','prison','water','power','zoo','nuclear','theme'],small:['hospital','market','drug','sitdown','school','factory','cinema','water'],suburb:['police','market','drug','sitdown','school','ikea','cinema','water','campus','theme'],village:[]}[ty];if(!ty||OK&&!OK.includes(kn)||ty==='small'&&gk==='hospital4')gk=null;}   // (what a place that size would have)
+    if(gk){const ty=setType(gx*2,gz*2),kn=gk.slice(0,-1),OK={city:null,large:['hospital','garage','police','market','drug','sitdown','school','factory','museum','aquarium','casino','cathedral','ikea','cinema','arena','campus','prison','water','power','zoo','nuclear','theme'],small:['hospital','market','drug','sitdown','school','factory','cinema','water'],suburb:['police','market','drug','sitdown','school','ikea','cinema','water','campus','theme'],village:[]}[ty];if(!ty||OK&&!OK.includes(kn)&&!(ty==='suburb'&&SITE_EDGE.has(kn))||ty==='small'&&gk==='hospital4')gk=null;}
+    if(gk&&!siteFits(gk.slice(0,-1),gx*2+1,gz*2+1))gk=null;   // (what a place that size would have)
     if(gk&&gk.startsWith('school')&&setType(gx*2,gz*2)!=='small')gk=null;   // (only a small town's is this cramped: bigger places get the 3x3 kind)
     if(gk){const kn=gk.slice(0,-1);if((groupKind(gx-1,gz)||'').startsWith(kn)||(groupKind(gx,gz-1)||'').startsWith(kn))gk=null;}
     if(gk){
@@ -3659,6 +3683,18 @@ function jz(px,pz){const k='z'+px+','+pz;let v=joinCache.get(k);if(v===undefined
 function jx(px,pz){const k='x'+px+','+pz;let v=joinCache.get(k);if(v===undefined){v=joinOf(px,pz-1,px,pz,'z');joinCache.set(k,v);}return v;}
 // how far a block's ground reaches: over the pavement on any side that's joined to its neighbour
 function plotBounds(px,pz){return{x0:jz(px,pz)?ROADW:PL0,x1:jz(px+1,pz)?CELL:PL1,z0:jx(px,pz)?ROADW:PL0,z1:jx(px,pz+1)?CELL:PL1};}
+// where in a place each kind of site belongs: how far out from the middle, as a share of the place's radius. Offices and
+// theatres downtown; hospitals and arenas in the ring round it; schools, supermarkets and superstores out in the suburbs,
+// where there's room; anything heavy, smelly or sprawling at the edge of town. (Little places have no such zones, so
+// there it's only 'not in the very middle'.)
+const SITE_F={mega:[0,.55],stocks:[0,.55],news:[0,.6],museum:[0,.62],theater:[0,.62],casino:[0,.72],cathedral:[0,.75],hospital:[.15,.8],arena:[.15,.85],stadium:[.2,.9],mall:[.3,.92],
+  school:[.4,9],market:[.4,9],cinema:[.4,9],bigbox:[.5,9],ikea:[.55,9],armory:[.5,9],datacenter:[.62,9],dealer:[.62,9],electric:[.62,9],jail:[.6,9],lab:[.6,9],
+  factory:[.68,9],power:[.68,9],water:[.68,9],zoo:[.68,9],theme:[.68,9],studio:[.68,9],campus:[.5,9],prison:[.72,9],nuclear:[.8,9]};
+const SITE_EDGE=new Set(['factory','power','water','zoo','theme','studio','prison','nuclear','campus']);
+function siteFits(kind,cx,cz){
+  const R=SITE_F[kind];if(!R)return true;const S=settlementAt(Math.floor(cx),Math.floor(cz));if(!S)return true;
+  const f=setDist(S,cx,cz)/S.R;return S.type==='city'||S.type==='large'?f>=R[0]&&f<=R[1]:f>=R[0]*0.6;
+}
 // what sort of plot each city block is (decided from the seed alone, so neighbours can ask without recursion)
 const B3_MIX={city:[['derelict',0.02],['stocks',0.006],['theater',0.012],['dealer',0.012],['armory',0.006],['camp',0.012],['farmers',0.01],['mansion',0.004]],
   large:[['derelict',0.02],['theater',0.01],['dealer',0.015],['armory',0.008],['camp',0.008],['farmers',0.012],['mansion',0.008],['trailers',0.004]],
@@ -3673,6 +3709,11 @@ const B2_MIX={city:[['church',0.02],['library',0.02],['news',0.016],['bank',0.03
   suburb:[['court',0.02],['church',0.025],['library',0.015],['bank',0.015],['cemetery',0.01],['radio',0.008]],
   village:[['church',0.045],['bank',0.02],['cemetery',0.03],['radio',0.012],['library',0.012]]};
 function baseType(px,pz){
+  const t=baseType0(px,pz);if(siteFits(t,px+.5,pz+.5))return t;
+  // (the wrong part of town for one of those: whatever's usual round here)
+  const z=setType(px,pz);return z==='city'?'tower':z==='large'?'mid':hash2(px*23+3,pz*41+5)<0.2?'mid':'homes';
+}
+function baseType0(px,pz){
   const t=hash2(px*31+7,pz*17+13),ty=setType(px,pz);
   // a row of two little shops (bookshop, dentist, dispensary, gun shop, bar, soup kitchen); a water tower out in the
   // smaller places and the suburbs; a bell tower on its green, mostly in the small towns and villages
@@ -6226,7 +6267,7 @@ function stripOpen(px,pz,roadX,roadZ){
 function jSquare(ix,iz){let n=0;for(let d=0;d<4;d++)if(segOpen(ix,iz,d)&&++n>=2)return true;
   // (where a country highway leaves town on its west or north side, the junction at the edge of town is where it
   // carries on out across the plains)
-  return n===1&&(ghwRow(iz,ix)&&hwLine('x',iz,ix-1)===null||ghwCol(ix,iz)&&hwLine('z',ix,iz-1)===null);}
+  return n===1&&(ghwRow(iz,ix)&&hwLine('x',iz,ix-1)===null||ghwCol(ix,iz)&&hwLine('z',ix,iz-1)===null||dumpGateAt(ix,iz));}
 // how many streets meet at an intersection
 const jDegC=new Map();
 function jDeg(ix,iz){const k=ix*100003+iz;let v=jDegC.get(k);if(v===undefined){v=0;for(let d=0;d<4;d++)if(segOpen(ix,iz,d))v++;jDegC.set(k,v);}return v;}
