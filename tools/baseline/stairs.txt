@@ -8,7 +8,7 @@ school down reached in 8s floors 50 45
 school Gus stopped at y 46.2 of 50
 schoolWide none found
 schoolTall stair {"ax":"z","c0":23,"c1":27,"r0":29,"L":5} floors [45,50] plot -102 -148
-schoolTall up reached in 6s floors 45 50
+schoolTall up reached in 7s floors 45 50
 schoolTall down reached in 8s floors 50 45
 schoolTall Gus stopped at y 46.2 of 50
 police stair {"ax":"x","c0":15,"c1":18,"r0":29,"L":5} floors [45,50,55,60] plot -2 -8
@@ -20,7 +20,7 @@ museum up reached in 10s floors 45 55
 museum down reached in 15s floors 55 45
 museum Gus stopped at y 46.2 of 55
 hospital stair {"ax":"x","c0":50,"c1":54,"r0":28,"L":8} floors [45,53,58,63,68,73,78,83,88,93,98] plot 12 -6
-hospital up reached in 12s floors 45 53
+hospital up reached in 13s floors 45 53
 hospital down reached in 8s floors 53 45
 hospital Gus stopped at y 46.5 of 53
 campus stair {"ax":"x","c0":14,"c1":17,"r0":27,"L":7} floors [45,52] plot 120 48

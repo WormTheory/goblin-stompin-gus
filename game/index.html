@@ -758,7 +758,7 @@ function horizHidden(cx,cy,cz,hr,top){
     if(!o.isInstancedMesh&&horizHidden(sp.center.x,sp.center.y,sp.center.z,sp.radius,sp.center.y+sp.radius))return false;   // (over the horizon)
     const d=Math.hypot(sp.center.x-CURVE_CAM.x,sp.center.z-CURVE_CAM.z),r=sp.radius,lo=k*Math.max(0,d-r)**2,hi=k*(d+r)**2;
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v63';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v64';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -4538,7 +4538,30 @@ function flo(b,fl){
   FL_SLAB=false;FL_LVL=(f2-1)%FH;FL_NO=1+Math.floor((f2-1)/FH);
 }
 // what sits on each floor: lobbies, offices, apartments, shops, the police station, hospitals, supermarkets
+// (the furniture itself is mostly props now, not blocks: furnTurns says which pieces, furnProps sets them out)
 function furniture(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
+  const v=furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz);
+  if(!b._fp)b._fp=[px,pz];
+  if(b.kind==='ward'||!FURN_IDS.has(v))return v;
+  const st=STRUCT,t=furnTurns(v,b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz);STRUCT=st;
+  return t?AIR:v;
+}
+const FURN_IDS=new Set([SOFA,BED,FRIDGE,SHELF,CRATE,LEAVES,SCREEN,PLANKS]);
+function furnTurns(v,b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
+  if(v===SOFA||v===BED||v===FRIDGE||v===SHELF)return true;
+  flo(b,fl);const lvl=FL_LVL,top=(FL_NO===0?(b.gf||FH)-2:FH-2);
+  const at=(x,z,f)=>furnRaw(b,x,z,f,ex0,ex1,ez0,ez1,px,pz),below=lvl>0?at(rx,rz,fl-1):AIR,above=lvl<top?at(rx,rz,fl+1):AIR;
+  if(v===CRATE)return below===SHELF;   // (goods on top of a shelf go with it. A crate on its own is a crate.)
+  if(v===LEAVES)return lvl===0||lvl===1&&below===LEAVES;
+  // a screen by itself, on something: a monitor. (A stack of them, or one high up, is a video wall and stays.)
+  if(v===SCREEN)return lvl>=1&&lvl<=2&&below!==SCREEN&&above!==SCREEN&&below!==AIR;
+  // planks on the floor, not part of a big platform: a table or a counter
+  if(lvl!==0)return false;
+  if(above!==AIR&&!(above===SCREEN&&furnTurns(SCREEN,b,rx,rz,fl+1,ex0,ex1,ez0,ez1,px,pz)))return false;
+  let n=0;for(let i=-1;i<=1;i++)for(let k=-1;k<=1;k++)if((i||k)&&rx+i>ex0&&rx+i<ex1-1&&rz+k>ez0&&rz+k<ez1-1&&at(rx+i,rz+k,fl)===PLANKS)n++;
+  return n<5;
+}
+function furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
   const W=ex1-ex0,D=ez1-ez0,I=W-2,J=D-2,iu=rx-ex0-1,iv=rz-ez0-1;
   flo(b,fl);const level=FL_LVL,floorNo=FL_NO,kind=floorNo===0?b.ground:b.kind;
   if(floorNo===0){const cx=(b.x0+b.x1)>>1,cz=(b.z0+b.z1)>>1;if((kind==='diner'||kind==='pizza'||kind==='cafe'||kind==='fastfood'||kind==='sitdown'||kind==='drug'||kind==='bar'||kind==='soup'||kind==='cinema'||kind==='bank'||kind==='news'||kind==='disco'||kind==='club'||kind==='dealer'||kind==='theater'||kind==='stocks'||kind==='ikea'||kind==='museum'||kind==='aquarium'||kind==='casino'||kind==='school'||kind==='factory'||kind==='lecture'||kind==='cells'||kind==='lab'||kind==='turbine'||kind==='stage'||kind==='barracks'||kind==='terminal'||kind==='mission')?iv<=0&&Math.abs(rx-cx)<=1:(b.door<2&&Math.abs(rz-cz)<=1)||(b.door>=2&&Math.abs(rx-cx)<=1))return AIR;}
@@ -11352,7 +11375,7 @@ function indoorWander(g){
   const E=g.employer;
   for(let k=0;k<12;k++){const x=Math.floor(g.pos.x+(Math.random()-.5)*8),z=Math.floor(g.pos.z+(Math.random()-.5)*8),y=Math.floor(g.pos.y);
     if(E&&(x<E.ax+E.b.x0+1||x>=E.ax+E.b.x1-1||z<E.az+E.b.z0+1||z>=E.az+E.b.z1-1))continue;   // staff keep to their own shop floor
-    if(get(x,y,z)===AIR&&get(x,y+1,z)===AIR&&solidAt(x,y-1,z)&&bldgAt(x,z))return{x:x+.5,z:z+.5};}
+    if(get(x,y,z)===AIR&&get(x,y+1,z)===AIR&&solidAt(x,y-1,z)&&bldgAt(x,z)&&!propCells.has(propCK(x,y,z)))return{x:x+.5,z:z+.5};}
   return null;
 }
 function spawnCiv(g){
@@ -11400,10 +11423,10 @@ function civAI(g,dt){
   g.heading+=Math.max(-7*dt,Math.min(7*dt,diff));
   let moving=false;
   if(speed>0){
-    const fx=Math.sin(g.heading),fz=Math.cos(g.heading),ahead=groundAt(g.pos.x+fx*0.45,g.pos.z+fz*0.45,g.pos.y);
+    const fx=Math.sin(g.heading),fz=Math.cos(g.heading),ahead=gobGround(g.pos.x+fx*0.45,g.pos.z+fz*0.45,g.pos.y,g,dt);
     if(ahead-g.pos.y>1.05){
       g.stuck+=dt;
-      if(g.stuck>0.25){let best=null,bs=-9;const tx=Math.sin(want),tz=Math.cos(want);for(const [vx,vz] of DIRV){if(groundAt(g.pos.x+vx*1.2,g.pos.z+vz*1.2,g.pos.y)-g.pos.y>1.05)continue;const s=vx*tx+vz*tz+Math.random()*0.4;if(s>bs){bs=s;best=[vx,vz];}}if(best){g.detour=1;g.detourH=Math.atan2(best[0],best[1]);}else g.wt=null;g.stuck=0;}
+      if(g.stuck>0.25){let best=null,bs=-9;const tx=Math.sin(want),tz=Math.cos(want);for(const [vx,vz] of DIRV){if(gobGround(g.pos.x+vx*1.2,g.pos.z+vz*1.2,g.pos.y)-g.pos.y>1.05)continue;const s=vx*tx+vz*tz+Math.random()*0.4;if(s>bs){bs=s;best=[vx,vz];}}if(best){g.detour=1;g.detourH=Math.atan2(best[0],best[1]);}else g.wt=null;g.stuck=0;}
     } else {g.pos.x+=fx*speed*dt;g.pos.z+=fz*speed*dt;moving=true;g.phase+=dt*speed*4.5;g.stuck=0;}
   }
   if(g.fleeing){g.arm.rotation.x=-2.7+Math.sin(g.t*18)*0.35;g.armL.rotation.x=-2.7+Math.sin(g.t*18+2)*0.35;}
@@ -11545,7 +11568,7 @@ function updateGoblins(dt){
         g.wtT=(g.wtT||0)-dt;if(!g.wt||g.wtT<=0){g.wt=copIdle?copSpot(g):Math.random()<0.5?indoorWander(g):null;g.wtT=2+Math.random()*3;if(!copIdle&&Math.random()<0.08)g.trip={up:Math.random()<0.5,t:14,y0:g.pos.y};}
         if(g.wt){const wx=g.wt.x-g.pos.x,wz=g.wt.z-g.pos.z,wd=Math.hypot(wx,wz);
           if(wd<0.5)g.wt=null;else{let df=Math.atan2(wx,wz)-g.heading;while(df>Math.PI)df-=Math.PI*2;while(df<-Math.PI)df+=Math.PI*2;g.heading+=Math.max(-5*dt,Math.min(5*dt,df));
-            const fx=Math.sin(g.heading),fz=Math.cos(g.heading);if(groundAt(g.pos.x+fx*0.45,g.pos.z+fz*0.45,g.pos.y)-g.pos.y<=1.05){g.pos.x+=fx*1.2*dt;g.pos.z+=fz*1.2*dt;moving=true;g.phase+=dt*6;}else g.wt=null;}}
+            const fx=Math.sin(g.heading),fz=Math.cos(g.heading);if(gobGround(g.pos.x+fx*0.45,g.pos.z+fz*0.45,g.pos.y)-g.pos.y<=1.05){g.pos.x+=fx*1.2*dt;g.pos.z+=fz*1.2*dt;moving=true;g.phase+=dt*6;}else g.wt=null;}}
       }
       else if(playing&&g.stun<=0){
         if(sr){dx=sr.x-g.pos.x;dz=sr.z-g.pos.z;d=Math.max(reach+1,Math.hypot(dx,dz));}
@@ -11555,13 +11578,13 @@ function updateGoblins(dt){
         g.heading+=Math.max(-7*dt,Math.min(7*dt,diff));
         if(d>reach){
           const fx=Math.sin(g.heading),fz=Math.cos(g.heading);
-          const ahead=groundAt(g.pos.x+fx*0.45,g.pos.z+fz*0.45,g.pos.y);
+          const ahead=gobGround(g.pos.x+fx*0.45,g.pos.z+fz*0.45,g.pos.y,g,dt);
           if(ahead-g.pos.y>1.05){
             g.stuck+=dt;
             if(g.stuck>0.25){
               // walk along the wall: pick the open street direction that best heads toward the target
               let best=null,bs=-9;
-              for(const [vx,vz] of DIRV){if(groundAt(g.pos.x+vx*1.2,g.pos.z+vz*1.2,g.pos.y)-g.pos.y>1.05)continue;const s=(vx*dx+vz*dz)/(d||1)+Math.random()*0.4;if(s>bs){bs=s;best=[vx,vz];}}
+              for(const [vx,vz] of DIRV){if(gobGround(g.pos.x+vx*1.2,g.pos.z+vz*1.2,g.pos.y)-g.pos.y>1.05)continue;const s=(vx*dx+vz*dz)/(d||1)+Math.random()*0.4;if(s>bs){bs=s;best=[vx,vz];}}
               if(best){g.detour=1.3;g.detourH=Math.atan2(best[0],best[1]);}
               g.stuck=0;
             }
@@ -12724,11 +12747,20 @@ function drawFix(f,near){
 // part of the voxel world: they're drawn as instanced boxes for whatever's near you, and get knocked flat by anything
 // big. Each part: colour, x, y, z (its centre, from the prop's foot) and size. x and z turn with the prop's yaw, and
 // its local -z is its back. PT stands for the prop's own tint; PG marks a part that glows. ----
-const PROP_MAX=12000,PROP_GLOW_MAX=1500,PT=-1,PG=0x1000000;
+const PROP_MAX=30000,PROP_GLOW_MAX=3000,PT=-1,PG=0x1000000;
 const PROP_L=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshLambertMaterial({color:0xffffff}),PROP_MAX);
 const PROP_G=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xffffff}),PROP_GLOW_MAX);
 for(const m of [PROP_L,PROP_G]){m.setColorAt(0,new THREE.Color(0xffffff));m.frustumCulled=false;m.count=0;scene.add(m);}
 const P_STEEL=0xa9b1b7,P_DARK=0x2a2e33,P_WHITE=0xe9edf0,P_WOOD=0x9c6c3e,P_SCREEN=PG+0x63e6d6;
+function shelfModel(n){
+  const H=n*.97,M=[[P_DARK,-.48,H/2,0,.04,H,.86],[P_DARK,.48,H/2,0,.04,H,.86],[P_STEEL,0,H/2,0,.92,H,.05]];
+  for(let i=0;i<n;i++){const y=.14+i*.97;M.push([P_STEEL,0,y,0,.92,.04,.84],[PT,0,y+.22,0,.84,.38,.72]);}
+  return M;
+}
+function fridgeModel(n){
+  const H=n*.97;
+  return [[P_WHITE,0,H/2,0,.94,H,.82],[0xbfe6f5,0,H/2+.03,.415,.82,H-.12,.02],[P_STEEL,.32,H/2,.435,.04,Math.min(.8,H*.6),.03],[P_DARK,0,.05,.4,.94,.1,.04]];
+}
 const PROPS={
   // a hospital bed: wheels, a steel frame, mattress, pillow and blanket, a head and foot board, and side rails
   bed:[[P_DARK,-.34,.06,-.7,.12,.12,.12],[P_DARK,.34,.06,-.7,.12,.12,.12],[P_DARK,-.34,.06,.7,.12,.12,.12],[P_DARK,.34,.06,.7,.12,.12,.12],
@@ -12759,6 +12791,22 @@ const PROPS={
   cart:[[P_DARK,-.2,.05,-.14,.08,.1,.08],[P_DARK,.2,.05,-.14,.08,.1,.08],[P_DARK,-.2,.05,.14,.08,.1,.08],[P_DARK,.2,.05,.14,.08,.1,.08],[0xc62828,0,.42,0,.54,.64,.4],[P_WHITE,0,.28,.205,.46,.02,.01],[P_WHITE,0,.46,.205,.46,.02,.01],[P_WHITE,0,.62,.205,.46,.02,.01],[P_DARK,0,.84,0,.3,.2,.24],[PG+0xffd23a,0,.84,.125,.2,.1,.01]],
   // a wheelchair: two big wheels, a seat and back, a footrest and two small front wheels
   wheelchair:[[P_DARK,-.28,.24,-.04,.05,.48,.48],[P_DARK,.28,.24,-.04,.05,.48,.48],[P_STEEL,-.28,.24,-.04,.07,.12,.12],[P_STEEL,.28,.24,-.04,.07,.12,.12],[0x34495e,0,.38,0,.46,.06,.42],[0x34495e,0,.62,-.2,.46,.42,.05],[P_STEEL,-.26,.44,.1,.03,.03,.3],[P_STEEL,.26,.44,.1,.03,.03,.3],[P_DARK,0,.14,.34,.4,.03,.16],[P_DARK,-.2,.06,.24,.05,.12,.12],[P_DARK,.2,.06,.24,.05,.12,.12]],
+  // a shop shelf, one to four blocks tall: two uprights, a back, a board and a row of goods at each level
+  shelf1:shelfModel(1),shelf2:shelfModel(2),shelf3:shelfModel(3),shelf4:shelfModel(4),
+  // a fridge, one to three blocks tall: a white case, a pale glass door, a handle
+  fridge1:fridgeModel(1),fridge2:fridgeModel(2),fridge3:fridgeModel(3),
+  // a one-seat length of sofa, in the prop's tint: run some together and it's a long one
+  sofa:[[PT,0,.2,.04,.92,.3,.8],[PT,0,.56,-.32,.92,.5,.14],[PT,-.42,.42,.04,.1,.2,.8],[PT,.42,.42,.04,.1,.2,.8]],
+  // a bed at home: a wooden frame and headboard, mattress, pillow and blanket
+  homebed:[[P_WOOD,0,.14,0,.86,.2,1.6],[P_WOOD,0,.42,-.78,.86,.76,.06],[P_WHITE,0,.32,0,.8,.14,1.5],[0xfbfbf6,0,.42,-.52,.56,.08,.32],[PT,0,.41,.24,.82,.06,1.04]],
+  // bunks: two beds in a steel frame
+  bunk:[[P_STEEL,-.42,.8,-.78,.05,1.6,.05],[P_STEEL,.42,.8,-.78,.05,1.6,.05],[P_STEEL,-.42,.8,.78,.05,1.6,.05],[P_STEEL,.42,.8,.78,.05,1.6,.05],[P_WHITE,0,.34,0,.8,.14,1.5],[PT,0,.42,.2,.82,.05,1.1],[P_WHITE,0,1.22,0,.8,.14,1.5],[PT,0,1.3,.2,.82,.05,1.1]],
+  // a table, or one block's length of counter: a top on four legs
+  table:[[P_WOOD,0,.62,0,1,.07,1],[P_DARK,-.42,.29,-.42,.07,.58,.07],[P_DARK,.42,.29,-.42,.07,.58,.07],[P_DARK,-.42,.29,.42,.07,.58,.07],[P_DARK,.42,.29,.42,.07,.58,.07]],
+  // the same with a computer on it
+  deskm:[[P_WOOD,0,.62,0,1,.07,1],[P_DARK,-.42,.29,-.42,.07,.58,.07],[P_DARK,.42,.29,-.42,.07,.58,.07],[P_DARK,-.42,.29,.42,.07,.58,.07],[P_DARK,.42,.29,.42,.07,.58,.07],[P_STEEL,0,.72,-.12,.06,.14,.04],[P_DARK,0,.94,-.12,.56,.36,.04],[P_SCREEN,0,.94,-.095,.5,.3,.015]],
+  // a screen on a block: a till, a shop's display
+  monitor:[[P_STEEL,0,.07,0,.06,.14,.04],[P_DARK,0,.3,0,.56,.36,.04],[P_SCREEN,0,.3,.025,.5,.3,.015]],
   // a potted plant
   plant:[[0xb86a3c,0,.17,0,.36,.34,.36],[0x5a3d22,0,.35,0,.3,.02,.3],[0x3f8f3f,0,.6,0,.1,.5,.1],[0x3f8f3f,-.16,.72,.02,.36,.1,.14],[0x35803a,.16,.84,-.03,.36,.1,.14],[0x3f8f3f,.02,.96,.16,.14,.1,.36],[0x35803a,0,1.08,-.1,.14,.1,.3]],
   // a snack machine: a lit window of rows of snacks
@@ -12837,20 +12885,64 @@ function hospProps(b,px,pz,floorNo){
   }
   return L;
 }
+// the furniture on one floor of any other building, read from what furnRaw says stands there
+const P_SOFA=[0x8a4b3a,0x3f6b8c,0x5d7a45,0x77608f,0xb08a3e],P_GOODS=[0xc9553f,0x4f86c6,0xd8b13a,0x5aa469,0xa86bc0,0xe08a3c];
+function furnProps(b,px,pz,floorNo){
+  const c=b._props||(b._props=new Map());let L=c.get(floorNo);if(L)return L;L=[];c.set(floorNo,L);
+  const gf=b.gf||FH,fl0=floorNo===0?1:gf+FH*(floorNo-1)+1,nl=floorNo===0?gf-1:FH-1,[hx,hz]=b._fp;
+  const tierOn=b.tier>0&&(b.x1-b.x0)>=8,up=tierOn&&G+fl0>b.tier,ex0=up?b.x0+2:b.x0,ex1=up?b.x1-2:b.x1,ez0=up?b.z0+2:b.z0,ez1=up?b.z1-2:b.z1;
+  const st=STRUCT,raw=(x,z,l)=>l<0||l>=nl?AIR:furnRaw(b,x,z,fl0+l,ex0,ex1,ez0,ez1,hx,hz),turns=(v,x,z,l)=>FURN_IDS.has(v)&&furnTurns(v,b,x,z,fl0+l,ex0,ex1,ez0,ez1,hx,hz);
+  const pick=(A,x,z)=>A[Math.floor(hash2(x*7+px*31+1,z*11+pz*17+floorNo)*A.length)%A.length];
+  for(let rx=ex0+1;rx<ex1-1;rx++)for(let rz=ez0+1;rz<ez1-1;rz++){
+    // (the way its back should face: the first wall or solid thing beside it, or failing that the nearer wall of the room)
+    const back=(l,self)=>{
+      const runX=raw(rx-1,rz,l)===self||raw(rx+1,rz,l)===self,runZ=raw(rx,rz-1,l)===self||raw(rx,rz+1,l)===self;
+      if(runX!==runZ){const O=runX?[[0,-1],[0,1]]:[[-1,0],[1,0]];for(const [dx,dz] of O){const X=rx+dx,Z=rz+dz;if(X<=ex0||X>=ex1-1||Z<=ez0||Z>=ez1-1)return[dx,dz];const w=raw(X,Z,l);if(w!==AIR&&w!==self&&!turns(w,X,Z,l))return[dx,dz];}
+        return runX?(rz-ez0<ez1-1-rz?[0,-1]:[0,1]):(rx-ex0<ex1-1-rx?[-1,0]:[1,0]);}
+      for(const [dx,dz] of N4){const X=rx+dx,Z=rz+dz;if(X<=ex0||X>=ex1-1||Z<=ez0||Z>=ez1-1)return[dx,dz];const w=raw(X,Z,l);if(w!==AIR&&w!==self&&!turns(w,X,Z,l))return[dx,dz];}
+      const a=rx-ex0,e=ex1-1-rx,f=rz-ez0,g=ez1-1-rz,m=Math.min(a,e,f,g);return m===a?[-1,0]:m===e?[1,0]:m===f?[0,-1]:[0,1];};
+    for(let l=0;l<nl;l++){
+      const y=G+fl0+l;if(b.stair&&stairAt(b,rx,rz,y)!==undefined)continue;
+      const v=raw(rx,rz,l);if(v===AIR||!turns(v,rx,rz,l))continue;
+      const put=(type,yaw,tint,off)=>{const[dx,dz]=off||[0,0],X=px*CELL+rx+.5+dx,Z=pz*CELL+rz+.5+dz;L.push({prop:true,type,x:X,z:Z,y0:y,yaw,tint,rad:.5,key:'p'+Math.round(X*4)+','+Math.round(Z*4)+','+y+type});},yawOf=d=>Math.atan2(-d[0],-d[1]);
+      if(v===SHELF||v===FRIDGE||v===BED){
+        if(raw(rx,rz,l-1)===v)continue;   // (counted from the foot of the stack)
+        let n=1;while(l+n<nl&&(raw(rx,rz,l+n)===v||v===SHELF&&raw(rx,rz,l+n)===CRATE))n++;
+        const d=back(l,v);
+        if(v===SHELF)put('shelf'+Math.min(n,4),yawOf(d),pick(P_GOODS,rx,rz));
+        else if(v===FRIDGE)put('fridge'+Math.min(n,3),yawOf(d));
+        else put(n>=2?'bunk':'homebed',yawOf(d),pick(P_BLANKET,rx,rz),[-d[0]*.3,-d[1]*.3]);
+      }else if(v===SOFA)put('sofa',yawOf(back(l,v)),pick(P_SOFA,rx,rz));
+      else if(v===LEAVES){if(l===0)put('plant',hash2(rx,rz)*6);}
+      else if(v===PLANKS)put(raw(rx,rz,l+1)===SCREEN?'deskm':'table',yawOf(back(l+1,SCREEN)));
+      else if(v===SCREEN){if(!(raw(rx,rz,l-1)===PLANKS&&turns(PLANKS,rx,rz,l-1)))put('monitor',yawOf(back(l,v)));}
+    }
+  }
+  STRUCT=st;return L;
+}
+// the upright props in reach, by the cell each stands in, for goblins to walk round
+const propCells=new Map(),propCK=(x,y,z)=>Math.floor(x)*4194304+Math.floor(z)*1024+Math.floor(y);
+// what a goblin can step up to: a prop in the way counts as a wall. (With g and dt: one that's been held up by props
+// for a while shoves the next one over, so a room packed with desks can't pen it in. Gus gets no points for that.)
+function gobGround(x,z,y,g,dt){
+  const k=propCK(x,y+.2,z),f=propCells.get(k);if(!f)return groundAt(x,z,y);
+  if(g){g.shove=(g.shove||0)+dt;if(g.shove>1.2){g.shove=0;propCells.delete(k);if(knockFix(f,f.x-g.pos.x,f.z-g.pos.z))score-=5;return groundAt(x,z,y);}}
+  return y+9;
+}
 function refreshProps(){
-  nPropL=nPropG=0;activeProps.length=0;const R=34,seen=new Set();
+  nPropL=nPropG=0;activeProps.length=0;propCells.clear();const R=34,seen=new Set();
   for(const p of players){if(!p.active)continue;
     for(let px=Math.floor((p.pos.x-R)/CELL);px<=Math.floor((p.pos.x+R)/CELL);px++)for(let pz=Math.floor((p.pos.z-R)/CELL);pz<=Math.floor((p.pos.z+R)/CELL);pz++){
-      if(biomeOf(px,pz)!=='city')continue;const S=superOf(px,pz),ax=S?S.ax:px,az=S?S.az:pz,P=plotInfo(ax,az);
-      for(const b of P.b){if(b.kind!=='ward'||seen.has(b))continue;seen.add(b);   // (a site's other blocks: they're all listed on its first plot)
+      const S=superOf(px,pz),ax=S?S.ax:px,az=S?S.az:pz,P=plotInfo(ax,az);
+      for(const b of P.b){const ward=b.kind==='ward';if(!ward&&!b._fp||seen.has(b))continue;seen.add(b);   // (a site's other blocks: they're all listed on its first plot)
         // the floors in sight: the one you're on and the ones either side (you can't see the others through the slabs)
         const f0=Math.floor((p.pos.y-G-1-b.gf)/FH)+1;
         for(let n=Math.max(0,f0-1);n<=f0+1;n++){const y0=n===0?G+1:G+b.gf+1+FH*(n-1);if(y0>Math.min(b.detailTop,b.top-1)-2)break;
           const RF=n===f0?R:18;   // (the floors above and below only matter close to, through a hole or from the stairs)
-          for(const f of hospProps(b,ax,az,n)){if(Math.abs(f.x-p.pos.x)>RF||Math.abs(f.z-p.pos.z)>RF)continue;
+          for(const f of (ward?hospProps:furnProps)(b,ax,az,n)){if(Math.abs(f.x-p.pos.x)>RF||Math.abs(f.z-p.pos.z)>RF)continue;
             const fx=Math.floor(f.x),fz=Math.floor(f.z);if(!chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS))))continue;
             if(get(fx,y0-1,fz)===AIR||get(fx,y0,fz)!==AIR)continue;   // (the floor under it gone, or rubble where it stood)
-            activeProps.push(f);drawProp(f);}}
+            activeProps.push(f);drawProp(f);if(!downFix.has(f.key)&&!falling.has(f.key))propCells.set(propCK(f.x,f.y0,f.z),f);}}
       }
     }
   }
