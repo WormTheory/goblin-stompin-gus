@@ -47,5 +47,9 @@ for(let i=0;i<L.length;i+=2){const R=L[i];if(!R||R.kind!=='moto'||seen.has(R))co
           // is it part of the route? nearest distance to R
           let best=1e9,bs=0;for(let q=Math.max(0,s-80);q<=Math.min(R.L,s+80);q+=1){const Q=T.rtPoint(R,q);const d=Math.hypot(Q.x-x-0.5,Q.z-z-0.5);if(d<best){best=d;bs=q;}}
           if(best>10)hits.push([x,y,z,b,best.toFixed(1),Math.round(bs)]);}}}
-    console.log('end',cx,cz,'s',Math.round(s),'stray',hits.length,JSON.stringify(hits.slice(0,12)));}}
+    // (being far from this one route proves nothing: another road may run past, or the deck carry on beyond the route's end.
+    // The real question is whether a block is cut off: follow touching road blocks from it, and an orphan soon runs out.)
+    const isRoad=(x,y,z)=>{T.surfaceAt(x,z);const b=T.get(x,y,z);const B=b&&T.BLOCK[b];return !!B&&(b===12||b===16||b===13||b===14||!!B.ramp);};
+    let cutOff=0;for(const h of hits){const vis=new Set([h[0]+','+h[1]+','+h[2]]),st=[[h[0],h[1],h[2]]];let n=0;while(st.length&&n<400){const [x,y,z]=st.pop();n++;for(const dx of [-1,0,1])for(const dz of [-1,0,1])for(const dy of [-1,0,1]){const k=(x+dx)+','+(y+dy)+','+(z+dz);if(vis.has(k)||y+dy<44||y+dy>72)continue;if(isRoad(x+dx,y+dy,z+dz)){vis.add(k);st.push([x+dx,y+dy,z+dz]);}}}if(n<400)cutOff++;}
+    console.log('end',cx,cz,'s',Math.round(s),'far from this route',hits.length,'cut off',cutOff);}}
 process.exit(0);

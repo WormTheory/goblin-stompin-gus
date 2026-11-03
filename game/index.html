@@ -758,7 +758,7 @@ function horizHidden(cx,cy,cz,hr,top){
     if(!o.isInstancedMesh&&horizHidden(sp.center.x,sp.center.y,sp.center.z,sp.radius,sp.center.y+sp.radius))return false;   // (over the horizon)
     const d=Math.hypot(sp.center.x-CURVE_CAM.x,sp.center.z-CURVE_CAM.z),r=sp.radius,lo=k*Math.max(0,d-r)**2,hi=k*(d+r)**2;
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v48';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v49';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -3201,6 +3201,8 @@ function rampAhead(H,al){
 }
 function hwRampCol(a,lx,lz,q,HY,r,along){
   const put=(y,v)=>{a[li(lx,y,lz)]=v;},y=HY-Math.floor(r.d/2),kind=r.d%2===0?2:1;
+  // the last stretch tapers from the deck's width to the street's, instead of landing as a block wider than the road
+  {const RL=2*(HY-G),left=RL-r.dc,inset=left<16?Math.round((16-Math.max(0,left))/16*3):0;q-=inset;if(q<0||q>13-2*inset)return;if(q===13-2*inset)q=13;}
   for(let yy=y+1;yy<=y+5&&yy<H;yy++)put(yy,AIR);
   if(r.out)for(let yy=G;yy<y;yy++)put(yy,CONCRETE);   // an embankment: the street it lands on doesn't run on underneath it
   if(q===0||q===13){put(y,CONCRETE);if(y>G)put(y+1,CONCRETE);
