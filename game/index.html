@@ -758,7 +758,7 @@ function horizHidden(cx,cy,cz,hr,top){
     if(!o.isInstancedMesh&&horizHidden(sp.center.x,sp.center.y,sp.center.z,sp.radius,sp.center.y+sp.radius))return false;   // (over the horizon)
     const d=Math.hypot(sp.center.x-CURVE_CAM.x,sp.center.z-CURVE_CAM.z),r=sp.radius,lo=k*Math.max(0,d-r)**2,hi=k*(d+r)**2;
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v52';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v53';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -2776,6 +2776,8 @@ function streetFurn(px,pz){
   const k=px*100003+pz;let v=furnC.get(k);if(v)return v;v=[];
   if(furnC.size>4000)furnC.clear();
   const t=plotType(px,pz),X0=px*CELL,Z0=pz*CELL,PB=plotBounds(px,pz);
+  if(t==='fire')v.push({type:'flag',key:'ff'+px+','+pz,x:X0+PL0+15.5,z:Z0+PL0+2,yaw:0,rad:0.4});
+  {const Sx=t==='super'&&superOf(px,pz);if(Sx&&Sx.kind==='school'&&Sx.ax===px&&Sx.az===pz)v.push({type:'flag',key:'fs'+px+','+pz,x:X0+PL0+(Sx.w>=3?35.5:8),z:Z0+PL0+(Sx.w>=3?10:3),yaw:0,rad:0.4});}
   const add=(type,lx,lz,yaw,on,tag)=>{const x=X0+lx,z=Z0+lz;if(superPart(x,z)==='in')return;v.push({type,key:type+'@'+Math.round(x*2)+','+Math.round(z*2),x,z,yaw,on,rad:type==='bench'?0.6:0});};
   if(FURN_T.has(t)&&!superOf(px,pz)){
     // [across-the-pavement position, along, which side's street, yaw facing the road]
@@ -3472,7 +3474,8 @@ function macroOf1(px,pz){
       else if(h<0.19)M=strip('mall');
       else if(h<0.25)M={ax:mx*6+off,az:mz*6+off2,w:4,h:4,kind:'bigbox'};   // a superstore: 16 blocks, most of it car park
       else if(h<0.40)M=hash2(mx+17,mz+19)<0.5?{ax:mx*6,az:mz*6,w:6,h:6,kind:'hood'}:{ax:mx*6+off,az:mz*6+off2,w:4,h:4,kind:'hood'};
-      {const ty=M&&setType(M.ax,M.az);if(M&&(M.kind==='stadium'||M.kind==='bigpark')&&ty!=='city')M=null;if(M&&(M.kind==='mall'||M.kind==='bigbox')&&ty!=='city'&&ty!=='large'&&ty!=='suburb')M=null;if(M&&M.kind==='hood'&&ty==='village')M=null;
+      else if(h<0.50)M={ax:mx*6+off,az:mz*6+off2,w:3,h:3,kind:'school'};   // a school with proper grounds: 3x3 blocks
+      {const ty=M&&setType(M.ax,M.az);if(M&&M.kind==='school'&&ty!=='city'&&ty!=='large'&&ty!=='suburb')M=null;if(M&&(M.kind==='stadium'||M.kind==='bigpark')&&ty!=='city')M=null;if(M&&(M.kind==='mall'||M.kind==='bigbox')&&ty!=='city'&&ty!=='large'&&ty!=='suburb')M=null;if(M&&M.kind==='hood'&&ty==='village')M=null;
        if(!M&&h<0.62&&setType(mx*6+3,mz*6+3)==='suburb')M=hash2(mx+17,mz+19)<0.5?{ax:mx*6,az:mz*6,w:6,h:6,kind:'hood'}:{ax:mx*6+off,az:mz*6+off2,w:4,h:4,kind:'hood'};}   // suburbs: housing estates
       if(M&&(rectRail(M.ax,M.az,M.w,M.h)||rectRiver(M.ax,M.az,M.w,M.h)||rectPlains(M.ax,M.az,M.w,M.h)||rectClover(M.ax,M.az,M.w,M.h)||rectRamp(M.ax,M.az,M.w,M.h)||rectCuts(M.ax,M.az,M.w,M.h)||M.kind!=='hood'&&rectHighway(M.ax,M.az,M.w,M.h)))M=null;
     }
@@ -3498,6 +3501,7 @@ function superOf(px,pz){
     const hitsM=M&&gx*2<M.ax+M.w&&gx*2+2>M.ax&&gz*2<M.az+M.h&&gz*2+2>M.az;
     let gk=Math.max(Math.abs(gx),Math.abs(gz))>=2&&!hitsM?groupKind(gx,gz):null;
     if(gk){const ty=setType(gx*2,gz*2),kn=gk.slice(0,-1),OK={city:null,large:['hospital','garage','police','market','drug','sitdown','school','factory','museum','aquarium','casino','cathedral','ikea','cinema','arena','campus','prison','water','power','zoo','nuclear','theme'],small:['hospital','market','drug','sitdown','school','factory','cinema','water'],suburb:['police','market','drug','sitdown','school','ikea','cinema','water','campus','theme'],village:[]}[ty];if(!ty||OK&&!OK.includes(kn)||ty==='small'&&gk==='hospital4')gk=null;}   // (what a place that size would have)
+    if(gk&&gk.startsWith('school')&&setType(gx*2,gz*2)!=='small')gk=null;   // (only a small town's is this cramped: bigger places get the 3x3 kind)
     if(gk){const kn=gk.slice(0,-1);if((groupKind(gx-1,gz)||'').startsWith(kn)||(groupKind(gx,gz-1)||'').startsWith(kn))gk=null;}
     if(gk){
       const kind=gk.slice(0,-1),pair=hash2(gx*7+1,gz*5+3)<0.5
@@ -3794,10 +3798,17 @@ function plotInfo(px,pz){
         // a school: a two-storey brick block of classrooms (with the gym and the cafeteria), a playground and a playing
         // field behind a chain-link fence, the school buses lined up out front
         const wide=S.w>S.h,SW=W+PW,SD=D+PW;
+        if(S.w>=3){
+          // the big kind: a long two-storey block set back behind its bus lane and front lawn, the playground and playing field behind
+          const b=base({x0:PL0+10,x1:PL0+70,z0:PL0+14,z1:PL0+32,top:G+2*FH,wall:BRICK,win:WIN_WARM,band:CONCRETE,kind:'school',ground:'school',floor:FLOORT,door:2});
+          b.doorSpec={w:1,h:4,k:'glass'};b.detailTop=b.top-1;brandOn(b,'school',r(140));b.stair={ax:'z',c0:b.x0+22,c1:b.x0+24,r0:b.z0+11,L:FH};p.b.push(b);
+          p.school={px0:PL0+1,px1:PL0+SW-1,pz0:b.z1+2,pz1:PL0+SD-1,big:true};p.buses=true;
+        } else {
         const b=wide?base({x0:PL0+1,x1:PL0+28,z0:PL0+5,z1:PL0+SD-1,top:G+2*FH,wall:BRICK,win:WIN_WARM,band:CONCRETE,kind:'school',ground:'school',floor:FLOORT,door:2})
                     :base({x0:PL0+1,x1:PL0+SW-1,z0:PL0+5,z1:PL0+26,top:G+2*FH,wall:BRICK,win:WIN_WARM,band:CONCRETE,kind:'school',ground:'school',floor:FLOORT,door:2});
-        b.doorSpec={w:1,h:4,k:'glass'};b.detailTop=b.top-1;brandOn(b,'school',r(140));p.b.push(b);
+        b.doorSpec={w:1,h:4,k:'glass'};b.detailTop=b.top-1;brandOn(b,'school',r(140));b.stair=wide?{ax:'x',c0:b.z0+12,c1:b.z0+14,r0:b.x0+7,L:FH}:{ax:'z',c0:b.x0+12,c1:b.x0+14,r0:b.z0+7,L:FH};p.b.push(b);
         p.school=wide?{px0:b.x1+2,px1:PL0+SW-1,pz0:PL0+1,pz1:PL0+SD-1}:{px0:PL0+1,px1:PL0+SW-1,pz0:b.z1+2,pz1:PL0+SD-1};p.buses=true;
+        }
       } else if(S.kind==='factory'){
         // a factory: a long hall under a sawtooth roof, loading docks along the back with lorries backed up to them,
         // smokestacks, and out in the yard whatever it needs: silos (a food works), tanks (chemicals), or a furnace
@@ -4190,11 +4201,12 @@ function plotInfo(px,pz){
   } else if(type==='fire'){
     // the fire station: three big engine bays opening onto the street, crew quarters upstairs, a hose-drying tower
     // (a city's has three bays and a hose tower; a large town's two and a shorter tower; a small town's or village's just one)
-    const nb=stnTier(px,pz),fx1=nb===3?PL1-4:PL0+2+4*nb+(nb===2?2:3);
-    const b=base({x0:PL0+1,x1:fx1,z0:PL0+4,z1:nb===1?PL0+16:PL1-1,top:G+(nb===1?FH+3:2*FH),wall:BRICK,win:WIN_WARM,band:CONCRETE,kind:'apartment',ground:'firehall',floor:FLOORT,door:2,neon:NEON_R});
-    b.bays=[PL0+3,PL0+7,PL0+11].slice(0,nb);b.detailTop=b.top-1;brandOn(b,'fire',r(140));p.b.push(b);
-    if(nb>1){const t2=base({x0:fx1,x1:fx1+3,z0:PL1-6,z1:PL1-1,top:G+(nb===3?5:3)*FH,wall:BRICK,win:WIN_WARM,band:CONCRETE,kind:'office',ground:'office',floor:FLOORT,door:0});
-    t2.detailTop=t2.top-1;p.b.push(t2);}
+    const nb=stnTier(px,pz),fx1=PL0+14,gf=7;
+    const b=base({x0:PL0+1,x1:fx1,z0:PL0+4,z1:PL1-1,gf,top:G+gf+FH,wall:BRICK,win:WIN_WARM,band:PAINT_RED,kind:'apartment',ground:'firehall',floor:FLOORT,door:2,neon:NEON_R});
+    b.bays=[PL0+3,PL0+7,PL0+11].slice(0,nb);b.allBays=true;b.detailTop=b.top-1;brandOn(b,'fire',r(140));b.stair={ax:'x',c0:PL1-4,c1:PL1-2,r0:PL0+3,L:gf};p.b.push(b);
+    // the hose-drying tower: what makes it a fire station from anywhere in town
+    {const t2=base({x0:fx1,x1:fx1+3,z0:PL1-6,z1:PL1-1,top:G+(nb===3?6:nb===2?5:4)*FH,wall:BRICK,win:WIN_WARM,band:PAINT_RED,kind:'office',ground:'office',floor:FLOORT,door:0});
+     t2.detailTop=t2.top-1;p.b.push(t2);}
     p.apron=true;
   } else if(type==='build'){
     // a construction site: a concrete frame going up (bare columns and floors, walls only on the lowest storeys),
@@ -4220,8 +4232,8 @@ function plotInfo(px,pz){
     const b=base({x0,x1:x0+W,z0,z1:z0+D,top:G+FH,wall:BRICK,win:GLASS,kind:'shop',ground:'shop',floor:FLOORT,door,neon:NEON_R,front:true});
     b.detailTop=b.top-1;brandOn(b,'gas',r(140));b.signCat='kiosk';p.b.push(b);p.stall=0;
   } else if(type==='gas'){
-    // the kiosk; the canopy and pumps are laid out with the forecourt in genChunk
-    const b=base({x0:PL1-8,x1:PL1-1,z0:PL0+1,z1:PL0+14,top:G+FH,wall:BRICK,win:GLASS,kind:'shop',ground:'shop',floor:FLOORT,door:0,neon:NEON_R,front:true});
+    // the shop across the back; the great canopy and its pumps fill the front (laid out with the forecourt in genChunk)
+    const b=base({x0:PL0+1,x1:PL1-1,z0:PL1-7,z1:PL1-1,top:G+FH,wall:BRICK,win:GLASS,kind:'shop',ground:'shop',floor:FLOORT,door:2,neon:NEON_R,front:true});
     b.detailTop=b.top-1;brandOn(b,'gas',r(140));b.signCat='kiosk';p.b.push(b);
   }
   if(type==='park'&&!p.pond&&r(35)<0.45){p.statue=true;p.b.push(monument('statue',r));}
@@ -4788,7 +4800,7 @@ function furniture(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
       return AIR;
     case 'firehall':
       // the engine floor: kept clear for the engines; lockers and kit along the back, a pole down from upstairs
-      if(iv>=J-2&&level<=2)return iu%2?SHELF:CRATE;
+      if(iv>=J-2&&iu>=10&&level<=2)return iu%2?SHELF:CRATE;   // (clear of the stairs: their foot and their head are along here)
       if(iu===I-1&&iv%4===1&&level<=1)return METAL;
       if(iu===I-2&&iv===J-4&&level>=0)return METAL;
       return AIR;
@@ -5049,6 +5061,34 @@ function siteAt(b,rx,rz,y){
   if(edge&&n<b.done&&!slab&&(fl-1)%FH===0)return METAL;   // safety rails along the open edges
   return AIR;
 }
+// ---- stairs: a straight flight per storey, stacked one above the other in a walled shaft, one block up for each block
+// along. b.stair: {ax (the way it climbs), c0,c1 (its width, across), r0 (first row, along), L (rows)}, in the building's
+// plot's coordinates. On any floor, you go up from the near end and come off at the far end of the next floor up. ----
+function stairFloors(b){if(b._stY)return b._stY;const o=[G+1];for(let y=G+(b.gf||FH)+1;y<=b.detailTop;y+=FH)o.push(y);return b._stY=o;}
+function stairAt(b,rx,rz,y){
+  const S=b.stair,r=(S.ax==='x'?rx:rz)-S.r0,c=S.ax==='x'?rz:rx;if(r<0||r>=S.L||c<S.c0-1||c>S.c1)return;
+  if(c===S.c0-1||c===S.c1){STRUCT=true;return CONCRETE;}   // (the shaft's walls: nothing walks off the side into it)
+  const Y=stairFloors(b);
+  for(let n=0;n+1<Y.length;n++){const base=S.L-(Y[n+1]-Y[n]);if(r<base)continue;const sy=Y[n]+r-base;if(y===sy){STRUCT=true;return CONCRETE;}if(y>sy&&y<=sy+3)return AIR;}
+  return FL_SLAB?undefined:AIR;
+}
+// is a goblin actually on one of the flights (not just standing on the floor beside or above it)?
+function onStair(g,B){
+  const b=B.b,S=b.stair,alongX=S.ax==='x',r=(alongX?g.pos.x-B.px*CELL:g.pos.z-B.pz*CELL)-S.r0,c=alongX?g.pos.z-B.pz*CELL:g.pos.x-B.px*CELL;
+  if(r<-0.1||r>=S.L+0.1||c<S.c0-0.1||c>S.c1+0.1)return false;
+  const Y=stairFloors(b);for(let n=0;n+1<Y.length;n++){const base=S.L-(Y[n+1]-Y[n]);if(r>=base-0.1&&Math.abs(g.pos.y-(Y[n]+Math.floor(r)-base+1))<1.3)return true;}
+  return false;
+}
+// where a goblin on its way up or down a building's stairs should head next (world coordinates), or null if it can't
+function stairPoint(g,B,up){
+  const b=B.b,S=b.stair,alongX=S.ax==='x',R0=(alongX?B.px:B.pz)*CELL+S.r0,cW=(alongX?B.pz:B.px)*CELL+(S.c0+S.c1)/2,gR=alongX?g.pos.x:g.pos.z,gC=alongX?g.pos.z:g.pos.x;
+  const Y=stairFloors(b);let n=0;while(n+1<Y.length&&Y[n+1]<=g.pos.y+0.6)n++;
+  if(up?n+1>=Y.length:n===0&&g.pos.y<Y[0]+0.6)return null;
+  let R;
+  if(onStair(g,B))R=up?R0+S.L+1:R0-0.6;   // (on the flight: on to the end of it)
+  else{R=up?R0+S.L-(Y[n+1]-Y[n])-0.6:R0+S.L+0.6;if(Math.abs(gC-cW)<0.6&&Math.abs(gR-R)<0.5)R=up?R0+S.L+1:R0-0.6;}   // (to the foot or the head of it, then straight on)
+  return alongX?{x:R,z:cW}:{x:cW,z:R};
+}
 function blockAt(b,rx,rz,y,px,pz){
   // a derelict building is built as it was, then left to rot (see decayB)
   if(b.decay&&!b._raw){b._raw=true;let v;try{v=blockAt(b,rx,rz,y,px,pz);}finally{b._raw=false;}return decayB(b,v,rx,rz,y,px,pz);}
@@ -5107,6 +5147,8 @@ function blockAt(b,rx,rz,y,px,pz){
   }
   flo(b,fl);
   if(ex||ez){
+    // (a fire station's front: red round every bay, used or not, so it can't be anything else)
+    if(b.allBays&&FL_NO===0&&rz===ez0&&[PL0+3,PL0+7,PL0+11].some(c=>Math.abs(rx-c)<=2)&&!b.bays.some(c=>Math.abs(rx-c)<=1))return PAINT_RED;
     // a factory's loading docks: big openings in the far end wall, roller doors up
     if(b.docks&&FL_NO===0&&FL_LVL<5&&(b.dockSide===1?rx===ex1-1:rz===ez1-1)&&b.docks.some(d=>Math.abs((b.dockSide===1?rz:rx)-d)<=1))return AIR;
     if(FL_NO===0&&FL_LVL<(b.bays&&rz===ez0?b.gf-1:4)&&isDoor(b,rx,rz,ex0,ex1,ez0,ez1)){
@@ -5143,9 +5185,11 @@ function blockAt(b,rx,rz,y,px,pz){
     if(b.glassAll&&FL_NO===0)return(FL_LVL===0||FL_LVL>=b.gf-2)?b.wall:GLASS;   // (a showroom: glass all round)
     if(b.fort){const c=ex?rz:rx;return c%4===2&&FL_LVL>=1&&FL_LVL<=2?(FL_LVL===1?METAL:WIN_BLUE):b.wall;}   // (a fortress bank: narrow barred slits)
     if(b.style==='house')return(FL_LVL===1||FL_LVL===2)&&((ex?rz:rx)%3===1)?b.win:b.wall;
+    if(b.kind==='school'){const c=ex?rz:rx;if(FL_LVL<1||FL_LVL>2||c%4===0)return b.wall;}   // (classroom windows: rows of big panes in brick, not an office's wall of lights)
     return FL_NO===0?(b.kind==='police'?WIN_BLUE:b.style==='normal'&&b.win===GLASS?GLASS:WIN_WARM):b.win;
   }
   if(y>b.detailTop){STRUCT=true;return CONCRETE;}
+  if(b.stair){const v=stairAt(b,rx,rz,y);if(v!==undefined)return v;}
   if(FL_SLAB)return((rx+FL_NO)%4===0&&rz%4===2)?LAMP:b.floor;
   const v=furniture(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz);
   if(v===CONCRETE)STRUCT=true;
@@ -5534,6 +5578,9 @@ function superColumn(a,col,S,x,z,lx,lz){
   if(S.kind==='garage')gnd=ASPHALT;
   else if(S.kind==='hospital'&&uz<B0.z0){gnd=(uz===B0.z0-3&&ux%4<2)?CROSS:ASPHALT;if(uz===B0.z0-1&&ux>=B0.x0&&ux<B0.x1&&Math.abs(ux-((B0.x0+B0.x1)>>1))<=5)col(G+5,HOSPW);
     if(B0.er&&B0.er.mode==='front'&&Math.abs(ux-B0.er.door)<=4&&uz>=B0.z0-4){col(G+5,Math.abs(ux-B0.er.door)===4||uz===B0.z0-4?NEON_R:HOSPW);if(Math.abs(ux-B0.er.door)===4&&uz===B0.z0-4)for(let y=G+1;y<=G+4;y++)col(y,HOSPW);}}
+  else if(S.kind==='school'&&S.w>=3&&uz<B0.z0){const cxs=(B0.x0+B0.x1)>>1;if(uz<PL0+7)gnd=(uz===PL0+6||(ux-PL0)%13===0&&uz<PL0+5)?LANE:ASPHALT;else if(Math.abs(ux-cxs)<=2)gnd=SIDEWALK;else{gnd=GRASS;col(G-1,DIRT);}}
+  else if(S.kind==='school'&&S.w>=3&&uz>=B0.z0&&uz<B0.z1&&ux>=B0.x0&&ux<B0.x1)gnd=B0.floor;   // (indoors: tiles, not the lawn)
+  else if(S.kind==='school'&&S.w>=3&&uz<P.school.pz0){gnd=GRASS;col(G-1,DIRT);}
   else if(S.kind==='mall'&&(ux+uz)%2)gnd=SIDEWALK;
   else if(S.kind==='factory')gnd=(ux+uz)%7===0?GRAVEL:ASPHALT;
   col(G,gnd);
@@ -5545,7 +5592,16 @@ function superColumn(a,col,S,x,z,lx,lz){
   if(S.kind==='casino'&&B0&&uz>=B0.z0-4&&uz<B0.z0&&Math.abs(ux-((B0.x0+B0.x1)>>1))<=5){   // the gold canopy over the doors
     const e=uz===B0.z0-4||Math.abs(ux-((B0.x0+B0.x1)>>1))===5;col(G+6,e?NEON_Y:GOLD);if(e&&uz===B0.z0-4&&Math.abs(ux-((B0.x0+B0.x1)>>1))===5)for(let y=G+1;y<=G+5;y++)col(y,GOLD);}
   {const L=lotAt(P,ux,uz);if(L)col(G,lotMark(L,ux,uz)?lotLine(L):ASPHALT);}
-  for(let bi=0;bi<P.b.length;bi++){const b=P.b[bi];if(ux>=b.x0&&ux<b.x1&&uz>=b.z0&&uz<b.z1){buildingColumn(a,lx,lz,ux,uz,b,collapses[S.ax+','+S.az+','+bi],S.ax,S.az);break;}}
+  if(S.kind==='school'&&S.w>=3&&B0){const cxs=(B0.x0+B0.x1)>>1,du=Math.abs(ux-cxs);
+    // the way in: a white canopy on posts over the front steps
+    if(du<=4&&uz>=B0.z0-4&&uz<B0.z0){col(G+5,PAINT_WHITE);if(du===4&&uz===B0.z0-4)for(let y=G+1;y<=G+4;y++)col(y,PAINT_WHITE);}}
+  for(let bi=0;bi<P.b.length;bi++){const b=P.b[bi];if(ux>=b.x0&&ux<b.x1&&uz>=b.z0&&uz<b.z1){buildingColumn(a,lx,lz,ux,uz,b,collapses[S.ax+','+S.az+','+bi],S.ax,S.az);
+    // and on the roof, the school's little clock tower, standing over the entrance
+    if(S.kind==='school'&&S.w>=3&&bi===0&&collapses[S.ax+','+S.az+',0']===undefined){const du=Math.abs(ux-((b.x0+b.x1)>>1)),dv=uz-b.z0;
+      if(du<=3&&dv>=0&&dv<=6){const edge=du===3||dv===0||dv===6,T0=b.top+1;
+        if(edge)for(let y=T0;y<=T0+6;y++)col(y,y-T0>=3&&y-T0<=5&&(dv===0||dv===6)&&du<=1?PAINT_WHITE:BRICK);
+        col(T0+7,PAINT_RED);if(du<=2&&dv>=1&&dv<=5)col(T0+8,PAINT_RED);if(du<=1&&dv>=2&&dv<=4)col(T0+9,PAINT_RED);if(du===0&&dv===3)col(T0+10,METAL);}}
+    break;}}
 }
 // ---- a huge city park (think Central Park): a stone wall with gates all round, a lake with a beach and a wooden
 // footbridge, a reservoir with a running track, a fountain terrace, an open meadow, dense woods, and gravel paths:
@@ -6044,13 +6100,14 @@ function stadiumCol(col,u,v,W,L,x,z){
   if((u===3||u===W-4)&&(v===3||v===L-4)){for(let y=G+1;y<=G+34;y++)col(y,METAL);col(G+35,LAMP);col(G+36,LAMP);}
 }
 // gas station forecourt: a canopy on four posts over two pump islands, and a tall price sign
-const PUMPZ=[PC-1,PC];
 function forecourtCol(col,rx,rz,P){
-  const cx0=PL0+1,cx1=PL0+9,cz0=PC-4,cz1=PC+5,B=P&&P.b[0]&&P.b[0].brand,NE=(B&&B.neon)||NEON_R;   // the canopy's lit edge in the brand's colour
-  if(rx>=cx0&&rx<cx1&&rz>=cz0&&rz<cz1){const e=rx===cx0||rx===cx1-1||rz===cz0||rz===cz1-1;col(G+6,e?NE:(B&&B.wall===PAINT_WHITE?PAINT_WHITE:METAL));}
-  if((rx===PL0+2||rx===PL0+7)&&(rz===PC-3||rz===PC+3))for(let y=G+1;y<=G+5;y++)col(y,METAL);
-  if((rx===PL0+3||rx===PL0+6)&&rz>=PC-2&&rz<=PC+1){col(G+1,CONCRETE);if(PUMPZ.includes(rz)){col(G+2,PUMP);col(G+3,PUMP);}}
-  if(rx===PL0+1&&rz===PL1-2)col(G+1,CONCRETE);   // the price sign's footing (the slim post and the board are meshes)
+  // what says 'gas station' from a long way off: a broad flat canopy on four legs, a band of the brand's colour round its
+  // edge with a lit strip under that, three islands of pumps beneath, and a tall price sign by the road
+  const cx0=PL0+1,cx1=PL1-2,cz0=PL0+1,cz1=PL0+10,B=P&&P.b[0]&&P.b[0].brand,NE=(B&&B.neon)||NEON_R,BAND=(B&&B.wall&&B.wall!==BRICK&&B.wall!==STUCCO)?B.wall:PAINT_RED;
+  if(rx>=cx0&&rx<cx1&&rz>=cz0&&rz<cz1){const e=rx===cx0||rx===cx1-1||rz===cz0||rz===cz1-1;col(G+6,e?NE:METAL);col(G+7,e?BAND:PAINT_WHITE);if(e)col(G+8,BAND);}
+  if((rx===cx0+1||rx===cx1-2)&&(rz===cz0+1||rz===cz1-2))for(let y=G+1;y<=G+5;y++)col(y,METAL);
+  for(const c of [PL0+4,PL0+8,PL0+12])if(Math.abs(rx-c)<=0&&rz>=PL0+3&&rz<=PL0+7){col(G+1,CONCRETE);if(rz===PL0+4||rz===PL0+6){col(G+2,PUMP);col(G+3,PUMP);}}
+  if(rx===PL0&&rz===PL0+12)col(G+1,CONCRETE);   // the price sign's footing (the slim post and the board are meshes)
 }
 // one column of a highway: q 0..13 across it (0 and 13 are the barriers, over the pavements either side; four 3-wide lanes), 'along' its length
 function hwDeck(a,lx,lz,along,q,HY,alongX){
@@ -11229,14 +11286,23 @@ function updateGoblins(dt){
       if(g.indoor&&!bldgAt(Math.floor(g.pos.x),Math.floor(g.pos.z)))g.indoor=false;
       if(g.cop&&g.inv&&d<22&&Math.abs(ddy)<4){g.inv=false;flashLabel('Police!',tgt.p);tone('square',880,660,0.25,0.05);}   // spotted!
       const copIdle=g.cop&&g.inv;if(copIdle){g.cop.t+=dt;if(g.cop.t>35&&Math.hypot(g.cop.car.pos.x-g.pos.x,g.cop.car.pos.z-g.pos.z)<2.8){g.state='wait';g.root.visible=false;g.t=0;g.cop=null;g.inv=false;return;}}
-      const lurk=g.indoor&&(d>16||Math.abs(ddy)>3)||copIdle;
+      // a hippo on another floor, close by: up or down the stairs after it (or, holed up indoors, off to another floor now and then)
+      let sr=null;
+      if(g.stun<=0&&!copIdle&&(Math.abs(ddy)>2.5&&d<28||g.trip||g.stUp!==undefined)){const B=bldgAt(Math.floor(g.pos.x),Math.floor(g.pos.z));
+        if(B&&B.b.stair){if(Math.abs(ddy)>2.5&&d<28){if(!onStair(g,B))g.stUp=ddy>0;sr=stairPoint(g,B,g.stUp);}
+          else if(g.trip){g.stUp=g.trip.up;g.trip.t-=dt;if(g.trip.t>0&&Math.abs(g.pos.y-g.trip.y0)<3.5)sr=stairPoint(g,B,g.trip.up);}}
+        // (once on a flight, it finishes it, even if the hippo's now nearly level)
+        if(!sr&&B&&B.b.stair&&g.stUp!==undefined&&onStair(g,B))sr=stairPoint(g,B,g.stUp);
+        if(!sr){g.trip=null;g.stUp=undefined;}}
+      const lurk=(g.indoor&&(d>16||Math.abs(ddy)>3)||copIdle)&&!sr;
       if(playing&&g.stun<=0&&lurk){
-        g.wtT=(g.wtT||0)-dt;if(!g.wt||g.wtT<=0){g.wt=copIdle?copSpot(g):Math.random()<0.5?indoorWander(g):null;g.wtT=2+Math.random()*3;}
+        g.wtT=(g.wtT||0)-dt;if(!g.wt||g.wtT<=0){g.wt=copIdle?copSpot(g):Math.random()<0.5?indoorWander(g):null;g.wtT=2+Math.random()*3;if(!copIdle&&Math.random()<0.08)g.trip={up:Math.random()<0.5,t:14,y0:g.pos.y};}
         if(g.wt){const wx=g.wt.x-g.pos.x,wz=g.wt.z-g.pos.z,wd=Math.hypot(wx,wz);
           if(wd<0.5)g.wt=null;else{let df=Math.atan2(wx,wz)-g.heading;while(df>Math.PI)df-=Math.PI*2;while(df<-Math.PI)df+=Math.PI*2;g.heading+=Math.max(-5*dt,Math.min(5*dt,df));
             const fx=Math.sin(g.heading),fz=Math.cos(g.heading);if(groundAt(g.pos.x+fx*0.45,g.pos.z+fz*0.45,g.pos.y)-g.pos.y<=1.05){g.pos.x+=fx*1.2*dt;g.pos.z+=fz*1.2*dt;moving=true;g.phase+=dt*6;}else g.wt=null;}}
       }
       else if(playing&&g.stun<=0){
+        if(sr){dx=sr.x-g.pos.x;dz=sr.z-g.pos.z;d=Math.max(reach+1,Math.hypot(dx,dz));}
         let want=Math.atan2(dx,dz);
         if(g.detour>0){g.detour-=dt;want=g.detourH;}
         let diff=want-g.heading;while(diff>Math.PI)diff-=Math.PI*2;while(diff<-Math.PI)diff+=Math.PI*2;
@@ -11264,7 +11330,7 @@ function updateGoblins(dt){
       if(playing&&canHit&&d<=reach+0.3&&g.atk<0.45)g.arm.rotation.x=-0.5-1.9*(1-g.atk/0.45);
       else g.arm.rotation.x+=((-0.5+(moving?Math.sin(g.phase)*0.4:0))-g.arm.rotation.x)*Math.min(1,dt*8);
     }
-    for(const p of players){if(!p.active||p.state==='dead')continue;const hx=g.pos.x-p.pos.x,hz=g.pos.z-p.pos.z,hd=Math.hypot(hx,hz);if(hd<1.6&&hd>0.001)nudge(g,hx/hd*(1.6-hd),hz/hd*(1.6-hd));}
+    for(const p of players){if(!p.active||p.state==='dead'||Math.abs(p.pos.y-g.pos.y)>2.5)continue;const hx=g.pos.x-p.pos.x,hz=g.pos.z-p.pos.z,hd=Math.hypot(hx,hz);if(hd<1.6&&hd>0.001)nudge(g,hx/hd*(1.6-hd),hz/hd*(1.6-hd));}
     for(const c of cars){if(!c.alive)continue;const cx=g.pos.x-c.pos.x,cz=g.pos.z-c.pos.z,cd=Math.hypot(cx,cz);if(cd<2&&cd>0.001)nudge(g,cx/cd*(2-cd),cz/cd*(2-cd));}
     for(const o of goblins){if(o===g||o.state!=='chase')continue;const ox=g.pos.x-o.pos.x,oz=g.pos.z-o.pos.z,od=Math.hypot(ox,oz);if(od<0.7&&od>0.001)nudge(g,ox/od*(0.7-od)*0.5,oz/od*(0.7-od)*0.5);}
     const gr=supportAt(g.pos.x,g.pos.z,g.pos.y);
@@ -13371,9 +13437,9 @@ function brandSpots(b,px,pz){
   else if(cat==='kiosk'){
     bSpot(b,px,pz,b.door,0,G+4.3,1.7,4,out);
     // the price pylon by the road, and the canopy's edge over the pumps
-    const X0=px*CELL,Z0=pz*CELL,qx=X0+PL0+1,qz=Z0+PL1-2;
-    out.push({pole:true,x:qx+0.5,y:G+7.3,z:qz+0.5,yaw:0,w:2.6,h:2.6/1.3,anc:[[qx,G+1,qz]],B:b.brand,aspect:1.3});
-    const cz=[];for(let z=PC-3;z<=PC+3;z+=2)cz.push([X0+PL0+1,G+6,Z0+z]);
+    const X0=px*CELL,Z0=pz*CELL,qx=X0+PL0,qz=Z0+PL0+12;
+    out.push({pole:true,x:qx+0.5,y:G+11,z:qz+0.5,yaw:0,w:4.2,h:4.2/1.3,anc:[[qx,G+1,qz]],B:b.brand,aspect:1.3});
+    const cz=[];for(let z=PL0+2;z<=PL0+8;z+=2)cz.push([X0+PL0+1,G+6,Z0+z]);
     out.push({x:X0+PL0+1-0.06,y:G+6.5,z:Z0+PC+0.5,yaw:-Math.PI/2,w:4,h:1,anc:cz,B:b.brand,aspect:4});
   }
   else if(cat==='diner'||cat==='pizza'||cat==='cafe')bSpot(b,px,pz,b.door,0,G+5.3,1.5,4,out);

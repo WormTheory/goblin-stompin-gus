@@ -9,7 +9,7 @@ $PY mkg.py ../game/index.html tests/g.js
 cp tests/g.js map/g.js
 mkdir -p baseline
 cd tests
-T=${@:-$(ls *.js | grep -vE '^(g|roadaudit|trafficaudit|shoreaudit)\.js$' | sed 's/\.js$//')}
+T=${@:-$(ls *.js | grep -vE '^(g|roadaudit|trafficaudit|shoreaudit|streetaudit)\.js$' | sed 's/\.js$//')}
 for t in $T; do
   # (Timings differ on every run, so they're masked to keep the diff down to real changes.)
   SEED=${SEED:-1} node "$t.js" 2>&1 | sed -E 's/\b[0-9.]+ ?ms\b/N ms/g; s/\bms [0-9.]+/ms N/g; s/(ms per chunk near route) [0-9.]+/\1 N/; s/ slow .*$/ slow N/' > "../baseline/$t.txt"
