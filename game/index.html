@@ -3166,6 +3166,14 @@ function hwRampAt(ax,k,al){
     else{const a1=Math.max(mm*CELL+ROADW,(mm-1)*CELL+ROADW+RL);if(al<a1&&al>=a1-RL)return{d:Math.floor(a1-1-al)+0,dc:a1-al,rise:ax==='x'?0:2,out:al<mm*CELL};}}
   return null;
 }
+// how far along the deck a motorway car is from the top of the ramp it's heading for (0 once it's on it), or a long way
+function rampAhead(H,al){
+  const k=Math.floor((H.lane+3)/CELL),m0=Math.floor(al/CELL),RL=2*((H.ax==='x'?HY_X:HY_Z)-G);
+  for(let i=-1;i<=5;i++){const m=m0+i*H.dir;if(hwDeadEnd(H.ax,k,m)!==H.dir)continue;
+    const top=H.dir>0?Math.min((m+1)*CELL,(m+2)*CELL-RL):Math.max(m*CELL+ROADW,(m-1)*CELL+ROADW+RL);
+    return Math.max(0,(top-al)*H.dir);}
+  return 1e9;
+}
 function hwRampCol(a,lx,lz,q,HY,r,along){
   const put=(y,v)=>{a[li(lx,y,lz)]=v;},y=HY-Math.floor(r.d/2),kind=r.d%2===0?2:1;
   for(let yy=y+1;yy<=y+5&&yy<H;yy++)put(yy,AIR);
@@ -13676,9 +13684,12 @@ function updateCars(dt){
         // coming up to a town, where the ground-level highway narrows to one lane each way: zip merge. The outer lane
         // runs on to near the edge of town; its cars slot into the inner lane wherever there's room, and each car in the
         // inner lane lets one of them in ahead of it.
-        if(H.ground||H.y===G+1){
-          const a=H.ax==='x'?c.pos.x:c.pos.z,k=Math.floor((H.lane+3)/CELL),base=k*CELL;let dT=1e9;
-          for(let s=0;s<=3;s++){const m=Math.floor(a/CELL)+s*H.dir;if(biomeOf(H.ax==='x'?m:k,H.ax==='x'?k:m)!=='plains'){dT=H.dir>0?m*CELL-a:a-(m+1)*CELL;break;}}
+        // (the same where a motorway ends in a ramp down to the street: two lanes won't go into one at the bottom, so they
+        // become one well before the top. Left till the foot, two queues fight over the street and block the ramp.)
+        const dRamp=H.ground?1e9:rampAhead(H,H.ax==='x'?c.pos.x:c.pos.z);
+        if(H.ground||H.y===G+1||dRamp<130){
+          const a=H.ax==='x'?c.pos.x:c.pos.z,k=Math.floor((H.lane+3)/CELL),base=k*CELL;let dT=dRamp;
+          if(H.ground||H.y===G+1)for(let s=0;s<=3;s++){const m=Math.floor(a/CELL)+s*H.dir;if(biomeOf(H.ax==='x'?m:k,H.ax==='x'?k:m)!=='plains'){dT=Math.min(dT,H.dir>0?m*CELL-a:a-(m+1)*CELL);break;}}
           if(dT<80){
             const inner=base+((H.ax==='x')===(H.dir>0)?5.5:2.5),lat=o=>H.ax==='x'?o.pos.z:o.pos.x,rel=o=>((H.ax==='x'?o.pos.x:o.pos.z)-a)*H.dir;
             const same=o=>o!==c&&o.alive&&o.hw&&o.hw.ax===H.ax&&o.hw.dir===H.dir&&Math.abs(o.pos.y-c.pos.y)<2&&Math.abs(lat(o)-inner)<6;
