@@ -3,13 +3,14 @@
 // (Software rendering by default, so the picture is right but the frame rate says nothing about a real graphics card.)
 const {chromium}=require('playwright');
 const fs=require('fs');
+const SAVE_KEY=fs.readFileSync('t3.html','utf8').match(/SAVE_KEY='([^']+)'/)[1];
 const seed=+(process.argv[2]||12345),out=process.argv[3]||'shots';
 (async()=>{fs.mkdirSync(out,{recursive:true});
 const b=await chromium.launch({args:['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']});
 const p=await b.newPage({viewport:{width:1280,height:720}});
 const errs=[];p.on('pageerror',e=>errs.push(e.message));p.on('console',m=>{if(m.type()==='error')errs.push(m.text().slice(0,200));});
 // (A saved seed makes every run show the same world.)
-await p.addInitScript(s=>{if(!localStorage.getItem('goblin-city-v42'))localStorage.setItem('goblin-city-v42',JSON.stringify({seed:s}));},seed);
+await p.addInitScript(([k,s])=>{if(!localStorage.getItem(k))localStorage.setItem(k,JSON.stringify({seed:s}));},[SAVE_KEY,seed]);
 await p.goto('file://'+process.cwd()+'/t3.html');await p.waitForTimeout(3000);
 await p.screenshot({path:out+'/00-menu.png'});
 await p.evaluate(()=>document.getElementById('play').click());await p.waitForTimeout(12000);

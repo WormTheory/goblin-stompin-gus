@@ -758,7 +758,7 @@ function horizHidden(cx,cy,cz,hr,top){
     if(!o.isInstancedMesh&&horizHidden(sp.center.x,sp.center.y,sp.center.z,sp.radius,sp.center.y+sp.radius))return false;   // (over the horizon)
     const d=Math.hypot(sp.center.x-CURVE_CAM.x,sp.center.z-CURVE_CAM.z),r=sp.radius,lo=k*Math.max(0,d-r)**2,hi=k*(d+r)**2;
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v42';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v43';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -3396,6 +3396,8 @@ function cloverChoice(c,H){
 }
 // does a multi-block site span a highway (its inner streets would be built over)?
 function rectHighway(ax,az,w,h){for(let i=1;i<w;i++)for(let j=0;j<h;j++)if(hwCol(ax+i,az+j)||ghwCol(ax+i,az+j))return true;for(let j=1;j<h;j++)for(let i=0;i<w;i++)if(hwRow(az+j,ax+i)||ghwRow(az+j,ax+i))return true;return false;}
+// (a highway out of town cutting across one of its blocks: nothing big gets built there, or the road would slice straight through it)
+function rectCuts(ax,az,w,h){for(let i=0;i<w;i++)for(let j=0;j<h;j++)if(routeCuts(ax+i,az+j))return true;return false;}
 function rectRiver(ax,az,w,h){for(let i=0;i<w;i++)for(let j=0;j<h;j++)if(isRiver(ax+i,az+j))return true;return false;}
 // ---- the big plan, on a coarse 6x6-block grid: now and then one of these takes a big piece of it --
 // a football stadium (4x6), a huge park (6x6 or 4x6), a shopping mall (4x4) or a residential neighbourhood
@@ -3406,7 +3408,7 @@ function capitolPlan(){
   if(C===undefined){
     C=null;
     for(const [mx,mz] of [[1,0],[0,1],[-1,0],[0,-1],[1,1],[-1,1],[1,-1],[-1,-1],[2,0],[0,2],[-2,0],[0,-2]]){
-      const S={ax:mx*6+1,az:mz*6,w:4,h:6,kind:'capitol',mx,mz};if(!rectRail(S.ax,S.az,S.w,S.h)&&!rectRiver(S.ax,S.az,S.w,S.h)&&!rectClover(S.ax,S.az,S.w,S.h)&&!rectRamp(S.ax,S.az,S.w,S.h)&&!rectHighway(S.ax,S.az,S.w,S.h)&&!rectPlains(S.ax,S.az,S.w,S.h)){C=S;break;}
+      const S={ax:mx*6+1,az:mz*6,w:4,h:6,kind:'capitol',mx,mz};if(!rectRail(S.ax,S.az,S.w,S.h)&&!rectRiver(S.ax,S.az,S.w,S.h)&&!rectClover(S.ax,S.az,S.w,S.h)&&!rectRamp(S.ax,S.az,S.w,S.h)&&!rectHighway(S.ax,S.az,S.w,S.h)&&!rectPlains(S.ax,S.az,S.w,S.h)&&!rectCuts(S.ax,S.az,S.w,S.h)){C=S;break;}
     }
     superCache.set('capitol',C);
   }
@@ -3429,7 +3431,7 @@ function macroOf1(px,pz){
       else if(h<0.40)M=hash2(mx+17,mz+19)<0.5?{ax:mx*6,az:mz*6,w:6,h:6,kind:'hood'}:{ax:mx*6+off,az:mz*6+off2,w:4,h:4,kind:'hood'};
       {const ty=M&&setType(M.ax,M.az);if(M&&(M.kind==='stadium'||M.kind==='bigpark')&&ty!=='city')M=null;if(M&&(M.kind==='mall'||M.kind==='bigbox')&&ty!=='city'&&ty!=='large'&&ty!=='suburb')M=null;if(M&&M.kind==='hood'&&ty==='village')M=null;
        if(!M&&h<0.62&&setType(mx*6+3,mz*6+3)==='suburb')M=hash2(mx+17,mz+19)<0.5?{ax:mx*6,az:mz*6,w:6,h:6,kind:'hood'}:{ax:mx*6+off,az:mz*6+off2,w:4,h:4,kind:'hood'};}   // suburbs: housing estates
-      if(M&&(rectRail(M.ax,M.az,M.w,M.h)||rectRiver(M.ax,M.az,M.w,M.h)||rectPlains(M.ax,M.az,M.w,M.h)||rectClover(M.ax,M.az,M.w,M.h)||rectRamp(M.ax,M.az,M.w,M.h)||M.kind!=='hood'&&rectHighway(M.ax,M.az,M.w,M.h)))M=null;
+      if(M&&(rectRail(M.ax,M.az,M.w,M.h)||rectRiver(M.ax,M.az,M.w,M.h)||rectPlains(M.ax,M.az,M.w,M.h)||rectClover(M.ax,M.az,M.w,M.h)||rectRamp(M.ax,M.az,M.w,M.h)||rectCuts(M.ax,M.az,M.w,M.h)||M.kind!=='hood'&&rectHighway(M.ax,M.az,M.w,M.h)))M=null;
     }
     superCache.set(mk,M);
   }
@@ -3458,7 +3460,7 @@ function superOf(px,pz){
       const kind=gk.slice(0,-1),pair=hash2(gx*7+1,gz*5+3)<0.5
         ?{ax:gx*2,az:gz*2+(hash2(gx,gz+5)<0.5?0:1),w:2,h:1,kind}:{ax:gx*2+(hash2(gx+5,gz)<0.5?0:1),az:gz*2,w:1,h:2,kind};
       S=gk.endsWith('4')?{ax:gx*2,az:gz*2,w:2,h:2,kind}:pair;
-      if(rectRail(S.ax,S.az,S.w,S.h)||rectMetro(S.ax,S.az,S.w,S.h)||rectRiver(S.ax,S.az,S.w,S.h)||rectHighway(S.ax,S.az,S.w,S.h)||rectPlains(S.ax,S.az,S.w,S.h)||rectClover(S.ax,S.az,S.w,S.h)||rectRamp(S.ax,S.az,S.w,S.h))S=null;
+      if(rectRail(S.ax,S.az,S.w,S.h)||rectMetro(S.ax,S.az,S.w,S.h)||rectRiver(S.ax,S.az,S.w,S.h)||rectHighway(S.ax,S.az,S.w,S.h)||rectPlains(S.ax,S.az,S.w,S.h)||rectClover(S.ax,S.az,S.w,S.h)||rectRamp(S.ax,S.az,S.w,S.h)||rectCuts(S.ax,S.az,S.w,S.h))S=null;
     }
     superCache.set(k,S);
   }
