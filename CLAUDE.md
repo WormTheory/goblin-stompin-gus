@@ -36,6 +36,7 @@ node shoreaudit.js         # straight cut-offs along block edges, sea bed depth 
 node streetaudit.js        # trees in streets, block lines through corner bends, unmarked town ramps, barrier jogs at ramp feet
 node sitecount.js 200      # how many of each big site land within that many plots of the middle
 node stairaudit.js 160     # which buildings with more than one floor still have no stairs
+node signcount.js 150      # how many signs each kind of building carries
 ```
 To review the chains' logos: `node logosheet.js out.png` from `tools/ui`. To look at a spot in the real game: `python tools/build_3d.py game/index.html tools/ui/t3.html`, then `node tour.js scenes.js outDir [seed]` from `tools/ui` (set `TOUR_VIEW=800` to see that many blocks through the fog, and pass a wait of about 25000 as a fourth argument so distant chunks finish building).
 
