@@ -14463,6 +14463,8 @@ function brandSpots(b,px,pz){
   else if(cat==='mall')bSpotAny(b,px,pz,0,b.top-2.5,3.6,out);
   else if(cat==='garage')bSpotAny(b,px,pz,0,b.top-3.5,2.6,out);   // on the solid band between the top two decks
   else bSpotAny(b,px,pz,ins,b.top-2.4,Math.min(3.4,b.top-G>40?3.4:2.6),out);   // offices, hospitals, police: up near the roof
+  // (nothing solid enough where its sign should go, like a school's row of windows: up by the roof, on whichever side has room)
+  if(!out.length&&b.brand&&b.style==='normal')bSpotAny(b,px,pz,ins,b.top-1.6,1.6,out);
   b._signs=out;return out;
 }
 const BSIGN_GEO=new THREE.PlaneGeometry(1,1),bsigns=[],bsignUp=new Map();let nBS=0,nBP=0;
