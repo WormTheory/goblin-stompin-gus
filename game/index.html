@@ -12831,6 +12831,24 @@ const PROPS={
   vat:[[P_STEEL,0,.5,0,.9,1,.9],[PG+0x7aff5a,0,1.04,0,.74,.08,.74],[P_STEEL,0,1.2,.4,.08,.4,.08],[P_DARK,.5,.3,0,.1,.5,.1]],
   // a bale of hay
   hay:[[0xd8b13a,0,.4,0,.96,.8,1],[0xb98f24,0,.4,.3,.98,.82,.04],[0xb98f24,0,.4,-.3,.98,.82,.04]],
+  // a vase on a pedestal, in the tint
+  vase:[[P_WHITE,0,.45,0,.5,.9,.5],[PT,0,1.02,0,.3,.24,.3],[PT,0,1.24,0,.2,.2,.2],[PT,0,1.42,0,.28,.06,.28]],
+  // a suit of armour on a stand
+  armour:[[P_DARK,0,.05,0,.6,.1,.6],[P_STEEL,-.12,.45,0,.14,.7,.16],[P_STEEL,.12,.45,0,.14,.7,.16],[P_STEEL,0,1.02,0,.46,.5,.26],[P_STEEL,-.3,1,0,.12,.5,.14],[P_STEEL,.3,1,0,.12,.5,.14],[0x9a9fa5,0,1.42,0,.24,.28,.26],[P_DARK,0,1.42,.135,.16,.04,.01],[P_DARK,.42,.8,.1,.04,1.5,.04]],
+  // a mummy's coffin, standing in a glass case
+  mummy:[[P_DARK,0,.08,0,.9,.16,.8],[0xc9a24a,0,.86,0,.52,1.4,.34],[0x2b5fb8,0,1.3,.18,.4,.14,.01],[0xc9a24a,0,1.68,0,.36,.3,.3],[0xcfeaf5,0,1,.42,.88,1.7,.02],[0xcfeaf5,-.44,1,0,.02,1.7,.84],[0xcfeaf5,.44,1,0,.02,1.7,.84]],
+  // a model ship in a case
+  ship:[[P_WOOD,0,.4,0,.9,.8,.5],[0xcfeaf5,0,1.1,0,.9,.6,.5],[0x7a4a2a,0,.92,0,.6,.1,.16],[P_WHITE,0,1.14,0,.04,.36,.3],[P_WOOD,0,1.06,0,.03,.3,.03]],
+  // a post with a rope to the next
+  stanchion:[[P_DARK,0,.02,0,.24,.04,.24],[0xc9a24a,0,.4,0,.05,.8,.05],[0x8a1f24,0,.74,.5,.03,.03,1]],
+  // a director's chair, canvas in the tint
+  dirchair:[[P_WOOD,-.2,.25,0,.04,.5,.4],[P_WOOD,.2,.25,0,.04,.5,.4],[PT,0,.46,0,.42,.03,.38],[PT,0,.84,-.18,.42,.2,.03],[P_WOOD,-.22,.66,-.18,.03,.44,.03],[P_WOOD,.22,.66,-.18,.03,.44,.03]],
+  // a sound man's boom on its stand
+  boom:[[P_DARK,0,.03,0,.5,.05,.5],[P_STEEL,0,1,0,.05,2,.05],[P_STEEL,0,2,.8,.03,.03,1.7],[P_DARK,0,1.9,1.62,.14,.14,.3]],
+  // a studio light on a tall stand
+  studiolight:[[P_DARK,0,.03,0,.6,.05,.6],[P_STEEL,0,1.3,0,.05,2.6,.05],[P_DARK,0,2.6,.1,.5,.4,.3],[PG+0xfff4c8,0,2.6,.26,.4,.3,.01]],
+  // a flat painted backdrop, in the tint
+  backdrop:[[PT,0,1.5,0,1,3,.06],[P_WOOD,0,.1,-.3,.1,.2,.6]],
   // a deep fryer: a steel case, two baskets in hot oil
   fryer:[[P_STEEL,0,.42,0,.96,.84,.7],[0xd8a030,0,.85,.03,.8,.02,.5],[P_DARK,-.2,.92,.03,.3,.14,.36],[P_DARK,.2,.92,.03,.3,.14,.36],[P_DARK,0,.4,.355,.7,.3,.01]],
   // a drinks machine, on a counter
@@ -13302,11 +13320,28 @@ function venueRoom(b,px,pz,floorNo,L,kd){
     for(let u=.5;u<4;u++)add('shelf2',u,1.5,PI,pick(P_GOODS,u,1,1));barRun(I-5,I-2,2.5,0x5a3a22);add('monitor',I-3.5,2.5,PI,0,.9);
     const lgM=I>=J,Wa=lgM?I:J-4,Wc=lgM?J:I,cvv=lgM?Math.floor((J+4)/2):I>>1;
     const P2=(a,c,type,yaw,t)=>{const [u,v]=lgM?[a,c]:[c,a+4];add(type,u,v,yaw,t);};
-    for(let g=0;14*g<Wa;g++){const a0=14*g,kind2=(g+(floorNo||0))%3;
-      if(kind2===0)for(let c=3.5;c<Wc;c+=5)P2(a0+7.5,c,'gcase',0,pick(P_GOODS,g,c,3));
-      else if(kind2===1)for(const u of [4.5,10.5])for(let c=2.5;c<Wc;c+=6)P2(a0+u,c,'statue',0,u<7?0xd8dce0:0x9c7a3e);
-      if(kind2!==2){P2(a0+4,cvv+.5,'bench',lgM?HP:0);P2(a0+10,cvv+.5,'bench',lgM?HP:0);}
+    const stepC=Wc>=24?4.4:3.6;
+    for(let g=0;14*g<Wa;g++){const a0=14*g,kind2=(g+(floorNo||0))%3,theme=Math.floor(hg(g,floorNo,7)*5),far=c=>Math.abs(c-cvv)>2.2;
+      const cols=[3.2,7.2,11.2];
+      if(kind2===1){
+        // the sculpture hall
+        for(const u of cols)for(let c=2.5;c<Wc-1;c+=stepC)if(far(c))P2(a0+u,c,'statue',0,u===7.2?0x9c7a3e:0xd8dce0);
+      }else if(kind2===2){
+        // the big bones have their rope all round them, a label, fossils in cases down the walls
+        for(let u=1.5;u<13;u+=1)for(const c of [cvv-3.6,cvv+4.4])P2(a0+u,c,'stanchion',0);
+        P2(a0+1.5,cvv-1.6,'board',lgM?HP:0,0xd8c8a8);
+        for(let u=2.5;u<13;u+=2.4)for(const c of [1.4,Wc-1.4])P2(a0+u,c,'gcase',0,0xbf9a6a);
+      }else{
+        // a gallery on one theme: jewels, ancient Egypt, knights, pots, or the sea
+        const ex=['gcase','mummy','armour','vase','ship'][theme],tt=[0xd8b13a,0,0,0x7a4a2a,0][theme]||pick(P_GOODS,g,1,3);
+        for(const u of cols)for(let c=2.5;c<Wc-1;c+=stepC)if(far(c))P2(a0+u,c,ex,0,theme===3?pick([0x7a4a2a,0x2b5fb8,0x3f8f4a],u,c,4):tt);
+        P2(a0+1.5,cvv-2.6,'board',lgM?HP:0,[0x2b5fb8,0xc9a24a,0x7a2a2a,0x3f8f4a,0x2f6f7a][theme]);
+      }
+      if(kind2!==2){P2(a0+5.2,cvv+.5,'bench',lgM?HP:0);P2(a0+9.2,cvv+.5,'bench',lgM?HP:0);}
+      P2(a0+1.2,1.2,'plant',0);P2(a0+13,Wc-1.2,'plant',1);
     }
+    // the lobby: cloakroom, posters and a guide's desk, plants either side of the way in, a little cafe
+    if(!floorNo){for(let u=5.5;u<8;u++)add('shelf2',u,.5,0,pick(P_GOODS,u,2,5));add('plant',cu-3,.6,0);add('plant',cu+3,.6,1);add('board',cu-5,.1,0,0x2b5fb8);add('board',cu+5,.1,0,0xc83a32);add('rtable',I-8,1.6,0,P_WHITE);add('chair',I-8.7,1.6,HP,0x46505a,0,true);add('chair',I-7.3,1.6,-HP,0x46505a,0,true);}
   }else if(kd==='aquarium'){
     // tickets and a gift shop inside the doors, benches along the walkway
     const Wc=lg?J:I,cw=Wc/2,Wl=lg?I:J,tl=Math.floor(Wl/2)-5,th=Math.floor(Wl/2)+5;
@@ -13347,9 +13382,24 @@ function venueRoom(b,px,pz,floorNo,L,kd){
     for(let u=.8;u<I;u+=1.1){add('hay',u,J-.7,0);add('hay',u,J-.7,0,0,.8);}
     add('pcrate',cu,J-2.4,0);add('prep',.6,J-1.6,HP);
   }else if(kd==='stage'){
-    // the set: a sofa and a table in its fake living room; cameras and a director's desk facing it, cases of kit
-    const c2=I>>1,cv=J>>1;for(const u of [c2-1,c2,c2+1])add('sofa',u+.5,cv+1.5,PI,0x3f6b8c);add('table',c2+.5,cv-.5,0);add('plant',c2+3,cv+3,0);
-    for(const u of [c2-6,c2,c2+6])add('tvcam',u+.5,cv-7,0);add('desk',c2+.5,cv-10,0);add('swivel',c2+.5,cv-10.8,0,0,0,true);for(let u=1.5;u<I-1;u+=4)add('pcrate',u,1,0);
+    // the set in the middle of the floor is whatever's shooting this month: a living room, a saloon, a starship or a
+    // kitchen. Cameras, a director's chair, lights and a boom face it; behind them a green screen, costume rails, catering
+    const c2=I>>1,cv=J>>1,x=c2+.5,kindS=Math.floor(hash2(px*31+b.x0*7+3,pz*17+b.z0*11+5)*4);
+    if(kindS===0){for(const u of [x-1,x,x+1])add('sofa',u,cv+2.6,PI,0x3f6b8c);add('table',x,cv+.8,0);add('flamp',x+2.4,cv+3,0);add('plant',x-2.6,cv+3,0);add('shelf2',x-2.6,cv,HP,0x7a4a2a);}
+    else if(kindS===1){for(let u=x-2;u<=x+2;u++){add('bar',u,cv+1.6,0,0x5a3a22);add('bottles',u,cv+3.4,PI);}add('stool',x-1,cv+.8,0,0x7a2a2a,0,true);add('stool',x+1,cv+.8,0,0x7a2a2a,0,true);add('rtable',x-2.4,cv-1.2,0,0x5a3a22);add('chair',x-3.1,cv-1.2,HP,0x5a3a22,0,true);add('chair',x-1.7,cv-1.2,-HP,0x5a3a22,0,true);}
+    else if(kindS===2){for(let u=x-2;u<=x+2;u++)add('mixer',u,cv+2.6,PI);add('swivel',x,cv+.9,PI,0,0,true);add('swivel',x-2,cv+1.6,PI,0,0,true);add('swivel',x+2,cv+1.6,PI,0,0,true);add('tv',x,cv+3.3,PI,0,1.4);}
+    else{let u=x-2;for(const t of ['fridge2','range','range','sink','prep'])add(t,u++,cv+3.2,PI,0xd8dce0);add('prep',x-1,cv+.4,0);add('prep',x+1,cv+.4,0);}
+    // the crew's side
+    for(const [u,y] of [[x-4,.5],[x,0],[x+4,-.5]])add('tvcam',u,cv-6.6,y);
+    add('dirchair',x-2,cv-8.6,0,0xc83a32);add('dirchair',x+2,cv-8.6,0,0x2b5fb8);add('desk',x,cv-10,0);add('swivel',x,cv-10.8,0,0,0,true);
+    add('boom',x-3,cv-3.4,.3);add('studiolight',x-5,cv-3,.7);add('studiolight',x+5,cv-3,-.7);
+    // the green screen across the back, the rails and the sandwiches at the front
+    for(let u=1;u<I-.5;u++)add('backdrop',u,J-.4,PI,0x2fbf4a);
+    for(let u=1;u<I-5;u+=1.2)add('clothes',u,1,0,pick(P_CLOTH,u,1,2));add('ltable',I-2.4,1,0);add('fridge2',I-.6,1,-HP);
+    for(let v=4;v<cv-5;v+=2.4){add('pcrate',.8,v,HP);add('pcrate',I-.8,v,-HP);}
+    // behind the set: stored scenery, racks of props, a bench for the extras
+    for(let u=1;u<I-1;u+=2.2){add('shelf3',u,cv+6,PI,pick(P_GOODS,u,cv,6));if(cv+8.4<J-1.4)add('backdrop',u,cv+8.4,0,pick([0x7a4a2a,0x3f6b8c,0xd8b13a,0x5d7a45],u,1,7));}
+    add('bench',x-3,cv+5,0,0,0,true);add('studiolight',x+4.6,cv+5,PI);
   }
 }
 // church pews (a church's frame: u across from its middle, v in from its doors. A cathedral's: a along, c across.)
