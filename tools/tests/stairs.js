@@ -45,17 +45,18 @@ for(const c of T.cars){c.alive=false;c.respawnT=1e9;c.g.visible=false;}
 const step=n=>{for(let i=0;i<n;i++){A.hp=999;A.vy=0;for(const g of T.goblins)if(g!==gob&&g.state==='chase'){g.state='wait';g.t=-1e9;g.root.visible=false;}now+=16.7;T.frame(now);}};
 // (every layout: a small town's school comes in two shapes as well)
 const findSmall=wide=>{for(let r=0;r<260;r+=2)for(let px=-r;px<=r;px+=2)for(const pz of [-r,r]){for(const [qx,qz] of [[px,pz],[pz,px]]){const S=T.superOf(qx,qz);if(S&&S.kind==='school'&&S.w<3&&(S.w>S.h)===wide)return S;}}return null;};
-const findType=ty=>{for(let r=0;r<120;r++)for(let i=-r;i<=r;i++)for(const [x,z] of [[i,-r],[i,r],[-r,i],[r,i]]){const P=T.plotInfo(x,z);if(P.type===ty&&P.b.some(q=>q.stair))return {ax:x,az:z};}return null;};
-for(const k of ['fire','school','schoolWide','schoolTall','police','museum','hospital','campus','prison','homes','mid','tower']){const F=k==='schoolWide'?findSmall(true):k==='schoolTall'?findSmall(false):k==='homes'||k==='mid'||k==='tower'?findType(k):T.stFind(k,0,0);if(!F){console.log(k,'none found');continue;}
+const findType=ty=>{for(let r=0;r<200;r++)for(let i=-r;i<=r;i++)for(const [x,z] of [[i,-r],[i,r],[-r,i],[r,i]]){const P=T.plotInfo(x,z);if(P.type===ty&&P.b.some(q=>q.stair))return {ax:x,az:z};}return null;};
+// (STAIR_KINDS: other kinds of block to try, by name, instead of the usual list)
+for(const k of process.env.STAIR_KINDS?process.env.STAIR_KINDS.split(','):['fire','school','schoolWide','schoolTall','police','museum','hospital','campus','prison','homes','mid','tower']){const F=k==='schoolWide'?findSmall(true):k==='schoolTall'?findSmall(false):process.env.STAIR_KINDS||k==='homes'||k==='mid'||k==='tower'?findType(k):T.stFind(k,0,0);if(!F){console.log(k,'none found');continue;}
   const P=T.plotInfo(F.ax,F.az),b=P.b.find(q=>q.stair);if(!b){console.log(k,'no stairs');continue;}
   const Y=T.stairFloors(b),X0=F.ax*CELL,Z0=F.az*CELL,S=b.stair,al=S.ax==='x';
   // somewhere on the far side of the room from the shaft, on each floor
-  const spot=(y,far)=>{const cx=(b.x0+b.x1)/2,cz=(b.z0+b.z1)/2;return {x:X0+cx+(al?far:0),y,z:Z0+cz+(al?0:far)};};
+  const spot=(y,far)=>{const cx=(b.x0+b.x1)/2,cz=(b.z0+b.z1)/2,cl=(v,a,c)=>Math.max(a+1.5,Math.min(c-1.5,v));return {x:X0+cl(cx+(al?far:0),b.x0,b.x1),y,z:Z0+cl(cz+(al?0:far),b.z0,b.z1)};};
   const run=(from,to,label)=>{const s0=spot(from,-5),s1=spot(to,4);
     if(k==='campus'){s1.x=al?X0+S.r0+S.L+8:s1.x;s0.x=al?X0+S.r0+S.L+24:s0.x;}   // (the library's so long a hippo at the far end wouldn't be near enough to keep the goblin in play)
     for(let i=0;i<30;i++){A.pos.set(s1.x,s1.y,s1.z);step(1);}
     gob.state='chase';gob.hp=99;gob.stun=0;gob.indoor=true;gob.civ=false;gob.root.visible=true;gob.pos.set(s0.x,s0.y,s0.z);gob.vy=0;gob.t=0;gob.detour=0;gob.trip=null;
-    let t=0,ok=false,minY=1e9,maxY=-1e9;while(t<40&&!ok){A.pos.set(s1.x,s1.y,s1.z);step(6);t+=0.1;if(process.env.TR&&Math.round(t*10)%40===0)console.log(' t',t.toFixed(0),gob.state,'xyz',gob.pos.x.toFixed(1),gob.pos.y.toFixed(2),gob.pos.z.toFixed(1),'h',gob.heading.toFixed(2),'stun',gob.stun.toFixed(1),'det',(gob.detour||0).toFixed(1),'gus',A.pos.y.toFixed(1),'hp',gob.hp);minY=Math.min(minY,gob.pos.y);maxY=Math.max(maxY,gob.pos.y);if(Math.abs(gob.pos.y-to)<0.6)ok=true;}
+    let t=0,ok=false,minY=1e9,maxY=-1e9;while(t<60&&!ok){A.pos.set(s1.x,s1.y,s1.z);step(6);t+=0.1;if(process.env.TR&&Math.round(t*10)%40===0)console.log(' t',t.toFixed(0),gob.state,'xyz',gob.pos.x.toFixed(1),gob.pos.y.toFixed(2),gob.pos.z.toFixed(1),'h',gob.heading.toFixed(2),'stun',gob.stun.toFixed(1),'det',(gob.detour||0).toFixed(1),'gus',A.pos.y.toFixed(1),'hp',gob.hp);minY=Math.min(minY,gob.pos.y);maxY=Math.max(maxY,gob.pos.y);if(Math.abs(gob.pos.y-to)<0.6)ok=true;}
     console.log(k,label,ok?'reached in '+t.toFixed(0)+'s':'FAILED, ended at y '+gob.pos.y.toFixed(1)+' x '+gob.pos.x.toFixed(1)+' z '+gob.pos.z.toFixed(1),'floors',from,to);};
   if(process.env.TR)for(let z=S.c0-2;z<S.c1+2;z++){let l='';for(let x=S.r0-4;x<S.r0+S.L+4;x++){const X=al?X0+x:X0+z,Z=al?Z0+z:Z0+x;l+=' '+String(T.get(X,45,Z)).padStart(2)+'/'+String(T.get(X,46,Z)).padStart(2);}console.log(z,l);}
   console.log(k,'stair',JSON.stringify(S),'floors',JSON.stringify(Y),'plot',F.ax,F.az);
