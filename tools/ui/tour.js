@@ -18,7 +18,9 @@ await p.evaluate(()=>document.getElementById('play').click());await p.waitForTim
 // (no HUD and no Gus in the picture: this is for looking at the world. Time stands still so nothing wrecks the view.)
 await p.addStyleTag({content:'body>*:not(canvas){visibility:hidden!important}canvas{visibility:visible!important}'});
 const list=scenes.trim().startsWith('[')?JSON.parse(scenes):await p.evaluate(s=>{const G=window.__G;return eval(s);},scenes);
-for(const [name,x,y,z,yaw,pitch] of list){
+for(const [name,x,y,z,yaw,pitch,cut] of list){
+  // (a seventh value: slice the world off above that height, to look down into a room with its roof gone)
+  await p.evaluate(c=>{const G=window.__G,T=G.THREE;G.renderer.clippingPlanes=c?[new T.Plane(new T.Vector3(0,-1,0),c)]:[];window.__propY=c?c-3.3:0;},cut||0);
   await p.evaluate(([x,y,z,yaw,pitch])=>{clearInterval(window.__hold);const P=window.__G.players[0];P.root.visible=false;window.__hold=setInterval(()=>{P.pos.set(x,y,z);P.vy=0;P.cam.yaw=yaw;P.cam.pitch=pitch;P.hp=999;P.root.visible=false;},20);},[x,y,z,yaw,pitch]);
   await p.waitForTimeout(wait);await p.screenshot({path:out+'/'+name+'.png'});console.log(name,Math.round(x),Math.round(y),Math.round(z));
 }

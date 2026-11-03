@@ -8,7 +8,7 @@ Open the file in a browser to play.
 - `game/index.html` is the only deliverable. Keep it one file — no build step, no bundler.
 - Parody of real brands is welcome and part of the humour (names like "Goblin Walmart"). Draw parody logos rather than copying real artwork.
 - Comments are plain English, explaining *why*, often in parentheses. Match the existing style.
-- **Bump `SAVE_KEY`** (currently `'goblin-city-v67'`) whenever world generation changes, so old saves don't load into a different world.
+- **Bump `SAVE_KEY`** (currently `'goblin-city-v68'`) whenever world generation changes, so old saves don't load into a different world.
 - Make edits with exact, unique string replacements. Many identifiers repeat, so check for a single match before replacing.
 - After every change: run the tests (below) before calling it done.
 
@@ -87,7 +87,7 @@ It renders in software, so the picture is right but the frame rate says nothing 
   - `rebindHTML`, `keyLabel`, `padLabel`
   - controller menu navigation `menuNav` (spatial up/down)
 - **Abilities menu:** rows `.abil2 > .ab-row`, upgrades in `.ab-up`, toggles use `data-base`, `data-prev`, `data-excl` (roll ⟷ blastDash).
-- **Props:** furniture made of small boxes rather than whole blocks, in proportion to the goblins (about 1.4 tall): models in `PROPS`, placed by `hospProps`, drawn by `refreshProps` as instanced boxes near the player, knocked down by `knockProps`. Hospitals are laid out by hand; everywhere else `furnProps` reads what `furnRaw` says stands there, and `furnTurns` decides which of those blocks become props (shelves, fridges, sofas, beds, plants, small tables, lone screens). Restaurants (`restProps`), shops and stores (`shopRoom`) and malls (`mallProps`) are laid out by hand from a shared set of models. Goblins treat props as walls through `gobGround`, and shove one over if held up for long. Suite `proptest` chases a goblin across rooms; `tools/ui/proptime.js` times the props.
+- **Props:** furniture made of small boxes rather than whole blocks, in proportion to the goblins (about 1.4 tall): models in `PROPS`, placed by `hospProps`, drawn by `refreshProps` as instanced boxes near the player, knocked down by `knockProps`. Hospitals are laid out by hand; everywhere else `furnProps` reads what `furnRaw` says stands there, and `furnTurns` decides which of those blocks become props (shelves, fridges, sofas, beds, plants, small tables, lone screens). Restaurants (`restProps`), shops and stores (`shopRoom`), malls (`mallProps`), houses (`homeRoom`), flats (`aptFloor`) and workplaces (`workRoom`) are laid out by hand from a shared set of models. Goblins treat props as walls through `gobGround`, and shove one over if held up for long. Suite `proptest` chases a goblin across rooms; `tools/ui/proptime.js` times the props.
 - **Stairs:** a building with `b.stair` gets a railed flight per storey (`stairAt`) of stair blocks (`stairId`: a ramp underfoot, drawn as steps), and goblins chase a hippo between floors with `stairPoint`/`onStair`. Fire stations and schools so far; suite `stairs` tests going up and down.
 - **Placement:** `SITE_F` says how far out from a place's middle each kind of site goes (`siteFits`); a dump is a 4x4 `dumpSite` at the end of a street.
 - **Roofs:** `roofOf` picks a shape per kind of shop (hip, mansard, gable, barrel, false front, dome, mirror ball), drawn by `roofColumn` above the flat roof.
