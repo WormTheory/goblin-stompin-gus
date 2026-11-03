@@ -758,7 +758,7 @@ function horizHidden(cx,cy,cz,hr,top){
     if(!o.isInstancedMesh&&horizHidden(sp.center.x,sp.center.y,sp.center.z,sp.radius,sp.center.y+sp.radius))return false;   // (over the horizon)
     const d=Math.hypot(sp.center.x-CURVE_CAM.x,sp.center.z-CURVE_CAM.z),r=sp.radius,lo=k*Math.max(0,d-r)**2,hi=k*(d+r)**2;
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v43';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v44';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -2504,6 +2504,11 @@ function axisSpan(T,ax){
   // through, instead of humping up over a block or two of fields and straight back down
   if(v&&v.kind==='moto'&&lo&&hi){const k=v.k;let any=false;for(let m=v.m0;m<=v.m1&&!any;m++)any=ax==='x'?!!settlementAt(m,k-1)&&!!settlementAt(m,k):!!settlementAt(k-1,m)&&!!settlementAt(k,m);
     if(!any){v.kind='country';v.flat=true;}}
+  // (a motorway stopping just short of the place's other motorway, within sight of it, looks like a mistake and joins
+  // nothing: it carries on over the crossing, so the two get a proper interchange, and only then comes down to the street)
+  if(v&&v.kind==='moto'&&lo!==hi){const o=ax==='x'?'z':'x';
+    if(AX_KIND(T,o)==='moto'&&(sideUsed(T,o,1)||sideUsed(T,o,-1))){const j=lineOf(T,o),far=spanEnd(T,ax,hi?-1:1);
+      if(!hi&&j+2>v.m1&&j+4<=far)v.m1=j+2;else if(!lo&&j-3<v.m0&&j-5>=far)v.m0=j-3;}}
   if(v&&v.kind==='moto'&&lo!==hi){const k=v.k,town=(m)=>ax==='x'?!!settlementAt(m,k-1)&&!!settlementAt(m,k):!!settlementAt(k-1,m)&&!!settlementAt(k,m);
     if(!hi){for(let n=0;n<3&&v.m1-1>=v.m0&&!town(v.m1+1);n++)v.m1--;}
     else{for(let n=0;n<3&&v.m0+1<=v.m1&&!town(v.m0-1);n++)v.m0++;}
@@ -3294,7 +3299,8 @@ function cloverAt(j,k){
   const key=j+','+k;let v=cloverCache.get(key);
   if(v===undefined){
     v=hwCol(j,k)&&hwRow(k,j);
-    if(v){const S=settlementAt(j,k);if(!S||S.type!=='city')v=false;}   // (only in a city)
+    // (anywhere that's built up all round the crossing, so the ramps have somewhere to go: not just in a city)
+    if(v){const S=settlementAt(j,k);if(!S)v=false;for(let px=j-2;px<=j+1&&v;px++)for(let pz=k-2;pz<=k+1&&v;pz++)if(settlementAt(px,pz)!==S||biomeOf(px,pz)!=='city')v=false;}
     for(let d=1;d<=3&&v;d++)if(hwCol(j-d,k)||hwCol(j+d,k)||hwRow(k-d,j)||hwRow(k+d,j))v=false;
     for(let px=j-2;px<=j+1&&v;px++)for(let pz=k-2;pz<=k+1&&v;pz++)if(isRiver(px,pz))v=false;
     cloverCache.set(key,v);

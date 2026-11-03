@@ -54,7 +54,7 @@ function scanDeck(tag,ax,k,a0,a1,HY){
     const [px0,pz0]=col(ax,m,k);let expected=false;for(let d=-1;d<=1;d++){const [px,pz]=ax==='x'?[m+d,k]:[k,m+d];if(T.cloverOf(px,pz)||T.rampSite(px,pz)||T.rampSite(px,pz-1)||T.rampSite(px-1,pz)||(ax==='x'?T.hwCol(m+d,k)||T.hwCol(m+d,k-1):T.hwRow(m+d,k)||T.hwRow(m+d,k-1)))expected=true;}
     for(let q=0;q<=13;q++){const [x,z]=col(ax,a,k*CELL-3+q);deckCols++;
       const topY=rampHere?HY-Math.floor(rampHere.d/2):HY;
-      for(let y=G+1;y<topY+8;y++){if(y>=topY-1&&y<=topY+1)continue;const b=T.get(x,y,z);if(!b||b===16||b===9)continue;
+      for(let y=G+1;y<topY+8;y++){if(y>=topY-1&&y<=topY+1)continue;const b=T.get(x,y,z);if(!b||b===16||b===9)continue;if(y<topY-1&&/^(LEAVES|LOG|GRASS|FLOWER|DIRT|STONE|MOSSSTONE|FENCE|METAL|AWN_|CRATE|PLANKS)/.test(nm(b)))continue;
         if(!expected){const key=m+':'+nm(b);const K=Math.floor(a/CELL)+','+k;let c=clips.get(K);if(!c){c={tag,ax,k,m,x,z,y,HY,n:0,types:{},plot:T.plotType(...(ax==='x'?[m,z<k*CELL?k-1:k]:[x<k*CELL?k-1:k,m]))};clips.set(K,c);}c.n++;c.types[nm(b)]=(c.types[nm(b)]||0)+1;}
       }}}
   for(const c of clips.values())out.clip.push(c);
@@ -102,6 +102,8 @@ out.routeHits=[...hitRoutes.values()].sort((a,b)=>b.n-a.n);
 console.log('route hits',out.routeHits.length,'by plot',JSON.stringify(sum(out.routeHits)));for(const v of out.routeHits.slice(0,+(process.env.AUDIT_N||12)))console.log('routeHit',JSON.stringify(v));
 // the motorways that stop at a place
 let ends=0;const endL=[];for(let rx=-RAD;rx<=RAD;rx++)for(let rz=-RAD;rz<=RAD;rz++){const P=T.placeAt(rx,rz);for(const ax of ['x','z']){if(T.AX_KIND(P,ax)!=='moto')continue;const S=T.axisSpan(P,ax);if(!S)continue;for(const s of [-1,1])if(S.kind==='moto'&&!T.sideUsed(P,ax,s)){ends++;endL.push([rx,rz,ax,s,P.type,s>0?S.m1:S.m0,S.k]);}}}
+let cross=0,clov=0;const noClov=[];for(let rx=-RAD;rx<=RAD;rx++)for(let rz=-RAD;rz<=RAD;rz++){const P=T.placeAt(rx,rz);if(T.AX_KIND(P,'x')!=='moto'||T.AX_KIND(P,'z')!=='moto')continue;const j=T.lineOf(P,'z'),k=T.lineOf(P,'x');if(T.hwCol(j,k)&&T.hwRow(k,j)){cross++;if(T.cloverAt(j,k))clov++;else noClov.push([rx,rz,P.type,j,k]);}}
+console.log('motorway crossings',cross,'with interchange',clov,JSON.stringify(noClov));
 console.log('motorway ends in a ramp',ends,JSON.stringify(endL.slice(0,10)));
 console.log('spans','spans',spans,'routes',routes,'deckCols',deckCols);
 console.log('dead ends: no route',out.deadNoRoute.length,'no ramp',out.deadNoRamp.length,'ramp foot bad',out.rampFoot.length,'breaks',out.breaks.length,'clip cells',out.clip.length,'by plot',JSON.stringify(sum(out.clip)));
