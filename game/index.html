@@ -758,7 +758,7 @@ function horizHidden(cx,cy,cz,hr,top){
     if(!o.isInstancedMesh&&horizHidden(sp.center.x,sp.center.y,sp.center.z,sp.radius,sp.center.y+sp.radius))return false;   // (over the horizon)
     const d=Math.hypot(sp.center.x-CURVE_CAM.x,sp.center.z-CURVE_CAM.z),r=sp.radius,lo=k*Math.max(0,d-r)**2,hi=k*(d+r)**2;
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v62';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v63';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -1295,10 +1295,10 @@ const biomeOf=(px,pz)=>seaPlot(px,pz)?'sea':settlementAt(px,pz)?'city':'plains';
 const N4=[[1,0],[-1,0],[0,1],[0,-1]];
 const portC=new Map();
 function portCell(px,pz){
-  const cx=Math.floor(px/5),cz=Math.floor(pz/5),k=cx*100003+cz;let v=portC.get(k);if(v!==undefined)return v;v=null;
+  const cx=Math.floor(px/8),cz=Math.floor(pz/8),k=cx*100003+cz;let v=portC.get(k);if(v!==undefined)return v;v=null;
   const h=hash2(cx*197+41,cz*233+17);
-  if(h<0.2){// (a shipping port only on the coast of a city or a big town)
-    const mx=cx*5+2.5,mz=cz*5+2.5,rx=Math.round(mx/SET_SP),rz=Math.round(mz/SET_SP);
+  if(h<0.3){// (a shipping port only on the coast of a city or a big town)
+    const mx=cx*8+4,mz=cz*8+4,rx=Math.round(mx/SET_SP),rz=Math.round(mz/SET_SP);
     for(let a=rx-1;a<=rx+1&&!v;a++)for(let b=rz-1;b<=rz+1&&!v;b++){const S=settlementLat(a,b);if((S.type==='city'||S.type==='large')&&Math.hypot(S.cx-mx,S.cz-mz)<S.R+7)v='ship';}}
   if(!v&&h>0.5&&h<0.56)v='navy';
   if(portC.size>50000)portC.clear();portC.set(k,v);return v;
@@ -2916,7 +2916,7 @@ function castleColumn(a,col,px,pz,rx,rz,lx,lz,x,z){
 // ---- the big sites out on the plains, each over a rectangle of blocks: an airport (6 x 2 blocks, its runway along x), a
 // space agency's launch site (2 x 3) and a military base (2 x 2). Each sits on its own grid of anchor blocks, and only
 // where the whole rectangle (and a ring of a couple of blocks round it) is open country clear of everything else. ----
-const BIGP=[{kind:'airport',w:6,h:2,p:0.014,salt:11},{kind:'nasa',w:2,h:3,p:0.005,salt:23},{kind:'base',w:4,h:4,p:0.02,salt:37},{kind:'quarry',w:6,h:6,p:0.035,salt:67},{kind:'mine',w:3,h:3,p:0.016,salt:53},{kind:'lumber',w:4,h:3,p:0.018,salt:79},{kind:'campsite',w:2,h:2,p:0.009,salt:83},{kind:'cult',w:1,h:1,p:0.0025,salt:97},{kind:'tower5g',w:1,h:1,p:0.004,salt:101},{kind:'prepper',w:2,h:2,p:0.006,salt:103},{kind:'militia',w:2,h:2,p:0.005,salt:107},{kind:'ruins',w:2,h:2,p:0.008,salt:109},{kind:'thieves',w:1,h:1,p:0.002,salt:113}],bigPC=new Map(),bigOK=new Map();
+const BIGP=[{kind:'airport',w:12,h:5,p:0.09,salt:11},{kind:'nasa',w:2,h:3,p:0.005,salt:23},{kind:'base',w:4,h:4,p:0.02,salt:37},{kind:'quarry',w:6,h:6,p:0.035,salt:67},{kind:'mine',w:3,h:3,p:0.016,salt:53},{kind:'lumber',w:4,h:3,p:0.018,salt:79},{kind:'campsite',w:2,h:2,p:0.009,salt:83},{kind:'nuclear',w:6,h:6,p:0.04,salt:131},{kind:'cult',w:1,h:1,p:0.0025,salt:97},{kind:'tower5g',w:1,h:1,p:0.004,salt:101},{kind:'prepper',w:2,h:2,p:0.006,salt:103},{kind:'militia',w:2,h:2,p:0.005,salt:107},{kind:'ruins',w:2,h:2,p:0.008,salt:109},{kind:'thieves',w:1,h:1,p:0.002,salt:113}],bigPC=new Map(),bigOK=new Map();
 // is kind i's site (anchored at ax,az) there? (clear of the places, the sea, the roads, the farms... and of the
 // sites of the kinds before it in the list, which win any overlap)
 function bigCell(i,ax,az){
@@ -2945,6 +2945,15 @@ function bigColumn(col,B,U,V,x,z){
   if(B.kind==='ruins'){ruinsColumn(col,B,U,V,x,z);return;}
   if(B.kind==='thieves'){thievesColumn(col,B,U,V,x,z);return;}
   const W=B.w*CELL,Hh=B.h*CELL,fence=(U===1||U===W-2||V===1||V===Hh-2)&&U>=1&&U<=W-2&&V>=1&&V<=Hh-2;
+  if(B.kind==='nuclear'){
+    // a high fence, a gatehouse road in, the switchyard of transformers feeding the pylons away across the country
+    if(fence&&!(V===1&&U>=14&&U<=17)){for(let y=G+1;y<=G+6;y++)col(y,CHAINLINK);col(G,GRAVEL);return;}
+    col(G,(U*3+V)%7===0?GRAVEL:CONCRETE);
+    if(U>=14&&U<=17&&V<=34||V>=30&&V<=33&&U>=14&&U<=W-20||U>=94&&U<=97&&V>=30&&V<=150){col(G,ASPHALT);return;}
+    if(U>=4&&U<=30&&V>=38&&V<=62){col(G,ASPHALT);if((U-4)%3===0&&(V-38)%10<4)col(G,LANE);return;}
+    if(U>=36&&U<=90&&V>=112&&V<=150){col(G,GRAVEL);if((U-36)%6<2&&(V-112)%8<3){col(G+1,METAL);col(G+2,RUST);col(G+3,PAINT_DARK);if((U+V)%2)col(G+4,METAL);}return;}
+    if((U===W-8||V===Hh-8)&&(U+V)%2===0&&hash2(x,z)<0.2){col(G+1,PAINT_YELLOW);col(G+2,PAINT_DARK);}
+    return;}
   if(B.kind==='base'){
     const road=U>=30&&U<=33&&V<=Hh-3||V>=30&&V<=33&&U>=2&&U<=W-3||V>=94&&V<=97&&U>=30&&U<=W-3||U>=94&&U<=97&&V>=30&&V<=Hh-3;
     if(fence&&!(V===1&&U>=30&&U<=33)){for(let y=G+1;y<=G+4;y++)col(y,CHAINLINK);return;}
@@ -2974,13 +2983,20 @@ function bigColumn(col,B,U,V,x,z){
     if(hash2(x*7+1,z*3+5)<0.05)col(G,DIRT);return;}
   if(B.kind==='airport'){
     if(fence&&!(V===Hh-2&&U>=78&&U<=82)){for(let y=G+1;y<=G+3;y++)col(y,CHAINLINK);return;}
+    // a second runway along the far side, joined up by taxiways at either end
+    if(V>=124&&V<=133&&U>=8&&U<=W-9){col(G,ASPHALT);if((V===128||V===129)&&U%12<6&&U>16&&U<W-17)col(G,PAINT_WHITE);if((U>=10&&U<=14||U>=W-15&&U<=W-11)&&V>=125&&V<=132&&V%2===1)col(G,PAINT_WHITE);if((V===124||V===133)&&U%8===0)col(G,NEON_Y);return;}
+    if(V>=42&&V<=123&&(U>=20&&U<=23||U>=W-24&&U<=W-21)){col(G,ASPHALT);if(U===21||U===W-22)col(G,PAINT_YELLOW);return;}
+    // the road in from the gate, the long-stay car park beside it, the cargo apron
+    if(U>=78&&U<=82&&V>=63){if(V<124||V>133){col(G,ASPHALT);return;}}
+    if(U>=36&&U<=76&&V>=66&&V<=118){col(G,ASPHALT);if((U-36)%3===0&&(V-66)%12<5)col(G,LANE);return;}
+    if(U>=160&&U<=W-30&&V>=88&&V<=98){col(G,CONCRETE);return;}
     if(V>=24&&V<=33&&U>=8&&U<=W-9){col(G,ASPHALT);   // the runway: centre dashes, threshold bars, edge lights
       if((V===28||V===29)&&U%12<6&&U>16&&U<W-17)col(G,PAINT_WHITE);
       if((U>=10&&U<=14||U>=W-15&&U<=W-11)&&V>=25&&V<=32&&V%2===1)col(G,PAINT_WHITE);
       if((V===24||V===33)&&U%8===0)col(G,NEON_Y);return;}
     if(V>=38&&V<=41&&U>=20&&U<=W-21||V>=34&&V<=37&&(U>=20&&U<=23||U>=W-24&&U<=W-21)){col(G,ASPHALT);if((V===39&&U>22&&U<W-23)||(V<38&&(U===21||U===W-22)))col(G,PAINT_YELLOW);return;}   // the taxiway
-    if(V>=42&&V<=49&&U>=56&&U<=130){col(G,CONCRETE);if(V===46&&U%14===8)col(G,PAINT_YELLOW);return;}   // the apron
-    if(V>=50&&V<=62&&U>=56&&U<=100&&!(U>=66&&U<94&&V<62)){col(G,ASPHALT);return;}   // the car park and the drop-off
+    if(V>=42&&V<=49&&U>=30&&U<=130){col(G,CONCRETE);if(V===46&&U%14===8)col(G,PAINT_YELLOW);return;}   // the apron
+    if(V>=50&&V<=62&&U>=30&&U<=100&&!(U>=66&&U<94&&V<62)&&!(U>=34&&U<62&&V<62)){col(G,ASPHALT);return;}   // the car park and the drop-off
     return;}
   // the space agency
   if(fence&&!(V===1&&U>=40&&U<=43)){for(let y=G+1;y<=G+3;y++)col(y,CHAINLINK);return;}
@@ -3529,8 +3545,10 @@ function macroOf1(px,pz){
       else if(h<0.81)M={ax:mx*6+off,az:mz*6+off2,w:4,h:3,kind:'factory'};
       else if(h<0.835)M={ax:mx*6+off,az:mz*6+off2,w:4,h:4,kind:'studio'};
       else if(h<0.86)M={ax:mx*6+off,az:mz*6+off2,w:3,h:3,kind:'power'};
+      else if(h<0.90)M={ax:mx*6,az:mz*6,w:5,h:5,kind:'zoo'};
+      else if(h<0.93)M={ax:mx*6,az:mz*6,w:6,h:6,kind:'theme'};
       if(M&&!siteFits(M.kind,M.ax+M.w/2,M.az+M.h/2))M=null;
-      {const ty=M&&setType(M.ax,M.az);if(M&&/^(school|ikea|hospital|campus|prison|factory|studio|power)$/.test(M.kind)&&ty!=='city'&&ty!=='large'&&ty!=='suburb')M=null;if(M&&(M.kind==='museum'||M.kind==='aquarium'||M.kind==='cathedral')&&ty!=='city'&&ty!=='large')M=null;if(M&&(M.kind==='stadium'||M.kind==='bigpark')&&ty!=='city')M=null;if(M&&(M.kind==='mall'||M.kind==='bigbox')&&ty!=='city'&&ty!=='large'&&ty!=='suburb')M=null;if(M&&M.kind==='hood'&&ty==='village')M=null;
+      {const ty=M&&setType(M.ax,M.az);if(M&&/^(school|ikea|hospital|campus|prison|factory|studio|power|zoo|theme)$/.test(M.kind)&&ty!=='city'&&ty!=='large'&&ty!=='suburb')M=null;if(M&&(M.kind==='museum'||M.kind==='aquarium'||M.kind==='cathedral')&&ty!=='city'&&ty!=='large')M=null;if(M&&(M.kind==='stadium'||M.kind==='bigpark')&&ty!=='city')M=null;if(M&&(M.kind==='mall'||M.kind==='bigbox')&&ty!=='city'&&ty!=='large'&&ty!=='suburb')M=null;if(M&&M.kind==='hood'&&ty==='village')M=null;
        if(!M&&h<0.62&&setType(mx*6+3,mz*6+3)==='suburb')M=hash2(mx+17,mz+19)<0.5?{ax:mx*6,az:mz*6,w:6,h:6,kind:'hood'}:{ax:mx*6+off,az:mz*6+off2,w:4,h:4,kind:'hood'};}   // suburbs: housing estates
       if(M&&(rectRail(M.ax,M.az,M.w,M.h)||rectRiver(M.ax,M.az,M.w,M.h)||rectPlains(M.ax,M.az,M.w,M.h)||rectClover(M.ax,M.az,M.w,M.h)||rectRamp(M.ax,M.az,M.w,M.h)||rectCuts(M.ax,M.az,M.w,M.h)||M.kind!=='hood'&&rectHighway(M.ax,M.az,M.w,M.h)))M=null;
     }
@@ -3558,7 +3576,7 @@ function superOf(px,pz){
     if(gk){const ty=setType(gx*2,gz*2),kn=gk.slice(0,-1),OK={city:null,large:['hospital','garage','police','market','drug','sitdown','school','factory','museum','aquarium','casino','cathedral','ikea','cinema','arena','campus','prison','water','power','zoo','nuclear','theme'],small:['hospital','market','drug','sitdown','school','factory','cinema','water'],suburb:['police','market','drug','sitdown','school','ikea','cinema','water','campus','theme'],village:[]}[ty];if(!ty||OK&&!OK.includes(kn)&&!(ty==='suburb'&&SITE_EDGE.has(kn))||ty==='small'&&gk==='hospital4')gk=null;}
     if(gk&&!siteFits(gk.slice(0,-1),gx*2+1,gz*2+1))gk=null;   // (what a place that size would have)
     if(gk&&/^(hospital|factory)/.test(gk)&&setType(gx*2,gz*2)!=='small')gk=null;   // (a small town's are the modest kind)
-    if(gk&&/^(ikea|museum|aquarium|cathedral|campus|prison|studio|power)/.test(gk))gk=null;   // (these come from the big plan now, at a proper size)
+    if(gk&&/^(ikea|museum|aquarium|cathedral|campus|prison|studio|power|zoo|theme|nuclear)/.test(gk))gk=null;   // (these come from the big plan now, at a proper size)
     if(gk&&gk.startsWith('school')&&setType(gx*2,gz*2)!=='small')gk=null;   // (only a small town's is this cramped: bigger places get the 3x3 kind)
     if(gk){const kn=gk.slice(0,-1);if((groupKind(gx-1,gz)||'').startsWith(kn)||(groupKind(gx,gz-1)||'').startsWith(kn))gk=null;}
     if(gk){
@@ -3718,7 +3736,7 @@ function plotBounds(px,pz){return{x0:jz(px,pz)?ROADW:PL0,x1:jz(px+1,pz)?CELL:PL1
 // there it's only 'not in the very middle'.)
 const SITE_F={mega:[0,.55],stocks:[0,.55],news:[0,.6],museum:[0,.8],theater:[0,.62],casino:[0,.72],cathedral:[0,.9],hospital:[.15,.8],arena:[.15,.85],stadium:[.2,.9],mall:[.3,.92],
   school:[.4,9],market:[.4,9],cinema:[.4,9],bigbox:[.5,9],ikea:[.42,9],armory:[.5,9],datacenter:[.62,9],dealer:[.62,9],electric:[.62,9],jail:[.6,9],lab:[.6,9],
-  factory:[.5,9],power:[.5,9],water:[.68,9],zoo:[.68,9],theme:[.68,9],studio:[.45,9],campus:[.25,9],prison:[.5,9],nuclear:[.8,9]};
+  factory:[.5,9],power:[.5,9],water:[.68,9],zoo:[.35,9],theme:[.35,9],studio:[.45,9],campus:[.25,9],prison:[.5,9],nuclear:[.8,9]};
 const SITE_EDGE=new Set(['factory','power','water','zoo','theme','studio','prison','nuclear','campus']);
 function siteFits(kind,cx,cz){
   const R=SITE_F[kind];if(!R)return true;const S=settlementAt(Math.floor(cx),Math.floor(cz));if(!S)return true;
@@ -3962,6 +3980,9 @@ function plotInfo(px,pz){
         const E=(x0,z0,x1,z1,g,sp,n)=>({x0,z0,x1,z1,g,sp,n});
         p.encl=[E(PL0+2,PL0+12,mx-3,PL0+27,'sav','giraffe',3),E(mx+3,PL0+12,X1-2,PL0+27,'dirt','elephant',2),E(PL0+2,PL0+31,mx-3,Z1-2,'rock','lion',3),
           E(mx+3,PL0+31,mx+12,Z1-2,'pool','penguin',6),E(mx+14,PL0+31,X1-2,Z1-2,'trees','monkey',4),E(PL0+2,PL0+12,mx-3,PL0+27,'sav','zebra',3)];
+        if(S.w>=5)p.encl=[E(PL0+2,PL0+12,mx-3,PL0+60,'sav','giraffe',5),E(PL0+2,PL0+12,mx-3,PL0+60,'sav','zebra',6),E(mx+3,PL0+12,X1-2,PL0+60,'dirt','elephant',4),
+          E(PL0+2,PL0+65,mx-3,PL0+105,'rock','lion',5),E(mx+3,PL0+65,mx+36,PL0+105,'pool','penguin',10),E(mx+41,PL0+65,X1-2,PL0+105,'trees','monkey',8),
+          E(PL0+2,PL0+110,mx-3,Z1-2,'trees','monkey',6),E(mx+3,PL0+110,X1-2,Z1-2,'sav','giraffe',4)];
       } else if(S.kind==='studio'){
         // a film studio: a grand arched gate with the studio's name, the sound stages (huge plain sheds, numbered), a
         // backlot of false-fronted street, the trailers, and the water tank with its painted sky
@@ -3984,9 +4005,14 @@ function plotInfo(px,pz){
         // a theme park: the entrance arch, a roller coaster looping round on its trestles, the Ferris wheel, the carousel,
         // food stalls, bright paving
         const SW=W+PW,SD=D+PW,X1=PL0+SW-1;
-        const g=base({x0:PL0+18,x1:X1-18,z0:PL0+1,z1:PL0+3,top:G+12,style:'gate',wall:PAINT_RED,win:PAINT_YELLOW,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2});g.noIndoor=true;g.doorSpec=null;g.detailTop=g.top;brandOn(g,'theme',r(140));
-        g.ride={coaster:{cu:PL0+16,cv:PL0+31,a:12,b:15},wheel:{cu:PL0+39,cv:PL0+14,R:10,hub:G+13},carousel:{cu:PL0+39,cv:PL0+37}};p.b.push(g);p.theme=g.ride;
+        const big6=S.w>=6,gm=(PL0+X1)>>1;
+        const g=base({x0:big6?gm-18:PL0+18,x1:big6?gm+18:X1-18,z0:PL0+1,z1:PL0+3,top:G+12,style:'gate',wall:PAINT_RED,win:PAINT_YELLOW,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2});g.noIndoor=true;g.doorSpec=null;g.detailTop=g.top;brandOn(g,'theme',r(140));
+        g.ride=big6?{coaster:{cu:PL0+52,cv:PL0+100,a:42,b:62},wheel:{cu:PL0+132,cv:PL0+52,R:20,hub:G+25},carousel:{cu:PL0+132,cv:PL0+128},gm}:{coaster:{cu:PL0+16,cv:PL0+31,a:12,b:15},wheel:{cu:PL0+39,cv:PL0+14,R:10,hub:G+13},carousel:{cu:PL0+39,cv:PL0+37}};p.b.push(g);p.theme=g.ride;
         p.stalls=[{x0:PL0+28,z0:PL0+20,face:1,aw:AWN_R,crop:0},{x0:PL0+32,z0:PL0+20,face:1,aw:AWN_G,crop:2},{x0:PL0+28,z0:PL0+26,face:-1,aw:AWN_R,crop:4}];
+        if(big6){p.stalls=[];for(let q=0;q<16;q++){const up=q%2;p.stalls.push({x0:PL0+60+q*6,z0:up?PL0+24:PL0+34,face:up?1:-1,aw:q%3?AWN_R:AWN_G,crop:q%5});}
+          // a haunted house, the food hall and a drop tower to fill out the far side of the walks
+          const lm=(x0,x1,z0,z1,top,wall,win)=>{const k=base({x0,x1,z0,z1,top,wall,win,kind:'landmark',ground:'landmark',floor:PLANKS,door:2});k.noIndoor=true;k.doorSpec=null;k.detailTop=k.top;p.b.push(k);};
+          lm(PL0+100,PL0+122,PL0+96,PL0+116,G+14,PAINT_DARK,PAINT_RED);lm(PL0+150,PL0+176,PL0+96,PL0+114,G+9,PAINT_RED,WIN_WARM);lm(PL0+170,PL0+176,PL0+50,PL0+56,G+64,METAL,RUST);}
       } else if(S.kind==='cinema'){
         // a multiplex: a vast tall box over a whole site -- a glass front under the marquee and a big sign high up on
         // the facade; inside, the lobby (ticket desks, the snack bar, an arcade corner), a corridor, and three huge
@@ -4148,12 +4174,17 @@ function plotInfo(px,pz){
     // its rows of desks and screens, the big board, a ticker running across the back wall
     const b=base({x0:PL0+1,x1:PL1-1,z0:PL0+6,z1:PL1-1,gf:9,top:G+9+2*FH,wall:MARBLE,win:WIN_WARM,band:MARBLE,kind:'office',ground:'stocks',floor:MARBLE,door:2});
     b.doorSpec={w:1,h:4,k:'wood'};b.detailTop=b.top-1;brandOn(b,'stocks',r(150));b.ticker=true;p.b.push(b);p.b.push(portico(b,4,G+8));
-  } else if(type==='base'||type==='airport'||type==='nasa'||type==='mine'||type==='quarry'||type==='lumber'||type==='campsite'||type==='cult'||type==='tower5g'||type==='prepper'||type==='militia'||type==='ruins'||type==='thieves'){
+  } else if(type==='nuclear'||type==='base'||type==='airport'||type==='nasa'||type==='mine'||type==='quarry'||type==='lumber'||type==='campsite'||type==='cult'||type==='tower5g'||type==='prepper'||type==='militia'||type==='ruins'||type==='thieves'){
     // the buildings of a big plains site that fall on this block (each laid out in the site's own coordinates, and
     // only the ones inside this block built here)
     const B=bigPlainsAt(px,pz),U0=(px-B.ax)*CELL,V0=(pz-B.az)*CELL;
     const add=(o,brand)=>{if(o.x0<U0||o.x1>U0+CELL||o.z0<V0||o.z1>V0+CELL)return;const b=base(Object.assign({},o,{x0:o.x0-U0,x1:o.x1-U0,z0:o.z0-V0,z1:o.z1-V0}));b.detailTop=b.top-1;if(o.noIndoor){b.noIndoor=true;b.detailTop=b.top;}if(brand)brandOn(b,brand,r(150));p.b.push(b);};
-    if(type==='base'){
+    if(type==='nuclear'){
+      for(const ux of [36,100]){add({x0:ux,x1:ux+24,z0:36,z1:60,top:G+36,style:'contain',wall:PAINT_WHITE,win:PAINT_WHITE,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
+        add({x0:ux,x1:ux+24,z0:66,z1:92,top:G+14,style:'hangar',wall:CONCRETE,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});}
+      add({x0:4,x1:30,z0:4,z1:22,top:G+3*FH,wall:CONCRETE,win:WIN_BLUE,band:PAINT_YELLOW,kind:'office',ground:'office',floor:FLOORT,door:2},'nuclear');
+      for(const zz of [34,100])add({x0:132,x1:160,z0:zz,z1:zz+28,top:G+72,style:'cooling',wall:CONCRETE,win:CONCRETE,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true,steam:true});}
+    else if(type==='base'){
       for(let i=0;i<3;i++)add({x0:36,x1:60,z0:4+i*9,z1:10+i*9,top:G+2*FH,wall:PAINT_GREEN,win:WIN_WARM,kind:'barracks',ground:'barracks',floor:CONCRETE,door:3,doorSpec:{w:0,h:3,k:'wood'}},i===0?'base':null);
       add({x0:2,x1:0,z0:36,z1:60,top:G+12,style:'hangar',wall:METAL,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
       add({x0:58,x1:62,z0:58,z1:62,top:G+16,style:'gtower',wall:CONCRETE,win:GLASS,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
@@ -4185,7 +4216,10 @@ function plotInfo(px,pz){
       add({x0:66,x1:94,z0:50,z1:62,gf:7,top:G+7+FH,wall:PAINT_WHITE,win:GLASS,band:METAL,kind:'office',ground:'terminal',floor:FLOORT,door:3,doorSpec:{w:1,h:4,k:'glass'},glassAll:true},'airport');
       add({x0:100,x1:105,z0:54,z1:59,top:G+30,style:'ctrl',wall:CONCRETE,win:GLASS,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
       add({x0:132,x1:150,z0:44,z1:62,top:G+12,style:'hangar',wall:METAL,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
-      add({x0:164,x1:182,z0:44,z1:62,top:G+12,style:'hangar',wall:PAINT_WHITE,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});}
+      add({x0:164,x1:182,z0:44,z1:62,top:G+12,style:'hangar',wall:PAINT_WHITE,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
+      add({x0:34,x1:62,z0:50,z1:62,gf:7,top:G+7+FH,wall:PAINT_WHITE,win:GLASS,band:METAL,kind:'office',ground:'terminal',floor:FLOORT,door:3,doorSpec:{w:1,h:4,k:'glass'},glassAll:true});
+      for(const ux of [164,196,228,260,292])add({x0:ux,x1:ux+24,z0:68,z1:88,top:G+12,style:'hangar',wall:[METAL,CONCRETE,RUST][(ux>>2)%3],win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
+      for(const uz of [100,108])for(const ux of [130,140])add({x0:ux,x1:ux+7,z0:uz,z1:uz+7,top:G+7,style:'tank',wall:PAINT_WHITE,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});}
     else{
       add({x0:3,x1:30,z0:4,z1:30,gf:50,top:G+56,wall:PAINT_WHITE,win:PAINT_WHITE,band:PAINT_BLUE,kind:'landmark',ground:'landmark',floor:CONCRETE,door:3,doorSpec:null,noIndoor:true,blank:true,vab:true},'nasa');
       add({x0:36,x1:60,z0:4,z1:20,top:G+2*FH,wall:CONCRETE,win:WIN_BLUE,kind:'office',ground:'mission',floor:FLOORT,door:2,doorSpec:{w:1,h:4,k:'glass'}});}
@@ -5692,7 +5726,13 @@ const B5_GROUND={
     if(u===Q.x0||u===Q.x1-1||v===Q.z0||v===Q.z1-1){if(v===Q.z0&&Math.abs(u-PL0-11)<=1)return;for(let y=G+1;y<=G+4;y++)col(y,CHAINLINK);col(G+5,CHAINLINK);return;}
     if(u>=PL0+33&&u<=PL0+47&&v>=PL0+38&&v<=PL0+48&&(u-PL0)%3===0&&(v-PL0)%4===1){col(G+1,METAL);col(G+2,RUST);col(G+3,PAINT_DARK);}},
   theme(col,P,u,v,x,z){const R2=P.theme;
-    col(G,[SIDEWALK,PAINT_YELLOW,SIDEWALK,PAINT_RED,SIDEWALK,PAINT_BLUE][((u>>1)+(v>>1))%6]);
+    // (the small park is all bright paving. The big one would be a sea of it, so there it's bright walks between lawns.)
+    {const fun=[SIDEWALK,PAINT_YELLOW,SIDEWALK,PAINT_RED,SIDEWALK,PAINT_BLUE][((u>>1)+(v>>1))%6];
+     if(R2.gm===undefined)col(G,fun);
+     else{const C=R2.coaster,W2=R2.wheel,C2=R2.carousel,e=Math.hypot((u+0.5-C.cu)/C.a,(v+0.5-C.cv)/C.b);
+      const walk=Math.abs(u-R2.gm)<=5&&v<PL0+44||v>=PL0+20&&v<=PL0+42&&u>=PL0+8&&u<=PL0+180||Math.abs(u-W2.cu)<=4&&v>=PL0+40&&v<=C2.cv||v>=PL0+86&&v<=PL0+92&&u>=PL0+96&&u<=PL0+180||e>=1.08&&e<=1.2||
+        Math.hypot(u-W2.cu,v-W2.cv)<27||Math.hypot(u-C2.cu,v-C2.cv)<17;
+      if(walk)col(G,fun);else{col(G,GRASS);col(G-1,DIRT);const h=hash2(x*7+1,z*5+3);if(h<0.012)col(G+1,FLOWER);else if(h<0.016){col(G+1,LOG);col(G+2,LOG);col(G+3,LEAVES);}}}}
     // the coaster: a looping track on trestles, rising and dipping round its circuit
     {const C=R2.coaster,du=(u+0.5-C.cu)/C.a,dv=(v+0.5-C.cv)/C.b,e=Math.hypot(du,dv),th=Math.atan2(dv,du);
      if(e<0.86){col(G,GRASS);col(G-1,DIRT);}
@@ -10040,7 +10080,7 @@ function ruinGrid(c0,c1,r0,r1,ok){
     if(!inG(i-1,j))edges.push([a,b,a,d]);if(!inG(i+1,j))edges.push([c,b,c,d]);if(!inG(i,j-1))edges.push([a,b,c,b]);if(!inG(i,j+1))edges.push([a,d,c,d]);}
   return{cells,edges};
 }
-const MAPC={tower5g:'#c8c8d0',prepper:'#7a6a3a',militia:'#3a4a2a',ruins:'#8a8a78',thieves:'#2a2420',wind:'#f0f4f4',campsite:'#6a9a4a',cult:'#5a1a24',mine:'#6a5a48',quarry:'#a8a090',lumber:'#4a6a2a',base:'#5a6a3a',airport:'#8a9aa8',nasa:'#e8e8f0',theme:'#f05a8a',nuclear:'#d8d03a',arena:'#e07a2a',campus:'#a03a4a',prison:'#5a5a5a',jail:'#6a6a6a',water:'#4a9ad8',power:'#8a8a3a',zoo:'#5aa83a',studio:'#d0a04a',lab:'#3ad04a',castle:'#9a9a8a',ikea:'#0058a3',cathedral:'#c8b890',museum:'#d8c8a0',aquarium:'#3aa0d8',casino:'#e04ab0',school:'#c87a4a',factory:'#7a6a5a',datacenter:'#4a5a6a',electric:'#d8c83a',dump:'#7a6a50',derelict:'#6a6258',mansion:'#d8b0a0',trailers:'#a8a078',camp:'#8a7a5a',farmers:'#d0904a',nursery:'#5aa04a',dealer:'#4a8ad0',armory:'#8a4a3a',theater:'#a0283a',stocks:'#c8c0a0',court:'#3e766c',cemetery:'#5c6e58',church:'#a89880',library:'#8a6a4a',cinema:'#b03a4a',radio:'#d05a5a',news:'#3a5a9a',bank:'#c8a84a',disco:'#b04ac8',club:'#4aa04a',shops:'#c0607a',wtower:'#b8c4cc',bell:'#9a8a70',market:'#2f9a8a',drug:'#d0506a',food:'#c86a3a',fastfood:'#e0a030',sitdown:'#a0522d',fire:'#b8302a',build:'#a89060',ramp:'#5a6a4a',plains:'#6c9448',field:'#9a8a4a',orchard:'#4c7a32',truckstop:'#e0a52e',farm:'#b0503a',road:'#3a3f45',walk:'#565b5f',tower:'#4a5a70',mid:'#7a6450',park:'#3f8a3a',plaza:'#9a9a90',police:'#3456a8',grocery:'#2f9a8a',homes:'#c8a870',
+const MAPC={nuclear:'#c8c850',tower5g:'#c8c8d0',prepper:'#7a6a3a',militia:'#3a4a2a',ruins:'#8a8a78',thieves:'#2a2420',wind:'#f0f4f4',campsite:'#6a9a4a',cult:'#5a1a24',mine:'#6a5a48',quarry:'#a8a090',lumber:'#4a6a2a',base:'#5a6a3a',airport:'#8a9aa8',nasa:'#e8e8f0',theme:'#f05a8a',nuclear:'#d8d03a',arena:'#e07a2a',campus:'#a03a4a',prison:'#5a5a5a',jail:'#6a6a6a',water:'#4a9ad8',power:'#8a8a3a',zoo:'#5aa83a',studio:'#d0a04a',lab:'#3ad04a',castle:'#9a9a8a',ikea:'#0058a3',cathedral:'#c8b890',museum:'#d8c8a0',aquarium:'#3aa0d8',casino:'#e04ab0',school:'#c87a4a',factory:'#7a6a5a',datacenter:'#4a5a6a',electric:'#d8c83a',dump:'#7a6a50',derelict:'#6a6258',mansion:'#d8b0a0',trailers:'#a8a078',camp:'#8a7a5a',farmers:'#d0904a',nursery:'#5aa04a',dealer:'#4a8ad0',armory:'#8a4a3a',theater:'#a0283a',stocks:'#c8c0a0',court:'#3e766c',cemetery:'#5c6e58',church:'#a89880',library:'#8a6a4a',cinema:'#b03a4a',radio:'#d05a5a',news:'#3a5a9a',bank:'#c8a84a',disco:'#b04ac8',club:'#4aa04a',shops:'#c0607a',wtower:'#b8c4cc',bell:'#9a8a70',market:'#2f9a8a',drug:'#d0506a',food:'#c86a3a',fastfood:'#e0a030',sitdown:'#a0522d',fire:'#b8302a',build:'#a89060',ramp:'#5a6a4a',plains:'#6c9448',field:'#9a8a4a',orchard:'#4c7a32',truckstop:'#e0a52e',farm:'#b0503a',road:'#3a3f45',walk:'#565b5f',tower:'#4a5a70',mid:'#7a6450',park:'#3f8a3a',plaza:'#9a9a90',police:'#3456a8',grocery:'#2f9a8a',homes:'#c8a870',
   gas:'#c8433a',garage:'#6c7076',hospital:'#e8eaec',mall:'#9a52b8',stadium:'#56b04a',capitol:'#e8c35a',ghw:'#b07a3a',bigbox:'#2f7fd0',mega:'#5e7f9a',bigpark:'#3a9a3a',river:'#2f6fc8',highway:'#e8963a',empty:'#4a4f53',metro:'#3a6ad0',rail:'#3a3036',sea:'#2a5f9e',rig:'#c8c040',beach:'#d8c890',harbor:'#9a9488',yard:'#8f949a',navy:'#5c6672',lighthouse:'#e04040'};
 const MAP_LEG=[['base','Military bases'],['airport','Airports'],['mine','Mines'],['quarry','Quarries'],['lumber','Lumber camps'],['campsite','Campsites'],['cult','Cult altars'],['tower5g','5G towers'],['prepper','Prepper compounds'],['militia','Militia compounds'],['ruins','Ruins'],['thieves',"Thieves' hideouts"],['wind','Wind farms'],['nasa','Launch sites'],['theme','Theme parks'],['nuclear','Nuclear plants'],['arena','Arenas'],['campus','Universities'],['prison','Prisons'],['jail','Jails'],['water','Water works'],['power','Power stations'],['zoo','Zoos'],['studio','Film studios'],['lab','Goblin labs'],['ikea','Furniture superstores'],['cathedral','Cathedrals'],['museum','Museums'],['aquarium','Aquariums'],['casino','Casinos'],['school','Schools'],['factory','Factories'],['datacenter','Data centers'],['electric','Electric company'],['dump','Garbage dumps'],['derelict','Abandoned buildings'],['mansion','Mansions'],['trailers','Trailer parks'],['camp','Encampments'],['farmers',"Farmer's markets"],['nursery','Tree nurseries'],['dealer','Car dealers'],['armory','Armories'],['theater','Theatres'],['stocks','Stock exchange'],['church','Churches'],['cemetery','Cemeteries'],['library','Libraries'],['cinema','Cinemas'],['bank','Banks'],['disco','Discos'],['club','Night clubs'],['news','TV news'],['radio','Radio stations'],['court','Basketball courts'],['shops','Little shops & bars'],['wtower','Water towers'],['bell','Bell towers'],['ramp','Interchanges'],['food','Restaurants'],['fastfood','Fast food'],['sitdown','Sit-down restaurants'],['fire','Fire stations'],['build','Building sites'],['plains','Plains'],['farm','Farms'],['truckstop','Truck stops'],['tower','Towers'],['mid','Mid-rises'],['homes','Homes'],['park','Parks'],['plaza','Plazas'],['market','Supermarkets'],['drug','Drugstores'],['gas','Gas stations'],['police','Police'],
   ['hospital','Hospitals'],['garage','Car parks'],['mall','Malls'],['bigbox','Superstores'],['mega','Mega-buildings'],['stadium','Stadiums'],['capitol','The capitol'],['river','Rivers'],['rail','Railways'],['sea','Ocean'],['beach','Beaches'],['yard','Shipping ports'],['navy','Naval bases'],['lighthouse','Lighthouses'],['rig','Oil rigs'],['ghw','Country highways'],['ruin','Destroyed'],['highway','Highways']];
@@ -10092,7 +10132,7 @@ function renderMap(){
       if(t==='dump')rect(X0+1,Z0+1,X0+CELL-1,Z0+CELL-1,MAPC.dump,'dump');
       if(turbineAt(px,pz))rect(X0+13,Z0+13,X0+19,Z0+19,MAPC.wind,'wind');
       if(t==='castle')rect(X0+5,Z0+5,X0+CELL-5,Z0+CELL-5,MAPC.castle,'castle');
-      if(t==='base'||t==='airport'||t==='nasa'||t==='mine'||t==='quarry'||t==='lumber'||t==='campsite'||t==='cult'||t==='tower5g'||t==='prepper'||t==='militia'||t==='ruins'||t==='thieves'){rect(X0,Z0,X0+CELL,Z0+CELL,MAPC[t],t);const P=plotInfo(px,pz);for(const b of P.b)rect(X0+b.x0,Z0+b.z0,X0+b.x1,Z0+b.z1,'#3a3f45',t);}
+      if(t==='nuclear'||t==='base'||t==='airport'||t==='nasa'||t==='mine'||t==='quarry'||t==='lumber'||t==='campsite'||t==='cult'||t==='tower5g'||t==='prepper'||t==='militia'||t==='ruins'||t==='thieves'){rect(X0,Z0,X0+CELL,Z0+CELL,MAPC[t],t);const P=plotInfo(px,pz);for(const b of P.b)rect(X0+b.x0,Z0+b.z0,X0+b.x1,Z0+b.z1,'#3a3f45',t);}
       {const FD=t==='plains'&&farmlandOf(px,pz);if(FD)rect(X0,Z0,X0+CELL,Z0+CELL,FD.kind==='orchard'?MAPC.orchard:MAPC.field,'farm');}
       if(t==='farm'){const P=plotInfo(px,pz);if(P.north)rect(X0+PC-1,Z0+P.field.z1,X0+PC+1,Z0+CELL,'#a89a78','farm');else rect(X0+PC-1,Z0,X0+PC+1,Z0+P.field.z0,'#a89a78','farm');rect(X0+P.field.x0,Z0+P.field.z0,X0+P.field.x1,Z0+P.field.z1,MAPC.field,'farm');for(const b of P.b)rect(X0+b.x0,Z0+b.z0,X0+b.x1,Z0+b.z1,MAPC.farm,'farm');}
       continue;
@@ -15178,7 +15218,7 @@ function whereLabel(){
   if(tsAt(Math.floor(p.pos.x),Math.floor(p.pos.z)))return'\u26FD Truck stop';
   if(dumpAt(px,pz)!==null)return'\u{1F5D1}\uFE0F Garbage dump';
   if(castleAt(px,pz))return'\u{1F3F0} Castle';
-  {const B=bigPlainsAt(px,pz);if(B)return B.kind==='airport'?'\u2708\uFE0F Airport':B.kind==='nasa'?'\u{1F680} Launch site':B.kind==='mine'?'\u26CF\uFE0F Mine':B.kind==='quarry'?'\u{1FAA8} Quarry':B.kind==='lumber'?'\u{1FAB5} Lumber camp':B.kind==='campsite'?'\u{1F3D5}\uFE0F Campsite':B.kind==='cult'?'\u{1F56F}\uFE0F Cult altar':B.kind==='tower5g'?'\u{1F4E1} 5G tower':B.kind==='prepper'?'\u{1F6E1}\uFE0F Prepper compound':B.kind==='militia'?'\u{1F3AF} Militia compound':B.kind==='ruins'?'\u{1F3DB}\uFE0F Ruins':B.kind==='thieves'?"\u{1F977} Thieves' hideout":'\u{1FA96} Military base';}
+  {const B=bigPlainsAt(px,pz);if(B)return B.kind==='nuclear'?'\u2622\uFE0F Nuclear plant':B.kind==='airport'?'\u2708\uFE0F Airport':B.kind==='nasa'?'\u{1F680} Launch site':B.kind==='mine'?'\u26CF\uFE0F Mine':B.kind==='quarry'?'\u{1FAA8} Quarry':B.kind==='lumber'?'\u{1FAB5} Lumber camp':B.kind==='campsite'?'\u{1F3D5}\uFE0F Campsite':B.kind==='cult'?'\u{1F56F}\uFE0F Cult altar':B.kind==='tower5g'?'\u{1F4E1} 5G tower':B.kind==='prepper'?'\u{1F6E1}\uFE0F Prepper compound':B.kind==='militia'?'\u{1F3AF} Militia compound':B.kind==='ruins'?'\u{1F3DB}\uFE0F Ruins':B.kind==='thieves'?"\u{1F977} Thieves' hideout":'\u{1FA96} Military base';}
   if(caveMouth(px,pz))return'\u{1F987} Cave';
   if(turbineAt(px,pz))return'\u{1F32C}\uFE0F Wind farm';
   return farmK(px,pz)!==null||farmlandOf(px,pz)?'\u{1F69C} Farmland':'\u{1F33E} Plains';

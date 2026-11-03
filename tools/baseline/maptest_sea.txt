@@ -1,3 +1,3 @@
 renderMap ok, calls 1985
-frames with minimap ok, ctx calls 12760
+frames with minimap ok, ctx calls 12600
 errors 0 []

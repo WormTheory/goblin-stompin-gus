@@ -11,6 +11,8 @@ const b=await chromium.launch({args:['--use-gl=angle','--use-angle=swiftshader',
 const p=await b.newPage({viewport:{width:1100,height:620}});
 const errs=[];p.on('pageerror',e=>errs.push(e.message));
 await p.addInitScript(([k,s])=>{localStorage.setItem(k,JSON.stringify({seed:s}));},[SAVE_KEY,seed]);
+// (TOUR_VIEW: how far to see, in blocks. The fog's set by it, so big sites can be seen whole.)
+if(process.env.TOUR_VIEW)await p.addInitScript(v=>{localStorage.setItem('goblin-stompin-gus-view',v);localStorage.setItem('goblin-stompin-gus-detail',String(Math.min(+v,480)));},process.env.TOUR_VIEW);
 await p.goto('file://'+process.cwd()+'/t3.html');await p.waitForTimeout(2500);
 await p.evaluate(()=>document.getElementById('play').click());await p.waitForTimeout(1500);
 // (no HUD and no Gus in the picture: this is for looking at the world. Time stands still so nothing wrecks the view.)
