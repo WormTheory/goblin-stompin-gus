@@ -47,11 +47,13 @@ Map tools (`tools/map/`):
 - `sec.js` / `secz.js` render cross-sections.
 - `elev.py` plots elevation.
 
-### Real rendering (optional, local only)
-The stub can't show the real picture. To check visuals:
-1. Run `npm i -D playwright three@0.128.0`.
-2. Point the page's three.js tag at `node_modules/three/build/three.min.js`.
-3. Screenshot with Chromium launched with `--use-gl=swiftshader` (or a real GPU).
+### Real rendering (local only)
+The stub can't show the real picture. To check visuals (`npm install` and `npx playwright install chromium` first):
+```bash
+python tools/build_3d.py game/index.html tools/ui/t3.html   # local three.js, internals on window.__G
+cd tools/ui && node real3d.js [seed] [outDir]               # menu, spawn, above spawn, motorway, country road
+```
+It renders in software, so the picture is right but the frame rate says nothing about a real graphics card.
 
 ## Map of the code (search these names)
 - **World and terrain:**
@@ -101,6 +103,7 @@ The stub can't show the real picture. To check visuals:
   - crt: crash landing
   - spk*: ground spike
   - lowfps: charge input at low frame rates
+  - negdt: a stale first frame timestamp mustn't trigger a stomp
   - loadt2: load-in doesn't break blocks
   - wv / lodt: wind farm LOD
   - stt: structures list

@@ -4,3 +4,5 @@ tools/map/g.js
 tools/ui/ui.html
 *.png
 *.ppm
+tools/ui/t3.html
+tools/ui/shots/
