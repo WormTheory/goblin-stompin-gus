@@ -758,7 +758,7 @@ function horizHidden(cx,cy,cz,hr,top){
     if(!o.isInstancedMesh&&horizHidden(sp.center.x,sp.center.y,sp.center.z,sp.radius,sp.center.y+sp.radius))return false;   // (over the horizon)
     const d=Math.hypot(sp.center.x-CURVE_CAM.x,sp.center.z-CURVE_CAM.z),r=sp.radius,lo=k*Math.max(0,d-r)**2,hi=k*(d+r)**2;
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v44';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v45';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -4253,12 +4253,12 @@ function lotMark(L,x,z){if(L.big)return bigLotMark(L,x,z);
 }
 function lotBays(L){
   if(L.big){const out=[],len=L.big==='z'?L.z1-L.z0:L.x1-L.x0,wid=L.big==='z'?L.x1-L.x0:L.z1-L.z0;
-    for(let m=0;18*m+17<=len;m++)for(const [q,h] of [[2.5,0],[15.5,Math.PI]])for(let k=0;3*k+3<=wid;k++){
-      const a=3*k+2.5,s=18*m+q;
+    for(let m=0;18*m+17<=len;m++)for(const [q,h] of [[2.5,0],[15.5,Math.PI]])for(let k=0;3*k+4<=wid;k++){
+      const a=3*k+2,s=18*m+q;
       out.push(L.big==='z'?{x:L.x0+a,z:L.z0+s,h}:{x:L.x0+s,z:L.z0+a,h:h+Math.PI/2});}
     return out;}
   const out=[],alongX=L.face===0||L.face===2,len=alongX?L.x1-L.x0:L.z1-L.z0;
-  for(let k=0;3*k+3<=len;k++){const a=(alongX?L.x0:L.z0)+3*k+2.5;   // midway between two divider lines
+  for(let k=0;3*k+4<=len;k++){const a=(alongX?L.x0:L.z0)+3*k+2;   // midway between two divider lines (block k*3 and block k*3+3, so a closing line has to fit too)
     if(L.face===0)out.push({x:a,z:L.z1-2,h:0});else if(L.face===2)out.push({x:a,z:L.z0+2,h:Math.PI});
     else if(L.face===1)out.push({x:L.x1-2,z:a,h:Math.PI/2});else out.push({x:L.x0+2,z:a,h:-Math.PI/2});}
   return out;
@@ -6148,14 +6148,25 @@ function jSquare(ix,iz){let n=0;for(let d=0;d<4;d++)if(segOpen(ix,iz,d)&&++n>=2)
 // how many streets meet at an intersection
 const jDegC=new Map();
 function jDeg(ix,iz){const k=ix*100003+iz;let v=jDegC.get(k);if(v===undefined){v=0;for(let d=0;d<4;d++)if(segOpen(ix,iz,d))v++;jDegC.set(k,v);}return v;}
+// does the road stop for this junction (lights or a stop sign)?
+const stopLine=(ix,iz)=>{const k=ctlAt(ix,iz).k;return k==='light'||k==='stop';};
+// where a street just carries on or turns a corner there's no junction to paint, so its centre line runs on through the
+// square instead of leaving a gap: out from the middle along each of the two arms
+function bendLine(ix,iz,rx,rz){
+  const zArm=rx===RC-1||rx===RC,xArm=rz===RC-1||rz===RC;
+  if(zArm&&(segOpen(ix,iz,0)&&rz>=RC-1||segOpen(ix,iz,2)&&rz<=RC))return rx===RC?LINE_R:LINE;
+  if(xArm&&(segOpen(ix,iz,1)&&rx>=RC-1||segOpen(ix,iz,3)&&rx<=RC))return rz===RC?LINEX_R:LINEX;
+  return ASPHALT;
+}
 // a link road out across open country (a stray bit of town joined up to the rest): plain asphalt with its centre line,
 // levelled into the ground. Returns false if there isn't one in this column
 function linkRoad(col,px,pz,rx,rz,x,z){
   const roadX=rx<ROADW,roadZ=rz<ROADW;
   if(!stripOpen(px,pz,roadX,roadZ)||(roadX&&!roadZ?gCol(px,z):roadZ&&!roadX?gRow(pz,x):false))return false;
   let top=ASPHALT;
-  if(roadX&&!roadZ&&(rx===RC-1||rx===RC)&&mod(z,4)<2)top=rx===RC?LINE_R:LINE;
-  else if(roadZ&&!roadX&&(rz===RC-1||rz===RC)&&mod(x,4)<2)top=rz===RC?LINEX_R:LINEX;
+  if(roadX&&!roadZ&&(rx===RC-1||rx===RC))top=rx===RC?LINE_R:LINE;
+  else if(roadZ&&!roadX&&(rz===RC-1||rz===RC))top=rz===RC?LINEX_R:LINEX;
+  else if(roadX&&roadZ&&jDeg(px,pz)===2)top=bendLine(px,pz,rx,rz);
   col(G-1,DIRT);col(G,top);for(let y=G+1;y<G+10;y++)col(y,AIR);
   return true;
 }
@@ -6210,8 +6221,13 @@ function genChunk(cx,cz){
       const cwX=roadZ&&!roadX&&(rx===ROADW||rx===ROADW+1?jDeg(cpx,cpz)>=3:(rx===CELL-2||rx===CELL-1)&&jDeg(cpx+1,cpz)>=3);
       if(cwZ)top=CROSS;
       else if(cwX)top=CROSSX;
-      else if(roadX&&!roadZ&&(rx===RC-1||rx===RC)&&mod(z,4)<2)top=rx===RC?LINE_R:LINE;
-      else if(roadZ&&!roadX&&(rz===RC-1||rz===RC)&&mod(x,4)<2)top=rz===RC?LINEX_R:LINEX;
+      // (a solid double yellow down the middle, the same as the highways, and a white stop line across the lane coming up
+      // to lights or a stop sign. Traffic keeps right, so that's a different half of the road at each end.)
+      else if(roadX&&!roadZ&&(rx===RC-1||rx===RC))top=rx===RC?LINE_R:LINE;
+      else if(roadZ&&!roadX&&(rz===RC-1||rz===RC))top=rz===RC?LINEX_R:LINEX;
+      else if(roadX&&!roadZ&&(rz===CELL-3&&rx<RC&&stopLine(cpx,cpz+1)||rz===ROADW+2&&rx>RC&&stopLine(cpx,cpz)))top=LANEX;
+      else if(roadZ&&!roadX&&(rx===CELL-3&&rz>RC&&stopLine(cpx+1,cpz)||rx===ROADW+2&&rz<RC-1&&stopLine(cpx,cpz)))top=LANE;
+      else if(roadX&&roadZ&&jDeg(cpx,cpz)===2)top=bendLine(cpx,cpz,rx,rz);
       if(roadX&&roadZ&&ctlAt(Math.floor(x/CELL),Math.floor(z/CELL)).k==='round'){const is=roundIsland(rx,rz);if(is){top=GRASS;if(is===2){col(G+1,LEAVES);col(G+2,LEAVES);}else if(hash2(x,z)<0.3)col(G+1,FLOWER);}}
       col(G,top);
     } else if(rx<PB.x0||rx>=PB.x1||rz<PB.z0||rz>=PB.z1){
@@ -11452,7 +11468,7 @@ function parkSpots(px,pz){
   if(P.type==='plains')for(const o of abandonedSpots(px,pz))out.push(o);
   if(P.type==='thieves')for(const [u,v,h,i] of [[8,26,0.3,0],[24,25,-1.2,1],[22,4,1.6,2]])out.push({x:X0+u,z:Z0+v,y:G+1,h,key:px+','+pz+':st'+i,p:0.9});   // (the stolen cars)   // (wrecks dumped in the fields)
   if(P.type==='super'&&P.super.kind==='garage'&&P.b.length){for(const o of garageBays(P.b[0],X0,Z0)){o.key=px+','+pz+':'+o.n+':'+o.bay+':'+o.row;o.p=0.6;out.push(o);}}
-  else if(P.type==='grocery'){for(let k=4;k<=8;k++)out.push({x:X0+3*k+2.5,z:Z0+PL0+3,y:G+1,h:0,key:px+','+pz+':lot'+k,p:0.45});}
+  else if(P.type==='grocery'){for(let k=4;k<=8;k++)out.push({x:X0+3*k+2,z:Z0+PL0+3,y:G+1,h:0,key:px+','+pz+':lot'+k,p:0.45});}
   if(P.dealer){
     // the cars for sale: rows across the lot, and two on show in the showroom
     for(let i=0;i<1;i++)for(let j=0;j<4;j++)out.push({x:X0+PL0+15.8,z:Z0+PL0+2+j*4,y:G+1,h:Math.PI/2,key:px+','+pz+':deal'+i+j,p:0.85,veh:['car','car','pickup','van'][(i+j)%4]});
@@ -12220,7 +12236,7 @@ function trafficLimit(c,dt){
   else{ix=Math.floor(c.pos.x/CELL);iz=Math.floor(c.pos.z/CELL);s=c.pos.x-(ix*CELL+ROADW);}
   if(s>18)return 99;
   const key=ix*100003+iz;if(c.passK===key)return 99;
-  const stopD=s-2.3-c.hz,axis=d%2?'x':'z',ct=ctlAt(ix,iz);
+  const stopD=s-3.1-c.hz,axis=d%2?'x':'z',ct=ctlAt(ix,iz);   // (the front bumper at the stop line, behind the zebra crossing)
   let kind=ct.k;
   if(kind==='light'&&!armAlive(ix,iz,d))kind='stop';   // a knocked-down signal becomes a four-way stop
   if(kind==='yield'&&(ct.ax!==axis||!postAlive(ix,iz,d)))return 99;
