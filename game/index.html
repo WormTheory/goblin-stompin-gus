@@ -758,7 +758,7 @@ function horizHidden(cx,cy,cz,hr,top){
     if(!o.isInstancedMesh&&horizHidden(sp.center.x,sp.center.y,sp.center.z,sp.radius,sp.center.y+sp.radius))return false;   // (over the horizon)
     const d=Math.hypot(sp.center.x-CURVE_CAM.x,sp.center.z-CURVE_CAM.z),r=sp.radius,lo=k*Math.max(0,d-r)**2,hi=k*(d+r)**2;
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v65';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v66';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -3853,10 +3853,11 @@ function plotInfo(px,pz){
         // two blocks: the building at one end (sized from the brand's real floor area), its car park filling the rest
         const cat=S.kind,B=brandPick(cat,r(140)),A=areaBl(B,cat==='drug'?0.75:1),wide=S.w>S.h,SW=W+PW,SD=D+PW;
         let bw,bd,x0,z0;
-        if(wide){bd=Math.min(SD-2,16);bw=Math.min(SW-14,Math.round(A/bd));x0=PL0+1;z0=PL0+1;}
-        else{bw=Math.min(SW-2,16);bd=Math.min(SD-14,Math.round(A/bw));x0=PL0+1;z0=PL1-1+D-bd;}
+        const small=cat==='sitdown'?22:0;   // (a dining room, a bar and a kitchen need that much)
+        if(wide){bd=Math.min(SD-2,16);bw=Math.min(SW-14,Math.max(small,Math.round(A/bd)));x0=PL0+1;z0=PL0+1;}
+        else{bw=Math.min(SW-2,16);bd=Math.min(SD-14,Math.max(small,Math.round(A/bw)));x0=PL0+1;z0=PL1-1+D-bd;}
         const b=base({x0,x1:x0+bw,z0,z1:z0+bd,gf:7,top:G+7,wall:BRICK,win:cat==='drug'?GLASS:WIN_WARM,kind:'apartment',ground:cat,floor:cat==='drug'?FLOORT:PLANKS,door:wide?2:2,front:cat==='drug',neon:NEON_R});
-        b.detailTop=b.top-1;brandOn(b,cat,r(140));p.b.push(b);
+        b.detailTop=b.top-1;brandOn(b,cat,r(140));p.b.push(b);if(cat==='sitdown'){b.eat=true;b.eatTile=5;b.rowWin=true;}
         // beside a wide one: a row of bays against it and another along the far side; in front of a tall one: rows across the lot
         p.siteLot=wide?[{x0:b.x1+2,x1:b.x1+9,z0:PL0+1,z1:PL1-1,face:3},...(PL1-1+W-(b.x1+9)>=9?[{x0:PL1-8+W,x1:PL1-1+W,z0:PL0+1,z1:PL1-1,face:1}]:[])]:[{x0:PL0+1,x1:PL1-1,z0:PL0+1,z1:b.z0-3,big:'z',face:0}];
       } else if(S.kind==='ikea'){
@@ -4114,9 +4115,12 @@ function plotInfo(px,pz){
   } else if(type==='shops'){
     // two little shops side by side, glass fronts onto a paved forecourt: two of a bookshop, a dentist's, a
     // dispensary, a gun shop (bars over its windows), a bar and a soup kitchen (those two run deeper)
-    const kinds=['books','dentist','dispo','guns','bar','soup'],k0=Math.floor(r(80)*6);let k1=Math.floor(r(81)*5);if(k1>=k0)k1++;
+    // (A bar or a soup kitchen has a whole block, with a kitchen of its own: see restProps. A bar gets tables outside too.)
+    const kinds=['books','dentist','dispo','guns','bar','soup'],k0=Math.floor(r(80)*6);let k1=Math.floor(r(81)*3);if(k1>=k0)k1++;
     const walls=[BRICK,SIDING,CONCRETE,STUCCO,SIDING_Y,BRICK];
-    [k0,k1].forEach((ki,q)=>{const kd=kinds[ki],deep=kd==='bar'||kd==='soup',x0=PL0+1+q*8;
+    if(k0>=4){const kd=kinds[k0],b=base({x0:PL0+1,x1:PL1-1,z0:PL0+4,z1:PL1-1,gf:6,top:G+6,wall:walls[Math.floor(r(84)*walls.length)],win:GLASS,kind:'apartment',ground:kd,floor:kd==='bar'?PLANKS:CHECKER,door:2,front:true,neon:kd==='bar'?NEON_O:NEON_B});
+      b.detailTop=b.top-1;b.eat=true;brandOn(b,kd,r(150));p.b.push(b);if(kd==='bar')p.patio={z0:PL0,z1:PL0+4};}
+    else [k0,k1].forEach((ki,q)=>{const kd=kinds[ki],deep=false,x0=PL0+1+q*8;
       const b=base({x0,x1:x0+8,z0:PL0+5,z1:PL0+5+(deep?13:10),top:G+(kd==='dentist'&&r(82+q)<0.5?2*FH:FH),wall:kd==='guns'?BRICK:walls[Math.floor(r(84+q)*walls.length)],win:GLASS,
         kind:kd==='dentist'?'office':'apartment',ground:kd,floor:kd==='bar'?PLANKS:kd==='soup'?CHECKER:FLOORT,door:2,front:true,neon:kd==='bar'?NEON_O:kd==='dispo'?NEON_G:kd==='guns'?NEON_R:NEON_B});
       if(kd==='guns')b.barred=true;
@@ -4320,15 +4324,14 @@ function plotInfo(px,pz){
     p.patio={z0:PL0,z1:PL0+4};
   } else if(type==='fastfood'){
     // a fast-food joint: a low box with a glass front, a drive-thru lane round it, a tall pole sign by the road
-    // McDonald's ~4,300 sq ft, Burger King and Arby's ~3,000
-    const B=brandPick('fastfood',r(150)),A=areaBl(B,0.8),bw=Math.min(14,Math.round(Math.sqrt(A*1.25))),bd=Math.min(12,Math.round(A/bw));
-    const b=base({x0:PL0+1+Math.max(0,14-bw),x1:PL0+15,z0:PL0+3,z1:PL0+3+bd,gf:6,top:G+6,wall:BRICK,win:GLASS,kind:'apartment',ground:'fastfood',floor:FLOORT,door:2,front:true,neon:NEON_R});
+    const b=base({x0:PL0+1,x1:PL0+15,z0:PL0+4,z1:PL0+17,gf:6,top:G+6,wall:BRICK,win:GLASS,kind:'apartment',ground:'fastfood',floor:FLOORT,door:2,front:true,neon:NEON_R});
+    b.eat=true;b.dthru=PL0+14;
     b.detailTop=b.top-1;brandOn(b,'fastfood',r(150));p.b.push(b);
     p.pole={x:PL1-2,z:PL0+1};
   } else if(type==='sitdown'){
     // a sit-down family restaurant: one big tall-ceilinged dining room with booths and a bar, its car park out back
-    const b=base({x0:PL0+1,x1:PL1-1,z0:PL0+3,z1:PL0+15,gf:7,top:G+7,wall:BRICK,win:WIN_WARM,kind:'apartment',ground:'sitdown',floor:PLANKS,door:2,neon:NEON_R});
-    b.detailTop=b.top-1;brandOn(b,'sitdown',r(150));p.b.push(b);
+    const b=base({x0:PL0+1,x1:PL1-1,z0:PL0+3,z1:PL0+17,gf:7,top:G+7,wall:BRICK,win:WIN_WARM,kind:'apartment',ground:'sitdown',floor:PLANKS,door:2,neon:NEON_R});
+    b.eat=true;b.eatTile=5;b.rowWin=true;b.detailTop=b.top-1;brandOn(b,'sitdown',r(150));p.b.push(b);
   } else if(type==='fire'){
     // the fire station: three big engine bays opening onto the street, crew quarters upstairs, a hose-drying tower
     // (a city's has three bays and a hose tower; a large town's two and a shorter tower; a small town's or village's just one)
@@ -4400,7 +4403,6 @@ function addLots(p,px,pz,r){
   if(nearGarage(px,pz)&&!(p.super&&['mall','bigbox','market','drug','sitdown'].includes(p.super.kind)))return;   // (big stores always have their own)   // (a mall always has its own)
   const t=p.type,S=p.super,lot=L=>{p.lots.push(L);for(const b of p.b)shrinkOut(b,L);p.b=p.b.filter(b=>b.x1-b.x0>=4&&b.z1-b.z0>=4);};
   if(t==='mid')lot(lotRect(Math.floor(r(60)*4),PL0,PL1,PL0,PL1,7));   // (towers fill their block: a real one has its car park underneath)
-  else if(t==='fastfood')p.lots.push({x0:PL0,x1:PL1,z0:PL0+15,z1:PL1,face:2});
   else if(t==='sitdown')p.lots.push({x0:PL0,x1:PL1,z0:PL0+17,z1:PL1,face:2});
   else if(S&&px===S.ax&&pz===S.az){
     const W=(S.w-1)*CELL,D=(S.h-1)*CELL,X1=PL1+W,Z1=PL1+D;
@@ -4648,21 +4650,6 @@ function furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
       if((iu===0||iu===I-1)&&iv>=2&&iv<J-1&&level>=1&&level<=2)return METAL;
       if(iv===J-3&&(iu<=1||iu===I-1)&&level===0)return GLASS;
       if(iu===0&&iv===1&&level===2)return NEON_R;
-      return AIR;
-    case 'bar':
-      // the bar along the back with stools, bottles behind it, booths down one side, a pool table, a jukebox
-      if(iv===J-3&&iu<=I-2){if(level===0)return PLANKS;}
-      if(iv===J-4&&iu%2===1&&iu<=I-2&&level===0)return SEAT_R;
-      if(iv===J-1){if(level===0)return iu%2?FRIDGE:PLANKS;if(level<=2)return SHELF;if(level===3&&iu===2)return NEON_M;}
-      if(iu===0&&iv>=1&&iv<=5&&level===0)return iv%3===2?PLANKS:SOFA;
-      if(iu>=3&&iu<=4&&iv>=3&&iv<=4&&level===0)return FIELD;
-      if(iu===I-1&&iv===1&&level<=1)return NEON_O;
-      return AIR;
-    case 'soup':
-      // long tables with benches either side, the serving counter with its big pots, the kitchen at the back
-      if(iv===J-3&&iu>=1&&iu<=I-2){if(level===0)return PLANKS;if(level===1&&iu%2===1)return METAL;}
-      if(iv===J-1&&level<=1)return iu%2?FRIDGE:METAL;
-      if(iu<=I-2&&level===0&&iv>=1&&iv<=6){const q=(iv-1)%3;if(q===1)return PLANKS;return SEAT_B;}
       return AIR;
     case 'library':
       // the stacks: rows of tall shelves across the back; reading tables and chairs at the front; computers along a
@@ -4916,30 +4903,15 @@ function furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
       if(Math.abs(iu-cu)===6&&iv%4===1){if(level<=3)return METAL;if(level===4)return LAMP;}
       if(iv===2&&iu%5===2&&level<=1)return level?SCREEN:METAL;
       return AIR;}
-    case 'diner':case 'pizza':case 'cafe':
+    case 'diner':case 'pizza':case 'cafe':case 'fastfood':case 'bar':case 'soup':
       // the wall across the back of the room, with the kitchen behind it: a serving hatch, a way through, the lit menu
       // above. (Everything else in the room is props: see restProps.)
-      if(iv===J-3){if(iu>=I-3&&iu<=I-2&&level<=2)return AIR;if(level===3&&iu>=3&&iu<I-5)return SCREEN;if(iu>=2&&iu<I-5&&(level===1||level===2))return AIR;return PAINT_WHITE;}
-      return AIR;
-    case 'fastfood':
-      // the counter with its tills across the middle, the kitchen behind it (fryers, a grill), tables in front
-      if(iv===J-4&&iu>=1&&iu<I-1){if(level===0)return PLANKS;if(level===1&&iu%3===1)return SCREEN;}
-      if(iv>=J-2&&level===0)return iu%3===0?FRIDGE:METAL;
-      if(iv===J-1&&level===1&&iu%3!==0)return SHELF;
-      if(iv>=1&&iv<J-4&&level===0&&iu<I-1&&(iu===1||iu===I-2)){return iv%2?PLANKS:SOFA;}
+      if(iv===J-3){if(iu>=I-3&&iu<=I-2&&level<=2)return AIR;if(level===3&&iu>=3&&iu<I-5)return SCREEN;if(kind!=='bar'&&iu>=2&&iu<I-5&&(level===1||level===2))return AIR;return kind==='bar'?PLANKS:PAINT_WHITE;}
       return AIR;
     case 'sitdown':
-      if(b.brand&&b.brand.buffet&&level===0&&Math.abs(iu-(I>>1))<=1&&iv>=4&&iv<J-8&&iv%5!==0)return Math.abs(iu-(I>>1))===0?FRIDGE:PLANKS;   // the buffet bar
-      if(b.brand&&b.brand.store&&iv>=1&&iv<=4&&iu<(I>>1)-1&&iu>=1){if(iu%3===1&&level<=1)return SHELF;if(iu%3===2&&iv===2&&level===0)return CRATE;return AIR;}   // the old country store
-      // booths down both side walls, tables in the middle, a bar along one side at the back, the kitchen behind a wall
-      if(iv===J-3&&level<=2)return iu===(I>>1)?(level<2?AIR:CONCRETE):CONCRETE;
-      if(iv>=J-2){if(level===0)return iu%2?METAL:FRIDGE;if(level===1&&iu%4===0)return SHELF;return AIR;}
-      if(iv===J-5&&iu>=I-7&&iu<I-1&&level===0)return PLANKS;
-      if(iv===J-4&&iu>=I-7&&iu<I-1&&level<=1)return level?(iu%2?SHELF:AIR):SHELF;
-      if((iu===0||iu===I-1)&&iv>=2&&iv<J-6&&level===0)return iv%3===1?PLANKS:SOFA;
-      if(iu>=3&&iu<I-3&&iv>=2&&iv<J-7&&level===0&&iv%3===2&&(iu-3)%4<2)return PLANKS;
-      if(level===3&&iv%4===2&&iu%4===2)return LAMP;
-      if(iv===0&&level<=1&&(iu===1||iu===I-2))return LEAVES;
+      // the wall across the back, the kitchen behind it (a hatch, a way through). The rest is props: see restProps.
+      if(iv===J-4){if(iu>=I-3&&iu<=I-2&&level<=2)return AIR;if(iu>=2&&iu<I-5&&(level===1||level===2))return AIR;return PAINT_WHITE;}
+      if(level===5&&iv%4===2&&iu%4===2)return LAMP;
       return AIR;
     case 'firehall':
       // the engine floor: kept clear for the engines; lockers and kit along the back, a pole down from upstairs
@@ -5339,6 +5311,8 @@ function blockAt(b,rx,rz,y,px,pz){
     // the hospital's red cross, on the front above the entrance
     if(b.cross&&rz===ez0){const cx=(b.x0+b.x1)>>1,u=rx-cx,v=fl-(b.gf+FH+2);if((Math.abs(u)<=1&&v===0)||(u===0&&Math.abs(v)<=1))return HOSPX;}
     if(FL_SLAB)return b.band||b.wall;
+    if(b.dthru&&rx===ex1-1&&Math.abs(rz-b.dthru)<=1&&FL_NO===0&&FL_LVL>=1&&FL_LVL<=2)return GLASS;   // (the drive-thru window)
+    if(b.rowWin&&FL_NO===0)return FL_LVL>=1&&FL_LVL<=3&&(ex?rz:rx)%5!==0?GLASS:b.wall;   // (a row of proper windows)
     if(b.front&&FL_NO===0)return b.wall;
     if(b.blank)return b.wall;   // (a club's blank walls)
     if(b.glitz&&FL_NO===0){if(FL_LVL===b.gf-3)return(Math.floor((rx+rz)/2)%2?NEON_Y:NEON_M);if(FL_LVL===b.gf-5)return(Math.floor((rx+rz)/2)%2?NEON_B:NEON_R);}   // (a casino: wrapped in neon)
@@ -5533,7 +5507,7 @@ function farmColumn(a,col,px,pz,rx,rz,lx,lz,x,z){
     else if(rz%2===0)col(G,DIRT);                             // furrows
     else{col(G,DIRT);col(G+1,LEAVES);}                         // rows of crops
   } else if(rz===(P.north?PL1-12:PL0+11)||(rx>=PC-1&&rx<=PC&&(P.north?rz>=F.z1:rz<F.z0)))col(G,GRAVEL); // the farm track
-  for(let bi=0;bi<P.b.length;bi++){const b=P.b[bi];if(rx>=b.x0&&rx<b.x1&&rz>=b.z0&&rz<b.z1){col(G,b.floor);buildingColumn(a,lx,lz,rx,rz,b,collapses[px+','+pz+','+bi],px,pz);break;}}
+  for(let bi=0;bi<P.b.length;bi++){const b=P.b[bi];if(rx>=b.x0&&rx<b.x1&&rz>=b.z0&&rz<b.z1){col(G,b.eat&&rz>=b.z1-(b.eatTile||6)?FLOORT:b.floor);buildingColumn(a,lx,lz,rx,rz,b,collapses[px+','+pz+','+bi],px,pz);break;}}
 }
 // farmland beside a farm: rows of crops (leafy veg, or flowers), or an orchard of small fruit trees in a grid; a
 // rail fence round the outside edge of the whole spread (not between its blocks, nor against the farm's own block)
@@ -5826,7 +5800,7 @@ function superColumn(a,col,S,x,z,lx,lz){
   if(S.kind==='school'&&S.w>=3&&B0){const cxs=(B0.x0+B0.x1)>>1,du=Math.abs(ux-cxs);
     // the way in: a white canopy on posts over the front steps
     if(du<=4&&uz>=B0.z0-4&&uz<B0.z0){col(G+5,PAINT_WHITE);if(du===4&&uz===B0.z0-4)for(let y=G+1;y<=G+4;y++)col(y,PAINT_WHITE);}}
-  for(let bi=0;bi<P.b.length;bi++){const b=P.b[bi];if(ux>=b.x0&&ux<b.x1&&uz>=b.z0&&uz<b.z1){buildingColumn(a,lx,lz,ux,uz,b,collapses[S.ax+','+S.az+','+bi],S.ax,S.az);
+  for(let bi=0;bi<P.b.length;bi++){const b=P.b[bi];if(ux>=b.x0&&ux<b.x1&&uz>=b.z0&&uz<b.z1){if(b.eat)col(G,uz>=b.z1-(b.eatTile||6)?FLOORT:b.floor);buildingColumn(a,lx,lz,ux,uz,b,collapses[S.ax+','+S.az+','+bi],S.ax,S.az);
     // and on the roof, the school's little clock tower, standing over the entrance
     if(S.kind==='school'&&S.w>=3&&bi===0&&collapses[S.ax+','+S.az+',0']===undefined){const du=Math.abs(ux-((b.x0+b.x1)>>1)),dv=uz-b.z0;
       if(du<=3&&dv>=0&&dv<=6){const edge=du===3||dv===0||dv===6,T0=b.top+1;
@@ -6608,7 +6582,7 @@ function genChunk(cx,cz){
           if((rx===b.x1+3||rx===b.x0-2)&&rz>=b.z0&&rz<b.z1&&(rz%2))col(G,LANE);}
         else if(P.type==='sitdown'&&rz<P.b[0].z0){const b=P.b[0];if(Math.abs(rx-((b.x0+b.x1)>>1))<=3&&rz===b.z0-1){col(G+5,(b.brand&&b.brand.wall)===PLANKS?PLANKS:AWN_R);}if(rz<b.z0-1&&rx%5===2&&rz===PL0+1){col(G+1,FLOWER);}}
         {const L=lotAt(P,rx,rz);if(L)col(G,lotMark(L,rx,rz)?lotLine(L):ASPHALT);}
-        for(let bi=0;bi<P.b.length;bi++){const b=P.b[bi];if(rx>=b.x0&&rx<b.x1&&rz>=b.z0&&rz<b.z1){if(b.style==='house')col(G,b.floor);else if(b.eat)col(G,rz>=b.z1-6?FLOORT:b.floor);buildingColumn(a,lx,lz,rx,rz,b,collapses[Math.floor(x/CELL)+','+Math.floor(z/CELL)+','+bi],Math.floor(x/CELL),Math.floor(z/CELL));break;}}
+        for(let bi=0;bi<P.b.length;bi++){const b=P.b[bi];if(rx>=b.x0&&rx<b.x1&&rz>=b.z0&&rz<b.z1){if(b.style==='house')col(G,b.floor);else if(b.eat)col(G,rz>=b.z1-(b.eatTile||6)?FLOORT:b.floor);buildingColumn(a,lx,lz,rx,rz,b,collapses[Math.floor(x/CELL)+','+Math.floor(z/CELL)+','+bi],Math.floor(x/CELL),Math.floor(z/CELL));break;}}
       }
     }
   }
@@ -12800,6 +12774,27 @@ const PROPS={
   pcase:[[PT,0,.33,0,1,.66,.66],[0xcfeaf5,0,.82,0,1,.32,.66],[0xe0a95a,-.24,.76,0,.3,.14,.3],[0xd96a8a,.22,.76,0,.3,.14,.3]],
   // a coffee machine
   espresso:[[P_STEEL,0,.18,0,.5,.36,.34],[P_DARK,0,.08,.14,.34,.03,.12],[P_DARK,-.12,.3,.2,.06,.06,.08],[P_DARK,.12,.3,.2,.06,.06,.08]],
+  // a deep fryer: a steel case, two baskets in hot oil
+  fryer:[[P_STEEL,0,.42,0,.96,.84,.7],[0xd8a030,0,.85,.03,.8,.02,.5],[P_DARK,-.2,.92,.03,.3,.14,.36],[P_DARK,.2,.92,.03,.3,.14,.36],[P_DARK,0,.4,.355,.7,.3,.01]],
+  // a drinks machine, on a counter
+  soda:[[P_DARK,0,.3,0,.6,.6,.4],[PG+0xff4a3a,0,.44,.205,.5,.2,.01],[P_STEEL,0,.12,.2,.46,.04,.12]],
+  // a pool table
+  pool:[[P_WOOD,0,.6,0,1.12,.14,2],[0x1f7a44,0,.68,0,.96,.02,1.84],[P_DARK,-.46,.27,-.86,.1,.54,.1],[P_DARK,.46,.27,-.86,.1,.54,.1],[P_DARK,-.46,.27,.86,.1,.54,.1],[P_DARK,.46,.27,.86,.1,.54,.1],[P_WHITE,.1,.72,.4,.07,.07,.07],[0xc83a32,-.2,.72,-.3,.07,.07,.07],[0x2b5fb8,.25,.72,-.5,.07,.07,.07]],
+  // a jukebox
+  jukebox:[[0x7a1f24,0,.7,0,.9,1.4,.5],[PG+0xffb43a,0,1.05,.255,.7,.5,.01],[PG+0x4ad6ff,0,.48,.255,.7,.1,.01],[P_DARK,0,.24,.255,.7,.22,.01]],
+  // beer taps, on a counter
+  taps:[[P_STEEL,0,.18,0,.7,.06,.08],[P_STEEL,-.26,.09,0,.06,.18,.06],[P_STEEL,.26,.09,0,.06,.18,.06],[P_DARK,-.2,.28,.02,.05,.16,.05],[P_DARK,0,.28,.02,.05,.16,.05],[P_DARK,.2,.28,.02,.05,.16,.05]],
+  // shelves of bottles against a wall
+  bottles:[[P_WOOD,0,1,-.1,.98,2,.08],[P_WOOD,0,.7,.02,.98,.04,.26],[P_WOOD,0,1.3,.02,.98,.04,.26],[0x3f8f4a,-.3,.84,.02,.2,.24,.14],[0xa8682a,.05,.84,.02,.2,.24,.14],[0xcfe6ef,.33,.84,.02,.16,.24,.14],[0xa8682a,-.28,1.44,.02,.2,.24,.14],[0x7a2a2a,.04,1.44,.02,.2,.24,.14],[0x3f8f4a,.32,1.44,.02,.2,.24,.14]],
+  // a big pot with a lid, on a counter
+  pot:[[P_STEEL,0,.17,0,.56,.34,.56],[P_DARK,0,.35,0,.6,.03,.6],[P_DARK,0,.4,0,.1,.06,.1]],
+  // a box for donations, on a counter
+  dbox:[[0xd8c8a8,0,.14,0,.3,.28,.3],[P_DARK,0,.285,0,.16,.01,.03]],
+  // a long canteen table, and the bench to go with it
+  ltable:[[P_WOOD,0,.62,0,1.6,.06,.8],[P_DARK,-.68,.29,0,.08,.58,.62],[P_DARK,.68,.29,0,.08,.58,.62]],
+  bench:[[P_WOOD,0,.36,0,1.6,.07,.34],[P_DARK,-.62,.16,0,.08,.32,.28],[P_DARK,.62,.16,0,.08,.32,.28]],
+  // a stretch of buffet: dishes of food under a glass guard
+  buffet:[[P_STEEL,0,.4,0,1,.8,.86],[P_DARK,0,.81,0,1,.02,.8],[0xc9553f,-.24,.84,-.2,.4,.05,.32],[0xd8b13a,.24,.84,-.2,.4,.05,.32],[0x5aa469,-.24,.84,.2,.4,.05,.32],[0xe6dcc8,.24,.84,.2,.4,.05,.32],[0xcfeaf5,0,1.2,0,1,.03,.5],[P_STEEL,0,1.02,0,.04,.36,.04]],
   // a parasol: a weighted foot, a tall pole, a striped canopy in steps
   umbrella:[[P_DARK,0,.04,0,.5,.08,.5],[P_STEEL,0,1.15,0,.06,2.3,.06],[PT,0,2.28,0,2.1,.07,2.1],[P_WHITE,0,2.285,0,2.14,.08,.42],[P_WHITE,0,2.285,0,.42,.08,2.14],[PT,0,2.38,0,1.4,.07,1.4],[PT,0,2.47,0,.7,.07,.7]],
   // a potted plant
@@ -12881,11 +12876,56 @@ function hospProps(b,px,pz,floorNo){
   return L;
 }
 // a little restaurant: the dining room at the front, the counter with its tills across it, the kitchen behind the wall
-const P_EAT={diner:[0xc4342c,0xc4342c,0x2f6f7a],pizza:[0x3f8f4a,0xc8392f,0x7a4a2a],cafe:[0x6b4a32,0xe6dcc8,0x5d7a45]};
+const P_EAT={diner:[0xc4342c,0xc4342c,0x2f6f7a],pizza:[0x3f8f4a,0xc8392f,0x7a4a2a],cafe:[0x6b4a32,0xe6dcc8,0x5d7a45],fastfood:[0xc4342c,0xe8c23a,0xc4342c],sitdown:[0x5a3a22,0xd8c8a8,0x7a2a2a],bar:[0x3a2416,0x5a3a22,0x7a2a2a],soup:[0x7d8a8f,0,0]};
 function restProps(b,px,pz,L){
   const U0=px*CELL+b.x0+1,V0=pz*CELL+b.z0+1,I=b.x1-b.x0-2,J=b.z1-b.z0-2,y0=G+1,kind=b.ground,[TC,TT,TS]=P_EAT[kind],C=J-5,cu=I/2;
   const add=(type,u,v,yaw,tint,yo,low)=>{const X=U0+u,Z=V0+v;L.push({prop:true,type,x:X,z:Z,y0:y0+(yo||0),yaw,tint,rad:.5,low,key:'p'+Math.round(X*4)+','+Math.round(Z*4)+','+y0+type});};
   const set4=(u,v,tint,seat)=>{add('rtable',u,v,0,tint);add('chair',u-.68,v,Math.PI/2,seat,0,true);add('chair',u+.68,v,-Math.PI/2,seat,0,true);add('chair',u,v-.68,0,seat,0,true);add('chair',u,v+.68,Math.PI,seat,0,true);};
+  const booths=(u,v,tint)=>{add('rtable',u,v,0,tint);add('booth',u,v-.82,0,TS,0,true);add('booth',u,v+.82,Math.PI,TS,0,true);};
+  const kitchen=(line,v0)=>{let u=v0;for(const t of line){add(t,u,J-.5,Math.PI);u+=1;}add('fridge2',I-.5,J-.5,Math.PI);add('fridge2',I-1.5,J-.5,Math.PI);add('shelf2',I-2.5,J-.5,Math.PI,0xc9a24a);};
+  if(kind==='sitdown'){
+    // the host's stand and a bench for the wait inside the door, booths down the walls, tables in between, a bar along
+    // the back, the kitchen behind the wall. (A buffet place has its long buffet down the middle; the country kitchen
+    // chain has its old store just inside.)
+    const K=J-4,B=b.brand||{},store=B.store,inStore=(u,v)=>store&&u<7.5&&v<8.5;
+    for(let i=-4;i<=-2;i++)add('bar',cu+i,1.2,Math.PI,TC);add('monitor',cu-3,1.2,Math.PI,0,.9);
+    add('seats',cu+3,.6,0,TS);add('plant',.5,.5,0);add('plant',I-.5,.5,1);
+    const n=Math.min(8,I-6);for(let i=0;i<n;i++){add('bar',i+.5,K-1.5,Math.PI,TC);if(i%2===0)add('stool',i+.5,K-2.36,0,TS,0,true);add('bottles',i+.5,K-.42,Math.PI);}
+    add('taps',2.5,K-1.5,Math.PI,0,.9);add('monitor',n-1.5,K-1.5,Math.PI,0,.9);
+    for(let v=3.5;v<K-3;v+=3){if(!inStore(1,v))booths(1.3,v,TT);if(v<K-4)booths(I-1.3,v,TT);}
+    if(B.buffet)for(let v=5;v<K-3.5;v+=1)add('buffet',cu,v,0);
+    for(let du=3.2;du<cu-2.4;du+=4)for(const u of [cu-du,cu+du])for(let v=4.2;v<K-3.6;v+=3.4){if(B.buffet&&du<3||inStore(u,v))continue;set4(u,v,TT,TS);}
+    if(store)for(const u of [1.5,3.5,5.5])for(let v=3;v<8;v++)add('shelf2',u,v,Math.PI/2,P_GOODS[(Math.floor(u)+v)%P_GOODS.length]);
+    const ln=['range','range','fryer','prep','sink','range','prep'];for(let i=0;i<Math.min(ln.length,I-5);i++)add(ln[i],i+.5,J-.5,Math.PI);add('fridge2',I-.5,J-.5,Math.PI);add('fridge2',I-1.5,J-.5,Math.PI);
+    for(let i=1;i<Math.min(7,I-6);i++)add('prep',i+.5,J-2.5,0);
+    return;
+  }
+  if(kind==='fastfood'){
+    // fixed booths by the windows, little tables by the way in, the long counter with its tills and drinks machine, the
+    // fryers and grills behind the wall
+    for(const v of [1.5,C-1.4]){booths(1.3,v,TT);booths(I-1.3,v,TT);set4(3.7,v,TT,TS);set4(I-3.7,v,TT,TS);}
+    const v=C+.5;for(let i=0;i<I-4;i++)add('bar',i+.5,v,Math.PI,TC);
+    for(const u of [1.5,3.5,5.5])add('monitor',u,v,Math.PI,0,.9);add('soda',I-4.5,v,Math.PI,0,.9);
+    kitchen(['fryer','fryer','range','range','prep','sink'],.5);return;
+  }
+  if(kind==='bar'){
+    // booths down one wall, stools round high tables, a pool table, a jukebox; the bar itself, its taps and stools, with
+    // bottles along the wall behind, and a little kitchen through the back
+    for(const v of [1.5,C-1.4])booths(1.3,v,TT);
+    for(const v of [1.5,C-1.4]){add('rtable',4.3,v,0,TT);add('stool',3.6,v,0,TS,0,true);add('stool',5,v,0,TS,0,true);}
+    add('pool',I-3,(C-1)/2+.5,0);add('jukebox',I-.4,.6,-Math.PI/2);add('plant',I-.5,C-.5,0);
+    const v=C+.5;for(let i=0;i<I-4;i++){add('bar',i+.5,v,Math.PI,TC);if(i%2===0)add('stool',i+.5,v-.86,0,TS,0,true);add('bottles',i+.5,J-3.4,Math.PI);}
+    add('taps',3.5,v,Math.PI,0,.9);add('monitor',7.5,v,Math.PI,0,.9);
+    kitchen(['range','prep','sink'],.5);return;
+  }
+  if(kind==='soup'){
+    // long tables with benches, the serving counter with its big pots and a box for donations, the kitchen behind
+    for(const v of [1.9,C-1.7])for(const u of [1.1,2.9,I-1.1,I-2.9]){add('ltable',u,v,0);add('bench',u,v-.72,0,0,0,true);add('bench',u,v+.72,0,0,0,true);}
+    add('plant',.5,.4,0);
+    const v=C+.5;for(let i=0;i<I-4;i++)add('bar',i+.5,v,Math.PI,TC);
+    for(const u of [1.5,3.5,5.5,7.5])add('pot',u,v,Math.PI,0,.9);add('dbox',cu-.5,v,Math.PI,0,.9);
+    kitchen(['range','range','prep','sink','prep'],.5);return;
+  }
   // the dining room, leaving a clear way from the door to the counter
   const us=[1.3,4.3,I-4.3,I-1.3],vs=[1.5,C-1.4];
   for(const u of us)for(const v of vs){
