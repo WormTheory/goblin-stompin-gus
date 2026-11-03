@@ -12,6 +12,6 @@ cd tests
 T=${@:-$(ls *.js | grep -v '^g\.js$' | sed 's/\.js$//')}
 for t in $T; do
   # (Timings differ on every run, so they're masked to keep the diff down to real changes.)
-  SEED=${SEED:-1} node "$t.js" 2>&1 | sed -E 's/\b[0-9.]+ ?ms\b/N ms/g; s/\bms [0-9.]+/ms N/g; s/(ms per chunk near route) [0-9.]+/\1 N/; s/(slow [^ ]+:)[0-9]+/\1N/g' > "../baseline/$t.txt"
+  SEED=${SEED:-1} node "$t.js" 2>&1 | sed -E 's/\b[0-9.]+ ?ms\b/N ms/g; s/\bms [0-9.]+/ms N/g; s/(ms per chunk near route) [0-9.]+/\1 N/; s/ slow .*$/ slow N/' > "../baseline/$t.txt"
   echo "$t: ${PIPESTATUS[0]}"
 done

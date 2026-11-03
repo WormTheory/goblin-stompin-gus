@@ -1,0 +1,1 @@
+stale first frame: y 45 -> 45.00 state walk edits 0

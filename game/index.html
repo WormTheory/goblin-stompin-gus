@@ -14619,7 +14619,7 @@ function fpsTick(raw){
 }
 function frame(now){
   fpsTick((now-last)/1000);
-  const dt=Math.min(0.06,(now-last)/1000);last=now;
+  const dt=Math.max(0,Math.min(0.06,(now-last)/1000));last=now;   // (never below 0: a long boot can hand the first frame a timestamp older than last, and negative time winds timers up, which queued a stomp nobody pressed)
   if(menuOpen)obitPreviewTick(dt);
   if(menuOpen&&curTab==='dev'){safe('dev',()=>devTick(dt));safe('devst',()=>stTick(dt));}
   readInputs(dt);
