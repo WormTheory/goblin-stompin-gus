@@ -4538,11 +4538,14 @@ function flo(b,fl){
 // (the furniture itself is mostly props now, not blocks: furnTurns says which pieces, furnProps sets them out)
 function furniture(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
   const v=furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz);
-  if(!b._fp)b._fp=[px,pz];
+  if(!b._fp){b._fp=[px,pz];FURN_SEEN.add(px+','+pz+','+b.x0+','+b.z0);}
   if(b.kind==='ward'||!FURN_IDS.has(v))return v;
   const st=STRUCT,t=furnTurns(v,b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz);STRUCT=st;
   return t?AIR:v;
 }
+// (which buildings have been furnished. Kept apart from the buildings, since a plot forgotten and worked out again gets
+// new ones while its chunks stay, and its rooms would come up empty.)
+const FURN_SEEN=new Set();
 const FURN_IDS=new Set([SOFA,BED,FRIDGE,SHELF,CRATE,LEAVES,SCREEN,PLANKS]);
 function furnTurns(v,b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
   if(v===SOFA||v===BED||v===FRIDGE||v===SHELF)return true;
@@ -13006,7 +13009,7 @@ function refreshProps(){
       if(P.patio&&!seen.has(P)){seen.add(P);
         for(const f of patioProps(P,ax,az)){if(Math.abs(f.x-p.pos.x)>R||Math.abs(f.z-p.pos.z)>R)continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);if(!chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS))))continue;
           if(get(fx,f.y0-1,fz)===AIR||get(fx,f.y0,fz)!==AIR)continue;activeProps.push(f);drawProp(f);if(!f.low&&!downFix.has(f.key)&&!falling.has(f.key))propCells.set(propCK(f.x,f.y0,f.z),f);}}
-      for(const b of P.b){const ward=b.kind==='ward';if(!ward&&!b._fp||seen.has(b))continue;seen.add(b);   // (a site's other blocks: they're all listed on its first plot)
+      for(const b of P.b){const ward=b.kind==='ward';if(seen.has(b))continue;if(!ward&&!b._fp){if(!FURN_SEEN.has(ax+','+az+','+b.x0+','+b.z0))continue;b._fp=[ax,az];}seen.add(b);   // (a site's other blocks: they're all listed on its first plot)
         // the floors in sight: the one you're on and the ones either side (you can't see the others through the slabs)
         const f0=Math.floor((p.pos.y-G-1-b.gf)/FH)+1;
         for(let n=Math.max(0,f0-1);n<=f0+1;n++){const y0=n===0?G+1:G+b.gf+1+FH*(n-1);if(y0>Math.min(b.detailTop,b.top-1)-2)break;
