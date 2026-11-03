@@ -758,7 +758,7 @@ function horizHidden(cx,cy,cz,hr,top){
     if(!o.isInstancedMesh&&horizHidden(sp.center.x,sp.center.y,sp.center.z,sp.radius,sp.center.y+sp.radius))return false;   // (over the horizon)
     const d=Math.hypot(sp.center.x-CURVE_CAM.x,sp.center.z-CURVE_CAM.z),r=sp.radius,lo=k*Math.max(0,d-r)**2,hi=k*(d+r)**2;
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v55';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v56';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -3806,12 +3806,12 @@ function plotInfo(px,pz){
         if(S.w>=3){
           // the big kind: a long two-storey block set back behind its bus lane and front lawn, the playground and playing field behind
           const b=base({x0:PL0+10,x1:PL0+70,z0:PL0+14,z1:PL0+32,top:G+2*FH,wall:BRICK,win:WIN_WARM,band:CONCRETE,kind:'school',ground:'school',floor:FLOORT,door:2});
-          b.doorSpec={w:1,h:4,k:'glass'};b.detailTop=b.top-1;brandOn(b,'school',r(140));b.stair={ax:'z',c0:b.x0+22,c1:b.x0+26,r0:b.z0+11,L:FH};p.b.push(b);
+          b.doorSpec={w:1,h:4,k:'glass'};b.detailTop=b.top-1;brandOn(b,'school',r(140));b.stair={ax:'z',c0:b.x0+22,c1:b.x0+26,r0:b.z0+11,L:FH};b.stairHall=[19,25,false];p.b.push(b);
           p.school={px0:PL0+1,px1:PL0+SW-1,pz0:b.z1+2,pz1:PL0+SD-1,big:true};p.buses=true;
         } else {
         const b=wide?base({x0:PL0+1,x1:PL0+28,z0:PL0+5,z1:PL0+SD-1,top:G+2*FH,wall:BRICK,win:WIN_WARM,band:CONCRETE,kind:'school',ground:'school',floor:FLOORT,door:2})
                     :base({x0:PL0+1,x1:PL0+SW-1,z0:PL0+5,z1:PL0+26,top:G+2*FH,wall:BRICK,win:WIN_WARM,band:CONCRETE,kind:'school',ground:'school',floor:FLOORT,door:2});
-        b.doorSpec={w:1,h:4,k:'glass'};b.detailTop=b.top-1;brandOn(b,'school',r(140));b.stair=wide?{ax:'x',c0:b.z0+12,c1:b.z0+15,r0:b.x0+7,L:FH}:{ax:'z',c0:b.x0+12,c1:b.x0+15,r0:b.z0+7,L:FH};p.b.push(b);
+        b.doorSpec={w:1,h:4,k:'glass'};b.detailTop=b.top-1;brandOn(b,'school',r(140));b.stair=wide?{ax:'x',c0:b.z0+8,c1:b.z0+11,r0:b.x0+13,L:FH}:{ax:'z',c0:b.x0+11,c1:b.x0+15,r0:b.z0+13,L:FH};b.stairHall=[11,17,true];p.b.push(b);
         p.school=wide?{px0:b.x1+2,px1:PL0+SW-1,pz0:PL0+1,pz1:PL0+SD-1}:{px0:PL0+1,px1:PL0+SW-1,pz0:b.z1+2,pz1:PL0+SD-1};p.buses=true;
         }
       } else if(S.kind==='factory'){
@@ -4682,6 +4682,8 @@ function furniture(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
     case 'school':{
       // ground floor: the cafeteria, classrooms, the gym at the far end; upstairs: classrooms
       const long=I>=J,a=long?iu:iv,c=long?iv:iu,Wl=long?I:J,Wc=long?J:I;
+      // the stair hall: one classroom's worth of building kept clear for the stairs (its walls and doorways are the classrooms' own)
+      if(b.stairHall&&(floorNo||!b.stairHall[2])&&a>b.stairHall[0]-1&&a<=b.stairHall[1])return AIR;
       if(!floorNo&&a>=Wl-12){   // the gym: hoops at both ends, bleachers down one side
         if(a===Wl-12){if(Math.abs(c-(Wc>>1))<=1&&level<=2)return AIR;return level<=3?CONCRETE:AIR;}
         if((a===Wl-11||a===Wl-1)&&Math.abs(c-(Wc>>1))<1){if(level===2)return PAINT_WHITE;return AIR;}
@@ -5097,6 +5099,9 @@ function stairPoint(g,B,up){
   const b=B.b,S=b.stair,alongX=S.ax==='x',R0=(alongX?B.px:B.pz)*CELL+S.r0,cW=(alongX?B.pz:B.px)*CELL+(S.c0+S.c1)/2,gR=alongX?g.pos.x:g.pos.z,gC=alongX?g.pos.z:g.pos.x;
   const Y=stairFloors(b);let n=0;while(n+1<Y.length&&Y[n+1]<=g.pos.y+0.6)n++;
   if(up?n+1>=Y.length:n===0&&g.pos.y<Y[0]+0.6)return null;
+  // (in another room: along the corridor down the building's middle first, through the doorways, to the stair hall)
+  if(b.stairHall&&!onStair(g,B)){const I=b.x1-b.x0-2,J=b.z1-b.z0-2,long=I>=J,iu=g.pos.x-B.px*CELL-b.x0-1,iv=g.pos.z-B.pz*CELL-b.z0-1,a=long?iu:iv,c=long?iv:iu,mid=((long?J:I)>>1)+0.5,h=b.stairHall;
+    if(a<h[0]||a>h[1]+1){const P=(pa,pc)=>({x:B.px*CELL+b.x0+1+(long?pa:pc),z:B.pz*CELL+b.z0+1+(long?pc:pa)});return Math.abs(c-mid)>0.8?P(a,mid):P(a<h[0]?a+3:a-3,mid);}}
   let R;
   if(onStair(g,B))R=up?R0+S.L+1:R0-0.6;   // (on the flight: on to the end of it)
   else{R=up?R0+S.L-(Y[n+1]-Y[n])-0.6:R0+S.L+0.6;if(Math.abs(gC-cW)<0.6&&Math.abs(gR-R)<0.5)R=up?R0+S.L+1:R0-0.6;}   // (to the foot or the head of it, then straight on)

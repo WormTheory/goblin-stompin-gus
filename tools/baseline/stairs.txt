@@ -4,5 +4,10 @@ fire down reached in 4s floors 52 45
 fire Gus stopped at y 46.2 of 52
 school stair {"ax":"z","c0":43,"c1":47,"r0":36,"L":5} floors [45,50] plot 42 20
 school up reached in 6s floors 45 50
-school down reached in 6s floors 50 45
+school down reached in 5s floors 50 45
 school Gus stopped at y 46.2 of 50
+schoolWide none found
+schoolTall stair {"ax":"z","c0":23,"c1":27,"r0":29,"L":5} floors [45,50] plot -102 -148
+schoolTall up reached in 6s floors 45 50
+schoolTall down reached in 6s floors 50 45
+schoolTall Gus stopped at y 46.2 of 50
