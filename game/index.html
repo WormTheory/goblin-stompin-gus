@@ -758,7 +758,7 @@ function horizHidden(cx,cy,cz,hr,top){
     if(!o.isInstancedMesh&&horizHidden(sp.center.x,sp.center.y,sp.center.z,sp.radius,sp.center.y+sp.radius))return false;   // (over the horizon)
     const d=Math.hypot(sp.center.x-CURVE_CAM.x,sp.center.z-CURVE_CAM.z),r=sp.radius,lo=k*Math.max(0,d-r)**2,hi=k*(d+r)**2;
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v59';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v60';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -3518,7 +3518,7 @@ function macroOf1(px,pz){
       else if(h<0.19)M=strip('mall');
       else if(h<0.25)M={ax:mx*6+off,az:mz*6+off2,w:4,h:4,kind:'bigbox'};   // a superstore: 16 blocks, most of it car park
       else if(h<0.40)M=hash2(mx+17,mz+19)<0.5?{ax:mx*6,az:mz*6,w:6,h:6,kind:'hood'}:{ax:mx*6+off,az:mz*6+off2,w:4,h:4,kind:'hood'};
-      else if(h<0.47)M={ax:mx*6+off,az:mz*6+off2,w:3,h:3,kind:'school'};   // a school with proper grounds: 3x3 blocks
+      else if(h<0.455)M={ax:mx*6+off,az:mz*6+off2,w:3,h:3,kind:'school'};   // a school with proper grounds: 3x3 blocks
       else if(h<0.50)M={ax:mx*6+off,az:mz*6+off2,w:4,h:3,kind:'ikea'};
       else if(h<0.55)M={ax:mx*6+off,az:mz*6+off2,w:3,h:2,kind:'museum'};
       else if(h<0.58)M={ax:mx*6+off,az:mz*6+off2,w:3,h:2,kind:'aquarium'};
@@ -3710,7 +3710,7 @@ function plotBounds(px,pz){return{x0:jz(px,pz)?ROADW:PL0,x1:jz(px+1,pz)?CELL:PL1
 // where there's room; anything heavy, smelly or sprawling at the edge of town. (Little places have no such zones, so
 // there it's only 'not in the very middle'.)
 const SITE_F={mega:[0,.55],stocks:[0,.55],news:[0,.6],museum:[0,.8],theater:[0,.62],casino:[0,.72],cathedral:[0,.9],hospital:[.15,.8],arena:[.15,.85],stadium:[.2,.9],mall:[.3,.92],
-  school:[.4,9],market:[.4,9],cinema:[.4,9],bigbox:[.5,9],ikea:[.55,9],armory:[.5,9],datacenter:[.62,9],dealer:[.62,9],electric:[.62,9],jail:[.6,9],lab:[.6,9],
+  school:[.4,9],market:[.4,9],cinema:[.4,9],bigbox:[.5,9],ikea:[.42,9],armory:[.5,9],datacenter:[.62,9],dealer:[.62,9],electric:[.62,9],jail:[.6,9],lab:[.6,9],
   factory:[.68,9],power:[.68,9],water:[.68,9],zoo:[.68,9],theme:[.68,9],studio:[.68,9],campus:[.5,9],prison:[.72,9],nuclear:[.8,9]};
 const SITE_EDGE=new Set(['factory','power','water','zoo','theme','studio','prison','nuclear','campus']);
 function siteFits(kind,cx,cz){
