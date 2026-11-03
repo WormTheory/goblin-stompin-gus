@@ -11,7 +11,7 @@ const CELL=32;A.hp=999;
 const gob=T.goblins.find(g=>!g.civ&&!g.staff&&!g.medic&&!g.ff&&!g.cop)||T.goblins[0];
 for(const c of T.cars){c.alive=false;c.respawnT=1e9;c.g.visible=false;}
 const step=k=>{for(let i=0;i<k;i++){A.hp=999;A.vy=0;for(const g of T.goblins)if(g!==gob&&g.state==='chase'){g.state='wait';g.t=-1e9;g.root.visible=false;}now+=16.7;T.frame(now);}};
-for(const k of ['market','drug','school','police','ikea']){
+for(const k of ['food','market','drug','school','police','ikea']){
   const F=T.stFind(k,0,0);if(!F){console.log(k,'none found');continue;}
   const P=T.plotInfo(F.ax,F.az),b=P.b.slice().sort((p,q)=>(q.x1-q.x0)*(q.z1-q.z0)-(p.x1-p.x0)*(p.z1-p.z0))[0],X0=F.ax*CELL,Z0=F.az*CELL,y=45;
   const s0={x:X0+b.x0+3.5,z:Z0+b.z0+3.5},s1={x:X0+b.x1-3.5,z:Z0+b.z1-3.5};
