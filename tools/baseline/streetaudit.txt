@@ -1,0 +1,3 @@
+street columns 451703 with a tree trunk 0 with leaves low over them 0 []
+corner bends 259 with block lines through the middle 0
+town ramps 6 with painted lines 6 | route ramps 58 with a barrier jog of a block or more 0 []

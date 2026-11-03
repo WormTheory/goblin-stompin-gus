@@ -1,3 +1,3 @@
-renderMap ok, calls 2054
+renderMap ok, calls 2053
 frames with minimap ok, ctx calls 8080
 errors 0 []
