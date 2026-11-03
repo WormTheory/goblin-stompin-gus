@@ -11,3 +11,11 @@ schoolTall stair {"ax":"z","c0":23,"c1":27,"r0":29,"L":5} floors [45,50] plot -1
 schoolTall up reached in 6s floors 45 50
 schoolTall down reached in 6s floors 50 45
 schoolTall Gus stopped at y 46.2 of 50
+police stair {"ax":"x","c0":15,"c1":18,"r0":29,"L":5} floors [45,50,55,60] plot -2 -8
+police up reached in 11s floors 45 50
+police down reached in 9s floors 50 45
+police Gus stopped at y 46.2 of 50
+museum stair {"ax":"x","c0":25,"c1":27,"r0":57,"L":10} floors [45,55] plot -4 44
+museum up reached in 10s floors 45 55
+museum down reached in 12s floors 55 45
+museum Gus stopped at y 46.2 of 55

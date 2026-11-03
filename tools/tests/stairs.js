@@ -45,7 +45,7 @@ for(const c of T.cars){c.alive=false;c.respawnT=1e9;c.g.visible=false;}
 const step=n=>{for(let i=0;i<n;i++){A.hp=999;A.vy=0;for(const g of T.goblins)if(g!==gob&&g.state==='chase'){g.state='wait';g.t=-1e9;g.root.visible=false;}now+=16.7;T.frame(now);}};
 // (every layout: a small town's school comes in two shapes as well)
 const findSmall=wide=>{for(let r=0;r<260;r+=2)for(let px=-r;px<=r;px+=2)for(const pz of [-r,r]){for(const [qx,qz] of [[px,pz],[pz,px]]){const S=T.superOf(qx,qz);if(S&&S.kind==='school'&&S.w<3&&(S.w>S.h)===wide)return S;}}return null;};
-for(const k of ['fire','school','schoolWide','schoolTall']){const F=k==='schoolWide'?findSmall(true):k==='schoolTall'?findSmall(false):T.stFind(k,0,0);if(!F){console.log(k,'none found');continue;}
+for(const k of ['fire','school','schoolWide','schoolTall','police','museum']){const F=k==='schoolWide'?findSmall(true):k==='schoolTall'?findSmall(false):T.stFind(k,0,0);if(!F){console.log(k,'none found');continue;}
   const P=T.plotInfo(F.ax,F.az),b=P.b.find(q=>q.stair);if(!b){console.log(k,'no stairs');continue;}
   const Y=T.stairFloors(b),X0=F.ax*CELL,Z0=F.az*CELL,S=b.stair,al=S.ax==='x';
   // somewhere on the far side of the room from the shaft, on each floor
