@@ -758,7 +758,7 @@ function horizHidden(cx,cy,cz,hr,top){
     if(!o.isInstancedMesh&&horizHidden(sp.center.x,sp.center.y,sp.center.z,sp.radius,sp.center.y+sp.radius))return false;   // (over the horizon)
     const d=Math.hypot(sp.center.x-CURVE_CAM.x,sp.center.z-CURVE_CAM.z),r=sp.radius,lo=k*Math.max(0,d-r)**2,hi=k*(d+r)**2;
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v49';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v50';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -1052,53 +1052,53 @@ function hash2(x,z){let h=Math.imul(x,374761393)+Math.imul(z,668265263)+Math.imu
 const BR=(n,bg,fg,ac,icon,o)=>Object.assign({n,bg,fg,ac,icon},o||{});
 const BRANDS={
   grocery:[BR('WAL-MART','#0b5cad','#ffffff','#ffc220','spark',{wall:PAINT_BLUE,neon:NEON_Y,awn:'none'}),BR('TARGET','#ffffff','#cc0000','#cc0000','eyeball',{wall:STUCCO,neon:NEON_R,awn:'r'}),
-    BR('KROGER','#1f4fa3','#ffffff','#9fc3ff','basket',{wall:STUCCO,neon:NEON_B,awn:'none'}),BR('COSTCO','#ffffff','#e31837','#005daa','box',{wall:CONCRETE,neon:NEON_R,awn:'none'}),
-    BR('WHOLE FOODS','#00674b','#ffffff','#b8e08a','leaf',{wall:PAINT_GREEN,neon:NEON_G,awn:'g'}),BR('ALDI','#00205b','#ffffff','#f6a01a','tag',{wall:PAINT_NAVY,neon:NEON_O,awn:'none'}),
-    BR("TRADER JOE'S",'#c8102e','#ffffff','#ffffff','leaf',{wall:PLANKS,neon:NEON_R,awn:'r'}),BR('PIGGLY WIGGLY','#d7141a','#ffffff','#ffffff','basket',{wall:STUCCO,neon:NEON_R,awn:'r'})],
+    BR('KROGER','#1f4fa3','#ffffff','#9fc3ff','kr',{wall:STUCCO,neon:NEON_B,awn:'none'}),BR('COSTCO','#ffffff','#e31837','#005daa','crates',{wall:CONCRETE,neon:NEON_R,awn:'none'}),
+    BR('WHOLE FOODS','#00674b','#ffffff','#b8e08a','leaf',{wall:PAINT_GREEN,neon:NEON_G,awn:'g'}),BR('ALDI','#00205b','#ffffff','#f6a01a','aldi',{wall:PAINT_NAVY,neon:NEON_O,awn:'none'}),
+    BR("TRADER JOE'S",'#c8102e','#ffffff','#ffffff','tj',{wall:PLANKS,neon:NEON_R,awn:'r'}),BR('PIGGLY WIGGLY','#d7141a','#ffffff','#ffffff','pig',{wall:STUCCO,neon:NEON_R,awn:'r'})],
   // superstores and warehouse clubs (wh: warehouse racking instead of aisles of shelves)
   bigbox:[BR('WAL-MART','#0b5cad','#ffffff','#ffc220','spark',{wall:PAINT_BLUE,neon:NEON_Y,a:179000}),BR('TARGET','#ffffff','#cc0000','#cc0000','eyeball',{wall:STUCCO,neon:NEON_R,a:130000}),
-    BR('MEIJER','#ffffff','#d6001c','#00539f','cart',{wall:PAINT_WHITE,neon:NEON_B,a:200000}),BR('KMART','#e2231a','#ffffff','#ffffff','tag',{wall:PAINT_RED,neon:NEON_R,a:94000,nofood:true}),
-    BR('COSTCO','#ffffff','#e31837','#005daa','box',{wall:CONCRETE,neon:NEON_R,a:146000,wh:true}),BR("SAM'S CLUB",'#0067a0','#ffffff','#ffffff','box',{wall:PAINT_NAVY,neon:NEON_B,a:120000,wh:true}),
-    BR('HOME DEPOT','#f96302','#ffffff','#ffffff','box',{wall:PAINT_ORANGE,neon:NEON_O,a:105000,wh:true}),BR("LOWE'S",'#004990','#ffffff','#ffffff','house',{wall:PAINT_NAVY,neon:NEON_B,a:112000,wh:true})],
+    BR('MEIJER','#ffffff','#d6001c','#00539f','bigm',{wall:PAINT_WHITE,neon:NEON_B,a:200000}),BR('KMART','#e2231a','#ffffff','#ffffff','bigk',{wall:PAINT_RED,neon:NEON_R,a:94000,nofood:true}),
+    BR('COSTCO','#ffffff','#e31837','#005daa','crates',{wall:CONCRETE,neon:NEON_R,a:146000,wh:true}),BR("SAM'S CLUB",'#0067a0','#ffffff','#ffffff','diamond',{wall:PAINT_NAVY,neon:NEON_B,a:120000,wh:true}),
+    BR('HOME DEPOT','#f96302','#ffffff','#ffffff','depot',{wall:PAINT_ORANGE,neon:NEON_O,a:105000,wh:true}),BR("LOWE'S",'#004990','#ffffff','#ffffff','gable',{wall:PAINT_NAVY,neon:NEON_B,a:112000,wh:true})],
   // supermarkets (and one electronics store of the same size)
-  market:[BR('KROGER','#1f4fa3','#ffffff','#9fc3ff','basket',{wall:STUCCO,neon:NEON_B,a:61000}),BR('SAFEWAY','#e21a2c','#ffffff','#ffffff','basket',{wall:STUCCO,neon:NEON_R,a:47500}),
-    BR('PUBLIX','#3d8b37','#ffffff','#ffffff','cart',{wall:STUCCO,neon:NEON_G,a:48000}),BR('WHOLE FOODS','#00674b','#ffffff','#b8e08a','leaf',{wall:PAINT_GREEN,neon:NEON_G,a:38000}),
-    BR('ALDI','#00205b','#ffffff','#f6a01a','tag',{wall:PAINT_NAVY,neon:NEON_O,a:12000}),BR('BEST BUY','#0046be','#fff200','#fff200','tv',{wall:PAINT_BLUE,neon:NEON_Y,a:38000,tech:true})],
+  market:[BR('KROGER','#1f4fa3','#ffffff','#9fc3ff','kr',{wall:STUCCO,neon:NEON_B,a:61000}),BR('SAFEWAY','#e21a2c','#ffffff','#ffffff','esS',{wall:STUCCO,neon:NEON_R,a:47500}),
+    BR('PUBLIX','#3d8b37','#ffffff','#ffffff','pp',{wall:STUCCO,neon:NEON_G,a:48000}),BR('WHOLE FOODS','#00674b','#ffffff','#b8e08a','leaf',{wall:PAINT_GREEN,neon:NEON_G,a:38000}),
+    BR('ALDI','#00205b','#ffffff','#f6a01a','aldi',{wall:PAINT_NAVY,neon:NEON_O,a:12000}),BR('BEST BUY','#0046be','#fff200','#fff200','bbtag',{wall:PAINT_BLUE,neon:NEON_Y,a:38000,tech:true})],
   // freestanding drugstores and dollar stores
-  drug:[BR('CVS','#cc0000','#ffffff','#ffffff','pill',{wall:BRICK,neon:NEON_R,a:11000}),BR('WALGREENS','#e31837','#ffffff','#ffffff','pill',{wall:BRICK,neon:NEON_R,a:14500}),
-    BR('DOLLAR GENERAL','#ffd100','#000000','#000000','dollar',{wall:PAINT_YELLOW,neon:NEON_Y,a:8500}),
-    BR('RITE AID','#0a4b9c','#ffffff','#e31837','pill',{wall:BRICK,neon:NEON_B,a:11000}),BR('FAMILY DOLLAR','#e4002b','#ffffff','#ffffff','dollar',{wall:PAINT_RED,neon:NEON_R,a:8000})],
-  gas:[BR('SHELL','#fbce07','#dd1d21','#dd1d21','scallop',{wall:PAINT_YELLOW,neon:NEON_R}),BR('EXXON','#ffffff','#e1251b','#1b3f94','pump',{wall:PAINT_WHITE,neon:NEON_R}),
-    BR('BP','#007f3e','#ffffff','#ffe600','drop',{wall:PAINT_GREEN,neon:NEON_Y}),BR('CHEVRON','#ffffff','#0054a4','#e2231a','pump',{wall:PAINT_WHITE,neon:NEON_B}),
-    BR('7-ELEVEN','#ffffff','#008163','#f47a20','cup',{wall:PAINT_WHITE,neon:NEON_O}),
-    BR('TEXACO','#e1251b','#ffffff','#ffffff','badge',{wall:PAINT_RED,neon:NEON_R}),BR('MOBIL','#ffffff','#0a3a8a','#e1251b','pump',{wall:PAINT_WHITE,neon:NEON_B}),BR("BUC-EE'S",'#e2231a','#ffd200','#ffd200','skull',{wall:PAINT_RED,neon:NEON_Y}),BR('WAWA','#a6192e','#ffd200','#ffd200','cup',{wall:BRICK,neon:NEON_R})],
+  drug:[BR('CVS','#cc0000','#ffffff','#ffffff','heart',{wall:BRICK,neon:NEON_R,a:11000}),BR('WALGREENS','#e31837','#ffffff','#ffffff','bigw',{wall:BRICK,neon:NEON_R,a:14500}),
+    BR('DOLLAR GENERAL','#ffd100','#000000','#000000','dg',{wall:PAINT_YELLOW,neon:NEON_Y,a:8500}),
+    BR('RITE AID','#0a4b9c','#ffffff','#ffffff','rite',{wall:BRICK,neon:NEON_B,a:11000}),BR('FAMILY DOLLAR','#e4002b','#ffffff','#ffffff','dollar',{wall:PAINT_RED,neon:NEON_R,a:8000})],
+  gas:[BR('SHELL','#fbce07','#dd1d21','#dd1d21','scallop',{wall:PAINT_YELLOW,neon:NEON_R}),BR('EXXON','#ffffff','#e1251b','#1b3f94','xx',{wall:PAINT_WHITE,neon:NEON_R}),
+    BR('BP','#007f3e','#ffffff','#ffe600','helios',{wall:PAINT_GREEN,neon:NEON_Y}),BR('CHEVRON','#ffffff','#0054a4','#e2231a','chev',{wall:PAINT_WHITE,neon:NEON_B}),
+    BR('7-ELEVEN','#ffffff','#008163','#ffffff','seven',{wall:PAINT_WHITE,neon:NEON_O}),
+    BR('TEXACO','#e1251b','#ffffff','#ffffff','texstar',{wall:PAINT_RED,neon:NEON_R}),BR('MOBIL','#ffffff','#0a3a8a','#e1251b','mo',{wall:PAINT_WHITE,neon:NEON_B}),BR("BUC-EE'S",'#e2231a','#ffd200','#ffd200','beaver',{wall:PAINT_RED,neon:NEON_Y}),BR('WAWA','#a6192e','#ffd200','#ffd200','goose',{wall:BRICK,neon:NEON_R})],
   diner:[BR('WAFFLE HOUSE','#ffd200','#111111','#111111','waffle',{wall:PAINT_WHITE,neon:NEON_Y,a:1650})],
-  fastfood:[BR("McDONALD'S",'#da291c','#ffc72c','#ffc72c','arches',{wall:PAINT_RED,neon:NEON_Y,a:4300}),BR('BURGER KING','#f5ebdc','#d62300','#502314','burger',{wall:PAINT_ORANGE,neon:NEON_B,a:3000}),
-    BR("ARBY'S",'#d71920','#ffffff','#ffffff','sandwich',{wall:PAINT_RED,neon:NEON_R,a:3000}),BR('BY-THE-BUCKET','#ffd23f','#b3261e','#b3261e','bucket',{wall:PAINT_YELLOW,neon:NEON_R,a:2500}),
-    BR("WENDY'S",'#e2203d','#ffffff','#ffffff','burger',{wall:PAINT_RED,neon:NEON_R,a:3000}),BR('TACO BELL','#702082','#ffffff','#ffd200','bolt',{wall:PAINT_NAVY,neon:NEON_M,a:2500}),BR('KFC','#a3080c','#ffffff','#ffffff','bucket',{wall:PAINT_RED,neon:NEON_R,a:2600}),BR('CHICK-FIL-A','#e51636','#ffffff','#ffffff','sandwich',{wall:BRICK,neon:NEON_R,a:4500}),BR('WHITE CASTLE','#ffffff','#0b3a8c','#0b3a8c','house',{wall:PAINT_WHITE,neon:NEON_B,a:2500}),BR('DAIRY QUEEN','#e51636','#ffffff','#0a5cab','cup',{wall:PAINT_RED,neon:NEON_B,a:2800})],
-  sitdown:[BR("APPLEBEE'S",'#b5121b','#ffffff','#ffffff','fork',{wall:BRICK,neon:NEON_R,a:5400}),BR("CHILI'S",'#ffffff','#c8102e','#2e7d32','fork',{wall:STUCCO,neon:NEON_R,a:5800}),
-    BR('CRACKER BARREL','#5b3a1c','#f2c14e','#f2c14e','house',{wall:PLANKS,neon:NEON_Y,a:9500,store:true}),BR('GOLDEN CORRAL','#7b1f1f','#f6c445','#f6c445','fork',{wall:STUCCO,neon:NEON_Y,a:10000,buffet:true}),
-    BR('OLIVE GARDEN','#4e5b31','#ffffff','#c9b26b','leaf',{wall:STUCCO,neon:NEON_G,a:7800}),BR('TEXAS ROADHOUSE','#7a1712','#ffffff','#ffffff','badge',{wall:PLANKS,neon:NEON_R,a:7200}),
+  fastfood:[BR("McDONALD'S",'#da291c','#ffc72c','#ffc72c','arches',{wall:PAINT_RED,neon:NEON_Y,a:4300}),BR('BURGER KING','#f5ebdc','#d62300','#502314','bk',{wall:PAINT_ORANGE,neon:NEON_B,a:3000}),
+    BR("ARBY'S",'#d71920','#ffffff','#ffffff','hat',{wall:PAINT_RED,neon:NEON_R,a:3000}),BR('BY-THE-BUCKET','#ffd23f','#b3261e','#b3261e','bucket',{wall:PAINT_YELLOW,neon:NEON_R,a:2500}),
+    BR("WENDY'S",'#e2203d','#ffffff','#ffffff','wendy',{wall:PAINT_RED,neon:NEON_R,a:3000}),BR('TACO BELL','#702082','#ffffff','#ffd200','bell',{wall:PAINT_NAVY,neon:NEON_M,a:2500}),BR('KFC','#a3080c','#ffffff','#ffffff','colonel',{wall:PAINT_RED,neon:NEON_R,a:2600}),BR('CHICK-FIL-A','#e51636','#ffffff','#ffffff','cfa',{wall:BRICK,neon:NEON_R,a:4500}),BR('WHITE CASTLE','#ffffff','#0b3a8c','#0b3a8c','whitecastle',{wall:PAINT_WHITE,neon:NEON_B,a:2500}),BR('DAIRY QUEEN','#e51636','#ffffff','#0a5cab','dq',{wall:PAINT_RED,neon:NEON_B,a:2800})],
+  sitdown:[BR("APPLEBEE'S",'#b5121b','#ffffff','#ffffff','appl',{wall:BRICK,neon:NEON_R,a:5400}),BR("CHILI'S",'#ffffff','#c8102e','#2e7d32','chili',{wall:STUCCO,neon:NEON_R,a:5800}),
+    BR('CRACKER BARREL','#5b3a1c','#f2c14e','#f2c14e','barrel',{wall:PLANKS,neon:NEON_Y,a:9500,store:true}),BR('GOLDEN CORRAL','#7b1f1f','#f6c445','#f6c445','fork',{wall:STUCCO,neon:NEON_Y,a:10000,buffet:true}),
+    BR('OLIVE GARDEN','#4e5b31','#ffffff','#c9b26b','olive',{wall:STUCCO,neon:NEON_G,a:7800}),BR('TEXAS ROADHOUSE','#7a1712','#ffffff','#ffffff','horns',{wall:PLANKS,neon:NEON_R,a:7200}),
     BR('CHEESECAKE FACTORY','#3b2a20','#e8d3a8','#e8d3a8','cake',{wall:STUCCO,neon:NEON_O,a:10000}),
-    BR("DENNY'S",'#fdd20a','#c8102e','#c8102e','egg',{wall:PAINT_YELLOW,neon:NEON_R,a:4800}),BR('IHOP','#0b4ea2','#ffffff','#e4002b','pancakes',{wall:PAINT_BLUE,neon:NEON_R,a:5000}),
-    BR('RED LOBSTER','#b5121b','#ffffff','#ffffff','fish',{wall:PLANKS,neon:NEON_R,a:7000}),BR('OUTBACK','#6a2c12','#ffd27a','#ffd27a','badge',{wall:PLANKS,neon:NEON_O,a:6500}),BR('HOOTERS','#f26522','#ffffff','#ffffff','eyeball',{wall:PLANKS,neon:NEON_O,a:5500}),BR('BUFFALO WILD WINGS','#111111','#ffc72c','#ffc72c','flame',{wall:BRICK,neon:NEON_Y,a:6000})],
-  pizza:[BR('PIZZA HUT','#ee3124','#ffffff','#ffffff','pizza',{wall:PAINT_RED,neon:NEON_R,a:3000}),BR("DOMINO'S",'#006491','#ffffff','#e31837','pizza',{wall:PAINT_BLUE,neon:NEON_R,a:1300}),
-    BR("PAPA JOHN'S",'#ffffff','#006a31','#d82a2a','pizza',{wall:PAINT_GREEN,neon:NEON_R,a:1300}),BR('LITTLE CAESARS','#ff6900','#ffffff','#111111','pizza',{wall:PAINT_ORANGE,neon:NEON_O,a:1400}),BR('CHUCK E. CHEESE','#6a2c91','#ffd200','#ffd200','skull',{wall:PAINT_NAVY,neon:NEON_M,a:3000})],
-  cafe:[BR('STARBUCKS','#00704a','#ffffff','#ffffff','crown',{wall:PLANKS,neon:NEON_G,a:2000}),BR("DUNKIN'",'#ffffff','#ff671f','#da1884','donut',{wall:PAINT_ORANGE,neon:NEON_M,a:1800}),
-    BR('TIM HORTONS','#c8102e','#ffffff','#ffffff','cup',{wall:BRICK,neon:NEON_R,a:2500}),BR('PANERA','#4a5a24','#ffffff','#e0c98a','sandwich',{wall:STUCCO,neon:NEON_G,a:3500})],
+    BR("DENNY'S",'#fdd20a','#c8102e','#c8102e','dn',{wall:PAINT_YELLOW,neon:NEON_R,a:4800}),BR('IHOP','#0b4ea2','#ffffff','#e4002b','pancakes',{wall:PAINT_BLUE,neon:NEON_R,a:5000}),
+    BR('RED LOBSTER','#b5121b','#ffffff','#ffffff','claw',{wall:PLANKS,neon:NEON_R,a:7000}),BR('OUTBACK','#6a2c12','#ffd27a','#ffd27a','boomer',{wall:PLANKS,neon:NEON_O,a:6500}),BR('HOOTERS','#f26522','#ffffff','#ffffff','owl',{wall:PLANKS,neon:NEON_O,a:5500}),BR('BUFFALO WILD WINGS','#111111','#ffc72c','#ffc72c','wing',{wall:BRICK,neon:NEON_Y,a:6000})],
+  pizza:[BR('PIZZA HUT','#ee3124','#ffffff','#ffffff','hut',{wall:PAINT_RED,neon:NEON_R,a:3000}),BR("DOMINO'S",'#006491','#ffffff','#e31837','domino',{wall:PAINT_BLUE,neon:NEON_R,a:1300}),
+    BR("PAPA JOHN'S",'#ffffff','#006a31','#d82a2a','pj',{wall:PAINT_GREEN,neon:NEON_R,a:1300}),BR('LITTLE CAESARS','#ff6900','#ffffff','#111111','laurel',{wall:PAINT_ORANGE,neon:NEON_O,a:1400}),BR('CHUCK E. CHEESE','#6a2c91','#ffd200','#ffd200','mouse',{wall:PAINT_NAVY,neon:NEON_M,a:3000})],
+  cafe:[BR('STARBUCKS','#00704a','#ffffff','#ffffff','siren',{wall:PLANKS,neon:NEON_G,a:2000}),BR("DUNKIN'",'#ffffff','#ff671f','#da1884','dd',{wall:PAINT_ORANGE,neon:NEON_M,a:1800}),
+    BR('TIM HORTONS','#c8102e','#ffffff','#ffffff','th',{wall:BRICK,neon:NEON_R,a:2500}),BR('PANERA','#4a5a24','#ffffff','#e0c98a','loaf',{wall:STUCCO,neon:NEON_G,a:3500})],
   hospital:[BR('HOSPITAL','#ffffff','#0d47a1','#e53935','cross'),BR('GENERAL HOSPITAL','#0d47a1','#ffffff','#ff5252','cross'),BR('MERCY HOSPITAL','#ffffff','#b71c1c','#b71c1c','cross'),
     BR('MEDICAL CENTER','#00796b','#ffffff','#ffffff','cross'),BR('MEMORIAL HOSPITAL','#ffffff','#1565c0','#e53935','cross'),BR('REGIONAL HOSPITAL','#ffffff','#00695c','#00695c','cross')],
   police:[BR('POLICE','#0d1b4a','#ffffff','#ffd54f','badge'),BR('POLICE DEPT.','#0d1b4a','#ffffff','#90caf9','badge'),BR('POLICE PRECINCT','#1a237e','#ffffff','#ffd54f','badge')],
   fire:[BR('FIRE STATION','#b71c1c','#ffffff','#ffca28','flame'),BR('FIRE DEPT.','#b71c1c','#ffffff','#ffffff','flame'),BR('FIRE CO. NO. 9','#7f0000','#ffd54f','#ffd54f','flame')],
   garage:[BR('PARKING','#1565c0','#ffffff','#ffffff','P'),BR('PARK-N-GO','#2e7d32','#ffffff','#ffffff','P'),BR('PARKING GARAGE','#1565c0','#ffffff','#ffffff','P')],
   mall:[BR('MALL','#37474f','#ffffff','#ffb300','bag'),BR('GALLERIA','#4a148c','#ffffff','#ffd54f','bag'),BR('TOWN CENTER','#00695c','#ffffff','#ffe082','bag'),BR('OUTLETS','#bf360c','#ffffff','#ffffff','tag')],
-  office:[BR('BANK OF AMERICA','#012169','#ffffff','#e31837','bank'),BR('CHASE','#117aca','#ffffff','#ffffff','bank'),BR('WELLS FARGO','#d71e28','#ffcd41','#ffcd41','bank'),
-    BR('AMAZON','#232f3e','#ffffff','#ff9900','box'),BR('GOOGLE','#ffffff','#4285f4','#ea4335','globe'),BR('MICROSOFT','#ffffff','#5e5e5e','#00a4ef','globe'),
-    BR('AT&T','#ffffff','#00a8e0','#00a8e0','phone'),BR('VERIZON','#000000','#ffffff','#ee0000','phone'),BR('STATE FARM','#ffffff','#e31837','#e31837','house'),
-    BR('FEDEX','#4d148c','#ffffff','#ff6600','box'),
-    BR('APPLE','#111111','#ffffff','#b8e08a','wormapple'),BR('TESLA','#111111','#ffffff','#e31837','bolt'),BR('NETFLIX','#111111','#e50914','#e50914','film'),BR('META','#ffffff','#0668e1','#0668e1','eyeball'),BR('GEICO','#00447c','#ffffff','#ffd200','skull'),BR('UPS','#351c15','#ffb500','#ffb500','box')],
+  office:[BR('BANK OF AMERICA','#012169','#ffffff','#e31837','boaflag'),BR('CHASE','#117aca','#ffffff','#ffffff','octa'),BR('WELLS FARGO','#d71e28','#ffcd41','#ffcd41','coach'),
+    BR('AMAZON','#232f3e','#ffffff','#ff9900','smile'),BR('GOOGLE','#ffffff','#4285f4','#ffffff','googleg'),BR('MICROSOFT','#ffffff','#5e5e5e','#ffffff','ms4'),
+    BR('AT&T','#ffffff','#00a8e0','#00a8e0','attglobe'),BR('VERIZON','#000000','#ffffff','#ffffff','vcheck'),BR('STATE FARM','#ffffff','#e31837','#e31837','rings3'),
+    BR('FEDEX','#4d148c','#ffffff','#ffffff','fx'),
+    BR('APPLE','#111111','#ffffff','#b8e08a','wormapple'),BR('TESLA','#111111','#ffffff','#e31837','teslat'),BR('NETFLIX','#111111','#e50914','#e50914','nflx'),BR('META','#ffffff','#0668e1','#0668e1','infin'),BR('GEICO','#00447c','#ffffff','#ffd200','gecko'),BR('UPS','#351c15','#ffb500','#ffb500','shield')],
   base:[BR('ARMY BASE','#2e3a1e','#f0e2b0','#c8a84a','badge')],airport:[BR('AIRPORT','#0d2a5a','#ffffff','#5ad0ff','globe'),BR('INTERNATIONAL','#1a1a2a','#ffffff','#ffd23a','globe')],
-  nasa:[BR('NASA','#0b3d91','#ffffff','#fc3d21','globe')],theme:[BR('FUN PARK','#c8202a','#ffe23a','#ffffff','globe'),BR('ADVENTURE LAND','#1a5a2a','#ffe23a','#ff7a2a','globe'),BR('SIX FLAGS','#0a3a8a','#ffffff','#e31837','badge'),BR('DISNEY WORLD','#0a3a8a','#ffffff','#ffd23a','crown')],
+  nasa:[BR('NASA','#0b3d91','#ffffff','#fc3d21','globe')],theme:[BR('FUN PARK','#c8202a','#ffe23a','#ffffff','globe'),BR('ADVENTURE LAND','#1a5a2a','#ffe23a','#ff7a2a','globe'),BR('SIX FLAGS','#0a3a8a','#ffffff','#e31837','flag6'),BR('DISNEY WORLD','#0a3a8a','#ffffff','#ffd23a','spires')],
   nuclear:[BR('NUCLEAR','#2a2a10','#ffe23a','#ffe23a','bolt')],
   arena:[BR('ARENA','#1a1a2a','#ffffff','#ff7a2a','globe'),BR('SPORTS CENTER','#0d2a5a','#ffffff','#ffd23a','globe')],
   campus:[BR('UNIVERSITY','#5a0a1a','#f6ead0','#d4af37','book'),BR('STATE COLLEGE','#0d2a5a','#ffffff','#d4af37','book')],
@@ -1107,24 +1107,24 @@ const BRANDS={
   zoo:[BR('ZOO','#2e5d1e','#ffffff','#ffd23a','leaf'),BR('WILD PARK','#5a3a10','#fff3d0','#e6a03a','leaf')],
   studio:[BR('STUDIOS','#1a1a1a','#ffd23a','#ffd23a','film'),BR('PICTURES','#0a1a3a','#ffffff','#e6c84a','film')],
   lab:[BR('LABORATORIES','#0a140a','#7aff4a','#7aff4a','bolt'),BR('RESEARCH','#101010','#c6ff00','#c6ff00','skull')],
-  ikea:[BR('IKEA','#0058a3','#ffda1a','#ffda1a','box')],
+  ikea:[BR('IKEA','#0058a3','#ffda1a','#ffda1a','ikeaword')],
   museum:[BR('MUSEUM','#2a2a2a','#f6ead0','#c8a24a','bone'),BR('NATURAL HISTORY','#1d3048','#ffffff','#d8b46a','bone'),BR('ART MUSEUM','#5a1a1a','#ffffff','#e8c87a','mask')],
   aquarium:[BR('AQUARIUM','#0a4a7a','#ffffff','#5ad0ff','fish'),BR('SEA WORLD','#003a5a','#ffe9a0','#4ac8e8','fish')],
-  casino:[BR('JACKPOT','#3a0010','#ffd23a','#ff3a8c','dollar'),BR('GOLD RUSH','#101010','#ffcf40','#ffcf40','dollar'),BR('LUCKY STRIKE','#0a2a10','#ffe23a','#ff4a3a','dollar'),BR('CAESARS PALACE','#1a1030','#ffd23a','#ffd23a','crown'),BR('BELLAGIO','#0a2a3a','#f6e2b0','#f6e2b0','drop')],
+  casino:[BR('JACKPOT','#3a0010','#ffd23a','#ff3a8c','dollar'),BR('GOLD RUSH','#101010','#ffcf40','#ffcf40','dollar'),BR('LUCKY STRIKE','#0a2a10','#ffe23a','#ff4a3a','dollar'),BR('CAESARS PALACE','#1a1030','#ffd23a','#ffd23a','laurel'),BR('BELLAGIO','#0a2a3a','#f6e2b0','#f6e2b0','fountain')],
   school:[BR('ELEMENTARY','#7a1a1a','#ffffff','#ffd23a','book'),BR('HIGH SCHOOL','#0d2a5a','#ffffff','#ffd23a','book'),BR('MIDDLE SCHOOL','#1a4a2a','#ffffff','#f0e2b0','book')],
   factory:[BR('STEEL WORKS','#3a2a20','#ffb070','#ff7a2a','bolt'),BR('CANNERY','#f4efe2','#7a3b16','#d0763a','bucket'),BR('CHEMICAL CO','#1a3a2a','#c6ff00','#c6ff00','drop'),BR('AUTO PLANT','#1a1a2a','#ffffff','#e53935','car')],
   datacenter:[BR('DATA CENTER','#101820','#7ad0ff','#7ad0ff','tv')],
   electric:[BR('POWER & LIGHT','#1a2a4a','#ffe23a','#ffe23a','bolt')],
   nursery:[BR('NURSERY','#2e5d1e','#ffffff','#a6e36a','leaf'),BR('GARDEN CENTRE','#4a6a20','#fff6d0','#e6c84a','leaf')],
-  dealer:[BR('MOTORS','#0d2a5a','#ffffff','#e53935','car'),BR('AUTO MALL','#b71c1c','#ffffff','#ffd23a','car'),BR('USED CARS','#f9a825','#1a1a1a','#1a1a1a','car'),BR('FORD','#00366b','#ffffff','#ffffff','car'),BR('TOYOTA','#ffffff','#d71920','#d71920','car'),BR('CARMAX','#003a70','#ffd200','#ffd200','car')],
+  dealer:[BR('MOTORS','#0d2a5a','#ffffff','#e53935','car'),BR('AUTO MALL','#b71c1c','#ffffff','#ffd23a','car'),BR('USED CARS','#f9a825','#1a1a1a','#1a1a1a','car'),BR('FORD','#00366b','#ffffff','#ffffff','fordo'),BR('TOYOTA','#ffffff','#d71920','#d71920','toy'),BR('CARMAX','#003a70','#ffd200','#ffd200','max')],
   armory:[BR('ARMORY','#3a2a1a','#f0e2b0','#b8962a','badge')],
   theater:[BR('THEATRE','#5a0a1a','#ffe9b0','#d4af37','mask'),BR('OPERA HOUSE','#1a1030','#f6e2b0','#d4af37','mask')],
   stocks:[BR('STOCK EXCHANGE','#0b2a1a','#e8f6e8','#d4af37','chart')],
   library:[BR('LIBRARY','#3e2a1a','#f6ead0','#d8b46a','book'),BR('PUBLIC LIBRARY','#1d3048','#ffffff','#9ec3e6','book')],
-  cinema:[BR('CINEMA','#7a0e14','#ffe27a','#ffd23a','film'),BR('PICTURE HOUSE','#1a1a2a','#ffd23a','#ff4a4a','film'),BR('MOVIE PALACE','#3a0a4a','#ffffff','#ffcc33','film'),BR('AMC','#111111','#ff2a2a','#ff2a2a','film'),BR('REGAL','#3a0a4a','#ffd23a','#ffd23a','crown')],
+  cinema:[BR('CINEMA','#7a0e14','#ffe27a','#ffd23a','film'),BR('PICTURE HOUSE','#1a1a2a','#ffd23a','#ff4a4a','film'),BR('MOVIE PALACE','#3a0a4a','#ffffff','#ffcc33','film'),BR('AMC','#111111','#ff2a2a','#ff2a2a','amc'),BR('REGAL','#3a0a4a','#ffd23a','#ffd23a','crown')],
   radio:[BR('RADIO 99.9','#b71c1c','#ffffff','#ffcdd2','mic'),BR('ROCK FM','#111111','#ff9a2a','#ff9a2a','mic')],
   news:[BR('NEWS 7','#0d2a5a','#ffffff','#e53935','tv'),BR('EYEWITNESS NEWS','#b71c1c','#ffffff','#ffffff','tv')],
-  bank:[BR('SAVINGS & LOAN','#0b3d2e','#ffe9a8','#d4b45a','bank'),BR('TRUST BANK','#14234a','#ffffff','#c8a24a','bank'),BR('GOLD VAULT','#2a2210','#ffd54f','#ffd54f','dollar'),BR('CITIBANK','#003b70','#ffffff','#e31837','bank'),BR('CAPITAL ONE','#004879','#ffffff','#d22e1e','bank')],
+  bank:[BR('SAVINGS & LOAN','#0b3d2e','#ffe9a8','#d4b45a','bank'),BR('TRUST BANK','#14234a','#ffffff','#c8a24a','bank'),BR('GOLD VAULT','#2a2210','#ffd54f','#ffd54f','dollar'),BR('CITIBANK','#003b70','#ffffff','#e31837','citi'),BR('CAPITAL ONE','#004879','#ffffff','#d22e1e','cap1')],
   disco:[BR('DISCO','#2a0a3a','#ff6ad5','#6ae8ff','globe'),BR('NIGHT FEVER','#120a2a','#ffe23a','#ff3a8c','globe')],
   club:[BR('SLIME PIT','#0a1a0a','#7aff4a','#7aff4a','skull'),BR('ROTTEN TOOTH','#1a0a0a','#ff4a3a','#9aff6a','skull'),BR('KING','#101010','#c6ff00','#c6ff00','skull')],
   // the little shops: made-up names (the sign reads GOBLIN + the name)
@@ -1134,10 +1134,10 @@ const BRANDS={
   guns:[BR('GUNS & AMMO','#2b2b2b','#ffcf40','#d32f2f','target'),BR('ARMS & TACKLE','#3e3a2a','#f0e2b0','#c0392b','target')],
   bar:[BR('TAVERN','#3a1f12','#ffd27a','#c9822b','mug'),BR('PUB','#123826','#f6e7b0','#d4a84b','mug'),BR('ALEHOUSE','#4a1020','#ffe0b0','#e06a3a','mug')],
   soup:[BR('SOUP KITCHEN','#f4efe2','#7a3b16','#d0763a','bowl'),BR('COMMUNITY MEALS','#e9f1e4','#2f5d34','#8bb46a','bowl')],
-  shop:[BR('CVS','#cc0000','#ffffff','#ffffff','pill'),BR('WALGREENS','#e31837','#ffffff','#ffffff','pill'),BR('GAMESTOP','#000000','#ffffff','#e10600','gamepad'),
-    BR('SUBWAY','#008938','#ffc20e','#ffffff','sandwich'),BR('RADIOSHACK','#e31b23','#ffffff','#ffffff','bolt'),
-    BR('FOOT LOCKER','#000000','#ffffff','#e31837','shoe'),BR('BLOCKBUSTER','#003b8e','#ffd200','#ffd200','tv'),
-    BR('HOT TOPIC','#111111','#ff2a6a','#ff2a6a','skull'),BR('SEPHORA','#111111','#ffffff','#ffffff','flame'),BR('MATTRESS FIRM','#e31837','#ffffff','#ffffff','house'),BR('THE UPS STORE','#351c15','#ffb500','#ffb500','box'),BR('BATH & BODY WORKS','#ffffff','#0a3a8a','#0a3a8a','drop'),BR('H&R BLOCK','#00a651','#ffffff','#ffffff','dollar')]};
+  shop:[BR('CVS','#cc0000','#ffffff','#ffffff','heart'),BR('WALGREENS','#e31837','#ffffff','#ffffff','bigw'),BR('GAMESTOP','#000000','#ffffff','#e10600','pad'),
+    BR('SUBWAY','#008938','#ffc20e','#ffffff','subs'),BR('RADIOSHACK','#e31b23','#ffffff','#ffffff','tshack'),
+    BR('FOOT LOCKER','#000000','#ffffff','#e31837','ref'),BR('BLOCKBUSTER','#003b8e','#ffd200','#ffd200','ticket'),
+    BR('HOT TOPIC','#111111','#ff2a6a','#ff2a6a','skull'),BR('SEPHORA','#111111','#ffffff','#ffffff','flame'),BR('MATTRESS FIRM','#e31837','#ffffff','#ffffff','bed'),BR('THE UPS STORE','#351c15','#ffb500','#ffb500','shield'),BR('BATH & BODY WORKS','#ffffff','#0a3a8a','#0a3a8a','bottle'),BR('H&R BLOCK','#00a651','#ffffff','#ffffff','hrb')]};
 // give a building a brand (h: a seeded 0..1) and repaint it to match
 const brandPick=(cat,h)=>{const L=BRANDS[cat];return L[Math.min(L.length-1,Math.floor(h*L.length))];};
 const areaBl=(B,k)=>(B.a||3000)/22*(k||1);
@@ -12963,8 +12963,14 @@ function knockFixtures(x,z,r,dx,dz){let n=0;for(const f of activeFix){const ex=f
 
 // ---- chain-store signs: a lit panel with the brand's picture, "GOBLIN" and the name, on the building's front ----
 // Each sign knows which wall blocks hold it up; once most of them are smashed it falls away in a puff.
-function signIcon(x,ic,cx,cy,s,c){
+function signIcon(x,ic,cx,cy,s,c,a){a=a||'#ffffff';
   x.save();x.translate(cx,cy);x.fillStyle=c;x.strokeStyle=c;x.lineWidth=s*0.16;x.lineCap='round';x.lineJoin='round';
+  const T=(t,sz,dx,dy,col)=>{x.fillStyle=col||c;x.font='900 '+Math.round(s*sz)+'px "Arial Black", Arial, sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(t,(dx||0)*s,(dy||0)*s);x.fillStyle=c;};
+  const E=(px,py,rx,ry,rot,col)=>{x.fillStyle=col||c;x.beginPath();x.ellipse(px*s,py*s,rx*s,ry*s,rot||0,0,Math.PI*2);x.fill();x.fillStyle=c;};
+  const W=(pts,w,col)=>{x.strokeStyle=col||c;x.lineWidth=s*w;x.beginPath();pts.forEach((p,i)=>i?x.lineTo(p[0]*s,p[1]*s):x.moveTo(p[0]*s,p[1]*s));x.stroke();x.strokeStyle=c;};
+  const G=(pts,col)=>{x.fillStyle=col||c;x.beginPath();pts.forEach((p,i)=>i?x.lineTo(p[0]*s,p[1]*s):x.moveTo(p[0]*s,p[1]*s));x.closePath();x.fill();x.fillStyle=c;};
+  const B=(px,py,w,h,col)=>{x.fillStyle=col||c;x.fillRect(px*s,py*s,w*s,h*s);x.fillStyle=c;};
+  const O=(px,py,r,w,col,a0,a1)=>{x.strokeStyle=col||c;x.lineWidth=s*w;x.beginPath();x.arc(px*s,py*s,r*s,a0===undefined?0:a0,a1===undefined?Math.PI*2:a1);x.stroke();x.strokeStyle=c;};
   const R=(a,b,w,h)=>x.fillRect(a,b,w,h),C=(a,b,r)=>{x.beginPath();x.arc(a,b,r,0,Math.PI*2);x.fill();},L=pts=>{x.beginPath();pts.forEach((p,i)=>i?x.lineTo(p[0],p[1]):x.moveTo(p[0],p[1]));x.stroke();},F=pts=>{x.beginPath();pts.forEach((p,i)=>i?x.lineTo(p[0],p[1]):x.moveTo(p[0],p[1]));x.closePath();x.fill();};
   switch(ic){
     case'cart':L([[-s,-s*.7],[-s*.65,-s*.7],[-s*.35,s*.35],[s*.75,s*.35],[s*.95,-s*.4],[-s*.5,-s*.4]]);C(-s*.25,s*.7,s*.17);C(s*.55,s*.7,s*.17);break;
@@ -13018,9 +13024,94 @@ function signIcon(x,ic,cx,cy,s,c){
     case'spark':x.lineWidth=s*.24;x.lineCap='round';for(let i=0;i<6;i++){const a=i*Math.PI/3+Math.PI/6,w=i%2?0.08:-0.08;L([[Math.cos(a)*s*.32,Math.sin(a)*s*.32],[Math.cos(a+w)*s,Math.sin(a+w)*s]]);}break;
     case'eyeball':x.lineWidth=s*.24;x.beginPath();x.arc(0,0,s*.82,0,Math.PI*2);x.stroke();C(0,0,s*.36);x.save();x.lineWidth=s*.07;for(const a of [0.5,2.2,3.9,5.3]){L([[Math.cos(a)*s*.48,Math.sin(a)*s*.48],[Math.cos(a+.25)*s*.68,Math.sin(a+.25)*s*.68]]);}x.restore();break;
     case'arches':x.lineWidth=s*.32;x.beginPath();x.moveTo(-s*.95,s*.95);x.quadraticCurveTo(-s*.75,-s*1.25,-s*.28,-s*.4);x.quadraticCurveTo(-s*.08,s*.1,0,s*.35);x.quadraticCurveTo(s*.08,s*.1,s*.28,-s*.4);x.quadraticCurveTo(s*.75,-s*1.25,s*.95,s*.95);x.stroke();C(-s*.95,s*1.0,s*.17);C(0,s*.5,s*.14);break;
-    case'scallop':x.beginPath();x.moveTo(0,s*.95);for(let i=0;i<=6;i++){const a=Math.PI+i*Math.PI/6,rr=i%2?s*.82:s;x.lineTo(Math.cos(a)*rr,Math.sin(a)*rr-s*.05);}x.closePath();x.fill();x.save();x.globalCompositeOperation='destination-out';x.lineWidth=s*.1;for(const q of [-.55,-.2,.2,.55])L([[0,s*.75],[q*s*1.3,-s*.75]]);F([[s*.45,-s*.95],[s*.95,-s*.95],[s*.95,-s*.35]]);x.restore();break;
-    case'crown':F([[-s,s*.65],[-s,-s*.55],[-s*.5,s*.05],[0,-s*.85],[s*.5,s*.05],[s,-s*.55],[s,s*.65]]);x.save();x.globalCompositeOperation='destination-out';C(-s*.35,s*.25,s*.13);C(s*.35,s*.25,s*.13);x.restore();break;
-    case'wormapple':x.beginPath();x.arc(-s*.28,s*.1,s*.62,0,Math.PI*2);x.arc(s*.28,s*.1,s*.62,0,Math.PI*2);x.fill();R(-s*.06,-s*.95,s*.12,s*.45);x.save();x.globalCompositeOperation='destination-out';C(s*.72,-s*.2,s*.32);x.restore();C(s*.62,-s*.42,s*.12);C(s*.78,-s*.55,s*.1);break;
+    // ---- the parody logos, a goblin take on each. s is about 0.6 of the disc's radius, so they can reach to about 1.5 ----
+    case'scallop':for(let i=-3;i<=3;i++){const t=i*0.3;W([[0,1],[Math.sin(t)*1.28,-Math.cos(t)*1.28+.25]],.3);}G([[-.55,.65],[.55,.65],[.35,1.05],[-.35,1.05]]);B(.1,-1.05,.28,.5,a);break;
+    case'siren':O(0,0,1.25,.3);G([[-.5,-.45],[-.5,-.95],[-.25,-.7],[0,-1],[.25,-.7],[.5,-.95],[.5,-.45]]);E(0,-.05,.5,.5);G([[-.45,-.15],[-1,-.45],[-.5,.15]]);G([[.45,-.15],[1,-.45],[.5,.15]]);E(-.2,-.1,.1,.1,0,a);E(.2,-.1,.1,.1,0,a);W([[-.45,.45],[-.8,.75],[-.5,.95]],.2);W([[.45,.45],[.8,.75],[.5,.95]],.2);G([[-.15,.2],[-.05,.38],[.05,.2]],a);break;
+    case'wormapple':E(-.38,.15,.68,.82);E(.38,.15,.68,.82);W([[0,-.6],[.2,-1.15]],.18);E(.72,-.25,.42,.42,0,a);W([[.45,-.55],[.65,-.75],[.9,-.6],[1.1,-.8]],.2,'#6fbf3a');E(1.14,-.86,.13,.13,0,'#6fbf3a');break;
+    case'crown':G([[-1.05,.7],[-1.15,-.55],[-.55,.05],[0,-.95],[.55,.05],[1.15,-.55],[1.05,.7]]);E(-.45,.35,.13,.13,0,a);E(0,.3,.15,.15,0,a);E(.45,.35,.13,.13,0,a);break;
+    case'bigk':T('K',2.5,-.3,-.1);T('mart',.56,.42,.72);break;
+    case'kr':T('Kr',2,0,.05);break;
+    case'crates':for(const [u,v] of [[-.95,.15],[0,.15],[.05,-.75]]){B(u,v,.85,.8);B(u+.1,v+.33,.65,.12,a);}B(-.95,1,1.9,.15);break;
+    case'aldi':G([[-1,1],[-.15,-1.1],[.15,-1.1],[1,1]]);for(const t of [-.55,0,.55])W([[t-.42,.75],[t+.3,-.75]],.1,a);break;
+    case'pig':E(0,.1,1.05,.95);G([[-.9,-.3],[-1.1,-1.05],[-.35,-.7]]);G([[.9,-.3],[1.1,-1.05],[.35,-.7]]);E(0,.35,.55,.38,0,a);E(-.2,.35,.11,.17);E(.2,.35,.11,.17);E(-.42,-.25,.12,.12,0,a);E(.42,-.25,.12,.12,0,a);break;
+    case'diamond':G([[0,-1.2],[1.2,0],[0,1.2],[-1.2,0]]);W([[-.5,.05],[-.05,.5],[.55,-.4]],.26,a);break;
+    case'depot':x.save();x.rotate(-.22);B(-1.05,-1.05,2.1,2.1);T('GOB',.82,0,-.35,a);T('DEPOT',.56,0,.42,a);x.restore();break;
+    case'gable':G([[-1.3,-.1],[0,-1.05],[1.3,-.1],[1,-.1],[0,-.72],[-1,-.1]]);T('LOW',.95,0,.45);break;
+    case'esS':T('S',2.8,0,.05);break;
+    case'pp':T('P',2.7,0,.05);break;
+    case'bbtag':x.save();x.rotate(-.18);G([[-1.25,-.65],[.75,-.65],[1.3,0],[.75,.65],[-1.25,.65]]);E(.82,0,.13,.13,0,a);T('BITE',.72,-.28,.04,a);x.restore();break;
+    case'heart':x.beginPath();x.moveTo(0,1.1*s);x.bezierCurveTo(-1.6*s,-.1*s,-1*s,-1.2*s,0,-.45*s);x.bezierCurveTo(1*s,-1.2*s,1.6*s,-.1*s,0,1.1*s);x.fill();T('RX',.62,0,-.08,a);break;
+    case'bigw':x.save();x.transform(1,0,-.22,1,0,0);T('W',2.3,.05,.05);x.restore();break;
+    case'dg':T('DG',1.7,0,.05);break;
+    case'rite':T('RA',1.65,0,.05);break;
+    case'xx':T('XX',1.9,0,.05);break;
+    case'chev':W([[-1.1,-.7],[0,-.05],[1.1,-.7]],.42);W([[-1.1,.05],[0,.7],[1.1,.05]],.42,'#0054a4');break;
+    case'helios':for(let i=0;i<10;i++){const t=i*Math.PI/5;E(Math.cos(t)*.85,Math.sin(t)*.85,.42,.2,t);}E(0,0,.42,.42,0,'#ffffff');break;
+    case'seven':T('7',3,0,.05,'#f47a20');B(-1.1,-.28,2.2,.22,c);break;
+    case'texstar':O(0,0,1.2,.22);x.beginPath();for(let i=0;i<10;i++){const t=-Math.PI/2+i*Math.PI/5,r=(i%2?.42:1.05)*s;x.lineTo(Math.cos(t)*r,Math.sin(t)*r);}x.closePath();x.fill();T('T',.85,0,.03,a);break;
+    case'mo':T('Mo',1.9,0,.05);G([[-1.25,-1.05],[-.35,-.7],[-.95,-.7]],'#0a3a8a');break;
+    case'beaver':E(-.75,-.8,.32,.32);E(.75,-.8,.32,.32);E(0,0,1.05,1);E(-.38,-.25,.26,.3,0,a);E(.38,-.25,.26,.3,0,a);E(-.34,-.2,.12,.14);E(.34,-.2,.12,.14);E(0,.2,.3,.2,0,a);B(-.28,.42,.26,.5,a);B(.02,.42,.26,.5,a);break;
+    case'goose':W([[-.55,.55],[.1,.5],[.4,-.2],[.2,-.8],[.55,-1.05]],.34);E(-.3,.55,.85,.48);G([[.55,-1.2],[1.15,-.98],[.6,-.85]]);G([[-1.1,.45],[-1.45,.15],[-.8,.2]]);break;
+    case'bk':G([[-.65,-.65],[-.75,-1.3],[-.3,-.95],[0,-1.35],[.3,-.95],[.75,-1.3],[.65,-.65]]);x.beginPath();x.arc(0,-.05*s,.95*s,Math.PI,0);x.fill();B(-1,.08,2,.22);B(-.95,.42,1.9,.42);break;
+    case'hat':E(0,.42,1.35,.34);G([[-.72,.35],[-.58,-.72],[-.15,-.5],[.15,-.5],[.58,-.72],[.72,.35]]);B(-.72,.08,1.44,.14,a);break;
+    case'wendy':E(-1.05,-.2,.32,.32);E(1.05,-.2,.32,.32);x.beginPath();x.arc(0,-.05*s,.95*s,Math.PI,0);x.fill();E(0,.25,.82,.78,0,'#7bc043');E(-.3,.1,.1,.12,0,'#222');E(.3,.1,.1,.12,0,'#222');W([[-.32,.5],[0,.68],[.32,.5]],.1,'#222');G([[-.82,.05],[-1.3,-.65],[-.68,-.3]],'#7bc043');G([[.82,.05],[1.3,-.65],[.68,-.3]],'#7bc043');break;
+    case'colonel':E(0,-.1,.85,.92,0,'#7bc043');x.beginPath();x.arc(0,-.3*s,.86*s,Math.PI,0);x.fill();O(-.34,-.1,.25,.1,'#111');O(.34,-.1,.25,.1,'#111');E(-.34,-.1,.08,.08,0,'#111');E(.34,-.1,.08,.08,0,'#111');G([[-.28,.32],[.28,.32],[0,1]],'#ffffff');G([[-.5,.92],[0,.72],[.5,.92],[.5,1.2],[0,1],[-.5,1.2]]);break;
+    case'bell':x.beginPath();x.moveTo(-1.05*s,.65*s);x.quadraticCurveTo(-.6*s,.3*s,-.55*s,-.3*s);x.quadraticCurveTo(-.5*s,-1.05*s,0,-1.05*s);x.quadraticCurveTo(.5*s,-1.05*s,.55*s,-.3*s);x.quadraticCurveTo(.6*s,.3*s,1.05*s,.65*s);x.closePath();x.fill();E(0,.88,.24,.24);break;
+    case'cfa':O(.05,.1,.82,.46,c,.75,5.55);E(.45,-.98,.17,.17);E(.75,-.9,.17,.17);E(.98,-.68,.17,.17);break;
+    case'whitecastle':B(-.95,-.55,1.9,1.5);for(const t of [-.95,-.42,.11,.64])B(t,-.95,.31,.42);B(-.22,.35,.44,.6,a);B(-.62,-.2,.26,.3,a);B(.36,-.2,.26,.3,a);break;
+    case'dq':E(0,0,1.3,.82);T('GQ',1.05,0,.03,'#ffffff');break;
+    case'appl':E(-.38,.2,.62,.78);E(.38,.2,.62,.78);W([[0,-.5],[.1,-1]],.16,'#5a3a1c');E(.45,-.85,.4,.17,-.4,'#3f9a3a');break;
+    case'chili':x.beginPath();x.moveTo(-1,1*s);x.quadraticCurveTo(.35*s,.75*s,.5*s,-.45*s);x.quadraticCurveTo(1.15*s,-.3*s,1*s,.25*s);x.quadraticCurveTo(.65*s,1.4*s,-1*s,1*s);x.fill();W([[.75,-.4],[.65,-.8],[.95,-1.05]],.2,'#3f9a3a');break;
+    case'barrel':E(0,0,.92,1.15);B(-.95,-.5,1.9,.14,a);B(-.95,.36,1.9,.14,a);E(0,-.98,.62,.17,0,a);break;
+    case'olive':W([[-1.1,.9],[-.2,.1],[.9,-.9]],.12);for(const [u,v,t] of [[-.7,.1,-.5],[-.1,-.5,-.5],[.5,-.95,-.5],[-.3,.75,.3],[.35,.2,.3],[.95,-.3,.3]])E(u,v,.38,.17,t);E(.1,.85,.28,.34,0,'#3a4a1e');E(.1,.72,.09,.09,0,'#c8102e');break;
+    case'horns':E(0,.2,.5,.85);G([[-.45,-.3],[-1.45,-.45],[-1.3,-1.2],[-1,-.72],[-.35,-.72]]);G([[.45,-.3],[1.45,-.45],[1.3,-1.2],[1,-.72],[.35,-.72]]);E(-.2,.05,.12,.12,0,a);E(.2,.05,.12,.12,0,a);E(-.15,.75,.08,.08,0,a);E(.15,.75,.08,.08,0,a);break;
+    case'claw':E(0,.75,.42,.5);G([[-.32,.5],[-1.05,-.55],[-.25,-1.2],[-.08,-.3],[-.5,-.5]]);G([[.32,.5],[1.05,-.55],[.25,-1.2],[.08,-.3],[.5,-.5]]);for(const v of [.55,.85])B(-.42,v,.84,.08,a);break;
+    case'owl':G([[-1.1,-.75],[-.45,-1],[0,-.72],[.45,-1],[1.1,-.75],[1.05,.65],[0,1.15],[-1.05,.65]]);E(-.45,-.15,.42,.42,0,a);E(.45,-.15,.42,.42,0,a);E(-.45,-.15,.2,.2);E(.45,-.15,.2,.2);G([[-.16,.2],[.16,.2],[0,.55]],a);break;
+    case'boomer':x.beginPath();x.moveTo(-1.2*s,.75*s);x.quadraticCurveTo(-.3*s,-.85*s,1.2*s,-.75*s);x.quadraticCurveTo(.25*s,-.2*s,.65*s,1*s);x.quadraticCurveTo(-.3*s,-.1*s,-1.2*s,.75*s);x.fill();break;
+    case'wing':x.beginPath();x.moveTo(-1.1*s,.55*s);x.quadraticCurveTo(-.2*s,-1.25*s,1.2*s,-.85*s);x.lineTo(.8*s,-.35*s);x.lineTo(1.05*s,-.25*s);x.lineTo(.55*s,.15*s);x.lineTo(.75*s,.3*s);x.lineTo(.1*s,.65*s);x.quadraticCurveTo(-.5*s,.95*s,-1.1*s,.55*s);x.fill();break;
+    case'hut':G([[-1.3,.5],[-.72,-.72],[.72,-.72],[1.3,.5]]);B(-.72,-.98,.32,.4);G([[-1.3,.5],[1.3,.5],[1.05,.85],[-1.05,.85]],a);break;
+    case'domino':x.save();x.rotate(.6);B(-.68,-1.25,1.36,2.5);B(-.68,-.06,1.36,.12,a);for(const [u,v] of [[-.32,-.92],[0,-.62],[.32,-.32],[-.32,.38],[.32,.38],[-.32,.9],[.32,.9]])E(u,v,.15,.15,0,a);x.restore();break;
+    case'pj':T('PJ',1.8,0,.05);break;
+    case'laurel':for(const m of [-1,1])for(let i=0;i<6;i++){const t=1.2+i*.42;E(m*Math.sin(t)*1.05,-Math.cos(t)*1.05-.05,.34,.15,m*(t+Math.PI/2)*-1);}T('GOB',.62,0,-.05);break;
+    case'mouse':E(-.82,-.68,.55,.55);E(.82,-.68,.55,.55);E(0,.1,.95,.95);E(-.34,-.15,.17,.2,0,a);E(.34,-.15,.17,.2,0,a);E(0,.5,.5,.28,0,a);B(-.2,.5,.18,.3);B(.04,.5,.18,.3);break;
+    case'dd':T("DD",1.9,0,.05);G([[.55,.72],[1.15,.72],[1,1.1],[.7,1.1]],'#ff671f');break;
+    case'loaf':x.beginPath();x.arc(0,-.05*s,1.05*s,Math.PI,0);x.fill();B(-1.05,-.05,2.1,.65);for(const t of [-.5,0,.5])W([[t-.12,-.65],[t+.12,-.1]],.13,a);break;
+    case'boaflag':for(const v of [-.6,0,.6]){x.strokeStyle=v?c:'#e31837';x.lineWidth=s*.34;x.beginPath();x.moveTo(-1.2*s,(v+.3)*s);x.quadraticCurveTo(-.3*s,(v-.4)*s,.3*s,(v+.05)*s);x.quadraticCurveTo(.8*s,(v+.35)*s,1.2*s,(v-.2)*s);x.stroke();}break;
+    case'octa':{const F2=[];for(let i=0;i<8;i++){const t=Math.PI/8+i*Math.PI/4;F2.push([Math.cos(t)*1.3,Math.sin(t)*1.3]);}G(F2);B(-.48,-.48,.96,.96,a);break;}
+    case'coach':B(-1,-.6,1.45,.85);G([[.45,-.6],[1.05,-.6],[.45,.25]]);B(-1.2,.2,2.2,.15);B(-.7,-.42,.42,.36,a);E(-.65,.72,.38,.38);E(.55,.72,.38,.38);E(-.65,.72,.13,.13,0,a);E(.55,.72,.13,.13,0,a);break;
+    case'smile':T('a',2.5,0,-.3);x.strokeStyle=c;x.lineWidth=s*.24;x.beginPath();x.moveTo(-1.05*s,.75*s);x.quadraticCurveTo(0,1.45*s,1.05*s,.7*s);x.stroke();G([[-.42,1],[-.15,1.08],[-.3,.72]]);G([[.5,.98],[.25,1.08],[.38,.72]]);G([[1.25,.5],[1.2,1],[.8,.82]]);break;
+    case'googleg':O(0,0,.95,.5,'#ea4335',3.6,5.5);O(0,0,.95,.5,'#fbbc05',2.6,3.7);O(0,0,.95,.5,'#34a853',.85,2.7);O(0,0,.95,.5,'#4285f4',-.2,.9);B(0,-.2,1.2,.4,'#4285f4');W([[-.55,.9],[-.55,1.35]],.16,'#34a853');break;
+    case'ms4':B(-1.05,-1.05,1,1,'#f25022');B(.08,-1.05,1,1,'#7fba00');B(-1.05,.08,1,1,'#00a4ef');x.save();x.translate(.58*s,.58*s);x.rotate(.35);B(-.5,-.5,1,1,'#ffb900');x.restore();break;
+    case'attglobe':E(0,0,1.25,1.25);for(const v of [-.65,-.2,.25,.7]){x.strokeStyle=a;x.lineWidth=s*(.1+(v+1)*.1);x.beginPath();x.moveTo(-1.3*s,(v+.35)*s);x.quadraticCurveTo(0,(v-.45)*s,1.3*s,(v+.1)*s);x.stroke();}break;
+    case'vcheck':W([[-1,-.05],[-.3,.85],[1.15,-1.05]],.5,'#ee0000');break;
+    case'rings3':O(0,-.45,.6,.26);O(-.55,.42,.6,.26);O(.55,.42,.6,.26);break;
+    case'toy':x.save();x.lineWidth=s*.2;x.strokeStyle=c;for(const [rx,ry] of [[1.3,.85],[.42,.85],[.85,.36]]){x.beginPath();x.ellipse(0,rx===.85?-.28*s:0,rx*s,ry*s,0,0,Math.PI*2);x.stroke();}x.restore();break;
+    case'fx':T('Gx',1.7,-.05,.0);G([[-.75,.55],[.45,.55],[.45,.3],[1.2,.8],[.45,1.3],[.45,1.05],[-.75,1.05]],'#ff6600');break;
+    case'shield':G([[-1.05,-.95],[1.05,-.95],[1.05,.25],[0,1.2],[-1.05,.25]]);T('GOB',.82,0,-.12,a);G([[-1.05,-.95],[0,-1.3],[1.05,-.95]]);break;
+    case'teslat':x.beginPath();x.moveTo(-1.25*s,-.95*s);x.quadraticCurveTo(0,-1.3*s,1.25*s,-.95*s);x.lineTo(.95*s,-.62*s);x.quadraticCurveTo(0,-.85*s,-.95*s,-.62*s);x.closePath();x.fill();G([[-.5,-.55],[.5,-.55],[.17,-.25],[.17,1.15],[-.17,1.15],[-.17,-.25]]);break;
+    case'nflx':B(-.85,-1.15,.5,2.3);B(.35,-1.15,.5,2.3);G([[-.85,-1.15],[-.35,-1.15],[.85,1.15],[.35,1.15]],'#8a0a10');break;
+    case'infin':O(-.55,0,.5,.3);O(.55,0,.5,.3);break;
+    case'gecko':W([[-1,1],[-.9,.3],[-.2,.1],[.35,-.3]],.34);E(.65,-.55,.55,.4,-.5);E(.82,-.72,.14,.14,0,a);E(.84,-.72,.06,.06);for(const [u,v,p,q] of [[-.4,.2,-.8,-.3],[.05,.05,.5,.55],[-.85,.5,-1.25,.2],[-.55,.2,-.25,.75]])W([[u,v],[p,q]],.14);break;
+    case'tshack':O(0,0,1.15,.2);T('R',1.65,0,.05);break;
+    case'ref':G([[-1.2,-.6],[-.55,-1],[.55,-1],[1.2,-.6],[.95,-.1],[.6,-.3],[.6,1.05],[-.6,1.05],[-.6,-.3],[-.95,-.1]]);for(const t of [-.34,.04,.42])B(t-.09,-.85,.18,1.9,a);break;
+    case'ticket':x.save();x.rotate(-.3);G([[-1.3,-.65],[1.05,-.65],[1.05,-.32],[.82,-.15],[1.05,0],[.82,.18],[1.05,.33],[1.05,.65],[-1.3,.65]]);T('GOB',.72,-.15,.04,a);x.restore();break;
+    case'hrb':B(-1.05,-1.05,2.1,2.1);T('H&R',.88,0,.02,a);break;
+    case'amc':T('AMC',1.25,0,.05);break;
+    case'fountain':for(const r of [.5,.85,1.2]){O(0,.7,r,.14,c,Math.PI,2*Math.PI);}B(-.08,-.5,.16,1.25);B(-1.3,.72,2.6,.24);break;
+    case'citi':T('citi',1.35,0,.2);O(0,.25,1.2,.2,'#ffffff',-2.5,-.65);break;
+    case'cap1':T('C1',1.5,0,.3);x.strokeStyle='#ffffff';x.lineWidth=s*.24;x.beginPath();x.moveTo(-1.2*s,-.25*s);x.quadraticCurveTo(0,-1.3*s,1.25*s,-.75*s);x.stroke();break;
+    case'fordo':E(0,0,1.35,.85);x.font='italic 900 '+Math.round(s*.9)+'px Arial, sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillStyle=a;x.fillText('Gob',0,.03*s);break;
+    case'max':T('MAX',1.05,0,-.1);G([[-1.05,.42],[.8,.42],[1.2,.75],[.8,1.08],[-1.05,1.08]],'#ffd200');break;
+    case'flag6':W([[-.9,-1.25],[-.9,1.2]],.18);G([[-.8,-1.15],[1.2,-.7],[-.8,-.1]]);T('6',1,.3,.45);break;
+    case'spires':for(const [u,w,h] of [[-.9,.42,1.05],[-.28,.56,1.75],[.48,.42,1.3]]){B(u,1-h,w,h);G([[u-.08,1-h],[u+w/2,1-h-.5],[u+w+.08,1-h]]);}B(-1.15,.55,2.3,.45);E(0,.8,.24,.28,0,a);break;
+    case'ikeaword':E(0,0,1.32,.82);T('FLAT',.72,0,.03,a);break;
+    case'tj':T('TJ',1.8,0,.05);break;
+    case'bigm':T('M',2.4,0,.05);break;
+    case'subs':T('S',2.5,0,.05);G([[-1.3,.15],[-.8,-.15],[-.8,.45]],'#ffc20e');G([[1.3,-.15],[.8,-.45],[.8,.15]],'#ffc20e');break;
+    case'bed':B(-1.2,-.75,.24,1.8);B(.96,-.1,.24,1.15);B(-1.2,.25,2.4,.45);E(-.62,.05,.36,.22);break;
+    case'pad':x.beginPath();x.moveTo(-1.2*s,.7*s);x.quadraticCurveTo(-1.3*s,-.6*s,-.6*s,-.6*s);x.lineTo(.6*s,-.6*s);x.quadraticCurveTo(1.3*s,-.6*s,1.2*s,.7*s);x.quadraticCurveTo(.8*s,.9*s,.45*s,.25*s);x.lineTo(-.45*s,.25*s);x.quadraticCurveTo(-.8*s,.9*s,-1.2*s,.7*s);x.fill();B(-.75,-.2,.4,.12,a);B(-.61,-.34,.12,.4,a);E(.45,-.25,.1,.1,0,a);E(.72,-.08,.1,.1,0,a);break;
+    case'dn':T("D'",2.2,.05,.05);break;
+    case'th':T('TH',1.65,0,.05);break;
     case'bottle':R(-s*.15,-s,s*.3,s*.5);F([[-s*.15,-s*.5],[s*.15,-s*.5],[s*.45,-s*.15],[s*.45,s],[-s*.45,s],[-s*.45,-s*.15]]);break;
   }
   x.restore();
@@ -13056,7 +13147,7 @@ function adMat(i){
   const cv=document.createElement('canvas'),W=512,Hh=246;cv.width=W;cv.height=Hh;const x=cv.getContext('2d');
   if(x&&x.beginPath&&x.fillText){
     x.fillStyle=A.bg;x.fillRect(0,0,W,Hh);x.fillStyle=A.ac;x.fillRect(0,Hh-16,W,16);
-    const r0=Hh*0.3,cx=Hh*0.42,cy=Hh*0.46;x.beginPath();x.arc(cx,cy,r0,0,Math.PI*2);x.fill();signIcon(x,A.icon,cx,cy,r0*0.6,A.bg);
+    const r0=Hh*0.3,cx=Hh*0.42,cy=Hh*0.46;x.beginPath();x.arc(cx,cy,r0,0,Math.PI*2);x.fill();signIcon(x,A.icon,cx,cy,r0*0.6,A.bg,A.ac);
     const tx0=cx+r0+18,tw=W-tx0-18,tc=tx0+tw/2;x.textAlign='center';x.textBaseline='middle';
     // the headline: as big as fits, over two lines if it's long
     const words=A.h.split(' ');let lines=[A.h];if(A.h.length>13&&words.length>1){let best=null;for(let k=1;k<words.length;k++){const l1=words.slice(0,k).join(' '),l2=words.slice(k).join(' '),m=Math.max(l1.length,l2.length);if(!best||m<best.m)best={m,l:[l1,l2]};}lines=best.l;}
@@ -13086,14 +13177,14 @@ function brandTex(B,aspect){
     x.textAlign='center';x.textBaseline='middle';
     if(aspect>=2){
       // wide: the picture in a disc on the left, the words to the right of it
-      const r0=Hh*0.33,cx=Hh*0.52;x.fillStyle=B.ac;x.beginPath();x.arc(cx,Hh/2,r0,0,Math.PI*2);x.fill();signIcon(x,B.icon,cx,Hh/2,r0*0.6,B.bg);
+      const r0=Hh*0.33,cx=Hh*0.52;x.fillStyle=B.ac;x.beginPath();x.arc(cx,Hh/2,r0,0,Math.PI*2);x.fill();signIcon(x,B.icon,cx,Hh/2,r0*0.6,B.bg,B.ac);
       const tx0=cx+r0+Hh*0.1,tw=W-tx0-Hh*0.16,tc=tx0+tw/2;
       // "GOBLIN" and the name on two lines, both the same size (whichever fits the longer of the two)
       const px=Math.min(fit('GOBLIN',tw,Math.round(Hh*0.34),'900'),fit(B.n,tw,Math.round(Hh*0.34),'900'));x.font='900 '+px+'px "Arial Black", Arial, sans-serif';
       x.fillStyle=B.fg;x.fillText('GOBLIN',tc,Hh*0.5-px*0.56);x.fillText(B.n,tc,Hh*0.5+px*0.56);
     } else {
       // tall (a pole sign): the picture on top, the words underneath
-      const r0=Hh*0.18;x.fillStyle=B.ac;x.beginPath();x.arc(W/2,Hh*0.27,r0,0,Math.PI*2);x.fill();signIcon(x,B.icon,W/2,Hh*0.27,r0*0.6,B.bg);
+      const r0=Hh*0.18;x.fillStyle=B.ac;x.beginPath();x.arc(W/2,Hh*0.27,r0,0,Math.PI*2);x.fill();signIcon(x,B.icon,W/2,Hh*0.27,r0*0.6,B.bg,B.ac);
       const px=Math.min(fit('GOBLIN',W*0.84,Math.round(Hh*0.19),'900'),fit(B.n,W*0.84,Math.round(Hh*0.19),'900'));x.font='900 '+px+'px "Arial Black", Arial, sans-serif';
       x.fillStyle=B.fg;x.fillText('GOBLIN',W/2,Hh*0.69-px*0.56);x.fillText(B.n,W/2,Hh*0.69+px*0.56);
     }
