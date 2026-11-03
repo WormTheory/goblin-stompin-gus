@@ -1,4 +1,4 @@
-dead end x 3 0 -1 bad 0 ramp 1924 stopped 749
-dead end z 1 46 1 bad 0 ramp 12511 stopped 7585
-dead end x 12 187 1 bad 0 ramp 14750 stopped 7585
-rev 0 join 0 dead ends 3 total bad 0 u-turns 50 deck->street 95 street->deck 116 ramp samples 14750 stopped 7585
+dead end x 3 0 -1 bad 0 ramp 1300 stopped 204
+dead end z 1 46 1 bad 0 ramp 10573 stopped 5872
+dead end x 12 187 1 bad 0 ramp 24478 stopped 14465
+rev 0 join 0 dead ends 3 total bad 0 u-turns 43 deck->street 96 street->deck 100 ramp samples 24478 stopped 14465

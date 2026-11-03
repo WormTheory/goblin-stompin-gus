@@ -12199,7 +12199,8 @@ function explodeCar0(c){
 // ---- traffic control: signals hang off mast arms over each lane; stop and yield signs sit on short posts ----
 let trafficClock=0;
 // 14 s cycle: the z road gets green, yellow, all-red, then the x road does
-function lightPhase(ct,axis){const t=(trafficClock+ct.o)%14,u=axis==='z'?t:(t+7)%14;return u<5?'g':u<6.5?'y':'r';}
+// (a 24 second cycle, 10 of green each way: a shorter one lets so few cars through per green that queues never clear)
+function lightPhase(ct,axis){const t=(trafficClock+ct.o*24/14)%24,u=axis==='z'?t:(t+12)%24;return u<10?'g':u<11.5?'y':'r';}
 // a signal or sign is working until something knocks its post flat
 const sigKey=(ix,iz,d)=>'s'+ix+','+iz+','+d;
 const falling=new Map();
@@ -13697,7 +13698,7 @@ function updateCars(dt){
             if(Math.abs(H.lane-inner)>1){
               const g=2.5+c.speed*0.25;
               const free=!cars.some(o=>{if(!same(o)||!inIn(o))return false;const r=rel(o),need=c.hz+o.hz+g;return r>-need&&r<need;});
-              if(free&&dT<70)H.lane=inner;                                                     // slot in
+              if(dRamp<=0||free&&dT<70)H.lane=inner;                                           // slot in (already on the ramp, it has to, or it stops the whole slope)
               else if(dT<16+c.hz)target=Math.min(target,Math.max(0,(dT-c.hz-2)*1.2));     // the lane's ending: wait for a gap
             } else{
               if(c.zipFor&&(!c.zipFor.alive||!c.zipFor.hw||inIn(c.zipFor))){c.zipDone=true;c.zipFor=null;}   // it's in: that was this car's turn
@@ -13708,7 +13709,7 @@ function updateCars(dt){
             }}
           } else{c.zipDone=false;c.zipFor=null;}
         }
-        if(c.grounded){if(target<c.speed)c.speed=Math.max(target,c.speed-20*dt);else c.speed+=(target-c.speed)*Math.min(1,dt*0.8);}
+        if(c.grounded||sloped){if(target<c.speed)c.speed=Math.max(target,c.speed-20*dt);else c.speed+=(target-c.speed)*Math.min(1,dt*0.8);}
       } else c.speed*=Math.exp(-dt*1.5);
     }
     else if(c.hunter){
@@ -13783,11 +13784,14 @@ function updateCars(dt){
       if(c.jamT<7)for(const o of cars){if(o===c||!o.alive)continue;const ox=o.pos.x-c.pos.x,oz=o.pos.z-c.pos.z,along=ox*sh+oz*ch,lat=Math.abs(ox*ch-oz*sh);if(along>0&&along<7.5+c.hz+o.hz-3.2&&lat<1.9&&Math.abs(o.pos.y-c.pos.y)<2){const ga=along-(c.hz+o.hz-3.2);
         // head-on (one of them has strayed into the wrong lane, turning round): the stray creeps back over to its own side, the other waits
         if(Math.cos(o.heading-c.heading)<-0.5){target=Math.min(target,offLane?1.5:ga<3?0:2);continue;}
-        target=Math.min(target,ga<4?0:3);}}
+        // (following: as fast as the car in front, plus a bit for the gap. A flat crawl behind anything nearby, even something
+        // pulling away at full speed, meant a queue could never get going again before the lights changed)
+        target=Math.min(target,ga<4?0:Math.max(3,Math.max(0,o.speed*Math.cos(o.heading-c.heading))+(ga-4)*0.8));}}
       target=Math.min(target,trafficLimit(c,dt));if(c.inRound)target=Math.min(target,5);if(c.yieldSv)target=Math.min(target,0.6);
       if(tgt&&c.honkT<=0){const ox=tgt.p.pos.x-c.pos.x,oz=tgt.p.pos.z-c.pos.z,along=ox*sh+oz*ch,lat=Math.abs(ox*ch-oz*sh);if(along>0&&along<12&&lat<2.5){horn(0.05);c.honkT=2.5;}}
       // brake firmly (up to 10 u/s^2) so cars actually stop where they mean to; pull away gently
-      if(c.grounded){if(target<c.speed)c.speed=Math.max(target,c.speed-10*dt);else c.speed+=(target-c.speed)*Math.min(1,dt*1.5);}
+      // (rolling off the foot of a ramp it's barely ever 'grounded' between the little steps: without this a long truck can only coast, at a crawl, and holds everyone up)
+      if(c.grounded||rampUnder(c.pos.x,c.pos.z,c.pos.y+0.5)){if(target<c.speed)c.speed=Math.max(target,c.speed-10*dt);else c.speed+=(target-c.speed)*Math.min(1,dt*1.5);}
     }
     if(c.speed>0.3){const lim=xingLimit(c);if(lim<c.speed)c.speed=Math.max(lim,c.speed-14*dt);}   // (the barriers are down at a level crossing ahead)
     const fx=Math.sin(c.heading),fz=Math.cos(c.heading),dir=c.speed<0?-1:1;
