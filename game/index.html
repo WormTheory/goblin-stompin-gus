@@ -10267,57 +10267,76 @@ function movePlayer(p,dt){
 const goblins=[];
 const GC={skin:0x6f9a3a,dark:0x4f7426,tunic:0x5a3d22,eye:0xffd23a,club:0x7a5530,belt:0x2b1d10,mouth:0x2a1a10};
 // every goblin gets its own role-based materials (recoloured per spawn) and a full wardrobe of hidden accessories
-// ---- street goblins are drawn in batches ----
-// (each one is about 20 boxes, and drawn one by one that's 20 draw calls a goblin: a few hundred and the frame rate
-// falls apart. So their parts stay ordinary objects, for the rest of the game to move, hide and recolour as before, but
-// they're never put in the scene. Every frame gobDraw copies where each shown part is, its colour, its glow and its snow
-// into one instanced mesh per box size and material kind, about 40 draw calls however many goblins there are.)
-const GOB_BATCH=new Map(),GOB_KMAT=[];let gobGeoN=0;
-function gobKindMat(k){
-  if(GOB_KMAT[k])return GOB_KMAT[k];
-  const m=new THREE.MeshLambertMaterial(k&1?{polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-3}:{});
+// ---- drawing lots of little boxes in batches ----
+// (goblins and vehicles are built from dozens of boxes each, and drawn one by one every box is a draw call: a crowd or a
+// busy road runs to thousands, which is what caps how many there can be. So their boxes stay ordinary objects, for the
+// rest of the game to move, hide and recolour just as before, but they aren't drawn themselves. Every frame batDraw copies
+// where each shown box is, its colour, its glow and its snow into one instanced mesh per box size and kind of material:
+// a few dozen draw calls, however many goblins and cars there are.)
+const BAT=new Map(),BAT_KMAT=[],BAT_HIDE=31;let batGeoN=0;   // (BAT_HIDE: a layer no camera draws, for batched boxes left in the scene)
+// the shared material for a kind: bit 1 drawn a hair in front (hats, glasses), bit 2 catches snow, bit 4 unlit (lamps)
+function batKindMat(k){
+  if(BAT_KMAT[k])return BAT_KMAT[k];
+  const o=k&1?{polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-3}:{};
+  const m=k&4?new THREE.MeshBasicMaterial(o):new THREE.MeshLambertMaterial(o);
   m.onBeforeCompile=sh=>{sh.uniforms.uLightC=WORLD_LIGHT;
-    sh.vertexShader='attribute vec3 iEmis;attribute float iSnow;varying vec3 vEmis;varying float vSnow;varying float vUp;varying vec3 vWp;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n vEmis=iEmis;vSnow=iSnow;vUp=normalize((modelMatrix*instanceMatrix*vec4(objectNormal,0.0)).xyz).y;vWp=position;');
+    sh.vertexShader='attribute vec3 iEmis;attribute float iSnow;varying vec3 vEmis;varying float vSnow;varying float vUp;varying vec3 vWp;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n vEmis=iEmis;vSnow=iSnow;vUp=normalize((modelMatrix*instanceMatrix*vec4(normal,0.0)).xyz).y;vWp=position;');
     let f='uniform vec3 uLightC;varying vec3 vEmis;varying float vSnow;varying float vUp;varying vec3 vWp;\n'+sh.fragmentShader.replace('vec3 totalEmissiveRadiance = emissive;','vec3 totalEmissiveRadiance = emissive + vEmis;');
-    // (the same snow as snowCar, with each goblin's amount coming in per instance)
+    // (the same snow as snowCar, with each box's amount coming in per instance)
     if(k&2)f=f.replace('#include <dithering_fragment>','float sn=fract(sin(dot(mod(floor(vWp.xz*5.0+0.001),509.0),vec2(12.9898,78.233)))*43758.5453);float sc=smoothstep(0.55,0.85,vUp)*step(sn,vSnow*1.15)*step(0.002,vSnow);\n float sg=fract(sin(dot(mod(floor(vWp.xz*16.0+vWp.y*7.0+0.001),997.0),vec2(39.346,11.135)))*43758.5453);float sv=0.84+0.11*sg+0.03*step(0.93,sg);\n gl_FragColor.rgb=mix(gl_FragColor.rgb,vec3(sv,sv+0.012,sv+0.03)*max(uLightC,vec3(0.22)),sc);\n#include <dithering_fragment>');
     sh.fragmentShader=f;};
-  m.customProgramCacheKey=()=>'gobinst'+k;
-  return GOB_KMAT[k]=m;
+  m.customProgramCacheKey=()=>'batinst'+k;
+  return BAT_KMAT[k]=m;
 }
-// room for cap goblin parts in this batch (keeping what's been written this frame)
-function gobGrow(B,cap){
-  const g=new THREE.BufferGeometry(),n=B.n,m=new THREE.InstancedMesh(g,gobKindMat(B.k),cap);
+// which kind a box's material draws as, or -1 when it can't go in a batch (a picture on it, see-through, a shader of its own)
+function batKind(m){
+  const t=m.type;if(t!=='MeshLambertMaterial'&&t!=='MeshBasicMaterial')return -1;
+  if(m.map||m.alphaMap||m.envMap||m.lightMap||m.aoMap||m.transparent||m.opacity<1||m.side!==THREE.FrontSide||m.vertexColors||m.wireframe||m.depthTest===false)return -1;
+  if(m._obc&&!m.snowU)return -1;
+  if(m.polygonOffset&&(m.polygonOffsetFactor!==-1||m.polygonOffsetUnits!==-3))return -1;
+  return (m.polygonOffset?1:0)|(m.snowU?2:0)|(t==='MeshBasicMaterial'?4:0);
+}
+// room for cap boxes in this batch (keeping what's been written this frame)
+function batGrow(B,cap){
+  const g=new THREE.BufferGeometry(),n=B.n,m=new THREE.InstancedMesh(g,batKindMat(B.k),cap);
   const col=new THREE.InstancedBufferAttribute(new Float32Array(cap*3),3),em=new THREE.InstancedBufferAttribute(new Float32Array(cap*3),3),sn=new THREE.InstancedBufferAttribute(new Float32Array(cap),1);
   if(B.m){m.instanceMatrix.array.set(B.m.instanceMatrix.array.subarray(0,n*16));col.array.set(B.col.array.subarray(0,n*3));em.array.set(B.em.array.subarray(0,n*3));sn.array.set(B.sn.array.subarray(0,n));
     scene.remove(B.m);B.m.geometry.dispose();}
-  g.setIndex(B.geo.index||null);for(const a in B.geo.attributes)g.setAttribute(a,B.geo.attributes[a]);   // (the box's own buffers, plus this batch's per-goblin ones)
+  g.setIndex(B.geo.index||null);for(const a in B.geo.attributes)g.setAttribute(a,B.geo.attributes[a]);   // (the box's own buffers, plus this batch's per-box ones)
   m.instanceColor=col;g.setAttribute('iEmis',em);g.setAttribute('iSnow',sn);
   m.frustumCulled=false;m.count=0;scene.add(m);   // (one batch spans the whole street, so it's never culled as a whole)
   Object.assign(B,{m,col,em,sn,cap});
 }
-function gobBatch(geo,k){const key=(geo.gobId||(geo.gobId=++gobGeoN))*4+k;let B=GOB_BATCH.get(key);if(!B){B={geo,k,n:0,cap:0,m:null};gobGrow(B,64);GOB_BATCH.set(key,B);}return B;}
-function gobPut(o,snow){
+function batOf(geo,k){const key=(geo.batId||(geo.batId=++batGeoN))*8+k;let B=BAT.get(key);if(!B){B={geo,k,n:0,cap:0,m:null};batGrow(B,64);BAT.set(key,B);}return B;}
+// copy every shown box under o into its batch. inScene: o is in the scene, so a batched box is moved to BAT_HIDE (and
+// one that can't be batched is left, or put back, on the layer the cameras draw); out of the scene, one that can't be
+// batched simply isn't drawn
+function batPut(o,inScene){
   for(const c of o.children){if(!c.visible)continue;
-    if(c.isMesh){const mat=c.material,B=gobBatch(c.geometry,mat.gobK||0);if(B.n>=B.cap)gobGrow(B,B.cap*2);const i=B.n++;
-      B.m.instanceMatrix.array.set(c.matrixWorld.elements,i*16);
-      const C=B.col.array,E=B.em.array,q=mat.color,e=mat.emissive;C[i*3]=q.r;C[i*3+1]=q.g;C[i*3+2]=q.b;
-      if(e){E[i*3]=e.r;E[i*3+1]=e.g;E[i*3+2]=e.b;}else E[i*3]=E[i*3+1]=E[i*3+2]=0;B.sn.array[i]=snow;}
-    if(c.children.length)gobPut(c,snow);}
+    if(c.isMesh&&!c.isInstancedMesh){const mat=c.material,k=Array.isArray(mat)?-1:batKind(mat);
+      if(k<0){if(inScene&&c.layers.mask===1<<BAT_HIDE)c.layers.set(0);}
+      else{if(inScene&&c.layers.mask!==1<<BAT_HIDE)c.layers.set(BAT_HIDE);
+        const B=batOf(c.geometry,k);if(B.n>=B.cap)batGrow(B,B.cap*2);const i=B.n++;
+        B.m.instanceMatrix.array.set(c.matrixWorld.elements,i*16);
+        const C=B.col.array,E=B.em.array,q=mat.color,e=mat.emissive;C[i*3]=q.r;C[i*3+1]=q.g;C[i*3+2]=q.b;
+        if(e){E[i*3]=e.r;E[i*3+1]=e.g;E[i*3+2]=e.b;}else E[i*3]=E[i*3+1]=E[i*3+2]=0;B.sn.array[i]=mat.snowU?mat.snowU.value:0;}}
+    if(c.children.length)batPut(c,inScene);}
 }
-function gobDraw(){
-  for(const B of GOB_BATCH.values())B.n=0;
-  for(const g of goblins){const r=g.root;if(!r.visible)continue;r.updateMatrixWorld(true);gobPut(r,g.snowU?g.snowU.value:0);}   // (out of the scene, so nothing else updates their matrices)
-  for(const B of GOB_BATCH.values()){if(!B.n&&!B.m.count)continue;B.m.count=B.n;   // (and only the part of each buffer in use goes up to the graphics card)
+function batDraw(){
+  for(const B of BAT.values())B.n=0;
+  for(const g of goblins){const r=g.root;if(!r.visible)continue;r.updateMatrixWorld(true);batPut(r,false);}   // (street goblins are kept out of the scene, so nothing else updates their matrices)
+  for(const c of cars){if(!c.g.visible)continue;c.g.updateMatrixWorld(true);batPut(c.g,true);}
+  for(const B of BAT.values()){if(!B.n&&!B.m.count)continue;B.m.count=B.n;   // (and only the part of each buffer in use goes up to the graphics card)
     for(const [a,w] of [[B.m.instanceMatrix,16],[B.col,3],[B.em,3],[B.sn,1]]){a.needsUpdate=true;if(a.updateRange){a.updateRange.offset=0;a.updateRange.count=B.n*w;}}}
 }
-const GOB_GEO=new Map();   // (box shapes shared by the street goblins: about 30 sizes, instead of 40-odd new ones per goblin)
+const GOB_GEO=new Map();   // (box shapes shared by street goblins and vehicles, by size, so their boxes batch together: never dispose one)
+const boxGeo=(w,h,d)=>{const k=w+','+h+','+d;return GOB_GEO.get(k)||GOB_GEO.set(k,new THREE.BoxGeometry(w,h,d)).get(k);};
 function goblinModel(parent,o={}){
   const out={legs:[],acc:{},snowU:{value:0}},roles={},matList=[];
   // things worn over the head/face are drawn a hair in front of whatever they sit flush against, so they never flicker
   const OVER={hat:1,hatdark:1,hair:1,patch:1,acc2:1,gold:1};
-  const role=(r,c)=>{if(!roles[r]){roles[r]=new THREE.MeshLambertMaterial(OVER[r]?{color:c,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-3}:{color:c});const sn=r==='skin'||r==='hat'||r==='hair'||r==='hatdark';if(sn)snowCar(roles[r],out);roles[r].gobK=(OVER[r]?1:0)|(sn?2:0);matList.push(roles[r]);}return roles[r];};   // (heads and hats catch the snow)
-  const geo=(w,h,d)=>{if(!o.shareGeo)return new THREE.BoxGeometry(w,h,d);const k=w+','+h+','+d;return GOB_GEO.get(k)||GOB_GEO.set(k,new THREE.BoxGeometry(w,h,d)).get(k);};
+  const role=(r,c)=>{if(!roles[r]){roles[r]=new THREE.MeshLambertMaterial(OVER[r]?{color:c,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-3}:{color:c});const sn=r==='skin'||r==='hat'||r==='hair'||r==='hatdark';if(sn)snowCar(roles[r],out);matList.push(roles[r]);}return roles[r];};   // (heads and hats catch the snow)
+  const geo=(w,h,d)=>o.shareGeo?boxGeo(w,h,d):new THREE.BoxGeometry(w,h,d);
   const box=(w,h,d,r,c,x,y,z,p)=>{const m=new THREE.Mesh(geo(w,h,d),role(r,c));m.position.set(x,y,z);p.add(m);return m;};
   const acc=(name,list)=>{for(const m of list)m.visible=false;out.acc[name]=list;};
   for(const s of[-1,1]){const hip=new THREE.Group();hip.position.set(s*0.13,0.45,0);parent.add(hip);box(0.17,0.45,0.17,'pants',GC.dark,0,-0.225,0,hip);out.legs.push(hip);}
@@ -11675,7 +11694,7 @@ function addHostile(){
   const root=new THREE.Group();root.rotation.order='YXZ';
   const m=goblinModel(root,{shareGeo:true});
   goblins.push({snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,pos:new V3(),kv:new V3(),stun:0,heading:0,vy:0,hp:4,state:'wait',t:Math.random()*6,phase:0,atk:1,hurt:0,sink:0,detour:0,detourH:0,stuck:0,civ:false});
-  root.visible=false;root.scale.setScalar(ES);   // (not added to the scene: gobDraw draws it)
+  root.visible=false;root.scale.setScalar(ES);   // (not added to the scene: batDraw draws it)
 }
 for(let i=0;i<16;i++)addHostile();
 // civilians: shoppers, commuters and stall vendors who never fight back
@@ -11687,7 +11706,7 @@ function addCiv(){
   const look=CIV_LOOKS[i%CIV_LOOKS.length];
   const m=goblinModel(root,{club:false,tunic:look.tunic,hat:look.hat,hatc:look.hatc,skin:[0x7aa848,0x5f8a34,GC.skin][i%3],shareGeo:true});
   goblins.push({snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,pos:new V3(),kv:new V3(),stun:0,heading:0,vy:0,hp:3,state:'wait',t:Math.random()*3,phase:0,atk:1,hurt:0,sink:0,detour:0,detourH:0,stuck:0,civ:true,vendor:null,wt:null,wtT:0,idle:0,screamCD:0,fleeing:false});
-  root.visible=false;root.scale.setScalar(ES);   // (not added to the scene: gobDraw draws it)
+  root.visible=false;root.scale.setScalar(ES);   // (not added to the scene: batDraw draws it)
 }
 for(let i=0;i<14;i++)addCiv();
 // staff: a separate few townsfolk who work in the shops, restaurants, hospitals and stations near you, in uniform
@@ -12263,6 +12282,7 @@ const PAINTS=[0x4c8a2a,0x8a3b2a,0x2a6fdb,0x8a8a2a,0x5a2a6a,0xc9a02a,0x2a7a7a,0xa
 const CARC={stripe:0xf4efe4,glass:0x1b2a3c,tire:0x16181c,hub:0x9aa0a8,bumper:0x22252b,head:0xffe9a0,tail:0xd2302a};
 const sharedMat={};const smat=c=>sharedMat[c]||(sharedMat[c]=new THREE.MeshLambertMaterial({color:c}));
 function snowCar(mat,c){
+  mat.snowU=c.snowU;   // (batDraw reads each box's snow from here)
   mat.onBeforeCompile=sh=>{sh.uniforms.uCarSnow=c.snowU;sh.uniforms.uLightC=WORLD_LIGHT;
     sh.vertexShader='varying float vUp;varying vec3 vWp;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n vUp=normalize((modelMatrix*vec4(objectNormal,0.0)).xyz).y;vWp=position;');
     sh.fragmentShader='uniform float uCarSnow;uniform vec3 uLightC;varying float vUp;varying vec3 vWp;\n'+sh.fragmentShader.replace('#include <dithering_fragment>','float sn=fract(sin(dot(mod(floor(vWp.xz*5.0+0.001),509.0),vec2(12.9898,78.233)))*43758.5453);float sc=smoothstep(0.55,0.85,vUp)*step(sn,uCarSnow*1.15)*step(0.002,uCarSnow);\n float sg=fract(sin(dot(mod(floor(vWp.xz*16.0+vWp.y*7.0+0.001),997.0),vec2(39.346,11.135)))*43758.5453);float sv=0.84+0.11*sg+0.03*step(0.93,sg);\n gl_FragColor.rgb=mix(gl_FragColor.rgb,vec3(sv,sv+0.012,sv+0.03)*max(uLightC,vec3(0.22)),sc);\n#include <dithering_fragment>');};
@@ -12272,7 +12292,7 @@ function makeCar(i,police){
   const c={police:!!police,parked:false,spot:null,g:new THREE.Group(),pos:new V3(),kv:new V3(),heading:0,speed:0,steer:0,vy:0,wheels:[],front:[],alive:false,hp:30,dir:0,hunter:false,lastInter:-1,reverseT:0,stuckT:0,ramCD:0,hurt:0,smokeT:0,respawnT:1+i*0.6,honkT:0};
   c.color=police?0x1c1e24:PAINTS[i%PAINTS.length];c.snowU={value:0};c.paint=snowCar(new THREE.MeshLambertMaterial({color:c.color}),c);
   c.vehG={};const gcar=new THREE.Group();c.g.add(gcar);c.vehG.car={g:gcar,wheels:c.wheels,front:c.front};
-  const b=(w,h,d,m,x,y,z,p=gcar)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);p.add(o);return o;};
+  const b=(w,h,d,m,x,y,z,p=gcar)=>{const o=new THREE.Mesh(boxGeo(w,h,d),m);o.position.set(x,y,z);p.add(o);return o;};
   b(2.0,0.6,3.8,c.paint,0,0.78,0);b(2.06,0.1,3.86,smat(CARC.stripe),0,1.0,0);
   if(police){
     // black-and-white with a light bar
@@ -12325,7 +12345,7 @@ function setVeh(c,t){
 }
 function buildVeh(c,t){
   const g=new THREE.Group();c.g.add(g);const wheels=[],front=[];
-  const b=(w,h,d,m,x,y,z,p=g)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);p.add(o);return o;};
+  const b=(w,h,d,m,x,y,z,p=g)=>{const o=new THREE.Mesh(boxGeo(w,h,d),m);o.position.set(x,y,z);p.add(o);return o;};
   const wheel=(x,z,steer,big)=>{const piv=new THREE.Group();piv.position.set(x,big?0.5:0.38,z);g.add(piv);const sp=new THREE.Group();piv.add(sp);
     const r=big?0.96:0.72;b(0.34,r,r,smat(CARC.tire),0,0,0,sp);b(0.36,r*0.36,r*0.36,smat(CARC.hub),0,0,0,sp);wheels.push(sp);if(steer)front.push(piv);};
   const lights=(w,y,zf,zb)=>{for(const s2 of[-1,1]){b(0.35,0.18,0.06,smat(CARC.head),s2*w,y,zf);b(0.35,0.16,0.06,smat(CARC.tail),s2*w,y,zb);}};
@@ -17620,7 +17640,7 @@ function frame(now){
   readout.innerHTML=`Kills <b>${kills}</b>  ·  Score <b>${score}</b>${hn?`  ·  <i>${hn} CAR${hn>1?'S':''} HUNTING YOU</i>`:''}${pol?'  ·  <i>POLICE PURSUIT</i>':''}`;
   const w=innerWidth,h=innerHeight;
   let views;
-  safe('gobDraw',gobDraw);
+  safe('batDraw',batDraw);
   if(split==='none'){renderer.setScissorTest(false);renderView(P1,0,0,w,h);views=[[P1,0,0,w,h]];}
   else{
     renderer.setScissorTest(true);
