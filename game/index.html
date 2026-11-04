@@ -1047,7 +1047,7 @@ tex.magFilter=THREE.NearestFilter;tex.minFilter=THREE.NearestFilter;tex.generate
 // ---------- Endless goblin city ----------
 // test worlds: the kinds of structure switched off (saved with the world; empty in a normal city)
 let TEST_OFF=new Set(),saveBlocked=false;
-let seed=0, edits={}, collapses={}, downFix=new Map(), destroyed={};   // destroyed: building key -> how many of its original blocks are gone
+let seed=0, edits={}, collapses={}, wrecked={}, downFix=new Map(), destroyed={};   // destroyed: building key -> how many of its original blocks are gone
 const chunkEdits=new Map(),chunks=new Map(),plotCache=new Map();
 const ckey=(cx,cz)=>(cx+32768)*65536+(cz+32768);
 const li=(lx,y,lz)=>lx+lz*CS+y*CS*CS;
@@ -1886,6 +1886,8 @@ const CAR_HP=150;
 // hitting a train (it takes a lot): shudder, sparks of damage; wrecked, it blows up car by car and lies there burning
 function trainHit(T,n,dir,ci){
   if(T&&T.isPlane){planeHit(T,n);return;}
+  if(T&&T.isAnimal){animalHit(T,n,dir);return;}
+  if(T&&T.isRide){rideHit(T,n,ci);return;}
   if(!T||T.dead||!T.cars)return;const N=T.cars.length;if(ci===undefined)ci=0;
   if(!T.carHP){T.carHP=T.cars.map(()=>CAR_HP);T.carDead=T.cars.map(()=>false);}
   if(T.carDead[ci])return;T.carHP[ci]-=n;
@@ -5779,7 +5781,7 @@ const B5_GROUND={
   nuclear(col,P,u,v,x,z){const Q=P.nuke;col(G,(u*3+v)%7===0?GRAVEL:CONCRETE);
     if(u===Q.x0||u===Q.x1-1||v===Q.z0||v===Q.z1-1){if(v===Q.z0&&Math.abs(u-PL0-11)<=1)return;for(let y=G+1;y<=G+4;y++)col(y,CHAINLINK);col(G+5,CHAINLINK);return;}
     if(u>=PL0+33&&u<=PL0+47&&v>=PL0+38&&v<=PL0+48&&(u-PL0)%3===0&&(v-PL0)%4===1){col(G+1,METAL);col(G+2,RUST);col(G+3,PAINT_DARK);}},
-  theme(col,P,u,v,x,z){const R2=P.theme;
+  theme(col,P,u,v,x,z){const R2=P.theme;if(!R2)return;   // (a park whose first plot went to something else has no plan: without this, every chunk it touches failed)
     // (the small park is all bright paving. The big one would be a sea of it, so there it's bright walks between lawns.)
     {const fun=[SIDEWALK,PAINT_YELLOW,SIDEWALK,PAINT_RED,SIDEWALK,PAINT_BLUE][((u>>1)+(v>>1))%6];
      if(R2.gm===undefined)col(G,fun);
@@ -7235,8 +7237,8 @@ function rebuildSet(set){for(const k of set){const e=meshes.get(k);if(e)buildChu
 
 // ---------- Save ----------
 let saveTimer=null;
-function save(){if(saveBlocked)return;clearTimeout(saveTimer);saveTimer=setTimeout(()=>{try{localStorage.setItem(SAVE_KEY,JSON.stringify({seed,edits,coll:collapses,down:[...downFix],dest:destroyed,test:[...TEST_OFF]}));}catch(e){}},700);}
-function load(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(s&&typeof s.seed==='number'){seed=s.seed;TEST_OFF=new Set(Array.isArray(s.test)?s.test:[]);edits=s.edits||{};collapses=s.coll||{};destroyed=(s.dest&&typeof s.dest==='object')?s.dest:{};destroyVer++;setDCache.clear();downFix=new Map(Array.isArray(s.down)?s.down:[]);for(const k in edits){const [x,y,z]=k.split(',').map(Number);const ck=ckey(Math.floor(x/CS),Math.floor(z/CS));let l=chunkEdits.get(ck);if(!l){l=[];chunkEdits.set(ck,l);}l.push([x,y,z,edits[k]]);}return true;}}catch(e){}return false;}
+function save(){if(saveBlocked)return;clearTimeout(saveTimer);saveTimer=setTimeout(()=>{try{localStorage.setItem(SAVE_KEY,JSON.stringify({seed,edits,coll:collapses,wreck:wrecked,down:[...downFix],dest:destroyed,test:[...TEST_OFF]}));}catch(e){}},700);}
+function load(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(s&&typeof s.seed==='number'){seed=s.seed;TEST_OFF=new Set(Array.isArray(s.test)?s.test:[]);edits=s.edits||{};collapses=s.coll||{};wrecked=(s.wreck&&typeof s.wreck==='object')?s.wreck:{};destroyed=(s.dest&&typeof s.dest==='object')?s.dest:{};destroyVer++;setDCache.clear();downFix=new Map(Array.isArray(s.down)?s.down:[]);for(const k in edits){const [x,y,z]=k.split(',').map(Number);const ck=ckey(Math.floor(x/CS),Math.floor(z/CS));let l=chunkEdits.get(ck);if(!l){l=[];chunkEdits.set(ck,l);}l.push([x,y,z,edits[k]]);}return true;}}catch(e){}return false;}
 
 // ---------- Renderer ----------
 const canvas=document.getElementById('world');
@@ -8382,7 +8384,7 @@ function carTop(p){
       if(top<=p.pos.y+(p.vy<0&&!p.grounded?1.1:0.35)&&(best===null||top>best)){best=top;bc=c;}
     }
   }
-  for(const B of TRAIN_BOXES){const BX=B.hx||TRAIN_HX,BZ=B.hz||TRAIN_HZ;if(Math.hypot(B.x-p.pos.x,B.z-p.pos.z)>Math.max(BX,BZ)+3)continue;
+  for(const B of TRAIN_BOXES){const BX=B.hx||TRAIN_HX,BZ=B.hz||TRAIN_HZ;if(B.soft||Math.hypot(B.x-p.pos.x,B.z-p.pos.z)>Math.max(BX,BZ)+3)continue;
     for(const [a,b] of HIPPO_PTS){const dx=p.pos.x+a*k+b*s-B.x,dz=p.pos.z-a*s+b*k-B.z,al=dx*B.tx+dz*B.tz,ac=-dx*B.tz+dz*B.tx;
       if(Math.abs(al)>BZ||Math.abs(ac)>BX)continue;if(B.top<=p.pos.y+(B.proxy===p.rideC?1.2:0.35)&&(best===null||B.top>best||B.top===best&&B.proxy===p.rideC)){best=B.top;bc=B.proxy;}}}
   return best===null?null:{y:best,c:bc};
@@ -9809,7 +9811,7 @@ function movePlayer(p,dt){
     const qa=Math.max(-c.hx,Math.min(c.hx,la)),qb=Math.max(-c.hz,Math.min(c.hz,lb)),ea=la-qa,eb=lb-qb,d=Math.hypot(ea,eb),R=DT.gob?0.45:1.0*ES;
     if(d<R){let ua,ub;if(d>0.001){ua=ea/d;ub=eb/d;}else{const fa=c.hx-Math.abs(la),fb=c.hz-Math.abs(lb);if(fa<fb){ua=Math.sign(la)||1;ub=0;}else{ua=0;ub=Math.sign(lb)||1;}}
       const push=d>0.001?R-d:R+Math.min(c.hx-Math.abs(la),c.hz-Math.abs(lb));shove(p,(ua*ck+ub*cs)*push,(-ua*cs+ub*ck)*push);}}
-  for(const B of TRAIN_BOXES){const BX=B.hx||TRAIN_HX,BZ=B.hz||TRAIN_HZ;if(B.proxy===p.rideC||p.pos.y>=B.top-0.4||p.pos.y<B.y0-1.5||Math.hypot(B.x-p.pos.x,B.z-p.pos.z)>Math.max(BX,BZ)+3)continue;
+  for(const B of TRAIN_BOXES){const BX=B.hx||TRAIN_HX,BZ=B.hz||TRAIN_HZ;if(B.soft||B.proxy===p.rideC||p.pos.y>=B.top-0.4||p.pos.y<B.y0-1.5||Math.hypot(B.x-p.pos.x,B.z-p.pos.z)>Math.max(BX,BZ)+3)continue;
     const dx=p.pos.x-B.x,dz=p.pos.z-B.z,al=dx*B.tx+dz*B.tz,ac=-dx*B.tz+dz*B.tx,R=DT.gob?0.45:1.0*ES;
     if(Math.abs(al)>BZ+R||Math.abs(ac)>BX+R)continue;
     const fa=BZ+R-Math.abs(al),fc=BX+R-Math.abs(ac);
@@ -14653,22 +14655,6 @@ function lmVisual(b,px,pz){
       v.fish.push({m,x0:Math.min(ax0,ax1)+0.6,x1:Math.max(ax0,ax1)+0.4,z0:Math.min(az0,az1)+0.6,z1:Math.max(az0,az1)+0.4,y:G+1.6+Math.random()*(i%5===4?1.2:4.6),ph:Math.random()*7,sp:0.15+Math.random()*0.25,tunnel:i%5===4});}}
   if(b.smoke){v.smoke={x:X0+b.x0+1.5,y:b.top+1,z:Z0+b.z0+1.5,t:0};}
   if(b.steam){v.steam={x:X0+(b.x0+b.x1)/2,y:b.top+1,z:Z0+(b.z0+b.z1)/2,t:0};}
-  if(b.ride){
-    // the rides: the coaster's train of cars running round its track, the Ferris wheel turning (its gondolas hanging
-    // level), the carousel going round with its horses rising and falling
-    const R2=b.ride,C=R2.coaster;v.coaster={C:{cu:X0+C.cu,cv:Z0+C.cv,a:C.a,b:C.b},th:0,sp:0.5,cars:[]};
-    for(let i=0;i<4;i++){const cg=new THREE.Group(),m=new THREE.Mesh(LM_BOX,i?LMM.coach:LMM.loco);m.scale.set(1.3,0.8,2.0);m.position.y=0.5;cg.add(m);g.add(cg);v.coaster.cars.push(cg);}
-    const W2=R2.wheel,wg=new THREE.Group();wg.position.set(X0+W2.cu+0.5,W2.hub+0.5,Z0+W2.cv+0.5);g.add(wg);const gonds=[];
-    for(let i=0;i<16;i++){const a=i/16*Math.PI*2,seg=new THREE.Mesh(LM_BOX,LMM.bar);seg.scale.set(0.25,2*W2.R*Math.sin(Math.PI/16)+0.1,0.25);seg.position.set(Math.cos(a)*W2.R,Math.sin(a)*W2.R,0);seg.rotation.z=a;wg.add(seg);
-      if(i%2===0){const sp=new THREE.Mesh(LM_BOX,LMM.bar);sp.scale.set(W2.R,0.14,0.14);sp.position.set(Math.cos(a)*W2.R/2,Math.sin(a)*W2.R/2,0);sp.rotation.z=a;wg.add(sp);
-        const gd=new THREE.Group();gd.position.set(Math.cos(a)*W2.R,Math.sin(a)*W2.R,0);const box=new THREE.Mesh(LM_BOX,LMM['g'+(i%3)]||(LMM['g'+(i%3)]=new THREE.MeshLambertMaterial({color:[0xe03a3a,0x3a8ae0,0xf0c030][i%3]})));box.scale.set(1.3,1.2,1.6);box.position.y=-1.0;gd.add(box);wg.add(gd);gonds.push(gd);}}
-    v.wheel={g:wg,gonds};
-    const C2=R2.carousel,cg=new THREE.Group();cg.position.set(X0+C2.cu,G+1.2,Z0+C2.cv);g.add(cg);
-    const roof=new THREE.Mesh(LM_CONE,LMM.canopy);roof.position.y=4.6;cg.add(roof);const pole=new THREE.Mesh(LM_BOX,LMM.gold);pole.scale.set(0.5,4.6,0.5);pole.position.y=2.3;cg.add(pole);const horses=[];
-    for(let i=0;i<8;i++){const a=i/8*Math.PI*2,hg=new THREE.Group();hg.position.set(Math.cos(a)*3.6,0,Math.sin(a)*3.6);hg.rotation.y=-a;const pl=new THREE.Mesh(LM_BOX,LMM.gold);pl.scale.set(0.1,4.2,0.1);pl.position.y=2.1;hg.add(pl);
-      const hb=new THREE.Mesh(LM_BOX,LMM['h'+(i%3)]||(LMM['h'+(i%3)]=new THREE.MeshLambertMaterial({color:[0xf4f0e8,0x8a5a32,0x2a2a2a][i%3]})));hb.scale.set(0.5,0.6,1.4);hb.position.y=1.3;hg.add(hb);const hh=new THREE.Mesh(LM_BOX,hb.material);hh.scale.set(0.4,0.8,0.4);hh.position.set(0,1.75,0.7);hg.add(hh);
-      cg.add(hg);horses.push({hg,ph:i});}
-    v.carousel={g:cg,horses};}
   if(b.arms){v.arms=[];for(const [ax,az] of b.arms){const m=new THREE.Mesh(LM_BOX,LMM.bar);m.scale.set(13.4,0.5,0.6);m.position.set(X0+ax+0.5,G+2.4,Z0+az+0.5);g.add(m);v.arms.push(m);}}
   if(b.coils){
     // the Tesla coils: arcs of lightning crackling off their tops
@@ -14736,11 +14722,11 @@ function refreshLandmarks(){
     for(let px=Math.floor((p.pos.x-LM_RANGE)/CELL);px<=Math.floor((p.pos.x+LM_RANGE)/CELL);px++)for(let pz=Math.floor((p.pos.z-LM_RANGE)/CELL);pz<=Math.floor((p.pos.z+LM_RANGE)/CELL);pz++){
       const t=plotType(px,pz);if(!LM_TYPES.has(t))continue;const P=plotInfo(px,pz);
       P.b.forEach((b,bi)=>{if(b.beam){const key=px+','+pz+','+bi,cx=px*CELL+((b.x0+b.x1)>>1),cz=pz*CELL+((b.z0+b.z1)>>1);if(collapses[key]!==undefined||want.has(key)||!get(cx,G+24,cz))return;want.add(key);if(!lmOn.has(key))lmOn.set(key,{v:lmVisual(b,px,pz),b,x:cx,z:cz,swing:0,ringT:0});return;}
-        if(!b.clock&&!b.bell&&!b.mast&&!b.dishes&&!b.disco&&!b.vault&&!b.ticker&&!b.fish&&!b.smoke&&!b.leds&&!b.arms&&!b.steam&&!b.coils&&!b.ride)return;const key=px+','+pz+','+bi;if(want.has(key))return;
+        if(!b.clock&&!b.bell&&!b.mast&&!b.dishes&&!b.disco&&!b.vault&&!b.ticker&&!b.fish&&!b.smoke&&!b.leds&&!b.arms&&!b.steam&&!b.coils)return;const key=px+','+pz+','+bi;if(want.has(key))return;
         if(collapses[key]!==undefined)return;   // (gone with the building)
         const X0=px*CELL,Z0=pz*CELL,cx=X0+((b.x0+b.x1)>>1),cz=Z0+((b.z0+b.z1)>>1);if(Math.hypot(cx-p.pos.x,cz-p.pos.z)>((b.disco||b.vault||b.ticker||b.fish||b.leds||b.coils)?70:LM_RANGE))return;
         // still standing where it matters (a tower's corner piers up top, a mast's top, a roof corner...)?
-        const ay=b.clock?G+23:b.bell?G+20:b.mast||b.smoke?b.top-1:b.dishes?b.top:b.steam?G+10:b.ride?G+4:G+1;if(!get(b.steam?X0+((b.x0+b.x1)>>1):X0+b.x0,ay,b.steam?Z0+b.z0+1:Z0+b.z0+(b.smoke?1:0))&&!b.steam)return;
+        const ay=b.clock?G+23:b.bell?G+20:b.mast||b.smoke?b.top-1:b.dishes?b.top:b.steam?G+10:G+1;if(!get(b.steam?X0+((b.x0+b.x1)>>1):X0+b.x0,ay,b.steam?Z0+b.z0+1:Z0+b.z0+(b.smoke?1:0))&&!b.steam)return;
         want.add(key);if(!lmOn.has(key))lmOn.set(key,{v:lmVisual(b,px,pz),b,x:cx,z:cz,swing:0,ringT:0});});}}
   for(const [k,L] of lmOn)if(!want.has(k)){scene.remove(L.v.g);lmOn.delete(k);}
 }
@@ -14767,12 +14753,6 @@ function updateLandmarks(dt){
     if(L.v.steam){const S2=L.v.steam;S2.t-=dt;if(S2.t<=0){S2.t=0.12;smoke(S2.x+(Math.random()-.5)*8,S2.y,S2.z+(Math.random()-.5)*8,2,0xf2f2f0);}}
     if(L.v.arms)for(const m of L.v.arms)m.rotation.y+=dt*0.12;
     if(L.v.beam)L.v.beam.rotation.y+=dt*0.8;
-    if(L.v.coaster){const K=L.v.coaster,C=K.C;
-      // speed from the slope: slow up the lift hills, racing down the drops
-      const h0=coasterH(K.th),h1=coasterH(K.th+0.05);K.sp=Math.max(0.12,Math.min(1.4,K.sp+(h0-h1)*dt*1.6+(K.sp<0.25?dt*0.2:0)));K.th+=K.sp*dt*0.55;
-      K.cars.forEach((cg,i)=>{const t=K.th-i*0.11,x=C.cu+Math.cos(t)*C.a,z=C.cv+Math.sin(t)*C.b,h=coasterH(t),tx=-Math.sin(t)*C.a,tz=Math.cos(t)*C.b;cg.position.set(x,G+h+1,z);cg.rotation.set(0,Math.atan2(tx,tz),0);});}
-    if(L.v.wheel){L.v.wheel.g.rotation.z+=dt*0.14;for(const gd of L.v.wheel.gonds)gd.rotation.z=-L.v.wheel.g.rotation.z;}
-    if(L.v.carousel){const Cg=L.v.carousel;Cg.g.rotation.y+=dt*0.7;for(const H2 of Cg.horses)H2.hg.position.y=Math.sin(tnow*2.2+H2.ph)*0.35;}
     if(L.v.coils){const V=L.v;V.t-=dt;
       if(V.t<=0){V.t=0.06+Math.random()*0.12;const on=Math.random()<0.7;
         for(const m of V.arcs){m.visible=on&&Math.random()<0.7;if(!m.visible)continue;const C=V.coils[Math.floor(Math.random()*V.coils.length)],a=Math.random()*Math.PI*2,len=1.5+Math.random()*3,dy=(Math.random()-0.3)*2;
@@ -14849,7 +14829,9 @@ function refreshVenues(){
   for(const p of players){if(!p.active)continue;
     refreshSeaVenues(p,want);refreshRailVenues(p,want);refreshCultVenues(p,want);refreshSiteVenues(p,want);
     for(let px=Math.floor((p.pos.x-170)/CELL);px<=Math.floor((p.pos.x+170)/CELL);px++)for(let pz=Math.floor((p.pos.z-170)/CELL);pz<=Math.floor((p.pos.z+170)/CELL);pz++){
-      const S=superOf(px,pz);if(!S||S.ax!==px||S.az!==pz)continue;
+      const S=superOf(px,pz);
+      if(S&&S.kind==='theme'&&LM_TYPES.has(plotType(S.ax,S.az))){const k='t'+S.ax+','+S.az;want.add(k);if(!venues.has(k))venues.set(k,{S,kind:'theme',k,ride:null});}
+      if(!S||S.ax!==px||S.az!==pz)continue;
       if(S.kind==='stadium'||S.kind==='arena'){const k='v'+px+','+pz;want.add(k);if(!venues.has(k)){const V={S,kind:S.kind,seats:null,cheer:0,cheerT:8,ball:null};
         if(S.kind==='stadium'){const W=(S.w-1)*CELL+PL1-PL0,L=(S.h-1)*CELL+PL1-PL0,F=stadiumField(W,L);V.pitch={x0:px*CELL+PL0+F.fx0,z0:pz*CELL+PL0+F.fz0,w:F.fw,h:F.fh,y:G+1,long:F.long};}
         else{const b=plotInfo(px,pz).b[0],c=(b.x1-b.x0-1)/2;V.pitch={x0:px*CELL+b.x0+c+0.5-13,z0:pz*CELL+b.z0+c+0.5-8,w:26,h:16,y:G+2,long:false};}
@@ -14872,7 +14854,7 @@ function refreshVenues(){
           for(let i=0;i<4;i++){const m=new THREE.Mesh(LM_BOX,i%2?LMM.ledOff:TOLLM);m.scale.set(0.65,0.13,0.13);m.position.x=0.33+i*0.65;lift.add(m);}
           scene.add(g);arms.push({g,lift,L,a:0,x:g.position.x,z:g.position.z});}
         venues.set(k,{kind:'toll',R,ts,arms});}}}}
-  for(const [k,V] of venues)if(!want.has(k)){if(V.animals)for(const A of V.animals)scene.remove(A.g);if(V.arms)for(const A of V.arms)scene.remove(A.g);if(V.cars)for(const g of V.cars)scene.remove(g);if(V.planes)for(const g of V.planes)scene.remove(g);if(V.rocket){scene.remove(V.rocket);}if(V.boat)scene.remove(V.boat);if(V.figs)for(const F of V.figs)scene.remove(F.g);if(V.glow)scene.remove(V.glow);if(V.rotor)scene.remove(V.rotor);if(V.T&&V.T.cars===V.cars)V.T.cars=null;venues.delete(k);}
+  for(const [k,V] of venues)if(!want.has(k)){if(V.ride)scene.remove(V.ride);if(V.animals)for(const A of V.animals)scene.remove(A.g);if(V.arms)for(const A of V.arms)scene.remove(A.g);if(V.cars)for(const g of V.cars)scene.remove(g);if(V.planes)for(const g of V.planes)scene.remove(g);if(V.rocket){scene.remove(V.rocket);}if(V.boat)scene.remove(V.boat);if(V.figs)for(const F of V.figs)scene.remove(F.g);if(V.glow)scene.remove(V.glow);if(V.rotor)scene.remove(V.rotor);if(V.T&&V.T.cars===V.cars)V.T.cars=null;venues.delete(k);}
 }
 // the zoo's animals: built from boxes, each wandering its enclosure
 const ZM={};const zmat=c=>ZM[c]||(ZM[c]=new THREE.MeshLambertMaterial({color:c}));
@@ -14886,6 +14868,154 @@ function makeAnimal(sp){
   else if(sp==='penguin'){bx(0.5,0.75,0.45,0x1a1a20,0,0.55,0);bx(0.36,0.6,0.08,0xf4f4f0,0,0.5,0.23);bx(0.32,0.28,0.32,0x1a1a20,0,1.05,0);bx(0.12,0.08,0.2,0xf0a020,0,1.0,0.22);legs.push(new THREE.Group());}
   else{bx(0.55,0.7,0.45,0x6a4424,0,1.0,0);bx(0.45,0.42,0.42,0x6a4424,0,1.55,0.05);bx(0.32,0.25,0.06,0xd8b48a,0,1.5,0.27);for(const [x,z] of [[-.18,0],[.18,0]])leg(x,z,0.65,0.16,0x5a3a1a);const t=bx(0.08,0.08,0.8,0x5a3a1a,0,0.9,-0.5);t.rotation.x=-0.6;}
   return{g,legs};
+}
+// the animals can be hurt: each has a stand-in in TRAIN_BOXES, so every attack that reaches a car or a train reaches them.
+// Their boxes are soft (you can't stand on one or bump into it). What's killed stays dead, and is saved with the world.
+const ANIMALS={giraffe:{name:'Giraffe',hp:25,pts:75,hx:0.6,hz:1.3,hy:5.6},elephant:{name:'Elephant',hp:45,pts:150,hx:1.1,hz:2.2,hy:3.6},lion:{name:'Lion',hp:20,pts:100,hx:0.6,hz:1.4,hy:2},
+  zebra:{name:'Zebra',hp:15,pts:50,hx:0.5,hz:1.2,hy:2.8},penguin:{name:'Penguin',hp:5,pts:25,hx:0.35,hz:0.35,hy:1.2},monkey:{name:'Monkey',hp:8,pts:25,hx:0.4,hz:0.4,hy:1.8}};
+function animalBox(A){
+  const I=ANIMALS[A.sp];if(!A.pr){A.isAnimal=true;A.hp=I.hp;A.pr={isTrain:true,alive:true,pos:new V3(),kv:new V3(),vy:0,spinP:0,spinR:0,speed:0,hurt:0,hx:I.hx,hz:I.hz,hy:I.hy,heading:0,top:0,veh:'train',T:A,i:0};}
+  const y=A.g.position.y,pr=A.pr;pr.pos.set(A.x,y,A.z);pr.heading=A.h;pr.top=y+I.hy;
+  TRAIN_BOXES.push({x:A.x,z:A.z,tx:Math.sin(A.h),tz:Math.cos(A.h),y0:y,top:pr.top,v:0,hx:I.hx,hz:I.hz,proxy:pr,soft:true});
+}
+function animalHit(A,n,dir){
+  if(A.dead||!A.pr)return;const I=ANIMALS[A.sp],y=A.g.position.y,by=y+I.hy*0.5;
+  dmgPop(A.x,y+I.hy+0.2,A.z,Math.round(n),'#ffe14a');A.hp-=n;A.frit=6;A.wait=0;
+  blood(A.x,by,A.z,5+n*2,dir?dir.clone().multiplyScalar(-0.4):null);if(dir)blood(A.x,by,A.z,3+n,dir);
+  splat(A.x+(Math.random()-.5)*.6,A.z+(Math.random()-.5)*.6,y+0.5,0.15+Math.random()*0.2);tone('square',480,220,0.08,0.07);
+  const h=dir?Math.hypot(dir.x,dir.z):0;if(h>0.05){const kb=Math.min(13,3+n*0.6)*(A.hp<=0?1.6:1);A.kx=(A.kx||0)+dir.x/h*kb;A.kz=(A.kz||0)+dir.z/h*kb;}
+  if(A.hp>0)return;
+  A.dead=true;A.deadT=0;A.pr.alive=false;A.vy=h>0.05?5:2;A.fy=y;A.fall=Math.random()<.5?1:-1;wrecked[A.wk]=1;save();
+  reportNews(A.x,A.z,'killing');
+  if(BLAME!=='acc'){reportCrime(A.x,A.z);score+=I.pts;flashLabel(I.name+' killed  +'+I.pts,(nearestPlayer(A.x,A.z)||{}).p);}
+  tone('sawtooth',620,110,0.45,0.1);splat(A.x,A.z,y+0.5,0.3+I.hx*0.5);
+}
+// (a dead one's thrown by the blow, keels over on its side, and lies where it lands)
+function animalFall(A,dt){
+  if(A.deadT>=3)return;A.deadT+=dt;const I=ANIMALS[A.sp],gy=groundAt(A.x,A.z,A.fy+3);
+  A.x+=(A.kx||0)*dt;A.z+=(A.kz||0)*dt;{const k=Math.exp(-dt*2.5);A.kx=(A.kx||0)*k;A.kz=(A.kz||0)*k;}
+  A.vy-=26*dt;A.fy+=A.vy*dt;if(gy!==null&&A.fy<=gy){A.fy=gy;A.vy=0;}
+  const tip=Math.min(1,A.deadT*2.5);A.g.rotation.z=A.fall*tip*Math.PI/2;A.g.position.set(A.x,A.fy+I.hx*tip,A.z);
+}
+// ---- the theme park's rides: each part has a stand-in in TRAIN_BOXES as well, so they're hit like trains and planes, and
+// ridden like them too. What's wrecked stays wrecked (saved with the world): the park's a venue, rebuilt whenever you come back ----
+const RIDE_HP={car:40,gond:30,wheel:250,carousel:120};
+const ridePr=(T,i,hx,hz,hy)=>({isTrain:true,isPlane:true,alive:true,pos:new V3(),kv:new V3(),vy:0,spinP:0,spinR:0,speed:0,hurt:0,hx,hz,hy,heading:0,top:0,veh:'plane',T,i});
+const rideDark=g=>g.traverse(o=>{if(o.isMesh)o.material=TRM.dark;});
+function rideBang(x,y,z,s,T,r,n,cause){
+  const bl=blasts[blastIdx++%blasts.length];bl.t=0.6;bl.s=s;for(const f of bl.m){f.position.set(x,y,z);f.visible=true;}smoke(x,y,z,8+Math.round(s*6),0x262626);
+  for(let k=0;k<6;k++){const d=debris[(debrisIdx++)%debris.length];d.m.position.set(x+(Math.random()-.5)*2,y+Math.random(),z+(Math.random()-.5)*2);d.v.set((Math.random()-.5)*16,8+Math.random()*10,(Math.random()-.5)*16);d.spin.set((Math.random()-.5)*12,(Math.random()-.5)*12,(Math.random()-.5)*12);d.life=25;d.m.visible=true;}
+  noise(1,1,600,'lowpass');tone('sawtooth',60,18,1.2,0.3);addShake(0.3+s*0.3,x,z,40);hitGoblins(x,z,r,n,cause,y);
+  for(const pr of trainsNear(x,z,r,y-r,y+r))if(pr.T!==T)trainHit(pr.T,n,null,pr.i);   // (and whatever else is close: a train of them can go up together)
+}
+// Not every park got all of its ground built (part of one can land on open country or be left to ordinary streets), so a
+// missing block only counts as broken if something broke it: that's what the edits are.
+const rideBroke=(x,y,z)=>get(x,y,z)===AIR&&edits[x+','+y+','+z]!==undefined;
+const rideBuilt=(x,y,z,id)=>get(x,y,z)===id||rideBroke(x,y,z);
+// a ride with nothing under it isn't put up at all. (One look a frame, as looking can mean building a chunk there and then.)
+function rideSurvey(V){
+  const Q=V.survey,K=V.K,W=V.W,Cs=V.Cs,C=K.C;
+  if(!Q.init){Q.init=true;Q.i=0;Q.track=0;Q.legs=0;Q.n=40;}
+  if(Q.i<Q.n){const t=Q.i/Q.n*Math.PI*2,x=Math.floor(C.cu+Math.cos(t)*C.a),z=Math.floor(C.cv+Math.sin(t)*C.b),h=G+coasterH(t);let f=false;
+    for(let dx=-1;dx<=1&&!f;dx++)for(let dz=-1;dz<=1&&!f;dz++)for(let y=h-1;y<=h+1&&!f;y++)if(rideBuilt(x+dx,y,z+dz,METAL))f=true;if(f)Q.track++;Q.i++;return false;}
+  if(Q.i<Q.n+4){const j=Q.i-Q.n,dz=j<2?-2:2,sd=j%2?1:-1;if(rideBuilt(W.cu+sd*Math.round((W.top-G-1)*0.42),G+1,W.cv+dz,METAL))Q.legs++;Q.i++;return false;}
+  if(Q.track<Q.n*0.9&&!K.off){K.off=true;K.halted=true;for(const c of K.cars){c.g.visible=false;c.dead=true;c.pr.alive=false;}}
+  if(Q.legs<4&&!W.dead){W.dead=true;W.g.visible=false;W.rim.alive=false;for(const q of W.gonds){q.dead=true;q.pr.alive=false;}}
+  if(!Cs.dead&&!rideBuilt(Cs.x,G,Cs.z,PLANKS)){Cs.dead=true;Cs.pr.alive=false;Cs.g.visible=false;}
+  V.survey=null;V.ride.visible=true;return true;
+}
+function makeRides(V){
+  const S=V.S,k=V.k,X0=S.ax*CELL,Z0=S.az*CELL,R2=plotInfo(S.ax,S.az).theme,g=new THREE.Group(),C=R2.coaster,W2=R2.wheel,C2=R2.carousel;scene.add(g);V.ride=g;g.visible=false;V.survey={};
+  // the coaster's train of cars running round its track
+  {const K={isRide:true,kind:'coaster',k:k+':coaster',C:{cu:X0+C.cu,cv:Z0+C.cv,a:C.a,b:C.b},th:0,sp:0.5,cars:[],checkT:0,halted:false,off:false},W0=wrecked[K.k];
+   for(let i=0;i<4;i++){const cg=new THREE.Group(),m=new THREE.Mesh(LM_BOX,i?LMM.coach:LMM.loco);m.scale.set(1.3,0.8,2.0);m.position.y=0.5;cg.add(m);g.add(cg);K.cars.push({g:cg,hp:RIDE_HP.car,dead:false,fly:null,pr:ridePr(K,i,0.65,1.0,0.9)});}
+   if(W0){K.th=W0.th||0;K.sp=0;K.halted=true;K.off=!!W0.off;K.cars.forEach((c,i)=>{if(K.off)c.g.visible=false;c.dead=K.off||!!(W0.dead&&W0.dead[i]);c.pr.alive=!c.dead;if(c.dead)rideDark(c.g);});}
+   V.K=K;}
+  // the Ferris wheel turning, its gondolas hanging level
+  {const wg=new THREE.Group(),hub={x:X0+W2.cu+0.5,y:W2.hub+0.5,z:Z0+W2.cv+0.5},W={isRide:true,kind:'wheel',k:k+':wheel',g:wg,hub,R:W2.R,cu:X0+W2.cu,cv:Z0+W2.cv,top:W2.hub,gonds:[],hp:RIDE_HP.wheel,dead:!!wrecked[k+':wheel'],fall:null,checkT:0};
+   wg.position.set(hub.x,hub.y,hub.z);g.add(wg);W.rim=ridePr(W,-1,1,1,1);
+   for(let i=0;i<16;i++){const a=i/16*Math.PI*2,seg=new THREE.Mesh(LM_BOX,LMM.bar);seg.scale.set(0.25,2*W2.R*Math.sin(Math.PI/16)+0.1,0.25);seg.position.set(Math.cos(a)*W2.R,Math.sin(a)*W2.R,0);seg.rotation.z=a;wg.add(seg);
+     if(i%2===0){const sp=new THREE.Mesh(LM_BOX,LMM.bar);sp.scale.set(W2.R,0.14,0.14);sp.position.set(Math.cos(a)*W2.R/2,Math.sin(a)*W2.R/2,0);sp.rotation.z=a;wg.add(sp);
+       const gd=new THREE.Group();gd.position.set(Math.cos(a)*W2.R,Math.sin(a)*W2.R,0);const box=new THREE.Mesh(LM_BOX,LMM['g'+(i%3)]||(LMM['g'+(i%3)]=new THREE.MeshLambertMaterial({color:[0xe03a3a,0x3a8ae0,0xf0c030][i%3]})));box.scale.set(1.3,1.2,1.6);box.position.y=-1.0;gd.add(box);wg.add(gd);
+       const n=W.gonds.length;W.gonds.push({g:gd,a,hp:RIDE_HP.gond,dead:false,pr:ridePr(W,n,0.65,0.8,1.2)});}}
+   if(W.dead){wg.position.y=G+1.5;wg.rotation.x=Math.PI/2;rideDark(wg);for(const q of W.gonds){q.dead=true;q.pr.alive=false;}W.rim.alive=false;}
+   V.W=W;}
+  // the carousel going round with its horses rising and falling
+  {const cg=new THREE.Group();cg.position.set(X0+C2.cu,G+1.2,Z0+C2.cv);g.add(cg);
+   const roof=new THREE.Mesh(LM_CONE,LMM.canopy);roof.position.y=4.6;cg.add(roof);const pole=new THREE.Mesh(LM_BOX,LMM.gold);pole.scale.set(0.5,4.6,0.5);pole.position.y=2.3;cg.add(pole);const horses=[];
+   for(let i=0;i<8;i++){const a=i/8*Math.PI*2,hg=new THREE.Group();hg.position.set(Math.cos(a)*3.6,0,Math.sin(a)*3.6);hg.rotation.y=-a;const pl=new THREE.Mesh(LM_BOX,LMM.gold);pl.scale.set(0.1,4.2,0.1);pl.position.y=2.1;hg.add(pl);
+     const hb=new THREE.Mesh(LM_BOX,LMM['h'+(i%3)]||(LMM['h'+(i%3)]=new THREE.MeshLambertMaterial({color:[0xf4f0e8,0x8a5a32,0x2a2a2a][i%3]})));hb.scale.set(0.5,0.6,1.4);hb.position.y=1.3;hg.add(hb);const hh=new THREE.Mesh(LM_BOX,hb.material);hh.scale.set(0.4,0.8,0.4);hh.position.set(0,1.75,0.7);hg.add(hh);
+     cg.add(hg);horses.push({hg,ph:i});}
+   const Cs={isRide:true,kind:'carousel',k:k+':carousel',g:cg,horses,x:X0+C2.cu,z:Z0+C2.cv,hp:RIDE_HP.carousel,dead:!!wrecked[k+':carousel'],checkT:0};Cs.pr=ridePr(Cs,0,5.6,5.6,6.6);Cs.pr.pos.set(Cs.x,G+1,Cs.z);Cs.pr.top=G+7.6;
+   if(Cs.dead)carouselWreck(Cs);V.Cs=Cs;}
+}
+function carouselWreck(Cs){Cs.dead=true;Cs.pr.alive=false;rideDark(Cs.g);Cs.g.position.y=G+0.2;Cs.g.rotation.z=0.3;Cs.g.rotation.x=-0.15;}
+function wheelFall(W,why){
+  if(W.dead||W.fall)return;W.fall={vy:-1,sg:Math.random()<.5?1:-1};W.rim.alive=false;for(const q of W.gonds)q.pr.alive=false;
+  rideBang(W.hub.x,W.hub.y,W.hub.z,why?1.2:1.8,W,6,10,'Blown up with a Ferris wheel');crushBall(W.hub.x,W.top,W.hub.z,4);
+  score+=1000;flashLabel('Ferris wheel destroyed  +1000',(nearestPlayer(W.hub.x,W.hub.z)||{}).p);
+}
+function coasterMark(K){wrecked[K.k]={th:K.th,off:K.off,dead:K.cars.map(c=>c.dead)};save();}
+function rideHit(T,n,ci){
+  if(T.kind==='coaster'){const c=T.cars[ci];if(!c||c.dead||c.fly)return;const p=c.g.position;dmgPop(p.x,p.y+1.2,p.z,Math.round(n),'#ffb04a');c.hp-=n;if(c.hp>0)return;
+    // that car goes up and the rest grind to a stop on the track; they can still be taken apart
+    c.dead=true;c.pr.alive=false;rideDark(c.g);c.g.rotation.z=(ci%2?1:-1)*0.4;T.halted=true;rideBang(p.x,p.y+.5,p.z,0.8,T,4,6,'Blown up with a roller coaster');score+=200;
+    const who=(nearestPlayer(p.x,p.z)||{}).p;if(T.cars.every(q=>q.dead)){score+=500;flashLabel('Roller coaster destroyed  +700',who);}else flashLabel('Coaster car destroyed  +200',who);coasterMark(T);return;}
+  if(T.kind==='wheel'){if(T.dead||T.fall)return;
+    if(ci>=0){const q=T.gonds[ci];if(!q||q.dead)return;const p=q.pr.pos;dmgPop(p.x,p.y+1,p.z,Math.round(n),'#ffb04a');q.hp-=n;if(q.hp>0)return;
+      q.dead=true;q.pr.alive=false;q.g.visible=false;rideBang(p.x,p.y,p.z,0.6,T,3,4,'Blown up with a gondola');score+=50;flashLabel('Gondola destroyed  +50',(nearestPlayer(p.x,p.z)||{}).p);return;}
+    dmgPop(T.hub.x,T.hub.y,T.hub.z,Math.round(n),'#ffb04a');T.hp-=n;if(T.hp<=0)wheelFall(T);return;}
+  if(T.kind==='carousel'){if(T.dead)return;dmgPop(T.x,G+8,T.z,Math.round(n),'#ffb04a');T.hp-=n;if(T.hp<=0)carouselBlow(T);}
+}
+function carouselBlow(Cs){
+  carouselWreck(Cs);wrecked[Cs.k]=1;save();rideBang(Cs.x,G+3,Cs.z,1.4,Cs,7,8,'Blown up with a carousel');
+  score+=300;flashLabel('Carousel destroyed  +300',(nearestPlayer(Cs.x,Cs.z)||{}).p);
+}
+// is the track still there at this point round the circuit? (a car's the width of it, and the height goes in steps, so look close by)
+function coasterTrackAt(C,t){const x=Math.floor(C.cu+Math.cos(t)*C.a),z=Math.floor(C.cv+Math.sin(t)*C.b),h=G+coasterH(t);
+  let broke=false;for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++)for(let y=h-1;y<=h+1;y++){const b=get(x+dx,y,z+dz);if(b===METAL)return true;if(b===AIR&&edits[(x+dx)+','+y+','+(z+dz)]!==undefined)broke=true;}return !broke;}
+const rideNear=(x,z,r)=>players.some(p=>p.active&&Math.hypot(p.pos.x-x,p.pos.z-z)<r);
+function updateRides(V,dt){
+  const K=V.K,W=V.W,Cs=V.Cs,C=K.C;
+  // the coaster: speed from the slope, slow up the lift hills, racing down the drops
+  if(!K.off){
+    if(K.halted){K.sp=Math.max(0,K.sp-dt*1.2);}
+    else{const h0=coasterH(K.th),h1=coasterH(K.th+0.05);K.sp=Math.max(0.12,Math.min(1.4,K.sp+(h0-h1)*dt*1.6+(K.sp<0.25?dt*0.2:0)));}
+    K.th+=K.sp*dt*0.55;
+    // (the track gone just ahead: off it goes, at whatever speed it was doing, and comes down wherever that takes it)
+    K.checkT-=dt;if(K.checkT<=0&&K.sp>0){K.checkT=0.1;const ahead=K.th+2.5/((C.a+C.b)/2);
+      if(rideNear(C.cu+Math.cos(ahead)*C.a,C.cv+Math.sin(ahead)*C.b,110)&&!coasterTrackAt(C,ahead)){K.off=true;
+        K.cars.forEach((c,i)=>{if(c.dead)return;const t=K.th-i*0.11,tx=-Math.sin(t)*C.a,tz=Math.cos(t)*C.b,l=Math.hypot(tx,tz)||1,v=Math.min(30,Math.max(6,K.sp*0.55*l));c.fly={vx:tx/l*v,vz:tz/l*v,vy:4+Math.random()*3,sx:(Math.random()-.5)*4,sz:(Math.random()-.5)*4};c.pr.alive=false;});
+        score+=500;flashLabel('Roller coaster derailed  +500',(nearestPlayer(C.cu,C.cv)||{}).p);coasterMark(K);}}
+  }
+  K.cars.forEach((c,i)=>{const cg=c.g;
+    if(c.fly){const F=c.fly,P=cg.position;F.vy-=26*dt;P.x+=F.vx*dt;P.z+=F.vz*dt;P.y+=F.vy*dt;cg.rotation.x+=F.sx*dt;cg.rotation.z+=F.sz*dt;const gy=groundAt(P.x,P.z,P.y+2);
+      if(gy!==null&&P.y<=gy||P.y<=G){P.y=gy!==null?gy:G;c.fly=null;c.dead=true;rideDark(cg);crushBall(P.x,P.y,P.z,2.5);rideBang(P.x,P.y+.5,P.z,0.9,K,5,8,'Flattened by a roller coaster car');}
+      return;}
+    if(K.off||!cg.visible)return;
+    const t=K.th-i*0.11,x=C.cu+Math.cos(t)*C.a,z=C.cv+Math.sin(t)*C.b,h=coasterH(t),tx=-Math.sin(t)*C.a,tz=Math.cos(t)*C.b,hd=Math.atan2(tx,tz),y=G+h+1;
+    cg.position.set(x,y,z);if(!c.dead)cg.rotation.set(0,hd,0);else cg.rotation.y=hd;
+    const pr=c.pr;pr.pos.set(x,y,z);pr.heading=hd;pr.top=y+1.1;   // (a touch over the car: a step up in the track mustn't take a rider's footing)
+    if(!c.dead)TRAIN_BOXES.push({x,z,tx:Math.sin(hd),tz:Math.cos(hd),y0:y,top:pr.top,v:0,hx:0.65,hz:1.0,proxy:pr});});
+  // the wheel: it stands while its A-frame does. Lose a side (or the axle) and the whole thing comes down
+  if(!W.dead&&!W.fall){
+    W.g.rotation.z+=dt*0.14;const rot=W.g.rotation.z;for(const q of W.gonds)q.g.rotation.z=-rot;
+    const hub=W.hub,R=W.R,ext=R*Math.sin(Math.PI/16)+0.6;W.rim.pos.set(hub.x,hub.y,hub.z);
+    TRAIN_BOXES.push({x:hub.x,z:hub.z,tx:0,tz:1,y0:hub.y-1.5,top:hub.y+1.5,v:0,hx:1.5,hz:2.4,proxy:W.rim,soft:true});
+    for(let i=0;i<16;i++){const a=i/16*Math.PI*2+rot,y=hub.y+Math.sin(a)*R;TRAIN_BOXES.push({x:hub.x+Math.cos(a)*R,z:hub.z,tx:0,tz:1,y0:y-ext,top:y+ext,v:0,hx:ext,hz:0.6,proxy:W.rim,soft:true});}
+    for(const q of W.gonds){if(q.dead)continue;const a=q.a+rot,x=hub.x+Math.cos(a)*R,y=hub.y+Math.sin(a)*R-1.6,pr=q.pr;pr.pos.set(x,y,hub.z);pr.top=y+1.2;TRAIN_BOXES.push({x,z:hub.z,tx:0,tz:1,y0:y,top:pr.top,v:0,hx:0.65,hz:0.8,proxy:pr});}
+    W.checkT-=dt;if(W.checkT<=0&&rideNear(hub.x,hub.z,110)){W.checkT=0.5;let whole=0;
+      for(const dz of [-2,2])for(const sd of [-1,1]){let ok=true;for(let y=G+1;y<W.top&&ok;y++)if(rideBroke(W.cu+sd*Math.round((W.top-y)*0.42),y,W.cv+dz))ok=false;if(ok)whole++;}
+      if(whole<=2||rideBroke(W.cu,W.top,W.cv-2)&&rideBroke(W.cu,W.top,W.cv+2))wheelFall(W,true);}
+  }else if(W.fall){const F=W.fall,gp=W.g.position;F.vy-=26*dt;gp.y+=F.vy*dt;W.g.rotation.x=Math.min(Math.PI/2,Math.abs(W.g.rotation.x)+dt*1.1)*F.sg;
+    if(gp.y<=G+1.5){gp.y=G+1.5;W.g.rotation.x=F.sg*Math.PI/2;W.fall=null;W.dead=true;rideDark(W.g);for(const q of W.gonds)q.dead=true;wrecked[W.k]=1;save();
+      // down it comes, flat, on whatever's under the ring
+      for(let i=0;i<8;i++){const a=i/8*Math.PI*2;crushBall(W.hub.x+Math.cos(a)*W.R,G+2,W.hub.z+Math.sin(a)*W.R,3);}
+      rideBang(W.hub.x,G+2,W.hub.z,2,W,W.R+2,99,'Flattened by a falling Ferris wheel');addShake(1.2,W.hub.x,W.hub.z,60);}}
+  // the carousel: goes round till it's hit hard enough, or the floor's blown out from under it
+  if(!Cs.dead){const tnow=performance.now()/1000;Cs.g.rotation.y+=dt*0.7;for(const H2 of Cs.horses)H2.hg.position.y=Math.sin(tnow*2.2+H2.ph)*0.35;
+    TRAIN_BOXES.push({x:Cs.x,z:Cs.z,tx:0,tz:1,y0:G+1,top:Cs.pr.top,v:0,hx:5.6,hz:5.6,proxy:Cs.pr,soft:true});
+    Cs.checkT-=dt;if(Cs.checkT<=0&&rideNear(Cs.x,Cs.z,110)){Cs.checkT=0.5;let gone=0;for(const [a,b] of [[0,0],[3,0],[-3,0],[0,3],[0,-3]])if(rideBroke(Cs.x+a,G,Cs.z+b))gone++;if(gone>=3)carouselBlow(Cs);}}
 }
 // the trains: a locomotive and three coaches
 const TRM={loco:new THREE.MeshLambertMaterial({color:0x2a4a8a}),coach:new THREE.MeshLambertMaterial({color:0xc8ccd0}),dark:new THREE.MeshLambertMaterial({color:0x22262c}),win:new THREE.MeshLambertMaterial({color:0x3a5a7a}),red:new THREE.MeshLambertMaterial({color:0xc8302a}),white:new THREE.MeshLambertMaterial({color:0xf4f4f0}),wing:new THREE.MeshLambertMaterial({color:0xd8dce2})};
@@ -15026,19 +15156,24 @@ function updateVenues(dt){
       for(const A of V.arms){let near=false;for(const c of cars){if(!c.alive||!c.rt||c.rt.R!==V.R)continue;if(Math.sign(c.rt.lane*c.rt.dir)!==Math.sign(A.L)&&false)continue;if(Math.hypot(c.pos.x-A.x,c.pos.z-A.z)<6.5){near=true;break;}}
         A.a+=((near?1.35:0)-A.a)*Math.min(1,dt*3);A.lift.rotation.z=A.a;}
       continue;}
+    if(V.kind==='theme'){if(!V.ride)makeRides(V);if(V.survey&&!rideSurvey(V))continue;updateRides(V,dt);continue;}
     if(V.kind==='zoo'){
-      if(!V.animals){const P=plotInfo(V.S.ax,V.S.az),X0=V.S.ax*CELL,Z0=V.S.az*CELL;if(!get(X0+P.encl[0].x0+2,G,Z0+P.encl[0].z0+2))continue;V.animals=[];
-        for(const E of P.encl)for(let i=0;i<E.n;i++){const A=makeAnimal(E.sp);A.E={x0:X0+E.x0+1.5,x1:X0+E.x1-1.5,z0:Z0+E.z0+1.5,z1:Z0+E.z1-1.5};A.x=A.E.x0+Math.random()*(A.E.x1-A.E.x0);A.z=A.E.z0+Math.random()*(A.E.z1-A.E.z0);
+      if(!V.animals){const P=plotInfo(V.S.ax,V.S.az),X0=V.S.ax*CELL,Z0=V.S.az*CELL;if(!get(X0+P.encl[0].x0+2,G,Z0+P.encl[0].z0+2))continue;V.animals=[];let num=0;
+        for(const E of P.encl)for(let i=0;i<E.n;i++){const wk='z'+V.S.ax+','+V.S.az+':'+(num++);if(wrecked[wk])continue;const A=makeAnimal(E.sp);A.wk=wk;A.E={x0:X0+E.x0+1.5,x1:X0+E.x1-1.5,z0:Z0+E.z0+1.5,z1:Z0+E.z1-1.5};A.x=A.E.x0+Math.random()*(A.E.x1-A.E.x0);A.z=A.E.z0+Math.random()*(A.E.z1-A.E.z0);
           A.tx=A.x;A.tz=A.z;A.h=0;A.sp=E.sp;A.y=E.g==='pool'?G:G+1;A.wait=Math.random()*4;A.ph=Math.random()*7;scene.add(A.g);V.animals.push(A);}}
       for(const A of V.animals){
-        // amble to a spot, stop a while, amble on; a hippo stomping close by sends them running
-        const me=players.find(q=>q.active),scared=me&&Math.hypot(me.pos.x-A.x,me.pos.z-A.z)<7;
+        if(A.dead){animalFall(A,dt);continue;}
+        // amble to a spot, stop a while, amble on; a hippo stomping close by (or one that's been hurt) sends them running
+        if(A.frit>0)A.frit-=dt;
+        const me=players.find(q=>q.active),scared=me&&Math.hypot(me.pos.x-A.x,me.pos.z-A.z)<7||A.frit>0;
         if(A.wait>0&&!scared){A.wait-=dt;}
         else{const dx=A.tx-A.x,dz=A.tz-A.z,d=Math.hypot(dx,dz),spd=(scared?3.2:0.9)*(A.sp==='penguin'?0.6:A.sp==='giraffe'?1.2:1);
           if(d<0.3||scared&&d<1){A.tx=A.E.x0+Math.random()*(A.E.x1-A.E.x0);A.tz=A.E.z0+Math.random()*(A.E.z1-A.E.z0);if(!scared)A.wait=1+Math.random()*5;}
           else{A.x+=dx/d*spd*dt;A.z+=dz/d*spd*dt;let dh=Math.atan2(dx,dz)-A.h;while(dh>Math.PI)dh-=Math.PI*2;while(dh<-Math.PI)dh+=Math.PI*2;A.h+=dh*Math.min(1,dt*4);A.ph+=dt*spd*5;}}
+        if(A.kx||A.kz){A.x=Math.max(A.E.x0,Math.min(A.E.x1,A.x+A.kx*dt));A.z=Math.max(A.E.z0,Math.min(A.E.z1,A.z+A.kz*dt));const k=Math.exp(-dt*6);A.kx*=k;A.kz*=k;if(Math.abs(A.kx)+Math.abs(A.kz)<0.05)A.kx=A.kz=0;}   // (knocked back, but the fence still holds them)
         const gy=groundAt(A.x,A.z,A.y+3);A.g.position.set(A.x,(gy!==null&&Math.abs(gy-A.y)<3?gy:A.y)+(A.sp==='monkey'&&A.wait<=0?Math.abs(Math.sin(A.ph))*0.4:0),A.z);A.g.rotation.y=A.h;
-        A.legs.forEach((l,i)=>{l.rotation.x=A.wait>0?0:Math.sin(A.ph+(i%2?Math.PI:0))*0.45;});}
+        A.legs.forEach((l,i)=>{l.rotation.x=A.wait>0?0:Math.sin(A.ph+(i%2?Math.PI:0))*0.45;});
+        animalBox(A);}
       continue;}
     const on=gameOn(V.kind);
     if(!V.seats){V.seats=venueSeats(V);}
@@ -17034,7 +17169,7 @@ document.getElementById('newWorld').addEventListener('click',()=>{confirmEl.hidd
 document.getElementById('confirmNo').addEventListener('click',()=>{confirmEl.hidden=true;});
 document.getElementById('confirmYes').addEventListener('click',()=>{
   if(freshWorld(TEST_OFF))return;   // (a reload: everything worked out afresh for the new seed)
-  confirmEl.hidden=true;seed=(Math.random()*1e9)|0;edits={};collapses={};destroyed={};destroyVer++;setDCache.clear();downFix.clear();falling.clear();chunkEdits.clear();clearBodies();clearWorld();
+  confirmEl.hidden=true;seed=(Math.random()*1e9)|0;edits={};collapses={};wrecked={};destroyed={};destroyVer++;setDCache.clear();downFix.clear();falling.clear();chunkEdits.clear();clearBodies();clearWorld();
   for(const d of decals)d.visible=false;for(const p of players)p.pool.visible=false;for(const s of scorches)s.visible=false;
   for(const c of cars){c.alive=false;c.g.visible=false;c.respawnT=1;}
   score=0;kills=0;playTime=0;resetGoblins();
