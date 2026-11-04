@@ -627,6 +627,7 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
         <button type="button" class="tog" role="checkbox" data-k="invuln"><span class="box" aria-hidden="true"></span><span class="tl">Invulnerable<small>Nothing hurts the hippos: goblins, traffic, fire, blasts or falls</small></span></button>
         <button type="button" class="tog" role="checkbox" data-k="infStam"><span class="box" aria-hidden="true"></span><span class="tl">Infinite stamina<small>Trample and air-dash as long as you like without running out of breath</small></span></button>
         <button type="button" class="tog" role="checkbox" data-k="fly"><span class="box" aria-hidden="true"></span><span class="tl">Flying<small>Hold jump (Space / A) to rise, C / LB to sink; let go to hover. Ground pound to drop</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="gob"><span class="box" aria-hidden="true"></span><span class="tl">Play as a goblin<small>First person, goblin sized, with a club instead of a hippo's powers. Other goblins take you for one of their own: nobody runs, nobody attacks</small></span></button>
         <button type="button" class="tog" role="checkbox" data-k="peace"><span class="box" aria-hidden="true"></span><span class="tl">Enemy hostility<small>Hostile goblins attack, and cars and police hunt you. Off: they leave you alone</small></span></button>
       </div>
     </div>
@@ -7429,7 +7430,7 @@ function stompGrunt(p,lvl){
   }catch(e){}
 }
 function grunt(p,dbl){
-  if(!audio)return;
+  if(!audio||DT.gob)return;
   try{
     const m=p.idx?1.25:1,t=audio.currentTime,o=audio.createOscillator(),g=audio.createGain(),f=audio.createBiquadFilter();
     o.type='sawtooth';f.type='bandpass';f.Q.value=2.2;
@@ -8253,7 +8254,8 @@ function flashLabel(s,who){if(SBX)return;for(const p of (who?[who]:players)){if(
   else{el=document.createElement('div');el.className='lbl';el.textContent=s;box.append(el);
     const live=Array.from(box.children||[]).filter(c=>!c.classList.contains('old'));while(live.length>4){const o=live.shift();clearTimeout(o._t);o.remove();}}
   el._t=setTimeout(()=>{el.classList.add('old');setTimeout(()=>el.remove(),400);},2400);}catch(e){}}}
-const HIPPO_PTS=[[0,0],[.55,.9],[-.55,.9],[.55,-.9],[-.55,-.9]].map(([a,b])=>[a*ES,b*ES]),CAR_PTS=[[0,0],[.9,1.7],[-.9,1.7],[.9,-1.7],[-.9,-1.7]].map(([a,b])=>[a*ES,b*ES]);
+const HIPPO_FEET=[[0,0],[.55,.9],[-.55,.9],[.55,-.9],[-.55,-.9]].map(([a,b])=>[a*ES,b*ES]);let HIPPO_PTS=HIPPO_FEET;   // (setGob swaps these sizes for a goblin's)
+const CAR_PTS=[[0,0],[.9,1.7],[-.9,1.7],[.9,-1.7],[-.9,-1.7]].map(([a,b])=>[a*ES,b*ES]);
 // the top of any car under the hippo (cabin roof or hood/trunk), if his feet are at or above it
 function carTop(p){
   let best=null,bc=null;const s=Math.sin(p.heading),k=Math.cos(p.heading);
@@ -8317,14 +8319,15 @@ function trainsNear(x,z,r,y0,y1){const out=[];for(const B of TRAIN_BOXES){const 
   const dx=x-B.x,dz=z-B.z,al=dx*B.tx+dz*B.tz,ac=-dx*B.tz+dz*B.tx;if(Math.hypot(Math.max(0,Math.abs(al)-(B.hz||TRAIN_HZ)),Math.max(0,Math.abs(ac)-(B.hx||TRAIN_HX)))<r&&!out.includes(pr))out.push(pr);}return out;}
 // a moving car's bumper zone: its body plus a small margin. Anything whose body touches it is struck.
 // (the hippo's box is his body, rump to shoulders: 1.45 either side of his middle; his head isn't in it)
-const RAM_M=0.3,P_HX=0.75*ES,P_HZ=1.45*ES,P_HY=2.1*ES,P_OFF=0;
+const RAM_M=0.3,P_OFF=0;let P_HX=0.75*ES,P_HZ=1.45*ES,P_HY=2.1*ES;
 const pBoxC=q=>({x:q.pos.x+Math.sin(q.heading)*P_OFF,z:q.pos.z+Math.cos(q.heading)*P_OFF});
 // the same box is his body for bumping into things: would it overlap a wall (anything solid above a single step up) or
 // a car (that he isn't standing on top of) with him at (x,z) facing h?
-const PB_LAT=[-P_HX*0.95,0,P_HX*0.95],PB_ALONG=[-1.42,-0.5,0.5,1.42].map(v=>v*ES),PB_YS=[1.25*ES,1.95*ES];
+let PB_LAT=[-P_HX*0.95,0,P_HX*0.95],PB_ALONG=[-1.42,-0.5,0.5,1.42].map(v=>v*ES),PB_YS=[1.25*ES,1.95*ES];
 // (the solid fill under a flight of stairs isn't in the way of a long body walking up: its nose is over the next steps)
 function underSteps(x,y,z){for(let k=1;k<=4;k++){const v=get(x,y+k,z);if(!v||!BLOCK[v].solid)return false;if(BLOCK[v].stair)return true;}return false;}
 function bodyHits(p,x,z,h){
+  if(DT.gob)h=0;   // (a goblin's body is square to the world, or looking round a corridor would wedge its corners in the walls)
   const s=Math.sin(h),c=Math.cos(h);
   // (climbing a flight his nose reaches the landing before his feet do: the lip of a floor doesn't stop him there)
   let onSteps=false;{const xi=Math.floor(x),zi=Math.floor(z),y0=Math.floor(p.pos.y);for(let k=-1;k<=1&&!onSteps;k++){const v=get(xi,y0+k,zi);if(v&&BLOCK[v].stair)onSteps=true;}}
@@ -8677,6 +8680,7 @@ const BITE_SOLO_CD=0.85;   // seconds from one bite to the next with the combo s
 // one cooldown shared by every bite, on the ground or in the air: biting in either puts the other on hold too
 function gusBite(p){
   if(p.biteT>0||p.state!=='walk'||!playing||!p.active||(p.biteCD||0)>0)return;
+  if(DT.gob){p.biteStep=-1;p.comboWin=0;p.biteDur=0.38;p.biteT=0.38;p.lungeT=0.16;p.biteHit=true;p.biteCD=0.45;woosh(0.13,0.22,520,1700,0.1);return;}
   // no aim assist: the bite goes exactly where he's facing (lock-on is how to aim at someone)
   // in the air: a single snap, no combo
   if(!p.grounded){if((p.airBiteCD||0)>0)return;hbStart(p,'airBite');p.airBiteCD=1.0;p.biteCD=BITE_SOLO_CD;p.biteStep=-1;p.comboWin=0;p.biteDur=0.3;p.biteT=0.3;p.lungeT=0.16;p.lurch={t:0,dur:Math.max(0.05,AB.airBite.dist/Math.max(0.1,AB.airBite.speed)),dist:AB.airBite.dist};p.biteHit=true;tone('triangle',150,260,0.1,0.06);woosh(0.12,0.2,600,1900);return;}
@@ -8693,6 +8697,7 @@ function gusBite(p){
   else{woosh(0.13,0.22,520,1700,0.1);tone('triangle',150+step*30,260+step*30,0.08,0.06,0.28);}
 }
 function doBite(p){
+  if(DT.gob){gobClub(p);return;}
   const hx=Math.sin(p.heading),hz=Math.cos(p.heading),bx=p.pos.x+hx*2.5,bz=p.pos.z+hz*2.5,fin=p.biteStep===2,A=p.biteStep===-1?AB.airBite:fin?AB.upper:p.biteStep===1?AB.bite2:AB.bite;
   const cust=hbOn(p.biteStep===-1?'airBite':fin?'upper':p.biteStep===1?'bite2':'bite');
   if(!cust){const o={force:fin?1.1:0.8,dx:hx,dz:hz};blockHit(A,bx,p.pos.y+0.6,bz,hx,hz,o,sz=>crush(bx,p.pos.y+0.6,bz,Math.max(0,Math.round(sz)),0,1,o));}
@@ -9123,9 +9128,77 @@ function trampleFences(p){
       for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((wx+ox)/CS),Math.floor((wz+oz)/CS)));}}
   if(br){rebuildSet(ch);save();destroyFX(br,{force:0.6,dx:s,dz:c,up:1},true);noise(0.12,0.12,900,'bandpass');score+=2*br.length;}
 }
+// Play as a goblin (debug): the same player code runs, with a goblin's abilities and speeds in place of the hippo's for
+// the length of the step, so none of the moves need to know. (Walking speed and the hop are what goblins themselves do.)
+const GOB_ABIL={bite:true,biteCombo:false,stomp:false,chargeStomp:false,fullStomp:false,groundSpike:false,pound:false,chargePound:false,fullPound:false,jump:true,double:false,triple:false,
+  sprint:true,trample:false,dash:false,roll:false,blastDash:false,airDash:false,blastAirDash:false,longJump:false,blastJump:false,rocket:false,climb:true,crash:false,noFall:false};
+const GOB_FEET=[[0,0],[.25,.25],[-.25,.25],[.25,-.25],[-.25,-.25]],GOB_WALK=2.8,GOB_RUN=5,GOB_HOP=8.4,GOB_EYE=1.22*ES;
+const calmNow=()=>DT.peace||DT.gob;   // (nobody's after you: hostility's off, or you're one of them)
+const camPitch=v=>DT.gob?Math.max(-1.5,Math.min(1.5,v)):Math.max(-1.1,Math.min(0.55,v));   // (in first person you can look right up)
+function setGob(on){
+  if(on===DT.gob)return;DT.gob=on;
+  HIPPO_PTS=on?GOB_FEET:HIPPO_FEET;P_HX=P_HZ=on?0.38:0.75*ES;if(!on)P_HZ=1.45*ES;P_HY=on?1.35:2.1*ES;
+  PB_LAT=on?[-0.38,0,0.38]:[-P_HX*0.95,0,P_HX*0.95];PB_ALONG=on?[-0.38,0,0.38]:[-1.42,-0.5,0.5,1.42].map(v=>v*ES);
+  // (head height only: a block at the feet is a step up, and walking on to it is the ground's business)
+  PB_YS=on?[1.1,1.3]:[1.25*ES,1.95*ES];
+  for(const p of players){p.rig.visible=!on;p.cam.pitch=camPitch(p.cam.pitch);if(p.lockT)setLock(p,null);
+    if(!p.active||p.state==='dead')continue;
+    // (whatever the hippo was halfway through stops here)
+    if(on){if(p.state!=='walk'&&p.state!=='climb'){p.state='walk';p.t=0;p.vb=null;p.piv=null;}
+      p.dodge=null;p.dashT=0;p.lungeT=0;p.biteT=0;p.biteHit=false;p.lurch=null;p.mvx=p.mvz=0;p.carryV=0;p.rocket=false;p.longJump=false;p.blastJ=false;p.airJumps=0;p.qStomp=p.qDodge=0;}
+    else if(p.state==='walk')bodyFree(p);}
+  renderTime();
+}
 function updatePlayer(p,dt){
+  if(!DT.gob||SBX)return movePlayer(p,dt);
+  if(p.state==='walk')p.heading=p.cam.yaw+Math.PI;   // (a body faces wherever you look)
+  const A0=Object.assign({},ABIL),w=AB.walk.speed,r=AB.trample.speed,j=AB.jump.launch;
+  Object.assign(ABIL,GOB_ABIL);AB.walk.speed=GOB_WALK;AB.trample.speed=GOB_RUN;AB.jump.launch=GOB_HOP;
+  try{movePlayer(p,dt);}finally{Object.assign(ABIL,A0);AB.walk.speed=w;AB.trample.speed=r;AB.jump.launch=j;}
+}
+// the attack button swings the club: one goblin's blow, in front of you
+function gobClub(p){
+  const hx=Math.sin(p.heading),hz=Math.cos(p.heading),fx=p.pos.x+hx*1.1,fz=p.pos.z+hz*1.1;
+  hitGoblins(fx,fz,1,1,'Clubbed by another goblin',p.pos.y);
+  for(const c of carsNear(fx,fz,1,p.pos.y)){damageCar(c,1,new V3(hx,0,hz));clang();}
+}
+// a goblin for others to see (the other player, or you from the free cam), and your own arm and club for you
+function gobKit(p){
+  if(p.gb)return p.gb;
+  const root=new THREE.Group();root.rotation.order='YXZ';root.visible=false;root.scale.setScalar(ES);scene.add(root);
+  const m=goblinModel(root,{tunic:p.idx?0xa83232:0x3a5f8a});
+  // (drawn last and over everything, so it never pokes through a wall you're stood against)
+  const vm=new THREE.Group();vm.rotation.order='YXZ';vm.visible=false;vm.scale.setScalar(0.5);scene.add(vm);
+  const arm=new THREE.Group();arm.position.set(0.52,-0.62,-0.72);vm.add(arm);
+  const mat=c=>new THREE.MeshLambertMaterial({color:c,transparent:true,depthTest:false,depthWrite:false});
+  const box=(w,h,d,c,x,y,z,o)=>{const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c));b.position.set(x,y,z);b.renderOrder=o;b.frustumCulled=false;arm.add(b);};
+  box(0.11,0.11,0.42,GC.skin,0,0,-0.2,60);box(0.07,0.42,0.07,GC.club,0,0.17,-0.42,61);box(0.15,0.17,0.15,GC.club,0,0.42,-0.42,62);
+  return p.gb={root,m,vm,arm};
+}
+// the first-person view, and the body that goes with it
+function gobCamera(p){
+  const K=gobKit(p),lie=p.state==='dead'?Math.min(1,p.t*3):0,walking=p.state==='walk'&&p.grounded&&p.lastSp>0.2,sn=Math.sin(p.phase),v=p.visOff;
+  p.camHang=(p.camHang||0)+((p.state==='ceil'||(p.state==='piv'&&p.piv&&p.piv.next==='ceil')?1:0)-(p.camHang||0))*0.12;
+  const eye=GOB_EYE*(1-0.75*lie)-2.2*ES*p.camHang+(walking?Math.abs(sn)*0.04:0),c=p.camera.position;
+  c.set(p.pos.x+(v?v.x:0),p.pos.y+(v?v.y:0)+eye,p.pos.z+(v?v.z:0));p.camera.rotation.set(p.cam.pitch,p.cam.yaw,lie*1.2);
+  if(p.shake>0.002&&gameSpeed()>0){c.x+=(Math.random()-.5)*p.shake;c.y+=(Math.random()-.5)*p.shake;c.z+=(Math.random()-.5)*p.shake;}
+  const sw=p.biteT>0?1-p.biteT/(p.biteDur||0.38):0;
+  K.root.position.set(p.pos.x,p.pos.y+lie*0.15,p.pos.z);K.root.rotation.set(-lie*Math.PI/2,p.heading,0);
+  K.m.legs[0].rotation.x=walking?sn*0.7:0;K.m.legs[1].rotation.x=walking?-sn*0.7:0;K.m.arm.rotation.x=sw>0?-0.5-1.9*Math.sin(sw*Math.PI):-0.5;
+  // up and back until the blow lands (with the bite's own timing), down hard, and slowly back to the rest
+  const raise=sw<0.42?1.1*sw/0.42:sw<0.55?1.1-1.7*(sw-0.42)/0.13:-0.6+0.6*(sw-0.55)/0.45;
+  K.arm.rotation.x=0.08+raise+(walking?sn*0.03:0);K.arm.position.y=-0.62+(walking?Math.abs(sn)*0.012:0);
+}
+// who's seen from this view: everyone's goblin but your own, unless the free cam has left it
+function gobView(v){
+  for(const q of players){if(!q.gb)continue;
+    const me=q===v&&!(DT.freecam&&v===P1);
+    q.gb.root.visible=DT.gob&&q.active&&!me;q.gb.vm.visible=DT.gob&&q.active&&me&&q.state!=='dead';
+    if(q.gb.vm.visible){q.gb.vm.position.copy(v.camera.position);q.gb.vm.rotation.set(v.camera.rotation.x,v.camera.rotation.y,v.camera.rotation.z);}}
+}
+function movePlayer(p,dt){
   if(!p.active)return;
-  if(playing&&!SBX)trampleFences(p);
+  if(playing&&!SBX&&!DT.gob)trampleFences(p);
   if(p.snowU&&playing){const moving=Math.hypot(p.in.x,p.in.z)>0.2;snowGather(p,dt,moving);
     if(p.snowU.value>0.08&&(p.vy>3&&!p.grounded||p.biteT>0||p.state==='stomp'||p.state==='windup'||p.state==='pound'||p.state==='charge'||p.dashT>0||p.lungeT>0))shakeSnow(p,1.6);}
   p.trWas=p.trNow;p.trNow=false;
@@ -9276,18 +9349,18 @@ function updatePlayer(p,dt){
       // locked on: keep facing the target and move straight along the stick (strafing); otherwise turn toward the stick and walk forward
       const LT=p.lockT;
       let diff=0;
-      if(!LT){diff=Math.atan2(wx,wz)-p.heading;while(diff>Math.PI)diff-=Math.PI*2;while(diff<-Math.PI)diff+=Math.PI*2;p.heading+=Math.max(-4.5*dt,Math.min(4.5*dt,diff));if(!(inp.climb&&p.grounded))bodyFree(p);}   // (climb held: turning to face a pillar on a narrow ledge mustn't shove him out from in front of it)
+      if(!LT&&!DT.gob){diff=Math.atan2(wx,wz)-p.heading;while(diff>Math.PI)diff-=Math.PI*2;while(diff<-Math.PI)diff+=Math.PI*2;p.heading+=Math.max(-4.5*dt,Math.min(4.5*dt,diff));if(!(inp.climb&&p.grounded))bodyFree(p);}   // (climb held: turning to face a pillar on a narrow ledge mustn't shove him out from in front of it)
       const charge=inp.charge&&!p.exhausted&&p.stam>0,tramp=charge&&ABIL.trample;p.sprinting=charge&&!ABIL.trample;   // (trample switched off: holding B is just a sprint -- no damage, no smashing)
       if(tramp){p.trNow=true;if(!p.trWas)hbStart(p,'trample');}
       if(charge){charging=true;if(!p.wasCharging&&tramp)p.roarBurst=0.5;p.stam-=AB.trample.stamina*(tramp?1:0.6)*dt;if(p.stam<=0){p.stam=0;p.exhausted=true;flashLabel('Out of breath',p);}}
       const sp=PSPEEDS[DT.psI]*(charge?AB.trample.speed:AB.walk.speed)*(Math.abs(diff)>1.5?0.35:1)*(0.6+0.4*p.hp/20)*Math.max(0.35,mag)*Math.max(0.04,(p.walkRamp??1));
       const hx=Math.sin(p.heading),hz=Math.cos(p.heading),frontX=p.pos.x+hx*1.8,frontZ=p.pos.z+hz*1.8;
       // locked: the stick works relative to the target (up = toward it, sideways = around it), not the trailing camera
-      let mvx=hx,mvz=hz;
+      let mvx=DT.gob?wx:hx,mvz=DT.gob?wz:hz;   // (a goblin steps whichever way the stick says, facing where it looks)
       if(LT){const tx=LT.pos.x-p.pos.x,tz=LT.pos.z-p.pos.z,tl=Math.hypot(tx,tz)||1,fx=tx/tl,fz=tz/tl;mvx=fx*-iz-fz*ix;mvz=fz*-iz+fx*ix;const ml=Math.hypot(mvx,mvz)||1;mvx/=ml;mvz/=ml;}
       // which way the legs should step, relative to the body: forward/back and sideways
       p.gaitTF=LT?-iz:1;p.gaitTL=LT?-ix:0;
-      const ahead=groundAt(p.pos.x+mvx*1.6,p.pos.z+mvz*1.6,p.pos.y);
+      const ahead=DT.gob?gobGround(p.pos.x+mvx*0.45,p.pos.z+mvz*0.45,p.pos.y,p,dt):groundAt(p.pos.x+mvx*1.6,p.pos.z+mvz*1.6,p.pos.y);
       if(tramp&&p.chargeCD<=0){
         const hit=hbOn('trample')?[]:carsNear(frontX,frontZ,AB.trample.hitR,p.pos.y);
         if(hit.length){p.chargeCD=0.6;clang();thud(0.8);addShake(0.35,frontX,frontZ,12);rumble(p,0.7,200);
@@ -9305,7 +9378,7 @@ function updatePlayer(p,dt){
         else if(!tramp||p.smashCD>0){
           const opts=Math.abs(mvx)>Math.abs(mvz)?[[Math.sign(mvx),0,Math.abs(mvx)],[0,Math.sign(mvz),Math.abs(mvz)]]:[[0,Math.sign(mvz),Math.abs(mvz)],[Math.sign(mvx),0,Math.abs(mvx)]];
           for(const [ux,uz,k] of opts){if(k<0.12)continue;const d=sp*dt*k,nx=p.pos.x+ux*d,nz=p.pos.z+uz*d;
-            if(groundAt(p.pos.x+ux*1.6,p.pos.z+uz*1.6,p.pos.y)-p.pos.y>1.05)continue;
+            if((DT.gob?gobGround(p.pos.x+ux*0.45,p.pos.z+uz*0.45,p.pos.y,p,dt):groundAt(p.pos.x+ux*1.6,p.pos.z+uz*1.6,p.pos.y))-p.pos.y>1.05)continue;
             if(bodyHits(p,nx,nz,p.heading)&&!bodyHits(p,p.pos.x,p.pos.z,p.heading))continue;
             p.pos.x=nx;p.pos.z=nz;moving=true;p.lastSp=sp*k;p.phase+=dt*sp*k*3.4*(charge?0.45:1);break;}
         }
@@ -9323,7 +9396,7 @@ function updatePlayer(p,dt){
       }
     }
     // holding climb while jumping at a wall: grab on
-    if(p.state==='walk'&&inp.climb&&!p.grounded){if(!startClimb(p,1.1)&&p.vy>-2)grabCeil(p);}
+    if(p.state==='walk'&&inp.climb&&!p.grounded){if(!startClimb(p,1.1)&&p.vy>-2&&!DT.gob)grabCeil(p);}
     // R2 in mid-air: ground pound
     const dodgeHop=!!p.dodge||(p.sinceDodge??9)<0.3&&!p.grounded;   // (a dodge's little hop isn't a jump: no ground pound out of it)
     if(ABIL.pound&&inp.stomp&&!p.grounded&&p.lungeT<=0&&p.dashT<=0&&!dodgeHop){p.state='pound';p.t=0;{const g=supportAt(p.pos.x,p.pos.z,p.pos.y);p.flipY0=p.pos.y;p.flipA=Math.max(0,Math.min(0.9*ES,(g===null?9:p.pos.y-g)-0.4));}p.vy=Math.max(p.vy,0);p.legLift=0;p.stompCharge=0;p.stompLevel=0;p.pRel=false;p.pHover=false;p.poundLvl=0;tone('triangle',170,95,0.16,0.08);}
@@ -9581,7 +9654,7 @@ function updatePlayer(p,dt){
     if(p.dashT>0||p.state==='pound'||p.state==='poundLand'||p.state==='windup'||p.state==='stomp'){if(p.state!=='walk'){p.mvx=p.mvz=0;}}
     else{
       const m=Math.hypot(p.mvx,p.mvz),ux=p.mvx/m,uz=p.mvz/m;
-      if(groundAt(p.pos.x+ux*1.6,p.pos.z+uz*1.6,p.pos.y)-p.pos.y<=1.05&&(!bodyHits(p,p.pos.x+p.mvx*dt,p.pos.z+p.mvz*dt,p.heading)||bodyHits(p,p.pos.x,p.pos.z,p.heading))){p.pos.x+=p.mvx*dt;p.pos.z+=p.mvz*dt;if(m>6)hitGoblins(p.pos.x+ux*1.8,p.pos.z+uz*1.8,1.6,4,'Bowled over',p.pos.y);}
+      if(groundAt(p.pos.x+ux*(DT.gob?0.45:1.6),p.pos.z+uz*(DT.gob?0.45:1.6),p.pos.y)-p.pos.y<=1.05&&(!bodyHits(p,p.pos.x+p.mvx*dt,p.pos.z+p.mvz*dt,p.heading)||bodyHits(p,p.pos.x,p.pos.z,p.heading))){p.pos.x+=p.mvx*dt;p.pos.z+=p.mvz*dt;if(m>6)hitGoblins(p.pos.x+ux*1.8,p.pos.z+uz*1.8,1.6,4,'Bowled over',p.pos.y);}
       else{p.mvx=p.mvz=0;}
       const f=Math.exp(-(p.grounded?7:p.rocket?1.1:0.5)*dt);p.mvx*=f;p.mvz*=f;
       if(Math.hypot(p.mvx,p.mvz)<0.3)p.mvx=p.mvz=0;
@@ -9601,17 +9674,17 @@ function updatePlayer(p,dt){
   if(p.exhausted&&p.stam>=25)p.exhausted=false;
   if(DT.infStam){p.stam=100;p.exhausted=false;}   // debug: never out of breath
   // a hippo doesn't go around lamp posts
-  if(p.pos.y<G+6.5)knockFixtures(p.pos.x,p.pos.z,1.05,Math.sin(p.heading),Math.cos(p.heading));
-  knockProps(p.pos.x,p.pos.y,p.pos.z,1.1,Math.sin(p.heading),Math.cos(p.heading));   // (nor round a hospital bed)
+  if(!DT.gob&&p.pos.y<G+6.5)knockFixtures(p.pos.x,p.pos.z,1.05,Math.sin(p.heading),Math.cos(p.heading));
+  if(!DT.gob)knockProps(p.pos.x,p.pos.y,p.pos.z,1.1,Math.sin(p.heading),Math.cos(p.heading));   // (nor round a hospital bed)
   // cars only block you at ground level: once your feet clear the hood you can hop over or onto them
   for(const c of cars){if(!c.alive||p.pos.y<c.pos.y-1.5||Math.hypot(c.pos.x-p.pos.x,c.pos.z-p.pos.z)>c.hz+3)continue;
     const cs=Math.sin(c.heading),ck=Math.cos(c.heading),dx=p.pos.x-c.pos.x,dz=p.pos.z-c.pos.z,la=dx*ck-dz*cs,lb=dx*cs+dz*ck;
     if(p.pos.y>=c.pos.y+Math.min(0.9*ES,VEH[c.veh].roof(Math.max(-c.hz,Math.min(c.hz,lb))/ES)*ES-0.4)+0.05)continue;   // up on top of it
-    const qa=Math.max(-c.hx,Math.min(c.hx,la)),qb=Math.max(-c.hz,Math.min(c.hz,lb)),ea=la-qa,eb=lb-qb,d=Math.hypot(ea,eb),R=1.0*ES;
+    const qa=Math.max(-c.hx,Math.min(c.hx,la)),qb=Math.max(-c.hz,Math.min(c.hz,lb)),ea=la-qa,eb=lb-qb,d=Math.hypot(ea,eb),R=DT.gob?0.45:1.0*ES;
     if(d<R){let ua,ub;if(d>0.001){ua=ea/d;ub=eb/d;}else{const fa=c.hx-Math.abs(la),fb=c.hz-Math.abs(lb);if(fa<fb){ua=Math.sign(la)||1;ub=0;}else{ua=0;ub=Math.sign(lb)||1;}}
       const push=d>0.001?R-d:R+Math.min(c.hx-Math.abs(la),c.hz-Math.abs(lb));shove(p,(ua*ck+ub*cs)*push,(-ua*cs+ub*ck)*push);}}
   for(const B of TRAIN_BOXES){const BX=B.hx||TRAIN_HX,BZ=B.hz||TRAIN_HZ;if(B.proxy===p.rideC||p.pos.y>=B.top-0.4||p.pos.y<B.y0-1.5||Math.hypot(B.x-p.pos.x,B.z-p.pos.z)>Math.max(BX,BZ)+3)continue;
-    const dx=p.pos.x-B.x,dz=p.pos.z-B.z,al=dx*B.tx+dz*B.tz,ac=-dx*B.tz+dz*B.tx,R=1.0*ES;
+    const dx=p.pos.x-B.x,dz=p.pos.z-B.z,al=dx*B.tx+dz*B.tz,ac=-dx*B.tz+dz*B.tx,R=DT.gob?0.45:1.0*ES;
     if(Math.abs(al)>BZ+R||Math.abs(ac)>BX+R)continue;
     const fa=BZ+R-Math.abs(al),fc=BX+R-Math.abs(ac);
     // (a train at speed doesn't just nudge you aside: it hits you)
@@ -9623,7 +9696,7 @@ function updatePlayer(p,dt){
       {let d=c.heading-p.rideH;d=Math.atan2(Math.sin(d),Math.cos(d));if(Math.abs(d)>0.7)d=0;   // (a car that's turned right round in a moment doesn't take you with it)
         const ex=p.pos.x-p.rideX,ez=p.pos.z-p.rideZ,cd=Math.cos(d),sd=Math.sin(d);p.pos.x=c.pos.x+ex*cd+ez*sd;p.pos.z=c.pos.z-ex*sd+ez*cd;p.heading+=d;if(p.cam)p.cam.yaw+=d;p.pos.y=c.isPlane?c.top:Math.max(p.pos.y,c.isTrain?c.top:c.pos.y+1.1*ES);}}
     p.rideC=c;p.rideX=c.pos.x;p.rideZ=c.pos.z;p.rideH=c.heading;}else p.rideC=null;
-  for(const o of players){if(o===p||!o.active||o.state==='dead')continue;const dx=p.pos.x-o.pos.x,dz=p.pos.z-o.pos.z,d=Math.hypot(dx,dz);if(d<2.4&&d>0.001)shove(p,dx/d*(2.4-d)*0.5,dz/d*(2.4-d)*0.5);}
+  for(const o of players){if(o===p||!o.active||o.state==='dead')continue;const dx=p.pos.x-o.pos.x,dz=p.pos.z-o.pos.z,d=Math.hypot(dx,dz),gap=DT.gob?0.9:2.4;if(d<gap&&d>0.001)shove(p,dx/d*(gap-d)*0.5,dz/d*(gap-d)*0.5);}
   let g=p.state==='climb'||p.state==='piv'||p.state==='ceil'?null:footprint(p);   // clinging to a wall: no gravity
   // just loaded in: he's set straight down on whatever's under where he was (once it's there) -- never dropped onto it,
   // which would crash-land and blow a hole in it
@@ -9650,13 +9723,13 @@ function updatePlayer(p,dt){
         if(Math.random()<dt*14){const hx=Math.sin(p.heading),hz=Math.cos(p.heading),fx=(Math.random()<.5?-1:1)*0.45*ES,fz=(Math.random()<.5?-1:1)*0.7*ES;puff(p.pos.x+hz*fx+hx*fz,p.pos.y-0.3,p.pos.z-hx*fx+hz*fz,1,0x8a8680,0.3);}}
       p.vy-=(wet?8:25)*dt;if(wet)p.vy=Math.max(p.vy,-4);p.pos.y+=p.vy*dt;p.grounded=false;
       // ground-pounding or coming down hard: leaves, glass, awnings and furniture give way instead of catching you
-      if(g!==null&&p.pos.y<g&&(p.state==='pound'||p.vy<-11)){
+      if(!DT.gob&&g!==null&&p.pos.y<g&&(p.state==='pound'||p.vy<-11)){
         for(let k=0;k<4&&g!==null&&p.pos.y<g;k++){if(!smashSoftUnder(p,g))break;g=footprint(p);}
         if(g===null)g=-1e9;
       }
       if(p.pos.y<g){
         // landing on a car from a real height dents it (a jump on to one just lands you on it, to ride)
-        if(p.standCar&&p.vy<-16&&p.state!=='pound'){damageCar(p.standCar,Math.round(-p.vy*0.5));clang();p.standCar.hurt=0.2;}
+        if(!DT.gob&&p.standCar&&p.vy<-16&&p.state!=='pound'){damageCar(p.standCar,Math.round(-p.vy*0.5));clang();p.standCar.hurt=0.2;}
         if(p.vy<-11){thud(0.4);p.shake=Math.max(p.shake,0.12);}
         if(p.vy<-3)p.landT=0.22;p.pos.y=g;p.vy=0;p.grounded=true;
         if(p.longJump){p.longJump=false;p.blastJ=false;thud(0.3);puff(p.pos.x,p.pos.y,p.pos.z,8,0x9a948a,0.6);}
@@ -9944,7 +10017,7 @@ function updatePlayer(p,dt){
   else if(p.vb&&p.state!=='climb')poseVBlend(p,dt);
   else{p.vb=null;p.rootQ=qAx(0,1,0,p.root.rotation.y);p.rootP=[p.root.position.x,p.root.position.y,p.root.position.z];}
   // footfalls: only when a foot actually comes down on something (walking on the ground or a car roof, or crawling on a wall or ceiling; never mid-jump)
-  if(moving&&p.grounded&&(p.state==='walk'||p.state==='climb'||p.state==='ceil')&&Math.sign(sn)!==Math.sign(p.lastSin)){p.shake=Math.max(p.shake,0.04);thud(0.1);}
+  if(!DT.gob&&moving&&p.grounded&&(p.state==='walk'||p.state==='climb'||p.state==='ceil')&&Math.sign(sn)!==Math.sign(p.lastSin)){p.shake=Math.max(p.shake,0.04);thud(0.1);}
   p.lastSin=sn;
 }
 
@@ -11497,7 +11570,7 @@ function spawnCiv(g){
 function squeal(d){const att=Math.max(0.08,1-d/28);tone('sawtooth',950+Math.random()*350,1500+Math.random()*300,0.2,0.045*att);tone('sine',1300,900,0.22,0.03*att,0.05);}
 function civAI(g,dt){
   if(!playing||g.stun>0)return false;
-  const thr=nearestPlayer(g.pos.x,g.pos.z,true);
+  const thr=DT.gob?null:nearestPlayer(g.pos.x,g.pos.z,true);   // (just another goblin: nothing to run from)
   let speed=0,want=g.heading;
   if(thr&&thr.d<(g.vendor?9:14)){
     // a hippo! run, screaming
@@ -11796,7 +11869,7 @@ function updateGoblins(dt){
     if(g.medic)moving=medicAI(g,dt);
     else if(g.ff)moving=fireAI(g,dt);
     else if(g.news)moving=newsAI(g,dt);
-    else if(g.civ||DT.peace)moving=civAI(g,dt);   // (with hostility off, hostile goblins act like the townsfolk)
+    else if(g.civ||calmNow())moving=civAI(g,dt);   // (with hostility off, or to a fellow goblin, hostile goblins act like the townsfolk)
     else if(tgt){
       dx=tgt.p.pos.x-g.pos.x;dz=tgt.p.pos.z-g.pos.z;d=Math.hypot(dx,dz);
       // they can only club you if you're roughly level with them
@@ -11869,7 +11942,7 @@ function updateGoblins(dt){
       if(playing&&canHit&&d<=reach+0.3&&g.atk<0.45)g.arm.rotation.x=-0.5-1.9*(1-g.atk/0.45);
       else g.arm.rotation.x+=((-0.5+(moving?Math.sin(g.phase)*0.4:0))-g.arm.rotation.x)*Math.min(1,dt*8);
     }
-    for(const p of players){if(!p.active||p.state==='dead'||Math.abs(p.pos.y-g.pos.y)>1.2||g.vy!==0)continue;const hx=g.pos.x-p.pos.x,hz=g.pos.z-p.pos.z,hd=Math.hypot(hx,hz);if(hd<1.6&&hd>0.001)nudge(g,hx/hd*(1.6-hd),hz/hd*(1.6-hd));}
+    for(const p of players){if(!p.active||p.state==='dead'||Math.abs(p.pos.y-g.pos.y)>1.2||g.vy!==0)continue;const hx=g.pos.x-p.pos.x,hz=g.pos.z-p.pos.z,hd=Math.hypot(hx,hz),gap=DT.gob?0.7:1.6;if(hd<gap&&hd>0.001)nudge(g,hx/hd*(gap-hd),hz/hd*(gap-hd));}
     for(const c of cars){if(!c.alive)continue;const cx=g.pos.x-c.pos.x,cz=g.pos.z-c.pos.z,cd=Math.hypot(cx,cz);if(cd<2&&cd>0.001)nudge(g,cx/cd*(2-cd),cz/cd*(2-cd));}
     for(const o of goblins){if(o===g||o.state!=='chase')continue;const ox=g.pos.x-o.pos.x,oz=g.pos.z-o.pos.z,od=Math.hypot(ox,oz);if(od<0.7&&od>0.001)nudge(g,ox/od*(0.7-od)*0.5,oz/od*(0.7-od)*0.5);}
     // in water too deep to stand in: up to the top of it and paddling, head out (or down after a hippo that's sunk close by)
@@ -12581,7 +12654,7 @@ const sbxCells=cells=>{const h=SBX&&SBX.hits[SBX.hits.length-1];if(h&&h.kind==='
 // game speed and free cam
 const SPEEDS=[0.05,0.1,0.25,0.5,0.75,0.9,1,1.25,1.5,2];
 const PSPEEDS=[1,1.5,2,2.5,3,4,5,6,7,8,9,10];
-const DT={hpBars:false,dmgNums:false,fps:false,curve:2,psI:0,invuln:false,infStam:false,fly:false,peace:false,speedI:6,paused:false,freecam:false,step:false,quick:true,menu:false,kbdOpen:false,selHeld:false,cur:0,navDir:0,navT:0};
+const DT={hpBars:false,dmgNums:false,fps:false,curve:2,psI:0,invuln:false,infStam:false,fly:false,gob:false,peace:false,speedI:6,paused:false,freecam:false,step:false,quick:true,menu:false,kbdOpen:false,selHeld:false,cur:0,navDir:0,navT:0};
 try{const q=JSON.parse(localStorage.getItem('goblin-stompin-gus-quickdbg')||'null');if(typeof q==='boolean')DT.quick=q;}catch(e){}
 try{for(const k of ['fps','hpBars','dmgNums'])DT[k]=localStorage.getItem('goblin-stompin-gus-'+k)==='1';}catch(e){}
 // the debug settings carry over from one session to the next (all but stopping time and the free cam, which would
@@ -12598,14 +12671,14 @@ DT.peace=peaceful;
 function syncPeace(){const b=document.getElementById('peaceTog');if(b)b.setAttribute('aria-checked',String(peaceful));}
 const DBG_ITEMS=[
   {k:'speed',label:'Game speed'},{k:'paused',label:'Stop time'},{k:'freecam',label:'Free cam'},
-  {k:'pspeed',label:'Player speed'},{k:'invuln',label:'Invulnerable'},{k:'infStam',label:'Infinite stamina'},{k:'fly',label:'Flying'},{k:'peace',label:'Enemy hostility'},
+  {k:'pspeed',label:'Player speed'},{k:'invuln',label:'Invulnerable'},{k:'infStam',label:'Infinite stamina'},{k:'fly',label:'Flying'},{k:'gob',label:'Play as a goblin'},{k:'peace',label:'Enemy hostility'},
   {k:'wx',label:'Weather'},{k:'season',label:'Season'},{k:'curve',label:'World curve'},{k:'fps',label:'FPS counter'},{k:'hpBars',label:'Health bars'},{k:'dmgNums',label:'Damage numbers'},
   {k:'show',label:'Display hitboxes'},
   {k:'pBlock',label:'Player block hitboxes',col:'#ff9a2a'},{k:'nBlock',label:'NPC block hitboxes',col:'#e8d040'},
   {k:'pDmg',label:'Player damage hitboxes',col:'#ff3a3a'},{k:'nDmg',label:'NPC damage hitboxes',col:'#ff4fd8'},
   {k:'pHurt',label:'Player hurtboxes',col:'#46f06a'},{k:'nHurt',label:'NPC hurtboxes',col:'#46d4ff'}];
 const curveTxt=()=>DT.curve===0?'Flat':DT.curve>0?'Down '+DT.curve:'Up '+(-DT.curve);
-function dbgVal(k){return k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='peace'?!DT.peace:k==='paused'||k==='freecam'||k==='invuln'||k==='infStam'||k==='fly'||k==='fps'||k==='hpBars'||k==='dmgNums'?DT[k]:DBG[k];}
+function dbgVal(k){return k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='peace'?!DT.peace:k==='paused'||k==='freecam'||k==='invuln'||k==='infStam'||k==='fly'||k==='gob'||k==='fps'||k==='hpBars'||k==='dmgNums'?DT[k]:DBG[k];}
 // the rows on show: the individual hitbox switches only while 'Display hitboxes' is on
 function dbgItems(){const L=DBG_ITEMS.filter(it=>!it.col||DBG.show);if(DT.cur>=L.length)DT.cur=L.length-1;return L;}
 // step a slider row (game speed or player speed) left or right
@@ -12631,6 +12704,7 @@ function dbgMenuToggle(){const it=dbgItems()[DT.cur];
   if(it.k==='curve')DT.curve=2;
   else if(it.k==='speed')DT.speedI=SPEEDS.indexOf(1);
   else if(it.k==='freecam')setFreecam(!DT.freecam);
+  else if(it.k==='gob')setGob(!DT.gob);
   else if(it.k==='paused')DT.paused=!DT.paused;
   else if(it.k==='pspeed')DT.psI=0;
   else if(it.k==='invuln'||it.k==='peace'||it.k==='infStam'||it.k==='fly'||it.k==='fps'||it.k==='hpBars'||it.k==='dmgNums'){DT[it.k]=!DT[it.k];try{localStorage.setItem('goblin-stompin-gus-'+it.k,DT[it.k]?'1':'0');}catch(e){}}
@@ -12700,7 +12774,7 @@ for(const b of document.querySelectorAll('#dbgTime .tog'))b.addEventListener('cl
 document.getElementById('gameSpeed').addEventListener('input',e=>{DT.speedI=+e.target.value;renderTime();});
 document.getElementById('playerSpeed').addEventListener('input',e=>{DT.psI=+e.target.value;renderTime();});
 document.getElementById('worldCurve').addEventListener('input',e=>{DT.curve=+e.target.value;renderTime();});
-for(const b of document.querySelectorAll('#dbgCheat .tog'))b.addEventListener('click',()=>{const k=b.dataset.k;DT[k]=!DT[k];renderTime();tone('triangle',DT[k]?660:440,0,0.05,0.03);});
+for(const b of document.querySelectorAll('#dbgCheat .tog'))b.addEventListener('click',()=>{const k=b.dataset.k;if(k==='gob')setGob(!DT.gob);else DT[k]=!DT[k];renderTime();tone('triangle',DT[k]?660:440,0,0.05,0.03);});
 renderTime();
 addEventListener('keydown',e=>{
   if(menuOpen)return;
@@ -15492,7 +15566,7 @@ function updateServices(dt){
     if(c){for(const o of goblins)if(o.state==='dead'&&!o.claim&&Math.hypot(o.pos.x-g.pos.x,o.pos.z-g.pos.z)<16)o.claim=c;break;}}
   // crimes: police come to look into killings and smashed buildings and cars
   for(let i=crimes.length-1;i>=0;i--)if(playTime-crimes[i].t>40)crimes.splice(i,1);
-  if(!DT.peace)for(const k of crimes){if(k.sent||!near(k.x,k.z,160)||busy('police',k.x,k.z,30))continue;const c=send('police',k.x,k.z);if(c){k.sent=true;break;}}
+  if(!calmNow())for(const k of crimes){if(k.sent||!near(k.x,k.z,160)||busy('police',k.x,k.z,30))continue;const c=send('police',k.x,k.z);if(c){k.sent=true;break;}}
   // the news: fires, wrecks and killings, one van to a scene. (A scene still going after a while gets another visit.)
   for(const F of fires)if(F.t>=3&&!F.news){F.news=true;reportNews(F.x,F.z,'fire');}
   for(let i=newsCalls.length-1;i>=0;i--)if(playTime-newsCalls[i].t>40)newsCalls.splice(i,1);
@@ -15554,12 +15628,12 @@ function updateCars(dt){
     c.snowU.value+=((c.snowOpen?WX.snowCover:0)-c.snowU.value)*Math.min(1,dt*0.4);
     c.paint.emissive.setHex(c.hurt>0?0x441100:0x000000);
     const tgt=nearestPlayer(c.pos.x,c.pos.z,true);
-    if(DT.peace&&c.hunter){c.hunter=false;if(c.police)c.parked=true;}
-    if(c.police&&c.parked&&!c.svcPool&&!c.pullPool&&playing&&tgt&&tgt.d<30&&!DT.peace){c.parked=false;c.hunter=true;flashLabel('Police!',tgt.p);}
+    if(calmNow()&&c.hunter){c.hunter=false;if(c.police)c.parked=true;}
+    if(c.police&&c.parked&&!c.svcPool&&!c.pullPool&&playing&&tgt&&tgt.d<30&&!calmNow()){c.parked=false;c.hunter=true;flashLabel('Police!',tgt.p);}
     if(c.police){const on=Math.floor(clock*6.5)%2===0,lit=c.hunter||c.pullLit||(c.svcPool&&c.svc&&c.svc.st!=='parked'&&c.svc.st!=='leave');c.lightR.color.setHex(lit?(on?0xff2a2a:0x501010):0x401010);c.lightB.color.setHex(lit?(on?0x101a50:0x3a7aff):0x101a40);}
     if(c.hazard){const on=Math.floor(clock*1.7)%2===0;c.hazM.color.setHex(on?0xffa024:0x3a2408);}
     if(c.flash&&c.svcPool){const on=Math.floor(clock*5.5)%2===0&&c.svc&&c.svc.st!=='parked';c.flash[0].color.setHex(on?0xff2a2a:0x501010);c.flash[1].color.setHex(on?0x303030:(c.svcPool==='amb'?0xffffff:0x3a7aff));}
-    if(!c.police&&!c.parkPool&&!c.hwPool&&!c.hunter&&!c.hw&&!c.rt&&!c.path&&!DT.peace&&playing&&tgt&&tgt.d<22&&hunters<2&&Math.random()<dt*0.07){c.hunter=true;hunters++;flashLabel('A car is coming for you',tgt.p);horn(0.08);}
+    if(!c.police&&!c.parkPool&&!c.hwPool&&!c.hunter&&!c.hw&&!c.rt&&!c.path&&!calmNow()&&playing&&tgt&&tgt.d<22&&hunters<2&&Math.random()<dt*0.07){c.hunter=true;hunters++;flashLabel('A car is coming for you',tgt.p);horn(0.08);}
     if(c.hunter&&!tgt)c.hunter=false;
     // a highway car that's come down into town drives the streets for a while, then slips away once nobody's looking
     if(c.leaving&&c.hwPool){c.leaveT=(c.leaveT||0)+dt;if(c.leaveT>14&&!visibleToAny(c.pos.x,c.pos.y+1,c.pos.z)){c.alive=false;c.g.visible=false;c.respawnT=0.5;c.leaving=false;c.leaveT=0;continue;}}
@@ -15952,7 +16026,7 @@ function look(p,dx,dy,k){
     return;
   }
   p.cam.yaw-=dx*k;
-  p.cam.pitch=Math.max(-1.1,Math.min(0.55,p.cam.pitch-dy*k));
+  p.cam.pitch=camPitch(p.cam.pitch-dy*k);
 }
 canvas.addEventListener('contextmenu',e=>e.preventDefault());
 canvas.addEventListener('mousedown',e=>{
@@ -16022,7 +16096,7 @@ function readInputs(dt){
   if(DT.menu&&DT.selHeld)for(const [p,s] of [[P1,s1],[P2,s2]]){if(!s||!p.active)continue;
     const dz=v=>Math.abs(v)>0.15?v:0,rx=dz(s.p.axes[2]||0),ry=dz(s.p.axes[3]||0);
     if(DT.freecam&&p===P1){FC.yaw-=rx*2.4*dt;FC.pitch=Math.max(-1.5,Math.min(1.5,FC.pitch-ry*1.8*dt));}
-    else if(!p.lockT){p.cam.yaw-=rx*2.8*dt;p.cam.pitch=Math.max(-1.1,Math.min(0.55,p.cam.pitch-ry*1.8*dt));}}
+    else if(!p.lockT){p.cam.yaw-=rx*2.8*dt;p.cam.pitch=camPitch(p.cam.pitch-ry*1.8*dt);}}
   if(DT.menu&&DT.selHeld||wasOpen&&!DT.menu){s1=null;s2=null;}   // (the press that closes it doesn't also jump or trample)
   if(s1&&s1.b[8])s1=null;if(s2&&s2.b[8])s2=null;   // Select itself never plays
   // a paused player's controller drives their own pause panel
@@ -16047,7 +16121,7 @@ function readInputs(dt){
     if(pr[9]){requestPause(p);return;}
     if(!i.x&&!i.z){i.x=dead(ax[0]||0);i.z=dead(ax[1]||0);}
     const rx=dead(ax[2]||0),ry=dead(ax[3]||0);
-    if(!p.lockT&&!(DT.freecam&&p===P1)){p.cam.yaw-=rx*2.8*dt;p.cam.pitch=Math.max(-1.1,Math.min(0.55,p.cam.pitch-ry*1.8*dt));}
+    if(!p.lockT&&!(DT.freecam&&p===P1)){p.cam.yaw-=rx*2.8*dt;p.cam.pitch=camPitch(p.cam.pitch-ry*1.8*dt);}
     // the buttons, as bound (see BINDS)
     const pb=id=>BINDS[id].pad.some(k=>b[k]),pp=id=>BINDS[id].pad.some(k=>pr[k]);
     {const bx=(pb('right')?1:0)-(pb('left')?1:0),bz=(pb('back')?1:0)-(pb('fwd')?1:0);if(bx||bz){i.x=bx;i.z=bz;}}
@@ -16226,6 +16300,7 @@ function updateSpeedo(p,dt){
 }
 let camClock=0;   // real seconds, for camera effects (they run on even when the game is slowed)
 function placeCamera(p){
+  if(DT.gob){gobCamera(p);return;}
   const cp=Math.cos(p.cam.pitch),fx=-Math.sin(p.cam.yaw)*cp,fy=Math.sin(p.cam.pitch),fz=-Math.cos(p.cam.yaw)*cp;
   const hang=p.state==='ceil'||(p.state==='piv'&&p.piv&&p.piv.next==='ceil');p.camHang=(p.camHang||0)+((hang?1:0)-(p.camHang||0))*0.12;
   const tx=p.pos.x,ty=p.pos.y+(2.4-3.6*p.camHang)*ES,tz=p.pos.z,sk=p.speedFx||0;
@@ -16295,7 +16370,7 @@ function renderView(p,x,y,w,h){
   if(under){scene.fog.color.copy(DEEP);scene.background.copy(DEEP);scene.fog.near=1;scene.fog.far=18;}
   else{const fk=Math.max(0.2,WX.k.fog);scene.fog.color.copy(SKY);scene.background.copy(SKY);scene.fog.near=far*0.45*fk*fk;scene.fog.far=far*fk;}
   placePrecip(c,p.idx);
-  p.camera.aspect=w/h;p.camera.fov=72-6*(p.speedFx||0)-8*(p.windZoom||0);p.camera.far=far+40;p.camera.updateProjectionMatrix();
+  p.camera.aspect=w/h;p.camera.fov=72-6*(p.speedFx||0)-8*(p.windZoom||0);p.camera.far=far+40;p.camera.near=DT.gob?0.12:0.25;p.camera.updateProjectionMatrix();
   renderer.setViewport(x,y,w,h);renderer.setScissor(x,y,w,h);
   sky.position.copy(p.camera.position);
   if(p.lockMark&&p.lockMark.visible)p.lockMark.quaternion.copy(p.camera.quaternion);
@@ -16303,7 +16378,7 @@ function renderView(p,x,y,w,h){
   // that comes first); bent up, the rim of the bowl. Measured from where it'd sit with the world flat
   {const k=CURVE_U.value,hh=Math.max(0.5,c.y-(G+1)),F=Math.max(60,far);let sl=-(hh/F+k*F);if(k>0&&Math.sqrt(hh/k)<F)sl=-2*Math.sqrt(hh*k);
    const at=sl=>sl/Math.sqrt(1+sl*sl);skyU.uHzn.value=k?at(sl)-at(-hh/F):0;}
-  CURVE_CAM.copy(p.camera.position);HORIZ_U.value.set(CURVE_CAM.x,CURVE_CAM.y,CURVE_CAM.z,HORIZ_Y0);renderer.render(scene,p.camera);
+  gobView(p);CURVE_CAM.copy(p.camera.position);HORIZ_U.value.set(CURVE_CAM.x,CURVE_CAM.y,CURVE_CAM.z,HORIZ_Y0);renderer.render(scene,p.camera);
 }
 // shrink every character and vehicle model to ES (feet stay on the ground: their origins are at the base)
 for(const p of players)p.root.scale.setScalar(ES);

@@ -103,6 +103,7 @@ It renders in software, so the picture is right but the frame rate says nothing 
 - **Roofs:** `roofOf` picks a shape per kind of shop (hip, mansard, gable, barrel, false front, dome, mirror ball), drawn by `roofColumn` above the flat roof.
 - **Trains:** one per track (`updateTrains`), an engine at each end; `T.s` is the front, but the cars are numbered from the far end of the line, so they keep their places when it reverses. `trainHit` damages one car; losing one halts the train. Riders are carried round bends in the car's own frame. Suite `trainride` tests all that.
 - **Airplanes:** `updateAirport` flies one and parks two; `planeBoxes` gives each a fuselage and wing box in `TRAIN_BOXES`, so they're stood on and hit through the same code as trains (`trainHit` passes them to `planeHit`). `planeWreck` handles the fall and the replacement.
+- **Play as a goblin (debug):** `setGob` swaps the player's body sizes, and `updatePlayer` runs the normal player code (`movePlayer`) with `GOB_ABIL` and goblin speeds in place of `ABIL` for that step. `gobCamera` is the first-person view, `gobKit` the goblin others see and your own arm and club, `calmNow` what stops goblins and cars going after you. Suite `gobmode` checks it against a hippo; `tools/ui/gobshot.js` takes real screenshots.
 - **Dev tab:** `DEV_ABIL`, `DEV_SCRIPT`, sandbox `SBX`, Structures previewer (`ST`, `stBuildList` — built lazily because `TEST_GROUPS` is defined later).
 
 ## What each test suite covers (tools/tests)
