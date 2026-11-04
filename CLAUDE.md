@@ -8,7 +8,7 @@ Open the file in a browser to play.
 - `game/index.html` is the only deliverable. Keep it one file — no build step, no bundler.
 - Parody of real brands is welcome and part of the humour (names like "Goblin Walmart"). Draw parody logos rather than copying real artwork.
 - Comments are plain English, explaining *why*, often in parentheses. Match the existing style.
-- **Bump `SAVE_KEY`** (currently `'goblin-city-v78'`) whenever world generation changes, so old saves don't load into a different world.
+- **Bump `SAVE_KEY`** (currently `'goblin-city-v79'`) whenever world generation changes, so old saves don't load into a different world.
 - Make edits with exact, unique string replacements. Many identifiers repeat, so check for a single match before replacing.
 - After every change: run the tests (below) before calling it done.
 
@@ -38,6 +38,7 @@ node sitecount.js 200      # how many of each big site land within that many plo
 node stairaudit.js 160     # which buildings with more than one floor still have no stairs
 node signcount.js 150      # how many signs each kind of building carries
 node wcaudit.js 150        # which buildings have no bathroom, floor by floor (`wcRooms` places them)
+node carride.js            # drop on to moving vehicles: land, ride, no damage
 ```
 To review the chains' logos: `node logosheet.js out.png` from `tools/ui`. To look at a spot in the real game: `python tools/build_3d.py game/index.html tools/ui/t3.html`, then `node tour.js scenes.js outDir [seed]` from `tools/ui` (set `TOUR_VIEW=800` to see that many blocks through the fog, and pass a wait of about 25000 as a fourth argument so distant chunks finish building).
 
@@ -94,6 +95,7 @@ It renders in software, so the picture is right but the frame rate says nothing 
 - **Stairs:** `autoStair` gives any building with a real upper storey a flight, if it fits. A building with `b.stair` gets a railed flight per storey (`stairAt`) of stair blocks (`stairId`: a ramp underfoot, drawn as steps), and goblins chase a hippo between floors with `stairPoint`/`onStair`. Fire stations and schools so far; suite `stairs` tests going up and down.
 - **Placement:** `SITE_F` says how far out from a place's middle each kind of site goes (`siteFits`); a dump is a 4x4 `dumpSite` at the end of a street.
 - **Roofs:** `roofOf` picks a shape per kind of shop (hip, mansard, gable, barrel, false front, dome, mirror ball), drawn by `roofColumn` above the flat roof.
+- **Trains:** one per track (`updateTrains`), an engine at each end; `T.s` is the front, but the cars are numbered from the far end of the line, so they keep their places when it reverses. `trainHit` damages one car; losing one halts the train. Riders are carried round bends in the car's own frame. Suite `trainride` tests all that.
 - **Dev tab:** `DEV_ABIL`, `DEV_SCRIPT`, sandbox `SBX`, Structures previewer (`ST`, `stBuildList` — built lazily because `TEST_GROUPS` is defined later).
 
 ## What each test suite covers (tools/tests)

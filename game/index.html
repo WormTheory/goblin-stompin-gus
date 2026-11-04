@@ -758,7 +758,7 @@ function horizHidden(cx,cy,cz,hr,top){
     if(!o.isInstancedMesh&&horizHidden(sp.center.x,sp.center.y,sp.center.z,sp.radius,sp.center.y+sp.radius))return false;   // (over the horizon)
     const d=Math.hypot(sp.center.x-CURVE_CAM.x,sp.center.z-CURVE_CAM.z),r=sp.radius,lo=k*Math.max(0,d-r)**2,hi=k*(d+r)**2;
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v78';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v79';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -1733,9 +1733,9 @@ function railInfo(p,px,pz,base){
   const ax=railStation(px,pz);p.stnAx=ax;
   // the station building: brick, two storeys, across the town side of the platforms
   // (one grand hall, under a hipped roof with a clock tower: you can tell it from a long way off)
-  const b=ax==='x'?base({x0:PL0+1,x1:PL1-1,z0:ROADW+3,z1:RAIL_C-4,gf:9,top:G+9,wall:BRICK,win:WIN_WARM,band:CONCRETE,kind:'shop',ground:'shop',floor:FLOORT,door:2})
-    :base({x0:ROADW+3,x1:RAIL_C-4,z0:PL0+1,z1:PL1-1,gf:9,top:G+9,wall:BRICK,win:WIN_WARM,band:CONCRETE,kind:'shop',ground:'shop',floor:FLOORT,door:0});
-  b.doorSpec={w:1,h:3,k:'wood'};b.detailTop=b.top-1;b.station=true;b.rfForce={k:'hip',c:SHINGLE,clock:true};p.b.push(b);
+  const b=ax==='x'?base({x0:PL0+1,x1:PL1-1,z0:ROADW+1,z1:RAIL_C-4,gf:9,top:G+9,wall:BRICK,win:WIN_WARM,band:CONCRETE,kind:'shop',ground:'shop',floor:FLOORT,door:2})
+    :base({x0:ROADW+1,x1:RAIL_C-4,z0:PL0+1,z1:PL1-1,gf:9,top:G+9,wall:BRICK,win:WIN_WARM,band:CONCRETE,kind:'shop',ground:'shop',floor:FLOORT,door:0});
+  b.doorSpec={w:1,h:3,k:'wood'};b.detailTop=b.top-1;b.station=ax;b.rfForce={k:'hip',c:SHINGLE,clock:true};p.b.push(b);
 }
 const ROADTOP=new Set([ASPHALT,LINE,LINEX,LINE_R,LINEX_R,CROSS,CROSSX,LANE,LANEX,SIDEWALK]);
 // laid over whatever the chunk has made: the track bed (or a bridge, or a crossing), the fences, the stations' platforms
@@ -1781,24 +1781,26 @@ const TRAIN_LEN=4*10.6;
 // ---- the train cars as solid boxes, this frame: you can climb onto one and ride it (like a car); a moving train
 // smashes into whatever's on the track -- you, cars, goblins -- and sends it flying; and it can be wrecked ----
 const TRAIN_BOXES=[],TRAIN_HX=1.3,TRAIN_HZ=4.9,TRAIN_H=3.5;
+// (hit by a moving train: hurt, and thrown forward and up)
+function trainStrike(p,d,k){p.trainT=1;damagePlayer(p,Math.max(4,Math.round(3+9*k)),p.pos.clone(),d,'Hit by a train');if(p.hp>0){const f=14+26*k;p.mvx=d.x*f;p.mvz=d.z*f;p.vy=Math.max(p.vy||0,10+14*k);p.grounded=false;p.knockT=1.2;p.state='walk';}thud(0.8);addShake(0.5,p.pos.x,p.pos.z,20);}
 function trainBoxes(cs,speed,y0,T){
-  for(const g of cs){const h=g.rotation.y,tx=Math.sin(h),tz=Math.cos(h);let pr=g.userData.proxy;
+  cs.forEach((g,ci)=>{const h=g.rotation.y,tx=Math.sin(h),tz=Math.cos(h);let pr=g.userData.proxy;
     if(!pr)pr=g.userData.proxy={isTrain:true,alive:true,pos:new V3(),kv:new V3(),vy:0,spinP:0,spinR:0,speed:0,hurt:0,hx:TRAIN_HX,hz:TRAIN_HZ,hy:TRAIN_H,heading:0,top:0,veh:'train'};
-    pr.T=T;pr.alive=!T||!T.dead;pr.pos.set(g.position.x,g.position.y,g.position.z);pr.heading=h;pr.top=g.position.y+TRAIN_H;
-    TRAIN_BOXES.push({x:g.position.x,z:g.position.z,tx,tz,y0:g.position.y,top:pr.top,v:speed,proxy:pr});}
+    pr.T=T;pr.i=ci;pr.alive=!T||!T.dead&&!(T.carDead&&T.carDead[ci]);pr.pos.set(g.position.x,g.position.y,g.position.z);pr.heading=h;pr.top=g.position.y+TRAIN_H;
+    TRAIN_BOXES.push({x:g.position.x,z:g.position.z,tx,tz,y0:g.position.y,top:pr.top,v:speed,proxy:pr});});
   // what's on the track in front of it (or alongside, at any real speed): struck, thrown aside and up, hurt
   if(Math.abs(speed)<2)return;
-  const n=TRAIN_BOXES.length-cs.length,k=Math.min(1,Math.abs(speed)/24);
+  const n=TRAIN_BOXES.length-cs.length,k=Math.max(0.3,Math.min(1,Math.abs(speed)/24)),sgn=speed<0?-1:1;   // (the cars all point the same way, whichever way they're going)
   const hit=(o,r,y)=>{for(let i=n;i<TRAIN_BOXES.length;i++){const B=TRAIN_BOXES[i];if(y>B.top-0.3||y<B.y0-1.5)continue;
     const dx=o.pos.x-B.x,dz=o.pos.z-B.z,al=dx*B.tx+dz*B.tz,ac=-dx*B.tz+dz*B.tx;if(Math.abs(al)>TRAIN_HZ+r||Math.abs(ac)>TRAIN_HX+r)continue;
     const sg=ac>=0?1:-1,nx=-B.tz*sg,nz=B.tx*sg,need=TRAIN_HX+r-Math.abs(ac)+0.05;o.pos.x+=nx*need;o.pos.z+=nz*need;
-    return new V3(B.tx*0.8+nx*0.6,0,B.tz*0.8+nz*0.6);}return null;};
+    return new V3(B.tx*sgn*0.8+nx*0.6,0,B.tz*sgn*0.8+nz*0.6);}return null;};
   for(const p of players){if(p.trainT>0)continue;if(!p.active||p.hp<=0||p.standCar&&p.standCar.isTrain)continue;const d=hit(p,0.75*ES,p.pos.y+0.5);
-    if(d){p.trainT=1;damagePlayer(p,Math.max(4,Math.round(3+9*k)),p.pos.clone(),d,'Hit by a train');p.vy=Math.max(p.vy||0,6+8*k);p.grounded=false;thud(0.8);addShake(0.5,p.pos.x,p.pos.z,20);}}
+    if(d)trainStrike(p,d,k);}
   for(const c of cars){if(!c.alive||c.trainT>0)continue;const d=hit(c,c.hx,c.pos.y+0.5);
     if(d){c.trainT=1;damageCar(c,Math.round(6+16*k),d,'acc');if(c.alive)launchCar(c,6+10*k,d.clone().multiplyScalar(1+2.5*k),6);clang();thud(0.7);}}
   for(const g of goblins)if(g.state==='chase'&&!(g.trainT>0)){const d=hit(g,0.5,g.pos.y+0.5);
-    if(d){g.trainT=1;damageGoblin(g,Math.round(3+10*k),g.pos.clone(),d.clone().multiplyScalar(1+k),'Hit by a train',ACCIDENT);g.vy=Math.max(g.vy||0,12+10*k);g.kv.x+=d.x*10*k;g.kv.z+=d.z*10*k;}}
+    if(d){g.trainT=1;damageGoblin(g,Math.round(3+10*k),g.pos.clone(),d.clone().multiplyScalar(1+k),'Hit by a train',ACCIDENT);g.vy=Math.max(g.vy||0,12+16*k);g.kv.x+=d.x*(14+26*k);g.kv.z+=d.z*(14+26*k);}}
 }
 function railPt(L,s){const i=Math.max(0,Math.min(L.L-2,Math.floor(s))),f=Math.max(0,Math.min(1,s-i)),a=L.pts[i],b=L.pts[i+1];
   const l=Math.hypot(b[0]-a[0],b[1]-a[1])||1;return{x:a[0]+(b[0]-a[0])*f,z:a[1]+(b[1]-a[1])*f,tx:(b[0]-a[0])/l,tz:(b[1]-a[1])/l};}
@@ -1819,10 +1821,12 @@ const TRAINS=new Map();
 function updateTrains(dt){
   for(const T of TRAINS.values()){
     const C=T.C;
-    if(T.dead){T.deadT+=dt;
+    if(T.dead||T.halted){T.deadT+=dt;
+      if(T.halted&&T.v>0){T.v=Math.max(0,T.v-30*dt);T.s+=T.v*T.dir*dt;}   // (a car gone: it grinds to a stop)
+     
       // a wreck: smouldering a while; then (once nobody's near enough to see) a new train in service
       if(T.deadT<40&&Math.random()<dt*4&&T.cars){const g=T.cars[Math.floor(Math.random()*T.cars.length)];smoke(g.position.x+(Math.random()-.5)*2,g.position.y+3,g.position.z+(Math.random()-.5)*6,1,0x2a2a2a);}
-      if(T.deadT>120&&!players.some(p=>p.active&&Math.hypot(railPt(C,T.s).x-p.pos.x,railPt(C,T.s).z-p.pos.z)<350)){T.dead=false;T.hp=TRAIN_HP;T.v=0;T.wait=8;T.s=T.dir>0?TRAIN_LEN+1:C.L-2-TRAIN_LEN;T.rebuild=true;}
+      if(T.deadT>120&&!players.some(p=>p.active&&Math.hypot(railPt(C,T.s).x-p.pos.x,railPt(C,T.s).z-p.pos.z)<350)){T.dead=false;T.halted=false;T.carDead=null;T.carHP=null;T.v=0;T.wait=8;T.s=T.dir>0?TRAIN_LEN+1:C.L-2-TRAIN_LEN;T.rebuild=true;}
       continue;}
     // to the next station ahead (or the end of the line), easing in; a wait there; at the end, back the other way
     const end=T.dir>0?C.L-2:1;let next=end;
@@ -1832,21 +1836,24 @@ function updateTrains(dt){
     else{const want=left<70?Math.max(1.2,left*0.32):24;T.v+=(want-T.v)*Math.min(1,dt*(want<T.v?1.2:0.3));T.s+=T.v*T.dir*dt;if(left<=0.4){T.s=next;T.v=0;T.wait=12;}}
   }
 }
-const TRAIN_HP=600;
+const CAR_HP=150;
 // hitting a train (it takes a lot): shudder, sparks of damage; wrecked, it blows up car by car and lies there burning
-function trainHit(T,n,dir){
-  if(!T||T.dead)return;T.hp-=n;
-  if(T.cars){const g=T.cars[0];dmgPop(g.position.x,g.position.y+4,g.position.z,Math.round(n),'#ffb04a');}
-  if(T.hp>0)return;
-  T.dead=true;T.deadT=0;T.v=0;T.wait=0;
-  if(T.cars)T.cars.forEach((g,i)=>{const p=g.position;
-    const bl=blasts[blastIdx++%blasts.length];bl.t=0.6;bl.s=1.8;for(const f of bl.m){f.position.set(p.x,p.y+2,p.z);f.visible=true;}
-    smoke(p.x,p.y+2,p.z,18,0x262626);
-    for(let k=0;k<6;k++){const d=debris[(debrisIdx++)%debris.length];d.m.position.set(p.x+(Math.random()-.5)*2,p.y+2+Math.random(),p.z+(Math.random()-.5)*6);d.v.set((Math.random()-.5)*16,8+Math.random()*10,(Math.random()-.5)*16);d.spin.set((Math.random()-.5)*12,(Math.random()-.5)*12,(Math.random()-.5)*12);d.life=25;d.m.visible=true;}
-    g.traverse(o=>{if(o.isMesh)o.material=TRM.dark;});g.rotation.z=(i%2?1:-1)*(0.25+Math.random()*0.3);});
-  noise(1.6,1.2,600,'lowpass');tone('sawtooth',60,18,1.6,0.4);
-  {const g=T.cars&&T.cars[0];if(g){addShake(1,g.position.x,g.position.z,40);hitGoblins(g.position.x,g.position.z,12,8,'Blown up with a train',g.position.y+1);}}
-  score+=2500;flashLabel('Train destroyed  +2500',(nearestPlayer(T.cars?T.cars[0].position.x:0,T.cars?T.cars[0].position.z:0)||{}).p);
+function trainHit(T,n,dir,ci){
+  if(!T||T.dead||!T.cars)return;const N=T.cars.length;if(ci===undefined)ci=0;
+  if(!T.carHP){T.carHP=T.cars.map(()=>CAR_HP);T.carDead=T.cars.map(()=>false);}
+  if(T.carDead[ci])return;T.carHP[ci]-=n;
+  {const g=T.cars[ci];dmgPop(g.position.x,g.position.y+4,g.position.z,Math.round(n),'#ffb04a');}
+  if(T.carHP[ci]>0)return;
+  // that car blows up and lies there burning, and the train grinds to a stop; the rest can still be taken apart
+  T.carDead[ci]=true;if(!T.halted){T.halted=true;T.deadT=0;T.wait=0;}
+  const g=T.cars[ci],p=g.position,bl=blasts[blastIdx++%blasts.length];bl.t=0.6;bl.s=1.8;for(const f of bl.m){f.position.set(p.x,p.y+2,p.z);f.visible=true;}
+  smoke(p.x,p.y+2,p.z,18,0x262626);
+  for(let k=0;k<6;k++){const d=debris[(debrisIdx++)%debris.length];d.m.position.set(p.x+(Math.random()-.5)*2,p.y+2+Math.random(),p.z+(Math.random()-.5)*6);d.v.set((Math.random()-.5)*16,8+Math.random()*10,(Math.random()-.5)*16);d.spin.set((Math.random()-.5)*12,(Math.random()-.5)*12,(Math.random()-.5)*12);d.life=25;d.m.visible=true;}
+  g.traverse(o=>{if(o.isMesh)o.material=TRM.dark;});g.rotation.z=(ci%2?1:-1)*(0.25+Math.random()*0.3);
+  noise(1,1,600,'lowpass');tone('sawtooth',60,18,1.2,0.3);addShake(0.8,p.x,p.z,40);hitGoblins(p.x,p.z,9,8,'Blown up with a train',p.y+1);
+  score+=500;
+  const who=(nearestPlayer(p.x,p.z)||{}).p;
+  if(T.carDead.every(Boolean)){T.dead=true;score+=1000;flashLabel('Train destroyed  +1500',who);}else flashLabel('Train car destroyed  +500',who);
 }
 function refreshRailVenues(p,want){
   const ls=railLinksInBox(p.pos.x-1000,p.pos.z-1000,p.pos.x+1000,p.pos.z+1000),seen=new Set();
@@ -1857,10 +1864,10 @@ function refreshRailVenues(p,want){
     if(bd>1000)continue;
     // its train (set going the first time the track's anywhere near you, somewhere along it)
     let T=TRAINS.get(C.key);
-    if(!T){T={C,s:Math.max(TRAIN_LEN+1,Math.min(C.L-2-TRAIN_LEN,C.stops[Math.floor(Math.random()*C.stops.length)])),dir:Math.random()<0.5?1:-1,v:0,wait:Math.random()*10,hp:TRAIN_HP,dead:false,deadT:0};TRAINS.set(C.key,T);}
+    if(!T){T={C,s:Math.max(TRAIN_LEN+1,Math.min(C.L-2-TRAIN_LEN,C.stops[Math.floor(Math.random()*C.stops.length)])),dir:Math.random()<0.5?1:-1,v:0,wait:Math.random()*10,dead:false,deadT:0};TRAINS.set(C.key,T);}
     // drawn whenever it's within a long way of you (so it never pops in or out in view)
     const tp=railPt(C,T.s);
-    if(Math.hypot(tp.x-p.pos.x,tp.z-p.pos.z)<1100||bd<900){const key='R'+C.key;want.add(key);if(!venues.has(key)){const cars2=[];for(let i=0;i<4;i++){const g=makeTrainCar(i===0);scene.add(g);cars2.push(g);}
+    if(Math.hypot(tp.x-p.pos.x,tp.z-p.pos.z)<1100||bd<900){const key='R'+C.key;want.add(key);if(!venues.has(key)){const cars2=[];for(let i=0;i<4;i++){const g=makeTrainCar(i===0||i===3,i===3);scene.add(g);cars2.push(g);}
       T.cars=cars2;venues.set(key,{kind:'rtrain',T,cars:cars2,hornT:0});}}
     // the level crossings near you: runs of road across the track (where it runs straight)
     if(bd>200)continue;
@@ -1905,13 +1912,15 @@ function updateRailVenue(V,dt,t){
     return;}
   // a train: drawn where it's got to on its track (updateTrains moves it); a fresh one after a wreck
   const T=V.T,C=T.C,me=players.find(q=>q.active);
-  if(T.rebuild){T.rebuild=false;for(const g of V.cars)scene.remove(g);V.cars=[];for(let i=0;i<4;i++){const g=makeTrainCar(i===0);scene.add(g);V.cars.push(g);}}
+  if(T.rebuild){T.rebuild=false;for(const g of V.cars)scene.remove(g);V.cars=[];for(let i=0;i<4;i++){const g=makeTrainCar(i===0||i===3,i===3);scene.add(g);V.cars.push(g);}}
   T.cars=V.cars;
-  const cs=[];V.cars.forEach((g,i)=>{const P=railPt(C,T.s-T.dir*(5.3+i*10.6));g.position.set(P.x,G+1.2,P.z);if(!T.dead)g.rotation.y=Math.atan2(P.tx*T.dir,P.tz*T.dir);cs.push(P);});
+  // (numbered from the end furthest along the line, whichever way it's going: it has an engine at each end, and just drives
+  // off the other way at the end of the line. Each car lies along the track between its two ends, so it swings round bends.)
+  const hi=T.dir>0?T.s:T.s+TRAIN_LEN,cs=[];V.cars.forEach((g,i)=>{const c=hi-5.3-i*10.6,P=railPt(C,c),Fa=railPt(C,c+4),Ba=railPt(C,c-4);if(T.carDead&&T.carDead[i]){cs.push(P);return;}g.position.set((Fa.x+Ba.x)/2,G+1.2,(Fa.z+Ba.z)/2);g.rotation.y=Math.atan2(Fa.x-Ba.x,Fa.z-Ba.z);cs.push(P);});
   // the horn, now and then, when it's near you and moving
   V.hornT-=dt;
   if(me&&!T.dead&&T.v>8&&V.hornT<=0&&audio&&playing){const d=Math.hypot(cs[0].x-me.pos.x,cs[0].z-me.pos.z);if(d<120){V.hornT=9;tone('sawtooth',311,300,0.9,0.05*(1-d/120));tone('sawtooth',370,360,0.9,0.04*(1-d/120));}}
-  trainBoxes(V.cars,T.dead?0:T.v,G+1.2,T);
+  trainBoxes(V.cars,T.dead?0:T.v*T.dir,G+1.2,T);
 }
 // how fast a car may go for the level crossings ahead of it (they stop short of the barriers when they're down)
 function xingLimit(c){
@@ -4550,7 +4559,7 @@ function flatBack(b,y0,y1,ez0){const S=b.stair;if(!S||S.ax!=='x')return 1;const 
 function wcRooms(b,I,J,n,ex0,ez0,fl,ex1,ez1,px,pz){
   const c=b._wc||(b._wc=new Map());let L=c.get(n);if(L)return L;L=[];c.set(n,L);
   const kd=n===0?b.ground:b.kind;if(!WC_ROOMS.has(kd)||b.noIndoor||b.style!=='normal'&&b.style!=='house'||kd==='shop'&&!b.brand&&!b.station&&b.kind==='shop'||kd==='firehall')return L;
-  if(b.station){L.push(I<J?{u0:0,u1:I,v0:J-4,v1:J,dv:0,one:true}:{u0:I-4,u1:I,v0:0,v1:J,dside:-1,one:true});return L;}
+  if(b.station){L.push(I<J?{u0:0,u1:I,v0:J-5,v1:J,dv:0}:{u0:I-5,u1:I,v0:0,v1:J,dside:-1,one:true});return L;}
   if(Math.min(I,J)<5||I*J<36)return L;
   const S=b.stair,big=I*J>500,w=b.home?4:big?9:I>=12&&J>=8?6:I>=9?5:4,h=J>=10?5:4,tr=ex0-b.x0,cxI=((b.x0+b.x1)>>1)-ex0-1,czJ=((b.z0+b.z1)>>1)-ez0-1,st=STRUCT;
   const hitsStair=(u0,u1,v0,v1)=>{if(!S)return false;const x0=u0+ex0+1,x1=u1+ex0+1,z0=v0+ez0+1,z1=v1+ez0+1,rx0=S.ax==='x'?S.r0-2:S.c0-1,rx1=S.ax==='x'?S.r0+S.L+2:S.c1+1,rz0=S.ax==='x'?S.c0-1:S.r0-2,rz1=S.ax==='x'?S.c1+1:S.r0+S.L+2;return x0<rx1&&x1>rx0&&z0<rz1&&z1>rz0;};
@@ -5258,6 +5267,8 @@ function blockAt(b,rx,rz,y,px,pz){
     if(b.allBays&&FL_NO===0&&rz===ez0&&[PL0+3,PL0+7,PL0+11].some(c=>Math.abs(rx-c)<=2)&&!b.bays.some(c=>Math.abs(rx-c)<=1))return PAINT_RED;
     // a factory's loading docks: big openings in the far end wall, roller doors up
     if(b.docks&&FL_NO===0&&FL_LVL<5&&(b.dockSide===1?rx===ex1-1:rz===ez1-1)&&b.docks.some(d=>Math.abs((b.dockSide===1?rz:rx)-d)<=1))return AIR;
+    // (a station's second door, on to the platform)
+    if(b.station&&FL_NO===0&&FL_LVL<3&&(b.station==='x'?rz===ez1-1&&(rx===((b.x0+b.x1)>>1)||rx===((b.x0+b.x1)>>1)-1):rx===ex1-1&&(rz===((b.z0+b.z1)>>1)||rz===((b.z0+b.z1)>>1)-1)))return AIR;
     if(FL_NO===0&&FL_LVL<(b.bays&&rz===ez0?b.gf-1:4)&&isDoor(b,rx,rz,ex0,ex1,ez0,ez1)){
       // the fire station's bays stay open; the superstore's entrances and the ER get wide glass doors
       if(b.bays&&rz===ez0&&b.bays.some(c=>Math.abs(rx-c)<=1))return AIR;
@@ -6468,6 +6479,8 @@ function genChunk(cx,cz){
     if(roadX&&!roadZ)J=jz(cpx,cpz);else if(roadZ&&!roadX)J=jx(cpx,cpz);
     else if(roadX&&roadZ){const a=jz(cpx,cpz),b=jz(cpx,cpz-1),c=jx(cpx,cpz),d=jx(cpx-1,cpz);if(a&&a===b&&a===c&&a===d)J=a;}
     const PB=(roadX||roadZ)?null:plotBounds(cpx,cpz);
+    // (a station stands out over most of the pavement on its town side: the line leaves it no other room to grow)
+    if(PB&&plotType(cpx,cpz)==='station'){const sa=railStation(cpx,cpz);if(sa==='x')PB.z0=Math.min(PB.z0,ROADW+1);else if(sa==='z')PB.x0=Math.min(PB.x0,ROADW+1);}
     if(J){joinColumn(col,J,roadX&&!roadZ?rx:roadZ&&!roadX?rz:Math.min(rx,rz),roadX&&!roadZ?z:x,x,z);}
     else if((roadX||roadZ)&&!stripOpen(cpx,cpz,roadX,roadZ))plainsColumn(col,x,z);   // no street on this side: open ground
     else if(roadX||roadZ){
@@ -8153,7 +8166,7 @@ function carTop(p){
       const dx=p.pos.x+a*k+b*s-c.pos.x,dz=p.pos.z-a*s+b*k-c.pos.z,la=dx*ck-dz*cs,lb=dx*cs+dz*ck;
       if(Math.abs(la)>c.hx*1.05||Math.abs(lb)>c.hz*1.03)continue;
       const top=c.pos.y+VEH[c.veh].roof(lb/ES)*ES;
-      if(top<=p.pos.y+0.35&&(best===null||top>best)){best=top;bc=c;}
+      if(top<=p.pos.y+(p.vy<0&&!p.grounded?1.1:0.35)&&(best===null||top>best)){best=top;bc=c;}
     }
   }
   for(const B of TRAIN_BOXES){if(Math.hypot(B.x-p.pos.x,B.z-p.pos.z)>TRAIN_HZ+3)continue;
@@ -9467,10 +9480,15 @@ function updatePlayer(p,dt){
     const dx=p.pos.x-B.x,dz=p.pos.z-B.z,al=dx*B.tx+dz*B.tz,ac=-dx*B.tz+dz*B.tx,R=1.0*ES;
     if(Math.abs(al)>TRAIN_HZ+R||Math.abs(ac)>TRAIN_HX+R)continue;
     const fa=TRAIN_HZ+R-Math.abs(al),fc=TRAIN_HX+R-Math.abs(ac);
+    // (a train at speed doesn't just nudge you aside: it hits you)
+    if(Math.abs(B.v)>=2&&!(p.trainT>0)&&!(p.standCar&&p.standCar.isTrain)&&p.hp>0){const sg=ac>=0?1:-1,sv=B.v<0?-1:1;trainStrike(p,new V3(B.tx*sv*0.8-B.tz*sg*0.6,0,B.tz*sv*0.8+B.tx*sg*0.6),Math.max(0.3,Math.min(1,Math.abs(B.v)/24)));}
     if(fc<=fa||Math.abs(B.v)>0.5){const sg=ac>=0?1:-1;shove(p,-B.tz*sg*fc,B.tx*sg*fc);}   // (out to the side -- always, from a moving one)
     else{const sg=al>=0?1:-1;shove(p,B.tx*sg*fa,B.tz*sg*fa);}}
   // standing on a car: ride along with it
-  if(p.standCar&&p.grounded&&p.standCar.alive){const c=p.standCar;if(p.rideC===c){p.pos.x+=c.pos.x-p.rideX;p.pos.z+=c.pos.z-p.rideZ;p.pos.y=Math.max(p.pos.y,c.isTrain?c.top:c.pos.y+1.1*ES);}p.rideC=c;p.rideX=c.pos.x;p.rideZ=c.pos.z;}else p.rideC=null;
+  if(p.standCar&&p.grounded&&p.standCar.alive){const c=p.standCar;if(p.rideC===c){
+      {let d=c.heading-p.rideH;d=Math.atan2(Math.sin(d),Math.cos(d));if(Math.abs(d)>0.7)d=0;   // (a car that's turned right round in a moment doesn't take you with it)
+        const ex=p.pos.x-p.rideX,ez=p.pos.z-p.rideZ,cd=Math.cos(d),sd=Math.sin(d);p.pos.x=c.pos.x+ex*cd+ez*sd;p.pos.z=c.pos.z-ex*sd+ez*cd;p.heading+=d;if(p.cam)p.cam.yaw+=d;p.pos.y=Math.max(p.pos.y,c.isTrain?c.top:c.pos.y+1.1*ES);}}
+    p.rideC=c;p.rideX=c.pos.x;p.rideZ=c.pos.z;p.rideH=c.heading;}else p.rideC=null;
   for(const o of players){if(o===p||!o.active||o.state==='dead')continue;const dx=p.pos.x-o.pos.x,dz=p.pos.z-o.pos.z,d=Math.hypot(dx,dz);if(d<2.4&&d>0.001)shove(p,dx/d*(2.4-d)*0.5,dz/d*(2.4-d)*0.5);}
   let g=p.state==='climb'||p.state==='piv'||p.state==='ceil'?null:footprint(p);   // clinging to a wall: no gravity
   // just loaded in: he's set straight down on whatever's under where he was (once it's there) -- never dropped onto it,
@@ -9503,8 +9521,8 @@ function updatePlayer(p,dt){
         if(g===null)g=-1e9;
       }
       if(p.pos.y<g){
-        // landing on a car dents it
-        if(p.standCar&&p.vy<-6&&p.state!=='pound'){damageCar(p.standCar,Math.round(-p.vy*0.5));clang();p.standCar.hurt=0.2;}
+        // landing on a car from a real height dents it (a jump on to one just lands you on it, to ride)
+        if(p.standCar&&p.vy<-16&&p.state!=='pound'){damageCar(p.standCar,Math.round(-p.vy*0.5));clang();p.standCar.hurt=0.2;}
         if(p.vy<-11){thud(0.4);p.shake=Math.max(p.shake,0.12);}
         if(p.vy<-3)p.landT=0.22;p.pos.y=g;p.vy=0;p.grounded=true;
         if(p.longJump){p.longJump=false;p.blastJ=false;thud(0.3);puff(p.pos.x,p.pos.y,p.pos.z,8,0x9a948a,0.6);}
@@ -12066,7 +12084,7 @@ function spawnTraffic(c){
 let BLAME=null;const ACCIDENT={name:'A traffic accident'};
 function withBlame(b,f){const prev=BLAME;BLAME=b;try{return f();}finally{BLAME=prev;}}
 const carIsPlayers=c=>c.pBlameT!==undefined&&playTime-c.pBlameT<8;
-function damageCar(c,n,dir,src){if(c.isTrain){trainHit(c.T,n,dir);return;}if(!c.alive)return;dmgPop(c.pos.x,c.pos.y+(c.hy||1.4)+0.3,c.pos.z,n,'#ffb04a');if(!(src==='acc'||(src===undefined&&BLAME==='acc')))c.pBlameT=playTime;c.hp-=n;c.hurt=0.1;if(dir){const h=Math.hypot(dir.x,dir.z);if(h>0.05){const kb=Math.min(9,2+n*0.3);c.kv.x+=dir.x/h*kb;c.kv.z+=dir.z/h*kb;}}if(c.hp<=0)explodeCar(c);}
+function damageCar(c,n,dir,src){if(c.isTrain){trainHit(c.T,n,dir,c.i);return;}if(!c.alive)return;dmgPop(c.pos.x,c.pos.y+(c.hy||1.4)+0.3,c.pos.z,n,'#ffb04a');if(!(src==='acc'||(src===undefined&&BLAME==='acc')))c.pBlameT=playTime;c.hp-=n;c.hurt=0.1;if(dir){const h=Math.hypot(dir.x,dir.z);if(h>0.05){const kb=Math.min(9,2+n*0.3);c.kv.x+=dir.x/h*kb;c.kv.z+=dir.z/h*kb;}}if(c.hp<=0)explodeCar(c);}
 // explosion effects pools
 const debris=[];let debrisIdx=0;
 const DEB_SIZES=[[1.0,0.5,1.6],[0.9,0.4,1.2],[1.6,0.15,1.0],[0.8,0.5,0.9],[0.32,0.72,0.72],[0.32,0.72,0.72],[0.32,0.72,0.72],[0.32,0.72,0.72],[0.8,0.35,0.7],[1.2,0.1,0.8],[2.0,0.18,0.15],[0.6,0.4,0.6]];
@@ -12481,7 +12499,7 @@ function gasBoom0(x,y,z){
   if(BLAME!=='acc'){score+=150;flashLabel('Gas pump blown  +150',(nearestPlayer(x,z)||{}).p);}
   for(const q of players){if(!q.active)continue;const dg=Math.hypot(q.pos.x-x,q.pos.z-z),d3=Math.hypot(dg,q.pos.y-y);rumble(q,Math.max(0.2,1-d3/60),900);if(q===players.find(o=>o.active))dbgHit('dmg','cap',dbgCap(x,y,z,13));if(d3<13&&vReach(q.pos.y-y,13))damagePlayer(q,d3<6?8:5,new V3(q.pos.x,q.pos.y+1.2,q.pos.z),new V3((q.pos.x-x)/(dg||1),0.8,(q.pos.z-z)/(dg||1)),'Blown up in a gas explosion');}
   hitGoblins(x,z,15,14,'Blown up at the gas station',y);
-  for(const pr of trainsNear(x,z,15,y-15,y+15))trainHit(pr.T,120);   // (a blast tears into a train too)
+  for(const pr of trainsNear(x,z,15,y-15,y+15))trainHit(pr.T,120,null,pr.i);   // (a blast tears into a train too)
   for(const o of cars){if(!o.alive)continue;const n=carNearest(o,x,y,z),d=Math.hypot(n.d2,n.dy);if(d>=15||!vReach(o.pos.y-y,15)&&!vReach(o.pos.y+o.hy-y,15))continue;launchCar(o,Math.max(5,19-d),new V3(o.pos.x-x,0,o.pos.z-z),9);if(d<10)damageCar(o,d<5?40:22);}
 
   // the blast tears a ball out of the forecourt, the canopy overhead and the shop next door, and sets off the other pumps
@@ -12504,7 +12522,7 @@ function explodeCar0(c){
     d.m.position.set(p.x+(Math.random()-.5)*2,p.y+0.8+Math.random(),p.z+(Math.random()-.5)*3);d.v.set((Math.random()-.5)*14,7+Math.random()*9,(Math.random()-.5)*14);d.spin.set((Math.random()-.5)*12,(Math.random()-.5)*12,(Math.random()-.5)*12);d.life=25;d.m.visible=true;d.m.material.emissive.setHex(0x331100);}
   noise(1.4,1.0,700,'lowpass');tone('sawtooth',70,22,1.2,0.35);
   addShake(0.8,p.x,p.z,30);
-  for(const q of players){if(!q.active)continue;const dg=Math.hypot(q.pos.x-p.x,q.pos.z-p.z),d3=Math.hypot(dg,q.pos.y-p.y);rumble(q,Math.max(0.15,1-d3/30),600);if(q===players.find(o=>o.active))dbgHit('dmg','cap',dbgCap(p.x,p.y,p.z,5));if(d3<5&&vReach(q.pos.y-p.y,5))damagePlayer(q,4,new V3(q.pos.x,q.pos.y+1.2,q.pos.z),new V3((q.pos.x-p.x)/(dg||1),0.6,(q.pos.z-p.z)/(dg||1)),'Caught in a car explosion');}
+  for(const q of players){if(!q.active)continue;const dg=Math.hypot(q.pos.x-p.x,q.pos.z-p.z),d3=Math.hypot(dg,q.pos.y-p.y);rumble(q,Math.max(0.15,1-d3/30),600);if(q===players.find(o=>o.active))dbgHit('dmg','cap',dbgCap(p.x,p.y,p.z,5));if(d3<5&&vReach(q.pos.y-p.y,5)&&!(c.trainT>0&&q.standCar&&q.standCar.isTrain))damagePlayer(q,4,new V3(q.pos.x,q.pos.y+1.2,q.pos.z),new V3((q.pos.x-p.x)/(dg||1),0.6,(q.pos.z-p.z)/(dg||1)),'Caught in a car explosion');}
   if(c.driver)dropGoblinCorpse(p.x+1.2,p.y,p.z,c.driver);
   if(c.parkPool&&c.spot){parkDown[c.spot]=playTime+120;c.spot=null;}
   hitGoblins(p.x,p.z,6,10,'Caught in a car explosion',p.y);
@@ -12512,7 +12530,7 @@ function explodeCar0(c){
   wrecks.push({p,t:10});
   addFire(p.x,p.y,p.z,1.7,16+Math.random()*8);
   // chain reactions
-  for(const pr of trainsNear(p.x,p.z,6,p.y-6,p.y+6))trainHit(pr.T,40);
+  if(!(c.trainT>0))for(const pr of trainsNear(p.x,p.z,6,p.y-6,p.y+6))trainHit(pr.T,40,null,pr.i);   // (a car it's just run down doesn't derail the train)
   for(const o of cars){if(!o.alive)continue;const n=carNearest(o,p.x,p.y,p.z),d=Math.hypot(n.d2,n.dy);if(d>=6||!vReach(o.pos.y-p.y,6)&&!vReach(o.pos.y+o.hy-p.y,6))continue;launchCar(o,Math.max(3,9-d),new V3(o.pos.x-p.x,0,o.pos.z-p.z),5);damageCar(o,d<4?14:8);}
 }
 // ---- traffic control: signals hang off mast arms over each lane; stop and yield signs sit on short posts ----
@@ -13102,8 +13120,10 @@ function shopRoom(b,px,pz,L){
   }else if(kind==='shop'&&b.station){
     // a station's hall: ticket windows along one wall at the near end, benches to wait on down the rest, a departures board
     const lg=J>=I,La=lg?J:I,Wc=lg?I:J,P2=(a,c)=>lg?[c,a]:[a,c],put=(t,a,c,y,tn,yo,low)=>{const [u,v]=P2(a,c);add(t,u,v,y,tn,yo,low);},yw=lg?-HP:PI,yb=lg?HP:0;
-    for(let a=1;a<4;a++){put('teller',a+.5,Wc-.5,yw,0x5a3a22);if(a===2)put('monitor',a+.5,Wc-.4,yw,0,.95);}
-    for(let a=5.5;a<La-5.5;a+=2.6)put('bench',a,.5,yb,0,0,true);put('tv',La/2,Wc-.1,yw,0,2.2);put('plant',.6,.5,0);put('vending',La-5,Wc-.5,yw);
+    const mid=La/2;
+    for(let a=1;a<4;a++){put('teller',a+.5,Wc-.6,yw,0x5a3a22);if(a===2)put('monitor',a+.5,Wc-.5,yw,0,.95);}put('swivel',2.5,Wc-.2,yw,0,0,true);
+    for(let a=5.5;a<La-6;a+=2.6)if(Math.abs(a-mid)>2.2){put('bench',a,.6,yb,0,0,true);put('bench',a,Wc-.6,yw,0,0,true);}
+    put('bar',.6,.6,yb,0xc83a32);put('bar',1.6,.6,yb,0xc83a32);put('espresso',.6,.6,yb,0,.9);put('tv',mid-3,Wc-.1,yw,0,2.4);put('tv',mid+3,Wc-.1,yw,0,2.4);put('plant',mid-2.4,.5,0);put('plant',mid+2.4,.5,1);put('vending',La-6.5,.5,yb);
   }else if(kind==='shop'&&b.signCat!=='kiosk'&&!b.brand&&b.kind==='shop'){
     // a working building with nothing to sell: crates, a bench, some shelves
     for(let u=1;u<I-.5;u+=2.2)add('pcrate',u,J-.7,PI);add('shelf2',.6,J/2,HP,0xbf9a6a);add('rtable',I-1.2,1.4,0,P_WOOD);add('chair',I-1.9,1.4,HP,0x46505a,0,true);
@@ -13642,7 +13662,7 @@ function roomProps(b,ax,az,n,ward){
   const out=L.filter(f=>!R.some(q=>f.x-X0>=q.u0-.3&&f.x-X0<q.u1+.3&&f.z-Z0>=q.v0-.3&&f.z-Z0<q.v1+.3));L.length=0;for(const f of out)L.push(f);
   const add=(type,u,v,yaw,yo,tint)=>{const X=X0+u,Z=Z0+v;L.push({prop:true,type,x:X,z:Z,y0:y0+(yo||0),yaw:yaw||0,tint,rad:.5,key:'p'+Math.round(X*4)+','+Math.round(Z*4)+','+y0+type});};
   for(const q of R){const x0=q.u0+1,x1=q.u1-1,PI=Math.PI,farV=q.dv?q.v0+1:q.v1-1,nearV=q.dv?q.v1-1:q.v0+1,back=q.dv?0:PI,face=q.dv?PI:0,dirn=q.dv?1:-1;
-    if(q.one){const lg=q.v1-q.v0===4;if(lg){add('toilet',x0-.4+1,q.v1-1.5,PI);}else{add('toilet',q.u1-1.5,q.v0+1.2,-PI/2);}continue;}
+    if(q.one){for(let v=q.v0+1.5;v<q.v1-1;v+=1.1)add('stall',q.u1-1.75,v,-PI/2);add('basin',q.u0+1.4,q.v1-1.3,PI);add('wcsign',q.u0-.1,q.v0+.6,-PI/2,2.4);continue;}
     if(q.home){add('toilet',x0+.5,farV+dirn*.5,back);add('basin',x1-.4,farV+dirn*.4,back);if(q.v1-q.v0>=5&&x1-x0>=3)add('bathtub',x0+1.5,farV+dirn*1.6,back);}
     else{let u=x0+.55;for(;u<=x1-.5;u+=1.1)add('stall',u,farV+dirn*.72,back);
       if(q.v1-q.v0>=5)for(let u2=x0+.6;u2<=x1-.5;u2+=1.8){const cd=((q.u0+q.u1)>>1)-.0;if(Math.abs(u2-cd)>1.2)add('basin',u2,nearV-dirn*.3,face);}
@@ -14086,7 +14106,7 @@ function refreshSeaVenues(p,want){
      const cx=(M.x0+M.x1)/2*CELL,cz=(M.z0+M.z1)/2*CELL;if(Math.hypot(cx-p.pos.x,cz-p.pos.z)>500)continue;
      const key='u'+a+','+b;want.add(key);if(venues.has(key))continue;
      const cars2=[];for(let i=0;i<3;i++){const g=makeTrainCar(i===0);scene.add(g);cars2.push(g);}
-     venues.set(key,{kind:'sub',M,s:M.stops.length?M.stops[Math.floor(Math.random()*M.stops.length)]:0,v:0,wait:Math.random()*8,cars:cars2});}}
+     venues.set(key,{kind:'sub',T:{cars:cars2,dead:false,sub:true},M,s:M.stops.length?M.stops[Math.floor(Math.random()*M.stops.length)]:0,v:0,wait:Math.random()*8,cars:cars2});}}
 }
 function updateSeaVenue(V,dt,t){
   if(V.kind==='boat'){
@@ -14094,11 +14114,12 @@ function updateSeaVenue(V,dt,t){
     V.boat.position.set(x,G+0.75+Math.sin(t*1.3+V.ph)*0.08,z);V.boat.rotation.set(0,Math.atan2(-Math.sin(V.th)*sg,Math.cos(V.th)*sg),Math.sin(t*0.9+V.ph)*0.04);return;}
   // a subway train: round and round its loop, waiting a while at each station
   const M=V.M,N=M.path.length;let next=1e9;for(const st of M.stops){let d=mod(st+16-V.s,N);if(d<0.3)d+=N;if(d<next)next=d;}
-  if(V.wait>0){V.wait-=dt;if(V.wait<=0)V.s+=0.5;}
+  if(V.T.halted)V.v=0;
+  else if(V.wait>0){V.wait-=dt;if(V.wait<=0)V.s+=0.5;}
   else{const want=next<40?Math.max(1.2,next*0.4):16;V.v+=(want-V.v)*Math.min(1,dt*(want<V.v?1.6:0.4));V.s=mod(V.s+V.v*dt,N);if(next<=0.4){V.v=0;V.wait=10;}}
-  V.cars.forEach((g,i)=>{const s2=mod(V.s-5.3-i*10.6,N),k=Math.floor(s2),a=M.path[k],b=M.path[(k+1)%N],f=s2-k;
+  V.cars.forEach((g,i)=>{if(V.T.carDead&&V.T.carDead[i])return;const s2=mod(V.s-5.3-i*10.6,N),k=Math.floor(s2),a=M.path[k],b=M.path[(k+1)%N],f=s2-k;
     g.position.set(a[0]+(b[0]-a[0])*f,SUB_F+1.2,a[1]+(b[1]-a[1])*f);g.rotation.y=Math.atan2(b[0]-a[0],b[1]-a[1]);});
-  trainBoxes(V.cars,V.v,SUB_F+1.2);
+  trainBoxes(V.cars,V.v,SUB_F+1.2,V.T);
 }
 function refreshVenues(){
   const want=new Set();
@@ -14145,10 +14166,10 @@ function makeAnimal(sp){
 }
 // the trains: a locomotive and three coaches
 const TRM={loco:new THREE.MeshLambertMaterial({color:0x2a4a8a}),coach:new THREE.MeshLambertMaterial({color:0xc8ccd0}),dark:new THREE.MeshLambertMaterial({color:0x22262c}),win:new THREE.MeshLambertMaterial({color:0x3a5a7a}),red:new THREE.MeshLambertMaterial({color:0xc8302a}),white:new THREE.MeshLambertMaterial({color:0xf4f4f0}),wing:new THREE.MeshLambertMaterial({color:0xd8dce2})};
-function makeTrainCar(loco){
+function makeTrainCar(loco,rear){
   const g=new THREE.Group(),bx=(m,sx,sy,sz,x,y,z)=>{const o=new THREE.Mesh(LM_BOX,m);o.scale.set(sx,sy,sz);o.position.set(x,y,z);g.add(o);return o;};
   bx(TRM.dark,2.2,0.7,9.6,0,0.35,0);bx(loco?TRM.loco:TRM.coach,2.6,2.8,9.8,0,2.1,0);bx(TRM.win,2.64,0.8,8.6,0,2.6,0);
-  if(loco){bx(TRM.red,2.66,0.4,9.9,0,1.2,0);bx(TRM.win,2.2,0.9,0.06,0,2.8,4.92);bx(LMM.ledOn2,0.4,0.25,0.06,0,1.6,4.93);}
+  if(loco){const e=rear?-1:1;bx(TRM.red,2.66,0.4,9.9,0,1.2,0);bx(TRM.win,2.2,0.9,0.06,0,2.8,e*4.92);bx(LMM.ledOn2,0.4,0.25,0.06,0,1.6,e*4.93);}
   return g;
 }
 // the airport's planes: two parked at the gates, one that goes round -- taxis out, takes off, flies away, comes back in to
@@ -15290,7 +15311,7 @@ function updateCars(dt){
     if(Math.abs(c.speed)>2&&c.pos.y<G+3&&knockFixtures(c.pos.x+fx*1.4*dir,c.pos.z+fz*1.4*dir,1.1,fx*dir,fz*dir)){c.speed*=0.5;damageCar(c,2,undefined,'acc');}
     for(const q of players){
       if(!q.active||q.state==='dead'||!c.alive)continue;
-      if(Math.abs(c.speed)>3&&c.ramCD<=0&&carHitsPlayer(c,q)){
+      if(Math.abs(c.speed)>3&&c.ramCD<=0&&q.standCar!==c&&!(q.standCar&&q.standCar.isTrain)&&q.pos.y<c.pos.y+(c.hy||1.4)-0.6&&carHitsPlayer(c,q)){   // (and a car the train's just sent flying doesn't knock its riders off)
         const fast=Math.abs(c.speed)>9;
         damagePlayer(q,fast?4:2,new V3(q.pos.x,q.pos.y+1.3,q.pos.z),new V3(fx*dir,0.3,fz*dir),fast?'Run down':'Hit by traffic',c.driver);
         shove(q,fx*dir*1.4,fz*dir*1.4);
