@@ -1,3 +1,3 @@
-country route L 1040 | car-samples on routes 1220 mean lane error 0.03 max 0.2 mean speed 8.1 stopped 0 | hw 0 street 0 transitions 0
-moto route L 1044 | car-samples on routes 901 mean lane error 0.02 max 0.3 mean speed 18.4 stopped 0 | hw 0 street 0 transitions 0
+country route L 1040 | car-samples on routes 1065 mean lane error 0.04 max 0.2 mean speed 10.2 stopped 0 | hw 0 street 0 transitions 0
+moto route L 1044 | car-samples on routes 779 mean lane error 0.03 max 0.3 mean speed 18.2 stopped 0 | hw 0 street 0 transitions 0
 errors 0 []

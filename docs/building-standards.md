@@ -7,7 +7,7 @@ What Thomas has asked for in the game's buildings (their scale, where they go, h
 Scale reference: 1 block is about 1.4m, so a goblin (1.4 blocks) is about 2m. A storey is 5 blocks, tall on purpose so Gus fits indoors.
 
 - **Keep the 32-block city block.** Larger structures span more plots rather than making plots bigger. `CELL` and the plot constants are everywhere, and changing them wouldn't make existing buildings grow.
-- **Size follows real life, scaled to fit.** Most things are close to real size; the very largest sites aim for roughly 60 to 70%, because a fully real airport or nuclear plant would dwarf a town.
+- **Size follows real life, scaled to fit.** Most things are close to real size; the very largest sites aim for roughly 60 to 70%, which Thomas has confirmed is working well. A fully real airport or nuclear plant would dwarf a town.
 - **Big sites get room around them.** Cities and large towns were widened by about 30% to make space. Bigger sites mean longer walks and fewer buildings per city, so play-test the feel.
 - **Don't cram.** One restaurant, shop or mid-rise to a block, and two-storey houses have a block to themselves.
 
@@ -25,10 +25,12 @@ Sizes as built, in plots (W x H; one plot is 32 blocks):
 | Prison, film studio, dump, military base, superstore | 4 x 4 |
 | Mall, stadium | 4 x 6 |
 | Zoo | 5 x 5 |
-| University, theme park, nuclear plant, quarry | 6 x 6 |
-| Airport | 12 x 5 |
+| University, quarry | 6 x 6 |
+| Theme park, nuclear plant | 8 x 8 |
+| Airport | 14 x 6 |
+| Farm, with its land | up to 4 to 6 each way, less where something's in the way |
 
-Smaller versions exist in small towns. The original plan suggested larger still for the theme park and nuclear plant (8 x 8), the airport (14 x 6) and farms (4 x 4 to 6 x 6). Farms are still 1 plot, by choice so far.
+Smaller versions exist in small towns. A theme park is too big for one 6 x 6 cell of the big plan, so `themeOf` lets it reach into its neighbours, and a third of it may run on to open ground at the edge of town.
 
 ## Placement
 

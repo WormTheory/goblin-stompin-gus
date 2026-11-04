@@ -758,7 +758,7 @@ function horizHidden(cx,cy,cz,hr,top){
     if(!o.isInstancedMesh&&horizHidden(sp.center.x,sp.center.y,sp.center.z,sp.radius,sp.center.y+sp.radius))return false;   // (over the horizon)
     const d=Math.hypot(sp.center.x-CURVE_CAM.x,sp.center.z-CURVE_CAM.z),r=sp.radius,lo=k*Math.max(0,d-r)**2,hi=k*(d+r)**2;
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v79';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v80';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -2926,7 +2926,7 @@ function castleColumn(a,col,px,pz,rx,rz,lx,lz,x,z){
 // ---- the big sites out on the plains, each over a rectangle of blocks: an airport (6 x 2 blocks, its runway along x), a
 // space agency's launch site (2 x 3) and a military base (2 x 2). Each sits on its own grid of anchor blocks, and only
 // where the whole rectangle (and a ring of a couple of blocks round it) is open country clear of everything else. ----
-const BIGP=[{kind:'airport',w:12,h:5,p:0.09,salt:11},{kind:'nasa',w:2,h:3,p:0.005,salt:23},{kind:'base',w:4,h:4,p:0.02,salt:37},{kind:'quarry',w:6,h:6,p:0.035,salt:67},{kind:'mine',w:3,h:3,p:0.016,salt:53},{kind:'lumber',w:4,h:3,p:0.018,salt:79},{kind:'campsite',w:2,h:2,p:0.009,salt:83},{kind:'nuclear',w:6,h:6,p:0.04,salt:131},{kind:'cult',w:1,h:1,p:0.0025,salt:97},{kind:'tower5g',w:1,h:1,p:0.004,salt:101},{kind:'prepper',w:2,h:2,p:0.006,salt:103},{kind:'militia',w:2,h:2,p:0.005,salt:107},{kind:'ruins',w:2,h:2,p:0.008,salt:109},{kind:'thieves',w:1,h:1,p:0.002,salt:113}],bigPC=new Map(),bigOK=new Map();
+const BIGP=[{kind:'airport',w:14,h:6,p:0.11,salt:11},{kind:'nasa',w:2,h:3,p:0.005,salt:23},{kind:'base',w:4,h:4,p:0.02,salt:37},{kind:'quarry',w:6,h:6,p:0.035,salt:67},{kind:'mine',w:3,h:3,p:0.016,salt:53},{kind:'lumber',w:4,h:3,p:0.018,salt:79},{kind:'campsite',w:2,h:2,p:0.009,salt:83},{kind:'nuclear',w:8,h:8,p:0.1,salt:131},{kind:'cult',w:1,h:1,p:0.0025,salt:97},{kind:'tower5g',w:1,h:1,p:0.004,salt:101},{kind:'prepper',w:2,h:2,p:0.006,salt:103},{kind:'militia',w:2,h:2,p:0.005,salt:107},{kind:'ruins',w:2,h:2,p:0.008,salt:109},{kind:'thieves',w:1,h:1,p:0.002,salt:113}],bigPC=new Map(),bigOK=new Map();
 // is kind i's site (anchored at ax,az) there? (clear of the places, the sea, the roads, the farms... and of the
 // sites of the kinds before it in the list, which win any overlap)
 function bigCell(i,ax,az){
@@ -2959,9 +2959,9 @@ function bigColumn(col,B,U,V,x,z){
     // a high fence, a gatehouse road in, the switchyard of transformers feeding the pylons away across the country
     if(fence&&!(V===1&&U>=14&&U<=17)){for(let y=G+1;y<=G+6;y++)col(y,CHAINLINK);col(G,GRAVEL);return;}
     col(G,(U*3+V)%7===0?GRAVEL:CONCRETE);
-    if(U>=14&&U<=17&&V<=34||V>=30&&V<=33&&U>=14&&U<=W-20||U>=94&&U<=97&&V>=30&&V<=150){col(G,ASPHALT);return;}
+    if(U>=14&&U<=17&&V<=34||V>=30&&V<=33&&U>=14&&U<=W-20||U>=94&&U<=97&&V>=30&&V<=215){col(G,ASPHALT);return;}
     if(U>=4&&U<=30&&V>=38&&V<=62){col(G,ASPHALT);if((U-4)%3===0&&(V-38)%10<4)col(G,LANE);return;}
-    if(U>=36&&U<=90&&V>=112&&V<=150){col(G,GRAVEL);if((U-36)%6<2&&(V-112)%8<3){col(G+1,METAL);col(G+2,RUST);col(G+3,PAINT_DARK);if((U+V)%2)col(G+4,METAL);}return;}
+    if(U>=104&&U<=215&&V>=165&&V<=240){col(G,GRAVEL);if((U-104)%6<2&&(V-165)%8<3){col(G+1,METAL);col(G+2,RUST);col(G+3,PAINT_DARK);if((U+V)%2)col(G+4,METAL);}return;}
     if((U===W-8||V===Hh-8)&&(U+V)%2===0&&hash2(x,z)<0.2){col(G+1,PAINT_YELLOW);col(G+2,PAINT_DARK);}
     return;}
   if(B.kind==='base'){
@@ -2994,12 +2994,13 @@ function bigColumn(col,B,U,V,x,z){
   if(B.kind==='airport'){
     if(fence&&!(V===Hh-2&&U>=78&&U<=82)){for(let y=G+1;y<=G+3;y++)col(y,CHAINLINK);return;}
     // a second runway along the far side, joined up by taxiways at either end
-    if(V>=124&&V<=133&&U>=8&&U<=W-9){col(G,ASPHALT);if((V===128||V===129)&&U%12<6&&U>16&&U<W-17)col(G,PAINT_WHITE);if((U>=10&&U<=14||U>=W-15&&U<=W-11)&&V>=125&&V<=132&&V%2===1)col(G,PAINT_WHITE);if((V===124||V===133)&&U%8===0)col(G,NEON_Y);return;}
-    if(V>=42&&V<=123&&(U>=20&&U<=23||U>=W-24&&U<=W-21)){col(G,ASPHALT);if(U===21||U===W-22)col(G,PAINT_YELLOW);return;}
+    if(V>=124&&V<=133&&U>=112&&U<=W-9){col(G,ASPHALT);if((V===128||V===129)&&U%12<6&&U>120&&U<W-17)col(G,PAINT_WHITE);if((U>=114&&U<=118||U>=W-15&&U<=W-11)&&V>=125&&V<=132&&V%2===1)col(G,PAINT_WHITE);if((V===124||V===133)&&U%8===0)col(G,NEON_Y);return;}
+    if(V>=42&&V<=123&&(U>=124&&U<=127||U>=W-24&&U<=W-21)){col(G,ASPHALT);if(U===125||U===W-22)col(G,PAINT_YELLOW);return;}
     // the road in from the gate, the long-stay car park beside it, the cargo apron
-    if(U>=78&&U<=82&&V>=63){if(V<124||V>133){col(G,ASPHALT);return;}}
+    if(U>=78&&U<=82&&V>=63){col(G,ASPHALT);return;}
+    if(U>=30&&U<=76&&V>=128&&V<=180){col(G,ASPHALT);if((U-30)%3===0&&(V-128)%12<5)col(G,LANE);return;}
     if(U>=36&&U<=76&&V>=66&&V<=118){col(G,ASPHALT);if((U-36)%3===0&&(V-66)%12<5)col(G,LANE);return;}
-    if(U>=160&&U<=W-30&&V>=88&&V<=98){col(G,CONCRETE);return;}
+    if(U>=160&&U<=W-60&&V>=88&&V<=98){col(G,CONCRETE);return;}
     if(V>=24&&V<=33&&U>=8&&U<=W-9){col(G,ASPHALT);   // the runway: centre dashes, threshold bars, edge lights
       if((V===28||V===29)&&U%12<6&&U>16&&U<W-17)col(G,PAINT_WHITE);
       if((U>=10&&U<=14||U>=W-15&&U<=W-11)&&V>=25&&V<=32&&V%2===1)col(G,PAINT_WHITE);
@@ -3197,17 +3198,18 @@ function farmLaneCol(x,z){
 // road), fenced round the outside. Which blocks, and what's grown, is down to the farm. ----
 const fieldC=new Map();
 function farmlandSpec(fx,fz){
-  const r=n=>hash2(fx*37+n*11,fz*53+n*7);if(r(1)>=0.6)return null;
-  return{kind:r(2)<0.55?'crop':'orchard',crop:r(3)<0.5?0:1,w:r(4)<0.5?0:r(4)<0.8?1:2,e:r(5)<0.4?0:r(5)<0.75?1:2,back:r(6)<0.55};
+  // (each farm works 4 to 6 blocks each way, running back from its road: it's cut short only by what's in the way)
+  const r=n=>hash2(fx*37+n*11,fz*53+n*7),W=4+Math.floor(r(5)*3),w=Math.floor(r(4)*W);
+  return{kind:r(2)<0.55?'crop':'orchard',crop:r(3)<0.5?0:1,w,e:W-1-w,depth:4+Math.floor(r(6)*3)};
 }
 const fieldFree=(px,pz)=>dumpAt(px,pz)===null&&!castleAt(px,pz)&&!bigPlainsAt(px,pz)&&biomeOf(px,pz)==='plains'&&farmK(px,pz)===null&&!farmLane(px,pz)&&!plotNearLines(px,pz,4)&&![[4,4],[28,4],[4,28],[28,28],[16,16]].some(([a,b])=>tsAt(px*CELL+a,pz*CELL+b));
 // the farmland on block (px,pz): {kind,crop,fx,fz} or null
 function farmlandOf(px,pz){
   const key=px*100003+pz;let v=fieldC.get(key);if(v!==undefined)return v;v=null;
   if(fieldFree(px,pz))
-    for(let dx=-2;dx<=2&&!v;dx++)for(let dz=-1;dz<=1&&!v;dz++){const fx=px-dx,fz=pz-dz;if(farmK(fx,fz)===null)continue;
+    for(let dx=-5;dx<=5&&!v;dx++)for(let dz=-5;dz<=5&&!v;dz++){const fx=px-dx,fz=pz-dz;if(farmK(fx,fz)===null)continue;
       const S=farmlandSpec(fx,fz);if(!S)continue;const bz=farmNorth(fx,fz)?-1:1;   // 'behind': away from the road
-      if(dx<-S.w||dx>S.e)continue;if(dz!==0&&!(S.back&&dz===bz))continue;if(dx===0&&dz===0)continue;
+      if(dx<-S.w||dx>S.e)continue;{const bk=dz*bz;if(bk<0||bk>=S.depth)continue;}if(dx===0&&dz===0)continue;
       v={kind:S.kind,crop:S.crop,fx,fz};}
   fieldC.set(key,v);return v;
 }
@@ -3530,7 +3532,23 @@ function capitolPlan(){
   return C;
 }
 function macroOf(px,pz){const M=macroOf1(px,pz);return M&&TEST_OFF.has(M.kind)?null:M;}
+// a theme park is 8 x 8, more than one cell of the big plan: it reaches a block into each cell round its own
+const THEME_H=0.97,themeHash=(mx,mz)=>{const h=hash2(mx*613+11,mz*389+7);return h>=0.90&&h<THEME_H;};
+// (it's an edge-of-town site, so a third of it may run out on to open ground)
+const themePlains=(ax,az)=>{let n=0;for(let i=0;i<8;i++)for(let j=0;j<8;j++)if(rectPlains(ax+i,az+j,1,1))n++;return n;};
+function themeOf(mx,mz){
+  const k='t'+mx+','+mz;let T=superCache.get(k);if(T!==undefined)return T;T=null;superCache.set(k,null);
+  if(Math.max(Math.abs(mx),Math.abs(mz))>=2&&themeHash(mx,mz)){
+    let ok=true;const CP=capitolPlan();for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){if((a||b)&&themeHash(mx+a,mz+b))ok=false;if(CP&&CP.mx===mx+a&&CP.mz===mz+b)ok=false;}
+    const M={ax:mx*6-1,az:mz*6-1,w:8,h:8,kind:'theme'},ty=setType(M.ax+4,M.az+4);
+    if(ok&&(ty==='city'||ty==='large'||ty==='suburb')&&siteFits('theme',M.ax+4,M.az+4)&&themePlains(M.ax,M.az)<=22&&!(rectRail(M.ax,M.az,8,8)||rectRiver(M.ax,M.az,8,8)||rectClover(M.ax,M.az,8,8)||rectRamp(M.ax,M.az,8,8)||rectCuts(M.ax,M.az,8,8)||rectHighway(M.ax,M.az,8,8)))T=M;
+  }
+  superCache.set(k,T);return T;
+}
+const themeNear=(mx,mz)=>{const k='tn'+mx+','+mz;let L=superCache.get(k);if(L)return L;L=[];for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){if(!a&&!b)continue;const T=themeOf(mx+a,mz+b);if(T)L.push(T);}superCache.set(k,L);return L;};
+const themeHits=(ax,az,w,h)=>{const mx=Math.floor(ax/6),mz=Math.floor(az/6);for(const c of [[mx,mz],[Math.floor((ax+w-1)/6),Math.floor((az+h-1)/6)]]){for(const T of [themeOf(c[0],c[1]),...themeNear(c[0],c[1])])if(T&&ax<T.ax+8&&ax+w>T.ax&&az<T.az+8&&az+h>T.az)return true;}return false;};
 function macroOf1(px,pz){
+  {const L=themeNear(Math.floor(px/6),Math.floor(pz/6));for(const T of L)if(px>=T.ax&&px<T.ax+8&&pz>=T.az&&pz<T.az+8)return T;}
   const mx=Math.floor(px/6),mz=Math.floor(pz/6),mk='m'+mx+','+mz;let M=superCache.get(mk);
   if(M===undefined){
     M=null;
@@ -3556,11 +3574,13 @@ function macroOf1(px,pz){
       else if(h<0.835)M={ax:mx*6+off,az:mz*6+off2,w:4,h:4,kind:'studio'};
       else if(h<0.86)M={ax:mx*6+off,az:mz*6+off2,w:3,h:3,kind:'power'};
       else if(h<0.90)M={ax:mx*6,az:mz*6,w:5,h:5,kind:'zoo'};
-      else if(h<0.93)M={ax:mx*6,az:mz*6,w:6,h:6,kind:'theme'};
+      else if(h<THEME_H)M=themeOf(mx,mz);
       if(M&&!siteFits(M.kind,M.ax+M.w/2,M.az+M.h/2))M=null;
       {const ty=M&&setType(M.ax,M.az);if(M&&/^(school|ikea|hospital|campus|prison|factory|studio|power|zoo|theme)$/.test(M.kind)&&ty!=='city'&&ty!=='large'&&ty!=='suburb')M=null;if(M&&(M.kind==='museum'||M.kind==='aquarium'||M.kind==='cathedral')&&ty!=='city'&&ty!=='large')M=null;if(M&&(M.kind==='stadium'||M.kind==='bigpark')&&ty!=='city')M=null;if(M&&(M.kind==='mall'||M.kind==='bigbox')&&ty!=='city'&&ty!=='large'&&ty!=='suburb')M=null;if(M&&M.kind==='hood'&&ty==='village')M=null;
        if(!M&&h<0.62&&setType(mx*6+3,mz*6+3)==='suburb')M=hash2(mx+17,mz+19)<0.5?{ax:mx*6,az:mz*6,w:6,h:6,kind:'hood'}:{ax:mx*6+off,az:mz*6+off2,w:4,h:4,kind:'hood'};}   // suburbs: housing estates
       if(M&&(rectRail(M.ax,M.az,M.w,M.h)||rectRiver(M.ax,M.az,M.w,M.h)||rectPlains(M.ax,M.az,M.w,M.h)||rectClover(M.ax,M.az,M.w,M.h)||rectRamp(M.ax,M.az,M.w,M.h)||rectCuts(M.ax,M.az,M.w,M.h)||M.kind!=='hood'&&rectHighway(M.ax,M.az,M.w,M.h)))M=null;
+      // (nothing else where a neighbour's theme park has reached in)
+      if(M&&M.kind!=='theme')for(const T of themeNear(mx,mz))if(M.ax<T.ax+8&&M.ax+M.w>T.ax&&M.az<T.az+8&&M.az+M.h>T.az)M=null;
     }
     superCache.set(mk,M);
   }
@@ -3581,7 +3601,7 @@ function superOf(px,pz){
   const gx=Math.floor(px/2),gz=Math.floor(pz/2),k=gx*100003+gz;let S=superCache.get(k);
   if(S===undefined){
     S=null;
-    const hitsM=M&&gx*2<M.ax+M.w&&gx*2+2>M.ax&&gz*2<M.az+M.h&&gz*2+2>M.az;
+    const hitsM=M&&gx*2<M.ax+M.w&&gx*2+2>M.ax&&gz*2<M.az+M.h&&gz*2+2>M.az||themeHits(gx*2,gz*2,2,2);
     let gk=Math.max(Math.abs(gx),Math.abs(gz))>=2&&!hitsM?groupKind(gx,gz):null;
     if(gk){const ty=setType(gx*2,gz*2),kn=gk.slice(0,-1),OK={city:null,large:['hospital','garage','police','market','drug','sitdown','school','factory','museum','aquarium','casino','cathedral','ikea','cinema','arena','campus','prison','water','power','zoo','nuclear','theme'],small:['hospital','market','drug','sitdown','school','factory','cinema','water'],suburb:['police','market','drug','sitdown','school','ikea','cinema','water','campus','theme'],village:[]}[ty];if(!ty||OK&&!OK.includes(kn)&&!(ty==='suburb'&&SITE_EDGE.has(kn))||ty==='small'&&gk==='hospital4')gk=null;}
     if(gk&&!siteFits(gk.slice(0,-1),gx*2+1,gz*2+1))gk=null;   // (what a place that size would have)
@@ -4035,12 +4055,12 @@ function plotInfo(px,pz){
         const SW=W+PW,SD=D+PW,X1=PL0+SW-1;
         const big6=S.w>=6,gm=(PL0+X1)>>1;
         const g=base({x0:big6?gm-18:PL0+18,x1:big6?gm+18:X1-18,z0:PL0+1,z1:PL0+3,top:G+12,style:'gate',wall:PAINT_RED,win:PAINT_YELLOW,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2});g.noIndoor=true;g.doorSpec=null;g.detailTop=g.top;brandOn(g,'theme',r(140));
-        g.ride=big6?{coaster:{cu:PL0+52,cv:PL0+100,a:42,b:62},wheel:{cu:PL0+132,cv:PL0+52,R:20,hub:G+25},carousel:{cu:PL0+132,cv:PL0+128},gm}:{coaster:{cu:PL0+16,cv:PL0+31,a:12,b:15},wheel:{cu:PL0+39,cv:PL0+14,R:10,hub:G+13},carousel:{cu:PL0+39,cv:PL0+37}};p.b.push(g);p.theme=g.ride;
+        g.ride=big6?{coaster:{cu:PL0+62,cv:PL0+140,a:54,b:84},wheel:{cu:PL0+184,cv:PL0+62,R:24,hub:G+29},carousel:{cu:PL0+184,cv:PL0+132},pond:{cu:PL0+184,cv:PL0+200,r:26},span:PL0+232,gm}:{coaster:{cu:PL0+16,cv:PL0+31,a:12,b:15},wheel:{cu:PL0+39,cv:PL0+14,R:10,hub:G+13},carousel:{cu:PL0+39,cv:PL0+37}};p.b.push(g);p.theme=g.ride;
         p.stalls=[{x0:PL0+28,z0:PL0+20,face:1,aw:AWN_R,crop:0},{x0:PL0+32,z0:PL0+20,face:1,aw:AWN_G,crop:2},{x0:PL0+28,z0:PL0+26,face:-1,aw:AWN_R,crop:4}];
-        if(big6){p.stalls=[];for(let q=0;q<16;q++){const up=q%2;p.stalls.push({x0:PL0+60+q*6,z0:up?PL0+24:PL0+34,face:up?1:-1,aw:q%3?AWN_R:AWN_G,crop:q%5});}
+        if(big6){p.stalls=[];for(let q=0;q<26;q++){const up=q%2;p.stalls.push({x0:PL0+66+q*6,z0:up?PL0+24:PL0+34,face:up?1:-1,aw:q%3?AWN_R:AWN_G,crop:q%5});}
           // a haunted house, the food hall and a drop tower to fill out the far side of the walks
           const lm=(x0,x1,z0,z1,top,wall,win)=>{const k=base({x0,x1,z0,z1,top,wall,win,kind:'landmark',ground:'landmark',floor:PLANKS,door:2});k.noIndoor=true;k.doorSpec=null;k.detailTop=k.top;p.b.push(k);};
-          lm(PL0+100,PL0+122,PL0+96,PL0+116,G+14,PAINT_DARK,PAINT_RED);lm(PL0+150,PL0+176,PL0+96,PL0+114,G+9,PAINT_RED,WIN_WARM);lm(PL0+170,PL0+176,PL0+50,PL0+56,G+64,METAL,RUST);}
+          lm(PL0+128,PL0+152,PL0+96,PL0+118,G+14,PAINT_DARK,PAINT_RED);lm(PL0+206,PL0+232,PL0+108,PL0+126,G+9,PAINT_RED,WIN_WARM);lm(PL0+224,PL0+230,PL0+50,PL0+56,G+64,METAL,RUST);lm(PL0+128,PL0+148,PL0+172,PL0+196,G+10,PAINT_BLUE,WIN_WARM);}   // (and an arcade)
       } else if(S.kind==='cinema'){
         // a multiplex: a vast tall box over a whole site -- a glass front under the marquee and a big sign high up on
         // the facade; inside, the lobby (ticket desks, the snack bar, an arcade corner), a corridor, and three huge
@@ -4195,10 +4215,14 @@ function plotInfo(px,pz){
     const B=bigPlainsAt(px,pz),U0=(px-B.ax)*CELL,V0=(pz-B.az)*CELL;
     const add=(o,brand)=>{if(o.x0<U0||o.x1>U0+CELL||o.z0<V0||o.z1>V0+CELL)return;const b=base(Object.assign({},o,{x0:o.x0-U0,x1:o.x1-U0,z0:o.z0-V0,z1:o.z1-V0}));b.detailTop=b.top-1;if(o.noIndoor){b.noIndoor=true;b.detailTop=b.top;}if(brand)brandOn(b,brand,r(150));p.b.push(b);};
     if(type==='nuclear'){
-      for(const ux of [36,100]){add({x0:ux,x1:ux+24,z0:36,z1:60,top:G+36,style:'contain',wall:PAINT_WHITE,win:PAINT_WHITE,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
+      for(const ux of [36,100,164]){add({x0:ux,x1:ux+24,z0:36,z1:60,top:G+36,style:'contain',wall:PAINT_WHITE,win:PAINT_WHITE,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
         add({x0:ux,x1:ux+24,z0:66,z1:92,top:G+14,style:'hangar',wall:CONCRETE,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});}
       add({x0:4,x1:30,z0:4,z1:22,top:G+3*FH,wall:CONCRETE,win:WIN_BLUE,band:PAINT_YELLOW,kind:'office',ground:'office',floor:FLOORT,door:2},'nuclear');
-      for(const zz of [34,100])add({x0:132,x1:160,z0:zz,z1:zz+28,top:G+72,style:'cooling',wall:CONCRETE,win:CONCRETE,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true,steam:true});}
+      // the waste store: rows of casks in a long shed; the security block by the gate
+      add({x0:36,x1:60,z0:166,z1:190,top:G+12,style:'hangar',wall:CONCRETE,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
+      for(const uz of [196,206,216])for(const ux of [36,46])add({x0:ux,x1:ux+7,z0:uz,z1:uz+7,top:G+7,style:'tank',wall:PAINT_YELLOW,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
+      add({x0:4,x1:30,z0:70,z1:88,top:G+2*FH,wall:CONCRETE,win:WIN_BLUE,band:PAINT_YELLOW,kind:'police',ground:'office',floor:FLOORT,door:1});
+      for(const [ux,zz] of [[196,34],[196,100],[228,36],[228,102]])add({x0:ux,x1:ux+(ux>200?26:28),z0:zz,z1:zz+(ux>200?26:28),top:G+72,style:'cooling',wall:CONCRETE,win:CONCRETE,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true,steam:true});}
     else if(type==='base'){
       for(let i=0;i<3;i++)add({x0:36,x1:60,z0:4+i*9,z1:11+i*9,top:G+FH,wall:PAINT_GREEN,win:WIN_WARM,kind:'barracks',ground:'barracks',floor:CONCRETE,door:3,doorSpec:{w:0,h:3,k:'wood'}},i===0?'base':null);
       add({x0:2,x1:0,z0:36,z1:60,top:G+12,style:'hangar',wall:METAL,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
@@ -4233,7 +4257,8 @@ function plotInfo(px,pz){
       add({x0:132,x1:150,z0:44,z1:62,top:G+12,style:'hangar',wall:METAL,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
       add({x0:164,x1:182,z0:44,z1:62,top:G+12,style:'hangar',wall:PAINT_WHITE,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
       add({x0:34,x1:62,z0:50,z1:62,gf:7,top:G+7+FH,wall:PAINT_WHITE,win:GLASS,band:METAL,kind:'office',ground:'terminal',floor:FLOORT,door:3,doorSpec:{w:1,h:4,k:'glass'},glassAll:true});
-      for(const ux of [164,196,228,260,292])add({x0:ux,x1:ux+24,z0:68,z1:88,top:G+12,style:'hangar',wall:[METAL,CONCRETE,RUST][(ux>>2)%3],win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
+      add({x0:388,x1:406,z0:44,z1:62,top:G+12,style:'hangar',wall:METAL,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
+      for(const ux of [164,196,228,260,292,324,356])add({x0:ux,x1:ux+24,z0:68,z1:88,top:G+12,style:'hangar',wall:[METAL,CONCRETE,RUST][(ux>>2)%3],win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
       for(const uz of [100,108])for(const ux of [130,140])add({x0:ux,x1:ux+7,z0:uz,z1:uz+7,top:G+7,style:'tank',wall:PAINT_WHITE,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});}
     else{
       add({x0:3,x1:30,z0:4,z1:30,gf:50,top:G+56,wall:PAINT_WHITE,win:PAINT_WHITE,band:PAINT_BLUE,kind:'landmark',ground:'landmark',floor:CONCRETE,door:3,doorSpec:null,noIndoor:true,blank:true,vab:true},'nasa');
@@ -5689,9 +5714,11 @@ const B5_GROUND={
     {const fun=[SIDEWALK,PAINT_YELLOW,SIDEWALK,PAINT_RED,SIDEWALK,PAINT_BLUE][((u>>1)+(v>>1))%6];
      if(R2.gm===undefined)col(G,fun);
      else{const C=R2.coaster,W2=R2.wheel,C2=R2.carousel,e=Math.hypot((u+0.5-C.cu)/C.a,(v+0.5-C.cv)/C.b);
-      const walk=Math.abs(u-R2.gm)<=5&&v<PL0+44||v>=PL0+20&&v<=PL0+42&&u>=PL0+8&&u<=PL0+180||Math.abs(u-W2.cu)<=4&&v>=PL0+40&&v<=C2.cv||v>=PL0+86&&v<=PL0+92&&u>=PL0+96&&u<=PL0+180||e>=1.08&&e<=1.2||
+      const walk=Math.abs(u-R2.gm)<=5&&v<PL0+44||v>=PL0+20&&v<=PL0+42&&u>=PL0+8&&u<=R2.span||Math.abs(u-W2.cu)<=4&&v>=PL0+40&&v<=PL0+172||v>=PL0+126&&v<=PL0+132&&u>=PL0+122&&u<=W2.cu||v>=PL0+40&&v<=PL0+160&&Math.abs(u-PL0+124)<=3||e>=1.08&&e<=1.2||
         Math.hypot(u-W2.cu,v-W2.cv)<27||Math.hypot(u-C2.cu,v-C2.cv)<17;
       if(walk)col(G,fun);else{col(G,GRASS);col(G-1,DIRT);const h=hash2(x*7+1,z*5+3);if(h<0.012)col(G+1,FLOWER);else if(h<0.016){col(G+1,LOG);col(G+2,LOG);col(G+3,LEAVES);}}}}
+    // the boating lake
+    if(R2.pond){const Pd=R2.pond,d=Math.hypot(u+.5-Pd.cu,v+.5-Pd.cv);if(d<Pd.r){col(G,d<Pd.r-1.5?WATER:SIDEWALK);if(d<Pd.r-1.5)col(G-1,STONE);if(d<Pd.r-1.5)return;}}
     // the coaster: a looping track on trestles, rising and dipping round its circuit
     {const C=R2.coaster,du=(u+0.5-C.cu)/C.a,dv=(v+0.5-C.cv)/C.b,e=Math.hypot(du,dv),th=Math.atan2(dv,du);
      if(e<0.86){col(G,GRASS);col(G-1,DIRT);}
