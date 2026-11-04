@@ -4362,7 +4362,7 @@ function plotInfo(px,pz){
   } else if(type==='news'){
     // a TV news station: the newsroom and its studio on the ground floor, offices over it, dishes on the roof
     const b=base({x0:PL0+1,x1:PL1-1,z0:PL0+4,z1:PL1-1,top:G+3*FH,wall:[METAL,CONCRETE,PAINT_NAVY][Math.floor(r(81)*3)],win:WIN_BLUE,kind:'office',ground:'news',floor:FLOORT,door:2});
-    b.detailTop=b.top-1;brandOn(b,'news',r(150));b.dishes=true;p.b.push(b);p.vans=true;
+    b.detailTop=b.top-1;brandOn(b,'news',r(150));b.dishes=true;p.b.push(b);
   } else if(type==='bank'){
     // a bank: a little branch, a big one downtown (stone, columns), or (in the cities, now and then) a fortress of a
     // place -- thick walls, barred slits for windows, bollards out front and a round vault door on a room of gold
@@ -11565,6 +11565,7 @@ function damageGoblin(g,n,pt,dir,cause,by){
   if(!by&&BLAME==='acc')by=ACCIDENT;
   g.hp-=n;g.hurt=0.1;
   if(g.snowU&&g.snowU.value>0.05){puff(g.pos.x,g.pos.y+1.3*ES,g.pos.z,6,0xf0f4fa,0.35);g.snowU.value=0;}
+  if(g.news){endNews(g,true);g.indoor=false;g.wt=null;}   // hit: drop everything and run (or fall)
   if(g.hp>0&&(g.medic||g.ff)){if(g.medic&&g.medic.cur)g.medic.cur.tended=false;g.medic=null;g.ff=null;g.indoor=false;g.wt=null;}   // hit: forget the job and run
   blood(pt.x,pt.y,pt.z,5+n*2,dir?dir.clone().multiplyScalar(-0.4):null);
   if(dir)blood(pt.x,pt.y,pt.z,3+n,dir);
@@ -11572,7 +11573,7 @@ function damageGoblin(g,n,pt,dir,cause,by){
   tone('square',480,220,0.08,0.07);
   // knockback: harder hits throw them farther, and a killing blow sends them flying
   if(dir){const h=Math.hypot(dir.x,dir.z);if(h>0.05){const dead=g.hp<=0,kb=Math.min(13,3+n*0.6)*(dead?1.6:1);g.kv.x+=dir.x/h*kb;g.kv.z+=dir.z/h*kb;g.vy=Math.max(g.vy,dead?6:3.5);g.stun=0.45;}}
-  if(g.hp<=0){g.state='dead';g.t=0;g.sink=0;const n2=nearestPlayer(g.pos.x,g.pos.z);
+  if(g.hp<=0){g.state='dead';g.t=0;g.sink=0;const n2=nearestPlayer(g.pos.x,g.pos.z);reportNews(g.pos.x,g.pos.z,'killing');
     // 'by' is an NPC (a car's driver) when they did it; otherwise the nearest hippo gets the credit
     recordObit(g,cause||'Killed by a hippo',by||(n2&&n2.p));
     if(by){g.vendor=null;}
@@ -11778,10 +11779,10 @@ function updateGoblins(dt){
       return;
     }
     const any=nearestPlayer(g.pos.x,g.pos.z,false);
-    if(!any||any.d>(g.navOn?NAV_R-5:75)){g.state='wait';g.t=0;g.root.visible=false;return;}
+    if(!any||any.d>(g.navOn?NAV_R-5:75)){if(g.news)endNews(g);g.state='wait';g.t=0;g.root.visible=false;return;}
     // more about than there'd be at this hour (night falling, a shop closing): one at a time, out of sight, they go
     // home -- quietly vanishing somewhere no one's looking
-    if(!gone&&g.t>15&&any.d>28&&!g.medic&&!g.ff&&!g.cop&&(g.civ&&!g.staff&&civAlive>civTarget||g.staff&&g.employer&&staffAt(g.employer.key)>staffCapNow(g.employer.b))&&!visibleToAny(g.pos.x,g.pos.y+1,g.pos.z)){
+    if(!gone&&g.t>15&&any.d>28&&!g.medic&&!g.ff&&!g.cop&&!g.news&&(g.civ&&!g.staff&&civAlive>civTarget||g.staff&&g.employer&&staffAt(g.employer.key)>staffCapNow(g.employer.b))&&!visibleToAny(g.pos.x,g.pos.y+1,g.pos.z)){
       gone=true;g.state='wait';g.t=0;g.root.visible=false;if(g.civ&&!g.staff)civAlive--;g.vendor=null;g.employer=null;return;}
     const tgt=nearestPlayer(g.pos.x,g.pos.z,true);
     let moving=false,d=1e9,dx=0,dz=0;
@@ -11791,6 +11792,7 @@ function updateGoblins(dt){
     if(g.act){if(g.stun>0||!playing)g.act=null;else{gobMoveStep(g,dt);g.root.position.set(g.pos.x,g.pos.y,g.pos.z);g.root.rotation.y=g.heading;return;}}
     if(g.medic)moving=medicAI(g,dt);
     else if(g.ff)moving=fireAI(g,dt);
+    else if(g.news)moving=newsAI(g,dt);
     else if(g.civ||DT.peace)moving=civAI(g,dt);   // (with hostility off, hostile goblins act like the townsfolk)
     else if(tgt){
       dx=tgt.p.pos.x-g.pos.x;dz=tgt.p.pos.z-g.pos.z;d=Math.hypot(dx,dz);
@@ -11935,7 +11937,8 @@ const VEH={bus:{hx:1.25,hz:5.2,hy:3.3,head:[0.5,2.7,4.3],roof:l=>3.3},
   truck:{hx:1.2,hz:3.5,hy:3.3,head:[0.45,2.05,2.4],roof:l=>l>1.6?2.1:3.2},
   semi:{hx:1.25,hz:6.6,hy:3.9,head:[0.5,3.1,4.2],roof:l=>l>2.4?(l>5.0?1.75:3.1):3.85},
   fire:{hx:1.2,hz:3.7,hy:3.0,head:[0.45,2.6,2.3],roof:l=>l>1.6?2.5:3.0},
-  amb:{hx:1.15,hz:3.0,hy:2.8,head:[0.4,2.2,1.9],roof:l=>l>1.2?2.0:2.8}};
+  amb:{hx:1.15,hz:3.0,hy:2.8,head:[0.4,2.2,1.9],roof:l=>l>1.2?2.0:2.8},
+  news:{hx:1.05,hz:2.4,hy:2.3,head:[0.4,2.15,0.6],roof:l=>2.25}};
 // which vehicles each kind of traffic is made of
 const VEH_MIX={street:[['car',0.66],['van',0.12],['pickup',0.12],['truck',0.10]],hw:[['car',0.55],['van',0.1],['pickup',0.1],['truck',0.12],['semi',0.13]],park:[['car',0.75],['van',0.12],['pickup',0.13]]};
 const pickVeh=mix=>{let u=Math.random();for(const [t,p] of VEH_MIX[mix]){if(u<p)return t;u-=p;}return'car';};
@@ -12007,6 +12010,17 @@ function buildVeh(c,t){
     const lr=new THREE.MeshBasicMaterial({color:0xff2a2a}),lw=new THREE.MeshBasicMaterial({color:0xffffff});b(0.55,0.18,0.3,lr,-0.4,2.22,2.4);b(0.55,0.18,0.3,lw,0.4,2.22,2.4);c.flash=[lr,lw];
     b(2.26,0.22,0.15,bump,0,0.55,2.95);b(2.3,0.22,0.15,bump,0,0.55,-2.75);lights(0.8,0.95,2.94,-2.74);
     for(const [x,z,st] of [[-1,1.9,1],[1,1.9,1],[-1,-1.8,0],[1,-1.8,0]])wheel(x*1.02,z,st,true);
+  } else if(t==='news'){
+    // a TV news van: a white delivery van in the station's colour and name, a satellite dish up on a mast
+    const wht=c.newsM||(c.newsM=snowCar(new THREE.MeshLambertMaterial({color:0xf4f4f0}),c));c.newsStripe=new THREE.MeshLambertMaterial({color:0x0d2a5a});
+    b(2.1,1.75,4.4,wht,0,1.32,-0.15);b(2.06,0.9,0.5,wht,0,0.95,2.3);
+    b(1.94,0.6,0.08,glass,0,1.85,2.06);for(const s2 of[-1,1])b(0.06,0.55,1.0,glass,s2*1.06,1.85,1.45);
+    b(2.16,0.3,4.46,c.newsStripe,0,0.82,-0.15);b(2.16,0.2,0.15,bump,0,0.55,2.58);b(2.16,0.2,0.15,bump,0,0.55,-2.4);
+    c.newsLogo=[-1,1].map(s2=>b(0.04,0.7,2.6,smat(0xf4f4f0),s2*1.06,1.55,-0.7));
+    b(0.8,0.14,0.8,dark,0,2.25,-1.1);b(0.14,1.1,0.14,chrome,0,2.8,-1.1);
+    const dish=b(1.25,1.25,0.1,wht,0,3.4,-1.0);dish.rotation.x=-0.7;b(0.08,0.08,0.5,chrome,0,3.55,-0.75);
+    lights(0.7,0.95,2.57,-2.39);
+    for(const [x,z,st] of [[-1,1.6,1],[1,1.6,1],[-1,-1.55,0],[1,-1.55,0]])wheel(x*1.0,z,st);
   } else if(t==='semi'){
     // an articulated lorry, carried as one rigid body: tractor (long nose, tall cab, stacks) and a big box trailer
     b(2.24,0.45,4.3,dark,0,0.8,4.2);
@@ -12034,6 +12048,7 @@ for(let i=0;i<2;i++){const c=makeCar(410+i,true);c.g.scale.setScalar(ES);c.parkP
 // emergency services: fire engines, ambulances and police cars sent out from the stations to whatever's going on
 const SVC=[];
 for(let i=0;i<9;i++)for(const t of ['fire','amb','police']){const c=makeCar(700+SVC.length,t==='police');c.g.scale.setScalar(ES);if(t!=='police')setVeh(c,t);c.svcPool=t;c.respawnT=1e9;cars.push(c);SVC.push(c);}
+for(let i=0;i<6;i++){const c=makeCar(700+SVC.length);c.g.scale.setScalar(ES);setVeh(c,'news');c.svcPool='news';c.respawnT=1e9;cars.push(c);SVC.push(c);}   // (TV stations are few and far between: fewer of these)
 // grow the goblin, civilian and car pools when the crowd slider asks for more than they hold
 function ensureCrowdPools(){
   const hostNeed=Math.ceil(14*crowd)+6,civNeed=Math.ceil(12*crowd)+2,carNeed=Math.ceil(26*traffic);
@@ -12109,7 +12124,6 @@ function parkSpots(px,pz){
   if(P.type==='trailers')for(const b of P.b){const sx=b.door===1?b.x1+2.2:b.x0-2.2;out.push({x:X0+sx,z:Z0+b.z0+5,y:G+1,h:0,key:px+','+pz+':tr'+b.x0+b.z0,p:0.55,veh:'pickup'});}
   if(P.buses){const B0=P.b[0];for(let k=0;k*13+12<B0.x1-B0.x0;k++)out.push({x:X0+B0.x0+6.5+k*13,z:Z0+PL0+2.4,y:G+1,h:Math.PI/2,key:px+','+pz+':bus'+k,p:0.8,veh:'bus'});}
   if(P.lorries){const L=P.lorries;for(const c of L.cs)out.push(L.wide?{x:X0+L.a,z:Z0+c+0.5,y:G+1,h:Math.PI/2,key:px+','+pz+':lor'+c,p:0.8,veh:r2(c)}:{x:X0+c+0.5,z:Z0+L.a,y:G+1,h:0,key:px+','+pz+':lor'+c,p:0.8,veh:r2(c)});}
-  if(P.vans)for(let k=0;k<3;k++)out.push({x:X0+PL0+3+k*6,z:Z0+PL0+2,y:G+1,h:Math.PI/2,key:px+','+pz+':van'+k,p:0.75,veh:'van'});   // the TV station's vans out front
   if(P.lots)P.lots.forEach((L,li)=>{if(L.police)return;const skip=li===0&&P.super&&P.super.kind==='hospital'?ambBayIdx(P):null;lotBays(L).forEach((o,k)=>{if(skip&&skip.includes(k))return;out.push({x:X0+o.x,z:Z0+o.z,y:G+1,h:o.h,key:px+','+pz+':L'+li+':'+k,p:0.4});});});
   return out;
 }
@@ -12823,7 +12837,7 @@ function gasBoom0(x,y,z){
 function explodeCar(c){const w=DBG_WHO;DBG_WHO='n';try{return withBlame(carIsPlayers(c)?null:'acc',()=>explodeCar0(c));}finally{DBG_WHO=w;}}
 function explodeCar0(c){
   c.alive=false;c.g.visible=false;c.respawnT=6;c.hunter=false;
-  const p=c.pos.clone();
+  const p=c.pos.clone();reportNews(p.x,p.z,'car crash');
   const pts=c.police?500:300;if(BLAME!=='acc'){reportCrime(p.x,p.z);score+=pts;flashLabel((c.police?'Police car destroyed  +':'Car destroyed  +')+pts,(nearestPlayer(p.x,p.z)||{}).p);}
   if(c.police&&c.spot){policeDown[c.spot.split(':')[0]]=playTime+90;c.spot=null;}c.parked=false;
   if(c.svcPool&&c.svc){const keep=c.alive;svcDone(c,true);}
@@ -15061,6 +15075,9 @@ function refreshBrandSigns(){
 // superblock) to the nearest bit of road; fire engines hose the fires down, ambulance crews tend the dead and carry them
 // off, police officers get out and look around the scene, and come after you if they spot you.
 const crimes=[];let svcT=0,svcSirenT=0;
+// news crews cover fires, car wrecks and killings: one call per scene, however many things go wrong there
+const newsCalls=[],NEWS_R=16,NEWS_TAKE=24;
+function reportNews(x,z,what){if(!playing)return;const k=newsCalls.find(o=>Math.hypot(o.x-x,o.z-z)<30);if(k)k.t=playTime;else newsCalls.push({x,z,what,t:playTime,sentT:-1e9,next:0});}
 function reportCrime(x,z){if(!playing)return;const k=crimes.find(o=>Math.hypot(o.x-x,o.z-z)<24);if(k){k.t=playTime;k.n++;}else crimes.push({x,z,t:playTime,n:1});}
 // ---- the stations: each has three bays its vehicles live in (the fire station's engine bays, three bays of the
 // hospital's car park by the doors for the ambulances, three in the police station's own lot). A vehicle goes out from
@@ -15079,9 +15096,11 @@ function stationDef(px,pz){
   // a small town's police post: one block, the patrol car out front
   else if(!S&&plotType(px,pz)==='police'&&P.b[0]){kind='police';const b=P.b[0];bays=[0,1].slice(0,stnTier(px,pz)).map(i=>({x:X0+PL0+4+i*5,z:Z0+b.z0-3,h:0}));}
   else if(!S&&plotType(px,pz)==='fire'&&P.b[0]&&P.b[0].bays){kind='fire';const b=P.b[0];bays=b.bays.map(cx=>({x:X0+cx+0.5,z:Z0+b.z0+4.5,h:Math.PI}));}
+  // a TV station: its vans out front, noses to the street, either side of the doors
+  else if(!S&&plotType(px,pz)==='news'&&P.b[0]){kind='news';const b=P.b[0];bays=[3,15,6].slice(0,stnTier(px,pz)).map(u=>({x:X0+PL0+u,z:Z0+b.z0-2.4,h:Math.PI}));}
   if(kind&&bays&&bays.length){
     // each bay's way out: a few blocks straight back from the bay (out through the engine doors, or into the car park's aisle)
-    for(const y of bays){const f=kind==='fire'?6.5:kind==='amb'?4.5:-4.5;y.ex=y.x+Math.sin(y.h)*f;y.ez=y.z+Math.cos(y.h)*f;}   // (engines drive out forwards; the others back out of their bays)
+    for(const y of bays){const f=kind==='fire'||kind==='news'?6.5:kind==='amb'?4.5:-4.5;y.ex=y.x+Math.sin(y.h)*f;y.ez=y.z+Math.cos(y.h)*f;}   // (engines drive out forwards; the others back out of their bays)
     const B=P.b[0]&&P.b[0].brand;D={key:px+','+pz,px,pz,kind,bays,B,node:{x:px*CELL+RC,z:pz*CELL+RC}};
   }
   superCache.set(k,D);return D;
@@ -15094,6 +15113,7 @@ function svcPark(c,D,i){
   c.paint.emissive.setHex(0);c.g.visible=true;c.driver=makeDriver(D.kind==='police');c.g.position.copy(c.pos);c.g.rotation.set(0,c.heading,0);
   c.svc={kind:D.kind,st:'parked',stn:D,slot:i,B:D.B,path:[],t:0,tx:y.x,tz:y.z,home:D.node,stuck:0,rev:0};
   stnState(D).slots[i].car=c;
+  if(c.newsLogo&&D.B){c.newsStripe.color.setHex(parseInt(D.B.bg.slice(1),16));for(const m of c.newsLogo)m.material=brandTex(D.B,3.7);}   // (the pool's vans are painted for whichever station they turn out for)
 }
 function svcRelease(c){const S=c.svc;if(S&&S.stn){const sl=stnState(S.stn).slots[S.slot];if(sl.car===c)sl.car=null;}c.alive=false;c.g.visible=false;c.svc=null;c.respawnT=1e9;}
 // the stations within reach of the players keep their bays filled (as far as the pool goes); far ones are put away
@@ -15113,8 +15133,8 @@ function updateStations(dt){
 }
 // the station of a kind (with a vehicle at home) nearest to (x,z), and which bay
 function pickStation(kind,x,z){
-  let best=null;const cx=Math.floor(x/CELL),cz=Math.floor(z/CELL),R=7;
-  for(let i=cx-R;i<=cx+R;i++)for(let j=cz-R;j<=cz+R;j++){const D=stationDef(i,j);if(!D||D.kind!==kind||stnDown(D))continue;
+  let best=null;const cx=Math.floor(x/CELL),cz=Math.floor(z/CELL),news=kind==='news',R=news?NEWS_R:7;   // (TV stations are rare, so their vans come further)
+  for(let i=cx-R;i<=cx+R;i++)for(let j=cz-R;j<=cz+R;j++){if(news&&(superOf(i,j)||plotType(i,j)!=='news'))continue;const D=stationDef(i,j);if(!D||D.kind!==kind||stnDown(D))continue;
     const T=stnState(D),k=T.slots.findIndex(sl=>sl.st==='home');if(k<0)continue;const d=Math.hypot(D.node.x-x,D.node.z-z);if(!best||d<best.d)best={D,k,d};}
   return best;
 }
@@ -15160,6 +15180,7 @@ function svcRounds(pts,sx,sz){
   }
   return out;
 }
+const svcGap=k=>k==='fire'||k==='news'?10:0;   // (how far back from the scene it stops)
 function svcRoute(sx,sz,tx,tz,off,ban,minD){off=off||0;minD=minD||0;
   let goal=null;const bx=Math.floor(tx/CELL),bz=Math.floor(tz/CELL);
   const hot=[];for(const F of fires)if(F.t>0.3&&Math.hypot(F.x-tx,F.z-tz)<40)hot.push(F);
@@ -15199,7 +15220,7 @@ function svcRoute(sx,sz,tx,tz,off,ban,minD){off=off||0;minD=minD||0;
 }
 function svcStart(c,kind,pick,tx,tz){
   const D=pick.D,i=pick.k,y=D.bays[i],T=stnState(D);
-  const pts=svcRoute(y.ex,y.ez,tx,tz,kind==='amb'?8:kind==='police'?-8:0,null,kind==='fire'?10:0);if(!pts||!pts.length)return false;
+  const pts=svcRoute(y.ex,y.ez,tx,tz,kind==='amb'?8:kind==='police'?-8:0,null,svcGap(kind));if(!pts||!pts.length)return false;
   if(!c||!(c.alive&&c.svc&&c.svc.stn===D&&c.svc.slot===i))svcPark(c,D,i);   // (not on show: it starts from its bay unseen)
   // out of the bay, then off along the streets
   c.svc={kind,st:'go',path:[{x:y.ex,z:y.ez,turn:true},...pts],t:0,tx,tz,home:D.node,stn:D,slot:i,stuck:0,rev:0,B:D.B};
@@ -15208,13 +15229,13 @@ function svcStart(c,kind,pick,tx,tz){
 }
 // back to the station: along the streets to its corner, out of the traffic to the bay's apron, and into the bay
 function svcHome(c){const S=c.svc,D=S.stn,y=D&&D.bays[S.slot];
-  if(!y||stnDown(D))return null;const pts=svcRoute(c.pos.x,c.pos.z,y.ex,y.ez,0)||[];return[...pts,{x:y.ex,z:y.ez,turn:true},{x:y.x,z:y.z,turn:true,last:true,bay:true,rev:S.kind==='amb'}];}
+  if(!y||stnDown(D))return null;const pts=svcRoute(c.pos.x,c.pos.z,y.ex,y.ez,0)||[];return[...pts,{x:y.ex,z:y.ez,turn:true},{x:y.x,z:y.z,turn:true,last:true,bay:true,rev:S.kind==='amb'||S.kind==='news'}];}
 function svcDone(c,lost){
   const S=c.svc;
   if(S&&S.st==='parked'&&!lost){svcRelease(c);return;}
   if(S&&S.stn){const sl=stnState(S.stn).slots[S.slot];if(sl.car===c)sl.car=null;sl.st='gone';sl.t=playTime+(lost?90:20);}
   // whoever it brought along heads off with it
-  for(const g of goblins){if(g.ff&&g.ff.car===c){g.ff=null;if(g.state==='chase'){g.state='wait';g.root.visible=false;g.t=0;}}if(g.medic&&g.medic.car===c){g.medic=null;if(g.state==='chase'){g.state='wait';g.root.visible=false;g.t=0;}}if(g.cop&&g.cop.car===c&&g.inv){g.state='wait';g.root.visible=false;g.t=0;g.cop=null;g.inv=false;}if(g.claim===c)g.claim=null;}
+  for(const g of goblins){if(g.news&&g.news.car===c){endNews(g);if(g.state==='chase'){g.state='wait';g.root.visible=false;g.t=0;}}if(g.ff&&g.ff.car===c){g.ff=null;if(g.state==='chase'){g.state='wait';g.root.visible=false;g.t=0;}}if(g.medic&&g.medic.car===c){g.medic=null;if(g.state==='chase'){g.state='wait';g.root.visible=false;g.t=0;}}if(g.cop&&g.cop.car===c&&g.inv){g.state='wait';g.root.visible=false;g.t=0;g.cop=null;g.inv=false;}if(g.claim===c)g.claim=null;}
   c.alive=false;c.g.visible=false;c.svc=null;c.respawnT=1e9;
 }
 // a fresh route from where it is now, steering clear of the junction it was stuck heading for
@@ -15223,7 +15244,7 @@ function svcReroute(c,noNode){
   S.ban=S.ban||new Set();if(!W.last&&!noNode)S.ban.add(Math.round((W.x-RC)/CELL)+','+Math.round((W.z-RC)/CELL));
   // (start from the junction behind it, so the new way doesn't lead straight back through the blockage)
   if(S.st!=='go'&&S.stn){const p=svcHome(c);if(p&&p.length){S.path=p;S.rev=0.6;}return;}
-  const go=S.st==='go',bx=c.pos.x-Math.sin(c.heading)*12,bz=c.pos.z-Math.cos(c.heading)*12,pts=svcRoute(bx,bz,go?S.tx:S.home.x,go?S.tz:S.home.z,go?(S.kind==='amb'?8:S.kind==='police'?-8:0):0,S.ban,go&&S.kind==='fire'?10:0);
+  const go=S.st==='go',bx=c.pos.x-Math.sin(c.heading)*12,bz=c.pos.z-Math.cos(c.heading)*12,pts=svcRoute(bx,bz,go?S.tx:S.home.x,go?S.tz:S.home.z,go?(S.kind==='amb'?8:S.kind==='police'?-8:0):0,S.ban,go?svcGap(S.kind):0);
   if(pts&&pts.length){if(Math.hypot(pts[0].x-c.pos.x,pts[0].z-c.pos.z)<3&&pts.length>1)pts.shift();S.path=pts;S.rev=0.6;}
 }
 // out of ideas: take on another call-out of the same kind nearby if there is one, otherwise head back to the station
@@ -15234,8 +15255,9 @@ function svcGiveUp(c){
     let nt=null;const far=(x,z)=>Math.hypot(x-S.tx,z-S.tz)>20&&!SVC.some(o=>o!==c&&o.alive&&o.svc&&o.svc.st!=='parked'&&o.svcPool===c.svcPool&&Math.hypot(o.svc.tx-x,o.svc.tz-z)<20);
     if(S.kind==='fire'){for(const F of fires)if(F.t>3&&far(F.x,F.z)){nt=[F.x,F.z];break;}}
     else if(S.kind==='amb'){for(const g of goblins)if(g.state==='dead'&&!g.claim&&g.t<9&&far(g.pos.x,g.pos.z)){nt=[g.pos.x,g.pos.z];break;}}
+    else if(S.kind==='news'){for(const k of newsCalls)if(playTime-k.sentT>45&&far(k.x,k.z)){nt=[k.x,k.z];k.sentT=playTime;S.story=k.what;break;}}
     else{for(const k of crimes)if(!k.sent&&far(k.x,k.z)){nt=[k.x,k.z];k.sent=true;break;}}
-    if(nt){const pts=svcRoute(c.pos.x,c.pos.z,nt[0],nt[1],0,null,S.kind==='fire'?10:0);if(pts&&pts.length){S.tx=nt[0];S.tz=nt[1];S.path=pts;S.tries=0;S.ban=null;S.t=0;
+    if(nt){const pts=svcRoute(c.pos.x,c.pos.z,nt[0],nt[1],0,null,svcGap(S.kind));if(pts&&pts.length){S.tx=nt[0];S.tz=nt[1];S.path=pts;S.tries=0;S.ban=null;S.t=0;
       if(S.kind==='amb')for(const g of goblins)if(g.state==='dead'&&!g.claim&&Math.hypot(g.pos.x-nt[0],g.pos.z-nt[1])<16)g.claim=c;return;}}
     S.tries=0;S.ban=null;svcLeave(c);
   } else svcDone(c);
@@ -15267,7 +15289,7 @@ function svcDrive(c,dt){
       if(hole&&dist>4){const ai=Math.round((c.pos.x-fx*10-RC)/CELL),aj=Math.round((c.pos.z-fz*10-RC)/CELL),bi=Math.round((W.x-RC)/CELL),bj=Math.round((W.z-RC)/CELL);
         const d=bi>ai?1:bi<ai?3:bj>aj?0:2;S.ban=S.ban||new Set();const ek=edgeKey(ai,aj,d);
         if(!S.ban.has(ek)){S.ban.add(ek);holeCache.set(ek,{t:playTime,bad:true});c.speed=Math.min(c.speed,2);svcReroute(c,true);return;}}}
-    if(S.st==='go'&&S.kind==='fire'){let m=1e9;for(const F of fires)if(F.t>0.3){const d=Math.hypot(F.x-c.pos.x,F.z-c.pos.z);if(d<m)m=d;}if(m<9&&Math.hypot(S.tx-c.pos.x,S.tz-c.pos.z)<26){S.path.length=0;c.speed*=0.5;return;}}
+    if(S.st==='go'&&svcGap(S.kind)){let m=1e9;for(const F of fires)if(F.t>0.3){const d=Math.hypot(F.x-c.pos.x,F.z-c.pos.z);if(d<m)m=d;}if(m<9&&Math.hypot(S.tx-c.pos.x,S.tz-c.pos.z)<26){S.path.length=0;c.speed*=0.5;return;}}
     if(W.rev){
       let df=Math.atan2(-dx,-dz)-c.heading;while(df>Math.PI)df-=Math.PI*2;while(df<-Math.PI)df+=Math.PI*2;   // the back pointing at the bay
       c.heading+=Math.max(-1.6*dt,Math.min(1.6*dt,df));c.steer=Math.max(-1,Math.min(1,-df*2));
@@ -15290,7 +15312,7 @@ function svcDrive(c,dt){
       if(S.tries%2===0)svcReroute(c);else S.rev=0.8;
       if(S.tries>8)svcGiveUp(c);}}else if(Math.abs(c.speed)>2)S.stuck=0;
     // the siren
-    if(S.st==='go'){const n=nearestPlayer(c.pos.x,c.pos.z,false);if(n&&n.d<70){svcSirenT-=dt;if(svcSirenT<=0){svcSirenT=0.5;const att=Math.max(0.08,1-n.d/70),hi=Math.floor(S.t*2)%2,f=S.kind==='amb'?(hi?960:720):S.kind==='fire'?(hi?620:520):(hi?1040:780);tone('sine',f,f*1.02,0.45,0.03*att);tone('triangle',f,f,0.45,0.02*att);}}}
+    if(S.st==='go'&&S.kind!=='news'){const n=nearestPlayer(c.pos.x,c.pos.z,false);if(n&&n.d<70){svcSirenT-=dt;if(svcSirenT<=0){svcSirenT=0.5;const att=Math.max(0.08,1-n.d/70),hi=Math.floor(S.t*2)%2,f=S.kind==='amb'?(hi?960:720):S.kind==='fire'?(hi?620:520):(hi?1040:780);tone('sine',f,f*1.02,0.45,0.03*att);tone('triangle',f,f,0.45,0.02*att);}}}
     return;
   }
   // at the scene
@@ -15313,6 +15335,12 @@ function svcDrive(c,dt){
   } else if(S.kind==='police'){
     const busy=goblins.some(g=>g.cop&&g.cop.car===c&&g.state==='chase');
     if((!busy&&S.t>3)||S.t>70)svcLeave(c);
+  } else if(S.kind==='news'){
+    // the crew gets out if there's anyone about to see it, and shoots until the piece is done (or they've been chased off)
+    const crew=goblins.filter(g=>g.news&&g.news.car===c&&g.state==='chase');
+    if(!crew.length&&!S.fled&&S.t<NEWS_TAKE-4)svcArrive(c);
+    if(S.t>NEWS_TAKE)S.wrap=true;
+    if(S.fled||S.t>=NEWS_TAKE){if(!crew.length)svcLeave(c);else if(S.t>NEWS_TAKE+20){for(const g of crew){endNews(g);g.state='wait';g.root.visible=false;g.t=0;}svcLeave(c);}}
   }
 }
 function svcArrive(c){
@@ -15345,8 +15373,35 @@ function svcArrive(c){
       const L=dressGoblin(g);L.tunic=0x1c2a5a;L.pants=0x1c2a5a;L.show=L.show.filter(k=>!['cap','top','beanie','hardhat','bandana','mohawk','scarf','tie','backpack','apron','eyepatch'].includes(k));L.hatType='cap';L.hat=0x1c2a5a;L.show.push('cap');L.hatShown=L.hat;applyLook(g,L,ES);
       g.id=makeIdentity(g,L);g.id.occ='Police officer, Goblin '+(S.B?brandName(S.B):'Police Dept.');
       g.cop={car:c,x:S.tx,z:S.tz,t:0};g.inv=true;}
+  } else if(S.kind==='news'){
+    // a reporter with a microphone and an operator with a camera, the scene behind the reporter (there's no one to film if nobody's near)
+    const n0=nearestPlayer(c.pos.x,c.pos.z,false);if(!n0||n0.d>70)return;
+    const free=goblins.filter(o=>o.staff&&o.state==='wait').slice(0,2);if(!free.length)return;
+    let tx=S.tx-c.pos.x,tz=S.tz-c.pos.z;const al=Math.hypot(tx,tz)||1;tx/=al;tz/=al;
+    const u=Math.max(1,Math.min(5,al-5)),R={x:c.pos.x+tx*u+side[0]*1.3,z:c.pos.z+tz*u+side[1]*1.3},C={x:R.x-tx*3.4,z:R.z-tz*3.4};
+    free.forEach((g,n)=>{
+      g.pos.set(c.pos.x+side[0]*(n?-1:1),c.pos.y,c.pos.z+side[1]*(n?-1:1));g.hp=g.hpMax=3;g.state='chase';g.t=0;g.sink=0;g.hurt=0;g.vy=0;g.kv.set(0,0,0);g.stun=0;g.wt=null;g.idle=0;g.fleeing=false;g.detour=0;g.vendor=null;g.indoor=false;g.employer=null;g.medic=null;g.ff=null;
+      g.heading=0;g.root.visible=true;g.root.rotation.set(0,0,0);
+      const L=dressGoblin(g);L.show=L.show.filter(k=>!['cap','top','beanie','hardhat','bandana','mohawk','scarf','tie','backpack','pouch','apron'].includes(k));
+      if(n){L.tunic=0x3b3f46;L.pants=0x23262c;L.hatType='cap';L.hat=0x23262c;L.show.push('cap');L.hatShown=L.hat;}
+      else{L.tunic=0x1f3a78;L.pants=0x1f3a78;L.hatType='none';L.hatShown=L.skin;L.show.push('tie');}
+      applyLook(g,L,ES);
+      g.id=makeIdentity(g,L);g.id.occ=(n?'Camera operator':'Reporter')+' at Goblin '+(S.B?brandName(S.B):'News');
+      const K=newsKit(g);K.mic.visible=!n;K.cam.visible=!!n;
+      g.news={car:c,cam:!!n,x:n?C.x:R.x,z:n?C.z:R.z,ph:'go',walkT:0,mate:free[n?0:1]||null};});
+    if(!S.said){S.said=true;flashLabel((S.B?S.B.n:'The news')+' is covering the '+(S.story||'story'),n0.p);}
   }
 }
+// the things they carry: made the first time a goblin's picked for the job, kept out of sight the rest of the time
+function newsKit(g){
+  if(g.kit)return g.kit;
+  const b=(w,h,d,col,x,y,z,p)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),smat(col));o.position.set(x,y,z);p.add(o);return o;};
+  const mic=new THREE.Group(),cam=new THREE.Group();mic.visible=cam.visible=false;g.arm.add(mic);g.root.add(cam);
+  b(0.07,0.07,0.26,0x22242a,0,-0.42,0.12,mic);b(0.13,0.13,0.13,0x8a8d92,0,-0.42,0.3,mic);
+  cam.position.set(0.3,1.1,0.08);b(0.22,0.26,0.5,0x23262c,0,0,0,cam);b(0.16,0.16,0.14,0x54585f,0,0,0.31,cam);b(0.08,0.06,0.04,0xe53935,0,0.15,0.2,cam);   // (on the shoulder, with its red light on)
+  return g.kit={mic,cam};
+}
+function endNews(g,hit){const K=g.news;if(!K)return;g.news=null;if(g.kit)g.kit.mic.visible=g.kit.cam.visible=false;if(hit&&K.car.svc)K.car.svc.fled=true;}
 // walk a crew member toward (tx,tz); true while moving
 function crewWalk(g,tx,tz,dt,sp){
   const want=Math.atan2(tx-g.pos.x,tz-g.pos.z);let diff=want-g.heading;while(diff>Math.PI)diff-=Math.PI*2;while(diff<-Math.PI)diff+=Math.PI*2;
@@ -15375,6 +15430,26 @@ function fireAI(g,dt){
   }
   if(Math.hypot(c.pos.x-g.pos.x,c.pos.z-g.pos.z)<2.8||!c.alive){g.state='wait';g.root.visible=false;g.ff=null;g.t=0;return false;}
   return crewWalk(g,c.pos.x,c.pos.z,dt,2.6);
+}
+// a news crew: to their marks by the van, the reporter talking to the camera with the scene behind them, then back aboard.
+// (a hippo that comes close gets filmed instead)
+function newsAI(g,dt){
+  const K=g.news,c=K.car,S=c.alive&&c.svc;
+  if(!S||S.st!=='work'||S.wrap)K.ph='back';
+  if(K.ph==='back'){
+    K.walkT+=dt;if(!c.alive||Math.hypot(c.pos.x-g.pos.x,c.pos.z-g.pos.z)<2.8||K.walkT>30){endNews(g);g.state='wait';g.root.visible=false;g.t=0;return false;}
+    return crewWalk(g,c.pos.x,c.pos.z,dt,2.8);
+  }
+  if(K.ph==='go'){K.walkT+=dt;if(Math.hypot(K.x-g.pos.x,K.z-g.pos.z)>0.6&&K.walkT<9)return crewWalk(g,K.x,K.z,dt,2.6);K.ph='shoot';K.walkT=0;}
+  const M=K.mate&&K.mate.state==='chase'&&K.mate.news?K.mate:null;
+  if(K.cam){
+    const n=nearestPlayer(g.pos.x,g.pos.z,false),look=n&&n.d<30?n.p.pos:M?M.pos:{x:S.tx,z:S.tz};g.heading=Math.atan2(look.x-g.pos.x,look.z-g.pos.z);
+    g.arm.rotation.x=-2.5;g.armL.rotation.x=-1.2;
+  } else{
+    const look=M?M.pos:c.pos;g.heading=Math.atan2(look.x-g.pos.x,look.z-g.pos.z);
+    g.arm.rotation.x=-1.45+Math.sin(g.t*2.3)*0.05;g.armL.rotation.x=-0.5+Math.sin(g.t*3.1)*0.45;   // (the microphone up, the other hand making the point)
+  }
+  return false;
 }
 // a paramedic: walk to each body, work on it for a few seconds, have it carried off, then back to the ambulance
 function medicAI(g,dt){
@@ -15414,6 +15489,10 @@ function updateServices(dt){
   // crimes: police come to look into killings and smashed buildings and cars
   for(let i=crimes.length-1;i>=0;i--)if(playTime-crimes[i].t>40)crimes.splice(i,1);
   if(!DT.peace)for(const k of crimes){if(k.sent||!near(k.x,k.z,160)||busy('police',k.x,k.z,30))continue;const c=send('police',k.x,k.z);if(c){k.sent=true;break;}}
+  // the news: fires, wrecks and killings, one van to a scene. (A scene still going after a while gets another visit.)
+  for(const F of fires)if(F.t>=3&&!F.news){F.news=true;reportNews(F.x,F.z,'fire');}
+  for(let i=newsCalls.length-1;i>=0;i--)if(playTime-newsCalls[i].t>40)newsCalls.splice(i,1);
+  for(const k of newsCalls){if(playTime-k.sentT<45||playTime<k.next||!near(k.x,k.z,160)||busy('news',k.x,k.z,30))continue;k.next=playTime+5;const c=send('news',k.x,k.z);if(c){c.svc.story=k.what;k.sentT=playTime;break;}}
 }
 let trafficRefreshT=0;
 function updateTraffic(dt){
@@ -15463,7 +15542,7 @@ function updateCars(dt){
       if(c.progT>15){if(Math.hypot(c.pos.x-c.progP.x,c.pos.z-c.progP.z)<3)carReroute(c);c.progT=0;c.progP.x=c.pos.x;c.progP.z=c.pos.z;}}
     if(!c.parked&&!c.hunter&&!c.police&&!c.svcPool){c.stuckLong=Math.abs(c.speed)<0.3?(c.stuckLong||0)+dt:0;
       if(!gone&&c.stuckLong>25&&c.visT<=0){c.visT=0.5;if(!visibleToAny(c.pos.x,c.pos.y+1,c.pos.z)){gone=true;c.stuckLong=0;}}}
-    if(c.svcPool)gone=!any||any.d>320;
+    if(c.svcPool)gone=!any||any.d>(c.svcPool==='news'?620:320);   // (a news van comes from further off: see NEWS_R)
     if(gone&&c.pullPool){c.hazard=false;c.hazG.visible=false;c.pullLit=false;}
     if(gone){if(c.svcPool){svcDone(c);continue;}c.alive=false;c.g.visible=false;c.respawnT=c.police?6:0.5;c.hunter=false;c.spot=null;continue;}
     c.hurt-=dt;c.ramCD-=dt;c.honkT-=dt;
@@ -15761,7 +15840,8 @@ function updateCars(dt){
     const dx=b.pos.x-a.pos.x,dz=b.pos.z-a.pos.z,d=Math.hypot(dx,dz);
     if(d<a.hz+b.hz+0.5&&d>0.001&&Math.abs(b.pos.y-a.pos.y)<1.6&&boxesTouch(a.pos.x,a.pos.z,a.heading,a.hx+0.15,a.hz+0.15,b.pos.x,b.pos.z,b.heading,b.hx+0.15,b.hz+0.15)){const push=0.25,ux=dx/d,uz=dz/d;nudgeFlat(a,-ux*push,-uz*push);nudgeFlat(b,ux*push,uz*push);
       const rel=Math.abs(a.speed-b.speed*(Math.cos(a.heading-b.heading)));
-      if(rel>5){damageCar(a,4,undefined,'acc');damageCar(b,4,undefined,'acc');clang();thud(0.4);addShake(0.2,a.pos.x,a.pos.z,15);}
+      // (a news van's on the road the longest, nobody gives way to it, and a bump's no story: it takes these lightly)
+      if(rel>5){if(a.svcPool!=='news'&&b.svcPool!=='news')reportNews(a.pos.x,a.pos.z,'car crash');damageCar(a,a.svcPool==='news'?1:4,undefined,'acc');damageCar(b,b.svcPool==='news'?1:4,undefined,'acc');clang();thud(0.4);addShake(0.2,a.pos.x,a.pos.z,15);}
       a.speed*=0.5;b.speed*=0.5;}}}
 }
 function updateSiren(dt){

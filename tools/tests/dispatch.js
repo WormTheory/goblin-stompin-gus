@@ -9,7 +9,7 @@ eval(src);const T=window.__t;let now=1000;
 const [A]=T.players;for(const f of els.play.L.click)f();pads.length=0;A.hp=1e6;
 const step=k=>{for(let i=0;i<k;i++){A.hp=1e6;A.vy=0;for(const g of T.goblins)if(g.state==='chase'){g.state='wait';g.t=-1e9;g.root.visible=false;}now+=16.7;T.frame(now);}};
 const findAll=(kind,want)=>{const out=[];for(let r=0;r<130&&out.length<want;r++)for(let i=-r;i<=r&&out.length<want;i++)for(const [x,z] of [[i,-r],[i,r],[-r,i],[r,i]]){const D=T.stationDef(x,z);if(D&&D.kind===kind&&!out.includes(D))out.push(D);}return out;};
-for(const kind of ['fire','police','amb'])for(const D of findAll(kind,4)){
+for(const kind of ['fire','police','amb','news'])for(const D of findAll(kind,4)){
   const y=D.bays[0];
   // the way out: every block from the bay to where it joins the aisle or the street, and the bay itself, at driving height
   let blocked=0;for(let t=0;t<=1;t+=.1)for(const up of [1,2])if(T.get(Math.floor(y.x+(y.ex-y.x)*t),44+up,Math.floor(y.z+(y.ez-y.z)*t)))blocked++;
