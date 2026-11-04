@@ -117,6 +117,7 @@ It renders in software, so the picture is right but the frame rate says nothing 
 - **Play as a goblin (debug):** `setGob` swaps the player's body sizes, and `updatePlayer` runs the normal player code (`movePlayer`) with `GOB_ABIL` and goblin speeds in place of `ABIL` for that step. `gobCamera` is the first-person view, `gobKit` the goblin others see and your own arm and club, `calmNow` what stops goblins and cars going after you. Suite `gobmode` checks it against a hippo; `tools/ui/gobshot.js` takes real screenshots.
 - **Debug menu:** the quick menu's rows and sections are in `DBG_SECS` (column, title, rows). Its Rendering switches only change the picture: props by hiding `PROP_L`/`PROP_G`, fixtures by hiding `FIX_BAR`/`FIX_GLOW`/`FIX_COL` and the sign, signal and billboard groups, and caves, sewers and subways by drawing each chunk from `gfxArr`, a copy with what `gfxRec` says those features wrote filled back in with earth. They aren't saved. Suite `gfxhide` checks them and the menu's navigation.
 - **Dev tab:** `DEV_ABIL`, `DEV_SCRIPT`, sandbox `SBX`, Structures previewer (`ST`, `stBuildList` — built lazily because `TEST_GROUPS` is defined later).
+- **Goblin crowds:** street goblins (hostiles, civilians, staff) are never in the scene. Their part objects from `goblinModel` are still moved, hidden and recoloured as normal, and each frame `gobDraw` copies every shown part's matrix, colour, emissive and snow into one `InstancedMesh` per box size and material kind (`GOB_BATCH`). Something attached to a goblin is drawn the same way, as a plain Lambert box. Crowding checks use a grid (`GOB_GRID`, `gobCell`), not every goblin against every other. Box geometries are shared (`GOB_GEO`), so never dispose one.
 
 ## What each test suite covers (tools/tests)
 - **Core suites:**
@@ -149,3 +150,4 @@ It renders in software, so the picture is right but the frame rate says nothing 
   - wv / lodt: wind farm LOD
   - stt: structures list
   - obt: obituary preview
+  - crowdperf: `node crowdperf.js 50,400,800` times `updateGoblins` and a whole frame with that many goblins bunched up, and checks they still push apart (draw calls need the real renderer: see Real rendering)

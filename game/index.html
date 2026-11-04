@@ -571,8 +571,8 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
     </div>
     <div class="custom">
       <h2>CROWD DENSITY</h2>
-      <div class="crow"><input type="range" id="crowdDist" class="vrange" min="0" max="10" step="0.25" value="1" aria-label="Goblin and civilian density"><span class="vval" id="crowdVal">100%</span></div>
-      <p class="vnote">How many hostile goblins and civilians fill the streets (and whether police turn out). 0% empties the sidewalks; far above 300% gets heavy.</p>
+      <div class="crow"><input type="range" id="crowdDist" class="vrange" min="0" max="30" step="0.25" value="1" aria-label="Goblin and civilian density"><span class="vval" id="crowdVal">100%</span></div>
+      <p class="vnote">How many hostile goblins and civilians fill the streets (and whether police turn out). 0% empties the sidewalks; 3000% is a mob of about 400 hostiles, which slower computers may struggle with.</p>
     </div>
     <div class="custom">
       <h2>TRAFFIC DENSITY</h2>
@@ -611,6 +611,7 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
         <button type="button" class="tog" role="checkbox" data-k="paused"><span class="box" aria-hidden="true"></span><span class="tl">Stop time<small>Everything stops; the free cam still flies. Keyboard: P, and . steps one frame</small></span></button>
         <button type="button" class="tog" role="checkbox" data-k="freecam"><span class="box" aria-hidden="true"></span><span class="tl">Free cam<small>Fly Gus's camera anywhere, apart from him. Keyboard: V</small></span></button>
       </div>
+    </div>
     <div class="custom">
       <h2>DEBUG: PLAYER</h2>
       <div class="crow"><input type="range" id="playerSpeed" class="vrange" min="0" max="11" step="1" value="0" aria-label="Player speed"><span class="vval" id="playerSpeedVal">1×</span></div>
@@ -811,7 +812,7 @@ const TRAFFIC_KEY='goblin-stompin-gus-traffic';let traffic=1;
 try{const v=localStorage.getItem(TRAFFIC_KEY);if(v!==null&&+v>=0&&+v<=10)traffic=+v;}catch(e){}
 // crowd density: scales hostile goblins and civilians (0 = an empty city)
 const CROWD_KEY='goblin-stompin-gus-crowd';let crowd=1;
-const CROWD_MAX=10;
+const CROWD_MAX=30;   // (3000%: up to about 420 hostile goblins, which the batched drawing and crowding grid can take)
 try{const v=localStorage.getItem(CROWD_KEY);if(v!==null&&+v>=0&&+v<=CROWD_MAX)crowd=+v;}catch(e){}
 // day/night speed: how fast the clock runs (0 = frozen at the current time of day)
 const DAYSPD_KEY='goblin-stompin-gus-dayspeed',DAY_SPEEDS=[0,0.25,0.5,1,2,4,8,16];let daySpd=3;
@@ -10259,12 +10260,58 @@ function movePlayer(p,dt){
 const goblins=[];
 const GC={skin:0x6f9a3a,dark:0x4f7426,tunic:0x5a3d22,eye:0xffd23a,club:0x7a5530,belt:0x2b1d10,mouth:0x2a1a10};
 // every goblin gets its own role-based materials (recoloured per spawn) and a full wardrobe of hidden accessories
+// ---- street goblins are drawn in batches ----
+// (each one is about 20 boxes, and drawn one by one that's 20 draw calls a goblin: a few hundred and the frame rate
+// falls apart. So their parts stay ordinary objects, for the rest of the game to move, hide and recolour as before, but
+// they're never put in the scene. Every frame gobDraw copies where each shown part is, its colour, its glow and its snow
+// into one instanced mesh per box size and material kind, about 40 draw calls however many goblins there are.)
+const GOB_BATCH=new Map(),GOB_KMAT=[];let gobGeoN=0;
+function gobKindMat(k){
+  if(GOB_KMAT[k])return GOB_KMAT[k];
+  const m=new THREE.MeshLambertMaterial(k&1?{polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-3}:{});
+  m.onBeforeCompile=sh=>{sh.uniforms.uLightC=WORLD_LIGHT;
+    sh.vertexShader='attribute vec3 iEmis;attribute float iSnow;varying vec3 vEmis;varying float vSnow;varying float vUp;varying vec3 vWp;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n vEmis=iEmis;vSnow=iSnow;vUp=normalize((modelMatrix*instanceMatrix*vec4(objectNormal,0.0)).xyz).y;vWp=position;');
+    let f='uniform vec3 uLightC;varying vec3 vEmis;varying float vSnow;varying float vUp;varying vec3 vWp;\n'+sh.fragmentShader.replace('vec3 totalEmissiveRadiance = emissive;','vec3 totalEmissiveRadiance = emissive + vEmis;');
+    // (the same snow as snowCar, with each goblin's amount coming in per instance)
+    if(k&2)f=f.replace('#include <dithering_fragment>','float sn=fract(sin(dot(mod(floor(vWp.xz*5.0+0.001),509.0),vec2(12.9898,78.233)))*43758.5453);float sc=smoothstep(0.55,0.85,vUp)*step(sn,vSnow*1.15)*step(0.002,vSnow);\n float sg=fract(sin(dot(mod(floor(vWp.xz*16.0+vWp.y*7.0+0.001),997.0),vec2(39.346,11.135)))*43758.5453);float sv=0.84+0.11*sg+0.03*step(0.93,sg);\n gl_FragColor.rgb=mix(gl_FragColor.rgb,vec3(sv,sv+0.012,sv+0.03)*max(uLightC,vec3(0.22)),sc);\n#include <dithering_fragment>');
+    sh.fragmentShader=f;};
+  m.customProgramCacheKey=()=>'gobinst'+k;
+  return GOB_KMAT[k]=m;
+}
+// room for cap goblin parts in this batch (keeping what's been written this frame)
+function gobGrow(B,cap){
+  const g=new THREE.BufferGeometry(),n=B.n,m=new THREE.InstancedMesh(g,gobKindMat(B.k),cap);
+  const col=new THREE.InstancedBufferAttribute(new Float32Array(cap*3),3),em=new THREE.InstancedBufferAttribute(new Float32Array(cap*3),3),sn=new THREE.InstancedBufferAttribute(new Float32Array(cap),1);
+  if(B.m){m.instanceMatrix.array.set(B.m.instanceMatrix.array.subarray(0,n*16));col.array.set(B.col.array.subarray(0,n*3));em.array.set(B.em.array.subarray(0,n*3));sn.array.set(B.sn.array.subarray(0,n));
+    scene.remove(B.m);B.m.geometry.dispose();}
+  g.setIndex(B.geo.index||null);for(const a in B.geo.attributes)g.setAttribute(a,B.geo.attributes[a]);   // (the box's own buffers, plus this batch's per-goblin ones)
+  m.instanceColor=col;g.setAttribute('iEmis',em);g.setAttribute('iSnow',sn);
+  m.frustumCulled=false;m.count=0;scene.add(m);   // (one batch spans the whole street, so it's never culled as a whole)
+  Object.assign(B,{m,col,em,sn,cap});
+}
+function gobBatch(geo,k){const key=(geo.gobId||(geo.gobId=++gobGeoN))*4+k;let B=GOB_BATCH.get(key);if(!B){B={geo,k,n:0,cap:0,m:null};gobGrow(B,64);GOB_BATCH.set(key,B);}return B;}
+function gobPut(o,snow){
+  for(const c of o.children){if(!c.visible)continue;
+    if(c.isMesh){const mat=c.material,B=gobBatch(c.geometry,mat.gobK||0);if(B.n>=B.cap)gobGrow(B,B.cap*2);const i=B.n++;
+      B.m.instanceMatrix.array.set(c.matrixWorld.elements,i*16);
+      const C=B.col.array,E=B.em.array,q=mat.color,e=mat.emissive;C[i*3]=q.r;C[i*3+1]=q.g;C[i*3+2]=q.b;
+      if(e){E[i*3]=e.r;E[i*3+1]=e.g;E[i*3+2]=e.b;}else E[i*3]=E[i*3+1]=E[i*3+2]=0;B.sn.array[i]=snow;}
+    if(c.children.length)gobPut(c,snow);}
+}
+function gobDraw(){
+  for(const B of GOB_BATCH.values())B.n=0;
+  for(const g of goblins){const r=g.root;if(!r.visible)continue;r.updateMatrixWorld(true);gobPut(r,g.snowU?g.snowU.value:0);}   // (out of the scene, so nothing else updates their matrices)
+  for(const B of GOB_BATCH.values()){if(!B.n&&!B.m.count)continue;B.m.count=B.n;   // (and only the part of each buffer in use goes up to the graphics card)
+    for(const [a,w] of [[B.m.instanceMatrix,16],[B.col,3],[B.em,3],[B.sn,1]]){a.needsUpdate=true;if(a.updateRange){a.updateRange.offset=0;a.updateRange.count=B.n*w;}}}
+}
+const GOB_GEO=new Map();   // (box shapes shared by the street goblins: about 30 sizes, instead of 40-odd new ones per goblin)
 function goblinModel(parent,o={}){
   const out={legs:[],acc:{},snowU:{value:0}},roles={},matList=[];
   // things worn over the head/face are drawn a hair in front of whatever they sit flush against, so they never flicker
   const OVER={hat:1,hatdark:1,hair:1,patch:1,acc2:1,gold:1};
-  const role=(r,c)=>{if(!roles[r]){roles[r]=new THREE.MeshLambertMaterial(OVER[r]?{color:c,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-3}:{color:c});if(r==='skin'||r==='hat'||r==='hair'||r==='hatdark')snowCar(roles[r],out);matList.push(roles[r]);}return roles[r];};   // (heads and hats catch the snow)
-  const box=(w,h,d,r,c,x,y,z,p)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),role(r,c));m.position.set(x,y,z);p.add(m);return m;};
+  const role=(r,c)=>{if(!roles[r]){roles[r]=new THREE.MeshLambertMaterial(OVER[r]?{color:c,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-3}:{color:c});const sn=r==='skin'||r==='hat'||r==='hair'||r==='hatdark';if(sn)snowCar(roles[r],out);roles[r].gobK=(OVER[r]?1:0)|(sn?2:0);matList.push(roles[r]);}return roles[r];};   // (heads and hats catch the snow)
+  const geo=(w,h,d)=>{if(!o.shareGeo)return new THREE.BoxGeometry(w,h,d);const k=w+','+h+','+d;return GOB_GEO.get(k)||GOB_GEO.set(k,new THREE.BoxGeometry(w,h,d)).get(k);};
+  const box=(w,h,d,r,c,x,y,z,p)=>{const m=new THREE.Mesh(geo(w,h,d),role(r,c));m.position.set(x,y,z);p.add(m);return m;};
   const acc=(name,list)=>{for(const m of list)m.visible=false;out.acc[name]=list;};
   for(const s of[-1,1]){const hip=new THREE.Group();hip.position.set(s*0.13,0.45,0);parent.add(hip);box(0.17,0.45,0.17,'pants',GC.dark,0,-0.225,0,hip);out.legs.push(hip);}
   box(0.5,0.5,0.3,'tunic',o.tunic||GC.tunic,0,0.7,0,parent);box(0.52,0.07,0.32,'belt',GC.belt,0,0.5,0,parent);
@@ -11619,9 +11666,9 @@ function renderControls(){
 renderControls();
 function addHostile(){
   const root=new THREE.Group();root.rotation.order='YXZ';
-  const m=goblinModel(root);
+  const m=goblinModel(root,{shareGeo:true});
   goblins.push({snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,pos:new V3(),kv:new V3(),stun:0,heading:0,vy:0,hp:4,state:'wait',t:Math.random()*6,phase:0,atk:1,hurt:0,sink:0,detour:0,detourH:0,stuck:0,civ:false});
-  root.visible=false;root.scale.setScalar(ES);scene.add(root);
+  root.visible=false;root.scale.setScalar(ES);   // (not added to the scene: gobDraw draws it)
 }
 for(let i=0;i<16;i++)addHostile();
 // civilians: shoppers, commuters and stall vendors who never fight back
@@ -11631,9 +11678,9 @@ function addCiv(){
   const i=civMade++;
   const root=new THREE.Group();root.rotation.order='YXZ';
   const look=CIV_LOOKS[i%CIV_LOOKS.length];
-  const m=goblinModel(root,{club:false,tunic:look.tunic,hat:look.hat,hatc:look.hatc,skin:[0x7aa848,0x5f8a34,GC.skin][i%3]});
+  const m=goblinModel(root,{club:false,tunic:look.tunic,hat:look.hat,hatc:look.hatc,skin:[0x7aa848,0x5f8a34,GC.skin][i%3],shareGeo:true});
   goblins.push({snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,pos:new V3(),kv:new V3(),stun:0,heading:0,vy:0,hp:3,state:'wait',t:Math.random()*3,phase:0,atk:1,hurt:0,sink:0,detour:0,detourH:0,stuck:0,civ:true,vendor:null,wt:null,wtT:0,idle:0,screamCD:0,fleeing:false});
-  root.visible=false;root.scale.setScalar(ES);scene.add(root);
+  root.visible=false;root.scale.setScalar(ES);   // (not added to the scene: gobDraw draws it)
 }
 for(let i=0;i<14;i++)addCiv();
 // staff: a separate few townsfolk who work in the shops, restaurants, hospitals and stations near you, in uniform
@@ -12062,15 +12109,19 @@ function gobMoveStep(g,dt){
     else if(g.pos.y>=A.y1-.1){const L=Math.hypot(A.tx-g.pos.x,A.tz-g.pos.z);g.act={k:'jump',t:0,T:0.3,x0:g.pos.x,y0:g.pos.y,z0:g.pos.z,x1:A.tx,y1:A.y1,z1:A.tz,h:0.25+L*.05};}
   }else{g.pos.y-=dt*3.2;if(g.pos.y<=A.y1){g.pos.y=A.y1;g.act=null;}}
 }
+const GOB_GRID=new Map(),gobCell=(x,z)=>(x+1048576)*2097152+(z+1048576);   // (a whole-number key for a block column, unique for a million blocks either way)
 function updateGoblins(dt){
   navUpdate(dt);
   const nAct=players.filter(p=>p.active).length;
   if(playing){playTime+=dt;posSaveT=(posSaveT||0)+dt;if(posSaveT>2){posSaveT=0;savePos();}}
   const sb=streetBusy(),active=Math.round(Math.min(14,(nAct>1?8:5)+Math.floor(playTime/75))*crowd*(0.75+0.25*sb)),civTarget=Math.round((nAct>1?12:9)*crowd*(0.4+0.6*sb));let gone=false;
   let hostileAlive=0,civAlive=0;for(const g of goblins)if(g.state==='chase'){if(g.staff)continue;if(g.civ)civAlive++;else hostileAlive++;}
+  // who's standing where, a block to a cell, so each goblin only checks the few around it for crowding (checking every
+  // goblin against every other one gets slow fast: 600 of them took 30+ ms a frame)
+  GOB_GRID.clear();for(const g of goblins)if(g.state==='chase'){const k=gobCell(Math.floor(g.pos.x),Math.floor(g.pos.z)),l=GOB_GRID.get(k);if(l)l.push(g);else GOB_GRID.set(k,[g]);}
   goblins.forEach(g=>{
     g.t+=dt;g.hurt-=dt;
-    for(const m of g.mats)m.emissive.setHex(g.hurt>0?0x440000:0x000000);
+    {const glow=g.hurt>0;if(glow!==g.glow){g.glow=glow;for(const m of g.mats)m.emissive.setHex(glow?0x440000:0x000000);}}   // (only when it changes: ten materials a goblin, every frame, adds up in a crowd)
     if(g.state!=='chase')g.act=null;
     if(g.state==='wait'){
       if(g.staff){if(g.t>1.5&&playing&&crowd>0&&!spawnStaff(g))g.t=0;}
@@ -12178,7 +12229,9 @@ function updateGoblins(dt){
     }
     for(const p of players){if(!p.active||p.state==='dead'||Math.abs(p.pos.y-g.pos.y)>1.2||g.vy!==0)continue;const hx=g.pos.x-p.pos.x,hz=g.pos.z-p.pos.z,hd=Math.hypot(hx,hz),gap=DT.gob?0.7:1.6;if(hd<gap&&hd>0.001)nudge(g,hx/hd*(gap-hd),hz/hd*(gap-hd));}
     for(const c of cars){if(!c.alive)continue;const cx=g.pos.x-c.pos.x,cz=g.pos.z-c.pos.z,cd=Math.hypot(cx,cz);if(cd<2&&cd>0.001)nudge(g,cx/cd*(2-cd),cz/cd*(2-cd));}
-    for(const o of goblins){if(o===g||o.state!=='chase')continue;const ox=g.pos.x-o.pos.x,oz=g.pos.z-o.pos.z,od=Math.hypot(ox,oz);if(od<0.7&&od>0.001)nudge(g,ox/od*(0.7-od)*0.5,oz/od*(0.7-od)*0.5);}
+    {const cx=Math.floor(g.pos.x),cz=Math.floor(g.pos.z);   // (its own cell and the eight round it: anyone within 0.7 is in there, even after this frame's moves)
+     for(let ix=cx-1;ix<=cx+1;ix++)for(let iz=cz-1;iz<=cz+1;iz++){const l=GOB_GRID.get(gobCell(ix,iz));if(!l)continue;
+       for(const o of l){if(o===g||o.state!=='chase')continue;const ox=g.pos.x-o.pos.x,oz=g.pos.z-o.pos.z;if(ox>0.7||ox<-0.7||oz>0.7||oz<-0.7)continue;const od=Math.hypot(ox,oz);if(od<0.7&&od>0.001)nudge(g,ox/od*(0.7-od)*0.5,oz/od*(0.7-od)*0.5);}}}
     // in water too deep to stand in: up to the top of it and paddling, head out (or down after a hippo that's sunk close by)
     {const xi=Math.floor(g.pos.x),zi=Math.floor(g.pos.z),wy=Math.floor(g.pos.y+0.6);g.wet=get(xi,wy,zi)===WATER&&get(xi,wy-1,zi)===WATER;
      if(g.wet){let top=wy;while(top<H-1&&get(xi,top+1,zi)===WATER)top++;let wantY=g.civ?top:top-0.4;if(tgt&&!g.civ&&d<8&&tgt.p.wet&&tgt.p.pos.y<top)wantY=Math.max(tgt.p.pos.y,top-12);
@@ -17528,6 +17581,7 @@ function frame(now){
   readout.innerHTML=`Kills <b>${kills}</b>  ·  Score <b>${score}</b>${hn?`  ·  <i>${hn} CAR${hn>1?'S':''} HUNTING YOU</i>`:''}${pol?'  ·  <i>POLICE PURSUIT</i>':''}`;
   const w=innerWidth,h=innerHeight;
   let views;
+  safe('gobDraw',gobDraw);
   if(split==='none'){renderer.setScissorTest(false);renderView(P1,0,0,w,h);views=[[P1,0,0,w,h]];}
   else{
     renderer.setScissorTest(true);
