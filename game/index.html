@@ -9257,7 +9257,10 @@ function updatePlayer(p,dt){
     }
     let ix=inp.x,iz=inp.z;p.lastSp=0;
     if(p.dodge)ix=iz=0;   // (mid-dodge: the dodge moves him)
-    if(p.perch){if(p.grounded&&stickHeld(p))ix=iz=0;else p.perch=false;}   // (just hauled up on to a pillar: he stays put until the stick moves)
+    if(p.perch){   // (just hauled up on to a pillar or a narrow ledge, see the haul up: this lasts until the stick moves)
+      if(p.grounded&&stickHeld(p)){ix=iz=0;
+        if(p.perch!==true&&inp.climb){const df=wrapA(Math.atan2(p.perch[0],p.perch[1])-p.heading);p.heading+=Math.max(-6*dt,Math.min(6*dt,df));if(Math.abs(df)<0.6&&startClimb(p,1.9))p.perch=false;}}
+      else p.perch=false;}
     if(comboLock){
       // rooted mid-combo: the stick (relative to the camera) only turns him, to aim the next hit
       if(!p.lockT&&(ix||iz)){const s=Math.sin(p.cam.yaw),c=Math.cos(p.cam.yaw),wx=ix*c+iz*s,wz=-ix*s+iz*c;
@@ -9270,7 +9273,7 @@ function updatePlayer(p,dt){
       // locked on: keep facing the target and move straight along the stick (strafing); otherwise turn toward the stick and walk forward
       const LT=p.lockT;
       let diff=0;
-      if(!LT){diff=Math.atan2(wx,wz)-p.heading;while(diff>Math.PI)diff-=Math.PI*2;while(diff<-Math.PI)diff+=Math.PI*2;p.heading+=Math.max(-4.5*dt,Math.min(4.5*dt,diff));bodyFree(p);}
+      if(!LT){diff=Math.atan2(wx,wz)-p.heading;while(diff>Math.PI)diff-=Math.PI*2;while(diff<-Math.PI)diff+=Math.PI*2;p.heading+=Math.max(-4.5*dt,Math.min(4.5*dt,diff));if(!(inp.climb&&p.grounded))bodyFree(p);}   // (climb held: turning to face a pillar on a narrow ledge mustn't shove him out from in front of it)
       const charge=inp.charge&&!p.exhausted&&p.stam>0,tramp=charge&&ABIL.trample;p.sprinting=charge&&!ABIL.trample;   // (trample switched off: holding B is just a sprint -- no damage, no smashing)
       if(tramp){p.trNow=true;if(!p.trWas)hbStart(p,'trample');}
       if(charge){charging=true;if(!p.wasCharging&&tramp)p.roarBurst=0.5;p.stam-=AB.trample.stamina*(tramp?1:0.6)*dt;if(p.stam<=0){p.stam=0;p.exhausted=true;flashLabel('Out of breath',p);}}
@@ -9290,7 +9293,9 @@ function updatePlayer(p,dt){
       // on or onto a ramp, judge the slope just ahead of the feet instead of a body-length ahead
       const rampy=rampUnder(p.pos.x,p.pos.z,p.pos.y)||rampUnder(p.pos.x+mvx*0.8,p.pos.z+mvz*0.8,p.pos.y)||rampUnder(p.pos.x+mvx*1.6,p.pos.z+mvz*1.6,ahead);
       const bodyBlk=bodyHits(p,p.pos.x+mvx*sp*dt,p.pos.z+mvz*sp*dt,p.heading)&&!bodyHits(p,p.pos.x,p.pos.z,p.heading);
-      if(bodyBlk||(rampy?groundAt(p.pos.x+mvx*0.8,p.pos.z+mvz*0.8,p.pos.y+1)-p.pos.y>1.3:ahead-p.pos.y>1.05)){
+      // (climb held, standing close up to something thin, like a pillar at the back of a ledge: the look a body-length ahead has gone past it)
+      if(inp.climb&&!rampy&&!bodyBlk&&ahead-p.pos.y<=1.05&&([0.5,1].some(k=>groundAt(p.pos.x+mvx*k,p.pos.z+mvz*k,p.pos.y)-p.pos.y>1.05)||bodyHits(p,p.pos.x+mvx*sp*dt,p.pos.z+mvz*sp*dt,p.heading))&&startClimb(p,1.9)){}
+      else if(bodyBlk||(rampy?groundAt(p.pos.x+mvx*0.8,p.pos.z+mvz*0.8,p.pos.y+1)-p.pos.y>1.3:ahead-p.pos.y>1.05)){
         if(inp.climb&&startClimb(p,1.9)){}
         else if(tramp&&p.smashCD<=0){p.smashCD=0.35;const o={force:1.2,dx:hx,dz:hz};if(blockHit(AB.trample,frontX,p.pos.y,frontZ,hx,hz,o,sz=>crushDisc(frontX,p.pos.y,frontZ,sz,3,o))){p.stam=Math.max(0,p.stam-8);addShake(0.3,frontX,frontZ,12);thud(0.7);rumble(p,0.5,150);}}
         // walking into a wall at an angle: slide along it (the part of the move that runs along the wall still happens)
@@ -9404,9 +9409,10 @@ function updatePlayer(p,dt){
           if(spot&&!solidAt(Math.floor(spot.x),Math.floor(top+0.5),Math.floor(spot.z))){
             // roll up and over the roof edge onto all fours
             const E=[p.pos.x+D[0]*0.06,top,p.pos.z+D[1]*0.06];if(D[0])E[2]=p.pos.z;else E[0]=p.pos.x;
-            // on top of something narrow, with nothing further to climb: the stick that brought him up doesn't carry him straight off the far side
-            const bx=Math.floor(p.pos.x+D[0]*1.3),bz=Math.floor(p.pos.z+D[1]*1.3),bs=supportAt(p.pos.x+D[0]*1.3,p.pos.z+D[1]*1.3,top+0.1);
-            p.perch=(bs===null||bs<top-0.6)&&!solidAt(bx,Math.floor(top+0.6),bz)&&!solidAt(bx,Math.floor(top+1.4),bz);
+            // on top of something narrow: the stick that brought him up doesn't carry him straight off the far side. With a
+            // wall to go on to, it turns him to that and on up (p.perch is the way to it); with none, he stays put
+            const bs=supportAt(p.pos.x+D[0]*1.3,p.pos.z+D[1]*1.3,top+0.1),more=[0,0.6,-0.6].some(o=>[0.6,1.4].some(h=>solidAt(Math.floor(p.pos.x+D[0]*1.3-D[1]*o),Math.floor(top+h),Math.floor(p.pos.z+D[1]*1.3+D[0]*o))));
+            p.perch=bs===null||bs<top-0.6?(more?D:true):false;
             startPiv(p,{E,to:[spot.x,top,spot.z],dur:0.4,next:'walk',heading:spot.h});thud(0.15);grunt(p,false);}
           else{p.state='walk';p.grounded=false;}
         } else {p.state='walk';p.grounded=false;}

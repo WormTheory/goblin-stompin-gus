@@ -128,6 +128,7 @@ It renders in software, so the picture is right but the frame rate says nothing 
   - edge: momentum off edges
   - crt: crash landing
   - spk*: ground spike
+  - spiderclimb: climbing on to pillars, one-block-deep ledges and walls, at each height and in all four directions (every line should say 4/4)
   - lowfps: charge input at low frame rates
   - negdt: a stale first frame timestamp mustn't trigger a stomp
   - loadt2: load-in doesn't break blocks
