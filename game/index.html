@@ -435,6 +435,15 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 .tp-grid .tog{padding:6px 8px;font-size:13px;align-items:center}
 .tp-foot{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .gamepane.testing .gamemain{display:none}
+.tp-info{font:600 13.5px var(--f-body);color:#e8c14a;min-height:1.4em}
+.testpanel .tp-groups{max-height:min(34vh,420px)}
+.tp-sec{display:flex;flex-direction:column}
+.tp-sec .tp-tools{margin-top:0}
+.tp-grid .tp-k{padding:6px 8px;font:500 13px var(--f-body);text-align:left;background:#1d252d;color:var(--bone);border:1px solid #3a4550;border-radius:3px;cursor:pointer}
+.tp-grid .tp-k:hover,.tp-grid .tp-k:focus-visible{border-color:#e8c14a;color:#e8c14a}
+.tp-placed{display:flex;flex-direction:column;gap:4px}
+.tp-pl{display:flex;gap:8px;align-items:center;font:500 13px var(--f-body);color:var(--bone)}
+.tp-pl span{flex:1}
 .tog .box{flex:0 0 18px;height:18px;margin-top:1px;border:2px solid #6a7680;border-radius:3px;background:#141a20;position:relative}
 .tog[aria-checked="true"] .box{background:#e8c14a;border-color:#e8c14a}
 .tog[aria-checked="true"] .box::after{content:"";position:absolute;left:4px;top:0;width:5px;height:10px;border:solid #141a20;border-width:0 3px 3px 0;transform:rotate(45deg)}
@@ -512,7 +521,7 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
         <button class="big" id="play">Play solo</button>
         <button class="big coop" id="playCoop">Co-op</button>
         <button class="big alt" id="newWorld">New city</button>
-        <button class="big alt" id="testWorld">Test world…</button>
+        <button class="big alt" id="testWorld">Testing Environment</button>
         <button class="big full" id="fullBtn" type="button">Full screen</button>
       </div>
       <button type="button" class="tog peacetog" role="checkbox" id="peaceTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Peaceful<small>Start with enemy hostility off (switch it back on any time from the debug menu)</small></span></button>
@@ -523,10 +532,15 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
       </div>
      </div>
       <div class="testpanel" id="testPanel" hidden>
-        <div class="tp-head"><h2>Test world</h2><p>Tick what's allowed to appear, then spawn a fresh world built with only those. Everything else is left as an empty lot in town or open grass out in the country.</p>
-          <div class="tp-tools"><button type="button" class="pmenu" id="tpAll">All on</button><button type="button" class="pmenu" id="tpNone">All off</button><span class="tp-count" id="tpCount"></span></div></div>
+        <div class="tp-head"><h2>Testing Environment</h2><p>An empty, flat world to try things out in. Pick a kind of structure to bring in the nearest one this world would build, furnished and dressed as it would be in a city, with Gus set down just south of it. Enemies turn up a few steps ahead of wherever Gus is looking.</p></div>
+        <div class="tp-info" id="tpInfo" role="status"></div>
+        <div class="tp-sec"><div class="tp-gh">Enemies</div>
+          <div class="tp-tools" id="tpFoes"><button type="button" class="pmenu" data-foe="goblin">Goblin</button><button type="button" class="pmenu" data-foe="cop">Police officer</button><button type="button" class="pmenu" data-foe="civ">Civilian</button><button type="button" class="pmenu" data-foe="police">Police car</button><button type="button" class="pmenu" data-foe="car">Hunting car</button>
+            <span class="tp-count">How many</span><div class="seg" role="radiogroup" aria-label="How many to spawn" id="tpN"><button type="button" role="radio" data-n="1" aria-checked="true">1</button><button type="button" role="radio" data-n="5" aria-checked="false">5</button><button type="button" role="radio" data-n="10" aria-checked="false">10</button></div>
+            <button type="button" class="pmenu" id="tpClear">Clear all</button></div></div>
+        <div class="tp-sec" id="tpPlacedSec" hidden><div class="tp-gh">Spawned here</div><div class="tp-placed" id="tpPlaced"></div></div>
         <div class="tp-groups" id="tpGroups"></div>
-        <div class="tp-foot"><button type="button" class="big" id="tpGo">Spawn test world</button><button type="button" class="pmenu" id="tpNormal">Back to a normal city</button><button type="button" class="pmenu" id="tpCancel">Cancel</button></div>
+        <div class="tp-foot"><button type="button" class="big" id="tpGo">Play</button><button type="button" class="pmenu" id="tpCancel">Title screen</button><button type="button" class="pmenu" id="tpNormal">Back to your city</button></div>
       </div>
       <div class="gamefoot">
         <div class="note" id="padNote">No controllers found yet. Press a button on one to wake it up.</div>
@@ -1082,6 +1096,13 @@ tex.magFilter=THREE.NearestFilter;tex.minFilter=THREE.NearestFilter;tex.generate
 // ---------- Endless goblin city ----------
 // test worlds: the kinds of structure switched off (saved with the world; empty in a normal city)
 let TEST_OFF=new Set(),saveBlocked=false;
+// the Testing Environment: an empty, flat world. Nothing the generator plans shows up in it except the structures
+// spawned into it (TENV.boxes: {k, ax, az, w, h} in blocks of CELL), each left where the plan puts it, so its blocks,
+// furniture, doors, signs and rides are all the world's own. Everywhere else is grass. (null in a normal city)
+let TENV=null;const TENV_PL=new Set();
+const tenvK=(px,pz)=>(px+32768)*65536+(pz+32768);
+function tenvIndex(){TENV_PL.clear();if(TENV)for(const B of TENV.boxes)for(let i=0;i<B.w;i++)for(let j=0;j<B.h;j++)TENV_PL.add(tenvK(B.ax+i,B.az+j));}
+const tenvShow=(px,pz)=>!TENV||TENV_PL.has(tenvK(px,pz));
 let seed=0, edits={}, collapses={}, wrecked={}, downFix=new Map(), destroyed={};   // destroyed: building key -> how many of its original blocks are gone
 const chunkEdits=new Map(),chunks=new Map(),plotCache=new Map();
 const ckey=(cx,cz)=>(cx+32768)*65536+(cz+32768);
@@ -1228,7 +1249,7 @@ const PB={el:null,t:0,last:null,outT:0};
 function placeBannerTick(dt){
   const p=players.find(q=>q.active);if(!p)return;
   if(PB.t>0){PB.t-=dt;if(PB.t<=0&&PB.el)PB.el.classList.remove('on');}
-  if(!playing)return;
+  if(!playing||TENV)return;
   const S=settlementAt(Math.floor(p.pos.x/CELL),Math.floor(p.pos.z/CELL))||coastOwner(Math.floor(p.pos.x/CELL),Math.floor(p.pos.z/CELL));
   if(!S){PB.outT+=dt;return;}
   if(S!==PB.last||PB.outT>45){
@@ -2252,7 +2273,7 @@ function makeCultist(){
 }
 function refreshCultVenues(p,want){
   for(let px=Math.floor((p.pos.x-140)/CELL);px<=Math.floor((p.pos.x+140)/CELL);px++)for(let pz=Math.floor((p.pos.z-140)/CELL);pz<=Math.floor((p.pos.z+140)/CELL);pz++){
-    if(biomeOf(px,pz)!=='plains')continue;const B=bigPlainsAt(px,pz);if(!B||B.kind!=='cult')continue;
+    if(biomeOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;const B=bigPlainsAt(px,pz);if(!B||B.kind!=='cult')continue;
     const key='c'+px+','+pz;want.add(key);if(venues.has(key))continue;
     const cx=px*CELL+16.5,cz=pz*CELL+16.5,n=5+Math.floor(hash2(px,pz)*3),figs=[];
     for(let i=0;i<n;i++){const g=makeCultist();scene.add(g);figs.push({g,a:i/n*Math.PI*2,ph:Math.random()*6});}
@@ -2429,10 +2450,10 @@ function refreshSiteVenues(p,want){
   // distant scenery's turbine is showing, with blades of its own, standing still
   {const R=Math.max(150,viewR*CS+40);
    for(let px=Math.floor((p.pos.x-R)/CELL);px<=Math.floor((p.pos.x+R)/CELL);px++)for(let pz=Math.floor((p.pos.z-R)/CELL);pz<=Math.floor((p.pos.z+R)/CELL);pz++){
-    if(!turbineAt(px,pz)||!meshes.has(ckey(Math.floor((px*CELL+16)/CS),Math.floor((pz*CELL+16)/CS)))&&!stHas(px*CELL+16,pz*CELL+16))continue;const key='w'+px+','+pz;want.add(key);if(!venues.has(key)){const g=makeRotor();g.position.set(px*CELL+16,G+41.9,pz*CELL+12.6);scene.add(g);
+    if(!tenvShow(px,pz)||!turbineAt(px,pz)||!meshes.has(ckey(Math.floor((px*CELL+16)/CS),Math.floor((pz*CELL+16)/CS)))&&!stHas(px*CELL+16,pz*CELL+16))continue;const key='w'+px+','+pz;want.add(key);if(!venues.has(key)){const g=makeRotor();g.position.set(px*CELL+16,G+41.9,pz*CELL+12.6);scene.add(g);
       venues.set(key,{kind:'wind',rotor:g,sp:0.55+hash2(Math.floor(px/7),Math.floor(pz/7))*0.4,ck:ckey(Math.floor((px*CELL+16)/CS),Math.floor((pz*CELL+16)/CS))});}}}
   for(let px=Math.floor((p.pos.x-150)/CELL);px<=Math.floor((p.pos.x+150)/CELL);px++)for(let pz=Math.floor((p.pos.z-150)/CELL);pz<=Math.floor((p.pos.z+150)/CELL);pz++){
-    if(biomeOf(px,pz)!=='plains')continue;
+    if(biomeOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;
     const B=bigPlainsAt(px,pz);if(!B||B.ax!==px||B.az!==pz||!FIG_STYLE[B.kind])continue;
     const key='g'+px+','+pz;want.add(key);if(venues.has(key))continue;
     const figs=sitePeople(B).map(([u,v,y],i)=>{const g=makeFigure(B.kind);scene.add(g);return{g,x:B.ax*CELL+u+0.5,z:B.az*CELL+v+0.5,y,h0:hash2(px+i,pz*3+i)*6.28,ph:Math.random()*6};});
@@ -6727,6 +6748,7 @@ function linkNear(x,z){
   return e;
 }
 function genChunk(cx,cz){
+  if(TENV&&!tenvShow(Math.floor(cx*CS/CELL),Math.floor(cz*CS/CELL)))return flatChunk(cx,cz);   // (a chunk lies inside one block, so it's all shown or all flat)
   const a=new Uint8Array(CS*CS*H),x0=cx*CS,z0=cz*CS;
   for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){
     const x=x0+lx,z=z0+lz,rx=mod(x,CELL),rz=mod(z,CELL);
@@ -6941,6 +6963,15 @@ function genChunk(cx,cz){
   }
   undergroundPass(a,x0,z0);
   railPass(a,x0,z0);
+  const ce=chunkEdits.get(ckey(cx,cz));
+  if(ce)for(const [x,y,z,b] of ce)a[li(x-x0,y,z-z0)]=b;
+  if(WX.frozen)freezeArr(a,true);
+  return a;
+}
+// the Testing Environment's empty ground: grass on top, the usual earth and bedrock under it (smashed blocks still apply)
+function flatChunk(cx,cz){
+  const a=new Uint8Array(CS*CS*H),x0=cx*CS,z0=cz*CS;
+  for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){for(let y=0;y<G;y++)a[li(lx,y,lz)]=earthAt(x0+lx,y,z0+lz);a[li(lx,G,lz)]=GRASS;}
   const ce=chunkEdits.get(ckey(cx,cz));
   if(ce)for(const [x,y,z,b] of ce)a[li(x-x0,y,z-z0)]=b;
   if(WX.frozen)freezeArr(a,true);
@@ -7336,8 +7367,8 @@ function rebuildSet(set){for(const k of set){const e=meshes.get(k);if(e)buildChu
 
 // ---------- Save ----------
 let saveTimer=null;
-function save(){if(saveBlocked)return;clearTimeout(saveTimer);saveTimer=setTimeout(()=>{try{localStorage.setItem(SAVE_KEY,JSON.stringify({seed,edits,coll:collapses,wreck:wrecked,down:[...downFix],dest:destroyed,test:[...TEST_OFF]}));}catch(e){}},700);}
-function load(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(s&&typeof s.seed==='number'){seed=s.seed;TEST_OFF=new Set(Array.isArray(s.test)?s.test:[]);edits=s.edits||{};collapses=s.coll||{};wrecked=(s.wreck&&typeof s.wreck==='object')?s.wreck:{};destroyed=(s.dest&&typeof s.dest==='object')?s.dest:{};destroyVer++;setDCache.clear();downFix=new Map(Array.isArray(s.down)?s.down:[]);for(const k in edits){const [x,y,z]=k.split(',').map(Number);const ck=ckey(Math.floor(x/CS),Math.floor(z/CS));let l=chunkEdits.get(ck);if(!l){l=[];chunkEdits.set(ck,l);}l.push([x,y,z,edits[k]]);}return true;}}catch(e){}return false;}
+function save(){if(saveBlocked)return;clearTimeout(saveTimer);saveTimer=setTimeout(()=>{try{localStorage.setItem(SAVE_KEY,JSON.stringify({seed,edits,coll:collapses,wreck:wrecked,down:[...downFix],dest:destroyed,test:[...TEST_OFF],tenv:TENV||undefined}));}catch(e){}},700);}
+function load(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(s&&typeof s.seed==='number'){seed=s.seed;TEST_OFF=new Set(Array.isArray(s.test)?s.test:[]);TENV=s.tenv&&Array.isArray(s.tenv.boxes)?{boxes:s.tenv.boxes.filter(B=>B&&[B.ax,B.az,B.w,B.h].every(Number.isFinite))}:null;tenvIndex();edits=s.edits||{};collapses=s.coll||{};wrecked=(s.wreck&&typeof s.wreck==='object')?s.wreck:{};destroyed=(s.dest&&typeof s.dest==='object')?s.dest:{};destroyVer++;setDCache.clear();downFix=new Map(Array.isArray(s.down)?s.down:[]);for(const k in edits){const [x,y,z]=k.split(',').map(Number);const ck=ckey(Math.floor(x/CS),Math.floor(z/CS));let l=chunkEdits.get(ck);if(!l){l=[];chunkEdits.set(ck,l);}l.push([x,y,z,edits[k]]);}return true;}}catch(e){}return false;}
 
 // ---------- Renderer ----------
 const canvas=document.getElementById('world');
@@ -10540,7 +10571,7 @@ function updateExplore(dt){
   exploreT-=dt;mapSaveT-=dt;
   if(exploreT<=0){exploreT=0.5;
     for(const p of players){if(!p.active)continue;const cx=Math.floor(p.pos.x/CELL),cz=Math.floor(p.pos.z/CELL);
-      for(let dx=-2;dx<=2;dx++)for(let dz=-2;dz<=2;dz++){if(dx*dx+dz*dz>5)continue;const k=(cx+dx)+','+(cz+dz);if(!explored.has(k)){explored.add(k);exploreDirty=true;noteKnown(cx+dx,cz+dz);}}}}
+      for(let dx=-2;dx<=2;dx++)for(let dz=-2;dz<=2;dz++){if(dx*dx+dz*dz>5)continue;const k=(cx+dx)+','+(cz+dz);if(!explored.has(k)&&tenvShow(cx+dx,cz+dz)){explored.add(k);exploreDirty=true;noteKnown(cx+dx,cz+dz);}}}}
   if(exploreDirty&&mapSaveT<=0){mapSaveT=5;exploreDirty=false;saveExplored();}
 }
 // a destroyed building, on the map and minimap: dark grey with pale diagonal hatching (like a rubble site)
@@ -11902,7 +11933,7 @@ function spawnStaff(g){
   const al=players.filter(p=>p.active);if(!al.length)return false;
   const c=al[Math.floor(Math.random()*al.length)],R=55,cand=[],seen=new Set();
   for(let px=Math.floor((c.pos.x-R)/CELL);px<=Math.floor((c.pos.x+R)/CELL);px++)for(let pz=Math.floor((c.pos.z-R)/CELL);pz<=Math.floor((c.pos.z+R)/CELL);pz++){
-    let qx=px,qz=pz;const S=superOf(px,pz);if(S){qx=S.ax;qz=S.az;}
+    if(!tenvShow(px,pz))continue;let qx=px,qz=pz;const S=superOf(px,pz);if(S){qx=S.ax;qz=S.az;}
     const k0=qx+','+qz;if(seen.has(k0))continue;seen.add(k0);
     plotInfo(qx,qz).b.forEach((b,bi)=>{const cap=b.brand&&staffCapNow(b);if(!cap)return;const key=k0+','+bi;if(staffAt(key)<cap&&bldgStanding(b,qx,qz,key))cand.push({b,bi,key,ax:qx*CELL,az:qz*CELL});});
   }
@@ -12267,8 +12298,8 @@ function updateGoblins(dt){
     if(g.state!=='chase')g.act=null;
     if(g.state==='wait'){
       if(g.staff){if(g.t>1.5&&playing&&crowd>0&&!spawnStaff(g))g.t=0;}
-      else if(g.civ){if(civAlive<civTarget&&g.t>1.5&&playing){if(spawnCiv(g))civAlive++;else g.t=0;}}
-      else if(hostileAlive<active&&g.t>6&&playing&&alivePlayers().length){if(spawnGoblin(g))hostileAlive++;else g.t=3;}
+      else if(g.civ){if(!TENV&&civAlive<civTarget&&g.t>1.5&&playing){if(spawnCiv(g))civAlive++;else g.t=0;}}
+      else if(!TENV&&hostileAlive<active&&g.t>6&&playing&&alivePlayers().length){if(spawnGoblin(g))hostileAlive++;else g.t=3;}
       return;
     }
     if(g.state==='dead'){
@@ -12285,7 +12316,7 @@ function updateGoblins(dt){
     if(!any||any.d>(g.navOn||g.act?NAV_R-5:75)){if(g.news)endNews(g);g.state='wait';g.t=0;g.root.visible=false;return;}
     // more about than there'd be at this hour (night falling, a shop closing): one at a time, out of sight, they go
     // home -- quietly vanishing somewhere no one's looking
-    if(!gone&&g.t>15&&any.d>28&&!g.medic&&!g.ff&&!g.cop&&!g.news&&(g.civ&&!g.staff&&civAlive>civTarget||g.staff&&g.employer&&staffAt(g.employer.key)>staffCapNow(g.employer.b))&&!visibleToAny(g.pos.x,g.pos.y+1,g.pos.z)){
+    if(!gone&&g.t>15&&any.d>28&&!g.medic&&!g.ff&&!g.cop&&!g.news&&(g.civ&&!g.staff&&!TENV&&civAlive>civTarget||g.staff&&g.employer&&staffAt(g.employer.key)>staffCapNow(g.employer.b))&&!visibleToAny(g.pos.x,g.pos.y+1,g.pos.z)){
       gone=true;g.state='wait';g.t=0;g.root.visible=false;if(g.civ&&!g.staff)civAlive--;g.vendor=null;g.employer=null;return;}
     const tgt=nearestPlayer(g.pos.x,g.pos.z,true);
     let moving=false,d=1e9,dx=0,dz=0;
@@ -14787,13 +14818,14 @@ function refreshProps(){
   {const RS=Math.min(viewFar(),96),seenS=new Set();
    for(const p of viewers()){
      for(let px=Math.floor((p.pos.x-RS)/CELL);px<=Math.floor((p.pos.x+RS)/CELL);px++)for(let pz=Math.floor((p.pos.z-RS)/CELL);pz<=Math.floor((p.pos.z+RS)/CELL);pz++){
-       const ck=px*100003+pz;if(seenS.has(ck))continue;seenS.add(ck);if(biomeOf(px,pz)==='plains')continue;
+       const ck=px*100003+pz;if(seenS.has(ck))continue;seenS.add(ck);if(biomeOf(px,pz)==='plains'||!tenvShow(px,pz))continue;
        for(const f of streetFurn(px,pz)){if(!f.prop)continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);if(get(fx,G,fz)!==f.on||get(fx,G+1,fz)!==AIR)continue;
          activeProps.push(f);activeFix.push(f);drawProp(f);if(downFix.has(f.key)||falling.has(f.key))continue;
          // (a bench is wider than one block: goblins go round the whole of it)
          const L=f.type==='parkbench'?.9:0,ux=Math.cos(f.yaw)*L,uz=-Math.sin(f.yaw)*L;for(const e of L?[-1,0,1]:[0])propCells.set(propCK(f.x+ux*e,f.y0,f.z+uz*e),f);}}}}
   for(const p of viewers()){seen.clear();
     for(let px=Math.floor((p.pos.x-R)/CELL);px<=Math.floor((p.pos.x+R)/CELL);px++)for(let pz=Math.floor((p.pos.z-R)/CELL);pz<=Math.floor((p.pos.z+R)/CELL);pz++){
+      if(!tenvShow(px,pz))continue;
       const S=superOf(px,pz),ax=S?S.ax:px,az=S?S.az:pz,P=plotInfo(ax,az);
       if(COAST_PROPS.has(P.type)&&!seen.has(P)){seen.add(P);
         for(const f of coastProps(P,ax,az)){if(Math.abs(f.x-p.pos.x)>R||Math.abs(f.z-p.pos.z)>R)continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);if(!chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS))))continue;
@@ -14843,6 +14875,7 @@ function refreshFixtures(){
     
     for(let px=Math.floor((p.pos.x-R)/CELL);px<=Math.floor((p.pos.x+R)/CELL);px++)for(let pz=Math.floor((p.pos.z-R)/CELL);pz<=Math.floor((p.pos.z+R)/CELL);pz++){
       const ck=px*100003+pz;if(seen.has(ck))continue;seen.add(ck);
+      if(!tenvShow(px,pz))continue;
       const X0=px*CELL,Z0=pz*CELL,near=Math.hypot(X0+4-p.pos.x,Z0+4-p.pos.z)<70;
       if(biomeOf(px,pz)==='plains')continue;
       const PBf=plotBounds(px,pz);
@@ -14860,7 +14893,7 @@ function refreshFixtures(){
     }
   }
   // billboards along the highways out on the plains (and the powerlines' cables)
-  for(const p of viewers()){const RB=Math.min(viewFar(),150),l=routesNearBox(p.pos.x-RB,p.pos.z-RB,p.pos.x+RB,p.pos.z+RB),rs=new Set();
+  for(const p of TENV?[]:viewers()){const RB=Math.min(viewFar(),150),l=routesNearBox(p.pos.x-RB,p.pos.z-RB,p.pos.x+RB,p.pos.z+RB),rs=new Set();
     for(let q=0;q<l.length;q+=2){const Rt=l[q];if(rs.has(Rt))continue;rs.add(Rt);
       {const PY=pylonsOf(Rt);fallMatrix(0,0,0,0);
        for(let i=0;i+1<PY.length;i++){const A=PY[i],B=PY[i+1];if(!A||!B||Math.hypot(A.x-p.pos.x,A.z-p.pos.z)>RB+40)continue;if(bseen.has(A.key+'c'))continue;bseen.add(A.key+'c');
@@ -14973,7 +15006,7 @@ function refreshDoors(){
   const want=new Map(),seenS=new Set();
   for(const p of viewers()){seenS.clear();
     for(let qx=Math.floor((p.pos.x-DOOR_RANGE)/CELL);qx<=Math.floor((p.pos.x+DOOR_RANGE)/CELL);qx++)for(let qz=Math.floor((p.pos.z-DOOR_RANGE)/CELL);qz<=Math.floor((p.pos.z+DOOR_RANGE)/CELL);qz++){
-      const t=plotType(qx,qz);if(t==='plains'||t==='river'||t==='ramp')continue;
+      const t=plotType(qx,qz);if(t==='plains'||t==='river'||t==='ramp'||!tenvShow(qx,qz))continue;
       // (a big site's doors all hang off its first plot, however far across the site they are: from any part of it, go to that plot,
       // or the doors at the far end of a capitol or a campus only appear when you're near the other end)
       let px=qx,pz=qz;if(t==='super'){const S=superOf(qx,qz);if(seenS.has(S))continue;seenS.add(S);px=S.ax;pz=S.az;}
@@ -15109,7 +15142,7 @@ function campFires(dt){
   campFires.t=(campFires.t||0)-dt;
   if(campFires.t<=0){campFires.t=1;const want=new Set();
     for(const p of viewers()){for(let px=Math.floor((p.pos.x-80)/CELL);px<=Math.floor((p.pos.x+80)/CELL);px++)for(let pz=Math.floor((p.pos.z-80)/CELL);pz<=Math.floor((p.pos.z+80)/CELL);pz++){
-      const pts=[],t=plotType(px,pz);
+      if(!tenvShow(px,pz))continue;const pts=[],t=plotType(px,pz);
       if(t==='camp'){const P=plotInfo(px,pz);pts.push([px*CELL+P.fire.x,pz*CELL+P.fire.z,RUST]);}
       else if(t==='campsite'||t==='cult'||t==='militia'||t==='thieves'){const B=bigPlainsAt(px,pz);if(B.ax!==px||B.az!==pz)continue;const X0=B.ax*CELL,Z0=B.az*CELL;
         if(t==='cult')pts.push([X0+16,Z0+13,LOG]);
@@ -15126,7 +15159,7 @@ function refreshLandmarks(){
   const want=new Set();
   for(const p of viewers()){
     for(let px=Math.floor((p.pos.x-LM_RANGE)/CELL);px<=Math.floor((p.pos.x+LM_RANGE)/CELL);px++)for(let pz=Math.floor((p.pos.z-LM_RANGE)/CELL);pz<=Math.floor((p.pos.z+LM_RANGE)/CELL);pz++){
-      const t=plotType(px,pz);if(!LM_TYPES.has(t))continue;const P=plotInfo(px,pz);
+      const t=plotType(px,pz);if(!LM_TYPES.has(t)||!tenvShow(px,pz))continue;const P=plotInfo(px,pz);
       P.b.forEach((b,bi)=>{if(b.beam){const key=px+','+pz+','+bi,cx=px*CELL+((b.x0+b.x1)>>1),cz=pz*CELL+((b.z0+b.z1)>>1);if(collapses[key]!==undefined||want.has(key)||!get(cx,G+24,cz))return;want.add(key);if(!lmOn.has(key))lmOn.set(key,{v:lmVisual(b,px,pz),b,x:cx,z:cz,swing:0,ringT:0});return;}
         if(!b.clock&&!b.bell&&!b.mast&&!b.dishes&&!b.disco&&!b.vault&&!b.ticker&&!b.fish&&!b.smoke&&!b.leds&&!b.arms&&!b.steam&&!b.coils)return;const key=px+','+pz+','+bi;if(want.has(key))return;
         if(collapses[key]!==undefined)return;   // (gone with the building)
@@ -15407,15 +15440,15 @@ function pondBoats(S,want){
 const boatAt=(px,pz)=>{const h=hash2(px*577+3,pz*829+5);return h<0.005?'cargo':h<0.008?'ferry':h<0.009?'navy':h<0.03?'sail':h<0.042?'launch':h<0.052?'fish':h<0.057?'speed':h<0.06?'tug':null;};
 function refreshSeaVenues(p,want){
   for(let px=Math.floor((p.pos.x-450)/CELL);px<=Math.floor((p.pos.x+450)/CELL);px++)for(let pz=Math.floor((p.pos.z-450)/CELL);pz<=Math.floor((p.pos.z+450)/CELL);pz++){
-    const k0=boatAt(px,pz);if(!k0||plotType(px,pz)!=='sea')continue;
+    if(!tenvShow(px,pz))continue;const k0=boatAt(px,pz);if(!k0||plotType(px,pz)!=='sea')continue;
     // (a big ship can be seen from further off)
     if(BOATS[k0].L<20&&Math.hypot(px*CELL+16-p.pos.x,pz*CELL+16-p.pos.z)>280)continue;
     const lane=boatLane(px,pz,k0);if(lane)boatVenue('s'+px+','+pz,k0,{lane},want);}
   for(let px=Math.floor((p.pos.x-180)/CELL);px<=Math.floor((p.pos.x+180)/CELL);px++)for(let pz=Math.floor((p.pos.z-180)/CELL);pz<=Math.floor((p.pos.z+180)/CELL);pz++){
-    if(!seaPlot(px,pz)||!MOORS.has(plotType(px,pz)))continue;
+    if(!tenvShow(px,pz)||!seaPlot(px,pz)||!MOORS.has(plotType(px,pz)))continue;
     mooredBoats(plotInfo(px,pz),px,pz).forEach((B,i)=>boatVenue('m'+px+','+pz+','+i,B.k,B,want));}
   // the subway trains: one going round each city's loop
-  {const ppx=Math.floor(p.pos.x/CELL),ppz=Math.floor(p.pos.z/CELL),rx=Math.round(ppx/SET_SP),rz=Math.round(ppz/SET_SP);
+  if(!TENV){const ppx=Math.floor(p.pos.x/CELL),ppz=Math.floor(p.pos.z/CELL),rx=Math.round(ppx/SET_SP),rz=Math.round(ppz/SET_SP);
    for(let a=rx-1;a<=rx+1;a++)for(let b=rz-1;b<=rz+1;b++){const M=metroOf(settlementLat(a,b));if(!M)continue;
      const cx=(M.x0+M.x1)/2*CELL,cz=(M.z0+M.z1)/2*CELL;if(Math.hypot(cx-p.pos.x,cz-p.pos.z)>500)continue;
      const key='u'+a+','+b;want.add(key);if(venues.has(key))continue;
@@ -15436,9 +15469,9 @@ function updateSeaVenue(V,dt,t){
 function refreshVenues(){
   const want=new Set();
   for(const p of viewers()){
-    refreshSeaVenues(p,want);refreshRailVenues(p,want);refreshCultVenues(p,want);refreshSiteVenues(p,want);
+    refreshSeaVenues(p,want);if(!TENV)refreshRailVenues(p,want);refreshCultVenues(p,want);refreshSiteVenues(p,want);
     for(let px=Math.floor((p.pos.x-170)/CELL);px<=Math.floor((p.pos.x+170)/CELL);px++)for(let pz=Math.floor((p.pos.z-170)/CELL);pz<=Math.floor((p.pos.z+170)/CELL);pz++){
-      const S=superOf(px,pz);
+      if(!tenvShow(px,pz))continue;const S=superOf(px,pz);
       if(S&&S.kind==='theme'&&LM_TYPES.has(plotType(S.ax,S.az))){const k='t'+S.ax+','+S.az;want.add(k);if(!venues.has(k))venues.set(k,{S,kind:'theme',k,ride:null});pondBoats(S,want);}
       if(!S||S.ax!==px||S.az!==pz)continue;
       if(S.kind==='stadium'||S.kind==='arena'){const k='v'+px+','+pz;want.add(k);if(!venues.has(k)){const V={S,kind:S.kind,seats:null,cheer:0,cheerT:8,ball:null};
@@ -15447,15 +15480,15 @@ function refreshVenues(){
         venues.set(k,V);}}
       if(S.kind==='zoo'){const k='z'+px+','+pz;want.add(k);if(!venues.has(k))venues.set(k,{S,kind:'zoo',animals:null});}}
     // trains on the railways near you; the airports' planes and the launch sites' rockets
-    {const l=routesNearBox(p.pos.x-420,p.pos.z-420,p.pos.x+420,p.pos.z+420),rs=new Set();for(let q=0;q<l.length;q+=2){const R=l[q];if(rs.has(R)||!railOf(R))continue;rs.add(R);
+    if(!TENV){const l=routesNearBox(p.pos.x-420,p.pos.z-420,p.pos.x+420,p.pos.z+420),rs=new Set();for(let q=0;q<l.length;q+=2){const R=l[q];if(rs.has(R)||!railOf(R))continue;rs.add(R);
       const k='r'+Math.round(R.pts[0][0])+','+Math.round(R.pts[0][1]);want.add(k);if(venues.has(k))continue;
       const cars2=[];for(let i=0;i<4;i++){const g=makeTrainCar(i===0);scene.add(g);cars2.push(g);}
       venues.set(k,{kind:'train',R,s:45+Math.random()*(R.L-90),dir:Math.random()<0.5?1:-1,v:0,wait:0,cars:cars2});}}
     for(let px=Math.floor((p.pos.x-700)/CELL);px<=Math.floor((p.pos.x+700)/CELL);px+=1)for(let pz=Math.floor((p.pos.z-700)/CELL);pz<=Math.floor((p.pos.z+700)/CELL);pz+=1){
-      if(biomeOf(px,pz)!=='plains')continue;const B=bigPlainsAt(px,pz);if(!B||B.ax!==px||B.az!==pz||B.kind!=='airport'&&B.kind!=='nasa')continue;const k='b'+px+','+pz;want.add(k);if(venues.has(k))continue;
+      if(biomeOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;const B=bigPlainsAt(px,pz);if(!B||B.ax!==px||B.az!==pz||B.kind!=='airport'&&B.kind!=='nasa')continue;const k='b'+px+','+pz;want.add(k);if(venues.has(k))continue;
       if(B.kind==='airport'){const planes=[];for(let i=0;i<3;i++){const g=makePlane(i);scene.add(g);planes.push(g);}venues.set(k,{kind:'airport',B,planes,st:0,t:0,path:null});}
       else{const g=makeRocket();scene.add(g);venues.set(k,{kind:'nasa',B,rocket:g,st:'pad',t:0,y:0,v:0,lastHr:-1});}}
-    {const l=routesNearBox(p.pos.x-180,p.pos.z-180,p.pos.x+180,p.pos.z+180),rs=new Set();for(let q=0;q<l.length;q+=2){const R=l[q];if(rs.has(R))continue;rs.add(R);
+    if(!TENV){const l=routesNearBox(p.pos.x-180,p.pos.z-180,p.pos.x+180,p.pos.z+180),rs=new Set();for(let q=0;q<l.length;q+=2){const R=l[q];if(rs.has(R))continue;rs.add(R);
       for(const ts of tollsOf(R)){const k='t'+Math.round(R.pts[0][0])+','+Math.round(R.pts[0][1])+':'+ts;want.add(k);if(venues.has(k))continue;
         const P=rtPoint(R,ts),ox=-P.tz,oz=P.tx,arms=[];
         for(const L of [1.5,4.5,-1.5,-4.5]){const sg=Math.sign(L),piv=sg*(Math.abs(L)+1.5),ds=sg*2.2,g=new THREE.Group(),lift=new THREE.Group();
@@ -16127,7 +16160,7 @@ function refreshBrandSigns(){
     
     for(let px=Math.floor((p.pos.x-R-pad)/CELL);px<=Math.floor((p.pos.x+R)/CELL);px++)for(let pz=Math.floor((p.pos.z-R-pad)/CELL);pz<=Math.floor((p.pos.z+R)/CELL);pz++){
       const ck=px*100003+pz;if(seen.has(ck))continue;seen.add(ck);
-      const P=plotInfo(px,pz);if(!P.b.length)continue;
+      if(!tenvShow(px,pz))continue;const P=plotInfo(px,pz);if(!P.b.length)continue;
       for(let bi=0;bi<P.b.length;bi++){const b=P.b[bi];if(!b.brand)continue;
         const sp=brandSpots(b,px,pz);
         for(let si=0;si<sp.length;si++){const S=sp[si],dx=S.x-p.pos.x,dz=S.z-p.pos.z;if(dx*dx+dz*dz>R*R)continue;
@@ -16202,7 +16235,7 @@ function updateStations(dt){
   const act=players.filter(p=>p.active);if(!act.length)return;
   const R=Math.min(viewFar()+30,190),near=new Set();
   for(const p of act){const c0=Math.floor((p.pos.x-R)/CELL),c1=Math.floor((p.pos.x+R)/CELL),d0=Math.floor((p.pos.z-R)/CELL),d1=Math.floor((p.pos.z+R)/CELL);
-    for(let px=c0;px<=c1;px++)for(let pz=d0;pz<=d1;pz++){const D=stationDef(px,pz);if(D&&!stnDown(D)&&Math.hypot(D.bays[0].x-p.pos.x,D.bays[0].z-p.pos.z)<R)near.add(D);}}
+    for(let px=c0;px<=c1;px++)for(let pz=d0;pz<=d1;pz++){if(!tenvShow(px,pz))continue;const D=stationDef(px,pz);if(D&&!stnDown(D)&&Math.hypot(D.bays[0].x-p.pos.x,D.bays[0].z-p.pos.z)<R)near.add(D);}}
   // parked vehicles of stations nobody's near any more go back in the pool
   for(const c of SVC)if(c.alive&&c.svc&&c.svc.st==='parked'&&(!near.has(c.svc.stn)||stnDown(c.svc.stn)))svcRelease(c);
   for(const D of near){const T=stnState(D);
@@ -16554,7 +16587,7 @@ function copSpot(g){
 }
 function updateServices(dt){
   svcT-=dt;if(svcT>0)return;svcT=1;
-  if(!playing||crowd<=0)return;
+  if(!playing||crowd<=0||TENV)return;   // (the Testing Environment has no roads or stations to send anyone from)
   const act=players.filter(p=>p.active);if(!act.length)return;
   const near=(x,z,R)=>act.some(p=>Math.hypot(p.pos.x-x,p.pos.z-z)<R);
   const busy=(kind,x,z,R)=>SVC.some(c=>c.alive&&c.svc&&c.svc.st!=='parked'&&c.svcPool===kind&&Math.hypot(c.svc.tx-x,c.svc.tz-z)<R);
@@ -16599,12 +16632,12 @@ function updateCars(dt){
     if(d.life<21)m.material.emissive.setHex(0x000000);
     if(d.life<=0)m.visible=false;}
   let alive=0,hunters=0;for(const c of cars)if(c.alive&&!c.police&&!c.parkPool&&!c.hwPool){alive++;if(c.hunter)hunters++;}
-  pullT-=dt;if(pullT<=0&&playing){pullT=1.5;managePull();}
+  pullT-=dt;if(pullT<=0&&playing&&!TENV){pullT=1.5;managePull();}
   const clock=performance.now()/1000;
   for(const c of cars){
     if(!c.alive){
       c.respawnT-=dt;
-      if(c.svcPool||c.pullPool)continue;
+      if(c.svcPool||c.pullPool||TENV)continue;
       if(c.parkPool){if(c.respawnT<=0&&playing&&!spawnParked(c))c.respawnT=1.5;continue;}
       if(c.hwPool){if(c.respawnT<=0&&playing&&traffic>0&&!spawnHw(c))c.respawnT=1.5;continue;}
       if(c.police){if(c.respawnT<=0&&playing&&crowd>0&&!spawnPolice(c))c.respawnT=2;continue;}
@@ -16997,7 +17030,7 @@ function startPlay(mode,fromPad){
   try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();audioWanted=true;if(!(DT.paused||SPEEDS[DT.speedI]===0))audio.resume();}catch(e){}
   if(!dragMode&&!fromPad){try{const p=canvas.requestPointerLock();if(p&&p.catch)p.catch(()=>{dragMode=true;});}catch(e){dragMode=true;}}
 }
-function pause(){menuOpen=true;playing=false;keys.clear();mHeld.clear();pauseEl.hidden=false;renderObitCount();if(curTab==='obit'){obitSel=0;renderObits();}if(curTab==='controls')renderControls();if(curTab==='map'){MAPV.cx=null;saveExplored();setTimeout(renderMap,0);}try{if(locked())document.exitPointerLock();}catch(e){}const pf=document.getElementById(players[1].active?'playCoop':'play');if(inputKind==='pad')padFocus(pf);else pf.focus();}
+function pause(){if(TENV)tpShow(true);menuOpen=true;playing=false;keys.clear();mHeld.clear();pauseEl.hidden=false;renderObitCount();if(curTab==='obit'){obitSel=0;renderObits();}if(curTab==='controls')renderControls();if(curTab==='map'){MAPV.cx=null;saveExplored();setTimeout(renderMap,0);}try{if(locked())document.exitPointerLock();}catch(e){}const pf=document.getElementById(players[1].active?'playCoop':'play');if(inputKind==='pad')padFocus(pf);else pf.focus();}
 // losing the mouse (another window clicked, alt-tab) pauses -- unless you're playing on a controller, which keeps
 // working with the game in the background (as long as the page is still showing; 'on a controller': you've used one
 // in the last minute -- so the Alt of an Alt-Tab doesn't count against it)
@@ -17239,6 +17272,7 @@ function updateMinimap(p,dt){
   const R=MINI_RANGE*1.45,c0x=Math.floor((px-R)/CELL),c1x=Math.floor((px+R)/CELL),c0z=Math.floor((pz-R)/CELL),c1z=Math.floor((pz+R)/CELL),done=new Set();
   for(let cx=c0x;cx<=c1x;cx++)for(let cz=c0z;cz<=c1z;cz++){
     const X0=cx*CELL,Z0=cz*CELL,t=plotType(cx,cz);
+    if(!tenvShow(cx,cz)){x.fillStyle=MAPC.plains;x.fillRect(X0,Z0,CELL,CELL);continue;}
     if(seaPlot(cx,cz)){const n=4,st=CELL/n,C=seaMapCells(cx,cz,n);for(let j=0;j<n;j++)for(let i=0;i<n;i++){x.fillStyle=C[j*n+i];x.fillRect(X0+i*st,Z0+j*st,st,st);}continue;}
     if(t==='river'){x.fillStyle=MAPC.road;x.fillRect(X0,Z0,CELL,CELL);x.fillStyle=MAPC.river;if(riverDir(cx,cz)==='x')x.fillRect(X0,Z0+10,CELL,20);else x.fillRect(X0+10,Z0,20,CELL);continue;}
     if(t==='plains'||t==='farm'||t==='truckstop'){x.fillStyle=MAPC.plains;x.fillRect(X0,Z0,CELL,CELL);x.fillStyle='#5b5f63';if(gRow(cz,X0+16))x.fillRect(X0,Z0-3,CELL,14);if(gCol(cx,Z0+16))x.fillRect(X0-3,Z0,14,CELL);continue;}
@@ -17254,9 +17288,9 @@ function updateMinimap(p,dt){
     const col=MAPC[t]||'#7a7f86';const allR=blockRuined(cx,cz);plotInfo(cx,cz).b.forEach((b,bi)=>{const ru=!allR&&ruinedB(cx,cz,bi);x.fillStyle=ru?ruinPat(x,4):col;x.fillRect(X0+b.x0,Z0+b.z0,b.x1-b.x0,b.z1-b.z0);if(ru){x.strokeStyle='#e0503c';x.lineWidth=0.7;x.strokeRect(X0+b.x0+0.35,Z0+b.z0+0.35,b.x1-b.x0-0.7,b.z1-b.z0-0.7);}});
   }
   // the railways
-  {x.strokeStyle=MAPC.rail;x.lineWidth=4;x.beginPath();for(const L of railLinksInBox(c0x*CELL,c0z*CELL,(c1x+1)*CELL,(c1z+1)*CELL))for(let i=0;i+4<L.L;i+=4){x.moveTo(L.pts[i][0],L.pts[i][1]);x.lineTo(L.pts[Math.min(L.L-1,i+4)][0],L.pts[Math.min(L.L-1,i+4)][1]);}x.stroke();}
+  if(!TENV){x.strokeStyle=MAPC.rail;x.lineWidth=4;x.beginPath();for(const L of railLinksInBox(c0x*CELL,c0z*CELL,(c1x+1)*CELL,(c1z+1)*CELL))for(let i=0;i+4<L.L;i+=4){x.moveTo(L.pts[i][0],L.pts[i][1]);x.lineTo(L.pts[Math.min(L.L-1,i+4)][0],L.pts[Math.min(L.L-1,i+4)][1]);}x.stroke();}
   // rivers and highways out across the plains, on their own lines
-  {const X0=c0x*CELL,Z0=c0z*CELL,X1=(c1x+1)*CELL,Z1=(c1z+1)*CELL,pl=(ax,az,bx,bz)=>!settlementAt(Math.floor((ax+bx)/2/CELL),Math.floor((az+bz)/2/CELL));
+  if(!TENV){const X0=c0x*CELL,Z0=c0z*CELL,X1=(c1x+1)*CELL,Z1=(c1z+1)*CELL,pl=(ax,az,bx,bz)=>!settlementAt(Math.floor((ax+bx)/2/CELL),Math.floor((az+bz)/2/CELL));
    const draw=(L,pick,col,w)=>{x.strokeStyle=col;x.lineWidth=w;x.lineCap='round';x.beginPath();for(let q=0;q<L.length;q+=2){const R=L[q],i=L[q+1];if(!pick(R))continue;const [ax,az]=R.pts[i],[bx,bz]=R.pts[i+1];if(!pl(ax,az,bx,bz))continue;x.moveTo(ax,az);x.lineTo(bx,bz);}x.stroke();};
    draw(riversNearBox(X0,Z0,X1,Z1),()=>true,MAPC.river,RIV_W*2);
    const L=routesNearBox(X0,Z0,X1,Z1);draw(L,R=>R.kind==='country','#5b5f63',14);draw(L,R=>R.kind==='moto','#7a7f86',14);}
@@ -17469,6 +17503,7 @@ function farGrow(F,cap){if(cap<=F.cap)return;scene.remove(F.m);F.m.geometry.disp
 function mkLod(step,mk){const ring={value:new THREE.Vector2(0,0)};return{B:farInst(2048,1,ring),G:farInst(1024,0,ring),ring,sb:farStage(),sg:farStage(),step,mk,job:null,cx:1e9,cz:1e9,key:-1,coll:-1,collT:0};}
 // the near ring: everything (as the single far city used to be)
 function* farJobNear(SB,SG,act,ra,rb){
+  if(TENV){const p0=act[0];farBox(SG,p0.pos.x-rb-64,G+0.3,p0.pos.z-rb-64,p0.pos.x+rb+64,G+0.4,p0.pos.z+rb+64,FARC.park);return;}   // (the Testing Environment: grass to the horizon)
   {const p0=act[0];farBox(SG,p0.pos.x-rb-64,G+0.3,p0.pos.z-rb-64,p0.pos.x+rb+64,G+0.4,p0.pos.z+rb+64,FARC.road);}  // road-coloured floor
     const seen=new Set();
     for(const p of act)for(let px=Math.floor((p.pos.x-rb)/CELL);px<=Math.floor((p.pos.x+rb)/CELL);px++){yield;for(let pz=Math.floor((p.pos.z-rb)/CELL);pz<=Math.floor((p.pos.z+rb)/CELL);pz++){
@@ -17521,6 +17556,7 @@ function* farJobNear(SB,SG,act,ra,rb){
 }
 // the middle ring: a plain box per building
 function* farJobMid(SB,SG,act,ra,rb){
+  if(TENV){const p0=act[0];farBox(SG,p0.pos.x-rb-64,G+0.3,p0.pos.z-rb-64,p0.pos.x+rb+64,G+0.4,p0.pos.z+rb+64,FARC.park);return;}
   {const p0=act[0];farBox(SG,p0.pos.x-rb-64,G+0.3,p0.pos.z-rb-64,p0.pos.x+rb+64,G+0.4,p0.pos.z+rb+64,FARC.road);}
   const seen=new Set();
   for(const p of act)for(let px=Math.floor((p.pos.x-rb)/CELL);px<=Math.floor((p.pos.x+rb)/CELL);px++){yield;for(let pz=Math.floor((p.pos.z-rb)/CELL);pz<=Math.floor((p.pos.z+rb)/CELL);pz++){
@@ -17551,6 +17587,7 @@ function* farJobMid(SB,SG,act,ra,rb){
 // the far ring: one box per town block, from the cheap per-block guesses (no plots worked out)
 const FAR3_WALLS=[BRICK,CONCRETE,SIDING,STUCCO,GLASS,PAINT_WHITE].map(b=>new THREE.Color(blockColor(b)).lerp(new THREE.Color(blockColor(GLASS)),0.25));
 function* farJobFar(SB,SG,act,ra,rb){
+  if(TENV){const p0=act[0];farBox(SG,p0.pos.x-rb-128,G+0.3,p0.pos.z-rb-128,p0.pos.x+rb+128,G+0.4,p0.pos.z+rb+128,FARC.park);return;}
   {const p0=act[0];farBox(SG,p0.pos.x-rb-128,G+0.3,p0.pos.z-rb-128,p0.pos.x+rb+128,G+0.4,p0.pos.z+rb+128,FARC.park);}   // (out here it's mostly fields)
   const seen=new Set(),C4=4*CELL;
   for(const p of act)for(let qx=Math.floor((p.pos.x-rb)/C4);qx<=Math.floor((p.pos.x+rb)/C4);qx++){yield;for(let qz=Math.floor((p.pos.z-rb)/C4);qz<=Math.floor((p.pos.z+rb)/C4);qz++){
@@ -17663,6 +17700,7 @@ const PLACE_LBL={city:'\u{1F3D9}\uFE0F City',large:'\u{1F3E2} Large town',small:
 function whereLabel(){
   const p=players.find(q=>q.active)||players[0];if(!p)return'';
   const px=Math.floor(p.pos.x/CELL),pz=Math.floor(p.pos.z/CELL),S=settlementAt(px,pz);
+  if(TENV&&!tenvShow(px,pz))return'\u{1F9EA} Testing Environment';
   {const u=underAt(p.pos.x,p.pos.y,p.pos.z);if(u){const L=u==='sewer'?'\u{1F400} Sewers':u==='cave'?(bigPlainsAt(px,pz)&&bigPlainsAt(px,pz).kind==='mine'?'\u26CF\uFE0F Mine workings':'\u{1F987} Caves'):'\u{1F687} Subway';return S?'<div class="sname">'+setName(S)+'</div>'+L:L;}}
   if(seaPlot(px,pz)){const t=plotType(px,pz),O=t==='yard'||t==='basin'||t==='harbor'||t==='beach'?coastOwner(px,pz):null,on=O?'<div class="sname">'+setName(O)+'</div>':'';if(O&&coastD(p.pos.x,p.pos.z)<4)return on+(t==='harbor'?(plotInfo(px,pz).fish?'\u{1F41F} Fishing docks':'\u2693 Docks'):t==='beach'?'\u{1F3D6}\uFE0F Beach':'\u{1F6A2} Shipping port');return t==='yard'||t==='basin'?'\u{1F6A2} Shipping port':t==='navy'||t==='nbasin'?'\u2693 Naval base':t==='harbor'?'\u2693 Docks':t==='lighthouse'?'\u{1F5FC} Lighthouse':t==='rig'?'\u{1F6E2}\uFE0F Oil rig':coastD(p.pos.x,p.pos.z)>=0?'\u{1F30A} Ocean':t==='beach'?'\u{1F3D6}\uFE0F Beach':'\u{1F30A} Coast';}
   if(S)return '<div class="sname">'+setName(S)+'</div>'+(zoneAt(px,pz)==='suburb'?'\u{1F3E1} Suburbs of a '+PLACE_KIND[setKind(S)].toLowerCase():PLACE_LBL[setKind(S)]);
@@ -17717,6 +17755,7 @@ function frame(now){
   const dt=Math.max(0,Math.min(0.06,(now-last)/1000));last=now;   // (never below 0: a long boot can hand the first frame a timestamp older than last, and negative time winds timers up, which queued a stomp nobody pressed)
   if(menuOpen)obitPreviewTick(dt);
   if(menuOpen&&curTab==='dev'){safe('dev',()=>devTick(dt));safe('devst',()=>stTick(dt));}
+  if(TS.search)safe('tenv',tenvTick);
   readInputs(dt);
   playing=!menuOpen&&players.some(p=>p.active&&!p.paused);
   // game time: scaled by the debug speed (0 when paused, or one 60th of a second for a single step), and cut
@@ -17781,8 +17820,8 @@ const confirmEl=document.getElementById('confirm');
 document.getElementById('newWorld').addEventListener('click',()=>{confirmEl.hidden=false;document.getElementById('confirmNo').focus();});
 document.getElementById('confirmNo').addEventListener('click',()=>{confirmEl.hidden=true;});
 document.getElementById('confirmYes').addEventListener('click',()=>{
-  if(freshWorld(TEST_OFF))return;   // (a reload: everything worked out afresh for the new seed)
-  confirmEl.hidden=true;seed=(Math.random()*1e9)|0;edits={};collapses={};wrecked={};destroyed={};destroyVer++;setDCache.clear();downFix.clear();falling.clear();chunkEdits.clear();clearBodies();clearWorld();
+  if(freshWorld([]))return;   // (a reload: everything worked out afresh for the new seed)
+  confirmEl.hidden=true;TEST_OFF=new Set();seed=(Math.random()*1e9)|0;edits={};collapses={};wrecked={};destroyed={};destroyVer++;setDCache.clear();downFix.clear();falling.clear();chunkEdits.clear();clearBodies();clearWorld();
   for(const d of decals)d.visible=false;for(const p of players)p.pool.visible=false;for(const s of scorches)s.visible=false;
   for(const c of cars){c.alive=false;c.g.visible=false;c.respawnT=1;}
   score=0;kills=0;playTime=0;resetGoblins();
@@ -17793,8 +17832,7 @@ document.getElementById('confirmYes').addEventListener('click',()=>{
   try{localStorage.removeItem(POS_KEY);}catch(e){}
   boot();save();
 });
-// ---- test worlds: a checklist of every kind of structure; the world is then built with only the ones left ticked ----
-const TEST_KEY='goblin-stompin-gus-test';
+// ---- every kind of structure the world builds, in groups (the Structures preview and the Testing Environment list them) ----
 const TEST_GROUPS=[
   ['Town blocks',[['courthouse','Courthouses'],['tower','Office towers'],['mid','Mid-rise blocks'],['homes','Houses'],['shops','Little shops'],['park','Parks'],['plaza','Plazas'],['gas','Gas stations'],['food','Restaurants'],['fastfood','Fast food'],['fire','Fire stations'],['police','Police stations'],['build','Construction sites'],['wtower','Water towers'],['bell','Bell towers'],['church','Churches'],['cemetery','Cemeteries'],['library','Libraries'],['bank','Banks'],['news','TV news'],['radio','Radio stations'],['disco','Discos'],['club','Night clubs'],['court','Basketball courts'],['derelict','Derelict buildings'],['mansion','Mansions'],['trailers','Trailer parks'],['camp','Encampments'],['farmers',"Farmers' markets"],['nursery','Tree nurseries'],['dealer','Car dealers'],['armory','Armories'],['theater','Theatres'],['stocks','Stock exchange'],['datacenter','Data centers'],['electric','Electric company'],['lab','Goblin labs'],['jail','Jails']]],
   ['Big sites',[['hospital','Hospitals'],['garage','Car parks'],['mega','Mega-buildings'],['market','Supermarkets'],['drug','Drugstores'],['sitdown','Sit-down restaurants'],['mall','Malls'],['bigbox','Superstores'],['ikea','Furniture superstores'],['cathedral','Cathedrals'],['museum','Museums'],['aquarium','Aquariums'],['casino','Casinos'],['school','Schools'],['factory','Factories'],['cinema','Cinemas'],['stadium','Stadiums'],['arena','Arenas'],['campus','Universities'],['prison','Prisons'],['water','Water works'],['power','Power stations'],['nuclear','Nuclear plants'],['zoo','Zoos'],['studio','Film studios'],['theme','Theme parks'],['bigpark','Big parks'],['hood','Housing estates'],['capitol','The capitol']]],
@@ -17802,47 +17840,153 @@ const TEST_GROUPS=[
   ['Railways',[['rail','Railways'],['station','Train stations']]],
   ['Coast',[['sea','The ocean'],['beach','Beaches'],['harbor','Docks'],['yard','Shipping ports (coastal cities)'],['navy','Naval bases'],['lighthouse','Lighthouses'],['rig','Oil rigs'],['wreck','Shipwrecks']]],
   ['Underground',[['sewers','Sewers'],['subway','Subway'],['caves','Caves']]]];
-const TEST_ALL=TEST_GROUPS.flatMap(g=>g[1].map(i=>i[0]));
-let tpOff=null;
+// ---- the Testing Environment: an empty, flat world to try things out in. Any kind of structure can be spawned into it
+// (the nearest one in this world's plan is let through, dressed by the world's own code, and Gus put down beside it),
+// and goblins, police and cars a few steps ahead of where Gus is looking. Your own city is put aside meanwhile ----
+const TENV_PARK='goblin-stompin-gus-city-parked';
+// (kinds that are parts of a highway rather than a place: there's no highway here to put them on)
+const TENV_SKIP=new Set(['pylons','billboards','tolls']);
+const TS={search:null,n:1};
+function tsSet(m){const el=document.getElementById('tpInfo');if(el)el.textContent=m;}
+const tenvTaken=F=>TENV.boxes.some(B=>F.ax<B.ax+B.w&&B.ax<F.ax+F.w&&F.az<B.az+B.h&&B.az<F.az+F.h);
 function tpRender(){
-  const box=document.getElementById('tpGroups');if(!box)return;box.innerHTML='';
-  for(const [name,items] of TEST_GROUPS){const sec=document.createElement('div');
-    const h=document.createElement('div');h.className='tp-gh';h.textContent=name;
-    for(const [lbl,on] of [['all',true],['none',false]]){const b=document.createElement('button');b.type='button';b.textContent=lbl;b.addEventListener('click',()=>{for(const [k] of items){if(on)tpOff.delete(k);else tpOff.add(k);}tpRender();});h.append(b);}
+  const box=document.getElementById('tpGroups');if(!box)return;
+  if(!box.childElementCount)for(const [name,items] of stGroups()){const L=items.filter(([k])=>!TENV_SKIP.has(k));if(!L.length)continue;
+    const sec=document.createElement('div'),h=document.createElement('div');h.className='tp-gh';h.textContent=name;
     const grid=document.createElement('div');grid.className='tp-grid';
-    for(const [k,l] of items){const b=document.createElement('button');b.type='button';b.className='tog';b.setAttribute('role','checkbox');b.setAttribute('aria-checked',String(!tpOff.has(k)));
-      b.innerHTML='<span class="box" aria-hidden="true"></span><span class="tl"></span>';b.querySelector('.tl').textContent=l;
-      b.addEventListener('click',()=>{if(tpOff.has(k))tpOff.delete(k);else tpOff.add(k);b.setAttribute('aria-checked',String(!tpOff.has(k)));tpCount();});grid.append(b);}
+    for(const [k,l] of L){const b=document.createElement('button');b.type='button';b.className='tp-k';b.dataset.k=k;b.textContent=l;b.addEventListener('click',()=>tenvSpawn(k));grid.append(b);}
     sec.append(h,grid);box.append(sec);}
-  tpCount();
+  const pl=document.getElementById('tpPlaced'),ps=document.getElementById('tpPlacedSec');
+  if(pl){pl.innerHTML='';const B=TENV?TENV.boxes:[];if(ps)ps.hidden=!B.length;
+    B.forEach((F,i)=>{const r=document.createElement('div');r.className='tp-pl';const t=document.createElement('span');
+      t.textContent=stName(F.k)+' · at '+Math.round((F.ax+F.w/2)*CELL)+', '+Math.round((F.az+F.h/2)*CELL);
+      const go=document.createElement('button');go.type='button';go.className='pmenu';go.textContent='Go to';go.addEventListener('click',()=>{tenvGo(F);tsSet('Gus is beside the '+stName(F.k).toLowerCase()+' again.');});
+      const rm=document.createElement('button');rm.type='button';rm.className='pmenu';rm.textContent='Remove';rm.addEventListener('click',()=>tenvRemove(i));
+      r.append(t,go,rm);pl.append(r);});}
+  for(const b of document.querySelectorAll('#tpN [data-n]'))b.setAttribute('aria-checked',String(+b.dataset.n===TS.n));
+  const sn=document.getElementById('seedNote');if(sn&&TENV)sn.textContent=`Testing Environment · ${TENV.boxes.length} structure${TENV.boxes.length===1?'':'s'} spawned · seed ${seed}`;
 }
-function tpCount(){const el=document.getElementById('tpCount');if(el)el.textContent=(TEST_ALL.length-tpOff.size)+' of '+TEST_ALL.length+' on';}
 function tpShow(on){
   const pane=document.getElementById('tabGame'),panel=document.getElementById('testPanel');pane.classList.toggle('testing',on);panel.hidden=!on;
-  if(on){// (the first time: everything ticked; after that, the last checklist you spawned)
-    let last=null;try{last=JSON.parse(localStorage.getItem(TEST_KEY)||'null');}catch(e){}
-    tpOff=new Set(TEST_OFF.size?TEST_OFF:Array.isArray(last)?last:[]);tpRender();
-    document.getElementById('tpNormal').hidden=!TEST_OFF.size;
-    setTimeout(()=>{const b=document.getElementById('tpGo');if(b)b.focus();},0);}
+  if(on){tpRender();setTimeout(()=>{const b=document.getElementById('tpGo');if(b&&!panel.contains(document.activeElement))b.focus();},0);}
   else{const b=document.getElementById('testWorld');if(b)b.focus();}
 }
 // a fresh world (a new seed, nothing smashed, no saved position or obituary), built under the given switches: saved,
 // then the page reloads so everything's worked out from scratch
-function freshWorld(off){
-  try{localStorage.setItem(SAVE_KEY,JSON.stringify({seed:(Math.random()*1e9)|0,edits:{},coll:{},down:[],dest:{},test:[...off]}));
+function freshWorld(off,tenv){
+  try{localStorage.setItem(SAVE_KEY,JSON.stringify({seed:(Math.random()*1e9)|0,edits:{},coll:{},down:[],dest:{},test:[...off],tenv}));
     localStorage.removeItem(POS_KEY);localStorage.removeItem(OBIT_KEY);
     if(localStorage.getItem(SAVE_KEY)){clearTimeout(saveTimer);saveBlocked=true;location.reload();return true;}}catch(e){}
   return false;
 }
-document.getElementById('testWorld').addEventListener('click',()=>tpShow(true));
+// into the Testing Environment: your city (as it is this moment, where you stand, its obituary) is put aside first
+function tenvEnter(){
+  try{savePos();localStorage.setItem(TENV_PARK,JSON.stringify({key:SAVE_KEY,save:JSON.stringify({seed,edits,coll:collapses,wreck:wrecked,down:[...downFix],dest:destroyed,test:[...TEST_OFF]}),
+    pos:localStorage.getItem(POS_KEY),obit:localStorage.getItem(OBIT_KEY)}));}catch(e){}
+  if(freshWorld([],{boxes:[]}))return;
+  // (no storage to reload from: started here and now)
+  TENV={boxes:[]};tenvIndex();document.getElementById('confirmYes').click();tpShow(true);
+}
+// and back out: the city you left, just as it was (or, if there isn't one, a brand-new one)
+function tenvLeave(){
+  let P=null;try{P=JSON.parse(localStorage.getItem(TENV_PARK)||'null');}catch(e){}
+  if(P&&P.key===SAVE_KEY&&P.save){try{localStorage.setItem(SAVE_KEY,P.save);
+    for(const [k,v] of [[POS_KEY,P.pos],[OBIT_KEY,P.obit]])if(v)localStorage.setItem(k,v);else localStorage.removeItem(k);
+    localStorage.removeItem(TENV_PARK);clearTimeout(saveTimer);saveBlocked=true;location.reload();return;}catch(e){}}
+  if(!freshWorld([])){TENV=null;tenvIndex();document.getElementById('confirmYes').click();tpShow(false);}
+}
+// the chunks a box covers (and one more all round, whose faces meet it) made again from the plan: shown or flat
+function tenvRebuild(F){
+  const c0x=Math.floor(F.ax*CELL/CS)-1,c1x=Math.floor(((F.ax+F.w)*CELL-1)/CS)+1,c0z=Math.floor(F.az*CELL/CS)-1,c1z=Math.floor(((F.az+F.h)*CELL-1)/CS)+1;
+  for(let cx=c0x;cx<=c1x;cx++)for(let cz=c0z;cz<=c1z;cz++){const k=ckey(cx,cz);chunks.delete(k);gfxRecC.delete(k);}
+  lastK=-1;
+  for(let cx=c0x;cx<=c1x;cx++)for(let cz=c0z;cz<=c1z;cz++)if(meshes.has(ckey(cx,cz)))buildChunk(cx,cz);
+  farDirty=true;
+}
+// Gus (and Gertie) put down on the grass just south of a box, looking at it
+function tenvGo(F){
+  const x=(F.ax+F.w/2)*CELL,z=(F.az+F.h)*CELL+6;
+  for(const p of players){if(!p.active)continue;p.heading=Math.PI;placePlayer(p,new V3(x+(p===P1?0:3),G+1,z));}
+  updateChunks(999,0);
+  for(const p of players)if(p.active){const f=footprint(p);if(f!==null&&f!==undefined)p.pos.y=f;}
+}
+function tenvSpawn(key){
+  if(!TENV)return;
+  const p=players.find(q=>q.active)||P1;
+  TS.search={key,cx:Math.floor(p.pos.x/CELL),cz:Math.floor(p.pos.z/CELL),r:0};
+  tsSet('Looking for '+stName(key).toLowerCase()+'…');
+}
+// the search: ring by ring out from Gus, a few milliseconds a frame, passing over any that's already been spawned
+function tenvTick(){
+  const S=TS.search;if(!S||!TENV){TS.search=null;return;}
+  const t0=performance.now(),cx=S.cx,cz=S.cz,R1=stR(S.key);
+  for(;S.r<=R1;S.r++){const r=S.r;
+    for(let i=-r;i<=r;i++)for(const [px,pz] of (r===0?[[cx,cz]]:Math.abs(i)===r?[[cx+i,cz-r],[cx+i,cz+r]]:[[cx+i,cz-r],[cx+i,cz+r],[cx-r,cz+i],[cx+r,cz+i]])){
+      let m=null;try{m=stMatch(S.key,px,pz);}catch(e){}
+      if(m&&!tenvTaken(m)){TS.search=null;tenvPlace(S.key,m);return;}}
+    if(performance.now()-t0>12){S.r++;tsSet('Looking for '+stName(S.key).toLowerCase()+'… ('+Math.round(S.r*CELL).toLocaleString()+' blocks out)');return;}}
+  TS.search=null;tsSet('There\'s no '+stName(S.key).toLowerCase().replace(/s$/,'')+' within '+(R1*CELL).toLocaleString()+' blocks in this world\'s plan. Try another kind, or go to one spawned further off and look from there.');
+}
+function tenvPlace(key,F){
+  TENV.boxes.push({k:key,ax:F.ax,az:F.az,w:F.w,h:F.h});tenvIndex();tenvRebuild(F);tenvGo(F);save();
+  tsSet(stName(key)+' spawned. Gus is just south of it, looking its way.');tpRender();
+}
+function tenvRemove(i){
+  const F=TENV&&TENV.boxes[i];if(!F)return;TENV.boxes.splice(i,1);tenvIndex();
+  // (gone for good: what was smashed there goes too, so a fresh one can be spawned in its place)
+  const X0=F.ax*CELL,Z0=F.az*CELL,X1=X0+F.w*CELL,Z1=Z0+F.h*CELL,inF=(x,z)=>x>=X0&&x<X1&&z>=Z0&&z<Z1;
+  for(const k in edits){const [x,,z]=k.split(',').map(Number);if(inF(x,z))delete edits[k];}
+  for(const [k,L] of chunkEdits){const f=L.filter(([x,,z])=>!inF(x,z));if(!f.length)chunkEdits.delete(k);else if(f.length<L.length)chunkEdits.set(k,f);}
+  for(const k in collapses){const [px,pz]=k.split(',').map(Number);if(px>=F.ax&&px<F.ax+F.w&&pz>=F.az&&pz<F.az+F.h)delete collapses[k];}
+  for(let i2=0;i2<F.w;i2++)for(let j=0;j<F.h;j++)explored.delete((F.ax+i2)+','+(F.az+j));
+  tenvRebuild(F);save();tsSet(stName(F.k)+' removed.');tpRender();
+}
+// enemies: a few steps ahead of where the camera looks, spread round that spot (cars further off, to drive in at you)
+function tenvFoe(kind){
+  if(!TENV)return;const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active);if(!p)return;
+  const car=kind==='police'||kind==='car',fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw),d=car?20:8,cx=p.pos.x+fx*d,cz=p.pos.z+fz*d;let made=0;
+  for(let i=0;i<TS.n;i++){
+    // (a car wants open ground, not a roof or a wall: a few tries for a clear spot)
+    let x=cx,z=cz;for(let t=0;t<(car?16:1);t++){const a=Math.random()*Math.PI*2,r=i||t?(car?4:1.2)+Math.random()*(car?8+t:4):0;x=cx+Math.cos(a)*r;z=cz+Math.sin(a)*r;
+      if(!car||groundAt(x,z,G+40)<=G+1.05&&!cars.some(o=>o.alive&&Math.hypot(o.pos.x-x,o.pos.z-z)<5))break;}
+    const y=groundAt(x,z,car?G+40:p.pos.y+6),h=Math.atan2(p.pos.x-x,p.pos.z-z);
+    if(car){
+      let c=cars.find(o=>!o.alive&&!o.svcPool&&!o.pullPool&&!o.parkPool&&!o.hwPool&&(kind==='police'?o.police:!o.police));
+      if(!c){c=makeCar(cars.length,kind==='police');c.g.scale.setScalar(ES);c.respawnT=1e9;cars.push(c);}
+      if(kind!=='police')setVeh(c,pickVeh('street'));
+      c.driver=makeDriver(kind==='police');c.path=null;c.hw=null;c.rt=null;c.svc=null;c.leaving=false;c.rampKey=null;c.spot=null;c.makeWay=0;
+      c.pos.set(x,y,z);c.heading=h;c.speed=0;c.kv.set(0,0,0);c.hp=kind==='police'?40:30;c.alive=true;c.hunter=true;c.parked=false;c.vy=0;c.lastInter=-1;
+      c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.paint.emissive.setHex(0);c.g.visible=true;made++;continue;}
+    const civ=kind==='civ';
+    let g=goblins.find(o=>!!o.civ===civ&&!o.staff&&o.state==='wait');
+    if(!g){if(civ)addCiv();else addHostile();g=goblins[goblins.length-1];}
+    g.cop=null;g.inv=false;g.ff=null;g.medic=null;g.news=null;g.vendor=null;g.employer=null;g.claim=null;g.alert=false;g.act=null;g.wt=null;
+    if(civ){g.hp=g.hpMax=3;g.state='chase';g.t=0;g.sink=0;g.hurt=0;g.vy=0;g.kv.set(0,0,0);g.stun=0;g.idle=0;g.screamCD=0;g.fleeing=false;g.detour=0;
+      g.root.visible=true;g.root.rotation.set(0,0,0);g.arm.rotation.x=0;g.armL.rotation.x=0;g.id=makeIdentity(g,dressGoblin(g));}
+    else if(!spawnGoblin(g,true))continue;
+    g.pos.set(x,y,z);g.indoor=false;g.heading=h;
+    if(kind==='cop'){
+      const L=dressGoblin(g);L.tunic=0x1c2a5a;L.pants=0x1c2a5a;L.show=L.show.filter(k=>!['cap','top','beanie','hardhat','bandana','mohawk','scarf','tie','backpack','apron','eyepatch'].includes(k));L.hatType='cap';L.hat=0x1c2a5a;L.show.push('cap');L.hatShown=L.hat;applyLook(g,L,ES);
+      g.id=makeIdentity(g,L);g.id.occ='Police officer, Goblin Police Dept.';}
+    made++;}
+  const nm={goblin:['goblin','goblins'],cop:['police officer','police officers'],civ:['civilian','civilians'],police:['police car','police cars'],car:['hunting car','hunting cars']}[kind];
+  tsSet(made?('Spawned '+made+' '+nm[made>1?1:0]+' ahead of Gus.'):'Couldn\'t spawn any '+nm[1]+' just now.');
+}
+function tenvClear(){
+  for(const g of goblins)if(g.state!=='wait'){g.state='wait';g.t=0;g.root.visible=false;g.cop=null;g.inv=false;g.ff=null;g.medic=null;g.news=null;g.vendor=null;g.claim=null;g.act=null;}
+  for(const c of cars)if(c.alive&&!c.svcPool){c.alive=false;c.g.visible=false;c.hunter=false;c.respawnT=1e9;}
+  tsSet('Cleared every goblin and car.');
+}
+document.getElementById('testWorld').addEventListener('click',()=>{if(TENV)tpShow(true);else tenvEnter();});
 document.getElementById('tpCancel').addEventListener('click',()=>tpShow(false));
-document.getElementById('tpAll').addEventListener('click',()=>{tpOff.clear();tpRender();});
-document.getElementById('tpNone').addEventListener('click',()=>{tpOff=new Set(TEST_ALL);tpRender();});
-document.getElementById('tpGo').addEventListener('click',()=>{try{localStorage.setItem(TEST_KEY,JSON.stringify([...tpOff]));}catch(e){}if(!freshWorld(tpOff)){TEST_OFF=new Set(tpOff);document.getElementById('confirmYes').click();tpShow(false);}});
-document.getElementById('tpNormal').addEventListener('click',()=>{if(!freshWorld([])){TEST_OFF=new Set();document.getElementById('confirmYes').click();tpShow(false);}});
+document.getElementById('tpGo').addEventListener('click',()=>startPlay());
+document.getElementById('tpNormal').addEventListener('click',()=>tenvLeave());
+document.getElementById('tpClear').addEventListener('click',()=>tenvClear());
+for(const b of document.querySelectorAll('#tpFoes [data-foe]'))b.addEventListener('click',()=>tenvFoe(b.dataset.foe));
+for(const b of document.querySelectorAll('#tpN [data-n]'))b.addEventListener('click',()=>{TS.n=+b.dataset.n;tpRender();});
 // where Gus was standing last time (in this city): saved every couple of seconds and when the page closes
 const POS_KEY='goblin-stompin-gus-pos';
-function savePos(){try{if(!P1.active||P1.deadT>0||!isFinite(P1.pos.x)||!P1.grounded||P1.state!=='walk')return;   // (only where he's standing: never mid-jump, mid-boost or clinging to a wall)
+function savePos(){try{if(saveBlocked||!P1.active||P1.deadT>0||!isFinite(P1.pos.x)||!P1.grounded||P1.state!=='walk')return;   // (only where he's standing: never mid-jump, mid-boost or clinging to a wall)
   localStorage.setItem(POS_KEY,JSON.stringify({seed,x:+P1.pos.x.toFixed(2),y:+P1.pos.y.toFixed(2),z:+P1.pos.z.toFixed(2),h:+P1.heading.toFixed(3),yaw:+P1.cam.yaw.toFixed(3)}));}catch(e){}}
 function loadPos(){try{const q=JSON.parse(localStorage.getItem(POS_KEY)||'null');if(q&&q.seed===seed&&[q.x,q.y,q.z].every(Number.isFinite)&&q.y>0&&q.y<H)return q;}catch(e){}return null;}
 addEventListener('pagehide',savePos);addEventListener('beforeunload',savePos);
@@ -17857,7 +18001,8 @@ function boot(){
   // (once the ground under him has been built, stand him back on it)
   if(sp){const f=footprint(P1);if(f!==null&&f!==undefined&&f>=P1.pos.y-1.5)P1.pos.y=f;}
   layout();
-  document.getElementById('seedNote').textContent=(TEST_OFF.size?`Test world: ${TEST_ALL.length-TEST_OFF.size} of ${TEST_ALL.length} kinds of structure on · `:'')+`City seed ${seed} · endless · smashed blocks save in this browser`;
+  document.getElementById('seedNote').textContent=TENV?`Testing Environment · ${TENV.boxes.length} structure${TENV.boxes.length===1?'':'s'} spawned · seed ${seed}`:`City seed ${seed} · endless · smashed blocks save in this browser`;
+  if(TENV)tpShow(true);
 }
 if(!load())seed=(Math.random()*1e9)|0;
 resize();
