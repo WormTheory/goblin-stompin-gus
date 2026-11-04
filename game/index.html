@@ -9708,7 +9708,9 @@ function movePlayer(p,dt){
   // standing on a car: ride along with it
   if(p.standCar&&p.grounded&&p.standCar.alive){const c=p.standCar;if(p.rideC===c){
       {let d=c.heading-p.rideH;d=Math.atan2(Math.sin(d),Math.cos(d));if(Math.abs(d)>0.7)d=0;   // (a car that's turned right round in a moment doesn't take you with it)
-        const ex=p.pos.x-p.rideX,ez=p.pos.z-p.rideZ,cd=Math.cos(d),sd=Math.sin(d);p.pos.x=c.pos.x+ex*cd+ez*sd;p.pos.z=c.pos.z-ex*sd+ez*cd;p.heading+=d;if(p.cam)p.cam.yaw+=d;p.pos.y=c.isPlane?c.top:Math.max(p.pos.y,c.isTrain?c.top:c.pos.y+1.1*ES);}}
+        const ex=p.pos.x-p.rideX,ez=p.pos.z-p.rideZ,cd=Math.cos(d),sd=Math.sin(d);p.pos.x=c.pos.x+ex*cd+ez*sd;p.pos.z=c.pos.z-ex*sd+ez*cd;p.heading+=d;if(p.cam)p.cam.yaw+=d;p.pos.y=c.isPlane?c.top:Math.max(p.pos.y,c.isTrain?c.top:c.pos.y+1.1*ES);
+        // (going down a ramp the roof sinks away under you: you stay on it, you don't fall behind)
+        if(!c.isTrain&&p.vy<=0.01){const ct=carTop(p);if(ct&&ct.c===c&&ct.y<p.pos.y&&p.pos.y-ct.y<2.5)p.pos.y=ct.y;}}}
     p.rideC=c;p.rideX=c.pos.x;p.rideZ=c.pos.z;p.rideH=c.heading;}else p.rideC=null;
   for(const o of players){if(o===p||!o.active||o.state==='dead')continue;const dx=p.pos.x-o.pos.x,dz=p.pos.z-o.pos.z,d=Math.hypot(dx,dz),gap=DT.gob?0.9:2.4;if(d<gap&&d>0.001)shove(p,dx/d*(gap-d)*0.5,dz/d*(gap-d)*0.5);}
   let g=p.state==='climb'||p.state==='piv'||p.state==='ceil'?null:footprint(p);   // clinging to a wall: no gravity

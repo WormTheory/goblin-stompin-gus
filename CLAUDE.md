@@ -42,6 +42,7 @@ node stairaudit.js 160     # which buildings with more than one floor still have
 node signcount.js 150      # how many signs each kind of building carries
 node wcaudit.js 150        # which buildings have no bathroom, floor by floor (`wcRooms` places them)
 node carride.js            # drop on to moving vehicles: land, ride, no damage
+node rampride.js           # riding real vehicles up and down real ramps
 node planeride.js          # airplanes: stand on one, ride a whole flight, wreck them
 node coastaudit.js 500     # coastal places by kind, what each one has, which ports belong to whom
 ```
