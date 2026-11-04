@@ -4,7 +4,7 @@
 // (with G=window.__G to hand), so spots can be worked out from the world itself.
 const {chromium}=require('playwright');
 const fs=require('fs');
-const SAVE_KEY=fs.readFileSync('t3.html','utf8').match(/SAVE_KEY='([^']+)'/)[1];
+const SAVE_KEY=fs.readFileSync(process.env.T3||'t3.html','utf8').match(/SAVE_KEY='([^']+)'/)[1];
 const scenes=fs.readFileSync(process.argv[2],'utf8'),out=process.argv[3]||'shots',seed=+(process.argv[4]||12345),wait=+(process.argv[5]||6000);
 (async()=>{fs.mkdirSync(out,{recursive:true});
 const b=await chromium.launch({args:['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']});
@@ -13,7 +13,7 @@ const errs=[];p.on('pageerror',e=>errs.push(e.message));
 await p.addInitScript(([k,s])=>{localStorage.setItem(k,JSON.stringify({seed:s}));},[SAVE_KEY,seed]);
 // (TOUR_VIEW: how far to see, in blocks. The fog's set by it, so big sites can be seen whole.)
 if(process.env.TOUR_VIEW)await p.addInitScript(v=>{localStorage.setItem('goblin-stompin-gus-view',v);localStorage.setItem('goblin-stompin-gus-detail',String(Math.min(+v,480)));},process.env.TOUR_VIEW);
-await p.goto('file://'+process.cwd()+'/t3.html');await p.waitForTimeout(2500);
+await p.goto('file://'+process.cwd()+'/'+(process.env.T3||'t3.html'));await p.waitForTimeout(2500);
 await p.evaluate(()=>document.getElementById('play').click());await p.waitForTimeout(1500);
 // (no HUD and no Gus in the picture: this is for looking at the world. Time stands still so nothing wrecks the view.)
 await p.addStyleTag({content:'body>*:not(canvas){visibility:hidden!important}canvas{visibility:visible!important}'});

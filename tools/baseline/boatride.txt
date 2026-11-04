@@ -1,0 +1,39 @@
+open sea at plot -30,5
+pedalo  stood on true at 0.45 bobbing off 0/60 riding off 0/400 sunk by 1 x20, score 25 rider let go true sank in 5.8s to -6.6
+row     stood on true at 0.45 bobbing off 0/60 riding off 0/400 sunk by 2 x20, score 50 rider let go true sank in 6.9s to -7.1
+speed   stood on true at 1.10 bobbing off 0/60 riding off 0/160 sunk by 3 x20, score 150 rider let go true sank in 8.8s to -8.3
+launch  stood on true at 2.30 bobbing off 0/60 riding off 270/297 sunk by 5 x20, score 200 rider let go true sank in 10.9s to -9.4
+sail    stood on true at 1.70 bobbing off 0/60 riding off 0/400 sunk by 4 x20, score 250 rider let go true sank in 11.6s to -9.7
+fish    stood on true at 3.40 bobbing off 0/60 riding off 0/400 sunk by 6 x20, score 300 rider let go true sank in 13.0s to -10.8
+tug     stood on true at 4.80 bobbing off 0/60 riding off 0/400 sunk by 10 x20, score 400 rider let go true sank in 13.7s to -11.5
+ferry   stood on true at 4.20 bobbing off 0/60 riding off 0/400 sunk by 20 x20, score 800 rider let go true sank in 23.4s to -15.8
+navy    stood on true at 3.00 bobbing off 0/60 riding off 0/400 sunk by 35 x20, score 2000 rider let go true sank in 24.8s to -18.0
+cargo   stood on true at 3.00 bobbing off 0/60 riding off 0/400 sunk by 50 x20, score 2000 rider let go true sank in 29.8s to -25.1
+attack area finds the boat true above it 0
+swim beside the hull: wet true rose 4.3 deck 4.2 aboard true
+swim other side: wet true rose 5.1 deck 4.2 aboard true
+routes 16871 leaving open water 0 {"cargo no room":109,"launch":3296,"fish":2863,"sail":5991,"tug":834,"cargo":1390,"ferry":778,"speed":1466,"navy":253,"launch no room":79,"fish no room":92,"ferry no room":52,"navy no room":16,"tug no room":5,"sail no room":5,"speed no room":2}
+    73 basin plots
+    53 basin: cargo
+    30 basin: tug
+   344 beach plots
+    36 beach: launch
+   153 beach: row on land
+    90 beach: sail
+    41 beach: speed
+    10 fishing village plots
+     1 harbor (village): fish
+     4 harbor (village): row on land
+     8 harbor (village): row
+   117 harbor plots
+     4 harbor: fish
+     2 harbor: launch
+     9 harbor: row
+     4 harbor: sail
+    94 navy plots
+    61 navy: navy dry dock
+   113 nbasin plots
+   113 nbasin: navy
+   230 rig plots
+   157 rig: tug
+done
