@@ -6857,7 +6857,7 @@ function updateSeasonW(){const s=seasonOf(),f=(((dayN-1)%SEASON_LEN)+tod)/SEASON
   purgeLeaves();
 }
 const FOLIAGE_FRAG=`
-  {vec2 tcF=floor(vec2(vUv.x*8.0,(1.0-vUv.y)*10.0));float tl=tcF.y*8.0+tcF.x;
+  {vec2 tcF=floor(vec2(vUv.x*${AC}.0,(1.0-vUv.y)*${AR}.0));float tl=tcF.y*${AC}.0+tcF.x;
    float isLeaf=step(abs(tl-6.0),0.1),isGrass=step(tl,1.1),isFlower=step(abs(tl-36.0),0.1),isCrop=step(abs(tl-55.5),0.6);
    if(isLeaf+isGrass+isFlower+isCrop>0.5){
     vec3 c=diffuseColor.rgb;float lum=dot(c,vec3(0.3,0.59,0.11));float green=clamp((c.g-max(c.r,c.b))*5.0,0.0,1.0);
@@ -6955,7 +6955,8 @@ function emitRamp(out,X,Y,Z,info){
     quad([P(1,0,0),P(1,1,0),P(1,0,1),P(1,1,1)],[-nA[0],0,-nA[2]],side,0.6,uvR);
     return;}
   // sloped top: A=(0,H00,0) B=(1,H10,0) C=(0,H01,1) D=(1,H11,1); normal points up-ish
-  quad([[0,H00,0],[1,H10,0],[0,H01,1],[1,H11,1]],[0,1,0],top,1,v=>[v[0],v[2]]);
+  // (the texture runs the same way as on a flat block's top, so the two halves of a line tile meet in the middle here too)
+  quad([[0,H00,0],[1,H10,0],[0,H01,1],[1,H11,1]],[0,1,0],top,1,v=>[1-v[0],v[2]]);
   quad([[0,0,0],[1,0,0],[0,0,1],[1,0,1]],[0,-1,0],side,0.55,v=>[v[0],v[2]]);
   // the four sides (each a trapezoid; skipped when it has no height)
   const sideQ=(a,b,ha,hb,n,sh,uOf)=>{if(ha<0.01&&hb<0.01)return;quad([[a[0],0,a[1]],[b[0],0,b[1]],[a[0],ha,a[1]],[b[0],hb,b[1]]],n,side,sh,v=>[uOf(v),v[1]]);};
