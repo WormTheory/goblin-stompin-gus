@@ -11681,8 +11681,8 @@ function navLine(x0,z0,y0,x1,z1,y1){
 function navSteer(g,p){
   const N=p.nav,F=N&&N.front;if(!F)return null;
   const i=navAt(F,g);
-  // (not on the map: jammed into the corner of a wall, usually. Out to the nearest place that is)
-  if(i<0){const x=Math.floor(g.pos.x),z=Math.floor(g.pos.z);if(!solidAt(x,Math.floor(g.pos.y+.5),z))return null;for(let d=0;d<8;d++){const X=x+NAV_DX[d],Z=z+NAV_DZ[d],f=navFloorOf(X,Z,g.pos.y);if(f&&g.pos.y-f<1.6&&X-F.ox>=0&&Z-F.oz>=0&&X-F.ox<=255&&Z-F.oz<=255&&navFind(F,navKey(F,X,Z,f))>=0)return{x:X+.5,z:Z+.5,free:true};}return null;}
+  // (not on the map: jammed into the corner of a wall, or up on a railing. Off to the nearest place that is)
+  if(i<0){const x=Math.floor(g.pos.x),z=Math.floor(g.pos.z);{const u=get(x,Math.floor(g.pos.y-.5),z);if(!solidAt(x,Math.floor(g.pos.y+.5),z)&&!(u&&BLOCK[u].post))return null;}for(let d=0;d<8;d++){const X=x+NAV_DX[d],Z=z+NAV_DZ[d],f=navFloorOf(X,Z,g.pos.y);if(f&&g.pos.y-f<1.6&&X-F.ox>=0&&Z-F.oz>=0&&X-F.ox<=255&&Z-F.oz<=255&&navFind(F,navKey(F,X,Z,f))>=0)return{x:X+.5,z:Z+.5,free:true};}return null;}
   const par=F.par[i];if(par<0)return null;
   const P=k=>({x:(k>>16&255)+F.ox,z:(k>>8&255)+F.oz,y:k&255});
   if(F.mv[i]!==NAV_WALK){const t=P(F.key[par]);gobStartMove(g,F.mv[i],t);if(g.act)return null;return{x:t.x+.5,z:t.z+.5};}
@@ -11828,7 +11828,7 @@ function updateGoblins(dt){
     for(const o of goblins){if(o===g||o.state!=='chase')continue;const ox=g.pos.x-o.pos.x,oz=g.pos.z-o.pos.z,od=Math.hypot(ox,oz);if(od<0.7&&od>0.001)nudge(g,ox/od*(0.7-od)*0.5,oz/od*(0.7-od)*0.5);}
     // in water too deep to stand in: up to the top of it and paddling, head out (or down after a hippo that's sunk close by)
     {const xi=Math.floor(g.pos.x),zi=Math.floor(g.pos.z),wy=Math.floor(g.pos.y+0.6);g.wet=get(xi,wy,zi)===WATER&&get(xi,wy-1,zi)===WATER;
-     if(g.wet){let top=wy;while(top<H-1&&get(xi,top+1,zi)===WATER)top++;let wantY=top;if(tgt&&!g.civ&&d<8&&tgt.p.wet&&tgt.p.pos.y<top)wantY=Math.max(tgt.p.pos.y,top-12);
+     if(g.wet){let top=wy;while(top<H-1&&get(xi,top+1,zi)===WATER)top++;let wantY=g.civ?top:top-0.4;if(tgt&&!g.civ&&d<8&&tgt.p.wet&&tgt.p.pos.y<top)wantY=Math.max(tgt.p.pos.y,top-12);
        g.vy=0;g.pos.y+=Math.max(-3*dt,Math.min(3*dt,wantY-g.pos.y));
        if(moving&&(g.splash=(g.splash||0)-dt)<=0){g.splash=0.4;puff(g.pos.x,top+0.9,g.pos.z,2,0xcfe8ff,0.3);}}}
     const gr=g.wet?null:supportAt(g.pos.x,g.pos.z,g.pos.y);

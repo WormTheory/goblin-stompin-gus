@@ -1,0 +1,6 @@
+car speed 7 landed true rode 4.3s damage 0 alive true
+car speed 8 landed true rode 4.1s damage 0 alive true
+car speed 8 landed true rode 0.2s damage 5 alive false
+car speed 2 landed true rode 5.8s damage 0 alive true
+van speed 8 landed true rode 5.8s damage 0 alive true
+van speed 10 landed true rode 5.8s damage 0 alive true

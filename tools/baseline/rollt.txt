@@ -4,6 +4,6 @@ roll into wall {"dist":8.8,"hop":0.37,"rollFrames":33,"maxRot":6.28,"wallLeft":"
 roll into goblin {"dist":8.8,"hop":0.37,"rollFrames":33,"maxRot":6.28,"wallLeft":"-","gobHp":91,"alwaysGrounded":false}
 blast dash {"dist":17.3,"hop":0.05,"rollFrames":0,"maxRot":0.2,"wallLeft":"-","gobHp":"-","alwaysGrounded":true}
 blast dash into wall {"dist":17.3,"hop":0.05,"rollFrames":0,"maxRot":0.2,"wallLeft":"0/18","gobHp":"-","alwaysGrounded":true}
-blast dash into goblin {"dist":17.3,"hop":0.05,"rollFrames":0,"maxRot":0.2,"wallLeft":"-","gobHp":77,"alwaysGrounded":true}
+blast dash into goblin {"dist":17.3,"hop":0.05,"rollFrames":0,"maxRot":0.2,"wallLeft":"-","gobHp":89,"alwaysGrounded":true}
 air dash {"dist":9.6,"wallLeft":"-"} blast air dash {"dist":19.4,"wallLeft":"-"}
 air dash into wall {"dist":5,"wallLeft":"90/90"} blast air dash into wall {"dist":19.4,"wallLeft":"62/90"}
