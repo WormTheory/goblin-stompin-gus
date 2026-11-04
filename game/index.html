@@ -758,7 +758,7 @@ function horizHidden(cx,cy,cz,hr,top){
     if(!o.isInstancedMesh&&horizHidden(sp.center.x,sp.center.y,sp.center.z,sp.radius,sp.center.y+sp.radius))return false;   // (over the horizon)
     const d=Math.hypot(sp.center.x-CURVE_CAM.x,sp.center.z-CURVE_CAM.z),r=sp.radius,lo=k*Math.max(0,d-r)**2,hi=k*(d+r)**2;
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v86';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v87';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -4458,7 +4458,7 @@ function plotInfo(px,pz){
     const L=Math.max(q.gf||FH,FH);
     // (a cell block: in an open hall at the far end, beside the corridor. A library: at the reading-room end, clear of the shelves)
     if(q.kind==='cells'){const I=q.x1-q.x0-2,J=q.z1-q.z0-2,long=I>=J,Wl=long?I:J,c0=(long?q.z0:q.x0)+2,r0=(long?q.x0:q.z0)+1+Wl-L-3;q.stair={ax:long?'x':'z',c0,c1:c0+3,r0,L};q.stairHall=[Wl-L-6,Wl,false];continue;}
-    if(q.ground==='library'&&q.x1-q.x0>=L+7){q.stair={ax:'x',c0:q.z0+2,c1:q.z0+5,r0:q.x0+2,L};continue;}
+    if(q.ground==='library'&&q.x1-q.x0>=L+7){q.stair={ax:'x',c0:q.z0+2,c1:q.z0+5,r0:q.x0+2,L};if(q.x1-q.x0>=90)q.stair2={ax:'x',c0:q.z1-6,c1:q.z1-3,r0:q.x1-L-5,L};continue;}   // (a very long one: stairs at the other end too)
     if(q.x1-q.x0>=L+7&&q.z1-q.z0>=10)q.stair={ax:'x',c0:q.z1-6,c1:q.z1-3,r0:q.x0+2,L};else if(q.z1-q.z0>=L+7&&q.x1-q.x0>=10)q.stair={ax:'z',c0:q.x1-6,c1:q.x1-3,r0:q.z0+2,L};}
   addLots(p,px,pz,r);
   if(type==='tower'||type==='mid'){
@@ -4636,7 +4636,7 @@ function wcRooms(b,I,J,n,ex0,ez0,fl,ex1,ez1,px,pz){
   if(b.station){L.push(I<J?{u0:0,u1:Math.min(I,4),v0:J-3,v1:J,dv:0,home:true}:{u0:I-3,u1:I,v0:0,v1:Math.min(J,4),dside:-1,home:true});return L;}
   if(Math.min(I,J)<5||I*J<36)return L;
   const S=b.stair,area=I*J,big=area>1500,w=b.home?(area>=90?5:4):area>500?7:area>=100?5:area>=60?4:3,h=b.home?(area>=140?5:area>=90?4:3):area>500?5:area>=150?4:3,tr=ex0-b.x0,cxI=((b.x0+b.x1)>>1)-ex0-1,czJ=((b.z0+b.z1)>>1)-ez0-1,st=STRUCT;
-  const hitsStair=(u0,u1,v0,v1)=>{if(!S)return false;const x0=u0+ex0+1,x1=u1+ex0+1,z0=v0+ez0+1,z1=v1+ez0+1,rx0=S.ax==='x'?S.r0-2:S.c0-1,rx1=S.ax==='x'?S.r0+S.L+2:S.c1+1,rz0=S.ax==='x'?S.c0-1:S.r0-2,rz1=S.ax==='x'?S.c1+1:S.r0+S.L+2;return x0<rx1&&x1>rx0&&z0<rz1&&z1>rz0;};
+  const hitsStair=(u0,u1,v0,v1)=>{for(const S of [b.stair,b.stair2]){if(!S)continue;const x0=u0+ex0+1,x1=u1+ex0+1,z0=v0+ez0+1,z1=v1+ez0+1,rx0=S.ax==='x'?S.r0-2:S.c0-1,rx1=S.ax==='x'?S.r0+S.L+2:S.c1+1,rz0=S.ax==='x'?S.c0-1:S.r0-2,rz1=S.ax==='x'?S.c1+1:S.r0+S.L+2;if(x0<rx1&&x1>rx0&&z0<rz1&&z1>rz0)return true;}return false;};
   // flats: one each, in whichever corner of the flat is clear of the stairs and their landing
   if(kd==='apartment'&&!b.home&&b.ground!=='firehall'&&b.style==='normal'){
     const cu=I>>1,cv=J>>1,clear=(u0,u1,v0,v1)=>{if(!S)return true;const x0=u0+ex0+1,x1=u1+ex0+1,z0=v0+ez0+1,z1=v1+ez0+1,al=S.ax==='x',a0=al?x0:z0,a1=al?x1:z1,c0=al?z0:x0,c1=al?z1:x1;return!(a0<S.r0+S.L+3&&a1>S.r0-3&&c0<S.c1+3&&c1>S.c0-3);},   // (well clear of the stairs, and of the way round them)
@@ -5223,6 +5223,8 @@ function siteAt(b,rx,rz,y){
 // along. b.stair: {ax (the way it climbs), c0,c1 (its width, across), r0 (first row, along), L (rows)}, in the building's
 // plot's coordinates. On any floor, you go up from the near end and come off at the far end of the next floor up. ----
 function stairFloors(b){if(b._stY)return b._stY;const o=[G+1];for(let y=G+(b.gf||FH)+1;y<=b.detailTop;y+=FH)o.push(y);return b._stY=o;}
+// (a very long building's second flight: the same floors, its own place)
+const stair2Of=b=>b._st2||(b._st2={stair:b.stair2,_stY:stairFloors(b)});
 function stairAt(b,rx,rz,y){
   const S=b.stair,r=(S.ax==='x'?rx:rz)-S.r0,c=S.ax==='x'?rz:rx;
   // (whatever the room's furnished with, the way onto the stairs and off them is kept clear, on every floor)
@@ -5403,6 +5405,7 @@ function blockAt(b,rx,rz,y,px,pz){
   }
   if(y>b.detailTop){STRUCT=true;return CONCRETE;}
   if(b.stair){const v=stairAt(b,rx,rz,y);if(v!==undefined)return v;}
+  if(b.stair2){const v=stairAt(stair2Of(b),rx,rz,y);if(v!==undefined)return v;}
   if(FL_SLAB)return((rx+FL_NO)%4===0&&rz%4===2)?LAMP:b.floor;
   const v=furniture(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz);
   if(v===CONCRETE)STRUCT=true;
@@ -11779,7 +11782,7 @@ function updateGoblins(dt){
       return;
     }
     const any=nearestPlayer(g.pos.x,g.pos.z,false);
-    if(!any||any.d>(g.navOn?NAV_R-5:75)){if(g.news)endNews(g);g.state='wait';g.t=0;g.root.visible=false;return;}
+    if(!any||any.d>(g.navOn||g.act?NAV_R-5:75)){if(g.news)endNews(g);g.state='wait';g.t=0;g.root.visible=false;return;}
     // more about than there'd be at this hour (night falling, a shop closing): one at a time, out of sight, they go
     // home -- quietly vanishing somewhere no one's looking
     if(!gone&&g.t>15&&any.d>28&&!g.medic&&!g.ff&&!g.cop&&!g.news&&(g.civ&&!g.staff&&civAlive>civTarget||g.staff&&g.employer&&staffAt(g.employer.key)>staffCapNow(g.employer.b))&&!visibleToAny(g.pos.x,g.pos.y+1,g.pos.z)){
@@ -11809,7 +11812,7 @@ function updateGoblins(dt){
       const hunting=!copIdle&&(!g.indoor||g.alert),inReach=d<=reach&&canHit;
       // (right below a hippo stood on something, with nothing overhead: no use looking for a way round, it's a leap. See below.)
       const below=!g.wet&&d<=reach&&ddy>=1.5&&ddy<4&&navOpen(Math.floor(g.pos.x),Math.floor(g.pos.z),Math.floor(g.pos.y)+2,Math.floor(g.pos.y+ddy));
-      g.navOn=false;if(hunting&&g.stun<=0&&!inReach&&!below&&playing){sr=navSteer(g,tgt.p);if(g.act)return;g.navOn=!!sr;}   // (and it's still after you, even if the way round takes it further off than usual)
+      g.navOn=false;if(hunting&&g.stun<=0&&!inReach&&!below&&playing){sr=navSteer(g,tgt.p);g.navOn=!!sr||!!g.act;if(g.act)return;}   // (and it's still after you, even if the way round takes it further off than usual)
       // a hippo on another floor, close by: up or down the stairs after it (or, holed up indoors, off to another floor now and then)
       // (in a long building the stairs may be further from the hippo than the goblin started: once it's set off for them, it keeps going)
       const chaseUp=Math.abs(ddy)>2.5&&d<(g.stUp!==undefined?90:32);
@@ -13989,7 +13992,7 @@ function furnProps(b,px,pz,floorNo){
       for(const [dx,dz] of N4){const X=rx+dx,Z=rz+dz;if(X<=ex0||X>=ex1-1||Z<=ez0||Z>=ez1-1)return[dx,dz];const w=raw(X,Z,l);if(w!==AIR&&w!==self&&!turns(w,X,Z,l))return[dx,dz];}
       const a=rx-ex0,e=ex1-1-rx,f=rz-ez0,g=ez1-1-rz,m=Math.min(a,e,f,g);return m===a?[-1,0]:m===e?[1,0]:m===f?[0,-1]:[0,1];};
     for(let l=0;l<nl;l++){
-      const y=G+fl0+l;if(b.stair&&stairAt(b,rx,rz,y)!==undefined)continue;
+      const y=G+fl0+l;if(b.stair&&stairAt(b,rx,rz,y)!==undefined||b.stair2&&stairAt(stair2Of(b),rx,rz,y)!==undefined)continue;
       const v=raw(rx,rz,l);if(v===AIR||!turns(v,rx,rz,l))continue;
       const put=(type,yaw,tint,off)=>{const[dx,dz]=off||[0,0],X=px*CELL+rx+.5+dx,Z=pz*CELL+rz+.5+dz;L.push({prop:true,type,x:X,z:Z,y0:y,yaw,tint,rad:.5,key:'p'+Math.round(X*4)+','+Math.round(Z*4)+','+y+type});},yawOf=d=>Math.atan2(-d[0],-d[1]);
       if(v===SHELF||v===FRIDGE||v===BED){
@@ -14019,6 +14022,7 @@ function gobGround(x,z,y,g,dt){
 // whatever's on this floor, with its bathrooms fitted: anything standing in their footprint goes, the fixtures go in
 function roomProps(b,ax,az,n,ward){
   const L=(ward?hospProps:furnProps)(b,ax,az,n);if(L._wc)return L;L._wc=true;
+  if(b.stair2){const S=b.stair2,out=L.filter(f=>{const r=f.x-ax*CELL-S.r0,c=f.z-az*CELL;return !(r>=-3&&r<S.L+3&&c>=S.c0-1.5&&c<S.c1+1.5);});L.length=0;for(const f of out)L.push(f);}   // (whatever's laid out there: the way on and off the stairs stays clear)
   const gf=b.gf||FH,y0=n===0?G+1:G+gf+1+FH*(n-1),tr=b.tier>0&&(b.x1-b.x0)>=8&&y0>b.tier?2:0,X0=ax*CELL+b.x0+tr+1,Z0=az*CELL+b.z0+tr+1;
   const R=wcOf(b,n,ax,az);if(!R.length)return L;
   const nearDoor=(f,q)=>{const dr=wcDoor(q);return Math.hypot(f.x-X0-dr[0]-.5,f.z-Z0-dr[1]-.5)<2;},out=L.filter(f=>!R.some(q=>f.x-X0>=q.u0-.3&&f.x-X0<q.u1+.3&&f.z-Z0>=q.v0-.3&&f.z-Z0<q.v1+.3||nearDoor(f,q)));L.length=0;for(const f of out)L.push(f);
@@ -14086,7 +14090,7 @@ function refreshProps(){
   for(const p of players){if(!p.active)continue;
     for(let px=Math.floor((p.pos.x-30)/CELL);px<=Math.floor((p.pos.x+30)/CELL);px++)for(let pz=Math.floor((p.pos.z-30)/CELL);pz<=Math.floor((p.pos.z+30)/CELL);pz++){
       if(biomeOf(px,pz)!=='city')continue;const Sx=superOf(px,pz);if(Sx&&(Sx.ax!==px||Sx.az!==pz))continue;
-      for(const b of plotInfo(px,pz).b){const S=b.stair;if(!S)continue;const al=S.ax==='x',R0=(al?px:pz)*CELL+S.r0,CC=(al?pz:px)*CELL,Y=stairFloors(b);
+      for(const b of plotInfo(px,pz).b)for(const S of b.stair2?[b.stair,b.stair2]:b.stair?[b.stair]:[]){const al=S.ax==='x',R0=(al?px:pz)*CELL+S.r0,CC=(al?pz:px)*CELL,Y=stairFloors(b);
         if(Math.abs((al?R0:CC+S.c0)-p.pos.x)>40||Math.abs((al?CC+S.c0:R0)-p.pos.z)>40)continue;
         for(let n=0;n+1<Y.length;n++){const L=Y[n+1]-Y[n],base=S.L-L;
           for(const c of [S.c0-1,S.c1])for(let r=base;r+1<S.L;r++){const sy=Y[n]+r-base,X=al?R0+r:CC+c,Z=al?CC+c:R0+r,X2=al?X+1:X,Z2=al?Z:Z+1;

@@ -55,7 +55,7 @@ const chase=(label,from,to)=>{if(!from||!to){console.log(' ',label,'(no spot)');
   // (goblins further than 75 from a hippo aren't in play at all: start it within that)
   {const L=Math.hypot(from.x-to.x,from.z-to.z);if(L>65){const q=near(to.x+(from.x-to.x)*65/L,from.y,to.z+(from.z-to.z)*65/L);if(q)from=q;}}
   for(let i=0;i<12;i++)tick(to);
-  gob.state='chase';gob.hp=99;gob.stun=0;gob.indoor=false;gob.civ=false;gob.staff=false;gob.root.visible=true;gob.pos.set(from.x,from.y,from.z);gob.vy=0;gob.t=0;gob.detour=0;gob.trip=null;gob.stUp=undefined;gob.kv.set(0,0,0);gob.wt=null;gob.stuck=0;gob.atk=1;
+  gob.state='chase';gob.hp=99;gob.stun=0;gob.indoor=false;gob.civ=false;gob.staff=false;gob.root.visible=true;gob.pos.set(from.x,from.y,from.z);gob.vy=0;gob.t=0;gob.detour=0;gob.trip=null;gob.stUp=undefined;gob.kv.set(0,0,0);gob.wt=null;gob.stuck=0;gob.atk=1;gob.act=null;
   let t=0,ok=false,y0=from.y,hi=from.y,lo=from.y;const dist=Math.hypot(from.x-to.x,from.z-to.z);
   while(t<CAP&&!ok&&gob.state==='chase'){tick(to);t+=DT/1000;gob.hp=99;const dd=Math.hypot(gob.pos.x-A.pos.x,gob.pos.z-A.pos.z),dy=A.pos.y-gob.pos.y;hi=Math.max(hi,gob.pos.y);lo=Math.min(lo,gob.pos.y);if(dd<2.6&&dy>-1.3&&dy<1.5)ok=true;
     if(process.env.TR&&Math.round(t/DT*1000)%150===0)console.log('    t',t.toFixed(0),'gob',gob.pos.x.toFixed(1),gob.pos.y.toFixed(1),gob.pos.z.toFixed(1),'d',dd.toFixed(1),'dy',dy.toFixed(1),gob.act?gob.act.k:'',gob.wet?'wet':'',gob.state,'f',T.navCol(Math.floor(gob.pos.x),Math.floor(gob.pos.z)).join(),'gus f',T.navCol(Math.floor(A.pos.x),Math.floor(A.pos.z)).join(),'A',A.pos.x.toFixed(1),A.pos.y,A.pos.z.toFixed(1));}
