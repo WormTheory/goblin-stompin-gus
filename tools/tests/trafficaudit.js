@@ -61,7 +61,7 @@ for(const [name,sx,sz] of spots){if(only&&!only.includes(name))continue;
   const hold=()=>{pl.pos.set(sx,120,sz);pl.vy=0;pl.hp=999;pl.peakY=120;pl.state='walk';for(const c of T.cars)if(c.hunter&&!c.police)c.hunter=false;};   // (nobody hunting him: this is about ordinary traffic)
   for(let i=0;i<20*60;i++){hold();now+=16.7;T.frame(now);}
   for(let t=0;t<SECS*2;t++){for(let i=0;i<30;i++){hold();now+=16.7;T.frame(now);}
-    const near=T.cars.filter(c=>c.alive&&Math.hypot(c.pos.x-sx,c.pos.z-sz)<110&&!c.parked&&!c.parkPool&&!(c.veh==='amb'||c.veh==='fire'||c.veh==='police'));const still=[];
+    const near=T.cars.filter(c=>c.alive&&Math.hypot(c.pos.x-sx,c.pos.z-sz)<110&&!c.parked&&!c.parkPool&&!(c.veh==='amb'||c.veh==='fire'||c.veh==='police'||c.veh==='news'||c.pullPool||c.svcPool));const still=[];
     for(const c of near){const stop=Math.abs(c.speed)<0.6;const k=c.path?'path':c.hw?'hw':c.rt?'route':'street';by[k][0]++;if(stop){by[k][1]++;stopped++;}samples++;
       const v=(stuck.get(c)||0);const nv=stop?v+0.5:0;stuck.set(c,nv);if(nv>2)still.push(c);if(nv>=40&&!c._rep){c._rep=1;worst.push({name,x:Math.round(c.pos.x),y:Math.round(c.pos.y),z:Math.round(c.pos.z),k,veh:c.veh,hw:c.hw&&c.hw.ax,dir:c.dir,head:+c.heading.toFixed(2),lane:c.hw&&c.hw.lane,leaving:c.leaving});}}
     // the longest run of stopped cars nose to tail

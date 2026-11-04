@@ -8,7 +8,7 @@ Open the file in a browser to play.
 - `game/index.html` is the only deliverable. Keep it one file — no build step, no bundler.
 - Parody of real brands is welcome and part of the humour (names like "Goblin Walmart"). Draw parody logos rather than copying real artwork.
 - Comments are plain English, explaining *why*, often in parentheses. Match the existing style.
-- **Bump `SAVE_KEY`** (currently `'goblin-city-v87'`) whenever world generation changes, so old saves don't load into a different world.
+- **Bump `SAVE_KEY`** (currently `'goblin-city-v90'`) whenever world generation changes, so old saves don't load into a different world.
 - Make edits with exact, unique string replacements. Many identifiers repeat, so check for a single match before replacing.
 - After every change: run the tests (below) before calling it done.
 
@@ -37,6 +37,8 @@ node roadaudit.js 9        # motorway dead ends, breaks, and what decks and rout
 node trafficaudit.js 90    # stopped cars, longest queue and stuck cars at ramps and interchanges (SPOTS=rampEnd,capital to narrow it)
 node shoreaudit.js         # straight cut-offs along block edges, sea bed depth jumps
 node streetaudit.js        # trees in streets, block lines through corner bends, unmarked town ramps, barrier jogs at ramp feet
+node joinaudit.js 9 30     # drives every lane from the blocks: road missing or blocked, highway ends not joined to streets
+node rampaudit.js 45       # Gus walked and sprinted up and down each ramp kind, then every car on a slope: airborne frames, steps, jerk
 node sitecount.js 200      # how many of each big site land within that many plots of the middle
 node stairaudit.js 160     # which buildings with more than one floor still have no stairs
 node signcount.js 150      # how many signs each kind of building carries

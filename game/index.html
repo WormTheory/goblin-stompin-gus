@@ -783,7 +783,7 @@ function horizHidden(cx,cy,cz,hr,top){
     if(!o.isInstancedMesh&&horizHidden(sp.center.x,sp.center.y,sp.center.z,sp.radius,sp.center.y+sp.radius))return false;   // (over the horizon)
     const d=Math.hypot(sp.center.x-CURVE_CAM.x,sp.center.z-CURVE_CAM.z),r=sp.radius,lo=k*Math.max(0,d-r)**2,hi=k*(d+r)**2;
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v89';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v90';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -1723,7 +1723,7 @@ function railLink(rx,rz,dx,dz){
     const W=(u,v)=>ex?[u,v]:[v,u];
     // the bend: in a column (row) about halfway, as clear of the roads as can be found
     let j=Math.round((uA+uB)/2);
-    if(vA!==vB){let best=1e9,bj=j;for(const o of [0,1,-1,2,-2,3,-3]){const q=j+o;let n=0;for(let v=Math.min(vA,vB);v<=Math.max(vA,vB);v+=0.25){const [wx,wz]=W(X(q),v*CELL+RAIL_C);if(routeAt(wx,wz,12))n++;if(settlementAt(Math.floor(wx/CELL),Math.floor(wz/CELL)))n+=2;}if(n<best){best=n;bj=q;}}j=bj;}
+    if(vA!==vB){let best=1e9,bj=j;for(const o of [0,1,-1,2,-2,3,-3,4,-4,5,-5,6,-6]){const q=j+o;let n=0;for(let v=Math.min(vA,vB);v<=Math.max(vA,vB);v+=0.25){const [wx,wz]=W(X(q),v*CELL+RAIL_C);if(routeAt(wx,wz,12))n++;if(settlementAt(Math.floor(wx/CELL),Math.floor(wz/CELL)))n+=2;}if(n<best){best=n;bj=q;}}j=bj;}
     const u0=X(uA)-RAIL_EXT,u1=X(uB)+RAIL_EXT,va=X(vA),vb=X(vB),uj=X(j),sv=Math.sign(vb-va)||1,R=RAIL_R;
     const el=[];
     const seg=(a0,a1,v)=>el.push({t:'s',ax:ex?'x':'z',c:v,a0,a1});
@@ -1739,6 +1739,8 @@ function railLink(rx,rz,dx,dz){
     else{addSeg(u0,uj-R,va);addArc(el[1]);for(let v=va+sv*R;sv>0?v<vb-R:v>vb+R;v+=sv)pts.push(W(uj,v));addArc(el[3]);addSeg(uj+R,u1,vb);}
     // no line across the sea (or right along its edge)
     let wet=false;for(let i=0;i<pts.length&&!wet;i+=8){const [x,z]=pts[i];if(seaPlot(Math.floor(x/CELL),Math.floor(z/CELL)))wet=true;}
+    // (nor one that would run along a highway instead of just crossing it: the track and its bridges would stand in the lanes)
+    if(!wet){let run=0;for(let i=0;i<pts.length&&!wet;i+=4){const [x,z]=pts[i];if(routeAt(x,z,10)){run+=4;if(run>=48)wet=true;}else run=0;}}
     if(!wet){let x0=1e9,z0=1e9,x1=-1e9,z1=-1e9;for(const [x,z] of pts){x0=Math.min(x0,x);x1=Math.max(x1,x);z0=Math.min(z0,z);z1=Math.max(z1,z);}
       Lk={key:'L'+key,A,B,ex,el,pts,L:pts.length,box:[x0-8,z0-8,x1+8,z1+8],sA:RAIL_EXT,sB:pts.length-1-RAIL_EXT,
         stA:W(uA,vA),stB:W(uB,vB)};}
@@ -2626,7 +2628,9 @@ function axisSpan(T,ax){
     else{for(let n=0;n<3&&v.m0+1<=v.m1&&!town(v.m0-1);n++)v.m0++;}
     // (a line that only skirts a hamlet, with no street of its own to come down on: the motorway comes in on the
     // ground instead, and ends right there at the edge -- no stretch of it of the place's own, going nowhere)
-    if(!town(hi?v.m0-1:v.m1+1)){v.kind='country';v.flat=true;if(hi)v.m0=v.m1+1;else v.m1=v.m0-1;}}
+    // (it runs on to the place's own column or row and stops there, where setConns joins it up to the streets: not left
+    // ending in the grass at the edge)
+    if(!town(hi?v.m0-1:v.m1+1)){v.kind='country';v.flat=true;if(hi)v.m0=Math.min(c,v.m1);else v.m1=Math.max(c,v.m0);}}
   axC.set(key,v);return v;
 }
 // is block m on line k (a row for 'x', a column for 'z') part of a place's highway, and of what kind?
@@ -3421,12 +3425,12 @@ function icRoutes(ax,k,m0,side){
   let on,off,onLane,offLane;
   if(d>0){
     onLane=S0+LANE_B;offLane=S4+LANE_A;const ms=S4-L-M;
-    on=[P(onLane,slip+away*12,7),P(onLane,slip+away*4.5,6),P(lo+3,slip,6),P(lo+L,slip,9,0,1),P(lo+L+3,slip-away*2,11,1.5),P(lo+L+8,outer+away*0.4,12,1.5),P(lo+L+13,outer,14,1.5),P(lo+L+M+12,outer,16)];
-    off={start:ms-12,pts:[P(ms+3,outer,14),P(ms+7,mid,12),P(S4-L-1,slip,10),P(S4-3,slip,7),P(offLane,slip+away*4.5,6),P(offLane,slip+away*14,8)]};
+    on=[P(onLane,slip+away*12,7),P(onLane,slip+away*4.5,6),P(lo-1,slip,6),P(lo+3,slip,6),P(lo+L,slip,9,0,1),P(lo+L+3,slip-away*2,11,1.5),P(lo+L+8,outer+away*0.4,12,1.5),P(lo+L+13,outer,14,1.5),P(lo+L+M+12,outer,16)];
+    off={start:ms-12,pts:[P(ms+3,outer,14),P(ms+7,mid,12),P(S4-L-1,slip,10),P(S4-3,slip,7),P(S4+1,slip,6),P(offLane,slip+away*4.5,6),P(offLane,slip+away*14,8)]};   // (straight down to the ramp's foot before turning: a turn begun higher up runs off its side)
   } else {
     onLane=S4+LANE_A;offLane=S0+LANE_B;const me=lo+L+M;
-    on=[P(onLane,slip+away*12,7),P(onLane,slip+away*4.5,6),P(S4-3,slip,6),P(S4-L,slip,9,0,1),P(S4-L-3,slip-away*2,11,1.5),P(S4-L-8,outer+away*0.4,12,1.5),P(S4-L-13,outer,14,1.5),P(S4-L-M-12,outer,16)];
-    off={start:me+12,pts:[P(me-3,outer,14),P(me-7,mid,12),P(lo+L+1,slip,10),P(lo+3,slip,7),P(offLane,slip+away*4.5,6),P(offLane,slip+away*14,8)]};
+    on=[P(onLane,slip+away*12,7),P(onLane,slip+away*4.5,6),P(S4+1,slip,6),P(S4-3,slip,6),P(S4-L,slip,9,0,1),P(S4-L-3,slip-away*2,11,1.5),P(S4-L-8,outer+away*0.4,12,1.5),P(S4-L-13,outer,14,1.5),P(S4-L-M-12,outer,16)];
+    off={start:me+12,pts:[P(me-3,outer,14),P(me-7,mid,12),P(lo+L+1,slip,10),P(lo+3,slip,7),P(lo-1,slip,6),P(offLane,slip+away*4.5,6),P(offLane,slip+away*14,8)]};
   }
   // the street direction a car comes off the ramp into (DIRV order: +z, +x, -z, -x)
   const leaveDir=ax==='x'?(away>0?0:2):(away>0?1:3);
@@ -3747,7 +3751,6 @@ function setConns(S){
   let main=null;{let bd=1e9;const sz=new Map();for(const a of par.keys()){const f=find(a);sz.set(f,(sz.get(f)||0)+1);}
     for(const a of par.keys()){const i=Math.floor(a/100003+0.5),j=a-i*100003;const dd=Math.hypot(i-S.cx-0.5,j-S.cz-0.5)-sz.get(find(a))*0.02;if(dd<bd){bd=dd;main=find(a);}}}
   const reached=new Set();for(const a of par.keys())if(main!==null&&find(a)===main)reached.add(a);
-  for(const a of hwNode)reached.add(a);
   const roadAt=(i,j,d)=>open(i,j,d)||C.has(segK(i,j,d));
   // the blocks of the place, nearest the middle first; each must touch a stretch of street that's joined up
   const cells=[];for(let x=x0;x<x1;x++)for(let z=z0;z<z1;z++)if(inS(x,z))cells.push([x,z,Math.hypot(x-S.cx,z-S.cz)]);
@@ -3757,7 +3760,9 @@ function setConns(S){
   const blocked=(i,j,d)=>{for(const [cx,cz] of segCells(i,j,d)){if(!settlementAt(cx,cz)&&rivPlotNear(cx,cz))return true;if(!settlementAt(cx,cz)&&farmK(cx,cz)!==null)return true;if(superOf(cx,cz))return true;}return false;};
   // join a set of intersections up to the network: a 0-1 search over the grid of intersections (following road that's
   // already there is free, each new stretch costs 1), then lay the new road and count everything it joins as joined
-  const joinUp=starts=>{
+  // (near: going by whether the river's really in the way of this stretch, not by whether it's somewhere near the block)
+  const riverOn=(i,j,d)=>{for(let t=0;t<=1;t+=0.25){const x=d===0?i*CELL+RC:(i+t)*CELL+RC,z=d===0?(j+t)*CELL+RC:j*CELL+RC;if(riverAt(x,z,RIV_W+8))return true;}return false;};
+  const joinUp=(starts,near)=>{
     const dist=new Map(),prev=new Map(),dq=[];for(const n of starts){dist.set(n,0);dq.push(n);}
     let goal=null,guard=0;
     while(dq.length&&guard++<6000){
@@ -3765,7 +3770,7 @@ function setConns(S){
       const i=Math.floor(n/100003+0.5),j=n-i*100003,dn=dist.get(n);
       if(i<x0-8||i>x1+8||j<z0-8||j>z1+8)continue;
       for(let dd=0;dd<4;dd++){const [si,sj,sd]=segOf(i,j,dd),m=NK(i+DV[dd][0],j+DV[dd][1]);
-        const have=roadAt(si,sj,sd);if(!have&&(blocked(si,sj,sd)||bad(m)||bad(n)))continue;
+        const have=roadAt(si,sj,sd);if(!have&&((near?riverOn(si,sj,sd)||segCells(si,sj,sd).some(([cx,cz])=>superOf(cx,cz)||!settlementAt(cx,cz)&&farmK(cx,cz)!==null):blocked(si,sj,sd))||bad(m)||bad(n)))continue;
         const nd=dn+(have?0:1);if(dist.has(m)&&dist.get(m)<=nd)continue;
         dist.set(m,nd);prev.set(m,[n,si,sj,sd]);if(have)dq.unshift(m);else dq.push(m);}
     }
@@ -3776,6 +3781,11 @@ function setConns(S){
     reached.add(n);if(par.has(n)){const r0=find(n);for(const a of par.keys())if(find(a)===r0)reached.add(a);}
     return n;
   };
+  // (a place's own highway that hasn't met its streets gets a road to them: otherwise it runs in and just stops)
+  {const pieces=new Map();for(const a of hwNode){if(find(a)===main)continue;const i=Math.floor(a/100003+0.5),j=a-i*100003,own=ax=>{const Sp=axisSpan(S,ax);return Sp&&Sp.kind==='country'&&Sp.k===(ax==='x'?j:i)&&(ax==='x'?i:j)>=Sp.m0&&(ax==='x'?i:j)<=Sp.m1+1;};
+     if(own('x')||own('z')){const f=find(a);if(!pieces.has(f))pieces.set(f,[]);pieces.get(f).push(a);}}
+   if(main!==null)for(const L of pieces.values())joinUp(L,true);}
+  for(const a of hwNode)reached.add(a);
   const keep=new Set();
   // 1. every block of the place touches a street that's joined up
   for(const [x,z] of cells){
@@ -6584,13 +6594,18 @@ function rtFlat(R){if(R.flat===undefined)R.flat=[axisSpan(R.A.T,R.A.ax).kind!=='
 function rtRamp(R,s){if(R.kind!=='moto')return null;const RL=2*(R.HY-G),F=rtFlat(R);
   if(s<RL&&s<=R.L-s&&!F[0])return{e:s,RL,nearA:true};if(R.L-s<RL&&!F[1])return{e:R.L-s,RL,nearA:false};if(s<RL&&!F[0])return{e:s,RL,nearA:true};return null;}
 function rtSurfY(R,s){const r=rtRamp(R,s);return r?R.HY+1-r.e/2:G+1;}
+const OPEN_TOP=new Set([ASPHALT,LINE,LINEX,LINE_R,LINEX_R,LANE,LANEX,CROSS,CROSSX]);
 function routeColumn(a,lx,lz,x,z,n,HY){
   if(HY!==G){const r=rtRamp(n.R,n.s);if(!r)HY=G;else return routeRampCol(a,lx,lz,x,z,n,r);}
   const put=(y,v)=>{a[li(lx,y,lz)]=v;},R=n.R,ad=Math.abs(n.sd),along=Math.floor(n.s);
   // out on the plains a highway is a little wider than through town: a hard shoulder outside the outer lane each side
   // (room for a broken-down car), easing out from town width over the first and last 50 blocks
   // (a motorway counts from the foot of its ramp, which is town width, so the barrier carries straight on off the ramp)
-  const F=R.kind==='moto'?rtFlat(R):null,RL=F?2*(R.HY-G):0,e=Math.min(n.s-(F&&!F[0]?RL:0),R.L-n.s-(F&&!F[1]?RL:0)),t=Math.max(0,Math.min(1,(e-10)/40)),W=6+2.0*t*t*(3-2*t);   // (the extra width outside the outer lane is the hard shoulder)
+  const F=R.kind==='moto'?rtFlat(R):null,RL=F?2*(R.HY-G):0,e=Math.min(n.s-(F&&!F[0]?RL:0),R.L-n.s-(F&&!F[1]?RL:0)),t=Math.max(0,Math.min(1,(e-10)/40));let W=6+2.0*t*t*(3-2*t);   // (the extra width outside the outer lane is the hard shoulder)
+  // (and where it runs into a town's main street, the barriers close in to the street's own width over the last stretch,
+  // by which time the outer lane's cars have moved over, instead of the road just stepping in at the junction)
+  {if(!R.nar){const nar=E=>{const [px,pz]=E===R.A?R.pts[0]:R.pts[R.pts.length-1],a=E.ax==='x'?px-E.s:px,b=E.ax==='x'?pz:pz-E.s;return biomeOf(Math.floor(a/CELL),Math.floor(b/CELL))!=='plains';};R.nar=[(!F||F[0])&&nar(R.A),(!F||F[1])&&nar(R.B)];}
+   if(R.nar[0]&&n.s<14)W=Math.min(W,4+n.s/7);if(R.nar[1]&&R.L-n.s<14)W=Math.min(W,4+(R.L-n.s)/7);}
   if(ad>=W+1.4)return false;
   const bar=ad>=W;
   const surf=ASPHALT;   // (the lines are painted on over the top, at the road's own angle: see routeMarks)
@@ -6599,6 +6614,7 @@ function routeColumn(a,lx,lz,x,z,n,HY){
     for(let y=G+1;y<G+12;y++)put(y,AIR);if(!wet)for(let y=G-2;y<G;y++)put(y,DIRT);
     if(bar&&farmLaneCol(x,z)){put(G,ASPHALT);return true;}   // a farm lane joins here: an opening in the barrier
     if(bar&&tsApron(x,z)){put(G,ASPHALT);return true;}       // (and the way into a truck stop)
+    if(bar&&OPEN_TOP.has(a[li(lx,G,lz)]))return true;        // (and wherever another road's already here: where two meet it's an open junction, not a wall across its lanes)
     if(bar){put(G,CONCRETE);put(G+1,CONCRETE);return true;}
     put(G-1,CONCRETE);put(G,surf);
     // a toll plaza: islands between the lanes, a booth on each, a canopy right across on posts, the sign along its edge
@@ -6658,6 +6674,8 @@ const stopLine=(ix,iz)=>{const k=ctlAt(ix,iz).k;return k==='light'||k==='stop';}
 // where a street just carries on or turns a corner there's no junction to paint, so its centre line runs on through the
 // square instead of leaving a gap: out from the middle along each of the two arms
 function bendLine(ix,iz,rx,rz){
+  // (the last junction before a highway leaves town: it only has the one arm, but the road carries straight on through it)
+  if(jDeg(ix,iz)===1){const zr=segOpen(ix,iz,0)||segOpen(ix,iz,2);return zr?(rx===RC?LINE_R:rx===RC-1?LINE:ASPHALT):(rz===RC?LINEX_R:rz===RC-1?LINEX:ASPHALT);}
   // (a corner needs its two double lines to meet in an elbow, which whole-block tiles can't draw: see routeMarks)
   if((segOpen(ix,iz,0)||segOpen(ix,iz,2))&&(segOpen(ix,iz,1)||segOpen(ix,iz,3)))return ASPHALT;
   const zArm=rx===RC-1||rx===RC,xArm=rz===RC-1||rz===RC;
@@ -6673,7 +6691,7 @@ function linkRoad(col,px,pz,rx,rz,x,z){
   let top=ASPHALT;
   if(roadX&&!roadZ&&(rx===RC-1||rx===RC))top=rx===RC?LINE_R:LINE;
   else if(roadZ&&!roadX&&(rz===RC-1||rz===RC))top=rz===RC?LINEX_R:LINEX;
-  else if(roadX&&roadZ&&jDeg(px,pz)===2)top=bendLine(px,pz,rx,rz);
+  else if(roadX&&roadZ&&jDeg(px,pz)<=2)top=bendLine(px,pz,rx,rz);
   col(G-1,DIRT);col(G,top);for(let y=G+1;y<G+10;y++)col(y,AIR);
   return true;
 }
@@ -6737,7 +6755,7 @@ function genChunk(cx,cz){
       else if(roadZ&&!roadX&&(rz===RC-1||rz===RC))top=rz===RC?LINEX_R:LINEX;
       else if(roadX&&!roadZ&&(rz===CELL-3&&rx<RC&&stopLine(cpx,cpz+1)||rz===ROADW+2&&rx>RC&&stopLine(cpx,cpz)))top=LANEX;
       else if(roadZ&&!roadX&&(rx===CELL-3&&rz>RC&&stopLine(cpx+1,cpz)||rx===ROADW+2&&rz<RC-1&&stopLine(cpx,cpz)))top=LANE;
-      else if(roadX&&roadZ&&jDeg(cpx,cpz)===2)top=bendLine(cpx,cpz,rx,rz);
+      else if(roadX&&roadZ&&jDeg(cpx,cpz)<=2)top=bendLine(cpx,cpz,rx,rz);
       if(roadX&&roadZ&&ctlAt(Math.floor(x/CELL),Math.floor(z/CELL)).k==='round'){const is=roundIsland(rx,rz);if(is){top=GRASS;if(is===2){col(G+1,LEAVES);col(G+2,LEAVES);}else if(hash2(x,z)<0.3)col(G+1,FLOWER);}}
       col(G,top);
     } else if(rx<PB.x0||rx>=PB.x1||rz<PB.z0||rz>=PB.z1){
@@ -7209,9 +7227,12 @@ function routeMarks(cx,cz){
   const quad=(ax,az,bx,bz,nx,nz,o,w,y,t,yb=y)=>{const n=P.length/3,[u,v]=uvOf(t),o0=o-w/2,o1=o+w/2;
     for(const [px,pz,py] of [[ax+nx*o0,az+nz*o0,y],[ax+nx*o1,az+nz*o1,y],[bx+nx*o0,bz+nz*o0,yb],[bx+nx*o1,bz+nz*o1,yb]]){P.push(px,py,pz);U.push(u,v);C.push(0.8,0.8,0.8);K.push(1);}
     I.push(n,n+1,n+2,n+1,n+3,n+2);};
+  const byRoute=new Map();for(let q=0;q<L.length;q+=2){if(!byRoute.has(L[q]))byRoute.set(L[q],[]);byRoute.get(L[q]).push(L[q],L[q+1]);}
   for(let q=0;q<L.length;q+=2){const R=L[q],i=L[q+1],[ax,az]=R.pts[i],[bx,bz]=R.pts[i+1],mx=(ax+bx)/2,mz=(az+bz)/2;
     if(mx<x0||mx>=x0+CS||mz<z0||mz>=z0+CS)continue;
     const y=G;
+    // (where two highways meet, the one that came first keeps its lines through the junction: they don't cross in a tangle)
+    const yield2=(px,pz)=>{for(const [Q,LQ] of byRoute){if(Q.id>=R.id)continue;const n=nearestOn(LQ,px,pz,6.5);if(n&&!rtRamp(Q,n.s)&&!rtRamp(R,R.cum[i]))return true;}return false;};
     const l=Math.hypot(bx-ax,bz-az);if(l<1e-6)continue;const tx=(bx-ax)/l,tz=(bz-az)/l,nx=-tz,nz=tx,Y=y+1.02;
     // where along the road this piece is (the end stretches narrow back to town width: the lane lines stay put)
     const s0=R.cum[i];
@@ -7220,7 +7241,7 @@ function routeMarks(cx,cz){
     // ramp at the edge of town it follows the slope.
     const strip=(a,b,o,w,t)=>{for(let u=a;u<b-1e-6;){const v=Math.min(b,Math.floor(u+1e-6)+1),m=(u+v)/2,px=ax+tx*m+nx*o,pz=az+tz*m+nz*o,fx=Math.floor(px),fz=Math.floor(pz),r=rtRamp(R,s0+m);
       if(r){const gy=R.HY-Math.floor(Math.floor(r.e)/2),rb=BLOCK[get(fx,gy,fz)];if(rb&&rb.ramp&&get(fx,gy+1,fz)===AIR)quad(ax+tx*u,az+tz*u,ax+tx*v,az+tz*v,nx,nz,o,w,rtSurfY(R,s0+u)+0.03,t,rtSurfY(R,s0+v)+0.03);}
-      else if(get(fx,y,fz)===ASPHALT&&get(fx,y+1,fz)===AIR)quad(ax+tx*u,az+tz*u,ax+tx*v,az+tz*v,nx,nz,o,w,Y,t);u=v;}};
+      else if(get(fx,y,fz)===ASPHALT&&get(fx,y+1,fz)===AIR&&!yield2(px,pz))quad(ax+tx*u,az+tz*u,ax+tx*v,az+tz*v,nx,nz,o,w,Y,t);u=v;}};
     // the same markings as the straight highways through town, in the same places, so they carry straight on where the
     // two meet: a double yellow line (two thin strips either side of the centre) and dashed white lane lines 3 out,
     // 3 blocks painted and 3 not -- in step with the town's dashes at either end (counted from whichever end is nearer)
@@ -7775,6 +7796,7 @@ function crushDisc(x,y,z,R,h,opt={}){
     {const nx=Math.max(bx,Math.min(bx+1,x))-x,nz=Math.max(bz,Math.min(bz+1,z))-z;if(nx*nx+nz*nz>R*R)continue;}   // any block the circle reaches into
     if(SC){SC.push(bx,by,bz);continue;}
     const b=get(bx,by,bz);if(b===AIR||b===WATER||b===BEDROCK||BLOCK[b].ramp&&!BLOCK[b].stair)continue;
+    {const ab=BLOCK[get(bx,by+1,bz)];if(ab&&ab.ramp&&!ab.stair)continue;}   // (nor what a ramp rests on: without it his feet lose the slope at every block)
     setRaw(bx,by,bz,AIR);addEdit(bx,by,bz,AIR);broken.push({x:bx,y:by,z:bz,b});
     for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((bx+ox)/CS),Math.floor((bz+oz)/CS)));
   }
@@ -9376,6 +9398,13 @@ function gobView(v){
     q.gb.root.visible=DT.gob&&q.active&&!me;q.gb.vm.visible=DT.gob&&q.active&&me&&q.state!=='dead';
     if(q.gb.vm.visible){q.gb.vm.position.copy(v.camera.position);q.gb.vm.rotation.set(v.camera.rotation.x,v.camera.rotation.y,v.camera.rotation.z);}}
 }
+// on his way down a ramp he stays on it, instead of falling a little and landing every few steps
+function stickToRamp(p,g){
+  if(!p.grounded||p.state!=='walk'||p.standCar||p.dodge||p.pos.y-g>=0.4)return false;
+  const s=Math.sin(p.heading),c=Math.cos(p.heading);
+  for(const [a,b] of HIPPO_PTS)if(rampUnder(p.pos.x+a*c+b*s,p.pos.z-a*s+b*c,p.pos.y))return true;
+  return false;
+}
 function movePlayer(p,dt){
   if(!p.active)return;
   if(playing&&!SBX&&!DT.gob)trampleFences(p);
@@ -9900,7 +9929,7 @@ function movePlayer(p,dt){
       p.pos.y=Math.min(H+30,p.pos.y+p.vy*dt);p.peakY=p.pos.y;p.grounded=false;p.airJumps=0;p.coyote=0;
       if(p.pos.y<=g){p.pos.y=g;p.vy=0;p.grounded=true;p.airJumps=airJumpsMax();}
     }
-    else if(p.vy>0||p.pos.y>g+0.01){
+    else if(p.vy>0||p.pos.y>g+0.01&&!stickToRamp(p,g)){
       p.peakY=Math.max(p.peakY??p.pos.y,p.pos.y);
       // rocket boost: jump held on after the jump itself (once it's stopped rising fast) fires the foot rockets, which
       // take the weight off and ease him up at a slow climb for as long as the stamina lasts
@@ -12574,16 +12603,17 @@ function carPhysics(c,dt){
   // on a slope the body sits between its axles (the middle of the car, not its highest wheel), and a car already
   // rolling down one stays stuck to it instead of falling a little and landing every frame
   // (a wheel up on a kerb or a ramp's side wall doesn't count: on a slope a wheel is never more than half its distance from the middle above or below the ground there)
-  const ceR=near(ce)?ce:c.pos.y,h=v=>near(v)&&(!onRamp||Math.abs(v-ceR)<=wz*0.5+0.35)?v:c.pos.y,fA=Math.max(h(fl),h(fr)),bA=Math.max(h(bl),h(br));
+  // (and it rides on the middle of each axle there: a wheel catching the ramp's side wall mustn't bounce the whole car)
+  const ceR=near(ce)?ce:c.pos.y,h=v=>near(v)&&(!onRamp||Math.abs(v-ceR)<=wz*0.5+0.35)?v:c.pos.y,fA=onRamp?h(sup(0,wz)):Math.max(h(fl),h(fr)),bA=onRamp?h(sup(0,-wz)):Math.max(h(bl),h(br));
   if(onRamp&&frontOK&&backOK)top=Math.max(near(ce)?ce:-1e9,(fA+bA)/2);
   const stick=c.grounded&&c.vy<=0.5&&comOK&&c.pos.y-top<(onRamp?0.9:0.3);
   let tp=0,tr=0;
   if(comOK&&(c.vy<=0&&c.pos.y<=top+0.03||stick)){
     // resting: follow the ground, but don't climb
     c.grounded=true;c.vy=0;
-    if(onRamp){const d=top-c.pos.y,m=14*dt+0.02;if(d<slope+0.9)c.pos.y+=Math.max(-m,Math.min(m,d));}
+    if(onRamp){const d=top-c.pos.y,m=(Math.abs(c.speed)*0.65+1.8)*dt;if(d<slope+0.9)c.pos.y+=Math.max(-m,Math.min(m,d));}   // (no quicker than a slope climbs at this speed)
     else if(top-c.pos.y<0.3)c.pos.y+=(top-c.pos.y)*Math.min(1,dt*14);
-    tp=Math.atan2(bA-fA,2*wz);tr=Math.atan2((h(fl)+h(bl))/2-(h(fr)+h(br))/2,2*wx);
+    tp=Math.atan2(bA-fA,2*wz);tr=onRamp?0:Math.atan2((h(fl)+h(bl))/2-(h(fr)+h(br))/2,2*wx);
     c.spinP*=0.5;c.spinR*=0.5;
   } else {
     // falling: gravity, keep momentum, nose (or side) dips toward the drop and the car slides off the lip
@@ -16354,10 +16384,11 @@ function updateCars(dt){
     if(!c.police&&!c.parkPool&&!c.hwPool&&!c.hunter&&!c.hw&&!c.rt&&!c.path&&!calmNow()&&playing&&tgt&&tgt.d<22&&hunters<2&&Math.random()<dt*0.07){c.hunter=true;hunters++;flashLabel('A car is coming for you',tgt.p);horn(0.08);}
     if(c.hunter&&!tgt)c.hunter=false;
     // a highway car that's come down into town drives the streets for a while, then slips away once nobody's looking
-    if(c.leaving&&c.hwPool){c.leaveT=(c.leaveT||0)+dt;if(c.leaveT>14&&!visibleToAny(c.pos.x,c.pos.y+1,c.pos.z)){c.alive=false;c.g.visible=false;c.respawnT=0.5;c.leaving=false;c.leaveT=0;continue;}}
+    if(c.leaving&&c.hwPool){c.leaveT=(c.leaveT||0)+dt;if(c.leaveT>14&&!visibleToAny(c.pos.x,c.pos.y+1,c.pos.z)&&!players.some(q=>q.standCar===c)){c.alive=false;c.g.visible=false;c.respawnT=0.5;c.leaving=false;c.leaveT=0;continue;}}
     // a car from the streets that's driven up a motorway's ramp: from the top it's motorway traffic
     if(playing&&!c.hw&&!c.rt&&!c.path&&!c.parked&&!c.svcPool&&!c.hunter&&!c.police&&c.pos.y>G+2.5){const sh=Math.sin(c.heading),ch=Math.cos(c.heading),ax=Math.abs(sh)>Math.abs(ch)?'x':'z',dir=ax==='x'?Math.sign(sh):Math.sign(ch),k=Math.floor(((ax==='x'?c.pos.z:c.pos.x)+3)/CELL),al=ax==='x'?c.pos.x:c.pos.z;
-      if(hwRampAt(ax,k,al)){const inner=((ax==='x')===(dir>0))?5.5:2.5;c.hw={ax,dir,lane:k*CELL+inner,y:hwSurf(ax,k,al)};c.leaving=false;}}
+      // (a long truck's middle sits well up the slope with its nose already on the street: it's finished with the ramp, not back on it)
+      if(hwRampAt(ax,k,al)&&hwSurf(ax,k,al)>G+1.5){const inner=((ax==='x')===(dir>0))?5.5:2.5;c.hw={ax,dir,lane:k*CELL+inner,y:hwSurf(ax,k,al)};c.leaving=false;}}
     if(!playing){c.speed*=Math.exp(-dt*3);}
     else if(c.svcPool){svcDrive(c,dt);if(!c.alive)continue;}
     else if((c.police||c.parkPool)&&!c.hunter){c.speed*=Math.exp(-dt*4);}
