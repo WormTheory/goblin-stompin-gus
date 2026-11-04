@@ -51,7 +51,7 @@ const hitsAt=(x,y,z,r)=>T.carsNear(x,z,r,y);
  // ride them: drop on a gondola, on a coaster car
  const drop=(x,y,z)=>{A.state='walk';A.grounded=false;A.mvx=A.mvz=0;A.vy=0;A.pos.set(x,y,z);};
  {const q=W.gonds[2],p=q.pr.pos;drop(p.x,q.pr.top+1,p.z);step(40);const on=A.standCar===q.pr;const y0=A.pos.y;step(120);console.log('on a gondola',on,'still',A.standCar===q.pr,'moved up/down',(A.pos.y-y0).toFixed(2),'gondola top',q.pr.top.toFixed(1),'hippo',A.pos.y.toFixed(1));}
- {const c=K.cars[1],p=c.g.position;let onN=0;drop(p.x,p.y+2,p.z);for(let i=0;i<300;i++){step(1);if(A.standCar===c.pr)onN++;else if(i<30)drop(c.g.position.x,c.g.position.y+1.2,c.g.position.z);}console.log('on a coaster car: frames on it',onN,'of 300');}
+ {const c=K.cars[1],p=c.g.position;let onN=0;drop(p.x,c.pr.top+.05,p.z);A.peakY=A.pos.y;for(let i=0;i<300;i++){step(1);if(A.standCar===c.pr)onN++;else if(i<30){drop(c.g.position.x,c.pr.top+.05,c.g.position.z);A.peakY=A.pos.y;}}console.log('on a coaster car: frames on it',onN,'of 300');}
  hoverAt(C.cu,C.cv,.5);
  // the carousel, hit till it goes
  {const s0=T.scoreNow;let h=0;while(!Cs.dead&&h<60){T.damageCar(Cs.pr,15);h++;}console.log('carousel gone after',h,'charged stomps, score',T.scoreNow-s0,'on record',!!T.wreckedNow[Cs.k]);}

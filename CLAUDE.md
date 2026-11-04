@@ -49,6 +49,7 @@ node carride.js            # drop on to moving vehicles: land, ride, no damage
 node rampride.js           # riding real vehicles up and down real ramps
 node planeride.js          # airplanes: stand on one, ride a whole flight, wreck them
 node parkzoo.js            # theme park rides and zoo animals: attacks reach them, they break and die, and it stays that way
+node coasterride.js 2      # riding the roller coaster: whole laps on a car, landings all round the circuit and from real heights
 node coastaudit.js 500     # coastal places by kind, what each one has, which ports belong to whom
 node boatride.js           # every kind of boat: stand on it, ride it, sink it, swim aboard; routes stay on open water; what's moored where
 ```

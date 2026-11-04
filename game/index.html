@@ -8481,7 +8481,8 @@ function carTop(p){
 }
 function footprint(p){
   const g=supportMax(p.pos.x,p.pos.z,p.heading,p.pos.y,HIPPO_PTS),ct=carTop(p);
-  if(ct&&(g===null||ct.y>g)){p.standCar=ct.c;return ct.y;}
+  // (the track rising just ahead of a coaster car, under his front feet, mustn't lift him off the one he's riding)
+  if(ct&&(g===null||ct.y>g||ct.c===p.rideC&&ct.c.T&&ct.c.T.isRide&&g-ct.y<3)){p.standCar=ct.c;return ct.y;}
   p.standCar=null;return g;
 }
 function placePlayer(p,pos){
@@ -9919,11 +9920,14 @@ function movePlayer(p,dt){
     if(fc<=fa||Math.abs(B.v)>0.5){const sg=ac>=0?1:-1;shove(p,-B.tz*sg*fc,B.tx*sg*fc);}   // (out to the side -- always, from a moving one)
     else{const sg=al>=0?1:-1;shove(p,B.tx*sg*fa,B.tz*sg*fa);}}
   // standing on a car: ride along with it
-  if(p.standCar&&p.grounded&&p.standCar.alive){const c=p.standCar;if(p.rideC===c){
+  // (a coaster car can be 30 blocks on in a second: one that's under him as he comes down has him there and then, or it's gone before his feet have settled)
+  const catchRide=p.standCar&&!p.grounded&&p.standCar.T&&p.standCar.T.isRide&&p.vy<=0&&p.state!=='pound'&&p.pos.y-p.standCar.top<0.6;
+  if(p.standCar&&(p.grounded||catchRide)&&p.standCar.alive){const c=p.standCar;if(p.rideC===c){
       {let d=c.heading-p.rideH;d=Math.atan2(Math.sin(d),Math.cos(d));if(Math.abs(d)>0.7)d=0;   // (a car that's turned right round in a moment doesn't take you with it)
         const ex=p.pos.x-p.rideX,ez=p.pos.z-p.rideZ,cd=Math.cos(d),sd=Math.sin(d);p.pos.x=c.pos.x+ex*cd+ez*sd;p.pos.z=c.pos.z-ex*sd+ez*cd;p.heading+=d;if(p.cam)p.cam.yaw+=d;p.pos.y=c.isPlane||c.isBoat?c.top:Math.max(p.pos.y,c.isTrain?c.top:c.pos.y+1.1*ES);
         // (going down a ramp the roof sinks away under you: you stay on it, you don't fall behind)
         if(!c.isTrain&&p.vy<=0.01){const ct=carTop(p);if(ct&&ct.c===c&&ct.y<p.pos.y&&p.pos.y-ct.y<2.5)p.pos.y=ct.y;}}}
+    if(catchRide&&p.vy<-16&&p.rideC!==c&&!DT.gob){damageCar(c,Math.round(-p.vy*0.5));clang();p.vy=-1;}   // (it still takes the landing, once)
     p.rideC=c;p.rideX=c.pos.x;p.rideZ=c.pos.z;p.rideH=c.heading;}else p.rideC=null;
   for(const o of players){if(o===p||!o.active||o.state==='dead')continue;const dx=p.pos.x-o.pos.x,dz=p.pos.z-o.pos.z,d=Math.hypot(dx,dz),gap=DT.gob?0.9:2.4;if(d<gap&&d>0.001)shove(p,dx/d*(gap-d)*0.5,dz/d*(gap-d)*0.5);}
   let g=p.state==='climb'||p.state==='piv'||p.state==='ceil'?null:footprint(p);   // clinging to a wall: no gravity
@@ -9964,7 +9968,8 @@ function movePlayer(p,dt){
         if(p.longJump){p.longJump=false;p.blastJ=false;thud(0.3);puff(p.pos.x,p.pos.y,p.pos.z,8,0x9a948a,0.6);}
         const drop=(p.peakY??g)-g;
         if(p.state==='pound'){if(p.pHover){p.pHover=false;p.poundLvl=stompLevelOf(p.stompCharge);}fallImpact(p,Math.max(0,drop)+POUND_BONUS[p.poundLvl||0],true,p.poundLvl||0);p.poundLvl=0;p.state='poundLand';p.t=0;p.landT=0;}
-        else if(drop>=5){if(ABIL.crash)fallImpact(p,drop,false);
+        else if(drop>=5){if(ABIL.crash&&!(p.standCar&&p.standCar.T&&p.standCar.T.isRide))fallImpact(p,drop,false);   // (a ride's car takes it: a crash landing would blow up the track under it, and derail what he's just landed on)
+         
           // without immunity, a long fall hurts (landing in water never does; nor does a ground pound)
           if(!ABIL.noFall&&drop>=14&&!p.wet){const n=Math.min(16,Math.round((drop-12)/3));damagePlayer(p,n,new V3(p.pos.x,p.pos.y+0.6,p.pos.z),new V3(0,0.2,0),'Fell from a great height');flashLabel(n>=8?'Bad landing':'Ouch',p);}}
         p.peakY=g;
