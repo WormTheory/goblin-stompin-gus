@@ -1,0 +1,249 @@
+-- walking in at an angle (forward and climb held)
+     pillar high 3 at 15 degrees          4/4 
+     pillar high 3 at -15 degrees         4/4 
+     pillar high 3 at 30 degrees          4/4 
+     pillar high 3 at -30 degrees         4/4 
+     pillar high 3 at 40 degrees          4/4 
+     pillar high 3 at -40 degrees         4/4 
+     pillar high 3 at 60 degrees          4/4 
+     pillar high 3 at -60 degrees         4/4 
+     pillar high 6 at 15 degrees          4/4 
+     pillar high 6 at -15 degrees         4/4 
+     pillar high 6 at 30 degrees          4/4 
+     pillar high 6 at -30 degrees         4/4 
+     pillar high 6 at 40 degrees          4/4 
+     pillar high 6 at -40 degrees         4/4 
+     pillar high 6 at 60 degrees          4/4 
+     pillar high 6 at -60 degrees         4/4 
+     wall high 3 at 15 degrees            4/4 
+     wall high 3 at -15 degrees           4/4 
+     wall high 3 at 30 degrees            4/4 
+     wall high 3 at -30 degrees           4/4 
+     wall high 3 at 40 degrees            4/4 
+     wall high 3 at -40 degrees           4/4 
+     wall high 3 at 60 degrees            4/4 
+     wall high 3 at -60 degrees           4/4 
+     wall high 6 at 15 degrees            4/4 
+     wall high 6 at -15 degrees           4/4 
+     wall high 6 at 30 degrees            4/4 
+     wall high 6 at -30 degrees           4/4 
+     wall high 6 at 40 degrees            4/4 
+     wall high 6 at -40 degrees           4/4 
+     wall high 6 at 60 degrees            4/4 
+     wall high 6 at -60 degrees           4/4 
+     ledge high 3 at 15 degrees           4/4 
+     ledge high 3 at -15 degrees          4/4 
+     ledge high 3 at 30 degrees           4/4 
+     ledge high 3 at -30 degrees          4/4 
+     ledge high 3 at 40 degrees           4/4 
+     ledge high 3 at -40 degrees          4/4 
+     ledge high 3 at 60 degrees           4/4 
+     ledge high 3 at -60 degrees          4/4 
+     ledge high 6 at 15 degrees           4/4 
+     ledge high 6 at -15 degrees          4/4 
+     ledge high 6 at 30 degrees           4/4 
+     ledge high 6 at -30 degrees          4/4 
+     ledge high 6 at 40 degrees           4/4 
+     ledge high 6 at -40 degrees          4/4 
+     ledge high 6 at 60 degrees           4/4 
+     ledge high 6 at -60 degrees          4/4 
+     platform high 3 at 15 degrees        4/4 
+     platform high 3 at -15 degrees       4/4 
+     platform high 3 at 30 degrees        4/4 
+     platform high 3 at -30 degrees       4/4 
+     platform high 3 at 40 degrees        4/4 
+     platform high 3 at -40 degrees       4/4 
+     platform high 3 at 60 degrees        4/4 
+     platform high 3 at -60 degrees       4/4 
+     platform high 6 at 15 degrees        4/4 
+     platform high 6 at -15 degrees       4/4 
+     platform high 6 at 30 degrees        4/4 
+     platform high 6 at -30 degrees       4/4 
+     platform high 6 at 40 degrees        4/4 
+     platform high 6 at -40 degrees       4/4 
+     platform high 6 at 60 degrees        4/4 
+     platform high 6 at -60 degrees       4/4 
+-- jumping at it with climb held
+     pillar high 2 from 1.2 away          4/4 
+     pillar high 2 from 2.5 away          4/4 
+     pillar high 2 from 4 away            4/4 
+     pillar high 3 from 1.2 away          4/4 
+     pillar high 3 from 2.5 away          4/4 
+     pillar high 3 from 4 away            4/4 
+     pillar high 4 from 1.2 away          4/4 
+     pillar high 4 from 2.5 away          4/4 
+     pillar high 4 from 4 away            4/4 
+     pillar high 5 from 1.2 away          4/4 
+     pillar high 5 from 2.5 away          4/4 
+     pillar high 5 from 4 away            4/4 
+     pillar high 8 from 1.2 away          4/4 
+     pillar high 8 from 2.5 away          4/4 
+     pillar high 8 from 4 away            4/4 
+     wall high 2 from 1.2 away            4/4 
+     wall high 2 from 2.5 away            4/4 
+     wall high 2 from 4 away              4/4 
+     wall high 3 from 1.2 away            4/4 
+     wall high 3 from 2.5 away            4/4 
+     wall high 3 from 4 away              4/4 
+     wall high 4 from 1.2 away            4/4 
+     wall high 4 from 2.5 away            4/4 
+     wall high 4 from 4 away              4/4 
+     wall high 5 from 1.2 away            4/4 
+     wall high 5 from 2.5 away            4/4 
+     wall high 5 from 4 away              4/4 
+     wall high 8 from 1.2 away            4/4 
+     wall high 8 from 2.5 away            4/4 
+     wall high 8 from 4 away              4/4 
+     ledge high 2 from 1.2 away           4/4 
+     ledge high 2 from 2.5 away           4/4 
+     ledge high 2 from 4 away             4/4 
+     ledge high 3 from 1.2 away           4/4 
+     ledge high 3 from 2.5 away           4/4 
+     ledge high 3 from 4 away             4/4 
+     ledge high 4 from 1.2 away           4/4 
+     ledge high 4 from 2.5 away           4/4 
+     ledge high 4 from 4 away             4/4 
+     ledge high 5 from 1.2 away           4/4 
+     ledge high 5 from 2.5 away           4/4 
+     ledge high 5 from 4 away             4/4 
+     ledge high 8 from 1.2 away           4/4 
+     ledge high 8 from 2.5 away           4/4 
+     ledge high 8 from 4 away             4/4 
+     platform high 2 from 1.2 away        4/4 
+     platform high 2 from 2.5 away        4/4 
+     platform high 2 from 4 away          4/4 
+     platform high 3 from 1.2 away        4/4 
+     platform high 3 from 2.5 away        4/4 
+     platform high 3 from 4 away          4/4 
+     platform high 4 from 1.2 away        4/4 
+     platform high 4 from 2.5 away        4/4 
+     platform high 4 from 4 away          4/4 
+     platform high 5 from 1.2 away        4/4 
+     platform high 5 from 2.5 away        4/4 
+     platform high 5 from 4 away          4/4 
+     platform high 8 from 1.2 away        4/4 
+     platform high 8 from 2.5 away        4/4 
+     platform high 8 from 4 away          4/4 
+-- sprinting in with climb held
+     trample on  pillar high 2            4/4 
+     trample on  pillar high 3            4/4 
+     trample on  pillar high 6            4/4 
+     trample on  wall high 2              4/4 
+     trample on  wall high 3              4/4 
+     trample on  wall high 6              4/4 
+     trample on  ledge high 2             4/4 
+     trample on  ledge high 3             4/4 
+     trample on  ledge high 6             4/4 
+     trample on  platform high 2          4/4 
+     trample on  platform high 3          4/4 
+     trample on  platform high 6          4/4 
+     trample off pillar high 2            4/4 
+     trample off pillar high 3            4/4 
+     trample off pillar high 6            4/4 
+     trample off wall high 2              4/4 
+     trample off wall high 3              4/4 
+     trample off wall high 6              4/4 
+     trample off ledge high 2             4/4 
+     trample off ledge high 3             4/4 
+     trample off ledge high 6             4/4 
+     trample off platform high 2          4/4 
+     trample off platform high 3          4/4 
+     trample off platform high 6          4/4 
+-- at low frame rates
+     N ms a frame pillar high 3        4/4 
+     N ms a frame pillar high 6        4/4 
+     N ms a frame wall high 3          4/4 
+     N ms a frame ledge high 3         4/4 
+     N ms a frame ledge high 6         4/4 
+     N ms a frame platform high 3      4/4 
+     N ms a frame pillar high 3          4/4 
+     N ms a frame pillar high 6          4/4 
+     N ms a frame wall high 3            4/4 
+     N ms a frame ledge high 3           4/4 
+     N ms a frame ledge high 6           4/4 
+     N ms a frame platform high 3        4/4 
+     N ms a frame pillar high 3          4/4 
+     N ms a frame pillar high 6          4/4 
+     N ms a frame wall high 3            4/4 
+     N ms a frame ledge high 3           4/4 
+     N ms a frame ledge high 6           4/4 
+     N ms a frame platform high 3        4/4 
+     N ms a frame pillar high 3         4/4 
+     N ms a frame pillar high 6         4/4 
+     N ms a frame wall high 3           4/4 
+     N ms a frame ledge high 3          4/4 
+     N ms a frame ledge high 6          4/4 
+     N ms a frame platform high 3       4/4 
+-- crawling sideways on it, then on up
+     pillar right for 2s                  4/4 
+     pillar right for 6s                  4/4 
+     pillar right for 12s                 4/4 
+     pillar left for 2s                   4/4 
+     pillar left for 6s                   4/4 
+     pillar left for 12s                  4/4 
+     wall 3 wide 1 deep right for 2s      4/4 
+     wall 3 wide 1 deep right for 6s      4/4 
+     wall 3 wide 1 deep right for 12s     4/4 
+     wall 3 wide 1 deep left for 2s       4/4 
+     wall 3 wide 1 deep left for 6s       4/4 
+     wall 3 wide 1 deep left for 12s      4/4 
+     wall 9 wide 1 deep right for 2s      4/4 
+     wall 9 wide 1 deep right for 6s      4/4 
+     wall 9 wide 1 deep right for 12s     4/4 
+     wall 9 wide 1 deep left for 2s       4/4 
+     wall 9 wide 1 deep left for 6s       4/4 
+     wall 9 wide 1 deep left for 12s      4/4 
+     block 2x2 right for 2s               4/4 
+     block 2x2 right for 6s               4/4 
+     block 2x2 right for 12s              4/4 
+     block 2x2 left for 2s                4/4 
+     block 2x2 left for 6s                4/4 
+     block 2x2 left for 12s               4/4 
+-- climbing back down
+     pillar down to the floor             4/4 
+     wall down to the floor               4/4 
+     ledge down to the floor              4/4 
+     platform down to the floor           4/4 
+-- setting off again from the top
+     pillar 3: forward, no climb: walks off         4/4 
+     pillar 3: forward with climb: walks off        4/4 
+     pillar 6: forward with climb: tips over or off 4/4 
+     pillar 3: back: turns and walks off            4/4 
+     pillar 3: left: turns and walks off            4/4 
+     pillar 6: right with climb: tips over or off   4/4 
+     free wall 3: forward: walks off                4/4 
+     free wall 3: right: moves                      4/4 
+     ledge 3: right: walks along the ledge          4/4 
+     ledge 3: left: walks along the ledge           4/4 
+     ledge 3: right with climb: along the ledge     4/4 
+     ledge 3: left with climb: along the ledge      4/4 
+     ledge 3: forward, no climb: stays, not in the wall 4/4 
+     ledge 3: forward with climb: climbs on up      4/4 
+     ledge 3: back: drops off                       4/4 
+     ledge 6: back with climb: tips over or off     4/4 
+     ledge 3: jump: comes down clear of the wall    4/4 
+     platform 3: forward: walks on                  4/4 
+-- a slot too narrow to stand in: on up the wall at the back of it
+     slot in a wall, 8 up                 4/4 
+-- things that are really in the world
+tried 148
+     block 11 drop behind         4 ok 0 failed 
+     block 131 drop behind        8 ok 0 failed 
+     block 131 wall behind        1 ok 0 failed 
+     block 16 drop behind         9 ok 0 failed 
+     block 18 drop behind         8 ok 0 failed 
+     block 19 drop behind         4 ok 0 failed 
+     block 19 wall behind         5 ok 0 failed 
+     block 25 drop behind         1 ok 0 failed 
+     block 27 drop behind         7 ok 0 failed 
+BAD  block 3 drop behind          14 ok 1 failed at -11,48,-1418 from 1,0 ground 46 behind 46 ended y 46.4 at -11.8,-1417.5 walk climbed true
+     block 3 wall behind          1 ok 0 failed 
+     block 31 drop behind         1 ok 0 failed 
+BAD  block 35 drop behind         28 ok 1 failed at -504,48,481 from 0,1 ground 46 behind 47 ended y 48.0 at -503.5,480.6 walk climbed true
+     block 5 drop behind          16 ok 0 failed 
+     block 5 wall behind          21 ok 0 failed 
+     block 77 drop behind         4 ok 0 failed 
+     block 79 drop behind         2 ok 0 failed 
+     block 80 drop behind         6 ok 0 failed 
+     block 81 drop behind         6 ok 0 failed 
+fine 236 of 238 lines

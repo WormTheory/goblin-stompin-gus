@@ -8344,7 +8344,8 @@ function bodyHits(p,x,z,h){
 function bodyFree(p){
   if(!bodyHits(p,p.pos.x,p.pos.z,p.heading))return;
   for(const d of [0.12,0.25,0.4,0.6,0.85])for(let k=0;k<8;k++){const a=k*Math.PI/4+p.heading+Math.PI,nx=p.pos.x+Math.sin(a)*d,nz=p.pos.z+Math.cos(a)*d;
-    if(Math.abs(groundAt(nx,nz,p.pos.y+0.5)-p.pos.y)<0.6&&!bodyHits(p,nx,nz,p.heading)){p.pos.x=nx;p.pos.z=nz;return;}}
+    // (on a narrow ledge his middle may hang out over the drop, so long as his feet are still on it)
+    if((Math.abs(groundAt(nx,nz,p.pos.y+0.5)-p.pos.y)<0.6||Math.abs((supportMax(nx,nz,p.heading,p.pos.y,HIPPO_PTS)??-9)-p.pos.y)<0.6)&&!bodyHits(p,nx,nz,p.heading)){p.pos.x=nx;p.pos.z=nz;return;}}
 }
 // do two boxes (centre, heading, half-width, half-length) overlap on the ground plane? separating-axis test
 function boxesTouch(ax,az,ah,awx,awz,bx,bz,bh,bwx,bwz){
@@ -8920,11 +8921,16 @@ function wrapA(a){while(a>Math.PI)a-=Math.PI*2;while(a<-Math.PI)a+=Math.PI*2;ret
 // a snap in position/heading is absorbed by a visual offset that eases away, so the model glides instead of jumping
 function easeSnap(p,ox,oy,oz,oh){if(!p.visOff)p.visOff=new V3();p.visOff.x+=ox;p.visOff.y+=oy;p.visOff.z+=oz;p.headOff=wrapA((p.headOff||0)+oh);}
 function startClimb(p,reach){
-  const sx=Math.sin(p.heading),cz=Math.cos(p.heading),d=Math.abs(sx)>Math.abs(cz)?[Math.sign(sx),0]:[0,Math.sign(cz)];
-  let cell=null,lat=0;
+  const sx=Math.sin(p.heading),cz=Math.cos(p.heading),xFirst=Math.abs(sx)>Math.abs(cz),ways=[xFirst?[Math.sign(sx),0]:[0,Math.sign(cz)]];
+  // (coming in at a slant, the wall he's rubbing along is off to one side of the way he's mostly facing: that counts too)
+  if(Math.abs(xFirst?cz:sx)>0.25)ways.push(xFirst?[0,Math.sign(cz)]:[Math.sign(sx),0]);
+  let cell=null,lat=0,d=ways[0];
   // (straight ahead first, then out to his shoulders: a thin pillar that's stopped his shoulder is still something to grab)
-  for(const o of [0,0.3,-0.3,0.6,-0.6]){
-    for(let s=0.3;s<=reach&&!cell;s+=0.15){const cx=Math.floor(p.pos.x+d[0]*s-d[1]*o),cz2=Math.floor(p.pos.z+d[1]*s+d[0]*o);if(solidAt(cx,Math.floor(p.pos.y+0.6),cz2)||solidAt(cx,Math.floor(p.pos.y+1.4),cz2)){cell=[cx,cz2];lat=o;}}
+  for(const w of ways){
+    for(const o of [0,0.3,-0.3,0.6,-0.6]){
+      for(let s=0.3;s<=reach&&!cell;s+=0.15){const cx=Math.floor(p.pos.x+w[0]*s-w[1]*o),cz2=Math.floor(p.pos.z+w[1]*s+w[0]*o);if(solidAt(cx,Math.floor(p.pos.y+0.6),cz2)||solidAt(cx,Math.floor(p.pos.y+1.4),cz2)){cell=[cx,cz2];lat=o;d=w;}}
+      if(cell)break;
+    }
     if(cell)break;
   }
   if(!cell)return false;
@@ -8952,7 +8958,10 @@ function haulSpot(p,D,top,side){
   for(const k of [sg,-sg])for(const s of [0.5,0.4,0.3,0.2,0.1]){const h=Math.atan2(-D[1]*k,D[0]*k);if(under(s)&&fits(s,h))return put(s,h);}
   // no room for that either: forefeet up with his nose to the wall and his back end hanging out over the drop
   for(const s of [0.1,0,-0.1,-0.2,-0.3]){const [x,z]=at(s),g=supportMax(x,z,hd,top+0.1,HIPPO_PTS);if(g!==null&&Math.abs(g-top)<0.6&&fits(s,hd))return put(s,hd);}
-  return under(1.3)?put(1.3,hd):null;
+  if(under(1.3))return put(1.3,hd);
+  // no room on the block itself, but only a step down on the far side: over it and on to that
+  for(const k of [1.3,1.7,2.1,2.5]){const [x,z]=at(k),v=supportAt(x,z,top+0.1);if(v!==null&&v>=top-1.05&&v<top){const y=p.pos.y;p.pos.y=v;const hit=bodyHits(p,x,z,hd);p.pos.y=y;if(!hit)return{x,z,h:hd,y:v};}}
+  return null;
 }
 // climbing sideways into an inside corner: step onto the wall that's blocking the way (s = crawl direction)
 function climbCornerIn(p,d,s){
@@ -9392,7 +9401,7 @@ function movePlayer(p,dt){
         if(LT&&Math.abs(iz)<0.35&&d0>1.5){const ex=p.pos.x-LT.pos.x,ez=p.pos.z-LT.pos.z,e=Math.hypot(ex,ez)||1,nx=LT.pos.x+ex/e*d0,nz=LT.pos.z+ez/e*d0;if(canStand(nx,nz,p.pos.y)){p.pos.x=nx;p.pos.z=nz;}}
         moving=true;p.lastSp=sp;p.phase+=dt*sp*3.4*(charge?0.45:1);if(tramp&&!hbOn('trample')){hitGoblins(frontX,frontZ,AB.trample.hitR,AB.trample.dmg,'Trampled',p.pos.y);
           // and it ploughs straight through anything in the way: benches, bins, fences, railings, low walls
-          p.trCD=(p.trCD||0)-dt;if(p.trCD<=0&&!hbOn('trample')){p.trCD=0.1;const o={force:1.1,dx:hx,dz:hz};if(blockHit(AB.trample,frontX,p.pos.y,frontZ,hx,hz,o,sz=>crushDisc(frontX,p.pos.y,frontZ,sz,3,o))){thud(0.45);addShake(0.18,frontX,frontZ,10);rumble(p,0.3,90);}}}
+          p.trCD=(p.trCD||0)-dt;if(p.trCD<=0&&!hbOn('trample')&&!inp.climb){p.trCD=0.1;const o={force:1.1,dx:hx,dz:hz};if(blockHit(AB.trample,frontX,p.pos.y,frontZ,hx,hz,o,sz=>crushDisc(frontX,p.pos.y,frontZ,sz,3,o))){thud(0.45);addShake(0.18,frontX,frontZ,10);rumble(p,0.3,90);}}}
         if(inp.climb&&p.grounded)climbOverEdge(p,mvx,mvz);
       }
     }
@@ -9490,7 +9499,11 @@ function movePlayer(p,dt){
             // wall to go on to, it turns him to that and on up (p.perch is the way to it); with none, he stays put
             const bs=supportAt(p.pos.x+D[0]*1.3,p.pos.z+D[1]*1.3,top+0.1),more=[0,0.6,-0.6].some(o=>[0.6,1.4].some(h=>solidAt(Math.floor(p.pos.x+D[0]*1.3-D[1]*o),Math.floor(top+h),Math.floor(p.pos.z+D[1]*1.3+D[0]*o))));
             p.perch=bs===null||bs<top-0.6?(more?D:true):false;
-            startPiv(p,{E,to:[spot.x,top,spot.z],dur:0.4,next:'walk',heading:spot.h});thud(0.15);grunt(p,false);}
+            startPiv(p,{E,to:[spot.x,spot.y??top,spot.z],dur:0.4,next:'walk',heading:spot.h});thud(0.15);grunt(p,false);}
+          // nowhere a hippo fits (a slot in a wall, a step on a curving one): on to the wall behind the lip if there is one and
+          // up that; if not, he hangs on at the lip rather than dropping
+          else if(top!==null&&[0.6,1.4].some(h=>solidAt(Math.floor(p.pos.x+D[0]*1.3),Math.floor(p.pos.y+h),Math.floor(p.pos.z+D[1]*1.3))))startPiv(p,{E:'center',to:[p.pos.x+D[0],p.pos.y,p.pos.z+D[1]],dur:0.25,next:'climb',heading:p.heading});
+          else if(top!==null&&vUp>0)p.pos.y-=vUp*dt;
           else{p.state='walk';p.grounded=false;}
         } else {p.state='walk';p.grounded=false;}
       }
