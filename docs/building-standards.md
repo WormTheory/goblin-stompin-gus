@@ -1,11 +1,58 @@
-# Interior standards
+# Building standards
 
-What Thomas has asked for in building interiors, and how to meet and check it. Read this before adding or changing any building. These came from his feedback in November 2026: the small restaurants (diner, pizzeria, cafe) are his stated benchmark for level of detail.
+What Thomas has asked for in the game's buildings (their scale, where they go, how they read from outside, and what's inside), and how to meet and check it. Read this before adding, moving, resizing or changing any building. It comes from his feedback in November 2026.
 
-## What every building needs
+## Scale
+
+Scale reference: 1 block is about 1.4m, so a goblin (1.4 blocks) is about 2m. A storey is 5 blocks, tall on purpose so Gus fits indoors.
+
+- **Keep the 32-block city block.** Larger structures span more plots rather than making plots bigger. `CELL` and the plot constants are everywhere, and changing them wouldn't make existing buildings grow.
+- **Size follows real life, scaled to fit.** Most things are close to real size; the very largest sites aim for roughly 60 to 70%, because a fully real airport or nuclear plant would dwarf a town.
+- **Big sites get room around them.** Cities and large towns were widened by about 30% to make space. Bigger sites mean longer walks and fewer buildings per city, so play-test the feel.
+- **Don't cram.** One restaurant, shop or mid-rise to a block, and two-storey houses have a block to themselves.
+
+Sizes as built, in plots (W x H; one plot is 32 blocks):
+
+| Structure | Plots |
+| --- | --- |
+| Restaurant, little shop, fast food, bar, mid-rise, office tower, courthouse, library, bank | 1 |
+| Sit-down restaurant, drug store | 2 |
+| Police station (big), arena | 2 x 2 |
+| Cathedral | 2 x 3 |
+| Museum, aquarium | 3 x 2 |
+| School (big), hospital (big), power station, mine | 3 x 3 |
+| Furniture store, factory, lumber camp | 4 x 3 |
+| Prison, film studio, dump, military base, superstore | 4 x 4 |
+| Mall, stadium | 4 x 6 |
+| Zoo | 5 x 5 |
+| University, theme park, nuclear plant, quarry | 6 x 6 |
+| Airport | 12 x 5 |
+
+Smaller versions exist in small towns. The original plan suggested larger still for the theme park and nuclear plant (8 x 8), the airport (14 x 6) and farms (4 x 4 to 6 x 6). Farms are still 1 plot, by choice so far.
+
+## Placement
+
+Each kind of site belongs somewhere in a place (`SITE_F`, how far out from the middle, and `siteFits`); country sites are in `BIGP`.
+
+| Zone | What belongs there |
+| --- | --- |
+| Downtown | Office towers, mega-buildings, stock exchange, theaters, museums, capitol, TV news |
+| City ring | Mid-rises, hospitals, universities, arenas, stadiums, cathedrals, malls |
+| Suburbs | Houses, schools, supermarkets, superstores, parks, churches, cinemas |
+| Edge of town, with a road in | Dumps, factories, power stations, water works, prisons, data centers, car dealers, film studios, zoos, theme parks |
+| Out in the country | Nuclear plants, airports, military bases, launch sites, mines, quarries, farms, wind farms |
+
+Nothing heavy, smelly or sprawling in a town center, and no dump against high-rises.
+
+## Identity from outside
+
+A building should read as what it is from a distance, before you can read its sign. Each major structure gets a distinct shape, its own roof, its own ground treatment, and one signature object: a hospital's helipad, ambulance bay and cross; a school's buses, flagpole and field; a fire station's red bays and drying tower; a factory's sawtooth roof and chimneys; a prison's walls and guard towers; columns and steps on a bank or library. Small shops and restaurants can stay simple boxes with varied roofs (`roofOf`) and a large chain sign.
+
+## What every interior needs
 
 - **It reads as what it is.** Lay out the rooms the building would really have, not generic furniture. A restaurant has a dining area, a checkout counter and a kitchen, and each kind differs (booths and stools in a diner, a brick oven in a pizzeria, armchairs and a cake case in a cafe). They needn't be especially detailed, but they should read that way.
 - **Props, not cube furniture.** Furniture is box-model props in proportion to the goblins (about 1.4 tall). Blocks are for walls, tanks, stages, tiered seating and other things that are really structure.
+- **The benchmark is the small restaurants** (diner, pizzeria, cafe): he called them exactly the level of detail he wants.
 - **Not monotonous, not empty.** Long grids of one desk or big bare floors are faults. Break large floors into distinct rooms. A police station has a lobby and front desk, bigger holding cells, an armory, an evidence room, a break room, interview rooms and locker rooms. A hospital ground floor has a pharmacy, X-ray, exam rooms, a lab and so on around its lobby, and its ER is full of bays behind the ambulance doors.
 - **Size follows function.** If it doesn't fit, make the building bigger. Two restaurants sharing a block became one each. Don't shrink the function to fit the building.
 - **Stairs on anything with real upper floors**, reachable, without blocking the way through the building or crowding out its purpose. If stairs take up most of a building, enlarge it or make it one storey. (A farmhouse where the stairs left room for little else was the example he gave.)
@@ -13,7 +60,7 @@ What Thomas has asked for in building interiors, and how to meet and check it. R
 - **A way through that makes sense.** Think about how people use it: a train station needs a door on to the platform as well as one from the street.
 - **Emergency vehicles keep working.** Anything that dispatches vehicles must still let them out and home after changes.
 
-## Outside
+## Signs and outdoors
 
 - **One sign per building**, unless more are deliberate (gas stations and truck stops have 3, fast food, water towers and the space agency have 2).
 - **Signs must be readable from normal angles.** On buildings with pediments the sign goes on the front of the pediment, not the wall behind it.

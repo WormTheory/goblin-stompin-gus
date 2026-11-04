@@ -12,8 +12,8 @@ Open the file in a browser to play.
 - Make edits with exact, unique string replacements. Many identifiers repeat, so check for a single match before replacing.
 - After every change: run the tests (below) before calling it done.
 
-## Building interiors
-Before adding or changing any building, read `docs/interior-standards.md`: what Thomas expects inside and outside buildings, the pitfalls, and how to check.
+## Buildings
+Before adding, moving, resizing or changing any building, read `docs/building-standards.md`: what Thomas expects of their scale, placement, look and interiors, the pitfalls, and how to check.
 
 ## Running the tests
 The game script is pulled out of the HTML and evaluated in Node with a stub THREE and a fake DOM.
