@@ -535,7 +535,7 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
         <div class="tp-head"><h2>Testing Environment</h2><p>An empty, flat world to try things out in. Pick a kind of structure to bring in the nearest one this world would build, furnished and dressed as it would be in a city, with Gus set down just south of it. Enemies turn up a few steps ahead of wherever Gus is looking.</p></div>
         <div class="tp-info" id="tpInfo" role="status"></div>
         <div class="tp-sec"><div class="tp-gh">Enemies</div>
-          <div class="tp-tools" id="tpFoes"><button type="button" class="pmenu" data-foe="goblin">Goblin</button><button type="button" class="pmenu" data-foe="cop">Police officer</button><button type="button" class="pmenu" data-foe="civ">Civilian</button><button type="button" class="pmenu" data-foe="police">Police car</button><button type="button" class="pmenu" data-foe="car">Hunting car</button>
+          <div class="tp-tools" id="tpFoes"><button type="button" class="pmenu" data-foe="goblin">Goblin</button><button type="button" class="pmenu" data-foe="cop">Police officer</button><button type="button" class="pmenu" data-foe="cultist">Cultist</button><button type="button" class="pmenu" data-foe="civ">Civilian</button><button type="button" class="pmenu" data-foe="police">Police car</button><button type="button" class="pmenu" data-foe="car">Hunting car</button>
             <span class="tp-count">How many</span><div class="seg" role="radiogroup" aria-label="How many to spawn" id="tpN"><button type="button" role="radio" data-n="1" aria-checked="true">1</button><button type="button" role="radio" data-n="5" aria-checked="false">5</button><button type="button" role="radio" data-n="10" aria-checked="false">10</button></div>
             <button type="button" class="pmenu" id="tpClear">Clear all</button></div></div>
         <div class="tp-sec" id="tpPlacedSec" hidden><div class="tp-gh">Spawned here</div><div class="tp-placed" id="tpPlaced"></div></div>
@@ -2264,39 +2264,46 @@ function abandonedSpots(px,pz){
   return out;
 }
 const RUST_PAINTS=[0x6a3a22,0x7a4a2a,0x5a4a3a,0x7a6a5a,0x4a3a2a,0x8a5a3a];
-// ---- the cultists: robed figures shuffling round the altar, arms up, chanting; come too close and they turn on you ----
-const CULTM={robe:new THREE.MeshLambertMaterial({color:0x4a0a12}),hood:new THREE.MeshLambertMaterial({color:0x2a0408}),face:new THREE.MeshBasicMaterial({color:0x080808}),glow:new THREE.MeshBasicMaterial({color:0xff2a1a,transparent:true,opacity:0.5,depthWrite:false})};
-function makeCultist(){
-  const g=new THREE.Group(),bx=(m,sx,sy,sz,x,y,z)=>{const o=new THREE.Mesh(LM_BOX,m);o.scale.set(sx,sy,sz);o.position.set(x,y,z);g.add(o);return o;};
-  bx(CULTM.robe,0.9,1.5,0.7,0,0.75,0);bx(CULTM.robe,0.7,0.3,0.6,0,1.6,0);bx(CULTM.hood,0.62,0.66,0.66,0,1.98,0);bx(CULTM.face,0.4,0.36,0.05,0,1.92,0.33);
-  const arms=new THREE.Group();arms.position.y=1.45;g.add(arms);for(const s of [-1,1]){const a=new THREE.Mesh(LM_BOX,CULTM.robe);a.scale.set(0.2,0.9,0.2);a.position.set(s*0.5,0.4,0);arms.add(a);}
-  g.userData.arms=arms;return g;
-}
+// ---- the cultists: robed goblins circling the altar, arms up, chanting. They're real goblins the whole time (out of
+// their own pool: see addCultist), so they can be stomped mid-rite; come too close, or hurt one, and the whole circle
+// turns on you, throwing fireballs from range and stabbing with their ritual daggers up close (cultCast) ----
+const CULTM={glow:new THREE.MeshBasicMaterial({color:0xff2a1a,transparent:true,opacity:0.5,depthWrite:false})};
+const CULT_RING=5.6;   // (how far from the altar they walk: clear of the fire's ring of stones, inside the standing stones)
 function refreshCultVenues(p,want){
   for(let px=Math.floor((p.pos.x-140)/CELL);px<=Math.floor((p.pos.x+140)/CELL);px++)for(let pz=Math.floor((p.pos.z-140)/CELL);pz<=Math.floor((p.pos.z+140)/CELL);pz++){
     if(biomeOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;const B=bigPlainsAt(px,pz);if(!B||B.kind!=='cult')continue;
     const key='c'+px+','+pz;want.add(key);if(venues.has(key))continue;
-    const cx=px*CELL+16.5,cz=pz*CELL+16.5,n=5+Math.floor(hash2(px,pz)*3),figs=[];
-    for(let i=0;i<n;i++){const g=makeCultist();scene.add(g);figs.push({g,a:i/n*Math.PI*2,ph:Math.random()*6});}
+    const cx=px*CELL+16.5,cz=pz*CELL+16.5,n=5+Math.floor(hash2(px,pz)*3);
     const glow=new THREE.Mesh(LM_BOX,CULTM.glow);glow.position.set(cx,G+3.2,cz+0.5);scene.add(glow);
-    venues.set(key,{kind:'cult',cx,cz,figs,glow,chantT:0,roused:false,awayT:0});}
+    venues.set(key,{kind:'cult',cx,cz,n,slots:new Array(n).fill(null),slain:new Array(n).fill(false),glow,chantT:0,roused:false,awayT:0});}
 }
 function updateCultVenue(V,dt,t){
   const me=players.find(q=>q.active),d=me?Math.hypot(me.pos.x-V.cx,me.pos.z-V.cz):999;
-  // roused: the figures have become goblins out hunting you; they gather again once you've been long gone
-  if(V.roused){if(d>90){V.awayT+=dt;if(V.awayT>120){V.roused=false;for(const F of V.figs)F.g.visible=true;}}else V.awayT=0;V.glow.visible=false;return;}
+  // who's still in the circle: one gone home (you went off, like any goblin) leaves a place to fill again; one killed
+  // stays dead until the cult's had a couple of quiet minutes
+  for(let i=0;i<V.n;i++){const g=V.slots[i];if(!g)continue;
+    if(g.cultV!==V||g.state==='wait'){V.slots[i]=null;continue;}
+    if(g.state==='dead'){V.slain[i]=true;V.slots[i]=null;g.cultV=null;}}
+  // roused: they're out hunting you; they gather again once you've been long gone
+  if(V.roused){if(d>90){V.awayT+=dt;if(V.awayT>120){V.roused=false;V.slain.fill(false);}}else V.awayT=0;V.glow.visible=false;return;}
   V.glow.visible=true;const pulse=0.5+0.5*Math.sin(t*2.1);V.glow.scale.set(1.2+pulse*0.8,0.8+pulse*1.2,1.2+pulse*0.8);CULTM.glow.opacity=0.25+0.35*pulse;
-  for(const F of V.figs){F.a+=dt*0.18;const x=V.cx+Math.cos(F.a)*4.6,z=V.cz+0.5+Math.sin(F.a)*4.6;
-    F.g.position.set(x,G+1+Math.abs(Math.sin(t*1.6+F.ph))*0.08,z);F.g.rotation.y=Math.atan2(V.cx-x,V.cz+0.5-z);
-    F.g.userData.arms.rotation.x=Math.PI*(0.75+0.15*Math.sin(t*1.6+F.ph));}
+  // the circle, there whenever you're near enough to see it
+  if(me&&playing&&d<70)for(let i=0;i<V.n;i++){if(V.slots[i]||V.slain[i])continue;
+    const g=freeCultist();if(!g)break;cultSpawn(g,V,i);
+    const x=V.cx+Math.cos(g.ring)*CULT_RING,z=V.cz+0.5+Math.sin(g.ring)*CULT_RING;g.pos.set(x,groundAt(x,z,G+6),z);g.heading=Math.atan2(V.cx-x,V.cz+0.5-z);V.slots[i]=g;}
   // the chant: a low drone, rising and falling
   V.chantT-=dt;if(V.chantT<=0&&audio&&playing&&d<70){V.chantT=2.6;const vol=0.05*(1-d/70);tone('sine',98,92,2.2,vol);tone('sine',147,140,2.2,vol*0.6);tone('triangle',196,185,1.2,vol*0.3,1.1);}
   // too close: they turn on you
-  if(d<15&&playing&&me){V.roused=true;V.awayT=0;
-    for(const F of V.figs){F.g.visible=false;const g=goblins.find(o=>o.state==='wait'&&!o.civ&&!o.staff);if(!g)continue;
-      if(spawnGoblin(g,true)){g.pos.set(F.g.position.x,G+1,F.g.position.z);g.heading=Math.atan2(me.pos.x-g.pos.x,me.pos.z-g.pos.z);}}
-    if(audio)tone('sawtooth',220,110,0.9,0.08);flashLabel('The cult turns on you!',me);}
+  if(d<15&&playing&&me&&!calmNow())cultRouse(V);
 }
+function cultRouse(V){
+  if(V.roused)return;V.roused=true;V.awayT=0;const n=nearestPlayer(V.cx,V.cz),me=n&&n.p;
+  // (they don't all let fly at once: a ragged volley, a few starting for you with their daggers out)
+  V.slots.forEach((g,i)=>{if(!g||g.state!=='chase')return;g.castCD=0.5+i*0.45+Math.random()*0.4;if(me)g.heading=Math.atan2(me.pos.x-g.pos.x,me.pos.z-g.pos.z);});
+  if(audio)tone('sawtooth',220,110,0.9,0.08);if(me)flashLabel('The cult turns on you!',me);
+}
+// the circle's gone out of range: those still at their rite go home with it (any already out hunting you carry on)
+function cultDrop(V){for(const g of V.slots)if(g&&g.cultV===V&&!V.roused&&g.state==='chase'){g.state='wait';g.t=0;g.root.visible=false;g.cultV=null;}}
 // ---- 5G towers: a steel monopole in a little fenced compound, its antenna panels up top on three sides, a dish, the
 // equipment cabinets at its foot, a red light on the very top ----
 function tower5gColumn(col,B,U,V,x,z){
@@ -2467,7 +2474,7 @@ function updateSiteVenue(V,dt,t){
   for(const F of V.figs){F.g.position.set(F.x,F.y+Math.abs(Math.sin(t*0.9+F.ph))*0.03,F.z);F.g.rotation.y=F.h0+Math.sin(t*0.3+F.ph)*1.2;}
   // too close (and seen): they come for you
   if(me&&playing&&dmin<FIG_STYLE[V.style].rouse){V.roused=true;V.awayT=0;
-    for(const F of V.figs){F.g.visible=false;const g=goblins.find(o=>o.state==='wait'&&!o.civ&&!o.staff);if(!g)continue;
+    for(const F of V.figs){F.g.visible=false;const g=goblins.find(o=>o.state==='wait'&&!o.civ&&!o.staff&&!o.cultist);if(!g)continue;
       if(spawnGoblin(g,true)){g.pos.set(F.x,F.y,F.z);g.heading=Math.atan2(me.pos.x-g.pos.x,me.pos.z-g.pos.z);}}
     if(audio)tone('square',330,160,0.5,0.07);
     flashLabel(V.style==='militia'?'The militia opens up on you!':V.style==='prepper'?'The preppers defend their compound!':"You've found the thieves' hideout!",me);}
@@ -10504,6 +10511,14 @@ function goblinModel(parent,o={}){
   const arm=new THREE.Group();arm.position.set(0.32,0.92,0);parent.add(arm);out.arm=arm;
   box(0.13,0.42,0.13,'skin',GC.skin,0,-0.2,0,arm);
   if(o.club!==false){box(0.11,0.11,0.55,'club',GC.club,0,-0.38,0.22,arm);box(0.19,0.19,0.19,'club',GC.club,0,-0.38,0.5,arm);}
+  if(o.cult){
+    // a cultist: a robe down to the ankles, a pointed hood (the ears poke out of it), a ritual dagger in the right hand,
+    // and in the left a fireball, shown only while one's being conjured
+    box(0.54,0.4,0.36,'tunic',o.tunic||GC.tunic,0,0.25,0,parent);
+    box(0.58,0.1,0.52,'hood',0x2a0408,0,0.47,0,head);box(0.58,0.5,0.08,'hood',0x2a0408,0,0.22,-0.24,head);for(const s of[-1,1])box(0.07,0.44,0.5,'hood',0x2a0408,s*0.28,0.24,0,head);box(0.22,0.14,0.22,'hood',0x2a0408,0,0.58,-0.08,head);
+    box(0.08,0.08,0.12,'hilt',0x2a1a10,0,-0.42,0.06,arm);box(0.05,0.03,0.34,'blade',0xd0d4dc,0,-0.42,0.29,arm);
+    out.orb=box(0.24,0.24,0.24,'orb',0xff7a1a,0,-0.46,0.04,armL);out.orb.visible=false;
+  }
   // hats
   acc('cap',[box(0.52,0.12,0.48,'hat',0x2a2a2a,0,0.47,0.02,head),box(0.34,0.04,0.2,'hat',0x2a2a2a,0,0.425,0.31,head)]);
   acc('top',[box(0.34,0.36,0.34,'hatdark',0x1a1a1e,0,0.625,0.02,head),box(0.54,0.04,0.52,'hatdark',0x1a1a1e,0,0.445,0.02,head),box(0.38,0.06,0.38,'hat',0x8a2a2a,0,0.5,0.02,head)]);
@@ -10655,7 +10670,7 @@ function obitShow(o){
     try{const bb=new THREE.Box3().setFromObject(c),sz=bb.getSize(new V3()),k=1.9/Math.max(sz.x,sz.y,sz.z,0.01);c.scale.multiplyScalar(k);c.position.y=-bb.min.y*k;}catch(e){}
     OBP.root=root;OBP.scene.add(root);OBP.spin=-0.6;return;
   }
-  const root=new THREE.Group(),m=goblinModel(root,{club:!o.civ});
+  const cu=!!(o.look&&o.look.cult),root=new THREE.Group(),m=goblinModel(root,{club:!o.civ&&!cu,cult:cu,tunic:cu?o.look.tunic:undefined});
   const hx=s=>parseInt(String(s||'#6f9a3a').slice(1),16);
   const L=o.look||{skin:hx(o.sk),tunic:hx(o.tu),pants:0x3a3328,hat:hx(o.ht),acc:0x884422,acc2:0x111111,hair:0x1b1b1b,show:[],h:1,w:1,hs:1};
   applyLook({roles:m.roles,acc:m.acc,root,head:m.head},L,1);
@@ -11970,6 +11985,16 @@ function addCiv(){
 for(let i=0;i<14;i++)addCiv();
 // staff: a separate few townsfolk who work in the shops, restaurants, hospitals and stations near you, in uniform
 for(let i=0;i<24;i++){addCiv();goblins[goblins.length-1].staff=true;}
+// cultists: their own few, robed and hooded, who live at the cult altars (or come from the Testing Environment). Never
+// sent into town, and never counted against the street's goblins. Made the first time they're wanted (freeCultist)
+const CULT_ROBE=0x4a0a12,CULT_HOOD=0x2a0408;let cultMade=0;
+function freeCultist(cap=8){let g=goblins.find(o=>o.cultist&&o.state==='wait');if(!g&&cultMade<cap){addCultist();g=goblins[goblins.length-1];}return g||null;}
+function addCultist(){cultMade++;
+  const root=new THREE.Group();root.rotation.order='YXZ';
+  const m=goblinModel(root,{club:false,cult:true,tunic:CULT_ROBE,shareGeo:true});
+  goblins.push({snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,orb:m.orb,pos:new V3(),kv:new V3(),stun:0,heading:0,vy:0,hp:4,state:'wait',t:0,phase:0,atk:1,hurt:0,sink:0,detour:0,detourH:0,stuck:0,civ:false,cultist:true,cultV:null,ring:0,slot:0,cast:0,castCD:0});
+  root.visible=false;root.scale.setScalar(ES);   // (not added to the scene: batDraw draws it)
+}
 const STAFF_CAP={courthouse:3,base:4,airport:4,nasa:4,nuclear:3,campus:4,prison:4,jail:2,water:2,power:4,zoo:2,lab:3,ikea:6,museum:3,aquarium:3,casino:6,school:5,factory:5,datacenter:1,electric:2,dealer:3,armory:2,theater:3,stocks:4,nursery:2,library:2,cinema:3,radio:2,news:4,bank:3,disco:3,club:3,books:1,dentist:2,dispo:1,guns:1,bar:2,soup:3,bigbox:8,market:5,drug:3,grocery:3,hospital:5,police:3,fire:3,sitdown:4,fastfood:3,kiosk:2,diner:2,pizza:2,cafe:2,shop:2};
 const STAFF_JOBS={bigbox:['Cashier','Greeter','Stocker','Shift manager','Electronics associate','Cart wrangler'],grocery:['Cashier','Stocker','Deli clerk','Bagger','Produce clerk'],market:['Cashier','Stocker','Deli clerk','Bagger','Produce clerk','Butcher'],drug:['Pharmacist','Pharmacy tech','Cashier','Stocker'],
   hospital:['Nurse','Doctor','Orderly','Surgeon','Paramedic','Receptionist'],police:['Police officer','Desk sergeant','Detective'],fire:['Firefighter','Fire captain'],
@@ -12206,6 +12231,7 @@ function damageGoblin(g,n,pt,dir,cause,by){
   dmgPop(g.pos.x,g.pos.y+1.6,g.pos.z,n,'#ffe14a');
   if(!by&&BLAME==='acc')by=ACCIDENT;
   g.hp-=n;g.hurt=0.1;
+  if(g.cultV&&!g.cultV.roused&&!calmNow())cultRouse(g.cultV);   // (hurt one at the altar and the whole circle turns on you)
   if(g.snowU&&g.snowU.value>0.05){puff(g.pos.x,g.pos.y+1.3*ES,g.pos.z,6,0xf0f4fa,0.35);g.snowU.value=0;}
   if(g.news){endNews(g,true);g.indoor=false;g.wt=null;}   // hit: drop everything and run (or fall)
   if(g.hp>0&&(g.medic||g.ff)){if(g.medic&&g.medic.cur)g.medic.cur.tended=false;g.medic=null;g.ff=null;g.indoor=false;g.wt=null;}   // hit: forget the job and run
@@ -12221,7 +12247,7 @@ function damageGoblin(g,n,pt,dir,cause,by){
     if(by){g.vendor=null;}
     else reportCrime(g.pos.x,g.pos.z);
     if(by){}
-    else if(g.civ){score+=25;g.vendor=null;flashLabel('Civilian flattened  +25',n2&&n2.p);}else{score+=100;kills++;flashLabel('Goblin killed  +100',n2&&n2.p);}
+    else if(g.civ){score+=25;g.vendor=null;flashLabel('Civilian flattened  +25',n2&&n2.p);}else{score+=100;kills++;flashLabel(g.cultist?'Cultist slain  +100':'Goblin killed  +100',n2&&n2.p);}
     tone('sawtooth',620,110,0.45,0.1);splat(g.pos.x,g.pos.z,g.pos.y+0.5,0.6);}
 }
 function knockMove(o,dt){
@@ -12232,6 +12258,90 @@ function knockMove(o,dt){
   const s=supportAt(o.pos.x,o.pos.z,o.pos.y),air=s!==null&&o.pos.y>s+0.05;
   const k=Math.exp(-dt*(air?0.8:6));o.kv.x*=k;o.kv.z*=k;
 }
+// ---- cultists (see addCultist and the cult altars' venue) ----
+const CULT_JOBS=['Cultist','Acolyte of the Altar','Candle-bearer','Chanting novice','Keeper of the sigil','High priest (self-appointed)','Ritual dagger polisher','Doom prophet','Hooded initiate'];
+const CULT_CAST=0.7;   // (seconds a fireball takes to conjure: the warning you get)
+// a cultist out of the pool, dressed and alive; V is its altar (null for one spawned to fight straight away), i its place in the circle
+function cultSpawn(g,V,i){
+  g.cultV=V;g.slot=i;g.ring=V?i/V.n*Math.PI*2:0;
+  g.hp=g.hpMax=4;g.state='chase';g.t=0;g.sink=0;g.hurt=0;g.vy=0;g.atk=1;g.detour=0;g.stuck=0;g.kv.set(0,0,0);g.stun=0;g.act=null;g.wt=null;g.indoor=false;g.alert=false;
+  g.cop=null;g.inv=false;g.ff=null;g.medic=null;g.news=null;g.vendor=null;g.employer=null;g.claim=null;g.trip=null;g.stUp=undefined;g.cast=0;g.castCD=1+Math.random();
+  g.root.visible=true;g.root.rotation.set(0,0,0);g.arm.rotation.x=-0.5;g.armL.rotation.x=0;g.orb.visible=false;
+  const L={skin:pick(GPAL.skin),tunic:CULT_ROBE,pants:0x1a0a0c,hat:CULT_HOOD,acc:0x2a0408,acc2:0x2a0408,hair:0x1b1b1b,show:[],cult:true,hatType:'hood',hatShown:CULT_HOOD,h:0.92+Math.random()*0.2,w:0.95+Math.random()*0.1,hs:0.95+Math.random()*0.1};
+  applyLook(g,L,ES);g.id=makeIdentity(g,L);g.id.occ=pick(CULT_JOBS);
+  return g;
+}
+// at the rite: shuffling round the altar facing it, arms raised and swaying with the chant
+function cultCalm(g,dt){
+  const V=g.cultV;g.ring+=dt*0.18;g.cast=0;g.orb.visible=false;
+  const x=V.cx+Math.cos(g.ring)*CULT_RING,z=V.cz+0.5+Math.sin(g.ring)*CULT_RING,dx=x-g.pos.x,dz=z-g.pos.z,dd=Math.hypot(dx,dz);let moving=false;
+  if(playing&&g.stun<=0&&dd>0.08){const st=Math.min(dd,(dd>1.5?2.4:1.2)*dt);
+    if(gobGround(g.pos.x+dx/dd*0.45,g.pos.z+dz/dd*0.45,g.pos.y)-g.pos.y<=1.05){g.pos.x+=dx/dd*st;g.pos.z+=dz/dd*st;moving=true;g.phase+=dt*(dd>1.5?11:4);}}
+  const want=dd>1.5?Math.atan2(dx,dz):Math.atan2(V.cx-g.pos.x,V.cz+0.5-g.pos.z);let df=want-g.heading;while(df>Math.PI)df-=Math.PI*2;while(df<-Math.PI)df+=Math.PI*2;g.heading+=Math.max(-5*dt,Math.min(5*dt,df));
+  const ph=g.t*1.6+g.slot*1.3;g.arm.rotation.x=-2.7-0.25*Math.sin(ph);g.armL.rotation.x=-2.7-0.25*Math.sin(ph+0.6);
+  return moving;
+}
+// can it see the hippo? (a straight line from its eyes to his middle, through no solid block)
+function cultSees(g,p){
+  const x0=g.pos.x,y0=g.pos.y+1.3,z0=g.pos.z,ex=p.pos.x-x0,ey=p.pos.y+1.2-y0,ez=p.pos.z-z0,n=Math.ceil(Math.hypot(ex,ey,ez)/0.5);
+  for(let i=1;i<n;i++){const k=i/n;if(solidAt(x0+ex*k,Math.floor(y0+ey*k),z0+ez*k))return false;}return true;
+}
+// hunting: a fireball from range when it can see you (stood still to conjure it, the left hand up and the ball growing in
+// it). True while it's busy casting, so it stays put
+function cultCast(g,p,d,ddy,dt){
+  g.castCD-=dt;
+  if(g.cast>0){
+    if(g.stun>0||!playing||g.wet){g.cast=0;g.orb.visible=false;return false;}
+    g.cast-=dt;let df=Math.atan2(p.pos.x-g.pos.x,p.pos.z-g.pos.z)-g.heading;while(df>Math.PI)df-=Math.PI*2;while(df<-Math.PI)df+=Math.PI*2;g.heading+=Math.max(-8*dt,Math.min(8*dt,df));
+    const k=1-Math.max(0,g.cast)/CULT_CAST;g.armL.rotation.x=-0.6-2.2*Math.min(1,k*1.6);g.arm.rotation.x=-0.5;g.orb.visible=true;g.orb.scale.setScalar(0.4+k*0.9);g.roles.orb.emissive.setHex(0xff5a00);
+    if(g.cast<=0){
+      // (thrown overarm, from just over its head, at his chest: flat enough to clear a knee-high wall or stone)
+      const fx=Math.sin(g.heading),fz=Math.cos(g.heading);
+      fireball(g.pos.x+fx*0.5,g.pos.y+1.6,g.pos.z+fz*0.5,p.pos.x,p.pos.y+1.5,p.pos.z,g.id);
+      g.orb.visible=false;g.castCD=2.4+Math.random()*1.6;g.armL.rotation.x=-1.0;}
+    return true;}
+  if(g.castCD<=0){
+    if(playing&&g.stun<=0&&g.vy===0&&!g.wet&&!g.act&&d>4.5&&d<30&&Math.abs(ddy)<14&&cultSees(g,p)){g.cast=CULT_CAST;if(audio)tone('triangle',180,420,CULT_CAST,0.04);return true;}
+    g.castCD=0.3;}   // (not now: look again in a moment, not every frame)
+  g.armL.rotation.x+=(0-g.armL.rotation.x)*Math.min(1,dt*6);
+  return false;
+}
+// ---- cultists' fireballs: a glowing ball flying at the hippo, bending a little after him; two hearts if it hits, a burst
+// of flame against anything solid ----
+const FIREB=[],FB_SPEED=15,FB_GEO=new THREE.BoxGeometry(1,1,1),FB_CORE=new THREE.MeshBasicMaterial({color:0xffe070}),FB_HALO=new THREE.MeshBasicMaterial({color:0xff4a10,transparent:true,opacity:0.55,depthWrite:false});
+function fireball(x,y,z,tx,ty,tz,by){
+  let F=FIREB.find(f=>!f.live);
+  if(!F){if(FIREB.length>=24)return null;const g=new THREE.Group(),c=new THREE.Mesh(FB_GEO,FB_CORE),h=new THREE.Mesh(FB_GEO,FB_HALO);c.scale.setScalar(0.32);h.scale.setScalar(0.6);g.add(c);g.add(h);g.visible=false;scene.add(g);
+    F={g,halo:h,pos:new V3(),v:new V3(),t:0,live:false,by:null,trail:0};FIREB.push(F);}
+  F.pos.set(x,y,z);{const ex=tx-x,ey=ty-y,ez=tz-z,L=Math.hypot(ex,ey,ez);if(L<1e-3)F.v.set(0,0,FB_SPEED);else F.v.set(ex/L*FB_SPEED,ey/L*FB_SPEED,ez/L*FB_SPEED);}
+  F.t=0;F.live=true;F.by=by||null;F.trail=0;F.g.position.copy(F.pos);F.g.visible=true;
+  if(audio)noise(0.35,0.05,900,'bandpass');
+  return F;
+}
+function fbBurst(F){
+  F.live=false;F.g.visible=false;
+  puff(F.pos.x,F.pos.y-0.15,F.pos.z,9,0xff6a10,0.45);puff(F.pos.x,F.pos.y-0.15,F.pos.z,5,0xffd040,0.3);
+  if(audio)tone('sawtooth',170,45,0.35,0.06);
+}
+function updateFireballs(dt){
+  if(!playing)return;
+  for(const F of FIREB){if(!F.live)continue;F.t+=dt;
+    // (a little magic in it: it bends gently toward the nearest hippo, enough to follow a slow one, not a dodge)
+    const n=nearestPlayer(F.pos.x,F.pos.z);
+    if(n&&n.d<40){const ex=n.p.pos.x-F.pos.x,ey=n.p.pos.y+1.5-F.pos.y,ez=n.p.pos.z-F.pos.z,L=Math.hypot(ex,ey,ez)||1,k=Math.min(1,dt*0.6);
+      const vx=F.v.x+(ex/L*FB_SPEED-F.v.x)*k,vy=F.v.y+(ey/L*FB_SPEED-F.v.y)*k,vz=F.v.z+(ez/L*FB_SPEED-F.v.z)*k,M=Math.hypot(vx,vy,vz)||1;F.v.set(vx/M*FB_SPEED,vy/M*FB_SPEED,vz/M*FB_SPEED);}
+    let done=false;const ns=Math.max(1,Math.ceil(FB_SPEED*dt/0.3));
+    for(let k=0;k<ns&&!done;k++){F.pos.addScaledVector(F.v,dt/ns);
+      for(const p of players){if(!p.active||p.state==='dead')continue;if(p.dodge&&p.dodge.t<p.dodge.dur*0.85)continue;   // (mid-dodge: it flies on by)
+        const hx=F.pos.x-p.pos.x,hz=F.pos.z-p.pos.z,hy=F.pos.y-p.pos.y;
+        if(hx*hx+hz*hz<1.4*1.4&&hy>-0.3&&hy<2.4){const h=Math.hypot(F.v.x,F.v.z)||1;damagePlayer(p,2,F.pos.clone(),new V3(F.v.x/h,0.3,F.v.z/h),"Burned up by a cultist's fireball",F.by);done=true;break;}}
+      if(!done&&(solidAt(F.pos.x,Math.floor(F.pos.y),F.pos.z)||F.pos.y<0))done=true;}
+    if(done||F.t>3.5){fbBurst(F);continue;}
+    F.g.position.copy(F.pos);F.g.rotation.x+=dt*7;F.g.rotation.y+=dt*5;F.halo.scale.setScalar(0.55+0.12*Math.sin(F.t*30));
+    F.trail-=dt;if(F.trail<=0){F.trail=0.04;puff(F.pos.x,F.pos.y-0.15,F.pos.z,1,Math.random()<0.5?0xff7a1a:0xffc040,0.12);}
+  }
+}
+function fbClear(){for(const F of FIREB){F.live=false;F.g.visible=false;}}
 const vReach=(dy,r)=>dy>-Math.max(2.5,r*0.45)&&dy<Math.max(3,r*0.6);   // how far below/above the source an area hit still reaches
 function hitGoblins(x,z,r,n,cause,y){if(y!==undefined)dbgHit('dmg','cap',dbgCap(x,y,z,r));for(const g of goblins){if(g.state!=='chase')continue;const dx=g.pos.x-x,dz=g.pos.z-z,dy=y===undefined?0:g.pos.y-y,d=Math.hypot(dx,dz)||0.01;if(Math.hypot(d,dy)<r&&(y===undefined||vReach(dy,r)))damageGoblin(g,n,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(dx/d,0.6,dz/d),cause);}}
 // every car has someone at the wheel
@@ -12240,7 +12350,7 @@ function makeDriver(police){
     hobby:pick(GOB.hobby),quirk:pick(GOB.quirk),civ:!police};
 }
 function dropGoblinCorpse(x,y,z,driver){
-  const g=goblins.find(o=>o.state==='wait'&&!o.civ);if(!g)return;
+  const g=goblins.find(o=>o.state==='wait'&&!o.civ&&!o.cultist);if(!g)return;
   g.pos.set(x,y,z);g.kv.set(0,0,0);g.vy=0;g.hp=g.hpMax=1;g.state='chase';g.root.visible=true;g.root.rotation.set(0,0,0);g.heading=Math.random()*6.28;
   // the body that drops out of the wreck is that car's driver
   const D=driver||makeDriver(false);
@@ -12409,7 +12519,7 @@ function updateGoblins(dt){
   const nAct=players.filter(p=>p.active).length;
   if(playing){playTime+=dt;posSaveT=(posSaveT||0)+dt;if(posSaveT>2){posSaveT=0;savePos();}}
   const sb=streetBusy(),active=Math.round(Math.min(14,(nAct>1?8:5)+Math.floor(playTime/75))*crowd*(0.75+0.25*sb)),civTarget=Math.round((nAct>1?12:9)*crowd*(0.4+0.6*sb));let gone=false;
-  let hostileAlive=0,civAlive=0;for(const g of goblins)if(g.state==='chase'){if(g.staff)continue;if(g.civ)civAlive++;else hostileAlive++;}
+  let hostileAlive=0,civAlive=0;for(const g of goblins)if(g.state==='chase'){if(g.staff||g.cultist)continue;if(g.civ)civAlive++;else hostileAlive++;}
   // who's standing where, a block to a cell, so each goblin only checks the few around it for crowding (checking every
   // goblin against every other one gets slow fast: 600 of them took 30+ ms a frame)
   GOB_GRID.clear();for(const g of goblins)if(g.state==='chase'){const k=gobCell(Math.floor(g.pos.x),Math.floor(g.pos.z)),l=GOB_GRID.get(k);if(l)l.push(g);else GOB_GRID.set(k,[g]);}
@@ -12418,6 +12528,7 @@ function updateGoblins(dt){
     {const glow=g.hurt>0;if(glow!==g.glow){g.glow=glow;for(const m of g.mats)m.emissive.setHex(glow?0x440000:0x000000);}}   // (only when it changes: ten materials a goblin, every frame, adds up in a crowd)
     if(g.state!=='chase')g.act=null;
     if(g.state==='wait'){
+      if(g.cultist)return;   // (only ever brought out by their altar, or the Testing Environment)
       if(g.staff){if(g.t>1.5&&playing&&crowd>0&&!spawnStaff(g))g.t=0;}
       else if(g.civ){if(!TENV&&civAlive<civTarget&&g.t>1.5&&playing){if(spawnCiv(g))civAlive++;else g.t=0;}}
       else if(!TENV&&hostileAlive<active&&g.t>6&&playing&&alivePlayers().length){if(spawnGoblin(g))hostileAlive++;else g.t=3;}
@@ -12448,11 +12559,14 @@ function updateGoblins(dt){
     if(g.medic)moving=medicAI(g,dt);
     else if(g.ff)moving=fireAI(g,dt);
     else if(g.news)moving=newsAI(g,dt);
+    else if(g.cultV&&(!g.cultV.roused||calmNow()))moving=cultCalm(g,dt);   // (at the altar, until something sets them off)
     else if(g.civ||calmNow())moving=civAI(g,dt);   // (with hostility off, or to a fellow goblin, hostile goblins act like the townsfolk)
     else if(tgt){
       dx=tgt.p.pos.x-g.pos.x;dz=tgt.p.pos.z-g.pos.z;d=Math.hypot(dx,dz);
       // they can only club you if you're roughly level with them
       const reach=2.3,ddy=tgt.p.pos.y-g.pos.y,canHit=ddy>-1.3&&ddy<1.5;
+      // a cultist conjuring a fireball stands its ground till it's thrown
+      if(g.cultist&&cultCast(g,tgt.p,d,ddy,dt)){g.legs[0].rotation.x=g.legs[1].rotation.x=0;g.root.position.set(g.pos.x,g.pos.y,g.pos.z);g.root.rotation.y=g.heading;return;}
       // goblins holed up indoors stay put, pottering about, until a hippo is close and on their floor
       if(g.indoor&&!bldgAt(Math.floor(g.pos.x),Math.floor(g.pos.z)))g.indoor=false;
       if(g.cop&&g.inv&&d<22&&Math.abs(ddy)<4){g.inv=false;flashLabel('Police!',tgt.p);tone('square',880,660,0.25,0.05);}   // spotted!
@@ -12516,7 +12630,7 @@ function updateGoblins(dt){
           g.leapT=(g.leapT||0)-dt;if(ddy>=1.5&&ddy<4&&g.leapT<=0&&!g.wet&&g.vy===0){g.vy=Math.sqrt(50*(ddy-0.2));g.leapT=1.4;g.atk=0.1;}}
         else {
           g.atk-=dt;
-          if(g.atk<=0){dbgHit('dmg','cyl',{x:g.pos.x,y:g.pos.y-1.5,z:g.pos.z,r:2.3,h:2.8},'n');g.atk=1.5;g.arm.rotation.x=0.4;const q=tgt.p,ux=-dx/(d||1),uz=-dz/(d||1);damagePlayer(q,1,new V3(q.pos.x+ux*1.2,q.pos.y+1.1,q.pos.z+uz*1.2),new V3(-ux,0.3,-uz),'Clubbed to death',g.id);}
+          if(g.atk<=0){dbgHit('dmg','cyl',{x:g.pos.x,y:g.pos.y-1.5,z:g.pos.z,r:2.3,h:2.8},'n');g.atk=g.cultist?0.85:1.5;g.arm.rotation.x=0.4;const q=tgt.p,ux=-dx/(d||1),uz=-dz/(d||1);damagePlayer(q,1,new V3(q.pos.x+ux*1.2,q.pos.y+1.1,q.pos.z+uz*1.2),new V3(-ux,0.3,-uz),g.cultist?'Stabbed with a ritual dagger':'Clubbed to death',g.id);}   // (a dagger's quicker than a club)
         }
       }
       if(playing&&canHit&&d<=reach+0.3&&g.atk<0.45)g.arm.rotation.x=-0.5-1.9*(1-g.atk/0.45);
@@ -12539,7 +12653,7 @@ function updateGoblins(dt){
     }
     const sn=Math.sin(g.phase);
     g.legs[0].rotation.x=moving?sn*0.7:0;g.legs[1].rotation.x=moving?-sn*0.7:0;
-    if(g.wet&&moving){g.arm.rotation.x=-1.6+sn*0.9;g.armL.rotation.x=-1.6-sn*0.9;}else if(g.armL.rotation.x<-1.2&&!g.fleeing)g.armL.rotation.x=0;
+    if(g.wet&&moving){g.arm.rotation.x=-1.6+sn*0.9;g.armL.rotation.x=-1.6-sn*0.9;}else if(g.armL.rotation.x<-1.2&&!g.fleeing&&!g.cultist)g.armL.rotation.x=0;
     g.root.position.set(g.pos.x,g.pos.y+(moving?Math.abs(sn)*0.05:0),g.pos.z);g.root.rotation.y=g.heading;
     g.head.rotation.z=Math.sin(g.t*2+g.heading)*0.08;
   });
@@ -15617,7 +15731,7 @@ function refreshVenues(){
           for(let i=0;i<4;i++){const m=new THREE.Mesh(LM_BOX,i%2?LMM.ledOff:TOLLM);m.scale.set(0.65,0.13,0.13);m.position.x=0.33+i*0.65;lift.add(m);}
           scene.add(g);arms.push({g,lift,L,a:0,x:g.position.x,z:g.position.z});}
         venues.set(k,{kind:'toll',R,ts,arms});}}}}
-  for(const [k,V] of venues)if(!want.has(k)){if(V.ride)scene.remove(V.ride);if(V.animals)for(const A of V.animals)scene.remove(A.g);if(V.arms)for(const A of V.arms)scene.remove(A.g);if(V.cars)for(const g of V.cars)scene.remove(g);if(V.planes)for(const g of V.planes)scene.remove(g);if(V.rocket){scene.remove(V.rocket);}if(V.boat)scene.remove(V.boat);if(V.figs)for(const F of V.figs)scene.remove(F.g);if(V.glow)scene.remove(V.glow);if(V.rotor)scene.remove(V.rotor);if(V.T&&V.T.cars===V.cars)V.T.cars=null;venues.delete(k);}
+  for(const [k,V] of venues)if(!want.has(k)){if(V.ride)scene.remove(V.ride);if(V.animals)for(const A of V.animals)scene.remove(A.g);if(V.arms)for(const A of V.arms)scene.remove(A.g);if(V.cars)for(const g of V.cars)scene.remove(g);if(V.planes)for(const g of V.planes)scene.remove(g);if(V.rocket){scene.remove(V.rocket);}if(V.boat)scene.remove(V.boat);if(V.figs)for(const F of V.figs)scene.remove(F.g);if(V.glow)scene.remove(V.glow);if(V.kind==='cult')cultDrop(V);if(V.rotor)scene.remove(V.rotor);if(V.T&&V.T.cars===V.cars)V.T.cars=null;venues.delete(k);}
 }
 // the zoo's animals: built from boxes, each wandering its enclosure
 const ZM={};const zmat=c=>ZM[c]||(ZM[c]=new THREE.MeshLambertMaterial({color:c}));
@@ -16626,7 +16740,7 @@ function svcArrive(c){
       g.medic={car:c,list:n?list.slice().reverse():list,ph:'walk',t:0,cur:null,walkT:0};}
   } else if(S.kind==='police'){
     // two officers get out and have a look round
-    const free=goblins.filter(o=>!o.civ&&o.state==='wait');
+    const free=goblins.filter(o=>!o.civ&&!o.cultist&&o.state==='wait');
     for(let n=0;n<Math.min(2,free.length);n++){const g=free[n];spawnGoblin(g,true);
       g.pos.set(c.pos.x+side[0]*(n?-1:1),c.pos.y,c.pos.z+side[1]*(n?-1:1));g.indoor=false;
       const L=dressGoblin(g);L.tunic=0x1c2a5a;L.pants=0x1c2a5a;L.show=L.show.filter(k=>!['cap','top','beanie','hardhat','bandana','mohawk','scarf','tie','backpack','apron','eyepatch'].includes(k));L.hatType='cap';L.hat=0x1c2a5a;L.show.push('cap');L.hatShown=L.hat;applyLook(g,L,ES);
@@ -17922,7 +18036,7 @@ function frame(now){
   for(let sI=0;sI<nSub;sI++){
     if(sI>0)for(const p of players){const I=p.in;I.jumpPress=I.bitePress=I.lockPress=I.chargePress=I.dashPress=I.sprintPress=false;}
     for(const p of players){DBG_WHO='p';safe('player',()=>updatePlayer(p,sdt));DBG_WHO='n';}
-    safe('goblins',()=>updateGoblins(sdt));safe('cars',()=>updateCars(sdt));safe('stations',()=>updateStations(sdt));safe('services',()=>updateServices(sdt));
+    safe('goblins',()=>updateGoblins(sdt));safe('fireballs',()=>updateFireballs(sdt));safe('cars',()=>updateCars(sdt));safe('stations',()=>updateStations(sdt));safe('services',()=>updateServices(sdt));
     safe('traffic',()=>updateTraffic(sdt));for(const p of players)if(p.vcl&&p.state==='climb')safe('vpin',()=>vRepin(p));safe('spikes',()=>updateSpikes(sdt));safe('weather',()=>updateWeather(sdt));safe('sky',()=>updateSky(sdt));
     for(const p of players)safe('health',()=>updateHealth(p,sdt));
     safe('parts',()=>updateParts(sdt));safe('rubble',()=>updateRubble(sdt));safe('shocks',()=>{updateShocks(sdt);updateCones(sdt);});safe('bodies',()=>updateBodies(sdt));safe('topples',()=>updateTopples(sdt));
@@ -18112,8 +18226,10 @@ function tenvFoe(kind){
       c.driver=makeDriver(kind==='police');c.path=null;c.hw=null;c.rt=null;c.svc=null;c.leaving=false;c.rampKey=null;c.spot=null;c.makeWay=0;
       c.pos.set(x,y,z);c.heading=h;c.speed=0;c.kv.set(0,0,0);c.hp=kind==='police'?40:30;c.alive=true;c.hunter=true;c.parked=false;c.vy=0;c.lastInter=-1;
       c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.paint.emissive.setHex(0);c.g.visible=true;made++;continue;}
+    if(kind==='cultist'){const g=freeCultist(64);if(!g)continue;
+      cultSpawn(g,null,0);g.pos.set(x,y,z);g.heading=h;made++;continue;}
     const civ=kind==='civ';
-    let g=goblins.find(o=>!!o.civ===civ&&!o.staff&&o.state==='wait');
+    let g=goblins.find(o=>!!o.civ===civ&&!o.staff&&!o.cultist&&o.state==='wait');
     if(!g){if(civ)addCiv();else addHostile();g=goblins[goblins.length-1];}
     g.cop=null;g.inv=false;g.ff=null;g.medic=null;g.news=null;g.vendor=null;g.employer=null;g.claim=null;g.alert=false;g.act=null;g.wt=null;
     if(civ){g.hp=g.hpMax=3;g.state='chase';g.t=0;g.sink=0;g.hurt=0;g.vy=0;g.kv.set(0,0,0);g.stun=0;g.idle=0;g.screamCD=0;g.fleeing=false;g.detour=0;
@@ -18124,11 +18240,12 @@ function tenvFoe(kind){
       const L=dressGoblin(g);L.tunic=0x1c2a5a;L.pants=0x1c2a5a;L.show=L.show.filter(k=>!['cap','top','beanie','hardhat','bandana','mohawk','scarf','tie','backpack','apron','eyepatch'].includes(k));L.hatType='cap';L.hat=0x1c2a5a;L.show.push('cap');L.hatShown=L.hat;applyLook(g,L,ES);
       g.id=makeIdentity(g,L);g.id.occ='Police officer, Goblin Police Dept.';}
     made++;}
-  const nm={goblin:['goblin','goblins'],cop:['police officer','police officers'],civ:['civilian','civilians'],police:['police car','police cars'],car:['hunting car','hunting cars']}[kind];
+  const nm={goblin:['goblin','goblins'],cultist:['cultist','cultists'],cop:['police officer','police officers'],civ:['civilian','civilians'],police:['police car','police cars'],car:['hunting car','hunting cars']}[kind];
   tsSet(made?('Spawned '+made+' '+nm[made>1?1:0]+' ahead of Gus.'):'Couldn\'t spawn any '+nm[1]+' just now.');
 }
 function tenvClear(){
-  for(const g of goblins)if(g.state!=='wait'){g.state='wait';g.t=0;g.root.visible=false;g.cop=null;g.inv=false;g.ff=null;g.medic=null;g.news=null;g.vendor=null;g.claim=null;g.act=null;}
+  for(const g of goblins)if(g.state!=='wait'){g.state='wait';g.t=0;g.root.visible=false;g.cop=null;g.inv=false;g.ff=null;g.medic=null;g.news=null;g.vendor=null;g.claim=null;g.act=null;g.cultV=null;}
+  fbClear();
   for(const c of cars)if(c.alive&&!c.svcPool){c.alive=false;c.g.visible=false;c.hunter=false;c.respawnT=1e9;}
   tsSet('Cleared every goblin and car.');
 }
