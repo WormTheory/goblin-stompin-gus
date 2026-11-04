@@ -11609,7 +11609,7 @@ function dropGoblinCorpse(x,y,z,driver){
 // standing place near it knows the next place along the cheapest way there, and how to get to it (walk, jump, climb). It's
 // built a little each frame, and the goblins use the last finished one until the next is ready, so it never holds a frame up.
 // (Costs are in tenths of a block's walk. Climbing's dear enough that they take the stairs if there are any.)
-const NAV_R=120,NAV_HASH=1<<18,NAV_NODES=60000,NAV_CAP=3000,NAV_WORK=800,NAV_WALK=0,NAV_JUMP=1,NAV_UP=2,NAV_DOWN=3;
+const NAV_R=160,NAV_HASH=1<<18,NAV_NODES=60000,NAV_CAP=3000,NAV_WORK=500,NAV_WALK=0,NAV_JUMP=1,NAV_UP=2,NAV_DOWN=3;
 const navCols=new Map(),navSolid=new Uint8Array(256);let navWipe=0,navSolidOK=false;
 // the places in a column of blocks where a goblin could be: a floor with room to stand on it, or (given as a negative
 // number) the top of water too deep to stand in, where it would swim. Not cached if the chunk isn't there yet.
@@ -11626,18 +11626,18 @@ function navCol(x,z){
 }
 const navHas=(x,z,f)=>{const c=navCol(x,z);if(c)for(let i=0;i<c.length;i++)if(c[i]===f||c[i]===-f)return true;return false;};
 function navOpen(x,z,y0,y1){for(let y=y0;y<=y1;y++)if(solidAt(x,y,z))return false;return true;}
-const navKey=(F,x,z,f)=>(x-F.ox)<<16|(z-F.oz)<<8|f;
+const navKey=(F,x,z,f)=>(x-F.ox)<<18|(z-F.oz)<<8|f;
 function navMake(){return {keys:new Int32Array(NAV_HASH),idx:new Int32Array(NAV_HASH),key:new Int32Array(NAV_NODES),cost:new Int32Array(NAV_NODES),par:new Int32Array(NAV_NODES),mv:new Uint8Array(NAV_NODES),n:0,ox:0,oz:0};}
-function navFind(F,k){let h=(k*0x9E3779B1>>>14)&(NAV_HASH-1);while(F.keys[h]!==-1){if(F.keys[h]===k)return F.idx[h];h=(h+1)&(NAV_HASH-1);}return -1;}
+function navFind(F,k){let h=Math.imul(k,0x9E3779B1)>>>14;while(F.keys[h]!==-1){if(F.keys[h]===k)return F.idx[h];h=(h+1)&(NAV_HASH-1);}return -1;}
 function navAdd(N,x,z,f,c,par,mv){
-  const F=N.back,k=navKey(F,x,z,f);if(c>NAV_CAP||F.n>=NAV_NODES-1||x<F.ox||z<F.oz||x-F.ox>255||z-F.oz>255)return;
-  let h=(k*0x9E3779B1>>>14)&(NAV_HASH-1),i=-1;while(F.keys[h]!==-1){if(F.keys[h]===k){i=F.idx[h];break;}h=(h+1)&(NAV_HASH-1);}
+  const F=N.back,k=navKey(F,x,z,f);if(c>NAV_CAP||F.n>=NAV_NODES-1||x<F.ox||z<F.oz||x-F.ox>1023||z-F.oz>1023)return;
+  let h=Math.imul(k,0x9E3779B1)>>>14,i=-1;while(F.keys[h]!==-1){if(F.keys[h]===k){i=F.idx[h];break;}h=(h+1)&(NAV_HASH-1);}
   if(i<0){i=F.n++;F.keys[h]=k;F.idx[h]=i;F.key[i]=k;}else if(F.cost[i]<=c)return;
   F.cost[i]=c;F.par[i]=par;F.mv[i]=mv;(N.q[c]||(N.q[c]=[])).push(i);
 }
 // everything that can get to this place in one move
 function navExpand(N,i){
-  const F=N.back,k=F.key[i],x=(k>>16&255)+F.ox,z=(k>>8&255)+F.oz,y=k&255,c0=F.cost[i],props=propCells.size>0;
+  const F=N.back,k=F.key[i],x=(k>>18&1023)+F.ox,z=(k>>8&1023)+F.oz,y=k&255,c0=F.cost[i],props=propCells.size>0;
   const at=(mx,mz,f,c,mv)=>navAdd(N,mx,mz,f,c0+c+(props&&propCells.has(propCK(mx,f+.2,mz))?50:0),i,mv);
   for(let d=0;d<8;d++){
     const dx=NAV_DX[d],dz=NAV_DZ[d],mx=x+dx,mz=z+dz,C=navCol(mx,mz);if(!C)continue;
@@ -11663,7 +11663,7 @@ function navExpand(N,i){
       const gx=x+dx*g,gz=z+dz*g,G2=navCol(gx,gz);if(!G2)break;
       let landed=false;
       for(let j=0;j<G2.length;j++){const e=G2[j];if(e<0)continue;const dh=e-y;if(dh<-2||dh>3)continue;
-        let clear=true;for(let u=1;u<g&&clear;u++){const ux=x+dx*u,uz=z+dz*u,lo=Math.min(e,y),b=get(ux,lo,uz);clear=navOpen(ux,uz,b&&BLOCK[b].post?lo+1:lo,Math.max(e,y)+2);}
+        let clear=true;for(let u=1;u<g&&clear;u++){const ux=x+dx*u,uz=z+dz*u,lo=Math.min(e,y);if(!navCol(ux,uz)){clear=false;break;}const b=get(ux,lo,uz);clear=navOpen(ux,uz,b&&BLOCK[b].post?lo+1:lo,Math.max(e,y)+2);}
         if(clear){at(gx,gz,e,10*g+16,NAV_JUMP);landed=true;}}
       if(landed||!navOpen(gx,gz,y,y+1))break;}
   }
@@ -11675,7 +11675,9 @@ function navStart(N,p){
   const F=N.back,x=Math.floor(p.pos.x),z=Math.floor(p.pos.z),y=p.pos.y;
   F.keys.fill(-1);F.n=0;F.ox=x-NAV_R;F.oz=z-NAV_R;N.c=0;N.lim=NAV_CAP;N.done=false;N.q.length=0;
   // (hanging about up in the air, or squeezed in against something: whatever's standing room nearest it)
-  for(let r=0;r<=3;r++){for(let u=-r;u<=r;u++)for(let v=-r;v<=r;v++){if(Math.max(Math.abs(u),Math.abs(v))!==r)continue;const f=navFloorOf(x+u,z+v,y);if(f&&y-f<40)navAdd(N,x+u,z+v,f,r*10,-1,NAV_WALK);}if(F.n)break;}
+  // (sunk under water: the top of it, straight up, is as near as the map goes)
+  {let yy=Math.floor(y+.6);if(navCol(x,z)&&get(x,yy,z)===WATER){while(yy<H-1&&get(x,yy+1,z)===WATER)yy++;if(get(x,yy-1,z)===WATER&&!solidAt(x,yy+1,z))navAdd(N,x,z,yy,0,-1,NAV_WALK);}}
+  if(!F.n)for(let r=0;r<=3;r++){for(let u=-r;u<=r;u++)for(let v=-r;v<=r;v++){if(Math.max(Math.abs(u),Math.abs(v))!==r)continue;const f=navFloorOf(x+u,z+v,y);if(f&&y-f<40)navAdd(N,x+u,z+v,f,r*10,-1,NAV_WALK);}if(F.n)break;}
   N.x=x;N.z=z;N.y=Math.floor(y);N.t=0;
   if(!F.n)N.done=true;
 }
@@ -11704,7 +11706,7 @@ function navUpdate(dt){
 // which place on the map a goblin is at, or -1
 function navAt(F,g){
   const x=Math.floor(g.pos.x),z=Math.floor(g.pos.z),f=navFloorOf(x,z,g.pos.y);
-  if(f&&g.pos.y-f<1.6&&x-F.ox>=0&&z-F.oz>=0&&x-F.ox<=255&&z-F.oz<=255){const i=navFind(F,navKey(F,x,z,f));if(i>=0)return i;}
+  if(f&&g.pos.y-f<1.6&&x-F.ox>=0&&z-F.oz>=0&&x-F.ox<=1023&&z-F.oz<=1023){const i=navFind(F,navKey(F,x,z,f));if(i>=0)return i;}
   return -1;
 }
 // is it a clear walk in a straight line, near enough on the level?
@@ -11719,9 +11721,9 @@ function navSteer(g,p){
   const N=p.nav,F=N&&N.front;if(!F)return null;
   const i=navAt(F,g);
   // (not on the map: jammed into the corner of a wall, or up on a railing. Off to the nearest place that is)
-  if(i<0){const x=Math.floor(g.pos.x),z=Math.floor(g.pos.z);{const u=get(x,Math.floor(g.pos.y-.5),z);if(!solidAt(x,Math.floor(g.pos.y+.5),z)&&!(u&&BLOCK[u].post))return null;}for(let d=0;d<8;d++){const X=x+NAV_DX[d],Z=z+NAV_DZ[d],f=navFloorOf(X,Z,g.pos.y);if(f&&g.pos.y-f<1.6&&X-F.ox>=0&&Z-F.oz>=0&&X-F.ox<=255&&Z-F.oz<=255&&navFind(F,navKey(F,X,Z,f))>=0)return{x:X+.5,z:Z+.5,free:true};}return null;}
+  if(i<0){const x=Math.floor(g.pos.x),z=Math.floor(g.pos.z);{const u=get(x,Math.floor(g.pos.y-.5),z);if(!solidAt(x,Math.floor(g.pos.y+.5),z)&&!(u&&BLOCK[u].post))return null;}for(let d=0;d<8;d++){const X=x+NAV_DX[d],Z=z+NAV_DZ[d],f=navFloorOf(X,Z,g.pos.y);if(f&&g.pos.y-f<1.6&&X-F.ox>=0&&Z-F.oz>=0&&X-F.ox<=1023&&Z-F.oz<=1023&&navFind(F,navKey(F,X,Z,f))>=0)return{x:X+.5,z:Z+.5,free:true};}return null;}
   const par=F.par[i];if(par<0)return null;
-  const P=k=>({x:(k>>16&255)+F.ox,z:(k>>8&255)+F.oz,y:k&255});
+  const P=k=>({x:(k>>18&1023)+F.ox,z:(k>>8&1023)+F.oz,y:k&255});
   if(F.mv[i]!==NAV_WALK){const t=P(F.key[par]);gobStartMove(g,F.mv[i],t);if(g.act)return null;return{x:t.x+.5,z:t.z+.5};}
   // (a short cut along the route, where there's nothing in the way, so they don't run in staircase steps across open ground)
   g.navT=(g.navT||0)-1;let a=par;
@@ -11776,7 +11778,7 @@ function updateGoblins(dt){
       return;
     }
     const any=nearestPlayer(g.pos.x,g.pos.z,false);
-    if(!any||any.d>(g.navOn?100:75)){g.state='wait';g.t=0;g.root.visible=false;return;}
+    if(!any||any.d>(g.navOn?NAV_R-5:75)){g.state='wait';g.t=0;g.root.visible=false;return;}
     // more about than there'd be at this hour (night falling, a shop closing): one at a time, out of sight, they go
     // home -- quietly vanishing somewhere no one's looking
     if(!gone&&g.t>15&&any.d>28&&!g.medic&&!g.ff&&!g.cop&&(g.civ&&!g.staff&&civAlive>civTarget||g.staff&&g.employer&&staffAt(g.employer.key)>staffCapNow(g.employer.b))&&!visibleToAny(g.pos.x,g.pos.y+1,g.pos.z)){
@@ -11803,7 +11805,9 @@ function updateGoblins(dt){
       let sr=null;
       // after a hippo: the route to it, however that goes (and if it's within arm's reach, nothing to work out)
       const hunting=!copIdle&&(!g.indoor||g.alert),inReach=d<=reach&&canHit;
-      g.navOn=false;if(hunting&&g.stun<=0&&!inReach&&playing){sr=navSteer(g,tgt.p);if(g.act)return;g.navOn=!!sr;}   // (and it's still after you, even if the way round takes it further off than usual)
+      // (right below a hippo stood on something, with nothing overhead: no use looking for a way round, it's a leap. See below.)
+      const below=!g.wet&&d<=reach&&ddy>=1.5&&ddy<4&&navOpen(Math.floor(g.pos.x),Math.floor(g.pos.z),Math.floor(g.pos.y)+2,Math.floor(g.pos.y+ddy));
+      g.navOn=false;if(hunting&&g.stun<=0&&!inReach&&!below&&playing){sr=navSteer(g,tgt.p);if(g.act)return;g.navOn=!!sr;}   // (and it's still after you, even if the way round takes it further off than usual)
       // a hippo on another floor, close by: up or down the stairs after it (or, holed up indoors, off to another floor now and then)
       // (in a long building the stairs may be further from the hippo than the goblin started: once it's set off for them, it keeps going)
       const chaseUp=Math.abs(ddy)>2.5&&d<(g.stUp!==undefined?90:32);
@@ -11848,10 +11852,10 @@ function updateGoblins(dt){
               g.stuck=0;
             }
           } else {const sp=g.wet?2:2.8;g.pos.x+=fx*sp*dt;g.pos.z+=fz*sp*dt;moving=true;g.phase+=dt*sp*4.5;g.stuck=0;}
-          g.atk=Math.max(g.atk,0.5);
-        } else if(!canHit){g.atk=Math.max(g.atk,0.5);
+          if(g.vy===0)g.atk=Math.max(g.atk,0.5);
+        } else if(!canHit){if(g.vy===0)g.atk=Math.max(g.atk,0.5);
           // (a hippo stood on something just out of reach, a car roof, say: up at it, club first)
-          g.leapT=(g.leapT||0)-dt;if(ddy>=1.5&&ddy<4&&g.leapT<=0&&!g.wet&&g.vy===0){g.vy=Math.sqrt(50*(ddy-0.6));g.leapT=1.4;g.atk=0.1;}}
+          g.leapT=(g.leapT||0)-dt;if(ddy>=1.5&&ddy<4&&g.leapT<=0&&!g.wet&&g.vy===0){g.vy=Math.sqrt(50*(ddy-0.2));g.leapT=1.4;g.atk=0.1;}}
         else {
           g.atk-=dt;
           if(g.atk<=0){dbgHit('dmg','cyl',{x:g.pos.x,y:g.pos.y-1.5,z:g.pos.z,r:2.3,h:2.8},'n');g.atk=1.5;g.arm.rotation.x=0.4;const q=tgt.p,ux=-dx/(d||1),uz=-dz/(d||1);damagePlayer(q,1,new V3(q.pos.x+ux*1.2,q.pos.y+1.1,q.pos.z+uz*1.2),new V3(-ux,0.3,-uz),'Clubbed to death',g.id);}
@@ -11860,7 +11864,7 @@ function updateGoblins(dt){
       if(playing&&canHit&&d<=reach+0.3&&g.atk<0.45)g.arm.rotation.x=-0.5-1.9*(1-g.atk/0.45);
       else g.arm.rotation.x+=((-0.5+(moving?Math.sin(g.phase)*0.4:0))-g.arm.rotation.x)*Math.min(1,dt*8);
     }
-    for(const p of players){if(!p.active||p.state==='dead'||Math.abs(p.pos.y-g.pos.y)>1.2||g.vy<0)continue;const hx=g.pos.x-p.pos.x,hz=g.pos.z-p.pos.z,hd=Math.hypot(hx,hz);if(hd<1.6&&hd>0.001)nudge(g,hx/hd*(1.6-hd),hz/hd*(1.6-hd));}
+    for(const p of players){if(!p.active||p.state==='dead'||Math.abs(p.pos.y-g.pos.y)>1.2||g.vy!==0)continue;const hx=g.pos.x-p.pos.x,hz=g.pos.z-p.pos.z,hd=Math.hypot(hx,hz);if(hd<1.6&&hd>0.001)nudge(g,hx/hd*(1.6-hd),hz/hd*(1.6-hd));}
     for(const c of cars){if(!c.alive)continue;const cx=g.pos.x-c.pos.x,cz=g.pos.z-c.pos.z,cd=Math.hypot(cx,cz);if(cd<2&&cd>0.001)nudge(g,cx/cd*(2-cd),cz/cd*(2-cd));}
     for(const o of goblins){if(o===g||o.state!=='chase')continue;const ox=g.pos.x-o.pos.x,oz=g.pos.z-o.pos.z,od=Math.hypot(ox,oz);if(od<0.7&&od>0.001)nudge(g,ox/od*(0.7-od)*0.5,oz/od*(0.7-od)*0.5);}
     // in water too deep to stand in: up to the top of it and paddling, head out (or down after a hippo that's sunk close by)
