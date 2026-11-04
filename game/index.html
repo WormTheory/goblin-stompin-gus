@@ -758,7 +758,7 @@ function horizHidden(cx,cy,cz,hr,top){
     if(!o.isInstancedMesh&&horizHidden(sp.center.x,sp.center.y,sp.center.z,sp.radius,sp.center.y+sp.radius))return false;   // (over the horizon)
     const d=Math.hypot(sp.center.x-CURVE_CAM.x,sp.center.z-CURVE_CAM.z),r=sp.radius,lo=k*Math.max(0,d-r)**2,hi=k*(d+r)**2;
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v82';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v83';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -1186,19 +1186,19 @@ function setName(S){
   else if(m>0.94)n=n+'-on-the-'+['Bog','Mire','Muck','Marsh'][Math.floor(h(4)*4)];
   setNameC.set(k,n);return n;
 }
-const PLACE_KIND={city:'City',large:'Large town',small:'Small town',village:'Village'};
+const PLACE_KIND={city:'City',large:'Large town',small:'Small town',village:'Village',coastcity:'Coastal city',harbortown:'Harbor town',resort:'Resort town',fishing:'Fishing village'};
 // coming into a place: its name across the screen for a few seconds (and again if you come back after a good while away)
 const PB={el:null,t:0,last:null,outT:0};
 function placeBannerTick(dt){
   const p=players.find(q=>q.active);if(!p)return;
   if(PB.t>0){PB.t-=dt;if(PB.t<=0&&PB.el)PB.el.classList.remove('on');}
   if(!playing)return;
-  const S=settlementAt(Math.floor(p.pos.x/CELL),Math.floor(p.pos.z/CELL));
+  const S=settlementAt(Math.floor(p.pos.x/CELL),Math.floor(p.pos.z/CELL))||coastOwner(Math.floor(p.pos.x/CELL),Math.floor(p.pos.z/CELL));
   if(!S){PB.outT+=dt;return;}
   if(S!==PB.last||PB.outT>45){
     if(!PB.el){const host=document.body||document.documentElement;if(!host||!host.appendChild)return;PB.el=document.createElement('div');PB.el.className='placeBanner';PB.el.setAttribute('aria-live','polite');host.appendChild(PB.el);}
     const v=setListC.has(S.rx+','+S.rz)?setDestroyed(S):null;
-    PB.el.innerHTML='<div class="pk">'+PLACE_KIND[S.type]+'</div><div class="pn">'+setName(S)+'</div><div class="pr"></div>'+(v?'<div class="pd">Destroyed: '+Math.round(v*100)+'%</div>':'');
+    PB.el.innerHTML='<div class="pn">'+setName(S)+'</div><div class="pk">'+PLACE_KIND[setKind(S)]+'</div><div class="pr"></div>'+(v?'<div class="pd">Destroyed: '+Math.round(v*100)+'%</div>':'');
     PB.el.classList.add('on');PB.t=3.6;
     if(knownSets)noteKnown(Math.floor(p.pos.x/CELL),Math.floor(p.pos.z/CELL));}
   PB.last=S;PB.outT=0;
@@ -1293,15 +1293,57 @@ const biomeOf=(px,pz)=>seaPlot(px,pz)?'sea':settlementAt(px,pz)?'city':'plains';
 // its yard (container stacks and quayside cranes, or a naval base), and the water blocks next to them dredged out as
 // basins, square-edged, where the ships tie up. A shore block next to a town is its harbour (a sea wall, a promenade,
 // piers and moored boats); now and then a lonely headland gets a lighthouse; the rest is beach and open sea.
+// A place that actually reaches the water is a coastal one: a city a coastal city (its shipping port, docks one side of
+// that and a beach the other), a town a harbor town (docks and a beach) or a resort town (all beach), a village a fishing
+// village (a little wharf). Naval bases, lighthouses, rigs and wrecks stand alone; the rest of the coast is just shore.
 const N4=[[1,0],[-1,0],[0,1],[0,-1]];
+function coastWf(px,pz){let wf=0;for(let i=0;i<4;i++)for(let j=0;j<4;j++)if(seaBlk(px*CELL+4+i*8,pz*CELL+4+j*8)>=SEA_T)wf++;return wf;}
+// the shore blocks a place has on its doorstep, in the order you'd go round it
+function setFront(S){
+  if(S._front)return S._front;const L=[],seen=new Set(),R=Math.ceil(S.R*1.5)+3;
+  for(let x=S.cx-R;x<=S.cx+R;x++)for(let z=S.cz-R;z<=S.cz+R;z++){if(settlementAt(x,z)!==S)continue;
+    for(const [a,b] of N4){const qx=x+a,qz=z+b,k=qx+','+qz;if(seen.has(k))continue;seen.add(k);if(seaPlot(qx,qz)===1&&coastWf(qx,qz)>=1)L.push([qx,qz]);}}
+  if(L.length){let vx=0,vz=0;for(const [x,z] of L){vx+=x-S.cx;vz+=z-S.cz;}S._bear=Math.atan2(vz,vx);
+    const of=L.map(q=>setOff(S,q[0],q[1])).sort((a,b)=>a-b);S._cuts=of;}
+  return S._front=L;
+}
+function setOff(S,px,pz){let a=Math.atan2(pz-S.cz,px-S.cx)-S._bear;while(a>Math.PI)a-=Math.PI*2;while(a<-Math.PI)a+=Math.PI*2;return a;}
+function setKind(S){
+  if(S._kind)return S._kind;let k=S.type;
+  if(setFront(S).length){const h=hash2(S.rx*83+11,S.rz*127+5);k=S.type==='city'?'coastcity':S.type==='large'?(h<0.3?'resort':'harbortown'):S.type==='small'?(h<0.5?'resort':'harbortown'):'fishing';}
+  return S._kind=k;
+}
+// is this bit of a coastal place's shore its docks or its beach?
+function coastRole(S,px,pz){
+  const k=setKind(S);if(k==='fishing')return'harbor';if(k==='resort')return'beach';
+  if(k==='coastcity'||k==='harbortown'){const c=S._cuts,cut=c[Math.floor((c.length-1)*(k==='coastcity'?0.5:0.6))];return setOff(S,px,pz)<=cut?'harbor':'beach';}
+  return k==='village'?null:'beach';
+}
+// a block that could be a port's yard: shore, mostly land, with water beside it
+const yardSite=(px,pz)=>seaPlot(px,pz)===1&&landish(px,pz)&&N4.some(([a,b])=>seaPlot(px+a,pz+b)&&!landish(px+a,pz+b));
+// a coastal city's port: the patch of its coast with the most room for one
+function cityPort(S){
+  if(S._port)return S._port;const P=new Set(),c=new Map(),seen=new Set();
+  if(setKind(S)==='coastcity'){for(const [fx,fz] of S._front)for(let a=-3;a<=3;a++)for(let b=-3;b<=3;b++){const x=fx+a,z=fz+b,k=x+','+z;if(seen.has(k))continue;seen.add(k);if(yardSite(x,z)){const q=Math.floor(x/8)*100003+Math.floor(z/8);c.set(q,(c.get(q)||0)+1);}}
+    let best=null,bn=0;for(const [q,n] of c)if(n>bn){bn=n;best=q;}if(best!==null)P.add(best);}
+  return S._port=P;
+}
+// the coastal place a bit of shore belongs to, if any
+const coastOwnC=new Map();
+function coastOwner(px,pz){
+  const k=px*100003+pz;let v=coastOwnC.get(k);if(v!==undefined)return v;v=null;
+  const t=seaPlot(px,pz)?coastType(px,pz):null;
+  if(t==='harbor'||t==='beach'||t==='yard'||t==='basin'){let bd=1e9;for(let a=-9;a<=9;a++)for(let b=-9;b<=9;b++){const S=settlementAt(px+a,pz+b);if(!S)continue;const d=a*a+b*b;if(d<bd&&(t!=='yard'&&t!=='basin'||setKind(S)==='coastcity')){bd=d;v=S;}}}
+  if(coastOwnC.size>50000)coastOwnC.clear();coastOwnC.set(k,v);return v;
+}
 const portC=new Map();
 function portCell(px,pz){
   const cx=Math.floor(px/8),cz=Math.floor(pz/8),k=cx*100003+cz;let v=portC.get(k);if(v!==undefined)return v;v=null;
-  const h=hash2(cx*197+41,cz*233+17);
-  if(h<0.3){// (a shipping port only on the coast of a city or a big town)
-    const mx=cx*8+4,mz=cz*8+4,rx=Math.round(mx/SET_SP),rz=Math.round(mz/SET_SP);
-    for(let a=rx-1;a<=rx+1&&!v;a++)for(let b=rz-1;b<=rz+1&&!v;b++){const S=settlementLat(a,b);if((S.type==='city'||S.type==='large')&&Math.hypot(S.cx-mx,S.cz-mz)<S.R+7)v='ship';}}
-  if(!v&&h>0.5&&h<0.56)v='navy';
+  const h=hash2(cx*197+41,cz*233+17),mx=cx*8+4,mz=cz*8+4,rx=Math.round(mx/SET_SP),rz=Math.round(mz/SET_SP);
+  // (a shipping port only as part of a coastal city; a naval base only well away from any place)
+  let nearAny=false;
+  for(let a=rx-1;a<=rx+1&&!v;a++)for(let b=rz-1;b<=rz+1&&!v;b++){const S=settlementLat(a,b),d=Math.hypot(S.cx-mx,S.cz-mz);if(d<S.R*1.4+8)nearAny=true;if(S.type==='city'&&d<S.R*1.5+14&&cityPort(S).has(k))v='ship';}
+  if(!v&&!nearAny&&h>0.5&&h<0.56)v='navy';
   if(portC.size>50000)portC.clear();portC.set(k,v);return v;
 }
 const landish=(px,pz)=>seaV(px+0.5,pz+0.5)<SEA_T;
@@ -1313,17 +1355,18 @@ function coastType(px,pz){
   return (v==='basin'||v==='nbasin')&&seaPlot(px,pz)===2?'sea':'shore';
 }
 // a block that a port's yard would go on (if its patch of coast has a port): shore, mostly land, with water beside it
-function yardCand(px,pz){return !!portCell(px,pz)&&seaPlot(px,pz)===1&&landish(px,pz)&&N4.some(([a,b])=>seaPlot(px+a,pz+b)&&!landish(px+a,pz+b));}
+function yardCand(px,pz){return !!portCell(px,pz)&&yardSite(px,pz);}
 function coastType1(px,pz){
   const k=px*100003+pz;let v=coastC.get(k);if(v!==undefined)return v;
   const s=seaPlot(px,pz),K=portCell(px,pz);v=null;
   if(K&&yardCand(px,pz))v=K==='ship'?'yard':'navy';
   else if(s&&!landish(px,pz))for(const [a,b] of N4)if(yardCand(px+a,pz+b)){v=portCell(px+a,pz+b)==='ship'?'basin':'nbasin';break;}
-  if(!v&&s===1){let wf=0;for(let i=0;i<4;i++)for(let j=0;j<4;j++)if(seaBlk(px*CELL+4+i*8,pz*CELL+4+j*8)>=SEA_T)wf++;
-    if(wf>=1)for(const [a,b] of N4)if(settlementAt(px+a,pz+b)){v='harbor';break;}
+  if(!v&&s===1){const wf=coastWf(px,pz);
+    // (on a place's doorstep: its docks, or its beach, whichever this stretch of it is)
+    if(wf>=1)for(const [a,b] of N4){const S=settlementAt(px+a,pz+b);if(S){const q=coastRole(S,px,pz);if(q==='harbor')v='harbor';else if(q==='beach'&&wf<=13)v='beach';break;}}
     if(!v&&landish(px,pz)&&hash2(px*61+7,pz*43+9)<0.07&&N4.some(([a,b])=>seaPlot(px+a,pz+b)&&!landish(px+a,pz+b)))v='lighthouse';
     // a town's beach: sandy shore within a few blocks of a place
-    if(!v&&wf>=1&&wf<=13){let near=false;for(let a=-3;a<=3&&!near;a++)for(let b=-3;b<=3&&!near;b++)if(settlementAt(px+a,pz+b))near=true;if(near)v='beach';}}
+    if(!v&&wf>=1&&wf<=13){let S=null;for(let a=-3;a<=3&&!S;a++)for(let b=-3;b<=3&&!S;b++)S=settlementAt(px+a,pz+b);if(S&&coastRole(S,px,pz)==='beach')v='beach';}}
   // out at sea: now and then an oil rig (well out, in deep water), or a wreck on the bottom
   if(!v&&s===2){const h=hash2(px*311+5,pz*173+9);
     if(h<0.0016&&N4.every(([a,b])=>seaPlot(px+a,pz+b)===2)&&coastD(px*CELL+16,pz*CELL+16)>60)v='rig';
@@ -1357,13 +1400,15 @@ function coastInfo(p,px,pz,r,base){
     if(yd.length)p.ship={side:yd[0],k:t==='basin'?'cargo':'navy',L:28,hw:t==='basin'?4:3};
   } else if(t==='harbor'){
     // the town's side, and how far out the sea wall stands (where the shore runs, squared off)
-    const land=N4.find(([a,b])=>settlementAt(px+a,pz+b));p.land=land;const [a,b]=land;
+    const land=N4.find(([a,b])=>settlementAt(px+a,pz+b));p.land=land;const [a,b]=land;p.fish=setKind(settlementAt(px+a,pz+b))==='fishing';
     p.rdW=a?segOpen(px+a,pz,1):segOpen(px,pz+b,0);p.rdU=a?segOpen(a<0?px:px+1,pz,0):segOpen(px,b<0?pz:pz+1,1);
     let Q=22;for(let u=4;u<28;u++){const rx=a>0?CELL-1-u:a<0?u:16,rz=b>0?CELL-1-u:b<0?u:16;if(seaBlk(px*CELL+rx,pz*CELL+rz)>=SEA_T){Q=u;break;}}
     p.Q=Math.max(8,Math.min(22,Q));
-    p.boats=[];for(const [wc,i] of [[5,0],[15,1],[27,2]]){const L=8+Math.floor(r(160+i)*4);const a0=p.Q+3;if(a0+L>CELL||r(170+i)>=0.8)continue;
+    // (a village's one pier: wherever along its front the water's longest, so the coast's slant doesn't leave it without)
+    if(p.fish){let bn=5;p.pw=-1;for(let w=6;w<=24;w++){let n=0;for(let u=2;u<CELL;u++){const rx=a>0?CELL-1-u:a<0?u:w,rz=b>0?CELL-1-u:b<0?u:w;if(seaBlk(px*CELL+rx,pz*CELL+rz)>=SEA_T)n++;}if(n>bn){bn=n;p.pw=w;}}}
+    p.boats=[];for(const [wc,i] of p.fish?[[7,0],[24,1]]:[[5,0],[15,1],[27,2]]){if(p.fish&&Math.abs(wc-p.pw)<5)continue;const L=8+Math.floor(r(160+i)*4);const a0=p.Q+3;if(a0+L>CELL||r(170+i)>=0.8)continue;
       const at=(u,w)=>{const rx=a>0?CELL-1-u:a<0?u:w,rz=b>0?CELL-1-u:b<0?u:w;return seaBlk(px*CELL+rx,pz*CELL+rz)>=SEA_T+0.004;};
-      if(at(a0-1,wc-3)&&at(a0-1,wc+3)&&at(a0+L,wc-3)&&at(a0+L,wc+3)&&at(a0+(L>>1),wc))p.boats.push({wc,a0,L,hw:2,k:r(180+i)<0.5?'boat':'sail'});}
+      if(at(a0-1,wc-3)&&at(a0-1,wc+3)&&at(a0+L,wc-3)&&at(a0+L,wc+3)&&at(a0+(L>>1),wc))p.boats.push({wc,a0,L,hw:2,k:p.fish||r(180+i)<0.5?'boat':'sail'});}
   } else if(t==='beach'){
     for(let k=0;k<40&&!p.lg;k++){const lx=3+Math.floor(r(200+k)*26),lz=3+Math.floor(r(260+k)*26),w=-coastD(px*CELL+lx,pz*CELL+lz);if(w>=4&&w<=8)p.lg={x:lx,z:lz};}
   } else if(t==='lighthouse'){
@@ -2389,8 +2434,7 @@ function seaColumn(a,col,px,pz,rx,rz,lx,lz,x,z){
     plotBuildings(a,lx,lz,rx,rz,x,z,P);}
   if(!wet){const W=riverAt(x+0.5,z+0.5,RIV_W+5);if(W)plainsRiverColumn(col,W.d);}
 }
-// a town's beach: sunshades and towels down the sand, a row of beach huts at the back, a boardwalk behind them, and
-// the lifeguard's tower on its stilts
+// a town's beach: a row of beach huts at the back of the sand and a boardwalk behind them
 function beachColumn(col,P,rx,rz,x,z){
   const w=-coastD(x,z);if(w>=21)return;
   if(w>=17){col(G,PLANKS);for(let y=G+1;y<=G+3;y++)col(y,AIR);return;}   // the boardwalk
@@ -2399,15 +2443,7 @@ function beachColumn(col,P,rx,rz,x,z){
     if(gw>=13&&gw<16&&hash2(gx*7+1,gz*3+5)<0.75){const c=CONT_C[Math.floor(hash2(gx,gz*7)*6)],u=x-gx,v=z-gz;
       for(let y=G+1;y<=G+2;y++)col(y,u===0&&v===0||u===0&&v===1&&y<=G+2?AIR:c);col(G+3,ROOF);col(G,PLANKS);return;}}}
   if(w>=13)return;
-  // the lifeguard's tower
-  if(P.lg){const u=rx-P.lg.x,v=rz-P.lg.z;if(Math.abs(u)<=1&&Math.abs(v)<=1){
-    if(Math.abs(u)===1&&Math.abs(v)===1)for(let y=G+1;y<=G+3;y++)col(y,PLANKS);col(G+4,PLANKS);
-    if(Math.abs(u)===1||Math.abs(v)===1)col(G+5,u===0&&v===-1?AIR:PAINT_WHITE);col(G+6,PAINT_RED);return;}}
-  // sunshades, each with a towel beside it
-  const cx=Math.floor(x/7)*7+3,cz=Math.floor(z/7)*7+3,cw=-coastD(cx,cz);
-  if(cw>2&&cw<11&&hash2(cx*13+7,cz*5+1)<0.55){const u=x-cx,v=z-cz;
-    if(Math.abs(u)<=1&&Math.abs(v)<=1){if(u===0&&v===0){col(G+1,METAL);col(G+2,METAL);}col(G+3,(u+v)%2?AWN_R:PAINT_WHITE);if(u===1&&v===1)col(G,CONT_C[Math.floor(hash2(cx,cz*3)*6)]);}
-    if(u===2&&v>=0&&v<=1)col(G,CONT_C[Math.floor(hash2(cx*5,cz)*6)]);}
+  // (the sunshades, loungers, towels and the lifeguard's chair are props: see coastProps)
 }
 // an oil rig, well out in deep water: four legs down to the bottom, the deck on top with its accommodation block, the
 // drilling derrick, a crane and the flare stack
@@ -2456,23 +2492,23 @@ function yardColumn(a,col,P,px,pz,rx,rz,lx,lz,x,z){
 // a town's harbour: a stone sea wall along the shore with a promenade behind it, piers out from it, boats tied up
 function harborColumn(col,P,rx,rz,x,z){
   const [la,lb]=P.land,u=fromSide(la,lb,rx,rz),w=alongSide(la,lb,rx,rz),wet=(qx,qz)=>seaBlk(qx,qz)>=SEA_T;
-  const pier=(w>=9&&w<=11)||(w>=21&&w<=23);
+  const pier=P.fish?P.pw>=0&&(w===P.pw||w===P.pw+1):(w>=9&&w<=11)||(w>=21&&w<=23);
   if(!wet(x,z)){
     for(let y=G+1;y<G+4;y++)col(y,AIR);col(G-1,STONE);
     const wall=wet(x+1,z)||wet(x-1,z)||wet(x,z+1)||wet(x,z-1);
     // (roads only where a street of the town actually comes through, not strips of tarmac running off into the grass)
     const road=w<ROADW&&P.rdW||u<ROADW&&(la<0||lb<0)&&P.rdU;
     if(!road&&!wall&&coastD(x,z)<-9){plainsColumn(col,x,z);return;}   // (back from the front: grass)
+    if(P.fish){col(G,road?ASPHALT:wall?PLANKS:GRAVEL);return;}   // (a village's front: a plank wharf and gravel; its nets and crates are props)
     col(G,road?ASPHALT:wall?STONE:COBBLE);
     if(wall&&!pier)col(G+1,FENCE);
     else if(!wall&&w>=ROADW&&u>=ROADW&&(wet(x+2,z)||wet(x-2,z)||wet(x,z+2)||wet(x,z-2))){
-      if(mod(x+z,9)===0){col(G+1,METAL);col(G+2,METAL);col(G+3,LAMP);}
-      else if(mod(x*3+z,13)===0)col(G+1,SEAT_B);}
+      if(mod(x+z,9)===0){col(G+1,METAL);col(G+2,METAL);col(G+3,LAMP);}}
     return;}
   {let e=99;for(const [a,b] of N4){if(plotType(P.px+a,P.pz+b)==='harbor'||settlementAt(P.px+a,P.pz+b))continue;e=Math.min(e,a>0?CELL-1-rx:a<0?rx:b>0?CELL-1-rz:rz);}
    seaWater(col,x,z,Math.min(4,1+(e>>1)));}   // (dredged for the boats, shelving back up at its open edges)
   if(pier){col(G,PLANKS);for(let y=G+1;y<G+3;y++)col(y,AIR);
-    if(u%4===1&&(w===9||w===11||w===21||w===23))for(let y=G-6;y<G;y++)col(y,LOG);
+    if(u%4===1&&(P.fish?pier:w===9||w===11||w===21||w===23))for(let y=G-6;y<G;y++)col(y,LOG);
     return;}
   for(const B of P.boats){const A=u-B.a0,C=w-B.wc;if(A<0||A>=B.L||Math.abs(C)>B.hw)continue;
     for(let y=G-1;y<=G+12;y++){const v=shipBlock(B.k,B.L,B.hw,A,C,y,0,B.wc);if(v!==null)col(y,v);}}
@@ -10253,9 +10289,10 @@ function renderMap(){
   {x.textAlign='center';x.textBaseline='middle';x.lineJoin='round';
    for(const S of knownSets.values()){const sx=X(S.cx*CELL+CELL/2),sz=Z(S.cz*CELL+CELL/2);if(sx<-120||sx>w+120||sz<-40||sz>h+40)continue;
      const big=S.type==='city'?15:S.type==='large'?13.5:12;
-     x.font='800 '+big+'px "Atkinson Hyperlegible Next", system-ui, sans-serif';x.lineWidth=3.5;x.strokeStyle='rgba(0,0,0,0.85)';x.strokeText(setName(S),sx,sz-7);x.fillStyle='#fff3d6';x.fillText(setName(S),sx,sz-7);
+     x.font='800 '+big+'px "Atkinson Hyperlegible Next", system-ui, sans-serif';x.lineWidth=3.5;x.strokeStyle='rgba(0,0,0,0.85)';x.strokeText(setName(S),sx,sz-14);x.fillStyle='#fff3d6';x.fillText(setName(S),sx,sz-14);
+     {const kn=PLACE_KIND[setKind(S)];x.font='700 12px "Atkinson Hyperlegible Next", system-ui, sans-serif';x.lineWidth=3;x.strokeText(kn,sx,sz+1);x.fillStyle='#ffe9b0';x.fillText(kn,sx,sz+1);}
      const kk=S.rx+','+S.rz,v=setListC.has(kk)?setDestroyed(S):null,t=v===null?'Destroyed: ?':'Destroyed: '+Math.round(v*100)+'%';
-     x.font='700 12px "Atkinson Hyperlegible Next", system-ui, sans-serif';x.lineWidth=3;x.strokeText(t,sx,sz+8);x.fillStyle=v===null?'#c8c8c0':v>=1?'#ff6a50':v>0?'#ffb08a':'#cfe8c0';x.fillText(t,sx,sz+8);}
+     x.font='700 12px "Atkinson Hyperlegible Next", system-ui, sans-serif';x.lineWidth=3;x.strokeText(t,sx,sz+15);x.fillStyle=v===null?'#c8c8c0':v>=1?'#ff6a50':v>0?'#ffb08a':'#cfe8c0';x.fillText(t,sx,sz+15);}
    x.textAlign='start';x.textBaseline='alphabetic';}
   // the capitol: a star on the dome
   if(seenCap){const g=capGeo(),sx=X(seenCap.ax*CELL+PL0+g.c),sz=Z(seenCap.az*CELL+PL0+g.dc);x.fillStyle='#ffe27a';x.beginPath();for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?4:9;x.lineTo(sx+Math.cos(a)*rr,sz+Math.sin(a)*rr);}x.closePath();x.fill();}
@@ -10900,6 +10937,10 @@ function menuNav(dir){
   const cur=document.activeElement,dx=dir==='left'?-1:dir==='right'?1:0,dy=dir==='up'?-1:dir==='down'?1:0;
   if(dx&&cur&&cur.matches&&cur.matches('input[type=range]')&&menuCard.contains(cur)){nudgeRange(cur,dx);return;}
   const pane=document.querySelector('.main .tabpane:not([hidden])'),tabBtn=document.getElementById('tabBtn'+TABS[tabIndex()][1]);
+  // (on the title screen, and from the row of tabs anywhere: left and right go to the tab next door)
+  const title=curTab==='game'&&document.getElementById('testPanel').hidden&&document.getElementById('confirm').hidden;
+  if(dx&&(title||cur&&cur.closest&&cur.closest('.tabs'))){showTab(tabIndex()+dx);padFocus(document.getElementById('tabBtn'+TABS[tabIndex()][1]));return;}
+  if(dy&&title&&pane.contains(cur)){const U=paneUnits(pane),i=U.findIndex(u=>u===cur||u.contains(cur))+dy;if(i<0)padFocus(tabBtn);else if(i<U.length)unitFocus(U[i]);return;}
   if(dy&&pane&&cur&&cur.closest){
     const units=paneUnits(pane);
     if(pane.contains(cur)){
@@ -10917,6 +10958,11 @@ function menuNav(dir){
   }
   if(!moveFocus(dx,dy)&&dy){const pane=document.querySelector('.main .tabpane:not([hidden])');if(pane)pane.scrollTop+=dy*80;}
 }
+addEventListener('keydown',e=>{
+  if(!menuOpen||BIND_CAP)return;const d={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down'}[e.code];if(!d)return;
+  const t=e.target;if(t&&(t.tagName==='INPUT'&&t.type!=='range'||t.tagName==='TEXTAREA'||t.tagName==='SELECT'))return;
+  menuNav(d);
+});
 let navHeld='',navT=0;
 function menuPad(st,dt){
   let dir='';
@@ -13001,6 +13047,12 @@ const PROPS={
   dbox:[[0xd8c8a8,0,.14,0,.3,.28,.3],[P_DARK,0,.285,0,.16,.01,.03]],
   // a long canteen table, and the bench to go with it
   ltable:[[P_WOOD,0,.62,0,1.6,.06,.8],[P_DARK,-.68,.29,0,.08,.58,.62],[P_DARK,.68,.29,0,.08,.58,.62]],
+  lounger:[[P_WOOD,-.24,.1,.5,.05,.2,.05],[P_WOOD,.24,.1,.5,.05,.2,.05],[P_WOOD,-.24,.1,-.1,.05,.2,.05],[P_WOOD,.24,.1,-.1,.05,.2,.05],[PT,0,.23,.16,.58,.05,1.1],[PT,0,.33,-.46,.58,.05,.2],[PT,0,.45,-.62,.58,.05,.2]],
+  towel:[[PT,0,.02,0,.72,.03,1.5],[P_WHITE,0,.025,-.56,.72,.03,.18],[P_WHITE,0,.025,.56,.72,.03,.18]],
+  lifeguard:[[P_WOOD,-.7,.9,-.7,.12,1.8,.12],[P_WOOD,.7,.9,-.7,.12,1.8,.12],[P_WOOD,-.7,.9,.7,.12,1.8,.12],[P_WOOD,.7,.9,.7,.12,1.8,.12],[P_WOOD,0,1.84,0,1.7,.08,1.7],[P_WHITE,0,2.15,-.8,1.7,.55,.06],[P_WHITE,-.8,2.15,0,.06,.55,1.7],[P_WHITE,.8,2.15,0,.06,.55,1.7],[P_WOOD,-.7,2.7,-.7,.08,1.1,.08],[P_WOOD,.7,2.7,-.7,.08,1.1,.08],[P_WOOD,-.7,2.7,.7,.08,1.1,.08],[P_WOOD,.7,2.7,.7,.08,1.1,.08],[0xc83a32,0,3.28,0,2,.1,2],[P_WOOD,0,.95,1.15,.5,.06,.9]],
+  fishcrate:[[0x7a5a36,0,.2,0,.74,.4,.5],[0x9fb8c8,0,.41,0,.62,.05,.38],[0x7a5a36,.14,.68,.03,.6,.34,.44]],
+  netrack:[[P_WOOD,-1,.75,0,.08,1.5,.08],[P_WOOD,1,.75,0,.08,1.5,.08],[P_WOOD,0,1.46,0,2.1,.06,.06],[0x5a7a6a,0,.9,0,1.9,1.08,.03],[0xd8c070,.5,.72,.03,.14,.14,.05],[0xd8c070,-.4,1.08,.03,.14,.14,.05]],
+  rowboat:[[0x8a5a32,0,.16,0,.84,.3,2.2],[0x8a5a32,0,.16,1.2,.44,.3,.3],[0xd8d0b8,0,.32,0,.62,.04,1.9],[0x6a4424,0,.34,.2,.84,.05,.2]],
   bench:[[P_WOOD,0,.36,0,1.6,.07,.34],[P_DARK,-.62,.16,0,.08,.32,.28],[P_DARK,.62,.16,0,.08,.32,.28]],
   // a stretch of buffet: dishes of food under a glass guard
   buffet:[[P_STEEL,0,.4,0,1,.8,.86],[P_DARK,0,.81,0,1,.02,.8],[0xc9553f,-.24,.84,-.2,.4,.05,.32],[0xd8b13a,.24,.84,-.2,.4,.05,.32],[0x5aa469,-.24,.84,.2,.4,.05,.32],[0xe6dcc8,.24,.84,.2,.4,.05,.32],[0xcfeaf5,0,1.2,0,1,.03,.5],[P_STEEL,0,1.02,0,.04,.36,.04]],
@@ -13646,6 +13698,36 @@ function restProps(b,px,pz,L){
   add('fridge2',I-.5,vk,Math.PI);add('fridge2',I-1.5,vk,Math.PI);add('shelf2',I-2.5,vk,Math.PI,0xc9a24a);
 }
 // the tables out front of a restaurant, either side of the way to its door
+// a beach's furniture and a harbor front's benches, or a fishing village's nets and crates. (They stand on whatever's there, so
+// the heights are read off the ground when they first come into range.)
+function coastProps(P,px,pz){
+  if(P._cp)return P._cp;const L=P._cp=[],X0=px*CELL,Z0=pz*CELL,TN=[0xc83a32,0x2f8a4a,0x3f6b8c,0xd8b13a,0xd96a8a,0xe08a3c];
+  const add=(type,x,z,yaw,tint,low)=>L.push({prop:true,type,x,z,y0:G+1,yaw:yaw||0,tint,rad:.5,low,snap:true,key:'p'+Math.round(x*4)+','+Math.round(z*4)+','+type});
+  const seaYaw=(x,z)=>Math.atan2(coastD(x+3,z)-coastD(x-3,z),coastD(x,z+3)-coastD(x,z-3));
+  if(P.type==='beach'){
+    for(let cx=Math.floor(X0/7)*7+3;cx<X0+CELL;cx+=7)for(let cz=Math.floor(Z0/7)*7+3;cz<Z0+CELL;cz+=7){if(cx<X0||cz<Z0)continue;
+      const w=-coastD(cx,cz),h=hash2(cx*13+7,cz*5+1);if(w<=2||w>=11||h>=0.6)continue;
+      const c=TN[Math.floor(hash2(cx,cz*3)*6)],y=seaYaw(cx,cz),sx=Math.sin(y),sz=Math.cos(y),px2=cz%2?1:-1;
+      add('umbrella',cx+.5,cz+.5,0,c);
+      add('lounger',cx+.5+sz*1.3*px2,cz+.5-sx*1.3*px2,y,TN[Math.floor(hash2(cx*5,cz)*6)]);
+      if(h<0.3)add('lounger',cx+.5-sz*1.3*px2,cz+.5+sx*1.3*px2,y,TN[Math.floor(hash2(cx,cz*5)*6)]);
+      else add('towel',cx+.5-sz*1.4*px2+sx*.4,cz+.5+sx*1.4*px2+sz*.4,y,TN[Math.floor(hash2(cx*3,cz*3)*6)],true);}
+    if(P.lg)add('lifeguard',X0+P.lg.x+.5,Z0+P.lg.z+.5,seaYaw(X0+P.lg.x,Z0+P.lg.z));
+    // benches along the boardwalk
+    for(let x=X0+3;x<X0+CELL;x+=9)for(let z=Z0+3;z<Z0+CELL;z+=9){const w=-coastD(x,z);if(w>=17.5&&w<20)add('bench',x+.5,z+.5,seaYaw(x,z));}
+  } else if(P.type==='harbor'){
+    const [a,b]=P.land,at=(u,w)=>[a>0?CELL-1-u:a<0?u:w,b>0?CELL-1-u:b<0?u:w],wet=(x,z)=>seaBlk(x,z)>=SEA_T;
+    if(P.fish){
+      if(P.pw>=0)for(let u=4;u<CELL-2;u+=4){const [rx,rz]=at(u,P.pw),x=X0+rx,z=Z0+rz;if(wet(x,z)&&hash2(x*3,z*7)<0.75)add('fishcrate',x+.5,z+.5,hash2(x,z)*3);}
+      // (rowboats moored either side of the pier, afloat)
+      for(const [u,w] of [[P.Q+6,P.pw-3],[P.Q+11,P.pw+4],[P.Q+16,P.pw-3]]){if(u>=CELL-2||P.pw<0)continue;const [rx,rz]=at(u,w),x=X0+rx,z=Z0+rz;if(wet(x,z)&&coastD(x,z)>4&&hash2(x*7,z*3)<0.8){const f={prop:true,type:'rowboat',x:x+.5,z:z+.5,y0:G+.85,yaw:a?Math.PI/2:0,rad:.5,low:true,key:'p'+Math.round(x*4)+','+Math.round(z*4)+',boat'};L.push(f);}}
+      for(const [u,w,t] of [[P.Q-4,6,'netrack'],[P.Q-4,12,'fishcrate'],[P.Q-3,20,'rowboat'],[P.Q-4,25,'netrack']]){if(u<2)continue;const [rx,rz]=at(u,w),x=X0+rx,z=Z0+rz;if(!wet(x,z)&&coastD(x,z)<-1)add(t,x+.5,z+.5,a?0:Math.PI/2);}
+    }else for(let rx=0;rx<CELL;rx++)for(let rz=0;rz<CELL;rz++){const x=X0+rx,z=Z0+rz;if(mod(x*3+z,13)!==0||wet(x,z)||mod(x+z,9)===0)continue;
+      const u=fromSide(a,b,rx,rz),w=alongSide(a,b,rx,rz);if(w<ROADW||u<ROADW||wet(x+1,z)||wet(x-1,z)||wet(x,z+1)||wet(x,z-1))continue;
+      const dir=[[2,0],[-2,0],[0,2],[0,-2]].find(([e,f])=>wet(x+e,z+f));if(dir)add('bench',x+.5,z+.5,Math.atan2(dir[0],dir[1]));}
+  }
+  return L;
+}
 function patioProps(P,px,pz){
   if(P._patio)return P._patio;const L=P._patio=[],y0=G+1,zc=pz*CELL+PL0+2;
   for(const [i,rx] of [PL0+2.5,PL0+6,PL0+12,PL0+15.5].entries()){const X=px*CELL+rx,tint=i%2?0x2f8a4a:0xc83a32;
@@ -13757,6 +13839,10 @@ function refreshProps(){
   for(const p of players){if(!p.active)continue;
     for(let px=Math.floor((p.pos.x-R)/CELL);px<=Math.floor((p.pos.x+R)/CELL);px++)for(let pz=Math.floor((p.pos.z-R)/CELL);pz<=Math.floor((p.pos.z+R)/CELL);pz++){
       const S=superOf(px,pz),ax=S?S.ax:px,az=S?S.az:pz,P=plotInfo(ax,az);
+      if((P.type==='beach'||P.type==='harbor')&&!seen.has(P)){seen.add(P);
+        for(const f of coastProps(P,ax,az)){if(Math.abs(f.x-p.pos.x)>R||Math.abs(f.z-p.pos.z)>R)continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);if(!chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS))))continue;
+          if(f.snap){let y=G+10;while(y>G-4&&get(fx,y,fz)===AIR)y--;if(get(fx,y,fz)===WATER||y<=G-4)continue;f.y0=y+1;f.snap=false;}
+          if(get(fx,Math.floor(f.y0)-(f.y0%1?0:1),fz)===AIR||get(fx,Math.ceil(f.y0),fz)!==AIR)continue;activeProps.push(f);drawProp(f);if(!f.low&&!downFix.has(f.key)&&!falling.has(f.key))propCells.set(propCK(f.x,f.y0,f.z),f);}}
       if((P.patio||S&&S.kind==='stadium')&&!seen.has(P)){seen.add(P);
         for(const f of P.patio?patioProps(P,ax,az):stadiumProps(S)){if(Math.abs(f.x-p.pos.x)>R||Math.abs(f.z-p.pos.z)>R)continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);if(!chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS))))continue;
           if(get(fx,f.y0-1,fz)===AIR||get(fx,f.y0,fz)!==AIR)continue;activeProps.push(f);drawProp(f);if(!f.low&&!downFix.has(f.key)&&!falling.has(f.key))propCells.set(propCK(f.x,f.y0,f.z),f);}}
@@ -16148,13 +16234,13 @@ function updateSky(dt){
   // headlights and tail lights come on after dark
   const nl=1-dk;smat(CARC.head).emissive.setRGB(0.9*nl,0.8*nl,0.5*nl);smat(CARC.tail).emissive.setRGB(0.7*nl,0.06*nl,0.04*nl);
   // where the (first) player is: the kind of place, or the open country
-const PLACE_LBL={city:'\u{1F3D9}\uFE0F City',large:'\u{1F3E2} Large town',small:'\u{1F3D8}\uFE0F Small town',village:'\u{1F3E1} Village'};
+const PLACE_LBL={city:'\u{1F3D9}\uFE0F City',large:'\u{1F3E2} Large town',small:'\u{1F3D8}\uFE0F Small town',village:'\u{1F3E1} Village',coastcity:'\u{1F3D9}\uFE0F Coastal city',harbortown:'\u2693 Harbor town',resort:'\u{1F3D6}\uFE0F Resort town',fishing:'\u{1F41F} Fishing village'};
 function whereLabel(){
   const p=players.find(q=>q.active)||players[0];if(!p)return'';
   const px=Math.floor(p.pos.x/CELL),pz=Math.floor(p.pos.z/CELL),S=settlementAt(px,pz);
   {const u=underAt(p.pos.x,p.pos.y,p.pos.z);if(u){const L=u==='sewer'?'\u{1F400} Sewers':u==='cave'?(bigPlainsAt(px,pz)&&bigPlainsAt(px,pz).kind==='mine'?'\u26CF\uFE0F Mine workings':'\u{1F987} Caves'):'\u{1F687} Subway';return S?'<div class="sname">'+setName(S)+'</div>'+L:L;}}
-  if(seaPlot(px,pz)){const t=plotType(px,pz);return t==='yard'||t==='basin'?'\u{1F6A2} Shipping port':t==='navy'||t==='nbasin'?'\u2693 Naval base':t==='harbor'?'\u2693 Harbour':t==='lighthouse'?'\u{1F5FC} Lighthouse':t==='rig'?'\u{1F6E2}\uFE0F Oil rig':coastD(p.pos.x,p.pos.z)>=0?'\u{1F30A} Ocean':t==='beach'?'\u{1F3D6}\uFE0F Beach':'\u{1F30A} Coast';}
-  if(S)return '<div class="sname">'+setName(S)+'</div>'+(zoneAt(px,pz)==='suburb'?'\u{1F3E1} Suburbs':PLACE_LBL[S.type]);
+  if(seaPlot(px,pz)){const t=plotType(px,pz),O=t==='yard'||t==='basin'||t==='harbor'||t==='beach'?coastOwner(px,pz):null,on=O?'<div class="sname">'+setName(O)+'</div>':'';if(O&&coastD(p.pos.x,p.pos.z)<4)return on+(t==='harbor'?(plotInfo(px,pz).fish?'\u{1F41F} Fishing docks':'\u2693 Docks'):t==='beach'?'\u{1F3D6}\uFE0F Beach':'\u{1F6A2} Shipping port');return t==='yard'||t==='basin'?'\u{1F6A2} Shipping port':t==='navy'||t==='nbasin'?'\u2693 Naval base':t==='harbor'?'\u2693 Docks':t==='lighthouse'?'\u{1F5FC} Lighthouse':t==='rig'?'\u{1F6E2}\uFE0F Oil rig':coastD(p.pos.x,p.pos.z)>=0?'\u{1F30A} Ocean':t==='beach'?'\u{1F3D6}\uFE0F Beach':'\u{1F30A} Coast';}
+  if(S)return '<div class="sname">'+setName(S)+'</div>'+(zoneAt(px,pz)==='suburb'?'\u{1F3E1} Suburbs of a '+PLACE_KIND[setKind(S)].toLowerCase():PLACE_LBL[setKind(S)]);
   if(isRiver(px,pz)||riverAt(p.pos.x,p.pos.z,RIV_W+1))return'\u{1F30A} River';
   if(tsAt(Math.floor(p.pos.x),Math.floor(p.pos.z)))return'\u26FD Truck stop';
   if(dumpAt(px,pz)!==null)return'\u{1F5D1}\uFE0F Garbage dump';
@@ -16288,7 +16374,7 @@ const TEST_GROUPS=[
   ['Big sites',[['hospital','Hospitals'],['garage','Car parks'],['mega','Mega-buildings'],['market','Supermarkets'],['drug','Drugstores'],['sitdown','Sit-down restaurants'],['mall','Malls'],['bigbox','Superstores'],['ikea','Furniture superstores'],['cathedral','Cathedrals'],['museum','Museums'],['aquarium','Aquariums'],['casino','Casinos'],['school','Schools'],['factory','Factories'],['cinema','Cinemas'],['stadium','Stadiums'],['arena','Arenas'],['campus','Universities'],['prison','Prisons'],['water','Water works'],['power','Power stations'],['nuclear','Nuclear plants'],['zoo','Zoos'],['studio','Film studios'],['theme','Theme parks'],['bigpark','Big parks'],['hood','Housing estates'],['capitol','The capitol']]],
   ['Countryside',[['farm','Farms'],['truckstop','Truck stops'],['dump','Garbage dumps'],['mine','Mines'],['quarry','Quarries'],['lumber','Lumber camps'],['campsite','Campsites'],['cult','Cult altars'],['wrecks','Abandoned cars'],['tower5g','5G towers'],['prepper','Prepper compounds'],['militia','Militia compounds'],['ruins','Ruins'],['thieves',"Thieves' hideouts"],['wind','Wind farms'],['airport','Airports'],['nasa','Launch sites'],['base','Military bases'],['bunker','Bunkers'],['pylons','Power lines'],['billboards','Billboards'],['tolls','Toll plazas']]],
   ['Railways',[['rail','Railways'],['station','Train stations']]],
-  ['Coast',[['sea','The ocean'],['beach','Beaches'],['harbor','Harbours'],['yard','Shipping ports'],['navy','Naval bases'],['lighthouse','Lighthouses'],['rig','Oil rigs'],['wreck','Shipwrecks']]],
+  ['Coast',[['sea','The ocean'],['beach','Beaches'],['harbor','Docks'],['yard','Shipping ports (coastal cities)'],['navy','Naval bases'],['lighthouse','Lighthouses'],['rig','Oil rigs'],['wreck','Shipwrecks']]],
   ['Underground',[['sewers','Sewers'],['subway','Subway'],['caves','Caves']]]];
 const TEST_ALL=TEST_GROUPS.flatMap(g=>g[1].map(i=>i[0]));
 let tpOff=null;

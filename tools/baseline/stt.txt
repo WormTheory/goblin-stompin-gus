@@ -1,4 +1,4 @@
-kinds 103 total ms N missing prison slow N
+kinds 103 total ms N missing prison yard navy slow N
 tower {"ax":-1,"az":-1,"w":1,"h":1} mesh ms N verts 57052
 airport {"ax":42,"az":48,"w":14,"h":6} mesh ms N verts 906916
 hospital {"ax":12,"az":-6,"w":3,"h":3} mesh ms N verts 455764

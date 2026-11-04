@@ -63,6 +63,9 @@ A building should read as what it is from a distance, before you can read its si
 - **A way through that makes sense.** Think about how people use it: a train station needs a door on to the platform as well as one from the street.
 - **Emergency vehicles keep working.** Anything that dispatches vehicles must still let them out and home after changes.
 
+## The coast
+A place that reaches the water is a coastal kind (`setKind`): a city is a **coastal city** (shipping port, docks one side of it, a beach the other), a town a **harbor town** (docks and a beach) or **resort town** (all beach), a village a **fishing village** (a plank wharf, one pier, moored boats, nets and crates). Shipping ports only belong to coastal cities (`cityPort`). Naval bases stand well away from any place; lighthouses, oil rigs and wrecks stand alone; the rest is plain shore. Beach and dock furniture (umbrellas, loungers, towels, the lifeguard's chair, benches, nets, crates, rowboats) is props, in `coastProps`. `tools/tests/coastaudit.js` lists what each place has.
+
 ## Signs and outdoors
 
 - **One sign per building**, unless more are deliberate (gas stations and truck stops have 3, fast food, water towers and the space agency have 2).
