@@ -54,7 +54,8 @@ for(const k of process.env.STAIR_KINDS?process.env.STAIR_KINDS.split(','):['fire
   const spot=(y,far)=>{const cx=(b.x0+b.x1)/2,cz=(b.z0+b.z1)/2,cl=(v,a,c)=>Math.max(a+1.5,Math.min(c-1.5,v));return {x:X0+cl(cx+(al?far:0),b.x0,b.x1),y,z:Z0+cl(cz+(al?0:far),b.z0,b.z1)};};
   const run=(from,to,label)=>{const s0=spot(from,-5),s1=spot(to,4);
     // (not inside the stairs' own railing or fill, in a narrow building)
-    for(const q of [s0,s1])for(let i=0;i<6&&T.get(Math.floor(q.x),Math.floor(q.y),Math.floor(q.z));i++){if(al)q.z+=(q.z-Z0<(b.z0+b.z1)/2?1:-1)*0;q.x+=(al?-1:0);q.z+=(al?0:-1);}
+    for(const q of [s0,s1]){const clear=(x,z)=>x>X0+b.x0+1&&x<X0+b.x1-2&&z>Z0+b.z0+1&&z<Z0+b.z1-2&&[0,1,2].every(h=>!T.get(Math.floor(x),Math.floor(q.y)+h,Math.floor(z)))&&![...(b._wc?b._wc.values():[])].some(L=>L.some(R=>{const u=Math.floor(x)-X0-L.ex0-1,v=Math.floor(z)-Z0-L.ez0-1;return u>=R.u0-1&&u<R.u1+1&&v>=R.v0-1&&v<R.v1+1;}));
+      if(!clear(q.x,q.z)){let done=false;for(let r=1;r<24&&!done;r++)for(let a=0;a<16&&!done;a++){const x=q.x+Math.cos(a*Math.PI/8)*r,z=q.z+Math.sin(a*Math.PI/8)*r;if(clear(x,z)){q.x=x;q.z=z;done=true;}}}}
     if(k==='campus'){s1.x=al?X0+S.r0+S.L+8:s1.x;s0.x=al?X0+S.r0+S.L+24:s0.x;}   // (the library's so long a hippo at the far end wouldn't be near enough to keep the goblin in play)
     for(let i=0;i<30;i++){A.pos.set(s1.x,s1.y,s1.z);step(1);}
     gob.state='chase';gob.hp=99;gob.stun=0;gob.indoor=true;gob.civ=false;gob.root.visible=true;gob.pos.set(s0.x,s0.y,s0.z);gob.vy=0;gob.t=0;gob.detour=0;gob.trip=null;

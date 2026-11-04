@@ -3,7 +3,7 @@
 const fs=require('fs');
 let hdr=fs.readFileSync('stairs.js','utf8').split('\n');
 const n=hdr.findIndex(l=>l.startsWith('eval(src);'));
-hdr=hdr.slice(0,n).join('\n').replace(/window\.__t=\{/,process.env.OLD?'window.__t={':'window.__t={propCells,propCK,activeProps,refreshProps,propDown:f=>downFix.has(f.key),furnProps,');
+hdr=hdr.slice(0,n).join('\n').replace(/window\.__t=\{/,process.env.OLD?'window.__t={':'window.__t={wcOf,propCells,propCK,activeProps,refreshProps,propDown:f=>downFix.has(f.key),furnProps,');
 eval(hdr+`
 eval(src);const T=window.__t;let now=1000;
 const [A]=T.players;for(const f of els.play.L.click)f();pads.length=0;
@@ -16,6 +16,10 @@ for(const k of ['sitdown','food','market','drug','school','police','ikea']){
   const P=T.plotInfo(F.ax,F.az),b=P.b.slice().sort((p,q)=>(q.x1-q.x0)*(q.z1-q.z0)-(p.x1-p.x0)*(p.z1-p.z0))[0],X0=F.ax*CELL,Z0=F.az*CELL,y=45;
   const s0={x:X0+b.x0+3.5,z:Z0+b.z0+3.5},s1={x:X0+b.x1-3.5,z:Z0+b.z1-3.5};
   for(let i=0;i<60;i++){A.pos.set(s1.x,y,s1.z);step(1);}
+  // (start outside the bathroom; and first see that a goblin who's inside one can get out through its door)
+  {const L=T.wcOf(b,0,F.ax,F.az);for(const R of L){const xa=X0+L.ex0+1,za=Z0+L.ez0+1,inR=(x,z)=>x>=xa+R.u0&&x<xa+R.u1&&z>=za+R.v0&&z<za+R.v1;
+    if(inR(s0.x,s0.z))s0.z=za+R.v1+1.5;if(inR(s1.x,s1.z))s1.z=za+R.v0-1.5;
+    gob.state='chase';gob.hp=99;gob.stun=0;gob.indoor=true;gob.civ=false;gob.root.visible=true;gob.pos.set(xa+R.u0+1.6,y,za+R.v0+1.6);gob.vy=0;gob.t=0;gob.detour=0;gob.trip=null;let e=0;while(e<15&&inR(gob.pos.x,gob.pos.z)){A.pos.set(s1.x,y,s1.z);step(6);e+=.1;}console.log(k,'goblin out of the bathroom',e<15?'in '+e.toFixed(1)+'s':'STUCK at '+gob.pos.x.toFixed(1)+','+gob.pos.z.toFixed(1));}}
   gob.state='chase';gob.hp=99;gob.stun=0;gob.indoor=true;gob.civ=false;gob.root.visible=true;gob.pos.set(s0.x,y,s0.z);gob.vy=0;gob.t=0;gob.detour=0;gob.trip=null;
   let t=0,ok=false,inside=0,frames=0;
   while(t<40&&!ok){A.pos.set(s1.x,y,s1.z);step(6);t+=0.1;frames++;

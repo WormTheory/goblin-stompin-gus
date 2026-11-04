@@ -58,7 +58,7 @@ A building should read as what it is from a distance, before you can read its si
 - **Not monotonous, not empty.** Long grids of one desk or big bare floors are faults. Break large floors into distinct rooms. A police station has a lobby and front desk, bigger holding cells, an armory, an evidence room, a break room, interview rooms and locker rooms. A hospital ground floor has a pharmacy, X-ray, exam rooms, a lab and so on around its lobby, and its ER is full of bays behind the ambulance doors.
 - **Size follows function.** If it doesn't fit, make the building bigger. Two restaurants sharing a block became one each. Don't shrink the function to fit the building.
 - **Stairs on anything with real upper floors**, reachable, without blocking the way through the building or crowding out its purpose. If stairs take up most of a building, enlarge it or make it one storey. (A farmhouse where the stairs left room for little else was the example he gave.)
-- **Bathrooms in every building that would logically have one**: walled, with stalls, basins, a sign and a door. Customers shouldn't walk through a kitchen or surgery to reach them. Flats and houses have their own. Enlarge the building if needed.
+- **Bathrooms in every building that would logically have one, but no more than needed.** They're secondary to what the building is for: one to an establishment on its ground floor (two only on a vast floor), one to a flat or house, every third floor in offices and wards, a small part of the floor (aim under about 15%, a tiny site hut can't quite manage it). Their walls match the building's and reach the ceiling, and they have a real door. Customers shouldn't walk through a kitchen or surgery to reach them.
 - **A way through that makes sense.** Think about how people use it: a train station needs a door on to the platform as well as one from the street.
 - **Emergency vehicles keep working.** Anything that dispatches vehicles must still let them out and home after changes.
 
@@ -89,7 +89,7 @@ From `tools/tests`:
 node stairs.js          # goblins and Gus climb stairs (STAIR_KINDS=bank,news to choose block types)
 node stairaudit.js 160  # floors with no stairs
 node stairroom.js 150   # how much floor stairs take; the worst should be well under half
-node wcaudit.js 150     # buildings with no bathroom
+node wcaudit.js 150 150 # buildings with no bathroom, share of the floor, and whether every bathroom door really opens on to clear floor
 node signcount.js 150   # signs per kind of building
 node proptest.js        # goblins round furniture, Gus knocking it over
 node dispatch.js        # fire engines, police cars and ambulances leave and get home
