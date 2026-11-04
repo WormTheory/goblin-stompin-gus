@@ -30,7 +30,7 @@ Sizes as built, in plots (W x H; one plot is 32 blocks):
 | Airport | 14 x 6 |
 | Farm, with its land | up to 4 to 6 each way, less where something's in the way |
 
-Smaller versions exist in small towns. A theme park is too big for one 6 x 6 cell of the big plan, so `themeOf` lets it reach into its neighbours, and a third of it may run on to open ground at the edge of town.
+Smaller versions exist in small towns. A theme park is too big for one 6 x 6 cell of the big plan, so `themeOf` lets it reach into its neighbours. All of it has to be in town: he wants whole parks, so one that would run on to open ground or anything else is moved along a little, or left out (`themeaudit.js` checks).
 
 ## Placement
 

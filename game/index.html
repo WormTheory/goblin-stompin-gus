@@ -783,7 +783,7 @@ function horizHidden(cx,cy,cz,hr,top){
     if(!o.isInstancedMesh&&horizHidden(sp.center.x,sp.center.y,sp.center.z,sp.radius,sp.center.y+sp.radius))return false;   // (over the horizon)
     const d=Math.hypot(sp.center.x-CURVE_CAM.x,sp.center.z-CURVE_CAM.z),r=sp.radius,lo=k*Math.max(0,d-r)**2,hi=k*(d+r)**2;
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v90';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v91';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -3606,18 +3606,26 @@ function capitolPlan(){
 function macroOf(px,pz){const M=macroOf1(px,pz);return M&&TEST_OFF.has(M.kind)?null:M;}
 // a theme park is 8 x 8, more than one cell of the big plan: it reaches a block into each cell round its own
 const THEME_H=0.97,themeHash=(mx,mz)=>{const h=hash2(mx*613+11,mz*389+7);return h>=0.90&&h<THEME_H;};
-// (it's an edge-of-town site, so a third of it may run out on to open ground)
-const themePlains=(ax,az)=>{let n=0;for(let i=0;i<8;i++)for(let j=0;j<8;j++)if(rectPlains(ax+i,az+j,1,1))n++;return n;};
+// (every block of it has to be free to be park: the sea, open country, a station and so on all win over a site, and a park
+// with a piece missing is left with half a coaster and a Ferris wheel over somebody's house)
+const themeSea=(ax,az)=>{for(let i=0;i<8;i++)for(let j=0;j<8;j++)if(seaPlot(ax+i,az+j)||metroStation(ax+i,az+j))return true;return false;};
+// (an edge-of-town site, so where its own cell runs out of town it's moved along a little to find room: it can reach three blocks over)
+// (deciding a park asks what's on the blocks round it, and those answers can't see the park yet: they mustn't be remembered,
+// or it depends on what was asked first whether part of the park comes out as houses)
+let themeBusy=0;
+const THEME_OFF=[[0,0],[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[1,-1],[-1,1],[1,1],[-2,0],[2,0],[0,-2],[0,2],[-2,-1],[2,-1],[-2,1],[2,1],[-1,-2],[1,-2],[-1,2],[1,2],[-2,-2],[2,-2],[-2,2],[2,2]];
 function themeOf(mx,mz){
   const k='t'+mx+','+mz;let T=superCache.get(k);if(T!==undefined)return T;T=null;superCache.set(k,null);
   if(Math.max(Math.abs(mx),Math.abs(mz))>=2&&themeHash(mx,mz)){
     let ok=true;const CP=capitolPlan();for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){if((a||b)&&themeHash(mx+a,mz+b))ok=false;if(CP&&CP.mx===mx+a&&CP.mz===mz+b)ok=false;}
-    const M={ax:mx*6-1,az:mz*6-1,w:8,h:8,kind:'theme'},ty=setType(M.ax+4,M.az+4);
-    if(ok&&(ty==='city'||ty==='large'||ty==='suburb')&&siteFits('theme',M.ax+4,M.az+4)&&themePlains(M.ax,M.az)<=22&&!(rectRail(M.ax,M.az,8,8)||rectRiver(M.ax,M.az,8,8)||rectClover(M.ax,M.az,8,8)||rectRamp(M.ax,M.az,8,8)||rectCuts(M.ax,M.az,8,8)||rectHighway(M.ax,M.az,8,8)))T=M;
+    themeBusy++;
+    if(ok)for(const [ox,oz] of THEME_OFF){const M={ax:mx*6-1+ox,az:mz*6-1+oz,w:8,h:8,kind:'theme'},ty=setType(M.ax+4,M.az+4);
+      if((ty==='city'||ty==='large'||ty==='suburb')&&siteFits('theme',M.ax+4,M.az+4)&&!(rectPlains(M.ax,M.az,8,8)||rectRail(M.ax,M.az,8,8)||rectRiver(M.ax,M.az,8,8)||rectClover(M.ax,M.az,8,8)||rectRamp(M.ax,M.az,8,8)||rectCuts(M.ax,M.az,8,8)||rectHighway(M.ax,M.az,8,8)||themeSea(M.ax,M.az))){T=M;break;}}
+    themeBusy--;
   }
   superCache.set(k,T);return T;
 }
-const themeNear=(mx,mz)=>{const k='tn'+mx+','+mz;let L=superCache.get(k);if(L)return L;L=[];for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){if(!a&&!b)continue;const T=themeOf(mx+a,mz+b);if(T)L.push(T);}superCache.set(k,L);return L;};
+const themeNear=(mx,mz)=>{const k='tn'+mx+','+mz;let L=superCache.get(k);if(L)return L;L=[];for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){if(!a&&!b)continue;const T=themeOf(mx+a,mz+b);if(T)L.push(T);}if(!themeBusy)superCache.set(k,L);return L;};
 const themeHits=(ax,az,w,h)=>{const mx=Math.floor(ax/6),mz=Math.floor(az/6);for(const c of [[mx,mz],[Math.floor((ax+w-1)/6),Math.floor((az+h-1)/6)]]){for(const T of [themeOf(c[0],c[1]),...themeNear(c[0],c[1])])if(T&&ax<T.ax+8&&ax+w>T.ax&&az<T.az+8&&az+h>T.az)return true;}return false;};
 function macroOf1(px,pz){
   {const L=themeNear(Math.floor(px/6),Math.floor(pz/6));for(const T of L)if(px>=T.ax&&px<T.ax+8&&pz>=T.az&&pz<T.az+8)return T;}
@@ -3653,8 +3661,10 @@ function macroOf1(px,pz){
       if(M&&(rectRail(M.ax,M.az,M.w,M.h)||rectRiver(M.ax,M.az,M.w,M.h)||rectPlains(M.ax,M.az,M.w,M.h)||rectClover(M.ax,M.az,M.w,M.h)||rectRamp(M.ax,M.az,M.w,M.h)||rectCuts(M.ax,M.az,M.w,M.h)||M.kind!=='hood'&&rectHighway(M.ax,M.az,M.w,M.h)))M=null;
       // (nothing else where a neighbour's theme park has reached in)
       if(M&&M.kind!=='theme')for(const T of themeNear(mx,mz))if(M&&M.ax<T.ax+8&&M.ax+M.w>T.ax&&M.az<T.az+8&&M.az+M.h>T.az)M=null;
+      // (its own park, if it has one, is already settled by themeOf: nothing here gets to knock out the middle and leave the rim)
+      {const own=themeOf(mx,mz);if(own)M=own;}
     }
-    superCache.set(mk,M);
+    if(!themeBusy)superCache.set(mk,M);
   }
   return M;
 }
@@ -3687,7 +3697,7 @@ function superOf(px,pz){
       S=gk.endsWith('4')?{ax:gx*2,az:gz*2,w:2,h:2,kind}:pair;
       if(rectRail(S.ax,S.az,S.w,S.h)||rectMetro(S.ax,S.az,S.w,S.h)||rectRiver(S.ax,S.az,S.w,S.h)||rectHighway(S.ax,S.az,S.w,S.h)||rectPlains(S.ax,S.az,S.w,S.h)||rectClover(S.ax,S.az,S.w,S.h)||rectRamp(S.ax,S.az,S.w,S.h)||rectCuts(S.ax,S.az,S.w,S.h))S=null;
     }
-    superCache.set(k,S);
+    if(!themeBusy)superCache.set(k,S);
   }
   return inS(S)&&!TEST_OFF.has(S.kind)?S:null;
 }
@@ -11114,7 +11124,7 @@ function stFind(key,cx,cz){
       for(const P of pts){const d=(P.x-cx*CELL)**2+(P.z-cz*CELL)**2;if(d<bd){bd=d;best=P;}}}
     if(!best)return null;const px=Math.floor(best.x/CELL),pz=Math.floor(best.z/CELL);return {ax:px,az:pz,w:1,h:1,cx:best.x,cz:best.z,span:56};
   }
-  return stRings(key,cx,cz,0,ST_R,Infinity).F;
+  return stRings(key,cx,cz,0,key==='theme'?ST_R*2:ST_R,Infinity).F;   // (whole parks are rare enough that one may be further off)
 }
 const ST_R=150;
 // search rings r0.. outward (stopping once past the time budget): {F, r: the ring to carry on from}
