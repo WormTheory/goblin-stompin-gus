@@ -23,14 +23,22 @@ body{background:var(--night);color:var(--bone);font-family:var(--f-body);user-se
 canvas#world{position:fixed;inset:0;width:100%;height:100%;display:block}
 canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;pointer-events:none}
 .hud{position:fixed;inset:0;pointer-events:none}
-.dbgpad{position:absolute;top:44px;left:50%;transform:translateX(-50%);min-width:300px;background:rgba(14,18,23,.9);border:1px solid #e8c14a;border-radius:4px;padding:10px 14px;color:var(--bone);font:600 13px var(--f-body);z-index:6}
+.dbgpad{position:absolute;top:44px;left:50%;transform:translateX(-50%);box-sizing:border-box;width:min(900px,calc(100vw - 32px));max-height:calc(100vh - 60px);overflow:auto;background:rgba(14,18,23,.9);border:1px solid #e8c14a;border-radius:4px;padding:10px 14px;color:var(--bone);font:600 13px var(--f-body);z-index:6}
 .dbgpad h4{margin:0 0 8px;font:700 13px var(--f-display);letter-spacing:.02em;color:#e8c14a}
 .dbgpad h4 span{font:600 11px var(--f-body);letter-spacing:0;color:var(--mute);margin-left:6px}
 .dbgpad .dr{display:grid;grid-template-columns:96px 1fr auto;gap:10px;align-items:center;padding:3px 0}
+#dpRows{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 18px;align-items:start}
+.dbgpad .dps{margin-bottom:10px}
+.dbgpad .dps h5{margin:0 0 3px;padding:0 6px 2px;border-bottom:1px solid #4a4228;font:700 11px var(--f-display);letter-spacing:.06em;text-transform:uppercase;color:#b9a25a}
+@media(max-width:820px){#dpRows{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:540px){#dpRows{grid-template-columns:minmax(0,1fr)}}
+.dbgcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.dbgcols .wide{grid-column:1/-1}
 .dbgpad .dr b{font:700 12px var(--f-display);color:#ffd75a}
 .dbgpad .dr em{font-style:normal;font-weight:700;color:#e8c14a;min-width:42px;text-align:right}
 .dbgpad .dr{grid-template-columns:14px 1fr auto;padding:3px 6px;border-radius:3px}
 .dbgpad .dr.cur{background:#3a3420;outline:1px solid #e8c14a}
+.dbgpad .dr>span,.dbgpad .dr em{white-space:nowrap}
 .dbgpad .dr .sw{width:10px;height:10px;border-radius:2px;display:inline-block}
 .dbgpad .dr em.off{color:var(--mute)}
 .dpfoot{display:none}
@@ -58,7 +66,7 @@ canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;point
 .dpx:hover{border-color:#e8c14a;color:#e8c14a}
 .dbgpad.mouse .dr{cursor:pointer}
 .dbgpad.mouse .dr:hover{background:#2a2a1c}
-.dbgpad .sl{display:inline-block;position:relative;width:118px;height:6px;background:#2a3038;border-radius:3px;vertical-align:middle;cursor:pointer;margin:0 8px 0 4px;touch-action:none}
+.dbgpad .sl{display:inline-block;position:relative;width:84px;height:6px;background:#2a3038;border-radius:3px;vertical-align:middle;cursor:pointer;margin:0 8px 0 4px;touch-action:none}
 .dbgpad .sl::before{content:"";position:absolute;inset:-8px 0}
 .dbgpad .sl i{position:absolute;left:0;top:0;bottom:0;background:#e8c14a;border-radius:3px}
 .dbgpad .sl b{position:absolute;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:#ffd75a;border:2px solid #14181d}
@@ -591,8 +599,49 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
       <div class="abil" id="dbgMenuTog">
         <button type="button" class="tog" role="checkbox" data-k="quick"><span class="box" aria-hidden="true"></span><span class="tl">Debug quick menu<small>Press SELECT on a controller, or ~ on the keyboard, to pause and open a menu of these debug switches (press it again to close)</small></span></button>
       </div>
+      <p class="vnote">In the quick menu: the left stick (or arrow keys / W A S D) moves the highlight, A (or Space / Enter) switches the highlighted item, and left / right changes a slider or weather and season, or moves to the next column on any other row.<br>Keyboard: [ and ] slow down and speed up. In the free cam: WASD or the left stick fly, the mouse or right stick look, Space / RT rise, C / LT sink, Shift / B goes fast. Gus stands still while you fly.<br>Flying (cheat): hold Space / A to rise, C / LB to sink, let go to hover.</p>
+    </div>
+    <div class="dbgcols">
+    <div class="custom">
+      <h2>DEBUG: TIME &amp; CAMERA</h2>
+      <div class="crow"><input type="range" id="gameSpeed" class="vrange" min="0" max="9" step="1" value="6" aria-label="Game speed"><span class="vval" id="gameSpeedVal">1×</span></div>
+      <div class="crow"><input type="range" id="worldCurve" class="vrange" min="-10" max="10" step="1" value="2" aria-label="World curve"><span class="vval" id="worldCurveVal">Down 2</span></div>
+      <p class="vnote">Game speed, then world curve: bends the world away below the horizon like a tiny planet (right), or up into a bowl (left).</p>
+      <div class="abil" id="dbgTime">
+        <button type="button" class="tog" role="checkbox" data-k="paused"><span class="box" aria-hidden="true"></span><span class="tl">Stop time<small>Everything stops; the free cam still flies. Keyboard: P, and . steps one frame</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="freecam"><span class="box" aria-hidden="true"></span><span class="tl">Free cam<small>Fly Gus's camera anywhere, apart from him. Keyboard: V</small></span></button>
+      </div>
+    <div class="custom">
+      <h2>DEBUG: PLAYER</h2>
+      <div class="crow"><input type="range" id="playerSpeed" class="vrange" min="0" max="11" step="1" value="0" aria-label="Player speed"><span class="vval" id="playerSpeedVal">1×</span></div>
+      <p class="vnote">Player speed: how fast Gus and Gertie walk and trample, up to ten times normal.</p>
+      <div class="abil" id="dbgCheat">
+        <button type="button" class="tog" role="checkbox" data-k="invuln"><span class="box" aria-hidden="true"></span><span class="tl">Invulnerable<small>Nothing hurts the hippos: goblins, traffic, fire, blasts or falls</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="infStam"><span class="box" aria-hidden="true"></span><span class="tl">Infinite stamina<small>Trample and air-dash as long as you like without running out of breath</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="fly"><span class="box" aria-hidden="true"></span><span class="tl">Flying<small>Hold jump (Space / A) to rise, C / LB to sink; let go to hover. Ground pound to drop</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="gob"><span class="box" aria-hidden="true"></span><span class="tl">Play as a goblin<small>First person, goblin sized, with a club instead of a hippo's powers. Other goblins take you for one of their own: nobody runs, nobody attacks</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="peace"><span class="box" aria-hidden="true"></span><span class="tl">Enemy hostility<small>Hostile goblins attack, and cars and police hunt you. Off: they leave you alone</small></span></button>
+      </div>
     </div>
     <div class="custom">
+      <h2>DEBUG: RENDERING</h2>
+      <p class="vnote">Stops these being drawn; they're still really there, so you can fall into a cave you can't see, and props still get in the way. Back on with each new game.</p>
+      <div class="abil" id="dbgGfx">
+        <button type="button" class="tog" role="checkbox" data-k="gProps"><span class="box" aria-hidden="true"></span><span class="tl">Props<small>Furniture and other things made of small boxes</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="gCaves"><span class="box" aria-hidden="true"></span><span class="tl">Caves<small>Caverns, tunnels and cave mouths</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="gSewers"><span class="box" aria-hidden="true"></span><span class="tl">Sewers<small>The tunnels under the streets and their stairwells</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="gSubway"><span class="box" aria-hidden="true"></span><span class="tl">Subways<small>Tunnels, stations, their stairs and the trains</small></span></button>
+      </div>
+    </div>
+    <div class="custom">
+      <h2>DEBUG: OVERLAYS</h2>
+      <div class="abil" id="dbgOver">
+        <button type="button" class="tog" role="checkbox" data-k="fps"><span class="box" aria-hidden="true"></span><span class="tl">FPS counter<small>Frames per second and frame time, at the top of the screen</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="hpBars"><span class="box" aria-hidden="true"></span><span class="tl">Health bars<small>A bar over every goblin, civilian, car and hippo that can be hurt</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="dmgNums"><span class="box" aria-hidden="true"></span><span class="tl">Damage numbers<small>Each hit's damage pops up where it lands</small></span></button>
+      </div>
+    </div>
+    <div class="custom wide">
       <h2>DEBUG: HITBOXES</h2>
       <p class="vnote">Outlines what each attack and hazard actually checks. Hit volumes flash for a moment when used; hurtboxes follow their owners. Players are Gus and Gertie; NPCs are goblins, civilians, cars, and the explosions, fires and falling buildings they set off.</p>
       <div class="abil" id="dbgShow">
@@ -607,31 +656,6 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
         <button type="button" class="tog" role="checkbox" data-k="nHurt"><span class="box" aria-hidden="true"></span><span class="tl"><span><i class="sw" style="background:#46d4ff"></i>NPC hurtboxes</span><small>Goblins, civilians and cars</small></span></button>
       </div>
     </div>
-    <div class="custom">
-      <h2>DEBUG: GAME SPEED &amp; FREE CAM</h2>
-      <div class="crow"><input type="range" id="gameSpeed" class="vrange" min="0" max="9" step="1" value="6" aria-label="Game speed"><span class="vval" id="gameSpeedVal">1×</span></div>
-      <div class="abil" id="dbgTime">
-        <button type="button" class="tog" role="checkbox" data-k="paused"><span class="box" aria-hidden="true"></span><span class="tl">Stop time<small>Everything stops; the free cam still flies. Keyboard: P, and . steps one frame</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="freecam"><span class="box" aria-hidden="true"></span><span class="tl">Free cam<small>Fly Gus's camera anywhere, apart from him. Keyboard: V</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="hpBars"><span class="box" aria-hidden="true"></span><span class="tl">Health bars<small>A bar over every goblin, civilian, car and hippo that can be hurt</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="dmgNums"><span class="box" aria-hidden="true"></span><span class="tl">Damage numbers<small>Each hit's damage pops up where it lands</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="fps"><span class="box" aria-hidden="true"></span><span class="tl">FPS counter<small>Frames per second and frame time, at the top of the screen</small></span></button>
-      </div>
-    <div class="custom">
-      <h2>DEBUG: CHEATS</h2>
-      <div class="crow"><input type="range" id="playerSpeed" class="vrange" min="0" max="11" step="1" value="0" aria-label="Player speed"><span class="vval" id="playerSpeedVal">1×</span></div>
-      <p class="vnote">Player speed: how fast Gus and Gertie walk and trample, up to ten times normal.</p>
-      <div class="crow"><input type="range" id="worldCurve" class="vrange" min="-10" max="10" step="1" value="2" aria-label="World curve"><span class="vval" id="worldCurveVal">Down 2</span></div>
-      <p class="vnote">World curve: bends the world away below the horizon like a tiny planet (right), or up into a bowl (left).</p>
-      <div class="abil" id="dbgCheat">
-        <button type="button" class="tog" role="checkbox" data-k="invuln"><span class="box" aria-hidden="true"></span><span class="tl">Invulnerable<small>Nothing hurts the hippos: goblins, traffic, fire, blasts or falls</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="infStam"><span class="box" aria-hidden="true"></span><span class="tl">Infinite stamina<small>Trample and air-dash as long as you like without running out of breath</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="fly"><span class="box" aria-hidden="true"></span><span class="tl">Flying<small>Hold jump (Space / A) to rise, C / LB to sink; let go to hover. Ground pound to drop</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="gob"><span class="box" aria-hidden="true"></span><span class="tl">Play as a goblin<small>First person, goblin sized, with a club instead of a hippo's powers. Other goblins take you for one of their own: nobody runs, nobody attacks</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="peace"><span class="box" aria-hidden="true"></span><span class="tl">Enemy hostility<small>Hostile goblins attack, and cars and police hunt you. Off: they leave you alone</small></span></button>
-      </div>
-    </div>
-      <p class="vnote">Keyboard: [ and ] slow down and speed up. In the free cam: WASD or the left stick fly, the mouse or right stick look, Space / RT rise, C / LT sink, Shift / B goes fast. Gus stands still while you fly.<br>Flying (cheat): hold Space / A to rise, C / LB to sink, let go to hover.<br>With the debug quick menu switched on: hold SELECT (or press ~) to pause and open it. The right stick (or arrow keys / W S) moves the highlight, A (or Space / Enter) switches the highlighted item, and left / right changes the game speed.</p>
     </div>
     </div>
     </div>
@@ -1599,10 +1623,12 @@ function metrosNear(px,pz){
 }
 function metroStation(px,pz){for(const M of metrosNear(px,pz))for(const st of M.stations)if(st.px===px&&st.pz===pz)return st;return null;}
 function rectMetro(ax,az,w,h){for(let i=0;i<w;i++)for(let j=0;j<h;j++)if(metroStation(ax+i,az+j))return true;return false;}
-function undergroundPass(a,x0,z0){
+// (rec, if given, hears of every block written, with 1 for the sewer or 2 for the subway: see gfxRec)
+function undergroundPass(a,x0,z0,rec){
   for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){
     const x=x0+lx,z=z0+lz,rx=mod(x,CELL),rz=mod(z,CELL),px=Math.floor(x/CELL),pz=Math.floor(z/CELL);
-    const set=(y,b)=>{a[li(lx,y,lz)]=b;},at=y=>a[li(lx,y,lz)];
+    let kind=1;
+    const set=(y,b)=>{const i=li(lx,y,lz);a[i]=b;if(rec)rec(i,b,kind);},at=y=>a[li(lx,y,lz)];
     const rX=rx<ROADW,rZ=rz<ROADW;
     // the sewer
     if((rX||rZ)&&streetTown(px,pz)){
@@ -1625,9 +1651,10 @@ function undergroundPass(a,x0,z0){
       if(rx>=9&&rx<=10&&rz>=13&&rz<=19){const i=rz-12,top=G-i;for(let y=SEW0;y<=top;y++)set(y,BRICK);for(let y=top+1;y<=G+2;y++)set(y,AIR);}
       if(rx<=10&&rz>=18&&rz<=19){set(SEW0+1,COBBLE);for(let y=SEW0+2;y<=G-3;y++)set(y,AIR);if(rx>=9){const i=rz-12;for(let y=G-i+1;y<=G+2;y++)set(y,AIR);}}
       if(rx===8&&rz>=13&&rz<=20||rx>=9&&rx<=10&&rz===20)set(G+1,FENCE);
-      if(rx===11&&rz>=13&&rz<=20&&at(G+1)===AIR)set(G+1,FENCE);
+      if(rx===11&&rz>=13&&rz<=20&&(at(G+1)===AIR||at(G+1)===FENCE))set(G+1,FENCE);
     }
     // the subway
+    kind=2;
     for(const M of metrosNear(px,pz)){
       for(const [ax,k] of [['x',M.z0],['x',M.z1],['z',M.x0],['z',M.x1]]){
         const cc=(ax==='x'?z:x)-(k*CELL+20),s=ax==='x'?x:z,lo=(ax==='x'?M.x0:M.z0)*CELL+16,hi=(ax==='x'?M.x1:M.z1)*CELL+25;
@@ -7079,10 +7106,38 @@ function emitRamp(out,X,Y,Z,info){
   sideQ([0,0],[1,0],H00,H10,[0,0,-1],0.68,v=>v[0]);
   sideQ([0,1],[1,1],H01,H11,[0,0,1],0.68,v=>v[0]);
 }
+// ---- the debug switches that stop props, caves, sewers and subways being drawn. Only the picture changes: the blocks are
+// still there for everything that walks, falls or collides. The chunk is drawn from a copy with those places filled in
+// with the plain earth that would be there without them, so no walls are left hanging in the dark. ----
+const GFX_OFF={props:false,caves:false,sewers:false,subway:false},GFX_KINDS=['caves','sewers','subway'];
+const gfxRecC=new Map();
+// every block this chunk's caves (0), sewer (1) and subway (2) wrote, found by running them again on a spare copy
+function gfxRec(cx,cz){
+  const k=ckey(cx,cz);let R=gfxRecC.get(k);if(R)return R;
+  const a=chunkArr(cx,cz).slice(),x0=cx*CS,z0=cz*CS,m=new Map();
+  for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){const x=x0+lx,z=z0+lz,qx=Math.floor(x/CELL),qz=Math.floor(z/CELL),col=(y,b)=>{m.set(li(lx,y,lz),b*4);};
+    if(bigPlainsAt(qx,qz)||bunkerAt(qx,qz))continue;   // (a mine's galleries or a bunker's rooms may run through a cave: those stay)
+    caveCol(col,x,z);if(caveMouth(qx,qz))caveMouthColumn(col,mod(x,CELL),mod(z,CELL),x,z);}
+  undergroundPass(a,x0,z0,(i,b,kind)=>{m.set(i,b*4+kind);});
+  R=[...m];if(gfxRecC.size>800)gfxRecC.clear();gfxRecC.set(k,R);return R;
+}
+// the chunk as it's drawn: only what still stands as it was built is taken away (a crater stays a crater)
+function gfxArr(cx,cz){
+  const a=chunkArr(cx,cz).slice(),x0=cx*CS,z0=cz*CS,A=CS*CS;
+  for(const [i,v] of gfxRec(cx,cz)){const kind=GFX_KINDS[v&3],b=v>>2;if(!GFX_OFF[kind]||a[i]!==b)continue;
+    const y=Math.floor(i/A),r=i-y*A;
+    if(y<G)a[i]=earthAt(x0+r%CS,y,z0+Math.floor(r/CS));
+    else if(y>G)a[i]=AIR;
+    else if(kind==='caves')a[i]=GRASS;   // (the hole in the ground closed over; a sewer's manhole covers stay)
+    else if(b===AIR)a[i]=SIDEWALK;}
+  return a;
+}
 function buildChunk(cx,cz){
-  const a0=chunkArr(cx,cz),x0=cx*CS,z0=cz*CS;
+  const gfx=GFX_OFF.caves||GFX_OFF.sewers||GFX_OFF.subway?new Map():null;
+  const a0=gfx?gfxArr(cx,cz):chunkArr(cx,cz),x0=cx*CS,z0=cz*CS;
+  const gfxGet=(x,y,z)=>{const qx=Math.floor(x/CS),qz=Math.floor(z/CS),k=ckey(qx,qz);let v=gfx.get(k);if(!v){v=gfxArr(qx,qz);gfx.set(k,v);}return v[li(mod(x,CS),y,mod(z,CS))];};
   const a=leafFall>0?a0.map((b,i)=>{if(b!==LEAVES)return b;const y=Math.floor(i/(CS*CS)),r=i-y*CS*CS;return leafDown(x0+(r%CS),y,z0+Math.floor(r/CS))?AIR:b;}):a0;   // (leaves that have fallen)
-  const at=(lx,y,lz)=>{if(y<0)return STONE;if(y>=H)return AIR;if(lx>=0&&lx<CS&&lz>=0&&lz<CS)return a[li(lx,y,lz)];return get(x0+lx,y,z0+lz);};
+  const at=(lx,y,lz)=>{if(y<0)return STONE;if(y>=H)return AIR;if(lx>=0&&lx<CS&&lz>=0&&lz<CS)return a[li(lx,y,lz)];return gfx?gfxGet(x0+lx,y,z0+lz):get(x0+lx,y,z0+lz);};
   const opq=(lx,y,lz)=>{const b=at(lx,y,lz);return b!==AIR&&!BLOCK[b].transparent;};
   const bufs=[{p:[],u:[],c:[],i:[],k:[]},{p:[],u:[],c:[],i:[],k:[]}];
   // the top of each column (the highest thing in it, even glass or leaves): only that block's top face is open to the sky
@@ -7215,7 +7270,7 @@ function routeMarks(cx,cz){
   g.setAttribute('color',new THREE.Float32BufferAttribute(C,3));g.setAttribute('aSky',new THREE.Float32BufferAttribute(K,1));g.setIndex(I);
   const mesh=new THREE.Mesh(g,matDecal);scene.add(mesh);return mesh;
 }
-function clearWorld(){for(const e of meshes.values())for(const m of e.m){scene.remove(m);m.geometry.dispose();}meshes.clear();MESHED.fill(0);meshedDirty=true;farDirty=true;chunks.clear();plotCache.clear();bridgeCache.clear();superCache.clear();setCache.clear();setAtCache.clear();jDegC.clear();linkNearC.clear();ctlCache.clear();zoneCache.clear();farmC.clear();cloverCache.clear();clearLayout();joinCache.clear();icCache.clear();ctlCache.clear();lastK=-1;}
+function clearWorld(){for(const e of meshes.values())for(const m of e.m){scene.remove(m);m.geometry.dispose();}meshes.clear();MESHED.fill(0);meshedDirty=true;farDirty=true;chunks.clear();gfxRecC.clear();plotCache.clear();bridgeCache.clear();superCache.clear();setCache.clear();setAtCache.clear();jDegC.clear();linkNearC.clear();ctlCache.clear();zoneCache.clear();farmC.clear();cloverCache.clear();clearLayout();joinCache.clear();icCache.clear();ctlCache.clear();lastK=-1;}
 let unloadT=0;
 function updateChunks(budget,dt){
   const R=viewR;
@@ -12799,16 +12854,31 @@ function saveDT(){try{const o={};for(const k of DT_SAVED)o[k]=DT[k];localStorage
 const PEACE_KEY='goblin-stompin-gus-peaceful';let peaceful=false;try{peaceful=localStorage.getItem(PEACE_KEY)==='1';}catch(e){}
 DT.peace=peaceful;
 function syncPeace(){const b=document.getElementById('peaceTog');if(b)b.setAttribute('aria-checked',String(peaceful));}
-const DBG_ITEMS=[
-  {k:'speed',label:'Game speed'},{k:'paused',label:'Stop time'},{k:'freecam',label:'Free cam'},
-  {k:'pspeed',label:'Player speed'},{k:'invuln',label:'Invulnerable'},{k:'infStam',label:'Infinite stamina'},{k:'fly',label:'Flying'},{k:'gob',label:'Play as a goblin'},{k:'peace',label:'Enemy hostility'},
-  {k:'wx',label:'Weather'},{k:'season',label:'Season'},{k:'curve',label:'World curve'},{k:'fps',label:'FPS counter'},{k:'hpBars',label:'Health bars'},{k:'dmgNums',label:'Damage numbers'},
-  {k:'show',label:'Display hitboxes'},
-  {k:'pBlock',label:'Player block hitboxes',col:'#ff9a2a'},{k:'nBlock',label:'NPC block hitboxes',col:'#e8d040'},
-  {k:'pDmg',label:'Player damage hitboxes',col:'#ff3a3a'},{k:'nDmg',label:'NPC damage hitboxes',col:'#ff4fd8'},
-  {k:'pHurt',label:'Player hurtboxes',col:'#46f06a'},{k:'nHurt',label:'NPC hurtboxes',col:'#46d4ff'}];
+// the quick menu's rows, section by section: [column, section's title, rows]
+const DBG_SECS=[
+  [0,'Time',[{k:'speed',label:'Game speed'},{k:'paused',label:'Stop time'}]],
+  [0,'Camera',[{k:'freecam',label:'Free cam'},{k:'curve',label:'World curve'}]],
+  [0,'World',[{k:'wx',label:'Weather'},{k:'season',label:'Season'}]],
+  [1,'Player',[{k:'pspeed',label:'Player speed'},{k:'invuln',label:'Invulnerable'},{k:'infStam',label:'Infinite stamina'},{k:'fly',label:'Flying'},{k:'gob',label:'Play as a goblin'},{k:'peace',label:'Enemy hostility'}]],
+  [1,'Overlays',[{k:'fps',label:'FPS counter'},{k:'hpBars',label:'Health bars'},{k:'dmgNums',label:'Damage numbers'}]],
+  [2,'Rendering',[{k:'gProps',label:'Props'},{k:'gCaves',label:'Caves'},{k:'gSewers',label:'Sewers'},{k:'gSubway',label:'Subways'}]],
+  [2,'Hitboxes',[{k:'show',label:'Display hitboxes'},
+    {k:'pBlock',label:'Player block hitboxes',col:'#ff9a2a'},{k:'nBlock',label:'NPC block hitboxes',col:'#e8d040'},
+    {k:'pDmg',label:'Player damage hitboxes',col:'#ff3a3a'},{k:'nDmg',label:'NPC damage hitboxes',col:'#ff4fd8'},
+    {k:'pHurt',label:'Player hurtboxes',col:'#46f06a'},{k:'nHurt',label:'NPC hurtboxes',col:'#46d4ff'}]]];
+const DBG_ITEMS=DBG_SECS.flatMap(([c,sec,rows])=>rows.map(it=>Object.assign(it,{c,sec})));
+// (the rows left and right change; on any other row they move to the next column)
+const DBG_ADJ=new Set(['speed','pspeed','curve','wx','season']);
+// the Rendering switches, and what each one stops being drawn (not saved: a world with holes in the picture would only
+// be confusing to come back to). The caves, sewers and subways redraw over the next few frames, nearest first.
+const GFX_KEY={gProps:'props',gCaves:'caves',gSewers:'sewers',gSubway:'subway'};
+function toggleGfx(k){const g=GFX_KEY[k],off=GFX_OFF[g]=!GFX_OFF[g];
+  if(g==='props'){PROP_L.visible=PROP_G.visible=!off;return;}
+  if(g==='subway')for(const V of venues.values())if(V.kind==='sub')for(const c of V.cars)c.visible=!off;
+  const P=P1.pos,d=e=>Math.hypot(e.cx*CS-P.x,e.cz*CS-P.z);
+  leafQ.length=0;for(const e of [...meshes.values()].sort((a,b)=>d(b)-d(a)))leafQ.push(ckey(e.cx,e.cz));}
 const curveTxt=()=>DT.curve===0?'Flat':DT.curve>0?'Down '+DT.curve:'Up '+(-DT.curve);
-function dbgVal(k){return k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='peace'?!DT.peace:k==='paused'||k==='freecam'||k==='invuln'||k==='infStam'||k==='fly'||k==='gob'||k==='fps'||k==='hpBars'||k==='dmgNums'?DT[k]:DBG[k];}
+function dbgVal(k){return GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='peace'?!DT.peace:k==='paused'||k==='freecam'||k==='invuln'||k==='infStam'||k==='fly'||k==='gob'||k==='fps'||k==='hpBars'||k==='dmgNums'?DT[k]:DBG[k];}
 // the rows on show: the individual hitbox switches only while 'Display hitboxes' is on
 function dbgItems(){const L=DBG_ITEMS.filter(it=>!it.col||DBG.show);if(DT.cur>=L.length)DT.cur=L.length-1;return L;}
 // step a slider row (game speed or player speed) left or right
@@ -12831,7 +12901,8 @@ function ddChoose(k,j){
 function dbgMenuToggle(){const it=dbgItems()[DT.cur];
   if(it.k==='wx'||it.k==='season'){if(DT.dd&&DT.dd.k===it.k)ddChoose(it.k,DT.dd.i);else{DT.dd={k:it.k,i:ddCur(it.k)};DT.ddScroll=0;DT.ddNav=true;tone('triangle',560,0,0.04,0.02);renderTime();}return;}
   DT.dd=null;
-  if(it.k==='curve')DT.curve=2;
+  if(GFX_KEY[it.k])toggleGfx(it.k);
+  else if(it.k==='curve')DT.curve=2;
   else if(it.k==='speed')DT.speedI=SPEEDS.indexOf(1);
   else if(it.k==='freecam')setFreecam(!DT.freecam);
   else if(it.k==='gob')setGob(!DT.gob);
@@ -12840,12 +12911,16 @@ function dbgMenuToggle(){const it=dbgItems()[DT.cur];
   else if(it.k==='invuln'||it.k==='peace'||it.k==='infStam'||it.k==='fly'||it.k==='fps'||it.k==='hpBars'||it.k==='dmgNums'){DT[it.k]=!DT[it.k];try{localStorage.setItem('goblin-stompin-gus-'+it.k,DT[it.k]?'1':'0');}catch(e){}}
   else{DBG[it.k]=!DBG[it.k];renderDbg();try{localStorage.setItem(DBG_KEY,JSON.stringify(DBG));}catch(e){}}
   tone('triangle',620,0,0.05,0.03);renderTime();}
-// up/down move the highlight, left/right change the speed (on that row); a step on the first push, then repeating
+// up/down move the highlight within its column; left/right change a slider or a choice (on that row), and on any other
+// row move across to the next column, about level; a step on the first push, then repeating
 function dbgMenuNav(src,dy,dx,dt){
   const d=dy?'y'+dy:dx?'x'+dx:'';
   const act=()=>{const L=dbgItems();if(DT.dd){if(dy){const n=ddOpts(DT.dd.k).length;DT.dd.i=(DT.dd.i+dy+n)%n;DT.ddNav=true;tone('triangle',520,0,0.03,0.02);}renderTime();return;}
-    if(dy){DT.cur=(DT.cur+dy+L.length)%L.length;tone('triangle',520,0,0.03,0.02);}
-    else if(dx)dbgStep(L[DT.cur].k,dx);renderTime();};
+    const it=L[DT.cur],colOf=c=>L.filter(o=>o.c===c),here=colOf(it.c),j=here.indexOf(it);
+    if(dy){DT.cur=L.indexOf(here[(j+dy+here.length)%here.length]);tone('triangle',520,0,0.03,0.02);}
+    else if(dx&&DBG_ADJ.has(it.k))dbgStep(it.k,dx);
+    else if(dx){const N=colOf((it.c+dx+3)%3);DT.cur=L.indexOf(N[Math.min(j,N.length-1)]);tone('triangle',520,0,0.03,0.02);}
+    renderTime();};
   if(d!==DT.navDir){DT.navDir=d;DT.navT=0.35;if(d)act();}
   else if(d){DT.navT-=dt;if(DT.navT<=0){DT.navT=0.12;act();}}
 }
@@ -12858,7 +12933,8 @@ function setFreecam(on){
 }
 function renderTime(){
   saveDT();
-  for(const b of document.querySelectorAll('#dbgTime .tog,#dbgCheat .tog'))b.setAttribute('aria-checked',String(b.dataset.k==='peace'?!DT.peace:!!DT[b.dataset.k]));
+  for(const b of document.querySelectorAll('#dbgTime .tog,#dbgCheat .tog,#dbgOver .tog'))b.setAttribute('aria-checked',String(b.dataset.k==='peace'?!DT.peace:!!DT[b.dataset.k]));
+  for(const b of document.querySelectorAll('#dbgGfx .tog'))b.setAttribute('aria-checked',String(!GFX_OFF[GFX_KEY[b.dataset.k]]));
   {const el=document.getElementById('playerSpeed'),v=document.getElementById('playerSpeedVal');if(el){el.value=String(DT.psI);v.textContent=PSPEEDS[DT.psI]+'×';}}
   {const el=document.getElementById('worldCurve'),v=document.getElementById('worldCurveVal');if(el){el.value=String(DT.curve);v.textContent=curveTxt();}}
   CURVE_U.value=DT.curve*0.00012;
@@ -12870,18 +12946,23 @@ function renderTime(){
   const dp=document.getElementById('dbgPad');dp.hidden=!DT.menu;
   for(const b of document.querySelectorAll('#dbgMenuTog .tog'))b.setAttribute('aria-checked',String(DT.quick));
   if(DT.menu){
-    document.getElementById('dpRows').innerHTML=dbgItems().map((it,i)=>{const v=dbgVal(it.k),txt=typeof v==='boolean'?(v?'ON':'OFF'):v;
+    const dbgL=dbgItems();
+    const dbgRows=dbgL.map((it,i)=>{const v=dbgVal(it.k),txt=typeof v==='boolean'?(v?'ON':'OFF'):v;
       let body=txt;
       if(it.k==='speed'||it.k==='pspeed'||it.k==='curve'){const n=it.k==='curve'?21:(it.k==='speed'?SPEEDS:PSPEEDS).length,f=(it.k==='curve'?DT.curve+10:it.k==='speed'?DT.speedI:DT.psI)/(n-1)*100;body='<span class="sl" data-k="'+it.k+'"><i style="width:'+f+'%"></i><b style="left:'+f+'%"></b></span><span class="slv">'+txt+'</span>';}
       else if(it.k==='wx'||it.k==='season')body='<span class="dd">'+(it.k==='wx'?WX_TYPES[WX.type].i+' ':'')+txt+' ▾</span>';
       let list='';
       if(DT.dd&&DT.dd.k===it.k){const cur=ddCur(it.k);list='<div class="ddl">'+ddOpts(it.k).map((o,j)=>'<div class="ddo'+(j===DT.dd.i?' cur':'')+(j===cur?' sel':'')+'" data-j="'+j+'">'+o.n+'</div>').join('')+'</div>';}
-      return '<div class="dr'+(i===DT.cur?' cur':'')+'" data-i="'+i+'"><span>'+(it.col?'<i class="sw" style="background:'+it.col+'"></i>':'')+'</span><span>'+it.label+'</span><em'+(v===false?' class="off"':'')+'>'+body+'</em></div>'+list;}).join('');
+      return '<div class="dr'+(i===DT.cur?' cur':'')+'" data-i="'+i+'"><span>'+(it.col?'<i class="sw" style="background:'+it.col+'"></i>':'')+'</span><span>'+it.label+'</span><em'+(v===false?' class="off"':'')+'>'+body+'</em></div>'+list;});
+    // laid out by column, then by section
+    document.getElementById('dpRows').innerHTML=[0,1,2].map(c=>'<div>'+DBG_SECS.filter(s=>s[0]===c).map(s=>'<div class="dps"><h5>'+s[1]+'</h5>'+dbgL.map((it,i)=>it.sec===s[1]?dbgRows[i]:'').join('')+'</div>').join('')+'</div>').join('');
+    // (on a short screen the menu scrolls: keep the highlight in view)
+    {const r=document.querySelector('#dpRows .dr.cur');if(r&&r.scrollIntoView)r.scrollIntoView({block:'nearest'});}
     {const l=document.querySelector('#dpRows .ddl');if(l){l.scrollTop=DT.ddScroll||0;if(DT.ddNav){DT.ddNav=false;const cur=l.querySelector('.ddo.cur');if(cur){const t=cur.offsetTop,b=t+cur.offsetHeight;if(t<l.scrollTop)l.scrollTop=t;else if(b>l.scrollTop+l.clientHeight)l.scrollTop=b-l.clientHeight;DT.ddScroll=l.scrollTop;}}}}
     dp.classList.toggle('mouse',DT.kbdOpen);
     const pad=DT.selHeld;
     document.getElementById('dpHint').textContent='game paused';
-    setPrompts(document.getElementById('dpPrompts'),pad?[[['DPAD:v'],'Choose'],[['A'],'Switch'],[['DPAD:h'],'Adjust'],[['RS'],'Camera'],[['SELECT'],'Close'],[['B'],'Close']]:[[['LMB'],'Switch'],[['KEY:↑','KEY:↓'],'Choose'],[['KEY:Space'],'Switch'],[['KEY:←','KEY:→'],'Adjust'],[['KEY:~'],'Close']]);
+    setPrompts(document.getElementById('dpPrompts'),pad?[[['DPAD:v'],'Choose'],[['A'],'Switch'],[['DPAD:h'],'Adjust / Column'],[['RS'],'Camera'],[['SELECT'],'Close'],[['B'],'Close']]:[[['LMB'],'Switch'],[['KEY:↑','KEY:↓'],'Choose'],[['KEY:Space'],'Switch'],[['KEY:←','KEY:→'],'Adjust / Column'],[['KEY:~'],'Close']]);
     document.getElementById('dpClose').hidden=pad;
   }
 }
@@ -12900,7 +12981,8 @@ function renderTime(){
  addEventListener('pointerup',()=>{DT.slDrag=null;});
  document.getElementById('dpClose').addEventListener('click',()=>setKbdMenu(false));}
 for(const b of document.querySelectorAll('#dbgMenuTog .tog'))b.addEventListener('click',()=>{DT.quick=!DT.quick;if(!DT.quick){DT.kbdOpen=false;DT.menu=false;}try{localStorage.setItem('goblin-stompin-gus-quickdbg',JSON.stringify(DT.quick));}catch(e){}renderTime();tone('triangle',DT.quick?660:440,0,0.05,0.03);});
-for(const b of document.querySelectorAll('#dbgTime .tog'))b.addEventListener('click',()=>{const k=b.dataset.k;if(k==='freecam')setFreecam(!DT.freecam);else{DT[k]=!DT[k];if(k==='fps'||k==='hpBars'||k==='dmgNums')try{localStorage.setItem('goblin-stompin-gus-'+k,DT[k]?'1':'0');}catch(e){}renderTime();}tone('triangle',DT[k]?660:440,0,0.05,0.03);});
+for(const b of document.querySelectorAll('#dbgGfx .tog'))b.addEventListener('click',()=>{toggleGfx(b.dataset.k);renderTime();tone('triangle',GFX_OFF[GFX_KEY[b.dataset.k]]?440:660,0,0.05,0.03);});
+for(const b of document.querySelectorAll('#dbgTime .tog,#dbgOver .tog'))b.addEventListener('click',()=>{const k=b.dataset.k;if(k==='freecam')setFreecam(!DT.freecam);else{DT[k]=!DT[k];if(k==='fps'||k==='hpBars'||k==='dmgNums')try{localStorage.setItem('goblin-stompin-gus-'+k,DT[k]?'1':'0');}catch(e){}renderTime();}tone('triangle',DT[k]?660:440,0,0.05,0.03);});
 document.getElementById('gameSpeed').addEventListener('input',e=>{DT.speedI=+e.target.value;renderTime();});
 document.getElementById('playerSpeed').addEventListener('input',e=>{DT.psI=+e.target.value;renderTime();});
 document.getElementById('worldCurve').addEventListener('input',e=>{DT.curve=+e.target.value;renderTime();});
@@ -14821,7 +14903,7 @@ function updateSeaVenue(V,dt,t){
   else if(V.wait>0){V.wait-=dt;if(V.wait<=0)V.s+=0.5;}
   else{const want=next<40?Math.max(1.2,next*0.4):16;V.v+=(want-V.v)*Math.min(1,dt*(want<V.v?1.6:0.4));V.s=mod(V.s+V.v*dt,N);if(next<=0.4){V.v=0;V.wait=10;}}
   V.cars.forEach((g,i)=>{if(V.T.carDead&&V.T.carDead[i])return;const s2=mod(V.s-5.3-i*10.6,N),k=Math.floor(s2),a=M.path[k],b=M.path[(k+1)%N],f=s2-k;
-    g.position.set(a[0]+(b[0]-a[0])*f,SUB_F+1.2,a[1]+(b[1]-a[1])*f);g.rotation.y=Math.atan2(b[0]-a[0],b[1]-a[1]);});
+    g.position.set(a[0]+(b[0]-a[0])*f,SUB_F+1.2,a[1]+(b[1]-a[1])*f);g.rotation.y=Math.atan2(b[0]-a[0],b[1]-a[1]);g.visible=!GFX_OFF.subway;});
   trainBoxes(V.cars,V.v,SUB_F+1.2,V.T);
 }
 function refreshVenues(){
