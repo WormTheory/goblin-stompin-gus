@@ -758,7 +758,7 @@ function horizHidden(cx,cy,cz,hr,top){
     if(!o.isInstancedMesh&&horizHidden(sp.center.x,sp.center.y,sp.center.z,sp.radius,sp.center.y+sp.radius))return false;   // (over the horizon)
     const d=Math.hypot(sp.center.x-CURVE_CAM.x,sp.center.z-CURVE_CAM.z),r=sp.radius,lo=k*Math.max(0,d-r)**2,hi=k*(d+r)**2;
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v84';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v86';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -1827,7 +1827,7 @@ const TRAIN_LEN=4*10.6;
 // smashes into whatever's on the track -- you, cars, goblins -- and sends it flying; and it can be wrecked ----
 const TRAIN_BOXES=[],TRAIN_HX=1.3,TRAIN_HZ=4.9,TRAIN_H=3.5;
 // (hit by a moving train: hurt, and thrown forward and up)
-function trainStrike(p,d,k){p.trainT=1;damagePlayer(p,Math.max(4,Math.round(3+9*k)),p.pos.clone(),d,'Hit by a train');if(p.hp>0){const f=14+26*k;p.mvx=d.x*f;p.mvz=d.z*f;p.vy=Math.max(p.vy||0,10+14*k);p.grounded=false;p.knockT=1.2;p.state='walk';}thud(0.8);addShake(0.5,p.pos.x,p.pos.z,20);}
+function trainStrike(p,d,k,cause){p.trainT=1;damagePlayer(p,Math.max(4,Math.round(3+9*k)),p.pos.clone(),d,cause||'Hit by a train');if(p.hp>0){const f=14+26*k;p.mvx=d.x*f;p.mvz=d.z*f;p.vy=Math.max(p.vy||0,10+14*k);p.grounded=false;p.knockT=1.2;p.state='walk';}thud(0.8);addShake(0.5,p.pos.x,p.pos.z,20);}
 function trainBoxes(cs,speed,y0,T){
   cs.forEach((g,ci)=>{const h=g.rotation.y,tx=Math.sin(h),tz=Math.cos(h);let pr=g.userData.proxy;
     if(!pr)pr=g.userData.proxy={isTrain:true,alive:true,pos:new V3(),kv:new V3(),vy:0,spinP:0,spinR:0,speed:0,hurt:0,hx:TRAIN_HX,hz:TRAIN_HZ,hy:TRAIN_H,heading:0,top:0,veh:'train'};
@@ -3034,17 +3034,17 @@ function bigColumn(col,B,U,V,x,z){
     if(V>=124&&V<=133&&U>=112&&U<=W-9){col(G,ASPHALT);if((V===128||V===129)&&U%12<6&&U>120&&U<W-17)col(G,PAINT_WHITE);if((U>=114&&U<=118||U>=W-15&&U<=W-11)&&V>=125&&V<=132&&V%2===1)col(G,PAINT_WHITE);if((V===124||V===133)&&U%8===0)col(G,NEON_Y);return;}
     if(V>=42&&V<=123&&(U>=124&&U<=127||U>=W-24&&U<=W-21)){col(G,ASPHALT);if(U===125||U===W-22)col(G,PAINT_YELLOW);return;}
     // the road in from the gate, the long-stay car park beside it, the cargo apron
-    if(U>=78&&U<=82&&V>=63){col(G,ASPHALT);return;}
+    if(U>=78&&U<=82&&V>=77){col(G,ASPHALT);return;}
     if(U>=30&&U<=76&&V>=128&&V<=180){col(G,ASPHALT);if((U-30)%3===0&&(V-128)%12<5)col(G,LANE);return;}
-    if(U>=36&&U<=76&&V>=66&&V<=118){col(G,ASPHALT);if((U-36)%3===0&&(V-66)%12<5)col(G,LANE);return;}
+    if(U>=36&&U<=76&&V>=80&&V<=118){col(G,ASPHALT);if((U-36)%3===0&&(V-80)%12<5)col(G,LANE);return;}
     if(U>=160&&U<=W-60&&V>=88&&V<=98){col(G,CONCRETE);return;}
     if(V>=24&&V<=33&&U>=8&&U<=W-9){col(G,ASPHALT);   // the runway: centre dashes, threshold bars, edge lights
       if((V===28||V===29)&&U%12<6&&U>16&&U<W-17)col(G,PAINT_WHITE);
       if((U>=10&&U<=14||U>=W-15&&U<=W-11)&&V>=25&&V<=32&&V%2===1)col(G,PAINT_WHITE);
       if((V===24||V===33)&&U%8===0)col(G,NEON_Y);return;}
-    if(V>=38&&V<=41&&U>=20&&U<=W-21||V>=34&&V<=37&&(U>=20&&U<=23||U>=W-24&&U<=W-21)){col(G,ASPHALT);if((V===39&&U>22&&U<W-23)||(V<38&&(U===21||U===W-22)))col(G,PAINT_YELLOW);return;}   // the taxiway
-    if(V>=42&&V<=49&&U>=30&&U<=130){col(G,CONCRETE);if(V===46&&U%14===8)col(G,PAINT_YELLOW);return;}   // the apron
-    if(V>=50&&V<=62&&U>=30&&U<=100&&!(U>=66&&U<94&&V<62)&&!(U>=34&&U<62&&V<62)){col(G,ASPHALT);return;}   // the car park and the drop-off
+    if(V>=38&&V<=41&&U>=20&&U<=W-21||V>=34&&V<=37&&(U>=20&&U<=23||U>=110&&U<=113||U>=W-24&&U<=W-21)){col(G,ASPHALT);if((V===39&&U>22&&U<W-23)||(V<38&&(U===21||U===111||U===W-22)))col(G,PAINT_YELLOW);return;}   // the taxiway
+    if(V>=42&&V<=63&&U>=30&&U<=130){col(G,CONCRETE);if((U===48||U===80||U===112)&&V<60)col(G,PAINT_YELLOW);return;}   // the apron
+    if(V>=64&&V<=76&&U>=30&&U<=100&&!(U>=66&&U<94&&V<76)&&!(U>=34&&U<62&&V<76)){col(G,ASPHALT);return;}   // the car park and the drop-off
     return;}
   // the space agency
   if(fence&&!(V===1&&U>=40&&U<=43)){for(let y=G+1;y<=G+3;y++)col(y,CHAINLINK);return;}
@@ -4295,12 +4295,12 @@ function plotInfo(px,pz){
       add({x0:40,x1:62,z0:14,z1:30,top:G+8,wall:PLANKS,win:PLANKS,band:LOG,kind:'shop',ground:'shop',floor:PLANKS,door:3,doorSpec:{w:1,h:4,k:'barn'}});           // the sawmill
       for(const [x0,z0] of [[10,6],[22,6]])add({x0,x1:x0+8,z0,z1:z0+7,style:'house',roof:3,top:G+FH,wall:LOG,win:WIN_WARM,kind:'apartment',ground:'apartment',floor:PLANKS,door:3,doorSpec:{w:0,h:3,k:'wood'}});}   // the loggers' cabins
     else if(type==='airport'){
-      add({x0:66,x1:94,z0:50,z1:62,gf:7,top:G+7+FH,wall:PAINT_WHITE,win:GLASS,band:METAL,kind:'office',ground:'terminal',floor:FLOORT,door:3,doorSpec:{w:1,h:4,k:'glass'},glassAll:true},'airport');
+      add({x0:66,x1:94,z0:64,z1:76,gf:7,top:G+7+FH,wall:PAINT_WHITE,win:GLASS,band:METAL,kind:'office',ground:'terminal',floor:FLOORT,door:3,doorSpec:{w:1,h:4,k:'glass'},glassAll:true},'airport');
       add({x0:100,x1:105,z0:54,z1:59,top:G+30,style:'ctrl',wall:CONCRETE,win:GLASS,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
-      add({x0:132,x1:150,z0:44,z1:62,top:G+12,style:'hangar',wall:METAL,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
-      add({x0:164,x1:182,z0:44,z1:62,top:G+12,style:'hangar',wall:PAINT_WHITE,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
-      add({x0:34,x1:62,z0:50,z1:62,gf:7,top:G+7+FH,wall:PAINT_WHITE,win:GLASS,band:METAL,kind:'office',ground:'terminal',floor:FLOORT,door:3,doorSpec:{w:1,h:4,k:'glass'},glassAll:true});
-      add({x0:388,x1:406,z0:44,z1:62,top:G+12,style:'hangar',wall:METAL,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
+      add({x0:132,x1:150,z0:50,z1:64,top:G+12,style:'hangar',wall:METAL,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
+      add({x0:164,x1:182,z0:50,z1:64,top:G+12,style:'hangar',wall:PAINT_WHITE,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
+      add({x0:34,x1:62,z0:64,z1:76,gf:7,top:G+7+FH,wall:PAINT_WHITE,win:GLASS,band:METAL,kind:'office',ground:'terminal',floor:FLOORT,door:3,doorSpec:{w:1,h:4,k:'glass'},glassAll:true});
+      add({x0:388,x1:406,z0:50,z1:64,top:G+12,style:'hangar',wall:METAL,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
       for(const ux of [164,196,228,260,292,324,356])add({x0:ux,x1:ux+24,z0:68,z1:88,top:G+12,style:'hangar',wall:[METAL,CONCRETE,RUST][(ux>>2)%3],win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
       for(const uz of [100,108])for(const ux of [130,140])add({x0:ux,x1:ux+7,z0:uz,z1:uz+7,top:G+7,style:'tank',wall:PAINT_WHITE,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});}
     else{
@@ -8266,7 +8266,7 @@ function carTop(p){
   }
   for(const B of TRAIN_BOXES){const BX=B.hx||TRAIN_HX,BZ=B.hz||TRAIN_HZ;if(Math.hypot(B.x-p.pos.x,B.z-p.pos.z)>Math.max(BX,BZ)+3)continue;
     for(const [a,b] of HIPPO_PTS){const dx=p.pos.x+a*k+b*s-B.x,dz=p.pos.z-a*s+b*k-B.z,al=dx*B.tx+dz*B.tz,ac=-dx*B.tz+dz*B.tx;
-      if(Math.abs(al)>BZ||Math.abs(ac)>BX)continue;if(B.top<=p.pos.y+0.35&&(best===null||B.top>best||B.top===best&&B.proxy===p.rideC)){best=B.top;bc=B.proxy;}}}
+      if(Math.abs(al)>BZ||Math.abs(ac)>BX)continue;if(B.top<=p.pos.y+(B.proxy===p.rideC?1.2:0.35)&&(best===null||B.top>best||B.top===best&&B.proxy===p.rideC)){best=B.top;bc=B.proxy;}}}
   return best===null?null:{y:best,c:bc};
 }
 function footprint(p){
@@ -9607,12 +9607,12 @@ function updatePlayer(p,dt){
     const qa=Math.max(-c.hx,Math.min(c.hx,la)),qb=Math.max(-c.hz,Math.min(c.hz,lb)),ea=la-qa,eb=lb-qb,d=Math.hypot(ea,eb),R=1.0*ES;
     if(d<R){let ua,ub;if(d>0.001){ua=ea/d;ub=eb/d;}else{const fa=c.hx-Math.abs(la),fb=c.hz-Math.abs(lb);if(fa<fb){ua=Math.sign(la)||1;ub=0;}else{ua=0;ub=Math.sign(lb)||1;}}
       const push=d>0.001?R-d:R+Math.min(c.hx-Math.abs(la),c.hz-Math.abs(lb));shove(p,(ua*ck+ub*cs)*push,(-ua*cs+ub*ck)*push);}}
-  for(const B of TRAIN_BOXES){const BX=B.hx||TRAIN_HX,BZ=B.hz||TRAIN_HZ;if(p.pos.y>=B.top-0.4||p.pos.y<B.y0-1.5||Math.hypot(B.x-p.pos.x,B.z-p.pos.z)>Math.max(BX,BZ)+3)continue;
+  for(const B of TRAIN_BOXES){const BX=B.hx||TRAIN_HX,BZ=B.hz||TRAIN_HZ;if(B.proxy===p.rideC||p.pos.y>=B.top-0.4||p.pos.y<B.y0-1.5||Math.hypot(B.x-p.pos.x,B.z-p.pos.z)>Math.max(BX,BZ)+3)continue;
     const dx=p.pos.x-B.x,dz=p.pos.z-B.z,al=dx*B.tx+dz*B.tz,ac=-dx*B.tz+dz*B.tx,R=1.0*ES;
     if(Math.abs(al)>BZ+R||Math.abs(ac)>BX+R)continue;
     const fa=BZ+R-Math.abs(al),fc=BX+R-Math.abs(ac);
     // (a train at speed doesn't just nudge you aside: it hits you)
-    if(Math.abs(B.v)>=2&&!(p.trainT>0)&&!(p.standCar&&p.standCar.isTrain)&&p.hp>0){const sg=ac>=0?1:-1,sv=B.v<0?-1:1;trainStrike(p,new V3(B.tx*sv*0.8-B.tz*sg*0.6,0,B.tz*sv*0.8+B.tx*sg*0.6),Math.max(0.3,Math.min(1,Math.abs(B.v)/24)));}
+    if(Math.abs(B.v)>=2&&!(p.trainT>0)&&!(p.standCar&&p.standCar.isTrain)&&p.hp>0){const sg=ac>=0?1:-1,sv=B.v<0?-1:1;trainStrike(p,new V3(B.tx*sv*0.8-B.tz*sg*0.6,0,B.tz*sv*0.8+B.tx*sg*0.6),Math.max(0.3,Math.min(1,Math.abs(B.v)/24)),B.proxy.isPlane?'Hit by a plane':undefined);}
     if(fc<=fa||Math.abs(B.v)>0.5){const sg=ac>=0?1:-1;shove(p,-B.tz*sg*fc,B.tx*sg*fc);}   // (out to the side -- always, from a moving one)
     else{const sg=al>=0?1:-1;shove(p,B.tx*sg*fa,B.tz*sg*fa);}}
   // standing on a car: ride along with it
@@ -14567,6 +14567,17 @@ function planeBoxes(pl,v){
   TRAIN_BOXES.push({x:g.position.x+tx*.6,z:g.position.z+tz*.6,tx,tz,y0:pl.pr[1].top+1,top:pl.pr[1].top,v:0,hx:10.5,hz:1.7,proxy:pl.pr[1]});
 }
 // hitting a plane: it takes a lot. Wrecked on the ground it burns where it stands; wrecked in the air it comes down, hard
+// (what a moving plane runs into, its body or the end of a wing: struck, thrown aside and up, hurt)
+function planeStrike(pl,v){
+  const g=pl.g,y0=g.position.y,h=g.rotation.y,tx=Math.sin(h),tz=Math.cos(h),k=Math.max(0.3,Math.min(1.6,v/24)),x0=g.position.x,z0=g.position.z;
+  const hit=(o,r,H)=>{if(o.pos.y>y0+3.65||o.pos.y+H<y0)return null;const dx=o.pos.x-x0,dz=o.pos.z-z0;if(dx*dx+dz*dz>196+r*r*4)return null;const al=dx*tx+dz*tz,ac=-dx*tz+dz*tx;
+    if(!(Math.abs(al)<=9.9+r&&Math.abs(ac)<=1.25+r||o.pos.y+H>=y0+1.5&&Math.abs(al-.6)<=1.7+r&&Math.abs(ac)<=10.5+r))return null;
+    const sg=ac>=0?1:-1;return new V3(tx*.8-tz*sg*.6,0,tz*.8+tx*sg*.6);};
+  for(const c of cars){if(!c.alive||c.trainT>0)continue;const d=hit(c,c.hx,c.hy||1.4);
+    if(d){c.trainT=1;damageCar(c,Math.round(10+24*k),d,'acc');if(c.alive)launchCar(c,6+10*k,d.clone().multiplyScalar(1+2.5*k),6);clang();thud(0.7);}}
+  for(const g2 of goblins){if(g2.hp<=0||g2.trainT>0||g2.state==='wait'||g2.state==='dead'||!g2.root.visible)continue;const d=hit(g2,0.5,1.4);
+    if(d){g2.trainT=1;damageGoblin(g2,Math.round(4+12*k),g2.pos.clone(),d.clone().multiplyScalar(1+k),'Hit by a plane',ACCIDENT);g2.vy=Math.max(g2.vy||0,12+16*k);g2.kv.x+=d.x*(14+26*k);g2.kv.z+=d.z*(14+26*k);}}
+}
 function planeHit(pl,n){
   if(pl.dead)return;const g=pl.g,p=g.position;dmgPop(p.x,p.y+5,p.z,Math.round(n),'#ffb04a');pl.hp-=n;if(pl.hp>0)return;
   pl.dead=true;pl.deadT=0;
@@ -14589,14 +14600,14 @@ function planeWreck(pl,V,dt){
 function airportPath(V){
   // the plane's round trip in the airport's own coordinates [u, v, height, speed]
   const B=V.B,W=B.w*CELL;
-  return[[112,45.5,0,4],[112,39.5,0,7],[21.5,39.5,0,8],[21.5,28.5,0,5],[60,28.5,0,24],[110,28.5,1,46],[160,28.5,12,60],[420,28.5,70,70],[900,28.5,110,80],
+  return[[112,45.5,0,4],[112,39.5,0,7],[112,28.5,0,5],[170,28.5,0,24],[240,28.5,1,46],[300,28.5,12,60],[440,28.5,70,70],[520,28.5,90,75],[900,28.5,110,80],
     ['wait',30],[-700,28.5,90,70],[-200,28.5,40,60],[10,28.5,4,48],[30,28.5,0,40],[120,28.5,0,14],[W-22.5,28.5,0,8],[W-22.5,39.5,0,7],[112,39.5,0,7],[112,45.5,0,3],['wait',35]];
 }
 function updateAirport(V,dt){
   const B=V.B,X0=B.ax*CELL,Z0=B.az*CELL;
   // the two parked ones stand at their gates, noses to the taxiway
   if(!V.pl)V.pl=V.planes.map(g=>({isPlane:true,g,hp:PLANE_HP,dead:false,v:0}));
-  for(let i=1;i<3;i++){const pl=V.pl[i],g=pl.g;if(pl.dead)planeWreck(pl,V,dt);else{g.position.set(X0+56+i*14.5,G+1,Z0+46);g.rotation.y=Math.PI;}planeBoxes(pl,0);}
+  for(let i=1;i<3;i++){const pl=V.pl[i],g=pl.g;if(pl.dead)planeWreck(pl,V,dt);else{g.position.set(X0+16+i*32,G+1,Z0+52);g.rotation.y=Math.PI;}planeBoxes(pl,0);}
   const pl0=V.pl[0];if(pl0.dead){planeWreck(pl0,V,dt);planeBoxes(pl0,0);return;}
   if(!V.path){V.path=airportPath(V);V.i=0;V.t=0;V.pos={u:112,v:45.5,h:0};V.sp=0;V.hd=0;}
   const P=V.path[V.i],g=V.planes[0],rider=players.some(q=>q.active&&q.standCar&&q.standCar.T===pl0);
@@ -14616,7 +14627,7 @@ function updateAirport(V,dt){
     if(Math.abs(a)<0.2){V.pos.u+=du/d*step;V.pos.v+=dv/d*step;V.pos.h+=(P[2]-V.pos.h)*Math.min(1,step/Math.max(1,d));}else{V.sp*=1-Math.min(1,dt*2);pl0.v=V.sp;}}
   const climb=Math.max(-0.25,Math.min(0.25,(P[2]-V.pos.h)/Math.max(1,d)*1.5));
   g.position.set(X0+V.pos.u,G+1+V.pos.h,Z0+V.pos.v);g.rotation.set(-climb,V.hd||0,0,'YXZ');
-  planeBoxes(pl0,V.sp);
+  planeBoxes(pl0,V.sp);if(V.sp>=2)planeStrike(pl0,V.sp);
 }
 // the launch site's rocket: on the pad, then on the hour (three times a day) a countdown, ignition, and up it goes,
 // faster and faster, out of sight; a new one is rolled out a while later
