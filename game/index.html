@@ -1884,6 +1884,7 @@ function updateTrains(dt){
 const CAR_HP=150;
 // hitting a train (it takes a lot): shudder, sparks of damage; wrecked, it blows up car by car and lies there burning
 function trainHit(T,n,dir,ci){
+  if(T&&T.isPlane){planeHit(T,n);return;}
   if(!T||T.dead||!T.cars)return;const N=T.cars.length;if(ci===undefined)ci=0;
   if(!T.carHP){T.carHP=T.cars.map(()=>CAR_HP);T.carDead=T.cars.map(()=>false);}
   if(T.carDead[ci])return;T.carHP[ci]-=n;
@@ -8263,9 +8264,9 @@ function carTop(p){
       if(top<=p.pos.y+(p.vy<0&&!p.grounded?1.1:0.35)&&(best===null||top>best)){best=top;bc=c;}
     }
   }
-  for(const B of TRAIN_BOXES){if(Math.hypot(B.x-p.pos.x,B.z-p.pos.z)>TRAIN_HZ+3)continue;
+  for(const B of TRAIN_BOXES){const BX=B.hx||TRAIN_HX,BZ=B.hz||TRAIN_HZ;if(Math.hypot(B.x-p.pos.x,B.z-p.pos.z)>Math.max(BX,BZ)+3)continue;
     for(const [a,b] of HIPPO_PTS){const dx=p.pos.x+a*k+b*s-B.x,dz=p.pos.z-a*s+b*k-B.z,al=dx*B.tx+dz*B.tz,ac=-dx*B.tz+dz*B.tx;
-      if(Math.abs(al)>TRAIN_HZ||Math.abs(ac)>TRAIN_HX)continue;if(B.top<=p.pos.y+0.35&&(best===null||B.top>best)){best=B.top;bc=B.proxy;}}}
+      if(Math.abs(al)>BZ||Math.abs(ac)>BX)continue;if(B.top<=p.pos.y+0.35&&(best===null||B.top>best||B.top===best&&B.proxy===p.rideC)){best=B.top;bc=B.proxy;}}}
   return best===null?null:{y:best,c:bc};
 }
 function footprint(p){
@@ -8310,7 +8311,7 @@ function carsNear(x,z,r,y){return cars.filter(c=>{if(!c.alive)return false;
   const yy=Math.max(y-dn,Math.min(y+up,y)),n=carNearest(c,x,yy,z);return Math.hypot(n.d2,n.dy)<r;}).concat(trainsNear(x,z,r,y===undefined?null:y-3,y===undefined?null:y+3));}
 // the train cars (their stand-ins) whose boxes come within r of (x,z), between heights y0 and y1 (if given)
 function trainsNear(x,z,r,y0,y1){const out=[];for(const B of TRAIN_BOXES){const pr=B.proxy;if(!pr.alive||y0!==null&&(y1<B.y0||y0>B.top))continue;
-  const dx=x-B.x,dz=z-B.z,al=dx*B.tx+dz*B.tz,ac=-dx*B.tz+dz*B.tx;if(Math.hypot(Math.max(0,Math.abs(al)-TRAIN_HZ),Math.max(0,Math.abs(ac)-TRAIN_HX))<r)out.push(pr);}return out;}
+  const dx=x-B.x,dz=z-B.z,al=dx*B.tx+dz*B.tz,ac=-dx*B.tz+dz*B.tx;if(Math.hypot(Math.max(0,Math.abs(al)-(B.hz||TRAIN_HZ)),Math.max(0,Math.abs(ac)-(B.hx||TRAIN_HX)))<r&&!out.includes(pr))out.push(pr);}return out;}
 // a moving car's bumper zone: its body plus a small margin. Anything whose body touches it is struck.
 // (the hippo's box is his body, rump to shoulders: 1.45 either side of his middle; his head isn't in it)
 const RAM_M=0.3,P_HX=0.75*ES,P_HZ=1.45*ES,P_HY=2.1*ES,P_OFF=0;
@@ -8911,13 +8912,38 @@ function wrapA(a){while(a>Math.PI)a-=Math.PI*2;while(a<-Math.PI)a+=Math.PI*2;ret
 function easeSnap(p,ox,oy,oz,oh){if(!p.visOff)p.visOff=new V3();p.visOff.x+=ox;p.visOff.y+=oy;p.visOff.z+=oz;p.headOff=wrapA((p.headOff||0)+oh);}
 function startClimb(p,reach){
   const sx=Math.sin(p.heading),cz=Math.cos(p.heading),d=Math.abs(sx)>Math.abs(cz)?[Math.sign(sx),0]:[0,Math.sign(cz)];
-  let cell=null;
-  for(let s=0.3;s<=reach&&!cell;s+=0.15){const cx=Math.floor(p.pos.x+d[0]*s),cz2=Math.floor(p.pos.z+d[1]*s);if(solidAt(cx,Math.floor(p.pos.y+0.6),cz2)||solidAt(cx,Math.floor(p.pos.y+1.4),cz2))cell=[cx,cz2];}
+  let cell=null,lat=0;
+  // (straight ahead first, then out to his shoulders: a thin pillar that's stopped his shoulder is still something to grab)
+  for(const o of [0,0.3,-0.3,0.6,-0.6]){
+    for(let s=0.3;s<=reach&&!cell;s+=0.15){const cx=Math.floor(p.pos.x+d[0]*s-d[1]*o),cz2=Math.floor(p.pos.z+d[1]*s+d[0]*o);if(solidAt(cx,Math.floor(p.pos.y+0.6),cz2)||solidAt(cx,Math.floor(p.pos.y+1.4),cz2)){cell=[cx,cz2];lat=o;}}
+    if(cell)break;
+  }
   if(!cell)return false;
   const ox=p.pos.x,oz=p.pos.z,oh=p.heading;
+  // grabbed with a shoulder: shuffle across until the block's right in front of him (if there's room to)
+  if(lat){const v=d[0]?p.pos.z:p.pos.x,c=d[0]?cell[1]:cell[0],to=Math.max(c+0.2,Math.min(c+0.8,v)),nx=d[0]?p.pos.x:to,nz=d[0]?to:p.pos.z;
+    if(solidAt(Math.floor(nx),Math.floor(p.pos.y+0.6),Math.floor(nz))||solidAt(Math.floor(nx),Math.floor(p.pos.y+1.4),Math.floor(nz)))return false;
+    p.pos.x=nx;p.pos.z=nz;}
   if(d[0]){const face=d[0]>0?cell[0]:cell[0]+1;p.pos.x=face-d[0]*0.06;}else{const face=d[1]>0?cell[1]:cell[1]+1;p.pos.z=face-d[1]*0.06;}
   p.climbD=d;p.heading=Math.atan2(d[0],d[1]);easeSnap(p,ox-p.pos.x,0,oz-p.pos.z,oh-p.heading);p.climbRoll=0;p.climbFlip=climbFlipFor(p,d);p.state='climb';p.t=0;p.vy=0;p.mvx=p.mvz=0;p.dashT=0;p.longJump=false;
   thud(0.12);rumble(p,0.15,50);return true;
+}
+// hauling up over the top of a wall (his back to the drop, D the way he's facing it): where to put him down, on a top
+// at height 'top'. He's far longer than a block, so on a pillar or a narrow ledge he can't just go a body's length in:
+// that would be past it, or inside the wall behind it. side says which way to turn if he has to stand along a ledge.
+function haulSpot(p,D,top,side){
+  const hd=Math.atan2(D[0],D[1]),at=s=>[p.pos.x+D[0]*s,p.pos.z+D[1]*s];
+  const fits=(s,h)=>{const [x,z]=at(s),y=p.pos.y;p.pos.y=top;const hit=bodyHits(p,x,z,h);p.pos.y=y;return !hit;};
+  const under=s=>{const [x,z]=at(s),v=supportAt(x,z,top+0.1);return v!==null&&Math.abs(v-top)<0.6;};
+  const put=(s,h)=>{const [x,z]=at(s);return{x,z,h};};
+  if(under(1.3)){for(let s=1.3;s>=0.6;s-=0.1)if(under(s)&&fits(s,hd))return put(s,hd);}   // room: as far in as his nose allows
+  else if(fits(0.56,hd))return put(0.56,hd);   // the top's a block deep with nothing behind it: square in the middle of it
+  // a wall right behind a narrow ledge: he stands along the ledge, as close in as his flank allows
+  const sg=side<0?-1:1;
+  for(const k of [sg,-sg])for(const s of [0.5,0.4,0.3,0.2,0.1]){const h=Math.atan2(-D[1]*k,D[0]*k);if(under(s)&&fits(s,h))return put(s,h);}
+  // no room for that either: forefeet up with his nose to the wall and his back end hanging out over the drop
+  for(const s of [0.1,0,-0.1,-0.2,-0.3]){const [x,z]=at(s),g=supportMax(x,z,hd,top+0.1,HIPPO_PTS);if(g!==null&&Math.abs(g-top)<0.6&&fits(s,hd))return put(s,hd);}
+  return under(1.3)?put(1.3,hd):null;
 }
 // climbing sideways into an inside corner: step onto the wall that's blocking the way (s = crawl direction)
 function climbCornerIn(p,d,s){
@@ -9231,6 +9257,7 @@ function updatePlayer(p,dt){
     }
     let ix=inp.x,iz=inp.z;p.lastSp=0;
     if(p.dodge)ix=iz=0;   // (mid-dodge: the dodge moves him)
+    if(p.perch){if(p.grounded&&stickHeld(p))ix=iz=0;else p.perch=false;}   // (just hauled up on to a pillar: he stays put until the stick moves)
     if(comboLock){
       // rooted mid-combo: the stick (relative to the camera) only turns him, to aim the next hit
       if(!p.lockT&&(ix||iz)){const s=Math.sin(p.cam.yaw),c=Math.cos(p.cam.yaw),wx=ix*c+iz*s,wz=-ix*s+iz*c;
@@ -9372,11 +9399,15 @@ function updatePlayer(p,dt){
       const D=p.climbD;   // may have changed this frame by turning a corner
       if(p.state==='climb'&&!wallAhead(p,D,p.pos.y+0.6)&&!wallAhead(p,D,p.pos.y+1.4)){
         if(wallAhead(p,D,p.pos.y-0.3)||wallAhead(p,D,p.pos.y-0.9)){
-          const nx=p.pos.x+D[0]*1.3,nz=p.pos.z+D[1]*1.3,top=supportAt(nx,nz,p.pos.y+1.2);
-          if(top!==null&&!solidAt(Math.floor(nx),Math.floor(top+0.5),Math.floor(nz))){
+          // (the height of the top comes from the lip he's holding, not from further in, which may be a drop or a wall)
+          const top=supportAt(p.pos.x+D[0]*0.75,p.pos.z+D[1]*0.75,p.pos.y+1.2),spot=top===null?null:haulSpot(p,D,top,side);
+          if(spot&&!solidAt(Math.floor(spot.x),Math.floor(top+0.5),Math.floor(spot.z))){
             // roll up and over the roof edge onto all fours
             const E=[p.pos.x+D[0]*0.06,top,p.pos.z+D[1]*0.06];if(D[0])E[2]=p.pos.z;else E[0]=p.pos.x;
-            startPiv(p,{E,to:[nx,top,nz],dur:0.4,next:'walk',heading:Math.atan2(D[0],D[1])});thud(0.15);grunt(p,false);}
+            // on top of something narrow, with nothing further to climb: the stick that brought him up doesn't carry him straight off the far side
+            const bx=Math.floor(p.pos.x+D[0]*1.3),bz=Math.floor(p.pos.z+D[1]*1.3),bs=supportAt(p.pos.x+D[0]*1.3,p.pos.z+D[1]*1.3,top+0.1);
+            p.perch=(bs===null||bs<top-0.6)&&!solidAt(bx,Math.floor(top+0.6),bz)&&!solidAt(bx,Math.floor(top+1.4),bz);
+            startPiv(p,{E,to:[spot.x,top,spot.z],dur:0.4,next:'walk',heading:spot.h});thud(0.15);grunt(p,false);}
           else{p.state='walk';p.grounded=false;}
         } else {p.state='walk';p.grounded=false;}
       }
@@ -9570,10 +9601,10 @@ function updatePlayer(p,dt){
     const qa=Math.max(-c.hx,Math.min(c.hx,la)),qb=Math.max(-c.hz,Math.min(c.hz,lb)),ea=la-qa,eb=lb-qb,d=Math.hypot(ea,eb),R=1.0*ES;
     if(d<R){let ua,ub;if(d>0.001){ua=ea/d;ub=eb/d;}else{const fa=c.hx-Math.abs(la),fb=c.hz-Math.abs(lb);if(fa<fb){ua=Math.sign(la)||1;ub=0;}else{ua=0;ub=Math.sign(lb)||1;}}
       const push=d>0.001?R-d:R+Math.min(c.hx-Math.abs(la),c.hz-Math.abs(lb));shove(p,(ua*ck+ub*cs)*push,(-ua*cs+ub*ck)*push);}}
-  for(const B of TRAIN_BOXES){if(p.pos.y>=B.top-0.4||p.pos.y<B.y0-1.5||Math.hypot(B.x-p.pos.x,B.z-p.pos.z)>TRAIN_HZ+3)continue;
+  for(const B of TRAIN_BOXES){const BX=B.hx||TRAIN_HX,BZ=B.hz||TRAIN_HZ;if(p.pos.y>=B.top-0.4||p.pos.y<B.y0-1.5||Math.hypot(B.x-p.pos.x,B.z-p.pos.z)>Math.max(BX,BZ)+3)continue;
     const dx=p.pos.x-B.x,dz=p.pos.z-B.z,al=dx*B.tx+dz*B.tz,ac=-dx*B.tz+dz*B.tx,R=1.0*ES;
-    if(Math.abs(al)>TRAIN_HZ+R||Math.abs(ac)>TRAIN_HX+R)continue;
-    const fa=TRAIN_HZ+R-Math.abs(al),fc=TRAIN_HX+R-Math.abs(ac);
+    if(Math.abs(al)>BZ+R||Math.abs(ac)>BX+R)continue;
+    const fa=BZ+R-Math.abs(al),fc=BX+R-Math.abs(ac);
     // (a train at speed doesn't just nudge you aside: it hits you)
     if(Math.abs(B.v)>=2&&!(p.trainT>0)&&!(p.standCar&&p.standCar.isTrain)&&p.hp>0){const sg=ac>=0?1:-1,sv=B.v<0?-1:1;trainStrike(p,new V3(B.tx*sv*0.8-B.tz*sg*0.6,0,B.tz*sv*0.8+B.tx*sg*0.6),Math.max(0.3,Math.min(1,Math.abs(B.v)/24)));}
     if(fc<=fa||Math.abs(B.v)>0.5){const sg=ac>=0?1:-1;shove(p,-B.tz*sg*fc,B.tx*sg*fc);}   // (out to the side -- always, from a moving one)
@@ -9581,7 +9612,7 @@ function updatePlayer(p,dt){
   // standing on a car: ride along with it
   if(p.standCar&&p.grounded&&p.standCar.alive){const c=p.standCar;if(p.rideC===c){
       {let d=c.heading-p.rideH;d=Math.atan2(Math.sin(d),Math.cos(d));if(Math.abs(d)>0.7)d=0;   // (a car that's turned right round in a moment doesn't take you with it)
-        const ex=p.pos.x-p.rideX,ez=p.pos.z-p.rideZ,cd=Math.cos(d),sd=Math.sin(d);p.pos.x=c.pos.x+ex*cd+ez*sd;p.pos.z=c.pos.z-ex*sd+ez*cd;p.heading+=d;if(p.cam)p.cam.yaw+=d;p.pos.y=Math.max(p.pos.y,c.isTrain?c.top:c.pos.y+1.1*ES);}}
+        const ex=p.pos.x-p.rideX,ez=p.pos.z-p.rideZ,cd=Math.cos(d),sd=Math.sin(d);p.pos.x=c.pos.x+ex*cd+ez*sd;p.pos.z=c.pos.z-ex*sd+ez*cd;p.heading+=d;if(p.cam)p.cam.yaw+=d;p.pos.y=c.isPlane?c.top:Math.max(p.pos.y,c.isTrain?c.top:c.pos.y+1.1*ES);}}
     p.rideC=c;p.rideX=c.pos.x;p.rideZ=c.pos.z;p.rideH=c.heading;}else p.rideC=null;
   for(const o of players){if(o===p||!o.active||o.state==='dead')continue;const dx=p.pos.x-o.pos.x,dz=p.pos.z-o.pos.z,d=Math.hypot(dx,dz);if(d<2.4&&d>0.001)shove(p,dx/d*(2.4-d)*0.5,dz/d*(2.4-d)*0.5);}
   let g=p.state==='climb'||p.state==='piv'||p.state==='ceil'?null:footprint(p);   // clinging to a wall: no gravity
@@ -14515,6 +14546,36 @@ function makePlane(i){
   for(const [x,z] of [[0,6],[-1.6,-0.4],[1.6,-0.4]])bx(TRM.dark,0.4,1.0,0.6,x,0.5,z);
   return g;
 }
+// a plane's body, for standing on and hitting: the fuselage and the wings, each a box like a train car's
+const PLANE_HP=300;
+function planeBoxes(pl,v){
+  const g=pl.g,h=g.rotation.y,tx=Math.sin(h),tz=Math.cos(h),y=g.position.y;if(!g.visible||pl.fall)return;
+  if(!pl.pr)pl.pr=[0,1].map(i=>({isTrain:true,isPlane:true,alive:true,pos:new V3(),kv:new V3(),vy:0,spinP:0,spinR:0,speed:0,hurt:0,hx:i?10.5:1.25,hz:i?1.7:9.9,hy:i?1.9:3.65,heading:0,top:0,veh:'plane',T:pl,i}));
+  for(const pr of pl.pr){pr.alive=!pl.dead;pr.pos.set(g.position.x,y,g.position.z);pr.heading=h;pr.top=y+pr.hy;}
+  TRAIN_BOXES.push({x:g.position.x,z:g.position.z,tx,tz,y0:y,top:pl.pr[0].top,v,hx:1.25,hz:9.9,proxy:pl.pr[0]});
+  // (the wings are overhead to anyone on the ground: only their top counts)
+  TRAIN_BOXES.push({x:g.position.x+tx*.6,z:g.position.z+tz*.6,tx,tz,y0:pl.pr[1].top+1,top:pl.pr[1].top,v:0,hx:10.5,hz:1.7,proxy:pl.pr[1]});
+}
+// hitting a plane: it takes a lot. Wrecked on the ground it burns where it stands; wrecked in the air it comes down, hard
+function planeHit(pl,n){
+  if(pl.dead)return;const g=pl.g,p=g.position;dmgPop(p.x,p.y+5,p.z,Math.round(n),'#ffb04a');pl.hp-=n;if(pl.hp>0)return;
+  pl.dead=true;pl.deadT=0;
+  const bl=blasts[blastIdx++%blasts.length];bl.t=0.8;bl.s=2.4;for(const f of bl.m){f.position.set(p.x,p.y+3,p.z);f.visible=true;}smoke(p.x,p.y+3,p.z,26,0x262626);
+  for(let k=0;k<10;k++){const d=debris[(debrisIdx++)%debris.length];d.m.position.set(p.x+(Math.random()-.5)*8,p.y+2+Math.random()*2,p.z+(Math.random()-.5)*12);d.v.set((Math.random()-.5)*20,8+Math.random()*12,(Math.random()-.5)*20);d.spin.set((Math.random()-.5)*12,(Math.random()-.5)*12,(Math.random()-.5)*12);d.life=25;d.m.visible=true;}
+  g.traverse(o=>{if(o.isMesh){o.userData.mat=o.userData.mat||o.material;o.material=TRM.dark;}});
+  noise(1.2,1,500,'lowpass');tone('sawtooth',70,16,1.4,0.32);addShake(1,p.x,p.z,50);hitGoblins(p.x,p.z,12,10,'Blown up with a plane',p.y+1);
+  score+=1000;flashLabel('Airplane destroyed  +1000',(nearestPlayer(p.x,p.z)||{}).p);
+  if(p.y>G+3){pl.fall=true;pl.vy=-2;pl.fv=pl.v||40;}else g.rotation.z=(Math.random()<.5?1:-1)*(0.12+Math.random()*0.14);
+}
+function planeWreck(pl,V,dt){
+  const g=pl.g,p=g.position;pl.deadT+=dt;
+  if(pl.fall){pl.vy-=26*dt;pl.fv*=1-dt*.25;const h=g.rotation.y;p.x+=Math.sin(h)*pl.fv*dt;p.z+=Math.cos(h)*pl.fv*dt;p.y+=pl.vy*dt;g.rotation.x=Math.min(.7,g.rotation.x+dt*.4);g.rotation.z+=dt*.5;if(Math.random()<dt*20)smoke(p.x,p.y+3,p.z,2,0x262626);
+    const gy=groundAt(p.x,p.z,p.y+2);if(p.y<=gy||p.y<=G+1){p.y=Math.max(gy,G+1);pl.fall=false;g.rotation.x=0;g.rotation.z=.2;crushBall(p.x,p.y,p.z,7);
+      const bl=blasts[blastIdx++%blasts.length];bl.t=0.8;bl.s=2.4;for(const f of bl.m){f.position.set(p.x,p.y+2,p.z);f.visible=true;}smoke(p.x,p.y+2,p.z,26,0x262626);noise(1.4,1,400,'lowpass');addShake(1.2,p.x,p.z,60);hitGoblins(p.x,p.z,14,14,'Flattened by a falling plane',p.y+1);}}
+  else if(Math.random()<dt*3)smoke(p.x,p.y+3,p.z,2,0x262626);
+  // (a new one's been brought in, once no one's looking)
+  if(pl.deadT>120&&!players.some(q=>q.active&&Math.hypot(p.x-q.pos.x,p.z-q.pos.z)<350)){pl.dead=false;pl.hp=PLANE_HP;g.traverse(o=>{if(o.isMesh&&o.userData.mat)o.material=o.userData.mat;});g.rotation.set(0,0,0);if(pl===V.pl[0])V.path=null;}
+}
 function airportPath(V){
   // the plane's round trip in the airport's own coordinates [u, v, height, speed]
   const B=V.B,W=B.w*CELL;
@@ -14524,16 +14585,28 @@ function airportPath(V){
 function updateAirport(V,dt){
   const B=V.B,X0=B.ax*CELL,Z0=B.az*CELL;
   // the two parked ones stand at their gates, noses to the taxiway
-  for(let i=1;i<3;i++){const g=V.planes[i];g.position.set(X0+56+i*14.5,G+1,Z0+46);g.rotation.y=Math.PI;}
-  if(!V.path){V.path=airportPath(V);V.i=0;V.pos={u:112,v:45.5,h:0};V.sp=0;}
-  const P=V.path[V.i],g=V.planes[0];
-  if(P[0]==='wait'){V.t+=dt;g.visible=V.i!==9;if(V.t>=P[1]){V.t=0;V.i=(V.i+1)%V.path.length;}if(V.i===10&&V.path[10]){const q=V.path[10];V.pos={u:q[0],v:q[1],h:q[2]};}return;}
-  g.visible=true;const du=P[0]-V.pos.u,dv=P[1]-V.pos.v,d=Math.hypot(du,dv);
-  V.sp+=(P[3]-V.sp)*Math.min(1,dt*0.6);const step=Math.min(d,V.sp*dt);
-  if(d<0.5){V.pos.u=P[0];V.pos.v=P[1];V.pos.h=P[2];V.i=(V.i+1)%V.path.length;}
-  else{V.pos.u+=du/d*step;V.pos.v+=dv/d*step;V.pos.h+=(P[2]-V.pos.h)*Math.min(1,step/Math.max(1,d));V.hd=Math.atan2(du,dv);}
+  if(!V.pl)V.pl=V.planes.map(g=>({isPlane:true,g,hp:PLANE_HP,dead:false,v:0}));
+  for(let i=1;i<3;i++){const pl=V.pl[i],g=pl.g;if(pl.dead)planeWreck(pl,V,dt);else{g.position.set(X0+56+i*14.5,G+1,Z0+46);g.rotation.y=Math.PI;}planeBoxes(pl,0);}
+  const pl0=V.pl[0];if(pl0.dead){planeWreck(pl0,V,dt);planeBoxes(pl0,0);return;}
+  if(!V.path){V.path=airportPath(V);V.i=0;V.t=0;V.pos={u:112,v:45.5,h:0};V.sp=0;V.hd=0;}
+  const P=V.path[V.i],g=V.planes[0],rider=players.some(q=>q.active&&q.standCar&&q.standCar.T===pl0);
+  if(P[0]==='wait'){
+    // (out of sight beyond the horizon, normally; with someone aboard it just turns round, and comes back)
+    if(V.i===9&&rider){V.t=0;V.i=10;planeBoxes(pl0,V.sp);return;}
+    V.t+=dt;g.visible=V.i!==9;if(V.t>=P[1]){V.t=0;V.i=(V.i+1)%V.path.length;if(V.i===10){const q=V.path[10];V.pos={u:q[0],v:q[1],h:q[2]};}}pl0.v=0;planeBoxes(pl0,0);return;}
+  // (with someone aboard it doesn't go so far that the airport's forgotten about)
+  const tu=rider?(P[0]===900?560:P[0]===-700?-480:P[0]):P[0];
+  g.visible=true;const du=tu-V.pos.u,dv=P[1]-V.pos.v,d=Math.hypot(du,dv);
+  V.sp+=(P[3]-V.sp)*Math.min(1,dt*0.6);const step=Math.min(d,V.sp*dt);pl0.v=V.sp;
+  const air=V.pos.h>15;
+  if(air&&d>45){let a=Math.atan2(du,dv)-V.hd;a=Math.atan2(Math.sin(a),Math.cos(a));V.hd+=Math.max(-0.7*dt,Math.min(0.7*dt,a));V.pos.u+=Math.sin(V.hd)*V.sp*dt;V.pos.v+=Math.cos(V.hd)*V.sp*dt;V.pos.h+=(P[2]-V.pos.h)*Math.min(1,step/Math.max(1,d));}   // (in the air it banks round, rather than swinging about on the spot)
+  else if(d<(air?45:0.5)){if(!air){V.pos.u=tu;V.pos.v=P[1];V.pos.h=P[2];}V.i=(V.i+1)%V.path.length;}
+  else{   // (on the ground it stops and swings round before moving off, so anyone standing on it isn't thrown)
+    let a=d>2?Math.atan2(du,dv)-V.hd:0;a=Math.atan2(Math.sin(a),Math.cos(a));V.hd+=Math.max(-0.9*dt,Math.min(0.9*dt,a));
+    if(Math.abs(a)<0.2){V.pos.u+=du/d*step;V.pos.v+=dv/d*step;V.pos.h+=(P[2]-V.pos.h)*Math.min(1,step/Math.max(1,d));}else{V.sp*=1-Math.min(1,dt*2);pl0.v=V.sp;}}
   const climb=Math.max(-0.25,Math.min(0.25,(P[2]-V.pos.h)/Math.max(1,d)*1.5));
   g.position.set(X0+V.pos.u,G+1+V.pos.h,Z0+V.pos.v);g.rotation.set(-climb,V.hd||0,0,'YXZ');
+  planeBoxes(pl0,V.sp);
 }
 // the launch site's rocket: on the pad, then on the hour (three times a day) a countdown, ignition, and up it goes,
 // faster and faster, out of sight; a new one is rolled out a while later

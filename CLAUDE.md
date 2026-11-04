@@ -42,6 +42,7 @@ node stairaudit.js 160     # which buildings with more than one floor still have
 node signcount.js 150      # how many signs each kind of building carries
 node wcaudit.js 150        # which buildings have no bathroom, floor by floor (`wcRooms` places them)
 node carride.js            # drop on to moving vehicles: land, ride, no damage
+node planeride.js          # airplanes: stand on one, ride a whole flight, wreck them
 node coastaudit.js 500     # coastal places by kind, what each one has, which ports belong to whom
 ```
 To review the chains' logos: `node logosheet.js out.png` from `tools/ui`. To look at a spot in the real game: `python tools/build_3d.py game/index.html tools/ui/t3.html`, then `node tour.js scenes.js outDir [seed]` from `tools/ui` (set `TOUR_VIEW=800` to see that many blocks through the fog, and pass a wait of about 25000 as a fourth argument so distant chunks finish building).
@@ -101,6 +102,7 @@ It renders in software, so the picture is right but the frame rate says nothing 
 - **Placement:** `SITE_F` says how far out from a place's middle each kind of site goes (`siteFits`); a dump is a 4x4 `dumpSite` at the end of a street.
 - **Roofs:** `roofOf` picks a shape per kind of shop (hip, mansard, gable, barrel, false front, dome, mirror ball), drawn by `roofColumn` above the flat roof.
 - **Trains:** one per track (`updateTrains`), an engine at each end; `T.s` is the front, but the cars are numbered from the far end of the line, so they keep their places when it reverses. `trainHit` damages one car; losing one halts the train. Riders are carried round bends in the car's own frame. Suite `trainride` tests all that.
+- **Airplanes:** `updateAirport` flies one and parks two; `planeBoxes` gives each a fuselage and wing box in `TRAIN_BOXES`, so they're stood on and hit through the same code as trains (`trainHit` passes them to `planeHit`). `planeWreck` handles the fall and the replacement.
 - **Dev tab:** `DEV_ABIL`, `DEV_SCRIPT`, sandbox `SBX`, Structures previewer (`ST`, `stBuildList` — built lazily because `TEST_GROUPS` is defined later).
 
 ## What each test suite covers (tools/tests)
