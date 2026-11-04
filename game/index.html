@@ -758,7 +758,7 @@ function horizHidden(cx,cy,cz,hr,top){
     if(!o.isInstancedMesh&&horizHidden(sp.center.x,sp.center.y,sp.center.z,sp.radius,sp.center.y+sp.radius))return false;   // (over the horizon)
     const d=Math.hypot(sp.center.x-CURVE_CAM.x,sp.center.z-CURVE_CAM.z),r=sp.radius,lo=k*Math.max(0,d-r)**2,hi=k*(d+r)**2;
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v75';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v76';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -1733,8 +1733,8 @@ function railInfo(p,px,pz,base){
   const ax=railStation(px,pz);p.stnAx=ax;
   // the station building: brick, two storeys, across the town side of the platforms
   // (one grand hall, under a hipped roof with a clock tower: you can tell it from a long way off)
-  const b=ax==='x'?base({x0:PL0+1,x1:PL1-1,z0:ROADW+3,z1:RAIL_C-4,gf:9,top:G+9,wall:BRICK,win:WIN_WARM,band:CONCRETE,kind:'shop',ground:'shop',floor:FLOORT,door:2})
-    :base({x0:ROADW+3,x1:RAIL_C-4,z0:PL0+1,z1:PL1-1,gf:9,top:G+9,wall:BRICK,win:WIN_WARM,band:CONCRETE,kind:'shop',ground:'shop',floor:FLOORT,door:0});
+  const b=ax==='x'?base({x0:PL0+1,x1:PL1-1,z0:ROADW+1,z1:RAIL_C-4,gf:9,top:G+9,wall:BRICK,win:WIN_WARM,band:CONCRETE,kind:'shop',ground:'shop',floor:FLOORT,door:2})
+    :base({x0:ROADW+1,x1:RAIL_C-4,z0:PL0+1,z1:PL1-1,gf:9,top:G+9,wall:BRICK,win:WIN_WARM,band:CONCRETE,kind:'shop',ground:'shop',floor:FLOORT,door:0});
   b.doorSpec={w:1,h:3,k:'wood'};b.detailTop=b.top-1;b.station=true;b.rfForce={k:'hip',c:SHINGLE,clock:true};p.b.push(b);
 }
 const ROADTOP=new Set([ASPHALT,LINE,LINEX,LINE_R,LINEX_R,CROSS,CROSSX,LANE,LANEX,SIDEWALK]);
@@ -4191,13 +4191,13 @@ function plotInfo(px,pz){
       add({x0:4,x1:30,z0:4,z1:22,top:G+3*FH,wall:CONCRETE,win:WIN_BLUE,band:PAINT_YELLOW,kind:'office',ground:'office',floor:FLOORT,door:2},'nuclear');
       for(const zz of [34,100])add({x0:132,x1:160,z0:zz,z1:zz+28,top:G+72,style:'cooling',wall:CONCRETE,win:CONCRETE,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true,steam:true});}
     else if(type==='base'){
-      for(let i=0;i<3;i++)add({x0:36,x1:60,z0:4+i*9,z1:10+i*9,top:G+FH,wall:PAINT_GREEN,win:WIN_WARM,kind:'barracks',ground:'barracks',floor:CONCRETE,door:3,doorSpec:{w:0,h:3,k:'wood'}},i===0?'base':null);
+      for(let i=0;i<3;i++)add({x0:36,x1:60,z0:4+i*9,z1:12+i*9,top:G+FH,wall:PAINT_GREEN,win:WIN_WARM,kind:'barracks',ground:'barracks',floor:CONCRETE,door:3,doorSpec:{w:0,h:3,k:'wood'}},i===0?'base':null);
       add({x0:2,x1:0,z0:36,z1:60,top:G+12,style:'hangar',wall:METAL,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
       add({x0:58,x1:62,z0:58,z1:62,top:G+16,style:'gtower',wall:CONCRETE,win:GLASS,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
       add({x0:4,x1:8,z0:4,z1:8,top:G+16,style:'gtower',wall:CONCRETE,win:GLASS,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
       add({x0:122,x1:126,z0:4,z1:8,top:G+16,style:'gtower',wall:CONCRETE,win:GLASS,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
       add({x0:122,x1:126,z0:122,z1:126,top:G+16,style:'gtower',wall:CONCRETE,win:GLASS,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
-      for(let i=0;i<3;i++)for(const ux of [66,98])add({x0:ux,x1:ux+28,z0:4+i*9,z1:10+i*9,top:G+FH,wall:PAINT_GREEN,win:WIN_WARM,kind:'barracks',ground:'barracks',floor:CONCRETE,door:3,doorSpec:{w:0,h:3,k:'wood'}});
+      for(let i=0;i<3;i++)for(const ux of [66,98])add({x0:ux,x1:ux+28,z0:4+i*9,z1:12+i*9,top:G+FH,wall:PAINT_GREEN,win:WIN_WARM,kind:'barracks',ground:'barracks',floor:CONCRETE,door:3,doorSpec:{w:0,h:3,k:'wood'}});
       add({x0:4,x1:26,z0:36,z1:60,top:G+12,style:'hangar',wall:METAL,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});}
     else if(type==='mine'){
       add({x0:50,x1:60,z0:8,z1:20,top:G+8,wall:BRICK,win:WIN_WARM,band:CONCRETE,kind:'shop',ground:'shop',floor:CONCRETE,door:0,doorSpec:{w:1,h:4,k:'barn'}});   // the winding house
@@ -4542,10 +4542,46 @@ function flo(b,fl){
   FL_SLAB=false;FL_LVL=(f2-1)%FH;FL_NO=1+Math.floor((f2-1)/FH);
 }
 // what sits on each floor: lobbies, offices, apartments, shops, the police station, hospitals, supermarkets
+// ---- bathrooms: a walled room of stalls and basins in a corner of the floor, clear of the stairs and the doors. A flat or
+// a house has its own; a big floor has one at each end. ----
+const WC_ROOMS=new Set(['diner','pizza','cafe','fastfood','sitdown','bar','soup','books','dentist','dispo','guns','dealer','armory','shop','market','drug','bigbox','grocery','ikea','office','lobby','bank','news','radio','stocks','school','library','police','firehall','courtroom','museum','aquarium','cinema','theater','disco','club','casino','factory','lab','barracks','terminal','stage','hosp','ward','lecture','mission','turbine','apartment']);
+function wcRooms(b,I,J,n,ex0,ez0,fl,ex1,ez1,px,pz){
+  const c=b._wc||(b._wc=new Map());let L=c.get(n);if(L)return L;L=[];c.set(n,L);
+  const kd=n===0?b.ground:b.kind;if(!WC_ROOMS.has(kd)||b.noIndoor||b.style!=='normal'&&b.style!=='house'||kd==='shop'&&!b.brand&&!b.station&&b.kind==='shop'||kd==='firehall')return L;
+  if(I<6||J<5)return L;
+  const S=b.stair,big=I*J>500,w=b.home?4:big?9:I>=12&&J>=8?6:I>=9?5:4,h=J>=10?5:4,tr=ex0-b.x0,cxI=((b.x0+b.x1)>>1)-ex0-1,czJ=((b.z0+b.z1)>>1)-ez0-1,st=STRUCT;
+  const hitsStair=(u0,u1,v0,v1)=>{if(!S)return false;const x0=u0+ex0+1,x1=u1+ex0+1,z0=v0+ez0+1,z1=v1+ez0+1,rx0=S.ax==='x'?S.r0-2:S.c0-1,rx1=S.ax==='x'?S.r0+S.L+2:S.c1+1,rz0=S.ax==='x'?S.c0-1:S.r0-2,rz1=S.ax==='x'?S.c1+1:S.r0+S.L+2;return x0<rx1&&x1>rx0&&z0<rz1&&z1>rz0;};
+  // flats: one each, in whichever corner of the flat is clear of the stairs and their landing
+  if(kd==='apartment'&&!b.home&&b.ground!=='firehall'&&b.style==='normal'){
+    const cu=I>>1,cv=J>>1,clear=(u0,u1,v0,v1)=>{if(!S)return true;const x0=u0+ex0+1,x1=u1+ex0+1,z0=v0+ez0+1,z1=v1+ez0+1,al=S.ax==='x',a0=al?x0:z0,a1=al?x1:z1,c0=al?z0:x0,c1=al?z1:x1;return!(a0<S.r0+S.L+3&&a1>S.r0-3&&c0<S.c1+3&&c1>S.c0-3);},   // (well clear of the stairs, and of the way round them)
+      put=(x0,x1,y0,y1)=>{for(const H of [Math.min(4,y1-y0),3])for(const [u0,v0,dv] of [[x1-4,y1-H,0],[x0,y1-H,0],[x1-4,y0,1],[x0,y0,1]]){if(clear(u0,u0+4,v0,v0+H)){L.push({u0,u1:u0+4,v0,v1:v0+H,dv,home:true});return;}}};
+    if(I>=9&&J>=12){put(0,cu,0,cv-2);put(cu+1,I,0,cv-2);put(0,cu,cv+2,J);put(cu+1,I,cv+2,J);}
+    else if(I>=12){put(0,cu,0,J);put(cu+1,I,0,J);}
+    else put(0,I,0,J);
+    return L;
+  }
+  const hitsDoor=(u0,u1,v0,v1)=>b.door===2?v0<2&&cxI+3>u0&&cxI-2<u1:b.door===3?v1>J-2&&cxI+3>u0&&cxI-2<u1:b.door===0?u0<2&&czJ+3>v0&&czJ-2<v1:u1>I-2&&czJ+3>v0&&czJ-2<v1;
+  const score=(u0,u1,v0,v1)=>{let n2=0;for(let u=u0;u<u1;u+=1)for(let v=v0;v<v1;v+=1){const a=furnRaw(b,u+ex0+1,v+ez0+1,fl,ex0,ex1,ez0,ez1,px,pz);if(a!==AIR)n2++;}
+    const backward=b.door===2?v0>0:b.door===3?v0===0:b.door===0?u0>0:u0===0;return n2+(backward?0:1);};
+  // (the four corners; if the stairs and the door rule them all out, a smaller room, then a spot along a wall)
+  const at=(W,H)=>[[0,W,0,H],[I-W,I,0,H],[0,W,J-H,J],[I-W,I,J-H,J]],custFront=b.eat||kd==='dentist'||kd==='guns',ok=q=>!hitsStair(...q)&&!hitsDoor(...q)&&(!custFront||(b.door===3?q[3]===J:q[2]===0));   // (customers shouldn't have to go through the kitchen or the surgery)
+  let cs=at(w,h).filter(ok);if(!cs.length)cs=at(4,4).filter(ok);if(!cs.length&&J>=8){const m=(J>>1)-2;cs=[[0,4,m,m+4],[I-4,I,m,m+4]].filter(ok);}
+  const cands=cs.map(q=>[score(...q),q]).sort((a,c)=>a[0]-c[0]);
+  STRUCT=st;
+  if(cands.length){const pick=q=>L.push({u0:q[0],u1:q[1],v0:q[2],v1:q[3],dv:q[2]===0?1:0,big});pick(cands[0][1]);if(big&&cands.length>1){const far=cands.filter(k=>k[1][0]!==cands[0][1][0]&&k[0]<20)[0];if(far)pick(far[1]);}}
+  return L;
+}
+// a cell of one of those rooms: its wall, the way in, or air
+function wcBlock(R,iu,iv,level){
+  const onV=iv===R.v0||iv===R.v1-1,onU=iu===R.u0||iu===R.u1-1;if(!onV&&!onU)return AIR;
+  const wallV=R.dv?R.v1-1:R.v0,cu=(R.u0+R.u1)>>1;if(iv===wallV&&(iu===cu||iu===cu-1)&&level<=2)return AIR;
+  return level<=3?PAINT_WHITE:AIR;
+}
 // (the furniture itself is mostly props now, not blocks: furnTurns says which pieces, furnProps sets them out)
 function furniture(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
-  const v=furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz);
   if(!b._fp){b._fp=[px,pz];FURN_SEEN.add(px+','+pz+','+b.x0+','+b.z0);}
+  {flo(b,fl);const n=FL_NO,lv=FL_LVL,iu=rx-ex0-1,iv=rz-ez0-1,W=wcRooms(b,ex1-ex0-2,ez1-ez0-2,n,ex0,ez0,fl,ex1,ez1,px,pz);for(const R of W)if(iu>=R.u0&&iu<R.u1&&iv>=R.v0&&iv<R.v1)return wcBlock(R,iu,iv,lv);flo(b,fl);}
+  const v=furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz);
   if(b.kind==='ward'||!FURN_IDS.has(v))return v;
   const st=STRUCT,t=furnTurns(v,b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz);STRUCT=st;
   return t?AIR:v;
@@ -4638,8 +4674,8 @@ function furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
         if(iu===cu+2&&(fv===0||fv===J-1)&&!(b.stair&&fv>=J-2))return SIDING;
         return AIR;}
       // a floor of flats: a corridor across the middle, a flat at each corner of it, a door each. (Too small for that: one flat.)
-      if(I>=12&&J<9&&b.ground!=='firehall'&&iu===(I>>1)&&iv>0)return level<=3?PAINT_WHITE:AIR;
-      if(I>=9&&J>=9&&b.ground!=='firehall'){const cu=I>>1,cv=J>>1;
+      if(I>=12&&J<12&&b.ground!=='firehall'&&iu===(I>>1)&&iv>0&&!(Math.abs(iv-(J>>1))<=1&&level<=2))return level<=3?PAINT_WHITE:AIR;
+      if(I>=9&&J>=12&&b.ground!=='firehall'){const cu=I>>1,cv=J>>1;
         if(iv===cv-2||iv===cv+1)return level<=2&&Math.abs(iu-(I>>2))<=1||level<=2&&Math.abs(iu-cu-(I>>2))<=1?AIR:PAINT_WHITE;
         if(iu===cu&&iv!==cv-1&&iv!==cv)return PAINT_WHITE;}
       return AIR;
@@ -5115,6 +5151,11 @@ function roomStep(g,B,tx,tz){
     if(Math.abs(u)<15.5&&Math.abs(U)>=15.5){const sg=U<0?-1:1;return Math.abs(g.pos.z-zd)>1?{x:x0+q.c+sg*13,z:zd}:{x:x0+q.c+sg*18,z:zd};}
     return null;}
   const b=B.b,fl=g.pos.y-G,gf=b.gf||FH,n=fl<gf?0:1+Math.floor((fl-gf-1)/FH),I=b.x1-b.x0-2,J=b.z1-b.z0-2;
+  {const Xa=B.px*CELL+b.x0+1,Za=B.pz*CELL+b.z0+1,ua=g.pos.x-Xa,va=g.pos.z-Za,Ua=tx-Xa,Va=tz-Za,W=b._wc&&b._wc.get(n);
+   // (in a bathroom: out by its door first)
+   if(W)for(const R of W)if(ua>=R.u0&&ua<R.u1&&va>=R.v0&&va<R.v1&&!(Ua>=R.u0&&Ua<R.u1&&Va>=R.v0&&Va<R.v1)){const du=(R.u0+R.u1)>>1,dz=R.dv?R.v1:R.v0;return Math.abs(ua-du)<1?{x:Xa+du,z:Za+dz+(R.dv?1.2:-1.2)}:{x:Xa+du,z:Za+dz+(R.dv?-1.5:1.5)};}
+   // (two flats side by side: through the doorway in the middle of the wall between them)
+   const kd=n===0?b.ground:b.kind;if(kd==='apartment'&&!b.home&&b.style==='normal'&&b.ground!=='firehall'&&I>=12&&J<12){const c=(I>>1)+.5;const mv=(J>>1)+.5;if((ua<c)!==(Ua<c))return Math.abs(va-mv)>1?{x:Xa+ua,z:Za+mv}:{x:Xa+Ua,z:Za+mv};}}
   const L=b.ground==='police'?policeRooms(b,I,J,n):b.ground==='hosp'&&n===0?hospRooms(b,I,J):null;if(!L)return null;
   const X0=B.px*CELL+b.x0+1,Z0=B.pz*CELL+b.z0+1,u=g.pos.x-X0,v=g.pos.z-Z0,U=tx-X0,V=tz-Z0;
   // (a hospital whose ER is across the back: through the gap in the wall between it and the lobby)
@@ -12849,6 +12890,10 @@ const PROPS={
   studiolight:[[P_DARK,0,.03,0,.6,.05,.6],[P_STEEL,0,1.3,0,.05,2.6,.05],[P_DARK,0,2.6,.1,.5,.4,.3],[PG+0xfff4c8,0,2.6,.26,.4,.3,.01]],
   // a flat painted backdrop, in the tint
   backdrop:[[PT,0,1.5,0,1,3,.06],[P_WOOD,0,.1,-.3,.1,.2,.6]],
+  // a toilet stall: side panels, a door standing ajar, the pan inside
+  stall:[[0x8fa3ad,-.5,.75,0,.05,1.5,1.3],[0x8fa3ad,.5,.75,0,.05,1.5,1.3],[0x8fa3ad,.3,.75,.65,.4,1.3,.04],[P_WHITE,0,.2,-.2,.4,.4,.56],[P_WHITE,0,.6,-.56,.5,.5,.18],[P_DARK,0,.41,-.18,.3,.02,.38]],
+  // the little sign outside a bathroom
+  wcsign:[[0x2b5fb8,0,0,0,.5,.5,.03],[P_WHITE,-.12,.02,.02,.1,.26,.01],[P_WHITE,.12,.02,.02,.1,.26,.01],[P_WHITE,-.12,.18,.02,.08,.08,.01],[P_WHITE,.12,.18,.02,.08,.08,.01]],
   // a deep fryer: a steel case, two baskets in hot oil
   fryer:[[P_STEEL,0,.42,0,.96,.84,.7],[0xd8a030,0,.85,.03,.8,.02,.5],[P_DARK,-.2,.92,.03,.3,.14,.36],[P_DARK,.2,.92,.03,.3,.14,.36],[P_DARK,0,.4,.355,.7,.3,.01]],
   // a drinks machine, on a counter
@@ -13153,7 +13198,7 @@ function aptFloor(b,px,pz,floorNo,L){
     if(h>=5){add('table',x+w/2,y+h/2,0);add('tv',x+w-.6,y+h/2,-HP_,0,.62);add('table',x+w-.6,y+h/2,-HP_);}
     if(w>=5)add('plant',x+w-.5,yf,0);
   };
-  if(I>=9&&J>=9&&b.ground!=='firehall'){const cu=I>>1,cv=J>>1;flat(0,0,cu,cv-2,-1);flat(cu+1,0,I-cu-1,cv-2,-1);flat(0,cv+2,cu,J-cv-2,1);flat(cu+1,cv+2,I-cu-1,J-cv-2,1);}
+  if(I>=9&&J>=12&&b.ground!=='firehall'){const cu=I>>1,cv=J>>1;flat(0,0,cu,cv-2,-1);flat(cu+1,0,I-cu-1,cv-2,-1);flat(0,cv+2,cu,J-cv-2,1);flat(cu+1,cv+2,I-cu-1,J-cv-2,1);}
   else if(I>=12&&b.ground!=='firehall'){flat(0,0,I>>1,J,1);flat((I>>1)+1,0,I-(I>>1)-1,J,1);}
   else flat(0,0,I,J,1);
 }
@@ -13418,8 +13463,9 @@ function mallProps(b,px,pz,n,L){
   const add=(type,u,v,yaw,tint,yo,low)=>{const X=px*CELL+b.x0+u,Z=pz*CELL+b.z0+v;L.push({prop:true,type,x:X,z:Z,y0:y0+(yo||0),yaw:yaw||0,tint,rad:.5,low,key:'p'+Math.round(X*4)+','+Math.round(Z*4)+','+y0+type});};
   for(let v=1;v+6<D-1;v++){if((v+7)%14!==1)continue;const cIdx=Math.floor((v+7)/14);
     for(let u0=1;u0+8<W-1;u0+=8){let ok=true;for(let a=u0-1;a<=u0+8&&ok;a++)for(let c=v-1;c<=v+6&&ok;c++)if(mallCut(a,c,W,D))ok=false;if(!ok)continue;
-      const unit=Math.floor((u0-1)/8),h=hash2(hx*131+unit*17+cIdx*7+n*3,hz*97+unit*5+cIdx*11+n),kind=Math.floor(h*5),x=u0+1,t=(a,c,A)=>A[Math.floor(hash2(u0*7+a+n,v*5+c)*A.length)%A.length];
+      const unit=Math.floor((u0-1)/8),h=hash2(hx*131+unit*17+cIdx*7+n*3,hz*97+unit*5+cIdx*11+n),kind=(unit+cIdx*3)%6===2?9:Math.floor(h*5),x=u0+1,t=(a,c,A)=>A[Math.floor(hash2(u0*7+a+n,v*5+c)*A.length)%A.length];
       // the shop runs right through, a door at each end: its goods along the sides and down the middle, the till to one side
+      if(kind===9){for(let a=.6;a<7;a+=1.1){add('stall',x+a,v+.9,0);add('stall',x+a,v+5.1,PI);}for(let a=1;a<7;a+=1.8)add('basin',x+a,v+3,a<3.5?0:PI);add('wcsign',x+3.5,v+.1,PI,2.4);continue;}
       add('bar',x+.5,v+1,HP,0x46505a);add('monitor',x+.5,v+1,HP,0,.9);
       if(kind===0){for(let c=1;c<5;c++)for(const a of [1.5,5.5])add('clothes',x+a,v+c+.5,HP,t(a,c,P_CLOTH));add('mannequin',x+2.2,v+.5,0,t(0,0,P_CLOTH));add('mannequin',x+4.8,v+5.4,PI,t(1,0,P_CLOTH));add('flamp',x+6.4,v+3,0);}
       else if(kind===1){for(let a=0;a<7;a++){add('shelf2',x+a+.5,v+3,0,0x46505a);if(a%2===0)add('tv',x+a+.5,v+3,0,0,1.95);}add('bar',x+5.5,v+1,0,0x46505a);add('tv',x+5.5,v+1,0,0,.9);}
@@ -13567,9 +13613,24 @@ const propCells=new Map(),propCK=(x,y,z)=>Math.floor(x)*4194304+Math.floor(z)*10
 // what a goblin can step up to: a prop in the way counts as a wall. (With g and dt: one that's been held up by props
 // for a while shoves the next one over, so a room packed with desks can't pen it in. Gus gets no points for that.)
 function gobGround(x,z,y,g,dt){
-  const k=propCK(x,y+.2,z),f=propCells.get(k);if(!f)return groundAt(x,z,y);
+  const k=propCK(x,y+.2,z),f=propCells.get(k);if(!f||g&&propCK(g.pos.x,g.pos.y+.2,g.pos.z)===k)return groundAt(x,z,y);   // (already standing in its cell: let it walk out)
   if(g){g.shove=(g.shove||0)+dt;if(g.shove>0.6){g.shove=0;propCells.delete(k);if(knockFix(f,f.x-g.pos.x,f.z-g.pos.z))score-=5;return groundAt(x,z,y);}}
   return y+9;
+}
+// whatever's on this floor, with its bathrooms fitted: anything standing in their footprint goes, the fixtures go in
+function roomProps(b,ax,az,n,ward){
+  const L=(ward?hospProps:furnProps)(b,ax,az,n);if(L._wc)return L;L._wc=true;
+  const gf=b.gf||FH,y0=n===0?G+1:G+gf+1+FH*(n-1),tr=b.tier>0&&(b.x1-b.x0)>=8&&y0>b.tier?2:0,X0=ax*CELL+b.x0+tr+1,Z0=az*CELL+b.z0+tr+1;
+  const R=b._wc&&b._wc.get(n);if(!R||!R.length)return L;
+  const out=L.filter(f=>!R.some(q=>f.x-X0>=q.u0-.3&&f.x-X0<q.u1+.3&&f.z-Z0>=q.v0-.3&&f.z-Z0<q.v1+.3));L.length=0;for(const f of out)L.push(f);
+  const add=(type,u,v,yaw,yo,tint)=>{const X=X0+u,Z=Z0+v;L.push({prop:true,type,x:X,z:Z,y0:y0+(yo||0),yaw:yaw||0,tint,rad:.5,key:'p'+Math.round(X*4)+','+Math.round(Z*4)+','+y0+type});};
+  for(const q of R){const x0=q.u0+1,x1=q.u1-1,PI=Math.PI,farV=q.dv?q.v0+1:q.v1-1,nearV=q.dv?q.v1-1:q.v0+1,back=q.dv?0:PI,face=q.dv?PI:0,dirn=q.dv?1:-1;
+    if(q.home){add('toilet',x0+.5,farV+dirn*.5,back);add('basin',x1-.4,farV+dirn*.4,back);if(q.v1-q.v0>=5&&x1-x0>=3)add('bathtub',x0+1.5,farV+dirn*1.6,back);}
+    else{let u=x0+.55;for(;u<=x1-.5;u+=1.1)add('stall',u,farV+dirn*.72,back);
+      if(q.v1-q.v0>=5)for(let u2=x0+.6;u2<=x1-.5;u2+=1.8){const cd=((q.u0+q.u1)>>1)-.0;if(Math.abs(u2-cd)>1.2)add('basin',u2,nearV-dirn*.3,face);}
+      add('wcsign',((q.u0+q.u1)>>1)+1.4,nearV+dirn*.55*(-1),q.dv?0:PI,2.4);}
+  }
+  return L;
 }
 function refreshProps(){
   nPropL=nPropG=0;activeProps.length=0;propCells.clear();const R=34,seen=new Set();
@@ -13584,7 +13645,7 @@ function refreshProps(){
         const f0=Math.max(0,Math.floor((p.pos.y-G-1-b.gf)/FH)+1);
         for(let n=Math.max(0,f0-1);n<=f0+1;n++){const y0=n===0?G+1:G+b.gf+1+FH*(n-1);if(y0>Math.min(b.detailTop,b.top-1)-2)break;
           const RF=n===f0?R:18;   // (the floors above and below only matter close to, through a hole or from the stairs)
-          for(const f of (ward?hospProps:furnProps)(b,ax,az,n)){if(Math.abs(f.x-p.pos.x)>RF||Math.abs(f.z-p.pos.z)>RF)continue;
+          for(const f of roomProps(b,ax,az,n,ward)){if(Math.abs(f.x-p.pos.x)>RF||Math.abs(f.z-p.pos.z)>RF)continue;
             const fx=Math.floor(f.x),fz=Math.floor(f.z);if(!chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS))))continue;
             if(get(fx,y0-1,fz)===AIR||get(fx,y0,fz)!==AIR)continue;   // (the floor under it gone, or rubble where it stood)
             activeProps.push(f);drawProp(f);if(!f.low&&!downFix.has(f.key)&&!falling.has(f.key))propCells.set(propCK(f.x,f.y0,f.z),f);}}

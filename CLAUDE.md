@@ -8,7 +8,7 @@ Open the file in a browser to play.
 - `game/index.html` is the only deliverable. Keep it one file — no build step, no bundler.
 - Parody of real brands is welcome and part of the humour (names like "Goblin Walmart"). Draw parody logos rather than copying real artwork.
 - Comments are plain English, explaining *why*, often in parentheses. Match the existing style.
-- **Bump `SAVE_KEY`** (currently `'goblin-city-v75'`) whenever world generation changes, so old saves don't load into a different world.
+- **Bump `SAVE_KEY`** (currently `'goblin-city-v76'`) whenever world generation changes, so old saves don't load into a different world.
 - Make edits with exact, unique string replacements. Many identifiers repeat, so check for a single match before replacing.
 - After every change: run the tests (below) before calling it done.
 
@@ -37,6 +37,7 @@ node streetaudit.js        # trees in streets, block lines through corner bends,
 node sitecount.js 200      # how many of each big site land within that many plots of the middle
 node stairaudit.js 160     # which buildings with more than one floor still have no stairs
 node signcount.js 150      # how many signs each kind of building carries
+node wcaudit.js 150        # which buildings have no bathroom, floor by floor (`wcRooms` places them)
 ```
 To review the chains' logos: `node logosheet.js out.png` from `tools/ui`. To look at a spot in the real game: `python tools/build_3d.py game/index.html tools/ui/t3.html`, then `node tour.js scenes.js outDir [seed]` from `tools/ui` (set `TOUR_VIEW=800` to see that many blocks through the fog, and pass a wait of about 25000 as a fourth argument so distant chunks finish building).
 

@@ -1,9 +1,9 @@
 fire stair {"ax":"x","c0":25,"c1":27,"r0":14,"L":7,"m":1} floors [45,52] plot 5 5
 fire up reached in 4s floors 45 52
-fire down reached in 7s floors 52 45
+fire down reached in 1s floors 52 45
 fire Gus got to the top
 school stair {"ax":"z","c0":43,"c1":46,"r0":36,"L":5} floors [45,50] plot -10 2
-school up reached in 6s floors 45 50
+school up reached in 7s floors 45 50
 school down reached in 8s floors 50 45
 school Gus got to the top
 schoolWide none found
@@ -16,7 +16,7 @@ police up reached in 16s floors 45 50
 police down reached in 14s floors 50 45
 police Gus got to the top
 museum stair {"ax":"x","c0":24,"c1":26,"r0":57,"L":10} floors [45,55] plot -4 44
-museum up reached in 22s floors 45 55
+museum up reached in 50s floors 45 55
 museum down reached in 15s floors 55 45
 museum Gus got to the top
 hospital stair {"ax":"x","c0":50,"c1":54,"r0":28,"L":8} floors [45,53,58,63,68,73,78,83,88,93,98] plot 12 -6
@@ -30,7 +30,7 @@ campus Gus got to the top
 prison none found
 homes stair {"ax":"x","c0":24,"c1":26,"r0":21,"L":5} floors [45,50] plot 0 7
 homes up reached in 4s floors 45 50
-homes down reached in 7s floors 50 45
+homes down reached in 13s floors 50 45
 homes Gus got to the top
 mid stair {"ax":"x","c0":13,"c1":15,"r0":14,"L":5} floors [45,50,55] plot -1 1
 mid up reached in 3s floors 45 50
