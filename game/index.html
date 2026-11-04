@@ -627,7 +627,8 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
       <h2>DEBUG: RENDERING</h2>
       <p class="vnote">Stops these being drawn; they're still really there, so you can fall into a cave you can't see, and props still get in the way. They come back on when you reload the game.</p>
       <div class="abil" id="dbgGfx">
-        <button type="button" class="tog" role="checkbox" data-k="gProps"><span class="box" aria-hidden="true"></span><span class="tl">Props<small>Furniture and other things made of small boxes</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="gProps"><span class="box" aria-hidden="true"></span><span class="tl">Props<small>Furniture and other things made of small boxes, benches and litter bins included</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="gFixtures"><span class="box" aria-hidden="true"></span><span class="tl">Fixtures<small>Lamp posts, traffic lights, road signs, flags, billboards, power line cables and stair handrails</small></span></button>
         <button type="button" class="tog" role="checkbox" data-k="gCaves"><span class="box" aria-hidden="true"></span><span class="tl">Caves<small>Caverns, tunnels and cave mouths</small></span></button>
         <button type="button" class="tog" role="checkbox" data-k="gSewers"><span class="box" aria-hidden="true"></span><span class="tl">Sewers<small>The tunnels under the streets and their stairwells</small></span></button>
         <button type="button" class="tog" role="checkbox" data-k="gSubway"><span class="box" aria-hidden="true"></span><span class="tl">Subways<small>Tunnels, stations, their stairs and the trains</small></span></button>
@@ -2869,7 +2870,8 @@ function streetFurn(px,pz){
   const t=plotType(px,pz),X0=px*CELL,Z0=pz*CELL,PB=plotBounds(px,pz);
   if(t==='fire')v.push({type:'flag',key:'ff'+px+','+pz,x:X0+PL0+15.5,z:Z0+PL0+2,yaw:0,rad:0.4});
   {const Sx=t==='super'&&superOf(px,pz);if(Sx&&Sx.kind==='school'&&Sx.ax===px&&Sx.az===pz)v.push({type:'flag',key:'fs'+px+','+pz,x:X0+PL0+(Sx.w>=3?35.5:8),z:Z0+PL0+(Sx.w>=3?10:3),yaw:0,rad:0.4});}
-  const add=(type,lx,lz,yaw,on,tag)=>{const x=X0+lx,z=Z0+lz;if(superPart(x,z)==='in')return;v.push({type,key:type+'@'+Math.round(x*2)+','+Math.round(z*2),x,z,yaw,on,rad:type==='bench'?0.6:0});};
+  // (props, drawn by refreshProps. Their keys keep the old names, so one knocked over in a saved world stays down)
+  const add=(type,lx,lz,yaw,on,tag)=>{const x=X0+lx,z=Z0+lz;if(superPart(x,z)==='in')return;v.push({prop:true,type:type==='bench'?'parkbench':'litterbin',key:type+'@'+Math.round(x*2)+','+Math.round(z*2),x,z,y0:G+1,yaw,on,rad:type==='bench'?0.6:0});};
   if(FURN_T.has(t)&&!superOf(px,pz)){
     // [across-the-pavement position, along, which side's street, yaw facing the road]
     const sides=[[ROADW+1.3,0,()=>segOpen(px,pz,0),-Math.PI/2],[CELL-1.3,0,()=>segOpen(px+1,pz,0),Math.PI/2],[ROADW+1.3,1,()=>segOpen(px,pz,1),Math.PI],[CELL-1.3,1,()=>segOpen(px,pz+1,1),0]];
@@ -7138,7 +7140,7 @@ function emitRamp(out,X,Y,Z,info){
 // ---- the debug switches that stop props, caves, sewers and subways being drawn. Only the picture changes: the blocks are
 // still there for everything that walks, falls or collides. The chunk is drawn from a copy with those places filled in
 // with the plain earth that would be there without them, so no walls are left hanging in the dark. ----
-const GFX_OFF={props:false,caves:false,sewers:false,subway:false},GFX_KINDS=['caves','sewers','subway'];
+const GFX_OFF={props:false,fixtures:false,caves:false,sewers:false,subway:false},GFX_KINDS=['caves','sewers','subway'];
 const gfxRecC=new Map();
 // every block this chunk's caves (0), sewer (1) and subway (2) wrote, found by running them again on a spare copy
 function gfxRec(cx,cz){
@@ -12904,7 +12906,7 @@ const DBG_SECS=[
   [0,'World',[{k:'wx',label:'Weather'},{k:'season',label:'Season'}]],
   [1,'Player',[{k:'pspeed',label:'Player speed'},{k:'invuln',label:'Invulnerable'},{k:'infStam',label:'Infinite stamina'},{k:'fly',label:'Flying'},{k:'gob',label:'Play as a goblin'},{k:'peace',label:'Enemy hostility'}]],
   [1,'Overlays',[{k:'fps',label:'FPS counter'},{k:'hpBars',label:'Health bars'},{k:'dmgNums',label:'Damage numbers'}]],
-  [2,'Rendering',[{k:'gProps',label:'Props'},{k:'gCaves',label:'Caves'},{k:'gSewers',label:'Sewers'},{k:'gSubway',label:'Subways'}]],
+  [2,'Rendering',[{k:'gProps',label:'Props'},{k:'gFixtures',label:'Fixtures'},{k:'gCaves',label:'Caves'},{k:'gSewers',label:'Sewers'},{k:'gSubway',label:'Subways'}]],
   [2,'Hitboxes',[{k:'show',label:'Display hitboxes'},
     {k:'pBlock',label:'Player block hitboxes',col:'#ff9a2a'},{k:'nBlock',label:'NPC block hitboxes',col:'#e8d040'},
     {k:'pDmg',label:'Player damage hitboxes',col:'#ff3a3a'},{k:'nDmg',label:'NPC damage hitboxes',col:'#ff4fd8'},
@@ -12914,9 +12916,10 @@ const DBG_ITEMS=DBG_SECS.flatMap(([c,sec,rows])=>rows.map(it=>Object.assign(it,{
 const DBG_ADJ=new Set(['speed','pspeed','curve','wx','season']);
 // the Rendering switches, and what each one stops being drawn (not saved: a world with holes in the picture would only
 // be confusing to come back to). The caves, sewers and subways redraw over the next few frames, nearest first.
-const GFX_KEY={gProps:'props',gCaves:'caves',gSewers:'sewers',gSubway:'subway'};
+const GFX_KEY={gProps:'props',gFixtures:'fixtures',gCaves:'caves',gSewers:'sewers',gSubway:'subway'};
 function toggleGfx(k){const g=GFX_KEY[k],off=GFX_OFF[g]=!GFX_OFF[g];
   if(g==='props'){PROP_L.visible=PROP_G.visible=!off;return;}
+  if(g==='fixtures'){FIX_BAR.visible=FIX_GLOW.visible=FIX_COL.visible=!off;trafficRefreshT=0;return;}   // (the signs, signal heads and billboard faces: at the end of refreshFixtures)
   if(g==='subway')for(const V of venues.values())if(V.kind==='sub')for(const c of V.cars)c.visible=!off;
   const P=P1.pos,d=e=>Math.hypot(e.cx*CS-P.x,e.cz*CS-P.z);
   leafQ.length=0;for(const e of [...meshes.values()].sort((a,b)=>d(b)-d(a)))leafQ.push(ckey(e.cx,e.cz));}
@@ -13281,7 +13284,7 @@ const LAMP_SPOTS=[[ROADW,PL0+4,-1,0],[ROADW,PL1-4,-1,0],[CELL-1,PL0+4,1,0],[CELL
 const BAR_MAX=3000,GLOW_MAX=800;
 const FIX_BAR=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshLambertMaterial({color:0x3a3f45}),BAR_MAX);
 const FIX_GLOW=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xffe6a8}),GLOW_MAX);
-// (and boxes in their own colours: benches, bins, billboard frames)
+// (and boxes in their own colours: bunting, flags, billboard frames)
 const COL_MAX=4000,FIX_COL=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshLambertMaterial({color:0xffffff}),COL_MAX);
 FIX_COL.setColorAt(0,new THREE.Color(0xffffff));
 for(const m of [FIX_BAR,FIX_GLOW,FIX_COL]){m.frustumCulled=false;m.count=0;scene.add(m);}
@@ -13332,13 +13335,6 @@ function drawFix(f,near){
     pushBox(false,f.x,by+3.0,f.z,0.2,6.0,0.2);
     pushBox(false,f.x+s0*1.6,by+5.9,f.z+s1*1.6,s0?3.3:0.12,0.12,s1?3.3:0.12);
     if(near){const h=headAt(nHead++);if(h){placeGroup(h.g,f.x+3*s0,by+5.25,f.z+3*s1,f.yaw+Math.PI);h.ct=f.ct;h.axis=f.axis;h.lit=lit;}}
-  } else if(f.type==='bench'){
-    // a park bench: wooden slats on two iron ends, a back rest behind (facing the way its yaw points)
-    for(const sx of [-1,1]){pushRot(f,false,sx*1.0,0.27,0,0.1,0.54,0.62);pushRot(f,false,sx*1.0,0.7,-0.27,0.1,0.42,0.08);}
-    pushRot(f,0x8a5a32,0,0.58,0.04,2.3,0.08,0.56);pushRot(f,0x8a5a32,0,0.86,-0.29,2.3,0.12,0.06);pushRot(f,0x7a4e2a,0,1.04,-0.29,2.3,0.12,0.06);
-  } else if(f.type==='bin'){
-    // a litter bin: a squat green can with a dark lid
-    pushRot(f,0x2e5a3a,0,0.42,0,0.62,0.84,0.62);pushRot(f,0x23272b,0,0.88,0,0.7,0.08,0.7);pushRot(f,0x23272b,0,0.94,0,0.3,0.06,0.3);
   } else if(f.type==='bunt'){
     // a string of coloured pennants sagging between two poles
     const L=f.L,cols=[0xe53935,0xffd23a,0x1e88e5,0x43a047,0xffffff];
@@ -13379,6 +13375,9 @@ function fridgeModel(n){
   return [[P_WHITE,0,H/2,0,.94,H,.82],[0xbfe6f5,0,H/2+.03,.415,.82,H-.12,.02],[P_STEEL,.32,H/2,.435,.04,Math.min(.8,H*.6),.03],[P_DARK,0,.05,.4,.94,.1,.04]];
 }
 const PROPS={
+  // out on the pavements and in the parks: a bench of wooden slats on two iron ends, a back rest behind; a squat green litter bin with a dark lid
+  parkbench:[[0x3a3f45,-1,.27,0,.1,.54,.62],[0x3a3f45,1,.27,0,.1,.54,.62],[0x3a3f45,-1,.7,-.27,.1,.42,.08],[0x3a3f45,1,.7,-.27,.1,.42,.08],[0x8a5a32,0,.58,.04,2.3,.08,.56],[0x8a5a32,0,.86,-.29,2.3,.12,.06],[0x7a4e2a,0,1.04,-.29,2.3,.12,.06]],
+  litterbin:[[0x2e5a3a,0,.42,0,.62,.84,.62],[0x23272b,0,.88,0,.7,.08,.7],[0x23272b,0,.94,0,.3,.06,.3]],
   // a hospital bed: wheels, a steel frame, mattress, pillow and blanket, a head and foot board, and side rails
   bed:[[P_DARK,-.34,.06,-.7,.12,.12,.12],[P_DARK,.34,.06,-.7,.12,.12,.12],[P_DARK,-.34,.06,.7,.12,.12,.12],[P_DARK,.34,.06,.7,.12,.12,.12],
     [P_STEEL,-.34,.2,-.7,.05,.2,.05],[P_STEEL,.34,.2,-.7,.05,.2,.05],[P_STEEL,-.34,.2,.7,.05,.2,.05],[P_STEEL,.34,.2,.7,.05,.2,.05],
@@ -14549,6 +14548,16 @@ function stadiumProps(S){
 const COAST_PROPS=new Set(['beach','harbor','yard','navy','rig']);
 function refreshProps(){
   nPropL=nPropG=0;activeProps.length=0;propCells.clear();const R=34,seen=new Set();
+  // benches and litter bins, out to the same distance as the lamp posts beside them (they're out in the open, so 34 blocks
+  // would have them popping in down the street). Listed with the fixtures too: traffic knocks them over, as it does lamps.
+  {const RS=Math.min(viewFar(),96),seenS=new Set();
+   for(const p of players){if(!p.active)continue;
+     for(let px=Math.floor((p.pos.x-RS)/CELL);px<=Math.floor((p.pos.x+RS)/CELL);px++)for(let pz=Math.floor((p.pos.z-RS)/CELL);pz<=Math.floor((p.pos.z+RS)/CELL);pz++){
+       const ck=px*100003+pz;if(seenS.has(ck))continue;seenS.add(ck);if(biomeOf(px,pz)==='plains')continue;
+       for(const f of streetFurn(px,pz)){if(!f.prop)continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);if(get(fx,G,fz)!==f.on||get(fx,G+1,fz)!==AIR)continue;
+         activeProps.push(f);activeFix.push(f);drawProp(f);if(downFix.has(f.key)||falling.has(f.key))continue;
+         // (a bench is wider than one block: goblins go round the whole of it)
+         const L=f.type==='parkbench'?.9:0,ux=Math.cos(f.yaw)*L,uz=-Math.sin(f.yaw)*L;for(const e of L?[-1,0,1]:[0])propCells.set(propCK(f.x+ux*e,f.y0,f.z+uz*e),f);}}}}
   for(const p of players){if(!p.active)continue;
     for(let px=Math.floor((p.pos.x-R)/CELL);px<=Math.floor((p.pos.x+R)/CELL);px++)for(let pz=Math.floor((p.pos.z-R)/CELL);pz<=Math.floor((p.pos.z+R)/CELL);pz++){
       const S=superOf(px,pz),ax=S?S.ax:px,az=S?S.az:pz,P=plotInfo(ax,az);
@@ -14605,7 +14614,7 @@ function refreshFixtures(){
       const PBf=plotBounds(px,pz);
       for(const [lx,lz,rx,rz] of LAMP_SPOTS){if(superPart(X0+lx,Z0+lz)==='in')continue;if(!(lx===ROADW?segOpen(px,pz,0):lx===CELL-1?segOpen(px+1,pz,0):lz===ROADW?segOpen(px,pz,1):segOpen(px,pz+1,1)))continue;if(get(X0+lx,G,Z0+lz)===ASPHALT||get(X0+lx,G+1,Z0+lz)!==AIR)continue;if(lx>=PBf.x0&&lx<PBf.x1&&lz>=PBf.z0&&lz<PBf.z1)continue;const f={type:'lamp',key:'l'+(X0+lx)+','+(Z0+lz),x:X0+lx+0.5,z:Z0+lz+0.5,rx,rz};activeFix.push(f);drawFix(f,near);}
       // benches and litter bins along the pavements of the busier blocks, and along the paths in the parks
-      for(const o of streetFurn(px,pz)){if(o.on&&(get(Math.floor(o.x),G,Math.floor(o.z))!==o.on||get(Math.floor(o.x),G+1,Math.floor(o.z))!==AIR))continue;activeFix.push(o);drawFix(o,near);}
+      for(const o of streetFurn(px,pz)){if(o.prop||o.on&&(get(Math.floor(o.x),G,Math.floor(o.z))!==o.on||get(Math.floor(o.x),G+1,Math.floor(o.z))!==AIR))continue;activeFix.push(o);drawFix(o,near);}
       const ct=ctlAt(px,pz);
       if(ct.k!=='none')for(let d=0;d<4;d++){
         const A=APPR[d],axis=d%2?'x':'z',v=DIRV[d];
@@ -14632,6 +14641,7 @@ function refreshFixtures(){
   for(let i=nBoard;i<boards.length;i++)boards[i].g.visible=false;
   for(let i=nHead;i<heads.length;i++)heads[i].g.visible=false;
   for(let i=nSign;i<signs.length;i++)signs[i].g.visible=false;
+  if(GFX_OFF.fixtures)for(const L of [boards,heads,signs])for(const o of L)o.g.visible=false;
   refreshProps();
 }
 function knockFix(f,dx,dz){
@@ -14642,7 +14652,6 @@ function knockFix(f,dx,dz){
   clang();tone('square',240,90,0.22,0.05);
   if(f.type==='lamp')puff(f.x+f.rx*1.5,G+6.6,f.z+f.rz*1.5,6,0xfff0c0,0.35);
   else if(f.type==='board'){puff(f.x,G+7,f.z,14,0x9a948a,1.6);thud(0.5);score+=75;}
-  else if(f.type==='bench'||f.type==='bin')puff(f.x,G+1.2,f.z,3,0x8a7a62,0.4);
   else puff(f.x,G+1.4,f.z,4,0x9a948a,0.5);
   score+=25;trafficRefreshT=0;return true;
 }
