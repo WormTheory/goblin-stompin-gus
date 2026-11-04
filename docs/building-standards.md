@@ -104,6 +104,17 @@ These print measurements and don't fail by themselves, so read the results. Then
 
 Every picture for Thomas carries a short description of its purpose and a timestamp burned into the image, which `tour.js` does from `caption`.
 
+## The capitol
+
+Thomas asked for it to read like a real capitol, keeping its footprint. It has four storeys of rooms, worked out in `capPlan` (walls and doors) and `capitolProps` (furniture), the Senate in the west wing and the House in the east, the same plan either side.
+
+- **Ground floor:** guards and metal detectors inside the great doors, the rotunda (founder's statue, statues in the niches, great paintings, a compass ring in the floor), the statuary hall behind it and the courtroom behind that; each chamber through two floors, with a rostrum, seal and flags; a cloakroom and bathroom behind each chamber; the governor's reception room, the visitors' centre and gift shop, the sergeant at arms.
+- **Second floor:** the galleries round the chambers, the legislative library, the governor's office, the speaker's office, press rooms, the clerk's office and bill room.
+- **Third floor:** a hearing room and a caucus room above each chamber, the members' dining room and kitchen, senior officers, staff offices, more bathrooms.
+- **Fourth floor:** members' suites (an outer office and the member's own), the archive, the capitol police, a break room and a mail room.
+
+Each wing has its own portico and doors. `tools/tests/capaudit.js` checks that every room can be walked to, every door is really there and drawn, and no prop is in a wall or a doorway.
+
 ## Left as they are, on purpose
 
-Arena and stadium seating, the capitol's rooms, data centers, lecture halls, mission control and turbine halls keep their block-built interiors because they read well. Churches, cathedrals, car parks, malls and lighthouses have no stairs for good reason (one tall room, ramps, escalators, their own spiral). Churches, car parks, barns, sheds and huts, trailers and building sites have no bathroom.
+Arena and stadium seating, data centers, lecture halls, mission control and turbine halls keep their block-built interiors because they read well. Churches, cathedrals, car parks, malls and lighthouses have no stairs for good reason (one tall room, ramps, escalators, their own spiral). Churches, car parks, barns, sheds and huts, trailers and building sites have no bathroom.

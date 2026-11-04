@@ -759,7 +759,7 @@ function horizHidden(cx,cy,cz,hr,top){
     if(!o.isInstancedMesh&&horizHidden(sp.center.x,sp.center.y,sp.center.z,sp.radius,sp.center.y+sp.radius))return false;   // (over the horizon)
     const d=Math.hypot(sp.center.x-CURVE_CAM.x,sp.center.z-CURVE_CAM.z),r=sp.radius,lo=k*Math.max(0,d-r)**2,hi=k*(d+r)**2;
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v87';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v88';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -5256,10 +5256,8 @@ function onStair(g,B){
 // where next, for a goblin finding its way between a building's rooms to (tx,tz): out by its door, along the corridors and
 // the hall, in by the other room's door. Null if there's nothing in the way but the open floor.
 function roomStep(g,B,tx,tz){
-  // (the capitol: from the rotunda, out by the way through to the wing)
-  if(B.b.style==='capitol'){const q=capGeo(),x0=B.px*CELL+PL0,z0=B.pz*CELL+PL0,u=g.pos.x-x0-q.c,U=tx-x0-q.c,zd=z0+q.bf+16.5;
-    if(Math.abs(u)<15.5&&Math.abs(U)>=15.5){const sg=U<0?-1:1;return Math.abs(g.pos.z-zd)>1?{x:x0+q.c+sg*13,z:zd}:{x:x0+q.c+sg*18,z:zd};}
-    return null;}
+  // (the capitol: door to door through its rooms, worked out from its plan)
+  if(B.b.style==='capitol')return capStep(g,B,tx,tz);
   const b=B.b,fl=g.pos.y-G,gf=b.gf||FH,n=fl<gf?0:1+Math.floor((fl-gf-1)/FH),I=b.x1-b.x0-2,J=b.z1-b.z0-2;
   {const Xa=B.px*CELL+b.x0+1,Za=B.pz*CELL+b.z0+1,ua=g.pos.x-Xa,va=g.pos.z-Za,Ua=tx-Xa,Va=tz-Za,W=b._wc&&b._wc.get(n);
    // (in a bathroom: out by its door first)
@@ -6255,19 +6253,114 @@ function obeliskAt(b,rx,rz,y){
   if(fl===19)return(u===1||u===2)&&(v===1||v===2)?(u+v)%2?METAL:MARBLE:AIR;
   return AIR;
 }
+// the capitol's floors, laid out as a real one is: the rotunda in the middle, a chamber in each wing (the Senate to the west,
+// the House to the east) two storeys high with a public gallery round it, and offices, hearing rooms and the rest around those.
+// (s is the side, 0 west and 1 east; a how far out from the middle, w how far back from the front wall. Either side is the same plan.)
+const capCell=(s,a,w)=>(s*42+a)*60+w;
+const capChamber=(a,w)=>a>=20&&a<=38&&w>=20&&w<=45;
+const capGal=(a,w)=>capChamber(a,w)&&w<=40&&(a<=23||a>=35||w<=23);   // (the gallery, round three sides: none over the rostrum)
+const capRail=(a,w)=>capGal(a,w)&&(a===23&&w>=23||a===35&&w>=23||w===23&&a>=23&&a<=35||w===40);
+let CAP_PLAN=null;
+function capPlan(){
+  if(CAP_PLAN)return CAP_PLAN;
+  const F=[0,1,2,3].map(()=>new Uint8Array(84*60)),doors=[];   // (1 a wall, 2 a door, 3 an open archway)
+  const set=(n,s,a,w,k)=>{F[n][capCell(s,a,w)]=k;};
+  // (the walls round a room: a0 below 0 runs on across the middle of the building, so no wall there)
+  const room=(n,s,a0,a1,w0,w1)=>{for(let a=Math.max(0,a0);a<=a1;a++){set(n,s,a,w0,1);set(n,s,a,w1,1);}for(let w=w0;w<=w1;w++){if(a0>=0)set(n,s,a0,w,1);set(n,s,a1,w,1);}};
+  // (w the width either side of the middle: 0 for a single door, 1 for a double one three wide)
+  const door=(n,s,a,w,ax,wd)=>{wd=wd||0;for(let i=-wd;i<=wd;i++)if(ax==='x')set(n,s,a+i,w,2);else set(n,s,a,w+i,2);doors.push({n,s,a,w,ax,wd});};
+  for(let s=0;s<2;s++){
+    for(let n=0;n<4;n++){
+      // the front of each wing: a big room towards the middle, a narrow one at the end, the stair hall between them (doors on to the main corridor)
+      room(n,s,15,24,0,14);door(n,s,20,14,'x');
+      room(n,s,34,39,0,14);door(n,s,36,14,'x');
+      // the back of each wing, behind the corridor that runs across behind the chamber
+      room(n,s,25,39,51,59);door(n,s,32,51,'x');
+      if(n%2===0){room(n,s,20,25,54,59);door(n,s,23,54,'x');}   // (a bathroom every other floor)
+      else{room(n,s,15,25,51,59);door(n,s,20,51,'x');}
+      // the back of the middle of the building
+      room(n,s,-1,15,31,59);
+    }
+    // the chamber, through two floors: the great doors off the corridor, a door by the rostrum, and upstairs a door on to its gallery
+    room(0,s,19,39,19,46);room(1,s,19,39,19,46);door(0,s,29,19,'x',1);door(0,s,19,42,'z');door(1,s,29,19,'x',1);
+    // above it, a hearing room and a caucus room...
+    room(2,s,19,39,19,34);room(2,s,19,39,34,46);door(2,s,29,19,'x',1);door(2,s,19,40,'z');
+    // ...and above those, members' suites: an outer office off the corridor, the member's own room through it
+    for(const [w0,w1] of [[19,28],[28,37],[37,46]]){const m=(w0+w1)>>1;room(3,s,19,29,w0,w1);room(3,s,29,39,w0,w1);door(3,s,19,m,'z');door(3,s,29,m,'z');}
+    // the back of the middle: the statuary hall and the courtroom, the library, the dining room and kitchen, the archive and the police
+    for(let a=0;a<15;a++){set(0,s,a,44,a<2?3:1);set(2,s,a,47,1);set(3,s,a,45,1);}
+    door(0,s,15,38,'z');door(0,s,15,52,'z');door(1,s,15,36,'z');door(1,s,15,54,'z');door(2,s,15,40,'z');door(3,s,15,38,'z');door(3,s,15,52,'z');
+  }
+  door(2,0,1,47,'x');   // (the kitchen's, on one side only)
+  return CAP_PLAN={F,doors};
+}
+// which way to go on storey n for a goblin with no route map to go by: how many steps each spot is from the target spot, a map for each
+// target (filled in once: there are only so many rooms to be heading for). -1 is somewhere that can't be walked.
+const CAP_FIELD=new Map();
+function capField(n,s0,a0,w0,B,x0,z0){
+  const key=n+':'+capCell(s0,a0,w0);let D=CAP_FIELD.get(key);if(D)return D;
+  if(CAP_FIELD.size>64)CAP_FIELD.clear();D=new Int16Array(84*60).fill(-1);CAP_FIELD.set(key,D);
+  // (and round the furniture, which a goblin can't walk through)
+  const blocked=new Set();for(const f of roomProps(B.b,B.px,B.pz,n)){if(f.low)continue;const u=Math.floor(f.x-x0),a=u<0?-u-1:u,s=u<0?0:1;blocked.add(capCell(s,a,Math.floor(f.z-z0)));}
+  const F=capPlan().F[n],open=(s,a,w)=>{if(a<0||a>38||w<1||w>58)return false;
+    if(a<=15&&w<=31){if(n)return false;if(a===15)return w>=15&&w<=17;if(w===31)return a<3;return true;}   // (the rotunda, only on the ground floor)
+    return F[capCell(s,a,w)]!==1&&!blocked.has(capCell(s,a,w));};
+  if(!open(s0,a0,w0))return D;
+  const q=[capCell(s0,a0,w0)];D[q[0]]=0;
+  for(let i=0;i<q.length;i++){const k=q[i],w=k%60,sa=(k-w)/60,s=sa>=42?1:0,a=sa-s*42,d=D[k]+1;
+    for(const [s2,a2,w2] of [[s,a+1,w],[s,a-1,w],[s,a,w+1],[s,a,w-1]]){const S=a2<0?1-s2:s2,A=a2<0?0:a2;if(!open(S,A,w2))continue;const c=capCell(S,A,w2);if(D[c]<0){D[c]=d;q.push(c);}}}
+  return D;
+}
+function capStep(g,B,tx,tz){
+  const q=capGeo(),x0=B.px*CELL+PL0+q.c,z0=B.pz*CELL+PL0+q.bf,n=Math.floor((g.pos.y-G-4)/FH);if(n<0||n>3)return null;
+  const cell=(x,z)=>{const u=Math.floor(x-x0),s=u<0?0:1,a=u<0?-u-1:u,w=Math.floor(z-z0);return a>=0&&a<=38&&w>=1&&w<=58?[s,a,w]:null;};
+  const A=cell(g.pos.x,g.pos.z),T=cell(tx,tz);if(!A||!T)return null;
+  const D=capField(n,T[0],T[1],T[2],B,x0,z0),d=D[capCell(A[0],A[1],A[2])];if(d<3)return null;
+  let best=null,bd=d;for(const [s,a,w] of [[A[0],A[1]+1,A[2]],[A[0],A[1]-1,A[2]],[A[0],A[1],A[2]+1],[A[0],A[1],A[2]-1]]){const S=a<0?1-s:s,Aa=a<0?0:a;if(Aa>38||w<1||w>58)continue;const e=D[capCell(S,Aa,w)];if(e>=0&&e<bd){bd=e;best=[S,Aa,w];}}
+  return best&&{x:x0+(best[0]?best[1]+.5:-best[1]-.5),z:z0+best[2]+.5};
+}
+// what the floor of storey n is made of: carpet in the chambers and the grandest rooms, marble in the public halls, wood where people sit
+function capFloor(n,s,a,w){
+  if(n<2&&capChamber(a,w))return s?PAINT_GREEN:PAINT_RED;
+  if(a<15&&w>=32)return n===0?(w<44?MARBLE:PLANKS):n===1?PLANKS:n===2?(w<47?PLANKS:FLOORT):w<45?FLOORT:MARBLE;
+  if(a>=16&&a<=23&&w<=13)return n<2?PAINT_NAVY:PLANKS;
+  if(n===2&&capChamber(a,w))return w<34?PAINT_NAVY:PLANKS;
+  if(n===3&&capChamber(a,w))return a>=30?PAINT_NAVY:PLANKS;
+  if(n===0&&a>=26&&w>=52)return PAINT_NAVY;
+  if(n===3&&a>=26&&w>=52)return FLOORT;
+  return MARBLE;
+}
 function capitolAt(b,rx,rz,y){
-  const g=capGeo(),u=rx-PL0,v=rz-PL0,yy=y-G,c=g.c,ad=Math.abs(u-c+0.5);
+  const g=capGeo(),u=rx-PL0,v=rz-PL0,yy=y-G,c=g.c,ad=Math.abs(u-c+0.5),a=Math.floor(ad),w=v-g.bf;
   if(v<g.pz0||v>=g.pz1||u<g.px0||u>=g.px1)return AIR;
   // the plinth, three blocks high, with broad steps up the middle of the front
   if(v<g.pz0+3&&ad<14){if(yy<=v-g.pz0+1){STRUCT=true;return HOSPW;}return yy<=3?AIR:AIR;}
-  if(yy<=3){STRUCT=true;return HOSPW;}
+  if(yy<=3){
+    STRUCT=true;
+    // (the floors inside: the rotunda's has a gold ring and a dark band round it, like the compass stars let into real ones)
+    if(yy===3&&a<15&&w>=1&&w<=30){const d=Math.hypot(u+.5-c,v+.5-g.dc);return d>=3.5&&d<4.5?GOLD:d<9.5&&d>=8.5?PAINT_NAVY:MARBLE;}
+    if(yy===3&&a<39&&w>=1&&w<=58&&!(a===15&&w<31))return capFloor(0,u<c?0:1,a,w);
+    return HOSPW;}
+  // half columns all down the sides and across the back, carrying the cornice round the building
+  if(a===40&&w>=0&&w<=60||w===60&&a<=40){if(yy>=24)return AIR;if(yy>=22){STRUCT=true;return yy===23?MARBLE:HOSPW;}if((a===40?w:a)%6===0){STRUCT=true;return HOSPW;}return AIR;}
   // the portico: a row of tall columns, an entablature and a stepped pediment
   if(v<g.bf){
+    // (each wing has its own smaller one in front of its own doors, and a flag over it; half columns along the rest of the wall)
+    if(a>=16&&a<=40){
+      if(a>=22&&a<=36){const da=Math.abs(a-29);
+        if(da===0&&w===-5&&yy>=25&&yy<=33){STRUCT=true;return METAL;}
+        if(w===-5&&yy>=30&&yy<=33&&a>29&&a<=33)return yy%2?(u<c?PAINT_RED:PAINT_GREEN):PAINT_WHITE;
+        if(w===-5&&yy<=18&&da%3===1&&da>1&&da<=7){STRUCT=true;return HOSPW;}
+        if(w>=-5&&yy>=19&&yy<=20){STRUCT=true;return MARBLE;}
+        if(w>=-5&&yy>=21&&da<7-2*(yy-21)){STRUCT=true;return HOSPW;}
+        return AIR;}
+      if(w===-1){if(yy>=24)return AIR;if(yy>=22){STRUCT=true;return yy===23?MARBLE:HOSPW;}if(a%6===0){STRUCT=true;return HOSPW;}}
+      return AIR;}
     if(ad>=16)return AIR;
-    // columns every 3 blocks, leaving a wide way in up the middle in line with the doors
-    if(v===g.bf-3&&yy<=18&&ad>=3.4&&ad<15&&Math.abs((ad-3.5)/3-Math.round((ad-3.5)/3))<0.05){STRUCT=true;return HOSPW;}
-    if(v>=g.bf-5&&yy>=19&&yy<=20)return HOSPW;
-    if(v>=g.bf-5&&yy>=21){const k=yy-21;if(ad<15-2*k)return HOSPW;}
+    // columns every 3 blocks, two rows deep, leaving a wide way in up the middle in line with the doors
+    if((v===g.bf-3||v===g.bf-5)&&yy<=18&&ad>=3.4&&ad<15&&Math.abs((ad-3.5)/3-Math.round((ad-3.5)/3))<0.05){STRUCT=true;return HOSPW;}
+    if(v>=g.bf-5&&yy>=19&&yy<=20){STRUCT=true;return yy===20?MARBLE:HOSPW;}
+    if(v>=g.bf-5&&yy>=21){const k=yy-21;if(ad<15-2*k){STRUCT=true;return v===g.bf-5&&ad<15-2*k-1&&k<5?MARBLE:HOSPW;}}
     return AIR;
   }
   if(v>=g.back)return AIR;
@@ -6277,15 +6370,19 @@ function capitolAt(b,rx,rz,y){
     const wall=ad>=15||v===g.bf||v===g.bf+31;
     if(yy<28){
       if(wall){
-        if(v===g.bf&&ad<3&&yy<=11)return AIR;   // the great doors
+        if(v===g.bf&&ad<3&&yy<=11)return yy===5?DOOR_WK:DOOR_W;   // the great doors
         if(ad>=15&&Math.abs(v-g.bf-16)<=1&&yy>=4&&yy<=6)return AIR;   // the ways through to the wings
+        if(w===31&&ad<3&&yy>=4&&yy<=7)return AIR;   // and the way on to the statuary hall
         STRUCT=true;
         if((yy-4)%6>=1&&(yy-4)%6<=4&&((v===g.bf||v===g.bf+31)?u:v)%4===1)return WIN_WARM;
         return HOSPW;
       }
       // a ring of columns round the rotunda floor, a statue in the middle
       if(Math.abs(d-11)<0.5&&Math.abs(dx)>3&&Math.round(Math.atan2(dz,dx)*8/Math.PI)%2===0){STRUCT=true;return HOSPW;}
-      if(d<1.3&&yy<=8)return yy===8?LAMP:STONE;
+      // (a bronze founder on a marble plinth, under the dome)
+      if(yy<=5&&d<1.8){STRUCT=true;return MARBLE;}
+      if(yy>=6&&yy<=10&&d<.8)return BRONZE;
+      if(yy===8&&d<1.6)return BRONZE;
       return AIR;
     }
     if(yy===28)return d<11?AIR:ROOF;
@@ -6295,15 +6392,27 @@ function capitolAt(b,rx,rz,y){
     const wall=ad>=39||v===g.bf||v===g.back-1;
     if(yy===23)return ROOF;
     if(yy===24)return wall&&(u+v)%2===0?HOSPW:AIR;   // balustrade
-    if(wall){STRUCT=true;const lv=(yy-4)%FH;if(lv>=1&&lv<=2&&((ad>=39?v:u)%3===1))return WIN_WARM;return HOSPW;}
-    const lv=(yy-4)%FH;
-    // (a bathroom at the back of each wing, every other floor, its door towards the front)
-    if(lv<4&&Math.floor((yy-4)/FH)%2===0&&ad>=20&&ad<26&&v>=g.back-6&&v<g.back-1){if(ad<21||ad>=25||v===g.back-6){if(v===g.back-6&&Math.floor(ad)===23&&lv<=2)return lv===1?DOOR_WK:DOOR_W;STRUCT=true;return HOSPW;}return AIR;}
+    if(wall){STRUCT=true;const lv=(yy-4)%FH;
+      if(v===g.bf&&yy<=7&&a>=28&&a<=30)return yy===5?DOOR_WK:DOOR_W;   // (each wing's own doors, behind its portico)
+      if(lv===4)return MARBLE;   // (a band of paler stone at each floor)
+      if(lv<=2&&(ad>=39?w:a)%6>=2&&(ad>=39?w:a)%6<=3)return WIN_WARM;
+      return HOSPW;}
+    const lv=(yy-4)%FH,n=Math.floor((yy-4)/FH),s=u<c?0:1;
     if(b.stair){FL_SLAB=lv===4;const st=stairAt(b,rx,rz,y);if(st!==undefined)return st;const se=stairAt(b.east,rx,rz,y);if(se!==undefined)return se;}   // (a flight up each wing)
-    if(lv===4)return(u%4===0&&v%4===2)?LAMP:FLOORT;
-    if(lv===0&&u%6===2&&v%6===3)return PLANKS;
-    if(lv===1&&u%6===2&&v%6===3&&(u+v)%12<6)return SCREEN;
-    if(lv<=1&&v===g.back-2&&u%2===0)return SHELF;
+    if(lv===4){
+      if(n===0&&capChamber(a,w)&&!capGal(a,w))return AIR;   // (the chamber runs up through this floor, but for its gallery)
+      if(n===0&&capRail(a,w)){STRUCT=true;return MARBLE;}
+      if(n<3)return(u%4===0&&v%4===2)?LAMP:capFloor(n+1,s,a,w);
+      return AIR;}
+    const k=capPlan().F[n][capCell(s,a,w)];
+    // (wood panelling up the chamber's walls)
+    if(k===1||k&&lv===3){STRUCT=true;return n===0&&lv<2&&capChamber(a<39?Math.max(a,20):a,Math.min(45,Math.max(w,20)))?PLANKS:HOSPW;}
+    if(k===2)return lv===1?DOOR_WK:DOOR_W;
+    if(k===3)return AIR;
+    if(n===0&&yy===4&&a>=24&&a<=34&&w>=43&&w<=45){STRUCT=true;return MARBLE;}   // (the rostrum, in two steps)
+    if(n===0&&yy===5&&a>=26&&a<=32&&w>=44&&w<=45){STRUCT=true;return PLANKS;}
+    if(n===1&&lv===0&&capRail(a,w)){STRUCT=true;return MARBLE;}   // (the gallery's front)
+    if(n===0&&capRail(a,w)&&((a===23||a===35)&&(w-23)%6===0||w===23&&Math.abs(a-29)===5)){STRUCT=true;return HOSPW;}   // (the columns holding it up)
     return AIR;
   }
   // the drum: a ring wall with windows and an outer colonnade, on top of the central block
@@ -6314,9 +6423,12 @@ function capitolAt(b,rx,rz,y){
     return AIR;
   }
   // the dome, and the lantern and spire on top of it
-  if(yy>=37&&yy<=47){const r3=Math.hypot(d,yy-36);return Math.abs(r3-11.4)<0.75?HOSPW:AIR;}
-  if(yy>=48&&yy<=52)return d<2.6?(d>=1.5||yy===52?HOSPW:AIR):AIR;
-  if(yy>=53&&yy<=59)return d<0.8?METAL:AIR;
+  // (ribs up the dome, a little round window between each pair low down)
+  if(yy>=37&&yy<=47){const r3=Math.hypot(d,yy-36);if(Math.abs(r3-11.4)>=0.75)return AIR;STRUCT=true;const th=Math.atan2(dz,dx)*8/Math.PI,rib=Math.abs(th-Math.round(th))<.14;if(rib)return MARBLE;if(yy===39&&Math.abs(th-Math.floor(th)-.5)<.2)return WIN_WARM;return HOSPW;}
+  if(yy>=48&&yy<=52){if(d>=2.6)return AIR;if(yy===52||yy===48){STRUCT=true;return MARBLE;}if(d>=1.5&&Math.round(Math.atan2(dz,dx)*4/Math.PI)%2===0){STRUCT=true;return HOSPW;}return AIR;}
+  // (a bronze figure on the very top, a lit torch held up)
+  if(yy===53)return d<1.6?MARBLE:AIR;
+  if(yy>=54&&yy<=59)return d<0.8?BRONZE:AIR;
   if(yy===60)return d<0.8?LAMP:AIR;
   return AIR;
 }
@@ -11904,7 +12016,7 @@ function updateGoblins(dt){
       g.navOn=false;if(hunting&&g.stun<=0&&!inReach&&!below&&playing){sr=navSteer(g,tgt.p);g.navOn=!!sr||!!g.act;if(g.act)return;}   // (and it's still after you, even if the way round takes it further off than usual)
       // a hippo on another floor, close by: up or down the stairs after it (or, holed up indoors, off to another floor now and then)
       // (in a long building the stairs may be further from the hippo than the goblin started: once it's set off for them, it keeps going)
-      const chaseUp=Math.abs(ddy)>2.5&&d<(g.stUp!==undefined?90:32);
+      const chaseUp=Math.abs(ddy)>2.5&&(d<(g.stUp!==undefined?90:32)||d<90&&!sr&&g.stun<=0&&(bldgAt(Math.floor(g.pos.x),Math.floor(g.pos.z))||{b:0}).b.style==='capitol');   // (the capitol's so big, and its rooms so many, that a route map may not reach the far ones)
       if(!sr&&g.stun<=0&&!copIdle&&(chaseUp||g.trip||g.stUp!==undefined)){const B=bldgAt(Math.floor(g.pos.x),Math.floor(g.pos.z));
         if(B&&B.b.stair){if(chaseUp){if(!onStair(g,B))g.stUp=ddy>0;sr=stairPoint(g,B,g.stUp);}
           else if(g.trip){g.stUp=g.trip.up;g.trip.t-=dt;if(g.trip.t>0&&Math.abs(g.pos.y-g.trip.y0)<3.5)sr=stairPoint(g,B,g.trip.up);}}
@@ -13374,6 +13486,20 @@ const PROPS={
   buffet:[[P_STEEL,0,.4,0,1,.8,.86],[P_DARK,0,.81,0,1,.02,.8],[0xc9553f,-.24,.84,-.2,.4,.05,.32],[0xd8b13a,.24,.84,-.2,.4,.05,.32],[0x5aa469,-.24,.84,.2,.4,.05,.32],[0xe6dcc8,.24,.84,.2,.4,.05,.32],[0xcfeaf5,0,1.2,0,1,.03,.5],[P_STEEL,0,1.02,0,.04,.36,.04]],
   // a parasol: a weighted foot, a tall pole, a striped canopy in steps
   umbrella:[[P_DARK,0,.04,0,.5,.08,.5],[P_STEEL,0,1.15,0,.06,2.3,.06],[PT,0,2.28,0,2.1,.07,2.1],[P_WHITE,0,2.285,0,2.14,.08,.42],[P_WHITE,0,2.285,0,.42,.08,2.14],[PT,0,2.38,0,1.4,.07,1.4],[PT,0,2.47,0,.7,.07,.7]],
+  // a senator's desk: a little wooden desk and its chair, facing the rostrum
+  ldesk:[[P_WOOD,0,.5,.2,.8,.06,.5],[P_WOOD,-.34,.24,.2,.05,.48,.42],[P_WOOD,.34,.24,.2,.05,.48,.42],[P_DARK,0,.54,.28,.6,.02,.26],[PT,0,.33,-.3,.44,.05,.4],[PT,0,.55,-.48,.44,.4,.05],[P_DARK,0,.15,-.3,.3,.3,.3]],
+  // a stretch of the benches in a House chamber, padded, with a rail in front to rest papers on
+  lbench:[[P_WOOD,0,.15,-.02,1,.3,.46],[PT,0,.34,-.02,1,.08,.46],[PT,0,.58,-.24,1,.5,.1],[P_WOOD,0,.72,.3,1,.05,.2],[P_WOOD,0,.36,.34,.1,.72,.08]],
+  // the lectern on a rostrum: a tall wooden front, a microphone either side, the gavel
+  lectern:[[P_WOOD,0,.55,0,1.3,1.1,.5],[0x7a4a2a,0,1.12,0,1.36,.05,.56],[P_STEEL,-.4,1.28,.05,.03,.3,.03],[P_STEEL,.4,1.28,.05,.03,.3,.03],[P_DARK,.15,1.18,-.1,.26,.06,.08]],
+  // a great painting in a gold frame, hung on the wall
+  painting:[[0xc9a24a,0,1.9,0,2.8,1.9,.08],[PT,0,1.9,.045,2.56,1.66,.01],[0x5a7a4a,0,1.42,.05,2.56,.7,.01],[0xe8dcc0,-.6,1.98,.055,.5,.8,.01],[0x7a2a2a,.5,1.86,.055,.42,.66,.01]],
+  // a portrait of somebody important, its name on a little plate
+  portrait:[[0x7a5a2a,0,1.85,0,.8,1.04,.06],[PT,0,1.85,.035,.68,.92,.01],[0xd8c0a0,0,2.02,.04,.24,.3,.01],[P_DARK,0,1.66,.04,.4,.44,.01],[0xc9a24a,0,1.22,.03,.36,.08,.02]],
+  // the seal on the wall behind a rostrum or a dais: gold round a blue middle
+  seal:[[0xc9a24a,0,2.3,0,1.3,1.3,.06],[0xc9a24a,0,2.3,0,.9,1.6,.06],[0xc9a24a,0,2.3,0,1.6,.9,.06],[0x1c2a5a,0,2.3,.04,1,1,.01],[0xc9a24a,0,2.3,.05,.34,.34,.01]],
+  // a big rug
+  rug:[[PT,0,.015,0,4.2,.03,3],[0xc9a24a,0,.02,0,3.8,.03,2.6],[PT,0,.025,0,3.5,.03,2.3]],
   // a potted plant
   plant:[[0xb86a3c,0,.17,0,.36,.34,.36],[0x5a3d22,0,.35,0,.3,.02,.3],[0x3f8f3f,0,.6,0,.1,.5,.1],[0x3f8f3f,-.16,.72,.02,.36,.1,.14],[0x35803a,.16,.84,-.03,.36,.1,.14],[0x3f8f3f,.02,.96,.16,.14,.1,.36],[0x35803a,0,1.08,-.1,.14,.1,.3]],
   // a snack machine: a lit window of rows of snacks
@@ -14139,9 +14265,114 @@ function arenaProps(b,px,pz,L){
   const c=(b.x1-b.x0-1)/2,R=c-.3,W=arenaWC(R),X=px*CELL+b.x0+c+.5,Z=pz*CELL+b.z0+c+.5,n=W.v1-W.v0-2;
   for(const sg of [-1,1])wcFit(L,G+2,(a,d)=>[X+sg*(4+a),Z+sg*(W.v0+1+d)],4,n);
 }
+// what's in each of the capitol's rooms (see capPlan for where they are)
+const CAP_WOOD=0x5a3a22,CAP_LEATHER=0x6a2a24,CAP_SIDE=[0x8a2a2a,0x2f6b45],CAP_ART=[0x5d7a8c,0x8c6d4a,0x6a5a8c,0x8a4b3a];
 function capitolProps(b,px,pz,n,L){
-  if(n>3||n%2)return;const g=capGeo(),X=px*CELL+PL0+g.c,Z=pz*CELL+PL0+g.back-1;
-  for(const sg of [-1,1])wcFit(L,G+4+FH*n,(a,d)=>[X+sg*(21+a),Z-d],3,4);
+  if(n>3)return;
+  const g=capGeo(),X=px*CELL+PL0+g.c,Zb=pz*CELL+PL0+g.back-1,Z0=pz*CELL+PL0+g.bf,y=G+4+FH*n;
+  // (A out from the middle and W back from the front wall; the thing's front looks along fa,fw; up: stood on a step that high)
+  const add=(type,s,A,W,fa,fw,tint,yo,low,up)=>{const sg=s?1:-1,x=X+sg*A,z=Z0+W;L.push({prop:true,type,x,z,y0:y+(yo||0)+(up||0),base:y+(up||0),yaw:Math.atan2(sg*fa,fw),tint,rad:.5,low,key:'p'+Math.round(x*4)+','+Math.round(z*4)+','+y+type});};
+  const row=(type,s,A0,A1,W,st,fa,fw,tint,skip)=>{for(let A=A0;A<=A1;A+=st)if(!skip||!skip(A))add(type,s,A,W,fa,fw,tint);};
+  const col=(type,s,A,W0,W1,st,fa,fw,tint,skip)=>{for(let W=W0;W<=W1;W+=st)if(!skip||!skip(W))add(type,s,A,W,fa,fw,tint);};
+  const art=(s,i)=>CAP_ART[(s+i*3)%CAP_ART.length];
+  // an important person's office: the desk and its flags with their back to the window, bookcases behind, chairs for visitors, a sofa
+  const office=(s,A0,A1,W0,W1,along)=>{const m=(A0+A1)/2;
+    if(along){const mw=(W0+W1)/2;add('rug',s,A1-4,mw,1,0,CAP_LEATHER,0,true);add('desk',s,A1-2.2,mw,1,0);add('swivel',s,A1-1.3,mw,-1,0,0,0,true);add('chair',s,A1-3.6,mw-.8,1,0,CAP_LEATHER,0,true);add('chair',s,A1-3.6,mw+.8,1,0,CAP_LEATHER,0,true);add('flag',s,A1-.7,W0+.8,-1,0);col('bookcase',s,A1-.4,mw+1.5,W1-.6,1,-1,0,CAP_WOOD);add('portrait',s,m+3,W0+.1,0,1,art(s,W0));add('plant',s,A0+.7,W0+.7,0,1);add('sofa',s,A0+.8,W1-1,1,0,CAP_LEATHER,0,true);return;}
+    add('rug',s,m,W0+4.2,0,1,CAP_LEATHER,0,true);add('desk',s,m,W0+3,0,-1);add('swivel',s,m,W0+2.1,0,1,0,0,true);add('flag',s,m-2.6,W0+1.2,0,1);add('flag',s,m+2.6,W0+1.2,0,1);
+    row('bookcase',s,A0+.6,m-1.2,W0+.4,1,0,1,CAP_WOOD);row('bookcase',s,m+1.2,A1-.6,W0+.4,1,0,1,CAP_WOOD);
+    add('chair',s,m-.8,W0+4.5,0,-1,CAP_LEATHER,0,true);add('chair',s,m+.8,W0+4.5,0,-1,CAP_LEATHER,0,true);
+    col('sofa',s,A0+.8,W0+6.5,W0+8.5,1,1,0,CAP_LEATHER);add('rtable',s,A0+2.2,W0+7.5,0,1,CAP_WOOD);add('portrait',s,A0+.1,W0+4,1,0,art(s,1));add('plant',s,A1-.7,W0+6,0,1);add('drawers',s,A1-.5,W0+7.5,-1,0);};
+  // somewhere to file and hand things over: a counter by the door, shelves of papers behind it
+  const clerk=(s,A0,A1,W0,W1,tint)=>{const dW=W0+2.5;row('bar',s,A0+1.6,A1-.6,dW,1,0,-1,CAP_WOOD);add('monitor',s,A1-1.5,dW,0,-1,0,.9);add('swivel',s,A1-1.5,dW+.9,0,-1,0,0,true);for(let W=dW+3;W<W1-.2;W+=2)row('shelf3',s,A0+.6,A1-.6,W,1,0,1,tint);add('copier',s,A0+.6,dW+1,1,0);};
+  // a room of desks
+  const staff=(s,A0,A1,W0,W1)=>{for(let W=W0+.8;W<W1-1;W+=2.4)for(let A=A0+.6;A<A1-.5;A+=1.3)if(W>W0+1||Math.abs(A-32.5)>2)add('cube',s,A,W,0,1);add('board',s,A0+.1,(W0+W1)/2,1,0,0xd8dce0);add('plant',s,A1-.6,W1-.7,0,-1);};
+  // a hearing room: the members along a raised dais at the far end, the witness table facing them, the public behind
+  const hearing=(s,A0,A1,W0,W1)=>{const m=(A0+A1)/2;
+    add('seal',s,m,W1-.1,0,-1);add('flag',s,A0+.7,W1-.7,0,-1);add('flag',s,A1-.7,W1-.7,0,-1);
+    for(let A=A0+2;A<A1-1.5;A+=1){add('bar',s,A,W1-2.8,0,-1,CAP_WOOD);add('swivel',s,A,W1-1.8,0,-1,0,0,true);if(Math.round(A)%2)add('micstand',s,A,W1-2.8,0,-1,0,.9,true);}
+    add('ltable',s,m,W1-7,0,1);add('chair',s,m-.5,W1-7.9,0,1,0x35506b,0,true);add('chair',s,m+.5,W1-7.9,0,1,0x35506b,0,true);
+    add('tvcam',s,A0+1,W1-7,1,.3);add('tvcam',s,A1-1,W1-7,-1,.3);
+    for(let W=W0+1.5;W<W1-9.2;W+=1.5)for(let A=A0+1.2;A<A1-1;A+=1.8)if(Math.abs(A-m)>1.9)add('seats',s,A,W,0,1,0x35506b);};
+  if(n===0){
+    // the way in: guards at a desk either side, walk-through detectors, rope to keep the line straight
+    for(let s=0;s<2;s++){
+      add('detector',s,3.2,3.2,0,1);add('stanchion',s,5.5,2.2,1,0);row('bar',s,6.5,9,2.8,1,0,1,0x46505a);add('monitor',s,7.5,2.8,0,-1,0,.9);add('swivel',s,7.5,1.8,0,1,0,0,true);add('flag',s,13.5,1.2,0,1);
+      // the rotunda: statues in niches round the wall, great paintings between them, benches to look at it all from
+      for(const [A,W] of [[10,6.5],[10,25.5],[13.2,12],[13.2,20.5]])add('statue',s,A,W,A>12?-1:-.6,W<16?.6:-.6,0x8a7a5a);
+      add('painting',s,14.9,7.5,-1,0,art(s,0));add('painting',s,14.9,24.5,-1,0,art(s,1));add('bench',s,6.6,29.3,0,-1,0,0,true);add('stanchion',s,3.4,29,1,0);
+      // along the corridors and the lobby behind the chamber: benches, plants, portraits of those who've gone before
+      col('portrait',s,16.08,21,29,4,1,0,art(s,2));col('bench',s,16.9,33,44,5,1,0,0,0);add('plant',s,17,19.8,1,0);
+      row('portrait',s,21,37,47.08,4,0,1,art(s,3));row('bench',s,23,37,47.6,7,0,1);add('plant',s,37.5,50,0,-1);add('elevator',s,33.8,4,-1,0);add('plant',s,26,2,1,1);add('statue',s,33,17,-1,0,0x8a7a5a);
+      // the governor's reception room (west), where visitors are received; the gift shop and visitors' desk (east)
+      if(!s){add('rug',s,20,6,0,1,CAP_LEATHER,0,true);add('rug',s,20,10,0,1,CAP_LEATHER,0,true);col('sofa',s,16.8,4,8,1,1,0,CAP_LEATHER);col('sofa',s,23.2,4,8,1,-1,0,CAP_LEATHER);add('rtable',s,18.5,6,0,1,CAP_WOOD);add('rtable',s,21.5,6,0,1,CAP_WOOD);add('flag',s,18,1.5,0,1);add('flag',s,22,1.5,0,1);add('seal',s,20,1.1,0,1);add('portrait',s,16.1,10.5,1,0,art(s,1));add('portrait',s,23.9,10.5,-1,0,art(s,2));add('vase',s,17,12.5,0,1,0xc9a24a);add('vase',s,23,12.5,0,1,0xc9a24a);}
+      else{for(const W of [2,5,8])row('shelf2',s,17.8,22.2,W,1,0,1,P_GOODS[Math.round(W)%P_GOODS.length]);row('bar',s,18,22,11.5,1,0,-1,CAP_WOOD);add('monitor',s,20,11.5,0,1,0,.9);add('board',s,16.1,10,1,0,0x2b5fb8);add('clothes',s,23.1,10.5,-1,0,0x2b5fb8);add('swivel',s,20,10.6,0,1,0,0,true);}
+      // the sergeant at arms: a desk, a rack of keys and maces, the lockers, a notice board
+      add('desk',s,36.5,3,0,-1);add('swivel',s,36.5,2.1,0,1,0,0,true);add('flag',s,38.3,1.4,0,1);col('locker',s,38.5,5,10,1,-1,0);add('board',s,35.1,8,1,0,0xd8dce0);add('bench',s,35.8,12,1,0);
+      // the chamber
+      const AC=29.5,WC=46,step=s?1.1:1.4;
+      for(let r=8;r<24;r+=s?2:2.4)for(let th=-1.5;th<=1.5;th+=step/r){const A=AC+r*Math.sin(th),W=WC-r*Math.cos(th);
+        if(A<20.8||A>38.2||W<24.5||W>40.5||Math.abs(A-AC)<1.7||Math.abs(th)>1.2&&W>38||A<23&&W>38||(Math.abs(A-23.5)<1.1||Math.abs(A-35.5)<1.1)&&(Math.abs(W-29.5)<1.1||Math.abs(W-35.5)<1.1))continue;add(s?'lbench':'ldesk',s,A,W,AC-A,WC-W,CAP_SIDE[s],0,false);}
+      add('lectern',s,AC,44,0,1,0,0,false,2);add('swivel',s,AC,45.1,0,1,0,0,true,2);add('seal',s,AC,45.9,0,1,0,0,false,2);add('flag',s,AC-4.5,45.2,0,1,0,0,false,1);add('flag',s,AC+4.5,45.2,0,1,0,0,false,1);
+      for(const A of [AC-2,AC+2]){add('ltable',s,A,41.6,0,1);add('swivel',s,A,42.5,0,-1,0,0,true);add('monitor',s,A,41.6,0,1,0,.68,true);}
+      // the cloakroom behind it: coats, sofas, telephones
+      row('clothes',s,27,38,58.4,1.1,0,-1,CAP_SIDE[s]);col('sofa',s,27,52.6,56,1,1,0,CAP_SIDE[s]);col('sofa',s,38.4,52.6,56,1,-1,0,CAP_SIDE[s]);add('rtable',s,32,55,0,1,CAP_WOOD);add('chair',s,31.2,55,1,0,CAP_LEATHER,0,true);add('chair',s,32.8,55,-1,0,CAP_LEATHER,0,true);add('vending',s,35.5,52,0,1);add('tv',s,29,52.1,0,1,0,.9,true);
+    }
+    // the statuary hall behind the rotunda, a statue from each part of the land round the walls; and the old supreme courtroom behind that
+    for(let s=0;s<2;s++){for(const W of [33.5,36,40.5,42.5])add('statue',s,13.7,W,-1,0,W%2?0xa89a7a:0x6a7a6a);for(const A of [4,7,10,13])add('statue',s,A,32.7,0,1,A%6?0xa89a7a:0x6a7a6a);add('stanchion',s,3,37,1,0);add('board',s,14.9,34,-1,0,0xd8dce0);
+      add('judge',s,3.3,56,0,-1);add('swivel',s,3.3,57.6,0,-1,0,0,true);add('judge',s,6.5,55.6,0,-1);add('swivel',s,6.5,57,0,-1,0,0,true);add('flag',s,12,57.5,0,-1);add('ltable',s,5,51.4,0,1);add('chair',s,5,50.5,0,1,CAP_LEATHER,0,true);add('chair',s,4,50.5,0,1,CAP_LEATHER,0,true);row('pew',s,2,13.5,46.2,1,0,1);row('pew',s,2,13.5,47.8,1,0,1);add('stanchion',s,2.5,49,1,0);row('bookcase',s,10,14,58.6,1,0,-1,CAP_WOOD);}
+    add('judge',1,0,56.4,0,-1);add('swivel',1,0,58,0,-1,0,0,true);add('seal',1,0,58.9,0,-1);add('wbox',1,10,53,-1,0);
+  }else if(n===1){
+    for(let s=0;s<2;s++){
+      // the governor's own office (west); the speaker's (east); a press room at each end, overlooking the front
+      office(s,16,24,1,14);
+      col('deskm',s,38.3,2,13,2,-1,0);for(let W=2;W<=13;W+=2)add('swivel',s,37.2,W,1,0,0,0,true);add('tvcam',s,35.8,3,1,0);add('tv',s,35.3,9,1,0,0,.9,true);
+      // the public gallery round the chamber: a row of seats behind the front, a camera for the press
+      const skip=A=>Math.abs(A-29.5)<1.8;
+      row('pew',s,24,35,22.3,1,0,1,0,skip);col('pew',s,22.3,24,39.5,1,1,0);col('pew',s,36.3,24,39.5,1,-1,0);add('tvcam',s,21,21,.7,.7);add('tvcam',s,38,21,-.7,.7);
+      // the clerk's office and bill room behind it; an officer's room beside them
+      clerk(s,26,39,52,59,0xd8dce0);office(s,16,25,52,59,true);
+      row('portrait',s,21,37,47.08,4,0,1,art(s,1));add('bench',s,17,33,1,0,0,0);add('elevator',s,33.8,4,-1,0);
+    }
+    // the legislative library: the stacks along both sides, a reading room down the middle
+    for(let s=0;s<2;s++){for(let W=33;W<=56;W+=2.5)for(let A=8;A<=14.5;A+=1)if(Math.abs(W-36.5)>2.3&&Math.abs(W-54.5)>2.3)add('bookcase',s,A,W,0,W<45?1:-1,P_GOODS[(Math.round(A*2)+Math.round(W))%P_GOODS.length]);
+      for(const W of [35,39,43,47,51])for(const A of [3.6])if(!(s===0&&W===35)){add('rtable',s,A,W,0,1,CAP_WOOD);add('chair',s,A-.8,W,1,0,0x35506b,0,true);add('chair',s,A+.8,W,-1,0,0x35506b,0,true);}
+      add('ship',s,1.5,32.8,0,1);}
+    row('bar',0,1.8,5.4,33.6,1,0,1,CAP_WOOD);add('monitor',0,3.5,33.6,0,-1,0,.9);add('swivel',0,3.5,32.7,0,1,0,0,true);
+  }else if(n===2){
+    for(let s=0;s<2;s++){
+      // the senior officers (the president of the senate, the majority leader), and more staff at the end
+      office(s,16,24,1,14);staff(s,35,39,1,14);
+      hearing(s,20,39,20,34);
+      // the caucus room: one long table, chairs all round, the board and a portrait at the end
+      for(let A=23.5;A<=36;A+=1.6){add('ltable',s,A,40.6,0,1,CAP_WOOD);add('chair',s,A,39.4,0,1,CAP_LEATHER,0,true);add('chair',s,A,41.9,0,-1,CAP_LEATHER,0,true);}
+      add('swivel',s,37.9,40.6,-1,0,0,0,true);add('board',s,38.9,40.6,-1,0,0xd8dce0);add('flag',s,38,36,-1,1);add('portrait',s,29.5,45.9,0,-1,art(s,2));
+      staff(s,26,39,52,59);row('portrait',s,21,37,47.08,4,0,1,art(s,0));add('plant',s,17,49,1,0);add('elevator',s,33.8,4,-1,0);
+    }
+    // the members' dining room; the kitchen behind it
+    for(let s=0;s<2;s++){for(let W=34.5;W<46;W+=3.4)for(const A of [3,7.5,12])if(!(A>11&&Math.abs(W-40)<2.6)){add('rtable',s,A,W,0,1,P_WHITE);add('chair',s,A-.8,W,1,0,CAP_LEATHER,0,true);add('chair',s,A+.8,W,-1,0,CAP_LEATHER,0,true);}
+      add('portrait',s,14.9,36,-1,0,art(s,1));row('buffet',s,3.5,10,46.4,1,0,-1);
+      row('prep',s,3,12,52.5,1,0,1);row(s?'range':'fryer',s,3,13,58.4,1,0,-1);row('sink',s,12,14,50,1,0,1);add('fridge2',s,14.3,55,-1,0,0xd8dce0);add('fridge2',s,14.3,56.2,-1,0,0xd8dce0);}
+  }else{
+    for(let s=0;s<2;s++){
+      office(s,16,24,1,14);
+      // the archive at the end of the wing: boxes of old records
+      for(let W=2;W<13;W+=2.2)row('shelf3',s,35.6,38.4,W,1,0,1,0xbf9a6a);
+      // the members' suites: a secretary and somewhere to wait in the outer room, the member's desk, flag and books in the inner one
+      for(const [w0,w1] of [[19,28],[28,37],[37,46]]){const m=(w0+w1)/2+.5;
+        add('desk',s,24,m-3,0,1);add('swivel',s,24,m-2.1,0,-1,0,0,true);add('seats',s,21.6,w1-1,0,-1,0x35506b);add('seats',s,25.5,w1-1,0,-1,0x35506b);add('plant',s,28,w0+1,-1,0);add('board',s,28.9,w0+2,-1,0,0xd8dce0);
+        office(s,30,39,w0+1,w1,true);}
+      // the break room, the mail room
+      add('rtable',s,30,55,0,1,P_WHITE);add('chair',s,29.2,55,1,0,0x35506b,0,true);add('chair',s,30.8,55,-1,0,0x35506b,0,true);add('rtable',s,34,55,0,1,P_WHITE);add('chair',s,33.2,55,1,0,0x35506b,0,true);add('chair',s,34.8,55,-1,0,0x35506b,0,true);
+      row('sink',s,27,28,58.4,1,0,-1);add('fridge2',s,29,58.4,0,-1,0xd8dce0);add('range',s,30,58.4,0,-1);add('vending',s,38.3,58,-1,0);add('vending',s,38.3,56.8,-1,0);add('sofa',s,38.3,53,-1,0,0x3f6b8c);add('sofa',s,38.3,54,-1,0,0x3f6b8c);
+      clerk(s,16,25,52,59,0xbf9a6a);add('plant',s,17,49.5,1,0);add('elevator',s,33.8,4,-1,0);
+    }
+    // the archive proper, and the capitol police: their desks and screens, lockers, a rack of rifles, a bench for whoever's been brought in
+    for(let s=0;s<2;s++){for(const W of [33,35,41,43])for(let A=3;A<=14;A+=1)add('shelf3',s,A,W,0,1,0xbf9a6a);
+      for(const A of [4,8])for(const W of [48,52]){add('desk',s,A,W,0,-1);add('swivel',s,A,W-.9,0,1,0,0,true);}
+      row('monitor',s,3,13,58.6,2,0,-1,0,false);row('bar',s,3,13,58.6,1,0,-1,0x46505a);col('locker',s,14.5,46.5,50,1,-1,0);col('gunrack',s,14.5,56,58,1,-1,0);add('bench',s,12,47,0,1);}
+  }
+  // the bathrooms, fitted last
+  if(n%2===0)for(const sg of [-1,1])wcFit(L,y,(a,d)=>[X+sg*(21+a),Zb-d],3,4);
 }
 // (the stadium hasn't a building to hang them on, so they're worked out from the site)
 function stadiumProps(S){
@@ -14177,10 +14408,12 @@ function refreshProps(){
   }
   // the handrails: a bar sloping up from post to post beside each flight (gone where a post's been knocked out)
   fallMatrix(0,0,0,0);
-  for(const p of players){if(!p.active)continue;
+  for(const p of players){if(!p.active)continue;const seenR=new Set();
     for(let px=Math.floor((p.pos.x-30)/CELL);px<=Math.floor((p.pos.x+30)/CELL);px++)for(let pz=Math.floor((p.pos.z-30)/CELL);pz<=Math.floor((p.pos.z+30)/CELL);pz++){
-      if(biomeOf(px,pz)!=='city')continue;const Sx=superOf(px,pz);if(Sx&&(Sx.ax!==px||Sx.az!==pz))continue;
-      for(const b of plotInfo(px,pz).b)for(const S of b.stair2?[b.stair,b.stair2]:b.stair?[b.stair]:[]){const al=S.ax==='x',R0=(al?px:pz)*CELL+S.r0,CC=(al?pz:px)*CELL,Y=stairFloors(b);
+      if(biomeOf(px,pz)!=='city')continue;const Sx=superOf(px,pz);
+      // (a big site's stairs are all listed on its first plot, which may be well out of this range)
+      if(Sx&&seenR.has(Sx))continue;if(Sx)seenR.add(Sx);const ax=Sx?Sx.ax:px,az=Sx?Sx.az:pz;
+      for(const b of plotInfo(ax,az).b)for(const S of b.stair2?[b.stair,b.stair2]:b.east?[b.stair,b.east.stair]:b.stair?[b.stair]:[]){const al=S.ax==='x',R0=(al?ax:az)*CELL+S.r0,CC=(al?az:ax)*CELL,Y=stairFloors(b);
         if(Math.abs((al?R0:CC+S.c0)-p.pos.x)>40||Math.abs((al?CC+S.c0:R0)-p.pos.z)>40)continue;
         for(let n=0;n+1<Y.length;n++){const L=Y[n+1]-Y[n],base=S.L-L;
           for(const c of [S.c0-1,S.c1])for(let r=base;r+1<S.L;r++){const sy=Y[n]+r-base,X=al?R0+r:CC+c,Z=al?CC+c:R0+r,X2=al?X+1:X,Z2=al?Z:Z+1;
@@ -14271,7 +14504,13 @@ function doorRects(b,px,pz){
     if(R.dside)add('z',Z0+rz,0,X0+rx,R.dside,3,'wood',false,'wc'+n+'.'+i);else add('x',X0+rx,0,Z0+rz,R.dv?1:-1,3,'wood',false,'wc'+n+'.'+i);out[out.length-1].y=y;out[out.length-1].wc=true;});
   const wcD=(x,z,n,y,tag)=>{add('x',x,0,z,n,3,'wood',false,tag);const o=out[out.length-1];o.y=y;o.wc=true;};
   if(b.style==='arena'){const c=(b.x1-b.x0-1)/2,W=arenaWC(c-.3),f=c%1?.5:0,X=X0+b.x0+c,Z=Z0+b.z0+c;for(const sg of [-1,1])wcD(X+sg*(6+f),Z+sg*(W.v1-1+f),sg,G+2,'wc'+sg);}
-  if(b.style==='capitol'){const g=capGeo(),f=g.c%1?23:23.5;for(let fl=0;fl<4;fl+=2)for(const sg of [-1,1])wcD(X0+PL0+g.c-.5+sg*f,Z0+PL0+g.back-6,-1,G+4+FH*fl,'wc'+sg+'.'+fl);}
+  // (the capitol's: the great doors, each wing's own, and every room's, worked out from its plan)
+  if(b.style==='capitol'){const g=capGeo(),U=X0+PL0,V=Z0+PL0+g.bf,at=(s,a)=>U+(s?g.c+a:g.c-1-a);
+    add('x',U+g.c-.5,2.5,V,-1,8,'wood',false,'great');out[out.length-1].y=G+4;
+    for(let s=0;s<2;s++){add('x',at(s,29),1,V,-1,4,'wood',false,'wing'+s);out[out.length-1].y=G+4;}
+    for(const D of capPlan().doors){const y=G+4+FH*D.n,tag='r'+D.n+'.'+D.s+'.'+D.a+'.'+D.w;
+      if(D.ax==='x')add('x',at(D.s,D.a),D.wd,V+D.w,-1,3,'wood',false,tag);else add('z',V+D.w,D.wd,at(D.s,D.a),D.s?-1:1,3,'wood',false,tag);
+      const o=out[out.length-1];o.y=y;o.wc=true;}}
   if(b.style==='mall'||b.mall){for(const [u0,v] of mallWC(b))for(let fl=0;fl<4;fl+=2)wcD(X0+b.x0+u0+6,Z0+b.z0+v-1,-1,fl===0?G+1:G+b.gf+1+FH*(fl-1),'wc'+u0+'.'+v+'.'+fl);}
   return out;
 }
@@ -14323,11 +14562,13 @@ function stadiumDoors(S){
   return out;
 }
 function refreshDoors(){
-  const want=new Map();
-  for(const p of players){if(!p.active)continue;
-    for(let px=Math.floor((p.pos.x-DOOR_RANGE)/CELL);px<=Math.floor((p.pos.x+DOOR_RANGE)/CELL);px++)for(let pz=Math.floor((p.pos.z-DOOR_RANGE)/CELL);pz<=Math.floor((p.pos.z+DOOR_RANGE)/CELL);pz++){
-      const t=plotType(px,pz);if(t==='plains'||t==='river'||t==='ramp')continue;
-      if(t==='super'){const S=superOf(px,pz);if(S.ax!==px||S.az!==pz)continue;}
+  const want=new Map(),seenS=new Set();
+  for(const p of players){if(!p.active)continue;seenS.clear();
+    for(let qx=Math.floor((p.pos.x-DOOR_RANGE)/CELL);qx<=Math.floor((p.pos.x+DOOR_RANGE)/CELL);qx++)for(let qz=Math.floor((p.pos.z-DOOR_RANGE)/CELL);qz<=Math.floor((p.pos.z+DOOR_RANGE)/CELL);qz++){
+      const t=plotType(qx,qz);if(t==='plains'||t==='river'||t==='ramp')continue;
+      // (a big site's doors all hang off its first plot, however far across the site they are: from any part of it, go to that plot,
+      // or the doors at the far end of a capitol or a campus only appear when you're near the other end)
+      let px=qx,pz=qz;if(t==='super'){const S=superOf(qx,qz);if(seenS.has(S))continue;seenS.add(S);px=S.ax;pz=S.az;}
       const P=plotInfo(px,pz);
       P.b.forEach((b,bi)=>{if(collapses[px+','+pz+','+bi]!==undefined&&collapses[px+','+pz+','+bi]<=G+1+4)return;
         for(const R of doorRects(b,px,pz))tryDoor(R,p,want);});

@@ -41,6 +41,7 @@ node sitecount.js 200      # how many of each big site land within that many plo
 node stairaudit.js 160     # which buildings with more than one floor still have no stairs
 node signcount.js 150      # how many signs each kind of building carries
 node wcaudit.js 150        # which buildings have no bathroom, floor by floor (`wcRooms` places them)
+node capaudit.js           # the capitol: every room can be walked to, its doors are really there and drawn, no prop in a wall or doorway
 node carride.js            # drop on to moving vehicles: land, ride, no damage
 node rampride.js           # riding real vehicles up and down real ramps
 node planeride.js          # airplanes: stand on one, ride a whole flight, wreck them
