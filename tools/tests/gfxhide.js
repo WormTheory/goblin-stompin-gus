@@ -83,4 +83,10 @@ console.log('props meshes visible after switching back',T.PROP_L.visible,T.PROP_
  // how long street furniture lasts with nobody touching it: goblins held up by it shove it over
  S(60*60);T.refreshFixtures();const all=T.activeProps.filter(f=>f.type==='parkbench'||f.type==='litterbin');
  console.log('after a minute of goblins walking about:',all.filter(f=>T.downFix.has(f.key)).length,'of',all.length,'street props down; goblins',T.goblins.length);}
+// the Interface switches: one at a time, and the whole display
+{const css=()=>els.uiOff.textContent,rows=T.DBG_ITEMS.filter(it=>it.sec==='Interface');
+ const tog=k=>{T.DT.cur=T.dbgItems().findIndex(o=>o.k===k);T.dbgMenuToggle();};
+ let ok=0;for(const it of rows.slice(1)){const on0=T.dbgVal(it.k);tog(it.k);const hid=css().includes('{display:none');tog(it.k);if(on0&&hid&&T.dbgVal(it.k)&&!css())ok++;}
+ console.log('interface rows',rows.length,'each hides and comes back',ok,'of',rows.length-1);
+ tog('uiAll');console.log('whole display off:',css().split('}').length-1,'rules, row says',T.dbgVal('uiAll'));tog('uiMini');console.log('one back on: row says',T.dbgVal('uiAll'),'rules',css().split('}').length-1);tog('uiAll');console.log('all off again, rules',css().split('}').length-1);tog('uiAll');console.log('all on again, css empty',css()==='');}
 process.exit(0);

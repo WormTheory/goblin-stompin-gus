@@ -23,13 +23,14 @@ body{background:var(--night);color:var(--bone);font-family:var(--f-body);user-se
 canvas#world{position:fixed;inset:0;width:100%;height:100%;display:block}
 canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;pointer-events:none}
 .hud{position:fixed;inset:0;pointer-events:none}
-.dbgpad{position:absolute;top:44px;left:50%;transform:translateX(-50%);box-sizing:border-box;width:min(900px,calc(100vw - 32px));max-height:calc(100vh - 60px);overflow:auto;background:rgba(14,18,23,.9);border:1px solid #e8c14a;border-radius:4px;padding:10px 14px;color:var(--bone);font:600 13px var(--f-body);z-index:6}
+.dbgpad{position:absolute;top:44px;left:50%;transform:translateX(-50%);box-sizing:border-box;width:min(1160px,calc(100vw - 32px));max-height:calc(100vh - 60px);overflow:auto;background:rgba(14,18,23,.9);border:1px solid #e8c14a;border-radius:4px;padding:10px 14px;color:var(--bone);font:600 13px var(--f-body);z-index:6}
 .dbgpad h4{margin:0 0 8px;font:700 13px var(--f-display);letter-spacing:.02em;color:#e8c14a}
 .dbgpad h4 span{font:600 11px var(--f-body);letter-spacing:0;color:var(--mute);margin-left:6px}
 .dbgpad .dr{display:grid;grid-template-columns:96px 1fr auto;gap:10px;align-items:center;padding:3px 0}
-#dpRows{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 18px;align-items:start}
+#dpRows{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 18px;align-items:start}
 .dbgpad .dps{margin-bottom:10px}
 .dbgpad .dps h5{margin:0 0 3px;padding:0 6px 2px;border-bottom:1px solid #4a4228;font:700 11px var(--f-display);letter-spacing:.06em;text-transform:uppercase;color:#b9a25a}
+@media(max-width:1180px){#dpRows{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:820px){#dpRows{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:540px){#dpRows{grid-template-columns:minmax(0,1fr)}}
 .dbgcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
@@ -450,6 +451,7 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 
 <canvas id="world"></canvas>
 <canvas id="dbgOver" aria-hidden="true"></canvas>
+<style id="uiOff"></style>
 
 <div class="hud" id="hud">
   <div class="readout" id="readout"></div>
@@ -637,11 +639,16 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
     </div>
     <div class="custom">
       <h2>DEBUG: OVERLAYS</h2>
-      <div class="abil" id="dbgOver">
+      <div class="abil" id="dbgOverlays">
         <button type="button" class="tog" role="checkbox" data-k="fps"><span class="box" aria-hidden="true"></span><span class="tl">FPS counter<small>Frames per second and frame time, at the top of the screen</small></span></button>
         <button type="button" class="tog" role="checkbox" data-k="hpBars"><span class="box" aria-hidden="true"></span><span class="tl">Health bars<small>A bar over every goblin, civilian, car and hippo that can be hurt</small></span></button>
         <button type="button" class="tog" role="checkbox" data-k="dmgNums"><span class="box" aria-hidden="true"></span><span class="tl">Damage numbers<small>Each hit's damage pops up where it lands</small></span></button>
       </div>
+    </div>
+    <div class="custom wide">
+      <h2>DEBUG: INTERFACE</h2>
+      <p class="vnote">Hides each part of the on-screen display, for both players. They come back when you reload the game.</p>
+      <div class="abil" id="dbgUi"></div>
     </div>
     <div class="custom wide">
       <h2>DEBUG: HITBOXES</h2>
@@ -12957,8 +12964,36 @@ function saveDT(){try{const o={};for(const k of DT_SAVED)o[k]=DT[k];localStorage
 const PEACE_KEY='goblin-stompin-gus-peaceful';let peaceful=false;try{peaceful=localStorage.getItem(PEACE_KEY)==='1';}catch(e){}
 DT.peace=peaceful;
 function syncPeace(){const b=document.getElementById('peaceTog');if(b)b.setAttribute('aria-checked',String(peaceful));}
+// the Interface switches: each part of the on-screen display, what picks it out on the page, and what it's called. (The
+// menus aren't here, and nor are the touch buttons: without them there'd be no way back on a phone.) Hidden with one style
+// sheet, so none of the code that updates them needs to know. Not saved, for the same reason as the Rendering switches.
+const UI_PARTS={
+  uiScore:['#readout','Kills & score','Top left'],
+  uiClock:['.clock','Clock','The dial at the top right'],
+  uiStatus:['#clockTxt','Status panel','Day, season, weather, moon and where you are, under the clock'],
+  uiMini:['.mini','Minimap','Bottom left'],
+  uiSpeedo:['.speedo','Speedometer','Bottom right'],
+  uiHearts:['.hearts','Hearts','Your health'],
+  uiStam:['.stam','Stamina bar','Under the hearts'],
+  uiCharge:['.smeter','Charge meter','Winding up a stomp or a ground pound'],
+  uiMsg:['.label','Messages','"Gus has fallen", "A car is coming for you" and the like'],
+  uiHint:['.hint','Control hints','Which buttons do what, above the hearts'],
+  uiPlace:['.placeBanner','Place names','The name that fades in as you arrive somewhere'],
+  uiHurt:['.hurt','Hurt flash','The screen\'s red edges when you take a hit'],
+  uiWater:['.water-tint','Underwater tint','The blue over the screen while you\'re under'],
+  uiBadge:['#dbgBadge','Debug badge','"PAUSED" and "FREE CAM" at the top'],
+  uiWho:['.who','Player names','Over the hearts in split screen'],
+  uiJoin:['.join','Join prompt','Asking player two for a controller'],
+  uiSplit:['#divider','Split-screen line','Between the two views']};
+const UI_OFF=new Set();
+function applyUi(){document.getElementById('uiOff').textContent=[...UI_OFF].map(k=>UI_PARTS[k][0]+'{display:none!important}').join('');}
+// (the first row does the lot: everything off, or if it's all off already, everything back on)
+function toggleUi(k){const all=Object.keys(UI_PARTS);if(k==='uiAll'){const on=UI_OFF.size<all.length;UI_OFF.clear();if(on)for(const q of all)UI_OFF.add(q);}else if(!UI_OFF.delete(k))UI_OFF.add(k);applyUi();}
+const uiVal=k=>k==='uiAll'?UI_OFF.size<Object.keys(UI_PARTS).length:!UI_OFF.has(k);
+const isUi=k=>k==='uiAll'||!!UI_PARTS[k];
+document.getElementById('dbgUi').innerHTML=[['uiAll','Whole display','Every part below at once'],...Object.keys(UI_PARTS).map(k=>[k,UI_PARTS[k][1],UI_PARTS[k][2]])].map(([k,n,t])=>'<button type="button" class="tog" role="checkbox" data-k="'+k+'"><span class="box" aria-hidden="true"></span><span class="tl">'+n+'<small>'+t+'</small></span></button>').join('');
 // the quick menu's rows, section by section: [column, section's title, rows]
-const DBG_SECS=[
+const DBG_COLS=4,DBG_SECS=[
   [0,'Time',[{k:'speed',label:'Game speed'},{k:'paused',label:'Stop time'}]],
   [0,'Camera',[{k:'freecam',label:'Free cam'},{k:'curve',label:'World curve'}]],
   [0,'World',[{k:'wx',label:'Weather'},{k:'season',label:'Season'}]],
@@ -12968,7 +13003,8 @@ const DBG_SECS=[
   [2,'Hitboxes',[{k:'show',label:'Display hitboxes'},
     {k:'pBlock',label:'Player block hitboxes',col:'#ff9a2a'},{k:'nBlock',label:'NPC block hitboxes',col:'#e8d040'},
     {k:'pDmg',label:'Player damage hitboxes',col:'#ff3a3a'},{k:'nDmg',label:'NPC damage hitboxes',col:'#ff4fd8'},
-    {k:'pHurt',label:'Player hurtboxes',col:'#46f06a'},{k:'nHurt',label:'NPC hurtboxes',col:'#46d4ff'}]]];
+    {k:'pHurt',label:'Player hurtboxes',col:'#46f06a'},{k:'nHurt',label:'NPC hurtboxes',col:'#46d4ff'}]],
+  [3,'Interface',[{k:'uiAll',label:'Whole display'},...Object.keys(UI_PARTS).map(k=>({k,label:UI_PARTS[k][1]}))]]];
 const DBG_ITEMS=DBG_SECS.flatMap(([c,sec,rows])=>rows.map(it=>Object.assign(it,{c,sec})));
 // (the rows left and right change; on any other row they move to the next column)
 const DBG_ADJ=new Set(['speed','pspeed','curve','wx','season']);
@@ -12982,7 +13018,7 @@ function toggleGfx(k){const g=GFX_KEY[k],off=GFX_OFF[g]=!GFX_OFF[g];
   const P=P1.pos,d=e=>Math.hypot(e.cx*CS-P.x,e.cz*CS-P.z);
   leafQ.length=0;for(const e of [...meshes.values()].sort((a,b)=>d(b)-d(a)))leafQ.push(ckey(e.cx,e.cz));}
 const curveTxt=()=>DT.curve===0?'Flat':DT.curve>0?'Down '+DT.curve:'Up '+(-DT.curve);
-function dbgVal(k){return GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='peace'?!DT.peace:k==='paused'||k==='freecam'||k==='invuln'||k==='infStam'||k==='fly'||k==='gob'||k==='fps'||k==='hpBars'||k==='dmgNums'?DT[k]:DBG[k];}
+function dbgVal(k){return isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='peace'?!DT.peace:k==='paused'||k==='freecam'||k==='invuln'||k==='infStam'||k==='fly'||k==='gob'||k==='fps'||k==='hpBars'||k==='dmgNums'?DT[k]:DBG[k];}
 // the rows on show: the individual hitbox switches only while 'Display hitboxes' is on
 function dbgItems(){const L=DBG_ITEMS.filter(it=>!it.col||DBG.show);if(DT.cur>=L.length)DT.cur=L.length-1;return L;}
 // step a slider row (game speed or player speed) left or right
@@ -13006,6 +13042,7 @@ function dbgMenuToggle(){const it=dbgItems()[DT.cur];
   if(it.k==='wx'||it.k==='season'){if(DT.dd&&DT.dd.k===it.k)ddChoose(it.k,DT.dd.i);else{DT.dd={k:it.k,i:ddCur(it.k)};DT.ddScroll=0;DT.ddNav=true;tone('triangle',560,0,0.04,0.02);renderTime();}return;}
   DT.dd=null;
   if(GFX_KEY[it.k])toggleGfx(it.k);
+  else if(isUi(it.k))toggleUi(it.k);
   else if(it.k==='curve')DT.curve=2;
   else if(it.k==='speed')DT.speedI=SPEEDS.indexOf(1);
   else if(it.k==='freecam')setFreecam(!DT.freecam);
@@ -13023,7 +13060,7 @@ function dbgMenuNav(src,dy,dx,dt){
     const it=L[DT.cur],colOf=c=>L.filter(o=>o.c===c),here=colOf(it.c),j=here.indexOf(it);
     if(dy){DT.cur=L.indexOf(here[(j+dy+here.length)%here.length]);tone('triangle',520,0,0.03,0.02);}
     else if(dx&&DBG_ADJ.has(it.k))dbgStep(it.k,dx);
-    else if(dx){const N=colOf((it.c+dx+3)%3);DT.cur=L.indexOf(N[Math.min(j,N.length-1)]);tone('triangle',520,0,0.03,0.02);}
+    else if(dx){const N=colOf((it.c+dx+DBG_COLS)%DBG_COLS);DT.cur=L.indexOf(N[Math.min(j,N.length-1)]);tone('triangle',520,0,0.03,0.02);}
     renderTime();};
   if(d!==DT.navDir){DT.navDir=d;DT.navT=0.35;if(d)act();}
   else if(d){DT.navT-=dt;if(DT.navT<=0){DT.navT=0.12;act();}}
@@ -13037,7 +13074,8 @@ function setFreecam(on){
 }
 function renderTime(){
   saveDT();
-  for(const b of document.querySelectorAll('#dbgTime .tog,#dbgCheat .tog,#dbgOver .tog'))b.setAttribute('aria-checked',String(b.dataset.k==='peace'?!DT.peace:!!DT[b.dataset.k]));
+  for(const b of document.querySelectorAll('#dbgTime .tog,#dbgCheat .tog,#dbgOverlays .tog'))b.setAttribute('aria-checked',String(b.dataset.k==='peace'?!DT.peace:!!DT[b.dataset.k]));
+  for(const b of document.querySelectorAll('#dbgUi .tog'))b.setAttribute('aria-checked',String(uiVal(b.dataset.k)));
   for(const b of document.querySelectorAll('#dbgGfx .tog'))b.setAttribute('aria-checked',String(!GFX_OFF[GFX_KEY[b.dataset.k]]));
   {const el=document.getElementById('playerSpeed'),v=document.getElementById('playerSpeedVal');if(el){el.value=String(DT.psI);v.textContent=PSPEEDS[DT.psI]+'×';}}
   {const el=document.getElementById('worldCurve'),v=document.getElementById('worldCurveVal');if(el){el.value=String(DT.curve);v.textContent=curveTxt();}}
@@ -13059,7 +13097,7 @@ function renderTime(){
       if(DT.dd&&DT.dd.k===it.k){const cur=ddCur(it.k);list='<div class="ddl">'+ddOpts(it.k).map((o,j)=>'<div class="ddo'+(j===DT.dd.i?' cur':'')+(j===cur?' sel':'')+'" data-j="'+j+'">'+o.n+'</div>').join('')+'</div>';}
       return '<div class="dr'+(i===DT.cur?' cur':'')+'" data-i="'+i+'"><span>'+(it.col?'<i class="sw" style="background:'+it.col+'"></i>':'')+'</span><span>'+it.label+'</span><em'+(v===false?' class="off"':'')+'>'+body+'</em></div>'+list;});
     // laid out by column, then by section
-    document.getElementById('dpRows').innerHTML=[0,1,2].map(c=>'<div>'+DBG_SECS.filter(s=>s[0]===c).map(s=>'<div class="dps"><h5>'+s[1]+'</h5>'+dbgL.map((it,i)=>it.sec===s[1]?dbgRows[i]:'').join('')+'</div>').join('')+'</div>').join('');
+    document.getElementById('dpRows').innerHTML=Array.from({length:DBG_COLS},(_,c)=>c).map(c=>'<div>'+DBG_SECS.filter(s=>s[0]===c).map(s=>'<div class="dps"><h5>'+s[1]+'</h5>'+dbgL.map((it,i)=>it.sec===s[1]?dbgRows[i]:'').join('')+'</div>').join('')+'</div>').join('');
     // (on a short screen the menu scrolls: keep the highlight in view)
     {const r=document.querySelector('#dpRows .dr.cur');if(r&&r.scrollIntoView)r.scrollIntoView({block:'nearest'});}
     {const l=document.querySelector('#dpRows .ddl');if(l){l.scrollTop=DT.ddScroll||0;if(DT.ddNav){DT.ddNav=false;const cur=l.querySelector('.ddo.cur');if(cur){const t=cur.offsetTop,b=t+cur.offsetHeight;if(t<l.scrollTop)l.scrollTop=t;else if(b>l.scrollTop+l.clientHeight)l.scrollTop=b-l.clientHeight;DT.ddScroll=l.scrollTop;}}}}
@@ -13086,7 +13124,8 @@ function renderTime(){
  document.getElementById('dpClose').addEventListener('click',()=>setKbdMenu(false));}
 for(const b of document.querySelectorAll('#dbgMenuTog .tog'))b.addEventListener('click',()=>{DT.quick=!DT.quick;if(!DT.quick){DT.kbdOpen=false;DT.menu=false;}try{localStorage.setItem('goblin-stompin-gus-quickdbg',JSON.stringify(DT.quick));}catch(e){}renderTime();tone('triangle',DT.quick?660:440,0,0.05,0.03);});
 for(const b of document.querySelectorAll('#dbgGfx .tog'))b.addEventListener('click',()=>{toggleGfx(b.dataset.k);renderTime();tone('triangle',GFX_OFF[GFX_KEY[b.dataset.k]]?440:660,0,0.05,0.03);});
-for(const b of document.querySelectorAll('#dbgTime .tog,#dbgOver .tog'))b.addEventListener('click',()=>{const k=b.dataset.k;if(k==='freecam')setFreecam(!DT.freecam);else{DT[k]=!DT[k];if(k==='fps'||k==='hpBars'||k==='dmgNums')try{localStorage.setItem('goblin-stompin-gus-'+k,DT[k]?'1':'0');}catch(e){}renderTime();}tone('triangle',DT[k]?660:440,0,0.05,0.03);});
+for(const b of document.querySelectorAll('#dbgUi .tog'))b.addEventListener('click',()=>{toggleUi(b.dataset.k);renderTime();tone('triangle',uiVal(b.dataset.k)?660:440,0,0.05,0.03);});
+for(const b of document.querySelectorAll('#dbgTime .tog,#dbgOverlays .tog'))b.addEventListener('click',()=>{const k=b.dataset.k;if(k==='freecam')setFreecam(!DT.freecam);else{DT[k]=!DT[k];if(k==='fps'||k==='hpBars'||k==='dmgNums')try{localStorage.setItem('goblin-stompin-gus-'+k,DT[k]?'1':'0');}catch(e){}renderTime();}tone('triangle',DT[k]?660:440,0,0.05,0.03);});
 document.getElementById('gameSpeed').addEventListener('input',e=>{DT.speedI=+e.target.value;renderTime();});
 document.getElementById('playerSpeed').addEventListener('input',e=>{DT.psI=+e.target.value;renderTime();});
 document.getElementById('worldCurve').addEventListener('input',e=>{DT.curve=+e.target.value;renderTime();});
