@@ -366,6 +366,7 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 .devctl{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .devctl .vrange{min-width:120px}
 .devb{padding:5px 10px;background:var(--slate);color:var(--bone);border:1px solid #3a4550;border-radius:4px;cursor:pointer;font:600 13px var(--f-body);min-width:36px}
+.devb.on{border-color:var(--moss);background:#2c3a26}
 .devb.wide{flex:1}
 .devtime{font:600 12px var(--f-mono,monospace);color:var(--mute);min-width:84px;text-align:right}
 .devlbl{font:600 12px var(--f-body);color:var(--mute);min-width:44px}
@@ -722,7 +723,8 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
             <div class="devfig devstfig"><canvas id="devStCanvas" aria-label="Structure preview"></canvas>
               <div class="devtl">
                 <div class="devdd devabdd" id="devStDD"><button type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Structure">Structure</button><ul id="devStList" role="listbox" aria-label="Structures" hidden></ul></div>
-                <span class="devhint">drag to turn · scroll to zoom</span>
+                <button type="button" class="devb" id="devStFly" aria-pressed="false" title="Fly through the preview, through walls and all">Fly</button>
+                <span class="devhint" id="devStHint">drag to turn · scroll to zoom</span>
               </div>
               <div class="devstinfo" id="devStInfo" role="status"></div>
             </div>
@@ -2427,7 +2429,7 @@ function refreshSiteVenues(p,want){
   // distant scenery's turbine is showing, with blades of its own, standing still
   {const R=Math.max(150,viewR*CS+40);
    for(let px=Math.floor((p.pos.x-R)/CELL);px<=Math.floor((p.pos.x+R)/CELL);px++)for(let pz=Math.floor((p.pos.z-R)/CELL);pz<=Math.floor((p.pos.z+R)/CELL);pz++){
-    if(!turbineAt(px,pz)||!meshes.has(ckey(Math.floor((px*CELL+16)/CS),Math.floor((pz*CELL+16)/CS))))continue;const key='w'+px+','+pz;want.add(key);if(!venues.has(key)){const g=makeRotor();g.position.set(px*CELL+16,G+41.9,pz*CELL+12.6);scene.add(g);
+    if(!turbineAt(px,pz)||!meshes.has(ckey(Math.floor((px*CELL+16)/CS),Math.floor((pz*CELL+16)/CS)))&&!stHas(px*CELL+16,pz*CELL+16))continue;const key='w'+px+','+pz;want.add(key);if(!venues.has(key)){const g=makeRotor();g.position.set(px*CELL+16,G+41.9,pz*CELL+12.6);scene.add(g);
       venues.set(key,{kind:'wind',rotor:g,sp:0.55+hash2(Math.floor(px/7),Math.floor(pz/7))*0.4,ck:ckey(Math.floor((px*CELL+16)/CS),Math.floor((pz*CELL+16)/CS))});}}}
   for(let px=Math.floor((p.pos.x-150)/CELL);px<=Math.floor((p.pos.x+150)/CELL);px++)for(let pz=Math.floor((p.pos.z-150)/CELL);pz<=Math.floor((p.pos.z+150)/CELL);pz++){
     if(biomeOf(px,pz)!=='plains')continue;
@@ -11146,7 +11148,7 @@ function devSetMode(m){DEVP.mode=m;for(const b of document.querySelectorAll('#de
    const setMax=v=>{fig.classList.toggle('devmax',v);mb.setAttribute('aria-pressed',String(v));mb.innerHTML=v?'&#x2921;':'&#x2922;';mb.title=v?'Shrink the preview back (Esc)':'Expand the preview to fill the window (Esc to shrink)';if(!v)fig.style.height='';};
    mb.addEventListener('click',()=>setMax(!fig.classList.contains('devmax')));
    // space plays / pauses while the preview is up (and Esc shrinks it); ahead of the menu's own keys
-   const live=()=>fig.getClientRects().length>0;   // (on screen: the Dev tab is open in the menu)
+   const live=()=>fig.getClientRects().length>0&&!ST.fly.on;   // (on screen: the Dev tab is open in the menu; and not flying through the Structures preview, where Space goes up)
    const typing=t=>t&&(t.tagName==='TEXTAREA'||t.tagName==='SELECT'||t.tagName==='INPUT'&&/^(text|number|search)$/.test(t.type));
    window.addEventListener('keydown',e=>{if(!live())return;
      if(e.key==='Escape'&&fig.classList.contains('devmax')){setMax(false);e.preventDefault();e.stopImmediatePropagation();return;}
@@ -11164,11 +11166,22 @@ function devSetMode(m){DEVP.mode=m;for(const b of document.querySelectorAll('#de
 }
 // ---- Dev tab: Structures -- every kind of thing the world builds, found in this world (the nearest one to Gus) and
 // shown on its own in a turntable preview: its blocks cut out of the world and meshed just as the world meshes them ----
-const ST={r:null,scene:null,cam:null,grp:null,key:null,yaw:0.8,pitch:0.62,zoom:1,c:new V3(0,G+4,0),rad:24,info:'',search:null};
+const ST={r:null,scene:null,cam:null,grp:null,key:null,yaw:0.8,pitch:0.62,zoom:1,c:new V3(0,G+4,0),rad:24,info:'',search:null,
+  // (view: stand-in viewers round the structure shown, so the world dresses it as it would round Gus; box: the part of the
+  // world shown, x0,z0,x1,z1; fly: the free-flying camera)
+  view:[],liveT:0,dressing:false,box:null,clip:[],dressT:0,fly:{on:false,pos:new V3(),yaw:0,pitch:0,sp:1,t:0,keys:new Set(),V:{active:true,state:'walk',pos:new V3()},at:new V3()}};
 const ST_UNDER=new Set(['sewers','subway','metro','caves']);
 // (kinds that spread over several blocks side by side; anything else is one block, even with the same next door)
-const ST_SPREAD=new Set(['farm','dump','yard','navy','harbor','truckstop','nursery','cemetery']);
-function stGroups(){return TEST_GROUPS.map(([g,items])=>[g,g==='Underground'?[...items,['metro','Subway stations']]:items]);}
+const ST_SPREAD=new Set(['farm','dump','yard','navy','harbor','fishing','truckstop','nursery','cemetery']);
+// (kinds the preview lists that aren't switches of their own in a test world: parts or versions of one that is)
+const ST_EXTRA={Underground:[['metro','Subway stations']],Coast:[['fishing','Fishing wharves']]};
+function stGroups(){return TEST_GROUPS.map(([g,items])=>[g,ST_EXTRA[g]?[...items,...ST_EXTRA[g]]:items]);}
+// who the world's dressed for: the players and, while the Structures preview is up, its stand-ins round the structure
+// shown (and its flying camera). Lamps, signs, props, doors, rides, animals and boats only appear round a viewer, so
+// this is what gives the preview everything the structure has in the real world.
+const stLive=()=>ST.dressing||performance.now()-ST.liveT<1000;   // (the preview's open, or it's being dressed now)
+function viewers(){const L=[];for(const p of players)if(p.active)L.push(p);if(ST.view.length&&stLive())for(const v of ST.view)L.push(v);return L;}
+const stHas=(x,z)=>!!ST.box&&stLive()&&x>=ST.box[0]&&x<ST.box[2]&&z>=ST.box[1]&&z<ST.box[3];
 function stName(k){for(const [,items] of stGroups())for(const [kk,n] of items)if(kk===k)return n;return k;}
 // where a kind is (in blocks: {ax,az,w,h}), around block (px,pz), or null
 function stMatch(key,px,pz){
@@ -11185,7 +11198,9 @@ function stMatch(key,px,pz){
   const S=superOf(px,pz);if(S&&S.kind===key)return {ax:S.ax,az:S.az,w:S.w,h:S.h};
   const M=macroOf1(px,pz);if(M&&M.kind===key&&M.w&&px>=M.ax&&px<M.ax+M.w&&pz>=M.az&&pz<M.az+M.h)return {ax:M.ax,az:M.az,w:M.w,h:M.h};
   const B=bigPlainsAt(px,pz);if(B&&B.kind===key)return {ax:B.ax,az:B.az,w:B.w,h:B.h};
-  const coastIs=(a,b)=>{const c=coastType(a,b);return c===key||key==='yard'&&c==='basin'||key==='navy'&&c==='nbasin';};
+  // (a fishing village's wharf is its own entry, so Docks are the towns' and cities' docks)
+  const fishy=(a,b)=>plotInfo(a,b).fish;
+  const coastIs=(a,b)=>{const c=coastType(a,b);return c===key&&(key!=='harbor'||!fishy(a,b))||key==='yard'&&c==='basin'||key==='navy'&&c==='nbasin'||key==='fishing'&&c==='harbor'&&fishy(a,b);};
   const ptIs=(a,b)=>plotType1(a,b)===key&&!superOf(a,b);
   const pred=coastIs(px,pz)?coastIs:ptIs(px,pz)?ptIs:null;if(!pred)return null;
   if(!ST_SPREAD.has(key))return one;
@@ -11206,7 +11221,7 @@ function stFind(key,cx,cz){
   }
   return stRings(key,cx,cz,0,stR(key),Infinity).F;
 }
-const ST_R=150,stR=key=>key==='theme'?ST_R*2:ST_R;   // (whole parks are rare enough that one may be further off)
+const ST_R=150,stR=key=>key==='theme'||key==='fishing'?ST_R*2:ST_R;   // (whole parks and fishing villages are rare enough that one may be further off)
 // search rings r0.. outward (stopping once past the time budget): {F, r: the ring to carry on from}
 function stRings(key,cx,cz,r0,r1,budget){
   const t0=performance.now();
@@ -11261,11 +11276,54 @@ function stSet(msg){ST.info=msg;const el=document.getElementById('devStInfo');if
 function stSelect(key){
   ST.key=key;stMarkDD();if(!stInitGL()){stSet('3D preview unavailable');return;}
   if(ST.grp){ST.scene.remove(ST.grp);ST.grp.traverse(m=>{if(m.geometry)m.geometry.dispose();});ST.grp=null;}
+  ST.view=[];ST.box=null;
   const p=players.find(q=>q.active)||players[0],cx=Math.floor(p.pos.x/CELL),cz=Math.floor(p.pos.z/CELL);
   stSet('Looking for '+stName(key).toLowerCase()+'…');
   // (the highway features are found in one go; everything else is searched for a few rings at a time, in stTick)
   if(key==='pylons'||key==='billboards'||key==='tolls'){ST.search=null;setTimeout(()=>{if(ST.key===key)stShow(key,stFind(key,cx,cz));},30);}
   else ST.search={key,cx,cz,r:0};
+}
+// stand-ins spread over the box (on the ground, a few dozen blocks apart, as many as it takes up to 24), so all of it
+// is dressed, not just round its middle
+function stViewers(X0,Z0,X1,Z1){
+  const W=X1-X0,D=Z1-Z0;let sp=56;while(Math.ceil(W/sp)*Math.ceil(D/sp)>24)sp+=8;
+  const nx=Math.ceil(W/sp),nz=Math.ceil(D/sp),out=[];
+  for(let i=0;i<nx;i++)for(let j=0;j<nz;j++)out.push({active:true,state:'walk',pos:new V3(X0+(i+.5)*W/nx,G+1,Z0+(j+.5)*D/nz)});
+  return out;
+}
+// dress the structure: everything the world puts round a viewer -- lamps, signals, signs, billboards, benches and bins,
+// the furniture inside, doors, shop signs, clock towers and the like, rides, animals, boats, trains -- worked out now
+// for the preview's viewers (and the game's players, who keep theirs). Drawn into the game's own scene; the preview
+// draws that scene's dressing over its own blocks, cut to its box.
+function stDress(){
+  ST.liveT=performance.now();ST.dressT=0.5;ST.fly.at.copy(ST.fly.V.pos);
+  ST.dressing=true;
+  try{safe('stDress',()=>{refreshFixtures();refreshBrandSigns();refreshDoors();refreshLandmarks();headLamps();
+    venueT=0;updateVenues(0);   // (made, and each put in place, without moving on)
+    campFires.t=0;updateLandmarks(0);});}
+  finally{ST.dressing=false;}
+}
+// what of the game's scene is dressing (everything else in it -- the terrain round Gus, the sky, cars, goblins -- isn't
+// drawn in the preview)
+function stDecoSet(){
+  const S=new Set([FIX_BAR,FIX_GLOW,FIX_COL,PROP_L,PROP_G,CR_B,CR_H,PL_B,PL_H,BALL]);
+  for(const L of [heads,signs,boards,bpoles,doorPool])for(const o of L)S.add(o.g);
+  for(const m of bsigns)S.add(m);for(const m of campOn.values())S.add(m);for(const L of lmOn.values())S.add(L.v.g);
+  // (a venue's models: a ride, a boat, a rotor, or lists of planes, train cars, animals, figures, barrier arms)
+  for(const V of venues.values())for(const k in V){const x=V[k];if(x&&x.isObject3D)S.add(x);
+    else if(Array.isArray(x))for(const e of x){if(e&&e.isObject3D)S.add(e);else if(e&&e.g&&e.g.isObject3D)S.add(e.g);}}
+  return S;
+}
+function stDrawDeco(C){
+  const keep=stDecoSet(),hid=[];
+  for(const o of scene.children)if(o.visible&&!o.isLight&&!keep.has(o)){o.visible=false;hid.push(o);}
+  // (in daylight, unfogged, like the blocks)
+  const fog=scene.fog,bg=scene.background,hI=hemi.intensity,sI=sunLight.intensity,hC=hemi.color.clone(),hG=hemi.groundColor.clone(),sC=sunLight.color.clone(),sP=sunLight.position.clone();
+  scene.fog=null;scene.background=null;hemi.intensity=0.75;hemi.color.setHex(0xe8f0e0);hemi.groundColor.setHex(0x40483a);sunLight.intensity=0.6;sunLight.color.setHex(0xffe8cc);sunLight.position.set(0.5,1,0.3);
+  ST.r.autoClear=false;ST.r.clippingPlanes=ST.clip;
+  try{ST.r.render(scene,C);}
+  finally{ST.r.autoClear=true;ST.r.clippingPlanes=[];for(const o of hid)o.visible=true;scene.fog=fog;scene.background=bg;
+    hemi.intensity=hI;hemi.color.copy(hC);hemi.groundColor.copy(hG);sunLight.intensity=sI;sunLight.color.copy(sC);sunLight.position.copy(sP);}
 }
 function stShow(key,F){
   try{
@@ -11279,29 +11337,65 @@ function stShow(key,F){
     if(ST_UNDER.has(key))Z1=Math.floor((Z0+Z1)/2)+2;
     const Y0=under?Math.max(1,G-34):G,Y1=H-1;
     const ms=stMeshes(X0,Z0,X1,Z1,Y0,Y1);
-    const grp=new THREE.Group();const mx=(X0+X1)/2,mz=(Z0+Z1)/2;grp.position.set(-mx,0,-mz);for(const m of ms)grp.add(m);
+    // (left where it is in the world, so the world's own dressing lines up with it)
+    const grp=new THREE.Group();const mx=(X0+X1)/2,mz=(Z0+Z1)/2;for(const m of ms)grp.add(m);
     ST.scene.add(grp);ST.grp=grp;
     let top=G+1;{const pa=ms[0].geometry.attributes.position.array;for(let i=1;i<pa.length;i+=3)if(pa[i]>top)top=pa[i];}
-    ST.rad=Math.max(X1-X0,Z1-Z0,(top-G)*1.2)*0.62;ST.c.set(0,ST_UNDER.has(key)?G-6:G+1+Math.min(top-G-1,ST.rad)*0.3,0);ST.zoom=1;
-    ST.floor.visible=!ST_UNDER.has(key);
+    ST.rad=Math.max(X1-X0,Z1-Z0,(top-G)*1.2)*0.62;ST.c.set(mx,ST_UNDER.has(key)?G-6:G+1+Math.min(top-G-1,ST.rad)*0.3,mz);ST.zoom=1;
+    ST.floor.visible=!ST_UNDER.has(key);ST.floor.position.set(Math.round(mx),G+1+0.02,Math.round(mz));
+    ST.box=[X0,Z0,X1,Z1];
+    ST.clip=[new THREE.Plane(new V3(1,0,0),-X0),new THREE.Plane(new V3(-1,0,0),X1),new THREE.Plane(new V3(0,0,1),-Z0),new THREE.Plane(new V3(0,0,-1),Z1)];
+    ST.view=stViewers(X0,Z0,X1,Z1);
+    if(ST.fly.on){stOrbitCam();stFlyFrom(ST.cam);ST.view.push(ST.fly.V);}
+    stDress();
     stSet(stName(key)+' · at '+Math.round(mx)+', '+Math.round(mz)+' · '+(X1-X0)+' × '+(Z1-Z0)+' blocks'+(ST_UNDER.has(key)?' · cut away to show it underground':''));
   }catch(e){stSet('Could not build the preview: '+e.message);}
 }
+// the turntable camera: round the structure's middle, at the yaw, pitch and zoom you've set
+function stOrbitCam(){const C=ST.cam,c=ST.c,d=ST.rad*2.2*ST.zoom;C.position.set(c.x+Math.sin(ST.yaw)*Math.cos(ST.pitch)*d,c.y+Math.sin(ST.pitch)*d,c.z+Math.cos(ST.yaw)*Math.cos(ST.pitch)*d);C.lookAt(c.x,c.y,c.z);}
+// ---- flying through the preview: a free camera that goes through anything (W A S D, up and down, drag to look) ----
+const ST_FLYKEYS=new Set(['KeyW','KeyA','KeyS','KeyD','KeyQ','KeyE','KeyC','Space','ShiftLeft','ShiftRight','ControlLeft','ControlRight','ArrowUp','ArrowDown','ArrowLeft','ArrowRight']);
+// (start where the camera is, looking the way it looks)
+function stFlyFrom(C){const F=ST.fly,c=ST.c,dx=c.x-C.position.x,dy=c.y-C.position.y,dz=c.z-C.position.z;F.pos.copy(C.position);F.yaw=Math.atan2(-dx,-dz);F.pitch=Math.atan2(dy,Math.hypot(dx,dz));F.V.pos.copy(F.pos);}
+function stFlyHint(){const h=document.getElementById('devStHint'),b=document.getElementById('devStFly'),on=ST.fly.on;
+  if(h)h.textContent=on?'W A S D to fly · E / Space up · Q / C down · Shift faster · drag to look · scroll for speed · Esc to land':'drag to turn · scroll to zoom';
+  if(b){b.setAttribute('aria-pressed',String(on));b.textContent=on?'Land':'Fly';b.classList.toggle('on',on);}}
+function stFlySet(on){
+  const F=ST.fly;if(F.on===on)return;F.on=on;F.keys.clear();
+  if(on){stOrbitCam();stFlyFrom(ST.cam);if(ST.box)ST.view.push(F.V);const cv=document.getElementById('devStCanvas');if(cv&&cv.focus)cv.focus({preventScroll:true});}
+  else{ST.view=ST.view.filter(v=>v!==F.V);if(ST.box)stDress();}
+  stFlyHint();
+}
+function stFlyMove(dt){
+  const F=ST.fly,K=F.keys,k=c=>K.has(c)?1:0;
+  const mz=k('KeyW')+k('ArrowUp')-k('KeyS')-k('ArrowDown'),mx=k('KeyD')+k('ArrowRight')-k('KeyA')-k('ArrowLeft'),up=k('KeyE')+k('Space')-k('KeyQ')-k('KeyC')-k('ControlLeft')-k('ControlRight');
+  const sp=(K.has('ShiftLeft')||K.has('ShiftRight')?60:16)*F.sp*dt,cy=Math.cos(F.yaw),sy=Math.sin(F.yaw),cp=Math.cos(F.pitch),spp=Math.sin(F.pitch);
+  // (forward goes where you look, pitch and all; sideways and up stay level and straight up)
+  F.pos.x+=(-sy*cp*mz+cy*mx)*sp;F.pos.y+=(spp*mz+up)*sp;F.pos.z+=(-cy*cp*mz-sy*mx)*sp;
+  F.pos.y=Math.max(1,Math.min(H+120,F.pos.y));F.V.pos.copy(F.pos);
+}
 function stTick(dt){
-  const sec=document.getElementById('devSecStruct');if(!sec||!sec.open)return;
+  const sec=document.getElementById('devSecStruct');if(!sec||!sec.open){if(ST.fly.on)stFlySet(false);return;}
   if(!ST.key){stBuildList();stSelect(stGroups()[0][1][0][0]);return;}
   if(!ST.r)return;
   if(ST.search){const S=ST.search,R=stRings(S.key,S.cx,S.cz,S.r,stR(S.key),12);S.r=R.r;
     if(R.F||S.r>stR(S.key)){ST.search=null;const F=R.F;setTimeout(()=>{if(ST.key===S.key)stShow(S.key,F);},20);}
     else stSet('Looking for '+stName(S.key).toLowerCase()+'… ('+Math.round(S.r*CELL).toLocaleString()+' blocks out)');}
+  if(ST.view.length)ST.liveT=performance.now();   // (keeps the stand-ins counted while the preview's open)
+  // (flying keeps to real time, so a slow frame doesn't slow you down)
+  if(ST.fly.on){const t=performance.now();stFlyMove(Math.min(0.25,Math.max(0,(t-(ST.fly.t||t))/1000)));ST.fly.t=t;}else ST.fly.t=0;
+  // (flying, the furniture, doors and the rest follow the camera round, the way they follow Gus: worked out again
+  // when it's moved a few blocks, at most twice a second)
+  if(ST.box&&ST.fly.on){ST.dressT-=dt;if(ST.dressT<=0&&ST.fly.at.distanceTo(ST.fly.V.pos)>4)stDress();}
   const cv=ST.r.domElement,w=cv.clientWidth|0,h=cv.clientHeight|0;if(w<10||h<10)return;
   if(cv.width!==Math.round(w*ST.r.getPixelRatio())||cv.height!==Math.round(h*ST.r.getPixelRatio()))ST.r.setSize(w,h,false);
-  if(!ST.drag)ST.yaw+=dt*0.12;   // (turning slowly by itself, until you take hold of it)
-  const C=ST.cam,c=ST.c,d=ST.rad*2.2*ST.zoom;C.aspect=w/h;C.updateProjectionMatrix();
-  C.position.set(c.x+Math.sin(ST.yaw)*Math.cos(ST.pitch)*d,c.y+Math.sin(ST.pitch)*d,c.z+Math.cos(ST.yaw)*Math.cos(ST.pitch)*d);C.lookAt(c.x,c.y,c.z);
+  const C=ST.cam;C.aspect=w/h;C.updateProjectionMatrix();
+  ST.floor.visible=!ST.fly.on&&!ST_UNDER.has(ST.key);   // (the grid's a turntable's floor: flying, it would lie over every floor inside)
+  if(ST.fly.on){C.position.copy(ST.fly.pos);C.rotation.set(ST.fly.pitch,ST.fly.yaw,0,'YXZ');}
+  else{if(!ST.drag)ST.yaw+=dt*0.12;stOrbitCam();}   // (turning slowly by itself, until you take hold of it)
   // (drawn flat and in daylight)
   const L0=WORLD_LIGHT.value.clone(),cu=CURVE_U.value;WORLD_LIGHT.value.setRGB(1,1,1);CURVE_U.value=0;
-  try{ST.r.render(ST.scene,C);}finally{WORLD_LIGHT.value.copy(L0);CURVE_U.value=cu;}
+  try{ST.r.render(ST.scene,C);if(ST.box)stDrawDeco(C);}finally{WORLD_LIGHT.value.copy(L0);CURVE_U.value=cu;}
 }
 function stBuildList(){const list=document.getElementById('devStList');if(!list||list.childElementCount)return;
   list.innerHTML=stGroups().map(([g,items])=>'<li class="grp" aria-disabled="true">'+glEsc(g)+'</li>'+items.map(([k,n])=>'<li role="option" data-k="'+k+'">'+glEsc(n)+'</li>').join('')).join('');stMarkDD();}
@@ -11317,9 +11411,22 @@ function stMarkDD(){const dd=document.getElementById('devStDD');if(!dd)return;dd
     document.addEventListener('pointerdown',e=>{if(!list.hidden&&!dd.contains(e.target))open(false);});
     const cv=document.getElementById('devStCanvas');
     cv.addEventListener('pointerdown',e=>{ST.drag={x:e.clientX,y:e.clientY};cv.setPointerCapture(e.pointerId);});
-    cv.addEventListener('pointermove',e=>{if(!ST.drag)return;ST.yaw-=(e.clientX-ST.drag.x)*0.01;ST.pitch=Math.max(0.05,Math.min(1.45,ST.pitch+(e.clientY-ST.drag.y)*0.01));ST.drag={x:e.clientX,y:e.clientY};});
+    // (dragging turns the structure round, or, flying, turns your head)
+    cv.addEventListener('pointermove',e=>{if(!ST.drag)return;const dx=e.clientX-ST.drag.x,dy=e.clientY-ST.drag.y;ST.drag={x:e.clientX,y:e.clientY};
+      if(ST.fly.on){ST.fly.yaw-=dx*0.005;ST.fly.pitch=Math.max(-1.5,Math.min(1.5,ST.fly.pitch-dy*0.005));return;}
+      ST.yaw-=dx*0.01;ST.pitch=Math.max(0.05,Math.min(1.45,ST.pitch+dy*0.01));});
     cv.addEventListener('pointerup',()=>{ST.drag=null;});cv.addEventListener('pointercancel',()=>{ST.drag=null;});
-    cv.addEventListener('wheel',e=>{e.preventDefault();ST.zoom=Math.max(0.1,Math.min(4,ST.zoom*Math.pow(1.0015,e.deltaY)));},{passive:false});
+    // (scrolling zooms, or, flying, sets how fast you go)
+    cv.addEventListener('wheel',e=>{e.preventDefault();const k=Math.pow(1.0015,e.deltaY);if(ST.fly.on)ST.fly.sp=Math.max(0.1,Math.min(8,ST.fly.sp/k));else ST.zoom=Math.max(0.1,Math.min(4,ST.zoom*k));},{passive:false});
+    const fb=document.getElementById('devStFly');if(fb)fb.addEventListener('click',()=>stFlySet(!ST.fly.on));
+    // the flying keys, ahead of the menu's own (which would move round the menu, or close it on Esc)
+    const flying=()=>ST.fly.on&&menuOpen&&curTab==='dev'&&cv.getClientRects().length>0;
+    const typing=t=>t&&(t.tagName==='TEXTAREA'||t.tagName==='SELECT'||t.tagName==='INPUT');
+    window.addEventListener('keydown',e=>{if(!flying()||typing(e.target))return;
+      if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();stFlySet(false);return;}
+      if(!ST_FLYKEYS.has(e.code))return;e.preventDefault();e.stopImmediatePropagation();ST.fly.keys.add(e.code);},true);
+    window.addEventListener('keyup',e=>{if(!ST.fly.keys.has(e.code))return;ST.fly.keys.delete(e.code);if(flying()){e.preventDefault();e.stopImmediatePropagation();}},true);
+    window.addEventListener('blur',()=>ST.fly.keys.clear());
   }
 }
 // ---- controller navigation of the pause screen: d-pad / left stick move a highlight, A presses, B backs out ----
@@ -14664,27 +14771,27 @@ function stadiumProps(S){
 }
 const COAST_PROPS=new Set(['beach','harbor','yard','navy','rig']);
 function refreshProps(){
-  nPropL=nPropG=0;activeProps.length=0;propCells.clear();const R=34,seen=new Set();
+  nPropL=nPropG=0;activeProps.length=0;propCells.clear();const R=34,seen=new Set(),got=new Set();   // (seen: per viewer, as each sees only what's near it; got: drawn already, for another)
   // benches and litter bins, out to the same distance as the lamp posts beside them (they're out in the open, so 34 blocks
   // would have them popping in down the street). Listed with the fixtures too: traffic knocks them over, as it does lamps.
   {const RS=Math.min(viewFar(),96),seenS=new Set();
-   for(const p of players){if(!p.active)continue;
+   for(const p of viewers()){
      for(let px=Math.floor((p.pos.x-RS)/CELL);px<=Math.floor((p.pos.x+RS)/CELL);px++)for(let pz=Math.floor((p.pos.z-RS)/CELL);pz<=Math.floor((p.pos.z+RS)/CELL);pz++){
        const ck=px*100003+pz;if(seenS.has(ck))continue;seenS.add(ck);if(biomeOf(px,pz)==='plains')continue;
        for(const f of streetFurn(px,pz)){if(!f.prop)continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);if(get(fx,G,fz)!==f.on||get(fx,G+1,fz)!==AIR)continue;
          activeProps.push(f);activeFix.push(f);drawProp(f);if(downFix.has(f.key)||falling.has(f.key))continue;
          // (a bench is wider than one block: goblins go round the whole of it)
          const L=f.type==='parkbench'?.9:0,ux=Math.cos(f.yaw)*L,uz=-Math.sin(f.yaw)*L;for(const e of L?[-1,0,1]:[0])propCells.set(propCK(f.x+ux*e,f.y0,f.z+uz*e),f);}}}}
-  for(const p of players){if(!p.active)continue;
+  for(const p of viewers()){seen.clear();
     for(let px=Math.floor((p.pos.x-R)/CELL);px<=Math.floor((p.pos.x+R)/CELL);px++)for(let pz=Math.floor((p.pos.z-R)/CELL);pz<=Math.floor((p.pos.z+R)/CELL);pz++){
       const S=superOf(px,pz),ax=S?S.ax:px,az=S?S.az:pz,P=plotInfo(ax,az);
       if(COAST_PROPS.has(P.type)&&!seen.has(P)){seen.add(P);
         for(const f of coastProps(P,ax,az)){if(Math.abs(f.x-p.pos.x)>R||Math.abs(f.z-p.pos.z)>R)continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);if(!chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS))))continue;
           if(f.snap){let y=G+10;while(y>G-4&&get(fx,y,fz)===AIR)y--;if(get(fx,y,fz)===WATER||y<=G-4)continue;f.y0=y+1;f.snap=false;}
-          if(get(fx,Math.floor(f.y0)-(f.y0%1?0:1),fz)===AIR||get(fx,Math.ceil(f.y0),fz)!==AIR)continue;activeProps.push(f);drawProp(f);if(!f.low&&!downFix.has(f.key)&&!falling.has(f.key))propCells.set(propCK(f.x,f.y0,f.z),f);}}
+          if(get(fx,Math.floor(f.y0)-(f.y0%1?0:1),fz)===AIR||get(fx,Math.ceil(f.y0),fz)!==AIR)continue;if(got.has(f.key))continue;got.add(f.key);activeProps.push(f);drawProp(f);if(!f.low&&!downFix.has(f.key)&&!falling.has(f.key))propCells.set(propCK(f.x,f.y0,f.z),f);}}
       if((P.patio||S&&S.kind==='stadium')&&!seen.has(P)){seen.add(P);
         for(const f of P.patio?patioProps(P,ax,az):stadiumProps(S)){if(Math.abs(f.x-p.pos.x)>R||Math.abs(f.z-p.pos.z)>R)continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);if(!chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS))))continue;
-          if(get(fx,f.y0-1,fz)===AIR||get(fx,f.y0,fz)!==AIR)continue;activeProps.push(f);drawProp(f);if(!f.low&&!downFix.has(f.key)&&!falling.has(f.key))propCells.set(propCK(f.x,f.y0,f.z),f);}}
+          if(get(fx,f.y0-1,fz)===AIR||get(fx,f.y0,fz)!==AIR)continue;if(got.has(f.key))continue;got.add(f.key);activeProps.push(f);drawProp(f);if(!f.low&&!downFix.has(f.key)&&!falling.has(f.key))propCells.set(propCK(f.x,f.y0,f.z),f);}}
       for(const b of P.b){const ward=b.kind==='ward';if(seen.has(b))continue;if(!ward&&!b._fp){if(b.style!=='church'&&b.style!=='cathedral'&&b.style!=='arena'&&b.style!=='capitol'&&!FURN_SEEN.has(ax+','+az+','+b.x0+','+b.z0))continue;b._fp=[ax,az];}seen.add(b);   // (a site's other blocks: they're all listed on its first plot)
         // the floors in sight: the one you're on and the ones either side (you can't see the others through the slabs)
         const f0=Math.max(0,Math.floor((p.pos.y-G-1-b.gf)/FH)+1);
@@ -14693,13 +14800,13 @@ function refreshProps(){
           for(const f of roomProps(b,ax,az,n,ward)){if(Math.abs(f.x-p.pos.x)>RF||Math.abs(f.z-p.pos.z)>RF)continue;
             const fx=Math.floor(f.x),fz=Math.floor(f.z);if(!chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS))))continue;
             {const yb=f.base||y0;if(get(fx,yb-1,fz)===AIR||get(fx,yb,fz)!==AIR)continue;}   // (the floor under it gone, or rubble where it stood)
-            activeProps.push(f);drawProp(f);if(!f.low&&!downFix.has(f.key)&&!falling.has(f.key))propCells.set(propCK(f.x,f.y0,f.z),f);}}
+            if(got.has(f.key))continue;got.add(f.key);activeProps.push(f);drawProp(f);if(!f.low&&!downFix.has(f.key)&&!falling.has(f.key))propCells.set(propCK(f.x,f.y0,f.z),f);}}
       }
     }
   }
   // the handrails: a bar sloping up from post to post beside each flight (gone where a post's been knocked out)
   fallMatrix(0,0,0,0);
-  for(const p of players){if(!p.active)continue;const seenR=new Set();
+  for(const p of viewers()){const seenR=new Set();
     for(let px=Math.floor((p.pos.x-30)/CELL);px<=Math.floor((p.pos.x+30)/CELL);px++)for(let pz=Math.floor((p.pos.z-30)/CELL);pz<=Math.floor((p.pos.z+30)/CELL);pz++){
       if(biomeOf(px,pz)!=='city')continue;const Sx=superOf(px,pz);
       // (a big site's stairs are all listed on its first plot, which may be well out of this range)
@@ -14722,8 +14829,8 @@ function refreshProps(){
 function knockProps(x,y,z,r,dx,dz){for(const f of activeProps){const ex=f.x-x,ez=f.z-z,rr=r+f.rad;if(ex*ex+ez*ez<rr*rr&&Math.abs(f.y0+.5-y)<r+1.5)knockFix(f,dx||ex,dz||ez);}}
 function refreshFixtures(){
   nBar=nGlow=nHead=nSign=nCol=nBoard=0;activeFix.length=0;const seen=new Set(),R=Math.min(viewFar(),96),bseen=new Set();
-  for(const p of players){
-    if(!p.active)continue;
+  for(const p of viewers()){
+    
     for(let px=Math.floor((p.pos.x-R)/CELL);px<=Math.floor((p.pos.x+R)/CELL);px++)for(let pz=Math.floor((p.pos.z-R)/CELL);pz<=Math.floor((p.pos.z+R)/CELL);pz++){
       const ck=px*100003+pz;if(seen.has(ck))continue;seen.add(ck);
       const X0=px*CELL,Z0=pz*CELL,near=Math.hypot(X0+4-p.pos.x,Z0+4-p.pos.z)<70;
@@ -14743,7 +14850,7 @@ function refreshFixtures(){
     }
   }
   // billboards along the highways out on the plains (and the powerlines' cables)
-  for(const p of players){if(!p.active)continue;const RB=Math.min(viewFar(),150),l=routesNearBox(p.pos.x-RB,p.pos.z-RB,p.pos.x+RB,p.pos.z+RB),rs=new Set();
+  for(const p of viewers()){const RB=Math.min(viewFar(),150),l=routesNearBox(p.pos.x-RB,p.pos.z-RB,p.pos.x+RB,p.pos.z+RB),rs=new Set();
     for(let q=0;q<l.length;q+=2){const Rt=l[q];if(rs.has(Rt))continue;rs.add(Rt);
       {const PY=pylonsOf(Rt);fallMatrix(0,0,0,0);
        for(let i=0;i+1<PY.length;i++){const A=PY[i],B=PY[i+1];if(!A||!B||Math.hypot(A.x-p.pos.x,A.z-p.pos.z)>RB+40)continue;if(bseen.has(A.key+'c'))continue;bseen.add(A.key+'c');
@@ -14854,7 +14961,7 @@ function stadiumDoors(S){
 }
 function refreshDoors(){
   const want=new Map(),seenS=new Set();
-  for(const p of players){if(!p.active)continue;seenS.clear();
+  for(const p of viewers()){seenS.clear();
     for(let qx=Math.floor((p.pos.x-DOOR_RANGE)/CELL);qx<=Math.floor((p.pos.x+DOOR_RANGE)/CELL);qx++)for(let qz=Math.floor((p.pos.z-DOOR_RANGE)/CELL);qz<=Math.floor((p.pos.z+DOOR_RANGE)/CELL);qz++){
       const t=plotType(qx,qz);if(t==='plains'||t==='river'||t==='ramp')continue;
       // (a big site's doors all hang off its first plot, however far across the site they are: from any part of it, go to that plot,
@@ -14991,7 +15098,7 @@ const campOn=new Map(),CAMP_FIRE=new THREE.MeshBasicMaterial({color:0xff8a2a});
 function campFires(dt){
   campFires.t=(campFires.t||0)-dt;
   if(campFires.t<=0){campFires.t=1;const want=new Set();
-    for(const p of players){if(!p.active)continue;for(let px=Math.floor((p.pos.x-80)/CELL);px<=Math.floor((p.pos.x+80)/CELL);px++)for(let pz=Math.floor((p.pos.z-80)/CELL);pz<=Math.floor((p.pos.z+80)/CELL);pz++){
+    for(const p of viewers()){for(let px=Math.floor((p.pos.x-80)/CELL);px<=Math.floor((p.pos.x+80)/CELL);px++)for(let pz=Math.floor((p.pos.z-80)/CELL);pz<=Math.floor((p.pos.z+80)/CELL);pz++){
       const pts=[],t=plotType(px,pz);
       if(t==='camp'){const P=plotInfo(px,pz);pts.push([px*CELL+P.fire.x,pz*CELL+P.fire.z,RUST]);}
       else if(t==='campsite'||t==='cult'||t==='militia'||t==='thieves'){const B=bigPlainsAt(px,pz);if(B.ax!==px||B.az!==pz)continue;const X0=B.ax*CELL,Z0=B.az*CELL;
@@ -15007,7 +15114,7 @@ function campFires(dt){
 }
 function refreshLandmarks(){
   const want=new Set();
-  for(const p of players){if(!p.active)continue;
+  for(const p of viewers()){
     for(let px=Math.floor((p.pos.x-LM_RANGE)/CELL);px<=Math.floor((p.pos.x+LM_RANGE)/CELL);px++)for(let pz=Math.floor((p.pos.z-LM_RANGE)/CELL);pz<=Math.floor((p.pos.z+LM_RANGE)/CELL);pz++){
       const t=plotType(px,pz);if(!LM_TYPES.has(t))continue;const P=plotInfo(px,pz);
       P.b.forEach((b,bi)=>{if(b.beam){const key=px+','+pz+','+bi,cx=px*CELL+((b.x0+b.x1)>>1),cz=pz*CELL+((b.z0+b.z1)>>1);if(collapses[key]!==undefined||want.has(key)||!get(cx,G+24,cz))return;want.add(key);if(!lmOn.has(key))lmOn.set(key,{v:lmVisual(b,px,pz),b,x:cx,z:cz,swing:0,ringT:0});return;}
@@ -15318,7 +15425,7 @@ function updateSeaVenue(V,dt,t){
 }
 function refreshVenues(){
   const want=new Set();
-  for(const p of players){if(!p.active)continue;
+  for(const p of viewers()){
     refreshSeaVenues(p,want);refreshRailVenues(p,want);refreshCultVenues(p,want);refreshSiteVenues(p,want);
     for(let px=Math.floor((p.pos.x-170)/CELL);px<=Math.floor((p.pos.x+170)/CELL);px++)for(let pz=Math.floor((p.pos.z-170)/CELL);pz<=Math.floor((p.pos.z+170)/CELL);pz++){
       const S=superOf(px,pz);
@@ -16006,8 +16113,8 @@ function bsignAt(i){
 }
 function refreshBrandSigns(){
   nBS=0;nBP=0;const R=Math.min(viewFar(),200),seen=new Set(),pad=CELL*5;
-  for(const p of players){
-    if(!p.active)continue;
+  for(const p of viewers()){
+    
     for(let px=Math.floor((p.pos.x-R-pad)/CELL);px<=Math.floor((p.pos.x+R)/CELL);px++)for(let pz=Math.floor((p.pos.z-R-pad)/CELL);pz<=Math.floor((p.pos.z+R)/CELL);pz++){
       const ck=px*100003+pz;if(seen.has(ck))continue;seen.add(ck);
       const P=plotInfo(px,pz);if(!P.b.length)continue;
@@ -16467,8 +16574,10 @@ function updateTraffic(dt){
   trafficRefreshT-=dt;
   if(trafficRefreshT<=0||anyFall){trafficRefreshT=0.4;refreshFixtures();refreshBrandSigns();refreshDoors();refreshLandmarks();}
   updateDoors(dt);updateLandmarks(dt);safe('venues',()=>updateVenues(dt));
-  for(const h of heads){if(!h.g.visible)continue;const ph=lightPhase(h.ct,h.axis),on=!h.lit?-1:ph==='r'?0:ph==='y'?1:2;h.lamps.forEach((m,j)=>{m.material=j===on?TL.on[j]:TL.off[j];});}
+  headLamps();
 }
+// each signal head showing the colour its light's on
+function headLamps(){for(const h of heads){if(!h.g.visible)continue;const ph=lightPhase(h.ct,h.axis),on=!h.lit?-1:ph==='r'?0:ph==='y'?1:2;h.lamps.forEach((m,j)=>{m.material=j===on?TL.on[j]:TL.off[j];});}}
 function updateCars(dt){
   for(const bl of blasts){if(bl.t<=0)continue;bl.t-=dt;const k=1-Math.max(0,bl.t)/0.6;bl.m.forEach((f,i)=>{f.scale.setScalar((1+k*(i?4:6))*(bl.s||1));f.material.opacity=Math.max(0,1-k*1.1);f.rotation.y+=dt*3;if(bl.t<=0)f.visible=false;});}
   for(let i=wrecks.length-1;i>=0;i--){const w=wrecks[i];w.t-=dt;if(Math.random()<dt*10)smoke(w.p.x,w.p.y+0.5,w.p.z,1,0x222222);if(w.t<=0)wrecks.splice(i,1);}
