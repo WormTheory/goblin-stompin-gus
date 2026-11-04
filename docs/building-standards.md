@@ -91,6 +91,7 @@ From `tools/tests`:
 
 ```bash
 node stairs.js          # goblins and Gus climb stairs (STAIR_KINDS=bank,news to choose block types)
+node chase.js           # goblins run a hippo down between floors, on the roof, cliffs and water (KINDS=market,school to choose)
 node stairaudit.js 160  # floors with no stairs
 node stairroom.js 150   # how much floor stairs take; the worst should be well under half
 node wcaudit.js 150 150 # buildings with no bathroom, share of the floor, and whether every bathroom door really opens on to clear floor
