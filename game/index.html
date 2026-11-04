@@ -11124,9 +11124,9 @@ function stFind(key,cx,cz){
       for(const P of pts){const d=(P.x-cx*CELL)**2+(P.z-cz*CELL)**2;if(d<bd){bd=d;best=P;}}}
     if(!best)return null;const px=Math.floor(best.x/CELL),pz=Math.floor(best.z/CELL);return {ax:px,az:pz,w:1,h:1,cx:best.x,cz:best.z,span:56};
   }
-  return stRings(key,cx,cz,0,key==='theme'?ST_R*2:ST_R,Infinity).F;   // (whole parks are rare enough that one may be further off)
+  return stRings(key,cx,cz,0,stR(key),Infinity).F;
 }
-const ST_R=150;
+const ST_R=150,stR=key=>key==='theme'?ST_R*2:ST_R;   // (whole parks are rare enough that one may be further off)
 // search rings r0.. outward (stopping once past the time budget): {F, r: the ring to carry on from}
 function stRings(key,cx,cz,r0,r1,budget){
   const t0=performance.now();
@@ -11189,7 +11189,7 @@ function stSelect(key){
 }
 function stShow(key,F){
   try{
-    if(!F){stSet('No '+stName(key).toLowerCase()+' within about '+(ST_R*CELL).toLocaleString()+' blocks of Gus in this world');return;}
+    if(!F){stSet('No '+stName(key).toLowerCase()+' within about '+(stR(key)*CELL).toLocaleString()+' blocks of Gus in this world');return;}
     stSet('Building '+stName(key).toLowerCase()+'…');
     // the box to show: the blocks it covers and a few blocks round them (a highway feature: a square round it)
     let X0=F.ax*CELL-4,Z0=F.az*CELL-4,X1=(F.ax+F.w)*CELL+4,Z1=(F.az+F.h)*CELL+4;
@@ -11211,8 +11211,8 @@ function stTick(dt){
   const sec=document.getElementById('devSecStruct');if(!sec||!sec.open)return;
   if(!ST.key){stBuildList();stSelect(stGroups()[0][1][0][0]);return;}
   if(!ST.r)return;
-  if(ST.search){const S=ST.search,R=stRings(S.key,S.cx,S.cz,S.r,ST_R,12);S.r=R.r;
-    if(R.F||S.r>ST_R){ST.search=null;const F=R.F;setTimeout(()=>{if(ST.key===S.key)stShow(S.key,F);},20);}
+  if(ST.search){const S=ST.search,R=stRings(S.key,S.cx,S.cz,S.r,stR(S.key),12);S.r=R.r;
+    if(R.F||S.r>stR(S.key)){ST.search=null;const F=R.F;setTimeout(()=>{if(ST.key===S.key)stShow(S.key,F);},20);}
     else stSet('Looking for '+stName(S.key).toLowerCase()+'… ('+Math.round(S.r*CELL).toLocaleString()+' blocks out)');}
   const cv=ST.r.domElement,w=cv.clientWidth|0,h=cv.clientHeight|0;if(w<10||h<10)return;
   if(cv.width!==Math.round(w*ST.r.getPixelRatio())||cv.height!==Math.round(h*ST.r.getPixelRatio()))ST.r.setSize(w,h,false);
