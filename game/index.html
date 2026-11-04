@@ -758,7 +758,7 @@ function horizHidden(cx,cy,cz,hr,top){
     if(!o.isInstancedMesh&&horizHidden(sp.center.x,sp.center.y,sp.center.z,sp.radius,sp.center.y+sp.radius))return false;   // (over the horizon)
     const d=Math.hypot(sp.center.x-CURVE_CAM.x,sp.center.z-CURVE_CAM.z),r=sp.radius,lo=k*Math.max(0,d-r)**2,hi=k*(d+r)**2;
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v81';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v82';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -3865,6 +3865,12 @@ function autoStair(b){
     if(dr+3+L+1<=R1){low=cDoor<0;r0=dr+3;}else if(dr-3-L>=R0+1){low=cDoor<0;r0=dr-3-L;}}
   const c0=low?C0:C1-2;
   b.stair={ax,c0,c1:c0+2,r0,L};
+  // (in the way from the door to the middle of the room? another corner, or the other way round)
+  const inWay=S=>{const a=S.ax==='x',x0=a?S.r0-1:S.c0-1,x1=a?S.r0+S.L:S.c1+1,z0=a?S.c0-1:S.r0-1,z1=a?S.c1+1:S.r0+S.L,cx=(b.x0+b.x1)>>1,cz=(b.z0+b.z1)>>1;
+    return b.door===2?cx+2>x0&&cx-1<x1&&b.z0<z1&&cz>z0:b.door===3?cx+2>x0&&cx-1<x1&&cz<z1&&b.z1>z0:b.door===0?cz+2>z0&&cz-1<z1&&b.x0<x1&&cx>x0:cz+2>z0&&cz-1<z1&&cx<x1&&b.x1>x0;};
+  if(inWay(b.stair))for(const a of [ax,ax==='x'?'z':'x']){if(!fits(a))continue;const A=a==='x',r0a=A?X0:Z0,r1a=A?X1:Z1,c0a=A?Z0:X0,c1a=A?Z1:X1;let done=false;
+    for(const c of [c0a,c1a-3])for(const rr of [r0a+1,r1a-1-L])if(!done){const q={ax:a,c0:c,c1:c+2,r0:rr,L};if(!inWay(q)){b.stair=q;done=true;}}
+    if(done)break;}
 }
 function plotInfo(px,pz){
   const k=ckey(px,pz);let p=plotCache.get(k);if(p)return p;
@@ -4005,8 +4011,8 @@ function plotInfo(px,pz){
       } else if(S.kind==='water'){
         // the water works: round settling tanks (their arms sweeping slowly round), filter beds, the pump house
         const SW=W+PW,SD=D+PW,wide=S.w>S.h,X1=PL0+SW-1,Z1=PL0+SD-1;
-        const ph=wide?base({x0:PL0+1,x1:PL0+11,z0:PL0+1,z1:PL0+10,top:G+FH,wall:BRICK,win:WIN_WARM,kind:'office',ground:'office',floor:FLOORT,door:2})
-                     :base({x0:PL0+1,x1:PL0+12,z0:PL0+1,z1:PL0+10,top:G+FH,wall:BRICK,win:WIN_WARM,kind:'office',ground:'office',floor:FLOORT,door:2});
+        const ph=wide?base({x0:PL0+1,x1:PL0+13,z0:PL0+1,z1:PL0+13,top:G+FH,wall:BRICK,win:WIN_WARM,kind:'office',ground:'office',floor:FLOORT,door:2})
+                     :base({x0:PL0+1,x1:PL0+13,z0:PL0+1,z1:PL0+13,top:G+FH,wall:BRICK,win:WIN_WARM,kind:'office',ground:'office',floor:FLOORT,door:2});
         ph.detailTop=ph.top-1;brandOn(ph,'water',r(140));p.b.push(ph);
         p.clar=wide?[[PL0+20,PL0+9],[PL0+36,PL0+9]]:[[PL0+9,PL0+20],[PL0+9,PL0+36]];p.filt=wide?[X1-6,PL0+1,X1,Z1]:[PL0+1,Z1-6,X1,Z1];p.waterW=true;
         p.b[0].arms=p.clar;
@@ -4109,7 +4115,7 @@ function plotInfo(px,pz){
     // most towers are as before; some fill the whole block and run taller; a few are giants
     // footprints vary: each side is set back on its own, so towers come square, long, thin or off-centre
     const sz=r(13);let m=1+Math.floor(r(2)*2),h=26+Math.floor(r(3)*58),giant=false;
-    let mx0=Math.floor(r(20)*4),mx1=Math.floor(r(21)*4),mz0=Math.floor(r(22)*4),mz1=Math.floor(r(23)*4);
+    let mx0=Math.floor(r(20)*3),mx1=Math.floor(r(21)*3),mz0=Math.floor(r(22)*3),mz1=Math.floor(r(23)*3);
     if(sz<0.09){m=Math.floor(r(14)*2);h=112+Math.floor(r(15)*36);giant=true;mx0=mx1=mz0=mz1=m;}
     else if(sz<0.32){m=0;h=56+Math.floor(r(15)*50);mx0=Math.floor(r(20)*2);mx1=0;mz0=0;mz1=Math.floor(r(23)*2);}
     const fw=18-mx0-mx1,fd=18-mz0-mz1,fl=Math.max(fw,fd),gf=r(16)<0.4&&fl>=15?(r(17)<0.5&&fl>=16?FH*2:FH+3):FH;   // (a tall lobby only where the stairs up from it will fit)
@@ -4164,7 +4170,7 @@ function plotInfo(px,pz){
   } else if(type==='mansion'){
     // a mansion: a big two-storey house behind iron railings and gate piers, a gravel drive up to a columned porch, a
     // fountain on the lawn, a pool out the back
-    const b=base({x0:PL0+2,x1:PL1-2,z0:PL0+7,z1:PL0+17,style:'house',top:G+2*FH,wall:[STUCCO,BRICK,PAINT_WHITE,SIDING][Math.floor(r(80)*4)],win:WIN_WARM,kind:'apartment',ground:'apartment',floor:PLANKS,door:2,ridgeX:true});
+    const b=base({x0:PL0+1,x1:PL1-1,z0:PL0+6,z1:PL0+17,style:'house',top:G+2*FH,wall:[STUCCO,BRICK,PAINT_WHITE,SIDING][Math.floor(r(80)*4)],win:WIN_WARM,kind:'apartment',ground:'apartment',floor:PLANKS,door:2,ridgeX:true});
     b.home=true;b.roof=Math.floor((b.z1-b.z0)/2);b.detailTop=b.top;b.doorSpec={w:1,h:4,k:'wood'};p.b.push(b);
     const cx=(b.x0+b.x1)>>1;p.b.push(portico(b,3,G+2*FH-1,cx-3,cx+4));p.mansion=true;
   } else if(type==='trailers'){
@@ -4193,7 +4199,7 @@ function plotInfo(px,pz){
     b.glassAll=true;b.detailTop=b.top-1;brandOn(b,'dealer',r(150));p.b.push(b);p.dealer=true;
   } else if(type==='armory'){
     // an armory: a brick fortress -- a tall drill hall behind battlements, a round turret on each corner, big doors
-    const b=base({x0:PL0+1,x1:PL1-1,z0:PL0+4,z1:PL1-2,gf:8,top:G+8+FH+1,wall:BRICK,win:WIN_WARM,band:MOSSSTONE,kind:'office',ground:'armory',floor:CONCRETE,door:2});
+    const b=base({x0:PL0+1,x1:PL1-1,z0:PL0+3,z1:PL1-2,gf:8,top:G+8+FH+1,wall:BRICK,win:WIN_WARM,band:MOSSSTONE,kind:'office',ground:'armory',floor:CONCRETE,door:2});
     b.stair={ax:'x',c0:b.z1-3,c1:b.z1-1,r0:b.x0+4,L:8};b.crenel=true;   // (between the corner turrets)
     b.doorSpec={w:1,h:4,k:'wood'};b.detailTop=b.top-2;brandOn(b,'armory',r(150));
     for(const [cx,cz] of [[b.x0,b.z0],[b.x1,b.z0],[b.x0,b.z1],[b.x1,b.z1]]){const t=base({x0:cx-2,x1:cx+3,z0:cz-2,z1:cz+3,top:b.top+4,style:'turret',wall:BRICK,win:WIN_WARM,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2});
@@ -4234,11 +4240,11 @@ function plotInfo(px,pz){
       add({x0:4,x1:26,z0:36,z1:60,top:G+12,style:'hangar',wall:METAL,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});}
     else if(type==='mine'){
       add({x0:50,x1:60,z0:8,z1:20,top:G+8,wall:BRICK,win:WIN_WARM,band:CONCRETE,kind:'shop',ground:'shop',floor:CONCRETE,door:0,doorSpec:{w:1,h:4,k:'barn'}});   // the winding house
-      add({x0:52,x1:60,z0:24,z1:32,top:G+FH,wall:PLANKS,win:WIN_WARM,kind:'office',ground:'office',floor:PLANKS,door:0,doorSpec:{w:0,h:3,k:'wood'}});           // the mine office
+      add({x0:48,x1:60,z0:24,z1:36,top:G+FH,wall:PLANKS,win:WIN_WARM,kind:'office',ground:'office',floor:PLANKS,door:0,doorSpec:{w:0,h:3,k:'wood'}});           // the mine office
       add({x0:68,x1:90,z0:48,z1:62,top:G+11,wall:RUST,win:METAL,band:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});}   // the processing plant
     else if(type==='quarry'){
       add({x0:34,x1:56,z0:2,z1:14,top:G+12,wall:METAL,win:METAL,band:RUST,kind:'landmark',ground:'landmark',floor:CONCRETE,door:3,doorSpec:null,noIndoor:true});   // the crusher
-      add({x0:4,x1:16,z0:4,z1:12,top:G+FH,wall:SIDING_Y,win:WIN_BLUE,kind:'office',ground:'office',floor:FLOORT,door:3,doorSpec:{w:0,h:3,k:'wood'}});}            // the site office
+      add({x0:4,x1:18,z0:4,z1:16,top:G+FH,wall:SIDING_Y,win:WIN_BLUE,kind:'office',ground:'office',floor:FLOORT,door:3,doorSpec:{w:0,h:3,k:'wood'}});}            // the site office
     else if(type==='cult'||type==='tower5g'||type==='ruins'){}
     else if(type==='prepper')add({x0:8,x1:24,z0:8,z1:20,style:'house',roof:6,top:G+FH,wall:SIDING,win:WIN_WARM,kind:'apartment',ground:'apartment',floor:PLANKS,door:3,doorSpec:{w:0,h:3,k:'wood'}});   // the house
     else if(type==='militia')add({x0:36,x1:56,z0:8,z1:20,top:G+FH,wall:PLANKS,win:WIN_WARM,band:LOG,kind:'barracks',ground:'barracks',floor:PLANKS,door:3,doorSpec:{w:0,h:3,k:'wood'}});   // the HQ shed
@@ -4270,7 +4276,7 @@ function plotInfo(px,pz){
   } else if(type==='lab'){
     // a goblin laboratory: a grim dark block with green-glowing slits; inside, vats bubbling, glowing tanks with things
     // floating in them, cages, and Tesla coils crackling with sparks
-    const b=base({x0:PL0+2,x1:PL1-2,z0:PL0+3,z1:PL1-2,gf:9,top:G+9+FH,wall:[PAINT_DARK,MOSSCON,DEEPSLATE][Math.floor(r(80)*3)],win:WIN_GREEN,band:NEON_G,kind:'lab',ground:'lab',floor:CHECKER,door:2});
+    const b=base({x0:PL0+1,x1:PL1-1,z0:PL0+2,z1:PL1-1,gf:9,top:G+9+FH,wall:[PAINT_DARK,MOSSCON,DEEPSLATE][Math.floor(r(80)*3)],win:WIN_GREEN,band:NEON_G,kind:'lab',ground:'lab',floor:CHECKER,door:2});
     b.doorSpec={w:0,h:3,k:'steel'};b.detailTop=b.top-1;b.coils=true;brandOn(b,'lab',r(150));p.b.push(b);
   } else if(type==='datacenter'){
     // a data centre behind its fence: a windowless bunker of server racks, cooling units on the roof
@@ -4278,7 +4284,7 @@ function plotInfo(px,pz){
     b.noIndoor=true;b.doorSpec={w:0,h:3,k:'steel'};b.detailTop=b.top;b.leds=true;brandOn(b,'datacenter',r(150));p.b.push(b);p.fenced=true;
   } else if(type==='electric'){
     // the electric company: its office at the front, and behind a fence the substation -- transformers, and pylons
-    const b=base({x0:PL0+1,x1:PL0+10,z0:PL0+1,z1:PL0+11,top:G+FH,wall:[CONCRETE,BRICK][Math.floor(r(80)*2)],win:WIN_BLUE,kind:'office',ground:'office',floor:FLOORT,door:2});
+    const b=base({x0:PL0+1,x1:PL0+10,z0:PL0+1,z1:PL0+14,top:G+FH,wall:[CONCRETE,BRICK][Math.floor(r(80)*2)],win:WIN_BLUE,kind:'office',ground:'office',floor:FLOORT,door:2});
     b.detailTop=b.top-1;brandOn(b,'electric',r(150));p.b.push(b);
     for(const [x0,z0] of [[PL0+12,PL1-5],[PL0+12,PL0+2]]){const t=base({x0,x1:x0+5,z0,z1:z0+3,top:G+16,style:'pylon',wall:METAL,win:METAL,kind:'landmark',ground:'landmark',floor:GRAVEL,door:2});t.noIndoor=true;t.doorSpec=null;t.detailTop=t.top;p.b.push(t);}
     p.substation={x0:PL0+10,x1:PL1,z0:PL0,z1:PL1};
@@ -4306,7 +4312,7 @@ function plotInfo(px,pz){
   } else if(type==='library'){
     // a branch library in the smaller places; a grand one (stone, columns across the front) in the big ones
     const ty=setType(px,pz),big=ty==='city'||ty==='large';
-    if(big){const b=base({x0:PL0+1,x1:PL1-1,z0:PL0+5,z1:PL1-1,top:G+3*FH,wall:r(81)<0.5?MARBLE:STONE,win:WIN_WARM,band:MARBLE,kind:'library',ground:'library',floor:PLANKS,door:2});
+    if(big){const b=base({x0:PL0+1,x1:PL1-1,z0:PL0+3,z1:PL1-1,top:G+3*FH,wall:r(81)<0.5?MARBLE:STONE,win:WIN_WARM,band:MARBLE,kind:'library',ground:'library',floor:PLANKS,door:2});
       b.doorSpec={w:1,h:4,k:'wood'};b.detailTop=b.top-1;brandOn(b,'library',r(150));p.b.push(b);p.b.push(portico(b,3,G+FH*2-1));}
     else{const b=base({x0:PL0+1,x1:PL1-1,z0:PL0+4,z1:PL0+16,top:G+FH,wall:BRICK,win:WIN_WARM,kind:'library',ground:'library',floor:PLANKS,door:2});
       b.doorSpec={w:0,h:3,k:'wood'};b.detailTop=b.top-1;brandOn(b,'library',r(150));p.b.push(b);}
@@ -4318,7 +4324,7 @@ function plotInfo(px,pz){
     m.noIndoor=true;m.detailTop=m.top;m.doorSpec=null;m.mast=true;p.b.push(m);
   } else if(type==='news'){
     // a TV news station: the newsroom and its studio on the ground floor, offices over it, dishes on the roof
-    const b=base({x0:PL0+1,x1:PL1-1,z0:PL0+6,z1:PL1-1,top:G+3*FH,wall:[METAL,CONCRETE,PAINT_NAVY][Math.floor(r(81)*3)],win:WIN_BLUE,kind:'office',ground:'news',floor:FLOORT,door:2});
+    const b=base({x0:PL0+1,x1:PL1-1,z0:PL0+4,z1:PL1-1,top:G+3*FH,wall:[METAL,CONCRETE,PAINT_NAVY][Math.floor(r(81)*3)],win:WIN_BLUE,kind:'office',ground:'news',floor:FLOORT,door:2});
     b.detailTop=b.top-1;brandOn(b,'news',r(150));b.dishes=true;p.b.push(b);p.vans=true;
   } else if(type==='bank'){
     // a bank: a little branch, a big one downtown (stone, columns), or (in the cities, now and then) a fortress of a
@@ -4326,14 +4332,14 @@ function plotInfo(px,pz){
     const ty=setType(px,pz),h=r(80),kd=ty==='city'?(h<0.28?'fort':h<0.8?'big':'small'):ty==='large'?(h<0.6?'big':'small'):'small';
     if(kd==='small'){const b=base({x0:PL0+3,x1:PL1-3,z0:PL0+4,z1:PL0+15,top:G+FH,wall:[BRICK,STUCCO,STONE][Math.floor(r(81)*3)],win:GLASS,kind:'bank',ground:'bank',floor:FLOORT,door:2,front:true,neon:NEON_B});
       b.detailTop=b.top-1;brandOn(b,'bank',r(150));p.b.push(b);}
-    else if(kd==='big'){const b=base({x0:PL0+1,x1:PL1-1,z0:PL0+5,z1:PL1-1,gf:FH+2,top:G+FH+2+FH*2,wall:r(81)<0.5?MARBLE:STONE,win:WIN_WARM,band:MARBLE,kind:'office',ground:'bank',floor:MARBLE,door:2});
+    else if(kd==='big'){const b=base({x0:PL0+1,x1:PL1-1,z0:PL0+3,z1:PL1-1,gf:FH+2,top:G+FH+2+FH*2,wall:r(81)<0.5?MARBLE:STONE,win:WIN_WARM,band:MARBLE,kind:'office',ground:'bank',floor:MARBLE,door:2});
       b.doorSpec={w:1,h:4,k:'wood'};b.detailTop=b.top-1;brandOn(b,'bank',r(150));p.b.push(b);p.b.push(portico(b,3,G+FH+2));}
-    else{const b=base({x0:PL0+1,x1:PL1-1,z0:PL0+5,z1:PL1-1,gf:FH+1,top:G+FH+1+FH,wall:CONCRETE,win:WIN_BLUE,band:METAL,kind:'office',ground:'bank',floor:MARBLE,door:2});
+    else{const b=base({x0:PL0+1,x1:PL1-1,z0:PL0+3,z1:PL1-1,gf:FH+1,top:G+FH+1+FH,wall:CONCRETE,win:WIN_BLUE,band:METAL,kind:'office',ground:'bank',floor:MARBLE,door:2});
       b.fort=true;b.vault=true;b.doorSpec={w:1,h:4,k:'glass'};b.detailTop=b.top-1;brandOn(b,'bank',r(150));p.b.push(b);p.bollards=true;}
   } else if(type==='disco'||type==='club'){
     // a disco (a lit dance floor, a mirror ball, the DJ up on his booth) or a goblin night club (a stage with the
     // amps stacked up, a bar down one side, the VIP sofas under green neon) -- blank walls, a big sign, busy at night
-    const disco=type==='disco',b=base({x0:PL0+1,x1:PL1-1,z0:PL0+4,z1:PL1-1,gf:7,top:G+7+(r(81)<0.4?FH:0),wall:disco?PAINT_DARK:[RUST,CONCRETE,BRICK][Math.floor(r(82)*3)],win:disco?PAINT_DARK:RUST,
+    const disco=type==='disco',b=base({x0:PL0+1,x1:PL1-1,z0:PL0+3,z1:PL1-1,gf:7,top:G+7+(r(81)<0.4?FH:0),wall:disco?PAINT_DARK:[RUST,CONCRETE,BRICK][Math.floor(r(82)*3)],win:disco?PAINT_DARK:RUST,
       kind:'apartment',ground:type,floor:disco?PAINT_DARK:CONCRETE,door:2,neon:disco?NEON_M:NEON_G});
     b.blank=true;b.doorSpec=disco?{w:1,h:3,k:'glass'}:{w:0,h:3,k:'wood'};b.detailTop=b.top-1;brandOn(b,type,r(150));if(disco)b.disco=true;p.b.push(b);
   } else if(type==='wtower'){
@@ -4443,8 +4449,8 @@ function addLots(p,px,pz,r){
   p.lots=[];
   if(nearGarage(px,pz)&&!(p.super&&['mall','bigbox','market','drug','sitdown'].includes(p.super.kind)))return;   // (big stores always have their own)   // (a mall always has its own)
   const t=p.type,S=p.super,lot=L=>{p.lots.push(L);for(const b of p.b)shrinkOut(b,L);p.b=p.b.filter(b=>b.x1-b.x0>=4&&b.z1-b.z0>=4);};
-  if(t==='mid')lot(lotRect(Math.floor(r(60)*2)*2,PL0,PL1,PL0,PL1,7));   // (towers fill their block: a real one has its car park underneath)
-  else if(t==='sitdown')p.lots.push({x0:PL0,x1:PL1,z0:PL0+17,z1:PL1,face:2});
+  // (towers and mid-rises fill their block: a real one has its car park underneath, and they need the room for stairs and bathrooms)
+  if(t==='sitdown')p.lots.push({x0:PL0,x1:PL1,z0:PL0+17,z1:PL1,face:2});
   else if(S&&px===S.ax&&pz===S.az){
     const W=(S.w-1)*CELL,D=(S.h-1)*CELL,X1=PL1+W,Z1=PL1+D;
     if(S.kind==='hospital')lot(lotRect(0,PL0,X1,PL0,Z1,8));
@@ -4581,6 +4587,7 @@ function flo(b,fl){
 // house (upstairs in a two-storey one), and in offices and wards one every third floor. ----
 const WC_ROOMS=new Set(['diner','pizza','cafe','fastfood','sitdown','bar','soup','books','dentist','dispo','guns','dealer','armory','shop','market','drug','bigbox','grocery','ikea','office','lobby','bank','news','radio','stocks','school','library','police','firehall','courtroom','museum','aquarium','cinema','theater','disco','club','casino','factory','lab','barracks','terminal','stage','hosp','ward','lecture','mission','turbine','apartment']);
 // (which side of a flat its bedroom and bathroom go: the wall away from any stairs in it)
+const flats4=(I,J)=>I>=9&&J>=12&&I*J>=260;   // (four flats to a floor, or two; each with room for its own bathroom)
 function flatBack(b,y0,y1,ez0){const S=b.stair;if(!S||S.ax!=='x')return 1;const c=(S.c0+S.c1)/2-ez0-1;return c>=y0&&c<y1&&c>(y0+y1)/2?-1:1;}
 function wcRooms(b,I,J,n,ex0,ez0,fl,ex1,ez1,px,pz){
   const c=b._wc||(b._wc=new Map());let L=c.get(n);if(L)return L;L=[];c.set(n,L);L.ex0=ex0;L.ez0=ez0;
@@ -4589,7 +4596,7 @@ function wcRooms(b,I,J,n,ex0,ez0,fl,ex1,ez1,px,pz){
   const kd=n===0?b.ground:b.kind;if(!WC_ROOMS.has(kd)||b.noIndoor||b.style!=='normal'&&b.style!=='house'||kd==='shop'&&!b.brand&&!b.station&&b.kind==='shop'||kd==='firehall')return L;
   if(b.decay||n>0&&!(kd==='apartment'||kd==='office'&&n%3===2||kd==='ward'&&n%3===2)||b.detailTop&&(n===0?G+1:G+(b.gf||FH)+1+FH*(n-1))>=b.detailTop)return L;
   if(b.home&&n!==(b.stair?1:0))return L;
-  if(b.station){L.push(I<J?{u0:0,u1:Math.min(I,5),v0:J-3,v1:J,dv:0,home:true}:{u0:I-3,u1:I,v0:0,v1:Math.min(J,5),dside:-1,home:true});return L;}
+  if(b.station){L.push(I<J?{u0:0,u1:Math.min(I,4),v0:J-3,v1:J,dv:0,home:true}:{u0:I-3,u1:I,v0:0,v1:Math.min(J,4),dside:-1,home:true});return L;}
   if(Math.min(I,J)<5||I*J<36)return L;
   const S=b.stair,area=I*J,big=area>1500,w=b.home?(area>=90?5:4):area>500?7:area>=100?5:area>=60?4:3,h=b.home?(area>=140?5:area>=90?4:3):area>500?5:area>=150?4:3,tr=ex0-b.x0,cxI=((b.x0+b.x1)>>1)-ex0-1,czJ=((b.z0+b.z1)>>1)-ez0-1,st=STRUCT;
   const hitsStair=(u0,u1,v0,v1)=>{if(!S)return false;const x0=u0+ex0+1,x1=u1+ex0+1,z0=v0+ez0+1,z1=v1+ez0+1,rx0=S.ax==='x'?S.r0-2:S.c0-1,rx1=S.ax==='x'?S.r0+S.L+2:S.c1+1,rz0=S.ax==='x'?S.c0-1:S.r0-2,rz1=S.ax==='x'?S.c1+1:S.r0+S.L+2;return x0<rx1&&x1>rx0&&z0<rz1&&z1>rz0;};
@@ -4597,7 +4604,7 @@ function wcRooms(b,I,J,n,ex0,ez0,fl,ex1,ez1,px,pz){
   if(kd==='apartment'&&!b.home&&b.ground!=='firehall'&&b.style==='normal'){
     const cu=I>>1,cv=J>>1,clear=(u0,u1,v0,v1)=>{if(!S)return true;const x0=u0+ex0+1,x1=u1+ex0+1,z0=v0+ez0+1,z1=v1+ez0+1,al=S.ax==='x',a0=al?x0:z0,a1=al?x1:z1,c0=al?z0:x0,c1=al?z1:x1;return!(a0<S.r0+S.L+3&&a1>S.r0-3&&c0<S.c1+3&&c1>S.c0-3);},   // (well clear of the stairs, and of the way round them)
       put=(x0,x1,y0,y1)=>{const bk=flatBack(b,y0,y1,ez0);for(const H of [3])for(const [u0,v0,dv] of bk>0?[[x1-4,y1-H,0],[x0,y1-H,0],[x1-4,y0,1],[x0,y0,1]]:[[x1-4,y0,1],[x0,y0,1],[x1-4,y1-H,0],[x0,y1-H,0]]){if(clear(u0,u0+4,v0,v0+H)){L.push({u0,u1:u0+4,v0,v1:v0+H,dv,home:true});return;}}};
-    if(I>=9&&J>=12){put(0,cu,0,cv-2);put(cu+1,I,0,cv-2);put(0,cu,cv+2,J);put(cu+1,I,cv+2,J);}
+    if(flats4(I,J)){put(0,cu,0,cv-2);put(cu+1,I,0,cv-2);put(0,cu,cv+2,J);put(cu+1,I,cv+2,J);}
     else if(I>=12){put(0,cu,0,J);put(cu+1,I,0,J);}
     else put(0,I,0,J);
     return L;
@@ -4728,8 +4735,8 @@ function furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
         if(iu===cu+2&&(fv===0||fv===J-1)&&!(b.stair&&fv>=J-2))return SIDING;
         return AIR;}
       // a floor of flats: a corridor across the middle, a flat at each corner of it, a door each. (Too small for that: one flat.)
-      if(I>=12&&J<12&&b.ground!=='firehall'&&iu===(I>>1)&&iv>0&&!(Math.abs(iv-(J>>1))<=1&&level<=2))return level<=3?PAINT_WHITE:AIR;
-      if(I>=9&&J>=12&&b.ground!=='firehall'){const cu=I>>1,cv=J>>1;
+      if(I>=12&&!flats4(I,J)&&b.ground!=='firehall'&&iu===(I>>1)&&iv>0&&!(Math.abs(iv-(J>>1))<=1&&level<=2))return level<=3?PAINT_WHITE:AIR;
+      if(flats4(I,J)&&b.ground!=='firehall'){const cu=I>>1,cv=J>>1;
         if(iv===cv-2||iv===cv+1)return level<=2&&Math.abs(iu-(I>>2))<=1||level<=2&&Math.abs(iu-cu-(I>>2))<=1?AIR:PAINT_WHITE;
         if(iu===cu&&iv!==cv-1&&iv!==cv)return PAINT_WHITE;}
       return AIR;
@@ -5217,7 +5224,7 @@ function roomStep(g,B,tx,tz){
    // (in a bathroom: out by its door first)
    if(W)for(const R of W)if(ua>=R.u0&&ua<R.u1&&va>=R.v0&&va<R.v1&&!(Ua>=R.u0&&Ua<R.u1&&Va>=R.v0&&Va<R.v1)){if(R.dside){const dr=wcDoor(R),du=dr[0]+.5,cv=dr[1]+.5;return Math.abs(va-cv)<.7?{x:Xa+du+R.dside*1.7,z:Za+cv}:{x:Xa+du-R.dside*2,z:Za+cv};}const du=((R.u0+R.u1)>>1)+.5,dz=R.dv?R.v1:R.v0;return Math.abs(ua-du)<.7?{x:Xa+du,z:Za+dz+(R.dv?1.2:-1.2)}:{x:Xa+du,z:Za+dz+(R.dv?-1.5:1.5)};}
    // (two flats side by side: through the doorway in the middle of the wall between them)
-   const kd=n===0?b.ground:b.kind;if(kd==='apartment'&&!b.home&&b.style==='normal'&&b.ground!=='firehall'&&I>=12&&J<12){const c=(I>>1)+.5;const mv=(J>>1)+.5;if((ua<c)!==(Ua<c))return Math.abs(va-mv)>1?{x:Xa+ua,z:Za+mv}:{x:Xa+Ua,z:Za+mv};}}
+   const kd=n===0?b.ground:b.kind;if(kd==='apartment'&&!b.home&&b.style==='normal'&&b.ground!=='firehall'&&I>=12&&!flats4(I,J)){const c=(I>>1)+.5;const mv=(J>>1)+.5;if((ua<c)!==(Ua<c))return Math.abs(va-mv)>1?{x:Xa+ua,z:Za+mv}:{x:Xa+Ua,z:Za+mv};}}
   const L=b.ground==='police'?policeRooms(b,I,J,n):b.ground==='hosp'&&n===0?hospRooms(b,I,J):null;if(!L)return null;
   const X0=B.px*CELL+b.x0+1,Z0=B.pz*CELL+b.z0+1,u=g.pos.x-X0,v=g.pos.z-Z0,U=tx-X0,V=tz-Z0;
   // (a hospital whose ER is across the back: through the gap in the wall between it and the lobby)
@@ -11847,7 +11854,7 @@ function parkSpots(px,pz){
   if(P.type==='trailers')for(const b of P.b){const sx=b.door===1?b.x1+2.2:b.x0-2.2;out.push({x:X0+sx,z:Z0+b.z0+5,y:G+1,h:0,key:px+','+pz+':tr'+b.x0+b.z0,p:0.55,veh:'pickup'});}
   if(P.buses){const B0=P.b[0];for(let k=0;k*13+12<B0.x1-B0.x0;k++)out.push({x:X0+B0.x0+6.5+k*13,z:Z0+PL0+2.4,y:G+1,h:Math.PI/2,key:px+','+pz+':bus'+k,p:0.8,veh:'bus'});}
   if(P.lorries){const L=P.lorries;for(const c of L.cs)out.push(L.wide?{x:X0+L.a,z:Z0+c+0.5,y:G+1,h:Math.PI/2,key:px+','+pz+':lor'+c,p:0.8,veh:r2(c)}:{x:X0+c+0.5,z:Z0+L.a,y:G+1,h:0,key:px+','+pz+':lor'+c,p:0.8,veh:r2(c)});}
-  if(P.vans)for(let k=0;k<3;k++)out.push({x:X0+PL0+3+k*6,z:Z0+PL0+3,y:G+1,h:Math.PI/2,key:px+','+pz+':van'+k,p:0.75,veh:'van'});   // the TV station's vans out front
+  if(P.vans)for(let k=0;k<3;k++)out.push({x:X0+PL0+3+k*6,z:Z0+PL0+2,y:G+1,h:Math.PI/2,key:px+','+pz+':van'+k,p:0.75,veh:'van'});   // the TV station's vans out front
   if(P.lots)P.lots.forEach((L,li)=>{if(L.police)return;const skip=li===0&&P.super&&P.super.kind==='hospital'?ambBayIdx(P):null;lotBays(L).forEach((o,k)=>{if(skip&&skip.includes(k))return;out.push({x:X0+o.x,z:Z0+o.z,y:G+1,h:o.h,key:px+','+pz+':L'+li+':'+k,p:0.4});});});
   return out;
 }
@@ -13283,7 +13290,7 @@ function aptFloor(b,px,pz,floorNo,L){
     for(let i=0;i<Math.min(3,w-4);i++)add('sofa',x+.8+i,yf,yfw,pick(P_SOFA,x,y,3));
     if(h>=5){add('table',x+1.8,y+h/2,0);add('rtable',x+w-1.6,y+h/2,0,P_WHITE);add('chair',x+w-2.3,y+h/2,HP_,pick(P_SOFA,x,y,4),0,true);add('chair',x+w-.9,y+h/2,-HP_,pick(P_SOFA,x,y,4),0,true);}
   };
-  if(I>=9&&J>=12&&b.ground!=='firehall'){const cu=I>>1,cv=J>>1;flat(0,0,cu,cv-2,-1);flat(cu+1,0,I-cu-1,cv-2,-1);flat(0,cv+2,cu,J-cv-2,1);flat(cu+1,cv+2,I-cu-1,J-cv-2,1);}
+  if(flats4(I,J)&&b.ground!=='firehall'){const cu=I>>1,cv=J>>1;flat(0,0,cu,cv-2,-1);flat(cu+1,0,I-cu-1,cv-2,-1);flat(0,cv+2,cu,J-cv-2,1);flat(cu+1,cv+2,I-cu-1,J-cv-2,1);}
   else if(I>=12&&b.ground!=='firehall'){flat(0,0,I>>1,J,1);flat((I>>1)+1,0,I-(I>>1)-1,J,1);}
   else flat(0,0,I,J,1);
 }

@@ -1,3 +1,3 @@
 turbine plot [ 0, 14 ]
 boxes 20
-LOD rings built: 1565,7510,14689
+LOD rings built: 1563,7510,14689
