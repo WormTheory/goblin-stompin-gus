@@ -12162,9 +12162,13 @@ function navExpand(N,i){
 const NAV_DX=[0,1,0,-1,1,1,-1,-1],NAV_DZ=[1,0,-1,0,1,-1,1,-1];
 // the place something at this height in this column would be standing on (the nearest within a jump), or 0
 function navFloorOf(x,z,y){const c=navCol(x,z);if(!c)return 0;let best=0,bd=1e9;for(let i=0;i<c.length;i++){const f=c[i]<0?-c[i]:c[i];if(f>y+1.25)continue;const d=y-f;if(d<bd){bd=d;best=f;}}return best;}
+// (who needs a route: goblins actually after a hippo, not the ones pottering about indoors who haven't noticed it)
+const navWants=g=>g.state==='chase'&&!g.civ&&!g.staff&&!g.medic&&!g.ff&&(!g.indoor||g.alert||g.cop&&!g.inv);
 function navStart(N,p){
   const F=N.back,x=Math.floor(p.pos.x),z=Math.floor(p.pos.z),y=p.pos.y;
-  F.keys.fill(-1);F.n=0;F.ox=x-NAV_R;F.oz=z-NAV_R;N.c=0;N.lim=NAV_CAP;N.done=false;N.q.length=0;
+  F.keys.fill(-1);F.n=0;F.ox=x-NAV_R;F.oz=z-NAV_R;N.c=0;N.done=false;N.q.length=0;
+  // (no further out than any goblin could need: a long way round, or a long climb, but not the whole neighbourhood every time)
+  {let far=0;for(const g of goblins){if(!navWants(g))continue;const d=Math.hypot(g.pos.x-p.pos.x,g.pos.z-p.pos.z);if(d<NAV_R-2)far=Math.max(far,d*40+Math.abs(g.pos.y-y)*25);}N.lim=N.cap=Math.min(NAV_CAP,far+2000);}
   // (hanging about up in the air, or squeezed in against something: whatever's standing room nearest it)
   // (sunk under water: the top of it, straight up, is as near as the map goes)
   {let yy=Math.floor(y+.6);if(navCol(x,z)&&get(x,yy,z)===WATER){while(yy<H-1&&get(x,yy+1,z)===WATER)yy++;if(get(x,yy-1,z)===WATER&&!solidAt(x,yy+1,z))navAdd(N,x,z,yy,0,-1,NAV_WALK);}}
@@ -12174,22 +12178,23 @@ function navStart(N,p){
 }
 function navBuild(N,p,dt){
   N.t+=dt;
-  if(N.done){if(!N.front||N.t>0.35&&(N.x!==Math.floor(p.pos.x)||N.z!==Math.floor(p.pos.z)||N.y!==Math.floor(p.pos.y))||N.t>1.5)navStart(N,p);else return;}
-  const F=N.back;let work=NAV_WORK;
+  if(N.done){if(!N.front||N.t>0.25&&(N.x!==Math.floor(p.pos.x)||N.z!==Math.floor(p.pos.z)||N.y!==Math.floor(p.pos.y))||N.t>1.5)navStart(N,p);else return;}
+  // (running late, with a hippo on the move: put more into finishing it)
+  const F=N.back;let work=N.t>0.4?NAV_WORK*2:NAV_WORK;
   while(work>0&&!N.done){
     if(N.c>N.lim||F.n>=NAV_NODES-1){N.done=true;break;}
     const q=N.q[N.c];if(!q||!q.length){N.c++;if(N.c>=N.q.length)N.done=true;continue;}
     const i=q.pop();if(F.cost[i]!==N.c)continue;
     navExpand(N,i);work--;
     // (every so often: if all the goblins after this hippo are on the map now, it only has to go a bit past them)
-    if(N.lim===NAV_CAP&&(++N.ticks&127)===0){let all=true,any=false;for(const g of goblins){if(g.state!=='chase'||g.civ||g.staff||g.medic||g.ff)continue;const d=Math.hypot(g.pos.x-p.pos.x,g.pos.z-p.pos.z);if(d>NAV_R-2)continue;any=true;const f=navFloorOf(Math.floor(g.pos.x),Math.floor(g.pos.z),g.pos.y);if(!f||navFind(F,navKey(F,Math.floor(g.pos.x),Math.floor(g.pos.z),f))<0){all=false;break;}}if(any&&all)N.lim=N.c+200;}
+    if(N.lim===N.cap&&(++N.ticks&127)===0){let all=true,any=false;for(const g of goblins){if(!navWants(g))continue;const d=Math.hypot(g.pos.x-p.pos.x,g.pos.z-p.pos.z);if(d>NAV_R-2)continue;any=true;const f=navFloorOf(Math.floor(g.pos.x),Math.floor(g.pos.z),g.pos.y);if(!f||navFind(F,navKey(F,Math.floor(g.pos.x),Math.floor(g.pos.z),f))<0){all=false;break;}}if(any&&all)N.lim=N.c+200;}
   }
   if(N.done&&F.n){const o=N.front;N.front=F;N.back=o||navMake();}
 }
 function navUpdate(dt){
   navWipe+=dt;if(navWipe>6||navCols.size>60000){navWipe=0;navCols.clear();}   // (anything that got past setRaw, like a building coming down, is noticed in the end)
   for(const p of players){if(!p.active||p.state==='dead')continue;
-    let want=false;for(const g of goblins)if(g.state==='chase'&&!g.civ&&!g.staff&&!g.medic&&!g.ff&&Math.abs(g.pos.x-p.pos.x)<NAV_R&&Math.abs(g.pos.z-p.pos.z)<NAV_R){want=true;break;}
+    let want=false;for(const g of goblins)if(navWants(g)&&Math.abs(g.pos.x-p.pos.x)<NAV_R&&Math.abs(g.pos.z-p.pos.z)<NAV_R){want=true;break;}
     if(!want)continue;
     if(!p.nav)p.nav={front:null,back:navMake(),q:[],done:true,c:0,lim:0,x:0,z:0,y:0,t:0,ticks:0};
     navBuild(p.nav,p,dt);}
@@ -12210,6 +12215,10 @@ function navLine(x0,z0,y0,x1,z1,y1){
 // where a goblin after this hippo should make for next: a point to run at, and, if that takes more than running, it sets off
 function navSteer(g,p){
   const N=p.nav,F=N&&N.front;if(!F)return null;
+  // (a clear run at the hippo: straight at where it is now. The map's a moment old, and it may have moved on since)
+  if((g.losT=(g.losT||0)-1)<=0){g.losT=4+Math.random()*4;const X=Math.floor(p.pos.x),Z=Math.floor(p.pos.z),f=navFloorOf(X,Z,p.pos.y);g.losY=f;
+    g.los=!!f&&Math.abs(f-g.pos.y)<3&&Math.hypot(p.pos.x-g.pos.x,p.pos.z-g.pos.z)<40&&navLine(g.pos.x,g.pos.z,g.pos.y,p.pos.x,p.pos.z,f);}
+  if(g.los)return{x:p.pos.x,z:p.pos.z,y:g.losY};
   const i=navAt(F,g);
   // (not on the map: jammed into the corner of a wall, or up on a railing. Off to the nearest place that is)
   if(i<0){const x=Math.floor(g.pos.x),z=Math.floor(g.pos.z);{const u=get(x,Math.floor(g.pos.y-.5),z);if(!solidAt(x,Math.floor(g.pos.y+.5),z)&&!(u&&BLOCK[u].post))return null;}for(let d=0;d<8;d++){const X=x+NAV_DX[d],Z=z+NAV_DZ[d],f=navFloorOf(X,Z,g.pos.y);if(f&&g.pos.y-f<1.6&&X-F.ox>=0&&Z-F.oz>=0&&X-F.ox<=1023&&Z-F.oz<=1023&&navFind(F,navKey(F,X,Z,f))>=0)return{x:X+.5,z:Z+.5,free:true};}return null;}
@@ -12337,6 +12346,7 @@ function updateGoblins(dt){
           if(sr&&sr.free){const L=Math.hypot(dx,dz)||1;g.pos.x+=dx/L*2.8*dt;g.pos.z+=dz/L*2.8*dt;moving=true;g.phase+=dt*12.6;}
           else
           // (the route says it's a step, but it's a touch more than one from here, off the low end of a ramp, say: a hop)
+          if(ahead-g.pos.y>1.05&&sr&&!sr.next&&g.los){g.los=false;g.losT=120;g.detour=0;g.stuck=0;}   // (it wasn't so clear after all: back to the route for a bit)
           if(ahead-g.pos.y>1.05&&sr&&sr.next){g.navT=0;if(sr.next.y-g.pos.y>1.05&&ahead-g.pos.y<2.6){gobStartMove(g,NAV_JUMP,sr.next);return;}}
           if(ahead-g.pos.y>1.05){
             g.stuck+=dt;
