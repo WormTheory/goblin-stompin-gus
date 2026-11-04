@@ -11582,7 +11582,7 @@ function navCol(x,z){
   if(!navSolidOK){navSolidOK=true;for(let i=1;i<256;i++)navSolid[i]=BLOCK[i]&&BLOCK[i].solid?1:0;}
   c=[];const lx=x-cx*CS,lz=z-cz*CS;let up1=AIR,up2=AIR;
   for(let y=H-1;y>=0;y--){let b=a[li(lx,y,lz)];if(b===LEAVES&&leafDown(x,y,z))b=AIR;
-    if(navSolid[b]){if(!navSolid[up1]&&!navSolid[up2]&&!(up1===WATER&&up2===WATER)&&!(BLOCK[b].post&&!(y>0&&a[li(lx,y-1,lz)]===b)))c.push(y+1);}   // (the top of a low railing's no place to walk: they hop it)
+    if(navSolid[b]){if(!navSolid[up1]&&!navSolid[up2]&&!(up1===WATER&&up2===WATER)&&!(BLOCK[b].post&&!(y>1&&a[li(lx,y-1,lz)]===b&&a[li(lx,y-2,lz)]===b)))c.push(y+1);}   // (the top of a railing's no place to walk: they hop it)
     else if(b===WATER&&up1!==WATER&&!navSolid[up1]&&y>0&&a[li(lx,y-1,lz)]===WATER)c.push(-y);
     up2=up1;up1=b;}
   navCols.set(k,c);return c;
