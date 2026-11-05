@@ -110,6 +110,18 @@ canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;point
 .view{position:absolute;overflow:hidden}
 .water-tint{position:absolute;inset:0;background:rgba(30,80,170,.38)}
 .hurt{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(150,0,0,0) 45%,rgba(150,0,0,.8) 100%);opacity:0}
+/* driving in goblin mode: the vehicle's name and health along the top, the crosshair for one with a gun (see drvHud) */
+.drvhud{position:absolute;inset:0;pointer-events:none}
+.drvhud .xh{position:absolute;left:50%;top:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border:2px solid rgba(255,255,255,.9);border-radius:50%;box-shadow:0 0 0 1px rgba(0,0,0,.45),inset 0 0 0 1px rgba(0,0,0,.45);transition:border-color .12s}
+.drvhud .xh::after{content:"";position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px 0 0 -2px;border-radius:50%;background:rgba(255,255,255,.95);box-shadow:0 0 0 1px rgba(0,0,0,.5)}
+.drvhud .xh.cool{border-color:rgba(255,255,255,.28)}
+.drvhud .xh.lock{border-color:#ff4a3a;box-shadow:0 0 0 1px rgba(0,0,0,.45),inset 0 0 0 1px rgba(0,0,0,.45),0 0 8px rgba(255,60,40,.6)}
+.drvhud .xt{position:absolute;width:9px;height:9px;margin:-6px 0 0 -6px;border:2px solid #ffd75a;transform:rotate(45deg);box-shadow:0 0 0 1px rgba(0,0,0,.45)}
+.drvhud .dbox{position:absolute;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);min-width:210px;max-width:calc(100% - 32px);padding:6px 12px 7px;background:rgba(18,22,28,.72);border-radius:3px;font:700 13px var(--f-display);color:var(--bone);text-align:center;transition:background .1s}
+.drvhud .dbox.hit{background:rgba(130,24,18,.82)}
+.drvhud .dbar{height:6px;margin-top:5px;background:rgba(238,240,230,.16);border-radius:2px;overflow:hidden}
+.drvhud .dbar i{display:block;height:100%;width:100%;background:#7fc24a}
+.drvhud .dwpn{margin-top:5px;font:600 11px var(--f-mono);color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bar{position:absolute;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;max-width:calc(100% - 32px)}
 .who{font:700 13px var(--f-display);letter-spacing:.02em;text-shadow:0 2px 0 rgba(0,0,0,.6)}
 .who.p2{color:var(--gertie)}
@@ -1961,7 +1973,7 @@ function trainHit(T,n,dir,ci){
   if(!T||T.dead||!T.cars)return;const N=T.cars.length;if(ci===undefined)ci=0;
   if(!T.carHP){T.carHP=T.cars.map(()=>CAR_HP);T.carDead=T.cars.map(()=>false);}
   if(T.carDead[ci])return;T.carHP[ci]-=n;
-  {const g=T.cars[ci];dmgPop(g.position.x,g.position.y+4,g.position.z,Math.round(n),'#ffb04a');}
+  {const g=T.cars[ci];dmgPop(g.position.x,g.position.y+4,g.position.z,Math.round(n),'#ffb04a');vHitFx(g.position.x,g.position.y+2.5,g.position.z,n);}
   if(T.carHP[ci]>0)return;
   // that car blows up and lies there burning, and the train grinds to a stop; the rest can still be taken apart
   T.carDead[ci]=true;if(!T.halted){T.halted=true;T.deadT=0;T.wait=0;}
@@ -2036,6 +2048,7 @@ function updateRailVenue(V,dt,t){
   // (numbered from the end furthest along the line, whichever way it's going: it has an engine at each end, and just drives
   // off the other way at the end of the line. Each car lies along the track between its two ends, so it swings round bends.)
   const hi=T.dir>0?T.s:T.s+TRAIN_LEN,cs=[];V.cars.forEach((g,i)=>{const c=hi-5.3-i*10.6,P=railPt(C,c),Fa=railPt(C,c+4),Ba=railPt(C,c-4);if(T.carDead&&T.carDead[i]){cs.push(P);return;}g.position.set((Fa.x+Ba.x)/2,G+1.2,(Fa.z+Ba.z)/2);g.rotation.y=Math.atan2(Fa.x-Ba.x,Fa.z-Ba.z);cs.push(P);});
+  if(T.carHP)V.cars.forEach((g,i)=>{if(!(T.carDead&&T.carDead[i]))vDamaged(g.position.x,g.position.y+3.6,g.position.z,T.carHP[i]/CAR_HP,dt);});
   // the horn, now and then, when it's near you and moving
   V.hornT-=dt;
   if(me&&!T.dead&&T.v>8&&V.hornT<=0&&audio&&playing){const d=Math.hypot(cs[0].x-me.pos.x,cs[0].z-me.pos.z);if(d<120){V.hornT=9;tone('sawtooth',311,300,0.9,0.05*(1-d/120));tone('sawtooth',370,360,0.9,0.04*(1-d/120));}}
@@ -2530,7 +2543,8 @@ function armyVenue(B){
   return V;
 }
 function milDark(M){M.g.traverse(o=>{if(o.isMesh)o.material=TRM.dark;});if(M.rot)M.rot.visible=false;}
-function milPlace(M){M.g.position.set(M.x,M.y,M.z);M.g.rotation.set(M.pitch||0,M.h,M.roll||0,'YXZ');if(M.tur)M.tur.rotation.y=M.tu;}
+function milPlace(M){M.g.position.set(M.x,M.y,M.z);(M.pos||(M.pos=new V3())).set(M.x,M.y,M.z);const j=M.jolt>0&&!M.dead?M.jolt*0.4:0;   // (just hit: it rocks)
+  M.g.rotation.set((M.pitch||0)+j*(Math.random()-.5),M.h+j*(Math.random()-.5)*0.5,(M.roll||0)+j*(Math.random()-.5),'YXZ');if(M.tur)M.tur.rotation.y=M.tu;}
 // its stand-in, this frame (v: how fast it's moving, so it knocks over what it drives into)
 function milBoxes(M,v){
   const I=MIL[M.kind];if(!M.pr)M.pr={isTrain:true,isPlane:true,alive:true,pos:new V3(),kv:new V3(),vy:0,spinP:0,spinR:0,speed:0,hurt:0,hx:I.hx,hz:I.hz,hy:I.hy,heading:0,top:0,veh:'plane',T:M,i:0};
@@ -2553,7 +2567,7 @@ function updateArmy(V,dt){
   let rolling=0;for(const M of V.mil)if(M.kind==='tank'&&!M.dead&&M.state==='hunt')rolling++;
   for(const M of V.mil){
     if(M.dead){milWreck(M,dt);milBoxes(M,0);milShove(M);continue;}
-    M.hurt-=dt;
+    M.hurt-=dt;M.jolt=(M.jolt||0)-dt;vDamaged(M.x,M.y+MIL[M.kind].hy,M.z,M.hp/MIL[M.kind].hp,dt);
     if(V.alert&&M.state==='park'&&(M.kind==='heli'||rolling<MIL_ROLL)){
       // (the next tank off is the one nearest you)
       if(M.kind==='tank'){const n=nearestPlayer(M.x,M.z);let best=true;if(n)for(const o of V.mil)if(o!==M&&o.kind==='tank'&&!o.dead&&o.state==='park'&&Math.hypot(o.x-n.p.pos.x,o.z-n.p.pos.z)<n.d-0.01){best=false;break;}if(best){M.state='hunt';rolling++;M.cd=1.5+Math.random();}}
@@ -2597,7 +2611,7 @@ function updateTank(M,V,dt){
     M.cd-=dt;
     if(M.cd<=0&&d>5&&d<75&&Math.abs(angDiff(M.tu,aim))<0.07){const a=M.h+M.tu,fx=Math.sin(a),fz=Math.cos(a),mx=M.x+fx*3.9,my=M.y+2.2,mz=M.z+fz*3.9,ty=p.pos.y+1.0;
       if(lineClear(mx,my,mz,p.pos.x,ty,p.pos.z)){const L=Math.hypot(p.pos.x-mx,ty-my,p.pos.z-mz)||1,sp=45;
-        shot({kind:'shell',x:mx,y:my,z:mz,vx:(p.pos.x-mx)/L*sp,vy:(ty-my)/L*sp+L/sp*1,vz:(p.pos.z-mz)/L*sp,grav:2,fuse:4,R:3.6,dmg:3,cause:'Blown up by a tank shell',by:MIL_CREW.tank,crush:1.4});
+        shot({kind:'shell',x:mx,y:my,z:mz,vx:(p.pos.x-mx)/L*sp,vy:(ty-my)/L*sp+L/sp*1,vz:(p.pos.z-mz)/L*sp,grav:2,fuse:4,R:3.6,dmg:3,cause:'Blown up by a tank shell',by:MIL_CREW.tank,crush:2.6,vd:40,own:M});
         M.cd=3.5+Math.random()*2;smoke(mx,my,mz,4,0x8a8a80);puff(mx,my,mz,4,0xffc040,0.3);if(audio){noise(0.6,0.6,350,'lowpass');tone('sawtooth',70,30,0.5,0.15);}addShake(0.3,M.x,M.z,30);}
       else M.cd=0.4;}}
   else if(M.state==='home'){const dx=M.home.x-M.x,dz=M.home.z-M.z,d=Math.hypot(dx,dz);M.tu=angTo(M.tu,0,0.8*dt);
@@ -2633,27 +2647,31 @@ function updateHeli(M,V,dt){
           if(hit){const h=Math.hypot(ex-mx,ez-mz)||1;damagePlayer(p,1,new V3(ex,ey,ez),new V3((ex-mx)/h,0.2,(ez-mz)/h),'Gunned down from a helicopter',MIL_CREW.heli);}}}
       else if(M.cd<=0){if(see){M.burst=6;M.bt=0;M.cd=3+Math.random()*1.5;}else M.cd=0.5;}
       // and now and then a rocket
-      M.rcd-=dt;if(M.rcd<=0&&see&&M.burst<=0){const L=d3||1,sp=30;shot({kind:'rocket',x:mx,y:my,z:mz,vx:(p.pos.x-mx)/L*sp,vy:(p.pos.y+1-my)/L*sp,vz:(p.pos.z-mz)/L*sp,grav:0.5,fuse:5,R:3.4,dmg:4,cause:'Blown up by a helicopter rocket',by:MIL_CREW.heli,crush:1.3});M.rcd=7+Math.random()*4;if(audio)noise(0.5,0.25,900,'bandpass');}}}
+      M.rcd-=dt;if(M.rcd<=0&&see&&M.burst<=0){const L=d3||1,sp=30;shot({kind:'rocket',x:mx,y:my,z:mz,vx:(p.pos.x-mx)/L*sp,vy:(p.pos.y+1-my)/L*sp,vz:(p.pos.z-mz)/L*sp,grav:0.5,fuse:5,R:3.4,dmg:4,cause:'Blown up by a helicopter rocket',by:MIL_CREW.heli,crush:2.4,vd:35,own:M});M.rcd=7+Math.random()*4;if(audio)noise(0.5,0.25,900,'bandpass');}}}
   else if(M.state==='home'){const d=Math.hypot(M.home.x-M.x,M.home.z-M.z);ty=d>3?Math.max(M.y,G+14):G+1;if(d<3&&M.y<G+1.2){M.state='park';M.y=G+1;M.x=M.home.x;M.z=M.home.z;}face=d>3?Math.atan2(tx-M.x,tz-M.z):M.home.h;}
   else{tx=M.x;tz=M.z;ty=M.y;if(M.state==='idle'){ty=groundAt(M.x,M.z,M.y+1);face=M.h;}}   // (left by a goblin who flew it: it settles where it is)
   // flying: easing toward where it wants to be, never faster than 12 a second, tipped a little the way it's going
   const dx=tx-M.x,dz=tz-M.z,dh=Math.hypot(dx,dz),sp=Math.min(12,dh*0.8),vx=dh>0.01?dx/dh*sp:0,vz=dh>0.01?dz/dh*sp:0;
-  if(M.spin>0.8||M.state==='home'){const stuck=milBlocked(M,M.x,M.z,M.h,M.y),ny=M.y+Math.max(-5*dt,Math.min(5*dt,ty-M.y));   // (it won't fly into another vehicle)
+  if(M.spin>0.8||M.state==='home'){M.vy=0;const stuck=milBlocked(M,M.x,M.z,M.h,M.y),ny=M.y+Math.max(-5*dt,Math.min(5*dt,ty-M.y));   // (it won't fly into another vehicle)
     if(stuck||!milBlocked(M,M.x+vx*dt,M.z+vz*dt,M.h,M.y)){M.x+=vx*dt;M.z+=vz*dt;}
     if(stuck||!milBlocked(M,M.x,M.z,M.h,ny))M.y=ny;}
+  // (sat with its rotor stopped, it rests on what's under it: blow that away and down it drops, hard enough to hurt it)
+  else{const gy=groundAt(M.x,M.z,M.y+1);
+    if(M.y>gy+0.02){M.vy-=20*dt;M.y=Math.max(gy,M.y+M.vy*dt);if(M.y<=gy){if(M.vy<-12){milHit(M,(-M.vy-12)*6);thud(0.5);}M.vy=0;}}else M.vy=0;}
   M.h=angTo(M.h,face,1.4*dt);M.pitch=Math.min(0.25,sp*0.02)*Math.cos(Math.atan2(vx,vz)-M.h);M.roll=0;   // (nose down going forward)
   M.rot.rotation.y+=dt*M.spin*28;M.trot.rotation.x+=dt*M.spin*40;
   milPlace(M);milBoxes(M,0);milShove(M);
   if(M.spin>0.3&&audio&&playing&&n&&n.d<90){M.thT=(M.thT||0)-dt;if(M.thT<=0){M.thT=0.11;noise(0.08,0.05*M.spin*(1-n.d/90),180,'lowpass');}}   // (the thud of its rotor)
 }
 function milHit(M,n,dir){
-  if(M.dead)return;const I=MIL[M.kind];dmgPop(M.x,M.y+I.hy+0.8,M.z,Math.round(n),'#ffb04a');M.hp-=n;M.hurt=0.2;
+  if(M.dead)return;const I=MIL[M.kind];dmgPop(M.x,M.y+I.hy+0.8,M.z,Math.round(n),'#ffb04a');M.hp-=n;M.hurt=0.2;M.jolt=0.3;vHitFx(M.x,M.y+I.hy*0.6,M.z,n);
   if(!M.V.alert&&!calmNow())milAlert(M.V,(nearestPlayer(M.x,M.z)||{}).p);   // (shot at, the whole base wakes up)
   if(M.hp>0)return;
   M.dead=true;M.deadT=0;M.fall=M.kind==='heli'&&M.y>G+2;M.vy=0;wrecked[M.key]=1;save();
   const bl=blasts[blastIdx++%blasts.length];bl.t=0.8;bl.s=2.2;for(const f of bl.m){f.position.set(M.x,M.y+1.5,M.z);f.visible=true;}smoke(M.x,M.y+2,M.z,22,0x262626);
   for(let k=0;k<8;k++){const d=debris[(debrisIdx++)%debris.length];d.m.position.set(M.x+(Math.random()-.5)*3,M.y+1.5+Math.random(),M.z+(Math.random()-.5)*4);d.v.set((Math.random()-.5)*18,8+Math.random()*10,(Math.random()-.5)*18);d.spin.set((Math.random()-.5)*12,(Math.random()-.5)*12,(Math.random()-.5)*12);d.life=25;d.m.visible=true;}
   milDark(M);if(M.kind==='tank')M.tur.rotation.z=0.25;
+  if(M.kind==='heli'&&!M.fall)airCrash(M.x,M.y+1,M.z,3.5,'Blown up with a helicopter');   // (shot down where it sits, or just above: it goes up there)
   noise(1.1,1,500,'lowpass');tone('sawtooth',70,16,1.3,0.3);addShake(0.9,M.x,M.z,45);hitGoblins(M.x,M.z,8,8,'Blown up with a '+I.name.toLowerCase(),M.y+1);
   if(BLAME!=='acc'){score+=I.pts;flashLabel(I.name+' destroyed  +'+I.pts,(nearestPlayer(M.x,M.z)||{}).p);}
 }
@@ -2661,8 +2679,9 @@ function milHit(M,n,dir){
 function milWreck(M,dt){
   M.deadT+=dt;
   if(M.fall){M.vy-=22*dt;M.y+=M.vy*dt;M.h+=dt*3;const gy=groundAt(M.x,M.z,M.y+2);
-    if(M.y<=gy){M.y=gy;M.fall=false;M.roll=0.4;crushBall(M.x,M.y,M.z,3);foeBoom(M.x,M.y,M.z,5,6,'Crushed by a falling helicopter',null);}
+    if(M.y<=gy){M.y=gy;M.fall=false;M.roll=0.4;airCrash(M.x,M.y,M.z,5,'Crushed by a falling helicopter');}
     if(Math.random()<dt*20)smoke(M.x,M.y+2,M.z,2,0x262626);milPlace(M);return;}
+  {const gy=groundAt(M.x,M.z,M.y+1);if(M.y>gy+0.02){M.vy-=22*dt;M.y=Math.max(gy,M.y+M.vy*dt);milPlace(M);}else M.vy=0;}   // (the ground under it blown away: down it goes)
   if(M.deadT<60&&Math.random()<dt*3)smoke(M.x,M.y+2,M.z,1,0x262626);
 }
 function siteRouse(V){
@@ -9264,9 +9283,12 @@ function stepCorpse(p,dt){
   return grounded;
 }
 // ---- lock-on (R3 / Q): pick a hostile goblin ahead, keep facing it, strafe around it ----
-// what can be locked onto: any living goblin (hostile or civilian), and any working car (they all have a goblin at the wheel)
-const isCarT=t=>!!(t&&t.wheels);
-const lockAlive=t=>isCarT(t)?t.alive:t.state==='chase';
+// what can be locked onto: any living goblin (hostile or civilian), any working car (they all have a goblin at the wheel),
+// and the army's tanks and helicopters (unless someone's driving it)
+const isCarT=t=>!!(t&&t.wheels),isMilT=t=>!!(t&&t.isMil);
+const lockAlive=t=>isMilT(t)?!t.dead&&!t.drv:isCarT(t)?t.alive:t.state==='chase';
+// the height of its middle (where the marker sits, and what a gun aims at)
+const lockY=t=>isMilT(t)?t.pos.y+MIL[t.kind].hy*0.55:t.pos.y+(isCarT(t)?0.9:1.1);
 // can the camera actually see it? march from the camera to the target's middle through the voxels; anything solid
 // and opaque in between hides it (leaves and glass don't)
 function seenFrom(a,bx,by,bz){
@@ -9274,13 +9296,15 @@ function seenFrom(a,bx,by,bz){
   for(let t=0.4;t<L-0.6;t+=0.35){const k=t/L,b=get(Math.floor(a.x+dx*k),Math.floor(a.y+dy*k),Math.floor(a.z+dz*k));if(b&&BLOCK[b]&&BLOCK[b].solid&&!BLOCK[b].transparent)return false;}
   return true;
 }
-const lockSeen=(p,t)=>seenFrom(p.camera.position,t.pos.x,t.pos.y+(isCarT(t)?0.9:1.1),t.pos.z);
+const lockSeen=(p,t)=>seenFrom(p.camera.position,t.pos.x,lockY(t),t.pos.z);
 // hidden targets can still be picked, but only when nothing visible qualifies
 const HIDDEN=1000;
 function lockTargets(p,range){
-  const out=[],add=(t,y)=>{const dx=t.pos.x-p.pos.x,dz=t.pos.z-p.pos.z,d=Math.hypot(dx,dz);if(d<0.6||d>range||Math.abs(y-p.pos.y)>12)return;out.push({t,dx,dz,d,hid:lockSeen(p,t)?0:HIDDEN});};
+  // (a tank or a helicopter is big enough to pick out twice as far off, and a helicopter well overhead)
+  const out=[],add=(t,y,k=1)=>{const dx=t.pos.x-p.pos.x,dz=t.pos.z-p.pos.z,d=Math.hypot(dx,dz);if(d<0.6||d>range*k||Math.abs(y-p.pos.y)>(k>1?45:12))return;out.push({t,dx,dz,d,hid:lockSeen(p,t)?0:HIDDEN});};
   for(const g of goblins)if(g.state==='chase')add(g,g.pos.y);
-  for(const c of cars)if(c.alive&&!c.parkPool)add(c,c.pos.y);
+  for(const c of cars)if(c.alive&&!c.parkPool&&c.drv!==p)add(c,c.pos.y);
+  for(const V of venues.values())if(V.kind==='army')for(const M of V.mil)if(M.pos&&lockAlive(M))add(M,M.pos.y,2);
   return out;
 }
 function lockCandidate(p){
@@ -9345,7 +9369,7 @@ function updateLock(p,dt,inp){
   if(p.flickReq){lockSwitch(p,p.flickReq);p.flickReq=0;T=p.lockT;}
   if(p.flickReqY){lockSwitchDepth(p,p.flickReqY);p.flickReqY=0;T=p.lockT;}
   const dx=T.pos.x-p.pos.x,dz=T.pos.z-p.pos.z;
-  if(Math.hypot(dx,dz)>30){setLock(p,null);return;}
+  if(Math.hypot(dx,dz)>(isMilT(T)?60:30)){setLock(p,null);return;}
   // face it, and swing the camera round behind
   let d=Math.atan2(dx,dz)-p.heading;while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;
   // (mid-roll or blast dash he faces the way he's going, turning back to it once it's over; the camera stays on it)
@@ -9361,6 +9385,7 @@ function updateLock(p,dt,inp){
   const m=lockMarker(p);
   p.lockPulse=Math.max(0,(p.lockPulse||0)-dt);
   if(isCarT(T))m.position.set(T.pos.x,T.pos.y+0.95*ES,T.pos.z);
+  else if(isMilT(T))m.position.set(T.pos.x,lockY(T),T.pos.z);
   else{const r=T.root;m.position.set(r.position.x,r.position.y+0.72*r.scale.y,r.position.z);}
   // tilt the camera to follow the target up or down (biased a little downward so Gus stays in frame)
   {const hd=Math.max(1,Math.hypot(dx,dz)),rise=m.position.y-(p.pos.y+2.4*ES);
@@ -9779,7 +9804,7 @@ function gobView(v){
 // vehicle's .drv who's driving it); drvSeat keeps you in your seat once everything's moved ----
 const DRV_NAME={tank:'tank',heli:'helicopter',train:'train',plane:'plane'};
 function drvName(D){const o=D.o;
-  if(D.k==='car')return o.police?'police car':{car:'car',van:'van',pickup:'pickup',truck:'truck',semi:'lorry',bus:'bus',fire:'fire engine',amb:'ambulance',news:'news van'}[o.veh]||'car';
+  if(D.k==='car')return o.police?'police car':{car:'car',bike:'motorcycle',van:'van',pickup:'pickup',truck:'truck',semi:'lorry',bus:'bus',fire:'fire engine',amb:'ambulance',news:'news van'}[o.veh]||'car';
   if(D.k==='boat')return o.K.name.toLowerCase();
   return DRV_NAME[D.k];
 }
@@ -9826,7 +9851,7 @@ function drvEnter(p,D){
 }
 // out by the side (whichever has room), else the back or the front, else on the roof
 function drvExit(p,thrown){
-  const D=p.drv;if(!D)return;p.drv=null;const o=D.o;if(o.drv===p)o.drv=null;
+  const D=p.drv;if(!D)return;p.drv=null;const o=D.o;if(o.drv===p)o.drv=null;if(p.lockT)setLock(p,null);
   const S=drvPose(D);
   if(D.k==='car')o.left=true;   // (left where it stopped: see updateCars)
   else if(D.k==='tank'||D.k==='heli'){if(!o.dead)o.state='idle';o.v=0;o.sv=0;}
@@ -9842,7 +9867,7 @@ function drvExit(p,thrown){
 // each step, before the goblin's own moves: in or out, and (while you're in) nothing else
 function drvTick(p,dt){
   const use=p.in.stomp&&!p.useHeld;p.useHeld=p.in.stomp;
-  if(p.drv){if(use||p.state==='dead')drvExit(p);else return true;return false;}
+  if(p.drv){if(use||p.state==='dead')drvExit(p);else{drvLock(p,dt);return true;}return false;}
   if(p.state==='dead'||p.state!=='walk'&&p.state!=='climb')return false;
   if(use){const D=drvFind(p);if(D){drvEnter(p,D);return true;}}
   // (a vehicle in reach: say so, once for each one you come up to)
@@ -9859,8 +9884,32 @@ function drvSeat(p){
 }
 // a venue holding a vehicle someone's driving stays (however far it's been taken)
 const drvHeld=V=>players.some(q=>q.drv&&(q.drv.V===V||V.T&&q.drv.o===V.T));
+// locked on from a tank or a helicopter (the lock button): the gun aims at it, wherever you're looking, a little ahead
+// of where it's going; the marker sits on it. Anything near the middle of the screen, out to 100 blocks, can be picked
+function drvLock(p,dt){
+  const D=p.drv,armed=D.k==='tank'||D.k==='heli';
+  if(!armed){if(p.lockT)setLock(p,null);return;}
+  if(p.in.lockPress){
+    if(p.lockT){setLock(p,null);tone('triangle',620,380,0.07,0.035);}
+    else{const c=p.camera.position,cp=Math.cos(p.cam.pitch),fx=-Math.sin(p.cam.yaw)*cp,fy=Math.sin(p.cam.pitch),fz=-Math.cos(p.cam.yaw)*cp;let best=null,bs=1e9;
+      for(const o of lockTargets(p,100)){if(o.t===D.o)continue;const ty=lockY(o.t),dx=o.t.pos.x-c.x,dy=ty-c.y,dz=o.t.pos.z-c.z,L=Math.hypot(dx,dy,dz)||1,
+          a=Math.max(0,Math.acos(Math.max(-1,Math.min(1,(dx*fx+dy*fy+dz*fz)/L)))-Math.atan((isMilT(o.t)?MIL[o.t.kind].hz:0.5)/L));if(a>0.4)continue;   // (any part of it within about 23 degrees of the crosshair)
+        const sc=a*60+L*0.05+(isMilT(o.t)?0:15)+o.hid;if(sc<bs){bs=sc;best=o.t;}}   // (tanks and helicopters first)
+      if(best){setLock(p,best);p.lockV=null;}else tone('square',180,140,0.06,0.03);}}
+  const T=p.lockT;if(!T)return;
+  if(!lockAlive(T)||Math.hypot(T.pos.x-p.pos.x,T.pos.z-p.pos.z)>130){setLock(p,null);tone('triangle',520,300,0.08,0.03);return;}
+  // (how fast it's moving, smoothed, to lead it)
+  const ty=lockY(T);if(p.lockV&&p.lockV.t===T&&dt>0){const k=Math.min(1,dt*5),V=p.lockV;V.vx+=((T.pos.x-V.x)/dt-V.vx)*k;V.vy+=((ty-V.y)/dt-V.vy)*k;V.vz+=((T.pos.z-V.z)/dt-V.vz)*k;V.x=T.pos.x;V.y=ty;V.z=T.pos.z;}
+  else p.lockV={t:T,x:T.pos.x,y:ty,z:T.pos.z,vx:0,vy:0,vz:0};
+  const m=lockMarker(p);m.position.set(T.pos.x,ty,T.pos.z);p.lockPulse=Math.max(0,(p.lockPulse||0)-dt);
+  const cam=p.camera.position;m.scale.setScalar(Math.max(0.55,Math.hypot(T.pos.x-cam.x,ty-cam.y,T.pos.z-cam.z)*0.05)*(1+p.lockPulse*1.6)*(isMilT(T)?2:1));
+}
+// what a locked gun aims at: the target, led by the time the shot takes to get there (sp: the shot's speed)
+function drvLead(p,sp){const T=p.lockT,V=p.lockV,ty=lockY(T);if(!V||V.t!==T)return{x:T.pos.x,y:ty,z:T.pos.z};
+  const t=Math.min(3,Math.hypot(T.pos.x-p.pos.x,ty-p.pos.y,T.pos.z-p.pos.z)/sp),cl=v=>Math.max(-30,Math.min(30,v));
+  return{x:T.pos.x+cl(V.vx)*t,y:ty+cl(V.vy)*t,z:T.pos.z+cl(V.vz)*t};}
 // where the middle of the screen points: the first block on the line from the camera, past the vehicle
-function drvAim(p){const c=p.camera.position,cp=Math.cos(p.cam.pitch),fx=-Math.sin(p.cam.yaw)*cp,fy=Math.sin(p.cam.pitch),fz=-Math.cos(p.cam.yaw)*cp;
+function drvAim(p,sp){if(p.lockT&&p.drv&&lockAlive(p.lockT))return drvLead(p,sp||40);const c=p.camera.position,cp=Math.cos(p.cam.pitch),fx=-Math.sin(p.cam.yaw)*cp,fy=Math.sin(p.cam.pitch),fz=-Math.cos(p.cam.yaw)*cp;
   for(let t=p.drvCamD||4;t<160;t+=0.5){const x=c.x+fx*t,y=c.y+fy*t,z=c.z+fz*t;if(y<1||solidAt(x,Math.floor(y),z))return{x,y,z};}
   return{x:c.x+fx*160,y:c.y+fy*160,z:c.z+fz*160};}
 // the view from behind the vehicle: turned with the mouse or right stick as usual, and swinging back round behind it a
@@ -9875,12 +9924,13 @@ function drvCamera(p){
   const tx=S.x,ty=S.y+S.hy+0.8,tz=S.z,base=4+Math.max(S.hz,S.hx)*1.4;let dist=base;
   for(let t=0.6;t<=base;t+=0.3){if(solidAt(Math.floor(tx-fx*t),Math.floor(ty-fy*t),Math.floor(tz-fz*t))){dist=Math.max(0.8,t-0.5);break;}}
   let cx=tx-fx*dist,cy=ty-fy*dist,cz=tz-fz*dist;const gy=supportAt(cx,cz,cy);if(gy!==null&&cy<gy+0.4)cy=gy+0.4;
+  if(fy>0.2&&cy<S.y+S.hy*0.8)cy=S.y+S.hy*0.8;   // (looking up: not from down inside the vehicle)
   p.drvCamD=dist;p.camera.position.set(cx,cy,cz);p.camera.rotation.set(p.cam.pitch,p.cam.yaw,0);
   if(p.shake>0.002&&gameSpeed()>0){const c=p.camera.position;c.x+=(Math.random()-.5)*p.shake;c.y+=(Math.random()-.5)*p.shake;c.z+=(Math.random()-.5)*p.shake;}
 }
 // driving a car: much as a hunting car drives itself (updateCars does the rest: the ground, walls, what it runs into)
 function drvCar(c,dt){
-  const i=c.drv.in,thr=-i.z,st=-i.x,top=c.veh==='semi'||c.veh==='bus'?17:c.veh==='car'?24:20;
+  const i=c.drv.in,thr=-i.z,st=-i.x,top=c.veh==='semi'||c.veh==='bus'?17:c.veh==='car'?24:c.veh==='bike'?28:20;
   if(c.grounded||rampUnder(c.pos.x,c.pos.z,c.pos.y+0.5)){
     if(thr>0.1)c.speed+=(c.speed<0?26:10)*thr*dt;else if(thr<-0.1)c.speed-=(c.speed>0?26:8)*-thr*dt;else c.speed*=Math.exp(-dt*0.9);}
   c.speed=Math.max(-8,Math.min(top,c.speed));
@@ -9892,10 +9942,10 @@ function drvTank(M,dt){
   const p=M.drv,i=p.in,thr=-i.z,st=-i.x;
   M.sv+=(thr*7-M.sv)*Math.min(1,dt*1.5);
   {const nh=M.h+st*0.9*dt;if(!milBlocked(M,M.x,M.z,nh,M.y)||milBlocked(M,M.x,M.z,M.h,M.y))M.h=nh;}
-  const A=drvAim(p);M.tu=angTo(M.tu,Math.atan2(A.x-M.x,A.z-M.z)-M.h,1.4*dt);
+  const A=drvAim(p,45);M.aim=A;M.tu=angTo(M.tu,Math.atan2(A.x-M.x,A.z-M.z)-M.h,1.4*dt);
   M.cd-=dt;if(i.bitePress&&M.cd<=0){const a=M.h+M.tu,fx=Math.sin(a),fz=Math.cos(a),mx=M.x+fx*3.9,my=M.y+2.2,mz=M.z+fz*3.9,L=Math.hypot(A.x-mx,A.y-my,A.z-mz)||1,sp=45,
       hz=Math.max(1,Math.hypot(A.x-mx,A.z-mz)),vy=Math.max(-0.5,Math.min(0.6,(A.y-my)/hz));
-    shot({kind:'shell',x:mx,y:my,z:mz,vx:fx*sp,vy:vy*sp+L/sp,vz:fz*sp,grav:2,fuse:4,R:3.6,dmg:3,cause:'Blown up by a goblin in a tank',crush:1.4});
+    shot({kind:'shell',x:mx,y:my,z:mz,vx:fx*sp,vy:vy*sp+L/sp,vz:fz*sp,grav:2,fuse:4,R:4.5,dmg:4,cause:'Blown up by a goblin in a tank',crush:3.2,vd:60,own:M});
     M.cd=1.2;smoke(mx,my,mz,4,0x8a8a80);puff(mx,my,mz,4,0xffc040,0.3);if(audio){noise(0.6,0.6,350,'lowpass');tone('sawtooth',70,30,0.5,0.15);}addShake(0.3,M.x,M.z,30);}
   // (anything more than a block up stops it; leaning on it a moment, it smashes through)
   if(Math.abs(M.sv)>0.05){const d=M.sv<0?-1:1,fx=Math.sin(M.h)*d,fz=Math.cos(M.h)*d,ax=M.x+fx*3,az=M.z+fz*3;
@@ -9918,13 +9968,15 @@ function drvHeli(M,dt){
   const gy=groundAt(M.x,M.z,M.y+1),flying=M.y>gy+0.05;
   if(!flying&&M.vy<=0){M.hv.x*=Math.exp(-dt*4);M.hv.z*=Math.exp(-dt*4);}   // (sat on the ground it doesn't slide about)
   {const nx=M.x+M.hv.x*dt,nz=M.z+M.hv.z*dt,clear=y=>!solidAt(nx,Math.floor(y),nz)&&!solidAt(nx+Math.sin(M.h)*2.6,Math.floor(y),nz+Math.cos(M.h)*2.6);
-   if(clear(M.y+0.4)&&clear(M.y+1.6)&&clear(M.y+2.6)&&(!milBlocked(M,nx,nz,M.h,M.y)||milBlocked(M,M.x,M.z,M.h,M.y))){M.x=nx;M.z=nz;}else{M.hv.x*=-0.3;M.hv.z*=-0.3;}}
+   if(clear(M.y+0.4)&&clear(M.y+1.6)&&clear(M.y+2.6)&&(!milBlocked(M,nx,nz,M.h,M.y)||milBlocked(M,M.x,M.z,M.h,M.y))){M.x=nx;M.z=nz;}
+   else if(Math.hypot(M.hv.x,M.hv.z)>9){airCrash(M.x+Math.sin(M.h)*2.6,M.y+1.2,M.z+Math.cos(M.h)*2.6,4,'Killed when a helicopter crashed');milHit(M,MIL.heli.hp*99);return;}   // (into something at speed: it goes up)
+   else{M.hv.x*=-0.3;M.hv.z*=-0.3;}}
   {let ny=M.y+M.vy*dt;const g2=groundAt(M.x,M.z,M.y+1);if(ny<g2){ny=g2;M.vy=0;}if(M.vy>0&&solidAt(M.x,Math.floor(ny+3),M.z)){ny=M.y;M.vy=0;}M.y=Math.min(ny,H+60);}
   M.h=angTo(M.h,yaw,1.6*dt);
   const sp=Math.hypot(M.hv.x,M.hv.z),va=Math.atan2(M.hv.x,M.hv.z)-M.h;M.pitch=Math.min(0.25,sp*0.02)*Math.cos(va);M.roll=-Math.min(0.25,sp*0.02)*Math.sin(va);
   M.rot.rotation.y+=dt*M.spin*28;M.trot.rotation.x+=dt*M.spin*40;
-  M.cd-=dt;if(i.bitePress&&M.cd<=0&&lift){const A=drvAim(p),mx=M.x+Math.sin(M.h)*2.6,my=M.y+1.2,mz=M.z+Math.cos(M.h)*2.6,L=Math.hypot(A.x-mx,A.y-my,A.z-mz)||1,sp2=36;
-    shot({kind:'rocket',x:mx,y:my,z:mz,vx:(A.x-mx)/L*sp2,vy:(A.y-my)/L*sp2,vz:(A.z-mz)/L*sp2,grav:0.5,fuse:5,R:3.4,dmg:4,cause:'Blown up by a goblin in a helicopter',crush:1.3});M.cd=0.6;if(audio)noise(0.5,0.25,900,'bandpass');}
+  M.cd-=dt;if(i.bitePress&&M.cd<=0&&lift){const A=drvAim(p,36),mx=M.x+Math.sin(M.h)*2.6,my=M.y+1.2,mz=M.z+Math.cos(M.h)*2.6,L=Math.hypot(A.x-mx,A.y-my,A.z-mz)||1,sp2=36;
+    shot({kind:'rocket',x:mx,y:my,z:mz,vx:(A.x-mx)/L*sp2,vy:(A.y-my)/L*sp2,vz:(A.z-mz)/L*sp2,grav:0.5,fuse:5,R:4.2,dmg:4,cause:'Blown up by a goblin in a helicopter',crush:2.8,vd:45,own:M});M.cd=0.6;if(audio)noise(0.5,0.25,900,'bandpass');}
   milPlace(M);milBoxes(M,0);milShove(M);
   if(M.spin>0.3&&audio&&playing){M.thT=(M.thT||0)-dt;if(M.thT<=0){M.thT=0.11;noise(0.08,0.05*M.spin,180,'lowpass');}}
 }
@@ -9952,7 +10004,7 @@ function drvPlane(pl,dt){
   // (the sea's surface counts as ground; so does sea level, out where nothing's been built yet)
   const wetAt=(x,z)=>!chunks.has(ckey(Math.floor(x/CS),Math.floor(z/CS)))||get(x,G,z)===WATER?G+1:0,gnd=(x,z,y)=>Math.max(groundAt(x,z,y),wetAt(x,z));
   const air=P.y>gnd(P.x,P.z,P.y+1)+0.05;
-  if(!air&&F.vy<-0.5&&(F.vy<-14||!p&&F.v>20)){planeHit(pl,PLANE_HP);return;}   // (touched down too hard, or with nobody flying it)
+  if(!air&&F.vy<-0.5&&(F.vy<-14||!p&&F.v>20)){planeCrash(pl,P.x,P.y,P.z,true);return;}   // (touched down too hard, or with nobody flying it)
   if(thr>0.1)F.v+=14*thr*dt;else if(thr<-0.1)F.v-=(air?8:22)*-thr*dt;else if(!air)F.v-=3*dt;
   F.v=Math.max(0,Math.min(80,F.v));
   g.rotation.y+=st*dt*(air?0.6:Math.min(0.9,0.25+F.v*0.05));
@@ -9962,13 +10014,13 @@ function drvPlane(pl,dt){
   // something in the way: a fence or a car's height, on the ground, it ploughs through (and takes some damage); anything
   // bigger, at any speed, wrecks it; at a crawl it just stops
   const ax=nx+tx*9.5,az=nz+tz*9.5,over=gnd(ax,az,ny+3.5)-ny;
-  if(over>0.6){
+  if(over>(air?0.6:1.05)){   // (taxiing, it rolls up a one-block step)
     if(!air&&over<=2.6&&F.v>0.5){crushBall(ax,ny+1,az,1.8);F.v*=0.6;planeHit(pl,15);if(pl.dead)return;}
-    else if(F.v>12){planeHit(pl,PLANE_HP);return;}
+    else if(F.v>12){planeCrash(pl,ax,ny+2,az,!air);return;}
     else F.v=0;}
   else{P.x=nx;P.z=nz;}
   const g2=gnd(P.x,P.z,ny+1.5);
-  if(ny<=g2){if(air&&(F.vy<-14||!p&&F.v>20)){P.y=g2;planeHit(pl,PLANE_HP);return;}P.y=g2;F.vy=0;}else P.y=Math.min(ny,H+80);
+  if(ny<=g2){if(air&&(F.vy<-14||!p&&F.v>20)){P.y=g2;planeCrash(pl,P.x,P.y,P.z,true);return;}P.y=g2;F.vy=0;}else P.y=Math.min(ny,H+80);
   g.rotation.set(-Math.max(-0.3,Math.min(0.3,Math.atan2(F.vy,Math.max(8,F.v)))),h,air&&p?-st*0.35:0,'YXZ');
   pl.v=F.v;g.visible=true;
 }
@@ -9982,6 +10034,83 @@ function drvTrain(T,dt){
   if(T.s<lo){T.s=lo;v=0;}if(T.s>hi){T.s=hi;v=0;}
   T.v=v*T.dir;
   T.hornT=(T.hornT||0)-dt;if(i.bitePress&&T.hornT<=0){T.hornT=0.6;tone('sawtooth',311,300,0.6,0.07);tone('sawtooth',370,360,0.6,0.06);}
+}
+// ---- vehicles in a fight: what a shell or a rocket does to them, how they show they've been hit, and aircraft that
+// come down hard ----
+// a vehicle struck: sparks and a puff of smoke where it's hit (and a clang, for a real blow)
+function vHitFx(x,y,z,n){puff(x,y,z,Math.min(8,2+Math.round(n/8)),0xffb040,0.5);puff(x,y,z,2,0x5a5a5a,0.6);if(audio&&n>=2)clang();}
+// badly hurt (f: what's left of its health): smoke pouring off it, and under a quarter, flames too
+function vDamaged(x,y,z,f,dt){
+  if(f<0.5&&Math.random()<dt*(f<0.25?12:4))smoke(x+(Math.random()-.5),y,z+(Math.random()-.5),1,f<0.25?0x1a1a1a:0x6a6a6a);
+  if(f<0.25&&Math.random()<dt*6)puff(x,y,z,1,Math.random()<.5?0xff8a2a:0xffc040,0.3);
+}
+// does a shell or rocket at S.pos meet a vehicle (other than the one that fired it)?
+function shotHitsVeh(S){const x=S.pos.x,y=S.pos.y,z=S.pos.z;
+  for(const c of cars){if(!c.alive||c===S.own)continue;const dx=x-c.pos.x,dz=z-c.pos.z;if(dx*dx+dz*dz>(c.hz+1)*(c.hz+1)||y<c.pos.y-0.2||y>c.pos.y+(c.hy||1.4)+0.2)continue;
+    const s=Math.sin(c.heading),k=Math.cos(c.heading);if(Math.abs(dx*s+dz*k)<=c.hz+0.2&&Math.abs(dx*k-dz*s)<=c.hx+0.2)return true;}
+  for(const B of TRAIN_BOXES){const pr=B.proxy;if(!pr.alive||B.soft||pr.T===S.own||y<B.y0-0.2||y>B.top+0.2)continue;const dx=x-B.x,dz=z-B.z,hx=B.hx||TRAIN_HX,hz=B.hz||TRAIN_HZ;
+    if(Math.abs(dx)>hx+hz+1||Math.abs(dz)>hx+hz+1)continue;if(Math.abs(dx*B.tx+dz*B.tz)<=hz+0.2&&Math.abs(-dx*B.tz+dz*B.tx)<=hx+0.2)return true;}
+  return false;}
+// a blast's harm to the vehicles round it (vd at the middle, less at the edge): cars, and every train car, boat, plane,
+// tank, helicopter and ride within reach of it (each just once). own: the vehicle that fired, spared
+function vehBlast(x,y,z,R,vd,own){
+  if(!(vd>0)||!(R>0))return;
+  for(const c of cars){if(!c.alive||c===own)continue;const dx=c.pos.x-x,dz=c.pos.z-z,d=Math.hypot(dx,dz,(c.pos.y+0.8-y)*0.7),r=R+c.hz*0.5;if(d>r)continue;
+    const n=vd*(1-0.6*d/r),dir=new V3(dx,0,dz);damageCar(c,n,dir);if(c.alive&&n>12)launchCar(c,3+n*0.08,dir,4);}
+  const done=new Set();
+  for(const B of TRAIN_BOXES){const pr=B.proxy,T=pr.T;if(!pr.alive||B.soft||!T||T===own)continue;const key=T.cars&&T.C?T.cars[pr.i]||pr:T;if(done.has(key))continue;
+    const hx=B.hx||TRAIN_HX,hz=B.hz||TRAIN_HZ,dx=x-B.x,dz=z-B.z,al=dx*B.tx+dz*B.tz,ac=-dx*B.tz+dz*B.tx,ea=Math.max(0,Math.abs(al)-hz),ec=Math.max(0,Math.abs(ac)-hx),
+      dy=y<B.y0?B.y0-y:y>B.top?y-B.top:0,d=Math.hypot(ea,ec,dy);if(d>R)continue;
+    done.add(key);trainHit(T,vd*(1-0.6*d/R),new V3(-dx,0,-dz),pr.i);}
+}
+// an aircraft coming down hard: a fireball that blows a crater out of whatever it hits, wrecks the vehicles round it
+// and sets the place alight
+function airCrash(x,y,z,R,cause){
+  crushBall(x,y,z,R,{force:1.6,up:1.4});foeBoom(x,y,z,R*1.7,10,cause,null,0,120);
+  const bl=blasts[blastIdx++%blasts.length];bl.t=0.9;bl.s=R*0.6;for(const f of bl.m){f.position.set(x,y+1,z);f.visible=true;}
+  smoke(x,y+1,z,30,0x1e1e1e);for(let k=0;k<14;k++)puff(x,y+1,z,1,Math.random()<.5?0xff8a2a:0xffc040,R*0.4);
+  {const g=supportAt(x,z,y+2);addFire(x,g===null?y:g,z,R*0.6,40);}
+  if(audio){noise(1.4,1,350,'lowpass');tone('sawtooth',60,14,1.6,0.32);}addShake(1.4,x,z,R*14);
+}
+// a plane wrecked by flying into something or landing too hard: it goes up where it hits
+function planeCrash(pl,x,y,z,ground){planeHit(pl,PLANE_HP);if(ground)pl.fall=false;airCrash(x,y,z,7,'Killed when a plane crashed');}
+// how hurt the vehicle you're driving is
+function drvHP(D){const o=D.o;
+  if(D.k==='car'){if(!(o.hpMax>=o.hp))o.hpMax=Math.max(o.hp,o.svcPool?45:30);return{hp:o.hp,max:o.hpMax};}
+  if(D.k==='tank'||D.k==='heli')return{hp:o.hp,max:MIL[D.k].hp};
+  if(D.k==='boat')return{hp:o.hp,max:o.max};
+  if(D.k==='plane')return{hp:o.hp,max:PLANE_HP};
+  return{hp:o.carHP?o.carHP[D.ci]:CAR_HP,max:CAR_HP};
+}
+// the driving display: what you're in and its health along the top; for a tank or a helicopter a crosshair in the middle
+// (where drvAim finds, so where a shot goes), dim while it reloads, and for a tank a marker where its gun points now
+const _dhv=new THREE.Vector3();
+function drvHud(p){
+  let H=p.ui.drvHud;
+  if(!p.drv||!DT.gob){if(H&&!H.el.hidden)H.el.hidden=true;return;}
+  if(!H){const el=document.createElement('div');el.className='drvhud';
+    el.innerHTML='<div class="xh"></div><div class="xt"></div><div class="dbox"><div class="dname"></div><div class="dbar"><i></i></div><div class="dwpn"></div></div>';p.ui.view.append(el);
+    H=p.ui.drvHud={el,xh:el.querySelector('.xh'),xt:el.querySelector('.xt'),box:el.querySelector('.dbox'),name:el.querySelector('.dname'),fill:el.querySelector('.dbar i'),wpn:el.querySelector('.dwpn'),txt:{}};}
+  const D=p.drv,o=D.o,armed=D.k==='tank'||D.k==='heli',{hp,max}=drvHP(D),f=Math.max(0,Math.min(1,hp/max));
+  const set=(k,el,v)=>{if(H.txt[k]!==v){H.txt[k]=v;el.textContent=v;}};
+  H.el.hidden=false;
+  set('n',H.name,drvName(D).replace(/^./,c=>c.toUpperCase())+'  ·  '+Math.max(0,Math.ceil(hp))+' / '+Math.round(max));
+  const w=(f*100).toFixed(1)+'%';if(H.txt.w!==w){H.txt.w=w;H.fill.style.width=w;H.fill.style.background=f>0.5?'#7fc24a':f>0.25?'#f0a04a':'#e0564a';}
+  if(H.lastHp!==undefined&&hp<H.lastHp)H.hitT=camClock;H.lastHp=hp;H.box.classList.toggle('hit',camClock-(H.hitT??-9)<0.25);
+  const fire=p.pad?padLabel(BINDS.bite.pad[0],padStyle):keyLabel(BINDS.bite.kb[0]),out=drvKey(p);
+  const ready=!(o.cd>0);
+  const lk=p.pad?padLabel(BINDS.lock.pad[0],padStyle):keyLabel(BINDS.lock.kb[0]),LT=p.lockT;
+  set('w',H.wpn,armed?(D.k==='tank'?'Cannon':'Rockets')+' '+(ready?'ready':'reloading')+'  ·  '+fire+' fire  ·  '
+      +(LT?'Locked on '+(isMilT(LT)?MIL[LT.kind].name.toLowerCase():isCarT(LT)?'a '+(LT.veh||'car'):'a goblin')+' ('+lk+' let go)':lk+' lock on')+'  ·  '+out+' get out'
+    :D.k==='plane'?(o.free&&o.free.v>=PLANE_LIFT?'Flying speed':'Take-off at '+PLANE_LIFT)+'  ·  '+out+' get out':out+' get out');
+  H.xh.hidden=!armed;if(armed){H.xh.classList.toggle('cool',!ready);H.xh.classList.toggle('lock',!!LT);}
+  // (the tank's gun: a point out along the turret, as far off as what you're aiming at, put on the screen)
+  let tShow=false;
+  if(D.k==='tank'&&o.aim){const a=o.h+o.tu,hd=Math.hypot(o.aim.x-o.x,o.aim.z-o.z),cam=p.camera,wx=o.x+Math.sin(a)*hd,wz=o.z+Math.cos(a)*hd,
+      d2=(wx-cam.position.x)**2+(wz-cam.position.z)**2;
+    _dhv.set(wx,o.aim.y-CURVE_U.value*d2,wz).project(cam);
+    if(_dhv.z<1&&_dhv.z>-1&&Math.abs(_dhv.x)<1.2&&Math.abs(_dhv.y)<1.2){tShow=true;H.xt.style.left=((_dhv.x+1)/2*100).toFixed(2)+'%';H.xt.style.top=((1-_dhv.y)/2*100).toFixed(2)+'%';}}
+  H.xt.hidden=!tShow;
 }
 // on his way down a ramp he stays on it, instead of falling a little and landing every few steps
 function stickToRamp(p,g){
@@ -12852,17 +12981,18 @@ const SHOTS=[],SHOT_LOOK={pipe:[[0.14,0.14,0.36],0x8a8a90],grenade:[[0.24,0.24,0
 function shot(o){
   let S=SHOTS.find(q=>!q.live&&q.kind===o.kind);
   if(!S){const L=SHOT_LOOK[o.kind],m=new THREE.Mesh(FB_GEO,SHOT_M[o.kind]||(SHOT_M[o.kind]=new THREE.MeshLambertMaterial({color:L[1]})));m.scale.set(...L[0]);m.visible=false;scene.add(m);S={kind:o.kind,g:m,pos:new V3(),v:new V3(),live:false};SHOTS.push(S);}
-  Object.assign(S,{grav:o.grav,fuse:o.fuse??9,R:o.R,dmg:o.dmg,cause:o.cause,by:o.by||null,bounce:!!o.bounce,t:0,live:true,trail:0,crush:o.crush||0});
+  Object.assign(S,{grav:o.grav,fuse:o.fuse??9,R:o.R,dmg:o.dmg,cause:o.cause,by:o.by||null,bounce:!!o.bounce,t:0,live:true,trail:0,crush:o.crush||0,vd:o.vd,own:o.own||null});
   S.pos.set(o.x,o.y,o.z);S.v.set(o.vx,o.vy,o.vz);S.g.position.copy(S.pos);S.g.visible=true;return S;
 }
 // a blast: the flash, smoke and noise, everyone near it hurt (less at the edge) and thrown, goblins too, maybe a crater
-function foeBoom(x,y,z,R,dmg,cause,by,crush){
+// (vd: the harm to vehicles at the middle, by default six times what it does to you; own: a vehicle it spares)
+function foeBoom(x,y,z,R,dmg,cause,by,crush,vd,own){
   const bl=blasts[blastIdx++%blasts.length];bl.t=0.5;bl.s=R*0.3;for(const f of bl.m){f.position.set(x,y+0.5,z);f.visible=true;}
   smoke(x,y+0.5,z,6+Math.round(R*2),0x2e2e2e);puff(x,y,z,8,0xff8a2a,0.6);
   if(audio){noise(0.7,0.5,500,'lowpass');tone('sawtooth',90,24,0.7,0.16);}addShake(0.25+R*0.08,x,z,R*8);
   for(const q of players){if(!q.active||q.state==='dead')continue;const dx=q.pos.x-x,dz=q.pos.z-z,dy=q.pos.y+1-y,d3=Math.hypot(dx,dz,dy);if(d3>R)continue;
     const h=Math.hypot(dx,dz)||1;damagePlayer(q,Math.max(1,Math.round(dmg*(1-0.6*d3/R))),new V3(q.pos.x,q.pos.y+1,q.pos.z),new V3(dx/h,0.6,dz/h),cause,by);}
-  hitGoblins(x,z,R,dmg,cause,y);
+  hitGoblins(x,z,R,dmg,cause,y);vehBlast(x,y,z,R*1.15,vd??dmg*6,own);
   if(crush)crushBall(x,y,z,crush);
 }
 function updateShots(dt){
@@ -12878,8 +13008,9 @@ function updateShots(dt){
         else{S.v.x*=-0.4;S.v.z*=-0.4;}continue;}
       S.pos.set(nx,ny,nz);
       // (a shell or a rocket goes off on whoever it reaches, too)
-      if(!S.bounce)for(const q of players){if(!q.active||q.state==='dead')continue;const hx=S.pos.x-q.pos.x,hz=S.pos.z-q.pos.z,hy=S.pos.y-q.pos.y;if(hx*hx+hz*hz<1.6*1.6&&hy>-0.3&&hy<2.4){boom=true;break;}}}
-    if(boom||S.t>12){S.live=false;S.g.visible=false;foeBoom(S.pos.x,S.pos.y,S.pos.z,S.R,S.dmg,S.cause,S.by,S.crush);continue;}
+      if(!S.bounce)for(const q of players){if(!q.active||q.state==='dead'||q.drv&&q.drv.o===S.own)continue;const hx=S.pos.x-q.pos.x,hz=S.pos.z-q.pos.z,hy=S.pos.y-q.pos.y;if(hx*hx+hz*hz<1.6*1.6&&hy>-0.3&&hy<2.4){boom=true;break;}}
+      if(!S.bounce&&!boom&&shotHitsVeh(S))boom=true;}
+    if(boom||S.t>12){S.live=false;S.g.visible=false;foeBoom(S.pos.x,S.pos.y,S.pos.z,S.R,S.dmg,S.cause,S.by,S.crush,S.vd,S.own);continue;}
     S.g.position.copy(S.pos);
     if(S.bounce){S.g.rotation.x+=dt*Math.hypot(S.v.x,S.v.z)*1.5;S.trail-=dt;if(S.trail<=0){S.trail=0.08;puff(S.pos.x,S.pos.y+0.1,S.pos.z,1,S.kind==='pipe'?0xffd040:0x9a9a8a,0.08);}}   // (the fuse fizzing)
     else{const h=Math.hypot(S.v.x,S.v.z);S.g.rotation.set(-Math.atan2(S.v.y,h),Math.atan2(S.v.x,S.v.z),0,'YXZ');S.trail-=dt;if(S.trail<=0){S.trail=0.03;smoke(S.pos.x,S.pos.y,S.pos.z,1,S.kind==='rocket'?0xdadada:0x6a6a6a);}}
@@ -13254,9 +13385,10 @@ const VEH={bus:{hx:1.25,hz:5.2,hy:3.3,head:[0.5,2.7,4.3],roof:l=>3.3},
   semi:{hx:1.25,hz:6.6,hy:3.9,head:[0.5,3.1,4.2],roof:l=>l>2.4?(l>5.0?1.75:3.1):3.85},
   fire:{hx:1.2,hz:3.7,hy:3.0,head:[0.45,2.6,2.3],roof:l=>l>1.6?2.5:3.0},
   amb:{hx:1.15,hz:3.0,hy:2.8,head:[0.4,2.2,1.9],roof:l=>l>1.2?2.0:2.8},
-  news:{hx:1.05,hz:2.4,hy:2.3,head:[0.4,2.15,0.6],roof:l=>2.25}};
+  news:{hx:1.05,hz:2.4,hy:2.3,head:[0.4,2.15,0.6],roof:l=>2.25},
+  bike:{hx:0.45,hz:1.15,hy:1.7,head:[0,1.62,-0.2],roof:l=>l>-0.7&&l<0.3?1.2:0.95}};
 // which vehicles each kind of traffic is made of
-const VEH_MIX={street:[['car',0.66],['van',0.12],['pickup',0.12],['truck',0.10]],hw:[['car',0.55],['van',0.1],['pickup',0.1],['truck',0.12],['semi',0.13]],park:[['car',0.75],['van',0.12],['pickup',0.13]]};
+const VEH_MIX={street:[['car',0.58],['bike',0.08],['van',0.12],['pickup',0.12],['truck',0.10]],hw:[['car',0.5],['bike',0.05],['van',0.1],['pickup',0.1],['truck',0.12],['semi',0.13]],park:[['car',0.67],['bike',0.08],['van',0.12],['pickup',0.13]]};
 const pickVeh=mix=>{let u=Math.random();for(const [t,p] of VEH_MIX[mix]){if(u<p)return t;u-=p;}return'car';};
 // build (once) and show a vehicle body on a car object; its size, wheel footprint and roof go with it
 function setVeh(c,t){
@@ -13337,6 +13469,19 @@ function buildVeh(c,t){
     const dish=b(1.25,1.25,0.1,wht,0,3.4,-1.0);dish.rotation.x=-0.7;b(0.08,0.08,0.5,chrome,0,3.55,-0.75);
     lights(0.7,0.95,2.57,-2.39);
     for(const [x,z,st] of [[-1,1.6,1],[1,1.6,1],[-1,-1.55,0],[1,-1.55,0]])wheel(x*1.0,z,st);
+  } else if(t==='bike'){
+    // a motorcycle: two wheels, a tank and seat, a headlamp on the forks, and the goblin riding it astride (his head is
+    // the driver's head every vehicle has)
+    const piv=new THREE.Group();piv.position.set(0,0.38,0.82);g.add(piv);const sp=new THREE.Group();piv.add(sp);
+    b(0.2,0.76,0.76,smat(CARC.tire),0,0,0,sp);b(0.22,0.3,0.3,smat(CARC.hub),0,0,0,sp);wheels.push(sp);front.push(piv);
+    for(const s2 of[-1,1])b(0.06,0.7,0.06,chrome,s2*0.14,0.38,-0.1,piv);   // (the forks turn with the front wheel)
+    b(0.9,0.06,0.06,dark,0,0.78,-0.16,piv);b(0.22,0.2,0.1,smat(CARC.head),0,0.62,0.02,piv);
+    {const sp2=new THREE.Group();sp2.position.set(0,0.38,-0.82);g.add(sp2);b(0.24,0.76,0.76,smat(CARC.tire),0,0,0,sp2);b(0.26,0.3,0.3,smat(CARC.hub),0,0,0,sp2);wheels.push(sp2);}
+    b(0.3,0.3,1.3,dark,0,0.62,0);b(0.42,0.32,0.62,c.paint,0,0.92,0.35);b(0.36,0.14,0.8,smat(0x1a1a1a),0,0.86,-0.32);
+    b(0.34,0.12,0.5,c.paint,0,0.62,-0.85);b(0.2,0.12,0.06,smat(CARC.tail),0,0.66,-1.11);for(const s2 of[-1,1])b(0.1,0.1,0.8,chrome,s2*0.2,0.45,-0.55);
+    // the rider: a tunic, arms out to the bars, legs down to the pegs
+    const sk=smat(GC.skin),tun=smat(GC.tunic);b(0.5,0.62,0.36,tun,0,1.27,-0.22);b(0.52,0.1,0.38,smat(GC.belt),0,0.99,-0.22);
+    for(const s2 of[-1,1]){const a=b(0.16,0.16,0.62,sk,s2*0.3,1.33,0.12);a.rotation.x=0.35;const l=b(0.18,0.5,0.2,tun,s2*0.24,0.78,-0.05);l.rotation.x=-0.5;}
   } else if(t==='semi'){
     // an articulated lorry, carried as one rigid body: tractor (long nose, tall cab, stacks) and a big box trailer
     b(2.24,0.45,4.3,dark,0,0.8,4.2);
@@ -13619,7 +13764,9 @@ function carPhysics(c,dt){
   const fl=sup(wx,wz),fr=sup(-wx,wz),bl=sup(wx,-wz),br=sup(-wx,-wz),ce=sup(0,0);
   if(Math.max(fl,fr,bl,br,ce)<-1e8){c.grounded=true;c.vy=0;return;}
   const cl=v=>Math.max(v,c.pos.y-6);
-  const near=v=>v>=c.pos.y-(onRamp?slope+0.9:0.35);
+  // (just up a step, front wheels first: the back ones still down below hold it up too, till they're up as well)
+  const lip=c.stepT>0?1.15:0;if(lip)c.stepT-=dt;
+  const near=v=>v>=c.pos.y-(onRamp?slope+0.9:0.35+lip);
   const frontOK=near(fl)||near(fr),backOK=near(bl)||near(br);
   const comOK=near(ce)||(frontOK&&backOK);
   let top=Math.max(fl,fr,bl,br,ce);
@@ -16104,7 +16251,7 @@ const BOAT_GONE=new Map();
 // hitting a boat: it shudders and starts to burn and list; holed for good, it goes up (or, with no engine to speak of, just
 // breaks up) and goes down. Up in a dry dock or on the sand it stays where it is, burnt out
 function boatHit(bo,n){
-  if(bo.dead)return;const g=bo.g,p=g.position,K=bo.K;dmgPop(p.x,p.y+K.fb+2,p.z,Math.round(n),'#ffb04a');bo.hp-=n;bo.shake=.25;if(bo.hp>0)return;
+  if(bo.dead)return;const g=bo.g,p=g.position,K=bo.K;dmgPop(p.x,p.y+K.fb+2,p.z,Math.round(n),'#ffb04a');bo.hp-=n;bo.shake=.25;vHitFx(p.x,p.y+K.fb,p.z,n);if(bo.hp>0)return;
   bo.dead=true;bo.deadT=0;bo.y0=p.y;BOAT_GONE.set(bo.key,playTime);const s=K.boom||0,sz=Math.max(1,Math.min(3,bo.L/10));
   if(s){const bl=blasts[blastIdx++%blasts.length];bl.t=.5+s*.15;bl.s=1+s*.6;for(const f of bl.m){f.position.set(p.x,p.y+K.fb+1,p.z);f.visible=true;}smoke(p.x,p.y+K.fb+1,p.z,Math.round(10+s*8),0x262626);
     noise(.6+s*.3,1,600,'lowpass');tone('sawtooth',70,16,.6+s*.3,.3);addShake(.3+s*.3,p.x,p.z,20+s*15);hitGoblins(p.x,p.z,3+s*4,4+s*3,'Blown up with a boat',p.y+1);}
@@ -16480,7 +16627,7 @@ function planeStrike(pl,v){
     if(d){g2.trainT=1;damageGoblin(g2,Math.round(4+12*k),g2.pos.clone(),d.clone().multiplyScalar(1+k),'Hit by a plane',ACCIDENT);g2.vy=Math.max(g2.vy||0,12+16*k);g2.kv.x+=d.x*(14+26*k);g2.kv.z+=d.z*(14+26*k);}}
 }
 function planeHit(pl,n){
-  if(pl.dead)return;const g=pl.g,p=g.position;dmgPop(p.x,p.y+5,p.z,Math.round(n),'#ffb04a');pl.hp-=n;if(pl.hp>0)return;
+  if(pl.dead)return;const g=pl.g,p=g.position;dmgPop(p.x,p.y+5,p.z,Math.round(n),'#ffb04a');pl.hp-=n;vHitFx(p.x,p.y+2.5,p.z,n);if(pl.hp>0)return;
   pl.dead=true;pl.deadT=0;
   const bl=blasts[blastIdx++%blasts.length];bl.t=0.8;bl.s=2.4;for(const f of bl.m){f.position.set(p.x,p.y+3,p.z);f.visible=true;}smoke(p.x,p.y+3,p.z,26,0x262626);
   for(let k=0;k<10;k++){const d=debris[(debrisIdx++)%debris.length];d.m.position.set(p.x+(Math.random()-.5)*8,p.y+2+Math.random()*2,p.z+(Math.random()-.5)*12);d.v.set((Math.random()-.5)*20,8+Math.random()*12,(Math.random()-.5)*20);d.spin.set((Math.random()-.5)*12,(Math.random()-.5)*12,(Math.random()-.5)*12);d.life=25;d.m.visible=true;}
@@ -16492,7 +16639,7 @@ function planeHit(pl,n){
 function planeWreck(pl,V,dt){
   const g=pl.g,p=g.position;pl.deadT+=dt;
   if(pl.fall){pl.vy-=26*dt;pl.fv*=1-dt*.25;const h=g.rotation.y;p.x+=Math.sin(h)*pl.fv*dt;p.z+=Math.cos(h)*pl.fv*dt;p.y+=pl.vy*dt;g.rotation.x=Math.min(.7,g.rotation.x+dt*.4);g.rotation.z+=dt*.5;if(Math.random()<dt*20)smoke(p.x,p.y+3,p.z,2,0x262626);
-    const gy=groundAt(p.x,p.z,p.y+2);if(p.y<=gy||p.y<=G+1){p.y=Math.max(gy,G+1);pl.fall=false;g.rotation.x=0;g.rotation.z=.2;crushBall(p.x,p.y,p.z,7);
+    const gy=groundAt(p.x,p.z,p.y+2);if(p.y<=gy||p.y<=G+1){p.y=Math.max(gy,G+1);pl.fall=false;g.rotation.x=0;g.rotation.z=.2;airCrash(p.x,p.y,p.z,8,'Flattened by a falling plane');
       const bl=blasts[blastIdx++%blasts.length];bl.t=0.8;bl.s=2.4;for(const f of bl.m){f.position.set(p.x,p.y+2,p.z);f.visible=true;}smoke(p.x,p.y+2,p.z,26,0x262626);noise(1.4,1,400,'lowpass');addShake(1.2,p.x,p.z,60);hitGoblins(p.x,p.z,14,14,'Flattened by a falling plane',p.y+1);}}
   else if(Math.random()<dt*3)smoke(p.x,p.y+3,p.z,2,0x262626);
   // (a new one's been brought in, once no one's looking)
@@ -16508,6 +16655,7 @@ function updateAirport(V,dt){
   const B=V.B,X0=B.ax*CELL,Z0=B.az*CELL;
   // the two parked ones stand at their gates, noses to the taxiway
   if(!V.pl)V.pl=V.planes.map(g=>({isPlane:true,g,hp:PLANE_HP,dead:false,v:0}));
+  for(const pl of V.pl)if(!pl.dead&&pl.g.visible)vDamaged(pl.g.position.x,pl.g.position.y+3,pl.g.position.z,pl.hp/PLANE_HP,dt);
   // (one that a goblin's flown, or is flying, goes its own way: see drvPlane)
   const free=pl=>{drvPlane(pl,dt);if(pl.dead)return;planeBoxes(pl,pl.free.v);if(pl.free.v>=2)planeStrike(pl,pl.free.v);};
   for(let i=1;i<3;i++){const pl=V.pl[i],g=pl.g;if(pl.dead){planeWreck(pl,V,dt);planeBoxes(pl,0);}else if(pl.free)free(pl);else{g.position.set(X0+16+i*32,G+1,Z0+52);g.rotation.y=Math.PI;planeBoxes(pl,0);}}
@@ -17716,7 +17864,7 @@ function updateCars(dt){
       // cars can't climb anything, and ordinary traffic won't drive into a hole either
       const rampLim=rampUnder(c.pos.x,c.pos.z,c.pos.y+0.5)||rampUnder(c.pos.x+fx*1.2*dir,c.pos.z+fz*1.2*dir,c.pos.y+0.5)||rampUnder(c.pos.x+fx*2.1*dir,c.pos.z+fz*2.1*dir,c.pos.y+0.5)?1.6:0.3;
       // dropped into a pothole (or a dip in the road): an ordinary car can bump its way back up one block onto the road
-      const outOfHole=!c.hunter&&c.pos.y<G+0.95&&c.pos.y>G-1.5&&ahead-c.pos.y<=1.1&&ahead>=G+0.95;
+      const outOfHole=!c.hunter&&!c.drv&&c.pos.y<G+0.95&&c.pos.y>G-1.5&&ahead-c.pos.y<=1.1&&ahead>=G+0.95;
       if(!outOfHole&&c.pos.y>=G+0.95){c.holeT=0;c.holeNeed=0;}
       if(outOfHole){
         // it takes some doing: the car rocks back and forth against the lip, wheels spinning and kicking up dirt, engine
@@ -17733,6 +17881,10 @@ function updateCars(dt){
           puff(c.pos.x-fx*dir*(c.hz||1.6),c.pos.y,c.pos.z-fz*dir*(c.hz||1.6),7,0x6e5a42,1.1);
           {const np=nearestPlayer(c.pos.x,c.pos.z,false);if(np&&np.d<36)thud(0.15*(1-np.d/36));}
         }
+      }
+      else if((c.drv||c.hunter)&&c.grounded&&ahead-c.pos.y>rampLim&&ahead-c.pos.y<=1.05&&Math.abs(c.speed)>1&&!solidAt(c.pos.x+fx*2.1*dir,Math.floor(ahead)+1,c.pos.z+fz*2.1*dir)&&!solidAt(c.pos.x+fx*2.1*dir,Math.floor(ahead)+2,c.pos.z+fz*2.1*dir)){
+        c.pos.y=ahead+0.02;c.vy=0;c.stepT=Math.min(3,(c.hz*2+1)/Math.max(1,Math.abs(c.speed))+0.2);c.speed*=0.85;c.pos.x+=fx*c.speed*dt;c.pos.z+=fz*c.speed*dt;c.spinP=-0.8*dir;   // (up a kerb or a step, as a goblin steps up one: a jolt up onto it, and carPhysics settles it)
+        {const np=nearestPlayer(c.pos.x,c.pos.z,false);if(np&&np.d<36)thud(0.12*(1-np.d/36));}
       }
       else if(ahead-c.pos.y>rampLim){
         if(c.hunter||c.drv){if(Math.abs(c.speed)>6){damageCar(c,1,undefined,'acc');thud(0.25);}c.speed*=-0.25;if(c.reverseT<=0)c.reverseT=0.8;}
@@ -17767,7 +17919,7 @@ function updateCars(dt){
     if(c.hp<15){c.smokeT-=dt;if(c.smokeT<=0){c.smokeT=c.hp<8?0.06:0.15;const hx=c.pos.x+fx*1.5,hz=c.pos.z+fz*1.5;smoke(hx,c.pos.y+1.1,hz,1,c.hp<8?0x1a1a1a:0x666666);if(c.hp<8)puff(hx,c.pos.y+0.9,hz,1,Math.random()<.5?0xff8a2a:0xffc040,0.25);}}
     carPhysics(c,dt);if(!c.alive)continue;
     if(Math.abs(c.kv.x)+Math.abs(c.kv.z)>0.05){nudgeFlat(c,c.kv.x*dt,c.kv.z*dt);const k=Math.exp(-dt*3.5);c.kv.x*=k;c.kv.z*=k;}
-    c.g.position.copy(c.pos);c.g.rotation.set(c.pitch,c.heading,c.roll);
+    c.g.position.copy(c.pos);c.g.rotation.set(c.pitch,c.heading,c.roll+(c.veh==='bike'?-c.steer*Math.min(1,Math.abs(c.speed)/8)*0.4:0));   // (a motorcycle leans into its turns)
     for(const w of c.wheels)w.rotation.x+=c.speed*dt/0.36;
     for(const f of c.front)f.rotation.y=c.steer*0.45;
   }
@@ -17877,7 +18029,7 @@ document.getElementById('playCoop').addEventListener('click',()=>startPlay('coop
 function look(p,dx,dy,k){
   if(DT.freecam&&p===P1){FC.yaw-=dx*k;FC.pitch=Math.max(-1.5,Math.min(1.5,FC.pitch-dy*k));return;}
   // locked on: sideways mouse flicks switch targets instead of turning the camera
-  if(p.lockT){
+  if(p.lockT&&!p.drv){
     p.flickAcc=(p.flickAcc||0)*0.9+dx;p.flickAccY=(p.flickAccY||0)*0.9+dy;
     if(Math.abs(p.flickAcc)>110&&Math.abs(p.flickAcc)>=Math.abs(p.flickAccY)){p.flickReq=Math.sign(p.flickAcc);p.flickAcc=p.flickAccY=0;}
     else if(Math.abs(p.flickAccY)>110){p.flickReqY=Math.sign(p.flickAccY);p.flickAcc=p.flickAccY=0;}
@@ -17954,7 +18106,7 @@ function readInputs(dt){
   if(DT.menu&&DT.selHeld)for(const [p,s] of [[P1,s1],[P2,s2]]){if(!s||!p.active)continue;
     const dz=v=>Math.abs(v)>0.15?v:0,rx=dz(s.p.axes[2]||0),ry=dz(s.p.axes[3]||0);
     if(DT.freecam&&p===P1){FC.yaw-=rx*2.4*dt;FC.pitch=Math.max(-1.5,Math.min(1.5,FC.pitch-ry*1.8*dt));}
-    else if(!p.lockT){p.cam.yaw-=rx*2.8*dt;p.cam.pitch=camPitch(p.cam.pitch-ry*1.8*dt);}}
+    else if(!p.lockT||p.drv){p.cam.yaw-=rx*2.8*dt;p.cam.pitch=camPitch(p.cam.pitch-ry*1.8*dt);}}
   if(DT.menu&&DT.selHeld||wasOpen&&!DT.menu){s1=null;s2=null;}   // (the press that closes it doesn't also jump or trample)
   if(s1&&s1.b[8])s1=null;if(s2&&s2.b[8])s2=null;   // Select itself never plays
   // a paused player's controller drives their own pause panel
@@ -17979,7 +18131,7 @@ function readInputs(dt){
     if(pr[9]){requestPause(p);return;}
     if(!i.x&&!i.z){i.x=dead(ax[0]||0);i.z=dead(ax[1]||0);}
     const rx=dead(ax[2]||0),ry=dead(ax[3]||0);
-    if(!p.lockT&&!(DT.freecam&&p===P1)){p.cam.yaw-=rx*2.8*dt;p.cam.pitch=camPitch(p.cam.pitch-ry*1.8*dt);}
+    if((!p.lockT||p.drv)&&!(DT.freecam&&p===P1)){p.cam.yaw-=rx*2.8*dt;p.cam.pitch=camPitch(p.cam.pitch-ry*1.8*dt);}
     // the buttons, as bound (see BINDS)
     const pb=id=>BINDS[id].pad.some(k=>b[k]),pp=id=>BINDS[id].pad.some(k=>pr[k]);
     {const bx=(pb('right')?1:0)-(pb('left')?1:0),bz=(pb('back')?1:0)-(pb('fwd')?1:0);if(bx||bz){i.x=bx;i.z=bz;}}
@@ -18159,6 +18311,7 @@ function updateSpeedo(p,dt){
 }
 let camClock=0;   // real seconds, for camera effects (they run on even when the game is slowed)
 function placeCamera(p){
+  drvHud(p);
   if(DT.gob){if(p.drv)drvCamera(p);else gobCamera(p);return;}
   const cp=Math.cos(p.cam.pitch),fx=-Math.sin(p.cam.yaw)*cp,fy=Math.sin(p.cam.pitch),fz=-Math.cos(p.cam.yaw)*cp;
   const hang=p.state==='ceil'||(p.state==='piv'&&p.piv&&p.piv.next==='ceil');p.camHang=(p.camHang||0)+((hang?1:0)-(p.camHang||0))*0.12;
@@ -18215,6 +18368,11 @@ function drawDbgOverlay(dt,views){
         if(s[2]<28){x.font='600 10px ui-monospace,Menlo,monospace';x.fillStyle='#e8ece4';x.textAlign='center';x.fillText(Math.max(0,Math.ceil(hp))+'/'+Math.round(max),s[0],s[1]-bh-3);}};
       for(const g of goblins){if(!g.root.visible||g.state==='wait'||g.state==='dead'||!(g.hp>0))continue;if(!(g.hpMax>=g.hp))g.hpMax=g.hp;bar(g.pos.x,g.pos.y+2.1,g.pos.z,g.hp,g.hpMax,g.civ?'#9ad0ff':'#7fd04a');}
       for(const c of cars){if(!c.alive||!c.g.visible)continue;if(!(c.hpMax>=c.hp))c.hpMax=Math.max(c.hp,c.svcPool?45:30);bar(c.pos.x,c.pos.y+(c.hy||1.4)+0.5,c.pos.z,c.hp,c.hpMax,'#5ab4ff');}
+      for(const V of venues.values()){
+        if(V.kind==='army')for(const M of V.mil){if(!M.dead)bar(M.x,M.y+MIL[M.kind].hy+0.6,M.z,M.hp,MIL[M.kind].hp,'#5ab4ff');}
+        else if(V.kind==='airport'&&V.pl)for(const pl of V.pl){if(!pl.dead&&pl.g.visible)bar(pl.g.position.x,pl.g.position.y+5,pl.g.position.z,pl.hp,PLANE_HP,'#5ab4ff');}
+        else if(V.kind==='boat'&&V.bo&&!V.bo.dead&&V.boat.visible){const g=V.boat;bar(g.position.x,g.position.y+V.bo.K.fb+2,g.position.z,V.bo.hp,V.bo.max,'#5ab4ff');}
+        else if(V.kind==='rtrain'&&V.T&&!V.T.dead&&V.cars)V.cars.forEach((g,i)=>{if(!(V.T.carDead&&V.T.carDead[i]))bar(g.position.x,g.position.y+4.2,g.position.z,V.T.carHP?V.T.carHP[i]:CAR_HP,CAR_HP,'#5ab4ff');});}
       for(const q of players){if(!q.active||q.state==='dead'||q===p)continue;bar(q.pos.x,q.pos.y+2.5,q.pos.z,q.hp,20,'#7fd04a');}
     }
     for(const d of DMG_POPS){const s=proj(d.x,d.y+d.t*1.6,d.z);if(!s||s[2]>90)continue;const a=d.t<0.7?1:Math.max(0,1-(d.t-0.7)/0.4),sz=Math.round(16+Math.min(14,d.n*0.5)-s[2]*0.08);

@@ -8,7 +8,7 @@ hdr=hdr.slice(0,n).join('\n');
 // (site.js starts in the empty Testing Environment; the city half of this runs in a real city, and the other half is
 // run as a second process)
 if(!TENVMODE)hdr=hdr.replace(/const LS=\{\};global\.localStorage=.*\n/,'global.localStorage={getItem:()=>null,setItem(){},removeItem(){}};\n');
-hdr=hdr.replace(/window\.__t=\{/,'window.__t={setGob,keys,mHeld,TRAINS,railPt,BOATS,boatVenue,oceanDepth,PLANE_LIFT,drvFind,');
+hdr=hdr.replace(/window\.__t=\{/,'window.__t={setGob,setVeh,VEH_MIX,keys,mHeld,TRAINS,railPt,BOATS,boatVenue,oceanDepth,PLANE_LIFT,drvFind,setRaw,vehBlast,get nEdits(){return Object.keys(edits).length},');
 eval(hdr+`
 eval(src);const T=window.__t;let now=1000;
 const quiet=()=>{for(const g of T.goblins)if(g.state==='chase'){g.state='wait';g.t=-1e9;g.root.visible=false;}};
@@ -36,11 +36,28 @@ if(!TENVMODE){
   const x0=c.pos.x,z0=c.pos.z,h0=c.heading;hold(['KeyW'],2.5);const d=Math.hypot(c.pos.x-x0,c.pos.z-z0);
   console.log('  W 2.5 s: moved',f1(d),' speed',f1(c.speed),' still on the street (not recycled)',c.alive,' me with it',f1(Math.hypot(P.pos.x-c.pos.x,P.pos.z-c.pos.z)));
   hold(['KeyW','KeyD'],1);console.log('  W+D 1 s: heading turned',f1(c.heading-h0),'(right is negative)');
+  {const H=P.ui.drvHud;console.log('  display: shown',!!H&&!H.el.hidden,' crosshair',!!H&&!H.xh.hidden,' says',H&&H.name.textContent);}
+  // (a one-block step on a slab built up in the air, so nothing else is in the way)
+  {c.speed=0;run(0.3);const X=Math.floor(c.pos.x),Z=Math.floor(c.pos.z),Y=G0+16,made=[];
+   for(let a=-6;a<=45;a++)for(let b=-4;b<=4;b++){T.setRaw(X+a,Y-1,Z+b,3);for(let y=Y;y<Y+6;y++)T.setRaw(X+a,y,Z+b,a>=8&&y===Y?3:0);made.push([X+a,Z+b]);}
+   c.pos.set(X+0.5,Y,Z+0.5);c.heading=Math.PI/2;c.steer=0;c.vy=0;run(0.3);
+   const cy=c.pos.y;hold(['KeyW'],2.5);console.log('  W at a one-block step: up by',f1(c.pos.y-cy),' went',f1(c.pos.x-X),' hp',f1(c.hp));
+   c.speed=0;run(0.5);}   // (and the rest happens up there)
   hold(['KeyS'],1.5);console.log('  S 1.5 s: speed',f1(c.speed));
   hold(['KeyS'],1.5);console.log('  S on: reversing',f1(c.speed));run(1);
   tap();console.log('  E again:',st(),' out beside it',f1(Math.hypot(P.pos.x-c.pos.x,P.pos.z-c.pos.z)),' left',!!c.left);
   run(3);console.log('  3 s later: car speed',f1(c.speed),' still there',c.alive);
   hold(['KeyW'],1);console.log('  W on foot walks again: in',st());}}
+
+// ---- a motorcycle (one of the traffic, made into one)
+{let c=null;for(let k=0;k<60&&!c;k++){run(0.5);c=T.cars.filter(c=>c.alive&&c.g.visible&&!c.svcPool&&!c.police&&!c.drv&&!c.left&&c.pos.y<G0+3&&Math.hypot(c.pos.x-P.pos.x,c.pos.z-P.pos.z)<90)[0];}
+ console.log('motorcycles in the traffic mix:',Object.entries(T.VEH_MIX).map(([k,m])=>k+' '+((m.find(e=>e[0]==='bike')||[0,0])[1]*100)+'%').join(', '));
+ if(!c)console.log('no car found');else{
+  T.setVeh(c,'bike');c.speed=0;beside(c.pos.x,c.pos.y+0.2,c.pos.z,c.heading,c.hx);run(0.05);tap();
+  console.log('motorcycle: in',st(),' size',f1(c.hx*2),'x',f1(c.hz*2),' display says',P.ui.drvHud&&P.ui.drvHud.name.textContent);
+  const x0=c.pos.x,z0=c.pos.z;hold(['KeyW'],2);console.log('  W 2 s: moved',f1(Math.hypot(c.pos.x-x0,c.pos.z-z0)),' speed',f1(c.speed));
+  T.keys.add('KeyW');T.keys.add('KeyA');run(0.6);console.log('  W+A: leaning',f1(c.g.rotation.z),'(left is negative)');T.keys.delete('KeyA');run(0.6);T.keys.delete('KeyW');
+  hold(['KeyS'],2);tap();run(0.5);console.log('  E again:',st(),' beside it',f1(Math.hypot(P.pos.x-c.pos.x,P.pos.z-c.pos.z)));}}
 
 // ---- a train
 {let TQ=null;for(let r=0;r<40&&!TQ;r++){put(r*400,70,r*300);run(0.5);TQ=[...T.TRAINS.values()].find(q=>!q.dead)||null;}
@@ -75,8 +92,19 @@ const spawnK=k=>{T.tenvSpawn(k);let n=0;while(T.TS.search&&n<5000){T.tenvTick();
   const x0=M.x,z0=M.z,h0=M.h;hold(['KeyW'],3);console.log('  W 3 s: moved',f1(Math.hypot(M.x-x0,M.z-z0)),' speed',f1(M.sv));
   hold(['KeyA'],1.5);console.log('  A 1.5 s: turned on the spot',f1(M.h-h0-0),' moved',f1(Math.hypot(M.x-x0,M.z-z0)));
   P.cam.yaw=M.h+Math.PI+1.2;run(2);console.log('  turret follows the view: off by',f1(Math.abs(Math.atan2(Math.sin(M.h+M.tu-(P.cam.yaw+Math.PI)),Math.cos(M.h+M.tu-(P.cam.yaw+Math.PI))))));
-  const n0=T.SHOTS.filter(s=>s.live&&s.kind==='shell').length;fire();console.log('  bite: shells in the air',T.SHOTS.filter(s=>s.live&&s.kind==='shell').length-n0);run(2);
+  {const H=P.ui.drvHud;console.log('  display: shown',!H.el.hidden,' crosshair',!H.xh.hidden,' gun marker',!H.xt.hidden,' says',H.name.textContent,'|',H.wpn.textContent);}
+  const n0=T.SHOTS.filter(s=>s.live&&s.kind==='shell').length,e0=T.nEdits;P.cam.pitch=-0.35;run(0.3);fire();console.log('  bite: shells in the air',T.SHOTS.filter(s=>s.live&&s.kind==='shell').length-n0,' crosshair dim while reloading',P.ui.drvHud.xh.classList.contains('cool'));run(2);
+  console.log('  shell at the ground: blocks blown out',T.nEdits-e0);
+  {const o=V.mil.find(m=>m.kind==='tank'&&m!==M&&!m.dead),h0=o.hp;T.vehBlast(o.x,o.y+1,o.z,4.5,60,M);console.log('  a shell bursting on another tank: its hp',h0,'->',o.hp);}
+  // (locking on: the turret keeps on it wherever you look, and the shell goes to it)
+  {const o=V.mil.find(m=>m.kind==='tank'&&m!==M&&!m.dead),c=P.camera.position;P.cam.yaw=Math.atan2(c.x-o.x,c.z-o.z);P.cam.pitch=-0.1;run(0.3);hold(['KeyQ'],0.1);
+   console.log('  Q looking at another tank: locked on it',P.lockT===o,' crosshair red',P.ui.drvHud.xh.classList.contains('lock'),' says',P.ui.drvHud.wpn.textContent);
+   P.cam.yaw+=2;run(2.5);const a=M.h+M.tu,off=Math.atan2(Math.sin(a-Math.atan2(o.x-M.x,o.z-M.z)),Math.cos(a-Math.atan2(o.x-M.x,o.z-M.z))),h1=o.hp;fire();run(3);
+   console.log('  looking well away: turret off the target by',f1(Math.abs(off)),' bite: its hp',h1,'->',o.hp);
+   hold(['KeyQ'],0.1);console.log('  Q again: locked',!!P.lockT);}
   tap();run(1);console.log('  E again:',st(),' tank',M.state,' me beside it',f1(Math.hypot(P.pos.x-M.x,P.pos.z-M.z)));
+  {const o=V.mil.find(m=>m.kind==='tank'&&m!==M&&!m.dead),c=P.camera.position;P.cam.yaw=Math.atan2(P.pos.x-o.x,P.pos.z-o.z);run(0.3);hold(['KeyQ'],0.1);
+   console.log('  on foot, Q facing a tank:',P.lockT?(P.lockT.isMil?'locked on the '+P.lockT.kind:'locked on something else'):'nothing locked',' its hp',o.hp);hold(['KeyQ'],0.1);}
   const mx=M.x;run(3);console.log('  3 s on: tank stays',f1(Math.abs(M.x-mx)));
   const H=V.mil.find(m=>m.kind==='heli');beside(H.x,H.y+0.2,H.z,H.h,1.0);run(0.05);tap();
   console.log('helicopter: in',st());
@@ -84,7 +112,13 @@ const spawnK=k=>{T.tenvSpawn(k);let n=0;while(T.TS.search&&n<5000){T.tenvTick();
   const hx=H.x,hz=H.z;P.cam.yaw=Math.PI;hold(['KeyW'],3);console.log('  W 3 s, looking along +z: moved x',f1(H.x-hx),'z',f1(H.z-hz),' facing',f1(H.h));
   const r0=T.SHOTS.filter(s=>s.live&&s.kind==='rocket').length;fire();console.log('  bite: rockets',T.SHOTS.filter(s=>s.live&&s.kind==='rocket').length-r0);
   const up=H.y-T.groundAt(H.x,H.z,H.y);tap();run(0.2);console.log('  E again',f1(up),'up:',st(),' heli',H.state,' me falling',P.grounded?'no':'yes');
-  run(8);console.log('  8 s on: heli height',f1(H.y-T.groundAt(H.x,H.z,H.y)),' rotor',f1(H.spin),' me on the ground',P.grounded,' hp',P.hp);}}
+  run(8);{const H2=V.mil.find(m=>m.kind==='heli'&&!m.dead&&m!==H);if(H2){beside(H2.x,H2.y+0.2,H2.z,H2.h,1.0);run(0.05);tap();run(2);hold(['Space'],1.5);
+   const y0=Math.floor(H2.y),z0=Math.floor(H2.z)+14,e0=T.nEdits;for(let x=Math.floor(H2.x)-5;x<=Math.floor(H2.x)+5;x++)for(let y=y0-2;y<y0+6;y++)for(let z=z0;z<z0+2;z++)T.setRaw(x,y,z,3);
+   P.cam.yaw=Math.PI;H2.h=0;hold(['KeyW'],3);console.log('helicopter flown into a wall at speed: wrecked',H2.dead,' blocks blown out',T.nEdits-e0,' me thrown clear',st(),' hp',P.hp);}}
+  {const H3=V.mil.find(m=>m.kind==='heli'&&m.spin<0.5&&!m.drv);if(H3){const x0=Math.floor(H3.x),z0=Math.floor(H3.z),y0=Math.floor(H3.y),h0=H3.hp;
+    for(let x=x0-4;x<=x0+4;x++)for(let z=z0-4;z<=z0+4;z++)for(let y=y0-6;y<y0;y++)T.setRaw(x,y,z,0);run(3);
+    console.log('a stopped helicopter ('+(H3.dead?'wrecked':H3.state)+'), ground under it dug out 6 deep: dropped',f1(y0-H3.y),' hp',h0,'->',f1(H3.hp));}else console.log('no parked helicopter left');}
+  console.log('first helicopter, 8 s on: height',f1(H.y-T.groundAt(H.x,H.z,H.y)),' rotor',f1(H.spin),' me on the ground',P.grounded,' hp',P.hp);}}
 
 // ---- the airport (Testing Environment)
 {const B=spawnK('airport');run(3);const V=[...T.venues.values()].find(v=>v.kind==='airport');
@@ -98,9 +132,9 @@ const spawnK=k=>{T.tenvSpawn(k);let n=0;while(T.TS.search&&n<5000){T.tenvTick();
   hold(['KeyW'],1.5);hold(['KeyW','Space'],4);console.log('  W, then W+Jump 4 s: speed',f1(pl.free.v),' height',f1(g.position.y-G0-1),' wrecked',pl.dead);
   hold(['KeyD'],2);run(1);console.log('  D 2 s: heading',f1(g.rotation.y));
   {const y1=g.position.y;hold(['KeyC'],2);console.log('  C 2 s: height',f1(g.position.y-G0-1),' came down',f1(y1-g.position.y));}
-  tap();run(0.2);console.log('  E again:',st(),' falling',!P.grounded);
+  tap();run(0.2);console.log('  E again:',st(),' falling',!P.grounded);const eP=T.nEdits;
   let t=0;while(t<40&&!pl.dead&&(t<1||pl.free.vy<0)){run(0.5);t+=0.5;}
-  console.log('  left to itself at full speed: down after',f1(t),'s, wrecked',pl.dead,' me on the ground',P.grounded);}}
+  console.log('  left to itself at full speed: down after',f1(t),'s, wrecked',pl.dead,' me on the ground',P.grounded,' crater blocks',T.nEdits-eP);}}
 }
 console.log('errors',errs.length,errs.slice(0,3));
 `);
