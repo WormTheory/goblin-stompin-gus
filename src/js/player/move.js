@@ -421,7 +421,7 @@ function movePlayer(p,dt){
       if(groundAt(p.pos.x+D.dx*1.4,p.pos.z+D.dz*1.4,p.pos.y)-p.pos.y<=1.05&&(!bodyHits(p,nx,nz,p.heading)||bodyHits(p,p.pos.x,p.pos.z,p.heading))){p.pos.x=nx;p.pos.z=nz;}
       else D.t=Math.max(D.t,D.dur*0.8);}}   // (ran into something: cut it short)
   // charging in mid-air: a roaring burst forward, once per jump
-  if(ABIL.airDash&&p.state==='walk'&&inp.airPress&&!p.grounded&&p.airDash&&!p.exhausted&&p.stam>=10){
+  if(ABIL.airDash&&p.state==='walk'&&inp.airPress&&!p.grounded&&!p.wet&&p.airDash&&!p.exhausted&&p.stam>=10){
     hbStart(p,'dash');p.airDash=false;p.dashT=Math.max(0.05,AB.dash.dist/Math.max(0.1,AB.dash.speed));p.lurchAt=camClock+1e-6;p.stam=Math.max(0,p.stam-AB.dash.stamina);p.vy=Math.max(p.vy,2);p.roarBurst=0.6;
     // dashing out of a long jump stacks on its speed
     p.dashBoost=!!p.longJump;p.dashSpeed=AB.dash.speed*(p.dashBoost?23/15:1);if(p.dashBoost)p.vy=Math.max(p.vy,4.5);   // and a little lift so the extra speed carries
@@ -526,7 +526,7 @@ function movePlayer(p,dt){
   // in deep water: you sink slowly, can paddle up with jump, and the water breaks any fall
   const wet=get(Math.floor(p.pos.x),Math.floor(p.pos.y+0.6),Math.floor(p.pos.z))===WATER;
   if(wet&&!p.wet){puff(p.pos.x,p.pos.y+0.8,p.pos.z,12,0xcfe8ff,1.2);noise(0.4,0.35,900,'lowpass');tone('sine',300,120,0.25,0.06);}
-  p.wet=wet;if(wet){p.peakY=p.pos.y;p.airJumps=airJumpsMax();}
+  p.wet=wet;if(wet){p.peakY=p.pos.y;p.airJumps=airJumpsMax();p.airDash=true;}   // (the air dash comes back in the water, but can't be used until he's out of it)
   if(g!==null){
     if(DT.fly&&p.state==='walk'&&!wet&&(p.pos.y>g+0.01||p.in.jump)){
       // debug flying: hold jump to rise, climb to sink, let go to hover (no gravity, no fall damage, no air jumps)
