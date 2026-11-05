@@ -1,0 +1,327 @@
+<title>Goblin-Stompin' Gus</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;600;700;800&family=Atkinson+Hyperlegible+Mono:wght@400;500;600;700&display=swap">
+<style>
+/* build: style.css */
+</style>
+
+<canvas id="world"></canvas>
+<canvas id="dbgOver" aria-hidden="true"></canvas>
+<style id="uiOff"></style>
+
+<div class="hud" id="hud">
+  <div class="readout" id="readout"></div>
+  <div class="dbgbadge" id="dbgBadge" hidden></div>
+  <div class="fpsc" id="fpsCounter" hidden aria-hidden="true"></div>
+  <div class="dbgpad" id="dbgPad" hidden>
+    <h4>DEBUG <span id="dpHint">game paused</span><button type="button" class="dpx" id="dpClose" aria-label="Close the debug menu">✕</button></h4>
+    <div id="dpRows"></div>
+    <p class="dpfoot" id="dpFoot"></p><div class="prompts small" id="dpPrompts"></div>
+  </div>
+  <div class="clock" role="img" aria-label="Time of day: the top half is day, the bottom half is night">
+    <svg viewBox="-20 -20 40 40" width="46" height="46" aria-hidden="true">
+      <path d="M-17,0 A17,17 0 0 1 17,0 Z" fill="#d9c98e"/>
+      <path d="M17,0 A17,17 0 0 1 -17,0 Z" fill="#1d2a44"/>
+      <line x1="-17" y1="0" x2="17" y2="0" stroke="#0c0f14" stroke-width="1" opacity=".55"/>
+      <line id="clockHand" x1="0" y1="0" x2="-12.5" y2="0" stroke="#0c0f14" stroke-width="2.2" stroke-linecap="round"/>
+      <circle id="clockOrb" cx="-12.5" cy="0" r="3.6" fill="#ffd75a" stroke="#0c0f14" stroke-width="1.2"/>
+      <circle r="17" fill="none" stroke="#0c0f14" stroke-width="2"/>
+      <circle r="1.8" fill="#0c0f14"/>
+    </svg>
+  </div>
+  <div class="clockTxt" id="clockTxt" aria-live="off"></div>
+  <div class="divider" id="divider" hidden></div>
+</div>
+
+<div class="touch" id="touch" hidden>
+  <div class="pad">
+    <span></span><button class="tb" data-a="fwd" aria-label="Forward">▲</button><span></span>
+    <button class="tb" data-a="left" aria-label="Left">◀</button><button class="tb" data-a="jump" aria-label="Jump">JUMP</button><button class="tb" data-a="right" aria-label="Right">▶</button>
+    <span></span><button class="tb" data-a="back" aria-label="Back">▼</button><span></span>
+  </div>
+  <div class="acts">
+    <button class="tb" id="tBite">BITE</button>
+    <button class="tb" data-a="stomp">STOMP</button>
+    <button class="tb" data-a="dashSprint">DASH</button>
+    <button class="tb" id="tMenu">MENU</button>
+  </div>
+</div>
+
+<div class="pause" id="pause">
+  <div class="card">
+   <div class="main">
+    <div class="tabs" role="tablist" aria-label="Menu">
+      <button type="button" role="tab" id="tabBtnGame" aria-selected="true" aria-controls="tabGame">Game</button>
+      <button type="button" role="tab" id="tabBtnMap" aria-selected="false" aria-controls="tabMap">Map</button>
+      <button type="button" role="tab" id="tabBtnObit" aria-selected="false" aria-controls="tabObit">Obituary<span class="cnt" id="obitCount">0</span></button>
+      <button type="button" role="tab" id="tabBtnCustom" aria-selected="false" aria-controls="tabCustom">Character</button>
+      <button type="button" role="tab" id="tabBtnControls" aria-selected="false" aria-controls="tabControls">Controls</button>
+      <button type="button" role="tab" id="tabBtnOptions" aria-selected="false" aria-controls="tabOptions">Game options</button>
+      <button type="button" role="tab" id="tabBtnDev" aria-selected="false" aria-controls="tabDev">Dev</button>
+
+    </div>
+    <div class="tabpane gamepane" id="tabGame" role="tabpanel">
+     <div class="gamemain">
+      <h1>Goblin-Stompin' <em>Gus</em></h1>
+      <div class="row">
+        <button class="big" id="play">Play solo</button>
+        <button class="big coop" id="playCoop">Co-op</button>
+        <button class="big alt" id="newWorld">New city</button>
+        <button class="big alt" id="testWorld">Testing Environment</button>
+        <button class="big full" id="fullBtn" type="button">Full screen</button>
+      </div>
+      <button type="button" class="tog peacetog" role="checkbox" id="peaceTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Peaceful<small>Start with enemy hostility off (switch it back on any time from the debug menu)</small></span></button>
+      <div class="confirm" id="confirm" hidden>
+        <span>Start over in a brand-new city? The day, your kills, your score and the obituary all start again from scratch.</span>
+        <button class="yes" id="confirmYes">New city</button>
+        <button id="confirmNo">Keep this one</button>
+      </div>
+     </div>
+      <div class="testpanel" id="testPanel" hidden>
+        <div class="tp-head"><h2>Testing Environment</h2><p>An empty, flat world to try things out in. Pick a kind of structure to bring in the nearest one this world would build, furnished and dressed as it would be in a city, built on the nearest clear ground in front of Gus. Enemies turn up a few steps ahead of wherever Gus is looking.</p></div>
+        <div class="tp-info" id="tpInfo" role="status"></div>
+        <div class="tp-sec"><div class="tp-gh">Enemies</div>
+          <div class="tp-tools" id="tpFoes"><button type="button" class="pmenu" data-foe="goblin">Goblin</button><button type="button" class="pmenu" data-foe="cop">Police officer</button><button type="button" class="pmenu" data-foe="cultist">Cultist</button><button type="button" class="pmenu" data-foe="thief">Thief</button><button type="button" class="pmenu" data-foe="prepper">Prepper</button><button type="button" class="pmenu" data-foe="militia">Militia</button><button type="button" class="pmenu" data-foe="civ">Civilian</button>
+            <span class="tp-count">How many</span><div class="seg" role="radiogroup" aria-label="How many to spawn" id="tpN"><button type="button" role="radio" data-n="1" aria-checked="true">1</button><button type="button" role="radio" data-n="5" aria-checked="false">5</button><button type="button" role="radio" data-n="10" aria-checked="false">10</button></div>
+            <button type="button" class="pmenu" id="tpClear">Clear all</button></div></div>
+        <div class="tp-sec"><div class="tp-gh">Vehicles</div>
+          <div class="tp-tools"><span id="tpVehs" style="display:contents"></span>
+            <div class="seg" role="radiogroup" aria-label="What spawned vehicles do" id="tpVM"><button type="button" role="radio" data-vm="hunt" aria-checked="true">Hunt Gus</button><button type="button" role="radio" data-vm="park" aria-checked="false">Parked</button></div></div></div>
+        <div class="tp-sec" id="tpPlacedSec" hidden><div class="tp-gh">Spawned here</div><div class="tp-placed" id="tpPlaced"></div></div>
+        <div class="tp-groups" id="tpGroups"></div>
+        <div class="tp-foot"><button type="button" class="big" id="tpGo">Play</button><button type="button" class="pmenu" id="tpCancel">Title screen</button><button type="button" class="pmenu" id="tpNormal">Back to your city</button><button type="button" class="pmenu" id="tpReset">Reset world</button></div>
+      </div>
+      <div class="gamefoot">
+        <div class="note" id="padNote">No controllers found yet. Press a button on one to wake it up.</div>
+        <div class="note" id="seedNote"></div>
+      </div>
+    </div>
+    <div class="tabpane" id="tabControls" role="tabpanel" hidden>
+      <div class="ctl-top">
+        <span class="ctl-now" id="ctlNow">Showing keyboard and mouse</span>
+        <div class="seg ctl-seg" role="radiogroup" aria-label="Show controls for">
+          <button type="button" role="radio" data-view="auto" aria-checked="true">Auto</button><button type="button" role="radio" data-view="kbm" aria-checked="false">Keyboard</button><button type="button" role="radio" data-view="pad" aria-checked="false">Controller</button><button type="button" role="radio" data-view="touch" aria-checked="false">Touch</button>
+        </div>
+      </div>
+      <div id="ctlBody"></div>
+    </div>
+    <div class="tabpane" id="tabCustom" role="tabpanel" hidden>
+    <div class="opts">
+    <div class="custom">
+      <h2>ABILITIES</h2>
+      <p class="vnote">Switch moves on or off for both hippos.</p>
+      <div class="abil2" id="abilList">
+        <div class="ab-h" aria-hidden="true"><span>Base</span><span>Improved</span></div>
+        <div class="ab-row"><button type="button" class="tog" role="checkbox" data-k="bite"><span class="box" aria-hidden="true"></span><span class="tl">Bite<small>Snap at whatever is in front of you</small></span></button><div class="ab-up"><button type="button" class="tog" role="checkbox" data-k="biteCombo" data-base="bite"><span class="box" aria-hidden="true"></span><span class="tl">Bite combo<small>Keep biting to chain three hits, ending in an uppercut (off: single bites with a longer wait between them)</small></span></button></div></div>
+        <div class="ab-row"><button type="button" class="tog" role="checkbox" data-k="stomp"><span class="box" aria-hidden="true"></span><span class="tl">Stomp<small>Rear up and slam down on everything around you</small></span></button><div class="ab-up"><button type="button" class="tog" role="checkbox" data-k="chargeStomp" data-base="stomp"><span class="box" aria-hidden="true"></span><span class="tl">Charge Stomp<small>Hold to wind up a bigger stomp: one level of charge (off: every stomp is a quick one)</small></span></button><button type="button" class="tog" role="checkbox" data-k="fullStomp" data-base="stomp" data-prev="chargeStomp"><span class="box" aria-hidden="true"></span><span class="tl">Full Charge Stomp<small>Keep holding for the biggest stomp: both levels of charge</small></span></button><button type="button" class="tog" role="checkbox" data-k="groundSpike" data-base="stomp"><span class="box" aria-hidden="true"></span><span class="tl">Ground Spike<small>A spike of stone bursts up out of the ground in front of him as the stomp lands, throwing whatever's there into the air: two spikes from a charged stomp and three from a full charge, each bigger than the one before</small></span></button></div></div>
+        <div class="ab-row"><button type="button" class="tog" role="checkbox" data-k="pound"><span class="box" aria-hidden="true"></span><span class="tl">Ground Pound<small>Stomp in mid-air to flip over and slam down rump-first</small></span></button><div class="ab-up"><button type="button" class="tog" role="checkbox" data-k="chargePound" data-base="pound"><span class="box" aria-hidden="true"></span><span class="tl">Charge Ground Pound<small>Hold in mid-air to hover and charge: one level of charge (off: every pound drops straight away)</small></span></button><button type="button" class="tog" role="checkbox" data-k="fullPound" data-base="pound" data-prev="chargePound"><span class="box" aria-hidden="true"></span><span class="tl">Full Charge Ground Pound<small>Keep hovering for the biggest pound: both levels of charge</small></span></button></div></div>
+        <div class="ab-row"><button type="button" class="tog" role="checkbox" data-k="dash"><span class="box" aria-hidden="true"></span><span class="tl">Dash<small>A quick hop a few blocks whichever way you point</small></span></button><div class="ab-up"><button type="button" class="tog" role="checkbox" data-k="roll" data-base="dash" data-excl="blastDash"><span class="box" aria-hidden="true"></span><span class="tl">Roll<small>The dash becomes a low forward hop that curls into a rolling ball, bowling over enemies and smashing through blocks</small></span></button><button type="button" class="tog" role="checkbox" data-k="blastDash" data-base="dash" data-excl="roll"><span class="box" aria-hidden="true"></span><span class="tl">Blast Dash<small>The dash goes off with an explosion out of his backside: a burst of speed much further forward, smashing through blocks and blasting enemies aside (only one of Roll and Blast Dash at a time)</small></span></button></div></div>
+        <div class="ab-row"><button type="button" class="tog" role="checkbox" data-k="sprint"><span class="box" aria-hidden="true"></span><span class="tl">Sprint<small>Hold Sprint to run</small></span></button><div class="ab-up"><button type="button" class="tog" role="checkbox" data-k="trample" data-base="sprint"><span class="box" aria-hidden="true"></span><span class="tl">Trample<small>The run becomes a charge, ploughing through goblins, cars and clutter (off: a harmless sprint)</small></span></button></div></div>
+        <div class="ab-row"><button type="button" class="tog" role="checkbox" data-k="jump"><span class="box" aria-hidden="true"></span><span class="tl">Jump<small>Leap up off the ground</small></span></button><div class="ab-up"><button type="button" class="tog" role="checkbox" data-k="double" data-base="jump"><span class="box" aria-hidden="true"></span><span class="tl">Double jump<small>A second jump in mid-air</small></span></button><button type="button" class="tog" role="checkbox" data-k="triple" data-base="jump" data-prev="double"><span class="box" aria-hidden="true"></span><span class="tl">Triple jump<small>Two extra jumps in mid-air</small></span></button></div></div>
+        <div class="ab-row"><button type="button" class="tog" role="checkbox" data-k="longJump"><span class="box" aria-hidden="true"></span><span class="tl">Long Jump<small>Jump out of a run to leap low and far (off: an ordinary jump)</small></span></button><div class="ab-up"><button type="button" class="tog" role="checkbox" data-k="blastJump" data-base="longJump"><span class="box" aria-hidden="true"></span><span class="tl">Blast Long Jump<small>The long jump goes off with an explosion out of his backside: a huge burst of speed, much further and higher, smashing through anything in the way</small></span></button></div></div>
+        <div class="ab-row"><button type="button" class="tog" role="checkbox" data-k="airDash"><span class="box" aria-hidden="true"></span><span class="tl">Air Dash<small>A roaring burst forward in mid-air</small></span></button><div class="ab-up"><button type="button" class="tog" role="checkbox" data-k="blastAirDash" data-base="airDash"><span class="box" aria-hidden="true"></span><span class="tl">Blast Air Dash<small>The air dash goes off with an explosion out of his backside: faster and much further, smashing through blocks and blasting enemies aside</small></span></button></div></div>
+        <h3 class="ab-sub">Misc.</h3>
+        <div class="abil"><button type="button" class="tog" role="checkbox" data-k="climb"><span class="box" aria-hidden="true"></span><span class="tl">Spider Climb<small>Cling to walls and ceilings</small></span></button><button type="button" class="tog" role="checkbox" data-k="rocket" data-base="jump"><span class="box" aria-hidden="true"></span><span class="tl">Rocket Boost<small>Keep holding jump: a little rocket flame fires from each foot and lifts him slowly up (uses stamina)</small></span></button><button type="button" class="tog" role="checkbox" data-k="crash"><span class="box" aria-hidden="true"></span><span class="tl">Crash Landing<small>Falling five blocks or more, you slam down on whatever you land on (off: you just land)</small></span></button><button type="button" class="tog" role="checkbox" data-k="noFall"><span class="box" aria-hidden="true"></span><span class="tl">Fall damage immunity<small>Long falls don't hurt (ground pounds never do)</small></span></button></div>
+      </div>
+    </div>
+    </div>
+    </div>
+    <div class="tabpane" id="tabOptions" role="tabpanel" hidden>
+    <div class="opts">
+    <div class="custom">
+      <h2>RENDER DISTANCE</h2>
+      <div class="crow"><input type="range" id="detailDist" class="vrange" min="48" max="1024" step="16" value="112" aria-label="Detail distance"><span class="vval" id="detailVal">112 blocks</span></div>
+      <p class="vnote">Detail distance: how far out the full, smashable city is built, with its traffic, goblins and props. High settings are slow and memory-hungry.</p>
+      <div class="crow"><input type="range" id="viewDist" class="vrange" min="48" max="8000" step="16" value="112" aria-label="Far view distance"><span class="vval" id="viewVal">112 blocks</span></div>
+      <p class="vnote">Far view (LOD) distance: how far you can see at all; past the detail distance the city is drawn as simplified blocks. It never reaches less far than the detail distance. Split screen draws about 70% of both.</p>
+    </div>
+    <div class="custom">
+      <h2>CROWD DENSITY</h2>
+      <div class="crow"><input type="range" id="crowdDist" class="vrange" min="0" max="30" step="0.25" value="1" aria-label="Goblin and civilian density"><span class="vval" id="crowdVal">100%</span></div>
+      <p class="vnote">How many hostile goblins and civilians fill the streets (and whether police turn out). 0% empties the sidewalks; 3000% is a mob of about 400 hostiles, which slower computers may struggle with.</p>
+    </div>
+    <div class="custom">
+      <h2>TRAFFIC DENSITY</h2>
+      <div class="crow"><input type="range" id="trafficDist" class="vrange" min="0" max="10" step="0.25" value="1" aria-label="Traffic density"><span class="vval" id="trafficVal">100%</span></div>
+      <p class="vnote">How many cars drive the roads. 0% clears the streets; far above 300% gets heavy.</p>
+    </div>
+    <div class="custom">
+      <h2>DAY / NIGHT SPEED</h2>
+      <div class="crow"><input type="range" id="daySpeed" class="vrange" min="0" max="7" step="1" value="3" aria-label="Day and night speed"><span class="vval" id="daySpeedVal">Normal</span></div>
+      <p class="vnote" id="daySpeedNote">One full day and night takes 10 minutes.</p>
+    </div>
+    <div class="custom">
+      <h2>FIRE &amp; SMOKE DURATION</h2>
+      <div class="crow"><input type="range" id="fireDur" class="vrange" min="0" max="5" step="1" value="2" aria-label="How long fires and smoke last"><span class="vval" id="fireDurVal">Normal</span></div>
+      <p class="vnote" id="fireDurNote">How long the wreckage of explosions and collapses keeps burning and smoking.</p>
+    </div>
+    <div class="custom">
+      <h2>MAX FIRES &amp; SMOKE</h2>
+      <div class="crow"><input type="range" id="fireCap" class="vrange" min="0" max="9" step="1" value="5" aria-label="Most fires and smoke plumes at once"><span class="vval" id="fireCapVal">70</span></div>
+      <p class="vnote">The most fires and smoke plumes burning at once; when another starts, the oldest goes out. At the top there's no limit at all. Lower it if big disasters make the game stutter.</p>
+    </div>
+    <div class="custom">
+      <h2>DEBUG</h2>
+      <div class="abil" id="dbgMenuTog">
+        <button type="button" class="tog" role="checkbox" data-k="quick"><span class="box" aria-hidden="true"></span><span class="tl">Debug quick menu<small>Press SELECT on a controller, or ~ on the keyboard, to pause and open a menu of these debug switches (press it again to close)</small></span></button>
+      </div>
+      <p class="vnote">In the quick menu: the left stick (or arrow keys / W A S D) moves the highlight, A (or Space / Enter) switches the highlighted item, and left / right changes a slider or weather and season, or moves to the next column on any other row.<br>Keyboard: [ and ] slow down and speed up. In the free cam: WASD or the left stick fly, the mouse or right stick look, Space / RT rise, C / LT sink, Shift / B goes fast. Gus stands still while you fly.<br>Flying (cheat): hold Space / A to rise, C / LB to sink, let go to hover.</p>
+    </div>
+    <div class="dbgcols">
+    <div class="custom">
+      <h2>DEBUG: TIME &amp; CAMERA</h2>
+      <div class="crow"><input type="range" id="gameSpeed" class="vrange" min="0" max="9" step="1" value="6" aria-label="Game speed"><span class="vval" id="gameSpeedVal">1×</span></div>
+      <div class="crow"><input type="range" id="worldCurve" class="vrange" min="-10" max="10" step="1" value="2" aria-label="World curve"><span class="vval" id="worldCurveVal">Down 2</span></div>
+      <p class="vnote">Game speed, then world curve: bends the world away below the horizon like a tiny planet (right), or up into a bowl (left).</p>
+      <div class="abil" id="dbgTime">
+        <button type="button" class="tog" role="checkbox" data-k="paused"><span class="box" aria-hidden="true"></span><span class="tl">Stop time<small>Everything stops; the free cam still flies. Keyboard: P, and . steps one frame</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="freecam"><span class="box" aria-hidden="true"></span><span class="tl">Free cam<small>Fly Gus's camera anywhere, apart from him. Keyboard: V</small></span></button>
+      </div>
+    </div>
+    <div class="custom">
+      <h2>DEBUG: PLAYER</h2>
+      <div class="crow"><input type="range" id="playerSpeed" class="vrange" min="0" max="11" step="1" value="0" aria-label="Player speed"><span class="vval" id="playerSpeedVal">1×</span></div>
+      <p class="vnote">Player speed: how fast Gus and Gertie walk and trample, up to ten times normal.</p>
+      <div class="abil" id="dbgCheat">
+        <button type="button" class="tog" role="checkbox" data-k="invuln"><span class="box" aria-hidden="true"></span><span class="tl">Invulnerable<small>Nothing hurts the hippos: goblins, traffic, fire, blasts or falls</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="infStam"><span class="box" aria-hidden="true"></span><span class="tl">Infinite stamina<small>Trample and air-dash as long as you like without running out of breath</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="fly"><span class="box" aria-hidden="true"></span><span class="tl">Flying<small>Hold jump (Space / A) to rise, C / LB to sink; let go to hover. Ground pound to drop</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="gob"><span class="box" aria-hidden="true"></span><span class="tl">Play as a goblin<small>First person, goblin sized, with a club instead of a hippo's powers. Other goblins take you for one of their own: nobody runs, nobody attacks</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="peace"><span class="box" aria-hidden="true"></span><span class="tl">Enemy hostility<small>Hostile goblins attack, and cars and police hunt you. Off: they leave you alone</small></span></button>
+      </div>
+    </div>
+    <div class="custom">
+      <h2>DEBUG: RENDERING</h2>
+      <p class="vnote">Stops these being drawn; they're still really there, so you can fall into a cave you can't see, and props still get in the way. They come back on when you reload the game.</p>
+      <div class="abil" id="dbgGfx">
+        <button type="button" class="tog" role="checkbox" data-k="gProps"><span class="box" aria-hidden="true"></span><span class="tl">Props<small>Furniture and other things made of small boxes, benches and litter bins included</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="gFixtures"><span class="box" aria-hidden="true"></span><span class="tl">Fixtures<small>Lamp posts, traffic lights, road signs, flags, billboards, power line cables and stair handrails</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="gCaves"><span class="box" aria-hidden="true"></span><span class="tl">Caves<small>Caverns, tunnels and cave mouths</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="gSewers"><span class="box" aria-hidden="true"></span><span class="tl">Sewers<small>The tunnels under the streets and their stairwells</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="gSubway"><span class="box" aria-hidden="true"></span><span class="tl">Subways<small>Tunnels, stations, their stairs and the trains</small></span></button>
+      </div>
+    </div>
+    <div class="custom">
+      <h2>DEBUG: OVERLAYS</h2>
+      <div class="abil" id="dbgOverlays">
+        <button type="button" class="tog" role="checkbox" data-k="fps"><span class="box" aria-hidden="true"></span><span class="tl">FPS counter<small>Frames per second and frame time, at the top of the screen</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="hpBars"><span class="box" aria-hidden="true"></span><span class="tl">Health bars<small>A bar over every goblin, civilian, car and hippo that can be hurt</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="dmgNums"><span class="box" aria-hidden="true"></span><span class="tl">Damage numbers<small>Each hit's damage pops up where it lands</small></span></button>
+      </div>
+    </div>
+    <div class="custom wide">
+      <h2>DEBUG: INTERFACE</h2>
+      <p class="vnote">Hides each part of the on-screen display, for both players. They come back when you reload the game.</p>
+      <div class="abil" id="dbgUi"></div>
+    </div>
+    <div class="custom wide">
+      <h2>DEBUG: HITBOXES</h2>
+      <p class="vnote">Outlines what each attack and hazard actually checks. Hit volumes flash for a moment when used; hurtboxes follow their owners. Players are Gus and Gertie; NPCs are goblins, civilians, cars, and the explosions, fires and falling buildings they set off.</p>
+      <div class="abil" id="dbgShow">
+        <button type="button" class="tog" role="checkbox" data-k="show"><span class="box" aria-hidden="true"></span><span class="tl">Display hitboxes<small>Show the hitbox outlines; pick which kinds below</small></span></button>
+      </div>
+      <div class="abil" id="dbgList">
+        <button type="button" class="tog" role="checkbox" data-k="pBlock"><span class="box" aria-hidden="true"></span><span class="tl"><span><i class="sw" style="background:#ff9a2a"></i>Player block hitboxes</span><small>Where Gus and Gertie break blocks</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="nBlock"><span class="box" aria-hidden="true"></span><span class="tl"><span><i class="sw" style="background:#e8d040"></i>NPC block hitboxes</span><small>Blasts and wrecks breaking blocks</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="pDmg"><span class="box" aria-hidden="true"></span><span class="tl"><span><i class="sw" style="background:#ff3a3a"></i>Player damage hitboxes</span><small>Where the hippos' attacks hurt goblins and cars</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="nDmg"><span class="box" aria-hidden="true"></span><span class="tl"><span><i class="sw" style="background:#ff4fd8"></i>NPC damage hitboxes</span><small>Goblin jabs, cars, blasts and fire</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="pHurt"><span class="box" aria-hidden="true"></span><span class="tl"><span><i class="sw" style="background:#46f06a"></i>Player hurtboxes</span><small>Gus and Gertie's bodies</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="nHurt"><span class="box" aria-hidden="true"></span><span class="tl"><span><i class="sw" style="background:#46d4ff"></i>NPC hurtboxes</span><small>Goblins, civilians and cars</small></span></button>
+      </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    <div class="tabpane" id="tabDev" role="tabpanel" hidden>
+      <div class="devwrap" id="devWrap">
+        <details class="devsec" id="devSecAbil" open>
+          <summary>Abilities</summary>
+          <div class="devab">
+            <div class="devmain">
+              <div class="devfig"><canvas id="devCanvas" aria-label="Animation preview"></canvas><div class="devbones" id="devBones" aria-hidden="true"></div>
+                <div class="devrs" id="devRS">
+                  <details class="devpane" id="devPaneHb" open hidden><summary>Hitbox</summary><div class="devside" id="devHbSide"></div></details>
+                  <details class="devpane" id="devPaneHbT" open hidden><summary>Timing &amp; damage</summary><div class="devparams" id="devHbProps"></div></details>
+                  <details class="devpane" id="devPaneAb" open><summary>Ability settings</summary><div class="devparams" id="devParams"></div>
+                    <div class="devctl"><button type="button" class="devb" id="devResetAb">Reset this ability</button><button type="button" class="devb" id="devResetAll">Reset all</button></div></details>
+                </div>
+                <div class="devtl">
+                <div class="devdd devabdd" id="devAbDD"><button type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Ability"></button><ul id="devList" role="listbox" aria-label="Abilities" hidden></ul></div>
+                <details class="devpane devshowp" open><summary>Display</summary><div class="devshow" role="group" aria-label="Show in the preview">
+                <label class="devchk"><input type="checkbox" id="devShowDmg" checked><i class="sw" style="background:#ff3a3a"></i> Damage</label>
+<label class="devchk"><input type="checkbox" id="devShowBlock" checked><i class="sw" style="background:#ff9a2a"></i> Block smash</label>
+<label class="devchk"><input type="checkbox" id="devShowHurt"><i class="sw" style="background:#46f06a"></i> Hurtbox</label>
+<label class="devchk"><input type="checkbox" id="devShowSkel"><i class="sw" style="background:#5ad2ff"></i> Skeleton</label>
+<label class="devchk"><input type="checkbox" id="devShowBones"><i class="sw" style="background:#bfeeff"></i> Bone names</label>
+                <span class="devhint">drag to turn · scroll to zoom</span></div></details>
+                </div>
+                <button type="button" class="devb devmaxb" id="devMax" title="Expand the preview to fill the window (Esc to shrink)" aria-label="Expand the preview" aria-pressed="false">&#x2922;</button>
+                <div class="devbot">
+                  <div class="devctl devbar">
+                    <span class="devlbl">Timeline</span>
+                    <span class="devseg" id="devTlMode"><button type="button" data-m="simple" class="on">Simple</button><button type="button" data-m="adv">Advanced</button></span>
+                    <button type="button" class="devb" id="devRestart" title="Back to the start" aria-label="Back to the start">&#x23EE;</button>
+                    <button type="button" class="devb" id="devPlay" title="Play / pause" aria-label="Play or pause">&#x23F8;</button>
+                    <span class="devtime" id="devTime">0.00 s</span>
+                    <span class="devright"><span class="devlbl">Speed</span>
+                    <span class="devseg" id="devSpeed"><button type="button" data-s="0.1">0.1×</button><button type="button" data-s="0.25">0.25×</button><button type="button" data-s="0.5">0.5×</button><button type="button" data-s="1" class="on">1×</button><button type="button" data-s="2">2×</button></span>
+                    <label class="devchk"><input type="checkbox" id="devLoop" checked> Loop</label></span>
+                  </div>
+                  <input type="range" id="devScrub" class="vrange" min="0" max="100" step="1" value="0" aria-label="Animation position">
+                  <div class="devtrack" id="devTrack" hidden></div>
+                  <div class="devctl devbar" id="devAdvBar" hidden>
+                    <label class="devchk"><input type="checkbox" id="devHbOn"> Use custom hitboxes for this move</label>
+                    <button type="button" class="devb" id="devHbAddD">+ Damage hitbox</button><button type="button" class="devb" id="devHbAddB">+ Block hitbox</button>
+                    <button type="button" class="devb" id="devHbCopy" title="Turn the move's built-in hits into editable hitboxes">Copy built-in hits</button>
+                    <button type="button" class="devb" id="devHbDup">Duplicate</button><button type="button" class="devb" id="devHbDel">Delete</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
+        <details class="devsec" id="devSecStruct">
+          <summary>Structures</summary>
+          <div class="devab">
+            <div class="devfig devstfig"><canvas id="devStCanvas" aria-label="Structure preview"></canvas>
+              <div class="devtl">
+                <div class="devdd devabdd" id="devStDD"><button type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Structure">Structure</button><ul id="devStList" role="listbox" aria-label="Structures" hidden></ul></div>
+                <button type="button" class="devb" id="devStFly" aria-pressed="false" title="Fly through the preview, through walls and all">Fly</button>
+                <span class="devhint" id="devStHint">drag to turn · scroll to zoom</span>
+              </div>
+              <div class="devstinfo" id="devStInfo" role="status"></div>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+    <div class="tabpane" id="tabMap" role="tabpanel" hidden>
+      <div class="map-wrap">
+        <div class="map-fig"><canvas id="mapCanvas" aria-label="Map of the parts of the city you have explored"></canvas></div>
+        <div class="map-side">
+          <ul class="map-legend" id="mapLegend"></ul>
+        </div>
+      </div>
+    </div>
+    <div class="tabpane" id="tabObit" role="tabpanel" hidden>
+      <p class="obit-sum" id="obitSum">No goblins have died yet. Give it time.</p>
+      <div class="obit-wrap" id="obitWrap" hidden>
+        <ol class="obl" id="obitList" aria-label="The dead, newest first"></ol>
+        <div class="obd" aria-live="polite">
+          <div class="obd-fig"><canvas id="obitCanvas" aria-label="The deceased"></canvas></div>
+          <div class="obd-info" id="obitInfo"></div>
+        </div>
+      </div>
+    </div>
+    <div class="prompts" id="menuPrompts" aria-label="Controls for this screen"></div>
+   </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(() => {
+// build: js
+})();
+</script>

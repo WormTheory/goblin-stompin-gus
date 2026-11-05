@@ -1,15 +1,22 @@
 # Goblin Stompin' Gus — notes for Claude
 
-A voxel action game in one self-contained HTML file: **`game/index.html`** (~1.2 MB, ~14,700 lines).
+A voxel action game that plays from one self-contained HTML file: **`game/index.html`** (~1.7 MB, ~19,000 lines).
 It loads three.js r128 from cdnjs; everything else (world generation, meshing, physics, AI, audio, UI) is inline.
-Open the file in a browser to play.
+Open the file in a browser to play. The source it's built from is in **`src/`**.
+
+## Source layout
+- **Edit `src/`, never `game/index.html`.** `python tools/build.py` joins the source back into `game/index.html`, which stays committed because it's what gets played and published, so commit it along with your change. The test tools rebuild it for themselves. `python tools/build.py --check` says whether it's up to date.
+- `src/page.html` is the page and its menus' markup, `src/style.css` the styles, `src/js/` the game script, by topic: `core/` (setup, blocks, audio, the loop, new city, Testing Environment), `world/` (the plan and terrain, `generate.js` has `genChunk`), `buildings/`, `dressing/` (street furniture, props, doors, signs), `render/`, `destruction/`, `player/`, `enemies/`, `vehicles/`, `venues/`, `ui/`.
+- **The files in `src/js` aren't separate modules.** They're joined in the order in `src/js/ORDER.txt`, inside one function, so they share one scope: any file can use anything from any other with no imports, and every top-level name must be unique across all of them. No file runs on its own. Order only matters to code that runs while the page loads, such as a `const` read at the top level before the file declaring it. A new file must be added to `ORDER.txt`, or the build stops and says so.
+- A topic can be in more than one file, because the code keeps the order it always ran in (`makeCar` is in `vehicles/cars.js`, but `updateCars` is in `vehicles/traffic-update.js`). Search all of `src/js` for a name, rather than guessing the file.
+- If `game/index.html` was changed by hand, the build refuses to overwrite it and says how to carry on. `git diff` skips that file, since its changes are already shown in `src/`; `git diff --text` shows it.
 
 ## Ground rules
-- `game/index.html` is the only deliverable. Keep it one file — no build step, no bundler.
+- `game/index.html` is the only deliverable: it must stay one file that works when simply opened. The build only joins files, so keep it that way, with no bundler or dependencies.
 - Parody of real brands is welcome and part of the humour (names like "Goblin Walmart"). Draw parody logos rather than copying real artwork.
 - Comments are plain English, explaining *why*, often in parentheses. Match the existing style.
 - **Bump `SAVE_KEY`** (currently `'goblin-city-v92'`) whenever world generation changes, so old saves don't load into a different world.
-- Make edits with exact, unique string replacements. Many identifiers repeat, so check for a single match before replacing.
+- Make edits with exact, unique string replacements. Many identifiers repeat, so check for a single match within the file before replacing.
 - After every change: run the tests (below) before calling it done.
 
 ## Buildings
@@ -20,7 +27,7 @@ The game script is pulled out of the HTML and evaluated in Node with a stub THRE
 That checks logic: world generation, physics, abilities, AI and menus. It doesn't check the real 3D picture.
 
 ```bash
-bash tools/run_tests.sh                 # smoke, devtest, walk (rebuilds tools/tests/g.js first)
+bash tools/run_tests.sh                 # smoke, devtest, walk (rebuilds game/index.html and tools/tests/g.js first)
 bash tools/run_tests.sh rollt spk lean  # any named suites from tools/tests/
 SEED=7 bash tools/run_tests.sh maptest  # Math.random is seeded from SEED
 ```
@@ -59,7 +66,7 @@ node drive.js              # goblin mode: E by a car, train, boat, tank, helicop
 To review the chains' logos: `node logosheet.js out.png` from `tools/ui`. To look at a spot in the real game: `python tools/build_3d.py game/index.html tools/ui/t3.html`, then `node tour.js scenes.js outDir [seed]` from `tools/ui` (set `TOUR_VIEW=800` to see that many blocks through the fog, and pass a wait of about 25000 as a fourth argument so distant chunks finish building).
 
 How a test works (see the first ~40 lines of `tools/tests/dead6.js`, which is the standard header):
-- **Loading the game.** `mkg.py` copies the main `<script>` (the one after the three.js tag) into `g.js`. Each test reads `g.js` and seeds `Math.random`.
+- **Loading the game.** `mkg.py` rebuilds `game/index.html`, then copies its main `<script>` (the one after the three.js tag) into `g.js`, so `g.js` is all of `src/js` joined up. Each test reads `g.js` and seeds `Math.random`.
 - **Reaching internals.** A regex swaps the closing `requestAnimationFrame(frame);\n})();` for `window.__t={...}`, which exposes the functions that test needs. If you add an internal a test must reach, add it to that test's `window.__t={` list.
 - **Stubs.** Next come the stub THREE classes (`class Q{` … up to `const listeners=`), a fake `document`, `localStorage` and gamepads.
 - **Driving the game.** `eval(src); const T=window.__t;` then `T.frame(now)` advances the game. `run(seconds)` is already defined in the header, so don't redeclare `run`.
@@ -85,7 +92,7 @@ cd tools/ui && node real3d.js [seed] [outDir]               # menu, spawn, above
 ```
 It renders in software, so the picture is right but the frame rate says nothing about a real graphics card.
 
-## Map of the code (search these names)
+## Map of the code (search `src/js` for these names)
 - **World and terrain:**
   - chunk generation `genChunk`; meshing (`meshes`, `MESHED`)
   - far LOD rings `farJobNear`/`farJobMid`/`farJobFar` via `farBox`

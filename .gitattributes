@@ -1,3 +1,5 @@
 # (Keep LF everywhere, even on Windows, because the tests find the game's closing lines with a \n regex.)
 * text=auto eol=lf
 *.png binary
+# (Built from src/, so every change would show up twice in a diff: "git diff --text" still shows it.)
+game/index.html -diff linguist-generated=true

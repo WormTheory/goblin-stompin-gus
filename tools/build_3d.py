@@ -1,7 +1,8 @@
 # Builds t3.html: the game page using the local three.js from node_modules (not the CDN), with a few internals on
 # window.__G, so tools/ui/real3d.js can take real screenshots. (game/index.html itself is left alone.)
 # Usage: python tools/build_3d.py game/index.html tools/ui/t3.html
-import sys
+import sys,build
+build.build()
 html=open(sys.argv[1],encoding='utf-8',newline='').read()
 tag='<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>'
 assert html.count(tag)==1,'three.js script tag not found'

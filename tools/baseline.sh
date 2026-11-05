@@ -4,6 +4,7 @@
 # Usage: tools/baseline.sh            -> all suites (not the slow audits: run those by hand, see CLAUDE.md)
 #        tools/baseline.sh rollt spk  -> just those
 cd "$(dirname "$0")"
+# (mkg.py rebuilds the game from src/ first)
 PY=python3; $PY --version >/dev/null 2>&1 || PY=python
 $PY mkg.py ../game/index.html tests/g.js
 cp tests/g.js map/g.js

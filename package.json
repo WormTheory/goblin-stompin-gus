@@ -2,6 +2,7 @@
   "name": "goblin-stompin-gus",
   "private": true,
   "scripts": {
+    "build": "python3 tools/build.py || python tools/build.py",
     "test": "bash tools/run_tests.sh",
     "ui": "(python3 tools/build_ui.py game/index.html tools/ui/ui.html || python tools/build_ui.py game/index.html tools/ui/ui.html) && cd tools/ui && node uist.js"
   },

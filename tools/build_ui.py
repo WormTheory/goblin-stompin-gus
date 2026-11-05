@@ -1,7 +1,8 @@
 # Builds ui.html: the game page with the three.js CDN script swapped for the stub THREE from tests/dead6.js,
 # so the Playwright UI tests can load the page offline. (Menus and DOM work; the 3D view renders nothing.)
 # Usage: python3 build_ui.py ../game/index.html [ui.html]
-import sys,os
+import sys,os,build
+build.build()
 # (Explicit utf-8 and \n, because Windows otherwise reads as cp1252 and writes \r\n.)
 html=open(sys.argv[1],encoding='utf-8',newline='').read()
 here=os.path.dirname(os.path.abspath(__file__))

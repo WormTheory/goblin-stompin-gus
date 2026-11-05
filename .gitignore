@@ -6,3 +6,4 @@ tools/ui/ui.html
 *.ppm
 tools/ui/t3.html
 tools/ui/shots/
+tools/__pycache__/

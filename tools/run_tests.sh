@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Rebuilds the test copy of the game script and runs the core node suites (or the ones you name).
+# Rebuilds the game from src/ and its test copy of the script (mkg.py does both) and runs the core node suites (or the ones you name).
 # Usage: tools/run_tests.sh            -> smoke devtest walk
 #        tools/run_tests.sh rollt spk  -> just those
 set -e
