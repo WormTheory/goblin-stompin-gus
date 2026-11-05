@@ -1,0 +1,33 @@
+thieves  box {"k":"thieves","ax":6,"az":-20,"w":1,"h":1} | posts 4 filled 4 | alive 4 hp 3,3,3,3 | up a tower 0 | roused false | jobs Safecracker, Burglar, Cat burglar
+   3 s later: still calm true gus hp 20 | at posts 0.0 0.0 0.0 0.0
+   gus near the posts: roused true
+   8 s | bullets 0 | thrown/fired {} | hits on gus 23 lowest hp 7 | alive 4 at 2 2 2 2
+   killed all: alive 0 slain marks 4
+prepper  box {"k":"prepper","ax":24,"az":20,"w":2,"h":2} | posts 3 filled 3 | alive 3 hp 5,5,5 | up a tower 1 | roused false | jobs Off-grid survivalist, Prepper, Off-grid survivalist
+   3 s later: still calm true gus hp 20 | at posts 0.0 0.0 0.0
+   gus near the posts: roused true
+   8 s | bullets 4 | thrown/fired {"pipe":2} | hits on gus 5 lowest hp 13 | alive 2 at 26 4
+   killed all: alive 0 slain marks 3
+militia  box {"k":"militia","ax":20,"az":32,"w":2,"h":2} | posts 9 filled 9 | alive 9 hp 5,5,5,5,5,5,5,5,5 | up a tower 4 | roused true | jobs Camo enthusiast, Militiaman, Sentry
+   3 s later: still calm false gus hp 20 | at posts 0.0 0.0 0.0 0.0 15.2 15.1 15.1 13.4 14.9
+   gus near the posts: roused true
+   8 s | bullets 13 | thrown/fired {"grenade":4} | hits on gus 14 lowest hp 7 | alive 9 at 33 26 50 46 2 2 20 23 4
+   killed all: alive 0 slain marks 9
+preppers, gus 60 off: roused false alive 3
+hit one: roused true
+base box {"k":"base","ax":4,"az":56,"w":4,"h":4} | tanks 15 helicopters 2 | parked 17 | alert false | old block tanks gone true | gus in base false
+stand-ins in TRAIN_BOXES 17
+5 s outside: alert false
+gus in the base: alert true
+base first 4 s | bullets 0 | thrown/fired {"shell":4} | hits on gus 2 lowest hp 16 | hunting tanks 4 moved 4 | helis hunt up 7.8 from gus 37, hunt up 7.8 from gus 33
+base next 10 s | bullets 25 | thrown/fired {"shell":8,"rocket":2} | hits on gus 15 lowest hp 7 | hunting tanks 4 moved 4 | helis hunt up 13.7 from gus 22, hunt up 13.0 from gus 23
+destroyed: tank true helicopter true it fell 13.5 to 0.0 | saved wrecked true | another tank woke 4
+gone 500 off for 40 s: venue false (dropped)
+back at the fence: alert false wrecks still wrecked 2 parked 17
+foe thief Spawned 3 thieves ahead of Gus.
+   thief button, 5 s | bullets 0 | thrown/fired {} | hits on gus 5 lowest hp 15 | at 2.2 2.3 2.3
+foe prepper Spawned 3 preppers ahead of Gus.
+   prepper button, 5 s | bullets 3 | thrown/fired {} | hits on gus 5 lowest hp 15 | at 2.3 2.3 2.3
+foe militia Spawned 3 militiamen ahead of Gus.
+   militia button, 5 s | bullets 3 | thrown/fired {} | hits on gus 6 lowest hp 14 | at 2.3 2.3 2.3
+errors 0 []

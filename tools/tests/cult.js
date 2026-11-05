@@ -73,7 +73,7 @@ watch(4,'roused from 40 off, 4 s');
 // phase 5: the Testing Environment's Cultist button
 T.tenvClear();run(1);
 T.menuOpen=true;T.TS.n=3;T.tenvFoe('cultist');console.log('foe cultist',els.tpInfo.textContent);T.menuOpen=false;
-run(0.1);const fc=cults().filter(g=>!g.cultV);console.log('spawned cultists',fc.length,'no altar',fc.every(g=>g.cultV===null));
+run(0.1);const fc=cults().filter(g=>!g.homeV);console.log('spawned cultists',fc.length,'no altar',fc.every(g=>g.homeV===null));
 P.hp=20;watch(5,'button cultists, 5 s');
 // phase 6: one cultist right beside Gus: daggers, no fireballs (too close to bother)
 T.tenvClear();run(0.5);T.menuOpen=true;T.TS.n=1;T.tenvFoe('cultist');T.menuOpen=false;
