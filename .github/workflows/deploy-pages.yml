@@ -1,0 +1,35 @@
+# Publishes the game/ folder to GitHub Pages on every push to main that changes it.
+
+name: Deploy game to Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'game/**'
+      - '.github/workflows/deploy-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# (A newer push replaces a deploy that's still running, so the latest game always wins.)
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: game
+      - id: deployment
+        uses: actions/deploy-pages@v4
