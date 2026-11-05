@@ -1,7 +1,7 @@
 let __s=+(process.env.SEED||1);Math.random=()=>{__s=(__s*16807)%2147483647;return (__s-1)/2147483646;};
 const fs=require('fs');
 let src0=fs.readFileSync('g.js','utf8');
-let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={FOES,SHOTS,TRACERS,trainHit,damageGoblin,DT,nearestPlayer,get wrecked(){return wrecked},TRAIN_BOXES,get TENV(){return TENV},get TS(){return TS},tenvShow,tenvSpawn,tenvTick,tenvFoe,tenvClear,tenvRemove,tenvGo,stMatch,frame,players,goblins,cars,get,groundAt,chunks,meshes,venues,activeFix,activeProps,doorsOn,lmOn,bsigns,get nBS(){return nBS},refreshFixtures,refreshDoors,refreshVenues,plotType,superOf,get menuOpen(){return menuOpen},set menuOpen(v){menuOpen=v},get playing(){return playing},V3,get seed(){return seed},explored:()=>explored,SAVE_KEY};\n})();');
+let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={FOES,SHOTS,TRACERS,trainHit,damageGoblin,DT,nearestPlayer,get wrecked(){return wrecked},TRAIN_BOXES,get TENV(){return TENV},get TS(){return TS},tenvShow,tenvSpawn,tenvTick,tenvFoe,tenvClear,boxesTouch,MIL,tenvRemove,tenvGo,stMatch,frame,players,goblins,cars,get,groundAt,chunks,meshes,venues,activeFix,activeProps,doorsOn,lmOn,bsigns,get nBS(){return nBS},refreshFixtures,refreshDoors,refreshVenues,plotType,superOf,get menuOpen(){return menuOpen},set menuOpen(v){menuOpen=v},get playing(){return playing},V3,get seed(){return seed},explored:()=>explored,SAVE_KEY};\n})();');
 const deep=()=>new Proxy(function(){}, {get:(t,p)=>p===Symbol.toPrimitive?()=>0:(p==='length'?0:deep()),apply:()=>deep(),construct:()=>deep()});
 class Q{constructor(){this.x=0;this.y=0;this.z=0;this.w=1}set(x,y,z,w){this.x=x;this.y=y;this.z=z;this.w=w;return this}setFromAxisAngle(a,t){const s=Math.sin(t/2);this.x=a.x*s;this.y=a.y*s;this.z=a.z*s;this.w=Math.cos(t/2);return this}copy(q){this.x=q.x;this.y=q.y;this.z=q.z;this.w=q.w;return this}}
 class V3{project(){return this}fromBufferAttribute(a,i){const A=a.array||a.a;this.x=A[i*3];this.y=A[i*3+1];this.z=A[i*3+2];return this}applyMatrix4(m){const e=m.elements,x=this.x,y=this.y,z=this.z;this.x=e[0]*x+e[4]*y+e[8]*z+e[12];this.y=e[1]*x+e[5]*y+e[9]*z+e[13];this.z=e[2]*x+e[6]*y+e[10]*z+e[14];return this}setFromMatrixPosition(o){this.x=o.position.x;this.y=o.position.y;this.z=o.position.z;return this}normalize(){const l=Math.hypot(this.x,this.y,this.z)||1;this.x/=l;this.y/=l;this.z/=l;return this}add(v){this.x+=v.x;this.y+=v.y;this.z+=v.z;return this}applyQuaternion(q){const x=this.x,y=this.y,z=this.z,qx=q.x,qy=q.y,qz=q.z,qw=q.w;const ix=qw*x+qy*z-qz*y,iy=qw*y+qz*x-qx*z,iz=qw*z+qx*y-qy*x,iw=-qx*x-qy*y-qz*z;this.x=ix*qw+iw*-qx+iy*-qz-iz*-qy;this.y=iy*qw+iw*-qy+iz*-qx-ix*-qz;this.z=iz*qw+iw*-qz+ix*-qy-iy*-qx;return this}constructor(x=0,y=0,z=0){this.x=x;this.y=y;this.z=z}set(x,y,z){this.x=x;this.y=y;this.z=z;return this}copy(v){this.x=v.x;this.y=v.y;this.z=v.z;return this}clone(){return new V3(this.x,this.y,this.z)}addScaledVector(v,s){this.x+=v.x*s;this.y+=v.y*s;this.z+=v.z*s;return this}multiplyScalar(s){this.x*=s;this.y*=s;this.z*=s;return this}setScalar(s){return this.set(s,s,s)}}
@@ -79,6 +79,21 @@ for(const [site,k] of [['thieves','thief'],['prepper','prepper'],['militia','mil
  place(V.X0+30,V.Z0+60);run(0.2);console.log('gus in the base: alert',V.alert);P.hp=20;
  const st=()=>'hunting tanks '+tanks().filter(M=>M.state==='hunt').length+' moved '+tanks().filter(M=>Math.hypot(M.x-M.home.x,M.z-M.home.z)>1).length+' | helis '+helis().map(M=>M.state+' up '+(M.y-G0-1).toFixed(1)+' from gus '+Math.hypot(M.x-P.pos.x,M.z-P.pos.z).toFixed(0)).join(', ');
  watch(4,'base first 4 s',st);watch(10,'base next 10 s',st);
+ // solid: the armour never drives or flies into itself; a goblin in front of a driving tank is run down, a parked car shoved
+ {T.DT.invuln=true;let worst=0;const live=()=>V.mil.filter(M=>!M.dead);
+  for(let f=0;f<6*60;f++){now+=16.7;T.frame(now);const L=live();for(let i=0;i<L.length;i++)for(let j=i+1;j<L.length;j++){const a=L[i],b=L[j],A=T.MIL[a.kind],B=T.MIL[b.kind];
+    if(a.y>=b.y+B.hy||b.y>=a.y+A.hy)continue;if(T.boxesTouch(a.x,a.z,a.h,A.hx,A.hz,b.x,b.z,b.h,B.hx,B.hz))worst++;}}
+  console.log('6 s more: frames with two of them overlapping',worst);
+  const t=tanks().find(M=>!M.dead&&M.state==='hunt'),fw=d=>[t.x+Math.sin(t.h)*d,t.z+Math.cos(t.h)*d];
+  place(...fw(45));run(1.5);
+  T.menuOpen=true;T.TS.n=1;T.tenvFoe('thief');T.menuOpen=false;const g=foes('thief')[0];
+  if(g){const [x,z]=fw(3.0);g.pos.set(x,t.y,z);const hp=g.hp,v0=t.v;run(1);console.log('goblin put in front of a driving tank (speed',v0.toFixed(1)+'): hp',hp,'->',g.hp,'state',g.state);}
+  T.tenvClear();place(...fw(45));run(1.5);
+  T.menuOpen=true;T.TS.n=1;T.tenvFoe('car');T.menuOpen=false;const c=T.cars.filter(o=>o.alive&&o.hunter).pop();
+  if(c){const [x,z]=fw(4.5);c.pos.set(x,t.y,z);c.hunter=false;c.parked=true;c.speed=0;c.driver=null;const hp=c.hp;run(1.5);
+    const dx=c.pos.x-t.x,dz=c.pos.z-t.z,al=dx*Math.sin(t.h)+dz*Math.cos(t.h),ac=-dx*Math.cos(t.h)+dz*Math.sin(t.h);
+    console.log('car parked in front of it: hp',hp,'->',c.alive?c.hp:'wrecked','| inside the tank',Math.abs(al)<T.MIL.tank.hz&&Math.abs(ac)<T.MIL.tank.hx);}
+  T.tenvClear();place(V.X0+30,V.Z0+60);run(0.5);}
  // knock out a tank and a helicopter
  T.DT.invuln=true;P.hp=20;const t0=tanks().find(M=>M.state==='hunt'),h0=helis()[0];
  for(let i=0;i<20&&!t0.dead;i++)T.trainHit(t0,20,null,0);for(let i=0;i<20&&!h0.dead;i++)T.trainHit(h0,20,null,0);
