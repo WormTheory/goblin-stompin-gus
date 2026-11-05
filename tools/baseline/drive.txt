@@ -1,0 +1,41 @@
+E with nothing near: on foot  moved 0.0
+car (car): in car  same car true  camera behind it 6.1
+  W 2.5 s: moved 31.5  speed 24.0  still on the street (not recycled) true  me with it 0.0
+  W+D 1 s: heading turned -0.7 (right is negative)
+  S 1.5 s: speed -8.0
+  S on: reversing -7.2
+  E again: on foot  out beside it 1.8  left true
+  3 s later: car speed 0.0  still there true
+  W on foot walks again: in on foot
+train: in train  car 1
+  W 4 s (looking along it): moved along the track 40.3  speed 20.0  me by the car 0.0
+  turned round, W 3 s: speed -9.6 (the other way now)
+  E again: on foot  train speed 9.8  waits 0.0
+boat (launch): in boat
+  W 4 s: moved 28.1  speed 10.2  afloat at 0.9
+  W+A 2 s: turned 2.3
+  E again: on foot  in the water beside it 2.4  y -1.3
+  3 s on: it stays put (off its route) 0.0
+errors 0 []
+tank: in tank  base alerted false
+  W 3 s: moved 8.6  speed 0.2
+  A 1.5 s: turned on the spot 1.4  moved 8.6
+  turret follows the view: off by 0.0
+  bite: shells in the air 1
+  E again: on foot  tank idle  me beside it 2.5
+  3 s on: tank stays 0.0
+helicopter: in heli
+  spin-up, then Jump 3 s: climbed 20.2  rotor 1.0
+  W 3 s, looking along +z: moved x 0.0 z 37.8  facing 0.0
+  bite: rockets 1
+  E again 24.0 up: on foot  heli idle  me falling yes
+  8 s on: heli height 0.0  rotor 0.1  me on the ground true  hp 20
+plane: in plane  parked one true
+  W 1.5 s: rolling at 21.0  moved 16.0  height 0.0
+  Jump below take-off speed: height 0.0
+  W, then W+Jump 4 s: speed 80.0  height 63.1  wrecked false
+  D 2 s: heading 0.4
+  C 2 s: height 45.1  came down 33.1
+  E again: on foot  falling true
+  left to itself at full speed: down after 6.5 s, wrecked true  me on the ground true
+errors 0 []
