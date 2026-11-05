@@ -7,48 +7,58 @@ car (car): in car  same car true  camera behind it 6.1
   W into a wall at 22.5 : wall blocks smashed 22  car hp 16.4 -> 3.0  through it true
   S 1.5 s: speed -8.0
   S on: reversing -8.0
-  E again: on foot  out beside it 1.8  left true
+  F again: on foot  out beside it 1.8  left true
   3 s later: car speed -0.0  still there true
   W on foot walks again: in on foot
 motorcycles in the traffic mix: street 8%, hw 5%, park 8%
 motorcycle: in car  size 0.8 x 2.0  display says Motorcycle  ·  30 / 30
   W 2 s: moved 15.0  speed 8.1
   W+A: leaning -0.4 (left is negative)
-  E again: on foot  beside it 2.5
+  F again: on foot  beside it 2.5
 train: in train  car 1
   W 4 s (looking along it): moved along the track 40.3  speed 20.0  me by the car 0.0
   turned round, W 3 s: speed -9.6 (the other way now)
-  E again: on foot  train speed 9.7  waits 0.0
+  F again: on foot  train speed 9.7  waits 0.0
 boat (launch): in boat
   W 4 s: moved 28.1  speed 10.2  afloat at 0.9
   W+A 2 s: turned 2.3
-  E again: on foot  in the water beside it 2.4  y -1.3
+  F again: on foot  in the water beside it 2.4  y -1.3
   3 s on: it stays put (off its route) 0.0
 errors 0 []
 tank: in tank  base alerted false
   W 3 s: moved 10.4  speed 4.5
   A 1.5 s: turned on the spot 1.4  moved 11.3
   turret follows the view: off by 0.0
-  display: shown true  crosshair true  gun marker false  says Tank  ·  160 / 160 | Cannon ready  ·  Left click fire  ·  Q lock on  ·  E get out
+  display: shown true  crosshair true  gun marker false  says Tank  ·  160 / 160 | Q lock on  ·  F get out
   shell, aimed at the ground ahead: marker to crosshair point 1.0, marker to where it went off 0.0
   shell, aimed high up (more than the gun can lift): marker to crosshair point 40.6, the shell never comes down on anything (marker faint, where it passes as far off as the crosshair point)
   bite: shells in the air 1  crosshair dim while reloading false
   shell at the ground: blocks blown out 14
+  magazine: Shells 4/4
+  four shells later: Shells 0/4 reloading 3.7  | panel: 
+  bite while reloading: shells fired 0
+  5 s on: Shells 4/4
   a shell bursting on another tank: its hp 160 -> 100
-  Q looking at another tank: locked on it true  crosshair red false  says Cannon ready  ·  Left click fire  ·  Locked on tank (Q let go)  ·  E get out
-  looking well away: turret off the target by 0.0  bite: its hp 100 -> 40.27547989798977
+  Q looking at another tank: locked on it true  crosshair red false  says Locked on tank (Q let go)  ·  F get out
+  looking well away: turret off the target by 0.0  bite: its hp 100 -> 40.27547989799481
   Q again: locked false
-  E again: on foot  tank idle  me beside it 2.5
-  on foot, Q facing a tank: locked on the tank  its hp 40.27547989798977
+  F again: on foot  tank idle  me beside it 2.5
+  on foot, Q facing a tank: locked on the tank  its hp 40.27547989799481
   3 s on: tank stays 0.0
 helicopter: in heli
   spin-up, then Jump 3 s: climbed 20.2  rotor 1.0
   W 3 s, looking along +z: moved x 0.0 z 37.8  facing 0.0
-  bite: rockets 1
-  rocket marker to where it went off: 0.0  display: marker shown false
-  E again 24.0 up: on foot  heli idle  me falling yes
+  bite (left click): rockets 0  gun rounds used 1
+  stomp (right click): rockets 1   Gun 39/40, Rockets 3/4
+  three more rockets: Gun 39/40, Rockets 0/4 reloading 5.9  | panel: 
+  6 s on: Gun 39/40, Rockets 4/4
+  gun held 1 s: Gun 29/40, Rockets 4/4
+  held 4 s in all: Gun 0/40 reloading 2.7, Rockets 4/4  | panel: 
+  3 s on: Gun 40/40, Rockets 4/4
+  rocket marker to where it went off: 0.1  display: marker shown false
+  F again 24.0 up: on foot  heli idle  me falling yes
 helicopter flown into a wall at speed: wrecked true  blocks blown out 252  me thrown clear on foot  hp 20
-a stopped helicopter (wrecked), ground under it dug out 6 deep: dropped 6.0  hp 8.96277825338818 -> -11.2
+a stopped helicopter (wrecked), ground under it dug out 6 deep: dropped 6.0  hp 11.249704322865938 -> -8.9
 first helicopter, 8 s on: height 0.0  rotor 0.4  me on the ground true  hp 20
 plane: in plane  parked one true
   W 1.5 s: rolling at 21.0  moved 16.0  height 0.0
@@ -56,6 +66,6 @@ plane: in plane  parked one true
   W, then W+Jump 4 s: speed 80.0  height 63.1  wrecked false
   D 2 s: heading 0.4
   C 2 s: height 45.1  came down 33.1
-  E again: on foot  falling true
+  F again: on foot  falling true
   left to itself at full speed: down after 6.5 s, wrecked true  me on the ground true  crater blocks 218
 errors 0 []

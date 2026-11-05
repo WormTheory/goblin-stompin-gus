@@ -57,7 +57,7 @@ function devSimulate(key){
     const I=PV.in;
     for(let f=0;f<N;f++){
       SBX.frame=f;const t=f/60,v=sc.inp(t);
-      I.x=v.x||0;I.z=v.z||0;for(const k of ['charge','chargePress','dash','dashPress','sprint','sprintPress','stomp','bite','bitePress','jumpPress','jump','lockPress','climb'])I[k]=!!v[k];I.chargeHeld=I.charge;I.lookX=I.lookY=0;
+      I.x=v.x||0;I.z=v.z||0;for(const k of ['charge','chargePress','dash','dashPress','sprint','sprintPress','stomp','bite','bitePress','jumpPress','jump','lockPress','climb','use'])I[k]=!!v[k];I.chargeHeld=I.charge;I.lookX=I.lookY=0;
       updatePlayer(PV,1/60);
       for(let i=0;i<M;i++){const o=nodes[i],b=(f*M+i)*FL,T=rec.tr;T[b]=o.position.x;T[b+1]=o.position.y;T[b+2]=o.position.z;T[b+3]=o.quaternion.x;T[b+4]=o.quaternion.y;T[b+5]=o.quaternion.z;T[b+6]=o.quaternion.w;T[b+7]=o.scale.x;T[b+8]=o.scale.y;T[b+9]=o.scale.z;T[b+10]=o.visible?1:0;}
       rec.pos[f*4]=PV.pos.x-DEV_O.x;rec.pos[f*4+1]=PV.pos.y;rec.pos[f*4+2]=PV.pos.z-DEV_O.z;rec.pos[f*4+3]=PV.heading;

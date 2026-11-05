@@ -1,4 +1,4 @@
-// Real 3D screenshots of driving in goblin mode: up to a car, E, the view from behind it, and driving off.
+// Real 3D screenshots of driving in goblin mode: up to a car, F, the view from behind it, and driving off.
 // Usage, from tools/ui (after tools/build_3d.py has made t3.html): node driveshot.js [seed] [outDir]
 const {chromium}=require('playwright');
 const fs=require('fs');
@@ -18,12 +18,12 @@ let ok=false;for(let k=0;k<30&&!ok;k++){ok=await p.evaluate(()=>{const G=window.
   if(!c)return false;c.speed=0;const h=c.heading;P.pos.set(c.pos.x-Math.cos(h)*(c.hx+0.7),c.pos.y+0.1,c.pos.z+Math.sin(h)*(c.hx+0.7));P.vy=0;P.state='walk';
   P.cam.yaw=Math.atan2(c.pos.x-P.pos.x,c.pos.z-P.pos.z)+Math.PI;P.cam.pitch=-0.2;window.__car=c;return true;});if(!ok)await p.waitForTimeout(1000);}
 await p.waitForTimeout(300);await p.screenshot({path:out+'/drive-0-beside.png'});
-await p.keyboard.down('KeyE');await p.waitForTimeout(500);await p.keyboard.up('KeyE');await p.waitForTimeout(1200);
+await p.keyboard.down('KeyF');await p.waitForTimeout(500);await p.keyboard.up('KeyF');await p.waitForTimeout(1200);
 console.log('in:',await p.evaluate(()=>{const P=window.__G.players[0];return P.drv?P.drv.k+' '+(P.drv.o===window.__car):'no';}));
 await p.screenshot({path:out+'/drive-1-in.png'});
 await p.keyboard.down('KeyW');await p.waitForTimeout(2500);await p.screenshot({path:out+'/drive-2-going.png'});await p.keyboard.up('KeyW');
 await p.keyboard.down('KeyS');await p.waitForTimeout(2000);await p.keyboard.up('KeyS');
-await p.keyboard.down('KeyE');await p.waitForTimeout(500);await p.keyboard.up('KeyE');await p.waitForTimeout(1500);
+await p.keyboard.down('KeyF');await p.waitForTimeout(500);await p.keyboard.up('KeyF');await p.waitForTimeout(1500);
 console.log('out:',await p.evaluate(()=>{const P=window.__G.players[0],c=window.__car;return(P.drv?'still in':'on foot')+' '+Math.hypot(P.pos.x-c.pos.x,P.pos.z-c.pos.z).toFixed(1);}));
 await p.screenshot({path:out+'/drive-3-out.png'});
 console.log(errs.join('\n')||'no errors');await b.close();})();

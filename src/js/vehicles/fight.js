@@ -52,21 +52,31 @@ function drvHud(p){
   let H=p.ui.drvHud;
   if(!p.drv||!DT.gob){if(H&&!H.el.hidden)H.el.hidden=true;return;}
   if(!H){const el=document.createElement('div');el.className='drvhud';
-    el.innerHTML='<div class="xh"></div><div class="xt"></div><div class="dbox"><div class="dname"></div><div class="dbar"><i></i></div><div class="dwpn"></div></div>';p.ui.view.append(el);
-    H=p.ui.drvHud={el,xh:el.querySelector('.xh'),xt:el.querySelector('.xt'),box:el.querySelector('.dbox'),name:el.querySelector('.dname'),fill:el.querySelector('.dbar i'),wpn:el.querySelector('.dwpn'),txt:{}};}
+    el.innerHTML='<div class="xh"></div><div class="xt"></div><div class="dbox"><div class="dname"></div><div class="dbar"><i></i></div><div class="dwpn"></div></div><div class="dammo"></div>';p.ui.view.append(el);
+    H=p.ui.drvHud={el,xh:el.querySelector('.xh'),xt:el.querySelector('.xt'),box:el.querySelector('.dbox'),name:el.querySelector('.dname'),fill:el.querySelector('.dbar i'),wpn:el.querySelector('.dwpn'),ammo:el.querySelector('.dammo'),txt:{}};}
   const D=p.drv,o=D.o,armed=D.k==='tank'||D.k==='heli',{hp,max}=drvHP(D),f=Math.max(0,Math.min(1,hp/max));
   const set=(k,el,v)=>{if(H.txt[k]!==v){H.txt[k]=v;el.textContent=v;}};
   H.el.hidden=false;
   set('n',H.name,drvName(D).replace(/^./,c=>c.toUpperCase())+'  ·  '+Math.max(0,Math.ceil(hp))+' / '+Math.round(max));
   const w=(f*100).toFixed(1)+'%';if(H.txt.w!==w){H.txt.w=w;H.fill.style.width=w;H.fill.style.background=f>0.5?'#7fc24a':f>0.25?'#f0a04a':'#e0564a';}
   if(H.lastHp!==undefined&&hp<H.lastHp)H.hitT=camClock;H.lastHp=hp;H.box.classList.toggle('hit',camClock-(H.hitT??-9)<0.25);
-  const fire=p.pad?padLabel(BINDS.bite.pad[0],padStyle):keyLabel(BINDS.bite.kb[0]),out=drvKey(p);
-  const ready=!(o.cd>0);
-  const lk=p.pad?padLabel(BINDS.lock.pad[0],padStyle):keyLabel(BINDS.lock.kb[0]),LT=p.lockT;
-  set('w',H.wpn,armed?(D.k==='tank'?'Cannon':'Rockets')+' '+(ready?'ready':'reloading')+'  ·  '+fire+' fire  ·  '
-      +(LT?'Locked on '+(isMilT(LT)?MIL[LT.kind].name.toLowerCase():isCarT(LT)?'a '+(LT.veh||'car'):'a goblin')+' ('+lk+' let go)':lk+' lock on')+'  ·  '+out+' get out'
+  const bl=id=>p.pad?padLabel(BINDS[id].pad[p.pad&&id==='bite'?1:0]??BINDS[id].pad[0],padStyle):keyLabel(BINDS[id].kb[0]),out=drvKey(p);
+  const lk=bl('lock'),LT=p.lockT,W=armed&&o.wpn?Object.values(o.wpn):[],w0=W[0],ready=!w0||w0.rl<=0&&w0.n>0;
+  set('w',H.wpn,armed?(LT?'Locked on '+(isMilT(LT)?MIL[LT.kind].name.toLowerCase():isCarT(LT)?'a '+(LT.veh||'car'):'a goblin')+' ('+lk+' let go)':lk+' lock on')+'  ·  '+out+' get out'
     :D.k==='plane'?(o.free&&o.free.v>=PLANE_LIFT?'Flying speed':'Take-off at '+PLANE_LIFT)+'  ·  '+out+' get out':out+' get out');
   H.xh.hidden=!armed;if(armed){H.xh.classList.toggle('cool',!ready);H.xh.classList.toggle('lock',!!LT);}
+  // (the ammo by the crosshair: each weapon, its button, a pip for each round left -- or a bar, for a machine gun's
+  // belt -- and while it reloads, a bar filling and the seconds to go)
+  H.ammo.hidden=!W.length;
+  if(W.length){const key=D.k+(p.pad?'p':'k');
+    if(H.ammoK!==key){H.ammoK=key;H.ammo.innerHTML='';H.aw=W.map(s=>{const r=document.createElement('div');r.className='aw';
+        const many=s.W.max>8,keyL=bl(s.W.k==='rkt'?'stomp':'bite');
+        r.innerHTML='<span class="an">'+s.W.name+' <b>'+keyL+'</b></span><span class="ap">'+(many?'<span class="belt"><i></i></span>':'<span class="pip"></span>'.repeat(s.W.max))+'</span><span class="ac"></span><span class="rlb"><i></i></span>';
+        H.ammo.append(r);return{r,s,many,pips:[...r.querySelectorAll('.pip')],belt:r.querySelector('.belt i'),ac:r.querySelector('.ac'),rl:r.querySelector('.rlb i'),last:''};});}
+    for(const a of H.aw){const s=o.wpn[a.s.W.k]||a.s,rl=s.rl>0,st=(rl?'r'+s.rl.toFixed(1):'n'+s.n);if(st===a.last)continue;a.last=st;
+      a.r.classList.toggle('rl',rl);
+      if(rl){a.rl.style.width=((1-s.rl/s.W.reload)*100).toFixed(1)+'%';a.ac.textContent='Reloading '+s.rl.toFixed(1)+'s';}
+      else{a.ac.textContent=a.many?String(s.n):'';if(a.many)a.belt.style.width=(s.n/s.W.max*100).toFixed(1)+'%';else a.pips.forEach((e,k)=>e.classList.toggle('e',k>=s.n));}}}
   // (where the shot would really go off, fired now, put on the screen: the gun's reach, the turret still swinging round
   // and anything in the way all show; faint when it would burst in mid-air, out of range)
   let tShow=false;
