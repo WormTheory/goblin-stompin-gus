@@ -67,12 +67,17 @@ function drvHud(p){
       +(LT?'Locked on '+(isMilT(LT)?MIL[LT.kind].name.toLowerCase():isCarT(LT)?'a '+(LT.veh||'car'):'a goblin')+' ('+lk+' let go)':lk+' lock on')+'  ·  '+out+' get out'
     :D.k==='plane'?(o.free&&o.free.v>=PLANE_LIFT?'Flying speed':'Take-off at '+PLANE_LIFT)+'  ·  '+out+' get out':out+' get out');
   H.xh.hidden=!armed;if(armed){H.xh.classList.toggle('cool',!ready);H.xh.classList.toggle('lock',!!LT);}
-  // (the tank's gun: a point out along the turret, as far off as what you're aiming at, put on the screen)
+  // (where the shot would really go off, fired now, put on the screen: the gun's reach, the turret still swinging round
+  // and anything in the way all show; faint when it would burst in mid-air, out of range)
   let tShow=false;
-  if(D.k==='tank'&&o.aim){const a=o.h+o.tu,hd=Math.hypot(o.aim.x-o.x,o.aim.z-o.z),cam=p.camera,wx=o.x+Math.sin(a)*hd,wz=o.z+Math.cos(a)*hd,
-      d2=(wx-cam.position.x)**2+(wz-cam.position.z)**2;
-    _dhv.set(wx,o.aim.y-CURVE_U.value*d2,wz).project(cam);
-    if(_dhv.z<1&&_dhv.z>-1&&Math.abs(_dhv.x)<1.2&&Math.abs(_dhv.y)<1.2){tShow=true;H.xt.style.left=((_dhv.x+1)/2*100).toFixed(2)+'%';H.xt.style.top=((1-_dhv.y)/2*100).toFixed(2)+'%';}}
+  if(armed&&o.pred){const P=o.pred,cam=p.camera,d2=(P.x-cam.position.x)**2+(P.z-cam.position.z)**2;
+    _dhv.set(P.x,P.y-CURVE_U.value*d2,P.z).project(cam);
+    // (off the screen -- the turret still swung well away, or the gun far below where you're looking -- it sits at the
+    // edge, toward where the shot will go)
+    if(_dhv.z<1&&_dhv.z>-1){tShow=true;const off=Math.abs(_dhv.x)>0.97||Math.abs(_dhv.y)>0.95;
+      H.xt.style.left=((Math.max(-0.97,Math.min(0.97,_dhv.x))+1)/2*100).toFixed(2)+'%';H.xt.style.top=((1-Math.max(-0.95,Math.min(0.95,_dhv.y)))/2*100).toFixed(2)+'%';
+      H.xt.classList.toggle('off',off);}
+    H.xt.classList.toggle('air',!!P.air);}
   H.xt.hidden=!tShow;
 }
 // on his way down a ramp he stays on it, instead of falling a little and landing every few steps

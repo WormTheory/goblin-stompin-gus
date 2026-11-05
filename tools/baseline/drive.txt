@@ -20,7 +20,7 @@ train: in train  car 1
   turned round, W 3 s: speed -9.6 (the other way now)
   E again: on foot  train speed 9.7  waits 0.0
 boat (launch): in boat
-  W 4 s: moved 28.1  speed 10.2  afloat at 0.9
+  W 4 s: moved 28.1  speed 10.2  afloat at 0.8
   W+A 2 s: turned 2.3
   E again: on foot  in the water beside it 2.4  y -1.3
   3 s on: it stays put (off its route) 0.0
@@ -30,8 +30,10 @@ tank: in tank  base alerted false
   A 1.5 s: turned on the spot 1.4  moved 11.3
   turret follows the view: off by 0.0
   display: shown true  crosshair true  gun marker false  says Tank  ·  160 / 160 | Cannon ready  ·  Left click fire  ·  Q lock on  ·  E get out
+  shell, aimed at the ground ahead: marker to crosshair point 1.0, marker to where it went off 0.0
+  shell, aimed high up (more than the gun can lift): marker to crosshair point 40.6, the shell never comes down on anything (marker faint, where it passes as far off as the crosshair point)
   bite: shells in the air 1  crosshair dim while reloading false
-  shell at the ground: blocks blown out 17
+  shell at the ground: blocks blown out 14
   a shell bursting on another tank: its hp 160 -> 100
   Q looking at another tank: locked on it true  crosshair red false  says Cannon ready  ·  Left click fire  ·  Locked on tank (Q let go)  ·  E get out
   looking well away: turret off the target by 0.0  bite: its hp 100 -> 40.27547989798977
@@ -43,10 +45,11 @@ helicopter: in heli
   spin-up, then Jump 3 s: climbed 20.2  rotor 1.0
   W 3 s, looking along +z: moved x 0.0 z 37.8  facing 0.0
   bite: rockets 1
+  rocket marker to where it went off: 0.0  display: marker shown false
   E again 24.0 up: on foot  heli idle  me falling yes
 helicopter flown into a wall at speed: wrecked true  blocks blown out 252  me thrown clear on foot  hp 20
-a stopped helicopter (wrecked), ground under it dug out 6 deep: dropped 6.0  hp -40 -> -40.0
-first helicopter, 8 s on: height 0.0  rotor 0.0  me on the ground true  hp 20
+a stopped helicopter (wrecked), ground under it dug out 6 deep: dropped 6.0  hp 8.96277825338818 -> -11.2
+first helicopter, 8 s on: height 0.0  rotor 0.4  me on the ground true  hp 20
 plane: in plane  parked one true
   W 1.5 s: rolling at 21.0  moved 16.0  height 0.0
   Jump below take-off speed: height 0.0

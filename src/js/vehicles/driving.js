@@ -121,7 +121,8 @@ function drvCamera(p){
   if(D.k!=='heli'&&D.k!=='train'&&camClock-(p.drvLook??-9)>1.2&&Math.abs(S.v)>1.5)p.cam.yaw+=angDiff(p.cam.yaw,S.h+Math.PI)*0.035;
   p.drvYaw=p.cam.yaw;
   const cp=Math.cos(p.cam.pitch),fx=-Math.sin(p.cam.yaw)*cp,fy=Math.sin(p.cam.pitch),fz=-Math.cos(p.cam.yaw)*cp;
-  const tx=S.x,ty=S.y+S.hy+0.8,tz=S.z,base=4+Math.max(S.hz,S.hx)*1.4;let dist=base;
+  // (a tank or a helicopter: up higher and further back, so you see over it to what you're aiming at)
+  const gun=D.k==='tank'||D.k==='heli',tx=S.x,ty=S.y+S.hy+(gun?2.6:0.8),tz=S.z,base=4+Math.max(S.hz,S.hx)*1.4+(gun?2:0);let dist=base;
   for(let t=0.6;t<=base;t+=0.3){if(solidAt(Math.floor(tx-fx*t),Math.floor(ty-fy*t),Math.floor(tz-fz*t))){dist=Math.max(0.8,t-0.5);break;}}
   let cx=tx-fx*dist,cy=ty-fy*dist,cz=tz-fz*dist;const gy=supportAt(cx,cz,cy);if(gy!==null&&cy<gy+0.4)cy=gy+0.4;
   if(fy>0.2&&cy<S.y+S.hy*0.8)cy=S.y+S.hy*0.8;   // (looking up: not from down inside the vehicle)
@@ -137,15 +138,32 @@ function drvCar(c,dt){
   c.steer+=(st-c.steer)*Math.min(1,dt*8);c.heading+=c.steer*dt*Math.max(-1,Math.min(1,c.speed/5))*1.7;
   if(i.bitePress&&c.honkT<=0){horn(0.12);c.honkT=0.4;}   // (bite sounds the horn)
 }
+// a tank's shell as it would leave the gun now: from the muzzle, along the turret as it's turned (it may still be swinging
+// round), climbing or dipping toward A only as far as the gun goes (about 31 degrees up, 27 down)
+function tankShell(M,A){const a=M.h+M.tu,fx=Math.sin(a),fz=Math.cos(a),x=M.x+fx*3.9,y=M.y+2.2,z=M.z+fz*3.9,L=Math.hypot(A.x-x,A.y-y,A.z-z)||1,sp=45,
+    hz=Math.max(1,Math.hypot(A.x-x,A.z-z)),k=Math.max(-0.5,Math.min(0.6,(A.y-y)/hz));
+  return{x,y,z,vx:fx*sp,vy:k*sp+L/sp,vz:fz*sp};}
+// where a shell or rocket fired like that (F: its start and velocity) would go off: its flight, step by step as
+// updateShots moves it, to the first block or vehicle (other than own) it meets, or where its fuse runs out ({x,y,z,air}).
+// A: what's being aimed at; a shot that never comes down on anything (aimed above what the gun can reach, say) is
+// marked instead where it passes, as far off as A is, so you can see how far under the crosshair it goes
+const _sp={pos:new V3(),own:null};
+function shotPath(F,grav,fuse,own,A){
+  let x=F.x,y=F.y,z=F.z,vx=F.vx,vy=F.vy,vz=F.vz,mid=null;_sp.own=own;
+  const sp=Math.hypot(vx,vy,vz)||1,h=Math.min(1/30,0.4/sp),hd=A?Math.hypot(A.x-F.x,A.z-F.z):1e9;
+  for(let t=0,k=0;t<fuse;t+=h,k++){vy-=grav*h;const nx=x+vx*h,ny=y+vy*h,nz=z+vz*h;
+    if(ny<1||solidAt(nx,Math.floor(ny),nz))return{x,y,z,air:false};
+    x=nx;y=ny;z=nz;if(!mid&&Math.hypot(x-F.x,z-F.z)>=hd)mid={x,y,z};if(k%3===0){_sp.pos.set(x,y,z);if(shotHitsVeh(_sp))return{x,y,z,air:false};}}
+  return mid?{...mid,air:true}:{x,y,z,air:true};}
 // driving a tank: turns on the spot, forward and back; the turret follows where you look, and bite fires a shell there
 function drvTank(M,dt){
   const p=M.drv,i=p.in,thr=-i.z,st=-i.x;
   M.sv+=(thr*7-M.sv)*Math.min(1,dt*1.5);
   {const nh=M.h+st*0.9*dt;if(!milBlocked(M,M.x,M.z,nh,M.y)||milBlocked(M,M.x,M.z,M.h,M.y))M.h=nh;}
   const A=drvAim(p,45);M.aim=A;M.tu=angTo(M.tu,Math.atan2(A.x-M.x,A.z-M.z)-M.h,1.4*dt);
-  M.cd-=dt;if(i.bitePress&&M.cd<=0){const a=M.h+M.tu,fx=Math.sin(a),fz=Math.cos(a),mx=M.x+fx*3.9,my=M.y+2.2,mz=M.z+fz*3.9,L=Math.hypot(A.x-mx,A.y-my,A.z-mz)||1,sp=45,
-      hz=Math.max(1,Math.hypot(A.x-mx,A.z-mz)),vy=Math.max(-0.5,Math.min(0.6,(A.y-my)/hz));
-    shot({kind:'shell',x:mx,y:my,z:mz,vx:fx*sp,vy:vy*sp+L/sp,vz:fz*sp,grav:2,fuse:4,R:4.5,dmg:4,cause:'Blown up by a goblin in a tank',crush:3.2,vd:60,own:M});
+  const F=tankShell(M,A);M.pred=shotPath(F,2,4,M,A);
+  M.cd-=dt;if(i.bitePress&&M.cd<=0){const mx=F.x,my=F.y,mz=F.z;
+    shot({kind:'shell',x:mx,y:my,z:mz,vx:F.vx,vy:F.vy,vz:F.vz,grav:2,fuse:4,R:4.5,dmg:4,cause:'Blown up by a goblin in a tank',crush:3.2,vd:60,own:M});
     M.cd=1.2;smoke(mx,my,mz,4,0x8a8a80);puff(mx,my,mz,4,0xffc040,0.3);if(audio){noise(0.6,0.6,350,'lowpass');tone('sawtooth',70,30,0.5,0.15);}addShake(0.3,M.x,M.z,30);}
   // (anything more than a block up stops it; leaning on it a moment, it smashes through)
   if(Math.abs(M.sv)>0.05){const d=M.sv<0?-1:1,fx=Math.sin(M.h)*d,fz=Math.cos(M.h)*d,ax=M.x+fx*3,az=M.z+fz*3;
@@ -175,8 +193,10 @@ function drvHeli(M,dt){
   M.h=angTo(M.h,yaw,1.6*dt);
   const sp=Math.hypot(M.hv.x,M.hv.z),va=Math.atan2(M.hv.x,M.hv.z)-M.h;M.pitch=Math.min(0.25,sp*0.02)*Math.cos(va);M.roll=-Math.min(0.25,sp*0.02)*Math.sin(va);
   M.rot.rotation.y+=dt*M.spin*28;M.trot.rotation.x+=dt*M.spin*40;
-  M.cd-=dt;if(i.bitePress&&M.cd<=0&&lift){const A=drvAim(p,36),mx=M.x+Math.sin(M.h)*2.6,my=M.y+1.2,mz=M.z+Math.cos(M.h)*2.6,L=Math.hypot(A.x-mx,A.y-my,A.z-mz)||1,sp2=36;
-    shot({kind:'rocket',x:mx,y:my,z:mz,vx:(A.x-mx)/L*sp2,vy:(A.y-my)/L*sp2,vz:(A.z-mz)/L*sp2,grav:0.5,fuse:5,R:4.2,dmg:4,cause:'Blown up by a goblin in a helicopter',crush:2.8,vd:45,own:M});M.cd=0.6;if(audio)noise(0.5,0.25,900,'bandpass');}
+  {const A=drvAim(p,36),mx=M.x+Math.sin(M.h)*2.6,my=M.y+1.2,mz=M.z+Math.cos(M.h)*2.6,L=Math.hypot(A.x-mx,A.y-my,A.z-mz)||1,sp2=36;
+   M.rk={x:mx,y:my,z:mz,vx:(A.x-mx)/L*sp2,vy:(A.y-my)/L*sp2,vz:(A.z-mz)/L*sp2};M.pred=lift?shotPath(M.rk,0.5,5,M,A):null;}
+  M.cd-=dt;if(i.bitePress&&M.cd<=0&&lift){const F=M.rk;
+    shot({kind:'rocket',x:F.x,y:F.y,z:F.z,vx:F.vx,vy:F.vy,vz:F.vz,grav:0.5,fuse:5,R:4.2,dmg:4,cause:'Blown up by a goblin in a helicopter',crush:2.8,vd:45,own:M});M.cd=0.6;if(audio)noise(0.5,0.25,900,'bandpass');}
   milPlace(M);milBoxes(M,0);milShove(M);
   if(M.spin>0.3&&audio&&playing){M.thT=(M.thT||0)-dt;if(M.thT<=0){M.thT=0.11;noise(0.08,0.05*M.spin,180,'lowpass');}}
 }
