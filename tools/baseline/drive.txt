@@ -1,17 +1,18 @@
 E with nothing near: on foot  moved 0.0
 car (car): in car  same car true  camera behind it 6.1
   W 2.5 s: moved 31.5  speed 24.0  still on the street (not recycled) true  me with it 0.0
-  W+D 1 s: heading turned -0.7 (right is negative)
-  display: shown true  crosshair false  says Car  ·  29 / 30
-  W at a one-block step: up by 1.0  went 28.6  hp 29.0
+  W+D 1 s: heading turned -1.5 (right is negative)
+  display: shown true  crosshair false  says Car  ·  17 / 30
+  W at a one-block step: up by 1.0  went 28.6  hp 16.4
+  W into a wall at 22.5 : wall blocks smashed 22  car hp 16.4 -> 3.0  through it true
   S 1.5 s: speed -8.0
   S on: reversing -8.0
-  E again: on foot  out beside it 1.9  left true
+  E again: on foot  out beside it 1.8  left true
   3 s later: car speed -0.0  still there true
   W on foot walks again: in on foot
 motorcycles in the traffic mix: street 8%, hw 5%, park 8%
 motorcycle: in car  size 0.8 x 2.0  display says Motorcycle  ·  30 / 30
-  W 2 s: moved 20.6  speed 20.2
+  W 2 s: moved 15.0  speed 8.1
   W+A: leaning -0.4 (left is negative)
   E again: on foot  beside it 2.5
 train: in train  car 1
@@ -21,29 +22,29 @@ train: in train  car 1
 boat (launch): in boat
   W 4 s: moved 28.1  speed 10.2  afloat at 0.9
   W+A 2 s: turned 2.3
-  E again: on foot  in the water beside it 2.4  y -1.2
+  E again: on foot  in the water beside it 2.4  y -1.3
   3 s on: it stays put (off its route) 0.0
 errors 0 []
 tank: in tank  base alerted false
-  W 3 s: moved 8.6  speed 0.2
-  A 1.5 s: turned on the spot 1.4  moved 8.6
+  W 3 s: moved 10.4  speed 4.5
+  A 1.5 s: turned on the spot 1.4  moved 11.3
   turret follows the view: off by 0.0
   display: shown true  crosshair true  gun marker false  says Tank  ·  160 / 160 | Cannon ready  ·  Left click fire  ·  Q lock on  ·  E get out
   bite: shells in the air 1  crosshair dim while reloading false
-  shell at the ground: blocks blown out 13
+  shell at the ground: blocks blown out 17
   a shell bursting on another tank: its hp 160 -> 100
   Q looking at another tank: locked on it true  crosshair red false  says Cannon ready  ·  Left click fire  ·  Locked on tank (Q let go)  ·  E get out
-  looking well away: turret off the target by 0.0  bite: its hp 100 -> 40.60781570610937
+  looking well away: turret off the target by 0.0  bite: its hp 100 -> 40.27547989798977
   Q again: locked false
   E again: on foot  tank idle  me beside it 2.5
-  on foot, Q facing a tank: locked on the tank  its hp 40.60781570610937
+  on foot, Q facing a tank: locked on the tank  its hp 40.27547989798977
   3 s on: tank stays 0.0
 helicopter: in heli
   spin-up, then Jump 3 s: climbed 20.2  rotor 1.0
   W 3 s, looking along +z: moved x 0.0 z 37.8  facing 0.0
   bite: rockets 1
   E again 24.0 up: on foot  heli idle  me falling yes
-helicopter flown into a wall at speed: wrecked true  blocks blown out 248  me thrown clear on foot  hp 20
+helicopter flown into a wall at speed: wrecked true  blocks blown out 252  me thrown clear on foot  hp 20
 a stopped helicopter (wrecked), ground under it dug out 6 deep: dropped 6.0  hp -40 -> -40.0
 first helicopter, 8 s on: height 0.0  rotor 0.0  me on the ground true  hp 20
 plane: in plane  parked one true
@@ -53,5 +54,5 @@ plane: in plane  parked one true
   D 2 s: heading 0.4
   C 2 s: height 45.1  came down 33.1
   E again: on foot  falling true
-  left to itself at full speed: down after 6.5 s, wrecked true  me on the ground true  crater blocks 216
+  left to itself at full speed: down after 6.5 s, wrecked true  me on the ground true  crater blocks 218
 errors 0 []

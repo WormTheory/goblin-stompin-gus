@@ -42,6 +42,10 @@ if(!TENVMODE){
    for(let a=-6;a<=45;a++)for(let b=-4;b<=4;b++){T.setRaw(X+a,Y-1,Z+b,3);for(let y=Y;y<Y+6;y++)T.setRaw(X+a,y,Z+b,a>=8&&y===Y?3:0);made.push([X+a,Z+b]);}
    c.pos.set(X+0.5,Y,Z+0.5);c.heading=Math.PI/2;c.steer=0;c.vy=0;run(0.3);
    const cy=c.pos.y;hold(['KeyW'],2.5);console.log('  W at a one-block step: up by',f1(c.pos.y-cy),' went',f1(c.pos.x-X),' hp',f1(c.hp));
+   // (a wall across the far end of the slab: hit at speed, it's smashed through)
+   {for(let b=-4;b<=4;b++)for(let y=Y+1;y<Y+4;y++)T.setRaw(X+40,y,Z+b,3);c.speed=0;run(0.2);c.pos.set(X+10.5,Y+1,Z+0.5);c.heading=Math.PI/2;c.steer=0;c.vy=0;c.stepT=0;run(0.3);
+    const e0=T.nEdits,h0=c.hp;let t=0,v=0;T.keys.add('KeyW');while(t<4&&c.pos.x<X+36){run(0.05);t+=0.05;}v=c.speed;run(0.4);T.keys.delete('KeyW');
+    console.log('  W into a wall at',f1(v),': wall blocks smashed',T.nEdits-e0,' car hp',h0,'->',f1(c.hp),' through it',c.pos.x>X+40);}
    c.speed=0;run(0.5);}   // (and the rest happens up there)
   hold(['KeyS'],1.5);console.log('  S 1.5 s: speed',f1(c.speed));
   hold(['KeyS'],1.5);console.log('  S on: reversing',f1(c.speed));run(1);

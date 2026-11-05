@@ -9950,7 +9950,7 @@ function drvTank(M,dt){
   // (anything more than a block up stops it; leaning on it a moment, it smashes through)
   if(Math.abs(M.sv)>0.05){const d=M.sv<0?-1:1,fx=Math.sin(M.h)*d,fz=Math.cos(M.h)*d,ax=M.x+fx*3,az=M.z+fz*3;
     if(groundAt(ax,az,M.y+2)-M.y>1.05||groundAt(ax-fz*1.2,az+fx*1.2,M.y+2)-M.y>1.05||groundAt(ax+fz*1.2,az-fx*1.2,M.y+2)-M.y>1.05){M.sv*=0.5;M.stuck+=dt;
-      if(M.stuck>0.5){M.stuck=0;crushBall(ax,M.y+1,az,1.8);clang();}}
+      if(M.stuck>0.5||Math.abs(M.sv)>2.2){M.stuck=0;{const fast=Math.abs(M.sv)>2.2;crushBall(ax,M.y+(fast?2.5:1),az,fast?2.4:1.8);};clang();if(Math.abs(M.sv)>2.2)addShake(0.5,ax,az,25);}}   // (rammed at speed, it's straight through)
     else{const nx=M.x+Math.sin(M.h)*M.sv*dt,nz=M.z+Math.cos(M.h)*M.sv*dt;
       if(milBlocked(M,nx,nz,M.h,M.y)&&!milBlocked(M,M.x,M.z,M.h,M.y))M.sv=0;else{M.stuck=0;M.x=nx;M.z=nz;}}}
   M.v=Math.max(0,M.sv);
@@ -17887,7 +17887,13 @@ function updateCars(dt){
         {const np=nearestPlayer(c.pos.x,c.pos.z,false);if(np&&np.d<36)thud(0.12*(1-np.d/36));}
       }
       else if(ahead-c.pos.y>rampLim){
-        if(c.hunter||c.drv){if(Math.abs(c.speed)>6){damageCar(c,1,undefined,'acc');thud(0.25);}c.speed*=-0.25;if(c.reverseT<=0)c.reverseT=0.8;}
+        // (into a wall fast enough, and it smashes a hole in it, wrecking its own front and losing most of its speed;
+        // the bigger the vehicle and the faster, the bigger the hole; slower than that, it bounces off)
+        if((c.hunter||c.drv)&&Math.abs(c.speed)>13){const sp=Math.abs(c.speed),k=Math.min(1,(sp-13)/15),big=c.hz>3*ES?1.35:c.veh==='bike'?0.7:1,R=(1.5+k*1.4)*big,
+            ix=c.pos.x+fx*2.7*dir,iz=c.pos.z+fz*2.7*dir,iy=c.pos.y+Math.min(R*0.9,(c.hy||1.4)*0.6)+0.1;
+          crushBall(ix,iy,iz,R,{force:0.8+k});damageCar(c,4+sp*0.4,undefined,'acc');thud(0.7);clang();addShake(0.4+k*0.5,ix,iz,25);smoke(ix,iy,iz,6,0x9a948a);
+          c.speed*=0.35;}
+        else if(c.hunter||c.drv){if(Math.abs(c.speed)>6){damageCar(c,1,undefined,'acc');thud(0.25);}c.speed*=-0.25;if(c.reverseT<=0)c.reverseT=0.8;}
         else if(c.path){const W=c.path[0],d=Math.hypot(W.x-c.pos.x,W.z-c.pos.z)||1;c.speed=Math.min(c.speed,1);nudgeFlat(c,(W.x-c.pos.x)/d*2*dt,(W.z-c.pos.z)/d*2*dt);
           // wedged against a barrier just after peeling off the motorway: give up on the exit and carry on along the motorway
           c.pathBlk=(c.pathBlk||0)+dt;if(c.pathBlk>1.5&&c.prevHw&&Math.abs(c.pos.y-c.prevHw.y)<1.2){c.hw=c.prevHw;c.prevHw=null;c.path=null;c.pathBlk=0;}}
