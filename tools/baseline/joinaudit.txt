@@ -1,0 +1,10 @@
+world seed 266144506
+ground highway ends 563 not joined to streets 0 []
+routes 310 length 310082 problem stretches {}
+by block {}
+street stretches 3648 junction degrees {"0":4333,"1":215,"2":316,"3":383,"4":1314} problems {"blocked CONCRETE":3,"noSurface CONCRETE":1}
+  {"k":"blocked","x":-18,"y":45,"z":98,"b":"CONCRETE","n":36,"type":"mid"}
+  {"k":"noSurface","x":-16,"y":44,"z":98,"b":"CONCRETE","n":32,"type":"mid"}
+  {"k":"blocked","x":424,"y":46,"z":-478,"b":"CONCRETE","n":5,"type":"plains"}
+  {"k":"blocked","x":412,"y":46,"z":-478,"b":"CONCRETE","n":4,"type":"ramp"}
+dead ends 215 with road just beyond 14 [{"i":-39,"j":-31,"x":-1244,"z":-988,"dir":0,"type":"homes","near":8,"bar":"AIR"},{"i":-39,"j":-24,"x":-1244,"z":-764,"dir":2,"type":"dump","near":8,"bar":"AIR"},{"i":-36,"j":-29,"x":-1148,"z":-924,"dir":3,"type":"plains","near":8,"bar":"AIR"},{"i":-31,"j":39,"x":-988,"z":1252,"dir":1,"type":"food","near":8,"bar":"AIR"},{"i":-1,"j":-29,"x":-28,"z":-924,"dir":1,"type":"mid","near":8,"bar":"AIR"},{"i":3,"j":-16,"x":100,"z":-508,"dir":2,"type":"plains","near":12,"bar":"AIR"},{"i":3,"j":-15,"x":100,"z":-476,"dir":0,"type":"ramp","near":14,"bar":"AIR"},{"i":4,"j":16,"x":132,"z":516,"dir":1,"type":"homes","near":26,"bar":"AIR"}]

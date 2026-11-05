@@ -9,7 +9,7 @@ school Gus got to the top
 schoolWide none found
 schoolTall stair {"ax":"z","c0":23,"c1":27,"r0":29,"L":5} floors [45,50] plot -102 -148
 schoolTall up reached in 5s floors 45 50
-schoolTall down reached in 2s floors 50 45
+schoolTall down reached in 7s floors 50 45
 schoolTall Gus got to the top
 police stair {"ax":"x","c0":15,"c1":18,"r0":29,"L":5} floors [45,50,55,60] plot -2 -8
 police up reached in 17s floors 45 50
@@ -38,5 +38,5 @@ mid down reached in 5s floors 50 45
 mid Gus got to the top
 tower stair {"ax":"x","c0":15,"c1":17,"r0":12,"L":5} floors [45,50,55,60] plot -1 -1
 tower up reached in 3s floors 45 50
-tower down reached in 7s floors 50 45
+tower down reached in 8s floors 50 45
 tower Gus got to the top

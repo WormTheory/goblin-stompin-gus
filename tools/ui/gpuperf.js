@@ -1,7 +1,7 @@
 // Real frame rates, on this machine's real graphics card: the game at 1280x720 with the frame cap off, standing in a city, and then
 // while a tall building topples. Prints the card's name, frames per second, and frame times (the time between frames, so all of
 // it counts: JavaScript, the driver and the card).
-// (VIEW=2000 DETAIL=500 set the view and detail distances; WAITMS how long to let the distance load first.)
+// (STRESS=8 brings down the buildings round it too. RUN=1 instead moves across the city at 30 blocks a second. VIEW=2000 DETAIL=500 set the view and detail distances; WAITMS how long to let the distance load first.)
 // Usage, from tools/ui, after python tools/build_3d.py game/index.html tools/ui/t3.html: node gpuperf.js [page.html] [seed] [nth tallest]
 const {chromium}=require('playwright');
 const fs=require('fs');
@@ -26,7 +26,10 @@ const gather=ms=>p.evaluate(ms=>new Promise(r=>{const a=[];let l=performance.now
 const st=(tag,a)=>{a=a.slice(1);const m=[...a].sort((x,y)=>x-y),q=f=>m[Math.floor(f*(m.length-1))].toFixed(1),tot=a.reduce((x,y)=>x+y,0);console.log(tag.padEnd(14),`${(a.length/tot*1000).toFixed(0)} fps  frame avg ${(tot/a.length).toFixed(1)} ms  p50 ${q(.5)} p90 ${q(.9)} p99 ${q(.99)} worst ${q(1)}  (frames ${a.length})`);};
 st('standing',await gather(5000));
 const calls=await p.evaluate(()=>window.__G.renderer.info.render.calls);console.log('draw calls',calls);
-await p.evaluate(()=>{const G=window.__G,[x,z]=window.__spot;G.collapseBuilding(G.bldgAt(x,z),G.G+1+G.FH*2,{x:1,z:0});});
+await p.evaluate(n=>{window.__stress=n;},+(process.env.STRESS||0));
+if(process.env.RUN){await p.evaluate(()=>{const G=window.__G,P=G.players[0];clearInterval(window.__hold);let [x,z]=window.__spot,a=0;x+=45;z+=45;window.__hold=setInterval(()=>{a+=0.01;x+=0.6;z+=Math.sin(a)*0.3;P.pos.set(x,G.G+1.5,z);P.vy=0;P.hp=999;P.cam.yaw=-Math.PI/2;P.cam.pitch=0.1;},20);});
+  st('running',await gather(15000));console.log(errs.slice(0,5).join(String.fromCharCode(10))||'no errors');await b.close();return;}
+await p.evaluate(()=>{const G=window.__G,[x,z]=window.__spot;G.collapseBuilding(G.bldgAt(x,z),G.G+1+G.FH*2,{x:1,z:0});for(let a=0;a<(window.__stress||0);a++){const dx=[40,-40,0,0,40,-40,40,-40][a],dz=[0,0,40,-40,40,40,-40,-40][a],B=G.bldgAt(x+dx,z+dz);if(B&&B.b.top>G.G+10)G.collapseBuilding(B,G.G+1+G.FH,{x:Math.sign(-dx)||1,z:0});}});
 st('toppling',await gather(7000));
 st('after, fires',await gather(6000));
 console.log(errs.slice(0,5).join('\n')||'no errors');await b.close();})();

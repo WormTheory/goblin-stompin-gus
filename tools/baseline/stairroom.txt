@@ -1,28 +1,28 @@
-  210 fire/firehall/apartment            share avg 30% max 30% (11x11) door blocked 0 room beside 8
+  209 fire/firehall/apartment            share avg 30% max 30% (11x11) door blocked 0 room beside 8
    18 campus/apartment/apartment         share avg 24% max 29% (12x10) door blocked 6 room beside 6
   415 tower/lobby/office                 share avg 16% max 29% (14x12) door blocked 0 room beside 9
     8 armory/armory/office               share avg 26% max 26% (14x11) door blocked 0 room beside 8
-    4 lab/lab/lab                        share avg 24% max 24% (14x13) door blocked 0 room beside 10
+    5 lab/lab/lab                        share avg 24% max 24% (14x13) door blocked 0 room beside 10
    24 police/police/police               share avg 9% max 22% (14x9) door blocked 8 room beside 6
-   98 mansion/apartment/apartment        share avg 22% max 22% (14x9) door blocked 0 room beside 6
-   24 club/club/apartment                share avg 21% max 21% (14x12) door blocked 0 room beside 9
+   97 mansion/apartment/apartment        share avg 22% max 22% (14x9) door blocked 0 room beside 6
+   25 club/club/apartment                share avg 21% max 21% (14x12) door blocked 0 room beside 9
    60 bank/bank/office                   share avg 21% max 21% (14x12) door blocked 0 room beside 9
    19 disco/disco/apartment              share avg 21% max 21% (14x12) door blocked 0 room beside 9
    36 derelict/apartment/apartment       share avg 21% max 21% (12x11) door blocked 0 room beside 8
    34 derelict/shop/apartment            share avg 21% max 21% (12x11) door blocked 0 room beside 8
-  402 mid/shop/apartment                 share avg 16% max 20% (14x14) door blocked 0 room beside 11
+  403 mid/shop/apartment                 share avg 16% max 20% (14x14) door blocked 0 room beside 11
   165 mid/shop/office                    share avg 15% max 20% (14x14) door blocked 0 room beside 11
-  326 mid/apartment/apartment            share avg 16% max 20% (14x14) door blocked 0 room beside 11
+  329 mid/apartment/apartment            share avg 16% max 20% (14x14) door blocked 0 room beside 11
   147 mid/apartment/office               share avg 16% max 20% (14x14) door blocked 0 room beside 11
-  610 homes/apartment/apartment          share avg 20% max 20% (14x10) door blocked 0 room beside 7
+  609 homes/apartment/apartment          share avg 20% max 20% (14x10) door blocked 0 room beside 7
    28 news/news/office                   share avg 18% max 18% (14x11) door blocked 0 room beside 8
-   54 library/library/library            share avg 17% max 17% (14x12) door blocked 0 room beside 9
+   55 library/library/library            share avg 17% max 17% (14x12) door blocked 0 room beside 9
    10 school/school/school               share avg 7% max 16% (14x19) door blocked 0 room beside 6
-   22 airport/terminal/office            share avg 14% max 14% (26x10) door blocked 0 room beside 7
+   24 airport/terminal/office            share avg 14% max 14% (26x10) door blocked 0 room beside 7
    30 campus/lecture/school              share avg 10% max 12% (23x13) door blocked 0 room beside 9
    18 mega/lobby/office                  share avg 9% max 11% (9x48) door blocked 0 room beside 6
    18 nasa/mission/office                share avg 9% max 9% (22x14) door blocked 0 room beside 11
-   12 casino/casino/apartment            share avg 7% max 9% (46x10) door blocked 0 room beside 7
+   13 casino/casino/apartment            share avg 7% max 9% (46x10) door blocked 0 room beside 7
    10 hospital/hosp/ward                 share avg 5% max 7% (14x39) door blocked 0 room beside 11
     8 nuclear/office/office              share avg 7% max 7% (24x16) door blocked 0 room beside 13
     8 nuclear/office/police              share avg 7% max 7% (24x16) door blocked 0 room beside 13

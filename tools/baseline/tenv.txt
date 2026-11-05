@@ -1,0 +1,41 @@
+in tenv true seed 12345
+gus at 10.5 45.0 10.5 blocks above ground within 60: 0
+empty world: fixtures 0 props 0 doors 0 landmarks 0 venues 0 cars alive 0 goblins about 0
+after 20 s: cars alive 0 goblins about 0
+hospital  from 0,8 built at 1,-1 ahead 68 aside 13 yaw 4.44
+hospital  box {"k":"hospital","ax":1,"az":-1,"w":3,"h":3,"sx":0,"sz":8} search+build ms N | blocks in box 12089 top 97 | outside (south strip) 0 | gus 11 45.0 11 | fixtures 35 props 0 doors 0 signs 1 venues 0
+homes     from -5,7 built at -1,-1 ahead 9 aside 36 yaw 5.74
+homes     box {"k":"homes","ax":-1,"az":-1,"w":1,"h":1,"sx":-5,"sz":7} search+build ms N | blocks in box 325 top 60 | outside (south strip) 1436 | gus 11 45.0 11 | fixtures 44 props 28 doors 1 signs 1 venues 0
+fire      from -2,4 built at -2,1 ahead 13 aside 68 yaw 0.76
+fire      box {"k":"fire","ax":-2,"az":1,"w":1,"h":1,"sx":-2,"sz":4} search+build ms N | blocks in box 260 top 74 | outside (south strip) 0 | gus 11 45.0 11 | fixtures 63 props 34 doors 1 signs 2 venues 0
+mall      not found There's no mall within 4,800 blocks in this world's plan. Try another kind, or go to one spawned further off and look from there.
+zoo       from -72,66 built at 4,3 ahead 204 aside 157 yaw 3.36
+zoo       box {"k":"zoo","ax":4,"az":3,"w":5,"h":5,"sx":-72,"sz":66} search+build ms N | blocks in box 1254 top 52 | outside (south strip) 0 | gus 11 45.0 11 | fixtures 63 props 34 doors 1 signs 2 venues 1
+farm      from -23,-27 built at 1,-3 ahead 33 aside 92 yaw 4.66
+farm      box {"k":"farm","ax":1,"az":-3,"w":1,"h":1,"sx":-23,"sz":-27} search+build ms N | blocks in box 212 top 56 | outside (south strip) 1430 | gus 11 45.0 11 | fixtures 63 props 34 doors 1 signs 2 venues 1
+foe goblin  Spawned 5 goblins ahead of Gus.
+foe cop     Spawned 1 police officer ahead of Gus.
+foe civ     Spawned 1 civilian ahead of Gus.
+veh bus     Spawned 1 hunting bus ahead of Gus.
+veh car     Spawned 1 hunting car ahead of Gus.
+veh van     Spawned 1 hunting van ahead of Gus.
+veh pickup  Spawned 1 hunting pickup ahead of Gus.
+veh truck   Spawned 1 hunting truck ahead of Gus.
+veh semi    Spawned 1 hunting semi truck ahead of Gus.
+veh fire    Spawned 1 hunting fire engine ahead of Gus.
+veh amb     Spawned 1 hunting ambulance ahead of Gus.
+veh news    Spawned 1 hunting news van ahead of Gus.
+veh bike    Spawned 1 hunting motorcycle ahead of Gus.
+veh police  Spawned 1 hunting police car ahead of Gus.
+veh tank    Spawned 1 hunting tank ahead of Gus.
+veh heli    Spawned 1 hunting helicopter ahead of Gus.
+veh plane   Spawned 1 plane ahead of Gus, ready to fly: get in, speed up, then jump to take off.
+veh park Spawned 3 parked buses ahead of Gus.
+goblins out 15 distances 6.7 9.1 8.7 11.3 3.6 8.1 7.5 69.9 67.8 61.5 72.6 68.6 64.6 65.9 67.3 cars Ch20 Ch32 Ch10 Ch22 Ch36 Ch36 Ch13 Ch20 Ch23 Ch8 Ph35 C31 C47 C24 C73 C92 C69 C89 C66 C95
+after 4 s: goblins out 59.5 71.6 67.6 58.9 74.7 57.9 | gus hp 10 | cars Ch21 Ph16 C48 C62 C28 C60 C109 C58 C106 C55 C112
+army tank:hunt 50m up 2.5, heli:hunt 14m up 0.0
+cleared: goblins out 6 cars 6
+removed hospital blocks left in its box 0 boxes 4 saved null
+reset 1st press: Sure? Press again | boxes 4
+reset 2nd press: boxes 0 army false cars 0 in tenv true
+errors 0 []

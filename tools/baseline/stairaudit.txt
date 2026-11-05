@@ -1,34 +1,34 @@
 NO STAIRS
-   210 fire/normal/office/office w 3-3 d 5-5 floors 4-6 gf 5-5
-   207 build/site/office/office w 10-10 d 10-10 floors 5-12 gf 5-5
+   210 build/site/office/office w 10-10 d 10-10 floors 5-12 gf 5-5
+   209 fire/normal/office/office w 3-3 d 5-5 floors 4-6 gf 5-5
     67 church/church/church/church w 11-11 d 15-15 floors 3-3 gf 5-5
-    60 garage/garage/garage/garage w 18-50 d 18-50 floors 2-5 gf 5-5
+    63 garage/garage/garage/garage w 18-50 d 18-50 floors 2-5 gf 5-5
     27 lighthouse/lighthouse/landmark/landmark w 9-9 d 9-9 floors 6-6 gf 5-5
      6 cathedral/cathedral/church/church w 48-48 d 80-80 floors 11-11 gf 5-5
      5 mall/mall/shop/shop w 112-112 d 112-112 floors 4-4 gf 8-8
 HAS STAIRS
-   610 homes/house/apartment/apartment w 16-16 d 12-12 floors 2-2 gf 5-5
+   609 homes/house/apartment/apartment w 16-16 d 12-12 floors 2-2 gf 5-5
    415 tower/normal/lobby/office w 14-21 d 14-21 floors 2-4 gf 5-10
-   402 mid/normal/shop/apartment w 16-20 d 16-20 floors 2-5 gf 5-8
-   326 mid/normal/apartment/apartment w 16-24 d 16-24 floors 2-5 gf 5-8
-   210 fire/normal/firehall/apartment w 13-13 d 13-13 floors 2-2 gf 7-7
+   403 mid/normal/shop/apartment w 16-20 d 16-20 floors 2-5 gf 5-8
+   329 mid/normal/apartment/apartment w 16-24 d 16-24 floors 2-5 gf 5-8
+   209 fire/normal/firehall/apartment w 13-13 d 13-13 floors 2-2 gf 7-7
    165 mid/normal/shop/office w 16-20 d 16-20 floors 2-5 gf 5-8
    147 mid/normal/apartment/office w 16-20 d 16-24 floors 2-5 gf 5-8
-    98 mansion/house/apartment/apartment w 16-16 d 11-11 floors 2-2 gf 5-5
+    97 mansion/house/apartment/apartment w 16-16 d 11-11 floors 2-2 gf 5-5
     60 bank/normal/bank/office w 16-16 d 14-14 floors 2-3 gf 6-7
-    54 library/normal/library/library w 16-16 d 14-14 floors 3-3 gf 5-5
+    55 library/normal/library/library w 16-16 d 14-14 floors 3-3 gf 5-5
     36 derelict/normal/apartment/apartment w 14-14 d 13-13 floors 2-4 gf 5-5
     34 derelict/normal/shop/apartment w 14-14 d 13-13 floors 2-4 gf 5-5
     30 campus/normal/lecture/school w 12-25 d 15-143 floors 2-3 gf 5-5
     28 news/normal/news/office w 16-16 d 13-13 floors 3-3 gf 5-5
-    24 club/normal/club/apartment w 16-16 d 14-14 floors 2-2 gf 7-7
-    22 airport/normal/terminal/office w 28-28 d 12-12 floors 2-2 gf 7-7
+    25 club/normal/club/apartment w 16-16 d 14-14 floors 2-2 gf 7-7
+    24 airport/normal/terminal/office w 28-28 d 12-12 floors 2-2 gf 7-7
     19 disco/normal/disco/apartment w 16-16 d 14-14 floors 2-2 gf 7-7
     18 nasa/normal/mission/office w 24-24 d 16-16 floors 2-2 gf 5-5
     18 mega/normal/lobby/office w 11-50 d 11-50 floors 3-3 gf 10-10
     18 campus/normal/apartment/apartment w 14-16 d 12-14 floors 5-5 gf 5-5
     16 police/normal/police/police w 35-48 d 48-48 floors 2-4 gf 5-5
-    12 casino/normal/casino/apartment w 16-48 d 12-44 floors 3-3 gf 8-8
+    13 casino/normal/casino/apartment w 16-48 d 12-44 floors 3-3 gf 8-8
     10 school/normal/school/school w 16-60 d 12-21 floors 2-2 gf 5-5
     10 hospital/normal/hosp/ward w 16-54 d 30-41 floors 2-11 gf 8-8
      8 armory/normal/armory/office w 16-16 d 13-13 floors 2-2 gf 8-8
@@ -37,7 +37,7 @@ HAS STAIRS
      8 hospital/normal/ward/ward w 74-74 d 24-24 floors 4-4 gf 8-8
      6 museum/normal/museum/museum w 70-70 d 35-35 floors 2-2 gf 10-10
      6 prison/normal/cells/cells w 12-28 d 22-95 floors 2-3 gf 5-5
-     4 lab/normal/lab/lab w 16-16 d 15-15 floors 2-2 gf 9-9
+     5 lab/normal/lab/lab w 16-16 d 15-15 floors 2-2 gf 9-9
      3 campus/normal/library/library w 149-149 d 14-14 floors 2-2 gf 7-7
      2 prison/normal/office/police w 77-77 d 8-8 floors 2-2 gf 5-5
      1 capitol/capitol/capitol/capitol w 84-84 d 74-74 floors 4-4 gf 5-5

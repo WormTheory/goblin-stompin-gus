@@ -11,8 +11,8 @@ function navCol(x,z){
   const k=x*65536+z;let c=navCols.get(k);if(c)return c;
   const cx=Math.floor(x/CS),cz=Math.floor(z/CS),a=chunks.get(ckey(cx,cz));if(!a)return null;
   if(!navSolidOK){navSolidOK=true;for(let i=1;i<256;i++)navSolid[i]=BLOCK[i]&&BLOCK[i].solid?1:0;}
-  c=[];const lx=x-cx*CS,lz=z-cz*CS;let up1=AIR,up2=AIR;
-  for(let y=H-1;y>=0;y--){let b=a[li(lx,y,lz)];if(b===LEAVES&&leafDown(x,y,z))b=AIR;
+  c=[];const lx=x-cx*CS,lz=z-cz*CS,TT=a.tileTops||tileTopsOf(a);let up1=AIR,up2=AIR;
+  for(let y=TT[(lz>>2)*4+(lx>>2)];y>=0;y--){let b=a[li(lx,y,lz)];if(b===LEAVES&&leafDown(x,y,z))b=AIR;
     if(navSolid[b]){if(!navSolid[up1]&&!navSolid[up2]&&!(up1===WATER&&up2===WATER)&&!(BLOCK[b].post&&!(y>1&&a[li(lx,y-1,lz)]===b&&a[li(lx,y-2,lz)]===b)))c.push(y+1);}   // (the top of a railing's no place to walk: they hop it)
     else if(b===WATER&&up1!==WATER&&!navSolid[up1]&&y>0&&a[li(lx,y-1,lz)]===WATER)c.push(-y);
     up2=up1;up1=b;}
@@ -95,7 +95,7 @@ function navBuild(N,p,dt){
   if(N.done&&F.n){const o=N.front;N.front=F;N.back=o||navMake();}
 }
 function navUpdate(dt){
-  navWipe+=dt;if(navWipe>6||navCols.size>60000){navWipe=0;navCols.clear();}   // (anything that got past setRaw, like a building coming down, is noticed in the end)
+  navWipe+=dt;if(navWipe>60||navCols.size>60000){navWipe=0;navCols.clear();}   // (setRaw forgets a column whenever a block in it changes; this is only for whatever might get past it)
   for(const p of players){if(!p.active||p.state==='dead')continue;
     let want=false;for(const g of goblins)if(navWants(g)&&Math.abs(g.pos.x-p.pos.x)<NAV_R&&Math.abs(g.pos.z-p.pos.z)<NAV_R){want=true;break;}
     if(!want)continue;

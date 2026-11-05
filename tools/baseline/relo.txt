@@ -1,0 +1,16 @@
+<anonymous_script>:18350
+  tsSet('Looking for '+stName(key).toLowerCase()+'…');
+                                  ^
+
+TypeError: Cannot read properties of undefined (reading 'toLowerCase')
+    at Object.tenvSpawn (eval at <anonymous> (C:\Claude\Goblin-Stompin-Gus\tools\tests\relo.js:36:1), <anonymous>:18350:35)
+    at Object.<anonymous> (C:\Claude\Goblin-Stompin-Gus\tools\tests\relo.js:47:3)
+    at Module._compile (node:internal/modules/cjs/loader:1968:14)
+    at Object..js (node:internal/modules/cjs/loader:2108:10)
+    at Module.load (node:internal/modules/cjs/loader:1690:32)
+    at Module._load (node:internal/modules/cjs/loader:1480:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+    at node:internal/main/run_main_module:33:47
+
+Node.js v26.13.0

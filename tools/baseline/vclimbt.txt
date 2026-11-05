@@ -2,12 +2,13 @@ train     grabbed true held for 4.0s while it went 73.0 drift 0.000 let go 0 | u
 train     off the roof edge on to the side true head down  at along -0.37 across 1.36 up 0.80 still on after .5s true | let go: state walk clinging false
 train    passing at speed with climb held: caught hold true struck false
 truck     grabbed true held for 3.0s while it went 11.2 drift 0.000 let go 0 | up on top true after 0.7s height 2.72
-truck     off the roof edge on to the side true head down  at along -0.11 across 1.08 up 0.02 still on after .5s true | let go: state walk clinging false
-pickup    grabbed true held for 3.0s while it went 21.0 drift 0.000 let go 0 | up on top true after 0.3s height 1.66
-pickup    off the roof edge on to the side false head down  at along -20.09 across 16.38 up 0.00 still on after .5s false | let go: state walk clinging false
-car       grabbed true held for 3.0s while it went 23.4 drift 0.000 let go 0 | up on top true after 0.3s height 1.43
-car       off the roof edge on to the side false head down  at along -1.28 across 6.51 up 8.69 still on after .5s false | let go: state walk clinging false
-van       grabbed false held for 0.1s while it went 1.9 drift 0.000 let go 1 | up on top false after 0.0s height 1.00
+truck     off the roof edge on to the side true head down  at along -0.09 across 1.08 up 0.02 still on after .5s true | let go: state walk clinging false
+car       grabbed true held for 3.0s while it went 13.5 drift 0.000 let go 0 | up on top true after 0.3s height 1.43
+car       off the roof edge on to the side false head down  at along -26.18 across 5.94 up 8.82 still on after .5s false | let go: state walk clinging false
+van       grabbed true held for 3.0s while it went 12.9 drift 0.000 let go 0 | up on top true after 0.4s height 1.91
+van       off the roof edge on to the side true head down  at along -2.87 across 3.53 up 0.00 still on after .5s true | let go: state walk clinging false
+pickup    grabbed true held for 3.0s while it went 8.8 drift 0.000 let go 0 | up on top true after 0.3s height 1.66
+pickup    off the roof edge on to the side true head down  at along -4.34 across 6.13 up 0.00 still on after .5s true | let go: state walk clinging false
 ship hull grabbed true held for 2.0s while it went 95.9 drift 0.000 let go 0 | up on top true after 1.7s height 6.00
-stack     on deck true walked at the tallest container stack (9.6 high) with climb held: grabbed true after 0.0s; up on top true after 2.8s, height above the deck 9.63
+stack     on deck true walked at the tallest container stack (9.6 high) with climb held: grabbed true after 0.0s; up on top true after 2.8s, height above the deck 9.64
 plane     grabbed true held for 2.0s while it went 0.0 drift 0.000 let go 0 | up on top true after 0.9s height 3.65

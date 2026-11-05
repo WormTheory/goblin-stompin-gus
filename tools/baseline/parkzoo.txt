@@ -1,0 +1,42 @@
+zoo at -144 -114 w 5
+venue true animals 48
+species {"giraffe":9,"zebra":6,"elephant":4,"lion":5,"penguin":10,"monkey":14}
+giraffe   found by an attack true bites to kill 5 dead true box alive false
+zebra     found by an attack true bites to kill 3 dead true box alive false
+elephant  found by an attack true bites to kill 9 dead true box alive false
+lion      found by an attack true bites to kill 4 dead true box alive false
+penguin   found by an attack true bites to kill 1 dead true box alive false
+monkey    found by an attack true bites to kill 2 dead true box alive false
+score from those 425
+corpses lying 6 tipped true still hit by attacks false
+real stomp beside a giraffe hp 25 -> 17 state walk
+venue dropped away true
+back: animals 42 of 48; killed on record 6 alive now 42
+park -122 -199 surveyed true coaster true wheel true carousel true
+park 249 -197 surveyed true coaster true wheel true carousel true
+park 348 -253 surveyed true coaster true wheel true carousel true
+park -251 -367 surveyed true coaster true wheel true carousel true
+park -367 -413 surveyed true coaster true wheel true carousel true
+park 359 -429 surveyed true coaster true wheel true carousel true
+park 267 -446 surveyed true coaster true wheel true carousel true
+park -295 -473 surveyed true coaster true wheel true carousel true
+theme park at -122 -199 w 8
+venue true rides true
+untouched: circuit points with no track 0 of 720
+after 20s by the coaster: derailed false halted false car 0 moved 6.32
+by the wheel: falling false dead false rotation 3.46
+by the carousel: dead false turned 19.43
+gate corner smashed: rides still there true
+attack finds coaster car true
+attack finds gondola true rim at the bottom true hub true
+attack finds carousel true
+on a gondola true still true moved up/down 6.61 gondola top 72.3 hippo 72.3
+on a coaster car: frames on it 299 of 300
+carousel gone after 8 charged stomps, score 300 on record true
+gondola gone after 6 bites, drawn false
+hole in the track: there still false
+derailed true after 9.9s cars flying 4 down after 1.3s all dead true score 500
+legs cut on one side: came down true after 0.9s lying at 1.5 tipped 1.57 score 1000 hits left false
+venue dropped away true
+back: wheel down true carousel down true coaster off true cars drawn 0 wheel height 1.5
+done

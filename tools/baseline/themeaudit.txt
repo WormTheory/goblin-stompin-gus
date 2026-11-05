@@ -1,0 +1,1 @@
+world seed 1 radius 300 parks 2 whole 2 no plan 0

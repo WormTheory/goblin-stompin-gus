@@ -1,18 +1,18 @@
-spawned {"k":"cult","ax":19,"az":-2,"w":1,"h":1}
-venue true gus from altar 21.5 places 7 filled 7 roused false
-cultists alive 7 from altar 5.6 5.6 5.6 5.6 5.6 5.6 5.6 arms -2.7 -2.5 -2.6 -2.9 -2.9 -2.6 -2.5 jobs Hooded initiate, Chanting novice, High priest (self-appointed), Acolyte of the Altar, High priest (self-appointed), Candle-bearer, Ritual dagger polisher
+spawned {"k":"cult","ax":0,"az":1,"w":1,"h":1,"sx":19,"sz":-2}
+venue true gus from altar 38.5 places 7 filled 7 roused false
+cultists alive 7 from altar 5.6 5.6 5.6 5.6 5.6 5.6 5.6 arms -2.7 -2.5 -2.6 -2.9 -2.9 -2.6 -2.5 jobs Ritual dagger polisher, Keeper of the sigil, Keeper of the sigil, High priest (self-appointed), Doom prophet, Candle-bearer, Doom prophet
 4 s later: still calm true gus hp 20 circling, from altar 5.6 5.6 5.6 5.6 5.6 5.6 5.6
 gus 12 from altar: roused true
-first 1.2 s | fireballs thrown 0 | hits on gus 0 lowest hp 20 | cultists 7 at 5.5 3.2 7.8 11.9 13.8 12.2 8.3
-next 4 s | fireballs thrown 5 | hits on gus 2 lowest hp 16 | cultists 7 at 2.4 6.7 6.6 9.9 11.4 10.8 7.3
-gus at the altar, 5 s | fireballs thrown 9 | hits on gus 4 lowest hp 12 | cultists 7 at 16.7 13.4 13.5 12.4 7.6 11.3 17.7
+first 1.2 s | fireballs thrown 0 | hits on gus 0 lowest hp 20 | cultists 7 at 4.9 3.3 7.8 11.9 13.7 12.2 8.3
+next 4 s | fireballs thrown 6 | hits on gus 3 lowest hp 14 | cultists 7 at 10.8 4.3 9.0 13.2 15.3 13.7 10.0
+gus at the altar, 5 s | fireballs thrown 8 | hits on gus 3 lowest hp 14 | cultists 7 at 14.5 24.2 18.7 15.2 14.2 13.9 21.7
 killed all: alive 0 slain marks 7 roused true
 gone 400 off: venue kept false cultists about 0
 back at 40: venue true roused false alive 7
 hit one from 40 off: roused true
-roused from 40 off, 4 s | fireballs thrown 3 | hits on gus 1 lowest hp 18 | cultists 7 at 28.6 25.0 26.0 30.3 32.7 33.9 31.3
+roused from 40 off, 4 s | fireballs thrown 3 | hits on gus 0 lowest hp 20 | cultists 7 at 28.2 24.6 25.7 29.2 32.4 33.6 31.0
 foe cultist Spawned 3 cultists ahead of Gus.
 spawned cultists 3 no altar true
-button cultists, 5 s | fireballs thrown 3 | hits on gus 3 lowest hp 14 | cultists 3 at 9.7 7.6 10.9
+button cultists, 5 s | fireballs thrown 0 | hits on gus 5 lowest hp 15 | cultists 3 at 2.3 2.3 2.3
 one cultist beside gus, 3 s (dagger every 0.85 s) | fireballs thrown 0 | hits on gus 3 lowest hp 17 | cultists 1 at 2.3
 errors 0 []

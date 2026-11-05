@@ -1,7 +1,7 @@
 car     at 13 goblin hit true took 6 thrown up 8.9 car now at 7.0
-car     at 16 goblin hit true took 7 thrown up 10.5 car now at 9.9
-semi    at 14 goblin hit false took 0 thrown up 0.0 car now at 14.0
-semi    at 14 goblin hit true took 7 thrown up 9.7 car now at 8.4
-semi    at 9 goblin hit false took 0 thrown up 0.0 car now at 1.7
+van     at 17 goblin hit true took 8 thrown up 10.8 car now at 10.4
+car     at 17 goblin hit false took 0 thrown up 0.0 car now at 18.0
+car     at 17 goblin hit true took 8 thrown up 10.6 car now at 10.0
+car     at 13 goblin hit false took 0 thrown up 0.0 car now at 16.3
 traffic ran down 3 of 5
 two tugs on a collision course: crashes 2 in 20.0s, damage 58 58 sunk false false

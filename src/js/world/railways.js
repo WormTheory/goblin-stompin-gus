@@ -250,7 +250,8 @@ function refreshRailVenues(p,want){
       const P=railPt(C,(i0+i1)/2),ax=Math.abs(P.tx)>0.99?'x':Math.abs(P.tz)>0.99?'z':null;if(!ax)return;
       const q0=ax==='x'?Math.min(C.pts[i0][0],C.pts[i1][0]):Math.min(C.pts[i0][1],C.pts[i1][1]),q1=ax==='x'?Math.max(C.pts[i0][0],C.pts[i1][0]):Math.max(C.pts[i0][1],C.pts[i1][1]);
       const V=makeCrossing(ax,ax==='x'?P.z:P.x,Math.floor(q0),Math.floor(q1));V.C=C;V.i0=i0;V.i1=i1;venues.set(xk,V);};
-    for(let i=i0s;i<i1s;i++){const [x,z]=C.pts[i],b=get(Math.floor(x),G,Math.floor(z)),up=get(Math.floor(x),G+1,Math.floor(z));
+    // (a stretch of track in a chunk not made yet is nothing to look at, and no reason to make one: its crossings can wait until it's there)
+    for(let i=i0s;i<i1s;i++){const [x,z]=C.pts[i];if(!chunks.has(ckey(Math.floor(x/CS),Math.floor(z/CS)))){run=null;continue;}const b=get(Math.floor(x),G,Math.floor(z)),up=get(Math.floor(x),G+1,Math.floor(z));
       const rd=(b===ASPHALT||b===LINE||b===LINEX||b===LINE_R||b===LINEX_R||b===CROSS||b===CROSSX)&&!up;
       if(rd){if(!run)run=[i,i];else run[1]=i;}else flush();}
     flush();

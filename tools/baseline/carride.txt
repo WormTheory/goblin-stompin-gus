@@ -1,6 +1,6 @@
 car speed 8 landed true rode 4.0s damage 0 alive true
 car speed 3 landed true rode 0.3s damage 5 alive false
-car speed 5 landed true rode 5.7s damage 0 alive true
-car speed 4 landed true rode 1.5s damage 0 alive true
-truck speed 6 landed true rode 6.0s damage 0 alive true
-car speed 7 landed true rode 4.6s damage 0 alive true
+car speed 7 landed true rode 5.7s damage 0 alive true
+car speed 3 landed true rode 0.3s damage 5 alive false
+van speed 8 landed true rode 5.8s damage 0 alive true
+car speed 8 landed true rode 3.8s damage 0 alive true

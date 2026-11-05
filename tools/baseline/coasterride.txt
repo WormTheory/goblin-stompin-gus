@@ -1,0 +1,13 @@
+park -122 -199 coaster radii 54 84
+car 1 landed true after 1 frames; on it 2348 of 2348 (100.0%) over 2 laps; top speed 61 hp 9999
+  comes off: []
+car 0 landed true after 1 frames; on it 2397 of 2397 (100.0%) over 2 laps; top speed 62 hp 9999
+  comes off: []
+car 3 landed true after 1 frames; on it 2345 of 2375 (98.7%) over 2 laps; top speed 56 hp 9999
+  comes off: [{"frame":21,"th":0.02,"on":null,"gr":false,"y":1.24,"d":1.98,"state":"walk","step":1,"off":false,"halted":false,"sp":0.14,"same":true,"alive":true,"carD":false,"fly":false,"boxes":1}]
+landings round the circuit: still on after a second 23 of 24 (9 at over 25 blocks a second; fastest 61)
+drop from 3 landed on the car true frames on it over the next lap 1300 of 1300 derailed false car hp 40 -> 40
+drop from 6 landed on the car true frames on it over the next lap 1245 of 1245 derailed false car hp 40 -> 31
+drop from 12 landed on the car true frames on it over the next lap 1243 of 1243 derailed false car hp 31 -> 19
+drop from 25 landed on the car true frames on it over the next lap 1211 of 1211 derailed false car hp 19 -> 1
+done

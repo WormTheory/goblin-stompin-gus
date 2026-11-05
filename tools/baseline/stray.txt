@@ -3,12 +3,12 @@ end 36 1272 s 869 far from this route 0 cut off 0
 end 418 -472 s 40 far from this route 0 cut off 0
 end 102 -488 s 366 far from this route 0 cut off 0
 end 324 -3672 s 40 far from this route 69 cut off 0
-end 388 -2536 s 1196 far from this route 69 cut off 0
+end 388 -2536 s 1196 far from this route 75 cut off 0
 end 388 -2424 s 40 far from this route 0 cut off 0
 end 420 -1480 s 1004 far from this route 0 cut off 0
 end 412 100 s 28 far from this route 0 cut off 0
 end 1092 4 s 724 far from this route 0 cut off 0
 end 1340 4 s 28 far from this route 0 cut off 0
-end 2148 -28 s 842 far from this route 123 cut off 0
+end 2148 -28 s 842 far from this route 111 cut off 0
 end 2236 -28 s 28 far from this route 8 cut off 0
 end 2948 -124 s 753 far from this route 0 cut off 0

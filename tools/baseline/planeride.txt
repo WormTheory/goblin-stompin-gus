@@ -8,7 +8,7 @@ parked plane 1 at 48 52 inside []
 parked plane 2 at 80 52 inside []
 taxi and runway clips {} after 300s waypoints seen 18
 goblin in the way: hit true damage 8 after 0.5s thrown up 16.4 plane speed 6
-car in the way: hit true damage 34 after 0.1s plane speed 24
+car in the way: hit true damage 34 after 0.2s plane speed 24
 parked wrecked after 8 hits of 40, score 1000 alive flag true
   proxy alive now false
 shot down at height 62 hit the ground after 2.2s at 0.0 player on it false

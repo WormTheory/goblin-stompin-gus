@@ -1,15 +1,15 @@
 sitdown goblin out of the bathroom in 1.0s
-sitdown size 16 x 22 props near 141 goblin reached in 6s checks inside a prop 0 of 57 knocked by Gus 8
-food goblin out of the bathroom in 1.3s
-food size 16 x 13 props near 152 goblin reached in 5s checks inside a prop 0 of 45 knocked by Gus 14
-market goblin out of the bathroom in 1.2s
-market size 38 x 27 props near 326 goblin FAILED at 297.2,252.0 checks inside a prop 400 of 400 knocked by Gus 42
+sitdown size 16 x 22 props near 297 goblin reached in 5s checks inside a prop 0 of 54 knocked by Gus 8
+food goblin out of the bathroom in 1.0s
+food size 16 x 13 props near 233 goblin reached in 5s checks inside a prop 0 of 45 knocked by Gus 14
+market goblin out of the bathroom in 1.4s
+market size 38 x 27 props near 431 goblin FAILED at 302.8,222.8 checks inside a prop 400 of 400 knocked by Gus 42
 drug goblin out of the bathroom in 0.7s
-drug size 16 x 23 props near 130 goblin reached in 6s checks inside a prop 0 of 62 knocked by Gus 13
-school goblin out of the bathroom in 8.2s
-school size 60 x 18 props near 171 goblin reached in 19s checks inside a prop 0 of 193 knocked by Gus 10
-police goblin out of the bathroom in 1.4s
-police size 35 x 48 props near 334 goblin reached in 19s checks inside a prop 0 of 194 knocked by Gus 6
+drug size 16 x 23 props near 273 goblin reached in 6s checks inside a prop 0 of 63 knocked by Gus 14
+school goblin out of the bathroom in 1.2s
+school size 60 x 18 props near 244 goblin reached in 19s checks inside a prop 0 of 189 knocked by Gus 10
+police goblin out of the bathroom in 2.8s
+police size 35 x 48 props near 438 goblin FAILED at -65.9,-246.0 checks inside a prop 0 of 400 knocked by Gus 6
 ikea goblin out of the bathroom in 6.1s
-ikea goblin out of the bathroom in 1.3s
-ikea size 112 x 66 props near 218 goblin FAILED at 978.4,-1145.6 checks inside a prop 0 of 400 knocked by Gus 18
+ikea goblin out of the bathroom in 1.1s
+ikea size 112 x 66 props near 299 goblin FAILED at 971.6,-1149.5 checks inside a prop 0 of 400 knocked by Gus 18

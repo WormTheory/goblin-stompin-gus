@@ -1,4 +1,4 @@
-BATHROOM DOORS 2627 with a problem 4
+BATHROOM DOORS 2692 with a problem 4
     4 of 276 tower/normal/lobby no door block (0) 304,45,-1001
 LARGEST SHARE OF THE GROUND FLOOR
   20% zoo/house/shop/shop rooms per building 1.0
@@ -18,25 +18,25 @@ LARGEST SHARE OF THE GROUND FLOOR
   13% theater/normal/theater/theater rooms per building 1.0
   13% shops/normal/dentist/office rooms per building 1.0
 NONE ON THE GROUND FLOOR
-  502 of   502 farm/house/barn/barn e.g. 6x10
-  499 of  2973 homes/house/apartment/apartment e.g. 16x12
-  185 of   185 fire/normal/firehall/apartment e.g. 13x13
-  185 of   185 fire/normal/office/office e.g. 3x5
-  179 of   179 build/site/office/office e.g. 10x10
+  503 of   503 farm/house/barn/barn e.g. 6x10
+  498 of  2975 homes/house/apartment/apartment e.g. 16x12
+  184 of   184 fire/normal/firehall/apartment e.g. 13x13
+  184 of   184 fire/normal/office/office e.g. 3x5
+  182 of   182 build/site/office/office e.g. 10x10
   148 of   148 church/church/church/church e.g. 11x15
   132 of   132 trailers/normal/apartment/apartment e.g. 4x8
-   91 of    91 mansion/house/apartment/apartment e.g. 16x11
-   66 of    66 lumber/house/apartment/apartment e.g. 8x7
+   90 of    90 mansion/house/apartment/apartment e.g. 16x11
+   68 of    68 lumber/house/apartment/apartment e.g. 8x7
    62 of    62 thieves/house/shop/shop e.g. 8x7
    62 of    62 thieves/normal/shop/shop e.g. 6x5
+   54 of    54 garage/garage/garage/garage e.g. 50x50
    54 of    54 campsite/house/office/office e.g. 6x7
    54 of    54 campsite/normal/shop/shop e.g. 10x6
-   51 of    51 garage/garage/garage/garage e.g. 50x50
    39 of    39 nursery/house/shop/shop e.g. 6x5
    39 of    39 mine/normal/shop/shop e.g. 10x12
-   35 of    35 cemetery/church/church/church e.g. 6x7
+   36 of    36 cemetery/church/church/church e.g. 6x7
    34 of    34 derelict/normal/apartment/apartment e.g. 14x13
-   33 of    33 lumber/normal/shop/shop e.g. 22x16
+   34 of    34 lumber/normal/shop/shop e.g. 22x16
    29 of    29 jail/normal/cells/cells e.g. 12x11
    27 of    27 derelict/normal/shop/apartment e.g. 14x13
    25 of    25 lighthouse/lighthouse/landmark/landmark e.g. 9x9

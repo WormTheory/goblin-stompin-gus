@@ -1,0 +1,15 @@
+capitol plots -5 0
+floor 0 reached 3952 cut off 0 
+floor 1 reached 2516 cut off 1438 -39,41 -39,42 -39,43 -39,44
+floor 2 reached 3119 cut off 872 -15,1 -15,2 -15,3 -15,4
+floor 3 reached 3050 cut off 872 -15,1 -15,2 -15,3 -15,4
+DOORS 72 with a problem 0
+floor 0 props 459 boxes 2316 in a wall 0 blocking a door 0
+   detector 2, stanchion 8, bar 11, monitor 7, swivel 16, flag 12, statue 26, painting 4, bench 16, portrait 18, plant 6, elevator 2, rug 2, sofa 26, rtable 4, seal 4, vase 2, desk 2, locker 12, board 5, ldesk 59, lectern 2, ltable 6, clothes 21, chair 8, vending 2, tv 2, shelf2 15, lbench 87, judge 5, pew 48, bookcase 10, wbox 1, stall 6, basin 2
+floor 1 props 359 boxes 2399 in a wall 0 blocking a door 0
+   rug 4, desk 4, swivel 19, flag 6, bookcase 100, chair 26, sofa 8, rtable 11, portrait 14, plant 4, drawers 2, deskm 12, tvcam 6, tv 2, pew 80, bar 26, monitor 3, shelf3 24, copier 2, bench 2, elevator 2, ship 2
+floor 2 props 480 boxes 2844 in a wall 0 blocking a door 0
+   rug 2, desk 2, swivel 36, flag 10, bookcase 12, chair 80, sofa 6, rtable 22, portrait 16, plant 8, drawers 2, cube 82, board 6, seal 2, bar 32, micstand 16, ltable 18, tvcam 4, seats 48, elevator 2, buffet 14, prep 20, fryer 11, sink 6, fridge2 4, range 11, stall 6, basin 2
+floor 3 props 402 boxes 2800 in a wall 0 blocking a door 0
+   rug 8, desk 22, swivel 24, flag 10, bookcase 24, chair 24, sofa 16, rtable 6, portrait 8, plant 16, drawers 2, shelf3 142, seats 12, board 6, sink 4, fridge2 2, range 2, vending 4, bar 36, monitor 14, copier 2, elevator 2, locker 8, gunrack 6, bench 2
+from the back of the wing, doors drawn 11 bathroom door found

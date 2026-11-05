@@ -1,0 +1,11 @@
+down  pickup speed 8 height changed 20.0 stayed on
+down  car speed 11 height changed 15.5 FELL OFF after 13.9s
+down  van speed 19 height changed 20.0 stayed on
+down  bike speed 18 height changed 14.0 stayed on
+down  car speed 18 height changed 14.0 stayed on
+down  car speed 19 height changed 6.0 stayed on
+down  semi speed 18 height changed 20.0 stayed on
+down  car speed 19 height changed 14.0 stayed on
+down  truck speed 6 height changed 20.0 stayed on
+down  car speed 19 height changed 0.0 stayed on
+spots 60 {"down":{"n":10,"off":1,"drop":143.56518578938886},"up":{"n":0,"off":0,"drop":0}}

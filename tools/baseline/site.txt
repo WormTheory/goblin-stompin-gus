@@ -1,36 +1,36 @@
-thieves  box {"k":"thieves","ax":6,"az":-20,"w":1,"h":1} | posts 4 filled 4 | alive 4 hp 3,3,3,3 | up a tower 0 | roused false | jobs Safecracker, Burglar, Cat burglar
+thieves  box {"k":"thieves","ax":0,"az":1,"w":1,"h":1,"sx":6,"sz":-20} | posts 4 filled 4 | alive 4 hp 3,3,3,3 | up a tower 0 | roused false | jobs Lookout, Second-storey man, Getaway runner
    3 s later: still calm true gus hp 20 | at posts 0.0 0.0 0.0 0.0
    gus near the posts: roused true
    8 s | bullets 0 | thrown/fired {} | hits on gus 23 lowest hp 7 | alive 4 at 2 2 2 2
    killed all: alive 0 slain marks 4
-prepper  box {"k":"prepper","ax":24,"az":20,"w":2,"h":2} | posts 3 filled 3 | alive 3 hp 5,5,5 | up a tower 1 | roused false | jobs Off-grid survivalist, Prepper, Off-grid survivalist
+prepper  box {"k":"prepper","ax":0,"az":21,"w":2,"h":2,"sx":24,"sz":20} | posts 3 filled 3 | alive 3 hp 5,5,5 | up a tower 1 | roused false | jobs Water-filter enthusiast, Prepper, Canned-goods hoarder
    3 s later: still calm true gus hp 20 | at posts 0.0 0.0 0.0
    gus near the posts: roused true
-   8 s | bullets 4 | thrown/fired {"pipe":2} | hits on gus 5 lowest hp 13 | alive 2 at 26 4
+   8 s | bullets 5 | thrown/fired {"pipe":2} | hits on gus 7 lowest hp 12 | alive 3 at 28 2 5
    killed all: alive 0 slain marks 3
-militia  box {"k":"militia","ax":20,"az":32,"w":2,"h":2} | posts 9 filled 9 | alive 9 hp 5,5,5,5,5,5,5,5,5 | up a tower 4 | roused true | jobs Camo enthusiast, Militiaman, Sentry
-   3 s later: still calm false gus hp 20 | at posts 0.0 0.0 0.0 0.0 15.2 15.1 15.1 13.4 14.9
+militia  box {"k":"militia","ax":0,"az":41,"w":2,"h":2,"sx":-18,"sz":28} | posts 9 filled 7 | alive 7 hp 5,5,5,5,5,5,5 | up a tower 2 | roused true | jobs Weekend warrior, Camo enthusiast, Sentry
+   3 s later: still calm false gus hp 17 | at posts 0.0 0.0 10.2 10.7 12.5 15.1 13.3
    gus near the posts: roused true
-   8 s | bullets 13 | thrown/fired {"grenade":4} | hits on gus 14 lowest hp 7 | alive 9 at 33 26 50 46 2 2 20 23 4
-   killed all: alive 0 slain marks 9
+   8 s | bullets 13 | thrown/fired {"grenade":6} | hits on gus 20 lowest hp 7 | alive 7 at 33 28 10 12 2 2 2
+   killed all: alive 0 slain marks 7
 preppers, gus 60 off: roused false alive 3
 hit one: roused true
-base box {"k":"base","ax":4,"az":56,"w":4,"h":4} | tanks 15 helicopters 2 | parked 17 | alert false | old block tanks gone true | gus in base false
+base box {"k":"base","ax":-1,"az":83,"w":4,"h":4,"sx":-20,"sz":56} | tanks 15 helicopters 2 | parked 17 | alert false | old block tanks gone true | gus in base false
 stand-ins in TRAIN_BOXES 17
 5 s outside: alert false
 gus in the base: alert true
-base first 4 s | bullets 0 | thrown/fired {"shell":4} | hits on gus 2 lowest hp 14 | hunting tanks 4 moved 4 | helis hunt up 7.8 from gus 38, hunt up 7.8 from gus 33
-base next 10 s | bullets 27 | thrown/fired {"shell":7,"rocket":2} | hits on gus 12 lowest hp 6 | hunting tanks 4 moved 4 | helis hunt up 13.0 from gus 21, hunt up 13.1 from gus 21
+base first 4 s | bullets 0 | thrown/fired {"shell":4} | hits on gus 3 lowest hp 14 | hunting tanks 4 moved 4 | helis hunt up 7.8 from gus 42, hunt up 7.8 from gus 38
+base next 10 s | bullets 24 | thrown/fired {"shell":8,"rocket":2} | hits on gus 10 lowest hp 6 | hunting tanks 4 moved 4 | helis hunt up 13.0 from gus 22, hunt up 13.0 from gus 23
 6 s more: frames with two of them overlapping 0
-goblin put in front of a driving tank (speed 4.9): hp 3 -> -8 state dead
-car parked in front of it: hp 30 -> 12 | inside the tank false
+goblin put in front of a driving tank (speed 0.0): hp 3 -> 3 state chase
+car parked in front of it: hp 30 -> 27 | inside the tank false
 destroyed: tank true helicopter true it fell 14.9 to -2.0 | saved wrecked true | another tank woke 4
 gone 500 off for 40 s: venue false (dropped)
-back at the fence: alert false wrecks still wrecked 2 parked 17
+back at the fence: alert false wrecks still wrecked 3 parked 17
 foe thief Spawned 3 thieves ahead of Gus.
-   thief button, 5 s | bullets 0 | thrown/fired {} | hits on gus 4 lowest hp 15 | at 2.2 2.2 2.2
+   thief button, 5 s | bullets 0 | thrown/fired {} | hits on gus 5 lowest hp 15 | at 2.3 2.3 2.3
 foe prepper Spawned 3 preppers ahead of Gus.
-   prepper button, 5 s | bullets 2 | thrown/fired {} | hits on gus 5 lowest hp 14 | at 2.3 2.3 2.3
+   prepper button, 5 s | bullets 3 | thrown/fired {} | hits on gus 6 lowest hp 14 | at 2.3 2.3 2.3
 foe militia Spawned 3 militiamen ahead of Gus.
-   militia button, 5 s | bullets 3 | thrown/fired {} | hits on gus 3 lowest hp 16 | at 2.3 2.3 2.3
+   militia button, 5 s | bullets 3 | thrown/fired {} | hits on gus 5 lowest hp 14 | at 2.3 2.3 2.3
 errors 0 []

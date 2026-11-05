@@ -1,0 +1,8 @@
+plane button: Spawned 1 plane ahead of Gus, ready to fly: get in, speed up, then jump to take off.
+5 more: Spawned 5 planes ahead of Gus, ready to fly: get in, speed up, then jump to take off.
+planes 6 at -30.0,-0.0 h-1.6 | -53.7,-6.5 h-1.6 | -30.0,-24.0 h-1.6 | -30.0,24.0 h-1.6 | -30.0,-48.0 h-1.6 | -30.0,48.0 h-1.6
+2 s on, still parked: true
+E beside it: plane the one spawned true
+W 3 s then W+Jump 3 s over the grass: speed 80.0 height 42.4 ground run 253.1 wrecked false
+clear all while flying it: planes left 0
+errors 0 []

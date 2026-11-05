@@ -1,0 +1,90 @@
+ramps to walk {"slip":4,"townEnd":4,"route":4}
+slip     up   walk   -1470 -1430 ok  frames 513 air 0 maxStep 0.035 maxJerk 0.029 speed 4.2-4.2 stops 0 off 0.0 {"walk":513}
+slip     up   sprint -1470 -1430 ok  frames 274 air 16 maxStep 0.316 maxJerk 0.383 speed 4.2-8.0 stops 0 off 0.0 {"walk":274}
+slip     down walk   -1430 -1470 ok  frames 513 air 2 maxStep 0.100 maxJerk 0.135 speed 4.2-4.2 stops 0 off 0.0 {"walk":513}
+slip     down sprint -1430 -1470 ok  frames 269 air 2 maxStep 0.100 maxJerk 0.167 speed 8.0-8.0 stops 0 off 0.0 {"walk":269}
+slip     up   walk   -1182 -1142 ok  frames 513 air 0 maxStep 0.035 maxJerk 0.029 speed 4.2-4.2 stops 0 off 0.0 {"walk":513}
+slip     up   sprint -1182 -1142 ok  frames 274 air 16 maxStep 0.316 maxJerk 0.383 speed 4.2-8.0 stops 0 off 0.0 {"walk":274}
+slip     down walk   -1142 -1182 ok  frames 513 air 2 maxStep 0.100 maxJerk 0.135 speed 4.2-4.2 stops 0 off 0.0 {"walk":513}
+slip     down sprint -1142 -1182 ok  frames 269 air 2 maxStep 0.100 maxJerk 0.167 speed 8.0-8.0 stops 0 off 0.0 {"walk":269}
+slip     up   walk   -958 -918 ok  frames 513 air 0 maxStep 0.035 maxJerk 0.029 speed 4.2-4.2 stops 0 off 0.0 {"walk":513}
+slip     up   sprint -958 -918 ok  frames 274 air 16 maxStep 0.316 maxJerk 0.382 speed 4.2-8.0 stops 0 off 0.0 {"walk":274}
+slip     down walk   -918 -958 ok  frames 513 air 2 maxStep 0.100 maxJerk 0.135 speed 4.2-4.2 stops 0 off 0.0 {"walk":513}
+slip     down sprint -918 -958 ok  frames 269 air 2 maxStep 0.100 maxJerk 0.167 speed 8.0-8.0 stops 0 off 0.0 {"walk":269}
+slip     up   walk   430 430 ok  frames 684 air 0 maxStep 0.035 maxJerk 0.032 speed 4.2-4.2 stops 0 off 0.0 {"walk":684}
+slip     up   sprint 430 430 ok  frames 364 air 16 maxStep 0.316 maxJerk 0.383 speed 4.2-8.0 stops 0 off 0.0 {"walk":364}
+slip     down walk   430 430 ok  frames 684 air 2 maxStep 0.100 maxJerk 0.135 speed 4.2-4.2 stops 0 off 0.0 {"walk":684}
+slip     down sprint 430 430 ok  frames 359 air 1 maxStep 0.100 maxJerk 0.167 speed 8.0-8.0 stops 0 off 0.0 {"walk":359}
+townEnd  up   walk   -32 19 ok  frames 670 air 0 maxStep 0.035 maxJerk 0.029 speed 4.2-4.2 stops 0 off 0.0 {"walk":670}
+townEnd  up   sprint -32 19 ok  frames 356 air 16 maxStep 0.316 maxJerk 0.382 speed 4.2-8.0 stops 0 off 0.0 {"walk":356}
+townEnd  down walk   19 -32 ok  frames 670 air 2 maxStep 0.100 maxJerk 0.135 speed 4.2-4.2 stops 0 off 0.0 {"walk":670}
+townEnd  down sprint 19 -32 ok  frames 351 air 3 maxStep 0.100 maxJerk 0.167 speed 8.0-8.0 stops 0 off 0.0 {"walk":351}
+townEnd  up   walk   38 38 END [37.5,43,1541.3] ahead [2,2,12,0] NOT frames 2972 air 58 maxStep 0.370 maxJerk 0.347 speed 0.0-4.2 stops 2919 off 0.0 {"walk":2972}
+townEnd  up   sprint 38 38 ok  frames 487 air 99 maxStep 0.404 maxJerk 0.334 speed 0.0-8.3 stops 9 off 0.1 {"walk":487}
+townEnd  down walk   38 38 END [37.5,41,1542.4] ahead [2,0,0,0] NOT frames 2972 air 33 maxStep 0.230 maxJerk 0.142 speed 0.0-4.2 stops 2167 off 0.0 {"walk":2972}
+townEnd  down sprint 38 38 ok  frames 454 air 34 maxStep 0.230 maxJerk 0.142 speed 4.2-8.0 stops 0 off 0.0 {"walk":454}
+townEnd  up   walk   6055 6004 ok  frames 670 air 0 maxStep 0.035 maxJerk 0.032 speed 4.2-4.2 stops 0 off 0.0 {"walk":670}
+townEnd  up   sprint 6055 6004 ok  frames 356 air 15 maxStep 0.316 maxJerk 0.383 speed 4.2-8.0 stops 0 off 0.0 {"walk":356}
+townEnd  down walk   6004 6055 ok  frames 670 air 0 maxStep 0.100 maxJerk 0.135 speed 4.2-4.2 stops 0 off 0.0 {"walk":670}
+townEnd  down sprint 6004 6055 ok  frames 351 air 2 maxStep 0.100 maxJerk 0.167 speed 8.0-8.0 stops 0 off 0.0 {"walk":351}
+townEnd  up   walk   8832 8883 ok  frames 670 air 0 maxStep 0.035 maxJerk 0.029 speed 4.2-4.2 stops 0 off 0.0 {"walk":670}
+townEnd  up   sprint 8832 8883 ok  frames 356 air 16 maxStep 0.316 maxJerk 0.382 speed 4.2-8.0 stops 0 off 0.0 {"walk":356}
+townEnd  down walk   8883 8832 ok  frames 670 air 2 maxStep 0.100 maxJerk 0.135 speed 4.2-4.2 stops 0 off 0.0 {"walk":670}
+townEnd  down sprint 8883 8832 ok  frames 351 air 3 maxStep 0.100 maxJerk 0.167 speed 8.0-8.0 stops 0 off 0.0 {"walk":351}
+route    up   walk   326 326 ok  frames 684 air 0 maxStep 0.035 maxJerk 0.029 speed 4.2-4.2 stops 0 off 0.0 {"walk":684}
+route    up   sprint 326 326 ok  frames 359 air 0 maxStep 0.067 maxJerk 0.045 speed 8.0-8.0 stops 0 off 0.0 {"walk":359}
+route    down walk   326 326 ok  frames 684 air 0 maxStep 0.035 maxJerk 0.028 speed 4.2-4.2 stops 0 off 0.0 {"walk":684}
+route    down sprint 326 326 ok  frames 359 air 2 maxStep 0.067 maxJerk 0.060 speed 8.0-8.0 stops 0 off 0.0 {"walk":359}
+route    up   walk   422 422 ok  frames 684 air 0 maxStep 0.035 maxJerk 0.029 speed 4.2-4.2 stops 0 off 0.0 {"walk":684}
+route    up   sprint 422 422 ok  frames 359 air 0 maxStep 0.067 maxJerk 0.045 speed 8.0-8.0 stops 0 off 0.0 {"walk":359}
+route    down walk   422 422 END [421.5,45,-1457.7] ahead [1,0,0,0] NOT frames 2972 air 32 maxStep 0.112 maxJerk 0.100 speed 0.0-4.2 stops 2747 off 0.0 {"walk":2972}
+route    down sprint 422 422 END [421.5,45,-1472.5] ahead [1,0,0,16] NOT frames 2980 air 16 maxStep 0.112 maxJerk 0.060 speed 0.0-8.0 stops 2747 off 0.0 {"walk":2980}
+route    up   walk   410 422 ok  frames 713 air 0 maxStep 0.100 maxJerk 0.100 speed 0.9-4.2 stops 50 off 0.8 {"walk":713}
+route    up   sprint 410 422 ok  frames 352 air 0 maxStep 0.100 maxJerk 0.103 speed 8.0-15.0 stops 0 off 0.0 {"walk":352}
+route    down walk   422 410 ok  frames 665 air 33 maxStep 0.137 maxJerk 0.118 speed 4.2-4.2 stops 0 off 0.0 {"walk":665}
+route    down sprint 422 410 ok  frames 359 air 34 maxStep 0.168 maxJerk 0.103 speed 4.2-8.0 stops 0 off 0.0 {"walk":359}
+route    up   walk   110 102 ok  frames 634 air 29 maxStep 0.100 maxJerk 0.107 speed 0.8-4.2 stops 13 off 0.1 {"walk":634}
+route    up   sprint 110 102 ok  frames 326 air 0 maxStep 0.000 maxJerk 0.000 speed 8.0-8.0 stops 0 off 0.0 {"walk":326}
+route    down walk   102 110 ok  frames 621 air 143 maxStep 0.230 maxJerk 0.149 speed 4.2-4.2 stops 0 off 0.0 {"walk":621}
+route    down sprint 102 110 ok  frames 361 air 105 maxStep 0.283 maxJerk 0.276 speed 4.2-8.0 stops 0 off 0.0 {"walk":361}
+spot slip -1450 -10546 cars 28
+spot slip 430 -1108 cars 30
+spot townEnd -6 99 cars 18
+spot townEnd 6030 390 cars 25
+spot route 326 -4582 cars 29
+spot route 422 -1466 cars 21
+path    frames 45620 moving vertically 8752 airborne 0 stopped 28882 steps 0 teleports 0 maxDy/frame 0.095 maxJerk 0.143 maxPitch/frame 0.074 maxRoll/frame 0.038
+hw      frames 42477 moving vertically 1030 airborne 194 stopped 4155 steps 56 teleports 0 maxDy/frame 0.159 maxJerk 0.216 maxPitch/frame 0.067 maxRoll/frame 0.039
+street  frames 34 moving vertically 34 airborne 0 stopped 0 steps 0 teleports 0 maxDy/frame 0.066 maxJerk 0.024 maxPitch/frame 0.022 maxRoll/frame 0.001
+route   frames 28989 moving vertically 8377 airborne 75 stopped 21752 steps 64 teleports 0 maxDy/frame 0.495 maxJerk 0.204 maxPitch/frame 0.064 maxRoll/frame 0.082
+where [["step hw 324,65,-4608",36],["step hw 324,64,-4608",20],["pitch hw 324,64,-4608",10],["pitch hw 324,65,-4608",6],["step route 330,62,-4590",6],["step route 330,61,-4590",4],["step route 330,59,-4590",4],["step route 330,58,-4590",4],["pitch path 90,65,144",3],["step route 330,60,-4590",3],["step route 330,57,-4590",3],["step route 330,56,-4590",3],["step route 330,55,-4590",3],["step route 330,54,-4590",3]]
+pitch path 11
+   {"why":"pitch","mode":"path","x":432,"y":62.98,"z":-1123,"dp":0.074,"p":-0.374}
+   {"why":"pitch","mode":"path","x":95,"y":65,"z":47,"dp":0.051,"p":-0.051}
+   {"why":"pitch","mode":"path","x":66,"y":59,"z":138,"dp":0.051,"p":-0.051}
+   {"why":"pitch","mode":"path","x":67,"y":59,"z":140,"dp":0.051,"p":0.048}
+   {"why":"pitch","mode":"path","x":95,"y":65,"z":99,"dp":0.051,"p":-0.051}
+step hw 56
+   {"why":"step","mode":"hw","x":325,"y":64.64,"z":-4609,"dy":-0.063,"v":0.023,"gr":false,"veh":"car","h":3.14,"sp":3.6,"blk":0,"cl":null}
+   {"why":"step","mode":"hw","x":325,"y":64.57,"z":-4609,"dy":-0.07,"v":0.035,"gr":false,"veh":"car","h":3.14,"sp":0,"blk":0,"cl":null}
+   {"why":"step","mode":"hw","x":325,"y":64.49,"z":-4609,"dy":-0.077,"v":0.033,"gr":false,"veh":"car","h":3.14,"sp":0,"blk":0,"cl":null}
+   {"why":"step","mode":"hw","x":325,"y":64.41,"z":-4609,"dy":-0.084,"v":0.031,"gr":false,"veh":"car","h":3.14,"sp":0,"blk":0,"cl":null}
+   {"why":"step","mode":"hw","x":325,"y":64.56,"z":-4609,"dy":-0.07,"v":0.029,"gr":false,"veh":"car","h":3.14,"sp":0,"blk":0,"cl":null}
+pitch hw 18
+   {"why":"pitch","mode":"hw","x":325,"y":64.44,"z":-4609,"dp":0.057,"p":-0.152}
+   {"why":"pitch","mode":"hw","x":325,"y":64.51,"z":-4609,"dp":0.052,"p":-0.145}
+   {"why":"pitch","mode":"hw","x":325,"y":64.35,"z":-4609,"dp":0.067,"p":-0.182}
+   {"why":"pitch","mode":"hw","x":325,"y":64.38,"z":-4609,"dp":0.056,"p":-0.125}
+   {"why":"pitch","mode":"hw","x":325,"y":64.35,"z":-4609,"dp":0.058,"p":-0.125}
+step route 64
+   {"why":"step","mode":"route","x":325,"y":55.35,"z":-4588,"dy":0.149,"v":0.049,"gr":true,"veh":"car","h":3.14,"sp":8.9,"blk":0,"cl":null}
+   {"why":"step","mode":"route","x":325,"y":53.86,"z":-4585,"dy":0.145,"v":0.041,"gr":true,"veh":"bike","h":3.14,"sp":8.7,"blk":0,"cl":null}
+   {"why":"step","mode":"route","x":329,"y":63.17,"z":-4604,"dy":0.15,"v":0.113,"gr":true,"veh":"car","h":3.14,"sp":9,"blk":0,"cl":null}
+   {"why":"step","mode":"route","x":328,"y":61.76,"z":-4601,"dy":0.15,"v":0.052,"gr":true,"veh":"car","h":3.14,"sp":9,"blk":0,"cl":null}
+   {"why":"step","mode":"route","x":325,"y":52.41,"z":-4583,"dy":0.147,"v":0.044,"gr":true,"veh":"car","h":3.14,"sp":8.8,"blk":49.715899999858884,"cl":null}
+pitch route 6
+   {"why":"pitch","mode":"route","x":329,"y":64.5,"z":-4606,"dp":0.055,"p":-0.066}
+   {"why":"pitch","mode":"route","x":330,"y":61.54,"z":-4601,"dp":0.052,"p":-0.406}
+   {"why":"pitch","mode":"route","x":330,"y":62.11,"z":-4601,"dp":0.051,"p":-0.124}
+   {"why":"pitch","mode":"route","x":330,"y":61.8,"z":-4602,"dp":0.051,"p":-0.244}
+   {"why":"pitch","mode":"route","x":330,"y":63.88,"z":-4604,"dp":0.064,"p":-0.034}
