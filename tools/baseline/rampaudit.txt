@@ -47,44 +47,40 @@ route    up   walk   110 102 ok  frames 634 air 29 maxStep 0.100 maxJerk 0.107 s
 route    up   sprint 110 102 ok  frames 326 air 0 maxStep 0.000 maxJerk 0.000 speed 8.0-8.0 stops 0 off 0.0 {"walk":326}
 route    down walk   102 110 ok  frames 621 air 143 maxStep 0.230 maxJerk 0.149 speed 4.2-4.2 stops 0 off 0.0 {"walk":621}
 route    down sprint 102 110 ok  frames 361 air 105 maxStep 0.283 maxJerk 0.276 speed 4.2-8.0 stops 0 off 0.0 {"walk":361}
-spot slip -1450 -10546 cars 28
+spot slip -1450 -10546 cars 30
 spot slip 430 -1108 cars 30
-spot townEnd -6 99 cars 18
-spot townEnd 6030 390 cars 25
-spot route 326 -4582 cars 29
-spot route 422 -1466 cars 21
-path    frames 45620 moving vertically 8752 airborne 0 stopped 28882 steps 0 teleports 0 maxDy/frame 0.095 maxJerk 0.143 maxPitch/frame 0.074 maxRoll/frame 0.038
-hw      frames 42477 moving vertically 1030 airborne 194 stopped 4155 steps 56 teleports 0 maxDy/frame 0.159 maxJerk 0.216 maxPitch/frame 0.067 maxRoll/frame 0.039
-street  frames 34 moving vertically 34 airborne 0 stopped 0 steps 0 teleports 0 maxDy/frame 0.066 maxJerk 0.024 maxPitch/frame 0.022 maxRoll/frame 0.001
-route   frames 28989 moving vertically 8377 airborne 75 stopped 21752 steps 64 teleports 0 maxDy/frame 0.495 maxJerk 0.204 maxPitch/frame 0.064 maxRoll/frame 0.082
-where [["step hw 324,65,-4608",36],["step hw 324,64,-4608",20],["pitch hw 324,64,-4608",10],["pitch hw 324,65,-4608",6],["step route 330,62,-4590",6],["step route 330,61,-4590",4],["step route 330,59,-4590",4],["step route 330,58,-4590",4],["pitch path 90,65,144",3],["step route 330,60,-4590",3],["step route 330,57,-4590",3],["step route 330,56,-4590",3],["step route 330,55,-4590",3],["step route 330,54,-4590",3]]
-pitch path 11
-   {"why":"pitch","mode":"path","x":432,"y":62.98,"z":-1123,"dp":0.074,"p":-0.374}
-   {"why":"pitch","mode":"path","x":95,"y":65,"z":47,"dp":0.051,"p":-0.051}
-   {"why":"pitch","mode":"path","x":66,"y":59,"z":138,"dp":0.051,"p":-0.051}
-   {"why":"pitch","mode":"path","x":67,"y":59,"z":140,"dp":0.051,"p":0.048}
+spot townEnd -6 99 cars 19
+spot townEnd 6030 390 cars 26
+spot route 326 -4582 cars 22
+spot route 422 -1466 cars 22
+path    frames 49252 moving vertically 7049 airborne 0 stopped 34854 steps 0 teleports 0 maxDy/frame 0.095 maxJerk 0.143 maxPitch/frame 0.058 maxRoll/frame 0.038
+hw      frames 39683 moving vertically 529 airborne 144 stopped 1268 steps 30 teleports 0 maxDy/frame 0.159 maxJerk 0.159 maxPitch/frame 0.067 maxRoll/frame 0.073
+route   frames 18557 moving vertically 6631 airborne 8 stopped 12905 steps 7 teleports 0 maxDy/frame 0.159 maxJerk 0.204 maxPitch/frame 0.050 maxRoll/frame 0.000
+where [["step hw 324,65,-4608",18],["step hw 324,64,-4608",12],["pitch hw 324,64,-4608",6],["pitch path -1434,59,-10548",4],["pitch hw 324,65,-4608",3],["pitch path 96,65,102",2],["pitch path 96,65,108",2],["pitch route 420,45,-1476",2],["step route 324,56,-4590",1],["step route 324,55,-4584",1],["step route 324,53,-4584",1],["step route 324,51,-4578",1],["step route 324,50,-4578",1],["step route 324,48,-4572",1]]
+pitch path 8
+   {"why":"pitch","mode":"path","x":-1436,"y":58.98,"z":-10547,"dp":0.051,"p":0.097}
+   {"why":"pitch","mode":"path","x":-1436,"y":58.97,"z":-10547,"dp":0.058,"p":-0.175}
+   {"why":"pitch","mode":"path","x":-1435,"y":58.94,"z":-10547,"dp":0.056,"p":-0.118}
+   {"why":"pitch","mode":"path","x":-1435,"y":58.91,"z":-10547,"dp":0.055,"p":-0.064}
    {"why":"pitch","mode":"path","x":95,"y":65,"z":99,"dp":0.051,"p":-0.051}
-step hw 56
-   {"why":"step","mode":"hw","x":325,"y":64.64,"z":-4609,"dy":-0.063,"v":0.023,"gr":false,"veh":"car","h":3.14,"sp":3.6,"blk":0,"cl":null}
-   {"why":"step","mode":"hw","x":325,"y":64.57,"z":-4609,"dy":-0.07,"v":0.035,"gr":false,"veh":"car","h":3.14,"sp":0,"blk":0,"cl":null}
-   {"why":"step","mode":"hw","x":325,"y":64.49,"z":-4609,"dy":-0.077,"v":0.033,"gr":false,"veh":"car","h":3.14,"sp":0,"blk":0,"cl":null}
-   {"why":"step","mode":"hw","x":325,"y":64.41,"z":-4609,"dy":-0.084,"v":0.031,"gr":false,"veh":"car","h":3.14,"sp":0,"blk":0,"cl":null}
-   {"why":"step","mode":"hw","x":325,"y":64.56,"z":-4609,"dy":-0.07,"v":0.029,"gr":false,"veh":"car","h":3.14,"sp":0,"blk":0,"cl":null}
-pitch hw 18
-   {"why":"pitch","mode":"hw","x":325,"y":64.44,"z":-4609,"dp":0.057,"p":-0.152}
-   {"why":"pitch","mode":"hw","x":325,"y":64.51,"z":-4609,"dp":0.052,"p":-0.145}
-   {"why":"pitch","mode":"hw","x":325,"y":64.35,"z":-4609,"dp":0.067,"p":-0.182}
-   {"why":"pitch","mode":"hw","x":325,"y":64.38,"z":-4609,"dp":0.056,"p":-0.125}
-   {"why":"pitch","mode":"hw","x":325,"y":64.35,"z":-4609,"dp":0.058,"p":-0.125}
-step route 64
-   {"why":"step","mode":"route","x":325,"y":55.35,"z":-4588,"dy":0.149,"v":0.049,"gr":true,"veh":"car","h":3.14,"sp":8.9,"blk":0,"cl":null}
-   {"why":"step","mode":"route","x":325,"y":53.86,"z":-4585,"dy":0.145,"v":0.041,"gr":true,"veh":"bike","h":3.14,"sp":8.7,"blk":0,"cl":null}
-   {"why":"step","mode":"route","x":329,"y":63.17,"z":-4604,"dy":0.15,"v":0.113,"gr":true,"veh":"car","h":3.14,"sp":9,"blk":0,"cl":null}
-   {"why":"step","mode":"route","x":328,"y":61.76,"z":-4601,"dy":0.15,"v":0.052,"gr":true,"veh":"car","h":3.14,"sp":9,"blk":0,"cl":null}
-   {"why":"step","mode":"route","x":325,"y":52.41,"z":-4583,"dy":0.147,"v":0.044,"gr":true,"veh":"car","h":3.14,"sp":8.8,"blk":49.715899999858884,"cl":null}
-pitch route 6
-   {"why":"pitch","mode":"route","x":329,"y":64.5,"z":-4606,"dp":0.055,"p":-0.066}
-   {"why":"pitch","mode":"route","x":330,"y":61.54,"z":-4601,"dp":0.052,"p":-0.406}
-   {"why":"pitch","mode":"route","x":330,"y":62.11,"z":-4601,"dp":0.051,"p":-0.124}
-   {"why":"pitch","mode":"route","x":330,"y":61.8,"z":-4602,"dp":0.051,"p":-0.244}
-   {"why":"pitch","mode":"route","x":330,"y":63.88,"z":-4604,"dp":0.064,"p":-0.034}
+pitch hw 11
+   {"why":"pitch","mode":"hw","x":326,"y":64.74,"z":-4608,"dp":0.057,"p":-0.175}
+   {"why":"pitch","mode":"hw","x":326,"y":64.62,"z":-4608,"dp":0.053,"p":-0.122}
+   {"why":"pitch","mode":"hw","x":326,"y":64.34,"z":-4609,"dp":0.067,"p":-0.176}
+   {"why":"pitch","mode":"hw","x":326,"y":64.37,"z":-4609,"dp":0.056,"p":-0.12}
+   {"why":"pitch","mode":"hw","x":326,"y":64.52,"z":-4609,"dp":0.054,"p":-0.163}
+step hw 30
+   {"why":"step","mode":"hw","x":326,"y":64.63,"z":-4609,"dy":-0.063,"v":0.026,"gr":false,"veh":"car","h":3.14,"sp":0,"blk":0,"cl":null}
+   {"why":"step","mode":"hw","x":326,"y":64.56,"z":-4609,"dy":-0.07,"v":0.025,"gr":false,"veh":"car","h":3.14,"sp":0,"blk":0,"cl":null}
+   {"why":"step","mode":"hw","x":326,"y":64.49,"z":-4609,"dy":-0.077,"v":0.023,"gr":false,"veh":"car","h":3.14,"sp":0,"blk":0,"cl":null}
+   {"why":"step","mode":"hw","x":326,"y":64.4,"z":-4609,"dy":-0.084,"v":0.022,"gr":false,"veh":"car","h":3.14,"sp":0,"blk":0,"cl":null}
+   {"why":"step","mode":"hw","x":326,"y":64.31,"z":-4609,"dy":-0.091,"v":0.021,"gr":false,"veh":"car","h":3.14,"sp":0,"blk":0,"cl":null}
+step route 7
+   {"why":"step","mode":"route","x":326,"y":56.23,"z":-4590,"dy":0.151,"v":0.052,"gr":true,"veh":"semi","h":-3.14,"sp":9,"blk":0,"cl":null}
+   {"why":"step","mode":"route","x":325,"y":54.69,"z":-4587,"dy":0.15,"v":0.049,"gr":true,"veh":"van","h":3.14,"sp":9,"blk":0,"cl":null}
+   {"why":"step","mode":"route","x":325,"y":53.06,"z":-4584,"dy":0.152,"v":0.055,"gr":true,"veh":"car","h":3.14,"sp":9.1,"blk":0,"cl":null}
+   {"why":"step","mode":"route","x":326,"y":51.44,"z":-4581,"dy":0.147,"v":0.045,"gr":true,"veh":"car","h":-3.14,"sp":8.8,"blk":0,"cl":null}
+   {"why":"step","mode":"route","x":325,"y":49.66,"z":-4577,"dy":0.149,"v":0.047,"gr":true,"veh":"car","h":3.14,"sp":8.9,"blk":0,"cl":null}
+pitch route 2
+   {"why":"pitch","mode":"route","x":418,"y":45.31,"z":-1479,"dp":0.05,"p":-0.139}
+   {"why":"pitch","mode":"route","x":418,"y":45.31,"z":-1479,"dp":0.05,"p":-0.137}

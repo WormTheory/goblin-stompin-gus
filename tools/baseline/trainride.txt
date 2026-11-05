@@ -2,9 +2,9 @@ track length 1290 cells on a bend 48 stops 2
 rode for 121s turned through 6.28 rad, biggest turn in a tenth of a second 0.172 reversals 2 fell off 0 biggest car jump in a tenth of a second 2.40 (top speed 2.4)
 s 164 dir 1 v 24 stand false
 Gus hit: true launched 11.3 high and 54.0 away
-goblin hit: true launched 15.4 high and 55.4 away state chase
-car 0 took 3 hits of 40, train stopped true all gone false
-car 1 took 3 hits of 40, train stopped true all gone false
+goblin hit: true launched 15.4 high and 55.5 away state chase
+car 0 took 2 hits of 40, train stopped true all gone false
+car 1 took 2 hits of 40, train stopped true all gone false
 car 2 took 3 hits of 40, train stopped true all gone false
 car 3 took 4 hits of 40, train stopped true all gone true
 speed now 0.0 solid wreck boxes 7

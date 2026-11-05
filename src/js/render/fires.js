@@ -78,7 +78,8 @@ function updateFires(dt){
     }
     // (a very thick plume puts out bigger puffs rather than ever more of them)
     const smR=Math.min(F.sm,2.5),smS=Math.sqrt(Math.max(1,F.sm/2.5));
-    F.sacc+=dt*(1.5+R*1.6)*smR*(0.4+0.6*k);
+    // (see-through boxes are what a slow graphics card struggles with most, up close: when frames are running long, thinner plumes)
+    F.sacc+=dt*(1.5+R*1.6)*smR*(0.4+0.6*k)*(frameMs>40?0.35:frameMs>25?0.6:1);
     while(F.sacc>=1){F.sacc--;const p=smokeP[smI];smI=(smI+1)%SM_N;
       const a=Math.random()*Math.PI*2,d=Math.random()*R*0.7;p.x=F.x+Math.cos(a)*d;p.z=F.z+Math.sin(a)*d;p.y=F.y+0.8+Math.random();
       const ri=F.rise;p.vx=(0.5+(Math.random()-.5)*0.6)*Math.sqrt(ri);p.vz=(0.25+(Math.random()-.5)*0.6)*Math.sqrt(ri);p.vy=(2.2+Math.random()*1.6)*ri;p.max=p.life=(3.5+Math.random()*3)*(1+(ri-1)*0.9);p.s=(0.8+Math.random()*0.8+R*0.25)*(1+(ri-1)*0.35)*smS;p.g=F.flames?0.1+Math.random()*0.08:0.32+Math.random()*0.12;p.glow=F.flames?k*(0.55+Math.random()*0.35):0;}

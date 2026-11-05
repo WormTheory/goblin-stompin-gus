@@ -87,7 +87,7 @@ function axisSpan(T,ax){
 // is block m on line k (a row for 'x', a column for 'z') part of a place's highway, and of what kind?
 const hwLineC=new Map();
 function hwLine(ax,k,m){
-  const key=ax+k+','+m;let v=hwLineC.get(key);if(v!==undefined)return v;v=null;
+  const key=((k+50000)*100000+m+50000)*2+(ax==='x'?1:0);let v=hwLineC.get(key);if(v!==undefined)return v;v=null;
   const r0=Math.round((ax==='x'?m:k)/SET_SP),q0=Math.round((ax==='x'?k:m)/SET_SP);
   for(let rx=r0-1;rx<=r0+1&&!v;rx++)for(let rz=q0-1;rz<=q0+1&&!v;rz++){
     const T=placeAt(rx,rz);if(lineOf(T,ax)!==k)continue;const S=axisSpan(T,ax);if(S&&m>=S.m0&&m<=S.m1)v=S.kind;}

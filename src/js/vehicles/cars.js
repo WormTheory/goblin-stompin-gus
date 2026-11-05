@@ -338,7 +338,7 @@ function spawnHw(c){
     for(const H of L){const pa=Math.floor((H.ax==='x'?p.pos.x:p.pos.z)/CELL);for(let m=pa-5;m<=pa+5;m++){const m0=icOf(H.ax,H.k,m);if(m0===m)for(const side of [1,-1])opts.push({H,m0,side});}}
     for(let tries=0;tries<4&&opts.length;tries++){
       const o=opts.splice(Math.floor(Math.random()*opts.length),1)[0],R=icRoutes(o.H.ax,o.H.k,o.m0,o.side),s0=R.on[0];
-      const y=groundAt(s0.x,s0.z,G+3);if(Math.abs(y-(G+1))>0.5)continue;if(!segOpen(Math.floor(s0.x/CELL),Math.floor(s0.z/CELL),o.H.ax==='x'?0:1))continue;
+      if(!mayLook(s0.x,s0.z))continue;const y=groundAt(s0.x,s0.z,G+3);if(Math.abs(y-(G+1))>0.5)continue;if(!segOpen(Math.floor(s0.x/CELL),Math.floor(s0.z/CELL),o.H.ax==='x'?0:1))continue;
       if(Math.hypot(s0.x-p.pos.x,s0.z-p.pos.z)<40&&visibleToAny(s0.x,y+1,s0.z))continue;
       if(cars.some(q=>q!==c&&q.alive&&Math.hypot(q.pos.x-s0.x,q.pos.z-s0.z)<8))continue;
       const nx=R.on[1];
@@ -354,7 +354,7 @@ function spawnHw(c){
   const RL=[];{const l=routesNearBox(p.pos.x-170,p.pos.z-170,p.pos.x+170,p.pos.z+170);for(let q=0;q<l.length;q+=2)if(!RL.includes(l[q]))RL.push(l[q]);}
   if(!RL.length&&!L.length)return false;
   const ok=(x,y,z)=>{
-    if(groundAt(x,z,y+1)!==y)return false;
+    if(!mayLook(x,z)||groundAt(x,z,y+1)!==y)return false;
     if(cars.some(o=>o!==c&&o.alive&&Math.abs(o.pos.y-y)<2&&Math.hypot(o.pos.x-x,o.pos.z-z)<14+o.hz))return false;
     if(Math.hypot(x-p.pos.x,z-p.pos.z)<70&&visibleToAny(x,y+1,z))return false;
     return true;};

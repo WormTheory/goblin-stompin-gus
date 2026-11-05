@@ -306,6 +306,10 @@ function boxClear(x0,x1,z0,z1,y){
   for(let tz=tz0;tz<=tz1;tz++)for(let tx=tx0;tx<=tx1;tx++){const A=chunkArr(tx>>2,tz>>2),T=A.tileTops||tileTopsOf(A);if(T[(tz&3)*4+(tx&3)]>=y)return false;}
   return true;
 }
+// May something that isn't the chunk loader look here? If the chunk isn't there, looking makes it, a couple of milliseconds:
+// one of those a frame is fine, and anything else that asks can try again next time.
+let madeNow=0;
+function mayLook(x,z){if(chunks.has(ckey(Math.floor(x/CS),Math.floor(z/CS))))return true;if(madeNow>=1)return false;madeNow++;return true;}
 function solidAt(x,y,z){if(y<0)return true;if(y>=H)return false;const b=get(x,y,z);return !!(b&&BLOCK[b].solid);}
 function groundAt(x,z,fromY){const xi=Math.floor(x),zi=Math.floor(z);for(let y=Math.min(H-1,Math.floor(fromY+1.2));y>=0;y--){const b=y<0?STONE:get(xi,y,zi);if(b&&BLOCK[b].solid)return BLOCK[b].ramp?y+rampH(b,x-xi,z-zi):y+1;}return 0;}
 // what something standing at height y rests on: the first solid block at or below its feet, but only if that block has open air above it (otherwise it's a wall, and nothing gets lifted up it)

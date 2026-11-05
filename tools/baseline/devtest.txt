@@ -23,4 +23,4 @@ pound3    frames N ms N rise 3.76 moved 0.00 hits {"block:box":1,"dmg:cap":1}
 crash     frames N ms N rise 11.99 moved 0.00 hits {"block:box":1,"dmg:cap":1}
 stomp1 as a cone: ["cone {\"x\":500000.5,\"y\":45,\"z\":500001.8,\"len\":6,\"r\":4.199999999999999,\"rot\":0}"]
 jump with launch 19: rise 7.06
-real world untouched: true player still at  0.00 chunks 175 -> 175
+real world untouched: true player still at  0.00 chunks 103 -> 103

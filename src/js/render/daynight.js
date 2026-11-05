@@ -92,7 +92,7 @@ let readoutH='';
 // the first sprint. Everything hidden in the scene gets its program here instead, on the second frame, while the game is still
 // on the title screen. (Plus the speed lines, whose materials aren't made till they're needed. These stay referenced, as
 // three.js throws away a program once nothing is using it.)
-let warmT=0;const WARM=[];
+let warmT=0,frameMs=16;const WARM=[];
 function warmShaders(){
   if(!renderer.compile)return;
   const L=new THREE.LineSegments(new THREE.BufferGeometry(),new THREE.LineBasicMaterial({transparent:true,fog:false})),M=new THREE.Mesh(new THREE.BufferGeometry(),new THREE.MeshBasicMaterial({alphaMap:tex,transparent:true,side:THREE.DoubleSide,fog:false}));
@@ -102,7 +102,9 @@ function warmShaders(){
 }
 function frame(now){
   if(warmT<2&&++warmT===2)warmShaders();
+  madeNow=0;
   fpsTick((now-last)/1000);
+  frameMs+=(Math.min(100,Math.max(0,now-last))-frameMs)*0.05;   // (how long frames have been taking lately)
   const dt=Math.max(0,Math.min(0.06,(now-last)/1000));last=now;   // (never below 0: a long boot can hand the first frame a timestamp older than last, and negative time winds timers up, which queued a stomp nobody pressed)
   if(menuOpen)obitPreviewTick(dt);
   if(menuOpen&&curTab==='dev'){safe('dev',()=>devTick(dt));safe('devst',()=>stTick(dt));}
@@ -125,7 +127,7 @@ function frame(now){
     safe('booms',()=>updateBooms(sdt));safe('fires',()=>updateFires(sdt));safe('flecks',()=>updateFlecks(sdt));
   }
   safe('far',()=>updateFar(dt));safe('debug',()=>updateDebug(gdt));safe('explore',()=>updateExplore(dt));
-  safe('chunks',()=>{updateChunks(P2.active?2:1,dt);flushRebuilds();flushNotes(2);});
+  safe('chunks',()=>{updateChunks(P2.active?2:1,dt);flushRebuilds();flushNotes(2);planAhead();regionTick();});
   camClock+=dt;
   for(const p of players){poundWoosh(p);runWoosh(p);bodyStreaks(p,gdt);if(!p.active)continue;updateSpeedFx(p,gdt);placeCamera(p);updateSpeedo(p,dt);updateMinimap(p,dt);p.shake*=Math.exp(-gdt*7);}
   if(DT.freecam){P1.camera.position.copy(FC.pos);P1.camera.rotation.set(FC.pitch,FC.yaw,0,'YXZ');}

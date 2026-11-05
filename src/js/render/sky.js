@@ -1,7 +1,34 @@
 // ---------- Save ----------
 let saveTimer=null;
-function save(){if(saveBlocked)return;clearTimeout(saveTimer);saveTimer=setTimeout(()=>{flushNotes(Infinity);try{localStorage.setItem(SAVE_KEY,JSON.stringify({seed,edits,coll:collapses,wreck:wrecked,down:[...downFix],dest:destroyed,test:[...TEST_OFF],tenv:TENV||undefined}));}catch(e){}},700);}
-function load(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(s&&typeof s.seed==='number'){seed=s.seed;TEST_OFF=new Set(Array.isArray(s.test)?s.test:[]);TENV=s.tenv&&Array.isArray(s.tenv.boxes)?{boxes:s.tenv.boxes.filter(B=>B&&[B.ax,B.az,B.w,B.h].every(Number.isFinite))}:null;tenvIndex();edits=s.edits||{};collapses=s.coll||{};wrecked=(s.wreck&&typeof s.wreck==='object')?s.wreck:{};destroyed=(s.dest&&typeof s.dest==='object')?s.dest:{};destroyVer++;setDCache.clear();downFix=new Map(Array.isArray(s.down)?s.down:[]);for(const k in edits){const [x,y,z]=k.split(',').map(Number);const ck=ckey(Math.floor(x/CS),Math.floor(z/CS));let l=chunkEdits.get(ck);if(!l){l=[];chunkEdits.set(ck,l);}l.push([x,y,z,edits[k]]);}return true;}}catch(e){}return false;}
+// ---- smashed blocks, packed: in the save they go chunk by chunk, grouped by what's there now, each as three characters (where in
+// the chunk it is, in base 64), rather than about seventeen as "x,y,z":b. That's six times as many before the browser's storage
+// fills, and a chunk nothing's happened in since the last save just reuses its string, so saving doesn't grow with the city's ruin. ----
+const ED64='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_',edPackC=new Map();
+function edPackChunk(L,x0,z0){
+  const m=new Map();for(const e of L)m.set(e[0]-x0+(e[2]-z0)*CS+e[1]*CS*CS,e[3]);   // (the same block edited twice: the last one stands)
+  const by=new Map();for(const [i,b] of m){const s=ED64[i>>12&63]+ED64[i>>6&63]+ED64[i&63];let a=by.get(b);if(!a){a=[];by.set(b,a);}a.push(s);}
+  const out=[];for(const [b,a] of by)out.push(b+':'+a.join(''));return out.join(';');
+}
+function editsPacked(){
+  const out={};
+  for(const [k,L] of chunkEdits){let c=edPackC.get(k);
+    if(!c||c.L!==L||c.n!==L.length){const cx=Math.floor(k/65536)-32768,cz=(k%65536)-32768;c={L,n:L.length,key:cx+','+cz,str:edPackChunk(L,cx*CS,cz*CS)};edPackC.set(k,c);}
+    out[c.key]=c.str;}
+  return out;
+}
+function editsUnpack(P){
+  for(const key in P){const [cx,cz]=key.split(',').map(Number),x0=cx*CS,z0=cz*CS,ck=ckey(cx,cz);let l=chunkEdits.get(ck);if(!l){l=[];chunkEdits.set(ck,l);}
+    for(const part of P[key].split(';')){const c=part.indexOf(':'),b=+part.slice(0,c);
+      for(let o=c+1;o+2<part.length;o+=3){const i=ED64.indexOf(part[o])<<12|ED64.indexOf(part[o+1])<<6|ED64.indexOf(part[o+2]),y=Math.floor(i/(CS*CS)),r=i-y*CS*CS,x=x0+r%CS,z=z0+Math.floor(r/CS);
+        edits[x+','+y+','+z]=b;l.push([x,y,z,b]);}}}
+}
+// (the world as saved; extra: anything else to go in with it)
+const saveText=extra=>JSON.stringify(Object.assign({seed,ed2:editsPacked(),coll:collapses,wreck:wrecked,down:[...downFix],dest:destroyed,test:[...TEST_OFF]},extra));
+let saveFullSaid=false;
+function save(){if(saveBlocked)return;clearTimeout(saveTimer);saveTimer=setTimeout(()=>{flushNotes(Infinity);try{localStorage.setItem(SAVE_KEY,saveText({tenv:TENV||undefined}));saveFullSaid=false;}catch(e){
+  // (better to say so once than to quietly stop saving)
+  if(!saveFullSaid){saveFullSaid=true;try{flashLabel("Can't save: the browser's storage is full");}catch(e2){}}}},700);}
+function load(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(s&&typeof s.seed==='number'){seed=s.seed;TEST_OFF=new Set(Array.isArray(s.test)?s.test:[]);TENV=s.tenv&&Array.isArray(s.tenv.boxes)?{boxes:s.tenv.boxes.filter(B=>B&&[B.ax,B.az,B.w,B.h].every(Number.isFinite))}:null;tenvIndex();edits=s.ed2?{}:s.edits||{};collapses=s.coll||{};wrecked=(s.wreck&&typeof s.wreck==='object')?s.wreck:{};destroyed=(s.dest&&typeof s.dest==='object')?s.dest:{};destroyVer++;setDCache.clear();downFix=new Map(Array.isArray(s.down)?s.down:[]);if(s.ed2)editsUnpack(s.ed2);else for(const k in edits){const [x,y,z]=k.split(',').map(Number);const ck=ckey(Math.floor(x/CS),Math.floor(z/CS));let l=chunkEdits.get(ck);if(!l){l=[];chunkEdits.set(ck,l);}l.push([x,y,z,edits[k]]);}return true;}}catch(e){}return false;}
 
 // ---------- Renderer ----------
 const canvas=document.getElementById('world');

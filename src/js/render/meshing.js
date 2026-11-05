@@ -256,6 +256,7 @@ function buildChunk(cx,cz){
     }
   }
   const k=ckey(cx,cz),old=meshes.get(k);
+  regionTouch(cx,cz);
   if(old)for(const m of old.m){scene.remove(m);m.geometry.dispose();}
   const m=[];
   bufs.forEach((d,i)=>{
@@ -266,6 +267,8 @@ function buildChunk(cx,cz){
     g.setAttribute('color',new THREE.Float32BufferAttribute(d.c.take(),3));g.setAttribute('aSky',new THREE.Float32BufferAttribute(d.k.take(),1));
     const big=d.p.length/3>65535,ia=d.i.take();
     g.setIndex(new THREE.BufferAttribute(big?ia:Uint16Array.from(ia),1));
+    // (where it is, known already: saves three.js going through every corner to find out)
+    if(THREE.Sphere)g.boundingSphere=new THREE.Sphere(new V3(x0+CS/2,(yLo+yTop+1)/2,z0+CS/2),Math.hypot(CS/2,(yTop+1-yLo)/2,CS/2)+0.01);
     const mesh=new THREE.Mesh(g,i?matWater:matOpaque);if(i)mesh.renderOrder=1;scene.add(mesh);m.push(mesh);
   });
   {const mk=routeMarks(cx,cz);if(mk)m.push(mk);}
@@ -347,7 +350,60 @@ function routeMarks(cx,cz){
   g.setAttribute('color',new THREE.Float32BufferAttribute(C,3));g.setAttribute('aSky',new THREE.Float32BufferAttribute(K,1));g.setIndex(I);
   const mesh=new THREE.Mesh(g,matDecal);scene.add(mesh);return mesh;
 }
-function clearWorld(){rebuildQ.clear();for(const e of meshes.values())for(const m of e.m){scene.remove(m);m.geometry.dispose();}meshes.clear();MESHED.fill(0);meshedDirty=true;farDirty=true;chunks.clear();gfxRecC.clear();plotCache.clear();plotTypeC.clear();lampSpotC.clear();bridgeCache.clear();superCache.clear();setCache.clear();setAtCache.clear();jDegC.clear();linkNearC.clear();ctlCache.clear();zoneCache.clear();farmC.clear();cloverCache.clear();clearLayout();joinCache.clear();icCache.clear();ctlCache.clear();lastK=-1;}
+function clearWorld(){rebuildQ.clear();regionsClear();planJob.S=null;for(const e of meshes.values())for(const m of e.m){scene.remove(m);m.geometry.dispose();}meshes.clear();MESHED.fill(0);meshedDirty=true;farDirty=true;chunks.clear();gfxRecC.clear();plotCache.clear();plotTypeC.clear();lampSpotC.clear();bridgeCache.clear();superCache.clear();setCache.clear();setAtCache.clear();jDegC.clear();linkNearC.clear();ctlCache.clear();zoneCache.clear();farmC.clear();cloverCache.clear();clearLayout();joinCache.clear();icCache.clear();ctlCache.clear();lastK=-1;}
+// ---- far chunks drawn in fours: each chunk is its own draw call or three, which at a long detail distance is the bulk of a frame's.
+// So a group of up to 4 x 4 chunks a little way off that nothing has happened to for a while is copied into one mesh per material,
+// and the chunks themselves hidden. The picture's the same. Anything changing in the group (a block smashed, a chunk dropped) simply
+// puts the separate chunks back, and it's merged again once it has settled. They stay merged as you come nearer: that costs nothing,
+// and changing them back only happens if something there changes. ----
+const REGIONS=new Map(),regionChanged=new Map(),REG_MIN=6,REG_FAR=5,REG_SETTLE=120;   // (REG_FAR in chunks; REG_SETTLE in frames)
+let regClock=0,regionsOn=true,regionQ=[];
+const regionKey=(cx,cz)=>ckey(cx>>2,cz>>2);
+function regionUnmerge(rk){
+  const R=REGIONS.get(rk);if(!R)return;REGIONS.delete(rk);
+  for(const m of R.m){scene.remove(m);m.geometry.dispose();}
+  for(const k of R.members){const e=meshes.get(k);if(e)for(const m of e.m)m.visible=true;}
+}
+function regionTouch(cx,cz){const rk=regionKey(cx,cz);regionChanged.set(rk,regClock);if(REGIONS.size)regionUnmerge(rk);}
+function regionsClear(){for(const R of REGIONS.values())for(const m of R.m){scene.remove(m);m.geometry.dispose();}REGIONS.clear();regionChanged.clear();regionQ.length=0;}
+// (the merged copy's arrays are only needed until they're on the graphics card; the chunks keep their own)
+function regDrop(){this.array=null;}
+function regionMerge(rk,keys){
+  const byMat=new Map();
+  for(const k of keys){const e=meshes.get(k);if(!e)return;for(const m of e.m){if(!m.geometry.index||!m.geometry.index.array)return;let L=byMat.get(m.material);if(!L){L=[];byMat.set(m.material,L);}L.push(m);}}
+  const out=[];let x0=1e9,z0=1e9,x1=-1e9,z1=-1e9;for(const k of keys){const e=meshes.get(k);x0=Math.min(x0,e.cx*CS);z0=Math.min(z0,e.cz*CS);x1=Math.max(x1,(e.cx+1)*CS);z1=Math.max(z1,(e.cz+1)*CS);}
+  for(const [mat,L] of byMat){
+    let nv=0,ni=0;for(const m of L){nv+=m.geometry.attributes.position.count;ni+=m.geometry.index.count;}
+    if(!ni)continue;
+    const P=new Float32Array(nv*3),U=new Float32Array(nv*2),C=new Float32Array(nv*3),K=new Float32Array(nv),I=nv>65535?new Uint32Array(ni):new Uint16Array(ni);
+    let v=0,o=0,y0=1e9,y1=-1e9;
+    for(const m of L){const a=m.geometry.attributes,q=m.geometry.index.array,pp=a.position.array;
+      P.set(pp,v*3);U.set(a.uv.array,v*2);C.set(a.color.array,v*3);K.set(a.aSky.array,v);
+      for(let i=1;i<pp.length;i+=3){const y=pp[i];if(y<y0)y0=y;if(y>y1)y1=y;}
+      for(let i=0;i<q.length;i++)I[o++]=q[i]+v;
+      v+=a.position.count;}
+    const g=new THREE.BufferGeometry();
+    for(const [n,arr,w] of [['position',P,3],['uv',U,2],['color',C,3],['aSky',K,1]]){const A=new THREE.BufferAttribute(arr,w);A.onUpload(regDrop);g.setAttribute(n,A);}
+    const IA=new THREE.BufferAttribute(I,1);IA.onUpload(regDrop);g.setIndex(IA);
+    g.boundingSphere=new THREE.Sphere(new V3((x0+x1)/2,(y0+y1)/2,(z0+z1)/2),Math.hypot((x1-x0)/2,(y1-y0)/2,(z1-z0)/2)+0.01);
+    const M=new THREE.Mesh(g,mat);M.renderOrder=L[0].renderOrder;scene.add(M);out.push(M);
+  }
+  for(const k of keys)for(const m of meshes.get(k).m)m.visible=false;
+  REGIONS.set(rk,{m:out,members:keys});
+}
+function regionTick(){
+  regClock++;if(!regionsOn||!THREE.Sphere)return;
+  // (every half second or so, which groups are ready; one merged every other frame)
+  if(regClock%30===0){
+    const act=players.filter(p=>p.active),groups=new Map();
+    for(const [k,e] of meshes){const rk=regionKey(e.cx,e.cz);if(REGIONS.has(rk))continue;let G2=groups.get(rk);if(!G2){G2={keys:[],cx:e.cx,cz:e.cz};groups.set(rk,G2);}G2.keys.push(k);}
+    regionQ.length=0;
+    for(const [rk,G2] of groups){if(G2.keys.length<REG_MIN||regClock-(regionChanged.get(rk)??-1e9)<REG_SETTLE)continue;
+      const mx=(G2.cx>>2)*4+2,mz=(G2.cz>>2)*4+2;let far=true;for(const p of act)if(Math.max(Math.abs(mx-p.pos.x/CS),Math.abs(mz-p.pos.z/CS))<REG_FAR)far=false;
+      if(far)regionQ.push([rk,G2.keys]);}
+  }
+  if(regClock%2===0&&regionQ.length){const [rk,keys]=regionQ.pop();if(!REGIONS.has(rk)&&regClock-(regionChanged.get(rk)??-1e9)>=REG_SETTLE)regionMerge(rk,keys);}
+}
 let unloadT=0,chunkScan={key:'',size:-1,full:false};
 // where to look for a chunk to make next, nearest first: worked out once for a view distance, not every frame
 let chunkOrd=null,chunkOrdR=-1;
@@ -363,7 +419,7 @@ function updateChunks(budget,dt){
   const cheb=(cx,cz)=>{let m=1e9;for(const [a,b] of centers)m=Math.min(m,Math.max(Math.abs(cx-a),Math.abs(cz-b)));return m;};
   // (standing in the same chunk with everything in sight already made, there's nothing to go through)
   const key=R+'|'+centers.join('|'),same=key===chunkScan.key;
-  if(!same)for(const [k,e] of meshes){if(cheb(e.cx,e.cz)>R+1){for(const m of e.m){scene.remove(m);m.geometry.dispose();}meshes.delete(k);markMeshed(e.cx,e.cz,false);}}
+  if(!same)for(const [k,e] of meshes){if(cheb(e.cx,e.cz)>R+1){regionTouch(e.cx,e.cz);for(const m of e.m){scene.remove(m);m.geometry.dispose();}meshes.delete(k);markMeshed(e.cx,e.cz,false);}}
   unloadT-=dt;
   if(unloadT<=0){unloadT=2;for(const k of chunks.keys()){const cx=Math.floor(k/65536)-32768,cz=(k%65536)-32768;if(cheb(cx,cz)>R+4)chunks.delete(k);}lastK=-1;if(plotCache.size>30000){plotCache.clear();plotTypeC.clear();lampSpotC.clear();bridgeCache.clear();superCache.clear();joinCache.clear();icCache.clear();ctlCache.clear();}}
   if(same&&chunkScan.full&&chunkScan.size===meshes.size)return;

@@ -35,7 +35,7 @@ on a coaster car: frames on it 299 of 300
 carousel gone after 8 charged stomps, score 300 on record true
 gondola gone after 6 bites, drawn false
 hole in the track: there still false
-derailed true after 9.9s cars flying 4 down after 1.3s all dead true score 500
+derailed true after 9.9s cars flying 4 down after 1.2s all dead true score 500
 legs cut on one side: came down true after 0.9s lying at 1.5 tipped 1.57 score 1000 hits left false
 venue dropped away true
 back: wheel down true carousel down true coaster off true cars drawn 0 wheel height 1.5

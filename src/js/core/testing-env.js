@@ -46,7 +46,7 @@ function freshWorld(off,tenv){
 }
 // into the Testing Environment: your city (as it is this moment, where you stand, its obituary) is put aside first
 function tenvEnter(){
-  try{savePos();localStorage.setItem(TENV_PARK,JSON.stringify({key:SAVE_KEY,save:JSON.stringify({seed,edits,coll:collapses,wreck:wrecked,down:[...downFix],dest:destroyed,test:[...TEST_OFF]}),
+  try{savePos();localStorage.setItem(TENV_PARK,JSON.stringify({key:SAVE_KEY,save:saveText(),
     pos:localStorage.getItem(POS_KEY),obit:localStorage.getItem(OBIT_KEY)}));}catch(e){}
   if(freshWorld([],{boxes:[]}))return;
   // (no storage to reload from: started here and now)

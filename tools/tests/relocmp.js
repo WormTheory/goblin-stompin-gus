@@ -2,6 +2,7 @@
 const fs=require('fs');const dir=process.argv[2]||'/tmp/relo';
 const ld=f=>{try{return JSON.parse(fs.readFileSync(f,'utf8').trim().split('\n').pop());}catch(e){return {err:'unreadable'};}};
 const ms=(x,y)=>{const m=new Map();for(const k of x)m.set(k,(m.get(k)||0)+1);for(const k of y)m.set(k,(m.get(k)||0)-1);const d=[];for(const [k,v] of m)if(v)d.push(k+':'+v);return d;};
+if(!fs.existsSync(dir+'/kinds')){console.log('nothing to compare: run relo.js for each kind first (relocmp.sh compares them itself)');process.exit(0);}
 let bad=0;
 for(const k of fs.readFileSync(dir+'/kinds','utf8').trim().split(/\s+/)){
   const a=ld(`${dir}/${k}.home.json`),b=ld(`${dir}/${k}.move.json`);

@@ -148,6 +148,23 @@ function connOpen(ix,iz,d){
 }
 // the two blocks either side of a stretch of street (normalised to d 0 / 1 at (ix,iz))
 const segCells=(ix,iz,d)=>d===0?[[ix-1,iz],[ix,iz]]:[[ix,iz-1],[ix,iz]];
+// The first time anything needs a place's streets, working them all out takes tens of milliseconds at a stroke. So the places
+// ahead of the players are gone over a millisecond or two a frame beforehand, asking the same questions, whose answers are kept:
+// by the time setConns comes to it, it's mostly looking them up.
+const planJob={S:null,i:0,j:0,x1:0,z0:0,z1:0};
+function planAhead(){
+  if(TENV)return;const t0=performance.now();
+  if(!planJob.S){
+    for(const p of players){if(!p.active)continue;const r0=Math.round(p.pos.x/CELL/SET_SP),q0=Math.round(p.pos.z/CELL/SET_SP);
+      for(let a=-2;a<=2&&!planJob.S;a++)for(let b=-2;b<=2&&!planJob.S;b++){const S=settlementLat(r0+a,q0+b);if(S.conns||S.planned)continue;
+        const r=Math.ceil(S.R*1.5)+3;Object.assign(planJob,{S,i:S.cx-r,j:S.cz-r,x1:S.cx+r+1,z0:S.cz-r,z1:S.cz+r+1});}
+      if(planJob.S)break;}
+    if(!planJob.S)return;}
+  const J=planJob;
+  for(;J.i<=J.x1;J.i++,J.j=J.z0){for(;J.j<=J.z1;J.j++){settlementAt(J.i,J.j);segBase(J.i,J.j,0);segBase(J.i,J.j,1);}
+    if(performance.now()-t0>1.5){J.i++;J.j=J.z0;return;}}
+  J.S.planned=true;J.S=null;
+}
 // worked out once per place: which stretches of new road it needs to hold together
 function setConns(S){
   if(S.conns)return S.conns;const C=S.conns=new Set();
@@ -253,9 +270,9 @@ function joinOf(ax,az,bx,bz,along){   // cells a and b either side of one street
   return null;
 }
 // the street running along z at the low-x edge of block (px,pz), between it and (px-1,pz)
-function jz(px,pz){const k='z'+px+','+pz;let v=joinCache.get(k);if(v===undefined){v=joinOf(px-1,pz,px,pz,'x');joinCache.set(k,v);}return v;}
+function jz(px,pz){const k=((px+50000)*100000+pz+50000)*2;let v=joinCache.get(k);if(v===undefined){v=joinOf(px-1,pz,px,pz,'x');joinCache.set(k,v);}return v;}
 // the street running along x at the low-z edge of block (px,pz), between it and (px,pz-1)
-function jx(px,pz){const k='x'+px+','+pz;let v=joinCache.get(k);if(v===undefined){v=joinOf(px,pz-1,px,pz,'z');joinCache.set(k,v);}return v;}
+function jx(px,pz){const k=((px+50000)*100000+pz+50000)*2+1;let v=joinCache.get(k);if(v===undefined){v=joinOf(px,pz-1,px,pz,'z');joinCache.set(k,v);}return v;}
 // how far a block's ground reaches: over the pavement on any side that's joined to its neighbour
 function plotBounds(px,pz){return{x0:jz(px,pz)?ROADW:PL0,x1:jz(px+1,pz)?CELL:PL1,z0:jx(px,pz)?ROADW:PL0,z1:jx(px,pz+1)?CELL:PL1};}
 // where in a place each kind of site belongs: how far out from the middle, as a share of the place's radius. Offices and

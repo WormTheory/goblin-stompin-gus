@@ -8,8 +8,8 @@ const navCols=new Map(),navSolid=new Uint8Array(256);let navWipe=0,navSolidOK=fa
 // the places in a column of blocks where a goblin could be: a floor with room to stand on it, or (given as a negative
 // number) the top of water too deep to stand in, where it would swim. Not cached if the chunk isn't there yet.
 function navCol(x,z){
+  const cx=Math.floor(x/CS),cz=Math.floor(z/CS),a=chunks.get(ckey(cx,cz));if(!a)return null;   // (even if it's remembered: looking round it would have the chunk made again)
   const k=x*65536+z;let c=navCols.get(k);if(c)return c;
-  const cx=Math.floor(x/CS),cz=Math.floor(z/CS),a=chunks.get(ckey(cx,cz));if(!a)return null;
   if(!navSolidOK){navSolidOK=true;for(let i=1;i<256;i++)navSolid[i]=BLOCK[i]&&BLOCK[i].solid?1:0;}
   c=[];const lx=x-cx*CS,lz=z-cz*CS,TT=a.tileTops||tileTopsOf(a);let up1=AIR,up2=AIR;
   for(let y=TT[(lz>>2)*4+(lx>>2)];y>=0;y--){let b=a[li(lx,y,lz)];if(b===LEAVES&&leafDown(x,y,z))b=AIR;

@@ -317,6 +317,8 @@ function refreshBrandSigns(){
       const ck=px*100003+pz;if(seen.has(ck))continue;seen.add(ck);
       if(!tenvShow(px,pz))continue;const P=plotInfo(px,pz);if(!P.b.length)continue;
       for(let bi=0;bi<P.b.length;bi++){const b=P.b[bi];if(!b.brand)continue;
+        // (working out where a sign goes looks at its building, which makes its chunks: one a frame until they're there)
+        if(!b._signs&&!ST.dressing&&!mayLook(px*CELL+b.x0,pz*CELL+b.z0))continue;
         const sp=brandSpots(b,px,pz);
         for(let si=0;si<sp.length;si++){const S=sp[si],dx=S.x-p.pos.x,dz=S.z-p.pos.z;if(dx*dx+dz*dz>R*R)continue;
           // still held up? (count what's left of the wall behind it, in chunks that are loaded)
