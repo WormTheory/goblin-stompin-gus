@@ -532,7 +532,7 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
       </div>
      </div>
       <div class="testpanel" id="testPanel" hidden>
-        <div class="tp-head"><h2>Testing Environment</h2><p>An empty, flat world to try things out in. Pick a kind of structure to bring in the nearest one this world would build, furnished and dressed as it would be in a city, with Gus set down just south of it. Enemies turn up a few steps ahead of wherever Gus is looking.</p></div>
+        <div class="tp-head"><h2>Testing Environment</h2><p>An empty, flat world to try things out in. Pick a kind of structure to bring in the nearest one this world would build, furnished and dressed as it would be in a city, built on the nearest clear ground in front of Gus. Enemies turn up a few steps ahead of wherever Gus is looking.</p></div>
         <div class="tp-info" id="tpInfo" role="status"></div>
         <div class="tp-sec"><div class="tp-gh">Enemies</div>
           <div class="tp-tools" id="tpFoes"><button type="button" class="pmenu" data-foe="goblin">Goblin</button><button type="button" class="pmenu" data-foe="cop">Police officer</button><button type="button" class="pmenu" data-foe="cultist">Cultist</button><button type="button" class="pmenu" data-foe="thief">Thief</button><button type="button" class="pmenu" data-foe="prepper">Prepper</button><button type="button" class="pmenu" data-foe="militia">Militia</button><button type="button" class="pmenu" data-foe="civ">Civilian</button>
@@ -543,7 +543,7 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
             <div class="seg" role="radiogroup" aria-label="What spawned vehicles do" id="tpVM"><button type="button" role="radio" data-vm="hunt" aria-checked="true">Hunt Gus</button><button type="button" role="radio" data-vm="park" aria-checked="false">Parked</button></div></div></div>
         <div class="tp-sec" id="tpPlacedSec" hidden><div class="tp-gh">Spawned here</div><div class="tp-placed" id="tpPlaced"></div></div>
         <div class="tp-groups" id="tpGroups"></div>
-        <div class="tp-foot"><button type="button" class="big" id="tpGo">Play</button><button type="button" class="pmenu" id="tpCancel">Title screen</button><button type="button" class="pmenu" id="tpNormal">Back to your city</button></div>
+        <div class="tp-foot"><button type="button" class="big" id="tpGo">Play</button><button type="button" class="pmenu" id="tpCancel">Title screen</button><button type="button" class="pmenu" id="tpNormal">Back to your city</button><button type="button" class="pmenu" id="tpReset">Reset world</button></div>
       </div>
       <div class="gamefoot">
         <div class="note" id="padNote">No controllers found yet. Press a button on one to wake it up.</div>
@@ -1100,12 +1100,21 @@ tex.magFilter=THREE.NearestFilter;tex.minFilter=THREE.NearestFilter;tex.generate
 // test worlds: the kinds of structure switched off (saved with the world; empty in a normal city)
 let TEST_OFF=new Set(),saveBlocked=false;
 // the Testing Environment: an empty, flat world. Nothing the generator plans shows up in it except the structures
-// spawned into it (TENV.boxes: {k, ax, az, w, h} in blocks of CELL), each left where the plan puts it, so its blocks,
-// furniture, doors, signs and rides are all the world's own. Everywhere else is grass. (null in a normal city)
-let TENV=null;const TENV_PL=new Set();
+// spawned into it (TENV.boxes: {k, ax, az, w, h, sx, sz} in blocks of CELL): the plan's own structure found at (sx, sz),
+// built at (ax, az) in front of Gus. Inside a box, and the ring of blocks round it, the plan's lookups answer as they
+// would at the source, with what they give moved across (see trInstall), and its chunks are the source's own blocks;
+// so its furniture, doors, signs and rides are all the world's own. Everywhere else is grass. (null in a normal city.
+// A box saved before structures could be moved has no sx/sz, and stays where the plan put it.)
+let TENV=null;const TENV_PL=new Map(),TENV_RM=new Map();
 const tenvK=(px,pz)=>(px+32768)*65536+(pz+32768);
-function tenvIndex(){TENV_PL.clear();if(TENV)for(const B of TENV.boxes)for(let i=0;i<B.w;i++)for(let j=0;j<B.h;j++)TENV_PL.add(tenvK(B.ax+i,B.az+j));}
+// TENV_PL: a box's own blocks; TENV_RM: the blocks (and rings round them) the plan's answers are moved to
+function tenvIndex(){TENV_PL.clear();TENV_RM.clear();if(!TENV)return;
+  for(const B of TENV.boxes){if(!Number.isFinite(B.sx)||!Number.isFinite(B.sz)){B.sx=B.ax;B.sz=B.az;}
+    for(let i=0;i<B.w;i++)for(let j=0;j<B.h;j++){const k=tenvK(B.ax+i,B.az+j);TENV_PL.set(k,B);if(B.sx!==B.ax||B.sz!==B.az)TENV_RM.set(k,B);}}
+  for(const B of TENV.boxes)if(B.sx!==B.ax||B.sz!==B.az)for(let i=-1;i<=B.w;i++)for(let j=-1;j<=B.h;j++){const k=tenvK(B.ax+i,B.az+j);if(!TENV_PL.has(k)&&!TENV_RM.has(k))TENV_RM.set(k,B);}}
 const tenvShow=(px,pz)=>!TENV||TENV_PL.has(tenvK(px,pz));
+// d: how deep in the wrapped plan lookups we are (only the outermost is moved); raw: making a source chunk
+const TR={d:0,raw:0,on:false,c:new WeakMap()};
 let seed=0, edits={}, collapses={}, wrecked={}, downFix=new Map(), destroyed={};   // destroyed: building key -> how many of its original blocks are gone
 const chunkEdits=new Map(),chunks=new Map(),plotCache=new Map();
 const ckey=(cx,cz)=>(cx+32768)*65536+(cz+32768);
@@ -6935,7 +6944,8 @@ function linkNear(x,z){
   return e;
 }
 function genChunk(cx,cz){
-  if(TENV&&!tenvShow(Math.floor(cx*CS/CELL),Math.floor(cz*CS/CELL)))return flatChunk(cx,cz);   // (a chunk lies inside one block, so it's all shown or all flat)
+  // (a chunk lies inside one block, so it's all shown or all flat)
+  if(TENV&&!TR.raw){const B=TENV_PL.get(tenvK(Math.floor(cx*CS/CELL),Math.floor(cz*CS/CELL)));if(!B)return flatChunk(cx,cz);if(B.sx!==B.ax||B.sz!==B.az)return trChunk(cx,cz,B);}
   const a=new Uint8Array(CS*CS*H),x0=cx*CS,z0=cz*CS;
   for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){
     const x=x0+lx,z=z0+lz,rx=mod(x,CELL),rz=mod(z,CELL);
@@ -7150,7 +7160,19 @@ function genChunk(cx,cz){
   }
   undergroundPass(a,x0,z0);
   railPass(a,x0,z0);
+  if(TR.raw)return a;   // (a moved box's source: what's smashed and frozen is the box's own, added by trChunk)
   const ce=chunkEdits.get(ckey(cx,cz));
+  if(ce)for(const [x,y,z,b] of ce)a[li(x-x0,y,z-z0)]=b;
+  if(WX.frozen)freezeArr(a,true);
+  return a;
+}
+// a chunk of a moved box: the same chunk of its source, as the plan makes it there (what's fallen down at the box
+// standing in for what fell at the source), then what's been smashed here
+function trChunk(cx,cz,B){
+  const dx=B.sx-B.ax,dz=B.sz-B.az,real=collapses,mv=k=>{const m=typeof k==='string'&&/^(-?\d+),(-?\d+)(,.*)$/.exec(k);return m?(+m[1]-dx)+','+(+m[2]-dz)+m[3]:k;};
+  collapses=new Proxy(real,{get:(o,k)=>o[mv(k)],has:(o,k)=>mv(k) in o});
+  let a;TR.raw++;TR.d++;try{a=genChunk(cx+dx*CELL/CS,cz+dz*CELL/CS);}finally{TR.raw--;TR.d--;collapses=real;}
+  const x0=cx*CS,z0=cz*CS,ce=chunkEdits.get(ckey(cx,cz));
   if(ce)for(const [x,y,z,b] of ce)a[li(x-x0,y,z-z0)]=b;
   if(WX.frozen)freezeArr(a,true);
   return a;
@@ -16253,6 +16275,7 @@ function refreshVenues(){
           for(let i=0;i<4;i++){const m=new THREE.Mesh(LM_BOX,i%2?LMM.ledOff:TOLLM);m.scale.set(0.65,0.13,0.13);m.position.x=0.33+i*0.65;lift.add(m);}
           scene.add(g);arms.push({g,lift,L,a:0,x:g.position.x,z:g.position.z});}
         venues.set(k,{kind:'toll',R,ts,arms});}}}}
+  if(TENV&&venues.has('tenvArmy'))want.add('tenvArmy');
   for(const [k,V] of venues)if(!want.has(k)&&!drvHeld(V)){if(V.ride)scene.remove(V.ride);if(V.animals)for(const A of V.animals)scene.remove(A.g);if(V.arms)for(const A of V.arms)scene.remove(A.g);if(V.cars)for(const g of V.cars)scene.remove(g);if(V.planes)for(const g of V.planes)scene.remove(g);if(V.rocket){scene.remove(V.rocket);}if(V.boat)scene.remove(V.boat);if(V.figs)for(const F of V.figs)scene.remove(F.g);if(V.glow)scene.remove(V.glow);if(V.slots)homeDrop(V);if(V.mil)for(const M of V.mil)scene.remove(M.g);if(V.rotor)scene.remove(V.rotor);if(V.T&&V.T.cars===V.cars)V.T.cars=null;venues.delete(k);}
 }
 // the zoo's animals: built from boxes, each wandering its enclosure
@@ -18639,14 +18662,16 @@ const TEST_GROUPS=[
   ['Coast',[['sea','The ocean'],['beach','Beaches'],['harbor','Docks'],['yard','Shipping ports (coastal cities)'],['navy','Naval bases'],['lighthouse','Lighthouses'],['rig','Oil rigs'],['wreck','Shipwrecks']]],
   ['Underground',[['sewers','Sewers'],['subway','Subway'],['caves','Caves']]]];
 // ---- the Testing Environment: an empty, flat world to try things out in. Any kind of structure can be spawned into it
-// (the nearest one in this world's plan is let through, dressed by the world's own code, and Gus put down beside it),
+// (the nearest one in this world's plan, dressed by the world's own code, built on the nearest clear ground in front of Gus),
 // and goblins, police and cars a few steps ahead of where Gus is looking. Your own city is put aside meanwhile ----
 const TENV_PARK='goblin-stompin-gus-city-parked';
 // (kinds that are parts of a highway rather than a place: there's no highway here to put them on)
 const TENV_SKIP=new Set(['pylons','billboards','tolls']);
 const TS={search:null,n:1,vm:'hunt'};
 function tsSet(m){const el=document.getElementById('tpInfo');if(el)el.textContent=m;}
-const tenvTaken=F=>TENV.boxes.some(B=>F.ax<B.ax+B.w&&B.ax<F.ax+F.w&&F.az<B.az+B.h&&B.az<F.az+F.h);
+// (a source already spawned, or one that's under a box or the ring round it: a source is only ever used once, and away
+// from anything built, so what's worked out and kept for one place is never the other's)
+const tenvTaken=F=>TENV.boxes.some(B=>F.ax<B.sx+B.w&&B.sx<F.ax+F.w&&F.az<B.sz+B.h&&B.sz<F.az+F.h||F.ax<B.ax+B.w+2&&B.ax-2<F.ax+F.w&&F.az<B.az+B.h+2&&B.az-2<F.az+F.h);
 function tpRender(){
   const box=document.getElementById('tpGroups');if(!box)return;
   if(!box.childElementCount)for(const [name,items] of stGroups()){const L=items.filter(([k])=>!TENV_SKIP.has(k));if(!L.length)continue;
@@ -18665,8 +18690,8 @@ function tpRender(){
   for(const b of document.querySelectorAll('#tpVM [data-vm]'))b.setAttribute('aria-checked',String(b.dataset.vm===TS.vm));
   // (one button per kind of vehicle body the game has, so a new kind shows up here by itself; police cars are their own pool)
   const vb=document.getElementById('tpVehs');
-  if(vb&&!vb.childElementCount)for(const t of [...Object.keys(VEH),'police']){const b=document.createElement('button');b.type='button';b.className='pmenu';b.dataset.veh=t;
-    b.textContent=(VEH_NAME[t]||[t])[0].replace(/^./,c=>c.toUpperCase());b.addEventListener('click',()=>tenvVeh(t));vb.append(b);}
+  if(vb&&!vb.childElementCount)for(const t of [...Object.keys(VEH),'police','tank','heli']){const b=document.createElement('button');b.type='button';b.className='pmenu';b.dataset.veh=t;
+    b.textContent=(VEH_NAME[t]||[MIL[t]?MIL[t].name:t])[0].replace(/^./,c=>c.toUpperCase());b.addEventListener('click',()=>tenvVeh(t));vb.append(b);}
   const sn=document.getElementById('seedNote');if(sn&&TENV)sn.textContent=`Testing Environment · ${TENV.boxes.length} structure${TENV.boxes.length===1?'':'s'} spawned · seed ${seed}`;
 }
 function tpShow(on){
@@ -18688,7 +18713,7 @@ function tenvEnter(){
     pos:localStorage.getItem(POS_KEY),obit:localStorage.getItem(OBIT_KEY)}));}catch(e){}
   if(freshWorld([],{boxes:[]}))return;
   // (no storage to reload from: started here and now)
-  TENV={boxes:[]};tenvIndex();document.getElementById('confirmYes').click();tpShow(true);
+  TENV={boxes:[]};tenvIndex();trInstall();document.getElementById('confirmYes').click();tpShow(true);
 }
 // and back out: the city you left, just as it was (or, if there isn't one, a brand-new one)
 function tenvLeave(){
@@ -18725,14 +18750,67 @@ function tenvTick(){
   const t0=performance.now(),cx=S.cx,cz=S.cz,R1=stR(S.key);
   for(;S.r<=R1;S.r++){const r=S.r;
     for(let i=-r;i<=r;i++)for(const [px,pz] of (r===0?[[cx,cz]]:Math.abs(i)===r?[[cx+i,cz-r],[cx+i,cz+r]]:[[cx+i,cz-r],[cx+i,cz+r],[cx-r,cz+i],[cx+r,cz+i]])){
-      let m=null;try{m=stMatch(S.key,px,pz);}catch(e){}
+      let m=null;TR.d++;try{m=stMatch(S.key,px,pz);}catch(e){}finally{TR.d--;}   // (the plan itself, not what's been moved)
       if(m&&!tenvTaken(m)){TS.search=null;tenvPlace(S.key,m);return;}}
     if(performance.now()-t0>12){S.r++;tsSet('Looking for '+stName(S.key).toLowerCase()+'… ('+Math.round(S.r*CELL).toLocaleString()+' blocks out)');return;}}
   TS.search=null;tsSet('There\'s no '+stName(S.key).toLowerCase().replace(/s$/,'')+' within '+(R1*CELL).toLocaleString()+' blocks in this world\'s plan. Try another kind, or go to one spawned further off and look from there.');
 }
+// the nearest ground in front of Gus that a w x h box fits on: clear of the other boxes (a block between them), of
+// every box's source, and of the players
+function tenvSpot(w,h){
+  const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active)||P1,fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw);
+  // (where it'd ideally go: its middle far enough ahead that its near side is a few steps off)
+  const reach=(Math.abs(fx)*w+Math.abs(fz)*h)*CELL/2+6,ix=(p.pos.x+fx*reach)/CELL-w/2,iz=(p.pos.z+fz*reach)/CELL-h/2,ax0=Math.round(ix),az0=Math.round(iz);
+  const free=(ax,az)=>{
+    for(const B of TENV.boxes){if(ax<B.ax+B.w+1&&B.ax-1<ax+w&&az<B.az+B.h+1&&B.az-1<az+h)return false;if(ax<B.sx+B.w+1&&B.sx-1<ax+w&&az<B.sz+B.h+1&&B.sz-1<az+h)return false;}
+    for(const q of players)if(q.active&&q.pos.x>ax*CELL-3&&q.pos.x<(ax+w)*CELL+3&&q.pos.z>az*CELL-3&&q.pos.z<(az+h)*CELL+3)return false;
+    return true;};
+  let best=null,bd=1e9;
+  for(let r=0;r<=14&&!best;r++)for(let i=-r;i<=r;i++)for(let j=-r;j<=r;j++){if(Math.max(Math.abs(i),Math.abs(j))!==r)continue;
+    const ax=ax0+i,az=az0+j;if(!free(ax,az))continue;
+    // (in front: its middle ahead of Gus)
+    const mx=(ax+w/2)*CELL-p.pos.x,mz=(az+h/2)*CELL-p.pos.z;if(mx*fx+mz*fz<=0)continue;
+    const d=Math.hypot(ax-ix,az-iz);if(d<bd){bd=d;best={ax,az};}}
+  return best||{ax:ax0,az:az0};
+}
 function tenvPlace(key,F){
-  TENV.boxes.push({k:key,ax:F.ax,az:F.az,w:F.w,h:F.h});tenvIndex();tenvRebuild(F);tenvGo(F);save();
-  tsSet(stName(key)+' spawned. Gus is just south of it, looking its way.');tpRender();
+  const T=tenvSpot(F.w,F.h,F),B={k:key,ax:T.ax,az:T.az,w:F.w,h:F.h,sx:F.ax,sz:F.az};
+  TENV.boxes.push(B);tenvIndex();linkNearC.clear();tenvRebuild(B);save();
+  tsSet(stName(key)+': one spawned just ahead of Gus.');tpRender();
+}
+// The plan, moved. Inside a moved box (and the ring round it) each of these answers as it would at the box's source,
+// what it gives (block positions, a superblock's corner, a station's bays) moved across to where the box is. Only the
+// outermost call is moved: the plan's own working, inside it, is all at the source. Keys (a prop's, a door's) stay the
+// source's, which is only ever used once. Moved copies are kept per box, so whatever's put on one stays put.
+function trMemo(B,o,mk){if(!o||typeof o!=='object')return o;let M=TR.c.get(B);if(!M)TR.c.set(B,M=new WeakMap());let r=M.get(o);if(r===undefined){r=mk(o,(B.ax-B.sx)*CELL,(B.az-B.sz)*CELL,B.ax-B.sx,B.az-B.sz);M.set(o,r);}return r;}
+// f's place is arguments i, i+1: in blocks of CELL (u 1) or single blocks (u CELL)
+function trWrap(f,i,u,sh){
+  const at=(a,b)=>TENV_RM.size?TENV_RM.get(tenvK(Math.floor(a/u),Math.floor(b/u))):undefined;
+  return i===0?function(a,b,c,d,e,g){if(TR.d)return f(a,b,c,d,e,g);const B=at(a,b);TR.d++;try{if(!B)return f(a,b,c,d,e,g);const r=f(a+(B.sx-B.ax)*u,b+(B.sz-B.az)*u,c,d,e,g);return sh?sh(r,B):r;}finally{TR.d--;}}
+    :function(a,b,c,d,e,g){if(TR.d)return f(a,b,c,d,e,g);const B=at(b,c);TR.d++;try{if(!B)return f(a,b,c,d,e,g);const r=f(a,b+(B.sx-B.ax)*u,c+(B.sz-B.az)*u,d,e,g);return sh?sh(r,B):r;}finally{TR.d--;}};
+}
+const trCorner=(S,B)=>trMemo(B,S,(S,ox,oz,dx,dz)=>{const T=Object.create(S);T.ax=S.ax+dx;T.az=S.az+dz;return T;});
+const trXZ=(o,ox,oz)=>{const T=Object.assign({},o);if(typeof o.x==='number')T.x+=ox;if(typeof o.z==='number')T.z+=oz;return T;};
+const trList=(L,B)=>trMemo(B,L,(L,ox,oz)=>L.map(o=>trXZ(o,ox,oz)));
+function trInstall(){
+  if(TR.on)return;TR.on=true;
+  seaPlot=trWrap(seaPlot,0,1);settlementAt=trWrap(settlementAt,0,1);plotType=trWrap(plotType,0,1);plotBounds=trWrap(plotBounds,0,1);
+  turbineAt=trWrap(turbineAt,0,1);riverDir=trWrap(riverDir,0,1);nearSea=trWrap(nearSea,0,1);streetTown=trWrap(streetTown,0,1);
+  jx=trWrap(jx,0,1);jz=trWrap(jz,0,1);sewerStair=trWrap(sewerStair,0,1);stripOpen=trWrap(stripOpen,0,1);segOpen=trWrap(segOpen,0,1);
+  ctlAt=trWrap(ctlAt,0,1);jDeg=trWrap(jDeg,0,1);metrosNear=trWrap(metrosNear,0,1);
+  metroStation=trWrap(metroStation,0,1,(st,B)=>trMemo(B,st,(st,ox,oz,dx,dz)=>{const T=Object.create(st);T.px=st.px+dx;T.pz=st.pz+dz;return T;}));
+  superOf=trWrap(superOf,0,1,trCorner);bigPlainsAt=trWrap(bigPlainsAt,0,1,trCorner);
+  plotInfo=trWrap(plotInfo,0,1,(P,B)=>trMemo(B,P,(P,ox,oz,dx,dz)=>{const T=Object.create(P);T.px=P.px+dx;T.pz=P.pz+dz;if(P.super)T.super=trCorner(P.super,B);return T;}));
+  streetFurn=trWrap(streetFurn,0,1,trList);
+  stationDef=trWrap(stationDef,0,1,(D,B)=>trMemo(B,D,(D,ox,oz,dx,dz)=>Object.assign({},D,{px:D.px+dx,pz:D.pz+dz,key:(D.px+dx)+','+(D.pz+dz),
+    bays:D.bays.map(y=>Object.assign({},y,{x:y.x+ox,z:y.z+oz,ex:y.ex+ox,ez:y.ez+oz})),node:{x:D.node.x+ox,z:D.node.z+oz}})));
+  // (in single blocks)
+  superPart=trWrap(superPart,0,CELL);siteTrees=trWrap(siteTrees,0,CELL);railAt=trWrap(railAt,0,CELL);
+  bridgeAt=trWrap(bridgeAt,0,CELL,(br,B)=>trMemo(B,br,(br,ox,oz)=>{const T=Object.assign({},br),s=br.ax?oz:ox,c=br.ax?ox:oz;T.s0+=s;T.s1+=s;T.c0+=c;T.c1+=c;return T;}));
+  // (a building's dressing: its place is after the building)
+  hospProps=trWrap(hospProps,1,1,trList);furnProps=trWrap(furnProps,1,1,trList);bridgeDoor=trWrap(bridgeDoor,1,1);
+  doorRects=trWrap(doorRects,1,1,(L,B)=>trMemo(B,L,(L,ox,oz)=>L.map(o=>{const T=Object.assign({},o),a=o.ax==='x'?ox:oz,c=o.ax==='x'?oz:ox;T.a0+=a;T.a1+=a;T.c+=c;return T;})));
+  brandSpots=trWrap(brandSpots,1,1,(L,B)=>trMemo(B,L,(L,ox,oz)=>L.map(o=>{const T=trXZ(o,ox,oz);if(o.anc)T.anc=o.anc.map(([x,y,z])=>[x+ox,y,z+oz]);return T;})));
 }
 function tenvRemove(i){
   const F=TENV&&TENV.boxes[i];if(!F)return;TENV.boxes.splice(i,1);tenvIndex();
@@ -18783,6 +18861,7 @@ function tenvFoe(kind){
 const VEH_NAME={car:['car','cars'],van:['van','vans'],pickup:['pickup','pickups'],truck:['truck','trucks'],semi:['semi truck','semi trucks'],bus:['bus','buses'],
   fire:['fire engine','fire engines'],amb:['ambulance','ambulances'],news:['news van','news vans'],police:['police car','police cars'],moto:['motorcycle','motorcycles'],motorcycle:['motorcycle','motorcycles'],bike:['motorcycle','motorcycles']};
 function tenvVeh(t){
+  if(MIL[t]){tenvMil(t);return;}
   if(!TENV)return;const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active);if(!p)return;
   const park=TS.vm==='park',pol=t==='police',fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw),cx=p.pos.x+fx*20,cz=p.pos.z+fz*20;let made=0;
   for(let i=0;i<TS.n;i++){
@@ -18802,17 +18881,50 @@ function tenvVeh(t){
   const nm=VEH_NAME[t]||[t,t+'s'];
   tsSet(made?('Spawned '+made+' '+(park?'parked ':'hunting ')+nm[made>1?1:0]+' ahead of Gus.'):'Couldn\'t spawn any '+nm[1]+' just now.');
 }
+// the army's armour, in the Testing Environment: a base of its own with no ground (so walking about never sets it off),
+// its tanks and helicopters put down a little way ahead of Gus. Hunting, they come straight for him (and stand down,
+// back where they were put, once he's been well away a while); parked, they sit until he hurts one, then all come
+function tenvArmy(){let V=venues.get('tenvArmy');
+  if(!V){V={kind:'army',B:{ax:0,az:0,w:0,h:0},X0:0,Z0:0,W:0,Hh:0,cx:0,cz:0,mil:[],alert:false,awayT:0};venues.set('tenvArmy',V);}return V;}
+function tenvMil(kind){
+  if(!TENV)return;const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active);if(!p)return;
+  const park=TS.vm==='park',V=tenvArmy(),fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw),cx=p.pos.x+fx*26,cz=p.pos.z+fz*26;let made=0;
+  for(let i=0;i<TS.n;i++){
+    let x=cx,z=cz;for(let k=0;k<24;k++){const a=Math.random()*Math.PI*2,r=i||k?6+Math.random()*(12+k*1.5):0;x=cx+Math.cos(a)*r;z=cz+Math.sin(a)*r;
+      if(groundAt(x,z,G+40)<=G+1.05&&!V.mil.some(o=>!o.dead&&Math.hypot(o.x-x,o.z-z)<8)&&!cars.some(o=>o.alive&&Math.hypot(o.pos.x-x,o.pos.z-z)<7))break;}
+    const h=Math.atan2(p.pos.x-x,p.pos.z-z),mk=kind==='tank'?makeTank():makeHeli();TS.mil=(TS.mil||0)+1;
+    const M=Object.assign({isMil:true,kind,V,x,y:groundAt(x,z,G+40),z,h,tu:0,hp:MIL[kind].hp,dead:false,key:'mil:tenv:'+Date.now()+':'+TS.mil,home:{x,z,h},state:park?'park':'hunt',
+      cd:1.5+i*0.4,rcd:6,burst:0,bt:0,stuck:0,v:0,vy:0,spin:0,oa:Math.random()*6.3,hurt:0},mk);
+    scene.add(M.g);milPlace(M);V.mil.push(M);made++;}
+  if(!park&&made){V.alert=true;V.awayT=0;}
+  V.cx=p.pos.x;V.cz=p.pos.z;   // (where it stands down from: how far Gus has gone is measured from here)
+  const nm=kind==='tank'?['tank','tanks']:['helicopter','helicopters'];
+  tsSet('Spawned '+made+' '+(park?'parked ':'hunting ')+nm[made>1?1:0]+' ahead of Gus.');
+}
 function tenvClear(){
   for(const g of goblins)if(g.state!=='wait'){g.state='wait';g.t=0;g.root.visible=false;g.cop=null;g.inv=false;g.ff=null;g.medic=null;g.news=null;g.vendor=null;g.claim=null;g.act=null;g.homeV=null;}
   fbClear();
   for(const c of cars)if(c.alive&&!c.svcPool){c.alive=false;c.g.visible=false;c.hunter=false;c.respawnT=1e9;}
-  tsSet('Cleared every goblin and car.');
+  // (the tanks and helicopters too, all but one Gus is driving)
+  {const V=venues.get('tenvArmy');if(V){V.mil=V.mil.filter(M=>{if(players.some(q=>q.drv&&q.drv.o===M))return true;scene.remove(M.g);return false;});V.alert=false;if(!V.mil.length)venues.delete('tenvArmy');}}
+  tsSet('Cleared every goblin and vehicle.');
 }
 document.getElementById('testWorld').addEventListener('click',()=>{if(TENV)tpShow(true);else tenvEnter();});
 document.getElementById('tpCancel').addEventListener('click',()=>tpShow(false));
 document.getElementById('tpGo').addEventListener('click',()=>startPlay());
 document.getElementById('tpNormal').addEventListener('click',()=>tenvLeave());
 document.getElementById('tpClear').addEventListener('click',()=>tenvClear());
+// Reset world: everything spawned, smashed or killed here gone, a fresh empty Testing Environment (a second press, within a
+// few seconds, to be sure)
+function tenvReset(){
+  if(!TENV)return;
+  if(freshWorld([],{boxes:[]}))return;
+  TENV={boxes:[]};tenvIndex();venues.delete('tenvArmy');document.getElementById('confirmYes').click();tpShow(true);
+}
+{const b=document.getElementById('tpReset');let armT=0;
+ b.addEventListener('click',()=>{if(performance.now()<armT){armT=0;b.textContent='Reset world';tenvReset();return;}
+   armT=performance.now()+4000;b.textContent='Sure? Press again';tsSet('Press Reset world again to clear out everything spawned and smashed here.');
+   setTimeout(()=>{if(performance.now()>=armT){armT=0;b.textContent='Reset world';}},4100);});}
 for(const b of document.querySelectorAll('#tpVM [data-vm]'))b.addEventListener('click',()=>{TS.vm=b.dataset.vm;tpRender();});
 for(const b of document.querySelectorAll('#tpFoes [data-foe]'))b.addEventListener('click',()=>tenvFoe(b.dataset.foe));
 for(const b of document.querySelectorAll('#tpN [data-n]'))b.addEventListener('click',()=>{TS.n=+b.dataset.n;tpRender();});
@@ -18837,6 +18949,7 @@ function boot(){
   if(TENV)tpShow(true);
 }
 if(!load())seed=(Math.random()*1e9)|0;
+if(TENV)trInstall();
 resize();
 boot();
 requestAnimationFrame(frame);
