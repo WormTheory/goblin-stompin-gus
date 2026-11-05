@@ -1,0 +1,16 @@
+airport at 42 48
+parked, body: on plane true height above its wheels 3.65
+parked, wing: on plane true height 1.90
+under the wing: on plane false height 0.00
+round trip 194s checks off the plane 0 of 1943 highest 92 furthest from the airport 634 hidden 0 biggest turn in a tenth of a second 0.09 waypoints 1,2,3,4,5,6,7,8,10,11,12,13,14,15,16,17,18,19,1,2,3,4,5
+airport buildings 17 [[34,64,"terminal/normal"],[66,64,"terminal/normal"],[132,50,"landmark/hangar"],[164,50,"landmark/hangar"],[164,68,"landmark/hangar"],[196,68,"landmark/hangar"]]
+parked plane 1 at 48 52 inside []
+parked plane 2 at 80 52 inside []
+taxi and runway clips {} after 300s waypoints seen 18
+goblin in the way: hit true damage 8 after 0.5s thrown up 16.4 plane speed 6
+car in the way: hit true damage 34 after 0.1s plane speed 24
+parked wrecked after 8 hits of 40, score 1000 alive flag true
+  proxy alive now false
+shot down at height 62 hit the ground after 2.2s at 0.0 player on it false
+replaced after 2 minutes out of sight true
+done

@@ -1,0 +1,259 @@
+--- /home/claude/w/orig.html	2026-11-04 18:18:47.929325487 +0000
++++ /home/claude/w/Goblin-Stompin-Gus/game/index.html	2026-11-04 19:29:57.924433583 +0000
+@@ -1872,9 +1872,10 @@
+   const n=TRAIN_BOXES.length-cs.length,k=Math.max(0.3,Math.min(1,Math.abs(speed)/24)),sgn=speed<0?-1:1;   // (the cars all point the same way, whichever way they're going)
+   const hit=(o,r,y)=>{for(let i=n;i<TRAIN_BOXES.length;i++){const B=TRAIN_BOXES[i];if(y>B.top-0.3||y<B.y0-1.5)continue;
+     const dx=o.pos.x-B.x,dz=o.pos.z-B.z,al=dx*B.tx+dz*B.tz,ac=-dx*B.tz+dz*B.tx;if(Math.abs(al)>TRAIN_HZ+r||Math.abs(ac)>TRAIN_HX+r)continue;
++    if(o.in&&o.cam&&o.in.climb&&!DT.gob&&vGrab(o,3,B.proxy))return null;   // (a hippo holding climb catches hold of it instead)
+     const sg=ac>=0?1:-1,nx=-B.tz*sg,nz=B.tx*sg,need=TRAIN_HX+r-Math.abs(ac)+0.05;o.pos.x+=nx*need;o.pos.z+=nz*need;
+     return new V3(B.tx*sgn*0.8+nx*0.6,0,B.tz*sgn*0.8+nz*0.6);}return null;};
+-  for(const p of players){if(p.trainT>0)continue;if(!p.active||p.hp<=0||p.standCar&&p.standCar.isTrain)continue;const d=hit(p,0.75*ES,p.pos.y+0.5);
++  for(const p of players){if(p.trainT>0)continue;if(!p.active||p.hp<=0||p.standCar&&p.standCar.isTrain||p.vcl&&p.state==='climb')continue;const d=hit(p,0.75*ES,p.pos.y+0.5);
+     if(d)trainStrike(p,d,k);}
+   for(const c of cars){if(!c.alive||c.trainT>0)continue;const d=hit(c,c.hx,c.pos.y+0.5);
+     if(d){c.trainT=1;damageCar(c,Math.round(6+16*k),d,'acc');if(c.alive)launchCar(c,6+10*k,d.clone().multiplyScalar(1+2.5*k),6);clang();thud(0.7);}}
+@@ -9272,6 +9273,117 @@
+   startPiv(p,{E,to:[nx,ny,nz],dur:0.42,next:'climb',heading:Math.atan2(d[0],d[1])});
+   thud(0.1);rumble(p,0.15,50);return true;
+ }
++// ---- spider-climbing the side of a vehicle: a car, a truck, a train car, a boat (and the containers stacked on one), a plane ----
++// (a vehicle isn't made of blocks, so it gets a cling of its own: he holds on at a spot on one face of its box, kept in the
++// vehicle's own frame -- along the face, and up from the bottom of the box -- so wherever it drives, sails or flies off to,
++// and however it turns, he goes with it. p.vcl is that hold; it only means anything while p.state is 'climb')
++// the box of a car, or of one piece of a train, boat or plane (its stand-in in TRAIN_BOXES), as it is right now
++function vBox(v){
++  const V=!v.isTrain&&VEH[v.veh];
++  if(V){const ax=Math.sin(v.heading),az=Math.cos(v.heading);
++    return{x:v.pos.x,z:v.pos.z,ax,az,hl:v.hz,hc:v.hx,y0:v.pos.y,top:l=>v.pos.y+V.roof(Math.max(-v.hz,Math.min(v.hz,l))/ES)*ES,h:v.heading};}
++  for(const B of TRAIN_BOXES)if(B.proxy===v&&!B.soft&&B.top-B.y0>=1)return{x:B.x,z:B.z,ax:B.tx,az:B.tz,hl:B.hz||TRAIN_HZ,hc:B.hx||TRAIN_HX,y0:B.y0,top:()=>B.top,h:Math.atan2(B.tx,B.tz)};
++  return null;
++}
++// a face of a box: k 'c' is a long side (out across it), k 'l' an end (out along it); s which of the two
++const vFace=(b,f)=>f.k==='c'?{nx:-b.az*f.s,nz:b.ax*f.s,tx:b.ax,tz:b.az,dist:b.hc,R:b.hl}:{nx:b.ax*f.s,nz:b.az*f.s,tx:-b.az,tz:b.ax,dist:b.hl,R:b.hc};
++const vLocal=(b,x,z)=>{const dx=x-b.x,dz=z-b.z;return{al:dx*b.ax+dz*b.az,ac:-dx*b.az+dz*b.ax};};
++// how high the face's top is where he's holding it (a car's roof isn't the same height all along)
++const vTopAt=(b,f,u)=>b.top(f.k==='c'?u:f.s*b.hl);
++// every vehicle near enough to grab
++function vNear(p,r){
++  const out=[];
++  for(const c of cars){if(c.alive&&Math.hypot(c.pos.x-p.pos.x,c.pos.z-p.pos.z)<c.hz+r+2)out.push(c);}
++  for(const B of TRAIN_BOXES){if(B.soft||!B.proxy.alive||B.top-B.y0<1||Math.hypot(B.x-p.pos.x,B.z-p.pos.z)>Math.max(B.hx||TRAIN_HX,B.hz||TRAIN_HZ)+r+2)continue;out.push(B.proxy);}
++  return out;
++}
++// put him where his hold is, this frame (and turn him, and the camera, with the vehicle)
++function vPin(p){
++  const H=p.vcl,b=vBox(H.v);if(!b||!H.v.alive)return false;
++  const F=vFace(b,H.f),o=F.dist+0.06;
++  p.pos.x=b.x+F.nx*o+F.tx*H.u;p.pos.z=b.z+F.nz*o+F.tz*H.u;p.pos.y=b.y0+H.y;
++  const dh=wrapA(b.h-H.h);H.h=b.h;if(Math.abs(dh)<0.7&&p.cam)p.cam.yaw+=dh;
++  p.heading=Math.atan2(-F.nx,-F.nz);p.climbD=[-F.nx,-F.nz];return b;
++}
++// (players move before the vehicles do: once they've moved, he's put back on his hold, model and all)
++function vRepin(p){const x=p.pos.x,y=p.pos.y,z=p.pos.z;if(!vPin(p))return;const dx=p.pos.x-x,dy=p.pos.y-y,dz=p.pos.z-z;
++  p.root.position.x+=dx;p.root.position.y+=dy;p.root.position.z+=dz;if(p.rootP){p.rootP[0]+=dx;p.rootP[1]+=dy;p.rootP[2]+=dz;}}
++// take hold of face f of vehicle v at the point nearest him (he's at or just off it)
++function vHold(p,v,b,f,headDown){
++  const F=vFace(b,f),L=vLocal(b,p.pos.x,p.pos.z),u0=f.k==='c'?L.al:L.ac,u=Math.max(-F.R+0.45,Math.min(F.R-0.45,u0));
++  const top=vTopAt(b,f,u),y=Math.max(0,Math.min(top-b.y0-0.7,(headDown?top-2.7:p.pos.y)-b.y0));
++  if(top-b.y0<0.9)return false;
++  const ox=p.pos.x,oy=p.pos.y,oz=p.pos.z,oh=p.heading;
++  p.vcl={v,f,u,y,h:b.h};vPin(p);
++  easeSnap(p,ox-p.pos.x,oy-p.pos.y,oz-p.pos.z,oh-p.heading);
++  p.climbRoll=headDown?Math.PI:0;p.climbFlip=climbFlipFor(p,p.climbD);p.state='climb';p.t=0;p.vy=0;p.mvx=p.mvz=0;p.dashT=0;p.longJump=false;
++  p.standCar=null;p.rideC=null;p.piv=null;p.vb=null;markStick(p);
++  thud(0.12);rumble(p,0.15,50);return true;
++}
++// the side of a vehicle right in front of him (up to 'reach' away), at the height of his body: grab it
++function vGrab(p,reach,only){
++  const hx=Math.sin(p.heading),hz=Math.cos(p.heading);
++  for(const v of only?[only]:vNear(p,reach)){const b=vBox(v);if(!b)continue;
++    let hit=only?vLocal(b,p.pos.x,p.pos.z):null;
++    for(let s=0.3;s<=reach&&!hit;s+=0.15){const L=vLocal(b,p.pos.x+hx*s,p.pos.z+hz*s);if(Math.abs(L.al)<=b.hl&&Math.abs(L.ac)<=b.hc)hit=L;}
++    if(!hit)continue;
++    // something there at body height (not one he's up on top of already, nor one passing far overhead)
++    const L=vLocal(b,p.pos.x,p.pos.z),f=Math.abs(L.ac)-b.hc>Math.abs(L.al)-b.hl?{k:'c',s:Math.sign(L.ac)||1}:{k:'l',s:Math.sign(L.al)||1};
++    const top=vTopAt(b,f,f.k==='c'?L.al:L.ac);if(top<=p.pos.y+0.6||b.y0>p.pos.y+1.4)continue;
++    if(vHold(p,v,b,f,false))return true;
++  }
++  return false;
++}
++// walking off the edge of a vehicle's roof with climb held: tip over onto its side, head first
++function vOverEdge(p,mx,mz){
++  const v=p.standCar;if(!v||!v.alive)return false;const b=vBox(v);if(!b)return false;
++  const L=vLocal(b,p.pos.x+mx*0.6,p.pos.z+mz*0.6),ea=Math.abs(L.ac)-b.hc,el=Math.abs(L.al)-b.hl;
++  if(ea<=0&&el<=0)return false;   // (still over the roof)
++  const f=ea>el?{k:'c',s:Math.sign(L.ac)||1}:{k:'l',s:Math.sign(L.al)||1},F=vFace(b,f);
++  // (anything right under the lip -- a deck, the next car of the train -- is somewhere to step down to, not a wall to climb)
++  const ox=p.pos.x,oz=p.pos.z;p.pos.x=b.x+F.nx*(F.dist+0.06)+F.tx*(f.k==='c'?L.al:L.ac);p.pos.z=b.z+F.nz*(F.dist+0.06)+F.tz*(f.k==='c'?L.al:L.ac);
++  const ok=vTopAt(b,f,f.k==='c'?L.al:L.ac)-b.y0>=2&&vHold(p,v,b,f,true);
++  if(!ok){p.pos.x=ox;p.pos.z=oz;}return ok;
++}
++// clinging on: the stick moves him up, down and along the face, round its corners, up over the top onto the roof,
++// or down off the bottom; let go of climb (or jump) and he lets go
++function vClimb(p,inp,dt){
++  const H=p.vcl;let b=vPin(p);
++  const off=(vy,push)=>{const d=p.climbD||[0,1];p.vcl=null;p.state='walk';p.grounded=false;p.vy=vy;p.mvx=-d[0]*push;p.mvz=-d[1]*push;p.heading=Math.atan2(-d[0],-d[1]);startVBlend(p,0.3);};
++  if(!b){off(0,1);return false;}   // (it's gone: wrecked, or out of reach of the world)
++  if(!inp.climb){off(3.2,4.5);p.hopT=0.1;puff(p.pos.x,p.pos.y+0.8,p.pos.z,4,0xd6d8d0,0.4);return false;}
++  if(inp.jumpPress){off(8.5,7);p.airBiteCD=0;p.hopT=0.12;p.qJump=0;grunt(p,false);puff(p.pos.x,p.pos.y+1,p.pos.z,6,0xd6d8d0,0.5);return false;}
++  const d=p.climbD;
++  {const fd=-Math.sin(p.cam.yaw)*d[0]-Math.cos(p.cam.yaw)*d[1];if(!stickHeld(p)&&Math.abs(fd)>0.5)p.climbFlip=fd>0?1:-1;}
++  const fl=p.climbFlip||1;let up=-inp.z*fl,side=inp.x*fl;const mag=Math.hypot(up,side);if(mag>1){up/=mag;side/=mag;}
++  let F=vFace(b,H.f);
++  // along the face (sideways on the wall is (-d.z, d.x), as on a wall of blocks); off the end, round the corner on to the next face
++  if(side){const w=-d[1]*F.tx+d[0]*F.tz;H.u+=side*2.6*dt*w;
++    if(Math.abs(H.u)>F.R-0.45){const sg=Math.sign(H.u),nf=H.f.k==='c'?{k:'l',s:sg}:{k:'c',s:sg},NF=vFace(b,nf),top=vTopAt(b,nf,0);
++      if(top-b.y0>H.y+0.7&&NF.R>0.9){
++        const ox=p.pos.x,oz=p.pos.z,oh=p.heading,cu=(F.nx*NF.tx+F.nz*NF.tz)*F.dist;
++        H.f=nf;H.u=Math.max(-NF.R+0.45,Math.min(NF.R-0.45,cu-Math.sign(cu)*0.45));vPin(p);easeSnap(p,ox-p.pos.x,0,oz-p.pos.z,oh-p.heading);F=NF;
++      } else H.u=sg*(F.R-0.45);}}
++  const top=vTopAt(b,H.f,H.u)-b.y0;
++  if(up>0){H.y+=up*3.2*dt;
++    // over the top: up on to the roof (or the deck, or the top of the stack), facing in across it
++    if(H.y+0.6>top){
++      const inn=Math.min(1.3,F.dist+F.dist-0.3),x=b.x+F.nx*(F.dist-inn)+F.tx*H.u,z=b.z+F.nz*(F.dist-inn)+F.tz*H.u;
++      const ox=p.pos.x,oy=p.pos.y,oz=p.pos.z,oh=p.heading,v=H.v;
++      p.vcl=null;p.state='walk';p.grounded=true;p.vy=0;p.pos.set(x,b.y0+top,z);p.heading=Math.atan2(-F.nx,-F.nz);p.peakY=p.pos.y;p.landT=0.12;
++      startVBlend(p,0.35);easeSnap(p,ox-x,oy-p.pos.y,oz-z,oh-p.heading);
++      p.standCar=v;p.rideC=v;p.rideX=v.pos.x;p.rideZ=v.pos.z;p.rideH=v.heading;thud(0.15);grunt(p,false);return false;}
++  } else if(up<0){
++    // down to the bottom of the box, or to the ground (or water) beside it: let go there, on to his feet
++    const gnd=groundAt(p.pos.x+d[0]*-0.6,p.pos.z+d[1]*-0.6,p.pos.y)-b.y0;
++    H.y=Math.max(Math.max(0,gnd),H.y+up*3.2*dt);
++    if(H.y<=Math.max(0,gnd)+0.001){p.vcl=null;p.state='walk';p.grounded=false;p.vy=0;startVBlend(p,0.3);return false;}
++  }
++  H.y=Math.min(H.y,Math.max(0,top-0.6));
++  vPin(p);
++  const moving=mag>0.1;if(moving){p.phase+=dt*7;const dr=wrapA(Math.atan2(side,up)-(p.climbRoll||0));p.climbRoll=wrapA((p.climbRoll||0)+dr*Math.min(1,dt*5.5));}
++  return moving;
++}
+ // ---- tiny quaternion helpers ([x,y,z,w]) for the ledge tip ----
+ const qMul=(a,b)=>[a[3]*b[0]+a[0]*b[3]+a[1]*b[2]-a[2]*b[1],a[3]*b[1]-a[0]*b[2]+a[1]*b[3]+a[2]*b[0],a[3]*b[2]+a[0]*b[1]-a[1]*b[0]+a[2]*b[3],a[3]*b[3]-a[0]*b[0]-a[1]*b[1]-a[2]*b[2]];
+ const qInv=a=>[-a[0],-a[1],-a[2],a[3]];
+@@ -9430,6 +9542,7 @@
+ }
+ function movePlayer(p,dt){
+   if(!p.active)return;
++  if(p.state!=='climb')p.vcl=null;   // (a hold on a vehicle's side ends with the cling, however that ended)
+   if(playing&&!SBX&&!DT.gob)trampleFences(p);
+   if(p.snowU&&playing){const moving=Math.hypot(p.in.x,p.in.z)>0.2;snowGather(p,dt,moving);
+     if(p.snowU.value>0.08&&(p.vy>3&&!p.grounded||p.biteT>0||p.state==='stomp'||p.state==='windup'||p.state==='pound'||p.state==='charge'||p.dashT>0||p.lungeT>0))shakeSnow(p,1.6);}
+@@ -9624,9 +9737,11 @@
+         moving=true;p.lastSp=sp;p.phase+=dt*sp*3.4*(charge?0.45:1);if(tramp&&!hbOn('trample')){hitGoblins(frontX,frontZ,AB.trample.hitR,AB.trample.dmg,'Trampled',p.pos.y);
+           // and it ploughs straight through anything in the way: benches, bins, fences, railings, low walls
+           p.trCD=(p.trCD||0)-dt;if(p.trCD<=0&&!hbOn('trample')&&!inp.climb){p.trCD=0.1;const o={force:1.1,dx:hx,dz:hz};if(blockHit(AB.trample,frontX,p.pos.y,frontZ,hx,hz,o,sz=>crushDisc(frontX,p.pos.y,frontZ,sz,3,o))){thud(0.45);addShake(0.18,frontX,frontZ,10);rumble(p,0.3,90);}}}
+-        if(inp.climb&&p.grounded)climbOverEdge(p,mvx,mvz);
++        if(inp.climb&&p.grounded&&!(p.standCar&&!DT.gob&&vOverEdge(p,mvx,mvz)))climbOverEdge(p,mvx,mvz);
+       }
+     }
++    // holding climb and running (or jumping) into the side of a car, a train, a boat, a plane: grab on
++    if(p.state==='walk'&&inp.climb&&!DT.gob&&(!p.grounded||Math.hypot(inp.x,inp.z)>0.3)&&vGrab(p,p.grounded?1.7:1.3)){}
+     // holding climb while jumping at a wall: grab on
+     if(p.state==='walk'&&inp.climb&&!p.grounded){if(!startClimb(p,1.1)&&p.vy>-2&&!DT.gob)grabCeil(p);}
+     // R2 in mid-air: ground pound
+@@ -9664,6 +9779,10 @@
+       if(ceilOK&&freeOK){p.pos.x=nx;p.pos.z=nz;moving=sp>0.2;p.phase+=dt*7;}
+       else if(sp>0.2){if(!freeOK)ceilToWall(p,hx,hz,cy);else ceilOverEdge(p,hx,hz,cy);}
+     }
++  } else if(p.state==='climb'&&p.vcl){
++    // spider-climbing the side of a vehicle (see vClimb)
++    p.vy=0;p.grounded=true;p.airJumps=airJumpsMax();p.airDash=true;p.airBiteCD=0;p.peakY=p.pos.y;
++    if(vClimb(p,inp,dt))moving=true;
+   } else if(p.state==='climb'){
+     // spider-climb: belly to the wall, the stick moves up/down and along it
+     const d=p.climbD,tx=-d[1],tz=d[0];
+@@ -9913,19 +10032,21 @@
+   if(!DT.gob&&p.pos.y<G+6.5)knockFixtures(p.pos.x,p.pos.z,1.05,Math.sin(p.heading),Math.cos(p.heading));
+   if(!DT.gob)knockProps(p.pos.x,p.pos.y,p.pos.z,1.1,Math.sin(p.heading),Math.cos(p.heading));   // (nor round a hospital bed)
+   // cars only block you at ground level: once your feet clear the hood you can hop over or onto them
+-  for(const c of cars){if(!c.alive||p.pos.y<c.pos.y-1.5||Math.hypot(c.pos.x-p.pos.x,c.pos.z-p.pos.z)>c.hz+3)continue;
++  const vOn=p.vcl&&p.state==='climb'?(p.vcl.v.T||p.vcl.v):null;   // (clinging to its side: it doesn't push him off itself)
++  for(const c of cars){if(!c.alive||c===vOn||p.pos.y<c.pos.y-1.5||Math.hypot(c.pos.x-p.pos.x,c.pos.z-p.pos.z)>c.hz+3)continue;
+     const cs=Math.sin(c.heading),ck=Math.cos(c.heading),dx=p.pos.x-c.pos.x,dz=p.pos.z-c.pos.z,la=dx*ck-dz*cs,lb=dx*cs+dz*ck;
+     if(p.pos.y>=c.pos.y+Math.min(0.9*ES,VEH[c.veh].roof(Math.max(-c.hz,Math.min(c.hz,lb))/ES)*ES-0.4)+0.05)continue;   // up on top of it
+     const qa=Math.max(-c.hx,Math.min(c.hx,la)),qb=Math.max(-c.hz,Math.min(c.hz,lb)),ea=la-qa,eb=lb-qb,d=Math.hypot(ea,eb),R=DT.gob?0.45:1.0*ES;
+     if(d<R){let ua,ub;if(d>0.001){ua=ea/d;ub=eb/d;}else{const fa=c.hx-Math.abs(la),fb=c.hz-Math.abs(lb);if(fa<fb){ua=Math.sign(la)||1;ub=0;}else{ua=0;ub=Math.sign(lb)||1;}}
+       const push=d>0.001?R-d:R+Math.min(c.hx-Math.abs(la),c.hz-Math.abs(lb));shove(p,(ua*ck+ub*cs)*push,(-ua*cs+ub*ck)*push);}}
+-  for(const B of TRAIN_BOXES){const BX=B.hx||TRAIN_HX,BZ=B.hz||TRAIN_HZ;if(B.soft||B.proxy===p.rideC||p.pos.y>=B.top-0.4||p.pos.y<B.y0-1.5||Math.hypot(B.x-p.pos.x,B.z-p.pos.z)>Math.max(BX,BZ)+3)continue;
++  for(const B of TRAIN_BOXES){const BX=B.hx||TRAIN_HX,BZ=B.hz||TRAIN_HZ;if(B.soft||B.proxy===p.rideC||vOn&&(B.proxy.T||B.proxy)===vOn||p.pos.y>=B.top-0.4||p.pos.y<B.y0-1.5||Math.hypot(B.x-p.pos.x,B.z-p.pos.z)>Math.max(BX,BZ)+3)continue;
+     const dx=p.pos.x-B.x,dz=p.pos.z-B.z,al=dx*B.tx+dz*B.tz,ac=-dx*B.tz+dz*B.tx,R=DT.gob?0.45:1.0*ES;
+     if(Math.abs(al)>BZ+R||Math.abs(ac)>BX+R)continue;
+     const fa=BZ+R-Math.abs(al),fc=BX+R-Math.abs(ac);
+     // (on board, a deckhouse is just something in the way, not a thing to be thrown overboard by. On a little boat, with no way round it, you end up on top of it)
+     if(B.proxy.isBoat&&p.standCar&&p.standCar.T===B.proxy.T){if(B.proxy.T.K.W<6)p.pos.y=B.top;else if(fc<=fa){const sg=ac>=0?1:-1;shove(p,-B.tz*sg*fc,B.tx*sg*fc);}else{const sg=al>=0?1:-1;shove(p,B.tx*sg*fa,B.tz*sg*fa);}continue;}
+     // (a train at speed doesn't just nudge you aside: it hits you)
++    if(Math.abs(B.v)>=2&&!(p.trainT>0)&&!(p.standCar&&p.standCar.isTrain)&&p.hp>0&&inp.climb&&!DT.gob&&!vOn&&vGrab(p,3,B.proxy))break;   // (holding climb: he catches hold of it as it comes by)
+     if(Math.abs(B.v)>=2&&!(p.trainT>0)&&!(p.standCar&&p.standCar.isTrain)&&p.hp>0){const sg=ac>=0?1:-1,sv=B.v<0?-1:1;trainStrike(p,new V3(B.tx*sv*0.8-B.tz*sg*0.6,0,B.tz*sv*0.8+B.tx*sg*0.6),Math.max(0.3,Math.min(1,Math.abs(B.v)/24)),B.proxy.isPlane?'Hit by a plane':B.proxy.isBoat?'Hit by a boat':undefined);}
+     if(fc<=fa||Math.abs(B.v)>0.5){const sg=ac>=0?1:-1;shove(p,-B.tz*sg*fc,B.tx*sg*fc);}   // (out to the side -- always, from a moving one)
+     else{const sg=al>=0?1:-1;shove(p,B.tx*sg*fa,B.tz*sg*fa);}}
+@@ -15741,6 +15862,31 @@
+   if(V.st==='gone'){V.t+=dt;if(V.t>90){V.st='pad';V.y=0;g.visible=true;}}
+   g.position.set(x,G+2+V.y,z);
+ }
++// ---- big vehicles running into each other: a train, a boat, a plane, a ride's car, meeting another one ----
++// (cars already bump each other, and trains and planes already smash the cars in their way. These are what's left: two of
++// the big ones whose boxes meet, at least one of them moving. Both take a knock that grows with how fast they met, and
++// it counts once for each time they meet, however long they go on overlapping, so two passing through each other take
++// one knock, not one every frame)
++function bigCrashes(){
++  const L=[];for(const B of TRAIN_BOXES){if(B.soft||!B.proxy.alive||B.y0>=B.top||B.proxy.T&&B.proxy.T.dead)continue;L.push(B);}   // (a wreck going down, or burning out, is out of it)
++  for(let i=0;i<L.length;i++){const a=L[i],va=a.proxy.T||a.proxy,ra=Math.max(a.hx||TRAIN_HX,a.hz||TRAIN_HZ);
++    for(let j=i+1;j<L.length;j++){const b=L[j],vb=b.proxy.T||b.proxy;if(va===vb||Math.abs(a.v)<2&&Math.abs(b.v)<2)continue;
++      if(Math.abs(a.x-b.x)>ra+Math.max(b.hx||TRAIN_HX,b.hz||TRAIN_HZ)||Math.abs(a.z-b.z)>ra+Math.max(b.hx||TRAIN_HX,b.hz||TRAIN_HZ))continue;
++      if(a.y0>=b.top||b.y0>=a.top)continue;
++      if(!boxesTouch(a.x,a.z,Math.atan2(a.tx,a.tz),a.hx||TRAIN_HX,a.hz||TRAIN_HZ,b.x,b.z,Math.atan2(b.tx,b.tz),b.hx||TRAIN_HX,b.hz||TRAIN_HZ))continue;
++      if(crashedLately(va,vb))continue;
++      // how hard: their speeds along the line between them
++      const dx=b.x-a.x,dz=b.z-a.z,dl=Math.hypot(dx,dz)||1,ux=dx/dl,uz=dz/dl,rel=Math.abs((a.tx*a.v-b.tx*b.v)*ux+(a.tz*a.v-b.tz*b.v)*uz)+0.3*Math.abs(Math.abs(a.v)-Math.abs(b.v));
++      const n=Math.round(6+rel*2.5);damageCar(a.proxy,n,new V3(-ux,0,-uz),'acc');damageCar(b.proxy,n,new V3(ux,0,uz),'acc');
++      const mx=(a.x+b.x)/2,mz=(a.z+b.z)/2,my=Math.max(a.y0,b.y0)+1;puff(mx,my,mz,10,0x8c8a84,1.2);
++      const np=nearestPlayer(mx,mz,false);if(np&&np.d<90){const k=1-np.d/90;clang();thud(0.6*k);noise(0.5,0.3*k,300,'lowpass');}
++      addShake(0.4,mx,mz,30);reportNews(mx,mz,'crash');}}
++}
++// (a pair that's still touching from a moment ago is the same crash going on: only the first touch of each meeting counts)
++const bigPairs=new Map();
++function crashedLately(a,b){const now=playTime,m=bigPairs.get(a)||new Map(),t=m.get(b)??(bigPairs.get(b)||new Map()).get(a);m.set(b,now);bigPairs.set(a,m);{const m2=bigPairs.get(b)||new Map();m2.set(a,now);bigPairs.set(b,m2);}
++  if(bigPairs.size>64)for(const [k,mm] of bigPairs){for(const [k2,t2] of mm)if(now-t2>2)mm.delete(k2);if(!mm.size)bigPairs.delete(k);}
++  return t!==undefined&&now-t<0.5;}
+ function updateVenues(dt){
+   TRAIN_BOXES.length=0;updateTrains(dt);
+   for(const p of players)if(p.trainT>0)p.trainT-=dt;for(const c of cars)if(c.trainT>0)c.trainT-=dt;for(const g of goblins)if(g.trainT>0)g.trainT-=dt;
+@@ -15804,6 +15950,7 @@
+     for(let i=0;i<8;i++){if(nP>=PL_MAX)break;const side=i<4?-1.6:Pt.h+1.6,px=Pt.x0+Pt.w*(0.3+0.13*(i%4)),pz=Pt.z0+side,j=Math.max(0,Math.sin(t*6+i*1.3))*0.7;
+       _A.makeTranslation(px,Pt.y+0.55+j,pz);PL_B.setMatrixAt(nP,_A);_A.makeTranslation(px,Pt.y+1.38+j,pz);PL_H.setMatrixAt(nP,_A);PL_B.setColorAt(nP,_fcF.setHex(i%2?0xffd23a:0xf4f4f0));nP++;}
+   }
++  bigCrashes();
+   CR_B.count=CR_H.count=nC;PL_B.count=PL_H.count=nP;
+   for(const m of [CR_B,CR_H,PL_B,PL_H])m.instanceMatrix.needsUpdate=true;
+   if(CR_B.instanceColor)CR_B.instanceColor.needsUpdate=true;if(PL_B.instanceColor)PL_B.instanceColor.needsUpdate=true;
+@@ -16899,6 +17046,8 @@
+     if(Math.abs(c.speed)>2&&c.pos.y<G+3&&knockFixtures(c.pos.x+fx*1.4*dir,c.pos.z+fz*1.4*dir,1.1,fx*dir,fz*dir)){c.speed*=0.5;damageCar(c,2,undefined,'acc');}
+     for(const q of players){
+       if(!q.active||q.state==='dead'||!c.alive)continue;
++      if(q.vcl&&q.state==='climb'&&q.vcl.v===c)continue;
++      if(Math.abs(c.speed)>3&&c.ramCD<=0&&q.standCar!==c&&q.in.climb&&!DT.gob&&q.pos.y<c.pos.y+(c.hy||1.4)-0.6&&carHitsPlayer(c,q)&&vGrab(q,3,c))continue;   // (holding climb: he catches hold of it)
+       if(Math.abs(c.speed)>3&&c.ramCD<=0&&q.standCar!==c&&!(q.standCar&&q.standCar.isTrain)&&q.pos.y<c.pos.y+(c.hy||1.4)-0.6&&carHitsPlayer(c,q)){   // (and a car the train's just sent flying doesn't knock its riders off)
+         const fast=Math.abs(c.speed)>9;
+         damagePlayer(q,fast?4:2,new V3(q.pos.x,q.pos.y+1.3,q.pos.z),new V3(fx*dir,0.3,fz*dir),fast?'Run down':'Hit by traffic',c.driver);
+@@ -16910,6 +17059,12 @@
+     }
+     if(!c.alive)continue;
+     if(c.hunter&&Math.abs(c.speed)>5)for(const gb of goblins){if(gb.state!=='chase')continue;if(carHitsGoblin(c,gb))damageGoblin(gb,6,new V3(gb.pos.x,gb.pos.y+0.8,gb.pos.z),new V3(fx*dir,0.5,fz*dir),'Run over',c.driver);}
++    // (any other car going at a fair lick knocks a goblin in its way flying, and brakes hard; only near someone, where it can be seen)
++    else if(Math.abs(c.speed)>5&&nearestPlayer(c.pos.x,c.pos.z,false)?.d<140){const sp=Math.abs(c.speed),R=c.hz+1.5;
++      for(const gb of goblins){if(gb.state!=='chase'||gb.hp<=0||gb.trainT>0||!gb.root.visible)continue;const ex=gb.pos.x-c.pos.x,ez=gb.pos.z-c.pos.z;if(ex>R||ex<-R||ez>R||ez<-R||!carHitsGoblin(c,gb))continue;
++        const k=Math.min(1,sp/24),sg=(ex*fz-ez*fx)>=0?1:-1,D=new V3(fx*dir*0.8+fz*sg*0.5,0,fz*dir*0.8-fx*sg*0.5);gb.trainT=1;
++        damageGoblin(gb,Math.round(2+8*k),new V3(gb.pos.x,gb.pos.y+0.8,gb.pos.z),D,'Run over',c.driver||ACCIDENT);gb.vy=Math.max(gb.vy||0,5+8*k);gb.kv.x+=D.x*(6+14*k);gb.kv.z+=D.z*(6+14*k);
++        c.speed*=0.6;thud(0.3);}}
+     if(c.hp<15){c.smokeT-=dt;if(c.smokeT<=0){c.smokeT=c.hp<8?0.06:0.15;const hx=c.pos.x+fx*1.5,hz=c.pos.z+fz*1.5;smoke(hx,c.pos.y+1.1,hz,1,c.hp<8?0x1a1a1a:0x666666);if(c.hp<8)puff(hx,c.pos.y+0.9,hz,1,Math.random()<.5?0xff8a2a:0xffc040,0.25);}}
+     carPhysics(c,dt);if(!c.alive)continue;
+     if(Math.abs(c.kv.x)+Math.abs(c.kv.z)>0.05){nudgeFlat(c,c.kv.x*dt,c.kv.z*dt);const k=Math.exp(-dt*3.5);c.kv.x*=k;c.kv.z*=k;}
+@@ -17729,7 +17884,7 @@
+     if(sI>0)for(const p of players){const I=p.in;I.jumpPress=I.bitePress=I.lockPress=I.chargePress=I.dashPress=I.sprintPress=false;}
+     for(const p of players){DBG_WHO='p';safe('player',()=>updatePlayer(p,sdt));DBG_WHO='n';}
+     safe('goblins',()=>updateGoblins(sdt));safe('cars',()=>updateCars(sdt));safe('stations',()=>updateStations(sdt));safe('services',()=>updateServices(sdt));
+-    safe('traffic',()=>updateTraffic(sdt));safe('spikes',()=>updateSpikes(sdt));safe('weather',()=>updateWeather(sdt));safe('sky',()=>updateSky(sdt));
++    safe('traffic',()=>updateTraffic(sdt));for(const p of players)if(p.vcl&&p.state==='climb')safe('vpin',()=>vRepin(p));safe('spikes',()=>updateSpikes(sdt));safe('weather',()=>updateWeather(sdt));safe('sky',()=>updateSky(sdt));
+     for(const p of players)safe('health',()=>updateHealth(p,sdt));
+     safe('parts',()=>updateParts(sdt));safe('rubble',()=>updateRubble(sdt));safe('shocks',()=>{updateShocks(sdt);updateCones(sdt);});safe('bodies',()=>updateBodies(sdt));safe('topples',()=>updateTopples(sdt));
+     safe('booms',()=>updateBooms(sdt));safe('fires',()=>updateFires(sdt));safe('flecks',()=>updateFlecks(sdt));
