@@ -16275,7 +16275,7 @@ function refreshVenues(){
           for(let i=0;i<4;i++){const m=new THREE.Mesh(LM_BOX,i%2?LMM.ledOff:TOLLM);m.scale.set(0.65,0.13,0.13);m.position.x=0.33+i*0.65;lift.add(m);}
           scene.add(g);arms.push({g,lift,L,a:0,x:g.position.x,z:g.position.z});}
         venues.set(k,{kind:'toll',R,ts,arms});}}}}
-  if(TENV&&venues.has('tenvArmy'))want.add('tenvArmy');
+  if(TENV)for(const k of ['tenvArmy','tenvPlanes'])if(venues.has(k))want.add(k);
   for(const [k,V] of venues)if(!want.has(k)&&!drvHeld(V)){if(V.ride)scene.remove(V.ride);if(V.animals)for(const A of V.animals)scene.remove(A.g);if(V.arms)for(const A of V.arms)scene.remove(A.g);if(V.cars)for(const g of V.cars)scene.remove(g);if(V.planes)for(const g of V.planes)scene.remove(g);if(V.rocket){scene.remove(V.rocket);}if(V.boat)scene.remove(V.boat);if(V.figs)for(const F of V.figs)scene.remove(F.g);if(V.glow)scene.remove(V.glow);if(V.slots)homeDrop(V);if(V.mil)for(const M of V.mil)scene.remove(M.g);if(V.rotor)scene.remove(V.rotor);if(V.T&&V.T.cars===V.cars)V.T.cars=null;venues.delete(k);}
 }
 // the zoo's animals: built from boxes, each wandering its enclosure
@@ -16600,7 +16600,7 @@ function updateVenues(dt){
       else{const want=left<60?Math.max(1.5,left*0.35):20;V.v+=(want-V.v)*Math.min(1,dt*(want<V.v?1.5:0.35));V.s+=V.v*V.dir*dt;if(left<=0.5){V.s=end;V.v=0;V.wait=14;}}
       const RL=railOf(R);V.cars.forEach((g,i)=>{const s2=Math.max(26,Math.min(R.L-26,V.s-i*10.6*V.dir)),P=rtPointL(R,s2);g.position.set(P.x-P.tz*RL.off,G+1.2,P.z+P.tx*RL.off);g.rotation.y=Math.atan2(P.tx*V.dir,P.tz*V.dir);});
       continue;}
-    if(V.kind==='airport'){updateAirport(V,dt);continue;}
+    if(V.kind==='airport'){if(V.tenv)updateTenvPlanes(V,dt);else updateAirport(V,dt);continue;}
     if(V.kind==='nasa'){updateLaunch(V,dt);continue;}
     if(V.kind==='toll'){
       // each barrier lifts as a car comes up to it in its lane, drops again once it's through
@@ -18690,7 +18690,7 @@ function tpRender(){
   for(const b of document.querySelectorAll('#tpVM [data-vm]'))b.setAttribute('aria-checked',String(b.dataset.vm===TS.vm));
   // (one button per kind of vehicle body the game has, so a new kind shows up here by itself; police cars are their own pool)
   const vb=document.getElementById('tpVehs');
-  if(vb&&!vb.childElementCount)for(const t of [...Object.keys(VEH),'police','tank','heli']){const b=document.createElement('button');b.type='button';b.className='pmenu';b.dataset.veh=t;
+  if(vb&&!vb.childElementCount)for(const t of [...Object.keys(VEH),'police','tank','heli','plane']){const b=document.createElement('button');b.type='button';b.className='pmenu';b.dataset.veh=t;
     b.textContent=(VEH_NAME[t]||[MIL[t]?MIL[t].name:t])[0].replace(/^./,c=>c.toUpperCase());b.addEventListener('click',()=>tenvVeh(t));vb.append(b);}
   const sn=document.getElementById('seedNote');if(sn&&TENV)sn.textContent=`Testing Environment · ${TENV.boxes.length} structure${TENV.boxes.length===1?'':'s'} spawned · seed ${seed}`;
 }
@@ -18862,6 +18862,7 @@ const VEH_NAME={car:['car','cars'],van:['van','vans'],pickup:['pickup','pickups'
   fire:['fire engine','fire engines'],amb:['ambulance','ambulances'],news:['news van','news vans'],police:['police car','police cars'],moto:['motorcycle','motorcycles'],motorcycle:['motorcycle','motorcycles'],bike:['motorcycle','motorcycles']};
 function tenvVeh(t){
   if(MIL[t]){tenvMil(t);return;}
+  if(t==='plane'){tenvPlane();return;}
   if(!TENV)return;const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active);if(!p)return;
   const park=TS.vm==='park',pol=t==='police',fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw),cx=p.pos.x+fx*20,cz=p.pos.z+fz*20;let made=0;
   for(let i=0;i<TS.n;i++){
@@ -18901,12 +18902,37 @@ function tenvMil(kind){
   const nm=kind==='tank'?['tank','tanks']:['helicopter','helicopters'];
   tsSet('Spawned '+made+' '+(park?'parked ':'hunting ')+nm[made>1?1:0]+' ahead of Gus.');
 }
+// planes, in the Testing Environment: an airliner parked on the grass ahead of Gus, nose pointing the way he's looking,
+// so it can be got into and taken straight off (no runway needed: any flat run of about 40 blocks). They're kept in an
+// airport of their own (the 'tenvPlanes' venue, flagged tenv, so updateAirport's timetable leaves them be)
+function tenvPlane(){
+  if(!TENV)return;const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active);if(!p)return;
+  let V=venues.get('tenvPlanes');if(!V){V={kind:'airport',tenv:true,planes:[],pl:[]};venues.set('tenvPlanes',V);}
+  const fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw);let made=0;
+  for(let i=0;i<TS.n;i++){
+    // (each a wingspan apart, side by side across where Gus is looking, on open ground clear of the others)
+    let x=0,z=0,ok=false;for(let k=0;k<30&&!ok;k++){const side=(i%2?1:-1)*Math.ceil(i/2)*24+(k?(Math.random()-.5)*k*4:0),ahead=30+(k?Math.random()*k*3:0);
+      x=p.pos.x+fx*ahead-fz*side;z=p.pos.z+fz*ahead+fx*side;
+      ok=groundAt(x,z,G+40)<=G+1.05&&groundAt(x+fx*9,z+fz*9,G+40)<=G+1.05&&groundAt(x-fx*9,z-fz*9,G+40)<=G+1.05&&!V.pl.some(o=>!o.dead&&Math.hypot(o.g.position.x-x,o.g.position.z-z)<24);}
+    if(!ok)continue;
+    const g=makePlane(V.planes.length);g.position.set(x,G+1,z);g.rotation.set(0,Math.atan2(fx,fz),0);scene.add(g);
+    V.planes.push(g);V.pl.push({isPlane:true,g,hp:PLANE_HP,dead:false,v:0});made++;}
+  tsSet(made?'Spawned '+made+' plane'+(made>1?'s':'')+' ahead of Gus, ready to fly: get in, speed up, then jump to take off.':'There\'s no clear ground for a plane just ahead. Try looking another way.');
+}
+function updateTenvPlanes(V,dt){
+  for(const pl of V.pl){
+    if(!pl.dead&&pl.g.visible)vDamaged(pl.g.position.x,pl.g.position.y+3,pl.g.position.z,pl.hp/PLANE_HP,dt);
+    if(pl.dead){planeWreck(pl,V,dt);planeBoxes(pl,0);}
+    else if(pl.free){drvPlane(pl,dt);if(!pl.dead){planeBoxes(pl,pl.free.v);if(pl.free.v>=2)planeStrike(pl,pl.free.v);}}
+    else planeBoxes(pl,0);}
+}
 function tenvClear(){
   for(const g of goblins)if(g.state!=='wait'){g.state='wait';g.t=0;g.root.visible=false;g.cop=null;g.inv=false;g.ff=null;g.medic=null;g.news=null;g.vendor=null;g.claim=null;g.act=null;g.homeV=null;}
   fbClear();
   for(const c of cars)if(c.alive&&!c.svcPool){c.alive=false;c.g.visible=false;c.hunter=false;c.respawnT=1e9;}
   // (the tanks and helicopters too, all but one Gus is driving)
   {const V=venues.get('tenvArmy');if(V){V.mil=V.mil.filter(M=>{if(players.some(q=>q.drv&&q.drv.o===M))return true;scene.remove(M.g);return false;});V.alert=false;if(!V.mil.length)venues.delete('tenvArmy');}}
+  {const V=venues.get('tenvPlanes');if(V){V.pl=V.pl.filter(pl=>{if(players.some(q=>q.drv&&q.drv.o===pl))return true;scene.remove(pl.g);return false;});V.planes=V.pl.map(pl=>pl.g);if(!V.pl.length)venues.delete('tenvPlanes');}}
   tsSet('Cleared every goblin and vehicle.');
 }
 document.getElementById('testWorld').addEventListener('click',()=>{if(TENV)tpShow(true);else tenvEnter();});
@@ -18919,7 +18945,7 @@ document.getElementById('tpClear').addEventListener('click',()=>tenvClear());
 function tenvReset(){
   if(!TENV)return;
   if(freshWorld([],{boxes:[]}))return;
-  TENV={boxes:[]};tenvIndex();venues.delete('tenvArmy');document.getElementById('confirmYes').click();tpShow(true);
+  TENV={boxes:[]};tenvIndex();tenvClear();document.getElementById('confirmYes').click();tpShow(true);
 }
 {const b=document.getElementById('tpReset');let armT=0;
  b.addEventListener('click',()=>{if(performance.now()<armT){armT=0;b.textContent='Reset world';tenvReset();return;}

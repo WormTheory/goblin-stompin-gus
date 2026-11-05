@@ -62,7 +62,7 @@ for(const key of (process.env.KINDS||'hospital,homes,fire,mall,zoo,farm').split(
 // enemies
 T.menuOpen=true;
 for(const k of ['goblin','cop','civ']){T.TS.n=k==='goblin'?5:1;T.tenvFoe(k);console.log('foe',k.padEnd(7),els.tpInfo.textContent);}
-T.TS.n=1;for(const t of [...Object.keys(T.VEH),'police','tank','heli']){T.TS.vm='hunt';T.tenvVeh(t);console.log('veh',t.padEnd(7),els.tpInfo.textContent);}
+T.TS.n=1;for(const t of [...Object.keys(T.VEH),'police','tank','heli','plane']){T.TS.vm='hunt';T.tenvVeh(t);console.log('veh',t.padEnd(7),els.tpInfo.textContent);}
 T.TS.vm='park';T.TS.n=3;T.tenvVeh('bus');console.log('veh park',els.tpInfo.textContent);T.TS.vm='hunt';
 T.menuOpen=false;run(0.2);
 const about=()=>T.goblins.filter(g=>g.state==='chase').map(g=>Math.hypot(g.pos.x-P.pos.x,g.pos.z-P.pos.z).toFixed(1));
