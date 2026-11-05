@@ -88,9 +88,7 @@ function updateVenues(dt){
       _A.makeTranslation(px,Pt.y+0.55+j,pz);PL_B.setMatrixAt(nP,_A);_A.makeTranslation(px,Pt.y+1.38+j,pz);PL_H.setMatrixAt(nP,_A);PL_B.setColorAt(nP,_fcF.setHex(i%2?0xffd23a:0xf4f4f0));nP++;}
   }
   bigCrashes();
-  CR_B.count=CR_H.count=nC;PL_B.count=PL_H.count=nP;
-  for(const m of [CR_B,CR_H,PL_B,PL_H])m.instanceMatrix.needsUpdate=true;
-  if(CR_B.instanceColor)CR_B.instanceColor.needsUpdate=true;if(PL_B.instanceColor)PL_B.instanceColor.needsUpdate=true;
+  fxSent(CR_B,nC);fxSent(CR_H,nC);fxSent(PL_B,nP);fxSent(PL_H,nP);
 }
 function knockFixtures(x,z,r,dx,dz){let n=0;for(const f of activeFix){const ex=f.x-x,ez=f.z-z,rr=r+(f.rad||0);if(ex*ex+ez*ez<rr*rr&&knockFix(f,dx||ex,dz||ez))n++;}return n;}
 

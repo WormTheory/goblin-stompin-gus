@@ -42,30 +42,43 @@ function batGrow(B,cap){
   m.frustumCulled=false;m.count=0;scene.add(m);   // (one batch spans the whole street, so it's never culled as a whole)
   Object.assign(B,{m,col,em,sn,cap});
 }
-function batOf(geo,k){const key=(geo.batId||(geo.batId=++batGeoN))*8+k;let B=BAT.get(key);if(!B){B={geo,k,n:0,cap:0,m:null};batGrow(B,64);BAT.set(key,B);}return B;}
+function batOf(geo,k,deco){const key=(geo.batId||(geo.batId=++batGeoN))*16+k+(deco?8:0);let B=BAT.get(key);if(!B){B={geo,k,deco,n:0,cap:0,m:null};batGrow(B,64);BAT.set(key,B);}return B;}
 // copy every shown box under o into its batch. inScene: o is in the scene, so a batched box is moved to BAT_HIDE (and
 // one that can't be batched is left, or put back, on the layer the cameras draw); out of the scene, one that can't be
 // batched simply isn't drawn
-function batPut(o,inScene){
+function batPut(o,inScene,deco){
   for(const c of o.children){if(!c.visible)continue;
-    if(c.isMesh&&!c.isInstancedMesh){const mat=c.material,k=Array.isArray(mat)?-1:batKind(mat);
+    if(c.isMesh&&!c.isInstancedMesh){const mat=c.material,k=Array.isArray(mat)||c.scale.x*c.scale.y*c.scale.z<0?-1:batKind(mat);   // (turned inside out by a negative scale: an instance wouldn't show the right faces)
       if(k<0){if(inScene&&c.layers.mask===1<<BAT_HIDE)c.layers.set(0);}
       else{if(inScene&&c.layers.mask!==1<<BAT_HIDE)c.layers.set(BAT_HIDE);
-        const B=batOf(c.geometry,k);if(B.n>=B.cap)batGrow(B,B.cap*2);const i=B.n++;
-        B.m.instanceMatrix.array.set(c.matrixWorld.elements,i*16);
+        // (a plain box of any size goes in one batch per kind, as a unit box scaled to size: far fewer draw calls than a batch per size)
+        const ub=c.geometry.ub,B=batOf(ub?UNIT_BOX:c.geometry,k,deco);if(B.n>=B.cap)batGrow(B,B.cap*2);const i=B.n++;
+        const IM=B.m.instanceMatrix.array,o16=i*16;IM.set(c.matrixWorld.elements,o16);
+        if(ub){IM[o16]*=ub[0];IM[o16+1]*=ub[0];IM[o16+2]*=ub[0];IM[o16+4]*=ub[1];IM[o16+5]*=ub[1];IM[o16+6]*=ub[1];IM[o16+8]*=ub[2];IM[o16+9]*=ub[2];IM[o16+10]*=ub[2];}
         const C=B.col.array,E=B.em.array,q=mat.color,e=mat.emissive;C[i*3]=q.r;C[i*3+1]=q.g;C[i*3+2]=q.b;
         if(e){E[i*3]=e.r;E[i*3+1]=e.g;E[i*3+2]=e.b;}else E[i*3]=E[i*3+1]=E[i*3+2]=0;B.sn.array[i]=mat.snowU?mat.snowU.value:0;}}
-    if(c.children.length)batPut(c,inScene);}
+    if(c.children.length)batPut(c,inScene,deco);}
+}
+// the street's and the venues' models made of boxes: signal heads, doors, landmarks, rides, trains, planes, base vehicles...
+// (batches of their own, so the Structures preview can draw these and not the cars and goblins)
+function decoEach(f){
+  for(const L of [heads,signs,boards,bpoles,doorPool])for(const o of L)f(o.g);
+  for(const L of lmOn.values())f(L.v.g);
+  // (a venue's models: a ride, a boat, a rotor, or lists of planes, train cars, animals, figures, barrier arms)
+  for(const V of venues.values())for(const k in V){const x=V[k];if(x&&x.isObject3D)f(x);
+    else if(Array.isArray(x)&&x.length&&x[0]&&(x[0].isObject3D||x[0].g&&x[0].g.isObject3D))for(const e of x){if(e&&e.isObject3D)f(e);else if(e&&e.g&&e.g.isObject3D)f(e.g);}}
 }
 function batDraw(){
   for(const B of BAT.values())B.n=0;
   for(const g of goblins){const r=g.root;if(!r.visible)continue;r.updateMatrixWorld(true);batPut(r,false);}   // (street goblins are kept out of the scene, so nothing else updates their matrices)
-  for(const c of cars){if(!c.g.visible)continue;c.g.updateMatrixWorld(true);batPut(c.g,true);}
+  wmFrame++;for(const c of cars){if(!c.g.visible)continue;c.g.updateMatrixWorld(true);c.g.wmDone=wmFrame;batPut(c.g,true);}
+  decoEach(g=>{if(g.visible&&g.parent===scene&&g.wmDone!==wmFrame){g.updateMatrixWorld(true);g.wmDone=wmFrame;batPut(g,true,true);}});
   for(const B of BAT.values()){if(!B.n&&!B.m.count)continue;B.m.count=B.n;   // (and only the part of each buffer in use goes up to the graphics card)
     for(const [a,w] of [[B.m.instanceMatrix,16],[B.col,3],[B.em,3],[B.sn,1]]){a.needsUpdate=true;if(a.updateRange){a.updateRange.offset=0;a.updateRange.count=B.n*w;}}}
 }
 const GOB_GEO=new Map();   // (box shapes shared by street goblins and vehicles, by size, so their boxes batch together: never dispose one)
-const boxGeo=(w,h,d)=>{const k=w+','+h+','+d;return GOB_GEO.get(k)||GOB_GEO.set(k,new THREE.BoxGeometry(w,h,d)).get(k);};
+const boxGeo=(w,h,d)=>{const k=w+','+h+','+d;let g=GOB_GEO.get(k);if(!g){g=new THREE.BoxGeometry(w,h,d);g.ub=[w,h,d];GOB_GEO.set(k,g);}return g;};
+const UNIT_BOX=new THREE.BoxGeometry(1,1,1);
 function goblinModel(parent,o={}){
   const out={legs:[],acc:{},snowU:{value:0}},roles={},matList=[];
   // things worn over the head/face are drawn a hair in front of whatever they sit flush against, so they never flicker

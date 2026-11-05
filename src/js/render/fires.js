@@ -17,7 +17,8 @@ function updateFlecks(dt){
     f.life-=dt;f.x+=f.dx*f.sp*dt;f.z+=f.dz*f.sp*dt;
     if(f.life<=0||Math.abs(f.x-p.pos.x)>70||Math.abs(f.z-p.pos.z)>70)spawn(f);
     // only over open water (not under a bridge)
-    if(get(Math.floor(f.x),G-2,Math.floor(f.z))!==WATER||get(Math.floor(f.x),G-1,Math.floor(f.z))!==AIR)continue;
+    // (and not in a chunk that isn't there yet: nobody can see it, and making it for a fleck of foam is no reason to stall)
+    if(!chunks.has(ckey(Math.floor(f.x/CS),Math.floor(f.z/CS)))||get(Math.floor(f.x),G-2,Math.floor(f.z))!==WATER||get(Math.floor(f.x),G-1,Math.floor(f.z))!==AIR)continue;
     _fk.makeRotationY(Math.atan2(f.dx,f.dz)+Math.PI/2);_fk.setPosition(f.x,G-2+0.9,f.z);flecks.setMatrixAt(n++,_fk);
   }
   flecks.count=n;flecks.instanceMatrix.needsUpdate=true;
@@ -28,11 +29,12 @@ function updateFlecks(dt){
 const fires=[],FL_N=1600,SM_N=4500;
 const flameM=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.92,depthWrite:true}),FL_N);
 const smokeM=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.5,depthWrite:false,fog:false}),SM_N);
-const flameP=[],smokeP=[],_smLive=[];let flI=0,smI=0;
-{const c0=new THREE.Color(0xffffff),z=new THREE.Matrix4().makeScale(0,0,0);
- for(let i=0;i<FL_N;i++){flameP.push({x:0,y:0,z:0,vy:0,life:0,max:1,s:1,ph:0});flameM.setMatrixAt(i,z);flameM.setColorAt(i,c0);}
- for(let i=0;i<SM_N;i++){smokeP.push({x:0,y:0,z:0,vx:0,vy:0,vz:0,life:0,max:1,s:1,g:0.2,glow:0});smokeM.setMatrixAt(i,z);smokeM.setColorAt(i,c0);}
- flameM.frustumCulled=false;smokeM.frustumCulled=false;flameM.renderOrder=1;smokeM.renderOrder=2;/* flames first (writing depth), then smoke over them: smoke in front veils the fire, smoke behind it doesn't */flameM.count=FL_N;smokeM.count=SM_N;scene.add(flameM);scene.add(smokeM);}
+const flameP=[],smokeP=[],_smLive=[];let flI=0,smI=0,flLive=0,smLive=0;
+{const c0=new THREE.Color(0xffffff);
+ for(let i=0;i<FL_N;i++)flameP.push({x:0,y:0,z:0,vy:0,life:0,max:1,s:1,ph:0});
+ for(let i=0;i<SM_N;i++)smokeP.push({x:0,y:0,z:0,vx:0,vy:0,vz:0,life:0,max:1,s:1,g:0.2,glow:0});
+ flameM.setColorAt(0,c0);smokeM.setColorAt(0,c0);flameM.instanceMatrix.usage=flameM.instanceColor.usage=smokeM.instanceMatrix.usage=smokeM.instanceColor.usage=THREE.DynamicDrawUsage;
+ flameM.frustumCulled=false;smokeM.frustumCulled=false;flameM.renderOrder=1;smokeM.renderOrder=2;/* flames first (writing depth), then smoke over them: smoke in front veils the fire, smoke behind it doesn't */flameM.count=0;smokeM.count=0;scene.add(flameM);scene.add(smokeM);}
 // a fire at (x,y,z): r is how wide it burns, life in seconds; flames:false is just smouldering smoke
 function addFire(x,y,z,r,life,flames=true,o={}){
   trimFires(1);   // too many: the oldest go out
@@ -81,11 +83,16 @@ function updateFires(dt){
       const a=Math.random()*Math.PI*2,d=Math.random()*R*0.7;p.x=F.x+Math.cos(a)*d;p.z=F.z+Math.sin(a)*d;p.y=F.y+0.8+Math.random();
       const ri=F.rise;p.vx=(0.5+(Math.random()-.5)*0.6)*Math.sqrt(ri);p.vz=(0.25+(Math.random()-.5)*0.6)*Math.sqrt(ri);p.vy=(2.2+Math.random()*1.6)*ri;p.max=p.life=(3.5+Math.random()*3)*(1+(ri-1)*0.9);p.s=(0.8+Math.random()*0.8+R*0.25)*(1+(ri-1)*0.35)*smS;p.g=F.flames?0.1+Math.random()*0.08:0.32+Math.random()*0.12;p.glow=F.flames?k*(0.55+Math.random()*0.35):0;}
   }
+  // (nothing burning and the last of it gone: nothing to go through, or to send to the graphics card)
+  if(!fires.length&&!flLive&&!smLive){if(flameM.count)flameM.count=0;if(smokeM.count)smokeM.count=0;return;}
+  // (the live ones packed at the front, and only those drawn and sent up)
+  let nf=0;
   for(let i=0;i<FL_N;i++){const p=flameP[i];
-    if(p.life<=0){if(p.max>0){p.max=0;flameM.setMatrixAt(i,_firM.makeScale(0,0,0));}continue;}
+    if(p.life<=0)continue;
     p.life-=dt;const u=1-Math.max(0,p.life)/p.max;p.y+=p.vy*dt;p.x+=Math.sin(p.ph+u*9)*dt*0.6;
     const sc=p.s*(1-u*0.8);_firS.set(sc,sc*1.4,sc);_firP.set(p.x,p.y,p.z);_firQ.setFromAxisAngle(_upAx,p.ph+u*2);
-    flameM.setMatrixAt(i,_firM.compose(_firP,_firQ,_firS));flameM.setColorAt(i,_firC.setHex(FL_COLS[Math.min(3,Math.floor(u*4))]));}
+    flameM.setMatrixAt(nf,_firM.compose(_firP,_firQ,_firS));flameM.setColorAt(nf,_firC.setHex(FL_COLS[Math.min(3,Math.floor(u*4))]));nf++;}
+  flLive=nf;flameM.count=nf;
   // smoke is see-through, so it has to be drawn far-to-near: live puffs are sorted by distance from the camera
   // and packed into the instance slots in that order (otherwise a pale puff behind could paint over a dark one)
   const live=_smLive;live.length=0;
@@ -98,9 +105,8 @@ function updateFires(dt){
     const sc=p.s*(1+u*2.6)*(u>0.85?(1-u)/0.15:1);_firS.set(sc,sc,sc);_firP.set(p.x,p.y,p.z);_firQ.setFromAxisAngle(_upAx,u*1.5+p.i);
     smokeM.setMatrixAt(n,_firM.compose(_firP,_firQ,_firS));const g=p.g*(1-u*0.25)*WORLD_LIGHT.value.r,w=p.glow*Math.max(0,1-u*3.2);   // lit orange from below while it's still low over the flames
     smokeM.setColorAt(n,_firC.setRGB(g*(1-w)+1.0*w,g*(1-w)+0.42*w,g*1.05*(1-w)+0.12*w));}
-  smokeM.count=live.length;
-  flameM.instanceMatrix.needsUpdate=true;smokeM.instanceMatrix.needsUpdate=true;
-  if(flameM.instanceColor)flameM.instanceColor.needsUpdate=true;if(smokeM.instanceColor)smokeM.instanceColor.needsUpdate=true;
+  smLive=live.length;smokeM.count=live.length;
+  for(const [M,n] of [[flameM,nf],[smokeM,live.length]])for(const [a,w] of [[M.instanceMatrix,16],[M.instanceColor,3]])if(a){a.needsUpdate=true;if(a.updateRange){a.updateRange.offset=0;a.updateRange.count=n*w;}}
 }
 const _upAx=new V3(0,1,0);
 // a round blast: knocks out everything within R (a ragged ball, flattened so it bites into the ground less)

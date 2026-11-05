@@ -68,16 +68,21 @@ function weatherPatch(sh){
   sh.vertexShader='attribute float aSky;varying float vSky;varying float vBorn;varying vec3 vWp;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n vSky=step(0.5,aSky);vBorn=max(aSky-1.0,0.0);vWp=(modelMatrix*vec4(position,1.0)).xyz;');
   sh.fragmentShader='uniform float uSnow,uWet,uSnowClk;varying float vSky;varying float vBorn;varying vec3 vWp;\n'+sh.fragmentShader;
 }
-const SNOW_FRAG='\n  float snowN=fract(sin(dot(mod(floor(vWp.xz*4.0+0.001),509.0),vec2(12.9898,78.233)))*43758.5453);float snowL=min(uSnow,uSnowClk-vBorn);float snowC=vSky*step(snowN,snowL*1.12)*step(0.002,snowL);\n  diffuseColor.rgb*=1.0-0.3*uWet*vSky;\n  float snowG=fract(sin(dot(mod(floor(vWp.xz*16.0+0.001),997.0),vec2(39.346,11.135)))*43758.5453);float snowV=0.84+0.11*snowG+0.03*step(0.93,snowG);\n  diffuseColor.rgb=mix(diffuseColor.rgb,vec3(snowV,snowV+0.012,snowV+0.03)*uLight,snowC);';
+const SNOW_FRAG='\n  diffuseColor.rgb*=1.0-0.3*uWet*vSky;\n  if(vSky>0.5&&uSnow>0.0){\n  float snowN=fract(sin(dot(mod(floor(vWp.xz*4.0+0.001),509.0),vec2(12.9898,78.233)))*43758.5453);float snowL=min(uSnow,uSnowClk-vBorn);float snowC=step(snowN,snowL*1.12)*step(0.002,snowL);\n  float snowG=fract(sin(dot(mod(floor(vWp.xz*16.0+0.001),997.0),vec2(39.346,11.135)))*43758.5453);float snowV=0.84+0.11*snowG+0.03*step(0.93,snowG);\n  diffuseColor.rgb=mix(diffuseColor.rgb,vec3(snowV,snowV+0.012,snowV+0.03)*uLight,snowC);}';   // (only top faces open to the sky, only when there's snow: no sums for every other pixel on screen)
 const matOpaque=nightPatch(new THREE.MeshBasicMaterial({map:tex,vertexColors:true,alphaTest:.5}));
 // (the paint and the rails laid on the ground: pulled toward the camera a touch so they never flicker with it)
 const matDecal=nightPatch(new THREE.MeshBasicMaterial({map:tex,vertexColors:true,alphaTest:.5,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-4}));
 const matWater=nightPatch(new THREE.MeshBasicMaterial({map:tex,vertexColors:true,transparent:true,depthWrite:false,side:THREE.DoubleSide}));
 const scene=new THREE.Scene();
+// three.js works out the matrix of every object in the scene on every frame, hidden or not, and the pools of hidden cars, doors
+// and signs are most of them. What's hidden is skipped here (it's done again, in full, the frame it's shown), and so are cars,
+// which batDraw has just done.
+let wmFrame=0;
+scene.updateMatrixWorld=function(){for(const c of this.children)if(c.visible&&c.wmDone!==wmFrame)c.updateMatrixWorld(true);};
 const meshes=new Map();
 // which chunks currently have a voxel mesh (wrapped into a 128x128 map); the far city hides itself there
 const MESHED=new Uint8Array(256*256*4);let meshedDirty=true;
-function markMeshed(cx,cz,on){const i=((((cz%256)+256)%256)*256+(((cx%256)+256)%256))*4;MESHED[i]=on?255:0;meshedDirty=true;}
+function markMeshed(cx,cz,on){const i=((((cz%256)+256)%256)*256+(((cx%256)+256)%256))*4,v=on?255:0;if(MESHED[i]===v)return;MESHED[i]=v;meshedDirty=true;}   // (a chunk rebuilt is still meshed: no need to send the whole map up again)
 // a ramp is a wedge: flat bottom, sloped top, trapezoid sides, and an upright face at each end that has height
 // a box within block (X,Y,Z) from (x0,y0,z0) to (x1,y1,z1) (fractions of the block), the tile laid on at its true
 // scale (so a half-length panel shows half the tile, not the whole of it squashed); skip(i): leave face i off
@@ -168,67 +173,100 @@ function gfxArr(cx,cz){
     else if(b===AIR)a[i]=SIDEWALK;}
   return a;
 }
+// ---- the mesher's working buffers, kept between chunks (a chunk is rebuilt every time a block in it breaks, so it's worth not
+// making thousands of little arrays each time). emitRamp and friends only push, so they take these or plain arrays alike. ----
+class MBuf{
+  constructor(T,n){this.T=T;this.a=new T(n);this.length=0;}
+  room(n){if(this.length+n>this.a.length){const b=new this.T(Math.max(this.a.length*2,this.length+n));b.set(this.a.subarray(0,this.length));this.a=b;}return this.a;}
+  push(){const n=arguments.length,A=this.room(n);let o=this.length;for(let i=0;i<n;i++)A[o++]=arguments[i];this.length=o;}
+  take(){return this.a.slice(0,this.length);}
+}
+const mkBufs=()=>({p:new MBuf(Float32Array,1<<16),u:new MBuf(Float32Array,1<<15),c:new MBuf(Float32Array,1<<16),i:new MBuf(Uint32Array,1<<15),k:new MBuf(Float32Array,1<<14)});
+const MB=[mkBufs(),mkBufs()];
+// what's asked of every block many times over, as flat tables
+const B_OPQ=new Uint8Array(BLOCK.length),B_SEE=new Uint8Array(BLOCK.length);
+BLOCK.forEach((v,b)=>{B_OPQ[b]=b!==AIR&&!v.transparent?1:0;B_SEE[b]=v.transparent?1:0;});
+// each face's corners worked out once: where the corner is, its texture spot, and the three blocks that shade it (as x,y,z
+// offsets from the block, and as offsets into a chunk's array for blocks not on its edge)
+const FACE_T=FACES.map(f=>{const [dx,dy,dz]=f.dir,axis=dx?0:dy?1:2,ua=(axis+1)%3,va=(axis+2)%3,lin=(x,y,z)=>x+z*CS+y*CS*CS;
+  return {dx,dy,dz,dy1:dy===1,sel:dy===1?0:dy===-1?1:2,shade:f.shade*DIM,lin:lin(dx,dy,dz),cn:f.c.map(c=>{const du=[0,0,0],dv=[0,0,0];du[ua]=c[ua]?1:-1;dv[va]=c[va]?1:-1;
+    const s1=[dx+du[0],dy+du[1],dz+du[2]],s2=[dx+dv[0],dy+dv[1],dz+dv[2]],cc=[dx+du[0]+dv[0],dy+du[1]+dv[1],dz+du[2]+dv[2]];
+    return {x:c[0],y:c[1],z:c[2],u:c[3],v:c[4],s1,s2,cc,o1:lin(...s1),o2:lin(...s2),oc:lin(...cc)};})};});
 function buildChunk(cx,cz){
   const gfx=GFX_OFF.caves||GFX_OFF.sewers||GFX_OFF.subway?new Map():null;
-  const a0=gfx?gfxArr(cx,cz):chunkArr(cx,cz),x0=cx*CS,z0=cz*CS;
+  const a0=gfx?gfxArr(cx,cz):chunkArr(cx,cz),x0=cx*CS,z0=cz*CS,A2=CS*CS,lf=leafFall>0;
   const gfxGet=(x,y,z)=>{const qx=Math.floor(x/CS),qz=Math.floor(z/CS),k=ckey(qx,qz);let v=gfx.get(k);if(!v){v=gfxArr(qx,qz);gfx.set(k,v);}return v[li(mod(x,CS),y,mod(z,CS))];};
-  const a=leafFall>0?a0.map((b,i)=>{if(b!==LEAVES)return b;const y=Math.floor(i/(CS*CS)),r=i-y*CS*CS;return leafDown(x0+(r%CS),y,z0+Math.floor(r/CS))?AIR:b;}):a0;   // (leaves that have fallen)
-  const at=(lx,y,lz)=>{if(y<0)return STONE;if(y>=H)return AIR;if(lx>=0&&lx<CS&&lz>=0&&lz<CS)return a[li(lx,y,lz)];return gfx?gfxGet(x0+lx,y,z0+lz):get(x0+lx,y,z0+lz);};
-  const opq=(lx,y,lz)=>{const b=at(lx,y,lz);return b!==AIR&&!BLOCK[b].transparent;};
-  const bufs=[{p:[],u:[],c:[],i:[],k:[]},{p:[],u:[],c:[],i:[],k:[]}];
+  const a=lf?a0.map((b,i)=>{if(b!==LEAVES)return b;const y=Math.floor(i/A2),r=i-y*A2;return leafDown(x0+(r%CS),y,z0+Math.floor(r/CS))?AIR:b;}):a0;   // (leaves that have fallen)
+  // (the eight chunks round about, fetched only if a block on the edge ends up asking)
+  const NB=[null,null,null,null,null,null,null,null,null];
+  const at=(lx,y,lz)=>{if(y<0)return STONE;if(y>=H)return AIR;
+    if(lx>=0&&lx<CS&&lz>=0&&lz<CS)return a[lx+lz*CS+y*A2];
+    if(gfx)return gfxGet(x0+lx,y,z0+lz);
+    const ni=lx<0?0:lx<CS?1:2,nj=lz<0?0:lz<CS?1:2,o=nj*3+ni;let N=NB[o];if(!N)N=NB[o]=chunkArr(cx+ni-1,cz+nj-1);
+    const b=N[lx-(ni-1)*CS+(lz-(nj-1)*CS)*CS+y*A2];return b===LEAVES&&lf&&leafDown(x0+lx,y,z0+lz)?AIR:b;};
+  const opq=(lx,y,lz)=>B_OPQ[at(lx,y,lz)]===1;
+  const bufs=MB;for(const d of bufs){d.p.length=d.u.length=d.c.length=d.i.length=d.k.length=0;}
   // the top of each column (the highest thing in it, even glass or leaves): only that block's top face is open to the sky
-  const tops=new Int16Array(CS*CS).fill(-1);for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++)for(let y=H-1;y>=0;y--){const b=a[li(lx,y,lz)];if(b){tops[lz*CS+lx]=BLOCK[b].liquid?-1:y;break;}}
-  let yTop=H-1;scan:for(;yTop>0;yTop--){const o=yTop*CS*CS;for(let i=0;i<CS*CS;i++)if(a[o+i])break scan;}
+  const tops=new Int16Array(A2).fill(-1);for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++)for(let y=H-1;y>=0;y--){const b=a[lx+lz*CS+y*A2];if(b){tops[lz*CS+lx]=BLOCK[b].liquid?-1:y;break;}}
+  let yTop=H-1;scan:for(;yTop>0;yTop--){const o=yTop*A2;for(let i=0;i<A2;i++)if(a[o+i])break scan;}
   // the lowest layer with anything open in it (here or along the neighbours' edges): everything below is buried solid
   let yLo=0;low:for(;yLo<yTop;yLo++){
-    for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++)if(!opq(lx,yLo,lz))break low;
+    const o=yLo*A2;for(let i=0;i<A2;i++)if(!B_OPQ[a[o+i]])break low;
     for(let k=0;k<CS;k++)if(!opq(-1,yLo,k)||!opq(CS,yLo,k)||!opq(k,yLo,-1)||!opq(k,yLo,CS))break low;
   }
   yLo=Math.max(0,yLo-1);
-  for(let y=yLo;y<=yTop;y++)for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){
-    const b=a[li(lx,y,lz)];if(!b)continue;
+  for(let y=yLo;y<=yTop;y++){
+    const midY=y>=1&&y<H-1;
+    for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){
+    const i0=lx+lz*CS+y*A2,b=a[i0];if(!b)continue;
     const info=BLOCK[b],liquid=!!info.liquid,glow=!!info.glow,out=bufs[liquid?1:0];
     if(info.ramp){emitRamp(out,x0+lx,y,z0+lz,info);continue;}
     if(info.hide)continue;
     if(info.thin){emitFence(out,x0+lx,y,z0+lz,b,info,at(lx-1,y,lz),at(lx+1,y,lz),at(lx,y,lz-1),at(lx,y,lz+1),at(lx,y+1,lz),tops[lz*CS+lx]===y);continue;}
-    const skyTop=tops[lz*CS+lx]===y?1:0;
+    const skyTop=tops[lz*CS+lx]===y;
     const waterTop=liquid&&at(lx,y+1,lz)!==WATER;
-    for(const f of FACES){
-      const [dx,dy,dz]=f.dir;
-      const nb=at(lx+dx,y+dy,lz+dz);
-      if(!faceVisible(b,nb))continue;
-      const tile=dy===1?info.tiles[0]:dy===-1?info.tiles[1]:info.tiles[2];
-      const tx=tile%AC,ty=Math.floor(tile/AC),n=out.p.length/3;
-      const axis=dx?0:dy?1:2,ua=(axis+1)%3,va=(axis+2)%3;
-      for(const c of f.c){
-        out.p.push(x0+lx+c[0],(waterTop&&c[1]===1)?y+0.88:y+c[1],z0+lz+c[2]);
-        out.u.push((tx+0.002+c[3]*0.996)/AC,1-(ty+1)/AR+(0.002+c[4]*0.996)/AR);
+    // (not on the chunk's edge, nor the world's top or bottom: every block asked about is right here in the array)
+    const inner=midY&&lx>0&&lx<CS-1&&lz>0&&lz<CS-1,tiles=info.tiles;
+    for(let fi=0;fi<6;fi++){
+      const F=FACE_T[fi],nb=inner?a[i0+F.lin]:at(lx+F.dx,y+F.dy,lz+F.dz);
+      if(nb!==AIR&&(liquid||!B_SEE[nb]||nb===b))continue;   // (the face is hidden)
+      const tile=tiles[F.sel],tx=tile%AC,ty=Math.floor(tile/AC);
+      const P=out.p.room(12),U=out.u.room(8),C=out.c.room(12),K=out.k.room(4),n=out.p.length/3;
+      let po=out.p.length,uo=out.u.length,co=out.c.length,ko=out.k.length;
+      const X=x0+lx,Z=z0+lz,sky=F.dy1&&skyTop?1+(snowBorn.get(X*65536+Z)||0):0,V0=1-(ty+1)/AR;
+      for(let q=0;q<4;q++){
+        const c=F.cn[q];
+        P[po++]=X+c.x;P[po++]=waterTop&&c.y===1?y+0.88:y+c.y;P[po++]=Z+c.z;
+        U[uo++]=(tx+0.002+c.u*0.996)/AC;U[uo++]=V0+(0.002+c.v*0.996)/AR;
         let s;
         if(glow)s=2;
         else{
-          s=f.shade*DIM;
+          s=F.shade;
           if(!liquid){
-            const bx=lx+dx,by=y+dy,bz=lz+dz,du=[0,0,0],dv=[0,0,0];
-            du[ua]=c[ua]?1:-1;dv[va]=c[va]?1:-1;
-            const s1=opq(bx+du[0],by+du[1],bz+du[2]),s2=opq(bx+dv[0],by+dv[1],bz+dv[2]);
-            const cc=opq(bx+du[0]+dv[0],by+du[1]+dv[1],bz+du[2]+dv[2]);
-            s*=AO[(s1&&s2)?0:3-(s1+s2+cc)];
+            const s1=inner?B_OPQ[a[i0+c.o1]]:+opq(lx+c.s1[0],y+c.s1[1],lz+c.s1[2]),s2=inner?B_OPQ[a[i0+c.o2]]:+opq(lx+c.s2[0],y+c.s2[1],lz+c.s2[2]);
+            const cc=inner?B_OPQ[a[i0+c.oc]]:+opq(lx+c.cc[0],y+c.cc[1],lz+c.cc[2]);
+            s*=AO[s1&&s2?0:3-(s1+s2+cc)];
           }
         }
-        out.c.push(s,s,s);out.k.push(dy===1&&skyTop?1+(snowBorn.get((x0+lx)*65536+z0+lz)||0):0);
+        C[co++]=s;C[co++]=s;C[co++]=s;K[ko++]=sky;
       }
-      out.i.push(n,n+1,n+2,n+2,n+1,n+3);
+      out.p.length=po;out.u.length=uo;out.c.length=co;out.k.length=ko;
+      const I=out.i.room(6);let io=out.i.length;I[io++]=n;I[io++]=n+1;I[io++]=n+2;I[io++]=n+2;I[io++]=n+1;I[io++]=n+3;out.i.length=io;
+    }
     }
   }
   const k=ckey(cx,cz),old=meshes.get(k);
   if(old)for(const m of old.m){scene.remove(m);m.geometry.dispose();}
-  const m=bufs.map((d,i)=>{
+  const m=[];
+  bufs.forEach((d,i)=>{
+    if(i&&!d.i.length)return;   // (no water in this chunk: no mesh for it to go round every frame)
     const g=new THREE.BufferGeometry();
-    g.setAttribute('position',new THREE.Float32BufferAttribute(d.p,3));
-    g.setAttribute('uv',new THREE.Float32BufferAttribute(d.u,2));
-    g.setAttribute('color',new THREE.Float32BufferAttribute(d.c,3));g.setAttribute('aSky',new THREE.Float32BufferAttribute(d.k,1));
-    g.setIndex(d.i);
-    const mesh=new THREE.Mesh(g,i?matWater:matOpaque);if(i)mesh.renderOrder=1;scene.add(mesh);return mesh;
+    g.setAttribute('position',new THREE.Float32BufferAttribute(d.p.take(),3));
+    g.setAttribute('uv',new THREE.Float32BufferAttribute(d.u.take(),2));
+    g.setAttribute('color',new THREE.Float32BufferAttribute(d.c.take(),3));g.setAttribute('aSky',new THREE.Float32BufferAttribute(d.k.take(),1));
+    const big=d.p.length/3>65535,ia=d.i.take();
+    g.setIndex(new THREE.BufferAttribute(big?ia:Uint16Array.from(ia),1));
+    const mesh=new THREE.Mesh(g,i?matWater:matOpaque);if(i)mesh.renderOrder=1;scene.add(mesh);m.push(mesh);
   });
   {const mk=routeMarks(cx,cz);if(mk)m.push(mk);}
   meshes.set(k,{cx,cz,m});markMeshed(cx,cz,true);
@@ -309,23 +347,46 @@ function routeMarks(cx,cz){
   g.setAttribute('color',new THREE.Float32BufferAttribute(C,3));g.setAttribute('aSky',new THREE.Float32BufferAttribute(K,1));g.setIndex(I);
   const mesh=new THREE.Mesh(g,matDecal);scene.add(mesh);return mesh;
 }
-function clearWorld(){for(const e of meshes.values())for(const m of e.m){scene.remove(m);m.geometry.dispose();}meshes.clear();MESHED.fill(0);meshedDirty=true;farDirty=true;chunks.clear();gfxRecC.clear();plotCache.clear();bridgeCache.clear();superCache.clear();setCache.clear();setAtCache.clear();jDegC.clear();linkNearC.clear();ctlCache.clear();zoneCache.clear();farmC.clear();cloverCache.clear();clearLayout();joinCache.clear();icCache.clear();ctlCache.clear();lastK=-1;}
-let unloadT=0;
+function clearWorld(){rebuildQ.clear();for(const e of meshes.values())for(const m of e.m){scene.remove(m);m.geometry.dispose();}meshes.clear();MESHED.fill(0);meshedDirty=true;farDirty=true;chunks.clear();gfxRecC.clear();plotCache.clear();plotTypeC.clear();lampSpotC.clear();bridgeCache.clear();superCache.clear();setCache.clear();setAtCache.clear();jDegC.clear();linkNearC.clear();ctlCache.clear();zoneCache.clear();farmC.clear();cloverCache.clear();clearLayout();joinCache.clear();icCache.clear();ctlCache.clear();lastK=-1;}
+let unloadT=0,chunkScan={key:'',size:-1,full:false};
+// where to look for a chunk to make next, nearest first: worked out once for a view distance, not every frame
+let chunkOrd=null,chunkOrdR=-1;
+function chunkOrder(R){
+  if(chunkOrdR===R)return chunkOrd;
+  const L=[];for(let dz=-R;dz<=R;dz++)for(let dx=-R;dx<=R;dx++){const d=dx*dx+dz*dz;if(d<=(R+0.6)*(R+0.6))L.push([dx,dz,d]);}
+  L.sort((a,b)=>a[2]-b[2]);chunkOrd=L;chunkOrdR=R;return L;
+}
 function updateChunks(budget,dt){
   const R=viewR;
   const centers=players.filter(p=>p.active).map(p=>[Math.floor(p.pos.x/CS),Math.floor(p.pos.z/CS)]);
   if(DT.freecam)centers.push([Math.floor(FC.pos.x/CS),Math.floor(FC.pos.z/CS)]);
   const cheb=(cx,cz)=>{let m=1e9;for(const [a,b] of centers)m=Math.min(m,Math.max(Math.abs(cx-a),Math.abs(cz-b)));return m;};
-  for(const [k,e] of meshes){if(cheb(e.cx,e.cz)>R+1){for(const m of e.m){scene.remove(m);m.geometry.dispose();}meshes.delete(k);markMeshed(e.cx,e.cz,false);}}
+  // (standing in the same chunk with everything in sight already made, there's nothing to go through)
+  const key=R+'|'+centers.join('|'),same=key===chunkScan.key;
+  if(!same)for(const [k,e] of meshes){if(cheb(e.cx,e.cz)>R+1){for(const m of e.m){scene.remove(m);m.geometry.dispose();}meshes.delete(k);markMeshed(e.cx,e.cz,false);}}
   unloadT-=dt;
-  if(unloadT<=0){unloadT=2;for(const k of chunks.keys()){const cx=Math.floor(k/65536)-32768,cz=(k%65536)-32768;if(cheb(cx,cz)>R+4)chunks.delete(k);}lastK=-1;if(plotCache.size>30000){plotCache.clear();bridgeCache.clear();superCache.clear();joinCache.clear();icCache.clear();ctlCache.clear();}}
-  const need=[],seen=new Set();
-  for(const [pcx,pcz] of centers)for(let dz=-R;dz<=R;dz++)for(let dx=-R;dx<=R;dx++){
-    const d=dx*dx+dz*dz;if(d>(R+0.6)*(R+0.6))continue;
-    const k=ckey(pcx+dx,pcz+dz);if(meshes.has(k)||seen.has(k))continue;seen.add(k);need.push([pcx+dx,pcz+dz,d]);
+  if(unloadT<=0){unloadT=2;for(const k of chunks.keys()){const cx=Math.floor(k/65536)-32768,cz=(k%65536)-32768;if(cheb(cx,cz)>R+4)chunks.delete(k);}lastK=-1;if(plotCache.size>30000){plotCache.clear();plotTypeC.clear();lampSpotC.clear();bridgeCache.clear();superCache.clear();joinCache.clear();icCache.clear();ctlCache.clear();}}
+  if(same&&chunkScan.full&&chunkScan.size===meshes.size)return;
+  let made=0,gens=0;
+  scan:for(const [dx,dz] of chunkOrder(R))for(const [pcx,pcz] of centers){
+    if(meshes.has(ckey(pcx+dx,pcz+dz)))continue;
+    if(made>=budget)break scan;
+    // (a mesh needs its neighbours' blocks too, which may mean making all eight first: no more than three a frame, then carry on next time)
+    const X=pcx+dx,Z=pcz+dz;
+    for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++)if(!chunks.has(ckey(X+a,Z+b))){chunkArr(X+a,Z+b);if(++gens>=3){chunkScan.key=key;chunkScan.full=false;return;}}
+    buildChunk(X,Z);made++;
   }
-  need.sort((a,b)=>a[2]-b[2]);
-  for(let i=0;i<need.length&&i<budget;i++)buildChunk(need[i][0],need[i][1]);
+  chunkScan.key=key;chunkScan.full=!made;chunkScan.size=meshes.size;
 }
-function rebuildSet(set){for(const k of set){const e=meshes.get(k);if(e)buildChunk(e.cx,e.cz);}}
+// ---- chunks whose blocks have changed wait here and are rebuilt at the end of the frame, in the order they asked, a few
+// milliseconds' worth at a time. Something smashing its way through a street asks for the same few chunks every frame; this
+// way each gets rebuilt in its turn rather than all of them every time. (The blocks themselves have already changed: it's
+// only the picture that may be a frame or two behind while a building comes down.) ----
+const rebuildQ=new Set();
+function rebuildSet(set){for(const k of set)if(meshes.has(k))rebuildQ.add(k);}
+function flushRebuilds(){
+  if(!rebuildQ.size)return;
+  const t0=performance.now(),ms=Math.min(9,3+rebuildQ.size*0.5);let n=0;   // (more waiting: a bit more time, so it can't fall far behind)
+  for(const k of rebuildQ){rebuildQ.delete(k);const e=meshes.get(k);if(!e)continue;buildChunk(e.cx,e.cz);n++;if(n>=2&&performance.now()-t0>ms)break;}
+}
 

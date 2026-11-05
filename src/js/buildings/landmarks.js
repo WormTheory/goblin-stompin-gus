@@ -656,6 +656,19 @@ function earthAt(x,y,z){
   if(d<24+w*2.5){const q=hash2(x*31+y*7,z*17+y*3);return q<0.025?COAL:q<0.034?RUST:STONE;}
   {const q=hash2(x*13+y*11,z*29+y*5);return q<0.012?CRYSTAL:q<0.017?GOLD:q<0.024?RUST:DEEPSLATE;}
 }
+// the whole column of it, in a chunk's array from offset o (the same as asking earthAt of each height, but the part that wanders
+// only depends on where the column is, and every chunk made goes through this 256 x 44 times)
+function earthCol(a,o,x,z){
+  const w=Math.sin(x*0.071)+Math.sin(z*0.093+1.3)+Math.sin((x+z)*0.031+2.1),A=CS*CS,g1=3+w*0.4,g2=8+w*1.2,g3=10+w*1.5,g4=24+w*2.5;
+  a[o]=BEDROCK;
+  for(let y=1;y<G;y++){
+    const d=G-1-y;let v;
+    if(y<=2&&hash2(x*7+y,z*5+1)<(y===1?0.6:0.25))v=BEDROCK;
+    else if(d<g1)v=DIRT;else if(d<g2)v=CLAY;else if(d<g3)v=GRAVEL;
+    else if(d<g4){const q=hash2(x*31+y*7,z*17+y*3);v=q<0.025?COAL:q<0.034?RUST:STONE;}
+    else{const q=hash2(x*13+y*11,z*29+y*5);v=q<0.012?CRYSTAL:q<0.017?GOLD:q<0.024?RUST:DEEPSLATE;}
+    a[o+y*A]=v;}
+}
 // is the street in this column of block (px,pz) there? (roadX: the strip along its low-x edge; roadZ: along its
 // low-z edge; both: the intersection at its corner, there if any of its four arms is)
 function stripOpen(px,pz,roadX,roadZ){

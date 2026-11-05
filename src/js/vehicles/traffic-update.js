@@ -1,3 +1,4 @@
+let trafficJob=4;
 function updateTraffic(dt){
   if(playing)trafficClock+=dt;
   let anyFall=false;
@@ -6,7 +7,12 @@ function updateTraffic(dt){
     if(f.t>=0.7){falling.delete(k);downFix.set(k,f.ang);save();if(f.prop){puff(f.x,f.y+.2,f.z,2,0xbfc5ca,0.2);continue;}thud(0.35);puff(f.x+Math.sin(f.ang)*5,G+1.3,f.z+Math.cos(f.ang)*5,7,0x8c8a84,0.8);}
   }
   trafficRefreshT-=dt;
-  if(trafficRefreshT<=0||anyFall){trafficRefreshT=0.4;refreshFixtures();refreshBrandSigns();refreshDoors();refreshLandmarks();}
+  // (what's near the players is gone over every 0.4 s, one job a frame so they don't all land on the same frame. A lamp post on
+  // its way down needs the fixtures redrawn every frame, but only those.)
+  if(trafficRefreshT<=0){trafficRefreshT=0.4;trafficJob=0;}
+  if(trafficJob===0||anyFall)refreshFixtures();
+  if(trafficJob===1)refreshBrandSigns();else if(trafficJob===2)refreshDoors();else if(trafficJob===3)refreshLandmarks();
+  if(trafficJob<4)trafficJob++;
   updateDoors(dt);updateLandmarks(dt);safe('venues',()=>updateVenues(dt));
   headLamps();
 }

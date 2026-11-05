@@ -54,7 +54,7 @@ function trafficLimit(c,dt){
 }
 // props: signal heads under the mast arms, sign plates on the posts (only around the players)
 const TL={house:new THREE.MeshLambertMaterial({color:0x1b1e21}),off:[0x3a100c,0x3a300c,0x0c3a1c].map(c=>new THREE.MeshBasicMaterial({color:c})),on:[0xff3b2e,0xffc23a,0x3dff7a].map(c=>new THREE.MeshBasicMaterial({color:c}))};
-const TLG={house:new THREE.BoxGeometry(0.46,1.2,0.38),lamp:new THREE.BoxGeometry(0.26,0.26,0.06),plate:new THREE.PlaneGeometry(0.95,0.95)};
+const TLG={house:boxGeo(0.46,1.2,0.38),lamp:boxGeo(0.26,0.26,0.06),plate:new THREE.PlaneGeometry(0.95,0.95)};
 function signTex(draw){const cv=document.createElement('canvas');cv.width=cv.height=64;const x=cv.getContext('2d');if(x&&x.beginPath)draw(x);const t=new THREE.CanvasTexture(cv);return t;}
 const octo=(x,r)=>{x.beginPath();for(let i=0;i<8;i++){const a=Math.PI/8+i*Math.PI/4;x.lineTo(32+Math.cos(a)*r,32+Math.sin(a)*r);}x.closePath();};
 const tri=(x,inset)=>{x.beginPath();x.moveTo(4+inset,8+inset*0.6);x.lineTo(60-inset,8+inset*0.6);x.lineTo(32,58-inset*1.2);x.closePath();};

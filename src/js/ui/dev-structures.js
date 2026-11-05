@@ -141,11 +141,9 @@ function stDress(){
 // drawn in the preview)
 function stDecoSet(){
   const S=new Set([FIX_BAR,FIX_GLOW,FIX_COL,PROP_L,PROP_G,CR_B,CR_H,PL_B,PL_H,BALL]);
-  for(const L of [heads,signs,boards,bpoles,doorPool])for(const o of L)S.add(o.g);
-  for(const m of bsigns)S.add(m);for(const m of campOn.values())S.add(m);for(const L of lmOn.values())S.add(L.v.g);
-  // (a venue's models: a ride, a boat, a rotor, or lists of planes, train cars, animals, figures, barrier arms)
-  for(const V of venues.values())for(const k in V){const x=V[k];if(x&&x.isObject3D)S.add(x);
-    else if(Array.isArray(x))for(const e of x){if(e&&e.isObject3D)S.add(e);else if(e&&e.g&&e.g.isObject3D)S.add(e.g);}}
+  decoEach(g=>S.add(g));
+  for(const B of BAT.values())if(B.deco)S.add(B.m);
+  for(const m of bsigns)S.add(m);for(const m of campOn.values())S.add(m);
   return S;
 }
 function stDrawDeco(C){

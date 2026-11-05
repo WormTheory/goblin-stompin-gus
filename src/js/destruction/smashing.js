@@ -1,6 +1,31 @@
 // ---------- Particles, decals ----------
+// Dust, smoke, sparks, flying rubble and blood are hundreds of little boxes, and in a big collapse most are in the air at once.
+// Each is an ordinary object to the code that moves it (position, rotation, scale, material.color), but none is in the scene:
+// each frame fxDraw copies the live ones into one instanced mesh per kind, so they cost one draw call a kind rather than one each.
+const fxObj=(c,o)=>{const m=new THREE.Group();m.material={color:new THREE.Color(c),opacity:o};m.visible=false;return m;};
+function fxBatch(geo,mat,n,transparent){
+  const M=new THREE.InstancedMesh(geo,mat,n);M.frustumCulled=false;M.count=0;
+  M.instanceColor=new THREE.InstancedBufferAttribute(new Float32Array(n*3),3);M.instanceMatrix.usage=M.instanceColor.usage=THREE.DynamicDrawUsage;
+  if(transparent){const a=new THREE.InstancedBufferAttribute(new Float32Array(n),1);a.usage=THREE.DynamicDrawUsage;geo.setAttribute('aFxA',a);M.fxA=a;
+    mat.onBeforeCompile=sh=>{sh.vertexShader='attribute float aFxA;varying float vFxA;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n vFxA=aFxA;');
+      sh.fragmentShader='varying float vFxA;\n'+sh.fragmentShader.replace('#include <color_fragment>','#include <color_fragment>\n diffuseColor.a*=vFxA;');};
+    mat.customProgramCacheKey=()=>'fxalpha';}
+  scene.add(M);return M;
+}
+// one box's place in the batch: scale, then rotation (as three.js would make it from x, y and z in that order), then position
+function fxPut(M,i,o){
+  const e=M.instanceMatrix.array,j=i*16,r=o.rotation,s=o.scale,c=o.material.color,C=M.instanceColor.array,t=o.position,A=Math.cos(r.x),B=Math.sin(r.x),D=Math.cos(r.y),E=Math.sin(r.y),F=Math.cos(r.z),H2=Math.sin(r.z);
+  e[j]=D*F*s.x;e[j+1]=(A*H2+B*F*E)*s.x;e[j+2]=(B*H2-A*F*E)*s.x;e[j+3]=0;
+  e[j+4]=-D*H2*s.y;e[j+5]=(A*F-B*H2*E)*s.y;e[j+6]=(B*F+A*H2*E)*s.y;e[j+7]=0;
+  e[j+8]=E*s.z;e[j+9]=-B*D*s.z;e[j+10]=A*D*s.z;e[j+11]=0;
+  e[j+12]=t.x;e[j+13]=t.y;e[j+14]=t.z;e[j+15]=1;
+  C[i*3]=c.r;C[i*3+1]=c.g;C[i*3+2]=c.b;
+}
+// (n boxes written to an instanced mesh: only those are sent up to the graphics card, and nothing at all if it's empty and was already)
+const fxSent=(M,n)=>{if(!n&&!M.count)return;M.count=n;for(const [a,w] of [[M.instanceMatrix,16],[M.instanceColor,3],[M.fxA,1]])if(a){a.needsUpdate=true;if(a.updateRange){a.updateRange.offset=0;a.updateRange.count=n*w;}}};
 const parts=[];
-{const g=new THREE.BoxGeometry(0.22,0.22,0.22);for(let i=0;i<200;i++){const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:0xb79a72,transparent:true}));m.visible=false;scene.add(m);parts.push({m,v:new V3(),life:0,kind:0});}}
+for(let i=0;i<200;i++)parts.push({m:fxObj(0xb79a72,1),v:new V3(),life:0,kind:0});
+const PART_M=fxBatch(new THREE.BoxGeometry(0.22,0.22,0.22),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true}),200,true);
 let pIdx=0;
 function takePart(){for(let k=0;k<parts.length;k++){const p=parts[(pIdx+k)%parts.length];if(p.life<=0){pIdx=(pIdx+k+1)%parts.length;return p;}}const p=parts[pIdx];pIdx=(pIdx+1)%parts.length;return p;}
 function puff(x,y,z,n,color=0x9a948a,spread=1){if(SBX)return;for(let i=0;i<n;i++){const p=takePart();p.kind=0;p.life=0.7+Math.random()*0.5;p.m.material.color.setHex(color);p.m.position.set(x+(Math.random()-.5)*1.4*spread,y+0.15,z+(Math.random()-.5)*1.4*spread);const a=Math.random()*Math.PI*2,s=(2+Math.random()*3)*spread;p.v.set(Math.cos(a)*s,1.5+Math.random()*2.5,Math.sin(a)*s);p.m.scale.setScalar(1);p.m.visible=true;}}
@@ -11,10 +36,10 @@ function updateParts(dt){for(const p of parts){if(p.life<=0)continue;p.life-=dt;
   else if(p.kind===2){p.v.multiplyScalar(1-0.9*dt);m.position.addScaledVector(p.v,dt);m.scale.setScalar(1.5+(2.4-p.life)*1.3);m.material.opacity=Math.max(0,Math.min(1,p.life))*0.75;}
   else{p.v.y-=6*dt;p.v.multiplyScalar(1-2*dt);m.position.addScaledVector(p.v,dt);m.material.opacity=Math.max(0,Math.min(1,p.life*1.6));m.scale.setScalar(1+(1-p.life));}
   if(p.life<=0)m.visible=false;}}
-const decals=[];let decalIdx=0;
-{const dg=new THREE.CircleGeometry(1,10),dm=[0x5a0a0a,0x6e0d0d,0x4a0606].map(c=>new THREE.MeshBasicMaterial({color:c,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2}));
- for(let i=0;i<160;i++){const m=new THREE.Mesh(dg,dm[i%3]);m.rotation.x=-Math.PI/2;m.visible=false;scene.add(m);decals.push(m);}}
-function splat(x,z,y,r){if(SBX)return;const g=supportAt(x,z,y);if(g===null)return;const m=decals[decalIdx++%decals.length];m.position.set(x,g+0.015,z);m.scale.set(r*(0.7+Math.random()*0.6),r*(0.7+Math.random()*0.6),1);m.rotation.z=Math.random()*6.28;m.visible=true;}
+const decals=[];let decalIdx=0,decalsDirty=false;
+for(let i=0;i<160;i++){const m=fxObj([0x5a0a0a,0x6e0d0d,0x4a0606][i%3],1);m.rotation.x=-Math.PI/2;decals.push(m);}
+const DECAL_M=fxBatch(new THREE.CircleGeometry(1,10),new THREE.MeshBasicMaterial({color:0xffffff,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2}),160,false);
+function splat(x,z,y,r){if(SBX)return;const g=supportAt(x,z,y);if(g===null)return;const m=decals[decalIdx++%decals.length];m.position.set(x,g+0.015,z);m.scale.set(r*(0.7+Math.random()*0.6),r*(0.7+Math.random()*0.6),1);m.rotation.z=Math.random()*6.28;m.visible=true;decalsDirty=true;}
 const flatMat=(c,o,f)=>new THREE.MeshBasicMaterial({color:c,transparent:o<1,opacity:o,polygonOffset:true,polygonOffsetFactor:f,polygonOffsetUnits:f});
 const scorches=[];let scorchIdx=0;
 {const sg=new THREE.CircleGeometry(1,14),sm=flatMat(0x141210,0.85,-4);for(let i=0;i<8;i++){const m=new THREE.Mesh(sg,sm);m.rotation.x=-Math.PI/2;m.visible=false;scene.add(m);scorches.push(m);}}
@@ -38,7 +63,20 @@ KIND[PUMP]='metal';KIND[SIDING]='wood';KIND[SIDING_Y]='wood';KIND[SHINGLE]='wood
 KIND[FLOWER]='plant';KIND[SCREEN]='glass';KIND[NEON_B]='neon';KIND[NEON_R]='neon';KIND[FRIDGE]='metal';
 const SHARD={[HOSPX]:0xff5a5a,[WIN_BLUE]:0x7fc4ee,[WIN_GREEN]:0xa6f272,[WIN_WARM]:0xf6c464,[GLASS]:0xd4ecf4,[NEON_G]:0x9cff6e,[NEON_M]:0xff60d6,[LAMP]:0xeeffaa,[SCREEN]:0x7af0dc,[NEON_B]:0x6aa8ff,[NEON_R]:0xff5a5a};
 const rubble=[];
-{const g=new THREE.BoxGeometry(1,1,1);for(let i=0;i<260;i++){const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:0xffffff}));m.visible=false;scene.add(m);rubble.push({m,v:new V3(),spin:new V3(),life:0,kind:0,rest:false,sx:1,sy:1,sz:1,half:0.1,grav:20,drag:0,col:0,ph:0});}}
+for(let i=0;i<260;i++)rubble.push({m:fxObj(0xffffff,1),v:new V3(),spin:new V3(),life:0,kind:0,rest:false,sx:1,sy:1,sz:1,half:0.1,grav:20,drag:0,col:0,ph:0});
+const RUBBLE_M=fxBatch(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xffffff}),260,false);
+// (the see-through ones are written furthest from the camera first, so they blend the way they would drawn one at a time)
+const fxOrder=[];
+function fxDraw(){
+  let n=0;for(const r of rubble)if(r.m.visible)fxPut(RUBBLE_M,n++,r.m);
+  if(n||RUBBLE_M.count)fxSent(RUBBLE_M,n);
+  if(decalsDirty){decalsDirty=false;n=0;for(const d of decals)if(d.visible)fxPut(DECAL_M,n++,d);fxSent(DECAL_M,n);}
+  fxOrder.length=0;const c=P1.camera.position;
+  for(const p of parts)if(p.m.visible){const t=p.m.position;p.d=(t.x-c.x)*(t.x-c.x)+(t.y-c.y)*(t.y-c.y)+(t.z-c.z)*(t.z-c.z);fxOrder.push(p);}
+  if(fxOrder.length>1)fxOrder.sort((a,b)=>b.d-a.d);
+  n=0;for(const p of fxOrder){PART_M.fxA.array[n]=p.m.material.opacity;fxPut(PART_M,n++,p.m);}
+  if(n||PART_M.count)fxSent(PART_M,n);
+}
 let rIdx=0;
 function takeRubble(){for(let k=0;k<rubble.length;k++){const r=rubble[(rIdx+k)%rubble.length];if(r.life<=0){rIdx=(rIdx+k+1)%rubble.length;return r;}}const r=rubble[rIdx];rIdx=(rIdx+1)%rubble.length;return r;}
 // kind: 0 chunk, 1 shard, 2 spark, 3 leaf

@@ -327,7 +327,16 @@ function plotType(px,pz){
   const t=plotType1(px,pz);if(!TEST_OFF.size||!TEST_OFF.has(t))return t;
   return biomeOf(px,pz)==='city'?'empty':'plains';   // (switched off: an empty lot in town, open grass out in the country)
 }
+// (asked for constantly: every street segment, lamp post and goblin route goes through it, and working it out from scratch
+// isn't cheap. Not remembered while a theme park is being placed, nor in the Testing Environment, where the answer can move.)
+const plotTypeC=new Map();
 function plotType1(px,pz){
+  if(TENV||themeBusy)return plotType0(px,pz);
+  const k=ckey(px,pz);let t=plotTypeC.get(k);
+  if(t===undefined){t=plotType0(px,pz);if(!themeBusy)plotTypeC.set(k,t);}
+  return t;
+}
+function plotType0(px,pz){
   if(seaPlot(px,pz))return coastType(px,pz);
   if(isRiver(px,pz))return'river';
   if(biomeOf(px,pz)==='plains')return railPlot(px,pz)?'plains':tsPlot(px,pz)?'truckstop':farmK(px,pz)!==null?'farm':dumpAt(px,pz)!==null?'dump':castleAt(px,pz)?'castle':bigPlainsAt(px,pz)?bigPlainsAt(px,pz).kind:'plains';

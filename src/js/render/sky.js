@@ -1,6 +1,6 @@
 // ---------- Save ----------
 let saveTimer=null;
-function save(){if(saveBlocked)return;clearTimeout(saveTimer);saveTimer=setTimeout(()=>{try{localStorage.setItem(SAVE_KEY,JSON.stringify({seed,edits,coll:collapses,wreck:wrecked,down:[...downFix],dest:destroyed,test:[...TEST_OFF],tenv:TENV||undefined}));}catch(e){}},700);}
+function save(){if(saveBlocked)return;clearTimeout(saveTimer);saveTimer=setTimeout(()=>{flushNotes(Infinity);try{localStorage.setItem(SAVE_KEY,JSON.stringify({seed,edits,coll:collapses,wreck:wrecked,down:[...downFix],dest:destroyed,test:[...TEST_OFF],tenv:TENV||undefined}));}catch(e){}},700);}
 function load(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(s&&typeof s.seed==='number'){seed=s.seed;TEST_OFF=new Set(Array.isArray(s.test)?s.test:[]);TENV=s.tenv&&Array.isArray(s.tenv.boxes)?{boxes:s.tenv.boxes.filter(B=>B&&[B.ax,B.az,B.w,B.h].every(Number.isFinite))}:null;tenvIndex();edits=s.edits||{};collapses=s.coll||{};wrecked=(s.wreck&&typeof s.wreck==='object')?s.wreck:{};destroyed=(s.dest&&typeof s.dest==='object')?s.dest:{};destroyVer++;setDCache.clear();downFix=new Map(Array.isArray(s.down)?s.down:[]);for(const k in edits){const [x,y,z]=k.split(',').map(Number);const ck=ckey(Math.floor(x/CS),Math.floor(z/CS));let l=chunkEdits.get(ck);if(!l){l=[];chunkEdits.set(ck,l);}l.push([x,y,z,edits[k]]);}return true;}}catch(e){}return false;}
 
 // ---------- Renderer ----------

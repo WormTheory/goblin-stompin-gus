@@ -36,7 +36,7 @@ const DM={wood:new THREE.MeshLambertMaterial({color:0x8a5a32}),woodD:new THREE.M
   frame:new THREE.MeshLambertMaterial({color:0x40464e}),bar:new THREE.MeshLambertMaterial({color:0xb8bec4}),
   pane:new THREE.MeshLambertMaterial({color:0xa8d4ea,transparent:true,opacity:0.32,depthWrite:false}),
   barn:new THREE.MeshLambertMaterial({color:0xa8352c}),trim:new THREE.MeshLambertMaterial({color:0xece6d8})};
-const DBOX=new THREE.BoxGeometry(1,1,1);
+const DBOX=new THREE.BoxGeometry(1,1,1);DBOX.ub=[1,1,1];
 function doorLeaf(kind,w,h,side){
   // a leaf w wide and h high, its hinge edge at x=0 and the rest of it toward +x*side
   const g=new THREE.Group(),bx=(m,cx,cy,sx,sy,sz,cz=0)=>{const o=new THREE.Mesh(DBOX,m);o.position.set(cx*side,cy,cz);o.scale.set(sx,sy,sz);g.add(o);return o;};
@@ -133,7 +133,7 @@ function dialMat(){
 }
 const LMM={coach:new THREE.MeshLambertMaterial({color:0xd8dce0}),loco:new THREE.MeshLambertMaterial({color:0xd02a2a}),canopy:new THREE.MeshLambertMaterial({color:0xe84a6a}),gold:new THREE.MeshLambertMaterial({color:0xd4af37}),arc:new THREE.MeshBasicMaterial({color:0xc8e8ff}),ledOn:new THREE.MeshBasicMaterial({color:0x40ff60}),ledOn2:new THREE.MeshBasicMaterial({color:0x40a0ff}),ledOff:new THREE.MeshBasicMaterial({color:0x0a1a0a}),blink:new THREE.MeshBasicMaterial({color:0x400808}),dish:new THREE.MeshLambertMaterial({color:0xeef0f2}),vault:new THREE.MeshLambertMaterial({color:0x8a9098}),bar:new THREE.MeshLambertMaterial({color:0xc8ccd0}),ball:new THREE.MeshLambertMaterial({color:0xd8dce4,emissive:0x303040}),hand:new THREE.MeshLambertMaterial({color:0x1c1c1c}),bell:new THREE.MeshLambertMaterial({color:0xb08a3c}),beam:new THREE.MeshLambertMaterial({color:0x5a4028})};
 LMM.beam=new THREE.MeshBasicMaterial({color:0xfff4c0,transparent:true,opacity:0.2,depthWrite:false});
-const LM_CONE=new THREE.ConeGeometry(5.6,2.2,12),LM_DISH=new THREE.CylinderGeometry(1.5,0.5,0.35,16),LM_VAULT=new THREE.CylinderGeometry(1.5,1.5,0.5,20),LM_BALL=new THREE.SphereGeometry(0.75,10,8),LM_DIAL=new THREE.PlaneGeometry(3.7,3.7),LM_BELL=new THREE.CylinderGeometry(0.55,1.05,1.35,12),LM_BOX=new THREE.BoxGeometry(1,1,1);
+const LM_CONE=new THREE.ConeGeometry(5.6,2.2,12),LM_DISH=new THREE.CylinderGeometry(1.5,0.5,0.35,16),LM_VAULT=new THREE.CylinderGeometry(1.5,1.5,0.5,20),LM_BALL=new THREE.SphereGeometry(0.75,10,8),LM_DIAL=new THREE.PlaneGeometry(3.7,3.7),LM_BELL=new THREE.CylinderGeometry(0.55,1.05,1.35,12),LM_BOX=new THREE.BoxGeometry(1,1,1);LM_BOX.ub=[1,1,1];
 function lmVisual(b,px,pz){
   const g=new THREE.Group(),X0=px*CELL,Z0=pz*CELL,cx=X0+(b.x0+b.x1)/2,cz=Z0+(b.z0+b.z1)/2,v={g,hands:[],bell:null};
   if(b.clock){

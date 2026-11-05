@@ -254,13 +254,22 @@ function refreshProps(){
            for(const c of [S.c0-1,S.c1])for(let r=hole;r+1<S.L;r++){const A=post(r,c),B=post(r+1,c);if(A&&B)pushSeg(A,B,0.1);}
            for(let c=S.c0-1;c<S.c1;c++){const A=post(hole,c),B=post(hole,c+1);if(A&&B)pushSeg(A,B,0.1);}}}}
     }}
-  FIX_BAR.count=nBar;FIX_BAR.instanceMatrix.needsUpdate=true;
-  PROP_L.count=nPropL;PROP_G.count=nPropG;PROP_L.instanceMatrix.needsUpdate=true;PROP_G.instanceMatrix.needsUpdate=true;
-  if(PROP_L.instanceColor)PROP_L.instanceColor.needsUpdate=true;if(PROP_G.instanceColor)PROP_G.instanceColor.needsUpdate=true;
+  fxSent(FIX_BAR,nBar);fxSent(PROP_L,nPropL);fxSent(PROP_G,nPropG);
 }
 function knockProps(x,y,z,r,dx,dz){for(const f of activeProps){const ex=f.x-x,ez=f.z-z,rr=r+f.rad;if(ex*ex+ez*ez<rr*rr&&Math.abs(f.y0+.5-y)<r+1.5)knockFix(f,dx||ex,dz||ez);}}
+// which of a block's lamp spots the street plan allows: that never changes, and asking is most of what this refresh costs
+const lampSpotC=new Map();
+function lampSpotsOf(px,pz,X0,Z0,PBf){
+  const k=ckey(px,pz);let L=TENV?null:lampSpotC.get(k);if(L)return L;
+  L=[];for(const s of LAMP_SPOTS){const lx=s[0],lz=s[1];if(superPart(X0+lx,Z0+lz)==='in')continue;if(!(lx===ROADW?segOpen(px,pz,0):lx===CELL-1?segOpen(px+1,pz,0):lz===ROADW?segOpen(px,pz,1):segOpen(px,pz+1,1)))continue;if(lx>=PBf.x0&&lx<PBf.x1&&lz>=PBf.z0&&lz<PBf.z1)continue;L.push(s);}
+  if(!TENV)lampSpotC.set(k,L);return L;
+}
+// Fixtures out past the chunks made so far need those chunks looked at. A couple each time round is fine, but running through town
+// it would be a dozen or more at once; the rest get their turn in 0.4 s, by when updateChunks may well have made them anyway.
+let fixGen=0;
+function fixCanAsk(x,z){if(chunks.has(ckey(Math.floor(x/CS),Math.floor(z/CS)))||ST.dressing)return true;return fixGen++<2;}
 function refreshFixtures(){
-  nBar=nGlow=nHead=nSign=nCol=nBoard=0;activeFix.length=0;const seen=new Set(),R=Math.min(viewFar(),96),bseen=new Set();
+  fixGen=0;nBar=nGlow=nHead=nSign=nCol=nBoard=0;activeFix.length=0;const seen=new Set(),R=Math.min(viewFar(),96),bseen=new Set();
   for(const p of viewers()){
     
     for(let px=Math.floor((p.pos.x-R)/CELL);px<=Math.floor((p.pos.x+R)/CELL);px++)for(let pz=Math.floor((p.pos.z-R)/CELL);pz<=Math.floor((p.pos.z+R)/CELL);pz++){
@@ -269,9 +278,9 @@ function refreshFixtures(){
       const X0=px*CELL,Z0=pz*CELL,near=Math.hypot(X0+4-p.pos.x,Z0+4-p.pos.z)<70;
       if(biomeOf(px,pz)==='plains')continue;
       const PBf=plotBounds(px,pz);
-      for(const [lx,lz,rx,rz] of LAMP_SPOTS){if(superPart(X0+lx,Z0+lz)==='in')continue;if(!(lx===ROADW?segOpen(px,pz,0):lx===CELL-1?segOpen(px+1,pz,0):lz===ROADW?segOpen(px,pz,1):segOpen(px,pz+1,1)))continue;if(get(X0+lx,G,Z0+lz)===ASPHALT||get(X0+lx,G+1,Z0+lz)!==AIR)continue;if(lx>=PBf.x0&&lx<PBf.x1&&lz>=PBf.z0&&lz<PBf.z1)continue;const f={type:'lamp',key:'l'+(X0+lx)+','+(Z0+lz),x:X0+lx+0.5,z:Z0+lz+0.5,rx,rz};activeFix.push(f);drawFix(f,near);}
+      for(const [lx,lz,rx,rz] of lampSpotsOf(px,pz,X0,Z0,PBf)){if(!fixCanAsk(X0+lx,Z0+lz))continue;if(get(X0+lx,G,Z0+lz)===ASPHALT||get(X0+lx,G+1,Z0+lz)!==AIR)continue;const f={type:'lamp',key:'l'+(X0+lx)+','+(Z0+lz),x:X0+lx+0.5,z:Z0+lz+0.5,rx,rz};activeFix.push(f);drawFix(f,near);}
       // benches and litter bins along the pavements of the busier blocks, and along the paths in the parks
-      for(const o of streetFurn(px,pz)){if(o.prop||o.on&&(get(Math.floor(o.x),G,Math.floor(o.z))!==o.on||get(Math.floor(o.x),G+1,Math.floor(o.z))!==AIR))continue;activeFix.push(o);drawFix(o,near);}
+      for(const o of streetFurn(px,pz)){if(o.prop||o.on&&!fixCanAsk(o.x,o.z))continue;if(o.on&&(get(Math.floor(o.x),G,Math.floor(o.z))!==o.on||get(Math.floor(o.x),G+1,Math.floor(o.z))!==AIR))continue;activeFix.push(o);drawFix(o,near);}
       const ct=ctlAt(px,pz);
       if(ct.k!=='none')for(let d=0;d<4;d++){
         const A=APPR[d],axis=d%2?'x':'z',v=DIRV[d];
@@ -293,8 +302,7 @@ function refreshFixtures(){
       for(const f of boardsOf(Rt)){if(bseen.has(f.key))continue;const d=Math.hypot(f.x-p.pos.x,f.z-p.pos.z);if(d>RB)continue;
         if(get(Math.floor(f.x),f.y0,Math.floor(f.z))!==AIR||get(Math.floor(f.x),f.y0-1,Math.floor(f.z))===AIR)continue;   // (its ground built, and still there)
         bseen.add(f.key);activeFix.push(f);drawFix(f,true);}}}
-  FIX_BAR.count=nBar;FIX_GLOW.count=nGlow;FIX_BAR.instanceMatrix.needsUpdate=true;FIX_GLOW.instanceMatrix.needsUpdate=true;
-  FIX_COL.count=nCol;FIX_COL.instanceMatrix.needsUpdate=true;if(FIX_COL.instanceColor)FIX_COL.instanceColor.needsUpdate=true;
+  fxSent(FIX_BAR,nBar);fxSent(FIX_GLOW,nGlow);fxSent(FIX_COL,nCol);
   for(let i=nBoard;i<boards.length;i++)boards[i].g.visible=false;
   for(let i=nHead;i<heads.length;i++)heads[i].g.visible=false;
   for(let i=nSign;i<signs.length;i++)signs[i].g.visible=false;

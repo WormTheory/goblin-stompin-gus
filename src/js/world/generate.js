@@ -26,7 +26,7 @@ function genChunk(cx,cz){
   for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){
     const x=x0+lx,z=z0+lz,rx=mod(x,CELL),rz=mod(z,CELL);
     const col=(y,b)=>{a[li(lx,y,lz)]=b;};
-    for(let y=0;y<G;y++)col(y,earthAt(x,y,z));
+    earthCol(a,lx+lz*CS,x,z);
     caveCol(col,x,z);
     // a river block: water, banks and bridges (streets across it stay, with the water running underneath)
     // the plains: rolling grass, ponds, the odd boulder; farms; rivers winding through with grassy banks
@@ -291,8 +291,21 @@ function purgeLeaves(){
 const leafHash=(x,y,z)=>hash2(x*7+y*131,z*13+y*17);
 const leafDown=(x,y,z)=>leafFall>0&&leafHash(x,y,z)<leafFall;
 function get(x,y,z){x=Math.floor(x);y=Math.floor(y);z=Math.floor(z);if(y<0||y>=H)return AIR;const cx=Math.floor(x/CS),cz=Math.floor(z/CS);const b=chunkArr(cx,cz)[li(x-cx*CS,y,z-cz*CS)];return b===LEAVES&&leafDown(x,y,z)?AIR:b;}
-function setRaw(x,y,z,b){if(y<0||y>=H)return;if(b===AIR&&y>G)noteRemoved(x,y,z);if(WX.snowCover>0){let open=true;for(let yy=y+1;yy<H;yy++)if(get(x,yy,z)){open=false;break;}if(open)snowBorn.set(Math.floor(x)*65536+Math.floor(z),WX.snowClock);}navCols.delete(Math.floor(x)*65536+Math.floor(z));const cx=Math.floor(x/CS),cz=Math.floor(z/CS);if(b!==LOG&&rawGet(x,y,z)===LOG)leafCheckQ.add(Math.floor(x)+','+Math.floor(y)+','+Math.floor(z));if(b===AIR&&get(x,y,z)===ICE)b=WATER;chunkArr(cx,cz)[li(x-cx*CS,y,z-cz*CS)]=b;}
+function setRaw(x,y,z,b){if(y<0||y>=H)return;if(b===AIR&&y>G)noteRemoved(x,y,z);if(WX.snowCover>0){let open=true;for(let yy=y+1;yy<H;yy++)if(get(x,yy,z)){open=false;break;}if(open)snowBorn.set(Math.floor(x)*65536+Math.floor(z),WX.snowClock);}navCols.delete(Math.floor(x)*65536+Math.floor(z));const cx=Math.floor(x/CS),cz=Math.floor(z/CS);if(b!==LOG&&rawGet(x,y,z)===LOG)leafCheckQ.add(Math.floor(x)+','+Math.floor(y)+','+Math.floor(z));if(b===AIR&&get(x,y,z)===ICE)b=WATER;const A=chunkArr(cx,cz),lx=x-cx*CS,lz=z-cz*CS;if(b&&A.tileTops){const t=(Math.floor(lz)>>2)*4+(Math.floor(lx)>>2);if(y>A.tileTops[t])A.tileTops[t]=y;}A[li(lx,y,lz)]=b;}
 function addEdit(x,y,z,b){if(b===AIR&&get(x,y,z)===WATER)b=WATER;edits[x+','+y+','+z]=b;const k=ckey(Math.floor(x/CS),Math.floor(z/CS));let l=chunkEdits.get(k);if(!l){l=[];chunkEdits.set(k,l);}l.push([x,y,z,b]);}
+// the highest block in each 4 x 4 of a chunk's columns, kept with the chunk once something has asked. (A block knocked out can
+// leave it too high, which only means a closer look than was needed; a block put in raises it, in setRaw.)
+function tileTopsOf(A){
+  const T=new Int16Array(16).fill(-1);
+  for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){const t=(lz>>2)*4+(lx>>2),lo=T[t];for(let y=H-1;y>lo;y--)if(A[lx+lz*CS+y*CS*CS]){T[t]=y;break;}}
+  A.tileTops=T;return T;
+}
+// is everything from height y up, across this box of columns, empty air?
+function boxClear(x0,x1,z0,z1,y){
+  const tx0=Math.floor(x0/4),tx1=Math.floor(x1/4),tz0=Math.floor(z0/4),tz1=Math.floor(z1/4);
+  for(let tz=tz0;tz<=tz1;tz++)for(let tx=tx0;tx<=tx1;tx++){const A=chunkArr(tx>>2,tz>>2),T=A.tileTops||tileTopsOf(A);if(T[(tz&3)*4+(tx&3)]>=y)return false;}
+  return true;
+}
 function solidAt(x,y,z){if(y<0)return true;if(y>=H)return false;const b=get(x,y,z);return !!(b&&BLOCK[b].solid);}
 function groundAt(x,z,fromY){const xi=Math.floor(x),zi=Math.floor(z);for(let y=Math.min(H-1,Math.floor(fromY+1.2));y>=0;y--){const b=y<0?STONE:get(xi,y,zi);if(b&&BLOCK[b].solid)return BLOCK[b].ramp?y+rampH(b,x-xi,z-zi):y+1;}return 0;}
 // what something standing at height y rests on: the first solid block at or below its feet, but only if that block has open air above it (otherwise it's a wall, and nothing gets lifted up it)

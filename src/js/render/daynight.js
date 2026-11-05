@@ -87,7 +87,21 @@ function fpsTick(raw){
   if(FPS.t>=0.5){const f=FPS.n/FPS.t;FPS.el.textContent=Math.round(f)+' FPS\n'+(1000*FPS.t/FPS.n).toFixed(1)+' ms (worst '+(FPS.worst*1000).toFixed(0)+')';
     FPS.el.className='fpsc'+(f<30?' low':f<50?' mid':'');FPS.n=0;FPS.t=0;FPS.worst=0;}
 }
+let readoutH='';
+// The graphics card's programs are made the first time something needing each is drawn, and that's a stall: the first explosion, or
+// the first sprint. Everything hidden in the scene gets its program here instead, on the second frame, while the game is still
+// on the title screen. (Plus the speed lines, whose materials aren't made till they're needed. These stay referenced, as
+// three.js throws away a program once nothing is using it.)
+let warmT=0;const WARM=[];
+function warmShaders(){
+  if(!renderer.compile)return;
+  const L=new THREE.LineSegments(new THREE.BufferGeometry(),new THREE.LineBasicMaterial({transparent:true,fog:false})),M=new THREE.Mesh(new THREE.BufferGeometry(),new THREE.MeshBasicMaterial({alphaMap:tex,transparent:true,side:THREE.DoubleSide,fog:false}));
+  for(const o of [L,M]){scene.add(o);WARM.push(o);}
+  try{renderer.compile(scene,P1.camera);}catch(e){}
+  for(const o of [L,M])scene.remove(o);
+}
 function frame(now){
+  if(warmT<2&&++warmT===2)warmShaders();
   fpsTick((now-last)/1000);
   const dt=Math.max(0,Math.min(0.06,(now-last)/1000));last=now;   // (never below 0: a long boot can hand the first frame a timestamp older than last, and negative time winds timers up, which queued a stomp nobody pressed)
   if(menuOpen)obitPreviewTick(dt);
@@ -111,7 +125,7 @@ function frame(now){
     safe('booms',()=>updateBooms(sdt));safe('fires',()=>updateFires(sdt));safe('flecks',()=>updateFlecks(sdt));
   }
   safe('far',()=>updateFar(dt));safe('debug',()=>updateDebug(gdt));safe('explore',()=>updateExplore(dt));
-  safe('chunks',()=>updateChunks(P2.active?2:1,dt));
+  safe('chunks',()=>{updateChunks(P2.active?2:1,dt);flushRebuilds();flushNotes(2);});
   camClock+=dt;
   for(const p of players){poundWoosh(p);runWoosh(p);bodyStreaks(p,gdt);if(!p.active)continue;updateSpeedFx(p,gdt);placeCamera(p);updateSpeedo(p,dt);updateMinimap(p,dt);p.shake*=Math.exp(-gdt*7);}
   if(DT.freecam){P1.camera.position.copy(FC.pos);P1.camera.rotation.set(FC.pitch,FC.yaw,0,'YXZ');}
@@ -132,10 +146,10 @@ function frame(now){
   for(const p of act){if(!p.paused)continue;const o=act.find(q=>q!==p);const txt=!o?'':o.paused?'Both paused. The city is frozen.':`The city keeps going while ${o.idx?'Gertie':'Gus'} plays.`;if(p.ui.pstatus.textContent!==txt)p.ui.pstatus.textContent=txt;}
   const hn=huntersCount(),pol=cars.some(c=>c.alive&&c.police&&c.hunter);
   updateSiren(dt);promptTick(dt);
-  readout.innerHTML=`Kills <b>${kills}</b>  ·  Score <b>${score}</b>${hn?`  ·  <i>${hn} CAR${hn>1?'S':''} HUNTING YOU</i>`:''}${pol?'  ·  <i>POLICE PURSUIT</i>':''}`;
+  {const h=`Kills <b>${kills}</b>  ·  Score <b>${score}</b>${hn?`  ·  <i>${hn} CAR${hn>1?'S':''} HUNTING YOU</i>`:''}${pol?'  ·  <i>POLICE PURSUIT</i>':''}`;if(h!==readoutH){readoutH=h;readout.innerHTML=h;}}   // (only when it's changed: rebuilding it makes the browser lay the page out again)
   const w=innerWidth,h=innerHeight;
   let views;
-  safe('batDraw',batDraw);
+  safe('batDraw',batDraw);safe('fxDraw',fxDraw);
   if(split==='none'){renderer.setScissorTest(false);renderView(P1,0,0,w,h);views=[[P1,0,0,w,h]];}
   else{
     renderer.setScissorTest(true);

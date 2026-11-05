@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:0fa8b32b9486632a8ee227f3b00feb278068bbda8d73eb7fa81a8f045abf2ea6 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:935fce0fc2e4f39dd49cafa739b61f212032b83fc2de6f9a10109d57cd48d482 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -4166,7 +4166,16 @@ function plotType(px,pz){
   const t=plotType1(px,pz);if(!TEST_OFF.size||!TEST_OFF.has(t))return t;
   return biomeOf(px,pz)==='city'?'empty':'plains';   // (switched off: an empty lot in town, open grass out in the country)
 }
+// (asked for constantly: every street segment, lamp post and goblin route goes through it, and working it out from scratch
+// isn't cheap. Not remembered while a theme park is being placed, nor in the Testing Environment, where the answer can move.)
+const plotTypeC=new Map();
 function plotType1(px,pz){
+  if(TENV||themeBusy)return plotType0(px,pz);
+  const k=ckey(px,pz);let t=plotTypeC.get(k);
+  if(t===undefined){t=plotType0(px,pz);if(!themeBusy)plotTypeC.set(k,t);}
+  return t;
+}
+function plotType0(px,pz){
   if(seaPlot(px,pz))return coastType(px,pz);
   if(isRiver(px,pz))return'river';
   if(biomeOf(px,pz)==='plains')return railPlot(px,pz)?'plains':tsPlot(px,pz)?'truckstop':farmK(px,pz)!==null?'farm':dumpAt(px,pz)!==null?'dump':castleAt(px,pz)?'castle':bigPlainsAt(px,pz)?bigPlainsAt(px,pz).kind:'plains';
@@ -6912,6 +6921,19 @@ function earthAt(x,y,z){
   if(d<24+w*2.5){const q=hash2(x*31+y*7,z*17+y*3);return q<0.025?COAL:q<0.034?RUST:STONE;}
   {const q=hash2(x*13+y*11,z*29+y*5);return q<0.012?CRYSTAL:q<0.017?GOLD:q<0.024?RUST:DEEPSLATE;}
 }
+// the whole column of it, in a chunk's array from offset o (the same as asking earthAt of each height, but the part that wanders
+// only depends on where the column is, and every chunk made goes through this 256 x 44 times)
+function earthCol(a,o,x,z){
+  const w=Math.sin(x*0.071)+Math.sin(z*0.093+1.3)+Math.sin((x+z)*0.031+2.1),A=CS*CS,g1=3+w*0.4,g2=8+w*1.2,g3=10+w*1.5,g4=24+w*2.5;
+  a[o]=BEDROCK;
+  for(let y=1;y<G;y++){
+    const d=G-1-y;let v;
+    if(y<=2&&hash2(x*7+y,z*5+1)<(y===1?0.6:0.25))v=BEDROCK;
+    else if(d<g1)v=DIRT;else if(d<g2)v=CLAY;else if(d<g3)v=GRAVEL;
+    else if(d<g4){const q=hash2(x*31+y*7,z*17+y*3);v=q<0.025?COAL:q<0.034?RUST:STONE;}
+    else{const q=hash2(x*13+y*11,z*29+y*5);v=q<0.012?CRYSTAL:q<0.017?GOLD:q<0.024?RUST:DEEPSLATE;}
+    a[o+y*A]=v;}
+}
 // is the street in this column of block (px,pz) there? (roadX: the strip along its low-x edge; roadZ: along its
 // low-z edge; both: the intersection at its corner, there if any of its four arms is)
 function stripOpen(px,pz,roadX,roadZ){
@@ -6970,7 +6992,7 @@ function genChunk(cx,cz){
   for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){
     const x=x0+lx,z=z0+lz,rx=mod(x,CELL),rz=mod(z,CELL);
     const col=(y,b)=>{a[li(lx,y,lz)]=b;};
-    for(let y=0;y<G;y++)col(y,earthAt(x,y,z));
+    earthCol(a,lx+lz*CS,x,z);
     caveCol(col,x,z);
     // a river block: water, banks and bridges (streets across it stay, with the water running underneath)
     // the plains: rolling grass, ponds, the odd boulder; farms; rivers winding through with grassy banks
@@ -7235,8 +7257,21 @@ function purgeLeaves(){
 const leafHash=(x,y,z)=>hash2(x*7+y*131,z*13+y*17);
 const leafDown=(x,y,z)=>leafFall>0&&leafHash(x,y,z)<leafFall;
 function get(x,y,z){x=Math.floor(x);y=Math.floor(y);z=Math.floor(z);if(y<0||y>=H)return AIR;const cx=Math.floor(x/CS),cz=Math.floor(z/CS);const b=chunkArr(cx,cz)[li(x-cx*CS,y,z-cz*CS)];return b===LEAVES&&leafDown(x,y,z)?AIR:b;}
-function setRaw(x,y,z,b){if(y<0||y>=H)return;if(b===AIR&&y>G)noteRemoved(x,y,z);if(WX.snowCover>0){let open=true;for(let yy=y+1;yy<H;yy++)if(get(x,yy,z)){open=false;break;}if(open)snowBorn.set(Math.floor(x)*65536+Math.floor(z),WX.snowClock);}navCols.delete(Math.floor(x)*65536+Math.floor(z));const cx=Math.floor(x/CS),cz=Math.floor(z/CS);if(b!==LOG&&rawGet(x,y,z)===LOG)leafCheckQ.add(Math.floor(x)+','+Math.floor(y)+','+Math.floor(z));if(b===AIR&&get(x,y,z)===ICE)b=WATER;chunkArr(cx,cz)[li(x-cx*CS,y,z-cz*CS)]=b;}
+function setRaw(x,y,z,b){if(y<0||y>=H)return;if(b===AIR&&y>G)noteRemoved(x,y,z);if(WX.snowCover>0){let open=true;for(let yy=y+1;yy<H;yy++)if(get(x,yy,z)){open=false;break;}if(open)snowBorn.set(Math.floor(x)*65536+Math.floor(z),WX.snowClock);}navCols.delete(Math.floor(x)*65536+Math.floor(z));const cx=Math.floor(x/CS),cz=Math.floor(z/CS);if(b!==LOG&&rawGet(x,y,z)===LOG)leafCheckQ.add(Math.floor(x)+','+Math.floor(y)+','+Math.floor(z));if(b===AIR&&get(x,y,z)===ICE)b=WATER;const A=chunkArr(cx,cz),lx=x-cx*CS,lz=z-cz*CS;if(b&&A.tileTops){const t=(Math.floor(lz)>>2)*4+(Math.floor(lx)>>2);if(y>A.tileTops[t])A.tileTops[t]=y;}A[li(lx,y,lz)]=b;}
 function addEdit(x,y,z,b){if(b===AIR&&get(x,y,z)===WATER)b=WATER;edits[x+','+y+','+z]=b;const k=ckey(Math.floor(x/CS),Math.floor(z/CS));let l=chunkEdits.get(k);if(!l){l=[];chunkEdits.set(k,l);}l.push([x,y,z,b]);}
+// the highest block in each 4 x 4 of a chunk's columns, kept with the chunk once something has asked. (A block knocked out can
+// leave it too high, which only means a closer look than was needed; a block put in raises it, in setRaw.)
+function tileTopsOf(A){
+  const T=new Int16Array(16).fill(-1);
+  for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){const t=(lz>>2)*4+(lx>>2),lo=T[t];for(let y=H-1;y>lo;y--)if(A[lx+lz*CS+y*CS*CS]){T[t]=y;break;}}
+  A.tileTops=T;return T;
+}
+// is everything from height y up, across this box of columns, empty air?
+function boxClear(x0,x1,z0,z1,y){
+  const tx0=Math.floor(x0/4),tx1=Math.floor(x1/4),tz0=Math.floor(z0/4),tz1=Math.floor(z1/4);
+  for(let tz=tz0;tz<=tz1;tz++)for(let tx=tx0;tx<=tx1;tx++){const A=chunkArr(tx>>2,tz>>2),T=A.tileTops||tileTopsOf(A);if(T[(tz&3)*4+(tx&3)]>=y)return false;}
+  return true;
+}
 function solidAt(x,y,z){if(y<0)return true;if(y>=H)return false;const b=get(x,y,z);return !!(b&&BLOCK[b].solid);}
 function groundAt(x,z,fromY){const xi=Math.floor(x),zi=Math.floor(z);for(let y=Math.min(H-1,Math.floor(fromY+1.2));y>=0;y--){const b=y<0?STONE:get(xi,y,zi);if(b&&BLOCK[b].solid)return BLOCK[b].ramp?y+rampH(b,x-xi,z-zi):y+1;}return 0;}
 // what something standing at height y rests on: the first solid block at or below its feet, but only if that block has open air above it (otherwise it's a wall, and nothing gets lifted up it)
@@ -7333,16 +7368,21 @@ function weatherPatch(sh){
   sh.vertexShader='attribute float aSky;varying float vSky;varying float vBorn;varying vec3 vWp;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n vSky=step(0.5,aSky);vBorn=max(aSky-1.0,0.0);vWp=(modelMatrix*vec4(position,1.0)).xyz;');
   sh.fragmentShader='uniform float uSnow,uWet,uSnowClk;varying float vSky;varying float vBorn;varying vec3 vWp;\n'+sh.fragmentShader;
 }
-const SNOW_FRAG='\n  float snowN=fract(sin(dot(mod(floor(vWp.xz*4.0+0.001),509.0),vec2(12.9898,78.233)))*43758.5453);float snowL=min(uSnow,uSnowClk-vBorn);float snowC=vSky*step(snowN,snowL*1.12)*step(0.002,snowL);\n  diffuseColor.rgb*=1.0-0.3*uWet*vSky;\n  float snowG=fract(sin(dot(mod(floor(vWp.xz*16.0+0.001),997.0),vec2(39.346,11.135)))*43758.5453);float snowV=0.84+0.11*snowG+0.03*step(0.93,snowG);\n  diffuseColor.rgb=mix(diffuseColor.rgb,vec3(snowV,snowV+0.012,snowV+0.03)*uLight,snowC);';
+const SNOW_FRAG='\n  diffuseColor.rgb*=1.0-0.3*uWet*vSky;\n  if(vSky>0.5&&uSnow>0.0){\n  float snowN=fract(sin(dot(mod(floor(vWp.xz*4.0+0.001),509.0),vec2(12.9898,78.233)))*43758.5453);float snowL=min(uSnow,uSnowClk-vBorn);float snowC=step(snowN,snowL*1.12)*step(0.002,snowL);\n  float snowG=fract(sin(dot(mod(floor(vWp.xz*16.0+0.001),997.0),vec2(39.346,11.135)))*43758.5453);float snowV=0.84+0.11*snowG+0.03*step(0.93,snowG);\n  diffuseColor.rgb=mix(diffuseColor.rgb,vec3(snowV,snowV+0.012,snowV+0.03)*uLight,snowC);}';   // (only top faces open to the sky, only when there's snow: no sums for every other pixel on screen)
 const matOpaque=nightPatch(new THREE.MeshBasicMaterial({map:tex,vertexColors:true,alphaTest:.5}));
 // (the paint and the rails laid on the ground: pulled toward the camera a touch so they never flicker with it)
 const matDecal=nightPatch(new THREE.MeshBasicMaterial({map:tex,vertexColors:true,alphaTest:.5,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-4}));
 const matWater=nightPatch(new THREE.MeshBasicMaterial({map:tex,vertexColors:true,transparent:true,depthWrite:false,side:THREE.DoubleSide}));
 const scene=new THREE.Scene();
+// three.js works out the matrix of every object in the scene on every frame, hidden or not, and the pools of hidden cars, doors
+// and signs are most of them. What's hidden is skipped here (it's done again, in full, the frame it's shown), and so are cars,
+// which batDraw has just done.
+let wmFrame=0;
+scene.updateMatrixWorld=function(){for(const c of this.children)if(c.visible&&c.wmDone!==wmFrame)c.updateMatrixWorld(true);};
 const meshes=new Map();
 // which chunks currently have a voxel mesh (wrapped into a 128x128 map); the far city hides itself there
 const MESHED=new Uint8Array(256*256*4);let meshedDirty=true;
-function markMeshed(cx,cz,on){const i=((((cz%256)+256)%256)*256+(((cx%256)+256)%256))*4;MESHED[i]=on?255:0;meshedDirty=true;}
+function markMeshed(cx,cz,on){const i=((((cz%256)+256)%256)*256+(((cx%256)+256)%256))*4,v=on?255:0;if(MESHED[i]===v)return;MESHED[i]=v;meshedDirty=true;}   // (a chunk rebuilt is still meshed: no need to send the whole map up again)
 // a ramp is a wedge: flat bottom, sloped top, trapezoid sides, and an upright face at each end that has height
 // a box within block (X,Y,Z) from (x0,y0,z0) to (x1,y1,z1) (fractions of the block), the tile laid on at its true
 // scale (so a half-length panel shows half the tile, not the whole of it squashed); skip(i): leave face i off
@@ -7433,67 +7473,100 @@ function gfxArr(cx,cz){
     else if(b===AIR)a[i]=SIDEWALK;}
   return a;
 }
+// ---- the mesher's working buffers, kept between chunks (a chunk is rebuilt every time a block in it breaks, so it's worth not
+// making thousands of little arrays each time). emitRamp and friends only push, so they take these or plain arrays alike. ----
+class MBuf{
+  constructor(T,n){this.T=T;this.a=new T(n);this.length=0;}
+  room(n){if(this.length+n>this.a.length){const b=new this.T(Math.max(this.a.length*2,this.length+n));b.set(this.a.subarray(0,this.length));this.a=b;}return this.a;}
+  push(){const n=arguments.length,A=this.room(n);let o=this.length;for(let i=0;i<n;i++)A[o++]=arguments[i];this.length=o;}
+  take(){return this.a.slice(0,this.length);}
+}
+const mkBufs=()=>({p:new MBuf(Float32Array,1<<16),u:new MBuf(Float32Array,1<<15),c:new MBuf(Float32Array,1<<16),i:new MBuf(Uint32Array,1<<15),k:new MBuf(Float32Array,1<<14)});
+const MB=[mkBufs(),mkBufs()];
+// what's asked of every block many times over, as flat tables
+const B_OPQ=new Uint8Array(BLOCK.length),B_SEE=new Uint8Array(BLOCK.length);
+BLOCK.forEach((v,b)=>{B_OPQ[b]=b!==AIR&&!v.transparent?1:0;B_SEE[b]=v.transparent?1:0;});
+// each face's corners worked out once: where the corner is, its texture spot, and the three blocks that shade it (as x,y,z
+// offsets from the block, and as offsets into a chunk's array for blocks not on its edge)
+const FACE_T=FACES.map(f=>{const [dx,dy,dz]=f.dir,axis=dx?0:dy?1:2,ua=(axis+1)%3,va=(axis+2)%3,lin=(x,y,z)=>x+z*CS+y*CS*CS;
+  return {dx,dy,dz,dy1:dy===1,sel:dy===1?0:dy===-1?1:2,shade:f.shade*DIM,lin:lin(dx,dy,dz),cn:f.c.map(c=>{const du=[0,0,0],dv=[0,0,0];du[ua]=c[ua]?1:-1;dv[va]=c[va]?1:-1;
+    const s1=[dx+du[0],dy+du[1],dz+du[2]],s2=[dx+dv[0],dy+dv[1],dz+dv[2]],cc=[dx+du[0]+dv[0],dy+du[1]+dv[1],dz+du[2]+dv[2]];
+    return {x:c[0],y:c[1],z:c[2],u:c[3],v:c[4],s1,s2,cc,o1:lin(...s1),o2:lin(...s2),oc:lin(...cc)};})};});
 function buildChunk(cx,cz){
   const gfx=GFX_OFF.caves||GFX_OFF.sewers||GFX_OFF.subway?new Map():null;
-  const a0=gfx?gfxArr(cx,cz):chunkArr(cx,cz),x0=cx*CS,z0=cz*CS;
+  const a0=gfx?gfxArr(cx,cz):chunkArr(cx,cz),x0=cx*CS,z0=cz*CS,A2=CS*CS,lf=leafFall>0;
   const gfxGet=(x,y,z)=>{const qx=Math.floor(x/CS),qz=Math.floor(z/CS),k=ckey(qx,qz);let v=gfx.get(k);if(!v){v=gfxArr(qx,qz);gfx.set(k,v);}return v[li(mod(x,CS),y,mod(z,CS))];};
-  const a=leafFall>0?a0.map((b,i)=>{if(b!==LEAVES)return b;const y=Math.floor(i/(CS*CS)),r=i-y*CS*CS;return leafDown(x0+(r%CS),y,z0+Math.floor(r/CS))?AIR:b;}):a0;   // (leaves that have fallen)
-  const at=(lx,y,lz)=>{if(y<0)return STONE;if(y>=H)return AIR;if(lx>=0&&lx<CS&&lz>=0&&lz<CS)return a[li(lx,y,lz)];return gfx?gfxGet(x0+lx,y,z0+lz):get(x0+lx,y,z0+lz);};
-  const opq=(lx,y,lz)=>{const b=at(lx,y,lz);return b!==AIR&&!BLOCK[b].transparent;};
-  const bufs=[{p:[],u:[],c:[],i:[],k:[]},{p:[],u:[],c:[],i:[],k:[]}];
+  const a=lf?a0.map((b,i)=>{if(b!==LEAVES)return b;const y=Math.floor(i/A2),r=i-y*A2;return leafDown(x0+(r%CS),y,z0+Math.floor(r/CS))?AIR:b;}):a0;   // (leaves that have fallen)
+  // (the eight chunks round about, fetched only if a block on the edge ends up asking)
+  const NB=[null,null,null,null,null,null,null,null,null];
+  const at=(lx,y,lz)=>{if(y<0)return STONE;if(y>=H)return AIR;
+    if(lx>=0&&lx<CS&&lz>=0&&lz<CS)return a[lx+lz*CS+y*A2];
+    if(gfx)return gfxGet(x0+lx,y,z0+lz);
+    const ni=lx<0?0:lx<CS?1:2,nj=lz<0?0:lz<CS?1:2,o=nj*3+ni;let N=NB[o];if(!N)N=NB[o]=chunkArr(cx+ni-1,cz+nj-1);
+    const b=N[lx-(ni-1)*CS+(lz-(nj-1)*CS)*CS+y*A2];return b===LEAVES&&lf&&leafDown(x0+lx,y,z0+lz)?AIR:b;};
+  const opq=(lx,y,lz)=>B_OPQ[at(lx,y,lz)]===1;
+  const bufs=MB;for(const d of bufs){d.p.length=d.u.length=d.c.length=d.i.length=d.k.length=0;}
   // the top of each column (the highest thing in it, even glass or leaves): only that block's top face is open to the sky
-  const tops=new Int16Array(CS*CS).fill(-1);for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++)for(let y=H-1;y>=0;y--){const b=a[li(lx,y,lz)];if(b){tops[lz*CS+lx]=BLOCK[b].liquid?-1:y;break;}}
-  let yTop=H-1;scan:for(;yTop>0;yTop--){const o=yTop*CS*CS;for(let i=0;i<CS*CS;i++)if(a[o+i])break scan;}
+  const tops=new Int16Array(A2).fill(-1);for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++)for(let y=H-1;y>=0;y--){const b=a[lx+lz*CS+y*A2];if(b){tops[lz*CS+lx]=BLOCK[b].liquid?-1:y;break;}}
+  let yTop=H-1;scan:for(;yTop>0;yTop--){const o=yTop*A2;for(let i=0;i<A2;i++)if(a[o+i])break scan;}
   // the lowest layer with anything open in it (here or along the neighbours' edges): everything below is buried solid
   let yLo=0;low:for(;yLo<yTop;yLo++){
-    for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++)if(!opq(lx,yLo,lz))break low;
+    const o=yLo*A2;for(let i=0;i<A2;i++)if(!B_OPQ[a[o+i]])break low;
     for(let k=0;k<CS;k++)if(!opq(-1,yLo,k)||!opq(CS,yLo,k)||!opq(k,yLo,-1)||!opq(k,yLo,CS))break low;
   }
   yLo=Math.max(0,yLo-1);
-  for(let y=yLo;y<=yTop;y++)for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){
-    const b=a[li(lx,y,lz)];if(!b)continue;
+  for(let y=yLo;y<=yTop;y++){
+    const midY=y>=1&&y<H-1;
+    for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){
+    const i0=lx+lz*CS+y*A2,b=a[i0];if(!b)continue;
     const info=BLOCK[b],liquid=!!info.liquid,glow=!!info.glow,out=bufs[liquid?1:0];
     if(info.ramp){emitRamp(out,x0+lx,y,z0+lz,info);continue;}
     if(info.hide)continue;
     if(info.thin){emitFence(out,x0+lx,y,z0+lz,b,info,at(lx-1,y,lz),at(lx+1,y,lz),at(lx,y,lz-1),at(lx,y,lz+1),at(lx,y+1,lz),tops[lz*CS+lx]===y);continue;}
-    const skyTop=tops[lz*CS+lx]===y?1:0;
+    const skyTop=tops[lz*CS+lx]===y;
     const waterTop=liquid&&at(lx,y+1,lz)!==WATER;
-    for(const f of FACES){
-      const [dx,dy,dz]=f.dir;
-      const nb=at(lx+dx,y+dy,lz+dz);
-      if(!faceVisible(b,nb))continue;
-      const tile=dy===1?info.tiles[0]:dy===-1?info.tiles[1]:info.tiles[2];
-      const tx=tile%AC,ty=Math.floor(tile/AC),n=out.p.length/3;
-      const axis=dx?0:dy?1:2,ua=(axis+1)%3,va=(axis+2)%3;
-      for(const c of f.c){
-        out.p.push(x0+lx+c[0],(waterTop&&c[1]===1)?y+0.88:y+c[1],z0+lz+c[2]);
-        out.u.push((tx+0.002+c[3]*0.996)/AC,1-(ty+1)/AR+(0.002+c[4]*0.996)/AR);
+    // (not on the chunk's edge, nor the world's top or bottom: every block asked about is right here in the array)
+    const inner=midY&&lx>0&&lx<CS-1&&lz>0&&lz<CS-1,tiles=info.tiles;
+    for(let fi=0;fi<6;fi++){
+      const F=FACE_T[fi],nb=inner?a[i0+F.lin]:at(lx+F.dx,y+F.dy,lz+F.dz);
+      if(nb!==AIR&&(liquid||!B_SEE[nb]||nb===b))continue;   // (the face is hidden)
+      const tile=tiles[F.sel],tx=tile%AC,ty=Math.floor(tile/AC);
+      const P=out.p.room(12),U=out.u.room(8),C=out.c.room(12),K=out.k.room(4),n=out.p.length/3;
+      let po=out.p.length,uo=out.u.length,co=out.c.length,ko=out.k.length;
+      const X=x0+lx,Z=z0+lz,sky=F.dy1&&skyTop?1+(snowBorn.get(X*65536+Z)||0):0,V0=1-(ty+1)/AR;
+      for(let q=0;q<4;q++){
+        const c=F.cn[q];
+        P[po++]=X+c.x;P[po++]=waterTop&&c.y===1?y+0.88:y+c.y;P[po++]=Z+c.z;
+        U[uo++]=(tx+0.002+c.u*0.996)/AC;U[uo++]=V0+(0.002+c.v*0.996)/AR;
         let s;
         if(glow)s=2;
         else{
-          s=f.shade*DIM;
+          s=F.shade;
           if(!liquid){
-            const bx=lx+dx,by=y+dy,bz=lz+dz,du=[0,0,0],dv=[0,0,0];
-            du[ua]=c[ua]?1:-1;dv[va]=c[va]?1:-1;
-            const s1=opq(bx+du[0],by+du[1],bz+du[2]),s2=opq(bx+dv[0],by+dv[1],bz+dv[2]);
-            const cc=opq(bx+du[0]+dv[0],by+du[1]+dv[1],bz+du[2]+dv[2]);
-            s*=AO[(s1&&s2)?0:3-(s1+s2+cc)];
+            const s1=inner?B_OPQ[a[i0+c.o1]]:+opq(lx+c.s1[0],y+c.s1[1],lz+c.s1[2]),s2=inner?B_OPQ[a[i0+c.o2]]:+opq(lx+c.s2[0],y+c.s2[1],lz+c.s2[2]);
+            const cc=inner?B_OPQ[a[i0+c.oc]]:+opq(lx+c.cc[0],y+c.cc[1],lz+c.cc[2]);
+            s*=AO[s1&&s2?0:3-(s1+s2+cc)];
           }
         }
-        out.c.push(s,s,s);out.k.push(dy===1&&skyTop?1+(snowBorn.get((x0+lx)*65536+z0+lz)||0):0);
+        C[co++]=s;C[co++]=s;C[co++]=s;K[ko++]=sky;
       }
-      out.i.push(n,n+1,n+2,n+2,n+1,n+3);
+      out.p.length=po;out.u.length=uo;out.c.length=co;out.k.length=ko;
+      const I=out.i.room(6);let io=out.i.length;I[io++]=n;I[io++]=n+1;I[io++]=n+2;I[io++]=n+2;I[io++]=n+1;I[io++]=n+3;out.i.length=io;
+    }
     }
   }
   const k=ckey(cx,cz),old=meshes.get(k);
   if(old)for(const m of old.m){scene.remove(m);m.geometry.dispose();}
-  const m=bufs.map((d,i)=>{
+  const m=[];
+  bufs.forEach((d,i)=>{
+    if(i&&!d.i.length)return;   // (no water in this chunk: no mesh for it to go round every frame)
     const g=new THREE.BufferGeometry();
-    g.setAttribute('position',new THREE.Float32BufferAttribute(d.p,3));
-    g.setAttribute('uv',new THREE.Float32BufferAttribute(d.u,2));
-    g.setAttribute('color',new THREE.Float32BufferAttribute(d.c,3));g.setAttribute('aSky',new THREE.Float32BufferAttribute(d.k,1));
-    g.setIndex(d.i);
-    const mesh=new THREE.Mesh(g,i?matWater:matOpaque);if(i)mesh.renderOrder=1;scene.add(mesh);return mesh;
+    g.setAttribute('position',new THREE.Float32BufferAttribute(d.p.take(),3));
+    g.setAttribute('uv',new THREE.Float32BufferAttribute(d.u.take(),2));
+    g.setAttribute('color',new THREE.Float32BufferAttribute(d.c.take(),3));g.setAttribute('aSky',new THREE.Float32BufferAttribute(d.k.take(),1));
+    const big=d.p.length/3>65535,ia=d.i.take();
+    g.setIndex(new THREE.BufferAttribute(big?ia:Uint16Array.from(ia),1));
+    const mesh=new THREE.Mesh(g,i?matWater:matOpaque);if(i)mesh.renderOrder=1;scene.add(mesh);m.push(mesh);
   });
   {const mk=routeMarks(cx,cz);if(mk)m.push(mk);}
   meshes.set(k,{cx,cz,m});markMeshed(cx,cz,true);
@@ -7574,29 +7647,52 @@ function routeMarks(cx,cz){
   g.setAttribute('color',new THREE.Float32BufferAttribute(C,3));g.setAttribute('aSky',new THREE.Float32BufferAttribute(K,1));g.setIndex(I);
   const mesh=new THREE.Mesh(g,matDecal);scene.add(mesh);return mesh;
 }
-function clearWorld(){for(const e of meshes.values())for(const m of e.m){scene.remove(m);m.geometry.dispose();}meshes.clear();MESHED.fill(0);meshedDirty=true;farDirty=true;chunks.clear();gfxRecC.clear();plotCache.clear();bridgeCache.clear();superCache.clear();setCache.clear();setAtCache.clear();jDegC.clear();linkNearC.clear();ctlCache.clear();zoneCache.clear();farmC.clear();cloverCache.clear();clearLayout();joinCache.clear();icCache.clear();ctlCache.clear();lastK=-1;}
-let unloadT=0;
+function clearWorld(){rebuildQ.clear();for(const e of meshes.values())for(const m of e.m){scene.remove(m);m.geometry.dispose();}meshes.clear();MESHED.fill(0);meshedDirty=true;farDirty=true;chunks.clear();gfxRecC.clear();plotCache.clear();plotTypeC.clear();lampSpotC.clear();bridgeCache.clear();superCache.clear();setCache.clear();setAtCache.clear();jDegC.clear();linkNearC.clear();ctlCache.clear();zoneCache.clear();farmC.clear();cloverCache.clear();clearLayout();joinCache.clear();icCache.clear();ctlCache.clear();lastK=-1;}
+let unloadT=0,chunkScan={key:'',size:-1,full:false};
+// where to look for a chunk to make next, nearest first: worked out once for a view distance, not every frame
+let chunkOrd=null,chunkOrdR=-1;
+function chunkOrder(R){
+  if(chunkOrdR===R)return chunkOrd;
+  const L=[];for(let dz=-R;dz<=R;dz++)for(let dx=-R;dx<=R;dx++){const d=dx*dx+dz*dz;if(d<=(R+0.6)*(R+0.6))L.push([dx,dz,d]);}
+  L.sort((a,b)=>a[2]-b[2]);chunkOrd=L;chunkOrdR=R;return L;
+}
 function updateChunks(budget,dt){
   const R=viewR;
   const centers=players.filter(p=>p.active).map(p=>[Math.floor(p.pos.x/CS),Math.floor(p.pos.z/CS)]);
   if(DT.freecam)centers.push([Math.floor(FC.pos.x/CS),Math.floor(FC.pos.z/CS)]);
   const cheb=(cx,cz)=>{let m=1e9;for(const [a,b] of centers)m=Math.min(m,Math.max(Math.abs(cx-a),Math.abs(cz-b)));return m;};
-  for(const [k,e] of meshes){if(cheb(e.cx,e.cz)>R+1){for(const m of e.m){scene.remove(m);m.geometry.dispose();}meshes.delete(k);markMeshed(e.cx,e.cz,false);}}
+  // (standing in the same chunk with everything in sight already made, there's nothing to go through)
+  const key=R+'|'+centers.join('|'),same=key===chunkScan.key;
+  if(!same)for(const [k,e] of meshes){if(cheb(e.cx,e.cz)>R+1){for(const m of e.m){scene.remove(m);m.geometry.dispose();}meshes.delete(k);markMeshed(e.cx,e.cz,false);}}
   unloadT-=dt;
-  if(unloadT<=0){unloadT=2;for(const k of chunks.keys()){const cx=Math.floor(k/65536)-32768,cz=(k%65536)-32768;if(cheb(cx,cz)>R+4)chunks.delete(k);}lastK=-1;if(plotCache.size>30000){plotCache.clear();bridgeCache.clear();superCache.clear();joinCache.clear();icCache.clear();ctlCache.clear();}}
-  const need=[],seen=new Set();
-  for(const [pcx,pcz] of centers)for(let dz=-R;dz<=R;dz++)for(let dx=-R;dx<=R;dx++){
-    const d=dx*dx+dz*dz;if(d>(R+0.6)*(R+0.6))continue;
-    const k=ckey(pcx+dx,pcz+dz);if(meshes.has(k)||seen.has(k))continue;seen.add(k);need.push([pcx+dx,pcz+dz,d]);
+  if(unloadT<=0){unloadT=2;for(const k of chunks.keys()){const cx=Math.floor(k/65536)-32768,cz=(k%65536)-32768;if(cheb(cx,cz)>R+4)chunks.delete(k);}lastK=-1;if(plotCache.size>30000){plotCache.clear();plotTypeC.clear();lampSpotC.clear();bridgeCache.clear();superCache.clear();joinCache.clear();icCache.clear();ctlCache.clear();}}
+  if(same&&chunkScan.full&&chunkScan.size===meshes.size)return;
+  let made=0,gens=0;
+  scan:for(const [dx,dz] of chunkOrder(R))for(const [pcx,pcz] of centers){
+    if(meshes.has(ckey(pcx+dx,pcz+dz)))continue;
+    if(made>=budget)break scan;
+    // (a mesh needs its neighbours' blocks too, which may mean making all eight first: no more than three a frame, then carry on next time)
+    const X=pcx+dx,Z=pcz+dz;
+    for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++)if(!chunks.has(ckey(X+a,Z+b))){chunkArr(X+a,Z+b);if(++gens>=3){chunkScan.key=key;chunkScan.full=false;return;}}
+    buildChunk(X,Z);made++;
   }
-  need.sort((a,b)=>a[2]-b[2]);
-  for(let i=0;i<need.length&&i<budget;i++)buildChunk(need[i][0],need[i][1]);
+  chunkScan.key=key;chunkScan.full=!made;chunkScan.size=meshes.size;
 }
-function rebuildSet(set){for(const k of set){const e=meshes.get(k);if(e)buildChunk(e.cx,e.cz);}}
+// ---- chunks whose blocks have changed wait here and are rebuilt at the end of the frame, in the order they asked, a few
+// milliseconds' worth at a time. Something smashing its way through a street asks for the same few chunks every frame; this
+// way each gets rebuilt in its turn rather than all of them every time. (The blocks themselves have already changed: it's
+// only the picture that may be a frame or two behind while a building comes down.) ----
+const rebuildQ=new Set();
+function rebuildSet(set){for(const k of set)if(meshes.has(k))rebuildQ.add(k);}
+function flushRebuilds(){
+  if(!rebuildQ.size)return;
+  const t0=performance.now(),ms=Math.min(9,3+rebuildQ.size*0.5);let n=0;   // (more waiting: a bit more time, so it can't fall far behind)
+  for(const k of rebuildQ){rebuildQ.delete(k);const e=meshes.get(k);if(!e)continue;buildChunk(e.cx,e.cz);n++;if(n>=2&&performance.now()-t0>ms)break;}
+}
 
 // ---------- Save ----------
 let saveTimer=null;
-function save(){if(saveBlocked)return;clearTimeout(saveTimer);saveTimer=setTimeout(()=>{try{localStorage.setItem(SAVE_KEY,JSON.stringify({seed,edits,coll:collapses,wreck:wrecked,down:[...downFix],dest:destroyed,test:[...TEST_OFF],tenv:TENV||undefined}));}catch(e){}},700);}
+function save(){if(saveBlocked)return;clearTimeout(saveTimer);saveTimer=setTimeout(()=>{flushNotes(Infinity);try{localStorage.setItem(SAVE_KEY,JSON.stringify({seed,edits,coll:collapses,wreck:wrecked,down:[...downFix],dest:destroyed,test:[...TEST_OFF],tenv:TENV||undefined}));}catch(e){}},700);}
 function load(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(s&&typeof s.seed==='number'){seed=s.seed;TEST_OFF=new Set(Array.isArray(s.test)?s.test:[]);TENV=s.tenv&&Array.isArray(s.tenv.boxes)?{boxes:s.tenv.boxes.filter(B=>B&&[B.ax,B.az,B.w,B.h].every(Number.isFinite))}:null;tenvIndex();edits=s.edits||{};collapses=s.coll||{};wrecked=(s.wreck&&typeof s.wreck==='object')?s.wreck:{};destroyed=(s.dest&&typeof s.dest==='object')?s.dest:{};destroyVer++;setDCache.clear();downFix=new Map(Array.isArray(s.down)?s.down:[]);for(const k in edits){const [x,y,z]=k.split(',').map(Number);const ck=ckey(Math.floor(x/CS),Math.floor(z/CS));let l=chunkEdits.get(ck);if(!l){l=[];chunkEdits.set(ck,l);}l.push([x,y,z,edits[k]]);}return true;}}catch(e){}return false;}
 
 // ---------- Renderer ----------
@@ -7918,8 +8014,33 @@ function grunt(p,dbl){
 }
 
 // ---------- Particles, decals ----------
+// Dust, smoke, sparks, flying rubble and blood are hundreds of little boxes, and in a big collapse most are in the air at once.
+// Each is an ordinary object to the code that moves it (position, rotation, scale, material.color), but none is in the scene:
+// each frame fxDraw copies the live ones into one instanced mesh per kind, so they cost one draw call a kind rather than one each.
+const fxObj=(c,o)=>{const m=new THREE.Group();m.material={color:new THREE.Color(c),opacity:o};m.visible=false;return m;};
+function fxBatch(geo,mat,n,transparent){
+  const M=new THREE.InstancedMesh(geo,mat,n);M.frustumCulled=false;M.count=0;
+  M.instanceColor=new THREE.InstancedBufferAttribute(new Float32Array(n*3),3);M.instanceMatrix.usage=M.instanceColor.usage=THREE.DynamicDrawUsage;
+  if(transparent){const a=new THREE.InstancedBufferAttribute(new Float32Array(n),1);a.usage=THREE.DynamicDrawUsage;geo.setAttribute('aFxA',a);M.fxA=a;
+    mat.onBeforeCompile=sh=>{sh.vertexShader='attribute float aFxA;varying float vFxA;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n vFxA=aFxA;');
+      sh.fragmentShader='varying float vFxA;\n'+sh.fragmentShader.replace('#include <color_fragment>','#include <color_fragment>\n diffuseColor.a*=vFxA;');};
+    mat.customProgramCacheKey=()=>'fxalpha';}
+  scene.add(M);return M;
+}
+// one box's place in the batch: scale, then rotation (as three.js would make it from x, y and z in that order), then position
+function fxPut(M,i,o){
+  const e=M.instanceMatrix.array,j=i*16,r=o.rotation,s=o.scale,c=o.material.color,C=M.instanceColor.array,t=o.position,A=Math.cos(r.x),B=Math.sin(r.x),D=Math.cos(r.y),E=Math.sin(r.y),F=Math.cos(r.z),H2=Math.sin(r.z);
+  e[j]=D*F*s.x;e[j+1]=(A*H2+B*F*E)*s.x;e[j+2]=(B*H2-A*F*E)*s.x;e[j+3]=0;
+  e[j+4]=-D*H2*s.y;e[j+5]=(A*F-B*H2*E)*s.y;e[j+6]=(B*F+A*H2*E)*s.y;e[j+7]=0;
+  e[j+8]=E*s.z;e[j+9]=-B*D*s.z;e[j+10]=A*D*s.z;e[j+11]=0;
+  e[j+12]=t.x;e[j+13]=t.y;e[j+14]=t.z;e[j+15]=1;
+  C[i*3]=c.r;C[i*3+1]=c.g;C[i*3+2]=c.b;
+}
+// (n boxes written to an instanced mesh: only those are sent up to the graphics card, and nothing at all if it's empty and was already)
+const fxSent=(M,n)=>{if(!n&&!M.count)return;M.count=n;for(const [a,w] of [[M.instanceMatrix,16],[M.instanceColor,3],[M.fxA,1]])if(a){a.needsUpdate=true;if(a.updateRange){a.updateRange.offset=0;a.updateRange.count=n*w;}}};
 const parts=[];
-{const g=new THREE.BoxGeometry(0.22,0.22,0.22);for(let i=0;i<200;i++){const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:0xb79a72,transparent:true}));m.visible=false;scene.add(m);parts.push({m,v:new V3(),life:0,kind:0});}}
+for(let i=0;i<200;i++)parts.push({m:fxObj(0xb79a72,1),v:new V3(),life:0,kind:0});
+const PART_M=fxBatch(new THREE.BoxGeometry(0.22,0.22,0.22),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true}),200,true);
 let pIdx=0;
 function takePart(){for(let k=0;k<parts.length;k++){const p=parts[(pIdx+k)%parts.length];if(p.life<=0){pIdx=(pIdx+k+1)%parts.length;return p;}}const p=parts[pIdx];pIdx=(pIdx+1)%parts.length;return p;}
 function puff(x,y,z,n,color=0x9a948a,spread=1){if(SBX)return;for(let i=0;i<n;i++){const p=takePart();p.kind=0;p.life=0.7+Math.random()*0.5;p.m.material.color.setHex(color);p.m.position.set(x+(Math.random()-.5)*1.4*spread,y+0.15,z+(Math.random()-.5)*1.4*spread);const a=Math.random()*Math.PI*2,s=(2+Math.random()*3)*spread;p.v.set(Math.cos(a)*s,1.5+Math.random()*2.5,Math.sin(a)*s);p.m.scale.setScalar(1);p.m.visible=true;}}
@@ -7930,10 +8051,10 @@ function updateParts(dt){for(const p of parts){if(p.life<=0)continue;p.life-=dt;
   else if(p.kind===2){p.v.multiplyScalar(1-0.9*dt);m.position.addScaledVector(p.v,dt);m.scale.setScalar(1.5+(2.4-p.life)*1.3);m.material.opacity=Math.max(0,Math.min(1,p.life))*0.75;}
   else{p.v.y-=6*dt;p.v.multiplyScalar(1-2*dt);m.position.addScaledVector(p.v,dt);m.material.opacity=Math.max(0,Math.min(1,p.life*1.6));m.scale.setScalar(1+(1-p.life));}
   if(p.life<=0)m.visible=false;}}
-const decals=[];let decalIdx=0;
-{const dg=new THREE.CircleGeometry(1,10),dm=[0x5a0a0a,0x6e0d0d,0x4a0606].map(c=>new THREE.MeshBasicMaterial({color:c,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2}));
- for(let i=0;i<160;i++){const m=new THREE.Mesh(dg,dm[i%3]);m.rotation.x=-Math.PI/2;m.visible=false;scene.add(m);decals.push(m);}}
-function splat(x,z,y,r){if(SBX)return;const g=supportAt(x,z,y);if(g===null)return;const m=decals[decalIdx++%decals.length];m.position.set(x,g+0.015,z);m.scale.set(r*(0.7+Math.random()*0.6),r*(0.7+Math.random()*0.6),1);m.rotation.z=Math.random()*6.28;m.visible=true;}
+const decals=[];let decalIdx=0,decalsDirty=false;
+for(let i=0;i<160;i++){const m=fxObj([0x5a0a0a,0x6e0d0d,0x4a0606][i%3],1);m.rotation.x=-Math.PI/2;decals.push(m);}
+const DECAL_M=fxBatch(new THREE.CircleGeometry(1,10),new THREE.MeshBasicMaterial({color:0xffffff,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2}),160,false);
+function splat(x,z,y,r){if(SBX)return;const g=supportAt(x,z,y);if(g===null)return;const m=decals[decalIdx++%decals.length];m.position.set(x,g+0.015,z);m.scale.set(r*(0.7+Math.random()*0.6),r*(0.7+Math.random()*0.6),1);m.rotation.z=Math.random()*6.28;m.visible=true;decalsDirty=true;}
 const flatMat=(c,o,f)=>new THREE.MeshBasicMaterial({color:c,transparent:o<1,opacity:o,polygonOffset:true,polygonOffsetFactor:f,polygonOffsetUnits:f});
 const scorches=[];let scorchIdx=0;
 {const sg=new THREE.CircleGeometry(1,14),sm=flatMat(0x141210,0.85,-4);for(let i=0;i<8;i++){const m=new THREE.Mesh(sg,sm);m.rotation.x=-Math.PI/2;m.visible=false;scene.add(m);scorches.push(m);}}
@@ -7957,7 +8078,20 @@ KIND[PUMP]='metal';KIND[SIDING]='wood';KIND[SIDING_Y]='wood';KIND[SHINGLE]='wood
 KIND[FLOWER]='plant';KIND[SCREEN]='glass';KIND[NEON_B]='neon';KIND[NEON_R]='neon';KIND[FRIDGE]='metal';
 const SHARD={[HOSPX]:0xff5a5a,[WIN_BLUE]:0x7fc4ee,[WIN_GREEN]:0xa6f272,[WIN_WARM]:0xf6c464,[GLASS]:0xd4ecf4,[NEON_G]:0x9cff6e,[NEON_M]:0xff60d6,[LAMP]:0xeeffaa,[SCREEN]:0x7af0dc,[NEON_B]:0x6aa8ff,[NEON_R]:0xff5a5a};
 const rubble=[];
-{const g=new THREE.BoxGeometry(1,1,1);for(let i=0;i<260;i++){const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:0xffffff}));m.visible=false;scene.add(m);rubble.push({m,v:new V3(),spin:new V3(),life:0,kind:0,rest:false,sx:1,sy:1,sz:1,half:0.1,grav:20,drag:0,col:0,ph:0});}}
+for(let i=0;i<260;i++)rubble.push({m:fxObj(0xffffff,1),v:new V3(),spin:new V3(),life:0,kind:0,rest:false,sx:1,sy:1,sz:1,half:0.1,grav:20,drag:0,col:0,ph:0});
+const RUBBLE_M=fxBatch(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xffffff}),260,false);
+// (the see-through ones are written furthest from the camera first, so they blend the way they would drawn one at a time)
+const fxOrder=[];
+function fxDraw(){
+  let n=0;for(const r of rubble)if(r.m.visible)fxPut(RUBBLE_M,n++,r.m);
+  if(n||RUBBLE_M.count)fxSent(RUBBLE_M,n);
+  if(decalsDirty){decalsDirty=false;n=0;for(const d of decals)if(d.visible)fxPut(DECAL_M,n++,d);fxSent(DECAL_M,n);}
+  fxOrder.length=0;const c=P1.camera.position;
+  for(const p of parts)if(p.m.visible){const t=p.m.position;p.d=(t.x-c.x)*(t.x-c.x)+(t.y-c.y)*(t.y-c.y)+(t.z-c.z)*(t.z-c.z);fxOrder.push(p);}
+  if(fxOrder.length>1)fxOrder.sort((a,b)=>b.d-a.d);
+  n=0;for(const p of fxOrder){PART_M.fxA.array[n]=p.m.material.opacity;fxPut(PART_M,n++,p.m);}
+  if(n||PART_M.count)fxSent(PART_M,n);
+}
 let rIdx=0;
 function takeRubble(){for(let k=0;k<rubble.length;k++){const r=rubble[(rIdx+k)%rubble.length];if(r.life<=0){rIdx=(rIdx+k+1)%rubble.length;return r;}}const r=rubble[rIdx];rIdx=(rIdx+1)%rubble.length;return r;}
 // kind: 0 chunk, 1 shard, 2 spark, 3 leaf
@@ -8197,11 +8331,23 @@ function noteRemoved(x,y,z){
   x=Math.floor(x);y=Math.floor(y);z=Math.floor(z);
   if((x+','+y+','+z) in edits)return;   // (not as built: it's been changed before)
   const v=rawGet(x,y,z);if(v===AIR)return;
-  const B=bldgAt(x,z);if(!B)return;const b=B.b,rx=x-B.px*CELL,rz=z-B.pz*CELL;
+  if(noteFor){noteQ.push(x,y,z,v,noteFor);return;}
+  noteBlock(x,y,z,v,bldgAt(x,z));
+}
+function noteBlock(x,y,z,v,B){
+  if(!B)return;const b=B.b,rx=x-B.px*CELL,rz=z-B.pz*CELL;
   if(y>colTop(b,rx,rz))return;
   const sv=STRUCT;const o=blockAt(b,rx,rz,y,B.px,B.pz);STRUCT=sv;if(o!==v)return;
   destroyed[B.key]=(destroyed[B.key]||0)+1;
   destroyVer++;
+}
+// a building coming down takes tens of thousands of blocks at a stroke: they're counted over the next few frames, not all in
+// the one where it goes (the figures on the map only need to catch up a moment later)
+let noteFor=null;const noteQ=[];
+function flushNotes(ms){
+  if(!noteQ.length)return;const t0=performance.now();let i=0;
+  while(i<noteQ.length){noteBlock(noteQ[i],noteQ[i+1],noteQ[i+2],noteQ[i+3],noteQ[i+4]);i+=5;if(!(i%500)&&performance.now()-t0>ms)break;}
+  if(i>=noteQ.length)noteQ.length=0;else noteQ.splice(0,i);
 }
 function colTop(b,rx,rz){const tierOn=b.tier>0&&(b.x1-b.x0)>=8,inner=rx>=b.x0+2&&rx<b.x1-2&&rz>=b.z0+2&&rz<b.z1-2;return ((tierOn&&!inner)?b.tier:b.top)+(b.roof||0);}
 // a building's original block count (estimated from up to 72 of its columns, picked evenly across the footprint)
@@ -8376,7 +8522,9 @@ function collapseBuilding(B,L,push){
   if(BLAME!=='acc')reportCrime(X0+(b.x0+b.x1)/2,Z0+(b.z0+b.z1)/2);
   for(let x=b.x0;x<b.x1;x++)for(let z=b.z0;z<b.z1;z++){
     const wx=X0+x,wz=Z0+z;
+    noteFor=B;
     for(let y=L;y<H;y++){const v=get(wx,y,wz);if(v===AIR)continue;if(y<L+FH+1&&collapseKeep(b,B.px,B.pz,x,z,y,L))continue;(y===L?crumble:body).push({x:wx,y,z:wz,b:v});setRaw(wx,y,wz,AIR);}
+    noteFor=null;
   }
   for(let x=b.x0-1;x<=b.x1;x++)for(let z=b.z0-1;z<=b.z1;z++)ch.add(ckey(Math.floor((X0+x)/CS),Math.floor((Z0+z)/CS)));
   collapses[B.key]=Math.min(collapses[B.key]??1e9,L);
@@ -8412,8 +8560,15 @@ function collapseBuilding(B,L,push){
     addShake(0.6,cx,cz,70);for(const p of players)if(p.active)rumble(p,0.9,900);
   }
 }
+const clipMat=plane=>nightPatch(new THREE.MeshBasicMaterial({map:tex,vertexColors:true,alphaTest:.5,clippingPlanes:[plane]}));
+// A material with a clipping plane needs a graphics program of its own, and three.js throws a program away when the last
+// material using it goes. So every building falling straight down would compile that program afresh, a stall right as it
+// goes. This one speck is drawn once, on the first frame, and its material kept: that program stays ready from then on.
+{const g=new THREE.BufferGeometry(),z=()=>new THREE.Float32BufferAttribute([0,0,0,0,0,0,0,0,0],3);
+ g.setAttribute('position',z());g.setAttribute('color',z());g.setAttribute('uv',new THREE.Float32BufferAttribute([0,0,0,0,0,0],2));
+ const m=new THREE.Mesh(g,clipMat(new THREE.Plane(new V3(0,1,0),1e6)));m.frustumCulled=false;m.onAfterRender=()=>{m.visible=false;};scene.add(m);}
 function buildBodyMesh(blocks,plane){
-  const set=new Set(blocks.map(q=>bkey(q.x,q.y,q.z)));
+  const set=new Set();for(const q of blocks)set.add(bkey(q.x,q.y,q.z));
   const P=[],U=[],C=[],I=[],surface=[];
   for(const q of blocks){
     const info=BLOCK[q.b];if(!info||!info.tiles)continue;let ex=false;
@@ -8427,8 +8582,9 @@ function buildBodyMesh(blocks,plane){
   }
   const g=new THREE.BufferGeometry();
   g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));g.setAttribute('color',new THREE.Float32BufferAttribute(C,3));g.setIndex(I);
-  const mesh=new THREE.Mesh(g,nightPatch(new THREE.MeshBasicMaterial({map:tex,vertexColors:true,alphaTest:.5,clippingPlanes:plane?[plane]:[]})));
-  mesh.userData.surface=surface;return mesh;
+  // (a toppling piece looks just like the world's own blocks; one sinking into the ground needs a clipping plane of its own)
+  const mesh=new THREE.Mesh(g,plane?clipMat(plane):matOpaque);
+  mesh.userData.surface=surface;mesh.userData.set=set;return mesh;
 }
 function makeBody(blocks,big){
   let minY=1e9,maxY=-1e9,sx=0,sz=0;const cols=new Map(),layers=new Map();
@@ -8503,10 +8659,25 @@ function placePile(B){
   ruinFires([...B.cols.values()],B.mass);
   if(B.big){smoke(B.cx,B.clipY+1,B.cz,12,0x77756e);thud(1);}
 }
-function clearBodies(){for(const B of bodies){scene.remove(B.mesh);B.mesh.geometry.dispose();B.mesh.material.dispose();}bodies.length=0;for(const T of topples){scene.remove(T.grp);T.mesh.geometry.dispose();T.mesh.material.dispose();}topples.length=0;}
+function clearBodies(){for(const B of bodies){scene.remove(B.mesh);B.mesh.geometry.dispose();B.mesh.material.dispose();}bodies.length=0;for(const T of topples){scene.remove(T.grp);T.mesh.geometry.dispose();}topples.length=0;}
 
 // ---------- Toppling: a rigid piece pivoting on a hinge, carving through whatever it falls into ----------
 const topples=[];const _tv=new V3();
+// The falling piece is one rigid thing, so it needn't ask about every block of it every frame. Its blocks are shared out among
+// cuboid sections, and a section whose whole box is clear of everything in the world (known from each 4 x 4 of columns' top
+// block, tileTop) is passed over in one go. Only the sections actually touching something look block by block.
+const TOPPLE_SEC=8;
+function toppleSections(surface,loc){
+  const m=new Map();let mx=1e9,my=1e9,mz=1e9;
+  for(const q of surface){if(q.x<mx)mx=q.x;if(q.y<my)my=q.y;if(q.z<mz)mz=q.z;}
+  surface.forEach((q,i)=>{const k=Math.floor((q.x-mx)/TOPPLE_SEC)+Math.floor((q.y-my)/TOPPLE_SEC)*4096+Math.floor((q.z-mz)/TOPPLE_SEC)*16777216;let L=m.get(k);if(!L){L=[];m.set(k,L);}L.push(i);});
+  const out=[];
+  for(const L of m.values()){
+    let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9,z0=1e9,z1=-1e9;
+    for(const i of L){const x=loc[i*3],y=loc[i*3+1],z=loc[i*3+2];if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;if(z<z0)z0=z;if(z>z1)z1=z;}
+    const cx=(x0+x1)/2,cy=(y0+y1)/2,cz=(z0+z1)/2;out.push({cx,cy,cz,r:Math.hypot(x1-cx,y1-cy,z1-cz)+0.01,list:Int32Array.from(L)});}
+  return out;
+}
 function makeTopple(blocks,pivot,D){
   const mesh=buildBodyMesh(blocks,null),surface=mesh.userData.surface;
   const grp=new THREE.Group();grp.position.copy(pivot);mesh.position.set(-pivot.x,-pivot.y,-pivot.z);grp.add(mesh);scene.add(grp);
@@ -8517,7 +8688,7 @@ function makeTopple(blocks,pivot,D){
   const far=new Uint8Array(surface.length);for(let i=0;i<surface.length;i++)far[i]=rad[i]>maxR*0.55?1:0;
   let maxY=-1e9;for(const q of blocks)if(q.y>maxY)maxY=q.y;
   const big=blocks.filter(q=>q.b!==LEAVES&&q.b!==LOG).length>=60;
-  topples.push({grp,mesh,blocks,loc,far,n:surface.length,pivot:pivot.clone(),D:D.clone(),axis:new V3(D.z,0,-D.x),theta:0.02,omega:big?0.03:0.25,Lc:Math.max(1.5,(maxY+1-pivot.y)/2),hit:new Set(),t:0,q:new THREE.Quaternion(),big,rumbleT:0,dy:0,vy:0,dropping:false});
+  topples.push({grp,mesh,blocks,loc,far,secs:toppleSections(surface,loc),bset:mesh.userData.set,maxR,n:surface.length,pivot:pivot.clone(),D:D.clone(),axis:new V3(D.z,0,-D.x),theta:0.02,omega:big?0.03:0.25,Lc:Math.max(1.5,(maxY+1-pivot.y)/2),hit:new Set(),t:0,q:new THREE.Quaternion(),big,rumbleT:0,dy:0,vy:0,dropping:false});
   if(big){tone('triangle',110,45,2.2,0.12);tone('triangle',90,40,1.6,0.1,0.8);}else{noise(0.25,0.3,1200,'bandpass');tone('triangle',200,90,0.4,0.08);}
 }
 function updateTopples(dt){
@@ -8533,19 +8704,29 @@ function updateTopples(dt){
     else{T.omega+=(3*30/(4*T.Lc))*Math.sin(T.theta)*dt;T.omega=Math.min(T.omega,3);T.theta+=T.omega*dt;if(high)T.vy=Math.min(40,T.vy+30*dt*sn*sn*sn);}
     if(high||T.dropping){T.dy+=T.vy*dt;T.grp.position.y=T.pivot.y-T.dy;}
     T.q.setFromAxisAngle(T.axis,T.theta);T.grp.quaternion.copy(T.q);
-    const cells=new Set(),batch=[],ch=new Set();let ground=0;
-    for(let k=0;k<T.n;k++){
-      _tv.set(T.loc[k*3],T.loc[k*3+1],T.loc[k*3+2]).applyQuaternion(T.q).add(T.pivot);_tv.y-=T.dy;
-      const cx=Math.floor(_tv.x),cy=Math.floor(_tv.y),cz=Math.floor(_tv.z);
-      if(cy>=H)continue;
-      const b=cy<=G?STONE:get(cx,cy,cz);
-      // the ground (and the natural lie of the land: a grassy hill) stops it; anything else it smashes through
-      if(cy<=G||(b===GRASS||b===DIRT||b===SAND)&&cy<=G+6){if(T.far[k]||T.dropping)ground++;continue;}
-      cells.add(bkey(cx,cy,cz));
-      if(b===AIR||b===WATER||b===BEDROCK)continue;
-      setRaw(cx,cy,cz,AIR);addEdit(cx,cy,cz,AIR);batch.push({x:cx,y:cy,z:cz,b});
-      ch.add(ckey(Math.floor(cx/CS),Math.floor(cz/CS)));for(const [ox,oz] of [[1,0],[-1,0],[0,1],[0,-1]])ch.add(ckey(Math.floor((cx+ox)/CS),Math.floor((cz+oz)/CS)));
+    const batch=[],ch=new Set();let ground=0;
+    // (the rotation as a matrix, once, rather than working it out afresh for each block)
+    const qx=T.q.x,qy=T.q.y,qz=T.q.z,qw=T.q.w,R00=1-2*(qy*qy+qz*qz),R01=2*(qx*qy-qz*qw),R02=2*(qx*qz+qy*qw),R10=2*(qx*qy+qz*qw),R11=1-2*(qx*qx+qz*qz),R12=2*(qy*qz-qx*qw),R20=2*(qx*qz-qy*qw),R21=2*(qy*qz+qx*qw),R22=1-2*(qx*qx+qy*qy);
+    const px=T.pivot.x,py=T.pivot.y-T.dy,pz=T.pivot.z,L=T.loc;
+    for(const S of T.secs){
+      const wy=R10*S.cx+R11*S.cy+R12*S.cz+py,low=Math.floor(wy-S.r);
+      if(low>=H)continue;
+      if(low>G){const wx=R00*S.cx+R01*S.cy+R02*S.cz+px,wz=R20*S.cx+R21*S.cy+R22*S.cz+pz;if(boxClear(wx-S.r,wx+S.r,wz-S.r,wz+S.r,low))continue;}
+      const list=S.list;
+      for(let j=0;j<list.length;j++){
+        const k=list[j],lx=L[k*3],ly=L[k*3+1],lz=L[k*3+2],cy=Math.floor(R10*lx+R11*ly+R12*lz+py);
+        if(cy>=H)continue;
+        const cx=Math.floor(R00*lx+R01*ly+R02*lz+px),cz=Math.floor(R20*lx+R21*ly+R22*lz+pz),b=cy<=G?STONE:get(cx,cy,cz);
+        // the ground (and the natural lie of the land: a grassy hill) stops it; anything else it smashes through
+        if(cy<=G||(b===GRASS||b===DIRT||b===SAND)&&cy<=G+6){if(T.far[k]||T.dropping)ground++;continue;}
+        if(b===AIR||b===WATER||b===BEDROCK)continue;
+        setRaw(cx,cy,cz,AIR);addEdit(cx,cy,cz,AIR);batch.push({x:cx,y:cy,z:cz,b});
+        ch.add(ckey(Math.floor(cx/CS),Math.floor(cz/CS)));for(const [ox,oz] of [[1,0],[-1,0],[0,1],[0,-1]])ch.add(ckey(Math.floor((cx+ox)/CS),Math.floor((cz+oz)/CS)));
+      }
     }
+    // is this block of the world inside the falling piece? (turned back into the piece's own frame and looked up)
+    const within=(x,y,z)=>{const vx=x+.5-px,vy=y+.5-py,vz=z+.5-pz;return T.bset.has(bkey(Math.floor(R00*vx+R10*vy+R20*vz+T.pivot.x),Math.floor(R01*vx+R11*vy+R21*vz+T.pivot.y),Math.floor(R02*vx+R12*vy+R22*vz+T.pivot.z)));};
+    const reach=(T.maxR+3)*(T.maxR+3),nearT=(x,y,z)=>(x-px)*(x-px)+(y-py)*(y-py)+(z-pz)*(z-pz)<reach;
     if(batch.length){
       rebuildSet(ch);save();
       const step=Math.ceil(batch.length/30);
@@ -8554,8 +8735,8 @@ function updateTopples(dt){
       if(T.dropping)T.vy*=Math.max(0.6,1-0.003*batch.length);   // ploughing through floors slows the drop a little
       settle(batch,{impact:true,dx:T.D.x,dz:T.D.z});pumpsHit(batch);
     }
-    for(const g of goblins){if(g.state!=='chase'||T.hit.has(g))continue;const x=Math.floor(g.pos.x),z=Math.floor(g.pos.z),y=Math.floor(g.pos.y);if(cells.has(bkey(x,y,z))||cells.has(bkey(x,y+1,z))){T.hit.add(g);damageGoblin(g,99,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(T.D.x,-0.5,T.D.z),'Flattened by a toppling building');if(g.state==='dead')flashLabel('Crushed  +100',(nearestPlayer(g.pos.x,g.pos.z)||{}).p);}}
-    for(const c of cars){if(!c.alive||T.hit.has(c))continue;const s=Math.sin(c.heading),k2=Math.cos(c.heading);for(const [a,b2] of c.pts){const x=Math.floor(c.pos.x+a*k2+b2*s),z=Math.floor(c.pos.z-a*s+b2*k2),y=Math.floor(c.pos.y);if(cells.has(bkey(x,y,z))||cells.has(bkey(x,y+1,z))){T.hit.add(c);damageCar(c,T.blocks.length>=25?999:12+T.blocks.length);clang();break;}}}
+    for(const g of goblins){if(g.state!=='chase'||T.hit.has(g)||!nearT(g.pos.x,g.pos.y,g.pos.z))continue;const x=Math.floor(g.pos.x),z=Math.floor(g.pos.z),y=Math.floor(g.pos.y);if(within(x,y,z)||within(x,y+1,z)){T.hit.add(g);damageGoblin(g,99,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(T.D.x,-0.5,T.D.z),'Flattened by a toppling building');if(g.state==='dead')flashLabel('Crushed  +100',(nearestPlayer(g.pos.x,g.pos.z)||{}).p);}}
+    for(const c of cars){if(!c.alive||T.hit.has(c)||!nearT(c.pos.x,c.pos.y,c.pos.z))continue;const s=Math.sin(c.heading),k2=Math.cos(c.heading);for(const [a,b2] of c.pts){const x=Math.floor(c.pos.x+a*k2+b2*s),z=Math.floor(c.pos.z-a*s+b2*k2),y=Math.floor(c.pos.y);if(within(x,y,z)||within(x,y+1,z)){T.hit.add(c);damageCar(c,T.blocks.length>=25?999:12+T.blocks.length);clang();break;}}}
     if(T.big){T.rumbleT-=dt;if(T.rumbleT<=0){T.rumbleT=0.4;noise(0.5,0.35,250,'lowpass');addShake(0.12,T.pivot.x,T.pivot.z,60);}}
     if(!T.dropping&&T.theta>1.5&&ground<=Math.max(3,T.n*0.03)&&T.t<=14){T.dropping=true;}   // flat, but still up in the air
     else if(ground>Math.max(3,T.n*0.03)||T.t>14||T.dropping&&T.pivot.y-T.dy<-20){crashTopple(T);topples.splice(i,1);}
@@ -8589,7 +8770,7 @@ function crashTopple(T){
   }
   if(T.big){noise(2.2,1,280,'lowpass');tone('sawtooth',55,22,2,0.3);thud(1);addShake(0.85,sx,sz,90);for(const p of players)if(p.active)rumble(p,1,800);smoke(sx,G+2,sz,14,0x77756e);}
   else{thud(0.5);addShake(0.25,sx,sz,20);}
-  scene.remove(T.grp);T.mesh.geometry.dispose();T.mesh.material.dispose();
+  scene.remove(T.grp);T.mesh.geometry.dispose();
 }
 
 // ---------- Players (Gus and Gertie) ----------
@@ -11010,30 +11191,43 @@ function batGrow(B,cap){
   m.frustumCulled=false;m.count=0;scene.add(m);   // (one batch spans the whole street, so it's never culled as a whole)
   Object.assign(B,{m,col,em,sn,cap});
 }
-function batOf(geo,k){const key=(geo.batId||(geo.batId=++batGeoN))*8+k;let B=BAT.get(key);if(!B){B={geo,k,n:0,cap:0,m:null};batGrow(B,64);BAT.set(key,B);}return B;}
+function batOf(geo,k,deco){const key=(geo.batId||(geo.batId=++batGeoN))*16+k+(deco?8:0);let B=BAT.get(key);if(!B){B={geo,k,deco,n:0,cap:0,m:null};batGrow(B,64);BAT.set(key,B);}return B;}
 // copy every shown box under o into its batch. inScene: o is in the scene, so a batched box is moved to BAT_HIDE (and
 // one that can't be batched is left, or put back, on the layer the cameras draw); out of the scene, one that can't be
 // batched simply isn't drawn
-function batPut(o,inScene){
+function batPut(o,inScene,deco){
   for(const c of o.children){if(!c.visible)continue;
-    if(c.isMesh&&!c.isInstancedMesh){const mat=c.material,k=Array.isArray(mat)?-1:batKind(mat);
+    if(c.isMesh&&!c.isInstancedMesh){const mat=c.material,k=Array.isArray(mat)||c.scale.x*c.scale.y*c.scale.z<0?-1:batKind(mat);   // (turned inside out by a negative scale: an instance wouldn't show the right faces)
       if(k<0){if(inScene&&c.layers.mask===1<<BAT_HIDE)c.layers.set(0);}
       else{if(inScene&&c.layers.mask!==1<<BAT_HIDE)c.layers.set(BAT_HIDE);
-        const B=batOf(c.geometry,k);if(B.n>=B.cap)batGrow(B,B.cap*2);const i=B.n++;
-        B.m.instanceMatrix.array.set(c.matrixWorld.elements,i*16);
+        // (a plain box of any size goes in one batch per kind, as a unit box scaled to size: far fewer draw calls than a batch per size)
+        const ub=c.geometry.ub,B=batOf(ub?UNIT_BOX:c.geometry,k,deco);if(B.n>=B.cap)batGrow(B,B.cap*2);const i=B.n++;
+        const IM=B.m.instanceMatrix.array,o16=i*16;IM.set(c.matrixWorld.elements,o16);
+        if(ub){IM[o16]*=ub[0];IM[o16+1]*=ub[0];IM[o16+2]*=ub[0];IM[o16+4]*=ub[1];IM[o16+5]*=ub[1];IM[o16+6]*=ub[1];IM[o16+8]*=ub[2];IM[o16+9]*=ub[2];IM[o16+10]*=ub[2];}
         const C=B.col.array,E=B.em.array,q=mat.color,e=mat.emissive;C[i*3]=q.r;C[i*3+1]=q.g;C[i*3+2]=q.b;
         if(e){E[i*3]=e.r;E[i*3+1]=e.g;E[i*3+2]=e.b;}else E[i*3]=E[i*3+1]=E[i*3+2]=0;B.sn.array[i]=mat.snowU?mat.snowU.value:0;}}
-    if(c.children.length)batPut(c,inScene);}
+    if(c.children.length)batPut(c,inScene,deco);}
+}
+// the street's and the venues' models made of boxes: signal heads, doors, landmarks, rides, trains, planes, base vehicles...
+// (batches of their own, so the Structures preview can draw these and not the cars and goblins)
+function decoEach(f){
+  for(const L of [heads,signs,boards,bpoles,doorPool])for(const o of L)f(o.g);
+  for(const L of lmOn.values())f(L.v.g);
+  // (a venue's models: a ride, a boat, a rotor, or lists of planes, train cars, animals, figures, barrier arms)
+  for(const V of venues.values())for(const k in V){const x=V[k];if(x&&x.isObject3D)f(x);
+    else if(Array.isArray(x)&&x.length&&x[0]&&(x[0].isObject3D||x[0].g&&x[0].g.isObject3D))for(const e of x){if(e&&e.isObject3D)f(e);else if(e&&e.g&&e.g.isObject3D)f(e.g);}}
 }
 function batDraw(){
   for(const B of BAT.values())B.n=0;
   for(const g of goblins){const r=g.root;if(!r.visible)continue;r.updateMatrixWorld(true);batPut(r,false);}   // (street goblins are kept out of the scene, so nothing else updates their matrices)
-  for(const c of cars){if(!c.g.visible)continue;c.g.updateMatrixWorld(true);batPut(c.g,true);}
+  wmFrame++;for(const c of cars){if(!c.g.visible)continue;c.g.updateMatrixWorld(true);c.g.wmDone=wmFrame;batPut(c.g,true);}
+  decoEach(g=>{if(g.visible&&g.parent===scene&&g.wmDone!==wmFrame){g.updateMatrixWorld(true);g.wmDone=wmFrame;batPut(g,true,true);}});
   for(const B of BAT.values()){if(!B.n&&!B.m.count)continue;B.m.count=B.n;   // (and only the part of each buffer in use goes up to the graphics card)
     for(const [a,w] of [[B.m.instanceMatrix,16],[B.col,3],[B.em,3],[B.sn,1]]){a.needsUpdate=true;if(a.updateRange){a.updateRange.offset=0;a.updateRange.count=B.n*w;}}}
 }
 const GOB_GEO=new Map();   // (box shapes shared by street goblins and vehicles, by size, so their boxes batch together: never dispose one)
-const boxGeo=(w,h,d)=>{const k=w+','+h+','+d;return GOB_GEO.get(k)||GOB_GEO.set(k,new THREE.BoxGeometry(w,h,d)).get(k);};
+const boxGeo=(w,h,d)=>{const k=w+','+h+','+d;let g=GOB_GEO.get(k);if(!g){g=new THREE.BoxGeometry(w,h,d);g.ub=[w,h,d];GOB_GEO.set(k,g);}return g;};
+const UNIT_BOX=new THREE.BoxGeometry(1,1,1);
 function goblinModel(parent,o={}){
   const out={legs:[],acc:{},snowU:{value:0}},roles={},matList=[];
   // things worn over the head/face are drawn a hair in front of whatever they sit flush against, so they never flicker
@@ -12021,11 +12215,9 @@ function stDress(){
 // drawn in the preview)
 function stDecoSet(){
   const S=new Set([FIX_BAR,FIX_GLOW,FIX_COL,PROP_L,PROP_G,CR_B,CR_H,PL_B,PL_H,BALL]);
-  for(const L of [heads,signs,boards,bpoles,doorPool])for(const o of L)S.add(o.g);
-  for(const m of bsigns)S.add(m);for(const m of campOn.values())S.add(m);for(const L of lmOn.values())S.add(L.v.g);
-  // (a venue's models: a ride, a boat, a rotor, or lists of planes, train cars, animals, figures, barrier arms)
-  for(const V of venues.values())for(const k in V){const x=V[k];if(x&&x.isObject3D)S.add(x);
-    else if(Array.isArray(x))for(const e of x){if(e&&e.isObject3D)S.add(e);else if(e&&e.g&&e.g.isObject3D)S.add(e.g);}}
+  decoEach(g=>S.add(g));
+  for(const B of BAT.values())if(B.deco)S.add(B.m);
+  for(const m of bsigns)S.add(m);for(const m of campOn.values())S.add(m);
   return S;
 }
 function stDrawDeco(C){
@@ -13903,7 +14095,8 @@ function updateFlecks(dt){
     f.life-=dt;f.x+=f.dx*f.sp*dt;f.z+=f.dz*f.sp*dt;
     if(f.life<=0||Math.abs(f.x-p.pos.x)>70||Math.abs(f.z-p.pos.z)>70)spawn(f);
     // only over open water (not under a bridge)
-    if(get(Math.floor(f.x),G-2,Math.floor(f.z))!==WATER||get(Math.floor(f.x),G-1,Math.floor(f.z))!==AIR)continue;
+    // (and not in a chunk that isn't there yet: nobody can see it, and making it for a fleck of foam is no reason to stall)
+    if(!chunks.has(ckey(Math.floor(f.x/CS),Math.floor(f.z/CS)))||get(Math.floor(f.x),G-2,Math.floor(f.z))!==WATER||get(Math.floor(f.x),G-1,Math.floor(f.z))!==AIR)continue;
     _fk.makeRotationY(Math.atan2(f.dx,f.dz)+Math.PI/2);_fk.setPosition(f.x,G-2+0.9,f.z);flecks.setMatrixAt(n++,_fk);
   }
   flecks.count=n;flecks.instanceMatrix.needsUpdate=true;
@@ -13914,11 +14107,12 @@ function updateFlecks(dt){
 const fires=[],FL_N=1600,SM_N=4500;
 const flameM=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.92,depthWrite:true}),FL_N);
 const smokeM=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.5,depthWrite:false,fog:false}),SM_N);
-const flameP=[],smokeP=[],_smLive=[];let flI=0,smI=0;
-{const c0=new THREE.Color(0xffffff),z=new THREE.Matrix4().makeScale(0,0,0);
- for(let i=0;i<FL_N;i++){flameP.push({x:0,y:0,z:0,vy:0,life:0,max:1,s:1,ph:0});flameM.setMatrixAt(i,z);flameM.setColorAt(i,c0);}
- for(let i=0;i<SM_N;i++){smokeP.push({x:0,y:0,z:0,vx:0,vy:0,vz:0,life:0,max:1,s:1,g:0.2,glow:0});smokeM.setMatrixAt(i,z);smokeM.setColorAt(i,c0);}
- flameM.frustumCulled=false;smokeM.frustumCulled=false;flameM.renderOrder=1;smokeM.renderOrder=2;/* flames first (writing depth), then smoke over them: smoke in front veils the fire, smoke behind it doesn't */flameM.count=FL_N;smokeM.count=SM_N;scene.add(flameM);scene.add(smokeM);}
+const flameP=[],smokeP=[],_smLive=[];let flI=0,smI=0,flLive=0,smLive=0;
+{const c0=new THREE.Color(0xffffff);
+ for(let i=0;i<FL_N;i++)flameP.push({x:0,y:0,z:0,vy:0,life:0,max:1,s:1,ph:0});
+ for(let i=0;i<SM_N;i++)smokeP.push({x:0,y:0,z:0,vx:0,vy:0,vz:0,life:0,max:1,s:1,g:0.2,glow:0});
+ flameM.setColorAt(0,c0);smokeM.setColorAt(0,c0);flameM.instanceMatrix.usage=flameM.instanceColor.usage=smokeM.instanceMatrix.usage=smokeM.instanceColor.usage=THREE.DynamicDrawUsage;
+ flameM.frustumCulled=false;smokeM.frustumCulled=false;flameM.renderOrder=1;smokeM.renderOrder=2;/* flames first (writing depth), then smoke over them: smoke in front veils the fire, smoke behind it doesn't */flameM.count=0;smokeM.count=0;scene.add(flameM);scene.add(smokeM);}
 // a fire at (x,y,z): r is how wide it burns, life in seconds; flames:false is just smouldering smoke
 function addFire(x,y,z,r,life,flames=true,o={}){
   trimFires(1);   // too many: the oldest go out
@@ -13967,11 +14161,16 @@ function updateFires(dt){
       const a=Math.random()*Math.PI*2,d=Math.random()*R*0.7;p.x=F.x+Math.cos(a)*d;p.z=F.z+Math.sin(a)*d;p.y=F.y+0.8+Math.random();
       const ri=F.rise;p.vx=(0.5+(Math.random()-.5)*0.6)*Math.sqrt(ri);p.vz=(0.25+(Math.random()-.5)*0.6)*Math.sqrt(ri);p.vy=(2.2+Math.random()*1.6)*ri;p.max=p.life=(3.5+Math.random()*3)*(1+(ri-1)*0.9);p.s=(0.8+Math.random()*0.8+R*0.25)*(1+(ri-1)*0.35)*smS;p.g=F.flames?0.1+Math.random()*0.08:0.32+Math.random()*0.12;p.glow=F.flames?k*(0.55+Math.random()*0.35):0;}
   }
+  // (nothing burning and the last of it gone: nothing to go through, or to send to the graphics card)
+  if(!fires.length&&!flLive&&!smLive){if(flameM.count)flameM.count=0;if(smokeM.count)smokeM.count=0;return;}
+  // (the live ones packed at the front, and only those drawn and sent up)
+  let nf=0;
   for(let i=0;i<FL_N;i++){const p=flameP[i];
-    if(p.life<=0){if(p.max>0){p.max=0;flameM.setMatrixAt(i,_firM.makeScale(0,0,0));}continue;}
+    if(p.life<=0)continue;
     p.life-=dt;const u=1-Math.max(0,p.life)/p.max;p.y+=p.vy*dt;p.x+=Math.sin(p.ph+u*9)*dt*0.6;
     const sc=p.s*(1-u*0.8);_firS.set(sc,sc*1.4,sc);_firP.set(p.x,p.y,p.z);_firQ.setFromAxisAngle(_upAx,p.ph+u*2);
-    flameM.setMatrixAt(i,_firM.compose(_firP,_firQ,_firS));flameM.setColorAt(i,_firC.setHex(FL_COLS[Math.min(3,Math.floor(u*4))]));}
+    flameM.setMatrixAt(nf,_firM.compose(_firP,_firQ,_firS));flameM.setColorAt(nf,_firC.setHex(FL_COLS[Math.min(3,Math.floor(u*4))]));nf++;}
+  flLive=nf;flameM.count=nf;
   // smoke is see-through, so it has to be drawn far-to-near: live puffs are sorted by distance from the camera
   // and packed into the instance slots in that order (otherwise a pale puff behind could paint over a dark one)
   const live=_smLive;live.length=0;
@@ -13984,9 +14183,8 @@ function updateFires(dt){
     const sc=p.s*(1+u*2.6)*(u>0.85?(1-u)/0.15:1);_firS.set(sc,sc,sc);_firP.set(p.x,p.y,p.z);_firQ.setFromAxisAngle(_upAx,u*1.5+p.i);
     smokeM.setMatrixAt(n,_firM.compose(_firP,_firQ,_firS));const g=p.g*(1-u*0.25)*WORLD_LIGHT.value.r,w=p.glow*Math.max(0,1-u*3.2);   // lit orange from below while it's still low over the flames
     smokeM.setColorAt(n,_firC.setRGB(g*(1-w)+1.0*w,g*(1-w)+0.42*w,g*1.05*(1-w)+0.12*w));}
-  smokeM.count=live.length;
-  flameM.instanceMatrix.needsUpdate=true;smokeM.instanceMatrix.needsUpdate=true;
-  if(flameM.instanceColor)flameM.instanceColor.needsUpdate=true;if(smokeM.instanceColor)smokeM.instanceColor.needsUpdate=true;
+  smLive=live.length;smokeM.count=live.length;
+  for(const [M,n] of [[flameM,nf],[smokeM,live.length]])for(const [a,w] of [[M.instanceMatrix,16],[M.instanceColor,3]])if(a){a.needsUpdate=true;if(a.updateRange){a.updateRange.offset=0;a.updateRange.count=n*w;}}
 }
 const _upAx=new V3(0,1,0);
 // a round blast: knocks out everything within R (a ragged ball, flattened so it bites into the ground less)
@@ -14441,7 +14639,7 @@ function trafficLimit(c,dt){
 }
 // props: signal heads under the mast arms, sign plates on the posts (only around the players)
 const TL={house:new THREE.MeshLambertMaterial({color:0x1b1e21}),off:[0x3a100c,0x3a300c,0x0c3a1c].map(c=>new THREE.MeshBasicMaterial({color:c})),on:[0xff3b2e,0xffc23a,0x3dff7a].map(c=>new THREE.MeshBasicMaterial({color:c}))};
-const TLG={house:new THREE.BoxGeometry(0.46,1.2,0.38),lamp:new THREE.BoxGeometry(0.26,0.26,0.06),plate:new THREE.PlaneGeometry(0.95,0.95)};
+const TLG={house:boxGeo(0.46,1.2,0.38),lamp:boxGeo(0.26,0.26,0.06),plate:new THREE.PlaneGeometry(0.95,0.95)};
 function signTex(draw){const cv=document.createElement('canvas');cv.width=cv.height=64;const x=cv.getContext('2d');if(x&&x.beginPath)draw(x);const t=new THREE.CanvasTexture(cv);return t;}
 const octo=(x,r)=>{x.beginPath();for(let i=0;i<8;i++){const a=Math.PI/8+i*Math.PI/4;x.lineTo(32+Math.cos(a)*r,32+Math.sin(a)*r);}x.closePath();};
 const tri=(x,inset)=>{x.beginPath();x.moveTo(4+inset,8+inset*0.6);x.lineTo(60-inset,8+inset*0.6);x.lineTo(32,58-inset*1.2);x.closePath();};
@@ -15790,13 +15988,22 @@ function refreshProps(){
            for(const c of [S.c0-1,S.c1])for(let r=hole;r+1<S.L;r++){const A=post(r,c),B=post(r+1,c);if(A&&B)pushSeg(A,B,0.1);}
            for(let c=S.c0-1;c<S.c1;c++){const A=post(hole,c),B=post(hole,c+1);if(A&&B)pushSeg(A,B,0.1);}}}}
     }}
-  FIX_BAR.count=nBar;FIX_BAR.instanceMatrix.needsUpdate=true;
-  PROP_L.count=nPropL;PROP_G.count=nPropG;PROP_L.instanceMatrix.needsUpdate=true;PROP_G.instanceMatrix.needsUpdate=true;
-  if(PROP_L.instanceColor)PROP_L.instanceColor.needsUpdate=true;if(PROP_G.instanceColor)PROP_G.instanceColor.needsUpdate=true;
+  fxSent(FIX_BAR,nBar);fxSent(PROP_L,nPropL);fxSent(PROP_G,nPropG);
 }
 function knockProps(x,y,z,r,dx,dz){for(const f of activeProps){const ex=f.x-x,ez=f.z-z,rr=r+f.rad;if(ex*ex+ez*ez<rr*rr&&Math.abs(f.y0+.5-y)<r+1.5)knockFix(f,dx||ex,dz||ez);}}
+// which of a block's lamp spots the street plan allows: that never changes, and asking is most of what this refresh costs
+const lampSpotC=new Map();
+function lampSpotsOf(px,pz,X0,Z0,PBf){
+  const k=ckey(px,pz);let L=TENV?null:lampSpotC.get(k);if(L)return L;
+  L=[];for(const s of LAMP_SPOTS){const lx=s[0],lz=s[1];if(superPart(X0+lx,Z0+lz)==='in')continue;if(!(lx===ROADW?segOpen(px,pz,0):lx===CELL-1?segOpen(px+1,pz,0):lz===ROADW?segOpen(px,pz,1):segOpen(px,pz+1,1)))continue;if(lx>=PBf.x0&&lx<PBf.x1&&lz>=PBf.z0&&lz<PBf.z1)continue;L.push(s);}
+  if(!TENV)lampSpotC.set(k,L);return L;
+}
+// Fixtures out past the chunks made so far need those chunks looked at. A couple each time round is fine, but running through town
+// it would be a dozen or more at once; the rest get their turn in 0.4 s, by when updateChunks may well have made them anyway.
+let fixGen=0;
+function fixCanAsk(x,z){if(chunks.has(ckey(Math.floor(x/CS),Math.floor(z/CS)))||ST.dressing)return true;return fixGen++<2;}
 function refreshFixtures(){
-  nBar=nGlow=nHead=nSign=nCol=nBoard=0;activeFix.length=0;const seen=new Set(),R=Math.min(viewFar(),96),bseen=new Set();
+  fixGen=0;nBar=nGlow=nHead=nSign=nCol=nBoard=0;activeFix.length=0;const seen=new Set(),R=Math.min(viewFar(),96),bseen=new Set();
   for(const p of viewers()){
     
     for(let px=Math.floor((p.pos.x-R)/CELL);px<=Math.floor((p.pos.x+R)/CELL);px++)for(let pz=Math.floor((p.pos.z-R)/CELL);pz<=Math.floor((p.pos.z+R)/CELL);pz++){
@@ -15805,9 +16012,9 @@ function refreshFixtures(){
       const X0=px*CELL,Z0=pz*CELL,near=Math.hypot(X0+4-p.pos.x,Z0+4-p.pos.z)<70;
       if(biomeOf(px,pz)==='plains')continue;
       const PBf=plotBounds(px,pz);
-      for(const [lx,lz,rx,rz] of LAMP_SPOTS){if(superPart(X0+lx,Z0+lz)==='in')continue;if(!(lx===ROADW?segOpen(px,pz,0):lx===CELL-1?segOpen(px+1,pz,0):lz===ROADW?segOpen(px,pz,1):segOpen(px,pz+1,1)))continue;if(get(X0+lx,G,Z0+lz)===ASPHALT||get(X0+lx,G+1,Z0+lz)!==AIR)continue;if(lx>=PBf.x0&&lx<PBf.x1&&lz>=PBf.z0&&lz<PBf.z1)continue;const f={type:'lamp',key:'l'+(X0+lx)+','+(Z0+lz),x:X0+lx+0.5,z:Z0+lz+0.5,rx,rz};activeFix.push(f);drawFix(f,near);}
+      for(const [lx,lz,rx,rz] of lampSpotsOf(px,pz,X0,Z0,PBf)){if(!fixCanAsk(X0+lx,Z0+lz))continue;if(get(X0+lx,G,Z0+lz)===ASPHALT||get(X0+lx,G+1,Z0+lz)!==AIR)continue;const f={type:'lamp',key:'l'+(X0+lx)+','+(Z0+lz),x:X0+lx+0.5,z:Z0+lz+0.5,rx,rz};activeFix.push(f);drawFix(f,near);}
       // benches and litter bins along the pavements of the busier blocks, and along the paths in the parks
-      for(const o of streetFurn(px,pz)){if(o.prop||o.on&&(get(Math.floor(o.x),G,Math.floor(o.z))!==o.on||get(Math.floor(o.x),G+1,Math.floor(o.z))!==AIR))continue;activeFix.push(o);drawFix(o,near);}
+      for(const o of streetFurn(px,pz)){if(o.prop||o.on&&!fixCanAsk(o.x,o.z))continue;if(o.on&&(get(Math.floor(o.x),G,Math.floor(o.z))!==o.on||get(Math.floor(o.x),G+1,Math.floor(o.z))!==AIR))continue;activeFix.push(o);drawFix(o,near);}
       const ct=ctlAt(px,pz);
       if(ct.k!=='none')for(let d=0;d<4;d++){
         const A=APPR[d],axis=d%2?'x':'z',v=DIRV[d];
@@ -15829,8 +16036,7 @@ function refreshFixtures(){
       for(const f of boardsOf(Rt)){if(bseen.has(f.key))continue;const d=Math.hypot(f.x-p.pos.x,f.z-p.pos.z);if(d>RB)continue;
         if(get(Math.floor(f.x),f.y0,Math.floor(f.z))!==AIR||get(Math.floor(f.x),f.y0-1,Math.floor(f.z))===AIR)continue;   // (its ground built, and still there)
         bseen.add(f.key);activeFix.push(f);drawFix(f,true);}}}
-  FIX_BAR.count=nBar;FIX_GLOW.count=nGlow;FIX_BAR.instanceMatrix.needsUpdate=true;FIX_GLOW.instanceMatrix.needsUpdate=true;
-  FIX_COL.count=nCol;FIX_COL.instanceMatrix.needsUpdate=true;if(FIX_COL.instanceColor)FIX_COL.instanceColor.needsUpdate=true;
+  fxSent(FIX_BAR,nBar);fxSent(FIX_GLOW,nGlow);fxSent(FIX_COL,nCol);
   for(let i=nBoard;i<boards.length;i++)boards[i].g.visible=false;
   for(let i=nHead;i<heads.length;i++)heads[i].g.visible=false;
   for(let i=nSign;i<signs.length;i++)signs[i].g.visible=false;
@@ -15886,7 +16092,7 @@ const DM={wood:new THREE.MeshLambertMaterial({color:0x8a5a32}),woodD:new THREE.M
   frame:new THREE.MeshLambertMaterial({color:0x40464e}),bar:new THREE.MeshLambertMaterial({color:0xb8bec4}),
   pane:new THREE.MeshLambertMaterial({color:0xa8d4ea,transparent:true,opacity:0.32,depthWrite:false}),
   barn:new THREE.MeshLambertMaterial({color:0xa8352c}),trim:new THREE.MeshLambertMaterial({color:0xece6d8})};
-const DBOX=new THREE.BoxGeometry(1,1,1);
+const DBOX=new THREE.BoxGeometry(1,1,1);DBOX.ub=[1,1,1];
 function doorLeaf(kind,w,h,side){
   // a leaf w wide and h high, its hinge edge at x=0 and the rest of it toward +x*side
   const g=new THREE.Group(),bx=(m,cx,cy,sx,sy,sz,cz=0)=>{const o=new THREE.Mesh(DBOX,m);o.position.set(cx*side,cy,cz);o.scale.set(sx,sy,sz);g.add(o);return o;};
@@ -15983,7 +16189,7 @@ function dialMat(){
 }
 const LMM={coach:new THREE.MeshLambertMaterial({color:0xd8dce0}),loco:new THREE.MeshLambertMaterial({color:0xd02a2a}),canopy:new THREE.MeshLambertMaterial({color:0xe84a6a}),gold:new THREE.MeshLambertMaterial({color:0xd4af37}),arc:new THREE.MeshBasicMaterial({color:0xc8e8ff}),ledOn:new THREE.MeshBasicMaterial({color:0x40ff60}),ledOn2:new THREE.MeshBasicMaterial({color:0x40a0ff}),ledOff:new THREE.MeshBasicMaterial({color:0x0a1a0a}),blink:new THREE.MeshBasicMaterial({color:0x400808}),dish:new THREE.MeshLambertMaterial({color:0xeef0f2}),vault:new THREE.MeshLambertMaterial({color:0x8a9098}),bar:new THREE.MeshLambertMaterial({color:0xc8ccd0}),ball:new THREE.MeshLambertMaterial({color:0xd8dce4,emissive:0x303040}),hand:new THREE.MeshLambertMaterial({color:0x1c1c1c}),bell:new THREE.MeshLambertMaterial({color:0xb08a3c}),beam:new THREE.MeshLambertMaterial({color:0x5a4028})};
 LMM.beam=new THREE.MeshBasicMaterial({color:0xfff4c0,transparent:true,opacity:0.2,depthWrite:false});
-const LM_CONE=new THREE.ConeGeometry(5.6,2.2,12),LM_DISH=new THREE.CylinderGeometry(1.5,0.5,0.35,16),LM_VAULT=new THREE.CylinderGeometry(1.5,1.5,0.5,20),LM_BALL=new THREE.SphereGeometry(0.75,10,8),LM_DIAL=new THREE.PlaneGeometry(3.7,3.7),LM_BELL=new THREE.CylinderGeometry(0.55,1.05,1.35,12),LM_BOX=new THREE.BoxGeometry(1,1,1);
+const LM_CONE=new THREE.ConeGeometry(5.6,2.2,12),LM_DISH=new THREE.CylinderGeometry(1.5,0.5,0.35,16),LM_VAULT=new THREE.CylinderGeometry(1.5,1.5,0.5,20),LM_BALL=new THREE.SphereGeometry(0.75,10,8),LM_DIAL=new THREE.PlaneGeometry(3.7,3.7),LM_BELL=new THREE.CylinderGeometry(0.55,1.05,1.35,12),LM_BOX=new THREE.BoxGeometry(1,1,1);LM_BOX.ub=[1,1,1];
 function lmVisual(b,px,pz){
   const g=new THREE.Group(),X0=px*CELL,Z0=pz*CELL,cx=X0+(b.x0+b.x1)/2,cz=Z0+(b.z0+b.z1)/2,v={g,hands:[],bell:null};
   if(b.clock){
@@ -16796,9 +17002,7 @@ function updateVenues(dt){
       _A.makeTranslation(px,Pt.y+0.55+j,pz);PL_B.setMatrixAt(nP,_A);_A.makeTranslation(px,Pt.y+1.38+j,pz);PL_H.setMatrixAt(nP,_A);PL_B.setColorAt(nP,_fcF.setHex(i%2?0xffd23a:0xf4f4f0));nP++;}
   }
   bigCrashes();
-  CR_B.count=CR_H.count=nC;PL_B.count=PL_H.count=nP;
-  for(const m of [CR_B,CR_H,PL_B,PL_H])m.instanceMatrix.needsUpdate=true;
-  if(CR_B.instanceColor)CR_B.instanceColor.needsUpdate=true;if(PL_B.instanceColor)PL_B.instanceColor.needsUpdate=true;
+  fxSent(CR_B,nC);fxSent(CR_H,nC);fxSent(PL_B,nP);fxSent(PL_H,nP);
 }
 function knockFixtures(x,z,r,dx,dz){let n=0;for(const f of activeFix){const ex=f.x-x,ez=f.z-z,rr=r+(f.rad||0);if(ex*ex+ez*ez<rr*rr&&knockFix(f,dx||ex,dz||ez))n++;}return n;}
 
@@ -17231,7 +17435,10 @@ const edgeKey=(i,j,d)=>{const ni=i+DIRV[d][0],nj=j+DIRV[d][1];return 'e'+Math.mi
 function holeOn(i,j,d){
   const k=edgeKey(i,j,d),h=holeCache.get(k);if(h&&playTime-h.t<4)return h.bad;
   const x0=i*CELL+RC,z0=j*CELL+RC,[dx,dz]=DIRV[d];let bad=false;
-  for(let t=0;t<=CELL&&!bad;t+=1)for(const l of [-1.6,0,1.6]){const x=x0+dx*t+dz*l,z=z0+dz*t+dx*l;if(groundAt(x,z,G+3)<G+0.5){bad=true;break;}}
+  // (a chunk nothing's been smashed in is as it was built, with its road whole, and needn't be looked at. Looking meant making the
+  // chunks along every street between the station and the scene there and then, a long stall each time a crew was sent out.
+  // The odd gap a street has of its own, the driver spots and goes round: svcDrive looks ahead as it goes.)
+  for(let t=0;t<=CELL&&!bad;t+=1)for(const l of [-1.6,0,1.6]){const x=x0+dx*t+dz*l,z=z0+dz*t+dx*l,ck=ckey(Math.floor(x/CS),Math.floor(z/CS));if(!chunkEdits.has(ck))continue;if(groundAt(x,z,G+3)<G+0.5){bad=true;break;}}
   holeCache.set(k,{t:playTime,bad});return bad;
 }
 // a route through a roundabout can't cut across its island (the bushes in the middle stop a truck dead): the junction's
@@ -17566,6 +17773,7 @@ function updateServices(dt){
   for(const k of newsCalls){if(playTime-k.sentT<45||playTime<k.next||!near(k.x,k.z,160)||busy('news',k.x,k.z,30))continue;k.next=playTime+5;const c=send('news',k.x,k.z);if(c){c.svc.story=k.what;k.sentT=playTime;break;}}
 }
 let trafficRefreshT=0;
+let trafficJob=4;
 function updateTraffic(dt){
   if(playing)trafficClock+=dt;
   let anyFall=false;
@@ -17574,7 +17782,12 @@ function updateTraffic(dt){
     if(f.t>=0.7){falling.delete(k);downFix.set(k,f.ang);save();if(f.prop){puff(f.x,f.y+.2,f.z,2,0xbfc5ca,0.2);continue;}thud(0.35);puff(f.x+Math.sin(f.ang)*5,G+1.3,f.z+Math.cos(f.ang)*5,7,0x8c8a84,0.8);}
   }
   trafficRefreshT-=dt;
-  if(trafficRefreshT<=0||anyFall){trafficRefreshT=0.4;refreshFixtures();refreshBrandSigns();refreshDoors();refreshLandmarks();}
+  // (what's near the players is gone over every 0.4 s, one job a frame so they don't all land on the same frame. A lamp post on
+  // its way down needs the fixtures redrawn every frame, but only those.)
+  if(trafficRefreshT<=0){trafficRefreshT=0.4;trafficJob=0;}
+  if(trafficJob===0||anyFall)refreshFixtures();
+  if(trafficJob===1)refreshBrandSigns();else if(trafficJob===2)refreshDoors();else if(trafficJob===3)refreshLandmarks();
+  if(trafficJob<4)trafficJob++;
   updateDoors(dt);updateLandmarks(dt);safe('venues',()=>updateVenues(dt));
   headLamps();
 }
@@ -18736,7 +18949,21 @@ function fpsTick(raw){
   if(FPS.t>=0.5){const f=FPS.n/FPS.t;FPS.el.textContent=Math.round(f)+' FPS\n'+(1000*FPS.t/FPS.n).toFixed(1)+' ms (worst '+(FPS.worst*1000).toFixed(0)+')';
     FPS.el.className='fpsc'+(f<30?' low':f<50?' mid':'');FPS.n=0;FPS.t=0;FPS.worst=0;}
 }
+let readoutH='';
+// The graphics card's programs are made the first time something needing each is drawn, and that's a stall: the first explosion, or
+// the first sprint. Everything hidden in the scene gets its program here instead, on the second frame, while the game is still
+// on the title screen. (Plus the speed lines, whose materials aren't made till they're needed. These stay referenced, as
+// three.js throws away a program once nothing is using it.)
+let warmT=0;const WARM=[];
+function warmShaders(){
+  if(!renderer.compile)return;
+  const L=new THREE.LineSegments(new THREE.BufferGeometry(),new THREE.LineBasicMaterial({transparent:true,fog:false})),M=new THREE.Mesh(new THREE.BufferGeometry(),new THREE.MeshBasicMaterial({alphaMap:tex,transparent:true,side:THREE.DoubleSide,fog:false}));
+  for(const o of [L,M]){scene.add(o);WARM.push(o);}
+  try{renderer.compile(scene,P1.camera);}catch(e){}
+  for(const o of [L,M])scene.remove(o);
+}
 function frame(now){
+  if(warmT<2&&++warmT===2)warmShaders();
   fpsTick((now-last)/1000);
   const dt=Math.max(0,Math.min(0.06,(now-last)/1000));last=now;   // (never below 0: a long boot can hand the first frame a timestamp older than last, and negative time winds timers up, which queued a stomp nobody pressed)
   if(menuOpen)obitPreviewTick(dt);
@@ -18760,7 +18987,7 @@ function frame(now){
     safe('booms',()=>updateBooms(sdt));safe('fires',()=>updateFires(sdt));safe('flecks',()=>updateFlecks(sdt));
   }
   safe('far',()=>updateFar(dt));safe('debug',()=>updateDebug(gdt));safe('explore',()=>updateExplore(dt));
-  safe('chunks',()=>updateChunks(P2.active?2:1,dt));
+  safe('chunks',()=>{updateChunks(P2.active?2:1,dt);flushRebuilds();flushNotes(2);});
   camClock+=dt;
   for(const p of players){poundWoosh(p);runWoosh(p);bodyStreaks(p,gdt);if(!p.active)continue;updateSpeedFx(p,gdt);placeCamera(p);updateSpeedo(p,dt);updateMinimap(p,dt);p.shake*=Math.exp(-gdt*7);}
   if(DT.freecam){P1.camera.position.copy(FC.pos);P1.camera.rotation.set(FC.pitch,FC.yaw,0,'YXZ');}
@@ -18781,10 +19008,10 @@ function frame(now){
   for(const p of act){if(!p.paused)continue;const o=act.find(q=>q!==p);const txt=!o?'':o.paused?'Both paused. The city is frozen.':`The city keeps going while ${o.idx?'Gertie':'Gus'} plays.`;if(p.ui.pstatus.textContent!==txt)p.ui.pstatus.textContent=txt;}
   const hn=huntersCount(),pol=cars.some(c=>c.alive&&c.police&&c.hunter);
   updateSiren(dt);promptTick(dt);
-  readout.innerHTML=`Kills <b>${kills}</b>  ·  Score <b>${score}</b>${hn?`  ·  <i>${hn} CAR${hn>1?'S':''} HUNTING YOU</i>`:''}${pol?'  ·  <i>POLICE PURSUIT</i>':''}`;
+  {const h=`Kills <b>${kills}</b>  ·  Score <b>${score}</b>${hn?`  ·  <i>${hn} CAR${hn>1?'S':''} HUNTING YOU</i>`:''}${pol?'  ·  <i>POLICE PURSUIT</i>':''}`;if(h!==readoutH){readoutH=h;readout.innerHTML=h;}}   // (only when it's changed: rebuilding it makes the browser lay the page out again)
   const w=innerWidth,h=innerHeight;
   let views;
-  safe('batDraw',batDraw);
+  safe('batDraw',batDraw);safe('fxDraw',fxDraw);
   if(split==='none'){renderer.setScissorTest(false);renderView(P1,0,0,w,h);views=[[P1,0,0,w,h]];}
   else{
     renderer.setScissorTest(true);
@@ -18807,8 +19034,8 @@ document.getElementById('newWorld').addEventListener('click',()=>{confirmEl.hidd
 document.getElementById('confirmNo').addEventListener('click',()=>{confirmEl.hidden=true;});
 document.getElementById('confirmYes').addEventListener('click',()=>{
   if(freshWorld([]))return;   // (a reload: everything worked out afresh for the new seed)
-  confirmEl.hidden=true;TEST_OFF=new Set();seed=(Math.random()*1e9)|0;edits={};collapses={};wrecked={};destroyed={};destroyVer++;setDCache.clear();downFix.clear();falling.clear();chunkEdits.clear();clearBodies();clearWorld();
-  for(const d of decals)d.visible=false;for(const p of players)p.pool.visible=false;for(const s of scorches)s.visible=false;
+  confirmEl.hidden=true;TEST_OFF=new Set();seed=(Math.random()*1e9)|0;noteQ.length=0;edits={};collapses={};wrecked={};destroyed={};destroyVer++;setDCache.clear();downFix.clear();falling.clear();chunkEdits.clear();clearBodies();clearWorld();
+  for(const d of decals)d.visible=false;decalsDirty=true;for(const p of players)p.pool.visible=false;for(const s of scorches)s.visible=false;
   for(const c of cars){c.alive=false;c.g.visible=false;c.respawnT=1;}
   score=0;kills=0;playTime=0;resetGoblins();
   // a fresh game: the first morning of day 1, an empty obituary, nothing burning

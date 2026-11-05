@@ -88,7 +88,10 @@ const edgeKey=(i,j,d)=>{const ni=i+DIRV[d][0],nj=j+DIRV[d][1];return 'e'+Math.mi
 function holeOn(i,j,d){
   const k=edgeKey(i,j,d),h=holeCache.get(k);if(h&&playTime-h.t<4)return h.bad;
   const x0=i*CELL+RC,z0=j*CELL+RC,[dx,dz]=DIRV[d];let bad=false;
-  for(let t=0;t<=CELL&&!bad;t+=1)for(const l of [-1.6,0,1.6]){const x=x0+dx*t+dz*l,z=z0+dz*t+dx*l;if(groundAt(x,z,G+3)<G+0.5){bad=true;break;}}
+  // (a chunk nothing's been smashed in is as it was built, with its road whole, and needn't be looked at. Looking meant making the
+  // chunks along every street between the station and the scene there and then, a long stall each time a crew was sent out.
+  // The odd gap a street has of its own, the driver spots and goes round: svcDrive looks ahead as it goes.)
+  for(let t=0;t<=CELL&&!bad;t+=1)for(const l of [-1.6,0,1.6]){const x=x0+dx*t+dz*l,z=z0+dz*t+dx*l,ck=ckey(Math.floor(x/CS),Math.floor(z/CS));if(!chunkEdits.has(ck))continue;if(groundAt(x,z,G+3)<G+0.5){bad=true;break;}}
   holeCache.set(k,{t:playTime,bad});return bad;
 }
 // a route through a roundabout can't cut across its island (the bushes in the middle stop a truck dead): the junction's

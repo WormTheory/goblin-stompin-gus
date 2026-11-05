@@ -60,11 +60,23 @@ function noteRemoved(x,y,z){
   x=Math.floor(x);y=Math.floor(y);z=Math.floor(z);
   if((x+','+y+','+z) in edits)return;   // (not as built: it's been changed before)
   const v=rawGet(x,y,z);if(v===AIR)return;
-  const B=bldgAt(x,z);if(!B)return;const b=B.b,rx=x-B.px*CELL,rz=z-B.pz*CELL;
+  if(noteFor){noteQ.push(x,y,z,v,noteFor);return;}
+  noteBlock(x,y,z,v,bldgAt(x,z));
+}
+function noteBlock(x,y,z,v,B){
+  if(!B)return;const b=B.b,rx=x-B.px*CELL,rz=z-B.pz*CELL;
   if(y>colTop(b,rx,rz))return;
   const sv=STRUCT;const o=blockAt(b,rx,rz,y,B.px,B.pz);STRUCT=sv;if(o!==v)return;
   destroyed[B.key]=(destroyed[B.key]||0)+1;
   destroyVer++;
+}
+// a building coming down takes tens of thousands of blocks at a stroke: they're counted over the next few frames, not all in
+// the one where it goes (the figures on the map only need to catch up a moment later)
+let noteFor=null;const noteQ=[];
+function flushNotes(ms){
+  if(!noteQ.length)return;const t0=performance.now();let i=0;
+  while(i<noteQ.length){noteBlock(noteQ[i],noteQ[i+1],noteQ[i+2],noteQ[i+3],noteQ[i+4]);i+=5;if(!(i%500)&&performance.now()-t0>ms)break;}
+  if(i>=noteQ.length)noteQ.length=0;else noteQ.splice(0,i);
 }
 function colTop(b,rx,rz){const tierOn=b.tier>0&&(b.x1-b.x0)>=8,inner=rx>=b.x0+2&&rx<b.x1-2&&rz>=b.z0+2&&rz<b.z1-2;return ((tierOn&&!inner)?b.tier:b.top)+(b.roof||0);}
 // a building's original block count (estimated from up to 72 of its columns, picked evenly across the footprint)
@@ -239,7 +251,9 @@ function collapseBuilding(B,L,push){
   if(BLAME!=='acc')reportCrime(X0+(b.x0+b.x1)/2,Z0+(b.z0+b.z1)/2);
   for(let x=b.x0;x<b.x1;x++)for(let z=b.z0;z<b.z1;z++){
     const wx=X0+x,wz=Z0+z;
+    noteFor=B;
     for(let y=L;y<H;y++){const v=get(wx,y,wz);if(v===AIR)continue;if(y<L+FH+1&&collapseKeep(b,B.px,B.pz,x,z,y,L))continue;(y===L?crumble:body).push({x:wx,y,z:wz,b:v});setRaw(wx,y,wz,AIR);}
+    noteFor=null;
   }
   for(let x=b.x0-1;x<=b.x1;x++)for(let z=b.z0-1;z<=b.z1;z++)ch.add(ckey(Math.floor((X0+x)/CS),Math.floor((Z0+z)/CS)));
   collapses[B.key]=Math.min(collapses[B.key]??1e9,L);
@@ -275,8 +289,15 @@ function collapseBuilding(B,L,push){
     addShake(0.6,cx,cz,70);for(const p of players)if(p.active)rumble(p,0.9,900);
   }
 }
+const clipMat=plane=>nightPatch(new THREE.MeshBasicMaterial({map:tex,vertexColors:true,alphaTest:.5,clippingPlanes:[plane]}));
+// A material with a clipping plane needs a graphics program of its own, and three.js throws a program away when the last
+// material using it goes. So every building falling straight down would compile that program afresh, a stall right as it
+// goes. This one speck is drawn once, on the first frame, and its material kept: that program stays ready from then on.
+{const g=new THREE.BufferGeometry(),z=()=>new THREE.Float32BufferAttribute([0,0,0,0,0,0,0,0,0],3);
+ g.setAttribute('position',z());g.setAttribute('color',z());g.setAttribute('uv',new THREE.Float32BufferAttribute([0,0,0,0,0,0],2));
+ const m=new THREE.Mesh(g,clipMat(new THREE.Plane(new V3(0,1,0),1e6)));m.frustumCulled=false;m.onAfterRender=()=>{m.visible=false;};scene.add(m);}
 function buildBodyMesh(blocks,plane){
-  const set=new Set(blocks.map(q=>bkey(q.x,q.y,q.z)));
+  const set=new Set();for(const q of blocks)set.add(bkey(q.x,q.y,q.z));
   const P=[],U=[],C=[],I=[],surface=[];
   for(const q of blocks){
     const info=BLOCK[q.b];if(!info||!info.tiles)continue;let ex=false;
@@ -290,8 +311,9 @@ function buildBodyMesh(blocks,plane){
   }
   const g=new THREE.BufferGeometry();
   g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));g.setAttribute('color',new THREE.Float32BufferAttribute(C,3));g.setIndex(I);
-  const mesh=new THREE.Mesh(g,nightPatch(new THREE.MeshBasicMaterial({map:tex,vertexColors:true,alphaTest:.5,clippingPlanes:plane?[plane]:[]})));
-  mesh.userData.surface=surface;return mesh;
+  // (a toppling piece looks just like the world's own blocks; one sinking into the ground needs a clipping plane of its own)
+  const mesh=new THREE.Mesh(g,plane?clipMat(plane):matOpaque);
+  mesh.userData.surface=surface;mesh.userData.set=set;return mesh;
 }
 function makeBody(blocks,big){
   let minY=1e9,maxY=-1e9,sx=0,sz=0;const cols=new Map(),layers=new Map();
@@ -366,5 +388,5 @@ function placePile(B){
   ruinFires([...B.cols.values()],B.mass);
   if(B.big){smoke(B.cx,B.clipY+1,B.cz,12,0x77756e);thud(1);}
 }
-function clearBodies(){for(const B of bodies){scene.remove(B.mesh);B.mesh.geometry.dispose();B.mesh.material.dispose();}bodies.length=0;for(const T of topples){scene.remove(T.grp);T.mesh.geometry.dispose();T.mesh.material.dispose();}topples.length=0;}
+function clearBodies(){for(const B of bodies){scene.remove(B.mesh);B.mesh.geometry.dispose();B.mesh.material.dispose();}bodies.length=0;for(const T of topples){scene.remove(T.grp);T.mesh.geometry.dispose();}topples.length=0;}
 
