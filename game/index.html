@@ -535,9 +535,12 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
         <div class="tp-head"><h2>Testing Environment</h2><p>An empty, flat world to try things out in. Pick a kind of structure to bring in the nearest one this world would build, furnished and dressed as it would be in a city, with Gus set down just south of it. Enemies turn up a few steps ahead of wherever Gus is looking.</p></div>
         <div class="tp-info" id="tpInfo" role="status"></div>
         <div class="tp-sec"><div class="tp-gh">Enemies</div>
-          <div class="tp-tools" id="tpFoes"><button type="button" class="pmenu" data-foe="goblin">Goblin</button><button type="button" class="pmenu" data-foe="cop">Police officer</button><button type="button" class="pmenu" data-foe="cultist">Cultist</button><button type="button" class="pmenu" data-foe="thief">Thief</button><button type="button" class="pmenu" data-foe="prepper">Prepper</button><button type="button" class="pmenu" data-foe="militia">Militia</button><button type="button" class="pmenu" data-foe="civ">Civilian</button><button type="button" class="pmenu" data-foe="police">Police car</button><button type="button" class="pmenu" data-foe="car">Hunting car</button>
+          <div class="tp-tools" id="tpFoes"><button type="button" class="pmenu" data-foe="goblin">Goblin</button><button type="button" class="pmenu" data-foe="cop">Police officer</button><button type="button" class="pmenu" data-foe="cultist">Cultist</button><button type="button" class="pmenu" data-foe="thief">Thief</button><button type="button" class="pmenu" data-foe="prepper">Prepper</button><button type="button" class="pmenu" data-foe="militia">Militia</button><button type="button" class="pmenu" data-foe="civ">Civilian</button>
             <span class="tp-count">How many</span><div class="seg" role="radiogroup" aria-label="How many to spawn" id="tpN"><button type="button" role="radio" data-n="1" aria-checked="true">1</button><button type="button" role="radio" data-n="5" aria-checked="false">5</button><button type="button" role="radio" data-n="10" aria-checked="false">10</button></div>
             <button type="button" class="pmenu" id="tpClear">Clear all</button></div></div>
+        <div class="tp-sec"><div class="tp-gh">Vehicles</div>
+          <div class="tp-tools"><span id="tpVehs" style="display:contents"></span>
+            <div class="seg" role="radiogroup" aria-label="What spawned vehicles do" id="tpVM"><button type="button" role="radio" data-vm="hunt" aria-checked="true">Hunt Gus</button><button type="button" role="radio" data-vm="park" aria-checked="false">Parked</button></div></div></div>
         <div class="tp-sec" id="tpPlacedSec" hidden><div class="tp-gh">Spawned here</div><div class="tp-placed" id="tpPlaced"></div></div>
         <div class="tp-groups" id="tpGroups"></div>
         <div class="tp-foot"><button type="button" class="big" id="tpGo">Play</button><button type="button" class="pmenu" id="tpCancel">Title screen</button><button type="button" class="pmenu" id="tpNormal">Back to your city</button></div>
@@ -18641,7 +18644,7 @@ const TEST_GROUPS=[
 const TENV_PARK='goblin-stompin-gus-city-parked';
 // (kinds that are parts of a highway rather than a place: there's no highway here to put them on)
 const TENV_SKIP=new Set(['pylons','billboards','tolls']);
-const TS={search:null,n:1};
+const TS={search:null,n:1,vm:'hunt'};
 function tsSet(m){const el=document.getElementById('tpInfo');if(el)el.textContent=m;}
 const tenvTaken=F=>TENV.boxes.some(B=>F.ax<B.ax+B.w&&B.ax<F.ax+F.w&&F.az<B.az+B.h&&B.az<F.az+F.h);
 function tpRender(){
@@ -18659,6 +18662,11 @@ function tpRender(){
       const rm=document.createElement('button');rm.type='button';rm.className='pmenu';rm.textContent='Remove';rm.addEventListener('click',()=>tenvRemove(i));
       r.append(t,go,rm);pl.append(r);});}
   for(const b of document.querySelectorAll('#tpN [data-n]'))b.setAttribute('aria-checked',String(+b.dataset.n===TS.n));
+  for(const b of document.querySelectorAll('#tpVM [data-vm]'))b.setAttribute('aria-checked',String(b.dataset.vm===TS.vm));
+  // (one button per kind of vehicle body the game has, so a new kind shows up here by itself; police cars are their own pool)
+  const vb=document.getElementById('tpVehs');
+  if(vb&&!vb.childElementCount)for(const t of [...Object.keys(VEH),'police']){const b=document.createElement('button');b.type='button';b.className='pmenu';b.dataset.veh=t;
+    b.textContent=(VEH_NAME[t]||[t])[0].replace(/^./,c=>c.toUpperCase());b.addEventListener('click',()=>tenvVeh(t));vb.append(b);}
   const sn=document.getElementById('seedNote');if(sn&&TENV)sn.textContent=`Testing Environment · ${TENV.boxes.length} structure${TENV.boxes.length===1?'':'s'} spawned · seed ${seed}`;
 }
 function tpShow(on){
@@ -18770,6 +18778,30 @@ function tenvFoe(kind){
   const nm={goblin:['goblin','goblins'],cultist:['cultist','cultists'],thief:['thief','thieves'],prepper:['prepper','preppers'],militia:['militiaman','militiamen'],cop:['police officer','police officers'],civ:['civilian','civilians'],police:['police car','police cars'],car:['hunting car','hunting cars']}[kind];
   tsSet(made?('Spawned '+made+' '+nm[made>1?1:0]+' ahead of Gus.'):'Couldn\'t spawn any '+nm[1]+' just now.');
 }
+// vehicles: any kind, a few steps further off than enemies. Hunting, they drive straight at Gus; parked, they sit there
+// with nobody in them, to stand on, smash or get into (a parked police car still wakes up when Gus comes close)
+const VEH_NAME={car:['car','cars'],van:['van','vans'],pickup:['pickup','pickups'],truck:['truck','trucks'],semi:['semi truck','semi trucks'],bus:['bus','buses'],
+  fire:['fire engine','fire engines'],amb:['ambulance','ambulances'],news:['news van','news vans'],police:['police car','police cars'],moto:['motorcycle','motorcycles'],motorcycle:['motorcycle','motorcycles'],bike:['motorcycle','motorcycles']};
+function tenvVeh(t){
+  if(!TENV)return;const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active);if(!p)return;
+  const park=TS.vm==='park',pol=t==='police',fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw),cx=p.pos.x+fx*20,cz=p.pos.z+fz*20;let made=0;
+  for(let i=0;i<TS.n;i++){
+    // (open ground, not a roof or a wall, and not on top of another vehicle: a few tries for a clear spot)
+    let x=cx,z=cz;for(let k=0;k<20;k++){const a=Math.random()*Math.PI*2,r=i||k?4+Math.random()*(10+k*1.5):0;x=cx+Math.cos(a)*r;z=cz+Math.sin(a)*r;
+      if(groundAt(x,z,G+40)<=G+1.05&&!cars.some(o=>o.alive&&Math.hypot(o.pos.x-x,o.pos.z-z)<9))break;}
+    const y=groundAt(x,z,G+40),h=Math.atan2(p.pos.x-x,p.pos.z-z);
+    // (parked ones come from the parked cars' pool, which sits still; hunters from the traffic's)
+    const pk=park&&!pol;
+    let c=cars.find(o=>!o.alive&&!o.svcPool&&!o.pullPool&&!o.hwPool&&!!o.parkPool===pk&&!!o.police===pol);
+    if(!c){c=makeCar(cars.length,pol);c.g.scale.setScalar(ES);c.respawnT=1e9;if(pk)c.parkPool=true;cars.push(c);}
+    if(!pol)setVeh(c,t);
+    c.driver=pk?null:makeDriver(pol);if(c.dh)c.dh.visible=!pk;
+    c.path=null;c.hw=null;c.rt=null;c.svc=null;c.leaving=false;c.rampKey=null;c.spot=null;c.makeWay=0;c.rusted=false;c.paint.color.setHex(c.color);
+    c.pos.set(x,y,z);c.heading=h;c.speed=0;c.kv.set(0,0,0);c.hp=pol?40:t==='bus'||t==='semi'||t==='fire'?45:30;c.alive=true;c.hunter=!park;c.parked=park;c.vy=0;c.lastInter=-1;
+    c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.paint.emissive.setHex(0);c.g.visible=true;made++;}
+  const nm=VEH_NAME[t]||[t,t+'s'];
+  tsSet(made?('Spawned '+made+' '+(park?'parked ':'hunting ')+nm[made>1?1:0]+' ahead of Gus.'):'Couldn\'t spawn any '+nm[1]+' just now.');
+}
 function tenvClear(){
   for(const g of goblins)if(g.state!=='wait'){g.state='wait';g.t=0;g.root.visible=false;g.cop=null;g.inv=false;g.ff=null;g.medic=null;g.news=null;g.vendor=null;g.claim=null;g.act=null;g.homeV=null;}
   fbClear();
@@ -18781,6 +18813,7 @@ document.getElementById('tpCancel').addEventListener('click',()=>tpShow(false));
 document.getElementById('tpGo').addEventListener('click',()=>startPlay());
 document.getElementById('tpNormal').addEventListener('click',()=>tenvLeave());
 document.getElementById('tpClear').addEventListener('click',()=>tenvClear());
+for(const b of document.querySelectorAll('#tpVM [data-vm]'))b.addEventListener('click',()=>{TS.vm=b.dataset.vm;tpRender();});
 for(const b of document.querySelectorAll('#tpFoes [data-foe]'))b.addEventListener('click',()=>tenvFoe(b.dataset.foe));
 for(const b of document.querySelectorAll('#tpN [data-n]'))b.addEventListener('click',()=>{TS.n=+b.dataset.n;tpRender();});
 // where Gus was standing last time (in this city): saved every couple of seconds and when the page closes
