@@ -89,7 +89,7 @@ function mineColumn(col,B,U,V,x,z){
   // the ore silo at the end of the line, and a conveyor from it up to the plant
   {const d=Math.hypot(U-86,V-30);if(d<4.6){for(let y=G+1;y<=G+14;y++)col(y,d>3.4||y===G+14?(y%4?METAL:RUST):AIR);return;}}
   if(U===78&&V>=36&&V<=48){const yy=G+2+Math.floor((48-V)*0.6);col(yy,METAL);if(V%4===0)for(let y=G+1;y<yy;y++)col(y,METAL);}
-  if(V>=35&&V<=37&&(U===22||U===23||U===36||U===37)){col(G+1,RUST);if(V===36)col(G+2,ore);}
+  // (the carts themselves are props: see siteProps)
 }
 // a quarry: an enormous terraced pit, its benches stepping down 27 blocks to a pool of rainwater, a haul road
 // running straight down into it, an excavator and dump trucks at work; the crusher and its conveyor, the stockpiles
@@ -144,10 +144,9 @@ function lumberColumn(col,B,U,V,x,z){
   if(U>=66&&U<=82&&(V>=14&&V<=30||V>=62&&V<=78)&&(V-14)%4<3&&(U-66)%6<5){col(G+1,LOG);col(G+2,PLANKS);col(G+3,PLANKS);if((U+V)%3)col(G+4,PLANKS);return;}
   // the logging truck: its cab and the trailer loaded with logs
   {const a=U-58,b=V-44;if(b>=0&&b<=2&&a>=0&&a<=15){if(a<=3){col(G+1,PAINT_DARK);col(G+2,PAINT_RED);col(G+3,a<=1?WIN_BLUE:PAINT_RED);}else{col(G+1,PAINT_DARK);col(G+2,LOG);col(G+3,LOG);if(b===1)col(G+4,LOG);if(a%5===0)col(G+4,METAL);}return;}}
-  // a saw horse and a chopping block or two
-  if(h<0.006)col(G+1,LOG);
+  // (the saw horses and chopping blocks are props: see siteProps)
 }
-// ---- campsites: a loop of gravel track round a meadow; RVs pulled up along it, tents pitched in the middle, each
+// ---- campsites: a loop of gravel track round a meadow; motorhomes pulled up along it, tents pitched in the middle, each
 // pitch with its fire pit and picnic table; the wash block and the warden's hut by the gate; trees round the edge ----
 const CAMP_TENT_C=[AWN_R,AWN_G,PAINT_ORANGE,PAINT_BLUE,PAINT_YELLOW];
 function campPitches(B){
@@ -163,13 +162,11 @@ function campsiteColumn(col,B,U,V,x,z){
   if(loop||U>=30&&U<=33&&V<10){col(G,GRAVEL);return;}
   for(const p of campPitches(B)){
     if(p.k==='rv'){const a=U-p.u,b=V-p.v;
-      // an RV: a long white box on wheels, a stripe down its side, windows, a door, the awning out on the camp side
-      if(a>=0&&a<=7&&b>=0&&b<=2){const st=[PAINT_BLUE,PAINT_ORANGE,PAINT_RED,PAINT_GREEN][p.c%4];
-        col(G+1,(a===1||a===6)&&(b===0||b===2)?PAINT_DARK:PAINT_WHITE);col(G+2,st);col(G+3,(b===0||b===2)&&a>=1&&a<=6&&a!==3?WIN_BLUE:a===0?WIN_BLUE:PAINT_WHITE);col(G+4,a>=2&&a<=3&&b===1?METAL:PAINT_WHITE);return;}
-      // its fire pit and picnic table, in front
+      // a gravel pad for the motorhome (which is a real vehicle: see parkSpots), its fire pit in front; the picnic table,
+      // camp chairs and cool box are props (campProps)
+      if(a>=0&&a<=7&&b>=0&&b<=2){col(G,GRAVEL);return;}
       const fv=p.v<20?p.v-3:p.v+5;
       if(Math.abs(U-(p.u+2))<=1&&Math.abs(V-fv)<=1){if(U===p.u+2&&V===fv){col(G+1,LOG);}else col(G+1,STONE);return;}
-      if(U>=p.u+5&&U<=p.u+7&&Math.abs(V-fv)<=1){if(V===fv)col(G+2,PLANKS);else col(G+1,SEAT_B);return;}
       continue;}
     // a tent: an A-frame, three wide and four long, its door at one end; the fire pit beside it
     const a=p.ax?U-p.u:V-p.v,c=p.ax?V-p.v:U-p.u;
@@ -208,8 +205,8 @@ function cultColumn(col,B,U,V,x,z){
   for(const [tu,tv] of [[13,0],[-13,0],[0,13],[0,-13]])if(du===tu&&dv===tv){col(G+1,LOG);col(G+2,LOG);col(G+3,NEON_O);return;}
   if(du===0&&dv===-3){col(G+1,LOG);return;}
   if(Math.abs(du)<=1&&Math.abs(dv+3)<=1&&!(du===0&&dv===-3)){col(G+1,STONE);return;}
-  // bones about, and dead trees round the clearing
-  if(d<12&&h<0.012){col(G+1,PAINT_WHITE);return;}
+  // dead trees round the clearing
+  // (the bones about, the candles, the skull and the book are props: see siteProps)
   if(d>14&&h>0.985){const n=4+Math.floor(hash2(x,z*3)*4);for(let y=G+1;y<=G+n;y++)col(y,LOG);return;}
 }
 // ---- abandoned cars: rusting wrecks dumped out in the fields, alone, or now and then a whole heap of them ----
@@ -392,7 +389,7 @@ function thievesColumn(col,B,U,V,x,z){
     return;}
   if(U>=12&&U<=15&&V===20||U===12&&V>=21&&V<=24||U===15&&V>=21&&V<=24){col(G+1,FENCE);return;}
   // the loot, piled outside the shack
-  if(U>=20&&U<=26&&V>=16&&V<=19){const q=hash2(x,z*3);col(G+1,q<0.3?CRATE:q<0.5?SCREEN:q<0.65?FRIDGE:q<0.75?GOLD:CRATE);if(q<0.4)col(G+2,q<0.2?CRATE:SCREEN);return;}
+  // (the heap itself is props: see siteProps)
   // the fire
   if(Math.abs(U-16)<=1&&Math.abs(V-6)<=1){col(G+1,U===16&&V===6?LOG:STONE);return;}
   if(d>12&&h<0.02)col(G+1,LEAVES);

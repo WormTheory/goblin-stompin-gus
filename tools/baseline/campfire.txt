@@ -1,0 +1,12 @@
+campsite | fires burning 11 | props 40
+  gus on the wood 4 hp lost | on the ring of stones 0 | beside it 0 | 3 off 0
+  motorhome pitches 7 | motorhomes there 7 | kinds rv | hp 40,40,40,40,40,40,40
+  smashed one: alive false | wrecked till 119 s | motorhomes now 6
+  10 s later: motorhomes 6
+camp | fires burning 1 | props 8
+  gus on the wood 4 hp lost | on the ring of stones 0 | beside it 0 | 3 off 0
+cult | fires burning 1 | props 11
+  cultists round the altar, 10 s (hp/from the fire): before 4/8.3 4/8.9 4/6.4 4/2.3 4/4.8 after 4/8.2 4/4.5 4/2.5 4/6.6 4/9.0 | roused false
+  gus on the wood 19 hp lost | on the ring of stones 20 | beside it 0 | 3 off 9
+  goblin on the wood: hp 0 dead | goblin beside it: hp 5 chase
+errors 0 []

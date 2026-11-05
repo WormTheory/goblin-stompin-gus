@@ -212,24 +212,26 @@ function discoTick(dt){
   for(let i=0;i<8;i++)for(let j=0;j<8;j++){x.fillStyle=C[Math.floor(Math.random()*C.length)];x.fillRect(i,j,1,1);}
   discoTex.map.needsUpdate=true;
 }
-// the barrel fires at the encampments: a flickering orange glow over the top of the barrel
+// the campfires (see hearths): the fire pits on a campsite, an encampment's barrel fire, the fire before a cult's altar, the
+// militia's and thieves' fires. Each is a real fire burning on its wood, with a bed of glowing embers under the flames
+// (which is also what the Structures preview shows, as it doesn't run the flames). Gone with the wood.
 const campOn=new Map(),CAMP_FIRE=new THREE.MeshBasicMaterial({color:0xff8a2a});
 function campFires(dt){
   campFires.t=(campFires.t||0)-dt;
   if(campFires.t<=0){campFires.t=1;const want=new Set();
     for(const p of viewers()){for(let px=Math.floor((p.pos.x-80)/CELL);px<=Math.floor((p.pos.x+80)/CELL);px++)for(let pz=Math.floor((p.pos.z-80)/CELL);pz<=Math.floor((p.pos.z+80)/CELL);pz++){
       if(!tenvShow(px,pz))continue;const pts=[],t=plotType(px,pz);
-      if(t==='camp'){const P=plotInfo(px,pz);pts.push([px*CELL+P.fire.x,pz*CELL+P.fire.z,RUST]);}
+      if(t==='camp'){const P=plotInfo(px,pz);pts.push([px*CELL+P.fire.x,pz*CELL+P.fire.z,RUST,'Burned in a barrel fire']);}
       else if(t==='campsite'||t==='cult'||t==='militia'||t==='thieves'){const B=bigPlainsAt(px,pz);if(B.ax!==px||B.az!==pz)continue;const X0=B.ax*CELL,Z0=B.az*CELL;
-        if(t==='cult')pts.push([X0+16,Z0+13,LOG]);
-        if(t==='militia')pts.push([X0+24,Z0+34,LOG]);
-        if(t==='thieves')pts.push([X0+16,Z0+6,LOG]);
-        else for(const q of campPitches(B))pts.push(q.k==='rv'?[X0+q.u+2,Z0+(q.v<20?q.v-3:q.v+5),LOG]:[X0+q.u+(q.ax?1:5),Z0+q.v+(q.ax?5:1),LOG]);}
-      for(const [x,z,base] of pts){const k=x+','+z;if(get(x,G+1,z)!==base)continue;want.add(k);
-        if(!campOn.has(k)){const m=new THREE.Mesh(LM_BOX,CAMP_FIRE);m.position.set(x+0.5,G+2.25,z+0.5);m.scale.set(0.7,0.5,0.7);scene.add(m);campOn.set(k,m);}}}}
-    for(const [k,m] of campOn)if(!want.has(k)){scene.remove(m);campOn.delete(k);}}
-  const f=0.75+0.25*Math.sin(performance.now()*0.02)*Math.sin(performance.now()*0.013);CAMP_FIRE.color.setRGB(1,0.45+0.2*f,0.12);
-  for(const m of campOn.values())m.scale.y=0.35+0.4*f;
+        if(t==='cult')pts.push([X0+16,Z0+13,LOG,'Burned in the altar fire']);
+        if(t==='militia')pts.push([X0+24,Z0+34,LOG,'Burned in a campfire']);
+        if(t==='thieves')pts.push([X0+16,Z0+6,LOG,'Burned in a campfire']);
+        if(t==='campsite')for(const q of campPitches(B))pts.push(q.k==='rv'?[X0+q.u+2,Z0+(q.v<20?q.v-3:q.v+5),LOG,'Burned in a campfire']:[X0+q.u+(q.ax?1:5),Z0+q.v+(q.ax?5:1),LOG,'Burned in a campfire']);}
+      for(const [x,z,base,why] of pts){const k=x+','+z;if(get(x,G+1,z)!==base)continue;want.add(k);
+        if(!campOn.has(k)){const m=new THREE.Mesh(LM_BOX,CAMP_FIRE);m.position.set(x+0.5,G+2.04,z+0.5);m.scale.set(0.62,0.08,0.62);scene.add(m);campOn.set(k,m);
+          hearths.set(k,{x:x+0.5,y:G+2,z:z+0.5,s:base===RUST?0.9:1,acc:0,sacc:Math.random(),hurt:0.9*Math.random(),why});}}}}
+    for(const [k,m] of campOn)if(!want.has(k)){scene.remove(m);campOn.delete(k);hearths.delete(k);}}
+  const f=0.75+0.25*Math.sin(performance.now()*0.02)*Math.sin(performance.now()*0.013);CAMP_FIRE.color.setRGB(1,0.3+0.2*f,0.08);
 }
 function refreshLandmarks(){
   const want=new Set();

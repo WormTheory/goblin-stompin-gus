@@ -410,5 +410,228 @@ function patioProps(P,px,pz){
     add('chair',-.68,0,Math.PI/2,0x46505a,true);add('chair',.68,0,-Math.PI/2,0x46505a,true);add('chair',0,-.68,0,0x46505a,true);add('chair',0,.68,Math.PI,0x46505a,true);}
   return L;
 }
+// the furniture of the places out of doors: a farmer's market's produce, a campsite's picnic tables and camp chairs, an
+// encampment's bedding and carts, a cult's book, candles and bones, a building site's barrows and bricks, a nursery's
+// pots, a trailer park's lawn chairs and junk, the flowers on the graves. (A site over more than one plot gives each plot
+// just its own, so nothing's listed twice.) Drawn out to the same distance as the benches in the street.
+const SITE_PROPS=new Set(['farmers','camp','campsite','cult','build','nursery','trailers','cemetery','mine','quarry','lumber','prepper','militia','thieves','ruins','dump','park','plaza','court','lighthouse','homes']);
+// (the big sites dressed the same way: the ones whose plan says where their open ground is)
+const SITE_SUPER=new Set(['power','zoo','theme','stadium','garage','bigpark']);
+// which of those a block is, if any (a bunker or a few wrecked cars out on open grass count too)
+function siteKind(px,pz){
+  const t=plotType(px,pz);if(SITE_PROPS.has(t))return t;
+  if(t==='super'){const S=superOf(px,pz);return S&&SITE_SUPER.has(S.kind)?S.kind:null;}
+  if(t==='plains'){if(bunkerAt(px,pz))return'bunker';if(abandonedSpots(px,pz).length)return'wrecks';}
+  return null;
+}
+const P_CROP=[0xe0782a,0xc8302a,0xe8c83a,0x4f9a3a,0xd96aa0],P_CAMP=[0x2f6f7a,0xc83a32,0x3f6b8c,0x5d7a45,0xd8b13a],P_POT=[0x3f8f3f,0x5aa469,0x2f7a3a,0xd96aa0,0xc8302a,0xe8c83a];
+function siteProps(P,px,pz){
+  if(P._sp)return P._sp;const L=P._sp=[],X0=px*CELL,Z0=pz*CELL,kind=siteKind(px,pz);
+  const add=(type,x,z,yaw,tint,low,y0=G+1)=>L.push({prop:true,type,x,z,y0,yaw:yaw||0,tint,rad:.5,low,key:'p'+Math.round(x*4)+','+Math.round(z*4)+','+y0+type});
+  // (for a site over many blocks, laid out from its corner: only what falls on this block)
+  const mine=(x,z)=>Math.floor(x/CELL)===px&&Math.floor(z/CELL)===pz;
+  const putAt=(BX,BZ)=>(type,u,v,yaw,tint,low,y0)=>{const x=BX+u,z=BZ+v;if(mine(x,z))add(type,x,z,yaw,tint,low,y0);};
+  if(kind&&SITE_FN[kind]){SITE_FN[kind](P,px,pz,add,putAt,mine);return L;}
+  if(P.type==='farmers'){
+    // each stall: its four poles, the table of produce at the front, a basket either side, crates stacked at the back, the stallholder's
+    // stool in the middle, and now and then a board out in the aisle with the prices on
+    for(const S of P.stalls){const at=(u,v)=>[X0+S.x0+u+.5,Z0+(S.face>0?S.z0+v:S.z0+2-v)+.5],yaw=S.face>0?0:Math.PI,c=P_CROP[S.crop];
+      // (the poles holding up the awning, at its corners)
+      for(const u of [0,2])for(const v of [0,2]){const q=at(u,v);add('mpost',q[0]+(u?.38:-.38),q[1]+(v?.38:-.38)*S.face,0);}
+      let q=at(1,2);add('mtable',q[0],q[1],yaw,c);
+      q=at(0,1);add('bushel',q[0],q[1],0,P_CROP[(S.crop+1)%5]);q=at(2,1);add('bushel',q[0],q[1],0,P_CROP[(S.crop+3)%5]);
+      q=at(1,0);add('pcrates',q[0],q[1],yaw,P_CROP[(S.crop+2)%5]);q=at(1,1);add('stool',q[0],q[1],0,0x8a6a44,true);
+      if(hash2(px*7+S.x0,pz*3+S.z0)<0.6){q=at(hash2(S.x0*3,pz+S.z0)<0.5?0:2,3);add('aboard',q[0],q[1],yaw+0.3,c);}}
+  } else if(P.type==='camp'){
+    // a sleeping bag in each tent, a shopping cart or a crate by its door; crates to sit on either side of the barrel fire
+    for(const t of P.camp){const at=(a,c)=>t.ax?[X0+t.x0+a+.5,Z0+t.z0+c+.5]:[X0+t.x0+c+.5,Z0+t.z0+a+.5];
+      let q=at(1,1);add('bedroll',q[0],q[1],t.ax?Math.PI/2:0,P_BLANKET[(t.x0+t.z0)%4],true);
+      q=at(4,0);const h=hash2(Math.floor(q[0])*7+3,Math.floor(q[1])*13+1);if(h<0.5)add(h<0.25?'trolley':'pcrate',q[0],q[1],h*12,0);}
+    const fx=X0+P.fire.x+.5,fz=Z0+P.fire.z+.5;add('pcrate',fx-1.8,fz,Math.PI/2,0);add('pcrate',fx+1.8,fz,-Math.PI/2,0);
+  } else if(P.type==='campsite'){
+    const B=bigPlainsAt(px,pz);if(!B)return L;const BX=B.ax*CELL,BZ=B.az*CELL;
+    const put=(type,u,v,yaw,tint)=>{const x=BX+u,z=BZ+v;if(Math.floor(x/CELL)===px&&Math.floor(z/CELL)===pz)add(type,x,z,yaw,tint);};
+    for(const q of campPitches(B)){const tc=P_CAMP[q.c%5],tc2=P_CAMP[(q.c+2)%5];
+      if(q.k==='rv'){
+        // the motorhome's pitch: the picnic table, a cool box, camp chairs round the fire (one on the motorhome's side)
+        const fu=q.u+2.5,fv=(q.v<20?q.v-3:q.v+5)+.5,sd=q.v<20?1:-1;
+        put('picnic',q.u+6.5,fv,0,0);put('cooler',q.u+4.55,fv,Math.PI/2,0xc83a32);
+        put('campchair',fu-2.1,fv,Math.PI/2,tc);put('campchair',fu,fv+sd*2.1,sd>0?Math.PI:0,tc2);
+      } else {
+        // a tent's pitch: two chairs either side of its fire, and a cool box
+        const fu=q.u+(q.ax?1:5)+.5,fv=q.v+(q.ax?5:1)+.5;
+        if(q.ax){put('campchair',fu-2.1,fv,Math.PI/2,tc);put('campchair',fu+2.1,fv,-Math.PI/2,tc2);put('cooler',fu+2.1,fv+1.3,0,0x3f6b8c);}
+        else{put('campchair',fu,fv-2.1,0,tc);put('campchair',fu,fv+2.1,Math.PI,tc2);put('cooler',fu+1.4,fv+2.1,0,0x3f6b8c);}}}
+  } else if(P.type==='cult'){
+    const B=bigPlainsAt(px,pz);if(!B||B.ax!==px||B.az!==pz)return L;const cx=X0+16.5,cz=Z0+16.5;
+    // the book of the rite at the head of the altar, a skull on the slab, candles guttering outside the circle at each
+    // point of the star, and bones lying about (as the blocks once were)
+    add('bookstand',cx,Z0+19.4,Math.PI,0);add('skull',cx,Z0+17,0.4,0,true,G+3);
+    for(let i=0;i<5;i++){const a=-Math.PI/2+i*2*Math.PI/5;add('candles',cx+Math.cos(a)*7.4,cz+Math.sin(a)*7.4,i,0,true);}
+    for(let U=4;U<28;U++)for(let V=4;V<28;V++){const x=X0+U,z=Z0+V,h=hash2(x*11+3,z*5+7);if(Math.hypot(U-16,V-16)<12&&h<0.012&&Math.hypot(U-16,V-16)>2.5)add(h<0.004?'skull':'bones',x+.5,z+.5,h*900,0,true);}
+  } else if(P.type==='build'){
+    // cones either side of the gate, a wheelbarrow, pallets of bricks, the cement mixer, the portable toilet
+    add('cone',X0+PC-1.5,Z0+PL0+1.5,0,0,true);add('cone',X0+PC+2.5,Z0+PL0+1.5,0,0,true);
+    add('barrow',X0+PC-1.5,Z0+PL0+4.5,0.5,0x3f6b8c);add('bricks',X0+PL0+2.5,Z0+PL0+5,0);add('bricks',X0+PL0+4.2,Z0+PL0+5,0.1);
+    add('cmixer',X0+PC+3,Z0+PL0+5,-0.6);add('portaloo',X0+PL0+1.5,Z0+PL0+9.5,Math.PI/2);
+    add('bricks',X0+PL1-3.5,Z0+PL0+11.5,Math.PI/2);add('bricks',X0+PL1-3.5,Z0+PL0+14,Math.PI/2);add('barrow',X0+PL1-3.5,Z0+PL0+16.5,2.6,0xe8742a);
+  } else if(P.type==='nursery'){
+    // the pots for sale out front, in rows; a wheelbarrow on the walk
+    for(let rx=PL0+1;rx<PL1-9;rx++)for(let rz=PL0+1;rz<PL0+7;rz++){if((rx+rz)%2||rx===PC-1)continue;const k=(rx*7+rz)%3,h=hash2(X0+rx,Z0+rz*3);
+      add('sapling',X0+rx+.5,Z0+rz+.5,h*6,k?P_POT[Math.floor(h*3)]:P_POT[3+Math.floor(h*3)]);}
+    add('barrow',X0+PC-.5,Z0+PL0+3.5,0.2,0x5d7a45);
+  } else if(P.type==='trailers'){
+    // the junk by each trailer's step (a crate, a rusty drum), and a lawn chair and a barbecue out by the washing line
+    for(const b of P.b){const lane=b.door===1?b.x1:b.x0-1,line=b.door===1?b.x0-1:b.x1,out=b.door===1?-Math.PI/2:Math.PI/2;
+      for(const rz of [b.z0,b.z1-1]){const x=X0+lane,z=Z0+rz,h=hash2(x*9+1,z*3+7);if(h<0.6)add(h<0.3?'pcrate':'drum',x+.5,z+.5,h*9,0x7a4a2a);}
+      add('campchair',X0+line+.5,Z0+b.z0+6.6,out,P_CAMP[(b.x0+b.z0)%5]);add('grill',X0+line+.5,Z0+b.z0+7.7,0);}
+  } else if(P.type==='cemetery'){
+    // flowers left at some of the graves
+    const b=P.b[0],TN=[0xc83a32,0xd96aa0,0xe8c83a,0xf0f0f0,0x8f7fc9];
+    for(let rx=PL0+2;rx<=PL1-3;rx++)for(let rz=PL0+2;rz<=PL1-3;rz++){if(rz%2||rx%2!==1||rz-1===PC-1)continue;const x=X0+rx,z=Z0+rz;
+      if(hash2(x*7+1,z*3+5)>=0.88||hash2(x*13+5,z*7+3)>=0.3)continue;if(b&&rx>=b.x0-1&&rx<=b.x1&&rz-1>=b.z0-1&&rz-1<=b.z1)continue;
+      add('flowers',x+.5,z-.5,0,TN[Math.floor(hash2(x,z*5)*5)],true);}
+  }
+  return L;
+}
+// the props of the rest of the outdoor sites (see siteProps): each laid out by the same plan its blocks are, so they
+// stand where that leaves open ground
+const P_RUSTY=0x7a4a2a,P_OLIVE=0x4f5a32,P_WATER=0x2f5fa0,P_FUEL=[0xc83a32,0x4f5a32,0xd8b13a];
+// a bunker's rooms, under the hatch at (cx,cz): bunks in the dormitory, shelves and crates in the store, the radio
+// desks, the table in the hall (all down on its floor, 11 under the ground)
+function bunkerProps(add,cx,cz){
+  const y=G-11,a=(type,u,v,yaw,tint,low,yo)=>add(type,cx+u+.5,cz+v+.5,yaw,tint,low,y+(yo||0));
+  for(const v of [1,7])for(const u of [-13,-10])a('bunk',u,v,Math.PI/2,P_BLANKET[(u+v+20)%4]);
+  a('locker',-14,4,Math.PI/2,0x5d6b4a);
+  for(const v of [2,4,6])a('shelf2',14,v,-Math.PI/2,0);a('pcrate',10,8,0,0);a('pcrate',12,8,0.1,0);a('jerrycans',11,0,0,P_FUEL[0],true);a('drum',9,0,0,P_WATER);
+  for(const u of [-2,0,2]){a('deskm',u,16,Math.PI,0);a('monitor',u,16.1,Math.PI,0,true,0.66);a('swivel',u,14.8,0,0);}
+  for(const u of [-1.5,1.5]){a('rtable',u,6,0,0x6a5a4a);a('chair',u,4.9,0,0x4f5a32);a('chair',u,7.1,Math.PI,0x4f5a32);}
+}
+const SITE_FN={
+  bunker(P,px,pz,add){bunkerProps(add,px*CELL+PC,pz*CELL+PC);},
+  // abandoned cars: their old tyres lying round them, now and then a heap of them or a rusty drum
+  wrecks(P,px,pz,add){
+    for(const o of abandonedSpots(px,pz)){const r=k=>hash2(Math.floor(o.x)*31+k,Math.floor(o.z)*17+k*7),a=o.h+1.2+r(1)*2;
+      add('tyre',o.x+Math.cos(a)*2.6,o.z+Math.sin(a)*2.6,r(2)*6,0,true,o.y);
+      if(r(3)<0.35)add('tyres',o.x-Math.cos(a)*2.8,o.z-Math.sin(a)*2.8,r(4)*6,0,false,o.y);
+      else if(r(3)<0.6)add('drum',o.x-Math.cos(a)*2.6,o.z-Math.sin(a)*2.6,0,P_RUSTY,false,o.y);}
+  },
+  // the mine's yard: carts on the line out to the ore pile, picks and shovels by the adit, crates and drums, a cable drum
+  // by the headframe
+  mine(P,px,pz,add,putAt){const B=bigPlainsAt(px,pz);if(!B)return;const put=putAt(B.ax*CELL,B.az*CELL),ore={coal:0x2a2a2e,gold:0xd8b13a,iron:0x9a5a3a}[mineOre(B)];
+    for(const u of [23,37,62])put('minecart',u,36.5,Math.PI/2,ore);
+    put('toolrack',17,6.4,0,0);put('pcrate',19.2,6.6,0,0);put('pcrate',20.4,6.6,0.2,0);put('drum',35.5,8,0,P_RUSTY);put('drum',36.4,8.7,0,P_RUSTY);
+    put('reel',47.5,22,0.4,0);put('barrow',22,9,0.8,0x5d6b4a);
+  },
+  // the quarry's yard: the portable toilet, drums, a cable drum, crates, the tool rack, cones along the road in
+  quarry(P,px,pz,add,putAt){const B=bigPlainsAt(px,pz);if(!B)return;const put=putAt(B.ax*CELL,B.az*CELL);
+    put('portaloo',21.5,3.5,0);put('drum',26,6,0,0x3f6b8c);put('drum',26.9,6.7,0,0x3f6b8c);put('reel',30,18,0.3,0);
+    put('pcrate',22,19,0,0);put('pcrate',23.2,19.1,0.2,0);put('toolrack',28.5,3,0,0);put('barrow',31,9,2.2,0xe8742a);
+    for(const v of [4,9,14,19])put('cone',57.4,v,0,0,true);
+  },
+  // the lumber camp: chopping blocks by the cabins, saw horses by the mill, the tool rack, fuel for the chainsaws, the
+  // loggers' picnic table
+  lumber(P,px,pz,add,putAt){const B=bigPlainsAt(px,pz);if(!B)return;const put=putAt(B.ax*CELL,B.az*CELL);
+    put('chopblock',14,15.5,0.4,0);put('chopblock',26,15.5,2,0);put('picnic',20,19,0,0);
+    put('sawhorse',36,34,0.3,0);put('sawhorse',38.6,36.2,1.2,0);put('toolrack',37,14,0,0);put('jerrycans',36.5,31,0,P_FUEL[0],true);put('barrow',44,35,2.4,0x3f6b8c);
+  },
+  // the preppers: fuel by the tank, water barrels by the water tank, supplies stacked by the containers, a barbecue and
+  // chairs by the house, ammunition up by the watchtower, a barrow in the vegetable patch; and the bunker under the corner
+  prepper(P,px,pz,add,putAt){const B=bigPlainsAt(px,pz);if(!B)return;const BX=B.ax*CELL,BZ=B.az*CELL,put=putAt(BX,BZ);
+    put('jerrycans',11.6,31,Math.PI/2,P_FUEL[0],true);put('jerrycans',11.6,32.2,Math.PI/2,P_FUEL[1],true);
+    put('drum',16,48,0,P_WATER);put('drum',16.8,47.1,0,P_WATER);put('drum',16.2,49.1,0,P_WATER);
+    put('pcrate',20.8,41,Math.PI/2,0);put('pcrate',20.8,42.2,Math.PI/2,0);put('pcrate',30.6,44,Math.PI/2,0);put('ammobox',30.6,45.3,Math.PI/2,0);
+    put('grill',26,14,0,0);put('campchair',26,16,Math.PI/2,0x5d7a45);put('campchair',27.4,12.4,0,0x5d7a45);put('ammobox',52.5,10.5,0,0);put('barrow',35,39,1.6,0x5d6b4a);put('toolrack',6,24,0,0);
+    bunkerProps((type,x,z,yaw,tint,low,y0)=>{if(Math.floor(x/CELL)===px&&Math.floor(z/CELL)===pz)add(type,x,z,yaw,tint,low,y0);},BX+32+PC,BZ+32+PC);
+  },
+  // the militia: bedrolls in the tents, chairs round the fire pit, ammunition along the firing line and stacked by the
+  // HQ, fuel cans between the pickups, drums
+  militia(P,px,pz,add,putAt){const B=bigPlainsAt(px,pz);if(!B)return;const put=putAt(B.ax*CELL,B.az*CELL);
+    for(let i=0;i<4;i++)for(let j=0;j<2;j++)put('bedroll',9.5+i*5,12.4+j*8,0,P_OLIVE,true);
+    put('campchair',21.4,34.5,Math.PI/2,P_OLIVE);put('campchair',26.6,34.5,-Math.PI/2,P_OLIVE);put('pcrate',24.5,31.6,0,0);
+    for(const u of [14.5,26.5,38.5,50.5])put('ammobox',u,41.3,0,0);
+    put('ammobox',34,10,Math.PI/2,0);put('ammobox',34,11.4,Math.PI/2,0);put('pcrate',34,13,Math.PI/2,0);put('jerrycans',46.5,29.5,Math.PI/2,P_FUEL[1],true);put('drum',57,22,0,P_OLIVE);put('drum',57.8,22.8,0,P_OLIVE);
+  },
+  // the thieves: the loot heaped outside the shack (televisions, a safe, crates, gold, a shopping cart), chairs round
+  // their fire
+  thieves(P,px,pz,add,putAt){const B=bigPlainsAt(px,pz);if(!B)return;const put=putAt(B.ax*CELL,B.az*CELL);
+    put('tv',20.6,16.6,0.4,0);put('safe',22.2,17,0.2,0);put('pcrate',23.8,16.6,0.1,0);put('pcrate',23.8,16.6,0.3,0,false,G+1.64);put('tv',25.6,16.8,-0.3,0);
+    put('trolley',21,18.8,1.2,0);put('goldbars',23.2,18.6,0.3,0,true);put('pcrate',25.4,18.8,0.6,0);put('goldbars',25.4,18.8,0.2,0,true,G+1.64);
+    put('campchair',13.6,6.5,Math.PI/2,0x77608f);put('campchair',18.4,6.5,-Math.PI/2,0x3f6b8c);put('pcrate',16.5,8.6,0,0);
+  },
+  // the ruins: tumbled stones in the rooms, a broken urn or two, a bucket left by the well
+  ruins(P,px,pz,add,putAt){const B=bigPlainsAt(px,pz);if(!B)return;const BX=B.ax*CELL,BZ=B.az*CELL,put=putAt(BX,BZ);
+    RUIN_ROOMS.forEach(([u0,v0,u1,v1],i)=>{for(let k=0;k<4;k++){const h=hash2(BX+i*7+k,BZ+k*13+i),q=hash2(BZ+k*5,BX+i*3+k);put('rubble',u0+2+Math.floor(h*(u1-u0-3))+.5,v0+2+Math.floor(q*(v1-v0-3))+.5,h*6,0,true);}
+      const h=hash2(BX+i*11,BZ+i*3);put('vase',u0+2.5+Math.floor(h*(u1-u0-4)),v1-1.5,h*6,0x8a6a4a);});
+    put('bucket',34.2,30.5,0.3,0,true);put('rubble',40,32,1,0,true);put('rubble',50,36,2,0,true);
+  },
+  // the dump: the yard by the gate, where things are sorted (tyres, a mattress, old fridges, a shopping cart, drums)
+  dump(P,px,pz,add,putAt,mine){const D=dumpAt(px,pz);if(!D)return;const SZ=4*CELL,g=D.i*CELL,BX=D.ax*CELL,BZ=D.az*CELL;
+    const at=(d,w,type,yaw,tint,low)=>{const U=D.side===0?d:D.side===1?SZ-1-d:w,V=D.side===2?d:D.side===3?SZ-1-d:w,x=BX+U+.5,z=BZ+V+.5;if(mine(x,z))add(type,x,z,yaw,tint,low);};
+    at(12,g-10,'tyres',0.4,0);at(14,g-12,'tyres',2,0);at(13,g-14,'tyre',1,0,true);at(18,g-10,'mattress',0.3,0xc9b8a0,true);
+    at(19,g-14,'oldfridge',1.1,0,true);at(16,g-16,'oldfridge',2.5,0,true);at(22,g-11,'trolley',0.7,0);at(23,g-15,'drum',0,P_RUSTY);at(23.8,g-16,'drum',0,0x3f6b8c);
+    at(10,g-17,'mattress',1.9,0x8a9ab0,true);at(21,g-18,'tyre',0,0,true);
+  },
+  // a park: picnic tables on the grass, a barbecue, an ice-cream cart
+  park(P,px,pz,add){const X0=px*CELL,Z0=pz*CELL;add('picnic',X0+14,Z0+14,0,0);add('grill',X0+16.5,Z0+12.6,0,0);add('picnic',X0+25.5,Z0+25.5,Math.PI/2,0);add('icecart',X0+23,Z0+13,0,0xd96aa0);},
+  // a square: two cafe tables under umbrellas, an ice-cream cart, potted plants
+  plaza(P,px,pz,add){const X0=px*CELL,Z0=pz*CELL;
+    for(const [u,v] of [[13.5,13.5],[26.5,26.5]]){add('rtable',X0+u,Z0+v,0,0xe9edf0);add('umbrella',X0+u,Z0+v,0,[0xc83a32,0x3f6b8c][u>20?1:0]);add('chair',X0+u-.9,Z0+v,Math.PI/2,0x3a3f45);add('chair',X0+u+.9,Z0+v,-Math.PI/2,0x3a3f45);}
+    add('icecart',X0+26.5,Z0+13.5,0,0x5b8fd0);add('plant',X0+13.5,Z0+26.5,0,0);add('plant',X0+15,Z0+26.5,0,0);
+  },
+  // a basketball court: benches outside the fence, the rack of balls by the gate
+  court(P,px,pz,add){const X0=px*CELL,Z0=pz*CELL;add('bench',X0+16,Z0+27.5,Math.PI,0);add('bench',X0+24,Z0+27.5,Math.PI,0);add('ballrack',X0+15,Z0+12.5,0,0);},
+  // the lighthouse: a bench on the rocks, a coin telescope, a life ring on its post, a coil of rope, an old anchor
+  lighthouse(P,px,pz,add){const L2=P.lh;if(!L2)return;const X=px*CELL+L2.x+.5,Z=pz*CELL+L2.z+.5;
+    add('bench',X,Z+5.8,0,0);add('telescope',X+4.4,Z+3.6,0.8,0);add('lifering',X-4.6,Z+3.4,-0.8,0);add('rope',X-4.4,Z-3.8,0,0,true);add('anchor',X+4.2,Z-4,0.6,0);
+  },
+  // houses with a front garden: the wheelie bin out by the path (the terraced pairs have none to put one in)
+  homes(P,px,pz,add){const X0=px*CELL,Z0=pz*CELL;
+    for(const b of P.b){if(b.style!=='house'||b.door===undefined)continue;const cx=(b.x0+b.x1)>>1,cz=(b.z0+b.z1)>>1,h=hash2(X0+b.x0*3,Z0+b.z0*7),bin=[0x2e5a3a,0x3a3f45,0x3f6b8c][Math.floor(h*3)];
+      if(b.door===2&&b.z0-PL0>=3)add('wheelie',X0+cx+2.5,Z0+b.z0-1.5,Math.PI,bin);
+      else if(b.door===3&&PL1-b.z1>=3)add('wheelie',X0+cx+2.5,Z0+b.z1+1.5,0,bin);
+      else if(b.door===0&&b.x0-PL0>=3)add('wheelie',X0+b.x0-1.5,Z0+cz+2.5,-Math.PI/2,bin);
+      else if(b.door===1&&PL1-b.x1>=3)add('wheelie',X0+b.x1+1.5,Z0+cz+2.5,Math.PI/2,bin);}
+  },
+  // the power station's yard: cable drums, oil drums, crates, cones by the hall, the tool rack
+  power(P,px,pz,add,putAt){const S=superOf(px,pz);if(!S)return;const A=plotInfo(S.ax,S.az);if(!A.power)return;const put=putAt(S.ax*CELL,S.az*CELL);
+    put('reel',PL0+3,PL0+19,0,0);put('reel',PL0+6,PL0+19,0.2,0);put('drum',PL0+9,PL0+19,0,0xc8a03a);put('drum',PL0+9.8,PL0+19.7,0,0xc8a03a);
+    put('pcrate',PL0+3,PL0+23,0,0);put('pcrate',PL0+4.2,PL0+23,0.2,0);put('cone',PL0+12,PL0+17.5,0,0,true);put('cone',PL0+16,PL0+17.5,0,0,true);put('toolrack',PL0+27.6,PL0+4,-Math.PI/2,0);
+  },
+  // the zoo: benches along the walk down the middle, a sign about the animals at each enclosure, feeding troughs and hay
+  // for the grazers, an ice-cream cart by the gift shop
+  zoo(P,px,pz,add,putAt){const S=superOf(px,pz);if(!S)return;const A=plotInfo(S.ax,S.az);if(!A.encl)return;const put=putAt(S.ax*CELL,S.az*CELL);
+    const SW=(S.w-1)*CELL+PW,mx=PL0+(SW>>1);
+    put('icecart',mx+9.5,PL0+10.5,0,0xd96aa0);
+    const seen=new Set();for(const E of A.encl){const k=E.x0+','+E.z0;if(seen.has(k))continue;seen.add(k);const mid=(E.z0+E.z1)/2,left=E.x1<=mx;
+      put('infosign',left?E.x1+.6:E.x0-.6,mid,left?Math.PI/2:-Math.PI/2,[0x5d7a45,0x8a6a44,0x3f6b8c][(E.x0+E.z0)%3]);
+      for(const v of [mid-6,mid+6])if(v>E.z0+1&&v<E.z1-2)put('bench',left?E.x1+1.1:E.x0-1.1,v,left?-Math.PI/2:Math.PI/2,0);
+      if(E.g==='sav'||E.g==='dirt'){put('trough',(E.x0+E.x1)/2,E.z0+3,0,0);if(E.g==='sav')put('hay',E.x0+3.5,E.z1-3.5,0.3,0);}}
+  },
+  // the theme park: tables under umbrellas between the food stalls, ice-cream carts along the walk, benches round the
+  // carousel
+  theme(P,px,pz,add,putAt){const S=superOf(px,pz);if(!S)return;const A=plotInfo(S.ax,S.az),R2=A.theme;if(!R2)return;const put=putAt(S.ax*CELL,S.az*CELL);
+    const cafe=(u,v,c)=>{put('rtable',u,v,0,0xe9edf0);put('umbrella',u,v,0,c);put('chair',u-.9,v,Math.PI/2,0x3a3f45);put('chair',u+.9,v,-Math.PI/2,0x3a3f45);};
+    if(R2.gm!==undefined){A.stalls.forEach((S2,q)=>{if(S2.face>0&&q%6===1)cafe(S2.x0+4.5,PL0+25.5,q%4?0xc83a32:0x3f6b8c);if(S2.face>0&&q%8===5)put('icecart',S2.x0+4.5,PL0+21,0,P_CAMP[q%5]);});}
+    else{cafe(PL0+30.5,PL0+29.5,0xc83a32);cafe(PL0+34.5,PL0+29.5,0x3f6b8c);put('icecart',PL0+44,PL0+26,0,0xd96aa0);}
+    const C2=R2.carousel;for(let i=0;i<4;i++){const a=i*Math.PI/2+Math.PI/4;put('bench',C2.cu+Math.cos(a)*8.5,C2.cv+Math.sin(a)*8.5,-a+Math.PI/2,0);}
+  },
+  // the stadium: a flag at each corner of the pitch, the two teams' benches either side of halfway
+  stadium(P,px,pz,add,putAt){const S=superOf(px,pz);if(!S)return;const W=(S.w-1)*CELL+PW,L2=(S.h-1)*CELL+PW,F=stadiumField(W,L2),put=putAt(S.ax*CELL+PL0,S.az*CELL+PL0);
+    for(const u of [F.fx0+.5,F.fx0+F.fw-.5])for(const v of [F.fz0+.5,F.fz0+F.fh-.5])put('cflag',u,v,0,0xe8c83a,true);
+    if(F.long){const v=F.fz0+F.fh/2;for(const s of [-1,1])put('bench',F.fx0+1.4,v+s*6,Math.PI/2,0x3f6b8c);}
+    else{const u=F.fx0+F.fw/2;for(const s of [-1,1])put('bench',u+s*6,F.fz0+1.4,0,0x3f6b8c);}
+  },
+  // the multi-storey car park: ticket machines out front, cones
+  garage(P,px,pz,add,putAt){const S=superOf(px,pz);if(!S)return;const A=plotInfo(S.ax,S.az),b=A.b[0];if(!b)return;const put=putAt(S.ax*CELL,S.az*CELL);
+    put('paymachine',b.x0+2.5,b.z0-1,Math.PI,0);put('paymachine',b.x1-2.5,b.z0-1,Math.PI,0);put('cone',b.x0+5,b.z0-1,0,0,true);
+  },
+  // the big park: picnic tables and barbecues out on the meadow, an ice-cream cart by the fountain
+  bigpark(P,px,pz,add,putAt){const S=superOf(px,pz);if(!S)return;const W=(S.w-1)*CELL+PW,L2=(S.h-1)*CELL+PW,g=bigParkGeo(W,L2),put=putAt(S.ax*CELL+PL0,S.az*CELL+PL0);
+    const [m0,n0,m1,n1]=g.meadow;for(let u=Math.ceil(m0)+4;u<m1-3;u+=13)for(let v=Math.ceil(n0)+4;v<n1-3;v+=11){const h=hash2(S.ax*31+u,S.az*17+v);if(h>0.55||bigParkPath(u,v,W,L2,3))continue;
+      put('picnic',u+.5,v+.5,h*4,0);if(h<0.25)put('grill',u+2.4,v+.5,0,0);}
+    const [fx,fz,fr]=g.fount;put('icecart',fx+fr+2,fz+.5,Math.PI/2,0xd96aa0);
+  },
+};
 // the furniture on one floor of any other building, read from what furnRaw says stands there
 const P_SOFA=[0x8a4b3a,0x3f6b8c,0x5d7a45,0x77608f,0xb08a3e],P_GOODS=[0xc9553f,0x4f86c6,0xd8b13a,0x5aa469,0xa86bc0,0xe08a3c];

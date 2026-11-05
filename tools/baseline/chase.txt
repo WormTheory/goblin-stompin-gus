@@ -52,50 +52,50 @@ campus plot 120 48 size 149 x 14 floors 2 top 56
   campus ground to next floor    caught in 24.1s      dist  65 rise   7 
   campus next floor to ground    caught in 26.8s      dist  65 rise  -7 
   campus street to top floor     caught in 52.2s      dist  13 rise   7 
-  campus top floor to street     caught in 56.1s      dist  13 rise  -7 
+  campus top floor to street     caught in 57.7s      dist  13 rise  -7 
   campus street to roof          caught in 12.9s      dist  13 rise  22 
 prison none found
 factory plot -38 -27 size 33 x 16 floors 1 top 54
   factory corner to corner       caught in 10.6s      dist  25 rise   0 
-  factory street to far corner   caught in 9.8s       dist  21 rise   0 
+  factory street to far corner   caught in 9.7s       dist  21 rise   0 
   factory street to roof         caught in 8.9s       dist  14 rise  11 
 mid plot -1 1 size 16 x 16 floors 3 top 59
   mid corner to corner           caught in 2.6s       dist  10 rise   0 
   mid street to far corner       caught in 3.4s       dist  11 rise   0 
   mid ground to next floor       caught in 6.2s       dist  10 rise   5 
-  mid next floor to ground       caught in 5.0s       dist  10 rise  -5 
-  mid street to top floor        caught in 16.3s      dist  14 rise  10 
-  mid top floor to street        caught in 18.3s      dist  14 rise -10 
-  mid street to roof             caught in 30.0s      dist  14 rise  15 
+  mid next floor to ground       caught in 7.2s       dist  10 rise  -5 
+  mid street to top floor        caught in 16.0s      dist  14 rise  10 
+  mid top floor to street        caught in 17.9s      dist  14 rise -10 
+  mid street to roof             caught in 10.0s      dist  14 rise  15 
 tower plot -1 -1 size 19 x 16 floors 4 top 79
   tower corner to corner         caught in 4.6s       dist  13 rise   0 
   tower street to far corner     caught in 4.7s       dist  12 rise   0 
-  tower ground to next floor     caught in 4.4s       dist  13 rise   5 
-  tower next floor to ground     caught in 7.1s       dist  13 rise  -5 
-  tower street to top floor      caught in 18.7s      dist  14 rise  15 
-  tower top floor to street      caught in 20.7s      dist  14 rise -15 
-  tower street to roof           caught in 19.5s      dist  14 rise  40 
+  tower ground to next floor     caught in 5.1s       dist  13 rise   5 
+  tower next floor to ground     caught in 4.4s       dist  13 rise  -5 
+  tower street to top floor      caught in 19.1s      dist  14 rise  15 
+  tower top floor to street      caught in 20.6s      dist  14 rise -15 
+  tower street to roof           caught in 19.8s      dist  14 rise  40 
 fire plot 5 5 size 13 x 13 floors 2 top 56
   fire corner to corner          caught in 1.8s       dist   6 rise   0 
   fire street to far corner      caught in 4.3s       dist  14 rise   0 
-  fire ground to next floor      caught in 4.3s       dist   6 rise   7 
-  fire next floor to ground      caught in 4.2s       dist   6 rise  -7 
-  fire street to top floor       caught in 9.9s       dist  12 rise   7 
-  fire top floor to street       caught in 8.9s       dist  12 rise  -7 
-  fire street to roof            caught in 9.2s       dist  12 rise  12 
+  fire ground to next floor      caught in 4.4s       dist   6 rise   7 
+  fire next floor to ground      caught in 6.8s       dist   6 rise  -7 
+  fire street to top floor       caught in 12.1s      dist  12 rise   7 
+  fire top floor to street       caught in 9.0s       dist  12 rise  -7 
+  fire street to roof            caught in 9.1s       dist  12 rise  12 
 homes plot -6 5 size 16 x 7 floors 1 top 49
   homes corner to corner         caught in 1.4s       dist   6 rise   0 
-  homes street to far corner     caught in 2.6s       dist   9 rise   0 
-  homes street to roof           caught in 17.8s      dist   9 rise   8 
-cliff of 35 at 269 -75
-  foot of a cliff to the top     caught in 15.4s      dist   8 rise  35 
-  top of a cliff to the foot     caught in 13.0s      dist   8 rise -35 
-water at -896.5 -1277.5 width 26
-  shore to swimming hippo        caught in 8.0s       dist  19 rise  -2 
-  swim back to shore             caught in 9.4s       dist  19 rise   2 
-  across the water               caught in 14.4s      dist  26 rise   0 
-  shore to hippo sunk 3 under    caught in 8.1s       dist  19 rise  -5 
-  hippo standing 1.1 above the road: 12 blows in 20s, first after 2.7s
+  homes street to far corner     caught in 2.7s       dist   9 rise   0 
+  homes street to roof           caught in 10.7s      dist   9 rise   8 
+cliff of 37 at -137 -75
+  foot of a cliff to the top     caught in 16.0s      dist   8 rise  37 
+  top of a cliff to the foot     caught in 15.6s      dist   8 rise -37 
+water at 1273.5 -33.5 width 21
+  shore to swimming hippo        caught in 6.5s       dist  16 rise  -4 
+  swim back to shore             caught in 8.9s       dist  16 rise   4 
+  across the water               caught in 11.4s      dist  21 rise   0 
+  shore to hippo sunk 3 under    caught in 7.4s       dist  16 rise  -7 
+  hippo standing 1.1 above the road: 12 blows in 20s, first after 2.4s
   hippo standing 1.68 above the road: 9 blows in 20s, first after 2.4s
   hippo standing 2.25 above the road: 9 blows in 20s, first after 2.8s
   hippo standing 3 above the road: 10 blows in 20s, first after 1.9s
@@ -112,5 +112,5 @@ water at -896.5 -1277.5 width 26
   swimmer 5 under, goblin on top caught in 3.7s       dist  10 rise  -5 
   swimmer 9 under, goblin on top caught in 3.7s       dist  10 rise  -9 
   swimmer 13 under, goblin on top caught in 4.8s       dist  10 rise -13 
-route map time per frame, ms: mean 0.174 p99 1.95 p99.9 2.40 max 9.75
-caught 84 of 84 avg 18.1 s; gave up on: none
+route map time per frame, ms: mean 0.287 p99 3.42 p99.9 5.37 max 21.85
+caught 84 of 84 avg 17.8 s; gave up on: none

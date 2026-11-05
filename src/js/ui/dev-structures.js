@@ -30,7 +30,7 @@ function stMatch(key,px,pz){
     case 'pylons':case 'billboards':case 'tolls':return null;   // (found along the highways instead: see stFind)
   }
   const S=superOf(px,pz);if(S&&S.kind===key)return {ax:S.ax,az:S.az,w:S.w,h:S.h};
-  const M=macroOf1(px,pz);if(M&&M.kind===key&&M.w&&px>=M.ax&&px<M.ax+M.w&&pz>=M.az&&pz<M.az+M.h)return {ax:M.ax,az:M.az,w:M.w,h:M.h};
+  const M=macroOf1(px,pz);if(M&&M.kind===key&&M.w&&px>=M.ax&&px<M.ax+M.w&&pz>=M.az&&pz<M.az+M.h&&(key!=='hood'||/^(homes|park|court)$/.test(plotType1(px,pz))))return {ax:M.ax,az:M.az,w:M.w,h:M.h};
   const B=bigPlainsAt(px,pz);if(B&&B.kind===key)return {ax:B.ax,az:B.az,w:B.w,h:B.h};
   // (a fishing village's wharf is its own entry, so Docks are the towns' and cities' docks)
   const fishy=(a,b)=>plotInfo(a,b).fish;

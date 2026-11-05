@@ -3,12 +3,12 @@ stations found 3 6,-21 bays 3 NEWS 7; 10,-28 bays 3 NEWS 7; 31,-27 bays 3 EYEWIT
 6,-21 crash called car crash sent after 0.1 story car crash stopped 32.0 from scene; crew 2 with kit 2 [Reporter at Goblin News 7 / Camera operator at Goblin News 7] go>work>leave>parked 67s hp 45 crew still out 2
 6,-21 bump called car crash sent after 0.8 story car crash stopped 32.2 from scene; crew 2 with kit 2 [Reporter at Goblin News 7 / Camera operator at Goblin News 7] go>work>leave>parked 54s hp 45 crew still out 0
 6,-21 killing called killing sent after 0.5 story killing stopped 31.9 from scene; crew 2 with kit 2 [Reporter at Goblin News 7 / Camera operator at Goblin News 7] go>work>leave>parked 72s hp 45 crew still out 0
-10,-28 fire called  sent after 0.7 story fire stopped 11.7 from scene; crew 2 with kit 2 [Reporter at Goblin News 7 / Camera operator at Goblin News 7] go>work>leave>parked 112s hp 45 crew still out 0
-10,-28 crash called car crash sent after 0.9 story car crash stopped 11.6 from scene; crew 2 with kit 2 [Reporter at Goblin News 7 / Camera operator at Goblin News 7] go>work>leave>parked 105s hp 45 crew still out 0
-10,-28 bump called car crash sent after 0.2 story car crash stopped 11.6 from scene; crew 2 with kit 2 [Reporter at Goblin News 7 / Camera operator at Goblin News 7] go>work>leave 84s hp 44 crew still out 0
-10,-28 killing called killing NO VAN 1
-31,-27 fire called  sent after 0.6 story fire stopped 8.4 from scene; crew 2 with kit 2 [Reporter at Goblin Eyewitness News / Camera operator at Goblin Eyewitness News] go>work>leave>parked 44s hp 45 crew still out 0
-31,-27 crash called car crash sent after 0.6 story car crash stopped 11.6 from scene; crew 2 with kit 2 [Reporter at Goblin Eyewitness News / Camera operator at Goblin Eyewitness News] go>work>leave>parked 74s hp 45 crew still out 0
-31,-27 bump called car crash sent after 0.9 story car crash stopped 11.6 from scene; crew 2 with kit 2 [Reporter at Goblin Eyewitness News / Camera operator at Goblin Eyewitness News] go>work>leave>parked 56s hp 45 crew still out 0
-31,-27 killing called killing sent after 0.8 story killing stopped 11.6 from scene; crew 2 with kit 2 [Reporter at Goblin Eyewitness News / Camera operator at Goblin Eyewitness News] go>work>leave>parked 62s hp 45 crew still out 0
+10,-28 fire called  sent after 0.7 story fire stopped 11.7 from scene; crew 2 with kit 2 [Reporter at Goblin News 7 / Camera operator at Goblin News 7] go>work>leave>parked 111s hp 45 crew still out 0
+10,-28 crash called car crash sent after 0.4 story car crash stopped 11.7 from scene; crew 2 with kit 2 [Reporter at Goblin News 7 / Camera operator at Goblin News 7] go>work>leave>parked 122s hp 45 crew still out 0
+10,-28 bump called car crash sent after 0.2 story car crash stopped 11.7 from scene; crew 2 with kit 2 [Reporter at Goblin News 7 / Camera operator at Goblin News 7] go>work>leave>parked 120s hp 45 crew still out 0
+10,-28 killing called killing sent after 0.4 story killing stopped 11.6 from scene; crew 2 with kit 2 [Reporter at Goblin News 7 / Camera operator at Goblin News 7] go>work>leave>parked 116s hp 45 crew still out 0
+31,-27 fire called  sent after 1.0 story fire stopped 8.4 from scene; crew 2 with kit 2 [Reporter at Goblin Eyewitness News / Camera operator at Goblin Eyewitness News] go>work>leave>parked 43s hp 45 crew still out 2
+31,-27 crash called car crash sent after 0.1 story car crash stopped 11.6 from scene; crew 2 with kit 2 [Reporter at Goblin Eyewitness News / Camera operator at Goblin Eyewitness News] go>work>leave>parked 59s hp 45 crew still out 3
+31,-27 bump called car crash sent after 0.2 story car crash stopped 11.6 from scene; crew 2 with kit 2 [Reporter at Goblin Eyewitness News / Camera operator at Goblin Eyewitness News] go>work>leave>parked 56s hp 45 crew still out 0
+31,-27 killing called killing sent after 0.5 story killing stopped 11.7 from scene; crew 2 with kit 2 [Reporter at Goblin Eyewitness News / Camera operator at Goblin Eyewitness News] go>work>leave>parked 63s hp 45 crew still out 0
 traffic alone, 2 minutes: car crash scenes 2

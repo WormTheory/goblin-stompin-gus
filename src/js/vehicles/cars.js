@@ -51,7 +51,8 @@ const VEH={bus:{hx:1.25,hz:5.2,hy:3.3,head:[0.5,2.7,4.3],roof:l=>3.3},
   fire:{hx:1.2,hz:3.7,hy:3.0,head:[0.45,2.6,2.3],roof:l=>l>1.6?2.5:3.0},
   amb:{hx:1.15,hz:3.0,hy:2.8,head:[0.4,2.2,1.9],roof:l=>l>1.2?2.0:2.8},
   news:{hx:1.05,hz:2.4,hy:2.3,head:[0.4,2.15,0.6],roof:l=>2.25},
-  bike:{hx:0.45,hz:1.15,hy:1.7,head:[0,1.62,-0.2],roof:l=>l>-0.7&&l<0.3?1.2:0.95}};
+  bike:{hx:0.45,hz:1.15,hy:1.7,head:[0,1.62,-0.2],roof:l=>l>-0.7&&l<0.3?1.2:0.95},
+  rv:{hx:1.17,hz:3.8,hy:3.15,head:[0.45,1.25,2.9],roof:l=>l>3.45?2.1:3.15}};
 // which vehicles each kind of traffic is made of
 const VEH_MIX={street:[['car',0.58],['bike',0.08],['van',0.12],['pickup',0.12],['truck',0.10]],hw:[['car',0.5],['bike',0.05],['van',0.1],['pickup',0.1],['truck',0.12],['semi',0.13]],park:[['car',0.67],['bike',0.08],['van',0.12],['pickup',0.13]]};
 const pickVeh=mix=>{let u=Math.random();for(const [t,p] of VEH_MIX[mix]){if(u<p)return t;u-=p;}return'car';};
@@ -147,6 +148,20 @@ function buildVeh(c,t){
     // the rider: a tunic, arms out to the bars, legs down to the pegs
     const sk=smat(GC.skin),tun=smat(GC.tunic);b(0.5,0.62,0.36,tun,0,1.27,-0.22);b(0.52,0.1,0.38,smat(GC.belt),0,0.99,-0.22);
     for(const s2 of[-1,1]){const a=b(0.16,0.16,0.62,sk,s2*0.3,1.33,0.12);a.rotation.x=0.35;const l=b(0.18,0.5,0.2,tun,s2*0.24,0.78,-0.05);l.rotation.x=-0.5;}
+  } else if(t==='rv'){
+    // a motorhome (as at the campsites): a tall white box with the bed over the cab, a band of its paint down each side,
+    // windows, the door on the kerb side, an air conditioner on the roof and a ladder up the back
+    const wht=c.rvM||(c.rvM=snowCar(new THREE.MeshLambertMaterial({color:0xf2f0ea}),c)),trim=smat(0xd8d4c8);
+    b(2.2,0.4,7.3,dark,0,0.72,-0.1);
+    b(2.34,2.1,5.9,wht,0,2.05,-0.75);b(2.34,0.9,1.3,wht,0,2.7,2.85);b(2.24,1.2,1.6,wht,0,1.45,2.95);
+    b(2.0,0.55,0.08,glass,0,1.72,3.76);b(1.6,0.3,0.06,glass,0,2.72,3.51);for(const s2 of[-1,1])b(0.06,0.5,0.8,glass,s2*1.13,1.72,2.95);
+    for(const s2 of[-1,1]){b(0.04,0.3,7.2,c.paint,s2*1.18,1.5,-0.1);b(0.04,0.1,5.9,c.paint,s2*1.18,2.95,-0.75);
+      for(const z of [-2.7,-0.9])b(0.06,0.6,1.2,glass,s2*1.18,2.4,z);}
+    b(0.06,1.75,0.8,trim,1.19,1.95,1.35);b(0.06,0.4,0.5,glass,1.21,2.45,1.35);b(0.6,0.14,0.4,chrome,1.0,0.62,1.35);   // (the door, its window, the step)
+    b(1.2,0.5,0.06,glass,0,2.45,-3.71);b(0.9,0.36,0.9,trim,0,3.28,-1.3);b(0.7,0.12,0.7,trim,0,3.18,1.4);
+    for(const s2 of[-1,1])b(0.06,2.2,0.06,chrome,s2*0.32,2.1,-3.76);for(let k=0;k<6;k++)b(0.64,0.05,0.05,chrome,0,1.2+k*0.38,-3.76);
+    b(2.3,0.22,0.15,bump,0,0.6,3.78);b(2.3,0.22,0.15,bump,0,0.6,-3.76);lights(0.85,1.0,3.77,-3.74);
+    for(const [x,z,st] of [[-1,2.7,1],[1,2.7,1],[-1,-1.9,0],[1,-1.9,0],[-1,-2.9,0],[1,-2.9,0]])wheel(x*1.02,z,st,true);
   } else if(t==='semi'){
     // an articulated lorry, carried as one rigid body: tractor (long nose, tall cab, stacks) and a big box trailer
     b(2.24,0.45,4.3,dark,0,0.8,4.2);
@@ -231,6 +246,27 @@ function managePull(){
         if(day.empty&&!day.police){civ.driver=null;civ.dh.visible=false;}else{civ.driver=makeDriver(false);civ.dh.visible=true;}
         if(cop){pullCarAt(cop,o,o.s-o.dir*(civ.hz/ES+cop.hz/ES+3.5)*ES,'car');cop.spot=o.key+'p';cop.pullLit=true;cop.driver=makeDriver(true);cop.dh.visible=true;}
       }}}
+}
+// ---- the motorhomes pulled up on a campsite's pitches: real vehicles (stood on, smashed, driven off in), from a pool of
+// their own so they're there whenever you arrive. As with the pulled-over cars, one's only put on its pitch out in the
+// haze or out of sight, never in plain view; a wrecked one is back a couple of minutes later. ----
+const RVS=[];
+for(let i=0;i<10;i++){const c=makeCar(420+i);c.g.scale.setScalar(ES);c.parkPool=true;c.rvPool=true;c.respawnT=1e9;cars.push(c);RVS.push(c);}
+let rvT=0;
+function manageRVs(){
+  const act=players.filter(p=>p.active);if(!act.length)return;const far=viewFar(),RB=Math.min(far+10,200);
+  for(const p of act)for(let px=Math.floor((p.pos.x-RB)/CELL);px<=Math.floor((p.pos.x+RB)/CELL);px++)for(let pz=Math.floor((p.pos.z-RB)/CELL);pz<=Math.floor((p.pos.z+RB)/CELL);pz++){
+    if(biomeOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;const B=bigPlainsAt(px,pz);if(!B||B.kind!=='campsite'||B.ax!==px||B.az!==pz)continue;
+    for(const q of campPitches(B)){if(q.k!=='rv')continue;const key='rv'+px+','+pz+':'+q.c,x=px*CELL+q.u+4,z=pz*CELL+q.v+1.5,d=Math.hypot(x-p.pos.x,z-p.pos.z);
+      if(d>RB||cars.some(c=>c.alive&&c.spot===key)||parkDown[key]&&playTime<parkDown[key])continue;
+      if(!chunks.has(ckey(Math.floor(x/CS),Math.floor(z/CS))))continue;
+      // (its pad still there and clear, nothing parked on it, and nobody watching)
+      const g=supportAt(x,z,G+1.5);if(g===null||Math.abs(g-(G+1))>0.3||solidAt(Math.floor(x),G+1,Math.floor(z))||solidAt(Math.floor(x),G+2,Math.floor(z)))continue;
+      if(cars.some(c=>c.alive&&Math.hypot(c.pos.x-x,c.pos.z-z)<6)||players.some(o=>o.active&&Math.hypot(o.pos.x-x,o.pos.z-z)<7))continue;
+      if(d<far*0.8&&visibleToAny(x,G+2,z))continue;
+      const c=RVS.find(o=>!o.alive);if(!c)return;
+      setVeh(c,'rv');c.paint.color.setHex(c.color);c.rusted=false;c.spot=key;c.pos.set(x,G+1,z);c.heading=Math.PI/2;c.speed=0;c.kv.set(0,0,0);c.hp=40;c.alive=true;c.hunter=false;c.parked=true;c.vy=0;c.driver=null;c.dh.visible=false;
+      c.rt=null;c.hw=null;c.path=null;c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.paint.emissive.setHex(0);c.g.visible=true;c.g.position.copy(c.pos);c.g.rotation.set(0,c.heading,0);}}
 }
 // police cars park at the stations near you and come after you when you get close
 const policeDown={};

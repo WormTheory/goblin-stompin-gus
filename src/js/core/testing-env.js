@@ -145,7 +145,7 @@ function trInstall(){
   superPart=trWrap(superPart,0,CELL);siteTrees=trWrap(siteTrees,0,CELL);railAt=trWrap(railAt,0,CELL);
   bridgeAt=trWrap(bridgeAt,0,CELL,(br,B)=>trMemo(B,br,(br,ox,oz)=>{const T=Object.assign({},br),s=br.ax?oz:ox,c=br.ax?ox:oz;T.s0+=s;T.s1+=s;T.c0+=c;T.c1+=c;return T;}));
   // (a building's dressing: its place is after the building)
-  hospProps=trWrap(hospProps,1,1,trList);furnProps=trWrap(furnProps,1,1,trList);bridgeDoor=trWrap(bridgeDoor,1,1);
+  hospProps=trWrap(hospProps,1,1,trList);furnProps=trWrap(furnProps,1,1,trList);siteProps=trWrap(siteProps,1,1,trList);siteKind=trWrap(siteKind,0,1);bridgeDoor=trWrap(bridgeDoor,1,1);
   doorRects=trWrap(doorRects,1,1,(L,B)=>trMemo(B,L,(L,ox,oz)=>L.map(o=>{const T=Object.assign({},o),a=o.ax==='x'?ox:oz,c=o.ax==='x'?oz:ox;T.a0+=a;T.a1+=a;T.c+=c;return T;})));
   brandSpots=trWrap(brandSpots,1,1,(L,B)=>trMemo(B,L,(L,ox,oz)=>L.map(o=>{const T=trXZ(o,ox,oz);if(o.anc)T.anc=o.anc.map(([x,y,z])=>[x+ox,y,z+oz]);return T;})));
 }
@@ -196,7 +196,7 @@ function tenvFoe(kind){
 // vehicles: any kind, a few steps further off than enemies. Hunting, they drive straight at Gus; parked, they sit there
 // with nobody in them, to stand on, smash or get into (a parked police car still wakes up when Gus comes close)
 const VEH_NAME={car:['car','cars'],van:['van','vans'],pickup:['pickup','pickups'],truck:['truck','trucks'],semi:['semi truck','semi trucks'],bus:['bus','buses'],
-  fire:['fire engine','fire engines'],amb:['ambulance','ambulances'],news:['news van','news vans'],police:['police car','police cars'],moto:['motorcycle','motorcycles'],motorcycle:['motorcycle','motorcycles'],bike:['motorcycle','motorcycles']};
+  fire:['fire engine','fire engines'],amb:['ambulance','ambulances'],news:['news van','news vans'],rv:['motorhome','motorhomes'],police:['police car','police cars'],moto:['motorcycle','motorcycles'],motorcycle:['motorcycle','motorcycles'],bike:['motorcycle','motorcycles']};
 // is there room at x,z for a vehicle reaching r out from its middle? Level ground, and clear of every car, tank,
 // helicopter and plane already there (a plane's wings reach about 11 out)
 function tenvRoom(x,z,r){
@@ -218,7 +218,7 @@ function tenvVeh(t){
     const y=groundAt(x,z,G+40),h=Math.atan2(p.pos.x-x,p.pos.z-z);
     // (parked ones come from the parked cars' pool, which sits still; hunters from the traffic's)
     const pk=park&&!pol;
-    let c=cars.find(o=>!o.alive&&!o.svcPool&&!o.pullPool&&!o.hwPool&&!!o.parkPool===pk&&!!o.police===pol);
+    let c=cars.find(o=>!o.alive&&!o.svcPool&&!o.pullPool&&!o.rvPool&&!o.hwPool&&!!o.parkPool===pk&&!!o.police===pol);
     if(!c){c=makeCar(cars.length,pol);c.g.scale.setScalar(ES);c.respawnT=1e9;if(pk)c.parkPool=true;cars.push(c);}
     if(!pol)setVeh(c,t);
     c.driver=pk?null:makeDriver(pol);if(c.dh)c.dh.visible=!pk;

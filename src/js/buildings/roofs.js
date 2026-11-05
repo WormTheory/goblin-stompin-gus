@@ -253,11 +253,11 @@ function mansionYard(col,P,rx,rz,x,z){
 function trailerYard(col,P,rx,rz,x,z){
   if(Math.abs(rx-PC+0.5)<=1.6){col(G,GRAVEL);return;}
   const h=hash2(x*9+1,z*3+7);
-  for(const b of P.b){const lane=b.door===1?b.x1:b.x0-1;
+  for(const b of P.b){
     // washing line: two posts and the washing hung between them, beside the trailer
     if(rx===(b.door===1?b.x0-1:b.x1)&&(rz===b.z0+1||rz===b.z0+5)){for(let y=G+1;y<=G+3;y++)col(y,METAL);return;}
-    if(rx===(b.door===1?b.x0-1:b.x1)&&rz>b.z0+1&&rz<b.z0+5&&rz%2===0){col(G+3,[PAINT_WHITE,AWN_R,PAINT_BLUE][(rz+rx)%3]);return;}
-    if(rx===lane&&(rz===b.z0||rz===b.z1-1)&&h<0.6){col(G+1,h<0.3?CRATE:RUST);return;}}
+    if(rx===(b.door===1?b.x0-1:b.x1)&&rz>b.z0+1&&rz<b.z0+5&&rz%2===0){col(G+3,[PAINT_WHITE,AWN_R,PAINT_BLUE][(rz+rx)%3]);return;}}
+  // (the junk by each trailer's step, a lawn chair and a barbecue are props: see siteProps)
   if(h<0.05)col(G+1,FLOWER);else if(h<0.07)col(G,DIRT);
 }
 // a tree nursery: rows of saplings, rows of potted plants, gravel walks
@@ -265,31 +265,27 @@ function nurseryYard(col,P,rx,rz,x,z){
   if(rz===PL0+7||rx===PC-1||rx===PL0){col(G,GRAVEL);return;}
   if(rx<PC-1&&rz>PL0+7&&(rx-PL0)%3===2&&(rz-PL0)%3===0){col(G+1,LOG);col(G+2,LOG);col(G+3,LEAVES);col(G+4,LEAVES);return;}
   if(rx<PC-1&&rz>PL0+7&&((rx-PL0)%3===2&&(rz-PL0)%3!==0&&(rz-PL0)%3!==2||(rx-PL0)%3!==2&&(rz-PL0)%3===0&&(rx-PL0)%3===1)){col(G+3,LEAVES);return;}
-  if(rz<PL0+7&&rx<PL1-9&&rx>PL0&&rz>PL0&&(rx+rz)%2===0){col(G+1,CLAY);col(G+2,(rx*7+rz)%3?LEAVES:FLOWER);return;}
+  // (the potted plants for sale, out front, are props: see siteProps)
 }
 // a car dealer's lot: painted bays, the cars stand in them (real parked cars)
 function dealerLot(col,P,rx,rz,x,z){
   if(rx>=PL0+14&&rz>=PL0+1&&rz<PL1-1&&(rz-PL0)%4===0)col(G,LANE);
   if(rz>=PL0+13&&rz<PL1-1&&rx>=PL0+1&&(rx-PL0)%4===0&&rx<PL0+14)col(G,LANEX);
 }
-// a homeless encampment: bare ground with weeds, tents (an A-frame of tarp each), bedding, carts, a barrel fire
+// a homeless encampment: bare ground with weeds, tents (an A-frame of tarp each), a barrel fire
 function campCol(col,P,rx,rz,x,z){
   const h=hash2(x*7+3,z*13+1);col(G,h<0.5?DIRT:h<0.7?GRAVEL:GRASS);
   if(rz===PL0&&hash2(x,z*3)>0.4){col(G+1,CHAINLINK);col(G+2,CHAINLINK);return;}
   if(rx===P.fire.x&&rz===P.fire.z){col(G+1,RUST);return;}
   for(const t of P.camp){const u=rx-t.x0,v=rz-t.z0,a=t.ax?u:v,c=t.ax?v:u;
-    if(a>=0&&a<4&&c>=0&&c<3){if(c===1)col(G+2,t.c);else col(G+1,t.c);if(c===1&&a===1)col(G+1,BED);return;}
-    if(a===4&&c===0&&h<0.5){col(G+1,h<0.25?METAL:CRATE);return;}}
+    if(a>=0&&a<4&&c>=0&&c<3){if(c===1)col(G+2,t.c);else col(G+1,t.c);return;}}   // (the bedding, carts and crates are props: see siteProps)
   if(h>0.96)col(G+1,FLOWER);
 }
-// a farmer's market: paving, and the stalls: posts, a striped awning, a table of produce at the front, crates behind
+// a farmer's market: paving, and the stalls' striped awnings
 function farmersCol(col,P,rx,rz,x,z){
   col(G,(rx+rz)%2?SIDEWALK:CONCRETE);
   for(const S of P.stalls){const u=rx-S.x0,v=(rz-S.z0)*S.face+(S.face<0?2:0);if(u<0||u>2||v<0||v>2)continue;
-    if((u===0||u===2)&&(v===0||v===2))for(let y=G+1;y<=G+3;y++)col(y,METAL);
-    col(G+4,u===1?PAINT_WHITE:S.aw);
-    if(v===2&&u!==0&&u!==2||v===2){if(u===1){col(G+1,PLANKS);col(G+2,[PAINT_ORANGE,PAINT_RED,PAINT_YELLOW,LEAVES,FLOWER][S.crop]);}}
-    if(v===0&&u===1)col(G+1,CRATE);
+    col(G+4,u===1?PAINT_WHITE:S.aw);   // (its poles, and the tables, baskets and crates of produce under it, are props: see siteProps)
     return;}
 }
 // a school's grounds: a playground (climbing frame, slide, swings) on tarmac and a grass playing field with its lines,

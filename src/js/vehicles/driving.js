@@ -4,7 +4,7 @@
 // vehicle's .drv who's driving it); drvSeat keeps you in your seat once everything's moved ----
 const DRV_NAME={tank:'tank',heli:'helicopter',train:'train',plane:'plane'};
 function drvName(D){const o=D.o;
-  if(D.k==='car')return o.police?'police car':{car:'car',bike:'motorcycle',van:'van',pickup:'pickup',truck:'truck',semi:'lorry',bus:'bus',fire:'fire engine',amb:'ambulance',news:'news van'}[o.veh]||'car';
+  if(D.k==='car')return o.police?'police car':{car:'car',bike:'motorcycle',van:'van',pickup:'pickup',truck:'truck',semi:'lorry',bus:'bus',fire:'fire engine',amb:'ambulance',news:'news van',rv:'motorhome'}[o.veh]||'car';
   if(D.k==='boat')return o.K.name.toLowerCase();
   return DRV_NAME[D.k];
 }

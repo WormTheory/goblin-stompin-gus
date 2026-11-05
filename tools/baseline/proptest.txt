@@ -1,15 +1,15 @@
 sitdown goblin out of the bathroom in 1.0s
-sitdown size 16 x 22 props near 297 goblin reached in 5s checks inside a prop 0 of 54 knocked by Gus 8
+sitdown size 16 x 22 props near 385 goblin reached in 5s checks inside a prop 0 of 54 knocked by Gus 8
 food goblin out of the bathroom in 1.0s
-food size 16 x 13 props near 233 goblin reached in 5s checks inside a prop 0 of 45 knocked by Gus 14
+food size 16 x 13 props near 256 goblin reached in 5s checks inside a prop 0 of 45 knocked by Gus 14
 market goblin out of the bathroom in 1.4s
-market size 38 x 27 props near 431 goblin FAILED at 302.8,222.8 checks inside a prop 400 of 400 knocked by Gus 42
+market size 38 x 27 props near 546 goblin FAILED at 302.8,222.8 checks inside a prop 400 of 400 knocked by Gus 42
 drug goblin out of the bathroom in 0.7s
-drug size 16 x 23 props near 273 goblin reached in 6s checks inside a prop 0 of 63 knocked by Gus 14
+drug size 16 x 23 props near 419 goblin reached in 6s checks inside a prop 0 of 63 knocked by Gus 14
 school goblin out of the bathroom in 1.2s
-school size 60 x 18 props near 244 goblin reached in 19s checks inside a prop 0 of 189 knocked by Gus 10
+school size 60 x 18 props near 264 goblin reached in 19s checks inside a prop 0 of 189 knocked by Gus 10
 police goblin out of the bathroom in 2.8s
-police size 35 x 48 props near 438 goblin FAILED at -65.9,-246.0 checks inside a prop 0 of 400 knocked by Gus 6
+police size 35 x 48 props near 491 goblin FAILED at -65.9,-246.0 checks inside a prop 0 of 400 knocked by Gus 6
 ikea goblin out of the bathroom in 6.1s
 ikea goblin out of the bathroom in 1.1s
-ikea size 112 x 66 props near 299 goblin FAILED at 971.6,-1149.5 checks inside a prop 0 of 400 knocked by Gus 18
+ikea size 112 x 66 props near 321 goblin FAILED at 971.6,-1149.5 checks inside a prop 0 of 400 knocked by Gus 18

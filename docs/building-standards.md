@@ -83,7 +83,7 @@ A place that reaches the water is a coastal kind (`setKind`): a city is a **coas
 
 ## Where the code is
 
-Rooms: `restProps` (restaurants, bars, soup kitchens), `shopRoom` (shops, stores, furniture store, stations), `mallProps`, `homeRoom`, `aptFloor`, `workRoom` (offices, banks, broadcasters), `civicRoom` (schools, libraries, police, fire, jails, courthouses), `venueRoom` (cinemas, clubs, casinos, museums, factories, labs, barracks, terminals, sound stages), `hospProps`, `pewProps`. Models are in `PROPS`. Inside walls are in `furnRaw`. Other pieces: `autoStair`, `wcRooms`, `policeRooms`, `hospRooms`, `roomStep`.
+Rooms: `restProps` (restaurants, bars, soup kitchens), `shopRoom` (shops, stores, furniture store, stations), `mallProps`, `homeRoom`, `aptFloor`, `workRoom` (offices, banks, broadcasters), `civicRoom` (schools, libraries, police, fire, jails, courthouses), `venueRoom` (cinemas, clubs, casinos, museums, factories, labs, barracks, terminals, sound stages), `hospProps`, `pewProps`. Outdoor sites: `siteProps` and `SITE_FN` (markets, camps, campsites, the cult, building sites, nurseries, trailer parks, cemeteries, mines, quarries, lumber camps, preppers, militia, thieves, ruins, dumps, parks, plazas, courts, lighthouses, power stations, zoos, theme parks, stadiums, car parks, big parks, bunkers, wrecked cars). Models are in `PROPS`. Inside walls are in `furnRaw`. Other pieces: `autoStair`, `wcRooms`, `policeRooms`, `hospRooms`, `roomStep`.
 
 ## How to check
 

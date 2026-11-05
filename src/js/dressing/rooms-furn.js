@@ -82,6 +82,10 @@ function wcFit(L,y0,at,n,depth){
 function arenaProps(b,px,pz,L){
   const c=(b.x1-b.x0-1)/2,R=c-.3,W=arenaWC(R),X=px*CELL+b.x0+c+.5,Z=pz*CELL+b.z0+c+.5,n=W.v1-W.v0-2;
   for(const sg of [-1,1])wcFit(L,G+2,(a,d)=>[X+sg*(4+a),Z+sg*(W.v0+1+d)],4,n);
+  // the teams' benches on the near side of the court, and the scorers' table between them
+  const add=(type,u,v,yaw,tint)=>{const x=X+u,z=Z+v;L.push({prop:true,type,x,z,y0:G+2,base:G+2,yaw,tint,rad:.5,key:'p'+Math.round(x*4)+','+Math.round(z*4)+','+(G+2)+type});};
+  for(const s of [-1,1])add('bench',s*5,-7,0,0);
+  add('rtable',0,-7.2,0,0x2a2e33);add('chair',-.6,-7.9,0,0x3a3f45);add('chair',.6,-7.9,0,0x3a3f45);
 }
 // what's in each of the capitol's rooms (see capPlan for where they are)
 const CAP_WOOD=0x5a3a22,CAP_LEATHER=0x6a2a24,CAP_SIDE=[0x8a2a2a,0x2f6b45],CAP_ART=[0x5d7a8c,0x8c6d4a,0x6a5a8c,0x8a4b3a];
@@ -208,7 +212,12 @@ function refreshProps(){
   {const RS=Math.min(viewFar(),96),seenS=new Set();
    for(const p of viewers()){
      for(let px=Math.floor((p.pos.x-RS)/CELL);px<=Math.floor((p.pos.x+RS)/CELL);px++)for(let pz=Math.floor((p.pos.z-RS)/CELL);pz<=Math.floor((p.pos.z+RS)/CELL);pz++){
-       const ck=px*100003+pz;if(seenS.has(ck))continue;seenS.add(ck);if(biomeOf(px,pz)==='plains'||!tenvShow(px,pz))continue;
+       const ck=px*100003+pz;if(seenS.has(ck))continue;seenS.add(ck);if(!tenvShow(px,pz))continue;
+       // the markets, camps and yards out of doors (see siteProps), seen from as far off as the benches
+       if(siteKind(px,pz))for(const f of siteProps(plotInfo(px,pz),px,pz)){if(Math.abs(f.x-p.pos.x)>RS||Math.abs(f.z-p.pos.z)>RS)continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);
+         if(!chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS)))||get(fx,f.y0-1,fz)===AIR||get(fx,f.y0,fz)!==AIR||got.has(f.key))continue;
+         got.add(f.key);activeProps.push(f);drawProp(f);if(!f.low&&!downFix.has(f.key)&&!falling.has(f.key))propCells.set(propCK(f.x,f.y0,f.z),f);}
+       if(biomeOf(px,pz)==='plains')continue;
        for(const f of streetFurn(px,pz)){if(!f.prop)continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);if(get(fx,G,fz)!==f.on||get(fx,G+1,fz)!==AIR)continue;
          activeProps.push(f);activeFix.push(f);drawProp(f);if(downFix.has(f.key)||falling.has(f.key))continue;
          // (a bench is wider than one block: goblins go round the whole of it)

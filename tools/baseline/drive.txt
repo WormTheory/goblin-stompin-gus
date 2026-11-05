@@ -12,7 +12,7 @@ car (car): in car  same car true  camera behind it 6.1
   W on foot walks again: in on foot
 motorcycles in the traffic mix: street 8%, hw 5%, park 8%
 motorcycle: in car  size 0.8 x 2.0  display says Motorcycle  ·  30 / 30
-  W 2 s: moved 15.0  speed 8.1
+  W 2 s: moved 20.6  speed 20.2
   W+A: leaning -0.4 (left is negative)
   F again: on foot  beside it 2.5
 train: in train  car 1
@@ -22,7 +22,7 @@ train: in train  car 1
 boat (launch): in boat
   W 4 s: moved 28.1  speed 10.2  afloat at 0.9
   W+A 2 s: turned 2.3
-  F again: on foot  in the water beside it 2.4  y -1.3
+  F again: on foot  in the water beside it 2.4  y -1.2
   3 s on: it stays put (off its route) 0.0
 errors 0 []
 tank: in tank  base alerted false

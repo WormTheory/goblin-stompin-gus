@@ -30,11 +30,12 @@ function updateCars(dt){
     if(d.life<=0)m.visible=false;}
   let alive=0,hunters=0;for(const c of cars)if(c.alive&&!c.police&&!c.parkPool&&!c.hwPool){alive++;if(c.hunter)hunters++;}
   pullT-=dt;if(pullT<=0&&playing&&!TENV){pullT=1.5;managePull();}
+  rvT-=dt;if(rvT<=0&&playing){rvT=1;manageRVs();}
   const clock=performance.now()/1000;
   for(const c of cars){
     if(!c.alive){
       c.respawnT-=dt;c.left=false;
-      if(c.svcPool||c.pullPool||TENV)continue;
+      if(c.svcPool||c.pullPool||c.rvPool||TENV)continue;
       if(c.parkPool){if(c.respawnT<=0&&playing&&!spawnParked(c))c.respawnT=1.5;continue;}
       if(c.hwPool){if(c.respawnT<=0&&playing&&traffic>0&&!spawnHw(c))c.respawnT=1.5;continue;}
       if(c.police){if(c.respawnT<=0&&playing&&crowd>0&&!spawnPolice(c))c.respawnT=2;continue;}
@@ -43,7 +44,7 @@ function updateCars(dt){
     const any=nearestPlayer(c.pos.x,c.pos.z,false);
     c.visT=(c.visT||0)-dt;
     let gone=!any||any.d>(c.parkPool?Math.min(75,Math.max(55,viewFar())):Math.max(85,viewFar()+14));   // parked cars recycle to car parks nearer you
-    if(c.pullPool)gone=!any||any.d>viewFar()+30;
+    if(c.pullPool||c.rvPool)gone=!any||any.d>viewFar()+30;
     // far off and out of everyone's sight: recycle it closer in (unseen, so nothing pops)
     // (a parked car out past the edge stays put while anyone can see it, so it doesn't blink out of its bay)
     if(gone&&c.parkPool&&any&&any.d<130){if(c.visT<=0){c.visT=0.4;c.seenP=visibleToAny(c.pos.x,c.pos.y+1,c.pos.z);}if(c.seenP)gone=false;}

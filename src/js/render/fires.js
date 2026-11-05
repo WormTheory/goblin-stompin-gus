@@ -41,6 +41,27 @@ function addFire(x,y,z,r,life,flames=true,o={}){
   const L=life*Math.min(FIRE_DURS[fireDurI].m,1e6);
   fires.push({x,y,z,r,t:L,life:L,base:life,born:playTime,flames,acc:0,sacc:0,hurt:0,sm:o.smoke??1,rise:o.rise??1,blame:BLAME});
 }
+// ---- campfires: the fire pits on a campsite's pitches, an encampment's barrel fire, the fire before a cult's altar, the
+// fires at the militia's and the thieves' camps. Real flames and smoke from the same pools as any fire, but small and
+// steady, burning for good while their wood (or barrel) is there; and they only hurt whoever stands right in them, up on
+// the wood itself, never the people sat or stood round them. They aren't in 'fires', so no fire engine or news van comes
+// out to one, the rain doesn't put them out and the fire settings don't touch them. (campFires keeps the list.) ----
+const hearths=new Map(),HEARTH_R=0.36,HEARTH_HURT=0.62;
+function hearthBurn(H,dt){
+  H.acc+=dt*15*H.s;
+  while(H.acc>=1){H.acc--;const p=flameP[flI];flI=(flI+1)%FL_N;const a=Math.random()*Math.PI*2,d=Math.sqrt(Math.random())*HEARTH_R*H.s;
+    p.x=H.x+Math.cos(a)*d;p.z=H.z+Math.sin(a)*d;p.y=H.y+0.05;p.vy=1.3+Math.random()*1.7;p.max=p.life=0.35+Math.random()*0.4;p.s=(0.2+Math.random()*0.24)*H.s;p.ph=Math.random()*6;}
+  // (a thin wisp: a campfire, not a burning building)
+  H.sacc+=dt*(frameMs>40?0.4:1);
+  while(H.sacc>=1){H.sacc--;const p=smokeP[smI];smI=(smI+1)%SM_N;p.x=H.x+(Math.random()-.5)*0.3;p.z=H.z+(Math.random()-.5)*0.3;p.y=H.y+0.9+Math.random()*0.4;
+    p.vx=0.2+(Math.random()-.5)*0.3;p.vz=0.1+(Math.random()-.5)*0.3;p.vy=1.1+Math.random()*0.8;p.max=p.life=2.5+Math.random()*2;p.s=0.3+Math.random()*0.3;p.g=0.3+Math.random()*0.1;p.glow=0.35;}
+  // burns whoever's right in it: their middle within a little over half a block of the wood's, at the wood's height
+  H.hurt-=dt;if(H.hurt>0)return;H.hurt=0.9;
+  for(const q of players){if(!q.active||q.state==='dead'||q.drv)continue;const dx=q.pos.x-H.x,dz=q.pos.z-H.z,dy=q.pos.y-H.y;
+    if(Math.hypot(dx,dz)<HEARTH_HURT&&dy>-0.6&&dy<1.6){const d=Math.hypot(dx,dz)||1;damagePlayer(q,1,new V3(q.pos.x,q.pos.y+0.6,q.pos.z),new V3(dx/d*0.4,0.5,dz/d*0.4),'Burned to death');flashLabel('Burning!',q);}}
+  for(const g of goblins){if(g.state!=='chase')continue;const dx=g.pos.x-H.x,dz=g.pos.z-H.z,dy=g.pos.y-H.y,d=Math.hypot(dx,dz);
+    if(d<HEARTH_HURT&&dy>-0.6&&dy<1.6)damageGoblin(g,1,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(dx/(d||1),0.6,dz/(d||1)),H.why);}
+}
 // the duration setting changed: fires already burning take on the new length (each keeps how far through it was)
 // put out the oldest fires until there's room for 'room' more under the cap
 function trimFires(room){const cap=FIRE_CAPS[fireCapI];while(fires.length>0&&fires.length+room>cap){let k=0;for(let i=1;i<fires.length;i++)if(fires[i].born<fires[k].born)k=i;fires.splice(k,1);}}
@@ -84,8 +105,9 @@ function updateFires(dt){
       const a=Math.random()*Math.PI*2,d=Math.random()*R*0.7;p.x=F.x+Math.cos(a)*d;p.z=F.z+Math.sin(a)*d;p.y=F.y+0.8+Math.random();
       const ri=F.rise;p.vx=(0.5+(Math.random()-.5)*0.6)*Math.sqrt(ri);p.vz=(0.25+(Math.random()-.5)*0.6)*Math.sqrt(ri);p.vy=(2.2+Math.random()*1.6)*ri;p.max=p.life=(3.5+Math.random()*3)*(1+(ri-1)*0.9);p.s=(0.8+Math.random()*0.8+R*0.25)*(1+(ri-1)*0.35)*smS;p.g=F.flames?0.1+Math.random()*0.08:0.32+Math.random()*0.12;p.glow=F.flames?k*(0.55+Math.random()*0.35):0;}
   }
+  for(const H of hearths.values())hearthBurn(H,dt);
   // (nothing burning and the last of it gone: nothing to go through, or to send to the graphics card)
-  if(!fires.length&&!flLive&&!smLive){if(flameM.count)flameM.count=0;if(smokeM.count)smokeM.count=0;return;}
+  if(!fires.length&&!hearths.size&&!flLive&&!smLive){if(flameM.count)flameM.count=0;if(smokeM.count)smokeM.count=0;return;}
   // (the live ones packed at the front, and only those drawn and sent up)
   let nf=0;
   for(let i=0;i<FL_N;i++){const p=flameP[i];

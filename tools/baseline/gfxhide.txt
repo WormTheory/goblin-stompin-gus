@@ -16,7 +16,7 @@ street props 40 benches 61 bins, furthest 117 blocks; still old fixtures 0 ; als
 bench: all three of its cells block goblins true
 a car hitting it: knocked 1 score + 5
 down after falling true  still blocks goblins false
-after a minute of goblins walking about: 2 of 88 street props down; goblins 58
+after a minute of goblins walking about: 3 of 97 street props down; goblins 58
 interface rows 18 each hides and comes back 17 of 17
 whole display off: 17 rules, row says false
 one back on: row says true rules 16

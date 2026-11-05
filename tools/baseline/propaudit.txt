@@ -1,0 +1,104 @@
+courthouse      29 props   18.1 /k   Town blocks / Courthouses    bench:10 seats:3 chair:3 litterbin:2 parkbench:1 detector:1 desk:1 swivel:1
+tower           60 props   37.5 /k   Town blocks / Office towers    swivel:8 cube:6 chair:6 rtable:5 counter:4 elevator:4 sofa:4 plant:3
+mid             43 props   26.9 /k   Town blocks / Mid-rise blocks    chair:8 table:4 rtable:4 toilet:4 basin:4 parkbench:3 litterbin:3 homebed:3
+homes           32 props   20.0 /k   Town blocks / Houses    sofa:4 chair:4 plant:2 fridge2:2 range:2 sink:2 prep:2 rtable:2
+shops           30 props   18.8 /k   Town blocks / Little shops    gcase:6 jars:6 plant:6 parkbench:2 litterbin:2 seats:2 rtable:2 monitor:1
+park            12 props    7.5 /k   Town blocks / Parks    litterbin:5 parkbench:3 picnic:2 grill:1 icecart:1
+plaza           18 props   11.3 /k   Town blocks / Plazas    chair:4 litterbin:4 parkbench:3 rtable:2 umbrella:2 plant:2 icecart:1
+gas             23 props   14.4 /k   Town blocks / Gas stations    fridge2:10 bar:5 shelf2:2 monitor:1 espresso:1 pot:1 toilet:1 basin:1
+food            80 props   50.0 /k   Town blocks / Restaurants    chair:36 bar:10 rtable:9 litterbin:5 umbrella:4 parkbench:3 monitor:2 prep:2
+fastfood        55 props   34.4 /k   Town blocks / Fast food    chair:15 bar:8 rtable:7 booth:5 litterbin:3 monitor:3 parkbench:2 fryer:2
+fire            29 props   18.1 /k   Town blocks / Fire stations    gearrack:6 litterbin:4 bunk:3 sofa:3 parkbench:2 rtable:1 chair:1 tv:1
+police         328 props   63.3 /k   Town blocks / Police stations    shelf3:72 gunrack:41 swivel:35 desk:31 locker:31 pcrate:12 chair:10 plant:10
+build           18 props   11.3 /k   Town blocks / Construction sites    parkbench:4 litterbin:4 bricks:4 cone:2 barrow:2 cmixer:1 portaloo:1
+wtower           2 props    1.3 /k   Town blocks / Water towers    parkbench:1 litterbin:1
+bell             4 props    2.5 /k   Town blocks / Bell towers    parkbench:2 litterbin:2
+church          29 props   18.1 /k   Town blocks / Churches    pew:24 litterbin:3 parkbench:2
+cemetery        12 props    7.5 /k   Town blocks / Cemeteries    flowers:12
+library         83 props   51.9 /k   Town blocks / Libraries    bookcase:32 chair:15 rtable:8 flamp:8 swivel:4 parkbench:3 litterbin:3 bar:3
+bank            37 props   23.1 /k   Town blocks / Banks    chair:6 cube:5 swivel:5 locker:4 rtable:3 litterbin:2 teller:2 parkbench:1
+news            57 props   35.6 /k   Town blocks / TV news    swivel:16 cube:14 locker:7 bar:6 litterbin:3 parkbench:2 monitor:2 tvcam:2
+radio           16 props   10.0 /k   Town blocks / Radio stations    bookcase:4 mixer:3 sofa:2 swivel:2 locker:1 onair:1 toilet:1 basin:1
+disco           53 props   33.1 /k   Town blocks / Discos    bar:8 stool:8 bottles:8 chair:4 basin:3 litterbin:2 booth:2 speaker:2
+club            48 props   30.0 /k   Town blocks / Night clubs    bar:6 stool:6 bottles:6 chair:5 litterbin:3 basin:3 parkbench:2 homebed:2
+court            9 props    5.6 /k   Town blocks / Basketball courts    litterbin:5 bench:2 ballrack:1 parkbench:1
+derelict        12 props    7.5 /k   Town blocks / Derelict buildings    chair:4 rtable:3 table:2 homebed:1 fridge2:1 range:1
+mansion         30 props   18.8 /k   Town blocks / Mansions    chair:4 sofa:3 homebed:3 table:2 plant:2 shelf2:2 drawers:2 wardrobe:2
+trailers        21 props   13.1 /k   Town blocks / Trailer parks    grill:4 drum:4 fridge2:4 range:4 campchair:3 parkbench:1 litterbin:1
+camp            10 props    6.3 /k   Town blocks / Encampments    bedroll:5 pcrate:4 litterbin:1
+farmers         88 props   55.0 /k   Town blocks / Farmers' markets    mpost:32 bushel:16 mtable:8 pcrates:8 stool:8 litterbin:6 parkbench:5 aboard:5
+nursery         23 props   14.4 /k   Town blocks / Tree nurseries    sapling:21 barrow:1 fridge2:1
+dealer          17 props   10.6 /k   Town blocks / Car dealers    litterbin:4 parkbench:2 chair:2 plant:2 showcar:2 desk:1 swivel:1 toilet:1
+armory          33 props   20.6 /k   Town blocks / Armories    locker:9 swivel:8 cube:7 gunrack:4 parkbench:1 litterbin:1 stall:1 basin:1
+theater         24 props   15.0 /k   Town blocks / Theatres    musicstand:6 chair:6 litterbin:4 parkbench:3 sofa:2 plant:1 toilet:1 basin:1
+stocks          26 props   16.3 /k   Town blocks / Stock exchange    cube:10 swivel:8 litterbin:4 parkbench:1 toilet:1 basin:1 wcsign:1
+datacenter       6 props    3.8 /k   Town blocks / Data centers    litterbin:4 parkbench:2
+electric        12 props    7.5 /k   Town blocks / Electric company    swivel:2 cube:2 parkbench:1 litterbin:1 locker:1 vending:1 fridge2:1 toilet:1
+lab             35 props   21.9 /k   Town blocks / Goblin labs    prep:10 vat:7 monitor:6 litterbin:4 parkbench:3 swivel:2 stall:1 basin:1
+jail            11 props    6.9 /k   Town blocks / Jails    toilet:4 bunk:3 parkbench:1 litterbin:1 rtable:1 swivel:1
+hospital       997 props   92.2 /k   Big sites / Hospitals    bed:228 vitals:149 curtain:122 drip:95 chair:61 desk:57 swivel:45 counter:34
+garage           4 props    0.8 /k   Big sites / Car parks    paymachine:2 litterbin:1 cone:1
+mega           114 props   39.6 /k   Big sites / Mega-buildings    swivel:34 cube:29 locker:17 chair:5 counter:4 stall:4 rtable:4 monitor:2
+market         307 props   59.2 /k   Big sites / Supermarkets    shelf2:163 tv:102 aislesign:11 checkout:8 swivel:8 trolley:6 stall:4 basin:2
+drug            78 props   27.1 /k   Big sites / Drugstores    shelf2:27 fridge3:14 bar:10 shelf3:8 trolley:6 aislesign:4 litterbin:2 monitor:2
+sitdown         86 props   29.9 /k   Big sites / Sit-down restaurants    chair:20 booth:12 rtable:11 bar:8 bottles:8 prep:8 stool:4 range:3
+mall          1338 props   49.2 /k   Big sites / Malls    toys:236 shelf2:170 clothes:124 bar:123 tv:118 chair:114 bookcase:99 fridge2:95
+bigbox        1701 props   92.0 /k   Big sites / Superstores    shelf4:463 shelf2:359 clothes:289 tv:193 fridge3:175 bin:122 aislesign:25 checkout:19
+ikea           795 props   56.2 /k   Big sites / Furniture superstores    pallet:318 chair:182 rtable:91 prep:30 bar:29 sofa:28 flamp:21 homebed:14
+cathedral     1138 props  152.0 /k   Big sites / Cathedrals    pew:1128 parkbench:5 litterbin:5
+museum         256 props   34.2 /k   Big sites / Museums    statue:68 stanchion:60 gcase:36 vase:16 plant:15 bench:12 shelf2:11 stall:8
+aquarium        44 props    5.9 /k   Big sites / Aquariums    bench:21 teller:10 stall:4 parkbench:2 litterbin:2 basin:2 shelf2:1 plant:1
+casino         175 props   60.8 /k   Big sites / Casinos    chair:42 slot:24 stool:24 bar:21 rtable:20 fridge2:8 sofa:7 basin:6
+school         323 props   29.9 /k   Big sites / Schools    chair:126 sdesk:124 bench:14 bar:10 swivel:8 plant:8 desk:7 ltable:6
+factory         81 props   28.1 /k   Big sites / Factories    conveyor:47 pcrate:16 machine:7 locker:3 litterbin:2 parkbench:1 desk:1 swivel:1
+cinema         101 props   19.5 /k   Big sites / Cinemas    bar:28 fridge2:28 soda:8 arcade:8 stall:8 popcorn:6 basin:4 teller:2
+stadium         29 props    1.1 /k   Big sites / Stadiums    stall:8 litterbin:7 parkbench:6 cflag:4 bench:2 basin:2
+arena           16 props    3.1 /k   Big sites / Arenas    stall:8 basin:2 bench:2 chair:2 litterbin:1 rtable:1
+campus        1812 props   45.3 /k   Big sites / Universities    bookcase:659 chair:393 sdesk:224 table:114 rtable:85 flamp:74 basin:31 desk:27
+prison       not found
+water           13 props    4.5 /k   Big sites / Water works    swivel:3 cube:3 locker:3 fridge2:1 toilet:1 basin:1 wcsign:1
+power           19 props    1.8 /k   Big sites / Power stations    deskm:7 reel:2 drum:2 cone:2 pcrate:2 toolrack:1 stall:1 basin:1
+nuclear        152 props    2.2 /k   Big sites / Nuclear plants    cube:52 swivel:52 locker:13 chair:12 rtable:7 tv:3 stall:2 basin:2
+zoo             41 props    1.5 /k   Big sites / Zoos    bench:12 fridge2:8 infosign:6 shelf2:3 parkbench:2 litterbin:2 hay:2 trough:1
+studio         414 props   22.4 /k   Big sites / Film studios    backdrop:80 shelf3:40 tvcam:30 studiolight:30 clothes:30 mixer:20 dirchair:20 pcrate:20
+theme           35 props    0.5 /k   Big sites / Theme parks    chair:10 litterbin:6 rtable:5 umbrella:5 bench:4 icecart:3 parkbench:2
+bigpark         15 props    0.6 /k   Big sites / Big parks    picnic:5 parkbench:3 litterbin:3 grill:3 icecart:1
+hood           507 props   27.4 /k   Big sites / Housing estates    chair:92 rtable:46 sofa:44 plant:27 drawers:26 shelf2:25 homebed:23 fridge2:19
+capitol        675 props   24.8 /k   Big sites / The capitol    lbench:87 bookcase:86 pew:60 ldesk:59 swivel:32 sofa:30 chair:30 bar:29
+farm            19 props   11.9 /k   Countryside / Farms    hay:4 sofa:2 table:2 bench:2 tv:1 flamp:1 plant:1 fridge2:1
+truckstop       65 props   40.6 /k   Countryside / Truck stops    shelf2:37 fridge2:17 bar:5 monitor:1 espresso:1 pot:1 stall:1 basin:1
+dump            13 props    0.7 /k   Countryside / Garbage dumps    mattress:2 drum:2 cooler:2 campchair:2 locker:2 tyres:1 oldfridge:1 picnic:1
+mine            15 props    1.4 /k   Countryside / Mines    pcrate:5 minecart:3 drum:2 toolrack:1 barrow:1 reel:1 rtable:1 chair:1
+quarry          32 props    0.8 /k   Countryside / Quarries    cube:6 swivel:5 cone:3 locker:3 drum:2 pcrate:2 portaloo:1 reel:1
+lumber          18 props    1.3 /k   Countryside / Lumber camps    pcrate:7 chopblock:2 sawhorse:2 picnic:1 toolrack:1 jerrycans:1 barrow:1 shelf2:1
+campsite        51 props    9.8 /k   Countryside / Campsites    campchair:23 cooler:11 picnic:7 pcrate:3 locker:2 copier:1 fridge2:1 plant:1
+cult             9 props    5.6 /k   Countryside / Cult altars    candles:5 bones:2 bookstand:1 skull:1
+wrecks           2 props    1.3 /k   Countryside / Abandoned cars    tyre:2
+tower5g          0 props    0.0 /k   Countryside / 5G towers    
+prepper         24 props    4.6 /k   Countryside / Prepper compounds    chair:4 drum:3 pcrate:3 jerrycans:2 campchair:2 ammobox:2 rtable:2 grill:1
+militia         49 props    9.5 /k   Countryside / Militia compounds    bunk:9 locker:9 bedroll:8 ammobox:6 chair:4 pcrate:2 campchair:2 drum:2
+ruins           18 props    3.5 /k   Countryside / Ruins    rubble:14 vase:3 bucket:1
+thieves         16 props   10.0 /k   Countryside / Thieves' hideouts    pcrate:7 tv:2 goldbars:2 campchair:2 safe:1 trolley:1 shelf2:1
+wind             0 props    0.0 /k   Countryside / Wind farms    
+airport        104 props    1.1 /k   Countryside / Airports    conveyor:46 bar:20 monitor:10 swivel:10 pcrate:8 seats:4 stall:2 basin:2
+nasa            64 props    8.5 /k   Countryside / Launch sites    deskm:19 cube:11 swivel:11 locker:8 chair:6 rtable:3 toilet:1 basin:1
+base           222 props   12.0 /k   Countryside / Military bases    bunk:102 locker:84 toilet:9 basin:9 wcsign:9 flag:9
+bunker          14 props    8.8 /k   Countryside / Bunkers    bunk:4 chair:4 rtable:2 locker:1 pcrate:1 jerrycans:1 drum:1
+pylons           0 props    0.0 /k   Countryside / Power lines    
+billboards       0 props    0.0 /k   Countryside / Billboards    
+tolls            0 props    0.0 /k   Countryside / Toll plazas    
+rail             0 props    0.0 /k   Railways / Railways    
+station         12 props    7.5 /k   Railways / Train stations    teller:3 bar:2 monitor:1 swivel:1 espresso:1 plant:1 toilet:1 basin:1
+sea              0 props    0.0 /k   Coast / The ocean    
+beach           43 props   26.9 /k   Coast / Beaches    lounger:18 umbrella:12 towel:7 lifering:2 lifeguard:1 surfrack:1 icecart:1 bench:1
+harbor           9 props    5.6 /k   Coast / Docks    bollard:3 fishcrate:2 drum:2 rope:1 lifering:1
+yard         not found
+navy         not found
+lighthouse       4 props    2.5 /k   Coast / Lighthouses    telescope:1 lifering:1 rope:1 anchor:1
+rig              8 props    5.0 /k   Coast / Oil rigs    drum:4 pipes:3 rope:1
+wreck            0 props    0.0 /k   Coast / Shipwrecks    
+fishing         14 props    4.9 /k   Coast / Fishing wharves    fishcrate:10 lpot:2 netrack:1 buoys:1
+sewers          13 props   14.8 /k   Underground / Sewers    shelf2:3 litterbin:2 parkbench:1 stall:1 basin:1 wcsign:1 fridge2:1 range:1
+subway           0 props    0.0 /k   Underground / Subway    
+caves            0 props    0.0 /k   Underground / Caves    
+metro            0 props    0.0 /k   Underground / Subway stations    

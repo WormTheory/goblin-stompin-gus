@@ -155,10 +155,7 @@ function bunkerColumn(col,rx,rz,x,z){
   if(inRoom||door){for(let y=G-11;y<=G-8;y++)col(y,AIR);col(G-12,CONCRETE);
     if(door){col(G-8,(u+v)%2?PAINT_YELLOW:PAINT_DARK);return;}
     if((u+v)%5===0)col(G-7,LAMP);
-    if(inBunk&&(v===1||v===7)&&u%3!==0){col(G-11,BED);if(u%3===1)col(G-9,BED);}
-    if(inStore&&(u===14||v===8||v===0)){col(G-11,CRATE);col(G-10,v===0?SHELF:CRATE);col(G-9,SHELF);}
-    if(inRadio&&v===16){col(G-11,PLANKS);col(G-10,u%2?SCREEN:METAL);}
-    if(inHall&&au<=3&&v>=5&&v<=7){if(v===6)col(G-11,PLANKS);else if(au<=2)col(G-11,SEAT_B);}
+    // (the bunks, the store's shelves, the radio desks and the hall's table are props: see bunkerProps)
     return;}
   if(u===-7||u===7||v===10){for(let y=G-11;y<=G-8;y++)col(y,METAL);}   // the blast walls
 }
