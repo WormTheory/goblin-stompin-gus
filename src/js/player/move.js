@@ -241,6 +241,7 @@ function movePlayer(p,dt){
   } else if(p.state==='climb'&&p.vcl){
     // spider-climbing the side of a vehicle (see vClimb)
     p.vy=0;p.grounded=true;p.airJumps=airJumpsMax();p.airDash=true;p.airBiteCD=0;p.peakY=p.pos.y;
+    if(p.qBite>0&&ABIL.bite&&p.biteT<=0&&!(p.biteCD>0)){p.qBite=0;wallBite(p);}   // R1, as on a wall
     if(vClimb(p,inp,dt))moving=true;
   } else if(p.state==='climb'){
     // spider-climb: belly to the wall, the stick moves up/down and along it

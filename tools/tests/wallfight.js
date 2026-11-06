@@ -1,7 +1,7 @@
 let __s=+(process.env.SEED||1);Math.random=()=>{__s=(__s*16807)%2147483647;return (__s-1)/2147483646;};
 const fs=require('fs');
 let src0=fs.readFileSync('g.js','utf8');
-let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={players,cars,goblins,keys,frame,setRaw,get,solidAt,groundAt,ABIL,AB,bodyHits,BLOCK,setBind,setChar,DT};\n})();');
+let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={players,cars,goblins,keys,frame,setRaw,get,solidAt,groundAt,ABIL,AB,bodyHits,BLOCK,setBind,setChar,DT,vBox,vHold};\n})();');
 const deep=()=>new Proxy(function(){}, {get:(t,p)=>p===Symbol.toPrimitive?()=>0:(p==='length'?0:deep()),apply:()=>deep(),construct:()=>deep()});
 class Q{constructor(){this.x=0;this.y=0;this.z=0;this.w=1}set(x,y,z,w){this.x=x;this.y=y;this.z=z;this.w=w;return this}setFromAxisAngle(a,t){const s=Math.sin(t/2);this.x=a.x*s;this.y=a.y*s;this.z=a.z*s;this.w=Math.cos(t/2);return this}copy(q){this.x=q.x;this.y=q.y;this.z=q.z;this.w=q.w;return this}}
 class V3{project(){return this}fromBufferAttribute(a,i){const A=a.array||a.a;this.x=A[i*3];this.y=A[i*3+1];this.z=A[i*3+2];return this}applyMatrix4(m){const e=m.elements,x=this.x,y=this.y,z=this.z;this.x=e[0]*x+e[4]*y+e[8]*z+e[12];this.y=e[1]*x+e[5]*y+e[9]*z+e[13];this.z=e[2]*x+e[6]*y+e[10]*z+e[14];return this}setFromMatrixPosition(o){this.x=o.position.x;this.y=o.position.y;this.z=o.position.z;return this}normalize(){const l=Math.hypot(this.x,this.y,this.z)||1;this.x/=l;this.y/=l;this.z/=l;return this}add(v){this.x+=v.x;this.y+=v.y;this.z+=v.z;return this}applyQuaternion(q){const x=this.x,y=this.y,z=this.z,qx=q.x,qy=q.y,qz=q.z,qw=q.w;const ix=qw*x+qy*z-qz*y,iy=qw*y+qz*x-qx*z,iz=qw*z+qx*y-qy*x,iw=-qx*x-qy*y-qz*z;this.x=ix*qw+iw*-qx+iy*-qz-iz*-qy;this.y=iy*qw+iw*-qy+iz*-qx-ix*-qz;this.z=iz*qw+iw*-qz+ix*-qy-iy*-qx;return this}constructor(x=0,y=0,z=0){this.x=x;this.y=y;this.z=z}set(x,y,z){this.x=x;this.y=y;this.z=z;return this}copy(v){this.x=v.x;this.y=v.y;this.z=v.z;return this}clone(){return new V3(this.x,this.y,this.z)}addScaledVector(v,s){this.x+=v.x*s;this.y+=v.y*s;this.z+=v.z*s;return this}multiplyScalar(s){this.x*=s;this.y*=s;this.z*=s;return this}setScalar(s){return this.set(s,s,s)}}
@@ -112,6 +112,19 @@ for(const th of [1,2,3])for(const [h,floor] of [[1,0],[3,0],[6,6]]){
 {// stomp switched off in the Character tab: nothing happens
   T.ABIL.stomp=false;const R=DIRS.map(d=>{clear();house(d,1);if(!grab(d,1))return {ok:false,s:'no grab'};press(STOMP);S(20);const st=A.state,whole=built.every(([x,y,z])=>T.solidAt(x,y,z));T.keys.delete(C);S(30);return {ok:st==='climb'&&whole,s:`${st}, wall whole ${whole}`};});
   T.ABIL.stomp=true;tally('stomp switched off: still clinging, wall whole',R);
+}
+console.log('-- R1 clinging to the side of a vehicle');
+{// a car parked on the floor; he takes hold of its long side, head up (or turned along it), and bites
+ const car=T.cars.find(c=>!c.isTrain&&!c.isPlane&&c.hp>0)||T.cars[0];
+ const R=[];for(const turn of [null,DK])for(const s of [1,-1]){clear();
+  car.alive=true;car.respawnT=1e9;car.speed=0;car.parked=true;car.heading=0;car.pos.set(X0+.5,F,Z0+.5);car.vy=0;car.kv.set(0,0,0);car.hp=99;S(5);
+  const b=T.vBox(car);put(car.pos.x-s*(b.hc+0.3),car.pos.z,s>0?Math.PI/2:-Math.PI/2);T.keys.add(C);const held=T.vHold(A,car,b,{k:'c',s},false);
+  if(turn){T.keys.add(turn);S(20);T.keys.delete(turn);}S(10);
+  const r=A.climbRoll||0,dd=A.climbD,u=[-dd[1]*Math.sin(r),Math.cos(r),dd[0]*Math.sin(r)],c=[A.pos.x-dd[0]*0.5,A.pos.y+1.3,A.pos.z-dd[1]*0.5];
+  let hp0=0,hit=false;const ch0=car.hp;for(let i=0;i<40;i++){car.speed=0;putGob(c[0]+u[0]*2.4-dd[0]*0.6,c[1]+u[1]*2.4-0.7,c[2]+u[2]*2.4-dd[1]*0.6);if(i===0)hp0=gob.hp;if(i===2)press(BITE);else S(1);if(gob.hp<hp0)hit=true;}
+  const st=A.state,on=!!A.vcl,bit=car.hp<ch0;park();T.keys.clear();S(40);car.alive=false;
+  R.push({ok:held&&hit&&on&&bit,s:`held ${held}, goblin ${hit?'hit':'missed'}, car bitten ${bit}, still on ${on} (${st})`});}
+ tally('car side: R1 bites the goblin and the car',R);
 }
 console.log('-- the other characters');
 const biteUp=()=>DIRS.map(d=>{clear();tall(d);if(!grab(d,3))return {ok:false,s:'no grab '+desc(d)};const dd=A.climbD,small=T.DT.gob;

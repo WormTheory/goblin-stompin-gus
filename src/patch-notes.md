@@ -44,7 +44,7 @@ Everything since the first release on GitHub.
 ### Movement
 
 - Air dash comes back after Gus leaves the water, and can't be used while swimming.
-- **Fighting from a wall:** while spider-climbing, R1 (left click) snaps at goblins the way the hippo's head points: up, along or down the wall. Gnash swings or shoots whatever he's holding.
+- **Fighting from a wall:** while spider-climbing a wall or the side of a vehicle, R1 (left click) snaps at goblins the way the hippo's head points: up, along or down. It bites vehicles in reach too, including the one you're clinging to. Gnash swings or shoots whatever he's holding.
 - **Kick through a wall:** stomp while spider-climbing smashes a hole in the wall you're on and puts you inside, on the floor behind it. Into solid rock, it kicks out a hollow and you keep climbing, so you can tunnel in.
 
 ### World

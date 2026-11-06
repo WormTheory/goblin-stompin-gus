@@ -22,6 +22,9 @@ function wallBiteHit(p){
     if(Math.hypot(q[0]-u[0]*t,q[1]-u[1]*t,q[2]-u[2]*t)>=A.hitR)continue;
     // (knocked along the way his head points, and off the wall)
     damageGoblin(g,A.dmg,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(u[0]-d[0]*0.8,u[1]*0.6+0.3,u[2]-d[1]*0.8),cause);}
+  // vehicles in reach too: the one he's clinging to, or one going by
+  {const near=new Set();for(let t=0;t<=J1-J0+1e-6;t+=0.5){const x=a[0]+u[0]*t,y=a[1]+u[1]*t,z=a[2]+u[2]*t;for(const v of carsInCyl(x,z,A.hitR,y-1.5,y+1.5))near.add(v);}
+   for(const v of near){damageCar(v,gk?1:A.carDmg,new V3(u[0]+d[0]*0.5,0,u[2]+d[1]*0.5));clang();}}
   if(!gk){tone('square',200,90,0.08,0.15);noise(0.06,0.3,900,'bandpass');}
 }
 // stomp on the wall: kick a hole through it big enough for a hippo, and go in. Through a wall up to 3 blocks thick he

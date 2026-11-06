@@ -30,9 +30,11 @@
      solid rock: a hollow, still clinging, further in 4/4 
      goblin just inside the wall: hit by the kick   4/4 
      stomp switched off: still clinging, wall whole 4/4 
+-- R1 clinging to the side of a vehicle
+     car side: R1 bites the goblin and the car      4/4 
 -- the other characters
      Gertie: R1 on the wall hits a goblin above     4/4 
      Gertie: stomp on the wall puts her inside      4/4 
      Gnash: R1 on the wall clubs a goblin above     4/4 
      Gnash: stomp is his grenade, not a kick        4/4 
-fine 34 of 34 lines
+fine 35 of 35 lines

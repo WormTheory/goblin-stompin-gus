@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:8765095fdaa27efc55e6c866fc2dc95bb95f6ccd7c35723ff1f3f85054083ef6 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:1c2852cc5f46ed2b5c668e53dc68f2e1fb1076489c07f38fcc12c0a5ca1417ed -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -767,7 +767,7 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 <h3>Vehicles</h3>
 <ul><li><strong>Carjacking:</strong> playing as Gnash, getting into a vehicle that has someone at the controls hauls them out first. A car's door swings open, a motorcycle's rider is shoved off, a tank's crewman is dragged out of the hatch and a helicopter's door slides back. Whoever's thrown out, a driver, a police officer or a soldier, comes back at you or runs for it.</li><li>All vehicles now collide with each other. Tanks no longer drive through a helicopter's tail, trains, planes, boats and rides push tanks and cars out of the way, and driven planes and boats stop or crash when they meet another vehicle.</li><li>A driven tank ramming a wall knocks out a hole as big as its front and keeps going at speed. It also fits under overhangs it can pass beneath.</li><li>Firing with nothing loaded just clicks, and the tank's last shell marker empties while it reloads.</li><li>The vehicle health box and ammo panel now sit just above the hearts.</li><li>The get-out prompt shows Xbox button labels on Xbox controllers.</li><li>Parked motorcycles no longer have a rider, and a ridden one's rider sits properly on it.</li></ul>
 <h3>Movement</h3>
-<ul><li>Air dash comes back after Gus leaves the water, and can't be used while swimming.</li><li><strong>Fighting from a wall:</strong> while spider-climbing, R1 (left click) snaps at goblins the way the hippo's head points: up, along or down the wall. Gnash swings or shoots whatever he's holding.</li><li><strong>Kick through a wall:</strong> stomp while spider-climbing smashes a hole in the wall you're on and puts you inside, on the floor behind it. Into solid rock, it kicks out a hollow and you keep climbing, so you can tunnel in.</li></ul>
+<ul><li>Air dash comes back after Gus leaves the water, and can't be used while swimming.</li><li><strong>Fighting from a wall:</strong> while spider-climbing a wall or the side of a vehicle, R1 (left click) snaps at goblins the way the hippo's head points: up, along or down. It bites vehicles in reach too, including the one you're clinging to. Gnash swings or shoots whatever he's holding.</li><li><strong>Kick through a wall:</strong> stomp while spider-climbing smashes a hole in the wall you're on and puts you inside, on the floor behind it. Into solid rock, it kicks out a hollow and you keep climbing, so you can tunnel in.</li></ul>
 <h3>World</h3>
 <ul><li>The pavement stairwells down to the sewers are gone. The sewers are still under every town street, but the only way in now is to smash through.</li><li>Subway station stairs are built from real stair blocks, so the way down to the platforms is a smooth flight of steps instead of a staircase of plain blocks.</li></ul>
 <h3>Menus and debug tools</h3>
@@ -10200,6 +10200,9 @@ function wallBiteHit(p){
     if(Math.hypot(q[0]-u[0]*t,q[1]-u[1]*t,q[2]-u[2]*t)>=A.hitR)continue;
     // (knocked along the way his head points, and off the wall)
     damageGoblin(g,A.dmg,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(u[0]-d[0]*0.8,u[1]*0.6+0.3,u[2]-d[1]*0.8),cause);}
+  // vehicles in reach too: the one he's clinging to, or one going by
+  {const near=new Set();for(let t=0;t<=J1-J0+1e-6;t+=0.5){const x=a[0]+u[0]*t,y=a[1]+u[1]*t,z=a[2]+u[2]*t;for(const v of carsInCyl(x,z,A.hitR,y-1.5,y+1.5))near.add(v);}
+   for(const v of near){damageCar(v,gk?1:A.carDmg,new V3(u[0]+d[0]*0.5,0,u[2]+d[1]*0.5));clang();}}
   if(!gk){tone('square',200,90,0.08,0.15);noise(0.06,0.3,900,'bandpass');}
 }
 // stomp on the wall: kick a hole through it big enough for a hippo, and go in. Through a wall up to 3 blocks thick he
@@ -11368,6 +11371,7 @@ function movePlayer(p,dt){
   } else if(p.state==='climb'&&p.vcl){
     // spider-climbing the side of a vehicle (see vClimb)
     p.vy=0;p.grounded=true;p.airJumps=airJumpsMax();p.airDash=true;p.airBiteCD=0;p.peakY=p.pos.y;
+    if(p.qBite>0&&ABIL.bite&&p.biteT<=0&&!(p.biteCD>0)){p.qBite=0;wallBite(p);}   // R1, as on a wall
     if(vClimb(p,inp,dt))moving=true;
   } else if(p.state==='climb'){
     // spider-climb: belly to the wall, the stick moves up/down and along it
