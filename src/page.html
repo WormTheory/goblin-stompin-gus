@@ -14,6 +14,7 @@
   <div class="readout" id="readout"></div>
   <div class="dbgbadge" id="dbgBadge" hidden></div>
   <div class="fpsc" id="fpsCounter" hidden aria-hidden="true"></div>
+  <div class="sndlist" id="sndList" hidden aria-hidden="true"></div>
   <div class="dbgpad" id="dbgPad" hidden>
     <h4>DEBUG <span id="dpHint">game paused</span><button type="button" class="dpx" id="dpClose" aria-label="Close the debug menu">✕</button></h4>
     <div id="dpRows"></div>
@@ -208,6 +209,7 @@
         <button type="button" class="tog" role="checkbox" data-k="fps"><span class="box" aria-hidden="true"></span><span class="tl">FPS counter<small>Frames per second and frame time, at the top of the screen</small></span></button>
         <button type="button" class="tog" role="checkbox" data-k="hpBars"><span class="box" aria-hidden="true"></span><span class="tl">Health bars<small>A bar over every goblin, civilian, car and hippo that can be hurt</small></span></button>
         <button type="button" class="tog" role="checkbox" data-k="dmgNums"><span class="box" aria-hidden="true"></span><span class="tl">Damage numbers<small>Each hit's damage pops up where it lands</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="sndList"><span class="box" aria-hidden="true"></span><span class="tl">Sound list<small>Every sound by name, down the left: lit while it plays, then fading over 2 seconds</small></span></button>
       </div>
     </div>
     <div class="custom wide">

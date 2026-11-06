@@ -101,7 +101,7 @@ function rocketSound(p,on){if(SBX||!audio)return;
       f.type='lowpass';f.frequency.value=900;f2.type='peaking';f2.frequency.value=180;f2.gain.value=9;g.gain.value=0;
       src.connect(f).connect(f2).connect(g).connect(audio.destination);src.start();p.rkSnd={src,f,g};}
     const S=p.rkSnd;if(!S)return;const t=audio.currentTime;
-    S.g.gain.setTargetAtTime(on?0.11:0,t,on?0.05:0.06);
+    S.g.gain.setTargetAtTime(on?0.11:0,t,on?0.05:0.06);if(on&&DT.sndList)sndNote(0.1,'Rocket boost');
     if(on)S.f.frequency.setTargetAtTime(750+Math.random()*350,t,0.03);
   }catch(e){}}   // rocket boost: its slow climb (blocks/s) and its stamina cost (per second)
 const LJ_GRACE=0.1;   // (a dash set off by tapping dash/sprint can still be turned into a long jump this soon after it starts)
@@ -145,10 +145,10 @@ const BITE_SOLO_CD=0.85;   // seconds from one bite to the next with the combo s
 // one cooldown shared by every bite, on the ground or in the air: biting in either puts the other on hold too
 function gusBite(p){
   if(p.biteT>0||p.state!=='walk'||!playing||!p.active||(p.biteCD||0)>0)return;
-  if(DT.gob){p.biteStep=-1;p.comboWin=0;p.biteDur=0.38;p.biteT=0.38;p.lungeT=0.16;p.biteHit=true;p.biteCD=0.45;woosh(0.13,0.22,520,1700,0.1);return;}
+  if(DT.gob){p.biteStep=-1;p.comboWin=0;p.biteDur=0.38;p.biteT=0.38;p.lungeT=0.16;p.biteHit=true;p.biteCD=0.45;sfx('Club swing',()=>{woosh(0.13,0.22,520,1700,0.1);});return;}
   // no aim assist: the bite goes exactly where he's facing (lock-on is how to aim at someone)
   // in the air: a single snap, no combo
-  if(!p.grounded){if((p.airBiteCD||0)>0)return;hbStart(p,'airBite');p.airBiteCD=1.0;p.biteCD=BITE_SOLO_CD;p.biteStep=-1;p.comboWin=0;p.biteDur=0.3;p.biteT=0.3;p.lungeT=0.16;p.lurch={t:0,dur:Math.max(0.05,AB.airBite.dist/Math.max(0.1,AB.airBite.speed)),dist:AB.airBite.dist};p.biteHit=true;tone('triangle',150,260,0.1,0.06);woosh(0.12,0.2,600,1900);return;}
+  if(!p.grounded){if((p.airBiteCD||0)>0)return;hbStart(p,'airBite');p.airBiteCD=1.0;p.biteCD=BITE_SOLO_CD;p.biteStep=-1;p.comboWin=0;p.biteDur=0.3;p.biteT=0.3;p.lungeT=0.16;p.lurch={t:0,dur:Math.max(0.05,AB.airBite.dist/Math.max(0.1,AB.airBite.speed)),dist:AB.airBite.dist};p.biteHit=true;sfx('Air bite',()=>{tone('triangle',150,260,0.1,0.06);woosh(0.12,0.2,600,1900);});return;}
   // on the ground: which hit of the 3-bite combo this is (keep pressing within the window to chain them);
   // each hit is one planted step forward
   // (bite combo switched off: every bite is the first one, with a longer cooldown before the next)
@@ -158,8 +158,8 @@ function gusBite(p){
   // whatever speed he walked in with carries into the lurch and bleeds off, rather than stopping dead
   p.carryV=Math.max(p.carryV||0,p.lastSp||0);
   p.biteLeg0=p.legs.map(l=>l.rotation.x);   // the legs blend out of wherever they were mid-stride
-  if(fin){tone('triangle',120,320,0.1,0.06);woosh(0.3,0.34,300,2300,0.1);tone('sine',150,70,0.3,0.05,0.1);}
-  else{woosh(0.13,0.22,520,1700,0.1);tone('triangle',150+step*30,260+step*30,0.08,0.06,0.28);}
+  if(fin){sfx('Bite combo finisher',()=>{tone('triangle',120,320,0.1,0.06);woosh(0.3,0.34,300,2300,0.1);tone('sine',150,70,0.3,0.05,0.1);});}
+  else sfx('Bite',()=>{woosh(0.13,0.22,520,1700,0.1);tone('triangle',150+step*30,260+step*30,0.08,0.06,0.28);});
 }
 function doBite(p){
   if(DT.gob){gobClub(p);return;}

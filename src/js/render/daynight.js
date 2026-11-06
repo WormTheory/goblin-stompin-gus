@@ -103,7 +103,7 @@ function warmShaders(){
 function frame(now){
   if(warmT<2&&++warmT===2)warmShaders();
   madeNow=0;
-  fpsTick((now-last)/1000);
+  fpsTick((now-last)/1000);safe('sound list',sndTick);
   frameMs+=(Math.min(100,Math.max(0,now-last))-frameMs)*0.05;   // (how long frames have been taking lately)
   const dt=Math.max(0,Math.min(0.06,(now-last)/1000));last=now;   // (never below 0: a long boot can hand the first frame a timestamp older than last, and negative time winds timers up, which queued a stomp nobody pressed)
   if(menuOpen)obitPreviewTick(dt);

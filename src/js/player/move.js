@@ -29,7 +29,7 @@ function movePlayer(p,dt){
     // the pool spreads once the body has come to rest
     const rt=C?C.rest:t;p.pool.scale.setScalar(Math.min(2.8,0.1+rt*0.5));
     // the body hitting the ground for good: a heavy thud and a burst of blood
-    if(C&&!p.slammed&&(C.hits>0||C.rest>0.05||(C.cause==='beaten'&&Math.abs(Math.sin(C.roll))>0.95))){p.slammed=true;blood(p.pos.x,p.pos.y+0.8,p.pos.z,26,new V3(0,0.8,0));thud(0.8);addShake(0.3,p.pos.x,p.pos.z,14);}
+    if(C&&!p.slammed&&(C.hits>0||C.rest>0.05||(C.cause==='beaten'&&Math.abs(Math.sin(C.roll))>0.95))){p.slammed=true;blood(p.pos.x,p.pos.y+0.8,p.pos.z,26,new V3(0,0.8,0));sfx('Body hits the ground',()=>{thud(0.8);});addShake(0.3,p.pos.x,p.pos.z,14);}
     return;
   }
   const inp=p.in;
@@ -123,15 +123,15 @@ function movePlayer(p,dt){
         const hx=Math.sin(p.heading),hz=Math.cos(p.heading);
         const BL=ABIL.blastJump,LJ=BL?AB.blastJump:AB.longJump;
         hbStart(p,BL?'blastJump':'longJump');p.vy=LJ.launch;p.grounded=false;p.coyote=0;p.airBiteCD=0;p.hopT=0.12;p.airJumps=airJumpsMax();p.longJump=true;p.mvx=hx*LJ.speed;p.mvz=hz*LJ.speed;
-        grunt(p,true);thud(0.12);rumble(p,0.3,120);puff(p.pos.x-hx*1.2,p.pos.y+0.2,p.pos.z-hz*1.2,8,0xb8b2a6,0.6);
+        sfx('Long jump',()=>{grunt(p,true);thud(0.12);});rumble(p,0.3,120);puff(p.pos.x-hx*1.2,p.pos.y+0.2,p.pos.z-hz*1.2,8,0xb8b2a6,0.6);
         p.blastJ=BL;p.blastAt=null;if(BL)blastOff(p,hx,hz);
       }
       else if(p.wet&&!p.grounded){const bb=boatBeside(p);p.vy=Math.max(p.vy,bb?Math.sqrt(50*(bb.top-p.pos.y+1)):4.2);if(bb){p.mvx=(bb.x-p.pos.x)/Math.hypot(bb.x-p.pos.x,bb.z-p.pos.z||1)*5;p.mvz=(bb.z-p.pos.z)/Math.hypot(bb.x-p.pos.x,bb.z-p.pos.z||1)*5;}p.hopT=0.1;puff(p.pos.x,p.pos.y+0.5,p.pos.z,4,0xcfe8ff,0.5);}   // swimming: a paddle stroke upward
-      else if(p.grounded||p.coyote>0){hbStart(p,'jump');p.vy=AB.jump.launch;p.grounded=false;p.coyote=0;p.airBiteCD=0;p.hopT=0.12;p.airJumps=airJumpsMax();grunt(p,false);thud(0.08);}
+      else if(p.grounded||p.coyote>0){hbStart(p,'jump');p.vy=AB.jump.launch;p.grounded=false;p.coyote=0;p.airBiteCD=0;p.hopT=0.12;p.airJumps=airJumpsMax();sfx('Jump',()=>{grunt(p,false);thud(0.08);});}
       else if(p.airJumps>0){
         // double jump: a second kick in mid-air with a full twirl and a puff of air underneath
         p.airJumps--;hbStart(p,'djump');p.airBiteCD=0;p.vy=Math.max(p.vy,0)+AB.djump.launch;p.twirl=(p.twirl>0.5?p.twirl:0)+Math.PI*2;p.hopT=0;p.spinSq=0.16;
-        puff(p.pos.x,p.pos.y-0.2,p.pos.z,9,0xd6d8d0,0.7);grunt(p,true);rumble(p,0.2,80);
+        puff(p.pos.x,p.pos.y-0.2,p.pos.z,9,0xd6d8d0,0.7);sfx('Double jump',()=>{grunt(p,true);});rumble(p,0.2,80);
       }
     }
     let ix=inp.x,iz=inp.z;p.lastSp=0;
@@ -166,7 +166,7 @@ function movePlayer(p,dt){
       const ahead=DT.gob?gobGround(p.pos.x+mvx*0.45,p.pos.z+mvz*0.45,p.pos.y,p,dt):groundAt(p.pos.x+mvx*1.6,p.pos.z+mvz*1.6,p.pos.y);
       if(tramp&&p.chargeCD<=0){
         const hit=hbOn('trample')?[]:carsNear(frontX,frontZ,AB.trample.hitR,p.pos.y);
-        if(hit.length){p.chargeCD=0.6;clang();thud(0.8);addShake(0.35,frontX,frontZ,12);rumble(p,0.7,200);
+        if(hit.length){p.chargeCD=0.6;sfx('Trample hits a vehicle',()=>{clang();thud(0.8);});addShake(0.35,frontX,frontZ,12);rumble(p,0.7,200);
           for(const c of hit){damageCar(c,AB.trample.carDmg);nudgeFlat(c,hx*1.2,hz*1.2);c.speed=0;}}
       }
       // on or onto a ramp, judge the slope just ahead of the feet instead of a body-length ahead
@@ -176,7 +176,7 @@ function movePlayer(p,dt){
       if(inp.climb&&!rampy&&!bodyBlk&&ahead-p.pos.y<=1.05&&([0.5,1].some(k=>groundAt(p.pos.x+mvx*k,p.pos.z+mvz*k,p.pos.y)-p.pos.y>1.05)||bodyHits(p,p.pos.x+mvx*sp*dt,p.pos.z+mvz*sp*dt,p.heading))&&startClimb(p,1.9)){}
       else if(bodyBlk||(rampy?groundAt(p.pos.x+mvx*0.8,p.pos.z+mvz*0.8,p.pos.y+1)-p.pos.y>1.3:ahead-p.pos.y>1.05)){
         if(inp.climb&&startClimb(p,1.9)){}
-        else if(tramp&&p.smashCD<=0){p.smashCD=0.35;const o={force:1.2,dx:hx,dz:hz};if(blockHit(AB.trample,frontX,p.pos.y,frontZ,hx,hz,o,sz=>crushDisc(frontX,p.pos.y,frontZ,sz,3,o))){p.stam=Math.max(0,p.stam-8);addShake(0.3,frontX,frontZ,12);thud(0.7);rumble(p,0.5,150);}}
+        else if(tramp&&p.smashCD<=0){p.smashCD=0.35;const o={force:1.2,dx:hx,dz:hz};if(blockHit(AB.trample,frontX,p.pos.y,frontZ,hx,hz,o,sz=>crushDisc(frontX,p.pos.y,frontZ,sz,3,o))){p.stam=Math.max(0,p.stam-8);addShake(0.3,frontX,frontZ,12);sfx('Trample smashes blocks',()=>{thud(0.7);});rumble(p,0.5,150);}}
         // walking into a wall at an angle: slide along it (the part of the move that runs along the wall still happens)
         else if(!tramp||p.smashCD>0){
           const opts=Math.abs(mvx)>Math.abs(mvz)?[[Math.sign(mvx),0,Math.abs(mvx)],[0,Math.sign(mvz),Math.abs(mvz)]]:[[0,Math.sign(mvz),Math.abs(mvz)],[Math.sign(mvx),0,Math.abs(mvx)]];
@@ -194,7 +194,7 @@ function movePlayer(p,dt){
         if(LT&&Math.abs(iz)<0.35&&d0>1.5){const ex=p.pos.x-LT.pos.x,ez=p.pos.z-LT.pos.z,e=Math.hypot(ex,ez)||1,nx=LT.pos.x+ex/e*d0,nz=LT.pos.z+ez/e*d0;if(canStand(nx,nz,p.pos.y)){p.pos.x=nx;p.pos.z=nz;}}
         moving=true;p.lastSp=sp;p.phase+=dt*sp*3.4*(charge?0.45:1);if(tramp&&!hbOn('trample')){hitGoblins(frontX,frontZ,AB.trample.hitR,AB.trample.dmg,'Trampled',p.pos.y);
           // and it ploughs straight through anything in the way: benches, bins, fences, railings, low walls
-          p.trCD=(p.trCD||0)-dt;if(p.trCD<=0&&!hbOn('trample')&&!inp.climb){p.trCD=0.1;const o={force:1.1,dx:hx,dz:hz};if(blockHit(AB.trample,frontX,p.pos.y,frontZ,hx,hz,o,sz=>crushDisc(frontX,p.pos.y,frontZ,sz,3,o))){thud(0.45);addShake(0.18,frontX,frontZ,10);rumble(p,0.3,90);}}}
+          p.trCD=(p.trCD||0)-dt;if(p.trCD<=0&&!hbOn('trample')&&!inp.climb){p.trCD=0.1;const o={force:1.1,dx:hx,dz:hz};if(blockHit(AB.trample,frontX,p.pos.y,frontZ,hx,hz,o,sz=>crushDisc(frontX,p.pos.y,frontZ,sz,3,o))){sfx('Trample ploughs through',()=>{thud(0.45);});addShake(0.18,frontX,frontZ,10);rumble(p,0.3,90);}}}
         if(inp.climb&&p.grounded&&!(p.standCar&&!DT.gob&&vOverEdge(p,mvx,mvz)))climbOverEdge(p,mvx,mvz);
       }
     }
@@ -204,7 +204,7 @@ function movePlayer(p,dt){
     if(p.state==='walk'&&inp.climb&&!p.grounded){if(!startClimb(p,1.1)&&p.vy>-2&&!DT.gob)grabCeil(p);}
     // R2 in mid-air: ground pound
     const dodgeHop=!!p.dodge||(p.sinceDodge??9)<0.3&&!p.grounded;   // (a dodge's little hop isn't a jump: no ground pound out of it)
-    if(ABIL.pound&&inp.stomp&&!p.grounded&&p.lungeT<=0&&p.dashT<=0&&!dodgeHop){p.state='pound';p.t=0;{const g=supportAt(p.pos.x,p.pos.z,p.pos.y);p.flipY0=p.pos.y;p.flipA=Math.max(0,Math.min(0.9*ES,(g===null?9:p.pos.y-g)-0.4));}p.vy=Math.max(p.vy,0);p.legLift=0;p.stompCharge=0;p.stompLevel=0;p.pRel=false;p.pHover=false;p.poundLvl=0;tone('triangle',170,95,0.16,0.08);}
+    if(ABIL.pound&&inp.stomp&&!p.grounded&&p.lungeT<=0&&p.dashT<=0&&!dodgeHop){p.state='pound';p.t=0;{const g=supportAt(p.pos.x,p.pos.z,p.pos.y);p.flipY0=p.pos.y;p.flipA=Math.max(0,Math.min(0.9*ES,(g===null?9:p.pos.y-g)-0.4));}p.vy=Math.max(p.vy,0);p.legLift=0;p.stompCharge=0;p.stompLevel=0;p.pRel=false;p.pHover=false;p.poundLvl=0;sfx('Ground pound flip',()=>{tone('triangle',170,95,0.16,0.08);});}
     else if(ABIL.stomp&&(inp.stomp||wantStomp)&&p.grounded&&!dodgeHop&&p.lungeT<=0&&!p.stompLock)startStomp(p);
     if(!inp.stomp)p.stompLock=false;
   } else if(p.state==='piv'){
@@ -252,7 +252,7 @@ function movePlayer(p,dt){
       p.heading=Math.atan2(-d[0],-d[1]);startVBlend(p,0.32);puff(p.pos.x,p.pos.y+0.8,p.pos.z,4,0xd6d8d0,0.4);
     }
     else if(inp.jumpPress){   // kick off the wall
-      p.state='walk';p.grounded=false;p.airBiteCD=0;p.vy=8.5;p.mvx=-d[0]*7;p.mvz=-d[1]*7;p.heading=Math.atan2(-d[0],-d[1]);startVBlend(p,0.3);p.hopT=0.12;p.qJump=0;grunt(p,false);puff(p.pos.x,p.pos.y+1,p.pos.z,6,0xd6d8d0,0.5);
+      p.state='walk';p.grounded=false;p.airBiteCD=0;p.vy=8.5;p.mvx=-d[0]*7;p.mvz=-d[1]*7;p.heading=Math.atan2(-d[0],-d[1]);startVBlend(p,0.3);p.hopT=0.12;p.qJump=0;sfx('Wall jump',()=>{grunt(p,false);});puff(p.pos.x,p.pos.y+1,p.pos.z,6,0xd6d8d0,0.5);
     } else {
       // the stick works in the wall's own frame (so holding a direction carries him round corners), flipped
       // when the camera looks out away from the wall (e.g. over a ledge he's tipped over): then forward = down.
@@ -298,7 +298,7 @@ function movePlayer(p,dt){
             // wall to go on to, it turns him to that and on up (p.perch is the way to it); with none, he stays put
             const bs=supportAt(p.pos.x+D[0]*1.3,p.pos.z+D[1]*1.3,top+0.1),more=[0,0.6,-0.6].some(o=>[0.6,1.4].some(h=>solidAt(Math.floor(p.pos.x+D[0]*1.3-D[1]*o),Math.floor(top+h),Math.floor(p.pos.z+D[1]*1.3+D[0]*o))));
             p.perch=bs===null||bs<top-0.6?(more?D:true):false;
-            startPiv(p,{E,to:[spot.x,spot.y??top,spot.z],dur:0.4,next:'walk',heading:spot.h});thud(0.15);grunt(p,false);}
+            startPiv(p,{E,to:[spot.x,spot.y??top,spot.z],dur:0.4,next:'walk',heading:spot.h});sfx('Climb onto a ledge',()=>{thud(0.15);grunt(p,false);});}
           // nowhere a hippo fits (a slot in a wall, a step on a curving one): on to the wall behind the lip if there is one and
           // up that; if not, he hangs on at the lip rather than dropping
           else if(top!==null&&[0.6,1.4].some(h=>solidAt(Math.floor(p.pos.x+D[0]*1.3),Math.floor(p.pos.y+h),Math.floor(p.pos.z+D[1]*1.3))))startPiv(p,{E:'center',to:[p.pos.x+D[0],p.pos.y,p.pos.z+D[1]],dur:0.25,next:'climb',heading:p.heading});
@@ -317,8 +317,8 @@ function movePlayer(p,dt){
     if(lvNow>p.stompLevel){
       p.stompLevel=lvNow;
       // reaching a new level: a soft rising chime, a nudge of shake, a short buzz
-      if(lvNow===1){tone('triangle',520,620,0.12,0.06);p.shake=Math.max(p.shake,0.06);rumble(p,0.25,110);}
-      else{tone('triangle',620,780,0.1,0.06);tone('triangle',780,1040,0.16,0.06,0.08);p.shake=Math.max(p.shake,0.1);rumble(p,0.45,150);}
+      if(lvNow===1){sfx('Charge level 1',()=>{tone('triangle',520,620,0.12,0.06);});p.shake=Math.max(p.shake,0.06);rumble(p,0.25,110);}
+      else{sfx('Charge level 2',()=>{tone('triangle',620,780,0.1,0.06);tone('triangle',780,1040,0.16,0.06,0.08);});p.shake=Math.max(p.shake,0.1);rumble(p,0.45,150);}
     }
     // you can still turn on the spot while winding up
     if(inp.x||inp.z){const s=Math.sin(p.cam.yaw),cc=Math.cos(p.cam.yaw),wx=inp.x*cc+inp.z*s,wz=-inp.x*s+inp.z*cc;let diff=Math.atan2(wx,wz)-p.heading;while(diff>Math.PI)diff-=Math.PI*2;while(diff<-Math.PI)diff+=Math.PI*2;p.heading+=Math.max(-2*dt,Math.min(2*dt,diff));}
@@ -344,8 +344,8 @@ function movePlayer(p,dt){
       const c=p.stompCharge/2;jawOpen=0.55+0.25*c;tremble=(Math.random()-.5)*[0,0.03,0.06][stompLevelOf(p.stompCharge)];
       const lvNow=stompLevelOf(p.stompCharge);
       if(lvNow>p.stompLevel){p.stompLevel=lvNow;
-        if(lvNow===1){tone('triangle',520,620,0.12,0.06);p.shake=Math.max(p.shake,0.06);rumble(p,0.25,110);}
-        else{tone('triangle',620,780,0.1,0.06);tone('triangle',780,1040,0.16,0.06,0.08);p.shake=Math.max(p.shake,0.1);rumble(p,0.45,150);}}
+        if(lvNow===1){sfx('Charge level 1',()=>{tone('triangle',520,620,0.12,0.06);});p.shake=Math.max(p.shake,0.06);rumble(p,0.25,110);}
+        else{sfx('Charge level 2',()=>{tone('triangle',620,780,0.1,0.06);tone('triangle',780,1040,0.16,0.06,0.08);});p.shake=Math.max(p.shake,0.1);rumble(p,0.45,150);}}
     } else {
       if(p.pHover){p.pHover=false;p.poundLvl=stompLevelOf(p.stompCharge);cutVoice(p);if(p.poundLvl)stompGrunt(p,p.poundLvl);}
       p.pRel=true;p.vy=Math.max(-28-6*(p.poundLvl||0),(p.pHold===false&&p.vy>0?p.vy:Math.min(p.vy,0))-240*dt);   // gathers speed over about a tenth of a second rather than snapping to it
@@ -380,18 +380,18 @@ function movePlayer(p,dt){
       const R=AB.roll,dur=Math.max(0.15,R.dist/Math.max(0.1,R.speed*0.85));p.heading=Math.atan2(wx,wz);
       p.dodge={t:0,dur,dx:wx,dz:wz,fwd:1,side:0,roll:true,at:null};p.qDodge=0;
       p.dodgeCD=dur+0.15;p.stam=Math.max(0,p.stam-R.stamina);p.vy=Math.max(p.vy,R.hop);p.grounded=false;p.coyote=0;
-      hbStart(p,'roll');woosh(0.3,0.3,500,1600,0.1);grunt(p,true);rumble(p,0.35,120);puff(p.pos.x,p.pos.y,p.pos.z,7,0x9a948a,0.6);
+      hbStart(p,'roll');sfx('Roll',()=>{woosh(0.3,0.3,500,1600,0.1);grunt(p,true);});rumble(p,0.35,120);puff(p.pos.x,p.pos.y,p.pos.z,7,0x9a948a,0.6);
     } else if(BDASH){
       // the blast dash: an explosion out of his backside flings him forward, low and fast, through whatever's there
       const R=AB.blastDash,dur=Math.max(0.1,R.dist/Math.max(0.1,R.speed*0.75));p.heading=Math.atan2(wx,wz);
       p.dodge={t:0,dur,dx:wx,dz:wz,fwd:1,side:0,blast:true,at:null};p.qDodge=0;
       p.dodgeCD=dur+0.2;p.stam=Math.max(0,p.stam-R.stamina);p.vy=Math.max(p.vy,1.8);p.grounded=false;p.coyote=0;
-      hbStart(p,'blastDash');grunt(p,true);blastOff(p,wx,wz,R,0.85);
+      hbStart(p,'blastDash');sfx('Blast dash',()=>{grunt(p,true);});blastOff(p,wx,wz,R,0.85);
     } else {
     const hx=Math.sin(p.heading),hz=Math.cos(p.heading),dur=Math.max(0.08,AB.dodge.dist*0.8/Math.max(0.1,AB.dodge.speed));   // (the skid at the end adds the rest)
     p.dodge={t:0,dur,dx:wx,dz:wz,fwd:wx*hx+wz*hz,side:wx*hz-wz*hx};p.qDodge=0;
     p.dodgeCD=dur+0.2;p.stam=Math.max(0,p.stam-AB.dodge.stamina);p.vy=Math.max(p.vy,2.6);p.grounded=false;p.coyote=0;
-    hbStart(p,'dodge');woosh(0.16,0.26,700,2100,0.08);grunt(p,false);rumble(p,0.2,60);
+    hbStart(p,'dodge');sfx('Dash',()=>{woosh(0.16,0.26,700,2100,0.08);grunt(p,false);});rumble(p,0.2,60);
     puff(p.pos.x,p.pos.y,p.pos.z,5,0x9a948a,0.5);
   }}
   if(p.dodge){const D=p.dodge;if(D.combo===undefined)D.combo=!!p.dodgeCombo;D.t+=dt;
@@ -405,15 +405,15 @@ function movePlayer(p,dt){
         if(!hbOn(HK)){D.hitG=D.hitG||new Set();dbgHit('dmg','cap',dbgCap(fx,p.pos.y,fz,R.hitR));
           // (each goblin's hit once per roll, and sent flying on ahead of it)
           for(const g of goblins){if(g.state!=='chase'||D.hitG.has(g))continue;const dx=g.pos.x-fx,dz=g.pos.z-fz,dy=g.pos.y-p.pos.y,d=Math.hypot(dx,dz)||0.01;
-            if(Math.hypot(d,dy)<R.hitR&&vReach(dy,R.hitR)){D.hitG.add(g);damageGoblin(g,R.dmg,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(D.dx*0.8+dx/d*0.4,0.7,D.dz*0.8+dz/d*0.4),D.blast?'Blasted aside by a blast-dashing hippo':'Bowled over by a rolling hippo');thud(0.35);}}
-          for(const c of carsNear(fx,fz,R.hitR,p.pos.y)){if(c.rollHitT>camClock)continue;c.rollHitT=camClock+0.5;damageCar(c,R.carDmg,new V3(D.dx,0,D.dz));if(c.alive)launchCar(c,4,new V3(D.dx,0,D.dz),3);clang();thud(0.5);}}}
+            if(Math.hypot(d,dy)<R.hitR&&vReach(dy,R.hitR)){D.hitG.add(g);damageGoblin(g,R.dmg,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(D.dx*0.8+dx/d*0.4,0.7,D.dz*0.8+dz/d*0.4),D.blast?'Blasted aside by a blast-dashing hippo':'Bowled over by a rolling hippo');sfx('Roll hits a goblin',()=>{thud(0.35);});}}
+          for(const c of carsNear(fx,fz,R.hitR,p.pos.y)){if(c.rollHitT>camClock)continue;c.rollHitT=camClock+0.5;damageCar(c,R.carDmg,new V3(D.dx,0,D.dz));if(c.alive)launchCar(c,4,new V3(D.dx,0,D.dz),3);sfx('Roll hits a vehicle',()=>{clang();thud(0.5);});}}}
       if(groundAt(p.pos.x+D.dx*1.4,p.pos.z+D.dz*1.4,p.pos.y)-p.pos.y<=1.05&&(!bodyHits(p,nx,nz,p.heading)||bodyHits(p,p.pos.x,p.pos.z,p.heading))){p.pos.x=nx;p.pos.z=nz;}
       // (blocked -- often right at the start, pressed up against a wall: smash what's directly in front of him and try
       // again before giving up; only something he can't break, or a real step up, stops a roll)
       else if(R.blkR>0&&!hbOn(HK)&&(D.stuck=(D.stuck||0)+1)<=4){const ax=p.pos.x+D.dx*1.0,az=p.pos.z+D.dz*1.0;
         crush(ax,p.pos.y,az,Math.max(1,Math.round(R.blkR-0.5)),0,2,{force:1.4,dx:D.dx,dz:D.dz,up:1.1});D.at=null;D.t=Math.max(0,D.t-dt*0.5);}
       else D.t=Math.max(D.t,D.dur*0.85);}
-    else if(D.t>=D.dur||p.state!=='walk'){p.dodge=null;p.sinceDodge=0;p.rollOut=!!(D.roll||D.blast);if(D.roll){if(p.grounded){thud(0.25);puff(p.pos.x,p.pos.y,p.pos.z,6,0x9a948a,0.5);}
+    else if(D.t>=D.dur||p.state!=='walk'){p.dodge=null;p.sinceDodge=0;p.rollOut=!!(D.roll||D.blast);if(D.roll){if(p.grounded){sfx('Roll lands',()=>{thud(0.25);});puff(p.pos.x,p.pos.y,p.pos.z,6,0x9a948a,0.5);}
       // (rolled off an edge: he sails on at the speed the roll ended at, slowing as he falls, until he lands)
       else if(p.state==='walk'){const v=AB.roll.speed*0.7;p.mvx=D.dx*v;p.mvz=D.dz*v;}}
       else if(D.blast){if(p.state==='walk'){const v=p.grounded?Math.min(8,AB.blastDash.speed*0.3):AB.blastDash.speed*0.55;p.mvx=D.dx*v;p.mvz=D.dz*v;}}else if(p.state==='walk'){const v=Math.min(5.8,AB.dodge.speed*0.4);p.mvx=(p.mvx||0)+D.dx*v;p.mvz=(p.mvz||0)+D.dz*v;}if(p.grounded)puff(p.pos.x,p.pos.y,p.pos.z,4,0x9a948a,0.45);}
@@ -432,8 +432,8 @@ function movePlayer(p,dt){
       blastOff(p,hx,hz,A,0.8);}
     puff(p.pos.x-Math.sin(p.heading)*1.2,p.pos.y+0.6,p.pos.z-Math.cos(p.heading)*1.2,8,0xd6d8d0,0.6);rumble(p,0.45,160);p.shake=Math.max(p.shake,0.08);
     // the launch: a small upright shockwave ring just behind, and a hard grunt over the roar
-    if(p.dashBoost){shockCone(p.pos.x,p.pos.y+0.85*ES,p.pos.z,p.heading,2.1,4.6,0.42);thud(0.32);rumble(p,0.7,220);p.shake=Math.max(p.shake,0.14);}
-    else{shockCone(p.pos.x,p.pos.y+0.85*ES,p.pos.z,p.heading,1.5,3.2,0.36);thud(0.18);}
+    if(p.dashBoost){shockCone(p.pos.x,p.pos.y+0.85*ES,p.pos.z,p.heading,2.1,4.6,0.42);sfx('Air dash (boosted)',()=>{thud(0.32);});rumble(p,0.7,220);p.shake=Math.max(p.shake,0.14);}
+    else{shockCone(p.pos.x,p.pos.y+0.85*ES,p.pos.z,p.heading,1.5,3.2,0.36);sfx('Air dash',()=>{thud(0.18);});}
     grunt(p,true);
   }
   if(p.dashT>0){
@@ -449,11 +449,11 @@ function movePlayer(p,dt){
         if(!hbOn('blastAirDash')){const S=p.dashHitG||(p.dashHitG=new Set());
           for(const g of goblins){if(g.state!=='chase'||S.has(g))continue;const dx=g.pos.x-fx2,dz=g.pos.z-fz2,dy=g.pos.y-p.pos.y,d=Math.hypot(dx,dz)||0.01;
             if(Math.hypot(d,dy)<A.hitR&&vReach(dy,A.hitR)){S.add(g);damageGoblin(g,A.dmg,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(hx*0.8+dx/d*0.4,0.7,hz*0.8+dz/d*0.4),'Blasted aside by a flying hippo');}}
-          for(const c of carsNear(fx2,fz2,A.hitR,p.pos.y)){if(c.blastHitT>camClock)continue;c.blastHitT=camClock+0.6;damageCar(c,A.carDmg,new V3(hx,0,hz));if(c.alive)launchCar(c,6,new V3(hx,0,hz),4);clang();}}}}
+          for(const c of carsNear(fx2,fz2,A.hitR,p.pos.y)){if(c.blastHitT>camClock)continue;c.blastHitT=camClock+0.6;damageCar(c,A.carDmg,new V3(hx,0,hz));if(c.alive)launchCar(c,6,new V3(hx,0,hz),4);sfx('Blast hits a vehicle',()=>{clang();});}}}}
     if(groundAt(p.pos.x+hx*1.6,p.pos.z+hz*1.6,p.pos.y)-p.pos.y<=1.05&&(!bodyHits(p,p.pos.x+hx*ds*dt,p.pos.z+hz*ds*dt,p.heading)||bodyHits(p,p.pos.x,p.pos.z,p.heading))){p.pos.x+=hx*ds*dt;p.pos.z+=hz*ds*dt;}
-    else if(!p.dashBlast&&p.smashCD<=0&&!hbOn('dash')){p.smashCD=0.2;const o={force:1.3,dx:hx,dz:hz};if(blockHit(AB.dash,fx2,p.pos.y,fz2,hx,hz,o,sz=>crush(fx2,p.pos.y,fz2,Math.max(0,Math.round(sz)),0,2,o))){addShake(0.3,fx2,fz2,12);thud(0.7);}}
+    else if(!p.dashBlast&&p.smashCD<=0&&!hbOn('dash')){p.smashCD=0.2;const o={force:1.3,dx:hx,dz:hz};if(blockHit(AB.dash,fx2,p.pos.y,fz2,hx,hz,o,sz=>crush(fx2,p.pos.y,fz2,Math.max(0,Math.round(sz)),0,2,o))){addShake(0.3,fx2,fz2,12);sfx('Dash smashes blocks',()=>{thud(0.7);});}}
     if(!p.dashBlast&&!hbOn('dash'))hitGoblins(fx2,fz2,AB.dash.hitR,AB.dash.dmg,'Rammed by a flying hippo',p.pos.y);
-    if(!p.dashBlast&&p.chargeCD<=0&&!hbOn('dash')){const hit=carsNear(fx2,fz2,AB.dash.hitR,p.pos.y);if(hit.length){p.chargeCD=0.5;for(const c of hit)damageCar(c,AB.dash.carDmg,new V3(hx,0,hz));clang();thud(0.6);}}
+    if(!p.dashBlast&&p.chargeCD<=0&&!hbOn('dash')){const hit=carsNear(fx2,fz2,AB.dash.hitR,p.pos.y);if(hit.length){p.chargeCD=0.5;for(const c of hit)damageCar(c,AB.dash.carDmg,new V3(hx,0,hz));sfx('Dash hits a vehicle',()=>{clang();thud(0.6);});}}
   }
   // a blast long jump ploughs through whatever's in its way: blocks, goblins, cars
   if(p.blastJ&&(!p.longJump||p.state!=='walk'))p.blastJ=false;
@@ -461,7 +461,7 @@ function movePlayer(p,dt){
     if(!p.blastAt||Math.hypot(fx-p.blastAt.x,fz-p.blastAt.z,fy-p.blastAt.y)>1.2){p.blastAt={x:fx,y:fy,z:fz};
       if(!hbOn('blastJump'))crushBall(fx,fy,fz,2.3,{force:1.6+m*0.04,up:1.2});
       hitGoblins(fx,fz,A.hitR,A.dmg,'Flattened by a blast long jump',p.pos.y);
-      for(const c of carsNear(fx,fz,A.hitR,p.pos.y)){if(c.blastHitT>camClock)continue;c.blastHitT=camClock+0.6;damageCar(c,A.carDmg,new V3(ux,0,uz));if(c.alive)launchCar(c,6,new V3(ux,0,uz),4);clang();}}}
+      for(const c of carsNear(fx,fz,A.hitR,p.pos.y)){if(c.blastHitT>camClock)continue;c.blastHitT=camClock+0.6;damageCar(c,A.carDmg,new V3(ux,0,uz));if(c.alive)launchCar(c,6,new V3(ux,0,uz),4);sfx('Blast hits a vehicle',()=>{clang();});}}}
   // carried momentum (air-dash follow-through, long jumps): little drag in the air, skids out fast on the ground
   if(p.mvx||p.mvz){
     if(p.dashT>0||p.state==='pound'||p.state==='poundLand'||p.state==='windup'||p.state==='stomp'){if(p.state!=='walk'){p.mvx=p.mvz=0;}}
@@ -516,7 +516,7 @@ function movePlayer(p,dt){
         const ex=p.pos.x-p.rideX,ez=p.pos.z-p.rideZ,cd=Math.cos(d),sd=Math.sin(d);p.pos.x=c.pos.x+ex*cd+ez*sd;p.pos.z=c.pos.z-ex*sd+ez*cd;p.heading+=d;if(p.cam)p.cam.yaw+=d;p.pos.y=c.isPlane||c.isBoat?c.top:Math.max(p.pos.y,c.isTrain?c.top:c.pos.y+1.1*ES);
         // (going down a ramp the roof sinks away under you: you stay on it, you don't fall behind)
         if(!c.isTrain&&p.vy<=0.01){const ct=carTop(p);if(ct&&ct.c===c&&ct.y<p.pos.y&&p.pos.y-ct.y<2.5)p.pos.y=ct.y;}}}
-    if(catchRide&&p.vy<-16&&p.rideC!==c&&!DT.gob){damageCar(c,Math.round(-p.vy*0.5));clang();p.vy=-1;}   // (it still takes the landing, once)
+    if(catchRide&&p.vy<-16&&p.rideC!==c&&!DT.gob){damageCar(c,Math.round(-p.vy*0.5));sfx('Lands on a vehicle',()=>{clang();});p.vy=-1;}   // (it still takes the landing, once)
     p.rideC=c;p.rideX=c.pos.x;p.rideZ=c.pos.z;p.rideH=c.heading;}else p.rideC=null;
   for(const o of players){if(o===p||!o.active||o.state==='dead')continue;const dx=p.pos.x-o.pos.x,dz=p.pos.z-o.pos.z,d=Math.hypot(dx,dz),gap=DT.gob?0.9:2.4;if(d<gap&&d>0.001)shove(p,dx/d*(gap-d)*0.5,dz/d*(gap-d)*0.5);}
   let g=p.state==='climb'||p.state==='piv'||p.state==='ceil'?null:footprint(p);   // clinging to a wall: no gravity
@@ -525,7 +525,7 @@ function movePlayer(p,dt){
   if(p.spawnSnap){if(g!==null&&chunks.has(ckey(Math.floor(p.pos.x/CS),Math.floor(p.pos.z/CS)))){if(g<p.pos.y)p.pos.y=g;p.spawnSnap=false;}p.vy=0;p.peakY=p.pos.y;}
   // in deep water: you sink slowly, can paddle up with jump, and the water breaks any fall
   const wet=get(Math.floor(p.pos.x),Math.floor(p.pos.y+0.6),Math.floor(p.pos.z))===WATER;
-  if(wet&&!p.wet){puff(p.pos.x,p.pos.y+0.8,p.pos.z,12,0xcfe8ff,1.2);noise(0.4,0.35,900,'lowpass');tone('sine',300,120,0.25,0.06);}
+  if(wet&&!p.wet){puff(p.pos.x,p.pos.y+0.8,p.pos.z,12,0xcfe8ff,1.2);sfx('Splash',()=>{noise(0.4,0.35,900,'lowpass');tone('sine',300,120,0.25,0.06);});}
   p.wet=wet;if(wet){p.peakY=p.pos.y;p.airJumps=airJumpsMax();p.airDash=true;}   // (the air dash comes back in the water, but can't be used until he's out of it)
   if(g!==null){
     if(DT.fly&&p.state==='walk'&&!wet&&(p.pos.y>g+0.01||p.in.jump)){
@@ -551,10 +551,10 @@ function movePlayer(p,dt){
       }
       if(p.pos.y<g){
         // landing on a car from a real height dents it (a jump on to one just lands you on it, to ride)
-        if(!DT.gob&&p.standCar&&p.vy<-16&&p.state!=='pound'){damageCar(p.standCar,Math.round(-p.vy*0.5));clang();p.standCar.hurt=0.2;}
-        if(p.vy<-11){thud(0.4);p.shake=Math.max(p.shake,0.12);}
+        if(!DT.gob&&p.standCar&&p.vy<-16&&p.state!=='pound'){damageCar(p.standCar,Math.round(-p.vy*0.5));sfx('Lands on a vehicle',()=>{clang();});p.standCar.hurt=0.2;}
+        if(p.vy<-11){sfx('Hard landing',()=>{thud(0.4);});p.shake=Math.max(p.shake,0.12);}
         if(p.vy<-3)p.landT=0.22;p.pos.y=g;p.vy=0;p.grounded=true;
-        if(p.longJump){p.longJump=false;p.blastJ=false;thud(0.3);puff(p.pos.x,p.pos.y,p.pos.z,8,0x9a948a,0.6);}
+        if(p.longJump){p.longJump=false;p.blastJ=false;sfx('Long jump lands',()=>{thud(0.3);});puff(p.pos.x,p.pos.y,p.pos.z,8,0x9a948a,0.6);}
         const drop=(p.peakY??g)-g;
         if(p.state==='pound'){if(p.pHover){p.pHover=false;p.poundLvl=stompLevelOf(p.stompCharge);}fallImpact(p,Math.max(0,drop)+POUND_BONUS[p.poundLvl||0],true,p.poundLvl||0);p.poundLvl=0;p.state='poundLand';p.t=0;p.landT=0;}
         else if(drop>=5){if(ABIL.crash&&!(p.standCar&&p.standCar.T&&p.standCar.T.isRide))fallImpact(p,drop,false);   // (a ride's car takes it: a crash landing would blow up the track under it, and derail what he's just landed on)
@@ -648,7 +648,7 @@ function movePlayer(p,dt){
   if(p.rocketWas&&!p.rocket){if(p.state!=='dead'){const hx=Math.sin(p.heading),hz=Math.cos(p.heading);
       for(const [fx,fz] of [[-0.5,0.8],[0.5,0.8],[-0.5,-0.8],[0.5,-0.8]])smoke(p.pos.x+(hz*fx+hx*fz)*ES,p.pos.y-0.1,p.pos.z+(-hx*fx+hz*fz)*ES,3,0x8f8b84);
       puff(p.pos.x,p.pos.y,p.pos.z,6,0xa8a49c,0.5);
-      noise(0.45,0.07,2600,'highpass');tone('sine',520,140,0.32,0.035);tone('square',180,60,0.18,0.015,0.05);}}
+      sfx('Rocket boost fizzles out',()=>{noise(0.45,0.07,2600,'highpass');tone('sine',520,140,0.32,0.035);tone('square',180,60,0.18,0.015,0.05);});}}
   p.rocketWas=!!p.rocket;
   // long jump: stretched out flat like a flying hippo, front legs reaching, back legs trailing
   if(p.longJump&&!p.grounded&&p.state==='walk'){
@@ -840,7 +840,7 @@ function movePlayer(p,dt){
   else if(p.vb&&p.state!=='climb')poseVBlend(p,dt);
   else{p.vb=null;p.rootQ=qAx(0,1,0,p.root.rotation.y);p.rootP=[p.root.position.x,p.root.position.y,p.root.position.z];}
   // footfalls: only when a foot actually comes down on something (walking on the ground or a car roof, or crawling on a wall or ceiling; never mid-jump)
-  if(!DT.gob&&moving&&p.grounded&&(p.state==='walk'||p.state==='climb'||p.state==='ceil')&&Math.sign(sn)!==Math.sign(p.lastSin)){p.shake=Math.max(p.shake,0.04);thud(0.1);}
+  if(!DT.gob&&moving&&p.grounded&&(p.state==='walk'||p.state==='climb'||p.state==='ceil')&&Math.sign(sn)!==Math.sign(p.lastSin)){p.shake=Math.max(p.shake,0.04);sfx('Footstep',()=>{thud(0.1);});}
   p.lastSin=sn;
 }
 

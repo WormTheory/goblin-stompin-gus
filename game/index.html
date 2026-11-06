@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:11ccda7485992c7d41a6825fec9d346c18c11ddfa45396b1972bf4d5b9c73d35 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:16f4f97992e623e47d473f26b40f5e68edb4d40049a3494425c10f6af8ba83dc -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -80,6 +80,10 @@ canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;point
 .dbgpad .arw{cursor:pointer;padding:0 4px;border-radius:2px}
 .dbgpad .arw:hover{background:#e8c14a;color:#141a20}
 .fpsc{position:absolute;top:40px;left:50%;transform:translateX(-50%);text-align:center;background:rgba(18,22,28,.78);color:#9fe870;font:700 12px/1.35 ui-monospace,Menlo,Consolas,monospace;padding:4px 8px;border-radius:3px;z-index:6;pointer-events:none;white-space:pre}
+.sndlist{position:absolute;left:max(16px,env(safe-area-inset-left,0px));top:calc(44px + env(safe-area-inset-top,0px));max-height:calc(100vh - 250px);overflow:hidden;display:flex;flex-direction:column;gap:2px;font:600 12px/1.3 var(--f-mono);color:var(--bone);z-index:6;pointer-events:none}
+.sndlist .sl-r{background:rgba(18,22,28,.72);padding:2px 8px;border-radius:3px;border-left:3px solid #4a4f56;white-space:nowrap;width:max-content}
+.sndlist .sl-r.on{border-left-color:#ffd75a;color:#fff;animation:slFlash .24s steps(1) infinite}
+@keyframes slFlash{50%{background:rgba(120,96,24,.85)}}
 .fpsc.mid{color:#e8c14a}.fpsc.low{color:#ff6a5a}
 .dbgbadge{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:rgba(18,22,28,.82);border:1px solid #e8c14a;color:#e8c14a;font:700 12px var(--f-display);letter-spacing:.02em;padding:4px 10px;border-radius:3px;z-index:5}
 .readout{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));left:max(16px,env(safe-area-inset-left,0px));font:500 12px/1.5 var(--f-mono);color:var(--bone);background:rgba(18,22,28,.6);padding:4px 8px;border-radius:3px;font-variant-numeric:tabular-nums;max-width:calc(100vw - 32px);z-index:2}
@@ -497,6 +501,7 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
   <div class="readout" id="readout"></div>
   <div class="dbgbadge" id="dbgBadge" hidden></div>
   <div class="fpsc" id="fpsCounter" hidden aria-hidden="true"></div>
+  <div class="sndlist" id="sndList" hidden aria-hidden="true"></div>
   <div class="dbgpad" id="dbgPad" hidden>
     <h4>DEBUG <span id="dpHint">game paused</span><button type="button" class="dpx" id="dpClose" aria-label="Close the debug menu">✕</button></h4>
     <div id="dpRows"></div>
@@ -691,6 +696,7 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
         <button type="button" class="tog" role="checkbox" data-k="fps"><span class="box" aria-hidden="true"></span><span class="tl">FPS counter<small>Frames per second and frame time, at the top of the screen</small></span></button>
         <button type="button" class="tog" role="checkbox" data-k="hpBars"><span class="box" aria-hidden="true"></span><span class="tl">Health bars<small>A bar over every goblin, civilian, car and hippo that can be hurt</small></span></button>
         <button type="button" class="tog" role="checkbox" data-k="dmgNums"><span class="box" aria-hidden="true"></span><span class="tl">Damage numbers<small>Each hit's damage pops up where it lands</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="sndList"><span class="box" aria-hidden="true"></span><span class="tl">Sound list<small>Every sound by name, down the left: lit while it plays, then fading over 2 seconds</small></span></button>
       </div>
     </div>
     <div class="custom wide">
@@ -7977,6 +7983,7 @@ function wxAudio(){
   if(!WXA.rain)return;const t=audio.currentTime,on=playing?1:0,P=players.find(p=>p.active),inside=COVERS[0].under;
   WXA.rain.g.gain.setTargetAtTime(on*WX.k.rain*(inside?0.025:0.07),t,0.4);
   WXA.wind.g.gain.setTargetAtTime(on*Math.max(0,WX.k.wind-0.5)*0.03,t,0.6);
+  if(DT.sndList&&on){if(WX.k.rain>0.02)sndNote(0.1,inside?'Rain (under cover)':'Rain');if(WX.k.wind>0.52)sndNote(0.1,'Wind');}
   WXA.wind.fl.frequency.setTargetAtTime(260+Math.sin(t*0.7)*90+WX.k.wind*60,t,0.5);
 }
 // winter: the top layer of every pond, river and fountain freezes to ice (loaded chunks are converted and re-meshed a
@@ -8018,11 +8025,59 @@ function updateWeather(dt){
 
 // ---------- Audio ----------
 let audio=null,audioWanted=false;
-function tone(type,f0,f1,dur,vol,delay=0){if(SBX)return;if(!audio)return;try{const t=audio.currentTime+delay;const o=audio.createOscillator(),g=audio.createGain();o.type=type;o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f1,t+dur);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);o.connect(g).connect(audio.destination);o.start(t);o.stop(t+dur+0.02);}catch(e){}}
-function noise(dur,vol,freq,type){if(SBX)return;if(!audio)return;try{const t=audio.currentTime;const len=audio.sampleRate*dur|0,buf=audio.createBuffer(1,len,audio.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<len;i++)ch[i]=(Math.random()*2-1)*Math.pow(1-i/len,2);const n=audio.createBufferSource(),f=audio.createBiquadFilter(),g=audio.createGain();n.buffer=buf;f.type=type;f.frequency.value=freq;g.gain.value=vol;n.connect(f).connect(g).connect(audio.destination);n.start(t);}catch(e){}}
+// ---- the sound list (debug): every sound by name as it starts, lit while it plays and fading for 2 seconds after, so even
+// a click too short to see can be read. A sound made inside sfx(name,...) takes that name; any other is named after the code
+// that made it (a stack trace, only taken while the list is showing). ----
+const SL={tag:null,rows:new Map(),el:null,shown:false};
+function sfx(n,f){const o=SL.tag;SL.tag=n;try{f();}finally{SL.tag=o;}}
+const SND_PRIM=new Set(['tone','noise','woosh','sndNote','sndName','sfx','safe']),SND_HELP={thud:'Thud',clang:'Clang',horn:'Horn'};
+// (what the code that made a sound is called, in words: anything not listed is just its name spelt out)
+const SND_FN={squeal:'Civilian screams',stompGrunt:'Stomp grunt',grunt:'Grunt',destroyFX:'Blocks break',knockFix:'Knocked over',
+  dbgMenuNav:'Menu',dbgMenuToggle:'Menu',renderTime:'Menu',renderDbg:'Menu',renderAbil:'Menu',ddChoose:'Menu',resumePlayer:'Menu',
+  airCrash:'Aircraft crashes',animalHit:'Animal hit',bellStrike:'Bell',bigCrashes:'Big crash',blastOff:'Blast off',boatHit:'Boat hit',carPhysics:'Vehicle lands',
+  civAI:'Civilian',climbDismount:'Climb down',climbOverEdge:'Climb over an edge',climbToCeil:'Climb onto the ceiling',collapseBuilding:'Building collapses',
+  crashTopple:'Building crashes down',cultCast:'Cult spell',cultRouse:'Cult wakes',damageGoblin:'Goblin hit',damagePlayer:'Hippo hurt',doBite:'Bite lands',
+  dropFloating:'Loose blocks drop',drvBoat:'Boat',drvCar:'Driving',drvEnter:'Get in or out',drvHeli:'Helicopter',drvLock:'Lock-on',drvTank:'Tank',drvTrain:'Train',
+  explodeCar0:'Vehicle explodes',fallImpact:'Hard fall',fbBurst:'Fireball bursts',fireball:'Fireball',foeBoom:'Explosion',foeRanged:'Enemy fires',foeShoot:'Enemy shoots',
+  foeThrow:'Enemy throws',gasBoom0:'Gas explosion',gobClub:'Goblin club',gobLand:'Goblin lands',grabCeil:'Grab the ceiling',gusBite:'Bite',hbApply:'Hit',heliGun:'Helicopter gun',
+  lockSwitch:'Lock-on switch',lockSwitchDepth:'Lock-on switch',makeBody:'Body falls',makeTopple:'Building topples',medicAI:'Medic',milAlert:'Military alert',milHit:'Military hit',
+  milShove:'Military vehicle shoves',movePlayer:'Hippo',nudgeRange:'Lock-on range',placePile:'Rubble lands',planeHit:'Plane hit',planeStrike:'Plane strikes',planeWreck:'Plane wreck',
+  refreshBrandSigns:'Sign falls',rideBang:'Ride hit',setLock:'Lock-on',siteRouse:'Site wakes',smashSoftUnder:'Smash underfoot',spikeHit:'Ground spike hits',startClimb:'Start climbing',
+  stepCorpse:'Step on a body',stompImpact:'Stomp lands',svcDrive:'Emergency vehicle',trainBoxes:'Train hits',trainHit:'Train hit',trainStrike:'Train strikes',
+  trampleFences:'Fences trampled',updateBodies:'Body lands',updateCars:'Traffic',updateCultVenue:'Cult',updateDoors:'Door',updateGoblins:'Goblin',updateHeli:'Helicopter',
+  updateLandmarks:'Landmark',updateLaunch:'Launch',updateLock:'Lock-on',updateRailVenue:'Train',updateSiren:'Siren',updateSpikes:'Ground spike',updateTank:'Tank',
+  updateTopples:'Building lands',updateTraffic:'Traffic',updateVenues:'Venue',updateWeather:'Thunder',vClimb:'Climbing',vHitFx:'Vehicle hit',vHold:'Holding on',
+  wpnFire:'Weapon fires',wpnTick:'Weapon reload'};
+const sndWords=f=>SND_FN[f]||(f.replace(/0$/,'').replace(/([a-z])([A-Z])/g,'$1 $2').toLowerCase().replace(/^./,c=>c.toUpperCase()));
+function sndName(){
+  if(SL.tag)return SL.tag;
+  const L=Error.stackTraceLimit;Error.stackTraceLimit=14;const st=String(new Error().stack||'');Error.stackTraceLimit=L;
+  let help=null;
+  for(const line of st.split('\n')){const m=line.match(/at (?:[\w$]+\.)*([\w$]+) \(/)||line.match(/^([\w$]+)@/);if(!m)continue;const f=m[1];
+    if(SND_PRIM.has(f)||f==='Error'||f==='forEach'||f==='map'||f==='some'||f==='filter'||f==='frame')continue;
+    if(SND_FN[f]&&!SND_HELP[f])return help?SND_HELP[help]+' · '+SND_FN[f]:SND_FN[f];
+    if(SND_HELP[f]){if(!help)help=f;continue;}
+    return help?SND_HELP[help]+' · '+sndWords(f):sndWords(f);}
+  return help?SND_HELP[help]:'Menu';
+}
+// a sound starting, lasting dur seconds (a looping one calls this every frame it's audible)
+function sndNote(dur,name){if(!DT.sndList)return;const n=name||sndName(),t=performance.now(),r=SL.rows.get(n);
+  if(r){if(t>r.end)r.n=t-r.end>2000?1:r.n+1;r.end=Math.max(r.end,t+dur*1000);}else SL.rows.set(n,{n:1,end:t+dur*1000,el:null});}
+function sndTick(){
+  if(!SL.el){SL.el=document.getElementById('sndList');if(!SL.el)return;}
+  if(SL.shown!==DT.sndList){SL.shown=DT.sndList;SL.el.hidden=!DT.sndList;if(!DT.sndList){SL.rows.clear();SL.el.textContent='';}}
+  if(!DT.sndList||!SL.el.appendChild)return;const t=performance.now();
+  for(const [n,r] of SL.rows){
+    if(t>r.end+2000){if(r.el)r.el.remove();SL.rows.delete(n);continue;}
+    if(!r.el){r.el=document.createElement('div');r.el.className='sl-r';SL.el.insertBefore(r.el,SL.el.firstChild);}
+    const on=t<=r.end,txt=n+(r.n>1?' ×'+r.n:'');if(r.el.textContent!==txt)r.el.textContent=txt;
+    r.el.classList.toggle('on',on);r.el.style.opacity=on?'1':String(Math.max(0,1-(t-r.end)/2000));}
+}
+function tone(type,f0,f1,dur,vol,delay=0){if(SBX)return;if(!audio)return;if(DT.sndList)sndNote(delay+dur);try{const t=audio.currentTime+delay;const o=audio.createOscillator(),g=audio.createGain();o.type=type;o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f1,t+dur);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);o.connect(g).connect(audio.destination);o.start(t);o.stop(t+dur+0.02);}catch(e){}}
+function noise(dur,vol,freq,type){if(SBX)return;if(!audio)return;if(DT.sndList)sndNote(dur);try{const t=audio.currentTime;const len=audio.sampleRate*dur|0,buf=audio.createBuffer(1,len,audio.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<len;i++)ch[i]=(Math.random()*2-1)*Math.pow(1-i/len,2);const n=audio.createBufferSource(),f=audio.createBiquadFilter(),g=audio.createGain();n.buffer=buf;f.type=type;f.frequency.value=freq;g.gain.value=vol;n.connect(f).connect(g).connect(audio.destination);n.start(t);}catch(e){}}
 function thud(vol){if(vol<=0.02)return;tone('sine',95,32,0.45,vol*0.9);noise(0.25,vol*0.6,380,'lowpass');}
 // a swish of air: band-passed noise that swells and sweeps up in pitch
-function woosh(vol,dur,f0,f1,delay=0){if(SBX)return;if(!audio)return;try{const t=audio.currentTime+delay,len=audio.sampleRate*dur|0,buf=audio.createBuffer(1,len,audio.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<len;i++)ch[i]=Math.random()*2-1;
+function woosh(vol,dur,f0,f1,delay=0){if(SBX)return;if(!audio)return;if(DT.sndList)sndNote(delay+dur);try{const t=audio.currentTime+delay,len=audio.sampleRate*dur|0,buf=audio.createBuffer(1,len,audio.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<len;i++)ch[i]=Math.random()*2-1;
   const n=audio.createBufferSource(),f=audio.createBiquadFilter(),g=audio.createGain();n.buffer=buf;f.type='bandpass';f.Q.value=1.1;f.frequency.setValueAtTime(f0,t);f.frequency.exponentialRampToValueAtTime(f1,t+dur);
   g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(vol,t+dur*0.4);g.gain.linearRampToValueAtTime(0.0001,t+dur);n.connect(f).connect(g).connect(audio.destination);n.start(t);n.stop(t+dur+0.02);}catch(e){}}
 // a ground pound's plunge: a rushing wind that swells and climbs in pitch with his speed, cut off the instant he lands.
@@ -8037,7 +8092,7 @@ function poundWoosh(p){
     f.type='bandpass';f.Q.value=0.9;f.frequency.value=380;f2.type='lowpass';f2.frequency.value=2600;g.gain.value=0.0001;
     src.connect(f).connect(f2).connect(g).connect(audio.destination);src.start();p.wsh={src,f,g};}catch(e){}}
   const W=p.wsh;if(!W)return;const t=audio.currentTime;
-  if(on){const sp=Math.max(0,Math.min(1,-p.vy/40));
+  if(on){const sp=Math.max(0,Math.min(1,-p.vy/40));if(DT.sndList)sndNote(0.1,'Ground pound rush');
     W.g.gain.setTargetAtTime(0.16+0.18*sp,t,0.025);W.f.frequency.setTargetAtTime(520+1200*sp,t,0.05);}
   else{W.g.gain.setTargetAtTime(0.0001,t,p.state==='poundLand'?0.015:0.06);
     if(!W.end)W.end=t+0.25;
@@ -8054,7 +8109,7 @@ function runWoosh(p){
     f.type='bandpass';f.Q.value=0.7;f.frequency.value=650;f2.type='lowpass';f2.frequency.value=2200;g.gain.value=0.0001;
     src.connect(f).connect(f2).connect(g).connect(audio.destination);src.start();p.rwsh={src,f,g};}catch(e){}}
   const W=p.rwsh;if(!W)return;const t=audio.currentTime;
-  if(on){const k=Math.min(1,p.trK),pulse=0.8+0.2*Math.abs(Math.sin(p.phase)),v=(p.sprinting?0.05:0.065)*k*pulse;
+  if(on){if(DT.sndList)sndNote(0.1,p.sprinting?'Sprint rush':'Trample rush');const k=Math.min(1,p.trK),pulse=0.8+0.2*Math.abs(Math.sin(p.phase)),v=(p.sprinting?0.05:0.065)*k*pulse;
     W.g.gain.setTargetAtTime(Math.max(0.0001,v),t,0.05);W.f.frequency.setTargetAtTime((p.sprinting?620:720)+120*pulse,t,0.08);W.end=0;}
   else{W.g.gain.setTargetAtTime(0.0001,t,0.08);if(!W.end)W.end=t+0.4;if(t>=W.end){try{W.src.stop();}catch(e){}p.rwsh=null;}}
 }
@@ -8089,6 +8144,7 @@ function setVoice(p,k,mode){if(SBX)return;
     v.lfo.frequency.setTargetAtTime(20+22*k,t,0.1);
     v.lfoG.gain.setTargetAtTime(0.2+0.5*k,t,0.1);
     v.out.gain.setTargetAtTime(k<=0?0:(0.05+0.32*k),t,k<=0?0.12:0.05);
+    if(k>0&&DT.sndList)sndNote(0.1,mode==='charge'?'Charging roar':'Roar');
   }catch(e){}
 }
 // cut the roar dead (on stomp release)
@@ -8100,7 +8156,7 @@ function cutVoice(p){
 function stompGrunt(p,lvl){
   if(!audio)return;
   try{
-    const m=p.idx?1.22:1,t=audio.currentTime,o=audio.createOscillator(),o2=audio.createOscillator(),g=audio.createGain(),f=audio.createBiquadFilter();
+    const m=p.idx?1.22:1,t=audio.currentTime,o=audio.createOscillator(),o2=audio.createOscillator(),g=audio.createGain(),f=audio.createBiquadFilter();if(DT.sndList)sndNote(0.2);
     o.type='sawtooth';o2.type='square';f.type='bandpass';f.Q.value=1.6;f.frequency.value=(620+120*lvl)*m;
     o.frequency.setValueAtTime((128-10*lvl)*m,t);o.frequency.exponentialRampToValueAtTime((70-6*lvl)*m,t+0.13);
     o2.frequency.setValueAtTime((64-5*lvl)*m,t);o2.frequency.exponentialRampToValueAtTime((38-3*lvl)*m,t+0.13);
@@ -8114,7 +8170,7 @@ function stompGrunt(p,lvl){
 function grunt(p,dbl){
   if(!audio||DT.gob)return;
   try{
-    const m=p.idx?1.25:1,t=audio.currentTime,o=audio.createOscillator(),g=audio.createGain(),f=audio.createBiquadFilter();
+    const m=p.idx?1.25:1,t=audio.currentTime,o=audio.createOscillator(),g=audio.createGain(),f=audio.createBiquadFilter();if(DT.sndList)sndNote(dbl?0.27:0.21);
     o.type='sawtooth';f.type='bandpass';f.Q.value=2.2;
     if(!dbl){o.frequency.setValueAtTime(150*m,t);o.frequency.exponentialRampToValueAtTime(82*m,t+0.18);f.frequency.value=640*m;}
     else{o.frequency.setValueAtTime(185*m,t);o.frequency.linearRampToValueAtTime(265*m,t+0.07);o.frequency.exponentialRampToValueAtTime(165*m,t+0.24);f.frequency.value=1150*m;}
@@ -8271,13 +8327,13 @@ function destroyFX(list,o,quiet){
   if(dustCol!==null){puff(sx,sy-0.5,sz,Math.min(16,3+n*2),dustCol,1+Math.min(1,n/9));if(n>=4)smoke(sx,sy,sz,Math.min(6,n>>1),shadeHex(dustCol,0.9));}
   if(quiet)return;
   const near=nearestPlayer(sx,sz,false),att=near?Math.max(0.12,1-near.d/40):0.5;
-  if(kinds.has('stone')||kinds.has('dirt')){noise(0.35+Math.min(0.4,n*0.03),0.5*att,450,'lowpass');tone('sine',70,35,0.3,0.25*att);}
-  if(kinds.has('glass')){noise(0.3,0.3*att,5200,'highpass');for(let i=0;i<4;i++)tone('sine',2200+Math.random()*1800,1800+Math.random()*1200,0.12,0.05*att,Math.random()*0.25);}
-  if(kinds.has('metal')){tone('square',520,240,0.14,0.08*att);noise(0.12,0.25*att,3000,'bandpass');}
-  if(kinds.has('neon')){tone('sawtooth',1900,180,0.2,0.06*att);noise(0.18,0.2*att,6000,'highpass');}
-  if(kinds.has('wood')){noise(0.14,0.4*att,1400,'bandpass');tone('triangle',190,80,0.12,0.1*att);}
-  if(kinds.has('plant'))noise(0.25,0.15*att,2600,'bandpass');
-  if(kinds.has('fabric'))noise(0.22,0.2*att,1700,'bandpass');
+  if(kinds.has('stone')||kinds.has('dirt')){SL.tag='Stone breaks';noise(0.35+Math.min(0.4,n*0.03),0.5*att,450,'lowpass');tone('sine',70,35,0.3,0.25*att);}
+  if(kinds.has('glass')){SL.tag='Glass breaks';noise(0.3,0.3*att,5200,'highpass');for(let i=0;i<4;i++)tone('sine',2200+Math.random()*1800,1800+Math.random()*1200,0.12,0.05*att,Math.random()*0.25);}
+  if(kinds.has('metal')){SL.tag='Metal breaks';tone('square',520,240,0.14,0.08*att);noise(0.12,0.25*att,3000,'bandpass');}
+  if(kinds.has('neon')){SL.tag='Neon breaks';tone('sawtooth',1900,180,0.2,0.06*att);noise(0.18,0.2*att,6000,'highpass');}
+  if(kinds.has('wood')){SL.tag='Wood breaks';noise(0.14,0.4*att,1400,'bandpass');tone('triangle',190,80,0.12,0.1*att);}
+  if(kinds.has('plant'))SL.tag='Plants torn',noise(0.25,0.15*att,2600,'bandpass');
+  if(kinds.has('fabric'))SL.tag='Fabric tears',noise(0.22,0.2*att,1700,'bandpass');
   if(n>=6)addShake(Math.min(0.35,0.05*n),sx,sz,18);
 }
 // blocks too soft or brittle to stop a falling hippo
@@ -9406,7 +9462,7 @@ function rocketSound(p,on){if(SBX||!audio)return;
       f.type='lowpass';f.frequency.value=900;f2.type='peaking';f2.frequency.value=180;f2.gain.value=9;g.gain.value=0;
       src.connect(f).connect(f2).connect(g).connect(audio.destination);src.start();p.rkSnd={src,f,g};}
     const S=p.rkSnd;if(!S)return;const t=audio.currentTime;
-    S.g.gain.setTargetAtTime(on?0.11:0,t,on?0.05:0.06);
+    S.g.gain.setTargetAtTime(on?0.11:0,t,on?0.05:0.06);if(on&&DT.sndList)sndNote(0.1,'Rocket boost');
     if(on)S.f.frequency.setTargetAtTime(750+Math.random()*350,t,0.03);
   }catch(e){}}   // rocket boost: its slow climb (blocks/s) and its stamina cost (per second)
 const LJ_GRACE=0.1;   // (a dash set off by tapping dash/sprint can still be turned into a long jump this soon after it starts)
@@ -9450,10 +9506,10 @@ const BITE_SOLO_CD=0.85;   // seconds from one bite to the next with the combo s
 // one cooldown shared by every bite, on the ground or in the air: biting in either puts the other on hold too
 function gusBite(p){
   if(p.biteT>0||p.state!=='walk'||!playing||!p.active||(p.biteCD||0)>0)return;
-  if(DT.gob){p.biteStep=-1;p.comboWin=0;p.biteDur=0.38;p.biteT=0.38;p.lungeT=0.16;p.biteHit=true;p.biteCD=0.45;woosh(0.13,0.22,520,1700,0.1);return;}
+  if(DT.gob){p.biteStep=-1;p.comboWin=0;p.biteDur=0.38;p.biteT=0.38;p.lungeT=0.16;p.biteHit=true;p.biteCD=0.45;sfx('Club swing',()=>{woosh(0.13,0.22,520,1700,0.1);});return;}
   // no aim assist: the bite goes exactly where he's facing (lock-on is how to aim at someone)
   // in the air: a single snap, no combo
-  if(!p.grounded){if((p.airBiteCD||0)>0)return;hbStart(p,'airBite');p.airBiteCD=1.0;p.biteCD=BITE_SOLO_CD;p.biteStep=-1;p.comboWin=0;p.biteDur=0.3;p.biteT=0.3;p.lungeT=0.16;p.lurch={t:0,dur:Math.max(0.05,AB.airBite.dist/Math.max(0.1,AB.airBite.speed)),dist:AB.airBite.dist};p.biteHit=true;tone('triangle',150,260,0.1,0.06);woosh(0.12,0.2,600,1900);return;}
+  if(!p.grounded){if((p.airBiteCD||0)>0)return;hbStart(p,'airBite');p.airBiteCD=1.0;p.biteCD=BITE_SOLO_CD;p.biteStep=-1;p.comboWin=0;p.biteDur=0.3;p.biteT=0.3;p.lungeT=0.16;p.lurch={t:0,dur:Math.max(0.05,AB.airBite.dist/Math.max(0.1,AB.airBite.speed)),dist:AB.airBite.dist};p.biteHit=true;sfx('Air bite',()=>{tone('triangle',150,260,0.1,0.06);woosh(0.12,0.2,600,1900);});return;}
   // on the ground: which hit of the 3-bite combo this is (keep pressing within the window to chain them);
   // each hit is one planted step forward
   // (bite combo switched off: every bite is the first one, with a longer cooldown before the next)
@@ -9463,8 +9519,8 @@ function gusBite(p){
   // whatever speed he walked in with carries into the lurch and bleeds off, rather than stopping dead
   p.carryV=Math.max(p.carryV||0,p.lastSp||0);
   p.biteLeg0=p.legs.map(l=>l.rotation.x);   // the legs blend out of wherever they were mid-stride
-  if(fin){tone('triangle',120,320,0.1,0.06);woosh(0.3,0.34,300,2300,0.1);tone('sine',150,70,0.3,0.05,0.1);}
-  else{woosh(0.13,0.22,520,1700,0.1);tone('triangle',150+step*30,260+step*30,0.08,0.06,0.28);}
+  if(fin){sfx('Bite combo finisher',()=>{tone('triangle',120,320,0.1,0.06);woosh(0.3,0.34,300,2300,0.1);tone('sine',150,70,0.3,0.05,0.1);});}
+  else sfx('Bite',()=>{woosh(0.13,0.22,520,1700,0.1);tone('triangle',150+step*30,260+step*30,0.08,0.06,0.28);});
 }
 function doBite(p){
   if(DT.gob){gobClub(p);return;}
@@ -10507,7 +10563,7 @@ function movePlayer(p,dt){
     // the pool spreads once the body has come to rest
     const rt=C?C.rest:t;p.pool.scale.setScalar(Math.min(2.8,0.1+rt*0.5));
     // the body hitting the ground for good: a heavy thud and a burst of blood
-    if(C&&!p.slammed&&(C.hits>0||C.rest>0.05||(C.cause==='beaten'&&Math.abs(Math.sin(C.roll))>0.95))){p.slammed=true;blood(p.pos.x,p.pos.y+0.8,p.pos.z,26,new V3(0,0.8,0));thud(0.8);addShake(0.3,p.pos.x,p.pos.z,14);}
+    if(C&&!p.slammed&&(C.hits>0||C.rest>0.05||(C.cause==='beaten'&&Math.abs(Math.sin(C.roll))>0.95))){p.slammed=true;blood(p.pos.x,p.pos.y+0.8,p.pos.z,26,new V3(0,0.8,0));sfx('Body hits the ground',()=>{thud(0.8);});addShake(0.3,p.pos.x,p.pos.z,14);}
     return;
   }
   const inp=p.in;
@@ -10601,15 +10657,15 @@ function movePlayer(p,dt){
         const hx=Math.sin(p.heading),hz=Math.cos(p.heading);
         const BL=ABIL.blastJump,LJ=BL?AB.blastJump:AB.longJump;
         hbStart(p,BL?'blastJump':'longJump');p.vy=LJ.launch;p.grounded=false;p.coyote=0;p.airBiteCD=0;p.hopT=0.12;p.airJumps=airJumpsMax();p.longJump=true;p.mvx=hx*LJ.speed;p.mvz=hz*LJ.speed;
-        grunt(p,true);thud(0.12);rumble(p,0.3,120);puff(p.pos.x-hx*1.2,p.pos.y+0.2,p.pos.z-hz*1.2,8,0xb8b2a6,0.6);
+        sfx('Long jump',()=>{grunt(p,true);thud(0.12);});rumble(p,0.3,120);puff(p.pos.x-hx*1.2,p.pos.y+0.2,p.pos.z-hz*1.2,8,0xb8b2a6,0.6);
         p.blastJ=BL;p.blastAt=null;if(BL)blastOff(p,hx,hz);
       }
       else if(p.wet&&!p.grounded){const bb=boatBeside(p);p.vy=Math.max(p.vy,bb?Math.sqrt(50*(bb.top-p.pos.y+1)):4.2);if(bb){p.mvx=(bb.x-p.pos.x)/Math.hypot(bb.x-p.pos.x,bb.z-p.pos.z||1)*5;p.mvz=(bb.z-p.pos.z)/Math.hypot(bb.x-p.pos.x,bb.z-p.pos.z||1)*5;}p.hopT=0.1;puff(p.pos.x,p.pos.y+0.5,p.pos.z,4,0xcfe8ff,0.5);}   // swimming: a paddle stroke upward
-      else if(p.grounded||p.coyote>0){hbStart(p,'jump');p.vy=AB.jump.launch;p.grounded=false;p.coyote=0;p.airBiteCD=0;p.hopT=0.12;p.airJumps=airJumpsMax();grunt(p,false);thud(0.08);}
+      else if(p.grounded||p.coyote>0){hbStart(p,'jump');p.vy=AB.jump.launch;p.grounded=false;p.coyote=0;p.airBiteCD=0;p.hopT=0.12;p.airJumps=airJumpsMax();sfx('Jump',()=>{grunt(p,false);thud(0.08);});}
       else if(p.airJumps>0){
         // double jump: a second kick in mid-air with a full twirl and a puff of air underneath
         p.airJumps--;hbStart(p,'djump');p.airBiteCD=0;p.vy=Math.max(p.vy,0)+AB.djump.launch;p.twirl=(p.twirl>0.5?p.twirl:0)+Math.PI*2;p.hopT=0;p.spinSq=0.16;
-        puff(p.pos.x,p.pos.y-0.2,p.pos.z,9,0xd6d8d0,0.7);grunt(p,true);rumble(p,0.2,80);
+        puff(p.pos.x,p.pos.y-0.2,p.pos.z,9,0xd6d8d0,0.7);sfx('Double jump',()=>{grunt(p,true);});rumble(p,0.2,80);
       }
     }
     let ix=inp.x,iz=inp.z;p.lastSp=0;
@@ -10644,7 +10700,7 @@ function movePlayer(p,dt){
       const ahead=DT.gob?gobGround(p.pos.x+mvx*0.45,p.pos.z+mvz*0.45,p.pos.y,p,dt):groundAt(p.pos.x+mvx*1.6,p.pos.z+mvz*1.6,p.pos.y);
       if(tramp&&p.chargeCD<=0){
         const hit=hbOn('trample')?[]:carsNear(frontX,frontZ,AB.trample.hitR,p.pos.y);
-        if(hit.length){p.chargeCD=0.6;clang();thud(0.8);addShake(0.35,frontX,frontZ,12);rumble(p,0.7,200);
+        if(hit.length){p.chargeCD=0.6;sfx('Trample hits a vehicle',()=>{clang();thud(0.8);});addShake(0.35,frontX,frontZ,12);rumble(p,0.7,200);
           for(const c of hit){damageCar(c,AB.trample.carDmg);nudgeFlat(c,hx*1.2,hz*1.2);c.speed=0;}}
       }
       // on or onto a ramp, judge the slope just ahead of the feet instead of a body-length ahead
@@ -10654,7 +10710,7 @@ function movePlayer(p,dt){
       if(inp.climb&&!rampy&&!bodyBlk&&ahead-p.pos.y<=1.05&&([0.5,1].some(k=>groundAt(p.pos.x+mvx*k,p.pos.z+mvz*k,p.pos.y)-p.pos.y>1.05)||bodyHits(p,p.pos.x+mvx*sp*dt,p.pos.z+mvz*sp*dt,p.heading))&&startClimb(p,1.9)){}
       else if(bodyBlk||(rampy?groundAt(p.pos.x+mvx*0.8,p.pos.z+mvz*0.8,p.pos.y+1)-p.pos.y>1.3:ahead-p.pos.y>1.05)){
         if(inp.climb&&startClimb(p,1.9)){}
-        else if(tramp&&p.smashCD<=0){p.smashCD=0.35;const o={force:1.2,dx:hx,dz:hz};if(blockHit(AB.trample,frontX,p.pos.y,frontZ,hx,hz,o,sz=>crushDisc(frontX,p.pos.y,frontZ,sz,3,o))){p.stam=Math.max(0,p.stam-8);addShake(0.3,frontX,frontZ,12);thud(0.7);rumble(p,0.5,150);}}
+        else if(tramp&&p.smashCD<=0){p.smashCD=0.35;const o={force:1.2,dx:hx,dz:hz};if(blockHit(AB.trample,frontX,p.pos.y,frontZ,hx,hz,o,sz=>crushDisc(frontX,p.pos.y,frontZ,sz,3,o))){p.stam=Math.max(0,p.stam-8);addShake(0.3,frontX,frontZ,12);sfx('Trample smashes blocks',()=>{thud(0.7);});rumble(p,0.5,150);}}
         // walking into a wall at an angle: slide along it (the part of the move that runs along the wall still happens)
         else if(!tramp||p.smashCD>0){
           const opts=Math.abs(mvx)>Math.abs(mvz)?[[Math.sign(mvx),0,Math.abs(mvx)],[0,Math.sign(mvz),Math.abs(mvz)]]:[[0,Math.sign(mvz),Math.abs(mvz)],[Math.sign(mvx),0,Math.abs(mvx)]];
@@ -10672,7 +10728,7 @@ function movePlayer(p,dt){
         if(LT&&Math.abs(iz)<0.35&&d0>1.5){const ex=p.pos.x-LT.pos.x,ez=p.pos.z-LT.pos.z,e=Math.hypot(ex,ez)||1,nx=LT.pos.x+ex/e*d0,nz=LT.pos.z+ez/e*d0;if(canStand(nx,nz,p.pos.y)){p.pos.x=nx;p.pos.z=nz;}}
         moving=true;p.lastSp=sp;p.phase+=dt*sp*3.4*(charge?0.45:1);if(tramp&&!hbOn('trample')){hitGoblins(frontX,frontZ,AB.trample.hitR,AB.trample.dmg,'Trampled',p.pos.y);
           // and it ploughs straight through anything in the way: benches, bins, fences, railings, low walls
-          p.trCD=(p.trCD||0)-dt;if(p.trCD<=0&&!hbOn('trample')&&!inp.climb){p.trCD=0.1;const o={force:1.1,dx:hx,dz:hz};if(blockHit(AB.trample,frontX,p.pos.y,frontZ,hx,hz,o,sz=>crushDisc(frontX,p.pos.y,frontZ,sz,3,o))){thud(0.45);addShake(0.18,frontX,frontZ,10);rumble(p,0.3,90);}}}
+          p.trCD=(p.trCD||0)-dt;if(p.trCD<=0&&!hbOn('trample')&&!inp.climb){p.trCD=0.1;const o={force:1.1,dx:hx,dz:hz};if(blockHit(AB.trample,frontX,p.pos.y,frontZ,hx,hz,o,sz=>crushDisc(frontX,p.pos.y,frontZ,sz,3,o))){sfx('Trample ploughs through',()=>{thud(0.45);});addShake(0.18,frontX,frontZ,10);rumble(p,0.3,90);}}}
         if(inp.climb&&p.grounded&&!(p.standCar&&!DT.gob&&vOverEdge(p,mvx,mvz)))climbOverEdge(p,mvx,mvz);
       }
     }
@@ -10682,7 +10738,7 @@ function movePlayer(p,dt){
     if(p.state==='walk'&&inp.climb&&!p.grounded){if(!startClimb(p,1.1)&&p.vy>-2&&!DT.gob)grabCeil(p);}
     // R2 in mid-air: ground pound
     const dodgeHop=!!p.dodge||(p.sinceDodge??9)<0.3&&!p.grounded;   // (a dodge's little hop isn't a jump: no ground pound out of it)
-    if(ABIL.pound&&inp.stomp&&!p.grounded&&p.lungeT<=0&&p.dashT<=0&&!dodgeHop){p.state='pound';p.t=0;{const g=supportAt(p.pos.x,p.pos.z,p.pos.y);p.flipY0=p.pos.y;p.flipA=Math.max(0,Math.min(0.9*ES,(g===null?9:p.pos.y-g)-0.4));}p.vy=Math.max(p.vy,0);p.legLift=0;p.stompCharge=0;p.stompLevel=0;p.pRel=false;p.pHover=false;p.poundLvl=0;tone('triangle',170,95,0.16,0.08);}
+    if(ABIL.pound&&inp.stomp&&!p.grounded&&p.lungeT<=0&&p.dashT<=0&&!dodgeHop){p.state='pound';p.t=0;{const g=supportAt(p.pos.x,p.pos.z,p.pos.y);p.flipY0=p.pos.y;p.flipA=Math.max(0,Math.min(0.9*ES,(g===null?9:p.pos.y-g)-0.4));}p.vy=Math.max(p.vy,0);p.legLift=0;p.stompCharge=0;p.stompLevel=0;p.pRel=false;p.pHover=false;p.poundLvl=0;sfx('Ground pound flip',()=>{tone('triangle',170,95,0.16,0.08);});}
     else if(ABIL.stomp&&(inp.stomp||wantStomp)&&p.grounded&&!dodgeHop&&p.lungeT<=0&&!p.stompLock)startStomp(p);
     if(!inp.stomp)p.stompLock=false;
   } else if(p.state==='piv'){
@@ -10730,7 +10786,7 @@ function movePlayer(p,dt){
       p.heading=Math.atan2(-d[0],-d[1]);startVBlend(p,0.32);puff(p.pos.x,p.pos.y+0.8,p.pos.z,4,0xd6d8d0,0.4);
     }
     else if(inp.jumpPress){   // kick off the wall
-      p.state='walk';p.grounded=false;p.airBiteCD=0;p.vy=8.5;p.mvx=-d[0]*7;p.mvz=-d[1]*7;p.heading=Math.atan2(-d[0],-d[1]);startVBlend(p,0.3);p.hopT=0.12;p.qJump=0;grunt(p,false);puff(p.pos.x,p.pos.y+1,p.pos.z,6,0xd6d8d0,0.5);
+      p.state='walk';p.grounded=false;p.airBiteCD=0;p.vy=8.5;p.mvx=-d[0]*7;p.mvz=-d[1]*7;p.heading=Math.atan2(-d[0],-d[1]);startVBlend(p,0.3);p.hopT=0.12;p.qJump=0;sfx('Wall jump',()=>{grunt(p,false);});puff(p.pos.x,p.pos.y+1,p.pos.z,6,0xd6d8d0,0.5);
     } else {
       // the stick works in the wall's own frame (so holding a direction carries him round corners), flipped
       // when the camera looks out away from the wall (e.g. over a ledge he's tipped over): then forward = down.
@@ -10776,7 +10832,7 @@ function movePlayer(p,dt){
             // wall to go on to, it turns him to that and on up (p.perch is the way to it); with none, he stays put
             const bs=supportAt(p.pos.x+D[0]*1.3,p.pos.z+D[1]*1.3,top+0.1),more=[0,0.6,-0.6].some(o=>[0.6,1.4].some(h=>solidAt(Math.floor(p.pos.x+D[0]*1.3-D[1]*o),Math.floor(top+h),Math.floor(p.pos.z+D[1]*1.3+D[0]*o))));
             p.perch=bs===null||bs<top-0.6?(more?D:true):false;
-            startPiv(p,{E,to:[spot.x,spot.y??top,spot.z],dur:0.4,next:'walk',heading:spot.h});thud(0.15);grunt(p,false);}
+            startPiv(p,{E,to:[spot.x,spot.y??top,spot.z],dur:0.4,next:'walk',heading:spot.h});sfx('Climb onto a ledge',()=>{thud(0.15);grunt(p,false);});}
           // nowhere a hippo fits (a slot in a wall, a step on a curving one): on to the wall behind the lip if there is one and
           // up that; if not, he hangs on at the lip rather than dropping
           else if(top!==null&&[0.6,1.4].some(h=>solidAt(Math.floor(p.pos.x+D[0]*1.3),Math.floor(p.pos.y+h),Math.floor(p.pos.z+D[1]*1.3))))startPiv(p,{E:'center',to:[p.pos.x+D[0],p.pos.y,p.pos.z+D[1]],dur:0.25,next:'climb',heading:p.heading});
@@ -10795,8 +10851,8 @@ function movePlayer(p,dt){
     if(lvNow>p.stompLevel){
       p.stompLevel=lvNow;
       // reaching a new level: a soft rising chime, a nudge of shake, a short buzz
-      if(lvNow===1){tone('triangle',520,620,0.12,0.06);p.shake=Math.max(p.shake,0.06);rumble(p,0.25,110);}
-      else{tone('triangle',620,780,0.1,0.06);tone('triangle',780,1040,0.16,0.06,0.08);p.shake=Math.max(p.shake,0.1);rumble(p,0.45,150);}
+      if(lvNow===1){sfx('Charge level 1',()=>{tone('triangle',520,620,0.12,0.06);});p.shake=Math.max(p.shake,0.06);rumble(p,0.25,110);}
+      else{sfx('Charge level 2',()=>{tone('triangle',620,780,0.1,0.06);tone('triangle',780,1040,0.16,0.06,0.08);});p.shake=Math.max(p.shake,0.1);rumble(p,0.45,150);}
     }
     // you can still turn on the spot while winding up
     if(inp.x||inp.z){const s=Math.sin(p.cam.yaw),cc=Math.cos(p.cam.yaw),wx=inp.x*cc+inp.z*s,wz=-inp.x*s+inp.z*cc;let diff=Math.atan2(wx,wz)-p.heading;while(diff>Math.PI)diff-=Math.PI*2;while(diff<-Math.PI)diff+=Math.PI*2;p.heading+=Math.max(-2*dt,Math.min(2*dt,diff));}
@@ -10822,8 +10878,8 @@ function movePlayer(p,dt){
       const c=p.stompCharge/2;jawOpen=0.55+0.25*c;tremble=(Math.random()-.5)*[0,0.03,0.06][stompLevelOf(p.stompCharge)];
       const lvNow=stompLevelOf(p.stompCharge);
       if(lvNow>p.stompLevel){p.stompLevel=lvNow;
-        if(lvNow===1){tone('triangle',520,620,0.12,0.06);p.shake=Math.max(p.shake,0.06);rumble(p,0.25,110);}
-        else{tone('triangle',620,780,0.1,0.06);tone('triangle',780,1040,0.16,0.06,0.08);p.shake=Math.max(p.shake,0.1);rumble(p,0.45,150);}}
+        if(lvNow===1){sfx('Charge level 1',()=>{tone('triangle',520,620,0.12,0.06);});p.shake=Math.max(p.shake,0.06);rumble(p,0.25,110);}
+        else{sfx('Charge level 2',()=>{tone('triangle',620,780,0.1,0.06);tone('triangle',780,1040,0.16,0.06,0.08);});p.shake=Math.max(p.shake,0.1);rumble(p,0.45,150);}}
     } else {
       if(p.pHover){p.pHover=false;p.poundLvl=stompLevelOf(p.stompCharge);cutVoice(p);if(p.poundLvl)stompGrunt(p,p.poundLvl);}
       p.pRel=true;p.vy=Math.max(-28-6*(p.poundLvl||0),(p.pHold===false&&p.vy>0?p.vy:Math.min(p.vy,0))-240*dt);   // gathers speed over about a tenth of a second rather than snapping to it
@@ -10858,18 +10914,18 @@ function movePlayer(p,dt){
       const R=AB.roll,dur=Math.max(0.15,R.dist/Math.max(0.1,R.speed*0.85));p.heading=Math.atan2(wx,wz);
       p.dodge={t:0,dur,dx:wx,dz:wz,fwd:1,side:0,roll:true,at:null};p.qDodge=0;
       p.dodgeCD=dur+0.15;p.stam=Math.max(0,p.stam-R.stamina);p.vy=Math.max(p.vy,R.hop);p.grounded=false;p.coyote=0;
-      hbStart(p,'roll');woosh(0.3,0.3,500,1600,0.1);grunt(p,true);rumble(p,0.35,120);puff(p.pos.x,p.pos.y,p.pos.z,7,0x9a948a,0.6);
+      hbStart(p,'roll');sfx('Roll',()=>{woosh(0.3,0.3,500,1600,0.1);grunt(p,true);});rumble(p,0.35,120);puff(p.pos.x,p.pos.y,p.pos.z,7,0x9a948a,0.6);
     } else if(BDASH){
       // the blast dash: an explosion out of his backside flings him forward, low and fast, through whatever's there
       const R=AB.blastDash,dur=Math.max(0.1,R.dist/Math.max(0.1,R.speed*0.75));p.heading=Math.atan2(wx,wz);
       p.dodge={t:0,dur,dx:wx,dz:wz,fwd:1,side:0,blast:true,at:null};p.qDodge=0;
       p.dodgeCD=dur+0.2;p.stam=Math.max(0,p.stam-R.stamina);p.vy=Math.max(p.vy,1.8);p.grounded=false;p.coyote=0;
-      hbStart(p,'blastDash');grunt(p,true);blastOff(p,wx,wz,R,0.85);
+      hbStart(p,'blastDash');sfx('Blast dash',()=>{grunt(p,true);});blastOff(p,wx,wz,R,0.85);
     } else {
     const hx=Math.sin(p.heading),hz=Math.cos(p.heading),dur=Math.max(0.08,AB.dodge.dist*0.8/Math.max(0.1,AB.dodge.speed));   // (the skid at the end adds the rest)
     p.dodge={t:0,dur,dx:wx,dz:wz,fwd:wx*hx+wz*hz,side:wx*hz-wz*hx};p.qDodge=0;
     p.dodgeCD=dur+0.2;p.stam=Math.max(0,p.stam-AB.dodge.stamina);p.vy=Math.max(p.vy,2.6);p.grounded=false;p.coyote=0;
-    hbStart(p,'dodge');woosh(0.16,0.26,700,2100,0.08);grunt(p,false);rumble(p,0.2,60);
+    hbStart(p,'dodge');sfx('Dash',()=>{woosh(0.16,0.26,700,2100,0.08);grunt(p,false);});rumble(p,0.2,60);
     puff(p.pos.x,p.pos.y,p.pos.z,5,0x9a948a,0.5);
   }}
   if(p.dodge){const D=p.dodge;if(D.combo===undefined)D.combo=!!p.dodgeCombo;D.t+=dt;
@@ -10883,15 +10939,15 @@ function movePlayer(p,dt){
         if(!hbOn(HK)){D.hitG=D.hitG||new Set();dbgHit('dmg','cap',dbgCap(fx,p.pos.y,fz,R.hitR));
           // (each goblin's hit once per roll, and sent flying on ahead of it)
           for(const g of goblins){if(g.state!=='chase'||D.hitG.has(g))continue;const dx=g.pos.x-fx,dz=g.pos.z-fz,dy=g.pos.y-p.pos.y,d=Math.hypot(dx,dz)||0.01;
-            if(Math.hypot(d,dy)<R.hitR&&vReach(dy,R.hitR)){D.hitG.add(g);damageGoblin(g,R.dmg,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(D.dx*0.8+dx/d*0.4,0.7,D.dz*0.8+dz/d*0.4),D.blast?'Blasted aside by a blast-dashing hippo':'Bowled over by a rolling hippo');thud(0.35);}}
-          for(const c of carsNear(fx,fz,R.hitR,p.pos.y)){if(c.rollHitT>camClock)continue;c.rollHitT=camClock+0.5;damageCar(c,R.carDmg,new V3(D.dx,0,D.dz));if(c.alive)launchCar(c,4,new V3(D.dx,0,D.dz),3);clang();thud(0.5);}}}
+            if(Math.hypot(d,dy)<R.hitR&&vReach(dy,R.hitR)){D.hitG.add(g);damageGoblin(g,R.dmg,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(D.dx*0.8+dx/d*0.4,0.7,D.dz*0.8+dz/d*0.4),D.blast?'Blasted aside by a blast-dashing hippo':'Bowled over by a rolling hippo');sfx('Roll hits a goblin',()=>{thud(0.35);});}}
+          for(const c of carsNear(fx,fz,R.hitR,p.pos.y)){if(c.rollHitT>camClock)continue;c.rollHitT=camClock+0.5;damageCar(c,R.carDmg,new V3(D.dx,0,D.dz));if(c.alive)launchCar(c,4,new V3(D.dx,0,D.dz),3);sfx('Roll hits a vehicle',()=>{clang();thud(0.5);});}}}
       if(groundAt(p.pos.x+D.dx*1.4,p.pos.z+D.dz*1.4,p.pos.y)-p.pos.y<=1.05&&(!bodyHits(p,nx,nz,p.heading)||bodyHits(p,p.pos.x,p.pos.z,p.heading))){p.pos.x=nx;p.pos.z=nz;}
       // (blocked -- often right at the start, pressed up against a wall: smash what's directly in front of him and try
       // again before giving up; only something he can't break, or a real step up, stops a roll)
       else if(R.blkR>0&&!hbOn(HK)&&(D.stuck=(D.stuck||0)+1)<=4){const ax=p.pos.x+D.dx*1.0,az=p.pos.z+D.dz*1.0;
         crush(ax,p.pos.y,az,Math.max(1,Math.round(R.blkR-0.5)),0,2,{force:1.4,dx:D.dx,dz:D.dz,up:1.1});D.at=null;D.t=Math.max(0,D.t-dt*0.5);}
       else D.t=Math.max(D.t,D.dur*0.85);}
-    else if(D.t>=D.dur||p.state!=='walk'){p.dodge=null;p.sinceDodge=0;p.rollOut=!!(D.roll||D.blast);if(D.roll){if(p.grounded){thud(0.25);puff(p.pos.x,p.pos.y,p.pos.z,6,0x9a948a,0.5);}
+    else if(D.t>=D.dur||p.state!=='walk'){p.dodge=null;p.sinceDodge=0;p.rollOut=!!(D.roll||D.blast);if(D.roll){if(p.grounded){sfx('Roll lands',()=>{thud(0.25);});puff(p.pos.x,p.pos.y,p.pos.z,6,0x9a948a,0.5);}
       // (rolled off an edge: he sails on at the speed the roll ended at, slowing as he falls, until he lands)
       else if(p.state==='walk'){const v=AB.roll.speed*0.7;p.mvx=D.dx*v;p.mvz=D.dz*v;}}
       else if(D.blast){if(p.state==='walk'){const v=p.grounded?Math.min(8,AB.blastDash.speed*0.3):AB.blastDash.speed*0.55;p.mvx=D.dx*v;p.mvz=D.dz*v;}}else if(p.state==='walk'){const v=Math.min(5.8,AB.dodge.speed*0.4);p.mvx=(p.mvx||0)+D.dx*v;p.mvz=(p.mvz||0)+D.dz*v;}if(p.grounded)puff(p.pos.x,p.pos.y,p.pos.z,4,0x9a948a,0.45);}
@@ -10910,8 +10966,8 @@ function movePlayer(p,dt){
       blastOff(p,hx,hz,A,0.8);}
     puff(p.pos.x-Math.sin(p.heading)*1.2,p.pos.y+0.6,p.pos.z-Math.cos(p.heading)*1.2,8,0xd6d8d0,0.6);rumble(p,0.45,160);p.shake=Math.max(p.shake,0.08);
     // the launch: a small upright shockwave ring just behind, and a hard grunt over the roar
-    if(p.dashBoost){shockCone(p.pos.x,p.pos.y+0.85*ES,p.pos.z,p.heading,2.1,4.6,0.42);thud(0.32);rumble(p,0.7,220);p.shake=Math.max(p.shake,0.14);}
-    else{shockCone(p.pos.x,p.pos.y+0.85*ES,p.pos.z,p.heading,1.5,3.2,0.36);thud(0.18);}
+    if(p.dashBoost){shockCone(p.pos.x,p.pos.y+0.85*ES,p.pos.z,p.heading,2.1,4.6,0.42);sfx('Air dash (boosted)',()=>{thud(0.32);});rumble(p,0.7,220);p.shake=Math.max(p.shake,0.14);}
+    else{shockCone(p.pos.x,p.pos.y+0.85*ES,p.pos.z,p.heading,1.5,3.2,0.36);sfx('Air dash',()=>{thud(0.18);});}
     grunt(p,true);
   }
   if(p.dashT>0){
@@ -10927,11 +10983,11 @@ function movePlayer(p,dt){
         if(!hbOn('blastAirDash')){const S=p.dashHitG||(p.dashHitG=new Set());
           for(const g of goblins){if(g.state!=='chase'||S.has(g))continue;const dx=g.pos.x-fx2,dz=g.pos.z-fz2,dy=g.pos.y-p.pos.y,d=Math.hypot(dx,dz)||0.01;
             if(Math.hypot(d,dy)<A.hitR&&vReach(dy,A.hitR)){S.add(g);damageGoblin(g,A.dmg,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(hx*0.8+dx/d*0.4,0.7,hz*0.8+dz/d*0.4),'Blasted aside by a flying hippo');}}
-          for(const c of carsNear(fx2,fz2,A.hitR,p.pos.y)){if(c.blastHitT>camClock)continue;c.blastHitT=camClock+0.6;damageCar(c,A.carDmg,new V3(hx,0,hz));if(c.alive)launchCar(c,6,new V3(hx,0,hz),4);clang();}}}}
+          for(const c of carsNear(fx2,fz2,A.hitR,p.pos.y)){if(c.blastHitT>camClock)continue;c.blastHitT=camClock+0.6;damageCar(c,A.carDmg,new V3(hx,0,hz));if(c.alive)launchCar(c,6,new V3(hx,0,hz),4);sfx('Blast hits a vehicle',()=>{clang();});}}}}
     if(groundAt(p.pos.x+hx*1.6,p.pos.z+hz*1.6,p.pos.y)-p.pos.y<=1.05&&(!bodyHits(p,p.pos.x+hx*ds*dt,p.pos.z+hz*ds*dt,p.heading)||bodyHits(p,p.pos.x,p.pos.z,p.heading))){p.pos.x+=hx*ds*dt;p.pos.z+=hz*ds*dt;}
-    else if(!p.dashBlast&&p.smashCD<=0&&!hbOn('dash')){p.smashCD=0.2;const o={force:1.3,dx:hx,dz:hz};if(blockHit(AB.dash,fx2,p.pos.y,fz2,hx,hz,o,sz=>crush(fx2,p.pos.y,fz2,Math.max(0,Math.round(sz)),0,2,o))){addShake(0.3,fx2,fz2,12);thud(0.7);}}
+    else if(!p.dashBlast&&p.smashCD<=0&&!hbOn('dash')){p.smashCD=0.2;const o={force:1.3,dx:hx,dz:hz};if(blockHit(AB.dash,fx2,p.pos.y,fz2,hx,hz,o,sz=>crush(fx2,p.pos.y,fz2,Math.max(0,Math.round(sz)),0,2,o))){addShake(0.3,fx2,fz2,12);sfx('Dash smashes blocks',()=>{thud(0.7);});}}
     if(!p.dashBlast&&!hbOn('dash'))hitGoblins(fx2,fz2,AB.dash.hitR,AB.dash.dmg,'Rammed by a flying hippo',p.pos.y);
-    if(!p.dashBlast&&p.chargeCD<=0&&!hbOn('dash')){const hit=carsNear(fx2,fz2,AB.dash.hitR,p.pos.y);if(hit.length){p.chargeCD=0.5;for(const c of hit)damageCar(c,AB.dash.carDmg,new V3(hx,0,hz));clang();thud(0.6);}}
+    if(!p.dashBlast&&p.chargeCD<=0&&!hbOn('dash')){const hit=carsNear(fx2,fz2,AB.dash.hitR,p.pos.y);if(hit.length){p.chargeCD=0.5;for(const c of hit)damageCar(c,AB.dash.carDmg,new V3(hx,0,hz));sfx('Dash hits a vehicle',()=>{clang();thud(0.6);});}}
   }
   // a blast long jump ploughs through whatever's in its way: blocks, goblins, cars
   if(p.blastJ&&(!p.longJump||p.state!=='walk'))p.blastJ=false;
@@ -10939,7 +10995,7 @@ function movePlayer(p,dt){
     if(!p.blastAt||Math.hypot(fx-p.blastAt.x,fz-p.blastAt.z,fy-p.blastAt.y)>1.2){p.blastAt={x:fx,y:fy,z:fz};
       if(!hbOn('blastJump'))crushBall(fx,fy,fz,2.3,{force:1.6+m*0.04,up:1.2});
       hitGoblins(fx,fz,A.hitR,A.dmg,'Flattened by a blast long jump',p.pos.y);
-      for(const c of carsNear(fx,fz,A.hitR,p.pos.y)){if(c.blastHitT>camClock)continue;c.blastHitT=camClock+0.6;damageCar(c,A.carDmg,new V3(ux,0,uz));if(c.alive)launchCar(c,6,new V3(ux,0,uz),4);clang();}}}
+      for(const c of carsNear(fx,fz,A.hitR,p.pos.y)){if(c.blastHitT>camClock)continue;c.blastHitT=camClock+0.6;damageCar(c,A.carDmg,new V3(ux,0,uz));if(c.alive)launchCar(c,6,new V3(ux,0,uz),4);sfx('Blast hits a vehicle',()=>{clang();});}}}
   // carried momentum (air-dash follow-through, long jumps): little drag in the air, skids out fast on the ground
   if(p.mvx||p.mvz){
     if(p.dashT>0||p.state==='pound'||p.state==='poundLand'||p.state==='windup'||p.state==='stomp'){if(p.state!=='walk'){p.mvx=p.mvz=0;}}
@@ -10994,7 +11050,7 @@ function movePlayer(p,dt){
         const ex=p.pos.x-p.rideX,ez=p.pos.z-p.rideZ,cd=Math.cos(d),sd=Math.sin(d);p.pos.x=c.pos.x+ex*cd+ez*sd;p.pos.z=c.pos.z-ex*sd+ez*cd;p.heading+=d;if(p.cam)p.cam.yaw+=d;p.pos.y=c.isPlane||c.isBoat?c.top:Math.max(p.pos.y,c.isTrain?c.top:c.pos.y+1.1*ES);
         // (going down a ramp the roof sinks away under you: you stay on it, you don't fall behind)
         if(!c.isTrain&&p.vy<=0.01){const ct=carTop(p);if(ct&&ct.c===c&&ct.y<p.pos.y&&p.pos.y-ct.y<2.5)p.pos.y=ct.y;}}}
-    if(catchRide&&p.vy<-16&&p.rideC!==c&&!DT.gob){damageCar(c,Math.round(-p.vy*0.5));clang();p.vy=-1;}   // (it still takes the landing, once)
+    if(catchRide&&p.vy<-16&&p.rideC!==c&&!DT.gob){damageCar(c,Math.round(-p.vy*0.5));sfx('Lands on a vehicle',()=>{clang();});p.vy=-1;}   // (it still takes the landing, once)
     p.rideC=c;p.rideX=c.pos.x;p.rideZ=c.pos.z;p.rideH=c.heading;}else p.rideC=null;
   for(const o of players){if(o===p||!o.active||o.state==='dead')continue;const dx=p.pos.x-o.pos.x,dz=p.pos.z-o.pos.z,d=Math.hypot(dx,dz),gap=DT.gob?0.9:2.4;if(d<gap&&d>0.001)shove(p,dx/d*(gap-d)*0.5,dz/d*(gap-d)*0.5);}
   let g=p.state==='climb'||p.state==='piv'||p.state==='ceil'?null:footprint(p);   // clinging to a wall: no gravity
@@ -11003,7 +11059,7 @@ function movePlayer(p,dt){
   if(p.spawnSnap){if(g!==null&&chunks.has(ckey(Math.floor(p.pos.x/CS),Math.floor(p.pos.z/CS)))){if(g<p.pos.y)p.pos.y=g;p.spawnSnap=false;}p.vy=0;p.peakY=p.pos.y;}
   // in deep water: you sink slowly, can paddle up with jump, and the water breaks any fall
   const wet=get(Math.floor(p.pos.x),Math.floor(p.pos.y+0.6),Math.floor(p.pos.z))===WATER;
-  if(wet&&!p.wet){puff(p.pos.x,p.pos.y+0.8,p.pos.z,12,0xcfe8ff,1.2);noise(0.4,0.35,900,'lowpass');tone('sine',300,120,0.25,0.06);}
+  if(wet&&!p.wet){puff(p.pos.x,p.pos.y+0.8,p.pos.z,12,0xcfe8ff,1.2);sfx('Splash',()=>{noise(0.4,0.35,900,'lowpass');tone('sine',300,120,0.25,0.06);});}
   p.wet=wet;if(wet){p.peakY=p.pos.y;p.airJumps=airJumpsMax();p.airDash=true;}   // (the air dash comes back in the water, but can't be used until he's out of it)
   if(g!==null){
     if(DT.fly&&p.state==='walk'&&!wet&&(p.pos.y>g+0.01||p.in.jump)){
@@ -11029,10 +11085,10 @@ function movePlayer(p,dt){
       }
       if(p.pos.y<g){
         // landing on a car from a real height dents it (a jump on to one just lands you on it, to ride)
-        if(!DT.gob&&p.standCar&&p.vy<-16&&p.state!=='pound'){damageCar(p.standCar,Math.round(-p.vy*0.5));clang();p.standCar.hurt=0.2;}
-        if(p.vy<-11){thud(0.4);p.shake=Math.max(p.shake,0.12);}
+        if(!DT.gob&&p.standCar&&p.vy<-16&&p.state!=='pound'){damageCar(p.standCar,Math.round(-p.vy*0.5));sfx('Lands on a vehicle',()=>{clang();});p.standCar.hurt=0.2;}
+        if(p.vy<-11){sfx('Hard landing',()=>{thud(0.4);});p.shake=Math.max(p.shake,0.12);}
         if(p.vy<-3)p.landT=0.22;p.pos.y=g;p.vy=0;p.grounded=true;
-        if(p.longJump){p.longJump=false;p.blastJ=false;thud(0.3);puff(p.pos.x,p.pos.y,p.pos.z,8,0x9a948a,0.6);}
+        if(p.longJump){p.longJump=false;p.blastJ=false;sfx('Long jump lands',()=>{thud(0.3);});puff(p.pos.x,p.pos.y,p.pos.z,8,0x9a948a,0.6);}
         const drop=(p.peakY??g)-g;
         if(p.state==='pound'){if(p.pHover){p.pHover=false;p.poundLvl=stompLevelOf(p.stompCharge);}fallImpact(p,Math.max(0,drop)+POUND_BONUS[p.poundLvl||0],true,p.poundLvl||0);p.poundLvl=0;p.state='poundLand';p.t=0;p.landT=0;}
         else if(drop>=5){if(ABIL.crash&&!(p.standCar&&p.standCar.T&&p.standCar.T.isRide))fallImpact(p,drop,false);   // (a ride's car takes it: a crash landing would blow up the track under it, and derail what he's just landed on)
@@ -11126,7 +11182,7 @@ function movePlayer(p,dt){
   if(p.rocketWas&&!p.rocket){if(p.state!=='dead'){const hx=Math.sin(p.heading),hz=Math.cos(p.heading);
       for(const [fx,fz] of [[-0.5,0.8],[0.5,0.8],[-0.5,-0.8],[0.5,-0.8]])smoke(p.pos.x+(hz*fx+hx*fz)*ES,p.pos.y-0.1,p.pos.z+(-hx*fx+hz*fz)*ES,3,0x8f8b84);
       puff(p.pos.x,p.pos.y,p.pos.z,6,0xa8a49c,0.5);
-      noise(0.45,0.07,2600,'highpass');tone('sine',520,140,0.32,0.035);tone('square',180,60,0.18,0.015,0.05);}}
+      sfx('Rocket boost fizzles out',()=>{noise(0.45,0.07,2600,'highpass');tone('sine',520,140,0.32,0.035);tone('square',180,60,0.18,0.015,0.05);});}}
   p.rocketWas=!!p.rocket;
   // long jump: stretched out flat like a flying hippo, front legs reaching, back legs trailing
   if(p.longJump&&!p.grounded&&p.state==='walk'){
@@ -11318,7 +11374,7 @@ function movePlayer(p,dt){
   else if(p.vb&&p.state!=='climb')poseVBlend(p,dt);
   else{p.vb=null;p.rootQ=qAx(0,1,0,p.root.rotation.y);p.rootP=[p.root.position.x,p.root.position.y,p.root.position.z];}
   // footfalls: only when a foot actually comes down on something (walking on the ground or a car roof, or crawling on a wall or ceiling; never mid-jump)
-  if(!DT.gob&&moving&&p.grounded&&(p.state==='walk'||p.state==='climb'||p.state==='ceil')&&Math.sign(sn)!==Math.sign(p.lastSin)){p.shake=Math.max(p.shake,0.04);thud(0.1);}
+  if(!DT.gob&&moving&&p.grounded&&(p.state==='walk'||p.state==='climb'||p.state==='ceil')&&Math.sign(sn)!==Math.sign(p.lastSin)){p.shake=Math.max(p.shake,0.04);sfx('Footstep',()=>{thud(0.1);});}
   p.lastSin=sn;
 }
 
@@ -14476,12 +14532,12 @@ const sbxCells=cells=>{const h=SBX&&SBX.hits[SBX.hits.length-1];if(h&&h.kind==='
 // game speed and free cam
 const SPEEDS=[0.05,0.1,0.25,0.5,0.75,0.9,1,1.25,1.5,2];
 const PSPEEDS=[1,1.5,2,2.5,3,4,5,6,7,8,9,10];
-const DT={hpBars:false,dmgNums:false,fps:false,curve:2,psI:0,invuln:false,infStam:false,fly:false,gob:false,peace:false,speedI:6,paused:false,freecam:false,step:false,quick:true,menu:false,kbdOpen:false,selHeld:false,cur:0,navDir:0,navT:0};
+const DT={hpBars:false,dmgNums:false,fps:false,sndList:false,curve:2,psI:0,invuln:false,infStam:false,fly:false,gob:false,peace:false,speedI:6,paused:false,freecam:false,step:false,quick:true,menu:false,kbdOpen:false,selHeld:false,cur:0,navDir:0,navT:0};
 try{const q=JSON.parse(localStorage.getItem('goblin-stompin-gus-quickdbg')||'null');if(typeof q==='boolean')DT.quick=q;}catch(e){}
-try{for(const k of ['fps','hpBars','dmgNums'])DT[k]=localStorage.getItem('goblin-stompin-gus-'+k)==='1';}catch(e){}
+try{for(const k of ['fps','hpBars','dmgNums','sndList'])DT[k]=localStorage.getItem('goblin-stompin-gus-'+k)==='1';}catch(e){}
 // the debug settings carry over from one session to the next (all but stopping time and the free cam, which would
 // only be confusing to come back to)
-const DT_KEY='goblin-stompin-gus-debug',DT_SAVED=['curve','psI','speedI','invuln','infStam','fly','fps','hpBars','dmgNums','quick'];
+const DT_KEY='goblin-stompin-gus-debug',DT_SAVED=['curve','psI','speedI','invuln','infStam','fly','fps','hpBars','dmgNums','sndList','quick'];
 try{const q=JSON.parse(localStorage.getItem(DT_KEY)||'null');if(q&&typeof q==='object')for(const k of DT_SAVED)if(typeof q[k]===typeof DT[k])DT[k]=q[k];
   if(!(DT.speedI>=0&&DT.speedI<SPEEDS.length))DT.speedI=SPEEDS.indexOf(1);if(!(DT.psI>=0&&DT.psI<PSPEEDS.length))DT.psI=0;}catch(e){}
 function saveDT(){try{const o={};for(const k of DT_SAVED)o[k]=DT[k];localStorage.setItem(DT_KEY,JSON.stringify(o));
@@ -14525,7 +14581,7 @@ const DBG_COLS=4,DBG_SECS=[
   [0,'Camera',[{k:'freecam',label:'Free cam'},{k:'curve',label:'World curve'}]],
   [0,'World',[{k:'wx',label:'Weather'},{k:'season',label:'Season'}]],
   [1,'Player',[{k:'pspeed',label:'Player speed'},{k:'invuln',label:'Invulnerable'},{k:'infStam',label:'Infinite stamina'},{k:'fly',label:'Flying'},{k:'gob',label:'Play as a goblin'},{k:'peace',label:'Enemy hostility'}]],
-  [1,'Overlays',[{k:'fps',label:'FPS counter'},{k:'hpBars',label:'Health bars'},{k:'dmgNums',label:'Damage numbers'}]],
+  [1,'Overlays',[{k:'fps',label:'FPS counter'},{k:'hpBars',label:'Health bars'},{k:'dmgNums',label:'Damage numbers'},{k:'sndList',label:'Sound list'}]],
   [2,'Rendering',[{k:'gProps',label:'Props'},{k:'gFixtures',label:'Fixtures'},{k:'gCaves',label:'Caves'},{k:'gSewers',label:'Sewers'},{k:'gSubway',label:'Subways'}]],
   [2,'Hitboxes',[{k:'show',label:'Display hitboxes'},
     {k:'pBlock',label:'Player block hitboxes',col:'#ff9a2a'},{k:'nBlock',label:'NPC block hitboxes',col:'#e8d040'},
@@ -14545,7 +14601,7 @@ function toggleGfx(k){const g=GFX_KEY[k],off=GFX_OFF[g]=!GFX_OFF[g];
   const P=P1.pos,d=e=>Math.hypot(e.cx*CS-P.x,e.cz*CS-P.z);
   leafQ.length=0;for(const e of [...meshes.values()].sort((a,b)=>d(b)-d(a)))leafQ.push(ckey(e.cx,e.cz));}
 const curveTxt=()=>DT.curve===0?'Flat':DT.curve>0?'Down '+DT.curve:'Up '+(-DT.curve);
-function dbgVal(k){return isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='peace'?!DT.peace:k==='paused'||k==='freecam'||k==='invuln'||k==='infStam'||k==='fly'||k==='gob'||k==='fps'||k==='hpBars'||k==='dmgNums'?DT[k]:DBG[k];}
+function dbgVal(k){return isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='peace'?!DT.peace:k==='paused'||k==='freecam'||k==='invuln'||k==='infStam'||k==='fly'||k==='gob'||k==='fps'||k==='hpBars'||k==='dmgNums'||k==='sndList'?DT[k]:DBG[k];}
 // the rows on show: the individual hitbox switches only while 'Display hitboxes' is on
 function dbgItems(){const L=DBG_ITEMS.filter(it=>!it.col||DBG.show);if(DT.cur>=L.length)DT.cur=L.length-1;return L;}
 // step a slider row (game speed or player speed) left or right
@@ -14576,7 +14632,7 @@ function dbgMenuToggle(){const it=dbgItems()[DT.cur];
   else if(it.k==='gob')setGob(!DT.gob);
   else if(it.k==='paused')DT.paused=!DT.paused;
   else if(it.k==='pspeed')DT.psI=0;
-  else if(it.k==='invuln'||it.k==='peace'||it.k==='infStam'||it.k==='fly'||it.k==='fps'||it.k==='hpBars'||it.k==='dmgNums'){DT[it.k]=!DT[it.k];try{localStorage.setItem('goblin-stompin-gus-'+it.k,DT[it.k]?'1':'0');}catch(e){}}
+  else if(it.k==='invuln'||it.k==='peace'||it.k==='infStam'||it.k==='fly'||it.k==='fps'||it.k==='hpBars'||it.k==='dmgNums'||it.k==='sndList'){DT[it.k]=!DT[it.k];try{localStorage.setItem('goblin-stompin-gus-'+it.k,DT[it.k]?'1':'0');}catch(e){}}
   else{DBG[it.k]=!DBG[it.k];renderDbg();try{localStorage.setItem(DBG_KEY,JSON.stringify(DBG));}catch(e){}}
   tone('triangle',620,0,0.05,0.03);renderTime();}
 // up/down move the highlight within its column; left/right change a slider or a choice (on that row), and on any other
@@ -14652,7 +14708,7 @@ function renderTime(){
 for(const b of document.querySelectorAll('#dbgMenuTog .tog'))b.addEventListener('click',()=>{DT.quick=!DT.quick;if(!DT.quick){DT.kbdOpen=false;DT.menu=false;}try{localStorage.setItem('goblin-stompin-gus-quickdbg',JSON.stringify(DT.quick));}catch(e){}renderTime();tone('triangle',DT.quick?660:440,0,0.05,0.03);});
 for(const b of document.querySelectorAll('#dbgGfx .tog'))b.addEventListener('click',()=>{toggleGfx(b.dataset.k);renderTime();tone('triangle',GFX_OFF[GFX_KEY[b.dataset.k]]?440:660,0,0.05,0.03);});
 for(const b of document.querySelectorAll('#dbgUi .tog'))b.addEventListener('click',()=>{toggleUi(b.dataset.k);renderTime();tone('triangle',uiVal(b.dataset.k)?660:440,0,0.05,0.03);});
-for(const b of document.querySelectorAll('#dbgTime .tog,#dbgOverlays .tog'))b.addEventListener('click',()=>{const k=b.dataset.k;if(k==='freecam')setFreecam(!DT.freecam);else{DT[k]=!DT[k];if(k==='fps'||k==='hpBars'||k==='dmgNums')try{localStorage.setItem('goblin-stompin-gus-'+k,DT[k]?'1':'0');}catch(e){}renderTime();}tone('triangle',DT[k]?660:440,0,0.05,0.03);});
+for(const b of document.querySelectorAll('#dbgTime .tog,#dbgOverlays .tog'))b.addEventListener('click',()=>{const k=b.dataset.k;if(k==='freecam')setFreecam(!DT.freecam);else{DT[k]=!DT[k];if(k==='fps'||k==='hpBars'||k==='dmgNums'||k==='sndList')try{localStorage.setItem('goblin-stompin-gus-'+k,DT[k]?'1':'0');}catch(e){}renderTime();}tone('triangle',DT[k]?660:440,0,0.05,0.03);});
 document.getElementById('gameSpeed').addEventListener('input',e=>{DT.speedI=+e.target.value;renderTime();});
 document.getElementById('playerSpeed').addEventListener('input',e=>{DT.psI=+e.target.value;renderTime();});
 document.getElementById('worldCurve').addEventListener('input',e=>{DT.curve=+e.target.value;renderTime();});
@@ -18396,7 +18452,7 @@ function updateCars(dt){
     if(c.police){const on=Math.floor(clock*6.5)%2===0,lit=c.hunter||c.pullLit||(c.svcPool&&c.svc&&c.svc.st!=='parked'&&c.svc.st!=='leave');c.lightR.color.setHex(lit?(on?0xff2a2a:0x501010):0x401010);c.lightB.color.setHex(lit?(on?0x101a50:0x3a7aff):0x101a40);}
     if(c.hazard){const on=Math.floor(clock*1.7)%2===0;c.hazM.color.setHex(on?0xffa024:0x3a2408);}
     if(c.flash&&c.svcPool){const on=Math.floor(clock*5.5)%2===0&&c.svc&&c.svc.st!=='parked';c.flash[0].color.setHex(on?0xff2a2a:0x501010);c.flash[1].color.setHex(on?0x303030:(c.svcPool==='amb'?0xffffff:0x3a7aff));}
-    if(!c.police&&!c.parkPool&&!c.hwPool&&!c.hunter&&!c.hw&&!c.rt&&!c.path&&!calmNow()&&playing&&tgt&&tgt.d<22&&hunters<2&&Math.random()<dt*0.07){c.hunter=true;hunters++;flashLabel('A car is coming for you',tgt.p);horn(0.08);}
+    if(!c.police&&!c.parkPool&&!c.hwPool&&!c.hunter&&!c.hw&&!c.rt&&!c.path&&!calmNow()&&playing&&tgt&&tgt.d<22&&hunters<2&&Math.random()<dt*0.07){c.hunter=true;hunters++;flashLabel('A car is coming for you',tgt.p);sfx('A car comes for you (horn)',()=>{horn(0.08);});}
     if(c.hunter&&!tgt)c.hunter=false;
     // a highway car that's come down into town drives the streets for a while, then slips away once nobody's looking
     if(c.leaving&&c.hwPool&&!c.drv){c.leaveT=(c.leaveT||0)+dt;if(c.leaveT>14&&!visibleToAny(c.pos.x,c.pos.y+1,c.pos.z)&&!players.some(q=>q.standCar===c)){c.alive=false;c.g.visible=false;c.respawnT=0.5;c.leaving=false;c.leaveT=0;continue;}}
@@ -18474,7 +18530,7 @@ function updateCars(dt){
           else if(toEnd>320&&fromStart>160&&!T.split){T.split=true;if(Math.random()<0.4)T.lane=4.5;}}
         c.jamT=Math.abs(c.speed)<0.3?(c.jamT||0)+dt:0;if(c.jamT>8)c.jamT=0;
         if(c.jamT<6.5)for(const o of cars){if(o===c||!o.alive)continue;const ox=o.pos.x-c.pos.x,oz=o.pos.z-c.pos.z;if(Math.abs(ox)+Math.abs(oz)>60)continue;const along=ox*sh+oz*ch,lat=Math.abs(ox*ch-oz*sh);if(along>0&&along<30+c.hz+o.hz&&lat<1.8&&Math.abs(o.pos.y-c.pos.y)<2){const ga=along-(c.hz+o.hz-3.2);target=Math.min(target,ga<7?0:Math.max(0,o.speed*Math.cos(o.heading-c.heading))+(ga-9)*0.9);}}
-        if(tgt){const ox=tgt.p.pos.x-c.pos.x,oz=tgt.p.pos.z-c.pos.z,along=ox*sh+oz*ch,lat=Math.abs(ox*ch-oz*sh);if(along>0&&along<14&&lat<2.4&&Math.abs(tgt.p.pos.y-c.pos.y)<2.5&&c.honkT<=0){horn(0.07);c.honkT=2;}}
+        if(tgt){const ox=tgt.p.pos.x-c.pos.x,oz=tgt.p.pos.z-c.pos.z,along=ox*sh+oz*ch,lat=Math.abs(ox*ch-oz*sh);if(along>0&&along<14&&lat<2.4&&Math.abs(tgt.p.pos.y-c.pos.y)<2.5&&c.honkT<=0){sfx('Car horn',()=>{horn(0.07);});c.honkT=2;}}
         if(c.grounded){if(target<c.speed)c.speed=Math.max(target,c.speed-20*dt);else c.speed+=(target-c.speed)*Math.min(1,dt*0.8);}
       } else c.speed*=Math.exp(-dt*1.5);
     }
@@ -18507,7 +18563,7 @@ function updateCars(dt){
         let target=sloped?14:19;const sh=Math.sin(c.heading),ch=Math.cos(c.heading);
         c.jamT=Math.abs(c.speed)<0.3?(c.jamT||0)+dt:0;if(c.jamT>8)c.jamT=0;
         if(c.jamT<6.5)for(const o of cars){if(o===c||!o.alive)continue;const ox=o.pos.x-c.pos.x,oz=o.pos.z-c.pos.z,along=(H.ax==='x'?ox:oz)*H.dir,lat=Math.abs(H.ax==='x'?oz:ox);if(along>0&&along<30+c.hz+o.hz&&lat<1.8&&Math.abs(o.pos.y-c.pos.y)<2){const ga=along-(c.hz+o.hz-3.2);target=Math.min(target,ga<7?0:Math.max(0,o.speed*Math.cos(o.heading-c.heading))+(ga-9)*0.9);}}
-        if(tgt){const ox=tgt.p.pos.x-c.pos.x,oz=tgt.p.pos.z-c.pos.z,along=ox*sh+oz*ch,lat=Math.abs(ox*ch-oz*sh);if(along>0&&along<14&&lat<2.4&&Math.abs(tgt.p.pos.y-c.pos.y)<2.5&&c.honkT<=0){horn(0.07);c.honkT=2;}}
+        if(tgt){const ox=tgt.p.pos.x-c.pos.x,oz=tgt.p.pos.z-c.pos.z,along=ox*sh+oz*ch,lat=Math.abs(ox*ch-oz*sh);if(along>0&&along<14&&lat<2.4&&Math.abs(tgt.p.pos.y-c.pos.y)<2.5&&c.honkT<=0){sfx('Car horn',()=>{horn(0.07);});c.honkT=2;}}
         // coming up to an interchange: sometimes take the off-ramp (decided once per interchange)
         if(!H.ground){const a=H.ax==='x'?c.pos.x:c.pos.z,k=Math.round((H.ax==='x'?H.lane-8.5:H.lane+0.5)/CELL),side=H.ax==='x'?(H.dir>0?1:-1):(H.dir>0?-1:1),m=Math.floor((a+H.dir*20)/CELL),m0=icOf(H.ax,Math.floor((H.ax==='x'?c.pos.z:c.pos.x)/CELL+0.2),m);
          if(m0!==null){const kk=Math.floor((H.ax==='x'?c.pos.z:c.pos.x)/CELL+0.2),R=icRoutes(H.ax,kk,m0,side),key=H.ax+kk+','+m0;
@@ -18620,7 +18676,7 @@ function updateCars(dt){
         // pulling away at full speed, meant a queue could never get going again before the lights changed)
         target=Math.min(target,ga<4?0:Math.max(3,Math.max(0,o.speed*Math.cos(o.heading-c.heading))+(ga-4)*0.8));}}
       target=Math.min(target,trafficLimit(c,dt));if(c.inRound)target=Math.min(target,5);if(c.yieldSv)target=Math.min(target,0.6);
-      if(tgt&&c.honkT<=0){const ox=tgt.p.pos.x-c.pos.x,oz=tgt.p.pos.z-c.pos.z,along=ox*sh+oz*ch,lat=Math.abs(ox*ch-oz*sh);if(along>0&&along<12&&lat<2.5){horn(0.05);c.honkT=2.5;}}
+      if(tgt&&c.honkT<=0){const ox=tgt.p.pos.x-c.pos.x,oz=tgt.p.pos.z-c.pos.z,along=ox*sh+oz*ch,lat=Math.abs(ox*ch-oz*sh);if(along>0&&along<12&&lat<2.5){sfx('Car horn',()=>{horn(0.05);});c.honkT=2.5;}}
       // brake firmly (up to 10 u/s^2) so cars actually stop where they mean to; pull away gently
       // (rolling off the foot of a ramp it's barely ever 'grounded' between the little steps: without this a long truck can only coast, at a crawl, and holds everyone up)
       if(c.grounded||rampUnder(c.pos.x,c.pos.z,c.pos.y+0.5)){if(target<c.speed)c.speed=Math.max(target,c.speed-10*dt);else c.speed+=(target-c.speed)*Math.min(1,dt*1.5);}
@@ -18642,26 +18698,26 @@ function updateCars(dt){
           const ph=Math.sin(c.holeT*7.5),push=Math.max(0,ph);
           c.pos.x+=fx*ph*1.1*dir*dt;c.pos.z+=fz*ph*1.1*dir*dt;c.spinP=-ph*0.9*dir;c.speed=Math.max(Math.abs(c.speed),1)*Math.sign(c.speed||1);
           if(push>0.6&&Math.random()<dt*14)puff(c.pos.x-fx*dir*(c.hz||1.6),c.pos.y+0.2,c.pos.z-fz*dir*(c.hz||1.6),2,0x6e5a42,0.7);   // dirt flung out behind
-          if(Math.random()<dt*1.6){const np=nearestPlayer(c.pos.x,c.pos.z,false);if(np&&np.d<36){const v=0.05*(1-np.d/36);tone('sawtooth',70,120+Math.random()*40,0.45,v);noise(0.35,v*0.8,500,'lowpass');}}
+          if(Math.random()<dt*1.6){const np=nearestPlayer(c.pos.x,c.pos.z,false);if(np&&np.d<36){const v=0.05*(1-np.d/36);sfx('Wheels spinning',()=>{tone('sawtooth',70,120+Math.random()*40,0.45,v);noise(0.35,v*0.8,500,'lowpass');});}}
         } else {
           c.pos.y=ahead+0.05;c.vy=3.2;c.grounded=false;c.spinP=-1.6*dir;c.holeT=0;c.holeNeed=0;
           c.pos.x+=fx*1.4*dir;c.pos.z+=fz*1.4*dir;c.speed=Math.max(Math.abs(c.speed),3)*Math.sign(c.speed||1);
           puff(c.pos.x-fx*dir*(c.hz||1.6),c.pos.y,c.pos.z-fz*dir*(c.hz||1.6),7,0x6e5a42,1.1);
-          {const np=nearestPlayer(c.pos.x,c.pos.z,false);if(np&&np.d<36)thud(0.15*(1-np.d/36));}
+          {const np=nearestPlayer(c.pos.x,c.pos.z,false);if(np&&np.d<36)sfx('Vehicle lurches free',()=>{thud(0.15*(1-np.d/36));});}
         }
       }
       else if((c.drv||c.hunter)&&c.grounded&&ahead-c.pos.y>rampLim&&ahead-c.pos.y<=1.05&&Math.abs(c.speed)>1&&!solidAt(c.pos.x+fx*2.1*dir,Math.floor(ahead)+1,c.pos.z+fz*2.1*dir)&&!solidAt(c.pos.x+fx*2.1*dir,Math.floor(ahead)+2,c.pos.z+fz*2.1*dir)){
         c.pos.y=ahead+0.02;c.vy=0;c.stepT=Math.min(3,(c.hz*2+1)/Math.max(1,Math.abs(c.speed))+0.2);c.speed*=0.85;c.pos.x+=fx*c.speed*dt;c.pos.z+=fz*c.speed*dt;c.spinP=-0.8*dir;   // (up a kerb or a step, as a goblin steps up one: a jolt up onto it, and carPhysics settles it)
-        {const np=nearestPlayer(c.pos.x,c.pos.z,false);if(np&&np.d<36)thud(0.12*(1-np.d/36));}
+        {const np=nearestPlayer(c.pos.x,c.pos.z,false);if(np&&np.d<36)sfx('Vehicle bumps up a kerb',()=>{thud(0.12*(1-np.d/36));});}
       }
       else if(ahead-c.pos.y>rampLim){
         // (into a wall fast enough, and it smashes a hole in it, wrecking its own front and losing most of its speed;
         // the bigger the vehicle and the faster, the bigger the hole; slower than that, it bounces off)
         if((c.hunter||c.drv)&&Math.abs(c.speed)>13){const sp=Math.abs(c.speed),k=Math.min(1,(sp-13)/15),big=c.hz>3*ES?1.35:c.veh==='bike'?0.7:1,R=(1.5+k*1.4)*big,
             ix=c.pos.x+fx*2.7*dir,iz=c.pos.z+fz*2.7*dir,iy=c.pos.y+Math.min(R*0.9,(c.hy||1.4)*0.6)+0.1;
-          crushBall(ix,iy,iz,R,{force:0.8+k});damageCar(c,4+sp*0.4,undefined,'acc');thud(0.7);clang();addShake(0.4+k*0.5,ix,iz,25);smoke(ix,iy,iz,6,0x9a948a);
+          crushBall(ix,iy,iz,R,{force:0.8+k});damageCar(c,4+sp*0.4,undefined,'acc');sfx('Vehicle crashes into a wall',()=>{thud(0.7);clang();});addShake(0.4+k*0.5,ix,iz,25);smoke(ix,iy,iz,6,0x9a948a);
           c.speed*=0.35;}
-        else if(c.hunter||c.drv){if(Math.abs(c.speed)>6){damageCar(c,1,undefined,'acc');thud(0.25);}c.speed*=-0.25;if(c.reverseT<=0)c.reverseT=0.8;}
+        else if(c.hunter||c.drv){if(Math.abs(c.speed)>6){damageCar(c,1,undefined,'acc');sfx('Vehicle bumps a wall',()=>{thud(0.25);});}c.speed*=-0.25;if(c.reverseT<=0)c.reverseT=0.8;}
         else if(c.path){const W=c.path[0],d=Math.hypot(W.x-c.pos.x,W.z-c.pos.z)||1;c.speed=Math.min(c.speed,1);nudgeFlat(c,(W.x-c.pos.x)/d*2*dt,(W.z-c.pos.z)/d*2*dt);
           // wedged against a barrier just after peeling off the motorway: give up on the exit and carry on along the motorway
           c.pathBlk=(c.pathBlk||0)+dt;if(c.pathBlk>1.5&&c.prevHw&&Math.abs(c.pos.y-c.prevHw.y)<1.2){c.hw=c.prevHw;c.prevHw=null;c.path=null;c.pathBlk=0;}}
@@ -18677,7 +18733,7 @@ function updateCars(dt){
         const fast=Math.abs(c.speed)>9;
         damagePlayer(q,fast?4:2,new V3(q.pos.x,q.pos.y+1.3,q.pos.z),new V3(fx*dir,0.3,fz*dir),fast?'Run down':'Hit by traffic',c.driver);
         shove(q,fx*dir*1.4,fz*dir*1.4);
-        c.speed*=-0.3;c.reverseT=0.9;c.ramCD=1.2;thud(0.8);clang();addShake(0.4,q.pos.x,q.pos.z,10);
+        c.speed*=-0.3;c.reverseT=0.9;c.ramCD=1.2;sfx('Vehicle rams a hippo',()=>{thud(0.8);clang();});addShake(0.4,q.pos.x,q.pos.z,10);
         flashLabel(fast?'Run down':'Hit by traffic',q);
         damageCar(c,2,undefined,'acc');
       }
@@ -18689,7 +18745,7 @@ function updateCars(dt){
       for(const gb of goblins){if(gb.state!=='chase'||gb.hp<=0||gb.trainT>0||!gb.root.visible)continue;const ex=gb.pos.x-c.pos.x,ez=gb.pos.z-c.pos.z;if(ex>R||ex<-R||ez>R||ez<-R||!carHitsGoblin(c,gb))continue;
         const k=Math.min(1,sp/24),sg=(ex*fz-ez*fx)>=0?1:-1,D=new V3(fx*dir*0.8+fz*sg*0.5,0,fz*dir*0.8-fx*sg*0.5);gb.trainT=1;
         damageGoblin(gb,Math.round(2+8*k),new V3(gb.pos.x,gb.pos.y+0.8,gb.pos.z),D,'Run over',c.driver||ACCIDENT);gb.vy=Math.max(gb.vy||0,5+8*k);gb.kv.x+=D.x*(6+14*k);gb.kv.z+=D.z*(6+14*k);
-        c.speed*=0.6;thud(0.3);}}
+        c.speed*=0.6;sfx('Vehicle runs a goblin over',()=>{thud(0.3);});}}
     if(c.hp<15){c.smokeT-=dt;if(c.smokeT<=0){c.smokeT=c.hp<8?0.06:0.15;const hx=c.pos.x+fx*1.5,hz=c.pos.z+fz*1.5;smoke(hx,c.pos.y+1.1,hz,1,c.hp<8?0x1a1a1a:0x666666);if(c.hp<8)puff(hx,c.pos.y+0.9,hz,1,Math.random()<.5?0xff8a2a:0xffc040,0.25);}}
     carPhysics(c,dt);if(!c.alive)continue;
     if(Math.abs(c.kv.x)+Math.abs(c.kv.z)>0.05){nudgeFlat(c,c.kv.x*dt,c.kv.z*dt);const k=Math.exp(-dt*3.5);c.kv.x*=k;c.kv.z*=k;}
@@ -18703,7 +18759,7 @@ function updateCars(dt){
     if(d<a.hz+b.hz+0.5&&d>0.001&&Math.abs(b.pos.y-a.pos.y)<1.6&&boxesTouch(a.pos.x,a.pos.z,a.heading,a.hx+0.15,a.hz+0.15,b.pos.x,b.pos.z,b.heading,b.hx+0.15,b.hz+0.15)){const push=0.25,ux=dx/d,uz=dz/d;nudgeFlat(a,-ux*push,-uz*push);nudgeFlat(b,ux*push,uz*push);
       const rel=Math.abs(a.speed-b.speed*(Math.cos(a.heading-b.heading)));
       // (a news van's on the road the longest, nobody gives way to it, and a bump's no story: it takes these lightly)
-      if(rel>5){if(a.svcPool!=='news'&&b.svcPool!=='news')reportNews(a.pos.x,a.pos.z,'car crash');damageCar(a,a.svcPool==='news'?1:4,undefined,'acc');damageCar(b,b.svcPool==='news'?1:4,undefined,'acc');clang();thud(0.4);addShake(0.2,a.pos.x,a.pos.z,15);}
+      if(rel>5){if(a.svcPool!=='news'&&b.svcPool!=='news')reportNews(a.pos.x,a.pos.z,'car crash');damageCar(a,a.svcPool==='news'?1:4,undefined,'acc');damageCar(b,b.svcPool==='news'?1:4,undefined,'acc');sfx('Vehicles collide',()=>{clang();thud(0.4);});addShake(0.2,a.pos.x,a.pos.z,15);}
       a.speed*=0.5;b.speed*=0.5;}}}
 }
 function updateSiren(dt){
@@ -19586,7 +19642,7 @@ function warmShaders(){
 function frame(now){
   if(warmT<2&&++warmT===2)warmShaders();
   madeNow=0;
-  fpsTick((now-last)/1000);
+  fpsTick((now-last)/1000);safe('sound list',sndTick);
   frameMs+=(Math.min(100,Math.max(0,now-last))-frameMs)*0.05;   // (how long frames have been taking lately)
   const dt=Math.max(0,Math.min(0.06,(now-last)/1000));last=now;   // (never below 0: a long boot can hand the first frame a timestamp older than last, and negative time winds timers up, which queued a stomp nobody pressed)
   if(menuOpen)obitPreviewTick(dt);

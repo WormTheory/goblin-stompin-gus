@@ -86,6 +86,7 @@ function wxAudio(){
   if(!WXA.rain)return;const t=audio.currentTime,on=playing?1:0,P=players.find(p=>p.active),inside=COVERS[0].under;
   WXA.rain.g.gain.setTargetAtTime(on*WX.k.rain*(inside?0.025:0.07),t,0.4);
   WXA.wind.g.gain.setTargetAtTime(on*Math.max(0,WX.k.wind-0.5)*0.03,t,0.6);
+  if(DT.sndList&&on){if(WX.k.rain>0.02)sndNote(0.1,inside?'Rain (under cover)':'Rain');if(WX.k.wind>0.52)sndNote(0.1,'Wind');}
   WXA.wind.fl.frequency.setTargetAtTime(260+Math.sin(t*0.7)*90+WX.k.wind*60,t,0.5);
 }
 // winter: the top layer of every pond, river and fountain freezes to ice (loaded chunks are converted and re-meshed a
