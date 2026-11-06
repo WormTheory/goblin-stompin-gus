@@ -99,7 +99,8 @@ if(!TENVMODE){
 }else{
 // ---- the military base (Testing Environment)
 const spawnK=k=>{T.tenvSpawn(k);let n=0;while(T.TS.search&&n<5000){T.tenvTick();n++;}return T.TENV.boxes[T.TENV.boxes.length-1];};
-{const B=spawnK('base');run(3);const V=[...T.venues.values()].find(v=>v.kind==='army');
+{T.DT.host=1;   // (enemy hostility at Peaceful: walking into the base would set it off now that a goblin gets no special treatment, and this is about driving, not the alarm)
+const B=spawnK('base');run(3);const V=[...T.venues.values()].find(v=>v.kind==='army');
  if(!V)console.log('no base');else{
   const M=V.mil.find(m=>m.kind==='tank');beside(M.x,M.y+0.2,M.z,M.h,1.6);run(0.05);tap();
   console.log(jackSay(M));
