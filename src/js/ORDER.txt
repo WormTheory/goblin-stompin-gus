@@ -37,6 +37,7 @@ player/pivots.js
 vehicles/driving.js
 vehicles/fight.js
 vehicles/carjack.js
+vehicles/hose.js
 player/move.js
 enemies/goblins.js
 ui/obituary.js

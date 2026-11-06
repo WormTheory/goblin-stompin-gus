@@ -8,7 +8,7 @@ hdr=hdr.slice(0,n).join('\n');
 // (site.js starts in the empty Testing Environment; the city half of this runs in a real city, and the other half is
 // run as a second process)
 if(!TENVMODE)hdr=hdr.replace(/const LS=\{\};global\.localStorage=.*\n/,'global.localStorage={getItem:()=>null,setItem(){},removeItem(){}};\n');
-hdr=hdr.replace(/window\.__t=\{/,'window.__t={setGob,setVeh,VEH_MIX,keys,mHeld,TRAINS,railPt,BOATS,boatVenue,oceanDepth,PLANE_LIFT,drvFind,setRaw,solidAt,vehBlast,get nEdits(){return Object.keys(edits).length},');
+hdr=hdr.replace(/window\.__t=\{/,'window.__t={setGob,setVeh,addFire,fires,VEH_MIX,keys,mHeld,TRAINS,railPt,BOATS,boatVenue,oceanDepth,PLANE_LIFT,drvFind,setRaw,solidAt,vehBlast,get nEdits(){return Object.keys(edits).length},');
 eval(hdr+`
 eval(src);const T=window.__t;let now=1000;
 const quiet=()=>{for(const g of T.goblins)if(g.state==='chase'&&!g.jackHow){g.state='wait';g.t=-1e9;g.root.visible=false;}};
@@ -29,6 +29,8 @@ const put=(x,y,z)=>{P.pos.set(x,y,z);P.vy=0;P.mvx=P.mvz=0;P.standCar=null;P.vcl=
 // beside a box (its middle x,z, heading h, half width hx): a little way off its left side
 const beside=(x,y,z,h,hx)=>put(x-Math.cos(h)*(hx+0.7),y,z+Math.sin(h)*(hx+0.7));
 const st=()=>P.drv?P.drv.k:'on foot';
+// (the driving display's text, its button pictures written out as [button])
+const hudT=v=>v==null?'':String(v).replace(/⟦([^⟧]*)⟧/g,(m,t)=>'['+t+']');
 T.DT.invuln=true;T.setGob(true);run(0.5);
 if(!TENVMODE){
 // near nothing: E does nothing
@@ -43,7 +45,7 @@ if(!TENVMODE){
   const x0=c.pos.x,z0=c.pos.z,h0=c.heading;hold(['KeyW'],2.5);const d=Math.hypot(c.pos.x-x0,c.pos.z-z0);
   console.log('  W 2.5 s: moved',f1(d),' speed',f1(c.speed),' still on the street (not recycled)',c.alive,' me with it',f1(Math.hypot(P.pos.x-c.pos.x,P.pos.z-c.pos.z)));
   hold(['KeyW','KeyD'],1);console.log('  W+D 1 s: heading turned',f1(c.heading-h0),'(right is negative)');
-  {const H=P.ui.drvHud;console.log('  display: shown',!!H&&!H.el.hidden,' crosshair',!!H&&!H.xh.hidden,' says',H&&H.name.textContent);}
+  {const H=P.ui.drvHud;console.log('  display: shown',!!H&&!H.el.hidden,' crosshair',!!H&&!H.xh.hidden,' says',H&&hudT(H.txt.n));}
   // (a one-block step on a slab built up in the air, so nothing else is in the way)
   {c.speed=0;run(0.3);const X=Math.floor(c.pos.x),Z=Math.floor(c.pos.z),Y=G0+16,made=[];
    for(let a=-6;a<=45;a++)for(let b=-4;b<=4;b++){T.setRaw(X+a,Y-1,Z+b,3);for(let y=Y;y<Y+6;y++)T.setRaw(X+a,y,Z+b,a>=8&&y===Y?3:0);made.push([X+a,Z+b]);}
@@ -68,10 +70,36 @@ if(!TENVMODE){
  if(!c)console.log('no car found');else{
   T.setVeh(c,'bike');c.speed=0;beside(c.pos.x,c.pos.y+0.2,c.pos.z,c.heading,c.hx);run(0.05);tap();
   console.log(jackSay(c.pos));
-  console.log('motorcycle: in',st(),' size',f1(c.hx*2),'x',f1(c.hz*2),' display says',P.ui.drvHud&&P.ui.drvHud.name.textContent);
+  console.log('motorcycle: in',st(),' size',f1(c.hx*2),'x',f1(c.hz*2),' display says',P.ui.drvHud&&hudT(P.ui.drvHud.txt.n));
   const x0=c.pos.x,z0=c.pos.z;hold(['KeyW'],2);console.log('  W 2 s: moved',f1(Math.hypot(c.pos.x-x0,c.pos.z-z0)),' speed',f1(c.speed));
+  {const K=P.gb;console.log('  me on it: shown',!!K&&K.root.visible,' sat',K?f1(K.root.position.y-c.pos.y):'-','up, ',K?f1(Math.hypot(K.root.position.x-c.pos.x,K.root.position.z-c.pos.z)):'-','from its middle  legs',K?f1(K.m.legs[0].rotation.x):'-');}
   T.keys.add('KeyW');T.keys.add('KeyA');run(0.6);console.log('  W+A: leaning',f1(c.g.rotation.z),'(left is negative)');T.keys.delete('KeyA');run(0.6);T.keys.delete('KeyW');
-  hold(['KeyS'],2);tap();run(0.5);console.log('  F again:',st(),' beside it',f1(Math.hypot(P.pos.x-c.pos.x,P.pos.z-c.pos.z)));}}
+  hold(['KeyS'],2);tap();run(0.5);console.log('  F again:',st(),' beside it',f1(Math.hypot(P.pos.x-c.pos.x,P.pos.z-c.pos.z)),' my goblin',P.gb&&P.gb.root.visible?'shown':'hidden','(first person)');}}
+
+// ---- a fire engine's water cannon (a traffic car made into one)
+{let c=null;for(let k=0;k<60&&!c;k++){run(0.5);c=T.cars.filter(c=>c.alive&&c.g.visible&&!c.svcPool&&!c.police&&!c.drv&&!c.left&&c.pos.y<G0+3&&Math.hypot(c.pos.x-P.pos.x,c.pos.z-P.pos.z)<90)[0];}
+ if(!c)console.log('no car found');else{
+  T.setVeh(c,'fire');c.speed=0;c.driver=null;c.dh.visible=false;beside(c.pos.x,c.pos.y+0.2,c.pos.z,c.heading,c.hx);run(0.05);tap();
+  {const H=P.ui.drvHud;console.log('fire engine: in',st(),' crosshair',!!H&&!H.xh.hidden,' says',H&&hudT(H.txt.w));}
+  // (where the water lands, with the view as it starts: there go a fire, a goblin and a car)
+  T.mHeld.add('Mouse0');run(0.3);const W=c.hose;T.mHeld.delete('Mouse0');run(0.3);
+  if(!W)console.log('  bite: no water');else{const ex=W.sx+W.dx,ez=W.sz+W.dz,ey=W.sy+W.dy;
+   console.log('  bite: water out to',f1(W.L),' lands',f1(Math.hypot(ex-c.pos.x,ez-c.pos.z)),'off');
+   T.addFire(ex,ey,ez,1.2,60);const F=T.fires[T.fires.length-1],t0=F.t;
+   T.mHeld.add('Mouse0');run(2);T.mHeld.delete('Mouse0');run(0.2);
+   console.log('  2 s on a fire: its time left',f1(t0),'->',F.t>0&&T.fires.includes(F)?f1(F.t):'out');
+   const g=T.goblins.find(o=>o.state==='wait'&&!o.civ&&!o.foeKind&&!o.cultist);
+   if(g){g.pos.set(ex,ey,ez);g.hp=g.hpMax=3;g.state='chase';g.root.visible=true;g.kv.set(0,0,0);g.stun=0;g.vy=0;g.jackHow='x';
+    const hp0=g.hp,x0=g.pos.x,z0=g.pos.z;T.mHeld.add('Mouse0');run(1);T.mHeld.delete('Mouse0');run(0.5);
+    const ux=W.dx/Math.hypot(W.dx,W.dz),uz=W.dz/Math.hypot(W.dx,W.dz);
+    console.log('  a goblin in the spray: pushed',f1((g.pos.x-x0)*ux+(g.pos.z-z0)*uz),'away  hp',hp0,'->',g.hp,' state',g.state);
+    g.state='wait';g.root.visible=false;g.jackHow=null;}
+   const o=T.cars.find(q=>q!==c&&q.alive&&q.g.visible&&!q.drv&&q.veh!=='fire');
+   if(o){const s0=[o.pos.x,o.pos.z,o.heading,o.hp];o.pos.set(ex+(W.dx/W.L)*1.5,ey,ez+(W.dz/W.L)*1.5);o.speed=0;o.kv.set(0,0,0);o.parked=true;o.hunter=false;const x0=o.pos.x,z0=o.pos.z,h0=o.hp;
+    T.mHeld.add('Mouse0');run(1.5);T.mHeld.delete('Mouse0');run(0.5);
+    console.log('  a '+o.veh+' in the spray: pushed',f1(Math.hypot(o.pos.x-x0,o.pos.z-z0)),' hp',h0,'->',o.hp);}
+   console.log('  nothing in the way: the engine itself',c.alive,' hp',c.hp);}
+  tap();run(0.3);console.log('  F again:',st());}}
 
 // ---- a train
 {let TQ=null;for(let r=0;r<40&&!TQ;r++){put(r*400,70,r*300);run(0.5);TQ=[...T.TRAINS.values()].find(q=>!q.dead)||null;}
@@ -80,7 +108,8 @@ if(!TENVMODE){
   TQ.v=0;TQ.wait=99;run(0.1);const g=TQ.cars[1];beside(g.position.x,G0+1.2,g.position.z,g.rotation.y,1.3);run(0.05);tap();
   console.log('train: in',st(),' car',P.drv&&P.drv.ci);
   const s0=TQ.s;hold(['KeyW'],4);const v1=TQ.v*TQ.dir;console.log('  W 4 s (looking along it): moved along the track',f1(TQ.s-s0),' speed',f1(v1),' me by the car',f1(Math.hypot(P.pos.x-TQ.cars[1].position.x,P.pos.z-TQ.cars[1].position.z)));
-  P.cam.yaw+=Math.PI;run(0.1);hold(['KeyW'],3);console.log('  turned round, W 3 s: speed',f1(TQ.v*TQ.dir),'(the other way now)');
+  {const Q=T.railPt(TQ.C,TQ.s),lk=-Math.sin(P.cam.yaw)*Q.tx-Math.cos(P.cam.yaw)*Q.tz;P.cam.yaw=lk>=0?Math.atan2(Q.tx,Q.tz):Math.atan2(-Q.tx,-Q.tz);}run(0.1);hold(['KeyW'],3);   // (looking straight back along the track, so a bend doesn't turn it round again)
+console.log('  turned round, W 3 s: speed',f1(TQ.v*TQ.dir),'(the other way now)');
   tap();console.log('  F again:',st(),' train speed',f1(TQ.v),' waits',f1(TQ.wait));run(1);}}
 
 // ---- a boat (out on open sea)
@@ -109,7 +138,7 @@ const B=spawnK('base');run(3);const V=[...T.venues.values()].find(v=>v.kind==='a
   hold(['KeyA'],1.5);console.log('  A 1.5 s: turned on the spot',f1(M.h-h0-0),' moved',f1(Math.hypot(M.x-x0,M.z-z0)));
   M.x=x0;M.z=z0;M.h=h0;M.sv=0;run(0.1);   // (back where it started, for the rest)
   P.cam.yaw=M.h+Math.PI+1.2;run(2);console.log('  turret follows the view: off by',f1(Math.abs(Math.atan2(Math.sin(M.h+M.tu-(P.cam.yaw+Math.PI)),Math.cos(M.h+M.tu-(P.cam.yaw+Math.PI))))));
-  {const H=P.ui.drvHud;console.log('  display: shown',!H.el.hidden,' crosshair',!H.xh.hidden,' gun marker',!H.xt.hidden,' says',H.name.textContent,'|',H.wpn.textContent);}
+  {const H=P.ui.drvHud;console.log('  display: shown',!H.el.hidden,' crosshair',!H.xh.hidden,' gun marker',!H.xt.hidden,' says',hudT(H.txt.n),'|',hudT(H.txt.w));}
   // (the gun marker shows where the shot really goes off: aimed too high, the gun can't follow, and it says so)
   {const pc=(V,pitch,yawOff)=>{P.cam.yaw=V.h+Math.PI+(yawOff||0);P.cam.pitch=pitch;run(2.6);const pr=V.pred&&{...V.pred},A=V.aim||null;V.wpn.shell.cd=0;V.wpn.shell.rl=0;V.wpn.shell.n=4;const n0=new Set(T.SHOTS.filter(s=>s.live));T.mHeld.add('Mouse0');run(0.02);T.mHeld.delete('Mouse0');
      const S=T.SHOTS.find(s=>s.live&&!n0.has(s));let last=null;for(let k=0;k<400&&S&&S.live;k++){last={x:S.pos.x,y:S.pos.y,z:S.pos.z};run(1/60);}
@@ -122,7 +151,7 @@ const B=spawnK('base');run(3);const V=[...T.venues.values()].find(v=>v.kind==='a
   {const o=V.mil.find(m=>m.kind==='tank'&&m!==M&&!m.dead),h0=o.hp;T.vehBlast(o.x,o.y+1,o.z,4.5,60,M);console.log('  a shell bursting on another tank: its hp',h0,'->',o.hp);}
   // (locking on: the turret keeps on it wherever you look, and the shell goes to it)
   {const o=V.mil.find(m=>m.kind==='tank'&&m!==M&&!m.dead),c=P.camera.position;for(let k=0;k<3;k++){P.cam.yaw=Math.atan2(c.x-o.x,c.z-o.z);P.cam.pitch=Math.atan2(o.y+1.2-c.y,Math.hypot(o.x-c.x,o.z-c.z));run(0.1);}hold(['KeyQ'],0.1);
-   console.log('  Q looking at another tank: locked on it',P.lockT===o,' crosshair red',P.ui.drvHud.xh.classList.contains('lock'),' says',P.ui.drvHud.wpn.textContent);
+   console.log('  Q looking at another tank: locked on it',P.lockT===o,' crosshair red',P.ui.drvHud.xh.classList.contains('lock'),' says',hudT(P.ui.drvHud.txt.w));
    P.cam.yaw+=2;run(2.5);const a=M.h+M.tu,off=Math.atan2(Math.sin(a-Math.atan2(o.x-M.x,o.z-M.z)),Math.cos(a-Math.atan2(o.x-M.x,o.z-M.z))),h1=o.hp;fire();run(3);
    console.log('  looking well away: turret off the target by',f1(Math.abs(off)),' bite: its hp',h1,'->',o.hp);
    hold(['KeyQ'],0.1);console.log('  Q again: locked',!!P.lockT);}

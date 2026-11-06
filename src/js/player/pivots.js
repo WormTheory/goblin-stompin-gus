@@ -147,6 +147,6 @@ function gobCamera(p){
 function gobView(v){
   for(const q of players){if(!q.gb)continue;
     const me=q===v&&!(DT.freecam&&v===P1);
-    q.gb.root.visible=DT.gob&&q.active&&!me&&!q.drv;q.gb.vm.visible=DT.gob&&q.active&&me&&q.state!=='dead'&&!q.drv;   // (in a vehicle you're out of sight)
+    q.gb.root.visible=DT.gob&&q.active&&(q.drv?rideShown(q):!me);q.gb.vm.visible=DT.gob&&q.active&&me&&q.state!=='dead'&&!q.drv;   // (in a vehicle you're out of sight, unless it's a motorcycle)
     if(q.gb.vm.visible){q.gb.vm.position.copy(v.camera.position);q.gb.vm.rotation.set(v.camera.rotation.x,v.camera.rotation.y,v.camera.rotation.z);}}
 }

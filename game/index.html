@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:86e2712dfbe19b42c78919fb6a8adf972ad1c1d7448790a467dfb3a843ec282d -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:f304542fe83cf27e9260add7953e12ac53c0ab379c2ec8724fba622e8916e2c4 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -127,6 +127,7 @@ canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;point
 .drvhud .xh::after{content:"";position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px 0 0 -2px;border-radius:50%;background:rgba(255,255,255,.95);box-shadow:0 0 0 1px rgba(0,0,0,.5)}
 .drvhud .xh.cool{border-color:rgba(255,255,255,.28)}
 .drvhud .xh.lock{border-color:#ff4a3a;box-shadow:0 0 0 1px rgba(0,0,0,.45),inset 0 0 0 1px rgba(0,0,0,.45),0 0 8px rgba(255,60,40,.6)}
+.drvhud .xh.water{border-color:#7cc8ff;box-shadow:0 0 0 1px rgba(0,0,0,.45),inset 0 0 0 1px rgba(0,0,0,.45),0 0 8px rgba(90,170,255,.6)}
 .drvhud .xt{position:absolute;width:9px;height:9px;margin:-6px 0 0 -6px;border:2px solid #ffd75a;transform:rotate(45deg);box-shadow:0 0 0 1px rgba(0,0,0,.45)}
 .drvhud .xt.air{opacity:.45}
 .drvhud .xt.off{border-color:#ff9a3a}
@@ -10255,7 +10256,7 @@ function gobCamera(p){
 function gobView(v){
   for(const q of players){if(!q.gb)continue;
     const me=q===v&&!(DT.freecam&&v===P1);
-    q.gb.root.visible=DT.gob&&q.active&&!me&&!q.drv;q.gb.vm.visible=DT.gob&&q.active&&me&&q.state!=='dead'&&!q.drv;   // (in a vehicle you're out of sight)
+    q.gb.root.visible=DT.gob&&q.active&&(q.drv?rideShown(q):!me);q.gb.vm.visible=DT.gob&&q.active&&me&&q.state!=='dead'&&!q.drv;   // (in a vehicle you're out of sight, unless it's a motorcycle)
     if(q.gb.vm.visible){q.gb.vm.position.copy(v.camera.position);q.gb.vm.rotation.set(v.camera.rotation.x,v.camera.rotation.y,v.camera.rotation.z);}}
 }
 // ---- Play as a goblin: driving. Stood by a vehicle, the stomp button (E) gets in and takes the controls; pressed
@@ -10307,12 +10308,13 @@ function drvEnter(p,D){
   // (the camera starts out behind it)
   p.cam.yaw=drvPose(D).h+Math.PI;p.cam.pitch=-0.25;
   if(jack){jackStart(p,D);return;}   // (someone at the controls: they're thrown out first. See carjack.js)
-  const k=drvKey(p),how=D.k==='heli'?'  ·  '+actMark(p,'jump')+' climbs, '+actMark(p,'climb')+' drops':D.k==='plane'?'  ·  Speed up, then '+actMark(p,'jump')+' to take off':D.k==='tank'?'  ·  '+actMark(p,'bite')+' fires':'';
+  const k=drvKey(p),how=D.k==='heli'?'  ·  '+actMark(p,'jump')+' climbs, '+actMark(p,'climb')+' drops':D.k==='plane'?'  ·  Speed up, then '+actMark(p,'jump')+' to take off':D.k==='tank'?'  ·  '+actMark(p,'bite')+' fires':D.k==='car'&&o.veh==='fire'?'  ·  '+actMark(p,'bite')+' sprays water':'';
   flashLabel('Driving the '+drvName(D)+'  ·  '+k+' to get out'+how,p);clang();
 }
 // out by the side (whichever has room), else the back or the front, else on the roof
 function drvExit(p,thrown){
   const D=p.drv;if(!D)return;if(D.jack)jackEnd(p,D,true);p.drv=null;const o=D.o;if(o.drv===p)o.drv=null;if(p.lockT)setLock(p,null);
+  if(D.k==='car'){o.hose=null;if(p.gb)rideReset(p.gb);}
   const S=drvPose(D);
   if(D.k==='car')o.left=true;   // (left where it stopped: see updateCars)
   else if(D.k==='tank'||D.k==='heli'){if(!o.dead)o.state='idle';o.v=0;o.sv=0;}
@@ -10344,7 +10346,20 @@ function drvSeat(p){
   if(D.jack){jackPose(p);return;}
   const S=drvPose(D);p.pos.set(S.x,S.y+Math.min(1.2,S.hy*0.5),S.z);p.heading=S.h;
   p.vy=0;p.grounded=true;p.mvx=p.mvz=0;p.standCar=null;p.vcl=null;p.peakY=p.pos.y;p.biteT=0;
+  if(rideShown(p))ridePose(p,o);
 }
+// on a motorcycle you're out in the open: your goblin's sat astride it, leaning with it, hands on the bars, feet on the
+// pegs (in anything with a roof you're out of sight: see gobView)
+const rideShown=q=>!!(q.drv&&q.drv.k==='car'&&q.drv.o.veh==='bike'&&!q.drv.jack&&q.state!=='dead');
+function ridePose(p,c){const K=gobKit(p),R=K.root,s=Math.sin(c.heading),k=Math.cos(c.heading);
+  R.rotation.set(c.g.rotation.x,c.g.rotation.y,c.g.rotation.z);
+  // (the seat, from the bike's own middle: up 0.42 and back 0.25 of its body, tipped over with its lean)
+  const up=0.42*ES,bk=-0.25*ES,rl=c.g.rotation.z,ax=-up*Math.sin(rl);
+  R.position.set(c.pos.x+ax*k+bk*s,c.pos.y+up*Math.cos(rl),c.pos.z-ax*s+bk*k);
+  for(const L of K.m.legs){L.rotation.set(-1.25,0,0);}K.m.legs[0].rotation.z=0.25;K.m.legs[1].rotation.z=-0.25;
+  K.m.arm.rotation.set(-1.35,0,0.1);if(K.m.armL)K.m.armL.rotation.set(-1.35,0,-0.1);
+}
+function rideReset(K){for(const L of K.m.legs)L.rotation.set(0,0,0);K.m.arm.rotation.set(-0.5,0,0);if(K.m.armL)K.m.armL.rotation.set(0,0,0);}
 // a venue holding a vehicle someone's driving stays (however far it's been taken)
 const drvHeld=V=>players.some(q=>q.drv&&(q.drv.V===V||V.T&&q.drv.o===V.T));
 // locked on from a tank or a helicopter (the lock button): the gun aims at it, wherever you're looking, a little ahead
@@ -10399,7 +10414,8 @@ function drvCar(c,dt){
     if(thr>0.1)c.speed+=(c.speed<0?26:10)*thr*dt;else if(thr<-0.1)c.speed-=(c.speed>0?26:8)*-thr*dt;else c.speed*=Math.exp(-dt*0.9);}
   c.speed=Math.max(-8,Math.min(top,c.speed));
   c.steer+=(st-c.steer)*Math.min(1,dt*8);c.heading+=c.steer*dt*Math.max(-1,Math.min(1,c.speed/5))*1.7;
-  if(i.bitePress&&c.honkT<=0){horn(0.12);c.honkT=0.4;}   // (bite sounds the horn)
+  if(c.veh==='fire'){drvHose(c,i,dt);const hp=i.stomp&&!c.stHeld;c.stHeld=i.stomp;if(hp&&c.honkT<=0){horn(0.12);c.honkT=0.4;}}   // (a fire engine: bite sprays water, stomp sounds the horn. See hose.js)
+  else if(i.bitePress&&c.honkT<=0){horn(0.12);c.honkT=0.4;}   // (bite sounds the horn)
 }
 // ---- a driven tank's or helicopter's weapons: a load of rounds each, a moment between shots, and once the last is
 // gone a reload (a tank's cannon: Bite; a helicopter's machine gun: Bite, held; its rockets: Stomp). o.wpn[k]: {n
@@ -10643,8 +10659,9 @@ function drvHud(p){
   const bl=id=>btnMark(p.pad?bindGlyph('pad',BINDS[id].pad[p.pad&&id==='bite'?1:0]??BINDS[id].pad[0]):bindGlyph('kb',BINDS[id].kb[0])),out=drvKey(p);
   const lk=bl('lock'),LT=p.lockT,W=armed&&o.wpn?Object.values(o.wpn):[],w0=W[0],ready=!w0||w0.rl<=0&&w0.n>0;
   set('w',H.wpn,armed?(LT?'Locked on '+(isMilT(LT)?MIL[LT.kind].name.toLowerCase():isCarT(LT)?'a '+(LT.veh||'car'):'a goblin')+' ('+lk+' let go)':lk+' lock on')+'  ·  '+out+' get out'
+    :D.k==='car'&&o.veh==='fire'?bl('bite')+' spray water  ·  '+bl('stomp')+' horn  ·  '+out+' get out'
     :D.k==='plane'?(o.free&&o.free.v>=PLANE_LIFT?'Flying speed':'Take-off at '+PLANE_LIFT)+'  ·  '+out+' get out':out+' get out');
-  H.xh.hidden=!armed;if(armed){H.xh.classList.toggle('cool',!ready);H.xh.classList.toggle('lock',!!LT);}
+  const hose=D.k==='car'&&o.veh==='fire';H.xh.hidden=!armed&&!hose;if(hose){H.xh.classList.remove('cool','lock');H.xh.classList.toggle('water',!!o.hose);}if(armed){H.xh.classList.toggle('cool',!ready);H.xh.classList.toggle('lock',!!LT);}
   // (the ammo by the crosshair: each weapon, its button, a pip for each round left -- or a bar, for a machine gun's
   // belt -- and while it reloads, a bar filling and the seconds to go)
   H.ammo.hidden=!W.length;
@@ -10826,6 +10843,55 @@ function jackFear(g,dt){
   return{p:q,d:Math.min(d,8)};}
 function jackGrudge(g,dt){
   if(!(g.jackGrudge>0))return false;g.jackGrudge-=dt;return true;}
+// ---- Play as a goblin: a fire engine's water cannon. Driving one, Bite (held) sprays an arc of water from the top of
+// it toward the crosshair, out to HOSE_R blocks. The water puts out the fires it falls on, and shoves the goblins and
+// vehicles it hits back the way it's going, but hurts nobody (a tank's too heavy to move) ----
+const HOSE_R=26,HOSE_TICK=0.1;
+// where the water comes from: the monitor on the roof, a little ahead of the middle
+function hoseFrom(c){const s=Math.sin(c.heading),k=Math.cos(c.heading);return{x:c.pos.x+s*0.6*ES,y:c.pos.y+3.1*ES,z:c.pos.z+k*0.6*ES};}
+// the stream's path, u from 0 (the nozzle) to 1 (where it lands): straight toward the aim, bowed up in the middle
+function hoseAt(H,u){return{x:H.sx+H.dx*u,y:H.sy+H.dy*u+Math.sin(Math.PI*u)*H.bow,z:H.sz+H.dz*u};}
+// each step while you drive a fire engine: Bite held sprays (see drvCar)
+function drvHose(c,i,dt){
+  const p=c.drv;c.hoseT=(c.hoseT||0)-dt;
+  if(!i.bite||!p){c.hose=null;return;}
+  const N=hoseFrom(c),A=drvAim(p,30);let dx=A.x-N.x,dy=A.y-N.y,dz=A.z-N.z,L=Math.hypot(dx,dy,dz)||1;
+  if(L>HOSE_R){const f=HOSE_R/L;dx*=f;dy*=f;dz*=f;L=HOSE_R;}
+  // (short of the crosshair, it comes down where it would hit first: a wall, the ground)
+  let u1=1;for(let u=0.08;u<=1;u+=0.04){const P={x:N.x+dx*u,y:N.y+dy*u+Math.sin(Math.PI*u)*Math.min(4,L*0.15),z:N.z+dz*u};
+    if(P.y<0.5||solidAt(P.x,Math.floor(P.y),P.z)){u1=u;break;}}
+  const H=c.hose={sx:N.x,sy:N.y,sz:N.z,dx:dx*u1,dy:dy*u1,dz:dz*u1,bow:Math.min(4,L*0.15)*u1,L:L*u1};
+  // (the spray you see: drops along the arc, and a splash where it lands)
+  for(let n=0;n<10;n++){const P=hoseAt(H,(n+Math.random())/10);puff(P.x,P.y,P.z,1,Math.random()<0.5?0xcfeaff:0x9fd2ff,0.07);}
+  {const E=hoseAt(H,1);if(Math.random()<dt*14)puff(E.x,E.y,E.z,2,0xe6f4ff,0.6);}
+  if(c.hoseT>0)return;c.hoseT=HOSE_TICK;
+  if(audio)sfx('Water cannon',()=>noise(0.16,0.05,2400,'highpass'));
+  hoseHit(c,H);
+}
+// what one burst of the stream does: along it (and most of all where it lands), fires go out and things are pushed
+function hoseHit(c,H){
+  const fl=Math.hypot(H.dx,H.dz)||1,ux=H.dx/fl,uz=H.dz/fl,pts=[];
+  for(let u=0.35;u<=1.001;u+=0.13)pts.push(hoseAt(H,Math.min(1,u)));
+  const E=pts[pts.length-1];
+  const near=(x,y,z,r,top)=>{for(const P of pts){const d=Math.hypot(x-P.x,z-P.z);if(d<r+(P===E?1.6:0)&&P.y>y-1.2&&P.y<y+top+1)return P;}return null;};
+  // fires: each one the water reaches burns down fast and goes out
+  for(const F of fires){if(F.t<=0)continue;const r=(F.r||1)+1.4;
+    if(Math.hypot(F.x-E.x,F.z-E.z)<r+1.2&&Math.abs(F.y-E.y)<4||near(F.x,F.y,F.z,r,2)){if(!F.douse)F.t=Math.min(F.t,6);F.douse=true;F.t-=1.1;
+      if(Math.random()<0.5)smoke(F.x,F.y+0.5,F.z,1,0xdddddd);}}
+  // goblins (and anyone else on foot but you): knocked back and off their feet for a moment, never hurt
+  for(const g of goblins){if(g.state!=='chase'&&g.state!=='dead'||!g.root.visible)continue;
+    if(Math.abs(g.pos.x-H.sx)>H.L+6||Math.abs(g.pos.z-H.sz)>H.L+6)continue;
+    if(!near(g.pos.x,g.pos.y,g.pos.z,0.9,1.4))continue;
+    if(Math.hypot(g.kv.x,g.kv.z)<12){g.kv.x+=ux*4.5;g.kv.z+=uz*4.5;}g.vy=Math.max(g.vy||0,2.2);if(g.state==='chase')g.stun=Math.max(g.stun||0,0.5);g.hoseT=playTime;}
+  for(const q of players){if(q===c.drv||!q.active||q.state==='dead'||q.drv)continue;if(near(q.pos.x,q.pos.y,q.pos.z,0.9,1.6))shove(q,ux*0.35,uz*0.35);}
+  // cars and lorries: pushed along, the smaller the further; trains, boats and tanks are too heavy to shift
+  for(const o of cars){if(o===c||!o.alive||!o.g.visible)continue;if(Math.abs(o.pos.x-H.sx)>H.L+8||Math.abs(o.pos.z-H.sz)>H.L+8)continue;
+    if(!near(o.pos.x,o.pos.y,o.pos.z,Math.max(o.hx,o.hz)+0.4,o.hy||1.4))continue;
+    const m=o.veh==='bike'?1.6:o.veh==='semi'||o.veh==='bus'||o.veh==='fire'?0.35:o.veh==='truck'||o.veh==='rv'?0.6:1;
+    if(Math.hypot(o.kv.x,o.kv.z)<9*m){o.kv.x+=ux*2.2*m;o.kv.z+=uz*2.2*m;}if(!o.drv&&o.speed)o.speed*=0.85;o.hoseT=playTime;}
+  // a helicopter in the air is blown about a little
+  for(const V of venues.values())for(const M of V.mil||[]){if(M.kind!=='heli'||M.dead||!M.hv)continue;if(near(M.x,M.y,M.z,2.4,MIL.heli.hy)){M.hv.x+=ux*1.2;M.hv.z+=uz*1.2;}}
+}
 const SWIM_HOLD=0.35;   // (holding jump in the water: seconds between paddle strokes upward)
 function movePlayer(p,dt){
   if(!p.active)return;
