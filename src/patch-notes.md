@@ -20,6 +20,7 @@ Everything since the first release on GitHub.
 
 ### Vehicles
 
+- **Carjacking:** in goblin mode, getting into a vehicle that has someone at the controls hauls them out first. A car's door swings open, a motorcycle's rider is shoved off, a tank's crewman is dragged out of the hatch and a helicopter's door slides back. Whoever's thrown out, a driver, a police officer or a soldier, comes back at you or runs for it.
 - All vehicles now collide with each other. Tanks no longer drive through a helicopter's tail, trains, planes, boats and rides push tanks and cars out of the way, and driven planes and boats stop or crash when they meet another vehicle.
 - A driven tank ramming a wall knocks out a hole as big as its front and keeps going at speed. It also fits under overhangs it can pass beneath.
 - Firing with nothing loaded just clicks, and the tank's last shell marker empties while it reloads.
