@@ -1,3 +1,54 @@
+// ---- fighting from a wall ----
+// where he is on the wall: the middle of his body (a little out from the face), and the way his head points along it
+function wallFrame(p){const d=p.climbD,r=p.climbRoll||0,s=Math.sin(r);return{d,c:[p.pos.x-d[0]*0.5,p.pos.y+1.3,p.pos.z-d[1]*0.5],u:[-d[1]*s,Math.cos(r),d[0]*s]};}
+// R1 on the wall: a single snap of the jaws the way his head points (up, along or down the wall), no combo
+function wallBite(p){
+  if(p.biteT>0||(p.biteCD||0)>0)return;
+  // (Gnash: whatever's in his hand, with its own timing)
+  if(DT.gob){const W=gobW(p);p.biteStep=-1;p.comboWin=0;p.biteDur=W.dur;p.biteT=W.dur;p.lungeT=W.lunge;p.biteHit=true;p.biteCD=W.cd;p.wallBite=true;if(p.wpn!=='rifle')sfx('Club swing',()=>{woosh(0.13,0.22,520,1700,0.1);});return;}
+  p.biteStep=-1;p.comboWin=0;p.biteDur=0.38;p.biteT=0.38;p.lungeT=0.26;p.biteHit=true;p.biteCD=BITE_SOLO_CD;p.wallBite=true;
+  sfx('Bite',()=>{woosh(0.13,0.22,520,1700,0.1);tone('triangle',150,260,0.08,0.06,0.28);});
+}
+// the jaws land: anything within reach of the line from just past his snout out to about 2 blocks beyond it
+function wallBiteHit(p){
+  // (Gnash is a goblin, far smaller than a hippo: his club or dagger reaches about a block past his head. His rifle
+  // shoots where he's looking, as anywhere)
+  const gk=DT.gob?gobW(p):null;if(gk===GOB_WPN.rifle){gobShoot(p);return;}
+  let {d,c,u}=wallFrame(p);if(gk)c=[p.pos.x-d[0]*0.4,p.pos.y+0.7,p.pos.z-d[1]*0.4];
+  const A=gk?{hitR:gk.r||1,dmg:gk.dmg||1}:AB.bite,J0=gk?0.3:1.0,J1=gk?1.4:3.2,a=[c[0]+u[0]*J0,c[1]+u[1]*J0,c[2]+u[2]*J0],cause=gk?gk.cause||'Clubbed by another goblin':'Bitten';
+  dbgHit('dmg','sph',{x:c[0]+u[0]*(J0+J1)/2,y:c[1]+u[1]*(J0+J1)/2,z:c[2]+u[2]*(J0+J1)/2,r:A.hitR});
+  for(const g of goblins){if(g.state!=='chase')continue;
+    const q=[g.pos.x-a[0],g.pos.y+0.7-a[1],g.pos.z-a[2]],t=Math.max(0,Math.min(J1-J0,q[0]*u[0]+q[1]*u[1]+q[2]*u[2]));
+    if(Math.hypot(q[0]-u[0]*t,q[1]-u[1]*t,q[2]-u[2]*t)>=A.hitR)continue;
+    // (knocked along the way his head points, and off the wall)
+    damageGoblin(g,A.dmg,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(u[0]-d[0]*0.8,u[1]*0.6+0.3,u[2]-d[1]*0.8),cause);}
+  if(!gk){tone('square',200,90,0.08,0.15);noise(0.06,0.3,900,'bandpass');}
+}
+// stomp on the wall: kick a hole through it big enough for a hippo, and go in. Through a wall up to 3 blocks thick he
+// comes out into whatever space is behind it, on its floor if there's one there (or dropping to it); into something
+// thicker (a cliff, say) he just kicks a hollow and carries on clinging at the back of it, so kicking again tunnels on
+function wallBurst(p){
+  const d=p.climbD,tx=-d[1],tz=d[0],y0=Math.floor(p.pos.y+0.2);
+  const at=(k,y)=>solidAt(Math.floor(p.pos.x+d[0]*(k-0.5)),y,Math.floor(p.pos.z+d[1]*(k-0.5)));
+  // the nearest room behind the wall: two blocks clear, at about the height he's at (one with a floor to stand on
+  // first, so the hole goes down to the floor rather than leaving a sill; nearest that height first)
+  let K=0,F=y0;
+  for(let k=2;k<=4&&!K;k++)for(const fl of [true,false]){for(const y of [y0,y0-1,y0+1,y0-2])if(!at(k,y)&&!at(k,y+1)&&(!fl||at(k,y-1))){K=k;F=y;break;}if(K)break;}
+  // the hole: three blocks across and three high, through the whole wall (or the first three blocks of it)
+  const m=K?Math.max(1,K-2):1,hx=p.pos.x+d[0]*(m+0.5),hz=p.pos.z+d[1]*(m+0.5);
+  const o={force:1.3,dx:d[0],dz:d[1],up:0.5},n=crush(hx,F,hz,1,0,2,o);
+  if(!n)return false;   // (nothing gave: bedrock, or the Dev tab's sandbox)
+  hitGoblins(hx,hz,AB.stomp1.hitR,AB.stomp1.dmg,'Kicked through a wall',F);
+  puff(hx,F+1,hz,14,0x9a948a,0.8);addShake(0.3,hx,hz,12);rumble(p,0.6,160);sfx('Stomp',()=>{thud(0.8);});
+  p.qStomp=0;p.qBite=0;
+  if(K){
+    // in through it, on all fours facing the way he kicked: clear of the wall's inside face if there's room
+    const face=K-1+0.06;let ix=0,iz=0;
+    for(const e of [1.3,1.7,2.1]){ix=p.pos.x+d[0]*(face+e);iz=p.pos.z+d[1]*(face+e);const y=p.pos.y;p.pos.y=F;const hit=bodyHits(p,ix,iz,p.heading);p.pos.y=y;if(!hit)break;}
+    startPiv(p,{E:'center',to:[ix,F,iz],dur:0.35,next:'walk',heading:Math.atan2(d[0],d[1])});
+  } else startPiv(p,{E:'center',to:[p.pos.x+d[0]*3,p.pos.y,p.pos.z+d[1]*3],dur:0.3,next:'climb',heading:p.heading});
+  return true;
+}
 // ---- tiny quaternion helpers ([x,y,z,w]) for the ledge tip ----
 const qMul=(a,b)=>[a[3]*b[0]+a[0]*b[3]+a[1]*b[2]-a[2]*b[1],a[3]*b[1]-a[0]*b[2]+a[1]*b[3]+a[2]*b[0],a[3]*b[2]+a[0]*b[1]-a[1]*b[0]+a[2]*b[3],a[3]*b[3]-a[0]*b[0]-a[1]*b[1]-a[2]*b[2]];
 const qInv=a=>[-a[0],-a[1],-a[2],a[3]];

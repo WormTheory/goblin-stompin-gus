@@ -246,6 +246,7 @@ function movePlayer(p,dt){
     // spider-climb: belly to the wall, the stick moves up/down and along it
     const d=p.climbD,tx=-d[1],tz=d[0];
     p.vy=0;p.grounded=true;p.airJumps=airJumpsMax();p.airDash=true;p.airBiteCD=0;p.peakY=p.pos.y;
+    if(p.qBite>0&&ABIL.bite&&p.biteT<=0&&!(p.biteCD>0)){p.qBite=0;wallBite(p);}   // R1: a snap of the jaws, still clinging on
     if(!inp.climb){
       // let go: a little push off the wall so he drops clear of it instead of sliding down through it,
       // turning to face away as he goes (the turn is eased so it reads as a twist off the wall)
@@ -254,7 +255,9 @@ function movePlayer(p,dt){
     }
     else if(inp.jumpPress){   // kick off the wall
       p.state='walk';p.grounded=false;p.airBiteCD=0;p.vy=8.5;p.mvx=-d[0]*7;p.mvz=-d[1]*7;p.heading=Math.atan2(-d[0],-d[1]);startVBlend(p,0.3);p.hopT=0.12;p.qJump=0;sfx('Wall jump',()=>{grunt(p,false);});puff(p.pos.x,p.pos.y+1,p.pos.z,6,0xd6d8d0,0.5);
-    } else {
+    }
+    else if(stompPress&&ABIL.stomp&&wallBurst(p)){}   // stomp: through the wall and in
+    else {
       // the stick works in the wall's own frame (so holding a direction carries him round corners), flipped
       // when the camera looks out away from the wall (e.g. over a ledge he's tipped over): then forward = down.
       // Which way round is only re-decided while the stick is let go, so it never flips mid-move

@@ -162,6 +162,7 @@ function gusBite(p){
   else sfx('Bite',()=>{woosh(0.13,0.22,520,1700,0.1);tone('triangle',150+step*30,260+step*30,0.08,0.06,0.28);});
 }
 function doBite(p){
+  if(p.wallBite){p.wallBite=false;if(p.state==='climb'){wallBiteHit(p);return;}}   // (bitten from a wall: see wallBite)
   if(DT.gob){gobAttack(p);return;}
   const hx=Math.sin(p.heading),hz=Math.cos(p.heading),bx=p.pos.x+hx*2.5,bz=p.pos.z+hz*2.5,fin=p.biteStep===2,A=p.biteStep===-1?AB.airBite:fin?AB.upper:p.biteStep===1?AB.bite2:AB.bite;
   const cust=hbOn(p.biteStep===-1?'airBite':fin?'upper':p.biteStep===1?'bite2':'bite');

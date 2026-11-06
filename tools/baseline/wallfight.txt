@@ -1,0 +1,38 @@
+-- R1 on the wall
+     head up: goblin in front of his snout          4/4 
+     head up: goblin just past his snout            4/4 
+     head up: goblin beside his snout, out from the wall 4/4 
+     head up: goblin well out of reach              4/4 
+     head up: goblin behind him                     4/4 
+     head along (right): goblin in front of his snout 4/4 
+     head along (right): goblin just past his snout 4/4 
+     head along (right): goblin beside his snout, out from the wall 4/4 
+     head along (right): goblin well out of reach   4/4 
+     head along (right): goblin behind him          4/4 
+     head down: goblin in front of his snout        4/4 
+     head down: goblin just past his snout          4/4 
+     head down: goblin beside his snout, out from the wall 4/4 
+     head down: goblin well out of reach            4/4 
+     head down: goblin behind him                   4/4 
+     mashing R1 for a second: one bite or two       4/4 
+-- stomp on the wall: through it and in
+     wall 1 thick, from 1 up: inside on the floor at 0 4/4 
+     wall 1 thick, from 3 up: inside on the floor at 0 4/4 
+     wall 1 thick, from 6 up: inside on the floor at 6 4/4 
+     wall 2 thick, from 1 up: inside on the floor at 0 4/4 
+     wall 2 thick, from 3 up: inside on the floor at 0 4/4 
+     wall 2 thick, from 6 up: inside on the floor at 6 4/4 
+     wall 3 thick, from 1 up: inside on the floor at 0 4/4 
+     wall 3 thick, from 3 up: inside on the floor at 0 4/4 
+     wall 3 thick, from 6 up: inside on the floor at 6 4/4 
+     free-standing wall 1 thick: out the far side   4/4 
+     high on a free-standing wall: through and down 4/4 
+     solid rock: a hollow, still clinging, further in 4/4 
+     goblin just inside the wall: hit by the kick   4/4 
+     stomp switched off: still clinging, wall whole 4/4 
+-- the other characters
+     Gertie: R1 on the wall hits a goblin above     4/4 
+     Gertie: stomp on the wall puts her inside      4/4 
+     Gnash: R1 on the wall clubs a goblin above     4/4 
+     Gnash: stomp is his grenade, not a kick        4/4 
+fine 34 of 34 lines
