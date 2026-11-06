@@ -172,6 +172,7 @@ It renders in software, so the picture is right but the frame rate says nothing 
   - bob: rocket pose
   - rollt / rollw / lockroll: roll
   - ljd: long jump vs dash
+  - substair: subway station stairs: stair blocks the whole way down, and a goblin chasing Gus up them and back down
   - adt: air dash
   - edge: momentum off edges
   - crt: crash landing

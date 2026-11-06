@@ -1,7 +1,7 @@
 let __s=+(process.env.SEED||1);Math.random=()=>{__s=(__s*16807)%2147483647;return (__s-1)/2147483646;};
 const fs=require('fs');
 let src0=fs.readFileSync('g.js','utf8');
-let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={activeProps,activeFix,propCells,propCK,streetFurn,refreshFixtures,knockFixtures,knockFix,downFix,falling,goblins,FIX_BAR,cars,biomeOf,get score(){return score},players,keys,frame,get,solidAt,DT,DBG_ITEMS,dbgItems,dbgMenuNav,dbgMenuToggle,dbgVal,GFX_OFF,toggleGfx,gfxArr,chunkArr,meshes,buildChunk,sewerStair,caveMouth,metroOf,settlementLat,settlementAt,setRaw,CS,CELL,G,SEW0,SUB_F,AIR,BRICK,WATER,li,PROP_L,PROP_G};\n})();');
+let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={activeProps,activeFix,propCells,propCK,streetFurn,refreshFixtures,knockFixtures,knockFix,downFix,falling,goblins,FIX_BAR,cars,biomeOf,get score(){return score},players,keys,frame,get,solidAt,DT,DBG_ITEMS,dbgItems,dbgMenuNav,dbgMenuToggle,dbgVal,GFX_OFF,toggleGfx,gfxArr,chunkArr,meshes,buildChunk,sewerStreet,caveMouth,metroOf,settlementLat,settlementAt,setRaw,CS,CELL,G,SEW0,SUB_F,AIR,BRICK,WATER,li,PROP_L,PROP_G};\n})();');
 const deep=()=>new Proxy(function(){}, {get:(t,p)=>p===Symbol.toPrimitive?()=>0:(p==='length'?0:deep()),apply:()=>deep(),construct:()=>deep()});
 class Q{constructor(){this.x=0;this.y=0;this.z=0;this.w=1}set(x,y,z,w){this.x=x;this.y=y;this.z=z;this.w=w;return this}setFromAxisAngle(a,t){const s=Math.sin(t/2);this.x=a.x*s;this.y=a.y*s;this.z=a.z*s;this.w=Math.cos(t/2);return this}copy(q){this.x=q.x;this.y=q.y;this.z=q.z;this.w=q.w;return this}}
 class V3{project(){return this}fromBufferAttribute(a,i){const A=a.array||a.a;this.x=A[i*3];this.y=A[i*3+1];this.z=A[i*3+2];return this}applyMatrix4(m){const e=m.elements,x=this.x,y=this.y,z=this.z;this.x=e[0]*x+e[4]*y+e[8]*z+e[12];this.y=e[1]*x+e[5]*y+e[9]*z+e[13];this.z=e[2]*x+e[6]*y+e[10]*z+e[14];return this}setFromMatrixPosition(o){this.x=o.position.x;this.y=o.position.y;this.z=o.position.z;return this}normalize(){const l=Math.hypot(this.x,this.y,this.z)||1;this.x/=l;this.y/=l;this.z/=l;return this}add(v){this.x+=v.x;this.y+=v.y;this.z+=v.z;return this}applyQuaternion(q){const x=this.x,y=this.y,z=this.z,qx=q.x,qy=q.y,qz=q.z,qw=q.w;const ix=qw*x+qy*z-qz*y,iy=qw*y+qz*x-qx*z,iz=qw*z+qx*y-qy*x,iw=-qx*x-qy*y-qz*z;this.x=ix*qw+iw*-qx+iy*-qz-iz*-qy;this.y=iy*qw+iw*-qy+iz*-qx-ix*-qz;this.z=iz*qw+iw*-qz+ix*-qy-iy*-qx;return this}constructor(x=0,y=0,z=0){this.x=x;this.y=y;this.z=z}set(x,y,z){this.x=x;this.y=y;this.z=z;return this}copy(v){this.x=v.x;this.y=v.y;this.z=v.z;return this}clone(){return new V3(this.x,this.y,this.z)}addScaledVector(v,s){this.x+=v.x*s;this.y+=v.y*s;this.z+=v.z*s;return this}multiplyScalar(s){this.x*=s;this.y*=s;this.z*=s;return this}setScalar(s){return this.set(s,s,s)}}
@@ -54,9 +54,9 @@ function report(name,key,g,px,pz,y0,y1){
 }
 const R=60;let st=null,mo=null,me=null;
 for(let d=0;d<R&&!(st&&mo);d++)for(let a=-d;a<=d;a++)for(let b=-d;b<=d;b++){if(Math.max(Math.abs(a),Math.abs(b))!==d)continue;
-  if(!st&&T.sewerStair(a,b))st=[a,b];if(!mo&&T.caveMouth(a,b))mo=[a,b];}
+  if(!st&&T.sewerStreet(a,b))st=[a,b];if(!mo&&T.caveMouth(a,b))mo=[a,b];}
 for(let a=-6;a<=6&&!me;a++)for(let b=-6;b<=6&&!me;b++){const M=T.metroOf(T.settlementLat(a,b));if(M&&M.stations.length)me=M.stations[0];}
-if(st)report('sewers ','gSewers','sewers',st[0],st[1],SEW0,G);else console.log('no sewer stair found');
+if(st)report('sewers ','gSewers','sewers',st[0],st[1],SEW0,G);else console.log('no sewer found');
 if(mo)report('caves  ','gCaves','caves',mo[0],mo[1],G-21,G);else console.log('no cave mouth found');
 if(me)report('subways','gSubway','subway',me.px,me.pz,SUB_F,G);else console.log('no subway station found');
 // a crater stays a crater: smash a hole in the street over a sewer and it's still drawn as a hole

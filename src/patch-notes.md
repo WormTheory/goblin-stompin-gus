@@ -41,6 +41,11 @@ Everything since the first release on GitHub.
 
 - Air dash comes back after Gus leaves the water, and can't be used while swimming.
 
+### World
+
+- The pavement stairwells down to the sewers are gone. The sewers are still under every town street, but the only way in now is to smash through.
+- Subway station stairs are built from real stair blocks, so the way down to the platforms is a smooth flight of steps instead of a staircase of plain blocks.
+
 ### Menus and debug tools
 
 - A Patch notes tab in the main menu, with a "What's new" line on the title screen, and the same notes on the website at /patch-notes/.

@@ -25,7 +25,7 @@ function stMatch(key,px,pz){
     case 'wind':return turbineAt(px,pz)?{ax:px-1,az:pz-1,w:3,h:3}:null;
     case 'bunker':return bunkerAt(px,pz)?one:null;
     case 'caves':return caveMouth(px,pz)?{ax:px-1,az:pz-1,w:3,h:3}:null;
-    case 'sewers':return sewerStair(px,pz)?one:null;
+    case 'sewers':return sewerStreet(px,pz)?one:null;
     case 'subway':case 'metro':return plotType1(px,pz)==='metro'?one:null;
     case 'pylons':case 'billboards':case 'tolls':return null;   // (found along the highways instead: see stFind)
   }

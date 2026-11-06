@@ -134,7 +134,7 @@ function trInstall(){
   if(TR.on)return;TR.on=true;
   seaPlot=trWrap(seaPlot,0,1);settlementAt=trWrap(settlementAt,0,1);plotType=trWrap(plotType,0,1);plotBounds=trWrap(plotBounds,0,1);
   turbineAt=trWrap(turbineAt,0,1);riverDir=trWrap(riverDir,0,1);nearSea=trWrap(nearSea,0,1);streetTown=trWrap(streetTown,0,1);
-  jx=trWrap(jx,0,1);jz=trWrap(jz,0,1);sewerStair=trWrap(sewerStair,0,1);stripOpen=trWrap(stripOpen,0,1);segOpen=trWrap(segOpen,0,1);
+  jx=trWrap(jx,0,1);jz=trWrap(jz,0,1);sewerStreet=trWrap(sewerStreet,0,1);stripOpen=trWrap(stripOpen,0,1);segOpen=trWrap(segOpen,0,1);
   ctlAt=trWrap(ctlAt,0,1);jDeg=trWrap(jDeg,0,1);metrosNear=trWrap(metrosNear,0,1);
   metroStation=trWrap(metroStation,0,1,(st,B)=>trMemo(B,st,(st,ox,oz,dx,dz)=>{const T=Object.create(st);T.px=st.px+dx;T.pz=st.pz+dz;return T;}));
   superOf=trWrap(superOf,0,1,trCorner);bigPlainsAt=trWrap(bigPlainsAt,0,1,trCorner);

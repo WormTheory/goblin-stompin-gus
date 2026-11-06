@@ -1,0 +1,4 @@
+station {"ax":"x","px":-178,"pz":-177}
+ u8:y-19 u9:y-19 u10:y-19 u11:y-19 u12:y-18S u13:y-17S u14:y-16S u15:y-15S u16:y-14S u17:y-13S u18:y-12S u19:y-11S u20:y-10S u21:y-9S u22:y-8S u23:y-7S u24:y-6S u25:y-5S u26:y-4S u27:y-3S u28:y-2S u29:y-1S u30:y0S u31:y0
+goblin up reached in 7.8s | y every second -18.0 -17.5 -15.4 -12.6 -9.8 -7.0 -4.2 -1.4
+goblin down reached in 7.9s | y every second 1.0 0.5 -2.2 -5.0 -7.9 -10.6 -13.5 -16.2

@@ -1,7 +1,7 @@
 // ---- under the streets: brick sewers below every town street, and in each city its subway, deeper down ----
 // The sewers: a brick tunnel along the middle of each street (a channel of water between two walkways), crossing at the
-// junctions, lamps here and there, iron manhole covers in the road over them; and now and then on the pavement a
-// railed stairwell down to them, with a passage through to the tunnel at the bottom.
+// junctions, lamps here and there, iron manhole covers in the road over them. There's no way down to them from the
+// street (the pavement stairwells were taken out): they're only reached by smashing through.
 // The subway: one line in each city, a loop round its middle under the blocks (deep enough to pass under the rivers and
 // everything else), a station halfway along each side: a plaza up top with a wide stair down under a glass canopy, and
 // a tiled hall below with platforms either side of the track. The trains are drawn with the venues.
@@ -11,9 +11,9 @@ function streetTown(px,pz){
   if(!settlementAt(px,pz)||isRiver(px,pz))return false;
   const S=superOf(px,pz);return !S;
 }
-// a block with a stairwell down to the sewer on its pavement (beside its street along x=0..7)
-function sewerStair(px,pz){
-  if(!streetTown(px,pz)||hash2(px*157+11,pz*61+29)>0.16)return false;
+// a block with a sewer under the street beside it along x=0..7 (for finding one: the Structures previewer, the tests)
+function sewerStreet(px,pz){
+  if(!streetTown(px,pz))return false;
   const t=plotType(px,pz);return t!=='rail'&&t!=='station'&&t!=='metro'&&t!=='ramp'&&t!=='river'&&!!stripOpen(px,pz,true,false);
 }
 // ---- the subway loops ----
@@ -65,16 +65,6 @@ function undergroundPass(a,x0,z0,rec){
         if(!(rX&&rZ)&&(rX?rx===2||rx===5:rz===2||rz===5))set(G-2,BRICK);}            // (the vault's corners)
       else if(!(rX&&rZ)&&mod(al,10)===5&&(rX?rx===1:rz===1))set(G-4,LAMP);
       if(!(rX&&rZ)&&(rX?rx===3:rz===3)&&mod(al,48)===30&&ROADTOP.has(at(G))&&at(G)!==SIDEWALK)set(G,METAL);   // a manhole cover
-      // the passage from a pavement stairwell, through the tunnel's wall
-      if(rX&&!rZ&&rx>=6&&rz>=18&&rz<=19&&sewerStair(px,pz)){set(SEW0+1,COBBLE);for(let y=SEW0+2;y<=G-3;y++)set(y,AIR);}
-    }
-    // a pavement stairwell down to the sewer: two blocks wide, railed round, then a short passage to the tunnel
-    if(rx>=8&&rx<=11&&rz>=12&&rz<=21&&sewerStair(px,pz)){
-      if(rx<=10&&rz>=17&&rz<=20){for(let y=SEW0;y<=G-2;y++)set(y,BRICK);}
-      if(rx>=9&&rx<=10&&rz>=13&&rz<=19){const i=rz-12,top=G-i;for(let y=SEW0;y<=top;y++)set(y,BRICK);for(let y=top+1;y<=G+2;y++)set(y,AIR);}
-      if(rx<=10&&rz>=18&&rz<=19){set(SEW0+1,COBBLE);for(let y=SEW0+2;y<=G-3;y++)set(y,AIR);if(rx>=9){const i=rz-12;for(let y=G-i+1;y<=G+2;y++)set(y,AIR);}}
-      if(rx===8&&rz>=13&&rz<=20||rx>=9&&rx<=10&&rz===20)set(G+1,FENCE);
-      if(rx===11&&rz>=13&&rz<=20&&(at(G+1)===AIR||at(G+1)===FENCE))set(G+1,FENCE);
     }
     // the subway
     kind=2;
@@ -83,7 +73,7 @@ function undergroundPass(a,x0,z0,rec){
         const cc=(ax==='x'?z:x)-(k*CELL+20),s=ax==='x'?x:z,lo=(ax==='x'?M.x0:M.z0)*CELL+16,hi=(ax==='x'?M.x1:M.z1)*CELL+25;
         if(s<lo||s>hi)continue;
         const st=metroStation(px,pz),inSt=st&&st.ax===ax&&(ax==='x'?pz:px)===k;
-        if(inSt){metroStationCol(set,at,ax==='x'?rx:rz,cc);continue;}
+        if(inSt){metroStationCol(set,at,ax==='x'?rx:rz,cc,ax);continue;}
         if(Math.abs(cc)>4)continue;
         if(Math.abs(cc)===4){for(let y=SUB_F;y<=SUB_F+6;y++)if(at(y)!==AIR||y===SUB_F)set(y,CONCRETE);continue;}
         set(SUB_F,Math.abs(cc)===1?METAL:GRAVEL);for(let y=SUB_F+1;y<=SUB_F+5;y++)set(y,AIR);
@@ -94,8 +84,9 @@ function undergroundPass(a,x0,z0,rec){
 }
 // one column of a subway station (its block: along the line u 0..31, across it c from the track's middle). The hall:
 // platforms either side, tiled walls, lamps, benches. The stair: four blocks wide, from the pavement on the far end of
-// the block down under the plaza to the hall; a glass canopy over its mouth, a sign on a post
-function metroStationCol(set,at,u,c){
+// the block down under the plaza to the hall, in stair blocks (rising toward the pavement, so a ramp underfoot); a glass
+// canopy over its mouth, a sign on a post. ax: the way the line runs (u along it)
+function metroStationCol(set,at,u,c,ax){
   const ac=Math.abs(c);
   // the hall
   if(u>=8&&ac<=7){
@@ -110,6 +101,7 @@ function metroStationCol(set,at,u,c){
   if(c>=-11&&c<=-8&&u>=8&&u<=30){
     const i=Math.min(19,30-u),top=G-i;
     for(let y=SUB_F;y<=top;y++)set(y,CONCRETE);
+    if(i<19)set(top,stairId(ax==='x'?0:2,0));   // (each step a stair block, its low edge meeting the step below)
     const head=i<=4?G+3:top+4;for(let y=top+1;y<=head;y++)set(y,AIR);
     if(i>4&&top+5<G)set(top+5,CONCRETE);
     if(u>=26&&u<=30){set(G+4,GLASS);}   // the canopy

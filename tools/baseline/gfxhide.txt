@@ -1,4 +1,4 @@
-sewers  at plot 0 2 : open cells drawn on 4498 off 0 | cells drawn differently 14522 | real blocks changed 0
+sewers  at plot -0 -0 : open cells drawn on 4416 off 0 | cells drawn differently 14336 | real blocks changed 0
 caves   at plot -13 13 : open cells drawn on 7548 off 0 | cells drawn differently 22310 | real blocks changed 0
 subways at plot -178 -177 : open cells drawn on 7524 off 4416 | cells drawn differently 6546 | real blocks changed 0
 crater with sewers off: street 0 brick below 0 (both 0 is a hole), sewer space below that is solid true
@@ -14,11 +14,11 @@ right from Stop time goes to invuln , then left back to paused
 left on Game speed, not picked: goes to uiAll and speed index stays 6 -> 6
 picked with A: speed ; then left: stays on speed speed index 6 -> 5 ; A again lets go: null ; picked again, then down lets go: paused null
 hostility: left, not picked, goes to wx ; picked, left x3 then right: Normal > Peaceful > Passive > Passive > Peaceful ; stored 1
-street props 40 benches 61 bins, furthest 117 blocks; still old fixtures 0 ; also listed for traffic 101
+street props 41 benches 61 bins, furthest 117 blocks; still old fixtures 0 ; also listed for traffic 102
 bench: all three of its cells block goblins true
 a car hitting it: knocked 1 score + 5
 down after falling true  still blocks goblins false
-after a minute of goblins walking about: 3 of 97 street props down; goblins 58
+after a minute of goblins walking about: 6 of 107 street props down; goblins 58
 interface rows 18 each hides and comes back 17 of 17
 whole display off: 17 rules, row says false
 one back on: row says true rules 16
