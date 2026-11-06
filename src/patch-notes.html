@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Patch notes · Goblin-Stompin' Gus</title>
+<meta name="description" content="What's changed in Goblin-Stompin' Gus, newest first.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;600;700;800&family=Atkinson+Hyperlegible+Mono:wght@400;500;600;700&display=swap">
+<!-- The website's patch notes page. tools/build.py builds it into game/patch-notes/index.html with the notes from
+     src/patch-notes.md, the same ones the game's Patch notes tab shows: edit the notes there, not here. -->
+<style>
+:root{
+  --night:#12161c;--slate:#1d242d;--line:#2c3640;--bone:#eef0e6;--text:#cfd5d0;--moss:#7fc24a;--clay:#b98a5a;--mute:#9aa5ad;
+  --f-display:"Atkinson Hyperlegible Next","Segoe UI",system-ui,sans-serif;
+  --f-mono:"Atkinson Hyperlegible Mono","Atkinson Hyperlegible Next",ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--night);color:var(--text);font:400 16px/1.6 var(--f-display)}
+.wrap{max-width:760px;margin:0 auto;padding:32px 16px 64px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px;border-bottom:2px solid var(--line);padding-bottom:18px}
+header h1{margin:0;font:800 clamp(26px,6vw,38px)/1.1 var(--f-display);color:var(--bone);letter-spacing:.01em}
+header h1 em{font-style:normal;color:var(--moss)}
+header p{margin:6px 0 0;color:var(--mute)}
+.play{display:inline-block;font:700 15px var(--f-display);padding:10px 18px;background:var(--moss);color:#0c0f14;text-decoration:none;box-shadow:0 4px 0 #3f6b22}
+.play:hover{filter:brightness(1.08)}
+.play:focus-visible,a:focus-visible{outline:2px solid var(--bone);outline-offset:3px}
+nav{margin:18px 0 0}
+nav h2{margin:0 0 4px;font:700 12px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+nav ul{margin:0;padding-left:20px}
+a{color:var(--moss)}
+.pn-up{border-top:1px solid var(--line);margin-top:32px;padding-top:8px;scroll-margin-top:12px}
+.pn-up h2{margin:14px 0 8px;font:800 24px/1.25 var(--f-display);color:var(--bone)}
+.pn-up h3{margin:28px 0 6px;font:700 13px var(--f-display);letter-spacing:.07em;text-transform:uppercase;color:var(--clay)}
+.pn-up h4{margin:16px 0 2px;font:700 16px var(--f-display);color:var(--bone)}
+.pn-up p{margin:8px 0}
+.pn-up ul{margin:6px 0 10px;padding-left:22px}
+.pn-up li{margin:5px 0}
+li::marker{color:var(--moss)}
+strong{color:var(--bone)}
+code{font:500 14px var(--f-mono);background:var(--slate);padding:0 5px}
+footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font:500 13px var(--f-mono);color:var(--mute)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div><h1>Goblin-Stompin' <em>Gus</em></h1><p>Patch notes, newest first. The same notes are in the game's Patch notes tab.</p></div>
+  <a class="play" href="../index.html">Play the game</a>
+</header>
+<nav aria-label="Updates"><h2>Updates</h2><ul><!-- build: patch-notes-toc --></ul></nav>
+<main>
+<!-- build: patch-notes -->
+</main>
+<footer><a href="../index.html">Back to the game</a></footer>
+</div>
+</body>
+</html>

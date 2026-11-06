@@ -1,0 +1,258 @@
+# Patch notes
+
+## November 5, 2026: Vehicle combat
+
+Covers the work from late on November 4 through November 5.
+
+**Old saves reset.** Outdoor sites gained their own props, so cities saved before this update start fresh.
+
+### Highlights
+
+- Tanks and helicopters are proper fighting machines, with machine guns, rockets, shells that reload, lock-on and an aim marker that shows where each shot will really land.
+- Every vehicle now collides with every other, and cars and tanks crash straight through walls at speed.
+- Campsites, markets, cemeteries, quarries, zoos and dozens of other outdoor sites are dressed with props, and campsites have motorhomes to wreck.
+- Enemy hostility is a three-step slider: Passive, Peaceful or Normal.
+- Goblins climb walls after Gus, and long falls now hurt them.
+- Toppling buildings and the distant city are far cheaper to draw, and arriving somewhere new stalls much less.
+- The game can be played on the web, and these notes live on their own page and in the main menu.
+
+### Driving and vehicle combat
+
+- In goblin mode, press F (Y on a controller) to get in and out of vehicles.
+- In a helicopter, bite (left click or RB) fires a machine gun and stomp (right click or RT) fires rockets.
+- Tank shells, the helicopter gun and rockets have magazines and reload times. An ammo panel shows what's left, with a reload bar and countdown, and firing with nothing loaded just clicks.
+- A driving display shows the vehicle's health, its weapon and a crosshair. The health box and ammo panel sit just above the hearts.
+- Lock on (Q, or R3 on a controller) to tanks and helicopters from your own, and the gun aims ahead of a moving target.
+- The camera sits higher and further back in tanks and helicopters. The aim marker follows the real path of the shell or rocket and marks where it will go off: faint when it would never land on anything, and orange at the screen edge when the spot is off-screen.
+- Tank shells and helicopter rockets blow bigger craters and damage vehicles, which jolt, smoke, burn and show health bars.
+- Crashing aircraft blow craters, and stopped helicopters and wrecks drop when the ground under them goes.
+- Driven cars climb one-block steps.
+- Motorcycles join the traffic and can be ridden in goblin mode. Parked ones no longer have a rider.
+- The get-out prompt shows Xbox button labels on Xbox controllers.
+
+### Crashes and collisions
+
+- A car hitting a wall faster than 13 blocks a second crushes a hole sized by its speed, takes heavy damage and carries on through. Slower bumps still bounce off.
+- A driven tank ramming a wall knocks out a hole as big as its front and keeps going at speed. It also fits under overhangs it can pass beneath.
+- All vehicles now collide with each other. Tanks no longer drive through a helicopter's tail, trains, planes, boats and rides push tanks and cars out of the way, and driven planes and boats stop or crash when they meet another vehicle.
+
+### Goblins and enemies
+
+- Goblins chasing Gus up a wall climb after him, and club him once they're level instead of waiting below.
+- Falls of more than 6 blocks hurt goblins, a point for every 2 blocks more, so a 16-block drop kills one. Water breaks the fall, and their routes no longer jump down drops that would hurt.
+- **Enemy hostility** is now a slider on the main screen, in Game options and in the quick debug menu. Passive: nobody reacts to you, even when hit. Peaceful: nobody attacks, but people still run. Normal: they come for you. An old Peaceful setting carries over.
+- Playing as a goblin no longer calms everyone down. Hostility works just as it does for Gus.
+
+### Outdoor sites
+
+- Farmer's markets, camps, campsites, the cult altar, building sites, nurseries, trailer parks, cemeteries, mines, quarries, lumber camps, prepper, militia and thieves' compounds, ruins, dumps, parks, plazas, courts, lighthouses, power stations, zoos, theme parks, stadiums, arenas, car parks, bunkers and wrecked cars are all dressed with props.
+- Campsites have motorhomes parked on their pitches, and they can be wrecked like any parked car.
+- Campfires, the cult altar's included, are real fires now, but they don't spread and only hurt someone standing right on the wood.
+
+### Movement
+
+- Air dash comes back after Gus leaves the water, and can't be used while swimming.
+
+### Looks
+
+- Distant buildings now match their full-detail look, with their real wall, window and roof colours, proper shading, lit windows at night, and grass, rain and snow that follow the seasons and weather.
+
+### Performance
+
+- Toppling buildings and everyday frames are much cheaper. On an RTX 4070 Ti SUPER at default settings, standing still went from 207 to 379 fps and toppling from 133 to 278 fps, and the worst toppling frame fell from 189 ms to 18 ms.
+- Distant chunks that have settled are drawn merged in groups, cutting draw calls from 971 to 311 at a detail distance of 512.
+- Places ahead are worked out a little each frame, so the worst frame while moving dropped from 80 ms to 22 ms.
+- Saves are packed much smaller, and the game says so on screen if storage fills up. Old saves still load.
+- Smoke plumes only thin out when frames are running long, and goblin route maps rescan less often.
+
+### Testing Environment
+
+- Spawn every kind of vehicle, hunting Gus or parked: cars, vans, pickups, trucks, semis, buses, fire engines, ambulances, news vans, motorcycles, police cars, tanks and helicopters.
+- A Plane button parks an airliner on the grass ahead of Gus, ready to get in and take straight off.
+- Spawned structures are built on the nearest clear ground in front of Gus, instead of moving Gus to them.
+- A Reset world button starts a fresh empty world, and spawned vehicles keep clear of each other.
+- The structures preview now finds a real housing estate.
+
+### Debug tools
+
+- A Sound list overlay names every sound as it plays.
+- In the quick debug menu, pick a slider with A before left and right move it, like the other menus.
+
+## November 2 to 4, 2026: The move to Claude Code
+
+The first 92 changes after the game moved to Claude Code. Each entry describes where things ended up, so features that were reworked along the way appear once.
+
+**Old saves reset.** World generation changed many times, so cities saved before this update start fresh.
+
+### Highlights
+
+- Gus can spider-climb and ride moving vehicles, including trains, boats, planes and the roller coaster.
+- Trains, planes, boats, theme park rides and zoo animals can all be destroyed.
+- Cultists, thieves, preppers and militia now defend their sites, and military bases scramble real tanks and helicopters.
+- Goblins chase with real routes: they climb, jump gaps, swim and use stairs and doors.
+- Almost every building has been resized and furnished room by room, with stairs and bathrooms where they make sense.
+- Goblin mode lets you drive anything, and the new Testing Environment spawns any structure or enemy on demand.
+
+### Enemies and goblins
+
+**Cultists**
+
+- Robed, hooded cultists now gather live at their altars and shuffle around them until disturbed.
+- Come within 15 blocks of the altar or hurt one and the whole cult turns on you.
+- They conjure fireballs at range and stab with ritual daggers up close.
+- Killed cultists stay dead until the cult has had two quiet minutes.
+
+**Compound guards**
+
+- Thieves' hideouts, prepper bunkers and militia camps now have live guards who mill about until you come close or hurt one.
+- Thieves stab with daggers.
+- Preppers carry rifles and pipe bombs. Militia carry rifles and grenades.
+- Tower guards hold their posts.
+
+**Goblin pathfinding**
+
+- Goblins now find real routes to Gus instead of falling apart in big buildings.
+- They hop ledges and railings, jump gaps, climb walls in both directions, swim, and use stairs and doors.
+- With a clear path, they run straight at where Gus is now rather than where he recently was.
+- They leap at Gus when he's on top of a tall vehicle, and still find him when he's sunk.
+- They walk around furniture, and shove it over if it holds them up.
+- They no longer perch on stair rails, and they swim lower in the water.
+
+### Combat, vehicles and destruction
+
+**Military bases**
+
+- Parked tanks and helicopters are now real vehicles. Entering a base or hitting one sounds the alert.
+- Tanks hunt you and fire shells. Helicopters lift off, circle, and strafe with bursts and rockets.
+- They're solid. Moving tanks run goblins down and ram cars.
+- Destroyed armour stays destroyed in your save. The base stands down 30 seconds after you leave.
+
+**Trains**
+
+- Trains now have an engine at each end and reverse smoothly at the end of the line.
+- Each car has its own health. Losing one stops the train and scores 500, and destroying them all scores 1000 more. Subway trains can be wrecked too.
+- A moving train throws you forward and up instead of nudging you aside.
+
+**Airplanes**
+
+- Land on any airport plane and ride it through taxiing, takeoff, flight and landing.
+- Planes have 300 health and score 1000 points. Shot down, one falls and blows a crater.
+- A replacement arrives two minutes later, once no one's within 350 blocks.
+- Moving planes strike goblins, cars and you. Parked planes no longer clip the terminals.
+
+**Boats**
+
+- Every boat is a new model: pedal boat, rowboat, speedboat, launch, yacht, trawler, tug, ferry, warship and container ship.
+- All of them can be stood on, ridden and wrecked. They burn and list when hurt, sink when wrecked, and are replaced later.
+- At sea they follow routes on open water. Others are moored at harbours, quays, dry docks, beaches and rigs.
+- Jump while swimming beside a boat to climb aboard.
+
+**Theme parks and zoos**
+
+- Coaster cars, the Ferris wheel and the carousel can all be destroyed. Break the track and the coaster derails.
+- Zoo animals can be killed. Wrecks and deaths are saved with your world.
+
+**Traffic and crashes**
+
+- Ordinary traffic now runs goblins down, not just police cars.
+- Trains, boats and planes crash when they meet.
+
+**News crews**
+
+- News crews now drive out from news stations to cover fires, car crashes and killings.
+
+### Movement
+
+- **Riding vehicles:** Drop on to any moving vehicle and you land on it unhurt, unless you fell from a real height. You're carried round bends and stay on the roof going down ramps.
+- **Roller coaster:** Gus can now land on and ride coaster cars for whole laps.
+- **Climbing vehicles:** Gus can cling to and climb cars, trucks, train cars, ship hulls, container stacks and planes while they move. Climb over the top to ride on the roof, or walk off the roof with climb held to tip on to the side. Hold climb as a vehicle hits you to grab on.
+- **Spider climb:** Gus can now climb on to pillars and one-block-deep ledges. He grabs walls at a slant, and holding climb stops a sprint from smashing what he's about to climb.
+- **Stairs and ramps:** Gus can walk up stairs. He stays on ramps going down instead of bouncing, and sprinting uphill no longer breaks the ramp's support.
+
+### Buildings and interiors
+
+**Bigger, more recognisable buildings**
+
+- Cities and large towns are about 30% wider.
+- Each kind of site has its place: offices downtown, hospitals in the ring, schools and superstores in the suburbs, heavy industry at the edge.
+- Shops, restaurants, banks, libraries and discos get their own roof shapes, with bigger signs.
+- Landmarks are easier to pick out, like the museum's copper dome, the whale on the aquarium and the train station clock tower.
+
+**Site sizes, in plots**
+
+- **Largest:** Airports are 14 x 6. Theme parks and nuclear plants are 8 x 8.
+- **Large:** Quarries are 6 x 6. Zoos are 5 x 5. Hospitals, universities, prisons, factories, studios and power stations run from 3 x 3 to 6 x 6.
+- **Medium:** Bases and dumps are 4 x 4. Lumber camps are 4 x 3. Mines and schools are 3 x 3. Museums, aquariums, furniture stores and cathedrals run from 2 x 3 to 4 x 3. Police stations are 2 x 2 with a rooftop helipad.
+
+**Rebuilt and new**
+
+- **Gas stations:** A branded canopy over three pump islands, with a tall price sign.
+- **Fire stations:** Red bay fronts, a taller hose tower and a flag.
+- **Schools:** A new larger site with a bus lane, clock tower and playing field.
+- **Dumps:** Now sit at the end of a real street, with a gate, shed and big mounds.
+- **Courthouses:** New, with a metal detector and a full courtroom.
+- **The capitol:** Rebuilt inside with a rotunda, Senate and House chambers, courtroom, statuary hall, library and more.
+
+**Furnished rooms**
+
+- Furniture is now made of small, goblin-sized models instead of whole blocks. Knock it over as you go.
+- Restaurants, shops, stores, malls, homes, flats, offices, public buildings, hospitals, venues and factories have laid-out rooms.
+- Museums have themed galleries, including Egypt, knights and fossils. Sound stages each shoot a different set.
+- Street benches, litter bins and beach and dock furniture are now models too.
+
+**Stairs and bathrooms**
+
+- Every multi-storey building that can fit stairs now has them, drawn as real steps with handrails. They can be smashed.
+- Buildings that were too cramped have been enlarged so stairs, bathrooms and doors all fit.
+- Bathrooms now appear wherever they'd logically be, sized to the floor, with matching walls and swinging doors.
+- The university library has a second staircase at its far end.
+
+### World, roads and coast
+
+**Roads and traffic**
+
+- Highways no longer slice through big buildings, and they join up properly with interchanges in any built-up place.
+- Barriers no longer cut across lanes where roads meet, and highways no longer stop dead in the grass.
+- Ramps taper to street width and carry their road markings all the way down.
+- Streets have solid centre lines that meet cleanly at corners, plus white stop lines. Trees stay off the streets.
+- Traffic flows better, with longer green lights, proper following and lanes that merge before end ramps. The worst queues dropped from 12 to 15 cars down to 7 to 10.
+- Fixed a jam where long trucks froze at the foot of ramps.
+
+**Coast**
+
+- Beaches and cliffs now blend gradually, and the sea bed is smooth.
+- Places by the water become coastal cities, harbor towns, resort towns or fishing villages. Shipping ports belong to coastal cities.
+- The kind of place now shows under its name.
+
+**Parody brands**
+
+- About 40 more parody chains, nine new billboards, and about 90 chains with their own goblin take on a logo.
+
+### Game modes and debug tools
+
+- **Testing Environment:** A new title screen mode with an empty, flat world. Spawn any structure, fully furnished, plus goblins, cultists, thieves, preppers, militia, police and civilians. Your own city is put aside and restored when you leave.
+- **Play as a goblin:** A first-person debug mode with a club. Other goblins take you for one of their own.
+- **Drive anything in goblin mode:** Press E to get in or out of cars, trucks, trains, boats, tanks, helicopters and planes. Bite fires a tank's shell or a helicopter's rocket, and otherwise sounds the horn.
+- **Debug menu:** Now has sections and columns, with switches to hide props, fixtures, caves, sewers, subways and each part of the on-screen display.
+- **Structures previewer:** Shows each structure fully dressed, with signs, furniture, rides and animals. A new fly mode lets you explore interiors floor by floor.
+- **Title screen:** Left and right change tab, on a controller and with the arrow keys.
+
+### Performance
+
+- Street goblins and vehicles are now drawn in batches. With 400 goblins on screen, draw calls fell from 8,688 to about 620, and a typical street scene went from about 550 to about 350.
+- Crowding checks are far cheaper: about 38 ms down to 4 ms a frame with around 630 goblins.
+- The crowd slider now goes up to 3000%.
+- Goblin route maps take less time per frame while reaching further.
+
+### Bug fixes
+
+- Gus no longer stomps a pit by himself at startup.
+- Rooms stay furnished after the game clears its plot cache.
+- Doors and handrails at the far end of big sites are now drawn.
+- Rooms with very tall ceilings now show their furniture, and country buildings no longer have grass floors.
+- Fixed wide double lines on north-south ramps and faint yellow road dashes.
+- Fixed the seasonal tint affecting the wrong textures, including road lines, flowers and crops.
+- Theme parks now build whole or not at all, which also fixes a world generation crash when two were close together.
+- A crash landing on a coaster car no longer blows a hole in the track.
+- A vehicle carrying Gus on its roof no longer disappears as out of sight.
+- Signs fall back to near the roof when their usual spot has nothing to hang on, and sit clear of pediments.

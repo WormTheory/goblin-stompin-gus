@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:f50f123373b2290096171bea9bea29e785369b24dda3b6b06e062d6a8fba8412 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:7559ca960e5478ffa161d0da76f814169fc7afda10f356bc2d23696fc049e67d -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -498,6 +498,23 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 .tb{background:rgba(29,36,45,.7);border:2px solid rgba(238,240,230,.25);color:var(--bone);font:700 12px var(--f-display);border-radius:6px;touch-action:none;padding:0}
 .tb:active,.tb.on{background:rgba(127,194,74,.5)}
 .acts .tb{height:64px}
+/* patch notes tab (its contents are built from src/patch-notes.md, the same as the website's patch notes page) */
+.gamepane .pnlatest{align-self:flex-start;font:600 12px var(--f-body);padding:4px 0;background:none;border:0;color:var(--moss);cursor:pointer;text-align:left}
+.gamepane .pnlatest:hover{text-decoration:underline}
+.gamepane .pnlatest:focus-visible{outline:2px solid var(--moss);outline-offset:2px}
+.pn{max-width:720px;width:100%;margin-inline:auto;font:400 14px/1.55 var(--f-body);color:var(--bone);user-select:text;-webkit-user-select:text}
+.pn .pn-web{margin:0 0 6px;font:500 11px/1.5 var(--f-mono);color:var(--mute)}
+.pn a{color:var(--moss)}
+.pn .pn-up{border-top:1px solid #2c3640;padding-top:6px;margin-top:18px}
+.pn h2{margin:10px 0 6px;font:800 20px var(--f-display);letter-spacing:.01em;color:var(--bone)}
+.pn h3{margin:18px 0 4px;font:700 13px var(--f-display);letter-spacing:.06em;text-transform:uppercase;color:var(--clay)}
+.pn h4{margin:12px 0 2px;font:700 14px var(--f-display);color:var(--bone)}
+.pn p{margin:6px 0;color:#cfd5d0}
+.pn ul{margin:4px 0 8px;padding-left:20px}
+.pn li{margin:3px 0;color:#cfd5d0}
+.pn li::marker{color:var(--moss)}
+.pn strong{color:var(--bone)}
+.pn code{font:500 12px var(--f-mono);background:var(--slate);padding:0 4px}
 </style>
 
 <canvas id="world"></canvas>
@@ -553,6 +570,7 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
       <button type="button" role="tab" id="tabBtnCustom" aria-selected="false" aria-controls="tabCustom">Character</button>
       <button type="button" role="tab" id="tabBtnControls" aria-selected="false" aria-controls="tabControls">Controls</button>
       <button type="button" role="tab" id="tabBtnOptions" aria-selected="false" aria-controls="tabOptions">Game options</button>
+      <button type="button" role="tab" id="tabBtnNotes" aria-selected="false" aria-controls="tabNotes">Patch notes</button>
       <button type="button" role="tab" id="tabBtnDev" aria-selected="false" aria-controls="tabDev">Dev</button>
 
     </div>
@@ -589,6 +607,7 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
         <div class="tp-foot"><button type="button" class="big" id="tpGo">Play</button><button type="button" class="pmenu" id="tpCancel">Title screen</button><button type="button" class="pmenu" id="tpNormal">Back to your city</button><button type="button" class="pmenu" id="tpReset">Reset world</button></div>
       </div>
       <div class="gamefoot">
+        <button type="button" class="pnlatest" id="pnLatest">What's new: November 5, 2026: Vehicle combat <span aria-hidden="true">›</span></button>
         <div class="note" id="padNote">No controllers found yet. Press a button on one to wake it up.</div>
         <div class="note" id="seedNote"></div>
       </div>
@@ -730,6 +749,90 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
     </div>
     </div>
     </div>
+    </div>
+    <div class="tabpane" id="tabNotes" role="tabpanel" hidden>
+      <div class="pn">
+        <p class="pn-web">What's changed, newest first. These notes are also on <a href="patch-notes/index.html" target="_blank" rel="noopener">their own web page</a>.</p>
+<section class="pn-up" id="november-5-2026-vehicle-combat"><h2>November 5, 2026: Vehicle combat</h2>
+<p>Covers the work from late on November 4 through November 5.</p>
+<p><strong>Old saves reset.</strong> Outdoor sites gained their own props, so cities saved before this update start fresh.</p>
+<h3>Highlights</h3>
+<ul><li>Tanks and helicopters are proper fighting machines, with machine guns, rockets, shells that reload, lock-on and an aim marker that shows where each shot will really land.</li><li>Every vehicle now collides with every other, and cars and tanks crash straight through walls at speed.</li><li>Campsites, markets, cemeteries, quarries, zoos and dozens of other outdoor sites are dressed with props, and campsites have motorhomes to wreck.</li><li>Enemy hostility is a three-step slider: Passive, Peaceful or Normal.</li><li>Goblins climb walls after Gus, and long falls now hurt them.</li><li>Toppling buildings and the distant city are far cheaper to draw, and arriving somewhere new stalls much less.</li><li>The game can be played on the web, and these notes live on their own page and in the main menu.</li></ul>
+<h3>Driving and vehicle combat</h3>
+<ul><li>In goblin mode, press F (Y on a controller) to get in and out of vehicles.</li><li>In a helicopter, bite (left click or RB) fires a machine gun and stomp (right click or RT) fires rockets.</li><li>Tank shells, the helicopter gun and rockets have magazines and reload times. An ammo panel shows what's left, with a reload bar and countdown, and firing with nothing loaded just clicks.</li><li>A driving display shows the vehicle's health, its weapon and a crosshair. The health box and ammo panel sit just above the hearts.</li><li>Lock on (Q, or R3 on a controller) to tanks and helicopters from your own, and the gun aims ahead of a moving target.</li><li>The camera sits higher and further back in tanks and helicopters. The aim marker follows the real path of the shell or rocket and marks where it will go off: faint when it would never land on anything, and orange at the screen edge when the spot is off-screen.</li><li>Tank shells and helicopter rockets blow bigger craters and damage vehicles, which jolt, smoke, burn and show health bars.</li><li>Crashing aircraft blow craters, and stopped helicopters and wrecks drop when the ground under them goes.</li><li>Driven cars climb one-block steps.</li><li>Motorcycles join the traffic and can be ridden in goblin mode. Parked ones no longer have a rider.</li><li>The get-out prompt shows Xbox button labels on Xbox controllers.</li></ul>
+<h3>Crashes and collisions</h3>
+<ul><li>A car hitting a wall faster than 13 blocks a second crushes a hole sized by its speed, takes heavy damage and carries on through. Slower bumps still bounce off.</li><li>A driven tank ramming a wall knocks out a hole as big as its front and keeps going at speed. It also fits under overhangs it can pass beneath.</li><li>All vehicles now collide with each other. Tanks no longer drive through a helicopter's tail, trains, planes, boats and rides push tanks and cars out of the way, and driven planes and boats stop or crash when they meet another vehicle.</li></ul>
+<h3>Goblins and enemies</h3>
+<ul><li>Goblins chasing Gus up a wall climb after him, and club him once they're level instead of waiting below.</li><li>Falls of more than 6 blocks hurt goblins, a point for every 2 blocks more, so a 16-block drop kills one. Water breaks the fall, and their routes no longer jump down drops that would hurt.</li><li><strong>Enemy hostility</strong> is now a slider on the main screen, in Game options and in the quick debug menu. Passive: nobody reacts to you, even when hit. Peaceful: nobody attacks, but people still run. Normal: they come for you. An old Peaceful setting carries over.</li><li>Playing as a goblin no longer calms everyone down. Hostility works just as it does for Gus.</li></ul>
+<h3>Outdoor sites</h3>
+<ul><li>Farmer's markets, camps, campsites, the cult altar, building sites, nurseries, trailer parks, cemeteries, mines, quarries, lumber camps, prepper, militia and thieves' compounds, ruins, dumps, parks, plazas, courts, lighthouses, power stations, zoos, theme parks, stadiums, arenas, car parks, bunkers and wrecked cars are all dressed with props.</li><li>Campsites have motorhomes parked on their pitches, and they can be wrecked like any parked car.</li><li>Campfires, the cult altar's included, are real fires now, but they don't spread and only hurt someone standing right on the wood.</li></ul>
+<h3>Movement</h3>
+<ul><li>Air dash comes back after Gus leaves the water, and can't be used while swimming.</li></ul>
+<h3>Looks</h3>
+<ul><li>Distant buildings now match their full-detail look, with their real wall, window and roof colours, proper shading, lit windows at night, and grass, rain and snow that follow the seasons and weather.</li></ul>
+<h3>Performance</h3>
+<ul><li>Toppling buildings and everyday frames are much cheaper. On an RTX 4070 Ti SUPER at default settings, standing still went from 207 to 379 fps and toppling from 133 to 278 fps, and the worst toppling frame fell from 189 ms to 18 ms.</li><li>Distant chunks that have settled are drawn merged in groups, cutting draw calls from 971 to 311 at a detail distance of 512.</li><li>Places ahead are worked out a little each frame, so the worst frame while moving dropped from 80 ms to 22 ms.</li><li>Saves are packed much smaller, and the game says so on screen if storage fills up. Old saves still load.</li><li>Smoke plumes only thin out when frames are running long, and goblin route maps rescan less often.</li></ul>
+<h3>Testing Environment</h3>
+<ul><li>Spawn every kind of vehicle, hunting Gus or parked: cars, vans, pickups, trucks, semis, buses, fire engines, ambulances, news vans, motorcycles, police cars, tanks and helicopters.</li><li>A Plane button parks an airliner on the grass ahead of Gus, ready to get in and take straight off.</li><li>Spawned structures are built on the nearest clear ground in front of Gus, instead of moving Gus to them.</li><li>A Reset world button starts a fresh empty world, and spawned vehicles keep clear of each other.</li><li>The structures preview now finds a real housing estate.</li></ul>
+<h3>Debug tools</h3>
+<ul><li>A Sound list overlay names every sound as it plays.</li><li>In the quick debug menu, pick a slider with A before left and right move it, like the other menus.</li></ul>
+</section>
+<section class="pn-up" id="november-2-to-4-2026-the-move-to-claude-code"><h2>November 2 to 4, 2026: The move to Claude Code</h2>
+<p>The first 92 changes after the game moved to Claude Code. Each entry describes where things ended up, so features that were reworked along the way appear once.</p>
+<p><strong>Old saves reset.</strong> World generation changed many times, so cities saved before this update start fresh.</p>
+<h3>Highlights</h3>
+<ul><li>Gus can spider-climb and ride moving vehicles, including trains, boats, planes and the roller coaster.</li><li>Trains, planes, boats, theme park rides and zoo animals can all be destroyed.</li><li>Cultists, thieves, preppers and militia now defend their sites, and military bases scramble real tanks and helicopters.</li><li>Goblins chase with real routes: they climb, jump gaps, swim and use stairs and doors.</li><li>Almost every building has been resized and furnished room by room, with stairs and bathrooms where they make sense.</li><li>Goblin mode lets you drive anything, and the new Testing Environment spawns any structure or enemy on demand.</li></ul>
+<h3>Enemies and goblins</h3>
+<h4>Cultists</h4>
+<ul><li>Robed, hooded cultists now gather live at their altars and shuffle around them until disturbed.</li><li>Come within 15 blocks of the altar or hurt one and the whole cult turns on you.</li><li>They conjure fireballs at range and stab with ritual daggers up close.</li><li>Killed cultists stay dead until the cult has had two quiet minutes.</li></ul>
+<h4>Compound guards</h4>
+<ul><li>Thieves' hideouts, prepper bunkers and militia camps now have live guards who mill about until you come close or hurt one.</li><li>Thieves stab with daggers.</li><li>Preppers carry rifles and pipe bombs. Militia carry rifles and grenades.</li><li>Tower guards hold their posts.</li></ul>
+<h4>Goblin pathfinding</h4>
+<ul><li>Goblins now find real routes to Gus instead of falling apart in big buildings.</li><li>They hop ledges and railings, jump gaps, climb walls in both directions, swim, and use stairs and doors.</li><li>With a clear path, they run straight at where Gus is now rather than where he recently was.</li><li>They leap at Gus when he's on top of a tall vehicle, and still find him when he's sunk.</li><li>They walk around furniture, and shove it over if it holds them up.</li><li>They no longer perch on stair rails, and they swim lower in the water.</li></ul>
+<h3>Combat, vehicles and destruction</h3>
+<h4>Military bases</h4>
+<ul><li>Parked tanks and helicopters are now real vehicles. Entering a base or hitting one sounds the alert.</li><li>Tanks hunt you and fire shells. Helicopters lift off, circle, and strafe with bursts and rockets.</li><li>They're solid. Moving tanks run goblins down and ram cars.</li><li>Destroyed armour stays destroyed in your save. The base stands down 30 seconds after you leave.</li></ul>
+<h4>Trains</h4>
+<ul><li>Trains now have an engine at each end and reverse smoothly at the end of the line.</li><li>Each car has its own health. Losing one stops the train and scores 500, and destroying them all scores 1000 more. Subway trains can be wrecked too.</li><li>A moving train throws you forward and up instead of nudging you aside.</li></ul>
+<h4>Airplanes</h4>
+<ul><li>Land on any airport plane and ride it through taxiing, takeoff, flight and landing.</li><li>Planes have 300 health and score 1000 points. Shot down, one falls and blows a crater.</li><li>A replacement arrives two minutes later, once no one's within 350 blocks.</li><li>Moving planes strike goblins, cars and you. Parked planes no longer clip the terminals.</li></ul>
+<h4>Boats</h4>
+<ul><li>Every boat is a new model: pedal boat, rowboat, speedboat, launch, yacht, trawler, tug, ferry, warship and container ship.</li><li>All of them can be stood on, ridden and wrecked. They burn and list when hurt, sink when wrecked, and are replaced later.</li><li>At sea they follow routes on open water. Others are moored at harbours, quays, dry docks, beaches and rigs.</li><li>Jump while swimming beside a boat to climb aboard.</li></ul>
+<h4>Theme parks and zoos</h4>
+<ul><li>Coaster cars, the Ferris wheel and the carousel can all be destroyed. Break the track and the coaster derails.</li><li>Zoo animals can be killed. Wrecks and deaths are saved with your world.</li></ul>
+<h4>Traffic and crashes</h4>
+<ul><li>Ordinary traffic now runs goblins down, not just police cars.</li><li>Trains, boats and planes crash when they meet.</li></ul>
+<h4>News crews</h4>
+<ul><li>News crews now drive out from news stations to cover fires, car crashes and killings.</li></ul>
+<h3>Movement</h3>
+<ul><li><strong>Riding vehicles:</strong> Drop on to any moving vehicle and you land on it unhurt, unless you fell from a real height. You're carried round bends and stay on the roof going down ramps.</li><li><strong>Roller coaster:</strong> Gus can now land on and ride coaster cars for whole laps.</li><li><strong>Climbing vehicles:</strong> Gus can cling to and climb cars, trucks, train cars, ship hulls, container stacks and planes while they move. Climb over the top to ride on the roof, or walk off the roof with climb held to tip on to the side. Hold climb as a vehicle hits you to grab on.</li><li><strong>Spider climb:</strong> Gus can now climb on to pillars and one-block-deep ledges. He grabs walls at a slant, and holding climb stops a sprint from smashing what he's about to climb.</li><li><strong>Stairs and ramps:</strong> Gus can walk up stairs. He stays on ramps going down instead of bouncing, and sprinting uphill no longer breaks the ramp's support.</li></ul>
+<h3>Buildings and interiors</h3>
+<h4>Bigger, more recognisable buildings</h4>
+<ul><li>Cities and large towns are about 30% wider.</li><li>Each kind of site has its place: offices downtown, hospitals in the ring, schools and superstores in the suburbs, heavy industry at the edge.</li><li>Shops, restaurants, banks, libraries and discos get their own roof shapes, with bigger signs.</li><li>Landmarks are easier to pick out, like the museum's copper dome, the whale on the aquarium and the train station clock tower.</li></ul>
+<h4>Site sizes, in plots</h4>
+<ul><li><strong>Largest:</strong> Airports are 14 x 6. Theme parks and nuclear plants are 8 x 8.</li><li><strong>Large:</strong> Quarries are 6 x 6. Zoos are 5 x 5. Hospitals, universities, prisons, factories, studios and power stations run from 3 x 3 to 6 x 6.</li><li><strong>Medium:</strong> Bases and dumps are 4 x 4. Lumber camps are 4 x 3. Mines and schools are 3 x 3. Museums, aquariums, furniture stores and cathedrals run from 2 x 3 to 4 x 3. Police stations are 2 x 2 with a rooftop helipad.</li></ul>
+<h4>Rebuilt and new</h4>
+<ul><li><strong>Gas stations:</strong> A branded canopy over three pump islands, with a tall price sign.</li><li><strong>Fire stations:</strong> Red bay fronts, a taller hose tower and a flag.</li><li><strong>Schools:</strong> A new larger site with a bus lane, clock tower and playing field.</li><li><strong>Dumps:</strong> Now sit at the end of a real street, with a gate, shed and big mounds.</li><li><strong>Courthouses:</strong> New, with a metal detector and a full courtroom.</li><li><strong>The capitol:</strong> Rebuilt inside with a rotunda, Senate and House chambers, courtroom, statuary hall, library and more.</li></ul>
+<h4>Furnished rooms</h4>
+<ul><li>Furniture is now made of small, goblin-sized models instead of whole blocks. Knock it over as you go.</li><li>Restaurants, shops, stores, malls, homes, flats, offices, public buildings, hospitals, venues and factories have laid-out rooms.</li><li>Museums have themed galleries, including Egypt, knights and fossils. Sound stages each shoot a different set.</li><li>Street benches, litter bins and beach and dock furniture are now models too.</li></ul>
+<h4>Stairs and bathrooms</h4>
+<ul><li>Every multi-storey building that can fit stairs now has them, drawn as real steps with handrails. They can be smashed.</li><li>Buildings that were too cramped have been enlarged so stairs, bathrooms and doors all fit.</li><li>Bathrooms now appear wherever they'd logically be, sized to the floor, with matching walls and swinging doors.</li><li>The university library has a second staircase at its far end.</li></ul>
+<h3>World, roads and coast</h3>
+<h4>Roads and traffic</h4>
+<ul><li>Highways no longer slice through big buildings, and they join up properly with interchanges in any built-up place.</li><li>Barriers no longer cut across lanes where roads meet, and highways no longer stop dead in the grass.</li><li>Ramps taper to street width and carry their road markings all the way down.</li><li>Streets have solid centre lines that meet cleanly at corners, plus white stop lines. Trees stay off the streets.</li><li>Traffic flows better, with longer green lights, proper following and lanes that merge before end ramps. The worst queues dropped from 12 to 15 cars down to 7 to 10.</li><li>Fixed a jam where long trucks froze at the foot of ramps.</li></ul>
+<h4>Coast</h4>
+<ul><li>Beaches and cliffs now blend gradually, and the sea bed is smooth.</li><li>Places by the water become coastal cities, harbor towns, resort towns or fishing villages. Shipping ports belong to coastal cities.</li><li>The kind of place now shows under its name.</li></ul>
+<h4>Parody brands</h4>
+<ul><li>About 40 more parody chains, nine new billboards, and about 90 chains with their own goblin take on a logo.</li></ul>
+<h3>Game modes and debug tools</h3>
+<ul><li><strong>Testing Environment:</strong> A new title screen mode with an empty, flat world. Spawn any structure, fully furnished, plus goblins, cultists, thieves, preppers, militia, police and civilians. Your own city is put aside and restored when you leave.</li><li><strong>Play as a goblin:</strong> A first-person debug mode with a club. Other goblins take you for one of their own.</li><li><strong>Drive anything in goblin mode:</strong> Press E to get in or out of cars, trucks, trains, boats, tanks, helicopters and planes. Bite fires a tank's shell or a helicopter's rocket, and otherwise sounds the horn.</li><li><strong>Debug menu:</strong> Now has sections and columns, with switches to hide props, fixtures, caves, sewers, subways and each part of the on-screen display.</li><li><strong>Structures previewer:</strong> Shows each structure fully dressed, with signs, furniture, rides and animals. A new fly mode lets you explore interiors floor by floor.</li><li><strong>Title screen:</strong> Left and right change tab, on a controller and with the arrow keys.</li></ul>
+<h3>Performance</h3>
+<ul><li>Street goblins and vehicles are now drawn in batches. With 400 goblins on screen, draw calls fell from 8,688 to about 620, and a typical street scene went from about 550 to about 350.</li><li>Crowding checks are far cheaper: about 38 ms down to 4 ms a frame with around 630 goblins.</li><li>The crowd slider now goes up to 3000%.</li><li>Goblin route maps take less time per frame while reaching further.</li></ul>
+<h3>Bug fixes</h3>
+<ul><li>Gus no longer stomps a pit by himself at startup.</li><li>Rooms stay furnished after the game clears its plot cache.</li><li>Doors and handrails at the far end of big sites are now drawn.</li><li>Rooms with very tall ceilings now show their furniture, and country buildings no longer have grass floors.</li><li>Fixed wide double lines on north-south ramps and faint yellow road dashes.</li><li>Fixed the seasonal tint affecting the wrong textures, including road lines, flowers and crops.</li><li>Theme parks now build whole or not at all, which also fixes a world generation crash when two were close together.</li><li>A crash landing on a coaster car no longer blows a hole in the track.</li><li>A vehicle carrying Gus on its roof no longer disappears as out of sight.</li><li>Signs fall back to near the roof when their usual spot has nothing to hang on, and sit clear of pediments.</li></ul>
+</section>
+
+      </div>
     </div>
     <div class="tabpane" id="tabDev" role="tabpanel" hidden>
       <div class="devwrap" id="devWrap">
@@ -11941,7 +12044,7 @@ function renderMap(){
  addEventListener('keydown',e=>{if(menuOpen&&curTab==='map'&&e.code==='KeyC'&&!e.repeat)mapRecentre();});
  addEventListener('resize',()=>{if(menuOpen&&curTab==='map')renderMap();});
 }
-const TABS=[['game','Game'],['map','Map'],['obit','Obit'],['custom','Custom'],['controls','Controls'],['options','Options'],['dev','Dev']];let curTab='game';
+const TABS=[['game','Game'],['map','Map'],['obit','Obit'],['custom','Custom'],['controls','Controls'],['options','Options'],['notes','Notes'],['dev','Dev']];let curTab='game';
 function showTab(which){
   if(typeof which==='number')which=TABS[(which+TABS.length)%TABS.length][0];
   curTab=which;
@@ -12723,6 +12826,8 @@ function menuPad(st,dt){
 // the mouse takes over again: drop the controller highlight
 addEventListener('mousemove',e=>{if(menuOpen&&(Math.abs(e.movementX)+Math.abs(e.movementY)>2))for(const el of menuCard.querySelectorAll('.padfocus'))el.classList.remove('padfocus');});
 for(const [t,id] of TABS)document.getElementById('tabBtn'+id).addEventListener('click',()=>showTab(t));
+// (the title screen's "What's new" line opens the Patch notes tab, leaving the highlight on its tab so B and LB/RB carry on from there)
+document.getElementById('pnLatest').addEventListener('click',()=>{showTab('notes');const b=document.getElementById('tabBtnNotes');if(inputKind==='pad')padFocus(b);else b.focus();});
 
 // ---- button prompts: a row along the bottom of each menu showing just the inputs that do something there ----
 // glyph ids: A B X Y (face buttons), LB RB LT RT, LS/RS (':v' up-down, ':h' left-right), DPAD (':v'/':h'),

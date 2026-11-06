@@ -59,6 +59,7 @@
       <button type="button" role="tab" id="tabBtnCustom" aria-selected="false" aria-controls="tabCustom">Character</button>
       <button type="button" role="tab" id="tabBtnControls" aria-selected="false" aria-controls="tabControls">Controls</button>
       <button type="button" role="tab" id="tabBtnOptions" aria-selected="false" aria-controls="tabOptions">Game options</button>
+      <button type="button" role="tab" id="tabBtnNotes" aria-selected="false" aria-controls="tabNotes">Patch notes</button>
       <button type="button" role="tab" id="tabBtnDev" aria-selected="false" aria-controls="tabDev">Dev</button>
 
     </div>
@@ -95,6 +96,7 @@
         <div class="tp-foot"><button type="button" class="big" id="tpGo">Play</button><button type="button" class="pmenu" id="tpCancel">Title screen</button><button type="button" class="pmenu" id="tpNormal">Back to your city</button><button type="button" class="pmenu" id="tpReset">Reset world</button></div>
       </div>
       <div class="gamefoot">
+        <button type="button" class="pnlatest" id="pnLatest">What's new: <!-- build: patch-notes-latest --> <span aria-hidden="true">›</span></button>
         <div class="note" id="padNote">No controllers found yet. Press a button on one to wake it up.</div>
         <div class="note" id="seedNote"></div>
       </div>
@@ -236,6 +238,12 @@
     </div>
     </div>
     </div>
+    </div>
+    <div class="tabpane" id="tabNotes" role="tabpanel" hidden>
+      <div class="pn">
+        <p class="pn-web">What's changed, newest first. These notes are also on <a href="patch-notes/index.html" target="_blank" rel="noopener">their own web page</a>.</p>
+<!-- build: patch-notes -->
+      </div>
     </div>
     <div class="tabpane" id="tabDev" role="tabpanel" hidden>
       <div class="devwrap" id="devWrap">

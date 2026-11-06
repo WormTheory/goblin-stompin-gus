@@ -219,7 +219,7 @@ function renderMap(){
  addEventListener('keydown',e=>{if(menuOpen&&curTab==='map'&&e.code==='KeyC'&&!e.repeat)mapRecentre();});
  addEventListener('resize',()=>{if(menuOpen&&curTab==='map')renderMap();});
 }
-const TABS=[['game','Game'],['map','Map'],['obit','Obit'],['custom','Custom'],['controls','Controls'],['options','Options'],['dev','Dev']];let curTab='game';
+const TABS=[['game','Game'],['map','Map'],['obit','Obit'],['custom','Custom'],['controls','Controls'],['options','Options'],['notes','Notes'],['dev','Dev']];let curTab='game';
 function showTab(which){
   if(typeof which==='number')which=TABS[(which+TABS.length)%TABS.length][0];
   curTab=which;

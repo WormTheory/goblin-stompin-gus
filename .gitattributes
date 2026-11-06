@@ -3,3 +3,4 @@
 *.png binary
 # (Built from src/, so every change would show up twice in a diff: "git diff --text" still shows it.)
 game/index.html -diff linguist-generated=true
+game/patch-notes/index.html -diff linguist-generated=true

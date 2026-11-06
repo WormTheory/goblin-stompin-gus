@@ -101,6 +101,8 @@ function menuPad(st,dt){
 // the mouse takes over again: drop the controller highlight
 addEventListener('mousemove',e=>{if(menuOpen&&(Math.abs(e.movementX)+Math.abs(e.movementY)>2))for(const el of menuCard.querySelectorAll('.padfocus'))el.classList.remove('padfocus');});
 for(const [t,id] of TABS)document.getElementById('tabBtn'+id).addEventListener('click',()=>showTab(t));
+// (the title screen's "What's new" line opens the Patch notes tab, leaving the highlight on its tab so B and LB/RB carry on from there)
+document.getElementById('pnLatest').addEventListener('click',()=>{showTab('notes');const b=document.getElementById('tabBtnNotes');if(inputKind==='pad')padFocus(b);else b.focus();});
 
 // ---- button prompts: a row along the bottom of each menu showing just the inputs that do something there ----
 // glyph ids: A B X Y (face buttons), LB RB LT RT, LS/RS (':v' up-down, ':h' left-right), DPAD (':v'/':h'),

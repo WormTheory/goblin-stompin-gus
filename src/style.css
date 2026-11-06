@@ -492,3 +492,20 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 .tb{background:rgba(29,36,45,.7);border:2px solid rgba(238,240,230,.25);color:var(--bone);font:700 12px var(--f-display);border-radius:6px;touch-action:none;padding:0}
 .tb:active,.tb.on{background:rgba(127,194,74,.5)}
 .acts .tb{height:64px}
+/* patch notes tab (its contents are built from src/patch-notes.md, the same as the website's patch notes page) */
+.gamepane .pnlatest{align-self:flex-start;font:600 12px var(--f-body);padding:4px 0;background:none;border:0;color:var(--moss);cursor:pointer;text-align:left}
+.gamepane .pnlatest:hover{text-decoration:underline}
+.gamepane .pnlatest:focus-visible{outline:2px solid var(--moss);outline-offset:2px}
+.pn{max-width:720px;width:100%;margin-inline:auto;font:400 14px/1.55 var(--f-body);color:var(--bone);user-select:text;-webkit-user-select:text}
+.pn .pn-web{margin:0 0 6px;font:500 11px/1.5 var(--f-mono);color:var(--mute)}
+.pn a{color:var(--moss)}
+.pn .pn-up{border-top:1px solid #2c3640;padding-top:6px;margin-top:18px}
+.pn h2{margin:10px 0 6px;font:800 20px var(--f-display);letter-spacing:.01em;color:var(--bone)}
+.pn h3{margin:18px 0 4px;font:700 13px var(--f-display);letter-spacing:.06em;text-transform:uppercase;color:var(--clay)}
+.pn h4{margin:12px 0 2px;font:700 14px var(--f-display);color:var(--bone)}
+.pn p{margin:6px 0;color:#cfd5d0}
+.pn ul{margin:4px 0 8px;padding-left:20px}
+.pn li{margin:3px 0;color:#cfd5d0}
+.pn li::marker{color:var(--moss)}
+.pn strong{color:var(--bone)}
+.pn code{font:500 12px var(--f-mono);background:var(--slate);padding:0 4px}
