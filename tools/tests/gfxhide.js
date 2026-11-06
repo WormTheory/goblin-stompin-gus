@@ -95,4 +95,8 @@ console.log('props meshes visible after switching back',T.PROP_L.visible,T.PROP_
  let ok=0;for(const it of rows.slice(1)){const on0=T.dbgVal(it.k);tog(it.k);const hid=css().includes('{display:none');tog(it.k);if(on0&&hid&&T.dbgVal(it.k)&&!css())ok++;}
  console.log('interface rows',rows.length,'each hides and comes back',ok,'of',rows.length-1);
  tog('uiAll');console.log('whole display off:',css().split('}').length-1,'rules, row says',T.dbgVal('uiAll'));tog('uiMini');console.log('one back on: row says',T.dbgVal('uiAll'),'rules',css().split('}').length-1);tog('uiAll');console.log('all off again, rules',css().split('}').length-1);tog('uiAll');console.log('all on again, css empty',css()==='');}
+// the Show / hide tab's Show all and Hide all
+{const L0=T.dbgItems().length;T.DT.tab=1;const L=T.dbgItems(),row=k=>{T.DT.cur=T.dbgItems().findIndex(o=>o.k===k);T.dbgMenuToggle();};
+ console.log('Show / hide tab first rows:',L.slice(0,2).map(o=>o.label).join(', '),'| on the main tab too:',T.DBG_ITEMS.filter(o=>o.act).some(o=>{T.DT.tab=0;const r=T.dbgItems().includes(o);T.DT.tab=1;return r;}));
+ row('_none');T.DT.tab=0;const n0=T.dbgItems().length;T.DT.tab=1;row('_all');T.DT.tab=0;console.log('main tab rows: before',L0,'after Hide all',n0,'after Show all',T.dbgItems().length);}
 process.exit(0);

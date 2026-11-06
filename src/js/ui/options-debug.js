@@ -54,6 +54,8 @@ const uiVal=k=>k==='uiAll'?UI_OFF.size<Object.keys(UI_PARTS).length:!UI_OFF.has(
 const isUi=k=>k==='uiAll'||!!UI_PARTS[k];
 // the quick menu's rows, section by section: [column, section's title, rows]
 const DBG_COLS=4,DBG_SECS=[
+  // (Show / hide tab only: every switch shown, or none)
+  [0,'All',[{k:'_all',label:'Show all',act:true},{k:'_none',label:'Hide all',act:true}]],
   [0,'Time',[{k:'speed',label:'Game speed'},{k:'paused',label:'Stop time'}]],
   [0,'Camera',[{k:'freecam',label:'Free cam'},{k:'curve',label:'World curve'}]],
   [0,'World',[{k:'wx',label:'Weather'},{k:'season',label:'Season'}]],
@@ -86,7 +88,7 @@ const DBG_HIDE_KEY='goblin-stompin-gus-dbghide',DBG_HIDE=new Set();
 try{const h=JSON.parse(localStorage.getItem(DBG_HIDE_KEY)||'[]');if(Array.isArray(h))for(const k of h)if(DBG_ITEMS.some(it=>it.k===k))DBG_HIDE.add(k);}catch(e){}
 // the rows on show: on the main tab, those not hidden (and the individual hitbox switches only while 'Display hitboxes'
 // is on); on Show / hide, every row
-function dbgItems(){const L=DT.tab?DBG_ITEMS:DBG_ITEMS.filter(it=>!DBG_HIDE.has(it.k)&&(!it.col||DBG.show));if(DT.cur>=L.length)DT.cur=Math.max(0,L.length-1);return L;}
+function dbgItems(){const L=DT.tab?DBG_ITEMS:DBG_ITEMS.filter(it=>!it.act&&!DBG_HIDE.has(it.k)&&(!it.col||DBG.show));if(DT.cur>=L.length)DT.cur=Math.max(0,L.length-1);return L;}
 // over to the other tab, keeping the highlight on the same row if it's there
 function dbgTab(t){const k=(dbgItems()[DT.cur]||{}).k;DT.tab=t;DT.edit=null;DT.dd=null;const i=dbgItems().findIndex(it=>it.k===k);DT.cur=Math.max(0,i);tone('triangle',560,0,0.04,0.02);renderTime();}
 // step a slider row (game speed or player speed) left or right
@@ -108,7 +110,7 @@ function ddChoose(k,j){
   DT.dd=null;tone('triangle',620,0,0.05,0.03);renderTime();
 }
 function dbgMenuToggle(){const it=dbgItems()[DT.cur];if(!it)return;
-  if(DT.tab){if(!DBG_HIDE.delete(it.k))DBG_HIDE.add(it.k);try{localStorage.setItem(DBG_HIDE_KEY,JSON.stringify([...DBG_HIDE]));}catch(e){}tone('triangle',DBG_HIDE.has(it.k)?440:660,0,0.05,0.03);renderTime();return;}
+  if(DT.tab){if(it.k==='_all')DBG_HIDE.clear();else if(it.k==='_none'){for(const o of DBG_ITEMS)if(!o.act)DBG_HIDE.add(o.k);}else if(!DBG_HIDE.delete(it.k))DBG_HIDE.add(it.k);try{localStorage.setItem(DBG_HIDE_KEY,JSON.stringify([...DBG_HIDE]));}catch(e){}tone('triangle',it.k==='_none'||DBG_HIDE.has(it.k)?440:660,0,0.05,0.03);renderTime();return;}
   if(it.k==='wx'||it.k==='season'){if(DT.dd&&DT.dd.k===it.k)ddChoose(it.k,DT.dd.i);else{DT.dd={k:it.k,i:ddCur(it.k)};DT.ddScroll=0;DT.ddNav=true;tone('triangle',560,0,0.04,0.02);renderTime();}return;}
   DT.dd=null;
   if(DBG_SLIDE.has(it.k)){DT.edit=DT.edit===it.k?null:it.k;tone('triangle',DT.edit?620:480,0,0.05,0.03);renderTime();return;}
@@ -154,7 +156,7 @@ function renderTime(){
   if(DT.menu){
     const dbgL=dbgItems();
     {const tb=document.getElementById('dpTabs');if(tb)tb.innerHTML=['Switches','Show / hide'].map((n,t)=>'<button type="button" data-t="'+t+'"'+(t===DT.tab?' class="on"':'')+'>'+n+'</button>').join('');}
-    const dbgRows=dbgL.map((it,i)=>{const v=DT.tab?!DBG_HIDE.has(it.k):dbgVal(it.k),txt=typeof v==='boolean'?(DT.tab?(v?'SHOWN':'HIDDEN'):v?'ON':'OFF'):v;
+    const dbgRows=dbgL.map((it,i)=>{const nAll=DBG_ITEMS.filter(o=>!o.act).length,v=it.act?(it.k==='_all'?(nAll-DBG_HIDE.size)+' / '+nAll+' shown':''):DT.tab?!DBG_HIDE.has(it.k):dbgVal(it.k),txt=typeof v==='boolean'?(DT.tab?(v?'SHOWN':'HIDDEN'):v?'ON':'OFF'):v;
       let body=txt;
       if(DT.tab){}
       else if(DBG_SLIDE.has(it.k)){const n=it.k==='curve'?21:it.k==='host'?3:(it.k==='speed'?SPEEDS:PSPEEDS).length,f=(it.k==='curve'?DT.curve+10:it.k==='host'?DT.host:it.k==='speed'?DT.speedI:DT.psI)/(n-1)*100;body='<span class="sl" data-k="'+it.k+'"><i style="width:'+f+'%"></i><b style="left:'+f+'%"></b></span><span class="slv">'+txt+'</span>';}
