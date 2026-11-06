@@ -38,7 +38,11 @@ function updateParts(dt){for(const p of parts){if(p.life<=0)continue;p.life-=dt;
   if(p.life<=0)m.visible=false;}}
 const decals=[];let decalIdx=0,decalsDirty=false;
 for(let i=0;i<160;i++){const m=fxObj([0x5a0a0a,0x6e0d0d,0x4a0606][i%3],1);m.rotation.x=-Math.PI/2;decals.push(m);}
-const DECAL_M=fxBatch(new THREE.CircleGeometry(1,10),new THREE.MeshBasicMaterial({color:0xffffff,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2}),160,false);
+const DECAL_M=fxBatch(new THREE.CircleGeometry(1,10),new THREE.MeshBasicMaterial({color:0xffffff,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2,depthWrite:false}),160,false);
+// (they lie flat at the same height, so overlapping ones would fight over the depth buffer and flicker: they don't write
+// depth, and are drawn oldest first, so where two overlap the newer one is simply painted over the older; drawn after
+// the rest of the solid scene, so the ground under them can't paint over them in turn)
+DECAL_M.renderOrder=2;
 function splat(x,z,y,r){if(SBX)return;const g=supportAt(x,z,y);if(g===null)return;const m=decals[decalIdx++%decals.length];m.position.set(x,g+0.015,z);m.scale.set(r*(0.7+Math.random()*0.6),r*(0.7+Math.random()*0.6),1);m.rotation.z=Math.random()*6.28;m.visible=true;decalsDirty=true;}
 const flatMat=(c,o,f)=>new THREE.MeshBasicMaterial({color:c,transparent:o<1,opacity:o,polygonOffset:true,polygonOffsetFactor:f,polygonOffsetUnits:f});
 const scorches=[];let scorchIdx=0;
@@ -70,7 +74,7 @@ const fxOrder=[];
 function fxDraw(){
   let n=0;for(const r of rubble)if(r.m.visible)fxPut(RUBBLE_M,n++,r.m);
   if(n||RUBBLE_M.count)fxSent(RUBBLE_M,n);
-  if(decalsDirty){decalsDirty=false;n=0;for(const d of decals)if(d.visible)fxPut(DECAL_M,n++,d);fxSent(DECAL_M,n);}
+  if(decalsDirty){decalsDirty=false;n=0;const L=decals.length;for(let k=0;k<L;k++){const d=decals[(decalIdx+k)%L];if(d.visible)fxPut(DECAL_M,n++,d);}fxSent(DECAL_M,n);}
   fxOrder.length=0;const c=P1.camera.position;
   for(const p of parts)if(p.m.visible){const t=p.m.position;p.d=(t.x-c.x)*(t.x-c.x)+(t.y-c.y)*(t.y-c.y)+(t.z-c.z)*(t.z-c.z);fxOrder.push(p);}
   if(fxOrder.length>1)fxOrder.sort((a,b)=>b.d-a.d);

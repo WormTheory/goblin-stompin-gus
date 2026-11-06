@@ -1,3 +1,4 @@
+const SWIM_HOLD=0.35;   // (holding jump in the water: seconds between paddle strokes upward)
 function movePlayer(p,dt){
   if(!p.active)return;
   if(p.state!=='climb')p.vcl=null;   // (a hold on a vehicle's side ends with the cling, however that ended)
@@ -527,6 +528,8 @@ function movePlayer(p,dt){
   const wet=get(Math.floor(p.pos.x),Math.floor(p.pos.y+0.6),Math.floor(p.pos.z))===WATER;
   if(wet&&!p.wet){puff(p.pos.x,p.pos.y+0.8,p.pos.z,12,0xcfe8ff,1.2);sfx('Splash',()=>{noise(0.4,0.35,900,'lowpass');tone('sine',300,120,0.25,0.06);});}
   p.wet=wet;if(wet){p.peakY=p.pos.y;p.airJumps=airJumpsMax();p.airDash=true;}   // (the air dash comes back in the water, but can't be used until he's out of it)
+  // (holding jump in the water keeps on paddling upward, a stroke every SWIM_HOLD seconds after the first)
+  if(wet&&ABIL.jump&&p.in.jump&&!p.grounded&&p.state==='walk'){p.swimHoldT=(p.swimHoldT??SWIM_HOLD)-dt;if(p.swimHoldT<=0){p.swimHoldT=SWIM_HOLD;p.vy=Math.max(p.vy,4.2);puff(p.pos.x,p.pos.y+0.5,p.pos.z,4,0xcfe8ff,0.5);}}else p.swimHoldT=SWIM_HOLD;
   if(g!==null){
     if(DT.fly&&p.state==='walk'&&!wet&&(p.pos.y>g+0.01||p.in.jump)){
       // debug flying: hold jump to rise, climb to sink, let go to hover (no gravity, no fall damage, no air jumps)
