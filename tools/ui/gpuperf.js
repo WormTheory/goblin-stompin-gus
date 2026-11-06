@@ -1,7 +1,7 @@
 // Real frame rates, on this machine's real graphics card: the game at 1280x720 with the frame cap off, standing in a city, and then
 // while a tall building topples. Prints the card's name, frames per second, and frame times (the time between frames, so all of
 // it counts: JavaScript, the driver and the card).
-// (STRESS=8 brings down the buildings round it too. RUN=1 instead moves across the city at 30 blocks a second. VIEW=2000 DETAIL=500 set the view and detail distances; WAITMS how long to let the distance load first.)
+// (W=2560 H=1440 DPR=1.5 for a big screen. CHAR=goblin plays as Gnash. STRESS=8 brings down the buildings round it too. RUN=1 instead moves across the city at 30 blocks a second. VIEW=2000 DETAIL=500 set the view and detail distances; WAITMS how long to let the distance load first.)
 // Usage, from tools/ui, after python tools/build_3d.py game/index.html tools/ui/t3.html: node gpuperf.js [page.html] [seed] [nth tallest]
 const {chromium}=require('playwright');
 const fs=require('fs');
@@ -10,9 +10,9 @@ const SAVE_KEY=fs.readFileSync(page,'utf8').match(/SAVE_KEY='([^']+)'/)[1];
 (async()=>{
 const VIEW=process.env.VIEW,DETAIL=process.env.DETAIL,WAITMS=+(process.env.WAITMS||12000);
 const b=await chromium.launch({headless:process.env.HEADED?false:true,args:['--use-gl=angle','--use-angle=d3d11','--ignore-gpu-blocklist','--enable-gpu-rasterization','--disable-frame-rate-limit','--disable-gpu-vsync']});
-const p=await b.newPage({viewport:{width:1280,height:720}});
+const p=await (await b.newContext({viewport:{width:+(process.env.W||1280),height:+(process.env.H||720)},deviceScaleFactor:+(process.env.DPR||1)})).newPage();
 const errs=[];p.on('pageerror',e=>errs.push(e.message));p.on('console',m=>{if(m.type()==='error')errs.push(m.text().slice(0,200));});
-await p.addInitScript(([k,s,v,d])=>{if(!localStorage.getItem(k))localStorage.setItem(k,JSON.stringify({seed:s}));if(v)localStorage.setItem('goblin-stompin-gus-view',v);if(d)localStorage.setItem('goblin-stompin-gus-detail',d);},[SAVE_KEY,seed,VIEW,DETAIL]);
+await p.addInitScript(([k,s,v,d])=>{if(!localStorage.getItem(k))localStorage.setItem(k,JSON.stringify({seed:s}));if(v)localStorage.setItem('goblin-stompin-gus-view',v);if(d)localStorage.setItem('goblin-stompin-gus-detail',d);if(c)localStorage.setItem('goblin-stompin-gus-character',c);},[SAVE_KEY,seed,VIEW,DETAIL,process.env.CHAR]);
 await p.goto('file://'+page);await p.waitForTimeout(2500);
 const gpu=await p.evaluate(()=>{const c=document.createElement('canvas'),g=c.getContext('webgl2')||c.getContext('webgl'),e=g&&g.getExtension('WEBGL_debug_renderer_info');return e?g.getParameter(e.UNMASKED_RENDERER_WEBGL):'unknown';});
 console.log('card:',gpu);
