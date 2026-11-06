@@ -4,12 +4,15 @@
 // it counts once for each time they meet, however long they go on overlapping, so two passing through each other take
 // one knock, not one every frame)
 function bigCrashes(){
+  carsOutOfBig();
   const L=[];for(const B of TRAIN_BOXES){if(B.soft||!B.proxy.alive||B.y0>=B.top||B.proxy.T&&B.proxy.T.dead)continue;L.push(B);}   // (a wreck going down, or burning out, is out of it)
   for(let i=0;i<L.length;i++){const a=L[i],va=a.proxy.T||a.proxy,ra=Math.max(a.hx||TRAIN_HX,a.hz||TRAIN_HZ);
     for(let j=i+1;j<L.length;j++){const b=L[j],vb=b.proxy.T||b.proxy;if(va===vb||Math.abs(a.v)<2&&Math.abs(b.v)<2)continue;
       if(Math.abs(a.x-b.x)>ra+Math.max(b.hx||TRAIN_HX,b.hz||TRAIN_HZ)||Math.abs(a.z-b.z)>ra+Math.max(b.hx||TRAIN_HX,b.hz||TRAIN_HZ))continue;
       if(a.y0>=b.top||b.y0>=a.top)continue;
       if(!boxesTouch(a.x,a.z,Math.atan2(a.tx,a.tz),a.hx||TRAIN_HX,a.hz||TRAIN_HZ,b.x,b.z,Math.atan2(b.tx,b.tz),b.hx||TRAIN_HX,b.hz||TRAIN_HZ))continue;
+      // (a tank or helicopter can be moved: it's pushed back out of a train, plane or boat that's come through it, and stopped)
+      if(va.isMil&&!vb.isMil&&!va.dead)milOut(va,a,b);else if(vb.isMil&&!va.isMil&&!vb.dead)milOut(vb,b,a);
       if(crashedLately(va,vb))continue;
       // how hard: their speeds along the line between them
       const dx=b.x-a.x,dz=b.z-a.z,dl=Math.hypot(dx,dz)||1,ux=dx/dl,uz=dz/dl,rel=Math.abs((a.tx*a.v-b.tx*b.v)*ux+(a.tz*a.v-b.tz*b.v)*uz)+0.3*Math.abs(Math.abs(a.v)-Math.abs(b.v));
@@ -17,6 +20,25 @@ function bigCrashes(){
       const mx=(a.x+b.x)/2,mz=(a.z+b.z)/2,my=Math.max(a.y0,b.y0)+1;puff(mx,my,mz,10,0x8c8a84,1.2);
       const np=nearestPlayer(mx,mz,false);if(np&&np.d<90){const k=1-np.d/90;clang();thud(0.6*k);noise(0.5,0.3*k,300,'lowpass');}
       addShake(0.4,mx,mz,30);reportNews(mx,mz,'crash');}}
+}
+// M's box m overlapping box o (of something on a fixed course): M goes back out by whichever of o's sides is nearer
+function milOut(M,m,o){const p=outOf(m.x,m.z,m.tx,m.tz,m.hx,m.hz,o);if(!p)return;const nx=p.nx,nz=p.nz,need=Math.min(p.need,1.5);M.x+=nx*need;M.z+=nz*need;m.x+=nx*need;m.z+=nz*need;M.v=0;if(M.sv)M.sv=0;if(M.hv){M.hv.x=nx*3;M.hv.z=nz*3;}milPlace(M);}
+// a box (middle x,z, facing tx,tz, half-width hx, half-length hz) overlapping box o: the shortest way out past one of
+// o's sides or ends, allowing for how far the box itself reaches that way ({nx,nz} the way, need how far), or null if clear
+function outOf(x,z,tx,tz,hx,hz,o){const ox=o.hx||TRAIN_HX,oz=o.hz||TRAIN_HZ,dx=x-o.x,dz=z-o.z,al=dx*o.tx+dz*o.tz,ac=-dx*o.tz+dz*o.tx;
+  const rc=hx*Math.abs(-tz*-o.tz+tx*o.tx)+hz*Math.abs(tx*-o.tz+tz*o.tx),rl=hx*Math.abs(-tz*o.tx+tx*o.tz)+hz*Math.abs(tx*o.tx+tz*o.tz);   // (its reach across o, and along it)
+  const pc=ox+rc-Math.abs(ac),pl=oz+rl-Math.abs(al);if(pc<=0||pl<=0)return null;
+  if(pc<pl){const sg=ac>=0?1:-1;return{nx:-o.tz*sg,nz:o.tx*sg,need:pc+0.02};}
+  const sg=al>=0?1:-1;return{nx:o.tx*sg,nz:o.tz*sg,need:pl+0.02};}
+// cars are kept out of every train car, boat, plane and ride car (the tanks and helicopters see to their own, milShove):
+// put back outside it by its nearer side, and one going at it hard takes a knock and gives one, then bounces back
+function carsOutOfBig(){
+  for(const B of TRAIN_BOXES){const pr=B.proxy;if(B.soft||!pr.alive||pr.T&&pr.T.isMil||B.y0>=B.top)continue;const bx=B.hx||TRAIN_HX,bz=B.hz||TRAIN_HZ,R=Math.max(bx,bz)+7;
+    for(const c of cars){if(!c.alive||c.isTrain||Math.abs(c.pos.x-B.x)>R||Math.abs(c.pos.z-B.z)>R||c.pos.y>=B.top-0.3||c.pos.y+(c.hy||1.4)<=B.y0)continue;
+      if(!boxesTouch(c.pos.x,c.pos.z,c.heading,c.hx,c.hz,B.x,B.z,Math.atan2(B.tx,B.tz),bx,bz))continue;
+      const q=outOf(c.pos.x,c.pos.z,Math.sin(c.heading),Math.cos(c.heading),c.hx,c.hz,B);if(!q)continue;const nx=q.nx,nz=q.nz,need=Math.min(q.need,1.5);nudgeFlat(c,nx*need,nz*need);
+      const sp=Math.abs(c.speed||0);if(sp>5&&!(c.trainT>0)){c.trainT=1;const n=Math.round(sp*0.6);damageCar(c,n,new V3(nx,0,nz),'acc');damageCar(pr,n,new V3(-nx,0,-nz),'acc');clang();thud(0.4);}
+      if(sp>1)c.speed*=-0.3;}}
 }
 // (a pair that's still touching from a moment ago is the same crash going on: only the first touch of each meeting counts)
 const bigPairs=new Map();

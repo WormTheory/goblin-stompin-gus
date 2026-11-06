@@ -242,7 +242,7 @@ function drvHeli(M,dt){
   wpnTick(M,dt);if(lift&&i.bite&&wpnFire(M,'gun'))heliGun(M,p);
   const rp=i.stomp&&!M.rkHeld;M.rkHeld=i.stomp;if(rp&&lift&&wpnFire(M,'rkt')){const F=M.rk;
     shot({kind:'rocket',x:F.x,y:F.y,z:F.z,vx:F.vx,vy:F.vy,vz:F.vz,grav:0.5,fuse:5,R:4.2,dmg:4,cause:'Blown up by a goblin in a helicopter',crush:2.8,vd:45,own:M});if(audio)noise(0.5,0.25,900,'bandpass');}
-  milPlace(M);milBoxes(M,0);milShove(M);
+  milPlace(M);milBoxes(M,Math.hypot(M.hv.x,M.hv.z));milShove(M);
   if(M.spin>0.3&&audio&&playing){M.thT=(M.thT||0)-dt;if(M.thT<=0){M.thT=0.11;noise(0.08,0.05*M.spin,180,'lowpass');}}
 }
 // steering a boat: only where there's open water ahead of it (run it aground and it stops; hard, and it's holed a bit);
@@ -253,12 +253,23 @@ function drvBoat(V,dt){
   g.rotation.y+=st*dt*Math.min(1.2,10/bo.L+0.15)*Math.max(-1,Math.min(1,bo.sp/3));
   const h=g.rotation.y,tx=Math.sin(h),tz=Math.cos(h),d=bo.sp<0?-1:1,nx=g.position.x+tx*bo.sp*dt,nz=g.position.z+tz*bo.sp*dt;
   const wet=(x,z)=>get(x,G,z)===WATER&&!solidAt(x,G+1,z),fx=nx+tx*bo.L/2*d,fz=nz+tz*bo.L/2*d,w=K.W/2;
-  if(wet(fx,fz)&&wet(fx+tz*w,fz-tx*w)&&wet(fx-tz*w,fz+tx*w)){g.position.x=nx;g.position.z=nz;}
+  if(wet(fx,fz)&&wet(fx+tz*w,fz-tx*w)&&wet(fx-tz*w,fz+tx*w)&&!(vehIn(nx,nz,h,w,bo.L/2,g.position.y-1,g.position.y+K.fb+1,bo)&&!vehIn(g.position.x,g.position.z,h,w,bo.L/2,g.position.y-1,g.position.y+K.fb+1,bo))){g.position.x=nx;g.position.z=nz;}
   else{if(Math.abs(bo.sp)>4){boatHit(bo,Math.abs(bo.sp)*0.5);thud(0.4);}bo.sp*=-0.2;}
   V.x=g.position.x;V.z=g.position.z;V.yaw=g.rotation.y;
   bo.hornT=(bo.hornT||0)-dt;if(i.bitePress&&bo.hornT<=0){horn(0.1);bo.hornT=0.5;}
   return Math.abs(bo.sp);
 }
+// is there another vehicle in a box at x,z (facing h, half-width hx, half-length hz, from y0 up to y1)? A car, a tank or
+// helicopter, or a piece of a train, boat, plane or ride; not self's own
+function vehIn(x,z,h,hx,hz,y0,y1,self){const R=Math.hypot(hx,hz);   // (returns what it met)
+  for(const c of cars){if(!c.alive||c===self||Math.hypot(c.pos.x-x,c.pos.z-z)>R+c.hz||c.pos.y>=y1||c.pos.y+(c.hy||1.4)<=y0)continue;if(boxesTouch(x,z,h,hx,hz,c.pos.x,c.pos.z,c.heading,c.hx,c.hz))return c;}
+  for(const V of venues.values()){if(V.kind!=='army')continue;for(const o of V.mil){if(o===self||o.dead||Math.hypot(o.x-x,o.z-z)>R+7)continue;const ox=Math.sin(o.h),oz=Math.cos(o.h);
+    for(const b of MIL_PARTS[o.kind]){if(o.y+b.y0>=y1||o.y+b.y1<=y0)continue;if(boxesTouch(x,z,h,hx,hz,o.x+ox*b.c,o.z+oz*b.c,o.h,b.hx,b.hz))return o;}}}
+  for(const B of TRAIN_BOXES){const pr=B.proxy;if(B.soft||!pr.alive||(pr.T||pr)===self||pr.T&&pr.T.isMil||B.y0>=y1||B.top<=y0||B.y0>=B.top)continue;const bx=B.hx||TRAIN_HX,bz=B.hz||TRAIN_HZ;
+    if(Math.hypot(B.x-x,B.z-z)>R+Math.hypot(bx,bz))continue;if(boxesTouch(x,z,h,hx,hz,B.x,B.z,Math.atan2(B.tx,B.tz),bx,bz))return pr;}
+  return null;}
+// a vehicle run into by another (vehIn's answer), hurt by n
+function vehHurt(o,n){if(o.isMil)milHit(o,n);else damageCar(o,n,undefined,'acc');}
 // flying a plane: speed up along the ground, and past PLANE_LIFT it'll climb when you hold jump (climb, or dash, to go
 // down); slower than that in the air, it sinks. Into the side of anything at speed, or down too hard, and it's wrecked.
 // Left with nobody at the controls it glides down by itself
@@ -279,7 +290,9 @@ function drvPlane(pl,dt){
   // something in the way: a fence or a car's height, on the ground, it ploughs through (and takes some damage); anything
   // bigger, at any speed, wrecks it; at a crawl it just stops
   const ax=nx+tx*9.5,az=nz+tz*9.5,over=gnd(ax,az,ny+3.5)-ny;
-  if(over>(air?0.6:1.05)){   // (taxiing, it rolls up a one-block step)
+  const hitV=vehIn(nx,nz,h,1.25,9.9,ny,ny+3.65,pl);
+  if(hitV&&!vehIn(P.x,P.z,h,1.25,9.9,P.y,P.y+3.65,pl)){if(F.v>12){vehHurt(hitV,F.v*3);planeCrash(pl,ax,ny+2,az,!air);return;}if(F.v>3)vehHurt(hitV,F.v);F.v=0;}   // (another vehicle in the way)
+  else if(over>(air?0.6:1.05)){   // (taxiing, it rolls up a one-block step)
     if(!air&&over<=2.6&&F.v>0.5){crushBall(ax,ny+1,az,1.8);F.v*=0.6;planeHit(pl,15);if(pl.dead)return;}
     else if(F.v>12){planeCrash(pl,ax,ny+2,az,!air);return;}
     else F.v=0;}

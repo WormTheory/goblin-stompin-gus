@@ -1,0 +1,8 @@
+tank into a helicopter's tail      frames overlapping 0/360 | health now 160 80 | dead false false
+tank into a helicopter's body      frames overlapping 0/360 | health now 160 80 | dead false false
+car into a parked plane            frames overlapping 0/240 | health now 19 289 | dead false false
+plane taxiing into a tank          frames overlapping 0/360 | health now 0 49 | dead true false
+tank into a parked plane           frames overlapping 0/360 | health now 160 300 | dead false false
+car into a parked tank             frames overlapping 0/240 | health now 8 160 | dead false false
+helicopter flown into a tank       frames overlapping 0/240 | health now 80 160 | dead false false
+errors 0 []

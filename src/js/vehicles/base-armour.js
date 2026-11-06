@@ -4,6 +4,9 @@
 // TRAIN_BOXES, so it's stood on, climbed and hit like a train; what's destroyed stays wrecked (saved in 'wrecked') ----
 const MILM={olive:new THREE.MeshLambertMaterial({color:0x4a5a2a}),dark:new THREE.MeshLambertMaterial({color:0x2a3020}),track:new THREE.MeshLambertMaterial({color:0x22241e}),glass:new THREE.MeshLambertMaterial({color:0x1b2a3c}),blade:new THREE.MeshLambertMaterial({color:0x1a1a1a})};
 const MIL={tank:{hp:160,pts:750,hx:1.6,hz:2.7,hy:2.3,name:'Tank'},heli:{hp:80,pts:1000,hx:1.0,hz:2.4,hy:2.2,name:'Helicopter'}};
+// the solid parts of each, for running into things: the body (MIL's box), and a helicopter's tail boom and fin behind it
+// (c: how far forward of the middle, y0/y1: from and to how high). Without the tail a tank drove straight through it
+const MIL_PARTS={tank:[{c:0,hx:1.6,hz:2.7,y0:0,y1:2.3}],heli:[{c:0,hx:1.0,hz:2.4,y0:0,y1:2.2},{c:-4.2,hx:0.35,hz:1.9,y0:1.5,y1:3.25}]};
 const MIL_CREW={tank:{name:'A tank crew',occ:'Army'},heli:{name:'A helicopter gunner',occ:'Army'}},MIL_ROLL=4;   // (how many tanks come for you at once)
 function milBx(g,m,sx,sy,sz,x,y,z){const o=new THREE.Mesh(LM_BOX,m);o.scale.set(sx,sy,sz);o.position.set(x,y,z);g.add(o);return o;}
 function makeTank(){
@@ -41,7 +44,8 @@ function milPlace(M){M.g.position.set(M.x,M.y,M.z);(M.pos||(M.pos=new V3())).set
 function milBoxes(M,v){
   const I=MIL[M.kind];if(!M.pr)M.pr={isTrain:true,isPlane:true,alive:true,pos:new V3(),kv:new V3(),vy:0,spinP:0,spinR:0,speed:0,hurt:0,hx:I.hx,hz:I.hz,hy:I.hy,heading:0,top:0,veh:'plane',T:M,i:0};
   const pr=M.pr;pr.alive=!M.dead;pr.pos.set(M.x,M.y,M.z);pr.heading=M.h;pr.top=M.y+I.hy;
-  TRAIN_BOXES.push({x:M.x,z:M.z,tx:Math.sin(M.h),tz:Math.cos(M.h),y0:M.y,top:pr.top,v,hx:I.hx,hz:I.hz,proxy:pr});
+  const tx=Math.sin(M.h),tz=Math.cos(M.h);
+  for(const a of MIL_PARTS[M.kind])TRAIN_BOXES.push({x:M.x+tx*a.c,z:M.z+tz*a.c,tx,tz,y0:M.y+a.y0,top:a.c?M.y+a.y1:pr.top,v,hx:a.hx,hz:a.hz,proxy:pr});
 }
 // a clear line between two points (no solid block on it)
 function lineClear(x0,y0,z0,x1,y1,z1){const ex=x1-x0,ey=y1-y0,ez=z1-z0,n=Math.ceil(Math.hypot(ex,ey,ez)/0.5);for(let i=1;i<n;i++){const k=i/n;if(solidAt(x0+ex*k,Math.floor(y0+ey*k),z0+ez*k))return false;}return true;}
@@ -71,12 +75,17 @@ function updateArmy(V,dt){
 // boats, rides), and they shove goblins and cars out of their way; a tank driving at them runs goblins down and rams cars ----
 // would M, put at x,z (height y) facing h, overlap another base vehicle, or a train, plane, boat or ride car?
 // (the base vehicles are checked from their own lists, since the ones later in this frame aren't in TRAIN_BOXES yet)
-function milBlocked(M,x,z,h,y){const I=MIL[M.kind],R=Math.hypot(I.hx,I.hz);   // (out to a corner)
+function milBlocked(M,x,z,h,y){const P=MIL_PARTS[M.kind],R=7,sx=Math.sin(h),sz=Math.cos(h);   // (R: out past the end of a helicopter's tail)
   for(const V of venues.values()){if(V.kind!=='army')continue;
-    for(const o of V.mil){if(o===M)continue;const J=MIL[o.kind];if(Math.hypot(o.x-x,o.z-z)>R+Math.hypot(J.hx,J.hz)||y>=o.y+J.hy||o.y>=y+I.hy)continue;
-      if(boxesTouch(x,z,h,I.hx,I.hz,o.x,o.z,o.h,J.hx,J.hz))return true;}}
-  for(const B of TRAIN_BOXES){if(B.soft||!B.proxy.alive||B.proxy.T&&B.proxy.T.isMil||y>=B.top||B.y0>=y+I.hy)continue;const bx=B.hx||TRAIN_HX,bz=B.hz||TRAIN_HZ;
-    if(Math.hypot(B.x-x,B.z-z)>R+Math.hypot(bx,bz))continue;if(boxesTouch(x,z,h,I.hx,I.hz,B.x,B.z,Math.atan2(B.tx,B.tz),bx,bz))return true;}
+    for(const o of V.mil){if(o===M||Math.hypot(o.x-x,o.z-z)>R*2)continue;const ox=Math.sin(o.h),oz=Math.cos(o.h);
+      for(const a of P)for(const b of MIL_PARTS[o.kind]){if(y+a.y0>=o.y+b.y1||o.y+b.y0>=y+a.y1)continue;
+        if(boxesTouch(x+sx*a.c,z+sz*a.c,h,a.hx,a.hz,o.x+ox*b.c,o.z+oz*b.c,o.h,b.hx,b.hz))return true;}}}
+  for(const B of TRAIN_BOXES){if(B.soft||!B.proxy.alive||B.proxy.T&&B.proxy.T.isMil)continue;const bx=B.hx||TRAIN_HX,bz=B.hz||TRAIN_HZ;
+    if(Math.hypot(B.x-x,B.z-z)>R+Math.hypot(bx,bz))continue;
+    for(const a of P){if(y+a.y0>=B.top||B.y0>=y+a.y1)continue;if(boxesTouch(x+sx*a.c,z+sz*a.c,h,a.hx,a.hz,B.x,B.z,Math.atan2(B.tx,B.tz),bx,bz))return true;}}
+  // (and cars: a tank or helicopter shoves an ordinary one aside (milShove), but not one that's being driven, which it stops against)
+  for(const c of cars){if(!c.alive||!c.drv||Math.hypot(c.pos.x-x,c.pos.z-z)>R+c.hz)continue;
+    for(const a of P){if(y+a.y0>=c.pos.y+(c.hy||1.4)||c.pos.y>=y+a.y1)continue;if(boxesTouch(x+sx*a.c,z+sz*a.c,h,a.hx,a.hz,c.pos.x,c.pos.z,c.heading,c.hx,c.hz))return true;}}
   return false;}
 // goblins and cars inside M's box are put back outside it, by whichever side or end is nearer; a tank moving at 1 or more
 // runs down a goblin it meets head on (and rams a car), and a car that drives hard into any of them is hurt by it
@@ -89,7 +98,9 @@ function milShove(M){const I=MIL[M.kind],R=Math.max(I.hx,I.hz)+3,tx=Math.sin(M.h
     const c=out(g,0.4);if(!c)continue;g.pos.x+=c.nx*c.need;g.pos.z+=c.nz*c.need;
     if(run&&!(g.trainT>0)&&c.nx*tx+c.nz*tz>0.5){g.trainT=1;damageGoblin(g,Math.round(4+M.v*1.5),g.pos.clone(),new V3(c.nx,0.5,c.nz),'Run over by a tank',ACCIDENT);}}
   for(const c of cars){if(!c.alive||Math.abs(c.pos.x-M.x)>R+c.hz||Math.abs(c.pos.z-M.z)>R+c.hz||c.pos.y+(c.hy||1.4)<M.y||c.pos.y>top-0.3)continue;
-    const k=out(c,(c.hx+c.hz)/2);if(!k)continue;c.pos.x+=k.nx*k.need;c.pos.z+=k.nz*k.need;
+    // (allowing for which way the car's facing: nose on, it's its whole length that has to come out)
+    if(!boxesTouch(c.pos.x,c.pos.z,c.heading,c.hx,c.hz,M.x,M.z,M.h,I.hx,I.hz))continue;
+    const k=outOf(c.pos.x,c.pos.z,Math.sin(c.heading),Math.cos(c.heading),c.hx,c.hz,{x:M.x,z:M.z,tx,tz,hx:I.hx,hz:I.hz});if(!k)continue;c.pos.x+=k.nx*k.need;c.pos.z+=k.nz*k.need;
     if(c.trainT>0)continue;
     if(run&&k.nx*tx+k.nz*tz>0.5){c.trainT=1;damageCar(c,Math.round(4+M.v),new V3(k.nx,0,k.nz),'acc');if(c.alive)launchCar(c,3,new V3(k.nx*1.5,0,k.nz*1.5),3);clang();thud(0.5);}
     else if(Math.abs(c.speed||0)>5){c.trainT=1;damageCar(c,Math.round(Math.abs(c.speed)*0.6),new V3(k.nx,0,k.nz),'acc');c.speed*=-0.3;clang();}}
@@ -152,7 +163,7 @@ function updateHeli(M,V,dt){
     if(M.y>gy+0.02){M.vy-=20*dt;M.y=Math.max(gy,M.y+M.vy*dt);if(M.y<=gy){if(M.vy<-12){milHit(M,(-M.vy-12)*6);thud(0.5);}M.vy=0;}}else M.vy=0;}
   M.h=angTo(M.h,face,1.4*dt);M.pitch=Math.min(0.25,sp*0.02)*Math.cos(Math.atan2(vx,vz)-M.h);M.roll=0;   // (nose down going forward)
   M.rot.rotation.y+=dt*M.spin*28;M.trot.rotation.x+=dt*M.spin*40;
-  milPlace(M);milBoxes(M,0);milShove(M);
+  milPlace(M);milBoxes(M,sp);milShove(M);
   if(M.spin>0.3&&audio&&playing&&n&&n.d<90){M.thT=(M.thT||0)-dt;if(M.thT<=0){M.thT=0.11;noise(0.08,0.05*M.spin*(1-n.d/90),180,'lowpass');}}   // (the thud of its rotor)
 }
 function milHit(M,n,dir){
