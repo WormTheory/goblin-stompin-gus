@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:20d274325680e32076218082dde0a5351c74fbc1ee9c93fd26653c2836826985 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:a10f3985f8486b6016b6ddc007c8415faaeb6cabed104a4078606d752deeef41 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -10362,7 +10362,7 @@ function drvEnter(p,D){
   // (the camera starts out behind it)
   p.cam.yaw=drvPose(D).h+Math.PI;p.cam.pitch=-0.25;
   if(jack){jackStart(p,D);return;}   // (someone at the controls: they're thrown out first. See carjack.js)
-  const k=drvKey(p),how=D.k==='heli'?'  ·  '+actMark(p,'jump')+' climbs, '+actMark(p,'climb')+' drops':D.k==='plane'?'  ·  Speed up, then '+actMark(p,'jump')+' to take off':D.k==='tank'?'  ·  '+actMark(p,'bite')+' fires':D.k==='car'&&o.veh==='fire'?'  ·  '+actMark(p,'bite')+' sprays water':'';
+  const k=drvKey(p),how=D.k==='heli'?'  ·  '+actMark(p,'jump')+' climbs, '+actMark(p,'climb')+' drops':D.k==='plane'?'  ·  '+(p.pad?'Stick up/down':actMark(p,'fwd')+'/'+actMark(p,'back'))+' throttle, '+actMark(p,'jump')+' pulls up, '+actMark(p,'climb')+' pushes down, '+(p.pad?'stick left/right':actMark(p,'left')+'/'+actMark(p,'right'))+' bank':D.k==='tank'?'  ·  '+actMark(p,'bite')+' fires':D.k==='car'&&o.veh==='fire'?'  ·  '+actMark(p,'bite')+' sprays water':'';
   flashLabel('Driving the '+drvName(D)+'  ·  '+k+' to get out'+how,p);clang();
 }
 // out by the side (whichever has room), else the back or the front, else on the roof
@@ -10415,7 +10415,7 @@ function ridePose(p,c){const K=gobKit(p),R=K.root,s=Math.sin(c.heading),k=Math.c
 }
 function rideReset(K){for(const L of K.m.legs)L.rotation.set(0,0,0);K.m.arm.rotation.set(-0.5,0,0);if(K.m.armL)K.m.armL.rotation.set(0,0,0);}
 // a venue holding a vehicle someone's driving stays (however far it's been taken)
-const drvHeld=V=>players.some(q=>q.drv&&(q.drv.V===V||V.T&&q.drv.o===V.T));
+const drvHeld=V=>players.some(q=>q.drv&&(q.drv.V===V||V.T&&q.drv.o===V.T))||!!(V.pl&&V.pl.some(pl=>pl.free&&!pl.dead&&(pl.free.air||pl.free.v>1)));   // (and an airport, while a plane that's been flown off is still going: it comes down by itself)
 // locked on from a tank or a helicopter (the lock button): the gun aims at it, wherever you're looking, a little ahead
 // of where it's going; the marker sits on it. Anything near the middle of the screen, out to 100 blocks, can be picked
 function drvLock(p,dt){
@@ -10603,23 +10603,57 @@ function vehIn(x,z,h,hx,hz,y0,y1,self){const R=Math.hypot(hx,hz);   // (returns 
   return null;}
 // a vehicle run into by another (vehIn's answer), hurt by n
 function vehHurt(o,n){if(o.isMil)milHit(o,n);else damageCar(o,n,undefined,'acc');}
-// flying a plane: speed up along the ground, and past PLANE_LIFT it'll climb when you hold jump (climb, or dash, to go
-// down); slower than that in the air, it sinks. Into the side of anything at speed, or down too hard, and it's wrecked.
-// Left with nobody at the controls it glides down by itself
-const PLANE_LIFT=34;
+// flying a plane, more or less as a real one flies. W and S set the throttle (it stays where you leave it); on the
+// runway A and D steer the nose wheel and S with the throttle closed brakes. Past rotation speed, Jump pulls the nose up
+// and the wings lift it off. In the air A and D bank it, and a banked plane turns; Jump pulls the nose up and Climb (or
+// Dash) pushes it down. Lift comes from speed and the wing's angle to the air: climbing costs speed and diving gains it,
+// and too slow or too steep the wing stalls, lift goes and the nose drops. Let go and it eases back to level flight,
+// holding its height through a turn. Into anything at speed, down too hard or on a wingtip, and it's wrecked; left with
+// nobody at the controls the throttle closes and it glides down by itself. F: v airspeed, thr throttle, pt the nose's
+// pitch, rl the bank (positive turning left), gm the flight path's climb angle, vy its climb rate
+const PLANE_LIFT=34,PLANE_G=14,PLANE_KL=0.07,PLANE_AOA=0.32,PLANE_THRUST=20,PLANE_DRAG=0.003;
+// is the wing stalled? too slow, or pulled up too steeply for the air going past it
+const planeStalled=F=>F.air&&(F.v<20||F.pt-F.gm>PLANE_AOA);
 function drvPlane(pl,dt){
-  const F=pl.free,g=pl.g,P=g.position,p=pl.drv,i=p?p.in:null;
-  const thr=i?-i.z:0,st=i?-i.x:0,up=i?(i.jump?1:0)-(i.climb||i.charge?1:0):0;
+  const F=pl.free,g=pl.g,P=g.position,p=pl.drv,i=p?drvIn(p):null;
+  if(F.thr===undefined){F.thr=Math.min(1,(F.v||0)/60);F.gm=Math.atan2(F.vy||0,Math.max(8,F.v||0));F.pt=Math.max(0,F.gm);F.rl=0;}
+  const tin=i?-i.z:0,bank=i?-i.x:0,up=i?(i.jump?1:0)-(i.climb||i.charge?1:0):0;
   // (the sea's surface counts as ground; so does sea level, out where nothing's been built yet)
   const wetAt=(x,z)=>!chunks.has(ckey(Math.floor(x/CS),Math.floor(z/CS)))||get(x,G,z)===WATER?G+1:0,gnd=(x,z,y)=>Math.max(groundAt(x,z,y),wetAt(x,z));
-  const air=P.y>gnd(P.x,P.z,P.y+1)+0.05;
+  const air=P.y>gnd(P.x,P.z,P.y+1)+0.05;F.air=air;
   if(!air&&F.vy<-0.5&&(F.vy<-14||!p&&F.v>20)){planeCrash(pl,P.x,P.y,P.z,true);return;}   // (touched down too hard, or with nobody flying it)
-  if(thr>0.1)F.v+=14*thr*dt;else if(thr<-0.1)F.v-=(air?8:22)*-thr*dt;else if(!air)F.v-=3*dt;
-  F.v=Math.max(0,Math.min(80,F.v));
-  g.rotation.y+=st*dt*(air?0.6:Math.min(0.9,0.25+F.v*0.05));
-  const want=!p?(air?-5:0):F.v>=PLANE_LIFT?up*F.v*0.3:air?-12:0;
-  F.vy+=(want-F.vy)*Math.min(1,dt*1.5);if(!air&&F.vy<0)F.vy=0;
-  const h=g.rotation.y,tx=Math.sin(h),tz=Math.cos(h),nx=P.x+tx*F.v*dt,nz=P.z+tz*F.v*dt,ny=P.y+F.vy*dt;
+  // the throttle: up and down with W and S, and shut when nobody's flying it
+  if(p)F.thr=Math.max(0,Math.min(1,F.thr+tin*0.6*dt));else F.thr=Math.max(0,F.thr-dt*0.5);
+  const v=Math.max(0.5,F.v);let h=g.rotation.y;
+  if(air){
+    // bank: rolled with A/D, easing back level when let go
+    if(bank)F.rl+=bank*1.0*dt;else F.rl-=F.rl*Math.min(1,dt*0.7);F.rl=Math.max(-1.05,Math.min(1.05,F.rl));
+    // the nose: pulled up or pushed down, or (let go) eased to the angle that flies it level, through a turn too
+    const trim=Math.min(PLANE_AOA*0.9,PLANE_G/(PLANE_KL*v*v*Math.max(0.35,Math.cos(F.rl))));
+    if(!p)F.pt+=(F.gm-0.25-F.pt)*Math.min(1,dt*0.8);   // (nobody flying it: the nose sags and down it comes)
+    else if(up)F.pt+=up*0.5*dt;else F.pt+=(trim-F.pt)*Math.min(1,dt*0.6);
+    const stall=planeStalled(F);if(stall)F.pt-=0.9*dt;   // (a stalled wing: the nose falls through)
+    F.pt=Math.max(-0.6,Math.min(0.7,F.pt));
+    // lift, square on to the wing, from the speed and its angle to the air; beyond the stall it falls away
+    const aoa=F.pt-F.gm,cl=stall?Math.max(0,Math.min(aoa,PLANE_AOA))*0.45:Math.max(-0.3,Math.min(aoa,PLANE_AOA)),L=PLANE_KL*v*v*cl;
+    F.gm+=(L*Math.cos(F.rl)-PLANE_G*Math.cos(F.gm))/v*dt;F.gm=Math.max(-1.3,Math.min(1.1,F.gm));
+    h+=L*Math.sin(F.rl)/(v*Math.max(0.3,Math.cos(F.gm)))*dt;
+    // speed: thrust against drag (more of it the harder the wing's working) and gravity along the way it's going
+    F.v+=(F.thr*PLANE_THRUST-PLANE_DRAG*v*v-0.25*Math.abs(L*cl)-PLANE_G*Math.sin(F.gm))*dt;
+    if(stall&&p){F.stT=(F.stT||0)-dt;if(F.stT<=0){F.stT=0.5;if(audio)sfx('Stall warning',()=>tone('square',880,880,0.18,0.03));}}
+  } else {
+    // on the ground: wings level, the nose wheel steers, S with the throttle shut brakes; past rotation speed Jump
+    // lifts the nose, and once the wings carry it, it's off
+    F.rl-=F.rl*Math.min(1,dt*6);h+=bank*dt*Math.min(0.9,0.25+F.v*0.05);
+    const brake=p&&tin<-0.1&&F.thr<0.05?22:1.5+(p?0:3);
+    F.v+=(F.thr*PLANE_THRUST-PLANE_DRAG*v*v)*dt;F.v-=Math.min(F.v,brake*dt);
+    if(up>0&&F.v>=PLANE_LIFT*0.8)F.pt=Math.min(0.25,F.pt+0.5*dt);else F.pt+=(0-F.pt)*Math.min(1,dt*3);
+    const L=PLANE_KL*v*v*Math.max(0,Math.min(F.pt,PLANE_AOA));
+    F.gm=L>PLANE_G?Math.min(0.2,(L-PLANE_G)/v):0;
+  }
+  F.v=Math.max(0,Math.min(90,F.v));F.vy=F.v*Math.sin(F.gm);
+  const vh=F.v*Math.cos(F.gm);
+  const tx=Math.sin(h),tz=Math.cos(h),nx=P.x+tx*vh*dt,nz=P.z+tz*vh*dt,ny=P.y+F.vy*dt;
   // something in the way: a fence or a car's height, on the ground, it ploughs through (and takes some damage); anything
   // bigger, at any speed, wrecks it; at a crawl it just stops
   const ax=nx+tx*9.5,az=nz+tz*9.5,over=gnd(ax,az,ny+3.5)-ny;
@@ -10631,8 +10665,11 @@ function drvPlane(pl,dt){
     else F.v=0;}
   else{P.x=nx;P.z=nz;}
   const g2=gnd(P.x,P.z,ny+1.5);
-  if(ny<=g2){if(air&&(F.vy<-14||!p&&F.v>20)){P.y=g2;planeCrash(pl,P.x,P.y,P.z,true);return;}P.y=g2;F.vy=0;}else P.y=Math.min(ny,H+80);
-  g.rotation.set(-Math.max(-0.3,Math.min(0.3,Math.atan2(F.vy,Math.max(8,F.v)))),h,air&&p?-st*0.35:0,'YXZ');
+  // (touching down: too fast a sink, nobody flying it at speed, or a wing down, and it's wrecked; otherwise it lands)
+  if(ny<=g2){if(air&&(F.vy<-14||!p&&F.v>20||Math.abs(F.rl)>0.6&&F.v>15)){P.y=g2;planeCrash(pl,P.x,P.y,P.z,true);return;}P.y=g2;if(air){F.gm=0;F.vy=0;F.pt=Math.max(0,Math.min(0.2,F.pt));}}
+  else P.y=Math.min(ny,H+80);
+  if(P.y>=H+80&&F.gm>0){F.gm=0;F.vy=0;}   // (the ceiling)
+  g.rotation.set(-F.pt,h,-F.rl,'YXZ');
   pl.v=F.v;g.visible=true;
 }
 // driving a train: forward is whichever way along the track you're looking; it stops at the ends of the line
@@ -10714,7 +10751,7 @@ function drvHud(p){
   const lk=bl('lock'),LT=p.lockT,W=armed&&o.wpn?Object.values(o.wpn):[],w0=W[0],ready=!w0||w0.rl<=0&&w0.n>0;
   set('w',H.wpn,armed?(LT?'Locked on '+(isMilT(LT)?MIL[LT.kind].name.toLowerCase():isCarT(LT)?'a '+(LT.veh||'car'):'a goblin')+' ('+lk+' let go)':lk+' lock on')+'  ·  '+out+' get out'
     :D.k==='car'&&o.veh==='fire'?bl('bite')+' spray water  ·  '+bl('stomp')+' horn  ·  '+out+' get out'
-    :D.k==='plane'?(o.free&&o.free.v>=PLANE_LIFT?'Flying speed':'Take-off at '+PLANE_LIFT)+'  ·  '+out+' get out':out+' get out');
+    :D.k==='plane'?planeHud(o.free)+'  ·  '+out+' get out':out+' get out');
   const hose=D.k==='car'&&o.veh==='fire';H.xh.hidden=!armed&&!hose;if(hose){H.xh.classList.remove('cool','lock');H.xh.classList.toggle('water',!!o.hose);}if(armed){H.xh.classList.toggle('cool',!ready);H.xh.classList.toggle('lock',!!LT);}
   // (the ammo by the crosshair: each weapon, its button, a pip for each round left -- or a bar, for a machine gun's
   // belt -- and while it reloads, a bar filling and the seconds to go)
@@ -10742,6 +10779,10 @@ function drvHud(p){
     H.xt.classList.toggle('air',!!P.air);}
   H.xt.hidden=!tShow;
 }
+// a flown plane's gauges: throttle, airspeed, climb rate, and a stall warning (on the runway, the speed it lifts off at)
+function planeHud(F){if(!F)return'Throttle 0%';const thr='Throttle '+Math.round((F.thr||0)*100)+'%  ·  Speed '+Math.round(F.v);
+  if(!F.air)return thr+(F.v<PLANE_LIFT?'  ·  Take-off at '+PLANE_LIFT:'  ·  Pull up to take off');
+  return thr+'  ·  Climb '+(F.vy>=0?'+':'')+Math.round(F.vy)+(planeStalled(F)?'  ·  STALL':'');}
 // on his way down a ramp he stays on it, instead of falling a little and landing every few steps
 function stickToRamp(p,g){
   if(!p.grounded||p.state!=='walk'||p.standCar||p.dodge||p.pos.y-g>=0.4)return false;

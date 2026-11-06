@@ -77,11 +77,15 @@ helicopter flown into a wall at speed: wrecked true  blocks blown out 252  me th
 a stopped helicopter (wrecked), ground under it dug out 6 deep: dropped 6.0  hp 11.249704322865938 -> -8.9
 first helicopter, 8 s on: height 0.0  rotor 0.4  me on the ground true  hp 20
 plane: in plane  parked one true
-  W 1.5 s: rolling at 21.0  moved 16.0  height 0.0
-  Jump below take-off speed: height 0.0
-  W, then W+Jump 4 s: speed 80.0  height 63.1  wrecked false
-  D 2 s: heading 0.4
-  C 2 s: height 45.1  came down 33.1
+  W 1.5 s: throttle 90%, rolling at 11.4  moved 5.4  height 0.0
+  Jump below take-off speed: height 0.0  nose up 0.0
+  full throttle, Jump: off the ground at 45.5  2 s on: height 42.0  speed 55.8  wrecked false
+  let go: settles level, climb rate 3.1  height change over 2 s 10.9  speed 74.8
+  D 1.2 s: banked -1.1 (right is negative), heading turned -0.4  height held to 4.2
+  let go 2 s: bank -0.1
+  C 1.5 s: nose -0.3  came down 78.0  speed 80.6 -> 88.8
+  throttle shut, Jump held: throttle 0%, stalls true after 4.1 s at 17.4  display says true  nose drops 0.7 -> 0.3
+  throttle up, let go: speed 72.3  climb rate -0.7  wrecked false
   F again: on foot  falling true
-  left to itself at full speed: down after 6.5 s, wrecked true  me on the ground true  crater blocks 218
+  left to itself: down after 2.0 s, wrecked true  height 0.0  speed 66.1  air true  me on the ground true  crater blocks 214
 errors 0 []

@@ -8,7 +8,7 @@ hdr=hdr.slice(0,n).join('\n');
 // (site.js starts in the empty Testing Environment; the city half of this runs in a real city, and the other half is
 // run as a second process)
 if(!TENVMODE)hdr=hdr.replace(/const LS=\{\};global\.localStorage=.*\n/,'global.localStorage={getItem:()=>null,setItem(){},removeItem(){}};\n');
-hdr=hdr.replace(/window\.__t=\{/,'window.__t={setGob,setVeh,addFire,fires,VEH_MIX,keys,mHeld,TRAINS,railPt,BOATS,boatVenue,oceanDepth,PLANE_LIFT,drvFind,setRaw,solidAt,vehBlast,get nEdits(){return Object.keys(edits).length},');
+hdr=hdr.replace(/window\.__t=\{/,'window.__t={setGob,setVeh,addFire,fires,planeStalled,VEH_MIX,keys,mHeld,TRAINS,railPt,BOATS,boatVenue,oceanDepth,PLANE_LIFT,drvFind,setRaw,solidAt,vehBlast,get nEdits(){return Object.keys(edits).length},');
 eval(hdr+`
 eval(src);const T=window.__t;let now=1000;
 const quiet=()=>{for(const g of T.goblins)if(g.state==='chase'&&!g.jackHow){g.state='wait';g.t=-1e9;g.root.visible=false;}};
@@ -193,14 +193,20 @@ const B=spawnK('base');run(3);const V=[...T.venues.values()].find(v=>v.kind==='a
   console.log('plane: in',st(),' parked one',P.drv&&P.drv.o===pl);
   // (then put at the start of the runway, so there's room to take off)
   g.position.set(V.B.ax*32+120,g.position.y,V.B.az*32+28.5);g.rotation.y=Math.PI/2;P.cam.yaw=-Math.PI/2;run(0.2);
-  const x0=g.position.x,z0=g.position.z;hold(['KeyW'],1.5);console.log('  W 1.5 s: rolling at',f1(pl.free.v),' moved',f1(Math.hypot(g.position.x-x0,g.position.z-z0)),' height',f1(g.position.y-G0-1));
-  hold(['Space'],1);console.log('  Jump below take-off speed: height',f1(g.position.y-G0-1));
-  hold(['KeyW'],1.5);hold(['KeyW','Space'],4);console.log('  W, then W+Jump 4 s: speed',f1(pl.free.v),' height',f1(g.position.y-G0-1),' wrecked',pl.dead);
-  hold(['KeyD'],2);run(1);console.log('  D 2 s: heading',f1(g.rotation.y));
-  {const y1=g.position.y;hold(['KeyC'],2);console.log('  C 2 s: height',f1(g.position.y-G0-1),' came down',f1(y1-g.position.y));}
+  const ht=()=>f1(g.position.y-G0-1),F=()=>pl.free;
+  const x0=g.position.x,z0=g.position.z;hold(['KeyW'],1.5);console.log('  W 1.5 s: throttle',Math.round(F().thr*100)+'%, rolling at',f1(F().v),' moved',f1(Math.hypot(g.position.x-x0,g.position.z-z0)),' height',ht());
+  hold(['Space'],1);console.log('  Jump below take-off speed: height',ht(),' nose up',f1(F().pt));
+  hold(['KeyW'],1);{let t=0,v0=0;T.keys.add('Space');while(t<8&&!F().air){run(0.1);t+=0.1;}v0=F().v;run(2);T.keys.delete('Space');
+   console.log('  full throttle, Jump: off the ground at',f1(v0),' 2 s on: height',ht(),' speed',f1(F().v),' wrecked',pl.dead);}
+  run(3);{const y=g.position.y;run(2);console.log('  let go: settles level, climb rate',f1(F().vy),' height change over 2 s',f1(g.position.y-y),' speed',f1(F().v));}
+  {const h0=g.rotation.y,y=g.position.y;hold(['KeyD'],1.2);const b=F().rl;run(2);console.log('  D 1.2 s: banked',f1(b),'(right is negative), heading turned',f1(g.rotation.y-h0),' height held to',f1(g.position.y-y));run(2);console.log('  let go 2 s: bank',f1(F().rl));}
+  {const y1=g.position.y,v1=F().v;hold(['KeyC'],1.5);run(1);console.log('  C 1.5 s: nose',f1(F().pt),' came down',f1(y1-g.position.y),' speed',f1(v1),'->',f1(F().v));}
+  {hold(['KeyS'],2);const v1=F().v;T.keys.add('Space');let t=0,st0=false;while(t<6&&!st0){run(0.1);t+=0.1;st0=T.planeStalled(F());}const pt=F().pt;run(1);T.keys.delete('Space');
+   console.log('  throttle shut, Jump held: throttle',Math.round(F().thr*100)+'%, stalls',st0,'after',f1(t),'s at',f1(F().v),' display says',hudT(P.ui.drvHud.txt.w).includes('STALL'),' nose drops',f1(pt),'->',f1(F().pt));}
+  hold(['KeyW'],2);run(3);console.log('  throttle up, let go: speed',f1(F().v),' climb rate',f1(F().vy),' wrecked',pl.dead);
   tap();run(0.2);console.log('  F again:',st(),' falling',!P.grounded);const eP=T.nEdits;
   let t=0;while(t<40&&!pl.dead&&(t<1||pl.free.vy<0)){run(0.5);t+=0.5;}
-  console.log('  left to itself at full speed: down after',f1(t),'s, wrecked',pl.dead,' me on the ground',P.grounded,' crater blocks',T.nEdits-eP);}}
+  console.log('  left to itself: down after',f1(t),'s, wrecked',pl.dead,' height',ht(),' speed',f1(pl.free.v),' air',pl.free.air,' me on the ground',P.grounded,' crater blocks',T.nEdits-eP);}}
 }
 console.log('errors',errs.length,errs.slice(0,3));
 `);
