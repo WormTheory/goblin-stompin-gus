@@ -82,6 +82,14 @@ for(const gob of [false,true]){
   console.log(gob?'GOBLIN':'HIPPO ','6 hostile goblins, 5s later: hp',A.hp,'of 20, crowding round',nearBy);
   parked();
 }
+// enemy hostility's three steps, as a hippo: Peaceful still has the townsfolk running, Passive has nobody minding him at all,
+// not even goblins he's just hit
+for(const h of [1,0]){T.DT.host=h;const nm=['Passive','Peaceful'][h];A.hp=20;
+  parked();home();S(2);let L=crowd(true,6);S(120);console.log(nm.padEnd(8),'townsfolk 3 away, 2s later: fleeing',L.filter(g=>g.fleeing).length,'/6');
+  parked();home();S(2);L=crowd(false,6);S(300);console.log(nm.padEnd(8),'6 hostile goblins, 5s later: hp',A.hp,'of 20, fleeing',L.filter(g=>g.fleeing).length);
+  for(const g of L)g.hp-=1;S(60);console.log(nm.padEnd(8),'and after each is hurt: fleeing',L.filter(g=>g.fleeing).length,' hp',A.hp);
+  parked();}
+T.DT.host=2;A.hp=20;
 T.setGob(true);home();S(2);
 // the club
 {parked();const g=crowd(false,1)[0];g.pos.set(A.pos.x,F,A.pos.z+1.1);const log=[];for(let i=0;i<4;i++){press(2);S(40);g.pos.set(A.pos.x,F,A.pos.z+1.1);log.push(g.state==='dead'?'dead':g.hp);}

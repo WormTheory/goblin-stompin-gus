@@ -75,6 +75,11 @@ console.log('props meshes visible after switching back',T.PROP_L.visible,T.PROP_
  T.DT.cur=L.findIndex(o=>o.k==='paused');console.log('right from Stop time goes to',nav(0,1).k,', then left back to',nav(0,-1).k);
  T.DT.cur=L.findIndex(o=>o.k==='speed');const s1=T.DT.speedI;console.log('left on Game speed, not picked: goes to',nav(0,-1).k,'and speed index stays',s1,'->',T.DT.speedI);
  T.DT.cur=L.findIndex(o=>o.k==='speed');T.dbgMenuToggle();console.log('picked with A:',T.DT.edit,'; then left: stays on',nav(0,-1).k,'speed index',s1,'->',T.DT.speedI,'; A again lets go:',(T.dbgMenuToggle(),T.DT.edit),'; picked again, then down lets go:',(T.dbgMenuToggle(),nav(1,0).k),T.DT.edit);T.DT.speedI=s1;}
+// the Enemy hostility slider: picked with A, then left and right step it, Normal, Peaceful, Passive, and no further
+{const L=T.dbgItems(),nav=(dy,dx)=>{T.DT.navDir='';T.dbgMenuNav('kbd',dy,dx,0);T.DT.navDir='';};
+ T.DT.cur=L.findIndex(o=>o.k==='host');const h0=T.DT.host,seen=[T.dbgVal('host')];nav(0,-1);const unpicked=T.dbgItems()[T.DT.cur].k;
+ T.DT.cur=L.findIndex(o=>o.k==='host');T.dbgMenuToggle();for(let i=0;i<3;i++){nav(0,-1);seen.push(T.dbgVal('host'));}nav(0,1);seen.push(T.dbgVal('host'));T.dbgMenuToggle();
+ console.log('hostility: left, not picked, goes to',unpicked,'; picked, left x3 then right:',seen.join(' > '),'; stored',T.DT.host);T.DT.host=h0;}
 // benches and litter bins are props now: drawn and listed as props, and goblins go round them, out to the lamp posts' distance
 {T.refreshFixtures();const str=T.activeProps.filter(f=>f.type==='parkbench'||f.type==='litterbin'),old=T.activeFix.filter(f=>f.type==='bench'||f.type==='bin');
  const far=str.reduce((m,f)=>Math.max(m,Math.max(Math.abs(f.x-A.pos.x),Math.abs(f.z-A.pos.z))),0);

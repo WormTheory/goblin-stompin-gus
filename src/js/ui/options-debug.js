@@ -12,7 +12,7 @@ const sbxCells=cells=>{const h=SBX&&SBX.hits[SBX.hits.length-1];if(h&&h.kind==='
 // game speed and free cam
 const SPEEDS=[0.05,0.1,0.25,0.5,0.75,0.9,1,1.25,1.5,2];
 const PSPEEDS=[1,1.5,2,2.5,3,4,5,6,7,8,9,10];
-const DT={hpBars:false,dmgNums:false,fps:false,sndList:false,curve:2,psI:0,invuln:false,infStam:false,fly:false,gob:false,peace:false,speedI:6,paused:false,freecam:false,step:false,quick:true,menu:false,kbdOpen:false,selHeld:false,cur:0,navDir:0,navT:0};
+const DT={hpBars:false,dmgNums:false,fps:false,sndList:false,curve:2,psI:0,invuln:false,infStam:false,fly:false,gob:false,host:2,speedI:6,paused:false,freecam:false,step:false,quick:true,menu:false,kbdOpen:false,selHeld:false,cur:0,navDir:0,navT:0};
 try{const q=JSON.parse(localStorage.getItem('goblin-stompin-gus-quickdbg')||'null');if(typeof q==='boolean')DT.quick=q;}catch(e){}
 try{for(const k of ['fps','hpBars','dmgNums','sndList'])DT[k]=localStorage.getItem('goblin-stompin-gus-'+k)==='1';}catch(e){}
 // the debug settings carry over from one session to the next (all but stopping time and the free cam, which would
@@ -21,12 +21,13 @@ const DT_KEY='goblin-stompin-gus-debug',DT_SAVED=['curve','psI','speedI','invuln
 try{const q=JSON.parse(localStorage.getItem(DT_KEY)||'null');if(q&&typeof q==='object')for(const k of DT_SAVED)if(typeof q[k]===typeof DT[k])DT[k]=q[k];
   if(!(DT.speedI>=0&&DT.speedI<SPEEDS.length))DT.speedI=SPEEDS.indexOf(1);if(!(DT.psI>=0&&DT.psI<PSPEEDS.length))DT.psI=0;}catch(e){}
 function saveDT(){try{const o={};for(const k of DT_SAVED)o[k]=DT[k];localStorage.setItem(DT_KEY,JSON.stringify(o));
-  // (enemy hostility here and the main screen's Peaceful box are one setting)
-  if(typeof peaceful!=='undefined'&&DT.peace!==peaceful){peaceful=DT.peace;localStorage.setItem(PEACE_KEY,peaceful?'1':'0');syncPeace();}}catch(e){}}
-// Peaceful: the main screen's checkbox; the game starts with hostility off while it's ticked
-const PEACE_KEY='goblin-stompin-gus-peaceful';let peaceful=false;try{peaceful=localStorage.getItem(PEACE_KEY)==='1';}catch(e){}
-DT.peace=peaceful;
-function syncPeace(){const b=document.getElementById('peaceTog');if(b)b.setAttribute('aria-checked',String(peaceful));}
+  localStorage.setItem(HOST_KEY,String(DT.host));}catch(e){}}
+// Enemy hostility, three steps (the main screen's slider, the Options tab's and the quick menu's are one setting, kept
+// from one session to the next): 0 Passive, nobody reacts to you at all, not even to being hit (they still get hurt);
+// 1 Peaceful, nobody attacks or hunts you, but the townsfolk still run from you; 2 Normal
+const HOST_KEY='goblin-stompin-gus-hostility',HOST_N=['Passive','Peaceful','Normal'];
+try{const s=localStorage.getItem(HOST_KEY);if(s==='0'||s==='1'||s==='2')DT.host=+s;else if(localStorage.getItem('goblin-stompin-gus-peaceful')==='1')DT.host=1;}catch(e){}   // (the old Peaceful box, ticked, is the middle step)
+function syncHost(){for(const [i,o] of [['hostMain','hostMainVal'],['hostility','hostilityVal']]){const el=document.getElementById(i),v=document.getElementById(o);if(el){el.value=String(DT.host);v.textContent=HOST_N[DT.host];}}}
 // the Interface switches: each part of the on-screen display, what picks it out on the page, and what it's called. (The
 // menus aren't here, and nor are the touch buttons: without them there'd be no way back on a phone.) Hidden with one style
 // sheet, so none of the code that updates them needs to know. Not saved, for the same reason as the Rendering switches.
@@ -60,7 +61,7 @@ const DBG_COLS=4,DBG_SECS=[
   [0,'Time',[{k:'speed',label:'Game speed'},{k:'paused',label:'Stop time'}]],
   [0,'Camera',[{k:'freecam',label:'Free cam'},{k:'curve',label:'World curve'}]],
   [0,'World',[{k:'wx',label:'Weather'},{k:'season',label:'Season'}]],
-  [1,'Player',[{k:'pspeed',label:'Player speed'},{k:'invuln',label:'Invulnerable'},{k:'infStam',label:'Infinite stamina'},{k:'fly',label:'Flying'},{k:'gob',label:'Play as a goblin'},{k:'peace',label:'Enemy hostility'}]],
+  [1,'Player',[{k:'pspeed',label:'Player speed'},{k:'invuln',label:'Invulnerable'},{k:'infStam',label:'Infinite stamina'},{k:'fly',label:'Flying'},{k:'gob',label:'Play as a goblin'},{k:'host',label:'Enemy hostility'}]],
   [1,'Overlays',[{k:'fps',label:'FPS counter'},{k:'hpBars',label:'Health bars'},{k:'dmgNums',label:'Damage numbers'},{k:'sndList',label:'Sound list'}]],
   [2,'Rendering',[{k:'gProps',label:'Props'},{k:'gFixtures',label:'Fixtures'},{k:'gCaves',label:'Caves'},{k:'gSewers',label:'Sewers'},{k:'gSubway',label:'Subways'}]],
   [2,'Hitboxes',[{k:'show',label:'Display hitboxes'},
@@ -71,7 +72,7 @@ const DBG_COLS=4,DBG_SECS=[
 const DBG_ITEMS=DBG_SECS.flatMap(([c,sec,rows])=>rows.map(it=>Object.assign(it,{c,sec})));
 // (the sliders: left and right only move one once it's been picked with A, and until then they go to the next column,
 // as on any other row, so a slider never gets in the way of crossing the menu)
-const DBG_SLIDE=new Set(['speed','pspeed','curve']);
+const DBG_SLIDE=new Set(['speed','pspeed','curve','host']);
 // the Rendering switches, and what each one stops being drawn (not saved: a world with holes in the picture would only
 // be confusing to come back to). The caves, sewers and subways redraw over the next few frames, nearest first.
 const GFX_KEY={gProps:'props',gFixtures:'fixtures',gCaves:'caves',gSewers:'sewers',gSubway:'subway'};
@@ -82,13 +83,14 @@ function toggleGfx(k){const g=GFX_KEY[k],off=GFX_OFF[g]=!GFX_OFF[g];
   const P=P1.pos,d=e=>Math.hypot(e.cx*CS-P.x,e.cz*CS-P.z);
   leafQ.length=0;for(const e of [...meshes.values()].sort((a,b)=>d(b)-d(a)))leafQ.push(ckey(e.cx,e.cz));}
 const curveTxt=()=>DT.curve===0?'Flat':DT.curve>0?'Down '+DT.curve:'Up '+(-DT.curve);
-function dbgVal(k){return isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='peace'?!DT.peace:k==='paused'||k==='freecam'||k==='invuln'||k==='infStam'||k==='fly'||k==='gob'||k==='fps'||k==='hpBars'||k==='dmgNums'||k==='sndList'?DT[k]:DBG[k];}
+function dbgVal(k){return isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='paused'||k==='freecam'||k==='invuln'||k==='infStam'||k==='fly'||k==='gob'||k==='fps'||k==='hpBars'||k==='dmgNums'||k==='sndList'?DT[k]:DBG[k];}
 // the rows on show: the individual hitbox switches only while 'Display hitboxes' is on
 function dbgItems(){const L=DBG_ITEMS.filter(it=>!it.col||DBG.show);if(DT.cur>=L.length)DT.cur=L.length-1;return L;}
 // step a slider row (game speed or player speed) left or right
 function dbgStep(k,d){if(k==='wx'){const L=Object.keys(WX_TYPES);wxSet(L[(L.indexOf(WX.type)+d+L.length)%L.length],true);WX.until=gameDays()+1;}
   else if(k==='season'){const y=Math.floor((dayN-1)/120);dayN=y*120+((seasonOf()+d+4)%4)*SEASON_LEN+1;wxSet(wxPick(seasonOf()),true);}
   else if(k==='curve')DT.curve=Math.max(-10,Math.min(10,DT.curve+d));
+  else if(k==='host')DT.host=Math.max(0,Math.min(2,DT.host+d));
   else if(k==='speed')DT.speedI=Math.max(0,Math.min(SPEEDS.length-1,DT.speedI+d));else if(k==='pspeed')DT.psI=Math.max(0,Math.min(PSPEEDS.length-1,DT.psI+d));}
 function setKbdMenu(on){
   DT.kbdOpen=on;DT.menu=DT.quick&&(on||DT.selHeld);mHeld.clear();mTap.clear();renderTime();
@@ -111,7 +113,7 @@ function dbgMenuToggle(){const it=dbgItems()[DT.cur];
   else if(it.k==='freecam')setFreecam(!DT.freecam);
   else if(it.k==='gob')setGob(!DT.gob);
   else if(it.k==='paused')DT.paused=!DT.paused;
-  else if(it.k==='invuln'||it.k==='peace'||it.k==='infStam'||it.k==='fly'||it.k==='fps'||it.k==='hpBars'||it.k==='dmgNums'||it.k==='sndList'){DT[it.k]=!DT[it.k];try{localStorage.setItem('goblin-stompin-gus-'+it.k,DT[it.k]?'1':'0');}catch(e){}}
+  else if(it.k==='invuln'||it.k==='infStam'||it.k==='fly'||it.k==='fps'||it.k==='hpBars'||it.k==='dmgNums'||it.k==='sndList'){DT[it.k]=!DT[it.k];try{localStorage.setItem('goblin-stompin-gus-'+it.k,DT[it.k]?'1':'0');}catch(e){}}
   else{DBG[it.k]=!DBG[it.k];renderDbg();try{localStorage.setItem(DBG_KEY,JSON.stringify(DBG));}catch(e){}}
   tone('triangle',620,0,0.05,0.03);renderTime();}
 // up/down move the highlight within its column (letting go of a picked slider); left/right move across to the next
@@ -136,10 +138,11 @@ function setFreecam(on){
 }
 function renderTime(){
   saveDT();
-  for(const b of document.querySelectorAll('#dbgTime .tog,#dbgCheat .tog,#dbgOverlays .tog'))b.setAttribute('aria-checked',String(b.dataset.k==='peace'?!DT.peace:!!DT[b.dataset.k]));
+  for(const b of document.querySelectorAll('#dbgTime .tog,#dbgCheat .tog,#dbgOverlays .tog'))b.setAttribute('aria-checked',String(!!DT[b.dataset.k]));
   for(const b of document.querySelectorAll('#dbgUi .tog'))b.setAttribute('aria-checked',String(uiVal(b.dataset.k)));
   for(const b of document.querySelectorAll('#dbgGfx .tog'))b.setAttribute('aria-checked',String(!GFX_OFF[GFX_KEY[b.dataset.k]]));
   {const el=document.getElementById('playerSpeed'),v=document.getElementById('playerSpeedVal');if(el){el.value=String(DT.psI);v.textContent=PSPEEDS[DT.psI]+'×';}}
+  syncHost();
   {const el=document.getElementById('worldCurve'),v=document.getElementById('worldCurveVal');if(el){el.value=String(DT.curve);v.textContent=curveTxt();}}
   CURVE_U.value=DT.curve*0.00012;
   const el=document.getElementById('gameSpeed'),v=document.getElementById('gameSpeedVal');if(el){el.value=String(DT.speedI);v.textContent=SPEEDS[DT.speedI]+'×';}
@@ -153,7 +156,7 @@ function renderTime(){
     const dbgL=dbgItems();
     const dbgRows=dbgL.map((it,i)=>{const v=dbgVal(it.k),txt=typeof v==='boolean'?(v?'ON':'OFF'):v;
       let body=txt;
-      if(it.k==='speed'||it.k==='pspeed'||it.k==='curve'){const n=it.k==='curve'?21:(it.k==='speed'?SPEEDS:PSPEEDS).length,f=(it.k==='curve'?DT.curve+10:it.k==='speed'?DT.speedI:DT.psI)/(n-1)*100;body='<span class="sl" data-k="'+it.k+'"><i style="width:'+f+'%"></i><b style="left:'+f+'%"></b></span><span class="slv">'+txt+'</span>';}
+      if(DBG_SLIDE.has(it.k)){const n=it.k==='curve'?21:it.k==='host'?3:(it.k==='speed'?SPEEDS:PSPEEDS).length,f=(it.k==='curve'?DT.curve+10:it.k==='host'?DT.host:it.k==='speed'?DT.speedI:DT.psI)/(n-1)*100;body='<span class="sl" data-k="'+it.k+'"><i style="width:'+f+'%"></i><b style="left:'+f+'%"></b></span><span class="slv">'+txt+'</span>';}
       else if(it.k==='wx'||it.k==='season')body='<span class="dd">'+(it.k==='wx'?WX_TYPES[WX.type].i+' ':'')+txt+' ▾</span>';
       let list='';
       if(DT.dd&&DT.dd.k===it.k){const cur=ddCur(it.k);list='<div class="ddl">'+ddOpts(it.k).map((o,j)=>'<div class="ddo'+(j===DT.dd.i?' cur':'')+(j===cur?' sel':'')+'" data-j="'+j+'">'+o.n+'</div>').join('')+'</div>';}
@@ -180,7 +183,7 @@ function renderTime(){
    const row=e.target.closest('.dr');if(!row)return;const ni=+row.dataset.i;if(DT.dd&&dbgItems()[ni].k!==DT.dd.k)DT.dd=null;DT.cur=ni;dbgMenuToggle();});
  // the sliders: press and drag anywhere along the track
  const slSet=x=>{const k=DT.slDrag,el=rows.querySelector('.sl[data-k="'+k+'"]');if(!el)return;const r=el.getBoundingClientRect(),f=Math.max(0,Math.min(1,(x-r.left)/r.width));
-   if(k==='curve')DT.curve=Math.round(f*20)-10;else if(k==='speed')DT.speedI=Math.round(f*(SPEEDS.length-1));else DT.psI=Math.round(f*(PSPEEDS.length-1));renderTime();};
+   if(k==='curve')DT.curve=Math.round(f*20)-10;else if(k==='host')DT.host=Math.round(f*2);else if(k==='speed')DT.speedI=Math.round(f*(SPEEDS.length-1));else DT.psI=Math.round(f*(PSPEEDS.length-1));renderTime();};
  rows.addEventListener('pointerdown',e=>{const sl=e.target.closest('.sl');if(!sl)return;DT.slDrag=sl.dataset.k;DT.dd=null;const row=sl.closest('.dr');if(row)DT.cur=+row.dataset.i;slSet(e.clientX);e.preventDefault();});
  addEventListener('pointermove',e=>{if(DT.slDrag)slSet(e.clientX);});
  addEventListener('pointerup',()=>{DT.slDrag=null;});
@@ -192,6 +195,7 @@ for(const b of document.querySelectorAll('#dbgTime .tog,#dbgOverlays .tog'))b.ad
 document.getElementById('gameSpeed').addEventListener('input',e=>{DT.speedI=+e.target.value;renderTime();});
 document.getElementById('playerSpeed').addEventListener('input',e=>{DT.psI=+e.target.value;renderTime();});
 document.getElementById('worldCurve').addEventListener('input',e=>{DT.curve=+e.target.value;renderTime();});
+for(const i of ['hostMain','hostility'])document.getElementById(i).addEventListener('input',e=>{DT.host=+e.target.value;renderTime();});
 for(const b of document.querySelectorAll('#dbgCheat .tog'))b.addEventListener('click',()=>{const k=b.dataset.k;if(k==='gob')setGob(!DT.gob);else DT[k]=!DT[k];renderTime();tone('triangle',DT[k]?660:440,0,0.05,0.03);});
 renderTime();
 addEventListener('keydown',e=>{

@@ -72,7 +72,8 @@
         <button class="big alt" id="testWorld">Testing Environment</button>
         <button class="big full" id="fullBtn" type="button">Full screen</button>
       </div>
-      <button type="button" class="tog peacetog" role="checkbox" id="peaceTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Peaceful<small>Start with enemy hostility off (switch it back on any time from the debug menu)</small></span></button>
+      <div class="hostmain"><div class="hostlbl">Enemy hostility<small>Passive: nobody reacts to you, even when hit. Peaceful: nobody attacks, but they still run. Normal: they come for you</small></div>
+      <div class="crow"><input type="range" id="hostMain" class="vrange" min="0" max="2" step="1" value="2" aria-label="Enemy hostility"><span class="vval" id="hostMainVal">Normal</span></div></div>
       <div class="confirm" id="confirm" hidden>
         <span>Start over in a brand-new city? The day, your kills, your score and the obituary all start again from scratch.</span>
         <button class="yes" id="confirmYes">New city</button>
@@ -184,12 +185,13 @@
       <h2>DEBUG: PLAYER</h2>
       <div class="crow"><input type="range" id="playerSpeed" class="vrange" min="0" max="11" step="1" value="0" aria-label="Player speed"><span class="vval" id="playerSpeedVal">1×</span></div>
       <p class="vnote">Player speed: how fast Gus and Gertie walk and trample, up to ten times normal.</p>
+      <div class="crow"><input type="range" id="hostility" class="vrange" min="0" max="2" step="1" value="2" aria-label="Enemy hostility"><span class="vval" id="hostilityVal">Normal</span></div>
+      <p class="vnote">Enemy hostility. Normal: hostile goblins attack, and cars, police and soldiers hunt you. Peaceful: none of them come for you, but the townsfolk still run from you. Passive: nobody reacts to you at all, not even to being hit (they still get hurt). The same as the main screen's slider.</p>
       <div class="abil" id="dbgCheat">
         <button type="button" class="tog" role="checkbox" data-k="invuln"><span class="box" aria-hidden="true"></span><span class="tl">Invulnerable<small>Nothing hurts the hippos: goblins, traffic, fire, blasts or falls</small></span></button>
         <button type="button" class="tog" role="checkbox" data-k="infStam"><span class="box" aria-hidden="true"></span><span class="tl">Infinite stamina<small>Trample and air-dash as long as you like without running out of breath</small></span></button>
         <button type="button" class="tog" role="checkbox" data-k="fly"><span class="box" aria-hidden="true"></span><span class="tl">Flying<small>Hold jump (Space / A) to rise, C / LB to sink; let go to hover. Ground pound to drop</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="gob"><span class="box" aria-hidden="true"></span><span class="tl">Play as a goblin<small>First person, goblin sized, with a club instead of a hippo's powers. Other goblins take you for one of their own: nobody runs, nobody attacks</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="peace"><span class="box" aria-hidden="true"></span><span class="tl">Enemy hostility<small>Hostile goblins attack, and cars and police hunt you. Off: they leave you alone</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="gob"><span class="box" aria-hidden="true"></span><span class="tl">Play as a goblin<small>First person, goblin sized, with a club instead of a hippo's powers. Goblins treat you just as they treat Gus, as Enemy hostility says</small></span></button>
       </div>
     </div>
     <div class="custom">

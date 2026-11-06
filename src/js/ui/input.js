@@ -41,8 +41,6 @@ function resumePlayer(p,fromPad){
 }
 for(const p of players){p.ui.pres.addEventListener('click',()=>resumePlayer(p,false));p.ui.pmenu.addEventListener('click',()=>pause());}
 document.addEventListener('pointerlockerror',()=>{dragMode=true;});
-document.getElementById('peaceTog').addEventListener('click',()=>{peaceful=!peaceful;DT.peace=peaceful;try{localStorage.setItem(PEACE_KEY,peaceful?'1':'0');}catch(e){}syncPeace();tone('triangle',620,0,0.05,0.03);renderTime();});
-syncPeace();
 document.getElementById('play').addEventListener('click',()=>startPlay('solo'));
 document.getElementById('playCoop').addEventListener('click',()=>startPlay('coop'));
 function look(p,dx,dy,k){

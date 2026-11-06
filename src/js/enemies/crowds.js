@@ -134,7 +134,7 @@ function spawnCiv(g){
 function squeal(d){const att=Math.max(0.08,1-d/28);tone('sawtooth',950+Math.random()*350,1500+Math.random()*300,0.2,0.045*att);tone('sine',1300,900,0.22,0.03*att,0.05);}
 function civAI(g,dt){
   if(!playing||g.stun>0)return false;
-  const thr=DT.gob?null:nearestPlayer(g.pos.x,g.pos.z,true);   // (just another goblin: nothing to run from)
+  const thr=passiveNow()?null:nearestPlayer(g.pos.x,g.pos.z,true);   // (with hostility at Passive, nothing to run from)
   let speed=0,want=g.heading;
   if(thr&&thr.d<(g.vendor?9:14)){
     // a hippo! run, screaming
@@ -206,8 +206,9 @@ function damageGoblin(g,n,pt,dir,cause,by){
   g.hp-=n;g.hurt=0.1;if(cause!=='Fell to death')g.hitT=playTime;
   if(g.homeV&&!g.homeV.roused&&!calmNow())(g.cultist?cultRouse:siteRouse)(g.homeV);   // (hurt one at the altar or the compound and the whole lot turn on you)
   if(g.snowU&&g.snowU.value>0.05){puff(g.pos.x,g.pos.y+1.3*ES,g.pos.z,6,0xf0f4fa,0.35);g.snowU.value=0;}
-  if(g.news){endNews(g,true);g.indoor=false;g.wt=null;}   // hit: drop everything and run (or fall)
-  if(g.hp>0&&(g.medic||g.ff)){if(g.medic&&g.medic.cur)g.medic.cur.tended=false;g.medic=null;g.ff=null;g.indoor=false;g.wt=null;}   // hit: forget the job and run
+  // (at Passive, a hit doesn't put anyone off what they're doing, unless it kills them)
+  if(g.news&&!(passiveNow()&&g.hp>0)){endNews(g,true);g.indoor=false;g.wt=null;}   // hit: drop everything and run (or fall)
+  if(g.hp>0&&!passiveNow()&&(g.medic||g.ff)){if(g.medic&&g.medic.cur)g.medic.cur.tended=false;g.medic=null;g.ff=null;g.indoor=false;g.wt=null;}   // hit: forget the job and run
   blood(pt.x,pt.y,pt.z,5+n*2,dir?dir.clone().multiplyScalar(-0.4):null);
   if(dir)blood(pt.x,pt.y,pt.z,3+n,dir);
   splat(pt.x+(Math.random()-.5)*.6,pt.z+(Math.random()-.5)*.6,pt.y,0.15+Math.random()*0.2);

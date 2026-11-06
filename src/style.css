@@ -455,7 +455,9 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 @media (max-width:720px){.ab-h{display:none}.ab-row{grid-template-columns:1fr}.ab-up{padding-left:16px}.ab-up:empty{display:none}}
 .tog{display:flex;align-items:flex-start;gap:10px;text-align:left;padding:8px 10px;background:var(--slate);color:var(--bone);border:1px solid #3a4550;border-radius:4px;cursor:pointer;font:600 13px var(--f-body)}
 .tog:hover{border-color:#5a6670}
-.peacetog{margin:14px auto 0;max-width:360px}
+.hostmain{margin:14px auto 0;max-width:360px;text-align:left}
+.hostlbl{font-weight:700}
+.hostlbl small{display:block;font-weight:400;opacity:.75;margin-top:2px}
 .testpanel{width:100%;max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:12px;text-align:left}
 .testpanel h2{margin:0;font:700 22px var(--f-display);color:var(--bone)}
 .testpanel p{margin:4px 0 0;font:400 13.5px/1.45 var(--f-body);color:var(--mute);max-width:70ch}

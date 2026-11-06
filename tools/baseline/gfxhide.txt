@@ -8,10 +8,12 @@ Caves switch: true -> false
 Sewers switch: true -> false
 Subways switch: true -> false
 props meshes visible after switching back true true
-columns [["speed","paused","freecam","curve","wx","season"],["pspeed","invuln","infStam","fly","gob","peace","fps","hpBars","dmgNums"],["gProps","gFixtures","gCaves","gSewers","gSubway","show"]]
-rows reached by walking the menu 22 of 39
+columns [["speed","paused","freecam","curve","wx","season"],["pspeed","invuln","infStam","fly","gob","host","fps","hpBars","dmgNums","sndList"],["gProps","gFixtures","gCaves","gSewers","gSubway","show"],["uiAll","uiScore","uiClock","uiStatus","uiMini","uiSpeedo","uiHearts","uiStam","uiCharge","uiMsg","uiHint","uiPlace","uiHurt","uiWater","uiBadge","uiWho","uiJoin","uiSplit"]]
+rows reached by walking the menu 22 of 40
 right from Stop time goes to invuln , then left back to paused
-left on Game speed stays on speed and speed index goes 6 -> 5
+left on Game speed, not picked: goes to uiAll and speed index stays 6 -> 6
+picked with A: speed ; then left: stays on speed speed index 6 -> 5 ; A again lets go: null ; picked again, then down lets go: paused null
+hostility: left, not picked, goes to season ; picked, left x3 then right: Normal > Peaceful > Passive > Passive > Peaceful ; stored 1
 street props 40 benches 61 bins, furthest 117 blocks; still old fixtures 0 ; also listed for traffic 101
 bench: all three of its cells block goblins true
 a car hitting it: knocked 1 score + 5

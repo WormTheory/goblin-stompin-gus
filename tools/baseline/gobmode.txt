@@ -12,9 +12,15 @@ jump again in mid-air: height 1.34 (same means no second jump)
 stomp, pound, charge at a wall and club it: blocks left 3 of 3  state walk walk
 HIPPO  townsfolk 3 away, 2s later: arms up and fleeing 6 /6, got well away 6 /6
 HIPPO  6 hostile goblins, 5s later: hp 4 of 20, crowding round 6
-GOBLIN townsfolk 3 away, 2s later: arms up and fleeing 0 /6, got well away 0 /6
-GOBLIN 6 hostile goblins, 5s later: hp 20 of 20, crowding round 0
-clubbing a goblin in front, hp after each blow 3 2 1 dead  it fled false  hp mine 20
+GOBLIN townsfolk 3 away, 2s later: arms up and fleeing 6 /6, got well away 6 /6
+GOBLIN 6 hostile goblins, 5s later: hp 2 of 20, crowding round 6
+Peaceful townsfolk 3 away, 2s later: fleeing 6 /6
+Peaceful 6 hostile goblins, 5s later: hp 20 of 20, fleeing 0
+Peaceful and after each is hurt: fleeing 0  hp 20
+Passive  townsfolk 3 away, 2s later: fleeing 0 /6
+Passive  6 hostile goblins, 5s later: hp 20 of 20, fleeing 0
+Passive  and after each is hurt: fleeing 0  hp 20
+clubbing a goblin in front, hp after each blow 3 2 1 dead  it fled false  hp mine 18
 a goblin behind me is not hit: hp 3 of 3
 climb a 6-high block: reached 6.00  on top 6.00  states walk,climb,piv  frames with the eye in a block 0
 can look up to 1.40
