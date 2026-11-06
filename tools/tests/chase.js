@@ -109,6 +109,15 @@ for(const k of KINDS){let F=null;try{F=T.stFind(k,0,0);}catch(e){}if(!F)F=findTy
     gob.state='chase';gob.hp=99;gob.stun=0;gob.indoor=false;gob.civ=false;gob.staff=false;gob.root.visible=true;gob.pos.set(wx-6.5,y0,wz-6.5);gob.vy=0;gob.t=0;gob.detour=0;gob.kv.set(0,0,0);gob.atk=1;gob.act=null;
     while(t<40){cling();for(const g of T.goblins)if(g!==gob&&g.state==='chase'){g.state='wait';g.t=-1e9;g.root.visible=false;}now+=DT;T.frame(now);t+=DT/1000;gob.hp=99;hi=Math.max(hi,gob.pos.y-y0);if(A.hp<999){h++;if(first===null)first=t;}if(process.env.TRC&&up===8&&Math.round(t/DT*1000)%60===0){const F=T.nav&&T.nav.front,i=F?T.navAt(F,gob):-2;console.log('    t',t.toFixed(0),'gob',(gob.pos.x-wx).toFixed(1),(gob.pos.y-y0).toFixed(1),(gob.pos.z-wz).toFixed(1),'act',gob.act&&gob.act.k,'node',i,i>=0?F.cost[i]+' mv'+F.mv[i]:'','n',F&&F.n,'A',A.state,(A.pos.y-y0).toFixed(1),'wall col',JSON.stringify(T.navCol(wx,wz+1)),'here',JSON.stringify(T.navCol(wx,wz)),'state',gob.state,'alert',gob.alert,'indoor',gob.indoor);}}
     console.log('  hippo clinging',up,'up a wall:',h?h+' blows in 40s, first after '+first.toFixed(1)+'s':'NO BLOWS','(goblin got',hi.toFixed(1),'up)');}
+  // the goblin's on the wall below him, and he edges along it sideways: does it follow him across?
+  for(const side of [5,9]){const to={x:wx+.5,y:y0+8,z:wz+.6};let h=0,t=0,first=null,maxLat=0,phase=0;
+    const cling=()=>{A.state='climb';A.climbD=[0,1];A.heading=0;A.vy=0;A.pos.set(to.x,to.y,to.z);A.hp=999;};
+    for(let i=0;i<12;i++){cling();now+=DT;T.frame(now);}
+    gob.state='chase';gob.hp=99;gob.stun=0;gob.indoor=false;gob.civ=false;gob.staff=false;gob.root.visible=true;gob.pos.set(wx-6.5,y0,wz-6.5);gob.vy=0;gob.t=0;gob.detour=0;gob.kv.set(0,0,0);gob.atk=1;gob.act=null;
+    while(t<60){if(!phase&&gob.act&&gob.act.k==='up'&&gob.pos.y>y0+2){phase=1;to.x+=side;}   // (once it's on the wall, he moves along)
+      cling();for(const g of T.goblins)if(g!==gob&&g.state==='chase'){g.state='wait';g.t=-1e9;g.root.visible=false;}now+=DT;T.frame(now);t+=DT/1000;gob.hp=99;
+      if(phase){maxLat=Math.max(maxLat,gob.pos.x-wx);if(A.hp<999){h++;if(first===null)first=t;}}}
+    console.log('  hippo moved',side,'along the wall above a climbing goblin:',h?h+' blows, first '+first.toFixed(1)+'s in':'NO BLOWS','(goblin got',maxLat.toFixed(1),'across)');}
   T.keys.delete('KeyC');A.state='walk';}
 // falls: a goblin dropped from each height on to open ground, hippo well away
 {const st=near(60,G+1,60);for(const hgt of [3,6,8,12,16]){const far={x:st.x+30,y:st.y,z:st.z};for(let i=0;i<6;i++)tick(far);
