@@ -100,6 +100,21 @@ for(const k of KINDS){let F=null;try{F=T.stFind(k,0,0);}catch(e){}if(!F)F=findTy
     for(let i=0;i<12;i++){c.pos.set(st.x,st.y,st.z);c.speed=0;tick(to);}gob.state='chase';gob.hp=99;gob.stun=0;gob.indoor=false;gob.civ=false;gob.staff=false;gob.root.visible=true;gob.pos.set(st.x-7,st.y,st.z);gob.vy=0;gob.t=0;gob.detour=0;gob.kv.set(0,0,0);gob.atk=1;
     let h=0,t=0,first=null;while(t<20){A.hp=999;pinA(to);c.pos.set(st.x,st.y,st.z);c.speed=0;for(const g of T.goblins)if(g!==gob&&g.state==='chase'){g.state='wait';g.t=-1e9;g.root.visible=false;}now+=DT;T.frame(now);t+=DT/1000;gob.hp=99;if(A.hp<999){h++;if(first===null)first=t;}if(process.env.TRV===v&&Math.round(t/DT*1000)%15===0)console.log('   t',t.toFixed(1),'gob',(gob.pos.x-st.x).toFixed(2),gob.pos.y.toFixed(2),(gob.pos.z-st.z).toFixed(2),'vy',gob.vy.toFixed(1),'atk',gob.atk.toFixed(2),'state',gob.state,'hippo y',A.pos.y.toFixed(2),'st',A.state,'car',(c.pos.x-st.x).toFixed(1),(c.pos.z-st.z).toFixed(1),c.alive,'ride',!!A.rideC);}
     console.log('  hippo on the roof of a',v.padEnd(6),'(',c.hy.toFixed(1),'up):',h?h+' blows in 20s, first after '+first.toFixed(1)+'s':'NO BLOWS');}c.alive=false;c.g.visible=false;}
+// Gus clinging to the wall of a building partway up: does a goblin climb after him and land blows?
+{const F=T.stFind('mid',0,0)||T.stFind('tower',0,0),P=T.plotInfo(F.ax,F.az),b=P.b[0],X0=F.ax*CELL,Z0=F.az*CELL,wx=X0+((b.x0+b.x1)>>1),wz=Z0+b.z0-1,y0=groundY(wx,wz);
+  for(const up of [3,8,14]){const to={x:wx+.5,y:y0+up,z:wz+.6};let h=0,t=0,first=null,hi=0;
+    const cling=()=>{A.state='climb';A.climbD=[0,1];A.heading=0;A.vy=0;A.pos.set(to.x,to.y,to.z);A.hp=999;};
+    T.keys.add('KeyC');   // (holding on: the climb button held)
+    for(let i=0;i<12;i++){cling();now+=DT;T.frame(now);}
+    gob.state='chase';gob.hp=99;gob.stun=0;gob.indoor=false;gob.civ=false;gob.staff=false;gob.root.visible=true;gob.pos.set(wx-6.5,y0,wz-6.5);gob.vy=0;gob.t=0;gob.detour=0;gob.kv.set(0,0,0);gob.atk=1;gob.act=null;
+    while(t<40){cling();for(const g of T.goblins)if(g!==gob&&g.state==='chase'){g.state='wait';g.t=-1e9;g.root.visible=false;}now+=DT;T.frame(now);t+=DT/1000;gob.hp=99;hi=Math.max(hi,gob.pos.y-y0);if(A.hp<999){h++;if(first===null)first=t;}if(process.env.TRC&&up===8&&Math.round(t/DT*1000)%60===0){const F=T.nav&&T.nav.front,i=F?T.navAt(F,gob):-2;console.log('    t',t.toFixed(0),'gob',(gob.pos.x-wx).toFixed(1),(gob.pos.y-y0).toFixed(1),(gob.pos.z-wz).toFixed(1),'act',gob.act&&gob.act.k,'node',i,i>=0?F.cost[i]+' mv'+F.mv[i]:'','n',F&&F.n,'A',A.state,(A.pos.y-y0).toFixed(1),'wall col',JSON.stringify(T.navCol(wx,wz+1)),'here',JSON.stringify(T.navCol(wx,wz)),'state',gob.state,'alert',gob.alert,'indoor',gob.indoor);}}
+    console.log('  hippo clinging',up,'up a wall:',h?h+' blows in 40s, first after '+first.toFixed(1)+'s':'NO BLOWS','(goblin got',hi.toFixed(1),'up)');}
+  T.keys.delete('KeyC');A.state='walk';}
+// falls: a goblin dropped from each height on to open ground, hippo well away
+{const st=near(60,G+1,60);for(const hgt of [3,6,8,12,16]){const far={x:st.x+30,y:st.y,z:st.z};for(let i=0;i<6;i++)tick(far);
+  gob.state='chase';gob.hp=gob.hpMax=4;gob.stun=0;gob.indoor=false;gob.civ=false;gob.staff=false;gob.root.visible=true;gob.pos.set(st.x,st.y+hgt,st.z);gob.vy=0;gob.t=0;gob.kv.set(0,0,0);gob.act=null;gob.fallTop=undefined;gob.hitT=undefined;
+  for(let i=0;i<60&&gob.state==='chase'&&gob.pos.y>st.y+0.01;i++)tick(far);for(let i=0;i<4;i++)tick(far);
+  console.log('  goblin dropped',hgt,'blocks:',gob.state==='dead'?'killed':gob.state==='chase'?(4-gob.hp)+' of 4 hit points lost':gob.state);}}
 // a hippo sunk under the water, goblin on the surface nearby and on the shore
 {let sp=null;for(let i=0;i<40000&&!sp;i++){const x=Math.floor(Math.random()*3000-1500),z=Math.floor(Math.random()*3000-1500);if(T.get(x,44,z)!==9||T.get(x,45,z))continue;let bad=false;for(let u=-14;u<=14&&!bad;u+=7)for(let v=-14;v<=14&&!bad;v+=7)if(T.get(x+u,44,z+v)!==9||T.get(x+u,30,z+v)!==9)bad=true;if(!bad)sp={x:x+.5,z:z+.5};}
   if(sp)for(const depth of [2,5,9,13])chase('swimmer '+depth+' under, goblin on top',{x:sp.x-10,y:44,z:sp.z},{x:sp.x,y:44-depth,z:sp.z});else console.log('  no deep water found');}

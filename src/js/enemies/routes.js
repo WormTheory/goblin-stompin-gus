@@ -47,7 +47,7 @@ function navExpand(N,i){
       else if(dh>1){   // it's above here: over the edge, and down (a long way down on hands and feet, if there's a wall to climb)
         if(!navOpen(x,z,y+2,f+1))continue;
         const wall=solidAt(mx,y+1,mz);
-        if(dh<=5)at(mx,mz,f,10+dh*3,NAV_WALK);else if(wall)at(mx,mz,f,20+dh*10,NAV_DOWN);else if(dh<=10)at(mx,mz,f,10+dh*5,NAV_WALK);}
+        if(dh<=GOB_SAFE)at(mx,mz,f,10+dh*3,NAV_WALK);else if(wall)at(mx,mz,f,20+dh*10,NAV_DOWN);}
       else{   // it's below here: a hop up, or a climb
         if(!navOpen(mx,mz,f+2,y+1))continue;
         if(dh===-2)at(mx,mz,f,24,NAV_JUMP);else if(solidAt(x,y-1,z)&&solidAt(x,y-2,z)&&solidAt(x,f,z))at(mx,mz,f,20-dh*18,NAV_UP);}
@@ -62,6 +62,8 @@ function navExpand(N,i){
       if(landed||!navOpen(gx,gz,y,y+1))break;}
   }
 }
+// (how far a goblin can drop without hurting itself)
+const GOB_SAFE=6;
 const NAV_DX=[0,1,0,-1,1,1,-1,-1],NAV_DZ=[1,0,-1,0,1,-1,1,-1];
 // the place something at this height in this column would be standing on (the nearest within a jump), or 0
 function navFloorOf(x,z,y){const c=navCol(x,z);if(!c)return 0;let best=0,bd=1e9;for(let i=0;i<c.length;i++){const f=c[i]<0?-c[i]:c[i];if(f>y+1.25)continue;const d=y-f;if(d<bd){bd=d;best=f;}}return best;}
@@ -72,9 +74,12 @@ function navStart(N,p){
   F.keys.fill(-1);F.n=0;F.ox=x-NAV_R;F.oz=z-NAV_R;N.c=0;N.done=false;N.q.length=0;
   // (no further out than any goblin could need: a long way round, or a long climb, but not the whole neighbourhood every time)
   {let far=0;for(const g of goblins){if(!navWants(g))continue;const d=Math.hypot(g.pos.x-p.pos.x,g.pos.z-p.pos.z);if(d<NAV_R-2)far=Math.max(far,d*40+Math.abs(g.pos.y-y)*25);}N.lim=N.cap=Math.min(NAV_CAP,far+2000);}
+  // (clinging to a wall: up the same wall after it, to the top, which takes them right past it)
+  {const cl=p.state==='climb'||p.state==='piv'&&p.piv&&p.piv.next==='climb';if(cl&&p.climbD){const wx=Math.floor(p.pos.x+p.climbD[0]*0.9),wz=Math.floor(p.pos.z+p.climbD[1]*0.9),c=navCol(wx,wz);
+    if(c){let top=0;for(const e of c){const f=e<0?-e:e;if(f>y+0.5&&(!top||f<top))top=f;}if(top&&top-y<60)navAdd(N,wx,wz,top,0,-1,NAV_WALK);}}}
   // (hanging about up in the air, or squeezed in against something: whatever's standing room nearest it)
   // (sunk under water: the top of it, straight up, is as near as the map goes)
-  {let yy=Math.floor(y+.6);if(navCol(x,z)&&get(x,yy,z)===WATER){while(yy<H-1&&get(x,yy+1,z)===WATER)yy++;if(get(x,yy-1,z)===WATER&&!solidAt(x,yy+1,z))navAdd(N,x,z,yy,0,-1,NAV_WALK);}}
+  if(!F.n){let yy=Math.floor(y+.6);if(navCol(x,z)&&get(x,yy,z)===WATER){while(yy<H-1&&get(x,yy+1,z)===WATER)yy++;if(get(x,yy-1,z)===WATER&&!solidAt(x,yy+1,z))navAdd(N,x,z,yy,0,-1,NAV_WALK);}}
   if(!F.n)for(let r=0;r<=3;r++){for(let u=-r;u<=r;u++)for(let v=-r;v<=r;v++){if(Math.max(Math.abs(u),Math.abs(v))!==r)continue;const f=navFloorOf(x+u,z+v,y);if(f&&y-f<40)navAdd(N,x+u,z+v,f,r*10,-1,NAV_WALK);}if(F.n)break;}
   N.x=x;N.z=z;N.y=Math.floor(y);N.t=0;
   if(!F.n)N.done=true;
@@ -119,8 +124,9 @@ function navLine(x0,z0,y0,x1,z1,y1){
 function navSteer(g,p){
   const N=p.nav,F=N&&N.front;if(!F)return null;
   // (a clear run at the hippo: straight at where it is now. The map's a moment old, and it may have moved on since)
+  // (not when it's up a wall or high in the air over that floor: then the map knows better)
   if((g.losT=(g.losT||0)-1)<=0){g.losT=4+Math.random()*4;const X=Math.floor(p.pos.x),Z=Math.floor(p.pos.z),f=navFloorOf(X,Z,p.pos.y);g.losY=f;
-    g.los=!!f&&Math.abs(f-g.pos.y)<3&&Math.hypot(p.pos.x-g.pos.x,p.pos.z-g.pos.z)<40&&navLine(g.pos.x,g.pos.z,g.pos.y,p.pos.x,p.pos.z,f);}
+    g.los=!!f&&p.pos.y-f<1.5&&p.state!=='climb'&&Math.abs(f-g.pos.y)<3&&Math.hypot(p.pos.x-g.pos.x,p.pos.z-g.pos.z)<40&&navLine(g.pos.x,g.pos.z,g.pos.y,p.pos.x,p.pos.z,f);}
   if(g.los)return{x:p.pos.x,z:p.pos.z,y:g.losY};
   const i=navAt(F,g);
   // (not on the map: jammed into the corner of a wall, or up on a railing. Off to the nearest place that is)
@@ -140,6 +146,13 @@ function gobStartMove(g,mv,t){
   if(mv===NAV_JUMP){const L=Math.hypot(tx-g.pos.x,tz-g.pos.z);g.act={k:'jump',t:0,T:Math.max(0.45,L/6.5),x0:g.pos.x,y0:y,z0:g.pos.z,x1:tx,y1:t.y,z1:tz,h:0.7+L*0.18};g.heading=Math.atan2(tx-g.pos.x,tz-g.pos.z);}
   else if(mv===NAV_UP){const wx=face[0]?(face[0]>0?t.x-.3:t.x+1.3):g.pos.x,wz=face[1]?(face[1]>0?t.z-.3:t.z+1.3):g.pos.z;g.act={k:'up',x:wx,z:wz,y1:t.y,tx,tz,f:face};g.heading=Math.atan2(face[0],face[1]);}
   else{const wx=face[0]?(face[0]>0?t.x+.3:t.x+.7):g.pos.x,wz=face[1]?(face[1]>0?t.z+.3:t.z+.7):g.pos.z;g.act={k:'down',x:wx,z:wz,y1:t.y,f:face};g.heading=Math.atan2(-face[0],-face[1]);}
+}
+// down after a fall: past the safe height it hurts, a point for every two blocks more (knocked off by a hippo, the hippo gets
+// the credit; a slip of its own is an accident)
+function gobLand(g){
+  const h=(g.fallTop??g.pos.y)-g.pos.y;g.fallTop=undefined;if(h<=GOB_SAFE||g.state!=='chase')return;
+  const n=Math.ceil((h-GOB_SAFE)/2);splat(g.pos.x,g.pos.z,g.pos.y+0.05,0.2+n*0.1);thud(Math.min(0.5,0.1+n*0.08));
+  damageGoblin(g,n,new V3(g.pos.x,g.pos.y+0.4,g.pos.z),null,'Fell to death',playTime-(g.hitT??-99)<4?undefined:ACCIDENT);
 }
 function gobMoveStep(g,dt){
   const A=g.act;g.phase+=dt*9;
@@ -167,7 +180,7 @@ function updateGoblins(dt){
   goblins.forEach(g=>{
     g.t+=dt;g.hurt-=dt;
     {const glow=g.hurt>0;if(glow!==g.glow){g.glow=glow;for(const m of g.mats)m.emissive.setHex(glow?0x440000:0x000000);}}   // (only when it changes: ten materials a goblin, every frame, adds up in a crowd)
-    if(g.state!=='chase')g.act=null;
+    if(g.state!=='chase'){g.act=null;g.fallTop=undefined;}
     if(g.state==='wait'){
       if(g.special)return;   // (cultists and the compounds' people: only ever brought out by their own place, or the Testing Environment)
       if(g.staff){if(g.t>1.5&&playing&&crowd>0&&!spawnStaff(g))g.t=0;}
@@ -196,7 +209,11 @@ function updateGoblins(dt){
     if(g.snowU){if(g.snowFor!==g.id){g.snowFor=g.id;g.snowU.value=WX.k.snow>0.08?WX.snowCover*0.5:0;}snowGather(g,dt,g.phaseWas!==g.phase);g.phaseWas=g.phase;}
     g.stun-=dt;knockMove(g,dt);
     // (partway through a jump or a climb: that's all it's doing, unless something knocks it off)
-    if(g.act){if(g.stun>0||!playing)g.act=null;else{gobMoveStep(g,dt);g.root.position.set(g.pos.x,g.pos.y,g.pos.z);g.root.rotation.y=g.heading;return;}}
+    if(g.act){if(g.stun>0||!playing)g.act=null;else{
+      let held=false;if(g.act.k==='up'||g.act.k==='down'){const t=nearestPlayer(g.pos.x,g.pos.z,true);if(t&&t.d<2.3){const q=t.p,dy=q.pos.y-g.pos.y;
+        if(dy>-1.3&&dy<1.5){held=true;g.atk-=dt;g.arm.rotation.x=g.atk<0.45?-0.5-1.9*(1-Math.max(0,g.atk)/0.45):-2.4;
+          if(g.atk<=0){g.atk=1.5;const ux=(g.pos.x-q.pos.x)/(t.d||1),uz=(g.pos.z-q.pos.z)/(t.d||1);damagePlayer(q,1,new V3(q.pos.x+ux*1.2,q.pos.y+1.1,q.pos.z+uz*1.2),new V3(-ux,0.3,-uz),'Clubbed off a wall',g.id);}}}}   // (both hanging on to the same wall: it stops climbing and swings)
+      if(!held)gobMoveStep(g,dt);g.root.position.set(g.pos.x,g.pos.y,g.pos.z);g.root.rotation.y=g.heading;return;}}
     if(g.medic)moving=medicAI(g,dt);
     else if(g.ff)moving=fireAI(g,dt);
     else if(g.news)moving=newsAI(g,dt);
@@ -289,9 +306,9 @@ function updateGoblins(dt){
        if(moving&&(g.splash=(g.splash||0)-dt)<=0){g.splash=0.4;puff(g.pos.x,top+0.9,g.pos.z,2,0xcfe8ff,0.3);}}}
     const gr=g.wet?null:supportAt(g.pos.x,g.pos.z,g.pos.y);
     if(gr!==null){
-      if(g.vy>0||g.pos.y>gr+0.01){g.vy-=25*dt;g.pos.y+=g.vy*dt;if(g.pos.y<gr){g.pos.y=gr;g.vy=0;}}
-      else{g.vy=0;g.pos.y=Math.min(gr,g.pos.y+dt*8);}
-    }
+      if(g.vy>0||g.pos.y>gr+0.01){g.fallTop=Math.max(g.fallTop??g.pos.y,g.pos.y);g.vy-=25*dt;g.pos.y+=g.vy*dt;if(g.pos.y<gr){g.pos.y=gr;g.vy=0;gobLand(g);}}
+      else{g.vy=0;g.pos.y=Math.min(gr,g.pos.y+dt*8);g.fallTop=undefined;}
+    }else if(g.wet)g.fallTop=undefined;   // (water breaks a fall)
     const sn=Math.sin(g.phase);
     g.legs[0].rotation.x=moving?sn*0.7:0;g.legs[1].rotation.x=moving?-sn*0.7:0;
     if(g.wet&&moving){g.arm.rotation.x=-1.6+sn*0.9;g.armL.rotation.x=-1.6-sn*0.9;}else if(g.armL.rotation.x<-1.2&&!g.fleeing&&!g.special)g.armL.rotation.x=0;

@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:16f4f97992e623e47d473f26b40f5e68edb4d40049a3494425c10f6af8ba83dc -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:0af9f2f62c557b0f7401b96ab8562d52892d6e71023fe49d1d4a97388dce0e30 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -124,26 +124,29 @@ canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;point
 .drvhud .xt{position:absolute;width:9px;height:9px;margin:-6px 0 0 -6px;border:2px solid #ffd75a;transform:rotate(45deg);box-shadow:0 0 0 1px rgba(0,0,0,.45)}
 .drvhud .xt.air{opacity:.45}
 .drvhud .xt.off{border-color:#ff9a3a}
-.drvhud .dammo{position:absolute;left:calc(50% + 40px);top:calc(50% + 26px);display:flex;flex-direction:column;gap:5px;padding:6px 9px;background:rgba(14,17,22,.8);border-radius:4px;font:600 11px var(--f-mono);color:var(--bone)}
-.drvhud .aw{display:grid;grid-template-columns:auto auto;align-items:center;column-gap:8px;row-gap:3px}
-.drvhud .aw .an{grid-column:1/3;letter-spacing:.04em;text-transform:uppercase;font-size:10px;color:var(--mute)}
-.drvhud .aw .an b{color:var(--bone);font-weight:700;text-transform:none;margin-left:3px}
-.drvhud .ap{display:flex;gap:3px}
-.drvhud .pip{width:7px;height:13px;border-radius:2px;background:#ffd75a;box-shadow:0 0 0 1px rgba(0,0,0,.4)}
-.drvhud .pip.e{background:rgba(238,240,230,.18)}
-.drvhud .belt{display:block;width:96px;height:7px;background:rgba(238,240,230,.18);border-radius:2px;overflow:hidden}
-.drvhud .belt i{display:block;height:100%;width:100%;background:#ffd75a}
-.drvhud .ac{min-width:2ch;text-align:right;font-variant-numeric:tabular-nums}
-.drvhud .rlb{display:none;grid-column:1/3;width:100%;height:4px;background:rgba(238,240,230,.18);border-radius:2px;overflow:hidden}
-.drvhud .rlb i{display:block;height:100%;width:0;background:#f0a04a}
-.drvhud .aw.rl .rlb{display:block}
-.drvhud .aw.rl .ap{opacity:.35}
-.drvhud .aw.rl .ac{color:#f0a04a}
-.drvhud .dbox{position:absolute;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);min-width:210px;max-width:calc(100% - 32px);padding:6px 12px 7px;background:rgba(18,22,28,.72);border-radius:3px;font:700 13px var(--f-display);color:var(--bone);text-align:center;transition:background .1s}
-.drvhud .dbox.hit{background:rgba(130,24,18,.82)}
-.drvhud .dbar{height:6px;margin-top:5px;background:rgba(238,240,230,.16);border-radius:2px;overflow:hidden}
-.drvhud .dbar i{display:block;height:100%;width:100%;background:#7fc24a}
-.drvhud .dwpn{margin-top:5px;font:600 11px var(--f-mono);color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dveh{display:flex;gap:6px;align-items:stretch;justify-content:center;flex-wrap:wrap;max-width:100%}
+.dveh[hidden]{display:none}
+.dveh .dammo[hidden]{display:none}
+.dveh .dammo{display:flex;flex-direction:column;gap:5px;padding:6px 9px;background:rgba(14,17,22,.8);border-radius:4px;font:600 11px var(--f-mono);color:var(--bone)}
+.dveh .aw{display:grid;grid-template-columns:auto auto;align-items:center;column-gap:8px;row-gap:3px}
+.dveh .aw .an{grid-column:1/3;letter-spacing:.04em;text-transform:uppercase;font-size:10px;color:var(--mute)}
+.dveh .aw .an b{color:var(--bone);font-weight:700;text-transform:none;margin-left:3px}
+.dveh .ap{display:flex;gap:3px}
+.dveh .pip{width:7px;height:13px;border-radius:2px;background:#ffd75a;box-shadow:0 0 0 1px rgba(0,0,0,.4)}
+.dveh .pip.e{background:rgba(238,240,230,.18)}
+.dveh .belt{display:block;width:96px;height:7px;background:rgba(238,240,230,.18);border-radius:2px;overflow:hidden}
+.dveh .belt i{display:block;height:100%;width:100%;background:#ffd75a}
+.dveh .ac{min-width:2ch;text-align:right;font-variant-numeric:tabular-nums}
+.dveh .rlb{display:none;grid-column:1/3;width:100%;height:4px;background:rgba(238,240,230,.18);border-radius:2px;overflow:hidden}
+.dveh .rlb i{display:block;height:100%;width:0;background:#f0a04a}
+.dveh .aw.rl .rlb{display:block}
+.dveh .aw.rl .ap{opacity:.35}
+.dveh .aw.rl .ac{color:#f0a04a}
+.dveh .dbox{min-width:210px;max-width:100%;box-sizing:border-box;padding:6px 12px 7px;background:rgba(18,22,28,.72);border-radius:3px;font:700 13px var(--f-display);color:var(--bone);text-align:center;transition:background .1s}
+.dveh .dbox.hit{background:rgba(130,24,18,.82)}
+.dveh .dbar{height:6px;margin-top:5px;background:rgba(238,240,230,.16);border-radius:2px;overflow:hidden}
+.dveh .dbar i{display:block;height:100%;width:100%;background:#7fc24a}
+.dveh .dwpn{margin-top:5px;font:600 11px var(--f-mono);color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bar{position:absolute;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;max-width:calc(100% - 32px)}
 .who{font:700 13px var(--f-display);letter-spacing:.02em;text-shadow:0 2px 0 rgba(0,0,0,.6)}
 .who.p2{color:var(--gertie)}
@@ -10159,7 +10162,7 @@ function drvName(D){const o=D.o;
   return DRV_NAME[D.k];
 }
 // the key (or button) that gets you in and out, as bound
-function drvKey(p){const B=BINDS.use;if(p.pad)return padLabel(B.pad[0],padStyle);return keyLabel(B.kb.find(c=>!c.startsWith('Mouse'))||B.kb[0]);}
+function drvKey(p){const B=BINDS.use;if(p.pad)return padLabel(B.pad[0],padStyle==='ps');return keyLabel(B.kb.find(c=>!c.startsWith('Mouse'))||B.kb[0]);}
 // the vehicle nearest you that you could get into: within reach of its box, and about level with it
 function drvFind(p){
   const R=1.8,px=p.pos.x,pz=p.pos.z,py=p.pos.y;let best=null,bd=1e9;
@@ -10294,9 +10297,12 @@ function drvCar(c,dt){
 const DRV_WPN={tank:[{k:'shell',name:'Shells',max:4,gap:1.2,reload:5}],
   heli:[{k:'gun',name:'Gun',max:40,gap:0.09,reload:3},{k:'rkt',name:'Rockets',max:4,gap:0.6,reload:6}]};
 function wpnInit(o,kind){if(!o.wpn){o.wpn={};for(const W of DRV_WPN[kind]||[])o.wpn[W.k]={n:W.max,cd:0,rl:0,W};}}
-function wpnTick(o,dt){for(const k in o.wpn||{}){const s=o.wpn[k];s.cd-=dt;if(s.rl>0){s.rl-=dt;if(s.rl<=0){s.rl=0;s.n=s.W.max;if(audio)tone('square',380,520,0.08,0.03);}}}}
-function wpnFire(o,k){const s=o.wpn&&o.wpn[k];if(!s||s.rl>0||s.cd>0||s.n<=0)return false;
+function wpnTick(o,dt){for(const k in o.wpn||{}){const s=o.wpn[k];s.cd-=dt;s.ck=(s.ck||0)-dt;if(s.rl>0){s.rl-=dt;if(s.rl<=0){s.rl=0;s.n=s.W.max;if(audio)tone('square',380,520,0.08,0.03);}}}}
+// (pulling the trigger with nothing loaded clicks: once a press, or every quarter second held)
+function wpnFire(o,k){const s=o.wpn&&o.wpn[k];if(!s)return false;
+  if(s.rl>0||s.n<=0){if(!(s.ck>0)){s.ck=0.25;wpnClick();}return false;}if(s.cd>0)return false;
   s.n--;s.cd=s.W.gap;if(s.n<=0){s.rl=s.W.reload;if(audio)tone('square',300,180,0.12,0.03);}return true;}
+function wpnClick(){if(audio){tone('square',2400,1500,0.018,0.05);tone('triangle',900,600,0.03,0.04,0.035);}}
 // the helicopter's machine gun, one round: down the line to where you're aiming (led onto a locked target), a little
 // scattered, to the first goblin, vehicle or wall in the way; a tracer and a puff where it hits
 function heliGun(M,p){
@@ -10333,6 +10339,19 @@ function shotPath(F,grav,fuse,own,A){
     x=nx;y=ny;z=nz;if(!mid&&Math.hypot(x-F.x,z-F.z)>=hd)mid={x,y,z};if(k%3===0){_sp.pos.set(x,y,z);if(shotHitsVeh(_sp))return{x,y,z,air:false};}}
   return mid?{...mid,air:true}:{x,y,z,air:true};}
 // driving a tank: turns on the spot, forward and back; the turret follows where you look, and bite fires a shell there
+// a tank shoving into a wall: everything in front of it as wide and tall as the tank (a little ragged round the edge)
+// is knocked out, `depth` blocks deep past its nose (d: 1 going forward, -1 backing)
+function tankRam(M,d,depth){
+  const I=MIL[M.kind],fx=Math.sin(M.h)*d,fz=Math.cos(M.h)*d,y0=Math.floor(M.y+0.05),y1=Math.floor(M.y+I.hy+0.6),W=I.hx+0.45,E=Math.ceil(I.hz+depth+W)+1;
+  const ch=new Set(),broken=[],cx0=Math.floor(M.x),cz0=Math.floor(M.z);
+  if(SBX)return 0;knockProps(M.x+fx*(I.hz+1),M.y+1,M.z+fz*(I.hz+1),W+1,fx,fz);
+  for(let bz=cz0-E;bz<=cz0+E;bz++)for(let bx=cx0-E;bx<=cx0+E;bx++){const rx=bx+0.5-M.x,rz=bz+0.5-M.z,a=rx*fx+rz*fz,l=Math.abs(rx*fz-rz*fx);
+    for(let by=y0;by<=y1+1;by++){const rag=0.45*hash2(bx*7+by*3,bz*11+by);if(a<I.hz-0.7||a>I.hz+depth+rag||l>W+rag||by===y1+1&&rag<0.3)continue;
+      const b=get(bx,by,bz);if(b===AIR||b===WATER||b===BEDROCK||by<1||by>=H)continue;
+      setRaw(bx,by,bz,AIR);addEdit(bx,by,bz,AIR);broken.push({x:bx,y:by,z:bz,b});
+      for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((bx+ox)/CS),Math.floor((bz+oz)/CS)));}}
+  if(broken.length){const o={force:1.2,dx:fx,dz:fz,up:1};rebuildSet(ch);save();destroyFX(broken.slice(0,120),o);settle(broken,o);pumpsHit(broken);}
+  return broken.length;}
 function drvTank(M,dt){
   const p=M.drv,i=p.in,thr=-i.z,st=-i.x;
   M.sv+=(thr*7-M.sv)*Math.min(1,dt*1.5);
@@ -10342,10 +10361,11 @@ function drvTank(M,dt){
   wpnTick(M,dt);if(i.bitePress&&wpnFire(M,'shell')){const mx=F.x,my=F.y,mz=F.z;
     shot({kind:'shell',x:mx,y:my,z:mz,vx:F.vx,vy:F.vy,vz:F.vz,grav:2,fuse:4,R:4.5,dmg:4,cause:'Blown up by a goblin in a tank',crush:3.2,vd:60,own:M});
     smoke(mx,my,mz,4,0x8a8a80);puff(mx,my,mz,4,0xffc040,0.3);if(audio){noise(0.6,0.6,350,'lowpass');tone('sawtooth',70,30,0.5,0.15);}addShake(0.3,M.x,M.z,30);}
-  // (anything more than a block up stops it; leaning on it a moment, it smashes through)
+  // (anything more than a block up, below the top of the tank, stops it -- what's overhead it passes under; leaning on
+  // it a moment, or hitting it at speed, it smashes through)
   if(Math.abs(M.sv)>0.05){const d=M.sv<0?-1:1,fx=Math.sin(M.h)*d,fz=Math.cos(M.h)*d,ax=M.x+fx*3,az=M.z+fz*3;
-    if(groundAt(ax,az,M.y+2)-M.y>1.05||groundAt(ax-fz*1.2,az+fx*1.2,M.y+2)-M.y>1.05||groundAt(ax+fz*1.2,az-fx*1.2,M.y+2)-M.y>1.05){M.sv*=0.5;M.stuck+=dt;
-      if(M.stuck>0.5||Math.abs(M.sv)>2.2){M.stuck=0;{const fast=Math.abs(M.sv)>2.2;crushBall(ax,M.y+(fast?2.5:1),az,fast?2.4:1.8);};clang();if(Math.abs(M.sv)>2.2)addShake(0.5,ax,az,25);}}   // (rammed at speed, it's straight through)
+    if(groundAt(ax,az,M.y+1.1)-M.y>1.05||groundAt(ax-fz*1.2,az+fx*1.2,M.y+1.1)-M.y>1.05||groundAt(ax+fz*1.2,az-fx*1.2,M.y+1.1)-M.y>1.05){const fast=Math.abs(M.sv)>2.2;M.sv*=fast?0.8:0.5;M.stuck+=dt;
+      if(M.stuck>0.5||fast){M.stuck=0;tankRam(M,d,fast?1.8:1.1);clang();if(fast)addShake(0.5,ax,az,25);}}   // (rammed at speed, it's straight through)
     else{const nx=M.x+Math.sin(M.h)*M.sv*dt,nz=M.z+Math.cos(M.h)*M.sv*dt;
       if(milBlocked(M,nx,nz,M.h,M.y)&&!milBlocked(M,M.x,M.z,M.h,M.y))M.sv=0;else{M.stuck=0;M.x=nx;M.z=nz;}}}
   M.v=Math.max(0,M.sv);
@@ -10485,17 +10505,19 @@ function drvHP(D){const o=D.o;
 const _dhv=new THREE.Vector3();
 function drvHud(p){
   let H=p.ui.drvHud;
-  if(!p.drv||!DT.gob){if(H&&!H.el.hidden)H.el.hidden=true;return;}
-  if(!H){const el=document.createElement('div');el.className='drvhud';
-    el.innerHTML='<div class="xh"></div><div class="xt"></div><div class="dbox"><div class="dname"></div><div class="dbar"><i></i></div><div class="dwpn"></div></div><div class="dammo"></div>';p.ui.view.append(el);
-    H=p.ui.drvHud={el,xh:el.querySelector('.xh'),xt:el.querySelector('.xt'),box:el.querySelector('.dbox'),name:el.querySelector('.dname'),fill:el.querySelector('.dbar i'),wpn:el.querySelector('.dwpn'),ammo:el.querySelector('.dammo'),txt:{}};}
+  if(!p.drv||!DT.gob){if(H&&!H.el.hidden){H.el.hidden=true;H.dv.hidden=true;}return;}
+  // (the crosshair and gun marker go over the view; the vehicle's health and its ammo sit just above your hearts)
+  if(!H){const el=document.createElement('div');el.className='drvhud';el.innerHTML='<div class="xh"></div><div class="xt"></div>';p.ui.view.append(el);
+    const dv=document.createElement('div');dv.className='dveh';dv.innerHTML='<div class="dbox"><div class="dname"></div><div class="dbar"><i></i></div><div class="dwpn"></div></div><div class="dammo"></div>';
+    const bar=p.ui.view.querySelector('.bar'),who=bar&&bar.querySelector('.who');if(who)bar.insertBefore(dv,who);else el.append(dv);
+    H=p.ui.drvHud={el,dv,xh:el.querySelector('.xh'),xt:el.querySelector('.xt'),box:dv.querySelector('.dbox'),name:dv.querySelector('.dname'),fill:dv.querySelector('.dbar i'),wpn:dv.querySelector('.dwpn'),ammo:dv.querySelector('.dammo'),txt:{}};}
   const D=p.drv,o=D.o,armed=D.k==='tank'||D.k==='heli',{hp,max}=drvHP(D),f=Math.max(0,Math.min(1,hp/max));
   const set=(k,el,v)=>{if(H.txt[k]!==v){H.txt[k]=v;el.textContent=v;}};
-  H.el.hidden=false;
+  H.el.hidden=false;H.dv.hidden=false;
   set('n',H.name,drvName(D).replace(/^./,c=>c.toUpperCase())+'  ·  '+Math.max(0,Math.ceil(hp))+' / '+Math.round(max));
   const w=(f*100).toFixed(1)+'%';if(H.txt.w!==w){H.txt.w=w;H.fill.style.width=w;H.fill.style.background=f>0.5?'#7fc24a':f>0.25?'#f0a04a':'#e0564a';}
   if(H.lastHp!==undefined&&hp<H.lastHp)H.hitT=camClock;H.lastHp=hp;H.box.classList.toggle('hit',camClock-(H.hitT??-9)<0.25);
-  const bl=id=>p.pad?padLabel(BINDS[id].pad[p.pad&&id==='bite'?1:0]??BINDS[id].pad[0],padStyle):keyLabel(BINDS[id].kb[0]),out=drvKey(p);
+  const bl=id=>p.pad?padLabel(BINDS[id].pad[p.pad&&id==='bite'?1:0]??BINDS[id].pad[0],padStyle==='ps'):keyLabel(BINDS[id].kb[0]),out=drvKey(p);
   const lk=bl('lock'),LT=p.lockT,W=armed&&o.wpn?Object.values(o.wpn):[],w0=W[0],ready=!w0||w0.rl<=0&&w0.n>0;
   set('w',H.wpn,armed?(LT?'Locked on '+(isMilT(LT)?MIL[LT.kind].name.toLowerCase():isCarT(LT)?'a '+(LT.veh||'car'):'a goblin')+' ('+lk+' let go)':lk+' lock on')+'  ·  '+out+' get out'
     :D.k==='plane'?(o.free&&o.free.v>=PLANE_LIFT?'Flying speed':'Take-off at '+PLANE_LIFT)+'  ·  '+out+' get out':out+' get out');
@@ -10510,8 +10532,9 @@ function drvHud(p){
         H.ammo.append(r);return{r,s,many,pips:[...r.querySelectorAll('.pip')],belt:r.querySelector('.belt i'),ac:r.querySelector('.ac'),rl:r.querySelector('.rlb i'),last:''};});}
     for(const a of H.aw){const s=o.wpn[a.s.W.k]||a.s,rl=s.rl>0,st=(rl?'r'+s.rl.toFixed(1):'n'+s.n);if(st===a.last)continue;a.last=st;
       a.r.classList.toggle('rl',rl);
+      if(a.many)a.belt.style.width=(s.n/s.W.max*100).toFixed(1)+'%';else a.pips.forEach((e,k)=>e.classList.toggle('e',k>=s.n));
       if(rl){a.rl.style.width=((1-s.rl/s.W.reload)*100).toFixed(1)+'%';a.ac.textContent='Reloading '+s.rl.toFixed(1)+'s';}
-      else{a.ac.textContent=a.many?String(s.n):'';if(a.many)a.belt.style.width=(s.n/s.W.max*100).toFixed(1)+'%';else a.pips.forEach((e,k)=>e.classList.toggle('e',k>=s.n));}}}
+      else a.ac.textContent=a.many?String(s.n):'';}}
   // (where the shot would really go off, fired now, put on the screen: the gun's reach, the turret still swinging round
   // and anything in the way all show; faint when it would burst in mid-air, out of range)
   let tShow=false;
@@ -11574,7 +11597,7 @@ function recordObit(g,cause,killer){
   if(!g.id)return;
   const who=killerName(killer);
   // nobody's fault (well, nobody's but the traffic's): no killer named, just how it happened
-  if(killer===ACCIDENT)return recordObitAs(g,cause+' in a traffic accident','');
+  if(killer===ACCIDENT)return recordObitAs(g,cause==='Fell to death'?'Fell to death':cause+' in a traffic accident','');   // (a fall of its own: nobody to blame, not even the traffic)
   recordObitAs(g,cause,who);
 }
 function recordObitAs(g,cause,who){const L=obitList();
@@ -13201,7 +13224,7 @@ function damageGoblin(g,n,pt,dir,cause,by){
   if(g.state!=='chase')return;
   dmgPop(g.pos.x,g.pos.y+1.6,g.pos.z,n,'#ffe14a');
   if(!by&&BLAME==='acc')by=ACCIDENT;
-  g.hp-=n;g.hurt=0.1;
+  g.hp-=n;g.hurt=0.1;if(cause!=='Fell to death')g.hitT=playTime;
   if(g.homeV&&!g.homeV.roused&&!calmNow())(g.cultist?cultRouse:siteRouse)(g.homeV);   // (hurt one at the altar or the compound and the whole lot turn on you)
   if(g.snowU&&g.snowU.value>0.05){puff(g.pos.x,g.pos.y+1.3*ES,g.pos.z,6,0xf0f4fa,0.35);g.snowU.value=0;}
   if(g.news){endNews(g,true);g.indoor=false;g.wt=null;}   // hit: drop everything and run (or fall)
@@ -13505,7 +13528,7 @@ function navExpand(N,i){
       else if(dh>1){   // it's above here: over the edge, and down (a long way down on hands and feet, if there's a wall to climb)
         if(!navOpen(x,z,y+2,f+1))continue;
         const wall=solidAt(mx,y+1,mz);
-        if(dh<=5)at(mx,mz,f,10+dh*3,NAV_WALK);else if(wall)at(mx,mz,f,20+dh*10,NAV_DOWN);else if(dh<=10)at(mx,mz,f,10+dh*5,NAV_WALK);}
+        if(dh<=GOB_SAFE)at(mx,mz,f,10+dh*3,NAV_WALK);else if(wall)at(mx,mz,f,20+dh*10,NAV_DOWN);}
       else{   // it's below here: a hop up, or a climb
         if(!navOpen(mx,mz,f+2,y+1))continue;
         if(dh===-2)at(mx,mz,f,24,NAV_JUMP);else if(solidAt(x,y-1,z)&&solidAt(x,y-2,z)&&solidAt(x,f,z))at(mx,mz,f,20-dh*18,NAV_UP);}
@@ -13520,6 +13543,8 @@ function navExpand(N,i){
       if(landed||!navOpen(gx,gz,y,y+1))break;}
   }
 }
+// (how far a goblin can drop without hurting itself)
+const GOB_SAFE=6;
 const NAV_DX=[0,1,0,-1,1,1,-1,-1],NAV_DZ=[1,0,-1,0,1,-1,1,-1];
 // the place something at this height in this column would be standing on (the nearest within a jump), or 0
 function navFloorOf(x,z,y){const c=navCol(x,z);if(!c)return 0;let best=0,bd=1e9;for(let i=0;i<c.length;i++){const f=c[i]<0?-c[i]:c[i];if(f>y+1.25)continue;const d=y-f;if(d<bd){bd=d;best=f;}}return best;}
@@ -13530,9 +13555,12 @@ function navStart(N,p){
   F.keys.fill(-1);F.n=0;F.ox=x-NAV_R;F.oz=z-NAV_R;N.c=0;N.done=false;N.q.length=0;
   // (no further out than any goblin could need: a long way round, or a long climb, but not the whole neighbourhood every time)
   {let far=0;for(const g of goblins){if(!navWants(g))continue;const d=Math.hypot(g.pos.x-p.pos.x,g.pos.z-p.pos.z);if(d<NAV_R-2)far=Math.max(far,d*40+Math.abs(g.pos.y-y)*25);}N.lim=N.cap=Math.min(NAV_CAP,far+2000);}
+  // (clinging to a wall: up the same wall after it, to the top, which takes them right past it)
+  {const cl=p.state==='climb'||p.state==='piv'&&p.piv&&p.piv.next==='climb';if(cl&&p.climbD){const wx=Math.floor(p.pos.x+p.climbD[0]*0.9),wz=Math.floor(p.pos.z+p.climbD[1]*0.9),c=navCol(wx,wz);
+    if(c){let top=0;for(const e of c){const f=e<0?-e:e;if(f>y+0.5&&(!top||f<top))top=f;}if(top&&top-y<60)navAdd(N,wx,wz,top,0,-1,NAV_WALK);}}}
   // (hanging about up in the air, or squeezed in against something: whatever's standing room nearest it)
   // (sunk under water: the top of it, straight up, is as near as the map goes)
-  {let yy=Math.floor(y+.6);if(navCol(x,z)&&get(x,yy,z)===WATER){while(yy<H-1&&get(x,yy+1,z)===WATER)yy++;if(get(x,yy-1,z)===WATER&&!solidAt(x,yy+1,z))navAdd(N,x,z,yy,0,-1,NAV_WALK);}}
+  if(!F.n){let yy=Math.floor(y+.6);if(navCol(x,z)&&get(x,yy,z)===WATER){while(yy<H-1&&get(x,yy+1,z)===WATER)yy++;if(get(x,yy-1,z)===WATER&&!solidAt(x,yy+1,z))navAdd(N,x,z,yy,0,-1,NAV_WALK);}}
   if(!F.n)for(let r=0;r<=3;r++){for(let u=-r;u<=r;u++)for(let v=-r;v<=r;v++){if(Math.max(Math.abs(u),Math.abs(v))!==r)continue;const f=navFloorOf(x+u,z+v,y);if(f&&y-f<40)navAdd(N,x+u,z+v,f,r*10,-1,NAV_WALK);}if(F.n)break;}
   N.x=x;N.z=z;N.y=Math.floor(y);N.t=0;
   if(!F.n)N.done=true;
@@ -13577,8 +13605,9 @@ function navLine(x0,z0,y0,x1,z1,y1){
 function navSteer(g,p){
   const N=p.nav,F=N&&N.front;if(!F)return null;
   // (a clear run at the hippo: straight at where it is now. The map's a moment old, and it may have moved on since)
+  // (not when it's up a wall or high in the air over that floor: then the map knows better)
   if((g.losT=(g.losT||0)-1)<=0){g.losT=4+Math.random()*4;const X=Math.floor(p.pos.x),Z=Math.floor(p.pos.z),f=navFloorOf(X,Z,p.pos.y);g.losY=f;
-    g.los=!!f&&Math.abs(f-g.pos.y)<3&&Math.hypot(p.pos.x-g.pos.x,p.pos.z-g.pos.z)<40&&navLine(g.pos.x,g.pos.z,g.pos.y,p.pos.x,p.pos.z,f);}
+    g.los=!!f&&p.pos.y-f<1.5&&p.state!=='climb'&&Math.abs(f-g.pos.y)<3&&Math.hypot(p.pos.x-g.pos.x,p.pos.z-g.pos.z)<40&&navLine(g.pos.x,g.pos.z,g.pos.y,p.pos.x,p.pos.z,f);}
   if(g.los)return{x:p.pos.x,z:p.pos.z,y:g.losY};
   const i=navAt(F,g);
   // (not on the map: jammed into the corner of a wall, or up on a railing. Off to the nearest place that is)
@@ -13598,6 +13627,13 @@ function gobStartMove(g,mv,t){
   if(mv===NAV_JUMP){const L=Math.hypot(tx-g.pos.x,tz-g.pos.z);g.act={k:'jump',t:0,T:Math.max(0.45,L/6.5),x0:g.pos.x,y0:y,z0:g.pos.z,x1:tx,y1:t.y,z1:tz,h:0.7+L*0.18};g.heading=Math.atan2(tx-g.pos.x,tz-g.pos.z);}
   else if(mv===NAV_UP){const wx=face[0]?(face[0]>0?t.x-.3:t.x+1.3):g.pos.x,wz=face[1]?(face[1]>0?t.z-.3:t.z+1.3):g.pos.z;g.act={k:'up',x:wx,z:wz,y1:t.y,tx,tz,f:face};g.heading=Math.atan2(face[0],face[1]);}
   else{const wx=face[0]?(face[0]>0?t.x+.3:t.x+.7):g.pos.x,wz=face[1]?(face[1]>0?t.z+.3:t.z+.7):g.pos.z;g.act={k:'down',x:wx,z:wz,y1:t.y,f:face};g.heading=Math.atan2(-face[0],-face[1]);}
+}
+// down after a fall: past the safe height it hurts, a point for every two blocks more (knocked off by a hippo, the hippo gets
+// the credit; a slip of its own is an accident)
+function gobLand(g){
+  const h=(g.fallTop??g.pos.y)-g.pos.y;g.fallTop=undefined;if(h<=GOB_SAFE||g.state!=='chase')return;
+  const n=Math.ceil((h-GOB_SAFE)/2);splat(g.pos.x,g.pos.z,g.pos.y+0.05,0.2+n*0.1);thud(Math.min(0.5,0.1+n*0.08));
+  damageGoblin(g,n,new V3(g.pos.x,g.pos.y+0.4,g.pos.z),null,'Fell to death',playTime-(g.hitT??-99)<4?undefined:ACCIDENT);
 }
 function gobMoveStep(g,dt){
   const A=g.act;g.phase+=dt*9;
@@ -13625,7 +13661,7 @@ function updateGoblins(dt){
   goblins.forEach(g=>{
     g.t+=dt;g.hurt-=dt;
     {const glow=g.hurt>0;if(glow!==g.glow){g.glow=glow;for(const m of g.mats)m.emissive.setHex(glow?0x440000:0x000000);}}   // (only when it changes: ten materials a goblin, every frame, adds up in a crowd)
-    if(g.state!=='chase')g.act=null;
+    if(g.state!=='chase'){g.act=null;g.fallTop=undefined;}
     if(g.state==='wait'){
       if(g.special)return;   // (cultists and the compounds' people: only ever brought out by their own place, or the Testing Environment)
       if(g.staff){if(g.t>1.5&&playing&&crowd>0&&!spawnStaff(g))g.t=0;}
@@ -13654,7 +13690,11 @@ function updateGoblins(dt){
     if(g.snowU){if(g.snowFor!==g.id){g.snowFor=g.id;g.snowU.value=WX.k.snow>0.08?WX.snowCover*0.5:0;}snowGather(g,dt,g.phaseWas!==g.phase);g.phaseWas=g.phase;}
     g.stun-=dt;knockMove(g,dt);
     // (partway through a jump or a climb: that's all it's doing, unless something knocks it off)
-    if(g.act){if(g.stun>0||!playing)g.act=null;else{gobMoveStep(g,dt);g.root.position.set(g.pos.x,g.pos.y,g.pos.z);g.root.rotation.y=g.heading;return;}}
+    if(g.act){if(g.stun>0||!playing)g.act=null;else{
+      let held=false;if(g.act.k==='up'||g.act.k==='down'){const t=nearestPlayer(g.pos.x,g.pos.z,true);if(t&&t.d<2.3){const q=t.p,dy=q.pos.y-g.pos.y;
+        if(dy>-1.3&&dy<1.5){held=true;g.atk-=dt;g.arm.rotation.x=g.atk<0.45?-0.5-1.9*(1-Math.max(0,g.atk)/0.45):-2.4;
+          if(g.atk<=0){g.atk=1.5;const ux=(g.pos.x-q.pos.x)/(t.d||1),uz=(g.pos.z-q.pos.z)/(t.d||1);damagePlayer(q,1,new V3(q.pos.x+ux*1.2,q.pos.y+1.1,q.pos.z+uz*1.2),new V3(-ux,0.3,-uz),'Clubbed off a wall',g.id);}}}}   // (both hanging on to the same wall: it stops climbing and swings)
+      if(!held)gobMoveStep(g,dt);g.root.position.set(g.pos.x,g.pos.y,g.pos.z);g.root.rotation.y=g.heading;return;}}
     if(g.medic)moving=medicAI(g,dt);
     else if(g.ff)moving=fireAI(g,dt);
     else if(g.news)moving=newsAI(g,dt);
@@ -13747,9 +13787,9 @@ function updateGoblins(dt){
        if(moving&&(g.splash=(g.splash||0)-dt)<=0){g.splash=0.4;puff(g.pos.x,top+0.9,g.pos.z,2,0xcfe8ff,0.3);}}}
     const gr=g.wet?null:supportAt(g.pos.x,g.pos.z,g.pos.y);
     if(gr!==null){
-      if(g.vy>0||g.pos.y>gr+0.01){g.vy-=25*dt;g.pos.y+=g.vy*dt;if(g.pos.y<gr){g.pos.y=gr;g.vy=0;}}
-      else{g.vy=0;g.pos.y=Math.min(gr,g.pos.y+dt*8);}
-    }
+      if(g.vy>0||g.pos.y>gr+0.01){g.fallTop=Math.max(g.fallTop??g.pos.y,g.pos.y);g.vy-=25*dt;g.pos.y+=g.vy*dt;if(g.pos.y<gr){g.pos.y=gr;g.vy=0;gobLand(g);}}
+      else{g.vy=0;g.pos.y=Math.min(gr,g.pos.y+dt*8);g.fallTop=undefined;}
+    }else if(g.wet)g.fallTop=undefined;   // (water breaks a fall)
     const sn=Math.sin(g.phase);
     g.legs[0].rotation.x=moving?sn*0.7:0;g.legs[1].rotation.x=moving?-sn*0.7:0;
     if(g.wet&&moving){g.arm.rotation.x=-1.6+sn*0.9;g.armL.rotation.x=-1.6-sn*0.9;}else if(g.armL.rotation.x<-1.2&&!g.fleeing&&!g.special)g.armL.rotation.x=0;
@@ -13811,7 +13851,7 @@ const VEH={bus:{hx:1.25,hz:5.2,hy:3.3,head:[0.5,2.7,4.3],roof:l=>3.3},
   fire:{hx:1.2,hz:3.7,hy:3.0,head:[0.45,2.6,2.3],roof:l=>l>1.6?2.5:3.0},
   amb:{hx:1.15,hz:3.0,hy:2.8,head:[0.4,2.2,1.9],roof:l=>l>1.2?2.0:2.8},
   news:{hx:1.05,hz:2.4,hy:2.3,head:[0.4,2.15,0.6],roof:l=>2.25},
-  bike:{hx:0.45,hz:1.15,hy:1.7,head:[0,1.62,-0.2],roof:l=>l>-0.7&&l<0.3?1.2:0.95},
+  bike:{hx:0.45,hz:1.15,hy:1.7,head:[0,1.32,-0.22],roof:l=>l>-0.7&&l<0.3?1.2:0.95},
   rv:{hx:1.17,hz:3.8,hy:3.15,head:[0.45,1.25,2.9],roof:l=>l>3.45?2.1:3.15}};
 // which vehicles each kind of traffic is made of
 const VEH_MIX={street:[['car',0.58],['bike',0.08],['van',0.12],['pickup',0.12],['truck',0.10]],hw:[['car',0.5],['bike',0.05],['van',0.1],['pickup',0.1],['truck',0.12],['semi',0.13]],park:[['car',0.67],['bike',0.08],['van',0.12],['pickup',0.13]]};
@@ -13828,7 +13868,7 @@ function setVeh(c,t){
   if(c.hazG)c.hazG.children.forEach((m,k)=>m.position.set((k&1?1:-1)*(V.hx-0.12),t==='semi'||t==='truck'?1.05:0.86,(k&2?1:-1)*(V.hz+0.03)));
 }
 function buildVeh(c,t){
-  const g=new THREE.Group();c.g.add(g);const wheels=[],front=[];
+  const g=new THREE.Group();c.g.add(g);const wheels=[],front=[];let rider=null;
   const b=(w,h,d,m,x,y,z,p=g)=>{const o=new THREE.Mesh(boxGeo(w,h,d),m);o.position.set(x,y,z);p.add(o);return o;};
   const wheel=(x,z,steer,big)=>{const piv=new THREE.Group();piv.position.set(x,big?0.5:0.38,z);g.add(piv);const sp=new THREE.Group();piv.add(sp);
     const r=big?0.96:0.72;b(0.34,r,r,smat(CARC.tire),0,0,0,sp);b(0.36,r*0.36,r*0.36,smat(CARC.hub),0,0,0,sp);wheels.push(sp);if(steer)front.push(piv);};
@@ -13905,9 +13945,11 @@ function buildVeh(c,t){
     {const sp2=new THREE.Group();sp2.position.set(0,0.38,-0.82);g.add(sp2);b(0.24,0.76,0.76,smat(CARC.tire),0,0,0,sp2);b(0.26,0.3,0.3,smat(CARC.hub),0,0,0,sp2);wheels.push(sp2);}
     b(0.3,0.3,1.3,dark,0,0.62,0);b(0.42,0.32,0.62,c.paint,0,0.92,0.35);b(0.36,0.14,0.8,smat(0x1a1a1a),0,0.86,-0.32);
     b(0.34,0.12,0.5,c.paint,0,0.62,-0.85);b(0.2,0.12,0.06,smat(CARC.tail),0,0.66,-1.11);for(const s2 of[-1,1])b(0.1,0.1,0.8,chrome,s2*0.2,0.45,-0.55);
-    // the rider: a tunic, arms out to the bars, legs down to the pegs
-    const sk=smat(GC.skin),tun=smat(GC.tunic);b(0.5,0.62,0.36,tun,0,1.27,-0.22);b(0.52,0.1,0.38,smat(GC.belt),0,0.99,-0.22);
-    for(const s2 of[-1,1]){const a=b(0.16,0.16,0.62,sk,s2*0.3,1.33,0.12);a.rotation.x=0.35;const l=b(0.18,0.5,0.2,tun,s2*0.24,0.78,-0.05);l.rotation.x=-0.5;}
+    // the rider: a tunic, arms out to the bars, legs down to the pegs (shown only while the driver's head is: a parked
+    // motorcycle has nobody on it); his head sits right on the tunic's shoulders
+    const rg=new THREE.Group();g.add(rg);rider=rg;
+    const sk=smat(GC.skin),tun=smat(GC.tunic);b(0.5,0.62,0.36,tun,0,1.27,-0.22,rg);b(0.52,0.1,0.38,smat(GC.belt),0,0.99,-0.22,rg);
+    for(const s2 of[-1,1]){const a=b(0.16,0.16,0.62,sk,s2*0.3,1.33,0.12,rg);a.rotation.x=0.35;const l=b(0.18,0.5,0.2,tun,s2*0.24,0.78,-0.05,rg);l.rotation.x=-0.5;}
   } else if(t==='rv'){
     // a motorhome (as at the campsites): a tall white box with the bed over the cab, a band of its paint down each side,
     // windows, the door on the kerb side, an air conditioner on the roof and a ladder up the back
@@ -13934,7 +13976,7 @@ function buildVeh(c,t){
     lights(0.85,1.05,6.55,-6.62);
     for(const [x,z,st] of [[-1,5.6,1],[1,5.6,1],[-1,3.0,0],[1,3.0,0],[-1,2.0,0],[1,2.0,0],[-1,-4.6,0],[1,-4.6,0],[-1,-5.7,0],[1,-5.7,0]])wheel(x*1.05,z,st,true);
   }
-  return{g,wheels,front};
+  return{g,wheels,front,rider};
 }
 for(let i=0;i<26;i++)cars.push(makeCar(i));
 for(let i=0;i<4;i++){const c=makeCar(100+i,true);c.respawnT=2+i;cars.push(c);}
@@ -18443,6 +18485,7 @@ function updateCars(dt){
     if(gone&&c.pullPool){c.hazard=false;c.hazG.visible=false;c.pullLit=false;}
     if(gone){if(c.svcPool){svcDone(c);continue;}c.alive=false;c.g.visible=false;c.respawnT=c.police?6:0.5;c.hunter=false;c.spot=null;continue;}
     c.hurt-=dt;c.ramCD-=dt;c.honkT-=dt;
+    if(c.veh==='bike'){const R=c.vehG.bike.rider;if(R.visible!==c.dh.visible)R.visible=c.dh.visible;}   // (a motorcycle's rider goes with its driver)
     c.snowChk=(c.snowChk||0)-dt;if(c.snowChk<=0){c.snowChk=0.6+Math.random()*0.4;const cx=Math.floor(c.pos.x),cz=Math.floor(c.pos.z);let open=true;for(let y=Math.floor(c.pos.y)+3;y<Math.min(H,c.pos.y+45);y++)if(solidAt(cx,y,cz)){open=false;break;}c.snowOpen=open;}
     c.snowU.value+=((c.snowOpen?WX.snowCover:0)-c.snowU.value)*Math.min(1,dt*0.4);
     c.paint.emissive.setHex(c.hurt>0?0x441100:0x000000);

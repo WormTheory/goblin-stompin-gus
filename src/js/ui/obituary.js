@@ -11,7 +11,7 @@ function recordObit(g,cause,killer){
   if(!g.id)return;
   const who=killerName(killer);
   // nobody's fault (well, nobody's but the traffic's): no killer named, just how it happened
-  if(killer===ACCIDENT)return recordObitAs(g,cause+' in a traffic accident','');
+  if(killer===ACCIDENT)return recordObitAs(g,cause==='Fell to death'?'Fell to death':cause+' in a traffic accident','');   // (a fall of its own: nobody to blame, not even the traffic)
   recordObitAs(g,cause,who);
 }
 function recordObitAs(g,cause,who){const L=obitList();
