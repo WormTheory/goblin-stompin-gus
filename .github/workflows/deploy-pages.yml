@@ -47,11 +47,14 @@ jobs:
         with:
           ref: test
           path: testsrc
+          fetch-depth: 0
       - run: |
           mkdir site
           cp -r live/game/. site/
           if [ -d testsrc/game ]; then mkdir -p site/test && cp -r testsrc/game/. site/test/; fi
-          python3 live/tools/archive_versions.py site
+          # (the archiver comes from main, or from test while main hasn't been pushed with it yet)
+          if [ -f live/tools/archive_versions.py ]; then python3 live/tools/archive_versions.py site
+          elif [ -f testsrc/tools/archive_versions.py ]; then python3 testsrc/tools/archive_versions.py site; fi
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
