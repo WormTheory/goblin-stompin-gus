@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:ba3ca4b593b72a0eea9719cde7465458e59bfe0ecb1f274631f81f122d24f0f4 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:566d882408e2f736ea7fa0204a2a55c1ec3eaa9a5cd37cef77c53732bbd2f615 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -608,7 +608,7 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
         <button class="big alt" id="testWorld">Testing Environment</button>
         <button class="big full" id="fullBtn" type="button">Full screen</button>
       </div>
-      <div class="hostmain"><div class="hostlbl">Enemy hostility<small>Passive: nobody reacts to you, even when hit. Peaceful: nobody attacks, but they still run. Normal: they come for you</small></div>
+      <div class="hostmain"><div class="hostlbl">Enemy hostility<small id="hostMainTxt"></small></div>
       <div class="crow"><input type="range" id="hostMain" class="vrange" min="0" max="2" step="1" value="2" aria-label="Enemy hostility"><span class="vval" id="hostMainVal">Normal</span></div></div>
       <div class="confirm" id="confirm" hidden>
         <span>Start over in a brand-new city? The day, your kills, your score and the obituary all start again from scratch.</span>
@@ -14914,9 +14914,9 @@ function saveDT(){try{const o={};for(const k of DT_SAVED)o[k]=DT[k];localStorage
 // Enemy hostility, three steps (the main screen's slider, the Options tab's and the quick menu's are one setting, kept
 // from one session to the next): 0 Passive, nobody reacts to you at all, not even to being hit (they still get hurt);
 // 1 Peaceful, nobody attacks or hunts you, but the townsfolk still run from you; 2 Normal
-const HOST_KEY='goblin-stompin-gus-hostility',HOST_N=['Passive','Peaceful','Normal'];
+const HOST_KEY='goblin-stompin-gus-hostility',HOST_N=['Passive','Peaceful','Normal'],HOST_TXT=['Nobody reacts to you at all, not even when you hit them (they still get hurt)','Nobody attacks or hunts you, but the townsfolk still run from you','Goblins attack you, and cars, police and soldiers come after you'];
 try{const s=localStorage.getItem(HOST_KEY);if(s==='0'||s==='1'||s==='2')DT.host=+s;else if(localStorage.getItem('goblin-stompin-gus-peaceful')==='1')DT.host=1;}catch(e){}   // (the old Peaceful box, ticked, is the middle step)
-function syncHost(){for(const [i,o] of [['hostMain','hostMainVal'],['hostility','hostilityVal']]){const el=document.getElementById(i),v=document.getElementById(o);if(el){el.value=String(DT.host);v.textContent=HOST_N[DT.host];}}}
+function syncHost(){for(const [i,o] of [['hostMain','hostMainVal'],['hostility','hostilityVal']]){const el=document.getElementById(i),v=document.getElementById(o);if(el){el.value=String(DT.host);v.textContent=HOST_N[DT.host];}}const t=document.getElementById('hostMainTxt');if(t)t.textContent=HOST_TXT[DT.host];}
 // the Interface switches: each part of the on-screen display, what picks it out on the page, and what it's called. (The
 // menus aren't here, and nor are the touch buttons: without them there'd be no way back on a phone.) Hidden with one style
 // sheet, so none of the code that updates them needs to know. Not saved, for the same reason as the Rendering switches.

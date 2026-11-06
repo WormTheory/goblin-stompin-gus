@@ -25,9 +25,9 @@ function saveDT(){try{const o={};for(const k of DT_SAVED)o[k]=DT[k];localStorage
 // Enemy hostility, three steps (the main screen's slider, the Options tab's and the quick menu's are one setting, kept
 // from one session to the next): 0 Passive, nobody reacts to you at all, not even to being hit (they still get hurt);
 // 1 Peaceful, nobody attacks or hunts you, but the townsfolk still run from you; 2 Normal
-const HOST_KEY='goblin-stompin-gus-hostility',HOST_N=['Passive','Peaceful','Normal'];
+const HOST_KEY='goblin-stompin-gus-hostility',HOST_N=['Passive','Peaceful','Normal'],HOST_TXT=['Nobody reacts to you at all, not even when you hit them (they still get hurt)','Nobody attacks or hunts you, but the townsfolk still run from you','Goblins attack you, and cars, police and soldiers come after you'];
 try{const s=localStorage.getItem(HOST_KEY);if(s==='0'||s==='1'||s==='2')DT.host=+s;else if(localStorage.getItem('goblin-stompin-gus-peaceful')==='1')DT.host=1;}catch(e){}   // (the old Peaceful box, ticked, is the middle step)
-function syncHost(){for(const [i,o] of [['hostMain','hostMainVal'],['hostility','hostilityVal']]){const el=document.getElementById(i),v=document.getElementById(o);if(el){el.value=String(DT.host);v.textContent=HOST_N[DT.host];}}}
+function syncHost(){for(const [i,o] of [['hostMain','hostMainVal'],['hostility','hostilityVal']]){const el=document.getElementById(i),v=document.getElementById(o);if(el){el.value=String(DT.host);v.textContent=HOST_N[DT.host];}}const t=document.getElementById('hostMainTxt');if(t)t.textContent=HOST_TXT[DT.host];}
 // the Interface switches: each part of the on-screen display, what picks it out on the page, and what it's called. (The
 // menus aren't here, and nor are the touch buttons: without them there'd be no way back on a phone.) Hidden with one style
 // sheet, so none of the code that updates them needs to know. Not saved, for the same reason as the Rendering switches.
