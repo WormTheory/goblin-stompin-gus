@@ -560,4 +560,7 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 .pn .pn-fold[open] .pn-tog::before{content:"Hide ▾"}
 .pn .pn-fold[open]{padding-bottom:8px}
 .pn .pn-new summary h2{font-size:20px}
+.pn .pn-play{font:700 12px var(--f-display);padding:3px 10px;background:var(--moss);color:#0c0f14;text-decoration:none;white-space:nowrap}
+.pn .pn-play:hover{filter:brightness(1.1)}
+.pn .pn-play[hidden]{display:none}
 .card .main #tabNotes>.pn{margin-top:0}  /* (pinned to the top, so folding an update doesn't make the rest jump to the middle) */

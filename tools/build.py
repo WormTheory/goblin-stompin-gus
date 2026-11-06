@@ -48,6 +48,8 @@ def notes():
   # -> (html of all the updates, [(id, heading)] of each update, newest first)
   # Every update is a <details> that folds away to its heading: the newest starts open, the older ones start closed,
   # under an "Earlier updates" line (each <summary> has tabindex so the menu's controller navigation can reach it).
+  # An older update headed "Version X" gets a "Play X" link to the website's copy of that version, which the Pages
+  # workflow builds from the git tag vX (tools/archive_versions.py); the page's own script points it at the right place.
   out,ups,para,items,sec=[],[],[],[],False
   def flush():
     if para:out.append('<p>'+inline(' '.join(para))+'</p>');para.clear()
@@ -60,7 +62,9 @@ def notes():
       if sec:out.append('</details>')
       t=l[3:].strip();ups.append((slug(t),t));sec=True
       if len(ups)==2:out.append('<p class="pn-earlier">Earlier updates</p>')
-      out.append('<details class="pn-up pn-fold%s" id="%s"%s><summary tabindex="0"><h2>%s</h2><span class="pn-tog" aria-hidden="true"></span></summary>'%(' pn-new' if len(ups)==1 else '',slug(t),' open' if len(ups)==1 else '',inline(t)))
+      v=re.fullmatch(r'Version (\S+)',t)
+      play='<a class="pn-play" data-ver="%s" href="v/%s/" tabindex="0">Play %s</a>'%((H.escape(v.group(1)),)*3) if v and len(ups)>1 else ''
+      out.append('<details class="pn-up pn-fold%s" id="%s"%s><summary tabindex="0"><h2>%s</h2>%s<span class="pn-tog" aria-hidden="true"></span></summary>'%(' pn-new' if len(ups)==1 else '',slug(t),' open' if len(ups)==1 else '',inline(t),play))
     elif l.startswith('### '):flush();out.append('<h3>'+inline(l[4:].strip())+'</h3>')
     elif re.fullmatch(r'\*\*[^*]+\*\*',l):flush();out.append('<h4>'+inline(l[2:-2])+'</h4>')
     elif l.startswith('- '):

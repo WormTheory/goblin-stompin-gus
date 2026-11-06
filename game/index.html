@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:73d608b224e2c85707ea98c41df97b32f0dcab66b091fa5e85fc151b7f2d45e4 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:e63516551233d4a0be32a0f391804ebb48426ba5e24535c9350c22c4e156b4d7 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -566,6 +566,9 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 .pn .pn-fold[open] .pn-tog::before{content:"Hide ▾"}
 .pn .pn-fold[open]{padding-bottom:8px}
 .pn .pn-new summary h2{font-size:20px}
+.pn .pn-play{font:700 12px var(--f-display);padding:3px 10px;background:var(--moss);color:#0c0f14;text-decoration:none;white-space:nowrap}
+.pn .pn-play:hover{filter:brightness(1.1)}
+.pn .pn-play[hidden]{display:none}
 .card .main #tabNotes>.pn{margin-top:0}  /* (pinned to the top, so folding an update doesn't make the rest jump to the middle) */
 </style>
 
@@ -768,12 +771,12 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 <h3>World</h3>
 <ul><li>The pavement stairwells down to the sewers are gone. The sewers are still under every town street, but the only way in now is to smash through.</li><li>Subway station stairs are built from real stair blocks, so the way down to the platforms is a smooth flight of steps instead of a staircase of plain blocks.</li></ul>
 <h3>Menus and debug tools</h3>
-<ul><li>A Patch notes tab in the main menu, with a "What's new" line on the title screen, and the same notes on the website at /patch-notes/.</li><li>A Sound list overlay names every sound as it plays, each by its own name: a tank firing, a dry-fire click, a reload and a helicopter's gun no longer show up as "Stone breaks" after something stony has been smashed.</li><li>In the quick debug menu, pick a slider with A before left and right move it, like the other menus.</li><li>The quick debug menu has a second tab, Show / hide (LB / RB or Tab), for choosing which switches the first tab lists, with Show all and Hide all at the top. Your choice is remembered.</li><li>The debug switches are only in the quick debug menu now. Game options keeps just the switch that allows it, which also shows or hides the Dev tab.</li><li>Button names on the screen (the controls hint, vehicle prompts, the weapon panel) are drawn as the same button pictures the menus use, for the keyboard, mouse or controller you're on.</li><li>The Dev tab's move preview has a character picker in its top left corner: Gus, Gertie or Gnash. Gnash shows his own moves (walk, dash, run, jump and club swing) on the goblin model, with their timings beside him.</li><li>A new Enemies section in the Dev tab plays each enemy's animations frame by frame: goblins, police officers, civilians, cultists, thieves, preppers and militiamen. Pick the enemy and the animation from the menus in its top left corner. It shows their hits, shots, grenades and fireballs, a timeline marking wind-ups and hits, and a frame data panel with damage, timings and ranges.</li></ul>
+<ul><li>A Patch notes tab in the main menu, with a "What's new" line on the title screen, and the same notes on the website at /patch-notes/.</li><li>Earlier versions can be played on the website: each one has a Play button beside its heading in the patch notes. An old version keeps its own saves and settings, apart from the current game's, and a badge at the top links back to the latest.</li><li>A Sound list overlay names every sound as it plays, each by its own name: a tank firing, a dry-fire click, a reload and a helicopter's gun no longer show up as "Stone breaks" after something stony has been smashed.</li><li>In the quick debug menu, pick a slider with A before left and right move it, like the other menus.</li><li>The quick debug menu has a second tab, Show / hide (LB / RB or Tab), for choosing which switches the first tab lists, with Show all and Hide all at the top. Your choice is remembered.</li><li>The debug switches are only in the quick debug menu now. Game options keeps just the switch that allows it, which also shows or hides the Dev tab.</li><li>Button names on the screen (the controls hint, vehicle prompts, the weapon panel) are drawn as the same button pictures the menus use, for the keyboard, mouse or controller you're on.</li><li>The Dev tab's move preview has a character picker in its top left corner: Gus, Gertie or Gnash. Gnash shows his own moves (walk, dash, run, jump and club swing) on the goblin model, with their timings beside him.</li><li>A new Enemies section in the Dev tab plays each enemy's animations frame by frame: goblins, police officers, civilians, cultists, thieves, preppers and militiamen. Pick the enemy and the animation from the menus in its top left corner. It shows their hits, shots, grenades and fireballs, a timeline marking wind-ups and hits, and a frame data panel with damage, timings and ranges.</li></ul>
 <h3>Bug fixes</h3>
 <ul><li>In co-op, Gnash's body now turns to face where he's looking, and falls flat when he dies. Before, it always faced the same way.</li><li>Pausing now freezes the whole city: a falling hippo or goblin hangs in mid-air, and cars, fires, rubble and everyone else stop until you resume. Pausing both players in co-op freezes it too.</li><li>The mouse no longer gets stuck moving a cursor during play. If the game loses the mouse (for example by resuming within a second of pressing Esc), a hint asks you to click, and one click takes it back.</li><li>In full screen on Chrome and Edge, tapping Esc now pauses the game without leaving full screen. Hold Esc to exit full screen. Other browsers still leave full screen on Esc, as they don't let games keep that key.</li></ul>
 </details>
 <p class="pn-earlier">Earlier updates</p>
-<details class="pn-up pn-fold" id="version-0-1"><summary tabindex="0"><h2>Version 0.1</h2><span class="pn-tog" aria-hidden="true"></span></summary>
+<details class="pn-up pn-fold" id="version-0-1"><summary tabindex="0"><h2>Version 0.1</h2><a class="pn-play" data-ver="0.1" href="v/0.1/" tabindex="0">Play 0.1</a><span class="pn-tog" aria-hidden="true"></span></summary>
 <p>Everything from the move to Claude Code on November 2, 2026, up to the first release on GitHub on November 5. Each entry describes where things ended up, so features that were reworked along the way appear once.</p>
 <p><strong>Old saves reset.</strong> World generation changed many times, so cities saved before this update start fresh.</p>
 <h3>Highlights</h3>
@@ -13301,6 +13304,12 @@ function menuPad(st,dt){
 addEventListener('mousemove',e=>{if(menuOpen&&(Math.abs(e.movementX)+Math.abs(e.movementY)>2))for(const el of menuCard.querySelectorAll('.padfocus'))el.classList.remove('padfocus');});
 for(const [t,id] of TABS)document.getElementById('tabBtn'+id).addEventListener('click',()=>showTab(t));
 // (the title screen's "What's new" line opens the Patch notes tab, leaving the highlight on its tab so B and LB/RB carry on from there)
+// (the Patch notes tab's "Play 0.1" links open the website's copy of that version, kept at <site>/v/<version>/ beside the
+// live game (or beside /test/'s parent), in a new tab so this game keeps running; played from a file on disk there's no
+// such folder, so they're hidden)
+try{const d=location.pathname.replace(/[^\/]*$/,'').replace(/(test|v\/[^\/]+)\/$/,'');
+  for(const a of document.querySelectorAll('a.pn-play')){if(location.protocol==='file:'){a.hidden=true;continue;}a.href=d+'v/'+a.dataset.ver+'/';a.target='_blank';a.rel='noopener';}
+}catch(e){}
 document.getElementById('pnLatest').addEventListener('click',()=>{showTab('notes');const b=document.getElementById('tabBtnNotes');if(inputKind==='pad')padFocus(b);else b.focus();});
 
 // ---- button prompts: a row along the bottom of each menu showing just the inputs that do something there ----

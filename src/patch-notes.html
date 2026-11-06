@@ -45,6 +45,9 @@ a{color:var(--moss)}
 .pn-fold[open] .pn-tog::before{content:"Hide ▾"}
 .pn-fold[open]{padding-bottom:12px}
 .pn-up.pn-new summary h2{font-size:24px}
+.pn-play{font:700 13px var(--f-display);padding:4px 12px;background:var(--moss);color:#0c0f14;text-decoration:none;white-space:nowrap}
+.pn-play:hover{filter:brightness(1.08)}
+.pn-play[hidden]{display:none}
 .pn-up h2{margin:14px 0 8px;font:800 24px/1.25 var(--f-display);color:var(--bone)}
 .pn-up h3{margin:28px 0 6px;font:700 13px var(--f-display);letter-spacing:.07em;text-transform:uppercase;color:var(--clay)}
 .pn-up h4{margin:16px 0 2px;font:700 16px var(--f-display);color:var(--bone)}
@@ -73,6 +76,12 @@ footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font:50
 // (a link to an older update, from the list at the top or from elsewhere, opens its folded section)
 function pnOpen(){var t=location.hash&&document.getElementById(decodeURIComponent(location.hash.slice(1)));if(t&&t.tagName==='DETAILS'){t.open=true;t.scrollIntoView();}}
 addEventListener('hashchange',pnOpen);pnOpen();
+// (old versions' Play links: the site keeps each at <site>/v/<version>/, beside the live game; opened from a file on
+// disk there's no such folder, so they're hidden)
+document.querySelectorAll('a.pn-play').forEach(function(a){
+  if(location.protocol==='file:'){a.hidden=true;return;}
+  a.href=location.pathname.replace(/[^\/]*$/,'').replace(/patch-notes\/$/,'').replace(/(test|v\/[^\/]+)\/$/,'')+'v/'+a.dataset.ver+'/';
+});
 document.querySelectorAll('nav a').forEach(function(a){a.addEventListener('click',function(){var t=document.getElementById(a.hash.slice(1));if(t&&t.tagName==='DETAILS')t.open=true;});});
 </script>
 </body>

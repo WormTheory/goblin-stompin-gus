@@ -1,12 +1,15 @@
 # Publishes the game to GitHub Pages on every push to main or test that changes it.
 # main's game/ is the site's root and test's game/ goes under /test/, so either branch can be pushed on its own
 # and the other's copy stays as it was. (Every run builds both, from each branch's latest pushed commit.)
+# Earlier versions go under /v/<version>/, one for each tag vX, so the Patch notes can link to them
+# (tools/archive_versions.py): pushing a new tag republishes too.
 
 name: Deploy game to Pages
 
 on:
   push:
     branches: [main, test]
+    tags: ['v*']
     paths:
       - 'game/**'
       - '.github/workflows/deploy-pages.yml'
@@ -33,6 +36,7 @@ jobs:
         with:
           ref: main
           path: live
+          fetch-depth: 0   # (all of history and its tags, for the old versions)
       - id: hastest
         run: |
           if git ls-remote --exit-code --heads "https://github.com/${{ github.repository }}" test >/dev/null; then
@@ -47,6 +51,7 @@ jobs:
           mkdir site
           cp -r live/game/. site/
           if [ -d testsrc/game ]; then mkdir -p site/test && cp -r testsrc/game/. site/test/; fi
+          python3 live/tools/archive_versions.py site
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site

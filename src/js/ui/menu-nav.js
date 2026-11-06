@@ -112,6 +112,12 @@ function menuPad(st,dt){
 addEventListener('mousemove',e=>{if(menuOpen&&(Math.abs(e.movementX)+Math.abs(e.movementY)>2))for(const el of menuCard.querySelectorAll('.padfocus'))el.classList.remove('padfocus');});
 for(const [t,id] of TABS)document.getElementById('tabBtn'+id).addEventListener('click',()=>showTab(t));
 // (the title screen's "What's new" line opens the Patch notes tab, leaving the highlight on its tab so B and LB/RB carry on from there)
+// (the Patch notes tab's "Play 0.1" links open the website's copy of that version, kept at <site>/v/<version>/ beside the
+// live game (or beside /test/'s parent), in a new tab so this game keeps running; played from a file on disk there's no
+// such folder, so they're hidden)
+try{const d=location.pathname.replace(/[^\/]*$/,'').replace(/(test|v\/[^\/]+)\/$/,'');
+  for(const a of document.querySelectorAll('a.pn-play')){if(location.protocol==='file:'){a.hidden=true;continue;}a.href=d+'v/'+a.dataset.ver+'/';a.target='_blank';a.rel='noopener';}
+}catch(e){}
 document.getElementById('pnLatest').addEventListener('click',()=>{showTab('notes');const b=document.getElementById('tabBtnNotes');if(inputKind==='pad')padFocus(b);else b.focus();});
 
 // ---- button prompts: a row along the bottom of each menu showing just the inputs that do something there ----
