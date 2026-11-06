@@ -23,4 +23,18 @@ pound3    frames N ms N rise 3.76 moved 0.00 hits {"block:box":1,"dmg:cap":1}
 crash     frames N ms N rise 11.99 moved 0.00 hits {"block:box":1,"dmg:cap":1}
 stomp1 as a cone: ["cone {\"x\":500000.5,\"y\":45,\"z\":500001.8,\"len\":6,\"r\":4.199999999999999,\"rot\":0}"]
 jump with launch 19: rise 7.06
+gertie records the same as gus: 23/23 
+gnash walk     fig gob frames 120 rise 0.00 moved 5.60 hurt 0.38 hits {}
+gnash trample  fig gob frames 144 rise 0.00 moved 11.56 hurt 0.38 hits {}
+gnash dodge    fig gob frames 72 rise 0.11 moved 4.17 hurt 0.38 hits {}
+gnash jump     fig gob frames 84 rise 1.34 moved 0.00 hurt 0.38 hits {}
+gnash bite     fig gob frames 66 rise 0.00 moved 0.00 hurt 0.38 hits {"dmg:cap":1}
+after gnash: playing as goblin false hippo width 0.637
+foe goblin   idle 180 | walk 144 | attack 180 h0,91 | jump 96 | climb 168 | swim 144 | death 120
+foe cop      idle 180 | walk 144 | attack 180 h0,91 | jump 96 | climb 168 | swim 144 | death 120
+foe civ      idle 180 | walk 144 | flee 144 | stall 251 | swim 144 | death 120
+foe cultist  chant 236 | walk 144 | attack 102 h0,51 | cast 120 h95 s1 | jump 96 | climb 168 | swim 144 | death 120
+foe thief    guard 360 | walk 144 | attack 120 h0,60 | jump 96 | climb 168 | swim 144 | death 120
+foe prepper  guard 360 | walk 144 | attack 168 h0,84 | shoot 108 h59 s1 | throw 216 h185 s1 | jump 96 | climb 168 | swim 144 | death 120
+foe militia  guard 360 | walk 144 | attack 156 h0,78 | shoot 99 h51 s1 | throw 180 h149 s1 | jump 96 | climb 168 | swim 144 | death 120
 real world untouched: true player still at  0.00 chunks 103 -> 103

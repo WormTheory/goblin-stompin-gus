@@ -1,7 +1,7 @@
 let __s=+(process.env.SEED||1);Math.random=()=>{__s=(__s*16807)%2147483647;return (__s-1)/2147483646;};
 const fs=require('fs');
 let src0=fs.readFileSync('g.js','utf8');
-let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={devSimulate,DEVP,AB,DEV_ABIL,goblins,chunkArr,get leafFall(){return leafFall},set dayN(v){dayN=v},get dayN(){return dayN},WX,snowBorn,groundAt,rampUnder,rampSite,cloverOf,ctlAt,icRoutes,icOf,cloverAt,isRiver,zoneAt,farmK,farmLane,settlementAt,settlementLat,biomeOf,ghwRow,ghwCol,hwRow2:hwRow,hwCol2:hwCol,get split(){return split},get playing(){return playing},get eyePrefs(){return eyePrefs},topples,bodies,collapses:()=>collapses,plotInfo,get,setRaw,chunks,spawnTraffic,damageGoblin,rubble,crush,players,cars,goblins,damageCar,damagePlayer,get,plotInfo,keys,frame,chunks,meshes,get score(){return score},get meshes(){return meshes},get viewR(){return viewR},ctlAt,lightPhase,get trafficClock(){return trafficClock},set trafficClock(v){trafficClock=v},heads,signs,armAlive,trafficLimit,OBP,menuPad,shocks,cones,lockSwitch,hwRow,superOf,lotBays,parkSpots,crush,fallImpact,gasBoom,gasBoom,fires,addFire,updateFires,crushBall,hwCol,HY_X,HY_Z,superOf,spawnHw,plotType,bridgeOf,bridgeAt,findIndoor,pendingBooms,get score2(){return score},spawnGoblin,bldgAt,get menuOpen(){return menuOpen},set menuOpen(v){menuOpen=v},obitList,renderObits,showTab,hitGoblins,damageGoblin,V3,get viewSetting(){return viewSetting},lodFar,meshes,activeFix,get tod(){return tod},set tod(v){tod=v},WORLD_LIGHT,skyU,hemi,downFix:()=>downFix,falling,FIX_BAR,FIX_GLOW,get kills(){return kills},get split(){return split},get playing(){return playing}};\n})();');
+let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={devSimulate,devFoSim,DEV_FOE_KINDS,DEV_GNASH,DT,P_HX,get P_HXnow(){return P_HX},DEVP,AB,DEV_ABIL,goblins,chunkArr,get leafFall(){return leafFall},set dayN(v){dayN=v},get dayN(){return dayN},WX,snowBorn,groundAt,rampUnder,rampSite,cloverOf,ctlAt,icRoutes,icOf,cloverAt,isRiver,zoneAt,farmK,farmLane,settlementAt,settlementLat,biomeOf,ghwRow,ghwCol,hwRow2:hwRow,hwCol2:hwCol,get split(){return split},get playing(){return playing},get eyePrefs(){return eyePrefs},topples,bodies,collapses:()=>collapses,plotInfo,get,setRaw,chunks,spawnTraffic,damageGoblin,rubble,crush,players,cars,goblins,damageCar,damagePlayer,get,plotInfo,keys,frame,chunks,meshes,get score(){return score},get meshes(){return meshes},get viewR(){return viewR},ctlAt,lightPhase,get trafficClock(){return trafficClock},set trafficClock(v){trafficClock=v},heads,signs,armAlive,trafficLimit,OBP,menuPad,shocks,cones,lockSwitch,hwRow,superOf,lotBays,parkSpots,crush,fallImpact,gasBoom,gasBoom,fires,addFire,updateFires,crushBall,hwCol,HY_X,HY_Z,superOf,spawnHw,plotType,bridgeOf,bridgeAt,findIndoor,pendingBooms,get score2(){return score},spawnGoblin,bldgAt,get menuOpen(){return menuOpen},set menuOpen(v){menuOpen=v},obitList,renderObits,showTab,hitGoblins,damageGoblin,V3,get viewSetting(){return viewSetting},lodFar,meshes,activeFix,get tod(){return tod},set tod(v){tod=v},WORLD_LIGHT,skyU,hemi,downFix:()=>downFix,falling,FIX_BAR,FIX_GLOW,get kills(){return kills},get split(){return split},get playing(){return playing}};\n})();');
 const deep=()=>new Proxy(function(){}, {get:(t,p)=>p===Symbol.toPrimitive?()=>0:(p==='length'?0:deep()),apply:()=>deep(),construct:()=>deep()});
 class Q{constructor(){this.x=0;this.y=0;this.z=0;this.w=1}set(x,y,z,w){this.x=x;this.y=y;this.z=z;this.w=w;return this}setFromAxisAngle(a,t){const s=Math.sin(t/2);this.x=a.x*s;this.y=a.y*s;this.z=a.z*s;this.w=Math.cos(t/2);return this}copy(q){this.x=q.x;this.y=q.y;this.z=q.z;this.w=q.w;return this}}
 class V3{normalize(){const l=Math.hypot(this.x,this.y,this.z)||1;this.x/=l;this.y/=l;this.z/=l;return this}add(v){this.x+=v.x;this.y+=v.y;this.z+=v.z;return this}applyQuaternion(q){const x=this.x,y=this.y,z=this.z,qx=q.x,qy=q.y,qz=q.z,qw=q.w;const ix=qw*x+qy*z-qz*y,iy=qw*y+qz*x-qx*z,iz=qw*z+qx*y-qy*x,iw=-qx*x-qy*y-qz*z;this.x=ix*qw+iw*-qx+iy*-qz-iz*-qy;this.y=iy*qw+iw*-qy+iz*-qx-ix*-qz;this.z=iz*qw+iw*-qz+ix*-qy-iy*-qx;return this}constructor(x=0,y=0,z=0){this.x=x;this.y=y;this.z=z}set(x,y,z){this.x=x;this.y=y;this.z=z;return this}copy(v){this.x=v.x;this.y=v.y;this.z=v.z;return this}clone(){return new V3(this.x,this.y,this.z)}addScaledVector(v,s){this.x+=v.x*s;this.y+=v.y*s;this.z+=v.z*s;return this}multiplyScalar(s){this.x*=s;this.y*=s;this.z*=s;return this}setScalar(s){return this.set(s,s,s)}}
@@ -74,11 +74,30 @@ A.pos.set(16.5,46,16.5);A.grounded=true;S(30);
 
 
 const gp=T.goblins.map(g=>g.hp+','+g.state).join('|'),A0=A.pos.clone(),ch0=T.chunks.size;
+const AB0=JSON.stringify(T.AB);
 for(const D of T.DEV_ABIL){const t0=Date.now();const R=T.devSimulate(D.k);const kinds={};for(const h of R.hits){const k=h.kind+':'+h.shape;kinds[k]=(kinds[k]||0)+1;}
   let maxY=0,dist=0;for(let f=0;f<R.N;f++){maxY=Math.max(maxY,R.pos[f*4+1]-45);}dist=Math.hypot(R.pos[(R.N-1)*4],R.pos[(R.N-1)*4+2]);
   console.log(D.k.padEnd(9),'frames',R.N,'ms',Date.now()-t0,'rise',maxY.toFixed(2),'moved',dist.toFixed(2),'hits',JSON.stringify(kinds));}
 // a changed parameter shows up
 T.AB.stomp1.shape='cone';T.AB.stomp1.size=3;const R2=T.devSimulate('stomp1');console.log('stomp1 as a cone:',JSON.stringify(R2.hits.filter(h=>h.kind==='block').map(h=>h.shape+' '+JSON.stringify(h.o))));
 T.AB.jump.launch=19;const R3=T.devSimulate('jump');let my=0;for(let f=0;f<R3.N;f++)my=Math.max(my,R3.pos[f*4+1]-45);console.log('jump with launch 19: rise',my.toFixed(2));
+// Gertie is Gus in all but looks: every move records the same (settings back as they come; and a run first, as what's left
+// over from one recording, the stamina a charge run leaves, can change the next)
+{const A0=JSON.parse(AB0);for(const k in A0)Object.assign(T.AB[k],A0[k]);}
+{let same=0,diff=[];for(const D of T.DEV_ABIL){T.devSimulate(D.k,'gus');const a=T.devSimulate(D.k,'gus'),b=T.devSimulate(D.k,'gertie');
+  // (where he goes, frame by frame, and the kinds of hit; how many a smash makes can differ by one from run to run, Gus's own too)
+  const ks=R=>[...new Set(R.hits.map(h=>h.kind+h.shape))].sort().join();
+  const eq=a.N===b.N&&a.pos.every((v,i)=>Math.abs(v-b.pos[i])<1e-9)&&ks(a)===ks(b);if(eq)same++;else diff.push(D.k);}
+ console.log('gertie records the same as gus:',same+'/'+T.DEV_ABIL.length,diff.join(' '));}
+// Gnash: a goblin's moves, a goblin's size, and back to a hippo's after
+for(const k in T.DEV_GNASH){const R=T.devSimulate(k,'gnash');const kinds={};for(const h of R.hits){const q=h.kind+':'+h.shape;kinds[q]=(kinds[q]||0)+1;}
+  let maxY=0;for(let f=0;f<R.N;f++)maxY=Math.max(maxY,R.pos[f*4+1]-45);const dist=Math.hypot(R.pos[(R.N-1)*4],R.pos[(R.N-1)*4+2]);
+  console.log('gnash',k.padEnd(8),'fig',R.fig,'frames',R.N,'rise',maxY.toFixed(2),'moved',dist.toFixed(2),'hurt',R.hurt.hx.toFixed(2),'hits',JSON.stringify(kinds));}
+console.log('after gnash: playing as goblin',T.DT.gob,'hippo width',T.P_HXnow.toFixed(3));
+// the Enemies section: every kind acts out every animation, and nothing comes out broken
+for(const K of T.DEV_FOE_KINDS){const out=[];for(const a of K.anims){const R=T.devFoSim(K.k,a);
+  const bad=[...R.tr].some(v=>!isFinite(v))||[...R.pos].some(v=>!isFinite(v));
+  out.push(a+' '+R.N+(R.hits.length?' h'+R.hits.map(h=>h.f).join(','):'')+(R.shots.length?' s'+R.shots.length:'')+(bad?' NaN!':''));}
+  console.log('foe',K.k.padEnd(8),out.join(' | '));}
 console.log('real world untouched:',T.goblins.map(g=>g.hp+','+g.state).join('|')===gp,'player still at',A.pos.distanceTo?'':'',Math.hypot(A.pos.x-A0.x,A.pos.z-A0.z).toFixed(2),'chunks',ch0,'->',T.chunks.size);
 process.exit(0);

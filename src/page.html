@@ -205,8 +205,10 @@
                   <details class="devpane" id="devPaneHbT" open hidden><summary>Timing &amp; damage</summary><div class="devparams" id="devHbProps"></div></details>
                   <details class="devpane" id="devPaneAb" open><summary>Ability settings</summary><div class="devparams" id="devParams"></div>
                     <div class="devctl"><button type="button" class="devb" id="devResetAb">Reset this ability</button><button type="button" class="devb" id="devResetAll">Reset all</button></div></details>
+                  <details class="devpane" id="devPaneGn" open hidden><summary>Frame data</summary><div class="devparams devfdata" id="devGnData"></div><div class="vnote devfnote">Gnash moves like any goblin, so these don&rsquo;t change here.</div></details>
                 </div>
                 <div class="devtl">
+                <div class="devdd devabdd devchdd" id="devChDD"><button type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Character">Gus</button><ul id="devChList" role="listbox" aria-label="Characters" hidden></ul></div>
                 <div class="devdd devabdd" id="devAbDD"><button type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Ability"></button><ul id="devList" role="listbox" aria-label="Abilities" hidden></ul></div>
                 <details class="devpane devshowp" open><summary>Display</summary><div class="devshow" role="group" aria-label="Show in the preview">
                 <label class="devchk"><input type="checkbox" id="devShowDmg" checked><i class="sw" style="background:#ff3a3a"></i> Damage</label>
@@ -237,6 +239,40 @@
                     <button type="button" class="devb" id="devHbDup">Duplicate</button><button type="button" class="devb" id="devHbDel">Delete</button>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </details>
+        <details class="devsec" id="devSecFoe">
+          <summary>Enemies</summary>
+          <div class="devab">
+            <div class="devfig devfofig"><canvas id="devFoCanvas" aria-label="Enemy animation preview"></canvas><div class="devbones" id="devFoBones" aria-hidden="true"></div>
+              <div class="devrs devfors">
+                <details class="devpane" open><summary>Frame data</summary><div class="devparams devfdata" id="devFoData"></div></details>
+              </div>
+              <div class="devtl">
+                <div class="devdd devabdd devchdd" id="devFoDD"><button type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Enemy">Goblin</button><ul id="devFoList" role="listbox" aria-label="Enemies" hidden></ul></div>
+                <div class="devdd devabdd" id="devFoAnDD"><button type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Animation">Walk</button><ul id="devFoAnList" role="listbox" aria-label="Animations" hidden></ul></div>
+                <details class="devpane devshowp" open><summary>Display</summary><div class="devshow" role="group" aria-label="Show in the enemy preview">
+                <label class="devchk"><input type="checkbox" id="devFoShowDmg" checked><i class="sw" style="background:#ff3a3a"></i> Damage</label>
+<label class="devchk"><input type="checkbox" id="devFoShowShot" checked><i class="sw" style="background:#ffd75a"></i> Shots &amp; throws</label>
+<label class="devchk"><input type="checkbox" id="devFoShowHurt"><i class="sw" style="background:#46f06a"></i> Hurtbox</label>
+<label class="devchk"><input type="checkbox" id="devFoShowSkel"><i class="sw" style="background:#5ad2ff"></i> Skeleton</label>
+<label class="devchk"><input type="checkbox" id="devFoShowBones"><i class="sw" style="background:#bfeeff"></i> Bone names</label>
+                <span class="devhint">drag to turn · scroll to zoom</span></div></details>
+              </div>
+              <div class="devbot devfobot">
+                <div class="devctl devbar">
+                  <span class="devlbl">Timeline</span>
+                  <button type="button" class="devb" id="devFoRestart" title="Back to the start" aria-label="Back to the start">&#x23EE;</button>
+                  <button type="button" class="devb" id="devFoPlay" title="Play / pause" aria-label="Play or pause">&#x23F8;</button>
+                  <button type="button" class="devb" id="devFoStep" title="Next frame" aria-label="Next frame">&#x23ED;</button>
+                  <span class="devtime" id="devFoTime">0.00 s</span>
+                  <span class="devright"><span class="devlbl">Speed</span>
+                  <span class="devseg" id="devFoSpeed"><button type="button" data-s="0.1">0.1×</button><button type="button" data-s="0.25">0.25×</button><button type="button" data-s="0.5">0.5×</button><button type="button" data-s="1" class="on">1×</button><button type="button" data-s="2">2×</button></span>
+                  <label class="devchk"><input type="checkbox" id="devFoLoop" checked> Loop</label></span>
+                </div>
+                <div class="devtrack devfotrack" id="devFoTrack"></div>
               </div>
             </div>
           </div>

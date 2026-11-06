@@ -87,12 +87,16 @@ const GOB_FEET=[[0,0],[.25,.25],[-.25,.25],[.25,-.25],[-.25,-.25]],GOB_WALK=2.8,
 const calmNow=()=>DT.host<2;   // (nobody's after you: enemy hostility is turned down. Playing as a goblin makes no difference: they're after you all the same)
 const passiveNow=()=>DT.host===0;   // (and nobody minds you at all, not even when you hit them)
 const camPitch=v=>DT.gob?Math.max(-1.5,Math.min(1.5,v)):Math.max(-1.1,Math.min(0.55,v));   // (in first person you can look right up)
-function setGob(on){
-  if(on===DT.gob)return;if(!on)for(const q of players)if(q.drv)drvExit(q);DT.gob=on;for(const q of players)q.wpns=null;   // (a fresh goblin has just his club)
+// a goblin's size, or a hippo's, for everything that bumps into things (the Dev tab's preview borrows a goblin's for a moment)
+function gobDims(on){
   HIPPO_PTS=on?GOB_FEET:HIPPO_FEET;P_HX=P_HZ=on?0.38:0.75*ES;if(!on)P_HZ=1.45*ES;P_HY=on?1.35:2.1*ES;
   PB_LAT=on?[-0.38,0,0.38]:[-P_HX*0.95,0,P_HX*0.95];PB_ALONG=on?[-0.38,0,0.38]:[-1.42,-0.5,0.5,1.42].map(v=>v*ES);
   // (head height only: a block at the feet is a step up, and walking on to it is the ground's business)
   PB_YS=on?[1.1,1.3]:[1.25*ES,1.95*ES];
+}
+function setGob(on){
+  if(on===DT.gob)return;if(!on)for(const q of players)if(q.drv)drvExit(q);DT.gob=on;for(const q of players)q.wpns=null;   // (a fresh goblin has just his club)
+  gobDims(on);
   for(const p of players){p.rig.visible=!on;p.cam.pitch=camPitch(p.cam.pitch);if(p.lockT)setLock(p,null);
     if(!p.active||p.state==='dead')continue;
     // (whatever the hippo was halfway through stops here)
@@ -107,6 +111,10 @@ function updatePlayer(p,dt){
   if(drvTick(p,dt))return;   // (in a vehicle: it does the moving. See drvTick)
   gobArmsTick(p,dt);   // (grenades and the weapon button: see gob-weapons.js)
   if(p.state==='walk')p.heading=p.cam.yaw+Math.PI;   // (a body faces wherever you look)
+  gobMove(p,dt);
+}
+// one step of the player code with a goblin's abilities and speeds (the Dev tab's preview of Gnash runs this too)
+function gobMove(p,dt){
   const A0=Object.assign({},ABIL),w=AB.walk.speed,r=AB.trample.speed,j=AB.jump.launch;
   Object.assign(ABIL,GOB_ABIL);AB.walk.speed=GOB_WALK;AB.trample.speed=GOB_RUN;AB.jump.launch=GOB_HOP;
   try{movePlayer(p,dt);}finally{Object.assign(ABIL,A0);AB.walk.speed=w;AB.trample.speed=r;AB.jump.launch=j;}
@@ -176,6 +184,13 @@ function pivArc(p,e0,e1){
   if(P.arc===undefined){const m=at(th,0.5);P.arc=solidAt(Math.floor(m[0]),Math.floor(m[1]),Math.floor(m[2]))?th-Math.sign(th)*2*Math.PI:th;}
   return at(P.arc,P.t*P.t*(3-2*P.t));
 }
+// the body others see: legs swinging as he walks; the rifle held up at where he's looking, kicking when it fires; the club
+// and dagger swinging (the Dev tab's preview poses his model with this too)
+function gobBodyPose(m,p){
+  const walking=p.state==='walk'&&p.grounded&&p.lastSp>0.2,sn=Math.sin(p.phase),sw=p.biteT>0?1-p.biteT/(p.biteDur||0.38):0,wk=gobArms(p).wpn;
+  m.legs[0].rotation.x=walking?sn*0.7:0;m.legs[1].rotation.x=walking?-sn*0.7:0;
+  m.arm.rotation.x=wk==='rifle'?-Math.PI/2-p.cam.pitch+(p.biteT>0?0.25*Math.max(0,1-sw*4):0):sw>0?-0.5-1.9*Math.sin(sw*Math.PI):-0.5;
+}
 function gobCamera(p){
   const K=gobKit(p),lie=p.state==='dead'?Math.min(1,p.t*3):0,walking=p.state==='walk'&&p.grounded&&p.lastSp>0.2,sn=Math.sin(p.phase),v=p.visOff;
   p.camHang=(p.camHang||0)+((p.state==='ceil'||(p.state==='piv'&&p.piv&&p.piv.next==='ceil')?1:0)-(p.camHang||0))*0.12;
@@ -189,12 +204,10 @@ function gobCamera(p){
   const ex=c.x,ez=c.z;eyeRoom(c);
   const sw=p.biteT>0?1-p.biteT/(p.biteDur||0.38):0;
   K.root.position.set(p.pos.x+c.x-ex,p.pos.y+lie*0.15,p.pos.z+c.z-ez);   // (his body comes off the wall with his eye)K.root.rotation.set(-lie*Math.PI/2,p.heading,0);
-  K.m.legs[0].rotation.x=walking?sn*0.7:0;K.m.legs[1].rotation.x=walking?-sn*0.7:0;
   // up and back until the blow lands (with the bite's own timing), down hard, and slowly back to the rest
   const raise=sw<0.42?1.1*sw/0.42:sw<0.55?1.1-1.7*(sw-0.42)/0.13:-0.6+0.6*(sw-0.55)/0.45;
   const wk=gobArms(p).wpn;for(const k in K.held)K.held[k].visible=k===wk;for(const k in K.tp)K.tp[k].visible=k===wk;
-  // (as the others see him: the rifle's held up at where he's looking and kicks when it fires; the club and dagger swing)
-  K.m.arm.rotation.x=wk==='rifle'?-Math.PI/2-p.cam.pitch+(p.biteT>0?0.25*Math.max(0,1-sw*4):0):sw>0?-0.5-1.9*Math.sin(sw*Math.PI):-0.5;
+  gobBodyPose(K.m,p);
   // (switching: the new one comes up from below; the rifle's held level along the view and kicks when it fires)
   const up=Math.max(0,1-(camClock-(p.wpnT??-9))/0.25);
   if(wk==='rifle'){const kick=p.biteT>0?Math.max(0,1-sw*4):0;K.arm.rotation.x=0.04+0.22*kick;K.arm.position.set(0.34,-0.46-up*0.5+(walking?Math.abs(sn)*0.012:0),-0.5+0.12*kick);}

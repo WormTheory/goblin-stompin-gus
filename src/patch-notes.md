@@ -58,6 +58,8 @@ Everything since the first release on GitHub.
 - The quick debug menu has a second tab, Show / hide (LB / RB or Tab), for choosing which switches the first tab lists, with Show all and Hide all at the top. Your choice is remembered.
 - The debug switches are only in the quick debug menu now. Game options keeps just the switch that allows it, which also shows or hides the Dev tab.
 - Button names on the screen (the controls hint, vehicle prompts, the weapon panel) are drawn as the same button pictures the menus use, for the keyboard, mouse or controller you're on.
+- The Dev tab's move preview has a character picker in its top left corner: Gus, Gertie or Gnash. Gnash shows his own moves (walk, dash, run, jump and club swing) on the goblin model, with their timings beside him.
+- A new Enemies section in the Dev tab plays each enemy's animations frame by frame: goblins, police officers, civilians, cultists, thieves, preppers and militiamen. Pick the enemy and the animation from the menus in its top left corner. It shows their hits, shots, grenades and fireballs, a timeline marking wind-ups and hits, and a frame data panel with damage, timings and ranges.
 
 ### Bug fixes
 

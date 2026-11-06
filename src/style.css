@@ -378,6 +378,19 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 .devside select{background:var(--slate);color:var(--bone);border:1px solid #3a4550;border-radius:4px;padding:3px 4px;font:600 12px var(--f-body);min-width:0}
 .devtl{position:absolute;left:8px;top:8px;display:flex;flex-direction:column;align-items:flex-start;gap:6px;z-index:7}
 .devabdd{width:220px}
+.devchdd>button{font-weight:700;color:#e8c14a}
+/* frame data: a name and its value a row, in the panes over a preview */
+.devfdata{gap:3px}
+.devfd{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:8px;font-size:12px;align-items:baseline}
+.devfd>span{color:var(--mute)}
+.devfd>b{font-weight:600;color:var(--bone)}
+.devfnote{padding:0 8px 8px}
+/* the Enemies preview: a fixed height, its timeline always showing */
+.devfofig{height:min(64vh,580px)}
+.devfobot{right:8px}
+.devfotrack{cursor:pointer}
+.devfotrack .bar{cursor:pointer}
+.devtrack .bar.wind{background:rgba(232,193,74,.45)}.devtrack .bar.shot{background:rgba(255,122,26,.5)}
 .devabdd>button{font-size:13px;padding:6px 9px;background:rgba(30,38,46,.95)}
 .devabdd ul{max-height:min(60vh,460px);overflow-y:auto}
 .devabdd li.mod,.devabdd>button.mod{color:#e8c14a}
