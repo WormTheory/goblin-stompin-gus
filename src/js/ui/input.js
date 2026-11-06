@@ -1,6 +1,6 @@
 // ---------- Input ----------
 const keys=new Set();
-let menuOpen=true,playing=false,dragMode=false,downAt=null,coop=false,spacePrev=false,shiftPrev=false,qPrevK=false;
+let menuOpen=true,playing=false,begun=false,dragMode=false,downAt=null,coop=false,spacePrev=false,shiftPrev=false,qPrevK=false;
 const pauseEl=document.getElementById('pause');
 const touchMode=matchMedia('(pointer: coarse)').matches;
 if(touchMode){document.getElementById('touch').hidden=false;dragMode=true;}
@@ -13,20 +13,33 @@ addEventListener('keydown',e=>{
 addEventListener('keyup',e=>keys.delete(e.code));
 addEventListener('blur',()=>{keys.clear();mHeld.clear();});
 const locked=()=>document.pointerLockElement===canvas;
+// capturing the mouse. A request the browser turns down (Chrome refuses one made within about a second of Esc
+// letting the mouse go) used to switch to click-and-drag looking for good, which left the mouse moving a cursor for
+// the rest of the session. Now only a browser that has never once given the lock (and refused three times) falls
+// back to dragging; otherwise the next click on the game takes the mouse back, and a hint says so.
+let lockOk=false,lockFails=0,mouseMoveT=-1e9;
+function wantLock(){
+  if(dragMode||touchMode)return;
+  if(typeof canvas.requestPointerLock!=='function'){dragMode=true;return;}
+  try{const r=canvas.requestPointerLock();if(r&&r.catch)r.catch(()=>{});}catch(e){lockFailed();}
+}
+function lockFailed(){if(!lockOk&&++lockFails>=3)dragMode=true;}
+// (playing on the mouse and keyboard, but the mouse isn't captured: a click on the game will capture it)
+const mouseNeedsClick=()=>playing&&!menuOpen&&!P1.paused&&!DT.kbdOpen&&!dragMode&&!touchMode&&!locked()&&(inputKind!=='pad'||performance.now()-mouseMoveT<3000);
 let hintTime=0;
 function startPlay(mode,fromPad){
   if(mode==='coop'){coop=true;activateP2();}
   else if(mode==='solo'){coop=false;deactivateP2();}
   menuOpen=false;for(const p of players){p.paused=false;p.ui.ppause.hidden=true;}
-  pauseEl.hidden=true;playing=true;hintTime=14;
+  pauseEl.hidden=true;playing=true;begun=true;hintTime=14;
   try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();audioWanted=true;if(!(DT.paused||SPEEDS[DT.speedI]===0))audio.resume();}catch(e){}
-  if(!dragMode&&!fromPad){try{const p=canvas.requestPointerLock();if(p&&p.catch)p.catch(()=>{dragMode=true;});}catch(e){dragMode=true;}}
+  if(!fromPad)wantLock();
 }
 function pause(){if(TENV)tpShow(true);menuOpen=true;playing=false;keys.clear();mHeld.clear();pauseEl.hidden=false;renderObitCount();if(curTab==='obit'){obitSel=0;renderObits();}if(curTab==='controls')renderControls();if(curTab==='map'){MAPV.cx=null;saveExplored();setTimeout(renderMap,0);}try{if(locked())document.exitPointerLock();}catch(e){}const pf=document.getElementById(players[1].active?'playCoop':'play');if(inputKind==='pad')padFocus(pf);else pf.focus();}
 // losing the mouse (another window clicked, alt-tab) pauses -- unless you're playing on a controller, which keeps
 // working with the game in the background (as long as the page is still showing; 'on a controller': you've used one
 // in the last minute -- so the Alt of an Alt-Tab doesn't count against it)
-document.addEventListener('pointerlockchange',()=>{if(!locked()&&!menuOpen&&!dragMode&&!P1.paused&&!DT.kbdOpen&&!(performance.now()-lastPadT<60000&&connectedPads().length))requestPause(P1);});
+document.addEventListener('pointerlockchange',()=>{if(locked()){lockOk=true;lockFails=0;return;}if(!menuOpen&&!dragMode&&!P1.paused&&!DT.kbdOpen&&!(performance.now()-lastPadT<60000&&connectedPads().length))requestPause(P1);});
 // in co-op each hippo pauses on their own; the city only stops once everyone has paused
 const inCoop=()=>coop&&P2.active;
 function requestPause(p){if(inCoop())pausePlayer(p);else pause();}
@@ -36,11 +49,11 @@ function pausePlayer(p){
 }
 function resumePlayer(p,fromPad){
   p.paused=false;p.ui.ppause.hidden=true;
-  if(p===P1&&!fromPad&&!dragMode){try{const r=canvas.requestPointerLock();if(r&&r.catch)r.catch(()=>{});}catch(e){}}
+  if(p===P1&&!fromPad)wantLock();
   try{if(audio&&!(DT.paused||SPEEDS[DT.speedI]===0))audio.resume();}catch(e){}
 }
 for(const p of players){p.ui.pres.addEventListener('click',()=>resumePlayer(p,false));p.ui.pmenu.addEventListener('click',()=>pause());}
-document.addEventListener('pointerlockerror',()=>{dragMode=true;});
+document.addEventListener('pointerlockerror',lockFailed);
 document.getElementById('play').addEventListener('click',()=>startPlay('solo'));
 document.getElementById('playCoop').addEventListener('click',()=>startPlay('coop'));
 function look(p,dx,dy,k){
@@ -62,11 +75,12 @@ canvas.addEventListener('mousedown',e=>{
   if(e.button===2){mHeld.add(code);mTap.add(code);if(!locked()&&dragMode&&!touchMode)downAt={x:e.clientX,y:e.clientY,b:2,moved:false};return;}
   if(locked()){mHeld.add(code);mTap.add(code);}
   else if(dragMode&&!touchMode)downAt={x:e.clientX,y:e.clientY,b:e.button,moved:false};
-  else if(!dragMode){try{const r=canvas.requestPointerLock();if(r&&r.catch)r.catch(()=>{});}catch(e){}}
+  else wantLock();
 });
 addEventListener('mouseup',e=>{const code='Mouse'+e.button;mHeld.delete(code);if(e.button===2){downAt=null;return;}if(downAt&&!downAt.moved&&!menuOpen&&!P1.paused)mTap.add(code);downAt=null;});
 addEventListener('mousemove',e=>{
   if(menuOpen||P1.paused||DT.kbdOpen)return;
+  if(!locked()&&(e.movementX||e.movementY))mouseMoveT=performance.now();
   if(locked())look(P1,e.movementX,e.movementY,0.0024);
   else if(downAt){if(Math.abs(e.clientX-downAt.x)+Math.abs(e.clientY-downAt.y)>5)downAt.moved=true;if(downAt.moved)look(P1,e.movementX,e.movementY,0.005);}
 });

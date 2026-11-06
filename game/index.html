@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:a10f3985f8486b6016b6ddc007c8415faaeb6cabed104a4078606d752deeef41 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:aa2a602bae04a0c357bbfdc74161d1c719f686b200f65917b28d4c9d3c55af6b -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -749,6 +749,8 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 <ul><li>Air dash comes back after Gus leaves the water, and can't be used while swimming.</li></ul>
 <h3>Menus and debug tools</h3>
 <ul><li>A Patch notes tab in the main menu, with a "What's new" line on the title screen, and the same notes on the website at /patch-notes/.</li><li>A Sound list overlay names every sound as it plays, each by its own name: a tank firing, a dry-fire click, a reload and a helicopter's gun no longer show up as "Stone breaks" after something stony has been smashed.</li><li>In the quick debug menu, pick a slider with A before left and right move it, like the other menus.</li><li>The quick debug menu has a second tab, Show / hide (LB / RB or Tab), for choosing which switches the first tab lists, with Show all and Hide all at the top. Your choice is remembered.</li><li>The debug switches are only in the quick debug menu now. Game options keeps just the switch that allows it, which also shows or hides the Dev tab.</li><li>Button names on the screen (the controls hint, vehicle prompts, the weapon panel) are drawn as the same button pictures the menus use, for the keyboard, mouse or controller you're on.</li></ul>
+<h3>Bug fixes</h3>
+<ul><li>Pausing now freezes the whole city: a falling hippo or goblin hangs in mid-air, and cars, fires, rubble and everyone else stop until you resume. Pausing both players in co-op freezes it too.</li><li>The mouse no longer gets stuck moving a cursor during play. If the game loses the mouse (for example by resuming within a second of pressing Esc), a hint asks you to click, and one click takes it back.</li></ul>
 </details>
 <p class="pn-earlier">Earlier updates</p>
 <details class="pn-up pn-fold" id="version-0-1"><summary tabindex="0"><h2>Version 0.1</h2><span class="pn-tog" aria-hidden="true"></span></summary>
@@ -19360,7 +19362,7 @@ addEventListener('resize',resize);
 
 // ---------- Input ----------
 const keys=new Set();
-let menuOpen=true,playing=false,dragMode=false,downAt=null,coop=false,spacePrev=false,shiftPrev=false,qPrevK=false;
+let menuOpen=true,playing=false,begun=false,dragMode=false,downAt=null,coop=false,spacePrev=false,shiftPrev=false,qPrevK=false;
 const pauseEl=document.getElementById('pause');
 const touchMode=matchMedia('(pointer: coarse)').matches;
 if(touchMode){document.getElementById('touch').hidden=false;dragMode=true;}
@@ -19373,20 +19375,33 @@ addEventListener('keydown',e=>{
 addEventListener('keyup',e=>keys.delete(e.code));
 addEventListener('blur',()=>{keys.clear();mHeld.clear();});
 const locked=()=>document.pointerLockElement===canvas;
+// capturing the mouse. A request the browser turns down (Chrome refuses one made within about a second of Esc
+// letting the mouse go) used to switch to click-and-drag looking for good, which left the mouse moving a cursor for
+// the rest of the session. Now only a browser that has never once given the lock (and refused three times) falls
+// back to dragging; otherwise the next click on the game takes the mouse back, and a hint says so.
+let lockOk=false,lockFails=0,mouseMoveT=-1e9;
+function wantLock(){
+  if(dragMode||touchMode)return;
+  if(typeof canvas.requestPointerLock!=='function'){dragMode=true;return;}
+  try{const r=canvas.requestPointerLock();if(r&&r.catch)r.catch(()=>{});}catch(e){lockFailed();}
+}
+function lockFailed(){if(!lockOk&&++lockFails>=3)dragMode=true;}
+// (playing on the mouse and keyboard, but the mouse isn't captured: a click on the game will capture it)
+const mouseNeedsClick=()=>playing&&!menuOpen&&!P1.paused&&!DT.kbdOpen&&!dragMode&&!touchMode&&!locked()&&(inputKind!=='pad'||performance.now()-mouseMoveT<3000);
 let hintTime=0;
 function startPlay(mode,fromPad){
   if(mode==='coop'){coop=true;activateP2();}
   else if(mode==='solo'){coop=false;deactivateP2();}
   menuOpen=false;for(const p of players){p.paused=false;p.ui.ppause.hidden=true;}
-  pauseEl.hidden=true;playing=true;hintTime=14;
+  pauseEl.hidden=true;playing=true;begun=true;hintTime=14;
   try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();audioWanted=true;if(!(DT.paused||SPEEDS[DT.speedI]===0))audio.resume();}catch(e){}
-  if(!dragMode&&!fromPad){try{const p=canvas.requestPointerLock();if(p&&p.catch)p.catch(()=>{dragMode=true;});}catch(e){dragMode=true;}}
+  if(!fromPad)wantLock();
 }
 function pause(){if(TENV)tpShow(true);menuOpen=true;playing=false;keys.clear();mHeld.clear();pauseEl.hidden=false;renderObitCount();if(curTab==='obit'){obitSel=0;renderObits();}if(curTab==='controls')renderControls();if(curTab==='map'){MAPV.cx=null;saveExplored();setTimeout(renderMap,0);}try{if(locked())document.exitPointerLock();}catch(e){}const pf=document.getElementById(players[1].active?'playCoop':'play');if(inputKind==='pad')padFocus(pf);else pf.focus();}
 // losing the mouse (another window clicked, alt-tab) pauses -- unless you're playing on a controller, which keeps
 // working with the game in the background (as long as the page is still showing; 'on a controller': you've used one
 // in the last minute -- so the Alt of an Alt-Tab doesn't count against it)
-document.addEventListener('pointerlockchange',()=>{if(!locked()&&!menuOpen&&!dragMode&&!P1.paused&&!DT.kbdOpen&&!(performance.now()-lastPadT<60000&&connectedPads().length))requestPause(P1);});
+document.addEventListener('pointerlockchange',()=>{if(locked()){lockOk=true;lockFails=0;return;}if(!menuOpen&&!dragMode&&!P1.paused&&!DT.kbdOpen&&!(performance.now()-lastPadT<60000&&connectedPads().length))requestPause(P1);});
 // in co-op each hippo pauses on their own; the city only stops once everyone has paused
 const inCoop=()=>coop&&P2.active;
 function requestPause(p){if(inCoop())pausePlayer(p);else pause();}
@@ -19396,11 +19411,11 @@ function pausePlayer(p){
 }
 function resumePlayer(p,fromPad){
   p.paused=false;p.ui.ppause.hidden=true;
-  if(p===P1&&!fromPad&&!dragMode){try{const r=canvas.requestPointerLock();if(r&&r.catch)r.catch(()=>{});}catch(e){}}
+  if(p===P1&&!fromPad)wantLock();
   try{if(audio&&!(DT.paused||SPEEDS[DT.speedI]===0))audio.resume();}catch(e){}
 }
 for(const p of players){p.ui.pres.addEventListener('click',()=>resumePlayer(p,false));p.ui.pmenu.addEventListener('click',()=>pause());}
-document.addEventListener('pointerlockerror',()=>{dragMode=true;});
+document.addEventListener('pointerlockerror',lockFailed);
 document.getElementById('play').addEventListener('click',()=>startPlay('solo'));
 document.getElementById('playCoop').addEventListener('click',()=>startPlay('coop'));
 function look(p,dx,dy,k){
@@ -19422,11 +19437,12 @@ canvas.addEventListener('mousedown',e=>{
   if(e.button===2){mHeld.add(code);mTap.add(code);if(!locked()&&dragMode&&!touchMode)downAt={x:e.clientX,y:e.clientY,b:2,moved:false};return;}
   if(locked()){mHeld.add(code);mTap.add(code);}
   else if(dragMode&&!touchMode)downAt={x:e.clientX,y:e.clientY,b:e.button,moved:false};
-  else if(!dragMode){try{const r=canvas.requestPointerLock();if(r&&r.catch)r.catch(()=>{});}catch(e){}}
+  else wantLock();
 });
 addEventListener('mouseup',e=>{const code='Mouse'+e.button;mHeld.delete(code);if(e.button===2){downAt=null;return;}if(downAt&&!downAt.moved&&!menuOpen&&!P1.paused)mTap.add(code);downAt=null;});
 addEventListener('mousemove',e=>{
   if(menuOpen||P1.paused||DT.kbdOpen)return;
+  if(!locked()&&(e.movementX||e.movementY))mouseMoveT=performance.now();
   if(locked())look(P1,e.movementX,e.movementY,0.0024);
   else if(downAt){if(Math.abs(e.clientX-downAt.x)+Math.abs(e.clientY-downAt.y)>5)downAt.moved=true;if(downAt.moved)look(P1,e.movementX,e.movementY,0.005);}
 });
@@ -20199,7 +20215,10 @@ function frame(now){
   playing=!menuOpen&&players.some(p=>p.active&&!p.paused);
   // game time: scaled by the debug speed (0 when paused, or one 60th of a second for a single step), and cut
   // into short steps so a fast setting doesn't make things tunnel through walls
-  let gdt=dt*gameSpeed();if(DT.paused&&DT.step){gdt=1/60;DT.step=false;}
+  // Paused (the menu open, or every hippo paused in co-op) the city stops dead, the same as the debug menu's Stop
+  // time: nothing falls, burns, drives or ticks on. (Before the first game the title screen's city keeps going.)
+  const held=begun&&!playing;
+  let gdt=held?0:dt*gameSpeed();if(DT.paused&&DT.step&&!held){gdt=1/60;DT.step=false;}
   // time stopped (or the game speed at 0): the sound stops too, and picks up again where it was
   {const frozen=playing&&(DT.paused||SPEEDS[DT.speedI]===0);if(audio){try{if(frozen&&audio.state==='running')audio.suspend();else if(!frozen&&audio.state==='suspended'&&audioWanted)audio.resume();}catch(e){}}}
   const nSub=Math.max(1,Math.ceil(gdt/0.05)),sdt=gdt/nSub;
@@ -20220,7 +20239,7 @@ function frame(now){
   const act=players.filter(p=>p.active);
   const mx=act.reduce((s,p)=>s+p.pos.x,0)/act.length,mz=act.reduce((s,p)=>s+p.pos.z,0)/act.length;
   // each deck follows the players (so it always covers the sky) but its pattern stays put in the world and drifts on its own wind
-  for(const D of CLOUD_DECKS){if(!reduce){const wk=0.5+WX.k.wind;D.drift[0]+=D.wind[0]*dt*wk;D.drift[1]+=D.wind[1]*dt*wk;}}
+  for(const D of CLOUD_DECKS){if(!reduce&&gdt>0){const wk=0.5+WX.k.wind;D.drift[0]+=D.wind[0]*dt*wk;D.drift[1]+=D.wind[1]*dt*wk;}}
   for(const L of cloudLayers){const D=L.D,size=600*L.m.scale.x,u=L.m.material.uniforms;
     L.m.position.set(mx,H+D.h+L.dy,mz);u.uRep.value=size/D.period;
     // uv (0..1 across the deck) times the repeat, shifted so the deck's centre shows the pattern at the players' spot
@@ -20228,8 +20247,9 @@ function frame(now){
     u.uMRep.value=size/D.mperiod;u.uMOff.value.set(((mx-D.drift[0])/D.mperiod-u.uMRep.value/2)%1,((-mz+D.drift[1])/D.mperiod-u.uMRep.value/2)%1);}
   hintTime-=dt;
   for(const p of act){
-    const hint=p.ui.hint;hint.hidden=!(playing&&hintTime>0);
-    if(!hint.hidden){const txt=touchMode&&!p.pad?'Hold STOMP  ·  BITE  ·  JUMP  ·  tap DASH to dash, hold to '+(ABIL.trample?'trample':'sprint'):bindHint(!!p.pad);if(hint._s!==txt){hint._s=txt;hint.innerHTML=hudHTML(txt);}}
+    const hint=p.ui.hint,grab=p===P1&&mouseNeedsClick();hint.hidden=!(grab||playing&&hintTime>0);
+    if(grab){const txt='Click to look around with the mouse';if(hint._s!==txt){hint._s=txt;hint.textContent=txt;}}
+    else if(!hint.hidden){const txt=touchMode&&!p.pad?'Hold STOMP  ·  BITE  ·  JUMP  ·  tap DASH to dash, hold to '+(ABIL.trample?'trample':'sprint'):bindHint(!!p.pad);if(hint._s!==txt){hint._s=txt;hint.innerHTML=hudHTML(txt);}}
   }
   for(const p of act){if(!p.paused)continue;const o=act.find(q=>q!==p);const txt=!o?'':o.paused?'Both paused. The city is frozen.':`The city keeps going while ${charName(o)} plays.`;if(p.ui.pstatus.textContent!==txt)p.ui.pstatus.textContent=txt;}
   const hn=huntersCount(),pol=cars.some(c=>c.alive&&c.police&&c.hunter);

@@ -50,6 +50,11 @@ Everything since the first release on GitHub.
 - The debug switches are only in the quick debug menu now. Game options keeps just the switch that allows it, which also shows or hides the Dev tab.
 - Button names on the screen (the controls hint, vehicle prompts, the weapon panel) are drawn as the same button pictures the menus use, for the keyboard, mouse or controller you're on.
 
+### Bug fixes
+
+- Pausing now freezes the whole city: a falling hippo or goblin hangs in mid-air, and cars, fires, rubble and everyone else stop until you resume. Pausing both players in co-op freezes it too.
+- The mouse no longer gets stuck moving a cursor during play. If the game loses the mouse (for example by resuming within a second of pressing Esc), a hint asks you to click, and one click takes it back.
+
 ## Version 0.1
 
 Everything from the move to Claude Code on November 2, 2026, up to the first release on GitHub on November 5. Each entry describes where things ended up, so features that were reworked along the way appear once.

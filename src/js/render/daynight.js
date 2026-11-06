@@ -113,7 +113,10 @@ function frame(now){
   playing=!menuOpen&&players.some(p=>p.active&&!p.paused);
   // game time: scaled by the debug speed (0 when paused, or one 60th of a second for a single step), and cut
   // into short steps so a fast setting doesn't make things tunnel through walls
-  let gdt=dt*gameSpeed();if(DT.paused&&DT.step){gdt=1/60;DT.step=false;}
+  // Paused (the menu open, or every hippo paused in co-op) the city stops dead, the same as the debug menu's Stop
+  // time: nothing falls, burns, drives or ticks on. (Before the first game the title screen's city keeps going.)
+  const held=begun&&!playing;
+  let gdt=held?0:dt*gameSpeed();if(DT.paused&&DT.step&&!held){gdt=1/60;DT.step=false;}
   // time stopped (or the game speed at 0): the sound stops too, and picks up again where it was
   {const frozen=playing&&(DT.paused||SPEEDS[DT.speedI]===0);if(audio){try{if(frozen&&audio.state==='running')audio.suspend();else if(!frozen&&audio.state==='suspended'&&audioWanted)audio.resume();}catch(e){}}}
   const nSub=Math.max(1,Math.ceil(gdt/0.05)),sdt=gdt/nSub;
@@ -134,7 +137,7 @@ function frame(now){
   const act=players.filter(p=>p.active);
   const mx=act.reduce((s,p)=>s+p.pos.x,0)/act.length,mz=act.reduce((s,p)=>s+p.pos.z,0)/act.length;
   // each deck follows the players (so it always covers the sky) but its pattern stays put in the world and drifts on its own wind
-  for(const D of CLOUD_DECKS){if(!reduce){const wk=0.5+WX.k.wind;D.drift[0]+=D.wind[0]*dt*wk;D.drift[1]+=D.wind[1]*dt*wk;}}
+  for(const D of CLOUD_DECKS){if(!reduce&&gdt>0){const wk=0.5+WX.k.wind;D.drift[0]+=D.wind[0]*dt*wk;D.drift[1]+=D.wind[1]*dt*wk;}}
   for(const L of cloudLayers){const D=L.D,size=600*L.m.scale.x,u=L.m.material.uniforms;
     L.m.position.set(mx,H+D.h+L.dy,mz);u.uRep.value=size/D.period;
     // uv (0..1 across the deck) times the repeat, shifted so the deck's centre shows the pattern at the players' spot
@@ -142,8 +145,9 @@ function frame(now){
     u.uMRep.value=size/D.mperiod;u.uMOff.value.set(((mx-D.drift[0])/D.mperiod-u.uMRep.value/2)%1,((-mz+D.drift[1])/D.mperiod-u.uMRep.value/2)%1);}
   hintTime-=dt;
   for(const p of act){
-    const hint=p.ui.hint;hint.hidden=!(playing&&hintTime>0);
-    if(!hint.hidden){const txt=touchMode&&!p.pad?'Hold STOMP  ·  BITE  ·  JUMP  ·  tap DASH to dash, hold to '+(ABIL.trample?'trample':'sprint'):bindHint(!!p.pad);if(hint._s!==txt){hint._s=txt;hint.innerHTML=hudHTML(txt);}}
+    const hint=p.ui.hint,grab=p===P1&&mouseNeedsClick();hint.hidden=!(grab||playing&&hintTime>0);
+    if(grab){const txt='Click to look around with the mouse';if(hint._s!==txt){hint._s=txt;hint.textContent=txt;}}
+    else if(!hint.hidden){const txt=touchMode&&!p.pad?'Hold STOMP  ·  BITE  ·  JUMP  ·  tap DASH to dash, hold to '+(ABIL.trample?'trample':'sprint'):bindHint(!!p.pad);if(hint._s!==txt){hint._s=txt;hint.innerHTML=hudHTML(txt);}}
   }
   for(const p of act){if(!p.paused)continue;const o=act.find(q=>q!==p);const txt=!o?'':o.paused?'Both paused. The city is frozen.':`The city keeps going while ${charName(o)} plays.`;if(p.ui.pstatus.textContent!==txt)p.ui.pstatus.textContent=txt;}
   const hn=huntersCount(),pol=cars.some(c=>c.alive&&c.police&&c.hunter);
