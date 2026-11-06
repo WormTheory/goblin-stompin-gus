@@ -6,10 +6,18 @@ Everything since the first release on GitHub.
 
 ### Highlights
 
+- A character select on the main menu: play as Gus, Gertie, or Gnash the goblin.
 - Every vehicle now collides with every other, and a driven tank smashes straight through walls.
 - Enemy hostility is a three-step slider: Passive, Peaceful or Normal.
 - Goblins climb walls after Gus, and long falls now hurt them.
 - These patch notes are now in the main menu and on their own page on the website.
+
+### Characters
+
+- **Character select:** pick Gus, Gertie or Gnash on the title screen, and the game remembers your choice. Arrow keys and the d-pad move along the cards.
+- **Gnash** is the playable goblin, and replaces the old "Play as a goblin" debug switch. In co-op both players are goblins: Gnash and his cousin Grizzle.
+- **Gertie** can now be played solo. In co-op, whoever player one picks, player two is the other hippo.
+- Gus and Gertie are the same hippo in everything but looks and voice: every move works exactly the same for both.
 
 ### Goblins and enemies
 
@@ -20,7 +28,7 @@ Everything since the first release on GitHub.
 
 ### Vehicles
 
-- **Carjacking:** in goblin mode, getting into a vehicle that has someone at the controls hauls them out first. A car's door swings open, a motorcycle's rider is shoved off, a tank's crewman is dragged out of the hatch and a helicopter's door slides back. Whoever's thrown out, a driver, a police officer or a soldier, comes back at you or runs for it.
+- **Carjacking:** playing as Gnash, getting into a vehicle that has someone at the controls hauls them out first. A car's door swings open, a motorcycle's rider is shoved off, a tank's crewman is dragged out of the hatch and a helicopter's door slides back. Whoever's thrown out, a driver, a police officer or a soldier, comes back at you or runs for it.
 - All vehicles now collide with each other. Tanks no longer drive through a helicopter's tail, trains, planes, boats and rides push tanks and cars out of the way, and driven planes and boats stop or crash when they meet another vehicle.
 - A driven tank ramming a wall knocks out a hole as big as its front and keeps going at speed. It also fits under overhangs it can pass beneath.
 - Firing with nothing loaded just clicks, and the tank's last shell marker empties while it reloads.

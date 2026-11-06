@@ -206,7 +206,7 @@ function damagePlayer(p,n,pt,dir,cause,killer){
     if(p.voice){setVoice(p,0);p.lastRoarK=0;}
     p.hp=0;p.deadT=6;p.state='dead';p.t=0;p.slammed=false;p.fallDir=Math.random()<.5?1:-1;
     startCorpse(p,n,dir);
-    flashLabel(p.idx?'Gertie has fallen':'Gus has fallen');recordHippoObit(p,cause||'Died',killer);
+    flashLabel(charName(p)+' has fallen');recordHippoObit(p,cause||'Died',killer);
     tone('sawtooth',150,38,1.6,0.2);tone('sawtooth',110,30,1.8,0.12,0.15);
     p.pool.position.set(p.pos.x,groundAt(p.pos.x,p.pos.z,p.pos.y)+0.02+p.idx*0.005,p.pos.z);p.pool.scale.setScalar(0.1);p.pool.visible=true;
   } else if(p.hp<=6&&Math.random()<0.4)tone('sawtooth',180,90,0.5,0.12);

@@ -192,7 +192,7 @@ function renderMap(){
   if(seenCap){const g=capGeo(),sx=X(seenCap.ax*CELL+PL0+g.c),sz=Z(seenCap.az*CELL+PL0+g.dc);x.fillStyle='#ffe27a';x.beginPath();for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?4:9;x.lineTo(sx+Math.cos(a)*rr,sz+Math.sin(a)*rr);}x.closePath();x.fill();}
   // you (and your friend): arrows pointing the way you face
   for(const p of players){if(!p.active)continue;const px=X(p.pos.x),pz=Z(p.pos.z),hx=Math.sin(p.heading),hz=Math.cos(p.heading);
-    x.fillStyle=p.idx?'#f08ac0':'#ffffff';x.strokeStyle='#000';x.lineWidth=1.5;x.beginPath();
+    x.fillStyle=charTint(p)?'#f08ac0':'#ffffff';x.strokeStyle='#000';x.lineWidth=1.5;x.beginPath();
     x.moveTo(px+hx*11,pz+hz*11);x.lineTo(px-hx*6+hz*6,pz-hz*6-hx*6);x.lineTo(px-hx*3,pz-hz*3);x.lineTo(px-hx*6-hz*6,pz-hz*6+hx*6);x.closePath();x.fill();x.stroke();}
   const note=document.getElementById('mapNote');
   if(note)note.textContent=explored.size+' city blocks explored. Drag to pan, scroll to zoom; on a controller, the right stick pans and the triggers zoom.';

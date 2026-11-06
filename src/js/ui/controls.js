@@ -30,7 +30,7 @@ const ACTS=[
   {id:'sprint',n:'Sprint',c:'#c9662c',kb:[],pad:[6]},
   {id:'lock',n:'Lock on',c:'#e0564a',kb:['KeyQ'],pad:[11]},
   {id:'climb',n:'Spider Climb (hold)',c:'#9a7ae0',kb:['KeyC'],pad:[4]},
-  {id:'use',n:'Get in / out (goblin mode)',c:'#6ab0d8',kb:['KeyF'],pad:[3]},
+  {id:'use',n:'Get in / out (as Gnash)',c:'#6ab0d8',kb:['KeyF'],pad:[3]},
 ];
 const KB_RESERVED=new Set(['Escape','Backquote','KeyP','KeyV','Period','BracketLeft','BracketRight','Backspace','Delete']),PAD_RESERVED=new Set([8,9]);
 let BINDS={};

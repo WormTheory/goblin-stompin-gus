@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:94ab140eb6cb7d0ca29f117c46c931d523dda550250336fa6ef35815d9c05f33 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:ba3ca4b593b72a0eea9719cde7465458e59bfe0ecb1f274631f81f122d24f0f4 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -461,6 +461,21 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 @media (max-width:720px){.ab-h{display:none}.ab-row{grid-template-columns:1fr}.ab-up{padding-left:16px}.ab-up:empty{display:none}}
 .tog{display:flex;align-items:flex-start;gap:10px;text-align:left;padding:8px 10px;background:var(--slate);color:var(--bone);border:1px solid #3a4550;border-radius:4px;cursor:pointer;font:600 13px var(--f-body)}
 .tog:hover{border-color:#5a6670}
+/* character select, on the title screen: three cards, the chosen one lit in its own colour */
+.charsel{width:min(640px,100%);display:flex;flex-direction:column;gap:8px}
+.cs-h{font:700 13px var(--f-display);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.cs-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.cs-card{--cc:var(--moss);display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 10px 12px;border:2px solid #0a0d10;background:#232b34;color:var(--bone);cursor:pointer;font:inherit;text-align:center;box-shadow:inset 0 -3px 0 #161b21}
+.cs-card.gertie{--cc:var(--gertie)}
+.cs-card.gob{--cc:#e8c14a}
+.cs-card:hover{background:#2a333d}
+.cs-card[aria-checked="true"]{border-color:var(--cc);background:#2c3631;box-shadow:inset 0 0 0 2px var(--cc),0 0 18px -6px var(--cc)}
+.cs-pic{width:64px;height:56px;image-rendering:pixelated}
+.cs-name{font:700 19px var(--f-display);color:var(--cc)}
+.cs-card small{font-size:12px;line-height:1.35;color:var(--mute)}
+.cs-card[aria-checked="true"] small{color:var(--bone)}
+.cs-note{font-size:12.5px;color:var(--mute);min-height:1.3em}
+@media(max-width:560px){.cs-card small{display:none}.cs-name{font-size:16px}}
 .hostmain{margin:14px auto 0;max-width:360px;text-align:left}
 .hostlbl{font-weight:700}
 .hostlbl small{display:block;font-weight:400;opacity:.75;margin-top:2px}
@@ -577,6 +592,15 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
     <div class="tabpane gamepane" id="tabGame" role="tabpanel">
      <div class="gamemain">
       <h1>Goblin-Stompin' <em>Gus</em></h1>
+      <div class="charsel" id="charSel">
+        <div class="cs-h" id="charSelH">Choose your character</div>
+        <div class="cs-row" role="radiogroup" aria-labelledby="charSelH">
+          <button type="button" class="cs-card" role="radio" data-c="gus" aria-checked="true"><svg class="cs-pic" viewBox="0 0 64 56" aria-hidden="true"><rect x="10" y="10" width="44" height="30" fill="#8f8399"/><rect x="4" y="30" width="56" height="20" fill="#8f8399"/><rect x="12" y="4" width="10" height="9" fill="#8f8399"/><rect x="42" y="4" width="10" height="9" fill="#8f8399"/><rect x="15" y="7" width="4" height="4" fill="#6c6177"/><rect x="45" y="7" width="4" height="4" fill="#6c6177"/><rect x="6" y="18" width="5" height="7" fill="#f6f3ea"/><rect x="6" y="20" width="3" height="4" fill="#16161a"/><rect x="53" y="18" width="5" height="7" fill="#f6f3ea"/><rect x="55" y="20" width="3" height="4" fill="#16161a"/><rect x="18" y="34" width="8" height="4" fill="#6c6177"/><rect x="38" y="34" width="8" height="4" fill="#6c6177"/><rect x="8" y="44" width="48" height="4" fill="#d8697c"/><rect x="12" y="40" width="4" height="6" fill="#f4f0e2"/><rect x="48" y="40" width="4" height="6" fill="#f4f0e2"/></svg><span class="cs-name">Gus</span><small>The hippo himself. Bites, stomps, ground pounds, and flattens whatever's in his way.</small></button>
+          <button type="button" class="cs-card gertie" role="radio" data-c="gertie" aria-checked="false"><svg class="cs-pic" viewBox="0 0 64 56" aria-hidden="true"><rect x="10" y="10" width="44" height="30" fill="#c08a7c"/><rect x="4" y="30" width="56" height="20" fill="#c08a7c"/><rect x="12" y="4" width="10" height="9" fill="#c08a7c"/><rect x="42" y="4" width="10" height="9" fill="#c08a7c"/><rect x="15" y="7" width="4" height="4" fill="#93635a"/><rect x="45" y="7" width="4" height="4" fill="#93635a"/><rect x="22" y="0" width="20" height="5" fill="#e0406a"/><rect x="29" y="0" width="6" height="7" fill="#b02a50"/><rect x="17" y="17" width="10" height="9" fill="#f6f3ea"/><rect x="20" y="19" width="5" height="5" fill="#16161a"/><rect x="37" y="17" width="10" height="9" fill="#f6f3ea"/><rect x="39" y="19" width="5" height="5" fill="#16161a"/><rect x="18" y="34" width="8" height="4" fill="#93635a"/><rect x="38" y="34" width="8" height="4" fill="#93635a"/><rect x="8" y="44" width="48" height="4" fill="#d8697c"/><rect x="12" y="40" width="4" height="6" fill="#f4f0e2"/><rect x="48" y="40" width="4" height="6" fill="#f4f0e2"/></svg><span class="cs-name">Gertie</span><small>Every bit as much hippo as Gus, move for move. She just looks you in the eye while she does it.</small></button>
+          <button type="button" class="cs-card gob" role="radio" data-c="goblin" aria-checked="false"><svg class="cs-pic" viewBox="0 0 64 56" aria-hidden="true"><rect x="2" y="14" width="14" height="6" fill="#4f7426"/><rect x="48" y="14" width="14" height="6" fill="#4f7426"/><rect x="0" y="12" width="6" height="4" fill="#4f7426"/><rect x="58" y="12" width="6" height="4" fill="#4f7426"/><rect x="16" y="6" width="32" height="30" fill="#6f9a3a"/><rect x="16" y="6" width="32" height="5" fill="#4f7426"/><rect x="20" y="16" width="8" height="6" fill="#ffd23a"/><rect x="23" y="17" width="3" height="4" fill="#16161a"/><rect x="36" y="16" width="8" height="6" fill="#ffd23a"/><rect x="38" y="17" width="3" height="4" fill="#16161a"/><rect x="19" y="13" width="10" height="2" fill="#2a1a10"/><rect x="35" y="13" width="10" height="2" fill="#2a1a10"/><rect x="29" y="22" width="6" height="6" fill="#4f7426"/><rect x="22" y="30" width="20" height="3" fill="#2a1a10"/><rect x="25" y="28" width="3" height="3" fill="#f4f0e2"/><rect x="37" y="28" width="3" height="3" fill="#f4f0e2"/><rect x="18" y="36" width="28" height="18" fill="#3a5f8a"/><rect x="18" y="44" width="28" height="3" fill="#2b1d10"/><rect x="50" y="22" width="6" height="30" fill="#7a5530"/><rect x="47" y="14" width="12" height="12" fill="#7a5530"/></svg><span class="cs-name">Gnash</span><small>A goblin who's had enough. First person and goblin sized, with a club, and he can drive anything with wheels, wings or a hull.</small></button>
+        </div>
+        <div class="cs-note" id="charNote"></div>
+      </div>
       <div class="row">
         <button class="big" id="play">Play solo</button>
         <button class="big coop" id="playCoop">Co-op</button>
@@ -704,7 +728,6 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
         <button type="button" class="tog" role="checkbox" data-k="invuln"><span class="box" aria-hidden="true"></span><span class="tl">Invulnerable<small>Nothing hurts the hippos: goblins, traffic, fire, blasts or falls</small></span></button>
         <button type="button" class="tog" role="checkbox" data-k="infStam"><span class="box" aria-hidden="true"></span><span class="tl">Infinite stamina<small>Trample and air-dash as long as you like without running out of breath</small></span></button>
         <button type="button" class="tog" role="checkbox" data-k="fly"><span class="box" aria-hidden="true"></span><span class="tl">Flying<small>Hold jump (Space / A) to rise, C / LB to sink; let go to hover. Ground pound to drop</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="gob"><span class="box" aria-hidden="true"></span><span class="tl">Play as a goblin<small>First person, goblin sized, with a club instead of a hippo's powers. Goblins treat you just as they treat Gus, as Enemy hostility says</small></span></button>
       </div>
     </div>
     <div class="custom">
@@ -756,11 +779,13 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 <section class="pn-up" id="version-0-2"><h2>Version 0.2</h2>
 <p>Everything since the first release on GitHub.</p>
 <h3>Highlights</h3>
-<ul><li>Every vehicle now collides with every other, and a driven tank smashes straight through walls.</li><li>Enemy hostility is a three-step slider: Passive, Peaceful or Normal.</li><li>Goblins climb walls after Gus, and long falls now hurt them.</li><li>These patch notes are now in the main menu and on their own page on the website.</li></ul>
+<ul><li>A character select on the main menu: play as Gus, Gertie, or Gnash the goblin.</li><li>Every vehicle now collides with every other, and a driven tank smashes straight through walls.</li><li>Enemy hostility is a three-step slider: Passive, Peaceful or Normal.</li><li>Goblins climb walls after Gus, and long falls now hurt them.</li><li>These patch notes are now in the main menu and on their own page on the website.</li></ul>
+<h3>Characters</h3>
+<ul><li><strong>Character select:</strong> pick Gus, Gertie or Gnash on the title screen, and the game remembers your choice. Arrow keys and the d-pad move along the cards.</li><li><strong>Gnash</strong> is the playable goblin, and replaces the old "Play as a goblin" debug switch. In co-op both players are goblins: Gnash and his cousin Grizzle.</li><li><strong>Gertie</strong> can now be played solo. In co-op, whoever player one picks, player two is the other hippo.</li><li>Gus and Gertie are the same hippo in everything but looks and voice: every move works exactly the same for both.</li></ul>
 <h3>Goblins and enemies</h3>
 <ul><li>Goblins chasing Gus up a wall climb after him, and club him once they're level instead of waiting below.</li><li>Falls of more than 6 blocks hurt goblins, a point for every 2 blocks more, so a 16-block drop kills one. Water breaks the fall, and their routes no longer jump down drops that would hurt.</li><li><strong>Enemy hostility</strong> is now a slider on the main screen, in Game options and in the quick debug menu. Passive: nobody reacts to you, even when hit. Peaceful: nobody attacks, but people still run. Normal: they come for you. An old Peaceful setting carries over.</li><li>Playing as a goblin no longer calms everyone down. Hostility works just as it does for Gus.</li></ul>
 <h3>Vehicles</h3>
-<ul><li><strong>Carjacking:</strong> in goblin mode, getting into a vehicle that has someone at the controls hauls them out first. A car's door swings open, a motorcycle's rider is shoved off, a tank's crewman is dragged out of the hatch and a helicopter's door slides back. Whoever's thrown out, a driver, a police officer or a soldier, comes back at you or runs for it.</li><li>All vehicles now collide with each other. Tanks no longer drive through a helicopter's tail, trains, planes, boats and rides push tanks and cars out of the way, and driven planes and boats stop or crash when they meet another vehicle.</li><li>A driven tank ramming a wall knocks out a hole as big as its front and keeps going at speed. It also fits under overhangs it can pass beneath.</li><li>Firing with nothing loaded just clicks, and the tank's last shell marker empties while it reloads.</li><li>The vehicle health box and ammo panel now sit just above the hearts.</li><li>The get-out prompt shows Xbox button labels on Xbox controllers.</li><li>Parked motorcycles no longer have a rider, and a ridden one's rider sits properly on it.</li></ul>
+<ul><li><strong>Carjacking:</strong> playing as Gnash, getting into a vehicle that has someone at the controls hauls them out first. A car's door swings open, a motorcycle's rider is shoved off, a tank's crewman is dragged out of the hatch and a helicopter's door slides back. Whoever's thrown out, a driver, a police officer or a soldier, comes back at you or runs for it.</li><li>All vehicles now collide with each other. Tanks no longer drive through a helicopter's tail, trains, planes, boats and rides push tanks and cars out of the way, and driven planes and boats stop or crash when they meet another vehicle.</li><li>A driven tank ramming a wall knocks out a hole as big as its front and keeps going at speed. It also fits under overhangs it can pass beneath.</li><li>Firing with nothing loaded just clicks, and the tank's last shell marker empties while it reloads.</li><li>The vehicle health box and ammo panel now sit just above the hearts.</li><li>The get-out prompt shows Xbox button labels on Xbox controllers.</li><li>Parked motorcycles no longer have a rider, and a ridden one's rider sits properly on it.</li></ul>
 <h3>Movement</h3>
 <ul><li>Air dash comes back after Gus leaves the water, and can't be used while swimming.</li></ul>
 <h3>Menus and debug tools</h3>
@@ -8257,7 +8282,7 @@ function voice(p){
 function setVoice(p,k,mode){if(SBX)return;
   const v=voice(p);if(!v)return;
   try{
-    const t=audio.currentTime,m=p.idx?1.2:1,base=(mode==='charge'?92:68)*m;
+    const t=audio.currentTime,m=p.who?1.2:1,base=(mode==='charge'?92:68)*m;
     v.o1.frequency.setTargetAtTime(base*(1+0.65*k),t,0.06);
     v.o2.frequency.setTargetAtTime(base*0.505*(1+0.65*k),t,0.06);
     v.bp.frequency.setTargetAtTime((360+950*k)*m,t,0.07);
@@ -8277,7 +8302,7 @@ function cutVoice(p){
 function stompGrunt(p,lvl){
   if(!audio)return;
   try{
-    const m=p.idx?1.22:1,t=audio.currentTime,o=audio.createOscillator(),o2=audio.createOscillator(),g=audio.createGain(),f=audio.createBiquadFilter();if(DT.sndList)sndNote(0.2);
+    const m=p.who?1.22:1,t=audio.currentTime,o=audio.createOscillator(),o2=audio.createOscillator(),g=audio.createGain(),f=audio.createBiquadFilter();if(DT.sndList)sndNote(0.2);
     o.type='sawtooth';o2.type='square';f.type='bandpass';f.Q.value=1.6;f.frequency.value=(620+120*lvl)*m;
     o.frequency.setValueAtTime((128-10*lvl)*m,t);o.frequency.exponentialRampToValueAtTime((70-6*lvl)*m,t+0.13);
     o2.frequency.setValueAtTime((64-5*lvl)*m,t);o2.frequency.exponentialRampToValueAtTime((38-3*lvl)*m,t+0.13);
@@ -8291,7 +8316,7 @@ function stompGrunt(p,lvl){
 function grunt(p,dbl){
   if(!audio||DT.gob)return;
   try{
-    const m=p.idx?1.25:1,t=audio.currentTime,o=audio.createOscillator(),g=audio.createGain(),f=audio.createBiquadFilter();if(DT.sndList)sndNote(dbl?0.27:0.21);
+    const m=p.who?1.25:1,t=audio.currentTime,o=audio.createOscillator(),g=audio.createGain(),f=audio.createBiquadFilter();if(DT.sndList)sndNote(dbl?0.27:0.21);
     o.type='sawtooth';f.type='bandpass';f.Q.value=2.2;
     if(!dbl){o.frequency.setValueAtTime(150*m,t);o.frequency.exponentialRampToValueAtTime(82*m,t+0.18);f.frequency.value=640*m;}
     else{o.frequency.setValueAtTime(185*m,t);o.frequency.linearRampToValueAtTime(265*m,t+0.07);o.frequency.exponentialRampToValueAtTime(165*m,t+0.24);f.frequency.value=1150*m;}
@@ -9071,7 +9096,7 @@ const players=[];
 const hudEl=document.getElementById('hud');
 function makePlayer(idx){
   const S=SKINS[idx];
-  const p={idx,name:S.name,root:new THREE.Group(),rig:new THREE.Group(),legs:[],pupils:[],pos:new V3(),heading:0,state:'walk',t:0,phase:0,vy:0,hit:false,lastSin:0,biteT:0,biteRepeat:0,smashCD:0,chargeCD:0,hurt:0,slammed:false,fallDir:1,
+  const p={idx,who:idx,name:S.name,root:new THREE.Group(),rig:new THREE.Group(),legs:[],pupils:[],pos:new V3(),heading:0,state:'walk',t:0,phase:0,vy:0,hit:false,lastSin:0,biteT:0,biteRepeat:0,smashCD:0,chargeCD:0,hurt:0,slammed:false,fallDir:1,
     cam:{yaw:0,pitch:-0.3},camera:new THREE.PerspectiveCamera(72,1,0.25,420),hp:20,deadT:0,hurtFx:0,regenT:0,lastHp:-1,shake:0,active:false,pad:null,
     stam:100,exhausted:false,stamIdle:0,lungeT:0,airJumps:1,twirl:0,airDash:true,dashT:0,roarBurst:0,lastRoarK:0,wasCharging:false,biteHit:false,grounded:true,stompCharge:0,stompF:1,windPitch:0,fullPing:false,
     in:{x:0,z:0,charge:false,chargePress:false,stomp:false,bite:false,bitePress:false,jumpPress:false,jump:false}};
@@ -9101,7 +9126,8 @@ function makePlayer(idx){
     (p.eyeWhites=p.eyeWhites||[]).push(fw,sw);
     box(0.16,0.2,0.1,HC.dark,s*0.42,0.66,0.02,head);
   }
-  if(idx===1){box(0.5,0.12,0.12,0xe0406a,0,0.62,-0.02,head);box(0.16,0.2,0.16,0xe0406a,0,0.62,-0.02,head);}
+  // (Gertie's bow: every hippo has one, shown only on Gertie, so either player can be either hippo -- see dressHippo)
+  p.bow=[box(0.5,0.12,0.12,0xe0406a,0,0.62,-0.02,head),box(0.16,0.2,0.16,0xe0406a,0,0.62,-0.02,head)];
   const jaw=new THREE.Group();jaw.name='jaw';jaw.position.set(0,-0.25,0.2);head.add(jaw);p.jaw=jaw;
   box(1.38,0.28,1.25,HC.skin,0,-0.14,0.8,jaw);
   box(1.12,0.05,1.05,HC.mouth,0,0.02,0.8,jaw);
@@ -9112,7 +9138,7 @@ function makePlayer(idx){
     box(0.52,0.74,0.52,HC.dark,0,-0.37,0,hip);box(0.56,0.08,0.62,HC.belly,0,-0.73,0.03,hip);
     p.legs.push(hip);
   }
-  p.mats=Object.values(mats);
+  p.mats=Object.values(mats);p.hm={skin:mat(HC.skin),dark:mat(HC.dark),belly:mat(HC.belly)};
   root.visible=false;scene.add(root);
   p.pool=new THREE.Mesh(new THREE.CircleGeometry(1,18),flatMat(0x4d0707,1,-3));p.pool.rotation.x=-Math.PI/2;p.pool.visible=false;scene.add(p.pool);
   const v=document.createElement('div');v.className='view';v.hidden=true;
@@ -9149,7 +9175,18 @@ for(const b of document.querySelectorAll('#abilList .tog'))b.addEventListener('c
 renderAbil();
 // each hippo has its own eyes: Gus the real-hippo ones on the sides of his head, Gertie the wall-eyed ones up front
 const EYES=['side','front'];
-for(const p of players){for(const m of p.eyeFront)m.visible=EYES[p.idx]==='front';for(const m of p.eyeSide)m.visible=EYES[p.idx]==='side';}
+// which hippo a player is (p.who: 0 Gus, 1 Gertie) is only how they look and sound, never what they can do: p.idx is
+// the seat (player one or two), and the moves, sizes and abilities are the same for both (suite twins checks it)
+function dressHippo(p){
+  const S=SKINS[p.who];p.name=S.name;p.hm.skin.color.setHex(S.skin);p.hm.dark.color.setHex(S.dark);p.hm.belly.color.setHex(S.belly);
+  for(const m of p.bow)m.visible=p.who===1;
+  for(const m of p.eyeFront)m.visible=EYES[p.who]==='front';for(const m of p.eyeSide)m.visible=EYES[p.who]==='side';
+  if(p.ui&&p.ui.who){p.ui.who.textContent=charName(p).toUpperCase();p.ui.who.classList.toggle('p2',charTint(p)===1);}
+}
+// (first called once the debug settings exist, from ui/char-select.js)
+const GOB_NAMES=['Gnash','Grizzle'];   // (the goblin you play is Gnash; in co-op his cousin Grizzle comes along)
+const charName=p=>DT.gob?GOB_NAMES[p.idx]:p.who?'Gertie':'Gus';
+const charTint=p=>DT.gob?p.idx:p.who;   // (0 or 1: which of the two colours a player's marked in, on the maps and the HUD)
 {
   const vs=document.getElementById('viewDist'),vl=document.getElementById('viewVal');
   const dds=document.getElementById('detailDist'),ddl=document.getElementById('detailVal');
@@ -9688,7 +9725,7 @@ function damagePlayer(p,n,pt,dir,cause,killer){
     if(p.voice){setVoice(p,0);p.lastRoarK=0;}
     p.hp=0;p.deadT=6;p.state='dead';p.t=0;p.slammed=false;p.fallDir=Math.random()<.5?1:-1;
     startCorpse(p,n,dir);
-    flashLabel(p.idx?'Gertie has fallen':'Gus has fallen');recordHippoObit(p,cause||'Died',killer);
+    flashLabel(charName(p)+' has fallen');recordHippoObit(p,cause||'Died',killer);
     tone('sawtooth',150,38,1.6,0.2);tone('sawtooth',110,30,1.8,0.12,0.15);
     p.pool.position.set(p.pos.x,groundAt(p.pos.x,p.pos.z,p.pos.y)+0.02+p.idx*0.005,p.pos.z);p.pool.scale.setScalar(0.1);p.pool.visible=true;
   } else if(p.hp<=6&&Math.random()<0.4)tone('sawtooth',180,90,0.5,0.12);
@@ -10200,7 +10237,7 @@ function trampleFences(p){
       for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((wx+ox)/CS),Math.floor((wz+oz)/CS)));}}
   if(br){rebuildSet(ch);save();destroyFX(br,{force:0.6,dx:s,dz:c,up:1},true);noise(0.12,0.12,900,'bandpass');score+=2*br.length;}
 }
-// Play as a goblin (debug): the same player code runs, with a goblin's abilities and speeds in place of the hippo's for
+// Play as Gnash the goblin (picked on the title screen's character select, ui/char-select.js): the same player code runs, with a goblin's abilities and speeds in place of the hippo's for
 // the length of the step, so none of the moves need to know. (Walking speed and the hop are what goblins themselves do.)
 const GOB_ABIL={bite:true,biteCombo:false,stomp:false,chargeStomp:false,fullStomp:false,groundSpike:false,pound:false,chargePound:false,fullPound:false,jump:true,double:false,triple:false,
   sprint:true,trample:false,dash:false,roll:false,blastDash:false,airDash:false,blastAirDash:false,longJump:false,blastJump:false,rocket:false,climb:true,crash:false,noFall:false};
@@ -10220,6 +10257,7 @@ function setGob(on){
     if(on){if(p.state!=='walk'&&p.state!=='climb'){p.state='walk';p.t=0;p.vb=null;p.piv=null;}
       p.dodge=null;p.dashT=0;p.lungeT=0;p.biteT=0;p.biteHit=false;p.lurch=null;p.mvx=p.mvz=0;p.carryV=0;p.rocket=false;p.longJump=false;p.blastJ=false;p.airJumps=0;p.qStomp=p.qDodge=0;}
     else if(p.state==='walk')bodyFree(p);}
+  for(const p of players)dressHippo(p);   // (the names on the HUD)
   renderTime();
 }
 function updatePlayer(p,dt){
@@ -11888,11 +11926,11 @@ function recordObitAs(g,cause,who){const L=obitList();
   if(L.length>400)L.length=400;obitSave();renderObitCount();
   if(menuOpen&&curTab==='obit'){obitSel=Math.min(obitSel+1,L.length-1);renderObits();}
 }
-// Gus and Gertie go in the book too
+// Gus and Gertie go in the book too, and so do Gnash and Grizzle (idx: which hippo it was, or for a goblin which seat)
 function recordHippoObit(p,cause,killer){
-  const L=obitList(),gus=!p.idx;
-  L.unshift({hippo:true,idx:p.idx,name:gus?'Gus':'Gertie',age:gus?34:31,occ:'Hippopotamus',hobby:'Stomping goblins',quirk:gus?'Extremely wall-eyed':'Looks you right in the eye',
-    cause,killer:killer===ACCIDENT?'':killerName(killer),when:timeLabel(),n:++obitTotal});
+  const L=obitList(),gus=!p.who,dead={cause,killer:killer===ACCIDENT?'':killerName(killer),when:timeLabel(),n:++obitTotal};
+  if(DT.gob)L.unshift(Object.assign({hippo:true,gob:true,idx:p.idx,name:charName(p),age:p.idx?22:27,occ:'Goblin',hobby:'Getting his own back',quirk:p.idx?'Follows Gnash everywhere':'Fed up with being stomped'},dead));
+  else L.unshift(Object.assign({hippo:true,idx:p.who,name:gus?'Gus':'Gertie',age:gus?34:31,occ:'Hippopotamus',hobby:'Stomping goblins',quirk:gus?'Extremely wall-eyed':'Looks you right in the eye'},dead));
   if(L.length>400)L.length=400;obitSave();renderObitCount();
   if(menuOpen&&curTab==='obit'){obitSel=Math.min(obitSel+1,L.length-1);renderObits();}
 }
@@ -11901,9 +11939,9 @@ function renderObitCount(){const el=document.getElementById('obitCount');if(el){
 function renderObits(){
   const L=obitList(),ol=document.getElementById('obitList'),sum=document.getElementById('obitSum'),wrap=document.getElementById('obitWrap');
   const civ=L.filter(o=>o.civ&&!o.hippo).length,hip=L.filter(o=>o.hippo),gob=L.length-hip.length;
-  const total=Math.max(obitTotal,L.length)-hip.length,gusN=hip.filter(o=>!o.idx).length,gerN=hip.length-gusN;
+  const total=Math.max(obitTotal,L.length)-hip.length,died={};for(const o of hip)died[o.name]=(died[o.name]||0)+1;
   const times=n=>n===1?'once':n===2?'twice':n+' times';
-  const hipTxt=(gusN?' Gus has died '+times(gusN)+'.':'')+(gerN?' Gertie has died '+times(gerN)+'.':'');
+  const hipTxt=['Gus','Gertie','Gnash','Grizzle'].filter(n=>died[n]).map(n=>' '+n+' has died '+times(died[n])+'.').join('');
   sum.textContent=!L.length?'No goblins have died yet. Give it time.':(gob?total+' goblin'+(total===1?' has':'s have')+' died in this city: '+(gob-civ)+' hostile, '+civ+' civilian'+(civ===1?'':'s')+(total>gob?' among the latest '+gob+' listed.':'.'):'No goblins have died yet.')+hipTxt;
   wrap.hidden=!L.length;ol.textContent='';
   L.forEach((o,i)=>{
@@ -11919,7 +11957,7 @@ function selectObit(i){
   for(const b of document.querySelectorAll('#obitList .obn'))b.setAttribute('aria-current',String(+b.dataset.i===i));
   const info=document.getElementById('obitInfo');info.textContent='';
   const el=(tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e;};
-  const meta=el('div','obd-meta');meta.append(el('span','obd-n','No. '+(o.n||L.length-i)),el('span','ob-age','age '+o.age),el('span','ob-tag'+(o.hippo?' hippo':o.civ?' civ':''),o.hippo?'HIPPO':o.civ?'CIVILIAN':'HOSTILE'));
+  const meta=el('div','obd-meta');meta.append(el('span','obd-n','No. '+(o.n||L.length-i)),el('span','ob-age','age '+o.age),el('span','ob-tag'+(o.hippo?' hippo':o.civ?' civ':''),o.hippo?(o.gob?'YOU':'HIPPO'):o.civ?'CIVILIAN':'HOSTILE'));
   const dl=el('dl','ob-facts');for(const [k,v] of [['Occupation',o.occ],['Hobby',o.hobby],['Quirk',o.quirk]])dl.append(el('dt','',k),el('dd','',v));
   info.append(el('h3','obd-name',o.name),meta,dl,el('div','ob-death',o.cause+(o.killer?' by '+o.killer:'')),el('div','obd-when',o.when));
   obitShow(o);
@@ -11940,18 +11978,20 @@ function obitPreviewInit(){
 function obitShow(o){
   if(!obitPreviewInit())return;
   if(OBP.root){OBP.scene.remove(OBP.root);if(!OBP.root.userData.shared)OBP.root.traverse(m=>{if(m.geometry)m.geometry.dispose();if(m.material&&m.material.dispose)m.material.dispose();});}
-  if(o.hippo){
+  if(o.hippo&&!o.gob){
     // a copy of the hippo's own model (sharing its meshes' geometry and materials), standing, scaled to fit the frame
-    const src=players[o.idx]||players[0];let c;try{c=src.root.clone(true);}catch(e){return;}const root=new THREE.Group();
+    // (whichever player is that hippo now: either can be either)
+    const src=players.find(q=>q.who===o.idx)||players[0];
+    let c;try{c=src.root.clone(true);}catch(e){return;}const root=new THREE.Group();
     c.position.set(0,0,0);c.rotation.set(0,0,0);c.visible=true;c.traverse(m=>{m.visible=m.visible||m===c;});
     root.add(c);root.userData.shared=true;
     try{const bb=new THREE.Box3().setFromObject(c),sz=bb.getSize(new V3()),k=1.9/Math.max(sz.x,sz.y,sz.z,0.01);c.scale.multiplyScalar(k);c.position.y=-bb.min.y*k;}catch(e){}
     OBP.root=root;OBP.scene.add(root);OBP.spin=-0.6;return;
   }
-  const cu=!!(o.look&&o.look.cult),fk=o.look&&o.look.foe&&FOES[o.look.foe],root=new THREE.Group(),m=goblinModel(root,{club:!o.civ&&!cu&&!fk,cult:cu,gear:fk?fk.gear:undefined,tunic:cu||fk?o.look.tunic:undefined});
+  const cu=!!(o.look&&o.look.cult),fk=o.look&&o.look.foe&&FOES[o.look.foe],root=new THREE.Group(),m=goblinModel(root,{club:o.gob||!o.civ&&!cu&&!fk,cult:cu,gear:fk?fk.gear:undefined,tunic:o.gob?(o.idx?0xa83232:0x3a5f8a):cu||fk?o.look.tunic:undefined});   // (Gnash and Grizzle in the tunics they play in)
   const hx=s=>parseInt(String(s||'#6f9a3a').slice(1),16);
   const L=o.look||{skin:hx(o.sk),tunic:hx(o.tu),pants:0x3a3328,hat:hx(o.ht),acc:0x884422,acc2:0x111111,hair:0x1b1b1b,show:[],h:1,w:1,hs:1};
-  applyLook({roles:m.roles,acc:m.acc,root,head:m.head},L,1);
+  if(!o.gob)applyLook({roles:m.roles,acc:m.acc,root,head:m.head},L,1);   // (a goblin player's as plain as gobKit draws him)
   m.arm.rotation.x=o.civ?0:-0.45;
   OBP.root=root;OBP.scene.add(root);OBP.spin=-0.6;
 }
@@ -12166,7 +12206,7 @@ function renderMap(){
   if(seenCap){const g=capGeo(),sx=X(seenCap.ax*CELL+PL0+g.c),sz=Z(seenCap.az*CELL+PL0+g.dc);x.fillStyle='#ffe27a';x.beginPath();for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?4:9;x.lineTo(sx+Math.cos(a)*rr,sz+Math.sin(a)*rr);}x.closePath();x.fill();}
   // you (and your friend): arrows pointing the way you face
   for(const p of players){if(!p.active)continue;const px=X(p.pos.x),pz=Z(p.pos.z),hx=Math.sin(p.heading),hz=Math.cos(p.heading);
-    x.fillStyle=p.idx?'#f08ac0':'#ffffff';x.strokeStyle='#000';x.lineWidth=1.5;x.beginPath();
+    x.fillStyle=charTint(p)?'#f08ac0':'#ffffff';x.strokeStyle='#000';x.lineWidth=1.5;x.beginPath();
     x.moveTo(px+hx*11,pz+hz*11);x.lineTo(px-hx*6+hz*6,pz-hz*6-hx*6);x.lineTo(px-hx*3,pz-hz*3);x.lineTo(px-hx*6-hz*6,pz-hz*6+hx*6);x.closePath();x.fill();x.stroke();}
   const note=document.getElementById('mapNote');
   if(note)note.textContent=explored.size+' city blocks explored. Drag to pan, scroll to zoom; on a controller, the right stick pans and the triggers zoom.';
@@ -12901,15 +12941,16 @@ function nudgeRange(el,d){
   const v=Math.max(mn,Math.min(mx,+el.value+d*st*k));
   if(v!==+el.value){el.value=String(v);el.dispatchEvent(new Event('input',{bubbles:true}));tone('triangle',520+((v-mn)/(mx-mn||1))*400,0,0.05,0.03);}
 }
-// inside a tab, up/down walk the controls in reading order (a row of segmented buttons counts as one stop)
-function paneUnits(pane){const out=[],seen=new Set();for(const el of menuFocusables()){if(!pane.contains(el))continue;const g=el.closest('.seg')||el;if(seen.has(g))continue;seen.add(g);out.push(g);}return out;}
-function unitFocus(u){if(u.matches('.seg'))padFocus(u.querySelector('[aria-checked="true"]')||u.querySelector('button'));else padFocus(u);}
+// inside a tab, up/down walk the controls in reading order (a row of segmented buttons, or the character cards, counts as one stop)
+function paneUnits(pane){const out=[],seen=new Set();for(const el of menuFocusables()){if(!pane.contains(el))continue;const g=el.closest('.seg,.cs-row')||el;if(seen.has(g))continue;seen.add(g);out.push(g);}return out;}
+function unitFocus(u){if(u.matches('.seg,.cs-row'))padFocus(u.querySelector('[aria-checked="true"]')||u.querySelector('button'));else padFocus(u);}
 function menuNav(dir){
   const cur=document.activeElement,dx=dir==='left'?-1:dir==='right'?1:0,dy=dir==='up'?-1:dir==='down'?1:0;
   if(dx&&cur&&cur.matches&&cur.matches('input[type=range]')&&menuCard.contains(cur)){nudgeRange(cur,dx);return;}
   const pane=document.querySelector('.main .tabpane:not([hidden])'),tabBtn=document.getElementById('tabBtn'+TABS[tabIndex()][1]);
   // (on the title screen, and from the row of tabs anywhere: left and right go to the tab next door)
   const title=curTab==='game'&&document.getElementById('testPanel').hidden&&document.getElementById('confirm').hidden;
+  if(dx&&cur&&cur.closest&&cur.closest('#charSel')){const C=[...document.querySelectorAll('#charSel .cs-card')],i=C.indexOf(cur)+dx;if(i>=0&&i<C.length){C[i].click();padFocus(C[i]);}return;}
   if(dx&&(title||cur&&cur.closest&&cur.closest('.tabs'))){showTab(tabIndex()+dx);padFocus(document.getElementById('tabBtn'+TABS[tabIndex()][1]));return;}
   if(dy&&title&&pane.contains(cur)){const U=paneUnits(pane),i=U.findIndex(u=>u===cur||u.contains(cur))+dy;if(i<0)padFocus(tabBtn);else if(i<U.length)unitFocus(U[i]);return;}
   if(dy&&pane&&cur&&cur.closest){
@@ -12917,7 +12958,7 @@ function menuNav(dir){
     if(pane.contains(cur)){
       // (by where things are on screen, not their order in the page: in a grid of buttons, down is the one below --
       // the nearest row below, and in it the one most nearly underneath -- not the next one along)
-      const me=cur.closest('.seg')||cur,r0=me.getBoundingClientRect(),c0=(r0.left+r0.right)/2,m0=(r0.top+r0.bottom)/2;
+      const me=cur.closest('.seg,.cs-row')||cur,r0=me.getBoundingClientRect(),c0=(r0.left+r0.right)/2,m0=(r0.top+r0.bottom)/2;
       const cand=units.filter(u=>u!==me).map(u=>({u,r:u.getBoundingClientRect()})).filter(o=>o.r.width>0&&(dy>0?o.r.top>=m0:o.r.bottom<=m0)&&(dy>0?(o.r.top+o.r.bottom)/2>m0+2:(o.r.top+o.r.bottom)/2<m0-2));
       if(!cand.length){if(dy<0){padFocus(tabBtn);pane.scrollTop=0;}else pane.scrollTop+=80;return;}
       const edge=o=>dy>0?o.r.top:-o.r.bottom,near=Math.min(...cand.map(edge)),row=cand.filter(o=>edge(o)<=near+8);
@@ -13086,7 +13127,7 @@ const ACTS=[
   {id:'sprint',n:'Sprint',c:'#c9662c',kb:[],pad:[6]},
   {id:'lock',n:'Lock on',c:'#e0564a',kb:['KeyQ'],pad:[11]},
   {id:'climb',n:'Spider Climb (hold)',c:'#9a7ae0',kb:['KeyC'],pad:[4]},
-  {id:'use',n:'Get in / out (goblin mode)',c:'#6ab0d8',kb:['KeyF'],pad:[3]},
+  {id:'use',n:'Get in / out (as Gnash)',c:'#6ab0d8',kb:['KeyF'],pad:[3]},
 ];
 const KB_RESERVED=new Set(['Escape','Backquote','KeyP','KeyV','Period','BracketLeft','BracketRight','Backspace','Delete']),PAD_RESERVED=new Set([8,9]);
 let BINDS={};
@@ -14909,7 +14950,7 @@ const DBG_COLS=4,DBG_SECS=[
   [0,'Time',[{k:'speed',label:'Game speed'},{k:'paused',label:'Stop time'}]],
   [0,'Camera',[{k:'freecam',label:'Free cam'},{k:'curve',label:'World curve'}]],
   [0,'World',[{k:'wx',label:'Weather'},{k:'season',label:'Season'}]],
-  [1,'Player',[{k:'pspeed',label:'Player speed'},{k:'invuln',label:'Invulnerable'},{k:'infStam',label:'Infinite stamina'},{k:'fly',label:'Flying'},{k:'gob',label:'Play as a goblin'},{k:'host',label:'Enemy hostility'}]],
+  [1,'Player',[{k:'pspeed',label:'Player speed'},{k:'invuln',label:'Invulnerable'},{k:'infStam',label:'Infinite stamina'},{k:'fly',label:'Flying'},{k:'host',label:'Enemy hostility'}]],
   [1,'Overlays',[{k:'fps',label:'FPS counter'},{k:'hpBars',label:'Health bars'},{k:'dmgNums',label:'Damage numbers'},{k:'sndList',label:'Sound list'}]],
   [2,'Rendering',[{k:'gProps',label:'Props'},{k:'gFixtures',label:'Fixtures'},{k:'gCaves',label:'Caves'},{k:'gSewers',label:'Sewers'},{k:'gSubway',label:'Subways'}]],
   [2,'Hitboxes',[{k:'show',label:'Display hitboxes'},
@@ -14931,7 +14972,7 @@ function toggleGfx(k){const g=GFX_KEY[k],off=GFX_OFF[g]=!GFX_OFF[g];
   const P=P1.pos,d=e=>Math.hypot(e.cx*CS-P.x,e.cz*CS-P.z);
   leafQ.length=0;for(const e of [...meshes.values()].sort((a,b)=>d(b)-d(a)))leafQ.push(ckey(e.cx,e.cz));}
 const curveTxt=()=>DT.curve===0?'Flat':DT.curve>0?'Down '+DT.curve:'Up '+(-DT.curve);
-function dbgVal(k){return isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='paused'||k==='freecam'||k==='invuln'||k==='infStam'||k==='fly'||k==='gob'||k==='fps'||k==='hpBars'||k==='dmgNums'||k==='sndList'?DT[k]:DBG[k];}
+function dbgVal(k){return isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='paused'||k==='freecam'||k==='invuln'||k==='infStam'||k==='fly'||k==='fps'||k==='hpBars'||k==='dmgNums'||k==='sndList'?DT[k]:DBG[k];}
 // the rows on show: the individual hitbox switches only while 'Display hitboxes' is on
 function dbgItems(){const L=DBG_ITEMS.filter(it=>!it.col||DBG.show);if(DT.cur>=L.length)DT.cur=L.length-1;return L;}
 // step a slider row (game speed or player speed) left or right
@@ -14959,7 +15000,6 @@ function dbgMenuToggle(){const it=dbgItems()[DT.cur];
   if(GFX_KEY[it.k])toggleGfx(it.k);
   else if(isUi(it.k))toggleUi(it.k);
   else if(it.k==='freecam')setFreecam(!DT.freecam);
-  else if(it.k==='gob')setGob(!DT.gob);
   else if(it.k==='paused')DT.paused=!DT.paused;
   else if(it.k==='invuln'||it.k==='infStam'||it.k==='fly'||it.k==='fps'||it.k==='hpBars'||it.k==='dmgNums'||it.k==='sndList'){DT[it.k]=!DT[it.k];try{localStorage.setItem('goblin-stompin-gus-'+it.k,DT[it.k]?'1':'0');}catch(e){}}
   else{DBG[it.k]=!DBG[it.k];renderDbg();try{localStorage.setItem(DBG_KEY,JSON.stringify(DBG));}catch(e){}}
@@ -15044,7 +15084,7 @@ document.getElementById('gameSpeed').addEventListener('input',e=>{DT.speedI=+e.t
 document.getElementById('playerSpeed').addEventListener('input',e=>{DT.psI=+e.target.value;renderTime();});
 document.getElementById('worldCurve').addEventListener('input',e=>{DT.curve=+e.target.value;renderTime();});
 for(const i of ['hostMain','hostility'])document.getElementById(i).addEventListener('input',e=>{DT.host=+e.target.value;renderTime();});
-for(const b of document.querySelectorAll('#dbgCheat .tog'))b.addEventListener('click',()=>{const k=b.dataset.k;if(k==='gob')setGob(!DT.gob);else DT[k]=!DT[k];renderTime();tone('triangle',DT[k]?660:440,0,0.05,0.03);});
+for(const b of document.querySelectorAll('#dbgCheat .tog'))b.addEventListener('click',()=>{const k=b.dataset.k;DT[k]=!DT[k];renderTime();tone('triangle',DT[k]?660:440,0,0.05,0.03);});
 renderTime();
 addEventListener('keydown',e=>{
   if(menuOpen)return;
@@ -15206,6 +15246,28 @@ function explodeCar0(c){
   if(!(c.trainT>0))for(const pr of trainsNear(p.x,p.z,6,p.y-6,p.y+6))trainHit(pr.T,40,null,pr.i);   // (a car it's just run down doesn't derail the train)
   for(const o of cars){if(!o.alive)continue;const n=carNearest(o,p.x,p.y,p.z),d=Math.hypot(n.d2,n.dy);if(d>=6||!vReach(o.pos.y-p.y,6)&&!vReach(o.pos.y+o.hy-p.y,6))continue;launchCar(o,Math.max(3,9-d),new V3(o.pos.x-p.x,0,o.pos.z-p.z),5);damageCar(o,d<4?14:8);}
 }
+// ---------- Character select (title screen) ----------
+// Who you play: Gus, Gertie or Gnash the goblin, kept in this browser. Picking Gertie makes player one Gertie (and a
+// second player Gus); the two hippos differ only in looks and voice (dressHippo), never in what they can do. Gnash is
+// goblin mode (setGob): it's the whole game's, so in co-op both players are goblins, Gnash and his cousin Grizzle.
+const CHAR_KEY='goblin-stompin-gus-character',CHARS=['gus','gertie','goblin'];
+let CHAR='gus';
+try{const s=localStorage.getItem(CHAR_KEY);if(CHARS.includes(s))CHAR=s;}catch(e){}
+function charNote(){
+  return CHAR==='goblin'?'Co-op: a second player joins as Grizzle, another goblin.':'Co-op: a second player joins as '+(CHAR==='gertie'?'Gus':'Gertie')+'.';
+}
+function renderChar(){
+  for(const b of document.querySelectorAll('#charSel .cs-card'))b.setAttribute('aria-checked',String(b.dataset.c===CHAR));
+  const n=document.getElementById('charNote');if(n)n.textContent=charNote();
+}
+function setChar(c,quiet){
+  if(!CHARS.includes(c))return;CHAR=c;try{localStorage.setItem(CHAR_KEY,c);}catch(e){}
+  P1.who=c==='gertie'?1:0;P2.who=1-P1.who;
+  setGob(c==='goblin');for(const p of players)dressHippo(p);
+  renderChar();if(!quiet)tone('triangle',c==='goblin'?520:660,0,0.05,0.03);
+}
+for(const b of document.querySelectorAll('#charSel .cs-card'))b.addEventListener('click',()=>setChar(b.dataset.c));
+setChar(CHAR,true);
 // ---- traffic control: signals hang off mast arms over each lane; stop and yield signs sit on short posts ----
 let trafficClock=0;
 // 14 s cycle: the z road gets green, yellow, all-red, then the x road does
@@ -19137,7 +19199,7 @@ function updateHealth(p,dt){
       const buddy=players.find(o=>o!==p&&o.active&&o.state!=='dead');
       p.heading=Math.random()*Math.PI*2;
       placePlayer(p,buddy?findStreet(buddy.pos.x,buddy.pos.z,4,8):findStreet(p.pos.x,p.pos.z,30,45));
-      flashLabel(p.idx?'Gertie is back':'A new Gus rises',p);
+      flashLabel(!DT.gob&&!p.who?'A new Gus rises':charName(p)+' is back',p);
     }
   } else if(playing){p.regenT+=dt;if(p.regenT>6&&p.hp<20){p.hp++;p.regenT=4.5;}}
   p.ui.stamFill.style.width=p.stam.toFixed(0)+'%';p.ui.stam.classList.toggle('tired',p.exhausted);
@@ -19463,7 +19525,7 @@ function updateMinimap(p,dt){
       x.beginPath();x.moveTo(7,0);x.lineTo(-5,-6);x.lineTo(-5,6);x.closePath();x.fill();x.stroke();x.restore();}}
   // you: an arrow in the middle, pointing the way you face
   {const h=p.heading,sx=rx*Math.sin(h)+rz*Math.cos(h),sy=-(fx*Math.sin(h)+fz*Math.cos(h)),a=Math.atan2(sy,sx);
-   x.save();x.translate(C,C);x.rotate(a);x.fillStyle=p.idx?'#ffb0d8':'#ffd75a';x.strokeStyle='#0c0f14';x.lineWidth=1.5;x.beginPath();x.moveTo(8,0);x.lineTo(-6,-6);x.lineTo(-3,0);x.lineTo(-6,6);x.closePath();x.fill();x.stroke();x.restore();}
+   x.save();x.translate(C,C);x.rotate(a);x.fillStyle=charTint(p)?'#ffb0d8':'#ffd75a';x.strokeStyle='#0c0f14';x.lineWidth=1.5;x.beginPath();x.moveTo(8,0);x.lineTo(-6,-6);x.lineTo(-3,0);x.lineTo(-6,6);x.closePath();x.fill();x.stroke();x.restore();}
   x.restore();
   x.strokeStyle='rgba(238,240,230,.85)';x.lineWidth=3;x.beginPath();x.arc(C,C,RAD,0,Math.PI*2);x.stroke();
   // north marker on the rim
@@ -20037,7 +20099,7 @@ function frame(now){
     const hint=p.ui.hint;hint.hidden=!(playing&&hintTime>0);
     if(!hint.hidden){const txt=touchMode&&!p.pad?'Hold STOMP  ·  BITE  ·  JUMP  ·  tap DASH to dash, hold to '+(ABIL.trample?'trample':'sprint'):bindHint(!!p.pad);if(hint.textContent!==txt)hint.textContent=txt;}
   }
-  for(const p of act){if(!p.paused)continue;const o=act.find(q=>q!==p);const txt=!o?'':o.paused?'Both paused. The city is frozen.':`The city keeps going while ${o.idx?'Gertie':'Gus'} plays.`;if(p.ui.pstatus.textContent!==txt)p.ui.pstatus.textContent=txt;}
+  for(const p of act){if(!p.paused)continue;const o=act.find(q=>q!==p);const txt=!o?'':o.paused?'Both paused. The city is frozen.':`The city keeps going while ${charName(o)} plays.`;if(p.ui.pstatus.textContent!==txt)p.ui.pstatus.textContent=txt;}
   const hn=huntersCount(),pol=cars.some(c=>c.alive&&c.police&&c.hunter);
   updateSiren(dt);promptTick(dt);
   {const h=`Kills <b>${kills}</b>  ·  Score <b>${score}</b>${hn?`  ·  <i>${hn} CAR${hn>1?'S':''} HUNTING YOU</i>`:''}${pol?'  ·  <i>POLICE PURSUIT</i>':''}`;if(h!==readoutH){readoutH=h;readout.innerHTML=h;}}   // (only when it's changed: rebuilding it makes the browser lay the page out again)

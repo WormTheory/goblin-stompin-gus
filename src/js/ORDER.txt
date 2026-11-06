@@ -54,6 +54,7 @@ vehicles/cars.js
 vehicles/car-physics.js
 render/fires.js
 ui/options-debug.js
+ui/char-select.js
 dressing/street.js
 dressing/props.js
 dressing/rooms-work.js

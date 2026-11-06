@@ -51,7 +51,7 @@ function updateMinimap(p,dt){
       x.beginPath();x.moveTo(7,0);x.lineTo(-5,-6);x.lineTo(-5,6);x.closePath();x.fill();x.stroke();x.restore();}}
   // you: an arrow in the middle, pointing the way you face
   {const h=p.heading,sx=rx*Math.sin(h)+rz*Math.cos(h),sy=-(fx*Math.sin(h)+fz*Math.cos(h)),a=Math.atan2(sy,sx);
-   x.save();x.translate(C,C);x.rotate(a);x.fillStyle=p.idx?'#ffb0d8':'#ffd75a';x.strokeStyle='#0c0f14';x.lineWidth=1.5;x.beginPath();x.moveTo(8,0);x.lineTo(-6,-6);x.lineTo(-3,0);x.lineTo(-6,6);x.closePath();x.fill();x.stroke();x.restore();}
+   x.save();x.translate(C,C);x.rotate(a);x.fillStyle=charTint(p)?'#ffb0d8':'#ffd75a';x.strokeStyle='#0c0f14';x.lineWidth=1.5;x.beginPath();x.moveTo(8,0);x.lineTo(-6,-6);x.lineTo(-3,0);x.lineTo(-6,6);x.closePath();x.fill();x.stroke();x.restore();}
   x.restore();
   x.strokeStyle='rgba(238,240,230,.85)';x.lineWidth=3;x.beginPath();x.arc(C,C,RAD,0,Math.PI*2);x.stroke();
   // north marker on the rim

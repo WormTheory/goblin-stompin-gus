@@ -145,7 +145,7 @@ function frame(now){
     const hint=p.ui.hint;hint.hidden=!(playing&&hintTime>0);
     if(!hint.hidden){const txt=touchMode&&!p.pad?'Hold STOMP  ·  BITE  ·  JUMP  ·  tap DASH to dash, hold to '+(ABIL.trample?'trample':'sprint'):bindHint(!!p.pad);if(hint.textContent!==txt)hint.textContent=txt;}
   }
-  for(const p of act){if(!p.paused)continue;const o=act.find(q=>q!==p);const txt=!o?'':o.paused?'Both paused. The city is frozen.':`The city keeps going while ${o.idx?'Gertie':'Gus'} plays.`;if(p.ui.pstatus.textContent!==txt)p.ui.pstatus.textContent=txt;}
+  for(const p of act){if(!p.paused)continue;const o=act.find(q=>q!==p);const txt=!o?'':o.paused?'Both paused. The city is frozen.':`The city keeps going while ${charName(o)} plays.`;if(p.ui.pstatus.textContent!==txt)p.ui.pstatus.textContent=txt;}
   const hn=huntersCount(),pol=cars.some(c=>c.alive&&c.police&&c.hunter);
   updateSiren(dt);promptTick(dt);
   {const h=`Kills <b>${kills}</b>  ·  Score <b>${score}</b>${hn?`  ·  <i>${hn} CAR${hn>1?'S':''} HUNTING YOU</i>`:''}${pol?'  ·  <i>POLICE PURSUIT</i>':''}`;if(h!==readoutH){readoutH=h;readout.innerHTML=h;}}   // (only when it's changed: rebuilding it makes the browser lay the page out again)

@@ -9,7 +9,7 @@ function updateHealth(p,dt){
       const buddy=players.find(o=>o!==p&&o.active&&o.state!=='dead');
       p.heading=Math.random()*Math.PI*2;
       placePlayer(p,buddy?findStreet(buddy.pos.x,buddy.pos.z,4,8):findStreet(p.pos.x,p.pos.z,30,45));
-      flashLabel(p.idx?'Gertie is back':'A new Gus rises',p);
+      flashLabel(!DT.gob&&!p.who?'A new Gus rises':charName(p)+' is back',p);
     }
   } else if(playing){p.regenT+=dt;if(p.regenT>6&&p.hp<20){p.hp++;p.regenT=4.5;}}
   p.ui.stamFill.style.width=p.stam.toFixed(0)+'%';p.ui.stam.classList.toggle('tired',p.exhausted);

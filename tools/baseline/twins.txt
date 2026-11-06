@@ -1,0 +1,60 @@
+picked Gus: Gus + Gertie (bow)
+== as hippos
+walk                   player one moved 4.21 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+sprint                 player one moved 12.02 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 72 72
+trample (hold dash)    player one moved 11.33 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 76 76
+jump                   player one moved 0.00 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+double jump            player one moved 0.00 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+dash                   player one moved 5.85 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+long jump              player one moved 19.63 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 81 81
+air dash               player one moved 14.39 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+stomp by a wall        player one moved 0.00 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+   blocks left by Gus 28 by Gertie 28 of 28
+charged stomp          player one moved 0.00 up -2.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+   blocks left by Gus 18 by Gertie 18 of 28
+ground pound           player one moved 0.00 up -1.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+bite a wall            player one moved 4.56 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+   blocks left by Gus 22 by Gertie 22 of 28
+spider climb           player one moved 9.00 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+roll? / lock on        player one moved 2.17 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+picked Gertie: Gertie (bow) + Gus  goblin mode false
+== as hippos, player one Gertie
+walk                   player one moved 4.21 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+sprint                 player one moved 12.02 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 72 72
+trample (hold dash)    player one moved 11.33 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 76 76
+jump                   player one moved 0.00 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+double jump            player one moved 0.00 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+dash                   player one moved 5.85 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+long jump              player one moved 19.63 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 81 81
+air dash               player one moved 14.39 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+stomp by a wall        player one moved 0.00 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+   blocks left by Gus 28 by Gertie 28 of 28
+charged stomp          player one moved 0.00 up -2.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+   blocks left by Gus 18 by Gertie 18 of 28
+ground pound           player one moved 0.00 up -1.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+bite a wall            player one moved 4.56 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+   blocks left by Gus 22 by Gertie 22 of 28
+spider climb           player one moved 9.00 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+roll? / lock on        player one moved 2.17 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+picked Gnash: Gnash + Grizzle (bow)  goblin mode true
+== as goblins
+walk                   player one moved 2.81 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+sprint                 player one moved 7.51 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 84 84
+trample (hold dash)    player one moved 7.11 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 86 86
+jump                   player one moved 0.00 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+double jump            player one moved 0.00 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+dash                   player one moved 1.92 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+long jump              player one moved 7.00 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 91 91
+air dash               player one moved 3.32 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+stomp by a wall        player one moved 0.00 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+   blocks left by Gus 28 by Gertie 28 of 28
+charged stomp          player one moved 0.00 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+   blocks left by Gus 28 by Gertie 28 of 28
+ground pound           player one moved 0.00 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+bite a wall            player one moved 2.06 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+   blocks left by Gus 28 by Gertie 28 of 28
+spider climb           player one moved 9.13 up 0.28  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+roll? / lock on        player one moved 1.45 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+picked Gus again: Gus + Gertie (bow)  goblin mode false
+hp after the same fall from 30 up:
+  player one 20 two 20

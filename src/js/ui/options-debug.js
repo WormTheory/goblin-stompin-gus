@@ -61,7 +61,7 @@ const DBG_COLS=4,DBG_SECS=[
   [0,'Time',[{k:'speed',label:'Game speed'},{k:'paused',label:'Stop time'}]],
   [0,'Camera',[{k:'freecam',label:'Free cam'},{k:'curve',label:'World curve'}]],
   [0,'World',[{k:'wx',label:'Weather'},{k:'season',label:'Season'}]],
-  [1,'Player',[{k:'pspeed',label:'Player speed'},{k:'invuln',label:'Invulnerable'},{k:'infStam',label:'Infinite stamina'},{k:'fly',label:'Flying'},{k:'gob',label:'Play as a goblin'},{k:'host',label:'Enemy hostility'}]],
+  [1,'Player',[{k:'pspeed',label:'Player speed'},{k:'invuln',label:'Invulnerable'},{k:'infStam',label:'Infinite stamina'},{k:'fly',label:'Flying'},{k:'host',label:'Enemy hostility'}]],
   [1,'Overlays',[{k:'fps',label:'FPS counter'},{k:'hpBars',label:'Health bars'},{k:'dmgNums',label:'Damage numbers'},{k:'sndList',label:'Sound list'}]],
   [2,'Rendering',[{k:'gProps',label:'Props'},{k:'gFixtures',label:'Fixtures'},{k:'gCaves',label:'Caves'},{k:'gSewers',label:'Sewers'},{k:'gSubway',label:'Subways'}]],
   [2,'Hitboxes',[{k:'show',label:'Display hitboxes'},
@@ -83,7 +83,7 @@ function toggleGfx(k){const g=GFX_KEY[k],off=GFX_OFF[g]=!GFX_OFF[g];
   const P=P1.pos,d=e=>Math.hypot(e.cx*CS-P.x,e.cz*CS-P.z);
   leafQ.length=0;for(const e of [...meshes.values()].sort((a,b)=>d(b)-d(a)))leafQ.push(ckey(e.cx,e.cz));}
 const curveTxt=()=>DT.curve===0?'Flat':DT.curve>0?'Down '+DT.curve:'Up '+(-DT.curve);
-function dbgVal(k){return isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='paused'||k==='freecam'||k==='invuln'||k==='infStam'||k==='fly'||k==='gob'||k==='fps'||k==='hpBars'||k==='dmgNums'||k==='sndList'?DT[k]:DBG[k];}
+function dbgVal(k){return isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='paused'||k==='freecam'||k==='invuln'||k==='infStam'||k==='fly'||k==='fps'||k==='hpBars'||k==='dmgNums'||k==='sndList'?DT[k]:DBG[k];}
 // the rows on show: the individual hitbox switches only while 'Display hitboxes' is on
 function dbgItems(){const L=DBG_ITEMS.filter(it=>!it.col||DBG.show);if(DT.cur>=L.length)DT.cur=L.length-1;return L;}
 // step a slider row (game speed or player speed) left or right
@@ -111,7 +111,6 @@ function dbgMenuToggle(){const it=dbgItems()[DT.cur];
   if(GFX_KEY[it.k])toggleGfx(it.k);
   else if(isUi(it.k))toggleUi(it.k);
   else if(it.k==='freecam')setFreecam(!DT.freecam);
-  else if(it.k==='gob')setGob(!DT.gob);
   else if(it.k==='paused')DT.paused=!DT.paused;
   else if(it.k==='invuln'||it.k==='infStam'||it.k==='fly'||it.k==='fps'||it.k==='hpBars'||it.k==='dmgNums'||it.k==='sndList'){DT[it.k]=!DT[it.k];try{localStorage.setItem('goblin-stompin-gus-'+it.k,DT[it.k]?'1':'0');}catch(e){}}
   else{DBG[it.k]=!DBG[it.k];renderDbg();try{localStorage.setItem(DBG_KEY,JSON.stringify(DBG));}catch(e){}}
@@ -196,7 +195,7 @@ document.getElementById('gameSpeed').addEventListener('input',e=>{DT.speedI=+e.t
 document.getElementById('playerSpeed').addEventListener('input',e=>{DT.psI=+e.target.value;renderTime();});
 document.getElementById('worldCurve').addEventListener('input',e=>{DT.curve=+e.target.value;renderTime();});
 for(const i of ['hostMain','hostility'])document.getElementById(i).addEventListener('input',e=>{DT.host=+e.target.value;renderTime();});
-for(const b of document.querySelectorAll('#dbgCheat .tog'))b.addEventListener('click',()=>{const k=b.dataset.k;if(k==='gob')setGob(!DT.gob);else DT[k]=!DT[k];renderTime();tone('triangle',DT[k]?660:440,0,0.05,0.03);});
+for(const b of document.querySelectorAll('#dbgCheat .tog'))b.addEventListener('click',()=>{const k=b.dataset.k;DT[k]=!DT[k];renderTime();tone('triangle',DT[k]?660:440,0,0.05,0.03);});
 renderTime();
 addEventListener('keydown',e=>{
   if(menuOpen)return;

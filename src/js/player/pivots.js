@@ -79,7 +79,7 @@ function trampleFences(p){
       for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((wx+ox)/CS),Math.floor((wz+oz)/CS)));}}
   if(br){rebuildSet(ch);save();destroyFX(br,{force:0.6,dx:s,dz:c,up:1},true);noise(0.12,0.12,900,'bandpass');score+=2*br.length;}
 }
-// Play as a goblin (debug): the same player code runs, with a goblin's abilities and speeds in place of the hippo's for
+// Play as Gnash the goblin (picked on the title screen's character select, ui/char-select.js): the same player code runs, with a goblin's abilities and speeds in place of the hippo's for
 // the length of the step, so none of the moves need to know. (Walking speed and the hop are what goblins themselves do.)
 const GOB_ABIL={bite:true,biteCombo:false,stomp:false,chargeStomp:false,fullStomp:false,groundSpike:false,pound:false,chargePound:false,fullPound:false,jump:true,double:false,triple:false,
   sprint:true,trample:false,dash:false,roll:false,blastDash:false,airDash:false,blastAirDash:false,longJump:false,blastJump:false,rocket:false,climb:true,crash:false,noFall:false};
@@ -99,6 +99,7 @@ function setGob(on){
     if(on){if(p.state!=='walk'&&p.state!=='climb'){p.state='walk';p.t=0;p.vb=null;p.piv=null;}
       p.dodge=null;p.dashT=0;p.lungeT=0;p.biteT=0;p.biteHit=false;p.lurch=null;p.mvx=p.mvz=0;p.carryV=0;p.rocket=false;p.longJump=false;p.blastJ=false;p.airJumps=0;p.qStomp=p.qDodge=0;}
     else if(p.state==='walk')bodyFree(p);}
+  for(const p of players)dressHippo(p);   // (the names on the HUD)
   renderTime();
 }
 function updatePlayer(p,dt){

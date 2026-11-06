@@ -7,7 +7,7 @@ const players=[];
 const hudEl=document.getElementById('hud');
 function makePlayer(idx){
   const S=SKINS[idx];
-  const p={idx,name:S.name,root:new THREE.Group(),rig:new THREE.Group(),legs:[],pupils:[],pos:new V3(),heading:0,state:'walk',t:0,phase:0,vy:0,hit:false,lastSin:0,biteT:0,biteRepeat:0,smashCD:0,chargeCD:0,hurt:0,slammed:false,fallDir:1,
+  const p={idx,who:idx,name:S.name,root:new THREE.Group(),rig:new THREE.Group(),legs:[],pupils:[],pos:new V3(),heading:0,state:'walk',t:0,phase:0,vy:0,hit:false,lastSin:0,biteT:0,biteRepeat:0,smashCD:0,chargeCD:0,hurt:0,slammed:false,fallDir:1,
     cam:{yaw:0,pitch:-0.3},camera:new THREE.PerspectiveCamera(72,1,0.25,420),hp:20,deadT:0,hurtFx:0,regenT:0,lastHp:-1,shake:0,active:false,pad:null,
     stam:100,exhausted:false,stamIdle:0,lungeT:0,airJumps:1,twirl:0,airDash:true,dashT:0,roarBurst:0,lastRoarK:0,wasCharging:false,biteHit:false,grounded:true,stompCharge:0,stompF:1,windPitch:0,fullPing:false,
     in:{x:0,z:0,charge:false,chargePress:false,stomp:false,bite:false,bitePress:false,jumpPress:false,jump:false}};
@@ -37,7 +37,8 @@ function makePlayer(idx){
     (p.eyeWhites=p.eyeWhites||[]).push(fw,sw);
     box(0.16,0.2,0.1,HC.dark,s*0.42,0.66,0.02,head);
   }
-  if(idx===1){box(0.5,0.12,0.12,0xe0406a,0,0.62,-0.02,head);box(0.16,0.2,0.16,0xe0406a,0,0.62,-0.02,head);}
+  // (Gertie's bow: every hippo has one, shown only on Gertie, so either player can be either hippo -- see dressHippo)
+  p.bow=[box(0.5,0.12,0.12,0xe0406a,0,0.62,-0.02,head),box(0.16,0.2,0.16,0xe0406a,0,0.62,-0.02,head)];
   const jaw=new THREE.Group();jaw.name='jaw';jaw.position.set(0,-0.25,0.2);head.add(jaw);p.jaw=jaw;
   box(1.38,0.28,1.25,HC.skin,0,-0.14,0.8,jaw);
   box(1.12,0.05,1.05,HC.mouth,0,0.02,0.8,jaw);
@@ -48,7 +49,7 @@ function makePlayer(idx){
     box(0.52,0.74,0.52,HC.dark,0,-0.37,0,hip);box(0.56,0.08,0.62,HC.belly,0,-0.73,0.03,hip);
     p.legs.push(hip);
   }
-  p.mats=Object.values(mats);
+  p.mats=Object.values(mats);p.hm={skin:mat(HC.skin),dark:mat(HC.dark),belly:mat(HC.belly)};
   root.visible=false;scene.add(root);
   p.pool=new THREE.Mesh(new THREE.CircleGeometry(1,18),flatMat(0x4d0707,1,-3));p.pool.rotation.x=-Math.PI/2;p.pool.visible=false;scene.add(p.pool);
   const v=document.createElement('div');v.className='view';v.hidden=true;
@@ -85,7 +86,18 @@ for(const b of document.querySelectorAll('#abilList .tog'))b.addEventListener('c
 renderAbil();
 // each hippo has its own eyes: Gus the real-hippo ones on the sides of his head, Gertie the wall-eyed ones up front
 const EYES=['side','front'];
-for(const p of players){for(const m of p.eyeFront)m.visible=EYES[p.idx]==='front';for(const m of p.eyeSide)m.visible=EYES[p.idx]==='side';}
+// which hippo a player is (p.who: 0 Gus, 1 Gertie) is only how they look and sound, never what they can do: p.idx is
+// the seat (player one or two), and the moves, sizes and abilities are the same for both (suite twins checks it)
+function dressHippo(p){
+  const S=SKINS[p.who];p.name=S.name;p.hm.skin.color.setHex(S.skin);p.hm.dark.color.setHex(S.dark);p.hm.belly.color.setHex(S.belly);
+  for(const m of p.bow)m.visible=p.who===1;
+  for(const m of p.eyeFront)m.visible=EYES[p.who]==='front';for(const m of p.eyeSide)m.visible=EYES[p.who]==='side';
+  if(p.ui&&p.ui.who){p.ui.who.textContent=charName(p).toUpperCase();p.ui.who.classList.toggle('p2',charTint(p)===1);}
+}
+// (first called once the debug settings exist, from ui/char-select.js)
+const GOB_NAMES=['Gnash','Grizzle'];   // (the goblin you play is Gnash; in co-op his cousin Grizzle comes along)
+const charName=p=>DT.gob?GOB_NAMES[p.idx]:p.who?'Gertie':'Gus';
+const charTint=p=>DT.gob?p.idx:p.who;   // (0 or 1: which of the two colours a player's marked in, on the maps and the HUD)
 {
   const vs=document.getElementById('viewDist'),vl=document.getElementById('viewVal');
   const dds=document.getElementById('detailDist'),ddl=document.getElementById('detailVal');

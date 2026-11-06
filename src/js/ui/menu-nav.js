@@ -27,15 +27,16 @@ function nudgeRange(el,d){
   const v=Math.max(mn,Math.min(mx,+el.value+d*st*k));
   if(v!==+el.value){el.value=String(v);el.dispatchEvent(new Event('input',{bubbles:true}));tone('triangle',520+((v-mn)/(mx-mn||1))*400,0,0.05,0.03);}
 }
-// inside a tab, up/down walk the controls in reading order (a row of segmented buttons counts as one stop)
-function paneUnits(pane){const out=[],seen=new Set();for(const el of menuFocusables()){if(!pane.contains(el))continue;const g=el.closest('.seg')||el;if(seen.has(g))continue;seen.add(g);out.push(g);}return out;}
-function unitFocus(u){if(u.matches('.seg'))padFocus(u.querySelector('[aria-checked="true"]')||u.querySelector('button'));else padFocus(u);}
+// inside a tab, up/down walk the controls in reading order (a row of segmented buttons, or the character cards, counts as one stop)
+function paneUnits(pane){const out=[],seen=new Set();for(const el of menuFocusables()){if(!pane.contains(el))continue;const g=el.closest('.seg,.cs-row')||el;if(seen.has(g))continue;seen.add(g);out.push(g);}return out;}
+function unitFocus(u){if(u.matches('.seg,.cs-row'))padFocus(u.querySelector('[aria-checked="true"]')||u.querySelector('button'));else padFocus(u);}
 function menuNav(dir){
   const cur=document.activeElement,dx=dir==='left'?-1:dir==='right'?1:0,dy=dir==='up'?-1:dir==='down'?1:0;
   if(dx&&cur&&cur.matches&&cur.matches('input[type=range]')&&menuCard.contains(cur)){nudgeRange(cur,dx);return;}
   const pane=document.querySelector('.main .tabpane:not([hidden])'),tabBtn=document.getElementById('tabBtn'+TABS[tabIndex()][1]);
   // (on the title screen, and from the row of tabs anywhere: left and right go to the tab next door)
   const title=curTab==='game'&&document.getElementById('testPanel').hidden&&document.getElementById('confirm').hidden;
+  if(dx&&cur&&cur.closest&&cur.closest('#charSel')){const C=[...document.querySelectorAll('#charSel .cs-card')],i=C.indexOf(cur)+dx;if(i>=0&&i<C.length){C[i].click();padFocus(C[i]);}return;}
   if(dx&&(title||cur&&cur.closest&&cur.closest('.tabs'))){showTab(tabIndex()+dx);padFocus(document.getElementById('tabBtn'+TABS[tabIndex()][1]));return;}
   if(dy&&title&&pane.contains(cur)){const U=paneUnits(pane),i=U.findIndex(u=>u===cur||u.contains(cur))+dy;if(i<0)padFocus(tabBtn);else if(i<U.length)unitFocus(U[i]);return;}
   if(dy&&pane&&cur&&cur.closest){
@@ -43,7 +44,7 @@ function menuNav(dir){
     if(pane.contains(cur)){
       // (by where things are on screen, not their order in the page: in a grid of buttons, down is the one below --
       // the nearest row below, and in it the one most nearly underneath -- not the next one along)
-      const me=cur.closest('.seg')||cur,r0=me.getBoundingClientRect(),c0=(r0.left+r0.right)/2,m0=(r0.top+r0.bottom)/2;
+      const me=cur.closest('.seg,.cs-row')||cur,r0=me.getBoundingClientRect(),c0=(r0.left+r0.right)/2,m0=(r0.top+r0.bottom)/2;
       const cand=units.filter(u=>u!==me).map(u=>({u,r:u.getBoundingClientRect()})).filter(o=>o.r.width>0&&(dy>0?o.r.top>=m0:o.r.bottom<=m0)&&(dy>0?(o.r.top+o.r.bottom)/2>m0+2:(o.r.top+o.r.bottom)/2<m0-2));
       if(!cand.length){if(dy<0){padFocus(tabBtn);pane.scrollTop=0;}else pane.scrollTop+=80;return;}
       const edge=o=>dy>0?o.r.top:-o.r.bottom,near=Math.min(...cand.map(edge)),row=cand.filter(o=>edge(o)<=near+8);

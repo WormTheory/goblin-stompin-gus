@@ -111,7 +111,7 @@ function voice(p){
 function setVoice(p,k,mode){if(SBX)return;
   const v=voice(p);if(!v)return;
   try{
-    const t=audio.currentTime,m=p.idx?1.2:1,base=(mode==='charge'?92:68)*m;
+    const t=audio.currentTime,m=p.who?1.2:1,base=(mode==='charge'?92:68)*m;
     v.o1.frequency.setTargetAtTime(base*(1+0.65*k),t,0.06);
     v.o2.frequency.setTargetAtTime(base*0.505*(1+0.65*k),t,0.06);
     v.bp.frequency.setTargetAtTime((360+950*k)*m,t,0.07);
@@ -131,7 +131,7 @@ function cutVoice(p){
 function stompGrunt(p,lvl){
   if(!audio)return;
   try{
-    const m=p.idx?1.22:1,t=audio.currentTime,o=audio.createOscillator(),o2=audio.createOscillator(),g=audio.createGain(),f=audio.createBiquadFilter();if(DT.sndList)sndNote(0.2);
+    const m=p.who?1.22:1,t=audio.currentTime,o=audio.createOscillator(),o2=audio.createOscillator(),g=audio.createGain(),f=audio.createBiquadFilter();if(DT.sndList)sndNote(0.2);
     o.type='sawtooth';o2.type='square';f.type='bandpass';f.Q.value=1.6;f.frequency.value=(620+120*lvl)*m;
     o.frequency.setValueAtTime((128-10*lvl)*m,t);o.frequency.exponentialRampToValueAtTime((70-6*lvl)*m,t+0.13);
     o2.frequency.setValueAtTime((64-5*lvl)*m,t);o2.frequency.exponentialRampToValueAtTime((38-3*lvl)*m,t+0.13);
@@ -145,7 +145,7 @@ function stompGrunt(p,lvl){
 function grunt(p,dbl){
   if(!audio||DT.gob)return;
   try{
-    const m=p.idx?1.25:1,t=audio.currentTime,o=audio.createOscillator(),g=audio.createGain(),f=audio.createBiquadFilter();if(DT.sndList)sndNote(dbl?0.27:0.21);
+    const m=p.who?1.25:1,t=audio.currentTime,o=audio.createOscillator(),g=audio.createGain(),f=audio.createBiquadFilter();if(DT.sndList)sndNote(dbl?0.27:0.21);
     o.type='sawtooth';f.type='bandpass';f.Q.value=2.2;
     if(!dbl){o.frequency.setValueAtTime(150*m,t);o.frequency.exponentialRampToValueAtTime(82*m,t+0.18);f.frequency.value=640*m;}
     else{o.frequency.setValueAtTime(185*m,t);o.frequency.linearRampToValueAtTime(265*m,t+0.07);o.frequency.exponentialRampToValueAtTime(165*m,t+0.24);f.frequency.value=1150*m;}
