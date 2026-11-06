@@ -1,4 +1,4 @@
-// Real 3D screenshots of Play as a goblin, switched on with the actual button (see tools/build_3d.py, which makes t3.html).
+// Real 3D screenshots of playing as Gnash, picked with the title screen's character card (see tools/build_3d.py, which makes t3.html).
 // Usage, from tools/ui: node gobshot.js [seed] [outDir]
 const {chromium}=require('playwright');
 const fs=require('fs');
@@ -10,9 +10,9 @@ const p=await b.newPage({viewport:{width:1280,height:720}});
 const errs=[];p.on('pageerror',e=>errs.push(e.message));p.on('console',m=>{if(m.type()==='error')errs.push(m.text().slice(0,200));});
 await p.addInitScript(([k,s])=>{if(!localStorage.getItem(k))localStorage.setItem(k,JSON.stringify({seed:s}));},[SAVE_KEY,seed]);
 await p.goto('file://'+process.cwd()+'/t3.html');await p.waitForTimeout(3000);
+await p.evaluate(()=>document.querySelector('#charSel .cs-card[data-c="goblin"]').click());
 await p.evaluate(()=>document.getElementById('play').click());await p.waitForTimeout(12000);
-await p.evaluate(()=>document.querySelector('#dbgCheat [data-k="gob"]').click());
-console.log('button on:',await p.evaluate(()=>document.querySelector('#dbgCheat [data-k="gob"]').getAttribute('aria-checked')));
+console.log('goblin mode on:',await p.evaluate(()=>window.__G.DT.gob));
 // (a couple of goblins stood in front, to compare sizes with)
 const stand=()=>p.evaluate(()=>{const G=window.__G,P=G.players[0];P.cam.pitch=-0.05;const fx=-Math.sin(P.cam.yaw),fz=-Math.cos(P.cam.yaw);let i=0;
   clearInterval(window.__h);window.__h=setInterval(()=>{i=0;for(const g of G.goblins.filter(g=>g.state==='chase'||g.civ&&g.state==='wait').slice(0,2)){const d=2.6+i*1.6,s=i?1:-1;
@@ -30,10 +30,5 @@ await p.evaluate(()=>{const P=window.__G.players[0];window.__G.FC_set&&window.__
 await p.waitForTimeout(400);
 await p.keyboard.down('KeyS');await p.waitForTimeout(700);await p.keyboard.up('KeyS');await p.waitForTimeout(800);await p.screenshot({path:out+'/gob-freecam.png'});
 await p.evaluate(()=>dispatchEvent(new KeyboardEvent('keydown',{code:'KeyV'})));
-// the quick menu has the switch; off again, it's Gus
-await p.evaluate(()=>{clearInterval(window.__h);dispatchEvent(new KeyboardEvent('keydown',{code:'Backquote'}));});await p.waitForTimeout(500);
-await p.screenshot({path:out+'/gob-menu.png'});
-console.log('quick menu row:',await p.evaluate(()=>(document.getElementById('dpRows').textContent.match(/Play as a goblin\w*/)||[''])[0]));
-await p.evaluate(()=>dispatchEvent(new KeyboardEvent('keydown',{code:'Backquote'})));
-await p.evaluate(()=>document.querySelector('#dbgCheat [data-k="gob"]').click());await p.waitForTimeout(2500);await p.screenshot({path:out+'/gob-off.png'});
+await p.evaluate(()=>clearInterval(window.__h));
 console.log(errs.join('\n')||'no errors');await b.close();})();

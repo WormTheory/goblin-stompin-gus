@@ -99,6 +99,18 @@ T.setGob(true);home();S(2);
 {for(let v=-5;v<=5;v++)for(let y=0;y<6;y++)for(let u=3;u<8;u++)put(v,y,u);home();let inBlock=0,peak=0,st=new Set();T.keys.add(KF);T.keys.add(KC);
  for(let i=0;i<500;i++){S(1);st.add(A.state);const q=A.camera.position;if(T.solidAt(Math.floor(q.x),Math.floor(q.y),Math.floor(q.z)))inBlock++;peak=Math.max(peak,A.pos.y-F);if(A.grounded&&A.pos.y-F>5.9&&A.state==='walk')break;}
  T.keys.delete(KF);T.keys.delete(KC);S(10);console.log('climb a 6-high block: reached',f(peak),' on top',f(A.pos.y-F),' states',[...st].join(','),' frames with the eye in a block',inBlock);clear();}
+// how close the eye gets to a block while climbing: under GOB_EYE_R (0.26) the near plane reaches through the wall
+const room=q=>{let m=9;const bx=Math.floor(q.x),by=Math.floor(q.y),bz=Math.floor(q.z);for(let x=bx-1;x<=bx+1;x++)for(let y=by-1;y<=by+1;y++)for(let z=bz-1;z<=bz+1;z++)if(T.solidAt(x,y,z))
+  m=Math.min(m,Math.hypot(q.x-Math.max(x,Math.min(x+1,q.x)),q.y-Math.max(y,Math.min(y+1,q.y)),q.z-Math.max(z,Math.min(z+1,q.z))));return m;};
+const climbRoom=(nm,legs)=>{home();let m=9,st=new Set(),n=0,jmp=0,lq=null;
+  for(const [ks,k] of legs){for(const x of ks)T.keys.add(x);for(let i=0;i<k;i++){S(1);st.add(A.state);const q=A.camera.position;
+    if(A.state!=='walk'){m=Math.min(m,room(q));n++;if(lq)jmp=Math.max(jmp,Math.hypot(q.x-lq[0],q.y-lq[1],q.z-lq[2]));lq=[q.x,q.y,q.z];}else lq=null;}for(const x of ks)T.keys.delete(x);}
+  console.log(nm.padEnd(24),'closest the eye came to a block',f(m),' biggest move in a frame',f(jmp),' frames on the wall',n>40?'40+':n,' states',[...st].join(','));T.keys.delete(KC);S(10);clear();};
+{for(let y=0;y<8;y++)for(let v=-5;v<=5;v++)put(v,y,3);climbRoom('up a wall',[[[KF,KC],200]]);}
+{for(let y=0;y<3;y++)for(let v=-5;v<=5;v++)put(v,y,3);climbRoom('up and over the top',[[[KF,KC],200]]);console.log('  ended on top',f(A.pos.y-F));}
+{for(let y=0;y<8;y++)for(let v=-1;v<=1;v++)put(v,y,3);climbRoom('round an outside corner',[[[KF,KC],40],[[KL,KC],160]]);}
+{for(let y=0;y<8;y++){for(let v=-5;v<=5;v++)put(v,y,3);for(let u=-3;u<=2;u++)put(3,y,u);}climbRoom('into an inside corner',[[[KF,KC],40],[[KL,KC],160]]);}
+{for(let y=0;y<8;y++)for(let v=-5;v<=5;v++)put(v,y,3);for(let v=-5;v<=5;v++)for(let u=-3;u<=2;u++)put(v,4,u);climbRoom('up a wall to a ceiling',[[[KF,KC],200]]);}
 // looking up, and back to being a hippo
 {home();A.cam.pitch=1.4;S(2);console.log('can look up to',f(A.cam.pitch));}
 T.setGob(false);S(3);

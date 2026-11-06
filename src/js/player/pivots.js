@@ -130,14 +130,53 @@ function gobKit(p){
   return p.gb={root,m,vm,arm};
 }
 // the first-person view, and the body that goes with it
+// Clinging to a wall he's 0.06 off its face (where a hippo's belly goes), well inside the near plane, so the view went
+// through the wall and into the building. The eye is kept GOB_EYE_R clear of every block (that's past the corners
+// of the near plane), pushed straight out from whatever is closer: a wall, a ceiling, an inside or outside corner.
+const GOB_EYE_R=0.26;
+function eyeRoom(c){
+  // inside a block (cutting across a corner, or swinging off a ceiling on to a wall): out through its nearest open face
+  {const bx=Math.floor(c.x),by=Math.floor(c.y),bz=Math.floor(c.z);
+    if(solidAt(bx,by,bz)){let best=null,bd=9;const o=[c.x-bx,c.y-by,c.z-bz];
+      for(let a=0;a<3;a++)for(const s of [-1,1]){const q=[bx,by,bz];q[a]+=s;if(solidAt(q[0],q[1],q[2]))continue;const d=s<0?o[a]:1-o[a];if(d<bd){bd=d;best=[a,s];}}
+      if(best){const k=best[1]*(bd+0.001);if(best[0]===0)c.x+=k;else if(best[0]===1)c.y+=k;else c.z+=k;}}}
+  for(let it=0;it<3;it++){let moved=false;const bx=Math.floor(c.x),by=Math.floor(c.y),bz=Math.floor(c.z);
+    for(let x=bx-1;x<=bx+1;x++)for(let y=by-1;y<=by+1;y++)for(let z=bz-1;z<=bz+1;z++){if(!solidAt(x,y,z))continue;
+      const dx=c.x-Math.max(x,Math.min(x+1,c.x)),dy=c.y-Math.max(y,Math.min(y+1,c.y)),dz=c.z-Math.max(z,Math.min(z+1,c.z)),d=Math.hypot(dx,dy,dz);
+      if(d>=GOB_EYE_R||d<1e-6)continue;   // (inside a block there's no telling which way is out)
+      const k=(GOB_EYE_R-d)/d;c.x+=dx*k;c.y+=dy*k;c.z+=dz*k;moved=true;}
+    if(!moved)break;}
+}
+// going round a corner, or between a wall and a ceiling, the body slides straight from one face to the other through
+// the corner of the block. The eye swings round the edge line instead, the way posePiv swings a hippo: from where it
+// was (e0 above the feet) to where it will be (e1), whichever way round is through the open air.
+function pivArc(p,e0,e1){
+  const P=p.state==='piv'&&p.piv;if(!P||!Array.isArray(P.E))return null;
+  // (the edge line and the angle round it come from the feet; the eye is carried round the same line)
+  const E=P.E,fa=[0,1,2].map(i=>P.from[i]-E[i]),fb=[0,1,2].map(i=>P.to[i]-E[i]),la=Math.hypot(...fa),lb=Math.hypot(...fb);
+  if(la<1e-3||lb<1e-3)return null;
+  const an=fa.map(x=>x/la),bn=fb.map(x=>x/lb);
+  let ax=[an[1]*bn[2]-an[2]*bn[1],an[2]*bn[0]-an[0]*bn[2],an[0]*bn[1]-an[1]*bn[0]];const n=Math.hypot(...ax);if(n<1e-3)return null;ax=ax.map(x=>x/n);
+  const a=[fa[0],fa[1]+e0,fa[2]],b=[fb[0],fb[1]+e1,fb[2]],pr=v=>{const d=v[0]*ax[0]+v[1]*ax[1]+v[2]*ax[2];return v.map((x,i)=>x-d*ax[i]);},ap=pr(a),bp=pr(b),
+    cr=[ap[1]*bp[2]-ap[2]*bp[1],ap[2]*bp[0]-ap[0]*bp[2],ap[0]*bp[1]-ap[1]*bp[0]],
+    th=Math.atan2(cr[0]*ax[0]+cr[1]*ax[1]+cr[2]*ax[2],ap[0]*bp[0]+ap[1]*bp[1]+ap[2]*bp[2]),at=(ang,k)=>{const r=qRot(qAx(ax[0],ax[1],ax[2],ang*k),a),f=qRot(qAx(ax[0],ax[1],ax[2],ang),a);return [0,1,2].map(i=>E[i]+r[i]+k*(b[i]-f[i]));};
+  // (the short way round can be through the block, with the feet well along both faces of an outside corner)
+  if(P.arc===undefined){const m=at(th,0.5);P.arc=solidAt(Math.floor(m[0]),Math.floor(m[1]),Math.floor(m[2]))?th-Math.sign(th)*2*Math.PI:th;}
+  return at(P.arc,P.t*P.t*(3-2*P.t));
+}
 function gobCamera(p){
   const K=gobKit(p),lie=p.state==='dead'?Math.min(1,p.t*3):0,walking=p.state==='walk'&&p.grounded&&p.lastSp>0.2,sn=Math.sin(p.phase),v=p.visOff;
   p.camHang=(p.camHang||0)+((p.state==='ceil'||(p.state==='piv'&&p.piv&&p.piv.next==='ceil')?1:0)-(p.camHang||0))*0.12;
   const eye=GOB_EYE*(1-0.75*lie)-2.2*ES*p.camHang+(walking?Math.abs(sn)*0.04:0),c=p.camera.position;
-  c.set(p.pos.x+(v?v.x:0),p.pos.y+(v?v.y:0)+eye,p.pos.z+(v?v.z:0));p.camera.rotation.set(p.cam.pitch,p.cam.yaw,lie*1.2);
+  const P=p.state==='piv'&&p.piv,hang=-2.2*ES;
+  if(P&&P.e0===undefined)P.e0=eye;
+  const arc=P&&pivArc(p,P.e0,GOB_EYE+(P.next==='ceil'?hang:0));
+  if(arc){p.camHang=P.next==='ceil'?1:0;c.set(arc[0]+(v?v.x:0),arc[1]+(v?v.y:0),arc[2]+(v?v.z:0));}   // (the swing does the hanging and the righting)
+  else c.set(p.pos.x+(v?v.x:0),p.pos.y+(v?v.y:0)+eye,p.pos.z+(v?v.z:0));p.camera.rotation.set(p.cam.pitch,p.cam.yaw,lie*1.2);
   if(p.shake>0.002&&gameSpeed()>0){c.x+=(Math.random()-.5)*p.shake;c.y+=(Math.random()-.5)*p.shake;c.z+=(Math.random()-.5)*p.shake;}
+  const ex=c.x,ez=c.z;eyeRoom(c);
   const sw=p.biteT>0?1-p.biteT/(p.biteDur||0.38):0;
-  K.root.position.set(p.pos.x,p.pos.y+lie*0.15,p.pos.z);K.root.rotation.set(-lie*Math.PI/2,p.heading,0);
+  K.root.position.set(p.pos.x+c.x-ex,p.pos.y+lie*0.15,p.pos.z+c.z-ez);   // (his body comes off the wall with his eye)K.root.rotation.set(-lie*Math.PI/2,p.heading,0);
   K.m.legs[0].rotation.x=walking?sn*0.7:0;K.m.legs[1].rotation.x=walking?-sn*0.7:0;K.m.arm.rotation.x=sw>0?-0.5-1.9*Math.sin(sw*Math.PI):-0.5;
   // up and back until the blow lands (with the bite's own timing), down hard, and slowly back to the rest
   const raise=sw<0.42?1.1*sw/0.42:sw<0.55?1.1-1.7*(sw-0.42)/0.13:-0.6+0.6*(sw-0.55)/0.45;

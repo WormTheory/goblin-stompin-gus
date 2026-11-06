@@ -23,6 +23,12 @@ Passive  and after each is hurt: fleeing 0  hp 20
 clubbing a goblin in front, hp after each blow 3 2 1 dead  it fled false  hp mine 18
 a goblin behind me is not hit: hp 3 of 3
 climb a 6-high block: reached 6.00  on top 6.00  states walk,climb,piv  frames with the eye in a block 0
+up a wall                closest the eye came to a block 0.26  biggest move in a frame 0.16  frames on the wall 40+  states walk,climb,piv
+up and over the top      closest the eye came to a block 0.26  biggest move in a frame 0.16  frames on the wall 40+  states walk,climb,piv
+  ended on top 3.00
+round an outside corner  closest the eye came to a block 0.26  biggest move in a frame 0.14  frames on the wall 40+  states walk,climb,piv
+into an inside corner    closest the eye came to a block 0.26  biggest move in a frame 0.14  frames on the wall 40+  states walk,climb,piv
+up a wall to a ceiling   closest the eye came to a block 0.26  biggest move in a frame 0.22  frames on the wall 40+  states walk,climb,piv,ceil
 can look up to 1.40
 back as a hippo: size 0.64 1.23 1.78  model shown true  near 0.25  abilities as they were true  speeds true
 pitch clamped back to 0.55

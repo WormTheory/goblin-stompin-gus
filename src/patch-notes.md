@@ -18,6 +18,7 @@ Everything since the first release on GitHub.
 - **Gnash** is the playable goblin, and replaces the old "Play as a goblin" debug switch. In co-op both players are goblins: Gnash and his cousin Grizzle.
 - **Gertie** can now be played solo. In co-op, whoever player one picks, player two is the other hippo.
 - Gus and Gertie are the same hippo in everything but looks and voice: every move works exactly the same for both.
+- Climbing as Gnash no longer lets you see through the wall into the building. The view stays outside on walls, round corners and under ceilings.
 
 ### Goblins and enemies
 
