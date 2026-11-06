@@ -218,7 +218,7 @@ function updateGoblins(dt){
     else if(g.ff)moving=fireAI(g,dt);
     else if(g.news)moving=newsAI(g,dt);
     else if(g.homeV&&(!g.homeV.roused||calmNow()))moving=g.cultist?cultCalm(g,dt):guardCalm(g,dt);   // (at the altar or their posts, until something sets them off)
-    else if(g.civ||calmNow())moving=civAI(g,dt);   // (with hostility off, or to a fellow goblin, hostile goblins act like the townsfolk)
+    else if(g.civ||calmNow()&&!jackGrudge(g,dt))moving=civAI(g,dt);   // (with hostility off, or to a fellow goblin, hostile goblins act like the townsfolk -- not one you've just carjacked)
     else if(tgt){
       dx=tgt.p.pos.x-g.pos.x;dz=tgt.p.pos.z-g.pos.z;d=Math.hypot(dx,dz);
       // they can only club you if you're roughly level with them

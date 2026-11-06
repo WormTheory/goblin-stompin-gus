@@ -134,7 +134,7 @@ function spawnCiv(g){
 function squeal(d){const att=Math.max(0.08,1-d/28);tone('sawtooth',950+Math.random()*350,1500+Math.random()*300,0.2,0.045*att);tone('sine',1300,900,0.22,0.03*att,0.05);}
 function civAI(g,dt){
   if(!playing||g.stun>0)return false;
-  const thr=passiveNow()?null:nearestPlayer(g.pos.x,g.pos.z,true);   // (with hostility at Passive, nothing to run from)
+  const thr=jackFear(g,dt)||(passiveNow()?null:nearestPlayer(g.pos.x,g.pos.z,true));   // (with hostility at Passive, nothing to run from -- unless it's just been thrown out of its car)
   let speed=0,want=g.heading;
   if(thr&&thr.d<(g.vendor?9:14)){
     // a hippo! run, screaming

@@ -11,13 +11,17 @@ if(!TENVMODE)hdr=hdr.replace(/const LS=\{\};global\.localStorage=.*\n/,'global.l
 hdr=hdr.replace(/window\.__t=\{/,'window.__t={setGob,setVeh,VEH_MIX,keys,mHeld,TRAINS,railPt,BOATS,boatVenue,oceanDepth,PLANE_LIFT,drvFind,setRaw,solidAt,vehBlast,get nEdits(){return Object.keys(edits).length},');
 eval(hdr+`
 eval(src);const T=window.__t;let now=1000;
-const quiet=()=>{for(const g of T.goblins)if(g.state==='chase'){g.state='wait';g.t=-1e9;g.root.visible=false;}};
+const quiet=()=>{for(const g of T.goblins)if(g.state==='chase'&&!g.jackHow){g.state='wait';g.t=-1e9;g.root.visible=false;}};
 const run=s=>{for(let i=0;i<s*60;i++){quiet();now+=16.7;T.frame(now);}};
 const errs=[];const ce=console.error;console.error=(...a)=>{errs.push(a.join(" ").slice(0,300));};
 const P=T.players[0];for(const f of els.play.L.click)f();pads.length=0;run(2);
 const f1=v=>v.toFixed(1),G0=44;
 const hold=(ks,s)=>{for(const k of ks)T.keys.add(k);run(s);for(const k of ks)T.keys.delete(k);};
-const tap=()=>hold(['KeyF'],0.1);
+let lastJ=null;   // (getting in where someone's at the controls: the carjacking plays out first, then you're driving)
+const tap=()=>{hold(['KeyF'],0.1);const J=P.drv&&P.drv.jack;lastJ=null;if(J){let n=0;while(P.drv&&P.drv.jack&&n<60){run(0.1);n++;}lastJ=J;}};
+const jackSay=o=>{const J=lastJ;if(!J)return'  no one at the controls';const g=J.v;if(!g)return'  carjacked ('+J.kind+'), nobody to throw out';
+  const d0=Math.hypot(g.pos.x-o.x,g.pos.z-o.z);run(3);const d1=Math.hypot(g.pos.x-o.x,g.pos.z-o.z);
+  return'  carjacked ('+J.kind+', '+f1(J.T)+' s): the driver ('+(g.foeKind||(g.civ?'civilian':'hostile'))+', '+g.id.occ+') thrown '+f1(d0)+' clear, '+(g.jackHow==='flee'?'runs for it':'comes for you')+'; 3 s on: '+f1(d1)+' off, '+g.state;};
 const rfire=()=>{T.mHeld.add('Mouse2');run(0.05);T.mHeld.delete('Mouse2');run(0.05);};
 const ammo=o=>o.wpn?Object.values(o.wpn).map(s=>s.W.name+' '+s.n+'/'+s.W.max+(s.rl>0?' reloading '+s.rl.toFixed(1):'')).join(', '):'no magazine';
 const fire=()=>{T.mHeld.add('Mouse0');run(0.05);T.mHeld.delete('Mouse0');run(0.05);};
@@ -34,6 +38,7 @@ if(!TENVMODE){
 {let c=null;for(let k=0;k<60&&!c;k++){run(0.5);c=T.cars.filter(c=>c.alive&&c.g.visible&&!c.svcPool&&!c.police&&c.pos.y<G0+3&&Math.hypot(c.pos.x-P.pos.x,c.pos.z-P.pos.z)<90)[0];}
  if(!c)console.log('no car found');else{
   c.speed=0;beside(c.pos.x,c.pos.y+0.2,c.pos.z,c.heading,c.hx);run(0.05);tap();
+  console.log(jackSay(c.pos));
   console.log('car ('+c.veh+'): in',st(),' same car',P.drv&&P.drv.o===c,' camera behind it',f1(Math.hypot(P.camera.position.x-c.pos.x,P.camera.position.z-c.pos.z)));
   const x0=c.pos.x,z0=c.pos.z,h0=c.heading;hold(['KeyW'],2.5);const d=Math.hypot(c.pos.x-x0,c.pos.z-z0);
   console.log('  W 2.5 s: moved',f1(d),' speed',f1(c.speed),' still on the street (not recycled)',c.alive,' me with it',f1(Math.hypot(P.pos.x-c.pos.x,P.pos.z-c.pos.z)));
@@ -53,13 +58,16 @@ if(!TENVMODE){
   hold(['KeyS'],1.5);console.log('  S on: reversing',f1(c.speed));run(1);
   tap();console.log('  F again:',st(),' out beside it',f1(Math.hypot(P.pos.x-c.pos.x,P.pos.z-c.pos.z)),' left',!!c.left);
   run(3);console.log('  3 s later: car speed',f1(c.speed),' still there',c.alive);
-  hold(['KeyW'],1);console.log('  W on foot walks again: in',st());}}
+  hold(['KeyW'],1);console.log('  W on foot walks again: in',st());
+  // (another car, whose driver comes for you: forced to, here)
+  {const c2=null;   const c3=T.cars.filter(o=>o!==c&&o!==c2&&o.alive&&o.g.visible&&o.driver&&o.dh.visible&&!o.svcPool)[0];if(c3){c3.speed=0;beside(c3.pos.x,c3.pos.y+0.2,c3.pos.z,c3.heading,c3.hx);run(0.05);const R=Math.random;Math.random=()=>0.95;hold(['KeyF'],0.05);const J=P.drv&&P.drv.jack;while(P.drv&&P.drv.jack)run(0.1);Math.random=R;lastJ=J;console.log('another car, a driver who fights:',jackSay(c3.pos));const V=J.v;T.DT.invuln=false;const h0=P.hp;tap();run(6);console.log('  out of the car, 6 s: my hp',h0,'->',P.hp,' it',V.state,' dist',f1(Math.hypot(V.pos.x-P.pos.x,V.pos.z-P.pos.z)));T.DT.invuln=true;V.state='wait';V.root.visible=false;V.jackGrudge=0;c3.alive=false;c3.g.visible=false;}}}}
 
 // ---- a motorcycle (one of the traffic, made into one)
 {let c=null;for(let k=0;k<60&&!c;k++){run(0.5);c=T.cars.filter(c=>c.alive&&c.g.visible&&!c.svcPool&&!c.police&&!c.drv&&!c.left&&c.pos.y<G0+3&&Math.hypot(c.pos.x-P.pos.x,c.pos.z-P.pos.z)<90)[0];}
  console.log('motorcycles in the traffic mix:',Object.entries(T.VEH_MIX).map(([k,m])=>k+' '+((m.find(e=>e[0]==='bike')||[0,0])[1]*100)+'%').join(', '));
  if(!c)console.log('no car found');else{
   T.setVeh(c,'bike');c.speed=0;beside(c.pos.x,c.pos.y+0.2,c.pos.z,c.heading,c.hx);run(0.05);tap();
+  console.log(jackSay(c.pos));
   console.log('motorcycle: in',st(),' size',f1(c.hx*2),'x',f1(c.hz*2),' display says',P.ui.drvHud&&P.ui.drvHud.name.textContent);
   const x0=c.pos.x,z0=c.pos.z;hold(['KeyW'],2);console.log('  W 2 s: moved',f1(Math.hypot(c.pos.x-x0,c.pos.z-z0)),' speed',f1(c.speed));
   T.keys.add('KeyW');T.keys.add('KeyA');run(0.6);console.log('  W+A: leaning',f1(c.g.rotation.z),'(left is negative)');T.keys.delete('KeyA');run(0.6);T.keys.delete('KeyW');
@@ -94,6 +102,7 @@ const spawnK=k=>{T.tenvSpawn(k);let n=0;while(T.TS.search&&n<5000){T.tenvTick();
 {const B=spawnK('base');run(3);const V=[...T.venues.values()].find(v=>v.kind==='army');
  if(!V)console.log('no base');else{
   const M=V.mil.find(m=>m.kind==='tank');beside(M.x,M.y+0.2,M.z,M.h,1.6);run(0.05);tap();
+  console.log(jackSay(M));
   console.log('tank: in',st(),' base alerted',V.alert);
   const x0=M.x,z0=M.z,h0=M.h;hold(['KeyW'],3);console.log('  W 3 s: moved',f1(Math.hypot(M.x-x0,M.z-z0)),' speed',f1(M.sv));
   hold(['KeyA'],1.5);console.log('  A 1.5 s: turned on the spot',f1(M.h-h0-0),' moved',f1(Math.hypot(M.x-x0,M.z-z0)));
@@ -127,6 +136,7 @@ const spawnK=k=>{T.tenvSpawn(k);let n=0;while(T.TS.search&&n<5000){T.tenvTick();
   const mx=M.x;run(3);console.log('  3 s on: tank stays',f1(Math.abs(M.x-mx)));
   const H=V.mil.find(m=>m.kind==='heli');beside(H.x,H.y+0.2,H.z,H.h,1.0);run(0.05);tap();
   console.log('helicopter: in',st());
+  console.log(jackSay(H));
   run(2);const y0=H.y;hold(['Space'],3);console.log('  spin-up, then Jump 3 s: climbed',f1(H.y-y0),' rotor',f1(H.spin));
   const hx=H.x,hz=H.z;P.cam.yaw=Math.PI;hold(['KeyW'],3);console.log('  W 3 s, looking along +z: moved x',f1(H.x-hx),'z',f1(H.z-hz),' facing',f1(H.h));
   const r0=T.SHOTS.filter(s=>s.live&&s.kind==='rocket').length,b0=H.wpn.gun.n;fire();console.log('  bite (left click): rockets',T.SHOTS.filter(s=>s.live&&s.kind==='rocket').length-r0,' gun rounds used',b0-H.wpn.gun.n);

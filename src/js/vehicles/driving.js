@@ -38,7 +38,7 @@ function drvPose(D){const o=D.o;
   return{x:(Fa.x+Ba.x)/2,y:G+1.2,z:(Fa.z+Ba.z)/2,h:Math.atan2(Fa.x-Ba.x,Fa.z-Ba.z),hx:TRAIN_HX,hz:TRAIN_HZ,hy:TRAIN_H,v:T.v*T.dir};
 }
 function drvEnter(p,D){
-  const o=D.o;o.drv=p;p.drv=D;p.standCar=null;p.vcl=null;p.state='walk';p.vy=0;p.mvx=p.mvz=0;p.biteT=0;p.drvLook=-9;p.drvYaw=undefined;
+  const o=D.o,jack=jackable(D);o.drv=p;p.drv=D;p.standCar=null;p.vcl=null;p.state='walk';p.vy=0;p.mvx=p.mvz=0;p.biteT=0;p.drvLook=-9;p.drvYaw=undefined;
   if(D.k==='car'){o.hunter=false;o.path=null;o.rt=null;o.hw=null;o.parked=false;o.left=false;o.reverseT=0;o.makeWay=0;o.leaving=false;o.yieldSv=false;o.hazard=false;if(o.hazG)o.hazG.visible=false;}
   else if(D.k==='tank'||D.k==='heli'){o.state='drive';o.sv=0;o.hv={x:0,z:0};o.vy=0;o.cd=0;o.detour=0;wpnInit(o,D.k);o.rkHeld=true;}
   else if(D.k==='boat'){const g=o.g;D.V.lane=null;D.V.x=g.position.x;D.V.z=g.position.z;D.V.yaw=g.rotation.y;o.sp=0;}
@@ -46,12 +46,13 @@ function drvEnter(p,D){
   else if(D.k==='train'){o.wait=0;}
   // (the camera starts out behind it)
   p.cam.yaw=drvPose(D).h+Math.PI;p.cam.pitch=-0.25;
+  if(jack){jackStart(p,D);return;}   // (someone at the controls: they're thrown out first. See carjack.js)
   const k=drvKey(p),how=D.k==='heli'?'  ·  Jump climbs, Climb drops':D.k==='plane'?'  ·  Speed up, then Jump to take off':D.k==='tank'?'  ·  Bite fires':'';
   flashLabel('Driving the '+drvName(D)+'  ·  '+k+' to get out'+how,p);clang();
 }
 // out by the side (whichever has room), else the back or the front, else on the roof
 function drvExit(p,thrown){
-  const D=p.drv;if(!D)return;p.drv=null;const o=D.o;if(o.drv===p)o.drv=null;if(p.lockT)setLock(p,null);
+  const D=p.drv;if(!D)return;if(D.jack)jackEnd(p,D,true);p.drv=null;const o=D.o;if(o.drv===p)o.drv=null;if(p.lockT)setLock(p,null);
   const S=drvPose(D);
   if(D.k==='car')o.left=true;   // (left where it stopped: see updateCars)
   else if(D.k==='tank'||D.k==='heli'){if(!o.dead)o.state='idle';o.v=0;o.sv=0;}
@@ -67,18 +68,20 @@ function drvExit(p,thrown){
 // each step, before the goblin's own moves: in or out, and (while you're in) nothing else
 function drvTick(p,dt){
   const use=p.in.use&&!p.useHeld;p.useHeld=p.in.use;
+  if(p.drv&&p.drv.jack&&p.state!=='dead'){jackTick(p,dt);return true;}   // (still hauling the driver out)
   if(p.drv){if(use||p.state==='dead')drvExit(p);else{drvLock(p,dt);return true;}return false;}
   if(p.state==='dead'||p.state!=='walk'&&p.state!=='climb')return false;
   if(use){const D=drvFind(p);if(D){drvEnter(p,D);return true;}}
   // (a vehicle in reach: say so, once for each one you come up to)
   p.drvHintT=(p.drvHintT||0)-dt;if(p.drvHintT<=0){p.drvHintT=0.3;const D=drvFind(p),o=D?D.o:null;
-    if(o&&o!==p.drvHintO)flashLabel(drvKey(p)+'  Drive the '+drvName(D),p);p.drvHintO=o;}
+    if(o&&o!==p.drvHintO)flashLabel(drvKey(p)+(jackable(D)?'  Steal the ':'  Drive the ')+drvName(D),p);p.drvHintO=o;}
   return false;
 }
 // once every vehicle's moved: you're where your seat's got to (or, if it's been wrecked, thrown out)
 function drvSeat(p){
   const D=p.drv;if(!D)return;const o=D.o;
   if(D.k==='car'?!o.alive:o.dead||o.fall){drvExit(p,true);return;}
+  if(D.jack){jackPose(p);return;}
   const S=drvPose(D);p.pos.set(S.x,S.y+Math.min(1.2,S.hy*0.5),S.z);p.heading=S.h;
   p.vy=0;p.grounded=true;p.mvx=p.mvz=0;p.standCar=null;p.vcl=null;p.peakY=p.pos.y;p.biteT=0;
 }
@@ -131,7 +134,7 @@ function drvCamera(p){
 }
 // driving a car: much as a hunting car drives itself (updateCars does the rest: the ground, walls, what it runs into)
 function drvCar(c,dt){
-  const i=c.drv.in,thr=-i.z,st=-i.x,top=c.veh==='semi'||c.veh==='bus'?17:c.veh==='car'?24:c.veh==='bike'?28:20;
+  const i=drvIn(c.drv),thr=-i.z,st=-i.x,top=c.veh==='semi'||c.veh==='bus'?17:c.veh==='car'?24:c.veh==='bike'?28:20;
   if(c.grounded||rampUnder(c.pos.x,c.pos.z,c.pos.y+0.5)){
     if(thr>0.1)c.speed+=(c.speed<0?26:10)*thr*dt;else if(thr<-0.1)c.speed-=(c.speed>0?26:8)*-thr*dt;else c.speed*=Math.exp(-dt*0.9);}
   c.speed=Math.max(-8,Math.min(top,c.speed));
@@ -200,7 +203,7 @@ function tankRam(M,d,depth){
   if(broken.length){const o={force:1.2,dx:fx,dz:fz,up:1};rebuildSet(ch);save();destroyFX(broken.slice(0,120),o);settle(broken,o);pumpsHit(broken);}
   return broken.length;}
 function drvTank(M,dt){
-  const p=M.drv,i=p.in,thr=-i.z,st=-i.x;
+  const p=M.drv,i=drvIn(p),thr=-i.z,st=-i.x;
   M.sv+=(thr*7-M.sv)*Math.min(1,dt*1.5);
   {const nh=M.h+st*0.9*dt;if(!milBlocked(M,M.x,M.z,nh,M.y)||milBlocked(M,M.x,M.z,M.h,M.y))M.h=nh;}
   const A=drvAim(p,45);M.aim=A;M.tu=angTo(M.tu,Math.atan2(A.x-M.x,A.z-M.z)-M.h,1.4*dt);
@@ -222,7 +225,7 @@ function drvTank(M,dt){
 // flying a helicopter: it goes the way you push, relative to where you look, and turns to face that way; jump climbs,
 // climb (or dash) drops; bite fires a rocket where you're looking
 function drvHeli(M,dt){
-  const p=M.drv,i=p.in;M.spin+=(1-M.spin)*Math.min(1,dt*0.8);
+  const p=M.drv,i=drvIn(p);M.spin+=(1-M.spin)*Math.min(1,dt*0.8);
   const yaw=p.cam.yaw+Math.PI,fx=Math.sin(yaw),fz=Math.cos(yaw),f=-i.z,r=i.x;
   let wx=fx*f-Math.cos(yaw)*r,wz=fz*f+Math.sin(yaw)*r;const wm=Math.hypot(wx,wz);if(wm>1){wx/=wm;wz/=wm;}
   const up=(i.jump?1:0)-(i.climb||i.charge?1:0),lift=M.spin>0.8,k=Math.min(1,dt*1.5);
