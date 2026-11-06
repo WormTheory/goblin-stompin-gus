@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:131ca7992a71d32be220d06102e72c34298158d90bbc22f0c3ec7581132043d6 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:611db2a4e8b44afb1f5a19bcdf8b014360ec331638abe6d81fdd79afe6775f79 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -752,7 +752,7 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 <h3>Menus and debug tools</h3>
 <ul><li>A Patch notes tab in the main menu, with a "What's new" line on the title screen, and the same notes on the website at /patch-notes/.</li><li>A Sound list overlay names every sound as it plays, each by its own name: a tank firing, a dry-fire click, a reload and a helicopter's gun no longer show up as "Stone breaks" after something stony has been smashed.</li><li>In the quick debug menu, pick a slider with A before left and right move it, like the other menus.</li><li>The quick debug menu has a second tab, Show / hide (LB / RB or Tab), for choosing which switches the first tab lists, with Show all and Hide all at the top. Your choice is remembered.</li><li>The debug switches are only in the quick debug menu now. Game options keeps just the switch that allows it, which also shows or hides the Dev tab.</li><li>Button names on the screen (the controls hint, vehicle prompts, the weapon panel) are drawn as the same button pictures the menus use, for the keyboard, mouse or controller you're on.</li></ul>
 <h3>Bug fixes</h3>
-<ul><li>Pausing now freezes the whole city: a falling hippo or goblin hangs in mid-air, and cars, fires, rubble and everyone else stop until you resume. Pausing both players in co-op freezes it too.</li><li>The mouse no longer gets stuck moving a cursor during play. If the game loses the mouse (for example by resuming within a second of pressing Esc), a hint asks you to click, and one click takes it back.</li></ul>
+<ul><li>Pausing now freezes the whole city: a falling hippo or goblin hangs in mid-air, and cars, fires, rubble and everyone else stop until you resume. Pausing both players in co-op freezes it too.</li><li>The mouse no longer gets stuck moving a cursor during play. If the game loses the mouse (for example by resuming within a second of pressing Esc), a hint asks you to click, and one click takes it back.</li><li>In full screen on Chrome and Edge, tapping Esc now pauses the game without leaving full screen. Hold Esc to exit full screen. Other browsers still leave full screen on Esc, as they don't let games keep that key.</li></ul>
 </details>
 <p class="pn-earlier">Earlier updates</p>
 <details class="pn-up pn-fold" id="version-0-1"><summary tabindex="0"><h2>Version 0.1</h2><span class="pn-tog" aria-hidden="true"></span></summary>
@@ -19364,7 +19364,9 @@ addEventListener('keydown',e=>{
   if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();
   if(menuOpen||P1.paused)return;
   keys.add(e.code);
-  if(e.code==='Escape'&&dragMode)requestPause(P1);
+  // (Esc normally reaches the page only in drag mode, since the browser keeps it to let go of the mouse. In full
+  // screen the game claims Esc (see kbLock), so a tap comes here and pauses, and holding it leaves full screen.)
+  if(e.code==='Escape'&&!e.repeat&&!DT.kbdOpen)requestPause(P1);
 });
 addEventListener('keyup',e=>keys.delete(e.code));
 addEventListener('blur',()=>{keys.clear();mHeld.clear();});
@@ -20266,7 +20268,10 @@ function frame(now){
 const confirmEl=document.getElementById('confirm');
 // full screen: the whole page, toggled; the button says which way it will go
 {const fb=document.getElementById('fullBtn'),fsEl=()=>document.fullscreenElement||document.webkitFullscreenElement;
- const showFs=()=>{fb.textContent=fsEl()?'Exit full screen':'Full screen';};
+ const showFs=()=>{fb.textContent=fsEl()?'Exit full screen':'Full screen';kbLock();};
+ // in full screen, claim Esc where the browser allows it (Chrome and Edge: the Keyboard Lock API), so a tap of Esc
+ // pauses the game instead of dropping out of full screen; holding Esc still leaves. Elsewhere Esc works as before.
+ function kbLock(){try{const k=navigator.keyboard;if(!k||!k.lock)return;if(fsEl()){const r=k.lock(['Escape']);if(r&&r.catch)r.catch(()=>{});}else k.unlock();}catch(e){}}
  const can=document.fullscreenEnabled||document.webkitFullscreenEnabled;if(!can)fb.hidden=true;
  fb.addEventListener('click',()=>{try{if(fsEl()){(document.exitFullscreen||document.webkitExitFullscreen).call(document);}else{const el=document.documentElement,rq=el.requestFullscreen||el.webkitRequestFullscreen;const pr=rq&&rq.call(el);if(pr&&pr.catch)pr.catch(()=>{});}}catch(e){}});
  document.addEventListener('fullscreenchange',()=>{showFs();setTimeout(()=>{try{resize();}catch(e){}},50);});document.addEventListener('webkitfullscreenchange',showFs);showFs();}

@@ -2,7 +2,10 @@
 const confirmEl=document.getElementById('confirm');
 // full screen: the whole page, toggled; the button says which way it will go
 {const fb=document.getElementById('fullBtn'),fsEl=()=>document.fullscreenElement||document.webkitFullscreenElement;
- const showFs=()=>{fb.textContent=fsEl()?'Exit full screen':'Full screen';};
+ const showFs=()=>{fb.textContent=fsEl()?'Exit full screen':'Full screen';kbLock();};
+ // in full screen, claim Esc where the browser allows it (Chrome and Edge: the Keyboard Lock API), so a tap of Esc
+ // pauses the game instead of dropping out of full screen; holding Esc still leaves. Elsewhere Esc works as before.
+ function kbLock(){try{const k=navigator.keyboard;if(!k||!k.lock)return;if(fsEl()){const r=k.lock(['Escape']);if(r&&r.catch)r.catch(()=>{});}else k.unlock();}catch(e){}}
  const can=document.fullscreenEnabled||document.webkitFullscreenEnabled;if(!can)fb.hidden=true;
  fb.addEventListener('click',()=>{try{if(fsEl()){(document.exitFullscreen||document.webkitExitFullscreen).call(document);}else{const el=document.documentElement,rq=el.requestFullscreen||el.webkitRequestFullscreen;const pr=rq&&rq.call(el);if(pr&&pr.catch)pr.catch(()=>{});}}catch(e){}});
  document.addEventListener('fullscreenchange',()=>{showFs();setTimeout(()=>{try{resize();}catch(e){}},50);});document.addEventListener('webkitfullscreenchange',showFs);showFs();}

@@ -8,7 +8,9 @@ addEventListener('keydown',e=>{
   if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();
   if(menuOpen||P1.paused)return;
   keys.add(e.code);
-  if(e.code==='Escape'&&dragMode)requestPause(P1);
+  // (Esc normally reaches the page only in drag mode, since the browser keeps it to let go of the mouse. In full
+  // screen the game claims Esc (see kbLock), so a tap comes here and pauses, and holding it leaves full screen.)
+  if(e.code==='Escape'&&!e.repeat&&!DT.kbdOpen)requestPause(P1);
 });
 addEventListener('keyup',e=>keys.delete(e.code));
 addEventListener('blur',()=>{keys.clear();mHeld.clear();});
