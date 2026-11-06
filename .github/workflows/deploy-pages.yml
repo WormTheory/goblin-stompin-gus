@@ -1,10 +1,12 @@
-# Publishes the game/ folder to GitHub Pages on every push to main that changes it.
+# Publishes the game to GitHub Pages on every push to main or test that changes it.
+# main's game/ is the site's root and test's game/ goes under /test/, so either branch can be pushed on its own
+# and the other's copy stays as it was. (Every run builds both, from each branch's latest pushed commit.)
 
 name: Deploy game to Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, test]
     paths:
       - 'game/**'
       - '.github/workflows/deploy-pages.yml'
@@ -28,8 +30,25 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: live
+      - id: hastest
+        run: |
+          if git ls-remote --exit-code --heads "https://github.com/${{ github.repository }}" test >/dev/null; then
+            echo "yes=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.hastest.outputs.yes == 'true'
+        with:
+          ref: test
+          path: testsrc
+      - run: |
+          mkdir site
+          cp -r live/game/. site/
+          if [ -d testsrc/game ]; then mkdir -p site/test && cp -r testsrc/game/. site/test/; fi
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: game
+          path: site
       - id: deployment
         uses: actions/deploy-pages@v4
