@@ -1,40 +1,15 @@
 # Patch notes
 
-## November 5, 2026: Vehicle combat
+## Version 0.2
 
-Covers the work from late on November 4 through November 5.
-
-**Old saves reset.** Outdoor sites gained their own props, so cities saved before this update start fresh.
+Everything since the first release on GitHub.
 
 ### Highlights
 
-- Tanks and helicopters are proper fighting machines, with machine guns, rockets, shells that reload, lock-on and an aim marker that shows where each shot will really land.
-- Every vehicle now collides with every other, and cars and tanks crash straight through walls at speed.
-- Campsites, markets, cemeteries, quarries, zoos and dozens of other outdoor sites are dressed with props, and campsites have motorhomes to wreck.
+- Every vehicle now collides with every other, and a driven tank smashes straight through walls.
 - Enemy hostility is a three-step slider: Passive, Peaceful or Normal.
 - Goblins climb walls after Gus, and long falls now hurt them.
-- Toppling buildings and the distant city are far cheaper to draw, and arriving somewhere new stalls much less.
-- The game can be played on the web, and these notes live on their own page and in the main menu.
-
-### Driving and vehicle combat
-
-- In goblin mode, press F (Y on a controller) to get in and out of vehicles.
-- In a helicopter, bite (left click or RB) fires a machine gun and stomp (right click or RT) fires rockets.
-- Tank shells, the helicopter gun and rockets have magazines and reload times. An ammo panel shows what's left, with a reload bar and countdown, and firing with nothing loaded just clicks.
-- A driving display shows the vehicle's health, its weapon and a crosshair. The health box and ammo panel sit just above the hearts.
-- Lock on (Q, or R3 on a controller) to tanks and helicopters from your own, and the gun aims ahead of a moving target.
-- The camera sits higher and further back in tanks and helicopters. The aim marker follows the real path of the shell or rocket and marks where it will go off: faint when it would never land on anything, and orange at the screen edge when the spot is off-screen.
-- Tank shells and helicopter rockets blow bigger craters and damage vehicles, which jolt, smoke, burn and show health bars.
-- Crashing aircraft blow craters, and stopped helicopters and wrecks drop when the ground under them goes.
-- Driven cars climb one-block steps.
-- Motorcycles join the traffic and can be ridden in goblin mode. Parked ones no longer have a rider.
-- The get-out prompt shows Xbox button labels on Xbox controllers.
-
-### Crashes and collisions
-
-- A car hitting a wall faster than 13 blocks a second crushes a hole sized by its speed, takes heavy damage and carries on through. Slower bumps still bounce off.
-- A driven tank ramming a wall knocks out a hole as big as its front and keeps going at speed. It also fits under overhangs it can pass beneath.
-- All vehicles now collide with each other. Tanks no longer drive through a helicopter's tail, trains, planes, boats and rides push tanks and cars out of the way, and driven planes and boats stop or crash when they meet another vehicle.
+- These patch notes are now in the main menu and on their own page on the website.
 
 ### Goblins and enemies
 
@@ -43,44 +18,28 @@ Covers the work from late on November 4 through November 5.
 - **Enemy hostility** is now a slider on the main screen, in Game options and in the quick debug menu. Passive: nobody reacts to you, even when hit. Peaceful: nobody attacks, but people still run. Normal: they come for you. An old Peaceful setting carries over.
 - Playing as a goblin no longer calms everyone down. Hostility works just as it does for Gus.
 
-### Outdoor sites
+### Vehicles
 
-- Farmer's markets, camps, campsites, the cult altar, building sites, nurseries, trailer parks, cemeteries, mines, quarries, lumber camps, prepper, militia and thieves' compounds, ruins, dumps, parks, plazas, courts, lighthouses, power stations, zoos, theme parks, stadiums, arenas, car parks, bunkers and wrecked cars are all dressed with props.
-- Campsites have motorhomes parked on their pitches, and they can be wrecked like any parked car.
-- Campfires, the cult altar's included, are real fires now, but they don't spread and only hurt someone standing right on the wood.
+- All vehicles now collide with each other. Tanks no longer drive through a helicopter's tail, trains, planes, boats and rides push tanks and cars out of the way, and driven planes and boats stop or crash when they meet another vehicle.
+- A driven tank ramming a wall knocks out a hole as big as its front and keeps going at speed. It also fits under overhangs it can pass beneath.
+- Firing with nothing loaded just clicks, and the tank's last shell marker empties while it reloads.
+- The vehicle health box and ammo panel now sit just above the hearts.
+- The get-out prompt shows Xbox button labels on Xbox controllers.
+- Parked motorcycles no longer have a rider, and a ridden one's rider sits properly on it.
 
 ### Movement
 
 - Air dash comes back after Gus leaves the water, and can't be used while swimming.
 
-### Looks
+### Menus and debug tools
 
-- Distant buildings now match their full-detail look, with their real wall, window and roof colours, proper shading, lit windows at night, and grass, rain and snow that follow the seasons and weather.
-
-### Performance
-
-- Toppling buildings and everyday frames are much cheaper. On an RTX 4070 Ti SUPER at default settings, standing still went from 207 to 379 fps and toppling from 133 to 278 fps, and the worst toppling frame fell from 189 ms to 18 ms.
-- Distant chunks that have settled are drawn merged in groups, cutting draw calls from 971 to 311 at a detail distance of 512.
-- Places ahead are worked out a little each frame, so the worst frame while moving dropped from 80 ms to 22 ms.
-- Saves are packed much smaller, and the game says so on screen if storage fills up. Old saves still load.
-- Smoke plumes only thin out when frames are running long, and goblin route maps rescan less often.
-
-### Testing Environment
-
-- Spawn every kind of vehicle, hunting Gus or parked: cars, vans, pickups, trucks, semis, buses, fire engines, ambulances, news vans, motorcycles, police cars, tanks and helicopters.
-- A Plane button parks an airliner on the grass ahead of Gus, ready to get in and take straight off.
-- Spawned structures are built on the nearest clear ground in front of Gus, instead of moving Gus to them.
-- A Reset world button starts a fresh empty world, and spawned vehicles keep clear of each other.
-- The structures preview now finds a real housing estate.
-
-### Debug tools
-
+- A Patch notes tab in the main menu, with a "What's new" line on the title screen, and the same notes on the website at /patch-notes/.
 - A Sound list overlay names every sound as it plays.
 - In the quick debug menu, pick a slider with A before left and right move it, like the other menus.
 
-## November 2 to 4, 2026: The move to Claude Code
+## Version 0.1
 
-The first 92 changes after the game moved to Claude Code. Each entry describes where things ended up, so features that were reworked along the way appear once.
+Everything from the move to Claude Code on November 2, 2026, up to the first release on GitHub on November 5. Each entry describes where things ended up, so features that were reworked along the way appear once.
 
 **Old saves reset.** World generation changed many times, so cities saved before this update start fresh.
 
@@ -89,9 +48,11 @@ The first 92 changes after the game moved to Claude Code. Each entry describes w
 - Gus can spider-climb and ride moving vehicles, including trains, boats, planes and the roller coaster.
 - Trains, planes, boats, theme park rides and zoo animals can all be destroyed.
 - Cultists, thieves, preppers and militia now defend their sites, and military bases scramble real tanks and helicopters.
+- Tanks and helicopters are proper fighting machines, with machine guns, rockets, shells that reload, lock-on and an aim marker that shows where each shot will really land.
 - Goblins chase with real routes: they climb, jump gaps, swim and use stairs and doors.
-- Almost every building has been resized and furnished room by room, with stairs and bathrooms where they make sense.
-- Goblin mode lets you drive anything, and the new Testing Environment spawns any structure or enemy on demand.
+- Almost every building has been resized and furnished room by room, with stairs and bathrooms where they make sense, and outdoor sites are dressed with props.
+- Goblin mode lets you drive anything, and the new Testing Environment spawns any structure, vehicle or enemy on demand.
+- The game runs much faster, and can be played on the web.
 
 ### Enemies and goblins
 
@@ -127,6 +88,19 @@ The first 92 changes after the game moved to Claude Code. Each entry describes w
 - They're solid. Moving tanks run goblins down and ram cars.
 - Destroyed armour stays destroyed in your save. The base stands down 30 seconds after you leave.
 
+**Driving and vehicle combat**
+
+- In goblin mode, press F (Y on a controller) to get in or out of cars, trucks, trains, boats, tanks, helicopters and planes.
+- In a tank, bite fires a shell. In a helicopter, bite (left click or RB) fires a machine gun and stomp (right click or RT) fires rockets. In anything else, bite sounds the horn.
+- Tank shells, the helicopter gun and rockets have magazines and reload times, and an ammo panel shows what's left, with a reload bar and countdown.
+- A driving display shows the vehicle's health, its weapon and a crosshair.
+- Lock on (Q, or R3 on a controller) to tanks and helicopters from your own, and the gun aims ahead of a moving target.
+- The camera sits higher and further back in tanks and helicopters. The aim marker follows the real path of the shell or rocket and marks where it will go off: faint when it would never land on anything, and orange at the screen edge when the spot is off-screen.
+- Tank shells and helicopter rockets blow bigger craters and damage vehicles, which jolt, smoke, burn and show health bars.
+- Crashing aircraft blow craters, and stopped helicopters and wrecks drop when the ground under them goes.
+- Driven cars climb one-block steps.
+- Motorcycles join the traffic and can be ridden in goblin mode.
+
 **Trains**
 
 - Trains now have an engine at each end and reverse smoothly at the end of the line.
@@ -156,6 +130,7 @@ The first 92 changes after the game moved to Claude Code. Each entry describes w
 
 - Ordinary traffic now runs goblins down, not just police cars.
 - Trains, boats and planes crash when they meet.
+- A car hitting a wall faster than 13 blocks a second crushes a hole sized by its speed, takes heavy damage and carries on through. Slower bumps still bounce off.
 
 **News crews**
 
@@ -207,6 +182,12 @@ The first 92 changes after the game moved to Claude Code. Each entry describes w
 - Bathrooms now appear wherever they'd logically be, sized to the floor, with matching walls and swinging doors.
 - The university library has a second staircase at its far end.
 
+### Outdoor sites
+
+- Farmer's markets, camps, campsites, the cult altar, building sites, nurseries, trailer parks, cemeteries, mines, quarries, lumber camps, prepper, militia and thieves' compounds, ruins, dumps, parks, plazas, courts, lighthouses, power stations, zoos, theme parks, stadiums, arenas, car parks, bunkers and wrecked cars are all dressed with props.
+- Campsites have motorhomes parked on their pitches, and they can be wrecked like any parked car.
+- Campfires, the cult altar's included, are real fires now, but they don't spread and only hurt someone standing right on the wood.
+
 ### World, roads and coast
 
 **Roads and traffic**
@@ -228,21 +209,37 @@ The first 92 changes after the game moved to Claude Code. Each entry describes w
 
 - About 40 more parody chains, nine new billboards, and about 90 chains with their own goblin take on a logo.
 
+### Looks
+
+- Distant buildings now match their full-detail look, with their real wall, window and roof colours, proper shading, lit windows at night, and grass, rain and snow that follow the seasons and weather.
+
 ### Game modes and debug tools
 
-- **Testing Environment:** A new title screen mode with an empty, flat world. Spawn any structure, fully furnished, plus goblins, cultists, thieves, preppers, militia, police and civilians. Your own city is put aside and restored when you leave.
+**Testing Environment**
+
+- A new title screen mode with an empty, flat world. Your own city is put aside and restored when you leave.
+- Spawn any structure, fully furnished, on the nearest clear ground in front of Gus.
+- Spawn goblins, cultists, thieves, preppers, militia, police and civilians.
+- Spawn every kind of vehicle, hunting Gus or parked: cars, vans, pickups, trucks, semis, buses, fire engines, ambulances, news vans, motorcycles, police cars, tanks and helicopters. Spawned vehicles keep clear of each other.
+- A Plane button parks an airliner on the grass ahead of Gus, ready to get in and take straight off.
+- A Reset world button starts a fresh empty world.
+
+**Other tools**
+
 - **Play as a goblin:** A first-person debug mode with a club. Other goblins take you for one of their own.
-- **Drive anything in goblin mode:** Press E to get in or out of cars, trucks, trains, boats, tanks, helicopters and planes. Bite fires a tank's shell or a helicopter's rocket, and otherwise sounds the horn.
 - **Debug menu:** Now has sections and columns, with switches to hide props, fixtures, caves, sewers, subways and each part of the on-screen display.
-- **Structures previewer:** Shows each structure fully dressed, with signs, furniture, rides and animals. A new fly mode lets you explore interiors floor by floor.
+- **Structures previewer:** Shows each structure fully dressed, with signs, furniture, rides and animals. A new fly mode lets you explore interiors floor by floor. It now finds a real housing estate.
 - **Title screen:** Left and right change tab, on a controller and with the arrow keys.
 
 ### Performance
 
-- Street goblins and vehicles are now drawn in batches. With 400 goblins on screen, draw calls fell from 8,688 to about 620, and a typical street scene went from about 550 to about 350.
-- Crowding checks are far cheaper: about 38 ms down to 4 ms a frame with around 630 goblins.
-- The crowd slider now goes up to 3000%.
-- Goblin route maps take less time per frame while reaching further.
+- Toppling buildings and everyday frames are much cheaper. On an RTX 4070 Ti SUPER at default settings, standing still went from 207 to 379 fps and toppling from 133 to 278 fps, and the worst toppling frame fell from 189 ms to 18 ms.
+- Street goblins and vehicles are now drawn in batches. With 400 goblins on screen, draw calls fell from 8,688 to about 620.
+- Distant chunks that have settled are drawn merged in groups, cutting draw calls from 971 to 311 at a detail distance of 512.
+- Places ahead are worked out a little each frame, so the worst frame while moving dropped from 80 ms to 22 ms.
+- Crowding checks are far cheaper: about 38 ms down to 4 ms a frame with around 630 goblins. The crowd slider now goes up to 3000%.
+- Saves are packed much smaller, and the game says so on screen if storage fills up. Old saves still load.
+- Goblin route maps take less time per frame while reaching further, and rescan less often. Smoke plumes only thin out when frames are running long.
 
 ### Bug fixes
 
