@@ -19,4 +19,11 @@ const shot=async(nm,wpn,attack,wait)=>{await p.evaluate(w=>{const P=window.__G.p
   console.log(nm.padEnd(8),await p.evaluate(()=>{const e=document.querySelector('.gwpn'),x=document.querySelector('.gxh');return (e&&!e.hidden?e.textContent:'no bar')+' | crosshair '+(x&&!x.hidden);}));
   await p.screenshot({path:out+'/gobarms'+tag+'-'+nm+'.png'});if(attack){await p.mouse.up();await p.waitForTimeout(700);}};
 await shot('club','club',false);await shot('swing','club',true,120);await shot('dagger','dagger',false);await shot('stab','dagger',true,110);await shot('rifle','rifle',false);await shot('fire','rifle',true,40);
+// as the others see him (co-op), from the free cam set beside him: the weapon in hand on his own goblin
+await p.evaluate(()=>{const P=window.__G.players[0];P.cam.pitch=0;});
+await p.evaluate(()=>dispatchEvent(new KeyboardEvent('keydown',{code:'KeyV'})));await p.waitForTimeout(400);
+for(const w of ['club','dagger','rifle']){await p.evaluate(w=>{const P=window.__G.players[0];P.wpn=w;clearInterval(window.__fc);
+    window.__fc=setInterval(()=>{const h=P.heading,cx=P.pos.x+Math.cos(h)*2.2+Math.sin(h)*1.2,cz=P.pos.z-Math.sin(h)*2.2+Math.cos(h)*1.2;
+      window.__G.FC.pos.set(cx,P.pos.y+1.0,cz);window.__G.FC.yaw=Math.atan2(-(P.pos.x-cx),-(P.pos.z-cz));window.__G.FC.pitch=-0.1;},5);},w);
+  await p.waitForTimeout(600);await p.screenshot({path:out+'/gobarms'+tag+'-seen-'+w+'.png'});}
 console.log(errs.join('\n')||'no errors');await b.close();})();

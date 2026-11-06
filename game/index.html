@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:750e31b01d2b1b55d9baee7709d5b28f06ed638273a67f7a536bbe2488c9b6ba -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:4012dff97f6a6b68eb3661d5937b3511f7366fd64fa004fc0bf589d91cbe2da3 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -745,7 +745,7 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 <h3>Highlights</h3>
 <ul><li>A character select on the main menu: play as Gus, Gertie, or Gnash the goblin.</li><li>Every vehicle now collides with every other, and a driven tank smashes straight through walls.</li><li>Enemy hostility is a three-step slider: Passive, Peaceful or Normal.</li><li>Goblins climb walls after Gus, and long falls now hurt them.</li><li>These patch notes are now in the main menu and on their own page on the website.</li></ul>
 <h3>Characters</h3>
-<ul><li><strong>Character select:</strong> pick Gus, Gertie or Gnash on the title screen, and the game remembers your choice. Arrow keys and the d-pad move along the cards.</li><li><strong>Gnash</strong> is the playable goblin, and replaces the old "Play as a goblin" debug switch. In co-op both players are goblins: Gnash and his cousin Grizzle.</li><li><strong>Gertie</strong> can now be played solo. In co-op, whoever player one picks, player two is the other hippo.</li><li>Gus and Gertie are the same hippo in everything but looks and voice: every move works exactly the same for both.</li><li>Climbing as Gnash no longer lets you see through the wall into the building. The view stays outside on walls, round corners and under ceilings.</li><li><strong>Gnash can dash:</strong> tap Shift (pad B) to dash. With no direction held he dashes the way he's looking.</li><li><strong>Gnash's weapons:</strong> besides his club he can carry a dagger (quick stabs) and a rifle (shoots where you aim, with a crosshair). Kill an enemy carrying a weapon you haven't got and they drop it; walk over it to pick it up. R (pad d-pad right) switches weapons, and the bar by your hearts shows what you're carrying.</li><li><strong>Grenades</strong> stack, up to 9. Soldiers, preppers and militia drop them, and Gnash throws one with stomp (right click, RT). Pipe bombs are gone: preppers throw grenades too.</li><li>The controls hint shows Gnash's own moves while you play as him.</li></ul>
+<ul><li><strong>Character select:</strong> pick Gus, Gertie or Gnash on the title screen, and the game remembers your choice. Arrow keys and the d-pad move along the cards.</li><li><strong>Gnash</strong> is the playable goblin, and replaces the old "Play as a goblin" debug switch. In co-op both players are goblins: Gnash and his cousin Grizzle.</li><li><strong>Gertie</strong> can now be played solo. In co-op, whoever player one picks, player two is the other hippo.</li><li>Gus and Gertie are the same hippo in everything but looks and voice: every move works exactly the same for both.</li><li>Climbing as Gnash no longer lets you see through the wall into the building. The view stays outside on walls, round corners and under ceilings.</li><li><strong>Gnash can dash:</strong> tap Shift (pad B) to dash. With no direction held he dashes the way he's looking.</li><li><strong>Gnash's weapons:</strong> besides his club he can carry a dagger (quick stabs) and a rifle (shoots where you aim, with a crosshair). Kill an enemy carrying a weapon you haven't got and they drop it; walk over it to pick it up. R (pad d-pad right) switches weapons, and the bar by your hearts shows what you're carrying. In co-op, the other player sees the weapon in Gnash's hand.</li><li><strong>Grenades</strong> stack, up to 9. Soldiers, preppers and militia drop them, and Gnash throws one with stomp (right click, RT). Pipe bombs are gone: preppers throw grenades too.</li><li>The controls hint shows Gnash's own moves while you play as him.</li></ul>
 <h3>Goblins and enemies</h3>
 <ul><li>Goblins chasing Gus up a wall climb after him, and club him once they're level instead of waiting below.</li><li>Falls of more than 6 blocks hurt goblins, a point for every 2 blocks more, so a 16-block drop kills one. Water breaks the fall, and their routes no longer jump down drops that would hurt.</li><li><strong>Enemy hostility</strong> is now a slider on the main screen and in the quick debug menu. Passive: nobody reacts to you, even when hit. Peaceful: nobody attacks, but people still run. Normal: they come for you. An old Peaceful setting carries over.</li><li>Playing as a goblin no longer calms everyone down. Hostility works just as it does for Gus.</li></ul>
 <h3>Vehicles</h3>
@@ -10246,7 +10246,13 @@ function gobClub(p){
 function gobKit(p){
   if(p.gb)return p.gb;
   const root=new THREE.Group();root.rotation.order='YXZ';root.visible=false;root.scale.setScalar(ES);scene.add(root);
-  const m=goblinModel(root,{tunic:p.idx?0xa83232:0x3a5f8a});
+  const m=goblinModel(root,{club:false,tunic:p.idx?0xa83232:0x3a5f8a});
+  // (and what's in his hand, for the others to see: the weapon he's holding, the same shapes the enemies carry)
+  const tp={},tm=c=>new THREE.MeshLambertMaterial({color:c}),tb=(w,h,d,c,x,y,z,g)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),tm(c));o.position.set(x,y,z);g.add(o);};
+  for(const k of GOB_WPN_ORDER){tp[k]=new THREE.Group();m.arm.add(tp[k]);tp[k].visible=k==='club';}
+  tb(0.11,0.11,0.55,GC.club,0,-0.38,0.22,tp.club);tb(0.19,0.19,0.19,GC.club,0,-0.38,0.5,tp.club);
+  tb(0.08,0.08,0.12,0x2a1a10,0,-0.42,0.06,tp.dagger);tb(0.05,0.03,0.34,0xd0d4dc,0,-0.42,0.29,tp.dagger);
+  tb(0.1,0.3,0.14,0x4a3420,0,-0.36,0.06,tp.rifle);tb(0.07,0.62,0.07,0x22262c,0,-0.78,0.06,tp.rifle);tb(0.05,0.12,0.05,0x22262c,0,-0.52,0.13,tp.rifle);
   // (drawn last and over everything, so it never pokes through a wall you're stood against)
   const vm=new THREE.Group();vm.rotation.order='YXZ';vm.visible=false;vm.scale.setScalar(0.5);scene.add(vm);
   const arm=new THREE.Group();arm.position.set(0.52,-0.62,-0.72);vm.add(arm);
@@ -10258,7 +10264,7 @@ function gobKit(p){
   box(0.07,0.42,0.07,GC.club,0,0.17,-0.42,61,held.club);box(0.15,0.17,0.15,GC.club,0,0.42,-0.42,62,held.club);
   box(0.09,0.09,0.13,0x2a1a10,0,0.02,-0.44,61,held.dagger);box(0.14,0.04,0.04,0x6a5a3a,0,0.02,-0.52,61,held.dagger);box(0.025,0.05,0.34,0xd0d4dc,0,0.02,-0.71,62,held.dagger);   // (pointing forward, for stabbing)
   box(0.1,0.12,0.34,0x4a3420,0,0.02,-0.36,61,held.rifle);box(0.07,0.07,0.78,0x22262c,0,0.07,-0.86,62,held.rifle);box(0.05,0.12,0.05,0x22262c,0,-0.04,-0.6,62,held.rifle);
-  return p.gb={root,m,vm,arm,held};
+  return p.gb={root,m,vm,arm,held,tp};
 }
 // the first-person view, and the body that goes with it
 // Clinging to a wall he's 0.06 off its face (where a hippo's belly goes), well inside the near plane, so the view went
@@ -10308,10 +10314,12 @@ function gobCamera(p){
   const ex=c.x,ez=c.z;eyeRoom(c);
   const sw=p.biteT>0?1-p.biteT/(p.biteDur||0.38):0;
   K.root.position.set(p.pos.x+c.x-ex,p.pos.y+lie*0.15,p.pos.z+c.z-ez);   // (his body comes off the wall with his eye)K.root.rotation.set(-lie*Math.PI/2,p.heading,0);
-  K.m.legs[0].rotation.x=walking?sn*0.7:0;K.m.legs[1].rotation.x=walking?-sn*0.7:0;K.m.arm.rotation.x=sw>0?-0.5-1.9*Math.sin(sw*Math.PI):-0.5;
+  K.m.legs[0].rotation.x=walking?sn*0.7:0;K.m.legs[1].rotation.x=walking?-sn*0.7:0;
   // up and back until the blow lands (with the bite's own timing), down hard, and slowly back to the rest
   const raise=sw<0.42?1.1*sw/0.42:sw<0.55?1.1-1.7*(sw-0.42)/0.13:-0.6+0.6*(sw-0.55)/0.45;
-  const wk=gobArms(p).wpn;for(const k in K.held)K.held[k].visible=k===wk;
+  const wk=gobArms(p).wpn;for(const k in K.held)K.held[k].visible=k===wk;for(const k in K.tp)K.tp[k].visible=k===wk;
+  // (as the others see him: the rifle's held up at where he's looking and kicks when it fires; the club and dagger swing)
+  K.m.arm.rotation.x=wk==='rifle'?-Math.PI/2-p.cam.pitch+(p.biteT>0?0.25*Math.max(0,1-sw*4):0):sw>0?-0.5-1.9*Math.sin(sw*Math.PI):-0.5;
   // (switching: the new one comes up from below; the rifle's held level along the view and kicks when it fires)
   const up=Math.max(0,1-(camClock-(p.wpnT??-9))/0.25);
   if(wk==='rifle'){const kick=p.biteT>0?Math.max(0,1-sw*4):0;K.arm.rotation.x=0.04+0.22*kick;K.arm.position.set(0.34,-0.46-up*0.5+(walking?Math.abs(sn)*0.012:0),-0.5+0.12*kick);}

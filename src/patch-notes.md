@@ -20,7 +20,7 @@ Everything since the first release on GitHub.
 - Gus and Gertie are the same hippo in everything but looks and voice: every move works exactly the same for both.
 - Climbing as Gnash no longer lets you see through the wall into the building. The view stays outside on walls, round corners and under ceilings.
 - **Gnash can dash:** tap Shift (pad B) to dash. With no direction held he dashes the way he's looking.
-- **Gnash's weapons:** besides his club he can carry a dagger (quick stabs) and a rifle (shoots where you aim, with a crosshair). Kill an enemy carrying a weapon you haven't got and they drop it; walk over it to pick it up. R (pad d-pad right) switches weapons, and the bar by your hearts shows what you're carrying.
+- **Gnash's weapons:** besides his club he can carry a dagger (quick stabs) and a rifle (shoots where you aim, with a crosshair). Kill an enemy carrying a weapon you haven't got and they drop it; walk over it to pick it up. R (pad d-pad right) switches weapons, and the bar by your hearts shows what you're carrying. In co-op, the other player sees the weapon in Gnash's hand.
 - **Grenades** stack, up to 9. Soldiers, preppers and militia drop them, and Gnash throws one with stomp (right click, RT). Pipe bombs are gone: preppers throw grenades too.
 - The controls hint shows Gnash's own moves while you play as him.
 

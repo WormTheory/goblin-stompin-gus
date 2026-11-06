@@ -121,7 +121,13 @@ function gobClub(p){
 function gobKit(p){
   if(p.gb)return p.gb;
   const root=new THREE.Group();root.rotation.order='YXZ';root.visible=false;root.scale.setScalar(ES);scene.add(root);
-  const m=goblinModel(root,{tunic:p.idx?0xa83232:0x3a5f8a});
+  const m=goblinModel(root,{club:false,tunic:p.idx?0xa83232:0x3a5f8a});
+  // (and what's in his hand, for the others to see: the weapon he's holding, the same shapes the enemies carry)
+  const tp={},tm=c=>new THREE.MeshLambertMaterial({color:c}),tb=(w,h,d,c,x,y,z,g)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),tm(c));o.position.set(x,y,z);g.add(o);};
+  for(const k of GOB_WPN_ORDER){tp[k]=new THREE.Group();m.arm.add(tp[k]);tp[k].visible=k==='club';}
+  tb(0.11,0.11,0.55,GC.club,0,-0.38,0.22,tp.club);tb(0.19,0.19,0.19,GC.club,0,-0.38,0.5,tp.club);
+  tb(0.08,0.08,0.12,0x2a1a10,0,-0.42,0.06,tp.dagger);tb(0.05,0.03,0.34,0xd0d4dc,0,-0.42,0.29,tp.dagger);
+  tb(0.1,0.3,0.14,0x4a3420,0,-0.36,0.06,tp.rifle);tb(0.07,0.62,0.07,0x22262c,0,-0.78,0.06,tp.rifle);tb(0.05,0.12,0.05,0x22262c,0,-0.52,0.13,tp.rifle);
   // (drawn last and over everything, so it never pokes through a wall you're stood against)
   const vm=new THREE.Group();vm.rotation.order='YXZ';vm.visible=false;vm.scale.setScalar(0.5);scene.add(vm);
   const arm=new THREE.Group();arm.position.set(0.52,-0.62,-0.72);vm.add(arm);
@@ -133,7 +139,7 @@ function gobKit(p){
   box(0.07,0.42,0.07,GC.club,0,0.17,-0.42,61,held.club);box(0.15,0.17,0.15,GC.club,0,0.42,-0.42,62,held.club);
   box(0.09,0.09,0.13,0x2a1a10,0,0.02,-0.44,61,held.dagger);box(0.14,0.04,0.04,0x6a5a3a,0,0.02,-0.52,61,held.dagger);box(0.025,0.05,0.34,0xd0d4dc,0,0.02,-0.71,62,held.dagger);   // (pointing forward, for stabbing)
   box(0.1,0.12,0.34,0x4a3420,0,0.02,-0.36,61,held.rifle);box(0.07,0.07,0.78,0x22262c,0,0.07,-0.86,62,held.rifle);box(0.05,0.12,0.05,0x22262c,0,-0.04,-0.6,62,held.rifle);
-  return p.gb={root,m,vm,arm,held};
+  return p.gb={root,m,vm,arm,held,tp};
 }
 // the first-person view, and the body that goes with it
 // Clinging to a wall he's 0.06 off its face (where a hippo's belly goes), well inside the near plane, so the view went
@@ -183,10 +189,12 @@ function gobCamera(p){
   const ex=c.x,ez=c.z;eyeRoom(c);
   const sw=p.biteT>0?1-p.biteT/(p.biteDur||0.38):0;
   K.root.position.set(p.pos.x+c.x-ex,p.pos.y+lie*0.15,p.pos.z+c.z-ez);   // (his body comes off the wall with his eye)K.root.rotation.set(-lie*Math.PI/2,p.heading,0);
-  K.m.legs[0].rotation.x=walking?sn*0.7:0;K.m.legs[1].rotation.x=walking?-sn*0.7:0;K.m.arm.rotation.x=sw>0?-0.5-1.9*Math.sin(sw*Math.PI):-0.5;
+  K.m.legs[0].rotation.x=walking?sn*0.7:0;K.m.legs[1].rotation.x=walking?-sn*0.7:0;
   // up and back until the blow lands (with the bite's own timing), down hard, and slowly back to the rest
   const raise=sw<0.42?1.1*sw/0.42:sw<0.55?1.1-1.7*(sw-0.42)/0.13:-0.6+0.6*(sw-0.55)/0.45;
-  const wk=gobArms(p).wpn;for(const k in K.held)K.held[k].visible=k===wk;
+  const wk=gobArms(p).wpn;for(const k in K.held)K.held[k].visible=k===wk;for(const k in K.tp)K.tp[k].visible=k===wk;
+  // (as the others see him: the rifle's held up at where he's looking and kicks when it fires; the club and dagger swing)
+  K.m.arm.rotation.x=wk==='rifle'?-Math.PI/2-p.cam.pitch+(p.biteT>0?0.25*Math.max(0,1-sw*4):0):sw>0?-0.5-1.9*Math.sin(sw*Math.PI):-0.5;
   // (switching: the new one comes up from below; the rifle's held level along the view and kicks when it fires)
   const up=Math.max(0,1-(camClock-(p.wpnT??-9))/0.25);
   if(wk==='rifle'){const kick=p.biteT>0?Math.max(0,1-sw*4):0;K.arm.rotation.x=0.04+0.22*kick;K.arm.position.set(0.34,-0.46-up*0.5+(walking?Math.abs(sn)*0.012:0),-0.5+0.12*kick);}
