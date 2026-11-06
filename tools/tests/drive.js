@@ -8,7 +8,7 @@ hdr=hdr.slice(0,n).join('\n');
 // (site.js starts in the empty Testing Environment; the city half of this runs in a real city, and the other half is
 // run as a second process)
 if(!TENVMODE)hdr=hdr.replace(/const LS=\{\};global\.localStorage=.*\n/,'global.localStorage={getItem:()=>null,setItem(){},removeItem(){}};\n');
-hdr=hdr.replace(/window\.__t=\{/,'window.__t={setGob,setVeh,VEH_MIX,keys,mHeld,TRAINS,railPt,BOATS,boatVenue,oceanDepth,PLANE_LIFT,drvFind,setRaw,vehBlast,get nEdits(){return Object.keys(edits).length},');
+hdr=hdr.replace(/window\.__t=\{/,'window.__t={setGob,setVeh,VEH_MIX,keys,mHeld,TRAINS,railPt,BOATS,boatVenue,oceanDepth,PLANE_LIFT,drvFind,setRaw,solidAt,vehBlast,get nEdits(){return Object.keys(edits).length},');
 eval(hdr+`
 eval(src);const T=window.__t;let now=1000;
 const quiet=()=>{for(const g of T.goblins)if(g.state==='chase'){g.state='wait';g.t=-1e9;g.root.visible=false;}};
@@ -97,6 +97,7 @@ const spawnK=k=>{T.tenvSpawn(k);let n=0;while(T.TS.search&&n<5000){T.tenvTick();
   console.log('tank: in',st(),' base alerted',V.alert);
   const x0=M.x,z0=M.z,h0=M.h;hold(['KeyW'],3);console.log('  W 3 s: moved',f1(Math.hypot(M.x-x0,M.z-z0)),' speed',f1(M.sv));
   hold(['KeyA'],1.5);console.log('  A 1.5 s: turned on the spot',f1(M.h-h0-0),' moved',f1(Math.hypot(M.x-x0,M.z-z0)));
+  M.x=x0;M.z=z0;M.h=h0;M.sv=0;run(0.1);   // (back where it started, for the rest)
   P.cam.yaw=M.h+Math.PI+1.2;run(2);console.log('  turret follows the view: off by',f1(Math.abs(Math.atan2(Math.sin(M.h+M.tu-(P.cam.yaw+Math.PI)),Math.cos(M.h+M.tu-(P.cam.yaw+Math.PI))))));
   {const H=P.ui.drvHud;console.log('  display: shown',!H.el.hidden,' crosshair',!H.xh.hidden,' gun marker',!H.xt.hidden,' says',H.name.textContent,'|',H.wpn.textContent);}
   // (the gun marker shows where the shot really goes off: aimed too high, the gun can't follow, and it says so)
@@ -115,6 +116,11 @@ const spawnK=k=>{T.tenvSpawn(k);let n=0;while(T.TS.search&&n<5000){T.tenvTick();
    P.cam.yaw+=2;run(2.5);const a=M.h+M.tu,off=Math.atan2(Math.sin(a-Math.atan2(o.x-M.x,o.z-M.z)),Math.cos(a-Math.atan2(o.x-M.x,o.z-M.z))),h1=o.hp;fire();run(3);
    console.log('  looking well away: turret off the target by',f1(Math.abs(off)),' bite: its hp',h1,'->',o.hp);
    hold(['KeyQ'],0.1);console.log('  Q again: locked',!!P.lockT);}
+  // (a brick wall in its way: at speed it goes straight through, leaving a hole as big as the tank)
+  {const fx=Math.sin(M.h),fz=Math.cos(M.h),y0=Math.floor(M.y),e0=T.nEdits,cells=[];for(let l=-4;l<=4;l++)for(let a=9;a<11;a++){const x=Math.floor(M.x+fx*a+fz*l),z=Math.floor(M.z+fz*a-fx*l);for(let y=y0;y<y0+5;y++){T.setRaw(x,y,z,11);cells.push([x,y,z]);}}
+   P.cam.yaw=M.h+Math.PI;P.cam.pitch=-0.1;const x0=M.x,z0=M.z;hold(['KeyW'],3.5);const gone=cells.filter(([x,y,z])=>!T.solidAt(x,y,z)).length;
+   console.log('  driven into a brick wall 5 high: went on',f1((M.x-x0)*fx+(M.z-z0)*fz),' speed',f1(M.sv),' wall blocks knocked out',gone,'of',cells.length);hold(['KeyS'],0.5);}
+  {const S=M.wpn.shell;S.n=0;S.rl=2;S.ck=0;fire();console.log('  bite with nothing loaded: clicks',S.ck>0);}
   tap();run(1);console.log('  F again:',st(),' tank',M.state,' me beside it',f1(Math.hypot(P.pos.x-M.x,P.pos.z-M.z)));
   {const o=V.mil.find(m=>m.kind==='tank'&&m!==M&&!m.dead),c=P.camera.position;P.cam.yaw=Math.atan2(P.pos.x-o.x,P.pos.z-o.z);run(0.3);hold(['KeyQ'],0.1);
    console.log('  on foot, Q facing a tank:',P.lockT?(P.lockT.isMil?'locked on the '+P.lockT.kind:'locked on something else'):'nothing locked',' its hp',o.hp);hold(['KeyQ'],0.1);}

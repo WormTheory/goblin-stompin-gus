@@ -9,7 +9,7 @@ function drvName(D){const o=D.o;
   return DRV_NAME[D.k];
 }
 // the key (or button) that gets you in and out, as bound
-function drvKey(p){const B=BINDS.use;if(p.pad)return padLabel(B.pad[0],padStyle);return keyLabel(B.kb.find(c=>!c.startsWith('Mouse'))||B.kb[0]);}
+function drvKey(p){const B=BINDS.use;if(p.pad)return padLabel(B.pad[0],padStyle==='ps');return keyLabel(B.kb.find(c=>!c.startsWith('Mouse'))||B.kb[0]);}
 // the vehicle nearest you that you could get into: within reach of its box, and about level with it
 function drvFind(p){
   const R=1.8,px=p.pos.x,pz=p.pos.z,py=p.pos.y;let best=null,bd=1e9;
@@ -144,9 +144,12 @@ function drvCar(c,dt){
 const DRV_WPN={tank:[{k:'shell',name:'Shells',max:4,gap:1.2,reload:5}],
   heli:[{k:'gun',name:'Gun',max:40,gap:0.09,reload:3},{k:'rkt',name:'Rockets',max:4,gap:0.6,reload:6}]};
 function wpnInit(o,kind){if(!o.wpn){o.wpn={};for(const W of DRV_WPN[kind]||[])o.wpn[W.k]={n:W.max,cd:0,rl:0,W};}}
-function wpnTick(o,dt){for(const k in o.wpn||{}){const s=o.wpn[k];s.cd-=dt;if(s.rl>0){s.rl-=dt;if(s.rl<=0){s.rl=0;s.n=s.W.max;if(audio)tone('square',380,520,0.08,0.03);}}}}
-function wpnFire(o,k){const s=o.wpn&&o.wpn[k];if(!s||s.rl>0||s.cd>0||s.n<=0)return false;
+function wpnTick(o,dt){for(const k in o.wpn||{}){const s=o.wpn[k];s.cd-=dt;s.ck=(s.ck||0)-dt;if(s.rl>0){s.rl-=dt;if(s.rl<=0){s.rl=0;s.n=s.W.max;if(audio)tone('square',380,520,0.08,0.03);}}}}
+// (pulling the trigger with nothing loaded clicks: once a press, or every quarter second held)
+function wpnFire(o,k){const s=o.wpn&&o.wpn[k];if(!s)return false;
+  if(s.rl>0||s.n<=0){if(!(s.ck>0)){s.ck=0.25;wpnClick();}return false;}if(s.cd>0)return false;
   s.n--;s.cd=s.W.gap;if(s.n<=0){s.rl=s.W.reload;if(audio)tone('square',300,180,0.12,0.03);}return true;}
+function wpnClick(){if(audio){tone('square',2400,1500,0.018,0.05);tone('triangle',900,600,0.03,0.04,0.035);}}
 // the helicopter's machine gun, one round: down the line to where you're aiming (led onto a locked target), a little
 // scattered, to the first goblin, vehicle or wall in the way; a tracer and a puff where it hits
 function heliGun(M,p){
@@ -183,6 +186,19 @@ function shotPath(F,grav,fuse,own,A){
     x=nx;y=ny;z=nz;if(!mid&&Math.hypot(x-F.x,z-F.z)>=hd)mid={x,y,z};if(k%3===0){_sp.pos.set(x,y,z);if(shotHitsVeh(_sp))return{x,y,z,air:false};}}
   return mid?{...mid,air:true}:{x,y,z,air:true};}
 // driving a tank: turns on the spot, forward and back; the turret follows where you look, and bite fires a shell there
+// a tank shoving into a wall: everything in front of it as wide and tall as the tank (a little ragged round the edge)
+// is knocked out, `depth` blocks deep past its nose (d: 1 going forward, -1 backing)
+function tankRam(M,d,depth){
+  const I=MIL[M.kind],fx=Math.sin(M.h)*d,fz=Math.cos(M.h)*d,y0=Math.floor(M.y+0.05),y1=Math.floor(M.y+I.hy+0.6),W=I.hx+0.45,E=Math.ceil(I.hz+depth+W)+1;
+  const ch=new Set(),broken=[],cx0=Math.floor(M.x),cz0=Math.floor(M.z);
+  if(SBX)return 0;knockProps(M.x+fx*(I.hz+1),M.y+1,M.z+fz*(I.hz+1),W+1,fx,fz);
+  for(let bz=cz0-E;bz<=cz0+E;bz++)for(let bx=cx0-E;bx<=cx0+E;bx++){const rx=bx+0.5-M.x,rz=bz+0.5-M.z,a=rx*fx+rz*fz,l=Math.abs(rx*fz-rz*fx);
+    for(let by=y0;by<=y1+1;by++){const rag=0.45*hash2(bx*7+by*3,bz*11+by);if(a<I.hz-0.7||a>I.hz+depth+rag||l>W+rag||by===y1+1&&rag<0.3)continue;
+      const b=get(bx,by,bz);if(b===AIR||b===WATER||b===BEDROCK||by<1||by>=H)continue;
+      setRaw(bx,by,bz,AIR);addEdit(bx,by,bz,AIR);broken.push({x:bx,y:by,z:bz,b});
+      for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((bx+ox)/CS),Math.floor((bz+oz)/CS)));}}
+  if(broken.length){const o={force:1.2,dx:fx,dz:fz,up:1};rebuildSet(ch);save();destroyFX(broken.slice(0,120),o);settle(broken,o);pumpsHit(broken);}
+  return broken.length;}
 function drvTank(M,dt){
   const p=M.drv,i=p.in,thr=-i.z,st=-i.x;
   M.sv+=(thr*7-M.sv)*Math.min(1,dt*1.5);
@@ -192,10 +208,11 @@ function drvTank(M,dt){
   wpnTick(M,dt);if(i.bitePress&&wpnFire(M,'shell')){const mx=F.x,my=F.y,mz=F.z;
     shot({kind:'shell',x:mx,y:my,z:mz,vx:F.vx,vy:F.vy,vz:F.vz,grav:2,fuse:4,R:4.5,dmg:4,cause:'Blown up by a goblin in a tank',crush:3.2,vd:60,own:M});
     smoke(mx,my,mz,4,0x8a8a80);puff(mx,my,mz,4,0xffc040,0.3);if(audio){noise(0.6,0.6,350,'lowpass');tone('sawtooth',70,30,0.5,0.15);}addShake(0.3,M.x,M.z,30);}
-  // (anything more than a block up stops it; leaning on it a moment, it smashes through)
+  // (anything more than a block up, below the top of the tank, stops it -- what's overhead it passes under; leaning on
+  // it a moment, or hitting it at speed, it smashes through)
   if(Math.abs(M.sv)>0.05){const d=M.sv<0?-1:1,fx=Math.sin(M.h)*d,fz=Math.cos(M.h)*d,ax=M.x+fx*3,az=M.z+fz*3;
-    if(groundAt(ax,az,M.y+2)-M.y>1.05||groundAt(ax-fz*1.2,az+fx*1.2,M.y+2)-M.y>1.05||groundAt(ax+fz*1.2,az-fx*1.2,M.y+2)-M.y>1.05){M.sv*=0.5;M.stuck+=dt;
-      if(M.stuck>0.5||Math.abs(M.sv)>2.2){M.stuck=0;{const fast=Math.abs(M.sv)>2.2;crushBall(ax,M.y+(fast?2.5:1),az,fast?2.4:1.8);};clang();if(Math.abs(M.sv)>2.2)addShake(0.5,ax,az,25);}}   // (rammed at speed, it's straight through)
+    if(groundAt(ax,az,M.y+1.1)-M.y>1.05||groundAt(ax-fz*1.2,az+fx*1.2,M.y+1.1)-M.y>1.05||groundAt(ax+fz*1.2,az-fx*1.2,M.y+1.1)-M.y>1.05){const fast=Math.abs(M.sv)>2.2;M.sv*=fast?0.8:0.5;M.stuck+=dt;
+      if(M.stuck>0.5||fast){M.stuck=0;tankRam(M,d,fast?1.8:1.1);clang();if(fast)addShake(0.5,ax,az,25);}}   // (rammed at speed, it's straight through)
     else{const nx=M.x+Math.sin(M.h)*M.sv*dt,nz=M.z+Math.cos(M.h)*M.sv*dt;
       if(milBlocked(M,nx,nz,M.h,M.y)&&!milBlocked(M,M.x,M.z,M.h,M.y))M.sv=0;else{M.stuck=0;M.x=nx;M.z=nz;}}}
   M.v=Math.max(0,M.sv);

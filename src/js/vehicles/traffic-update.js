@@ -59,6 +59,7 @@ function updateCars(dt){
     if(gone&&c.pullPool){c.hazard=false;c.hazG.visible=false;c.pullLit=false;}
     if(gone){if(c.svcPool){svcDone(c);continue;}c.alive=false;c.g.visible=false;c.respawnT=c.police?6:0.5;c.hunter=false;c.spot=null;continue;}
     c.hurt-=dt;c.ramCD-=dt;c.honkT-=dt;
+    if(c.veh==='bike'){const R=c.vehG.bike.rider;if(R.visible!==c.dh.visible)R.visible=c.dh.visible;}   // (a motorcycle's rider goes with its driver)
     c.snowChk=(c.snowChk||0)-dt;if(c.snowChk<=0){c.snowChk=0.6+Math.random()*0.4;const cx=Math.floor(c.pos.x),cz=Math.floor(c.pos.z);let open=true;for(let y=Math.floor(c.pos.y)+3;y<Math.min(H,c.pos.y+45);y++)if(solidAt(cx,y,cz)){open=false;break;}c.snowOpen=open;}
     c.snowU.value+=((c.snowOpen?WX.snowCover:0)-c.snowU.value)*Math.min(1,dt*0.4);
     c.paint.emissive.setHex(c.hurt>0?0x441100:0x000000);
