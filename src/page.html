@@ -17,6 +17,7 @@
   <div class="sndlist" id="sndList" hidden aria-hidden="true"></div>
   <div class="dbgpad" id="dbgPad" hidden>
     <h4>DEBUG <span id="dpHint">game paused</span><button type="button" class="dpx" id="dpClose" aria-label="Close the debug menu">✕</button></h4>
+    <div class="dptabs" id="dpTabs" role="tablist"></div>
     <div id="dpRows"></div>
     <p class="dpfoot" id="dpFoot"></p><div class="prompts small" id="dpPrompts"></div>
   </div>
@@ -180,73 +181,9 @@
     <div class="custom">
       <h2>DEBUG</h2>
       <div class="abil" id="dbgMenuTog">
-        <button type="button" class="tog" role="checkbox" data-k="quick"><span class="box" aria-hidden="true"></span><span class="tl">Debug quick menu<small>Press SELECT on a controller, or ~ on the keyboard, to pause and open a menu of these debug switches (press it again to close)</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="quick"><span class="box" aria-hidden="true"></span><span class="tl">Debug menu<small>Press SELECT on a controller, or ~ on the keyboard, to pause and open the debug menu (press it again to close). Also shows the Dev tab here</small></span></button>
       </div>
-      <p class="vnote">In the quick menu: the left stick (or arrow keys / W A S D) moves the highlight, A (or Space / Enter) switches the highlighted item, and left / right move to the next column. To change a slider, pick it with A first: then left / right move it, and A, B or Esc (or moving up or down) lets it go. Weather and season open a list with A.<br>Keyboard: [ and ] slow down and speed up. In the free cam: WASD or the left stick fly, the mouse or right stick look, Space / RT rise, C / LT sink, Shift / B goes fast. Gus stands still while you fly.<br>Flying (cheat): hold Space / A to rise, C / LB to sink, let go to hover.</p>
-    </div>
-    <div class="dbgcols">
-    <div class="custom">
-      <h2>DEBUG: TIME &amp; CAMERA</h2>
-      <div class="crow"><input type="range" id="gameSpeed" class="vrange" min="0" max="9" step="1" value="6" aria-label="Game speed"><span class="vval" id="gameSpeedVal">1×</span></div>
-      <div class="crow"><input type="range" id="worldCurve" class="vrange" min="-10" max="10" step="1" value="2" aria-label="World curve"><span class="vval" id="worldCurveVal">Down 2</span></div>
-      <p class="vnote">Game speed, then world curve: bends the world away below the horizon like a tiny planet (right), or up into a bowl (left).</p>
-      <div class="abil" id="dbgTime">
-        <button type="button" class="tog" role="checkbox" data-k="paused"><span class="box" aria-hidden="true"></span><span class="tl">Stop time<small>Everything stops; the free cam still flies. Keyboard: P, and . steps one frame</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="freecam"><span class="box" aria-hidden="true"></span><span class="tl">Free cam<small>Fly Gus's camera anywhere, apart from him. Keyboard: V</small></span></button>
-      </div>
-    </div>
-    <div class="custom">
-      <h2>DEBUG: PLAYER</h2>
-      <div class="crow"><input type="range" id="playerSpeed" class="vrange" min="0" max="11" step="1" value="0" aria-label="Player speed"><span class="vval" id="playerSpeedVal">1×</span></div>
-      <p class="vnote">Player speed: how fast Gus and Gertie walk and trample, up to ten times normal.</p>
-      <div class="crow"><input type="range" id="hostility" class="vrange" min="0" max="2" step="1" value="2" aria-label="Enemy hostility"><span class="vval" id="hostilityVal">Normal</span></div>
-      <p class="vnote">Enemy hostility. Normal: hostile goblins attack, and cars, police and soldiers hunt you. Peaceful: none of them come for you, but the townsfolk still run from you. Passive: nobody reacts to you at all, not even to being hit (they still get hurt). The same as the main screen's slider.</p>
-      <div class="abil" id="dbgCheat">
-        <button type="button" class="tog" role="checkbox" data-k="invuln"><span class="box" aria-hidden="true"></span><span class="tl">Invulnerable<small>Nothing hurts the hippos: goblins, traffic, fire, blasts or falls</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="infStam"><span class="box" aria-hidden="true"></span><span class="tl">Infinite stamina<small>Trample and air-dash as long as you like without running out of breath</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="fly"><span class="box" aria-hidden="true"></span><span class="tl">Flying<small>Hold jump (Space / A) to rise, C / LB to sink; let go to hover. Ground pound to drop</small></span></button>
-      </div>
-    </div>
-    <div class="custom">
-      <h2>DEBUG: RENDERING</h2>
-      <p class="vnote">Stops these being drawn; they're still really there, so you can fall into a cave you can't see, and props still get in the way. They come back on when you reload the game.</p>
-      <div class="abil" id="dbgGfx">
-        <button type="button" class="tog" role="checkbox" data-k="gProps"><span class="box" aria-hidden="true"></span><span class="tl">Props<small>Furniture and other things made of small boxes, benches and litter bins included</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="gFixtures"><span class="box" aria-hidden="true"></span><span class="tl">Fixtures<small>Lamp posts, traffic lights, road signs, flags, billboards, power line cables and stair handrails</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="gCaves"><span class="box" aria-hidden="true"></span><span class="tl">Caves<small>Caverns, tunnels and cave mouths</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="gSewers"><span class="box" aria-hidden="true"></span><span class="tl">Sewers<small>The tunnels under the streets and their stairwells</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="gSubway"><span class="box" aria-hidden="true"></span><span class="tl">Subways<small>Tunnels, stations, their stairs and the trains</small></span></button>
-      </div>
-    </div>
-    <div class="custom">
-      <h2>DEBUG: OVERLAYS</h2>
-      <div class="abil" id="dbgOverlays">
-        <button type="button" class="tog" role="checkbox" data-k="fps"><span class="box" aria-hidden="true"></span><span class="tl">FPS counter<small>Frames per second and frame time, at the top of the screen</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="hpBars"><span class="box" aria-hidden="true"></span><span class="tl">Health bars<small>A bar over every goblin, civilian, car and hippo that can be hurt</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="dmgNums"><span class="box" aria-hidden="true"></span><span class="tl">Damage numbers<small>Each hit's damage pops up where it lands</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="sndList"><span class="box" aria-hidden="true"></span><span class="tl">Sound list<small>Every sound by name, down the left: lit while it plays, then fading over 2 seconds</small></span></button>
-      </div>
-    </div>
-    <div class="custom wide">
-      <h2>DEBUG: INTERFACE</h2>
-      <p class="vnote">Hides each part of the on-screen display, for both players. They come back when you reload the game.</p>
-      <div class="abil" id="dbgUi"></div>
-    </div>
-    <div class="custom wide">
-      <h2>DEBUG: HITBOXES</h2>
-      <p class="vnote">Outlines what each attack and hazard actually checks. Hit volumes flash for a moment when used; hurtboxes follow their owners. Players are Gus and Gertie; NPCs are goblins, civilians, cars, and the explosions, fires and falling buildings they set off.</p>
-      <div class="abil" id="dbgShow">
-        <button type="button" class="tog" role="checkbox" data-k="show"><span class="box" aria-hidden="true"></span><span class="tl">Display hitboxes<small>Show the hitbox outlines; pick which kinds below</small></span></button>
-      </div>
-      <div class="abil" id="dbgList">
-        <button type="button" class="tog" role="checkbox" data-k="pBlock"><span class="box" aria-hidden="true"></span><span class="tl"><span><i class="sw" style="background:#ff9a2a"></i>Player block hitboxes</span><small>Where Gus and Gertie break blocks</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="nBlock"><span class="box" aria-hidden="true"></span><span class="tl"><span><i class="sw" style="background:#e8d040"></i>NPC block hitboxes</span><small>Blasts and wrecks breaking blocks</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="pDmg"><span class="box" aria-hidden="true"></span><span class="tl"><span><i class="sw" style="background:#ff3a3a"></i>Player damage hitboxes</span><small>Where the hippos' attacks hurt goblins and cars</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="nDmg"><span class="box" aria-hidden="true"></span><span class="tl"><span><i class="sw" style="background:#ff4fd8"></i>NPC damage hitboxes</span><small>Goblin jabs, cars, blasts and fire</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="pHurt"><span class="box" aria-hidden="true"></span><span class="tl"><span><i class="sw" style="background:#46f06a"></i>Player hurtboxes</span><small>Gus and Gertie's bodies</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="nHurt"><span class="box" aria-hidden="true"></span><span class="tl"><span><i class="sw" style="background:#46d4ff"></i>NPC hurtboxes</span><small>Goblins, civilians and cars</small></span></button>
-      </div>
-    </div>
+      <p class="vnote">In the quick menu: the left stick (or arrow keys / W A S D) moves the highlight, A (or Space / Enter) switches the highlighted item, and left / right move to the next column. To change a slider, pick it with A first: then left / right move it, and A, B or Esc (or moving up or down) lets it go. Weather and season open a list with A. LB / RB (or Tab) switch to the Show / hide tab, where A picks which switches the first tab lists.<br>Keyboard: [ and ] slow down and speed up. In the free cam: WASD or the left stick fly, the mouse or right stick look, Space / RT rise, C / LT sink, Shift / B goes fast. Gus stands still while you fly.<br>Flying (cheat): hold Space / A to rise, C / LB to sink, let go to hover.</p>
     </div>
     </div>
     </div>

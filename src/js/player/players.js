@@ -143,8 +143,8 @@ function addShake(amt,x,z,radius=20){if(SBX)return;for(const p of players){if(!p
 // seconds (a repeat of the newest just refreshes it), and at most four show at once
 function flashLabel(s,who){if(SBX)return;for(const p of (who?[who]:players)){if(!p.active)continue;const box=p.ui.label;if(!box)continue;try{
   let el=box.lastElementChild;
-  if(el&&el.textContent===s&&!el.classList.contains('old')){clearTimeout(el._t);}
-  else{el=document.createElement('div');el.className='lbl';el.textContent=s;box.append(el);
+  if(el&&el._s===s&&!el.classList.contains('old')){clearTimeout(el._t);}
+  else{el=document.createElement('div');el.className='lbl';el._s=s;el.innerHTML=hudHTML(s);box.append(el);
     const live=Array.from(box.children||[]).filter(c=>!c.classList.contains('old'));while(live.length>4){const o=live.shift();clearTimeout(o._t);o.remove();}}
   el._t=setTimeout(()=>{el.classList.add('old');setTimeout(()=>el.remove(),400);},2400);}catch(e){}}}
 const HIPPO_FEET=[[0,0],[.55,.9],[-.55,.9],[.55,-.9],[-.55,-.9]].map(([a,b])=>[a*ES,b*ES]);let HIPPO_PTS=HIPPO_FEET;   // (setGob swaps these sizes for a goblin's)

@@ -52,9 +52,17 @@ const actOf=id=>ACTS.find(a=>a.id===id);
 // what's held right now on the keyboard, mouse and touch buttons (Gus's own controls)
 const mHeld=new Set(),mTap=new Set(),touchHeld=new Set(),kbPrevA={};
 function kbAct(id){const B=BINDS[id];if(B)for(const c of B.kb)if(c.startsWith('Mouse')?(mHeld.has(c)||mTap.has(c)):keys.has(c))return true;return touchHeld.has(id);}
+// a button in the HUD, drawn as the menus draw it (glyph): a line of HUD text carries ⟦glyph id⟧ where one goes, and hudHTML
+// turns that line into the page's markup
+const PAD_GLYPH=['A','B','X','Y','LB','RB','LT','RT','SELECT','START','LS','RS','DPAD:v','DPAD:v','DPAD:h','DPAD:h'];
+function bindGlyph(dev,v){if(v==null)return null;if(dev==='pad')return PAD_GLYPH[v]||'KEY:'+padLabel(v,padStyle==='ps');return v==='Mouse0'?'LMB':v==='Mouse2'?'RMB':v==='Mouse1'?'WHEEL':'KEY:'+keyLabel(v);}
+const btnMark=g=>g?'⟦'+g+'⟧':'';
+// (the first button bound to an action, on a player's controller or else the keyboard and mouse)
+const actMark=(p,id)=>{const B=BINDS[id];return btnMark(p&&p.pad?bindGlyph('pad',B.pad[0]):bindGlyph('kb',B.kb[0]));};
+function hudHTML(s){return String(s).split(/⟦([^⟧]*)⟧/).map((t,i)=>i%2?glyph(t):glEsc(t)).join('');}
 // the bottom-of-screen hint, from the bindings
 function bindHint(pad){
-  const ps=padStyle==='ps',L=id=>{const B=BINDS[id];return pad?(B.pad.length?padLabel(B.pad[0],ps):null):(B.kb.length?keyLabel(B.kb[0]):null);},hv=ABIL.trample?'trample':'sprint',out=[];
+  const L=id=>{const B=BINDS[id];return pad?(B.pad.length?btnMark(bindGlyph('pad',B.pad[0])):null):(B.kb.length?btnMark(bindGlyph('kb',B.kb[0])):null);},hv=ABIL.trample?'trample':'sprint',out=[];
   if(L('stomp'))out.push('Hold '+L('stomp')+' stomp');if(L('bite'))out.push(L('bite')+' bite');if(L('jump'))out.push(L('jump')+' jump');
   if(L('dashSprint'))out.push('tap '+L('dashSprint')+' dash, hold to '+hv);else{if(L('dash'))out.push(L('dash')+' dash');}
   if(L('sprint'))out.push('hold '+L('sprint')+' to '+hv);

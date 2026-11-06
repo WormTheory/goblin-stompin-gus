@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:fce3dcefc595c7dfe932459233ed8a1c89ec39ed64f0b52ff080ffdee21d685f -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:86e2712dfbe19b42c78919fb6a8adf972ad1c1d7448790a467dfb3a843ec282d -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -66,6 +66,10 @@ canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;point
 
 .dbgpad{pointer-events:auto}
 .dbgpad h4{display:flex;align-items:center;gap:6px}
+.dptabs{display:flex;gap:4px;margin:0 0 10px;border-bottom:1px solid #4a4228}
+.dptabs button{background:none;border:0;border-bottom:2px solid transparent;color:var(--mute);font:700 12px var(--f-display);letter-spacing:.04em;text-transform:uppercase;padding:3px 10px 5px;cursor:pointer;margin-bottom:-1px}
+.dptabs button.on{color:#e8c14a;border-bottom-color:#e8c14a}
+.dpnone{margin:8px 6px;color:var(--mute);font-weight:600}
 .dpx{margin-left:auto;background:none;border:1px solid #5a6670;color:var(--bone);border-radius:3px;font-size:11px;padding:1px 6px;cursor:pointer}
 .dpx:hover{border-color:#e8c14a;color:#e8c14a}
 .dbgpad.mouse .dr{cursor:pointer}
@@ -170,6 +174,7 @@ canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;point
 .slv{font:700 12px var(--f-display);letter-spacing:.02em;min-width:52px;text-shadow:0 2px 0 rgba(0,0,0,.6);color:#c9a27a}
 .smeter.lv1 .mfill{background:#f08a3a}.smeter.lv1 .slv{color:#f5a65a}
 .smeter.lv2 .mfill{background:#fff0b0}.smeter.lv2 .sbar{box-shadow:0 0 10px #ffd860}.smeter.lv2 .slv{color:#ffe98a}
+.hint .g,.label .g,.dveh .g,.drvhud .g{vertical-align:middle;margin:0 3px;transform:translateY(-1px)}
 .hint{font:700 14px var(--f-display);letter-spacing:.02em;background:rgba(18,22,28,.72);padding:6px 12px;border-radius:3px;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
 .join{position:absolute;inset:0;display:grid;place-items:center;font:700 18px var(--f-display);letter-spacing:.02em;text-align:center;padding:16px;background:rgba(10,13,17,.35);text-shadow:0 2px 0 rgba(0,0,0,.6)}
 .divider{position:absolute;background:#0a0d10}
@@ -542,6 +547,7 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
   <div class="sndlist" id="sndList" hidden aria-hidden="true"></div>
   <div class="dbgpad" id="dbgPad" hidden>
     <h4>DEBUG <span id="dpHint">game paused</span><button type="button" class="dpx" id="dpClose" aria-label="Close the debug menu">✕</button></h4>
+    <div class="dptabs" id="dpTabs" role="tablist"></div>
     <div id="dpRows"></div>
     <p class="dpfoot" id="dpFoot"></p><div class="prompts small" id="dpPrompts"></div>
   </div>
@@ -705,73 +711,9 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
     <div class="custom">
       <h2>DEBUG</h2>
       <div class="abil" id="dbgMenuTog">
-        <button type="button" class="tog" role="checkbox" data-k="quick"><span class="box" aria-hidden="true"></span><span class="tl">Debug quick menu<small>Press SELECT on a controller, or ~ on the keyboard, to pause and open a menu of these debug switches (press it again to close)</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="quick"><span class="box" aria-hidden="true"></span><span class="tl">Debug menu<small>Press SELECT on a controller, or ~ on the keyboard, to pause and open the debug menu (press it again to close). Also shows the Dev tab here</small></span></button>
       </div>
-      <p class="vnote">In the quick menu: the left stick (or arrow keys / W A S D) moves the highlight, A (or Space / Enter) switches the highlighted item, and left / right move to the next column. To change a slider, pick it with A first: then left / right move it, and A, B or Esc (or moving up or down) lets it go. Weather and season open a list with A.<br>Keyboard: [ and ] slow down and speed up. In the free cam: WASD or the left stick fly, the mouse or right stick look, Space / RT rise, C / LT sink, Shift / B goes fast. Gus stands still while you fly.<br>Flying (cheat): hold Space / A to rise, C / LB to sink, let go to hover.</p>
-    </div>
-    <div class="dbgcols">
-    <div class="custom">
-      <h2>DEBUG: TIME &amp; CAMERA</h2>
-      <div class="crow"><input type="range" id="gameSpeed" class="vrange" min="0" max="9" step="1" value="6" aria-label="Game speed"><span class="vval" id="gameSpeedVal">1×</span></div>
-      <div class="crow"><input type="range" id="worldCurve" class="vrange" min="-10" max="10" step="1" value="2" aria-label="World curve"><span class="vval" id="worldCurveVal">Down 2</span></div>
-      <p class="vnote">Game speed, then world curve: bends the world away below the horizon like a tiny planet (right), or up into a bowl (left).</p>
-      <div class="abil" id="dbgTime">
-        <button type="button" class="tog" role="checkbox" data-k="paused"><span class="box" aria-hidden="true"></span><span class="tl">Stop time<small>Everything stops; the free cam still flies. Keyboard: P, and . steps one frame</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="freecam"><span class="box" aria-hidden="true"></span><span class="tl">Free cam<small>Fly Gus's camera anywhere, apart from him. Keyboard: V</small></span></button>
-      </div>
-    </div>
-    <div class="custom">
-      <h2>DEBUG: PLAYER</h2>
-      <div class="crow"><input type="range" id="playerSpeed" class="vrange" min="0" max="11" step="1" value="0" aria-label="Player speed"><span class="vval" id="playerSpeedVal">1×</span></div>
-      <p class="vnote">Player speed: how fast Gus and Gertie walk and trample, up to ten times normal.</p>
-      <div class="crow"><input type="range" id="hostility" class="vrange" min="0" max="2" step="1" value="2" aria-label="Enemy hostility"><span class="vval" id="hostilityVal">Normal</span></div>
-      <p class="vnote">Enemy hostility. Normal: hostile goblins attack, and cars, police and soldiers hunt you. Peaceful: none of them come for you, but the townsfolk still run from you. Passive: nobody reacts to you at all, not even to being hit (they still get hurt). The same as the main screen's slider.</p>
-      <div class="abil" id="dbgCheat">
-        <button type="button" class="tog" role="checkbox" data-k="invuln"><span class="box" aria-hidden="true"></span><span class="tl">Invulnerable<small>Nothing hurts the hippos: goblins, traffic, fire, blasts or falls</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="infStam"><span class="box" aria-hidden="true"></span><span class="tl">Infinite stamina<small>Trample and air-dash as long as you like without running out of breath</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="fly"><span class="box" aria-hidden="true"></span><span class="tl">Flying<small>Hold jump (Space / A) to rise, C / LB to sink; let go to hover. Ground pound to drop</small></span></button>
-      </div>
-    </div>
-    <div class="custom">
-      <h2>DEBUG: RENDERING</h2>
-      <p class="vnote">Stops these being drawn; they're still really there, so you can fall into a cave you can't see, and props still get in the way. They come back on when you reload the game.</p>
-      <div class="abil" id="dbgGfx">
-        <button type="button" class="tog" role="checkbox" data-k="gProps"><span class="box" aria-hidden="true"></span><span class="tl">Props<small>Furniture and other things made of small boxes, benches and litter bins included</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="gFixtures"><span class="box" aria-hidden="true"></span><span class="tl">Fixtures<small>Lamp posts, traffic lights, road signs, flags, billboards, power line cables and stair handrails</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="gCaves"><span class="box" aria-hidden="true"></span><span class="tl">Caves<small>Caverns, tunnels and cave mouths</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="gSewers"><span class="box" aria-hidden="true"></span><span class="tl">Sewers<small>The tunnels under the streets and their stairwells</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="gSubway"><span class="box" aria-hidden="true"></span><span class="tl">Subways<small>Tunnels, stations, their stairs and the trains</small></span></button>
-      </div>
-    </div>
-    <div class="custom">
-      <h2>DEBUG: OVERLAYS</h2>
-      <div class="abil" id="dbgOverlays">
-        <button type="button" class="tog" role="checkbox" data-k="fps"><span class="box" aria-hidden="true"></span><span class="tl">FPS counter<small>Frames per second and frame time, at the top of the screen</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="hpBars"><span class="box" aria-hidden="true"></span><span class="tl">Health bars<small>A bar over every goblin, civilian, car and hippo that can be hurt</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="dmgNums"><span class="box" aria-hidden="true"></span><span class="tl">Damage numbers<small>Each hit's damage pops up where it lands</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="sndList"><span class="box" aria-hidden="true"></span><span class="tl">Sound list<small>Every sound by name, down the left: lit while it plays, then fading over 2 seconds</small></span></button>
-      </div>
-    </div>
-    <div class="custom wide">
-      <h2>DEBUG: INTERFACE</h2>
-      <p class="vnote">Hides each part of the on-screen display, for both players. They come back when you reload the game.</p>
-      <div class="abil" id="dbgUi"></div>
-    </div>
-    <div class="custom wide">
-      <h2>DEBUG: HITBOXES</h2>
-      <p class="vnote">Outlines what each attack and hazard actually checks. Hit volumes flash for a moment when used; hurtboxes follow their owners. Players are Gus and Gertie; NPCs are goblins, civilians, cars, and the explosions, fires and falling buildings they set off.</p>
-      <div class="abil" id="dbgShow">
-        <button type="button" class="tog" role="checkbox" data-k="show"><span class="box" aria-hidden="true"></span><span class="tl">Display hitboxes<small>Show the hitbox outlines; pick which kinds below</small></span></button>
-      </div>
-      <div class="abil" id="dbgList">
-        <button type="button" class="tog" role="checkbox" data-k="pBlock"><span class="box" aria-hidden="true"></span><span class="tl"><span><i class="sw" style="background:#ff9a2a"></i>Player block hitboxes</span><small>Where Gus and Gertie break blocks</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="nBlock"><span class="box" aria-hidden="true"></span><span class="tl"><span><i class="sw" style="background:#e8d040"></i>NPC block hitboxes</span><small>Blasts and wrecks breaking blocks</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="pDmg"><span class="box" aria-hidden="true"></span><span class="tl"><span><i class="sw" style="background:#ff3a3a"></i>Player damage hitboxes</span><small>Where the hippos' attacks hurt goblins and cars</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="nDmg"><span class="box" aria-hidden="true"></span><span class="tl"><span><i class="sw" style="background:#ff4fd8"></i>NPC damage hitboxes</span><small>Goblin jabs, cars, blasts and fire</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="pHurt"><span class="box" aria-hidden="true"></span><span class="tl"><span><i class="sw" style="background:#46f06a"></i>Player hurtboxes</span><small>Gus and Gertie's bodies</small></span></button>
-        <button type="button" class="tog" role="checkbox" data-k="nHurt"><span class="box" aria-hidden="true"></span><span class="tl"><span><i class="sw" style="background:#46d4ff"></i>NPC hurtboxes</span><small>Goblins, civilians and cars</small></span></button>
-      </div>
-    </div>
+      <p class="vnote">In the quick menu: the left stick (or arrow keys / W A S D) moves the highlight, A (or Space / Enter) switches the highlighted item, and left / right move to the next column. To change a slider, pick it with A first: then left / right move it, and A, B or Esc (or moving up or down) lets it go. Weather and season open a list with A. LB / RB (or Tab) switch to the Show / hide tab, where A picks which switches the first tab lists.<br>Keyboard: [ and ] slow down and speed up. In the free cam: WASD or the left stick fly, the mouse or right stick look, Space / RT rise, C / LT sink, Shift / B goes fast. Gus stands still while you fly.<br>Flying (cheat): hold Space / A to rise, C / LB to sink, let go to hover.</p>
     </div>
     </div>
     </div>
@@ -785,13 +727,13 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 <h3>Characters</h3>
 <ul><li><strong>Character select:</strong> pick Gus, Gertie or Gnash on the title screen, and the game remembers your choice. Arrow keys and the d-pad move along the cards.</li><li><strong>Gnash</strong> is the playable goblin, and replaces the old "Play as a goblin" debug switch. In co-op both players are goblins: Gnash and his cousin Grizzle.</li><li><strong>Gertie</strong> can now be played solo. In co-op, whoever player one picks, player two is the other hippo.</li><li>Gus and Gertie are the same hippo in everything but looks and voice: every move works exactly the same for both.</li></ul>
 <h3>Goblins and enemies</h3>
-<ul><li>Goblins chasing Gus up a wall climb after him, and club him once they're level instead of waiting below.</li><li>Falls of more than 6 blocks hurt goblins, a point for every 2 blocks more, so a 16-block drop kills one. Water breaks the fall, and their routes no longer jump down drops that would hurt.</li><li><strong>Enemy hostility</strong> is now a slider on the main screen, in Game options and in the quick debug menu. Passive: nobody reacts to you, even when hit. Peaceful: nobody attacks, but people still run. Normal: they come for you. An old Peaceful setting carries over.</li><li>Playing as a goblin no longer calms everyone down. Hostility works just as it does for Gus.</li></ul>
+<ul><li>Goblins chasing Gus up a wall climb after him, and club him once they're level instead of waiting below.</li><li>Falls of more than 6 blocks hurt goblins, a point for every 2 blocks more, so a 16-block drop kills one. Water breaks the fall, and their routes no longer jump down drops that would hurt.</li><li><strong>Enemy hostility</strong> is now a slider on the main screen and in the quick debug menu. Passive: nobody reacts to you, even when hit. Peaceful: nobody attacks, but people still run. Normal: they come for you. An old Peaceful setting carries over.</li><li>Playing as a goblin no longer calms everyone down. Hostility works just as it does for Gus.</li></ul>
 <h3>Vehicles</h3>
 <ul><li><strong>Carjacking:</strong> playing as Gnash, getting into a vehicle that has someone at the controls hauls them out first. A car's door swings open, a motorcycle's rider is shoved off, a tank's crewman is dragged out of the hatch and a helicopter's door slides back. Whoever's thrown out, a driver, a police officer or a soldier, comes back at you or runs for it.</li><li>All vehicles now collide with each other. Tanks no longer drive through a helicopter's tail, trains, planes, boats and rides push tanks and cars out of the way, and driven planes and boats stop or crash when they meet another vehicle.</li><li>A driven tank ramming a wall knocks out a hole as big as its front and keeps going at speed. It also fits under overhangs it can pass beneath.</li><li>Firing with nothing loaded just clicks, and the tank's last shell marker empties while it reloads.</li><li>The vehicle health box and ammo panel now sit just above the hearts.</li><li>The get-out prompt shows Xbox button labels on Xbox controllers.</li><li>Parked motorcycles no longer have a rider, and a ridden one's rider sits properly on it.</li></ul>
 <h3>Movement</h3>
 <ul><li>Air dash comes back after Gus leaves the water, and can't be used while swimming.</li></ul>
 <h3>Menus and debug tools</h3>
-<ul><li>A Patch notes tab in the main menu, with a "What's new" line on the title screen, and the same notes on the website at /patch-notes/.</li><li>A Sound list overlay names every sound as it plays, each by its own name: a tank firing, a dry-fire click, a reload and a helicopter's gun no longer show up as "Stone breaks" after something stony has been smashed.</li><li>In the quick debug menu, pick a slider with A before left and right move it, like the other menus.</li></ul>
+<ul><li>A Patch notes tab in the main menu, with a "What's new" line on the title screen, and the same notes on the website at /patch-notes/.</li><li>A Sound list overlay names every sound as it plays, each by its own name: a tank firing, a dry-fire click, a reload and a helicopter's gun no longer show up as "Stone breaks" after something stony has been smashed.</li><li>In the quick debug menu, pick a slider with A before left and right move it, like the other menus.</li><li>The quick debug menu has a second tab, Show / hide (LB / RB or Tab), for choosing which switches the first tab lists. Your choice is remembered.</li><li>The debug switches are only in the quick debug menu now. Game options keeps just the switch that allows it, which also shows or hides the Dev tab.</li><li>Button names on the screen (the controls hint, vehicle prompts, the weapon panel) are drawn as the same button pictures the menus use, for the keyboard, mouse or controller you're on.</li></ul>
 </section>
 <section class="pn-up" id="version-0-1"><h2>Version 0.1</h2>
 <p>Everything from the move to Claude Code on November 2, 2026, up to the first release on GitHub on November 5. Each entry describes where things ended up, so features that were reworked along the way appear once.</p>
@@ -9240,8 +9182,8 @@ function addShake(amt,x,z,radius=20){if(SBX)return;for(const p of players){if(!p
 // seconds (a repeat of the newest just refreshes it), and at most four show at once
 function flashLabel(s,who){if(SBX)return;for(const p of (who?[who]:players)){if(!p.active)continue;const box=p.ui.label;if(!box)continue;try{
   let el=box.lastElementChild;
-  if(el&&el.textContent===s&&!el.classList.contains('old')){clearTimeout(el._t);}
-  else{el=document.createElement('div');el.className='lbl';el.textContent=s;box.append(el);
+  if(el&&el._s===s&&!el.classList.contains('old')){clearTimeout(el._t);}
+  else{el=document.createElement('div');el.className='lbl';el._s=s;el.innerHTML=hudHTML(s);box.append(el);
     const live=Array.from(box.children||[]).filter(c=>!c.classList.contains('old'));while(live.length>4){const o=live.shift();clearTimeout(o._t);o.remove();}}
   el._t=setTimeout(()=>{el.classList.add('old');setTimeout(()=>el.remove(),400);},2400);}catch(e){}}}
 const HIPPO_FEET=[[0,0],[.55,.9],[-.55,.9],[.55,-.9],[-.55,-.9]].map(([a,b])=>[a*ES,b*ES]);let HIPPO_PTS=HIPPO_FEET;   // (setGob swaps these sizes for a goblin's)
@@ -10327,7 +10269,7 @@ function drvName(D){const o=D.o;
   return DRV_NAME[D.k];
 }
 // the key (or button) that gets you in and out, as bound
-function drvKey(p){const B=BINDS.use;if(p.pad)return padLabel(B.pad[0],padStyle==='ps');return keyLabel(B.kb.find(c=>!c.startsWith('Mouse'))||B.kb[0]);}
+function drvKey(p){const B=BINDS.use;return btnMark(p.pad?bindGlyph('pad',B.pad[0]):bindGlyph('kb',B.kb.find(c=>!c.startsWith('Mouse'))||B.kb[0]));}
 // the vehicle nearest you that you could get into: within reach of its box, and about level with it
 function drvFind(p){
   const R=1.8,px=p.pos.x,pz=p.pos.z,py=p.pos.y;let best=null,bd=1e9;
@@ -10365,7 +10307,7 @@ function drvEnter(p,D){
   // (the camera starts out behind it)
   p.cam.yaw=drvPose(D).h+Math.PI;p.cam.pitch=-0.25;
   if(jack){jackStart(p,D);return;}   // (someone at the controls: they're thrown out first. See carjack.js)
-  const k=drvKey(p),how=D.k==='heli'?'  ·  Jump climbs, Climb drops':D.k==='plane'?'  ·  Speed up, then Jump to take off':D.k==='tank'?'  ·  Bite fires':'';
+  const k=drvKey(p),how=D.k==='heli'?'  ·  '+actMark(p,'jump')+' climbs, '+actMark(p,'climb')+' drops':D.k==='plane'?'  ·  Speed up, then '+actMark(p,'jump')+' to take off':D.k==='tank'?'  ·  '+actMark(p,'bite')+' fires':'';
   flashLabel('Driving the '+drvName(D)+'  ·  '+k+' to get out'+how,p);clang();
 }
 // out by the side (whichever has room), else the back or the front, else on the roof
@@ -10693,12 +10635,12 @@ function drvHud(p){
     const bar=p.ui.view.querySelector('.bar'),who=bar&&bar.querySelector('.who');if(who)bar.insertBefore(dv,who);else el.append(dv);
     H=p.ui.drvHud={el,dv,xh:el.querySelector('.xh'),xt:el.querySelector('.xt'),box:dv.querySelector('.dbox'),name:dv.querySelector('.dname'),fill:dv.querySelector('.dbar i'),wpn:dv.querySelector('.dwpn'),ammo:dv.querySelector('.dammo'),txt:{}};}
   const D=p.drv,o=D.o,armed=D.k==='tank'||D.k==='heli',{hp,max}=drvHP(D),f=Math.max(0,Math.min(1,hp/max));
-  const set=(k,el,v)=>{if(H.txt[k]!==v){H.txt[k]=v;el.textContent=v;}};
+  const set=(k,el,v)=>{if(H.txt[k]!==v){H.txt[k]=v;el.innerHTML=hudHTML(v);}};
   H.el.hidden=false;H.dv.hidden=false;
   set('n',H.name,drvName(D).replace(/^./,c=>c.toUpperCase())+'  ·  '+Math.max(0,Math.ceil(hp))+' / '+Math.round(max));
   const w=(f*100).toFixed(1)+'%';if(H.txt.w!==w){H.txt.w=w;H.fill.style.width=w;H.fill.style.background=f>0.5?'#7fc24a':f>0.25?'#f0a04a':'#e0564a';}
   if(H.lastHp!==undefined&&hp<H.lastHp)H.hitT=camClock;H.lastHp=hp;H.box.classList.toggle('hit',camClock-(H.hitT??-9)<0.25);
-  const bl=id=>p.pad?padLabel(BINDS[id].pad[p.pad&&id==='bite'?1:0]??BINDS[id].pad[0],padStyle==='ps'):keyLabel(BINDS[id].kb[0]),out=drvKey(p);
+  const bl=id=>btnMark(p.pad?bindGlyph('pad',BINDS[id].pad[p.pad&&id==='bite'?1:0]??BINDS[id].pad[0]):bindGlyph('kb',BINDS[id].kb[0])),out=drvKey(p);
   const lk=bl('lock'),LT=p.lockT,W=armed&&o.wpn?Object.values(o.wpn):[],w0=W[0],ready=!w0||w0.rl<=0&&w0.n>0;
   set('w',H.wpn,armed?(LT?'Locked on '+(isMilT(LT)?MIL[LT.kind].name.toLowerCase():isCarT(LT)?'a '+(LT.veh||'car'):'a goblin')+' ('+lk+' let go)':lk+' lock on')+'  ·  '+out+' get out'
     :D.k==='plane'?(o.free&&o.free.v>=PLANE_LIFT?'Flying speed':'Take-off at '+PLANE_LIFT)+'  ·  '+out+' get out':out+' get out');
@@ -10709,7 +10651,7 @@ function drvHud(p){
   if(W.length){const key=D.k+(p.pad?'p':'k');
     if(H.ammoK!==key){H.ammoK=key;H.ammo.innerHTML='';H.aw=W.map(s=>{const r=document.createElement('div');r.className='aw';
         const many=s.W.max>8,keyL=bl(s.W.k==='rkt'?'stomp':'bite');
-        r.innerHTML='<span class="an">'+s.W.name+' <b>'+keyL+'</b></span><span class="ap">'+(many?'<span class="belt"><i></i></span>':'<span class="pip"></span>'.repeat(s.W.max))+'</span><span class="ac"></span><span class="rlb"><i></i></span>';
+        r.innerHTML='<span class="an">'+s.W.name+' '+hudHTML(keyL)+'</span><span class="ap">'+(many?'<span class="belt"><i></i></span>':'<span class="pip"></span>'.repeat(s.W.max))+'</span><span class="ac"></span><span class="rlb"><i></i></span>';
         H.ammo.append(r);return{r,s,many,pips:[...r.querySelectorAll('.pip')],belt:r.querySelector('.belt i'),ac:r.querySelector('.ac'),rl:r.querySelector('.rlb i'),last:''};});}
     for(const a of H.aw){const s=o.wpn[a.s.W.k]||a.s,rl=s.rl>0,st=(rl?'r'+s.rl.toFixed(1):'n'+s.n);if(st===a.last)continue;a.last=st;
       a.r.classList.toggle('rl',rl);
@@ -10844,7 +10786,7 @@ function jackEnd(p,D,quiet){
   if(J.door){J.door.par.remove(J.door.g);}
   if(p.jackA)p.jackA.root.visible=false;
   if(D.k==='car'&&D.o.dh)D.o.dh.visible=false;
-  if(!quiet&&p.drv===D){const kk=drvKey(p),how=D.k==='heli'?'  ·  Jump climbs, Climb drops':D.k==='tank'?'  ·  Bite fires':'';flashLabel('Driving the '+drvName(D)+'  ·  '+kk+' to get out'+how,p);clang();}
+  if(!quiet&&p.drv===D){const kk=drvKey(p),how=D.k==='heli'?'  ·  '+actMark(p,'jump')+' climbs, '+actMark(p,'climb')+' drops':D.k==='tank'?'  ·  '+actMark(p,'bite')+' fires':'';flashLabel('Driving the '+drvName(D)+'  ·  '+kk+' to get out'+how,p);clang();}
 }
 // once everything's moved (from drvSeat): you, the door, and the driver, where they are at this point in it
 function jackPose(p){
@@ -13161,9 +13103,17 @@ const actOf=id=>ACTS.find(a=>a.id===id);
 // what's held right now on the keyboard, mouse and touch buttons (Gus's own controls)
 const mHeld=new Set(),mTap=new Set(),touchHeld=new Set(),kbPrevA={};
 function kbAct(id){const B=BINDS[id];if(B)for(const c of B.kb)if(c.startsWith('Mouse')?(mHeld.has(c)||mTap.has(c)):keys.has(c))return true;return touchHeld.has(id);}
+// a button in the HUD, drawn as the menus draw it (glyph): a line of HUD text carries ⟦glyph id⟧ where one goes, and hudHTML
+// turns that line into the page's markup
+const PAD_GLYPH=['A','B','X','Y','LB','RB','LT','RT','SELECT','START','LS','RS','DPAD:v','DPAD:v','DPAD:h','DPAD:h'];
+function bindGlyph(dev,v){if(v==null)return null;if(dev==='pad')return PAD_GLYPH[v]||'KEY:'+padLabel(v,padStyle==='ps');return v==='Mouse0'?'LMB':v==='Mouse2'?'RMB':v==='Mouse1'?'WHEEL':'KEY:'+keyLabel(v);}
+const btnMark=g=>g?'⟦'+g+'⟧':'';
+// (the first button bound to an action, on a player's controller or else the keyboard and mouse)
+const actMark=(p,id)=>{const B=BINDS[id];return btnMark(p&&p.pad?bindGlyph('pad',B.pad[0]):bindGlyph('kb',B.kb[0]));};
+function hudHTML(s){return String(s).split(/⟦([^⟧]*)⟧/).map((t,i)=>i%2?glyph(t):glEsc(t)).join('');}
 // the bottom-of-screen hint, from the bindings
 function bindHint(pad){
-  const ps=padStyle==='ps',L=id=>{const B=BINDS[id];return pad?(B.pad.length?padLabel(B.pad[0],ps):null):(B.kb.length?keyLabel(B.kb[0]):null);},hv=ABIL.trample?'trample':'sprint',out=[];
+  const L=id=>{const B=BINDS[id];return pad?(B.pad.length?btnMark(bindGlyph('pad',B.pad[0])):null):(B.kb.length?btnMark(bindGlyph('kb',B.kb[0])):null);},hv=ABIL.trample?'trample':'sprint',out=[];
   if(L('stomp'))out.push('Hold '+L('stomp')+' stomp');if(L('bite'))out.push(L('bite')+' bite');if(L('jump'))out.push(L('jump')+' jump');
   if(L('dashSprint'))out.push('tap '+L('dashSprint')+' dash, hold to '+hv);else{if(L('dash'))out.push(L('dash')+' dash');}
   if(L('sprint'))out.push('hold '+L('sprint')+' to '+hv);
@@ -14903,9 +14853,6 @@ function ruinFires(cols,mass){
 const DBG_KEY='goblin-stompin-gus-debug';
 const DBG={show:false,pBlock:false,nBlock:false,pDmg:false,nDmg:false,pHurt:false,nHurt:false};
 try{const s=JSON.parse(localStorage.getItem(DBG_KEY)||'null');if(s){for(const k in DBG)if(typeof s[k]==='boolean')DBG[k]=s[k];if(typeof s.show!=='boolean')DBG.show=Object.keys(DBG).some(k=>k!=='show'&&DBG[k]);}}catch(e){}
-function renderDbg(){for(const b of document.querySelectorAll('#dbgList .tog,#dbgShow .tog'))b.setAttribute('aria-checked',String(!!DBG[b.dataset.k]));const l=document.getElementById('dbgList');if(l)l.hidden=!DBG.show;}
-for(const b of document.querySelectorAll('#dbgList .tog,#dbgShow .tog'))b.addEventListener('click',()=>{const k=b.dataset.k;DBG[k]=!DBG[k];renderDbg();tone('triangle',DBG[k]?660:440,0,0.05,0.03);try{localStorage.setItem(DBG_KEY,JSON.stringify(DBG));}catch(e){}});
-renderDbg();
 let DBG_WHO='n';
 // the Dev tab's sandbox, while a preview is being simulated (null otherwise): hit volumes are recorded, not drawn
 let SBX=null;
@@ -14923,12 +14870,12 @@ try{const q=JSON.parse(localStorage.getItem(DT_KEY)||'null');if(q&&typeof q==='o
   if(!(DT.speedI>=0&&DT.speedI<SPEEDS.length))DT.speedI=SPEEDS.indexOf(1);if(!(DT.psI>=0&&DT.psI<PSPEEDS.length))DT.psI=0;}catch(e){}
 function saveDT(){try{const o={};for(const k of DT_SAVED)o[k]=DT[k];localStorage.setItem(DT_KEY,JSON.stringify(o));
   localStorage.setItem(HOST_KEY,String(DT.host));}catch(e){}}
-// Enemy hostility, three steps (the main screen's slider, the Options tab's and the quick menu's are one setting, kept
+// Enemy hostility, three steps (the main screen's slider and the quick menu's are one setting, kept
 // from one session to the next): 0 Passive, nobody reacts to you at all, not even to being hit (they still get hurt);
 // 1 Peaceful, nobody attacks or hunts you, but the townsfolk still run from you; 2 Normal
-const HOST_KEY='goblin-stompin-gus-hostility',HOST_N=['Passive','Peaceful','Normal'],HOST_TXT=['Nobody reacts to you at all, not even when you hit them (they still get hurt)','Nobody attacks or hunts you, but the townsfolk still run from you','Goblins attack you, and cars, police and soldiers come after you'];
+const HOST_KEY='goblin-stompin-gus-hostility',HOST_N=['Passive','Peaceful','Normal'],HOST_TXT=['Nobody reacts to you, even when hit','Nobody attacks you, but townsfolk still run','Goblins, cars, police and soldiers come for you'];
 try{const s=localStorage.getItem(HOST_KEY);if(s==='0'||s==='1'||s==='2')DT.host=+s;else if(localStorage.getItem('goblin-stompin-gus-peaceful')==='1')DT.host=1;}catch(e){}   // (the old Peaceful box, ticked, is the middle step)
-function syncHost(){for(const [i,o] of [['hostMain','hostMainVal'],['hostility','hostilityVal']]){const el=document.getElementById(i),v=document.getElementById(o);if(el){el.value=String(DT.host);v.textContent=HOST_N[DT.host];}}const t=document.getElementById('hostMainTxt');if(t)t.textContent=HOST_TXT[DT.host];}
+function syncHost(){for(const [i,o] of [['hostMain','hostMainVal']]){const el=document.getElementById(i),v=document.getElementById(o);if(el){el.value=String(DT.host);v.textContent=HOST_N[DT.host];}}const t=document.getElementById('hostMainTxt');if(t)t.textContent=HOST_TXT[DT.host];}
 // the Interface switches: each part of the on-screen display, what picks it out on the page, and what it's called. (The
 // menus aren't here, and nor are the touch buttons: without them there'd be no way back on a phone.) Hidden with one style
 // sheet, so none of the code that updates them needs to know. Not saved, for the same reason as the Rendering switches.
@@ -14956,7 +14903,6 @@ function applyUi(){document.getElementById('uiOff').textContent=[...UI_OFF].map(
 function toggleUi(k){const all=Object.keys(UI_PARTS);if(k==='uiAll'){const on=UI_OFF.size<all.length;UI_OFF.clear();if(on)for(const q of all)UI_OFF.add(q);}else if(!UI_OFF.delete(k))UI_OFF.add(k);applyUi();}
 const uiVal=k=>k==='uiAll'?UI_OFF.size<Object.keys(UI_PARTS).length:!UI_OFF.has(k);
 const isUi=k=>k==='uiAll'||!!UI_PARTS[k];
-document.getElementById('dbgUi').innerHTML=[['uiAll','Whole display','Every part below at once'],...Object.keys(UI_PARTS).map(k=>[k,UI_PARTS[k][1],UI_PARTS[k][2]])].map(([k,n,t])=>'<button type="button" class="tog" role="checkbox" data-k="'+k+'"><span class="box" aria-hidden="true"></span><span class="tl">'+n+'<small>'+t+'</small></span></button>').join('');
 // the quick menu's rows, section by section: [column, section's title, rows]
 const DBG_COLS=4,DBG_SECS=[
   [0,'Time',[{k:'speed',label:'Game speed'},{k:'paused',label:'Stop time'}]],
@@ -14986,7 +14932,14 @@ function toggleGfx(k){const g=GFX_KEY[k],off=GFX_OFF[g]=!GFX_OFF[g];
 const curveTxt=()=>DT.curve===0?'Flat':DT.curve>0?'Down '+DT.curve:'Up '+(-DT.curve);
 function dbgVal(k){return isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='paused'||k==='freecam'||k==='invuln'||k==='infStam'||k==='fly'||k==='fps'||k==='hpBars'||k==='dmgNums'||k==='sndList'?DT[k]:DBG[k];}
 // the rows on show: the individual hitbox switches only while 'Display hitboxes' is on
-function dbgItems(){const L=DBG_ITEMS.filter(it=>!it.col||DBG.show);if(DT.cur>=L.length)DT.cur=L.length-1;return L;}
+// the menu's two tabs: 0 the switches themselves, 1 "Show / hide", which picks the rows tab 0 lists (kept in this browser)
+const DBG_HIDE_KEY='goblin-stompin-gus-dbghide',DBG_HIDE=new Set();
+try{const h=JSON.parse(localStorage.getItem(DBG_HIDE_KEY)||'[]');if(Array.isArray(h))for(const k of h)if(DBG_ITEMS.some(it=>it.k===k))DBG_HIDE.add(k);}catch(e){}
+// the rows on show: on the main tab, those not hidden (and the individual hitbox switches only while 'Display hitboxes'
+// is on); on Show / hide, every row
+function dbgItems(){const L=DT.tab?DBG_ITEMS:DBG_ITEMS.filter(it=>!DBG_HIDE.has(it.k)&&(!it.col||DBG.show));if(DT.cur>=L.length)DT.cur=Math.max(0,L.length-1);return L;}
+// over to the other tab, keeping the highlight on the same row if it's there
+function dbgTab(t){const k=(dbgItems()[DT.cur]||{}).k;DT.tab=t;DT.edit=null;DT.dd=null;const i=dbgItems().findIndex(it=>it.k===k);DT.cur=Math.max(0,i);tone('triangle',560,0,0.04,0.02);renderTime();}
 // step a slider row (game speed or player speed) left or right
 function dbgStep(k,d){if(k==='wx'){const L=Object.keys(WX_TYPES);wxSet(L[(L.indexOf(WX.type)+d+L.length)%L.length],true);WX.until=gameDays()+1;}
   else if(k==='season'){const y=Math.floor((dayN-1)/120);dayN=y*120+((seasonOf()+d+4)%4)*SEASON_LEN+1;wxSet(wxPick(seasonOf()),true);}
@@ -15005,7 +14958,8 @@ function ddChoose(k,j){
   else{const y=Math.floor((dayN-1)/120);dayN=y*120+j*SEASON_LEN+1;wxSet(wxPick(seasonOf()),true);}
   DT.dd=null;tone('triangle',620,0,0.05,0.03);renderTime();
 }
-function dbgMenuToggle(){const it=dbgItems()[DT.cur];
+function dbgMenuToggle(){const it=dbgItems()[DT.cur];if(!it)return;
+  if(DT.tab){if(!DBG_HIDE.delete(it.k))DBG_HIDE.add(it.k);try{localStorage.setItem(DBG_HIDE_KEY,JSON.stringify([...DBG_HIDE]));}catch(e){}tone('triangle',DBG_HIDE.has(it.k)?440:660,0,0.05,0.03);renderTime();return;}
   if(it.k==='wx'||it.k==='season'){if(DT.dd&&DT.dd.k===it.k)ddChoose(it.k,DT.dd.i);else{DT.dd={k:it.k,i:ddCur(it.k)};DT.ddScroll=0;DT.ddNav=true;tone('triangle',560,0,0.04,0.02);renderTime();}return;}
   DT.dd=null;
   if(DBG_SLIDE.has(it.k)){DT.edit=DT.edit===it.k?null:it.k;tone('triangle',DT.edit?620:480,0,0.05,0.03);renderTime();return;}
@@ -15014,13 +14968,13 @@ function dbgMenuToggle(){const it=dbgItems()[DT.cur];
   else if(it.k==='freecam')setFreecam(!DT.freecam);
   else if(it.k==='paused')DT.paused=!DT.paused;
   else if(it.k==='invuln'||it.k==='infStam'||it.k==='fly'||it.k==='fps'||it.k==='hpBars'||it.k==='dmgNums'||it.k==='sndList'){DT[it.k]=!DT[it.k];try{localStorage.setItem('goblin-stompin-gus-'+it.k,DT[it.k]?'1':'0');}catch(e){}}
-  else{DBG[it.k]=!DBG[it.k];renderDbg();try{localStorage.setItem(DBG_KEY,JSON.stringify(DBG));}catch(e){}}
+  else{DBG[it.k]=!DBG[it.k];try{localStorage.setItem(DBG_KEY,JSON.stringify(DBG));}catch(e){}}
   tone('triangle',620,0,0.05,0.03);renderTime();}
 // up/down move the highlight within its column (letting go of a picked slider); left/right move across to the next
 // column, about level, or change the slider that's been picked; a step on the first push, then repeating
 function dbgMenuNav(src,dy,dx,dt){
   const d=dy?'y'+dy:dx?'x'+dx:'';
-  const act=()=>{const L=dbgItems();if(DT.dd){if(dy){const n=ddOpts(DT.dd.k).length;DT.dd.i=(DT.dd.i+dy+n)%n;DT.ddNav=true;tone('triangle',520,0,0.03,0.02);}renderTime();return;}
+  const act=()=>{const L=dbgItems();if(!L.length)return;if(DT.dd){if(dy){const n=ddOpts(DT.dd.k).length;DT.dd.i=(DT.dd.i+dy+n)%n;DT.ddNav=true;tone('triangle',520,0,0.03,0.02);}renderTime();return;}
     const it=L[DT.cur],colOf=c=>L.filter(o=>o.c===c),here=colOf(it.c),j=here.indexOf(it);
     if(dy){DT.edit=null;DT.cur=L.indexOf(here[(j+dy+here.length)%here.length]);tone('triangle',520,0,0.03,0.02);}
     else if(dx&&DT.edit===it.k)dbgStep(it.k,dx);
@@ -15038,39 +14992,38 @@ function setFreecam(on){
 }
 function renderTime(){
   saveDT();
-  for(const b of document.querySelectorAll('#dbgTime .tog,#dbgCheat .tog,#dbgOverlays .tog'))b.setAttribute('aria-checked',String(!!DT[b.dataset.k]));
-  for(const b of document.querySelectorAll('#dbgUi .tog'))b.setAttribute('aria-checked',String(uiVal(b.dataset.k)));
-  for(const b of document.querySelectorAll('#dbgGfx .tog'))b.setAttribute('aria-checked',String(!GFX_OFF[GFX_KEY[b.dataset.k]]));
-  {const el=document.getElementById('playerSpeed'),v=document.getElementById('playerSpeedVal');if(el){el.value=String(DT.psI);v.textContent=PSPEEDS[DT.psI]+'×';}}
   syncHost();
-  {const el=document.getElementById('worldCurve'),v=document.getElementById('worldCurveVal');if(el){el.value=String(DT.curve);v.textContent=curveTxt();}}
   CURVE_U.value=DT.curve*0.00012;
-  const el=document.getElementById('gameSpeed'),v=document.getElementById('gameSpeedVal');if(el){el.value=String(DT.speedI);v.textContent=SPEEDS[DT.speedI]+'×';}
   const bd=document.getElementById('dbgBadge'),parts=[];
   if(DT.paused)parts.push('PAUSED');else if(SPEEDS[DT.speedI]!==1)parts.push('SPEED '+SPEEDS[DT.speedI]+'×');
   if(DT.freecam)parts.push('FREE CAM');
   bd.hidden=!parts.length||DT.menu;bd.textContent=parts.join(' · ');
   const dp=document.getElementById('dbgPad');dp.hidden=!DT.menu;
   for(const b of document.querySelectorAll('#dbgMenuTog .tog'))b.setAttribute('aria-checked',String(DT.quick));
+  // (the Dev tab comes and goes with the debug menu; if it's the tab on show as it goes, Game options takes its place)
+  {const dv=document.getElementById('tabBtnDev');if(dv&&dv.hidden!==!DT.quick){dv.hidden=!DT.quick;try{if(!DT.quick&&curTab==='dev')showTab('options');}catch(e){}}}
   if(DT.menu){
     const dbgL=dbgItems();
-    const dbgRows=dbgL.map((it,i)=>{const v=dbgVal(it.k),txt=typeof v==='boolean'?(v?'ON':'OFF'):v;
+    {const tb=document.getElementById('dpTabs');if(tb)tb.innerHTML=['Switches','Show / hide'].map((n,t)=>'<button type="button" data-t="'+t+'"'+(t===DT.tab?' class="on"':'')+'>'+n+'</button>').join('');}
+    const dbgRows=dbgL.map((it,i)=>{const v=DT.tab?!DBG_HIDE.has(it.k):dbgVal(it.k),txt=typeof v==='boolean'?(DT.tab?(v?'SHOWN':'HIDDEN'):v?'ON':'OFF'):v;
       let body=txt;
-      if(DBG_SLIDE.has(it.k)){const n=it.k==='curve'?21:it.k==='host'?3:(it.k==='speed'?SPEEDS:PSPEEDS).length,f=(it.k==='curve'?DT.curve+10:it.k==='host'?DT.host:it.k==='speed'?DT.speedI:DT.psI)/(n-1)*100;body='<span class="sl" data-k="'+it.k+'"><i style="width:'+f+'%"></i><b style="left:'+f+'%"></b></span><span class="slv">'+txt+'</span>';}
+      if(DT.tab){}
+      else if(DBG_SLIDE.has(it.k)){const n=it.k==='curve'?21:it.k==='host'?3:(it.k==='speed'?SPEEDS:PSPEEDS).length,f=(it.k==='curve'?DT.curve+10:it.k==='host'?DT.host:it.k==='speed'?DT.speedI:DT.psI)/(n-1)*100;body='<span class="sl" data-k="'+it.k+'"><i style="width:'+f+'%"></i><b style="left:'+f+'%"></b></span><span class="slv">'+txt+'</span>';}
       else if(it.k==='wx'||it.k==='season')body='<span class="dd">'+(it.k==='wx'?WX_TYPES[WX.type].i+' ':'')+txt+' ▾</span>';
       let list='';
       if(DT.dd&&DT.dd.k===it.k){const cur=ddCur(it.k);list='<div class="ddl">'+ddOpts(it.k).map((o,j)=>'<div class="ddo'+(j===DT.dd.i?' cur':'')+(j===cur?' sel':'')+'" data-j="'+j+'">'+o.n+'</div>').join('')+'</div>';}
       return '<div class="dr'+(i===DT.cur?' cur':'')+(DT.edit===it.k?' edit':'')+'" data-i="'+i+'"><span>'+(it.col?'<i class="sw" style="background:'+it.col+'"></i>':'')+'</span><span>'+it.label+'</span><em'+(v===false?' class="off"':'')+'>'+body+'</em></div>'+list;});
     // laid out by column, then by section
-    document.getElementById('dpRows').innerHTML=Array.from({length:DBG_COLS},(_,c)=>c).map(c=>'<div>'+DBG_SECS.filter(s=>s[0]===c).map(s=>'<div class="dps"><h5>'+s[1]+'</h5>'+dbgL.map((it,i)=>it.sec===s[1]?dbgRows[i]:'').join('')+'</div>').join('')+'</div>').join('');
+    document.getElementById('dpRows').innerHTML=Array.from({length:DBG_COLS},(_,c)=>c).map(c=>'<div>'+DBG_SECS.filter(s=>s[0]===c).map(s=>dbgL.some(it=>it.sec===s[1])?'<div class="dps"><h5>'+s[1]+'</h5>'+dbgL.map((it,i)=>it.sec===s[1]?dbgRows[i]:'').join('')+'</div>':'').join('')+'</div>').join('');
+    if(!dbgL.length)document.getElementById('dpRows').innerHTML='<p class="dpnone">Every switch is hidden. Show some on the Show / hide tab.</p>';
     // (on a short screen the menu scrolls: keep the highlight in view)
     {const r=document.querySelector('#dpRows .dr.cur');if(r&&r.scrollIntoView)r.scrollIntoView({block:'nearest'});}
     {const l=document.querySelector('#dpRows .ddl');if(l){l.scrollTop=DT.ddScroll||0;if(DT.ddNav){DT.ddNav=false;const cur=l.querySelector('.ddo.cur');if(cur){const t=cur.offsetTop,b=t+cur.offsetHeight;if(t<l.scrollTop)l.scrollTop=t;else if(b>l.scrollTop+l.clientHeight)l.scrollTop=b-l.clientHeight;DT.ddScroll=l.scrollTop;}}}}
     dp.classList.toggle('mouse',DT.kbdOpen);
     const pad=DT.selHeld;
-    document.getElementById('dpHint').textContent='game paused';
-    setPrompts(document.getElementById('dpPrompts'),DT.edit?(pad?[[['DPAD:h'],'Adjust'],[['A'],'Done'],[['B'],'Done'],[['DPAD:v'],'Choose']]:[[['KEY:←','KEY:→'],'Adjust'],[['KEY:Space'],'Done'],[['KEY:Esc'],'Done'],[['KEY:↑','KEY:↓'],'Choose']])
-      :pad?[[['DPAD:v'],'Choose'],[['A'],'Select'],[['DPAD:h'],'Column'],[['RS'],'Camera'],[['SELECT'],'Close'],[['B'],'Close']]:[[['LMB'],'Select'],[['KEY:↑','KEY:↓'],'Choose'],[['KEY:Space'],'Select'],[['KEY:←','KEY:→'],'Column'],[['KEY:~'],'Close']]);
+    document.getElementById('dpHint').textContent=DT.tab?'pick which switches the first tab lists':'game paused';
+    setPrompts(document.getElementById('dpPrompts'),DT.tab?(pad?[[['DPAD:v'],'Choose'],[['A'],'Show / hide'],[['DPAD:h'],'Column'],[['LB','RB'],'Tab'],[['SELECT'],'Close'],[['B'],'Close']]:[[['LMB'],'Show / hide'],[['KEY:↑','KEY:↓'],'Choose'],[['KEY:Space'],'Show / hide'],[['KEY:←','KEY:→'],'Column'],[['KEY:Tab'],'Tab'],[['KEY:~'],'Close']]):DT.edit?(pad?[[['DPAD:h'],'Adjust'],[['A'],'Done'],[['B'],'Done'],[['DPAD:v'],'Choose']]:[[['KEY:←','KEY:→'],'Adjust'],[['KEY:Space'],'Done'],[['KEY:Esc'],'Done'],[['KEY:↑','KEY:↓'],'Choose']])
+      :pad?[[['DPAD:v'],'Choose'],[['A'],'Select'],[['DPAD:h'],'Column'],[['LB','RB'],'Tab'],[['RS'],'Camera'],[['SELECT'],'Close'],[['B'],'Close']]:[[['LMB'],'Select'],[['KEY:↑','KEY:↓'],'Choose'],[['KEY:Space'],'Select'],[['KEY:←','KEY:→'],'Column'],[['KEY:Tab'],'Tab'],[['KEY:~'],'Close']]);
     document.getElementById('dpClose').hidden=pad;
   }
 }
@@ -15087,16 +15040,10 @@ function renderTime(){
  rows.addEventListener('pointerdown',e=>{const sl=e.target.closest('.sl');if(!sl)return;DT.slDrag=sl.dataset.k;DT.dd=null;const row=sl.closest('.dr');if(row)DT.cur=+row.dataset.i;slSet(e.clientX);e.preventDefault();});
  addEventListener('pointermove',e=>{if(DT.slDrag)slSet(e.clientX);});
  addEventListener('pointerup',()=>{DT.slDrag=null;});
- document.getElementById('dpClose').addEventListener('click',()=>setKbdMenu(false));}
+ document.getElementById('dpClose').addEventListener('click',()=>setKbdMenu(false));
+ document.getElementById('dpTabs').addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-t]');if(b&&+b.dataset.t!==DT.tab)dbgTab(+b.dataset.t);});}
 for(const b of document.querySelectorAll('#dbgMenuTog .tog'))b.addEventListener('click',()=>{DT.quick=!DT.quick;if(!DT.quick){DT.kbdOpen=false;DT.menu=false;}try{localStorage.setItem('goblin-stompin-gus-quickdbg',JSON.stringify(DT.quick));}catch(e){}renderTime();tone('triangle',DT.quick?660:440,0,0.05,0.03);});
-for(const b of document.querySelectorAll('#dbgGfx .tog'))b.addEventListener('click',()=>{toggleGfx(b.dataset.k);renderTime();tone('triangle',GFX_OFF[GFX_KEY[b.dataset.k]]?440:660,0,0.05,0.03);});
-for(const b of document.querySelectorAll('#dbgUi .tog'))b.addEventListener('click',()=>{toggleUi(b.dataset.k);renderTime();tone('triangle',uiVal(b.dataset.k)?660:440,0,0.05,0.03);});
-for(const b of document.querySelectorAll('#dbgTime .tog,#dbgOverlays .tog'))b.addEventListener('click',()=>{const k=b.dataset.k;if(k==='freecam')setFreecam(!DT.freecam);else{DT[k]=!DT[k];if(k==='fps'||k==='hpBars'||k==='dmgNums'||k==='sndList')try{localStorage.setItem('goblin-stompin-gus-'+k,DT[k]?'1':'0');}catch(e){}renderTime();}tone('triangle',DT[k]?660:440,0,0.05,0.03);});
-document.getElementById('gameSpeed').addEventListener('input',e=>{DT.speedI=+e.target.value;renderTime();});
-document.getElementById('playerSpeed').addEventListener('input',e=>{DT.psI=+e.target.value;renderTime();});
-document.getElementById('worldCurve').addEventListener('input',e=>{DT.curve=+e.target.value;renderTime();});
-for(const i of ['hostMain','hostility'])document.getElementById(i).addEventListener('input',e=>{DT.host=+e.target.value;renderTime();});
-for(const b of document.querySelectorAll('#dbgCheat .tog'))b.addEventListener('click',()=>{const k=b.dataset.k;DT[k]=!DT[k];renderTime();tone('triangle',DT[k]?660:440,0,0.05,0.03);});
+for(const i of ['hostMain'])document.getElementById(i).addEventListener('input',e=>{DT.host=+e.target.value;renderTime();});
 renderTime();
 addEventListener('keydown',e=>{
   if(menuOpen)return;
@@ -15105,6 +15052,7 @@ addEventListener('keydown',e=>{
     const c=e.code,dy=(c==='ArrowUp'||c==='KeyW')?-1:(c==='ArrowDown'||c==='KeyS')?1:0,dx=(c==='ArrowLeft'||c==='KeyA')?-1:(c==='ArrowRight'||c==='KeyD')?1:0;
     if(dy||dx){DT.navDir='';dbgMenuNav('kbd',dy,dx,0);DT.navDir='';e.preventDefault();return;}
     if((c==='Space'||c==='Enter')&&!e.repeat){dbgMenuToggle();e.preventDefault();return;}
+    if(c==='Tab'){if(!e.repeat)dbgTab(DT.tab?0:1);e.preventDefault();return;}
     if(c==='Escape'){if(DT.edit){DT.edit=null;renderTime();return;}if(DT.dd){DT.dd=null;renderTime();return;}setKbdMenu(false);return;}
   }
   if(e.repeat)return;
@@ -19355,7 +19303,7 @@ function readInputs(dt){
     for(const s of DT.selHeld?st:[]){const ax=s.p.axes,lx=ax[0]||0,ly=ax[1]||0;
       if(ly<-0.55||s.b[12])dy=-1;else if(ly>0.55||s.b[13])dy=1;
       if(lx<-0.55||s.b[14])dx=-1;else if(lx>0.55||s.b[15])dx=1;
-      if(s.pr[0])dbgMenuToggle();}
+      if(s.pr[0])dbgMenuToggle();if(s.pr[4]||s.pr[5])dbgTab(DT.tab?0:1);}
     dbgMenuNav('pad',dy,dx,dt);
     if(!wasOpen)renderTime();
   } else if(wasOpen){renderTime();}
@@ -20109,7 +20057,7 @@ function frame(now){
   hintTime-=dt;
   for(const p of act){
     const hint=p.ui.hint;hint.hidden=!(playing&&hintTime>0);
-    if(!hint.hidden){const txt=touchMode&&!p.pad?'Hold STOMP  ·  BITE  ·  JUMP  ·  tap DASH to dash, hold to '+(ABIL.trample?'trample':'sprint'):bindHint(!!p.pad);if(hint.textContent!==txt)hint.textContent=txt;}
+    if(!hint.hidden){const txt=touchMode&&!p.pad?'Hold STOMP  ·  BITE  ·  JUMP  ·  tap DASH to dash, hold to '+(ABIL.trample?'trample':'sprint'):bindHint(!!p.pad);if(hint._s!==txt){hint._s=txt;hint.innerHTML=hudHTML(txt);}}
   }
   for(const p of act){if(!p.paused)continue;const o=act.find(q=>q!==p);const txt=!o?'':o.paused?'Both paused. The city is frozen.':`The city keeps going while ${charName(o)} plays.`;if(p.ui.pstatus.textContent!==txt)p.ui.pstatus.textContent=txt;}
   const hn=huntersCount(),pol=cars.some(c=>c.alive&&c.police&&c.hunter);

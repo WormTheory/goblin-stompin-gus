@@ -106,7 +106,7 @@ function jackEnd(p,D,quiet){
   if(J.door){J.door.par.remove(J.door.g);}
   if(p.jackA)p.jackA.root.visible=false;
   if(D.k==='car'&&D.o.dh)D.o.dh.visible=false;
-  if(!quiet&&p.drv===D){const kk=drvKey(p),how=D.k==='heli'?'  ·  Jump climbs, Climb drops':D.k==='tank'?'  ·  Bite fires':'';flashLabel('Driving the '+drvName(D)+'  ·  '+kk+' to get out'+how,p);clang();}
+  if(!quiet&&p.drv===D){const kk=drvKey(p),how=D.k==='heli'?'  ·  '+actMark(p,'jump')+' climbs, '+actMark(p,'climb')+' drops':D.k==='tank'?'  ·  '+actMark(p,'bite')+' fires':'';flashLabel('Driving the '+drvName(D)+'  ·  '+kk+' to get out'+how,p);clang();}
 }
 // once everything's moved (from drvSeat): you, the door, and the driver, where they are at this point in it
 function jackPose(p){

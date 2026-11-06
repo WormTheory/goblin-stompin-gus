@@ -115,7 +115,7 @@ function readInputs(dt){
     for(const s of DT.selHeld?st:[]){const ax=s.p.axes,lx=ax[0]||0,ly=ax[1]||0;
       if(ly<-0.55||s.b[12])dy=-1;else if(ly>0.55||s.b[13])dy=1;
       if(lx<-0.55||s.b[14])dx=-1;else if(lx>0.55||s.b[15])dx=1;
-      if(s.pr[0])dbgMenuToggle();}
+      if(s.pr[0])dbgMenuToggle();if(s.pr[4]||s.pr[5])dbgTab(DT.tab?0:1);}
     dbgMenuNav('pad',dy,dx,dt);
     if(!wasOpen)renderTime();
   } else if(wasOpen){renderTime();}

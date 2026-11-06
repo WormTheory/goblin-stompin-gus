@@ -9,7 +9,7 @@ function drvName(D){const o=D.o;
   return DRV_NAME[D.k];
 }
 // the key (or button) that gets you in and out, as bound
-function drvKey(p){const B=BINDS.use;if(p.pad)return padLabel(B.pad[0],padStyle==='ps');return keyLabel(B.kb.find(c=>!c.startsWith('Mouse'))||B.kb[0]);}
+function drvKey(p){const B=BINDS.use;return btnMark(p.pad?bindGlyph('pad',B.pad[0]):bindGlyph('kb',B.kb.find(c=>!c.startsWith('Mouse'))||B.kb[0]));}
 // the vehicle nearest you that you could get into: within reach of its box, and about level with it
 function drvFind(p){
   const R=1.8,px=p.pos.x,pz=p.pos.z,py=p.pos.y;let best=null,bd=1e9;
@@ -47,7 +47,7 @@ function drvEnter(p,D){
   // (the camera starts out behind it)
   p.cam.yaw=drvPose(D).h+Math.PI;p.cam.pitch=-0.25;
   if(jack){jackStart(p,D);return;}   // (someone at the controls: they're thrown out first. See carjack.js)
-  const k=drvKey(p),how=D.k==='heli'?'  ·  Jump climbs, Climb drops':D.k==='plane'?'  ·  Speed up, then Jump to take off':D.k==='tank'?'  ·  Bite fires':'';
+  const k=drvKey(p),how=D.k==='heli'?'  ·  '+actMark(p,'jump')+' climbs, '+actMark(p,'climb')+' drops':D.k==='plane'?'  ·  Speed up, then '+actMark(p,'jump')+' to take off':D.k==='tank'?'  ·  '+actMark(p,'bite')+' fires':'';
   flashLabel('Driving the '+drvName(D)+'  ·  '+k+' to get out'+how,p);clang();
 }
 // out by the side (whichever has room), else the back or the front, else on the roof

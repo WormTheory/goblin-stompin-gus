@@ -23,7 +23,7 @@ Everything since the first release on GitHub.
 
 - Goblins chasing Gus up a wall climb after him, and club him once they're level instead of waiting below.
 - Falls of more than 6 blocks hurt goblins, a point for every 2 blocks more, so a 16-block drop kills one. Water breaks the fall, and their routes no longer jump down drops that would hurt.
-- **Enemy hostility** is now a slider on the main screen, in Game options and in the quick debug menu. Passive: nobody reacts to you, even when hit. Peaceful: nobody attacks, but people still run. Normal: they come for you. An old Peaceful setting carries over.
+- **Enemy hostility** is now a slider on the main screen and in the quick debug menu. Passive: nobody reacts to you, even when hit. Peaceful: nobody attacks, but people still run. Normal: they come for you. An old Peaceful setting carries over.
 - Playing as a goblin no longer calms everyone down. Hostility works just as it does for Gus.
 
 ### Vehicles
@@ -45,6 +45,9 @@ Everything since the first release on GitHub.
 - A Patch notes tab in the main menu, with a "What's new" line on the title screen, and the same notes on the website at /patch-notes/.
 - A Sound list overlay names every sound as it plays, each by its own name: a tank firing, a dry-fire click, a reload and a helicopter's gun no longer show up as "Stone breaks" after something stony has been smashed.
 - In the quick debug menu, pick a slider with A before left and right move it, like the other menus.
+- The quick debug menu has a second tab, Show / hide (LB / RB or Tab), for choosing which switches the first tab lists. Your choice is remembered.
+- The debug switches are only in the quick debug menu now. Game options keeps just the switch that allows it, which also shows or hides the Dev tab.
+- Button names on the screen (the controls hint, vehicle prompts, the weapon panel) are drawn as the same button pictures the menus use, for the keyboard, mouse or controller you're on.
 
 ## Version 0.1
 
