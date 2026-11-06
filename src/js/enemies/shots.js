@@ -33,16 +33,16 @@ function updateFireballs(dt){
     F.trail-=dt;if(F.trail<=0){F.trail=0.04;puff(F.pos.x,F.pos.y-0.15,F.pos.z,1,Math.random()<0.5?0xff7a1a:0xffc040,0.12);}
   }
 }
-function fbClear(){for(const F of FIREB){F.live=false;F.g.visible=false;}for(const S of SHOTS){S.live=false;S.g.visible=false;}for(const T of TRACERS)T.m.visible=false;}
+function fbClear(){gobPickupsClear();for(const F of FIREB){F.live=false;F.g.visible=false;}for(const S of SHOTS){S.live=false;S.g.visible=false;}for(const T of TRACERS)T.m.visible=false;}
 // ---- bullets' tracers: a thin streak of light from the muzzle, gone in a moment ----
 const TRACERS=[],TR_MAT=new THREE.MeshBasicMaterial({color:0xfff0a0});
 function tracer(x0,y0,z0,x1,y1,z1){
   let T=TRACERS.find(o=>o.t<=0);if(!T){if(TRACERS.length>=24)T=TRACERS[0];else{const m=new THREE.Mesh(FB_GEO,TR_MAT);m.visible=false;scene.add(m);T={m,t:0};TRACERS.push(T);}}
   const L=Math.hypot(x1-x0,y1-y0,z1-z0)||0.01;T.m.position.set((x0+x1)/2,(y0+y1)/2,(z0+z1)/2);T.m.scale.set(0.05,0.05,L);T.m.lookAt(x1,y1,z1);T.m.visible=true;T.t=0.07;
 }
-// ---- things thrown and fired that go off: pipe bombs, grenades, tank shells, rockets. Each flies under gravity (a shell
+// ---- things thrown and fired that go off: grenades, tank shells, rockets. Each flies under gravity (a shell
 // barely), a bomb bounces and rolls until its fuse is done; a shell or a rocket goes off on whatever it hits ----
-const SHOTS=[],SHOT_LOOK={pipe:[[0.14,0.14,0.36],0x8a8a90],grenade:[[0.24,0.24,0.24],0x3a4a22],shell:[[0.28,0.28,0.7],0x2a2a24],rocket:[[0.22,0.22,0.9],0xd8d8d0]},SHOT_M={};
+const SHOTS=[],SHOT_LOOK={grenade:[[0.24,0.24,0.24],0x3a4a22],shell:[[0.28,0.28,0.7],0x2a2a24],rocket:[[0.22,0.22,0.9],0xd8d8d0]},SHOT_M={};
 function shot(o){
   let S=SHOTS.find(q=>!q.live&&q.kind===o.kind);
   if(!S){const L=SHOT_LOOK[o.kind],m=new THREE.Mesh(FB_GEO,SHOT_M[o.kind]||(SHOT_M[o.kind]=new THREE.MeshLambertMaterial({color:L[1]})));m.scale.set(...L[0]);m.visible=false;scene.add(m);S={kind:o.kind,g:m,pos:new V3(),v:new V3(),live:false};SHOTS.push(S);}
@@ -77,7 +77,7 @@ function updateShots(dt){
       if(!S.bounce&&!boom&&shotHitsVeh(S))boom=true;}
     if(boom||S.t>12){S.live=false;S.g.visible=false;foeBoom(S.pos.x,S.pos.y,S.pos.z,S.R,S.dmg,S.cause,S.by,S.crush,S.vd,S.own);continue;}
     S.g.position.copy(S.pos);
-    if(S.bounce){S.g.rotation.x+=dt*Math.hypot(S.v.x,S.v.z)*1.5;S.trail-=dt;if(S.trail<=0){S.trail=0.08;puff(S.pos.x,S.pos.y+0.1,S.pos.z,1,S.kind==='pipe'?0xffd040:0x9a9a8a,0.08);}}   // (the fuse fizzing)
+    if(S.bounce){S.g.rotation.x+=dt*Math.hypot(S.v.x,S.v.z)*1.5;S.trail-=dt;if(S.trail<=0){S.trail=0.08;puff(S.pos.x,S.pos.y+0.1,S.pos.z,1,0x9a9a8a,0.08);}}   // (the fuse fizzing)
     else{const h=Math.hypot(S.v.x,S.v.z);S.g.rotation.set(-Math.atan2(S.v.y,h),Math.atan2(S.v.x,S.v.z),0,'YXZ');S.trail-=dt;if(S.trail<=0){S.trail=0.03;smoke(S.pos.x,S.pos.y,S.pos.z,1,S.kind==='rocket'?0xdadada:0x6a6a6a);}}
   }
 }

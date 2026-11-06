@@ -43,7 +43,7 @@ sprint                 player one moved 7.51 up 0.00  | furthest apart 0.000   s
 trample (hold dash)    player one moved 7.11 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 86 86
 jump                   player one moved 0.00 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
 double jump            player one moved 0.00 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
-dash                   player one moved 1.92 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+dash                   player one moved 5.20 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
 long jump              player one moved 7.00 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 91 91
 air dash               player one moved 3.32 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
 stomp by a wall        player one moved 0.00 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100

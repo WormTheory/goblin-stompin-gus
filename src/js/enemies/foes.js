@@ -4,8 +4,8 @@
 const FOES={
   thief:{name:'Thief',label:'Thief slain',tunic:0x18181c,pants:0x101012,hat:'bandana',hatc:0x0c0c0e,gear:'dagger',hp:3,spd:3.5,melee:[1,1.0,'Stabbed by a thief'],
     jobs:['Burglar','Cat burglar','Pickpocket','Fence','Safecracker','Lookout','Getaway runner','Second-storey man']},
-  prepper:{name:'Prepper',label:'Prepper killed',tunic:0x7a6a4a,pants:0x3a3020,hat:'cap',hatc:0x5a4a2a,gear:'rifle',held:[0.12,0.34,0.12,0x8a8a90],hp:5,spd:2.6,melee:[1,1.4,'Clubbed with a rifle butt'],
-    gun:[3,42,0.7,[1.8,2.8],1,'Shot by a prepper'],bomb:[6,18,[7,11],2.2,3.4,3,'Blown up by a pipe bomb'],
+  prepper:{name:'Prepper',label:'Prepper killed',tunic:0x7a6a4a,pants:0x3a3020,hat:'cap',hatc:0x5a4a2a,gear:'rifle',held:[0.22,0.22,0.22,0x3a4a22],hp:5,spd:2.6,melee:[1,1.4,'Clubbed with a rifle butt'],
+    gun:[3,42,0.7,[1.8,2.8],1,'Shot by a prepper'],bomb:[6,18,[7,11],2.2,3.4,3,'Blown up by a grenade'],
     jobs:['Prepper','Doomsday prepper','Bunker quartermaster','Canned-goods hoarder','Off-grid survivalist','Water-filter enthusiast']},
   militia:{name:'Militiaman',label:'Militiaman killed',tunic:0x4a5a2a,pants:0x2a3018,hat:'hardhat',hatc:0x3a4a22,gear:'rifle',held:[0.22,0.22,0.22,0x3a4a22],hp:5,spd:2.8,melee:[1,1.3,'Clubbed with a rifle butt'],
     gun:[3,48,0.55,[1.3,2.2],1,'Shot by the militia'],bomb:[6,24,[6,9],1.6,3.2,3,'Blown up by a grenade'],
@@ -76,6 +76,6 @@ function foeShoot(g,p,G6){
 function foeThrow(g,p,B6){
   const fx=Math.sin(g.heading),fz=Math.cos(g.heading),x0=g.pos.x+fx*0.4,y0=g.pos.y+1.6,z0=g.pos.z+fz*0.4;
   const a=Math.random()*6.283,e=Math.random()*1.8,tx=p.pos.x+Math.cos(a)*e,tz=p.pos.z+Math.sin(a)*e,ty=p.pos.y+0.3,D=Math.hypot(tx-x0,tz-z0),T=0.55+D/16,Gv=20;
-  shot({kind:g.foeKind==='prepper'?'pipe':'grenade',x:x0,y:y0,z:z0,vx:(tx-x0)/T,vy:(ty-y0+0.5*Gv*T*T)/T,vz:(tz-z0)/T,grav:Gv,fuse:B6[3],R:B6[4],dmg:B6[5],cause:B6[6],by:g.id,bounce:true});
+  shot({kind:'grenade',x:x0,y:y0,z:z0,vx:(tx-x0)/T,vy:(ty-y0+0.5*Gv*T*T)/T,vz:(tz-z0)/T,grav:Gv,fuse:B6[3],R:B6[4],dmg:B6[5],cause:B6[6],by:g.id,bounce:true});
   if(audio)noise(0.2,0.04,500,'lowpass');
 }

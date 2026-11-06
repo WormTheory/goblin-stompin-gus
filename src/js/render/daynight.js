@@ -123,7 +123,7 @@ function frame(now){
   for(let sI=0;sI<nSub;sI++){
     if(sI>0)for(const p of players){const I=p.in;I.jumpPress=I.bitePress=I.lockPress=I.chargePress=I.dashPress=I.sprintPress=false;}
     for(const p of players){DBG_WHO='p';safe('player',()=>updatePlayer(p,sdt));DBG_WHO='n';}
-    safe('goblins',()=>updateGoblins(sdt));safe('fireballs',()=>{updateFireballs(sdt);updateShots(sdt);});safe('cars',()=>updateCars(sdt));safe('stations',()=>updateStations(sdt));safe('services',()=>updateServices(sdt));
+    safe('goblins',()=>updateGoblins(sdt));safe('fireballs',()=>{updateFireballs(sdt);updateShots(sdt);gobPickups(sdt);});safe('cars',()=>updateCars(sdt));safe('stations',()=>updateStations(sdt));safe('services',()=>updateServices(sdt));
     safe('traffic',()=>updateTraffic(sdt));for(const p of players)if(p.drv)safe('drive',()=>drvSeat(p));for(const p of players)if(p.vcl&&p.state==='climb')safe('vpin',()=>vRepin(p));safe('spikes',()=>updateSpikes(sdt));safe('weather',()=>updateWeather(sdt));safe('sky',()=>updateSky(sdt));
     for(const p of players)safe('health',()=>updateHealth(p,sdt));
     safe('parts',()=>updateParts(sdt));safe('rubble',()=>updateRubble(sdt));safe('shocks',()=>{updateShocks(sdt);updateCones(sdt);});safe('bodies',()=>updateBodies(sdt));safe('topples',()=>updateTopples(sdt));
@@ -145,9 +145,10 @@ function frame(now){
     u.uMRep.value=size/D.mperiod;u.uMOff.value.set(((mx-D.drift[0])/D.mperiod-u.uMRep.value/2)%1,((-mz+D.drift[1])/D.mperiod-u.uMRep.value/2)%1);}
   hintTime-=dt;
   for(const p of act){
+    gobArmsHud(p);
     const hint=p.ui.hint,grab=p===P1&&mouseNeedsClick();hint.hidden=!(grab||playing&&hintTime>0);
     if(grab){const txt='Click to look around with the mouse';if(hint._s!==txt){hint._s=txt;hint.textContent=txt;}}
-    else if(!hint.hidden){const txt=touchMode&&!p.pad?'Hold STOMP  ·  BITE  ·  JUMP  ·  tap DASH to dash, hold to '+(ABIL.trample?'trample':'sprint'):bindHint(!!p.pad);if(hint._s!==txt){hint._s=txt;hint.innerHTML=hudHTML(txt);}}
+    else if(!hint.hidden){const txt=touchMode&&!p.pad?(DT.gob?'BITE attacks  ·  STOMP throws a grenade  ·  JUMP  ·  tap DASH to dash, hold to sprint':'Hold STOMP  ·  BITE  ·  JUMP  ·  tap DASH to dash, hold to '+(ABIL.trample?'trample':'sprint')):bindHint(!!p.pad,p);if(hint._s!==txt){hint._s=txt;hint.innerHTML=hudHTML(txt);}}
   }
   for(const p of act){if(!p.paused)continue;const o=act.find(q=>q!==p);const txt=!o?'':o.paused?'Both paused. The city is frozen.':`The city keeps going while ${charName(o)} plays.`;if(p.ui.pstatus.textContent!==txt)p.ui.pstatus.textContent=txt;}
   const hn=huntersCount(),pol=cars.some(c=>c.alive&&c.police&&c.hunter);

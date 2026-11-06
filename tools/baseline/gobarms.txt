@@ -1,0 +1,22 @@
+== GUS
+dash, nothing held: moved -3.89  (ahead is +)
+dash, holding back: moved -3.85
+bite a militiaman: dead true  drops none  kit none
+== GNASH
+dash, nothing held: moved 3.89  (ahead is +)
+dash, holding back: moved -5.34
+starts with club in hand club, grenades 0   hint: [LMB] swing the club  ·  [RMB] throw a grenade  ·  [KEY:Space] jump  ·  tap [KEY:Left Shift] dash, hold to sprint  ·  hold [KEY:C] climb  ·  [KEY:R] next weapon  ·  [KEY:F] get in
+club a militiaman: dead true  drops grenade x1, rifle
+walk over them: drops left none  kit club+rifle in hand rifle, grenades 1
+rifle at a thief 12 ahead: hp 5 -> 3
+and with a wall between: hp 3 -> 3
+wall gone, two more shots: hp 3 -> -1  dead true  drops dagger
+walk over the dagger: club+rifle+dagger in hand dagger, grenades 1  new weapons 1
+shoot a militiaman with a rifle already: drops grenade x1
+weapon button: rifle > club > dagger > rifle
+stab a prepper: hp 5 -> 3
+six militiamen down: drops grenade x1, grenade x1, grenade x2, grenade x2, grenade x2, grenade x2
+picked up: grenades 9  left lying grenade x1
+right click, twice quickly: grenades 9 -> 8  in the air 1
+  the thief 8 ahead, where it lands: hp 3 -> 0  dead true  my hp 20
+prepper throws: grenade (Blown up by a grenade)

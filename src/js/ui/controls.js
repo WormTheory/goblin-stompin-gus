@@ -31,6 +31,7 @@ const ACTS=[
   {id:'lock',n:'Lock on',c:'#e0564a',kb:['KeyQ'],pad:[11]},
   {id:'climb',n:'Spider Climb (hold)',c:'#9a7ae0',kb:['KeyC'],pad:[4]},
   {id:'use',n:'Get in / out (as Gnash)',c:'#6ab0d8',kb:['KeyF'],pad:[3]},
+  {id:'weapon',n:'Next weapon (as Gnash)',c:'#b0b8c0',kb:['KeyR'],pad:[15]},
 ];
 const KB_RESERVED=new Set(['Escape','Backquote','KeyP','KeyV','Period','BracketLeft','BracketRight','Backspace','Delete']),PAD_RESERVED=new Set([8,9]);
 let BINDS={};
@@ -61,11 +62,21 @@ const btnMark=g=>g?'⟦'+g+'⟧':'';
 const actMark=(p,id)=>{const B=BINDS[id];return btnMark(p&&p.pad?bindGlyph('pad',B.pad[0]):bindGlyph('kb',B.kb[0]));};
 function hudHTML(s){return String(s).split(/⟦([^⟧]*)⟧/).map((t,i)=>i%2?glyph(t):glEsc(t)).join('');}
 // the bottom-of-screen hint, from the bindings
-function bindHint(pad){
+function bindHint(pad,p){
   const L=id=>{const B=BINDS[id];return pad?(B.pad.length?btnMark(bindGlyph('pad',B.pad[0])):null):(B.kb.length?btnMark(bindGlyph('kb',B.kb[0])):null);},hv=ABIL.trample?'trample':'sprint',out=[];
+  if(DT.gob)return gobHint(L,p);
   if(L('stomp'))out.push('Hold '+L('stomp')+' stomp');if(L('bite'))out.push(L('bite')+' bite');if(L('jump'))out.push(L('jump')+' jump');
   if(L('dashSprint'))out.push('tap '+L('dashSprint')+' dash, hold to '+hv);else{if(L('dash'))out.push(L('dash')+' dash');}
   if(L('sprint'))out.push('hold '+L('sprint')+' to '+hv);
+  return out.join('  ·  ');
+}
+// playing as Gnash: his own moves (the hippo's stomps and trample aren't his), with whatever's in his hand
+function gobHint(L,p){const w=p&&p.wpns?p.wpn:'club',out=[];
+  if(L('bite'))out.push(L('bite')+' '+(w==='rifle'?'shoot':w==='dagger'?'stab':'swing the club'));
+  if(L('stomp'))out.push(L('stomp')+' throw a grenade');if(L('jump'))out.push(L('jump')+' jump');
+  if(L('dashSprint'))out.push('tap '+L('dashSprint')+' dash, hold to sprint');else{if(L('dash'))out.push(L('dash')+' dash');}
+  if(L('sprint'))out.push('hold '+L('sprint')+' to sprint');
+  if(L('climb'))out.push('hold '+L('climb')+' climb');if(L('weapon'))out.push(L('weapon')+' next weapon');if(L('use'))out.push(L('use')+' get in');
   return out.join('  ·  ');
 }
 // ---- rebinding: pick a slot, then press what goes in it

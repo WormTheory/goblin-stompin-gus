@@ -82,13 +82,13 @@ function trampleFences(p){
 // Play as Gnash the goblin (picked on the title screen's character select, ui/char-select.js): the same player code runs, with a goblin's abilities and speeds in place of the hippo's for
 // the length of the step, so none of the moves need to know. (Walking speed and the hop are what goblins themselves do.)
 const GOB_ABIL={bite:true,biteCombo:false,stomp:false,chargeStomp:false,fullStomp:false,groundSpike:false,pound:false,chargePound:false,fullPound:false,jump:true,double:false,triple:false,
-  sprint:true,trample:false,dash:false,roll:false,blastDash:false,airDash:false,blastAirDash:false,longJump:false,blastJump:false,rocket:false,climb:true,crash:false,noFall:false};
+  sprint:true,trample:false,dash:true,roll:false,blastDash:false,airDash:false,blastAirDash:false,longJump:false,blastJump:false,rocket:false,climb:true,crash:false,noFall:false};
 const GOB_FEET=[[0,0],[.25,.25],[-.25,.25],[.25,-.25],[-.25,-.25]],GOB_WALK=2.8,GOB_RUN=5,GOB_HOP=8.4,GOB_EYE=1.22*ES;
 const calmNow=()=>DT.host<2;   // (nobody's after you: enemy hostility is turned down. Playing as a goblin makes no difference: they're after you all the same)
 const passiveNow=()=>DT.host===0;   // (and nobody minds you at all, not even when you hit them)
 const camPitch=v=>DT.gob?Math.max(-1.5,Math.min(1.5,v)):Math.max(-1.1,Math.min(0.55,v));   // (in first person you can look right up)
 function setGob(on){
-  if(on===DT.gob)return;if(!on)for(const q of players)if(q.drv)drvExit(q);DT.gob=on;
+  if(on===DT.gob)return;if(!on)for(const q of players)if(q.drv)drvExit(q);DT.gob=on;for(const q of players)q.wpns=null;   // (a fresh goblin has just his club)
   HIPPO_PTS=on?GOB_FEET:HIPPO_FEET;P_HX=P_HZ=on?0.38:0.75*ES;if(!on)P_HZ=1.45*ES;P_HY=on?1.35:2.1*ES;
   PB_LAT=on?[-0.38,0,0.38]:[-P_HX*0.95,0,P_HX*0.95];PB_ALONG=on?[-0.38,0,0.38]:[-1.42,-0.5,0.5,1.42].map(v=>v*ES);
   // (head height only: a block at the feet is a step up, and walking on to it is the ground's business)
@@ -105,6 +105,7 @@ function setGob(on){
 function updatePlayer(p,dt){
   if(!DT.gob||SBX)return movePlayer(p,dt);
   if(drvTick(p,dt))return;   // (in a vehicle: it does the moving. See drvTick)
+  gobArmsTick(p,dt);   // (grenades and the weapon button: see gob-weapons.js)
   if(p.state==='walk')p.heading=p.cam.yaw+Math.PI;   // (a body faces wherever you look)
   const A0=Object.assign({},ABIL),w=AB.walk.speed,r=AB.trample.speed,j=AB.jump.launch;
   Object.assign(ABIL,GOB_ABIL);AB.walk.speed=GOB_WALK;AB.trample.speed=GOB_RUN;AB.jump.launch=GOB_HOP;
@@ -125,9 +126,14 @@ function gobKit(p){
   const vm=new THREE.Group();vm.rotation.order='YXZ';vm.visible=false;vm.scale.setScalar(0.5);scene.add(vm);
   const arm=new THREE.Group();arm.position.set(0.52,-0.62,-0.72);vm.add(arm);
   const mat=c=>new THREE.MeshLambertMaterial({color:c,transparent:true,depthTest:false,depthWrite:false});
-  const box=(w,h,d,c,x,y,z,o)=>{const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c));b.position.set(x,y,z);b.renderOrder=o;b.frustumCulled=false;arm.add(b);};
-  box(0.11,0.11,0.42,GC.skin,0,0,-0.2,60);box(0.07,0.42,0.07,GC.club,0,0.17,-0.42,61);box(0.15,0.17,0.15,GC.club,0,0.42,-0.42,62);
-  return p.gb={root,m,vm,arm};
+  const box=(w,h,d,c,x,y,z,o,to=arm)=>{const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c));b.position.set(x,y,z);b.renderOrder=o;b.frustumCulled=false;to.add(b);};
+  box(0.11,0.11,0.42,GC.skin,0,0,-0.2,60);
+  // (one of these in the hand at a time: see gob-weapons.js)
+  const held={};for(const k of GOB_WPN_ORDER){held[k]=new THREE.Group();arm.add(held[k]);held[k].visible=k==='club';}
+  box(0.07,0.42,0.07,GC.club,0,0.17,-0.42,61,held.club);box(0.15,0.17,0.15,GC.club,0,0.42,-0.42,62,held.club);
+  box(0.09,0.09,0.13,0x2a1a10,0,0.02,-0.44,61,held.dagger);box(0.14,0.04,0.04,0x6a5a3a,0,0.02,-0.52,61,held.dagger);box(0.025,0.05,0.34,0xd0d4dc,0,0.02,-0.71,62,held.dagger);   // (pointing forward, for stabbing)
+  box(0.1,0.12,0.34,0x4a3420,0,0.02,-0.36,61,held.rifle);box(0.07,0.07,0.78,0x22262c,0,0.07,-0.86,62,held.rifle);box(0.05,0.12,0.05,0x22262c,0,-0.04,-0.6,62,held.rifle);
+  return p.gb={root,m,vm,arm,held};
 }
 // the first-person view, and the body that goes with it
 // Clinging to a wall he's 0.06 off its face (where a hippo's belly goes), well inside the near plane, so the view went
@@ -180,7 +186,12 @@ function gobCamera(p){
   K.m.legs[0].rotation.x=walking?sn*0.7:0;K.m.legs[1].rotation.x=walking?-sn*0.7:0;K.m.arm.rotation.x=sw>0?-0.5-1.9*Math.sin(sw*Math.PI):-0.5;
   // up and back until the blow lands (with the bite's own timing), down hard, and slowly back to the rest
   const raise=sw<0.42?1.1*sw/0.42:sw<0.55?1.1-1.7*(sw-0.42)/0.13:-0.6+0.6*(sw-0.55)/0.45;
-  K.arm.rotation.x=0.08+raise+(walking?sn*0.03:0);K.arm.position.y=-0.62+(walking?Math.abs(sn)*0.012:0);
+  const wk=gobArms(p).wpn;for(const k in K.held)K.held[k].visible=k===wk;
+  // (switching: the new one comes up from below; the rifle's held level along the view and kicks when it fires)
+  const up=Math.max(0,1-(camClock-(p.wpnT??-9))/0.25);
+  if(wk==='rifle'){const kick=p.biteT>0?Math.max(0,1-sw*4):0;K.arm.rotation.x=0.04+0.22*kick;K.arm.position.set(0.34,-0.46-up*0.5+(walking?Math.abs(sn)*0.012:0),-0.5+0.12*kick);}
+  else if(wk==='dagger'){const st=Math.sin(Math.min(1,sw*1.5)*Math.PI);K.arm.rotation.x=0.3-0.26*st+(walking?sn*0.03:0);K.arm.position.set(0.46-0.12*st,-0.6-up*0.5+(walking?Math.abs(sn)*0.012:0),-0.66-0.4*st);}   // (a stab, straight in)
+  else{K.arm.rotation.x=0.08+raise+(walking?sn*0.03:0);K.arm.position.set(0.52,-0.62-up*0.5+(walking?Math.abs(sn)*0.012:0),-0.72);}
 }
 // who's seen from this view: everyone's goblin but your own, unless the free cam has left it
 function gobView(v){

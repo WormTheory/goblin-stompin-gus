@@ -50,6 +50,7 @@ enemies/crowds.js
 enemies/foes.js
 enemies/cultists.js
 enemies/shots.js
+player/gob-weapons.js
 enemies/routes.js
 vehicles/cars.js
 vehicles/car-physics.js

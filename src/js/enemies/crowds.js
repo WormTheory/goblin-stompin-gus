@@ -218,6 +218,7 @@ function damageGoblin(g,n,pt,dir,cause,by){
   if(g.hp<=0){g.state='dead';g.t=0;g.sink=0;const n2=nearestPlayer(g.pos.x,g.pos.z);reportNews(g.pos.x,g.pos.z,'killing');
     // 'by' is an NPC (a car's driver) when they did it; otherwise the nearest hippo gets the credit
     recordObit(g,cause||'Killed by a hippo',by||(n2&&n2.p));
+    if(DT.gob&&GOB_CAUSES.has(cause))gobDrop(g);   // (Gnash takes what they had: see gob-weapons.js)
     if(by){g.vendor=null;}
     else reportCrime(g.pos.x,g.pos.z);
     if(by){}

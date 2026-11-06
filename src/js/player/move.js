@@ -373,7 +373,7 @@ function movePlayer(p,dt){
     if(Math.hypot(sx,sz)>0.25){
       if(p.lockT){const tx=p.lockT.pos.x-p.pos.x,tz=p.lockT.pos.z-p.pos.z,tl=Math.hypot(tx,tz)||1,fx=tx/tl,fz=tz/tl;wx=fx*-sz-fz*sx;wz=fz*-sz+fx*sx;}
       else{const s2=Math.sin(p.cam.yaw),c2=Math.cos(p.cam.yaw);wx=sx*c2+sz*s2;wz=-sx*s2+sz*c2;}
-    } else if(ROLL||BDASH){wx=Math.sin(p.heading);wz=Math.cos(p.heading);}   // (a roll or a blast dash goes forward, not back)
+    } else if(ROLL||BDASH||DT.gob){wx=Math.sin(p.heading);wz=Math.cos(p.heading);}   // (a roll or a blast dash goes forward, not back; so does Gnash's dash, the way he's looking)
     else {wx=-Math.sin(p.heading);wz=-Math.cos(p.heading);}
     const l=Math.hypot(wx,wz)||1;wx/=l;wz/=l;
     if(ROLL){
