@@ -68,12 +68,13 @@ for(const it of T.DBG_ITEMS.filter(it=>it.sec==='Rendering')){const was=T.dbgVal
 S(60);
 console.log('props meshes visible after switching back',T.PROP_L.visible,T.PROP_G.visible);
 // the menu: every row reachable, up/down within a column, left/right across on a plain row, adjusting on a slider
-{const L=T.dbgItems(),byC=[0,1,2].map(c=>L.filter(o=>o.c===c).map(o=>o.k));console.log('columns',JSON.stringify(byC));
+{const L=T.dbgItems(),byC=[0,1,2,3].map(c=>L.filter(o=>o.c===c).map(o=>o.k));console.log('columns',JSON.stringify(byC));
  const nav=(dy,dx)=>{T.DT.navDir='';T.dbgMenuNav('kbd',dy,dx,0);T.DT.navDir='';return T.dbgItems()[T.DT.cur];};
  const seen=new Set();T.DT.cur=0;const s0=T.DT.speedI,c0=T.DT.curve,p0=T.DT.psI;for(let i=0;i<400;i++){const it=nav(i%5===4?0:1,i%5===4?1:0);seen.add(it.k);}T.DT.speedI=s0;T.DT.curve=c0;T.DT.psI=p0;
  console.log('rows reached by walking the menu',seen.size,'of',L.length);
  T.DT.cur=L.findIndex(o=>o.k==='paused');console.log('right from Stop time goes to',nav(0,1).k,', then left back to',nav(0,-1).k);
- T.DT.cur=L.findIndex(o=>o.k==='speed');const s1=T.DT.speedI;console.log('left on Game speed stays on',nav(0,-1).k,'and speed index goes',s1,'->',T.DT.speedI);T.DT.speedI=s1;}
+ T.DT.cur=L.findIndex(o=>o.k==='speed');const s1=T.DT.speedI;console.log('left on Game speed, not picked: goes to',nav(0,-1).k,'and speed index stays',s1,'->',T.DT.speedI);
+ T.DT.cur=L.findIndex(o=>o.k==='speed');T.dbgMenuToggle();console.log('picked with A:',T.DT.edit,'; then left: stays on',nav(0,-1).k,'speed index',s1,'->',T.DT.speedI,'; A again lets go:',(T.dbgMenuToggle(),T.DT.edit),'; picked again, then down lets go:',(T.dbgMenuToggle(),nav(1,0).k),T.DT.edit);T.DT.speedI=s1;}
 // benches and litter bins are props now: drawn and listed as props, and goblins go round them, out to the lamp posts' distance
 {T.refreshFixtures();const str=T.activeProps.filter(f=>f.type==='parkbench'||f.type==='litterbin'),old=T.activeFix.filter(f=>f.type==='bench'||f.type==='bin');
  const far=str.reduce((m,f)=>Math.max(m,Math.max(Math.abs(f.x-A.pos.x),Math.abs(f.z-A.pos.z))),0);

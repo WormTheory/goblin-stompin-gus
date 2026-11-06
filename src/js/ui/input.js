@@ -110,8 +110,8 @@ function readInputs(dt){
   // the debug quick menu: Select on any controller opens it and Select (or B) closes it again; ~ does the same on the
   // keyboard. The game is paused meanwhile, and the controllers drive the menu instead of the hippos.
   if(!DT.quick)DT.selHeld=false;
-  else for(const s of st){if(s.pr[8])DT.selHeld=!DT.selHeld;else if(DT.selHeld&&s.pr[1]){if(DT.dd){DT.dd=null;renderTime();}else DT.selHeld=false;}}
-  const wasOpen=DT.menu;DT.menu=DT.quick&&(DT.selHeld||DT.kbdOpen);if(!DT.menu)DT.dd=null;
+  else for(const s of st){if(s.pr[8])DT.selHeld=!DT.selHeld;else if(DT.selHeld&&s.pr[1]){if(DT.edit){DT.edit=null;renderTime();}else if(DT.dd){DT.dd=null;renderTime();}else DT.selHeld=false;}}
+  const wasOpen=DT.menu;DT.menu=DT.quick&&(DT.selHeld||DT.kbdOpen);if(!DT.menu){DT.dd=null;DT.edit=null;}
   if(DT.menu){
     let dy=0,dx=0;
     for(const s of DT.selHeld?st:[]){const ax=s.p.axes,lx=ax[0]||0,ly=ax[1]||0;

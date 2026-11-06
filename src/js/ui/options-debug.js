@@ -69,8 +69,9 @@ const DBG_COLS=4,DBG_SECS=[
     {k:'pHurt',label:'Player hurtboxes',col:'#46f06a'},{k:'nHurt',label:'NPC hurtboxes',col:'#46d4ff'}]],
   [3,'Interface',[{k:'uiAll',label:'Whole display'},...Object.keys(UI_PARTS).map(k=>({k,label:UI_PARTS[k][1]}))]]];
 const DBG_ITEMS=DBG_SECS.flatMap(([c,sec,rows])=>rows.map(it=>Object.assign(it,{c,sec})));
-// (the rows left and right change; on any other row they move to the next column)
-const DBG_ADJ=new Set(['speed','pspeed','curve','wx','season']);
+// (the sliders: left and right only move one once it's been picked with A, and until then they go to the next column,
+// as on any other row, so a slider never gets in the way of crossing the menu)
+const DBG_SLIDE=new Set(['speed','pspeed','curve']);
 // the Rendering switches, and what each one stops being drawn (not saved: a world with holes in the picture would only
 // be confusing to come back to). The caves, sewers and subways redraw over the next few frames, nearest first.
 const GFX_KEY={gProps:'props',gFixtures:'fixtures',gCaves:'caves',gSewers:'sewers',gSubway:'subway'};
@@ -104,25 +105,23 @@ function ddChoose(k,j){
 function dbgMenuToggle(){const it=dbgItems()[DT.cur];
   if(it.k==='wx'||it.k==='season'){if(DT.dd&&DT.dd.k===it.k)ddChoose(it.k,DT.dd.i);else{DT.dd={k:it.k,i:ddCur(it.k)};DT.ddScroll=0;DT.ddNav=true;tone('triangle',560,0,0.04,0.02);renderTime();}return;}
   DT.dd=null;
+  if(DBG_SLIDE.has(it.k)){DT.edit=DT.edit===it.k?null:it.k;tone('triangle',DT.edit?620:480,0,0.05,0.03);renderTime();return;}
   if(GFX_KEY[it.k])toggleGfx(it.k);
   else if(isUi(it.k))toggleUi(it.k);
-  else if(it.k==='curve')DT.curve=2;
-  else if(it.k==='speed')DT.speedI=SPEEDS.indexOf(1);
   else if(it.k==='freecam')setFreecam(!DT.freecam);
   else if(it.k==='gob')setGob(!DT.gob);
   else if(it.k==='paused')DT.paused=!DT.paused;
-  else if(it.k==='pspeed')DT.psI=0;
   else if(it.k==='invuln'||it.k==='peace'||it.k==='infStam'||it.k==='fly'||it.k==='fps'||it.k==='hpBars'||it.k==='dmgNums'||it.k==='sndList'){DT[it.k]=!DT[it.k];try{localStorage.setItem('goblin-stompin-gus-'+it.k,DT[it.k]?'1':'0');}catch(e){}}
   else{DBG[it.k]=!DBG[it.k];renderDbg();try{localStorage.setItem(DBG_KEY,JSON.stringify(DBG));}catch(e){}}
   tone('triangle',620,0,0.05,0.03);renderTime();}
-// up/down move the highlight within its column; left/right change a slider or a choice (on that row), and on any other
-// row move across to the next column, about level; a step on the first push, then repeating
+// up/down move the highlight within its column (letting go of a picked slider); left/right move across to the next
+// column, about level, or change the slider that's been picked; a step on the first push, then repeating
 function dbgMenuNav(src,dy,dx,dt){
   const d=dy?'y'+dy:dx?'x'+dx:'';
   const act=()=>{const L=dbgItems();if(DT.dd){if(dy){const n=ddOpts(DT.dd.k).length;DT.dd.i=(DT.dd.i+dy+n)%n;DT.ddNav=true;tone('triangle',520,0,0.03,0.02);}renderTime();return;}
     const it=L[DT.cur],colOf=c=>L.filter(o=>o.c===c),here=colOf(it.c),j=here.indexOf(it);
-    if(dy){DT.cur=L.indexOf(here[(j+dy+here.length)%here.length]);tone('triangle',520,0,0.03,0.02);}
-    else if(dx&&DBG_ADJ.has(it.k))dbgStep(it.k,dx);
+    if(dy){DT.edit=null;DT.cur=L.indexOf(here[(j+dy+here.length)%here.length]);tone('triangle',520,0,0.03,0.02);}
+    else if(dx&&DT.edit===it.k)dbgStep(it.k,dx);
     else if(dx){const N=colOf((it.c+dx+DBG_COLS)%DBG_COLS);DT.cur=L.indexOf(N[Math.min(j,N.length-1)]);tone('triangle',520,0,0.03,0.02);}
     renderTime();};
   if(d!==DT.navDir){DT.navDir=d;DT.navT=0.35;if(d)act();}
@@ -158,7 +157,7 @@ function renderTime(){
       else if(it.k==='wx'||it.k==='season')body='<span class="dd">'+(it.k==='wx'?WX_TYPES[WX.type].i+' ':'')+txt+' ▾</span>';
       let list='';
       if(DT.dd&&DT.dd.k===it.k){const cur=ddCur(it.k);list='<div class="ddl">'+ddOpts(it.k).map((o,j)=>'<div class="ddo'+(j===DT.dd.i?' cur':'')+(j===cur?' sel':'')+'" data-j="'+j+'">'+o.n+'</div>').join('')+'</div>';}
-      return '<div class="dr'+(i===DT.cur?' cur':'')+'" data-i="'+i+'"><span>'+(it.col?'<i class="sw" style="background:'+it.col+'"></i>':'')+'</span><span>'+it.label+'</span><em'+(v===false?' class="off"':'')+'>'+body+'</em></div>'+list;});
+      return '<div class="dr'+(i===DT.cur?' cur':'')+(DT.edit===it.k?' edit':'')+'" data-i="'+i+'"><span>'+(it.col?'<i class="sw" style="background:'+it.col+'"></i>':'')+'</span><span>'+it.label+'</span><em'+(v===false?' class="off"':'')+'>'+body+'</em></div>'+list;});
     // laid out by column, then by section
     document.getElementById('dpRows').innerHTML=Array.from({length:DBG_COLS},(_,c)=>c).map(c=>'<div>'+DBG_SECS.filter(s=>s[0]===c).map(s=>'<div class="dps"><h5>'+s[1]+'</h5>'+dbgL.map((it,i)=>it.sec===s[1]?dbgRows[i]:'').join('')+'</div>').join('')+'</div>').join('');
     // (on a short screen the menu scrolls: keep the highlight in view)
@@ -167,7 +166,8 @@ function renderTime(){
     dp.classList.toggle('mouse',DT.kbdOpen);
     const pad=DT.selHeld;
     document.getElementById('dpHint').textContent='game paused';
-    setPrompts(document.getElementById('dpPrompts'),pad?[[['DPAD:v'],'Choose'],[['A'],'Switch'],[['DPAD:h'],'Adjust / Column'],[['RS'],'Camera'],[['SELECT'],'Close'],[['B'],'Close']]:[[['LMB'],'Switch'],[['KEY:↑','KEY:↓'],'Choose'],[['KEY:Space'],'Switch'],[['KEY:←','KEY:→'],'Adjust / Column'],[['KEY:~'],'Close']]);
+    setPrompts(document.getElementById('dpPrompts'),DT.edit?(pad?[[['DPAD:h'],'Adjust'],[['A'],'Done'],[['B'],'Done'],[['DPAD:v'],'Choose']]:[[['KEY:←','KEY:→'],'Adjust'],[['KEY:Space'],'Done'],[['KEY:Esc'],'Done'],[['KEY:↑','KEY:↓'],'Choose']])
+      :pad?[[['DPAD:v'],'Choose'],[['A'],'Select'],[['DPAD:h'],'Column'],[['RS'],'Camera'],[['SELECT'],'Close'],[['B'],'Close']]:[[['LMB'],'Select'],[['KEY:↑','KEY:↓'],'Choose'],[['KEY:Space'],'Select'],[['KEY:←','KEY:→'],'Column'],[['KEY:~'],'Close']]);
     document.getElementById('dpClose').hidden=pad;
   }
 }
@@ -201,7 +201,7 @@ addEventListener('keydown',e=>{
     const c=e.code,dy=(c==='ArrowUp'||c==='KeyW')?-1:(c==='ArrowDown'||c==='KeyS')?1:0,dx=(c==='ArrowLeft'||c==='KeyA')?-1:(c==='ArrowRight'||c==='KeyD')?1:0;
     if(dy||dx){DT.navDir='';dbgMenuNav('kbd',dy,dx,0);DT.navDir='';e.preventDefault();return;}
     if((c==='Space'||c==='Enter')&&!e.repeat){dbgMenuToggle();e.preventDefault();return;}
-    if(c==='Escape'){if(DT.dd){DT.dd=null;renderTime();return;}setKbdMenu(false);return;}
+    if(c==='Escape'){if(DT.edit){DT.edit=null;renderTime();return;}if(DT.dd){DT.dd=null;renderTime();return;}setKbdMenu(false);return;}
   }
   if(e.repeat)return;
   if(e.code==='KeyP'){DT.paused=!DT.paused;renderTime();}
