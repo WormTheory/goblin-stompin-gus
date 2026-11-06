@@ -227,6 +227,7 @@ Everything from the move to Claude Code on November 2, 2026, up to the first rel
 **Testing Environment**
 
 - A new title screen mode with an empty, flat world. Your own city is put aside and restored when you leave.
+- Its spawning menu is its own tab, just right of Game, and only there while you're in it. The Game tab stays the usual title screen.
 - Spawn any structure, fully furnished, on the nearest clear ground in front of Gus.
 - Spawn goblins, cultists, thieves, preppers, militia, police and civilians.
 - Spawn every kind of vehicle, hunting Gus or parked: cars, vans, pickups, trucks, semis, buses, fire engines, ambulances, news vans, motorcycles, police cars, tanks and helicopters. Spawned vehicles keep clear of each other.

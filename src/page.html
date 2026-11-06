@@ -54,6 +54,7 @@
    <div class="main">
     <div class="tabs" role="tablist" aria-label="Menu">
       <button type="button" role="tab" id="tabBtnGame" aria-selected="true" aria-controls="tabGame">Game</button>
+      <button type="button" role="tab" id="tabBtnTest" aria-selected="false" aria-controls="tabTest" hidden>Testing Environment</button>
       <button type="button" role="tab" id="tabBtnMap" aria-selected="false" aria-controls="tabMap">Map</button>
       <button type="button" role="tab" id="tabBtnObit" aria-selected="false" aria-controls="tabObit">Obituary<span class="cnt" id="obitCount">0</span></button>
       <button type="button" role="tab" id="tabBtnCustom" aria-selected="false" aria-controls="tabCustom">Character</button>
@@ -90,25 +91,27 @@
         <button id="confirmNo">Keep this one</button>
       </div>
      </div>
-      <div class="testpanel" id="testPanel" hidden>
-        <div class="tp-head"><h2>Testing Environment</h2><p>An empty, flat world to try things out in. Pick a kind of structure to bring in the nearest one this world would build, furnished and dressed as it would be in a city, built on the nearest clear ground in front of Gus. Enemies turn up a few steps ahead of wherever Gus is looking.</p></div>
-        <div class="tp-info" id="tpInfo" role="status"></div>
-        <div class="tp-sec"><div class="tp-gh">Enemies</div>
-          <div class="tp-tools" id="tpFoes"><button type="button" class="pmenu" data-foe="goblin">Goblin</button><button type="button" class="pmenu" data-foe="cop">Police officer</button><button type="button" class="pmenu" data-foe="cultist">Cultist</button><button type="button" class="pmenu" data-foe="thief">Thief</button><button type="button" class="pmenu" data-foe="prepper">Prepper</button><button type="button" class="pmenu" data-foe="militia">Militia</button><button type="button" class="pmenu" data-foe="civ">Civilian</button>
-            <span class="tp-count">How many</span><div class="seg" role="radiogroup" aria-label="How many to spawn" id="tpN"><button type="button" role="radio" data-n="1" aria-checked="true">1</button><button type="button" role="radio" data-n="5" aria-checked="false">5</button><button type="button" role="radio" data-n="10" aria-checked="false">10</button></div>
-            <button type="button" class="pmenu" id="tpClear">Clear all</button></div></div>
-        <div class="tp-sec"><div class="tp-gh">Vehicles</div>
-          <div class="tp-tools"><span id="tpVehs" style="display:contents"></span>
-            <div class="seg" role="radiogroup" aria-label="What spawned vehicles do" id="tpVM"><button type="button" role="radio" data-vm="hunt" aria-checked="true">Hunt Gus</button><button type="button" role="radio" data-vm="park" aria-checked="false">Parked</button></div></div></div>
-        <div class="tp-sec" id="tpPlacedSec" hidden><div class="tp-gh">Spawned here</div><div class="tp-placed" id="tpPlaced"></div></div>
-        <div class="tp-groups" id="tpGroups"></div>
-        <div class="tp-foot"><button type="button" class="big" id="tpGo">Play</button><button type="button" class="pmenu" id="tpCancel">Title screen</button><button type="button" class="pmenu" id="tpNormal">Back to your city</button><button type="button" class="pmenu" id="tpReset">Reset world</button></div>
-      </div>
       <div class="gamefoot">
         <button type="button" class="pnlatest" id="pnLatest">What's new: <!-- build: patch-notes-latest --> <span aria-hidden="true">›</span></button>
         <div class="note" id="padNote">No controllers found yet. Press a button on one to wake it up.</div>
         <div class="note" id="seedNote"></div>
       </div>
+    </div>
+    <div class="tabpane testpane" id="tabTest" role="tabpanel" hidden>
+    <div class="testpanel" id="testPanel">
+      <div class="tp-head"><h2>Testing Environment</h2><p>An empty, flat world to try things out in. Pick a kind of structure to bring in the nearest one this world would build, furnished and dressed as it would be in a city, built on the nearest clear ground in front of Gus. Enemies turn up a few steps ahead of wherever Gus is looking.</p></div>
+      <div class="tp-info" id="tpInfo" role="status"></div>
+      <div class="tp-sec"><div class="tp-gh">Enemies</div>
+        <div class="tp-tools" id="tpFoes"><button type="button" class="pmenu" data-foe="goblin">Goblin</button><button type="button" class="pmenu" data-foe="cop">Police officer</button><button type="button" class="pmenu" data-foe="cultist">Cultist</button><button type="button" class="pmenu" data-foe="thief">Thief</button><button type="button" class="pmenu" data-foe="prepper">Prepper</button><button type="button" class="pmenu" data-foe="militia">Militia</button><button type="button" class="pmenu" data-foe="civ">Civilian</button>
+          <span class="tp-count">How many</span><div class="seg" role="radiogroup" aria-label="How many to spawn" id="tpN"><button type="button" role="radio" data-n="1" aria-checked="true">1</button><button type="button" role="radio" data-n="5" aria-checked="false">5</button><button type="button" role="radio" data-n="10" aria-checked="false">10</button></div>
+          <button type="button" class="pmenu" id="tpClear">Clear all</button></div></div>
+      <div class="tp-sec"><div class="tp-gh">Vehicles</div>
+        <div class="tp-tools"><span id="tpVehs" style="display:contents"></span>
+          <div class="seg" role="radiogroup" aria-label="What spawned vehicles do" id="tpVM"><button type="button" role="radio" data-vm="hunt" aria-checked="true">Hunt Gus</button><button type="button" role="radio" data-vm="park" aria-checked="false">Parked</button></div></div></div>
+      <div class="tp-sec" id="tpPlacedSec" hidden><div class="tp-gh">Spawned here</div><div class="tp-placed" id="tpPlaced"></div></div>
+      <div class="tp-groups" id="tpGroups"></div>
+      <div class="tp-foot"><button type="button" class="big" id="tpGo">Play</button><button type="button" class="pmenu" id="tpNormal">Back to your city</button><button type="button" class="pmenu" id="tpReset">Reset world</button></div>
+    </div>
     </div>
     <div class="tabpane" id="tabControls" role="tabpanel" hidden>
       <div class="ctl-top">

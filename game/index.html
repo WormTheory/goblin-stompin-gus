@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:9415457eae5810a77dbeb37697be09af4c9bc6d4191df1a4d1240241917a09cd -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:304df172cdf841223e246e27c811c1c371555fe581954288844764a477b04566 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -490,7 +490,6 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 .tp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:6px}
 .tp-grid .tog{padding:6px 8px;font-size:13px;align-items:center}
 .tp-foot{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.gamepane.testing .gamemain{display:none}
 .tp-info{font:600 13.5px var(--f-body);color:#e8c14a;min-height:1.4em}
 .testpanel .tp-groups{max-height:min(34vh,420px)}
 .tp-sec{display:flex;flex-direction:column}
@@ -580,6 +579,7 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
    <div class="main">
     <div class="tabs" role="tablist" aria-label="Menu">
       <button type="button" role="tab" id="tabBtnGame" aria-selected="true" aria-controls="tabGame">Game</button>
+      <button type="button" role="tab" id="tabBtnTest" aria-selected="false" aria-controls="tabTest" hidden>Testing Environment</button>
       <button type="button" role="tab" id="tabBtnMap" aria-selected="false" aria-controls="tabMap">Map</button>
       <button type="button" role="tab" id="tabBtnObit" aria-selected="false" aria-controls="tabObit">Obituary<span class="cnt" id="obitCount">0</span></button>
       <button type="button" role="tab" id="tabBtnCustom" aria-selected="false" aria-controls="tabCustom">Character</button>
@@ -616,25 +616,27 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
         <button id="confirmNo">Keep this one</button>
       </div>
      </div>
-      <div class="testpanel" id="testPanel" hidden>
-        <div class="tp-head"><h2>Testing Environment</h2><p>An empty, flat world to try things out in. Pick a kind of structure to bring in the nearest one this world would build, furnished and dressed as it would be in a city, built on the nearest clear ground in front of Gus. Enemies turn up a few steps ahead of wherever Gus is looking.</p></div>
-        <div class="tp-info" id="tpInfo" role="status"></div>
-        <div class="tp-sec"><div class="tp-gh">Enemies</div>
-          <div class="tp-tools" id="tpFoes"><button type="button" class="pmenu" data-foe="goblin">Goblin</button><button type="button" class="pmenu" data-foe="cop">Police officer</button><button type="button" class="pmenu" data-foe="cultist">Cultist</button><button type="button" class="pmenu" data-foe="thief">Thief</button><button type="button" class="pmenu" data-foe="prepper">Prepper</button><button type="button" class="pmenu" data-foe="militia">Militia</button><button type="button" class="pmenu" data-foe="civ">Civilian</button>
-            <span class="tp-count">How many</span><div class="seg" role="radiogroup" aria-label="How many to spawn" id="tpN"><button type="button" role="radio" data-n="1" aria-checked="true">1</button><button type="button" role="radio" data-n="5" aria-checked="false">5</button><button type="button" role="radio" data-n="10" aria-checked="false">10</button></div>
-            <button type="button" class="pmenu" id="tpClear">Clear all</button></div></div>
-        <div class="tp-sec"><div class="tp-gh">Vehicles</div>
-          <div class="tp-tools"><span id="tpVehs" style="display:contents"></span>
-            <div class="seg" role="radiogroup" aria-label="What spawned vehicles do" id="tpVM"><button type="button" role="radio" data-vm="hunt" aria-checked="true">Hunt Gus</button><button type="button" role="radio" data-vm="park" aria-checked="false">Parked</button></div></div></div>
-        <div class="tp-sec" id="tpPlacedSec" hidden><div class="tp-gh">Spawned here</div><div class="tp-placed" id="tpPlaced"></div></div>
-        <div class="tp-groups" id="tpGroups"></div>
-        <div class="tp-foot"><button type="button" class="big" id="tpGo">Play</button><button type="button" class="pmenu" id="tpCancel">Title screen</button><button type="button" class="pmenu" id="tpNormal">Back to your city</button><button type="button" class="pmenu" id="tpReset">Reset world</button></div>
-      </div>
       <div class="gamefoot">
         <button type="button" class="pnlatest" id="pnLatest">What's new: Version 0.2 <span aria-hidden="true">›</span></button>
         <div class="note" id="padNote">No controllers found yet. Press a button on one to wake it up.</div>
         <div class="note" id="seedNote"></div>
       </div>
+    </div>
+    <div class="tabpane testpane" id="tabTest" role="tabpanel" hidden>
+    <div class="testpanel" id="testPanel">
+      <div class="tp-head"><h2>Testing Environment</h2><p>An empty, flat world to try things out in. Pick a kind of structure to bring in the nearest one this world would build, furnished and dressed as it would be in a city, built on the nearest clear ground in front of Gus. Enemies turn up a few steps ahead of wherever Gus is looking.</p></div>
+      <div class="tp-info" id="tpInfo" role="status"></div>
+      <div class="tp-sec"><div class="tp-gh">Enemies</div>
+        <div class="tp-tools" id="tpFoes"><button type="button" class="pmenu" data-foe="goblin">Goblin</button><button type="button" class="pmenu" data-foe="cop">Police officer</button><button type="button" class="pmenu" data-foe="cultist">Cultist</button><button type="button" class="pmenu" data-foe="thief">Thief</button><button type="button" class="pmenu" data-foe="prepper">Prepper</button><button type="button" class="pmenu" data-foe="militia">Militia</button><button type="button" class="pmenu" data-foe="civ">Civilian</button>
+          <span class="tp-count">How many</span><div class="seg" role="radiogroup" aria-label="How many to spawn" id="tpN"><button type="button" role="radio" data-n="1" aria-checked="true">1</button><button type="button" role="radio" data-n="5" aria-checked="false">5</button><button type="button" role="radio" data-n="10" aria-checked="false">10</button></div>
+          <button type="button" class="pmenu" id="tpClear">Clear all</button></div></div>
+      <div class="tp-sec"><div class="tp-gh">Vehicles</div>
+        <div class="tp-tools"><span id="tpVehs" style="display:contents"></span>
+          <div class="seg" role="radiogroup" aria-label="What spawned vehicles do" id="tpVM"><button type="button" role="radio" data-vm="hunt" aria-checked="true">Hunt Gus</button><button type="button" role="radio" data-vm="park" aria-checked="false">Parked</button></div></div></div>
+      <div class="tp-sec" id="tpPlacedSec" hidden><div class="tp-gh">Spawned here</div><div class="tp-placed" id="tpPlaced"></div></div>
+      <div class="tp-groups" id="tpGroups"></div>
+      <div class="tp-foot"><button type="button" class="big" id="tpGo">Play</button><button type="button" class="pmenu" id="tpNormal">Back to your city</button><button type="button" class="pmenu" id="tpReset">Reset world</button></div>
+    </div>
     </div>
     <div class="tabpane" id="tabControls" role="tabpanel" hidden>
       <div class="ctl-top">
@@ -846,7 +848,7 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 <ul><li>Distant buildings now match their full-detail look, with their real wall, window and roof colours, proper shading, lit windows at night, and grass, rain and snow that follow the seasons and weather.</li></ul>
 <h3>Game modes and debug tools</h3>
 <h4>Testing Environment</h4>
-<ul><li>A new title screen mode with an empty, flat world. Your own city is put aside and restored when you leave.</li><li>Spawn any structure, fully furnished, on the nearest clear ground in front of Gus.</li><li>Spawn goblins, cultists, thieves, preppers, militia, police and civilians.</li><li>Spawn every kind of vehicle, hunting Gus or parked: cars, vans, pickups, trucks, semis, buses, fire engines, ambulances, news vans, motorcycles, police cars, tanks and helicopters. Spawned vehicles keep clear of each other.</li><li>A Plane button parks an airliner on the grass ahead of Gus, ready to get in and take straight off.</li><li>A Reset world button starts a fresh empty world.</li></ul>
+<ul><li>A new title screen mode with an empty, flat world. Your own city is put aside and restored when you leave.</li><li>Its spawning menu is its own tab, just right of Game, and only there while you're in it. The Game tab stays the usual title screen.</li><li>Spawn any structure, fully furnished, on the nearest clear ground in front of Gus.</li><li>Spawn goblins, cultists, thieves, preppers, militia, police and civilians.</li><li>Spawn every kind of vehicle, hunting Gus or parked: cars, vans, pickups, trucks, semis, buses, fire engines, ambulances, news vans, motorcycles, police cars, tanks and helicopters. Spawned vehicles keep clear of each other.</li><li>A Plane button parks an airliner on the grass ahead of Gus, ready to get in and take straight off.</li><li>A Reset world button starts a fresh empty world.</li></ul>
 <h4>Other tools</h4>
 <ul><li><strong>Play as a goblin:</strong> A first-person debug mode with a club. Other goblins take you for one of their own.</li><li><strong>Debug menu:</strong> Now has sections and columns, with switches to hide props, fixtures, caves, sewers, subways and each part of the on-screen display.</li><li><strong>Structures previewer:</strong> Shows each structure fully dressed, with signs, furniture, rides and animals. A new fly mode lets you explore interiors floor by floor. It now finds a real housing estate.</li><li><strong>Title screen:</strong> Left and right change tab, on a controller and with the arrow keys.</li></ul>
 <h3>Performance</h3>
@@ -12240,9 +12242,10 @@ function renderMap(){
  addEventListener('keydown',e=>{if(menuOpen&&curTab==='map'&&e.code==='KeyC'&&!e.repeat)mapRecentre();});
  addEventListener('resize',()=>{if(menuOpen&&curTab==='map')renderMap();});
 }
-const TABS=[['game','Game'],['map','Map'],['obit','Obit'],['custom','Custom'],['controls','Controls'],['options','Options'],['notes','Notes'],['dev','Dev']];let curTab='game';
+const TABS=[['game','Game'],['test','Test'],['map','Map'],['obit','Obit'],['custom','Custom'],['controls','Controls'],['options','Options'],['notes','Notes'],['dev','Dev']];let curTab='game';
+// (a tab whose button is hidden -- the Testing Environment's, outside it -- is passed over by next / previous tab)
 function showTab(which){
-  if(typeof which==='number')which=TABS[(which+TABS.length)%TABS.length][0];
+  if(typeof which==='number'){const d=which<tabIndex()?-1:1;for(let k=0;k<TABS.length;k++,which+=d){const T=TABS[(which%TABS.length+TABS.length)%TABS.length];if(!document.getElementById('tabBtn'+T[1]).hidden){which=T[0];break;}}}
   curTab=which;
   for(const [t,id] of TABS){const on=t===which;document.getElementById('tab'+id).hidden=!on;document.getElementById('tabBtn'+id).setAttribute('aria-selected',String(on));}
   if(which==='obit'){obitSel=0;renderObits();}if(which==='controls')renderControls();if(which==='map'){MAPV.cx=null;setTimeout(renderMap,0);}
@@ -12956,7 +12959,7 @@ function menuNav(dir){
   if(dx&&cur&&cur.matches&&cur.matches('input[type=range]')&&menuCard.contains(cur)){nudgeRange(cur,dx);return;}
   const pane=document.querySelector('.main .tabpane:not([hidden])'),tabBtn=document.getElementById('tabBtn'+TABS[tabIndex()][1]);
   // (on the title screen, and from the row of tabs anywhere: left and right go to the tab next door)
-  const title=curTab==='game'&&document.getElementById('testPanel').hidden&&document.getElementById('confirm').hidden;
+  const title=curTab==='game'&&document.getElementById('confirm').hidden;
   if(dx&&cur&&cur.closest&&cur.closest('#charSel')){const C=[...document.querySelectorAll('#charSel .cs-card')],i=C.indexOf(cur)+dx;if(i>=0&&i<C.length){C[i].click();padFocus(C[i]);}return;}
   if(dx&&(title||cur&&cur.closest&&cur.closest('.tabs'))){showTab(tabIndex()+dx);padFocus(document.getElementById('tabBtn'+TABS[tabIndex()][1]));return;}
   if(dy&&title&&pane.contains(cur)){const U=paneUnits(pane),i=U.findIndex(u=>u===cur||u.contains(cur))+dy;if(i<0)padFocus(tabBtn);else if(i<U.length)unitFocus(U[i]);return;}
@@ -20187,10 +20190,11 @@ function tpRender(){
     b.textContent=(VEH_NAME[t]||[MIL[t]?MIL[t].name:t])[0].replace(/^./,c=>c.toUpperCase());b.addEventListener('click',()=>tenvVeh(t));vb.append(b);}
   const sn=document.getElementById('seedNote');if(sn&&TENV)sn.textContent=`Testing Environment · ${TENV.boxes.length} structure${TENV.boxes.length===1?'':'s'} spawned · seed ${seed}`;
 }
+// the Testing Environment's own tab, just right of Game: there only while in it (on: shown and opened)
 function tpShow(on){
-  const pane=document.getElementById('tabGame'),panel=document.getElementById('testPanel');pane.classList.toggle('testing',on);panel.hidden=!on;
-  if(on){tpRender();setTimeout(()=>{const b=document.getElementById('tpGo');if(b&&!panel.contains(document.activeElement))b.focus();},0);}
-  else{const b=document.getElementById('testWorld');if(b)b.focus();}
+  const btn=document.getElementById('tabBtnTest'),panel=document.getElementById('testPanel');btn.hidden=!TENV;
+  if(on&&TENV){showTab('test');tpRender();setTimeout(()=>{const b=document.getElementById('tpGo');if(b&&!panel.contains(document.activeElement))b.focus();},0);}
+  else if(curTab==='test'||!on){showTab('game');const b=document.getElementById('testWorld');if(b&&!on)b.focus();}
 }
 // a fresh world (a new seed, nothing smashed, no saved position or obituary), built under the given switches: saved,
 // then the page reloads so everything's worked out from scratch
@@ -20438,7 +20442,6 @@ function tenvClear(){
   tsSet('Cleared every goblin and vehicle.');
 }
 document.getElementById('testWorld').addEventListener('click',()=>{if(TENV)tpShow(true);else tenvEnter();});
-document.getElementById('tpCancel').addEventListener('click',()=>tpShow(false));
 document.getElementById('tpGo').addEventListener('click',()=>startPlay());
 document.getElementById('tpNormal').addEventListener('click',()=>tenvLeave());
 document.getElementById('tpClear').addEventListener('click',()=>tenvClear());

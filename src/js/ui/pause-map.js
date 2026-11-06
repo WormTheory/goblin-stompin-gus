@@ -219,9 +219,10 @@ function renderMap(){
  addEventListener('keydown',e=>{if(menuOpen&&curTab==='map'&&e.code==='KeyC'&&!e.repeat)mapRecentre();});
  addEventListener('resize',()=>{if(menuOpen&&curTab==='map')renderMap();});
 }
-const TABS=[['game','Game'],['map','Map'],['obit','Obit'],['custom','Custom'],['controls','Controls'],['options','Options'],['notes','Notes'],['dev','Dev']];let curTab='game';
+const TABS=[['game','Game'],['test','Test'],['map','Map'],['obit','Obit'],['custom','Custom'],['controls','Controls'],['options','Options'],['notes','Notes'],['dev','Dev']];let curTab='game';
+// (a tab whose button is hidden -- the Testing Environment's, outside it -- is passed over by next / previous tab)
 function showTab(which){
-  if(typeof which==='number')which=TABS[(which+TABS.length)%TABS.length][0];
+  if(typeof which==='number'){const d=which<tabIndex()?-1:1;for(let k=0;k<TABS.length;k++,which+=d){const T=TABS[(which%TABS.length+TABS.length)%TABS.length];if(!document.getElementById('tabBtn'+T[1]).hidden){which=T[0];break;}}}
   curTab=which;
   for(const [t,id] of TABS){const on=t===which;document.getElementById('tab'+id).hidden=!on;document.getElementById('tabBtn'+id).setAttribute('aria-selected',String(on));}
   if(which==='obit'){obitSel=0;renderObits();}if(which==='controls')renderControls();if(which==='map'){MAPV.cx=null;setTimeout(renderMap,0);}

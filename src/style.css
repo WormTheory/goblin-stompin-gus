@@ -484,7 +484,6 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 .tp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:6px}
 .tp-grid .tog{padding:6px 8px;font-size:13px;align-items:center}
 .tp-foot{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.gamepane.testing .gamemain{display:none}
 .tp-info{font:600 13.5px var(--f-body);color:#e8c14a;min-height:1.4em}
 .testpanel .tp-groups{max-height:min(34vh,420px)}
 .tp-sec{display:flex;flex-direction:column}

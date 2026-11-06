@@ -31,10 +31,11 @@ function tpRender(){
     b.textContent=(VEH_NAME[t]||[MIL[t]?MIL[t].name:t])[0].replace(/^./,c=>c.toUpperCase());b.addEventListener('click',()=>tenvVeh(t));vb.append(b);}
   const sn=document.getElementById('seedNote');if(sn&&TENV)sn.textContent=`Testing Environment · ${TENV.boxes.length} structure${TENV.boxes.length===1?'':'s'} spawned · seed ${seed}`;
 }
+// the Testing Environment's own tab, just right of Game: there only while in it (on: shown and opened)
 function tpShow(on){
-  const pane=document.getElementById('tabGame'),panel=document.getElementById('testPanel');pane.classList.toggle('testing',on);panel.hidden=!on;
-  if(on){tpRender();setTimeout(()=>{const b=document.getElementById('tpGo');if(b&&!panel.contains(document.activeElement))b.focus();},0);}
-  else{const b=document.getElementById('testWorld');if(b)b.focus();}
+  const btn=document.getElementById('tabBtnTest'),panel=document.getElementById('testPanel');btn.hidden=!TENV;
+  if(on&&TENV){showTab('test');tpRender();setTimeout(()=>{const b=document.getElementById('tpGo');if(b&&!panel.contains(document.activeElement))b.focus();},0);}
+  else if(curTab==='test'||!on){showTab('game');const b=document.getElementById('testWorld');if(b&&!on)b.focus();}
 }
 // a fresh world (a new seed, nothing smashed, no saved position or obituary), built under the given switches: saved,
 // then the page reloads so everything's worked out from scratch
@@ -282,7 +283,6 @@ function tenvClear(){
   tsSet('Cleared every goblin and vehicle.');
 }
 document.getElementById('testWorld').addEventListener('click',()=>{if(TENV)tpShow(true);else tenvEnter();});
-document.getElementById('tpCancel').addEventListener('click',()=>tpShow(false));
 document.getElementById('tpGo').addEventListener('click',()=>startPlay());
 document.getElementById('tpNormal').addEventListener('click',()=>tenvLeave());
 document.getElementById('tpClear').addEventListener('click',()=>tenvClear());
