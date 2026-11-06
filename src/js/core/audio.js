@@ -39,6 +39,7 @@ function sndName(){
 function sndNote(dur,name){if(!DT.sndList)return;const n=name||sndName(),t=performance.now(),r=SL.rows.get(n);
   if(r){if(t>r.end)r.n=t-r.end>2000?1:r.n+1;r.end=Math.max(r.end,t+dur*1000);}else SL.rows.set(n,{n:1,end:t+dur*1000,el:null});}
 function sndTick(){
+  SL.tag=null;   // (a name only lasts while sfx runs: one left set by mistake would name every sound after it, so it can't outlive the frame)
   if(!SL.el){SL.el=document.getElementById('sndList');if(!SL.el)return;}
   if(SL.shown!==DT.sndList){SL.shown=DT.sndList;SL.el.hidden=!DT.sndList;if(!DT.sndList){SL.rows.clear();SL.el.textContent='';}}
   if(!DT.sndList||!SL.el.appendChild)return;const t=performance.now();

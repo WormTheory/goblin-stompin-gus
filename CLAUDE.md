@@ -187,6 +187,7 @@ It renders in software, so the picture is right but the frame rate says nothing 
   - propaudit: props per kind of structure (count and per thousand square blocks), to find bare ones
   - campfire: campfires only burn someone standing on the wood (Gus, goblins, cultists by the altar), and campsite motorhomes park and can be wrecked
   - obt: obituary preview
+  - sndlist: the debug Sound list names each sound itself (tank fire, dry-fire click, reload, helicopter gun, rocket and rotor, blocks breaking), and no name sticks to the sounds after it
   - twins: Gus and Gertie (and Gnash and Grizzle) do exactly the same things on the same inputs (see Characters)
   - cult: cultists: alive and calm at the altar, roused by coming close or hurting one, fireballs from range (counts thrown and hits), daggers up close, the dead stay dead, the Testing Environment's Cultist button
   - site: compound guards (thieves, preppers, militia) calm then roused, rifles, bombs and daggers; base armour: alert on entry, tanks and helicopters hunting and firing, never overlapping, a goblin run down and a car shoved, destroying them, wrecks saved, standing down; the Testing Environment buttons

@@ -147,12 +147,12 @@ function drvCar(c,dt){
 const DRV_WPN={tank:[{k:'shell',name:'Shells',max:4,gap:1.2,reload:5}],
   heli:[{k:'gun',name:'Gun',max:40,gap:0.09,reload:3},{k:'rkt',name:'Rockets',max:4,gap:0.6,reload:6}]};
 function wpnInit(o,kind){if(!o.wpn){o.wpn={};for(const W of DRV_WPN[kind]||[])o.wpn[W.k]={n:W.max,cd:0,rl:0,W};}}
-function wpnTick(o,dt){for(const k in o.wpn||{}){const s=o.wpn[k];s.cd-=dt;s.ck=(s.ck||0)-dt;if(s.rl>0){s.rl-=dt;if(s.rl<=0){s.rl=0;s.n=s.W.max;if(audio)tone('square',380,520,0.08,0.03);}}}}
+function wpnTick(o,dt){for(const k in o.wpn||{}){const s=o.wpn[k];s.cd-=dt;s.ck=(s.ck||0)-dt;if(s.rl>0){s.rl-=dt;if(s.rl<=0){s.rl=0;s.n=s.W.max;if(audio)sfx('Weapon reloaded',()=>tone('square',380,520,0.08,0.03));}}}}
 // (pulling the trigger with nothing loaded clicks: once a press, or every quarter second held)
 function wpnFire(o,k){const s=o.wpn&&o.wpn[k];if(!s)return false;
   if(s.rl>0||s.n<=0){if(!(s.ck>0)){s.ck=0.25;wpnClick();}return false;}if(s.cd>0)return false;
-  s.n--;s.cd=s.W.gap;if(s.n<=0){s.rl=s.W.reload;if(audio)tone('square',300,180,0.12,0.03);}return true;}
-function wpnClick(){if(audio){tone('square',2400,1500,0.018,0.05);tone('triangle',900,600,0.03,0.04,0.035);}}
+  s.n--;s.cd=s.W.gap;if(s.n<=0){s.rl=s.W.reload;if(audio)sfx('Magazine empty',()=>tone('square',300,180,0.12,0.03));}return true;}
+function wpnClick(){if(audio)sfx('Dry fire click',()=>{tone('square',2400,1500,0.018,0.05);tone('triangle',900,600,0.03,0.04,0.035);});}
 // the helicopter's machine gun, one round: down the line to where you're aiming (led onto a locked target), a little
 // scattered, to the first goblin, vehicle or wall in the way; a tracer and a puff where it hits
 function heliGun(M,p){
@@ -166,7 +166,7 @@ function heliGun(M,p){
   let t=0.5,hit='air';_sp.own=M;
   for(;t<Math.min(R,gt);t+=0.5){const x=mx+ux*t,y=my+uy*t,z=mz+uz*t;if(y<1||solidAt(x,Math.floor(y),z)){hit='wall';break;}_sp.pos.set(x,y,z);if(shotHitsVeh(_sp)){hit='veh';break;}}
   if(hit==='air'&&gg&&t>=gt){t=gt;hit='gob';}
-  const ex=mx+ux*t,ey=my+uy*t,ez=mz+uz*t;tracer(mx,my,mz,ex,ey,ez);if(audio)noise(0.06,0.1,2400,'highpass');
+  const ex=mx+ux*t,ey=my+uy*t,ez=mz+uz*t;tracer(mx,my,mz,ex,ey,ez);if(audio)sfx('Helicopter gun',()=>noise(0.06,0.1,2400,'highpass'));
   if(hit==='gob')damageGoblin(gg,2,new V3(ex,ey,ez),new V3(ux,0.3,uz),'Gunned down from a helicopter');
   else if(hit==='veh')vehBlast(ex,ey,ez,0.8,4,M);
   if(hit!=='air')puff(ex,ey,ez,1,hit==='wall'?0x9a948a:0xffb040,0.2);
@@ -210,7 +210,7 @@ function drvTank(M,dt){
   const F=tankShell(M,A);M.pred=shotPath(F,2,4,M,A);
   wpnTick(M,dt);if(i.bitePress&&wpnFire(M,'shell')){const mx=F.x,my=F.y,mz=F.z;
     shot({kind:'shell',x:mx,y:my,z:mz,vx:F.vx,vy:F.vy,vz:F.vz,grav:2,fuse:4,R:4.5,dmg:4,cause:'Blown up by a goblin in a tank',crush:3.2,vd:60,own:M});
-    smoke(mx,my,mz,4,0x8a8a80);puff(mx,my,mz,4,0xffc040,0.3);if(audio){noise(0.6,0.6,350,'lowpass');tone('sawtooth',70,30,0.5,0.15);}addShake(0.3,M.x,M.z,30);}
+    smoke(mx,my,mz,4,0x8a8a80);puff(mx,my,mz,4,0xffc040,0.3);if(audio)sfx('Tank fires',()=>{noise(0.6,0.6,350,'lowpass');tone('sawtooth',70,30,0.5,0.15);});addShake(0.3,M.x,M.z,30);}
   // (anything more than a block up, below the top of the tank, stops it -- what's overhead it passes under; leaning on
   // it a moment, or hitting it at speed, it smashes through)
   if(Math.abs(M.sv)>0.05){const d=M.sv<0?-1:1,fx=Math.sin(M.h)*d,fz=Math.cos(M.h)*d,ax=M.x+fx*3,az=M.z+fz*3;
@@ -244,9 +244,9 @@ function drvHeli(M,dt){
    M.rk={x:mx,y:my,z:mz,vx:(A.x-mx)/L*sp2,vy:(A.y-my)/L*sp2,vz:(A.z-mz)/L*sp2};M.pred=lift?shotPath(M.rk,0.5,5,M,A):null;}
   wpnTick(M,dt);if(lift&&i.bite&&wpnFire(M,'gun'))heliGun(M,p);
   const rp=i.stomp&&!M.rkHeld;M.rkHeld=i.stomp;if(rp&&lift&&wpnFire(M,'rkt')){const F=M.rk;
-    shot({kind:'rocket',x:F.x,y:F.y,z:F.z,vx:F.vx,vy:F.vy,vz:F.vz,grav:0.5,fuse:5,R:4.2,dmg:4,cause:'Blown up by a goblin in a helicopter',crush:2.8,vd:45,own:M});if(audio)noise(0.5,0.25,900,'bandpass');}
+    shot({kind:'rocket',x:F.x,y:F.y,z:F.z,vx:F.vx,vy:F.vy,vz:F.vz,grav:0.5,fuse:5,R:4.2,dmg:4,cause:'Blown up by a goblin in a helicopter',crush:2.8,vd:45,own:M});if(audio)sfx('Helicopter rocket',()=>noise(0.5,0.25,900,'bandpass'));}
   milPlace(M);milBoxes(M,Math.hypot(M.hv.x,M.hv.z));milShove(M);
-  if(M.spin>0.3&&audio&&playing){M.thT=(M.thT||0)-dt;if(M.thT<=0){M.thT=0.11;noise(0.08,0.05*M.spin,180,'lowpass');}}
+  if(M.spin>0.3&&audio&&playing){M.thT=(M.thT||0)-dt;if(M.thT<=0){M.thT=0.11;sfx('Helicopter rotor',()=>noise(0.08,0.05*M.spin,180,'lowpass'));}}
 }
 // steering a boat: only where there's open water ahead of it (run it aground and it stops; hard, and it's holed a bit);
 // the bigger it is, the slower it answers. Returns its speed
@@ -314,5 +314,5 @@ function drvTrain(T,dt){
   const lo=T.dir>0?TRAIN_LEN+1:1,hi=T.dir>0?C.L-2:C.L-2-TRAIN_LEN;T.s+=v*dt;
   if(T.s<lo){T.s=lo;v=0;}if(T.s>hi){T.s=hi;v=0;}
   T.v=v*T.dir;
-  T.hornT=(T.hornT||0)-dt;if(i.bitePress&&T.hornT<=0){T.hornT=0.6;tone('sawtooth',311,300,0.6,0.07);tone('sawtooth',370,360,0.6,0.06);}
+  T.hornT=(T.hornT||0)-dt;if(i.bitePress&&T.hornT<=0){T.hornT=0.6;sfx('Train horn',()=>{tone('sawtooth',311,300,0.6,0.07);tone('sawtooth',370,360,0.6,0.06);});}
 }

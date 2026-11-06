@@ -43,7 +43,7 @@ Everything since the first release on GitHub.
 ### Menus and debug tools
 
 - A Patch notes tab in the main menu, with a "What's new" line on the title screen, and the same notes on the website at /patch-notes/.
-- A Sound list overlay names every sound as it plays.
+- A Sound list overlay names every sound as it plays, each by its own name: a tank firing, a dry-fire click, a reload and a helicopter's gun no longer show up as "Stone breaks" after something stony has been smashed.
 - In the quick debug menu, pick a slider with A before left and right move it, like the other menus.
 
 ## Version 0.1

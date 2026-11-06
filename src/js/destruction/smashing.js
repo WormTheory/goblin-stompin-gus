@@ -148,13 +148,14 @@ function destroyFX(list,o,quiet){
   if(dustCol!==null){puff(sx,sy-0.5,sz,Math.min(16,3+n*2),dustCol,1+Math.min(1,n/9));if(n>=4)smoke(sx,sy,sz,Math.min(6,n>>1),shadeHex(dustCol,0.9));}
   if(quiet)return;
   const near=nearestPlayer(sx,sz,false),att=near?Math.max(0.12,1-near.d/40):0.5;
-  if(kinds.has('stone')||kinds.has('dirt')){SL.tag='Stone breaks';noise(0.35+Math.min(0.4,n*0.03),0.5*att,450,'lowpass');tone('sine',70,35,0.3,0.25*att);}
-  if(kinds.has('glass')){SL.tag='Glass breaks';noise(0.3,0.3*att,5200,'highpass');for(let i=0;i<4;i++)tone('sine',2200+Math.random()*1800,1800+Math.random()*1200,0.12,0.05*att,Math.random()*0.25);}
-  if(kinds.has('metal')){SL.tag='Metal breaks';tone('square',520,240,0.14,0.08*att);noise(0.12,0.25*att,3000,'bandpass');}
-  if(kinds.has('neon')){SL.tag='Neon breaks';tone('sawtooth',1900,180,0.2,0.06*att);noise(0.18,0.2*att,6000,'highpass');}
-  if(kinds.has('wood')){SL.tag='Wood breaks';noise(0.14,0.4*att,1400,'bandpass');tone('triangle',190,80,0.12,0.1*att);}
-  if(kinds.has('plant'))SL.tag='Plants torn',noise(0.25,0.15*att,2600,'bandpass');
-  if(kinds.has('fabric'))SL.tag='Fabric tears',noise(0.22,0.2*att,1700,'bandpass');
+  // (each inside sfx, so the sound list names it and the name ends with it: set by hand, the tag stayed on and named every sound after it)
+  if(kinds.has('stone')||kinds.has('dirt'))sfx('Stone breaks',()=>{noise(0.35+Math.min(0.4,n*0.03),0.5*att,450,'lowpass');tone('sine',70,35,0.3,0.25*att);});
+  if(kinds.has('glass'))sfx('Glass breaks',()=>{noise(0.3,0.3*att,5200,'highpass');for(let i=0;i<4;i++)tone('sine',2200+Math.random()*1800,1800+Math.random()*1200,0.12,0.05*att,Math.random()*0.25);});
+  if(kinds.has('metal'))sfx('Metal breaks',()=>{tone('square',520,240,0.14,0.08*att);noise(0.12,0.25*att,3000,'bandpass');});
+  if(kinds.has('neon'))sfx('Neon breaks',()=>{tone('sawtooth',1900,180,0.2,0.06*att);noise(0.18,0.2*att,6000,'highpass');});
+  if(kinds.has('wood'))sfx('Wood breaks',()=>{noise(0.14,0.4*att,1400,'bandpass');tone('triangle',190,80,0.12,0.1*att);});
+  if(kinds.has('plant'))sfx('Plants torn',()=>noise(0.25,0.15*att,2600,'bandpass'));
+  if(kinds.has('fabric'))sfx('Fabric tears',()=>noise(0.22,0.2*att,1700,'bandpass'));
   if(n>=6)addShake(Math.min(0.35,0.05*n),sx,sz,18);
 }
 // blocks too soft or brittle to stop a falling hippo

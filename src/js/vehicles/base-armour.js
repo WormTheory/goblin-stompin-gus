@@ -53,7 +53,7 @@ const angTo=(a,b,r)=>{let df=b-a;while(df>Math.PI)df-=Math.PI*2;while(df<-Math.P
 const angDiff=(a,b)=>{let df=b-a;while(df>Math.PI)df-=Math.PI*2;while(df<-Math.PI)df+=Math.PI*2;return df;};
 function milAlert(V,who){
   if(V.alert)return;V.alert=true;V.awayT=0;
-  if(audio){tone('square',660,440,0.6,0.06);tone('square',660,440,0.6,0.06,0.7);}
+  if(audio)sfx('Base alarm',()=>{tone('square',660,440,0.6,0.06);tone('square',660,440,0.6,0.06,0.7);});
   if(who)flashLabel('The base scrambles its tanks and helicopters!',who);
 }
 function updateArmy(V,dt){
@@ -115,7 +115,7 @@ function updateTank(M,V,dt){
     if(M.cd<=0&&d>5&&d<75&&Math.abs(angDiff(M.tu,aim))<0.07){const a=M.h+M.tu,fx=Math.sin(a),fz=Math.cos(a),mx=M.x+fx*3.9,my=M.y+2.2,mz=M.z+fz*3.9,ty=p.pos.y+1.0;
       if(lineClear(mx,my,mz,p.pos.x,ty,p.pos.z)){const L=Math.hypot(p.pos.x-mx,ty-my,p.pos.z-mz)||1,sp=45;
         shot({kind:'shell',x:mx,y:my,z:mz,vx:(p.pos.x-mx)/L*sp,vy:(ty-my)/L*sp+L/sp*1,vz:(p.pos.z-mz)/L*sp,grav:2,fuse:4,R:3.6,dmg:3,cause:'Blown up by a tank shell',by:MIL_CREW.tank,crush:2.6,vd:40,own:M});
-        M.cd=3.5+Math.random()*2;smoke(mx,my,mz,4,0x8a8a80);puff(mx,my,mz,4,0xffc040,0.3);if(audio){noise(0.6,0.6,350,'lowpass');tone('sawtooth',70,30,0.5,0.15);}addShake(0.3,M.x,M.z,30);}
+        M.cd=3.5+Math.random()*2;smoke(mx,my,mz,4,0x8a8a80);puff(mx,my,mz,4,0xffc040,0.3);if(audio)sfx('Tank fires',()=>{noise(0.6,0.6,350,'lowpass');tone('sawtooth',70,30,0.5,0.15);});addShake(0.3,M.x,M.z,30);}
       else M.cd=0.4;}}
   else if(M.state==='home'){const dx=M.home.x-M.x,dz=M.home.z-M.z,d=Math.hypot(dx,dz);M.tu=angTo(M.tu,0,0.8*dt);
     if(d<0.6){M.state='park';M.x=M.home.x;M.z=M.home.z;wantH=M.home.h;}else{wantH=Math.atan2(dx,dz);wantV=Math.min(4,d);}
@@ -146,11 +146,11 @@ function updateHeli(M,V,dt){
     else{const mx=M.x+Math.sin(M.h)*2.6,my=M.y+1.2,mz=M.z+Math.cos(M.h)*2.6,d3=Math.hypot(p.pos.x-mx,p.pos.y+1-my,p.pos.z-mz),see=d3<70&&Math.abs(angDiff(M.h,face))<0.35&&lineClear(mx,my,mz,p.pos.x,p.pos.y+1.2,p.pos.z);
       // its gun: a burst of six, then a pause
       M.cd-=dt;if(M.burst>0){M.bt-=dt;if(M.bt<=0){M.bt=0.12;M.burst--;const hit=see&&!(p.dodge&&p.dodge.t<p.dodge.dur*0.85)&&Math.random()<0.3;
-          const a=Math.random()*6.28,r=hit?0:1.5+Math.random()*2,ex=p.pos.x+Math.cos(a)*r,ez=p.pos.z+Math.sin(a)*r,ey=p.pos.y+(hit?1.2:0);tracer(mx,my,mz,ex,ey,ez);if(audio)noise(0.06,0.1,2400,'highpass');if(!hit)puff(ex,ey,ez,1,0x9a948a,0.2);
+          const a=Math.random()*6.28,r=hit?0:1.5+Math.random()*2,ex=p.pos.x+Math.cos(a)*r,ez=p.pos.z+Math.sin(a)*r,ey=p.pos.y+(hit?1.2:0);tracer(mx,my,mz,ex,ey,ez);if(audio)sfx('Helicopter gun',()=>noise(0.06,0.1,2400,'highpass'));if(!hit)puff(ex,ey,ez,1,0x9a948a,0.2);
           if(hit){const h=Math.hypot(ex-mx,ez-mz)||1;damagePlayer(p,1,new V3(ex,ey,ez),new V3((ex-mx)/h,0.2,(ez-mz)/h),'Gunned down from a helicopter',MIL_CREW.heli);}}}
       else if(M.cd<=0){if(see){M.burst=6;M.bt=0;M.cd=3+Math.random()*1.5;}else M.cd=0.5;}
       // and now and then a rocket
-      M.rcd-=dt;if(M.rcd<=0&&see&&M.burst<=0){const L=d3||1,sp=30;shot({kind:'rocket',x:mx,y:my,z:mz,vx:(p.pos.x-mx)/L*sp,vy:(p.pos.y+1-my)/L*sp,vz:(p.pos.z-mz)/L*sp,grav:0.5,fuse:5,R:3.4,dmg:4,cause:'Blown up by a helicopter rocket',by:MIL_CREW.heli,crush:2.4,vd:35,own:M});M.rcd=7+Math.random()*4;if(audio)noise(0.5,0.25,900,'bandpass');}}}
+      M.rcd-=dt;if(M.rcd<=0&&see&&M.burst<=0){const L=d3||1,sp=30;shot({kind:'rocket',x:mx,y:my,z:mz,vx:(p.pos.x-mx)/L*sp,vy:(p.pos.y+1-my)/L*sp,vz:(p.pos.z-mz)/L*sp,grav:0.5,fuse:5,R:3.4,dmg:4,cause:'Blown up by a helicopter rocket',by:MIL_CREW.heli,crush:2.4,vd:35,own:M});M.rcd=7+Math.random()*4;if(audio)sfx('Helicopter rocket',()=>noise(0.5,0.25,900,'bandpass'));}}}
   else if(M.state==='home'){const d=Math.hypot(M.home.x-M.x,M.home.z-M.z);ty=d>3?Math.max(M.y,G+14):G+1;if(d<3&&M.y<G+1.2){M.state='park';M.y=G+1;M.x=M.home.x;M.z=M.home.z;}face=d>3?Math.atan2(tx-M.x,tz-M.z):M.home.h;}
   else{tx=M.x;tz=M.z;ty=M.y;if(M.state==='idle'){ty=groundAt(M.x,M.z,M.y+1);face=M.h;}}   // (left by a goblin who flew it: it settles where it is)
   // flying: easing toward where it wants to be, never faster than 12 a second, tipped a little the way it's going
@@ -164,7 +164,7 @@ function updateHeli(M,V,dt){
   M.h=angTo(M.h,face,1.4*dt);M.pitch=Math.min(0.25,sp*0.02)*Math.cos(Math.atan2(vx,vz)-M.h);M.roll=0;   // (nose down going forward)
   M.rot.rotation.y+=dt*M.spin*28;M.trot.rotation.x+=dt*M.spin*40;
   milPlace(M);milBoxes(M,sp);milShove(M);
-  if(M.spin>0.3&&audio&&playing&&n&&n.d<90){M.thT=(M.thT||0)-dt;if(M.thT<=0){M.thT=0.11;noise(0.08,0.05*M.spin*(1-n.d/90),180,'lowpass');}}   // (the thud of its rotor)
+  if(M.spin>0.3&&audio&&playing&&n&&n.d<90){M.thT=(M.thT||0)-dt;if(M.thT<=0){M.thT=0.11;sfx('Helicopter rotor',()=>noise(0.08,0.05*M.spin*(1-n.d/90),180,'lowpass'));}}   // (the thud of its rotor)
 }
 function milHit(M,n,dir){
   if(M.dead)return;const I=MIL[M.kind];dmgPop(M.x,M.y+I.hy+0.8,M.z,Math.round(n),'#ffb04a');M.hp-=n;M.hurt=0.2;M.jolt=0.3;vHitFx(M.x,M.y+I.hy*0.6,M.z,n);
@@ -175,7 +175,7 @@ function milHit(M,n,dir){
   for(let k=0;k<8;k++){const d=debris[(debrisIdx++)%debris.length];d.m.position.set(M.x+(Math.random()-.5)*3,M.y+1.5+Math.random(),M.z+(Math.random()-.5)*4);d.v.set((Math.random()-.5)*18,8+Math.random()*10,(Math.random()-.5)*18);d.spin.set((Math.random()-.5)*12,(Math.random()-.5)*12,(Math.random()-.5)*12);d.life=25;d.m.visible=true;}
   milDark(M);if(M.kind==='tank')M.tur.rotation.z=0.25;
   if(M.kind==='heli'&&!M.fall)airCrash(M.x,M.y+1,M.z,3.5,'Blown up with a helicopter');   // (shot down where it sits, or just above: it goes up there)
-  noise(1.1,1,500,'lowpass');tone('sawtooth',70,16,1.3,0.3);addShake(0.9,M.x,M.z,45);hitGoblins(M.x,M.z,8,8,'Blown up with a '+I.name.toLowerCase(),M.y+1);
+  sfx(I.name+' destroyed',()=>{noise(1.1,1,500,'lowpass');tone('sawtooth',70,16,1.3,0.3);});addShake(0.9,M.x,M.z,45);hitGoblins(M.x,M.z,8,8,'Blown up with a '+I.name.toLowerCase(),M.y+1);
   if(BLAME!=='acc'){score+=I.pts;flashLabel(I.name+' destroyed  +'+I.pts,(nearestPlayer(M.x,M.z)||{}).p);}
 }
 // a wreck: a helicopter shot down drops, spinning, and goes up where it lands; then it all lies there smouldering
