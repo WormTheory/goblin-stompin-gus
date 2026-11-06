@@ -36,6 +36,15 @@ function menuNav(dir){
   const pane=document.querySelector('.main .tabpane:not([hidden])'),tabBtn=document.getElementById('tabBtn'+TABS[tabIndex()][1]);
   // (on the title screen, and from the row of tabs anywhere: left and right go to the tab next door)
   const title=curTab==='game'&&document.getElementById('confirm').hidden;
+  // (Patch notes are mostly text to read, so up and down scroll it, stopping on an older update's bar only once it's in view:
+  // jumping straight to the first bar would skip past the newest notes)
+  if(dy&&curTab==='notes'&&pane&&cur&&cur.closest&&(pane.contains(cur)||cur.closest('.tabs'))){
+    const pr=pane.getBoundingClientRect(),y0=pane.contains(cur)?cur.getBoundingClientRect().top:-1e9;
+    const vis=paneUnits(pane).filter(u=>{const r=u.getBoundingClientRect();return r.top>=pr.top&&r.bottom<=pr.bottom&&(dy>0?r.top>y0+2:r.top<y0-2);});
+    if(vis.length){unitFocus(dy>0?vis[0]:vis[vis.length-1]);return;}
+    if(dy<0&&pane.scrollTop<=0){padFocus(tabBtn);return;}
+    pane.scrollTop+=dy*80;return;
+  }
   if(dx&&cur&&cur.closest&&cur.closest('#charSel')){const C=[...document.querySelectorAll('#charSel .cs-card')],i=C.indexOf(cur)+dx;if(i>=0&&i<C.length){C[i].click();padFocus(C[i]);}return;}
   if(dx&&(title||cur&&cur.closest&&cur.closest('.tabs'))){showTab(tabIndex()+dx);padFocus(document.getElementById('tabBtn'+TABS[tabIndex()][1]));return;}
   if(dy&&title&&pane.contains(cur)){const U=paneUnits(pane),i=U.findIndex(u=>u===cur||u.contains(cur))+dy;if(i<0)padFocus(tabBtn);else if(i<U.length)unitFocus(U[i]);return;}

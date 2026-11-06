@@ -529,3 +529,15 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 .pn li::marker{color:var(--moss)}
 .pn strong{color:var(--bone)}
 .pn code{font:500 12px var(--f-mono);background:var(--slate);padding:0 4px}
+/* older updates: folded away under "Earlier updates", one bar each that opens to the full notes */
+.pn .pn-earlier{margin:28px 0 0;padding-top:10px;border-top:2px solid #2c3640;font:700 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.pn .pn-old{border:1px solid #2c3640;background:rgba(29,36,45,.5);padding:0 12px;margin-top:8px}
+.pn .pn-old summary{display:flex;align-items:center;gap:10px;list-style:none;cursor:pointer;padding:8px 0}
+.pn .pn-old summary::-webkit-details-marker{display:none}
+.pn .pn-old summary h2{margin:0;font-size:16px;color:var(--mute)}
+.pn .pn-old summary:hover h2,.pn .pn-old[open] summary h2{color:var(--bone)}
+.pn .pn-old summary:focus-visible{outline:2px solid var(--moss);outline-offset:2px}
+.pn .pn-tog{margin-left:auto;font:600 11px var(--f-mono);color:var(--moss)}
+.pn .pn-tog::before{content:"Show ▸"}
+.pn .pn-old[open] .pn-tog::before{content:"Hide ▾"}
+.pn .pn-old[open]{padding-bottom:8px}

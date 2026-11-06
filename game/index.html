@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:f304542fe83cf27e9260add7953e12ac53c0ab379c2ec8724fba622e8916e2c4 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:021850edc9cdd37b7cd357ee43afd07d79e30e6561a28f96fd5fef612a6869d8 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -535,6 +535,18 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 .pn li::marker{color:var(--moss)}
 .pn strong{color:var(--bone)}
 .pn code{font:500 12px var(--f-mono);background:var(--slate);padding:0 4px}
+/* older updates: folded away under "Earlier updates", one bar each that opens to the full notes */
+.pn .pn-earlier{margin:28px 0 0;padding-top:10px;border-top:2px solid #2c3640;font:700 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.pn .pn-old{border:1px solid #2c3640;background:rgba(29,36,45,.5);padding:0 12px;margin-top:8px}
+.pn .pn-old summary{display:flex;align-items:center;gap:10px;list-style:none;cursor:pointer;padding:8px 0}
+.pn .pn-old summary::-webkit-details-marker{display:none}
+.pn .pn-old summary h2{margin:0;font-size:16px;color:var(--mute)}
+.pn .pn-old summary:hover h2,.pn .pn-old[open] summary h2{color:var(--bone)}
+.pn .pn-old summary:focus-visible{outline:2px solid var(--moss);outline-offset:2px}
+.pn .pn-tog{margin-left:auto;font:600 11px var(--f-mono);color:var(--moss)}
+.pn .pn-tog::before{content:"Show ▸"}
+.pn .pn-old[open] .pn-tog::before{content:"Hide ▾"}
+.pn .pn-old[open]{padding-bottom:8px}
 </style>
 
 <canvas id="world"></canvas>
@@ -721,7 +733,7 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
     <div class="tabpane" id="tabNotes" role="tabpanel" hidden>
       <div class="pn">
         <p class="pn-web">What's changed, newest first. These notes are also on <a href="patch-notes/index.html" target="_blank" rel="noopener">their own web page</a>.</p>
-<section class="pn-up" id="version-0-2"><h2>Version 0.2</h2>
+<section class="pn-up pn-new" id="version-0-2"><h2>Version 0.2</h2>
 <p>Everything since the first release on GitHub.</p>
 <h3>Highlights</h3>
 <ul><li>A character select on the main menu: play as Gus, Gertie, or Gnash the goblin.</li><li>Every vehicle now collides with every other, and a driven tank smashes straight through walls.</li><li>Enemy hostility is a three-step slider: Passive, Peaceful or Normal.</li><li>Goblins climb walls after Gus, and long falls now hurt them.</li><li>These patch notes are now in the main menu and on their own page on the website.</li></ul>
@@ -736,7 +748,8 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 <h3>Menus and debug tools</h3>
 <ul><li>A Patch notes tab in the main menu, with a "What's new" line on the title screen, and the same notes on the website at /patch-notes/.</li><li>A Sound list overlay names every sound as it plays, each by its own name: a tank firing, a dry-fire click, a reload and a helicopter's gun no longer show up as "Stone breaks" after something stony has been smashed.</li><li>In the quick debug menu, pick a slider with A before left and right move it, like the other menus.</li><li>The quick debug menu has a second tab, Show / hide (LB / RB or Tab), for choosing which switches the first tab lists. Your choice is remembered.</li><li>The debug switches are only in the quick debug menu now. Game options keeps just the switch that allows it, which also shows or hides the Dev tab.</li><li>Button names on the screen (the controls hint, vehicle prompts, the weapon panel) are drawn as the same button pictures the menus use, for the keyboard, mouse or controller you're on.</li></ul>
 </section>
-<section class="pn-up" id="version-0-1"><h2>Version 0.1</h2>
+<p class="pn-earlier">Earlier updates</p>
+<details class="pn-up pn-old" id="version-0-1"><summary tabindex="0"><h2>Version 0.1</h2><span class="pn-tog" aria-hidden="true"></span></summary>
 <p>Everything from the move to Claude Code on November 2, 2026, up to the first release on GitHub on November 5. Each entry describes where things ended up, so features that were reworked along the way appear once.</p>
 <p><strong>Old saves reset.</strong> World generation changed many times, so cities saved before this update start fresh.</p>
 <h3>Highlights</h3>
@@ -798,7 +811,7 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 <ul><li>Toppling buildings and everyday frames are much cheaper. On an RTX 4070 Ti SUPER at default settings, standing still went from 207 to 379 fps and toppling from 133 to 278 fps, and the worst toppling frame fell from 189 ms to 18 ms.</li><li>Street goblins and vehicles are now drawn in batches. With 400 goblins on screen, draw calls fell from 8,688 to about 620.</li><li>Distant chunks that have settled are drawn merged in groups, cutting draw calls from 971 to 311 at a detail distance of 512.</li><li>Places ahead are worked out a little each frame, so the worst frame while moving dropped from 80 ms to 22 ms.</li><li>Crowding checks are far cheaper: about 38 ms down to 4 ms a frame with around 630 goblins. The crowd slider now goes up to 3000%.</li><li>Saves are packed much smaller, and the game says so on screen if storage fills up. Old saves still load.</li><li>Goblin route maps take less time per frame while reaching further, and rescan less often. Smoke plumes only thin out when frames are running long.</li></ul>
 <h3>Bug fixes</h3>
 <ul><li>Gus no longer stomps a pit by himself at startup.</li><li>Rooms stay furnished after the game clears its plot cache.</li><li>Doors and handrails at the far end of big sites are now drawn.</li><li>Rooms with very tall ceilings now show their furniture, and country buildings no longer have grass floors.</li><li>Fixed wide double lines on north-south ramps and faint yellow road dashes.</li><li>Fixed the seasonal tint affecting the wrong textures, including road lines, flowers and crops.</li><li>Theme parks now build whole or not at all, which also fixes a world generation crash when two were close together.</li><li>A crash landing on a coaster car no longer blows a hole in the track.</li><li>A vehicle carrying Gus on its roof no longer disappears as out of sight.</li><li>Signs fall back to near the roof when their usual spot has nothing to hang on, and sit clear of pediments.</li></ul>
-</section>
+</details>
 
       </div>
     </div>
@@ -12970,6 +12983,15 @@ function menuNav(dir){
   const pane=document.querySelector('.main .tabpane:not([hidden])'),tabBtn=document.getElementById('tabBtn'+TABS[tabIndex()][1]);
   // (on the title screen, and from the row of tabs anywhere: left and right go to the tab next door)
   const title=curTab==='game'&&document.getElementById('confirm').hidden;
+  // (Patch notes are mostly text to read, so up and down scroll it, stopping on an older update's bar only once it's in view:
+  // jumping straight to the first bar would skip past the newest notes)
+  if(dy&&curTab==='notes'&&pane&&cur&&cur.closest&&(pane.contains(cur)||cur.closest('.tabs'))){
+    const pr=pane.getBoundingClientRect(),y0=pane.contains(cur)?cur.getBoundingClientRect().top:-1e9;
+    const vis=paneUnits(pane).filter(u=>{const r=u.getBoundingClientRect();return r.top>=pr.top&&r.bottom<=pr.bottom&&(dy>0?r.top>y0+2:r.top<y0-2);});
+    if(vis.length){unitFocus(dy>0?vis[0]:vis[vis.length-1]);return;}
+    if(dy<0&&pane.scrollTop<=0){padFocus(tabBtn);return;}
+    pane.scrollTop+=dy*80;return;
+  }
   if(dx&&cur&&cur.closest&&cur.closest('#charSel')){const C=[...document.querySelectorAll('#charSel .cs-card')],i=C.indexOf(cur)+dx;if(i>=0&&i<C.length){C[i].click();padFocus(C[i]);}return;}
   if(dx&&(title||cur&&cur.closest&&cur.closest('.tabs'))){showTab(tabIndex()+dx);padFocus(document.getElementById('tabBtn'+TABS[tabIndex()][1]));return;}
   if(dy&&title&&pane.contains(cur)){const U=paneUnits(pane),i=U.findIndex(u=>u===cur||u.contains(cur))+dy;if(i<0)padFocus(tabBtn);else if(i<U.length)unitFocus(U[i]);return;}

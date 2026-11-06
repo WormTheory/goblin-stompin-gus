@@ -46,6 +46,8 @@ def inline(t):
 def slug(t):return re.sub(r'[^a-z0-9]+','-',t.lower()).strip('-')
 def notes():
   # -> (html of all the updates, [(id, heading)] of each update, newest first)
+  # The newest update is shown in full; older ones are folded away under an "Earlier updates" line, each in a
+  # <details> that opens on a click (its <summary> has tabindex so the menu's controller navigation can reach it).
   out,ups,para,items,sec=[],[],[],[],False
   def flush():
     if para:out.append('<p>'+inline(' '.join(para))+'</p>');para.clear()
@@ -55,9 +57,12 @@ def notes():
     if l.startswith('# ') or not l:flush();continue
     if l.startswith('## '):
       flush()
-      if sec:out.append('</section>')
+      if sec:out.append('</section>' if len(ups)==1 else '</details>')
       t=l[3:].strip();ups.append((slug(t),t));sec=True
-      out.append('<section class="pn-up" id="%s"><h2>%s</h2>'%(slug(t),inline(t)))
+      if len(ups)==1:out.append('<section class="pn-up pn-new" id="%s"><h2>%s</h2>'%(slug(t),inline(t)))
+      else:
+        if len(ups)==2:out.append('<p class="pn-earlier">Earlier updates</p>')
+        out.append('<details class="pn-up pn-old" id="%s"><summary tabindex="0"><h2>%s</h2><span class="pn-tog" aria-hidden="true"></span></summary>'%(slug(t),inline(t)))
     elif l.startswith('### '):flush();out.append('<h3>'+inline(l[4:].strip())+'</h3>')
     elif re.fullmatch(r'\*\*[^*]+\*\*',l):flush();out.append('<h4>'+inline(l[2:-2])+'</h4>')
     elif l.startswith('- '):
@@ -68,7 +73,7 @@ def notes():
       if items:flush()
       para.append(l.strip())
   flush()
-  if sec:out.append('</section>')
+  if sec:out.append('</section>' if len(ups)==1 else '</details>')
   if not ups:sys.exit('build: src/patch-notes.md has no "## " update headings')
   return '\n'.join(out)+'\n',ups
 
