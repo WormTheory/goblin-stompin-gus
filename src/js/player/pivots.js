@@ -203,7 +203,8 @@ function gobCamera(p){
   if(p.shake>0.002&&gameSpeed()>0){c.x+=(Math.random()-.5)*p.shake;c.y+=(Math.random()-.5)*p.shake;c.z+=(Math.random()-.5)*p.shake;}
   const ex=c.x,ez=c.z;eyeRoom(c);
   const sw=p.biteT>0?1-p.biteT/(p.biteDur||0.38):0;
-  K.root.position.set(p.pos.x+c.x-ex,p.pos.y+lie*0.15,p.pos.z+c.z-ez);   // (his body comes off the wall with his eye)K.root.rotation.set(-lie*Math.PI/2,p.heading,0);
+  K.root.position.set(p.pos.x+c.x-ex,p.pos.y+lie*0.15,p.pos.z+c.z-ez);   // (his body comes off the wall with his eye)
+  K.root.rotation.set(-lie*Math.PI/2,p.heading,0);   // (facing where he looks, and flat on his back when he's dead)
   // up and back until the blow lands (with the bite's own timing), down hard, and slowly back to the rest
   const raise=sw<0.42?1.1*sw/0.42:sw<0.55?1.1-1.7*(sw-0.42)/0.13:-0.6+0.6*(sw-0.55)/0.45;
   const wk=gobArms(p).wpn;for(const k in K.held)K.held[k].visible=k===wk;for(const k in K.tp)K.tp[k].visible=k===wk;

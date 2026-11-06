@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:f07ebbfc7fde1dfc266d5ea42bb1010032c32a298e139bd480f0ba0f34e892ee -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:73d608b224e2c85707ea98c41df97b32f0dcab66b091fa5e85fc151b7f2d45e4 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -770,7 +770,7 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 <h3>Menus and debug tools</h3>
 <ul><li>A Patch notes tab in the main menu, with a "What's new" line on the title screen, and the same notes on the website at /patch-notes/.</li><li>A Sound list overlay names every sound as it plays, each by its own name: a tank firing, a dry-fire click, a reload and a helicopter's gun no longer show up as "Stone breaks" after something stony has been smashed.</li><li>In the quick debug menu, pick a slider with A before left and right move it, like the other menus.</li><li>The quick debug menu has a second tab, Show / hide (LB / RB or Tab), for choosing which switches the first tab lists, with Show all and Hide all at the top. Your choice is remembered.</li><li>The debug switches are only in the quick debug menu now. Game options keeps just the switch that allows it, which also shows or hides the Dev tab.</li><li>Button names on the screen (the controls hint, vehicle prompts, the weapon panel) are drawn as the same button pictures the menus use, for the keyboard, mouse or controller you're on.</li><li>The Dev tab's move preview has a character picker in its top left corner: Gus, Gertie or Gnash. Gnash shows his own moves (walk, dash, run, jump and club swing) on the goblin model, with their timings beside him.</li><li>A new Enemies section in the Dev tab plays each enemy's animations frame by frame: goblins, police officers, civilians, cultists, thieves, preppers and militiamen. Pick the enemy and the animation from the menus in its top left corner. It shows their hits, shots, grenades and fireballs, a timeline marking wind-ups and hits, and a frame data panel with damage, timings and ranges.</li></ul>
 <h3>Bug fixes</h3>
-<ul><li>Pausing now freezes the whole city: a falling hippo or goblin hangs in mid-air, and cars, fires, rubble and everyone else stop until you resume. Pausing both players in co-op freezes it too.</li><li>The mouse no longer gets stuck moving a cursor during play. If the game loses the mouse (for example by resuming within a second of pressing Esc), a hint asks you to click, and one click takes it back.</li><li>In full screen on Chrome and Edge, tapping Esc now pauses the game without leaving full screen. Hold Esc to exit full screen. Other browsers still leave full screen on Esc, as they don't let games keep that key.</li></ul>
+<ul><li>In co-op, Gnash's body now turns to face where he's looking, and falls flat when he dies. Before, it always faced the same way.</li><li>Pausing now freezes the whole city: a falling hippo or goblin hangs in mid-air, and cars, fires, rubble and everyone else stop until you resume. Pausing both players in co-op freezes it too.</li><li>The mouse no longer gets stuck moving a cursor during play. If the game loses the mouse (for example by resuming within a second of pressing Esc), a hint asks you to click, and one click takes it back.</li><li>In full screen on Chrome and Edge, tapping Esc now pauses the game without leaving full screen. Hold Esc to exit full screen. Other browsers still leave full screen on Esc, as they don't let games keep that key.</li></ul>
 </details>
 <p class="pn-earlier">Earlier updates</p>
 <details class="pn-up pn-fold" id="version-0-1"><summary tabindex="0"><h2>Version 0.1</h2><span class="pn-tog" aria-hidden="true"></span></summary>
@@ -10377,7 +10377,8 @@ function gobCamera(p){
   if(p.shake>0.002&&gameSpeed()>0){c.x+=(Math.random()-.5)*p.shake;c.y+=(Math.random()-.5)*p.shake;c.z+=(Math.random()-.5)*p.shake;}
   const ex=c.x,ez=c.z;eyeRoom(c);
   const sw=p.biteT>0?1-p.biteT/(p.biteDur||0.38):0;
-  K.root.position.set(p.pos.x+c.x-ex,p.pos.y+lie*0.15,p.pos.z+c.z-ez);   // (his body comes off the wall with his eye)K.root.rotation.set(-lie*Math.PI/2,p.heading,0);
+  K.root.position.set(p.pos.x+c.x-ex,p.pos.y+lie*0.15,p.pos.z+c.z-ez);   // (his body comes off the wall with his eye)
+  K.root.rotation.set(-lie*Math.PI/2,p.heading,0);   // (facing where he looks, and flat on his back when he's dead)
   // up and back until the blow lands (with the bite's own timing), down hard, and slowly back to the rest
   const raise=sw<0.42?1.1*sw/0.42:sw<0.55?1.1-1.7*(sw-0.42)/0.13:-0.6+0.6*(sw-0.55)/0.45;
   const wk=gobArms(p).wpn;for(const k in K.held)K.held[k].visible=k===wk;for(const k in K.tp)K.tp[k].visible=k===wk;

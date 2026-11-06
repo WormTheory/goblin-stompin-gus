@@ -63,6 +63,7 @@ Everything since the first release on GitHub.
 
 ### Bug fixes
 
+- In co-op, Gnash's body now turns to face where he's looking, and falls flat when he dies. Before, it always faced the same way.
 - Pausing now freezes the whole city: a falling hippo or goblin hangs in mid-air, and cars, fires, rubble and everyone else stop until you resume. Pausing both players in co-op freezes it too.
 - The mouse no longer gets stuck moving a cursor during play. If the game loses the mouse (for example by resuming within a second of pressing Esc), a hint asks you to click, and one click takes it back.
 - In full screen on Chrome and Edge, tapping Esc now pauses the game without leaving full screen. Hold Esc to exit full screen. Other browsers still leave full screen on Esc, as they don't let games keep that key.
