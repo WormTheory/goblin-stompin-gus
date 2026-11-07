@@ -160,7 +160,7 @@ const lag=[];
  for(let i=0;i<30;i++){H.step(1);G.step(1);}
  console.log('dropped: host keeps the seat',ok(HT.P2.active&&!!HT.P2.net&&HT.P2.net.gone>0),'status',HT.NET.status);
  let back=-1;for(let i=0;i<1200;i++){H.step(1);G.step(1);await yieldNow();if(HT.P2.net&&!HT.P2.net.gone&&GT.NET.tr&&GT.NET.host&&back<0)back=i;if(back>=0&&i>back+60)break;}
- console.log('guest came back after',(back/60).toFixed(1),'s',ok(back>0),'no reload',ok(G.reloads===0),'hippo where it was (give or take a goblin'"'"'s shove)',f2(d(HT.P2.pos,at)),ok(d(HT.P2.pos,at)<3),'guest shows itself there',f2(d(GT.P1.pos,HT.P2.pos)),ok(d(GT.P1.pos,HT.P2.pos)<1));}
+ console.log('guest came back after',(back/60).toFixed(1),'s',ok(back>0),'no reload',ok(G.reloads===0),'hippo where it was (give or take a shove)',f2(d(HT.P2.pos,at)),ok(d(HT.P2.pos,at)<3),'guest shows itself there',f2(d(GT.P1.pos,HT.P2.pos)),ok(d(GT.P1.pos,HT.P2.pos)<1));}
 
 // ---- the guest leaves: the host plays on alone ----
 GT.netEnd();for(let i=0;i<10;i++){H.step(1);G.step(1);}
