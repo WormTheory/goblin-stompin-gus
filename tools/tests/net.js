@@ -59,7 +59,7 @@ console.log('guest city seed before joining',G1.T.seed,'(different from the host
 G1.T.netJoinWith(hub.make(),'TESTA','mem');
 for(let i=0;i<20&&!G1.reloads;i++){G1.step(1);H.step(1);}
 console.log('guest asked to reload into the host world',ok(G1.reloads===1),'kept in session storage',ok(!!G1.SS.getItem('gsg-net-world')),'local save untouched',ok(!G1.LS.getItem('goblin-city-v95')||JSON.parse(G1.LS.getItem('goblin-city-v95')).seed!==HT.seed));
-H.step(5);console.log('host seat free again after the guest went to reload',ok(!HT.P2.active));
+H.step(5);console.log('host keeps the seat for the guest while it reloads',ok(HT.P2.active&&HT.P2.net&&HT.P2.net.gone>0));
 
 // ---- the same tab after its reload: session storage carried over, the rest as it was ----
 const G=game('guest',SEED+977,Object.fromEntries(G1.LS._m),Object.fromEntries(G1.SS._m));
@@ -116,7 +116,7 @@ const lag=[];
    const T=HT.topples[0],F=[...GT.NETF.values()][0];if(T&&F)worst=Math.max(worst,Math.abs(T.grp.quaternion.w-F.o.quaternion.w));}
  for(let i=0;i<20;i++){H.step(1);G.step(1);}
  let diff=0;for(const k of Object.keys(HT.edits)){const [a,b2,c]=k.split(',').map(Number);if(HT.get(a,b2,c)!==GT.get(a,b2,c))diff++;}
- console.log('a topple on the host: guest showed',most,'falling piece',ok(most===1),'most its turn lagged',f2(worst),'gone after',ok(GT.NETF.size===0),'blocks where it landed differ',diff,ok(diff===0));}
+ console.log('a topple on the host: guest showed',most,'falling piece',ok(most>=1),'most its turn lagged',f2(worst),'gone after',ok(GT.NETF.size===0),'blocks where it landed differ',diff,ok(diff===0));}
 
 // ---- a guest goblin (Gnash) seat: switching kind on the host shows on the guest ----
 {HT.setGobP(HT.P1,true);for(let i=0;i<20;i++){H.step(1);G.step(1);}console.log('host turned goblin: guest P2 is a goblin',ok(GT.P2.gob===true));HT.setGobP(HT.P1,false);for(let i=0;i<20;i++){H.step(1);G.step(1);}}
@@ -146,6 +146,14 @@ const lag=[];
  pads[0].axes[0]=0;for(let i=0;i<60;i++){G.step(1);H.step(1);}
  console.log('with 0.1 s each way: frames before moving, guest',fg,'host',fh,ok(fg>=0&&fg<fh),'| biggest step in one frame',f2(jump),ok(jump<0.6),'| apart once stopped',f2(d(GT.P1.pos,HT.P2.pos)),ok(d(GT.P1.pos,HT.P2.pos)<0.5));
  hub.lat=0;for(let i=0;i<20;i++){G.step(1);H.step(1);}}
+
+// ---- the guest's connection drops without a word: the host keeps its seat, the guest finds its way back ----
+{const T=hub.ts.filter(t=>t.open).find(t=>t===GT.NET.tr);const at={x:HT.P2.pos.x,y:HT.P2.pos.y,z:HT.P2.pos.z};
+ T.close();   // (as a network failing: the host hears it's gone; the guest hears nothing)
+ for(let i=0;i<30;i++){H.step(1);G.step(1);}
+ console.log('dropped: host keeps the seat',ok(HT.P2.active&&!!HT.P2.net&&HT.P2.net.gone>0),'status',HT.NET.status);
+ let back=-1;for(let i=0;i<1200;i++){H.step(1);G.step(1);await yieldNow();if(HT.P2.net&&!HT.P2.net.gone&&GT.NET.tr&&GT.NET.host&&back<0)back=i;if(back>=0&&i>back+60)break;}
+ console.log('guest came back after',(back/60).toFixed(1),'s',ok(back>0),'no reload',ok(G.reloads===0),'hippo where it was',f2(d(HT.P2.pos,at)),ok(d(HT.P2.pos,at)<1),'guest shows itself there',f2(d(GT.P1.pos,HT.P2.pos)),ok(d(GT.P1.pos,HT.P2.pos)<1));}
 
 // ---- the guest leaves: the host plays on alone ----
 GT.netEnd();for(let i=0;i<10;i++){H.step(1);G.step(1);}

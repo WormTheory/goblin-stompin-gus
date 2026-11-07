@@ -61,7 +61,7 @@ async function netOpen(kind,code){if(NET.makeTr)return NET.makeTr(kind,code);ret
 // ---- hosting ----
 function netHostWith(tr,code,kind){
   NET.mode=1;NET.tr=tr;NET.code=code;NET.kind=kind;NET.guests.clear();
-  tr.on.msg=netHostMsg;tr.on.join=()=>{};tr.on.leave=netHostLeft;
+  tr.on.msg=netHostMsg;tr.on.join=()=>{};tr.on.leave=netHostDropped;
   netStatus('Hosting. Room code '+code);
 }
 async function netStartHost(kind){
@@ -69,7 +69,8 @@ async function netStartHost(kind){
   try{netHostWith(await netOpen(kind,code),code,kind);}catch(e){NET.mode=0;netStatus("Couldn't open a room: "+(e&&e.message||e));}
 }
 // (what a guest sends about itself when it asks to join, and what the host takes from it)
-function netHello(){return{t:'hello',v:NET_PROTO,who:CHAR==='gertie'?1:0,gob:CHAR==='goblin',abil:Object.assign({},ABIL),seat:NET.wantSeat};}
+function netCid(){let c=null;try{c=sessionStorage.getItem('gsg-net-cid');if(!c){c=netId();sessionStorage.setItem('gsg-net-cid',c);}}catch(e){}return c||(NET.cid||(NET.cid=netId()));}   // (this tab, through a reload or a dropped connection, so the host keeps its seat for it)
+function netHello(){return{t:'hello',v:NET_PROTO,cid:netCid(),who:CHAR==='gertie'?1:0,gob:CHAR==='goblin',abil:Object.assign({},ABIL),seat:NET.wantSeat};}
 function netHostMsg(peer,m){
   if(!m||typeof m!=='object')return;
   const p=NET.guests.get(peer);
@@ -85,11 +86,16 @@ function netHostMsg(peer,m){
 function netSeat(peer,m){
   if(m.v!==NET_PROTO){NET.tr.send({t:'deny',why:'The host is playing a different version of the game.'},peer);return;}
   let p=NET.guests.get(peer);
+  // (the same tab back after its connection dropped: its seat, its hippo just where it was)
+  if(!p&&P2.net&&P2.net.gone&&m.cid&&P2.net.cid===m.cid){NET.guests.delete(P2.net.peer);P2.net.peer=peer;P2.net.gone=0;P2.net.heard=NET.now;NET.guests.set(peer,P2);p=P2;}
   if(!p){if(P2.net&&P2.net.peer!==peer){NET.tr.send({t:'deny',why:'That game is full.'},peer);return;}
     // (a local player two gives up the seat)
     if(P2.active&&!P2.net)deactivateP2();
-    p=P2;p.net={peer,seat:1,heard:NET.now,inb:null,pr:{},sent:{},pose:null,looks:new Map(),cars:new Map(),out:[],seq:0};NET.guests.set(peer,p);}
-  p.who=m.who?1:0;setGobP(p,!!m.gob);
+    p=P2;p.net={peer,cid:m.cid||null,gone:0,seat:1,heard:NET.now,inb:null,pr:{},sent:{},pose:null,looks:new Map(),cars:new Map(),out:[],seq:0};NET.guests.set(peer,p);}
+  p.net.inb=null;p.net.pr={};p.net.inN=0;
+  // (two players who've both picked the same hippo: the guest's the other one, so they can tell each other apart. The
+  // two are the same in everything but looks)
+  p.who=m.who?1:0;if(!m.gob&&!P1.gob&&p.who===P1.who)p.who=1-P1.who;setGobP(p,!!m.gob);
   // (each player keeps the abilities they've switched on in their own browser)
   p.abil={};for(const k in ABIL)p.abil[k]=typeof(m.abil||{})[k]==='boolean'?m.abil[k]:ABIL[k];
   dressHippo(p);
@@ -99,6 +105,11 @@ function netSeat(peer,m){
   NET.tr.send({t:'welcome',v:NET_PROTO,seat:1,code:NET.code,save:saveText({tenv:TENV||undefined}),host:{who:P1.who,gob:!!P1.gob},
     clock:netClock()},peer);
   netStatus('Hosting. Room code '+NET.code+' · '+charName(p)+' is here');
+}
+// a guest gone quiet or dropped: its seat (and its hippo, standing still) is kept a while for it to come back to
+function netHostDropped(peer){
+  const p=NET.guests.get(peer);if(!p)return;if(!p.net.cid)return netHostLeft(peer);
+  if(!p.net.gone){p.net.gone=NET.now;p.net.inb=null;flashLabel(charName(p)+' lost the connection...');netStatus('Hosting. Room code '+NET.code+' · waiting for '+charName(p)+' to come back');}
 }
 function netHostLeft(peer){
   const p=NET.guests.get(peer);if(!p)return;NET.guests.delete(peer);
@@ -131,18 +142,19 @@ function netHostInputs(){
 
 // ---- joining ----
 function netJoinWith(tr,code,kind){
-  NET.mode=2;NET.tr=tr;NET.code=code;NET.kind=kind;NET.joined=false;NET.host=null;NET.q.length=0;NET.cur=null;NET.off=null;NET.lastHeard=NET.now;
-  tr.on.msg=netGuestMsg;tr.on.leave=peer=>{if(peer===NET.host)netLost('The host left the game.');};
+  const back=!!NET.retry;   // (reconnecting: the game carries on showing the host's world, frozen, till it's back)
+  NET.mode=2;NET.tr=tr;NET.code=code;NET.kind=kind;if(!back)NET.joined=false;NET.host=null;NET.q.length=0;NET.cur=null;NET.off=null;NET.lastHeard=NET.now;
+  tr.on.msg=netGuestMsg;tr.on.leave=peer=>{if(peer===NET.host)netDropped();};
   tr.on.join=peer=>{if(!NET.host)tr.send(netHello(),peer);};
   tr.send(netHello());
   netStatus('Looking for room '+code+'...');
 }
 async function netStartJoin(code,kind){
   code=String(code||'').toUpperCase().replace(/[^A-Z]/g,'');if(code.length<4){netStatus('Type in the room code first.');return;}
-  if(netOn())return;netStatus('Connecting...');
-  try{netJoinWith(await netOpen(kind,code),code,kind);}catch(e){NET.mode=0;netStatus("Couldn't connect: "+(e&&e.message||e));return;}
+  if(netOn()&&!NET.retry)return;if(!NET.retry)netStatus('Connecting...');
+  try{netJoinWith(await netOpen(kind,code),code,kind);}catch(e){if(NET.retry){setTimeout(netRetry,3000);return;}NET.mode=0;netStatus("Couldn't connect: "+(e&&e.message||e));return;}
   // (nobody answering after a while: probably a mistyped code)
-  setTimeout(()=>{if(netGuest()&&!NET.host&&NET.code===code){netStatus('No game found with the code '+code+'. Check it and try again.');netClose();}},20000);
+  if(!NET.retry)setTimeout(()=>{if(netGuest()&&!NET.host&&NET.code===code&&!NET.retry){netStatus('No game found with the code '+code+'. Check it and try again.');netClose();}},20000);
 }
 function netGuestMsg(peer,m){
   if(!m||typeof m!=='object')return;
@@ -167,7 +179,7 @@ function netWelcome(m){
     NET.reloading=true;netStatus('Building the host\'s city...');
     try{NET.tr.close();}catch(e){}clearTimeout(saveTimer);saveBlocked=true;netReload();return;}
   netCatchUp(S);netClockSet(m.clock);
-  NET.joined=true;saveBlocked=true;clearTimeout(saveTimer);
+  NET.joined=true;NET.retry=null;saveBlocked=true;clearTimeout(saveTimer);
   netGuestBegin(m.host);
   netStatus('Playing online in room '+NET.code);
 }
@@ -175,6 +187,17 @@ const netReload=()=>NET.onReload?NET.onReload():location.reload();   // (the tes
 function netJoinFlag(){try{return JSON.parse(sessionStorage.getItem(NET_SS_JOIN)||'null');}catch(e){return null;}}
 // (read by load(): this tab is a guest, and the host's world is the one to build)
 function netWorldText(){try{if(netJoinFlag())return sessionStorage.getItem(NET_SS_WORLD);}catch(e){}return null;}
+// the connection to the host dropped (not a goodbye): try again for half a minute before giving up
+function netDropped(){
+  if(!netGuest())return;if(!NET.joined)return netLost('The host left the game.');
+  if(!NET.retry)NET.retry={since:NET.now};
+  if(NET.now-NET.retry.since>30000)return netLost('Lost the connection to the host.');
+  const T=NET.tr;NET.tr=null;NET.host=null;try{if(T)T.close();}catch(e){}
+  netStatus('Connection to the host lost. Trying again...');flashLabel('Connection lost. Trying again...');
+  setTimeout(netRetry,2000);
+}
+function netRetry(){if(!netGuest()||!NET.retry||NET.tr)return;if(NET.now-NET.retry.since>30000)return netLost('Lost the connection to the host.');
+  netStartJoin(NET.code,NET.kind);setTimeout(()=>{if(NET.retry&&!NET.host)netDropped();},8000);}   // (nobody answered: try again)
 function netLost(why){
   if(!netGuest())return;const was=NET.joined;netClose();
   netStatus(why);
@@ -186,6 +209,7 @@ function netLeaveWorld(why){
   netReload();
 }
 function netClose(){
+  NET.retry=null;
   if(!NET.tr){NET.mode=0;return;}
   try{if(netGuest()&&NET.host)NET.tr.send({t:'bye'},NET.host);else if(netHost())NET.tr.send({t:'bye'});}catch(e){}
   try{NET.tr.close();}catch(e){}
@@ -204,13 +228,13 @@ function netTick(now,dt){
   NET.now=now;if(!netOn())return;
   if(netHost()){
     netHostInputs();
-    for(const p of NET.guests.values())if(now-p.net.heard>15000)netHostLeft(p.net.peer);   // (a guest gone silent: its seat comes free)
-    NET.snapT-=dt*1000;if(NET.snapT<=0&&NET.guests.size){NET.snapT+=1000/NET_SNAP_HZ;if(NET.snapT<0)NET.snapT=0;for(const p of NET.guests.values())netSendSnap(p);}
+    for(const p of [...NET.guests.values()]){const N=p.net;if(!N)continue;if(!N.gone&&now-N.heard>10000)netHostDropped(N.peer);else if(N.gone&&now-N.gone>30000)netHostLeft(N.peer);}   // (gone silent: its seat's kept half a minute, then comes free)
+    NET.snapT-=dt*1000;if(NET.snapT<=0&&NET.guests.size){NET.snapT+=1000/NET_SNAP_HZ;if(NET.snapT<0)NET.snapT=0;for(const p of NET.guests.values())if(!p.net.gone)netSendSnap(p);}
     NET.fxOut=null;
-  } else if(NET.joined){
+  } else if(NET.joined&&NET.tr&&NET.host){
     netSendInput(dt);
     NET.pingT-=dt;if(NET.pingT<=0){NET.pingT=2;NET.tr.send({t:'ping',a:now},NET.host);}
-    if(now-NET.lastHeard>10000)netLost('Lost touch with the host.');
+    if(now-NET.lastHeard>10000)netDropped();
   }
 }
 // (guest: its own controls, read as usual into P1.in by readInputs, sent on to the host)
