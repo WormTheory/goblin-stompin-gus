@@ -7,7 +7,7 @@
 // smooth whatever the network's doing; one-off events happen as the snapshot they came in becomes the one shown.
 const r3=v=>Math.round(v*1000)/1000;
 const NETM={g:new Map(),c:new Map()};   // (guest: the host's goblins and vehicles, by the host's number for them)
-let NET_FXD=0,NET_APPLY=false;
+let NET_FXD=0,NET_APPLY=false,NET_MUTE=false;   // (NET_MUTE: a guest's own run of the venues, whose noise and dust the host's are standing in for)
 
 // ---- players ----
 // (plain values a guest has no use for, or keeps for itself: its seat, the menus, effects worked out from where he is)
@@ -57,6 +57,38 @@ function netCars(p,N,out,cfg){
     const k=c.veh+'|'+netCol(c.paint.color)+'|'+(c.police?1:0);if(N.cars.get(i)!==k){N.cars.set(i,k);cfg[i]=[c.veh,netCol(c.paint.color),c.police?1:0,!!c.hunter];}}
 }
 
+// ---- the venues' moving models: trains, planes, boats, rides, animals, base vehicles... ----
+// A guest runs its own venues (so the models are made, from the same world, just as the host's are), quietly, and then
+// every joint the host has sent is put where the host has it. Each model's joints are named by venue, field, place in
+// the list and order in the model, which come out the same on both ends; a joint's sent again only when it's moved.
+function netVenueModels(f){
+  for(const [vk,V] of venues)for(const k in V){const x=V[k];if(!x||typeof x!=='object')continue;
+    if(x.isObject3D)f(vk+'|'+k,x);
+    else if(Array.isArray(x)&&x.length&&x[0]&&(x[0].isObject3D||x[0].g&&x[0].g.isObject3D))x.forEach((e,i)=>{const o=e&&e.isObject3D?e:e&&e.g;if(o&&o.isObject3D)f(vk+'|'+k+'|'+i,o);});}
+  for(const [tk,T] of TRAINS)if(T.cars)T.cars.forEach((g,i)=>{if(g&&g.isObject3D)f('T'+tk+'|'+i,g);});
+}
+// (a model's joints: itself and everything in it that isn't a plain box, up to a limit)
+function netNodes(o,out){out.push(o);for(let i=0;i<out.length&&out.length<80;i++){const c=out[i].children;if(c)for(const ch of c)if(!ch.isMesh||ch.children.length||ch.isInstancedMesh===false)out.push(ch);}return out;}
+function netVenues(p,N,out){
+  const R=330,px=p.pos.x,pz=p.pos.z,sent=N.vsent||(N.vsent=new Map());
+  netVenueModels((key,o)=>{const P=o.position;if(Math.abs(P.x-px)>R||Math.abs(P.z-pz)>R)return;
+    netNodes(o,[]).forEach((n,j)=>{const Q=n.position,E=n.rotation,v=[r3(Q.x),r3(Q.y),r3(Q.z),r3(E.x),r3(E.y),r3(E.z),n.visible?1:0],k=key+'|'+j,o2=sent.get(k);
+      if(o2&&o2.every((x,i)=>x===v[i]))return;sent.set(k,v);out.push([k,...v]);});});
+}
+function netVenueCommit(L,rt){
+  if(!L.length)return;const by=new Map();
+  netVenueModels((key,o)=>{netNodes(o,[]).forEach((n,j)=>by.set(key+'|'+j,n));});
+  for(const e of L){const n=by.get(e[0]);if(!n)continue;
+    const P=n.position,E=n.rotation;n.netFrom=[P.x,P.y,P.z,E.x,E.y,E.z];n.netTo=e.slice(1);n.netT0=rt;n.visible=!!e[7];NET_VN.add(n);}
+}
+const NET_VN=new Set();
+function netVenuePose(rt){
+  const span=1000/NET_SNAP_HZ;
+  for(const n of NET_VN){if(!n.netTo)continue;const k=Math.max(0,Math.min(1,(rt-n.netT0)/span)),a=n.netFrom,b=n.netTo;
+    if(!n.parent){NET_VN.delete(n);continue;}   // (gone with its venue)
+    n.position.set(a[0]+(b[0]-a[0])*k,a[1]+(b[1]-a[1])*k,a[2]+(b[2]-a[2])*k);n.rotation.set(lerpA(a[3],b[3],k),lerpA(a[4],b[4],k),lerpA(a[5],b[5],k));n.visible=!!b[6];}
+}
+
 // ---- events: one-off things the host's game did, done again on the guest ----
 // (each a call to one of these with its arguments, made plain: numbers, strings, flat lists, players as their seat)
 function netSan(v,d){
@@ -77,6 +109,7 @@ const NET_FX={};
 function netFx(name,f){
   NET_FX[name]=f;
   return function(...a){
+    if(NET_MUTE)return;
     if(NET.mode===1&&NET_FXD===0&&NET.guests.size){try{netEmit(['f',name,a.map(x=>netSan(x,0))]);}catch(e){}}
     NET_FXD++;try{return f.apply(this,a);}finally{NET_FXD--;}
   };
@@ -86,6 +119,7 @@ destroyFX=netFx('destroyFX',destroyFX);shockwave=netFx('shockwave',shockwave);sh
 tone=netFx('tone',tone);noise=netFx('noise',noise);woosh=netFx('woosh',woosh);
 // (a message for one player goes to that player only; one for everyone, to everyone)
 {const fl=flashLabel;NET_FX.flashLabel=fl;flashLabel=function(s,who){
+  if(NET_MUTE)return;
   if(NET.mode===1&&NET.guests.size){const seat=who?players.indexOf(who):-1;if(seat!==0)netEmit(['f','flashLabel',[s,seat>0?{$p:seat}:null]]);}
   return fl(s,who&&who.net&&NET.mode===1?null:who);};}
 // blocks: every block the host's game changes for good goes through addEdit, so that's where they're picked up
@@ -96,6 +130,38 @@ tone=netFx('tone',tone);noise=netFx('noise',noise);woosh=netFx('woosh',woosh);
 for(const [nm,f] of [['damagePlayer',damagePlayer],['damageGoblin',damageGoblin],['hitGoblins',hitGoblins],['damageCar',damageCar],['crush',crush]]){
   const g=function(...a){if(NET.mode===2&&NET.joined&&!NET_APPLY)return nm==='crush'?[]:undefined;return f.apply(this,a);};
   if(nm==='damagePlayer')damagePlayer=g;else if(nm==='damageGoblin')damageGoblin=g;else if(nm==='hitGoblins')hitGoblins=g;else if(nm==='damageCar')damageCar=g;else crush=g;}
+// falling pieces of building: a section toppling over (a rigid piece turning about its hinge) and a collapse sinking
+// into the ground. The blocks it's made of go once, when it starts; then where it is, in every snapshot while it lasts.
+const netFallId=new WeakMap();let netFallN=0;const NETF=new Map();   // (host: piece -> number; guest: number -> its model)
+const netFlat=L=>{const a=[];for(const q of L)a.push(q.x,q.y,q.z,q.b);return a;};
+const netUnflat=a=>{const L=[];for(let i=0;i+3<a.length;i+=4)L.push({x:a[i],y:a[i+1],z:a[i+2],b:a[i+3]});return L;};
+{const mt=makeTopple;makeTopple=function(blocks,pivot,D){const r=mt(blocks,pivot,D);
+  if(NET.mode===1&&NET.guests.size){const T=topples[topples.length-1];if(T){const id=++netFallN;netFallId.set(T,id);netEmit(['t',id,netFlat(blocks),[pivot.x,pivot.y,pivot.z]]);}}return r;};}
+{const mb=makeBody;makeBody=function(blocks,big){const r=mb(blocks,big);
+  if(NET.mode===1&&NET.guests.size){const B=bodies[bodies.length-1];if(B){const id=++netFallN;netFallId.set(B,id);netEmit(['b',id,netFlat(blocks),B.clipY]);}}return r;};}
+function netFalls(){const t=[],b=[];
+  for(const T of topples){const id=netFallId.get(T);if(id){const P=T.grp.position,Q=T.grp.quaternion;t.push([id,r3(P.x),r3(P.y),r3(P.z),+Q.x.toFixed(5),+Q.y.toFixed(5),+Q.z.toFixed(5),+Q.w.toFixed(5)]);}}
+  for(const B of bodies){const id=netFallId.get(B);if(id)b.push([id,r3(B.off)]);}
+  return [t,b];}
+// guest: a falling piece's model, made from its blocks as the host's was (it changes nothing in the world: the host sends the blocks it leaves behind)
+function netFallMake(e){
+  const L=netUnflat(e[2]);if(!L.length||NETF.has(e[1]))return;
+  if(e[0]==='t'){const pv=new V3(e[3][0],e[3][1],e[3][2]),mesh=buildBodyMesh(L,null),grp=new THREE.Group();grp.position.copy(pv);mesh.position.set(-pv.x,-pv.y,-pv.z);grp.add(mesh);scene.add(grp);NETF.set(e[1],{o:grp,mesh,t:true,seen:true});}
+  else{const mesh=buildBodyMesh(L,new THREE.Plane(new V3(0,1,0),-e[3]));scene.add(mesh);NETF.set(e[1],{o:mesh,mesh,t:false,seen:true});}
+}
+function netFallDrop(F){scene.remove(F.o);try{F.mesh.geometry.dispose();if(!F.t)F.mesh.material.dispose();}catch(e){}}
+function netFallCommit(m){
+  if(!m.fa)return;for(const F of NETF.values())F.seen=false;
+  for(const e of m.fa[0]){const F=NETF.get(e[0]);if(F)F.seen=true;}for(const e of m.fa[1]){const F=NETF.get(e[0]);if(F)F.seen=true;}
+  for(const [id,F] of NETF)if(!F.seen){netFallDrop(F);NETF.delete(id);}
+}
+function netFallPose(a,b,k){
+  if(!a.fa)return;const bt=new Map(),bb=new Map();if(b&&b.fa){for(const e of b.fa[0])bt.set(e[0],e);for(const e of b.fa[1])bb.set(e[0],e);}
+  for(const e of a.fa[0]){const F=NETF.get(e[0]);if(!F)continue;const f=bt.get(e[0]),v=n=>f?e[n]+(f[n]-e[n])*k:e[n];
+    F.o.position.set(v(1),v(2),v(3));let x=v(4),y=v(5),z=v(6),w=v(7);if(f&&e[4]*f[4]+e[5]*f[5]+e[6]*f[6]+e[7]*f[7]<0){x=e[4]-(f[4]+e[4])*k;y=e[5]-(f[5]+e[5])*k;z=e[6]-(f[6]+e[6])*k;w=e[7]-(f[7]+e[7])*k;}
+    const l=Math.hypot(x,y,z,w)||1;F.o.quaternion.set(x/l,y/l,z/l,w/l);}
+  for(const e of a.fa[1]){const F=NETF.get(e[0]);if(!F)continue;const f=bb.get(e[0]);F.o.position.y=f?e[1]+(f[1]-e[1])*k:e[1];}
+}
 // guest: one block, as the host has it
 function netSetBlock(x,y,z,b,ch){
   if(edits[x+','+y+','+z]===b)return;
@@ -120,7 +186,7 @@ function netSendSnap(p){
   const N=p.net;if(!N.wsent)N.wsent={};
   const m={t:'s',n:++N.seq,tt:NET.now,p:[],g:[],gl:{},c:[],cl:{},e:N.out};N.out=[];
   for(let s=0;s<players.length;s++){const q=players[s];if(q.active)m.p.push(netPlayerState(q,s,N));}
-  netGoblins(p,N,m.g,m.gl);netCars(p,N,m.c,m.cl);
+  netGoblins(p,N,m.g,m.gl);netCars(p,N,m.c,m.cl);m.v=[];netVenues(p,N,m.v);m.fa=netFalls();m.sc=[score,kills];
   N.wT=(N.wT||0)-1;if(N.wT<=0){N.wT=NET_SNAP_HZ;m.w=netWorldBits(N);m.k=netClock();}
   try{NET.tr.send(m,N.peer);}catch(e){}
 }
@@ -177,10 +243,14 @@ function netCommit(m){
   const ch=new Set();
   for(const e of m.e){
     if(e[0]==='e'){const L=e[1];for(let i=0;i+3<L.length;i+=4)netSetBlock(L[i],L[i+1],L[i+2],L[i+3],ch);}
+    else if(e[0]==='t'||e[0]==='b'){try{netFallMake(e);}catch(er){}}
     else if(e[0]==='f'){const f=NET_FX[e[1]];if(!f)continue;if(ch.size){rebuildSet(ch);ch.clear();}
       if(e[1]==='flashLabel'){const who=e[2][1]?netUnsan(e[2][1]):null;f(e[2][0],who);continue;}
       try{f(...e[2].map(netUnsan));}catch(er){}}}
   if(ch.size)rebuildSet(ch);
+  netFallCommit(m);
+  if(m.v)netVenueCommit(m.v,NET.now-NET.off-NET_DELAY);
+  if(m.sc){score=m.sc[0];kills=m.sc[1];}
   if(m.w)netWorld(m.w);
   if(m.k)netClockSet(m.k);
   NET.cur=m;
@@ -205,6 +275,7 @@ function netGuestFrame(dt){
   for(const e of a.g){const g=NETM.g.get(e[0]);if(!g)continue;const f=bg.get(e[0]),v=n=>f?e[n]+(f[n]-e[n])*k:e[n],w=n=>f?lerpA(e[n],f[n],k):e[n];
     g.root.position.set(v(1),v(2),v(3));g.root.rotation.set(w(4),w(5),w(6));g.root.scale.set(v(7),v(8),v(7));g.pos.copy(g.root.position);g.heading=g.root.rotation.y;
     g.legs[0].rotation.x=w(9);g.legs[1].rotation.x=w(10);g.arm.rotation.x=w(11);g.armL.rotation.x=w(12);g.head.rotation.z=w(13);}
+  netVenuePose(rt);netFallPose(a,b,k);
   for(const e of a.c){const c=NETM.c.get(e[0]);if(!c)continue;const f=bc.get(e[0]),v=n=>f?e[n]+(f[n]-e[n])*k:e[n],w=n=>f?lerpA(e[n],f[n],k):e[n];
     c.g.position.set(v(1),v(2),v(3));c.g.rotation.set(w(4),w(5),w(6));c.pos.copy(c.g.position);c.heading=c.g.rotation.y;
     e[7].forEach((r,i)=>{if(c.wheels[i])c.wheels[i].rotation.x=f&&f[7][i]!==undefined?lerpA(r,f[7][i],k):r;});
@@ -224,6 +295,11 @@ function netGuestDress(dt){
   if(netDressJ===0)refreshFixtures();else if(netDressJ===1)refreshBrandSigns();else if(netDressJ===2)refreshDoors();else if(netDressJ===3)refreshLandmarks();
   if(netDressJ<4)netDressJ++;
   updateDoors(dt);updateLandmarks(dt);headLamps();
+  // the venues, run here only so their models are made and kept (quietly: the host's sounds and dust stand in for theirs)
+  NET_MUTE=true;try{safe('venues',()=>updateVenues(dt));}finally{NET_MUTE=false;}
+  // (and nothing of this game's own is shown: whatever a venue sent out here, the host's game has its own)
+  for(const g of goblins)if(!g.net&&g.root.visible)g.root.visible=false;
+  for(const c of cars)if(!c.net&&c.g.visible)c.g.visible=false;
 }
 // guest, on (re)joining a world this tab already built: whatever's changed on the host since that save, put in here too
 function netCatchUp(S){

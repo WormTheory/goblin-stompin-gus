@@ -7,7 +7,7 @@ const fs=require('fs'),vm=require('vm');
 const src0=fs.readFileSync('g.js','utf8');
 const d6=fs.readFileSync('dead6.js','utf8');
 const stubs=d6.slice(d6.indexOf('const deep='),d6.indexOf('\neval(src);'));
-const src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={frame,players,P1,P2,NET,NETM,netHostWith,netJoinWith,netClose,netEnd,crush,get,goblins,cars,keys,ABIL,fires,setGobP,'+
+const src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={makeTopple,topples,NETF,V3,BRICK,NET_VN,venues,TRAINS,netVenueModels,frame,players,P1,P2,NET,NETM,netHostWith,netJoinWith,netClose,netEnd,crush,get,goblins,cars,keys,ABIL,fires,setGobP,'+
   'get seed(){return seed},get edits(){return edits},get menuOpen(){return menuOpen},get saveBlocked(){return saveBlocked},chunks,ckey,CS,G};})();');
 if(src===src0)throw new Error('closing line not found');
 const store=init=>{const m=new Map(Object.entries(init||{}));return{getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,String(v)),removeItem:k=>m.delete(k),get _m(){return m}};};
@@ -19,7 +19,7 @@ function game(name,rseed,ls,ss){
     __LS:store(ls),__SS:store(ss)};
   vm.createContext(ctx);
   const head='var global=globalThis;let __s='+rseed+';Math.random=()=>{__s=(__s*16807)%2147483647;return (__s-1)/2147483646;};\n'+stubs+
-    '\nglobal.localStorage=__LS;global.sessionStorage=__SS;global.location={reload(){}};\n';
+    '\nO3.prototype.isObject3D=true;global.localStorage=__LS;global.sessionStorage=__SS;global.location={reload(){}};\n';
   vm.runInContext(head+src,ctx,{filename:name+'.js'});
   const T=ctx.__t,g={name,T,ctx,LS:ctx.__LS,SS:ctx.__SS,reloads:0};
   g.step=n=>{for(let i=0;i<n;i++){clock+=16.7;g.now=clock;for(let k=timers.length-1;k>=0;k--)if(timers[k].at<=clock){const t=timers.splice(k,1)[0];try{t.f();}catch(e){}}T.frame(clock);hub.pump();}};
@@ -78,6 +78,11 @@ console.log('hp shown',GT.P1.hp,'state',GT.P1.state,'host P2',HT.P2.hp,HT.P2.sta
 {const hg=HT.goblins.filter(g=>g.root.visible&&Math.hypot(g.root.position.x-HT.P2.pos.x,g.root.position.z-HT.P2.pos.z)<170).length,gg=[...GT.NETM.g.values()].filter(g=>g.root.visible).length;
  const hc=HT.cars.filter(c=>c.g.visible&&Math.hypot(c.g.position.x-HT.P2.pos.x,c.g.position.z-HT.P2.pos.z)<220).length,gc=[...GT.NETM.c.values()].filter(c=>c.g.visible).length;
  const own=GT.goblins.filter(g=>!g.net&&g.root.visible).length;
+ console.log('venues near: host',HT.venues.size,'trains',HT.TRAINS.size,'| guest',GT.venues.size,'trains',GT.TRAINS.size,'| venue joints placed by the host',GT.NET_VN.size);
+ {const hm=new Map(),gm=new Map();HT.netVenueModels((k,o)=>hm.set(k,o.position));GT.netVenueModels((k,o)=>gm.set(k,o.position));let n=0,far=0;
+  for(const [k,P] of hm){const Q=gm.get(k);if(!Q||Math.hypot(P.x-HT.P2.pos.x,P.z-HT.P2.pos.z)>300)continue;n++;far=Math.max(far,Math.hypot(P.x-Q.x,P.y-Q.y,P.z-Q.z));}
+  console.log('venue models within reach',n,'furthest a guest one is from the host one',f2(far),'(a train moves about 2 in the 0.1 s a guest is behind)');}
+ if(process.env.DBG){HT.netVenueModels((k,o)=>console.log(' model',k,f2(o.position.x),f2(o.position.z),'dist',f2(Math.hypot(o.position.x-HT.P2.pos.x,o.position.z-HT.P2.pos.z))));for(const [k,V] of HT.venues)console.log(' venue',k,V.kind,Object.keys(V).join(','));}
  console.log('goblins shown host',hg,'guest',gg,'| vehicles host',hc,'guest',gc,'| guest\'s own goblins out',own,ok(own===0));}
 
 // ---- the guest's controls: hold forward on its controller and turn the camera ----
@@ -99,6 +104,15 @@ console.log('hp shown',GT.P1.hp,'state',GT.P1.state,'host P2',HT.P2.hp,HT.P2.sta
  for(let i=0;i<30;i++){H.step(1);G.step(1);}
  let same=0,diff=0;for(const k of Object.keys(HT.edits)){const [a,b,c]=k.split(',').map(Number);if(HT.get(a,b,c)===GT.get(a,b,c))same++;else diff++;}
  console.log('crush on the host: new edits',Object.keys(HT.edits).length-before,'blocks the same on the guest',same,'different',diff,ok(diff===0&&Object.keys(HT.edits).length>before));}
+
+// ---- a column of bricks toppling over beside the guest: its model on the guest follows the host's, then goes ----
+{const p=HT.P2.pos,x=Math.floor(p.x)+6,z=Math.floor(p.z)-3,y0=Math.floor(p.y),L=[];for(let y=y0;y<y0+12;y++)L.push({x,y,z,b:HT.BRICK});
+ HT.makeTopple(L,new HT.V3(x+0.5,y0,z+0.5),new HT.V3(1,0,0));let most=0,worst=0;
+ for(let i=0;i<300&&(HT.topples.length||GT.NETF.size);i++){H.step(1);G.step(1);most=Math.max(most,GT.NETF.size);
+   const T=HT.topples[0],F=[...GT.NETF.values()][0];if(T&&F)worst=Math.max(worst,Math.abs(T.grp.quaternion.w-F.o.quaternion.w));}
+ for(let i=0;i<20;i++){H.step(1);G.step(1);}
+ let diff=0;for(const k of Object.keys(HT.edits)){const [a,b2,c]=k.split(',').map(Number);if(HT.get(a,b2,c)!==GT.get(a,b2,c))diff++;}
+ console.log('a topple on the host: guest showed',most,'falling piece',ok(most===1),'most its turn lagged',f2(worst),'gone after',ok(GT.NETF.size===0),'blocks where it landed differ',diff,ok(diff===0));}
 
 // ---- a guest goblin (Gnash) seat: switching kind on the host shows on the guest ----
 {HT.setGobP(HT.P1,true);for(let i=0;i<20;i++){H.step(1);G.step(1);}console.log('host turned goblin: guest P2 is a goblin',ok(GT.P2.gob===true));HT.setGobP(HT.P1,false);for(let i=0;i<20;i++){H.step(1);G.step(1);}}

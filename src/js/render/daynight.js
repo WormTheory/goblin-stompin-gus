@@ -113,7 +113,7 @@ function frame(now){
   safe('net',()=>netTick(now,dt));   // (online: a guest's controls into its seat on the host; a guest's own sent on)
   // (online the city never stops for one player's menu: the others are still playing)
   playing=!menuOpen&&players.some(p=>p.active&&!p.paused)||netHost()&&NET.guests.size>0||netGuest()&&NET.joined;
-  const netG=netGuest()&&NET.joined;if(netG){safe('net',()=>netGuestFrame(dt));safe('dress',()=>netGuestDress(dt));}
+  const netG=netGuest()&&NET.joined;if(netG){safe('dress',()=>netGuestDress(dt));safe('net',()=>netGuestFrame(dt));}
   // game time: scaled by the debug speed (0 when paused, or one 60th of a second for a single step), and cut
   // into short steps so a fast setting doesn't make things tunnel through walls
   // Paused (the menu open, or every hippo paused in co-op) the city stops dead, the same as the debug menu's Stop
