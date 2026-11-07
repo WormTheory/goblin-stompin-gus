@@ -355,7 +355,7 @@ function netWorld(w){
     for(let i=TENV.boxes.length-1;i>=0;i--)if(!want.has(key(TENV.boxes[i])))tenvRemove(i);
     const have=new Set(TENV.boxes.map(key));for(const B of w.tenv)if(!have.has(key(B))){const C=Object.assign({},B);TENV.boxes.push(C);tenvIndex();linkNearC.clear();tenvRebuild(C);}}
   if(w.coll)collapses=w.coll;if(w.wreck)wrecked=w.wreck;if(w.dest){destroyed=w.dest;destroyVer++;}
-  if(w.down){downFix.clear();for(const [k,v] of w.down)downFix.set(k,v);trafficRefreshT=0;}
+  if(w.down){downFix.clear();for(const [k,v] of w.down)downFix.set(k,v);netDressT=0;}   // (the street's fixtures drawn again, knocked-down ones lying down)
   if(w.fire){fires.length=0;for(const f of w.fire)fires.push({x:f[0],y:f[1],z:f[2],r:f[3],t:f[4],life:f[5],base:f[5],born:playTime,flames:!!f[6],acc:0,sacc:0,hurt:9,sm:f[7],rise:f[8],douse:!!f[9],blame:null});}
 }
 // every frame: show the host's game as it was NET_DELAY ago, blended between the snapshots either side
