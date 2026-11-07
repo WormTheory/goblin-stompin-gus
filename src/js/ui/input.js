@@ -38,7 +38,7 @@ function startPlay(mode,fromPad){
   try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();audioWanted=true;if(!(DT.paused||SPEEDS[DT.speedI]===0))audio.resume();}catch(e){}
   if(!fromPad)wantLock();
 }
-function pause(){if(TENV)tpShow(true);menuOpen=true;playing=false;keys.clear();mHeld.clear();pauseEl.hidden=false;renderObitCount();if(curTab==='obit'){obitSel=0;renderObits();}if(curTab==='controls')renderControls();if(curTab==='map'){MAPV.cx=null;saveExplored();setTimeout(renderMap,0);}try{if(locked())document.exitPointerLock();}catch(e){}const pf=document.getElementById(players[1].active?'playCoop':'play');if(inputKind==='pad')padFocus(pf);else pf.focus();}
+function pause(){if(TENV)tpShow(true);menuOpen=true;playing=false;keys.clear();mHeld.clear();pauseEl.hidden=false;renderObitCount();if(curTab==='obit'){obitSel=0;renderObits();}if(curTab==='controls')renderControls();if(curTab==='map'){MAPV.cx=null;saveExplored();setTimeout(renderMap,0);}try{if(locked())document.exitPointerLock();}catch(e){}const pf=document.getElementById(players[1].active&&!players[1].net?'playCoop':'play');if(inputKind==='pad')padFocus(pf);else pf.focus();}
 // losing the mouse (another window clicked, alt-tab) pauses -- unless you're playing on a controller, which keeps
 // working with the game in the background (as long as the page is still showing; 'on a controller': you've used one
 // in the last minute -- so the Alt of an Alt-Tab doesn't count against it)

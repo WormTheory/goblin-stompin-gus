@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:a2f4aa802825aaa8ffedc0e31da9eeb3c29b6e3e7f3f72892da7c760680c4650 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:10908c3c21b471731530361f9d1bbad4e063453eea88b97e6508cc88ff92d704 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20341,7 +20341,7 @@ function startPlay(mode,fromPad){
   try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();audioWanted=true;if(!(DT.paused||SPEEDS[DT.speedI]===0))audio.resume();}catch(e){}
   if(!fromPad)wantLock();
 }
-function pause(){if(TENV)tpShow(true);menuOpen=true;playing=false;keys.clear();mHeld.clear();pauseEl.hidden=false;renderObitCount();if(curTab==='obit'){obitSel=0;renderObits();}if(curTab==='controls')renderControls();if(curTab==='map'){MAPV.cx=null;saveExplored();setTimeout(renderMap,0);}try{if(locked())document.exitPointerLock();}catch(e){}const pf=document.getElementById(players[1].active?'playCoop':'play');if(inputKind==='pad')padFocus(pf);else pf.focus();}
+function pause(){if(TENV)tpShow(true);menuOpen=true;playing=false;keys.clear();mHeld.clear();pauseEl.hidden=false;renderObitCount();if(curTab==='obit'){obitSel=0;renderObits();}if(curTab==='controls')renderControls();if(curTab==='map'){MAPV.cx=null;saveExplored();setTimeout(renderMap,0);}try{if(locked())document.exitPointerLock();}catch(e){}const pf=document.getElementById(players[1].active&&!players[1].net?'playCoop':'play');if(inputKind==='pad')padFocus(pf);else pf.focus();}
 // losing the mouse (another window clicked, alt-tab) pauses -- unless you're playing on a controller, which keeps
 // working with the game in the background (as long as the page is still showing; 'on a controller': you've used one
 // in the last minute -- so the Alt of an Alt-Tab doesn't count against it)
@@ -21877,6 +21877,9 @@ function netUiRefresh(){
   code.hidden=!(netHost()&&NET.code);code.textContent=netHost()?NET.code:'';
   // (no swapping the city out from under someone who's in it)
   for(const id of ['newWorld','testWorld'])netEl(id).disabled=on;
+  // (with someone else in the game, Play goes back to it; and how hostile the enemies are is the host's to say)
+  const pl=netEl('play'),t=on&&P2.net?(netGuest()?'Back to the game':'Back to the online game'):'Play solo';if(pl.textContent!==t)pl.textContent=t;
+  netEl('playCoop').hidden=on&&!!P2.net;netEl('hostMain').disabled=netGuest()&&NET.joined;
 }
 {
   const pan=netEl('onlinePanel'),btn=netEl('onlineBtn');

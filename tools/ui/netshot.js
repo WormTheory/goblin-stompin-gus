@@ -6,6 +6,8 @@
 const {chromium}=require('playwright');
 const fs=require('fs'),path=require('path'),http=require('http');
 const seed=+(process.argv[2]||12345),out=process.argv[3]||'netshots';
+// (P2P=1: through Trystero and the internet, as two players far apart would be, rather than between the tabs directly)
+const P2P=!!process.env.P2P;
 const ROOT=path.resolve(__dirname,'..','..');
 const SAVE_KEY=fs.readFileSync(path.join(__dirname,'t3.html'),'utf8').match(/SAVE_KEY='([^']+)'/)[1];
 // (served over http, so both tabs share an origin and the BroadcastChannel joins them; three.js from wherever node finds it)
@@ -21,13 +23,13 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
   await ctx.addInitScript(([k,s])=>{if(!localStorage.getItem(k))localStorage.setItem(k,JSON.stringify({seed:s}));},[SAVE_KEY,seed]);
   const errs=[];const watch=(p,n)=>{p.on('pageerror',e=>errs.push(n+': '+e.message));p.on('console',m=>{if(m.type()==='error')errs.push(n+': '+m.text().slice(0,200));});};
   const A=await ctx.newPage();watch(A,'host');await A.goto(url);await wait(3000);
-  await A.click('#onlineBtn');await A.check('#netLocal');await A.click('#netHost');
+  await A.click('#onlineBtn');if(!P2P)await A.check('#netLocal');await A.click('#netHost');
   let code='';for(let i=0;i<20&&!code;i++){await wait(250);code=(await A.textContent('#netCodeShow')).trim();}
   console.log('host room code',code||'(none)');
-  await A.screenshot({path:out+'/0-host-menu.png'});
+  await A.screenshot({path:out+'/0-host-menu.png'});if(!code){console.log('host status:',await A.textContent('#netStatus'));}
   await A.click('#play');await wait(1500);
   const B=await ctx.newPage();watch(B,'guest');await B.goto(url);await wait(3000);
-  await B.click('#onlineBtn');await B.check('#netLocal');await B.fill('#netCode',code);await B.click('#netJoin');
+  await B.click('#onlineBtn');if(!P2P)await B.check('#netLocal');await B.fill('#netCode',code);await B.click('#netJoin');
   // (it reloads into the host's city, then joins again by itself)
   let st='';for(let i=0;i<120;i++){await wait(500);try{st=await B.textContent('#netStatus');if(/Playing online/.test(st))break;}catch(e){}}
   console.log('guest status:',st);
