@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:dc32f96f595dd5954fd25c0afead3bf908c70c358b2632ec79208a385c0c3a33 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:daef07e259b9e805608f2375ae9e86fb02b851d0382bfbb697c29549f39355c7 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14479,7 +14479,8 @@ function navSteer(g,p){
   // (at the end of the route, and the hippo's on the wall right there: on to the wall after it, up from the foot or down from the top)
   if(par<0){const w=navWallOf(p);if(w){const x=Math.floor(g.pos.x),z=Math.floor(g.pos.z);
       if(x===w.fx&&z===w.fz&&w.top&&p.pos.y>g.pos.y+1.5)gobStartMove(g,NAV_UP,{x:w.wx,z:w.wz,y:w.top});
-      else if(x===w.wx&&z===w.wz&&w.foot&&p.pos.y<g.pos.y-1.5)gobStartMove(g,NAV_DOWN,{x:w.fx,z:w.fz,y:w.foot});}
+      else if(x===w.wx&&z===w.wz&&w.foot&&p.pos.y<g.pos.y-1.5)gobStartMove(g,NAV_DOWN,{x:w.fx,z:w.fz,y:w.foot});
+      if(g.act)g.act.chasing=true;}
     return null;}
   const P=k=>({x:(k>>18&1023)+F.ox,z:(k>>8&1023)+F.oz,y:k&255});
   if(F.mv[i]!==NAV_WALK){const t=P(F.key[par]);gobStartMove(g,F.mv[i],t);if(g.act)return null;return{x:t.x+.5,z:t.z+.5};}
@@ -14512,6 +14513,7 @@ function gobWallCrawl(g,A,dt){
     if(W[0]?Math.floor(p.pos.x)!==Math.floor(g.pos.x):Math.floor(p.pos.z)!==Math.floor(g.pos.z))continue;
     const d=Math.hypot(p.pos.x-g.pos.x,p.pos.z-g.pos.z,p.pos.y-g.pos.y);if(d<24&&d<qd){qd=d;q=p;}}
   if(!q)return false;
+  A.chasing=true;
   const L=W[0]?[0,1]:[1,0],lat=(q.pos.x-g.pos.x)*L[0]+(q.pos.z-g.pos.z)*L[1],dy=q.pos.y-g.pos.y,y=Math.floor(g.pos.y+.1);
   const clings=(x,z,yy)=>solidAt(x+W[0],yy,z+W[1])&&!solidAt(x,yy,z)&&!solidAt(x,yy+1,z);
   let moved=false;
@@ -14526,6 +14528,15 @@ function gobWallCrawl(g,A,dt){
   else{const f=navFloorOf(x,z,g.pos.y);if(f)A.y1=f;}
   return true;
 }
+// partway up a wall after a hippo that's since let go and dropped below it: back down, rather than on to the top of a
+// climb that no longer leads anywhere near it
+function gobWallTurn(g,A){
+  const t=nearestPlayer(g.pos.x,g.pos.z,true);if(!t||t.d>40)return;
+  // (only a climb that was after a hippo on the wall, and only once it's back on its feet below: a route up and over stays as it is)
+  const p=t.p;if(!A.chasing||!p.grounded||p.state==='climb'||p.state==='piv')return;
+  const W=A.f,x=Math.floor(g.pos.x),z=Math.floor(g.pos.z);
+  if(A.k==='up'&&p.pos.y<g.pos.y-1){const f=navFloorOf(x,z,g.pos.y);if(f&&f<g.pos.y-0.5)g.act={k:'down',x:g.pos.x,z:g.pos.z,y1:f,f:[-W[0],-W[1]]};}
+}
 function gobMoveStep(g,dt){
   const A=g.act;g.phase+=dt*9;
   const sn=Math.sin(g.phase);
@@ -14535,6 +14546,7 @@ function gobMoveStep(g,dt){
   g.pos.x+=(A.x-g.pos.x)*Math.min(1,dt*10);g.pos.z+=(A.z-g.pos.z)*Math.min(1,dt*10);g.vy=0;
   g.arm.rotation.x=-2.6+sn*0.5;g.armL.rotation.x=-2.6-sn*0.5;g.legs[0].rotation.x=-0.5+sn*0.5;g.legs[1].rotation.x=-0.5-sn*0.5;
   if(gobWallCrawl(g,A,dt))return;
+  gobWallTurn(g,A);
   if(A.k==='up'){g.pos.y+=dt*2.6;
     if(!solidAt(Math.floor(A.tx),A.y1-1,Math.floor(A.tz)))g.act=null;   // (the top of the wall's gone: it just falls)
     else if(g.pos.y>=A.y1-.1){const L=Math.hypot(A.tx-g.pos.x,A.tz-g.pos.z);g.act={k:'jump',t:0,T:0.3,x0:g.pos.x,y0:g.pos.y,z0:g.pos.z,x1:A.tx,y1:A.y1,z1:A.tz,h:0.25+L*.05};}
