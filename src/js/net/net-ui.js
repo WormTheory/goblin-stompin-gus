@@ -4,7 +4,7 @@ function netUiStatus(s){const e=netEl('netStatus');if(e&&e.textContent!==s)e.tex
 function netUiRefresh(){
   const on=netOn(),code=netEl('netCodeShow');
   for(const id of ['netHost','netJoin'])netEl(id).disabled=on;
-  netEl('netCode').disabled=on;netEl('netLocal').disabled=on;
+  netEl('netCode').disabled=on;netEl('netLocal').disabled=on||typeof BroadcastChannel==='undefined';
   netEl('netLeave').hidden=!on;netEl('netLeave').textContent=netHost()?'Stop hosting':'Leave the online game';
   code.hidden=!(netHost()&&NET.code);code.textContent=netHost()?NET.code:'';
   // (no swapping the city out from under someone who's in it)
@@ -23,6 +23,10 @@ function netUiRefresh(){
   netEl('netJoin').addEventListener('click',join);
   netEl('netCode').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter')join();});
   netEl('netLeave').addEventListener('click',()=>netEnd());
+  // (ticking it says straight away what it's for and how it goes, so it's plain it's taken)
+  netEl('netLocal').addEventListener('change',()=>{if(netOn())return;
+    netUiStatus(netEl('netLocal').checked?'Two tabs of this browser: host a game in one tab, then open the game in another tab of this same browser, tick this there too, and join with the code.'+(netFromFile()?NET_FILE_TIP:'')
+      :'Over the internet: host a game, or type in a room code and join.');});
   netUiRefresh();
   // a tab that reloaded to build the host's city: join again at once (the host lets it straight back in)
   const J=netJoinFlag();

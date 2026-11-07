@@ -13,6 +13,7 @@
 - Your own hippo moves the moment you press, even on a slow connection, and is nudged back into step with the host's game if the two drift apart.
 - Bites and stomps land on goblins where you saw them, not where they've moved to since.
 - Play Gnash online and you can drive, with the chase camera following you.
+- The host can switch to another tab or window and the game carries on for everyone else, so you can also try it out in two tabs of one browser (tick "Two tabs of this browser" in both).
 - Drop out and you're put straight back in your place when the connection comes back (within half a minute).
 - Each player keeps the abilities switched on in their own browser. The host's hostility setting is the game's, and the world never pauses while you're both in it.
 - If you both pick the same hippo, the guest plays the other one, so you can tell each other apart.

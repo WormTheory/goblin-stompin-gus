@@ -8,6 +8,7 @@ const src0=fs.readFileSync('g.js','utf8');
 const d6=fs.readFileSync('dead6.js','utf8');
 const stubs=d6.slice(d6.indexOf('const deep='),d6.indexOf('\neval(src);'));
 const src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={tenvPlace,get TENV(){return TENV},netSendSnap,netRewind,netUnwind,NETP,makeTopple,topples,NETF,V3,BRICK,NET_VN,venues,TRAINS,netVenueModels,frame,players,P1,P2,NET,NETM,netHostWith,netJoinWith,netClose,netEnd,crush,get,goblins,cars,keys,ABIL,fires,setGobP,'+
+  'collapseBuilding,bldgAt,plotInfo,CELL,FH,knockFix,activeFix,activeProps,falling,downFix,NET_BG,netBgTick,netBgClock,get collapses(){return collapses},'+
   'get seed(){return seed},get edits(){return edits},get menuOpen(){return menuOpen},get saveBlocked(){return saveBlocked},chunks,ckey,CS,G};})();');
 if(src===src0)throw new Error('closing line not found');
 const store=init=>{const m=new Map(Object.entries(init||{}));return{getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,String(v)),removeItem:k=>m.delete(k),get _m(){return m}};};
@@ -22,7 +23,7 @@ function game(name,rseed,ls,ss){
     '\nO3.prototype.isObject3D=true;global.localStorage=__LS;global.sessionStorage=__SS;global.location={reload(){}};\n';
   vm.runInContext(head+src,ctx,{filename:name+'.js'});
   const T=ctx.__t,g={name,T,ctx,LS:ctx.__LS,SS:ctx.__SS,reloads:0};
-  g.step=n=>{for(let i=0;i<n;i++){clock+=16.7;g.now=clock;for(let k=timers.length-1;k>=0;k--)if(timers[k].at<=clock){const t=timers.splice(k,1)[0];try{t.f();}catch(e){}}T.frame(clock);hub.pump();}};
+  g.step=n=>{for(let i=0;i<n;i++){clock+=16.7;g.now=clock;for(let k=timers.length-1;k>=0;k--)if(timers[k].at<=clock){const t=timers.splice(k,1)[0];try{t.f();}catch(e){}}if(g.bg)T.netBgTick();else T.frame(clock);hub.pump();}};   // (g.bg: a tab in the background, run by the worker's timer rather than animation frames)
   g.play=()=>{for(const f of ctx.document.getElementById('play').L.click)f();};
   T.NET.onReload=()=>{g.reloads++;};
   T.NET.makeTr=()=>hub.make();
@@ -118,6 +119,55 @@ const lag=[];
  for(let i=0;i<20;i++){H.step(1);G.step(1);}
  let diff=0;for(const k of Object.keys(HT.edits)){const [a,b2,c]=k.split(',').map(Number);if(HT.get(a,b2,c)!==GT.get(a,b2,c))diff++;}
  console.log('a topple on the host: guest showed',most,'falling piece',ok(most>=1),'most its turn lagged',f2(worst),'gone after',ok(GT.NETF.size===0),'blocks where it landed differ',diff,ok(diff===0));}
+
+// ---- a building coming down beside the guest: its blocks go on the guest too (it used to stay standing there, with the
+// toppling copy falling out of it) ----
+{const p=HT.P2.pos;let B=null;
+ for(let r=8;r<90&&!B;r+=4)for(let a=0;a<16&&!B;a++){const x=Math.floor(p.x+Math.cos(a/16*6.283)*r),z=Math.floor(p.z+Math.sin(a/16*6.283)*r),q=HT.bldgAt(x,z);
+   if(q&&q.b.top>HT.G+10&&HT.collapses[q.key]===undefined&&HT.chunks.has(HT.ckey(Math.floor(x/HT.CS),Math.floor(z/HT.CS)))&&GT.chunks.has(GT.ckey(Math.floor(x/GT.CS),Math.floor(z/GT.CS))))B=q;}
+ if(!B)console.log('no building near the guest to bring down');else{
+  const L=HT.G+1+HT.FH,b=B.b,X0=B.px*HT.CELL,Z0=B.pz*HT.CELL;
+  const solid=T=>{let n=0;for(let x=b.x0;x<b.x1;x++)for(let z=b.z0;z<b.z1;z++)for(let y=L;y<=b.top+4;y++)if(T.get(X0+x,y,Z0+z))n++;return n;};
+  const before=[solid(HT),solid(GT)];HT.collapseBuilding(B,L,{x:1,z:0});
+  for(let i=0;i<40;i++){H.step(1);G.step(1);}
+  let diff=0;for(let x=b.x0;x<b.x1;x++)for(let z=b.z0;z<b.z1;z++)for(let y=L;y<=b.top+4;y++)if(!!HT.get(X0+x,y,Z0+z)!==!!GT.get(X0+x,y,Z0+z))diff++;
+  console.log('a building brought down on the host: solid blocks above the break, host',before[0],'->',solid(HT),'| guest',before[1],'->',solid(GT),'| blocks that differ',diff,ok(before[1]>50&&solid(GT)<before[1]/3&&diff<=before[0]*0.02),
+   '| guest knows it fell',ok(GT.collapses[B.key]===HT.collapses[B.key]));
+  for(let i=0;i<300&&(HT.topples.length||GT.NETF.size);i++){H.step(1);G.step(1);}}}
+
+// ---- a prop or street fixture knocked over: the guest plays the fall, not just the end of it ----
+{const p=HT.P2.pos,near=f=>Math.hypot(f.x-p.x,f.z-p.z);
+ const L=[...HT.activeProps,...HT.activeFix].filter(f=>f.key!==undefined&&!HT.downFix.has(f.key)&&!HT.falling.has(f.key)).sort((a,b)=>near(a)-near(b));
+ const f=L[0];if(!f)console.log('nothing near the guest to knock over');else{
+  HT.knockFix(f,1,0);let mid=0,most=0;
+  for(let i=0;i<70;i++){H.step(1);G.step(1);const F=GT.falling.get(f.key);if(F){most=Math.max(most,F.t);if(F.t>0.15&&F.t<0.6)mid++;}}
+  console.log('knocked over a',f.type||(f.prop?'prop':'fixture'),f2(near(f)),'away: guest showed it falling for',mid,'frames midway',ok(mid>=10),'| lying down on both',ok(HT.downFix.has(f.key)&&GT.downFix.has(f.key)),
+   '| same way',ok(Math.abs(HT.downFix.get(f.key)-GT.downFix.get(f.key))<0.01));}}
+
+// ---- health: the players' hearts, and the health bars over goblins, vehicles and the venues' vehicles, are the host's ----
+{for(let i=0;i<5;i++){H.step(1);G.step(1);}
+ HT.P2.hp=13;for(let i=0;i<10;i++){H.step(1);G.step(1);}const a=GT.P1.hp;
+ GT.P1.hp=20;for(let i=0;i<10;i++){H.step(1);G.step(1);}   // (the guest's copy wanders off on its own: put right by the next snapshot, though the host's hasn't changed)
+ HT.P1.hp=7;for(let i=0;i<10;i++){H.step(1);G.step(1);}
+ console.log('hearts: guest shows its own',a,ok(a===13),'| put right after wandering',GT.P1.hp,ok(GT.P1.hp===13),'| the host\'s',GT.P2.hp,ok(GT.P2.hp===7),
+   '| hearts drawn',GT.P1.ui.hearts.children?GT.P1.ui.hearts.children.length:'-');
+ HT.P2.hp=20;HT.P1.hp=20;
+ const gs=HT.goblins.map((g,i)=>[g,i]).filter(([g])=>g.root.visible&&g.hp>1&&GT.NETM.g.has(HT.goblins.indexOf(g))).slice(0,6);for(const [g] of gs)g.hp=Math.max(0.5,g.hp-1.5);
+ const cs=HT.cars.map((c,i)=>[c,i]).filter(([c])=>c.alive&&c.g.visible&&GT.NETM.c.has(HT.cars.indexOf(c))).slice(0,6);for(const [c] of cs)c.hp=Math.max(1,c.hp-11);
+ let vk=null,vo=null;for(const [k,V] of HT.venues){if(V.kind==='army'&&V.mil&&V.mil.length){vo=V.mil[0];vk=k;break;}if(V.kind==='airport'&&V.pl&&V.pl.length){vo=V.pl[0];vk=k;break;}if(V.kind==='boat'&&V.bo){vo=V.bo;vk=k;break;}}
+ if(vo)vo.hp=Math.max(1,vo.hp-7);
+ for(let i=0;i<12;i++){H.step(1);G.step(1);}
+ const gOk=gs.filter(([g,i])=>Math.abs(GT.NETM.g.get(i).hp-g.hp)<0.01&&GT.NETM.g.get(i).hpMax===g.hpMax).length,cOk=cs.filter(([c,i])=>Math.abs(GT.NETM.c.get(i).hp-c.hp)<0.01).length;
+ let vOk='(no venue vehicle near)';if(vo){const GV=GT.venues.get(vk),go=GV&&(GV.mil?GV.mil[0]:GV.pl?GV.pl[0]:GV.bo);vOk=go&&Math.abs(go.netHp-vo.hp)<0.01?'ok':'BAD';}
+ console.log('health bars on the guest: goblins hurt',gs.length,'the same',gOk,ok(gOk===gs.length),'| vehicles hurt',cs.length,'the same',cOk,ok(cOk===cs.length),'| a venue vehicle',vOk);}
+
+// ---- the host's tab in the background: no animation frames at all, so a worker's timer runs it (frame(now,true)), undrawn ----
+{const D=H.ctx.document;D.hidden=true;HT.netBgClock();const on=HT.NET_BG.on;const n0=GT.NET.cur?GT.NET.cur.n:0,b0=HT.P2.pos.clone();
+ H.bg=true;
+ GT.keys.add('KeyW');for(let i=0;i<60;i++){H.step(1);G.step(1);}GT.keys.delete('KeyW');for(let i=0;i<10;i++){H.step(1);G.step(1);}
+ const n1=GT.NET.cur?GT.NET.cur.n:0,moved=d(HT.P2.pos,b0);
+ D.hidden=false;HT.netBgClock();H.bg=false;for(let i=0;i<10;i++){H.step(1);G.step(1);}
+ console.log('host tab hidden: background clock on',ok(on),'snapshots the guest got meanwhile',n1-n0,ok(n1-n0>=10),'guest walked on the host',f2(moved),ok(moved>2),'| clock off again when shown',ok(!HT.NET_BG.on));}
 
 // ---- a guest goblin (Gnash) seat: switching kind on the host shows on the guest ----
 {HT.setGobP(HT.P1,true);for(let i=0;i<20;i++){H.step(1);G.step(1);}console.log('host turned goblin: guest P2 is a goblin',ok(GT.P2.gob===true));HT.setGobP(HT.P1,false);for(let i=0;i<20;i++){H.step(1);G.step(1);}}

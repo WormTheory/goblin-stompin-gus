@@ -100,7 +100,7 @@ function warmShaders(){
   try{renderer.compile(scene,P1.camera);}catch(e){}
   for(const o of [L,M])scene.remove(o);
 }
-function frame(now){
+function frame(now,bg){   // (bg: a tab in the background while online, kept going by netBgClock without being drawn)
   if(warmT<2&&++warmT===2)warmShaders();
   madeNow=0;
   fpsTick((now-last)/1000);safe('sound list',sndTick);
@@ -121,7 +121,8 @@ function frame(now){
   const held=begun&&!playing;
   let gdt=held?0:dt*gameSpeed();if(DT.paused&&DT.step&&!held){gdt=1/60;DT.step=false;}
   // time stopped (or the game speed at 0): the sound stops too, and picks up again where it was
-  {const frozen=playing&&(DT.paused||SPEEDS[DT.speedI]===0);if(audio){try{if(frozen&&audio.state==='running')audio.suspend();else if(!frozen&&audio.state==='suspended'&&audioWanted)audio.resume();}catch(e){}}}
+  {const frozen=playing&&(DT.paused||SPEEDS[DT.speedI]===0)||!!bg;   // (and a tab in the background online is quiet: the game's heard in the tab that's showing)
+  if(audio){try{if(frozen&&audio.state==='running')audio.suspend();else if(!frozen&&audio.state==='suspended'&&audioWanted)audio.resume();}catch(e){}}}
   const nSub=Math.max(1,Math.ceil(gdt/0.05)),sdt=gdt/nSub;
   for(let sI=0;sI<nSub;sI++){
     if(netG){netGuestStep(sdt,sI===0);continue;}   // (a guest online: the host's game does the playing, see net/net-sync.js)
@@ -159,6 +160,7 @@ function frame(now){
   const hn=huntersCount(),pol=cars.some(c=>c.alive&&c.police&&c.hunter);
   updateSiren(dt);promptTick(dt);
   {const h=`Kills <b>${kills}</b>  ·  Score <b>${score}</b>${hn?`  ·  <i>${hn} CAR${hn>1?'S':''} HUNTING YOU</i>`:''}${pol?'  ·  <i>POLICE PURSUIT</i>':''}`;if(h!==readoutH){readoutH=h;readout.innerHTML=h;}}   // (only when it's changed: rebuilding it makes the browser lay the page out again)
+  if(bg)return;   // (nobody's looking: no drawing, and no next frame asked for, the browser having stopped giving this tab any)
   const w=innerWidth,h=innerHeight;
   let views;
   safe('batDraw',batDraw);safe('fxDraw',fxDraw);

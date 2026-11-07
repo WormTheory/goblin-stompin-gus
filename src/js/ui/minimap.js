@@ -140,10 +140,12 @@ function drawDbgOverlay(dt,views){
       for(const g of goblins){if(!g.root.visible||g.state==='wait'||g.state==='dead'||!(g.hp>0))continue;if(!(g.hpMax>=g.hp))g.hpMax=g.hp;bar(g.pos.x,g.pos.y+2.1,g.pos.z,g.hp,g.hpMax,g.civ?'#9ad0ff':'#7fd04a');}
       for(const c of cars){if(!c.alive||!c.g.visible)continue;if(!(c.hpMax>=c.hp))c.hpMax=Math.max(c.hp,c.svcPool?45:30);bar(c.pos.x,c.pos.y+(c.hy||1.4)+0.5,c.pos.z,c.hp,c.hpMax,'#5ab4ff');}
       for(const V of venues.values()){
-        if(V.kind==='army')for(const M of V.mil){if(!M.dead)bar(M.x,M.y+MIL[M.kind].hy+0.6,M.z,M.hp,MIL[M.kind].hp,'#5ab4ff');}
-        else if(V.kind==='airport'&&V.pl)for(const pl of V.pl){if(!pl.dead&&pl.g.visible)bar(pl.g.position.x,pl.g.position.y+5,pl.g.position.z,pl.hp,PLANE_HP,'#5ab4ff');}
-        else if(V.kind==='boat'&&V.bo&&!V.bo.dead&&V.boat.visible){const g=V.boat;bar(g.position.x,g.position.y+V.bo.K.fb+2,g.position.z,V.bo.hp,V.bo.max,'#5ab4ff');}
-        else if(V.kind==='rtrain'&&V.T&&!V.T.dead&&V.cars)V.cars.forEach((g,i)=>{if(!(V.T.carDead&&V.T.carDead[i]))bar(g.position.x,g.position.y+4.2,g.position.z,V.T.carHP?V.T.carHP[i]:CAR_HP,CAR_HP,'#5ab4ff');});}
+        // (online, a guest reads the host's figures: netHp, netDead)
+        if(V.kind==='army')for(const M of V.mil){if(!netDead(M,M.dead))bar(M.x,M.y+MIL[M.kind].hy+0.6,M.z,netHp(M,M.hp),MIL[M.kind].hp,'#5ab4ff');}
+        else if(V.kind==='airport'&&V.pl)for(const pl of V.pl){if(!netDead(pl,pl.dead)&&pl.g.visible)bar(pl.g.position.x,pl.g.position.y+5,pl.g.position.z,netHp(pl,pl.hp),PLANE_HP,'#5ab4ff');}
+        else if(V.kind==='boat'&&V.bo&&!netDead(V.bo,V.bo.dead)&&V.boat.visible){const g=V.boat;bar(g.position.x,g.position.y+V.bo.K.fb+2,g.position.z,netHp(V.bo,V.bo.hp),V.bo.max,'#5ab4ff');}
+        else if(V.kind==='rtrain'&&V.T&&V.cars){const T=V.T,gst=netGuest()&&T.netHP,hp=gst?T.netHP:T.carHP,cd=gst?T.netCarDead:T.carDead;
+          if(!(gst?T.netDead:T.dead))V.cars.forEach((g,i)=>{if(!(cd&&cd[i]))bar(g.position.x,g.position.y+4.2,g.position.z,hp&&hp[i]!==undefined?hp[i]:CAR_HP,CAR_HP,'#5ab4ff');});}}
       for(const q of players){if(!q.active||q.state==='dead'||q===p)continue;bar(q.pos.x,q.pos.y+2.5,q.pos.z,q.hp,20,'#7fd04a');}
     }
     for(const d of DMG_POPS){const s=proj(d.x,d.y+d.t*1.6,d.z);if(!s||s[2]>90)continue;const a=d.t<0.7?1:Math.max(0,1-(d.t-0.7)/0.4),sz=Math.round(16+Math.min(14,d.n*0.5)-s[2]*0.08);

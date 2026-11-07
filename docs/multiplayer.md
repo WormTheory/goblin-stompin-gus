@@ -61,6 +61,22 @@ none of the goblins, traffic, damage or smashing itself, so nothing can disagree
   by an id in its sessionStorage (`gsg-net-cid`, which also covers the reload into the host's city). A guest that leaves
   frees the seat at once. The host leaving (or stopping hosting) sends the guest home; the host stopping just plays on
   alone.
+- **A tab in the background** (`NET_BG`, `netBgClock`): browsers give a hidden tab no animation frames and slow its
+  timers, which froze the host's game for everyone (and with two tabs of one browser one is always hidden). While
+  online and hidden, a timer in a small worker (made from a blob; a plain `setInterval` if workers aren't allowed) calls
+  `frame(now,true)`: the whole game runs, nothing is drawn, no next frame is asked for, and the sound is suspended.
+- **Buildings coming down:** `collapseBuilding` takes a building's blocks out with `setRaw` alone (a chunk made later
+  leaves them out by reading `collapses`), so they never pass through `addEdit`. It's wrapped to send `['c', key, floor]`
+  before the falling pieces' own events; the guest's `netCollapse` takes the same blocks out of its loaded chunks
+  (`NET_COLL` remembers which it has done, seeded from the save it built the city from). The once-a-second world state
+  catches any it missed.
+- **Knocked-over props and fixtures:** `knockFix` is wrapped to send `['k', key, angle, prop, x, z, y]` as the fall starts,
+  and the guest plays it in `falling` (`netFallingTick`, moved on in `netGuestDress`), so it topples over 0.7 s as on the host.
+- **Health:** goblins and vehicles carry their health and its maximum in every snapshot; the venues' vehicles (base
+  armour, planes, boats, train cars) theirs when it changes (`netVenueHP`), kept on the guest as `netHp`/`netDead`
+  beside its own models (whose own `hp`/`dead` its quiet venues might act on); the health bars read them through
+  `netHp`/`netDead`. A player's `NET_AUTH` values (hearts, stamina and the like) go in every snapshot rather than only
+  when changed, since the guest's own guess can wander from a value the host never changes.
 - **Rules for two:** the world never pauses while someone's online (the pause menu just covers your screen); the host's
   hostility setting is the game's; only the host saves the world; New city and the Testing Environment are off while
   online. If both players pick the same hippo, the guest plays the other one so they can tell each other apart.
@@ -96,13 +112,18 @@ A player in `p`: `s` (seat), `who`, `gob`, `act`, `f` (changed plain values; num
 strings), `pos`, `h`, `pose` (10 numbers a joint: place, turn, scale, shown), `lk` (lock-on target as `['g'|'c', n]`),
 `rd` (riding or driving), `dv` (vehicle pose), and for the guest's own seat `ack` and `adt`.
 Events in `e`: `['e', [x,y,z,b, ...]]` blocks, `['f', name, args]` an effect, `['t', id, blocks, pivot]` a topple,
-`['b', id, blocks, clipY]` a collapse.
+`['b', id, blocks, clipY]` a collapse sinking, `['c', key, floor]` a building coming down from that floor,
+`['k', key, angle, prop, x, z, y]` a fixture or prop knocked over.
+A goblin in `g` ends with its `state`, `hp` and `hpMax`; a vehicle in `c` with its `hp` and `hpMax`. `vh` holds the venues'
+vehicles' health as `[venue, list]`.
 
 ## Trying it
 
 - **Two tabs, one computer:** open `game/index.html` (or the site) in two tabs. In both, Play online, tick "Two tabs
-  of this browser". Host in one; type its code in the other and Join. (A file opened from disk may not share a
-  BroadcastChannel between tabs in every browser; serve the folder, e.g. `python -m http.server`, if it doesn't.)
+  of this browser" (the status line says how it goes, and hosting says "between this browser's tabs"). Host in one;
+  type its code in the other and Join. Chromium shares a BroadcastChannel between tabs opened from the same file; a
+  browser that doesn't (Firefox may keep file pages apart) gets "No tab of this browser is hosting room ..." after six
+  seconds, with the advice to use the website or serve the folder (`python -m http.server`).
 - **Two computers:** both open the published game. One clicks Host a game and reads out the five-letter code; the
   other types it in and clicks Join.
 - **Tests:** `bash tools/run_tests.sh net` (host and guest in one process: joining, the world, controls, snapshots,

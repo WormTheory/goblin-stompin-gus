@@ -30,6 +30,7 @@ function netStatus(s){NET.status=s;try{netUiStatus(s);}catch(e){}}
 // ---- transports: {kind, self, on:{msg(peer,data), join(peer), leave(peer)}, send(data,to?), close()} ----
 // two tabs of this browser, through a BroadcastChannel (for trying it out on one machine, and the UI tests)
 function netLoopback(code){
+  if(typeof BroadcastChannel==='undefined')throw new Error("this browser can't link its tabs (no BroadcastChannel). Untick \"Two tabs of this browser\" to play over the internet");
   const bc=new BroadcastChannel('gsg-net:'+code),self=netId(),seen=new Map();
   const T={kind:'loop',self,on:{},send(d,to){try{bc.postMessage({k:'m',from:self,to:to||null,d});}catch(e){}},
     close(){clearInterval(hb);try{bc.postMessage({k:'bye',from:self});bc.close();}catch(e){}}};
@@ -63,8 +64,14 @@ async function netOpen(kind,code){if(NET.makeTr)return NET.makeTr(kind,code);ret
 function netHostWith(tr,code,kind){
   NET.mode=1;NET.tr=tr;NET.code=code;NET.kind=kind;NET.guests.clear();
   tr.on.msg=netHostMsg;tr.on.join=()=>{};tr.on.leave=netHostDropped;
-  netStatus('Hosting. Room code '+code);
+  netStatus('Hosting '+netVia(kind)+'. Room code '+code+' · '+netWaitTxt(kind));netBgClock();
 }
+// (which way a game's played, for the status line: so ticking "Two tabs of this browser" plainly changes something)
+const netVia=kind=>kind==='loop'?"between this browser's tabs":'online';
+const netWaitTxt=kind=>kind==='loop'?'open the game in another tab of this browser, tick "Two tabs of this browser" there too, and join with this code':'waiting for someone to join';
+// (a page opened from a file: some browsers keep each such tab to itself, so two of them can't find each other)
+const netFromFile=()=>{try{return location.protocol==='file:';}catch(e){return false;}};
+const NET_FILE_TIP=" Opened from a file, some browsers keep tabs apart: use the game's website, or serve the folder (python -m http.server) and open it from there.";
 async function netStartHost(kind){
   if(netOn())return;const code=netCode();netStatus('Opening a room...');
   try{netHostWith(await netOpen(kind,code),code,kind);}catch(e){NET.mode=0;netStatus("Couldn't open a room: "+(e&&e.message||e));}
@@ -109,14 +116,14 @@ function netSeat(peer,m){
     clock:netClock()},peer);
   netHostStatus();
 }
-function netHostStatus(){const here=[...NET.guests.values()].filter(q=>!q.net.gone).map(q=>charName(q));netStatus('Hosting. Room code '+NET.code+' · '+(here.length?here.join(', ')+(here.length>1?' are':' is')+' here':'waiting for someone to join'));}
+function netHostStatus(){const here=[...NET.guests.values()].filter(q=>!q.net.gone).map(q=>charName(q));netStatus('Hosting '+netVia(NET.kind)+'. Room code '+NET.code+' · '+(here.length?here.join(', ')+(here.length>1?' are':' is')+' here':netWaitTxt(NET.kind)));}
 // a guest's seat comes into the game beside the host
 function netActivate(p){if(p===P2)return activateP2();p.active=true;p.paused=false;p.heading=P1.heading;placePlayer(p,findStreet(P1.pos.x,P1.pos.z,3,6));}
 function netDeactivate(p){if(p.gb){p.gb.root.visible=false;p.gb.vm.visible=false;}if(p===P2)return deactivateP2();p.active=false;p.paused=false;p.root.visible=false;p.pool.visible=false;}
 // a guest gone quiet or dropped: its seat (and its hippo, standing still) is kept a while for it to come back to
 function netHostDropped(peer){
   const p=NET.guests.get(peer);if(!p)return;if(!p.net.cid)return netHostLeft(peer);
-  if(!p.net.gone){p.net.gone=NET.now;p.net.inb=null;flashLabel(charName(p)+' lost the connection...');netStatus('Hosting. Room code '+NET.code+' · waiting for '+charName(p)+' to come back');}
+  if(!p.net.gone){p.net.gone=NET.now;p.net.inb=null;flashLabel(charName(p)+' lost the connection...');netStatus('Hosting '+netVia(NET.kind)+'. Room code '+NET.code+' · waiting for '+charName(p)+' to come back');}
 }
 function netHostLeft(peer){
   const p=NET.guests.get(peer);if(!p)return;NET.guests.delete(peer);
@@ -155,14 +162,17 @@ function netJoinWith(tr,code,kind){
   tr.on.msg=netGuestMsg;tr.on.leave=peer=>{if(peer===NET.host)netDropped();};
   tr.on.join=peer=>{if(!NET.host)tr.send(netHello(),peer);};
   tr.send(netHello());
-  netStatus('Looking for room '+code+'...');
+  netStatus(kind==='loop'?'Looking for room '+code+" in this browser's other tabs...":'Looking for room '+code+' online...');netBgClock();
 }
 async function netStartJoin(code,kind){
   code=String(code||'').toUpperCase().replace(/[^A-Z]/g,'');if(code.length<4){netStatus('Type in the room code first.');return;}
   if(netOn()&&!NET.retry)return;if(!NET.retry)netStatus('Connecting...');
   try{netJoinWith(await netOpen(kind,code),code,kind);}catch(e){if(NET.retry){setTimeout(netRetry,3000);return;}NET.mode=0;netStatus("Couldn't connect: "+(e&&e.message||e));return;}
   // (nobody answering after a while: probably a mistyped code)
-  if(!NET.retry)setTimeout(()=>{if(netGuest()&&!NET.host&&NET.code===code&&!NET.retry){netStatus('No game found with the code '+code+'. Check it and try again.');netClose();}},20000);
+  // (between tabs the host answers at once, so a few seconds is plenty; and it says what to check)
+  if(!NET.retry)setTimeout(()=>{if(netGuest()&&!NET.host&&NET.code===code&&!NET.retry){
+    netStatus(kind==='loop'?'No tab of this browser is hosting room '+code+'. Host it in another tab of this same browser with "Two tabs of this browser" ticked there too (or untick it here to join over the internet).'+(netFromFile()?NET_FILE_TIP:'')
+      :'No game found with the code '+code+'. Check it and try again'+(netJoinFlag()?'.':' (if it’s hosted in another tab of this browser, tick "Two tabs of this browser").'));netClose();}},kind==='loop'?6000:20000);
 }
 function netGuestMsg(peer,m){
   if(!m||typeof m!=='object')return;
@@ -222,7 +232,7 @@ function netClose(){
   try{if(netGuest()&&NET.host)NET.tr.send({t:'bye'},NET.host);else if(netHost())NET.tr.send({t:'bye'});}catch(e){}
   try{NET.tr.close();}catch(e){}
   if(netHost())for(const peer of [...NET.guests.keys()])netHostLeft(peer);
-  NET.tr=null;NET.mode=0;NET.host=null;NET.joined=false;
+  NET.tr=null;NET.mode=0;NET.host=null;NET.joined=false;netBgClock();
 }
 // leaving from the menu: a guest goes home to its own city; a host just stops hosting and plays on alone
 function netEnd(){
@@ -230,6 +240,23 @@ function netEnd(){
   else if(netHost()){netClose();netStatus('Stopped hosting.');}
 }
 addEventListener('pagehide',()=>{if(netOn()&&!NET.reloading)netClose();});
+
+// ---- a tab in the background ----
+// A browser gives a tab that isn't showing no animation frames at all, and slows its timers to once a second or less.
+// Offline that's a pause, which is fine; online it froze the host's game for everyone (and with two tabs of one browser,
+// one of them is always in the background), and a guest stopped answering. So while online and hidden, a timer in a
+// little worker, which browsers don't slow, runs the game on without drawing it (frame(now,true)).
+const NET_BG={w:null,iv:0,on:false,last:0};
+function netBgTick(){if(!NET_BG.on)return;if(!netOn()||!document.hidden){netBgClock();return;}const now=performance.now();if(now-NET_BG.last<10)return;NET_BG.last=now;try{frame(now,true);}catch(e){}}
+function netBgClock(){
+  const want=netOn()&&typeof document!=='undefined'&&!!document.hidden;if(want===NET_BG.on)return;NET_BG.on=want;
+  if(!NET_BG.w&&!NET_BG.iv&&want){
+    try{NET_BG.w=new Worker(URL.createObjectURL(new Blob(['let t=0;onmessage=e=>{clearInterval(t);if(e.data)t=setInterval(()=>postMessage(0),e.data);};'],{type:'text/javascript'})));NET_BG.w.onmessage=netBgTick;}
+    catch(e){NET_BG.w=null;}}   // (no workers here: a plain timer, slowed as it may be, is better than nothing)
+  if(NET_BG.w)NET_BG.w.postMessage(want?33:0);
+  else{clearInterval(NET_BG.iv);NET_BG.iv=want?setInterval(netBgTick,33):0;}
+}
+try{document.addEventListener('visibilitychange',netBgClock);}catch(e){}
 
 // ---- every frame ----
 function netTick(now,dt){

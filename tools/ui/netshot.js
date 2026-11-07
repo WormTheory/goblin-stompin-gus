@@ -54,6 +54,18 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
   const n1=await B.evaluate(()=>Object.keys(window.__G.editsNow()).length),nh=await A.evaluate(()=>Object.keys(window.__G.editsNow()).length);
   console.log('smashed blocks: host has',nh,'edits, guest had',n0,'and now has',n1);
   await A.screenshot({path:out+'/3-host.png'});await B.screenshot({path:out+'/3-guest.png'});
+  // the host's tab goes into the background, as one of two tabs always is: the browser stops giving it animation frames,
+  // so its game must run on from the worker's timer, or the guest's world freezes. (Playwright never really hides a
+  // tab, so it's done by hand: the page says it's hidden, and its animation frames are held back till it's shown.)
+  await A.evaluate(()=>{window.__raf=window.requestAnimationFrame;window.__rq=[];window.requestAnimationFrame=f=>{window.__rq.push(f);return 1;};
+    Object.defineProperty(document,'hidden',{configurable:true,get:()=>true});document.dispatchEvent(new Event('visibilitychange'));});
+  await wait(500);
+  const hb=await A.evaluate(()=>{const p=window.__G.players[1].pos;return [p.x,p.z];}),sn0=await B.evaluate(()=>window.__G.NET.cur?window.__G.NET.cur.n:0);
+  await B.bringToFront();await B.keyboard.down('KeyW');await wait(2000);await B.keyboard.up('KeyW');await wait(800);
+  const ha=await A.evaluate(()=>{const p=window.__G.players[1].pos;return [p.x,p.z];}),sn1=await B.evaluate(()=>window.__G.NET.cur?window.__G.NET.cur.n:0);
+  console.log('host tab hidden: guest walked',Math.hypot(ha[0]-hb[0],ha[1]-hb[1]).toFixed(2),'on the host',Math.hypot(ha[0]-hb[0],ha[1]-hb[1])>2?'ok':'BAD','| snapshots meanwhile',sn1-sn0,sn1-sn0>=20?'ok':'BAD');
+  await A.evaluate(()=>{delete document.hidden;window.requestAnimationFrame=window.__raf;for(const f of window.__rq)window.__raf(f);document.dispatchEvent(new Event('visibilitychange'));});
+  await wait(500);
   // (THIRD=1: a third tab joins too, and every tab should see three hippos)
   if(process.env.THIRD){const C=await ctx.newPage();watch(C,'third');await C.goto(url);await wait(3000);
     await C.click('#onlineBtn');if(!P2P)await C.check('#netLocal');await C.fill('#netCode',code);await C.click('#netJoin');

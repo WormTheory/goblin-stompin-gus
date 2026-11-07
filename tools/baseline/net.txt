@@ -1,12 +1,12 @@
 host seed 266144506 P1 at 10.50 45.00 10.50
 host edits before join 25
-hosting yes status: Hosting. Room code TESTA
+hosting yes status: Hosting online. Room code TESTA · waiting for someone to join
 guest city seed before joining 289328063 (different from the host: ok)
 guest asked to reload into the host world ok kept in session storage ok local save untouched ok
 host keeps the seat for the guest while it reloads ok
 reloaded guest builds the host world: seed 266144506 ok edits 25 ok saving blocked ok
 guest joined ok seat 1 playing ok host has player two ok
-messages so far 55 bytes 76793 (about 1396 a message)
+messages so far 55 bytes 79979 (about 1454 a message)
 guest P1 vs host P2 0.00 guest P2 vs host P1 0.00 ok
 camera from its hippo: guest 7.24 host 7.24 (guest P2 on the host 7.24)
 hp shown 20 state walk host P2 20 walk
@@ -19,18 +19,23 @@ guest sees itself there 0.00 ok (guessing its own moves: yes )
 guest tapped jump: host P2 rose 1.73 ok
 crush on the host: new edits 99 blocks the same on the guest 124 different 0 ok
 a topple on the host: guest showed 2 falling piece ok most its turn lagged 0.04 gone after ok blocks where it landed differ 0 ok
+a building brought down on the host: solid blocks above the break, host 23383 -> 131 | guest 23383 -> 131 | blocks that differ 0 ok | guest knows it fell ok
+knocked over a chair 5.89 away: guest showed it falling for 27 frames midway ok | lying down on both ok | same way ok
+hearts: guest shows its own 13 ok | put right after wandering 13 ok | the host's 7 ok | hearts drawn -
+health bars on the guest: goblins hurt 6 the same 6 ok | vehicles hurt 6 the same 6 ok | a venue vehicle (no venue vehicle near)
+host tab hidden: background clock on ok snapshots the guest got meanwhile 18 ok guest walked on the host 4.21 ok | clock off again when shown ok
 host turned goblin: guest P2 is a goblin ok
 guest pressed use by a car: host has it driving ok guest knows ok car
-drove for 1.5 s: car moved 11.17 ok guest camera from the car 6.07 ok guest car mirror apart 1.45
-guest vehicle display: Car  ·  30 / 30 ok
+drove for 1.5 s: car moved 11.17 ok guest camera from the car 6.07 ok guest car mirror apart 1.48
+guest vehicle display: Car  ·  19 / 30 ok
 pressed use again: out ok
-with 0.1 s each way: frames before moving, guest 5 host 11 ok | biggest step in one frame 0.07 ok | apart once stopped 0.20 ok
-lag compensation on a guest bite: on ok | goblins where the guest sees them: as they are now, off by 0.08 on average; put back, off by 0.04 ok
-dropped: host keeps the seat ok status Hosting. Room code TESTA · waiting for Gertie to come back
-guest came back after 11.4 s ok no reload ok hippo where it was (give or take a shove) 2.08 ok guest shows itself there 0.01 ok
+with 0.1 s each way: frames before moving, guest 4 host 10 ok | biggest step in one frame 0.08 ok | apart once stopped 0.02 ok
+lag compensation on a guest bite: on ok | goblins where the guest sees them: as they are now, off by 0.18 on average; put back, off by 0.03 ok
+dropped: host keeps the seat ok status Hosting online. Room code TESTA · waiting for Gertie to come back
+guest came back after 11.5 s ok no reload ok hippo where it was (give or take a shove) 0.00 ok guest shows itself there 0.00 ok
 a third player joins: seat 2 ok host players active 3 ok | first guest shows them ok apart 0.00 | the new one sees both others ok
-third player walks: moved on the host 2.98 ok the other guests see it there 0.42 ok
-third player left: host ok first guest ok status: Hosting. Room code TESTA · Gertie is here
+third player walks: moved on the host 3.63 ok the other guests see it there 0.39 ok
+third player left: host ok first guest ok status: Hosting online. Room code TESTA · Gertie is here
 cost: one snapshot built on the host under N ms ok
 guest left: host P2 gone ok host still hosting ok guest went home (reload) ok
 a guest rejoins ok
