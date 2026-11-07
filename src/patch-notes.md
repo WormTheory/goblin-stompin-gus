@@ -42,11 +42,14 @@ Everything since the first release on GitHub.
 - The vehicle health box and ammo panel now sit just above the hearts.
 - The get-out prompt shows Xbox button labels on Xbox controllers.
 - Parked motorcycles no longer have a rider, and a ridden one's rider sits properly on it.
+- **Planes fly properly:** a driven plane has throttle, banks to turn, pitches up and down, gets its lift from airspeed, and stalls if it flies too slowly.
+- **Fire engines** have a working water cannon.
 - **Militia camps** have two technicals (pickups with a machine gun and a gunner in the back) and two four-wheelers (a rider and a rifleman behind him). Each carries a driver and a gunner. Once crewed they circle you while the gunner fires. Gnash can carjack them, and the gunner jumps off to fight. The Testing Environment has buttons for both.
 
 ### Movement
 
 - Air dash comes back after Gus leaves the water, and can't be used while swimming.
+- Holding jump keeps you swimming up.
 - **Fighting from a wall:** while spider-climbing a wall or the side of a vehicle, R1 (left click) snaps at goblins the way the hippo's head points: up, along or down. It bites vehicles in reach too, including the one you're clinging to. Gnash swings or shoots whatever he's holding.
 - **Kick through a wall:** stomp while spider-climbing smashes a hole in the wall you're on and puts you inside, on the floor behind it. Into solid rock, it kicks out a hollow and you keep climbing, so you can tunnel in.
 
@@ -61,6 +64,8 @@ Everything since the first release on GitHub.
 - Earlier versions can be played on the website: each one has a Play button beside its heading in the patch notes. An old version keeps its own saves and settings, apart from the current game's, and a badge at the top links back to the latest.
 - A Sound list overlay names every sound as it plays, each by its own name: a tank firing, a dry-fire click, a reload and a helicopter's gun no longer show up as "Stone breaks" after something stony has been smashed.
 - In the quick debug menu, pick a slider with A before left and right move it, like the other menus.
+- The Testing Environment's spawning menu is its own tab, just right of Game, so the Game tab stays the normal title screen.
+- The text above the Enemy hostility slider describes only the step you've picked.
 - The quick debug menu has a second tab, Show / hide (LB / RB or Tab), for choosing which switches the first tab lists, with Show all and Hide all at the top. Your choice is remembered.
 - The debug switches are only in the quick debug menu now. Game options keeps just the switch that allows it, which also shows or hides the Dev tab.
 - Button names on the screen (the controls hint, vehicle prompts, the weapon panel) are drawn as the same button pictures the menus use, for the keyboard, mouse or controller you're on.
@@ -70,6 +75,7 @@ Everything since the first release on GitHub.
 ### Bug fixes
 
 - In co-op, Gnash's body now turns to face where he's looking, and falls flat when he dies. Before, it always faced the same way.
+- Blood splats that overlap no longer flicker.
 - Pausing now freezes the whole city: a falling hippo or goblin hangs in mid-air, and cars, fires, rubble and everyone else stop until you resume. Pausing both players in co-op freezes it too.
 - The mouse no longer gets stuck moving a cursor during play. If the game loses the mouse (for example by resuming within a second of pressing Esc), a hint asks you to click, and one click takes it back.
 - In full screen on Chrome and Edge, tapping Esc now pauses the game without leaving full screen. Hold Esc to exit full screen. Other browsers still leave full screen on Esc, as they don't let games keep that key.
