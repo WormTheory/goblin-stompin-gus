@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:113b821f118abb471d7000958f09cc589825bc73052e1d81e48cc55d84d1ab50 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:ba08f6b007f19f0d2e35a4571ccd700c803b29185be11242784d33c1fe778851 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21495,7 +21495,7 @@ function netSendInput(dt){
 // smooth whatever the network's doing; one-off events happen as the snapshot they came in becomes the one shown.
 const r3=v=>Math.round(v*1000)/1000;
 const NETM={g:new Map(),c:new Map()};   // (guest: the host's goblins and vehicles, by the host's number for them)
-let NET_FXD=0,NET_APPLY=false,NET_MUTE=false;   // (NET_MUTE: a guest's own run of the venues, whose noise and dust the host's are standing in for)
+let NET_FXD=0,NET_APPLY=false,NET_MUTE=false,NET_SPOS=null;   // (NET_SPOS: the host's player whose step is running, so the sounds it makes can be heard from where it is)   // (NET_MUTE: a guest's own run of the venues, whose noise and dust the host's are standing in for)
 
 // ---- players ----
 // (plain values a guest has no use for, or keeps for itself: its seat, the menus, effects worked out from where he is)
@@ -21613,8 +21613,8 @@ function netRewind(p){
 }
 function netUnwind(){for(let i=0;i<netSaved.length;i+=4)netSaved[i].pos.set(netSaved[i+1],netSaved[i+2],netSaved[i+3]);netSaved.length=0;}
 {const up=updatePlayer;updatePlayer=function updatePlayer(p,dt){
-  if(NET.mode!==1||!p.net)return up(p,dt);
-  const rw=netRewind(p);try{return up(p,dt);}finally{if(rw)netUnwind();}};}
+  if(NET.mode!==1||!NET.guests.size)return up(p,dt);
+  const rw=p.net?netRewind(p):false,sp=NET_SPOS;NET_SPOS=p.pos;try{return up(p,dt);}finally{NET_SPOS=sp;if(rw)netUnwind();}};}
 
 // ---- events: one-off things the host's game did, done again on the guest ----
 // (each a call to one of these with its arguments, made plain: numbers, strings, flat lists, players as their seat)
@@ -21631,6 +21631,8 @@ function netUnsan(v){if(v===null||typeof v!=='object')return v;if(Array.isArray(
   // (the host's player one is drawn here as P2; this guest's seat is our P1)
   return netSeatP(v.$p,false);}const o={};for(const k in v)o[k]=netUnsan(v[k]);return o;}
 function netEmit(e){for(const p of NET.guests.values()){const out=p.net.out;if(out.length<4000)out.push(e);}}
+// (the sounds, and which of their arguments is the volume)
+const NET_SND={tone:4,noise:1,woosh:0};
 // the effects passed on: when the host's game calls one (and not from inside another), each guest makes the same call
 const NET_FX={};
 function netFx(name,f){
@@ -21638,7 +21640,7 @@ function netFx(name,f){
   // (named as the one it wraps: the debug Sound list reads names off the stack to say what made a sound)
   return {[name](...a){
     if(NET_MUTE)return;
-    if(NET.mode===1&&NET_FXD===0&&NET.guests.size){try{netEmit(['f',name,a.map(x=>netSan(x,0))]);}catch(e){}}
+    if(NET.mode===1&&NET_FXD===0&&NET.guests.size){try{const e=['f',name,a.map(x=>netSan(x,0))];if(NET_SPOS&&NET_SND[name]!==undefined)e.push([r3(NET_SPOS.x),r3(NET_SPOS.z)]);netEmit(e);}catch(e){}}
     NET_FXD++;try{return f.apply(this,a);}finally{NET_FXD--;}
   }}[name];
 }
@@ -21823,7 +21825,10 @@ function netCommit(m){
     else if(e[0]==='t'||e[0]==='b'){try{netFallMake(e);}catch(er){}}
     else if(e[0]==='f'){const f=NET_FX[e[1]];if(!f)continue;if(ch.size){rebuildSet(ch);ch.clear();}
       if(e[1]==='flashLabel'){const who=e[2][1]?netUnsan(e[2][1]):null;f(e[2][0],who);continue;}
-      try{f(...e[2].map(netUnsan));}catch(er){}}}
+      const a=e[2].map(netUnsan);
+      // (a sound one of the players made: quieter the further that player is from this one)
+      if(e[3]&&NET_SND[e[1]]!==undefined){const d=Math.hypot(e[3][0]-P1.pos.x,e[3][1]-P1.pos.z),k=d<14?1:Math.max(0,1-(d-14)/70);if(k<0.04)continue;a[NET_SND[e[1]]]*=k;}
+      try{f(...a);}catch(er){}}}
   if(ch.size)rebuildSet(ch);
   netFallCommit(m);
   if(m.v)netVenueCommit(m.v,NET.now-NET.off-NET_DELAY);

@@ -117,7 +117,9 @@ Events in `e`: `['e', [x,y,z,b, ...]]` blocks, `['f', name, args]` an effect, `[
   Riding and climbing vehicles work, shown from the host (no guessing).
 - What the guest's goblins and cars show is their place, limbs and flashing lights: a technical's turning gun and the
   like on traffic aren't sent. The venue joints cover the venues' models (tanks' turrets, helicopters' rotors).
-- Sounds the host makes are sent to the guest as they are, not placed by distance from the guest.
+- Sounds a player's moves make are quieter on a guest the further that player is from the guest's own hippo (each
+  carries the place of the player whose step made it, `NET_SPOS`); every other sound (goblins, traffic, crashes) is
+  heard as the host's game made it, wherever the guest is.
 - Prediction runs the player code on the guest's own copy of the world, whose goblins and vehicles are where the guest
   sees them; a guest standing on a moving vehicle, climbing one, or driving isn't guessed.
 - The obituary and the explored map are each browser's own.
@@ -128,5 +130,5 @@ Events in `e`: `['e', [x,y,z,b, ...]]` blocks, `['f', name, args]` an effect, `[
 - A headless host in Node (the stubs the tests use already run the whole game) that serves rooms as a dedicated server.
 - More looks for seats three and four.
 - A guest's driving HUD; police lights, turrets and guns on mirrored vehicles.
-- Send sounds with a place, so each player hears them from where they are.
+- Give the rest of the sounds a place too (goblins', traffic's, the venues'), so each player hears them from where they are.
 - Binary snapshots (or compression) if bandwidth matters: about 1 to 1.5 KB a message now.
