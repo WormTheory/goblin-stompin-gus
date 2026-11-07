@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:0bc38a5ca313ed253b69aeb6b5811ddeca08ebd35744ae65d1ebce5d15d3183a -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:524ee46c5eb96e0cfb146ce6d1c9706a5999469c6103d95688484bdd84ae28f5 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -874,6 +874,11 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 <ul><li>Toppling buildings and everyday frames are much cheaper. On an RTX 4070 Ti SUPER at default settings, standing still went from 207 to 379 fps and toppling from 133 to 278 fps, and the worst toppling frame fell from 189 ms to 18 ms.</li><li>Street goblins and vehicles are now drawn in batches. With 400 goblins on screen, draw calls fell from 8,688 to about 620.</li><li>Distant chunks that have settled are drawn merged in groups, cutting draw calls from 971 to 311 at a detail distance of 512.</li><li>Places ahead are worked out a little each frame, so the worst frame while moving dropped from 80 ms to 22 ms.</li><li>Crowding checks are far cheaper: about 38 ms down to 4 ms a frame with around 630 goblins. The crowd slider now goes up to 3000%.</li><li>Saves are packed much smaller, and the game says so on screen if storage fills up. Old saves still load.</li><li>Goblin route maps take less time per frame while reaching further, and rescan less often. Smoke plumes only thin out when frames are running long.</li></ul>
 <h3>Bug fixes</h3>
 <ul><li>Gus no longer stomps a pit by himself at startup.</li><li>Rooms stay furnished after the game clears its plot cache.</li><li>Doors and handrails at the far end of big sites are now drawn.</li><li>Rooms with very tall ceilings now show their furniture, and country buildings no longer have grass floors.</li><li>Fixed wide double lines on north-south ramps and faint yellow road dashes.</li><li>Fixed the seasonal tint affecting the wrong textures, including road lines, flowers and crops.</li><li>Theme parks now build whole or not at all, which also fixes a world generation crash when two were close together.</li><li>A crash landing on a coaster car no longer blows a hole in the track.</li><li>A vehicle carrying Gus on its roof no longer disappears as out of sight.</li><li>Signs fall back to near the roof when their usual spot has nothing to hang on, and sit clear of pediments.</li></ul>
+</details>
+<details class="pn-up pn-fold" id="version-0"><summary tabindex="0"><h2>Version 0</h2><a class="pn-play" data-ver="0" href="v/0/" tabindex="0">Play 0</a><span class="pn-tog" aria-hidden="true"></span></summary>
+<p>The game as it was on November 2, 2026, when it moved to Claude Code, before any of the changes above. It's kept exactly as it was, bugs and all.</p>
+<h3>Known bugs</h3>
+<ul><li>Gus sometimes stomps by himself as the game starts.</li></ul>
 </details>
 
       </div>
