@@ -1,5 +1,22 @@
 # Patch notes
 
+## Version 0.3
+
+### Highlights
+
+- Play online: two players in one city over the internet. One hosts and reads out a five-letter room code; the other types it in and joins. Find it under Play online on the main menu.
+
+### Online co-op
+
+- The host's city is the one you play in. Joining builds it in your browser without touching your own city, and leaving takes you back to yours.
+- Everything the host's game does shows up for the guest: goblins, traffic, trains, planes, boats, rides, smashed blocks, toppling buildings, fires, dust and sound.
+- Your own hippo moves the moment you press, even on a slow connection, and is nudged back into step with the host's game if the two drift apart.
+- Bites and stomps land on goblins where you saw them, not where they've moved to since.
+- Play Gnash online and you can drive, with the chase camera following you.
+- Drop out and you're put straight back in your place when the connection comes back (within half a minute).
+- Each player keeps the abilities switched on in their own browser. The host's hostility setting is the game's, and the world never pauses while you're both in it.
+- If you both pick the same hippo, the guest plays the other one, so you can tell each other apart.
+
 ## Version 0.2
 
 Everything since the first release on GitHub.
