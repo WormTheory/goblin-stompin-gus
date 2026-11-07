@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:df888f08c2f909dcb2018c4c2286c79db4d48ddc473aefd722c86cf33002cc78 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:99728b7af00253f0a28a2b634a057b6afc4a05cc0071f7f05e2d7738fd10c94e -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21506,8 +21506,9 @@ function netPlayerState(p,seat,N){
   for(const k in p){if(NET_PSKIP.has(k))continue;const v=p[k],t=typeof v;let e;
     if(t==='number'||t==='boolean'||t==='string')e=netEnc(v);
     else if(v instanceof V3)e=[r3(v.x),r3(v.y),r3(v.z)];
+    else if(Array.isArray(v)&&v.length<32&&v.every(x=>typeof x==='string')){e={l:v.slice()};}   // (a list of names: Gnash's weapons)
     else continue;   // (objects: what he's holding, riding or locked on to are sent their own way, or not at all)
-    const o=sent[k];if(o===e||Array.isArray(e)&&Array.isArray(o)&&o[0]===e[0]&&o[1]===e[1]&&o[2]===e[2])continue;
+    const o=sent[k];if(o===e||Array.isArray(e)&&Array.isArray(o)&&o[0]===e[0]&&o[1]===e[1]&&o[2]===e[2]||e&&e.l&&o&&o.l&&o.l.join()===e.l.join())continue;
     f[k]=e;sent[k]=e;}
   const lk=p.lockT?netRef(p.lockT):null;
   const e={s:seat,who:p.who,gob:!!p.gob,act:!!p.active,f,pos:[r3(p.pos.x),r3(p.pos.y),r3(p.pos.z)],h:r3(p.heading),pose:netPoseOf(netJoints(p)),lk,
@@ -21716,7 +21717,7 @@ function netSendSnap(p){   // (and the goblins' places are kept each frame, belo
 // has drifted, and he's eased back by that much over the next few frames, so a correction is a nudge, never a jump.
 // Anything the guest can't guess (riding or driving something, dying, a big knock) and it shows the host's own.
 const NET_PREDICT=true;
-const NET_AUTH=['hp','deadT','hurtFx','regenT','hurt','stam','exhausted','lastHit','killer','score'];   // (what's always the host's to say, guessing or not)
+const NET_AUTH=['wpns','gren','hp','deadT','hurtFx','regenT','hurt','stam','exhausted','lastHit','killer','score'];   // (what's always the host's to say, guessing or not)
 const NETP={on:false,hist:[],sent:new Map(),corr:new V3(),snap:false};
 // (the guest's controls going out: when each went, so its history can be matched up)
 function netPredSent(n){if(NETP.sent.size>200)NETP.sent.clear();NETP.sent.set(n,NET.now);}
@@ -21787,7 +21788,7 @@ function netCommit(m){
     if(q===P2&&!e.act){q.active=false;q.root.visible=false;continue;}
     if(e.gob!==!!q.gob)setGobP(q,e.gob);if(e.who!==q.who){q.who=e.who;dressHippo(q);}
     const own=q===P1&&NETP.on&&!NETP.snap;
-    for(const k in e.f){if(own&&!NET_AUTH.includes(k))continue;const v=e.f[k];if(Array.isArray(v)){if(q[k] instanceof V3)q[k].set(v[0],v[1],v[2]);else q[k]=new V3(v[0],v[1],v[2]);}else q[k]=netDec(v);}
+    for(const k in e.f){if(own&&!NET_AUTH.includes(k))continue;const v=e.f[k];if(Array.isArray(v)){if(q[k] instanceof V3)q[k].set(v[0],v[1],v[2]);else q[k]=new V3(v[0],v[1],v[2]);}else if(v&&v.l)q[k]=v.l.slice();else q[k]=netDec(v);}
     if(!(q===P1&&NETP.on))q.lockT=netDeref(e.lk);
     if(e.dv){if(!q.drv||!q.drv.netS)q.drv={k:e.dv[0],o:{},netS:{x:0,y:0,z:0,h:0,hx:1,hz:1,hy:1,v:0}};const D=q.drv,S=D.netS;D.k=e.dv[0];S.hx=e.dv[5];S.hz=e.dv[6];S.hy=e.dv[7];S.v=e.dv[8];
       D.netN=e.dv[9];D.netHP={hp:e.dv[10],max:e.dv[11]};D.o.veh=e.dv[13]||undefined;D.o.hose=!!e.dv[14];
