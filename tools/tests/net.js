@@ -7,7 +7,7 @@ const fs=require('fs'),vm=require('vm');
 const src0=fs.readFileSync('g.js','utf8');
 const d6=fs.readFileSync('dead6.js','utf8');
 const stubs=d6.slice(d6.indexOf('const deep='),d6.indexOf('\neval(src);'));
-const src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={netSendSnap,netRewind,netUnwind,NETP,makeTopple,topples,NETF,V3,BRICK,NET_VN,venues,TRAINS,netVenueModels,frame,players,P1,P2,NET,NETM,netHostWith,netJoinWith,netClose,netEnd,crush,get,goblins,cars,keys,ABIL,fires,setGobP,'+
+const src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={tenvPlace,get TENV(){return TENV},netSendSnap,netRewind,netUnwind,NETP,makeTopple,topples,NETF,V3,BRICK,NET_VN,venues,TRAINS,netVenueModels,frame,players,P1,P2,NET,NETM,netHostWith,netJoinWith,netClose,netEnd,crush,get,goblins,cars,keys,ABIL,fires,setGobP,'+
   'get seed(){return seed},get edits(){return edits},get menuOpen(){return menuOpen},get saveBlocked(){return saveBlocked},chunks,ckey,CS,G};})();');
 if(src===src0)throw new Error('closing line not found');
 const store=init=>{const m=new Map(Object.entries(init||{}));return{getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,String(v)),removeItem:k=>m.delete(k),get _m(){return m}};};
@@ -190,5 +190,18 @@ for(let i=0;i<60&&!G3.T.NET.joined;i++){G3.step(1);H.step(1);await yieldNow();}
 console.log('a guest rejoins',ok(G3.T.NET.joined&&HT.P2.active));
 HT.netEnd();for(let i=0;i<10;i++){H.step(1);G3.step(1);}
 console.log('host stopped: guest left the game',ok(G3.T.NET.mode===0&&G3.reloads===1),'host solo',ok(!HT.P2.active&&HT.NET.mode===0));
+// ---- hosting from the Testing Environment: the guest gets the same empty world, with what's been spawned in it ----
+{const key=(src0.match(/SAVE_KEY='([^']+)'/)||[])[1];const H2=game('hostT',SEED+3,{[key]:JSON.stringify({seed:4242,ed2:{},coll:{},down:[],dest:{},test:[],tenv:{boxes:[]}})});H2.play();H2.step(60);
+ H2.T.netHostWith(hub.make(),'TESTB','mem');
+ const J1=game('guestT1',SEED+11,{});J1.T.netJoinWith(hub.make(),'TESTB','mem');for(let i=0;i<20&&!J1.reloads;i++){J1.step(1);H2.step(1);}
+ const J=game('guestT',SEED+11,{},Object.fromEntries(J1.SS._m));for(let i=0;i<80&&!J.T.NET.joined;i++){J.step(1);H2.step(1);await yieldNow();}
+ for(let i=0;i<30;i++){H2.step(1);J.step(1);}
+ const flat=(T)=>{const p=T.P1.pos;let n=0;for(let x=-8;x<=8;x+=4)for(let z=-8;z<=8;z+=4)if(T.get(Math.floor(p.x)+x,T.G+3,Math.floor(p.z)+z))n++;return n;};
+ console.log('Testing Environment hosted: guest joined',ok(J.T.NET.joined),'in the Testing Environment',ok(!!J.T.TENV),'seed',ok(J.T.seed===H2.T.seed),'nothing standing near either',flat(H2.T),flat(J.T),ok(flat(J.T)===flat(H2.T)));
+ // a structure spawned on the host turns up for the guest
+ H2.T.tenvPlace('shops',{w:1,h:1,ax:3,az:3});for(let i=0;i<40;i++){H2.step(1);J.step(1);}
+ const B=H2.T.TENV.boxes[0];let same=0,diff=0,solid=0;if(B)for(let x=B.ax*32;x<(B.ax+B.w)*32;x+=3)for(let z=B.az*32;z<(B.az+B.h)*32;z+=3)for(let y=H2.T.G;y<H2.T.G+12;y+=2){const a=H2.T.get(x,y,z),b=J.T.get(x,y,z);if(a)solid++;if(a===b)same++;else diff++;}
+ console.log('a little shop spawned on the host: the guest has it',ok(J.T.TENV.boxes.length===1),'blocks the same',same,'different',diff,'(solid',solid+')',ok(diff===0&&solid>0));
+ H2.T.netEnd();for(let i=0;i<5;i++){H2.step(1);J.step(1);}}
 console.log('done');
 })();

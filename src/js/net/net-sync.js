@@ -217,6 +217,7 @@ function netSetBlock(x,y,z,b,ch){
 // ---- the world's other saved state, the clock and the weather: sent when changed, checked once a second ----
 function netWorldBits(N){
   const out={},J=(k,v)=>{const s=JSON.stringify(v);if(N.wsent[k]!==s){N.wsent[k]=s;out[k]=v;}};
+  if(TENV)J('tenv',TENV.boxes);   // (the Testing Environment's structures, as they're spawned and removed)
   J('coll',collapses);J('wreck',wrecked);J('down',[...downFix]);J('dest',destroyed);
   J('fire',fires.map(F=>[r3(F.x),r3(F.y),r3(F.z),r3(F.r),Math.round(F.t*10)/10,Math.round(F.life*10)/10,F.flames?1:0,r3(F.sm),r3(F.rise),F.douse?1:0]));
   return out;
@@ -350,6 +351,9 @@ function netCommit(m){
   NET.cur=m;
 }
 function netWorld(w){
+  if(w.tenv&&TENV){const key=B=>[B.k,B.ax,B.az,B.w,B.h].join(),want=new Set(w.tenv.map(key));
+    for(let i=TENV.boxes.length-1;i>=0;i--)if(!want.has(key(TENV.boxes[i])))tenvRemove(i);
+    const have=new Set(TENV.boxes.map(key));for(const B of w.tenv)if(!have.has(key(B))){const C=Object.assign({},B);TENV.boxes.push(C);tenvIndex();linkNearC.clear();tenvRebuild(C);}}
   if(w.coll)collapses=w.coll;if(w.wreck)wrecked=w.wreck;if(w.dest){destroyed=w.dest;destroyVer++;}
   if(w.down){downFix.clear();for(const [k,v] of w.down)downFix.set(k,v);trafficRefreshT=0;}
   if(w.fire){fires.length=0;for(const f of w.fire)fires.push({x:f[0],y:f[1],z:f[2],r:f[3],t:f[4],life:f[5],base:f[5],born:playTime,flames:!!f[6],acc:0,sacc:0,hurt:9,sm:f[7],rise:f[8],douse:!!f[9],blame:null});}

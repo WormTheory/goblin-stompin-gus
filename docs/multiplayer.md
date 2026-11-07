@@ -34,7 +34,8 @@ none of the goblins, traffic, damage or smashing itself, so nothing can disagree
   limbs, with how each looks sent once per identity) and vehicles (place, wheels, kind and paint sent once) near that
   guest; the venues' moving models (`netVenues`: trains, planes, boats, rides, animals, base vehicles; each joint sent
   only when it's moved); falling pieces of buildings; score and kills; the events since the last; and once a second the
-  world's saved state, the fires, the clock, the weather and the hostility setting.
+  world's saved state, the fires, the clock, the weather, the hostility setting, and in the Testing Environment the
+  structures spawned there (a guest builds or removes each as the host does).
 - **Events**: everything the host's game does once. Block changes are caught where they're all made, `addEdit`, and
   sent as flat lists. Effects are caught by wrapping the functions that make them (`netFx`: `puff`, `smoke`, `blood`,
   `splat`, `destroyFX`, `shockwave`, `shockCone`, `blastFx`, `tone`, `noise`, `woosh`, and `flashLabel` to the player it
@@ -123,6 +124,8 @@ Events in `e`: `['e', [x,y,z,b, ...]]` blocks, `['f', name, args]` an effect, `[
 - Prediction runs the player code on the guest's own copy of the world, whose goblins and vehicles are where the guest
   sees them; a guest standing on a moving vehicle, climbing one, or driving isn't guessed.
 - The obituary and the explored map are each browser's own.
+- The Testing Environment's Reset world reloads the host's page, which ends the session (guests go home after trying
+  to reconnect).
 - Each guest gets one snapshot built for it; with only one guest that's fine.
 
 ## Next steps

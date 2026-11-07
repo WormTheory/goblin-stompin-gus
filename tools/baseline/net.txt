@@ -35,4 +35,6 @@ cost: one snapshot built on the host under N ms ok
 guest left: host P2 gone ok host still hosting ok guest went home (reload) ok
 a guest rejoins ok
 host stopped: guest left the game ok host solo ok
+Testing Environment hosted: guest joined ok in the Testing Environment ok seed ok nothing standing near either 0 0 ok
+a little shop spawned on the host: the guest has it ok blocks the same 726 different 0 (solid 121) ok
 done
