@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:036e21eda7252fd8c172fd971d50bc6ed274eca6effa3c30b1894f75f6079ce2 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:df888f08c2f909dcb2018c4c2286c79db4d48ddc473aefd722c86cf33002cc78 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21540,7 +21540,8 @@ function netCars(p,N,out,cfg){
   const R=220,px=p.pos.x,pz=p.pos.z;
   for(let i=0;i<cars.length;i++){const c=cars[i],G=c.g;if(!G.visible||Math.abs(G.position.x-px)>R||Math.abs(G.position.z-pz)>R)continue;
     const P=G.position,Q=G.rotation,w=[],f=[];for(const s of c.wheels)w.push(r3(s.rotation.x));for(const s of c.front)f.push(r3(s.rotation.y));
-    out.push([i,r3(P.x),r3(P.y),r3(P.z),r3(Q.x),r3(Q.y),r3(Q.z),w,f,c.dh&&c.dh.visible?1:0,c.hazG&&c.hazG.visible?1:0,c.alive?1:0]);
+    out.push([i,r3(P.x),r3(P.y),r3(P.z),r3(Q.x),r3(Q.y),r3(Q.z),w,f,c.dh&&c.dh.visible?1:0,c.hazG&&c.hazG.visible?1:0,c.alive?1:0,
+      (c.police&&(c.hunter||c.pullLit||c.svcPool&&c.svc&&c.svc.st!=='parked'&&c.svc.st!=='leave')?1:0)|(c.hazard?2:0)|(c.flash&&c.svc&&c.svc.st!=='parked'?4:0)]);   // (lights flashing: a police car's, hazards, an ambulance's or fire engine's)
     const k=c.veh+'|'+netCol(c.paint.color)+'|'+(c.police?1:0);if(N.cars.get(i)!==k){N.cars.set(i,k);cfg[i]=[c.veh,netCol(c.paint.color),c.police?1:0,!!c.hunter];}}
 }
 
@@ -21842,7 +21843,12 @@ function netGuestFrame(dt){
   for(const e of a.c){const c=NETM.c.get(e[0]);if(!c)continue;const f=bc.get(e[0]),v=n=>f?e[n]+(f[n]-e[n])*k:e[n],w=n=>f?lerpA(e[n],f[n],k):e[n];
     c.g.position.set(v(1),v(2),v(3));c.g.rotation.set(w(4),w(5),w(6));c.pos.copy(c.g.position);c.heading=c.g.rotation.y;
     e[7].forEach((r,i)=>{if(c.wheels[i])c.wheels[i].rotation.x=f&&f[7][i]!==undefined?lerpA(r,f[7][i],k):r;});
-    e[8].forEach((r,i)=>{if(c.front[i])c.front[i].rotation.y=r;});}
+    e[8].forEach((r,i)=>{if(c.front[i])c.front[i].rotation.y=r;});
+    // (the lights flash here as the host's game flashes them, on this guest's own clock)
+    const L=e[12]|0,t=NET.now/1000;
+    if(c.police&&c.lightR){const on=Math.floor(t*6.5)%2===0,lit=L&1;c.lightR.color.setHex(lit?(on?0xff2a2a:0x501010):0x401010);c.lightB.color.setHex(lit?(on?0x101a50:0x3a7aff):0x101a40);}
+    if(c.hazM&&L&2)c.hazM.color.setHex(Math.floor(t*1.7)%2===0?0xffa024:0x3a2408);
+    if(c.flash){const on=L&4&&Math.floor(t*5.5)%2===0;c.flash[0].color.setHex(on?0xff2a2a:0x501010);c.flash[1].color.setHex(on?0x303030:(c.veh==='amb'?0xffffff:0x3a7aff));}}
 }
 // (guest, each step: only what's for show. The host's snapshots do everything else)
 function netGuestStep(sdt,first){
