@@ -175,7 +175,7 @@ function smashSoftCells(list,opt){
 function smashSoftUnder(p,g){
   const y=Math.floor(g-1),s=Math.sin(p.heading),c=Math.cos(p.heading),cells=new Map();
   let soft=0;
-  for(const [a,b] of HIPPO_PTS){
+  for(const [a,b] of ptsOf(p)){
     const x=Math.floor(p.pos.x+a*c+b*s),z=Math.floor(p.pos.z-a*s+b*c),blk=get(x,y,z);
     if(blk===AIR||blk===WATER)continue;
     if(!SOFT.has(blk))return false;   // something solid under a foot: land on it

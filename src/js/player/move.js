@@ -2,7 +2,7 @@ const SWIM_HOLD=0.35;   // (holding jump in the water: seconds between paddle st
 function movePlayer(p,dt){
   if(!p.active)return;
   if(p.state!=='climb')p.vcl=null;   // (a hold on a vehicle's side ends with the cling, however that ended)
-  if(playing&&!SBX&&!DT.gob)trampleFences(p);
+  if(playing&&!SBX&&!p.gob)trampleFences(p);
   if(p.snowU&&playing){const moving=Math.hypot(p.in.x,p.in.z)>0.2;snowGather(p,dt,moving);
     if(p.snowU.value>0.08&&(p.vy>3&&!p.grounded||p.biteT>0||p.state==='stomp'||p.state==='windup'||p.state==='pound'||p.state==='charge'||p.dashT>0||p.lungeT>0))shakeSnow(p,1.6);}
   p.trWas=p.trNow;p.trNow=false;
@@ -153,18 +153,18 @@ function movePlayer(p,dt){
       // locked on: keep facing the target and move straight along the stick (strafing); otherwise turn toward the stick and walk forward
       const LT=p.lockT;
       let diff=0;
-      if(!LT&&!DT.gob){diff=Math.atan2(wx,wz)-p.heading;while(diff>Math.PI)diff-=Math.PI*2;while(diff<-Math.PI)diff+=Math.PI*2;p.heading+=Math.max(-4.5*dt,Math.min(4.5*dt,diff));if(!(inp.climb&&p.grounded))bodyFree(p);}   // (climb held: turning to face a pillar on a narrow ledge mustn't shove him out from in front of it)
+      if(!LT&&!p.gob){diff=Math.atan2(wx,wz)-p.heading;while(diff>Math.PI)diff-=Math.PI*2;while(diff<-Math.PI)diff+=Math.PI*2;p.heading+=Math.max(-4.5*dt,Math.min(4.5*dt,diff));if(!(inp.climb&&p.grounded))bodyFree(p);}   // (climb held: turning to face a pillar on a narrow ledge mustn't shove him out from in front of it)
       const charge=inp.charge&&!p.exhausted&&p.stam>0,tramp=charge&&ABIL.trample;p.sprinting=charge&&!ABIL.trample;   // (trample switched off: holding B is just a sprint -- no damage, no smashing)
       if(tramp){p.trNow=true;if(!p.trWas)hbStart(p,'trample');}
       if(charge){charging=true;if(!p.wasCharging&&tramp)p.roarBurst=0.5;p.stam-=AB.trample.stamina*(tramp?1:0.6)*dt;if(p.stam<=0){p.stam=0;p.exhausted=true;flashLabel('Out of breath',p);}}
       const sp=PSPEEDS[DT.psI]*(charge?AB.trample.speed:AB.walk.speed)*(Math.abs(diff)>1.5?0.35:1)*(0.6+0.4*p.hp/20)*Math.max(0.35,mag)*Math.max(0.04,(p.walkRamp??1));
       const hx=Math.sin(p.heading),hz=Math.cos(p.heading),frontX=p.pos.x+hx*1.8,frontZ=p.pos.z+hz*1.8;
       // locked: the stick works relative to the target (up = toward it, sideways = around it), not the trailing camera
-      let mvx=DT.gob?wx:hx,mvz=DT.gob?wz:hz;   // (a goblin steps whichever way the stick says, facing where it looks)
+      let mvx=p.gob?wx:hx,mvz=p.gob?wz:hz;   // (a goblin steps whichever way the stick says, facing where it looks)
       if(LT){const tx=LT.pos.x-p.pos.x,tz=LT.pos.z-p.pos.z,tl=Math.hypot(tx,tz)||1,fx=tx/tl,fz=tz/tl;mvx=fx*-iz-fz*ix;mvz=fz*-iz+fx*ix;const ml=Math.hypot(mvx,mvz)||1;mvx/=ml;mvz/=ml;}
       // which way the legs should step, relative to the body: forward/back and sideways
       p.gaitTF=LT?-iz:1;p.gaitTL=LT?-ix:0;
-      const ahead=DT.gob?gobGround(p.pos.x+mvx*0.45,p.pos.z+mvz*0.45,p.pos.y,p,dt):groundAt(p.pos.x+mvx*1.6,p.pos.z+mvz*1.6,p.pos.y);
+      const ahead=p.gob?gobGround(p.pos.x+mvx*0.45,p.pos.z+mvz*0.45,p.pos.y,p,dt):groundAt(p.pos.x+mvx*1.6,p.pos.z+mvz*1.6,p.pos.y);
       if(tramp&&p.chargeCD<=0){
         const hit=hbOn('trample')?[]:carsNear(frontX,frontZ,AB.trample.hitR,p.pos.y);
         if(hit.length){p.chargeCD=0.6;sfx('Trample hits a vehicle',()=>{clang();thud(0.8);});addShake(0.35,frontX,frontZ,12);rumble(p,0.7,200);
@@ -182,7 +182,7 @@ function movePlayer(p,dt){
         else if(!tramp||p.smashCD>0){
           const opts=Math.abs(mvx)>Math.abs(mvz)?[[Math.sign(mvx),0,Math.abs(mvx)],[0,Math.sign(mvz),Math.abs(mvz)]]:[[0,Math.sign(mvz),Math.abs(mvz)],[Math.sign(mvx),0,Math.abs(mvx)]];
           for(const [ux,uz,k] of opts){if(k<0.12)continue;const d=sp*dt*k,nx=p.pos.x+ux*d,nz=p.pos.z+uz*d;
-            if((DT.gob?gobGround(p.pos.x+ux*0.45,p.pos.z+uz*0.45,p.pos.y,p,dt):groundAt(p.pos.x+ux*1.6,p.pos.z+uz*1.6,p.pos.y))-p.pos.y>1.05)continue;
+            if((p.gob?gobGround(p.pos.x+ux*0.45,p.pos.z+uz*0.45,p.pos.y,p,dt):groundAt(p.pos.x+ux*1.6,p.pos.z+uz*1.6,p.pos.y))-p.pos.y>1.05)continue;
             if(bodyHits(p,nx,nz,p.heading)&&!bodyHits(p,p.pos.x,p.pos.z,p.heading))continue;
             p.pos.x=nx;p.pos.z=nz;moving=true;p.lastSp=sp*k;p.phase+=dt*sp*k*3.4*(charge?0.45:1);break;}
         }
@@ -196,13 +196,13 @@ function movePlayer(p,dt){
         moving=true;p.lastSp=sp;p.phase+=dt*sp*3.4*(charge?0.45:1);if(tramp&&!hbOn('trample')){hitGoblins(frontX,frontZ,AB.trample.hitR,AB.trample.dmg,'Trampled',p.pos.y);
           // and it ploughs straight through anything in the way: benches, bins, fences, railings, low walls
           p.trCD=(p.trCD||0)-dt;if(p.trCD<=0&&!hbOn('trample')&&!inp.climb){p.trCD=0.1;const o={force:1.1,dx:hx,dz:hz};if(blockHit(AB.trample,frontX,p.pos.y,frontZ,hx,hz,o,sz=>crushDisc(frontX,p.pos.y,frontZ,sz,3,o))){sfx('Trample ploughs through',()=>{thud(0.45);});addShake(0.18,frontX,frontZ,10);rumble(p,0.3,90);}}}
-        if(inp.climb&&p.grounded&&!(p.standCar&&!DT.gob&&vOverEdge(p,mvx,mvz)))climbOverEdge(p,mvx,mvz);
+        if(inp.climb&&p.grounded&&!(p.standCar&&!p.gob&&vOverEdge(p,mvx,mvz)))climbOverEdge(p,mvx,mvz);
       }
     }
     // holding climb and running (or jumping) into the side of a car, a train, a boat, a plane: grab on
-    if(p.state==='walk'&&inp.climb&&!DT.gob&&(!p.grounded||Math.hypot(inp.x,inp.z)>0.3)&&vGrab(p,p.grounded?1.7:1.3)){}
+    if(p.state==='walk'&&inp.climb&&!p.gob&&(!p.grounded||Math.hypot(inp.x,inp.z)>0.3)&&vGrab(p,p.grounded?1.7:1.3)){}
     // holding climb while jumping at a wall: grab on
-    if(p.state==='walk'&&inp.climb&&!p.grounded){if(!startClimb(p,1.1)&&p.vy>-2&&!DT.gob)grabCeil(p);}
+    if(p.state==='walk'&&inp.climb&&!p.grounded){if(!startClimb(p,1.1)&&p.vy>-2&&!p.gob)grabCeil(p);}
     // R2 in mid-air: ground pound
     const dodgeHop=!!p.dodge||(p.sinceDodge??9)<0.3&&!p.grounded;   // (a dodge's little hop isn't a jump: no ground pound out of it)
     if(ABIL.pound&&inp.stomp&&!p.grounded&&p.lungeT<=0&&p.dashT<=0&&!dodgeHop){p.state='pound';p.t=0;{const g=supportAt(p.pos.x,p.pos.z,p.pos.y);p.flipY0=p.pos.y;p.flipA=Math.max(0,Math.min(0.9*ES,(g===null?9:p.pos.y-g)-0.4));}p.vy=Math.max(p.vy,0);p.legLift=0;p.stompCharge=0;p.stompLevel=0;p.pRel=false;p.pHover=false;p.poundLvl=0;sfx('Ground pound flip',()=>{tone('triangle',170,95,0.16,0.08);});}
@@ -377,7 +377,7 @@ function movePlayer(p,dt){
     if(Math.hypot(sx,sz)>0.25){
       if(p.lockT){const tx=p.lockT.pos.x-p.pos.x,tz=p.lockT.pos.z-p.pos.z,tl=Math.hypot(tx,tz)||1,fx=tx/tl,fz=tz/tl;wx=fx*-sz-fz*sx;wz=fz*-sz+fx*sx;}
       else{const s2=Math.sin(p.cam.yaw),c2=Math.cos(p.cam.yaw);wx=sx*c2+sz*s2;wz=-sx*s2+sz*c2;}
-    } else if(ROLL||BDASH||DT.gob){wx=Math.sin(p.heading);wz=Math.cos(p.heading);}   // (a roll or a blast dash goes forward, not back; so does Gnash's dash, the way he's looking)
+    } else if(ROLL||BDASH||p.gob){wx=Math.sin(p.heading);wz=Math.cos(p.heading);}   // (a roll or a blast dash goes forward, not back; so does Gnash's dash, the way he's looking)
     else {wx=-Math.sin(p.heading);wz=-Math.cos(p.heading);}
     const l=Math.hypot(wx,wz)||1;wx/=l;wz/=l;
     if(ROLL){
@@ -472,7 +472,7 @@ function movePlayer(p,dt){
     if(p.dashT>0||p.state==='pound'||p.state==='poundLand'||p.state==='windup'||p.state==='stomp'){if(p.state!=='walk'){p.mvx=p.mvz=0;}}
     else{
       const m=Math.hypot(p.mvx,p.mvz),ux=p.mvx/m,uz=p.mvz/m;
-      if(groundAt(p.pos.x+ux*(DT.gob?0.45:1.6),p.pos.z+uz*(DT.gob?0.45:1.6),p.pos.y)-p.pos.y<=1.05&&(!bodyHits(p,p.pos.x+p.mvx*dt,p.pos.z+p.mvz*dt,p.heading)||bodyHits(p,p.pos.x,p.pos.z,p.heading))){p.pos.x+=p.mvx*dt;p.pos.z+=p.mvz*dt;if(m>6)hitGoblins(p.pos.x+ux*1.8,p.pos.z+uz*1.8,1.6,4,'Bowled over',p.pos.y);}
+      if(groundAt(p.pos.x+ux*(p.gob?0.45:1.6),p.pos.z+uz*(p.gob?0.45:1.6),p.pos.y)-p.pos.y<=1.05&&(!bodyHits(p,p.pos.x+p.mvx*dt,p.pos.z+p.mvz*dt,p.heading)||bodyHits(p,p.pos.x,p.pos.z,p.heading))){p.pos.x+=p.mvx*dt;p.pos.z+=p.mvz*dt;if(m>6)hitGoblins(p.pos.x+ux*1.8,p.pos.z+uz*1.8,1.6,4,'Bowled over',p.pos.y);}
       else{p.mvx=p.mvz=0;}
       const f=Math.exp(-(p.grounded?7:p.rocket?1.1:0.5)*dt);p.mvx*=f;p.mvz*=f;
       if(Math.hypot(p.mvx,p.mvz)<0.3)p.mvx=p.mvz=0;
@@ -492,24 +492,24 @@ function movePlayer(p,dt){
   if(p.exhausted&&p.stam>=25)p.exhausted=false;
   if(DT.infStam){p.stam=100;p.exhausted=false;}   // debug: never out of breath
   // a hippo doesn't go around lamp posts
-  if(!DT.gob&&p.pos.y<G+6.5)knockFixtures(p.pos.x,p.pos.z,1.05,Math.sin(p.heading),Math.cos(p.heading));
-  if(!DT.gob)knockProps(p.pos.x,p.pos.y,p.pos.z,1.1,Math.sin(p.heading),Math.cos(p.heading));   // (nor round a hospital bed)
+  if(!p.gob&&p.pos.y<G+6.5)knockFixtures(p.pos.x,p.pos.z,1.05,Math.sin(p.heading),Math.cos(p.heading));
+  if(!p.gob)knockProps(p.pos.x,p.pos.y,p.pos.z,1.1,Math.sin(p.heading),Math.cos(p.heading));   // (nor round a hospital bed)
   // cars only block you at ground level: once your feet clear the hood you can hop over or onto them
   const vOn=p.vcl&&p.state==='climb'?(p.vcl.v.T||p.vcl.v):null;   // (clinging to its side: it doesn't push him off itself)
   for(const c of cars){if(!c.alive||c===vOn||p.pos.y<c.pos.y-1.5||Math.hypot(c.pos.x-p.pos.x,c.pos.z-p.pos.z)>c.hz+3)continue;
     const cs=Math.sin(c.heading),ck=Math.cos(c.heading),dx=p.pos.x-c.pos.x,dz=p.pos.z-c.pos.z,la=dx*ck-dz*cs,lb=dx*cs+dz*ck;
     if(p.pos.y>=c.pos.y+Math.min(0.9*ES,VEH[c.veh].roof(Math.max(-c.hz,Math.min(c.hz,lb))/ES)*ES-0.4)+0.05)continue;   // up on top of it
-    const qa=Math.max(-c.hx,Math.min(c.hx,la)),qb=Math.max(-c.hz,Math.min(c.hz,lb)),ea=la-qa,eb=lb-qb,d=Math.hypot(ea,eb),R=DT.gob?0.45:1.0*ES;
+    const qa=Math.max(-c.hx,Math.min(c.hx,la)),qb=Math.max(-c.hz,Math.min(c.hz,lb)),ea=la-qa,eb=lb-qb,d=Math.hypot(ea,eb),R=p.gob?0.45:1.0*ES;
     if(d<R){let ua,ub;if(d>0.001){ua=ea/d;ub=eb/d;}else{const fa=c.hx-Math.abs(la),fb=c.hz-Math.abs(lb);if(fa<fb){ua=Math.sign(la)||1;ub=0;}else{ua=0;ub=Math.sign(lb)||1;}}
       const push=d>0.001?R-d:R+Math.min(c.hx-Math.abs(la),c.hz-Math.abs(lb));shove(p,(ua*ck+ub*cs)*push,(-ua*cs+ub*ck)*push);}}
   for(const B of TRAIN_BOXES){const BX=B.hx||TRAIN_HX,BZ=B.hz||TRAIN_HZ;if(B.soft||B.proxy===p.rideC||vOn&&(B.proxy.T||B.proxy)===vOn||p.pos.y>=B.top-0.4||p.pos.y<B.y0-1.5||Math.hypot(B.x-p.pos.x,B.z-p.pos.z)>Math.max(BX,BZ)+3)continue;
-    const dx=p.pos.x-B.x,dz=p.pos.z-B.z,al=dx*B.tx+dz*B.tz,ac=-dx*B.tz+dz*B.tx,R=DT.gob?0.45:1.0*ES;
+    const dx=p.pos.x-B.x,dz=p.pos.z-B.z,al=dx*B.tx+dz*B.tz,ac=-dx*B.tz+dz*B.tx,R=p.gob?0.45:1.0*ES;
     if(Math.abs(al)>BZ+R||Math.abs(ac)>BX+R)continue;
     const fa=BZ+R-Math.abs(al),fc=BX+R-Math.abs(ac);
     // (on board, a deckhouse is just something in the way, not a thing to be thrown overboard by. On a little boat, with no way round it, you end up on top of it)
     if(B.proxy.isBoat&&p.standCar&&p.standCar.T===B.proxy.T){if(B.proxy.T.K.W<6)p.pos.y=B.top;else if(fc<=fa){const sg=ac>=0?1:-1;shove(p,-B.tz*sg*fc,B.tx*sg*fc);}else{const sg=al>=0?1:-1;shove(p,B.tx*sg*fa,B.tz*sg*fa);}continue;}
     // (a train at speed doesn't just nudge you aside: it hits you)
-    if(Math.abs(B.v)>=2&&!(p.trainT>0)&&!(p.standCar&&p.standCar.isTrain)&&p.hp>0&&inp.climb&&!DT.gob&&!vOn&&vGrab(p,3,B.proxy))break;   // (holding climb: he catches hold of it as it comes by)
+    if(Math.abs(B.v)>=2&&!(p.trainT>0)&&!(p.standCar&&p.standCar.isTrain)&&p.hp>0&&inp.climb&&!p.gob&&!vOn&&vGrab(p,3,B.proxy))break;   // (holding climb: he catches hold of it as it comes by)
     if(Math.abs(B.v)>=2&&!(p.trainT>0)&&!(p.standCar&&p.standCar.isTrain)&&p.hp>0){const sg=ac>=0?1:-1,sv=B.v<0?-1:1;trainStrike(p,new V3(B.tx*sv*0.8-B.tz*sg*0.6,0,B.tz*sv*0.8+B.tx*sg*0.6),Math.max(0.3,Math.min(1,Math.abs(B.v)/24)),B.proxy.isPlane?'Hit by a plane':B.proxy.isBoat?'Hit by a boat':undefined);}
     if(fc<=fa||Math.abs(B.v)>0.5){const sg=ac>=0?1:-1;shove(p,-B.tz*sg*fc,B.tx*sg*fc);}   // (out to the side -- always, from a moving one)
     else{const sg=al>=0?1:-1;shove(p,B.tx*sg*fa,B.tz*sg*fa);}}
@@ -521,9 +521,9 @@ function movePlayer(p,dt){
         const ex=p.pos.x-p.rideX,ez=p.pos.z-p.rideZ,cd=Math.cos(d),sd=Math.sin(d);p.pos.x=c.pos.x+ex*cd+ez*sd;p.pos.z=c.pos.z-ex*sd+ez*cd;p.heading+=d;if(p.cam)p.cam.yaw+=d;p.pos.y=c.isPlane||c.isBoat?c.top:Math.max(p.pos.y,c.isTrain?c.top:c.pos.y+1.1*ES);
         // (going down a ramp the roof sinks away under you: you stay on it, you don't fall behind)
         if(!c.isTrain&&p.vy<=0.01){const ct=carTop(p);if(ct&&ct.c===c&&ct.y<p.pos.y&&p.pos.y-ct.y<2.5)p.pos.y=ct.y;}}}
-    if(catchRide&&p.vy<-16&&p.rideC!==c&&!DT.gob){damageCar(c,Math.round(-p.vy*0.5));sfx('Lands on a vehicle',()=>{clang();});p.vy=-1;}   // (it still takes the landing, once)
+    if(catchRide&&p.vy<-16&&p.rideC!==c&&!p.gob){damageCar(c,Math.round(-p.vy*0.5));sfx('Lands on a vehicle',()=>{clang();});p.vy=-1;}   // (it still takes the landing, once)
     p.rideC=c;p.rideX=c.pos.x;p.rideZ=c.pos.z;p.rideH=c.heading;}else p.rideC=null;
-  for(const o of players){if(o===p||!o.active||o.state==='dead')continue;const dx=p.pos.x-o.pos.x,dz=p.pos.z-o.pos.z,d=Math.hypot(dx,dz),gap=DT.gob?0.9:2.4;if(d<gap&&d>0.001)shove(p,dx/d*(gap-d)*0.5,dz/d*(gap-d)*0.5);}
+  for(const o of players){if(o===p||!o.active||o.state==='dead')continue;const dx=p.pos.x-o.pos.x,dz=p.pos.z-o.pos.z,d=Math.hypot(dx,dz),gap=p.gob?0.9:2.4;if(d<gap&&d>0.001)shove(p,dx/d*(gap-d)*0.5,dz/d*(gap-d)*0.5);}
   let g=p.state==='climb'||p.state==='piv'||p.state==='ceil'?null:footprint(p);   // clinging to a wall: no gravity
   // just loaded in: he's set straight down on whatever's under where he was (once it's there) -- never dropped onto it,
   // which would crash-land and blow a hole in it
@@ -552,13 +552,13 @@ function movePlayer(p,dt){
         if(Math.random()<dt*14){const hx=Math.sin(p.heading),hz=Math.cos(p.heading),fx=(Math.random()<.5?-1:1)*0.45*ES,fz=(Math.random()<.5?-1:1)*0.7*ES;puff(p.pos.x+hz*fx+hx*fz,p.pos.y-0.3,p.pos.z-hx*fx+hz*fz,1,0x8a8680,0.3);}}
       p.vy-=(wet?8:25)*dt;if(wet)p.vy=Math.max(p.vy,-4);p.pos.y+=p.vy*dt;p.grounded=false;
       // ground-pounding or coming down hard: leaves, glass, awnings and furniture give way instead of catching you
-      if(!DT.gob&&g!==null&&p.pos.y<g&&(p.state==='pound'||p.vy<-11)){
+      if(!p.gob&&g!==null&&p.pos.y<g&&(p.state==='pound'||p.vy<-11)){
         for(let k=0;k<4&&g!==null&&p.pos.y<g;k++){if(!smashSoftUnder(p,g))break;g=footprint(p);}
         if(g===null)g=-1e9;
       }
       if(p.pos.y<g){
         // landing on a car from a real height dents it (a jump on to one just lands you on it, to ride)
-        if(!DT.gob&&p.standCar&&p.vy<-16&&p.state!=='pound'){damageCar(p.standCar,Math.round(-p.vy*0.5));sfx('Lands on a vehicle',()=>{clang();});p.standCar.hurt=0.2;}
+        if(!p.gob&&p.standCar&&p.vy<-16&&p.state!=='pound'){damageCar(p.standCar,Math.round(-p.vy*0.5));sfx('Lands on a vehicle',()=>{clang();});p.standCar.hurt=0.2;}
         if(p.vy<-11){sfx('Hard landing',()=>{thud(0.4);});p.shake=Math.max(p.shake,0.12);}
         if(p.vy<-3)p.landT=0.22;p.pos.y=g;p.vy=0;p.grounded=true;
         if(p.longJump){p.longJump=false;p.blastJ=false;sfx('Long jump lands',()=>{thud(0.3);});puff(p.pos.x,p.pos.y,p.pos.z,8,0x9a948a,0.6);}
@@ -847,7 +847,7 @@ function movePlayer(p,dt){
   else if(p.vb&&p.state!=='climb')poseVBlend(p,dt);
   else{p.vb=null;p.rootQ=qAx(0,1,0,p.root.rotation.y);p.rootP=[p.root.position.x,p.root.position.y,p.root.position.z];}
   // footfalls: only when a foot actually comes down on something (walking on the ground or a car roof, or crawling on a wall or ceiling; never mid-jump)
-  if(!DT.gob&&moving&&p.grounded&&(p.state==='walk'||p.state==='climb'||p.state==='ceil')&&Math.sign(sn)!==Math.sign(p.lastSin)){p.shake=Math.max(p.shake,0.04);sfx('Footstep',()=>{thud(0.1);});}
+  if(!p.gob&&moving&&p.grounded&&(p.state==='walk'||p.state==='climb'||p.state==='ceil')&&Math.sign(sn)!==Math.sign(p.lastSin)){p.shake=Math.max(p.shake,0.04);sfx('Footstep',()=>{thud(0.1);});}
   p.lastSin=sn;
 }
 

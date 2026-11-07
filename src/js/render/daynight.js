@@ -148,7 +148,7 @@ function frame(now){
     gobArmsHud(p);
     const hint=p.ui.hint,grab=p===P1&&mouseNeedsClick();hint.hidden=!(grab||playing&&hintTime>0);
     if(grab){const txt='Click to look around with the mouse';if(hint._s!==txt){hint._s=txt;hint.textContent=txt;}}
-    else if(!hint.hidden){const txt=touchMode&&!p.pad?(DT.gob?'BITE attacks  ·  STOMP throws a grenade  ·  JUMP  ·  tap DASH to dash, hold to sprint':'Hold STOMP  ·  BITE  ·  JUMP  ·  tap DASH to dash, hold to '+(ABIL.trample?'trample':'sprint')):bindHint(!!p.pad,p);if(hint._s!==txt){hint._s=txt;hint.innerHTML=hudHTML(txt);}}
+    else if(!hint.hidden){const txt=touchMode&&!p.pad?(p.gob?'BITE attacks  ·  STOMP throws a grenade  ·  JUMP  ·  tap DASH to dash, hold to sprint':'Hold STOMP  ·  BITE  ·  JUMP  ·  tap DASH to dash, hold to '+(ABIL.trample?'trample':'sprint')):bindHint(!!p.pad,p);if(hint._s!==txt){hint._s=txt;hint.innerHTML=hudHTML(txt);}}
   }
   for(const p of act){if(!p.paused)continue;const o=act.find(q=>q!==p);const txt=!o?'':o.paused?'Both paused. The city is frozen.':`The city keeps going while ${charName(o)} plays.`;if(p.ui.pstatus.textContent!==txt)p.ui.pstatus.textContent=txt;}
   const hn=huntersCount(),pol=cars.some(c=>c.alive&&c.police&&c.hunter);

@@ -286,7 +286,7 @@ function updateDebug(dt){
   if(!DBG.show){dbgTrans.length=0;for(const s in dbgPool)for(const m of dbgPool[s])m.visible=false;return;}
   for(let i=dbgTrans.length-1;i>=0;i--){const T=dbgTrans[i];T.t-=dt;if(T.t<=0||!DBG[T.k]){dbgTrans.splice(i,1);continue;}dbgDraw(T.k,T.shape,T.o);}
   const near=(o)=>players.some(p=>p.active&&Math.hypot(o.x-p.pos.x,o.z-p.pos.z)<90);
-  if(DBG.pHurt)for(const p of players)if(p.active&&p.state!=='dead'){const b=pBoxC(p);dbgDraw('pHurt','box',{x:b.x,y:p.pos.y,z:b.z,sx:2*P_HX,sy:P_HY,sz:2*P_HZ,rot:p.heading});}
+  if(DBG.pHurt)for(const p of players)if(p.active&&p.state!=='dead'){const b=pBoxC(p);dbgDraw('pHurt','box',{x:b.x,y:p.pos.y,z:b.z,sx:2*bodyOf(p).hx,sy:bodyOf(p).hy,sz:2*bodyOf(p).hz,rot:p.heading});}
   if(DBG.nHurt){
     for(const g of goblins)if(g.state==='chase'&&g.root.visible&&near(g.pos))dbgDraw('nHurt','cyl',{x:g.pos.x,y:g.pos.y,z:g.pos.z,r:0.45,h:1.6});
     for(const c of cars)if(c.alive&&near(c.pos))dbgDraw('nHurt','box',{x:c.pos.x,y:c.pos.y,z:c.pos.z,sx:2*c.hx,sy:c.hy,sz:2*c.hz,rot:c.heading});

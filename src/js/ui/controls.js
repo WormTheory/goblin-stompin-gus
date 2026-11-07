@@ -64,7 +64,7 @@ function hudHTML(s){return String(s).split(/⟦([^⟧]*)⟧/).map((t,i)=>i%2?gly
 // the bottom-of-screen hint, from the bindings
 function bindHint(pad,p){
   const L=id=>{const B=BINDS[id];return pad?(B.pad.length?btnMark(bindGlyph('pad',B.pad[0])):null):(B.kb.length?btnMark(bindGlyph('kb',B.kb[0])):null);},hv=ABIL.trample?'trample':'sprint',out=[];
-  if(DT.gob)return gobHint(L,p);
+  if(p&&p.gob)return gobHint(L,p);
   if(L('stomp'))out.push('Hold '+L('stomp')+' stomp');if(L('bite'))out.push(L('bite')+' bite');if(L('jump'))out.push(L('jump')+' jump');
   if(L('dashSprint'))out.push('tap '+L('dashSprint')+' dash, hold to '+hv);else{if(L('dash'))out.push(L('dash')+' dash');}
   if(L('sprint'))out.push('hold '+L('sprint')+' to '+hv);

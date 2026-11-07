@@ -83,7 +83,7 @@ function updateSpeedo(p,dt){
 let camClock=0;   // real seconds, for camera effects (they run on even when the game is slowed)
 function placeCamera(p){
   drvHud(p);
-  if(DT.gob){if(p.drv)drvCamera(p);else gobCamera(p);return;}
+  if(p.gob){if(p.drv)drvCamera(p);else gobCamera(p);return;}
   const cp=Math.cos(p.cam.pitch),fx=-Math.sin(p.cam.yaw)*cp,fy=Math.sin(p.cam.pitch),fz=-Math.cos(p.cam.yaw)*cp;
   const hang=p.state==='ceil'||(p.state==='piv'&&p.piv&&p.piv.next==='ceil');p.camHang=(p.camHang||0)+((hang?1:0)-(p.camHang||0))*0.12;
   const tx=p.pos.x,ty=p.pos.y+(2.4-3.6*p.camHang)*ES,tz=p.pos.z,sk=p.speedFx||0;
@@ -158,7 +158,7 @@ function renderView(p,x,y,w,h){
   if(under){scene.fog.color.copy(DEEP);scene.background.copy(DEEP);scene.fog.near=1;scene.fog.far=18;}
   else{const fk=Math.max(0.2,WX.k.fog);scene.fog.color.copy(SKY);scene.background.copy(SKY);scene.fog.near=far*0.45*fk*fk;scene.fog.far=far*fk;}
   placePrecip(c,p.idx);
-  p.camera.aspect=w/h;p.camera.fov=72-6*(p.speedFx||0)-8*(p.windZoom||0);p.camera.far=far+40;p.camera.near=DT.gob?0.12:0.25;p.camera.updateProjectionMatrix();
+  p.camera.aspect=w/h;p.camera.fov=72-6*(p.speedFx||0)-8*(p.windZoom||0);p.camera.far=far+40;p.camera.near=p.gob?0.12:0.25;p.camera.updateProjectionMatrix();
   renderer.setViewport(x,y,w,h);renderer.setScissor(x,y,w,h);
   sky.position.copy(p.camera.position);
   if(p.lockMark&&p.lockMark.visible)p.lockMark.quaternion.copy(p.camera.quaternion);

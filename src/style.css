@@ -493,6 +493,12 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 .cs-card small{font-size:12px;line-height:1.35;color:var(--mute)}
 .cs-card[aria-checked="true"] small{color:var(--bone)}
 .cs-note{font-size:12.5px;color:var(--mute);min-height:1.3em}
+.cs-p2{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.cs-p2h{font:700 12px var(--f-display);letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin-right:4px}
+.cs-p2b{--cc:var(--moss);padding:5px 12px;border:2px solid #0a0d10;background:#232b34;color:var(--bone);cursor:pointer;font:600 13px var(--f-body)}
+.cs-p2b.gob{--cc:#e8c14a}
+.cs-p2b:hover{background:#2a333d}
+.cs-p2b[aria-checked="true"]{border-color:var(--cc);color:var(--cc);background:#2c3631}
 @media(max-width:560px){.cs-card small{display:none}.cs-name{font-size:16px}}
 .hostmain{margin:14px auto 0;max-width:360px;text-align:left}
 .hostlbl{font-weight:700}

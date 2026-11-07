@@ -347,7 +347,7 @@ function updateCars(dt){
     for(const q of players){
       if(!q.active||q.state==='dead'||!c.alive)continue;
       if(q.vcl&&q.state==='climb'&&q.vcl.v===c||q.drv)continue;
-      if(Math.abs(c.speed)>3&&c.ramCD<=0&&q.standCar!==c&&q.in.climb&&!DT.gob&&q.pos.y<c.pos.y+(c.hy||1.4)-0.6&&carHitsPlayer(c,q)&&vGrab(q,3,c))continue;   // (holding climb: he catches hold of it)
+      if(Math.abs(c.speed)>3&&c.ramCD<=0&&q.standCar!==c&&q.in.climb&&!q.gob&&q.pos.y<c.pos.y+(c.hy||1.4)-0.6&&carHitsPlayer(c,q)&&vGrab(q,3,c))continue;   // (holding climb: he catches hold of it)
       if(Math.abs(c.speed)>3&&c.ramCD<=0&&q.standCar!==c&&!(q.standCar&&q.standCar.isTrain)&&q.pos.y<c.pos.y+(c.hy||1.4)-0.6&&carHitsPlayer(c,q)){   // (and a car the train's just sent flying doesn't knock its riders off)
         const fast=Math.abs(c.speed)>9;
         damagePlayer(q,fast?4:2,new V3(q.pos.x,q.pos.y+1.3,q.pos.z),new V3(fx*dir,0.3,fz*dir),fast?'Run down':'Hit by traffic',c.driver);

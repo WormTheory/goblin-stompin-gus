@@ -62,7 +62,7 @@ function puModel(k){const g=new THREE.Group(),m=c=>PU_MAT[c]||(PU_MAT[c]=new THR
   g.visible=false;scene.add(g);return g;}
 function gobDrop(g){const G2=gobGear(g),at=(k,n,o)=>{let P=PICKUPS.find(q=>!q.live&&q.k===k);if(!P){if(PICKUPS.length>=32){P=PICKUPS.find(q=>q.k===k);if(!P)return;}else{P={k,m:puModel(k),pos:new V3()};PICKUPS.push(P);}}
     const y=supportAt(g.pos.x+o,g.pos.z,g.pos.y+1.5);P.pos.set(g.pos.x+o,(y??g.pos.y)+0.3,g.pos.z);P.n=n;P.t=0;P.live=true;P.m.visible=true;P.m.position.copy(P.pos);};
-  const own=players.filter(q=>q.active&&q.wpns);
+  const own=players.filter(q=>q.active&&q.gob&&q.wpns);
   // (dropped only if a player goblin hasn't got one already; grenades always, as they stack)
   if(G2.wpn&&!(own.length&&own.every(q=>q.wpns.includes(G2.wpn))))at(G2.wpn,1,-0.3);
   if(G2.gren)at('grenade',G2.gren,0.3);
@@ -71,7 +71,7 @@ function gobPickups(dt){
   for(const P of PICKUPS){if(!P.live)continue;P.t+=dt;
     if(P.t>90||!DT.gob){P.live=false;P.m.visible=false;continue;}
     P.m.rotation.y+=dt*1.6;P.m.position.y=P.pos.y+0.08*Math.sin(P.t*3);
-    for(const p of players){if(!p.active||p.state==='dead'||p.drv)continue;if(Math.hypot(p.pos.x-P.pos.x,p.pos.z-P.pos.z)>1.1||Math.abs(p.pos.y+0.3-P.pos.y)>1.6)continue;
+    for(const p of players){if(!p.gob||!p.active||p.state==='dead'||p.drv)continue;if(Math.hypot(p.pos.x-P.pos.x,p.pos.z-P.pos.z)>1.1||Math.abs(p.pos.y+0.3-P.pos.y)>1.6)continue;
       gobArms(p);
       if(P.k==='grenade'){if(p.gren>=GREN_MAX)continue;const n=Math.min(P.n,GREN_MAX-p.gren);p.gren+=n;P.n-=n;flashLabel('Grenade'+(n>1?'s':'')+' +'+n+'  ·  '+p.gren+' in all',p);if(P.n>0)continue;}
       else{if(p.wpns.includes(P.k))continue;p.wpns.push(P.k);p.wpn=P.k;p.wpnT=camClock;flashLabel('Picked up a '+GOB_WPN[P.k].name.toLowerCase(),p);}
@@ -80,7 +80,7 @@ function gobPickups(dt){
 function gobPickupsClear(){for(const P of PICKUPS){P.live=false;P.m.visible=false;}}
 // ---- on the HUD, just above the hearts: what's in hand, what else you've got, and the grenades ----
 function gobArmsHud(p){
-  let H=p.ui.gw;const show=DT.gob&&p.active&&!p.drv&&p.state!=='dead';
+  let H=p.ui.gw;const show=p.gob&&p.active&&!p.drv&&p.state!=='dead';
   if(!H){if(!show)return;const el=document.createElement('div');el.className='gwpn';const xh=document.createElement('div');xh.className='gxh';xh.hidden=true;p.ui.view.append(xh);
     const bar=p.ui.view.querySelector('.bar'),who=bar&&bar.querySelector('.who');if(who)bar.insertBefore(el,who);else p.ui.view.append(el);H=p.ui.gw={el,xh,s:''};}
   H.el.hidden=!show;H.xh.hidden=!show||gobArms(p).wpn!=='rifle';if(!show)return;

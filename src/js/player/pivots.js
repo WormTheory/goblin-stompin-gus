@@ -5,7 +5,7 @@ function wallFrame(p){const d=p.climbD,r=p.climbRoll||0,s=Math.sin(r);return{d,c
 function wallBite(p){
   if(p.biteT>0||(p.biteCD||0)>0)return;
   // (Gnash: whatever's in his hand, with its own timing)
-  if(DT.gob){const W=gobW(p);p.biteStep=-1;p.comboWin=0;p.biteDur=W.dur;p.biteT=W.dur;p.lungeT=W.lunge;p.biteHit=true;p.biteCD=W.cd;p.wallBite=true;if(p.wpn!=='rifle')sfx('Club swing',()=>{woosh(0.13,0.22,520,1700,0.1);});return;}
+  if(p.gob){const W=gobW(p);p.biteStep=-1;p.comboWin=0;p.biteDur=W.dur;p.biteT=W.dur;p.lungeT=W.lunge;p.biteHit=true;p.biteCD=W.cd;p.wallBite=true;if(p.wpn!=='rifle')sfx('Club swing',()=>{woosh(0.13,0.22,520,1700,0.1);});return;}
   p.biteStep=-1;p.comboWin=0;p.biteDur=0.38;p.biteT=0.38;p.lungeT=0.26;p.biteHit=true;p.biteCD=BITE_SOLO_CD;p.wallBite=true;
   sfx('Bite',()=>{woosh(0.13,0.22,520,1700,0.1);tone('triangle',150,260,0.08,0.06,0.28);});
 }
@@ -13,7 +13,7 @@ function wallBite(p){
 function wallBiteHit(p){
   // (Gnash is a goblin, far smaller than a hippo: his club or dagger reaches about a block past his head. His rifle
   // shoots where he's looking, as anywhere)
-  const gk=DT.gob?gobW(p):null;if(gk===GOB_WPN.rifle){gobShoot(p);return;}
+  const gk=p.gob?gobW(p):null;if(gk===GOB_WPN.rifle){gobShoot(p);return;}
   let {d,c,u}=wallFrame(p);if(gk)c=[p.pos.x-d[0]*0.4,p.pos.y+0.7,p.pos.z-d[1]*0.4];
   const A=gk?{hitR:gk.r||1,dmg:gk.dmg||1}:AB.bite,J0=gk?0.3:1.0,J1=gk?1.4:3.2,a=[c[0]+u[0]*J0,c[1]+u[1]*J0,c[2]+u[2]*J0],cause=gk?gk.cause||'Clubbed by another goblin':'Bitten';
   dbgHit('dmg','sph',{x:c[0]+u[0]*(J0+J1)/2,y:c[1]+u[1]*(J0+J1)/2,z:c[2]+u[2]*(J0+J1)/2,r:A.hitR});
@@ -140,28 +140,27 @@ const GOB_ABIL={bite:true,biteCombo:false,stomp:false,chargeStomp:false,fullStom
 const GOB_FEET=[[0,0],[.25,.25],[-.25,.25],[.25,-.25],[-.25,-.25]],GOB_WALK=2.8,GOB_RUN=5,GOB_HOP=8.4,GOB_EYE=1.22*ES;
 const calmNow=()=>DT.host<2;   // (nobody's after you: enemy hostility is turned down. Playing as a goblin makes no difference: they're after you all the same)
 const passiveNow=()=>DT.host===0;   // (and nobody minds you at all, not even when you hit them)
-const camPitch=v=>DT.gob?Math.max(-1.5,Math.min(1.5,v)):Math.max(-1.1,Math.min(0.55,v));   // (in first person you can look right up)
-// a goblin's size, or a hippo's, for everything that bumps into things (the Dev tab's preview borrows a goblin's for a moment)
-function gobDims(on){
-  HIPPO_PTS=on?GOB_FEET:HIPPO_FEET;P_HX=P_HZ=on?0.38:0.75*ES;if(!on)P_HZ=1.45*ES;P_HY=on?1.35:2.1*ES;
-  PB_LAT=on?[-0.38,0,0.38]:[-P_HX*0.95,0,P_HX*0.95];PB_ALONG=on?[-0.38,0,0.38]:[-1.42,-0.5,0.5,1.42].map(v=>v*ES);
-  // (head height only: a block at the feet is a step up, and walking on to it is the ground's business)
-  PB_YS=on?[1.1,1.3]:[1.25*ES,1.95*ES];
-}
-function setGob(on){
-  if(on===DT.gob)return;if(!on)for(const q of players)if(q.drv)drvExit(q);DT.gob=on;for(const q of players)q.wpns=null;   // (a fresh goblin has just his club)
-  gobDims(on);
-  for(const p of players){p.rig.visible=!on;p.cam.pitch=camPitch(p.cam.pitch);if(p.lockT)setLock(p,null);
-    if(!p.active||p.state==='dead')continue;
+const camPitch=(v,p)=>p&&p.gob?Math.max(-1.5,Math.min(1.5,v)):Math.max(-1.1,Math.min(0.55,v));   // (in first person you can look right up)
+// Goblin mode is each player's own (p.gob): in co-op one can be a hippo and the other a goblin. DT.gob says whether
+// anyone is (the dropped weapons stay about only while someone can pick them up). Their body sizes go with it (bodyOf, ptsOf).
+function setGobP(p,on){
+  on=!!on;if(p.gob===on)return;if(!on&&p.drv)drvExit(p);p.gob=on;p.wpns=null;   // (a fresh goblin has just his club)
+  p.rig.visible=!on;p.cam.pitch=camPitch(p.cam.pitch,p);if(p.lockT)setLock(p,null);
+  if(p.active&&p.state!=='dead'){
     // (whatever the hippo was halfway through stops here)
     if(on){if(p.state!=='walk'&&p.state!=='climb'){p.state='walk';p.t=0;p.vb=null;p.piv=null;}
       p.dodge=null;p.dashT=0;p.lungeT=0;p.biteT=0;p.biteHit=false;p.lurch=null;p.mvx=p.mvz=0;p.carryV=0;p.rocket=false;p.longJump=false;p.blastJ=false;p.airJumps=0;p.qStomp=p.qDodge=0;}
     else if(p.state==='walk')bodyFree(p);}
+  DT.gob=players.some(q=>q.gob);
+}
+// everyone a goblin (on) or a hippo; or player two the other way (p2)
+function setGob(on,p2){
+  for(const q of players)setGobP(q,q===P2&&p2!==undefined?p2:on);
   for(const p of players)dressHippo(p);   // (the names on the HUD)
   renderTime();
 }
 function updatePlayer(p,dt){
-  if(!DT.gob||SBX)return movePlayer(p,dt);
+  if(!p.gob||SBX)return movePlayer(p,dt);
   if(drvTick(p,dt))return;   // (in a vehicle: it does the moving. See drvTick)
   gobArmsTick(p,dt);   // (grenades and the weapon button: see gob-weapons.js)
   if(p.state==='walk')p.heading=p.cam.yaw+Math.PI;   // (a body faces wherever you look)
@@ -273,6 +272,6 @@ function gobCamera(p){
 function gobView(v){
   for(const q of players){if(!q.gb)continue;
     const me=q===v&&!(DT.freecam&&v===P1);
-    q.gb.root.visible=DT.gob&&q.active&&(q.drv?rideShown(q):!me);q.gb.vm.visible=DT.gob&&q.active&&me&&q.state!=='dead'&&!q.drv;   // (in a vehicle you're out of sight, unless it's a motorcycle)
+    q.gb.root.visible=q.gob&&q.active&&(q.drv?rideShown(q):!me);q.gb.vm.visible=q.gob&&q.active&&me&&q.state!=='dead'&&!q.drv;   // (in a vehicle you're out of sight, unless it's a motorcycle)
     if(q.gb.vm.visible){q.gb.vm.position.copy(v.camera.position);q.gb.vm.rotation.set(v.camera.rotation.x,v.camera.rotation.y,v.camera.rotation.z);}}
 }

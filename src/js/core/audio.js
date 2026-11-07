@@ -144,7 +144,7 @@ function stompGrunt(p,lvl){
   }catch(e){}
 }
 function grunt(p,dbl){
-  if(!audio||DT.gob)return;
+  if(!audio||p&&p.gob)return;
   try{
     const m=p.who?1.25:1,t=audio.currentTime,o=audio.createOscillator(),g=audio.createGain(),f=audio.createBiquadFilter();if(DT.sndList)sndNote(dbl?0.27:0.21);
     o.type='sawtooth';f.type='bandpass';f.Q.value=2.2;

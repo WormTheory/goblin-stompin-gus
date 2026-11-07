@@ -41,7 +41,7 @@ function haulSpot(p,D,top,side){
   const sg=side<0?-1:1;
   for(const k of [sg,-sg])for(const s of [0.5,0.4,0.3,0.2,0.1]){const h=Math.atan2(-D[1]*k,D[0]*k);if(under(s)&&fits(s,h))return put(s,h);}
   // no room for that either: forefeet up with his nose to the wall and his back end hanging out over the drop
-  for(const s of [0.1,0,-0.1,-0.2,-0.3]){const [x,z]=at(s),g=supportMax(x,z,hd,top+0.1,HIPPO_PTS);if(g!==null&&Math.abs(g-top)<0.6&&fits(s,hd))return put(s,hd);}
+  for(const s of [0.1,0,-0.1,-0.2,-0.3]){const [x,z]=at(s),g=supportMax(x,z,hd,top+0.1,ptsOf(p));if(g!==null&&Math.abs(g-top)<0.6&&fits(s,hd))return put(s,hd);}
   if(under(1.3))return put(1.3,hd);
   // no room on the block itself, but only a step down on the far side: over it and on to that
   for(const k of [1.3,1.7,2.1,2.5]){const [x,z]=at(k),v=supportAt(x,z,top+0.1);if(v!==null&&v>=top-1.05&&v<top){const y=p.pos.y;p.pos.y=v;const hit=bodyHits(p,x,z,hd);p.pos.y=y;if(!hit)return{x,z,h:hd,y:v};}}

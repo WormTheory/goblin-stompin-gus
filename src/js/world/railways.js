@@ -160,7 +160,7 @@ function trainBoxes(cs,speed,y0,T){
   const n=TRAIN_BOXES.length-cs.length,k=Math.max(0.3,Math.min(1,Math.abs(speed)/24)),sgn=speed<0?-1:1;   // (the cars all point the same way, whichever way they're going)
   const hit=(o,r,y)=>{for(let i=n;i<TRAIN_BOXES.length;i++){const B=TRAIN_BOXES[i];if(y>B.top-0.3||y<B.y0-1.5)continue;
     const dx=o.pos.x-B.x,dz=o.pos.z-B.z,al=dx*B.tx+dz*B.tz,ac=-dx*B.tz+dz*B.tx;if(Math.abs(al)>TRAIN_HZ+r||Math.abs(ac)>TRAIN_HX+r)continue;
-    if(o.in&&o.cam&&o.in.climb&&!DT.gob&&vGrab(o,3,B.proxy))return null;   // (a hippo holding climb catches hold of it instead)
+    if(o.in&&o.cam&&o.in.climb&&!o.gob&&vGrab(o,3,B.proxy))return null;   // (a hippo holding climb catches hold of it instead)
     const sg=ac>=0?1:-1,nx=-B.tz*sg,nz=B.tx*sg,need=TRAIN_HX+r-Math.abs(ac)+0.05;o.pos.x+=nx*need;o.pos.z+=nz*need;
     return new V3(B.tx*sgn*0.8+nx*0.6,0,B.tz*sgn*0.8+nz*0.6);}return null;};
   for(const p of players){if(p.trainT>0)continue;if(!p.active||p.hp<=0||p.standCar&&p.standCar.isTrain||p.vcl&&p.state==='climb'||p.drv)continue;const d=hit(p,0.75*ES,p.pos.y+0.5);

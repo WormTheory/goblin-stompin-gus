@@ -63,7 +63,7 @@ function drvExit(p,thrown){
     if(!solidAt(x,Math.floor(y+0.3),z)&&!solidAt(x,Math.floor(y+1.2),z)){spot={x,y,z};break;}}
   if(!spot)spot={x:S.x,y:S.y+S.hy+0.2,z:S.z};
   p.pos.set(spot.x,spot.y,spot.z);p.vy=thrown?6:0;p.grounded=false;p.peakY=p.pos.y;p.state='walk';p.t=0;p.mvx=p.mvz=0;
-  p.heading=p.cam.yaw+Math.PI;p.cam.pitch=camPitch(p.cam.pitch);
+  p.heading=p.cam.yaw+Math.PI;p.cam.pitch=camPitch(p.cam.pitch,p);
   if(thrown)flashLabel('Thrown clear of the wreck',p);
 }
 // each step, before the goblin's own moves: in or out, and (while you're in) nothing else

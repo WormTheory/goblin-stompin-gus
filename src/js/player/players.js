@@ -93,11 +93,13 @@ function dressHippo(p){
   for(const m of p.bow)m.visible=p.who===1;
   for(const m of p.eyeFront)m.visible=EYES[p.who]==='front';for(const m of p.eyeSide)m.visible=EYES[p.who]==='side';
   if(p.ui&&p.ui.who){p.ui.who.textContent=charName(p).toUpperCase();p.ui.who.classList.toggle('p2',charTint(p)===1);}
+  // (and the join prompt and the pause card, which were written with the skin's name)
+  if(p.ui&&p.ui.join){p.ui.join.textContent=charName(p).toUpperCase()+': connect a controller and press any button';const t=p.ui.ppause&&p.ui.ppause.querySelector('.ptitle');if(t&&t.textContent!==undefined)t.textContent=charName(p)+' · PAUSED';}
 }
 // (first called once the debug settings exist, from ui/char-select.js)
 const GOB_NAMES=['Gnash','Grizzle'];   // (the goblin you play is Gnash; in co-op his cousin Grizzle comes along)
-const charName=p=>DT.gob?GOB_NAMES[p.idx]:p.who?'Gertie':'Gus';
-const charTint=p=>DT.gob?p.idx:p.who;   // (0 or 1: which of the two colours a player's marked in, on the maps and the HUD)
+const charName=p=>p.gob?GOB_NAMES[p.idx&&P1.gob?1:0]:p.who?'Gertie':'Gus';   // (one goblin's Gnash, whichever seat; two, and player two's Grizzle)
+const charTint=p=>{if(!p.gob)return p.who;const o=players.find(q=>q!==p);return o&&!o.gob?1-o.who:p.idx;};   // (0 or 1: which of the two colours a player's marked in, on the maps and the HUD)
 {
   const vs=document.getElementById('viewDist'),vl=document.getElementById('viewVal');
   const dds=document.getElementById('detailDist'),ddl=document.getElementById('detailVal');
@@ -147,7 +149,8 @@ function flashLabel(s,who){if(SBX)return;for(const p of (who?[who]:players)){if(
   else{el=document.createElement('div');el.className='lbl';el._s=s;el.innerHTML=hudHTML(s);box.append(el);
     const live=Array.from(box.children||[]).filter(c=>!c.classList.contains('old'));while(live.length>4){const o=live.shift();clearTimeout(o._t);o.remove();}}
   el._t=setTimeout(()=>{el.classList.add('old');setTimeout(()=>el.remove(),400);},2400);}catch(e){}}}
-const HIPPO_FEET=[[0,0],[.55,.9],[-.55,.9],[.55,-.9],[-.55,-.9]].map(([a,b])=>[a*ES,b*ES]);let HIPPO_PTS=HIPPO_FEET;   // (setGob swaps these sizes for a goblin's)
+const HIPPO_FEET=[[0,0],[.55,.9],[-.55,.9],[.55,-.9],[-.55,-.9]].map(([a,b])=>[a*ES,b*ES]);
+const ptsOf=p=>p&&p.gob?GOB_FEET:HIPPO_FEET;   // (a player's feet: a hippo's, or a goblin's, see setGobP)
 const CAR_PTS=[[0,0],[.9,1.7],[-.9,1.7],[.9,-1.7],[-.9,-1.7]].map(([a,b])=>[a*ES,b*ES]);
 // the top of any car under the hippo (cabin roof or hood/trunk), if his feet are at or above it
 function carTop(p){
@@ -155,7 +158,7 @@ function carTop(p){
   for(const c of cars){
     if(!c.alive||Math.hypot(c.pos.x-p.pos.x,c.pos.z-p.pos.z)>c.hz+3)continue;
     const cs=Math.sin(c.heading),ck=Math.cos(c.heading);
-    for(const [a,b] of HIPPO_PTS){
+    for(const [a,b] of ptsOf(p)){
       const dx=p.pos.x+a*k+b*s-c.pos.x,dz=p.pos.z-a*s+b*k-c.pos.z,la=dx*ck-dz*cs,lb=dx*cs+dz*ck;
       if(Math.abs(la)>c.hx*1.05||Math.abs(lb)>c.hz*1.03)continue;
       const top=c.pos.y+VEH[c.veh].roof(lb/ES)*ES;
@@ -163,12 +166,12 @@ function carTop(p){
     }
   }
   for(const B of TRAIN_BOXES){const BX=B.hx||TRAIN_HX,BZ=B.hz||TRAIN_HZ;if(B.soft||Math.hypot(B.x-p.pos.x,B.z-p.pos.z)>Math.max(BX,BZ)+3)continue;
-    for(const [a,b] of HIPPO_PTS){const dx=p.pos.x+a*k+b*s-B.x,dz=p.pos.z-a*s+b*k-B.z,al=dx*B.tx+dz*B.tz,ac=-dx*B.tz+dz*B.tx;
+    for(const [a,b] of ptsOf(p)){const dx=p.pos.x+a*k+b*s-B.x,dz=p.pos.z-a*s+b*k-B.z,al=dx*B.tx+dz*B.tz,ac=-dx*B.tz+dz*B.tx;
       if(Math.abs(al)>BZ||Math.abs(ac)>BX)continue;if(B.top<=p.pos.y+(B.proxy===p.rideC?1.2:0.35)&&(best===null||B.top>best||B.top===best&&B.proxy===p.rideC)){best=B.top;bc=B.proxy;}}}
   return best===null?null:{y:best,c:bc};
 }
 function footprint(p){
-  const g=supportMax(p.pos.x,p.pos.z,p.heading,p.pos.y,HIPPO_PTS),ct=carTop(p);
+  const g=supportMax(p.pos.x,p.pos.z,p.heading,p.pos.y,ptsOf(p)),ct=carTop(p);
   // (the track rising just ahead of a coaster car, under his front feet, mustn't lift him off the one he's riding)
   if(ct&&(g===null||ct.y>g||ct.c===p.rideC&&ct.c.T&&ct.c.T.isRide&&g-ct.y<3)){p.standCar=ct.c;return ct.y;}
   p.standCar=null;return g;
@@ -213,32 +216,36 @@ function trainsNear(x,z,r,y0,y1){const out=[];for(const B of TRAIN_BOXES){const 
   const dx=x-B.x,dz=z-B.z,al=dx*B.tx+dz*B.tz,ac=-dx*B.tz+dz*B.tx;if(Math.hypot(Math.max(0,Math.abs(al)-(B.hz||TRAIN_HZ)),Math.max(0,Math.abs(ac)-(B.hx||TRAIN_HX)))<r&&!out.includes(pr)&&!(pr.isBoat&&out.some(o=>o.T===pr.T)))out.push(pr);}return out;}   // (a boat's many boxes are one boat: one hit)
 // a moving car's bumper zone: its body plus a small margin. Anything whose body touches it is struck.
 // (the hippo's box is his body, rump to shoulders: 1.45 either side of his middle; his head isn't in it)
-const RAM_M=0.3,P_OFF=0;let P_HX=0.75*ES,P_HZ=1.45*ES,P_HY=2.1*ES;
+const RAM_M=0.3,P_OFF=0;
+// (each player's own body: a hippo's, or a goblin's when they play as one. hx/hz half-width and half-length, hy height;
+// lat/along/ys the points bodyHits tests, at head height only: a block at the feet is a step up, the ground's business)
+const HIPPO_BODY={hx:0.75*ES,hz:1.45*ES,hy:2.1*ES,lat:[-0.75*ES*0.95,0,0.75*ES*0.95],along:[-1.42,-0.5,0.5,1.42].map(v=>v*ES),ys:[1.25*ES,1.95*ES]};
+const GOB_BODY={hx:0.38,hz:0.38,hy:1.35,lat:[-0.38,0,0.38],along:[-0.38,0,0.38],ys:[1.1,1.3]};
+const bodyOf=p=>p&&p.gob?GOB_BODY:HIPPO_BODY;
 const pBoxC=q=>({x:q.pos.x+Math.sin(q.heading)*P_OFF,z:q.pos.z+Math.cos(q.heading)*P_OFF});
 // the same box is his body for bumping into things: would it overlap a wall (anything solid above a single step up) or
 // a car (that he isn't standing on top of) with him at (x,z) facing h?
-let PB_LAT=[-P_HX*0.95,0,P_HX*0.95],PB_ALONG=[-1.42,-0.5,0.5,1.42].map(v=>v*ES),PB_YS=[1.25*ES,1.95*ES];
 // (the solid fill under a flight of stairs isn't in the way of a long body walking up: its nose is over the next steps)
 function underSteps(x,y,z){for(let k=1;k<=4;k++){const v=get(x,y+k,z);if(!v||!BLOCK[v].solid)return false;if(BLOCK[v].stair)return true;}return false;}
 function bodyHits(p,x,z,h){
-  if(DT.gob)h=0;   // (a goblin's body is square to the world, or looking round a corridor would wedge its corners in the walls)
+  const Bd=bodyOf(p);if(p.gob)h=0;   // (a goblin's body is square to the world, or looking round a corridor would wedge its corners in the walls)
   const s=Math.sin(h),c=Math.cos(h);
   // (climbing a flight his nose reaches the landing before his feet do: the lip of a floor doesn't stop him there)
   let onSteps=false;{const xi=Math.floor(x),zi=Math.floor(z),y0=Math.floor(p.pos.y);for(let k=-1;k<=1&&!onSteps;k++){const v=get(xi,y0+k,zi);if(v&&BLOCK[v].stair)onSteps=true;}}
-  for(const b of PB_ALONG)for(const a of PB_LAT){if(a===0&&b>-1&&b<1)continue;   // (just the edge of the box)
+  for(const b of Bd.along)for(const a of Bd.lat){if(a===0&&b>-1&&b<1)continue;   // (just the edge of the box)
     const wx=Math.floor(x+a*c+b*s),wz=Math.floor(z-a*s+b*c);
-    for(const yy of PB_YS){const fy=Math.floor(p.pos.y+yy),bl=get(wx,fy,wz);if(bl&&BLOCK[bl].solid&&!BLOCK[bl].ramp&&!underSteps(wx,fy,wz)&&!(onSteps&&!solidAt(wx,fy+1,wz)))return true;}}
+    for(const yy of Bd.ys){const fy=Math.floor(p.pos.y+yy),bl=get(wx,fy,wz);if(bl&&BLOCK[bl].solid&&!BLOCK[bl].ramp&&!underSteps(wx,fy,wz)&&!(onSteps&&!solidAt(wx,fy+1,wz)))return true;}}
   const bx=x+s*P_OFF,bz=z+c*P_OFF;
   for(const cr of cars){if(!cr.alive||cr===p.standCar||Math.abs(cr.pos.x-bx)>cr.hz+4||Math.abs(cr.pos.z-bz)>cr.hz+4)continue;
-    if(p.pos.y>=cr.pos.y+cr.hy-0.45||p.pos.y+P_HY<=cr.pos.y)continue;
-    if(boxesTouch(cr.pos.x,cr.pos.z,cr.heading,cr.hx,cr.hz,bx,bz,h,P_HX,P_HZ))return true;}
+    if(p.pos.y>=cr.pos.y+cr.hy-0.45||p.pos.y+Bd.hy<=cr.pos.y)continue;
+    if(boxesTouch(cr.pos.x,cr.pos.z,cr.heading,cr.hx,cr.hz,bx,bz,h,Bd.hx,Bd.hz))return true;}
   return false;}
 // turning, or something moving into him, left him overlapping: nudge him out to the nearest free spot (never stuck)
 function bodyFree(p){
   if(!bodyHits(p,p.pos.x,p.pos.z,p.heading))return;
   for(const d of [0.12,0.25,0.4,0.6,0.85])for(let k=0;k<8;k++){const a=k*Math.PI/4+p.heading+Math.PI,nx=p.pos.x+Math.sin(a)*d,nz=p.pos.z+Math.cos(a)*d;
     // (on a narrow ledge his middle may hang out over the drop, so long as his feet are still on it)
-    if((Math.abs(groundAt(nx,nz,p.pos.y+0.5)-p.pos.y)<0.6||Math.abs((supportMax(nx,nz,p.heading,p.pos.y,HIPPO_PTS)??-9)-p.pos.y)<0.6)&&!bodyHits(p,nx,nz,p.heading)){p.pos.x=nx;p.pos.z=nz;return;}}
+    if((Math.abs(groundAt(nx,nz,p.pos.y+0.5)-p.pos.y)<0.6||Math.abs((supportMax(nx,nz,p.heading,p.pos.y,ptsOf(p))??-9)-p.pos.y)<0.6)&&!bodyHits(p,nx,nz,p.heading)){p.pos.x=nx;p.pos.z=nz;return;}}
 }
 // do two boxes (centre, heading, half-width, half-length) overlap on the ground plane? separating-axis test
 function boxesTouch(ax,az,ah,awx,awz,bx,bz,bh,bwx,bwz){
@@ -250,7 +257,7 @@ function boxesTouch(ax,az,ah,awx,awz,bx,bz,bh,bwx,bwz){
   return true;
 }
 // is a hippo's hurtbox touching this car's bumper zone?
-const carHitsPlayer=(c,q)=>{if(!(q.pos.y<c.pos.y+c.hy&&q.pos.y+P_HY>c.pos.y))return false;const b=pBoxC(q);return boxesTouch(c.pos.x,c.pos.z,c.heading,c.hx+RAM_M,c.hz+RAM_M,b.x,b.z,q.heading,P_HX,P_HZ);};
+const carHitsPlayer=(c,q)=>{const Bd=bodyOf(q);if(!(q.pos.y<c.pos.y+c.hy&&q.pos.y+Bd.hy>c.pos.y))return false;const b=pBoxC(q);return boxesTouch(c.pos.x,c.pos.z,c.heading,c.hx+RAM_M,c.hz+RAM_M,b.x,b.z,q.heading,Bd.hx,Bd.hz);};
 // ...or a goblin's (a 0.45-wide cylinder, 1.6 tall)
 const carHitsGoblin=(c,g)=>g.pos.y<c.pos.y+c.hy&&g.pos.y+1.6>c.pos.y&&carNearest(c,g.pos.x,c.pos.y,g.pos.z).d2<0.45+RAM_M;
 // a straight-sided cylinder from y0 to y1 (the bite's jaw zones)

@@ -45,6 +45,7 @@ function menuNav(dir){
     if(dy<0&&pane.scrollTop<=0){padFocus(tabBtn);return;}
     pane.scrollTop+=dy*80;return;
   }
+  if(dx&&cur&&cur.closest&&cur.closest('#charSel2')){const C=[...document.querySelectorAll('#charSel2 .cs-p2b')],i=C.indexOf(cur)+dx;if(i>=0&&i<C.length){C[i].click();padFocus(C[i]);}return;}
   if(dx&&cur&&cur.closest&&cur.closest('#charSel')){const C=[...document.querySelectorAll('#charSel .cs-card')],i=C.indexOf(cur)+dx;if(i>=0&&i<C.length){C[i].click();padFocus(C[i]);}return;}
   if(dx&&(title||cur&&cur.closest&&cur.closest('.tabs'))){showTab(tabIndex()+dx);padFocus(document.getElementById('tabBtn'+TABS[tabIndex()][1]));return;}
   if(dy&&title&&pane.contains(cur)){const U=paneUnits(pane),i=U.findIndex(u=>u===cur||u.contains(cur))+dy;if(i<0)padFocus(tabBtn);else if(i<U.length)unitFocus(U[i]);return;}

@@ -334,7 +334,7 @@ function updateGoblins(dt){
       if(playing&&canHit&&d<=reach+0.3&&g.atk<0.45)g.arm.rotation.x=-0.5-1.9*(1-g.atk/0.45);
       else g.arm.rotation.x+=((-0.5+(moving?Math.sin(g.phase)*0.4:0))-g.arm.rotation.x)*Math.min(1,dt*8);
     }
-    for(const p of players){if(!p.active||p.state==='dead'||Math.abs(p.pos.y-g.pos.y)>1.2||g.vy!==0)continue;const hx=g.pos.x-p.pos.x,hz=g.pos.z-p.pos.z,hd=Math.hypot(hx,hz),gap=DT.gob?0.7:1.6;if(hd<gap&&hd>0.001)nudge(g,hx/hd*(gap-hd),hz/hd*(gap-hd));}
+    for(const p of players){if(!p.active||p.state==='dead'||Math.abs(p.pos.y-g.pos.y)>1.2||g.vy!==0)continue;const hx=g.pos.x-p.pos.x,hz=g.pos.z-p.pos.z,hd=Math.hypot(hx,hz),gap=p.gob?0.7:1.6;if(hd<gap&&hd>0.001)nudge(g,hx/hd*(gap-hd),hz/hd*(gap-hd));}
     for(const c of cars){if(!c.alive)continue;const cx=g.pos.x-c.pos.x,cz=g.pos.z-c.pos.z,cd=Math.hypot(cx,cz);if(cd<2&&cd>0.001)nudge(g,cx/cd*(2-cd),cz/cd*(2-cd));}
     {const cx=Math.floor(g.pos.x),cz=Math.floor(g.pos.z);   // (its own cell and the eight round it: anyone within 0.7 is in there, even after this frame's moves)
      for(let ix=cx-1;ix<=cx+1;ix++)for(let iz=cz-1;iz<=cz+1;iz++){const l=GOB_GRID.get(gobCell(ix,iz));if(!l)continue;

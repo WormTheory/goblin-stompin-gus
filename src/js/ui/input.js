@@ -68,7 +68,7 @@ function look(p,dx,dy,k){
     return;
   }
   p.cam.yaw-=dx*k;
-  p.cam.pitch=camPitch(p.cam.pitch-dy*k);
+  p.cam.pitch=camPitch(p.cam.pitch-dy*k,p);
 }
 canvas.addEventListener('contextmenu',e=>e.preventDefault());
 canvas.addEventListener('mousedown',e=>{
@@ -139,7 +139,7 @@ function readInputs(dt){
   if(DT.menu&&DT.selHeld)for(const [p,s] of [[P1,s1],[P2,s2]]){if(!s||!p.active)continue;
     const dz=v=>Math.abs(v)>0.15?v:0,rx=dz(s.p.axes[2]||0),ry=dz(s.p.axes[3]||0);
     if(DT.freecam&&p===P1){FC.yaw-=rx*2.4*dt;FC.pitch=Math.max(-1.5,Math.min(1.5,FC.pitch-ry*1.8*dt));}
-    else if(!p.lockT||p.drv){p.cam.yaw-=rx*2.8*dt;p.cam.pitch=camPitch(p.cam.pitch-ry*1.8*dt);}}
+    else if(!p.lockT||p.drv){p.cam.yaw-=rx*2.8*dt;p.cam.pitch=camPitch(p.cam.pitch-ry*1.8*dt,p);}}
   if(DT.menu&&DT.selHeld||wasOpen&&!DT.menu){s1=null;s2=null;}   // (the press that closes it doesn't also jump or trample)
   if(s1&&s1.b[8])s1=null;if(s2&&s2.b[8])s2=null;   // Select itself never plays
   // a paused player's controller drives their own pause panel
@@ -164,7 +164,7 @@ function readInputs(dt){
     if(pr[9]){requestPause(p);return;}
     if(!i.x&&!i.z){i.x=dead(ax[0]||0);i.z=dead(ax[1]||0);}
     const rx=dead(ax[2]||0),ry=dead(ax[3]||0);
-    if((!p.lockT||p.drv)&&!(DT.freecam&&p===P1)){p.cam.yaw-=rx*2.8*dt;p.cam.pitch=camPitch(p.cam.pitch-ry*1.8*dt);}
+    if((!p.lockT||p.drv)&&!(DT.freecam&&p===P1)){p.cam.yaw-=rx*2.8*dt;p.cam.pitch=camPitch(p.cam.pitch-ry*1.8*dt,p);}
     // the buttons, as bound (see BINDS)
     const pb=id=>BINDS[id].pad.some(k=>b[k]),pp=id=>BINDS[id].pad.some(k=>pr[k]);
     {const bx=(pb('right')?1:0)-(pb('left')?1:0),bz=(pb('back')?1:0)-(pb('fwd')?1:0);if(bx||bz){i.x=bx;i.z=bz;}}

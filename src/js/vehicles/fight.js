@@ -50,7 +50,7 @@ function drvHP(D){const o=D.o;
 const _dhv=new THREE.Vector3();
 function drvHud(p){
   let H=p.ui.drvHud;
-  if(!p.drv||!DT.gob||p.drv.jack){if(H&&!H.el.hidden){H.el.hidden=true;H.dv.hidden=true;}return;}
+  if(!p.drv||!p.gob||p.drv.jack){if(H&&!H.el.hidden){H.el.hidden=true;H.dv.hidden=true;}return;}
   // (the crosshair and gun marker go over the view; the vehicle's health and its ammo sit just above your hearts)
   if(!H){const el=document.createElement('div');el.className='drvhud';el.innerHTML='<div class="xh"></div><div class="xt"></div>';p.ui.view.append(el);
     const dv=document.createElement('div');dv.className='dveh';dv.innerHTML='<div class="dbox"><div class="dname"></div><div class="dbar"><i></i></div><div class="dwpn"></div></div><div class="dammo"></div>';
@@ -102,6 +102,6 @@ function planeHud(F){if(!F)return'Throttle 0%';const thr='Throttle '+Math.round(
 function stickToRamp(p,g){
   if(!p.grounded||p.state!=='walk'||p.standCar||p.dodge||p.pos.y-g>=0.4)return false;
   const s=Math.sin(p.heading),c=Math.cos(p.heading);
-  for(const [a,b] of HIPPO_PTS)if(rampUnder(p.pos.x+a*c+b*s,p.pos.z-a*s+b*c,p.pos.y))return true;
+  for(const [a,b] of ptsOf(p))if(rampUnder(p.pos.x+a*c+b*s,p.pos.z-a*s+b*c,p.pos.y))return true;
   return false;
 }

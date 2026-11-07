@@ -145,7 +145,7 @@ const BITE_SOLO_CD=0.85;   // seconds from one bite to the next with the combo s
 // one cooldown shared by every bite, on the ground or in the air: biting in either puts the other on hold too
 function gusBite(p){
   if(p.biteT>0||p.state!=='walk'||!playing||!p.active||(p.biteCD||0)>0)return;
-  if(DT.gob){const W=gobW(p);p.biteStep=-1;p.comboWin=0;p.biteDur=W.dur;p.biteT=W.dur;p.lungeT=W.lunge;p.biteHit=true;p.biteCD=W.cd;if(p.wpn!=='rifle')sfx('Club swing',()=>{woosh(0.13,0.22,520,1700,0.1);});return;}
+  if(p.gob){const W=gobW(p);p.biteStep=-1;p.comboWin=0;p.biteDur=W.dur;p.biteT=W.dur;p.lungeT=W.lunge;p.biteHit=true;p.biteCD=W.cd;if(p.wpn!=='rifle')sfx('Club swing',()=>{woosh(0.13,0.22,520,1700,0.1);});return;}
   // no aim assist: the bite goes exactly where he's facing (lock-on is how to aim at someone)
   // in the air: a single snap, no combo
   if(!p.grounded){if((p.airBiteCD||0)>0)return;hbStart(p,'airBite');p.airBiteCD=1.0;p.biteCD=BITE_SOLO_CD;p.biteStep=-1;p.comboWin=0;p.biteDur=0.3;p.biteT=0.3;p.lungeT=0.16;p.lurch={t:0,dur:Math.max(0.05,AB.airBite.dist/Math.max(0.1,AB.airBite.speed)),dist:AB.airBite.dist};p.biteHit=true;sfx('Air bite',()=>{tone('triangle',150,260,0.1,0.06);woosh(0.12,0.2,600,1900);});return;}
@@ -163,7 +163,7 @@ function gusBite(p){
 }
 function doBite(p){
   if(p.wallBite){p.wallBite=false;if(p.state==='climb'){wallBiteHit(p);return;}}   // (bitten from a wall: see wallBite)
-  if(DT.gob){gobAttack(p);return;}
+  if(p.gob){gobAttack(p);return;}
   const hx=Math.sin(p.heading),hz=Math.cos(p.heading),bx=p.pos.x+hx*2.5,bz=p.pos.z+hz*2.5,fin=p.biteStep===2,A=p.biteStep===-1?AB.airBite:fin?AB.upper:p.biteStep===1?AB.bite2:AB.bite;
   const cust=hbOn(p.biteStep===-1?'airBite':fin?'upper':p.biteStep===1?'bite2':'bite');
   if(!cust){const o={force:fin?1.1:0.8,dx:hx,dz:hz};blockHit(A,bx,p.pos.y+0.6,bz,hx,hz,o,sz=>crush(bx,p.pos.y+0.6,bz,Math.max(0,Math.round(sz)),0,1,o));}

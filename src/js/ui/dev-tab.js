@@ -68,13 +68,13 @@ function devSimulate(key,ch=DEVP.char){
      // (the last recording's block outlines)
   const gn=ch==='gnash',sc=DEV_SCRIPT[key],PV=devPV(),GB=gn?devGB():null,fig=gn?'gob':'hippo',nodes=DEVP.figs[fig].nodes,N=Math.round(sc.dur*60),M=nodes.length,FL=11;
   const rec={N,M,fig,ch,key,tr:new Float32Array(N*M*FL),pos:new Float32Array(N*4),hits:[],anchors:[]};
-  const sv={get,playing,fly:DT.fly,abil:Object.assign({},ABIL),wx:WX.k.snow,gob:DT.gob};
+  const sv={get,playing,fly:DT.fly,abil:Object.assign({},ABIL),wx:WX.k.snow,gob:DT.gob,pg:PV.gob};
   PV.who=ch==='gertie'?1:0;dressHippo(PV);
   get=devGet;playing=true;DT.fly=false;Object.assign(ABIL,{bite:true,stomp:true,groundSpike:false,pound:true,jump:true,sprint:true,dash:true,roll:false,blastDash:false,blastAirDash:false,crash:true,trample:true,biteCombo:true,double:true,airDash:true,longJump:true,blastJump:false,chargeStomp:true,fullStomp:true,chargePound:true,fullPound:true});WX.k.snow=0;
   SBX={hits:[],anchors:[],frame:0};
   try{
-    if(gn){DT.gob=true;gobDims(true);PV.wpns=null;gobArms(PV);}   // (a goblin's size, and just his club)
-    rec.hurt={hx:P_HX,hy:P_HY,hz:P_HZ};
+    PV.gob=gn;if(gn){DT.gob=true;PV.wpns=null;gobArms(PV);}   // (a goblin's size, and just his club)
+    {const Bd=bodyOf(PV);rec.hurt={hx:Bd.hx,hy:Bd.hy,hz:Bd.hz};}
     placePlayer(PV,new V3(DEV_O.x,G+1,DEV_O.z));PV.active=true;PV.heading=0;PV.cam.yaw=-Math.PI;PV.cam.pitch=-0.3;PV.stam=100;PV.exhausted=false;PV.twirl=0;PV.mvx=PV.mvz=0;
     if(sc.setup)sc.setup(PV);PV.lockT=null;PV.rage=0;PV.voice=null;PV.hbRuns=[];PV.crashT=0;PV.trNow=PV.trWas=false;PV.snowU.value=0;PV.wasCharging=false;PV.sinceCharge=9;PV.airJumps=airJumpsMax();PV.airDash=true;
     const I=PV.in;
@@ -91,7 +91,7 @@ function devSimulate(key,ch=DEVP.char){
     // each volume stays up for a moment, or until the same kind of volume comes round again (a charge run's, every frame)
     for(let i=0;i<rec.hits.length;i++){const h=rec.hits[i];let u=h.f+24;for(let j=i+1;j<rec.hits.length;j++){const o=rec.hits[j];if(o.f>h.f&&o.kind===h.kind&&o.shape===h.shape){u=Math.min(u,o.f-1);break;}}h.until=Math.max(h.f,u);}
   }catch(e){console.error('dev preview',e);}
-  finally{get=sv.get;playing=sv.playing;DT.fly=sv.fly;Object.assign(ABIL,sv.abil);WX.k.snow=sv.wx;if(gn){DT.gob=sv.gob;gobDims(sv.gob);}SBX=null;PV.snowU.value=0;if(PV.voice)PV.voice=null;}
+  finally{get=sv.get;playing=sv.playing;DT.fly=sv.fly;Object.assign(ABIL,sv.abil);WX.k.snow=sv.wx;PV.gob=sv.pg;DT.gob=sv.gob;SBX=null;PV.snowU.value=0;if(PV.voice)PV.voice=null;}
   // the frame of the preview: around everywhere he went
   let x0=1e9,x1=-1e9,z0=1e9,z1=-1e9,y1=G+2;for(let f=0;f<N;f++){x0=Math.min(x0,rec.pos[f*4]);x1=Math.max(x1,rec.pos[f*4]);z0=Math.min(z0,rec.pos[f*4+2]);z1=Math.max(z1,rec.pos[f*4+2]);y1=Math.max(y1,rec.pos[f*4+1]+2);}
   let rh=0;for(const h of rec.hits)rh=Math.max(rh,h.o.r||0,h.o.len||0,(h.o.sx||0)/2);
@@ -206,7 +206,7 @@ function devApply(fr){
   for(const h of R.hits){if(f!==h.f)continue;const blk=h.kind==='block';if(blk?!devOpt('devShowBlock'):!devOpt('devShowDmg'))continue;
     if(blk&&h.cells)devCells(h,used);devDraw(blk?'block':'dmg',h.shape,h.o,used);}   // (a smash: the blocks it takes, and its volume)
   if(devOpt('devShowHurt')){const px=R.pos[f*4],py=R.pos[f*4+1],pz=R.pos[f*4+2],h=R.pos[f*4+3];
-    const B=R.hurt||{hx:P_HX,hy:P_HY,hz:P_HZ};devDraw('hurt','box',{x:px+Math.sin(h)*P_OFF+DEV_O.x,y:py,z:pz+Math.cos(h)*P_OFF+DEV_O.z,sx:2*B.hx,sy:B.hy,sz:2*B.hz,rot:h},used);}
+    const B=R.hurt||HIPPO_BODY;devDraw('hurt','box',{x:px+Math.sin(h)*P_OFF+DEV_O.x,y:py,z:pz+Math.cos(h)*P_OFF+DEV_O.z,sx:2*B.hx,sy:B.hy,sz:2*B.hz,rot:h},used);}
   devSkel(F,devOpt('devShowSkel')?DEVP.sk:null,devOpt('devShowBones'));
   document.getElementById('devTime').textContent=(f/60).toFixed(2)+' / '+((R.N-1)/60).toFixed(2)+' s  (frame '+f+')';
   {const ph=document.getElementById('devPh');if(ph)ph.style.left=(f/R.N*100)+'%';}

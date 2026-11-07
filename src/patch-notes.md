@@ -23,6 +23,7 @@ Everything since the first release on GitHub.
 - **Gnash's weapons:** besides his club he can carry a dagger (quick stabs) and a rifle (shoots where you aim, with a crosshair). Kill an enemy carrying a weapon you haven't got and they drop it; walk over it to pick it up. R (pad d-pad right) switches weapons, and the bar by your hearts shows what you're carrying. In co-op, the other player sees the weapon in Gnash's hand.
 - **Grenades** stack, up to 9. Soldiers, preppers and militia drop them, and Gnash throws one with stomp (right click, RT). Pipe bombs are gone: preppers throw grenades too.
 - The controls hint shows Gnash's own moves while you play as him.
+- **Mixed co-op:** player two can now be a hippo or a goblin, whoever player one picked. Choose it in the "Co-op, player two" row under the character cards: Gus and Gnash can play together, each with their own moves, camera and controls hint.
 
 ### Goblins and enemies
 
