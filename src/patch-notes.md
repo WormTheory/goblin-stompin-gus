@@ -297,3 +297,11 @@ Everything from the move to Claude Code on November 2, 2026, up to the first rel
 - A crash landing on a coaster car no longer blows a hole in the track.
 - A vehicle carrying Gus on its roof no longer disappears as out of sight.
 - Signs fall back to near the roof when their usual spot has nothing to hang on, and sit clear of pediments.
+
+## Version 0
+
+The game as it was on November 2, 2026, when it moved to Claude Code, before any of the changes above. It's kept exactly as it was, bugs and all.
+
+### Known bugs
+
+- Gus sometimes stomps by himself as the game starts.
