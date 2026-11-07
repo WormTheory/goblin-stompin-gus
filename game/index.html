@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:1c2852cc5f46ed2b5c668e53dc68f2e1fb1076489c07f38fcc12c0a5ca1417ed -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:399e1a3a48c74786cc00e4ed78fd95b70e2d1f31023d8cad2d18b9d59d572f43 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14339,14 +14339,23 @@ const NAV_DX=[0,1,0,-1,1,1,-1,-1],NAV_DZ=[1,0,-1,0,1,-1,1,-1];
 function navFloorOf(x,z,y){const c=navCol(x,z);if(!c)return 0;let best=0,bd=1e9;for(let i=0;i<c.length;i++){const f=c[i]<0?-c[i]:c[i];if(f>y+1.25)continue;const d=y-f;if(d<bd){bd=d;best=f;}}return best;}
 // (who needs a route: goblins actually after a hippo, not the ones pottering about indoors who haven't noticed it)
 const navWants=g=>g.state==='chase'&&!g.civ&&!g.staff&&!g.medic&&!g.ff&&(!g.indoor||g.alert||g.cop&&!g.inv);
+// a hippo clinging to the side of a building: the block it's clinging to, the top of that wall above it, and the ground at
+// the foot of the wall below it (null if it isn't on a wall)
+function navWallOf(p){
+  const cl=p.state==='climb'||p.state==='piv'&&p.piv&&p.piv.next==='climb',d=p.climbD;
+  if(!cl||!d||Math.abs(d[0])+Math.abs(d[1])!==1||d[0]%1||d[1]%1)return null;
+  const fx=Math.floor(p.pos.x),fz=Math.floor(p.pos.z),wx=fx+d[0],wz=fz+d[1],c=navCol(wx,wz);if(!c)return null;
+  let top=0;for(const e of c){const f=e<0?-e:e;if(f>p.pos.y+0.5&&(!top||f<top))top=f;}if(top&&top-p.pos.y>=60)top=0;
+  const foot=navFloorOf(fx,fz,p.pos.y);return {wx,wz,top,fx,fz,foot:foot&&p.pos.y-foot<60?foot:0};
+}
 function navStart(N,p){
   const F=N.back,x=Math.floor(p.pos.x),z=Math.floor(p.pos.z),y=p.pos.y;
   F.keys.fill(-1);F.n=0;F.ox=x-NAV_R;F.oz=z-NAV_R;N.c=0;N.done=false;N.q.length=0;
   // (no further out than any goblin could need: a long way round, or a long climb, but not the whole neighbourhood every time)
   {let far=0;for(const g of goblins){if(!navWants(g))continue;const d=Math.hypot(g.pos.x-p.pos.x,g.pos.z-p.pos.z);if(d<NAV_R-2)far=Math.max(far,d*40+Math.abs(g.pos.y-y)*25);}N.lim=N.cap=Math.min(NAV_CAP,far+2000);}
-  // (clinging to a wall: up the same wall after it, to the top, which takes them right past it)
-  {const cl=p.state==='climb'||p.state==='piv'&&p.piv&&p.piv.next==='climb';if(cl&&p.climbD){const wx=Math.floor(p.pos.x+p.climbD[0]*0.9),wz=Math.floor(p.pos.z+p.climbD[1]*0.9),c=navCol(wx,wz);
-    if(c){let top=0;for(const e of c){const f=e<0?-e:e;if(f>y+0.5&&(!top||f<top))top=f;}if(top&&top-y<60)navAdd(N,wx,wz,top,0,-1,NAV_WALK);}}}
+  // (clinging to a wall: to the foot of that wall below it, or the top above it, whichever's nearer, and from there on to
+  // the wall itself after it: see navSteer. Each costs what the climb on from there to it would.)
+  {const w=navWallOf(p);if(w){if(w.top)navAdd(N,w.wx,w.wz,w.top,Math.round((w.top-y)*18),-1,NAV_WALK);if(w.foot)navAdd(N,w.fx,w.fz,w.foot,Math.round((y-w.foot)*18),-1,NAV_WALK);}}
   // (hanging about up in the air, or squeezed in against something: whatever's standing room nearest it)
   // (sunk under water: the top of it, straight up, is as near as the map goes)
   if(!F.n){let yy=Math.floor(y+.6);if(navCol(x,z)&&get(x,yy,z)===WATER){while(yy<H-1&&get(x,yy+1,z)===WATER)yy++;if(get(x,yy-1,z)===WATER&&!solidAt(x,yy+1,z))navAdd(N,x,z,yy,0,-1,NAV_WALK);}}
@@ -14401,7 +14410,12 @@ function navSteer(g,p){
   const i=navAt(F,g);
   // (not on the map: jammed into the corner of a wall, or up on a railing. Off to the nearest place that is)
   if(i<0){const x=Math.floor(g.pos.x),z=Math.floor(g.pos.z);{const u=get(x,Math.floor(g.pos.y-.5),z);if(!solidAt(x,Math.floor(g.pos.y+.5),z)&&!(u&&BLOCK[u].post))return null;}for(let d=0;d<8;d++){const X=x+NAV_DX[d],Z=z+NAV_DZ[d],f=navFloorOf(X,Z,g.pos.y);if(f&&g.pos.y-f<1.6&&X-F.ox>=0&&Z-F.oz>=0&&X-F.ox<=1023&&Z-F.oz<=1023&&navFind(F,navKey(F,X,Z,f))>=0)return{x:X+.5,z:Z+.5,free:true};}return null;}
-  const par=F.par[i];if(par<0)return null;
+  const par=F.par[i];
+  // (at the end of the route, and the hippo's on the wall right there: on to the wall after it, up from the foot or down from the top)
+  if(par<0){const w=navWallOf(p);if(w){const x=Math.floor(g.pos.x),z=Math.floor(g.pos.z);
+      if(x===w.fx&&z===w.fz&&w.top&&p.pos.y>g.pos.y+1.5)gobStartMove(g,NAV_UP,{x:w.wx,z:w.wz,y:w.top});
+      else if(x===w.wx&&z===w.wz&&w.foot&&p.pos.y<g.pos.y-1.5)gobStartMove(g,NAV_DOWN,{x:w.fx,z:w.fz,y:w.foot});}
+    return null;}
   const P=k=>({x:(k>>18&1023)+F.ox,z:(k>>8&1023)+F.oz,y:k&255});
   if(F.mv[i]!==NAV_WALK){const t=P(F.key[par]);gobStartMove(g,F.mv[i],t);if(g.act)return null;return{x:t.x+.5,z:t.z+.5};}
   // (a short cut along the route, where there's nothing in the way, so they don't run in staircase steps across open ground)
