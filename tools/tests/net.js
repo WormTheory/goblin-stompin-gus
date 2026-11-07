@@ -7,7 +7,7 @@ const fs=require('fs'),vm=require('vm');
 const src0=fs.readFileSync('g.js','utf8');
 const d6=fs.readFileSync('dead6.js','utf8');
 const stubs=d6.slice(d6.indexOf('const deep='),d6.indexOf('\neval(src);'));
-const src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={makeTopple,topples,NETF,V3,BRICK,NET_VN,venues,TRAINS,netVenueModels,frame,players,P1,P2,NET,NETM,netHostWith,netJoinWith,netClose,netEnd,crush,get,goblins,cars,keys,ABIL,fires,setGobP,'+
+const src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={NETP,makeTopple,topples,NETF,V3,BRICK,NET_VN,venues,TRAINS,netVenueModels,frame,players,P1,P2,NET,NETM,netHostWith,netJoinWith,netClose,netEnd,crush,get,goblins,cars,keys,ABIL,fires,setGobP,'+
   'get seed(){return seed},get edits(){return edits},get menuOpen(){return menuOpen},get saveBlocked(){return saveBlocked},chunks,ckey,CS,G};})();');
 if(src===src0)throw new Error('closing line not found');
 const store=init=>{const m=new Map(Object.entries(init||{}));return{getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,String(v)),removeItem:k=>m.delete(k),get _m(){return m}};};
@@ -29,13 +29,13 @@ function game(name,rseed,ls,ss){
   return g;
 }
 // the network: messages wait in a queue until pumped, and go through JSON on the way
-const hub={ts:[],q:[],sent:0,bytes:0,
+const hub={ts:[],q:[],sent:0,bytes:0,n:0,lat:0,   // (lat: frames each message takes to arrive, one way)
   make(){const T={kind:'mem',self:'m'+this.ts.length,on:{},open:true,
-      send:(d,to)=>{if(!T.open)return;const s=JSON.stringify(d);hub.sent++;hub.bytes+=s.length;hub.q.push({from:T.self,to:to||null,s});},
+      send:(d,to)=>{if(!T.open)return;const s=JSON.stringify(d);hub.sent++;hub.bytes+=s.length;hub.q.push({from:T.self,to:to||null,s,due:hub.n+2*hub.lat});},
       close:()=>{if(!T.open)return;T.open=false;for(const o of hub.ts)if(o!==T&&o.open)hub.q.push({leave:T.self,to:o.self});}};
     for(const o of this.ts)if(o.open){this.q.push({join:T.self,to:o.self});this.q.push({join:o.self,to:T.self});}
     this.ts.push(T);return T;},
-  pump(){let n=0;while(this.q.length&&n++<10000){const m=this.q.shift();
+  pump(){this.n++;let n=0;while(this.q.length&&n++<10000&&!(this.q[0].due>this.n)){const m=this.q.shift();
     for(const T of this.ts){if(!T.open||T.self===m.from)continue;if(m.to&&m.to!==T.self)continue;
       if(m.join){if(T.on.join)T.on.join(m.join);}else if(m.leave){if(T.on.leave)T.on.leave(m.leave);}else if(T.on.msg)T.on.msg(m.from,JSON.parse(m.s));}}}};
 const f2=v=>(+v).toFixed(2),ok=b=>b?'ok':'BAD';
@@ -88,11 +88,15 @@ console.log('hp shown',GT.P1.hp,'state',GT.P1.state,'host P2',HT.P2.hp,HT.P2.sta
 // ---- the guest's controls: hold forward on its controller and turn the camera ----
 {const pads=G.ctx.navigator.getGamepads();const before={x:HT.P2.pos.x,y:HT.P2.pos.y,z:HT.P2.pos.z},h1={x:HT.P1.pos.x,y:HT.P1.pos.y,z:HT.P1.pos.z};
  GT.P1.cam.yaw=HT.P2.cam.yaw+0.5;
- pads[0].axes[1]=-1;for(let i=0;i<90;i++){G.step(1);H.step(1);}pads[0].axes[1]=0;
+const lag=[];
+ pads[0].axes[1]=-1;let firstG=-1,firstH=-1;const g0={x:GT.P1.pos.x,y:GT.P1.pos.y,z:GT.P1.pos.z};
+ for(let i=0;i<90;i++){G.step(1);H.step(1);if(firstG<0&&d(GT.P1.pos,g0)>0.3)firstG=i;if(firstH<0&&d(HT.P2.pos,before)>0.3)firstH=i;
+   if(i%10===9)lag.push(d(GT.P1.pos,HT.P2.pos));}pads[0].axes[1]=0;
+ console.log('frames before it moved: on the guest',firstG,'on the host',firstH,'| guest ahead of the host while running',lag.map(f2).join(' '));
  const moved=d(HT.P2.pos,before);
  console.log('guest held forward 1.5 s: host P2 moved',f2(moved),ok(moved>3),'camera yaw passed on',ok(Math.abs(HT.P2.cam.yaw-GT.P1.cam.yaw)<0.01),'host P1 stayed',f2(d(HT.P1.pos,h1)),ok(d(HT.P1.pos,h1)<0.5));
  for(let i=0;i<20;i++){G.step(1);H.step(1);}
- console.log('guest sees itself there',f2(d(GT.P1.pos,HT.P2.pos)),ok(d(GT.P1.pos,HT.P2.pos)<1.5));
+ console.log('guest sees itself there',f2(d(GT.P1.pos,HT.P2.pos)),ok(d(GT.P1.pos,HT.P2.pos)<1.5),'(guessing its own moves:',GT.NETP.on?'yes':'no',')');
  // a press: jump
  const y0=HT.P2.pos.y;pads[0].buttons[0].pressed=true;G.step(1);pads[0].buttons[0].pressed=false;let top=y0;
  for(let i=0;i<30;i++){G.step(1);H.step(1);top=Math.max(top,HT.P2.pos.y);}
@@ -116,6 +120,15 @@ console.log('hp shown',GT.P1.hp,'state',GT.P1.state,'host P2',HT.P2.hp,HT.P2.sta
 
 // ---- a guest goblin (Gnash) seat: switching kind on the host shows on the guest ----
 {HT.setGobP(HT.P1,true);for(let i=0;i<20;i++){H.step(1);G.step(1);}console.log('host turned goblin: guest P2 is a goblin',ok(GT.P2.gob===true));HT.setGobP(HT.P1,false);for(let i=0;i<20;i++){H.step(1);G.step(1);}}
+
+// ---- a slow network: a tenth of a second each way. The guest's own hippo still moves at once, and ends up where the host has it ----
+{hub.lat=6;for(let i=0;i<30;i++){G.step(1);H.step(1);}
+ const pads=G.ctx.navigator.getGamepads(),g0={x:GT.P1.pos.x,y:GT.P1.pos.y,z:GT.P1.pos.z},h0={x:HT.P2.pos.x,y:HT.P2.pos.y,z:HT.P2.pos.z};let fg=-1,fh=-1,jump=0,prev=null;
+ pads[0].axes[0]=1;for(let i=0;i<100;i++){G.step(1);H.step(1);if(fg<0&&d(GT.P1.pos,g0)>0.3)fg=i;if(fh<0&&d(HT.P2.pos,h0)>0.3)fh=i;
+   if(prev)jump=Math.max(jump,d(GT.P1.pos,prev));prev={x:GT.P1.pos.x,y:GT.P1.pos.y,z:GT.P1.pos.z};}
+ pads[0].axes[0]=0;for(let i=0;i<60;i++){G.step(1);H.step(1);}
+ console.log('with 0.1 s each way: frames before moving, guest',fg,'host',fh,ok(fg>=0&&fg<fh),'| biggest step in one frame',f2(jump),ok(jump<0.6),'| apart once stopped',f2(d(GT.P1.pos,HT.P2.pos)),ok(d(GT.P1.pos,HT.P2.pos)<0.5));
+ hub.lat=0;for(let i=0;i<20;i++){G.step(1);H.step(1);}}
 
 // ---- the guest leaves: the host plays on alone ----
 GT.netEnd();for(let i=0;i<10;i++){H.step(1);G.step(1);}

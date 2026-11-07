@@ -124,7 +124,7 @@ function frame(now){
   {const frozen=playing&&(DT.paused||SPEEDS[DT.speedI]===0);if(audio){try{if(frozen&&audio.state==='running')audio.suspend();else if(!frozen&&audio.state==='suspended'&&audioWanted)audio.resume();}catch(e){}}}
   const nSub=Math.max(1,Math.ceil(gdt/0.05)),sdt=gdt/nSub;
   for(let sI=0;sI<nSub;sI++){
-    if(netG){netGuestStep(sdt);continue;}   // (a guest online: the host's game does the playing, see net/net-sync.js)
+    if(netG){netGuestStep(sdt,sI===0);continue;}   // (a guest online: the host's game does the playing, see net/net-sync.js)
     if(sI>0)for(const p of players){const I=p.in;I.jumpPress=I.bitePress=I.lockPress=I.chargePress=I.dashPress=I.sprintPress=false;}
     for(const p of players){DBG_WHO='p';safe('player',()=>updatePlayer(p,sdt));DBG_WHO='n';}
     safe('goblins',()=>updateGoblins(sdt));safe('fireballs',()=>{updateFireballs(sdt);updateShots(sdt);gobPickups(sdt);});safe('cars',()=>updateCars(sdt));safe('stations',()=>updateStations(sdt));safe('services',()=>updateServices(sdt));

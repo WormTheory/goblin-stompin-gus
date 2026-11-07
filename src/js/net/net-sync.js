@@ -30,7 +30,11 @@ function netPlayerState(p,seat,N){
     const o=sent[k];if(o===e||Array.isArray(e)&&Array.isArray(o)&&o[0]===e[0]&&o[1]===e[1]&&o[2]===e[2])continue;
     f[k]=e;sent[k]=e;}
   const lk=p.lockT?netRef(p.lockT):null;
-  return {s:seat,who:p.who,gob:!!p.gob,act:!!p.active,f,pos:[r3(p.pos.x),r3(p.pos.y),r3(p.pos.z)],h:r3(p.heading),pose:netPoseOf(netJoints(p)),lk};
+  const e={s:seat,who:p.who,gob:!!p.gob,act:!!p.active,f,pos:[r3(p.pos.x),r3(p.pos.y),r3(p.pos.z)],h:r3(p.heading),pose:netPoseOf(netJoints(p)),lk,
+    rd:!!(p.drv||p.rideC||p.standCar||p.vcl||p.jackA)};   // (driving, riding or clinging to something that moves: the guest can't guess that, so it doesn't try)
+  // (the guest's own seat: the last of its controls this took in, and how long ago, so it can tell how far its own guess has drifted)
+  if(p.net&&p.net.seat===seat){e.ack=N.inN||0;e.adt=Math.round(NET.now-(N.inAt||NET.now));}
+  return e;
 }
 // (something a player can be locked on to, as both ends can name it)
 function netRef(o){let i=goblins.indexOf(o);if(i>=0)return['g',i];i=cars.indexOf(o);if(i>=0)return['c',i];return null;}
@@ -108,36 +112,37 @@ function netEmit(e){for(const p of NET.guests.values()){const out=p.net.out;if(o
 const NET_FX={};
 function netFx(name,f){
   NET_FX[name]=f;
-  return function(...a){
+  // (named as the one it wraps: the debug Sound list reads names off the stack to say what made a sound)
+  return {[name](...a){
     if(NET_MUTE)return;
     if(NET.mode===1&&NET_FXD===0&&NET.guests.size){try{netEmit(['f',name,a.map(x=>netSan(x,0))]);}catch(e){}}
     NET_FXD++;try{return f.apply(this,a);}finally{NET_FXD--;}
-  };
+  }}[name];
 }
 puff=netFx('puff',puff);smoke=netFx('smoke',smoke);blood=netFx('blood',blood);splat=netFx('splat',splat);
 destroyFX=netFx('destroyFX',destroyFX);shockwave=netFx('shockwave',shockwave);shockCone=netFx('shockCone',shockCone);blastFx=netFx('blastFx',blastFx);
 tone=netFx('tone',tone);noise=netFx('noise',noise);woosh=netFx('woosh',woosh);
 // (a message for one player goes to that player only; one for everyone, to everyone)
-{const fl=flashLabel;NET_FX.flashLabel=fl;flashLabel=function(s,who){
+{const fl=flashLabel;NET_FX.flashLabel=fl;flashLabel=function flashLabel(s,who){
   if(NET_MUTE)return;
   if(NET.mode===1&&NET.guests.size){const seat=who?players.indexOf(who):-1;if(seat!==0)netEmit(['f','flashLabel',[s,seat>0?{$p:seat}:null]]);}
   return fl(s,who&&who.net&&NET.mode===1?null:who);};}
 // blocks: every block the host's game changes for good goes through addEdit, so that's where they're picked up
-{const ae=addEdit;addEdit=function(x,y,z,b){ae(x,y,z,b);
+{const ae=addEdit;addEdit=function addEdit(x,y,z,b){if(NET.mode===2&&NET.joined&&!NET_APPLY)return;ae(x,y,z,b);
   if(NET.mode===1&&NET.guests.size){const v=edits[x+','+y+','+z];for(const p of NET.guests.values()){const out=p.net.out,L=out[out.length-1];if(L&&L[0]==='e'&&L[1].length<3000)L[1].push(x,y,z,v);else out.push(['e',[x,y,z,v]]);}}};}
 // (guest: the host's game is the only one that hurts anyone or breaks anything. Anything here that would -- a fire's
 // flames, a hit worked out locally -- does nothing)
 for(const [nm,f] of [['damagePlayer',damagePlayer],['damageGoblin',damageGoblin],['hitGoblins',hitGoblins],['damageCar',damageCar],['crush',crush]]){
-  const g=function(...a){if(NET.mode===2&&NET.joined&&!NET_APPLY)return nm==='crush'?[]:undefined;return f.apply(this,a);};
+  const g={[nm](...a){if(NET.mode===2&&NET.joined&&!NET_APPLY)return nm==='crush'?[]:undefined;return f.apply(this,a);}}[nm];
   if(nm==='damagePlayer')damagePlayer=g;else if(nm==='damageGoblin')damageGoblin=g;else if(nm==='hitGoblins')hitGoblins=g;else if(nm==='damageCar')damageCar=g;else crush=g;}
 // falling pieces of building: a section toppling over (a rigid piece turning about its hinge) and a collapse sinking
 // into the ground. The blocks it's made of go once, when it starts; then where it is, in every snapshot while it lasts.
 const netFallId=new WeakMap();let netFallN=0;const NETF=new Map();   // (host: piece -> number; guest: number -> its model)
 const netFlat=L=>{const a=[];for(const q of L)a.push(q.x,q.y,q.z,q.b);return a;};
 const netUnflat=a=>{const L=[];for(let i=0;i+3<a.length;i+=4)L.push({x:a[i],y:a[i+1],z:a[i+2],b:a[i+3]});return L;};
-{const mt=makeTopple;makeTopple=function(blocks,pivot,D){const r=mt(blocks,pivot,D);
+{const mt=makeTopple;makeTopple=function makeTopple(blocks,pivot,D){const r=mt(blocks,pivot,D);
   if(NET.mode===1&&NET.guests.size){const T=topples[topples.length-1];if(T){const id=++netFallN;netFallId.set(T,id);netEmit(['t',id,netFlat(blocks),[pivot.x,pivot.y,pivot.z]]);}}return r;};}
-{const mb=makeBody;makeBody=function(blocks,big){const r=mb(blocks,big);
+{const mb=makeBody;makeBody=function makeBody(blocks,big){const r=mb(blocks,big);
   if(NET.mode===1&&NET.guests.size){const B=bodies[bodies.length-1];if(B){const id=++netFallN;netFallId.set(B,id);netEmit(['b',id,netFlat(blocks),B.clipY]);}}return r;};}
 function netFalls(){const t=[],b=[];
   for(const T of topples){const id=netFallId.get(T);if(id){const P=T.grp.position,Q=T.grp.quaternion;t.push([id,r3(P.x),r3(P.y),r3(P.z),+Q.x.toFixed(5),+Q.y.toFixed(5),+Q.z.toFixed(5),+Q.w.toFixed(5)]);}}
@@ -162,6 +167,8 @@ function netFallPose(a,b,k){
     const l=Math.hypot(x,y,z,w)||1;F.o.quaternion.set(x/l,y/l,z/l,w/l);}
   for(const e of a.fa[1]){const F=NETF.get(e[0]);if(!F)continue;const f=bb.get(e[0]);F.o.position.y=f?e[1]+(f[1]-e[1])*k:e[1];}
 }
+// (and its own blocks are the host's: a guess at a smash changes nothing here)
+{const sr=setRaw;setRaw=function setRaw(x,y,z,b){if(NET.mode===2&&NET.joined&&!NET_APPLY)return;return sr(x,y,z,b);};}
 // guest: one block, as the host has it
 function netSetBlock(x,y,z,b,ch){
   if(edits[x+','+y+','+z]===b)return;
@@ -191,11 +198,51 @@ function netSendSnap(p){
   try{NET.tr.send(m,N.peer);}catch(e){}
 }
 
+// ---- guest: its own hippo, moved at once ----
+// Waiting a round trip to see your own hippo move feels like wading through mud, so a guest moves its own straight away
+// with the very same player code (quietly: nothing it does here hurts or breaks anything, and the sounds and dust come
+// from the host), and keeps a short history of where it put him. Each snapshot says which of its controls the host had
+// taken in and how long ago; where the host has him then, against where the guest had him then, is how far the guess
+// has drifted, and he's eased back by that much over the next few frames, so a correction is a nudge, never a jump.
+// Anything the guest can't guess (riding or driving something, dying, a big knock) and it shows the host's own.
+const NET_PREDICT=true;
+const NET_AUTH=['hp','deadT','hurtFx','regenT','hurt','stam','exhausted','lastHit','killer','score'];   // (what's always the host's to say, guessing or not)
+const NETP={on:false,hist:[],sent:new Map(),corr:new V3(),snap:false};
+// (the guest's controls going out: when each went, so its history can be matched up)
+function netPredSent(n){if(NETP.sent.size>200)NETP.sent.clear();NETP.sent.set(n,NET.now);}
+function netPredRecord(){const H=NETP.hist;H.push({t:NET.now,x:P1.pos.x,y:P1.pos.y,z:P1.pos.z});while(H.length>240||H.length&&NET.now-H[0].t>3000)H.shift();}
+function netPredAt(t){const H=NETP.hist;if(!H.length)return null;if(t<=H[0].t)return H[0];
+  for(let i=H.length-1;i>=0;i--)if(H[i].t<=t){const a=H[i],b=H[i+1];if(!b)return a;const k=(t-a.t)/((b.t-a.t)||1);return{x:a.x+(b.x-a.x)*k,y:a.y+(b.y-a.y)*k,z:a.z+(b.z-a.z)*k};}return H[0];}
+// a snapshot just in: how far off the guess was, straight away (not when it's shown)
+function netPredCheck(m){
+  const e=m.p.find(x=>x.s===NET.seat);if(!e)return;
+  const can=NET_PREDICT&&!e.rd&&e.f.state!=='dead'&&P1.state!=='dead'&&!(e.f.deadT>0);
+  if(!can){NETP.on=false;return;}
+  if(!NETP.on||e.ack===undefined){NETP.on=!!e.ack;NETP.snap=true;return;}
+  const at=NETP.sent.get(e.ack);if(at===undefined)return;const q=netPredAt(at+(e.adt||0));if(!q)return;
+  const dx=e.pos[0]-q.x,dy=e.pos[1]-q.y,dz=e.pos[2]-q.z,d=Math.hypot(dx,dy,dz);
+  if(d>6){NETP.snap=true;return;}   // (too far out to ease back: start again from the host's)
+  if(d<0.04)return;
+  NETP.corr.set(dx,dy,dz);for(const h of NETP.hist){h.x+=dx;h.y+=dy;h.z+=dz;}   // (the history was off by the same, from then on)
+}
+// each step: the player code, on this guest's own hippo
+function netPredStep(sdt,first){
+  if(!NETP.on||NETP.snap)return;
+  if(!first){const I=P1.in;I.jumpPress=I.bitePress=I.lockPress=I.chargePress=I.dashPress=I.sprintPress=false;}
+  NET_MUTE=true;try{updatePlayer(P1,sdt);}catch(e){}finally{NET_MUTE=false;}
+}
+// each frame: ease off whatever's left of a correction
+function netPredEase(dt){
+  const c=NETP.corr;if(!c.x&&!c.y&&!c.z)return;const k=Math.min(1,dt*10);
+  P1.pos.x+=c.x*k;P1.pos.y+=c.y*k;P1.pos.z+=c.z*k;c.x-=c.x*k;c.y-=c.y*k;c.z-=c.z*k;if(Math.abs(c.x)+Math.abs(c.y)+Math.abs(c.z)<0.002)c.set(0,0,0);
+}
+
 // ---- guest ----
 function netGotSnap(m){
   if(!Number.isFinite(m.tt))return;
   // (how far the host's clock is from ours: the smallest gap seen lately, so a slow message never drags the picture back)
   const gap=NET.now-m.tt;if(NET.off===null||gap<NET.off)NET.off=gap;else NET.off+=(gap-NET.off)*0.01;
+  try{netPredCheck(m);}catch(e){}
   NET.q.push(m);
   if(NET.q.length>40)NET.q.splice(0,NET.q.length-40);
 }
@@ -204,7 +251,7 @@ function netGuestBegin(h){
   for(const g of goblins){g.state='wait';g.root.visible=false;}
   for(const c of cars){c.alive=false;c.g.visible=false;}
   for(const [,g] of NETM.g)g.root.visible=false;for(const [,c] of NETM.c)c.g.visible=false;
-  NET.q.length=0;NET.cur=null;NET.off=null;
+  NET.q.length=0;NET.cur=null;NET.off=null;NETP.on=false;NETP.snap=false;NETP.hist.length=0;NETP.corr.set(0,0,0);
   P1.net={mirror:true,seat:NET.seat};P2.net={mirror:true,seat:0};
   if(h){P2.who=h.who?1:0;setGobP(P2,!!h.gob);}
   P2.active=true;P2.root.visible=!P2.gob;P2.paused=false;dressHippo(P2);dressHippo(P1);
@@ -229,8 +276,10 @@ function netCommit(m){
   for(const e of m.p){const q=netSeatP(e.s);if(!q)continue;
     if(q===P2&&!e.act){q.active=false;q.root.visible=false;continue;}
     if(e.gob!==!!q.gob)setGobP(q,e.gob);if(e.who!==q.who){q.who=e.who;dressHippo(q);}
-    for(const k in e.f){const v=e.f[k];if(Array.isArray(v)){if(q[k] instanceof V3)q[k].set(v[0],v[1],v[2]);else q[k]=new V3(v[0],v[1],v[2]);}else q[k]=netDec(v);}
-    q.lockT=netDeref(e.lk);
+    const own=q===P1&&NETP.on&&!NETP.snap;
+    for(const k in e.f){if(own&&!NET_AUTH.includes(k))continue;const v=e.f[k];if(Array.isArray(v)){if(q[k] instanceof V3)q[k].set(v[0],v[1],v[2]);else q[k]=new V3(v[0],v[1],v[2]);}else q[k]=netDec(v);}
+    if(!(q===P1&&NETP.on))q.lockT=netDeref(e.lk);
+    if(q===P1&&NETP.snap){NETP.snap=false;NETP.corr.set(0,0,0);NETP.hist.length=0;q.pos.set(e.pos[0],e.pos[1],e.pos[2]);q.heading=e.h;}
   }
   for(const i in m.gl){const G=m.gl[i],g=netGob(+i,G.o);g.civ=G.civ;try{applyLook(g,G.L,ES);}catch(e){}g.id=Object.assign({look:G.L},G.id);}
   for(const i in m.cl)netCar(+i,m.cl[i]);
@@ -268,7 +317,7 @@ function netGuestFrame(dt){
   while(Q.length>6)netCommit(Q.shift());
   while(Q.length&&Q[0].tt<=rt)netCommit(Q.shift());
   const a=NET.cur;if(!a)return;const b=Q[0],k=b&&b.tt>a.tt?Math.max(0,Math.min(1,(rt-a.tt)/(b.tt-a.tt))):0;
-  for(const e of a.p){const q=netSeatP(e.s);if(!q||!q.active)continue;const f=b&&b.p.find(x=>x.s===e.s);
+  for(const e of a.p){const q=netSeatP(e.s);if(!q||!q.active)continue;if(q===P1&&NETP.on){netPredEase(dt);continue;}const f=b&&b.p.find(x=>x.s===e.s);
     const P=e.pos,P2b=f?f.pos:P;q.pos.set(P[0]+(P2b[0]-P[0])*k,P[1]+(P2b[1]-P[1])*k,P[2]+(P2b[2]-P[2])*k);
     q.heading=f?lerpA(e.h,f.h,k):e.h;netPoseSet(netJoints(q),e.pose,f&&f.pose,k);}
   const bg=new Map(),bc=new Map();if(b){for(const e of b.g)bg.set(e[0],e);for(const e of b.c)bc.set(e[0],e);}
@@ -282,11 +331,13 @@ function netGuestFrame(dt){
     e[8].forEach((r,i)=>{if(c.front[i])c.front[i].rotation.y=r;});}
 }
 // (guest, each step: only what's for show. The host's snapshots do everything else)
-function netGuestStep(sdt){
+function netGuestStep(sdt,first){
+  safe('predict',()=>netPredStep(sdt,first));
   safe('weather',()=>updateWeather(sdt));safe('sky',()=>updateSky(sdt));
   safe('parts',()=>updateParts(sdt));safe('rubble',()=>updateRubble(sdt));safe('shocks',()=>{updateShocks(sdt);updateCones(sdt);});
   safe('fires',()=>updateFires(sdt));safe('flecks',()=>updateFlecks(sdt));
   for(const p of players)if(p.active)safe('hud',()=>healthHud(p,sdt));
+  if(NETP.on)netPredRecord();
 }
 // (guest, each frame: the street's dressing near the players, as the host's game does it in updateTraffic, without the traffic)
 let netDressT=0,netDressJ=0;

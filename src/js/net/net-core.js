@@ -111,7 +111,7 @@ function netHostLeft(peer){
 // of the guest's frames it was spread over (and none is lost between two of them)
 const NET_HELD=['charge','stomp','bite','jump','dash','sprint','climb','use','weapon'],NET_PRESS=['chargePress','bitePress','jumpPress','lockPress','dashPress','sprintPress'];
 function netGotInput(p,m){
-  const N=p.net;if(typeof m.n==='number'&&m.n<=(N.inN||0))return;N.inN=m.n;
+  const N=p.net;if(typeof m.n==='number'&&m.n<=(N.inN||0))return;N.inN=m.n;N.inAt=NET.now;
   N.inb=m;for(const k of NET_PRESS)if(m.pr&&m.pr[k])N.pr[k]=true;
   if(m.fl){p.flickReq=m.fl[0]||p.flickReq;p.flickReqY=m.fl[1]||p.flickReqY;}
   if(Number.isFinite(m.yaw))p.cam.yaw=m.yaw;if(Number.isFinite(m.pitch))p.cam.pitch=camPitch(m.pitch,p);
@@ -224,5 +224,5 @@ function netSendInput(dt){
   const m={t:'in',n:++NET.seq,x:+(I.x||0).toFixed(3),z:+(I.z||0).toFixed(3),lx:+(I.lookX||0).toFixed(2),ly:+(I.lookY||0).toFixed(2),h,pr,yaw:+P1.cam.yaw.toFixed(4),pitch:+P1.cam.pitch.toFixed(4)};
   if(NET_IN.fl[0]||NET_IN.fl[1])m.fl=NET_IN.fl.slice();
   NET_IN.pr={};NET_IN.fl[0]=NET_IN.fl[1]=0;
-  NET.tr.send(m,NET.host);
+  netPredSent(m.n);NET.tr.send(m,NET.host);
 }
