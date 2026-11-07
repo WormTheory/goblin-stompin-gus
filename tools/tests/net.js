@@ -164,6 +164,18 @@ const lag=[];
  let back=-1;for(let i=0;i<1200;i++){H.step(1);G.step(1);await yieldNow();if(HT.P2.net&&!HT.P2.net.gone&&GT.NET.tr&&GT.NET.host&&back<0)back=i;if(back>=0&&i>back+60)break;}
  console.log('guest came back after',(back/60).toFixed(1),'s',ok(back>0),'no reload',ok(G.reloads===0),'hippo where it was (give or take a shove)',f2(d(HT.P2.pos,at)),ok(d(HT.P2.pos,at)<3),'guest shows itself there',f2(d(GT.P1.pos,HT.P2.pos)),ok(d(GT.P1.pos,HT.P2.pos)<1));}
 
+// ---- a third player joins (another tab with the host's world, a tab id of its own) ----
+{const ss=Object.fromEntries(G1.SS._m);delete ss['gsg-net-cid'];const G5=game('guest5',SEED+5,Object.fromEntries(G1.LS._m),ss);
+ for(let i=0;i<80&&!G5.T.NET.joined;i++){G5.step(1);G.step(1);H.step(1);await yieldNow();}
+ for(let i=0;i<40;i++){H.step(1);G.step(1);G5.step(1);}
+ const p3=HT.players[2];
+ console.log('a third player joins: seat',G5.T.NET.seat,ok(G5.T.NET.seat===2),'host players active',HT.players.filter(p=>p.active).length,ok(HT.players.filter(p=>p.active).length===3),
+   '| first guest shows them',ok(GT.players.filter(p=>p.active).length===3),'apart',p3?f2(d(GT.players[2].pos,p3.pos)):'-','| the new one sees both others',ok(G5.T.players.filter(p=>p.active).length===3));
+ const pads=G5.ctx.navigator.getGamepads(),b3={x:p3.pos.x,y:p3.pos.y,z:p3.pos.z};pads[0].axes[1]=-1;for(let i=0;i<60;i++){G5.step(1);H.step(1);G.step(1);}pads[0].axes[1]=0;
+ console.log('third player walks: moved on the host',f2(d(p3.pos,b3)),ok(d(p3.pos,b3)>2),'the other guests see it there',f2(d(GT.players[2].pos,p3.pos)),ok(d(GT.players[2].pos,p3.pos)<1.5));
+ G5.T.netEnd();for(let i=0;i<20;i++){H.step(1);G.step(1);G5.step(1);}
+ console.log('third player left: host',ok(!p3.active&&!p3.net),'first guest',ok(!GT.players[2].active),'status:',HT.NET.status);}
+
 // ---- the guest leaves: the host plays on alone ----
 GT.netEnd();for(let i=0;i<10;i++){H.step(1);G.step(1);}
 console.log('guest left: host P2 gone',ok(!HT.P2.active&&!HT.P2.net),'host still hosting',ok(HT.NET.mode===1),'guest went home (reload)',ok(G.reloads===1&&!G.SS.getItem('gsg-net-join')));

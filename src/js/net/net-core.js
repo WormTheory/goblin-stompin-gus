@@ -13,6 +13,7 @@ const NET_APP='goblin-stompin-gus/net1';
 // TURN servers, for players whose routers won't let a direct connection through. None are set: a build of your own can
 // put some here (for instance Cloudflare's), as [{urls:['turn:...'],username:'...',credential:'...'}]. Never commit real ones.
 const NET_TURN=null;
+const NET_SEATS=4;   // (players online, the host among them: seats past the second are made when someone takes one)
 const NET_SNAP_HZ=15,NET_IN_HZ=30,NET_DELAY=100;   // (snapshots a second from the host, controls a second from a guest, and how far behind the host a guest draws, ms, so it always has two snapshots to blend between)
 const NET_SS_JOIN='gsg-net-join',NET_SS_WORLD='gsg-net-world';   // (sessionStorage: this tab's own, so a guest tab never touches the city saved in this browser)
 const NET={mode:0,tr:null,code:'',kind:'',seat:0,now:0,host:null,status:'',joined:false,snapT:0,inT:0,pingT:0,rtt:0,
@@ -87,11 +88,13 @@ function netSeat(peer,m){
   if(m.v!==NET_PROTO){NET.tr.send({t:'deny',why:'The host is playing a different version of the game.'},peer);return;}
   let p=NET.guests.get(peer);
   // (the same tab back after its connection dropped: its seat, its hippo just where it was)
-  if(!p&&P2.net&&P2.net.gone&&m.cid&&P2.net.cid===m.cid){NET.guests.delete(P2.net.peer);P2.net.peer=peer;P2.net.gone=0;P2.net.heard=NET.now;NET.guests.set(peer,P2);p=P2;}
-  if(!p){if(P2.net&&P2.net.peer!==peer){NET.tr.send({t:'deny',why:'That game is full.'},peer);return;}
-    // (a local player two gives up the seat)
-    if(P2.active&&!P2.net)deactivateP2();
-    p=P2;p.net={peer,cid:m.cid||null,gone:0,seat:1,heard:NET.now,inb:null,pr:{},sent:{},pose:null,looks:new Map(),cars:new Map(),out:[],seq:0};NET.guests.set(peer,p);}
+  if(!p&&m.cid)for(const q of players)if(q.net&&q.net.gone&&q.net.cid===m.cid){NET.guests.delete(q.net.peer);q.net.peer=peer;q.net.gone=0;q.net.heard=NET.now;NET.guests.set(peer,q);p=q;break;}
+  if(!p){
+    // (player two's seat first, if nobody's in it here; then a third and fourth, made as they're wanted)
+    let seat=-1;for(let s=1;s<NET_SEATS;s++){const q=players[s];if(!q||!q.active&&!q.net){seat=s;break;}}
+    if(seat<0){NET.tr.send({t:'deny',why:'That game is full.'},peer);return;}
+    while(players.length<=seat)players.push(makePlayer(players.length));
+    p=players[seat];p.net={peer,cid:m.cid||null,gone:0,seat,heard:NET.now,inb:null,pr:{},sent:{},pose:null,looks:new Map(),cars:new Map(),out:[],seq:0};NET.guests.set(peer,p);}
   p.net.inb=null;p.net.pr={};p.net.inN=0;
   // (two players who've both picked the same hippo: the guest's the other one, so they can tell each other apart. The
   // two are the same in everything but looks)
@@ -99,13 +102,17 @@ function netSeat(peer,m){
   // (each player keeps the abilities they've switched on in their own browser)
   p.abil={};for(const k in ABIL)p.abil[k]=typeof(m.abil||{})[k]==='boolean'?m.abil[k]:ABIL[k];
   dressHippo(p);
-  if(!p.active)activateP2();layout();
+  if(!p.active)netActivate(p);layout();
   p.net.sent={};p.net.looks.clear();p.net.cars.clear();p.net.out.length=0;
   flashLabel(charName(p)+' joined online');
-  NET.tr.send({t:'welcome',v:NET_PROTO,seat:1,code:NET.code,save:saveText({tenv:TENV||undefined}),host:{who:P1.who,gob:!!P1.gob},
+  NET.tr.send({t:'welcome',v:NET_PROTO,seat:p.net.seat,code:NET.code,save:saveText({tenv:TENV||undefined}),host:{who:P1.who,gob:!!P1.gob},
     clock:netClock()},peer);
-  netStatus('Hosting. Room code '+NET.code+' · '+charName(p)+' is here');
+  netHostStatus();
 }
+function netHostStatus(){const here=[...NET.guests.values()].filter(q=>!q.net.gone).map(q=>charName(q));netStatus('Hosting. Room code '+NET.code+' · '+(here.length?here.join(', ')+(here.length>1?' are':' is')+' here':'waiting for someone to join'));}
+// a guest's seat comes into the game beside the host
+function netActivate(p){if(p===P2)return activateP2();p.active=true;p.paused=false;p.heading=P1.heading;placePlayer(p,findStreet(P1.pos.x,P1.pos.z,3,6));}
+function netDeactivate(p){if(p.gb){p.gb.root.visible=false;p.gb.vm.visible=false;}if(p===P2)return deactivateP2();p.active=false;p.paused=false;p.root.visible=false;p.pool.visible=false;}
 // a guest gone quiet or dropped: its seat (and its hippo, standing still) is kept a while for it to come back to
 function netHostDropped(peer){
   const p=NET.guests.get(peer);if(!p)return;if(!p.net.cid)return netHostLeft(peer);
@@ -115,8 +122,8 @@ function netHostLeft(peer){
   const p=NET.guests.get(peer);if(!p)return;NET.guests.delete(peer);
   const nm=charName(p);p.net=null;p.abil=null;
   for(const k in p.in)if(typeof p.in[k]==='boolean')p.in[k]=false;p.in.x=p.in.z=0;
-  if(p.drv)drvExit(p);deactivateP2();layout();
-  flashLabel(nm+' left the game');netStatus('Hosting. Room code '+NET.code+' · waiting for someone to join');
+  if(p.drv)drvExit(p);netDeactivate(p);layout();
+  flashLabel(nm+' left the game');netHostStatus();
 }
 // a guest's controls: what's held now replaces what was held; a press counts once, on the host's next frame, however many
 // of the guest's frames it was spread over (and none is lost between two of them)

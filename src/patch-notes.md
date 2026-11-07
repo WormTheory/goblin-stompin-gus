@@ -4,7 +4,7 @@
 
 ### Highlights
 
-- Play online: two players in one city over the internet. One hosts and reads out a five-letter room code; the other types it in and joins. Find it under Play online on the main menu.
+- Play online: up to four players in one city over the internet. One hosts and reads out a five-letter room code; the other types it in and joins. Find it under Play online on the main menu.
 
 ### Online co-op
 

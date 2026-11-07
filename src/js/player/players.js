@@ -6,7 +6,7 @@ const SKINS=[
 const players=[];
 const hudEl=document.getElementById('hud');
 function makePlayer(idx){
-  const S=SKINS[idx];
+  const S=SKINS[idx%SKINS.length];   // (seats three and four exist only online, dressed as either hippo)
   const p={idx,who:idx,name:S.name,root:new THREE.Group(),rig:new THREE.Group(),legs:[],pupils:[],pos:new V3(),heading:0,state:'walk',t:0,phase:0,vy:0,hit:false,lastSin:0,biteT:0,biteRepeat:0,smashCD:0,chargeCD:0,hurt:0,slammed:false,fallDir:1,
     cam:{yaw:0,pitch:-0.3},camera:new THREE.PerspectiveCamera(72,1,0.25,420),hp:20,deadT:0,hurtFx:0,regenT:0,lastHp:-1,shake:0,active:false,pad:null,
     stam:100,exhausted:false,stamIdle:0,lungeT:0,airJumps:1,twirl:0,airDash:true,dashT:0,roarBurst:0,lastRoarK:0,wasCharging:false,biteHit:false,grounded:true,stompCharge:0,stompF:1,windPitch:0,fullPing:false,

@@ -44,7 +44,11 @@ function netPlayerState(p,seat,N){
 function netRef(o){let i=goblins.indexOf(o);if(i>=0)return['g',i];i=cars.indexOf(o);if(i>=0)return['c',i];return null;}
 function netDeref(r){if(!r)return null;return r[0]==='g'?NETM.g.get(r[1])||null:r[0]==='c'?NETM.c.get(r[1])||null:null;}
 // (guest: which of its players is that seat. Its own is P1; anyone else is drawn as P2)
-const netSeatP=s=>s===NET.seat?P1:P2;
+const NET_SEATP=new Map();   // (guest: the host's seats past the first two, as players here)
+function netSeatP(s,make){if(s===NET.seat)return P1;if(s===0)return P2;
+  // (a seat that isn't this guest's or the host's: another guest. Drawn as a player of its own, made when first seen)
+  let q=NET_SEATP.get(s);if(!q&&make!==false){q=makePlayer(players.length);players.push(q);q.net={mirror:true,seat:s};q.active=true;q.root.visible=true;NET_SEATP.set(s,q);}
+  if(q&&!q.active&&make!==false){q.active=true;q.root.visible=!q.gob;}return q||null;}
 
 // ---- goblins and vehicles ----
 const netLookOf=new WeakMap();let netLookN=0;
@@ -137,7 +141,7 @@ function netSan(v,d){
 }
 function netUnsan(v){if(v===null||typeof v!=='object')return v;if(Array.isArray(v))return v.map(netUnsan);if('$p' in v){const pl=players[v.$p];if(!pl)return null;
   // (the host's player one is drawn here as P2; this guest's seat is our P1)
-  return v.$p===NET.seat?P1:P2;}const o={};for(const k in v)o[k]=netUnsan(v[k]);return o;}
+  return netSeatP(v.$p,false);}const o={};for(const k in v)o[k]=netUnsan(v[k]);return o;}
 function netEmit(e){for(const p of NET.guests.values()){const out=p.net.out;if(out.length<4000)out.push(e);}}
 // the effects passed on: when the host's game calls one (and not from inside another), each guest makes the same call
 const NET_FX={};
@@ -304,6 +308,7 @@ function netCar(id,k){
 }
 // a snapshot becoming the one shown: everything in it that isn't blended
 function netCommit(m){
+  for(const [s,q] of NET_SEATP)if(q.active&&!m.p.some(e=>e.s===s))netDeactivate(q);   // (another guest gone)
   for(const e of m.p){const q=netSeatP(e.s);if(!q)continue;
     if(q===P2&&!e.act){q.active=false;q.root.visible=false;continue;}
     if(e.gob!==!!q.gob)setGobP(q,e.gob);if(e.who!==q.who){q.who=e.who;dressHippo(q);}
@@ -352,7 +357,7 @@ function netGuestFrame(dt){
   while(Q.length>6)netCommit(Q.shift());
   while(Q.length&&Q[0].tt<=rt)netCommit(Q.shift());
   const a=NET.cur;if(!a)return;const b=Q[0],k=b&&b.tt>a.tt?Math.max(0,Math.min(1,(rt-a.tt)/(b.tt-a.tt))):0;
-  for(const e of a.p){const q=netSeatP(e.s);if(!q||!q.active)continue;if(q===P1&&NETP.on){netPredEase(dt);continue;}const f=b&&b.p.find(x=>x.s===e.s);
+  for(const e of a.p){const q=netSeatP(e.s,false);if(!q||!q.active)continue;if(q===P1&&NETP.on){netPredEase(dt);continue;}const f=b&&b.p.find(x=>x.s===e.s);
     const P=e.pos,P2b=f?f.pos:P;q.pos.set(P[0]+(P2b[0]-P[0])*k,P[1]+(P2b[1]-P[1])*k,P[2]+(P2b[2]-P[2])*k);
     q.heading=f?lerpA(e.h,f.h,k):e.h;netPoseSet(netJoints(q),e.pose,f&&f.pose,k);
     if(e.dv&&q.drv&&q.drv.netS){const S=q.drv.netS,g=f&&f.dv&&f.dv[0]===e.dv[0]?f.dv:e.dv;S.x=e.dv[1]+(g[1]-e.dv[1])*k;S.y=e.dv[2]+(g[2]-e.dv[2])*k;S.z=e.dv[3]+(g[3]-e.dv[3])*k;S.h=lerpA(e.dv[4],g[4],k);}}

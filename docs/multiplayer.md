@@ -1,6 +1,6 @@
 # Online co-op
 
-Two players in one city over the internet (or two tabs of one browser). The code is in `src/js/net/`:
+Up to four players in one city over the internet (or two tabs of one browser). The code is in `src/js/net/`:
 `net-core.js` (transports, hosting, joining, controls), `net-sync.js` (snapshots, events, what a guest shows and
 guesses), `net-ui.js` (the Play online panel on the main menu). Nothing in it runs until someone hosts or joins, so
 single player and split-screen co-op play exactly as before.
@@ -19,8 +19,11 @@ none of the goblins, traffic, damage or smashing itself, so nothing can disagree
   is never touched, and a guest tab never saves (`saveBlocked`). After the reload it joins again by itself; the host
   sends the save again and the guest catches up on whatever changed meanwhile (`netCatchUp`). Leaving clears the
   session keys and reloads into the guest's own city.
-- **Seats.** On the host, a guest is `P2` with `P2.net` set (`netRemote`). On a guest, its own hippo is `P1` and the
-  host's is `P2`, both flagged `.net`. `layout()` never splits the screen for a `.net` player two.
+- **Seats** (`NET_SEATS`, 4). The host is seat 0. A guest takes player two's seat (`P2`, with `P2.net` set) if nobody's
+  in it on the host, otherwise a third or fourth, made when first wanted (`makePlayer`, pushed on `players`; nothing
+  extra exists offline). So a host can play split-screen with someone on the sofa and still have two more join online.
+  On a guest, its own hippo is `P1`, the host's `P2`, and any other guest a player made for its seat (`netSeatP`,
+  `NET_SEATP`), all flagged `.net`. `layout()` never splits the screen for a `.net` player two.
 - **Controls** (`netSendInput`, 30 a second): stick, held buttons, presses and the camera's yaw and pitch. Presses,
   and buttons held at any moment since the last message, are gathered up so a one-frame tap is never lost; on the host
   a press counts once (`netHostInputs`, called from `netTick` right after `readInputs`). The camera is the guest's own,
@@ -81,7 +84,7 @@ Every message is a JSON object with a type `t`, so a headless Node server could 
 | From | `t` | Fields |
 |---|---|---|
 | guest | `hello` | `v` (protocol, `NET_PROTO`), `cid` (this tab), `who` (0 Gus, 1 Gertie), `gob`, `abil` (its ability switches) |
-| host | `welcome` | `v`, `seat` (1), `code`, `save` (`saveText()` JSON), `host: {who, gob}`, `clock` |
+| host | `welcome` | `v`, `seat` (1 to 3), `code`, `save` (`saveText()` JSON), `host: {who, gob}`, `clock` |
 | host | `deny` | `why` (wrong version, game full) |
 | guest | `in` | `n` (sequence), `x`, `z`, `lx`, `ly`, `h` (held buttons), `pr` (presses), `yaw`, `pitch`, `fl` (lock-on flicks), `vt` (host time it's showing) |
 | host | `s` | `n`, `tt` (host time), `p` (players), `g`/`gl` (goblins and their looks), `c`/`cl` (vehicles and their kinds), `v` (venue joints), `fa` (falling pieces), `e` (events), `sc` (score, kills), `w` (world state, once a second), `k` (clock, weather, hostility, once a second) |
@@ -108,12 +111,12 @@ Events in `e`: `['e', [x,y,z,b, ...]]` blocks, `['f', name, args]` an effect, `[
 
 ## Known gaps
 
-- Two players only: the game has two seats (`players`, `SKINS`, split-screen HUDs). Three or four would mean more
-  seats throughout (HUDs, colours, `charName`, the menus' co-op rows), so it stays at two for now.
-- A guest's driving HUD (vehicle health, ammo, crosshair) isn't shown; the chase camera is. Riding and climbing
-  vehicles work, shown from the host (no guessing).
-- What the guest's goblins and cars show is their place and limbs: a police car's flashing lights, a tank's turret
-  and a technical's gun, carried goblins' weapons and the like aren't sent. The venue joints cover the venues' models.
+- Seats three and four are dressed as Gus or Gertie (or Gnash) like the first two: there are only two hippo colour
+  schemes and two goblin names, so two players can look alike.
+- A guest's driving display shows the vehicle's name, health and ammo but not the marker for where a shot would land.
+  Riding and climbing vehicles work, shown from the host (no guessing).
+- What the guest's goblins and cars show is their place, limbs and flashing lights: a technical's turning gun and the
+  like on traffic aren't sent. The venue joints cover the venues' models (tanks' turrets, helicopters' rotors).
 - Sounds the host makes are sent to the guest as they are, not placed by distance from the guest.
 - Prediction runs the player code on the guest's own copy of the world, whose goblins and vehicles are where the guest
   sees them; a guest standing on a moving vehicle, climbing one, or driving isn't guessed.
@@ -123,7 +126,7 @@ Events in `e`: `['e', [x,y,z,b, ...]]` blocks, `['f', name, args]` an effect, `[
 ## Next steps
 
 - A headless host in Node (the stubs the tests use already run the whole game) that serves rooms as a dedicated server.
-- Three and four players: two more seats, HUDs and colours.
+- More looks for seats three and four.
 - A guest's driving HUD; police lights, turrets and guns on mirrored vehicles.
 - Send sounds with a place, so each player hears them from where they are.
 - Binary snapshots (or compression) if bandwidth matters: about 1 to 1.5 KB a message now.
