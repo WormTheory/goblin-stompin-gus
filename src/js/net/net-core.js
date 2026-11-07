@@ -214,12 +214,12 @@ function netTick(now,dt){
   }
 }
 // (guest: its own controls, read as usual into P1.in by readInputs, sent on to the host)
-const NET_IN={pr:{},fl:[0,0]};
+const NET_IN={pr:{},hh:{},fl:[0,0]};   // (presses, and buttons held at any moment, since the last message: a tap between two never goes missing)
 function netSendInput(dt){
-  const I=P1.in;for(const k of NET_PRESS)if(I[k])NET_IN.pr[k]=true;
+  const I=P1.in;for(const k of NET_PRESS)if(I[k])NET_IN.pr[k]=true;for(const k of NET_HELD)if(I[k])NET_IN.hh[k]=true;
   if(P1.flickReq){NET_IN.fl[0]=P1.flickReq;P1.flickReq=0;}if(P1.flickReqY){NET_IN.fl[1]=P1.flickReqY;P1.flickReqY=0;}
   NET.inT-=dt*1000;if(NET.inT>0)return;NET.inT+=1000/NET_IN_HZ;if(NET.inT<0)NET.inT=0;
-  const h={};for(const k of NET_HELD)if(I[k])h[k]=1;
+  const h={};for(const k of NET_HELD)if(I[k]||NET_IN.hh[k])h[k]=1;NET_IN.hh={};
   const pr={};for(const k in NET_IN.pr)pr[k]=1;
   const m={t:'in',n:++NET.seq,x:+(I.x||0).toFixed(3),z:+(I.z||0).toFixed(3),lx:+(I.lookX||0).toFixed(2),ly:+(I.lookY||0).toFixed(2),h,pr,yaw:+P1.cam.yaw.toFixed(4),pitch:+P1.cam.pitch.toFixed(4)};
   if(NET_IN.fl[0]||NET_IN.fl[1])m.fl=NET_IN.fl.slice();

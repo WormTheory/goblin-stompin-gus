@@ -28,7 +28,8 @@ function drvFind(p){
   return best;
 }
 // where the vehicle is and how it lies: its middle at the base, heading, half sizes, height, and speed along its heading
-function drvPose(D){const o=D.o;
+function drvPose(D){if(D.netS)return D.netS;const o=D.o;   // (D.netS: a guest online, shown where the host has the vehicle)
+
   if(D.k==='car')return{x:o.pos.x,y:o.pos.y,z:o.pos.z,h:o.heading,hx:o.hx,hz:o.hz,hy:o.hy||1.4,v:o.speed};
   if(D.k==='tank'||D.k==='heli'){const I=MIL[D.k];return{x:o.x,y:o.y,z:o.z,h:o.h,hx:I.hx,hz:I.hz,hy:I.hy,v:D.k==='tank'?o.sv||0:Math.hypot(o.hv?o.hv.x:0,o.hv?o.hv.z:0)};}
   if(D.k==='boat'){const g=o.g;return{x:g.position.x,y:g.position.y,z:g.position.z,h:g.rotation.y,hx:o.K.W/2,hz:o.L/2,hy:o.K.fb+1.5,v:o.sp||0};}

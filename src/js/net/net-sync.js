@@ -31,7 +31,9 @@ function netPlayerState(p,seat,N){
     f[k]=e;sent[k]=e;}
   const lk=p.lockT?netRef(p.lockT):null;
   const e={s:seat,who:p.who,gob:!!p.gob,act:!!p.active,f,pos:[r3(p.pos.x),r3(p.pos.y),r3(p.pos.z)],h:r3(p.heading),pose:netPoseOf(netJoints(p)),lk,
-    rd:!!(p.drv||p.rideC||p.standCar||p.vcl||p.jackA)};   // (driving, riding or clinging to something that moves: the guest can't guess that, so it doesn't try)
+    rd:!!(p.drv||p.rideC||p.standCar||p.vcl&&p.state==='climb')};
+  // (in a vehicle: what it is and where, for the guest's chase camera)
+  if(p.drv&&!p.drv.jack){try{const S=drvPose(p.drv);e.dv=[p.drv.k,r3(S.x),r3(S.y),r3(S.z),r3(S.h),r3(S.hx),r3(S.hz),r3(S.hy),r3(S.v||0)];}catch(er){}}   // (driving, riding or clinging to something that moves: the guest can't guess that, so it doesn't try)
   // (the guest's own seat: the last of its controls this took in, and how long ago, so it can tell how far its own guess has drifted)
   if(p.net&&p.net.seat===seat){e.ack=N.inN||0;e.adt=Math.round(NET.now-(N.inAt||NET.now));}
   return e;
@@ -279,6 +281,8 @@ function netCommit(m){
     const own=q===P1&&NETP.on&&!NETP.snap;
     for(const k in e.f){if(own&&!NET_AUTH.includes(k))continue;const v=e.f[k];if(Array.isArray(v)){if(q[k] instanceof V3)q[k].set(v[0],v[1],v[2]);else q[k]=new V3(v[0],v[1],v[2]);}else q[k]=netDec(v);}
     if(!(q===P1&&NETP.on))q.lockT=netDeref(e.lk);
+    if(e.dv){if(!q.drv||!q.drv.netS)q.drv={k:e.dv[0],o:{},netS:{x:0,y:0,z:0,h:0,hx:1,hz:1,hy:1,v:0}};q.drv.k=e.dv[0];const S=q.drv.netS;S.hx=e.dv[5];S.hz=e.dv[6];S.hy=e.dv[7];S.v=e.dv[8];}
+    else if(q.drv&&q.drv.netS)q.drv=null;
     if(q===P1&&NETP.snap){NETP.snap=false;NETP.corr.set(0,0,0);NETP.hist.length=0;q.pos.set(e.pos[0],e.pos[1],e.pos[2]);q.heading=e.h;}
   }
   for(const i in m.gl){const G=m.gl[i],g=netGob(+i,G.o);g.civ=G.civ;try{applyLook(g,G.L,ES);}catch(e){}g.id=Object.assign({look:G.L},G.id);}
@@ -319,7 +323,8 @@ function netGuestFrame(dt){
   const a=NET.cur;if(!a)return;const b=Q[0],k=b&&b.tt>a.tt?Math.max(0,Math.min(1,(rt-a.tt)/(b.tt-a.tt))):0;
   for(const e of a.p){const q=netSeatP(e.s);if(!q||!q.active)continue;if(q===P1&&NETP.on){netPredEase(dt);continue;}const f=b&&b.p.find(x=>x.s===e.s);
     const P=e.pos,P2b=f?f.pos:P;q.pos.set(P[0]+(P2b[0]-P[0])*k,P[1]+(P2b[1]-P[1])*k,P[2]+(P2b[2]-P[2])*k);
-    q.heading=f?lerpA(e.h,f.h,k):e.h;netPoseSet(netJoints(q),e.pose,f&&f.pose,k);}
+    q.heading=f?lerpA(e.h,f.h,k):e.h;netPoseSet(netJoints(q),e.pose,f&&f.pose,k);
+    if(e.dv&&q.drv&&q.drv.netS){const S=q.drv.netS,g=f&&f.dv&&f.dv[0]===e.dv[0]?f.dv:e.dv;S.x=e.dv[1]+(g[1]-e.dv[1])*k;S.y=e.dv[2]+(g[2]-e.dv[2])*k;S.z=e.dv[3]+(g[3]-e.dv[3])*k;S.h=lerpA(e.dv[4],g[4],k);}}
   const bg=new Map(),bc=new Map();if(b){for(const e of b.g)bg.set(e[0],e);for(const e of b.c)bc.set(e[0],e);}
   for(const e of a.g){const g=NETM.g.get(e[0]);if(!g)continue;const f=bg.get(e[0]),v=n=>f?e[n]+(f[n]-e[n])*k:e[n],w=n=>f?lerpA(e[n],f[n],k):e[n];
     g.root.position.set(v(1),v(2),v(3));g.root.rotation.set(w(4),w(5),w(6));g.root.scale.set(v(7),v(8),v(7));g.pos.copy(g.root.position);g.heading=g.root.rotation.y;

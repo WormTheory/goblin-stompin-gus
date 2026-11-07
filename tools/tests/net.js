@@ -121,8 +121,25 @@ const lag=[];
 // ---- a guest goblin (Gnash) seat: switching kind on the host shows on the guest ----
 {HT.setGobP(HT.P1,true);for(let i=0;i<20;i++){H.step(1);G.step(1);}console.log('host turned goblin: guest P2 is a goblin',ok(GT.P2.gob===true));HT.setGobP(HT.P1,false);for(let i=0;i<20;i++){H.step(1);G.step(1);}}
 
+// ---- the guest as a goblin, driving: gets into a car beside it, drives off, the chase camera follows ----
+{HT.setGobP(HT.P2,true);for(let i=0;i<20;i++){H.step(1);G.step(1);}
+ const c=HT.cars.find(c=>c.alive&&c.g.visible&&!c.police&&c.veh==='car');
+ if(!c)console.log('no car about to drive');else{
+  c.speed=0;HT.P2.pos.set(c.pos.x+Math.cos(c.heading)*(c.hx+0.6),c.pos.y,c.pos.z-Math.sin(c.heading)*(c.hx+0.6));
+  for(let i=0;i<10;i++){H.step(1);G.step(1);}
+  const pads=G.ctx.navigator.getGamepads();pads[0].buttons[3].pressed=true;G.step(1);H.step(1);pads[0].buttons[3].pressed=false;
+  for(let i=0;i<150;i++){H.step(1);G.step(1);}   // (pulling the driver out takes a moment)
+  const inCar=!!HT.P2.drv;console.log('guest pressed use by a car: host has it driving',ok(inCar),'guest knows',ok(!!(GT.P1.drv&&GT.P1.drv.netS)),GT.P1.drv?GT.P1.drv.k:'');
+  const c0={x:c.pos.x,y:c.pos.y,z:c.pos.z};pads[0].axes[1]=-1;for(let i=0;i<90;i++){G.step(1);H.step(1);}pads[0].axes[1]=0;
+  const cam=GT.P1.camera.position,S=GT.P1.drv&&GT.P1.drv.netS;
+  console.log('drove for 1.5 s: car moved',f2(d(c.pos,c0)),ok(d(c.pos,c0)>3),'guest camera from the car',S?f2(Math.hypot(cam.x-S.x,cam.z-S.z)):'-',ok(S&&Math.hypot(cam.x-S.x,cam.z-S.z)<16&&Math.hypot(cam.x-S.x,cam.z-S.z)>2),'guest car mirror apart',f2(d(GT.NETM.c.get(HT.cars.indexOf(c)).pos,c.pos)));
+  pads[0].buttons[3].pressed=true;G.step(1);H.step(1);pads[0].buttons[3].pressed=false;for(let i=0;i<60;i++){H.step(1);G.step(1);}
+  console.log('pressed use again: out',ok(!HT.P2.drv&&!GT.P1.drv));}
+ HT.setGobP(HT.P2,false);for(let i=0;i<20;i++){H.step(1);G.step(1);}}
+
 // ---- a slow network: a tenth of a second each way. The guest's own hippo still moves at once, and ends up where the host has it ----
 {hub.lat=6;for(let i=0;i<30;i++){G.step(1);H.step(1);}
+ if(process.env.DBG)console.log('dbg pred',GT.NETP.on,GT.NETP.snap,GT.P1.state,GT.P1.gob,HT.P2.state,!!HT.P2.drv,!!HT.P2.standCar,!!HT.P2.rideC);
  const pads=G.ctx.navigator.getGamepads(),g0={x:GT.P1.pos.x,y:GT.P1.pos.y,z:GT.P1.pos.z},h0={x:HT.P2.pos.x,y:HT.P2.pos.y,z:HT.P2.pos.z};let fg=-1,fh=-1,jump=0,prev=null;
  pads[0].axes[0]=1;for(let i=0;i<100;i++){G.step(1);H.step(1);if(fg<0&&d(GT.P1.pos,g0)>0.3)fg=i;if(fh<0&&d(HT.P2.pos,h0)>0.3)fh=i;
    if(prev)jump=Math.max(jump,d(GT.P1.pos,prev));prev={x:GT.P1.pos.x,y:GT.P1.pos.y,z:GT.P1.pos.z};}
