@@ -60,7 +60,7 @@ function milAlert(V,who){
 function updateArmy(V,dt){
   // someone in the base (or hurting what's in it, see milHit) sets it all off; long enough with no one about, it stands down
   if(playing&&!V.alert&&!calmNow())for(const q of players){if(!q.active||q.state==='dead')continue;if(q.pos.x>V.X0&&q.pos.x<V.X0+V.W&&q.pos.z>V.Z0&&q.pos.z<V.Z0+V.Hh){milAlert(V,q);break;}}
-  if(V.alert){const n=nearestPlayer(V.cx,V.cz);if(!n||n.d>V.W/2+200||calmNow()){V.awayT+=dt;if(V.awayT>30||calmNow()){V.alert=false;for(const M of V.mil)if(!M.dead&&M.state!=='park')M.state='home';}}else V.awayT=0;}
+  if(V.alert){const n=nearestPlayer(V.cx,V.cz);if(!n||n.d>V.W/2+200||calmNow()){V.awayT+=dt;if(V.awayT>30||calmNow()){V.alert=false;for(const M of V.mil)if(!M.dead&&M.state!=='park'&&!M.gnr)M.state='home';}}else V.awayT=0;}
   let rolling=0;for(const M of V.mil)if(M.kind==='tank'&&!M.dead&&(M.state==='hunt'||M.state==='man'))rolling++;
   for(const M of V.mil){
     if(M.dead){milWreck(M,dt);milBoxes(M,0);milShove(M);continue;}
@@ -111,6 +111,7 @@ function milShove(M){const I=MIL[M.kind],R=Math.max(I.hx,I.hz)+3,tx=Math.sin(M.h
 }
 function updateTank(M,V,dt){
   if(M.drv){drvTank(M,dt);return;}
+  if(M.gnr)tankGun(M,M.gnr,dt);   // (nobody driving, but a player on its gun: see gunner.js)
   const n=playing?nearestPlayer(M.x,M.z):null;let wantV=0,wantH=M.h;
   if(M.state==='hunt'&&n){const p=n.p,dx=p.pos.x-M.x,dz=p.pos.z-M.z,d=n.d;
     // the turret swings round on to him; the hull heads for him until it's close enough to shoot at its ease
@@ -141,6 +142,7 @@ function updateTank(M,V,dt){
 }
 function updateHeli(M,V,dt){
   if(M.drv){drvHeli(M,dt);return;}
+  if(M.gnr)heliGuns(M,M.gnr,true,dt);
   const n=playing?nearestPlayer(M.x,M.z):null;let tx=M.home.x,tz=M.home.z,ty=G+1,face=M.home.h;
   M.spin+=((M.state==='park'||M.state==='man'||M.state==='idle'&&M.y<=groundAt(M.x,M.z,M.y+1)+0.05?0:1)-M.spin)*Math.min(1,dt*0.6);
   if(M.state==='hunt'&&n){const p=n.p;

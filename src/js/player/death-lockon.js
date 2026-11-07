@@ -79,7 +79,7 @@ function lockTargets(p,range){
   // (a tank or a helicopter is big enough to pick out twice as far off, and a helicopter well overhead)
   const out=[],add=(t,y,k=1)=>{const dx=t.pos.x-p.pos.x,dz=t.pos.z-p.pos.z,d=Math.hypot(dx,dz);if(d<0.6||d>range*k||Math.abs(y-p.pos.y)>(k>1?45:12))return;out.push({t,dx,dz,d,hid:lockSeen(p,t)?0:HIDDEN});};
   for(const g of goblins)if(g.state==='chase')add(g,g.pos.y);
-  for(const c of cars)if(c.alive&&!c.parkPool&&c.drv!==p)add(c,c.pos.y);
+  for(const c of cars)if(c.alive&&!c.parkPool&&c.drv!==p&&c.gnr!==p)add(c,c.pos.y);
   for(const V of venues.values())if(V.kind==='army')for(const M of V.mil)if(M.pos&&lockAlive(M))add(M,M.pos.y,2);
   return out;
 }

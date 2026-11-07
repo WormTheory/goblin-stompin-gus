@@ -1,0 +1,52 @@
+players: Gnash (goblin) + Grizzle (goblin)
+== technical
+  A: driver of car  B: gunner of car  car.drv is A true  car.gnr is B true
+  A drives 2 s: moved 20.2  B carried along, off its middle by 0.0  B shown on it true  B up 0.9
+  B display: true  crosshair true  says Gunner  ·  Technical  ·  45 / 45 | [KEY:Q] lock on  ·  [KEY:F] get out  ammo panel true
+  A display: crosshair false  says [KEY:F] get out
+  gun swung 1.7  toward the goblin at 1.8
+  B fires: rounds 50 -> 40  goblin hp 6 -> 0 dead
+  A bite (the horn): rounds used 0
+  B gets off: on foot  car.gnr null  A still driver of car
+  A alone, free seat to move to true
+  A weapon: gunner of car  car.drv null  left true
+  A bite on the gun: rounds used 3
+  A weapon again: driver of car  car.drv is A true  left false
+  A gets out: on foot
+== quad
+  A: driver of car  B: gunner of car  car.drv is A true  car.gnr is B true
+  A drives 2 s: moved 20.2  B carried along, off its middle by 0.0  B shown on it true  B up 0.4
+  B display: true  crosshair true  says Gunner  ·  Four-wheeler  ·  24 / 45 | [KEY:Q] lock on  ·  [KEY:F] get out  ammo panel true
+  A display: crosshair false  says [KEY:F] get out
+  gun swung 1.7  toward the goblin at 1.8
+  B fires: rounds 6 -> 2  goblin hp 6 -> 0 dead
+  A bite (the horn): rounds used 0
+  B gets off: on foot  car.gnr null  A still driver of car
+  A alone, free seat to move to true
+  A weapon: gunner of car  car.drv null  left true
+  A bite on the gun: rounds used 1
+  A weapon again: driver of car  car.drv is A true  left false
+  A gets out: on foot
+== tank  state park
+  A: driver of tank  B: gunner of tank  gnr is B true
+  A display: crosshair false  says [KEY:F] get out  ·  Your gunner has the guns
+  B display: crosshair true  says Gunner  ·  Tank  ·  160 / 160 | [KEY:Q] lock on  ·  [KEY:F] get out
+  turret off where B looks by 0.0   off where A looks by 1.5
+  A bite/stomp: shots 0  ammo Shells 4/4 -> Shells 4/4
+  B bite: shots 0  ammo Shells 4/4 -> Shells 3/4
+  A gets out: on foot  vehicle idle  B still gunner of tank
+  B fires with nobody driving: shots 0  rounds Shells 3/4
+  B weapon (to the controls): driver of tank  drv is B true  gnr null
+  B gets out: on foot  vehicle idle
+== heli  state park
+  A: driver of heli  B: gunner of heli  gnr is B true
+  A display: crosshair false  says [KEY:F] get out  ·  Your gunner has the guns
+  B display: crosshair true  says Gunner  ·  Helicopter  ·  80 / 80 | [KEY:Q] lock on  ·  [KEY:F] get out
+  A climbs 3 s: up 8.3  B with it, up 9.4
+  A bite/stomp: shots 0  ammo Gun 40/40, Rockets 4/4 -> Gun 40/40, Rockets 4/4
+  B bite and stomp: shots 1  ammo Gun 40/40, Rockets 4/4 -> Gun 34/40, Rockets 3/4
+  A gets out: on foot  vehicle idle  B still gunner of heli
+  B fires with nobody driving: shots 0  rounds Gun 34/40, Rockets 4/4
+  B weapon (to the controls): driver of heli  drv is B true  gnr null
+  B gets out: on foot  vehicle idle
+errors 0 []

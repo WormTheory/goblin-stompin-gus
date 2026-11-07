@@ -32,9 +32,9 @@ train: in train  car 1
   turned round, W 3 s: speed -9.6 (the other way now)
   F again: on foot  train speed 0.0  waits 3.9
 boat (launch): in boat
-  W 4 s: moved 28.1  speed 10.2  afloat at 0.9
+  W 4 s: moved 28.1  speed 10.2  afloat at 0.8
   W+A 2 s: turned 2.3
-  F again: on foot  in the water beside it 2.4  y -1.2
+  F again: on foot  in the water beside it 2.4  y -1.3
   3 s on: it stays put (off its route) 0.0
 errors 0 []
   no one at the controls
@@ -42,7 +42,7 @@ tank: in tank  base alerted false
   W 3 s: moved 14.8  speed 5.4
   A 1.5 s: turned on the spot 1.4  moved 17.2
   turret follows the view: off by 0.0
-  display: shown true  crosshair true  gun marker false  says Tank  ·  160 / 160 | [KEY:Q] lock on  ·  [KEY:F] get out
+  display: shown true  crosshair true  gun marker false  says Tank  ·  160 / 160 | [KEY:Q] lock on  ·  [KEY:F] get out  ·  [KEY:R] man the gun
   shell, aimed at the ground ahead: marker to crosshair point 1.0, marker to where it went off 0.0
   shell, aimed high up (more than the gun can lift): marker to crosshair point 41.3, the shell never comes down on anything (marker faint, where it passes as far off as the crosshair point)
   bite: shells in the air 1  crosshair dim while reloading false
@@ -52,7 +52,7 @@ tank: in tank  base alerted false
   bite while reloading: shells fired 0
   5 s on: Shells 4/4
   a shell bursting on another tank: its hp 160 -> 100
-  Q looking at another tank: locked on it true  crosshair red false  says Locked on tank ([KEY:Q] let go)  ·  [KEY:F] get out
+  Q looking at another tank: locked on it true  crosshair red false  says Locked on tank ([KEY:Q] let go)  ·  [KEY:F] get out  ·  [KEY:R] man the gun
   looking well away: turret off the target by 0.0  bite: its hp 100 -> 40
   Q again: locked false
   driven into a brick wall 5 high: went on 18.8  speed 5.9  wall blocks knocked out 32 of 90

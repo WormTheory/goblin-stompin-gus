@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:4af791053793ae6316fabb5016f9523d0ce4abaf07455e0c4e6fca1cb00c3632 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:c1cc2e8306d7e36e043c56c8d39c3caa2ffcc67155140fcaa433ee364d0e7a74 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -789,6 +789,8 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 <details class="pn-up pn-fold pn-new" id="version-0-4" open><summary tabindex="0"><h2>Version 0.4</h2><span class="pn-tog" aria-hidden="true"></span></summary>
 <h3>Goblin attacks</h3>
 <ul><li>Every goblin attack now has a proper wind-up and a strike that suits the weapon. Nothing hits any sooner or later than before: you just get a better look at it coming.</li><li>Goblins and police lift their club up behind their heads, pause at the top, then chop it down, turning into the blow.</li><li>Thieves and cultists draw their dagger back to the hip, point first, then thrust it straight in at arm's length.</li><li>Preppers, militiamen and soldiers swing their rifle round so the stock faces forward, then shove it into you with both hands.</li><li>Rifle shots: the rifle is brought up to the shoulder, held on you, then kicks when it fires.</li><li>Grenades are pulled back behind the head and thrown overarm, and cultists raise their fireball high as it grows, then hurl it.</li><li>Gnash and Grizzle swing the same way: a club drawn back and chopped down, a dagger drawn back and thrust, in your own view and as other players see you. Their arm follows through after a grenade throw.</li><li>The Dev tab's Enemies viewer marks each attack's wind-up, strike and follow-through on the timeline.</li></ul>
+<h3>Driver and gunner</h3>
+<ul><li>Two goblins can now share one armed vehicle. While one player drives, the other walks up and presses the get-in button to take the gunner's seat. Both local and online co-op work.</li><li>Technicals and four-wheelers: the gunner works the machine gun or the rifle, aiming wherever they look while the driver steers. You see them standing at the gun in the truck bed, or sitting behind the rider.</li><li>Tanks and helicopters: the gunner aims the turret, or the helicopter's gun and rockets, with their own view while the driver steers or flies.</li><li>On your own, the weapon button switches between the driver's seat and the gun, so you can man a parked technical's gun yourself. If the driver gets out, the gunner can keep shooting from where the vehicle stopped.</li><li>The gunner's machine gun has a 50-round belt, and the four-wheeler's rifle holds 6 rounds. Both reload by themselves.</li><li>A goblin under your crosshair is now what vehicle guns aim at, rather than the ground behind it, so shots from a gun mounted off to one side don't miss.</li></ul>
 </details>
 <p class="pn-earlier">Earlier updates</p>
 <details class="pn-up pn-fold" id="version-0-3"><summary tabindex="0"><h2>Version 0.3</h2><a class="pn-play" data-ver="0.3" href="v/0.3/" tabindex="0">Play 0.3</a><span class="pn-tog" aria-hidden="true"></span></summary>
@@ -2786,7 +2788,7 @@ function milAlert(V,who){
 function updateArmy(V,dt){
   // someone in the base (or hurting what's in it, see milHit) sets it all off; long enough with no one about, it stands down
   if(playing&&!V.alert&&!calmNow())for(const q of players){if(!q.active||q.state==='dead')continue;if(q.pos.x>V.X0&&q.pos.x<V.X0+V.W&&q.pos.z>V.Z0&&q.pos.z<V.Z0+V.Hh){milAlert(V,q);break;}}
-  if(V.alert){const n=nearestPlayer(V.cx,V.cz);if(!n||n.d>V.W/2+200||calmNow()){V.awayT+=dt;if(V.awayT>30||calmNow()){V.alert=false;for(const M of V.mil)if(!M.dead&&M.state!=='park')M.state='home';}}else V.awayT=0;}
+  if(V.alert){const n=nearestPlayer(V.cx,V.cz);if(!n||n.d>V.W/2+200||calmNow()){V.awayT+=dt;if(V.awayT>30||calmNow()){V.alert=false;for(const M of V.mil)if(!M.dead&&M.state!=='park'&&!M.gnr)M.state='home';}}else V.awayT=0;}
   let rolling=0;for(const M of V.mil)if(M.kind==='tank'&&!M.dead&&(M.state==='hunt'||M.state==='man'))rolling++;
   for(const M of V.mil){
     if(M.dead){milWreck(M,dt);milBoxes(M,0);milShove(M);continue;}
@@ -2837,6 +2839,7 @@ function milShove(M){const I=MIL[M.kind],R=Math.max(I.hx,I.hz)+3,tx=Math.sin(M.h
 }
 function updateTank(M,V,dt){
   if(M.drv){drvTank(M,dt);return;}
+  if(M.gnr)tankGun(M,M.gnr,dt);   // (nobody driving, but a player on its gun: see gunner.js)
   const n=playing?nearestPlayer(M.x,M.z):null;let wantV=0,wantH=M.h;
   if(M.state==='hunt'&&n){const p=n.p,dx=p.pos.x-M.x,dz=p.pos.z-M.z,d=n.d;
     // the turret swings round on to him; the hull heads for him until it's close enough to shoot at its ease
@@ -2867,6 +2870,7 @@ function updateTank(M,V,dt){
 }
 function updateHeli(M,V,dt){
   if(M.drv){drvHeli(M,dt);return;}
+  if(M.gnr)heliGuns(M,M.gnr,true,dt);
   const n=playing?nearestPlayer(M.x,M.z):null;let tx=M.home.x,tz=M.home.z,ty=G+1,face=M.home.h;
   M.spin+=((M.state==='park'||M.state==='man'||M.state==='idle'&&M.y<=groundAt(M.x,M.z,M.y+1)+0.05?0:1)-M.spin)*Math.min(1,dt*0.6);
   if(M.state==='hunt'&&n){const p=n.p;
@@ -9892,7 +9896,7 @@ function lockTargets(p,range){
   // (a tank or a helicopter is big enough to pick out twice as far off, and a helicopter well overhead)
   const out=[],add=(t,y,k=1)=>{const dx=t.pos.x-p.pos.x,dz=t.pos.z-p.pos.z,d=Math.hypot(dx,dz);if(d<0.6||d>range*k||Math.abs(y-p.pos.y)>(k>1?45:12))return;out.push({t,dx,dz,d,hid:lockSeen(p,t)?0:HIDDEN});};
   for(const g of goblins)if(g.state==='chase')add(g,g.pos.y);
-  for(const c of cars)if(c.alive&&!c.parkPool&&c.drv!==p)add(c,c.pos.y);
+  for(const c of cars)if(c.alive&&!c.parkPool&&c.drv!==p&&c.gnr!==p)add(c,c.pos.y);
   for(const V of venues.values())if(V.kind==='army')for(const M of V.mil)if(M.pos&&lockAlive(M))add(M,M.pos.y,2);
   return out;
 }
@@ -10544,12 +10548,14 @@ function drvFind(p){
   const R=1.8,px=p.pos.x,pz=p.pos.z,py=p.pos.y;let best=null,bd=1e9;
   const take=(dx,dz,tx,tz,hx,hz,y0,top,D)=>{const al=dx*tx+dz*tz,ac=-dx*tz+dz*tx,ea=Math.abs(al)-hz,ec=Math.abs(ac)-hx;
     if(ea>R||ec>R||py<y0-1.6||py>top+1.2)return;const d=Math.max(ea,ec,0)+Math.max(0,py-top);if(d<bd){bd=d;best=D;}};
-  for(const c of cars){if(!c.alive||!c.g.visible||c.drv||Math.abs(c.pos.x-px)>14||Math.abs(c.pos.z-pz)>14)continue;
-    take(px-c.pos.x,pz-c.pos.z,Math.sin(c.heading),Math.cos(c.heading),c.hx,c.hz,c.pos.y,c.pos.y+(c.hy||1.4),{k:'car',o:c});}
-  for(const B of TRAIN_BOXES){const pr=B.proxy,T=pr.T;if(!pr.alive||!T||B.soft||T.drv)continue;
+  for(const c of cars){if(!c.alive||!c.g.visible||c.gnr&&c.drv||Math.abs(c.pos.x-px)>14||Math.abs(c.pos.z-pz)>14)continue;
+    // (another player at the wheel: the gunner's place, if it has one and nobody's in it)
+    let D={k:'car',o:c};if(c.drv){D.seat='gun';if(!gunSeat(D)||c.crew&&c.crew.gun)continue;}
+    take(px-c.pos.x,pz-c.pos.z,Math.sin(c.heading),Math.cos(c.heading),c.hx,c.hz,c.pos.y,c.pos.y+(c.hy||1.4),D);}
+  for(const B of TRAIN_BOXES){const pr=B.proxy,T=pr.T;if(!pr.alive||!T||B.soft||T.drv&&(!T.isMil||T.gnr))continue;
     const hx=B.hx||TRAIN_HX,hz=B.hz||TRAIN_HZ;if(Math.abs(B.x-px)>hx+hz+R||Math.abs(B.z-pz)>hx+hz+R)continue;
     let D=null;
-    if(T.isMil){if(!T.dead)D={k:T.kind,o:T,V:T.V};}
+    if(T.isMil){if(!T.dead)D=T.drv?{k:T.kind,o:T,V:T.V,seat:'gun'}:{k:T.kind,o:T,V:T.V};}
     else if(pr.isBoat){const V=venues.get(T.key);if(V&&V.bo===T&&!T.dead&&!V.dry&&!V.ground)D={k:'boat',o:T,V};}
     else if(T.isPlane){if(!T.dead&&!T.fall)for(const V of venues.values())if(V.kind==='airport'&&V.pl&&V.pl.includes(T)){D={k:'plane',o:T,V};break;}}
     else if(pr.veh==='train'&&T.C&&!T.dead)D={k:'train',o:T,ci:pr.i};
@@ -10568,26 +10574,40 @@ function drvPose(D){if(D.netS)return D.netS;const o=D.o;   // (D.netS: a guest o
   return{x:(Fa.x+Ba.x)/2,y:G+1.2,z:(Fa.z+Ba.z)/2,h:Math.atan2(Fa.x-Ba.x,Fa.z-Ba.z),hx:TRAIN_HX,hz:TRAIN_HZ,hy:TRAIN_H,v:T.v*T.dir};
 }
 function drvEnter(p,D){
-  const o=D.o,jack=jackable(D);o.drv=p;p.drv=D;p.standCar=null;p.vcl=null;p.state='walk';p.vy=0;p.mvx=p.mvz=0;p.biteT=0;p.drvLook=-9;p.drvYaw=undefined;
+  const o=D.o,gun=D.seat==='gun',jack=!gun&&jackable(D);p.drv=D;p.standCar=null;p.vcl=null;p.state='walk';p.vy=0;p.mvx=p.mvz=0;p.biteT=0;p.drvLook=-9;p.drvYaw=undefined;
+  if(gun)o.gnr=p;else drvTake(p,D);
+  if(gunSeat(D))wpnInit(o,drvGunK(D));
+  // (the camera starts out behind it)
+  p.cam.yaw=drvPose(D).h+Math.PI;p.cam.pitch=-0.25;
+  if(jack){jackStart(p,D);return;}   // (someone at the controls: they're thrown out first. See carjack.js)
+  drvSays(p,D);clang();
+}
+// taking the controls: whatever the vehicle was doing on its own, it stops doing
+function drvTake(p,D){const o=D.o;o.drv=p;
   if(D.k==='car'){o.hunter=false;o.path=null;o.rt=null;o.hw=null;o.parked=false;o.left=false;o.reverseT=0;o.makeWay=0;o.leaving=false;o.yieldSv=false;o.hazard=false;if(o.hazG)o.hazG.visible=false;}
   else if(D.k==='tank'||D.k==='heli'){o.state='drive';o.sv=0;o.hv={x:0,z:0};o.vy=0;o.cd=0;o.detour=0;wpnInit(o,D.k);o.rkHeld=true;}
   else if(D.k==='boat'){const g=o.g;D.V.lane=null;D.V.x=g.position.x;D.V.z=g.position.z;D.V.yaw=g.rotation.y;o.sp=0;}
   else if(D.k==='plane'){if(!o.free)o.free={v:o.v||0,vy:0};o.g.visible=true;}
   else if(D.k==='train'){o.wait=0;}
-  // (the camera starts out behind it)
-  p.cam.yaw=drvPose(D).h+Math.PI;p.cam.pitch=-0.25;
-  if(jack){jackStart(p,D);return;}   // (someone at the controls: they're thrown out first. See carjack.js)
-  const k=drvKey(p),how=D.k==='heli'?'  ·  '+actMark(p,'jump')+' climbs, '+actMark(p,'climb')+' drops':D.k==='plane'?'  ·  '+(p.pad?'Stick up/down':actMark(p,'fwd')+'/'+actMark(p,'back'))+' throttle, '+actMark(p,'jump')+' pulls up, '+actMark(p,'climb')+' pushes down, '+(p.pad?'stick left/right':actMark(p,'left')+'/'+actMark(p,'right'))+' bank':D.k==='tank'?'  ·  '+actMark(p,'bite')+' fires':D.k==='car'&&o.veh==='fire'?'  ·  '+actMark(p,'bite')+' sprays water':'';
-  flashLabel('Driving the '+drvName(D)+'  ·  '+k+' to get out'+how,p);clang();
+}
+// letting go of the controls: what the vehicle does with nobody driving it
+function drvLetGo(p,D){const o=D.o;if(o.drv===p)o.drv=null;
+  if(D.k==='car'){o.hose=null;o.left=true;}   // (left where it stopped: see updateCars)
+  else if(D.k==='tank'||D.k==='heli'){if(!o.dead)o.state='idle';o.v=0;o.sv=0;}
+  else if(D.k==='train'){if(o.v<0){o.v=0;o.wait=4;}else o.wait=0;}   // (going its own way, it carries on to the next station)   // (a plane's left as it is: it carries on and comes down by itself)
+}
+// what you're told as you take your seat
+function drvSays(p,D){const o=D.o,k=drvKey(p),sw=drvSwapTo(p)?'  ·  '+actMark(p,'weapon')+' '+(D.seat==='gun'?'drive':'man the gun'):'';
+  if(D.seat==='gun'){flashLabel('On the gun of the '+drvName(D)+'  ·  '+actMark(p,'bite')+' fires'+(D.k==='heli'?', '+actMark(p,'stomp')+' rockets':'')+'  ·  '+k+' to get off'+sw,p);return;}
+  const how=D.k==='heli'?'  ·  '+actMark(p,'jump')+' climbs, '+actMark(p,'climb')+' drops':D.k==='plane'?'  ·  '+(p.pad?'Stick up/down':actMark(p,'fwd')+'/'+actMark(p,'back'))+' throttle, '+actMark(p,'jump')+' pulls up, '+actMark(p,'climb')+' pushes down, '+(p.pad?'stick left/right':actMark(p,'left')+'/'+actMark(p,'right'))+' bank':D.k==='tank'?'  ·  '+actMark(p,'bite')+' fires':D.k==='car'&&o.veh==='fire'?'  ·  '+actMark(p,'bite')+' sprays water':'';
+  flashLabel('Driving the '+drvName(D)+'  ·  '+k+' to get out'+how+sw,p);
 }
 // out by the side (whichever has room), else the back or the front, else on the roof
 function drvExit(p,thrown){
-  const D=p.drv;if(!D)return;if(D.jack)jackEnd(p,D,true);p.drv=null;const o=D.o;if(o.drv===p)o.drv=null;if(p.lockT)setLock(p,null);
-  if(D.k==='car'){o.hose=null;if(p.gb)rideReset(p.gb);}
+  const D=p.drv;if(!D)return;if(D.jack)jackEnd(p,D,true);p.drv=null;const o=D.o;if(p.lockT)setLock(p,null);
+  if(D.k==='car'&&p.gb)rideReset(p.gb);
   const S=drvPose(D);
-  if(D.k==='car')o.left=true;   // (left where it stopped: see updateCars)
-  else if(D.k==='tank'||D.k==='heli'){if(!o.dead)o.state='idle';o.v=0;o.sv=0;}
-  else if(D.k==='train'){if(o.v<0){o.v=0;o.wait=4;}else o.wait=0;}   // (going its own way, it carries on to the next station)   // (a plane's left as it is: it carries on and comes down by itself)
+  if(D.seat==='gun'){if(o.gnr===p)o.gnr=null;}else drvLetGo(p,D);
   const tx=Math.sin(S.h),tz=Math.cos(S.h),rx=Math.cos(S.h),rz=-Math.sin(S.h);let spot=null;
   for(const [a,b] of [[-(S.hx+0.9),0],[S.hx+0.9,0],[0,-(S.hz+0.9)],[0,S.hz+0.9]]){const x=S.x+rx*a+tx*b,z=S.z+rz*a+tz*b,y=Math.max(groundAt(x,z,S.y+2.5),S.y);
     if(!solidAt(x,Math.floor(y+0.3),z)&&!solidAt(x,Math.floor(y+1.2),z)){spot={x,y,z};break;}}
@@ -10600,7 +10620,8 @@ function drvExit(p,thrown){
 function drvTick(p,dt){
   const use=p.in.use&&!p.useHeld;p.useHeld=p.in.use;
   if(p.drv&&p.drv.jack&&p.state!=='dead'){jackTick(p,dt);return true;}   // (still hauling the driver out)
-  if(p.drv){if(use||p.state==='dead')drvExit(p);else{drvLock(p,dt);return true;}return false;}
+  const wp=!!p.in.weapon&&!p.drvWpnHeld;p.drvWpnHeld=!!p.in.weapon;
+  if(p.drv){if(use||p.state==='dead')drvExit(p);else{if(wp&&drvSwapTo(p))drvSwap(p);drvLock(p,dt);return true;}return false;}
   if(p.state==='dead'||p.state!=='walk'&&p.state!=='climb')return false;
   if(use){const D=drvFind(p);if(D){drvEnter(p,D);return true;}}
   // (a vehicle in reach: say so, once for each one you come up to)
@@ -10615,11 +10636,11 @@ function drvSeat(p){
   if(D.jack){jackPose(p);return;}
   const S=drvPose(D);p.pos.set(S.x,S.y+Math.min(1.2,S.hy*0.5),S.z);p.heading=S.h;
   p.vy=0;p.grounded=true;p.mvx=p.mvz=0;p.standCar=null;p.vcl=null;p.peakY=p.pos.y;p.biteT=0;
-  if(rideShown(p))ridePose(p,o);
+  if(rideShown(p)){if(D.seat==='gun')gunPose(p,o);else ridePose(p,o);}
 }
 // on a motorcycle you're out in the open: your goblin's sat astride it, leaning with it, hands on the bars, feet on the
 // pegs (in anything with a roof you're out of sight: see gobView)
-const rideShown=q=>!!(q.drv&&q.drv.k==='car'&&(q.drv.o.veh==='bike'||q.drv.o.veh==='quad')&&!q.drv.jack&&q.state!=='dead');
+const rideShown=q=>!!(q.drv&&q.drv.k==='car'&&(q.drv.o.veh==='bike'||q.drv.o.veh==='quad'||q.drv.o.veh==='technical'&&q.drv.seat==='gun')&&!q.drv.jack&&q.state!=='dead');
 function ridePose(p,c){const K=gobKit(p),R=K.root,s=Math.sin(c.heading),k=Math.cos(c.heading);
   R.rotation.set(c.g.rotation.x,c.g.rotation.y,c.g.rotation.z);
   // (the seat, from the bike's own middle: up 0.42 and back 0.25 of its body, tipped over with its lean)
@@ -10634,7 +10655,7 @@ const drvHeld=V=>players.some(q=>q.drv&&(q.drv.V===V||V.T&&q.drv.o===V.T))||!!(V
 // locked on from a tank or a helicopter (the lock button): the gun aims at it, wherever you're looking, a little ahead
 // of where it's going; the marker sits on it. Anything near the middle of the screen, out to 100 blocks, can be picked
 function drvLock(p,dt){
-  const D=p.drv,armed=D.k==='tank'||D.k==='heli';
+  const D=p.drv,armed=drvArmed(p);
   if(!armed){if(p.lockT)setLock(p,null);return;}
   if(p.in.lockPress){
     if(p.lockT){setLock(p,null);tone('triangle',620,380,0.07,0.035);}
@@ -10657,15 +10678,20 @@ function drvLead(p,sp){const T=p.lockT,V=p.lockV,ty=lockY(T);if(!V||V.t!==T)retu
   return{x:T.pos.x+cl(V.vx)*t,y:ty+cl(V.vy)*t,z:T.pos.z+cl(V.vz)*t};}
 // where the middle of the screen points: the first block on the line from the camera, past the vehicle
 function drvAim(p,sp){if(p.lockT&&p.drv&&lockAlive(p.lockT))return drvLead(p,sp||40);const c=p.camera.position,cp=Math.cos(p.cam.pitch),fx=-Math.sin(p.cam.yaw)*cp,fy=Math.sin(p.cam.pitch),fz=-Math.cos(p.cam.yaw)*cp;
-  for(let t=p.drvCamD||4;t<160;t+=0.5){const x=c.x+fx*t,y=c.y+fy*t,z=c.z+fz*t;if(y<1||solidAt(x,Math.floor(y),z))return{x,y,z};}
-  return{x:c.x+fx*160,y:c.y+fy*160,z:c.z+fz*160};}
+  // (a goblin under the crosshair is what's aimed at, not the ground behind it: from a gun off to one side of the
+  // camera, aiming past it would miss)
+  let gt=160,ga=null;const t0=p.drvCamD||4;
+  for(const g of goblins){if(g.state!=='chase')continue;const ox=g.pos.x-c.x,oy=g.pos.y+0.8-c.y,oz=g.pos.z-c.z,t=ox*fx+oy*fy+oz*fz;if(t<t0||t>=gt)continue;
+    const ex=ox-fx*t,ey=oy-fy*t,ez=oz-fz*t;if(ex*ex+ez*ez<0.5&&Math.abs(ey)<1.1){gt=t;ga={x:g.pos.x,y:g.pos.y+0.8,z:g.pos.z};}}
+  for(let t=t0;t<gt;t+=0.5){const x=c.x+fx*t,y=c.y+fy*t,z=c.z+fz*t;if(y<1||solidAt(x,Math.floor(y),z))return{x,y,z};}
+  return ga||{x:c.x+fx*160,y:c.y+fy*160,z:c.z+fz*160};}
 // the view from behind the vehicle: turned with the mouse or right stick as usual, and swinging back round behind it a
 // moment after you stop looking about, once it's moving
 function drvCamera(p){
   const D=p.drv,S=drvPose(D);
   if(p.drvYaw!==undefined&&Math.abs(angDiff(p.drvYaw,p.cam.yaw))>1e-5)p.drvLook=camClock;
   // (not a helicopter, which faces where you look anyway, nor a train, where the way you look is the way it goes)
-  if(D.k!=='heli'&&D.k!=='train'&&camClock-(p.drvLook??-9)>1.2&&Math.abs(S.v)>1.5)p.cam.yaw+=angDiff(p.cam.yaw,S.h+Math.PI)*0.035;
+  if(D.k!=='heli'&&D.k!=='train'&&D.seat!=='gun'&&camClock-(p.drvLook??-9)>1.2&&Math.abs(S.v)>1.5)p.cam.yaw+=angDiff(p.cam.yaw,S.h+Math.PI)*0.035;
   p.drvYaw=p.cam.yaw;
   const cp=Math.cos(p.cam.pitch),fx=-Math.sin(p.cam.yaw)*cp,fy=Math.sin(p.cam.pitch),fz=-Math.cos(p.cam.yaw)*cp;
   // (a tank or a helicopter: up higher and further back, so you see over it to what you're aiming at)
@@ -10700,9 +10726,12 @@ function wpnFire(o,k){const s=o.wpn&&o.wpn[k];if(!s)return false;
 function wpnClick(){if(audio)sfx('Dry fire click',()=>{tone('square',2400,1500,0.018,0.05);tone('triangle',900,600,0.03,0.04,0.035);});}
 // the helicopter's machine gun, one round: down the line to where you're aiming (led onto a locked target), a little
 // scattered, to the first goblin, vehicle or wall in the way; a tracer and a puff where it hits
-function heliGun(M,p){
-  const A=drvAim(p,400),mx=M.x+Math.sin(M.h)*2.4,my=M.y+0.8,mz=M.z+Math.cos(M.h)*2.4;
-  let dx=A.x-mx,dy=A.y-my,dz=A.z-mz;const L0=Math.hypot(dx,dy,dz)||1,sc=0.012*L0;
+function heliGun(M,p){gunRound(M,p,M.x+Math.sin(M.h)*2.4,M.y+0.8,M.z+Math.cos(M.h)*2.4,2,0.012,'Gunned down from a helicopter','Helicopter gun');}
+// one round from a mounted gun (own: the vehicle it's on) at mx,my,mz, at where p is aiming: dmg to a goblin, sc how
+// much it scatters (per block), cause what kills, snd the sound's name
+function gunRound(M,p,mx,my,mz,dmg,sc0,cause,snd){
+  const A=drvAim(p,400);
+  let dx=A.x-mx,dy=A.y-my,dz=A.z-mz;const L0=Math.hypot(dx,dy,dz)||1,sc=sc0*L0;
   dx+=(Math.random()-.5)*sc*2;dy+=(Math.random()-.5)*sc*2;dz+=(Math.random()-.5)*sc*2;
   const L=Math.hypot(dx,dy,dz)||1,ux=dx/L,uy=dy/L,uz=dz/L,R=Math.min(130,L0+20);
   // (the nearest goblin within reach of the line)
@@ -10711,8 +10740,8 @@ function heliGun(M,p){
   let t=0.5,hit='air';_sp.own=M;
   for(;t<Math.min(R,gt);t+=0.5){const x=mx+ux*t,y=my+uy*t,z=mz+uz*t;if(y<1||solidAt(x,Math.floor(y),z)){hit='wall';break;}_sp.pos.set(x,y,z);if(shotHitsVeh(_sp)){hit='veh';break;}}
   if(hit==='air'&&gg&&t>=gt){t=gt;hit='gob';}
-  const ex=mx+ux*t,ey=my+uy*t,ez=mz+uz*t;tracer(mx,my,mz,ex,ey,ez);if(audio)sfx('Helicopter gun',()=>noise(0.06,0.1,2400,'highpass'));
-  if(hit==='gob')damageGoblin(gg,2,new V3(ex,ey,ez),new V3(ux,0.3,uz),'Gunned down from a helicopter');
+  const ex=mx+ux*t,ey=my+uy*t,ez=mz+uz*t;tracer(mx,my,mz,ex,ey,ez);if(audio)sfx(snd,()=>noise(0.06,0.1,2400,'highpass'));
+  if(hit==='gob')damageGoblin(gg,dmg,new V3(ex,ey,ez),new V3(ux,0.3,uz),cause);
   else if(hit==='veh')vehBlast(ex,ey,ez,0.8,4,M);
   if(hit!=='air')puff(ex,ey,ez,1,hit==='wall'?0x9a948a:0xffb040,0.2);
 }
@@ -10751,11 +10780,7 @@ function drvTank(M,dt){
   const p=M.drv,i=drvIn(p),thr=-i.z,st=-i.x;
   M.sv+=(thr*7-M.sv)*Math.min(1,dt*1.5);
   {const nh=M.h+st*0.9*dt;if(!milBlocked(M,M.x,M.z,nh,M.y)||milBlocked(M,M.x,M.z,M.h,M.y))M.h=nh;}
-  const A=drvAim(p,45);M.aim=A;M.tu=angTo(M.tu,Math.atan2(A.x-M.x,A.z-M.z)-M.h,1.4*dt);
-  const F=tankShell(M,A);M.pred=shotPath(F,2,4,M,A);
-  wpnTick(M,dt);if(i.bitePress&&wpnFire(M,'shell')){const mx=F.x,my=F.y,mz=F.z;
-    shot({kind:'shell',x:mx,y:my,z:mz,vx:F.vx,vy:F.vy,vz:F.vz,grav:2,fuse:4,R:4.5,dmg:4,cause:'Blown up by a goblin in a tank',crush:3.2,vd:60,own:M});
-    smoke(mx,my,mz,4,0x8a8a80);puff(mx,my,mz,4,0xffc040,0.3);if(audio)sfx('Tank fires',()=>{noise(0.6,0.6,350,'lowpass');tone('sawtooth',70,30,0.5,0.15);});addShake(0.3,M.x,M.z,30);}
+  tankGun(M,M.gnr||p,dt);   // (the turret and the gun: the gunner's, if there's another player in that seat)
   // (anything more than a block up, below the top of the tank, stops it -- what's overhead it passes under; leaning on
   // it a moment, or hitting it at speed, it smashes through)
   if(Math.abs(M.sv)>0.05){const d=M.sv<0?-1:1,fx=Math.sin(M.h)*d,fz=Math.cos(M.h)*d,ax=M.x+fx*3,az=M.z+fz*3;
@@ -10766,6 +10791,15 @@ function drvTank(M,dt){
   M.v=Math.max(0,M.sv);
   {const gy=groundAt(M.x,M.z,M.y+1.5);if(gy<M.y){M.vy-=20*dt;M.y=Math.max(gy,M.y+M.vy*dt);}else{M.vy=0;M.y+=(gy-M.y)*Math.min(1,dt*8);}}
   milPlace(M);milBoxes(M,M.v);milShove(M);
+}
+// a driven tank's turret and gun, worked by g (its driver, or another player as its gunner): the turret follows where g
+// looks, and bite fires a shell there
+function tankGun(M,g,dt){const i=drvIn(g);
+  const A=drvAim(g,45);M.aim=A;M.tu=angTo(M.tu,Math.atan2(A.x-M.x,A.z-M.z)-M.h,1.4*dt);
+  const F=tankShell(M,A);M.pred=shotPath(F,2,4,M,A);
+  wpnTick(M,dt);if(i.bitePress&&wpnFire(M,'shell')){const mx=F.x,my=F.y,mz=F.z;
+    shot({kind:'shell',x:mx,y:my,z:mz,vx:F.vx,vy:F.vy,vz:F.vz,grav:2,fuse:4,R:4.5,dmg:4,cause:'Blown up by a goblin in a tank',crush:3.2,vd:60,own:M});
+    smoke(mx,my,mz,4,0x8a8a80);puff(mx,my,mz,4,0xffc040,0.3);if(audio)sfx('Tank fires',()=>{noise(0.6,0.6,350,'lowpass');tone('sawtooth',70,30,0.5,0.15);});addShake(0.3,M.x,M.z,30);}
 }
 // flying a helicopter: it goes the way you push, relative to where you look, and turns to face that way; jump climbs,
 // climb (or dash) drops; bite fires a rocket where you're looking
@@ -10785,13 +10819,18 @@ function drvHeli(M,dt){
   M.h=angTo(M.h,yaw,1.6*dt);
   const sp=Math.hypot(M.hv.x,M.hv.z),va=Math.atan2(M.hv.x,M.hv.z)-M.h;M.pitch=Math.min(0.25,sp*0.02)*Math.cos(va);M.roll=-Math.min(0.25,sp*0.02)*Math.sin(va);
   M.rot.rotation.y+=dt*M.spin*28;M.trot.rotation.x+=dt*M.spin*40;
-  {const A=drvAim(p,36),mx=M.x+Math.sin(M.h)*2.6,my=M.y+1.2,mz=M.z+Math.cos(M.h)*2.6,L=Math.hypot(A.x-mx,A.y-my,A.z-mz)||1,sp2=36;
-   M.rk={x:mx,y:my,z:mz,vx:(A.x-mx)/L*sp2,vy:(A.y-my)/L*sp2,vz:(A.z-mz)/L*sp2};M.pred=lift?shotPath(M.rk,0.5,5,M,A):null;}
-  wpnTick(M,dt);if(lift&&i.bite&&wpnFire(M,'gun'))heliGun(M,p);
-  const rp=i.stomp&&!M.rkHeld;M.rkHeld=i.stomp;if(rp&&lift&&wpnFire(M,'rkt')){const F=M.rk;
-    shot({kind:'rocket',x:F.x,y:F.y,z:F.z,vx:F.vx,vy:F.vy,vz:F.vz,grav:0.5,fuse:5,R:4.2,dmg:4,cause:'Blown up by a goblin in a helicopter',crush:2.8,vd:45,own:M});if(audio)sfx('Helicopter rocket',()=>noise(0.5,0.25,900,'bandpass'));}
+  heliGuns(M,M.gnr||p,lift,dt);   // (its gun and rockets: the gunner's, if there's another player in that seat)
   milPlace(M);milBoxes(M,Math.hypot(M.hv.x,M.hv.z));milShove(M);
   if(M.spin>0.3&&audio&&playing){M.thT=(M.thT||0)-dt;if(M.thT<=0){M.thT=0.11;sfx('Helicopter rotor',()=>noise(0.08,0.05*M.spin,180,'lowpass'));}}
+}
+// a helicopter's gun and rockets, worked by g (its pilot, or another player as its gunner), at where g looks; only
+// with the rotor up to speed (lift)
+function heliGuns(M,g,lift,dt){const i=drvIn(g);
+  {const A=drvAim(g,36),mx=M.x+Math.sin(M.h)*2.6,my=M.y+1.2,mz=M.z+Math.cos(M.h)*2.6,L=Math.hypot(A.x-mx,A.y-my,A.z-mz)||1,sp2=36;
+   M.rk={x:mx,y:my,z:mz,vx:(A.x-mx)/L*sp2,vy:(A.y-my)/L*sp2,vz:(A.z-mz)/L*sp2};M.pred=lift?shotPath(M.rk,0.5,5,M,A):null;}
+  wpnTick(M,dt);if(lift&&i.bite&&wpnFire(M,'gun'))heliGun(M,g);
+  const rp=i.stomp&&!M.rkHeld;M.rkHeld=i.stomp;if(rp&&lift&&wpnFire(M,'rkt')){const F=M.rk;
+    shot({kind:'rocket',x:F.x,y:F.y,z:F.z,vx:F.vx,vy:F.vy,vz:F.vz,grav:0.5,fuse:5,R:4.2,dmg:4,cause:'Blown up by a goblin in a helicopter',crush:2.8,vd:45,own:M});if(audio)sfx('Helicopter rocket',()=>noise(0.5,0.25,900,'bandpass'));}
 }
 // steering a boat: only where there's open water ahead of it (run it aground and it stops; hard, and it's holed a bit);
 // the bigger it is, the slower it answers. Returns its speed
@@ -10898,6 +10937,51 @@ function drvTrain(T,dt){
   T.v=v*T.dir;
   T.hornT=(T.hornT||0)-dt;if(i.bitePress&&T.hornT<=0){T.hornT=0.6;sfx('Train horn',()=>{tone('sawtooth',311,300,0.6,0.07);tone('sawtooth',370,360,0.6,0.06);});}
 }
+// ---- two players in one vehicle: the gunner's seat. A technical's machine gun, a four-wheeler's rifleman's place, a
+// tank's turret and a helicopter's gun and rockets each have a seat of their own, so with one player at the wheel
+// another can climb aboard (the use button by it) and work the guns, aiming where they look, while the first drives.
+// On your own, the weapon button moves you between the two seats (a parked technical's gun, say). The vehicle's .gnr
+// is who's on its gun; their p.drv is the vehicle as for a driver, with seat 'gun' ----
+DRV_WPN.technical=[{k:'gun',name:'Machine gun',max:50,gap:0.1,reload:3}];
+DRV_WPN.quad=[{k:'gun',name:'Rifle',max:6,gap:0.4,reload:2}];
+// does it have a gunner's seat?
+const gunSeat=D=>D.k==='tank'||D.k==='heli'||D.k==='car'&&(D.o.veh==='technical'||D.o.veh==='quad');
+// which set of weapons (DRV_WPN) it carries
+const drvGunK=D=>D.k==='car'?D.o.veh:D.k;
+// are p's the hands on the guns? (the gunner's, or the driver's of a tank or helicopter with nobody on its gun)
+function drvArmed(p){const D=p.drv;if(!D)return false;if(D.seat==='gun')return true;return(D.k==='tank'||D.k==='heli')&&!D.o.gnr;}
+// is the other seat free to move to?
+function drvSwapTo(p){const D=p.drv;if(!D||D.jack||D.netS||!gunSeat(D))return false;const o=D.o;
+  if(D.seat==='gun')return!o.drv&&!jackable({k:D.k,o});
+  return!o.gnr&&!(o.crew&&o.crew.gun);}
+// over to the other seat: off the gun to the wheel, or from the wheel to the gun (leaving it as if you'd got out)
+function drvSwap(p){const D=p.drv,o=D.o;
+  if(D.seat==='gun'){if(o.gnr===p)o.gnr=null;D.seat=undefined;drvTake(p,D);if(p.gb)rideReset(p.gb);}
+  else{drvLetGo(p,D);D.seat='gun';o.gnr=p;}
+  if(gunSeat(D))wpnInit(o,drvGunK(D));
+  drvSays(p,D);if(audio)tone('square',300,420,0.06,0.04);
+}
+// a player on a technical's or four-wheeler's gun (from updateCars, whoever's driving): the gun swings round to where
+// they look, and bite fires it (held, the machine gun; pressed, the rifle)
+function gnrCar(c,dt){
+  const p=c.gnr,V=c.vehG[c.veh];if(!p||!V||!V.gun||c.veh!=='technical'&&c.veh!=='quad')return;
+  const i=drvIn(p),tech=c.veh==='technical',h=c.heading,P=crewAt(c.pos.x,c.pos.z,h,0,(tech?-1.3:-0.55)*ES),py=c.pos.y+(tech?2.05:1.45)*ES;
+  const A=drvAim(p,400);c.gunYaw=angTo(c.gunYaw||0,angDiff(h,Math.atan2(A.x-P.x,A.z-P.z)),CREW_GUN[c.veh].turn*1.6*dt);V.gun.rotation.y=c.gunYaw;
+  wpnInit(c,c.veh);wpnTick(c,dt);
+  const a=h+c.gunYaw,L=(tech?1.3:0.8)*ES;
+  if((tech?i.bite:i.bitePress)&&wpnFire(c,'gun')){const mx=P.x+Math.sin(a)*L,mz=P.z+Math.cos(a)*L;
+    gunRound(c,p,mx,py,mz,tech?2:3,tech?0.014:0.004,CREW_GUN[c.veh].cause,tech?'Technical machine gun':'Four-wheeler rifle');puff(mx,py,mz,1,0xffe070,0.1);}
+}
+// the gunner, as everyone sees them: stood in a technical's bed behind its gun, or sat behind the rider on a
+// four-wheeler, turned the way the gun points
+function gunPose(p,c){const K=gobKit(p),R=K.root,tech=c.veh==='technical',a=c.heading+(c.gunYaw||0);
+  R.rotation.set(c.g.rotation.x,a,c.g.rotation.z);
+  if(tech){const M=crewAt(c.pos.x,c.pos.z,c.heading,0,-1.3*ES);R.position.set(M.x-Math.sin(a)*0.55*ES,c.pos.y+1.1*ES,M.z-Math.cos(a)*0.55*ES);
+    for(const L of K.m.legs)L.rotation.set(0,0,0);K.m.arm.rotation.set(-1.4,0,0.15);if(K.m.armL)K.m.armL.rotation.set(-1.4,0,-0.15);return;}
+  const S=crewAt(c.pos.x,c.pos.z,c.heading,0,-0.8*ES);R.position.set(S.x,c.pos.y+0.42*ES,S.z);
+  for(const L of K.m.legs)L.rotation.set(-1.25,0,0);K.m.legs[0].rotation.z=0.25;K.m.legs[1].rotation.z=-0.25;
+  K.m.arm.rotation.set(-1.45,0,0.1);if(K.m.armL)K.m.armL.rotation.set(-1.45,0,-0.1);
+}
 // ---- vehicles in a fight: what a shell or a rocket does to them, how they show they've been hit, and aircraft that
 // come down hard ----
 // a vehicle struck: sparks and a puff of smoke where it's hit (and a clang, for a real blow)
@@ -10957,17 +11041,19 @@ function drvHud(p){
     const dv=document.createElement('div');dv.className='dveh';dv.innerHTML='<div class="dbox"><div class="dname"></div><div class="dbar"><i></i></div><div class="dwpn"></div></div><div class="dammo"></div>';
     const bar=p.ui.view.querySelector('.bar'),who=bar&&bar.querySelector('.who');if(who)bar.insertBefore(dv,who);else el.append(dv);
     H=p.ui.drvHud={el,dv,xh:el.querySelector('.xh'),xt:el.querySelector('.xt'),box:dv.querySelector('.dbox'),name:dv.querySelector('.dname'),fill:dv.querySelector('.dbar i'),wpn:dv.querySelector('.dwpn'),ammo:dv.querySelector('.dammo'),txt:{}};}
-  const D=p.drv,o=D.o,armed=D.k==='tank'||D.k==='heli',{hp,max}=drvHP(D),f=Math.max(0,Math.min(1,hp/max));
+  const D=p.drv,o=D.o,armed=drvArmed(p),{hp,max}=drvHP(D),f=Math.max(0,Math.min(1,hp/max));
   const set=(k,el,v)=>{if(H.txt[k]!==v){H.txt[k]=v;el.innerHTML=hudHTML(v);}};
   H.el.hidden=false;H.dv.hidden=false;
-  set('n',H.name,drvName(D).replace(/^./,c=>c.toUpperCase())+'  ·  '+Math.max(0,Math.ceil(hp))+' / '+Math.round(max));
+  set('n',H.name,(D.seat==='gun'?'Gunner  ·  ':'')+drvName(D).replace(/^./,c=>c.toUpperCase())+'  ·  '+Math.max(0,Math.ceil(hp))+' / '+Math.round(max));
   const w=(f*100).toFixed(1)+'%';if(H.txt.w!==w){H.txt.w=w;H.fill.style.width=w;H.fill.style.background=f>0.5?'#7fc24a':f>0.25?'#f0a04a':'#e0564a';}
   if(H.lastHp!==undefined&&hp<H.lastHp)H.hitT=camClock;H.lastHp=hp;H.box.classList.toggle('hit',camClock-(H.hitT??-9)<0.25);
   const bl=id=>btnMark(p.pad?bindGlyph('pad',BINDS[id].pad[p.pad&&id==='bite'?1:0]??BINDS[id].pad[0]):bindGlyph('kb',BINDS[id].kb[0])),out=drvKey(p);
   const lk=bl('lock'),LT=p.lockT,W=armed&&o.wpn?Object.values(o.wpn):[],w0=W[0],ready=!w0||w0.rl<=0&&w0.n>0;
-  set('w',H.wpn,armed?(LT?'Locked on '+(isMilT(LT)?MIL[LT.kind].name.toLowerCase():isCarT(LT)?'a '+(LT.veh||'car'):'a goblin')+' ('+lk+' let go)':lk+' lock on')+'  ·  '+out+' get out'
+  // (the other seat, if it's free: the weapon button moves you to it. See gunner.js)
+  const sw=drvSwapTo(p)?'  ·  '+bl('weapon')+(D.seat==='gun'?' drive':' man the gun'):!armed&&o.gnr&&(D.k==='tank'||D.k==='heli')?'  ·  Your gunner has the guns':'';
+  set('w',H.wpn,(armed?(LT?'Locked on '+(isMilT(LT)?MIL[LT.kind].name.toLowerCase():isCarT(LT)?'a '+(LT.veh||'car'):'a goblin')+' ('+lk+' let go)':lk+' lock on')+'  ·  '+out+' get out'
     :D.k==='car'&&o.veh==='fire'?bl('bite')+' spray water  ·  '+bl('stomp')+' horn  ·  '+out+' get out'
-    :D.k==='plane'?planeHud(o.free)+'  ·  '+out+' get out':out+' get out');
+    :D.k==='plane'?planeHud(o.free)+'  ·  '+out+' get out':out+' get out')+sw);
   const hose=D.k==='car'&&o.veh==='fire';H.xh.hidden=!armed&&!hose;if(hose){H.xh.classList.remove('cool','lock');H.xh.classList.toggle('water',!!o.hose);}if(armed){H.xh.classList.toggle('cool',!ready);H.xh.classList.toggle('lock',!!LT);}
   // (the ammo by the crosshair: each weapon, its button, a pip for each round left -- or a bar, for a machine gun's
   // belt -- and while it reloads, a bar filling and the seconds to go)
@@ -15449,7 +15535,7 @@ function crewCar(){let c=CREWCARS.find(o=>!o.alive);
 // one put down at x,z, empty, as the given kind (k: who crews it)
 function crewPut(c,t,x,z,h,key,k){
   setVeh(c,t);c.paint.color.setHex(c.color);c.rusted=false;c.spot=key;c.pos.set(x,groundAt(x,z,G+6),z);c.heading=h;c.speed=0;c.kv.set(0,0,0);c.hp=CREW_HP[t];c.alive=true;c.hunter=false;c.parked=true;c.vy=0;c.driver=null;
-  c.rt=null;c.hw=null;c.path=null;c.svc=null;c.leaving=false;c.left=false;c.makeWay=0;c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.steer=0;c.paint.emissive.setHex(0);
+  c.rt=null;c.hw=null;c.path=null;c.svc=null;c.leaving=false;c.left=false;c.makeWay=0;c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.steer=0;c.paint.emissive.setHex(0);c.wpn=null;c.gunYaw=0;
   c.g.visible=true;c.g.position.copy(c.pos);c.g.rotation.set(0,h,0);
   c.crew={k,drv:null,gun:null,go:false,run:{},yaw:0,cd:1,burst:0,bt:0,side:Math.random()<0.5?1:-1};crewShow(c);
 }
@@ -15469,7 +15555,7 @@ function crewDoor(o,seat){
 // is the seat it's running for still there to fill?
 function crewWanted(m){const o=m.o;if(m.home)return true;
   if(o.isMil)return!o.dead&&!o.crew&&!o.drv&&o.state==='man';
-  return o.alive&&!!o.crew&&!o.crew[m.seat]&&!o.drv;}
+  return o.alive&&!!o.crew&&!o.crew[m.seat]&&!o.drv&&!o.gnr;}
 // one of the camp's kind (k), out of the pools at x,z, running for o's seat
 function crewSend(k,x,z,o,seat){
   if(k==='soldier')jackKinds();const g=freeFoe(k,24);if(!g)return null;
@@ -15576,14 +15662,14 @@ function crewSite(V,me,dmin,dt){
       c=crewCar();if(!c)continue;crewPut(c,S.t,S.x,S.z,S.h,key,'militia');V.vcar[i]=c;}
     if(!c)continue;const C=c.crew;if(!C)continue;
     C.go=V.roused&&!calmNow();
-    if(!C.go||c.drv)continue;
+    if(!C.go||c.drv||c.gnr)continue;
     for(const s of ['drv','gun']){if(C[s])continue;const r=C.run[s];
       if(r&&r.state==='chase'&&r.mount&&r.mount.o===c)continue;   // (one's on the way)
       C.run[s]=null;const w=C.wait||(C.wait={});w[s]=(w[s]||0)-dt;if(w[s]>0)continue;w[s]=1.2;   // (and the next only a moment after one's fallen)
       const x=V.X0+40+Math.random()*12,z=V.Z0+22+Math.random()*2;C.run[s]=crewSend('militia',x,z,c,s);}}
 }
-function crewDrop(V){for(const c of V.vcar)if(c&&c.alive&&!c.drv&&c.spot&&c.spot.startsWith(V.key+':')){c.alive=false;c.g.visible=false;c.spot=null;c.crew=null;}
-  for(const c of V.vcar)if(c&&c.drv)c.spot=null;}   // (being driven: it stays, and goes once it's left far behind)
+function crewDrop(V){for(const c of V.vcar)if(c&&c.alive&&!c.drv&&!c.gnr&&c.spot&&c.spot.startsWith(V.key+':')){c.alive=false;c.g.visible=false;c.spot=null;c.crew=null;}
+  for(const c of V.vcar)if(c&&(c.drv||c.gnr))c.spot=null;}   // (being driven: it stays, and goes once it's left far behind)
 // ---- the bases' armour (from updateArmy) ----
 // a tank or helicopter chosen to go out: if it's empty, a soldier runs out of the barracks to it (M.state 'man' till
 // he's in); one already crewed (the Testing Environment's) goes straight away
@@ -20054,7 +20140,7 @@ function updateCars(dt){
       if(!gone&&c.stuckLong>25&&c.visT<=0){c.visT=0.5;if(!visibleToAny(c.pos.x,c.pos.y+1,c.pos.z)){gone=true;c.stuckLong=0;}}}
     if(c.svcPool)gone=!any||any.d>(c.svcPool==='news'?620:320);   // (a news van comes from further off: see NEWS_R)
     if(c.crewPool)gone=!c.spot&&(!any||any.d>viewFar()+30);   // (a militia vehicle's camp keeps it: see crewSite. Driven off, it goes once left far behind)
-    if(c.drv)gone=false;   // (never recycled from under its driver)
+    if(c.drv||c.gnr)gone=false;   // (never recycled from under its driver, or its gunner)
     if(gone&&c.pullPool){c.hazard=false;c.hazG.visible=false;c.pullLit=false;}
     if(gone){if(c.svcPool){svcDone(c);continue;}c.alive=false;c.g.visible=false;c.respawnT=c.police?6:0.5;c.hunter=false;c.spot=null;continue;}
     c.hurt-=dt;c.ramCD-=dt;c.honkT-=dt;
@@ -20076,6 +20162,7 @@ function updateCars(dt){
     if(playing&&!c.hw&&!c.rt&&!c.path&&!c.parked&&!c.svcPool&&!c.hunter&&!c.police&&!c.drv&&!c.left&&!c.crew&&c.pos.y>G+2.5){const sh=Math.sin(c.heading),ch=Math.cos(c.heading),ax=Math.abs(sh)>Math.abs(ch)?'x':'z',dir=ax==='x'?Math.sign(sh):Math.sign(ch),k=Math.floor(((ax==='x'?c.pos.z:c.pos.x)+3)/CELL),al=ax==='x'?c.pos.x:c.pos.z;
       // (a long truck's middle sits well up the slope with its nose already on the street: it's finished with the ramp, not back on it)
       if(hwRampAt(ax,k,al)&&hwSurf(ax,k,al)>G+1.5){const inner=((ax==='x')===(dir>0))?5.5:2.5;c.hw={ax,dir,lane:k*CELL+inner,y:hwSurf(ax,k,al)};c.leaving=false;}}
+    if(c.gnr)gnrCar(c,dt);   // (a player on its gun: see gunner.js)
     if(c.drv)drvCar(c,dt);   // (a goblin at the wheel: see drvCar)
     else if(c.left)c.speed*=Math.exp(-dt*3);   // (got out of and left where it stopped)
     else if(!playing){c.speed*=Math.exp(-dt*3);}
@@ -21675,7 +21762,7 @@ function netPlayerState(p,seat,N){
     rd:!!(p.drv||p.rideC||p.standCar||p.vcl&&p.state==='climb')};
   // (in a vehicle: what it is and where, for the guest's chase camera)
   if(p.drv&&!p.drv.jack){try{const D=p.drv,S=drvPose(D),H=drvHP(D),o=D.o,W={};for(const k in o.wpn||{}){const s=o.wpn[k];W[k]=[s.n,Math.round(s.rl*10)/10];}
-    e.dv=[D.k,r3(S.x),r3(S.y),r3(S.z),r3(S.h),r3(S.hx),r3(S.hz),r3(S.hy),r3(S.v||0),drvName(D),Math.round(H.hp*10)/10,H.max,W,o.veh||'',!!o.hose];}catch(er){}}   // (and its name, health and guns, for the guest's own display)   // (driving, riding or clinging to something that moves: the guest can't guess that, so it doesn't try)
+    e.dv=[D.k,r3(S.x),r3(S.y),r3(S.z),r3(S.h),r3(S.hx),r3(S.hz),r3(S.hy),r3(S.v||0),drvName(D),Math.round(H.hp*10)/10,H.max,W,o.veh||'',!!o.hose,D.seat||'',!!o.gnr];}catch(er){}}   // (and its name, health and guns, for the guest's own display)   // (driving, riding or clinging to something that moves: the guest can't guess that, so it doesn't try)
   // (the guest's own seat: the last of its controls this took in, and how long ago, so it can tell how far its own guess has drifted)
   if(p.net&&p.net.seat===seat){e.ack=N.inN||0;e.adt=Math.round(NET.now-(N.inAt||NET.now));}
   return e;
@@ -22008,8 +22095,8 @@ function netCommit(m){
     for(const k in e.f){if(own&&!NET_AUTH.includes(k))continue;const v=e.f[k];if(Array.isArray(v)){if(q[k] instanceof V3)q[k].set(v[0],v[1],v[2]);else q[k]=new V3(v[0],v[1],v[2]);}else if(v&&v.l)q[k]=v.l.slice();else q[k]=netDec(v);}
     if(!(q===P1&&NETP.on))q.lockT=netDeref(e.lk);
     if(e.dv){if(!q.drv||!q.drv.netS)q.drv={k:e.dv[0],o:{},netS:{x:0,y:0,z:0,h:0,hx:1,hz:1,hy:1,v:0}};const D=q.drv,S=D.netS;D.k=e.dv[0];S.hx=e.dv[5];S.hz=e.dv[6];S.hy=e.dv[7];S.v=e.dv[8];
-      D.netN=e.dv[9];D.netHP={hp:e.dv[10],max:e.dv[11]};D.o.veh=e.dv[13]||undefined;D.o.hose=!!e.dv[14];
-      const W=e.dv[12]||{};if(Object.keys(W).length){if(!D.o.wpn)wpnInit(D.o,D.k);for(const k in W)if(D.o.wpn[k]){D.o.wpn[k].n=W[k][0];D.o.wpn[k].rl=W[k][1];}}}
+      D.netN=e.dv[9];D.netHP={hp:e.dv[10],max:e.dv[11]};D.o.veh=e.dv[13]||undefined;D.o.hose=!!e.dv[14];D.seat=e.dv[15]||undefined;D.o.gnr=e.dv[16]?q:null;
+      const W=e.dv[12]||{};if(Object.keys(W).length){if(!D.o.wpn)wpnInit(D.o,drvGunK(D));for(const k in W)if(D.o.wpn[k]){D.o.wpn[k].n=W[k][0];D.o.wpn[k].rl=W[k][1];}}}
     else if(q.drv&&q.drv.netS)q.drv=null;
     if(q===P1&&NETP.snap){NETP.snap=false;NETP.corr.set(0,0,0);NETP.hist.length=0;q.pos.set(e.pos[0],e.pos[1],e.pos[2]);q.heading=e.h;}
   }

@@ -13,6 +13,15 @@
 - Gnash and Grizzle swing the same way: a club drawn back and chopped down, a dagger drawn back and thrust, in your own view and as other players see you. Their arm follows through after a grenade throw.
 - The Dev tab's Enemies viewer marks each attack's wind-up, strike and follow-through on the timeline.
 
+### Driver and gunner
+
+- Two goblins can now share one armed vehicle. While one player drives, the other walks up and presses the get-in button to take the gunner's seat. Both local and online co-op work.
+- Technicals and four-wheelers: the gunner works the machine gun or the rifle, aiming wherever they look while the driver steers. You see them standing at the gun in the truck bed, or sitting behind the rider.
+- Tanks and helicopters: the gunner aims the turret, or the helicopter's gun and rockets, with their own view while the driver steers or flies.
+- On your own, the weapon button switches between the driver's seat and the gun, so you can man a parked technical's gun yourself. If the driver gets out, the gunner can keep shooting from where the vehicle stopped.
+- The gunner's machine gun has a 50-round belt, and the four-wheeler's rifle holds 6 rounds. Both reload by themselves.
+- A goblin under your crosshair is now what vehicle guns aim at, rather than the ground behind it, so shots from a gun mounted off to one side don't miss.
+
 ## Version 0.3
 
 ### Highlights

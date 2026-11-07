@@ -35,6 +35,7 @@ player/climb.js
 player/climb-vehicles.js
 player/pivots.js
 vehicles/driving.js
+vehicles/gunner.js
 vehicles/fight.js
 vehicles/carjack.js
 vehicles/hose.js

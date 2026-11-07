@@ -18,7 +18,7 @@ function crewCar(){let c=CREWCARS.find(o=>!o.alive);
 // one put down at x,z, empty, as the given kind (k: who crews it)
 function crewPut(c,t,x,z,h,key,k){
   setVeh(c,t);c.paint.color.setHex(c.color);c.rusted=false;c.spot=key;c.pos.set(x,groundAt(x,z,G+6),z);c.heading=h;c.speed=0;c.kv.set(0,0,0);c.hp=CREW_HP[t];c.alive=true;c.hunter=false;c.parked=true;c.vy=0;c.driver=null;
-  c.rt=null;c.hw=null;c.path=null;c.svc=null;c.leaving=false;c.left=false;c.makeWay=0;c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.steer=0;c.paint.emissive.setHex(0);
+  c.rt=null;c.hw=null;c.path=null;c.svc=null;c.leaving=false;c.left=false;c.makeWay=0;c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.steer=0;c.paint.emissive.setHex(0);c.wpn=null;c.gunYaw=0;
   c.g.visible=true;c.g.position.copy(c.pos);c.g.rotation.set(0,h,0);
   c.crew={k,drv:null,gun:null,go:false,run:{},yaw:0,cd:1,burst:0,bt:0,side:Math.random()<0.5?1:-1};crewShow(c);
 }
@@ -38,7 +38,7 @@ function crewDoor(o,seat){
 // is the seat it's running for still there to fill?
 function crewWanted(m){const o=m.o;if(m.home)return true;
   if(o.isMil)return!o.dead&&!o.crew&&!o.drv&&o.state==='man';
-  return o.alive&&!!o.crew&&!o.crew[m.seat]&&!o.drv;}
+  return o.alive&&!!o.crew&&!o.crew[m.seat]&&!o.drv&&!o.gnr;}
 // one of the camp's kind (k), out of the pools at x,z, running for o's seat
 function crewSend(k,x,z,o,seat){
   if(k==='soldier')jackKinds();const g=freeFoe(k,24);if(!g)return null;
@@ -145,14 +145,14 @@ function crewSite(V,me,dmin,dt){
       c=crewCar();if(!c)continue;crewPut(c,S.t,S.x,S.z,S.h,key,'militia');V.vcar[i]=c;}
     if(!c)continue;const C=c.crew;if(!C)continue;
     C.go=V.roused&&!calmNow();
-    if(!C.go||c.drv)continue;
+    if(!C.go||c.drv||c.gnr)continue;
     for(const s of ['drv','gun']){if(C[s])continue;const r=C.run[s];
       if(r&&r.state==='chase'&&r.mount&&r.mount.o===c)continue;   // (one's on the way)
       C.run[s]=null;const w=C.wait||(C.wait={});w[s]=(w[s]||0)-dt;if(w[s]>0)continue;w[s]=1.2;   // (and the next only a moment after one's fallen)
       const x=V.X0+40+Math.random()*12,z=V.Z0+22+Math.random()*2;C.run[s]=crewSend('militia',x,z,c,s);}}
 }
-function crewDrop(V){for(const c of V.vcar)if(c&&c.alive&&!c.drv&&c.spot&&c.spot.startsWith(V.key+':')){c.alive=false;c.g.visible=false;c.spot=null;c.crew=null;}
-  for(const c of V.vcar)if(c&&c.drv)c.spot=null;}   // (being driven: it stays, and goes once it's left far behind)
+function crewDrop(V){for(const c of V.vcar)if(c&&c.alive&&!c.drv&&!c.gnr&&c.spot&&c.spot.startsWith(V.key+':')){c.alive=false;c.g.visible=false;c.spot=null;c.crew=null;}
+  for(const c of V.vcar)if(c&&(c.drv||c.gnr))c.spot=null;}   // (being driven: it stays, and goes once it's left far behind)
 // ---- the bases' armour (from updateArmy) ----
 // a tank or helicopter chosen to go out: if it's empty, a soldier runs out of the barracks to it (M.state 'man' till
 // he's in); one already crewed (the Testing Environment's) goes straight away
