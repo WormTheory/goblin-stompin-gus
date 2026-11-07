@@ -136,7 +136,8 @@ function frame(now){
   safe('far',()=>updateFar(dt));safe('debug',()=>updateDebug(gdt));safe('explore',()=>updateExplore(dt));
   safe('chunks',()=>{updateChunks(P2.active?2:1,dt);flushRebuilds();flushNotes(2);planAhead();regionTick();});
   camClock+=dt;
-  for(const p of players){poundWoosh(p);runWoosh(p);bodyStreaks(p,gdt);if(!p.active)continue;updateSpeedFx(p,gdt);placeCamera(p);updateSpeedo(p,dt);updateMinimap(p,dt);p.shake*=Math.exp(-gdt*7);}
+  // (a guest online is shown players it doesn't run itself: anything amiss with one mustn't stop the whole game)
+  for(const p of players){try{poundWoosh(p);runWoosh(p);bodyStreaks(p,gdt);if(!p.active)continue;updateSpeedFx(p,gdt);placeCamera(p);updateSpeedo(p,dt);updateMinimap(p,dt);p.shake*=Math.exp(-gdt*7);}catch(e){if(!netGuest())throw e;safe('view',()=>{throw e;});}}
   if(DT.freecam){P1.camera.position.copy(FC.pos);P1.camera.rotation.set(FC.pitch,FC.yaw,0,'YXZ');}
   const act=players.filter(p=>p.active);
   const mx=act.reduce((s,p)=>s+p.pos.x,0)/act.length,mz=act.reduce((s,p)=>s+p.pos.z,0)/act.length;
@@ -149,7 +150,7 @@ function frame(now){
     u.uMRep.value=size/D.mperiod;u.uMOff.value.set(((mx-D.drift[0])/D.mperiod-u.uMRep.value/2)%1,((-mz+D.drift[1])/D.mperiod-u.uMRep.value/2)%1);}
   hintTime-=dt;
   for(const p of act){
-    gobArmsHud(p);
+    if(netGuest())safe('arms',()=>gobArmsHud(p));else gobArmsHud(p);
     const hint=p.ui.hint,grab=p===P1&&mouseNeedsClick();hint.hidden=!(grab||playing&&hintTime>0);
     if(grab){const txt='Click to look around with the mouse';if(hint._s!==txt){hint._s=txt;hint.textContent=txt;}}
     else if(!hint.hidden){const txt=touchMode&&!p.pad?(p.gob?'BITE attacks  ·  STOMP throws a grenade  ·  JUMP  ·  tap DASH to dash, hold to sprint':'Hold STOMP  ·  BITE  ·  JUMP  ·  tap DASH to dash, hold to '+(ABIL.trample?'trample':'sprint')):bindHint(!!p.pad,p);if(hint._s!==txt){hint._s=txt;hint.innerHTML=hudHTML(txt);}}
