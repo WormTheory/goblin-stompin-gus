@@ -46,20 +46,23 @@ function foeRanged(g,p,d,ddy,dt){
   if(g.aim>0){
     if(g.stun>0||!playing||g.wet){g.aim=0;if(g.orb)g.orb.visible=false;return false;}
     g.aim-=dt;face(8);
-    if(g.aimK==='gun'){g.arm.rotation.x=-1.5;g.armL.rotation.x=-1.35;}
-    else{const k=1-Math.max(0,g.aim)/0.6;g.orb.visible=true;g.armL.rotation.x=-0.6-2.3*Math.min(1,k*1.5);g.arm.rotation.x=-0.5;}
-    if(g.aim<=0){
+    // (shouldering the rifle and holding it on him, or drawing the grenade back behind the head: see strikes.js)
+    if(g.aimK==='gun')gobStrike(g,'aim',1-Math.max(0,g.aim)/F.gun[2]);
+    else{g.orb.visible=true;gobStrike(g,'throw',1-Math.max(0,g.aim)/0.6);}
+    if(g.aim<=0){g.relS=0;g.relK=g.aimK==='gun'?'aim':'throw';
       if(g.aimK==='gun'){foeShoot(g,p,F.gun);g.gunCD=F.gun[3][0]+Math.random()*(F.gun[3][1]-F.gun[3][0]);}
-      else{foeThrow(g,p,F.bomb);g.bombCD=F.bomb[2][0]+Math.random()*(F.bomb[2][1]-F.bomb[2][0]);g.orb.visible=false;g.armL.rotation.x=-1.0;}}
+      else{foeThrow(g,p,F.bomb);g.bombCD=F.bomb[2][0]+Math.random()*(F.bomb[2][1]-F.bomb[2][0]);g.orb.visible=false;}}
     return true;}
+  // (just fired or thrown: the kick, or the arm coming through, and back down)
+  const fol=(g.relS??9)<STRIKE_FT&&g.relK;if(fol)gobStrike(g,g.relK,1+g.relS/STRIKE_FT);
   const ready=playing&&g.stun<=0&&g.vy===0&&!g.wet&&!g.act;
   if(ready&&F.bomb&&g.bombCD<=0){
     // (a bomb can go over a wall: they'll lob one without a clear view, if you're near enough)
     if(d>F.bomb[0]&&d<F.bomb[1]&&Math.abs(ddy)<10&&(cultSees(g,p)||d<F.bomb[1]*0.7)){g.aim=0.6;g.aimK='bomb';return true;}g.bombCD=0.5;}
   if(ready&&F.gun&&g.gunCD<=0){
     if(d>F.gun[0]&&d<F.gun[1]&&Math.abs(ddy)<24&&cultSees(g,p)){g.aim=F.gun[2];g.aimK='gun';if(audio)tone('square',1400,1200,0.04,0.03);return true;}g.gunCD=0.3;}
-  g.armL.rotation.x+=(0-g.armL.rotation.x)*Math.min(1,dt*6);
-  if(g.hold){face(3);g.arm.rotation.x=-0.5;return true;}
+  if(!fol)g.armL.rotation.x+=(0-g.armL.rotation.x)*Math.min(1,dt*6);
+  if(g.hold){face(3);if(!fol)g.arm.rotation.x=-0.5;return true;}
   return false;
 }
 // a rifle shot: there and back in the instant, a tracer to show it; more likely to miss the further off he is

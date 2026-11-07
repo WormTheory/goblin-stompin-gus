@@ -33,13 +33,14 @@ function cultCast(g,p,d,ddy,dt){
   if(g.cast>0){
     if(g.stun>0||!playing||g.wet){g.cast=0;g.orb.visible=false;return false;}
     g.cast-=dt;let df=Math.atan2(p.pos.x-g.pos.x,p.pos.z-g.pos.z)-g.heading;while(df>Math.PI)df-=Math.PI*2;while(df<-Math.PI)df+=Math.PI*2;g.heading+=Math.max(-8*dt,Math.min(8*dt,df));
-    const k=1-Math.max(0,g.cast)/CULT_CAST;g.armL.rotation.x=-0.6-2.2*Math.min(1,k*1.6);g.arm.rotation.x=-0.5;g.orb.visible=true;g.orb.scale.setScalar(0.4+k*0.9);g.roles.orb.emissive.setHex(0xff5a00);
-    if(g.cast<=0){
+    const k=1-Math.max(0,g.cast)/CULT_CAST;gobStrike(g,'cast',k);g.orb.visible=true;g.orb.scale.setScalar(0.4+k*0.9);g.roles.orb.emissive.setHex(0xff5a00);   // (raised high as it grows, drawn back, hurled: strikes.js)
+    if(g.cast<=0){g.relS=0;g.relK='cast';
       // (thrown overarm, from just over its head, at his chest: flat enough to clear a knee-high wall or stone)
       const fx=Math.sin(g.heading),fz=Math.cos(g.heading);
       fireball(g.pos.x+fx*0.5,g.pos.y+1.6,g.pos.z+fz*0.5,p.pos.x,p.pos.y+1.5,p.pos.z,g.id);
-      g.orb.visible=false;g.castCD=2.4+Math.random()*1.6;g.armL.rotation.x=-1.0;}
+      g.orb.visible=false;g.castCD=2.4+Math.random()*1.6;}
     return true;}
+  if((g.relS??9)<STRIKE_FT&&g.relK==='cast'){gobStrike(g,'cast',1+g.relS/STRIKE_FT);return false;}   // (the arm coming through after the throw)
   if(g.castCD<=0){
     if(playing&&g.stun<=0&&g.vy===0&&!g.wet&&!g.act&&d>4.5&&d<30&&Math.abs(ddy)<14&&cultSees(g,p)){g.cast=CULT_CAST;if(audio)tone('triangle',180,420,CULT_CAST,0.04);return true;}
     g.castCD=0.3;}   // (not now: look again in a moment, not every frame)

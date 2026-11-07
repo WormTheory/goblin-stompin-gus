@@ -187,10 +187,10 @@ function gobKit(p){
   const m=goblinModel(root,{club:false,tunic:p.idx?0xa83232:0x3a5f8a});
   // (and what's in his hand, for the others to see: the weapon he's holding, the same shapes the enemies carry)
   const tp={},tm=c=>new THREE.MeshLambertMaterial({color:c}),tb=(w,h,d,c,x,y,z,g)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),tm(c));o.position.set(x,y,z);g.add(o);};
-  for(const k of GOB_WPN_ORDER){tp[k]=new THREE.Group();m.arm.add(tp[k]);tp[k].visible=k==='club';}
-  tb(0.11,0.11,0.55,GC.club,0,-0.38,0.22,tp.club);tb(0.19,0.19,0.19,GC.club,0,-0.38,0.5,tp.club);
-  tb(0.08,0.08,0.12,0x2a1a10,0,-0.42,0.06,tp.dagger);tb(0.05,0.03,0.34,0xd0d4dc,0,-0.42,0.29,tp.dagger);
-  tb(0.1,0.3,0.14,0x4a3420,0,-0.36,0.06,tp.rifle);tb(0.07,0.62,0.07,0x22262c,0,-0.78,0.06,tp.rifle);tb(0.05,0.12,0.05,0x22262c,0,-0.52,0.13,tp.rifle);
+  for(const k of GOB_WPN_ORDER){tp[k]=new THREE.Group();m.arm.hand.add(tp[k]);tp[k].visible=k==='club';}   // (in the wrist, as the enemies hold theirs)
+  tb(0.11,0.11,0.55,GC.club,0,0.02,0.22,tp.club);tb(0.19,0.19,0.19,GC.club,0,0.02,0.5,tp.club);
+  tb(0.08,0.08,0.12,0x2a1a10,0,-0.02,0.06,tp.dagger);tb(0.05,0.03,0.34,0xd0d4dc,0,-0.02,0.29,tp.dagger);
+  tb(0.1,0.3,0.14,0x4a3420,0,0.04,0.06,tp.rifle);tb(0.07,0.62,0.07,0x22262c,0,-0.38,0.06,tp.rifle);tb(0.05,0.12,0.05,0x22262c,0,-0.12,0.13,tp.rifle);
   // (drawn last and over everything, so it never pokes through a wall you're stood against)
   const vm=new THREE.Group();vm.rotation.order='YXZ';vm.visible=false;vm.scale.setScalar(0.5);scene.add(vm);
   const arm=new THREE.Group();arm.position.set(0.52,-0.62,-0.72);vm.add(arm);
@@ -239,12 +239,23 @@ function pivArc(p,e0,e1){
   if(P.arc===undefined){const m=at(th,0.5);P.arc=solidAt(Math.floor(m[0]),Math.floor(m[1]),Math.floor(m[2]))?th-Math.sign(th)*2*Math.PI:th;}
   return at(P.arc,P.t*P.t*(3-2*P.t));
 }
+// how far along his swing he is, on strikes.js's timeline: 0 to 1 up to the moment it hits (the attack's lunge, when doBite
+// runs), 1 to 2 after; 0 when he isn't swinging
+function gobSwingU(p){
+  if(!(p.biteT>0))return 0;const W=gobW(p),D=p.biteDur||W.dur,h=Math.min(W.lunge,D*0.9),t=D-p.biteT;
+  return t<h?t/h:1+(t-h)/Math.max(0.01,D-h);
+}
 // the body others see: legs swinging as he walks; the rifle held up at where he's looking, kicking when it fires; the club
-// and dagger swinging (the Dev tab's preview poses his model with this too)
+// chopped and the dagger thrust as the enemies do theirs, and the arm coming through after a grenade's thrown (the Dev
+// tab's preview poses his model with this too). The body's twist, lean and step are left on m.atkX: see gobBodyRoot.
 function gobBodyPose(m,p){
   const walking=p.state==='walk'&&p.grounded&&p.lastSp>0.2,sn=Math.sin(p.phase),sw=p.biteT>0?1-p.biteT/(p.biteDur||0.38):0,wk=gobArms(p).wpn;
   m.legs[0].rotation.x=walking?sn*0.7:0;m.legs[1].rotation.x=walking?-sn*0.7:0;
-  m.arm.rotation.x=wk==='rifle'?-Math.PI/2-p.cam.pitch+(p.biteT>0?0.25*Math.max(0,1-sw*4):0):sw>0?-0.5-1.9*Math.sin(sw*Math.PI):-0.5;
+  const X=m.atkX||(m.atkX={tw:0,ln:0,lu:0});X.tw=X.ln=X.lu=0;m.arm.rotation.z=0;m.arm.hand.rotation.x=0;m.armL.rotation.x=0;
+  if((p.thrS??9)<STRIKE_FT)gobStrike(m,'throw',1+p.thrS/STRIKE_FT,'L');   // (the throw's the instant you press: only its follow-through shows)
+  if(wk==='rifle')m.arm.rotation.x=-Math.PI/2-p.cam.pitch+(p.biteT>0?0.25*Math.max(0,1-sw*4):0);
+  else if(p.biteT>0)gobStrike(m,wk==='dagger'?'dagger':'club',gobSwingU(p));
+  else m.arm.rotation.x=-0.5;
 }
 function gobCamera(p){
   const K=gobKit(p),lie=p.state==='dead'?Math.min(1,p.t*3):0,walking=p.state==='walk'&&p.grounded&&p.lastSp>0.2,sn=Math.sin(p.phase),v=p.visOff;
@@ -258,17 +269,16 @@ function gobCamera(p){
   if(p.shake>0.002&&gameSpeed()>0){c.x+=(Math.random()-.5)*p.shake;c.y+=(Math.random()-.5)*p.shake;c.z+=(Math.random()-.5)*p.shake;}
   const ex=c.x,ez=c.z;eyeRoom(c);
   const sw=p.biteT>0?1-p.biteT/(p.biteDur||0.38):0;
-  K.root.position.set(p.pos.x+c.x-ex,p.pos.y+lie*0.15,p.pos.z+c.z-ez);   // (his body comes off the wall with his eye)
-  K.root.rotation.set(-lie*Math.PI/2,p.heading,0);   // (facing where he looks, and flat on his back when he's dead)
-  // up and back until the blow lands (with the bite's own timing), down hard, and slowly back to the rest
-  const raise=sw<0.42?1.1*sw/0.42:sw<0.55?1.1-1.7*(sw-0.42)/0.13:-0.6+0.6*(sw-0.55)/0.45;
   const wk=gobArms(p).wpn;for(const k in K.held)K.held[k].visible=k===wk;for(const k in K.tp)K.tp[k].visible=k===wk;
   gobBodyPose(K.m,p);
-  // (switching: the new one comes up from below; the rifle's held level along the view and kicks when it fires)
-  const up=Math.max(0,1-(camClock-(p.wpnT??-9))/0.25);
-  if(wk==='rifle'){const kick=p.biteT>0?Math.max(0,1-sw*4):0;K.arm.rotation.x=0.04+0.22*kick;K.arm.position.set(0.34,-0.46-up*0.5+(walking?Math.abs(sn)*0.012:0),-0.5+0.12*kick);}
-  else if(wk==='dagger'){const st=Math.sin(Math.min(1,sw*1.5)*Math.PI);K.arm.rotation.x=0.3-0.26*st+(walking?sn*0.03:0);K.arm.position.set(0.46-0.12*st,-0.6-up*0.5+(walking?Math.abs(sn)*0.012:0),-0.66-0.4*st);}   // (a stab, straight in)
-  else{K.arm.rotation.x=0.08+raise+(walking?sn*0.03:0);K.arm.position.set(0.52,-0.62-up*0.5+(walking?Math.abs(sn)*0.012:0),-0.72);}
+  // (his body comes off the wall with his eye; facing where he looks, turning into a blow, and flat on his back when he's dead)
+  gobBodyRoot(K.root,K.m,p.pos.x+c.x-ex,p.pos.y+lie*0.15,p.pos.z+c.z-ez,p.heading,-lie*Math.PI/2);K.root.rotation.z=0;
+  // (switching: the new one comes up from below; the rifle's held level along the view and kicks when it fires. The club
+  // goes up and back, a beat at the top, and chops down across the view as the blow lands; the dagger's drawn back and
+  // thrust straight in, at full stretch as it lands: strikes.js, with the attack's own timing)
+  const up=Math.max(0,1-(camClock-(p.wpnT??-9))/0.25),bob=walking?Math.abs(sn)*0.012:0;
+  if(wk==='rifle'){const kick=p.biteT>0?Math.max(0,1-sw*4):0;K.arm.rotation.x=0.04+0.22*kick;K.arm.position.set(0.34,-0.46-up*0.5+bob,-0.5+0.12*kick);}
+  else{const v=strikeAt(wk==='dagger'?'vmDagger':'vmClub',gobSwingU(p));K.arm.rotation.x=v[0]+(walking?sn*0.03:0);K.arm.position.set(v[1],v[2]-up*0.5+bob,v[3]);}
 }
 // who's seen from this view: everyone's goblin but your own, unless the free cam has left it
 function gobView(v){

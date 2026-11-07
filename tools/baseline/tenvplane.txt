@@ -8,8 +8,8 @@ console.log('W 3 s then W+Jump 3 s over the grass: speed',f1(pl.free.v),'height'
                                                                      ^
 
 TypeError: Cannot read properties of undefined (reading 'v')
-    at eval (eval at <anonymous> (C:\Claude\Goblin-Stompin-Gus\.worktrees\online-multiplayer\tools\tests\tenvplane.js:8:1), <anonymous>:50:70)
-    at Object.<anonymous> (C:\Claude\Goblin-Stompin-Gus\.worktrees\online-multiplayer\tools\tests\tenvplane.js:8:1)
+    at eval (eval at <anonymous> (C:\Claude\Goblin-Stompin-Gus\tools\tests\tenvplane.js:8:1), <anonymous>:50:70)
+    at Object.<anonymous> (C:\Claude\Goblin-Stompin-Gus\tools\tests\tenvplane.js:8:1)
     at Module._compile (node:internal/modules/cjs/loader:1968:14)
     at Object..js (node:internal/modules/cjs/loader:2108:10)
     at Module.load (node:internal/modules/cjs/loader:1690:32)

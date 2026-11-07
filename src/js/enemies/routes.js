@@ -228,7 +228,7 @@ function updateGoblins(dt){
   // goblin against every other one gets slow fast: 600 of them took 30+ ms a frame)
   GOB_GRID.clear();for(const g of goblins)if(g.state==='chase'){const k=gobCell(Math.floor(g.pos.x),Math.floor(g.pos.z)),l=GOB_GRID.get(k);if(l)l.push(g);else GOB_GRID.set(k,[g]);}
   goblins.forEach(g=>{
-    g.t+=dt;g.hurt-=dt;
+    g.t+=dt;g.hurt-=dt;g.atkS=(g.atkS??9)+dt;g.relS=(g.relS??9)+dt;   // (since its last blow, and since its last shot, throw or fireball: see strikes.js)
     {const glow=g.hurt>0;if(glow!==g.glow){g.glow=glow;for(const m of g.mats)m.emissive.setHex(glow?0x440000:0x000000);}}   // (only when it changes: ten materials a goblin, every frame, adds up in a crowd)
     if(g.state!=='chase'){g.act=null;g.fallTop=undefined;}
     if(g.state==='wait'){
@@ -262,9 +262,9 @@ function updateGoblins(dt){
     // (partway through a jump or a climb: that's all it's doing, unless something knocks it off)
     if(g.act){if(g.stun>0||!playing)g.act=null;else{
       let held=false;if(g.act.k==='up'||g.act.k==='down'){const t=nearestPlayer(g.pos.x,g.pos.z,true);if(t&&t.d<2.3){const q=t.p,dy=q.pos.y-g.pos.y;
-        if(dy>-1.3&&dy<1.5){held=true;g.atk-=dt;g.arm.rotation.x=g.atk<0.45?-0.5-1.9*(1-Math.max(0,g.atk)/0.45):-2.4;
+        if(dy>-1.3&&dy<1.5){held=true;g.atk-=dt;if(g.atk<=0)g.atkS=0;if(!gobMeleePose(g,true))g.arm.rotation.x+=(-0.5-g.arm.rotation.x)*Math.min(1,dt*8);
           if(g.atk<=0){g.atk=1.5;const ux=(g.pos.x-q.pos.x)/(t.d||1),uz=(g.pos.z-q.pos.z)/(t.d||1);damagePlayer(q,1,new V3(q.pos.x+ux*1.2,q.pos.y+1.1,q.pos.z+uz*1.2),new V3(-ux,0.3,-uz),'Clubbed off a wall',g.id);}}}}   // (both hanging on to the same wall: it stops climbing and swings)
-      if(!held)gobMoveStep(g,dt);g.root.position.set(g.pos.x,g.pos.y,g.pos.z);g.root.rotation.y=g.heading;return;}}
+      if(!held)gobMoveStep(g,dt);if(g.atkX){g.atkX.tw=g.atkX.ln=g.atkX.lu=0;g.root.rotation.x=0;}g.posed=false;g.root.position.set(g.pos.x,g.pos.y,g.pos.z);g.root.rotation.y=g.heading;return;}}   // (on a wall: just the arms, no twist or lunge)
     if(g.medic)moving=medicAI(g,dt);
     else if(g.ff)moving=fireAI(g,dt);
     else if(g.news)moving=newsAI(g,dt);
@@ -276,7 +276,7 @@ function updateGoblins(dt){
       // they can only club you if you're roughly level with them
       const reach=2.3,ddy=tgt.p.pos.y-g.pos.y,canHit=ddy>-1.3&&ddy<1.5;
       // a cultist conjuring a fireball stands its ground till it's thrown
-      if(g.cultist&&cultCast(g,tgt.p,d,ddy,dt)||g.foeKind&&FOES[g.foeKind].gun&&foeRanged(g,tgt.p,d,ddy,dt)){g.legs[0].rotation.x=g.legs[1].rotation.x=0;g.root.position.set(g.pos.x,g.pos.y,g.pos.z);g.root.rotation.y=g.heading;return;}
+      if(g.cultist&&cultCast(g,tgt.p,d,ddy,dt)||g.foeKind&&FOES[g.foeKind].gun&&foeRanged(g,tgt.p,d,ddy,dt)){g.legs[0].rotation.x=g.legs[1].rotation.x=0;gobRootPose(g,g.pos.y,dt);return;}
       // goblins holed up indoors stay put, pottering about, until a hippo is close and on their floor
       if(g.indoor&&!bldgAt(Math.floor(g.pos.x),Math.floor(g.pos.z)))g.indoor=false;
       if(g.cop&&g.inv&&d<22&&Math.abs(ddy)<4){g.inv=false;flashLabel('Police!',tgt.p);tone('square',880,660,0.25,0.05);}   // spotted!
@@ -340,10 +340,12 @@ function updateGoblins(dt){
           g.leapT=(g.leapT||0)-dt;if(ddy>=1.5&&ddy<4&&g.leapT<=0&&!g.wet&&g.vy===0){g.vy=Math.sqrt(50*(ddy-0.2));g.leapT=1.4;g.atk=0.1;}}
         else {
           g.atk-=dt;
-          if(g.atk<=0){dbgHit('dmg','cyl',{x:g.pos.x,y:g.pos.y-1.5,z:g.pos.z,r:2.3,h:2.8},'n');g.atk=g.cultist?0.85:g.foeKind?FOES[g.foeKind].melee[1]:1.5;g.arm.rotation.x=0.4;const q=tgt.p,ux=-dx/(d||1),uz=-dz/(d||1);damagePlayer(q,1,new V3(q.pos.x+ux*1.2,q.pos.y+1.1,q.pos.z+uz*1.2),new V3(-ux,0.3,-uz),g.cultist?'Stabbed with a ritual dagger':g.foeKind?FOES[g.foeKind].melee[2]:'Clubbed to death',g.id);}   // (a dagger's quicker than a club)
+          if(g.atk<=0){dbgHit('dmg','cyl',{x:g.pos.x,y:g.pos.y-1.5,z:g.pos.z,r:2.3,h:2.8},'n');g.atk=g.cultist?0.85:g.foeKind?FOES[g.foeKind].melee[1]:1.5;g.atkS=0;const q=tgt.p,ux=-dx/(d||1),uz=-dz/(d||1);damagePlayer(q,1,new V3(q.pos.x+ux*1.2,q.pos.y+1.1,q.pos.z+uz*1.2),new V3(-ux,0.3,-uz),g.cultist?'Stabbed with a ritual dagger':g.foeKind?FOES[g.foeKind].melee[2]:'Clubbed to death',g.id);}   // (a dagger's quicker than a club)
         }
       }
-      if(playing&&canHit&&d<=reach+0.3&&g.atk<0.45)g.arm.rotation.x=-0.5-1.9*(1-g.atk/0.45);
+      // (its blow: wound up over the last 0.45 s before it lands, then the follow-through; see strikes.js. Just after a
+      // shot or a throw, foeRanged has posed the arms already)
+      if(gobMeleePose(g,playing&&canHit&&d<=reach+0.3)||(g.relS??9)<STRIKE_FT&&g.posed){}
       else g.arm.rotation.x+=((-0.5+(moving?Math.sin(g.phase)*0.4:0))-g.arm.rotation.x)*Math.min(1,dt*8);
     }
     for(const p of players){if(!p.active||p.state==='dead'||Math.abs(p.pos.y-g.pos.y)>1.2||g.vy!==0)continue;const hx=g.pos.x-p.pos.x,hz=g.pos.z-p.pos.z,hd=Math.hypot(hx,hz),gap=p.gob?0.7:1.6;if(hd<gap&&hd>0.001)nudge(g,hx/hd*(gap-hd),hz/hd*(gap-hd));}
@@ -364,7 +366,7 @@ function updateGoblins(dt){
     const sn=Math.sin(g.phase);
     g.legs[0].rotation.x=moving?sn*0.7:0;g.legs[1].rotation.x=moving?-sn*0.7:0;
     if(g.wet&&moving){g.arm.rotation.x=-1.6+sn*0.9;g.armL.rotation.x=-1.6-sn*0.9;}else if(g.armL.rotation.x<-1.2&&!g.fleeing&&!g.special)g.armL.rotation.x=0;
-    g.root.position.set(g.pos.x,g.pos.y+(moving?Math.abs(sn)*0.05:0),g.pos.z);g.root.rotation.y=g.heading;
+    gobRootPose(g,g.pos.y+(moving?Math.abs(sn)*0.05:0),dt);
     g.head.rotation.z=Math.sin(g.t*2+g.heading)*0.08;
   });
 }

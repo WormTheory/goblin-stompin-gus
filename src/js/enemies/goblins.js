@@ -98,19 +98,22 @@ function goblinModel(parent,o={}){
   box(0.13,0.42,0.13,'skin',GC.skin,0,-0.2,0,armL);
   const arm=new THREE.Group();arm.position.set(0.32,0.92,0);parent.add(arm);out.arm=arm;
   box(0.13,0.42,0.13,'skin',GC.skin,0,-0.2,0,arm);
-  if(o.club!==false){box(0.11,0.11,0.55,'club',GC.club,0,-0.38,0.22,arm);box(0.19,0.19,0.19,'club',GC.club,0,-0.38,0.5,arm);}
+  // (whatever's in that hand hangs off a wrist, so a blow can turn it: a club chopped down, a dagger kept point first, a
+  // rifle swung round stock first. See strikes.js)
+  const hand=new THREE.Group();hand.position.set(0,-0.4,0);arm.add(hand);arm.hand=hand;
+  if(o.club!==false){box(0.11,0.11,0.55,'club',GC.club,0,0.02,0.22,hand);box(0.19,0.19,0.19,'club',GC.club,0,0.02,0.5,hand);}
   if(o.cult){
     // a cultist: a robe down to the ankles, a pointed hood (the ears poke out of it), a ritual dagger in the right hand,
     // and in the left a fireball, shown only while one's being conjured
     box(0.54,0.4,0.36,'tunic',o.tunic||GC.tunic,0,0.25,0,parent);
     box(0.58,0.1,0.52,'hood',0x2a0408,0,0.47,0,head);box(0.58,0.5,0.08,'hood',0x2a0408,0,0.22,-0.24,head);for(const s of[-1,1])box(0.07,0.44,0.5,'hood',0x2a0408,s*0.28,0.24,0,head);box(0.22,0.14,0.22,'hood',0x2a0408,0,0.58,-0.08,head);
-    box(0.08,0.08,0.12,'hilt',0x2a1a10,0,-0.42,0.06,arm);box(0.05,0.03,0.34,'blade',0xd0d4dc,0,-0.42,0.29,arm);
+    box(0.08,0.08,0.12,'hilt',0x2a1a10,0,-0.02,0.06,hand);box(0.05,0.03,0.34,'blade',0xd0d4dc,0,-0.02,0.29,hand);
     out.orb=box(0.24,0.24,0.24,'orb',0xff7a1a,0,-0.46,0.04,armL);out.orb.visible=false;
   }
   // the compounds' people: a dagger (thieves), or a rifle (pointing on down past the hand, so it's level when the arm is
   // raised to aim); and whatever they throw, in the left hand, shown only while they're winding up to throw it
-  if(o.gear==='dagger'){box(0.08,0.08,0.12,'hilt',0x2a1a10,0,-0.42,0.06,arm);box(0.05,0.03,0.3,'blade',0xd0d4dc,0,-0.42,0.27,arm);}
-  if(o.gear==='rifle'){box(0.1,0.3,0.14,'stock',0x4a3420,0,-0.36,0.06,arm);box(0.07,0.62,0.07,'gun',0x22262c,0,-0.78,0.06,arm);box(0.05,0.12,0.05,'gun',0x22262c,0,-0.52,0.13,arm);}
+  if(o.gear==='dagger'){box(0.08,0.08,0.12,'hilt',0x2a1a10,0,-0.02,0.06,hand);box(0.05,0.03,0.3,'blade',0xd0d4dc,0,-0.02,0.27,hand);}
+  if(o.gear==='rifle'){box(0.1,0.3,0.14,'stock',0x4a3420,0,0.04,0.06,hand);box(0.07,0.62,0.07,'gun',0x22262c,0,-0.38,0.06,hand);box(0.05,0.12,0.05,'gun',0x22262c,0,-0.12,0.13,hand);}
   if(o.held){const [w,h,d,c]=o.held;out.orb=box(w,h,d,'orb',c,0,-0.46,0.04,armL);out.orb.visible=false;}
   // hats
   acc('cap',[box(0.52,0.12,0.48,'hat',0x2a2a2a,0,0.47,0.02,head),box(0.34,0.04,0.2,'hat',0x2a2a2a,0,0.425,0.31,head)]);

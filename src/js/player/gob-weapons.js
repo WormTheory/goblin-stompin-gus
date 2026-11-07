@@ -43,14 +43,14 @@ function gobShoot(p){
 // the stomp button: lob a grenade the way you're looking
 function gobThrow(p){
   gobArms(p);if(p.gren<=0||p.grenCD>0||p.state==='dead'||p.drv)return;
-  p.gren--;p.grenCD=0.6;const c=p.camera.position,cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp,v=15;
+  p.gren--;p.grenCD=0.6;p.thrS=0;const c=p.camera.position,cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp,v=15;
   shot({kind:'grenade',x:c.x+dx*0.6,y:c.y-0.1+dy*0.6,z:c.z+dz*0.6,vx:dx*v,vy:dy*v+4,vz:dz*v,grav:20,fuse:2.2,R:3.3,dmg:3,cause:GREN_CAUSE,bounce:true});
   sfx('Goblin throws a grenade',()=>{woosh(0.15,0.2,400,1200,0.08);});
 }
 function gobNextWpn(p){gobArms(p);const L=GOB_WPN_ORDER.filter(k=>p.wpns.includes(k));if(L.length<2)return;
   p.wpn=L[(L.indexOf(p.wpn)+1)%L.length];p.wpnT=camClock;sfx('Goblin switches weapon',()=>{tone('square',700,900,0.04,0.03);});}
 // once a frame per player goblin, before the move: the throw and the weapon buttons, and the cooldown
-function gobArmsTick(p,dt){gobArms(p);p.grenCD=Math.max(0,p.grenCD-dt);
+function gobArmsTick(p,dt){gobArms(p);p.grenCD=Math.max(0,p.grenCD-dt);p.thrS=(p.thrS??9)+dt;   // (since his last throw: the arm coming through, gobBodyPose)
   const st=!!p.in.stomp,wp=!!p.in.weapon;
   if(st&&!p.gStompWas&&playing)gobThrow(p);if(wp&&!p.gWpnWas&&playing)gobNextWpn(p);p.gStompWas=st;p.gWpnWas=wp;}
 // ---- what's dropped: a little model on the ground, turning, until someone picks it up (or a minute and a half) ----

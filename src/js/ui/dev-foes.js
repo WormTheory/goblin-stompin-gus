@@ -23,6 +23,7 @@ const DEVF={kind:'goblin',anim:'walk',rec:null,f:0,play:true,speed:1,loop:true,y
 const DEV_FOE_KEY='goblin-stompin-gus-devfoe',DEVF_O={x:0,z:0};
 try{const s=JSON.parse(localStorage.getItem(DEV_FOE_KEY)||'null');if(s&&DEV_FOE_KINDS.some(K=>K.k===s.k)){DEVF.kind=s.k;if(DEV_FOE_KINDS.find(K=>K.k===s.k).anims.includes(s.a))DEVF.anim=s.a;}}catch(e){}
 const devFoKind=k=>DEV_FOE_KINDS.find(K=>K.k===k)||DEV_FOE_KINDS[0];
+const devFoWk=K=>gobWk({cultist:!!K.cult,foeKind:K.foe?K.k:null});   // (which blow it strikes with: strikes.js)
 const devFoAnimName=(K,a)=>a==='attack'&&K.melee?K.melee.w==='Club'?'Club swing':K.melee.w==='Rifle butt'?'Rifle butt':'Dagger stab':DEV_FOE_ANIM_N[a];
 // its model: the game's own, dressed in a fixed look for its kind, with names on its joints for the skeleton
 function devFoFig(K){
@@ -40,8 +41,11 @@ const dfAng=a=>{while(a>Math.PI)a-=Math.PI*2;while(a<-Math.PI)a+=Math.PI*2;retur
 function dfEnd(g,moving){
   const sn=Math.sin(g.phase);g.legs[0].rotation.x=moving?sn*0.7:0;g.legs[1].rotation.x=moving?-sn*0.7:0;
   if(g.wet&&moving){g.arm.rotation.x=-1.6+sn*0.9;g.armL.rotation.x=-1.6-sn*0.9;}
-  g.root.position.set(g.pos.x,g.pos.y+(moving?Math.abs(sn)*0.05:0),g.pos.z);g.root.rotation.y=g.heading;g.head.rotation.z=Math.sin(g.t*2+g.heading)*0.08;
+  gobRootPose(g,g.pos.y+(moving?Math.abs(sn)*0.05:0),1/60);g.head.rotation.z=Math.sin(g.t*2+g.heading)*0.08;   // (with a blow's twist, lean and step: strikes.js)
 }
+// a blow, a shot, a throw or a fireball (gobMeleePose, foeRanged, cultCast): the follow-through once it's gone, true while
+// there's one to show
+const dfFollow=g=>{if((g.relS??9)<STRIKE_FT&&g.relK){gobStrike(g,g.relK,1+g.relS/STRIKE_FT);return true;}return false;};
 // a hunting goblin's club arm, between blows: back to the rest, swinging a little as it goes
 const dfArm=(g,moving,dt)=>{g.arm.rotation.x+=((-0.5+(moving?Math.sin(g.phase)*0.4:0))-g.arm.rotation.x)*Math.min(1,dt*8);};
 const dfFwd=(g,sp,dt)=>{g.pos.x+=Math.sin(g.heading)*sp*dt;g.pos.z+=Math.cos(g.heading)*sp*dt;};
@@ -71,15 +75,18 @@ const DEV_FOE_ANIM={
     data:K=>[['Chant','arms sway every '+dfFrames(Math.PI*2/1.6)],['Roused by','Gus within 15 of the altar, or hurting one']]},
   guard:{dur:()=>6,step(g,K,dt){g.heading=Math.sin(g.t*0.3)*1.2;g.arm.rotation.x=-0.5;g.armL.rotation.x*=0.9;dfEnd(g,false);},
     data:K=>[['Looks round','±1.2 rad, every '+(Math.PI*2/0.3).toFixed(1)+' s']]},
-  // a blow every so often, Gus in reach: wound up over the last 0.45 s, then the hit (from the frame after one)
-  attack:{dur:K=>K.melee.every*2,init(g,K,C){g.atk=K.melee.every;g.arm.rotation.x=0.4;C.target(2);C.hit(0,'dmg','cyl',{x:g.pos.x,y:g.pos.y-1.5,z:g.pos.z,r:2.3,h:2.8},K.melee.dmg);},
-    step(g,K,dt,C){if(C.f)g.atk-=dt;   // (frame 0 is the blow that's just landed)
-
-      if(g.atk<=0){C.hit(C.f,'dmg','cyl',{x:g.pos.x,y:g.pos.y-1.5,z:g.pos.z,r:2.3,h:2.8},K.melee.dmg);g.atk=K.melee.every;g.arm.rotation.x=0.4;}
-      if(g.atk<0.45)g.arm.rotation.x=-0.5-1.9*(1-g.atk/0.45);else dfArm(g,false,dt);dfEnd(g,false);},
-    marks:(K,N,R)=>[...R.hits.filter(h=>h.f>0),{f:N}].map(h=>({row:'Wind-up',a:h.f-27,b:h.f-1,c:'wind'})),   // (the last: for the blow at the start of the next loop)
-    data:K=>[['Weapon',K.melee.w],['Damage',K.melee.dmg+(K.melee.dmg===1?' heart':' hearts')],['Again every',dfFrames(K.melee.every)],['Wind-up',dfFrames(0.45)+' before the hit'],
-      ['Reach','2.3 blocks, from 1.3 below to 1.5 above'],['Hit volume','cylinder r 2.3, h 2.8']]},
+  // a blow every so often, Gus in reach: wound up over the last 0.45 s (the strike itself the last few frames of that),
+  // then the hit (from the frame after one), and the follow-through (gobMeleePose)
+  attack:{dur:K=>K.melee.every*2,init(g,K,C){g.atk=K.melee.every;g.atkS=0;C.target(2);C.hit(0,'dmg','cyl',{x:g.pos.x,y:g.pos.y-1.5,z:g.pos.z,r:2.3,h:2.8},K.melee.dmg);},
+    step(g,K,dt,C){if(C.f){g.atk-=dt;g.atkS+=dt;}   // (frame 0 is the blow that's just landed)
+      if(g.atk<=0){C.hit(C.f,'dmg','cyl',{x:g.pos.x,y:g.pos.y-1.5,z:g.pos.z,r:2.3,h:2.8},K.melee.dmg);g.atk=K.melee.every;g.atkS=0;}
+      if(!gobMeleePose(g,true))dfArm(g,false,dt);dfEnd(g,false);},
+    marks:(K,N,R)=>{const w=devFoWk(K),sw=Math.round(strikeSwing(w)*27),ft=Math.round(STRIKE_FT*60);
+      return[...R.hits.filter(h=>h.f>0),{f:N}].flatMap(h=>[{row:'Wind-up',a:h.f-27,b:h.f-sw-1,c:'wind'},{row:'Strike',a:h.f-sw,b:h.f-1,c:'wind'}])   // (the last: for the blow at the start of the next loop)
+        .concat(R.hits.map(h=>({row:'Follow-through',a:h.f,b:Math.min(N-1,h.f+ft-1),c:'wind'})));},
+    data:K=>{const sw=Math.round(strikeSwing(devFoWk(K))*27);return[['Weapon',K.melee.w],['Damage',K.melee.dmg+(K.melee.dmg===1?' heart':' hearts')],['Again every',dfFrames(K.melee.every)],
+      ['Wind-up',dfFrames(0.45)+' before the hit'],['Strike','the last '+sw+' f of it'],['Follow-through',dfFrames(STRIKE_FT)+' after'],
+      ['Reach','2.3 blocks, from 1.3 below to 1.5 above'],['Hit volume','cylinder r 2.3, h 2.8']];}},
   jump:{dur:()=>1.6,init(g,K,C){C.box(-1,G+1,2,1,G+1,3);},step(g,K,dt,C){
       if(!g.act&&!g.done&&g.t>0.4){g.done=true;const tx=0.5,tz=2.5,L=Math.hypot(tx-g.pos.x,tz-g.pos.z);g.act={k:'jump',t:0,T:Math.max(0.45,L/6.5),x0:g.pos.x,y0:g.pos.y,z0:g.pos.z,x1:tx,y1:G+2,z1:tz,h:0.7+L*0.18};C.mark('Jump',C.f,C.f+Math.round(g.act.T*60)-1,'wind');}
       if(g.act)dfAct(g,dt);else dfStand(g,K,dt);},
@@ -97,29 +104,30 @@ const DEV_FOE_ANIM={
   // a fireball: the left hand up, the ball growing in it for CULT_CAST, thrown at Gus's chest
   cast:{dur:()=>0.3+CULT_CAST+1,init(g,K,C){C.target(DEV_TARGET);g.castT=0.3;},step(g,K,dt,C){
       if(g.castT>0&&(g.castT-=dt)<=0){g.cast=CULT_CAST;C.mark('Conjure',C.f,C.f+Math.round(CULT_CAST*60)-1,'wind');}
-      if(g.cast>0){g.cast-=dt;const k=1-Math.max(0,g.cast)/CULT_CAST;g.armL.rotation.x=-0.6-2.2*Math.min(1,k*1.6);g.arm.rotation.x=-0.5;g.orb.visible=true;g.orb.scale.setScalar(0.4+k*0.9);
+      if(g.cast>0){g.cast-=dt;const k=1-Math.max(0,g.cast)/CULT_CAST;gobStrike(g,'cast',k);g.orb.visible=true;g.orb.scale.setScalar(0.4+k*0.9);
         if(g.cast<=0){const fx=Math.sin(g.heading),fz=Math.cos(g.heading);C.ball(C.f,[g.pos.x+fx*0.5,g.pos.y+1.6,g.pos.z+fz*0.5],[0,G+1+1.5,DEV_TARGET],FB_SPEED,0,0xff7a1a,{r:1.4,dmg:2});
-          g.orb.visible=false;g.armL.rotation.x=-1.0;}
-        g.legs[0].rotation.x=g.legs[1].rotation.x=0;g.root.position.set(g.pos.x,g.pos.y,g.pos.z);g.root.rotation.y=g.heading;return;}
-      g.armL.rotation.x+=(0-g.armL.rotation.x)*Math.min(1,dt*6);dfArm(g,false,dt);dfEnd(g,false);},
+          g.orb.visible=false;g.relS=0;g.relK='cast';C.mark('Follow-through',C.f+1,C.f+Math.round(STRIKE_FT*60),'wind');}
+        g.legs[0].rotation.x=g.legs[1].rotation.x=0;gobRootPose(g,g.pos.y,dt);return;}
+      g.relS+=dt;if(!dfFollow(g)){g.armL.rotation.x+=(0-g.armL.rotation.x)*Math.min(1,dt*6);dfArm(g,false,dt);}dfEnd(g,false);},
     data:K=>[['Conjures for',dfFrames(CULT_CAST)+' (the warning you get)'],['Range','4.5 to 30 blocks, when it can see you'],['Fireball','flies at '+FB_SPEED+' blocks/s, bending a little after you'],['Damage','2 hearts'],['Again after','2.4–4 s']]},
   // a rifle shot: raised and aimed for a moment, then hitscan with a tracer
   shoot:{dur:K=>0.3+K.foe.gun[2]+0.8,init(g,K,C){C.target(DEV_TARGET);g.aimT=0.3;},step(g,K,dt,C){const F=K.foe;
       if(g.aimT>0&&(g.aimT-=dt)<=0){g.aim=F.gun[2];C.mark('Aim',C.f,C.f+Math.round(F.gun[2]*60)-1,'wind');}
-      if(g.aim>0){g.aim-=dt;g.arm.rotation.x=-1.5;g.armL.rotation.x=-1.35;
-        if(g.aim<=0){const fx=Math.sin(g.heading),fz=Math.cos(g.heading);C.tracer(C.f,[g.pos.x+fx*0.8,g.pos.y+1.05,g.pos.z+fz*0.8],[0,G+1+1.2,DEV_TARGET],F.gun[4]);}
-        g.legs[0].rotation.x=g.legs[1].rotation.x=0;g.root.position.set(g.pos.x,g.pos.y,g.pos.z);g.root.rotation.y=g.heading;return;}
-      g.armL.rotation.x+=(0-g.armL.rotation.x)*Math.min(1,dt*6);dfArm(g,false,dt);dfEnd(g,false);},
+      if(g.aim>0){g.aim-=dt;gobStrike(g,'aim',1-Math.max(0,g.aim)/F.gun[2]);
+        if(g.aim<=0){const fx=Math.sin(g.heading),fz=Math.cos(g.heading);C.tracer(C.f,[g.pos.x+fx*0.8,g.pos.y+1.05,g.pos.z+fz*0.8],[0,G+1+1.2,DEV_TARGET],F.gun[4]);
+          g.relS=0;g.relK='aim';C.mark('Follow-through',C.f+1,C.f+Math.round(STRIKE_FT*60),'wind');}
+        g.legs[0].rotation.x=g.legs[1].rotation.x=0;gobRootPose(g,g.pos.y,dt);return;}
+      g.relS+=dt;if(!dfFollow(g)){g.armL.rotation.x+=(0-g.armL.rotation.x)*Math.min(1,dt*6);dfArm(g,false,dt);}dfEnd(g,false);},
     data:K=>{const G6=K.foe.gun;return[['Aims for',dfFrames(G6[2])],['Range',G6[0]+' to '+G6[1]+' blocks, when it can see you'],['Damage',G6[4]+' heart'+(G6[4]===1?'':'s')],
       ['Hits','92% close up, less 1.7% a block, at least 30% (at '+DEV_TARGET+': '+Math.round(Math.max(0.3,0.92-DEV_TARGET/60)*100)+'%)'],['Again after',G6[3][0]+'–'+G6[3][1]+' s']];}},
   // a grenade: wound up in the left hand, lobbed in an arc at Gus, bursting when its fuse runs out
   throw:{dur:K=>0.3+0.6+K.foe.bomb[3]+0.5,init(g,K,C){C.target(DEV_TARGET);g.aimT=0.3;},step(g,K,dt,C){const B=K.foe.bomb;
       if(g.aimT>0&&(g.aimT-=dt)<=0){g.aim=0.6;C.mark('Wind-up',C.f,C.f+35,'wind');}
-      if(g.aim>0){g.aim-=dt;const k=1-Math.max(0,g.aim)/0.6;g.orb.visible=true;g.armL.rotation.x=-0.6-2.3*Math.min(1,k*1.5);g.arm.rotation.x=-0.5;
+      if(g.aim>0){g.aim-=dt;g.orb.visible=true;gobStrike(g,'throw',1-Math.max(0,g.aim)/0.6);
         if(g.aim<=0){const fx=Math.sin(g.heading),fz=Math.cos(g.heading),x0=g.pos.x+fx*0.4,y0=g.pos.y+1.6,z0=g.pos.z+fz*0.4,ty=G+1+0.3,D=Math.hypot(0-x0,DEV_TARGET-z0),T=0.55+D/16;
-          C.ball(C.f,[x0,y0,z0],[0,ty,DEV_TARGET],D/T,20,0xb8d070,{r:B[4],dmg:B[5],fuse:B[3]});g.orb.visible=false;g.armL.rotation.x=-1.0;}
-        g.legs[0].rotation.x=g.legs[1].rotation.x=0;g.root.position.set(g.pos.x,g.pos.y,g.pos.z);g.root.rotation.y=g.heading;return;}
-      g.armL.rotation.x+=(0-g.armL.rotation.x)*Math.min(1,dt*6);dfArm(g,false,dt);dfEnd(g,false);},
+          C.ball(C.f,[x0,y0,z0],[0,ty,DEV_TARGET],D/T,20,0xb8d070,{r:B[4],dmg:B[5],fuse:B[3]});g.orb.visible=false;g.relS=0;g.relK='throw';C.mark('Follow-through',C.f+1,C.f+Math.round(STRIKE_FT*60),'wind');}
+        g.legs[0].rotation.x=g.legs[1].rotation.x=0;gobRootPose(g,g.pos.y,dt);return;}
+      g.relS+=dt;if(!dfFollow(g)){g.armL.rotation.x+=(0-g.armL.rotation.x)*Math.min(1,dt*6);dfArm(g,false,dt);}dfEnd(g,false);},
     data:K=>{const B=K.foe.bomb;return[['Wind-up',dfFrames(0.6)],['Range',B[0]+' to '+B[1]+' blocks (over a wall, if near enough)'],['Flight','0.55 s + 1 s per 16 blocks'],
       ['Fuse',B[3]+' s from the hand'],['Blast','radius '+B[4]+', '+B[5]+' hearts'],['Again after',B[2][0]+'–'+B[2][1]+' s']];}},
 };
@@ -127,8 +135,8 @@ const DEV_FOE_ANIM={
 function devFoSim(kind,anim){
   const K=devFoKind(kind),A=DEV_FOE_ANIM[anim],fig=devFoFig(K),m=fig.m,nodes=fig.nodes,M=nodes.length,FL=11,N=Math.max(2,Math.round(A.dur(K)*60)),dt=1/60;
   const rec={kind,anim,N,M,fig:K.k,tr:new Float32Array(N*M*FL),pos:new Float32Array(N*4),hits:[],shots:[],boxes:[],marks:[],target:null,water:null};
-  const g={pos:new V3(0.5,G+1,0.5),heading:0,phase:0,t:0,atk:1,legs:m.legs,arm:m.arm,armL:m.armL,head:m.head,root:m.root,orb:m.orb||null,act:null,wet:false};
-  m.root.rotation.set(0,0,0);m.arm.rotation.x=K.civ?0:-0.5;m.armL.rotation.x=0;for(const l of m.legs)l.rotation.x=0;m.head.rotation.z=0;if(m.orb){m.orb.visible=false;m.orb.scale.setScalar(1);}
+  const g={pos:new V3(0.5,G+1,0.5),heading:0,phase:0,t:0,atk:1,atkS:9,relS:9,relK:null,cultist:!!K.cult,foeKind:K.foe?K.k:null,legs:m.legs,arm:m.arm,armL:m.armL,head:m.head,root:m.root,orb:m.orb||null,act:null,wet:false};
+  m.root.rotation.set(0,0,0);m.arm.rotation.set(K.civ?0:-0.5,0,0);m.arm.hand.rotation.x=0;m.armL.rotation.x=0;for(const l of m.legs)l.rotation.x=0;m.head.rotation.z=0;if(m.orb){m.orb.visible=false;m.orb.scale.setScalar(1);}
   const C={f:0,
     hit(f,kind,shape,o,dmg){rec.hits.push({f,until:f+12,kind,shape,o,dmg});},
     target(d){rec.target={x:0.5,z:0.5+d};},

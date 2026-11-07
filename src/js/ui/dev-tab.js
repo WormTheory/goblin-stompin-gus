@@ -82,7 +82,7 @@ function devSimulate(key,ch=DEVP.char){
       SBX.frame=f;const t=f/60,v=sc.inp(t);
       I.x=v.x||0;I.z=v.z||0;for(const k of ['charge','chargePress','dash','dashPress','sprint','sprintPress','stomp','bite','bitePress','jumpPress','jump','lockPress','climb','use'])I[k]=!!v[k];I.chargeHeld=I.charge;I.lookX=I.lookY=0;
       if(gn){if(PV.state==='walk')PV.heading=PV.cam.yaw+Math.PI;gobMove(PV,1/60);   // (as updatePlayer runs him: his body faces where he looks)
-        gobBodyPose(GB.m,PV);GB.root.position.copy(PV.pos);GB.root.rotation.set(0,PV.heading,0);}
+        gobBodyPose(GB.m,PV);gobBodyRoot(GB.root,GB.m,PV.pos.x,PV.pos.y,PV.pos.z,PV.heading);}
       else updatePlayer(PV,1/60);
       for(let i=0;i<M;i++){const o=nodes[i],b=(f*M+i)*FL,T=rec.tr;T[b]=o.position.x;T[b+1]=o.position.y;T[b+2]=o.position.z;T[b+3]=o.quaternion.x;T[b+4]=o.quaternion.y;T[b+5]=o.quaternion.z;T[b+6]=o.quaternion.w;T[b+7]=o.scale.x;T[b+8]=o.scale.y;T[b+9]=o.scale.z;T[b+10]=o.visible?1:0;}
       rec.pos[f*4]=PV.pos.x-DEV_O.x;rec.pos[f*4+1]=PV.pos.y;rec.pos[f*4+2]=PV.pos.z-DEV_O.z;rec.pos[f*4+3]=PV.heading;

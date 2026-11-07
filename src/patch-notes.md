@@ -1,5 +1,18 @@
 # Patch notes
 
+## Version 0.4
+
+### Goblin attacks
+
+- Every goblin attack now has a proper wind-up and a strike that suits the weapon. Nothing hits any sooner or later than before: you just get a better look at it coming.
+- Goblins and police lift their club up behind their heads, pause at the top, then chop it down, turning into the blow.
+- Thieves and cultists draw their dagger back to the hip, point first, then thrust it straight in at arm's length.
+- Preppers, militiamen and soldiers swing their rifle round so the stock faces forward, then shove it into you with both hands.
+- Rifle shots: the rifle is brought up to the shoulder, held on you, then kicks when it fires.
+- Grenades are pulled back behind the head and thrown overarm, and cultists raise their fireball high as it grows, then hurl it.
+- Gnash and Grizzle swing the same way: a club drawn back and chopped down, a dagger drawn back and thrust, in your own view and as other players see you. Their arm follows through after a grenade throw.
+- The Dev tab's Enemies viewer marks each attack's wind-up, strike and follow-through on the timeline.
+
 ## Version 0.3
 
 ### Highlights

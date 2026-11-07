@@ -40,6 +40,7 @@ vehicles/carjack.js
 vehicles/hose.js
 player/move.js
 enemies/goblins.js
+enemies/strikes.js
 ui/obituary.js
 ui/pause-map.js
 ui/dev-tab.js
