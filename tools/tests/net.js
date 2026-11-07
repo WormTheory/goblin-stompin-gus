@@ -73,6 +73,7 @@ console.log('messages so far',hub.sent,'bytes',hub.bytes,'(about',Math.round(hub
 // the guest's view: its own hippo where the host has player two, the host's hippo as its P2
 const d=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y,a.z-b.z);
 console.log('guest P1 vs host P2',f2(d(GT.P1.pos,HT.P2.pos)),'guest P2 vs host P1',f2(d(GT.P2.pos,HT.P1.pos)),ok(d(GT.P1.pos,HT.P2.pos)<1.5&&d(GT.P2.pos,HT.P1.pos)<1.5));
+{const cd=q=>f2(Math.hypot(q.camera.position.x-q.pos.x,q.camera.position.y-q.pos.y,q.camera.position.z-q.pos.z));console.log('camera from its hippo: guest',cd(GT.P1),'host',cd(HT.P1),'(guest P2 on the host',cd(HT.P2)+')');}
 console.log('hp shown',GT.P1.hp,'state',GT.P1.state,'host P2',HT.P2.hp,HT.P2.state);
 // goblins and cars mirrored
 {const hg=HT.goblins.filter(g=>g.root.visible&&Math.hypot(g.root.position.x-HT.P2.pos.x,g.root.position.z-HT.P2.pos.z)<170).length,gg=[...GT.NETM.g.values()].filter(g=>g.root.visible).length;
@@ -133,6 +134,7 @@ const lag=[];
   const c0={x:c.pos.x,y:c.pos.y,z:c.pos.z};pads[0].axes[1]=-1;for(let i=0;i<90;i++){G.step(1);H.step(1);}pads[0].axes[1]=0;
   const cam=GT.P1.camera.position,S=GT.P1.drv&&GT.P1.drv.netS;
   console.log('drove for 1.5 s: car moved',f2(d(c.pos,c0)),ok(d(c.pos,c0)>3),'guest camera from the car',S?f2(Math.hypot(cam.x-S.x,cam.z-S.z)):'-',ok(S&&Math.hypot(cam.x-S.x,cam.z-S.z)<16&&Math.hypot(cam.x-S.x,cam.z-S.z)>2),'guest car mirror apart',f2(d(GT.NETM.c.get(HT.cars.indexOf(c)).pos,c.pos)));
+  {const Hd=GT.P1.ui.drvHud;console.log('guest vehicle display:',Hd&&Hd.txt?Hd.txt.n:'(none)',ok(Hd&&Hd.txt&&/car/i.test(Hd.txt.n)&&!Hd.el.hidden));}
   pads[0].buttons[3].pressed=true;G.step(1);H.step(1);pads[0].buttons[3].pressed=false;for(let i=0;i<60;i++){H.step(1);G.step(1);}
   console.log('pressed use again: out',ok(!HT.P2.drv&&!GT.P1.drv));}
  HT.setGobP(HT.P2,false);for(let i=0;i<20;i++){H.step(1);G.step(1);}}

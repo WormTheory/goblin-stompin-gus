@@ -38,7 +38,8 @@ function airCrash(x,y,z,R,cause){
 // a plane wrecked by flying into something or landing too hard: it goes up where it hits
 function planeCrash(pl,x,y,z,ground){planeHit(pl,PLANE_HP);if(ground)pl.fall=false;airCrash(x,y,z,7,'Killed when a plane crashed');}
 // how hurt the vehicle you're driving is
-function drvHP(D){const o=D.o;
+function drvHP(D){if(D.netHP)return D.netHP;const o=D.o;   // (D.netHP: a guest online, told by the host)
+
   if(D.k==='car'){if(!(o.hpMax>=o.hp))o.hpMax=Math.max(o.hp,o.svcPool?45:30);return{hp:o.hp,max:o.hpMax};}
   if(D.k==='tank'||D.k==='heli')return{hp:o.hp,max:MIL[D.k].hp};
   if(D.k==='boat')return{hp:o.hp,max:o.max};
@@ -50,7 +51,7 @@ function drvHP(D){const o=D.o;
 const _dhv=new THREE.Vector3();
 function drvHud(p){
   let H=p.ui.drvHud;
-  if(!p.drv||!p.gob||p.drv.jack||p.drv.netS){if(H&&!H.el.hidden){H.el.hidden=true;H.dv.hidden=true;}return;}
+  if(!p.drv||!p.gob||p.drv.jack){if(H&&!H.el.hidden){H.el.hidden=true;H.dv.hidden=true;}return;}
   // (the crosshair and gun marker go over the view; the vehicle's health and its ammo sit just above your hearts)
   if(!H){const el=document.createElement('div');el.className='drvhud';el.innerHTML='<div class="xh"></div><div class="xt"></div>';p.ui.view.append(el);
     const dv=document.createElement('div');dv.className='dveh';dv.innerHTML='<div class="dbox"><div class="dname"></div><div class="dbar"><i></i></div><div class="dwpn"></div></div><div class="dammo"></div>';

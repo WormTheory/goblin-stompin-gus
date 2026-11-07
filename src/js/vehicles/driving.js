@@ -3,7 +3,8 @@
 // one's own update reads its driver's controls in place of its usual round (p.drv says what you're in, and the
 // vehicle's .drv who's driving it); drvSeat keeps you in your seat once everything's moved ----
 const DRV_NAME={tank:'tank',heli:'helicopter',train:'train',plane:'plane'};
-function drvName(D){const o=D.o;
+function drvName(D){if(D.netN)return D.netN;const o=D.o;   // (D.netN: a guest online, told by the host)
+
   if(D.k==='car')return o.police?'police car':{car:'car',bike:'motorcycle',van:'van',pickup:'pickup',truck:'truck',semi:'lorry',bus:'bus',fire:'fire engine',amb:'ambulance',news:'news van',rv:'motorhome',technical:'technical',quad:'four-wheeler'}[o.veh]||'car';
   if(D.k==='boat')return o.K.name.toLowerCase();
   return DRV_NAME[D.k];

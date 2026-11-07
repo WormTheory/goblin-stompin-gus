@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:7ce15ea6737a40bd073001785261ab0c661c6e9e5c9a928b1522966a2307b5fa -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:036e21eda7252fd8c172fd971d50bc6ed274eca6effa3c30b1894f75f6079ce2 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -10512,7 +10512,8 @@ function gobView(v){
 // one's own update reads its driver's controls in place of its usual round (p.drv says what you're in, and the
 // vehicle's .drv who's driving it); drvSeat keeps you in your seat once everything's moved ----
 const DRV_NAME={tank:'tank',heli:'helicopter',train:'train',plane:'plane'};
-function drvName(D){const o=D.o;
+function drvName(D){if(D.netN)return D.netN;const o=D.o;   // (D.netN: a guest online, told by the host)
+
   if(D.k==='car')return o.police?'police car':{car:'car',bike:'motorcycle',van:'van',pickup:'pickup',truck:'truck',semi:'lorry',bus:'bus',fire:'fire engine',amb:'ambulance',news:'news van',rv:'motorhome',technical:'technical',quad:'four-wheeler'}[o.veh]||'car';
   if(D.k==='boat')return o.K.name.toLowerCase();
   return DRV_NAME[D.k];
@@ -10918,7 +10919,8 @@ function airCrash(x,y,z,R,cause){
 // a plane wrecked by flying into something or landing too hard: it goes up where it hits
 function planeCrash(pl,x,y,z,ground){planeHit(pl,PLANE_HP);if(ground)pl.fall=false;airCrash(x,y,z,7,'Killed when a plane crashed');}
 // how hurt the vehicle you're driving is
-function drvHP(D){const o=D.o;
+function drvHP(D){if(D.netHP)return D.netHP;const o=D.o;   // (D.netHP: a guest online, told by the host)
+
   if(D.k==='car'){if(!(o.hpMax>=o.hp))o.hpMax=Math.max(o.hp,o.svcPool?45:30);return{hp:o.hp,max:o.hpMax};}
   if(D.k==='tank'||D.k==='heli')return{hp:o.hp,max:MIL[D.k].hp};
   if(D.k==='boat')return{hp:o.hp,max:o.max};
@@ -10930,7 +10932,7 @@ function drvHP(D){const o=D.o;
 const _dhv=new THREE.Vector3();
 function drvHud(p){
   let H=p.ui.drvHud;
-  if(!p.drv||!p.gob||p.drv.jack||p.drv.netS){if(H&&!H.el.hidden){H.el.hidden=true;H.dv.hidden=true;}return;}
+  if(!p.drv||!p.gob||p.drv.jack){if(H&&!H.el.hidden){H.el.hidden=true;H.dv.hidden=true;}return;}
   // (the crosshair and gun marker go over the view; the vehicle's health and its ammo sit just above your hearts)
   if(!H){const el=document.createElement('div');el.className='drvhud';el.innerHTML='<div class="xh"></div><div class="xt"></div>';p.ui.view.append(el);
     const dv=document.createElement('div');dv.className='dveh';dv.innerHTML='<div class="dbox"><div class="dname"></div><div class="dbar"><i></i></div><div class="dwpn"></div></div><div class="dammo"></div>';
@@ -21511,7 +21513,8 @@ function netPlayerState(p,seat,N){
   const e={s:seat,who:p.who,gob:!!p.gob,act:!!p.active,f,pos:[r3(p.pos.x),r3(p.pos.y),r3(p.pos.z)],h:r3(p.heading),pose:netPoseOf(netJoints(p)),lk,
     rd:!!(p.drv||p.rideC||p.standCar||p.vcl&&p.state==='climb')};
   // (in a vehicle: what it is and where, for the guest's chase camera)
-  if(p.drv&&!p.drv.jack){try{const S=drvPose(p.drv);e.dv=[p.drv.k,r3(S.x),r3(S.y),r3(S.z),r3(S.h),r3(S.hx),r3(S.hz),r3(S.hy),r3(S.v||0)];}catch(er){}}   // (driving, riding or clinging to something that moves: the guest can't guess that, so it doesn't try)
+  if(p.drv&&!p.drv.jack){try{const D=p.drv,S=drvPose(D),H=drvHP(D),o=D.o,W={};for(const k in o.wpn||{}){const s=o.wpn[k];W[k]=[s.n,Math.round(s.rl*10)/10];}
+    e.dv=[D.k,r3(S.x),r3(S.y),r3(S.z),r3(S.h),r3(S.hx),r3(S.hz),r3(S.hy),r3(S.v||0),drvName(D),Math.round(H.hp*10)/10,H.max,W,o.veh||'',!!o.hose];}catch(er){}}   // (and its name, health and guns, for the guest's own display)   // (driving, riding or clinging to something that moves: the guest can't guess that, so it doesn't try)
   // (the guest's own seat: the last of its controls this took in, and how long ago, so it can tell how far its own guess has drifted)
   if(p.net&&p.net.seat===seat){e.ack=N.inN||0;e.adt=Math.round(NET.now-(N.inAt||NET.now));}
   return e;
@@ -21785,7 +21788,9 @@ function netCommit(m){
     const own=q===P1&&NETP.on&&!NETP.snap;
     for(const k in e.f){if(own&&!NET_AUTH.includes(k))continue;const v=e.f[k];if(Array.isArray(v)){if(q[k] instanceof V3)q[k].set(v[0],v[1],v[2]);else q[k]=new V3(v[0],v[1],v[2]);}else q[k]=netDec(v);}
     if(!(q===P1&&NETP.on))q.lockT=netDeref(e.lk);
-    if(e.dv){if(!q.drv||!q.drv.netS)q.drv={k:e.dv[0],o:{},netS:{x:0,y:0,z:0,h:0,hx:1,hz:1,hy:1,v:0}};q.drv.k=e.dv[0];const S=q.drv.netS;S.hx=e.dv[5];S.hz=e.dv[6];S.hy=e.dv[7];S.v=e.dv[8];}
+    if(e.dv){if(!q.drv||!q.drv.netS)q.drv={k:e.dv[0],o:{},netS:{x:0,y:0,z:0,h:0,hx:1,hz:1,hy:1,v:0}};const D=q.drv,S=D.netS;D.k=e.dv[0];S.hx=e.dv[5];S.hz=e.dv[6];S.hy=e.dv[7];S.v=e.dv[8];
+      D.netN=e.dv[9];D.netHP={hp:e.dv[10],max:e.dv[11]};D.o.veh=e.dv[13]||undefined;D.o.hose=!!e.dv[14];
+      const W=e.dv[12]||{};if(Object.keys(W).length){if(!D.o.wpn)wpnInit(D.o,D.k);for(const k in W)if(D.o.wpn[k]){D.o.wpn[k].n=W[k][0];D.o.wpn[k].rl=W[k][1];}}}
     else if(q.drv&&q.drv.netS)q.drv=null;
     if(q===P1&&NETP.snap){NETP.snap=false;NETP.corr.set(0,0,0);NETP.hist.length=0;q.pos.set(e.pos[0],e.pos[1],e.pos[2]);q.heading=e.h;}
   }

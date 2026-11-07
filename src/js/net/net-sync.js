@@ -33,7 +33,8 @@ function netPlayerState(p,seat,N){
   const e={s:seat,who:p.who,gob:!!p.gob,act:!!p.active,f,pos:[r3(p.pos.x),r3(p.pos.y),r3(p.pos.z)],h:r3(p.heading),pose:netPoseOf(netJoints(p)),lk,
     rd:!!(p.drv||p.rideC||p.standCar||p.vcl&&p.state==='climb')};
   // (in a vehicle: what it is and where, for the guest's chase camera)
-  if(p.drv&&!p.drv.jack){try{const S=drvPose(p.drv);e.dv=[p.drv.k,r3(S.x),r3(S.y),r3(S.z),r3(S.h),r3(S.hx),r3(S.hz),r3(S.hy),r3(S.v||0)];}catch(er){}}   // (driving, riding or clinging to something that moves: the guest can't guess that, so it doesn't try)
+  if(p.drv&&!p.drv.jack){try{const D=p.drv,S=drvPose(D),H=drvHP(D),o=D.o,W={};for(const k in o.wpn||{}){const s=o.wpn[k];W[k]=[s.n,Math.round(s.rl*10)/10];}
+    e.dv=[D.k,r3(S.x),r3(S.y),r3(S.z),r3(S.h),r3(S.hx),r3(S.hz),r3(S.hy),r3(S.v||0),drvName(D),Math.round(H.hp*10)/10,H.max,W,o.veh||'',!!o.hose];}catch(er){}}   // (and its name, health and guns, for the guest's own display)   // (driving, riding or clinging to something that moves: the guest can't guess that, so it doesn't try)
   // (the guest's own seat: the last of its controls this took in, and how long ago, so it can tell how far its own guess has drifted)
   if(p.net&&p.net.seat===seat){e.ack=N.inN||0;e.adt=Math.round(NET.now-(N.inAt||NET.now));}
   return e;
@@ -307,7 +308,9 @@ function netCommit(m){
     const own=q===P1&&NETP.on&&!NETP.snap;
     for(const k in e.f){if(own&&!NET_AUTH.includes(k))continue;const v=e.f[k];if(Array.isArray(v)){if(q[k] instanceof V3)q[k].set(v[0],v[1],v[2]);else q[k]=new V3(v[0],v[1],v[2]);}else q[k]=netDec(v);}
     if(!(q===P1&&NETP.on))q.lockT=netDeref(e.lk);
-    if(e.dv){if(!q.drv||!q.drv.netS)q.drv={k:e.dv[0],o:{},netS:{x:0,y:0,z:0,h:0,hx:1,hz:1,hy:1,v:0}};q.drv.k=e.dv[0];const S=q.drv.netS;S.hx=e.dv[5];S.hz=e.dv[6];S.hy=e.dv[7];S.v=e.dv[8];}
+    if(e.dv){if(!q.drv||!q.drv.netS)q.drv={k:e.dv[0],o:{},netS:{x:0,y:0,z:0,h:0,hx:1,hz:1,hy:1,v:0}};const D=q.drv,S=D.netS;D.k=e.dv[0];S.hx=e.dv[5];S.hz=e.dv[6];S.hy=e.dv[7];S.v=e.dv[8];
+      D.netN=e.dv[9];D.netHP={hp:e.dv[10],max:e.dv[11]};D.o.veh=e.dv[13]||undefined;D.o.hose=!!e.dv[14];
+      const W=e.dv[12]||{};if(Object.keys(W).length){if(!D.o.wpn)wpnInit(D.o,D.k);for(const k in W)if(D.o.wpn[k]){D.o.wpn[k].n=W[k][0];D.o.wpn[k].rl=W[k][1];}}}
     else if(q.drv&&q.drv.netS)q.drv=null;
     if(q===P1&&NETP.snap){NETP.snap=false;NETP.corr.set(0,0,0);NETP.hist.length=0;q.pos.set(e.pos[0],e.pos[1],e.pos[2]);q.heading=e.h;}
   }
