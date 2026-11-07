@@ -1,0 +1,12 @@
+stone blocks breaking                -> Stone breaks
+dry-fire click, right after          -> Dry fire click
+in the tank tank
+tank fires (bite)                    -> Tank fires
+last shell: magazine empty           -> Magazine empty | Tank fires
+bite with nothing loaded             -> Dry fire click
+reload finishing                     -> Explosion | Knocked over | Stone breaks | Wood breaks | Weapon reloaded
+in the helicopter heli
+helicopter rotor                     -> Helicopter rotor
+helicopter gun (bite held)           -> Helicopter gun | Helicopter rotor
+helicopter rocket (stomp)            -> Helicopter rocket | Helicopter rotor
+errors 0 []

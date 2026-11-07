@@ -7,8 +7,8 @@ park            12 props    7.5 /k   Town blocks / Parks    litterbin:5 parkbenc
 plaza           18 props   11.3 /k   Town blocks / Plazas    chair:4 litterbin:4 parkbench:3 rtable:2 umbrella:2 plant:2 icecart:1
 gas             23 props   14.4 /k   Town blocks / Gas stations    fridge2:10 bar:5 shelf2:2 monitor:1 espresso:1 pot:1 toilet:1 basin:1
 food            80 props   50.0 /k   Town blocks / Restaurants    chair:36 bar:10 rtable:9 litterbin:5 umbrella:4 parkbench:3 monitor:2 prep:2
-fastfood        55 props   34.4 /k   Town blocks / Fast food    chair:15 bar:8 rtable:7 booth:5 litterbin:3 monitor:3 parkbench:2 fryer:2
-fire            29 props   18.1 /k   Town blocks / Fire stations    gearrack:6 litterbin:4 bunk:3 sofa:3 parkbench:2 rtable:1 chair:1 tv:1
+fastfood        56 props   35.0 /k   Town blocks / Fast food    chair:15 bar:8 rtable:7 booth:5 parkbench:3 litterbin:3 monitor:3 fryer:2
+fire            30 props   18.8 /k   Town blocks / Fire stations    gearrack:6 litterbin:4 parkbench:3 bunk:3 sofa:3 rtable:1 chair:1 tv:1
 police         328 props   63.3 /k   Town blocks / Police stations    shelf3:72 gunrack:41 swivel:35 desk:31 locker:31 pcrate:12 chair:10 plant:10
 build           18 props   11.3 /k   Town blocks / Construction sites    parkbench:4 litterbin:4 bricks:4 cone:2 barrow:2 cmixer:1 portaloo:1
 wtower           2 props    1.3 /k   Town blocks / Water towers    parkbench:1 litterbin:1
@@ -21,7 +21,7 @@ news            57 props   35.6 /k   Town blocks / TV news    swivel:16 cube:14 
 radio           16 props   10.0 /k   Town blocks / Radio stations    bookcase:4 mixer:3 sofa:2 swivel:2 locker:1 onair:1 toilet:1 basin:1
 disco           53 props   33.1 /k   Town blocks / Discos    bar:8 stool:8 bottles:8 chair:4 basin:3 litterbin:2 booth:2 speaker:2
 club            48 props   30.0 /k   Town blocks / Night clubs    bar:6 stool:6 bottles:6 chair:5 litterbin:3 basin:3 parkbench:2 homebed:2
-court            9 props    5.6 /k   Town blocks / Basketball courts    litterbin:5 bench:2 ballrack:1 parkbench:1
+court           10 props    6.3 /k   Town blocks / Basketball courts    litterbin:5 bench:2 parkbench:2 ballrack:1
 derelict        12 props    7.5 /k   Town blocks / Derelict buildings    chair:4 rtable:3 table:2 homebed:1 fridge2:1 range:1
 mansion         30 props   18.8 /k   Town blocks / Mansions    chair:4 sofa:3 homebed:3 table:2 plant:2 shelf2:2 drawers:2 wardrobe:2
 trailers        21 props   13.1 /k   Town blocks / Trailer parks    grill:4 drum:4 fridge2:4 range:4 campchair:3 parkbench:1 litterbin:1
@@ -98,7 +98,7 @@ lighthouse       4 props    2.5 /k   Coast / Lighthouses    telescope:1 lifering
 rig              8 props    5.0 /k   Coast / Oil rigs    drum:4 pipes:3 rope:1
 wreck            0 props    0.0 /k   Coast / Shipwrecks    
 fishing         14 props    4.9 /k   Coast / Fishing wharves    fishcrate:10 lpot:2 netrack:1 buoys:1
-sewers          13 props   14.8 /k   Underground / Sewers    shelf2:3 litterbin:2 parkbench:1 stall:1 basin:1 wcsign:1 fridge2:1 range:1
+sewers           7 props    8.0 /k   Underground / Sewers    chair:2 rtable:1 umbrella:1 icecart:1 parkbench:1 litterbin:1
 subway           0 props    0.0 /k   Underground / Subway    
 caves            0 props    0.0 /k   Underground / Caves    
 metro            0 props    0.0 /k   Underground / Subway stations    

@@ -24,3 +24,5 @@ whole display off: 17 rules, row says false
 one back on: row says true rules 16
 all off again, rules 17
 all on again, css empty true
+Show / hide tab first rows: Show all, Hide all | on the main tab too: false
+main tab rows: before 39 after Hide all 0 after Show all 39

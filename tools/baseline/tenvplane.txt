@@ -8,14 +8,14 @@ console.log('W 3 s then W+Jump 3 s over the grass: speed',f1(pl.free.v),'height'
                                                                      ^
 
 TypeError: Cannot read properties of undefined (reading 'v')
-    at eval (eval at <anonymous> (/home/user/gus/tools/tests/tenvplane.js:8:1), <anonymous>:50:70)
-    at Object.<anonymous> (/home/user/gus/tools/tests/tenvplane.js:8:1)
-    at Module._compile (node:internal/modules/cjs/loader:1781:14)
-    at Object..js (node:internal/modules/cjs/loader:1913:10)
-    at Module.load (node:internal/modules/cjs/loader:1505:32)
-    at Function._load (node:internal/modules/cjs/loader:1309:12)
-    at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
-    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
-    at node:internal/main/run_main_module:36:49
+    at eval (eval at <anonymous> (C:\Claude\Goblin-Stompin-Gus\.worktrees\online-multiplayer\tools\tests\tenvplane.js:8:1), <anonymous>:50:70)
+    at Object.<anonymous> (C:\Claude\Goblin-Stompin-Gus\.worktrees\online-multiplayer\tools\tests\tenvplane.js:8:1)
+    at Module._compile (node:internal/modules/cjs/loader:1968:14)
+    at Object..js (node:internal/modules/cjs/loader:2108:10)
+    at Module.load (node:internal/modules/cjs/loader:1690:32)
+    at Module._load (node:internal/modules/cjs/loader:1480:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+    at node:internal/main/run_main_module:33:47
 
-Node.js v22.23.4
+Node.js v26.13.0

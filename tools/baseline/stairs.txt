@@ -38,5 +38,5 @@ mid down reached in 5s floors 50 45
 mid Gus got to the top
 tower stair {"ax":"x","c0":15,"c1":17,"r0":12,"L":5} floors [45,50,55,60] plot -1 -1
 tower up reached in 3s floors 45 50
-tower down reached in 8s floors 50 45
+tower down reached in 5s floors 50 45
 tower Gus got to the top
