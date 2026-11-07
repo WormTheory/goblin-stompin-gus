@@ -54,6 +54,13 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
   const n1=await B.evaluate(()=>Object.keys(window.__G.editsNow()).length),nh=await A.evaluate(()=>Object.keys(window.__G.editsNow()).length);
   console.log('smashed blocks: host has',nh,'edits, guest had',n0,'and now has',n1);
   await A.screenshot({path:out+'/3-host.png'});await B.screenshot({path:out+'/3-guest.png'});
+  // (THIRD=1: a third tab joins too, and every tab should see three hippos)
+  if(process.env.THIRD){const C=await ctx.newPage();watch(C,'third');await C.goto(url);await wait(3000);
+    await C.click('#onlineBtn');if(!P2P)await C.check('#netLocal');await C.fill('#netCode',code);await C.click('#netJoin');
+    let s3='';for(let i=0;i<120;i++){await wait(500);try{s3=await C.textContent('#netStatus');if(/Playing online/.test(s3))break;}catch(e){}}
+    await wait(3000);const n=async P=>P.evaluate(()=>window.__G.players.filter(p=>p.active).length);
+    console.log('third tab:',s3,'| players each tab sees: host',await n(A),'guest',await n(B),'third',await n(C));
+    await A.screenshot({path:out+'/4-host.png'});await C.screenshot({path:out+'/4-third.png'});}
   console.log(errs.length?errs.slice(0,20).join('\n'):'no errors');
   await b.close();srv.close();
 })();
