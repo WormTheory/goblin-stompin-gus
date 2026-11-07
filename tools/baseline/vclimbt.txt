@@ -10,5 +10,5 @@ truck     off the roof edge on to the side true head down  at along -0.12 across
 van       grabbed true held for 3.0s while it went 20.4 drift 0.000 let go 0 | up on top true after 0.4s height 1.91
 van       off the roof edge on to the side false head down  at along 4.03 across 7.36 up 7.16 still on after .5s false | let go: state walk clinging false
 ship hull grabbed true held for 2.0s while it went 95.9 drift 0.000 let go 0 | up on top true after 1.7s height 6.00
-stack     on deck true walked at the tallest container stack (9.6 high) with climb held: grabbed true after 0.0s; up on top true after 2.8s, height above the deck 9.62
+stack     on deck true walked at the tallest container stack (9.6 high) with climb held: grabbed true after 0.0s; up on top true after 2.8s, height above the deck 9.65
 plane     grabbed true held for 2.0s while it went 0.0 drift 0.000 let go 0 | up on top true after 0.9s height 3.65

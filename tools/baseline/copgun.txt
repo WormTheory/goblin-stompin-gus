@@ -1,0 +1,6 @@
+tenv true host 2
+far   cops 1 | bullets 4 | hits on gus 3 | frames club+holster 412 gun out 188 none 0 | recoil frames 16 | closest 8.0
+close cops 1 | bullets 0 | hits on gus 6 | frames club+holster 600 gun out 0 none 0 | recoil frames 0 | closest 1.6
+peaceful: cops 1 calm true bullets 0 gun out 0
+ordinary goblin with the kit: none about
+pistol pose keys 6 | errors 0 []

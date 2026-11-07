@@ -57,7 +57,7 @@ function netGoblins(p,N,out,looks){
   const R=170,px=p.pos.x,pz=p.pos.z;
   for(let i=0;i<goblins.length;i++){const g=goblins[i],r=g.root;if(!r.visible||Math.abs(r.position.x-px)>R||Math.abs(r.position.z-pz)>R)continue;
     const P=r.position,Q=r.rotation;
-    out.push([i,r3(P.x),r3(P.y),r3(P.z),r3(Q.x),r3(Q.y),r3(Q.z),r3(r.scale.x),r3(r.scale.y),r3(g.legs[0].rotation.x),r3(g.legs[1].rotation.x),r3(g.arm.rotation.x),r3(g.armL.rotation.x),r3(g.head.rotation.z),g.orb&&g.orb.visible?1:0,g.state,r3(g.hp),g.hpMax>=g.hp?g.hpMax:r3(g.hp),r3(g.arm.rotation.z),r3(g.arm.hand?g.arm.hand.rotation.x:0)]);   // (and its health, for the health bars; then the rest of a blow's pose, strikes.js)
+    out.push([i,r3(P.x),r3(P.y),r3(P.z),r3(Q.x),r3(Q.y),r3(Q.z),r3(r.scale.x),r3(r.scale.y),r3(g.legs[0].rotation.x),r3(g.legs[1].rotation.x),r3(g.arm.rotation.x),r3(g.armL.rotation.x),r3(g.head.rotation.z),g.orb&&g.orb.visible?1:0,g.state,r3(g.hp),g.hpMax>=g.hp?g.hpMax:r3(g.hp),r3(g.arm.rotation.z),r3(g.arm.hand?g.arm.hand.rotation.x:0),g.pkit?g.pkit.shown:0]);   // (and its health, for the health bars; then the rest of a blow's pose, strikes.js; then an officer's club, handgun or holster, police-gun.js)
     const L=g.id&&g.id.look;if(!L)continue;let v=netLookOf.get(g.id);if(!v){v=++netLookN;netLookOf.set(g.id,v);}
     if(N.looks.get(i)!==v){N.looks.set(i,v);looks[i]={o:r.netOpt||(g.civ?{club:false}:{}),civ:!!g.civ,L,id:{name:g.id.name,occ:g.id.occ,age:g.id.age}};}}
 }
@@ -179,7 +179,7 @@ function netFx(name,f){
 }
 puff=netFx('puff',puff);smoke=netFx('smoke',smoke);blood=netFx('blood',blood);splat=netFx('splat',splat);
 destroyFX=netFx('destroyFX',destroyFX);shockwave=netFx('shockwave',shockwave);shockCone=netFx('shockCone',shockCone);blastFx=netFx('blastFx',blastFx);
-tone=netFx('tone',tone);noise=netFx('noise',noise);woosh=netFx('woosh',woosh);
+tone=netFx('tone',tone);noise=netFx('noise',noise);woosh=netFx('woosh',woosh);tracer=netFx('tracer',tracer);
 // (a message for one player goes to that player only; one for everyone, to everyone)
 {const fl=flashLabel;NET_FX.flashLabel=fl;flashLabel=function flashLabel(s,who){
   if(NET_MUTE)return;
@@ -348,7 +348,7 @@ function netGob(id,o){
   let g=NETM.g.get(id);if(g)return g;
   const root=new THREE.Group();root.rotation.order='YXZ';
   const m=goblinModel(root,Object.assign({},o,{shareGeo:true}));
-  g={snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,orb:m.orb||null,pos:new V3(),kv:new V3(),stun:0,heading:0,vy:0,hp:4,state:'net',t:0,phase:0,atk:1,hurt:0,sink:0,detour:0,detourH:0,stuck:0,civ:false,net:true,id:null};
+  g={snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,pkit:m.pkit||null,orb:m.orb||null,pos:new V3(),kv:new V3(),stun:0,heading:0,vy:0,hp:4,state:'net',t:0,phase:0,atk:1,hurt:0,sink:0,detour:0,detourH:0,stuck:0,civ:false,net:true,id:null};
   root.visible=false;root.scale.setScalar(ES);goblins.push(g);NETM.g.set(id,g);return g;
 }
 function netCar(id,k){
@@ -426,7 +426,8 @@ function netGuestFrame(dt){
   for(const e of a.g){const g=NETM.g.get(e[0]);if(!g)continue;const f=bg.get(e[0]),v=n=>f?e[n]+(f[n]-e[n])*k:e[n],w=n=>f?lerpA(e[n],f[n],k):e[n];
     g.root.position.set(v(1),v(2),v(3));g.root.rotation.set(w(4),w(5),w(6));g.root.scale.set(v(7),v(8),v(7));g.pos.copy(g.root.position);g.heading=g.root.rotation.y;
     g.legs[0].rotation.x=w(9);g.legs[1].rotation.x=w(10);g.arm.rotation.x=w(11);g.armL.rotation.x=w(12);g.head.rotation.z=w(13);
-    if(e[18]!==undefined){g.arm.rotation.z=w(18);if(g.arm.hand)g.arm.hand.rotation.x=f&&f[19]!==undefined?e[19]+(f[19]-e[19])*k:e[19];}}   // (the wrist turns past half a turn: straight between, not the short way round)
+    if(e[18]!==undefined){g.arm.rotation.z=w(18);if(g.arm.hand)g.arm.hand.rotation.x=f&&f[19]!==undefined?e[19]+(f[19]-e[19])*k:e[19];}   // (the wrist turns past half a turn: straight between, not the short way round)
+    if(g.pkit)copKitShow(g.pkit,e[20]||0);}   // (an officer's club, or handgun drawn, and holster)
   netVenuePose(rt);netFallPose(a,b,k);
   for(const e of a.c){const c=NETM.c.get(e[0]);if(!c)continue;const f=bc.get(e[0]),v=n=>f?e[n]+(f[n]-e[n])*k:e[n],w=n=>f?lerpA(e[n],f[n],k):e[n];
     c.g.position.set(v(1),v(2),v(3));c.g.rotation.set(w(4),w(5),w(6));c.pos.copy(c.g.position);c.heading=c.g.rotation.y;

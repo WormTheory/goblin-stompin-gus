@@ -189,7 +189,7 @@ function tenvFoe(kind){
     g.pos.set(x,y,z);g.indoor=false;g.heading=h;
     if(kind==='cop'){
       const L=dressGoblin(g);L.tunic=0x1c2a5a;L.pants=0x1c2a5a;L.show=L.show.filter(k=>!['cap','top','beanie','hardhat','bandana','mohawk','scarf','tie','backpack','apron','eyepatch'].includes(k));L.hatType='cap';L.hat=0x1c2a5a;L.show.push('cap');L.hatShown=L.hat;applyLook(g,L,ES);
-      g.id=makeIdentity(g,L);g.id.occ='Police officer, Goblin Police Dept.';}
+      g.id=makeIdentity(g,L);g.id.occ='Police officer, Goblin Police Dept.';copArm(g);}
     made++;}
   const nm={goblin:['goblin','goblins'],cultist:['cultist','cultists'],thief:['thief','thieves'],prepper:['prepper','preppers'],militia:['militiaman','militiamen'],cop:['police officer','police officers'],civ:['civilian','civilians'],police:['police car','police cars'],car:['hunting car','hunting cars']}[kind];
   tsSet(made?('Spawned '+made+' '+nm[made>1?1:0]+' ahead of Gus.'):'Couldn\'t spawn any '+nm[1]+' just now.');

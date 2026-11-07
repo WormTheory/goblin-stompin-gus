@@ -50,6 +50,7 @@ ui/menu-nav.js
 ui/controls.js
 enemies/crowds.js
 enemies/foes.js
+enemies/police-gun.js
 enemies/cultists.js
 enemies/shots.js
 player/gob-weapons.js

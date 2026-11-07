@@ -208,8 +208,8 @@ function renderControls(){
 renderControls();
 function addHostile(){
   const root=new THREE.Group();root.rotation.order='YXZ';
-  const m=goblinModel(root,{shareGeo:true});
-  goblins.push({snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,pos:new V3(),kv:new V3(),stun:0,heading:0,vy:0,hp:4,state:'wait',t:Math.random()*6,phase:0,atk:1,hurt:0,sink:0,detour:0,detourH:0,stuck:0,civ:false});
+  const m=goblinModel(root,{shareGeo:true,pistol:true});   // (any of them may be sent out as police: police-gun.js)
+  goblins.push({snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,pkit:m.pkit,pos:new V3(),kv:new V3(),stun:0,heading:0,vy:0,hp:4,state:'wait',t:Math.random()*6,phase:0,atk:1,hurt:0,sink:0,detour:0,detourH:0,stuck:0,civ:false});
   root.visible=false;root.scale.setScalar(ES);   // (not added to the scene: batDraw draws it)
 }
 for(let i=0;i<16;i++)addHostile();

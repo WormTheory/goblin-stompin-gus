@@ -303,7 +303,7 @@ function svcArrive(c){
       g.pos.set(c.pos.x+side[0]*(n?-1:1),c.pos.y,c.pos.z+side[1]*(n?-1:1));g.indoor=false;
       const L=dressGoblin(g);L.tunic=0x1c2a5a;L.pants=0x1c2a5a;L.show=L.show.filter(k=>!['cap','top','beanie','hardhat','bandana','mohawk','scarf','tie','backpack','apron','eyepatch'].includes(k));L.hatType='cap';L.hat=0x1c2a5a;L.show.push('cap');L.hatShown=L.hat;applyLook(g,L,ES);
       g.id=makeIdentity(g,L);g.id.occ='Police officer, Goblin '+(S.B?brandName(S.B):'Police Dept.');
-      g.cop={car:c,x:S.tx,z:S.tz,t:0};g.inv=true;}
+      g.cop={car:c,x:S.tx,z:S.tz,t:0};g.inv=true;copArm(g);}
   } else if(S.kind==='news'){
     // a reporter with a microphone and an operator with a camera, the scene behind the reporter (there's no one to film if nobody's near)
     const n0=nearestPlayer(c.pos.x,c.pos.z,false);if(!n0||n0.d>70)return;

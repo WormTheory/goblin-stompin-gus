@@ -34,10 +34,10 @@ veh tank    Spawned 1 hunting tank ahead of Gus.
 veh heli    Spawned 1 hunting helicopter ahead of Gus.
 veh plane   Spawned 1 plane ahead of Gus, ready to fly: get in, speed up, then jump to take off.
 veh park Spawned 3 parked buses ahead of Gus.
-goblins out 15 distances 6.7 9.1 8.7 11.3 3.6 8.1 7.5 69.9 67.8 61.5 72.6 68.6 64.6 65.9 67.3 cars Ch20 Ch32 Ch10 Ch22 Ch36 Ch36 Ch13 Ch20 Ch23 Ch8 Ch35 Ph17 C43 C10 C18 C73 C92 C69 C89 C66 C95 C29 C42
-after 4 s: goblins out 64.2 64.6 72.3 68.9 66.4 72.9 71.6 | gus hp 0 | cars C11 C27 C17 C10 C49 C11 C15 C66 C100 C63 C97 C60 C103 C23 C29
-army tank:hunt 32m up 0.0, heli:hunt 1m up 0.0
-cleared: goblins out 7 cars 6
+goblins out 15 distances 5.3 7.7 7.4 8.5 2.3 6.7 6.1 70.9 68.8 60.0 73.6 67.2 63.2 64.5 65.9 cars Ch18 Ch30 Ch11 Ch34 Ch11 Ch29 Ch25 Ch21 Ch20 Ch10 Ch34 Ph34 C27 C16 C20 C74 C91 C70 C88 C67 C94 C15 C33
+after 4 s: goblins out 62.8 61.1 64.5 62.8 70.2 66.5 68.6 69.3 | gus hp 0 | cars C7 C24 C18 C25 C66 C97 C63 C94 C59 C100 C18 C18
+army tank:hunt 10m up 0.0, heli:hunt 42m up 3.5
+cleared: goblins out 4 cars 6
 removed hospital blocks left in its box 0 boxes 4 saved null
 reset 1st press: Sure? Press again | boxes 4
 reset 2nd press: boxes 0 army false cars 0 in tenv true

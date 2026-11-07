@@ -24,6 +24,10 @@ const STRIKES={
   // a rifle shot: shouldered and held on the target, then the kick, and back down
   aim:[[0,-0.5,0,0,0,0,0,0],[0.35,-1.5,0,0,-1.35,0.15,0.04,0,'o'],[1,-1.5,0,0,-1.35,0.15,0.04,0],
     [1.06,-1.85,0,0,-1.55,0.15,-0.08,-0.06,'o'],[1.4,-1.5,0,0,-1.35,0.15,0.02,0],[2,-0.5,0,0,0,0,0,0]],
+  // a handgun shot (police): the rifle's, but held out at arm's length in both hands, a little in to the middle, and the
+  // kick snapping the wrist and the muzzle up rather than shoving the shoulder back
+  pistol:[[0,-0.5,0,0,0,0,0,0],[0.35,-1.57,-0.1,0,-1.47,0.12,0.03,0,'o'],[1,-1.57,-0.1,0,-1.47,0.12,0.03,0],
+    [1.06,-1.85,-0.1,-0.45,-1.7,0.12,-0.05,-0.04,'o'],[1.4,-1.57,-0.1,0,-1.47,0.12,0.02,0],[2,-0.5,0,0,0,0,0,0]],
   // a grenade: the free hand drawn back behind the head, the other arm out at the target, then thrown overarm
   throw:[[0,-0.5,0,0,0,0,0,0],[0.35,-0.9,0,0,-2.3,-0.15,-0.03,0,'o'],[0.78,-1.2,0,0,-3.7,-0.45,-0.12,-0.05],
     [0.86,-1.2,0,0,-3.75,-0.47,-0.13,-0.06],[1,-0.4,0,0,-1.5,0.35,0.15,0.12,'i'],[1.3,-0.3,0,0,-0.7,0.4,0.18,0.12,'o'],[2,-0.5,0,0,0,0,0,0]],

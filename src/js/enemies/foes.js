@@ -40,16 +40,18 @@ function guardCalm(g,dt){
 }
 // hunting: aim and fire, or wind up and throw, when there's a shot; true while busy at it (or posted up a tower), so it
 // stays where it is
-function foeRanged(g,p,d,ddy,dt){
-  const F=FOES[g.foeKind];g.gunCD-=dt;g.bombCD-=dt;
+// (F: what it's armed with; an officer's is COP_FOE, police-gun.js)
+function foeRanged(g,p,d,ddy,dt,F=FOES[g.foeKind]){
+  g.gunCD-=dt;g.bombCD-=dt;const aimW=F.pistol?'pistol':'aim';
   const face=r=>{let df=Math.atan2(p.pos.x-g.pos.x,p.pos.z-g.pos.z)-g.heading;while(df>Math.PI)df-=Math.PI*2;while(df<-Math.PI)df+=Math.PI*2;g.heading+=Math.max(-r*dt,Math.min(r*dt,df));};
   if(g.aim>0){
     if(g.stun>0||!playing||g.wet){g.aim=0;if(g.orb)g.orb.visible=false;return false;}
     g.aim-=dt;face(8);
-    // (shouldering the rifle and holding it on him, or drawing the grenade back behind the head: see strikes.js)
-    if(g.aimK==='gun')gobStrike(g,'aim',1-Math.max(0,g.aim)/F.gun[2]);
+    // (shouldering the rifle, or raising the handgun in both hands, and holding it on him; or drawing the grenade back
+    // behind the head: see strikes.js)
+    if(g.aimK==='gun')gobStrike(g,aimW,1-Math.max(0,g.aim)/F.gun[2]);
     else{g.orb.visible=true;gobStrike(g,'throw',1-Math.max(0,g.aim)/0.6);}
-    if(g.aim<=0){g.relS=0;g.relK=g.aimK==='gun'?'aim':'throw';
+    if(g.aim<=0){g.relS=0;g.relK=g.aimK==='gun'?aimW:'throw';
       if(g.aimK==='gun'){foeShoot(g,p,F.gun);g.gunCD=F.gun[3][0]+Math.random()*(F.gun[3][1]-F.gun[3][0]);}
       else{foeThrow(g,p,F.bomb);g.bombCD=F.bomb[2][0]+Math.random()*(F.bomb[2][1]-F.bomb[2][0]);g.orb.visible=false;}}
     return true;}
@@ -72,7 +74,7 @@ function foeShoot(g,p,G6){
   let tx=p.pos.x,ty=p.pos.y+1.2,tz=p.pos.z;
   if(!hit){const a=Math.random()*6.283,r=1.6+Math.random()*1.5;tx+=Math.cos(a)*r;tz+=Math.sin(a)*r;ty+=(Math.random()-0.3)*1.5;const k=1.6;tx=x0+(tx-x0)*k;ty=y0+(ty-y0)*k;tz=z0+(tz-z0)*k;}
   tracer(x0,y0,z0,tx,ty,tz);puff(x0,y0-0.1,z0,1,0xffe070,0.1);
-  if(audio){noise(0.09,0.14,2600,'highpass');tone('square',220,90,0.06,0.04);}
+  if(audio){if(G6===COP_GUN){noise(0.06,0.12,3400,'highpass');tone('square',330,140,0.045,0.035);}else{noise(0.09,0.14,2600,'highpass');tone('square',220,90,0.06,0.04);}}   // (a handgun's crack is sharper and shorter)
   if(hit){const h=Math.hypot(tx-x0,tz-z0)||1;damagePlayer(p,G6[4],new V3(tx,ty,tz),new V3((tx-x0)/h,0.2,(tz-z0)/h),G6[5],g.id);}
 }
 // a bomb lobbed in an arc at where he's standing (give or take), fuse fizzing

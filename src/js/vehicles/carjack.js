@@ -56,7 +56,7 @@ function jackVictim(D,J){
       const L=dressGoblin(g);
       if(o.police){L.tunic=0x1c2a5a;L.pants=0x1c2a5a;L.show=L.show.filter(k=>!['cap','top','beanie','hardhat','bandana','mohawk','scarf','tie','backpack','apron','eyepatch'].includes(k));L.hatType='cap';L.hat=0x1c2a5a;L.show.push('cap');L.hatShown=L.hat;applyLook(g,L,ES);}
       g.id=makeIdentity(g,L);if(name){g.id.name=name;g.id.age=dr.age||g.id.age;g.id.occ=occ;g.id.hobby=dr.hobby||g.id.hobby;g.id.quirk=dr.quirk||g.id.quirk;}
-      g.hp=g.hpMax=g.civ?3:4;g.atk=1;g.arm.rotation.x=0;g.armL.rotation.x=0;}}
+      g.hp=g.hpMax=g.civ?3:4;g.atk=1;g.arm.rotation.x=0;g.armL.rotation.x=0;g.gun=null;g.aim=0;if(o.police)copArm(g);}}
   if(!g)return null;
   g.state='chase';g.t=0;g.sink=0;g.hurt=0;g.vy=0;g.kv.set(0,0,0);g.stun=99;g.detour=0;g.stuck=0;g.act=null;g.root.visible=true;g.root.rotation.set(0,0,0);g.fallTop=undefined;
   {const se=jackSeat(D,J),at=jackAt(D,se.a,se.b,se.c);g.pos.set(at.x,at.y,at.z);g.root.position.copy(g.pos);}g.navOn=false;   // (in the seat from the start: see jackPose)

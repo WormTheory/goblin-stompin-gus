@@ -13,6 +13,15 @@
 - Gnash and Grizzle swing the same way: a club drawn back and chopped down, a dagger drawn back and thrust, in your own view and as other players see you. Their arm follows through after a grenade throw.
 - The Dev tab's Enemies viewer marks each attack's wind-up, strike and follow-through on the timeline.
 
+### Police handguns
+
+- Police now carry a handgun in a holster on their belt. Once they've spotted you, they draw it and shoot from 4 to 30 blocks away, then holster it again. Get in close and they swap back to the club.
+- They hold it out in both hands and take aim for a moment first, so you can see the shot coming. When it fires, it kicks their wrists up.
+- Police who come out fighting after you carjack their car carry one too, and so do the Testing Environment's police officers.
+- With enemy hostility turned down, police keep their guns holstered.
+- The Dev tab's Enemies viewer has a new "Draw and fire the handgun" animation for police officers.
+- Online, guests see the gun drawn and the holster, and now see every bullet's tracer, the rifles' too.
+
 ### Driver and gunner
 
 - Two goblins can now share one armed vehicle. While one player drives, the other walks up and presses the get-in button to take the gunner's seat. Both local and online co-op work.

@@ -6,7 +6,7 @@ guest asked to reload into the host world ok kept in session storage ok local sa
 host keeps the seat for the guest while it reloads ok
 reloaded guest builds the host world: seed 266144506 ok edits 25 ok saving blocked ok
 guest joined ok seat 1 playing ok host has player two ok
-messages so far 55 bytes 81183 (about 1476 a message)
+messages so far 55 bytes 81897 (about 1489 a message)
 guest P1 vs host P2 0.00 guest P2 vs host P1 0.00 ok
 camera from its hippo: guest 7.24 host 7.24 (guest P2 on the host 7.24)
 hp shown 20 state walk host P2 20 walk
@@ -23,18 +23,19 @@ a building brought down on the host: solid blocks above the break, host 23383 ->
 knocked over a chair 5.89 away: guest showed it falling for 27 frames midway ok | lying down on both ok | same way ok
 hearts: guest shows its own 13 ok | put right after wandering 13 ok | the host's 7 ok | hearts drawn -
 health bars on the guest: goblins hurt 6 the same 6 ok | vehicles hurt 6 the same 6 ok | a venue vehicle (no venue vehicle near)
-host tab hidden: background clock on ok snapshots the guest got meanwhile 18 ok guest walked on the host 4.21 ok | clock off again when shown ok
+police handgun on the guest: holster and club ok | gun drawn ok | a tracer ok
+host tab hidden: background clock on ok snapshots the guest got meanwhile 17 ok guest walked on the host 3.79 ok | clock off again when shown ok
 host turned goblin: guest P2 is a goblin ok
 guest pressed use by a car: host has it driving ok guest knows ok car
-drove for 1.5 s: car moved 11.17 ok guest camera from the car 6.07 ok guest car mirror apart 1.48
+drove for 1.5 s: car moved 11.42 ok guest camera from the car 6.07 ok guest car mirror apart 1.51
 guest vehicle display: Car  ·  19 / 30 ok
 pressed use again: out ok
-with 0.1 s each way: frames before moving, guest 4 host 10 ok | biggest step in one frame 0.08 ok | apart once stopped 0.02 ok
-lag compensation on a guest bite: on ok | goblins where the guest sees them: as they are now, off by 0.18 on average; put back, off by 0.04 ok
+with 0.1 s each way: frames before moving, guest 6 host 12 ok | biggest step in one frame 0.13 ok | apart once stopped 0.09 ok
+lag compensation on a guest bite: on ok | goblins where the guest sees them: as they are now, off by 0.27 on average; put back, off by 0.02 ok
 dropped: host keeps the seat ok status Hosting online. Room code TESTA · waiting for Gertie to come back
-guest came back after 11.5 s ok no reload ok hippo where it was (give or take a shove) 0.00 ok guest shows itself there 0.00 ok
+guest came back after 11.4 s ok no reload ok hippo where it was (give or take a shove) 1.02 ok guest shows itself there 0.00 ok
 a third player joins: seat 2 ok host players active 3 ok | first guest shows them ok apart 0.00 | the new one sees both others ok
-third player walks: moved on the host 3.63 ok the other guests see it there 0.39 ok
+third player walks: moved on the host 4.02 ok the other guests see it there 0.42 ok
 third player left: host ok first guest ok status: Hosting online. Room code TESTA · Gertie is here
 cost: one snapshot built on the host under N ms ok
 guest left: host P2 gone ok host still hosting ok guest went home (reload) ok

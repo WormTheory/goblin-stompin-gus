@@ -195,7 +195,7 @@ function spawnGoblin(g,any){
   if(!pos)return false;
   g.indoor=inside;
   g.pos.copy(pos);g.hp=g.hpMax=4;g.state='chase';g.t=0;g.sink=0;g.hurt=0;g.vy=0;g.atk=1;g.detour=0;
-  g.root.visible=true;g.root.rotation.set(0,0,0);g.arm.rotation.x=-0.5;g.kv.set(0,0,0);g.stun=0;
+  g.root.visible=true;g.root.rotation.set(0,0,0);g.arm.rotation.x=-0.5;g.kv.set(0,0,0);g.stun=0;g.gun=null;g.aim=0;
   g.id=makeIdentity(g,dressGoblin(g));
   return true;
 }

@@ -228,7 +228,7 @@ function updateGoblins(dt){
   // goblin against every other one gets slow fast: 600 of them took 30+ ms a frame)
   GOB_GRID.clear();for(const g of goblins)if(g.state==='chase'){const k=gobCell(Math.floor(g.pos.x),Math.floor(g.pos.z)),l=GOB_GRID.get(k);if(l)l.push(g);else GOB_GRID.set(k,[g]);}
   goblins.forEach(g=>{
-    g.t+=dt;g.hurt-=dt;g.atkS=(g.atkS??9)+dt;g.relS=(g.relS??9)+dt;   // (since its last blow, and since its last shot, throw or fireball: see strikes.js)
+    g.t+=dt;g.hurt-=dt;g.atkS=(g.atkS??9)+dt;g.relS=(g.relS??9)+dt;if(g.pkit)copKit(g);   // (since its last blow, and since its last shot, throw or fireball: see strikes.js)
     {const glow=g.hurt>0;if(glow!==g.glow){g.glow=glow;for(const m of g.mats)m.emissive.setHex(glow?0x440000:0x000000);}}   // (only when it changes: ten materials a goblin, every frame, adds up in a crowd)
     if(g.state!=='chase'){g.act=null;g.fallTop=undefined;}
     if(g.state==='wait'){
@@ -276,7 +276,8 @@ function updateGoblins(dt){
       // they can only club you if you're roughly level with them
       const reach=2.3,ddy=tgt.p.pos.y-g.pos.y,canHit=ddy>-1.3&&ddy<1.5;
       // a cultist conjuring a fireball stands its ground till it's thrown
-      if(g.cultist&&cultCast(g,tgt.p,d,ddy,dt)||g.foeKind&&FOES[g.foeKind].gun&&foeRanged(g,tgt.p,d,ddy,dt)){g.legs[0].rotation.x=g.legs[1].rotation.x=0;gobRootPose(g,g.pos.y,dt);return;}
+      // (and police, once they've seen him, draw their handguns at range: police-gun.js)
+      if(g.cultist&&cultCast(g,tgt.p,d,ddy,dt)||g.foeKind&&FOES[g.foeKind].gun&&foeRanged(g,tgt.p,d,ddy,dt)||g.gun&&!(g.cop&&g.inv)&&foeRanged(g,tgt.p,d,ddy,dt,g.gun)){g.legs[0].rotation.x=g.legs[1].rotation.x=0;gobRootPose(g,g.pos.y,dt);return;}
       // goblins holed up indoors stay put, pottering about, until a hippo is close and on their floor
       if(g.indoor&&!bldgAt(Math.floor(g.pos.x),Math.floor(g.pos.z)))g.indoor=false;
       if(g.cop&&g.inv&&d<22&&Math.abs(ddy)<4){g.inv=false;flashLabel('Police!',tgt.p);tone('square',880,660,0.25,0.05);}   // spotted!

@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:c1cc2e8306d7e36e043c56c8d39c3caa2ffcc67155140fcaa433ee364d0e7a74 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:cfe0e8dbd09ca5c3b0404b8234033f1dc933b0ab087d5581d14027d235f21f75 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -789,6 +789,8 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 <details class="pn-up pn-fold pn-new" id="version-0-4" open><summary tabindex="0"><h2>Version 0.4</h2><span class="pn-tog" aria-hidden="true"></span></summary>
 <h3>Goblin attacks</h3>
 <ul><li>Every goblin attack now has a proper wind-up and a strike that suits the weapon. Nothing hits any sooner or later than before: you just get a better look at it coming.</li><li>Goblins and police lift their club up behind their heads, pause at the top, then chop it down, turning into the blow.</li><li>Thieves and cultists draw their dagger back to the hip, point first, then thrust it straight in at arm's length.</li><li>Preppers, militiamen and soldiers swing their rifle round so the stock faces forward, then shove it into you with both hands.</li><li>Rifle shots: the rifle is brought up to the shoulder, held on you, then kicks when it fires.</li><li>Grenades are pulled back behind the head and thrown overarm, and cultists raise their fireball high as it grows, then hurl it.</li><li>Gnash and Grizzle swing the same way: a club drawn back and chopped down, a dagger drawn back and thrust, in your own view and as other players see you. Their arm follows through after a grenade throw.</li><li>The Dev tab's Enemies viewer marks each attack's wind-up, strike and follow-through on the timeline.</li></ul>
+<h3>Police handguns</h3>
+<ul><li>Police now carry a handgun in a holster on their belt. Once they've spotted you, they draw it and shoot from 4 to 30 blocks away, then holster it again. Get in close and they swap back to the club.</li><li>They hold it out in both hands and take aim for a moment first, so you can see the shot coming. When it fires, it kicks their wrists up.</li><li>Police who come out fighting after you carjack their car carry one too, and so do the Testing Environment's police officers.</li><li>With enemy hostility turned down, police keep their guns holstered.</li><li>The Dev tab's Enemies viewer has a new "Draw and fire the handgun" animation for police officers.</li><li>Online, guests see the gun drawn and the holster, and now see every bullet's tracer, the rifles' too.</li></ul>
 <h3>Driver and gunner</h3>
 <ul><li>Two goblins can now share one armed vehicle. While one player drives, the other walks up and presses the get-in button to take the gunner's seat. Both local and online co-op work.</li><li>Technicals and four-wheelers: the gunner works the machine gun or the rifle, aiming wherever they look while the driver steers. You see them standing at the gun in the truck bed, or sitting behind the rider.</li><li>Tanks and helicopters: the gunner aims the turret, or the helicopter's gun and rockets, with their own view while the driver steers or flies.</li><li>On your own, the weapon button switches between the driver's seat and the gun, so you can man a parked technical's gun yourself. If the driver gets out, the gunner can keep shooting from where the vehicle stopped.</li><li>The gunner's machine gun has a 50-round belt, and the four-wheeler's rifle holds 6 rounds. Both reload by themselves.</li><li>A goblin under your crosshair is now what vehicle guns aim at, rather than the ground behind it, so shots from a gun mounted off to one side don't miss.</li></ul>
 </details>
@@ -11150,7 +11152,7 @@ function jackVictim(D,J){
       const L=dressGoblin(g);
       if(o.police){L.tunic=0x1c2a5a;L.pants=0x1c2a5a;L.show=L.show.filter(k=>!['cap','top','beanie','hardhat','bandana','mohawk','scarf','tie','backpack','apron','eyepatch'].includes(k));L.hatType='cap';L.hat=0x1c2a5a;L.show.push('cap');L.hatShown=L.hat;applyLook(g,L,ES);}
       g.id=makeIdentity(g,L);if(name){g.id.name=name;g.id.age=dr.age||g.id.age;g.id.occ=occ;g.id.hobby=dr.hobby||g.id.hobby;g.id.quirk=dr.quirk||g.id.quirk;}
-      g.hp=g.hpMax=g.civ?3:4;g.atk=1;g.arm.rotation.x=0;g.armL.rotation.x=0;}}
+      g.hp=g.hpMax=g.civ?3:4;g.atk=1;g.arm.rotation.x=0;g.armL.rotation.x=0;g.gun=null;g.aim=0;if(o.police)copArm(g);}}
   if(!g)return null;
   g.state='chase';g.t=0;g.sink=0;g.hurt=0;g.vy=0;g.kv.set(0,0,0);g.stun=99;g.detour=0;g.stuck=0;g.act=null;g.root.visible=true;g.root.rotation.set(0,0,0);g.fallTop=undefined;
   {const se=jackSeat(D,J),at=jackAt(D,se.a,se.b,se.c);g.pos.set(at.x,at.y,at.z);g.root.position.copy(g.pos);}g.navOn=false;   // (in the seat from the start: see jackPose)
@@ -12247,7 +12249,12 @@ function goblinModel(parent,o={}){
   // (whatever's in that hand hangs off a wrist, so a blow can turn it: a club chopped down, a dagger kept point first, a
   // rifle swung round stock first. See strikes.js)
   const hand=new THREE.Group();hand.position.set(0,-0.4,0);arm.add(hand);arm.hand=hand;
-  if(o.club!==false){box(0.11,0.11,0.55,'club',GC.club,0,0.02,0.22,hand);box(0.19,0.19,0.19,'club',GC.club,0,0.02,0.5,hand);}
+  const club=o.club!==false?[box(0.11,0.11,0.55,'club',GC.club,0,0.02,0.22,hand),box(0.19,0.19,0.19,'club',GC.club,0,0.02,0.5,hand)]:[];
+  // a street goblin's other kit, for when it's in police blue (pistol: police-gun.js): a handgun in the same hand, its barrel
+  // on down past the fist like the rifle's, so it points straight out when the arm's raised to aim, and a holster on the
+  // belt. Both hidden until an officer wears them
+  if(o.pistol){const pis=[box(0.07,0.27,0.09,'gun',0x22262c,0,-0.1,0.06,hand),box(0.06,0.08,0.15,'gun',0x22262c,0,0.01,-0.03,hand)],hol=[box(0.09,0.2,0.15,'holster',0x14110e,0.29,0.4,0.03,parent)];
+    for(const m of pis.concat(hol))m.visible=false;out.pkit={club,pis,hol,shown:0};}
   if(o.cult){
     // a cultist: a robe down to the ankles, a pointed hood (the ears poke out of it), a ritual dagger in the right hand,
     // and in the left a fireball, shown only while one's being conjured
@@ -12357,6 +12364,10 @@ const STRIKES={
   // a rifle shot: shouldered and held on the target, then the kick, and back down
   aim:[[0,-0.5,0,0,0,0,0,0],[0.35,-1.5,0,0,-1.35,0.15,0.04,0,'o'],[1,-1.5,0,0,-1.35,0.15,0.04,0],
     [1.06,-1.85,0,0,-1.55,0.15,-0.08,-0.06,'o'],[1.4,-1.5,0,0,-1.35,0.15,0.02,0],[2,-0.5,0,0,0,0,0,0]],
+  // a handgun shot (police): the rifle's, but held out at arm's length in both hands, a little in to the middle, and the
+  // kick snapping the wrist and the muzzle up rather than shoving the shoulder back
+  pistol:[[0,-0.5,0,0,0,0,0,0],[0.35,-1.57,-0.1,0,-1.47,0.12,0.03,0,'o'],[1,-1.57,-0.1,0,-1.47,0.12,0.03,0],
+    [1.06,-1.85,-0.1,-0.45,-1.7,0.12,-0.05,-0.04,'o'],[1.4,-1.57,-0.1,0,-1.47,0.12,0.02,0],[2,-0.5,0,0,0,0,0,0]],
   // a grenade: the free hand drawn back behind the head, the other arm out at the target, then thrown overarm
   throw:[[0,-0.5,0,0,0,0,0,0],[0.35,-0.9,0,0,-2.3,-0.15,-0.03,0,'o'],[0.78,-1.2,0,0,-3.7,-0.45,-0.12,-0.05],
     [0.86,-1.2,0,0,-3.75,-0.47,-0.13,-0.06],[1,-0.4,0,0,-1.5,0.35,0.15,0.12,'i'],[1.3,-0.3,0,0,-0.7,0.4,0.18,0.12,'o'],[2,-0.5,0,0,0,0,0,0]],
@@ -13898,8 +13909,8 @@ function renderControls(){
 renderControls();
 function addHostile(){
   const root=new THREE.Group();root.rotation.order='YXZ';
-  const m=goblinModel(root,{shareGeo:true});
-  goblins.push({snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,pos:new V3(),kv:new V3(),stun:0,heading:0,vy:0,hp:4,state:'wait',t:Math.random()*6,phase:0,atk:1,hurt:0,sink:0,detour:0,detourH:0,stuck:0,civ:false});
+  const m=goblinModel(root,{shareGeo:true,pistol:true});   // (any of them may be sent out as police: police-gun.js)
+  goblins.push({snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,pkit:m.pkit,pos:new V3(),kv:new V3(),stun:0,heading:0,vy:0,hp:4,state:'wait',t:Math.random()*6,phase:0,atk:1,hurt:0,sink:0,detour:0,detourH:0,stuck:0,civ:false});
   root.visible=false;root.scale.setScalar(ES);   // (not added to the scene: batDraw draws it)
 }
 for(let i=0;i<16;i++)addHostile();
@@ -14154,7 +14165,7 @@ function spawnGoblin(g,any){
   if(!pos)return false;
   g.indoor=inside;
   g.pos.copy(pos);g.hp=g.hpMax=4;g.state='chase';g.t=0;g.sink=0;g.hurt=0;g.vy=0;g.atk=1;g.detour=0;
-  g.root.visible=true;g.root.rotation.set(0,0,0);g.arm.rotation.x=-0.5;g.kv.set(0,0,0);g.stun=0;
+  g.root.visible=true;g.root.rotation.set(0,0,0);g.arm.rotation.x=-0.5;g.kv.set(0,0,0);g.stun=0;g.gun=null;g.aim=0;
   g.id=makeIdentity(g,dressGoblin(g));
   return true;
 }
@@ -14234,16 +14245,18 @@ function guardCalm(g,dt){
 }
 // hunting: aim and fire, or wind up and throw, when there's a shot; true while busy at it (or posted up a tower), so it
 // stays where it is
-function foeRanged(g,p,d,ddy,dt){
-  const F=FOES[g.foeKind];g.gunCD-=dt;g.bombCD-=dt;
+// (F: what it's armed with; an officer's is COP_FOE, police-gun.js)
+function foeRanged(g,p,d,ddy,dt,F=FOES[g.foeKind]){
+  g.gunCD-=dt;g.bombCD-=dt;const aimW=F.pistol?'pistol':'aim';
   const face=r=>{let df=Math.atan2(p.pos.x-g.pos.x,p.pos.z-g.pos.z)-g.heading;while(df>Math.PI)df-=Math.PI*2;while(df<-Math.PI)df+=Math.PI*2;g.heading+=Math.max(-r*dt,Math.min(r*dt,df));};
   if(g.aim>0){
     if(g.stun>0||!playing||g.wet){g.aim=0;if(g.orb)g.orb.visible=false;return false;}
     g.aim-=dt;face(8);
-    // (shouldering the rifle and holding it on him, or drawing the grenade back behind the head: see strikes.js)
-    if(g.aimK==='gun')gobStrike(g,'aim',1-Math.max(0,g.aim)/F.gun[2]);
+    // (shouldering the rifle, or raising the handgun in both hands, and holding it on him; or drawing the grenade back
+    // behind the head: see strikes.js)
+    if(g.aimK==='gun')gobStrike(g,aimW,1-Math.max(0,g.aim)/F.gun[2]);
     else{g.orb.visible=true;gobStrike(g,'throw',1-Math.max(0,g.aim)/0.6);}
-    if(g.aim<=0){g.relS=0;g.relK=g.aimK==='gun'?'aim':'throw';
+    if(g.aim<=0){g.relS=0;g.relK=g.aimK==='gun'?aimW:'throw';
       if(g.aimK==='gun'){foeShoot(g,p,F.gun);g.gunCD=F.gun[3][0]+Math.random()*(F.gun[3][1]-F.gun[3][0]);}
       else{foeThrow(g,p,F.bomb);g.bombCD=F.bomb[2][0]+Math.random()*(F.bomb[2][1]-F.bomb[2][0]);g.orb.visible=false;}}
     return true;}
@@ -14266,7 +14279,7 @@ function foeShoot(g,p,G6){
   let tx=p.pos.x,ty=p.pos.y+1.2,tz=p.pos.z;
   if(!hit){const a=Math.random()*6.283,r=1.6+Math.random()*1.5;tx+=Math.cos(a)*r;tz+=Math.sin(a)*r;ty+=(Math.random()-0.3)*1.5;const k=1.6;tx=x0+(tx-x0)*k;ty=y0+(ty-y0)*k;tz=z0+(tz-z0)*k;}
   tracer(x0,y0,z0,tx,ty,tz);puff(x0,y0-0.1,z0,1,0xffe070,0.1);
-  if(audio){noise(0.09,0.14,2600,'highpass');tone('square',220,90,0.06,0.04);}
+  if(audio){if(G6===COP_GUN){noise(0.06,0.12,3400,'highpass');tone('square',330,140,0.045,0.035);}else{noise(0.09,0.14,2600,'highpass');tone('square',220,90,0.06,0.04);}}   // (a handgun's crack is sharper and shorter)
   if(hit){const h=Math.hypot(tx-x0,tz-z0)||1;damagePlayer(p,G6[4],new V3(tx,ty,tz),new V3((tx-x0)/h,0.2,(tz-z0)/h),G6[5],g.id);}
 }
 // a bomb lobbed in an arc at where he's standing (give or take), fuse fizzing
@@ -14276,6 +14289,23 @@ function foeThrow(g,p,B6){
   shot({kind:'grenade',x:x0,y:y0,z:z0,vx:(tx-x0)/T,vy:(ty-y0+0.5*Gv*T*T)/T,vz:(tz-z0)/T,grav:Gv,fuse:B6[3],R:B6[4],dmg:B6[5],cause:B6[6],by:g.id,bounce:true});
   if(audio)noise(0.2,0.04,500,'lowpass');
 }
+// ---- the police's handgun: drawn and fired at range, holstered for the club up close ----
+// (as FOES' guns: shortest and longest range, seconds to aim, cooldown range, damage, cause. Shorter reach and quicker on
+// the draw than a rifle; inside 4 blocks they put it away and use the club)
+const COP_GUN=[4,30,0.45,[1.6,2.6],1,'Shot by the police'];
+const COP_FOE={gun:COP_GUN,pistol:true};   // (what foeRanged reads for an officer: a handgun, no grenades)
+// an officer of any kind (out of a police car, carjacked out of one, or the Testing Environment's): armed and ready
+function copArm(g){if(!g.pkit)return;g.gun=COP_FOE;g.aim=0;g.aimK=null;g.gunCD=0.4+Math.random()*0.8;g.bombCD=99;g.relK=null;}
+// which is in hand: the handgun while it's aimed and just after the shot, the club the rest of the time; an officer's
+// holster shows on the belt whenever the gun isn't out. 0 nothing (not police), 1 club and holster, 2 the gun out (online
+// guests are sent this: net-sync.js)
+const copKitState=g=>!g.gun?0:g.aim>0&&g.aimK==='gun'||(g.relS??9)<STRIKE_FT&&g.relK==='pistol'?2:1;
+function copKitShow(K,n){
+  if(K.shown===n)return;K.shown=n;   // (only when it changes: batDraw picks the change up)
+  for(const m of K.club)m.visible=n!==2;for(const m of K.pis)m.visible=n===2;for(const m of K.hol)m.visible=n===1;
+}
+// (in the game: put away once it's dead, or calmed down by the hostility setting with a shot half aimed)
+const copKit=g=>{const n=copKitState(g);copKitShow(g.pkit,n===2&&(g.state!=='chase'||calmNow())?1:n);};
 // ---- cultists (see addCultist and the cult altars' venue) ----
 const CULT_JOBS=['Cultist','Acolyte of the Altar','Candle-bearer','Chanting novice','Keeper of the sigil','High priest (self-appointed)','Ritual dagger polisher','Doom prophet','Hooded initiate'];
 const CULT_CAST=0.7;   // (seconds a fireball takes to conjure: the warning you get)
@@ -14743,7 +14773,7 @@ function updateGoblins(dt){
   // goblin against every other one gets slow fast: 600 of them took 30+ ms a frame)
   GOB_GRID.clear();for(const g of goblins)if(g.state==='chase'){const k=gobCell(Math.floor(g.pos.x),Math.floor(g.pos.z)),l=GOB_GRID.get(k);if(l)l.push(g);else GOB_GRID.set(k,[g]);}
   goblins.forEach(g=>{
-    g.t+=dt;g.hurt-=dt;g.atkS=(g.atkS??9)+dt;g.relS=(g.relS??9)+dt;   // (since its last blow, and since its last shot, throw or fireball: see strikes.js)
+    g.t+=dt;g.hurt-=dt;g.atkS=(g.atkS??9)+dt;g.relS=(g.relS??9)+dt;if(g.pkit)copKit(g);   // (since its last blow, and since its last shot, throw or fireball: see strikes.js)
     {const glow=g.hurt>0;if(glow!==g.glow){g.glow=glow;for(const m of g.mats)m.emissive.setHex(glow?0x440000:0x000000);}}   // (only when it changes: ten materials a goblin, every frame, adds up in a crowd)
     if(g.state!=='chase'){g.act=null;g.fallTop=undefined;}
     if(g.state==='wait'){
@@ -14791,7 +14821,8 @@ function updateGoblins(dt){
       // they can only club you if you're roughly level with them
       const reach=2.3,ddy=tgt.p.pos.y-g.pos.y,canHit=ddy>-1.3&&ddy<1.5;
       // a cultist conjuring a fireball stands its ground till it's thrown
-      if(g.cultist&&cultCast(g,tgt.p,d,ddy,dt)||g.foeKind&&FOES[g.foeKind].gun&&foeRanged(g,tgt.p,d,ddy,dt)){g.legs[0].rotation.x=g.legs[1].rotation.x=0;gobRootPose(g,g.pos.y,dt);return;}
+      // (and police, once they've seen him, draw their handguns at range: police-gun.js)
+      if(g.cultist&&cultCast(g,tgt.p,d,ddy,dt)||g.foeKind&&FOES[g.foeKind].gun&&foeRanged(g,tgt.p,d,ddy,dt)||g.gun&&!(g.cop&&g.inv)&&foeRanged(g,tgt.p,d,ddy,dt,g.gun)){g.legs[0].rotation.x=g.legs[1].rotation.x=0;gobRootPose(g,g.pos.y,dt);return;}
       // goblins holed up indoors stay put, pottering about, until a hippo is close and on their floor
       if(g.indoor&&!bldgAt(Math.floor(g.pos.x),Math.floor(g.pos.z)))g.indoor=false;
       if(g.cop&&g.inv&&d<22&&Math.abs(ddy)<4){g.inv=false;flashLabel('Police!',tgt.p);tone('square',880,660,0.25,0.05);}   // spotted!
@@ -16284,15 +16315,15 @@ const DEV_MELEE={dmg:1,every:1.5,w:'Club'};   // (a street goblin's: routes.js, 
 const DEV_FOE_KINDS=[
   {k:'goblin',n:'Goblin',hp:4,spd:2.8,melee:DEV_MELEE,look:{tunic:GC.tunic,pants:0x3a3328,hat:0x2a2a2a,show:['bandana','pouch']},
     anims:['idle','walk','attack','jump','climb','swim','death']},
-  {k:'cop',n:'Police officer',hp:4,spd:2.8,melee:DEV_MELEE,look:{tunic:0x1c2a5a,pants:0x1c2a5a,hat:0x1c2a5a,show:['cap']},
-    anims:['idle','walk','attack','jump','climb','swim','death']},
+  {k:'cop',n:'Police officer',hp:4,spd:2.8,melee:DEV_MELEE,gun:COP_GUN,pistol:true,look:{tunic:0x1c2a5a,pants:0x1c2a5a,hat:0x1c2a5a,show:['cap']},
+    anims:['idle','walk','attack','shoot','jump','climb','swim','death']},   // (the handgun: police-gun.js)
   {k:'civ',n:'Civilian',hp:3,spd:1.5,civ:true,look:{skin:0x7aa848,tunic:0x2a7a5a,pants:0x2b2f38,hat:0xc9a02a,show:['cap','glasses']},
     anims:['idle','walk','flee','stall','swim','death']},
   {k:'cultist',n:'Cultist',hp:4,spd:2.8,cult:true,melee:{dmg:1,every:0.85,w:'Ritual dagger'},look:{tunic:CULT_ROBE,pants:0x1a0a0c,hat:CULT_HOOD,acc:0x2a0408,acc2:0x2a0408,show:[]},
     anims:['chant','walk','attack','cast','jump','climb','swim','death']},
   ...['thief','prepper','militia'].map(k=>{const F=FOES[k];return{k,n:F.name,hp:F.hp,spd:F.spd,foe:F,melee:{dmg:F.melee[0],every:F.melee[1],w:F.gear==='dagger'?'Dagger':'Rifle butt'},
     look:{tunic:F.tunic,pants:F.pants,hat:F.hatc,acc:F.pants,show:[F.hat,k==='thief'?'eyepatch':'pouch']},
-    anims:['guard','walk','attack',...(F.gun?['shoot']:[]),...(F.bomb?['throw']:[]),'jump','climb','swim','death']};})];
+    gun:F.gun,anims:['guard','walk','attack',...(F.gun?['shoot']:[]),...(F.bomb?['throw']:[]),'jump','climb','swim','death']};})];
 const DEV_FOE_ANIM_N={idle:'Stand',walk:'Walk (chasing)',attack:'Attack',jump:'Jump up a step',climb:'Climb a wall',swim:'Swim',death:'Die',
   flee:'Run away screaming',stall:'Serve at a stall',chant:'Chant at the altar',cast:'Conjure a fireball',guard:'On guard',shoot:'Aim and fire',throw:'Throw a grenade'};
 const DEV_TARGET=10;   // (how far off Gus stands for a shot, a throw or a fireball)
@@ -16301,12 +16332,12 @@ const DEV_FOE_KEY='goblin-stompin-gus-devfoe',DEVF_O={x:0,z:0};
 try{const s=JSON.parse(localStorage.getItem(DEV_FOE_KEY)||'null');if(s&&DEV_FOE_KINDS.some(K=>K.k===s.k)){DEVF.kind=s.k;if(DEV_FOE_KINDS.find(K=>K.k===s.k).anims.includes(s.a))DEVF.anim=s.a;}}catch(e){}
 const devFoKind=k=>DEV_FOE_KINDS.find(K=>K.k===k)||DEV_FOE_KINDS[0];
 const devFoWk=K=>gobWk({cultist:!!K.cult,foeKind:K.foe?K.k:null});   // (which blow it strikes with: strikes.js)
-const devFoAnimName=(K,a)=>a==='attack'&&K.melee?K.melee.w==='Club'?'Club swing':K.melee.w==='Rifle butt'?'Rifle butt':'Dagger stab':DEV_FOE_ANIM_N[a];
+const devFoAnimName=(K,a)=>a==='shoot'&&K.pistol?'Draw and fire the handgun':a==='attack'&&K.melee?K.melee.w==='Club'?'Club swing':K.melee.w==='Rifle butt'?'Rifle butt':'Dagger stab':DEV_FOE_ANIM_N[a];
 // its model: the game's own, dressed in a fixed look for its kind, with names on its joints for the skeleton
 function devFoFig(K){
   if(DEVF.figs[K.k])return DEVF.figs[K.k];
   const root=new THREE.Group();root.name='root';root.rotation.order='YXZ';root.visible=false;
-  const F=K.foe,m=goblinModel(root,K.cult?{club:false,cult:true,tunic:CULT_ROBE}:F?{club:false,gear:F.gear,held:F.held,tunic:F.tunic}:K.civ?{club:false,tunic:K.look.tunic}:{});
+  const F=K.foe,m=goblinModel(root,K.cult?{club:false,cult:true,tunic:CULT_ROBE}:F?{club:false,gear:F.gear,held:F.held,tunic:F.tunic}:K.civ?{club:false,tunic:K.look.tunic}:{pistol:!!K.pistol});
   m.root=root;m.head.name='head';m.arm.name='arm.R';m.armL.name='arm.L';m.legs[0].name='leg.L';m.legs[1].name='leg.R';
   applyLook(m,Object.assign({skin:GC.skin,hat:0x2a2a2a,acc:0x884422,acc2:0x111111,hair:0x1b1b1b,h:1,w:1,hs:1},K.look),ES);
   if(m.orb&&K.cult)m.roles.orb.emissive.setHex(0xff5a00);   // (a fireball glows: cultCast lights it)
@@ -16388,14 +16419,15 @@ const DEV_FOE_ANIM={
       g.relS+=dt;if(!dfFollow(g)){g.armL.rotation.x+=(0-g.armL.rotation.x)*Math.min(1,dt*6);dfArm(g,false,dt);}dfEnd(g,false);},
     data:K=>[['Conjures for',dfFrames(CULT_CAST)+' (the warning you get)'],['Range','4.5 to 30 blocks, when it can see you'],['Fireball','flies at '+FB_SPEED+' blocks/s, bending a little after you'],['Damage','2 hearts'],['Again after','2.4–4 s']]},
   // a rifle shot: raised and aimed for a moment, then hitscan with a tracer
-  shoot:{dur:K=>0.3+K.foe.gun[2]+0.8,init(g,K,C){C.target(DEV_TARGET);g.aimT=0.3;},step(g,K,dt,C){const F=K.foe;
-      if(g.aimT>0&&(g.aimT-=dt)<=0){g.aim=F.gun[2];C.mark('Aim',C.f,C.f+Math.round(F.gun[2]*60)-1,'wind');}
-      if(g.aim>0){g.aim-=dt;gobStrike(g,'aim',1-Math.max(0,g.aim)/F.gun[2]);
+  // (or, for police, the handgun held out in both hands, drawn from the holster as the aim starts: police-gun.js)
+  shoot:{dur:K=>0.3+K.gun[2]+0.8,init(g,K,C){C.target(DEV_TARGET);g.aimT=0.3;},step(g,K,dt,C){const F=K,w=K.pistol?'pistol':'aim';
+      if(g.aimT>0&&(g.aimT-=dt)<=0){g.aim=F.gun[2];g.aimK='gun';C.mark('Aim',C.f,C.f+Math.round(F.gun[2]*60)-1,'wind');}
+      if(g.aim>0){g.aim-=dt;gobStrike(g,w,1-Math.max(0,g.aim)/F.gun[2]);
         if(g.aim<=0){const fx=Math.sin(g.heading),fz=Math.cos(g.heading);C.tracer(C.f,[g.pos.x+fx*0.8,g.pos.y+1.05,g.pos.z+fz*0.8],[0,G+1+1.2,DEV_TARGET],F.gun[4]);
-          g.relS=0;g.relK='aim';C.mark('Follow-through',C.f+1,C.f+Math.round(STRIKE_FT*60),'wind');}
+          g.relS=0;g.relK=w;C.mark('Follow-through',C.f+1,C.f+Math.round(STRIKE_FT*60),'wind');}
         g.legs[0].rotation.x=g.legs[1].rotation.x=0;gobRootPose(g,g.pos.y,dt);return;}
       g.relS+=dt;if(!dfFollow(g)){g.armL.rotation.x+=(0-g.armL.rotation.x)*Math.min(1,dt*6);dfArm(g,false,dt);}dfEnd(g,false);},
-    data:K=>{const G6=K.foe.gun;return[['Aims for',dfFrames(G6[2])],['Range',G6[0]+' to '+G6[1]+' blocks, when it can see you'],['Damage',G6[4]+' heart'+(G6[4]===1?'':'s')],
+    data:K=>{const G6=K.gun;return[...(K.pistol?[['Weapon','Handgun (the club inside '+G6[0]+' blocks)']]:[]),['Aims for',dfFrames(G6[2])],['Range',G6[0]+' to '+G6[1]+' blocks, when it can see you'],['Damage',G6[4]+' heart'+(G6[4]===1?'':'s')],
       ['Hits','92% close up, less 1.7% a block, at least 30% (at '+DEV_TARGET+': '+Math.round(Math.max(0.3,0.92-DEV_TARGET/60)*100)+'%)'],['Again after',G6[3][0]+'–'+G6[3][1]+' s']];}},
   // a grenade: wound up in the left hand, lobbed in an arc at Gus, bursting when its fuse runs out
   throw:{dur:K=>0.3+0.6+K.foe.bomb[3]+0.5,init(g,K,C){C.target(DEV_TARGET);g.aimT=0.3;},step(g,K,dt,C){const B=K.foe.bomb;
@@ -16412,8 +16444,9 @@ const DEV_FOE_ANIM={
 function devFoSim(kind,anim){
   const K=devFoKind(kind),A=DEV_FOE_ANIM[anim],fig=devFoFig(K),m=fig.m,nodes=fig.nodes,M=nodes.length,FL=11,N=Math.max(2,Math.round(A.dur(K)*60)),dt=1/60;
   const rec={kind,anim,N,M,fig:K.k,tr:new Float32Array(N*M*FL),pos:new Float32Array(N*4),hits:[],shots:[],boxes:[],marks:[],target:null,water:null};
-  const g={pos:new V3(0.5,G+1,0.5),heading:0,phase:0,t:0,atk:1,atkS:9,relS:9,relK:null,cultist:!!K.cult,foeKind:K.foe?K.k:null,legs:m.legs,arm:m.arm,armL:m.armL,head:m.head,root:m.root,orb:m.orb||null,act:null,wet:false};
+  const g={pos:new V3(0.5,G+1,0.5),heading:0,phase:0,t:0,atk:1,atkS:9,relS:9,relK:null,cultist:!!K.cult,foeKind:K.foe?K.k:null,gun:K.pistol?COP_FOE:null,aim:0,aimK:null,pkit:m.pkit||null,legs:m.legs,arm:m.arm,armL:m.armL,head:m.head,root:m.root,orb:m.orb||null,act:null,wet:false};
   m.root.rotation.set(0,0,0);m.arm.rotation.set(K.civ?0:-0.5,0,0);m.arm.hand.rotation.x=0;m.armL.rotation.x=0;for(const l of m.legs)l.rotation.x=0;m.head.rotation.z=0;if(m.orb){m.orb.visible=false;m.orb.scale.setScalar(1);}
+  if(m.pkit)m.pkit.shown=-1;   // (playing a recording back sets what's shown behind its back)
   const C={f:0,
     hit(f,kind,shape,o,dmg){rec.hits.push({f,until:f+12,kind,shape,o,dmg});},
     target(d){rec.target={x:0.5,z:0.5+d};},
@@ -16428,7 +16461,7 @@ function devFoSim(kind,anim){
       const fe=f+path.length-1,q=path[path.length-1];rec.shots.push({k:'ball',f,path,col});C.hit(fe,'dmg','sph',{x:q[0],y:q[1],z:q[2],r:hit.r},hit.dmg);C.mark(hit.fuse?'Grenade':'Fireball',f,fe,'shot');}};
   if(A.init)A.init(g,K,C);
   for(let f=0;f<N;f++){C.f=f;
-    if(f)g.t+=dt;A.step(g,K,dt,C);
+    if(f)g.t+=dt;A.step(g,K,dt,C);if(g.pkit)copKitShow(g.pkit,copKitState(g));   // (club, or the handgun drawn, and the holster)
     for(let i=0;i<M;i++){const o=nodes[i],b=(f*M+i)*FL,T=rec.tr;T[b]=o.position.x;T[b+1]=o.position.y;T[b+2]=o.position.z;T[b+3]=o.quaternion.x;T[b+4]=o.quaternion.y;T[b+5]=o.quaternion.z;T[b+6]=o.quaternion.w;T[b+7]=o.scale.x;T[b+8]=o.scale.y;T[b+9]=o.scale.z;T[b+10]=o.visible?1:0;}
     rec.pos[f*4]=g.pos.x;rec.pos[f*4+1]=g.pos.y;rec.pos[f*4+2]=g.pos.z;rec.pos[f*4+3]=g.heading;}
   if(A.marks)rec.marks.push(...A.marks(K,N,rec));
@@ -19959,7 +19992,7 @@ function svcArrive(c){
       g.pos.set(c.pos.x+side[0]*(n?-1:1),c.pos.y,c.pos.z+side[1]*(n?-1:1));g.indoor=false;
       const L=dressGoblin(g);L.tunic=0x1c2a5a;L.pants=0x1c2a5a;L.show=L.show.filter(k=>!['cap','top','beanie','hardhat','bandana','mohawk','scarf','tie','backpack','apron','eyepatch'].includes(k));L.hatType='cap';L.hat=0x1c2a5a;L.show.push('cap');L.hatShown=L.hat;applyLook(g,L,ES);
       g.id=makeIdentity(g,L);g.id.occ='Police officer, Goblin '+(S.B?brandName(S.B):'Police Dept.');
-      g.cop={car:c,x:S.tx,z:S.tz,t:0};g.inv=true;}
+      g.cop={car:c,x:S.tx,z:S.tz,t:0};g.inv=true;copArm(g);}
   } else if(S.kind==='news'){
     // a reporter with a microphone and an operator with a camera, the scene behind the reporter (there's no one to film if nobody's near)
     const n0=nearestPlayer(c.pos.x,c.pos.z,false);if(!n0||n0.d>70)return;
@@ -21784,7 +21817,7 @@ function netGoblins(p,N,out,looks){
   const R=170,px=p.pos.x,pz=p.pos.z;
   for(let i=0;i<goblins.length;i++){const g=goblins[i],r=g.root;if(!r.visible||Math.abs(r.position.x-px)>R||Math.abs(r.position.z-pz)>R)continue;
     const P=r.position,Q=r.rotation;
-    out.push([i,r3(P.x),r3(P.y),r3(P.z),r3(Q.x),r3(Q.y),r3(Q.z),r3(r.scale.x),r3(r.scale.y),r3(g.legs[0].rotation.x),r3(g.legs[1].rotation.x),r3(g.arm.rotation.x),r3(g.armL.rotation.x),r3(g.head.rotation.z),g.orb&&g.orb.visible?1:0,g.state,r3(g.hp),g.hpMax>=g.hp?g.hpMax:r3(g.hp),r3(g.arm.rotation.z),r3(g.arm.hand?g.arm.hand.rotation.x:0)]);   // (and its health, for the health bars; then the rest of a blow's pose, strikes.js)
+    out.push([i,r3(P.x),r3(P.y),r3(P.z),r3(Q.x),r3(Q.y),r3(Q.z),r3(r.scale.x),r3(r.scale.y),r3(g.legs[0].rotation.x),r3(g.legs[1].rotation.x),r3(g.arm.rotation.x),r3(g.armL.rotation.x),r3(g.head.rotation.z),g.orb&&g.orb.visible?1:0,g.state,r3(g.hp),g.hpMax>=g.hp?g.hpMax:r3(g.hp),r3(g.arm.rotation.z),r3(g.arm.hand?g.arm.hand.rotation.x:0),g.pkit?g.pkit.shown:0]);   // (and its health, for the health bars; then the rest of a blow's pose, strikes.js; then an officer's club, handgun or holster, police-gun.js)
     const L=g.id&&g.id.look;if(!L)continue;let v=netLookOf.get(g.id);if(!v){v=++netLookN;netLookOf.set(g.id,v);}
     if(N.looks.get(i)!==v){N.looks.set(i,v);looks[i]={o:r.netOpt||(g.civ?{club:false}:{}),civ:!!g.civ,L,id:{name:g.id.name,occ:g.id.occ,age:g.id.age}};}}
 }
@@ -21906,7 +21939,7 @@ function netFx(name,f){
 }
 puff=netFx('puff',puff);smoke=netFx('smoke',smoke);blood=netFx('blood',blood);splat=netFx('splat',splat);
 destroyFX=netFx('destroyFX',destroyFX);shockwave=netFx('shockwave',shockwave);shockCone=netFx('shockCone',shockCone);blastFx=netFx('blastFx',blastFx);
-tone=netFx('tone',tone);noise=netFx('noise',noise);woosh=netFx('woosh',woosh);
+tone=netFx('tone',tone);noise=netFx('noise',noise);woosh=netFx('woosh',woosh);tracer=netFx('tracer',tracer);
 // (a message for one player goes to that player only; one for everyone, to everyone)
 {const fl=flashLabel;NET_FX.flashLabel=fl;flashLabel=function flashLabel(s,who){
   if(NET_MUTE)return;
@@ -22075,7 +22108,7 @@ function netGob(id,o){
   let g=NETM.g.get(id);if(g)return g;
   const root=new THREE.Group();root.rotation.order='YXZ';
   const m=goblinModel(root,Object.assign({},o,{shareGeo:true}));
-  g={snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,orb:m.orb||null,pos:new V3(),kv:new V3(),stun:0,heading:0,vy:0,hp:4,state:'net',t:0,phase:0,atk:1,hurt:0,sink:0,detour:0,detourH:0,stuck:0,civ:false,net:true,id:null};
+  g={snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,pkit:m.pkit||null,orb:m.orb||null,pos:new V3(),kv:new V3(),stun:0,heading:0,vy:0,hp:4,state:'net',t:0,phase:0,atk:1,hurt:0,sink:0,detour:0,detourH:0,stuck:0,civ:false,net:true,id:null};
   root.visible=false;root.scale.setScalar(ES);goblins.push(g);NETM.g.set(id,g);return g;
 }
 function netCar(id,k){
@@ -22153,7 +22186,8 @@ function netGuestFrame(dt){
   for(const e of a.g){const g=NETM.g.get(e[0]);if(!g)continue;const f=bg.get(e[0]),v=n=>f?e[n]+(f[n]-e[n])*k:e[n],w=n=>f?lerpA(e[n],f[n],k):e[n];
     g.root.position.set(v(1),v(2),v(3));g.root.rotation.set(w(4),w(5),w(6));g.root.scale.set(v(7),v(8),v(7));g.pos.copy(g.root.position);g.heading=g.root.rotation.y;
     g.legs[0].rotation.x=w(9);g.legs[1].rotation.x=w(10);g.arm.rotation.x=w(11);g.armL.rotation.x=w(12);g.head.rotation.z=w(13);
-    if(e[18]!==undefined){g.arm.rotation.z=w(18);if(g.arm.hand)g.arm.hand.rotation.x=f&&f[19]!==undefined?e[19]+(f[19]-e[19])*k:e[19];}}   // (the wrist turns past half a turn: straight between, not the short way round)
+    if(e[18]!==undefined){g.arm.rotation.z=w(18);if(g.arm.hand)g.arm.hand.rotation.x=f&&f[19]!==undefined?e[19]+(f[19]-e[19])*k:e[19];}   // (the wrist turns past half a turn: straight between, not the short way round)
+    if(g.pkit)copKitShow(g.pkit,e[20]||0);}   // (an officer's club, or handgun drawn, and holster)
   netVenuePose(rt);netFallPose(a,b,k);
   for(const e of a.c){const c=NETM.c.get(e[0]);if(!c)continue;const f=bc.get(e[0]),v=n=>f?e[n]+(f[n]-e[n])*k:e[n],w=n=>f?lerpA(e[n],f[n],k):e[n];
     c.g.position.set(v(1),v(2),v(3));c.g.rotation.set(w(4),w(5),w(6));c.pos.copy(c.g.position);c.heading=c.g.rotation.y;
@@ -22461,7 +22495,7 @@ function tenvFoe(kind){
     g.pos.set(x,y,z);g.indoor=false;g.heading=h;
     if(kind==='cop'){
       const L=dressGoblin(g);L.tunic=0x1c2a5a;L.pants=0x1c2a5a;L.show=L.show.filter(k=>!['cap','top','beanie','hardhat','bandana','mohawk','scarf','tie','backpack','apron','eyepatch'].includes(k));L.hatType='cap';L.hat=0x1c2a5a;L.show.push('cap');L.hatShown=L.hat;applyLook(g,L,ES);
-      g.id=makeIdentity(g,L);g.id.occ='Police officer, Goblin Police Dept.';}
+      g.id=makeIdentity(g,L);g.id.occ='Police officer, Goblin Police Dept.';copArm(g);}
     made++;}
   const nm={goblin:['goblin','goblins'],cultist:['cultist','cultists'],thief:['thief','thieves'],prepper:['prepper','preppers'],militia:['militiaman','militiamen'],cop:['police officer','police officers'],civ:['civilian','civilians'],police:['police car','police cars'],car:['hunting car','hunting cars']}[kind];
   tsSet(made?('Spawned '+made+' '+nm[made>1?1:0]+' ahead of Gus.'):'Couldn\'t spawn any '+nm[1]+' just now.');

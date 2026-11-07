@@ -101,7 +101,12 @@ function goblinModel(parent,o={}){
   // (whatever's in that hand hangs off a wrist, so a blow can turn it: a club chopped down, a dagger kept point first, a
   // rifle swung round stock first. See strikes.js)
   const hand=new THREE.Group();hand.position.set(0,-0.4,0);arm.add(hand);arm.hand=hand;
-  if(o.club!==false){box(0.11,0.11,0.55,'club',GC.club,0,0.02,0.22,hand);box(0.19,0.19,0.19,'club',GC.club,0,0.02,0.5,hand);}
+  const club=o.club!==false?[box(0.11,0.11,0.55,'club',GC.club,0,0.02,0.22,hand),box(0.19,0.19,0.19,'club',GC.club,0,0.02,0.5,hand)]:[];
+  // a street goblin's other kit, for when it's in police blue (pistol: police-gun.js): a handgun in the same hand, its barrel
+  // on down past the fist like the rifle's, so it points straight out when the arm's raised to aim, and a holster on the
+  // belt. Both hidden until an officer wears them
+  if(o.pistol){const pis=[box(0.07,0.27,0.09,'gun',0x22262c,0,-0.1,0.06,hand),box(0.06,0.08,0.15,'gun',0x22262c,0,0.01,-0.03,hand)],hol=[box(0.09,0.2,0.15,'holster',0x14110e,0.29,0.4,0.03,parent)];
+    for(const m of pis.concat(hol))m.visible=false;out.pkit={club,pis,hol,shown:0};}
   if(o.cult){
     // a cultist: a robe down to the ankles, a pointed hood (the ears poke out of it), a ritual dagger in the right hand,
     // and in the left a fireball, shown only while one's being conjured
