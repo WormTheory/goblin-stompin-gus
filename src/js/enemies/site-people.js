@@ -20,7 +20,10 @@ function refreshSiteVenues(p,want){
     const B=bigPlainsAt(px,pz);if(!B||B.ax!==px||B.az!==pz||!FIG_STYLE[B.kind])continue;
     const key='g'+px+','+pz;want.add(key);if(venues.has(key))continue;
     const posts=sitePeople(B).map(([u,v,y],i)=>({x:B.ax*CELL+u+0.5,z:B.az*CELL+v+0.5,y,h0:hash2(px+i,pz*3+i)*6.28}));
-    venues.set(key,{kind:'guards',style:B.kind,foe:FIG_STYLE[B.kind].foe,posts,slots:posts.map(()=>null),slain:posts.map(()=>false),cx:B.ax*CELL+B.w*CELL/2,cz:B.az*CELL+B.h*CELL/2,roused:false,awayT:0});}
+    const V={kind:'guards',key,style:B.kind,foe:FIG_STYLE[B.kind].foe,posts,slots:posts.map(()=>null),slain:posts.map(()=>false),X0:B.ax*CELL,Z0:B.az*CELL,cx:B.ax*CELL+B.w*CELL/2,cz:B.az*CELL+B.h*CELL/2,roused:false,awayT:0};
+    // (the militia's technicals and four-wheelers: see crewSite)
+    if(B.kind==='militia'){V.vspots=CREW_SPOTS.map(S=>({t:S.t,x:V.X0+S.u,z:V.Z0+S.v,h:S.h}));V.vcar=V.vspots.map(()=>null);V.vgone=V.vspots.map(()=>false);}
+    venues.set(key,V);}
   // the military bases' armour (see armyVenue)
   for(let px=Math.floor((p.pos.x-300)/CELL);px<=Math.floor((p.pos.x+300)/CELL);px++)for(let pz=Math.floor((p.pos.z-300)/CELL);pz<=Math.floor((p.pos.z+300)/CELL);pz++){
     if(biomeOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;
@@ -34,7 +37,8 @@ function updateSiteVenue(V,dt,t){
   for(let i=0;i<V.slots.length;i++){const g=V.slots[i];if(!g)continue;
     if(g.homeV!==V||g.state==='wait'){V.slots[i]=null;continue;}
     if(g.state==='dead'){V.slain[i]=true;V.slots[i]=null;g.homeV=null;}}
-  if(V.roused){if(dmin>110){V.awayT+=dt;if(V.awayT>120){V.roused=false;V.slain.fill(false);}}else V.awayT=0;return;}
+  if(V.vspots)crewSite(V,me,dmin,dt);
+  if(V.roused){if(dmin>110){V.awayT+=dt;if(V.awayT>120){V.roused=false;V.slain.fill(false);if(V.vgone)V.vgone.fill(false);}}else V.awayT=0;return;}
   // at their posts whenever you're near enough to see them
   if(me&&playing&&dmin<70)for(let i=0;i<V.posts.length;i++){if(V.slots[i]||V.slain[i])continue;
     const F=V.posts[i],g=freeFoe(V.foe);if(!g)break;foeSpawn(g,V.foe,V,i);g.pos.set(F.x,F.y,F.z);g.heading=F.h0;V.slots[i]=g;}

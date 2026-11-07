@@ -4,7 +4,7 @@
 // vehicle's .drv who's driving it); drvSeat keeps you in your seat once everything's moved ----
 const DRV_NAME={tank:'tank',heli:'helicopter',train:'train',plane:'plane'};
 function drvName(D){const o=D.o;
-  if(D.k==='car')return o.police?'police car':{car:'car',bike:'motorcycle',van:'van',pickup:'pickup',truck:'truck',semi:'lorry',bus:'bus',fire:'fire engine',amb:'ambulance',news:'news van',rv:'motorhome'}[o.veh]||'car';
+  if(D.k==='car')return o.police?'police car':{car:'car',bike:'motorcycle',van:'van',pickup:'pickup',truck:'truck',semi:'lorry',bus:'bus',fire:'fire engine',amb:'ambulance',news:'news van',rv:'motorhome',technical:'technical',quad:'four-wheeler'}[o.veh]||'car';
   if(D.k==='boat')return o.K.name.toLowerCase();
   return DRV_NAME[D.k];
 }
@@ -89,7 +89,7 @@ function drvSeat(p){
 }
 // on a motorcycle you're out in the open: your goblin's sat astride it, leaning with it, hands on the bars, feet on the
 // pegs (in anything with a roof you're out of sight: see gobView)
-const rideShown=q=>!!(q.drv&&q.drv.k==='car'&&q.drv.o.veh==='bike'&&!q.drv.jack&&q.state!=='dead');
+const rideShown=q=>!!(q.drv&&q.drv.k==='car'&&(q.drv.o.veh==='bike'||q.drv.o.veh==='quad')&&!q.drv.jack&&q.state!=='dead');
 function ridePose(p,c){const K=gobKit(p),R=K.root,s=Math.sin(c.heading),k=Math.cos(c.heading);
   R.rotation.set(c.g.rotation.x,c.g.rotation.y,c.g.rotation.z);
   // (the seat, from the bike's own middle: up 0.42 and back 0.25 of its body, tipped over with its lean)
@@ -148,7 +148,7 @@ function drvCamera(p){
 }
 // driving a car: much as a hunting car drives itself (updateCars does the rest: the ground, walls, what it runs into)
 function drvCar(c,dt){
-  const i=drvIn(c.drv),thr=-i.z,st=-i.x,top=c.veh==='semi'||c.veh==='bus'?17:c.veh==='car'?24:c.veh==='bike'?28:20;
+  const i=drvIn(c.drv),thr=-i.z,st=-i.x,top=c.veh==='semi'||c.veh==='bus'?17:c.veh==='car'?24:c.veh==='bike'?28:c.veh==='quad'?22:20;
   if(c.grounded||rampUnder(c.pos.x,c.pos.z,c.pos.y+0.5)){
     if(thr>0.1)c.speed+=(c.speed<0?26:10)*thr*dt;else if(thr<-0.1)c.speed-=(c.speed>0?26:8)*-thr*dt;else c.speed*=Math.exp(-dt*0.9);}
   c.speed=Math.max(-8,Math.min(top,c.speed));

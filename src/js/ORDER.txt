@@ -54,6 +54,7 @@ player/gob-weapons.js
 enemies/routes.js
 vehicles/cars.js
 vehicles/car-physics.js
+vehicles/crews.js
 render/fires.js
 ui/options-debug.js
 ui/char-select.js

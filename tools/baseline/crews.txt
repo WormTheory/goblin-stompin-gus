@@ -1,0 +1,28 @@
+militia: roused false | vehicles 4 technical technical quad quad | at their spots true | crewed 0 | shown aboard 0 | old block pickups gone true
+   3 s later, still outside: vehicles t:-- moved 0.0, t:-- moved 0.0, q:-- moved 0.0, q:-- moved 0.0 | runners 0
+gus walks in: roused true | runners 8 heading for tdrv tgun tdrv tgun qdrv qgun qdrv qgun | from the HQ true
+   1.5 s | bullets 0 | hits on gus 0 lowest hp 20 | vehicles t:DGhg moved 2.1, t:DGhg moved 0.0, q:-- moved 0.0, q:-- moved 0.0 | runners 4
+   one killed running: dead true | another sent for that seat true
+   4 s more | bullets 20 | hits on gus 9 lowest hp 10 | vehicles t:DGhg moved 36.3, t:DGhg moved 17.7, q:DGhg moved 5.1, q:DGhg moved 30.1 | runners 0
+   8 s more | bullets 44 | hits on gus 20 lowest hp 7 | vehicles t:DGhg moved 37.2, t:DGhg moved 23.8, q:DGhg moved 25.2, q:DGhg moved 31.8 | nearest to gus 15.6 16.4 7.8 9.7
+technical destroyed: alive false | bodies thrown out 2 | by name true | militiamen true
+   its spot stays empty 3 vehicles left
+   gone 700 off: vehicles 0
+base: crewed 0 of 17 | parked 17
+gus in the base: alert true | tanks man 3 hunt 1 crewed 1 moved 0 | helis man up 0.0, man up 0.0 | soldiers running 5 | from the barracks true
+   empty tanks stay put true
+   its soldier killed: that tank park | crewed false
+   1 s: tanks man 0 hunt 3 crewed 3 moved 0 | helis man up 0.0, man up 0.0 | soldiers running 2
+   3 s more: tanks man 0 hunt 4 crewed 4 moved 3 | helis hunt crewed up 0.0, man up 0.0 | soldiers running 1
+   6 s more: tanks man 0 hunt 4 crewed 4 moved 4 | helis hunt crewed up 13.0, man up 0.0 | soldiers running 1
+   10 s more: tanks man 0 hunt 4 crewed 4 moved 4 | helis hunt crewed up 13.0, hunt crewed up 7.8 | soldiers running 0
+tank destroyed: its crewman's body out of it true
+hostility to Peaceful: alert false | going home 3
+   back in their places, empty 1 of 3 | soldiers seen walking back to the barracks 2
+technical hunt Spawned 2 hunting technicals ahead of Gus.
+   6 s | bullets 20 | hits on gus 7 lowest hp 13 | t:DGhg moved 30.0, t:DGhg moved 43.0
+quad hunt Spawned 2 hunting four-wheelers ahead of Gus.
+   6 s | bullets 6 | hits on gus 4 lowest hp 16 | q:DGhg moved 14.5, q:DGhg moved 14.1
+technical park Spawned 2 parked technicals ahead of Gus.
+   6 s | bullets 0 | hits on gus 0 lowest hp 20 | t:-- moved 0.0, t:-- moved 0.0
+errors 0 []

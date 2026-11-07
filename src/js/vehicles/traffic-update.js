@@ -28,14 +28,14 @@ function updateCars(dt){
     else if(m.position.y<g+0.15){m.position.y=g+0.15;d.v.y*=-0.3;d.v.x*=0.6;d.v.z*=0.6;d.spin.multiplyScalar(0.6);}
     if(d.life<21)m.material.emissive.setHex(0x000000);
     if(d.life<=0)m.visible=false;}
-  let alive=0,hunters=0;for(const c of cars)if(c.alive&&!c.police&&!c.parkPool&&!c.hwPool){alive++;if(c.hunter)hunters++;}
+  let alive=0,hunters=0;for(const c of cars)if(c.alive&&!c.police&&!c.parkPool&&!c.hwPool&&!c.crewPool){alive++;if(c.hunter)hunters++;}
   pullT-=dt;if(pullT<=0&&playing&&!TENV){pullT=1.5;managePull();}
   rvT-=dt;if(rvT<=0&&playing){rvT=1;manageRVs();}
   const clock=performance.now()/1000;
   for(const c of cars){
     if(!c.alive){
       c.respawnT-=dt;c.left=false;
-      if(c.svcPool||c.pullPool||c.rvPool||TENV)continue;
+      if(c.svcPool||c.pullPool||c.rvPool||c.crewPool||TENV)continue;
       if(c.parkPool){if(c.respawnT<=0&&playing&&!spawnParked(c))c.respawnT=1.5;continue;}
       if(c.hwPool){if(c.respawnT<=0&&playing&&traffic>0&&!spawnHw(c))c.respawnT=1.5;continue;}
       if(c.police){if(c.respawnT<=0&&playing&&crowd>0&&!spawnPolice(c))c.respawnT=2;continue;}
@@ -50,16 +50,17 @@ function updateCars(dt){
     if(gone&&c.parkPool&&any&&any.d<130){if(c.visT<=0){c.visT=0.4;c.seenP=visibleToAny(c.pos.x,c.pos.y+1,c.pos.z);}if(c.seenP)gone=false;}
     if(!gone&&any.d>110&&!c.hunter&&!c.police&&!c.parkPool&&c.visT<=0){c.visT=0.5;gone=!visibleToAny(c.pos.x,c.pos.y+1,c.pos.z);}
     // no real progress for a good while (stuck behind something that isn't moving): find another way
-    if(!gone&&!c.parked&&!c.hunter&&!c.police&&!c.svcPool){c.progT=(c.progT||0)+dt;if(!c.progP)c.progP={x:c.pos.x,z:c.pos.z};
+    if(!gone&&!c.parked&&!c.hunter&&!c.police&&!c.svcPool&&!c.crew){c.progT=(c.progT||0)+dt;if(!c.progP)c.progP={x:c.pos.x,z:c.pos.z};
       if(c.progT>15){if(Math.hypot(c.pos.x-c.progP.x,c.pos.z-c.progP.z)<3)carReroute(c);c.progT=0;c.progP.x=c.pos.x;c.progP.z=c.pos.z;}}
-    if(!c.parked&&!c.hunter&&!c.police&&!c.svcPool){c.stuckLong=Math.abs(c.speed)<0.3?(c.stuckLong||0)+dt:0;
+    if(!c.parked&&!c.hunter&&!c.police&&!c.svcPool&&!c.crew){c.stuckLong=Math.abs(c.speed)<0.3?(c.stuckLong||0)+dt:0;
       if(!gone&&c.stuckLong>25&&c.visT<=0){c.visT=0.5;if(!visibleToAny(c.pos.x,c.pos.y+1,c.pos.z)){gone=true;c.stuckLong=0;}}}
     if(c.svcPool)gone=!any||any.d>(c.svcPool==='news'?620:320);   // (a news van comes from further off: see NEWS_R)
+    if(c.crewPool)gone=!c.spot&&(!any||any.d>viewFar()+30);   // (a militia vehicle's camp keeps it: see crewSite. Driven off, it goes once left far behind)
     if(c.drv)gone=false;   // (never recycled from under its driver)
     if(gone&&c.pullPool){c.hazard=false;c.hazG.visible=false;c.pullLit=false;}
     if(gone){if(c.svcPool){svcDone(c);continue;}c.alive=false;c.g.visible=false;c.respawnT=c.police?6:0.5;c.hunter=false;c.spot=null;continue;}
     c.hurt-=dt;c.ramCD-=dt;c.honkT-=dt;
-    if(c.veh==='bike'){const R=c.vehG.bike.rider;if(R.visible!==c.dh.visible)R.visible=c.dh.visible;}   // (a motorcycle's rider goes with its driver)
+    {const R=c.vehG[c.veh].rider;if(R&&R.visible!==c.dh.visible)R.visible=c.dh.visible;}   // (a motorcycle's or a four-wheeler's rider goes with its driver)
     c.snowChk=(c.snowChk||0)-dt;if(c.snowChk<=0){c.snowChk=0.6+Math.random()*0.4;const cx=Math.floor(c.pos.x),cz=Math.floor(c.pos.z);let open=true;for(let y=Math.floor(c.pos.y)+3;y<Math.min(H,c.pos.y+45);y++)if(solidAt(cx,y,cz)){open=false;break;}c.snowOpen=open;}
     c.snowU.value+=((c.snowOpen?WX.snowCover:0)-c.snowU.value)*Math.min(1,dt*0.4);
     c.paint.emissive.setHex(c.hurt>0?0x441100:0x000000);
@@ -69,18 +70,19 @@ function updateCars(dt){
     if(c.police){const on=Math.floor(clock*6.5)%2===0,lit=c.hunter||c.pullLit||(c.svcPool&&c.svc&&c.svc.st!=='parked'&&c.svc.st!=='leave');c.lightR.color.setHex(lit?(on?0xff2a2a:0x501010):0x401010);c.lightB.color.setHex(lit?(on?0x101a50:0x3a7aff):0x101a40);}
     if(c.hazard){const on=Math.floor(clock*1.7)%2===0;c.hazM.color.setHex(on?0xffa024:0x3a2408);}
     if(c.flash&&c.svcPool){const on=Math.floor(clock*5.5)%2===0&&c.svc&&c.svc.st!=='parked';c.flash[0].color.setHex(on?0xff2a2a:0x501010);c.flash[1].color.setHex(on?0x303030:(c.svcPool==='amb'?0xffffff:0x3a7aff));}
-    if(!c.police&&!c.parkPool&&!c.hwPool&&!c.hunter&&!c.hw&&!c.rt&&!c.path&&!calmNow()&&playing&&tgt&&tgt.d<22&&hunters<2&&Math.random()<dt*0.07){c.hunter=true;hunters++;flashLabel('A car is coming for you',tgt.p);sfx('A car comes for you (horn)',()=>{horn(0.08);});}
+    if(!c.police&&!c.parkPool&&!c.hwPool&&!c.crew&&!c.hunter&&!c.hw&&!c.rt&&!c.path&&!calmNow()&&playing&&tgt&&tgt.d<22&&hunters<2&&Math.random()<dt*0.07){c.hunter=true;hunters++;flashLabel('A car is coming for you',tgt.p);sfx('A car comes for you (horn)',()=>{horn(0.08);});}
     if(c.hunter&&!tgt)c.hunter=false;
     // a highway car that's come down into town drives the streets for a while, then slips away once nobody's looking
     if(c.leaving&&c.hwPool&&!c.drv){c.leaveT=(c.leaveT||0)+dt;if(c.leaveT>14&&!visibleToAny(c.pos.x,c.pos.y+1,c.pos.z)&&!players.some(q=>q.standCar===c)){c.alive=false;c.g.visible=false;c.respawnT=0.5;c.leaving=false;c.leaveT=0;continue;}}
     // a car from the streets that's driven up a motorway's ramp: from the top it's motorway traffic
-    if(playing&&!c.hw&&!c.rt&&!c.path&&!c.parked&&!c.svcPool&&!c.hunter&&!c.police&&!c.drv&&!c.left&&c.pos.y>G+2.5){const sh=Math.sin(c.heading),ch=Math.cos(c.heading),ax=Math.abs(sh)>Math.abs(ch)?'x':'z',dir=ax==='x'?Math.sign(sh):Math.sign(ch),k=Math.floor(((ax==='x'?c.pos.z:c.pos.x)+3)/CELL),al=ax==='x'?c.pos.x:c.pos.z;
+    if(playing&&!c.hw&&!c.rt&&!c.path&&!c.parked&&!c.svcPool&&!c.hunter&&!c.police&&!c.drv&&!c.left&&!c.crew&&c.pos.y>G+2.5){const sh=Math.sin(c.heading),ch=Math.cos(c.heading),ax=Math.abs(sh)>Math.abs(ch)?'x':'z',dir=ax==='x'?Math.sign(sh):Math.sign(ch),k=Math.floor(((ax==='x'?c.pos.z:c.pos.x)+3)/CELL),al=ax==='x'?c.pos.x:c.pos.z;
       // (a long truck's middle sits well up the slope with its nose already on the street: it's finished with the ramp, not back on it)
       if(hwRampAt(ax,k,al)&&hwSurf(ax,k,al)>G+1.5){const inner=((ax==='x')===(dir>0))?5.5:2.5;c.hw={ax,dir,lane:k*CELL+inner,y:hwSurf(ax,k,al)};c.leaving=false;}}
     if(c.drv)drvCar(c,dt);   // (a goblin at the wheel: see drvCar)
     else if(c.left)c.speed*=Math.exp(-dt*3);   // (got out of and left where it stopped)
     else if(!playing){c.speed*=Math.exp(-dt*3);}
     else if(c.svcPool){svcDrive(c,dt);if(!c.alive)continue;}
+    else if(c.crew)crewDrive(c,dt);   // (the militia's: see crews.js)
     else if((c.police||c.parkPool)&&!c.hunter){c.speed*=Math.exp(-dt*4);}
     else if(c.path){
       // following a route over an interchange: steer for the next waypoint, ease to its speed, give way to anything ahead
@@ -305,7 +307,7 @@ function updateCars(dt){
       // cars can't climb anything, and ordinary traffic won't drive into a hole either
       const rampLim=rampUnder(c.pos.x,c.pos.z,c.pos.y+0.5)||rampUnder(c.pos.x+fx*1.2*dir,c.pos.z+fz*1.2*dir,c.pos.y+0.5)||rampUnder(c.pos.x+fx*2.1*dir,c.pos.z+fz*2.1*dir,c.pos.y+0.5)?1.6:0.3;
       // dropped into a pothole (or a dip in the road): an ordinary car can bump its way back up one block onto the road
-      const outOfHole=!c.hunter&&!c.drv&&c.pos.y<G+0.95&&c.pos.y>G-1.5&&ahead-c.pos.y<=1.1&&ahead>=G+0.95;
+      const outOfHole=!c.hunter&&!c.drv&&!c.crew&&c.pos.y<G+0.95&&c.pos.y>G-1.5&&ahead-c.pos.y<=1.1&&ahead>=G+0.95;
       if(!outOfHole&&c.pos.y>=G+0.95){c.holeT=0;c.holeNeed=0;}
       if(outOfHole){
         // it takes some doing: the car rocks back and forth against the lip, wheels spinning and kicking up dirt, engine
@@ -323,7 +325,7 @@ function updateCars(dt){
           {const np=nearestPlayer(c.pos.x,c.pos.z,false);if(np&&np.d<36)sfx('Vehicle lurches free',()=>{thud(0.15*(1-np.d/36));});}
         }
       }
-      else if((c.drv||c.hunter)&&c.grounded&&ahead-c.pos.y>rampLim&&ahead-c.pos.y<=1.05&&Math.abs(c.speed)>1&&!solidAt(c.pos.x+fx*2.1*dir,Math.floor(ahead)+1,c.pos.z+fz*2.1*dir)&&!solidAt(c.pos.x+fx*2.1*dir,Math.floor(ahead)+2,c.pos.z+fz*2.1*dir)){
+      else if((c.drv||c.hunter||c.crew)&&c.grounded&&ahead-c.pos.y>rampLim&&ahead-c.pos.y<=1.05&&Math.abs(c.speed)>1&&!solidAt(c.pos.x+fx*2.1*dir,Math.floor(ahead)+1,c.pos.z+fz*2.1*dir)&&!solidAt(c.pos.x+fx*2.1*dir,Math.floor(ahead)+2,c.pos.z+fz*2.1*dir)){
         c.pos.y=ahead+0.02;c.vy=0;c.stepT=Math.min(3,(c.hz*2+1)/Math.max(1,Math.abs(c.speed))+0.2);c.speed*=0.85;c.pos.x+=fx*c.speed*dt;c.pos.z+=fz*c.speed*dt;c.spinP=-0.8*dir;   // (up a kerb or a step, as a goblin steps up one: a jolt up onto it, and carPhysics settles it)
         {const np=nearestPlayer(c.pos.x,c.pos.z,false);if(np&&np.d<36)sfx('Vehicle bumps up a kerb',()=>{thud(0.12*(1-np.d/36));});}
       }
@@ -334,7 +336,7 @@ function updateCars(dt){
             ix=c.pos.x+fx*2.7*dir,iz=c.pos.z+fz*2.7*dir,iy=c.pos.y+Math.min(R*0.9,(c.hy||1.4)*0.6)+0.1;
           crushBall(ix,iy,iz,R,{force:0.8+k});damageCar(c,4+sp*0.4,undefined,'acc');sfx('Vehicle crashes into a wall',()=>{thud(0.7);clang();});addShake(0.4+k*0.5,ix,iz,25);smoke(ix,iy,iz,6,0x9a948a);
           c.speed*=0.35;}
-        else if(c.hunter||c.drv){if(Math.abs(c.speed)>6){damageCar(c,1,undefined,'acc');sfx('Vehicle bumps a wall',()=>{thud(0.25);});}c.speed*=-0.25;if(c.reverseT<=0)c.reverseT=0.8;}
+        else if(c.hunter||c.drv||c.crew){if(Math.abs(c.speed)>6){damageCar(c,1,undefined,'acc');sfx('Vehicle bumps a wall',()=>{thud(0.25);});}c.speed*=-0.25;if(c.reverseT<=0)c.reverseT=0.8;}
         else if(c.path){const W=c.path[0],d=Math.hypot(W.x-c.pos.x,W.z-c.pos.z)||1;c.speed=Math.min(c.speed,1);nudgeFlat(c,(W.x-c.pos.x)/d*2*dt,(W.z-c.pos.z)/d*2*dt);
           // wedged against a barrier just after peeling off the motorway: give up on the exit and carry on along the motorway
           c.pathBlk=(c.pathBlk||0)+dt;if(c.pathBlk>1.5&&c.prevHw&&Math.abs(c.pos.y-c.prevHw.y)<1.2){c.hw=c.prevHw;c.prevHw=null;c.path=null;c.pathBlk=0;}}

@@ -30,6 +30,7 @@ Everything since the first release on GitHub.
 - Falls of more than 6 blocks hurt goblins, a point for every 2 blocks more, so a 16-block drop kills one. Water breaks the fall, and their routes no longer jump down drops that would hurt.
 - **Enemy hostility** is now a slider on the main screen and in the quick debug menu. Passive: nobody reacts to you, even when hit. Peaceful: nobody attacks, but people still run. Normal: they come for you. An old Peaceful setting carries over.
 - Playing as a goblin no longer calms everyone down. Hostility works just as it does for Gus.
+- **Crews:** a base's tanks and helicopters and a militia camp's vehicles now start empty. When the camp is set off, soldiers run out of the barracks and militiamen out of the HQ, climb aboard, and only then do the vehicles start up. Shoot one on the way and its vehicle waits for the next. When a crewed vehicle is destroyed, its crew's bodies are thrown out.
 
 ### Vehicles
 
@@ -40,6 +41,7 @@ Everything since the first release on GitHub.
 - The vehicle health box and ammo panel now sit just above the hearts.
 - The get-out prompt shows Xbox button labels on Xbox controllers.
 - Parked motorcycles no longer have a rider, and a ridden one's rider sits properly on it.
+- **Militia camps** have two technicals (pickups with a machine gun and a gunner in the back) and two four-wheelers (a rider and a rifleman behind him). Each carries a driver and a gunner. Once crewed they circle you while the gunner fires. Gnash can carjack them, and the gunner jumps off to fight. The Testing Environment has buttons for both.
 
 ### Movement
 

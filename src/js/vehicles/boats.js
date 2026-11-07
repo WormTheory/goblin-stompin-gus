@@ -274,7 +274,7 @@ function refreshVenues(){
           scene.add(g);arms.push({g,lift,L,a:0,x:g.position.x,z:g.position.z});}
         venues.set(k,{kind:'toll',R,ts,arms});}}}}
   if(TENV)for(const k of ['tenvArmy','tenvPlanes'])if(venues.has(k))want.add(k);
-  for(const [k,V] of venues)if(!want.has(k)&&!drvHeld(V)){if(V.ride)scene.remove(V.ride);if(V.animals)for(const A of V.animals)scene.remove(A.g);if(V.arms)for(const A of V.arms)scene.remove(A.g);if(V.cars)for(const g of V.cars)scene.remove(g);if(V.planes)for(const g of V.planes)scene.remove(g);if(V.rocket){scene.remove(V.rocket);}if(V.boat)scene.remove(V.boat);if(V.figs)for(const F of V.figs)scene.remove(F.g);if(V.glow)scene.remove(V.glow);if(V.slots)homeDrop(V);if(V.mil)for(const M of V.mil)scene.remove(M.g);if(V.rotor)scene.remove(V.rotor);if(V.T&&V.T.cars===V.cars)V.T.cars=null;venues.delete(k);}
+  for(const [k,V] of venues)if(!want.has(k)&&!drvHeld(V)){if(V.ride)scene.remove(V.ride);if(V.animals)for(const A of V.animals)scene.remove(A.g);if(V.arms)for(const A of V.arms)scene.remove(A.g);if(V.cars)for(const g of V.cars)scene.remove(g);if(V.planes)for(const g of V.planes)scene.remove(g);if(V.rocket){scene.remove(V.rocket);}if(V.boat)scene.remove(V.boat);if(V.figs)for(const F of V.figs)scene.remove(F.g);if(V.glow)scene.remove(V.glow);if(V.slots)homeDrop(V);if(V.vcar)crewDrop(V);if(V.mil)for(const M of V.mil)scene.remove(M.g);if(V.rotor)scene.remove(V.rotor);if(V.T&&V.T.cars===V.cars)V.T.cars=null;venues.delete(k);}
 }
 // the zoo's animals: built from boxes, each wandering its enclosure
 const ZM={};const zmat=c=>ZM[c]||(ZM[c]=new THREE.MeshLambertMaterial({color:c}));

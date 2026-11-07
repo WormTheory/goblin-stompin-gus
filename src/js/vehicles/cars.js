@@ -52,7 +52,11 @@ const VEH={bus:{hx:1.25,hz:5.2,hy:3.3,head:[0.5,2.7,4.3],roof:l=>3.3},
   amb:{hx:1.15,hz:3.0,hy:2.8,head:[0.4,2.2,1.9],roof:l=>l>1.2?2.0:2.8},
   news:{hx:1.05,hz:2.4,hy:2.3,head:[0.4,2.15,0.6],roof:l=>2.25},
   bike:{hx:0.45,hz:1.15,hy:1.7,head:[0,1.32,-0.22],roof:l=>l>-0.7&&l<0.3?1.2:0.95},
-  rv:{hx:1.17,hz:3.8,hy:3.15,head:[0.45,1.25,2.9],roof:l=>l>3.45?2.1:3.15}};
+  rv:{hx:1.17,hz:3.8,hy:3.15,head:[0.45,1.25,2.9],roof:l=>l>3.45?2.1:3.15},
+  // (the militia's: a pickup with a machine gun on a post in its bed and a gunner stood at it, and a four-wheeler with a
+  // rider and a rifleman sat behind him. See crews.js. Never in the traffic: VEH_MIX leaves them out)
+  technical:{hx:1.0,hz:2.6,hy:2.7,head:[0.35,1.9,0.5],roof:l=>l>-0.4&&l<1.4?1.95:1.0},
+  quad:{hx:0.75,hz:1.15,hy:1.6,head:[0,1.32,0.05],roof:l=>l>-0.9&&l<0.4?1.0:0.85}};
 // which vehicles each kind of traffic is made of
 const VEH_MIX={street:[['car',0.58],['bike',0.08],['van',0.12],['pickup',0.12],['truck',0.10]],hw:[['car',0.5],['bike',0.05],['van',0.1],['pickup',0.1],['truck',0.12],['semi',0.13]],park:[['car',0.67],['bike',0.08],['van',0.12],['pickup',0.13]]};
 const pickVeh=mix=>{let u=Math.random();for(const [t,p] of VEH_MIX[mix]){if(u<p)return t;u-=p;}return'car';};
@@ -65,11 +69,13 @@ function setVeh(c,t){
   c.pts=[[0,0],[V.hx*0.9,V.hz-0.2],[-V.hx*0.9,V.hz-0.2],[V.hx*0.9,-V.hz+0.2],[-V.hx*0.9,-V.hz+0.2]].map(([a,b])=>[a*ES,b*ES]);
   if(t==='semi')c.pts.push([0,(V.hz/2)*ES],[0,(-V.hz/2)*ES]);
   c.dh.position.set(...V.head);
+  if(G2.gunner)G2.gunner.visible=!!(c.crew&&c.crew.gun);   // (a technical's or a four-wheeler's gunner: only with someone in that seat)
   if(c.hazG)c.hazG.children.forEach((m,k)=>m.position.set((k&1?1:-1)*(V.hx-0.12),t==='semi'||t==='truck'?1.05:0.86,(k&2?1:-1)*(V.hz+0.03)));
 }
 function buildVeh(c,t){
   const g=new THREE.Group();c.g.add(g);const wheels=[],front=[];let rider=null;
   const b=(w,h,d,m,x,y,z,p=g)=>{const o=new THREE.Mesh(boxGeo(w,h,d),m);o.position.set(x,y,z);p.add(o);return o;};
+  let gun=null,gunner=null;
   const wheel=(x,z,steer,big)=>{const piv=new THREE.Group();piv.position.set(x,big?0.5:0.38,z);g.add(piv);const sp=new THREE.Group();piv.add(sp);
     const r=big?0.96:0.72;b(0.34,r,r,smat(CARC.tire),0,0,0,sp);b(0.36,r*0.36,r*0.36,smat(CARC.hub),0,0,0,sp);wheels.push(sp);if(steer)front.push(piv);};
   const lights=(w,y,zf,zb)=>{for(const s2 of[-1,1]){b(0.35,0.18,0.06,smat(CARC.head),s2*w,y,zf);b(0.35,0.16,0.06,smat(CARC.tail),s2*w,y,zb);}};
@@ -150,6 +156,38 @@ function buildVeh(c,t){
     const rg=new THREE.Group();g.add(rg);rider=rg;
     const sk=smat(GC.skin),tun=smat(GC.tunic);b(0.5,0.62,0.36,tun,0,1.27,-0.22,rg);b(0.52,0.1,0.38,smat(GC.belt),0,0.99,-0.22,rg);
     for(const s2 of[-1,1]){const a=b(0.16,0.16,0.62,sk,s2*0.3,1.33,0.12,rg);a.rotation.x=0.35;const l=b(0.18,0.5,0.2,tun,s2*0.24,0.78,-0.05,rg);l.rotation.x=-0.5;}
+  } else if(t==='technical'){
+    // a pickup in olive drab with a machine gun on a post in the bed; its gunner stands at it, and turns with it
+    b(2.0,0.6,5.0,c.paint,0,0.8,0);b(1.96,0.85,1.9,c.paint,0,1.53,0.5);
+    b(1.84,0.5,0.08,glass,0,1.6,1.46);b(1.84,0.4,0.08,glass,0,1.6,-0.46);for(const s2 of[-1,1])b(0.06,0.45,1.3,glass,s2*1.01,1.62,0.5);
+    for(const s2 of[-1,1])b(0.12,0.5,2.04,c.paint,s2*0.94,1.35,-1.48);b(1.74,0.5,0.12,c.paint,0,1.35,-2.44);
+    b(2.06,0.2,0.15,bump,0,0.52,2.55);b(2.06,0.2,0.15,bump,0,0.52,-2.55);b(2.1,0.3,0.25,dark,0,0.62,2.6);   // (a bull bar)
+    lights(0.7,0.9,2.52,-2.52);
+    b(0.16,0.9,0.16,dark,0,1.5,-1.3);   // (the post)
+    gun=new THREE.Group();gun.position.set(0,1.95,-1.3);g.add(gun);
+    const gm=smat(0x26282a),ol=smat(0x4a5a2a),olD=smat(0x3a4a22),sk=smat(GC.skin);
+    b(0.24,0.26,0.7,gm,0,0.1,0.1,gun);b(0.1,0.1,1.1,gm,0,0.12,0.95,gun);b(0.2,0.2,0.3,smat(0x5a5a3a),0.2,0.02,0.05,gun);b(0.9,0.5,0.06,olD,0,0.25,0.45,gun);
+    gunner=new THREE.Group();gun.add(gunner);
+    b(0.42,0.55,0.26,smat(0x2a3018),0,-0.55,-0.55,gunner);b(0.55,0.6,0.38,ol,0,0.0,-0.55,gunner);b(0.48,0.42,0.42,sk,0,0.52,-0.55,gunner);b(0.54,0.2,0.48,olD,0,0.78,-0.55,gunner);
+    for(const s2 of[-1,1]){b(0.3,0.1,0.06,sk,s2*0.36,0.58,-0.55,gunner);const a=b(0.15,0.15,0.6,ol,s2*0.3,0.08,-0.25,gunner);a.rotation.x=-0.1;}
+    for(const [x,z,st] of [[-1,1.65,1],[1,1.65,1],[-1,-1.6,0],[1,-1.6,0]])wheel(x*0.97,z,st);
+  } else if(t==='quad'){
+    // a four-wheeler: fat tyres, racks front and back, the rider astride (his head is the driver's head every vehicle
+    // has), and a rifleman sat behind him, turning to shoot
+    const ol=c.paint,olD=smat(0x3a4a22),sk=smat(GC.skin),tun=smat(0x4a5a2a),fat=(x,z,st)=>{const piv=new THREE.Group();piv.position.set(x,0.36,z);g.add(piv);const sp=new THREE.Group();piv.add(sp);
+      b(0.4,0.72,0.72,smat(CARC.tire),0,0,0,sp);b(0.42,0.28,0.28,smat(CARC.hub),0,0,0,sp);wheels.push(sp);if(st)front.push(piv);};
+    for(const [x,z,st] of [[-1,0.72,1],[1,0.72,1],[-1,-0.72,0],[1,-0.72,0]])fat(x*0.6,z,st);
+    b(0.8,0.3,1.9,dark,0,0.5,0);b(1.2,0.16,0.7,ol,0,0.78,0.78);b(1.2,0.16,0.7,ol,0,0.78,-0.78);b(0.55,0.35,0.8,ol,0,0.8,0.1);
+    b(0.5,0.14,1.1,smat(0x1a1a1a),0,0.98,-0.3);b(0.9,0.06,0.06,dark,0,1.12,0.52);b(0.06,0.3,0.06,dark,0,0.98,0.52);
+    for(const s2 of[-1,1])b(0.22,0.14,0.06,smat(CARC.head),s2*0.25,0.78,1.14);b(0.3,0.1,0.06,smat(CARC.tail),0,0.72,-1.14);
+    for(const z of [0.78,-0.78])for(const s2 of[-1,1])b(0.05,0.12,0.6,dark,s2*0.55,0.92,z);
+    const rg=new THREE.Group();g.add(rg);rider=rg;
+    b(0.5,0.62,0.36,tun,0,1.27,0.05,rg);b(0.52,0.1,0.38,smat(GC.belt),0,0.99,0.05,rg);
+    for(const s2 of[-1,1]){const a=b(0.16,0.16,0.62,sk,s2*0.3,1.33,0.32,rg);a.rotation.x=0.35;const l=b(0.18,0.5,0.2,smat(0x2a3018),s2*0.26,0.8,0.15,rg);l.rotation.x=-0.6;}
+    gun=new THREE.Group();gun.position.set(0,0,-0.55);g.add(gun);gunner=gun;
+    b(0.5,0.6,0.36,tun,0,1.22,0,gun);b(0.48,0.42,0.42,sk,0,1.74,0,gun);b(0.54,0.2,0.48,olD,0,2.0,0,gun);
+    for(const s2 of[-1,1]){b(0.3,0.1,0.06,sk,s2*0.36,1.8,0,gun);const l=b(0.18,0.5,0.2,smat(0x2a3018),s2*0.26,0.78,0.05,gun);l.rotation.x=-0.5;}
+    b(0.15,0.15,0.55,tun,0.22,1.35,0.25,gun);b(0.15,0.15,0.55,tun,-0.22,1.35,0.25,gun);b(0.1,0.12,1.0,smat(0x26282a),0.05,1.45,0.45,gun);
   } else if(t==='rv'){
     // a motorhome (as at the campsites): a tall white box with the bed over the cab, a band of its paint down each side,
     // windows, the door on the kerb side, an air conditioner on the roof and a ladder up the back
@@ -176,7 +214,7 @@ function buildVeh(c,t){
     lights(0.85,1.05,6.55,-6.62);
     for(const [x,z,st] of [[-1,5.6,1],[1,5.6,1],[-1,3.0,0],[1,3.0,0],[-1,2.0,0],[1,2.0,0],[-1,-4.6,0],[1,-4.6,0],[-1,-5.7,0],[1,-5.7,0]])wheel(x*1.05,z,st,true);
   }
-  return{g,wheels,front,rider};
+  return{g,wheels,front,rider,gun,gunner};
 }
 for(let i=0;i<26;i++)cars.push(makeCar(i));
 for(let i=0;i<4;i++){const c=makeCar(100+i,true);c.respawnT=2+i;cars.push(c);}

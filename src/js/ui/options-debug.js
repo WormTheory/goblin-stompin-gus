@@ -336,7 +336,7 @@ function explodeCar(c){const w=DBG_WHO;DBG_WHO='n';try{return withBlame(carIsPla
 function explodeCar0(c){
   c.alive=false;c.g.visible=false;c.respawnT=6;c.hunter=false;
   const p=c.pos.clone();reportNews(p.x,p.z,'car crash');
-  const pts=c.police?500:300;if(BLAME!=='acc'){reportCrime(p.x,p.z);score+=pts;flashLabel((c.police?'Police car destroyed  +':'Car destroyed  +')+pts,(nearestPlayer(p.x,p.z)||{}).p);}
+  const pts=c.police?500:300;if(BLAME!=='acc'){reportCrime(p.x,p.z);score+=pts;flashLabel((c.police?'Police car destroyed  +':c.crew&&CREW_NAME[c.veh]?CREW_NAME[c.veh]+' destroyed  +':'Car destroyed  +')+pts,(nearestPlayer(p.x,p.z)||{}).p);}
   if(c.police&&c.spot){policeDown[c.spot.split(':')[0]]=playTime+90;c.spot=null;}c.parked=false;
   if(c.svcPool&&c.svc){const keep=c.alive;svcDone(c,true);}
   const bl=blasts[blastIdx++%blasts.length];bl.t=0.6;bl.s=1;for(const f of bl.m){f.position.set(p.x,p.y+1,p.z);f.visible=true;}
@@ -348,6 +348,7 @@ function explodeCar0(c){
   addShake(0.8,p.x,p.z,30);
   for(const q of players){if(!q.active)continue;const dg=Math.hypot(q.pos.x-p.x,q.pos.z-p.z),d3=Math.hypot(dg,q.pos.y-p.y);rumble(q,Math.max(0.15,1-d3/30),600);if(q===players.find(o=>o.active))dbgHit('dmg','cap',dbgCap(p.x,p.y,p.z,5));if(d3<5&&vReach(q.pos.y-p.y,5)&&!(c.trainT>0&&q.standCar&&q.standCar.isTrain))damagePlayer(q,4,new V3(q.pos.x,q.pos.y+1.2,q.pos.z),new V3((q.pos.x-p.x)/(dg||1),0.6,(q.pos.z-p.z)/(dg||1)),'Caught in a car explosion');}
   if(c.driver)dropGoblinCorpse(p.x+1.2,p.y,p.z,c.driver);
+  if(c.crew)crewWreck(c,p);   // (a militia vehicle's driver and gunner: see crews.js)
   if(c.parkPool&&c.spot){parkDown[c.spot]=playTime+120;c.spot=null;}
   hitGoblins(p.x,p.z,6,10,'Caught in a car explosion',p.y);
   crush(p.x,p.y,p.z,1,-1,0,{force:2.2,up:1.5});

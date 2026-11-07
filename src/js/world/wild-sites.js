@@ -325,7 +325,8 @@ function prepperColumn(col,B,U,V,x,z){
   if(V===23&&U>=8&&U<=14)col(G+1,SAND);
 }
 // ---- militia compounds: an earth bank with sandbags along its top all round, a watchtower at each corner, the HQ
-// shed, rows of camouflage tents, a firing range with its targets, a couple of armed pickups, the flag ----
+// shed, rows of camouflage tents, a firing range with its targets, the flag. (Its armed pickups and four-wheelers are
+// real vehicles parked in the yard: see crews.js) ----
 function militiaColumn(col,B,U,V,x,z){
   const W=B.w*CELL,Hh=B.h*CELL,h=hash2(x*5+3,z*3+9);col(G,h<0.5?DIRT:GRASS);
   // the corner watchtowers
@@ -343,8 +344,6 @@ function militiaColumn(col,B,U,V,x,z){
   if(V===40&&U>=8&&U<=56&&U%6!==2){col(G+1,SAND);return;}
   if(V===58&&U>=10&&U<=54&&(U-10)%8<3){if((U-10)%8===1){col(G+1,LOG);}col(G+2,(U-10)%8===1?PAINT_RED:PAINT_WHITE);col(G+3,PAINT_WHITE);return;}
   if(V===59&&U>=8&&U<=56){col(G+1,DIRT);col(G+2,DIRT);col(G+3,DIRT);return;}   // (the backstop)
-  // the armed pickups ('technicals')
-  for(const tu of [40,48]){const a=U-tu,b=V-28;if(a>=0&&a<=4&&b>=0&&b<=2){col(G+1,PAINT_DARK);col(G+2,PAINT_GREEN);if(a<=1)col(G+3,a===1&&b===1?WIN_BLUE:PAINT_GREEN);if(a===3&&b===1){col(G+3,METAL);col(G+4,METAL);}return;}}
   // the flag, and the fire pit
   if(U===32&&V===34){for(let y=G+1;y<=G+11;y++)col(y,METAL);return;}
   if(V===34&&U>=33&&U<=35){col(G+10,PAINT_DARK);col(G+11,U===34?PAINT_RED:PAINT_DARK);return;}

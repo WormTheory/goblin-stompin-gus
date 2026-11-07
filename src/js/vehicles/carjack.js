@@ -10,8 +10,8 @@ const JACK_NOIN={x:0,z:0,bite:false,bitePress:false,stomp:false,lockPress:false,
 const drvIn=p=>p.drv&&p.drv.jack?JACK_NOIN:p.in;
 // is there anyone at the controls to throw out?
 function jackable(D){const o=D.o;
-  if(D.k==='car')return!!(o.driver&&o.dh&&o.dh.visible&&!o.left);
-  if(D.k==='tank'||D.k==='heli')return!o.dead&&o.state!=='idle';   // (left standing by a goblin who drove it: empty)
+  if(D.k==='car')return!!((o.driver||o.crew&&o.crew.drv)&&o.dh&&o.dh.visible&&!o.left);
+  if(D.k==='tank'||D.k==='heli')return!o.dead&&o.state!=='idle'&&!!o.crew;   // (left standing by a goblin who drove it, or never yet crewed: empty)
   return false;
 }
 // the soldiers that crew the bases' tanks and helicopters, once they're out on foot (added to the compounds' kinds of foe)
@@ -46,7 +46,9 @@ function jackVictim(D,J){
   // (nobody spare in the pool: the furthest one about, out of sight, is taken for it)
   const take=f=>free(f)||goblins.filter(q=>q.state==='chase'&&f(q)&&!q.medic&&!q.ff&&!q.news&&!q.cop).sort((a,b)=>Math.hypot(b.pos.x-o.pos.x,b.pos.z-o.pos.z)-Math.hypot(a.pos.x-o.pos.x,a.pos.z-o.pos.z))[0]||null;
   const hostile=q=>!q.civ&&!q.special&&!q.staff,civ=q=>q.civ&&!q.staff;
-  if(D.k==='tank'||D.k==='heli'){jackKinds();g=freeFoe('soldier',8);if(g){foeSpawn(g,'soldier',null,0);g.id.occ=D.k==='heli'?'Helicopter pilot':pick(['Tank crewman','Tank commander','Gunner','Tank driver']);how='fight';}}
+  if(D.k==='tank'||D.k==='heli'){jackKinds();g=freeFoe('soldier',8);if(g){foeSpawn(g,'soldier',null,0);g.id.occ=D.k==='heli'?'Helicopter pilot':pick(['Tank crewman','Tank commander','Gunner','Tank driver']);if(o.crew&&o.crew!==MIL_CREW[D.k])g.id=o.crew;how='fight';}o.crew=null;}
+  // (a militia vehicle: its own driver, a militiaman, comes out fighting, and its gunner jumps off the back: see crews.js)
+  else if(o.crew){const k=o.crew.k;g=freeFoe(k,24);if(g){foeSpawn(g,k,null,0);if(o.crew.drv)g.id=o.crew.drv;how='fight';}crewBail(o);}
   else{const dr=o.driver||{};name=dr.name;occ=dr.occ;
     if(o.police){g=take(hostile);how='fight';}
     else{how=o.svcPool||Math.random()<0.62?'flee':'fight';g=take(how==='flee'?civ:hostile)||take(how==='flee'?hostile:civ);if(g)how=g.civ?'flee':'fight';}
@@ -62,7 +64,7 @@ function jackVictim(D,J){
 }
 // getting in, when there's someone at the controls: it starts here, and drvTick and drvSeat play it out
 function jackStart(p,D){
-  const o=D.o,S=drvPose(D),kind=D.k==='car'?(o.veh==='bike'?'bike':'door'):D.k;
+  const o=D.o,S=drvPose(D),kind=D.k==='car'?(o.veh==='bike'||o.veh==='quad'?'bike':'door'):D.k;
   // (the driver's side: a car's driver sits to one side, so that; a tank or a helicopter, whichever side you came up on)
   const lx=(p.pos.x-S.x)*Math.cos(S.h)-(p.pos.z-S.z)*Math.sin(S.h);
   const s=kind==='door'?(VEH[o.veh].head[0]<0?-1:1):lx<0?-1:1;

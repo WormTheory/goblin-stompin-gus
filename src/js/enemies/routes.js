@@ -237,7 +237,8 @@ function updateGoblins(dt){
       return;
     }
     const any=nearestPlayer(g.pos.x,g.pos.z,false);
-    if(!any||any.d>(g.navOn||g.act?NAV_R-5:75)){if(g.news)endNews(g);g.state='wait';g.t=0;g.root.visible=false;return;}
+    if(!any||any.d>(g.navOn||g.act?NAV_R-5:75)){if(g.mount){crewBoard(g);return;}   // (running for a vehicle out where nobody can see: it's got there)
+      if(g.news)endNews(g);g.state='wait';g.t=0;g.root.visible=false;return;}
     // more about than there'd be at this hour (night falling, a shop closing): one at a time, out of sight, they go
     // home -- quietly vanishing somewhere no one's looking
     if(!gone&&g.t>15&&any.d>28&&!g.medic&&!g.ff&&!g.cop&&!g.news&&(g.civ&&!g.staff&&!TENV&&civAlive>civTarget||g.staff&&g.employer&&staffAt(g.employer.key)>staffCapNow(g.employer.b))&&!visibleToAny(g.pos.x,g.pos.y+1,g.pos.z)){
@@ -255,6 +256,7 @@ function updateGoblins(dt){
     if(g.medic)moving=medicAI(g,dt);
     else if(g.ff)moving=fireAI(g,dt);
     else if(g.news)moving=newsAI(g,dt);
+    else if(g.mount)moving=crewRun(g,dt);   // (running out to a vehicle to crew it: see crews.js)
     else if(g.homeV&&(!g.homeV.roused||calmNow()))moving=g.cultist?cultCalm(g,dt):guardCalm(g,dt);   // (at the altar or their posts, until something sets them off)
     else if(g.civ||calmNow()&&!jackGrudge(g,dt))moving=civAI(g,dt);   // (with hostility off, or to a fellow goblin, hostile goblins act like the townsfolk -- not one you've just carjacked)
     else if(tgt){

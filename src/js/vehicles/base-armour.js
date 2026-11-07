@@ -1,5 +1,6 @@
-// ---- the military bases' armour: tanks in the motor pools and helicopters on the pads, real vehicles. Parked until
-// someone comes into the base; then (up to four at a time) the tanks start up and come for you, turrets turning, firing
+// ---- the military bases' armour: tanks in the motor pools and helicopters on the pads, real vehicles. Parked, and
+// empty, until someone comes into the base; then soldiers run out of the barracks to crew them (milCall, see crews.js),
+// and (up to four at a time) the tanks start up and come for you, turrets turning, firing
 // shells, and the helicopters lift off, circle you, and open up with their guns and rockets. Each has a stand-in in
 // TRAIN_BOXES, so it's stood on, climbed and hit like a train; what's destroyed stays wrecked (saved in 'wrecked') ----
 const MILM={olive:new THREE.MeshLambertMaterial({color:0x4a5a2a}),dark:new THREE.MeshLambertMaterial({color:0x2a3020}),track:new THREE.MeshLambertMaterial({color:0x22241e}),glass:new THREE.MeshLambertMaterial({color:0x1b2a3c}),blade:new THREE.MeshLambertMaterial({color:0x1a1a1a})};
@@ -60,14 +61,17 @@ function updateArmy(V,dt){
   // someone in the base (or hurting what's in it, see milHit) sets it all off; long enough with no one about, it stands down
   if(playing&&!V.alert&&!calmNow())for(const q of players){if(!q.active||q.state==='dead')continue;if(q.pos.x>V.X0&&q.pos.x<V.X0+V.W&&q.pos.z>V.Z0&&q.pos.z<V.Z0+V.Hh){milAlert(V,q);break;}}
   if(V.alert){const n=nearestPlayer(V.cx,V.cz);if(!n||n.d>V.W/2+200||calmNow()){V.awayT+=dt;if(V.awayT>30||calmNow()){V.alert=false;for(const M of V.mil)if(!M.dead&&M.state!=='park')M.state='home';}}else V.awayT=0;}
-  let rolling=0;for(const M of V.mil)if(M.kind==='tank'&&!M.dead&&M.state==='hunt')rolling++;
+  let rolling=0;for(const M of V.mil)if(M.kind==='tank'&&!M.dead&&(M.state==='hunt'||M.state==='man'))rolling++;
   for(const M of V.mil){
     if(M.dead){milWreck(M,dt);milBoxes(M,0);milShove(M);continue;}
-    M.hurt-=dt;M.jolt=(M.jolt||0)-dt;vDamaged(M.x,M.y+MIL[M.kind].hy,M.z,M.hp/MIL[M.kind].hp,dt);
-    if(V.alert&&M.state==='park'&&(M.kind==='heli'||rolling<MIL_ROLL)){
+    M.hurt-=dt;M.jolt=(M.jolt||0)-dt;vDamaged(M.x,M.y+MIL[M.kind].hy,M.z,M.hp/MIL[M.kind].hp,dt);M.callT=(M.callT||0)-dt;
+    // (its crew on the way: once he's in, it goes; back in its place with the base stood down, he climbs out)
+    if(M.state==='man'&&milManning(V,M,dt)){M.state='hunt';M.cd=M.kind==='tank'?1.5+Math.random():4;M.rcd=7+Math.random()*3;}
+    if(M.state==='park'&&M.crew&&!V.alert&&!M.drv)milDismount(V,M);
+    if(V.alert&&M.state==='park'&&M.callT<=0&&(M.kind==='heli'||rolling<MIL_ROLL)){
       // (the next tank off is the one nearest you)
-      if(M.kind==='tank'){const n=nearestPlayer(M.x,M.z);let best=true;if(n)for(const o of V.mil)if(o!==M&&o.kind==='tank'&&!o.dead&&o.state==='park'&&Math.hypot(o.x-n.p.pos.x,o.z-n.p.pos.z)<n.d-0.01){best=false;break;}if(best){M.state='hunt';rolling++;M.cd=1.5+Math.random();}}
-      else{M.state='hunt';M.cd=4;M.rcd=7+Math.random()*3;}}
+      if(M.kind==='tank'){const n=nearestPlayer(M.x,M.z);let best=true;if(n)for(const o of V.mil)if(o!==M&&o.kind==='tank'&&!o.dead&&o.state==='park'&&Math.hypot(o.x-n.p.pos.x,o.z-n.p.pos.z)<n.d-0.01){best=false;break;}if(best){rolling++;if(milCall(V,M)){M.state='hunt';M.cd=1.5+Math.random();}}}
+      else if(milCall(V,M)){M.state='hunt';M.cd=4;M.rcd=7+Math.random()*3;}}
     if(M.kind==='tank')updateTank(M,V,dt);else updateHeli(M,V,dt);
   }
 }
@@ -138,7 +142,7 @@ function updateTank(M,V,dt){
 function updateHeli(M,V,dt){
   if(M.drv){drvHeli(M,dt);return;}
   const n=playing?nearestPlayer(M.x,M.z):null;let tx=M.home.x,tz=M.home.z,ty=G+1,face=M.home.h;
-  M.spin+=((M.state==='park'||M.state==='idle'&&M.y<=groundAt(M.x,M.z,M.y+1)+0.05?0:1)-M.spin)*Math.min(1,dt*0.6);
+  M.spin+=((M.state==='park'||M.state==='man'||M.state==='idle'&&M.y<=groundAt(M.x,M.z,M.y+1)+0.05?0:1)-M.spin)*Math.min(1,dt*0.6);
   if(M.state==='hunt'&&n){const p=n.p;
     // circling him, well up, nose on him
     M.oa+=dt*0.3;tx=p.pos.x+Math.cos(M.oa)*22;tz=p.pos.z+Math.sin(M.oa)*22;ty=Math.max(p.pos.y,groundAt(tx,tz,H-2),groundAt(M.x,M.z,H-2))+13;face=Math.atan2(p.pos.x-M.x,p.pos.z-M.z);
@@ -171,6 +175,7 @@ function milHit(M,n,dir){
   if(!M.V.alert&&!calmNow())milAlert(M.V,(nearestPlayer(M.x,M.z)||{}).p);   // (shot at, the whole base wakes up)
   if(M.hp>0)return;
   M.dead=true;M.deadT=0;M.fall=M.kind==='heli'&&M.y>G+2;M.vy=0;wrecked[M.key]=1;save();
+  if(M.crew&&M.crew!==MIL_CREW[M.kind]){const o=crewAt(M.x,M.z,M.h,I.hx+1.2,0);crewCorpse('soldier',M.crew,o.x,M.y+1,o.z,'Killed in their '+I.name.toLowerCase());}M.crew=null;   // (whoever was in it)
   const bl=blasts[blastIdx++%blasts.length];bl.t=0.8;bl.s=2.2;for(const f of bl.m){f.position.set(M.x,M.y+1.5,M.z);f.visible=true;}smoke(M.x,M.y+2,M.z,22,0x262626);
   for(let k=0;k<8;k++){const d=debris[(debrisIdx++)%debris.length];d.m.position.set(M.x+(Math.random()-.5)*3,M.y+1.5+Math.random(),M.z+(Math.random()-.5)*4);d.v.set((Math.random()-.5)*18,8+Math.random()*10,(Math.random()-.5)*18);d.spin.set((Math.random()-.5)*12,(Math.random()-.5)*12,(Math.random()-.5)*12);d.life=25;d.m.visible=true;}
   milDark(M);if(M.kind==='tank')M.tur.rotation.z=0.25;

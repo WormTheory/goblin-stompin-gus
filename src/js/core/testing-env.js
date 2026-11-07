@@ -197,7 +197,7 @@ function tenvFoe(kind){
 // vehicles: any kind, a few steps further off than enemies. Hunting, they drive straight at Gus; parked, they sit there
 // with nobody in them, to stand on, smash or get into (a parked police car still wakes up when Gus comes close)
 const VEH_NAME={car:['car','cars'],van:['van','vans'],pickup:['pickup','pickups'],truck:['truck','trucks'],semi:['semi truck','semi trucks'],bus:['bus','buses'],
-  fire:['fire engine','fire engines'],amb:['ambulance','ambulances'],news:['news van','news vans'],rv:['motorhome','motorhomes'],police:['police car','police cars'],moto:['motorcycle','motorcycles'],motorcycle:['motorcycle','motorcycles'],bike:['motorcycle','motorcycles']};
+  fire:['fire engine','fire engines'],amb:['ambulance','ambulances'],news:['news van','news vans'],rv:['motorhome','motorhomes'],technical:['technical','technicals'],quad:['four-wheeler','four-wheelers'],police:['police car','police cars'],moto:['motorcycle','motorcycles'],motorcycle:['motorcycle','motorcycles'],bike:['motorcycle','motorcycles']};
 // is there room at x,z for a vehicle reaching r out from its middle? Level ground, and clear of every car, tank,
 // helicopter and plane already there (a plane's wings reach about 11 out)
 function tenvRoom(x,z,r){
@@ -210,6 +210,7 @@ function tenvRoom(x,z,r){
 function tenvVeh(t){
   if(MIL[t]){tenvMil(t);return;}
   if(t==='plane'){tenvPlane();return;}
+  if(CREW_HP[t]){tenvCrew(t);return;}
   if(!TENV)return;const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active);if(!p)return;
   const park=TS.vm==='park',pol=t==='police',fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw),cx=p.pos.x+fx*20,cz=p.pos.z+fz*20;let made=0;
   for(let i=0;i<TS.n;i++){
@@ -241,7 +242,7 @@ function tenvMil(kind){
     let x=cx,z=cz;for(let k=0;k<24;k++){const a=Math.random()*Math.PI*2,r=i||k?6+Math.random()*(12+k*1.5):0;x=cx+Math.cos(a)*r;z=cz+Math.sin(a)*r;
       if(tenvRoom(x,z,kind==='heli'?6:4))break;}
     const h=Math.atan2(p.pos.x-x,p.pos.z-z),mk=kind==='tank'?makeTank():makeHeli();TS.mil=(TS.mil||0)+1;
-    const M=Object.assign({isMil:true,kind,V,x,y:groundAt(x,z,G+40),z,h,tu:0,hp:MIL[kind].hp,dead:false,key:'mil:tenv:'+Date.now()+':'+TS.mil,home:{x,z,h},state:park?'park':'hunt',
+    const M=Object.assign({isMil:true,crew:MIL_CREW[kind],kind,V,x,y:groundAt(x,z,G+40),z,h,tu:0,hp:MIL[kind].hp,dead:false,key:'mil:tenv:'+Date.now()+':'+TS.mil,home:{x,z,h},state:park?'park':'hunt',
       cd:1.5+i*0.4,rcd:6,burst:0,bt:0,stuck:0,v:0,vy:0,spin:0,oa:Math.random()*6.3,hurt:0},mk);
     scene.add(M.g);milPlace(M);V.mil.push(M);made++;}
   if(!park&&made){V.alert=true;V.awayT=0;}

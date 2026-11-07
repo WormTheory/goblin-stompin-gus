@@ -53,7 +53,7 @@ const watch=(s,label,extra)=>{let shots=0,bombs={},hits=0,last=P.hp,lowest=P.hp;
 for(const [site,k] of [['thieves','thief'],['prepper','prepper'],['militia','militia']]){
   const B=spawnK(site);if(!B||B.k!==site){console.log(site,'not found');continue;}
   run(3);const V=[...T.venues.values()].find(v=>v.kind==='guards'&&v.style===site);
-  const fs=foes(k);
+  const fs=foes(k).filter(g=>g.post);   // (the ones at their posts: not the militia's vehicle crews, see crews.js)
   console.log(site.padEnd(8),'box',JSON.stringify(B),'| posts',V&&V.posts.length,'filled',V&&V.slots.filter(Boolean).length,'| alive',fs.length,'hp',fs.map(g=>g.hp).join(','),'| up a tower',fs.filter(g=>g.hold).length,'| roused',V&&V.roused,'| jobs',fs.slice(0,3).map(g=>g.id.occ).join(', '));
   run(3);console.log('   3 s later: still calm',V&&!V.roused,'gus hp',P.hp,'| at posts',fs.map(g=>Math.hypot(g.pos.x-g.post.x,g.pos.z-g.post.z).toFixed(1)).join(' '));
   // walk him in to just inside the rousing distance of the nearest post
