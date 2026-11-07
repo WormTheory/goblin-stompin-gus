@@ -79,4 +79,19 @@ for(const k of KS){const F=T.stFind(k,0,0);if(!F)continue;const P=T.plotInfo(F.a
     let t=0,h=0,first=null,roof=0;while(t<60){cling();for(const g of T.goblins)if(g!==gob&&g.state==='chase'){g.state='wait';g.t=-1e9;g.root.visible=false;}now+=DT;T.frame(now);t+=DT/1000;gob.hp=99;if(gob.pos.y>topY-0.5)roof+=DT/1000;if(A.hp<999){h++;if(first===null)first=t;}}
     T.keys.delete('KeyC');A.state='walk';
     console.log(' ',(k+' ('+(topY-y0)+' tall, Gus '+up+' up)').padEnd(28),name.padEnd(10),h?(h+' blows, first after '+first.toFixed(1)+'s').padEnd(30):'NO BLOWS'.padEnd(30),'time on the roof',roof.toFixed(1)+'s','ended',(gob.pos.x-to.x).toFixed(1),(gob.pos.y-to.y).toFixed(1),(gob.pos.z-to.z).toFixed(1),gob.act?gob.act.k:'');}}
+// Gus lets go partway: the goblin's on the wall below him, he drops to the foot of it. Does it come back down after him, or
+// carry on up to the roof?
+for(const k of KS){const F=T.stFind(k,0,0);if(!F)continue;const P=T.plotInfo(F.ax,F.az);let b=P.b[0];for(const q of P.b)if((q.x1-q.x0)*(q.z1-q.z0)>(b.x1-b.x0)*(b.z1-b.z0))b=q;
+  const X0=F.ax*CELL,Z0=F.az*CELL,cx=X0+((b.x0+b.x1)>>1),wz=Z0+b.z0-1,y0=groundY(cx,wz),topY=groundY(cx,wz+1,G+150);if(topY-y0<10)continue;
+  const up=Math.round((topY-y0)*0.75),wall={x:cx+.5,y:y0+up,z:wz+.6},foot={x:cx+.5,y:y0,z:wz-1.5};
+  T.keys.add('KeyC');const cling=()=>{A.state='climb';A.climbD=[0,1];A.heading=0;A.vy=0;A.pos.set(wall.x,wall.y,wall.z);A.hp=999;};
+  for(let i=0;i<12;i++){cling();now+=DT;T.frame(now);}
+  gob.state='chase';gob.hp=99;gob.stun=0;gob.indoor=false;gob.civ=false;gob.staff=false;gob.root.visible=true;gob.pos.set(cx-5.5,y0,wz-6.5);gob.vy=0;gob.t=0;gob.detour=0;gob.kv.set(0,0,0);gob.atk=1;gob.act=null;
+  let t=0,fell=false,h=0,first=null,roof=0,hiAfter=0,ft=0;
+  while(t<60){if(!fell&&gob.act&&gob.act.k==='up'&&gob.pos.y>y0+3){fell=true;T.keys.delete('KeyC');ft=t;}
+    if(fell){A.state='walk';A.vy=0;A.pos.set(foot.x,foot.y,foot.z);A.hp=999;A.grounded=true;}else cling();
+    for(const g of T.goblins)if(g!==gob&&g.state==='chase'){g.state='wait';g.t=-1e9;g.root.visible=false;}now+=DT;T.frame(now);t+=DT/1000;gob.hp=99;
+    if(fell){hiAfter=Math.max(hiAfter,gob.pos.y-y0);if(gob.pos.y>topY-0.5)roof+=DT/1000;if(A.hp<999){h++;if(first===null)first=t-ft;}}}
+  T.keys.delete('KeyC');A.state='walk';
+  console.log(' ',(k+' ('+(topY-y0)+' tall)').padEnd(18),'Gus let go at',up,'up:',fell?(h?h+' blows after he landed, first '+first.toFixed(1)+'s later':'NO BLOWS after he landed').padEnd(42)+' goblin got up to '+hiAfter.toFixed(1)+', time on the roof '+roof.toFixed(1)+'s':'goblin never got on the wall');}
 process.exit(0);
