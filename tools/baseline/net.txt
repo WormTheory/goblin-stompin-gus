@@ -31,6 +31,7 @@ guest came back after 11.4 s ok no reload ok hippo where it was (give or take a 
 a third player joins: seat 2 ok host players active 3 ok | first guest shows them ok apart 0.00 | the new one sees both others ok
 third player walks: moved on the host 2.98 ok the other guests see it there 0.42 ok
 third player left: host ok first guest ok status: Hosting. Room code TESTA · Gertie is here
+cost: one snapshot built on the host under N ms ok
 guest left: host P2 gone ok host still hosting ok guest went home (reload) ok
 a guest rejoins ok
 host stopped: guest left the game ok host solo ok

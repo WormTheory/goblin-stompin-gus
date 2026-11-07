@@ -7,7 +7,7 @@ const fs=require('fs'),vm=require('vm');
 const src0=fs.readFileSync('g.js','utf8');
 const d6=fs.readFileSync('dead6.js','utf8');
 const stubs=d6.slice(d6.indexOf('const deep='),d6.indexOf('\neval(src);'));
-const src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={netRewind,netUnwind,NETP,makeTopple,topples,NETF,V3,BRICK,NET_VN,venues,TRAINS,netVenueModels,frame,players,P1,P2,NET,NETM,netHostWith,netJoinWith,netClose,netEnd,crush,get,goblins,cars,keys,ABIL,fires,setGobP,'+
+const src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={netSendSnap,netRewind,netUnwind,NETP,makeTopple,topples,NETF,V3,BRICK,NET_VN,venues,TRAINS,netVenueModels,frame,players,P1,P2,NET,NETM,netHostWith,netJoinWith,netClose,netEnd,crush,get,goblins,cars,keys,ABIL,fires,setGobP,'+
   'get seed(){return seed},get edits(){return edits},get menuOpen(){return menuOpen},get saveBlocked(){return saveBlocked},chunks,ckey,CS,G};})();');
 if(src===src0)throw new Error('closing line not found');
 const store=init=>{const m=new Map(Object.entries(init||{}));return{getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,String(v)),removeItem:k=>m.delete(k),get _m(){return m}};};
@@ -175,6 +175,11 @@ const lag=[];
  console.log('third player walks: moved on the host',f2(d(p3.pos,b3)),ok(d(p3.pos,b3)>2),'the other guests see it there',f2(d(GT.players[2].pos,p3.pos)),ok(d(GT.players[2].pos,p3.pos)<1.5));
  G5.T.netEnd();for(let i=0;i<20;i++){H.step(1);G.step(1);G5.step(1);}
  console.log('third player left: host',ok(!p3.active&&!p3.net),'first guest',ok(!GT.players[2].active),'status:',HT.NET.status);}
+
+// ---- what it costs: building a snapshot on the host (the goblins, cars and venue joints near one guest) ----
+{const p=HT.P2;const t0=process.hrtime.bigint();for(let i=0;i<50;i++)HT.netSendSnap(p);const ms=Number(process.hrtime.bigint()-t0)/1e6/50;
+ for(let i=0;i<10;i++){H.step(1);G.step(1);}
+ console.log('cost: one snapshot built on the host',ms<2?'under 2 ms':ms.toFixed(1)+' ms (slow)',ok(ms<4));}
 
 // ---- the guest leaves: the host plays on alone ----
 GT.netEnd();for(let i=0;i<10;i++){H.step(1);G.step(1);}
