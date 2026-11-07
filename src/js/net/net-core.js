@@ -123,7 +123,8 @@ function netHostLeft(peer){
 const NET_HELD=['charge','stomp','bite','jump','dash','sprint','climb','use','weapon'],NET_PRESS=['chargePress','bitePress','jumpPress','lockPress','dashPress','sprintPress'];
 function netGotInput(p,m){
   const N=p.net;if(typeof m.n==='number'&&m.n<=(N.inN||0))return;N.inN=m.n;N.inAt=NET.now;
-  N.inb=m;for(const k of NET_PRESS)if(m.pr&&m.pr[k])N.pr[k]=true;
+  N.inb=m;if(Number.isFinite(m.vt))N.vt=m.vt;if(m.pr&&(m.pr.bitePress||m.pr.chargePress)||m.h&&(m.h.bite||m.h.stomp))N.atkAt=NET.now;
+  for(const k of NET_PRESS)if(m.pr&&m.pr[k])N.pr[k]=true;
   if(m.fl){p.flickReq=m.fl[0]||p.flickReq;p.flickReqY=m.fl[1]||p.flickReqY;}
   if(Number.isFinite(m.yaw))p.cam.yaw=m.yaw;if(Number.isFinite(m.pitch))p.cam.pitch=camPitch(m.pitch,p);
 }
@@ -227,7 +228,7 @@ addEventListener('pagehide',()=>{if(netOn()&&!NET.reloading)netClose();});
 function netTick(now,dt){
   NET.now=now;if(!netOn())return;
   if(netHost()){
-    netHostInputs();
+    netHostInputs();netGobHist();
     for(const p of [...NET.guests.values()]){const N=p.net;if(!N)continue;if(!N.gone&&now-N.heard>10000)netHostDropped(N.peer);else if(N.gone&&now-N.gone>30000)netHostLeft(N.peer);}   // (gone silent: its seat's kept half a minute, then comes free)
     NET.snapT-=dt*1000;if(NET.snapT<=0&&NET.guests.size){NET.snapT+=1000/NET_SNAP_HZ;if(NET.snapT<0)NET.snapT=0;for(const p of NET.guests.values())if(!p.net.gone)netSendSnap(p);}
     NET.fxOut=null;
@@ -245,7 +246,7 @@ function netSendInput(dt){
   NET.inT-=dt*1000;if(NET.inT>0)return;NET.inT+=1000/NET_IN_HZ;if(NET.inT<0)NET.inT=0;
   const h={};for(const k of NET_HELD)if(I[k]||NET_IN.hh[k])h[k]=1;NET_IN.hh={};
   const pr={};for(const k in NET_IN.pr)pr[k]=1;
-  const m={t:'in',n:++NET.seq,x:+(I.x||0).toFixed(3),z:+(I.z||0).toFixed(3),lx:+(I.lookX||0).toFixed(2),ly:+(I.lookY||0).toFixed(2),h,pr,yaw:+P1.cam.yaw.toFixed(4),pitch:+P1.cam.pitch.toFixed(4)};
+  const m={t:'in',n:++NET.seq,vt:NET.off===null?null:Math.round(NET.now-NET.off-NET_DELAY),x:+(I.x||0).toFixed(3),z:+(I.z||0).toFixed(3),lx:+(I.lookX||0).toFixed(2),ly:+(I.lookY||0).toFixed(2),h,pr,yaw:+P1.cam.yaw.toFixed(4),pitch:+P1.cam.pitch.toFixed(4)};
   if(NET_IN.fl[0]||NET_IN.fl[1])m.fl=NET_IN.fl.slice();
   NET_IN.pr={};NET_IN.fl[0]=NET_IN.fl[1]=0;
   netPredSent(m.n);NET.tr.send(m,NET.host);

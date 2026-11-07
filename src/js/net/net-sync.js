@@ -95,6 +95,32 @@ function netVenuePose(rt){
     n.position.set(a[0]+(b[0]-a[0])*k,a[1]+(b[1]-a[1])*k,a[2]+(b[2]-a[2])*k);n.rotation.set(lerpA(a[3],b[3],k),lerpA(a[4],b[4],k),lerpA(a[5],b[5],k));n.visible=!!b[6];}
 }
 
+// ---- lag compensation: a guest's attacks land on goblins where that guest saw them ----
+// A guest sees the goblins as they were a moment ago (the trip over, and NET_DELAY behind on top). So while a guest's
+// hippo is attacking, the host puts every goblin back where that guest was seeing it for that player's step, then
+// returns them. (Only goblins, and only their places: anything that happens to them, happens to them now.)
+const NET_GH=12;   // (frames of each goblin's places kept, about a fifth of a second)
+function netGobHist(){
+  if(!(NET.mode===1&&NET.guests.size))return;
+  for(const g of goblins){if(!g.root.visible){if(g.netH)g.netH.n=0;continue;}let H=g.netH;if(!H)H=g.netH={a:new Float64Array(NET_GH*4),i:0,n:0};
+    const o=H.i*4;H.a[o]=NET.now;H.a[o+1]=g.pos.x;H.a[o+2]=g.pos.y;H.a[o+3]=g.pos.z;H.i=(H.i+1)%NET_GH;if(H.n<NET_GH)H.n++;}
+}
+const netSaved=[];
+function netRewind(p){
+  const N=p.net;if(!N||N.gone||!Number.isFinite(N.vt)||NET.now-(N.atkAt||-1e9)>600)return false;
+  const t=N.vt+(NET.now-(N.inAt||NET.now));if(NET.now-t<20)return false;
+  netSaved.length=0;
+  for(const g of goblins){const H=g.netH;if(!H||H.n<2||!g.root.visible)continue;
+    let best=-1,bt=-1e18;for(let k=0;k<H.n;k++){const o=k*4;if(H.a[o]<=t&&H.a[o]>bt){bt=H.a[o];best=o;}}
+    if(best<0){let lo=1e18;for(let k=0;k<H.n;k++){const o=k*4;if(H.a[o]<lo){lo=H.a[o];best=o;}}}   // (further back than kept: the oldest there is)
+    netSaved.push(g,g.pos.x,g.pos.y,g.pos.z);g.pos.set(H.a[best+1],H.a[best+2],H.a[best+3]);}
+  return true;
+}
+function netUnwind(){for(let i=0;i<netSaved.length;i+=4)netSaved[i].pos.set(netSaved[i+1],netSaved[i+2],netSaved[i+3]);netSaved.length=0;}
+{const up=updatePlayer;updatePlayer=function updatePlayer(p,dt){
+  if(NET.mode!==1||!p.net)return up(p,dt);
+  const rw=netRewind(p);try{return up(p,dt);}finally{if(rw)netUnwind();}};}
+
 // ---- events: one-off things the host's game did, done again on the guest ----
 // (each a call to one of these with its arguments, made plain: numbers, strings, flat lists, players as their seat)
 function netSan(v,d){
@@ -191,7 +217,7 @@ function netClockSet(k){if(!k)return;tod=k.tod;dayN=k.dayN;clockT=k.clockT;traff
   if(k.host!==undefined&&k.host!==DT.host){DT.host=k.host;try{syncHost();}catch(e){}}}
 
 // ---- host: one guest's snapshot ----
-function netSendSnap(p){
+function netSendSnap(p){   // (and the goblins' places are kept each frame, below, for lag compensation)
   const N=p.net;if(!N.wsent)N.wsent={};
   const m={t:'s',n:++N.seq,tt:NET.now,p:[],g:[],gl:{},c:[],cl:{},e:N.out};N.out=[];
   for(let s=0;s<players.length;s++){const q=players[s];if(q.active)m.p.push(netPlayerState(q,s,N));}

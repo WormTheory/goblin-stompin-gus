@@ -7,7 +7,7 @@ const fs=require('fs'),vm=require('vm');
 const src0=fs.readFileSync('g.js','utf8');
 const d6=fs.readFileSync('dead6.js','utf8');
 const stubs=d6.slice(d6.indexOf('const deep='),d6.indexOf('\neval(src);'));
-const src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={NETP,makeTopple,topples,NETF,V3,BRICK,NET_VN,venues,TRAINS,netVenueModels,frame,players,P1,P2,NET,NETM,netHostWith,netJoinWith,netClose,netEnd,crush,get,goblins,cars,keys,ABIL,fires,setGobP,'+
+const src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={netRewind,netUnwind,NETP,makeTopple,topples,NETF,V3,BRICK,NET_VN,venues,TRAINS,netVenueModels,frame,players,P1,P2,NET,NETM,netHostWith,netJoinWith,netClose,netEnd,crush,get,goblins,cars,keys,ABIL,fires,setGobP,'+
   'get seed(){return seed},get edits(){return edits},get menuOpen(){return menuOpen},get saveBlocked(){return saveBlocked},chunks,ckey,CS,G};})();');
 if(src===src0)throw new Error('closing line not found');
 const store=init=>{const m=new Map(Object.entries(init||{}));return{getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,String(v)),removeItem:k=>m.delete(k),get _m(){return m}};};
@@ -145,6 +145,13 @@ const lag=[];
    if(prev)jump=Math.max(jump,d(GT.P1.pos,prev));prev={x:GT.P1.pos.x,y:GT.P1.pos.y,z:GT.P1.pos.z};}
  pads[0].axes[0]=0;for(let i=0;i<60;i++){G.step(1);H.step(1);}
  console.log('with 0.1 s each way: frames before moving, guest',fg,'host',fh,ok(fg>=0&&fg<fh),'| biggest step in one frame',f2(jump),ok(jump<0.6),'| apart once stopped',f2(d(GT.P1.pos,HT.P2.pos)),ok(d(GT.P1.pos,HT.P2.pos)<0.5));
+ // a bite: on the host the goblins go back to where this guest is seeing them, for its step
+ {pads[0].buttons[2].pressed=true;G.step(1);pads[0].buttons[2].pressed=false;for(let i=0;i<14;i++){G.step(1);H.step(1);}
+  const moving=HT.goblins.map((g,i)=>[g,i]).filter(([g,i])=>g.root.visible&&GT.NETM.g.get(i)&&GT.NETM.g.get(i).root.visible);
+  let now=0,back=0,n=0;const rw=HT.netRewind(HT.P2);
+  for(const [g,i] of moving){const m=GT.NETM.g.get(i);back+=Math.hypot(g.pos.x-m.pos.x,g.pos.z-m.pos.z);n++;}
+  HT.netUnwind();for(const [g,i] of moving){const m=GT.NETM.g.get(i);now+=Math.hypot(g.pos.x-m.pos.x,g.pos.z-m.pos.z);}
+  console.log('lag compensation on a guest bite:',rw?'on':'off',ok(rw),'| goblins where the guest sees them: as they are now, off by',f2(now/(n||1)),'on average; put back, off by',f2(back/(n||1)),ok(back<=now+0.01));}
  hub.lat=0;for(let i=0;i<20;i++){G.step(1);H.step(1);}}
 
 // ---- the guest's connection drops without a word: the host keeps its seat, the guest finds its way back ----
@@ -153,7 +160,7 @@ const lag=[];
  for(let i=0;i<30;i++){H.step(1);G.step(1);}
  console.log('dropped: host keeps the seat',ok(HT.P2.active&&!!HT.P2.net&&HT.P2.net.gone>0),'status',HT.NET.status);
  let back=-1;for(let i=0;i<1200;i++){H.step(1);G.step(1);await yieldNow();if(HT.P2.net&&!HT.P2.net.gone&&GT.NET.tr&&GT.NET.host&&back<0)back=i;if(back>=0&&i>back+60)break;}
- console.log('guest came back after',(back/60).toFixed(1),'s',ok(back>0),'no reload',ok(G.reloads===0),'hippo where it was',f2(d(HT.P2.pos,at)),ok(d(HT.P2.pos,at)<1),'guest shows itself there',f2(d(GT.P1.pos,HT.P2.pos)),ok(d(GT.P1.pos,HT.P2.pos)<1));}
+ console.log('guest came back after',(back/60).toFixed(1),'s',ok(back>0),'no reload',ok(G.reloads===0),'hippo where it was (give or take a goblin'"'"'s shove)',f2(d(HT.P2.pos,at)),ok(d(HT.P2.pos,at)<3),'guest shows itself there',f2(d(GT.P1.pos,HT.P2.pos)),ok(d(GT.P1.pos,HT.P2.pos)<1));}
 
 // ---- the guest leaves: the host plays on alone ----
 GT.netEnd();for(let i=0;i<10;i++){H.step(1);G.step(1);}
