@@ -570,3 +570,17 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 .pn .pn-play:hover{filter:brightness(1.1)}
 .pn .pn-play[hidden]{display:none}
 .card .main #tabNotes>.pn{margin-top:0}  /* (pinned to the top, so folding an update doesn't make the rest jump to the middle) */
+
+/* ---- Play online ---- */
+.online{margin-top:10px;padding:10px 12px;border:2px solid #0a0d10;background:rgba(20,26,32,.82);display:flex;flex-direction:column;gap:8px}
+.on-h{font:700 15px var(--f-display);color:var(--bone)}
+.on-h small{display:block;font:500 11px var(--f-mono);color:var(--mute);margin-top:3px;line-height:1.45}
+.on-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.on-or{font:500 11px var(--f-mono);color:var(--mute)}
+.on-b{font:700 14px var(--f-display);padding:7px 14px;border:2px solid #0a0d10;cursor:pointer;background:var(--moss);color:#0e1a06}
+.on-b:disabled{opacity:.5;cursor:default}
+.on-leave{background:var(--clay);color:#1f1307;align-self:flex-start}
+.on-code-in{font:700 16px var(--f-mono);letter-spacing:.2em;text-transform:uppercase;width:9em;padding:6px 8px;border:2px solid #0a0d10;background:#e8e4d8;color:#111}
+.on-code{font:700 30px var(--f-mono);letter-spacing:.3em;color:var(--bone)}
+.on-loc{font:500 11px var(--f-mono);color:var(--mute);display:flex;gap:6px;align-items:center}
+.on-st:empty{display:none}

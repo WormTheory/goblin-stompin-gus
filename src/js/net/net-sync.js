@@ -1,0 +1,238 @@
+// ---------- Online co-op: what the host sends, and how a guest shows it ----------
+// A snapshot {t:'s'} goes to each guest NET_SNAP_HZ times a second: the players (every plain value on them that's
+// changed since the last one, their place, and the pose of each joint), the goblins and vehicles near that guest (place
+// and pose, with how each looks sent once), anything that happened meanwhile as events (blocks smashed or built, dust,
+// sounds, messages), the fires, and now and then the clock, the weather and what's been wrecked.
+// A guest draws everything NET_DELAY behind the host, blending between the two snapshots either side, so movement is
+// smooth whatever the network's doing; one-off events happen as the snapshot they came in becomes the one shown.
+const r3=v=>Math.round(v*1000)/1000;
+const NETM={g:new Map(),c:new Map()};   // (guest: the host's goblins and vehicles, by the host's number for them)
+let NET_FXD=0,NET_APPLY=false;
+
+// ---- players ----
+// (plain values a guest has no use for, or keeps for itself: its seat, the menus, effects worked out from where he is)
+const NET_PSKIP=new Set(['idx','active','paused','lastHp','speedFx','windZoom','bsK','bsx','bsz','bvx','bvz','flickAcc','flickAccY','flickReq','flickReqY','camHang','who','gob','name','pos','spawnSnap']);
+const netEnc=v=>typeof v==='number'?(Number.isFinite(v)?r3(v):String(v)):v;
+const netDec=v=>v==='Infinity'?Infinity:v==='-Infinity'?-Infinity:v==='NaN'?NaN:v;
+// a player's joints, in a fixed order: the same list on both ends
+function netJoints(p){return [p.root,p.rig,p.rig.children[0],p.head,p.jaw,p.tail,...p.legs,p.pool];}
+function netPoseOf(nodes){const a=[];for(const o of nodes){if(!o){a.push(0,0,0,0,0,0,1,1,1,0);continue;}const P=o.position,R=o.rotation,S=o.scale;a.push(r3(P.x),r3(P.y),r3(P.z),r3(R.x),r3(R.y),r3(R.z),r3(S.x),r3(S.y),r3(S.z),o.visible?1:0);}return a;}
+const lerpA=(a,b,k)=>{let d=b-a;if(d>Math.PI||d<-Math.PI)d=((d+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;return a+d*k;};
+function netPoseSet(nodes,a,b,k){for(let i=0;i<nodes.length;i++){const o=nodes[i];if(!o)continue;const j=i*10;
+  const v=(n)=>b?a[j+n]+(b[j+n]-a[j+n])*k:a[j+n],w=(n)=>b?lerpA(a[j+n],b[j+n],k):a[j+n];
+  o.position.set(v(0),v(1),v(2));o.rotation.set(w(3),w(4),w(5));o.scale.set(v(6),v(7),v(8));o.visible=!!a[j+9];}}
+function netPlayerState(p,seat,N){
+  const sent=N.sent[seat]||(N.sent[seat]={}),f={};
+  for(const k in p){if(NET_PSKIP.has(k))continue;const v=p[k],t=typeof v;let e;
+    if(t==='number'||t==='boolean'||t==='string')e=netEnc(v);
+    else if(v instanceof V3)e=[r3(v.x),r3(v.y),r3(v.z)];
+    else continue;   // (objects: what he's holding, riding or locked on to are sent their own way, or not at all)
+    const o=sent[k];if(o===e||Array.isArray(e)&&Array.isArray(o)&&o[0]===e[0]&&o[1]===e[1]&&o[2]===e[2])continue;
+    f[k]=e;sent[k]=e;}
+  const lk=p.lockT?netRef(p.lockT):null;
+  return {s:seat,who:p.who,gob:!!p.gob,act:!!p.active,f,pos:[r3(p.pos.x),r3(p.pos.y),r3(p.pos.z)],h:r3(p.heading),pose:netPoseOf(netJoints(p)),lk};
+}
+// (something a player can be locked on to, as both ends can name it)
+function netRef(o){let i=goblins.indexOf(o);if(i>=0)return['g',i];i=cars.indexOf(o);if(i>=0)return['c',i];return null;}
+function netDeref(r){if(!r)return null;return r[0]==='g'?NETM.g.get(r[1])||null:r[0]==='c'?NETM.c.get(r[1])||null:null;}
+// (guest: which of its players is that seat. Its own is P1; anyone else is drawn as P2)
+const netSeatP=s=>s===NET.seat?P1:P2;
+
+// ---- goblins and vehicles ----
+const netLookOf=new WeakMap();let netLookN=0;
+const netCol=c=>((Math.round(c.r*255)&255)<<16)|((Math.round(c.g*255)&255)<<8)|(Math.round(c.b*255)&255);
+function netGoblins(p,N,out,looks){
+  const R=170,px=p.pos.x,pz=p.pos.z;
+  for(let i=0;i<goblins.length;i++){const g=goblins[i],r=g.root;if(!r.visible||Math.abs(r.position.x-px)>R||Math.abs(r.position.z-pz)>R)continue;
+    const P=r.position,Q=r.rotation;
+    out.push([i,r3(P.x),r3(P.y),r3(P.z),r3(Q.x),r3(Q.y),r3(Q.z),r3(r.scale.x),r3(r.scale.y),r3(g.legs[0].rotation.x),r3(g.legs[1].rotation.x),r3(g.arm.rotation.x),r3(g.armL.rotation.x),r3(g.head.rotation.z),g.orb&&g.orb.visible?1:0,g.state]);
+    const L=g.id&&g.id.look;if(!L)continue;let v=netLookOf.get(g.id);if(!v){v=++netLookN;netLookOf.set(g.id,v);}
+    if(N.looks.get(i)!==v){N.looks.set(i,v);looks[i]={o:r.netOpt||(g.civ?{club:false}:{}),civ:!!g.civ,L,id:{name:g.id.name,occ:g.id.occ,age:g.id.age}};}}
+}
+function netCars(p,N,out,cfg){
+  const R=220,px=p.pos.x,pz=p.pos.z;
+  for(let i=0;i<cars.length;i++){const c=cars[i],G=c.g;if(!G.visible||Math.abs(G.position.x-px)>R||Math.abs(G.position.z-pz)>R)continue;
+    const P=G.position,Q=G.rotation,w=[],f=[];for(const s of c.wheels)w.push(r3(s.rotation.x));for(const s of c.front)f.push(r3(s.rotation.y));
+    out.push([i,r3(P.x),r3(P.y),r3(P.z),r3(Q.x),r3(Q.y),r3(Q.z),w,f,c.dh&&c.dh.visible?1:0,c.hazG&&c.hazG.visible?1:0,c.alive?1:0]);
+    const k=c.veh+'|'+netCol(c.paint.color)+'|'+(c.police?1:0);if(N.cars.get(i)!==k){N.cars.set(i,k);cfg[i]=[c.veh,netCol(c.paint.color),c.police?1:0,!!c.hunter];}}
+}
+
+// ---- events: one-off things the host's game did, done again on the guest ----
+// (each a call to one of these with its arguments, made plain: numbers, strings, flat lists, players as their seat)
+function netSan(v,d){
+  if(v===null||v===undefined)return null;const t=typeof v;
+  if(t==='number')return Number.isFinite(v)?r3(v):0;if(t==='string'||t==='boolean')return v;if(t!=='object')return null;
+  const s=players.indexOf(v);if(s>=0)return{$p:s};
+  if(v.isObject3D||v.isMaterial||d>2)return null;
+  if(Array.isArray(v))return v.map(x=>netSan(x,d+1));
+  const o={};for(const k in v){const x=v[k];if(x===null||typeof x!=='object'){if(typeof x!=='function'&&x!==undefined)o[k]=netSan(x,d+1);}else if(d<2&&!x.isObject3D&&!x.isMaterial&&!players.includes(x)&&!(x.root&&x.root.isObject3D))o[k]=netSan(x,d+1);}
+  return o;
+}
+function netUnsan(v){if(v===null||typeof v!=='object')return v;if(Array.isArray(v))return v.map(netUnsan);if('$p' in v){const pl=players[v.$p];if(!pl)return null;
+  // (the host's player one is drawn here as P2; this guest's seat is our P1)
+  return v.$p===NET.seat?P1:P2;}const o={};for(const k in v)o[k]=netUnsan(v[k]);return o;}
+function netEmit(e){for(const p of NET.guests.values()){const out=p.net.out;if(out.length<4000)out.push(e);}}
+// the effects passed on: when the host's game calls one (and not from inside another), each guest makes the same call
+const NET_FX={};
+function netFx(name,f){
+  NET_FX[name]=f;
+  return function(...a){
+    if(NET.mode===1&&NET_FXD===0&&NET.guests.size){try{netEmit(['f',name,a.map(x=>netSan(x,0))]);}catch(e){}}
+    NET_FXD++;try{return f.apply(this,a);}finally{NET_FXD--;}
+  };
+}
+puff=netFx('puff',puff);smoke=netFx('smoke',smoke);blood=netFx('blood',blood);splat=netFx('splat',splat);
+destroyFX=netFx('destroyFX',destroyFX);shockwave=netFx('shockwave',shockwave);shockCone=netFx('shockCone',shockCone);blastFx=netFx('blastFx',blastFx);
+tone=netFx('tone',tone);noise=netFx('noise',noise);woosh=netFx('woosh',woosh);
+// (a message for one player goes to that player only; one for everyone, to everyone)
+{const fl=flashLabel;NET_FX.flashLabel=fl;flashLabel=function(s,who){
+  if(NET.mode===1&&NET.guests.size){const seat=who?players.indexOf(who):-1;if(seat!==0)netEmit(['f','flashLabel',[s,seat>0?{$p:seat}:null]]);}
+  return fl(s,who&&who.net&&NET.mode===1?null:who);};}
+// blocks: every block the host's game changes for good goes through addEdit, so that's where they're picked up
+{const ae=addEdit;addEdit=function(x,y,z,b){ae(x,y,z,b);
+  if(NET.mode===1&&NET.guests.size){const v=edits[x+','+y+','+z];for(const p of NET.guests.values()){const out=p.net.out,L=out[out.length-1];if(L&&L[0]==='e'&&L[1].length<3000)L[1].push(x,y,z,v);else out.push(['e',[x,y,z,v]]);}}};}
+// (guest: the host's game is the only one that hurts anyone or breaks anything. Anything here that would -- a fire's
+// flames, a hit worked out locally -- does nothing)
+for(const [nm,f] of [['damagePlayer',damagePlayer],['damageGoblin',damageGoblin],['hitGoblins',hitGoblins],['damageCar',damageCar],['crush',crush]]){
+  const g=function(...a){if(NET.mode===2&&NET.joined&&!NET_APPLY)return nm==='crush'?[]:undefined;return f.apply(this,a);};
+  if(nm==='damagePlayer')damagePlayer=g;else if(nm==='damageGoblin')damageGoblin=g;else if(nm==='hitGoblins')hitGoblins=g;else if(nm==='damageCar')damageCar=g;else crush=g;}
+// guest: one block, as the host has it
+function netSetBlock(x,y,z,b,ch){
+  if(edits[x+','+y+','+z]===b)return;
+  const cx=Math.floor(x/CS),cz=Math.floor(z/CS);
+  NET_APPLY=true;try{if(chunks.has(ckey(cx,cz)))setRaw(x,y,z,b);addEdit(x,y,z,b);}finally{NET_APPLY=false;}
+  for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((x+ox)/CS),Math.floor((z+oz)/CS)));
+}
+
+// ---- the world's other saved state, the clock and the weather: sent when changed, checked once a second ----
+function netWorldBits(N){
+  const out={},J=(k,v)=>{const s=JSON.stringify(v);if(N.wsent[k]!==s){N.wsent[k]=s;out[k]=v;}};
+  J('coll',collapses);J('wreck',wrecked);J('down',[...downFix]);J('dest',destroyed);
+  J('fire',fires.map(F=>[r3(F.x),r3(F.y),r3(F.z),r3(F.r),Math.round(F.t*10)/10,Math.round(F.life*10)/10,F.flames?1:0,r3(F.sm),r3(F.rise),F.douse?1:0]));
+  return out;
+}
+function netClock(){return{tod,dayN,clockT,tc:trafficClock,wc:wxClock,wx:{type:WX.type,until:WX.until,k:Object.assign({},WX.k),wet:WX.wet,snowCover:WX.snowCover,snowClock:WX.snowClock,frozen:!!WX.frozen},host:DT.host};}
+function netClockSet(k){if(!k)return;tod=k.tod;dayN=k.dayN;clockT=k.clockT;trafficClock=k.tc;wxClock=k.wc;if(k.wx){const w=k.wx;WX.type=w.type;WX.until=w.until;Object.assign(WX.k,w.k);WX.wet=w.wet;WX.snowCover=w.snowCover;WX.snowClock=w.snowClock;WX.frozen=w.frozen;}
+  if(k.host!==undefined&&k.host!==DT.host){DT.host=k.host;try{syncHost();}catch(e){}}}
+
+// ---- host: one guest's snapshot ----
+function netSendSnap(p){
+  const N=p.net;if(!N.wsent)N.wsent={};
+  const m={t:'s',n:++N.seq,tt:NET.now,p:[],g:[],gl:{},c:[],cl:{},e:N.out};N.out=[];
+  for(let s=0;s<players.length;s++){const q=players[s];if(q.active)m.p.push(netPlayerState(q,s,N));}
+  netGoblins(p,N,m.g,m.gl);netCars(p,N,m.c,m.cl);
+  N.wT=(N.wT||0)-1;if(N.wT<=0){N.wT=NET_SNAP_HZ;m.w=netWorldBits(N);m.k=netClock();}
+  try{NET.tr.send(m,N.peer);}catch(e){}
+}
+
+// ---- guest ----
+function netGotSnap(m){
+  if(!Number.isFinite(m.tt))return;
+  // (how far the host's clock is from ours: the smallest gap seen lately, so a slow message never drags the picture back)
+  const gap=NET.now-m.tt;if(NET.off===null||gap<NET.off)NET.off=gap;else NET.off+=(gap-NET.off)*0.01;
+  NET.q.push(m);
+  if(NET.q.length>40)NET.q.splice(0,NET.q.length-40);
+}
+// the host's game takes over: the city's own goblins and traffic stand down, and both hippos are the host's to move
+function netGuestBegin(h){
+  for(const g of goblins){g.state='wait';g.root.visible=false;}
+  for(const c of cars){c.alive=false;c.g.visible=false;}
+  for(const [,g] of NETM.g)g.root.visible=false;for(const [,c] of NETM.c)c.g.visible=false;
+  NET.q.length=0;NET.cur=null;NET.off=null;
+  P1.net={mirror:true,seat:NET.seat};P2.net={mirror:true,seat:0};
+  if(h){P2.who=h.who?1:0;setGobP(P2,!!h.gob);}
+  P2.active=true;P2.root.visible=!P2.gob;P2.paused=false;dressHippo(P2);dressHippo(P1);
+  coop=false;layout();startPlay('net');
+}
+function netGob(id,o){
+  let g=NETM.g.get(id);if(g)return g;
+  const root=new THREE.Group();root.rotation.order='YXZ';
+  const m=goblinModel(root,Object.assign({},o,{shareGeo:true}));
+  g={snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,orb:m.orb||null,pos:new V3(),kv:new V3(),stun:0,heading:0,vy:0,hp:4,state:'net',t:0,phase:0,atk:1,hurt:0,sink:0,detour:0,detourH:0,stuck:0,civ:false,net:true,id:null};
+  root.visible=false;root.scale.setScalar(ES);goblins.push(g);NETM.g.set(id,g);return g;
+}
+function netCar(id,k){
+  let c=NETM.c.get(id);
+  if(c&&c.police!==!!k[2]){c.g.visible=false;c.alive=false;NETM.c.delete(id);c=null;}
+  if(!c){c=makeCar(id,!!k[2]);c.g.scale.setScalar(ES);c.net=true;c.respawnT=1e9;cars.push(c);NETM.c.set(id,c);}
+  if(c.veh!==k[0]&&VEH[k[0]])setVeh(c,k[0]);c.paint.color.setHex(k[1]);c.hunter=!!k[3];
+  return c;
+}
+// a snapshot becoming the one shown: everything in it that isn't blended
+function netCommit(m){
+  for(const e of m.p){const q=netSeatP(e.s);if(!q)continue;
+    if(q===P2&&!e.act){q.active=false;q.root.visible=false;continue;}
+    if(e.gob!==!!q.gob)setGobP(q,e.gob);if(e.who!==q.who){q.who=e.who;dressHippo(q);}
+    for(const k in e.f){const v=e.f[k];if(Array.isArray(v)){if(q[k] instanceof V3)q[k].set(v[0],v[1],v[2]);else q[k]=new V3(v[0],v[1],v[2]);}else q[k]=netDec(v);}
+    q.lockT=netDeref(e.lk);
+  }
+  for(const i in m.gl){const G=m.gl[i],g=netGob(+i,G.o);g.civ=G.civ;try{applyLook(g,G.L,ES);}catch(e){}g.id=Object.assign({look:G.L},G.id);}
+  for(const i in m.cl)netCar(+i,m.cl[i]);
+  const seenG=new Set(),seenC=new Set();
+  for(const e of m.g){const g=NETM.g.get(e[0]);if(!g)continue;seenG.add(g);g.state=e[15];g.root.visible=true;if(g.orb)g.orb.visible=!!e[14];}
+  for(const [,g] of NETM.g)if(!seenG.has(g)){g.root.visible=false;g.state='net';}
+  for(const e of m.c){const c=NETM.c.get(e[0]);if(!c)continue;seenC.add(c);c.g.visible=true;c.alive=!!e[11];if(c.dh)c.dh.visible=!!e[9];if(c.hazG)c.hazG.visible=!!e[10];}
+  for(const [,c] of NETM.c)if(!seenC.has(c)){c.g.visible=false;c.alive=false;}
+  // the events, in the order they happened
+  const ch=new Set();
+  for(const e of m.e){
+    if(e[0]==='e'){const L=e[1];for(let i=0;i+3<L.length;i+=4)netSetBlock(L[i],L[i+1],L[i+2],L[i+3],ch);}
+    else if(e[0]==='f'){const f=NET_FX[e[1]];if(!f)continue;if(ch.size){rebuildSet(ch);ch.clear();}
+      if(e[1]==='flashLabel'){const who=e[2][1]?netUnsan(e[2][1]):null;f(e[2][0],who);continue;}
+      try{f(...e[2].map(netUnsan));}catch(er){}}}
+  if(ch.size)rebuildSet(ch);
+  if(m.w)netWorld(m.w);
+  if(m.k)netClockSet(m.k);
+  NET.cur=m;
+}
+function netWorld(w){
+  if(w.coll)collapses=w.coll;if(w.wreck)wrecked=w.wreck;if(w.dest){destroyed=w.dest;destroyVer++;}
+  if(w.down){downFix.clear();for(const [k,v] of w.down)downFix.set(k,v);trafficRefreshT=0;}
+  if(w.fire){fires.length=0;for(const f of w.fire)fires.push({x:f[0],y:f[1],z:f[2],r:f[3],t:f[4],life:f[5],base:f[5],born:playTime,flames:!!f[6],acc:0,sacc:0,hurt:9,sm:f[7],rise:f[8],douse:!!f[9],blame:null});}
+}
+// every frame: show the host's game as it was NET_DELAY ago, blended between the snapshots either side
+function netGuestFrame(dt){
+  if(NET.off===null)return;
+  const rt=NET.now-NET.off-NET_DELAY,Q=NET.q;
+  // (fallen far behind -- a stall, a tab in the background: catch up rather than play it all out slowly)
+  while(Q.length>6)netCommit(Q.shift());
+  while(Q.length&&Q[0].tt<=rt)netCommit(Q.shift());
+  const a=NET.cur;if(!a)return;const b=Q[0],k=b&&b.tt>a.tt?Math.max(0,Math.min(1,(rt-a.tt)/(b.tt-a.tt))):0;
+  for(const e of a.p){const q=netSeatP(e.s);if(!q||!q.active)continue;const f=b&&b.p.find(x=>x.s===e.s);
+    const P=e.pos,P2b=f?f.pos:P;q.pos.set(P[0]+(P2b[0]-P[0])*k,P[1]+(P2b[1]-P[1])*k,P[2]+(P2b[2]-P[2])*k);
+    q.heading=f?lerpA(e.h,f.h,k):e.h;netPoseSet(netJoints(q),e.pose,f&&f.pose,k);}
+  const bg=new Map(),bc=new Map();if(b){for(const e of b.g)bg.set(e[0],e);for(const e of b.c)bc.set(e[0],e);}
+  for(const e of a.g){const g=NETM.g.get(e[0]);if(!g)continue;const f=bg.get(e[0]),v=n=>f?e[n]+(f[n]-e[n])*k:e[n],w=n=>f?lerpA(e[n],f[n],k):e[n];
+    g.root.position.set(v(1),v(2),v(3));g.root.rotation.set(w(4),w(5),w(6));g.root.scale.set(v(7),v(8),v(7));g.pos.copy(g.root.position);g.heading=g.root.rotation.y;
+    g.legs[0].rotation.x=w(9);g.legs[1].rotation.x=w(10);g.arm.rotation.x=w(11);g.armL.rotation.x=w(12);g.head.rotation.z=w(13);}
+  for(const e of a.c){const c=NETM.c.get(e[0]);if(!c)continue;const f=bc.get(e[0]),v=n=>f?e[n]+(f[n]-e[n])*k:e[n],w=n=>f?lerpA(e[n],f[n],k):e[n];
+    c.g.position.set(v(1),v(2),v(3));c.g.rotation.set(w(4),w(5),w(6));c.pos.copy(c.g.position);c.heading=c.g.rotation.y;
+    e[7].forEach((r,i)=>{if(c.wheels[i])c.wheels[i].rotation.x=f&&f[7][i]!==undefined?lerpA(r,f[7][i],k):r;});
+    e[8].forEach((r,i)=>{if(c.front[i])c.front[i].rotation.y=r;});}
+}
+// (guest, each step: only what's for show. The host's snapshots do everything else)
+function netGuestStep(sdt){
+  safe('weather',()=>updateWeather(sdt));safe('sky',()=>updateSky(sdt));
+  safe('parts',()=>updateParts(sdt));safe('rubble',()=>updateRubble(sdt));safe('shocks',()=>{updateShocks(sdt);updateCones(sdt);});
+  safe('fires',()=>updateFires(sdt));safe('flecks',()=>updateFlecks(sdt));
+  for(const p of players)if(p.active)safe('hud',()=>healthHud(p,sdt));
+}
+// (guest, each frame: the street's dressing near the players, as the host's game does it in updateTraffic, without the traffic)
+let netDressT=0,netDressJ=0;
+function netGuestDress(dt){
+  netDressT-=dt;if(netDressT<=0){netDressT=0.4;netDressJ=0;}
+  if(netDressJ===0)refreshFixtures();else if(netDressJ===1)refreshBrandSigns();else if(netDressJ===2)refreshDoors();else if(netDressJ===3)refreshLandmarks();
+  if(netDressJ<4)netDressJ++;
+  updateDoors(dt);updateLandmarks(dt);headLamps();
+}
+// guest, on (re)joining a world this tab already built: whatever's changed on the host since that save, put in here too
+function netCatchUp(S){
+  const ch=new Set(),P=S.ed2||{};
+  for(const key in P){const [cx,cz]=key.split(',').map(Number),x0=cx*CS,z0=cz*CS;
+    for(const part of P[key].split(';')){const c=part.indexOf(':'),b=+part.slice(0,c);
+      for(let o=c+1;o+2<part.length;o+=3){const i=ED64.indexOf(part[o])<<12|ED64.indexOf(part[o+1])<<6|ED64.indexOf(part[o+2]),y=Math.floor(i/(CS*CS)),r=i-y*CS*CS;
+        netSetBlock(x0+r%CS,y,z0+Math.floor(r/CS),b,ch);}}}
+  if(S.edits)for(const k in S.edits){const [x,y,z]=k.split(',').map(Number);netSetBlock(x,y,z,S.edits[k],ch);}
+  if(ch.size)rebuildSet(ch);
+  netWorld({coll:S.coll||{},wreck:S.wreck||{},dest:S.dest||{},down:Array.isArray(S.down)?S.down:[]});
+}

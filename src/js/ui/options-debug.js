@@ -313,7 +313,7 @@ function gasBoom(x,y,z){const w=DBG_WHO;DBG_WHO='n';try{gasBoom0(x,y,z);}finally
 function gasBoom0(x,y,z){
   const p=new V3(x,y,z);
   // a huge fireball: big enough to wreck the forecourt, the canopy and the shop
-  const bl=blasts[blastIdx++%blasts.length];bl.t=0.6;bl.s=2.8;for(const f of bl.m){f.position.set(x,y+2.5,z);f.visible=true;}
+  blastFx(x,y+2.5,z,0.6,2.8);
   smoke(x,y+2,z,40,0x1e1e1e);puff(x,y,z,30,0x6a4a2a,3.5);
   for(let i=0;i<40;i++)emit(2,x+(Math.random()-.5)*5,y+1+Math.random()*4,z+(Math.random()-.5)*5,Math.random()<0.5?0xffb040:0xff6020,0.2,0.2,0.2,{force:4.2,dx:0,dz:0,up:2.4});
   for(let i=0;i<16;i++){const d=debris[(debrisIdx++)%debris.length];if(d.painted)d.m.material.color.setHex(0xcc3030);
@@ -339,7 +339,7 @@ function explodeCar0(c){
   const pts=c.police?500:300;if(BLAME!=='acc'){reportCrime(p.x,p.z);score+=pts;flashLabel((c.police?'Police car destroyed  +':c.crew&&CREW_NAME[c.veh]?CREW_NAME[c.veh]+' destroyed  +':'Car destroyed  +')+pts,(nearestPlayer(p.x,p.z)||{}).p);}
   if(c.police&&c.spot){policeDown[c.spot.split(':')[0]]=playTime+90;c.spot=null;}c.parked=false;
   if(c.svcPool&&c.svc){const keep=c.alive;svcDone(c,true);}
-  const bl=blasts[blastIdx++%blasts.length];bl.t=0.6;bl.s=1;for(const f of bl.m){f.position.set(p.x,p.y+1,p.z);f.visible=true;}
+  blastFx(p.x,p.y+1,p.z,0.6,1);
   smoke(p.x,p.y+1,p.z,22,0x262626);puff(p.x,p.y,p.z,16,0x5a4a3a,1.6);
   for(let i=0;i<12;i++){const d=debris[(debrisIdx++)%debris.length];
     if(d.painted)d.m.material.color.setHex(c.color);

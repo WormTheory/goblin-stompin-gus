@@ -1,0 +1,228 @@
+// ---------- Online co-op: transports and sessions ----------
+// One player's browser, the host, runs the whole game as it always has, with the second seat (P2) driven by a guest's
+// controls arriving over the network. The guest's browser builds the same city from the host's save, sends its controls
+// and its camera, and draws what the host sends back: the players, the goblins, the traffic, smashed blocks, dust and
+// sounds. It runs none of the game's own goblins, traffic or damage itself (so nothing can disagree with the host).
+// Every message is a plain JSON object with a type `t`, so a headless server in Node could one day send the very same
+// ones. docs/multiplayer.md has the whole protocol.
+const NET_PROTO=1;
+// (Trystero finds the other player through public Nostr relays and then talks to them directly over WebRTC. It's only
+// fetched once someone picks online play, so the game still opens and plays with no network at all.)
+const NET_TRYSTERO='https://cdn.jsdelivr.net/npm/trystero@0.26.0/+esm';
+const NET_APP='goblin-stompin-gus/net1';
+// TURN servers, for players whose routers won't let a direct connection through. None are set: a build of your own can
+// put some here (for instance Cloudflare's), as [{urls:['turn:...'],username:'...',credential:'...'}]. Never commit real ones.
+const NET_TURN=null;
+const NET_SNAP_HZ=15,NET_IN_HZ=30,NET_DELAY=100;   // (snapshots a second from the host, controls a second from a guest, and how far behind the host a guest draws, ms, so it always has two snapshots to blend between)
+const NET_SS_JOIN='gsg-net-join',NET_SS_WORLD='gsg-net-world';   // (sessionStorage: this tab's own, so a guest tab never touches the city saved in this browser)
+const NET={mode:0,tr:null,code:'',kind:'',seat:0,now:0,host:null,status:'',joined:false,snapT:0,inT:0,pingT:0,rtt:0,
+  guests:new Map(),   // (host: peer id -> the seat's player)
+  lastHeard:0,q:[],cur:null,off:null,seq:0,wantSeat:1};
+const netHost=()=>NET.mode===1,netGuest=()=>NET.mode===2,netOn=()=>NET.mode>0;
+// is a player's body run by someone over the network? (host: a guest's seat; guest: everyone, the host included)
+const netRemote=p=>!!(p&&p.net);
+// (a room code: five letters, no look-alikes. Not from Math.random, which the tests seed)
+function netCode(){const A='ABCDEFGHJKLMNPQRSTUVWXYZ';let s='';try{const r=new Uint8Array(5);crypto.getRandomValues(r);for(const v of r)s+=A[v%A.length];}catch(e){for(let i=0;i<5;i++)s+=A[(Date.now()/(i+1)|0)%A.length];}return s;}
+function netId(){try{const r=new Uint8Array(6);crypto.getRandomValues(r);return Array.from(r,v=>v.toString(16).padStart(2,'0')).join('');}catch(e){return 'p'+Date.now().toString(36);}}
+function netStatus(s){NET.status=s;try{netUiStatus(s);}catch(e){}}
+
+// ---- transports: {kind, self, on:{msg(peer,data), join(peer), leave(peer)}, send(data,to?), close()} ----
+// two tabs of this browser, through a BroadcastChannel (for trying it out on one machine, and the UI tests)
+function netLoopback(code){
+  const bc=new BroadcastChannel('gsg-net:'+code),self=netId(),seen=new Map();
+  const T={kind:'loop',self,on:{},send(d,to){try{bc.postMessage({k:'m',from:self,to:to||null,d});}catch(e){}},
+    close(){clearInterval(hb);try{bc.postMessage({k:'bye',from:self});bc.close();}catch(e){}}};
+  bc.onmessage=e=>{const m=e.data;if(!m||m.from===self||(m.to&&m.to!==self))return;
+    if(m.k==='bye'){if(seen.delete(m.from)&&T.on.leave)T.on.leave(m.from);return;}
+    const fresh=!seen.has(m.from);seen.set(m.from,Date.now());
+    if(fresh){if(m.k==='hi')bc.postMessage({k:'hb',from:self});if(T.on.join)T.on.join(m.from);}
+    if(m.k==='m'&&T.on.msg)T.on.msg(m.from,m.d);};
+  // (a tab that's closed may not get to say goodbye: one not heard from for five seconds has gone)
+  const hb=setInterval(()=>{try{bc.postMessage({k:'hb',from:self});}catch(e){}const t=Date.now();for(const [k,v] of seen)if(t-v>5000){seen.delete(k);if(T.on.leave)T.on.leave(k);}},1000);
+  bc.postMessage({k:'hi',from:self});
+  return T;
+}
+// anywhere on the internet, peer to peer, through Trystero (loaded on first use)
+async function netTrystero(code){
+  const mod=await import(NET_TRYSTERO);
+  const cfg={appId:NET_APP};if(NET_TURN)cfg.turnConfig=NET_TURN;
+  const room=mod.joinRoom(cfg,code),a=room.makeAction('m'),old=Array.isArray(a);   // (older Trystero gave [send, receive]; newer an object)
+  const T={kind:'p2p',self:mod.selfId,on:{},
+    send(d,to){try{if(old)a[0](d,to||null);else a.send(d,to?{target:to}:undefined);}catch(e){}},
+    close(){try{room.leave();}catch(e){}}};
+  const got=(d,meta)=>{const peer=typeof meta==='string'?meta:meta&&meta.peerId;if(T.on.msg)T.on.msg(peer,d);};
+  const join=id=>{if(T.on.join)T.on.join(id);},leave=id=>{if(T.on.leave)T.on.leave(id);};
+  if(old){a[1](got);room.onPeerJoin(join);room.onPeerLeave(leave);}
+  else{a.onMessage=got;room.onPeerJoin=join;room.onPeerLeave=leave;}
+  return T;
+}
+async function netOpen(kind,code){if(NET.makeTr)return NET.makeTr(kind,code);return kind==='loop'?netLoopback(code):netTrystero(code);}   // (NET.makeTr: the tests' own transport)
+
+// ---- hosting ----
+function netHostWith(tr,code,kind){
+  NET.mode=1;NET.tr=tr;NET.code=code;NET.kind=kind;NET.guests.clear();
+  tr.on.msg=netHostMsg;tr.on.join=()=>{};tr.on.leave=netHostLeft;
+  netStatus('Hosting. Room code '+code);
+}
+async function netStartHost(kind){
+  if(netOn())return;const code=netCode();netStatus('Opening a room...');
+  try{netHostWith(await netOpen(kind,code),code,kind);}catch(e){NET.mode=0;netStatus("Couldn't open a room: "+(e&&e.message||e));}
+}
+// (what a guest sends about itself when it asks to join, and what the host takes from it)
+function netHello(){return{t:'hello',v:NET_PROTO,who:CHAR==='gertie'?1:0,gob:CHAR==='goblin',abil:Object.assign({},ABIL),seat:NET.wantSeat};}
+function netHostMsg(peer,m){
+  if(!m||typeof m!=='object')return;
+  const p=NET.guests.get(peer);
+  if(m.t==='hello')return netSeat(peer,m);
+  if(m.t==='ping'){NET.tr.send({t:'pong',a:m.a,b:NET.now},peer);return;}
+  if(!p)return;
+  p.net.heard=NET.now;
+  if(m.t==='in')netGotInput(p,m);
+  else if(m.t==='bye')netHostLeft(peer);
+}
+// a guest asking to join: seat them as player two, if that seat's free (online play is two players: the second split-screen
+// seat is the only other one there is)
+function netSeat(peer,m){
+  if(m.v!==NET_PROTO){NET.tr.send({t:'deny',why:'The host is playing a different version of the game.'},peer);return;}
+  let p=NET.guests.get(peer);
+  if(!p){if(P2.net&&P2.net.peer!==peer){NET.tr.send({t:'deny',why:'That game is full.'},peer);return;}
+    // (a local player two gives up the seat)
+    if(P2.active&&!P2.net)deactivateP2();
+    p=P2;p.net={peer,seat:1,heard:NET.now,inb:null,pr:{},sent:{},pose:null,looks:new Map(),cars:new Map(),out:[],seq:0};NET.guests.set(peer,p);}
+  p.who=m.who?1:0;setGobP(p,!!m.gob);
+  // (each player keeps the abilities they've switched on in their own browser)
+  p.abil={};for(const k in ABIL)p.abil[k]=typeof(m.abil||{})[k]==='boolean'?m.abil[k]:ABIL[k];
+  dressHippo(p);
+  if(!p.active)activateP2();layout();
+  p.net.sent={};p.net.looks.clear();p.net.cars.clear();p.net.out.length=0;
+  flashLabel(charName(p)+' joined online');
+  NET.tr.send({t:'welcome',v:NET_PROTO,seat:1,code:NET.code,save:saveText({tenv:TENV||undefined}),host:{who:P1.who,gob:!!P1.gob},
+    clock:netClock()},peer);
+  netStatus('Hosting. Room code '+NET.code+' · '+charName(p)+' is here');
+}
+function netHostLeft(peer){
+  const p=NET.guests.get(peer);if(!p)return;NET.guests.delete(peer);
+  const nm=charName(p);p.net=null;p.abil=null;
+  for(const k in p.in)if(typeof p.in[k]==='boolean')p.in[k]=false;p.in.x=p.in.z=0;
+  if(p.drv)drvExit(p);deactivateP2();layout();
+  flashLabel(nm+' left the game');netStatus('Hosting. Room code '+NET.code+' · waiting for someone to join');
+}
+// a guest's controls: what's held now replaces what was held; a press counts once, on the host's next frame, however many
+// of the guest's frames it was spread over (and none is lost between two of them)
+const NET_HELD=['charge','stomp','bite','jump','dash','sprint','climb','use','weapon'],NET_PRESS=['chargePress','bitePress','jumpPress','lockPress','dashPress','sprintPress'];
+function netGotInput(p,m){
+  const N=p.net;if(typeof m.n==='number'&&m.n<=(N.inN||0))return;N.inN=m.n;
+  N.inb=m;for(const k of NET_PRESS)if(m.pr&&m.pr[k])N.pr[k]=true;
+  if(m.fl){p.flickReq=m.fl[0]||p.flickReq;p.flickReqY=m.fl[1]||p.flickReqY;}
+  if(Number.isFinite(m.yaw))p.cam.yaw=m.yaw;if(Number.isFinite(m.pitch))p.cam.pitch=camPitch(m.pitch,p);
+}
+// (host, every frame after the local controls have been read: a guest's seat gets its controls from the network)
+function netHostInputs(){
+  for(const p of NET.guests.values()){const N=p.net,I=p.in,m=N.inb;
+    for(const k in I)if(typeof I[k]==='boolean')I[k]=false;I.x=I.z=0;I.lookX=I.lookY=0;
+    if(!m||p.paused)continue;
+    I.x=Math.max(-1,Math.min(1,+m.x||0));I.z=Math.max(-1,Math.min(1,+m.z||0));I.lookX=+m.lx||0;I.lookY=+m.ly||0;
+    for(const k of NET_HELD)I[k]=!!(m.h&&m.h[k]);
+    for(const k of NET_PRESS){I[k]=!!N.pr[k];N.pr[k]=false;}
+    I.chargeHeld=I.charge;
+    if(!ABIL.climb&&!(p.abil&&p.abil.climb))I.climb=false;
+  }
+}
+
+// ---- joining ----
+function netJoinWith(tr,code,kind){
+  NET.mode=2;NET.tr=tr;NET.code=code;NET.kind=kind;NET.joined=false;NET.host=null;NET.q.length=0;NET.cur=null;NET.off=null;NET.lastHeard=NET.now;
+  tr.on.msg=netGuestMsg;tr.on.leave=peer=>{if(peer===NET.host)netLost('The host left the game.');};
+  tr.on.join=peer=>{if(!NET.host)tr.send(netHello(),peer);};
+  tr.send(netHello());
+  netStatus('Looking for room '+code+'...');
+}
+async function netStartJoin(code,kind){
+  code=String(code||'').toUpperCase().replace(/[^A-Z]/g,'');if(code.length<4){netStatus('Type in the room code first.');return;}
+  if(netOn())return;netStatus('Connecting...');
+  try{netJoinWith(await netOpen(kind,code),code,kind);}catch(e){NET.mode=0;netStatus("Couldn't connect: "+(e&&e.message||e));return;}
+  // (nobody answering after a while: probably a mistyped code)
+  setTimeout(()=>{if(netGuest()&&!NET.host&&NET.code===code){netStatus('No game found with the code '+code+'. Check it and try again.');netClose();}},20000);
+}
+function netGuestMsg(peer,m){
+  if(!m||typeof m!=='object')return;
+  if(m.t==='deny'){netStatus(m.why||"The host didn't let you in.");netClose();return;}
+  if(m.t==='welcome'){if(NET.host&&NET.host!==peer)return;NET.host=peer;netWelcome(m);return;}
+  if(peer!==NET.host)return;
+  NET.lastHeard=NET.now;
+  if(m.t==='s')netGotSnap(m);
+  else if(m.t==='pong'){NET.rtt=NET.now-m.a;}
+  else if(m.t==='bye')netLost('The host ended the game.');
+}
+// the host's world: if this tab was opened for it, catch up with what's changed since; otherwise keep it in this tab's
+// session storage and reload (everything the city works out is worked out afresh for its seed, which a reload makes sure of)
+function netWelcome(m){
+  let S=null;try{S=JSON.parse(m.save);}catch(e){}
+  if(!S||typeof S.seed!=='number'){netStatus('The host sent a world this game can\'t read.');netClose();return;}
+  NET.seat=m.seat|0;
+  const J=netJoinFlag();
+  if(S.seed!==seed||!J||J.code!==NET.code){
+    try{sessionStorage.setItem(NET_SS_WORLD,m.save);sessionStorage.setItem(NET_SS_JOIN,JSON.stringify({code:NET.code,kind:NET.kind}));}
+    catch(e){netStatus("Couldn't keep the host's world in this tab.");netClose();return;}
+    NET.reloading=true;netStatus('Building the host\'s city...');
+    try{NET.tr.close();}catch(e){}clearTimeout(saveTimer);saveBlocked=true;netReload();return;}
+  netCatchUp(S);netClockSet(m.clock);
+  NET.joined=true;saveBlocked=true;clearTimeout(saveTimer);
+  netGuestBegin(m.host);
+  netStatus('Playing online in room '+NET.code);
+}
+const netReload=()=>NET.onReload?NET.onReload():location.reload();   // (the tests catch it)
+function netJoinFlag(){try{return JSON.parse(sessionStorage.getItem(NET_SS_JOIN)||'null');}catch(e){return null;}}
+// (read by load(): this tab is a guest, and the host's world is the one to build)
+function netWorldText(){try{if(netJoinFlag())return sessionStorage.getItem(NET_SS_WORLD);}catch(e){}return null;}
+function netLost(why){
+  if(!netGuest())return;const was=NET.joined;netClose();
+  netStatus(why);
+  if(was){netLeaveWorld(why);}
+}
+// back to this browser's own city (the guest's) after a game online
+function netLeaveWorld(why){
+  try{sessionStorage.removeItem(NET_SS_JOIN);sessionStorage.removeItem(NET_SS_WORLD);sessionStorage.setItem('gsg-net-why',why||'');}catch(e){}
+  netReload();
+}
+function netClose(){
+  if(!NET.tr){NET.mode=0;return;}
+  try{if(netGuest()&&NET.host)NET.tr.send({t:'bye'},NET.host);else if(netHost())NET.tr.send({t:'bye'});}catch(e){}
+  try{NET.tr.close();}catch(e){}
+  if(netHost())for(const peer of [...NET.guests.keys()])netHostLeft(peer);
+  NET.tr=null;NET.mode=0;NET.host=null;NET.joined=false;
+}
+// leaving from the menu: a guest goes home to its own city; a host just stops hosting and plays on alone
+function netEnd(){
+  if(netGuest()){const was=NET.joined;netClose();if(was)netLeaveWorld('');else netStatus('');}
+  else if(netHost()){netClose();netStatus('Stopped hosting.');}
+}
+addEventListener('pagehide',()=>{if(netOn()&&!NET.reloading)netClose();});
+
+// ---- every frame ----
+function netTick(now,dt){
+  NET.now=now;if(!netOn())return;
+  if(netHost()){
+    netHostInputs();
+    for(const p of NET.guests.values())if(now-p.net.heard>15000)netHostLeft(p.net.peer);   // (a guest gone silent: its seat comes free)
+    NET.snapT-=dt*1000;if(NET.snapT<=0&&NET.guests.size){NET.snapT+=1000/NET_SNAP_HZ;if(NET.snapT<0)NET.snapT=0;for(const p of NET.guests.values())netSendSnap(p);}
+    NET.fxOut=null;
+  } else if(NET.joined){
+    netSendInput(dt);
+    NET.pingT-=dt;if(NET.pingT<=0){NET.pingT=2;NET.tr.send({t:'ping',a:now},NET.host);}
+    if(now-NET.lastHeard>10000)netLost('Lost touch with the host.');
+  }
+}
+// (guest: its own controls, read as usual into P1.in by readInputs, sent on to the host)
+const NET_IN={pr:{},fl:[0,0]};
+function netSendInput(dt){
+  const I=P1.in;for(const k of NET_PRESS)if(I[k])NET_IN.pr[k]=true;
+  if(P1.flickReq){NET_IN.fl[0]=P1.flickReq;P1.flickReq=0;}if(P1.flickReqY){NET_IN.fl[1]=P1.flickReqY;P1.flickReqY=0;}
+  NET.inT-=dt*1000;if(NET.inT>0)return;NET.inT+=1000/NET_IN_HZ;if(NET.inT<0)NET.inT=0;
+  const h={};for(const k of NET_HELD)if(I[k])h[k]=1;
+  const pr={};for(const k in NET_IN.pr)pr[k]=1;
+  const m={t:'in',n:++NET.seq,x:+(I.x||0).toFixed(3),z:+(I.z||0).toFixed(3),lx:+(I.lookX||0).toFixed(2),ly:+(I.lookY||0).toFixed(2),h,pr,yaw:+P1.cam.yaw.toFixed(4),pitch:+P1.cam.pitch.toFixed(4)};
+  if(NET_IN.fl[0]||NET_IN.fl[1])m.fl=NET_IN.fl.slice();
+  NET_IN.pr={};NET_IN.fl[0]=NET_IN.fl[1]=0;
+  NET.tr.send(m,NET.host);
+}

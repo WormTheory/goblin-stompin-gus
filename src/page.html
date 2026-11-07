@@ -83,7 +83,16 @@
         <button class="big coop" id="playCoop">Co-op</button>
         <button class="big alt" id="newWorld">New city</button>
         <button class="big alt" id="testWorld">Testing Environment</button>
+        <button class="big alt" id="onlineBtn" type="button" aria-expanded="false" aria-controls="onlinePanel">Play online</button>
         <button class="big full" id="fullBtn" type="button">Full screen</button>
+      </div>
+      <div class="online" id="onlinePanel" hidden>
+        <div class="on-h">Play online <small>Two players over the internet: one hosts their city, the other joins it with the room code. The host's browser runs the game, so the host's computer should be the quicker one.</small></div>
+        <div class="on-row"><button type="button" class="on-b" id="netHost">Host a game</button><span class="on-or">or</span><input type="text" id="netCode" class="on-code-in" maxlength="8" placeholder="Room code" autocomplete="off" spellcheck="false" aria-label="Room code"><button type="button" class="on-b" id="netJoin">Join</button></div>
+        <div class="on-code" id="netCodeShow" hidden></div>
+        <label class="on-loc"><input type="checkbox" id="netLocal"> Two tabs of this browser (for trying it out on one computer)</label>
+        <div class="note on-st" id="netStatus" role="status"></div>
+        <button type="button" class="on-b on-leave" id="netLeave" hidden>Leave the online game</button>
       </div>
       <div class="hostmain"><div class="hostlbl">Enemy hostility<small id="hostMainTxt"></small></div>
       <div class="crow"><input type="range" id="hostMain" class="vrange" min="0" max="2" step="1" value="2" aria-label="Enemy hostility"><span class="vval" id="hostMainVal">Normal</span></div></div>

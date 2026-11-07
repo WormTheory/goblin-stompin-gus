@@ -30,7 +30,7 @@ function vehBlast(x,y,z,R,vd,own){
 // and sets the place alight
 function airCrash(x,y,z,R,cause){
   crushBall(x,y,z,R,{force:1.6,up:1.4});foeBoom(x,y,z,R*1.7,10,cause,null,0,120);
-  const bl=blasts[blastIdx++%blasts.length];bl.t=0.9;bl.s=R*0.6;for(const f of bl.m){f.position.set(x,y+1,z);f.visible=true;}
+  blastFx(x,y+1,z,0.9,R*0.6);
   smoke(x,y+1,z,30,0x1e1e1e);for(let k=0;k<14;k++)puff(x,y+1,z,1,Math.random()<.5?0xff8a2a:0xffc040,R*0.4);
   {const g=supportAt(x,z,y+2);addFire(x,g===null?y:g,z,R*0.6,40);}
   if(audio){noise(1.4,1,350,'lowpass');tone('sawtooth',60,14,1.6,0.32);}addShake(1.4,x,z,R*14);

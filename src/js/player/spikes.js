@@ -109,7 +109,7 @@ const POUND_BONUS=[0,9,20],CRASH_T=0.5,DODGE_TAP=0.2;   // (a press of the tramp
 // the blast long jump's take-off: a fireball out of his backside that throws him forward
 function blastOff(p,hx,hz,A=AB.blastJump,k=1){
   const x=p.pos.x-hx*1.6,y=p.pos.y+0.8*ES,z=p.pos.z-hz*1.6;
-  if(!SBX){const bl=blasts[blastIdx++%blasts.length];bl.t=0.45*k;bl.s=1.5*k;for(const f of bl.m){f.position.set(x,y,z);f.visible=true;}
+  if(!SBX){blastFx(x,y,z,0.45*k,1.5*k);
     smoke(x,y,z,16,0x2a2622);puff(x,p.pos.y,z,14,0x6a5a48,1.6);
     for(let i=0;i<26;i++)emit(2,x+(Math.random()-.5)*1.2,y+(Math.random()-.5)*1.2,z+(Math.random()-.5)*1.2,Math.random()<0.5?0xffb040:0xff6020,0.18,0.18,0.18,{force:3,dx:-hx,dz:-hz,up:1.2});
     shockCone(p.pos.x,y,p.pos.z,Math.atan2(hx,hz),2.6*k,6*k,0.45);}

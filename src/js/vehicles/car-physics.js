@@ -127,4 +127,7 @@ const DEB_PAINTED=[1,1,1,1,0,0,0,0,0,0,0,1];
 for(let s=0;s<3;s++)DEB_SIZES.forEach((sz,i)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(sz[0],sz[1],sz[2]),new THREE.MeshLambertMaterial({color:[0,0,0,0,CARC.tire,CARC.tire,CARC.tire,CARC.tire,CARC.glass,CARC.stripe,CARC.bumper,0][i]}));m.visible=false;scene.add(m);debris.push({m,v:new V3(),spin:new V3(),life:0,painted:DEB_PAINTED[i]});});
 const blasts=[];
 for(let i=0;i<3;i++){const pair=[0xff8a2a,0xffd75a].map(col=>{const m=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:col,transparent:true,fog:false}));m.visible=false;scene.add(m);return m;});blasts.push({m:pair,t:0});}
-let blastIdx=0;const wrecks=[];
+let blastIdx=0;
+// a fireball's flash, a blast of t seconds at scale s (one function, so a guest playing online sees the same ones)
+function blastFx(x,y,z,t,s){const bl=blasts[blastIdx++%blasts.length];bl.t=t;bl.s=s;for(const f of bl.m){f.position.set(x,y,z);f.visible=true;}}
+const wrecks=[];

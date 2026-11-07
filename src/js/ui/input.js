@@ -30,6 +30,7 @@ function lockFailed(){if(!lockOk&&++lockFails>=3)dragMode=true;}
 const mouseNeedsClick=()=>playing&&!menuOpen&&!P1.paused&&!DT.kbdOpen&&!dragMode&&!touchMode&&!locked()&&(inputKind!=='pad'||performance.now()-mouseMoveT<3000);
 let hintTime=0;
 function startPlay(mode,fromPad){
+  if(netOn()&&P2.net)mode='net';   // (online, player two's seat is someone else's: Play just carries on)
   if(mode==='coop'){coop=true;activateP2();}
   else if(mode==='solo'){coop=false;deactivateP2();}
   menuOpen=false;for(const p of players){p.paused=false;p.ui.ppause.hidden=true;}
@@ -113,7 +114,7 @@ function readInputs(dt){
   P1.pad=null;P2.pad=null;let s1=null,s2=null;
   if(coop&&P2.active){if(st.length>=2){s1=st[0];s2=st[1];}else s2=st[0]||null;}
   else{s1=st[0]||null;s2=st[1]||null;}
-  if(s1)P1.pad=s1.p;if(s2&&P2.active)P2.pad=s2.p;
+  if(s1)P1.pad=s1.p;if(s2&&P2.active&&!P2.net)P2.pad=s2.p;
   P2.ui.join.hidden=!(P2.active&&!P2.pad);
   for(const p of players){const i=p.in;i.x=0;i.z=0;i.charge=false;i.chargePress=false;i.stomp=false;i.bite=false;i.bitePress=false;i.jumpPress=false;i.jump=false;i.lockPress=false;i.dash=false;i.dashPress=false;i.sprint=false;i.sprintPress=false;i.lookX=0;i.lookY=0;i.climb=false;i.use=false;i.weapon=false;}
   // (rebinding a control in the menu: the next button pressed on any controller is the one)
@@ -150,7 +151,7 @@ function readInputs(dt){
     else if(s.pr[3]){pause();break;}
   }
   if(menuOpen){mTap.clear();return;}
-  if(!P2.active&&s2&&(s2.pr[9]||s2.pr[0])){coop=true;activateP2();P2.pad=s2.p;skip.add(P2);}
+  if(!P2.active&&!netOn()&&s2&&(s2.pr[9]||s2.pr[0])){coop=true;activateP2();P2.pad=s2.p;skip.add(P2);}
   const I=P1.in;
   if(!P1.paused){
     const A={};for(const a of ACTS){const h=kbAct(a.id);A[a.id]=h;A[a.id+'P']=h&&!kbPrevA[a.id];kbPrevA[a.id]=h;}
@@ -180,7 +181,7 @@ function readInputs(dt){
     i.bitePress=i.bitePress||pp('bite');
   };
   if(DT.menu&&DT.kbdOpen){const I=P1.in;for(const k in I)if(typeof I[k]==='boolean')I[k]=false;I.x=I.z=0;}
-  apply(P1,s1);if(P2.active)apply(P2,s2);
+  apply(P1,s1);if(P2.active&&!P2.net)apply(P2,s2);
   for(const p of players)p.in.chargeHeld=p.in.charge;
   if(DT.freecam&&!P1.paused)updateFreecam(dt,s1);
   if(!ABIL.climb)for(const p of players)p.in.climb=false;

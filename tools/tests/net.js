@@ -1,0 +1,116 @@
+// Online co-op: a host and a guest, each a whole game in its own sandbox (its own globals, storage and Math.random),
+// joined by an in-memory transport that passes every message through JSON, as a network would. Checks the guest builds
+// the host's world from its save, the guest's controls move its hippo on the host, snapshots arrive and are shown,
+// smashing on the host smashes the same blocks on the guest, and both ends cope with the other going away.
+// (The stubs are the standard header's, taken from dead6.js, so this keeps up with it.)
+const fs=require('fs'),vm=require('vm');
+const src0=fs.readFileSync('g.js','utf8');
+const d6=fs.readFileSync('dead6.js','utf8');
+const stubs=d6.slice(d6.indexOf('const deep='),d6.indexOf('\neval(src);'));
+const src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={frame,players,P1,P2,NET,NETM,netHostWith,netJoinWith,netClose,netEnd,crush,get,goblins,cars,keys,ABIL,fires,setGobP,'+
+  'get seed(){return seed},get edits(){return edits},get menuOpen(){return menuOpen},get saveBlocked(){return saveBlocked},chunks,ckey,CS,G};})();');
+if(src===src0)throw new Error('closing line not found');
+const store=init=>{const m=new Map(Object.entries(init||{}));return{getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,String(v)),removeItem:k=>m.delete(k),get _m(){return m}};};
+// one game: seed for its Math.random, its localStorage and sessionStorage contents
+function game(name,rseed,ls,ss){
+  const timers=[];let clock=1000;
+  const ctx={console,crypto:require('crypto').webcrypto,TextEncoder,structuredClone,
+    performance:{now:()=>clock},setTimeout:(f,ms)=>{timers.push({f,at:clock+(ms||0)});return timers.length;},clearTimeout(){},setInterval:()=>0,clearInterval(){},
+    __LS:store(ls),__SS:store(ss)};
+  vm.createContext(ctx);
+  const head='var global=globalThis;let __s='+rseed+';Math.random=()=>{__s=(__s*16807)%2147483647;return (__s-1)/2147483646;};\n'+stubs+
+    '\nglobal.localStorage=__LS;global.sessionStorage=__SS;global.location={reload(){}};\n';
+  vm.runInContext(head+src,ctx,{filename:name+'.js'});
+  const T=ctx.__t,g={name,T,ctx,LS:ctx.__LS,SS:ctx.__SS,reloads:0};
+  g.step=n=>{for(let i=0;i<n;i++){clock+=16.7;g.now=clock;for(let k=timers.length-1;k>=0;k--)if(timers[k].at<=clock){const t=timers.splice(k,1)[0];try{t.f();}catch(e){}}T.frame(clock);hub.pump();}};
+  g.play=()=>{for(const f of ctx.document.getElementById('play').L.click)f();};
+  T.NET.onReload=()=>{g.reloads++;};
+  T.NET.makeTr=()=>hub.make();
+  return g;
+}
+// the network: messages wait in a queue until pumped, and go through JSON on the way
+const hub={ts:[],q:[],sent:0,bytes:0,
+  make(){const T={kind:'mem',self:'m'+this.ts.length,on:{},open:true,
+      send:(d,to)=>{if(!T.open)return;const s=JSON.stringify(d);hub.sent++;hub.bytes+=s.length;hub.q.push({from:T.self,to:to||null,s});},
+      close:()=>{if(!T.open)return;T.open=false;for(const o of hub.ts)if(o!==T&&o.open)hub.q.push({leave:T.self,to:o.self});}};
+    for(const o of this.ts)if(o.open){this.q.push({join:T.self,to:o.self});this.q.push({join:o.self,to:T.self});}
+    this.ts.push(T);return T;},
+  pump(){let n=0;while(this.q.length&&n++<10000){const m=this.q.shift();
+    for(const T of this.ts){if(!T.open||T.self===m.from)continue;if(m.to&&m.to!==T.self)continue;
+      if(m.join){if(T.on.join)T.on.join(m.join);}else if(m.leave){if(T.on.leave)T.on.leave(m.leave);}else if(T.on.msg)T.on.msg(m.from,JSON.parse(m.s));}}}};
+const f2=v=>(+v).toFixed(2),ok=b=>b?'ok':'BAD';
+const SEED=+(process.env.SEED||1);
+
+const yieldNow=()=>new Promise(r=>setImmediate(r));   // (lets an awaited connection finish, as a browser would between frames)
+(async()=>{
+// ---- the host: its own city, playing ----
+const H=game('host',SEED,{});H.play();H.step(120);
+const HT=H.T;console.log('host seed',HT.seed,'P1 at',f2(HT.P1.pos.x),f2(HT.P1.pos.y),f2(HT.P1.pos.z));
+// smash something before anyone joins, so the save has edits in it
+{const p=HT.P1.pos,x=Math.floor(p.x)+6,z=Math.floor(p.z);HT.crush(x,HT.G+1,z,2,-1,3);}
+H.step(10);
+console.log('host edits before join',Object.keys(HT.edits).length);
+HT.netHostWith(hub.make(),'TESTA','mem');
+console.log('hosting',HT.NET.mode===1?'yes':'no','status:',HT.NET.status);
+
+// ---- a guest with a different city: joins, gets the host's world, reloads into it ----
+const G1=game('guest1',SEED+977,{});G1.step(30);
+console.log('guest city seed before joining',G1.T.seed,'(different from the host:',ok(G1.T.seed!==HT.seed)+')');
+G1.T.netJoinWith(hub.make(),'TESTA','mem');
+for(let i=0;i<20&&!G1.reloads;i++){G1.step(1);H.step(1);}
+console.log('guest asked to reload into the host world',ok(G1.reloads===1),'kept in session storage',ok(!!G1.SS.getItem('gsg-net-world')),'local save untouched',ok(!G1.LS.getItem('goblin-city-v95')||JSON.parse(G1.LS.getItem('goblin-city-v95')).seed!==HT.seed));
+H.step(5);console.log('host seat free again after the guest went to reload',ok(!HT.P2.active));
+
+// ---- the same tab after its reload: session storage carried over, the rest as it was ----
+const G=game('guest',SEED+977,Object.fromEntries(G1.LS._m),Object.fromEntries(G1.SS._m));
+const GT=G.T;
+console.log('reloaded guest builds the host world: seed',GT.seed,ok(GT.seed===HT.seed),'edits',Object.keys(GT.edits).length,ok(Object.keys(GT.edits).length===Object.keys(HT.edits).length),'saving blocked',ok(GT.saveBlocked));
+for(let i=0;i<60&&!GT.NET.joined;i++){G.step(1);H.step(1);await yieldNow();}
+if(process.env.DBG)console.log('dbg',GT.NET.mode,GT.NET.status,HT.NET.status);
+console.log('guest joined',ok(GT.NET.joined),'seat',GT.NET.seat,'playing',ok(!GT.menuOpen),'host has player two',ok(HT.P2.active&&!!HT.P2.net));
+for(let i=0;i<60;i++){H.step(1);G.step(1);}
+console.log('messages so far',hub.sent,'bytes',hub.bytes,'(about',Math.round(hub.bytes/((hub.sent||1))),'a message)');
+// the guest's view: its own hippo where the host has player two, the host's hippo as its P2
+const d=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y,a.z-b.z);
+console.log('guest P1 vs host P2',f2(d(GT.P1.pos,HT.P2.pos)),'guest P2 vs host P1',f2(d(GT.P2.pos,HT.P1.pos)),ok(d(GT.P1.pos,HT.P2.pos)<1.5&&d(GT.P2.pos,HT.P1.pos)<1.5));
+console.log('hp shown',GT.P1.hp,'state',GT.P1.state,'host P2',HT.P2.hp,HT.P2.state);
+// goblins and cars mirrored
+{const hg=HT.goblins.filter(g=>g.root.visible&&Math.hypot(g.root.position.x-HT.P2.pos.x,g.root.position.z-HT.P2.pos.z)<170).length,gg=[...GT.NETM.g.values()].filter(g=>g.root.visible).length;
+ const hc=HT.cars.filter(c=>c.g.visible&&Math.hypot(c.g.position.x-HT.P2.pos.x,c.g.position.z-HT.P2.pos.z)<220).length,gc=[...GT.NETM.c.values()].filter(c=>c.g.visible).length;
+ const own=GT.goblins.filter(g=>!g.net&&g.root.visible).length;
+ console.log('goblins shown host',hg,'guest',gg,'| vehicles host',hc,'guest',gc,'| guest\'s own goblins out',own,ok(own===0));}
+
+// ---- the guest's controls: hold forward on its controller and turn the camera ----
+{const pads=G.ctx.navigator.getGamepads();const before={x:HT.P2.pos.x,y:HT.P2.pos.y,z:HT.P2.pos.z},h1={x:HT.P1.pos.x,y:HT.P1.pos.y,z:HT.P1.pos.z};
+ GT.P1.cam.yaw=HT.P2.cam.yaw+0.5;
+ pads[0].axes[1]=-1;for(let i=0;i<90;i++){G.step(1);H.step(1);}pads[0].axes[1]=0;
+ const moved=d(HT.P2.pos,before);
+ console.log('guest held forward 1.5 s: host P2 moved',f2(moved),ok(moved>3),'camera yaw passed on',ok(Math.abs(HT.P2.cam.yaw-GT.P1.cam.yaw)<0.01),'host P1 stayed',f2(d(HT.P1.pos,h1)),ok(d(HT.P1.pos,h1)<0.5));
+ for(let i=0;i<20;i++){G.step(1);H.step(1);}
+ console.log('guest sees itself there',f2(d(GT.P1.pos,HT.P2.pos)),ok(d(GT.P1.pos,HT.P2.pos)<1.5));
+ // a press: jump
+ const y0=HT.P2.pos.y;pads[0].buttons[0].pressed=true;G.step(1);pads[0].buttons[0].pressed=false;let top=y0;
+ for(let i=0;i<30;i++){G.step(1);H.step(1);top=Math.max(top,HT.P2.pos.y);}
+ console.log('guest tapped jump: host P2 rose',f2(top-y0),ok(top-y0>1));}
+
+// ---- smashing on the host: the same blocks go on the guest ----
+{const p=HT.P2.pos,x=Math.floor(p.x)+4,z=Math.floor(p.z)+4,y=HT.G+1;
+ const before=Object.keys(HT.edits).length;HT.crush(x,y,z,3,-1,4);const changed=Object.keys(HT.edits).filter(k=>!(k in GT.edits));
+ for(let i=0;i<30;i++){H.step(1);G.step(1);}
+ let same=0,diff=0;for(const k of Object.keys(HT.edits)){const [a,b,c]=k.split(',').map(Number);if(HT.get(a,b,c)===GT.get(a,b,c))same++;else diff++;}
+ console.log('crush on the host: new edits',Object.keys(HT.edits).length-before,'blocks the same on the guest',same,'different',diff,ok(diff===0&&Object.keys(HT.edits).length>before));}
+
+// ---- a guest goblin (Gnash) seat: switching kind on the host shows on the guest ----
+{HT.setGobP(HT.P1,true);for(let i=0;i<20;i++){H.step(1);G.step(1);}console.log('host turned goblin: guest P2 is a goblin',ok(GT.P2.gob===true));HT.setGobP(HT.P1,false);for(let i=0;i<20;i++){H.step(1);G.step(1);}}
+
+// ---- the guest leaves: the host plays on alone ----
+GT.netEnd();for(let i=0;i<10;i++){H.step(1);G.step(1);}
+console.log('guest left: host P2 gone',ok(!HT.P2.active&&!HT.P2.net),'host still hosting',ok(HT.NET.mode===1),'guest went home (reload)',ok(G.reloads===1&&!G.SS.getItem('gsg-net-join')));
+// ---- another guest joins, then the host stops: the guest is told and goes home ----
+const G3=game('guest3',SEED+977,Object.fromEntries(G1.LS._m),Object.fromEntries(G1.SS._m));
+for(let i=0;i<60&&!G3.T.NET.joined;i++){G3.step(1);H.step(1);await yieldNow();}
+console.log('a guest rejoins',ok(G3.T.NET.joined&&HT.P2.active));
+HT.netEnd();for(let i=0;i<10;i++){H.step(1);G3.step(1);}
+console.log('host stopped: guest left the game',ok(G3.T.NET.mode===0&&G3.reloads===1),'host solo',ok(!HT.P2.active&&HT.NET.mode===0));
+console.log('done');
+})();

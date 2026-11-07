@@ -160,6 +160,8 @@ function setGob(on,p2){
   renderTime();
 }
 function updatePlayer(p,dt){
+  // (a player online keeps the abilities switched on in their own browser: theirs, for their own step)
+  if(p.abil&&!p.gob&&!SBX){const A0=Object.assign({},ABIL);Object.assign(ABIL,p.abil);try{return movePlayer(p,dt);}finally{Object.assign(ABIL,A0);}}
   if(!p.gob||SBX)return movePlayer(p,dt);
   if(drvTick(p,dt))return;   // (in a vehicle: it does the moving. See drvTick)
   gobArmsTick(p,dt);   // (grenades and the weapon button: see gob-weapons.js)

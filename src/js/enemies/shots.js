@@ -52,7 +52,7 @@ function shot(o){
 // a blast: the flash, smoke and noise, everyone near it hurt (less at the edge) and thrown, goblins too, maybe a crater
 // (vd: the harm to vehicles at the middle, by default six times what it does to you; own: a vehicle it spares)
 function foeBoom(x,y,z,R,dmg,cause,by,crush,vd,own){
-  const bl=blasts[blastIdx++%blasts.length];bl.t=0.5;bl.s=R*0.3;for(const f of bl.m){f.position.set(x,y+0.5,z);f.visible=true;}
+  blastFx(x,y+0.5,z,0.5,R*0.3);
   smoke(x,y+0.5,z,6+Math.round(R*2),0x2e2e2e);puff(x,y,z,8,0xff8a2a,0.6);
   if(audio){noise(0.7,0.5,500,'lowpass');tone('sawtooth',90,24,0.7,0.16);}addShake(0.25+R*0.08,x,z,R*8);
   for(const q of players){if(!q.active||q.state==='dead')continue;const dx=q.pos.x-x,dz=q.pos.z-z,dy=q.pos.y+1-y,d3=Math.hypot(dx,dz,dy);if(d3>R)continue;

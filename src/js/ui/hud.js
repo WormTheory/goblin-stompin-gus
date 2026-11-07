@@ -12,6 +12,10 @@ function updateHealth(p,dt){
       flashLabel(!p.gob&&!p.who?'A new Gus rises':charName(p)+' is back',p);
     }
   } else if(playing){p.regenT+=dt;if(p.regenT>6&&p.hp<20){p.hp++;p.regenT=4.5;}}
+  healthHud(p,dt);
+}
+// (the hearts, stamina and stomp meters, drawn from what the player's like now: all a guest online does, the host's game doing the rest)
+function healthHud(p,dt){
   p.ui.stamFill.style.width=p.stam.toFixed(0)+'%';p.ui.stam.classList.toggle('tired',p.exhausted);
   const winding=p.state==='windup'&&stompCap()>0||p.state==='pound'&&p.pHover;p.ui.smeter.hidden=!winding;
   if(winding){
@@ -24,10 +28,10 @@ function updateHealth(p,dt){
 }
 let split='none';
 function layout(){
-  const two=P1.active&&P2.active,w=innerWidth,h=innerHeight;
+  const two=P1.active&&P2.active&&!P2.net,w=innerWidth,h=innerHeight;   // (online, the other player is on a screen of their own)
   split=two?(w>=h?'lr':'tb'):'none';
   const set=(el,l,t,ww,hh)=>{el.style.left=l+'px';el.style.top=t+'px';el.style.width=ww+'px';el.style.height=hh+'px';};
-  P1.ui.view.hidden=!P1.active;P2.ui.view.hidden=!P2.active;
+  P1.ui.view.hidden=!P1.active;P2.ui.view.hidden=!P2.active||!!P2.net;
   if(split==='none'){set(P1.ui.view,0,0,w,h);divider.hidden=true;}
   else if(split==='lr'){set(P1.ui.view,0,0,w/2,h);set(P2.ui.view,w/2,0,w/2,h);set(divider,w/2-1,0,2,h);divider.hidden=false;}
   else{set(P1.ui.view,0,0,w,h/2);set(P2.ui.view,0,h/2,w,h/2);set(divider,0,h/2-1,w,2);divider.hidden=false;}

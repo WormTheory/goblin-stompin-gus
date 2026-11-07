@@ -76,5 +76,8 @@ core/loop.js
 ui/minimap.js
 render/far-city.js
 render/daynight.js
+net/net-core.js
+net/net-sync.js
+net/net-ui.js
 core/new-city.js
 core/testing-env.js

@@ -4,7 +4,7 @@ const RIDE_HP={car:40,gond:30,wheel:250,carousel:120};
 const ridePr=(T,i,hx,hz,hy)=>({isTrain:true,isPlane:true,alive:true,pos:new V3(),kv:new V3(),vy:0,spinP:0,spinR:0,speed:0,hurt:0,hx,hz,hy,heading:0,top:0,veh:'plane',T,i});
 const rideDark=g=>g.traverse(o=>{if(o.isMesh)o.material=TRM.dark;});
 function rideBang(x,y,z,s,T,r,n,cause){
-  const bl=blasts[blastIdx++%blasts.length];bl.t=0.6;bl.s=s;for(const f of bl.m){f.position.set(x,y,z);f.visible=true;}smoke(x,y,z,8+Math.round(s*6),0x262626);
+  blastFx(x,y,z,0.6,s);smoke(x,y,z,8+Math.round(s*6),0x262626);
   for(let k=0;k<6;k++){const d=debris[(debrisIdx++)%debris.length];d.m.position.set(x+(Math.random()-.5)*2,y+Math.random(),z+(Math.random()-.5)*2);d.v.set((Math.random()-.5)*16,8+Math.random()*10,(Math.random()-.5)*16);d.spin.set((Math.random()-.5)*12,(Math.random()-.5)*12,(Math.random()-.5)*12);d.life=25;d.m.visible=true;}
   noise(1,1,600,'lowpass');tone('sawtooth',60,18,1.2,0.3);addShake(0.3+s*0.3,x,z,40);hitGoblins(x,z,r,n,cause,y);
   for(const pr of trainsNear(x,z,r,y-r,y+r))if(pr.T!==T)trainHit(pr.T,n,null,pr.i);   // (and whatever else is close: a train of them can go up together)
@@ -161,7 +161,7 @@ function planeStrike(pl,v){
 function planeHit(pl,n){
   if(pl.dead)return;const g=pl.g,p=g.position;dmgPop(p.x,p.y+5,p.z,Math.round(n),'#ffb04a');pl.hp-=n;vHitFx(p.x,p.y+2.5,p.z,n);if(pl.hp>0)return;
   pl.dead=true;pl.deadT=0;
-  const bl=blasts[blastIdx++%blasts.length];bl.t=0.8;bl.s=2.4;for(const f of bl.m){f.position.set(p.x,p.y+3,p.z);f.visible=true;}smoke(p.x,p.y+3,p.z,26,0x262626);
+  blastFx(p.x,p.y+3,p.z,0.8,2.4);smoke(p.x,p.y+3,p.z,26,0x262626);
   for(let k=0;k<10;k++){const d=debris[(debrisIdx++)%debris.length];d.m.position.set(p.x+(Math.random()-.5)*8,p.y+2+Math.random()*2,p.z+(Math.random()-.5)*12);d.v.set((Math.random()-.5)*20,8+Math.random()*12,(Math.random()-.5)*20);d.spin.set((Math.random()-.5)*12,(Math.random()-.5)*12,(Math.random()-.5)*12);d.life=25;d.m.visible=true;}
   g.traverse(o=>{if(o.isMesh){o.userData.mat=o.userData.mat||o.material;o.material=TRM.dark;}});
   noise(1.2,1,500,'lowpass');tone('sawtooth',70,16,1.4,0.32);addShake(1,p.x,p.z,50);hitGoblins(p.x,p.z,12,10,'Blown up with a plane',p.y+1);
@@ -172,7 +172,7 @@ function planeWreck(pl,V,dt){
   const g=pl.g,p=g.position;pl.deadT+=dt;
   if(pl.fall){pl.vy-=26*dt;pl.fv*=1-dt*.25;const h=g.rotation.y;p.x+=Math.sin(h)*pl.fv*dt;p.z+=Math.cos(h)*pl.fv*dt;p.y+=pl.vy*dt;g.rotation.x=Math.min(.7,g.rotation.x+dt*.4);g.rotation.z+=dt*.5;if(Math.random()<dt*20)smoke(p.x,p.y+3,p.z,2,0x262626);
     const gy=groundAt(p.x,p.z,p.y+2);if(p.y<=gy||p.y<=G+1){p.y=Math.max(gy,G+1);pl.fall=false;g.rotation.x=0;g.rotation.z=.2;airCrash(p.x,p.y,p.z,8,'Flattened by a falling plane');
-      const bl=blasts[blastIdx++%blasts.length];bl.t=0.8;bl.s=2.4;for(const f of bl.m){f.position.set(p.x,p.y+2,p.z);f.visible=true;}smoke(p.x,p.y+2,p.z,26,0x262626);noise(1.4,1,400,'lowpass');addShake(1.2,p.x,p.z,60);hitGoblins(p.x,p.z,14,14,'Flattened by a falling plane',p.y+1);}}
+      blastFx(p.x,p.y+2,p.z,0.8,2.4);smoke(p.x,p.y+2,p.z,26,0x262626);noise(1.4,1,400,'lowpass');addShake(1.2,p.x,p.z,60);hitGoblins(p.x,p.z,14,14,'Flattened by a falling plane',p.y+1);}}
   else if(Math.random()<dt*3)smoke(p.x,p.y+3,p.z,2,0x262626);
   // (a new one's been brought in, once no one's looking)
   if(pl.deadT>120&&!players.some(q=>q.active&&Math.hypot(p.x-q.pos.x,p.z-q.pos.z)<350)){pl.dead=false;pl.free=null;pl.hp=PLANE_HP;g.traverse(o=>{if(o.isMesh&&o.userData.mat)o.material=o.userData.mat;});g.rotation.set(0,0,0);if(pl===V.pl[0])V.path=null;}

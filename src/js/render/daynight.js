@@ -110,7 +110,10 @@ function frame(now){
   if(menuOpen&&curTab==='dev'){safe('dev',()=>devTick(dt));safe('devfo',()=>devFoTick(dt));safe('devst',()=>stTick(dt));}
   if(TS.search)safe('tenv',tenvTick);
   readInputs(dt);
-  playing=!menuOpen&&players.some(p=>p.active&&!p.paused);
+  safe('net',()=>netTick(now,dt));   // (online: a guest's controls into its seat on the host; a guest's own sent on)
+  // (online the city never stops for one player's menu: the others are still playing)
+  playing=!menuOpen&&players.some(p=>p.active&&!p.paused)||netHost()&&NET.guests.size>0||netGuest()&&NET.joined;
+  const netG=netGuest()&&NET.joined;if(netG){safe('net',()=>netGuestFrame(dt));safe('dress',()=>netGuestDress(dt));}
   // game time: scaled by the debug speed (0 when paused, or one 60th of a second for a single step), and cut
   // into short steps so a fast setting doesn't make things tunnel through walls
   // Paused (the menu open, or every hippo paused in co-op) the city stops dead, the same as the debug menu's Stop
@@ -121,6 +124,7 @@ function frame(now){
   {const frozen=playing&&(DT.paused||SPEEDS[DT.speedI]===0);if(audio){try{if(frozen&&audio.state==='running')audio.suspend();else if(!frozen&&audio.state==='suspended'&&audioWanted)audio.resume();}catch(e){}}}
   const nSub=Math.max(1,Math.ceil(gdt/0.05)),sdt=gdt/nSub;
   for(let sI=0;sI<nSub;sI++){
+    if(netG){netGuestStep(sdt);continue;}   // (a guest online: the host's game does the playing, see net/net-sync.js)
     if(sI>0)for(const p of players){const I=p.in;I.jumpPress=I.bitePress=I.lockPress=I.chargePress=I.dashPress=I.sprintPress=false;}
     for(const p of players){DBG_WHO='p';safe('player',()=>updatePlayer(p,sdt));DBG_WHO='n';}
     safe('goblins',()=>updateGoblins(sdt));safe('fireballs',()=>{updateFireballs(sdt);updateShots(sdt);gobPickups(sdt);});safe('cars',()=>updateCars(sdt));safe('stations',()=>updateStations(sdt));safe('services',()=>updateServices(sdt));

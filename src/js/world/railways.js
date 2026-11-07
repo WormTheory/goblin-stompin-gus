@@ -220,7 +220,7 @@ function trainHit(T,n,dir,ci){
   if(T.carHP[ci]>0)return;
   // that car blows up and lies there burning, and the train grinds to a stop; the rest can still be taken apart
   T.carDead[ci]=true;if(!T.halted){T.halted=true;T.deadT=0;T.wait=0;}
-  const g=T.cars[ci],p=g.position,bl=blasts[blastIdx++%blasts.length];bl.t=0.6;bl.s=1.8;for(const f of bl.m){f.position.set(p.x,p.y+2,p.z);f.visible=true;}
+  const g=T.cars[ci],p=g.position;blastFx(p.x,p.y+2,p.z,0.6,1.8);
   smoke(p.x,p.y+2,p.z,18,0x262626);
   for(let k=0;k<6;k++){const d=debris[(debrisIdx++)%debris.length];d.m.position.set(p.x+(Math.random()-.5)*2,p.y+2+Math.random(),p.z+(Math.random()-.5)*6);d.v.set((Math.random()-.5)*16,8+Math.random()*10,(Math.random()-.5)*16);d.spin.set((Math.random()-.5)*12,(Math.random()-.5)*12,(Math.random()-.5)*12);d.life=25;d.m.visible=true;}
   g.traverse(o=>{if(o.isMesh)o.material=TRM.dark;});g.rotation.z=(ci%2?1:-1)*(0.25+Math.random()*0.3);
