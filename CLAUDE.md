@@ -13,6 +13,10 @@ Open the file in a browser to play. The source it's built from is in **`src/`**.
 - **Old versions** are playable from the Patch notes: an older update headed `## Version X` gets a "Play X" link to `<site>/v/X/`, which the Pages workflow builds from the git tag `vX` (`tools/archive_versions.py`, run on every deploy; it warns about a version with no tag). So when a version is released, tag the commit that was pushed (`git tag v0.2 <commit>`) and push the tag with it. Each old copy gets a script that prefixes its localStorage keys with `gsg-vX:`, so old and current saves and settings never mix, and a badge linking back to the latest.
 - If `game/index.html` was changed by hand, the build refuses to overwrite it and says how to carry on. `git diff` skips that file, since its changes are already shown in `src/`; `git diff --text` shows it.
 
+## Branches
+- **Work on `test`, never on `main`.** `test` is where new work is committed, and pushing it (`git push origin test`) updates the test link, `/test/` on the website. `main` is the live release: it only moves when Thomas releases, by bringing `test` into `main` and pushing it himself. Don't make other branches or worktrees.
+- A fix that has to go live before the rest of `test` is a release decision for Thomas. If one is ever made on `main`, merge `main` back into `test` straight away.
+
 ## Ground rules
 - `game/index.html` is the only deliverable: it must stay one file that works when simply opened. The build only joins files, so keep it that way, with no bundler or dependencies.
 - Parody of real brands is welcome and part of the humour (names like "Goblin Walmart"). Draw parody logos rather than copying real artwork.
