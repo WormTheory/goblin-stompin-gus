@@ -1,6 +1,25 @@
 # Patch notes
 
-## Version 0.4
+## Version 0.3
+
+### Highlights
+
+- Play online: up to four players in one city over the internet. One hosts, and the others pick the game from the Open games list, or type in its room code for a private game. Find it under Play online on the main menu.
+- Text chat and opt-in voice chat in online games.
+- Two players can share one armed vehicle, one driving and one on the gun.
+- Police draw handguns at range, and every goblin attack has a proper wind-up and strike.
+
+### Online co-op
+
+- The host's city is the one you play in. Joining builds it in your browser without touching your own city, and leaving takes you back to yours.
+- Everything the host's game does shows up for the guest: goblins, traffic, trains, planes, boats, rides, smashed blocks, toppling buildings, fires, dust and sound.
+- Your own hippo moves the moment you press, even on a slow connection, and is nudged back into step with the host's game if the two drift apart.
+- Bites and stomps land on goblins where you saw them, not where they've moved to since.
+- Play Gnash online and you can drive, with the chase camera following you.
+- The host can switch to another tab or window and the game carries on for everyone else, so you can also try it out in two tabs of one browser (tick "Two tabs of this browser" in both).
+- Drop out and you're put straight back in your place when the connection comes back (within half a minute).
+- Each player keeps the abilities switched on in their own browser. The host's hostility setting is the game's, and the world never pauses while you're both in it.
+- If you both pick the same hippo, the guest plays the other one, so you can tell each other apart.
 
 ### Chat and voice chat online
 
@@ -50,24 +69,6 @@
 - On your own, the weapon button switches between the driver's seat and the gun, so you can man a parked technical's gun yourself. If the driver gets out, the gunner can keep shooting from where the vehicle stopped.
 - The gunner's machine gun has a 50-round belt, and the four-wheeler's rifle holds 6 rounds. Both reload by themselves.
 - A goblin under your crosshair is now what vehicle guns aim at, rather than the ground behind it, so shots from a gun mounted off to one side don't miss.
-
-## Version 0.3
-
-### Highlights
-
-- Play online: up to four players in one city over the internet. One hosts and reads out a five-letter room code; the other types it in and joins. Find it under Play online on the main menu.
-
-### Online co-op
-
-- The host's city is the one you play in. Joining builds it in your browser without touching your own city, and leaving takes you back to yours.
-- Everything the host's game does shows up for the guest: goblins, traffic, trains, planes, boats, rides, smashed blocks, toppling buildings, fires, dust and sound.
-- Your own hippo moves the moment you press, even on a slow connection, and is nudged back into step with the host's game if the two drift apart.
-- Bites and stomps land on goblins where you saw them, not where they've moved to since.
-- Play Gnash online and you can drive, with the chase camera following you.
-- The host can switch to another tab or window and the game carries on for everyone else, so you can also try it out in two tabs of one browser (tick "Two tabs of this browser" in both).
-- Drop out and you're put straight back in your place when the connection comes back (within half a minute).
-- Each player keeps the abilities switched on in their own browser. The host's hostility setting is the game's, and the world never pauses while you're both in it.
-- If you both pick the same hippo, the guest plays the other one, so you can tell each other apart.
 
 ## Version 0.2
 
