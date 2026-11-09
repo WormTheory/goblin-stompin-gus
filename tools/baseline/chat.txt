@@ -17,8 +17,14 @@ push to talk: track enabled before false holding T true let go false ok
 talking: the guest's own chip lit ok host sees the guest talking ok
 host mutes the guest: its audio muted ok guest unaffected ok
 guest voice off: mic tracks stopped 1 ok AudioContext closed ok | guest plays nobody ok | host stopped sending to it ok | host drops its audio ok
-microphone refused: voice on false ok | no AudioContext ok | says "The microphone wasn't allowed, so voice chat stays" ok
-no microphone: says "No microphone could be used, so voice ch" ok
+microphone refused: voice on, listening only ok | says "No microphone: listening only. The microphone" ok | host lists it as listening ok | host sends it audio ok | it hears the host ok | it sends nothing ok | its own chip "Gertie (you, listening)" ok
+listener switches off: AudioContext closed ok hears nobody ok host stopped sending to it ok
+no microphone at all: listening only ok says "No microphone: listening only. None coul"
+Listen only ticked, voice off: still no audio work ok kept ok
+voice on, listening only: microphone asked 0 ok | AudioContext made for the host's voice 1 ok | hears the host ok | sends nothing ok
+host talks: its chip lights for the listener ok listener's own chip never lit ok
+listener mutes the host ok | host's chip shows the listener ok
+off again: AudioContext closed ok nothing left ok
 host stops hosting: its voice off ok AudioContext closed ok chat hidden ok chat gone ok
 Gus and Gertie: the same chat and voice code for both (nothing reads p.who but names and colours)
 done

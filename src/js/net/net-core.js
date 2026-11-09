@@ -94,7 +94,7 @@ function netHostMsg(peer,m){
   p.net.heard=NET.now;
   if(m.t==='in')netGotInput(p,m);
   else if(m.t==='chat')chatFromGuest(p,m);
-  else if(m.t==='vo')p.net.vo=!!m.on;   // (a guest switched its voice chat on or off: see vcRosterTick)
+  else if(m.t==='vo'){p.net.vo=!!m.on;p.net.vm=m.mic!==0&&m.mic!==false;}   // (a guest switched its voice chat on or off, with a microphone or listening only: see vcRosterTick)
   else if(m.t==='bye')netHostLeft(peer);
 }
 // a guest asking to join: seat them as player two, if that seat's free (online play is two players: the second split-screen

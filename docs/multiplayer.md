@@ -131,8 +131,8 @@ Every message is a JSON object with a type `t`, so a headless Node server could 
 | either | `bye` | |
 | guest | `chat` | `x` (the line typed) |
 | host | `chat` | `s` (seat), `n` (name), `c` (colour), `x`; or `sys` (a note for that guest only, such as "slow down") |
-| guest | `vo` | `on` (voice chat switched on or off) |
-| host | `vr` | `l`: who's on voice, `[{s, id (transport peer id), n, c, on}]`, the host included |
+| guest | `vo` | `on` (voice chat switched on or off), `mic` (0: listening only) |
+| host | `vr` | `l`: who's on voice, `[{s, id (transport peer id), n, c, on, mic}]`, the host included |
 
 A player in `p`: `s` (seat), `who`, `gob`, `act`, `f` (changed plain values; numbers to 3 places, non-finite ones as
 strings), `pos`, `h`, `pose` (10 numbers a joint: place, turn, scale, shown), `lk` (lock-on target as `['g'|'c', n]`),
@@ -160,7 +160,11 @@ over its data channel) to each player the host's `vr` list says is on (`vcSync`)
 off, so they decode nothing. Remote audio plays through an `Audio` element per player (volume and per-player mute).
 Push to talk (the `talk` action, T and D-pad ←) enables the track only while held; open mic leaves it on. Off
 (`vcOff`, also on leaving the game): the stream's removed from every connection, the tracks stopped, their audio
-transceivers stopped, the AudioContext closed. A refused or missing microphone leaves it off with a note. Between two
+transceivers stopped, the AudioContext closed. Listen only (the Options box, `VC.listen`, saved; or a refused or missing
+microphone, with the note "No microphone: listening only") goes on with no `getUserMedia` at all (`VC.lo`): `vo` and the
+`vr` list carry `mic` (0 for a listener), everyone with a microphone sends to every player on voice, listeners
+included, and a listener sends nothing and hears only those with `mic` (`vcHeard`). Its AudioContext is only made when
+the first voice arrives (`vcCtx`), for the others' speaking chips; its own chip says it's listening and never lights. Between two
 tabs (`netLoopback`, no `av`) there's no voice. Suite `chat` checks all of it with pretend media.
 
 ## Trying it

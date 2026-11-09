@@ -31,6 +31,7 @@
 - Push to talk is the default: hold T (D-pad ← on a controller) to talk. Untick it for an open microphone. Both buttons can be changed in the Controls tab.
 - Little chips at the bottom left show who's on voice and light up while they're talking. You can mute any player just for yourself, and set how loud voices are.
 - You only hear players who have voice chat switched on, and with yours off nobody sends you any sound at all.
+- No microphone? You can still listen. Tick "Listen only" and voice chat never asks for a microphone: you hear everyone who's talking, with their chips lighting up, mute and volume as usual. If your microphone is missing or you don't allow it, voice chat switches to listening only by itself and says "No microphone: listening only".
 - Don't want chat? Untick "Show chat" in Options to hide it altogether, or "Other players' messages" to mute what the others type.
 - Enter can't be picked for other controls any more, as it opens the chat.
 

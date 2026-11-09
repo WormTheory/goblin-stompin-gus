@@ -3,7 +3,7 @@
 // chat never move the hippo, lines are cut to length and only ever put on the page as text, the host's rate limit, the
 // Options switches, and that with voice off nothing asks for the microphone, makes an AudioContext or adds audio to a
 // connection. Then voice on at both ends (with a pretend microphone and connection): each sends to the other, push to
-// talk, a refused microphone, and voice off letting everything go.
+// talk, a refused or missing microphone (listening only), the Listen only box, and voice off letting everything go.
 const fs=require('fs'),vm=require('vm');
 const src0=fs.readFileSync('g.js','utf8');
 const d6=fs.readFileSync('dead6.js','utf8');
@@ -147,11 +147,31 @@ console.log('voice off: microphones asked for',media.gum,ok(media.gum===0),'| Au
  console.log('guest voice off: mic tracks stopped',media.stopped-st0,ok(media.stopped>st0),'AudioContext closed',ok(media.acClosed===cl0+1),'| guest plays nobody',ok(GT.VC.remote.size===0&&!GT.VC.mic),
   '| host stopped sending to it',ok(hub.removes>=2&&HT.VC.sendTo.size===0),'| host drops its audio',ok(HT.VC.remote.size===0));}
 
-// ---- a refused microphone: voice stays off, with a message ----
-{media.deny='NotAllowedError';const a0=media.ac;G.click('vcTog');await yieldNow();await yieldNow();G.step(2);
- console.log('microphone refused: voice on',GT.VC.on,ok(!GT.VC.on&&!GT.VC.busy),'| no AudioContext',ok(media.ac===a0),'| says',JSON.stringify(G.el('vcNote').textContent.slice(0,50)),ok(/wasn't allowed/.test(G.el('vcNote').textContent)));
- media.deny='NotFoundError';G.click('vcTog');await yieldNow();await yieldNow();G.step(2);
- console.log('no microphone: says',JSON.stringify(G.el('vcNote').textContent.slice(0,40)),ok(!GT.VC.on&&/No microphone/.test(G.el('vcNote').textContent)));media.deny=null;}
+// ---- a refused microphone: voice goes on listening only, and still hears the host (who's still talking) ----
+const lst=async n=>{for(let i=0;i<n;i++){G.step(1);H.step(1);if(i<3)await yieldNow();}};
+{media.deny='NotAllowedError';const add0=hub.adds;G.click('vcTog');await yieldNow();await yieldNow();await lst(30);
+ const hr=HT.VC.roster.find(r=>r.id===GT.NET.tr.self);
+ console.log('microphone refused: voice on, listening only',ok(GT.VC.on&&GT.VC.lo&&!GT.VC.mic),'| says',JSON.stringify(G.el('vcNote').textContent.slice(0,45)),ok(/No microphone: listening only/.test(G.el('vcNote').textContent)),
+  '| host lists it as listening',ok(hr&&hr.on&&!hr.mic),'| host sends it audio',ok(hub.adds===add0+1&&HT.VC.sendTo.has(GT.NET.tr.self)),'| it hears the host',ok(GT.VC.remote.size===1),
+  '| it sends nothing',ok(GT.VC.sendTo.size===0),'| its own chip',JSON.stringify(JSON.parse(GT.VC.hudKey)[0].n),ok(/listening/.test(GT.VC.hudKey)));
+ const cl0=media.acClosed;G.click('vcTog');await lst(20);
+ console.log('listener switches off: AudioContext closed',ok(media.acClosed===cl0+1),'hears nobody',ok(GT.VC.remote.size===0),'host stopped sending to it',ok(HT.VC.sendTo.size===0));
+ media.deny='NotFoundError';G.click('vcTog');await yieldNow();await yieldNow();await lst(20);
+ console.log('no microphone at all: listening only',ok(GT.VC.on&&GT.VC.lo&&GT.VC.remote.size===1),'says',JSON.stringify(G.el('vcNote').textContent.slice(0,40)));
+ G.click('vcTog');await lst(10);media.deny=null;}
+
+// ---- Listen only ticked: never asks for the microphone, makes the AudioContext only once a voice arrives ----
+{const g0=media.gum,a0=media.ac,add0=hub.adds;G.click('vcLoTog');await lst(10);
+ console.log('Listen only ticked, voice off: still no audio work',ok(media.gum===g0&&media.ac===a0&&hub.adds===add0&&!GT.VC.on),'kept',ok(G.LS.getItem('gsg-voice-v1').includes('"listen":true')));
+ G.click('vcTog');await lst(30);
+ console.log('voice on, listening only: microphone asked',media.gum-g0,ok(media.gum===g0),'| AudioContext made for the host\'s voice',media.ac-a0,ok(media.ac===a0+1),'| hears the host',ok(GT.VC.remote.size===1),'| sends nothing',ok(GT.VC.sendTo.size===0&&hub.adds===add0+1));
+ media.loud=true;HT.keys.add('KeyT');await lst(10);
+ console.log('host talks: its chip lights for the listener',ok(JSON.parse(GT.VC.hudKey).some(c=>c.talk)),'listener\'s own chip never lit',ok(!JSON.parse(GT.VC.hudKey)[0].talk));
+ HT.keys.delete('KeyT');media.loud=false;
+ const r=[...GT.VC.remote.values()][0];G.el('vcPeers').kids[G.el('vcPeers').kids.length-1].L.click[0]();
+ console.log('listener mutes the host',ok(r.el.muted===true),'| host\'s chip shows the listener',ok(/listening/.test(HT.VC.hudKey)));
+ const cl0=media.acClosed;G.click('vcTog');await lst(10);G.click('vcLoTog');
+ console.log('off again: AudioContext closed',ok(media.acClosed===cl0+1),'nothing left',ok(!GT.VC.on&&!GT.VC.ctx&&GT.VC.remote.size===0));}
 
 // ---- leaving the game lets everything go ----
 {const cl0=media.acClosed;HT.netEnd();for(let i=0;i<10;i++){H.step(1);G.step(1);}
