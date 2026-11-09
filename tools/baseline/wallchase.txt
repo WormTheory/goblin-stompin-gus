@@ -18,3 +18,39 @@
   tower (20 tall)    Gus let go at 15 up: 37 blows after he landed, first 1.6s later goblin got up to 3.1, time on the roof 0.0s
   school (13 tall)   Gus let go at 10 up: 35 blows after he landed, first 1.6s later goblin got up to 3.1, time on the roof 0.0s
   police (20 tall)   Gus let go at 15 up: 37 blows after he landed, first 1.6s later goblin got up to 3.1, time on the roof 0.0s
+  mid (15 tall, Gus 9 up)      corner, low            25 blows, first after 3.2s     on the roof 0.0s top 7.6 lowest 2.0 fell 0.0 on the wall 40.0s
+  mid (15 tall, Gus 8 up)      corner, level          26 blows, first after 2.0s     on the roof 0.0s top 8.0 lowest 8.0 fell 0.0 on the wall 40.0s
+  mid (15 tall, Gus 8 up)      corner, far end        22 blows, first after 7.1s     on the roof 0.0s top 7.8 lowest 2.0 fell 0.0 on the wall 40.0s
+  mid (15 tall, Gus 5 up)      roof, Gus a third up   23 blows, first after 5.7s     on the roof 1.6s top 15.0 lowest 6.3 fell 0.0 on the wall 38.6s
+  mid (15 tall, Gus 11 up)     roof, Gus near the top 24 blows, first after 4.3s     on the roof 2.4s top 15.0 lowest 12.2 fell 0.0 on the wall 37.8s
+  mid (15 tall, Gus 2 up)      roof, Gus low          23 blows, first after 6.8s     on the roof 1.4s top 15.0 lowest 3.2 fell 0.0 on the wall 38.7s
+  mid (15 tall, Gus 5 up)      roof, far corner       21 blows, first after 10.0s    on the roof 5.8s top 15.0 lowest 6.3 fell 0.0 on the wall 34.4s
+  mid (15 tall, Gus 6 up)      roof, Gus edging along 24 blows, first after 5.0s     on the roof 1.2s top 15.0 lowest 7.3 fell 0.0 on the wall 39.0s
+  mid (15 tall, Gus 8 up)      corner, Gus edging along 25 blows, first after 2.8s     on the roof 0.0s top 7.1 lowest 2.0 fell 0.0 on the wall 40.0s
+  tower (20 tall, Gus 12 up)   corner, low            24 blows, first after 4.3s     on the roof 0.0s top 10.5 lowest 2.0 fell 0.0 on the wall 40.0s
+  tower (20 tall, Gus 10 up)   corner, level          26 blows, first after 2.0s     on the roof 0.0s top 10.0 lowest 10.0 fell 0.0 on the wall 40.0s
+  tower (20 tall, Gus 10 up)   corner, far end        22 blows, first after 8.4s     on the roof 0.0s top 9.8 lowest 2.0 fell 0.0 on the wall 40.0s
+  tower (20 tall, Gus 7 up)    roof, Gus a third up   23 blows, first after 6.3s     on the roof 0.9s top 20.0 lowest 8.2 fell 0.0 on the wall 39.2s
+  tower (20 tall, Gus 15 up)   roof, Gus near the top 25 blows, first after 2.6s     on the roof 0.4s top 20.0 lowest 16.3 fell 0.0 on the wall 39.8s
+  tower (20 tall, Gus 3 up)    roof, Gus low          21 blows, first after 8.5s     on the roof 1.6s top 20.0 lowest 4.2 fell 0.0 on the wall 38.5s
+  tower (20 tall, Gus 6 up)    roof, far corner       16 blows, first after 16.9s    on the roof 11.2s top 20.0 lowest 7.3 fell 0.0 on the wall 29.0s
+  tower (20 tall, Gus 8 up)    roof, Gus edging along 23 blows, first after 5.7s     on the roof 0.8s top 20.0 lowest 9.1 fell 0.0 on the wall 39.4s
+  tower (20 tall, Gus 10 up)   corner, Gus edging along 25 blows, first after 3.5s     on the roof 0.0s top 8.6 lowest 2.0 fell 0.0 on the wall 40.0s
+  school (13 tall, Gus 3 up)   corner, low            26 blows, first after 2.0s     on the roof 0.0s top 2.9 lowest 2.0 fell 0.0 on the wall 40.0s
+  school (13 tall, Gus 3 up)   corner, level          26 blows, first after 2.0s     on the roof 0.0s top 3.0 lowest 3.0 fell 0.0 on the wall 40.0s
+  school (13 tall, Gus 3 up)   corner, far end        11 blows, first after 23.8s    on the roof 0.0s top 5.3 lowest 2.0 fell 0.0 on the wall 18.6s
+  school (13 tall, Gus 4 up)   roof, Gus a third up   23 blows, first after 5.9s     on the roof 2.1s top 15.0 lowest 5.3 fell 0.0 on the wall 38.4s
+  school (13 tall, Gus 10 up)  roof, Gus near the top 24 blows, first after 4.2s     on the roof 2.7s top 15.0 lowest 11.3 fell 0.0 on the wall 37.7s
+  school (13 tall, Gus 2 up)   roof, Gus low          23 blows, first after 6.3s     on the roof 1.7s top 14.0 lowest 3.3 fell 0.0 on the wall 38.7s
+  school (13 tall, Gus 4 up)   roof, far corner       23 blows, first after 6.9s     on the roof 3.1s top 16.0 lowest 5.3 fell 0.0 on the wall 37.4s
+  school (13 tall, Gus 5 up)   roof, Gus edging along 24 blows, first after 4.2s     on the roof 0.8s top 13.0 lowest 6.3 fell 0.0 on the wall 39.3s
+  school (13 tall, Gus 3 up)   corner, Gus edging along 25 blows, first after 2.2s     on the roof 0.0s top 2.9 lowest 2.0 fell 0.0 on the wall 40.0s
+  police (20 tall, Gus 12 up)  corner, low            24 blows, first after 4.3s     on the roof 0.0s top 10.5 lowest 2.0 fell 0.0 on the wall 40.0s
+  police (20 tall, Gus 10 up)  corner, level          26 blows, first after 2.0s     on the roof 0.0s top 10.0 lowest 10.0 fell 0.0 on the wall 40.0s
+  police (20 tall, Gus 10 up)  corner, far end        15 blows, first after 18.7s    on the roof 0.0s top 8.5 lowest 0.0 fell 0.0 on the wall 26.3s
+  police (20 tall, Gus 7 up)   roof, Gus a third up   23 blows, first after 6.9s     on the roof 1.6s top 20.0 lowest 8.2 fell 0.0 on the wall 38.6s
+  police (20 tall, Gus 15 up)  roof, Gus near the top 24 blows, first after 4.6s     on the roof 2.4s top 20.0 lowest 16.3 fell 0.0 on the wall 37.8s
+  police (20 tall, Gus 3 up)   roof, Gus low          22 blows, first after 8.3s     on the roof 1.4s top 20.0 lowest 4.2 fell 0.0 on the wall 38.7s
+  police (20 tall, Gus 6 up)   roof, far corner       17 blows, first after 14.9s    on the roof 9.2s top 20.0 lowest 7.3 fell 0.0 on the wall 31.0s
+  police (20 tall, Gus 8 up)   roof, Gus edging along 23 blows, first after 6.1s     on the roof 1.2s top 20.0 lowest 8.7 fell 0.0 on the wall 39.0s
+  police (20 tall, Gus 10 up)  corner, Gus edging along 25 blows, first after 3.5s     on the roof 0.0s top 8.6 lowest 2.0 fell 0.0 on the wall 40.0s

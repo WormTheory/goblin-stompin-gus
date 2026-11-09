@@ -66,8 +66,8 @@ const KINDS=(process.env.KINDS||'market,bigbox,ikea,school,police,hospital,mall,
 const findType=ty=>{for(let r=0;r<200;r++)for(let i=-r;i<=r;i++)for(const [x,z] of [[i,-r],[i,r],[-r,i],[r,i]]){const P=T.plotInfo(x,z);if(P.type===ty&&P.b.length)return {ax:x,az:z};}return null;};
 
 // Gus clinging partway up a wall; a goblin starts on each side of the building (and further off) in turn. Where does it end up?
-const KS=(process.env.WK||'mid,tower,school,police').split(',');
-for(const k of KS){const F=T.stFind(k,0,0);if(!F)continue;const P=T.plotInfo(F.ax,F.az);let b=P.b[0];for(const q of P.b)if((q.x1-q.x0)*(q.z1-q.z0)>(b.x1-b.x0)*(b.z1-b.z0))b=q;
+const KS=(process.env.WK||'mid,tower,school,police').split(',');   // (ONLY=1: just the corner and roof cases at the end)
+for(const k of process.env.ONLY?[]:KS){const F=T.stFind(k,0,0);if(!F)continue;const P=T.plotInfo(F.ax,F.az);let b=P.b[0];for(const q of P.b)if((q.x1-q.x0)*(q.z1-q.z0)>(b.x1-b.x0)*(b.z1-b.z0))b=q;
   const X0=F.ax*CELL,Z0=F.az*CELL,cx=X0+((b.x0+b.x1)>>1),wz=Z0+b.z0-1,y0=groundY(cx,wz),topY=groundY(cx,wz+1,G+150);if(topY-y0<10){console.log(k,'too low');continue;}
   const up=Math.round((topY-y0)/2),to={x:cx+.5,y:y0+up,z:wz+.6};
   const W=b.x1-b.x0,Dp=b.z1-b.z0;
@@ -81,7 +81,7 @@ for(const k of KS){const F=T.stFind(k,0,0);if(!F)continue;const P=T.plotInfo(F.a
     console.log(' ',(k+' ('+(topY-y0)+' tall, Gus '+up+' up)').padEnd(28),name.padEnd(10),h?(h+' blows, first after '+first.toFixed(1)+'s').padEnd(30):'NO BLOWS'.padEnd(30),'time on the roof',roof.toFixed(1)+'s','ended',(gob.pos.x-to.x).toFixed(1),(gob.pos.y-to.y).toFixed(1),(gob.pos.z-to.z).toFixed(1),gob.act?gob.act.k:'');}}
 // Gus lets go partway: the goblin's on the wall below him, he drops to the foot of it. Does it come back down after him, or
 // carry on up to the roof?
-for(const k of KS){const F=T.stFind(k,0,0);if(!F)continue;const P=T.plotInfo(F.ax,F.az);let b=P.b[0];for(const q of P.b)if((q.x1-q.x0)*(q.z1-q.z0)>(b.x1-b.x0)*(b.z1-b.z0))b=q;
+for(const k of process.env.ONLY?[]:KS){const F=T.stFind(k,0,0);if(!F)continue;const P=T.plotInfo(F.ax,F.az);let b=P.b[0];for(const q of P.b)if((q.x1-q.x0)*(q.z1-q.z0)>(b.x1-b.x0)*(b.z1-b.z0))b=q;
   const X0=F.ax*CELL,Z0=F.az*CELL,cx=X0+((b.x0+b.x1)>>1),wz=Z0+b.z0-1,y0=groundY(cx,wz),topY=groundY(cx,wz+1,G+150);if(topY-y0<10)continue;
   const up=Math.round((topY-y0)*0.75),wall={x:cx+.5,y:y0+up,z:wz+.6},foot={x:cx+.5,y:y0,z:wz-1.5};
   T.keys.add('KeyC');const cling=()=>{A.state='climb';A.climbD=[0,1];A.heading=0;A.vy=0;A.pos.set(wall.x,wall.y,wall.z);A.hp=999;};
@@ -94,4 +94,36 @@ for(const k of KS){const F=T.stFind(k,0,0);if(!F)continue;const P=T.plotInfo(F.a
     if(fell){hiAfter=Math.max(hiAfter,gob.pos.y-y0);if(gob.pos.y>topY-0.5)roof+=DT/1000;if(A.hp<999){h++;if(first===null)first=t-ft;}}}
   T.keys.delete('KeyC');A.state='walk';
   console.log(' ',(k+' ('+(topY-y0)+' tall)').padEnd(18),'Gus let go at',up,'up:',fell?(h?h+' blows after he landed, first '+first.toFixed(1)+'s later':'NO BLOWS after he landed').padEnd(42)+' goblin got up to '+hiAfter.toFixed(1)+', time on the roof '+roof.toFixed(1)+'s':'goblin never got on the wall');}
+// Round the corner: Gus clings to the front of the building near one end; the goblin's already partway up the end wall,
+// climbing. Does it come round the corner to him (or down and round), or carry on up to the roof first?
+// And from the roof: the goblin's up top over Gus, who clings lower down the front. Does it climb down to him, or jump off?
+const goPut=(x,y,z,act)=>{gob.state='chase';gob.hp=99;gob.stun=0;gob.indoor=false;gob.civ=false;gob.staff=false;gob.root.visible=true;gob.pos.set(x,y,z);gob.vy=0;gob.t=0;gob.detour=0;gob.kv.set(0,0,0);gob.atk=1;gob.act=act;gob.fallTop=undefined;gob.los=false;gob.losT=0;};
+for(const k of KS){const F=T.stFind(k,0,0);if(!F)continue;const P=T.plotInfo(F.ax,F.az);let b=P.b[0];for(const q of P.b)if((q.x1-q.x0)*(q.z1-q.z0)>(b.x1-b.x0)*(b.z1-b.z0))b=q;
+  const X0=F.ax*CELL,Z0=F.az*CELL,cx=X0+((b.x0+b.x1)>>1),wz=Z0+b.z0-1,y0=groundY(cx,wz),topY=groundY(cx,wz+1,G+150);if(topY-y0<10)continue;
+  for(const [name,frac,setup,edge] of [
+    ['corner, low',0.6,(to)=>{const ex=X0+b.x0-1,ez=Z0+b.z0+3,ey=y0+2,tp=groundY(ex+1,ez,G+150);return [ex+.7,ey,ez+.5,{k:'up',x:ex+.7,z:ez+.5,y1:tp,tx:ex+1.5,tz:ez+.5,f:[1,0],chasing:true}];}],
+    ['corner, level',0.5,(to)=>{const ex=X0+b.x0-1,ez=Z0+b.z0+3,ey=Math.floor(to.y),tp=groundY(ex+1,ez,G+150);return [ex+.7,ey,ez+.5,{k:'up',x:ex+.7,z:ez+.5,y1:tp,tx:ex+1.5,tz:ez+.5,f:[1,0],chasing:true}];}],
+    ['corner, far end',0.5,(to)=>{const ex=X0+b.x1,ez=Z0+b.z0+3,ey=y0+2,tp=groundY(ex-1,ez,G+150);return [ex+.3,ey,ez+.5,{k:'up',x:ex+.3,z:ez+.5,y1:tp,tx:ex-.5,tz:ez+.5,f:[-1,0],chasing:true}];}],
+    ['roof, Gus a third up',0.33,(to)=>{const q=near(cx,topY,wz+4);return q&&[q.x,q.y,q.z,null];}],
+    ['roof, Gus near the top',0.75,(to)=>{const q=near(cx+3,topY,wz+6);return q&&[q.x,q.y,q.z,null];}],
+    ['roof, Gus low',0.15,(to)=>{const q=near(cx-3,topY,wz+3);return q&&[q.x,q.y,q.z,null];}],
+    ['roof, far corner',0.3,(to)=>{const q=near(Math.min(X0+b.x1-2,cx+20),topY,Math.min(Z0+b.z1-2,wz+20));return q&&[q.x,q.y,q.z,null];}],
+    // (Gus edging along the wall a block every second and a half, so the goblin's route is always a moment behind him)
+    ['roof, Gus edging along',0.4,(to)=>{const q=near(cx,topY,wz+3);return q&&[q.x,q.y,q.z,null];},1],
+    ['corner, Gus edging along',0.5,(to)=>{const ex=X0+b.x0-1,ez=Z0+b.z0+3,ey=y0+2,tp=groundY(ex+1,ez,G+150);return [ex+.7,ey,ez+.5,{k:'up',x:ex+.7,z:ez+.5,y1:tp,tx:ex+1.5,tz:ez+.5,f:[1,0],chasing:true}];},1]]){
+    const gx=name.startsWith('corner')?X0+b.x0+1:cx,to={x:gx+.5,y:y0+Math.round((topY-y0)*frac),z:wz+.6};
+    while(to.y>y0+1&&!(T.solidAt(gx,to.y,wz+1)&&T.solidAt(gx,to.y+1,wz+1)))to.y--;   // (somewhere there's wall to cling to, not a window or the gap under the eaves)
+    T.keys.add('KeyC');let ex=0;const cling=()=>{A.state='climb';A.climbD=[0,1];A.heading=0;A.vy=0;A.pos.set(to.x+ex,to.y,to.z);A.hp=999;};
+    for(let i=0;i<30;i++){cling();now+=DT;T.frame(now);}
+    const st=setup(to);if(!st){console.log(' ',k,name,'(no spot)');continue;}const [sx,sy,sz,act]=st;goPut(sx,sy,sz,act);
+    let t=0,h=0,first=null,roof=0,hi=gob.pos.y,drop=0,minY=gob.pos.y,wallT=0,offTop=false;
+    while(t<40){if(edge)ex=[0,1,2,3,2,1][Math.floor(t/1.5)%6];cling();for(const g of T.goblins)if(g!==gob&&g.state==='chase'){g.state='wait';g.t=-1e9;g.root.visible=false;}
+      const yb=gob.pos.y,climbing=gob.act&&(gob.act.k==='up'||gob.act.k==='down');now+=DT;T.frame(now);t+=DT/1000;gob.hp=99;
+      if(gob.state!=='chase'){gob.state='chase';}
+      hi=Math.max(hi,gob.pos.y);minY=Math.min(minY,gob.pos.y);if(gob.pos.y>topY-0.5)roof+=DT/1000;if(climbing)wallT+=DT/1000;
+      if(!gob.act&&yb-gob.pos.y>0.3){drop+=yb-gob.pos.y;if(yb>topY-1)offTop=true;}
+      if(A.hp<999){h++;if(first===null)first=t;}}
+    T.keys.delete('KeyC');A.state='walk';
+    console.log(' ',(k+' ('+(topY-y0)+' tall, Gus '+(to.y-y0)+' up)').padEnd(28),name.padEnd(22),h?(h+' blows, first after '+first.toFixed(1)+'s').padEnd(30):'NO BLOWS'.padEnd(30),
+      'on the roof',roof.toFixed(1)+'s','top',(hi-y0).toFixed(1),'lowest',(minY-y0).toFixed(1),'fell',drop.toFixed(1)+(offTop?' (off the roof)':''),'on the wall',wallT.toFixed(1)+'s');}}
 process.exit(0);

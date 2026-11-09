@@ -122,5 +122,5 @@ water at -1310.5 -579.5 width 17
   swimmer 5 under, goblin on top caught in 3.7s       dist  10 rise  -5 
   swimmer 9 under, goblin on top caught in 3.7s       dist  10 rise  -9 
   swimmer 13 under, goblin on top caught in 4.8s       dist  10 rise -13 
-route map time per frame, ms: mean 0.205 p99 2.59 p99.9 3.67 max 8.05
+route map time per frame, ms: mean 0.179 p99 2.18 p99.9 3.06 max 12.54
 caught 83 of 83 avg 18.2 s; gave up on: none

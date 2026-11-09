@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:83558e1ba66287b11603275bf9b7cadd951ab6d25742764db3599c1a7a470762 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:d4463f6d5c0f1d960e8cf85fe5359ffcd4ff5a33e0d43770fd83fa757e23868c -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -854,6 +854,8 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 <ul><li>Police now carry a handgun in a holster on their belt. Once they've spotted you, they draw it and shoot from 4 to 30 blocks away, then holster it again. Get in close and they swap back to the club.</li><li>They hold it out in both hands and take aim for a moment first, so you can see the shot coming. When it fires, it kicks their wrists up.</li><li>Police who come out fighting after you carjack their car carry one too, and so do the Testing Environment's police officers.</li><li>With enemy hostility turned down, police keep their guns holstered.</li><li>The Dev tab's Enemies viewer has a new "Draw and fire the handgun" animation for police officers.</li><li>Online, guests see the gun drawn and the holster, and now see every bullet's tracer, the rifles' too.</li></ul>
 <h3>Driver and gunner</h3>
 <ul><li>Two goblins can now share one armed vehicle. While one player drives, the other walks up and presses the get-in button to take the gunner's seat. Both local and online co-op work.</li><li>Technicals and four-wheelers: the gunner works the machine gun or the rifle, aiming wherever they look while the driver steers. You see them standing at the gun in the truck bed, or sitting behind the rider.</li><li>Tanks and helicopters: the gunner aims the turret, or the helicopter's gun and rockets, with their own view while the driver steers or flies.</li><li>On your own, the weapon button switches between the driver's seat and the gun, so you can man a parked technical's gun yourself. If the driver gets out, the gunner can keep shooting from where the vehicle stopped.</li><li>The gunner's machine gun has a 50-round belt, and the four-wheeler's rifle holds 6 rounds. Both reload by themselves.</li><li>A goblin under your crosshair is now what vehicle guns aim at, rather than the ground behind it, so shots from a gun mounted off to one side don't miss.</li></ul>
+<h3>Goblins climbing after you</h3>
+<ul><li>Goblins climbing after you follow you round the corner of a building on the wall. They no longer climb all the way to the roof first and then come back down.</li><li>If there's no way round on the wall, a goblin below you climbs back down and runs round to your side when that's quicker than going over the top.</li><li>A goblin on the roof above you climbs down over the edge to get you. It no longer runs off the edge or gets stuck up there.</li></ul>
 </details>
 <p class="pn-earlier">Earlier updates</p>
 <details class="pn-up pn-fold" id="version-0-2"><summary tabindex="0"><h2>Version 0.2</h2><a class="pn-play" data-ver="0.2" href="v/0.2/" tabindex="0">Play 0.2</a><span class="pn-tog" aria-hidden="true"></span></summary>
@@ -14734,6 +14736,7 @@ function navLine(x0,z0,y0,x1,z1,y1){
 // where a goblin after this hippo should make for next: a point to run at, and, if that takes more than running, it sets off
 function navSteer(g,p){
   const N=p.nav,F=N&&N.front;if(!F)return null;
+  {const r=gobRoofDown(g,p);if(r)return r.act?null:r;}
   // (a clear run at the hippo: straight at where it is now. The map's a moment old, and it may have moved on since)
   // (not when it's up a wall or high in the air over that floor: then the map knows better)
   if((g.losT=(g.losT||0)-1)<=0){g.losT=4+Math.random()*4;const X=Math.floor(p.pos.x),Z=Math.floor(p.pos.z),f=navFloorOf(X,Z,p.pos.y);g.losY=f;
@@ -14757,6 +14760,21 @@ function navSteer(g,p){
   else{a=g.navAimI;const q=P(F.key[a]);if(Math.hypot(q.x+.5-g.pos.x,q.z+.5-g.pos.z)<0.7)a=par,g.navT=0;}
   const t=P(F.key[a]);return{x:t.x+.5,z:t.z+.5,y:t.y,next:P(F.key[par])};
 }
+// up on top of the building a hippo's clinging to, above it: along to the edge over it, and down the wall after it. The map
+// can't always be trusted for this (a moment old, with the hippo moving about on the wall, it can lead a goblin straight off
+// the edge, and the top of the hippo's bit of wall can be a window up here has no way to). Null if that's no way to it.
+function gobRoofDown(g,p){
+  const w=navWallOf(p),gy=g.pos.y;if(!w||gy<p.pos.y+1.5||gy>p.pos.y+60)return null;
+  const C=p.climbD,L=[Math.abs(C[1]),Math.abs(C[0])],x=Math.floor(g.pos.x),z=Math.floor(g.pos.z);
+  // (on the roof behind that wall, not far along it from the hippo)
+  const depth=(x-w.wx)*C[0]+(z-w.wz)*C[1],lat=(x-w.wx)*L[0]+(z-w.wz)*L[1];if(depth<0||depth>8||Math.abs(lat)>8)return null;
+  // (the edge right over the hippo, or as near along it as there's a clear way down to it)
+  for(const s of [0,1,-1,2,-2]){const ex=w.wx+L[0]*s,ez=w.wz+L[1]*s,e=navFloorOf(ex,ez,gy+0.5);if(!e||Math.abs(e-gy)>1.1)continue;
+    const ox=ex-C[0],oz=ez-C[1];if(!navCol(ox,oz)||!navOpen(ox,oz,Math.floor(p.pos.y)+1,e+1))continue;
+    if(x===ex&&z===ez){gobStartMove(g,NAV_DOWN,{x:ox,z:oz,y:navFloorOf(ox,oz,p.pos.y+0.5)||Math.floor(p.pos.y)});g.act.chasing=true;return {act:true};}
+    return navLine(g.pos.x,g.pos.z,gy,ex+.5,ez+.5,e)?{x:ex+.5,z:ez+.5,y:e,edge:true}:null;}
+  return null;
+}
 // a jump, or a climb up or down a wall: from now until it's over the goblin's taken up with it
 function gobStartMove(g,mv,t){
   const tx=t.x+.5,tz=t.z+.5,y=g.pos.y,face=Math.floor(g.pos.x)!==t.x?[Math.sign(t.x-Math.floor(g.pos.x)),0]:[0,Math.sign(t.z-Math.floor(g.pos.z))];
@@ -14771,23 +14789,39 @@ function gobLand(g){
   const n=Math.ceil((h-GOB_SAFE)/2);splat(g.pos.x,g.pos.z,g.pos.y+0.05,0.2+n*0.1);thud(Math.min(0.5,0.1+n*0.08));
   damageGoblin(g,n,new V3(g.pos.x,g.pos.y+0.4,g.pos.z),null,'Fell to death',playTime-(g.hitT??-99)<4?undefined:ACCIDENT);
 }
-// a hippo hanging on the same face of wall as a climbing goblin: across it and up or down to it, rather than on up to the
-// top. True while it's doing that. (It keeps to the wall: no wall beside it, or something in the way, and that way's shut.)
+// a hippo hanging on the same face of wall as a climbing goblin, or on the face round the corner from it: across it (and
+// round the corner) and up or down to it, rather than on up to the top. True while it's doing that. (It keeps to the wall:
+// no wall beside it, or something in the way, and that way's shut.)
 function gobWallCrawl(g,A,dt){
-  const W=A.k==='up'?A.f:[-A.f[0],-A.f[1]];let q=null,qd=1e9;
-  for(const p of players){if(!p.active||p.state==='dead'||!(p.state==='climb'||p.state==='piv'&&p.piv&&p.piv.next==='climb')||!p.climbD||p.climbD[0]!==W[0]||p.climbD[1]!==W[1])continue;
-    // (on this face: the same row of blocks out from the wall, and not miles off)
-    if(W[0]?Math.floor(p.pos.x)!==Math.floor(g.pos.x):Math.floor(p.pos.z)!==Math.floor(g.pos.z))continue;
-    const d=Math.hypot(p.pos.x-g.pos.x,p.pos.z-g.pos.z,p.pos.y-g.pos.y);if(d<24&&d<qd){qd=d;q=p;}}
+  let W=A.k==='up'?A.f:[-A.f[0],-A.f[1]],q=null,qd=1e9,turn=null;
+  for(const p of players){if(!p.active||p.state==='dead'||!(p.state==='climb'||p.state==='piv'&&p.piv&&p.piv.next==='climb')||!p.climbD)continue;
+    const C=p.climbD,d=Math.hypot(p.pos.x-g.pos.x,p.pos.z-g.pos.z,p.pos.y-g.pos.y);if(d>=24||d>=qd)continue;
+    if(C[0]===W[0]&&C[1]===W[1]){
+      // (on this face: the same row of blocks out from the wall, and not miles off)
+      if(W[0]?Math.floor(p.pos.x)!==Math.floor(g.pos.x):Math.floor(p.pos.z)!==Math.floor(g.pos.z))continue;
+      qd=d;q=p;turn=null;}
+    else if(C[0]*W[0]+C[1]*W[1]===0&&Math.abs(C[0])+Math.abs(C[1])===1){const k=gobCorner(g,W,C,p);if(k){qd=d;q=p;turn=k;}}}
   if(!q)return false;
   A.chasing=true;
-  const L=W[0]?[0,1]:[1,0],lat=(q.pos.x-g.pos.x)*L[0]+(q.pos.z-g.pos.z)*L[1],dy=q.pos.y-g.pos.y,y=Math.floor(g.pos.y+.1);
   const clings=(x,z,yy)=>solidAt(x+W[0],yy,z+W[1])&&!solidAt(x,yy,z)&&!solidAt(x,yy+1,z);
   let moved=false;
-  if(Math.abs(lat)>0.25){const s=Math.sign(lat)*Math.min(Math.abs(lat),dt*2.4),nx=g.pos.x+L[0]*s,nz=g.pos.z+L[1]*s;
-    if(clings(Math.floor(nx),Math.floor(nz),y)){g.pos.x=nx;g.pos.z=nz;if(L[0])A.x=nx;else A.z=nz;moved=true;}}
-  if(Math.abs(dy)>0.2){const ny=g.pos.y+Math.sign(dy)*Math.min(Math.abs(dy),dt*2.6),yy=Math.floor(ny+.1);
-    if(clings(Math.floor(g.pos.x),Math.floor(g.pos.z),yy)){g.pos.y=ny;moved=true;}}
+  if(turn){
+    // along to the corner (up or down towards the hippo's height on the way), and round it on to the hippo's face
+    const L=turn.L,rem=(turn.x+.5-g.pos.x)*L[0]+(turn.z+.5-g.pos.z)*L[1],dy=q.pos.y-g.pos.y;
+    if(rem>0.15){const s=Math.min(rem,dt*2.4),nx=g.pos.x+L[0]*s,nz=g.pos.z+L[1]*s;
+      if(clings(Math.floor(nx),Math.floor(nz),Math.floor(g.pos.y+.1))){g.pos.x=nx;g.pos.z=nz;if(L[0])A.x=nx;else A.z=nz;moved=true;}
+      if(Math.abs(dy)>0.2){const ny=g.pos.y+Math.sign(dy)*Math.min(Math.abs(dy),dt*2.6),yy=Math.floor(ny+.1);
+        // (only while the way along to the corner's still there at the new height)
+        if(clings(Math.floor(g.pos.x),Math.floor(g.pos.z),yy)&&gobCorner(g,W,q.climbD,q,yy)){g.pos.y=ny;moved=true;}}}
+    else{const C=q.climbD;g.pos.x=turn.tx+.5+C[0]*.2;g.pos.z=turn.tz+.5+C[1]*.2;A.x=g.pos.x;A.z=g.pos.z;A.f=A.k==='up'?[C[0],C[1]]:[-C[0],-C[1]];
+      g.heading=Math.atan2(C[0],C[1]);W=C;moved=true;}
+  }else{
+    const L=W[0]?[0,1]:[1,0],lat=(q.pos.x-g.pos.x)*L[0]+(q.pos.z-g.pos.z)*L[1],dy=q.pos.y-g.pos.y,y=Math.floor(g.pos.y+.1);
+    if(Math.abs(lat)>0.25){const s=Math.sign(lat)*Math.min(Math.abs(lat),dt*2.4),nx=g.pos.x+L[0]*s,nz=g.pos.z+L[1]*s;
+      if(clings(Math.floor(nx),Math.floor(nz),y)){g.pos.x=nx;g.pos.z=nz;if(L[0])A.x=nx;else A.z=nz;moved=true;}}
+    if(Math.abs(dy)>0.2){const ny=g.pos.y+Math.sign(dy)*Math.min(Math.abs(dy),dt*2.6),yy=Math.floor(ny+.1);
+      if(clings(Math.floor(g.pos.x),Math.floor(g.pos.z),yy)){g.pos.y=ny;moved=true;}}
+  }
   if(!moved)return false;   // (stuck: back to making for the top, or the bottom)
   // (wherever it's got to, the top of the wall above it, or the ground below it, is where it finishes if the hippo lets go)
   const x=Math.floor(g.pos.x),z=Math.floor(g.pos.z);
@@ -14795,14 +14829,42 @@ function gobWallCrawl(g,A,dt){
   else{const f=navFloorOf(x,z,g.pos.y);if(f)A.y1=f;}
   return true;
 }
-// partway up a wall after a hippo that's since let go and dropped below it: back down, rather than on to the top of a
-// climb that no longer leads anywhere near it
+// could it get round the corner to this hippo on the wall, at its own height or a little higher up? (Windows and the
+// like can break up a face of wall at one height and not another)
+function gobRound(g,W,p,d){
+  const C=p.climbD;if(C[0]*W[0]+C[1]*W[1]!==0||Math.hypot(d,p.pos.y-g.pos.y)>=24)return false;
+  const y0=Math.floor(g.pos.y+.1),y1=Math.min(y0+12,Math.max(y0,Math.floor(p.pos.y+.1))+2);
+  for(let y=y0;y<=y1;y++)if(gobCorner(g,W,C,p,y))return true;
+  return false;
+}
+// the way along a goblin's face of wall (W) and round the corner to a hippo clinging to the face beside it (C), at the
+// goblin's height: which way along (L), the last place on this face (x,z) and the first on the hippo's (tx,tz). Null if
+// the wall doesn't lead there: a gap in it, something in the way, or the hippo's on the face of something else.
+// (Round the outside of a corner if the hippo's beyond this face's wall, round the inside of one if it isn't.)
+function gobCorner(g,W,C,p,yy){
+  const y=yy??Math.floor(g.pos.y+.1),x0=Math.floor(g.pos.x),z0=Math.floor(g.pos.z),open=(x,z)=>!solidAt(x,y,z)&&!solidAt(x,y+1,z);
+  const outer=(p.pos.x-g.pos.x)*W[0]+(p.pos.z-g.pos.z)*W[1]>0.5,L=outer?[-C[0],-C[1]]:[C[0],C[1]];
+  const row=Math.floor(p.pos.x)*C[0]+Math.floor(p.pos.z)*C[1];
+  for(let k=0;k<24;k++){const x=x0+L[0]*k,z=z0+L[1]*k;
+    if(!open(x,z)||!solidAt(x+W[0],y,z+W[1]))return null;
+    if(outer){if(!solidAt(x+L[0]+W[0],y,z+L[1]+W[1])){const tx=x+L[0]+W[0],tz=z+L[1]+W[1];
+        return open(x+L[0],z+L[1])&&open(tx,tz)&&tx*C[0]+tz*C[1]===row?{L,x,z,tx,tz}:null;}}
+    else if(solidAt(x+L[0],y,z+L[1]))return x*C[0]+z*C[1]===row?{L,x,z,tx:x,tz:z}:null;}
+  return null;
+}
+// partway up a wall after a hippo that's since let go and dropped below it, or that's gone round to a face of the building
+// it can't crawl round to: back down, rather than on to the top of a climb that no longer leads anywhere near it
 function gobWallTurn(g,A){
-  const t=nearestPlayer(g.pos.x,g.pos.z,true);if(!t||t.d>40)return;
-  // (only a climb that was after a hippo on the wall, and only once it's back on its feet below: a route up and over stays as it is)
-  const p=t.p;if(!A.chasing||!p.grounded||p.state==='climb'||p.state==='piv')return;
-  const W=A.f,x=Math.floor(g.pos.x),z=Math.floor(g.pos.z);
-  if(A.k==='up'&&p.pos.y<g.pos.y-1){const f=navFloorOf(x,z,g.pos.y);if(f&&f<g.pos.y-0.5)g.act={k:'down',x:g.pos.x,z:g.pos.z,y1:f,f:[-W[0],-W[1]]};}
+  const t=nearestPlayer(g.pos.x,g.pos.z,true);if(!t||!A.chasing||A.k!=='up')return;
+  // (only a climb that was after a hippo on the wall: a route up and over stays as it is)
+  const p=t.p,W=A.f,x=Math.floor(g.pos.x),z=Math.floor(g.pos.z),f=navFloorOf(x,z,g.pos.y);if(!f||f>=g.pos.y-0.5)return;
+  let down=false;
+  // (back on its feet below it)
+  if(p.grounded&&p.state!=='climb'&&p.state!=='piv')down=t.d<=40&&p.pos.y<g.pos.y-1;
+  // (on another face, with no way round to it on the wall: down and round on foot, if that's less of a climb than over the top and down to it. Costs as the map's)
+  else if(navWallOf(p)&&t.d<=100&&(p.climbD[0]!==W[0]||p.climbD[1]!==W[1])&&!gobRound(g,W,p,t.d)){const dx=Math.abs(p.pos.x-g.pos.x),dz=Math.abs(p.pos.z-g.pos.z);
+    down=(g.pos.y+p.pos.y-2*f)*18+(dx+dz)*10<(2*A.y1-g.pos.y-p.pos.y)*18+Math.hypot(dx,dz)*10;}
+  if(down)g.act={k:'down',x:g.pos.x,z:g.pos.z,y1:f,f:[-W[0],-W[1]]};
 }
 function gobMoveStep(g,dt){
   const A=g.act;g.phase+=dt*9;
@@ -14919,6 +14981,8 @@ function updateGoblins(dt){
         let diff=want-g.heading;while(diff>Math.PI)diff-=Math.PI*2;while(diff<-Math.PI)diff+=Math.PI*2;
         // (on a route, close to the next point: straight at it, or it'd run in circles round it)
         if(sr&&Math.hypot(dx,dz)<1.1)g.heading+=diff;else g.heading+=Math.max(-7*dt,Math.min(7*dt,diff));
+        // (along a roof's edge to the place over a hippo on the wall below: not a step off it, even turning round)
+        if(sr&&sr.edge&&gobGround(g.pos.x+Math.sin(g.heading)*0.45,g.pos.z+Math.cos(g.heading)*0.45,g.pos.y)<g.pos.y-1.5){g.heading+=diff;d=0;}
         if(d>reach){
           const fx=Math.sin(g.heading),fz=Math.cos(g.heading);
           const ahead=gobGround(g.pos.x+fx*0.45,g.pos.z+fz*0.45,g.pos.y,g,dt);

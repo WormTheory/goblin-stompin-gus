@@ -71,6 +71,12 @@
 - The gunner's machine gun has a 50-round belt, and the four-wheeler's rifle holds 6 rounds. Both reload by themselves.
 - A goblin under your crosshair is now what vehicle guns aim at, rather than the ground behind it, so shots from a gun mounted off to one side don't miss.
 
+### Goblins climbing after you
+
+- Goblins climbing after you follow you round the corner of a building on the wall. They no longer climb all the way to the roof first and then come back down.
+- If there's no way round on the wall, a goblin below you climbs back down and runs round to your side when that's quicker than going over the top.
+- A goblin on the roof above you climbs down over the edge to get you. It no longer runs off the edge or gets stuck up there.
+
 ## Version 0.2
 
 Everything since the first release on GitHub.
