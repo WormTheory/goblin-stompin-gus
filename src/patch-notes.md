@@ -77,6 +77,10 @@
 - If there's no way round on the wall, a goblin below you climbs back down and runs round to your side when that's quicker than going over the top.
 - A goblin on the roof above you climbs down over the edge to get you. It no longer runs off the edge or gets stuck up there.
 
+### Bug fixes
+
+- Fixed flickering on the striped umbrellas over café tables, on beaches and in parks.
+
 ## Version 0.2
 
 Everything since the first release on GitHub.

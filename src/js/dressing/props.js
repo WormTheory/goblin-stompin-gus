@@ -269,7 +269,7 @@ const PROPS={
   // a stretch of buffet: dishes of food under a glass guard
   buffet:[[P_STEEL,0,.4,0,1,.8,.86],[P_DARK,0,.81,0,1,.02,.8],[0xc9553f,-.24,.84,-.2,.4,.05,.32],[0xd8b13a,.24,.84,-.2,.4,.05,.32],[0x5aa469,-.24,.84,.2,.4,.05,.32],[0xe6dcc8,.24,.84,.2,.4,.05,.32],[0xcfeaf5,0,1.2,0,1,.03,.5],[P_STEEL,0,1.02,0,.04,.36,.04]],
   // a parasol: a weighted foot, a tall pole, a striped canopy in steps
-  umbrella:[[P_DARK,0,.04,0,.5,.08,.5],[P_STEEL,0,1.15,0,.06,2.3,.06],[PT,0,2.28,0,2.1,.07,2.1],[P_WHITE,0,2.285,0,2.14,.08,.42],[P_WHITE,0,2.285,0,.42,.08,2.14],[PT,0,2.38,0,1.4,.07,1.4],[PT,0,2.47,0,.7,.07,.7]],
+  umbrella:[[P_DARK,0,.04,0,.46,.08,.46],[P_STEEL,0,1.15,0,.06,2.3,.06],[PT,0,2.28,0,2.1,.07,2.1],[P_WHITE,0,2.295,0,2.14,.07,.42],[P_WHITE,0,2.295,-.64,.42,.07,.86],[P_WHITE,0,2.295,.64,.42,.07,.86],[PT,0,2.38,0,1.4,.07,1.4],[PT,0,2.47,0,.7,.07,.7]],
   // a senator's desk: a little wooden desk and its chair, facing the rostrum
   ldesk:[[P_WOOD,0,.5,.2,.8,.06,.5],[P_WOOD,-.34,.24,.2,.05,.48,.42],[P_WOOD,.34,.24,.2,.05,.48,.42],[P_DARK,0,.54,.28,.6,.02,.26],[PT,0,.33,-.3,.44,.05,.4],[PT,0,.55,-.48,.44,.4,.05],[P_DARK,0,.15,-.3,.3,.3,.3]],
   // a stretch of the benches in a House chamber, padded, with a rail in front to rest papers on
