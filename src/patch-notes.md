@@ -2,6 +2,13 @@
 
 ## Version 0.4
 
+### Open games
+
+- No more reading out room codes: Play online now lists the games being hosted right now under Open games, with who's hosting and how many players are in. Click Join on one to jump in.
+- Host a game and it shows up on everyone else's list straight away. It drops off when you stop hosting, and shows as Full once all four seats are taken.
+- Want to play with just your friends? Tick "Private game" before or while hosting and your game stays off the list. They can still join with the room code, which works just as before.
+- Works with "Two tabs of this browser" too, for trying it out on one computer.
+
 ### Goblin attacks
 
 - Every goblin attack now has a proper wind-up and a strike that suits the weapon. Nothing hits any sooner or later than before: you just get a better look at it coming.

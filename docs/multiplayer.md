@@ -2,7 +2,7 @@
 
 Up to four players in one city over the internet (or two tabs of one browser). The code is in `src/js/net/`:
 `net-core.js` (transports, hosting, joining, controls), `net-sync.js` (snapshots, events, what a guest shows and
-guesses), `net-ui.js` (the Play online panel on the main menu). Nothing in it runs until someone hosts or joins, so
+guesses), `net-lobby.js` (the Open games list), `net-ui.js` (the Play online panel on the main menu). Nothing in it runs until someone hosts or joins, so
 single player and split-screen co-op play exactly as before.
 
 ## How it works
@@ -94,6 +94,26 @@ All three have the same shape: `{kind, self, on:{msg(peer,data), join(peer), lea
 - The tests' own in-memory one (`tools/tests/net.js`), handed in through `NET.makeTr`, which passes every message
   through JSON and can add a delay.
 
+## Open games (the lobby)
+
+GitHub Pages serves only files, so there's no server to keep a list of games. Instead everyone with the Play online
+panel open (and not already a guest), and every host whose game isn't private, joins one more room through the same
+transport: `NET_LOBBY` (`gsg-lobby-` plus `NET_PROTO`, so it can't clash with a letters-only room code, and a new
+protocol gets its own lobby, so nobody's shown a game they can't join). A host sends an `ad` to each peer that arrives
+(and to an `ask`), again whenever it changes, and every 3 seconds (`LOBBY_AD_MS`); `gone` when it stops hosting or goes
+private. A browser lists the ads heard in the last 10 seconds (`LOBBY_TTL`), dropping a peer the transport says has
+left at once. Picking one calls `netStartJoin` with its code, exactly as typing it would. The "Private game" box
+(`LOBBY.priv`, localStorage `gsg-net-private`) keeps a host out of the lobby; its code still works. `lobbySync`, called
+from `netUiRefresh` and when the panel opens or closes, joins or leaves the lobby and says what's changed.
+With no server, there's no cap on how many games can be listed, but every browser in the lobby connects to every other
+one, which is fine for dozens of players and not for thousands.
+
+| From | `t` | Fields |
+|---|---|---|
+| browser | `ask` | |
+| host | `ad` | `code`, `who` (the host's character), `n` (players in, the host among them), `max`, `tenv` (Testing Environment) |
+| host | `gone` | `code` |
+
 ## Messages
 
 Every message is a JSON object with a type `t`, so a headless Node server could send the same ones.
@@ -121,15 +141,17 @@ vehicles' health as `[venue, list]`.
 
 - **Two tabs, one computer:** open `game/index.html` (or the site) in two tabs. In both, Play online, tick "Two tabs
   of this browser" (the status line says how it goes, and hosting says "between this browser's tabs"). Host in one;
-  type its code in the other and Join. Chromium shares a BroadcastChannel between tabs opened from the same file; a
+  pick its game from Open games in the other (or type its code and Join). Chromium shares a BroadcastChannel between tabs opened from the same file; a
   browser that doesn't (Firefox may keep file pages apart) gets "No tab of this browser is hosting room ..." after six
   seconds, with the advice to use the website or serve the folder (`python -m http.server`).
-- **Two computers:** both open the published game. One clicks Host a game and reads out the five-letter code; the
-  other types it in and clicks Join.
+- **Two computers:** both open the published game. One clicks Host a game; the other opens Play online and picks it
+  from Open games (or, for a private game, types in the five-letter code and clicks Join).
 - **Tests:** `bash tools/run_tests.sh net` (host and guest in one process: joining, the world, controls, snapshots,
   smashing, a topple, driving, a slow network with the guest's guessing and lag compensation, a dropped connection,
   leaving). In a real browser, after `python tools/build_3d.py game/index.html tools/ui/t3.html`:
   `cd tools/ui && node netshot.js [seed] [outDir]` (two tabs), or `P2P=1 node netshot.js` (through the internet).
+  `node lobbyshot.js [seed] [outDir]` checks Open games in four tabs: a listed host shown, a private one not, joining
+  with one click, the player count going up, and the game leaving the list when its host stops (`P2P=1` works too).
 
 ## Known gaps
 

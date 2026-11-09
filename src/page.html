@@ -87,8 +87,10 @@
         <button class="big full" id="fullBtn" type="button">Full screen</button>
       </div>
       <div class="online" id="onlinePanel" hidden>
-        <div class="on-h">Play online <small>Two players over the internet: one hosts their city, the other joins it with the room code. The host's browser runs the game, so the host's computer should be the quicker one.</small></div>
+        <div class="on-h">Play online <small>Up to four players over the internet. Host your city and it shows up under Open games for anyone to join, or make it private and share the room code. The host's browser runs the game, so the host's computer should be the quicker one.</small></div>
+        <div class="on-list" id="netList" hidden><div class="on-lh">Open games</div><div class="on-games" id="netGames"></div><div class="note on-gnote" id="netGamesNote" role="status"></div></div>
         <div class="on-row"><button type="button" class="on-b" id="netHost">Host a game</button><span class="on-or">or</span><input type="text" id="netCode" class="on-code-in" maxlength="8" placeholder="Room code" autocomplete="off" spellcheck="false" aria-label="Room code"><button type="button" class="on-b" id="netJoin">Join</button></div>
+        <label class="on-loc"><input type="checkbox" id="netPrivate"> Private game: keep it off the Open games list, so only people you give the room code to can join</label>
         <div class="on-code" id="netCodeShow" hidden></div>
         <label class="on-loc"><input type="checkbox" id="netLocal"> Two tabs of this browser (for trying it out on one computer)</label>
         <div class="note on-st" id="netStatus" role="status"></div>

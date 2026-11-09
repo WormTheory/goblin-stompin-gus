@@ -26,7 +26,7 @@ function game(name,rseed,ls,ss){
   g.step=n=>{for(let i=0;i<n;i++){clock+=16.7;g.now=clock;for(let k=timers.length-1;k>=0;k--)if(timers[k].at<=clock){const t=timers.splice(k,1)[0];try{t.f();}catch(e){}}if(g.bg)T.netBgTick();else T.frame(clock);hub.pump();}};   // (g.bg: a tab in the background, run by the worker's timer rather than animation frames)
   g.play=()=>{for(const f of ctx.document.getElementById('play').L.click)f();};
   T.NET.onReload=()=>{g.reloads++;};
-  T.NET.makeTr=()=>hub.make();
+  T.NET.makeTr=(kind,code)=>{if(String(code).startsWith('gsg-lobby'))throw new Error('no lobby in this suite (see lobby.js)');return hub.make();};
   return g;
 }
 // the network: messages wait in a queue until pumped, and go through JSON on the way
