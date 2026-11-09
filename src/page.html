@@ -34,6 +34,12 @@
   </div>
   <div class="clockTxt" id="clockTxt" aria-live="off"></div>
   <div class="divider" id="divider" hidden></div>
+  <div class="chat" id="chat" hidden>
+    <div class="chat-log" id="chatLog" aria-live="polite"></div>
+    <input type="text" class="chat-in" id="chatIn" maxlength="120" autocomplete="off" spellcheck="false" placeholder="Say something, Enter sends, Esc cancels" aria-label="Chat message" hidden>
+    <div class="chat-quick" id="chatQuick" hidden></div>
+    <div class="vchud" id="vcHud" hidden></div>
+  </div>
 </div>
 
 <div class="touch" id="touch" hidden>
@@ -189,6 +195,19 @@
       <h2>MAX FIRES &amp; SMOKE</h2>
       <div class="crow"><input type="range" id="fireCap" class="vrange" min="0" max="9" step="1" value="5" aria-label="Most fires and smoke plumes at once"><span class="vval" id="fireCapVal">70</span></div>
       <p class="vnote">The most fires and smoke plumes burning at once; when another starts, the oldest goes out. At the top there's no limit at all. Lower it if big disasters make the game stutter.</p>
+    </div>
+    <div class="custom" id="chatOpts">
+      <h2>ONLINE CHAT &amp; VOICE</h2>
+      <div class="abil">
+        <button type="button" class="tog" role="checkbox" id="chatShowTog"><span class="box" aria-hidden="true"></span><span class="tl">Show chat<small>In an online game, press Enter to type a message (Enter sends it, Esc cancels). On a controller, <span id="chatQkKey">D-pad ↑</span> picks a quick message. Untick to hide chat altogether</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="chatInTog"><span class="box" aria-hidden="true"></span><span class="tl">Other players' messages<small>Untick to mute what the others type. Your own lines still show</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="vcTog"><span class="box" aria-hidden="true"></span><span class="tl">Voice chat<small>Off until you switch it on, and never kept on between visits. Talk to the others in an online game over the internet: your browser asks to use the microphone first</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="vcPttTog"><span class="box" aria-hidden="true"></span><span class="tl">Push to talk<small id="vcPttTxt">Hold T (D-pad ← on a controller) to talk. Untick for an open microphone</small></span></button>
+      </div>
+      <div class="crow"><input type="range" id="vcVol" class="vrange" min="0" max="100" step="5" value="100" aria-label="Voice chat volume"><span class="vval" id="vcVolVal">100%</span></div>
+      <p class="vnote">Voice volume: how loud the other players are.</p>
+      <div class="abil" id="vcPeers"></div>
+      <p class="vnote" id="vcNote" role="status"></p>
     </div>
     <div class="custom">
       <h2>DEBUG</h2>

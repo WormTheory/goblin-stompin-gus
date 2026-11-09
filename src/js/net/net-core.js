@@ -51,7 +51,13 @@ async function netTrystero(code){
   const room=mod.joinRoom(cfg,code),a=room.makeAction('m'),old=Array.isArray(a);   // (older Trystero gave [send, receive]; newer an object)
   const T={kind:'p2p',self:mod.selfId,on:{},
     send(d,to){try{if(old)a[0](d,to||null);else a.send(d,to?{target:to}:undefined);}catch(e){}},
-    close(){try{room.leave();}catch(e){}}};
+    close(){try{room.leave();}catch(e){}},
+    // (voice chat: a microphone's stream added to, or taken off, the connection to one player. Trystero renegotiates the
+    // connection over its own data channel; nothing here runs unless someone switches voice on)
+    av:{add(st,to){if(old)room.addStream(st,to);else room.addStream(st,{target:to});},
+      remove(st,to){if(old)room.removeStream(st,to);else room.removeStream(st,{target:to});},
+      onStream(f){if(old)room.onPeerStream(f);else room.onPeerStream=f;},
+      conns(){try{return Object.values(room.getPeers?room.getPeers():{});}catch(e){return [];}}}};
   const got=(d,meta)=>{const peer=typeof meta==='string'?meta:meta&&meta.peerId;if(T.on.msg)T.on.msg(peer,d);};
   const join=id=>{if(T.on.join)T.on.join(id);},leave=id=>{if(T.on.leave)T.on.leave(id);};
   if(old){a[1](got);room.onPeerJoin(join);room.onPeerLeave(leave);}
@@ -87,6 +93,8 @@ function netHostMsg(peer,m){
   if(!p)return;
   p.net.heard=NET.now;
   if(m.t==='in')netGotInput(p,m);
+  else if(m.t==='chat')chatFromGuest(p,m);
+  else if(m.t==='vo')p.net.vo=!!m.on;   // (a guest switched its voice chat on or off: see vcRosterTick)
   else if(m.t==='bye')netHostLeft(peer);
 }
 // a guest asking to join: seat them as player two, if that seat's free (online play is two players: the second split-screen
@@ -102,7 +110,7 @@ function netSeat(peer,m){
     if(seat<0){NET.tr.send({t:'deny',why:'That game is full.'},peer);return;}
     while(players.length<=seat)players.push(makePlayer(players.length));
     p=players[seat];p.net={peer,cid:m.cid||null,gone:0,seat,heard:NET.now,inb:null,pr:{},sent:{},pose:null,looks:new Map(),cars:new Map(),out:[],seq:0};NET.guests.set(peer,p);}
-  p.net.inb=null;p.net.pr={};p.net.inN=0;
+  p.net.inb=null;p.net.pr={};p.net.inN=0;p.net.vo=false;   // (vo: on voice chat. A tab that's just joined, or reloaded, isn't till it says so)
   // (two players who've both picked the same hippo: the guest's the other one, so they can tell each other apart. The
   // two are the same in everything but looks)
   p.who=m.who?1:0;if(!m.gob&&!P1.gob&&p.who===P1.who)p.who=1-P1.who;setGobP(p,!!m.gob);
@@ -182,6 +190,8 @@ function netGuestMsg(peer,m){
   NET.lastHeard=NET.now;
   if(m.t==='s')netGotSnap(m);
   else if(m.t==='pong'){NET.rtt=NET.now-m.a;}
+  else if(m.t==='chat')chatGot(m);
+  else if(m.t==='vr')vcRoster(m.l);
   else if(m.t==='bye')netLost('The host ended the game.');
 }
 // the host's world: if this tab was opened for it, catch up with what's changed since; otherwise keep it in this tab's
@@ -227,7 +237,7 @@ function netLeaveWorld(why){
   netReload();
 }
 function netClose(){
-  NET.retry=null;
+  NET.retry=null;vcOff(true);chatReset();   // (voice and chat go with the game: the microphone's let go at once)
   if(!NET.tr){NET.mode=0;return;}
   try{if(netGuest()&&NET.host)NET.tr.send({t:'bye'},NET.host);else if(netHost())NET.tr.send({t:'bye'});}catch(e){}
   try{NET.tr.close();}catch(e){}
@@ -265,12 +275,13 @@ function netTick(now,dt){
     netHostInputs();netGobHist();
     for(const p of [...NET.guests.values()]){const N=p.net;if(!N)continue;if(!N.gone&&now-N.heard>10000)netHostDropped(N.peer);else if(N.gone&&now-N.gone>30000)netHostLeft(N.peer);}   // (gone silent: its seat's kept half a minute, then comes free)
     NET.snapT-=dt*1000;if(NET.snapT<=0&&NET.guests.size){NET.snapT+=1000/NET_SNAP_HZ;if(NET.snapT<0)NET.snapT=0;for(const p of NET.guests.values())if(!p.net.gone)netSendSnap(p);}
-    NET.fxOut=null;
+    NET.fxOut=null;vcRosterTick(dt);
   } else if(NET.joined&&NET.tr&&NET.host){
     netSendInput(dt);
     NET.pingT-=dt;if(NET.pingT<=0){NET.pingT=2;NET.tr.send({t:'ping',a:now},NET.host);}
     if(now-NET.lastHeard>10000)netDropped();
   }
+  chatTick(dt);if(VC.on)vcTick(dt);
 }
 // (guest: its own controls, read as usual into P1.in by readInputs, sent on to the host)
 const NET_IN={pr:{},hh:{},fl:[0,0]};   // (presses, and buttons held at any moment, since the last message: a tap between two never goes missing)

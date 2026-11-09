@@ -15,7 +15,7 @@ addEventListener('touchstart',()=>noteInput('touch'),{capture:true,passive:true}
 document.querySelectorAll('.ctl-seg button').forEach(b=>b.addEventListener('click',()=>{ctlView=b.dataset.view;renderControls();}));
 const CC={walk:'#6cbf45',look:'#4fb3b0',jump:'#5a92e0',bite:'#e0b030',stomp:'#e0564a',charge:'#e08a34',pause:'#9aa4ae',menu:'#7b8794'};
 // ---- re-bindable controls: each action can have up to two keys (or mouse buttons) and up to two controller buttons.
-// Kept in the browser. (Esc, ~ and the debug keys P V . [ ], and a controller's Start and Select, stay as they are.)
+// Kept in the browser. (Esc, ~ and the debug keys P V . [ ], Enter, which opens the online chat, and a controller's Start and Select, stay as they are.)
 const BIND_KEY='goblin-binds-v1';
 const ACTS=[
   {id:'fwd',n:'Walk forward',c:CC.walk,kb:['KeyW','ArrowUp'],pad:[]},
@@ -32,8 +32,10 @@ const ACTS=[
   {id:'climb',n:'Spider Climb (hold)',c:'#9a7ae0',kb:['KeyC'],pad:[4]},
   {id:'use',n:'Get in / out (as Gnash)',c:'#6ab0d8',kb:['KeyF'],pad:[3]},
   {id:'weapon',n:'Next weapon (as Gnash)',c:'#b0b8c0',kb:['KeyR'],pad:[15]},
+  {id:'talk',n:'Push to talk (online voice chat)',c:'#7fc8a0',kb:['KeyT'],pad:[14]},
+  {id:'quickChat',n:'Quick chat message (online)',c:'#8fb8e0',kb:[],pad:[12]},
 ];
-const KB_RESERVED=new Set(['Escape','Backquote','KeyP','KeyV','Period','BracketLeft','BracketRight','Backspace','Delete']),PAD_RESERVED=new Set([8,9]);
+const KB_RESERVED=new Set(['Escape','Backquote','KeyP','KeyV','Period','BracketLeft','BracketRight','Backspace','Delete','Enter','NumpadEnter']),PAD_RESERVED=new Set([8,9]);
 let BINDS={};
 function defaultBinds(){const o={};for(const a of ACTS)o[a.id]={kb:a.kb.slice(),pad:a.pad.slice()};return o;}
 function loadBinds(){BINDS=defaultBinds();
@@ -145,7 +147,7 @@ function padSVG(ps){
 // the legend beside the picture: each action and what it's bound to
 function legendRows(dev,gb,gs,gk,or){
   const ps=padStyle==='ps',hv=ABIL.trample?'trample':'sprint';
-  const DESC={jump:'Jump',bite:'Bite',stomp:'Stomp',dashSprint:'Tap: dash · Hold: '+hv+' · In mid-air: air dash',dash:'Dash · In mid-air: air dash',sprint:'Hold: '+hv+' · In mid-air: air dash',lock:'Lock on',climb:'Spider Climb (hold)'};
+  const DESC={jump:'Jump',bite:'Bite',stomp:'Stomp',dashSprint:'Tap: dash · Hold: '+hv+' · In mid-air: air dash',dash:'Dash · In mid-air: air dash',sprint:'Hold: '+hv+' · In mid-air: air dash',lock:'Lock on',climb:'Spider Climb (hold)',talk:'Push to talk (online)',quickChat:'Quick chat (online)'};
   const chip=(a,v)=>dev==='kb'?(String(v).startsWith('Mouse')?gs(keyLabel(v),a.c):gk(keyLabel(v))):(v<4?gb(padLabel(v,ps),a.c):gs(padLabel(v,ps),a.c));
   let out='';
   if(dev==='kb'){const w=['fwd','left','back','right'].map(id=>BINDS[id].kb[0]).filter(Boolean);if(w.length)out+=`<dt>${w.map(c=>gk(keyLabel(c))).join('')}</dt><dd>Walk</dd>`;}

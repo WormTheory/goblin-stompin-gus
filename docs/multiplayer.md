@@ -88,7 +88,9 @@ All three have the same shape: `{kind, self, on:{msg(peer,data), join(peer), lea
 - `netTrystero`: anywhere on the internet. Trystero 0.26.0 from jsDelivr (`NET_TRYSTERO`, an exact version), loaded with
   `import()` only when someone picks online play. It finds the other player through public Nostr relays and then talks
   directly over WebRTC. Players behind strict NATs need a TURN server: `NET_TURN` is the hook (e.g. Cloudflare's TURN),
-  left `null` with no credentials in the repository.
+  left `null` with no credentials in the repository. So there's no relay fallback: Trystero's own ICE servers are STUN
+  only (three of Google's and Cloudflare's), and two players who can't reach each other directly can't play.
+  Its `av` (`add`, `remove`, `onStream`, `conns`) carries voice chat on the same connections (see Chat and voice).
 - `netLoopback`: two tabs of one browser through a `BroadcastChannel` (the "Two tabs of this browser" box). Heartbeats
   each second; a tab not heard from for five is gone.
 - The tests' own in-memory one (`tools/tests/net.js`), handed in through `NET.makeTr`, which passes every message
@@ -127,6 +129,10 @@ Every message is a JSON object with a type `t`, so a headless Node server could 
 | host | `s` | `n`, `tt` (host time), `p` (players), `g`/`gl` (goblins and their looks), `c`/`cl` (vehicles and their kinds), `v` (venue joints), `fa` (falling pieces), `e` (events), `sc` (score, kills), `w` (world state, once a second), `k` (clock, weather, hostility, once a second) |
 | either | `ping` / `pong` | `a` (sender's time), `b` |
 | either | `bye` | |
+| guest | `chat` | `x` (the line typed) |
+| host | `chat` | `s` (seat), `n` (name), `c` (colour), `x`; or `sys` (a note for that guest only, such as "slow down") |
+| guest | `vo` | `on` (voice chat switched on or off) |
+| host | `vr` | `l`: who's on voice, `[{s, id (transport peer id), n, c, on}]`, the host included |
 
 A player in `p`: `s` (seat), `who`, `gob`, `act`, `f` (changed plain values; numbers to 3 places, non-finite ones as
 strings), `pos`, `h`, `pose` (10 numbers a joint: place, turn, scale, shown), `lk` (lock-on target as `['g'|'c', n]`),
@@ -136,6 +142,26 @@ Events in `e`: `['e', [x,y,z,b, ...]]` blocks, `['f', name, args]` an effect, `[
 `['k', key, angle, prop, x, z, y]` a fixture or prop knocked over.
 A goblin in `g` ends with its `state`, `hp` and `hpMax`; a vehicle in `c` with its `hp` and `hpMax`. `vh` holds the venues'
 vehicles' health as `[venue, list]`.
+
+## Chat and voice
+
+`net/net-chat.js`: Enter opens a line (`chatOpen`; the box's key events stop there, and `readInputs` zeroes player
+one's controls while it or a controller's quick list, `chatPad`, is up). A guest's `chat` goes to the host, which cleans
+it (`chatClean`: one line, no control or direction characters, `CHAT_MAX` 120), rate-limits each seat (`CHAT_RATE`) and
+sends it to everyone with the sender's name and colour (`chatPost`); the sender's own copy comes back that way too, so
+every screen has the same lines in the same order. Lines are only put on the page with `textContent`. Options: Show
+chat, Other players' messages (`CHAT`, localStorage `gsg-chat-v1`).
+
+`net/net-voice.js`: off until the player switches it on in Options, and not saved as on. Until then there's no
+`getUserMedia`, no AudioContext, and nothing added to a connection; the host's `vcRosterTick` sends no `vr` until
+someone's on. On (`vcStart`): the microphone with echo cancelling, noise suppression and gain control, an AudioContext
+used only for the speaking meters (`AnalyserNode`s), and the stream added (`av.add`, which makes Trystero renegotiate
+over its data channel) to each player the host's `vr` list says is on (`vcSync`). Nobody sends to a player with voice
+off, so they decode nothing. Remote audio plays through an `Audio` element per player (volume and per-player mute).
+Push to talk (the `talk` action, T and D-pad ←) enables the track only while held; open mic leaves it on. Off
+(`vcOff`, also on leaving the game): the stream's removed from every connection, the tracks stopped, their audio
+transceivers stopped, the AudioContext closed. A refused or missing microphone leaves it off with a note. Between two
+tabs (`netLoopback`, no `av`) there's no voice. Suite `chat` checks all of it with pretend media.
 
 ## Trying it
 
@@ -170,6 +196,7 @@ vehicles' health as `[venue, list]`.
 - The Testing Environment's Reset world reloads the host's page, which ends the session (guests go home after trying
   to reconnect).
 - Each guest gets one snapshot built for it; with only one guest that's fine.
+- Voice chat has only been tried with pretend media in the tests, not yet between two real browsers with microphones.
 
 ## Next steps
 

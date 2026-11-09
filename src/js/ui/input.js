@@ -42,7 +42,7 @@ function pause(){if(TENV)tpShow(true);menuOpen=true;playing=false;keys.clear();m
 // losing the mouse (another window clicked, alt-tab) pauses -- unless you're playing on a controller, which keeps
 // working with the game in the background (as long as the page is still showing; 'on a controller': you've used one
 // in the last minute -- so the Alt of an Alt-Tab doesn't count against it)
-document.addEventListener('pointerlockchange',()=>{if(locked()){lockOk=true;lockFails=0;return;}if(!menuOpen&&!dragMode&&!P1.paused&&!DT.kbdOpen&&!(performance.now()-lastPadT<60000&&connectedPads().length))requestPause(P1);});
+document.addEventListener('pointerlockchange',()=>{if(locked()){lockOk=true;lockFails=0;return;}if(!menuOpen&&!dragMode&&!P1.paused&&!DT.kbdOpen&&!chatHasEsc()&&!(performance.now()-lastPadT<60000&&connectedPads().length))requestPause(P1);});
 // in co-op each hippo pauses on their own; the city only stops once everyone has paused
 const inCoop=()=>coop&&P2.active;
 function requestPause(p){if(inCoop())pausePlayer(p);else pause();}
@@ -116,7 +116,7 @@ function readInputs(dt){
   else{s1=st[0]||null;s2=st[1]||null;}
   if(s1)P1.pad=s1.p;if(s2&&P2.active&&!P2.net)P2.pad=s2.p;
   P2.ui.join.hidden=!(P2.active&&!P2.pad);
-  for(const p of players){const i=p.in;i.x=0;i.z=0;i.charge=false;i.chargePress=false;i.stomp=false;i.bite=false;i.bitePress=false;i.jumpPress=false;i.jump=false;i.lockPress=false;i.dash=false;i.dashPress=false;i.sprint=false;i.sprintPress=false;i.lookX=0;i.lookY=0;i.climb=false;i.use=false;i.weapon=false;}
+  for(const p of players){const i=p.in;i.x=0;i.z=0;i.charge=false;i.chargePress=false;i.stomp=false;i.bite=false;i.bitePress=false;i.jumpPress=false;i.jump=false;i.lockPress=false;i.dash=false;i.dashPress=false;i.sprint=false;i.sprintPress=false;i.lookX=0;i.lookY=0;i.climb=false;i.use=false;i.weapon=false;i.talk=false;}
   // (rebinding a control in the menu: the next button pressed on any controller is the one)
   if(menuOpen&&BIND_CAP){if(performance.now()-BIND_CAP.t>200)for(const s of st){const i=s.pr.findIndex(Boolean);if(i<0)continue;
       if(BIND_CAP.dev==='pad'){if(PAD_RESERVED.has(i))bindCancel();else setBind(BIND_CAP.id,'pad',BIND_CAP.i,i);}else if(i===1||i===9)bindCancel();break;}
@@ -157,7 +157,7 @@ function readInputs(dt){
     const A={};for(const a of ACTS){const h=kbAct(a.id);A[a.id]=h;A[a.id+'P']=h&&!kbPrevA[a.id];kbPrevA[a.id]=h;}
     I.z+=(A.back?1:0)-(A.fwd?1:0);I.x+=(A.right?1:0)-(A.left?1:0);
     I.charge=A.dashSprint;I.chargePress=A.dashSprintP;I.dash=A.dash;I.dashPress=A.dashP;I.sprint=A.sprint;I.sprintPress=A.sprintP;
-    I.stomp=A.stomp;I.jumpPress=A.jumpP;I.jump=A.jump;I.lockPress=A.lockP;I.climb=A.climb;I.bite=A.bite;I.bitePress=A.biteP;I.use=A.use;I.weapon=A.weapon;
+    I.stomp=A.stomp;I.jumpPress=A.jumpP;I.jump=A.jump;I.lockPress=A.lockP;I.climb=A.climb;I.bite=A.bite;I.bitePress=A.biteP;I.use=A.use;I.weapon=A.weapon;I.talk=A.talk;
   }else for(const a of ACTS)kbPrevA[a.id]=false;
   mTap.clear();
   const apply=(p,s)=>{
@@ -179,9 +179,14 @@ function readInputs(dt){
     i.jumpPress=i.jumpPress||pp('jump');i.jump=i.jump||pb('jump');
     i.bite=i.bite||pb('bite');
     i.bitePress=i.bitePress||pp('bite');
+    i.talk=i.talk||pb('talk');
   };
   if(DT.menu&&DT.kbdOpen){const I=P1.in;for(const k in I)if(typeof I[k]==='boolean')I[k]=false;I.x=I.z=0;}
+  // (online chat: the controller's quick messages take it over while their list is up, and while a line's being typed
+  // or picked player one stands still, so the keys typed never walk them off)
+  if(s1&&chatPad(s1))s1=null;
   apply(P1,s1);if(P2.active&&!P2.net)apply(P2,s2);
+  if(CHAT.open||CHAT.quick){const I=P1.in;for(const k in I)if(typeof I[k]==='boolean')I[k]=false;I.x=I.z=0;I.lookX=I.lookY=0;}
   for(const p of players)p.in.chargeHeld=p.in.charge;
   if(DT.freecam&&!P1.paused)updateFreecam(dt,s1);
   if(!ABIL.climb)for(const p of players)p.in.climb=false;

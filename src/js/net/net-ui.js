@@ -15,6 +15,7 @@ function netUiRefresh(){
   netEl('playCoop').hidden=on&&!!P2.net;netEl('hostMain').disabled=netGuest()&&NET.joined;
   netEl('netPrivate').checked=LOBBY.priv;
   lobbySync();
+  try{vcOptsDraw();}catch(e){}   // (whether voice can be switched on goes with being online. Not yet made while the page loads)
 }
 {
   const pan=netEl('onlinePanel'),btn=netEl('onlineBtn');

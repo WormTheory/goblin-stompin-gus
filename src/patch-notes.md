@@ -2,6 +2,19 @@
 
 ## Version 0.4
 
+### Chat and voice chat online
+
+- Talk to the others in an online game: press Enter, type a message and press Enter again to send it (Esc cancels). Messages show at the bottom left with the sender's name in their colour and fade away after a few seconds. Press Enter again to read back through the recent ones.
+- While you're typing, your keys stay in the chat box: Gus or Gertie stands still instead of walking off.
+- On a controller, D-pad ↑ brings up a few quick messages ("Over here!", "Help!", "Follow me!" and more): pick one with the D-pad and press A to send it, or B to put the list away.
+- Messages are up to 120 characters, and only ever shown as plain text. Typing very fast gets a "slow down" instead.
+- Voice chat, for games over the internet: switch it on in Options, under Online chat & voice. It's off until you switch it on, and it's off again every time you start the game. Nothing touches your microphone until then, and your browser asks first.
+- Push to talk is the default: hold T (D-pad ← on a controller) to talk. Untick it for an open microphone. Both buttons can be changed in the Controls tab.
+- Little chips at the bottom left show who's on voice and light up while they're talking. You can mute any player just for yourself, and set how loud voices are.
+- You only hear players who have voice chat switched on, and with yours off nobody sends you any sound at all.
+- Don't want chat? Untick "Show chat" in Options to hide it altogether, or "Other players' messages" to mute what the others type.
+- Enter can't be picked for other controls any more, as it opens the chat.
+
 ### Open games
 
 - No more reading out room codes: Play online now lists the games being hosted right now under Open games, with who's hosting and how many players are in. Click Join on one to jump in.

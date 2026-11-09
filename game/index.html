@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:893370d6be635e3f280ca7d23944d3826d78b1d1e2f1f3b0d5a33b35b85185aa -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:24c449f0cccf49517375d82b8fad535036ded49881733afefd55bd16f3a7a8f6 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -601,6 +601,26 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 .on-ggo{grid-column:2;grid-row:1/3;font:700 13px var(--f-display);padding:5px 12px;border:2px solid #0a0d10;background:var(--moss);color:#0e1a06}
 .on-game:disabled .on-ggo{background:var(--mute)}
 .on-gnote:empty{display:none}
+/* online chat and voice: a column at the bottom left, just above the minimap (only shown in an online game) */
+.chat{position:absolute;left:max(16px,env(safe-area-inset-left,0px));bottom:calc(188px + env(safe-area-inset-bottom,0px));width:min(420px,calc(100% - 32px));display:flex;flex-direction:column;gap:4px;font:600 14px var(--f-body);color:var(--bone)}
+.chat-log{display:flex;flex-direction:column;gap:3px;max-height:30vh;overflow:hidden}
+.chat-ln{align-self:flex-start;max-width:100%;background:rgba(12,15,20,.62);padding:3px 8px;border-radius:4px;overflow-wrap:anywhere;transition:opacity .8s}
+.chat-ln.old{opacity:0}
+.chat-ln .chat-n{font-weight:800}
+.chat-ln.sys{color:var(--mute);font-style:italic}
+.chat.open .chat-log{max-height:40vh;overflow-y:auto;pointer-events:auto}
+.chat.open .chat-ln.old{opacity:.8}
+.chat-in{pointer-events:auto;font:600 14px var(--f-body);color:var(--bone);background:rgba(12,15,20,.85);border:1px solid #e8c14a;border-radius:4px;padding:6px 8px;outline:none;width:100%;box-sizing:border-box}
+.chat-quick{background:rgba(12,15,20,.85);border:1px solid #3a4550;border-radius:4px;padding:4px;display:flex;flex-direction:column;gap:2px}
+.chat-quick .q{padding:3px 8px;border-radius:3px}
+.chat-quick .q.on{background:#e8c14a;color:#141a20}
+.chat-quick .qh{font:500 11px var(--f-mono);color:var(--mute);padding:2px 8px}
+.vchud{display:flex;flex-wrap:wrap;gap:4px}
+.vchud .vc{background:rgba(12,15,20,.62);padding:2px 8px 2px 6px;border-radius:10px;font-size:12px;border:1px solid transparent}
+.vchud .vc.talk{border-color:#7fc8a0;box-shadow:0 0 6px #7fc8a0}
+.vchud .vc .ic{display:inline-block;width:1.3em;text-align:center}
+.vchud .vc.mute{opacity:.6}
+@media (pointer:coarse){.chat{bottom:calc(412px + env(safe-area-inset-bottom,0px))}}   /* (above the touch screen's minimap, which sits higher) */
 </style>
 
 <canvas id="world"></canvas>
@@ -631,6 +651,12 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
   </div>
   <div class="clockTxt" id="clockTxt" aria-live="off"></div>
   <div class="divider" id="divider" hidden></div>
+  <div class="chat" id="chat" hidden>
+    <div class="chat-log" id="chatLog" aria-live="polite"></div>
+    <input type="text" class="chat-in" id="chatIn" maxlength="120" autocomplete="off" spellcheck="false" placeholder="Say something, Enter sends, Esc cancels" aria-label="Chat message" hidden>
+    <div class="chat-quick" id="chatQuick" hidden></div>
+    <div class="vchud" id="vcHud" hidden></div>
+  </div>
 </div>
 
 <div class="touch" id="touch" hidden>
@@ -787,6 +813,19 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
       <div class="crow"><input type="range" id="fireCap" class="vrange" min="0" max="9" step="1" value="5" aria-label="Most fires and smoke plumes at once"><span class="vval" id="fireCapVal">70</span></div>
       <p class="vnote">The most fires and smoke plumes burning at once; when another starts, the oldest goes out. At the top there's no limit at all. Lower it if big disasters make the game stutter.</p>
     </div>
+    <div class="custom" id="chatOpts">
+      <h2>ONLINE CHAT &amp; VOICE</h2>
+      <div class="abil">
+        <button type="button" class="tog" role="checkbox" id="chatShowTog"><span class="box" aria-hidden="true"></span><span class="tl">Show chat<small>In an online game, press Enter to type a message (Enter sends it, Esc cancels). On a controller, <span id="chatQkKey">D-pad ↑</span> picks a quick message. Untick to hide chat altogether</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="chatInTog"><span class="box" aria-hidden="true"></span><span class="tl">Other players' messages<small>Untick to mute what the others type. Your own lines still show</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="vcTog"><span class="box" aria-hidden="true"></span><span class="tl">Voice chat<small>Off until you switch it on, and never kept on between visits. Talk to the others in an online game over the internet: your browser asks to use the microphone first</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="vcPttTog"><span class="box" aria-hidden="true"></span><span class="tl">Push to talk<small id="vcPttTxt">Hold T (D-pad ← on a controller) to talk. Untick for an open microphone</small></span></button>
+      </div>
+      <div class="crow"><input type="range" id="vcVol" class="vrange" min="0" max="100" step="5" value="100" aria-label="Voice chat volume"><span class="vval" id="vcVolVal">100%</span></div>
+      <p class="vnote">Voice volume: how loud the other players are.</p>
+      <div class="abil" id="vcPeers"></div>
+      <p class="vnote" id="vcNote" role="status"></p>
+    </div>
     <div class="custom">
       <h2>DEBUG</h2>
       <div class="abil" id="dbgMenuTog">
@@ -800,6 +839,8 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
       <div class="pn">
         <p class="pn-web">What's changed, newest first. These notes are also on <a href="patch-notes/index.html" target="_blank" rel="noopener">their own web page</a>.</p>
 <details class="pn-up pn-fold pn-new" id="version-0-4" open><summary tabindex="0"><h2>Version 0.4</h2><span class="pn-tog" aria-hidden="true"></span></summary>
+<h3>Chat and voice chat online</h3>
+<ul><li>Talk to the others in an online game: press Enter, type a message and press Enter again to send it (Esc cancels). Messages show at the bottom left with the sender's name in their colour and fade away after a few seconds. Press Enter again to read back through the recent ones.</li><li>While you're typing, your keys stay in the chat box: Gus or Gertie stands still instead of walking off.</li><li>On a controller, D-pad ↑ brings up a few quick messages ("Over here!", "Help!", "Follow me!" and more): pick one with the D-pad and press A to send it, or B to put the list away.</li><li>Messages are up to 120 characters, and only ever shown as plain text. Typing very fast gets a "slow down" instead.</li><li>Voice chat, for games over the internet: switch it on in Options, under Online chat &amp; voice. It's off until you switch it on, and it's off again every time you start the game. Nothing touches your microphone until then, and your browser asks first.</li><li>Push to talk is the default: hold T (D-pad ← on a controller) to talk. Untick it for an open microphone. Both buttons can be changed in the Controls tab.</li><li>Little chips at the bottom left show who's on voice and light up while they're talking. You can mute any player just for yourself, and set how loud voices are.</li><li>You only hear players who have voice chat switched on, and with yours off nobody sends you any sound at all.</li><li>Don't want chat? Untick "Show chat" in Options to hide it altogether, or "Other players' messages" to mute what the others type.</li><li>Enter can't be picked for other controls any more, as it opens the chat.</li></ul>
 <h3>Open games</h3>
 <ul><li>No more reading out room codes: Play online now lists the games being hosted right now under Open games, with who's hosting and how many players are in. Click Join on one to jump in.</li><li>Host a game and it shows up on everyone else's list straight away. It drops off when you stop hosting, and shows as Full once all four seats are taken.</li><li>Want to play with just your friends? Tick "Private game" before or while hosting and your game stays off the list. They can still join with the room code, which works just as before.</li><li>Works with "Two tabs of this browser" too, for trying it out on one computer.</li></ul>
 <h3>Goblin attacks</h3>
@@ -13731,7 +13772,7 @@ addEventListener('touchstart',()=>noteInput('touch'),{capture:true,passive:true}
 document.querySelectorAll('.ctl-seg button').forEach(b=>b.addEventListener('click',()=>{ctlView=b.dataset.view;renderControls();}));
 const CC={walk:'#6cbf45',look:'#4fb3b0',jump:'#5a92e0',bite:'#e0b030',stomp:'#e0564a',charge:'#e08a34',pause:'#9aa4ae',menu:'#7b8794'};
 // ---- re-bindable controls: each action can have up to two keys (or mouse buttons) and up to two controller buttons.
-// Kept in the browser. (Esc, ~ and the debug keys P V . [ ], and a controller's Start and Select, stay as they are.)
+// Kept in the browser. (Esc, ~ and the debug keys P V . [ ], Enter, which opens the online chat, and a controller's Start and Select, stay as they are.)
 const BIND_KEY='goblin-binds-v1';
 const ACTS=[
   {id:'fwd',n:'Walk forward',c:CC.walk,kb:['KeyW','ArrowUp'],pad:[]},
@@ -13748,8 +13789,10 @@ const ACTS=[
   {id:'climb',n:'Spider Climb (hold)',c:'#9a7ae0',kb:['KeyC'],pad:[4]},
   {id:'use',n:'Get in / out (as Gnash)',c:'#6ab0d8',kb:['KeyF'],pad:[3]},
   {id:'weapon',n:'Next weapon (as Gnash)',c:'#b0b8c0',kb:['KeyR'],pad:[15]},
+  {id:'talk',n:'Push to talk (online voice chat)',c:'#7fc8a0',kb:['KeyT'],pad:[14]},
+  {id:'quickChat',n:'Quick chat message (online)',c:'#8fb8e0',kb:[],pad:[12]},
 ];
-const KB_RESERVED=new Set(['Escape','Backquote','KeyP','KeyV','Period','BracketLeft','BracketRight','Backspace','Delete']),PAD_RESERVED=new Set([8,9]);
+const KB_RESERVED=new Set(['Escape','Backquote','KeyP','KeyV','Period','BracketLeft','BracketRight','Backspace','Delete','Enter','NumpadEnter']),PAD_RESERVED=new Set([8,9]);
 let BINDS={};
 function defaultBinds(){const o={};for(const a of ACTS)o[a.id]={kb:a.kb.slice(),pad:a.pad.slice()};return o;}
 function loadBinds(){BINDS=defaultBinds();
@@ -13861,7 +13904,7 @@ function padSVG(ps){
 // the legend beside the picture: each action and what it's bound to
 function legendRows(dev,gb,gs,gk,or){
   const ps=padStyle==='ps',hv=ABIL.trample?'trample':'sprint';
-  const DESC={jump:'Jump',bite:'Bite',stomp:'Stomp',dashSprint:'Tap: dash · Hold: '+hv+' · In mid-air: air dash',dash:'Dash · In mid-air: air dash',sprint:'Hold: '+hv+' · In mid-air: air dash',lock:'Lock on',climb:'Spider Climb (hold)'};
+  const DESC={jump:'Jump',bite:'Bite',stomp:'Stomp',dashSprint:'Tap: dash · Hold: '+hv+' · In mid-air: air dash',dash:'Dash · In mid-air: air dash',sprint:'Hold: '+hv+' · In mid-air: air dash',lock:'Lock on',climb:'Spider Climb (hold)',talk:'Push to talk (online)',quickChat:'Quick chat (online)'};
   const chip=(a,v)=>dev==='kb'?(String(v).startsWith('Mouse')?gs(keyLabel(v),a.c):gk(keyLabel(v))):(v<4?gb(padLabel(v,ps),a.c):gs(padLabel(v,ps),a.c));
   let out='';
   if(dev==='kb'){const w=['fwd','left','back','right'].map(id=>BINDS[id].kb[0]).filter(Boolean);if(w.length)out+=`<dt>${w.map(c=>gk(keyLabel(c))).join('')}</dt><dd>Walk</dd>`;}
@@ -20609,7 +20652,7 @@ function pause(){if(TENV)tpShow(true);menuOpen=true;playing=false;keys.clear();m
 // losing the mouse (another window clicked, alt-tab) pauses -- unless you're playing on a controller, which keeps
 // working with the game in the background (as long as the page is still showing; 'on a controller': you've used one
 // in the last minute -- so the Alt of an Alt-Tab doesn't count against it)
-document.addEventListener('pointerlockchange',()=>{if(locked()){lockOk=true;lockFails=0;return;}if(!menuOpen&&!dragMode&&!P1.paused&&!DT.kbdOpen&&!(performance.now()-lastPadT<60000&&connectedPads().length))requestPause(P1);});
+document.addEventListener('pointerlockchange',()=>{if(locked()){lockOk=true;lockFails=0;return;}if(!menuOpen&&!dragMode&&!P1.paused&&!DT.kbdOpen&&!chatHasEsc()&&!(performance.now()-lastPadT<60000&&connectedPads().length))requestPause(P1);});
 // in co-op each hippo pauses on their own; the city only stops once everyone has paused
 const inCoop=()=>coop&&P2.active;
 function requestPause(p){if(inCoop())pausePlayer(p);else pause();}
@@ -20683,7 +20726,7 @@ function readInputs(dt){
   else{s1=st[0]||null;s2=st[1]||null;}
   if(s1)P1.pad=s1.p;if(s2&&P2.active&&!P2.net)P2.pad=s2.p;
   P2.ui.join.hidden=!(P2.active&&!P2.pad);
-  for(const p of players){const i=p.in;i.x=0;i.z=0;i.charge=false;i.chargePress=false;i.stomp=false;i.bite=false;i.bitePress=false;i.jumpPress=false;i.jump=false;i.lockPress=false;i.dash=false;i.dashPress=false;i.sprint=false;i.sprintPress=false;i.lookX=0;i.lookY=0;i.climb=false;i.use=false;i.weapon=false;}
+  for(const p of players){const i=p.in;i.x=0;i.z=0;i.charge=false;i.chargePress=false;i.stomp=false;i.bite=false;i.bitePress=false;i.jumpPress=false;i.jump=false;i.lockPress=false;i.dash=false;i.dashPress=false;i.sprint=false;i.sprintPress=false;i.lookX=0;i.lookY=0;i.climb=false;i.use=false;i.weapon=false;i.talk=false;}
   // (rebinding a control in the menu: the next button pressed on any controller is the one)
   if(menuOpen&&BIND_CAP){if(performance.now()-BIND_CAP.t>200)for(const s of st){const i=s.pr.findIndex(Boolean);if(i<0)continue;
       if(BIND_CAP.dev==='pad'){if(PAD_RESERVED.has(i))bindCancel();else setBind(BIND_CAP.id,'pad',BIND_CAP.i,i);}else if(i===1||i===9)bindCancel();break;}
@@ -20724,7 +20767,7 @@ function readInputs(dt){
     const A={};for(const a of ACTS){const h=kbAct(a.id);A[a.id]=h;A[a.id+'P']=h&&!kbPrevA[a.id];kbPrevA[a.id]=h;}
     I.z+=(A.back?1:0)-(A.fwd?1:0);I.x+=(A.right?1:0)-(A.left?1:0);
     I.charge=A.dashSprint;I.chargePress=A.dashSprintP;I.dash=A.dash;I.dashPress=A.dashP;I.sprint=A.sprint;I.sprintPress=A.sprintP;
-    I.stomp=A.stomp;I.jumpPress=A.jumpP;I.jump=A.jump;I.lockPress=A.lockP;I.climb=A.climb;I.bite=A.bite;I.bitePress=A.biteP;I.use=A.use;I.weapon=A.weapon;
+    I.stomp=A.stomp;I.jumpPress=A.jumpP;I.jump=A.jump;I.lockPress=A.lockP;I.climb=A.climb;I.bite=A.bite;I.bitePress=A.biteP;I.use=A.use;I.weapon=A.weapon;I.talk=A.talk;
   }else for(const a of ACTS)kbPrevA[a.id]=false;
   mTap.clear();
   const apply=(p,s)=>{
@@ -20746,9 +20789,14 @@ function readInputs(dt){
     i.jumpPress=i.jumpPress||pp('jump');i.jump=i.jump||pb('jump');
     i.bite=i.bite||pb('bite');
     i.bitePress=i.bitePress||pp('bite');
+    i.talk=i.talk||pb('talk');
   };
   if(DT.menu&&DT.kbdOpen){const I=P1.in;for(const k in I)if(typeof I[k]==='boolean')I[k]=false;I.x=I.z=0;}
+  // (online chat: the controller's quick messages take it over while their list is up, and while a line's being typed
+  // or picked player one stands still, so the keys typed never walk them off)
+  if(s1&&chatPad(s1))s1=null;
   apply(P1,s1);if(P2.active&&!P2.net)apply(P2,s2);
+  if(CHAT.open||CHAT.quick){const I=P1.in;for(const k in I)if(typeof I[k]==='boolean')I[k]=false;I.x=I.z=0;I.lookX=I.lookY=0;}
   for(const p of players)p.in.chargeHeld=p.in.charge;
   if(DT.freecam&&!P1.paused)updateFreecam(dt,s1);
   if(!ABIL.climb)for(const p of players)p.in.climb=false;
@@ -21539,7 +21587,13 @@ async function netTrystero(code){
   const room=mod.joinRoom(cfg,code),a=room.makeAction('m'),old=Array.isArray(a);   // (older Trystero gave [send, receive]; newer an object)
   const T={kind:'p2p',self:mod.selfId,on:{},
     send(d,to){try{if(old)a[0](d,to||null);else a.send(d,to?{target:to}:undefined);}catch(e){}},
-    close(){try{room.leave();}catch(e){}}};
+    close(){try{room.leave();}catch(e){}},
+    // (voice chat: a microphone's stream added to, or taken off, the connection to one player. Trystero renegotiates the
+    // connection over its own data channel; nothing here runs unless someone switches voice on)
+    av:{add(st,to){if(old)room.addStream(st,to);else room.addStream(st,{target:to});},
+      remove(st,to){if(old)room.removeStream(st,to);else room.removeStream(st,{target:to});},
+      onStream(f){if(old)room.onPeerStream(f);else room.onPeerStream=f;},
+      conns(){try{return Object.values(room.getPeers?room.getPeers():{});}catch(e){return [];}}}};
   const got=(d,meta)=>{const peer=typeof meta==='string'?meta:meta&&meta.peerId;if(T.on.msg)T.on.msg(peer,d);};
   const join=id=>{if(T.on.join)T.on.join(id);},leave=id=>{if(T.on.leave)T.on.leave(id);};
   if(old){a[1](got);room.onPeerJoin(join);room.onPeerLeave(leave);}
@@ -21575,6 +21629,8 @@ function netHostMsg(peer,m){
   if(!p)return;
   p.net.heard=NET.now;
   if(m.t==='in')netGotInput(p,m);
+  else if(m.t==='chat')chatFromGuest(p,m);
+  else if(m.t==='vo')p.net.vo=!!m.on;   // (a guest switched its voice chat on or off: see vcRosterTick)
   else if(m.t==='bye')netHostLeft(peer);
 }
 // a guest asking to join: seat them as player two, if that seat's free (online play is two players: the second split-screen
@@ -21590,7 +21646,7 @@ function netSeat(peer,m){
     if(seat<0){NET.tr.send({t:'deny',why:'That game is full.'},peer);return;}
     while(players.length<=seat)players.push(makePlayer(players.length));
     p=players[seat];p.net={peer,cid:m.cid||null,gone:0,seat,heard:NET.now,inb:null,pr:{},sent:{},pose:null,looks:new Map(),cars:new Map(),out:[],seq:0};NET.guests.set(peer,p);}
-  p.net.inb=null;p.net.pr={};p.net.inN=0;
+  p.net.inb=null;p.net.pr={};p.net.inN=0;p.net.vo=false;   // (vo: on voice chat. A tab that's just joined, or reloaded, isn't till it says so)
   // (two players who've both picked the same hippo: the guest's the other one, so they can tell each other apart. The
   // two are the same in everything but looks)
   p.who=m.who?1:0;if(!m.gob&&!P1.gob&&p.who===P1.who)p.who=1-P1.who;setGobP(p,!!m.gob);
@@ -21670,6 +21726,8 @@ function netGuestMsg(peer,m){
   NET.lastHeard=NET.now;
   if(m.t==='s')netGotSnap(m);
   else if(m.t==='pong'){NET.rtt=NET.now-m.a;}
+  else if(m.t==='chat')chatGot(m);
+  else if(m.t==='vr')vcRoster(m.l);
   else if(m.t==='bye')netLost('The host ended the game.');
 }
 // the host's world: if this tab was opened for it, catch up with what's changed since; otherwise keep it in this tab's
@@ -21715,7 +21773,7 @@ function netLeaveWorld(why){
   netReload();
 }
 function netClose(){
-  NET.retry=null;
+  NET.retry=null;vcOff(true);chatReset();   // (voice and chat go with the game: the microphone's let go at once)
   if(!NET.tr){NET.mode=0;return;}
   try{if(netGuest()&&NET.host)NET.tr.send({t:'bye'},NET.host);else if(netHost())NET.tr.send({t:'bye'});}catch(e){}
   try{NET.tr.close();}catch(e){}
@@ -21753,12 +21811,13 @@ function netTick(now,dt){
     netHostInputs();netGobHist();
     for(const p of [...NET.guests.values()]){const N=p.net;if(!N)continue;if(!N.gone&&now-N.heard>10000)netHostDropped(N.peer);else if(N.gone&&now-N.gone>30000)netHostLeft(N.peer);}   // (gone silent: its seat's kept half a minute, then comes free)
     NET.snapT-=dt*1000;if(NET.snapT<=0&&NET.guests.size){NET.snapT+=1000/NET_SNAP_HZ;if(NET.snapT<0)NET.snapT=0;for(const p of NET.guests.values())if(!p.net.gone)netSendSnap(p);}
-    NET.fxOut=null;
+    NET.fxOut=null;vcRosterTick(dt);
   } else if(NET.joined&&NET.tr&&NET.host){
     netSendInput(dt);
     NET.pingT-=dt;if(NET.pingT<=0){NET.pingT=2;NET.tr.send({t:'ping',a:now},NET.host);}
     if(now-NET.lastHeard>10000)netDropped();
   }
+  chatTick(dt);if(VC.on)vcTick(dt);
 }
 // (guest: its own controls, read as usual into P1.in by readInputs, sent on to the host)
 const NET_IN={pr:{},hh:{},fl:[0,0]};   // (presses, and buttons held at any moment, since the last message: a tap between two never goes missing)
@@ -22367,6 +22426,7 @@ function netUiRefresh(){
   netEl('playCoop').hidden=on&&!!P2.net;netEl('hostMain').disabled=netGuest()&&NET.joined;
   netEl('netPrivate').checked=LOBBY.priv;
   lobbySync();
+  try{vcOptsDraw();}catch(e){}   // (whether voice can be switched on goes with being online. Not yet made while the page loads)
 }
 {
   const pan=netEl('onlinePanel'),btn=netEl('onlineBtn');
@@ -22391,6 +22451,320 @@ function netUiRefresh(){
   let why=null;try{why=sessionStorage.getItem('gsg-net-why');sessionStorage.removeItem('gsg-net-why');}catch(e){}
   if(why){show(true);netUiStatus(why);}
 }
+// ---------- Online co-op: text chat ----------
+// A typed line rides on the game's own connection as one more message type, 'chat'. A guest sends its line to the host;
+// the host checks it (its length, how often that player's been typing) and passes it on to everyone with the sender's
+// name and colour, the sender's own copy included, so every screen shows the same lines in the same order. Lines only
+// ever reach the page as text (textContent), never as markup, so nobody can put anything on another player's screen
+// but words. Nothing here does anything outside an online game.
+const CHAT_MAX=120,CHAT_SHOW=8000,CHAT_KEEP=40;   // (longest line, ms a line stays up, lines kept for when the chat's opened again)
+const CHAT_RATE={n:4,ms:5000,gap:300};   // (at most 4 lines in 5 seconds, and none within 0.3 s of the last)
+const CHAT_QUICK=['Over here!','Help!','Follow me!','Wait for me!','Nice one!','Smash it!'];   // (a controller's messages)
+const CHAT_KEY='gsg-chat-v1';
+const CHAT={open:false,quick:false,qi:0,qT:0,qy:0,lines:[],sent:[],show:true,incoming:true,closedAt:-1e9};
+{try{const o=JSON.parse(localStorage.getItem(CHAT_KEY)||'null');if(o&&typeof o==='object'){CHAT.show=o.show!==false;CHAT.incoming=o.incoming!==false;}}catch(e){}}
+function chatSave(){try{localStorage.setItem(CHAT_KEY,JSON.stringify({show:CHAT.show,incoming:CHAT.incoming}));}catch(e){}}
+const chatEl=id=>document.getElementById(id);
+// (somebody to talk to: hosting, or in someone's game)
+const chatAvail=()=>!!(NET.tr&&(netHost()||netGuest()&&NET.joined&&NET.host));
+// a line as it's allowed to be: one line of plain text, no control or direction-flipping characters, trimmed, not too long
+function chatClean(s){return String(s==null?'':s).replace(/[\u0000-\u001f\u007f-\u009f\u200b-\u200f\u2028-\u202e\u2066-\u2069\ufeff]/g,' ').replace(/\s+/g,' ').trim().slice(0,CHAT_MAX);}
+// (a player's name and colour as the chat shows them: the HUD's two colours for the first two, two more for the others)
+function chatName(p){let n=charName(p);if(players.some(q=>q!==p&&(q.active||q.net)&&charName(q)===n))n+=' (P'+(p.idx+1)+')';return n;}
+const chatCol=p=>p.idx>=2?['#8fd0ff','#a8e07a'][(p.idx-2)%2]:charTint(p)?'#ffb0d8':'#ffd75a';
+function chatRateOk(L,now){while(L.length&&now-L[0]>CHAT_RATE.ms)L.shift();if(L.length>=CHAT_RATE.n||L.length&&now-L[L.length-1]<CHAT_RATE.gap)return false;L.push(now);return true;}
+
+// ---- sending and passing on ----
+function chatSend(text){
+  const x=chatClean(text);if(!x||!chatAvail())return false;
+  if(!chatRateOk(CHAT.sent,performance.now())){chatSys('Slow down a little: one line at a time.');return false;}
+  if(netHost())chatPost(P1,x);else NET.tr.send({t:'chat',x},NET.host);
+  return true;
+}
+// (host: a guest's line, checked again here, since a guest could be running anything)
+function chatFromGuest(p,m){
+  const x=chatClean(m.x);if(!x)return;const N=p.net;N.chat=N.chat||[];
+  if(!chatRateOk(N.chat,performance.now())){NET.tr.send({t:'chat',sys:'Slow down a little: one line at a time.'},N.peer);return;}
+  chatPost(p,x);
+}
+// (host: a line goes out to every guest, and on to this screen)
+function chatPost(p,x){
+  const m={t:'chat',s:p.idx,n:chatName(p),c:chatCol(p),x};
+  for(const q of NET.guests.values())if(!q.net.gone)NET.tr.send(m,q.net.peer);
+  chatShow(m.n,m.c,x,p===P1);
+}
+// (guest: a line from the host, its own included)
+function chatGot(m){
+  if(typeof m.sys==='string'){chatSys(chatClean(m.sys));return;}
+  const x=chatClean(m.x);if(!x)return;
+  const n=chatClean(m.n).slice(0,32)||'Someone',c=/^#[0-9a-f]{3,8}$/i.test(m.c)?m.c:'#eef0e6';
+  chatShow(n,c,x,m.s===NET.seat);
+}
+
+// ---- on screen ----
+function chatShow(n,c,x,own){
+  if(!own&&!CHAT.incoming)return;
+  const ln=document.createElement('div');ln.className='chat-ln';
+  const a=document.createElement('span');a.className='chat-n';a.textContent=n+': ';a.style.color=c;
+  const b=document.createElement('span');b.textContent=x;ln.append(a,b);
+  chatAdd(ln,{n,c,x});
+  if(!own)try{tone('triangle',880,1320,0.06,0.025);}catch(e){}
+}
+function chatSys(x){if(!x)return;const ln=document.createElement('div');ln.className='chat-ln sys';ln.textContent=x;chatAdd(ln,{x,sys:true});}
+function chatAdd(ln,rec){
+  rec.el=ln;CHAT.lines.push(rec);chatEl('chatLog').append(ln);
+  while(CHAT.lines.length>CHAT_KEEP){const o=CHAT.lines.shift();try{o.el.remove();}catch(e){}}
+  ln._t=setTimeout(()=>{try{ln.classList.add('old');}catch(e){}},CHAT_SHOW);
+  chatVis();
+  try{const L=chatEl('chatLog');L.scrollTop=L.scrollHeight;}catch(e){}
+}
+// (the chat's corner of the screen: there in an online game, with chat switched on, or while anyone's on voice)
+function chatVis(){const e=chatEl('chat');if(!e)return;const on=chatAvail()&&(CHAT.show||VC.on);if(e.hidden===on)e.hidden=!on;chatEl('chatLog').hidden=!CHAT.show;}
+function chatTick(dt){
+  chatVis();
+  if(CHAT.open&&(!chatAvail()||menuOpen||P1.paused))chatClose();
+  if(CHAT.quick){CHAT.qT-=dt;if(CHAT.qT<=0||!chatAvail()||menuOpen||P1.paused)chatQuickClose();}
+}
+// everything put away and forgotten (leaving the game)
+function chatReset(){
+  if(CHAT.open)chatClose();if(CHAT.quick)chatQuickClose();
+  for(const o of CHAT.lines){clearTimeout(o.el._t);try{o.el.remove();}catch(e){}}CHAT.lines.length=0;CHAT.sent.length=0;
+  const e=chatEl('chat');if(e)e.hidden=true;
+}
+
+// ---- typing a line (the keyboard) ----
+function chatOpen(){
+  if(CHAT.open||!chatAvail()||!CHAT.show)return;
+  if(CHAT.quick)chatQuickClose();
+  CHAT.open=true;keys.clear();mHeld.clear();
+  const c=chatEl('chat'),i=chatEl('chatIn');c.classList.add('open');i.hidden=false;i.value='';chatVis();
+  for(const o of CHAT.lines)clearTimeout(o.el._t);
+  try{i.focus();}catch(e){}
+  try{const L=chatEl('chatLog');L.scrollTop=L.scrollHeight;}catch(e){}
+}
+function chatClose(){
+  if(!CHAT.open)return;CHAT.open=false;CHAT.closedAt=performance.now();keys.clear();
+  const c=chatEl('chat'),i=chatEl('chatIn');c.classList.remove('open');try{i.blur();}catch(e){}i.hidden=true;i.value='';
+  // (the lines brought back for reading fade again a moment later)
+  for(const o of CHAT.lines){const ln=o.el;clearTimeout(ln._t);if(!ln.classList.contains('old'))ln._t=setTimeout(()=>{try{ln.classList.add('old');}catch(e){}},CHAT_SHOW);}
+}
+// (Esc that cancels the chat also lets go of a captured mouse: that isn't a request to pause)
+const chatHasEsc=()=>CHAT.open||performance.now()-CHAT.closedAt<500;
+addEventListener('keydown',e=>{
+  if(e.code!=='Enter'&&e.code!=='NumpadEnter'||e.repeat)return;
+  if(CHAT.open||menuOpen||!playing||P1.paused||DT.kbdOpen||BIND_CAP||!chatAvail()||!CHAT.show)return;
+  e.preventDefault();chatOpen();
+});
+{
+  const i=chatEl('chatIn');
+  // (keys typed here stop here: none reach the game's own key handlers, so nothing walks, jumps or opens a debug view)
+  i.addEventListener('keydown',e=>{e.stopPropagation();
+    if(e.code==='Enter'||e.code==='NumpadEnter'){e.preventDefault();if(!e.repeat){chatSend(i.value);chatClose();}}
+    else if(e.code==='Escape'){e.preventDefault();chatClose();}});
+  i.addEventListener('keyup',e=>e.stopPropagation());
+  document.addEventListener('pointerlockchange',()=>{if(!locked()&&CHAT.open)chatClose();});
+}
+
+// ---- quick messages (a controller) ----
+// The quick chat button (D-pad up unless rebound) brings up a short list: up and down (the D-pad or the left stick) pick,
+// A sends, B or the button again puts it away. While it's up, that controller drives the list rather than the hippo.
+function chatPad(s){
+  const pp=id=>BINDS[id].pad.some(k=>s.pr[k]);
+  if(!CHAT.quick){
+    if(!pp('quickChat')||!chatAvail()||!CHAT.show||CHAT.open)return false;
+    CHAT.quick=true;CHAT.qi=0;CHAT.qT=8;CHAT.qy=0;chatQuickDraw();return true;}
+  const y=s.p.axes[1]||0,dy=y<-0.55?-1:y>0.55?1:0,st=dy&&dy!==CHAT.qy?dy:0;CHAT.qy=dy;
+  const mv=(s.pr[12]?-1:0)+(s.pr[13]?1:0)+st;
+  if(mv){CHAT.qi=(CHAT.qi+mv+CHAT_QUICK.length)%CHAT_QUICK.length;CHAT.qT=8;chatQuickDraw();}
+  if(s.pr[0]){chatSend(CHAT_QUICK[CHAT.qi]);chatQuickClose();}
+  else if(s.pr[1]||pp('quickChat')&&!s.pr[12])chatQuickClose();
+  return true;
+}
+function chatQuickDraw(){
+  const e=chatEl('chatQuick');e.hidden=false;e.innerHTML='';
+  CHAT_QUICK.forEach((t,k)=>{const d=document.createElement('div');d.className='q'+(k===CHAT.qi?' on':'');d.textContent=t;e.append(d);});
+  const h=document.createElement('div');h.className='qh';h.innerHTML=hudHTML(btnMark(bindGlyph('pad',0))+' send · '+btnMark(bindGlyph('pad',1))+' close');e.append(h);
+}
+function chatQuickClose(){CHAT.quick=false;const e=chatEl('chatQuick');if(e){e.hidden=true;e.innerHTML='';}}
+
+// ---- the Options tab: show chat, mute the others ----
+function chatOptsDraw(){
+  chatEl('chatShowTog').setAttribute('aria-checked',String(CHAT.show));
+  chatEl('chatInTog').setAttribute('aria-checked',String(CHAT.incoming));
+  const q=BINDS.quickChat.pad[0];chatEl('chatQkKey').textContent=q==null?'the Quick chat button (Controls tab)':padLabel(q,padStyle==='ps');
+}
+chatEl('chatShowTog').addEventListener('click',()=>{CHAT.show=!CHAT.show;if(!CHAT.show){chatClose();chatQuickClose();}chatSave();chatOptsDraw();chatVis();});
+chatEl('chatInTog').addEventListener('click',()=>{CHAT.incoming=!CHAT.incoming;chatSave();chatOptsDraw();});
+chatOptsDraw();
+// ---------- Online co-op: voice chat ----------
+// Off unless a player switches it on, and never kept on between visits. Until then nothing here touches the microphone,
+// makes an AudioContext or adds anything to a connection: the only thing that runs is the host's list of who's on voice,
+// and that says nothing at all until somebody is.
+// Switched on, the microphone's stream goes straight to each other player who also has voice on, over the connection
+// Trystero already has open to them (it renegotiates the connection itself, over its own data channel). Nobody sends
+// audio to a player with voice off, so they never receive or decode any. The host keeps the list of who's on (the 'vr'
+// message, from each guest's 'vo') and every player sends to whoever that list says. Switched off, the stream's taken off
+// every connection, the microphone's let go, its audio lines are stopped and the AudioContext is closed.
+// Between two tabs of one browser there's no real connection to carry sound, so voice is for games over the internet.
+const VC_KEY='gsg-voice-v1',VC_SPEAK=0.02;   // (VC_SPEAK: how loud, as an RMS level, counts as talking for the indicator)
+const VC={on:false,want:false,busy:false,ptt:true,vol:1,mute:new Set(),
+  ctx:null,mic:null,an:null,buf:null,   // (the microphone's stream, and an AudioContext only for the speaking indicators)
+  tr:null,said:null,roster:[],sendTo:new Set(),remote:new Map(),pend:new Map(),
+  talking:false,level:0,meterT:0,rsT:0,rsLast:'',hudKey:'',peersKey:'',note:''};
+{try{const o=JSON.parse(localStorage.getItem(VC_KEY)||'null');if(o&&typeof o==='object'){VC.ptt=o.ptt!==false;if(Number.isFinite(o.vol))VC.vol=Math.max(0,Math.min(1,o.vol));}}catch(e){}}
+function vcSave(){try{localStorage.setItem(VC_KEY,JSON.stringify({ptt:VC.ptt,vol:VC.vol}));}catch(e){}}
+const vcCan=()=>chatAvail()&&!!NET.tr.av;
+const vcSelf=()=>NET.tr?NET.tr.self:null;
+function vcNote(s){VC.note=s||'';const e=chatEl('vcNote');if(e)e.textContent=VC.note;}
+const vcTalkKeys=()=>{const k=BINDS.talk.kb[0],p=BINDS.talk.pad[0];return k&&p!=null?keyLabel(k)+' ('+padLabel(p,padStyle==='ps')+' on a controller)':k?keyLabel(k):p!=null?padLabel(p,padStyle==='ps'):'the Push to talk button (set one in the Controls tab)';};
+
+// ---- on and off ----
+async function vcStart(){
+  if(VC.on||VC.busy)return;
+  if(!chatAvail()){vcNote('Voice chat works in an online game: host one or join one first.');vcOptsDraw();return;}
+  if(!NET.tr.av){vcNote("Voice chat needs a game over the internet: between two tabs of one browser there's no connection to carry it.");vcOptsDraw();return;}
+  const md=typeof navigator!=='undefined'&&navigator.mediaDevices;
+  if(!md||!md.getUserMedia){vcNote("This browser won't let the game use a microphone here (it needs the game's website, rather than a file opened from disk).");vcOptsDraw();return;}
+  VC.want=true;VC.busy=true;vcNote('Asking for the microphone...');vcOptsDraw();
+  let st=null;
+  try{st=await md.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:false});}
+  catch(e){VC.busy=false;VC.want=false;const n=e&&e.name;
+    vcNote(n==='NotAllowedError'||n==='SecurityError'?"The microphone wasn't allowed, so voice chat stays off. Allow it from the browser's address bar, then try again."
+      :n==='NotFoundError'||n==='OverconstrainedError'||n==='NotReadableError'?'No microphone could be used, so voice chat stays off.'
+      :"Couldn't start the microphone ("+((e&&e.message)||n||e)+'), so voice chat stays off.');
+    flashLabel('Voice chat stays off: no microphone',P1);vcOptsDraw();return;}
+  VC.busy=false;
+  // (switched off again, or out of the game, while the browser was asking: let it go at once)
+  if(!VC.want||!vcCan()){for(const t of st.getTracks())t.stop();VC.want=false;vcNote(vcCan()?'':'Voice chat works in an online game: host one or join one first.');vcOptsDraw();return;}
+  VC.mic=st;VC.talking=!VC.ptt;for(const t of st.getAudioTracks())t.enabled=VC.talking;
+  try{const AC=window.AudioContext||window.webkitAudioContext;VC.ctx=new AC();const src=VC.ctx.createMediaStreamSource(st);
+    VC.an=VC.ctx.createAnalyser();VC.an.fftSize=512;src.connect(VC.an);VC.buf=new Uint8Array(VC.an.fftSize);}   // (measured only: never played back)
+  catch(e){VC.ctx=null;VC.an=null;VC.buf=null;}
+  VC.on=true;VC.tr=null;VC.said=null;
+  vcNote(VC.ptt?'Voice chat is on. Hold '+vcTalkKeys()+' to talk.':'Voice chat is on, with an open microphone.');
+  vcSync();vcAnnounce();vcHudDraw();vcOptsDraw();chatVis();
+}
+function vcOff(quiet){
+  VC.want=false;if(!VC.on)return;VC.on=false;
+  const T=VC.tr;
+  if(T&&T.av&&VC.mic)for(const id of VC.sendTo)try{T.av.remove(VC.mic,id);}catch(e){}
+  VC.sendTo.clear();VC.pend.clear();for(const id of [...VC.remote.keys()])vcDrop(id);
+  if(VC.mic)for(const t of VC.mic.getTracks())try{t.stop();}catch(e){}
+  VC.mic=null;VC.talking=false;VC.level=0;
+  if(VC.ctx)try{VC.ctx.close();}catch(e){}
+  VC.ctx=null;VC.an=null;VC.buf=null;
+  // (the connections' audio lines go too, so nothing's left negotiated, sent or decoded: switched on again, new ones are made)
+  if(T&&T.av)for(const pc of T.av.conns())try{for(const x of pc.getTransceivers())if(!x.stopped&&x.receiver&&x.receiver.track&&x.receiver.track.kind==='audio')x.stop();}catch(e){}
+  if(!quiet){vcAnnounce();vcNote('Voice chat is off.');}else vcNote('');
+  VC.hudKey='';vcHudDraw();vcOptsDraw();try{chatVis();}catch(e){}
+}
+// (telling the host whether this player's on voice; the host itself just puts it in its list)
+function vcAnnounce(){
+  if(netHost()){VC.rsT=0;return;}
+  if(netGuest()&&NET.joined&&NET.host&&NET.tr){NET.tr.send({t:'vo',on:VC.on?1:0},NET.host);VC.said=NET.tr;}
+}
+
+// ---- who's on voice (the host's list) ----
+function vcRosterTick(dt){
+  VC.rsT-=dt;if(VC.rsT>0||!NET.tr)return;VC.rsT=0.25;
+  const L=[{s:0,id:NET.tr.self,n:chatName(P1),c:chatCol(P1),on:VC.on?1:0}];
+  for(const q of NET.guests.values())if(!q.net.gone)L.push({s:q.idx,id:q.net.peer,n:chatName(q),c:chatCol(q),on:q.net.vo?1:0});
+  if(!VC.rsLast&&!L.some(r=>r.on))return;   // (nobody's switched voice on yet: nothing to tell anyone)
+  const k=JSON.stringify(L);if(k===VC.rsLast)return;VC.rsLast=k;
+  for(const q of NET.guests.values())if(!q.net.gone)NET.tr.send({t:'vr',l:L},q.net.peer);
+  vcRoster(L);
+}
+// (everyone: the list as the host sent it, checked, and what this player sends to whom made to match it)
+function vcRoster(l){
+  if(!Array.isArray(l))return;
+  VC.roster=l.slice(0,NET_SEATS+2).filter(r=>r&&typeof r.id==='string'&&r.id.length<80).map(r=>({s:r.s|0,id:r.id,n:chatClean(r.n).slice(0,32)||'Someone',
+    c:/^#[0-9a-f]{3,8}$/i.test(r.c)?r.c:'#eef0e6',on:!!r.on}));
+  vcSync();vcHudDraw();vcOptsDraw();
+}
+const vcWanted=()=>{const me=vcSelf();return new Set(VC.roster.filter(r=>r.on&&r.id!==me).map(r=>r.id));};
+function vcSync(){
+  const T=NET.tr;
+  if(VC.tr!==T){   // (a new connection, after a reconnect: whatever went over the old one went with it)
+    VC.sendTo.clear();VC.pend.clear();for(const id of [...VC.remote.keys()])vcDrop(id);VC.tr=T;VC.said=null;
+    if(VC.on&&T&&T.av)T.av.onStream(vcGotStream);}
+  if(!VC.on||!T||!T.av||!VC.mic)return;
+  const want=vcWanted();
+  for(const id of want)if(!VC.sendTo.has(id)){try{T.av.add(VC.mic,id);VC.sendTo.add(id);}catch(e){}}
+  for(const id of [...VC.sendTo])if(!want.has(id)){try{T.av.remove(VC.mic,id);}catch(e){}VC.sendTo.delete(id);}
+  for(const id of [...VC.remote.keys()])if(!want.has(id))vcDrop(id);
+  for(const [id,st] of VC.pend)if(want.has(id)){VC.pend.delete(id);vcPlay(id,st);}
+}
+
+// ---- hearing the others ----
+function vcGotStream(st,peer){
+  if(!VC.on||!st)return;   // (with voice off nobody should be sending: nothing's played)
+  if(!vcWanted().has(peer)){VC.pend.set(peer,st);return;}   // (it can beat the host's list here: kept till the list says they're on)
+  vcPlay(peer,st);
+}
+function vcPlay(peer,st){
+  vcDrop(peer);const r={st,el:null,src:null,an:null,buf:null,lvl:0};
+  try{const a=new Audio();a.autoplay=true;a.srcObject=st;a.volume=VC.vol;a.muted=VC.mute.has(peer);const pr=a.play();if(pr&&pr.catch)pr.catch(()=>{});r.el=a;}catch(e){}
+  try{if(VC.ctx){r.src=VC.ctx.createMediaStreamSource(st);r.an=VC.ctx.createAnalyser();r.an.fftSize=512;r.src.connect(r.an);r.buf=new Uint8Array(512);}}catch(e){}
+  VC.remote.set(peer,r);vcHudDraw();
+}
+function vcDrop(peer){
+  const r=VC.remote.get(peer);if(!r)return;VC.remote.delete(peer);
+  if(r.el)try{r.el.pause();r.el.srcObject=null;}catch(e){}
+  if(r.src)try{r.src.disconnect();}catch(e){}
+}
+function vcLevel(an,buf){if(!an||!buf)return 0;try{an.getByteTimeDomainData(buf);let s=0;for(let i=0;i<buf.length;i++){const v=(buf[i]-128)/128;s+=v*v;}return Math.sqrt(s/buf.length);}catch(e){return 0;}}
+
+// ---- every frame, while voice is on ----
+function vcTick(dt){
+  if(VC.tr!==NET.tr)vcSync();
+  if(netGuest()&&VC.said!==NET.tr)vcAnnounce();
+  // (push to talk: the microphone's track is only enabled while the button's held; otherwise it sends silence)
+  const talk=VC.ptt?!!(P1.in.talk&&!CHAT.open):true;
+  if(VC.mic&&talk!==VC.talking){VC.talking=talk;for(const t of VC.mic.getAudioTracks())t.enabled=talk;vcHudDraw();}
+  VC.meterT-=dt;if(VC.meterT>0)return;VC.meterT=0.08;
+  VC.level=VC.talking?vcLevel(VC.an,VC.buf):0;
+  for(const r of VC.remote.values())r.lvl=vcLevel(r.an,r.buf);
+  vcHudDraw();
+}
+// the speaking indicators: a chip per player on voice, lit while they're talking
+function vcHudDraw(){
+  const e=chatEl('vcHud');if(!e)return;
+  if(!VC.on){if(!e.hidden){e.hidden=true;e.innerHTML='';VC.hudKey='';}return;}
+  const me=vcSelf(),rows=[];
+  const mine=VC.roster.find(r=>r.id===me);
+  rows.push({n:(mine?mine.n:charName(P1))+' (you)',c:mine?mine.c:chatCol(P1),talk:VC.talking&&VC.level>VC_SPEAK,ic:VC.talking?'🎙':'🎙',mute:!VC.talking});
+  for(const r of VC.roster){if(!r.on||r.id===me)continue;const R=VC.remote.get(r.id),m=VC.mute.has(r.id);
+    rows.push({n:r.n,c:r.c,talk:!m&&!!R&&R.lvl>VC_SPEAK,ic:m?'🔇':'🔊',mute:m||!R});}
+  const k=JSON.stringify(rows);if(k===VC.hudKey)return;VC.hudKey=k;
+  e.hidden=false;e.innerHTML='';
+  for(const r of rows){const d=document.createElement('span');d.className='vc'+(r.talk?' talk':'')+(r.mute?' mute':'');
+    const i=document.createElement('span');i.className='ic';i.textContent=r.ic;i.setAttribute('aria-hidden','true');
+    const n=document.createElement('span');n.textContent=r.n;n.style.color=r.c;d.append(i,n);e.append(d);}
+}
+
+// ---- the Options tab ----
+function vcOptsDraw(){
+  const t=chatEl('vcTog');if(!t)return;
+  t.setAttribute('aria-checked',String(VC.on||VC.busy));t.classList.toggle('dim',!VC.on&&!vcCan());
+  chatEl('vcPttTog').setAttribute('aria-checked',String(VC.ptt));
+  chatEl('vcPttTxt').textContent='Hold '+vcTalkKeys()+' to talk. Untick for an open microphone';
+  const v=chatEl('vcVol');if(document.activeElement!==v)v.value=String(Math.round(VC.vol*100));chatEl('vcVolVal').textContent=Math.round(VC.vol*100)+'%';
+  if(!VC.note)chatEl('vcNote').textContent=vcCan()?'':netOn()?'Voice chat needs a game over the internet, not between two tabs.':'Voice chat can be switched on once you\'re in an online game.';
+  // (one button per player on voice: muting them is only for you)
+  const me=vcSelf(),L=VC.on?VC.roster.filter(r=>r.on&&r.id!==me):[];
+  const k=JSON.stringify(L.map(r=>[r.id,r.n,VC.mute.has(r.id)]));if(k===VC.peersKey)return;VC.peersKey=k;
+  const box=chatEl('vcPeers');box.innerHTML='';
+  for(const r of L){const b=document.createElement('button');b.type='button';b.className='tog';b.setAttribute('role','checkbox');b.setAttribute('aria-checked',String(VC.mute.has(r.id)));
+    const bx=document.createElement('span');bx.className='box';bx.setAttribute('aria-hidden','true');
+    const tl=document.createElement('span');tl.className='tl';tl.append('Mute '+r.n);const sm=document.createElement('small');sm.textContent='Only for you: '+r.n+' still hears you';tl.append(sm);
+    b.append(bx,tl);b.addEventListener('click',()=>vcMute(r.id,!VC.mute.has(r.id)));box.append(b);}
+}
+function vcMute(id,on){if(on)VC.mute.add(id);else VC.mute.delete(id);const r=VC.remote.get(id);if(r&&r.el)r.el.muted=on;vcHudDraw();vcOptsDraw();}
+chatEl('vcTog').addEventListener('click',()=>{if(VC.on||VC.busy)vcOff(false);else vcStart();});
+chatEl('vcPttTog').addEventListener('click',()=>{VC.ptt=!VC.ptt;vcSave();if(VC.on)vcNote(VC.ptt?'Push to talk: hold '+vcTalkKeys()+' to talk.':'Open microphone: the others hear you whenever you speak.');vcOptsDraw();});
+chatEl('vcVol').addEventListener('input',e=>{VC.vol=Math.max(0,Math.min(1,(+e.target.value||0)/100));for(const r of VC.remote.values())if(r.el)r.el.volume=VC.vol;chatEl('vcVolVal').textContent=Math.round(VC.vol*100)+'%';});
+chatEl('vcVol').addEventListener('change',vcSave);
+vcOptsDraw();
 // ---------- New city & boot ----------
 const confirmEl=document.getElementById('confirm');
 // full screen: the whole page, toggled; the button says which way it will go

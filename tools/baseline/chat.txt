@@ -1,0 +1,24 @@
+solo: Enter opens no chat ok chat not available ok chat corner never shown ok
+joined ok chat available: host ok guest ok | chat corner shown ok
+guest Enter: chat open ok input shown ok
+typing: keys that got past the chat box 0 ok | guest hippo moved on the host 0.00 ok | guest controls sent while typing all zero ok
+Enter sent it and closed the chat ok | host shows "Gertie" line length 120 ok | guest got its own back ok | as text only (no markup set) ok
+chat closed: the stick moves the guest again 2.81 ok
+Esc cancels: closed ok nothing sent ok
+host line reaches the guest ok "hello from the host" ok from Gus #ffd75a
+guest tries 10 lines in a row: it lets 1 go, host shows 1 ok
+a guest sending 10 at once past its own limit: host passes on 1 ok and tells it ok
+host mutes incoming: guest line not shown on the host ok guest still sees its own ok kept ok
+host hides chat: Enter opens nothing ok log hidden ok
+voice off: microphones asked for 0 ok | AudioContexts made beyond the game's own 0 ok | audio added to a connection 0 ok | voice lists sent 0 ok | voice chips drawn 0 ok
+guest voice on: microphone asked 1 ok with echo cancelling, noise suppression and gain control ok | its own AudioContext ok | sending to anyone yet 0 ok | host knows ok
+host voice on: audio added host->guest and guest->host 2 ok | each hears the other ok | roster on the guest Gus on, Gertie on | HUD chips Gertie (you), Gus ok
+push to talk: track enabled before false holding T true let go false ok
+talking: the guest's own chip lit ok host sees the guest talking ok
+host mutes the guest: its audio muted ok guest unaffected ok
+guest voice off: mic tracks stopped 1 ok AudioContext closed ok | guest plays nobody ok | host stopped sending to it ok | host drops its audio ok
+microphone refused: voice on false ok | no AudioContext ok | says "The microphone wasn't allowed, so voice chat stays" ok
+no microphone: says "No microphone could be used, so voice ch" ok
+host stops hosting: its voice off ok AudioContext closed ok chat hidden ok chat gone ok
+Gus and Gertie: the same chat and voice code for both (nothing reads p.who but names and colours)
+done
