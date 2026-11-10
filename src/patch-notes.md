@@ -13,6 +13,10 @@
 
 - The game has a new coat of paint: flat crayon colours, thick ink outlines with hand-drawn corners, and a chunky pixel font (Jersey 10) for titles, buttons and numbers. Anything you read, like descriptions and these notes, keeps the easy-to-read font.
 - Button prompts are drawn as the buttons themselves in the new style: crayon-coloured face buttons and paper keycaps.
+- A real title screen: the logo top left, and Gus himself stomping along a street in front of a scrolling city while you choose. The menu card on the right has Play, Co-op, Play online, New city and Options, with the Testing Environment, Dev and Full screen in a small Workshop line underneath, and a sticker for what's new.
+- The enemy hostility slider has moved from the main screen to the top of Options.
+- Picking a character is now "Who's stompin'?": four big cards for Gus, Gertie, Gnash and Grizzle, with a 1P tag on player one's pick and a 2P tag on player two's. Choose which player you're picking for at the top (player two's own menu always picks for player two), and a strip under the cards lists what that character can do with your current ability switches. Picking the other player's character still swaps you over.
+- On a controller, A on a character card picks them and takes you back ("Ready!"), and Y jumps down to the ability switches. Screens opened from a menu have a Back button: B or Esc goes back, and LB / RB (Q / E on the keyboard) jump between screens.
 
 ### Split-screen co-op menus
 

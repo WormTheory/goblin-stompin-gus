@@ -1,6 +1,6 @@
 // ---------- Input ----------
 const keys=new Set();
-let menuOpen=true,playing=false,begun=false,dragMode=false,downAt=null,coop=false,spacePrev=false,shiftPrev=false,qPrevK=false;
+let atTitle=true,menuOpen=true,playing=false,begun=false,dragMode=false,downAt=null,coop=false,spacePrev=false,shiftPrev=false,qPrevK=false;
 const pauseEl=document.getElementById('pause');
 const touchMode=matchMedia('(pointer: coarse)').matches;
 if(touchMode){document.getElementById('touch').hidden=false;dragMode=true;}
@@ -37,8 +37,8 @@ function startPlay(mode,fromPad){
   if(netOn()&&P2.net)mode='net';   // (online, player two's seat is someone else's: Play just carries on)
   if(mode==='coop'){coop=true;activateP2();}
   else if(mode==='solo'){coop=false;deactivateP2();}
-  menuOpen=false;for(const p of players){p.paused=false;p.ui.ppause.hidden=true;}
-  pauseEl.hidden=true;playing=true;begun=true;hintTime=14;
+  menuOpen=false;atTitle=false;for(const p of players){p.paused=false;p.ui.ppause.hidden=true;}
+  pauseEl.hidden=true;playing=true;begun=true;hintTime=14;menuMode();
   try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();audioWanted=true;if(!(DT.paused||SPEEDS[DT.speedI]===0))audio.resume();}catch(e){}
   if(!fromPad)wantLock();
 }
@@ -64,7 +64,44 @@ function menuSeat(){
 // (the name over the tabs: whose menu it is, kept up to date if they pick someone else in the Character tab)
 function menuWhoShow(){const w=document.getElementById('menuWho');if(!w)return;w.hidden=!menuBy||!inCoop();
   if(menuBy){w.textContent=charName(menuBy)+"'s menu";w.classList.toggle('p2',menuBy!==P1);}}
-function pause(by){menuBy=by&&by.ui?by:P1;pauseAt=performance.now();if(TENV)tpShow(true);menuSeat();renderChar();menuOpen=true;playing=false;keys.clear();mHeld.clear();pauseEl.hidden=false;renderObitCount();if(curTab==='obit'){obitSel=0;renderObits();}if(curTab==='controls')renderControls();if(curTab==='map'){MAPV.cx=null;saveExplored();setTimeout(renderMap,0);}try{if(locked())document.exitPointerLock();}catch(e){}const pf=document.getElementById(players[1].active&&!players[1].net?'playCoop':'play');if(inputKind==='pad')padFocus(pf);else pf.focus();}
+// The menu has two faces: the title screen (atTitle: before the first game, and after Quit to title), with the
+// logo, Gus stomping along in front of the city and the main menu card; and the pause menu. Either can open a screen
+// (Options, Map, Character...) in the same card, with a Back button at its head (subHead); B, Esc or Back returns to
+// where it was opened from (backHome), and LB / RB (Q / E on the keyboard) step through the screens (subStep).
+const SUB_TITLES={map:'Map',obit:'Obituary',custom:"Who's stompin'?",controls:'Controls',options:'Options',notes:'Patch notes',dev:'Dev',test:'Testing Environment'};
+let SUB_FROM=null;
+function menuMode(){
+  const pe=document.getElementById('pause');if(!pe||!pe.classList)return;
+  const home=curTab==='game';
+  pe.classList.toggle('title',atTitle);pe.classList.toggle('home',home);
+  try{document.body.classList.toggle('attitle',atTitle&&menuOpen);}catch(e){}
+  const sh=document.getElementById('subHead');if(sh)sh.hidden=home||!atTitle;
+  const st=document.getElementById('subTitle');if(st&&!home)st.textContent=SUB_TITLES[curTab]||'';
+}
+function openSub(tab,from){SUB_FROM=from||null;showTab(tab);
+  const pane=document.querySelector('.main .tabpane:not([hidden])'),U=pane?paneUnits(pane):[];
+  if(inputKind==='pad'){if(U.length)unitFocus(U[0]);else padFocus(document.getElementById('subBack'));}
+  else{const b=document.getElementById('subBack');if(b&&b.offsetParent)b.focus({preventScroll:true});}}
+function backHome(){
+  const from=SUB_FROM&&document.getElementById(SUB_FROM);SUB_FROM=null;showTab('game');
+  const el=from&&from.offsetParent?from:document.getElementById(players[1].active&&!players[1].net?'playCoop':'play');
+  if(el){if(inputKind==='pad')padFocus(el);else el.focus({preventScroll:true});}
+}
+// (the screens in order, for LB / RB: the ones whose tab is there to be had)
+function subStep(d){
+  const L=TABS.filter(([t,id])=>t!=='game'&&!document.getElementById('tabBtn'+id).hidden).map(t=>t[0]);if(!L.length)return;
+  const i=L.indexOf(curTab),n=i<0?(d>0?0:L.length-1):(i+d+L.length)%L.length;
+  if(curTab==='game')SUB_FROM=document.activeElement&&document.activeElement.id||null;
+  showTab(L[n]);const pane=document.querySelector('.main .tabpane:not([hidden])');
+  if(inputKind==='pad'){const U=pane?paneUnits(pane):[];if(U.length)unitFocus(U[0]);else padFocus(document.getElementById('subBack'));}
+}
+document.getElementById('subBack').addEventListener('click',()=>backHome());
+menuMode();   // (the page opens on the title screen)
+document.getElementById('optBtn').addEventListener('click',()=>openSub('options','optBtn'));
+document.getElementById('devLink').addEventListener('click',()=>openSub('dev','devLink'));
+addEventListener('keydown',e=>{if(!menuOpen||BIND_CAP||e.repeat)return;const t=e.target;if(t&&(t.tagName==='INPUT'&&t.type!=='range'&&t.type!=='checkbox'||t.tagName==='TEXTAREA'))return;
+  if(e.code==='KeyQ'||e.code==='KeyE'){e.preventDefault();subStep(e.code==='KeyE'?1:-1);}});
+function pause(by){menuBy=by&&by.ui?by:P1;pauseAt=performance.now();if(TENV)tpShow(true);menuSeat();renderChar();menuOpen=true;playing=false;menuMode();keys.clear();mHeld.clear();pauseEl.hidden=false;renderObitCount();if(curTab==='obit'){obitSel=0;renderObits();}if(curTab==='controls')renderControls();if(curTab==='map'){MAPV.cx=null;saveExplored();setTimeout(renderMap,0);}try{if(locked())document.exitPointerLock();}catch(e){}const pf=document.getElementById(players[1].active&&!players[1].net?'playCoop':'play');if(inputKind==='pad')padFocus(pf);else pf.focus();}
 // losing the mouse (another window clicked, alt-tab) pauses -- unless you're playing on a controller, which keeps
 // working with the game in the background (as long as the page is still showing; 'on a controller': you've used one
 // in the last minute -- so the Alt of an Alt-Tab doesn't count against it)
@@ -83,11 +120,12 @@ function resumePlayer(p,fromPad){
 }
 function escResume(){
   if(menuOpen){
-    if(!begun)return;   // (the title screen: nothing to go back to yet)
     const cf=document.getElementById('confirm');
     if(!cf.hidden){document.getElementById('confirmNo').click();const nw=document.getElementById('newWorld');if(inputKind==='pad')padFocus(nw);else nw.focus();return;}
     const t=document.activeElement;
     if(t&&(t.tagName==='TEXTAREA'||t.tagName==='SELECT'||t.tagName==='INPUT'&&/^(text|number|search)$/.test(t.type))){t.blur();return;}
+    if(curTab!=='game'){backHome();return;}   // (a screen opened from the menu: back to the menu first)
+    if(atTitle||!begun)return;   // (the title screen: nothing to go back to)
     startPlay(null);   // (as the controller's Start: same players as before, and the mouse is captured again)
   }else if(P1.paused&&!DT.kbdOpen)resumePlayer(P1,false);
 }

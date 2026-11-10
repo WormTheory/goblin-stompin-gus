@@ -681,3 +681,107 @@ body.calm *{animation-duration:0s!important;animation-iteration-count:1!importan
 .gsh,.gtr,.gpill{background:var(--paper);color:var(--ink);border:3px solid var(--ink);box-shadow:0 3px 0 var(--ink);height:26px}
 .gkey{min-width:28px;height:26px;padding:0 7px;background:var(--paper);color:var(--ink);border:3px solid var(--ink);border-radius:6px;box-shadow:0 3px 0 var(--ink)}
 .prompts .g,.hint .g,.label .g{margin-bottom:3px}
+
+/* ================= UI overhaul: the title screen (docs/ui-overhaul/Main.html) ================= */
+/* (behind it, Gus stomps along in front of the city: ui/title-scene.js draws that on the game's own canvas) */
+body.attitle #hud{visibility:hidden}
+.pause.title{background:none;padding:0}
+.pause.title .tabs{display:none}
+.pause.title.home .card{width:100%;height:100%;max-height:none;background:none;border:0;box-shadow:none;padding:0;overflow:visible;display:block}
+.pause.title.home .card .main{height:100%;position:relative;gap:0}
+.pause.title.home #tabGame{position:absolute;inset:0;overflow:hidden;padding:0}
+.pause.title.home #tabGame>*{margin:0!important}
+/* the ground along the bottom, with the button prompts on it */
+.pause.title.home::after{content:"";position:fixed;left:0;right:0;bottom:0;height:92px;background-color:#c98a4e;background-image:repeating-conic-gradient(rgba(43,27,46,.16) 0 25%,transparent 0 50%);background-size:8px 8px;border-top:4px solid var(--ink);z-index:-1;pointer-events:none}
+.pause.title.home #menuPrompts{position:fixed;left:0;right:0;bottom:26px;justify-content:center;gap:10px 30px;font-size:20px}
+.pause.title .prompts .pl{text-shadow:2px 0 var(--ink),-2px 0 var(--ink),0 2px var(--ink),0 -2px var(--ink),0 4px var(--ink)}
+/* the logo, top left: GOBLIN-STOMPIN' over a big wiggling GUS */
+.tlogo{display:none}
+.pause.title .card h1.tlogo{display:block;position:absolute;left:5.5vw;top:7.5vh;width:min(640px,46vw);margin:0;text-align:center;transform:rotate(-3deg);text-shadow:none;font-weight:400;pointer-events:none}
+.tlogo .tl1{display:block;font:400 clamp(30px,4.2vw,54px)/1 var(--f-px);letter-spacing:2px;color:var(--paper);text-transform:uppercase}
+.card h1.tlogo em.tl2{text-transform:uppercase}
+.card h1.tlogo em.tl2{display:inline-block;font:400 clamp(84px,11.7vw,150px)/1 var(--f-px);color:var(--gus);font-style:normal;margin-top:4px;animation:ckWig .9s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.card h1.tlogo em.tl2{animation:none}}
+/* the main menu card, on the right */
+.tmenu{width:min(400px,100%);box-sizing:border-box;padding:28px 30px 24px;display:flex;flex-direction:column;gap:18px;margin-inline:auto;text-align:left}
+.pause.title.home .tmenu{position:absolute;right:max(20px,6vw);top:max(20px,9.5vh);transform:rotate(1.2deg);max-height:calc(100vh - 128px - max(20px,9.5vh));overflow-y:auto;overflow-x:hidden;scrollbar-width:thin}
+.tmenu .ck{width:100%;height:62px;font-size:28px;flex:none}
+.tmenu .ck.tbig{height:82px;font-size:40px}
+.tmenu .tm2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.tmenu .tm2 .ck{height:54px;font-size:22px;padding:6px}
+.tmenu .tm2 .ck:nth-child(even){border-radius:30px 20px 32px 22px/20px 30px 22px 32px}
+.tws{display:flex;justify-content:space-between;align-items:center;gap:6px 10px;flex-wrap:wrap;font:400 15px/1.4 var(--f-body);padding-top:8px;border-top:3px dashed rgba(43,27,46,.35);color:var(--ink)}
+.lnk{background:none;border:0;padding:0;font:inherit;color:var(--ink);text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.lnk:hover{color:#7a2e5a}
+.lnk:disabled{opacity:.45;cursor:default}
+#pause .lnk.padfocus{outline:4px dashed var(--yolk)!important;outline-offset:3px!important;box-shadow:none!important;background:var(--paper)}
+.tmenu .charlink{align-self:flex-start;font:600 15px var(--f-body);color:var(--ink);padding:0}
+.tmenu .charlink b{color:var(--ink);font-weight:800}
+.tmenu .charlink:hover{color:#7a2e5a}
+.tmenu .confirm{display:flex;flex-wrap:wrap;gap:10px;color:var(--ink);font:600 14px/1.4 var(--f-body);background:#ffe1d8;border:3px solid var(--ink);border-radius:var(--wobs);padding:10px 12px}
+.tmenu .confirm button,.ckb{font:400 19px/1 var(--f-px);letter-spacing:.4px;color:var(--ink);background:var(--biscuit);border:3px solid var(--ink);border-radius:9px 13px 8px 14px/13px 8px 14px 9px;box-shadow:0 4px 0 var(--ink);padding:7px 12px 6px;cursor:pointer;text-transform:uppercase}
+.tmenu .confirm button.yes{background:var(--tomato);border-color:var(--ink)}
+/* "What's new", a yolk sticker under the card; the version, bottom left */
+.gamepane .pnlatest.sticker{background:var(--yolk);color:var(--ink);font:400 20px/1 var(--f-px);letter-spacing:.5px;padding:10px 16px;transform:rotate(-4deg);text-transform:uppercase;text-decoration:none}
+.gamepane .pnlatest.sticker:hover{text-decoration:none;filter:brightness(1.05)}
+.pause.title.home .gamefoot{position:absolute;right:max(16px,5vw);bottom:112px;display:flex;flex-direction:column;align-items:flex-end;gap:6px;padding:0;max-width:44vw}
+.pause.title.home .gamefoot .note{color:var(--paper);font:600 12px/1.35 var(--f-body);text-align:right;text-shadow:1px 0 var(--ink),-1px 0 var(--ink),0 1px var(--ink),0 -1px var(--ink),0 2px var(--ink)}
+.pause.title.home .gamefoot .pnlatest{align-self:flex-end;margin-bottom:8px}
+.vertag{display:none}
+.pause.title.home .vertag{display:block;position:fixed;left:22px;bottom:30px;font:400 18px var(--f-px);color:var(--paper)}
+@media (max-width:860px){.pause.title .card h1.tlogo{left:16px;top:12px;width:calc(100% - 32px)}.pause.title.home .tmenu{left:16px;right:16px;margin:auto;top:auto;bottom:104px;transform:none;width:auto;max-height:calc(100vh - 300px)}.pause.title.home .gamefoot{display:none}}
+@media (max-height:620px){.tmenu .ck{height:50px;font-size:24px}.tmenu .ck.tbig{height:60px;font-size:32px}.tmenu{gap:12px;padding:18px 22px}}
+
+/* ---- a screen opened from the menu: its own head with a Back button ---- */
+.subhead{display:flex;align-items:center;gap:18px;flex:none;margin-top:-4px}
+.subhead .ck{height:46px;font-size:21px;padding:4px 16px;flex:none;width:auto}
+.subhead h2{margin:0;font:400 36px/1 var(--f-px);letter-spacing:1px;color:var(--paper);text-transform:uppercase}
+.subwho{margin-left:auto}
+.pause.title:not(.home){background:rgba(43,27,46,.35)}
+.pause.title:not(.home) .card{border:4px solid var(--ink);border-radius:var(--wob);box-shadow:8px 8px 0 rgba(0,0,0,.35)}
+
+/* ---- the Character screen: WHO'S STOMPIN'? (docs/ui-overhaul/CharSelect.html) ---- */
+#tabCustom .opts{max-width:1120px}
+#tabCustom .opts>.custom:first-child{border-top:0;padding-top:0}
+.charsel{width:100%;gap:18px}
+.cs-top{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+.cs-top .cs-h{font:600 14px var(--f-body);letter-spacing:0;text-transform:none;color:var(--mute)}
+.cs-row{grid-template-columns:repeat(4,minmax(0,1fr));gap:26px;padding:24px 14px 8px}
+.cs-card{--cc:#b7f08a;position:relative;justify-content:flex-start;gap:12px;min-height:270px;padding:22px 12px 16px;color:var(--ink);background-color:var(--paper);background-image:var(--dither);background-size:6px 6px;border:4px solid var(--ink);border-radius:var(--wob);box-shadow:6px 6px 0 var(--ink);transform:rotate(-1deg);transition:transform .12s}
+.cs-card:nth-child(even){border-radius:var(--wob2);transform:rotate(1.5deg)}
+.cs-card:nth-child(3){transform:rotate(-1deg)}.cs-card:nth-child(4){transform:rotate(2deg)}
+.cs-card.c-gertie{--cc:#ffc2b6}.cs-card.c-gnash{--cc:var(--yolk)}.cs-card.c-grizzle{--cc:#ff8a7e}
+.cs-card:hover{background-color:#fffaf0;filter:none}
+.cs-card[aria-checked="true"]{border-color:var(--ink);background-color:var(--paper);box-shadow:6px 6px 0 var(--ink)}
+.cs-card.p1,.cs-card.p1[aria-checked="true"]{background-color:#d9f3b8;outline:6px solid var(--gus);outline-offset:4px}
+.cs-card.p2,.cs-card.p2[aria-checked="true"]{background-color:#fde0d8;outline:6px solid var(--pink);outline-offset:4px}
+.cs-card.p1:nth-child(n){transform:rotate(-2deg) translateY(-10px)}
+.cs-name{font:400 40px/1 var(--f-px);letter-spacing:.5px;color:var(--cc);text-transform:uppercase}
+.cs-card small,.cs-card[aria-checked="true"] small{font:400 15.5px/1.35 var(--f-body);color:var(--ink)}
+.cs-pic{display:block;margin-top:4px}
+.cs-tag{display:none;position:absolute;top:-18px;font:400 22px/1 var(--f-px);padding:4px 10px;color:var(--ink);border:3px solid var(--ink);border-radius:var(--wobs);box-shadow:4px 4px 0 var(--ink)}
+.cs-card.p1 .t1{display:block;left:-16px;background:var(--gus);transform:rotate(-8deg)}
+.cs-card.p2 .t2{display:block;right:-16px;background:var(--pink);transform:rotate(7deg)}
+#pause .cs-card.padfocus,#pause .cs-card:focus-visible{outline:5px dashed var(--yolk)!important;outline-offset:6px!important;animation:ckBob 1.1s ease-in-out infinite;box-shadow:6px 6px 0 var(--ink)!important}
+.cs-moves{display:flex;align-items:center;gap:18px;padding:14px 22px;margin:4px 6% 0;transform:rotate(-.6deg)}
+.cs-moves>.px{font-size:22px;flex:none;color:var(--ink)}
+.cs-chips{display:flex;flex-wrap:wrap;gap:9px}
+.cs-chips .sticker{background:var(--yolk);color:var(--ink);padding:4px 10px 3px;font-size:18px;text-transform:uppercase;box-shadow:3px 3px 0 var(--ink)}
+.cs-note{text-align:center;font:700 15px var(--f-body);color:var(--paper)}
+@media(max-width:860px){.cs-row{grid-template-columns:repeat(2,minmax(0,1fr))}.cs-card{min-height:0}}
+@media(max-width:560px){.cs-name{font-size:30px}.cs-moves{flex-direction:column;align-items:flex-start;margin-inline:0}}
+
+/* ---- Play online, in the menu card ---- */
+.tmenu .online{margin:0;padding:12px;border:3px solid var(--ink);border-radius:var(--wobs);background:#e5f2fc;color:var(--ink);gap:9px}
+.tmenu .on-h{font:400 22px/1 var(--f-px);color:var(--ink);text-transform:uppercase}
+.tmenu .on-h small{font:400 13px/1.45 var(--f-body);color:#4a3a4e;text-transform:none;margin-top:6px}
+.tmenu .on-lh{font:400 18px var(--f-px);color:var(--ink)}
+.tmenu .on-or,.tmenu .on-loc,.tmenu .note{font:400 12.5px/1.45 var(--f-body);color:#4a3a4e}
+.tmenu .on-b,.tmenu .on-ggo{font:400 19px/1 var(--f-px);letter-spacing:.4px;color:var(--ink);background:var(--gus);border:3px solid var(--ink);border-radius:9px 13px 8px 14px/13px 8px 14px 9px;box-shadow:0 4px 0 var(--ink);padding:7px 12px 6px;text-transform:uppercase}
+.tmenu .on-leave{background:var(--biscuit)}
+.tmenu .on-code-in{font:400 20px var(--f-px);border:3px solid var(--ink);border-radius:6px;background:var(--paper);color:var(--ink);width:7.5em}
+.tmenu .on-code{font:400 40px var(--f-px);color:var(--ink);letter-spacing:.25em}
+.tmenu .on-game{border:3px solid var(--ink);border-radius:8px;background:var(--paper);color:var(--ink)}
+.tmenu .on-game:hover:not(:disabled),.tmenu .on-game.padfocus{background:#fff2b8}
+.tmenu .on-gname{font:400 19px var(--f-px)}
+.tmenu .on-ginfo{font:400 12px var(--f-body);color:#4a3a4e}

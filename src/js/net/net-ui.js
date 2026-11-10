@@ -11,7 +11,7 @@ function netUiRefresh(){
   // (no swapping the city out from under someone who's in it)
   for(const id of ['newWorld','testWorld'])netEl(id).disabled=on;
   // (with someone else in the game, Play goes back to it; and how hostile the enemies are is the host's to say)
-  const pl=netEl('play'),t=on&&P2.net?(netGuest()?'Back to the game':'Back to the online game'):'Play solo';if(pl.textContent!==t)pl.textContent=t;
+  const pl=netEl('play'),t=on&&P2.net?(netGuest()?'Back to the game':'Back to the online game'):'Play';if(pl.textContent!==t)pl.textContent=t;
   netEl('playCoop').hidden=on&&!!P2.net;netEl('hostMain').disabled=netGuest()&&NET.joined;
   netEl('netPrivate').checked=LOBBY.priv;
   lobbySync();

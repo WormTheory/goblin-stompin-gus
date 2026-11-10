@@ -1,7 +1,8 @@
 // Split-screen co-op pause menus, in the real page (stub 3D): each player's own pause panel opens the whole menu as
 // theirs; player two's has no Game options, Dev or Testing Environment tab and none of the Game tab's new city, solo,
 // online or hostility controls; the character picks live only in the Character tab, all four for each player, and
-// picking the other player's character swaps you. Two pretend controllers stand in for the players.
+// picking the other player's character swaps you. (From the title screen, the Character screen opens from the menu card's
+// "Playing as" line, and picks for whichever player its Picking for switch says.) Two pretend controllers stand in for the players.
 // Usage (from tools/ui, after: python3 ../build_ui.py ../../game/index.html ui.html): node coopmenu.js [outDir]
 const {chromium}=require('playwright');const out=process.argv[2]||'shots';
 (async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1280,height:800}});
@@ -17,12 +18,12 @@ const st=()=>p.evaluate(()=>{const vis=id=>{const e=document.getElementById(id);
     tabs:[...document.querySelectorAll('.tabs [role=tab]')].filter(t=>!t.hidden).map(t=>t.textContent.replace(/\d+$/,'')).join(','),
     game:['play','playCoop','newWorld','testWorld','onlineBtn','fullBtn','charLink'].filter(vis).join(','),coopBtn:document.getElementById('playCoop').textContent,hostility:!!document.querySelector('.hostmain').offsetParent,
     p1paused:!document.querySelectorAll('.view .ppause')[1].hidden,p2paused:!document.querySelectorAll('.view .ppause')[0].hidden,
-    picks:[...document.querySelectorAll('#charSel .cs-row')].map(r=>(r.offsetParent?'':'(hidden)')+[...r.querySelectorAll('.cs-card')].filter(c=>c.getAttribute('aria-checked')==='true').map(c=>c.dataset.c).join()).join(' / '),
+    picks:(document.querySelector('#charRow').offsetParent?'':'(hidden)')+['p1','p2'].map(k=>(document.querySelector('#charRow .cs-card.'+k)||{dataset:{}}).dataset.c).join(' / ')+' (picking for '+(+document.getElementById('charRow').dataset.seat+1)+')',
     names:[...document.querySelectorAll('.view .who')].reverse().map(e=>e.textContent).join(' + ')};});
 console.log('title screen',JSON.stringify(await st()));
 await p.screenshot({path:out+'/coop-title.png'});
-await p.click('#tabBtnCustom');await p.waitForTimeout(200);await p.screenshot({path:out+'/coop-character-tab.png'});
-await p.click('#tabBtnGame');
+await p.click('#charLink');await p.waitForTimeout(200);await p.screenshot({path:out+'/coop-character-tab.png'});
+await p.click('#subBack');
 await p.click('#playCoop');await p.waitForTimeout(500);console.log('playing co-op',JSON.stringify(await st()));
 await tap(1,9);await p.waitForTimeout(200);console.log('player two pressed Start',JSON.stringify(await st()));
 await tap(1,3);await p.waitForTimeout(300);console.log('player two pressed Y',JSON.stringify(await st()));

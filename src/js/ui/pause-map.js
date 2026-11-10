@@ -226,5 +226,6 @@ function showTab(which){
   curTab=which;
   for(const [t,id] of TABS){const on=t===which;document.getElementById('tab'+id).hidden=!on;document.getElementById('tabBtn'+id).setAttribute('aria-selected',String(on));}
   if(which==='obit'){obitSel=0;renderObits();}if(which==='controls')renderControls();if(which==='map'){MAPV.cx=null;setTimeout(renderMap,0);}
+  menuMode();
 }
 const tabIndex=()=>TABS.findIndex(t=>t[0]===curTab);

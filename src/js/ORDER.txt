@@ -75,6 +75,7 @@ dressing/signs.js
 vehicles/emergency.js
 vehicles/traffic-update.js
 ui/hud.js
+ui/title-scene.js
 ui/input.js
 core/loop.js
 ui/minimap.js

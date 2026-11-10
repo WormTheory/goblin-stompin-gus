@@ -15,13 +15,44 @@ try{let s=localStorage.getItem(CHAR_KEY);if(s==='goblin')s='gnash';if(CHARS.incl
 const pick2=()=>CHAR2&&CHAR2!==CHAR?CHAR2:CHAR_TWIN[CHAR];
 const p2Kind=()=>charGob(pick2())?'goblin':'hippo';
 const CHAR_NAMES={gus:'Gus',gertie:'Gertie',gnash:'Gnash',grizzle:'Grizzle'};
-function charNote(){return 'Co-op: player two plays as '+CHAR_NAMES[pick2()]+'.';}
+function charNote(){return 'Pick the one the other player has and you swap over. Co-op: player two plays as '+CHAR_NAMES[pick2()]+'.';}
+// Which player the cards pick for (CS_SEAT, 0 or 1): player one's own menu can pick for either seat, player two's only
+// for player two. The cards are one row: the 1P tag sits on player one's pick, the 2P tag on player two's.
+let CS_SEAT=0;
+const csSeat=()=>{let two=false;try{two=menuP2();}catch(e){}return two?1:CS_SEAT;};
+// what each character can do, for the strip under the cards (a hippo's from the ability switches as they are now)
+const CS_GOB_MOVES=['Club','Dagger','Rifle','Grenades','Dash','Drive anything'];
+function csMoves(c){
+  if(charGob(c))return CS_GOB_MOVES;
+  const A=ABIL,L=[];
+  if(A.bite)L.push(A.biteCombo?'Bite combo':'Bite');
+  if(A.stomp)L.push(A.fullStomp?'Full charge stomp':A.chargeStomp?'Charge stomp':'Stomp');
+  if(A.groundSpike&&A.stomp)L.push('Ground spike');
+  if(A.pound)L.push('Ground pound');
+  if(A.sprint)L.push(A.trample?'Trample':'Sprint');
+  if(A.dash)L.push(A.roll?'Roll':A.blastDash?'Blast dash':'Dash');
+  if(A.jump)L.push(A.triple?'Triple jump':A.double?'Double jump':'Jump');
+  if(A.longJump)L.push(A.blastJump?'Blast long jump':'Long jump');
+  if(A.airDash)L.push(A.blastAirDash?'Blast air dash':'Air dash');
+  if(A.rocket&&A.jump)L.push('Rocket boost');
+  if(A.climb)L.push('Spider climb');
+  return L;
+}
 function renderChar(){
-  const c2=pick2();
-  for(const b of document.querySelectorAll('#charSel .cs-row')){const c=b.dataset.seat==='1'?c2:CHAR;
-    for(const k of b.querySelectorAll('.cs-card'))k.setAttribute('aria-checked',String(k.dataset.c===c));}
+  const c2=pick2(),seat=csSeat();
+  const row=document.getElementById('charRow');
+  if(row){row.dataset.seat=String(seat);
+    for(const k of row.querySelectorAll('.cs-card')){const c=k.dataset.c;k.setAttribute('aria-checked',String(c===(seat?c2:CHAR)));
+      k.classList.toggle('p1',c===CHAR);k.classList.toggle('p2',c===c2);
+      const pic=k.querySelector('.cs-pic');if(pic&&!pic.dataset.done){pic.dataset.done='1';pic.className='cs-pic '+sprCls(pic.dataset.spr,6);}}}
+  for(const b of document.querySelectorAll('#csSeat [data-seat]'))b.setAttribute('aria-checked',String(+b.dataset.seat===seat));
   const n=document.getElementById('charNote');if(n)n.textContent=charNote();
-  // (the Game tab's line naming who you are: both of you in split screen. renderChar runs again as the menu opens)
+  // (the moves strip: whoever's highlighted, or the seat's pick)
+  {const f=document.activeElement,fc=f&&f.closest&&f.closest('#charRow .cs-card'),c=fc?fc.dataset.c:seat?c2:CHAR;
+   const h=document.getElementById('csCanH'),m=document.getElementById('csMoves');
+   if(h)h.textContent=CHAR_NAMES[c].toUpperCase()+' CAN:';
+   if(m){const html=csMoves(c).map(t=>'<span class="sticker px">'+t+'</span>').join('');if(m._h!==html){m._h=html;m.innerHTML=html;}}}
+  // (the title menu's line naming who you are: both of you in split screen. renderChar runs again as the menu opens)
   let two=false;try{two=begun&&P2.active&&!P2.net;menuWhoShow();}catch(e){}   // (not yet while the page loads: begun is declared later on)
   const l=document.getElementById('charLinkName');if(l)l.textContent=CHAR_NAMES[CHAR]+(two?' and '+CHAR_NAMES[c2]:'');
 }
@@ -43,6 +74,8 @@ function charApply(){
   for(const [p,c] of seats){p.who=charWho(c);setGobP(p,charGob(c));}
   for(const p of players)dressHippo(p);renderTime();renderChar();
 }
-for(const r of document.querySelectorAll('#charSel .cs-row'))for(const b of r.querySelectorAll('.cs-card'))b.addEventListener('click',()=>r.dataset.seat==='1'?setChar2(b.dataset.c):setChar(b.dataset.c));
-{const l=document.getElementById('charLink');if(l)l.addEventListener('click',()=>{showTab('custom');const b=document.querySelector('#charSel .cs-row[data-seat="'+(menuP2()?1:0)+'"] .cs-card[aria-checked="true"]');if(b){if(inputKind==='pad')padFocus(b);else b.focus();}});}
+for(const b of document.querySelectorAll('#charRow .cs-card')){b.addEventListener('click',()=>csSeat()?setChar2(b.dataset.c):setChar(b.dataset.c));b.addEventListener('focus',()=>renderChar());}
+for(const b of document.querySelectorAll('#csSeat [data-seat]'))b.addEventListener('click',()=>{CS_SEAT=+b.dataset.seat;renderChar();tone('triangle',CS_SEAT?620:560,0,0.05,0.03);});
+for(const b of document.querySelectorAll('#abilList .tog'))b.addEventListener('click',()=>renderChar());   // (the moves strip follows the switches)
+{const l=document.getElementById('charLink');if(l)l.addEventListener('click',()=>{openSub('custom','charLink');const b=document.querySelector('#charRow .cs-card[aria-checked="true"]');if(b){if(inputKind==='pad')padFocus(b);else b.focus();}});}
 setChar(CHAR,true);

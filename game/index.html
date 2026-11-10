@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:6b11af51ca62257835877c53c7bd98a4030715aaa8dd557320e01c4a1dfecb59 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:aae2d38eb7669f4262396ee15c0550c4158a4f28b4968a680affbbb953ef44e5 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -687,6 +687,110 @@ body.calm *{animation-duration:0s!important;animation-iteration-count:1!importan
 .gsh,.gtr,.gpill{background:var(--paper);color:var(--ink);border:3px solid var(--ink);box-shadow:0 3px 0 var(--ink);height:26px}
 .gkey{min-width:28px;height:26px;padding:0 7px;background:var(--paper);color:var(--ink);border:3px solid var(--ink);border-radius:6px;box-shadow:0 3px 0 var(--ink)}
 .prompts .g,.hint .g,.label .g{margin-bottom:3px}
+
+/* ================= UI overhaul: the title screen (docs/ui-overhaul/Main.html) ================= */
+/* (behind it, Gus stomps along in front of the city: ui/title-scene.js draws that on the game's own canvas) */
+body.attitle #hud{visibility:hidden}
+.pause.title{background:none;padding:0}
+.pause.title .tabs{display:none}
+.pause.title.home .card{width:100%;height:100%;max-height:none;background:none;border:0;box-shadow:none;padding:0;overflow:visible;display:block}
+.pause.title.home .card .main{height:100%;position:relative;gap:0}
+.pause.title.home #tabGame{position:absolute;inset:0;overflow:hidden;padding:0}
+.pause.title.home #tabGame>*{margin:0!important}
+/* the ground along the bottom, with the button prompts on it */
+.pause.title.home::after{content:"";position:fixed;left:0;right:0;bottom:0;height:92px;background-color:#c98a4e;background-image:repeating-conic-gradient(rgba(43,27,46,.16) 0 25%,transparent 0 50%);background-size:8px 8px;border-top:4px solid var(--ink);z-index:-1;pointer-events:none}
+.pause.title.home #menuPrompts{position:fixed;left:0;right:0;bottom:26px;justify-content:center;gap:10px 30px;font-size:20px}
+.pause.title .prompts .pl{text-shadow:2px 0 var(--ink),-2px 0 var(--ink),0 2px var(--ink),0 -2px var(--ink),0 4px var(--ink)}
+/* the logo, top left: GOBLIN-STOMPIN' over a big wiggling GUS */
+.tlogo{display:none}
+.pause.title .card h1.tlogo{display:block;position:absolute;left:5.5vw;top:7.5vh;width:min(640px,46vw);margin:0;text-align:center;transform:rotate(-3deg);text-shadow:none;font-weight:400;pointer-events:none}
+.tlogo .tl1{display:block;font:400 clamp(30px,4.2vw,54px)/1 var(--f-px);letter-spacing:2px;color:var(--paper);text-transform:uppercase}
+.card h1.tlogo em.tl2{text-transform:uppercase}
+.card h1.tlogo em.tl2{display:inline-block;font:400 clamp(84px,11.7vw,150px)/1 var(--f-px);color:var(--gus);font-style:normal;margin-top:4px;animation:ckWig .9s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.card h1.tlogo em.tl2{animation:none}}
+/* the main menu card, on the right */
+.tmenu{width:min(400px,100%);box-sizing:border-box;padding:28px 30px 24px;display:flex;flex-direction:column;gap:18px;margin-inline:auto;text-align:left}
+.pause.title.home .tmenu{position:absolute;right:max(20px,6vw);top:max(20px,9.5vh);transform:rotate(1.2deg);max-height:calc(100vh - 128px - max(20px,9.5vh));overflow-y:auto;overflow-x:hidden;scrollbar-width:thin}
+.tmenu .ck{width:100%;height:62px;font-size:28px;flex:none}
+.tmenu .ck.tbig{height:82px;font-size:40px}
+.tmenu .tm2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.tmenu .tm2 .ck{height:54px;font-size:22px;padding:6px}
+.tmenu .tm2 .ck:nth-child(even){border-radius:30px 20px 32px 22px/20px 30px 22px 32px}
+.tws{display:flex;justify-content:space-between;align-items:center;gap:6px 10px;flex-wrap:wrap;font:400 15px/1.4 var(--f-body);padding-top:8px;border-top:3px dashed rgba(43,27,46,.35);color:var(--ink)}
+.lnk{background:none;border:0;padding:0;font:inherit;color:var(--ink);text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.lnk:hover{color:#7a2e5a}
+.lnk:disabled{opacity:.45;cursor:default}
+#pause .lnk.padfocus{outline:4px dashed var(--yolk)!important;outline-offset:3px!important;box-shadow:none!important;background:var(--paper)}
+.tmenu .charlink{align-self:flex-start;font:600 15px var(--f-body);color:var(--ink);padding:0}
+.tmenu .charlink b{color:var(--ink);font-weight:800}
+.tmenu .charlink:hover{color:#7a2e5a}
+.tmenu .confirm{display:flex;flex-wrap:wrap;gap:10px;color:var(--ink);font:600 14px/1.4 var(--f-body);background:#ffe1d8;border:3px solid var(--ink);border-radius:var(--wobs);padding:10px 12px}
+.tmenu .confirm button,.ckb{font:400 19px/1 var(--f-px);letter-spacing:.4px;color:var(--ink);background:var(--biscuit);border:3px solid var(--ink);border-radius:9px 13px 8px 14px/13px 8px 14px 9px;box-shadow:0 4px 0 var(--ink);padding:7px 12px 6px;cursor:pointer;text-transform:uppercase}
+.tmenu .confirm button.yes{background:var(--tomato);border-color:var(--ink)}
+/* "What's new", a yolk sticker under the card; the version, bottom left */
+.gamepane .pnlatest.sticker{background:var(--yolk);color:var(--ink);font:400 20px/1 var(--f-px);letter-spacing:.5px;padding:10px 16px;transform:rotate(-4deg);text-transform:uppercase;text-decoration:none}
+.gamepane .pnlatest.sticker:hover{text-decoration:none;filter:brightness(1.05)}
+.pause.title.home .gamefoot{position:absolute;right:max(16px,5vw);bottom:112px;display:flex;flex-direction:column;align-items:flex-end;gap:6px;padding:0;max-width:44vw}
+.pause.title.home .gamefoot .note{color:var(--paper);font:600 12px/1.35 var(--f-body);text-align:right;text-shadow:1px 0 var(--ink),-1px 0 var(--ink),0 1px var(--ink),0 -1px var(--ink),0 2px var(--ink)}
+.pause.title.home .gamefoot .pnlatest{align-self:flex-end;margin-bottom:8px}
+.vertag{display:none}
+.pause.title.home .vertag{display:block;position:fixed;left:22px;bottom:30px;font:400 18px var(--f-px);color:var(--paper)}
+@media (max-width:860px){.pause.title .card h1.tlogo{left:16px;top:12px;width:calc(100% - 32px)}.pause.title.home .tmenu{left:16px;right:16px;margin:auto;top:auto;bottom:104px;transform:none;width:auto;max-height:calc(100vh - 300px)}.pause.title.home .gamefoot{display:none}}
+@media (max-height:620px){.tmenu .ck{height:50px;font-size:24px}.tmenu .ck.tbig{height:60px;font-size:32px}.tmenu{gap:12px;padding:18px 22px}}
+
+/* ---- a screen opened from the menu: its own head with a Back button ---- */
+.subhead{display:flex;align-items:center;gap:18px;flex:none;margin-top:-4px}
+.subhead .ck{height:46px;font-size:21px;padding:4px 16px;flex:none;width:auto}
+.subhead h2{margin:0;font:400 36px/1 var(--f-px);letter-spacing:1px;color:var(--paper);text-transform:uppercase}
+.subwho{margin-left:auto}
+.pause.title:not(.home){background:rgba(43,27,46,.35)}
+.pause.title:not(.home) .card{border:4px solid var(--ink);border-radius:var(--wob);box-shadow:8px 8px 0 rgba(0,0,0,.35)}
+
+/* ---- the Character screen: WHO'S STOMPIN'? (docs/ui-overhaul/CharSelect.html) ---- */
+#tabCustom .opts{max-width:1120px}
+#tabCustom .opts>.custom:first-child{border-top:0;padding-top:0}
+.charsel{width:100%;gap:18px}
+.cs-top{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+.cs-top .cs-h{font:600 14px var(--f-body);letter-spacing:0;text-transform:none;color:var(--mute)}
+.cs-row{grid-template-columns:repeat(4,minmax(0,1fr));gap:26px;padding:24px 14px 8px}
+.cs-card{--cc:#b7f08a;position:relative;justify-content:flex-start;gap:12px;min-height:270px;padding:22px 12px 16px;color:var(--ink);background-color:var(--paper);background-image:var(--dither);background-size:6px 6px;border:4px solid var(--ink);border-radius:var(--wob);box-shadow:6px 6px 0 var(--ink);transform:rotate(-1deg);transition:transform .12s}
+.cs-card:nth-child(even){border-radius:var(--wob2);transform:rotate(1.5deg)}
+.cs-card:nth-child(3){transform:rotate(-1deg)}.cs-card:nth-child(4){transform:rotate(2deg)}
+.cs-card.c-gertie{--cc:#ffc2b6}.cs-card.c-gnash{--cc:var(--yolk)}.cs-card.c-grizzle{--cc:#ff8a7e}
+.cs-card:hover{background-color:#fffaf0;filter:none}
+.cs-card[aria-checked="true"]{border-color:var(--ink);background-color:var(--paper);box-shadow:6px 6px 0 var(--ink)}
+.cs-card.p1,.cs-card.p1[aria-checked="true"]{background-color:#d9f3b8;outline:6px solid var(--gus);outline-offset:4px}
+.cs-card.p2,.cs-card.p2[aria-checked="true"]{background-color:#fde0d8;outline:6px solid var(--pink);outline-offset:4px}
+.cs-card.p1:nth-child(n){transform:rotate(-2deg) translateY(-10px)}
+.cs-name{font:400 40px/1 var(--f-px);letter-spacing:.5px;color:var(--cc);text-transform:uppercase}
+.cs-card small,.cs-card[aria-checked="true"] small{font:400 15.5px/1.35 var(--f-body);color:var(--ink)}
+.cs-pic{display:block;margin-top:4px}
+.cs-tag{display:none;position:absolute;top:-18px;font:400 22px/1 var(--f-px);padding:4px 10px;color:var(--ink);border:3px solid var(--ink);border-radius:var(--wobs);box-shadow:4px 4px 0 var(--ink)}
+.cs-card.p1 .t1{display:block;left:-16px;background:var(--gus);transform:rotate(-8deg)}
+.cs-card.p2 .t2{display:block;right:-16px;background:var(--pink);transform:rotate(7deg)}
+#pause .cs-card.padfocus,#pause .cs-card:focus-visible{outline:5px dashed var(--yolk)!important;outline-offset:6px!important;animation:ckBob 1.1s ease-in-out infinite;box-shadow:6px 6px 0 var(--ink)!important}
+.cs-moves{display:flex;align-items:center;gap:18px;padding:14px 22px;margin:4px 6% 0;transform:rotate(-.6deg)}
+.cs-moves>.px{font-size:22px;flex:none;color:var(--ink)}
+.cs-chips{display:flex;flex-wrap:wrap;gap:9px}
+.cs-chips .sticker{background:var(--yolk);color:var(--ink);padding:4px 10px 3px;font-size:18px;text-transform:uppercase;box-shadow:3px 3px 0 var(--ink)}
+.cs-note{text-align:center;font:700 15px var(--f-body);color:var(--paper)}
+@media(max-width:860px){.cs-row{grid-template-columns:repeat(2,minmax(0,1fr))}.cs-card{min-height:0}}
+@media(max-width:560px){.cs-name{font-size:30px}.cs-moves{flex-direction:column;align-items:flex-start;margin-inline:0}}
+
+/* ---- Play online, in the menu card ---- */
+.tmenu .online{margin:0;padding:12px;border:3px solid var(--ink);border-radius:var(--wobs);background:#e5f2fc;color:var(--ink);gap:9px}
+.tmenu .on-h{font:400 22px/1 var(--f-px);color:var(--ink);text-transform:uppercase}
+.tmenu .on-h small{font:400 13px/1.45 var(--f-body);color:#4a3a4e;text-transform:none;margin-top:6px}
+.tmenu .on-lh{font:400 18px var(--f-px);color:var(--ink)}
+.tmenu .on-or,.tmenu .on-loc,.tmenu .note{font:400 12.5px/1.45 var(--f-body);color:#4a3a4e}
+.tmenu .on-b,.tmenu .on-ggo{font:400 19px/1 var(--f-px);letter-spacing:.4px;color:var(--ink);background:var(--gus);border:3px solid var(--ink);border-radius:9px 13px 8px 14px/13px 8px 14px 9px;box-shadow:0 4px 0 var(--ink);padding:7px 12px 6px;text-transform:uppercase}
+.tmenu .on-leave{background:var(--biscuit)}
+.tmenu .on-code-in{font:400 20px var(--f-px);border:3px solid var(--ink);border-radius:6px;background:var(--paper);color:var(--ink);width:7.5em}
+.tmenu .on-code{font:400 40px var(--f-px);color:var(--ink);letter-spacing:.25em}
+.tmenu .on-game{border:3px solid var(--ink);border-radius:8px;background:var(--paper);color:var(--ink)}
+.tmenu .on-game:hover:not(:disabled),.tmenu .on-game.padfocus{background:#fff2b8}
+.tmenu .on-gname{font:400 19px var(--f-px)}
+.tmenu .on-ginfo{font:400 12px var(--f-body);color:#4a3a4e}
 </style>
 
 <canvas id="world"></canvas>
@@ -755,19 +859,15 @@ body.calm *{animation-duration:0s!important;animation-iteration-count:1!importan
       <span class="menuwho" id="menuWho" hidden></span>
 
     </div>
+    <div class="subhead" id="subHead" hidden><button type="button" class="ck set subback" id="subBack"><span aria-hidden="true">‹</span> Back</button><h2 class="px out2" id="subTitle"></h2><span class="subwho" id="subWho"></span></div>
     <div class="tabpane gamepane" id="tabGame" role="tabpanel">
      <div class="gamemain">
-      <h1>Goblin-Stompin' <em>Gus</em></h1>
-      <button type="button" class="charlink" id="charLink">Playing as <b id="charLinkName">Gus</b>. Change character in the Character tab <span aria-hidden="true">›</span></button>
-      <div class="row">
-        <button class="big" id="play">Play solo</button>
-        <button class="big coop" id="playCoop">Co-op</button>
-        <button class="big alt" id="newWorld">New city</button>
-        <button class="big alt" id="testWorld">Testing Environment</button>
-        <button class="big alt" id="onlineBtn" type="button" aria-expanded="false" aria-controls="onlinePanel">Play online</button>
-        <button class="big full" id="fullBtn" type="button">Full screen</button>
-      </div>
-      <div class="online" id="onlinePanel" hidden>
+      <h1 class="tlogo"><span class="tl1 px out">Goblin-Stompin'</span> <em class="tl2 px out">Gus</em></h1>
+      <nav class="tmenu paper wob" id="titleMenu" aria-label="Main menu">
+        <button type="button" class="ck go tbig" id="play">Play</button>
+        <button type="button" class="ck co" id="playCoop">Co-op</button>
+        <button type="button" class="ck on" id="onlineBtn" aria-expanded="false" aria-controls="onlinePanel">Play online</button>
+        <div class="online" id="onlinePanel" hidden>
         <div class="on-h">Play online <small>Up to four players over the internet. Host your city and it shows up under Open games for anyone to join, or make it private and share the room code. The host's browser runs the game, so the host's computer should be the quicker one.</small></div>
         <div class="on-list" id="netList" hidden><div class="on-lh">Open games</div><div class="on-games" id="netGames"></div><div class="note on-gnote" id="netGamesNote" role="status"></div></div>
         <div class="on-row"><button type="button" class="on-b" id="netHost">Host a game</button><span class="on-or">or</span><input type="text" id="netCode" class="on-code-in" maxlength="8" placeholder="Room code" autocomplete="off" spellcheck="false" aria-label="Room code"><button type="button" class="on-b" id="netJoin">Join</button></div>
@@ -777,18 +877,21 @@ body.calm *{animation-duration:0s!important;animation-iteration-count:1!importan
         <div class="note on-st" id="netStatus" role="status"></div>
         <button type="button" class="on-b on-leave" id="netLeave" hidden>Leave the online game</button>
       </div>
-      <div class="hostmain"><div class="hostlbl">Enemy hostility<small id="hostMainTxt"></small></div>
-      <div class="crow"><input type="range" id="hostMain" class="vrange" min="0" max="2" step="1" value="2" aria-label="Enemy hostility"><span class="vval" id="hostMainVal">Normal</span></div></div>
-      <div class="confirm" id="confirm" hidden>
+        <div class="tm2"><button type="button" class="ck set" id="newWorld">New city</button><button type="button" class="ck set" id="optBtn">Options</button></div>
+        <div class="confirm" id="confirm" hidden>
         <span>Start over in a brand-new city? The day, your kills, your score and the obituary all start again from scratch.</span>
         <button class="yes" id="confirmYes">New city</button>
         <button id="confirmNo">Keep this one</button>
       </div>
+        <button type="button" class="charlink" id="charLink">Playing as <b id="charLinkName">Gus</b> · change <span aria-hidden="true">›</span></button>
+        <div class="tws"><span><b>Workshop:</b> <button type="button" class="lnk" id="testWorld">Testing Environment</button><span id="devLinkW"> · <button type="button" class="lnk" id="devLink">Dev</button></span></span><button type="button" class="lnk" id="fullBtn">Full screen</button></div>
+      </nav>
      </div>
       <div class="gamefoot">
-        <button type="button" class="pnlatest" id="pnLatest">What's new: Version 0.3 <span aria-hidden="true">›</span></button>
+        <button type="button" class="pnlatest sticker px" id="pnLatest">What's new: Version 0.3 <span aria-hidden="true">›</span></button>
         <div class="note" id="padNote">No controllers found yet. Press a button on one to wake it up.</div>
         <div class="note" id="seedNote"></div>
+        <div class="vertag px" id="verTag" aria-hidden="true"></div>
       </div>
     </div>
     <div class="tabpane testpane" id="tabTest" role="tabpanel" hidden>
@@ -819,23 +922,15 @@ body.calm *{animation-duration:0s!important;animation-iteration-count:1!importan
     <div class="tabpane" id="tabCustom" role="tabpanel" hidden>
     <div class="opts">
     <div class="custom">
-      <h2>CHARACTER</h2>
-      <p class="vnote">Each player picks any of the four. Pick the character the other player has and you swap.</p>
       <div class="charsel" id="charSel">
-        <div class="cs-h p1only" id="charSelH">Player one</div>
-        <div class="cs-row p1only" role="radiogroup" aria-labelledby="charSelH" data-seat="0">
-          <button type="button" class="cs-card" role="radio" data-c="gus" aria-checked="true"><svg class="cs-pic" viewBox="0 0 64 56" aria-hidden="true"><rect x="10" y="10" width="44" height="30" fill="#8f8399"/><rect x="4" y="30" width="56" height="20" fill="#8f8399"/><rect x="12" y="4" width="10" height="9" fill="#8f8399"/><rect x="42" y="4" width="10" height="9" fill="#8f8399"/><rect x="15" y="7" width="4" height="4" fill="#6c6177"/><rect x="45" y="7" width="4" height="4" fill="#6c6177"/><rect x="6" y="18" width="5" height="7" fill="#f6f3ea"/><rect x="6" y="20" width="3" height="4" fill="#16161a"/><rect x="53" y="18" width="5" height="7" fill="#f6f3ea"/><rect x="55" y="20" width="3" height="4" fill="#16161a"/><rect x="18" y="34" width="8" height="4" fill="#6c6177"/><rect x="38" y="34" width="8" height="4" fill="#6c6177"/><rect x="8" y="44" width="48" height="4" fill="#d8697c"/><rect x="12" y="40" width="4" height="6" fill="#f4f0e2"/><rect x="48" y="40" width="4" height="6" fill="#f4f0e2"/></svg><span class="cs-name">Gus</span><small>The hippo himself. Bites, stomps, ground pounds, and flattens whatever's in his way.</small></button>
-          <button type="button" class="cs-card gertie" role="radio" data-c="gertie" aria-checked="false"><svg class="cs-pic" viewBox="0 0 64 56" aria-hidden="true"><rect x="10" y="10" width="44" height="30" fill="#c08a7c"/><rect x="4" y="30" width="56" height="20" fill="#c08a7c"/><rect x="12" y="4" width="10" height="9" fill="#c08a7c"/><rect x="42" y="4" width="10" height="9" fill="#c08a7c"/><rect x="15" y="7" width="4" height="4" fill="#93635a"/><rect x="45" y="7" width="4" height="4" fill="#93635a"/><rect x="22" y="0" width="20" height="5" fill="#e0406a"/><rect x="29" y="0" width="6" height="7" fill="#b02a50"/><rect x="17" y="17" width="10" height="9" fill="#f6f3ea"/><rect x="20" y="19" width="5" height="5" fill="#16161a"/><rect x="37" y="17" width="10" height="9" fill="#f6f3ea"/><rect x="39" y="19" width="5" height="5" fill="#16161a"/><rect x="18" y="34" width="8" height="4" fill="#93635a"/><rect x="38" y="34" width="8" height="4" fill="#93635a"/><rect x="8" y="44" width="48" height="4" fill="#d8697c"/><rect x="12" y="40" width="4" height="6" fill="#f4f0e2"/><rect x="48" y="40" width="4" height="6" fill="#f4f0e2"/></svg><span class="cs-name">Gertie</span><small>Every bit as much hippo as Gus, move for move. She just looks you in the eye while she does it.</small></button>
-          <button type="button" class="cs-card gob" role="radio" data-c="gnash" aria-checked="false"><svg class="cs-pic" viewBox="0 0 64 56" aria-hidden="true"><rect x="2" y="14" width="14" height="6" fill="#4f7426"/><rect x="48" y="14" width="14" height="6" fill="#4f7426"/><rect x="0" y="12" width="6" height="4" fill="#4f7426"/><rect x="58" y="12" width="6" height="4" fill="#4f7426"/><rect x="16" y="6" width="32" height="30" fill="#6f9a3a"/><rect x="16" y="6" width="32" height="5" fill="#4f7426"/><rect x="20" y="16" width="8" height="6" fill="#ffd23a"/><rect x="23" y="17" width="3" height="4" fill="#16161a"/><rect x="36" y="16" width="8" height="6" fill="#ffd23a"/><rect x="38" y="17" width="3" height="4" fill="#16161a"/><rect x="19" y="13" width="10" height="2" fill="#2a1a10"/><rect x="35" y="13" width="10" height="2" fill="#2a1a10"/><rect x="29" y="22" width="6" height="6" fill="#4f7426"/><rect x="22" y="30" width="20" height="3" fill="#2a1a10"/><rect x="25" y="28" width="3" height="3" fill="#f4f0e2"/><rect x="37" y="28" width="3" height="3" fill="#f4f0e2"/><rect x="18" y="36" width="28" height="18" fill="#3a5f8a"/><rect x="18" y="44" width="28" height="3" fill="#2b1d10"/><rect x="50" y="22" width="6" height="30" fill="#7a5530"/><rect x="47" y="14" width="12" height="12" fill="#7a5530"/></svg><span class="cs-name">Gnash</span><small>A goblin who's had enough. First person and goblin sized, with a club, and he can drive anything with wheels, wings or a hull.</small></button>
-          <button type="button" class="cs-card gob griz" role="radio" data-c="grizzle" aria-checked="false"><svg class="cs-pic" viewBox="0 0 64 56" aria-hidden="true"><rect x="2" y="14" width="14" height="6" fill="#4f7426"/><rect x="48" y="14" width="14" height="6" fill="#4f7426"/><rect x="0" y="12" width="6" height="4" fill="#4f7426"/><rect x="58" y="12" width="6" height="4" fill="#4f7426"/><rect x="16" y="6" width="32" height="30" fill="#6f9a3a"/><rect x="16" y="6" width="32" height="5" fill="#4f7426"/><rect x="20" y="16" width="8" height="6" fill="#ffd23a"/><rect x="23" y="17" width="3" height="4" fill="#16161a"/><rect x="36" y="16" width="8" height="6" fill="#ffd23a"/><rect x="38" y="17" width="3" height="4" fill="#16161a"/><rect x="19" y="13" width="10" height="2" fill="#2a1a10"/><rect x="35" y="13" width="10" height="2" fill="#2a1a10"/><rect x="29" y="22" width="6" height="6" fill="#4f7426"/><rect x="22" y="30" width="20" height="3" fill="#2a1a10"/><rect x="25" y="28" width="3" height="3" fill="#f4f0e2"/><rect x="37" y="28" width="3" height="3" fill="#f4f0e2"/><rect x="18" y="36" width="28" height="18" fill="#a83232"/><rect x="18" y="44" width="28" height="3" fill="#2b1d10"/><rect x="50" y="22" width="6" height="30" fill="#7a5530"/><rect x="47" y="14" width="12" height="12" fill="#7a5530"/></svg><span class="cs-name">Grizzle</span><small>Gnash's cousin, in red, and every bit as much goblin, move for move. Same club, same knack for stealing vehicles.</small></button>
+        <div class="cs-top p1only"><span class="cs-h" id="charSelH">Picking for</span><div class="seg cs-seat" id="csSeat" role="radiogroup" aria-labelledby="charSelH"><button type="button" role="radio" data-seat="0" aria-checked="true">Player one</button><button type="button" role="radio" data-seat="1" aria-checked="false">Player two</button></div></div>
+        <div class="cs-row" id="charRow" role="radiogroup" aria-label="Characters" data-seat="0">
+          <button type="button" class="cs-card c-gus" role="radio" data-c="gus" aria-checked="false"><span class="cs-tag t1" aria-hidden="true">1P</span><span class="cs-tag t2" aria-hidden="true">2P</span><i class="cs-pic" data-spr="gus" aria-hidden="true"></i><span class="cs-name px out2">Gus</span><small>The hippo himself. Bites, stomps, ground pounds, and flattens whatever's in his way.</small></button>
+          <button type="button" class="cs-card c-gertie" role="radio" data-c="gertie" aria-checked="false"><span class="cs-tag t1" aria-hidden="true">1P</span><span class="cs-tag t2" aria-hidden="true">2P</span><i class="cs-pic" data-spr="gertie" aria-hidden="true"></i><span class="cs-name px out2">Gertie</span><small>Every bit as much hippo as Gus, move for move. She just looks you in the eye while she does it.</small></button>
+          <button type="button" class="cs-card c-gnash" role="radio" data-c="gnash" aria-checked="false"><span class="cs-tag t1" aria-hidden="true">1P</span><span class="cs-tag t2" aria-hidden="true">2P</span><i class="cs-pic" data-spr="gnash" aria-hidden="true"></i><span class="cs-name px out2">Gnash</span><small>A goblin who's had enough. First person and goblin sized, with a club, and he can drive anything with wheels, wings or a hull.</small></button>
+          <button type="button" class="cs-card c-grizzle" role="radio" data-c="grizzle" aria-checked="false"><span class="cs-tag t1" aria-hidden="true">1P</span><span class="cs-tag t2" aria-hidden="true">2P</span><i class="cs-pic" data-spr="grizzle" aria-hidden="true"></i><span class="cs-name px out2">Grizzle</span><small>Gnash's cousin, in red, and every bit as much goblin, move for move. Same club, same knack for stealing vehicles.</small></button>
         </div>
-        <div class="cs-h" id="charSelH2">Player two <small>split-screen co-op</small></div>
-        <div class="cs-row" id="charSel2" role="radiogroup" aria-labelledby="charSelH2" data-seat="1">
-          <button type="button" class="cs-card" role="radio" data-c="gus" aria-checked="true"><svg class="cs-pic" viewBox="0 0 64 56" aria-hidden="true"><rect x="10" y="10" width="44" height="30" fill="#8f8399"/><rect x="4" y="30" width="56" height="20" fill="#8f8399"/><rect x="12" y="4" width="10" height="9" fill="#8f8399"/><rect x="42" y="4" width="10" height="9" fill="#8f8399"/><rect x="15" y="7" width="4" height="4" fill="#6c6177"/><rect x="45" y="7" width="4" height="4" fill="#6c6177"/><rect x="6" y="18" width="5" height="7" fill="#f6f3ea"/><rect x="6" y="20" width="3" height="4" fill="#16161a"/><rect x="53" y="18" width="5" height="7" fill="#f6f3ea"/><rect x="55" y="20" width="3" height="4" fill="#16161a"/><rect x="18" y="34" width="8" height="4" fill="#6c6177"/><rect x="38" y="34" width="8" height="4" fill="#6c6177"/><rect x="8" y="44" width="48" height="4" fill="#d8697c"/><rect x="12" y="40" width="4" height="6" fill="#f4f0e2"/><rect x="48" y="40" width="4" height="6" fill="#f4f0e2"/></svg><span class="cs-name">Gus</span><small>The hippo himself. Bites, stomps, ground pounds, and flattens whatever's in his way.</small></button>
-          <button type="button" class="cs-card gertie" role="radio" data-c="gertie" aria-checked="false"><svg class="cs-pic" viewBox="0 0 64 56" aria-hidden="true"><rect x="10" y="10" width="44" height="30" fill="#c08a7c"/><rect x="4" y="30" width="56" height="20" fill="#c08a7c"/><rect x="12" y="4" width="10" height="9" fill="#c08a7c"/><rect x="42" y="4" width="10" height="9" fill="#c08a7c"/><rect x="15" y="7" width="4" height="4" fill="#93635a"/><rect x="45" y="7" width="4" height="4" fill="#93635a"/><rect x="22" y="0" width="20" height="5" fill="#e0406a"/><rect x="29" y="0" width="6" height="7" fill="#b02a50"/><rect x="17" y="17" width="10" height="9" fill="#f6f3ea"/><rect x="20" y="19" width="5" height="5" fill="#16161a"/><rect x="37" y="17" width="10" height="9" fill="#f6f3ea"/><rect x="39" y="19" width="5" height="5" fill="#16161a"/><rect x="18" y="34" width="8" height="4" fill="#93635a"/><rect x="38" y="34" width="8" height="4" fill="#93635a"/><rect x="8" y="44" width="48" height="4" fill="#d8697c"/><rect x="12" y="40" width="4" height="6" fill="#f4f0e2"/><rect x="48" y="40" width="4" height="6" fill="#f4f0e2"/></svg><span class="cs-name">Gertie</span><small>Every bit as much hippo as Gus, move for move. She just looks you in the eye while she does it.</small></button>
-          <button type="button" class="cs-card gob" role="radio" data-c="gnash" aria-checked="false"><svg class="cs-pic" viewBox="0 0 64 56" aria-hidden="true"><rect x="2" y="14" width="14" height="6" fill="#4f7426"/><rect x="48" y="14" width="14" height="6" fill="#4f7426"/><rect x="0" y="12" width="6" height="4" fill="#4f7426"/><rect x="58" y="12" width="6" height="4" fill="#4f7426"/><rect x="16" y="6" width="32" height="30" fill="#6f9a3a"/><rect x="16" y="6" width="32" height="5" fill="#4f7426"/><rect x="20" y="16" width="8" height="6" fill="#ffd23a"/><rect x="23" y="17" width="3" height="4" fill="#16161a"/><rect x="36" y="16" width="8" height="6" fill="#ffd23a"/><rect x="38" y="17" width="3" height="4" fill="#16161a"/><rect x="19" y="13" width="10" height="2" fill="#2a1a10"/><rect x="35" y="13" width="10" height="2" fill="#2a1a10"/><rect x="29" y="22" width="6" height="6" fill="#4f7426"/><rect x="22" y="30" width="20" height="3" fill="#2a1a10"/><rect x="25" y="28" width="3" height="3" fill="#f4f0e2"/><rect x="37" y="28" width="3" height="3" fill="#f4f0e2"/><rect x="18" y="36" width="28" height="18" fill="#3a5f8a"/><rect x="18" y="44" width="28" height="3" fill="#2b1d10"/><rect x="50" y="22" width="6" height="30" fill="#7a5530"/><rect x="47" y="14" width="12" height="12" fill="#7a5530"/></svg><span class="cs-name">Gnash</span><small>A goblin who's had enough. First person and goblin sized, with a club, and he can drive anything with wheels, wings or a hull.</small></button>
-          <button type="button" class="cs-card gob griz" role="radio" data-c="grizzle" aria-checked="false"><svg class="cs-pic" viewBox="0 0 64 56" aria-hidden="true"><rect x="2" y="14" width="14" height="6" fill="#4f7426"/><rect x="48" y="14" width="14" height="6" fill="#4f7426"/><rect x="0" y="12" width="6" height="4" fill="#4f7426"/><rect x="58" y="12" width="6" height="4" fill="#4f7426"/><rect x="16" y="6" width="32" height="30" fill="#6f9a3a"/><rect x="16" y="6" width="32" height="5" fill="#4f7426"/><rect x="20" y="16" width="8" height="6" fill="#ffd23a"/><rect x="23" y="17" width="3" height="4" fill="#16161a"/><rect x="36" y="16" width="8" height="6" fill="#ffd23a"/><rect x="38" y="17" width="3" height="4" fill="#16161a"/><rect x="19" y="13" width="10" height="2" fill="#2a1a10"/><rect x="35" y="13" width="10" height="2" fill="#2a1a10"/><rect x="29" y="22" width="6" height="6" fill="#4f7426"/><rect x="22" y="30" width="20" height="3" fill="#2a1a10"/><rect x="25" y="28" width="3" height="3" fill="#f4f0e2"/><rect x="37" y="28" width="3" height="3" fill="#f4f0e2"/><rect x="18" y="36" width="28" height="18" fill="#a83232"/><rect x="18" y="44" width="28" height="3" fill="#2b1d10"/><rect x="50" y="22" width="6" height="30" fill="#7a5530"/><rect x="47" y="14" width="12" height="12" fill="#7a5530"/></svg><span class="cs-name">Grizzle</span><small>Gnash's cousin, in red, and every bit as much goblin, move for move. Same club, same knack for stealing vehicles.</small></button>
-        </div>
+        <div class="cs-moves paper wob"><span class="px" id="csCanH">GUS CAN:</span><div class="cs-chips" id="csMoves"></div></div>
         <div class="cs-note" id="charNote"></div>
       </div>
       <h2>ABILITIES</h2>
@@ -858,6 +953,10 @@ body.calm *{animation-duration:0s!important;animation-iteration-count:1!importan
     </div>
     <div class="tabpane" id="tabOptions" role="tabpanel" hidden>
     <div class="opts">
+      <div class="custom hostmain"><h2>ENEMY HOSTILITY</h2>
+      <div class="crow"><input type="range" id="hostMain" class="vrange" min="0" max="2" step="1" value="2" aria-label="Enemy hostility"><span class="vval" id="hostMainVal">Normal</span></div>
+      <p class="vnote" id="hostMainTxt"></p>
+    </div>
     <div class="custom">
       <h2>RENDER DISTANCE</h2>
       <div class="crow"><input type="range" id="detailDist" class="vrange" min="48" max="1024" step="16" value="112" aria-label="Detail distance"><span class="vval" id="detailVal">112 blocks</span></div>
@@ -920,7 +1019,7 @@ body.calm *{animation-duration:0s!important;animation-iteration-count:1!importan
 <h3>Highlights</h3>
 <ul><li>Play online: up to four players in one city over the internet. One hosts, and the others pick the game from the Open games list, or type in its room code for a private game. Find it under Play online on the main menu.</li><li>Text chat and opt-in voice chat in online games.</li><li>Two players can share one armed vehicle, one driving and one on the gun.</li><li>Police draw handguns at range, and every goblin attack has a proper wind-up and strike.</li></ul>
 <h3>A new look</h3>
-<ul><li>The game has a new coat of paint: flat crayon colours, thick ink outlines with hand-drawn corners, and a chunky pixel font (Jersey 10) for titles, buttons and numbers. Anything you read, like descriptions and these notes, keeps the easy-to-read font.</li><li>Button prompts are drawn as the buttons themselves in the new style: crayon-coloured face buttons and paper keycaps.</li></ul>
+<ul><li>The game has a new coat of paint: flat crayon colours, thick ink outlines with hand-drawn corners, and a chunky pixel font (Jersey 10) for titles, buttons and numbers. Anything you read, like descriptions and these notes, keeps the easy-to-read font.</li><li>Button prompts are drawn as the buttons themselves in the new style: crayon-coloured face buttons and paper keycaps.</li><li>A real title screen: the logo top left, and Gus himself stomping along a street in front of a scrolling city while you choose. The menu card on the right has Play, Co-op, Play online, New city and Options, with the Testing Environment, Dev and Full screen in a small Workshop line underneath, and a sticker for what's new.</li><li>The enemy hostility slider has moved from the main screen to the top of Options.</li><li>Picking a character is now "Who's stompin'?": four big cards for Gus, Gertie, Gnash and Grizzle, with a 1P tag on player one's pick and a 2P tag on player two's. Choose which player you're picking for at the top (player two's own menu always picks for player two), and a strip under the cards lists what that character can do with your current ability switches. Picking the other player's character still swaps you over.</li><li>On a controller, A on a character card picks them and takes you back ("Ready!"), and Y jumps down to the ability switches. Screens opened from a menu have a Back button: B or Esc goes back, and LB / RB (Q / E on the keyboard) jump between screens.</li></ul>
 <h3>Split-screen co-op menus</h3>
 <ul><li>Both players get the full pause menu now. Press Start to pause your own half of the screen, then Y (or click Pause menu) to open the menu as yours. Its corner says whose menu it is, and only that player's controller moves around it.</li><li>Player two's menu leaves out what changes the game for both of you: Game options, the Dev tab, the Testing Environment, and the new city, solo, online and hostility controls. Those stay with player one, and so does the debug menu on Select.</li><li>In player two's menu, the button that carries on playing says Resume rather than Co-op.</li><li>Picking characters has moved to the Character tab, and the Game tab just says who you're playing as, with a link there.</li><li>Each player can now be any of the four: Gus, Gertie, Gnash or Grizzle. Pick the one the other player has and you swap over, so you can always tell each other apart. Grizzle wears red, Gnash blue.</li></ul>
 <h3>Online co-op</h3>
@@ -12949,6 +13048,7 @@ function showTab(which){
   curTab=which;
   for(const [t,id] of TABS){const on=t===which;document.getElementById('tab'+id).hidden=!on;document.getElementById('tabBtn'+id).setAttribute('aria-selected',String(on));}
   if(which==='obit'){obitSel=0;renderObits();}if(which==='controls')renderControls();if(which==='map'){MAPV.cx=null;setTimeout(renderMap,0);}
+  menuMode();
 }
 const tabIndex=()=>TABS.findIndex(t=>t[0]===curTab);
 // ---- the Dev tab: tune each move, and watch it. A spare copy of Gus (never in the players list) performs the move in a
@@ -13734,9 +13834,9 @@ function unitFocus(u){if(u.matches('.seg,.cs-row'))padFocus(u.querySelector('[ar
 function menuNav(dir){
   const cur=document.activeElement,dx=dir==='left'?-1:dir==='right'?1:0,dy=dir==='up'?-1:dir==='down'?1:0;
   if(dx&&cur&&cur.matches&&cur.matches('input[type=range]')&&menuCard.contains(cur)){nudgeRange(cur,dx);return;}
-  const pane=document.querySelector('.main .tabpane:not([hidden])'),tabBtn=document.getElementById('tabBtn'+TABS[tabIndex()][1]);
-  // (on the title screen, and from the row of tabs anywhere: left and right go to the tab next door)
-  const title=curTab==='game'&&document.getElementById('confirm').hidden;
+  // (the head of a screen: its Back button where there's one, otherwise its tab)
+  const pane=document.querySelector('.main .tabpane:not([hidden])'),sb=document.getElementById('subBack'),tabBtn=sb&&sb.offsetParent?sb:document.getElementById('tabBtn'+TABS[tabIndex()][1]);
+  const title=false;
   // (Patch notes are mostly text to read, so up and down scroll it, stopping on an older update's bar only once it's in view:
   // jumping straight to the first bar would skip past the newest notes)
   if(dy&&curTab==='notes'&&pane&&cur&&cur.closest&&(pane.contains(cur)||cur.closest('.tabs'))){
@@ -13747,6 +13847,9 @@ function menuNav(dir){
     pane.scrollTop+=dy*80;return;
   }
   if(dx&&cur&&cur.closest&&cur.closest('#charSel .cs-row')){const C=[...cur.closest('.cs-row').querySelectorAll('.cs-card')],i=C.indexOf(cur)+dx;if(i>=0&&i<C.length){C[i].click();padFocus(C[i]);}return;}
+  // (the menu itself, title or pause: wherever's nearest that way)
+  if(curTab==='game'&&!(cur&&cur.closest&&cur.closest('.tabs'))){if(!moveFocus(dx,dy)&&dy&&pane)pane.scrollTop+=dy*80;return;}
+  if(cur===sb&&dy>0){const U=paneUnits(pane);if(U.length)unitFocus(U[0]);else pane.scrollTop+=80;return;}
   if(dx&&(title||cur&&cur.closest&&cur.closest('.tabs'))){showTab(tabIndex()+dx);padFocus(document.getElementById('tabBtn'+TABS[tabIndex()][1]));return;}
   if(dy&&title&&pane.contains(cur)){const U=paneUnits(pane),i=U.findIndex(u=>u===cur||u.contains(cur))+dy;if(i<0)padFocus(tabBtn);else if(i<U.length)unitFocus(U[i]);return;}
   if(dy&&pane&&cur&&cur.closest){
@@ -13783,8 +13886,10 @@ function menuPad(st,dt){
   if(dir!==navHeld){navHeld=dir;navT=0.38;if(dir)menuNav(dir);}
   else if(dir){navT-=dt;if(navT<=0){navT=0.09;menuNav(dir);}}
   for(const s of st){
-    if(s.pr[4]){showTab(tabIndex()-1);padFocus(document.getElementById('tabBtn'+TABS[tabIndex()][1]));}
-    if(s.pr[5]){showTab(tabIndex()+1);padFocus(document.getElementById('tabBtn'+TABS[tabIndex()][1]));}
+    if(s.pr[4])subStep(-1);
+    if(s.pr[5])subStep(1);
+    // (Y on the character cards: down to the ability switches)
+    if(s.pr[3]&&curTab==='custom'){const t=document.querySelector('#abilList .tog');if(t)padFocus(t);}
     const ry=s.p.axes[3]||0;
     if(curTab==='map'&&s.pr[2])mapRecentre();
     if(curTab==='map'){const rx2=s.p.axes[2]||0;if(Math.abs(rx2)>0.2||Math.abs(ry)>0.2)mapPan(rx2*dt*420,ry*dt*420);if(s.b[7])mapZoom(1+dt*1.6);if(s.b[6])mapZoom(1/(1+dt*1.6));}
@@ -13794,7 +13899,8 @@ function menuPad(st,dt){
     if(s.pr[1]){
       const cf=document.getElementById('confirm');
       if(!cf.hidden)document.getElementById('confirmNo').click(),padFocus(document.getElementById('newWorld'));
-      else if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('.tabpane'))padFocus(document.getElementById('tabBtn'+TABS[tabIndex()][1]));
+      else if(curTab!=='game')backHome();
+      else{const op=document.getElementById('onlinePanel');if(op&&!op.hidden&&op.contains(document.activeElement)){document.getElementById('onlineBtn').click();padFocus(document.getElementById('onlineBtn'));}}
     }
     if(s.pr[9]){startPlay(s===st[1]&&!touchMode?'coop':null,true);return;}
     if(s.pr[0]){
@@ -13803,6 +13909,8 @@ function menuPad(st,dt){
       if(el.id==='play'){startPlay('solo',true);return;}
       if(el.id==='playCoop'){startPlay('coop',true);return;}
       if(el.matches('input[type=range]'))continue;
+      // (A on a character card: that's who you are, and back to the menu: "Ready!")
+      if(el.closest('#charRow')){el.click();backHome();continue;}
       el.click();
       if(el.id==='newWorld')padFocus(document.getElementById('confirmNo'));
       if(el.id==='confirmNo'||el.id==='confirmYes')padFocus(document.getElementById('newWorld'));
@@ -13819,7 +13927,9 @@ for(const [t,id] of TABS)document.getElementById('tabBtn'+id).addEventListener('
 try{const d=location.pathname.replace(/[^\/]*$/,'').replace(/(test|v\/[^\/]+)\/$/,'');
   for(const a of document.querySelectorAll('a.pn-play')){if(location.protocol==='file:'){a.hidden=true;continue;}a.href=d+'v/'+a.dataset.ver+'/';a.target='_blank';a.rel='noopener';}
 }catch(e){}
-document.getElementById('pnLatest').addEventListener('click',()=>{showTab('notes');const b=document.getElementById('tabBtnNotes');if(inputKind==='pad')padFocus(b);else b.focus();});
+document.getElementById('pnLatest').addEventListener('click',()=>openSub('notes','pnLatest'));
+// (the version in the title screen's corner, from the newest patch notes' heading)
+{const m=/Version\s+(\S+)/.exec(document.getElementById('pnLatest').textContent||''),v=document.getElementById('verTag');if(v&&m)v.textContent='v'+m[1];}
 
 // ---- button prompts: a row along the bottom of each menu showing just the inputs that do something there ----
 // glyph ids: A B X Y (face buttons), LB RB LT RT, LS/RS (':v' up-down, ':h' left-right), DPAD (':v'/':h'),
@@ -13864,15 +13974,16 @@ function menuPromptItems(){
   const scrolls=pane&&pane.scrollHeight>pane.clientHeight+4,inPane=pane&&act&&pane.contains(act),cf=!document.getElementById('confirm').hidden;
   const range=act&&act.matches&&act.matches('input[type=range]')&&menuCard.contains(act);
   const out=[];
+  const home=curTab==='game',card=act&&act.closest&&act.closest('#charRow');
   if(kind==='pad'){
-    out.push([['LB','RB'],'Tab']);
-    out.push([['DPAD'],'Move']);
-    if(range)out.push([['DPAD:h'],'Adjust']);else out.push([['A'],'Select']);
-    if(cf||inPane)out.push([['B'],'Back']);
+    if(range)out.push([['DPAD:h'],'Adjust']);else out.push([['A'],card?'Ready!':'Pick']);
+    if(cf||!home)out.push([['B'],'Back']);
+    if(!home)out.push([['LB','RB'],'Jump between screens']);
+    if(curTab==='custom')out.push([['Y'],'Ability toggles']);
     if(curTab==='map'){out.push([['RS'],'Pan']);out.push([['LT','RT'],'Zoom']);out.push([['X'],'Re-centre']);}
     else if(curTab==='obit'){out.push([['RS:h'],'Turn']);if(scrolls)out.push([['RS:v'],'Scroll']);}
     else if(scrolls)out.push([['RS:v'],'Scroll']);
-    out.push([['START'],'Play']);
+    out.push([['START'],atTitle?'Play':'Resume']);
   } else if(kind==='touch'){
     out.push([['TAP'],'Select']);
     if(curTab==='map'){out.push([['TDRAG'],'Pan']);out.push([['TDRAG','TDRAG'],'Pinch to zoom']);out.push([['TAP','TAP'],'Re-centre']);}
@@ -13883,8 +13994,9 @@ function menuPromptItems(){
     if(curTab==='map'){out.push([['MDRAG'],'Pan']);out.push([['WHEEL'],'Zoom']);out.push([['KEY:C'],'Re-centre']);}
     else if(curTab==='obit'){out.push([['MDRAG'],'Turn']);if(scrolls)out.push([['WHEEL'],'Scroll']);}
     else if(scrolls)out.push([['WHEEL'],'Scroll']);
-    out.push([['KEY:Tab'],'Next']);
-    if(range)out.push([['KEY:←','KEY:→'],'Adjust']);else out.push([['KEY:Enter'],'Select']);
+    if(range)out.push([['KEY:←','KEY:→'],'Adjust']);else out.push([['KEY:Enter'],'Pick']);
+    if(cf||!home)out.push([['KEY:Esc'],'Back']);
+    if(!home)out.push([['KEY:Q','KEY:E'],'Jump between screens']);
   }
   return out;
 }
@@ -16327,7 +16439,8 @@ function renderTime(){
   const dp=document.getElementById('dbgPad');dp.hidden=!DT.menu;
   for(const b of document.querySelectorAll('#dbgMenuTog .tog'))b.setAttribute('aria-checked',String(DT.quick));
   // (the Dev tab comes and goes with the debug menu; if it's the tab on show as it goes, Game options takes its place)
-  {const dv=document.getElementById('tabBtnDev'),off=!DT.quick||menuP2();if(dv&&dv.hidden!==off){dv.hidden=off;try{if(!DT.quick&&curTab==='dev')showTab('options');}catch(e){}}}
+  {const dv=document.getElementById('tabBtnDev'),off=!DT.quick||menuP2();if(dv&&dv.hidden!==off){dv.hidden=off;try{if(!DT.quick&&curTab==='dev')showTab('options');}catch(e){}}
+   const dl=document.getElementById('devLinkW');if(dl&&dl.hidden!==off)dl.hidden=off;}   // (and the title screen's Dev link, in the Workshop line)
   if(DT.menu){
     const dbgL=dbgItems();
     {const tb=document.getElementById('dpTabs');if(tb)tb.innerHTML=['Switches','Show / hide'].map((n,t)=>'<button type="button" data-t="'+t+'"'+(t===DT.tab?' class="on"':'')+'>'+n+'</button>').join('');}
@@ -16550,13 +16663,44 @@ try{let s=localStorage.getItem(CHAR_KEY);if(s==='goblin')s='gnash';if(CHARS.incl
 const pick2=()=>CHAR2&&CHAR2!==CHAR?CHAR2:CHAR_TWIN[CHAR];
 const p2Kind=()=>charGob(pick2())?'goblin':'hippo';
 const CHAR_NAMES={gus:'Gus',gertie:'Gertie',gnash:'Gnash',grizzle:'Grizzle'};
-function charNote(){return 'Co-op: player two plays as '+CHAR_NAMES[pick2()]+'.';}
+function charNote(){return 'Pick the one the other player has and you swap over. Co-op: player two plays as '+CHAR_NAMES[pick2()]+'.';}
+// Which player the cards pick for (CS_SEAT, 0 or 1): player one's own menu can pick for either seat, player two's only
+// for player two. The cards are one row: the 1P tag sits on player one's pick, the 2P tag on player two's.
+let CS_SEAT=0;
+const csSeat=()=>{let two=false;try{two=menuP2();}catch(e){}return two?1:CS_SEAT;};
+// what each character can do, for the strip under the cards (a hippo's from the ability switches as they are now)
+const CS_GOB_MOVES=['Club','Dagger','Rifle','Grenades','Dash','Drive anything'];
+function csMoves(c){
+  if(charGob(c))return CS_GOB_MOVES;
+  const A=ABIL,L=[];
+  if(A.bite)L.push(A.biteCombo?'Bite combo':'Bite');
+  if(A.stomp)L.push(A.fullStomp?'Full charge stomp':A.chargeStomp?'Charge stomp':'Stomp');
+  if(A.groundSpike&&A.stomp)L.push('Ground spike');
+  if(A.pound)L.push('Ground pound');
+  if(A.sprint)L.push(A.trample?'Trample':'Sprint');
+  if(A.dash)L.push(A.roll?'Roll':A.blastDash?'Blast dash':'Dash');
+  if(A.jump)L.push(A.triple?'Triple jump':A.double?'Double jump':'Jump');
+  if(A.longJump)L.push(A.blastJump?'Blast long jump':'Long jump');
+  if(A.airDash)L.push(A.blastAirDash?'Blast air dash':'Air dash');
+  if(A.rocket&&A.jump)L.push('Rocket boost');
+  if(A.climb)L.push('Spider climb');
+  return L;
+}
 function renderChar(){
-  const c2=pick2();
-  for(const b of document.querySelectorAll('#charSel .cs-row')){const c=b.dataset.seat==='1'?c2:CHAR;
-    for(const k of b.querySelectorAll('.cs-card'))k.setAttribute('aria-checked',String(k.dataset.c===c));}
+  const c2=pick2(),seat=csSeat();
+  const row=document.getElementById('charRow');
+  if(row){row.dataset.seat=String(seat);
+    for(const k of row.querySelectorAll('.cs-card')){const c=k.dataset.c;k.setAttribute('aria-checked',String(c===(seat?c2:CHAR)));
+      k.classList.toggle('p1',c===CHAR);k.classList.toggle('p2',c===c2);
+      const pic=k.querySelector('.cs-pic');if(pic&&!pic.dataset.done){pic.dataset.done='1';pic.className='cs-pic '+sprCls(pic.dataset.spr,6);}}}
+  for(const b of document.querySelectorAll('#csSeat [data-seat]'))b.setAttribute('aria-checked',String(+b.dataset.seat===seat));
   const n=document.getElementById('charNote');if(n)n.textContent=charNote();
-  // (the Game tab's line naming who you are: both of you in split screen. renderChar runs again as the menu opens)
+  // (the moves strip: whoever's highlighted, or the seat's pick)
+  {const f=document.activeElement,fc=f&&f.closest&&f.closest('#charRow .cs-card'),c=fc?fc.dataset.c:seat?c2:CHAR;
+   const h=document.getElementById('csCanH'),m=document.getElementById('csMoves');
+   if(h)h.textContent=CHAR_NAMES[c].toUpperCase()+' CAN:';
+   if(m){const html=csMoves(c).map(t=>'<span class="sticker px">'+t+'</span>').join('');if(m._h!==html){m._h=html;m.innerHTML=html;}}}
+  // (the title menu's line naming who you are: both of you in split screen. renderChar runs again as the menu opens)
   let two=false;try{two=begun&&P2.active&&!P2.net;menuWhoShow();}catch(e){}   // (not yet while the page loads: begun is declared later on)
   const l=document.getElementById('charLinkName');if(l)l.textContent=CHAR_NAMES[CHAR]+(two?' and '+CHAR_NAMES[c2]:'');
 }
@@ -16578,8 +16722,10 @@ function charApply(){
   for(const [p,c] of seats){p.who=charWho(c);setGobP(p,charGob(c));}
   for(const p of players)dressHippo(p);renderTime();renderChar();
 }
-for(const r of document.querySelectorAll('#charSel .cs-row'))for(const b of r.querySelectorAll('.cs-card'))b.addEventListener('click',()=>r.dataset.seat==='1'?setChar2(b.dataset.c):setChar(b.dataset.c));
-{const l=document.getElementById('charLink');if(l)l.addEventListener('click',()=>{showTab('custom');const b=document.querySelector('#charSel .cs-row[data-seat="'+(menuP2()?1:0)+'"] .cs-card[aria-checked="true"]');if(b){if(inputKind==='pad')padFocus(b);else b.focus();}});}
+for(const b of document.querySelectorAll('#charRow .cs-card')){b.addEventListener('click',()=>csSeat()?setChar2(b.dataset.c):setChar(b.dataset.c));b.addEventListener('focus',()=>renderChar());}
+for(const b of document.querySelectorAll('#csSeat [data-seat]'))b.addEventListener('click',()=>{CS_SEAT=+b.dataset.seat;renderChar();tone('triangle',CS_SEAT?620:560,0,0.05,0.03);});
+for(const b of document.querySelectorAll('#abilList .tog'))b.addEventListener('click',()=>renderChar());   // (the moves strip follows the switches)
+{const l=document.getElementById('charLink');if(l)l.addEventListener('click',()=>{openSub('custom','charLink');const b=document.querySelector('#charRow .cs-card[aria-checked="true"]');if(b){if(inputKind==='pad')padFocus(b);else b.focus();}});}
 setChar(CHAR,true);
 // ---- the Dev tab's Enemies section: each kind of enemy acting out each of its animations on a flat field like the moves
 // preview's, recorded frame by frame and played back with its own controls, with its hits, what it fires and its timings.
@@ -20825,9 +20971,121 @@ function layout(){
 function resize(){renderer.setSize(innerWidth,innerHeight,false);layout();}
 addEventListener('resize',resize);
 
+// ---------- The title screen's backdrop ----------
+// A side view of Gus's real model (the same boxes the game builds him from, makePlayer) stomping along on the spot,
+// in front of a stylised city that scrolls past behind him: rows of blocky buildings in the menus' crayon colours, each
+// row further back than the last, so they slide by at different speeds, under a flat sky with a few clouds. Every box
+// has a thick ink outline (a slightly bigger copy of it, drawn from the inside, the "inverted hull" trick).
+// It's a little scene of its own, drawn on the game's own canvas in place of the city while the title screen is up
+// (titleDraw, from frame), and never touched once you're playing. With reduced motion on it holds still.
+const TSC={ok:null,t:0,scroll:0,stomp:0,shake:0,dust:[]};
+const TS_INK=0x2b1b2e;
+// (reduced motion: the system's setting, or the Options switch)
+const reduceMotion=()=>reduce||!!(document.body&&document.body.classList&&document.body.classList.contains('calm'));
+// many boxes as one mesh: {x,y,z,w,h,d,c} each (x,y,z its bottom middle), coloured per vertex; grow>0 makes the outline
+// copy instead (every box that much bigger all round, faces turned inside out, plain ink)
+function tsGeo(L,grow){
+  const n=L.length,P=new Float32Array(n*72),N=new Float32Array(n*72),C=new Float32Array(n*72),I=[];
+  const F=[[0,1,0,[[-1,1,1],[1,1,1],[1,1,-1],[-1,1,-1]]],[0,-1,0,[[-1,-1,-1],[1,-1,-1],[1,-1,1],[-1,-1,1]]],[1,0,0,[[1,-1,1],[1,-1,-1],[1,1,-1],[1,1,1]]],
+    [-1,0,0,[[-1,-1,-1],[-1,-1,1],[-1,1,1],[-1,1,-1]]],[0,0,1,[[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]]],[0,0,-1,[[1,-1,-1],[-1,-1,-1],[-1,1,-1],[1,1,-1]]]];
+  const col=new THREE.Color();
+  L.forEach((b,i)=>{col.setHex(b.c||TS_INK);const hw=b.w/2+grow,hh=b.h/2+grow,hd=b.d/2+grow,cy=b.y+b.h/2;
+    F.forEach(([nx,ny,nz,V],f)=>{const o=i*24+f*4;
+      V.forEach(([a,bb,c],k)=>{const q=(o+k)*3;P[q]=b.x+a*hw;P[q+1]=cy+bb*hh;P[q+2]=b.z+c*hd;N[q]=nx;N[q+1]=ny;N[q+2]=nz;C[q]=col.r;C[q+1]=col.g;C[q+2]=col.b;});
+      I.push(o,o+1,o+2,o,o+2,o+3);});});
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(P,3));g.setAttribute('normal',new THREE.BufferAttribute(N,3));
+  g.setAttribute('color',new THREE.BufferAttribute(C,3));g.setIndex(I);return g;
+}
+// a row of the backdrop: its boxes laid out over [0,L), drawn twice side by side so it can wrap round for ever
+function tsRow(S,L,boxes,line,speed){
+  const grp=new THREE.Group(),mat=TSC.mat,ink=TSC.ink,g=tsGeo(boxes,0),h=line>0?tsGeo(boxes,line):null;
+  for(const k of [0,1]){const m=new THREE.Mesh(g,mat);m.position.x=k*L;grp.add(m);if(h){const o=new THREE.Mesh(h,ink);o.position.x=k*L;grp.add(o);}}
+  S.add(grp);return {grp,L,speed};
+}
+const tsR=(i,salt)=>{const v=Math.sin(i*127.1+salt*311.7)*43758.5453;return v-Math.floor(v);};
+function titleInit(){
+  if(TSC.ok!==null)return TSC.ok;
+  TSC.ok=false;
+  try{
+    if(typeof renderer.getContext!=='function')return false;   // (the tests' stand-in for three.js has nothing to draw with)
+    const S=TSC.scene=new THREE.Scene();S.background=new THREE.Color(0xa8e0f0);
+    S.add(new THREE.HemisphereLight(0xfff6dc,0x9a8aa0,0.95));const d=new THREE.DirectionalLight(0xffffff,0.5);d.position.set(5,9,10);S.add(d);
+    TSC.cam=new THREE.PerspectiveCamera(28,16/9,0.5,900);
+    TSC.mat=new THREE.MeshLambertMaterial({vertexColors:true});
+    TSC.ink=new THREE.MeshBasicMaterial({color:TS_INK,side:THREE.BackSide});
+    // Gus himself: a hippo made the way the players are, side eyes, no bow, outlined box by box
+    const G=makePlayer(0);scene.remove(G.root);if(G.pool)scene.remove(G.pool);try{G.ui.view.remove();}catch(e){}
+    for(const m of G.eyeFront)m.visible=false;for(const m of G.eyeSide)m.visible=true;for(const m of G.bow)m.visible=false;
+    const hull=[];G.root.traverse(o=>{if(o.isMesh&&o.geometry&&o.geometry.parameters)hull.push(o);});
+    for(const o of hull){const P=o.geometry.parameters,t=0.05,h=new THREE.Mesh(o.geometry,TSC.ink);h.scale.set((P.width+2*t)/P.width,(P.height+2*t)/P.height,(P.depth+2*t)/P.depth);o.add(h);}
+    G.root.visible=true;G.root.rotation.y=Math.PI/2;S.add(G.root);TSC.gus=G;
+    // the street he walks along: road, kerb, pavement, and the dashes down the middle (these scroll with him)
+    const ground=new THREE.Mesh(new THREE.PlaneGeometry(4000,460),new THREE.MeshLambertMaterial({color:0x8a8296}));ground.rotation.x=-Math.PI/2;ground.position.set(0,-0.02,-180);S.add(ground);
+    const W=60,near=[];
+    near.push({x:W/2,y:-0.02,z:-3.2,w:W+0.01,h:0.2,d:2.2,c:0xd8cfc0},{x:W/2,y:-0.02,z:-4.4,w:W+0.01,h:0.22,d:0.25,c:0xf3ead5});
+    for(let i=0;i<W;i+=4)near.push({x:i+1,y:-0.015,z:1.6,w:2,h:0.03,d:0.22,c:0xfff6dc});
+    // lamp posts and trees along the pavement
+    for(let i=0;i<W;i+=10){near.push({x:i+2,y:0,z:-3.6,w:0.22,h:3.6,d:0.22,c:0x5a4a5e},{x:i+2.45,y:3.5,z:-3.6,w:1.1,h:0.22,d:0.3,c:0x5a4a5e},{x:i+2.9,y:3.25,z:-3.6,w:0.45,h:0.28,d:0.4,c:0xffd447});
+      near.push({x:i+7,y:0,z:-3.7,w:0.35,h:1.4,d:0.35,c:0x8a5a3a},{x:i+7,y:1.3,z:-3.7,w:1.7,h:1.5,d:1.7,c:0x6fbf3a});}
+    TSC.rows=[tsRow(S,W,near,0.05,1)];
+    // three rows of buildings, near to far: low shops and houses, then mid-rise blocks, then towers on the skyline
+    // (each row wider than the most the camera can see of it, even on a very wide screen, so it can wrap unseen)
+    const ROWS=[{z:-12,L:90,hm:[3.5,8],wd:[3.5,7],c:[0xc8a07a,0xb4a38d,0xe2c89a,0xd99a7a,0x9fae8a],line:0.09,win:0xfff1b8},
+      {z:-40,L:160,hm:[8,17],wd:[6,10],c:[0xa8b8c8,0xb4a38d,0x9fae8a,0xc8a07a,0xb8aac8],line:0.16,win:0xffd447},
+      {z:-100,L:340,hm:[14,32],wd:[9,16],c:[0xb9b4d6,0xa9bfd8,0xc4b6cf],line:0.3,win:0xe9e2f6}];
+    for(const R of ROWS){const B=[];let x=0,i=0;
+      while(x<R.L-R.wd[0]){const w=Math.min(R.L-x,R.wd[0]+tsR(i,R.z)*(R.wd[1]-R.wd[0])),h=R.hm[0]+tsR(i,R.z+1)*(R.hm[1]-R.hm[0]),c=R.c[Math.floor(tsR(i,R.z+2)*R.c.length)],dd=R.wd[0];
+        B.push({x:x+w/2,y:0,z:R.z,w:w*0.92,h,d:dd,c});
+        // a roof edge and rows of windows facing the street (just thin boxes on the front)
+        B.push({x:x+w/2,y:h,z:R.z,w:w*0.96,h:R.line*3,d:dd+0.2,c:0x6b5a6e});
+        const ww=Math.max(0.5,w*0.12),wh=ww*1.3,gx=ww*1.9,gy=wh*1.8,nx=Math.max(1,Math.floor((w*0.8)/gx)),ny=Math.max(1,Math.floor((h-1.5)/gy));
+        for(let a=0;a<nx;a++)for(let b=0;b<ny;b++)if(tsR(i*31+a*7+b,R.z+9)>0.22)B.push({x:x+w/2+(a-(nx-1)/2)*gx,y:1+b*gy,z:R.z+dd/2+0.02,w:ww,h:wh,d:0.06,c:R.win});
+        x+=w+0.6+tsR(i,R.z+3)*1.4;i++;}
+      TSC.rows.push(tsRow(S,R.L,B,R.line,1));}
+    // a few clouds, high up and far off, drifting on their own
+    const CL=[];for(let i=0;i<7;i++)CL.push({x:i*74+tsR(i,5)*30,y:32+tsR(i,6)*14,z:-140,w:22+tsR(i,7)*14,h:6,d:4,c:0xffffff},{x:i*74+tsR(i,5)*30+6,y:36+tsR(i,6)*14,z:-140,w:12,h:5,d:4,c:0xffffff});
+    TSC.clouds=tsRow(S,520,CL,0.35,0.15);TSC.rows.push(TSC.clouds);
+    // dust kicked up by a stomp
+    const dg=new THREE.BoxGeometry(0.3,0.3,0.3),dm=new THREE.MeshLambertMaterial({color:0xefe4d0});
+    for(let i=0;i<14;i++){const m=new THREE.Mesh(dg,dm);m.visible=false;S.add(m);TSC.dust.push({m,t:9,vx:0,vy:0,vz:0});}
+    TSC.ok=true;
+  }catch(e){TSC.ok=false;}
+  return TSC.ok;
+}
+// one frame of the title screen (false: nothing drawn, so the city is drawn as usual)
+function titleDraw(dt,w,h){
+  if(!titleInit())return false;
+  const calm=reduceMotion(),G=TSC.gus,cam=TSC.cam;
+  dt=Math.min(dt,0.05);TSC.t+=dt;
+  // stomping along: a walk on the spot, and every few seconds he rears up and slams down (and the street stops a moment)
+  const CYC=3.4,u=calm?0:(TSC.t%CYC)/CYC,rear=u>0.72&&u<0.86?Math.sin((u-0.72)/0.14*Math.PI/2):u>=0.86&&u<0.9?1-(u-0.86)/0.04:0;
+  if(u>=0.9&&TSC.stomp<0.9&&!calm){TSC.shake=0.35;for(const D of TSC.dust){D.t=0;const a=Math.random()*Math.PI*2;D.vx=Math.cos(a)*(2+Math.random()*3);D.vz=Math.sin(a)*1.5;D.vy=2+Math.random()*3;D.m.position.set(1.2+Math.random()*0.6,0.2,(Math.random()-0.5)*1.4);}}
+  TSC.stomp=u;
+  const v=calm?0:rear>0?0.4:2.4;TSC.scroll+=v*dt;
+  const ph=TSC.scroll*2.1;
+  G.legs.forEach((l,i)=>{l.rotation.x=calm?0:Math.sin(ph+(i===0||i===3?0:Math.PI))*0.55*(1-rear);});
+  G.rig.rotation.x=-0.34*rear;G.rig.position.y=0.4*rear;
+  G.root.position.y=calm?0:Math.abs(Math.sin(ph))*0.07*(1-rear);
+  G.head.rotation.x=calm?0:Math.sin(ph*2)*0.04-0.15*rear;
+  if(G.jaw)G.jaw.rotation.x=rear>0.3?0.4*rear:0;
+  {const sq=u>=0.9&&u<0.97?1-Math.abs(u-0.93)/0.035:0;G.root.scale.set(1+0.12*Math.max(0,sq),1-0.14*Math.max(0,sq),1);}
+  for(const D of TSC.dust){if(D.t>1.1){D.m.visible=false;continue;}D.t+=dt;D.vy-=9*dt;D.m.position.x+=D.vx*dt;D.m.position.y=Math.max(0.1,D.m.position.y+D.vy*dt);D.m.position.z+=D.vz*dt;D.m.visible=true;const k=Math.max(0.01,1-D.t/1.1);D.m.scale.setScalar(k);}
+  // the camera: low down at the side, tipped up a touch, so his feet are about two thirds of the way down the screen with
+  // the skyline above; and Gus about a quarter of the way in from the left (the menu card is on the right)
+  const asp=w/Math.max(1,h),dist=26,hw=dist*Math.tan(14*Math.PI/180)*asp;
+  cam.aspect=asp;cam.updateProjectionMatrix();
+  const cx=asp>1.1?hw*0.42:0;TSC.shake*=Math.exp(-dt*9);const sx=(Math.random()-0.5)*TSC.shake,sy=(Math.random()-0.5)*TSC.shake;
+  cam.position.set(cx+sx,1.17+sy,dist);cam.lookAt(cx+sx,2.46+sy,0);
+  // each row scrolls at the street's speed (the far ones look slower, being further off), wrapping round
+  for(const R of TSC.rows){const s=R===TSC.clouds?TSC.t*1.5:TSC.scroll*R.speed;R.grp.position.x=cx-R.L*0.5-((s%R.L)+R.L)%R.L;}
+  renderer.setScissorTest(false);renderer.setViewport(0,0,w,h);
+  const L0=WORLD_LIGHT.value.clone(),cu=CURVE_U.value;WORLD_LIGHT.value.setRGB(1,1,1);CURVE_U.value=0;
+  try{renderer.render(TSC.scene,cam);}finally{WORLD_LIGHT.value.copy(L0);CURVE_U.value=cu;}
+  return true;
+}
 // ---------- Input ----------
 const keys=new Set();
-let menuOpen=true,playing=false,begun=false,dragMode=false,downAt=null,coop=false,spacePrev=false,shiftPrev=false,qPrevK=false;
+let atTitle=true,menuOpen=true,playing=false,begun=false,dragMode=false,downAt=null,coop=false,spacePrev=false,shiftPrev=false,qPrevK=false;
 const pauseEl=document.getElementById('pause');
 const touchMode=matchMedia('(pointer: coarse)').matches;
 if(touchMode){document.getElementById('touch').hidden=false;dragMode=true;}
@@ -20864,8 +21122,8 @@ function startPlay(mode,fromPad){
   if(netOn()&&P2.net)mode='net';   // (online, player two's seat is someone else's: Play just carries on)
   if(mode==='coop'){coop=true;activateP2();}
   else if(mode==='solo'){coop=false;deactivateP2();}
-  menuOpen=false;for(const p of players){p.paused=false;p.ui.ppause.hidden=true;}
-  pauseEl.hidden=true;playing=true;begun=true;hintTime=14;
+  menuOpen=false;atTitle=false;for(const p of players){p.paused=false;p.ui.ppause.hidden=true;}
+  pauseEl.hidden=true;playing=true;begun=true;hintTime=14;menuMode();
   try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();audioWanted=true;if(!(DT.paused||SPEEDS[DT.speedI]===0))audio.resume();}catch(e){}
   if(!fromPad)wantLock();
 }
@@ -20891,7 +21149,44 @@ function menuSeat(){
 // (the name over the tabs: whose menu it is, kept up to date if they pick someone else in the Character tab)
 function menuWhoShow(){const w=document.getElementById('menuWho');if(!w)return;w.hidden=!menuBy||!inCoop();
   if(menuBy){w.textContent=charName(menuBy)+"'s menu";w.classList.toggle('p2',menuBy!==P1);}}
-function pause(by){menuBy=by&&by.ui?by:P1;pauseAt=performance.now();if(TENV)tpShow(true);menuSeat();renderChar();menuOpen=true;playing=false;keys.clear();mHeld.clear();pauseEl.hidden=false;renderObitCount();if(curTab==='obit'){obitSel=0;renderObits();}if(curTab==='controls')renderControls();if(curTab==='map'){MAPV.cx=null;saveExplored();setTimeout(renderMap,0);}try{if(locked())document.exitPointerLock();}catch(e){}const pf=document.getElementById(players[1].active&&!players[1].net?'playCoop':'play');if(inputKind==='pad')padFocus(pf);else pf.focus();}
+// The menu has two faces: the title screen (atTitle: before the first game, and after Quit to title), with the
+// logo, Gus stomping along in front of the city and the main menu card; and the pause menu. Either can open a screen
+// (Options, Map, Character...) in the same card, with a Back button at its head (subHead); B, Esc or Back returns to
+// where it was opened from (backHome), and LB / RB (Q / E on the keyboard) step through the screens (subStep).
+const SUB_TITLES={map:'Map',obit:'Obituary',custom:"Who's stompin'?",controls:'Controls',options:'Options',notes:'Patch notes',dev:'Dev',test:'Testing Environment'};
+let SUB_FROM=null;
+function menuMode(){
+  const pe=document.getElementById('pause');if(!pe||!pe.classList)return;
+  const home=curTab==='game';
+  pe.classList.toggle('title',atTitle);pe.classList.toggle('home',home);
+  try{document.body.classList.toggle('attitle',atTitle&&menuOpen);}catch(e){}
+  const sh=document.getElementById('subHead');if(sh)sh.hidden=home||!atTitle;
+  const st=document.getElementById('subTitle');if(st&&!home)st.textContent=SUB_TITLES[curTab]||'';
+}
+function openSub(tab,from){SUB_FROM=from||null;showTab(tab);
+  const pane=document.querySelector('.main .tabpane:not([hidden])'),U=pane?paneUnits(pane):[];
+  if(inputKind==='pad'){if(U.length)unitFocus(U[0]);else padFocus(document.getElementById('subBack'));}
+  else{const b=document.getElementById('subBack');if(b&&b.offsetParent)b.focus({preventScroll:true});}}
+function backHome(){
+  const from=SUB_FROM&&document.getElementById(SUB_FROM);SUB_FROM=null;showTab('game');
+  const el=from&&from.offsetParent?from:document.getElementById(players[1].active&&!players[1].net?'playCoop':'play');
+  if(el){if(inputKind==='pad')padFocus(el);else el.focus({preventScroll:true});}
+}
+// (the screens in order, for LB / RB: the ones whose tab is there to be had)
+function subStep(d){
+  const L=TABS.filter(([t,id])=>t!=='game'&&!document.getElementById('tabBtn'+id).hidden).map(t=>t[0]);if(!L.length)return;
+  const i=L.indexOf(curTab),n=i<0?(d>0?0:L.length-1):(i+d+L.length)%L.length;
+  if(curTab==='game')SUB_FROM=document.activeElement&&document.activeElement.id||null;
+  showTab(L[n]);const pane=document.querySelector('.main .tabpane:not([hidden])');
+  if(inputKind==='pad'){const U=pane?paneUnits(pane):[];if(U.length)unitFocus(U[0]);else padFocus(document.getElementById('subBack'));}
+}
+document.getElementById('subBack').addEventListener('click',()=>backHome());
+menuMode();   // (the page opens on the title screen)
+document.getElementById('optBtn').addEventListener('click',()=>openSub('options','optBtn'));
+document.getElementById('devLink').addEventListener('click',()=>openSub('dev','devLink'));
+addEventListener('keydown',e=>{if(!menuOpen||BIND_CAP||e.repeat)return;const t=e.target;if(t&&(t.tagName==='INPUT'&&t.type!=='range'&&t.type!=='checkbox'||t.tagName==='TEXTAREA'))return;
+  if(e.code==='KeyQ'||e.code==='KeyE'){e.preventDefault();subStep(e.code==='KeyE'?1:-1);}});
+function pause(by){menuBy=by&&by.ui?by:P1;pauseAt=performance.now();if(TENV)tpShow(true);menuSeat();renderChar();menuOpen=true;playing=false;menuMode();keys.clear();mHeld.clear();pauseEl.hidden=false;renderObitCount();if(curTab==='obit'){obitSel=0;renderObits();}if(curTab==='controls')renderControls();if(curTab==='map'){MAPV.cx=null;saveExplored();setTimeout(renderMap,0);}try{if(locked())document.exitPointerLock();}catch(e){}const pf=document.getElementById(players[1].active&&!players[1].net?'playCoop':'play');if(inputKind==='pad')padFocus(pf);else pf.focus();}
 // losing the mouse (another window clicked, alt-tab) pauses -- unless you're playing on a controller, which keeps
 // working with the game in the background (as long as the page is still showing; 'on a controller': you've used one
 // in the last minute -- so the Alt of an Alt-Tab doesn't count against it)
@@ -20910,11 +21205,12 @@ function resumePlayer(p,fromPad){
 }
 function escResume(){
   if(menuOpen){
-    if(!begun)return;   // (the title screen: nothing to go back to yet)
     const cf=document.getElementById('confirm');
     if(!cf.hidden){document.getElementById('confirmNo').click();const nw=document.getElementById('newWorld');if(inputKind==='pad')padFocus(nw);else nw.focus();return;}
     const t=document.activeElement;
     if(t&&(t.tagName==='TEXTAREA'||t.tagName==='SELECT'||t.tagName==='INPUT'&&/^(text|number|search)$/.test(t.type))){t.blur();return;}
+    if(curTab!=='game'){backHome();return;}   // (a screen opened from the menu: back to the menu first)
+    if(atTitle||!begun)return;   // (the title screen: nothing to go back to)
     startPlay(null);   // (as the controller's Start: same players as before, and the mouse is captured again)
   }else if(P1.paused&&!DT.kbdOpen)resumePlayer(P1,false);
 }
@@ -21779,6 +22075,8 @@ function frame(now,bg){   // (bg: a tab in the background while online, kept goi
   {const h=`Kills <b>${kills}</b>  ·  Score <b>${score}</b>${hn?`  ·  <i>${hn} CAR${hn>1?'S':''} HUNTING YOU</i>`:''}${pol?'  ·  <i>POLICE PURSUIT</i>':''}`;if(h!==readoutH){readoutH=h;readout.innerHTML=h;}}   // (only when it's changed: rebuilding it makes the browser lay the page out again)
   if(bg)return;   // (nobody's looking: no drawing, and no next frame asked for, the browser having stopped giving this tab any)
   const w=innerWidth,h=innerHeight;
+  // (the title screen draws its own backdrop instead of the city: see ui/title-scene.js)
+  if(atTitle&&menuOpen){let drew=false;safe('title',()=>{drew=titleDraw(dt,w,h);});if(drew){requestAnimationFrame(frame);return;}}
   let views;
   safe('batDraw',batDraw);safe('fxDraw',fxDraw);
   if(split==='none'){renderer.setScissorTest(false);renderView(P1,0,0,w,h);views=[[P1,0,0,w,h]];}
@@ -22679,7 +22977,7 @@ function netUiRefresh(){
   // (no swapping the city out from under someone who's in it)
   for(const id of ['newWorld','testWorld'])netEl(id).disabled=on;
   // (with someone else in the game, Play goes back to it; and how hostile the enemies are is the host's to say)
-  const pl=netEl('play'),t=on&&P2.net?(netGuest()?'Back to the game':'Back to the online game'):'Play solo';if(pl.textContent!==t)pl.textContent=t;
+  const pl=netEl('play'),t=on&&P2.net?(netGuest()?'Back to the game':'Back to the online game'):'Play';if(pl.textContent!==t)pl.textContent=t;
   netEl('playCoop').hidden=on&&!!P2.net;netEl('hostMain').disabled=netGuest()&&NET.joined;
   netEl('netPrivate').checked=LOBBY.priv;
   lobbySync();
