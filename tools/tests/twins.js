@@ -1,7 +1,7 @@
 let __s=+(process.env.SEED||1);Math.random=()=>{__s=(__s*16807)%2147483647;return (__s-1)/2147483646;};
 const fs=require('fs');
 let src0=fs.readFileSync('g.js','utf8');
-let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={players,cars,goblins,keys,frame,setRaw,get,solidAt,groundAt,ABIL,AB,DT,setGob,mHeld,setChar,charName};\n})();');
+let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={players,cars,goblins,keys,frame,setRaw,get,solidAt,groundAt,ABIL,ABIL2,abilOf,AB,DT,setGob,mHeld,setChar,charName};\n})();');
 const deep=()=>new Proxy(function(){}, {get:(t,p)=>p===Symbol.toPrimitive?()=>0:(p==='length'?0:deep()),apply:()=>deep(),construct:()=>deep()});
 class Q{constructor(){this.x=0;this.y=0;this.z=0;this.w=1}set(x,y,z,w){this.x=x;this.y=y;this.z=z;this.w=w;return this}setFromAxisAngle(a,t){const s=Math.sin(t/2);this.x=a.x*s;this.y=a.y*s;this.z=a.z*s;this.w=Math.cos(t/2);return this}copy(q){this.x=q.x;this.y=q.y;this.z=q.z;this.w=q.w;return this}}
 class V3{project(){return this}fromBufferAttribute(a,i){const A=a.array||a.a;this.x=A[i*3];this.y=A[i*3+1];this.z=A[i*3+2];return this}applyMatrix4(m){const e=m.elements,x=this.x,y=this.y,z=this.z;this.x=e[0]*x+e[4]*y+e[8]*z+e[12];this.y=e[1]*x+e[5]*y+e[9]*z+e[13];this.z=e[2]*x+e[6]*y+e[10]*z+e[14];return this}setFromMatrixPosition(o){this.x=o.position.x;this.y=o.position.y;this.z=o.position.z;return this}normalize(){const l=Math.hypot(this.x,this.y,this.z)||1;this.x/=l;this.y/=l;this.z/=l;return this}add(v){this.x+=v.x;this.y+=v.y;this.z+=v.z;return this}applyQuaternion(q){const x=this.x,y=this.y,z=this.z,qx=q.x,qy=q.y,qz=q.z,qw=q.w;const ix=qw*x+qy*z-qz*y,iy=qw*y+qz*x-qx*z,iz=qw*z+qx*y-qy*x,iw=-qx*x-qy*y-qz*z;this.x=ix*qw+iw*-qx+iy*-qz-iz*-qy;this.y=iy*qw+iw*-qy+iz*-qx-ix*-qz;this.z=iz*qw+iw*-qz+ix*-qy-iy*-qx;return this}constructor(x=0,y=0,z=0){this.x=x;this.y=y;this.z=z}set(x,y,z){this.x=x;this.y=y;this.z=z;return this}copy(v){this.x=v.x;this.y=v.y;this.z=v.z;return this}clone(){return new V3(this.x,this.y,this.z)}addScaledVector(v,s){this.x+=v.x*s;this.y+=v.y*s;this.z+=v.z*s;return this}multiplyScalar(s){this.x*=s;this.y*=s;this.z*=s;return this}setScalar(s){return this.set(s,s,s)}}
@@ -89,4 +89,12 @@ T.setChar('gus');console.log('picked Gus again:',who(),' goblin mode',T.DT.gob);
 // the same hit does the same harm
 {home();S(2);const hp=[];for(const p of [A,B]){p.hp=20;}
  const g=T.goblins.find(g=>!g.civ&&!g.staff);console.log('hp after the same fall from 30 up:');for(const p of [A,B]){p.pos.y=F+30;p.vy=0;}S(150);console.log('  player one',A.hp,'two',B.hp);}
+// Each player's own ability switches (they go with the seat, not the hippo): player one with Double jump off, player two
+// with it on, then the other way round with player one as Gertie. The one with it off should only get the one jump.
+{const peaks=()=>{home();setPad(NO,[]);S(3);let a=0,b=0;const sc=[[1,NO,[0]],[14,NO,[]],[1,NO,[0]],[60,NO,[]]];
+   for(const [n,ax,btn] of sc){setPad(ax,btn);for(let i=0;i<n;i++){S(1);a=Math.max(a,A.pos.y-F);b=Math.max(b,B.pos.y-F);}}setPad(NO,[]);S(40);return [a,b];};
+ console.log("== each player's own switches");
+ for(const [c,off] of [['gus',T.ABIL],['gertie',T.ABIL],['gus',T.ABIL2]]){T.setChar(c);off.double=false;const [a,b]=peaks();off.double=true;
+   console.log(`  player one ${T.charName(A)}, ${off===T.ABIL?'player one':'player two'} without Double jump: highest jump player one ${a.toFixed(2)} player two ${b.toFixed(2)}  (sets used: ${T.abilOf(A)===T.ABIL?'own':'WRONG'}, ${T.abilOf(B)===T.ABIL2?'own':'WRONG'})`);}
+ T.setChar('gus');}
 process.exit(0);

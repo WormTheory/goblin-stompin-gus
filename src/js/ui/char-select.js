@@ -25,7 +25,7 @@ const csSeat=()=>{let two=false;try{two=menuP2();}catch(e){}return two?1:0;};
 const CS_GOB_MOVES=['Club','Dagger','Rifle','Grenades','Dash','Drive anything'];
 function csMoves(c){
   if(charGob(c))return CS_GOB_MOVES;
-  const A=ABIL,L=[];
+  const A=ABILS[csSeat()],L=[];   // (the switches of whoever's menu it is)
   if(A.bite)L.push(A.biteCombo?'Bite combo':'Bite');
   if(A.stomp)L.push(A.fullStomp?'Full charge stomp':A.chargeStomp?'Charge stomp':'Stomp');
   if(A.groundSpike&&A.stomp)L.push('Ground spike');
@@ -48,6 +48,7 @@ function renderChar(){
       k.classList.toggle('p1',c===CHAR);k.classList.toggle('p2',co&&c===c2);
       const pic=k.querySelector('.cs-pic');if(pic&&!pic.dataset.done){pic.dataset.done='1';pic.className='cs-pic '+sprCls(pic.dataset.spr,6);}}}
   const n=document.getElementById('charNote');if(n)n.textContent=charNote();
+  renderAbil();   // (the ability switches shown are this menu's player's)
   // (the moves strip: whoever's highlighted, or the seat's pick)
   {const f=document.activeElement,fc=f&&f.closest&&f.closest('#charRow .cs-card'),c=fc?fc.dataset.c:seat?c2:CHAR;
    const h=document.getElementById('csCanH'),m=document.getElementById('csMoves');

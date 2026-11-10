@@ -51,6 +51,10 @@ function menuNav(dir){
   if(cur===sb&&dy>0){const U=paneUnits(pane);if(U.length)unitFocus(U[0]);else pane.scrollTop+=80;return;}
   if(dx&&(title||cur&&cur.closest&&cur.closest('.tabs'))){showTab(tabIndex()+dx);padFocus(document.getElementById('tabBtn'+TABS[tabIndex()][1]));return;}
   if(dy&&title&&pane.contains(cur)){const U=paneUnits(pane),i=U.findIndex(u=>u===cur||u.contains(cur))+dy;if(i<0)padFocus(tabBtn);else if(i<U.length)unitFocus(U[i]);return;}
+  // (the ability switches: up and down from a basic move goes to the next basic move, not into the upgrades beside it)
+  // (and left and right along a basic move's row: the move, then its upgrades in order)
+  if(dx&&cur&&cur.matches&&cur.matches('#abilList .tog')){const R=[...cur.closest('.ab-row').querySelectorAll('.tog')],n=R[R.indexOf(cur)+dx];if(n)padFocus(n);return;}
+  if(dy&&cur&&cur.matches&&cur.matches('#abilList .ab-base')){const B=[...document.querySelectorAll('#abilList .ab-base')],n=B[B.indexOf(cur)+dy];if(n){unitFocus(n);return;}}
   if(dy&&pane&&cur&&cur.closest){
     const units=paneUnits(pane);
     if(pane.contains(cur)){
@@ -88,7 +92,7 @@ function menuPad(st,dt){
     if(s.pr[4])subStep(-1);
     if(s.pr[5])subStep(1);
     // (Y on the character cards: down to the ability switches)
-    if(s.pr[3]&&curTab==='custom'){const t=document.querySelector('#abilList .tog');if(t&&t.offsetParent)padFocus(t);}   // (not in player two's menu, which has no ability switches)
+    if(s.pr[3]&&curTab==='custom'){const t=document.querySelector('#abilList .tog');if(t&&t.offsetParent)padFocus(t);}
     const ry=s.p.axes[3]||0;
     if(curTab==='map'&&s.pr[2])mapRecentre();
     if(curTab==='map'){const rx2=s.p.axes[2]||0;if(Math.abs(rx2)>0.2||Math.abs(ry)>0.2)mapPan(rx2*dt*420,ry*dt*420);if(s.b[7])mapZoom(1+dt*1.6);if(s.b[6])mapZoom(1/(1+dt*1.6));}

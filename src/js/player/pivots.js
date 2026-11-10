@@ -160,8 +160,10 @@ function setGob(on,p2){
   renderTime();
 }
 function updatePlayer(p,dt){
-  // (a player online keeps the abilities switched on in their own browser: theirs, for their own step)
-  if(p.abil&&!p.gob&&!SBX){const A0=Object.assign({},ABIL);Object.assign(ABIL,p.abil);try{return movePlayer(p,dt);}finally{Object.assign(ABIL,A0);}}
+  // (each player's own ability switches for their own step: player two's in split screen, or a player online's from
+  // their own browser. The moves read ABIL, which is player one's the rest of the time)
+  const S=abilSeatOf(p);
+  if(S!==ABIL&&!p.gob&&!SBX){const A0=Object.assign({},ABIL);Object.assign(ABIL,S);try{return movePlayer(p,dt);}finally{Object.assign(ABIL,A0);}}
   if(!p.gob||SBX)return movePlayer(p,dt);
   if(drvTick(p,dt))return;   // (in a vehicle: it does the moving. See drvTick)
   gobArmsTick(p,dt);   // (grenades and the weapon button: see gob-weapons.js)

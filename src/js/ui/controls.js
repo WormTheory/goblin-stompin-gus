@@ -65,7 +65,7 @@ const actMark=(p,id)=>{const B=BINDS[id];return btnMark(p&&p.pad?bindGlyph('pad'
 function hudHTML(s){return String(s).split(/⟦([^⟧]*)⟧/).map((t,i)=>i%2?glyph(t):glEsc(t)).join('');}
 // the bottom-of-screen hint, from the bindings
 function bindHint(pad,p){
-  const L=id=>{const B=BINDS[id];return pad?(B.pad.length?btnMark(bindGlyph('pad',B.pad[0])):null):(B.kb.length?btnMark(bindGlyph('kb',B.kb[0])):null);},hv=ABIL.trample?'trample':'sprint',out=[];
+  const L=id=>{const B=BINDS[id];return pad?(B.pad.length?btnMark(bindGlyph('pad',B.pad[0])):null):(B.kb.length?btnMark(bindGlyph('kb',B.kb[0])):null);},hv=(p&&!p.gob?abilOf(p):ABIL).trample?'trample':'sprint',out=[];
   if(p&&p.gob)return gobHint(L,p);
   if(L('stomp'))out.push('Hold '+L('stomp')+' stomp');if(L('bite'))out.push(L('bite')+' bite');if(L('jump'))out.push(L('jump')+' jump');
   if(L('dashSprint'))out.push('tap '+L('dashSprint')+' dash, hold to '+hv);else{if(L('dash'))out.push(L('dash')+' dash');}
@@ -146,7 +146,7 @@ function padSVG(ps){
 }
 // the legend beside the picture: each action and what it's bound to
 function legendRows(dev,gb,gs,gk,or){
-  const ps=padStyle==='ps',hv=ABIL.trample?'trample':'sprint';
+  const ps=padStyle==='ps',hv=ABILS[abilSeat()].trample?'trample':'sprint';   // (whoever's menu it is: their own switches)
   const DESC={jump:'Jump',bite:'Bite',stomp:'Stomp',dashSprint:'Tap: dash · Hold: '+hv+' · In mid-air: air dash',dash:'Dash · In mid-air: air dash',sprint:'Hold: '+hv+' · In mid-air: air dash',lock:'Lock on',climb:'Spider Climb (hold)',talk:'Push to talk (online)',quickChat:'Quick chat (online)'};
   const chip=(a,v)=>dev==='kb'?(String(v).startsWith('Mouse')?gs(keyLabel(v),a.c):gk(keyLabel(v))):(v<4?gb(padLabel(v,ps),a.c):gs(padLabel(v,ps),a.c));
   let out='';

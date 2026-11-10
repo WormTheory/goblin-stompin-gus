@@ -1,7 +1,7 @@
 // Split-screen co-op pause menus, in the real page (stub 3D): each player's own pause panel opens the whole menu as
 // theirs; player two's is just Resume, Map, Obituary, Character and Controls (no Options, Patch notes, Dev, Testing
-// Environment or Quit to title, none of the Game tab's new city, solo, online or hostility controls, and no ability
-// switches); each player picks their own character in their own menu's Character screen, all four for each, and picking
+// Environment or Quit to title, none of the Game tab's new city, solo, online or hostility controls; its Character
+// screen has player two's own ability switches, see abilshot.js); each player picks their own character in their own menu's Character screen, all four for each, and picking
 // the other player's character swaps you. (From the title screen, the Character screen opens from the menu card's
 // "Playing as" line, and picks for player one.) Two pretend controllers stand in for the players.
 // Usage (from tools/ui, after: python3 ../build_ui.py ../../game/index.html ui.html): node coopmenu.js [outDir]

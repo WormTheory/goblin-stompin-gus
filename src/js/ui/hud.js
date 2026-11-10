@@ -20,7 +20,7 @@ function updateHealth(p,dt){
 // (the hearts, stamina and stomp meters, drawn from what the player's like now: all a guest online does, the host's game doing the rest)
 function healthHud(p,dt){
   p.ui.stamFill.style.width=p.stam.toFixed(0)+'%';p.ui.stam.classList.toggle('tired',p.exhausted);
-  const winding=p.state==='windup'&&stompCap()>0||p.state==='pound'&&p.pHover;p.ui.smeter.hidden=!winding;
+  const winding=p.state==='windup'&&stompCap(abilOf(p))>0||p.state==='pound'&&p.pHover;p.ui.smeter.hidden=!winding;
   if(winding){
     const lv=stompLevelOf(p.stompCharge);
     p.ui.smFill.style.width=(p.stompCharge/2*100).toFixed(0)+'%';

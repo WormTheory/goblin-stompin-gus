@@ -159,7 +159,7 @@ function netHostInputs(){
     for(const k of NET_HELD)I[k]=!!(m.h&&m.h[k]);
     for(const k of NET_PRESS){I[k]=!!N.pr[k];N.pr[k]=false;}
     I.chargeHeld=I.charge;
-    if(!ABIL.climb&&!(p.abil&&p.abil.climb))I.climb=false;
+    if(!abilOf(p).climb)I.climb=false;
   }
 }
 

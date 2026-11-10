@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:264c5623940127520fc7918c81ca150970c2a83f40db94ff9cf470cf9a4be225 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:56d4dbb78f42d91f96cfd61122626f18a4801229e580514848a70bc60f00a025 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -495,13 +495,6 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 .vnote{margin:0;color:var(--mute);font-size:12px}
 .abil{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:6px}
 .abil2{display:flex;flex-direction:column;gap:6px}
-.ab-h,.ab-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:6px}
-.ab-h span{font:600 11px var(--f-body);color:var(--mute);text-transform:uppercase;letter-spacing:.06em;padding:0 2px}
-.ab-up{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
-.ab-row>.tog{border-left:3px solid #6b7884}
-.abil2 .tog.dim{opacity:.42}
-.ab-sub{margin:12px 0 0;font:700 14px var(--f-display);letter-spacing:.02em;color:var(--mute)}
-@media (max-width:720px){.ab-h{display:none}.ab-row{grid-template-columns:1fr}.ab-up{padding-left:16px}.ab-up:empty{display:none}}
 .tog{display:flex;align-items:flex-start;gap:10px;text-align:left;padding:8px 10px;background:var(--slate);color:var(--bone);border:1px solid #3a4550;border-radius:4px;cursor:pointer;font:600 13px var(--f-body)}
 .tog:hover{border-color:#5a6670}
 /* character select, on the title screen: three cards, the chosen one lit in its own colour */
@@ -924,10 +917,56 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
 @container (max-width:520px){.opts .crow{grid-template-columns:minmax(0,1fr) auto}.opts .crow .clab{grid-column:1/-1}}
 .tog{background:#fffaf0;color:var(--ink);border:3px solid var(--ink);border-radius:9px 12px 8px 13px/12px 8px 13px 9px;box-shadow:0 3px 0 var(--ink)}
 .tog:hover{border-color:var(--ink);background:#fff2c8}
-.ab-row>.tog{border-left-width:6px;border-left-color:#8a7a8e}
 .tog .box{border:3px solid var(--ink);background:var(--paper)}
 .tog[aria-checked="true"] .box{background:var(--yolk);border-color:var(--ink)}
 .tog[aria-checked="true"] .box::after{border-color:var(--ink)}
+/* The Character screen's ability switches: each basic move on the left, the upgrades that improve it as tokens trailing
+   off it to the right (a "+1" or "+2" coin: how many steps up from the basic move). No tick boxes: a move that's on is
+   in full colour, one that's off greyed out but still readable, with the word On or Off (or what it needs) in its corner
+   for anyone who can't tell the colours apart. Player one's moves are Gus green, player two's (in their own menu) pink */
+#abilNote{color:#4a3a4d;font:500 14px/1.4 var(--f-body)}
+#abilList{gap:9px;margin-top:4px}
+#abilList .ab-h,#abilList .ab-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.1fr);gap:10px 16px;align-items:start}
+#abilList .ab-h span{font-size:18px;line-height:1;color:var(--ink);text-transform:uppercase}
+#abilList .ab-h span+span{padding-left:26px}
+#abilList .ab-up{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch;position:relative;padding-left:26px;min-height:46px}
+/* (the dashed lead from the basic move to its upgrades) */
+#abilList .ab-up::before{content:"";position:absolute;left:0;top:22px;width:15px;border-top:3px dashed var(--ink)}
+#abilList .ab-up::after{content:"";position:absolute;left:14px;top:17px;border:6px solid transparent;border-left:8px solid var(--ink);border-right:0}
+#abilList .ab-up:empty::before,#abilList .ab-up:empty::after{display:none}
+#abilList .tog{position:relative;display:flex;align-items:flex-start;gap:8px;padding:8px 10px;color:var(--ink);background:#fffaf0;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);transition:background-color .12s,transform .12s}
+#abilList .tog:hover{transform:translateY(-1px)}
+#abilList .tog:active{transform:translateY(1px)}
+#abilList .tog .tl{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+#abilList .tog .nm{font:400 19px/1 var(--f-px);letter-spacing:.5px;text-transform:uppercase}
+#abilList .tog small{font:500 12px/1.3 var(--f-body);color:#4a3a4d}
+#abilList .tog .st{flex:none;font:400 13px/1 var(--f-px);letter-spacing:.4px;text-transform:uppercase;padding:3px 6px 2px;border:2px solid var(--ink);border-radius:6px 8px 5px 9px;background:var(--paper);white-space:nowrap}
+/* a basic move: a big card */
+#abilList .ab-base{min-height:46px}
+#abilList .ab-base[aria-checked="true"]{background:#d9f3b8}
+#abilList .ab-base[aria-checked="true"] .st{background:var(--gus)}
+#abilList[data-seat="1"] .ab-base[aria-checked="true"]{background:#fde0d8}
+#abilList[data-seat="1"] .ab-base[aria-checked="true"] .st{background:var(--pink)}
+/* an upgrade: a yolk token with its coin */
+#abilList .ab-tok{flex:1 1 230px;padding-left:44px;border-radius:14px 18px 12px 16px/16px 12px 18px 14px;border-style:solid}
+#abilList .ab-tok[aria-checked="true"]{background:#fff0b0}
+#abilList .ab-tok[aria-checked="true"] .st{background:var(--yolk)}
+#abilList .ab-tok .lv{position:absolute;left:7px;top:6px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font:400 14px/1 var(--f-px);font-style:normal;color:var(--ink);background:var(--yolk);border:3px solid var(--ink);box-shadow:inset 0 -3px 0 rgba(0,0,0,.14)}
+/* off: greyed out, still readable (the name and description stay well over 4.5:1 on the grey) */
+#abilList .tog[aria-checked="false"]{background:#e2dadb;border-color:#6e5f70;box-shadow:3px 3px 0 #6e5f70;color:#4b3c4e}
+#abilList .tog[aria-checked="false"] small{color:#594a5b}
+#abilList .tog[aria-checked="false"] .st,#abilList .tog[aria-checked="false"] .lv{background:#cbc1c4;border-color:#6e5f70;color:#4b3c4e}
+#abilList .tog[aria-checked="false"] .lv{box-shadow:none}
+/* an upgrade whose basic move is off: greyed, and dashed round, as it can't do anything yet */
+#abilList .tog.dim{border-style:dashed;box-shadow:none}
+#abilList .tog:focus-visible,#pause #abilList .tog.padfocus{outline:4px dashed var(--yolk)!important;outline-offset:3px;box-shadow:0 0 0 3px var(--ink)!important}
+#abilList .ab-or{align-self:center;font:400 16px/1 var(--f-px);text-transform:uppercase;color:var(--ink)}
+/* (the landings: no switch of their own, every hippo lands; just the upgrades to how) */
+#abilList .ab-lbl{display:flex;flex-direction:column;gap:4px;padding:10px 12px;border:3px dashed rgba(43,27,46,.4);border-radius:var(--wobs)}
+#abilList .ab-lbl .nm{font-size:19px;line-height:1;color:var(--ink);text-transform:uppercase}
+#abilList .ab-lbl small{font:500 12.5px/1.35 var(--f-body);color:#4a3a4d}
+@media (prefers-reduced-motion:reduce){#abilList .tog{transition:none}#abilList .tog:hover,#abilList .tog:active{transform:none}}
+@container (max-width:640px){#abilList .ab-h{display:none}#abilList .ab-row{grid-template-columns:1fr}#abilList .ab-up{margin-left:18px}}
 .card .pmenu,.confirm button{background:var(--biscuit);color:var(--ink);border:3px solid var(--ink);border-radius:8px 11px 7px 12px/11px 7px 12px 8px;box-shadow:0 3px 0 var(--ink)}
 .confirm button.yes{background:var(--tomato);border-color:var(--ink)}
 .card kbd,.card .gk{background:var(--paper);color:var(--ink);border:2px solid var(--ink);border-bottom-width:4px}
@@ -1268,20 +1307,20 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <div class="cs-moves paper wob"><span class="px" id="csCanH">GUS CAN:</span><div class="cs-chips" id="csMoves"></div></div>
         <div class="cs-note" id="charNote"></div>
       </div>
-      <h2 class="p1only">ABILITIES</h2>
-      <p class="vnote p1only">Switch moves on or off for both hippos.</p>
-      <div class="abil2 p1only" id="abilList">
-        <div class="ab-h" aria-hidden="true"><span>Base</span><span>Improved</span></div>
-        <div class="ab-row"><button type="button" class="tog" role="checkbox" data-k="bite"><span class="box" aria-hidden="true"></span><span class="tl">Bite<small>Snap at whatever is in front of you</small></span></button><div class="ab-up"><button type="button" class="tog" role="checkbox" data-k="biteCombo" data-base="bite"><span class="box" aria-hidden="true"></span><span class="tl">Bite combo<small>Keep biting to chain three hits, ending in an uppercut (off: single bites with a longer wait between them)</small></span></button></div></div>
-        <div class="ab-row"><button type="button" class="tog" role="checkbox" data-k="stomp"><span class="box" aria-hidden="true"></span><span class="tl">Stomp<small>Rear up and slam down on everything around you</small></span></button><div class="ab-up"><button type="button" class="tog" role="checkbox" data-k="chargeStomp" data-base="stomp"><span class="box" aria-hidden="true"></span><span class="tl">Charge Stomp<small>Hold to wind up a bigger stomp: one level of charge (off: every stomp is a quick one)</small></span></button><button type="button" class="tog" role="checkbox" data-k="fullStomp" data-base="stomp" data-prev="chargeStomp"><span class="box" aria-hidden="true"></span><span class="tl">Full Charge Stomp<small>Keep holding for the biggest stomp: both levels of charge</small></span></button><button type="button" class="tog" role="checkbox" data-k="groundSpike" data-base="stomp"><span class="box" aria-hidden="true"></span><span class="tl">Ground Spike<small>A spike of stone bursts up out of the ground in front of him as the stomp lands, throwing whatever's there into the air: two spikes from a charged stomp and three from a full charge, each bigger than the one before</small></span></button></div></div>
-        <div class="ab-row"><button type="button" class="tog" role="checkbox" data-k="pound"><span class="box" aria-hidden="true"></span><span class="tl">Ground Pound<small>Stomp in mid-air to flip over and slam down rump-first</small></span></button><div class="ab-up"><button type="button" class="tog" role="checkbox" data-k="chargePound" data-base="pound"><span class="box" aria-hidden="true"></span><span class="tl">Charge Ground Pound<small>Hold in mid-air to hover and charge: one level of charge (off: every pound drops straight away)</small></span></button><button type="button" class="tog" role="checkbox" data-k="fullPound" data-base="pound" data-prev="chargePound"><span class="box" aria-hidden="true"></span><span class="tl">Full Charge Ground Pound<small>Keep hovering for the biggest pound: both levels of charge</small></span></button></div></div>
-        <div class="ab-row"><button type="button" class="tog" role="checkbox" data-k="dash"><span class="box" aria-hidden="true"></span><span class="tl">Dash<small>A quick hop a few blocks whichever way you point</small></span></button><div class="ab-up"><button type="button" class="tog" role="checkbox" data-k="roll" data-base="dash" data-excl="blastDash"><span class="box" aria-hidden="true"></span><span class="tl">Roll<small>The dash becomes a low forward hop that curls into a rolling ball, bowling over enemies and smashing through blocks</small></span></button><button type="button" class="tog" role="checkbox" data-k="blastDash" data-base="dash" data-excl="roll"><span class="box" aria-hidden="true"></span><span class="tl">Blast Dash<small>The dash goes off with an explosion out of his backside: a burst of speed much further forward, smashing through blocks and blasting enemies aside (only one of Roll and Blast Dash at a time)</small></span></button></div></div>
-        <div class="ab-row"><button type="button" class="tog" role="checkbox" data-k="sprint"><span class="box" aria-hidden="true"></span><span class="tl">Sprint<small>Hold Sprint to run</small></span></button><div class="ab-up"><button type="button" class="tog" role="checkbox" data-k="trample" data-base="sprint"><span class="box" aria-hidden="true"></span><span class="tl">Trample<small>The run becomes a charge, ploughing through goblins, cars and clutter (off: a harmless sprint)</small></span></button></div></div>
-        <div class="ab-row"><button type="button" class="tog" role="checkbox" data-k="jump"><span class="box" aria-hidden="true"></span><span class="tl">Jump<small>Leap up off the ground</small></span></button><div class="ab-up"><button type="button" class="tog" role="checkbox" data-k="double" data-base="jump"><span class="box" aria-hidden="true"></span><span class="tl">Double jump<small>A second jump in mid-air</small></span></button><button type="button" class="tog" role="checkbox" data-k="triple" data-base="jump" data-prev="double"><span class="box" aria-hidden="true"></span><span class="tl">Triple jump<small>Two extra jumps in mid-air</small></span></button></div></div>
-        <div class="ab-row"><button type="button" class="tog" role="checkbox" data-k="longJump"><span class="box" aria-hidden="true"></span><span class="tl">Long Jump<small>Jump out of a run to leap low and far (off: an ordinary jump)</small></span></button><div class="ab-up"><button type="button" class="tog" role="checkbox" data-k="blastJump" data-base="longJump"><span class="box" aria-hidden="true"></span><span class="tl">Blast Long Jump<small>The long jump goes off with an explosion out of his backside: a huge burst of speed, much further and higher, smashing through anything in the way</small></span></button></div></div>
-        <div class="ab-row"><button type="button" class="tog" role="checkbox" data-k="airDash"><span class="box" aria-hidden="true"></span><span class="tl">Air Dash<small>A roaring burst forward in mid-air</small></span></button><div class="ab-up"><button type="button" class="tog" role="checkbox" data-k="blastAirDash" data-base="airDash"><span class="box" aria-hidden="true"></span><span class="tl">Blast Air Dash<small>The air dash goes off with an explosion out of his backside: faster and much further, smashing through blocks and blasting enemies aside</small></span></button></div></div>
-        <h3 class="ab-sub">Misc.</h3>
-        <div class="abil"><button type="button" class="tog" role="checkbox" data-k="climb"><span class="box" aria-hidden="true"></span><span class="tl">Spider Climb<small>Cling to walls and ceilings</small></span></button><button type="button" class="tog" role="checkbox" data-k="rocket" data-base="jump"><span class="box" aria-hidden="true"></span><span class="tl">Rocket Boost<small>Keep holding jump: a little rocket flame fires from each foot and lifts him slowly up (uses stamina)</small></span></button><button type="button" class="tog" role="checkbox" data-k="crash"><span class="box" aria-hidden="true"></span><span class="tl">Crash Landing<small>Falling five blocks or more, you slam down on whatever you land on (off: you just land)</small></span></button><button type="button" class="tog" role="checkbox" data-k="noFall"><span class="box" aria-hidden="true"></span><span class="tl">Fall damage immunity<small>Long falls don't hurt (ground pounds never do)</small></span></button></div>
+      <h2>ABILITIES</h2>
+      <p class="vnote" id="abilNote">Tap a move to switch it on or off.</p>
+      <div class="abil2" id="abilList">
+        <div class="ab-h" aria-hidden="true"><span class="px">Basic moves</span><span class="px">Upgrades</span></div>
+        <div class="ab-row" role="group" aria-label="Bite and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="bite"><span class="tl"><b class="nm">Bite</b><small>Snap at whatever is in front of you</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="biteCombo" data-base="bite"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Bite combo</b><small>Keep biting to chain three hits, ending in an uppercut (off: single bites with a longer wait between them)</small></span><span class="st" aria-hidden="true"></span></button></div></div>
+        <div class="ab-row" role="group" aria-label="Stomp and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="stomp"><span class="tl"><b class="nm">Stomp</b><small>Rear up and slam down on everything around you</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="chargeStomp" data-base="stomp"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Charge Stomp</b><small>Hold to wind up a bigger stomp: one level of charge (off: every stomp is a quick one)</small></span><span class="st" aria-hidden="true"></span></button><button type="button" class="tog ab-tok" role="switch" data-k="fullStomp" data-base="stomp" data-prev="chargeStomp"><i class="lv" aria-hidden="true">+2</i><span class="tl"><b class="nm">Full Charge Stomp</b><small>Keep holding for the biggest stomp: both levels of charge</small></span><span class="st" aria-hidden="true"></span></button><button type="button" class="tog ab-tok" role="switch" data-k="groundSpike" data-base="stomp"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Ground Spike</b><small>A spike of stone bursts up out of the ground in front of him as the stomp lands, throwing whatever's there into the air: two spikes from a charged stomp and three from a full charge, each bigger than the one before</small></span><span class="st" aria-hidden="true"></span></button></div></div>
+        <div class="ab-row" role="group" aria-label="Ground Pound and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="pound"><span class="tl"><b class="nm">Ground Pound</b><small>Stomp in mid-air to flip over and slam down rump-first</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="chargePound" data-base="pound"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Charge Ground Pound</b><small>Hold in mid-air to hover and charge: one level of charge (off: every pound drops straight away)</small></span><span class="st" aria-hidden="true"></span></button><button type="button" class="tog ab-tok" role="switch" data-k="fullPound" data-base="pound" data-prev="chargePound"><i class="lv" aria-hidden="true">+2</i><span class="tl"><b class="nm">Full Charge Ground Pound</b><small>Keep hovering for the biggest pound: both levels of charge</small></span><span class="st" aria-hidden="true"></span></button></div></div>
+        <div class="ab-row" role="group" aria-label="Dash and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="dash"><span class="tl"><b class="nm">Dash</b><small>A quick hop a few blocks whichever way you point</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="roll" data-base="dash" data-excl="blastDash"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Roll</b><small>The dash becomes a low forward hop that curls into a rolling ball, bowling over enemies and smashing through blocks</small></span><span class="st" aria-hidden="true"></span></button><span class="ab-or" aria-hidden="true">or</span><button type="button" class="tog ab-tok" role="switch" data-k="blastDash" data-base="dash" data-excl="roll"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Blast Dash</b><small>The dash goes off with an explosion out of his backside: a burst of speed much further forward, smashing through blocks and blasting enemies aside (only one of Roll and Blast Dash at a time)</small></span><span class="st" aria-hidden="true"></span></button></div></div>
+        <div class="ab-row" role="group" aria-label="Sprint and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="sprint"><span class="tl"><b class="nm">Sprint</b><small>Hold Sprint to run</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="trample" data-base="sprint"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Trample</b><small>The run becomes a charge, ploughing through goblins, cars and clutter (off: a harmless sprint)</small></span><span class="st" aria-hidden="true"></span></button></div></div>
+        <div class="ab-row" role="group" aria-label="Jump and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="jump"><span class="tl"><b class="nm">Jump</b><small>Leap up off the ground</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="double" data-base="jump"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Double jump</b><small>A second jump in mid-air</small></span><span class="st" aria-hidden="true"></span></button><button type="button" class="tog ab-tok" role="switch" data-k="triple" data-base="jump" data-prev="double"><i class="lv" aria-hidden="true">+2</i><span class="tl"><b class="nm">Triple jump</b><small>Two extra jumps in mid-air</small></span><span class="st" aria-hidden="true"></span></button><button type="button" class="tog ab-tok" role="switch" data-k="rocket" data-base="jump"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Rocket Boost</b><small>Keep holding jump: a little rocket flame fires from each foot and lifts him slowly up (uses stamina)</small></span><span class="st" aria-hidden="true"></span></button></div></div>
+        <div class="ab-row" role="group" aria-label="Long Jump and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="longJump"><span class="tl"><b class="nm">Long Jump</b><small>Jump out of a run to leap low and far (off: an ordinary jump)</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="blastJump" data-base="longJump"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Blast Long Jump</b><small>The long jump goes off with an explosion out of his backside: a huge burst of speed, much further and higher, smashing through anything in the way</small></span><span class="st" aria-hidden="true"></span></button></div></div>
+        <div class="ab-row" role="group" aria-label="Air Dash and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="airDash"><span class="tl"><b class="nm">Air Dash</b><small>A roaring burst forward in mid-air</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="blastAirDash" data-base="airDash"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Blast Air Dash</b><small>The air dash goes off with an explosion out of his backside: faster and much further, smashing through blocks and blasting enemies aside</small></span><span class="st" aria-hidden="true"></span></button></div></div>
+        <div class="ab-row" role="group" aria-label="Spider Climb"><button type="button" class="tog ab-base" role="switch" data-k="climb"><span class="tl"><b class="nm">Spider Climb</b><small>Cling to walls and ceilings</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"></div></div>
+        <div class="ab-row ab-any" role="group" aria-label="Upgrades for every move"><div class="ab-lbl"><b class="nm px">Landings</b><small>Every hippo lands. These change how.</small></div><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="crash"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Crash Landing</b><small>Falling five blocks or more, you slam down on whatever you land on (off: you just land)</small></span><span class="st" aria-hidden="true"></span></button><button type="button" class="tog ab-tok" role="switch" data-k="noFall"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Fall damage immunity</b><small>Long falls don't hurt (ground pounds never do)</small></span><span class="st" aria-hidden="true"></span></button></div></div>
       </div>
     </div>
     </div>
@@ -1354,7 +1393,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <p class="pn-web">What's changed, newest first. These notes are also on <a href="patch-notes/index.html" target="_blank" rel="noopener">their own web page</a>.</p>
 <details class="pn-up pn-fold pn-new" id="version-0-4" open><summary tabindex="0"><h2>Version 0.4</h2><span class="pn-tog" aria-hidden="true"></span></summary>
 <h3>A new look</h3>
-<ul><li>The game has a new coat of paint: flat crayon colours, thick ink outlines with hand-drawn corners, and a chunky pixel font (Jersey 10) for titles, buttons and numbers. Anything you read, like descriptions and these notes, keeps the easy-to-read font.</li><li>Button prompts are drawn as the buttons themselves in the new style: crayon-coloured face buttons and paper keycaps.</li><li>A real title screen: the logo top left, and Gus himself stomping along a street in front of a scrolling city while you choose, flattening a goblin with every stomp. It's lit and shaded just like the game. The menu card on the right has Play, Co-op, Play online, New city and Options, with the Testing Environment, Dev and Full screen in a small Workshop line underneath, and a sticker for what's new.</li><li>The enemy hostility slider has moved from the main screen to the top of Options.</li><li>In Options, each slider's name now sits to its left on the same row, with its setting on the right and the description underneath, and all the sliders line up. In a narrow window the name goes back above the slider.</li><li>Picking a character is now "Who's stompin'?": four big cards for Gus, Gertie, Gnash and Grizzle, with a 1P tag on player one's pick and a 2P tag on player two's in co-op. In split-screen co-op each of you picks your own character from your own pause menu's Character screen, and a strip under the cards lists what that character can do with your current ability switches. Picking the other player's character still swaps you over.</li><li>In split-screen co-op each player still has their own pause menu, driven only by their own controller. Player two's is just Resume, Map, Obituary, Character and Controls: what changes the game for both of you (Options, the ability switches, New city, Play online, the Testing Environment, Quit to title) stays in player one's.</li><li>The title screen's menu card no longer shows a scroll bar down its side when the game first opens.</li><li>On a controller, A on a character card picks them and takes you back ("Ready!"), and Y jumps down to the ability switches. Screens opened from a menu have a Back button: B or Esc goes back, and LB / RB (Q / E on the keyboard) jump between screens.</li><li>The pause menu is a column of big buttons (Resume, Map, Obituary with its count, Character, Controls, Options, Quit to title) beside a "This rampage" card: goblins flattened, your score, your best combo, cars tossed and how wrecked the place you're in is, with its name and the time of day. Underneath are this game's own controls: switch between solo and co-op, Play online, New city, the Testing Environment and Full screen.</li><li>Map, Obituary, Character, Controls, Options and Patch notes open in the same card, sliding in from the right, and always start you back on the menu's own buttons when you pause again. B or Esc on the menu itself resumes.</li><li>Quit to title takes you back to the title screen with Gus stomping along; your city, score and everyone in it are kept, so Play carries on where you left off.</li><li>Patch notes and Dev are small tags in the card's corner now. In split-screen co-op the card's corner says 1P MENU (green) or 2P MENU (pink), so you can tell whose menu it is, and player two's menu still leaves out Options, Dev, the Testing Environment, Quit to title and the city controls.</li><li>Options, Controls, the Map, the Obituary and the Patch notes are on paper in the new style. The Dev tools and the Testing Environment keep a dark panel, in the new colours.</li><li>The HUD is redrawn to match: your score big in the top left with the goblins you've flattened under it (and stickers when cars or the police are after you), pixel hearts and the stamina bar in one paper panel at the bottom, the day and weather on a paper card beside a new clock disc, a round minimap, and the speedometer in ink and yolk.</li><li>Charging a stomp shows STOMP, then BIG STOMP, then shouts FULL CHARGE! when it's all the way up.</li><li>Combos: every goblin flattened or thing smashed within 3 seconds of the last adds one to your combo, shown under your score with a bar that drains until the next. The combo multiplies your points: +10% for each step from the second, so x11 doubles them and x21 or more triples them (that's as high as it goes). Big combos get a name and a shout: x5 Stompin'!, x10 STOMPTACULAR!, x15 Hippo-critical!, x20 GOBLINGEDDON!, x30 Unstoppable lump!, x50 HIPPOCALYPSE!, x75 Wallow of doom! and x100 Legend of the bog!</li><li>Points float up from wherever you earned them, damage numbers pop off the goblins as you hit them, and a goblin going down gets a shout: SPLAT! for a stomp, CHOMP! for a bite, KABOOM! for an explosion, and so on. The damage numbers and shouts can be switched off in Options, under On screen.</li><li>What you've just wrecked is listed in stickers in the top right, newest on top, with the points it earned (combo included), fading as they get older.</li><li>A City wrecked card in the bottom right shows how much of the place you're in you've knocked down (Town or Village wrecked in smaller places).</li><li>In split screen and online, each player has their own combo, pop-ups and list of what they've wrecked, from their own hits. The best combo shows in the pause menu's rampage card, and a new city starts it all again.</li><li>A Reduced motion switch in Options, under On screen, stops the wobbling, bobbing and popping of the menus and the display and holds Gus still on the title screen. It's on by itself if your system asks for less motion.</li><li>Sounds for the points as they pop up (rising as your combo climbs) and a fanfare for each combo milestone.</li><li>Arriving somewhere puts its name up on a big sticker. Chat, voice chips, the controls hint, the debug menu and each co-op player's own pause panel are restyled too, and in split screen each half's name is a 1P-green or 2P-pink tag.</li></ul>
+<ul><li>The game has a new coat of paint: flat crayon colours, thick ink outlines with hand-drawn corners, and a chunky pixel font (Jersey 10) for titles, buttons and numbers. Anything you read, like descriptions and these notes, keeps the easy-to-read font.</li><li>Button prompts are drawn as the buttons themselves in the new style: crayon-coloured face buttons and paper keycaps.</li><li>A real title screen: the logo top left, and Gus himself stomping along a street in front of a scrolling city while you choose, flattening a goblin with every stomp. It's lit and shaded just like the game. The menu card on the right has Play, Co-op, Play online, New city and Options, with the Testing Environment, Dev and Full screen in a small Workshop line underneath, and a sticker for what's new.</li><li>The enemy hostility slider has moved from the main screen to the top of Options.</li><li>In Options, each slider's name now sits to its left on the same row, with its setting on the right and the description underneath, and all the sliders line up. In a narrow window the name goes back above the slider.</li><li>Picking a character is now "Who's stompin'?": four big cards for Gus, Gertie, Gnash and Grizzle, with a 1P tag on player one's pick and a 2P tag on player two's in co-op. In split-screen co-op each of you picks your own character from your own pause menu's Character screen, and a strip under the cards lists what that character can do with your current ability switches. Picking the other player's character still swaps you over.</li><li>In split-screen co-op each player still has their own pause menu, driven only by their own controller. Player two's is just Resume, Map, Obituary, Character and Controls: what changes the game for both of you (Options, New city, Play online, the Testing Environment, Quit to title) stays in player one's.</li><li>The title screen's menu card no longer shows a scroll bar down its side when the game first opens.</li><li>Each player has their own ability switches. In split-screen co-op player two sets theirs in their own pause menu's Character screen, and they go with you whichever hippo you pick, so Gus and Gertie are still the same as each other: it's the player, not the hippo, who has the moves. Player one keeps the switches they had, and player two starts with a copy of them.</li><li>The ability switches are laid out as basic moves and their upgrades: each basic move (Bite, Stomp, Ground Pound, Dash, Sprint, Jump, Long Jump, Air Dash, Spider Climb) on the left, with the upgrades that improve it trailing off it as yellow tokens, each with a +1 or +2 coin for how many steps up it is (Bite combo, Charge Stomp, Full Charge Stomp, Ground Spike, Rocket Boost and so on). Crash Landing and Fall damage immunity are upgrades to every landing. No more tick boxes: a move that's on is in full colour and one that's off is greyed out, with On or Off in its corner. Click it, or press A on a controller, to switch it. An upgrade whose basic move is off is greyed with a dashed edge and says what it needs; switching it on switches that on too.</li><li>On a controller, A on a character card picks them and takes you back ("Ready!"), and Y jumps down to the ability switches. Screens opened from a menu have a Back button: B or Esc goes back, and LB / RB (Q / E on the keyboard) jump between screens.</li><li>The pause menu is a column of big buttons (Resume, Map, Obituary with its count, Character, Controls, Options, Quit to title) beside a "This rampage" card: goblins flattened, your score, your best combo, cars tossed and how wrecked the place you're in is, with its name and the time of day. Underneath are this game's own controls: switch between solo and co-op, Play online, New city, the Testing Environment and Full screen.</li><li>Map, Obituary, Character, Controls, Options and Patch notes open in the same card, sliding in from the right, and always start you back on the menu's own buttons when you pause again. B or Esc on the menu itself resumes.</li><li>Quit to title takes you back to the title screen with Gus stomping along; your city, score and everyone in it are kept, so Play carries on where you left off.</li><li>Patch notes and Dev are small tags in the card's corner now. In split-screen co-op the card's corner says 1P MENU (green) or 2P MENU (pink), so you can tell whose menu it is, and player two's menu still leaves out Options, Dev, the Testing Environment, Quit to title and the city controls.</li><li>Options, Controls, the Map, the Obituary and the Patch notes are on paper in the new style. The Dev tools and the Testing Environment keep a dark panel, in the new colours.</li><li>The HUD is redrawn to match: your score big in the top left with the goblins you've flattened under it (and stickers when cars or the police are after you), pixel hearts and the stamina bar in one paper panel at the bottom, the day and weather on a paper card beside a new clock disc, a round minimap, and the speedometer in ink and yolk.</li><li>Charging a stomp shows STOMP, then BIG STOMP, then shouts FULL CHARGE! when it's all the way up.</li><li>Combos: every goblin flattened or thing smashed within 3 seconds of the last adds one to your combo, shown under your score with a bar that drains until the next. The combo multiplies your points: +10% for each step from the second, so x11 doubles them and x21 or more triples them (that's as high as it goes). Big combos get a name and a shout: x5 Stompin'!, x10 STOMPTACULAR!, x15 Hippo-critical!, x20 GOBLINGEDDON!, x30 Unstoppable lump!, x50 HIPPOCALYPSE!, x75 Wallow of doom! and x100 Legend of the bog!</li><li>Points float up from wherever you earned them, damage numbers pop off the goblins as you hit them, and a goblin going down gets a shout: SPLAT! for a stomp, CHOMP! for a bite, KABOOM! for an explosion, and so on. The damage numbers and shouts can be switched off in Options, under On screen.</li><li>What you've just wrecked is listed in stickers in the top right, newest on top, with the points it earned (combo included), fading as they get older.</li><li>A City wrecked card in the bottom right shows how much of the place you're in you've knocked down (Town or Village wrecked in smaller places).</li><li>In split screen and online, each player has their own combo, pop-ups and list of what they've wrecked, from their own hits. The best combo shows in the pause menu's rampage card, and a new city starts it all again.</li><li>A Reduced motion switch in Options, under On screen, stops the wobbling, bobbing and popping of the menus and the display and holds Gus still on the title screen. It's on by itself if your system asks for less motion.</li><li>Sounds for the points as they pop up (rising as your combo climbs) and a fanfare for each combo milestone.</li><li>Arriving somewhere puts its name up on a big sticker. Chat, voice chips, the controls hint, the debug menu and each co-op player's own pause panel are restyled too, and in split screen each half's name is a 1P-green or 2P-pink tag.</li></ul>
 <h3>Menus</h3>
 <ul><li>In player two's menu, the button that carries on playing says Resume rather than Co-op.</li><li>The pause menu's buttons always fit in the window, at any size and in split screen, and never sit in a box with scroll bars.</li><li>The Map zooms out as far as it takes to see everywhere you've explored at once, however far you've roamed.</li><li>The highlight round the picked character cards, and their 1P and 2P tags, are no longer cut off at the edges.</li><li>The What's new sticker sits under the title menu instead of over the Full screen link, and the controller and city seed notes have moved down on to the ground.</li><li>The pixel-art portraits and hearts are solid at any zoom and on any screen, with no faint lines between their pixels.</li></ul>
 </details>
@@ -9870,27 +9909,54 @@ function makePlayer(idx){
 players.push(makePlayer(0),makePlayer(1));
 const P1=players[0],P2=players[1];
 // ---- character customization: which pair of eyes each hippo wears ----
-// ---- ability switches (Character tab), shared by both hippos and kept in this browser ----
-const ABIL_KEY='goblin-stompin-gus-abilities';
+// ---- ability switches (Character tab): each player's own, kept in this browser per seat ----
+// Player one's are ABIL, player two's ABIL2 (split screen). They belong to the seat, not the hippo: whichever of Gus and
+// Gertie a player picks gets that player's switches, so the two hippos stay the same as characters. Online, each player
+// keeps their own in their own browser (sent with hello as p.abil). abilOf(p) is the set a player's moves go by.
+const ABIL_KEY='goblin-stompin-gus-abilities',ABIL2_KEY='goblin-stompin-gus-abilities2';
 // the base moves (bite, stomp, ground pound, jump, sprint, dash, air dash, long jump), each with its improved
 // versions (an improved one only works while its base move is on; a 'full' one needs the one before it too)
 const ABIL={bite:true,biteCombo:true,stomp:true,chargeStomp:true,fullStomp:true,groundSpike:false,pound:true,chargePound:true,fullPound:true,jump:true,double:true,triple:false,
   sprint:true,trample:true,dash:true,roll:false,blastDash:false,airDash:true,blastAirDash:false,longJump:true,blastJump:false,rocket:false,climb:true,crash:true,noFall:true};
-try{const s=JSON.parse(localStorage.getItem(ABIL_KEY)||'null');if(s&&typeof s==='object'){for(const k in ABIL)if(typeof s[k]==='boolean')ABIL[k]=s[k];
-  // (saved before the full-charge versions existed: charging was both levels or none)
-  if(s.fullStomp===undefined)ABIL.fullStomp=ABIL.chargeStomp;if(s.fullPound===undefined)ABIL.fullPound=ABIL.chargePound;}}catch(e){}
-if(ABIL.triple)ABIL.double=true;if(ABIL.roll&&ABIL.blastDash)ABIL.blastDash=false;if(ABIL.fullStomp)ABIL.chargeStomp=true;if(ABIL.fullPound)ABIL.chargePound=true;
-const airJumpsMax=()=>!ABIL.jump?0:ABIL.triple?2:ABIL.double?1:0;
+function abilLoad(A,key){
+  try{const s=JSON.parse(localStorage.getItem(key)||'null');if(!s||typeof s!=='object')return false;for(const k in A)if(typeof s[k]==='boolean')A[k]=s[k];
+    // (saved before the full-charge versions existed: charging was both levels or none)
+    if(s.fullStomp===undefined)A.fullStomp=A.chargeStomp;if(s.fullPound===undefined)A.fullPound=A.chargePound;return true;}catch(e){return false;}
+}
+function abilFix(A){if(A.triple)A.double=true;if(A.roll&&A.blastDash)A.blastDash=false;if(A.fullStomp)A.chargeStomp=true;if(A.fullPound)A.chargePound=true;}
+abilLoad(ABIL,ABIL_KEY);abilFix(ABIL);
+// (player two starts as a copy of player one's, the switches there were before there were two sets; kept from then on)
+const ABIL2=Object.assign({},ABIL);
+if(!abilLoad(ABIL2,ABIL2_KEY))try{localStorage.setItem(ABIL2_KEY,JSON.stringify(ABIL2));}catch(e){}
+abilFix(ABIL2);
+const ABILS=[ABIL,ABIL2],ABIL_KEYS=[ABIL_KEY,ABIL2_KEY];
+// a hippo player's own switches: an online guest's sent from their browser, else their seat's here
+const abilSeatOf=p=>p.abil||(p.idx===1?ABIL2:ABIL);
+const abilOf=p=>p.gob?GOB_ABIL:abilSeatOf(p);
+const airJumpsMax=(A=ABIL)=>!A.jump?0:A.triple?2:A.double?1:0;
 // how many levels a stomp / a ground pound can be charged to (0: not at all)
-const stompCap=()=>!ABIL.stomp?0:ABIL.fullStomp?2:ABIL.chargeStomp?1:0,poundCap=()=>!ABIL.pound?0:ABIL.fullPound?2:ABIL.chargePound?1:0;
-function renderAbil(){for(const b of document.querySelectorAll('#abilList .tog')){const on=!!ABIL[b.dataset.k],base=b.dataset.base,prev=b.dataset.prev,off=(base&&!ABIL[base])||(prev&&!ABIL[prev]);
-  b.setAttribute('aria-checked',String(on));b.classList.toggle('dim',!!off);}}
-for(const b of document.querySelectorAll('#abilList .tog'))b.addEventListener('click',()=>{const k=b.dataset.k;ABIL[k]=!ABIL[k];
+const stompCap=(A=ABIL)=>!A.stomp?0:A.fullStomp?2:A.chargeStomp?1:0,poundCap=(A=ABIL)=>!A.pound?0:A.fullPound?2:A.chargePound?1:0;
+// The switches in the Character screen are those of whoever's menu it is (player two's in theirs, in split screen)
+function abilSeat(){let two=false;try{two=menuP2();}catch(e){}return two?1:0;}
+// (what an upgrade needs switched on first, for its tag: 'NEEDS STOMP')
+const ABIL_SHORT={bite:'Bite',stomp:'Stomp',pound:'Pound',jump:'Jump',double:'Double',chargeStomp:'Charge',chargePound:'Charge',sprint:'Sprint',dash:'Dash',longJump:'Long Jump',airDash:'Air Dash'};
+function renderAbil(){
+  const A=ABILS[abilSeat()],list=document.getElementById('abilList');if(!list)return;list.dataset.seat=String(abilSeat());
+  for(const b of list.querySelectorAll('.tog')){const on=!!A[b.dataset.k],base=b.dataset.base,prev=b.dataset.prev,need=(base&&!A[base])?base:(prev&&!A[prev])?prev:null;
+    b.setAttribute('aria-checked',String(on&&!need));b.classList.toggle('dim',!!need);
+    const t=b.querySelector('.st');if(t)t.textContent=need?'Needs '+(ABIL_SHORT[need]||need):on?'On':'Off';}
+  const n=document.getElementById('abilNote');
+  if(n){let co=false;try{co=inCoop()&&!P2.net;}catch(e){}n.textContent=(co?(abilSeat()?"Player two's":"Player one's")+' moves: these go with you whichever hippo you pick. ':'')+'Tap a move to switch it on or off. Upgrades only work while the basic move they improve is on.';}
+}
+for(const b of document.querySelectorAll('#abilList .tog'))b.addEventListener('click',()=>{
+  const seat=abilSeat(),A=ABILS[seat],k=b.dataset.k,base=b.dataset.base,prev=b.dataset.prev;
+  // (an upgrade greyed out for want of what it builds on switches on, with it, rather than off unseen)
+  const need=(base&&!A[base])||(prev&&!A[prev]);A[k]=need?true:!A[k];
   // switching an improved version on brings what it builds on with it; switching a step off takes the ones after it off
-  if(ABIL[k]){if(b.dataset.base)ABIL[b.dataset.base]=true;if(b.dataset.prev)ABIL[b.dataset.prev]=true;if(b.dataset.excl)ABIL[b.dataset.excl]=false;}   // (Roll and Blast Dash: one or the other)
-  else for(const o of document.querySelectorAll('#abilList .tog[data-prev="'+k+'"]'))ABIL[o.dataset.k]=false;
-  for(const p of players){p.airJumps=Math.min(p.airJumps,airJumpsMax());}
-  renderAbil();tone('triangle',ABIL[k]?660:440,0,0.05,0.03);try{localStorage.setItem(ABIL_KEY,JSON.stringify(ABIL));}catch(e){}});
+  if(A[k]){if(base)A[base]=true;if(prev)A[prev]=true;if(b.dataset.excl)A[b.dataset.excl]=false;}   // (Roll and Blast Dash: one or the other)
+  else for(const o of document.querySelectorAll('#abilList .tog[data-prev="'+k+'"]'))A[o.dataset.k]=false;
+  for(const p of players)p.airJumps=Math.min(p.airJumps,airJumpsMax(abilOf(p)));
+  renderAbil();tone('triangle',A[k]?660:440,0,0.05,0.03);try{localStorage.setItem(ABIL_KEYS[seat],JSON.stringify(A));}catch(e){}});
 renderAbil();
 // each hippo has its own eyes: Gus the real-hippo ones on the sides of his head, Gertie the wall-eyed ones up front
 const EYES=['side','front'];
@@ -11052,8 +11118,10 @@ function setGob(on,p2){
   renderTime();
 }
 function updatePlayer(p,dt){
-  // (a player online keeps the abilities switched on in their own browser: theirs, for their own step)
-  if(p.abil&&!p.gob&&!SBX){const A0=Object.assign({},ABIL);Object.assign(ABIL,p.abil);try{return movePlayer(p,dt);}finally{Object.assign(ABIL,A0);}}
+  // (each player's own ability switches for their own step: player two's in split screen, or a player online's from
+  // their own browser. The moves read ABIL, which is player one's the rest of the time)
+  const S=abilSeatOf(p);
+  if(S!==ABIL&&!p.gob&&!SBX){const A0=Object.assign({},ABIL);Object.assign(ABIL,S);try{return movePlayer(p,dt);}finally{Object.assign(ABIL,A0);}}
   if(!p.gob||SBX)return movePlayer(p,dt);
   if(drvTick(p,dt))return;   // (in a vehicle: it does the moving. See drvTick)
   gobArmsTick(p,dt);   // (grenades and the weapon button: see gob-weapons.js)
@@ -14221,6 +14289,10 @@ function menuNav(dir){
   if(cur===sb&&dy>0){const U=paneUnits(pane);if(U.length)unitFocus(U[0]);else pane.scrollTop+=80;return;}
   if(dx&&(title||cur&&cur.closest&&cur.closest('.tabs'))){showTab(tabIndex()+dx);padFocus(document.getElementById('tabBtn'+TABS[tabIndex()][1]));return;}
   if(dy&&title&&pane.contains(cur)){const U=paneUnits(pane),i=U.findIndex(u=>u===cur||u.contains(cur))+dy;if(i<0)padFocus(tabBtn);else if(i<U.length)unitFocus(U[i]);return;}
+  // (the ability switches: up and down from a basic move goes to the next basic move, not into the upgrades beside it)
+  // (and left and right along a basic move's row: the move, then its upgrades in order)
+  if(dx&&cur&&cur.matches&&cur.matches('#abilList .tog')){const R=[...cur.closest('.ab-row').querySelectorAll('.tog')],n=R[R.indexOf(cur)+dx];if(n)padFocus(n);return;}
+  if(dy&&cur&&cur.matches&&cur.matches('#abilList .ab-base')){const B=[...document.querySelectorAll('#abilList .ab-base')],n=B[B.indexOf(cur)+dy];if(n){unitFocus(n);return;}}
   if(dy&&pane&&cur&&cur.closest){
     const units=paneUnits(pane);
     if(pane.contains(cur)){
@@ -14258,7 +14330,7 @@ function menuPad(st,dt){
     if(s.pr[4])subStep(-1);
     if(s.pr[5])subStep(1);
     // (Y on the character cards: down to the ability switches)
-    if(s.pr[3]&&curTab==='custom'){const t=document.querySelector('#abilList .tog');if(t&&t.offsetParent)padFocus(t);}   // (not in player two's menu, which has no ability switches)
+    if(s.pr[3]&&curTab==='custom'){const t=document.querySelector('#abilList .tog');if(t&&t.offsetParent)padFocus(t);}
     const ry=s.p.axes[3]||0;
     if(curTab==='map'&&s.pr[2])mapRecentre();
     if(curTab==='map'){const rx2=s.p.axes[2]||0;if(Math.abs(rx2)>0.2||Math.abs(ry)>0.2)mapPan(rx2*dt*420,ry*dt*420);if(s.b[7])mapZoom(1+dt*1.6);if(s.b[6])mapZoom(1/(1+dt*1.6));}
@@ -14447,7 +14519,7 @@ const actMark=(p,id)=>{const B=BINDS[id];return btnMark(p&&p.pad?bindGlyph('pad'
 function hudHTML(s){return String(s).split(/⟦([^⟧]*)⟧/).map((t,i)=>i%2?glyph(t):glEsc(t)).join('');}
 // the bottom-of-screen hint, from the bindings
 function bindHint(pad,p){
-  const L=id=>{const B=BINDS[id];return pad?(B.pad.length?btnMark(bindGlyph('pad',B.pad[0])):null):(B.kb.length?btnMark(bindGlyph('kb',B.kb[0])):null);},hv=ABIL.trample?'trample':'sprint',out=[];
+  const L=id=>{const B=BINDS[id];return pad?(B.pad.length?btnMark(bindGlyph('pad',B.pad[0])):null):(B.kb.length?btnMark(bindGlyph('kb',B.kb[0])):null);},hv=(p&&!p.gob?abilOf(p):ABIL).trample?'trample':'sprint',out=[];
   if(p&&p.gob)return gobHint(L,p);
   if(L('stomp'))out.push('Hold '+L('stomp')+' stomp');if(L('bite'))out.push(L('bite')+' bite');if(L('jump'))out.push(L('jump')+' jump');
   if(L('dashSprint'))out.push('tap '+L('dashSprint')+' dash, hold to '+hv);else{if(L('dash'))out.push(L('dash')+' dash');}
@@ -14528,7 +14600,7 @@ function padSVG(ps){
 }
 // the legend beside the picture: each action and what it's bound to
 function legendRows(dev,gb,gs,gk,or){
-  const ps=padStyle==='ps',hv=ABIL.trample?'trample':'sprint';
+  const ps=padStyle==='ps',hv=ABILS[abilSeat()].trample?'trample':'sprint';   // (whoever's menu it is: their own switches)
   const DESC={jump:'Jump',bite:'Bite',stomp:'Stomp',dashSprint:'Tap: dash · Hold: '+hv+' · In mid-air: air dash',dash:'Dash · In mid-air: air dash',sprint:'Hold: '+hv+' · In mid-air: air dash',lock:'Lock on',climb:'Spider Climb (hold)',talk:'Push to talk (online)',quickChat:'Quick chat (online)'};
   const chip=(a,v)=>dev==='kb'?(String(v).startsWith('Mouse')?gs(keyLabel(v),a.c):gk(keyLabel(v))):(v<4?gb(padLabel(v,ps),a.c):gs(padLabel(v,ps),a.c));
   let out='';
@@ -17046,7 +17118,7 @@ const csSeat=()=>{let two=false;try{two=menuP2();}catch(e){}return two?1:0;};
 const CS_GOB_MOVES=['Club','Dagger','Rifle','Grenades','Dash','Drive anything'];
 function csMoves(c){
   if(charGob(c))return CS_GOB_MOVES;
-  const A=ABIL,L=[];
+  const A=ABILS[csSeat()],L=[];   // (the switches of whoever's menu it is)
   if(A.bite)L.push(A.biteCombo?'Bite combo':'Bite');
   if(A.stomp)L.push(A.fullStomp?'Full charge stomp':A.chargeStomp?'Charge stomp':'Stomp');
   if(A.groundSpike&&A.stomp)L.push('Ground spike');
@@ -17069,6 +17141,7 @@ function renderChar(){
       k.classList.toggle('p1',c===CHAR);k.classList.toggle('p2',co&&c===c2);
       const pic=k.querySelector('.cs-pic');if(pic&&!pic.dataset.done){pic.dataset.done='1';pic.className='cs-pic '+sprCls(pic.dataset.spr,6);}}}
   const n=document.getElementById('charNote');if(n)n.textContent=charNote();
+  renderAbil();   // (the ability switches shown are this menu's player's)
   // (the moves strip: whoever's highlighted, or the seat's pick)
   {const f=document.activeElement,fc=f&&f.closest&&f.closest('#charRow .cs-card'),c=fc?fc.dataset.c:seat?c2:CHAR;
    const h=document.getElementById('csCanH'),m=document.getElementById('csMoves');
@@ -21324,7 +21397,7 @@ function updateHealth(p,dt){
 // (the hearts, stamina and stomp meters, drawn from what the player's like now: all a guest online does, the host's game doing the rest)
 function healthHud(p,dt){
   p.ui.stamFill.style.width=p.stam.toFixed(0)+'%';p.ui.stam.classList.toggle('tired',p.exhausted);
-  const winding=p.state==='windup'&&stompCap()>0||p.state==='pound'&&p.pHover;p.ui.smeter.hidden=!winding;
+  const winding=p.state==='windup'&&stompCap(abilOf(p))>0||p.state==='pound'&&p.pHover;p.ui.smeter.hidden=!winding;
   if(winding){
     const lv=stompLevelOf(p.stompCharge);
     p.ui.smFill.style.width=(p.stompCharge/2*100).toFixed(0)+'%';
@@ -21538,7 +21611,7 @@ let pauseAt=-1e9;   // (when play last paused: an Esc straight after it is the s
 // Whose pause menu it is (menuBy): in split-screen co-op either player can open the whole menu, from their own pause
 // panel. Player two's is just Resume, Map, Obituary, Character and Controls: it leaves out what changes the game for
 // both of you (Options, the Dev tab, the Testing Environment, Quit to title, the Game tab's new city, solo, online and
-// hostility controls, and the Character screen's ability switches) and the Patch notes (menuSeat). Only their controller
+// hostility controls) and the Patch notes (menuSeat). Its Character screen shows player two's own ability switches. Only their controller
 // drives it, and only player one's drives player one's. (var: renderTime asks while the page is still loading)
 var menuBy=null;
 function menuP2(){return !!(menuBy&&menuBy!==P1&&inCoop());}
@@ -21781,7 +21854,7 @@ function readInputs(dt){
   if(CHAT.open||CHAT.quick){const I=P1.in;for(const k in I)if(typeof I[k]==='boolean')I[k]=false;I.x=I.z=0;I.lookX=I.lookY=0;}
   for(const p of players)p.in.chargeHeld=p.in.charge;
   if(DT.freecam&&!P1.paused)updateFreecam(dt,s1);
-  if(!ABIL.climb)for(const p of players)p.in.climb=false;
+  for(const p of players)if(!abilOf(p).climb)p.in.climb=false;   // (each player's own switch)
 }
 
 // ---------- This rampage: the pause menu's stats card ----------
@@ -22055,7 +22128,7 @@ function updateSpeedo(p,dt){
   if(shown!==p.spShown){p.spShown=shown;p.ui.spNum.textContent=String(shown);}
   // a crash landing is coming when you're falling from 5+ blocks above the ground (or ground-pounding)
   let crash=false;
-  if(!C&&!p.grounded&&p.vy<0){const gnd=groundAt(p.pos.x,p.pos.z,p.pos.y);crash=p.state==='pound'||ABIL.crash&&((p.peakY??p.pos.y)-gnd)>=5;}
+  if(!C&&!p.grounded&&p.vy<0){const gnd=groundAt(p.pos.x,p.pos.z,p.pos.y);crash=p.state==='pound'||abilOf(p).crash&&((p.peakY??p.pos.y)-gnd)>=5;}
   const vy=Math.round(p.spVY),vtxt=crash&&vy<-2?'↓ '+Math.abs(vy):'';
   // colour by how hard the landing will be: yellow, then orange, then red
   const heat=-vy<70?'y':-vy<95?'o':'r';
@@ -22621,7 +22694,7 @@ function frame(now,bg){   // (bg: a tab in the background while online, kept goi
     if(netGuest())safe('arms',()=>gobArmsHud(p));else gobArmsHud(p);
     const hint=p.ui.hint,grab=p===P1&&mouseNeedsClick();hint.hidden=!(grab||playing&&hintTime>0);
     if(grab){const txt='Click to look around with the mouse';if(hint._s!==txt){hint._s=txt;hint.textContent=txt;}}
-    else if(!hint.hidden){const txt=touchMode&&!p.pad?(p.gob?'BITE attacks  ·  STOMP throws a grenade  ·  JUMP  ·  tap DASH to dash, hold to sprint':'Hold STOMP  ·  BITE  ·  JUMP  ·  tap DASH to dash, hold to '+(ABIL.trample?'trample':'sprint')):bindHint(!!p.pad,p);if(hint._s!==txt){hint._s=txt;hint.innerHTML=hudHTML(txt);}}
+    else if(!hint.hidden){const txt=touchMode&&!p.pad?(p.gob?'BITE attacks  ·  STOMP throws a grenade  ·  JUMP  ·  tap DASH to dash, hold to sprint':'Hold STOMP  ·  BITE  ·  JUMP  ·  tap DASH to dash, hold to '+(abilOf(p).trample?'trample':'sprint')):bindHint(!!p.pad,p);if(hint._s!==txt){hint._s=txt;hint.innerHTML=hudHTML(txt);}}
   }
   for(const p of act){if(!p.paused)continue;const o=act.find(q=>q!==p);const txt=!o?'':o.paused?'Both paused. The city is frozen.':`The city keeps going while ${charName(o)} plays.`;if(p.ui.pstatus.textContent!==txt)p.ui.pstatus.textContent=txt;}
   const hn=huntersCount(),pol=cars.some(c=>c.alive&&c.police&&c.hunter);
@@ -22805,7 +22878,7 @@ function netHostInputs(){
     for(const k of NET_HELD)I[k]=!!(m.h&&m.h[k]);
     for(const k of NET_PRESS){I[k]=!!N.pr[k];N.pr[k]=false;}
     I.chargeHeld=I.charge;
-    if(!ABIL.climb&&!(p.abil&&p.abil.climb))I.climb=false;
+    if(!abilOf(p).climb)I.climb=false;
   }
 }
 

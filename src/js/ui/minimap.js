@@ -70,7 +70,7 @@ function updateSpeedo(p,dt){
   if(shown!==p.spShown){p.spShown=shown;p.ui.spNum.textContent=String(shown);}
   // a crash landing is coming when you're falling from 5+ blocks above the ground (or ground-pounding)
   let crash=false;
-  if(!C&&!p.grounded&&p.vy<0){const gnd=groundAt(p.pos.x,p.pos.z,p.pos.y);crash=p.state==='pound'||ABIL.crash&&((p.peakY??p.pos.y)-gnd)>=5;}
+  if(!C&&!p.grounded&&p.vy<0){const gnd=groundAt(p.pos.x,p.pos.z,p.pos.y);crash=p.state==='pound'||abilOf(p).crash&&((p.peakY??p.pos.y)-gnd)>=5;}
   const vy=Math.round(p.spVY),vtxt=crash&&vy<-2?'↓ '+Math.abs(vy):'';
   // colour by how hard the landing will be: yellow, then orange, then red
   const heat=-vy<70?'y':-vy<95?'o':'r';

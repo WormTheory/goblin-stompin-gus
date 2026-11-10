@@ -62,27 +62,54 @@ function makePlayer(idx){
 players.push(makePlayer(0),makePlayer(1));
 const P1=players[0],P2=players[1];
 // ---- character customization: which pair of eyes each hippo wears ----
-// ---- ability switches (Character tab), shared by both hippos and kept in this browser ----
-const ABIL_KEY='goblin-stompin-gus-abilities';
+// ---- ability switches (Character tab): each player's own, kept in this browser per seat ----
+// Player one's are ABIL, player two's ABIL2 (split screen). They belong to the seat, not the hippo: whichever of Gus and
+// Gertie a player picks gets that player's switches, so the two hippos stay the same as characters. Online, each player
+// keeps their own in their own browser (sent with hello as p.abil). abilOf(p) is the set a player's moves go by.
+const ABIL_KEY='goblin-stompin-gus-abilities',ABIL2_KEY='goblin-stompin-gus-abilities2';
 // the base moves (bite, stomp, ground pound, jump, sprint, dash, air dash, long jump), each with its improved
 // versions (an improved one only works while its base move is on; a 'full' one needs the one before it too)
 const ABIL={bite:true,biteCombo:true,stomp:true,chargeStomp:true,fullStomp:true,groundSpike:false,pound:true,chargePound:true,fullPound:true,jump:true,double:true,triple:false,
   sprint:true,trample:true,dash:true,roll:false,blastDash:false,airDash:true,blastAirDash:false,longJump:true,blastJump:false,rocket:false,climb:true,crash:true,noFall:true};
-try{const s=JSON.parse(localStorage.getItem(ABIL_KEY)||'null');if(s&&typeof s==='object'){for(const k in ABIL)if(typeof s[k]==='boolean')ABIL[k]=s[k];
-  // (saved before the full-charge versions existed: charging was both levels or none)
-  if(s.fullStomp===undefined)ABIL.fullStomp=ABIL.chargeStomp;if(s.fullPound===undefined)ABIL.fullPound=ABIL.chargePound;}}catch(e){}
-if(ABIL.triple)ABIL.double=true;if(ABIL.roll&&ABIL.blastDash)ABIL.blastDash=false;if(ABIL.fullStomp)ABIL.chargeStomp=true;if(ABIL.fullPound)ABIL.chargePound=true;
-const airJumpsMax=()=>!ABIL.jump?0:ABIL.triple?2:ABIL.double?1:0;
+function abilLoad(A,key){
+  try{const s=JSON.parse(localStorage.getItem(key)||'null');if(!s||typeof s!=='object')return false;for(const k in A)if(typeof s[k]==='boolean')A[k]=s[k];
+    // (saved before the full-charge versions existed: charging was both levels or none)
+    if(s.fullStomp===undefined)A.fullStomp=A.chargeStomp;if(s.fullPound===undefined)A.fullPound=A.chargePound;return true;}catch(e){return false;}
+}
+function abilFix(A){if(A.triple)A.double=true;if(A.roll&&A.blastDash)A.blastDash=false;if(A.fullStomp)A.chargeStomp=true;if(A.fullPound)A.chargePound=true;}
+abilLoad(ABIL,ABIL_KEY);abilFix(ABIL);
+// (player two starts as a copy of player one's, the switches there were before there were two sets; kept from then on)
+const ABIL2=Object.assign({},ABIL);
+if(!abilLoad(ABIL2,ABIL2_KEY))try{localStorage.setItem(ABIL2_KEY,JSON.stringify(ABIL2));}catch(e){}
+abilFix(ABIL2);
+const ABILS=[ABIL,ABIL2],ABIL_KEYS=[ABIL_KEY,ABIL2_KEY];
+// a hippo player's own switches: an online guest's sent from their browser, else their seat's here
+const abilSeatOf=p=>p.abil||(p.idx===1?ABIL2:ABIL);
+const abilOf=p=>p.gob?GOB_ABIL:abilSeatOf(p);
+const airJumpsMax=(A=ABIL)=>!A.jump?0:A.triple?2:A.double?1:0;
 // how many levels a stomp / a ground pound can be charged to (0: not at all)
-const stompCap=()=>!ABIL.stomp?0:ABIL.fullStomp?2:ABIL.chargeStomp?1:0,poundCap=()=>!ABIL.pound?0:ABIL.fullPound?2:ABIL.chargePound?1:0;
-function renderAbil(){for(const b of document.querySelectorAll('#abilList .tog')){const on=!!ABIL[b.dataset.k],base=b.dataset.base,prev=b.dataset.prev,off=(base&&!ABIL[base])||(prev&&!ABIL[prev]);
-  b.setAttribute('aria-checked',String(on));b.classList.toggle('dim',!!off);}}
-for(const b of document.querySelectorAll('#abilList .tog'))b.addEventListener('click',()=>{const k=b.dataset.k;ABIL[k]=!ABIL[k];
+const stompCap=(A=ABIL)=>!A.stomp?0:A.fullStomp?2:A.chargeStomp?1:0,poundCap=(A=ABIL)=>!A.pound?0:A.fullPound?2:A.chargePound?1:0;
+// The switches in the Character screen are those of whoever's menu it is (player two's in theirs, in split screen)
+function abilSeat(){let two=false;try{two=menuP2();}catch(e){}return two?1:0;}
+// (what an upgrade needs switched on first, for its tag: 'NEEDS STOMP')
+const ABIL_SHORT={bite:'Bite',stomp:'Stomp',pound:'Pound',jump:'Jump',double:'Double',chargeStomp:'Charge',chargePound:'Charge',sprint:'Sprint',dash:'Dash',longJump:'Long Jump',airDash:'Air Dash'};
+function renderAbil(){
+  const A=ABILS[abilSeat()],list=document.getElementById('abilList');if(!list)return;list.dataset.seat=String(abilSeat());
+  for(const b of list.querySelectorAll('.tog')){const on=!!A[b.dataset.k],base=b.dataset.base,prev=b.dataset.prev,need=(base&&!A[base])?base:(prev&&!A[prev])?prev:null;
+    b.setAttribute('aria-checked',String(on&&!need));b.classList.toggle('dim',!!need);
+    const t=b.querySelector('.st');if(t)t.textContent=need?'Needs '+(ABIL_SHORT[need]||need):on?'On':'Off';}
+  const n=document.getElementById('abilNote');
+  if(n){let co=false;try{co=inCoop()&&!P2.net;}catch(e){}n.textContent=(co?(abilSeat()?"Player two's":"Player one's")+' moves: these go with you whichever hippo you pick. ':'')+'Tap a move to switch it on or off. Upgrades only work while the basic move they improve is on.';}
+}
+for(const b of document.querySelectorAll('#abilList .tog'))b.addEventListener('click',()=>{
+  const seat=abilSeat(),A=ABILS[seat],k=b.dataset.k,base=b.dataset.base,prev=b.dataset.prev;
+  // (an upgrade greyed out for want of what it builds on switches on, with it, rather than off unseen)
+  const need=(base&&!A[base])||(prev&&!A[prev]);A[k]=need?true:!A[k];
   // switching an improved version on brings what it builds on with it; switching a step off takes the ones after it off
-  if(ABIL[k]){if(b.dataset.base)ABIL[b.dataset.base]=true;if(b.dataset.prev)ABIL[b.dataset.prev]=true;if(b.dataset.excl)ABIL[b.dataset.excl]=false;}   // (Roll and Blast Dash: one or the other)
-  else for(const o of document.querySelectorAll('#abilList .tog[data-prev="'+k+'"]'))ABIL[o.dataset.k]=false;
-  for(const p of players){p.airJumps=Math.min(p.airJumps,airJumpsMax());}
-  renderAbil();tone('triangle',ABIL[k]?660:440,0,0.05,0.03);try{localStorage.setItem(ABIL_KEY,JSON.stringify(ABIL));}catch(e){}});
+  if(A[k]){if(base)A[base]=true;if(prev)A[prev]=true;if(b.dataset.excl)A[b.dataset.excl]=false;}   // (Roll and Blast Dash: one or the other)
+  else for(const o of document.querySelectorAll('#abilList .tog[data-prev="'+k+'"]'))A[o.dataset.k]=false;
+  for(const p of players)p.airJumps=Math.min(p.airJumps,airJumpsMax(abilOf(p)));
+  renderAbil();tone('triangle',A[k]?660:440,0,0.05,0.03);try{localStorage.setItem(ABIL_KEYS[seat],JSON.stringify(A));}catch(e){}});
 renderAbil();
 // each hippo has its own eyes: Gus the real-hippo ones on the sides of his head, Gertie the wall-eyed ones up front
 const EYES=['side','front'];

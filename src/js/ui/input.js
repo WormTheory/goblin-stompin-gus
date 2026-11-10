@@ -46,7 +46,7 @@ let pauseAt=-1e9;   // (when play last paused: an Esc straight after it is the s
 // Whose pause menu it is (menuBy): in split-screen co-op either player can open the whole menu, from their own pause
 // panel. Player two's is just Resume, Map, Obituary, Character and Controls: it leaves out what changes the game for
 // both of you (Options, the Dev tab, the Testing Environment, Quit to title, the Game tab's new city, solo, online and
-// hostility controls, and the Character screen's ability switches) and the Patch notes (menuSeat). Only their controller
+// hostility controls) and the Patch notes (menuSeat). Its Character screen shows player two's own ability switches. Only their controller
 // drives it, and only player one's drives player one's. (var: renderTime asks while the page is still loading)
 var menuBy=null;
 function menuP2(){return !!(menuBy&&menuBy!==P1&&inCoop());}
@@ -289,6 +289,6 @@ function readInputs(dt){
   if(CHAT.open||CHAT.quick){const I=P1.in;for(const k in I)if(typeof I[k]==='boolean')I[k]=false;I.x=I.z=0;I.lookX=I.lookY=0;}
   for(const p of players)p.in.chargeHeld=p.in.charge;
   if(DT.freecam&&!P1.paused)updateFreecam(dt,s1);
-  if(!ABIL.climb)for(const p of players)p.in.climb=false;
+  for(const p of players)if(!abilOf(p).climb)p.in.climb=false;   // (each player's own switch)
 }
 

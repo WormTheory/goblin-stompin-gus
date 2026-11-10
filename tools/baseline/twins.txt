@@ -58,3 +58,7 @@ roll? / lock on        player one moved 1.45 up 0.00  | furthest apart 0.000   s
 picked Gus again: Gus + Gertie (bow)  goblin mode false
 hp after the same fall from 30 up:
   player one 20 two 20
+== each player's own switches
+  player one Gus, player one without Double jump: highest jump player one 1.73 player two 4.34  (sets used: own, own)
+  player one Gertie, player one without Double jump: highest jump player one 1.73 player two 4.34  (sets used: own, own)
+  player one Gus, player two without Double jump: highest jump player one 4.34 player two 1.73  (sets used: own, own)
