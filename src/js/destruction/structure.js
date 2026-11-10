@@ -246,13 +246,23 @@ const bldgPts=n=>Math.max(100,Math.round(n*0.5/10)*10);
 // a fall direction (unit vector) within 20 degrees of north, south, east or west is turned to point exactly that way
 const SNAP_COS=Math.cos(20*Math.PI/180);
 function snapCard(dx,dz){if(Math.abs(dx)>=SNAP_COS)return [Math.sign(dx),0];if(Math.abs(dz)>=SNAP_COS)return [0,Math.sign(dz)];return [dx,dz];}
+// a building's outer walls on one level, as it was built rather than as it's left standing (otherwise, with a stretch of
+// wall smashed out, the stairs or an inside wall behind it would pass for the outside): the first and last structural
+// block along every row and every column of its footprint. Keys are (x-b.x0)*(b.z1-b.z0)+(z-b.z0).
+function outerWalls(b,y,px,pz){
+  const W=b.x1-b.x0,D=b.z1-b.z0,st=new Uint8Array(W*D),out=new Set();
+  for(let x=0;x<W;x++)for(let z=0;z<D;z++){blockAt(b,b.x0+x,b.z0+z,y,px,pz);st[x*D+z]=STRUCT?1:0;}
+  for(let z=0;z<D;z++){let a=-1,c=-1;for(let x=0;x<W;x++)if(st[x*D+z]){if(a<0)a=x;c=x;}if(a>=0){out.add(a*D+z);out.add(c*D+z);}}
+  for(let x=0;x<W;x++){let a=-1,c=-1;for(let z=0;z<D;z++)if(st[x*D+z]){if(a<0)a=z;c=z;}if(a>=0){out.add(x*D+a);out.add(x*D+c);}}
+  return out;
+}
 function collapseBuilding(B,L,push){
-  const b=B.b,X0=B.px*CELL,Z0=B.pz*CELL,body=[],crumble=[],ch=new Set();
+  const b=B.b,X0=B.px*CELL,Z0=B.pz*CELL,body=[],crumble=[],stood=[],ch=new Set();
   if(BLAME!=='acc')reportCrime(X0+(b.x0+b.x1)/2,Z0+(b.z0+b.z1)/2);
   for(let x=b.x0;x<b.x1;x++)for(let z=b.z0;z<b.z1;z++){
     const wx=X0+x,wz=Z0+z;
     noteFor=B;
-    for(let y=L;y<H;y++){const v=get(wx,y,wz);if(v===AIR)continue;if(y<L+FH+1&&collapseKeep(b,B.px,B.pz,x,z,y,L))continue;(y===L?crumble:body).push({x:wx,y,z:wz,b:v});setRaw(wx,y,wz,AIR);}
+    for(let y=L;y<H;y++){const v=get(wx,y,wz);if(v===AIR)continue;if(y===L)stood.push({x:wx,z:wz});if(y<L+FH+1&&collapseKeep(b,B.px,B.pz,x,z,y,L))continue;(y===L?crumble:body).push({x:wx,y,z:wz,b:v});setRaw(wx,y,wz,AIR);}
     noteFor=null;
   }
   for(let x=b.x0-1;x<=b.x1;x++)for(let z=b.z0-1;z<=b.z1;z++)ch.add(ckey(Math.floor((X0+x)/CS),Math.floor((Z0+z)/CS)));
@@ -269,11 +279,21 @@ function collapseBuilding(B,L,push){
   destroyFX(crumble.slice(0,24),{force:1.1,dx:0,dz:0,up:1});
   if(!body.length)return;
   // which way does it go? Toward the side that lost its support, hinged on the far edge of what's left.
-  let mx=0,mz=0;for(const q of body){mx+=q.x+.5;mz+=q.z+.5;}mx/=body.length;mz/=body.length;
+  // Only the outer walls decide that: how much of them is still standing on the floor that gave way, against the middle
+  // of the whole ring of them. Stairs, pillars, inside walls, the floor slab and the furniture are all left out (a
+  // staircase built against one side would otherwise drag the lean that way, even with every outer wall standing).
+  let mx=0,mz=0,sup;
+  const ow=outerWalls(b,L,B.px,B.pz),OD=b.z1-b.z0;
+  if(ow.size){
+    for(const k of ow){mx+=X0+b.x0+Math.floor(k/OD)+.5;mz+=Z0+b.z0+k%OD+.5;}mx/=ow.size;mz/=ow.size;
+    // (every block of them still there on that floor, whether the collapse leaves it as part of the stump or not: which
+    // bits of the stump stay is chance, and mustn't decide the way it falls. None left at all: it drops straight down, unless pushed)
+    sup=stood.filter(q=>ow.has((q.x-X0-b.x0)*OD+(q.z-Z0-b.z0)));
+  } else {   // (nothing structural to call a wall: the old way, from the middle of what falls and whatever's left standing)
+    for(const q of body){mx+=q.x+.5;mz+=q.z+.5;}mx/=body.length;mz/=body.length;
+    sup=crumble;
+  }
   let tip=null;
-  // (measured from the walls and pillars still standing on the floor that gave way -- the floor slab and the furniture
-  // are spread right across it and would pull the middle back to the centre, hiding which side lost its support)
-  const holds=crumble.filter(q=>{blockAt(b,q.x-X0,q.z-Z0,q.y,B.px,B.pz);return STRUCT;}),sup=holds.length?holds:crumble;
   if(sup.length){
     let sx=0,sz=0;for(const q of sup){sx+=q.x+.5;sz+=q.z+.5;}sx/=sup.length;sz/=sup.length;
     let dx=mx-sx,dz=mz-sz;

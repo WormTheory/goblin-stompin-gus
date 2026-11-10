@@ -84,6 +84,7 @@
 ### Bug fixes
 
 - Fixed flickering on the striped umbrellas over café tables, on beaches and in parks.
+- A collapsing building now falls toward the side where its outer walls were smashed. Staircases, pillars, inside walls and furniture no longer pull it one way or another, and a building whose outer walls are still standing all round comes straight down.
 
 ## Version 0.2
 

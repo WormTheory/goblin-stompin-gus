@@ -117,7 +117,7 @@ It renders in software, so the picture is right but the frame rate says nothing 
   - rocket boost (`ROCKET_*`); ground spike (`groundSpikes`, `spikeGround`, `SPIKES`); climb; crash landing; fall-damage immunity
 - **Destruction:**
   - `crush(...)` (accepts `{round:R}` for round craters)
-  - building collapse lean is worked out from surviving structural blocks and snapped to a cardinal direction within 20° (`snapCard`)
+  - building collapse lean is worked out from the outer walls alone (`outerWalls`: the first and last structural block along each row and column of the footprint, as built): what's still standing of them on the floor that gave way, against the middle of the whole ring. Stairs, pillars, inside walls and furniture don't count. Snapped to a cardinal direction within 20° (`snapCard`). Suite `falldir` (`SC=none|stairs|east|eastwall`)
 - **Buttons on screen:** HUD text names a button as `⟦glyph id⟧` (`btnMark`, `bindGlyph`, `actMark`), and `hudHTML` draws it with the menus' `glyph`. Use these for any new prompt rather than `keyLabel`/`padLabel`.
 - **Controls:**
   - `ACTS` / `BINDS` (localStorage `goblin-binds-v1`), `KB_RESERVED`, `PAD_RESERVED`
@@ -182,6 +182,7 @@ It renders in software, so the picture is right but the frame rate says nothing 
   - blj: blast long jump
   - rkt*: rocket boost
   - lean / tilt: collapse lean
+  - falldir: which way a collapsing building falls, from its outer walls (`SC=stairs` should all drop straight, `SC=east` and `SC=eastwall` all tip 1.00,0.00)
   - bob: rocket pose
   - rollt / rollw / lockroll: roll
   - ljd: long jump vs dash
