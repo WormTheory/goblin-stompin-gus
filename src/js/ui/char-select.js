@@ -15,11 +15,12 @@ try{let s=localStorage.getItem(CHAR_KEY);if(s==='goblin')s='gnash';if(CHARS.incl
 const pick2=()=>CHAR2&&CHAR2!==CHAR?CHAR2:CHAR_TWIN[CHAR];
 const p2Kind=()=>charGob(pick2())?'goblin':'hippo';
 const CHAR_NAMES={gus:'Gus',gertie:'Gertie',gnash:'Gnash',grizzle:'Grizzle'};
-function charNote(){return 'Pick the one the other player has and you swap over. Co-op: player two plays as '+CHAR_NAMES[pick2()]+'.';}
-// Which player the cards pick for (CS_SEAT, 0 or 1): player one's own menu can pick for either seat, player two's only
-// for player two. The cards are one row: the 1P tag sits on player one's pick, the 2P tag on player two's.
-let CS_SEAT=0;
-const csSeat=()=>{let two=false;try{two=menuP2();}catch(e){}return two?1:CS_SEAT;};
+function charNote(){let co=false;try{co=inCoop()&&!P2.net;}catch(e){}
+  return co?'Pick the one the other player has and you swap over.':'In split-screen co-op, player two picks their own from their pause menu.';}
+// Which player the cards pick for (0 or 1): whoever's menu it is. In split screen each player picks their own, from
+// their own pause menu (menuBy); playing alone it's just player one. In co-op the 1P tag sits on player one's pick and
+// the 2P tag on player two's, so you can see who the other player is (picking theirs swaps you over).
+const csSeat=()=>{let two=false;try{two=menuP2();}catch(e){}return two?1:0;};
 // what each character can do, for the strip under the cards (a hippo's from the ability switches as they are now)
 const CS_GOB_MOVES=['Club','Dagger','Rifle','Grenades','Dash','Drive anything'];
 function csMoves(c){
@@ -42,10 +43,10 @@ function renderChar(){
   const c2=pick2(),seat=csSeat();
   const row=document.getElementById('charRow');
   if(row){row.dataset.seat=String(seat);
+    let co=false;try{co=inCoop()&&!P2.net;}catch(e){}   // (playing alone there's no player two to tag)
     for(const k of row.querySelectorAll('.cs-card')){const c=k.dataset.c;k.setAttribute('aria-checked',String(c===(seat?c2:CHAR)));
-      k.classList.toggle('p1',c===CHAR);k.classList.toggle('p2',c===c2);
+      k.classList.toggle('p1',c===CHAR);k.classList.toggle('p2',co&&c===c2);
       const pic=k.querySelector('.cs-pic');if(pic&&!pic.dataset.done){pic.dataset.done='1';pic.className='cs-pic '+sprCls(pic.dataset.spr,6);}}}
-  for(const b of document.querySelectorAll('#csSeat [data-seat]'))b.setAttribute('aria-checked',String(+b.dataset.seat===seat));
   const n=document.getElementById('charNote');if(n)n.textContent=charNote();
   // (the moves strip: whoever's highlighted, or the seat's pick)
   {const f=document.activeElement,fc=f&&f.closest&&f.closest('#charRow .cs-card'),c=fc?fc.dataset.c:seat?c2:CHAR;
@@ -75,7 +76,6 @@ function charApply(){
   for(const p of players)dressHippo(p);renderTime();renderChar();
 }
 for(const b of document.querySelectorAll('#charRow .cs-card')){b.addEventListener('click',()=>csSeat()?setChar2(b.dataset.c):setChar(b.dataset.c));b.addEventListener('focus',()=>renderChar());}
-for(const b of document.querySelectorAll('#csSeat [data-seat]'))b.addEventListener('click',()=>{CS_SEAT=+b.dataset.seat;renderChar();tone('triangle',CS_SEAT?620:560,0,0.05,0.03);});
 for(const b of document.querySelectorAll('#abilList .tog'))b.addEventListener('click',()=>renderChar());   // (the moves strip follows the switches)
 {const l=document.getElementById('charLink');if(l)l.addEventListener('click',()=>{openSub('custom','charLink');const b=document.querySelector('#charRow .cs-card[aria-checked="true"]');if(b){if(inputKind==='pad')padFocus(b);else b.focus();}});}
 setChar(CHAR,true);

@@ -44,22 +44,23 @@ function startPlay(mode,fromPad){
 }
 let pauseAt=-1e9;   // (when play last paused: an Esc straight after it is the same press, e.g. the one that let the mouse go)
 // Whose pause menu it is (menuBy): in split-screen co-op either player can open the whole menu, from their own pause
-// panel. Player two's leaves out what changes the game for both of you: Game options, the Dev tab, the Testing
-// Environment, and the Game tab's new city, solo, online and hostility controls (menuSeat). Only their controller
+// panel. Player two's is just Resume, Map, Obituary, Character and Controls: it leaves out what changes the game for
+// both of you (Options, the Dev tab, the Testing Environment, Quit to title, the Game tab's new city, solo, online and
+// hostility controls, and the Character screen's ability switches) and the Patch notes (menuSeat). Only their controller
 // drives it, and only player one's drives player one's. (var: renderTime asks while the page is still loading)
 var menuBy=null;
 function menuP2(){return !!(menuBy&&menuBy!==P1&&inCoop());}
-const P1_ONLY=['play','newWorld','testWorld','onlineBtn','onlinePanel','confirm','quitBtn'];
+const P1_ONLY=['play','newWorld','testWorld','onlineBtn','onlinePanel','confirm','quitBtn','fullBtn'];
 function menuSeat(){
   const two=menuP2();pauseEl.classList.toggle('seat2',two);
   for(const id of P1_ONLY){const el=document.getElementById(id);if(el)el.classList.toggle('p1only',true);}
   for(const el of document.querySelectorAll('.gamepane .hostmain'))el.classList.add('p1only');
-  document.getElementById('tabBtnOptions').hidden=two;
+  document.getElementById('tabBtnOptions').hidden=two;document.getElementById('tabBtnNotes').hidden=two;
   document.getElementById('tabBtnDev').hidden=two||!DT.quick;
   if(two)document.getElementById('tabBtnTest').hidden=true;
   menuWhoShow();
   {const pc=document.getElementById('playCoop');if(pc)pc.textContent=two?'Resume':'Co-op';}   // (in player two's menu the co-op game is already on: the button just carries on)
-  if(two&&['options','dev','test'].includes(curTab))showTab('game');
+  if(two&&['options','dev','test','notes'].includes(curTab))showTab('game');
 }
 // (the name over the tabs: whose menu it is, kept up to date if they pick someone else in the Character tab)
 // (the corner tag on the pause card: 1P MENU in Gus green, 2P MENU in Gertie pink, with whose it is beside it; only in

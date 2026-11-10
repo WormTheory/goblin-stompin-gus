@@ -707,7 +707,11 @@ body.attitle #hud{visibility:hidden}
 @media (prefers-reduced-motion:reduce){.card h1.tlogo em.tl2{animation:none}}
 /* the main menu card, on the right */
 .tmenu{width:min(400px,100%);box-sizing:border-box;padding:28px 30px 24px;display:flex;flex-direction:column;gap:18px;margin-inline:auto;text-align:left}
-.pause.title.home .tmenu{position:relative;flex:0 1 auto;min-height:0;margin:0;transform:rotate(1.2deg);overflow-y:auto;overflow-x:hidden;scrollbar-width:thin}
+.pause.title.home .tmenu{position:relative;flex:0 1 auto;min-height:0;margin:0;transform:rotate(1.2deg);overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+/* (never a scroll bar on the card: Chromium lays it out once with a bar while the page settles, its height still
+   following its content, and kept the bar's gutter, unscrollable, until the mouse went over it. A window too short for
+   the card still scrolls it with the wheel, or to follow controller and keyboard focus) */
+.pause.title.home .tmenu::-webkit-scrollbar{display:none}
 .tmenu .ck{width:100%;height:62px;font-size:28px;flex:none}
 .tmenu .ck.tbig{height:82px;font-size:40px}
 .tmenu .tm2{display:grid;grid-template-columns:1fr 1fr;gap:14px}

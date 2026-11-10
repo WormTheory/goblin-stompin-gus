@@ -150,7 +150,6 @@
     <div class="opts">
     <div class="custom">
       <div class="charsel" id="charSel">
-        <div class="cs-top p1only"><span class="cs-h" id="charSelH">Picking for</span><div class="seg cs-seat" id="csSeat" role="radiogroup" aria-labelledby="charSelH"><button type="button" role="radio" data-seat="0" aria-checked="true">Player one</button><button type="button" role="radio" data-seat="1" aria-checked="false">Player two</button></div></div>
         <div class="cs-row" id="charRow" role="radiogroup" aria-label="Characters" data-seat="0">
           <button type="button" class="cs-card c-gus" role="radio" data-c="gus" aria-checked="false"><span class="cs-tag t1" aria-hidden="true">1P</span><span class="cs-tag t2" aria-hidden="true">2P</span><i class="cs-pic" data-spr="gus" aria-hidden="true"></i><span class="cs-name px out2">Gus</span><small>The hippo himself. Bites, stomps, ground pounds, and flattens whatever's in his way.</small></button>
           <button type="button" class="cs-card c-gertie" role="radio" data-c="gertie" aria-checked="false"><span class="cs-tag t1" aria-hidden="true">1P</span><span class="cs-tag t2" aria-hidden="true">2P</span><i class="cs-pic" data-spr="gertie" aria-hidden="true"></i><span class="cs-name px out2">Gertie</span><small>Every bit as much hippo as Gus, move for move. She just looks you in the eye while she does it.</small></button>
@@ -160,9 +159,9 @@
         <div class="cs-moves paper wob"><span class="px" id="csCanH">GUS CAN:</span><div class="cs-chips" id="csMoves"></div></div>
         <div class="cs-note" id="charNote"></div>
       </div>
-      <h2>ABILITIES</h2>
-      <p class="vnote">Switch moves on or off for both hippos.</p>
-      <div class="abil2" id="abilList">
+      <h2 class="p1only">ABILITIES</h2>
+      <p class="vnote p1only">Switch moves on or off for both hippos.</p>
+      <div class="abil2 p1only" id="abilList">
         <div class="ab-h" aria-hidden="true"><span>Base</span><span>Improved</span></div>
         <div class="ab-row"><button type="button" class="tog" role="checkbox" data-k="bite"><span class="box" aria-hidden="true"></span><span class="tl">Bite<small>Snap at whatever is in front of you</small></span></button><div class="ab-up"><button type="button" class="tog" role="checkbox" data-k="biteCombo" data-base="bite"><span class="box" aria-hidden="true"></span><span class="tl">Bite combo<small>Keep biting to chain three hits, ending in an uppercut (off: single bites with a longer wait between them)</small></span></button></div></div>
         <div class="ab-row"><button type="button" class="tog" role="checkbox" data-k="stomp"><span class="box" aria-hidden="true"></span><span class="tl">Stomp<small>Rear up and slam down on everything around you</small></span></button><div class="ab-up"><button type="button" class="tog" role="checkbox" data-k="chargeStomp" data-base="stomp"><span class="box" aria-hidden="true"></span><span class="tl">Charge Stomp<small>Hold to wind up a bigger stomp: one level of charge (off: every stomp is a quick one)</small></span></button><button type="button" class="tog" role="checkbox" data-k="fullStomp" data-base="stomp" data-prev="chargeStomp"><span class="box" aria-hidden="true"></span><span class="tl">Full Charge Stomp<small>Keep holding for the biggest stomp: both levels of charge</small></span></button><button type="button" class="tog" role="checkbox" data-k="groundSpike" data-base="stomp"><span class="box" aria-hidden="true"></span><span class="tl">Ground Spike<small>A spike of stone bursts up out of the ground in front of him as the stomp lands, throwing whatever's there into the air: two spikes from a charged stomp and three from a full charge, each bigger than the one before</small></span></button></div></div>

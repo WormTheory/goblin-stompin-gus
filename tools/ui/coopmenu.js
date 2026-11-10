@@ -1,8 +1,9 @@
 // Split-screen co-op pause menus, in the real page (stub 3D): each player's own pause panel opens the whole menu as
-// theirs; player two's has no Game options, Dev or Testing Environment tab and none of the Game tab's new city, solo,
-// online or hostility controls; the character picks live only in the Character tab, all four for each player, and
-// picking the other player's character swaps you. (From the title screen, the Character screen opens from the menu card's
-// "Playing as" line, and picks for whichever player its Picking for switch says.) Two pretend controllers stand in for the players.
+// theirs; player two's is just Resume, Map, Obituary, Character and Controls (no Options, Patch notes, Dev, Testing
+// Environment or Quit to title, none of the Game tab's new city, solo, online or hostility controls, and no ability
+// switches); each player picks their own character in their own menu's Character screen, all four for each, and picking
+// the other player's character swaps you. (From the title screen, the Character screen opens from the menu card's
+// "Playing as" line, and picks for player one.) Two pretend controllers stand in for the players.
 // Usage (from tools/ui, after: python3 ../build_ui.py ../../game/index.html ui.html): node coopmenu.js [outDir]
 const {chromium}=require('playwright');const out=process.argv[2]||'shots';
 (async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1280,height:800}});
@@ -17,7 +18,7 @@ const tap=(i,btn)=>p.evaluate(([i,btn])=>window.__tap(i,btn),[i,btn]);
 const st=()=>p.evaluate(()=>{const vis=id=>{const e=document.getElementById(id);return !!e&&!e.hidden&&e.offsetParent!==null;};
   return {menu:!document.getElementById('pause').hidden,who:vis('menuWho')?document.getElementById('menuWho').textContent:'',
     tabs:[...document.querySelectorAll('.tabs [role=tab]')].filter(t=>!t.hidden).map(t=>t.textContent.replace(/\d+$/,'')).join(','),
-    game:['resumeBtn','quitBtn','play','playCoop','newWorld','testWorld','onlineBtn','fullBtn','charLink'].filter(vis).join(','),coopBtn:document.getElementById('playCoop').textContent,hostility:!!document.querySelector('.hostmain').offsetParent,
+    game:['resumeBtn','quitBtn','play','playCoop','newWorld','testWorld','onlineBtn','fullBtn','charLink'].filter(vis).join(','),coopBtn:document.getElementById('playCoop').textContent,hostility:!!document.querySelector('.hostmain').offsetParent,abilities:!!document.getElementById('abilList').offsetParent||!document.querySelector('#tabCustom:not([hidden])')&&'n/a',
     p1paused:!document.querySelectorAll('.view .ppause')[1].hidden,p2paused:!document.querySelectorAll('.view .ppause')[0].hidden,
     picks:(document.querySelector('#charRow').offsetParent?'':'(hidden)')+['p1','p2'].map(k=>(document.querySelector('#charRow .cs-card.'+k)||{dataset:{}}).dataset.c).join(' / ')+' (picking for '+(+document.getElementById('charRow').dataset.seat+1)+')',
     names:[...document.querySelectorAll('.view .who')].reverse().map(e=>e.textContent).join(' + ')};});
@@ -40,5 +41,6 @@ await tap(0,9);await p.waitForTimeout(200);await tap(0,3);await p.waitForTimeout
 await p.screenshot({path:out+'/coop-p1-menu.png'});
 await goChar();await p.waitForTimeout(200);
 await p.click('#charSel .cs-row[data-seat="0"] .cs-card[data-c="gnash"]');await p.waitForTimeout(200);console.log('player one picked Gnash',JSON.stringify(await st()));
+await p.screenshot({path:out+'/coop-p1-character.png'});
 await p.reload();await p.waitForTimeout(1500);console.log('after a reload',JSON.stringify(await st()));
 console.log(errs.join('\n')||'no errors');await b.close();})();

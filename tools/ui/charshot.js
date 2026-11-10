@@ -1,4 +1,4 @@
-// The Character screen's character select (picking for player one; opened from the title's "Playing as" line), in the real page (stub 3D): screenshots of the cards, picking each one with the
+// The Character screen's character select (player one's; opened from the title's "Playing as" line), in the real page (stub 3D): screenshots of the cards, picking each one with the
 // mouse and with the arrow keys, what's remembered, and the name on the HUD once playing.
 // Usage (from tools/ui, after: python3 ../build_ui.py ../../game/index.html ui.html): node charshot.js [outDir]
 const {chromium}=require('playwright');const out=process.argv[2]||'shots';

@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:208f512201b5c33b32f3d5ad637d93b26f6a37530073d0f7cd02f423670800dc -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:264c5623940127520fc7918c81ca150970c2a83f40db94ff9cf470cf9a4be225 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -713,7 +713,11 @@ body.attitle #hud{visibility:hidden}
 @media (prefers-reduced-motion:reduce){.card h1.tlogo em.tl2{animation:none}}
 /* the main menu card, on the right */
 .tmenu{width:min(400px,100%);box-sizing:border-box;padding:28px 30px 24px;display:flex;flex-direction:column;gap:18px;margin-inline:auto;text-align:left}
-.pause.title.home .tmenu{position:relative;flex:0 1 auto;min-height:0;margin:0;transform:rotate(1.2deg);overflow-y:auto;overflow-x:hidden;scrollbar-width:thin}
+.pause.title.home .tmenu{position:relative;flex:0 1 auto;min-height:0;margin:0;transform:rotate(1.2deg);overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+/* (never a scroll bar on the card: Chromium lays it out once with a bar while the page settles, its height still
+   following its content, and kept the bar's gutter, unscrollable, until the mouse went over it. A window too short for
+   the card still scrolls it with the wheel, or to follow controller and keyboard focus) */
+.pause.title.home .tmenu::-webkit-scrollbar{display:none}
 .tmenu .ck{width:100%;height:62px;font-size:28px;flex:none}
 .tmenu .ck.tbig{height:82px;font-size:40px}
 .tmenu .tm2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -1255,7 +1259,6 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
     <div class="opts">
     <div class="custom">
       <div class="charsel" id="charSel">
-        <div class="cs-top p1only"><span class="cs-h" id="charSelH">Picking for</span><div class="seg cs-seat" id="csSeat" role="radiogroup" aria-labelledby="charSelH"><button type="button" role="radio" data-seat="0" aria-checked="true">Player one</button><button type="button" role="radio" data-seat="1" aria-checked="false">Player two</button></div></div>
         <div class="cs-row" id="charRow" role="radiogroup" aria-label="Characters" data-seat="0">
           <button type="button" class="cs-card c-gus" role="radio" data-c="gus" aria-checked="false"><span class="cs-tag t1" aria-hidden="true">1P</span><span class="cs-tag t2" aria-hidden="true">2P</span><i class="cs-pic" data-spr="gus" aria-hidden="true"></i><span class="cs-name px out2">Gus</span><small>The hippo himself. Bites, stomps, ground pounds, and flattens whatever's in his way.</small></button>
           <button type="button" class="cs-card c-gertie" role="radio" data-c="gertie" aria-checked="false"><span class="cs-tag t1" aria-hidden="true">1P</span><span class="cs-tag t2" aria-hidden="true">2P</span><i class="cs-pic" data-spr="gertie" aria-hidden="true"></i><span class="cs-name px out2">Gertie</span><small>Every bit as much hippo as Gus, move for move. She just looks you in the eye while she does it.</small></button>
@@ -1265,9 +1268,9 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <div class="cs-moves paper wob"><span class="px" id="csCanH">GUS CAN:</span><div class="cs-chips" id="csMoves"></div></div>
         <div class="cs-note" id="charNote"></div>
       </div>
-      <h2>ABILITIES</h2>
-      <p class="vnote">Switch moves on or off for both hippos.</p>
-      <div class="abil2" id="abilList">
+      <h2 class="p1only">ABILITIES</h2>
+      <p class="vnote p1only">Switch moves on or off for both hippos.</p>
+      <div class="abil2 p1only" id="abilList">
         <div class="ab-h" aria-hidden="true"><span>Base</span><span>Improved</span></div>
         <div class="ab-row"><button type="button" class="tog" role="checkbox" data-k="bite"><span class="box" aria-hidden="true"></span><span class="tl">Bite<small>Snap at whatever is in front of you</small></span></button><div class="ab-up"><button type="button" class="tog" role="checkbox" data-k="biteCombo" data-base="bite"><span class="box" aria-hidden="true"></span><span class="tl">Bite combo<small>Keep biting to chain three hits, ending in an uppercut (off: single bites with a longer wait between them)</small></span></button></div></div>
         <div class="ab-row"><button type="button" class="tog" role="checkbox" data-k="stomp"><span class="box" aria-hidden="true"></span><span class="tl">Stomp<small>Rear up and slam down on everything around you</small></span></button><div class="ab-up"><button type="button" class="tog" role="checkbox" data-k="chargeStomp" data-base="stomp"><span class="box" aria-hidden="true"></span><span class="tl">Charge Stomp<small>Hold to wind up a bigger stomp: one level of charge (off: every stomp is a quick one)</small></span></button><button type="button" class="tog" role="checkbox" data-k="fullStomp" data-base="stomp" data-prev="chargeStomp"><span class="box" aria-hidden="true"></span><span class="tl">Full Charge Stomp<small>Keep holding for the biggest stomp: both levels of charge</small></span></button><button type="button" class="tog" role="checkbox" data-k="groundSpike" data-base="stomp"><span class="box" aria-hidden="true"></span><span class="tl">Ground Spike<small>A spike of stone bursts up out of the ground in front of him as the stomp lands, throwing whatever's there into the air: two spikes from a charged stomp and three from a full charge, each bigger than the one before</small></span></button></div></div>
@@ -1351,7 +1354,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <p class="pn-web">What's changed, newest first. These notes are also on <a href="patch-notes/index.html" target="_blank" rel="noopener">their own web page</a>.</p>
 <details class="pn-up pn-fold pn-new" id="version-0-4" open><summary tabindex="0"><h2>Version 0.4</h2><span class="pn-tog" aria-hidden="true"></span></summary>
 <h3>A new look</h3>
-<ul><li>The game has a new coat of paint: flat crayon colours, thick ink outlines with hand-drawn corners, and a chunky pixel font (Jersey 10) for titles, buttons and numbers. Anything you read, like descriptions and these notes, keeps the easy-to-read font.</li><li>Button prompts are drawn as the buttons themselves in the new style: crayon-coloured face buttons and paper keycaps.</li><li>A real title screen: the logo top left, and Gus himself stomping along a street in front of a scrolling city while you choose, flattening a goblin with every stomp. It's lit and shaded just like the game. The menu card on the right has Play, Co-op, Play online, New city and Options, with the Testing Environment, Dev and Full screen in a small Workshop line underneath, and a sticker for what's new.</li><li>The enemy hostility slider has moved from the main screen to the top of Options.</li><li>In Options, each slider's name now sits to its left on the same row, with its setting on the right and the description underneath, and all the sliders line up. In a narrow window the name goes back above the slider.</li><li>Picking a character is now "Who's stompin'?": four big cards for Gus, Gertie, Gnash and Grizzle, with a 1P tag on player one's pick and a 2P tag on player two's. Choose which player you're picking for at the top (player two's own menu always picks for player two), and a strip under the cards lists what that character can do with your current ability switches. Picking the other player's character still swaps you over.</li><li>On a controller, A on a character card picks them and takes you back ("Ready!"), and Y jumps down to the ability switches. Screens opened from a menu have a Back button: B or Esc goes back, and LB / RB (Q / E on the keyboard) jump between screens.</li><li>The pause menu is a column of big buttons (Resume, Map, Obituary with its count, Character, Controls, Options, Quit to title) beside a "This rampage" card: goblins flattened, your score, your best combo, cars tossed and how wrecked the place you're in is, with its name and the time of day. Underneath are this game's own controls: switch between solo and co-op, Play online, New city, the Testing Environment and Full screen.</li><li>Map, Obituary, Character, Controls, Options and Patch notes open in the same card, sliding in from the right, and always start you back on the menu's own buttons when you pause again. B or Esc on the menu itself resumes.</li><li>Quit to title takes you back to the title screen with Gus stomping along; your city, score and everyone in it are kept, so Play carries on where you left off.</li><li>Patch notes and Dev are small tags in the card's corner now. In split-screen co-op the card's corner says 1P MENU (green) or 2P MENU (pink), so you can tell whose menu it is, and player two's menu still leaves out Options, Dev, the Testing Environment, Quit to title and the city controls.</li><li>Options, Controls, the Map, the Obituary and the Patch notes are on paper in the new style. The Dev tools and the Testing Environment keep a dark panel, in the new colours.</li><li>The HUD is redrawn to match: your score big in the top left with the goblins you've flattened under it (and stickers when cars or the police are after you), pixel hearts and the stamina bar in one paper panel at the bottom, the day and weather on a paper card beside a new clock disc, a round minimap, and the speedometer in ink and yolk.</li><li>Charging a stomp shows STOMP, then BIG STOMP, then shouts FULL CHARGE! when it's all the way up.</li><li>Combos: every goblin flattened or thing smashed within 3 seconds of the last adds one to your combo, shown under your score with a bar that drains until the next. The combo multiplies your points: +10% for each step from the second, so x11 doubles them and x21 or more triples them (that's as high as it goes). Big combos get a name and a shout: x5 Stompin'!, x10 STOMPTACULAR!, x15 Hippo-critical!, x20 GOBLINGEDDON!, x30 Unstoppable lump!, x50 HIPPOCALYPSE!, x75 Wallow of doom! and x100 Legend of the bog!</li><li>Points float up from wherever you earned them, damage numbers pop off the goblins as you hit them, and a goblin going down gets a shout: SPLAT! for a stomp, CHOMP! for a bite, KABOOM! for an explosion, and so on. The damage numbers and shouts can be switched off in Options, under On screen.</li><li>What you've just wrecked is listed in stickers in the top right, newest on top, with the points it earned (combo included), fading as they get older.</li><li>A City wrecked card in the bottom right shows how much of the place you're in you've knocked down (Town or Village wrecked in smaller places).</li><li>In split screen and online, each player has their own combo, pop-ups and list of what they've wrecked, from their own hits. The best combo shows in the pause menu's rampage card, and a new city starts it all again.</li><li>A Reduced motion switch in Options, under On screen, stops the wobbling, bobbing and popping of the menus and the display and holds Gus still on the title screen. It's on by itself if your system asks for less motion.</li><li>Sounds for the points as they pop up (rising as your combo climbs) and a fanfare for each combo milestone.</li><li>Arriving somewhere puts its name up on a big sticker. Chat, voice chips, the controls hint, the debug menu and each co-op player's own pause panel are restyled too, and in split screen each half's name is a 1P-green or 2P-pink tag.</li></ul>
+<ul><li>The game has a new coat of paint: flat crayon colours, thick ink outlines with hand-drawn corners, and a chunky pixel font (Jersey 10) for titles, buttons and numbers. Anything you read, like descriptions and these notes, keeps the easy-to-read font.</li><li>Button prompts are drawn as the buttons themselves in the new style: crayon-coloured face buttons and paper keycaps.</li><li>A real title screen: the logo top left, and Gus himself stomping along a street in front of a scrolling city while you choose, flattening a goblin with every stomp. It's lit and shaded just like the game. The menu card on the right has Play, Co-op, Play online, New city and Options, with the Testing Environment, Dev and Full screen in a small Workshop line underneath, and a sticker for what's new.</li><li>The enemy hostility slider has moved from the main screen to the top of Options.</li><li>In Options, each slider's name now sits to its left on the same row, with its setting on the right and the description underneath, and all the sliders line up. In a narrow window the name goes back above the slider.</li><li>Picking a character is now "Who's stompin'?": four big cards for Gus, Gertie, Gnash and Grizzle, with a 1P tag on player one's pick and a 2P tag on player two's in co-op. In split-screen co-op each of you picks your own character from your own pause menu's Character screen, and a strip under the cards lists what that character can do with your current ability switches. Picking the other player's character still swaps you over.</li><li>In split-screen co-op each player still has their own pause menu, driven only by their own controller. Player two's is just Resume, Map, Obituary, Character and Controls: what changes the game for both of you (Options, the ability switches, New city, Play online, the Testing Environment, Quit to title) stays in player one's.</li><li>The title screen's menu card no longer shows a scroll bar down its side when the game first opens.</li><li>On a controller, A on a character card picks them and takes you back ("Ready!"), and Y jumps down to the ability switches. Screens opened from a menu have a Back button: B or Esc goes back, and LB / RB (Q / E on the keyboard) jump between screens.</li><li>The pause menu is a column of big buttons (Resume, Map, Obituary with its count, Character, Controls, Options, Quit to title) beside a "This rampage" card: goblins flattened, your score, your best combo, cars tossed and how wrecked the place you're in is, with its name and the time of day. Underneath are this game's own controls: switch between solo and co-op, Play online, New city, the Testing Environment and Full screen.</li><li>Map, Obituary, Character, Controls, Options and Patch notes open in the same card, sliding in from the right, and always start you back on the menu's own buttons when you pause again. B or Esc on the menu itself resumes.</li><li>Quit to title takes you back to the title screen with Gus stomping along; your city, score and everyone in it are kept, so Play carries on where you left off.</li><li>Patch notes and Dev are small tags in the card's corner now. In split-screen co-op the card's corner says 1P MENU (green) or 2P MENU (pink), so you can tell whose menu it is, and player two's menu still leaves out Options, Dev, the Testing Environment, Quit to title and the city controls.</li><li>Options, Controls, the Map, the Obituary and the Patch notes are on paper in the new style. The Dev tools and the Testing Environment keep a dark panel, in the new colours.</li><li>The HUD is redrawn to match: your score big in the top left with the goblins you've flattened under it (and stickers when cars or the police are after you), pixel hearts and the stamina bar in one paper panel at the bottom, the day and weather on a paper card beside a new clock disc, a round minimap, and the speedometer in ink and yolk.</li><li>Charging a stomp shows STOMP, then BIG STOMP, then shouts FULL CHARGE! when it's all the way up.</li><li>Combos: every goblin flattened or thing smashed within 3 seconds of the last adds one to your combo, shown under your score with a bar that drains until the next. The combo multiplies your points: +10% for each step from the second, so x11 doubles them and x21 or more triples them (that's as high as it goes). Big combos get a name and a shout: x5 Stompin'!, x10 STOMPTACULAR!, x15 Hippo-critical!, x20 GOBLINGEDDON!, x30 Unstoppable lump!, x50 HIPPOCALYPSE!, x75 Wallow of doom! and x100 Legend of the bog!</li><li>Points float up from wherever you earned them, damage numbers pop off the goblins as you hit them, and a goblin going down gets a shout: SPLAT! for a stomp, CHOMP! for a bite, KABOOM! for an explosion, and so on. The damage numbers and shouts can be switched off in Options, under On screen.</li><li>What you've just wrecked is listed in stickers in the top right, newest on top, with the points it earned (combo included), fading as they get older.</li><li>A City wrecked card in the bottom right shows how much of the place you're in you've knocked down (Town or Village wrecked in smaller places).</li><li>In split screen and online, each player has their own combo, pop-ups and list of what they've wrecked, from their own hits. The best combo shows in the pause menu's rampage card, and a new city starts it all again.</li><li>A Reduced motion switch in Options, under On screen, stops the wobbling, bobbing and popping of the menus and the display and holds Gus still on the title screen. It's on by itself if your system asks for less motion.</li><li>Sounds for the points as they pop up (rising as your combo climbs) and a fanfare for each combo milestone.</li><li>Arriving somewhere puts its name up on a big sticker. Chat, voice chips, the controls hint, the debug menu and each co-op player's own pause panel are restyled too, and in split screen each half's name is a 1P-green or 2P-pink tag.</li></ul>
 <h3>Menus</h3>
 <ul><li>In player two's menu, the button that carries on playing says Resume rather than Co-op.</li><li>The pause menu's buttons always fit in the window, at any size and in split screen, and never sit in a box with scroll bars.</li><li>The Map zooms out as far as it takes to see everywhere you've explored at once, however far you've roamed.</li><li>The highlight round the picked character cards, and their 1P and 2P tags, are no longer cut off at the edges.</li><li>The What's new sticker sits under the title menu instead of over the Full screen link, and the controller and city seed notes have moved down on to the ground.</li><li>The pixel-art portraits and hearts are solid at any zoom and on any screen, with no faint lines between their pixels.</li></ul>
 </details>
@@ -14255,7 +14258,7 @@ function menuPad(st,dt){
     if(s.pr[4])subStep(-1);
     if(s.pr[5])subStep(1);
     // (Y on the character cards: down to the ability switches)
-    if(s.pr[3]&&curTab==='custom'){const t=document.querySelector('#abilList .tog');if(t)padFocus(t);}
+    if(s.pr[3]&&curTab==='custom'){const t=document.querySelector('#abilList .tog');if(t&&t.offsetParent)padFocus(t);}   // (not in player two's menu, which has no ability switches)
     const ry=s.p.axes[3]||0;
     if(curTab==='map'&&s.pr[2])mapRecentre();
     if(curTab==='map'){const rx2=s.p.axes[2]||0;if(Math.abs(rx2)>0.2||Math.abs(ry)>0.2)mapPan(rx2*dt*420,ry*dt*420);if(s.b[7])mapZoom(1+dt*1.6);if(s.b[6])mapZoom(1/(1+dt*1.6));}
@@ -17033,11 +17036,12 @@ try{let s=localStorage.getItem(CHAR_KEY);if(s==='goblin')s='gnash';if(CHARS.incl
 const pick2=()=>CHAR2&&CHAR2!==CHAR?CHAR2:CHAR_TWIN[CHAR];
 const p2Kind=()=>charGob(pick2())?'goblin':'hippo';
 const CHAR_NAMES={gus:'Gus',gertie:'Gertie',gnash:'Gnash',grizzle:'Grizzle'};
-function charNote(){return 'Pick the one the other player has and you swap over. Co-op: player two plays as '+CHAR_NAMES[pick2()]+'.';}
-// Which player the cards pick for (CS_SEAT, 0 or 1): player one's own menu can pick for either seat, player two's only
-// for player two. The cards are one row: the 1P tag sits on player one's pick, the 2P tag on player two's.
-let CS_SEAT=0;
-const csSeat=()=>{let two=false;try{two=menuP2();}catch(e){}return two?1:CS_SEAT;};
+function charNote(){let co=false;try{co=inCoop()&&!P2.net;}catch(e){}
+  return co?'Pick the one the other player has and you swap over.':'In split-screen co-op, player two picks their own from their pause menu.';}
+// Which player the cards pick for (0 or 1): whoever's menu it is. In split screen each player picks their own, from
+// their own pause menu (menuBy); playing alone it's just player one. In co-op the 1P tag sits on player one's pick and
+// the 2P tag on player two's, so you can see who the other player is (picking theirs swaps you over).
+const csSeat=()=>{let two=false;try{two=menuP2();}catch(e){}return two?1:0;};
 // what each character can do, for the strip under the cards (a hippo's from the ability switches as they are now)
 const CS_GOB_MOVES=['Club','Dagger','Rifle','Grenades','Dash','Drive anything'];
 function csMoves(c){
@@ -17060,10 +17064,10 @@ function renderChar(){
   const c2=pick2(),seat=csSeat();
   const row=document.getElementById('charRow');
   if(row){row.dataset.seat=String(seat);
+    let co=false;try{co=inCoop()&&!P2.net;}catch(e){}   // (playing alone there's no player two to tag)
     for(const k of row.querySelectorAll('.cs-card')){const c=k.dataset.c;k.setAttribute('aria-checked',String(c===(seat?c2:CHAR)));
-      k.classList.toggle('p1',c===CHAR);k.classList.toggle('p2',c===c2);
+      k.classList.toggle('p1',c===CHAR);k.classList.toggle('p2',co&&c===c2);
       const pic=k.querySelector('.cs-pic');if(pic&&!pic.dataset.done){pic.dataset.done='1';pic.className='cs-pic '+sprCls(pic.dataset.spr,6);}}}
-  for(const b of document.querySelectorAll('#csSeat [data-seat]'))b.setAttribute('aria-checked',String(+b.dataset.seat===seat));
   const n=document.getElementById('charNote');if(n)n.textContent=charNote();
   // (the moves strip: whoever's highlighted, or the seat's pick)
   {const f=document.activeElement,fc=f&&f.closest&&f.closest('#charRow .cs-card'),c=fc?fc.dataset.c:seat?c2:CHAR;
@@ -17093,7 +17097,6 @@ function charApply(){
   for(const p of players)dressHippo(p);renderTime();renderChar();
 }
 for(const b of document.querySelectorAll('#charRow .cs-card')){b.addEventListener('click',()=>csSeat()?setChar2(b.dataset.c):setChar(b.dataset.c));b.addEventListener('focus',()=>renderChar());}
-for(const b of document.querySelectorAll('#csSeat [data-seat]'))b.addEventListener('click',()=>{CS_SEAT=+b.dataset.seat;renderChar();tone('triangle',CS_SEAT?620:560,0,0.05,0.03);});
 for(const b of document.querySelectorAll('#abilList .tog'))b.addEventListener('click',()=>renderChar());   // (the moves strip follows the switches)
 {const l=document.getElementById('charLink');if(l)l.addEventListener('click',()=>{openSub('custom','charLink');const b=document.querySelector('#charRow .cs-card[aria-checked="true"]');if(b){if(inputKind==='pad')padFocus(b);else b.focus();}});}
 setChar(CHAR,true);
@@ -21533,22 +21536,23 @@ function startPlay(mode,fromPad){
 }
 let pauseAt=-1e9;   // (when play last paused: an Esc straight after it is the same press, e.g. the one that let the mouse go)
 // Whose pause menu it is (menuBy): in split-screen co-op either player can open the whole menu, from their own pause
-// panel. Player two's leaves out what changes the game for both of you: Game options, the Dev tab, the Testing
-// Environment, and the Game tab's new city, solo, online and hostility controls (menuSeat). Only their controller
+// panel. Player two's is just Resume, Map, Obituary, Character and Controls: it leaves out what changes the game for
+// both of you (Options, the Dev tab, the Testing Environment, Quit to title, the Game tab's new city, solo, online and
+// hostility controls, and the Character screen's ability switches) and the Patch notes (menuSeat). Only their controller
 // drives it, and only player one's drives player one's. (var: renderTime asks while the page is still loading)
 var menuBy=null;
 function menuP2(){return !!(menuBy&&menuBy!==P1&&inCoop());}
-const P1_ONLY=['play','newWorld','testWorld','onlineBtn','onlinePanel','confirm','quitBtn'];
+const P1_ONLY=['play','newWorld','testWorld','onlineBtn','onlinePanel','confirm','quitBtn','fullBtn'];
 function menuSeat(){
   const two=menuP2();pauseEl.classList.toggle('seat2',two);
   for(const id of P1_ONLY){const el=document.getElementById(id);if(el)el.classList.toggle('p1only',true);}
   for(const el of document.querySelectorAll('.gamepane .hostmain'))el.classList.add('p1only');
-  document.getElementById('tabBtnOptions').hidden=two;
+  document.getElementById('tabBtnOptions').hidden=two;document.getElementById('tabBtnNotes').hidden=two;
   document.getElementById('tabBtnDev').hidden=two||!DT.quick;
   if(two)document.getElementById('tabBtnTest').hidden=true;
   menuWhoShow();
   {const pc=document.getElementById('playCoop');if(pc)pc.textContent=two?'Resume':'Co-op';}   // (in player two's menu the co-op game is already on: the button just carries on)
-  if(two&&['options','dev','test'].includes(curTab))showTab('game');
+  if(two&&['options','dev','test','notes'].includes(curTab))showTab('game');
 }
 // (the name over the tabs: whose menu it is, kept up to date if they pick someone else in the Character tab)
 // (the corner tag on the pause card: 1P MENU in Gus green, 2P MENU in Gertie pink, with whose it is beside it; only in

@@ -88,7 +88,7 @@ function menuPad(st,dt){
     if(s.pr[4])subStep(-1);
     if(s.pr[5])subStep(1);
     // (Y on the character cards: down to the ability switches)
-    if(s.pr[3]&&curTab==='custom'){const t=document.querySelector('#abilList .tog');if(t)padFocus(t);}
+    if(s.pr[3]&&curTab==='custom'){const t=document.querySelector('#abilList .tog');if(t&&t.offsetParent)padFocus(t);}   // (not in player two's menu, which has no ability switches)
     const ry=s.p.axes[3]||0;
     if(curTab==='map'&&s.pr[2])mapRecentre();
     if(curTab==='map'){const rx2=s.p.axes[2]||0;if(Math.abs(rx2)>0.2||Math.abs(ry)>0.2)mapPan(rx2*dt*420,ry*dt*420);if(s.b[7])mapZoom(1+dt*1.6);if(s.b[6])mapZoom(1/(1+dt*1.6));}
