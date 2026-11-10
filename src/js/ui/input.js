@@ -58,6 +58,7 @@ function menuSeat(){
   document.getElementById('tabBtnDev').hidden=two||!DT.quick;
   if(two)document.getElementById('tabBtnTest').hidden=true;
   menuWhoShow();
+  {const pc=document.getElementById('playCoop');if(pc)pc.textContent=two?'Resume':'Co-op';}   // (in player two's menu the co-op game is already on: the button just carries on)
   if(two&&['options','dev','test'].includes(curTab))showTab('game');
 }
 // (the name over the tabs: whose menu it is, kept up to date if they pick someone else in the Character tab)

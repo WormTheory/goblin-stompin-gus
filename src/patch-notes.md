@@ -13,6 +13,7 @@
 
 - Both players get the full pause menu now. Press Start to pause your own half of the screen, then Y (or click Pause menu) to open the menu as yours. Its corner says whose menu it is, and only that player's controller moves around it.
 - Player two's menu leaves out what changes the game for both of you: Game options, the Dev tab, the Testing Environment, and the new city, solo, online and hostility controls. Those stay with player one, and so does the debug menu on Select.
+- In player two's menu, the button that carries on playing says Resume rather than Co-op.
 - Picking characters has moved to the Character tab, and the Game tab just says who you're playing as, with a link there.
 - Each player can now be any of the four: Gus, Gertie, Gnash or Grizzle. Pick the one the other player has and you swap over, so you can always tell each other apart. Grizzle wears red, Gnash blue.
 

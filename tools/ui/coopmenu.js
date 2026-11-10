@@ -15,7 +15,7 @@ const tap=(i,btn)=>p.evaluate(([i,btn])=>window.__tap(i,btn),[i,btn]);
 const st=()=>p.evaluate(()=>{const vis=id=>{const e=document.getElementById(id);return !!e&&!e.hidden&&e.offsetParent!==null;};
   return {menu:!document.getElementById('pause').hidden,who:vis('menuWho')?document.getElementById('menuWho').textContent:'',
     tabs:[...document.querySelectorAll('.tabs [role=tab]')].filter(t=>!t.hidden).map(t=>t.textContent.replace(/\d+$/,'')).join(','),
-    game:['play','playCoop','newWorld','testWorld','onlineBtn','fullBtn','charLink'].filter(vis).join(','),hostility:!!document.querySelector('.hostmain').offsetParent,
+    game:['play','playCoop','newWorld','testWorld','onlineBtn','fullBtn','charLink'].filter(vis).join(','),coopBtn:document.getElementById('playCoop').textContent,hostility:!!document.querySelector('.hostmain').offsetParent,
     p1paused:!document.querySelectorAll('.view .ppause')[1].hidden,p2paused:!document.querySelectorAll('.view .ppause')[0].hidden,
     picks:[...document.querySelectorAll('#charSel .cs-row')].map(r=>(r.offsetParent?'':'(hidden)')+[...r.querySelectorAll('.cs-card')].filter(c=>c.getAttribute('aria-checked')==='true').map(c=>c.dataset.c).join()).join(' / '),
     names:[...document.querySelectorAll('.view .who')].reverse().map(e=>e.textContent).join(' + ')};});
