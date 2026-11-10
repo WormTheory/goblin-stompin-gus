@@ -22,6 +22,9 @@
 - Quit to title takes you back to the title screen with Gus stomping along; your city, score and everyone in it are kept, so Play carries on where you left off.
 - Patch notes and Dev are small tags in the card's corner now. The card's corner says 1P MENU (green) or 2P MENU (pink), and player two's menu still leaves out Options, Dev, the Testing Environment, Quit to title and the city controls.
 - Options, Controls, the Map, the Obituary and the Patch notes are on paper in the new style. The Dev tools and the Testing Environment keep a dark panel, in the new colours.
+- The HUD is redrawn to match: your score big in the top left with the goblins you've flattened under it (and stickers when cars or the police are after you), pixel hearts and the stamina bar in one paper panel at the bottom, the day and weather on a paper card beside a new clock disc, a round minimap, and the speedometer in ink and yolk.
+- Charging a stomp shows STOMP, then BIG STOMP, then shouts FULL CHARGE! when it's all the way up.
+- Arriving somewhere puts its name up on a big sticker. Chat, voice chips, the controls hint, the debug menu and each co-op player's own pause panel are restyled too, and in split screen each half's name is a 1P-green or 2P-pink tag.
 
 ### Split-screen co-op menus
 

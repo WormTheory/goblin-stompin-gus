@@ -1,6 +1,9 @@
 // ---------- Health & HUD ----------
 const readout=document.getElementById('readout'),divider=document.getElementById('divider');
-function renderHearts(p){if(p.hp===p.lastHp)return;p.lastHp=p.hp;const h=p.ui.hearts;h.textContent='';for(let i=0;i<10;i++){const s=document.createElement('span'),v=p.hp-i*2;s.className='hrt'+(v>=2?'':v===1?' half':' empty');s.textContent='♥';h.append(s);}}
+// (the hearts are pixel sprites: whole, half or empty; a little smaller in split screen)
+function renderHearts(p){const px=split==='none'?3:2,k=p.hp+':'+px;if(k===p.lastHp)return;p.lastHp=k;const h=p.ui.hearts;h.textContent='';
+  for(let i=0;i<10;i++){const s=document.createElement('span'),v=p.hp-i*2;s.className='hrt'+(v>=2?'':v===1?' half':' empty')+' '+sprCls(v>=2?'heart':v===1?'hearth':'hearte',px);h.append(s);}
+  try{h.setAttribute('aria-label',charName(p)+' health: '+(p.hp/2)+' of 10 hearts');}catch(e){}}
 function updateHealth(p,dt){
   if(!p.active)return;
   if(p.deadT>0){
@@ -21,7 +24,7 @@ function healthHud(p,dt){
   if(winding){
     const lv=stompLevelOf(p.stompCharge);
     p.ui.smFill.style.width=(p.stompCharge/2*100).toFixed(0)+'%';
-    if(p.ui.smLv!==lv){p.ui.smLv=lv;p.ui.smeter.classList.remove('lv0','lv1','lv2');p.ui.smeter.classList.add('lv'+lv);p.ui.slv.textContent=['STOMP','MEDIUM','FULL'][lv];}
+    if(p.ui.smLv!==lv){p.ui.smLv=lv;p.ui.smeter.classList.remove('lv0','lv1','lv2');p.ui.smeter.classList.add('lv'+lv);p.ui.slv.textContent=['STOMP','BIG STOMP','FULL CHARGE!'][lv];}
   } else if(p.ui.smLv!==undefined){p.ui.smLv=undefined;}
   p.hurtFx-=dt;p.ui.hurt.style.opacity=p.deadT>0?0.85:Math.max(0,p.hurtFx*2.2);
   renderHearts(p);

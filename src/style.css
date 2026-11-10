@@ -948,3 +948,86 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
 #tabDev .tog .box,#tabTest .tog .box{background:var(--ink);border-color:#8a7a8e}
 #tabDev .pmenu,#tabTest .pmenu{background:var(--ink2);color:var(--paper);border:2px solid #5a4a5e;box-shadow:none}
 #tabDev kbd,#tabTest kbd{background:var(--ink2);color:var(--paper);border-color:#5a4a5e}
+
+/* ================= UI overhaul: the HUD (docs/ui-overhaul/HUD.html) ================= */
+/* the score, top left: big pixel numbers in an ink outline, the goblins flattened under it, and stickers for hunters */
+.readout{display:flex;flex-direction:column;align-items:flex-start;gap:6px;top:calc(14px + env(safe-area-inset-top,0px));left:max(20px,env(safe-area-inset-left,0px));background:none;padding:0;border-radius:0;font:700 15px/1.2 var(--f-body);color:var(--paper)}
+.readout b.sc{font:400 48px/.9 var(--f-px);letter-spacing:1px;color:var(--paper);text-shadow:2px 0 var(--ink),-2px 0 var(--ink),0 2px var(--ink),0 -2px var(--ink),2px 2px var(--ink),-2px 2px var(--ink),2px -2px var(--ink),-2px -2px var(--ink),0 4px var(--ink),2px 4px var(--ink),-2px 4px var(--ink)}
+.readout .rk{font:400 20px/1 var(--f-px);letter-spacing:.5px;text-transform:uppercase;color:var(--gus);text-shadow:2px 0 var(--ink),-2px 0 var(--ink),0 2px var(--ink),0 -2px var(--ink),0 3px var(--ink)}
+.readout i{font:400 18px/1 var(--f-px);letter-spacing:.5px;text-transform:uppercase;font-style:normal;color:var(--ink);background:var(--tomato);padding:4px 9px 3px;border:3px solid var(--ink);border-radius:var(--wobs);box-shadow:3px 3px 0 var(--ink);animation:hudThrob 1s ease-in-out infinite}
+@keyframes hudThrob{50%{transform:rotate(-2deg) scale(1.05)}}
+/* the day panel and the clock disc, top right */
+.clock{top:calc(14px + env(safe-area-inset-top,0px));right:max(20px,env(safe-area-inset-right,0px));width:64px;height:64px;border-radius:50%;box-shadow:4px 4px 0 var(--ink);filter:none}
+.clock svg{display:block}
+.clockTxt{top:calc(14px + env(safe-area-inset-top,0px));right:calc(max(20px,env(safe-area-inset-right,0px)) + 78px);max-width:260px;white-space:normal;padding:6px 12px 7px;font:700 14px/1.35 var(--f-body);color:var(--ink);background-color:var(--paper);background-image:var(--dither);background-size:6px 6px;border:3px solid var(--ink);border-radius:var(--wobs);box-shadow:4px 4px 0 var(--ink)}
+.clockTxt b{font:700 15px/1.3 var(--f-body);letter-spacing:0;margin:0}
+.clockTxt .ct2{font-weight:400;font-size:13px}
+.clockTxt .ct3:empty{display:none}
+.clockTxt .ct3,.clockTxt .dest{font-weight:600;font-size:13px}
+.clockTxt .sname{font:400 18px/1.1 var(--f-px);letter-spacing:.5px;text-transform:uppercase;color:var(--ink);margin:2px 0 0}
+.clockTxt .dest{color:#a8302a}
+/* the minimap: a round plate with an ink rim */
+.mini{border-radius:50%;border:4px solid var(--ink);box-shadow:5px 5px 0 var(--ink);background:var(--paper);filter:none;left:max(20px,env(safe-area-inset-left,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px))}
+/* the hearts and the stamina bar: one paper panel, bottom middle */
+.bar{bottom:calc(18px + env(safe-area-inset-bottom,0px));gap:8px}
+.hpbox{display:flex;flex-direction:column;align-items:center;gap:6px;padding:7px 12px 8px;background-color:var(--paper);background-image:var(--dither);background-size:6px 6px;border:4px solid var(--ink);border-radius:var(--wob);box-shadow:5px 5px 0 var(--ink)}
+.hearts{gap:4px;background:none;padding:0;border-radius:0;text-shadow:none}
+.hearts .hrt,.hearts .half,.hearts .empty{opacity:1;color:inherit}
+.hpbox .meter{width:100%;min-width:200px;height:14px;background:#fff;border:3px solid var(--ink);border-radius:8px 10px 7px 11px;box-sizing:border-box}
+.hpbox .meter .mfill{background:var(--gus);background-image:repeating-linear-gradient(90deg,rgba(0,0,0,.14) 0 4px,transparent 4px 10px)}
+.hpbox .meter.tired .mfill{background-color:#c98a4e}
+.view .who{font:400 20px/1 var(--f-px);letter-spacing:.5px;text-transform:uppercase;color:var(--ink);background:var(--gus);padding:4px 10px 3px;border:3px solid var(--ink);border-radius:var(--wobs);box-shadow:3px 3px 0 var(--ink);text-shadow:none;transform:rotate(-3deg)}
+.view .who.p2{background:var(--pink);color:var(--ink);transform:rotate(3deg)}
+/* the stomp meter: a little paper bar while charging, and a shout once it's full */
+.sbar{width:150px;height:14px;background:#fff;border:3px solid var(--ink);border-radius:8px 10px 7px 11px;box-sizing:border-box}
+.sbar .tick{background:var(--ink);opacity:.5}
+.slv{font:400 22px/1 var(--f-px);letter-spacing:.5px;min-width:0;color:var(--paper);text-shadow:2px 0 var(--ink),-2px 0 var(--ink),0 2px var(--ink),0 -2px var(--ink),0 4px var(--ink)}
+.smeter.lv0 .mfill{background:var(--biscuit)}
+.smeter.lv1 .mfill{background:#f08a3a}.smeter.lv1 .slv{color:var(--biscuit)}
+.smeter.lv2 .mfill{background:var(--yolk)}.smeter.lv2 .sbar{box-shadow:none}
+.smeter.lv2 .slv{color:var(--yolk);font-size:32px;transform:rotate(-4deg);animation:shoutIn .28s ease-out,hudThrob .7s .28s ease-in-out infinite;text-shadow:3px 0 var(--ink),-3px 0 var(--ink),0 3px var(--ink),0 -3px var(--ink),3px 3px var(--ink),-3px 3px var(--ink),0 6px var(--ink)}
+@keyframes shoutIn{0%{transform:rotate(-4deg) scale(.4);opacity:0}60%{transform:rotate(-4deg) scale(1.25);opacity:1}100%{transform:rotate(-4deg) scale(1)}}
+/* the controls hint, and the pickup line under the bar */
+.hint{font:600 14px var(--f-body);color:var(--ink);background:var(--paper);padding:6px 12px;border:3px solid var(--ink);border-radius:var(--wobs);box-shadow:3px 3px 0 var(--ink)}
+.label{font:400 22px/1.1 var(--f-px);letter-spacing:.5px;color:var(--paper);text-shadow:2px 0 var(--ink),-2px 0 var(--ink),0 2px var(--ink),0 -2px var(--ink),0 4px var(--ink)}
+/* the speedometer: an ink gauge, the needle in yolk, the number in pixel type */
+.speedo{filter:none;right:max(18px,env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px))}
+.speedo svg>path:first-child{stroke:rgba(43,27,46,.55)}
+.speedo .sp-fill{stroke:var(--gus)}
+.speedo .sp-needle{stroke:var(--yolk)}
+.speedo svg{overflow:visible;filter:drop-shadow(3px 3px 0 var(--ink))}
+.speedo .sp-num{font:400 22px var(--f-px);fill:var(--paper);paint-order:stroke;stroke:var(--ink);stroke-width:3.5px;stroke-linejoin:round}
+.speedo .sp-unit{font:400 9px var(--f-px);fill:var(--paper);paint-order:stroke;stroke:var(--ink);stroke-width:2.5px;letter-spacing:.5px}
+.speedo .sp-vert{font:400 12px var(--f-px);paint-order:stroke;stroke:var(--ink);stroke-width:3px}
+/* the place banner: a biscuit sticker with the place's name */
+.placeBanner{top:15%;color:var(--ink);text-shadow:none;display:flex;flex-direction:column;align-items:center;gap:6px}
+.placeBanner .pn{display:inline-block;margin:0;font:400 40px/1 var(--f-px);letter-spacing:1px;text-transform:uppercase;color:var(--ink);background:var(--biscuit);padding:8px 30px 6px;border:4px solid var(--ink);border-radius:var(--wob);box-shadow:5px 5px 0 var(--ink);transform:rotate(-1.5deg)}
+.placeBanner .pk{font:400 18px/1 var(--f-px);letter-spacing:.2em;color:var(--paper);opacity:1;text-shadow:2px 0 var(--ink),-2px 0 var(--ink),0 2px var(--ink),0 -2px var(--ink),0 3px var(--ink)}
+.placeBanner .pr{display:none}
+.placeBanner .pd{font:400 17px/1 var(--f-px);letter-spacing:.5px;text-transform:uppercase;color:var(--ink);background:var(--tomato);padding:4px 10px 3px;border:3px solid var(--ink);border-radius:var(--wobs);box-shadow:3px 3px 0 var(--ink);opacity:1;transform:rotate(2deg)}
+@media (max-width:600px){.placeBanner .pn{font-size:28px;padding:6px 18px 5px}}
+/* chat and voice: ink stickers with paper writing */
+.chat{font:600 14px var(--f-body)}
+.chat-ln{background:rgba(43,27,46,.78);color:var(--paper);border:2px solid var(--ink);border-radius:8px 11px 7px 12px/11px 7px 12px 8px;padding:3px 9px}
+.chat-in{color:var(--ink);background:var(--paper);border:3px solid var(--ink);border-radius:var(--wobs);box-shadow:3px 3px 0 var(--ink);padding:7px 10px}
+.chat-quick{background:var(--paper);color:var(--ink);border:3px solid var(--ink);border-radius:var(--wobs);box-shadow:3px 3px 0 var(--ink)}
+.chat-quick .q.on{background:var(--yolk);color:var(--ink)}
+.chat-quick .qh{color:#5e4b60}
+.vchud .vc{background:var(--paper);color:var(--ink);border:2px solid var(--ink);box-shadow:2px 2px 0 var(--ink);border-radius:10px 13px 9px 14px/13px 9px 14px 10px}
+.vchud .vc.talk{background:var(--gus);border-color:var(--ink);box-shadow:2px 2px 0 var(--ink)}
+/* the debug menu: an ink panel with a yolk rim */
+.dbgpad{background:rgba(43,27,46,.94);border:3px solid var(--yolk);border-radius:var(--wobs);box-shadow:5px 5px 0 var(--ink)}
+.dbgpad h4{font:400 22px/1 var(--f-px);letter-spacing:.5px;color:var(--yolk)}
+.dbgpad .dr.cur{background:#4a3a2a;outline:2px dashed var(--yolk)}
+.dbgbadge{background:var(--yolk);color:var(--ink);border:3px solid var(--ink);border-radius:var(--wobs);box-shadow:3px 3px 0 var(--ink);font:400 17px/1 var(--f-px);letter-spacing:.5px;padding:5px 10px 4px}
+/* a co-op player's own pause panel, and joining */
+.ppause{background:rgba(43,27,46,.5)}
+.pcard{background-color:var(--paper);background-image:var(--dither);background-size:6px 6px;color:var(--ink);border:4px solid var(--ink);border-radius:var(--wob);box-shadow:6px 6px 0 var(--ink);padding:20px 20px 16px;gap:14px;--bone:var(--ink);--mute:#5e4b60}
+.ptitle{font:400 30px/1 var(--f-px);letter-spacing:.5px;color:var(--ink)}
+.ptitle.p2{color:#b04a3e}
+.pcard .ck{width:100%;height:52px;font-size:24px}
+.pcard .prompts .pl{color:var(--ink)}
+.join{font:400 26px/1.1 var(--f-px);letter-spacing:.5px;color:var(--paper);text-shadow:2px 0 var(--ink),-2px 0 var(--ink),0 2px var(--ink),0 -2px var(--ink),0 4px var(--ink);background:rgba(43,27,46,.4)}
+.divider{background:var(--ink)}
+/* split screen: everything a size down, so two of them fit */
+@media (prefers-reduced-motion:reduce){.readout i,.smeter.lv2 .slv{animation:none}}
