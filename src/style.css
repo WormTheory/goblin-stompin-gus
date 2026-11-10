@@ -738,7 +738,6 @@ body.attitle #hud{visibility:hidden}
 .subhead h2{margin:0;font:400 36px/1 var(--f-px);letter-spacing:1px;color:var(--paper);text-transform:uppercase}
 .subwho{margin-left:auto}
 .pause.title:not(.home){background:rgba(43,27,46,.35)}
-.pause.title:not(.home) .card{border:4px solid var(--ink);border-radius:var(--wob);box-shadow:8px 8px 0 rgba(0,0,0,.35)}
 
 /* ---- the Character screen: WHO'S STOMPIN'? (docs/ui-overhaul/CharSelect.html) ---- */
 #tabCustom .opts{max-width:1120px}
@@ -785,3 +784,167 @@ body.attitle #hud{visibility:hidden}
 .tmenu .on-game:hover:not(:disabled),.tmenu .on-game.padfocus{background:#fff2b8}
 .tmenu .on-gname{font:400 19px var(--f-px)}
 .tmenu .on-ginfo{font:400 12px var(--f-body);color:#4a3a4e}
+
+/* ================= UI overhaul: the pause menu and its screens (docs/ui-overhaul/Pause.html) ================= */
+/* Every menu card but the title screen's own is paper now: the older dark-theme names are pointed at ink on paper
+   inside it, so the screens built on them (Options, Controls, Map, Obituary, Patch notes) follow along */
+.card{--bone:var(--ink);--mute:#5e4b60;--slate:#f3e3bf;--night:var(--paper);position:relative;color:var(--ink)}
+.pause:not(.title.home) .card{background-color:var(--paper);background-image:var(--dither);background-size:6px 6px;border:4px solid var(--ink);border-radius:var(--wob);box-shadow:8px 8px 0 var(--ink)}
+.pause[data-tab="custom"]:not(.home) .card{background-color:#a8e0f0;background-image:repeating-conic-gradient(rgba(255,255,255,.2) 0 25%,transparent 0 50%);background-size:8px 8px}
+.pause:not(.title){background-color:rgba(43,27,46,.62);background-image:repeating-conic-gradient(rgba(0,0,0,.2) 0 25%,transparent 0 50%);background-size:6px 6px;padding-top:max(92px,11vh);padding-bottom:84px}
+.pause:not(.title) .card{width:min(1060px,100%);height:min(600px,calc(100vh - max(92px,11vh) - 100px));min-height:360px}
+.pause.title:not(.home) .card{height:min(760px,calc(100vh - 140px))}
+.pause.title:not(.home){padding-bottom:84px}
+/* PAUSED, over the card */
+.pausehd{display:none}
+.pause:not(.title) .pausehd{display:block;position:fixed;left:0;right:0;top:max(14px,2.6vh);text-align:center;font:400 clamp(40px,7vh,58px)/1 var(--f-px);letter-spacing:1px;color:var(--yolk);text-transform:uppercase;transform:rotate(-2deg);pointer-events:none}
+/* the button prompts along the bottom of the screen, under the card */
+.pause #menuPrompts{position:fixed;left:0;right:0;bottom:22px;justify-content:center;gap:10px 30px;font-size:20px;margin:0;padding:0 16px;border:0}
+.pause .prompts .pl{text-shadow:2px 0 var(--ink),-2px 0 var(--ink),0 2px var(--ink),0 -2px var(--ink),0 4px var(--ink)}
+/* the corner tag: 1P MENU in green, 2P MENU in pink */
+.card>.menuwho{position:absolute;left:-22px;top:-22px;z-index:3;margin:0;font:400 20px/1 var(--f-px);letter-spacing:.5px;text-transform:uppercase;color:var(--ink);background:var(--gus);padding:6px 12px 5px;border:3px solid var(--ink);border-radius:var(--wobs);box-shadow:4px 4px 0 var(--ink);transform:rotate(-6deg)}
+.card>.menuwho.p2{background:var(--pink);color:var(--ink)}
+.subwho{font:700 15px var(--f-body);color:var(--ink)}
+/* the pause menu itself: a column of big buttons beside the rampage card */
+.pause:not(.title).home .card .main{display:grid;grid-template-columns:330px minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;gap:0 28px}
+.pause:not(.title).home .tabs{grid-row:1/3;grid-column:1}
+.pause:not(.title).home #tabGame{grid-row:1;grid-column:2}
+.pause:not(.title) .tabs{flex-direction:column;gap:12px;border:0;margin:0;padding:6px 4px 6px 2px;overflow-y:auto;overflow-x:visible;scrollbar-width:thin}
+.pause:not(.home) .tabs{display:none}
+#pause .tabs #tabBtnGame{display:none}
+#pause .tabs .ck{display:flex;width:100%;height:48px;flex:none;margin:0;padding:4px 14px;font:400 22px/1 var(--f-px);letter-spacing:.5px;color:var(--ink);text-transform:uppercase;border:4px solid var(--ink);border-radius:var(--wobb);box-shadow:0 6px 0 var(--ink),inset 0 -7px 0 rgba(0,0,0,.16),inset 0 5px 0 rgba(255,255,255,.5)}
+#pause .tabs .ck:nth-child(even){border-radius:30px 20px 32px 22px/20px 30px 22px 32px}
+#pause .tabs .ck.tresume{height:64px;font-size:30px;margin-bottom:2px}
+#pause .tabs .ck[aria-selected="true"]{border-bottom-color:var(--ink)}
+#pause .tabs .cnt{display:inline-block;min-width:0;margin:0;padding:1px 8px 0;font:400 16px/1.2 var(--f-px);color:var(--paper);background:var(--tomato);border:3px solid var(--ink);border-radius:var(--wobs);box-shadow:2px 2px 0 var(--ink);vertical-align:0}
+#pause .tabs .cnt:empty,#pause .tabs .cnt.zero{display:none}
+/* Patch notes and Dev: small tags in the card's bottom right corner */
+#pause .tabs .cornertag{position:absolute;bottom:16px;width:auto;height:auto;margin:0;padding:6px 10px 5px;font:400 17px/1 var(--f-px);letter-spacing:.5px;text-transform:uppercase;color:var(--ink);background:#e9dccb;border:3px solid var(--ink);border-radius:var(--wobs);box-shadow:4px 4px 0 var(--ink);z-index:2}
+#pause .tabs #tabBtnDev{right:18px}
+#pause .tabs #tabBtnNotes{right:84px;background:var(--yolk)}
+#pause .tabs #tabBtnDev[hidden]+*,#pause .tabs #tabBtnNotes:has(+#tabBtnDev[hidden]){right:18px}
+#pause .tabs .cornertag:focus-visible,#pause .tabs .cornertag.padfocus{outline:4px dashed var(--yolk)!important;outline-offset:3px!important;box-shadow:4px 4px 0 var(--ink)!important}
+/* the Game pane, behind the pause menu: the rampage card, then this game's own controls in a strip under it */
+.rampage{display:none}
+.pause:not(.title) .tlogo,.pause:not(.title) #optBtn,.pause:not(.title) #charLink,.pause:not(.title) #devLinkW,.pause:not(.title) .pnlatest,.pause:not(.title) .vertag{display:none}
+.pause:not(.title).coopon #playCoop,.pause:not(.title):not(.coopon) #play{display:none}
+.pause:not(.title) #tabGame{gap:14px;padding:4px 6px 4px 0;justify-content:flex-start}
+.pause:not(.title) #tabGame>*{margin:0!important}
+.pause:not(.title) .rampage{display:flex;flex-direction:column;gap:14px;order:-1}
+.pause:not(.title) .gamemain{align-items:stretch;text-align:left;gap:0}
+.pause:not(.title) .tmenu{width:100%;padding:12px 0 0;gap:10px;flex-direction:row;flex-wrap:wrap;align-items:center;background:none;border:0;border-top:3px dashed rgba(43,27,46,.3);border-radius:0;box-shadow:none;transform:none}
+.pause:not(.title) .tmenu .ck,.pause:not(.title) .tmenu .tm2 .ck{width:auto;height:42px;font-size:19px;padding:4px 14px;flex:0 0 auto}
+.pause:not(.title) .tmenu .tm2{display:flex;gap:10px}
+.pause:not(.title) .tmenu .online,.pause:not(.title) .tmenu .confirm{flex:1 1 100%}
+.pause:not(.title) .tws{flex:1 1 auto;border:0;padding:0;justify-content:flex-end;font-size:14px}
+.pause:not(.title) .gamefoot{padding:0 190px 0 0}
+.pause.seat2 .tws b{display:none}
+.pause:not(.title) .card{overflow:visible}
+body:has(#pause:not([hidden])) .placeBanner{display:none}
+.pause:not(.title) .gamefoot .note{color:var(--mute)}
+.rp-head{display:flex;align-items:baseline;justify-content:space-between;gap:6px 14px;flex-wrap:wrap}
+.rp-head h2{margin:0;font:400 32px/1 var(--f-px);letter-spacing:.5px;color:var(--ink);text-transform:uppercase}
+.rp-where{font:700 15px var(--f-body);color:var(--ink)}
+.rp-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.rp-t{display:flex;flex-direction:column;gap:2px;padding:12px 16px;border-width:3px;box-shadow:4px 4px 0 var(--ink)}
+.rp-t span{font:700 15px var(--f-body);color:var(--ink)}
+.rp-t b{font:400 44px/1.05 var(--f-px);color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.t-gob{background:#d9f3b8}.t-score{background:#ffe9a8}.t-combo{background:#fde0d8}.t-cars{background:#d6ecfb}
+.rp-wl{display:flex;justify-content:space-between;font:700 16px var(--f-body);margin-bottom:6px}
+.rp-bar{height:26px;border:4px solid var(--ink);border-radius:14px 18px 12px 16px;background:#fff;overflow:hidden}
+.rp-bar i{display:block;height:100%;width:0;background:var(--tomato);background-image:repeating-linear-gradient(90deg,rgba(0,0,0,.18) 0 4px,transparent 4px 12px);border-right:4px solid var(--ink);box-sizing:border-box}
+.rp-bar i.none{border-right:0}
+.card .rp-note{margin:0;font:400 16px/1.4 var(--f-body);color:var(--ink)}
+.rp-note:empty{display:none}
+@media (max-height:640px){.rp-t b{font-size:34px}.rp-t{padding:8px 12px}.rp-tiles{gap:10px}.pause:not(.title) .tabs{gap:8px}#pause .tabs .ck{height:40px;font-size:19px}#pause .tabs .ck.tresume{height:50px;font-size:24px}}
+@media (max-width:860px){
+  .pause:not(.title).home .card .main{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}
+  .pause:not(.title).home .tabs{grid-row:1;flex-direction:row;flex-wrap:wrap;overflow:visible}
+  .pause:not(.title).home #tabGame{grid-row:2;grid-column:1}
+  #pause .tabs .ck{width:auto;flex:1 1 30%;height:42px;font-size:19px}#pause .tabs .ck.tresume{flex-basis:100%;height:52px}
+  .pause:not(.title) .card{height:calc(100vh - 160px)}
+}
+/* a screen opened from the menu: slides in, the menu's buttons gone off to the left */
+.subhead h2{color:var(--paper)}
+.pause:not(.home) .main .tabpane:not([hidden]){animation:subIn .22s ease-out}
+.pause:not(.home) .subhead{animation:subIn .22s ease-out}
+@keyframes subIn{from{transform:translateX(60px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.pause:not(.home) .main .tabpane:not([hidden]),.pause:not(.home) .subhead{animation:none}}
+.cs-note{color:var(--ink)}
+/* ---- the screens, on paper ---- */
+#pause .padfocus{outline:4px dashed var(--yolk)!important;outline-offset:3px;box-shadow:0 0 0 3px var(--ink)!important}
+#pause .seg button.padfocus:not([aria-checked="true"]){background:#fff2b8;color:var(--ink)}
+.card .custom,.opts .custom{border-top:3px dashed rgba(43,27,46,.25)}
+.card .custom h2{font:400 22px/1 var(--f-px);letter-spacing:.5px;color:var(--ink);text-transform:uppercase}
+.seg{border:3px solid var(--ink);border-radius:10px 13px 9px 14px/13px 9px 14px 10px;box-shadow:0 3px 0 var(--ink)}
+.seg button{color:var(--ink);background:#f3e3bf;border-left:2px solid var(--ink)}
+.seg button[aria-checked="true"]{background:var(--gus);color:var(--ink)}
+.seg[data-p="1"] button[aria-checked="true"]{background:var(--pink);color:var(--ink)}
+.vrange{accent-color:#4f9a24}
+.tog{background:#fffaf0;color:var(--ink);border:3px solid var(--ink);border-radius:9px 12px 8px 13px/12px 8px 13px 9px;box-shadow:0 3px 0 var(--ink)}
+.tog:hover{border-color:var(--ink);background:#fff2c8}
+.ab-row>.tog{border-left-width:6px;border-left-color:#8a7a8e}
+.tog .box{border:3px solid var(--ink);background:var(--paper)}
+.tog[aria-checked="true"] .box{background:var(--yolk);border-color:var(--ink)}
+.tog[aria-checked="true"] .box::after{border-color:var(--ink)}
+.card .pmenu,.confirm button{background:var(--biscuit);color:var(--ink);border:3px solid var(--ink);border-radius:8px 11px 7px 12px/11px 7px 12px 8px;box-shadow:0 3px 0 var(--ink)}
+.confirm button.yes{background:var(--tomato);border-color:var(--ink)}
+.card kbd,.card .gk{background:var(--paper);color:var(--ink);border:2px solid var(--ink);border-bottom-width:4px}
+/* Controls */
+.ctl-fig{background:var(--ink);border:3px solid var(--ink);border-radius:var(--wob2)}
+.ctl-fig{--bone:var(--paper);--mute:#c9b8c4;--slate:var(--ink2)}
+.kb span{color:#8a7a8e;background:#f3e3bf;border:2px solid var(--ink);border-bottom-width:4px}
+.kb span.on{color:var(--ink);border-color:var(--ink)}
+.rb{border-top:3px dashed rgba(43,27,46,.25)}
+.rb-t tbody tr+tr{border-top:1px solid rgba(43,27,46,.15)}
+.rbs{background:#fffaf0;color:var(--ink);border:2px solid var(--ink);border-bottom-width:4px}
+.rbs:hover:not(:disabled){border-color:#b48e22}
+.rbs.empty{color:var(--mute);border-color:#8a7a8e}
+.rbs.cap{border-color:var(--ink)}
+.rb-head h3{font:400 22px/1 var(--f-px);letter-spacing:.5px;text-transform:uppercase}
+/* Map */
+.map-fig{border:4px solid var(--ink);border-radius:14px 18px 12px 16px;box-shadow:4px 4px 0 var(--ink)}
+.map-tools button{font:400 17px/1 var(--f-px);letter-spacing:.4px;text-transform:uppercase;padding:6px 10px 5px;background:var(--sky);color:var(--ink);border:3px solid var(--ink);border-radius:8px 11px 7px 12px/11px 7px 12px 8px;box-shadow:0 3px 0 var(--ink)}
+.map-tools button:hover,.map-tools button.padfocus{border-color:var(--ink);filter:brightness(1.06)}
+.map-legend li{font-weight:600}
+.map-legend li.on,.map-legend li.padfocus{background:#ffe9a8;color:var(--ink);box-shadow:inset 4px 0 0 var(--ink)}
+.map-legend i{border:2px solid var(--ink)}
+/* Obituary */
+.obn{color:var(--ink);border-radius:6px}
+.obn:hover{background:#f6e6c2}
+.obn[aria-current="true"]{background:#ffe1d8;border-left-color:#c0433a}
+.obn.civ[aria-current="true"]{background:#fff0c0;border-left-color:#b48e22}
+.obn .obn-name{color:#a8302a}
+.obn.civ .obn-name{color:#7a5a10}
+.obn.hippo .obn-name{color:#5f3aa6}
+.obn.hippo[aria-current="true"]{background:#ece2ff}
+.obd,.ob{background:#fffaf0;border:4px solid var(--ink);border-left:10px solid #c0433a;border-radius:6px 14px 8px 12px;box-shadow:4px 4px 0 var(--ink)}
+.ob.civ{border-left-color:#b48e22}
+.obd canvas{border:3px solid var(--ink);border-radius:10px 14px 8px 12px}
+.obd-name{font:400 34px/1 var(--f-px);letter-spacing:.5px;color:var(--ink)}
+.ob-death{color:#a8302a;font-weight:600}
+.ob-tag{background:#ffd5cc;color:#7a1e18;border:2px solid var(--ink)}
+.ob-tag.civ{background:#fff0c0;color:#5a4206}
+.ob-tag.hippo{background:#ece2ff;color:#4a2a8a}
+/* Patch notes */
+.pn{color:var(--ink)}
+.pn p,.pn li{color:var(--ink)}
+.pn a{color:#3d7a1c}
+.pn h2{font:400 30px/1.05 var(--f-px);letter-spacing:.5px;color:var(--ink)}
+.pn h3{color:#9a4a12}
+.pn li::marker{color:#4f9a24}
+.pn code{background:#f3e3bf}
+.pn .pn-up,.pn .pn-earlier{border-top:3px dashed rgba(43,27,46,.25)}
+.pn .pn-fold{background:#fffaf0;border:3px solid var(--ink);border-radius:10px 14px 8px 12px;box-shadow:3px 3px 0 var(--ink)}
+.pn .pn-fold summary h2{color:#5e4b60}
+.pn .pn-tog{color:#3d7a1c}
+.pn .pn-play{font:400 17px/1 var(--f-px);letter-spacing:.4px;text-transform:uppercase;padding:5px 10px 4px;background:var(--gus);color:var(--ink);border:3px solid var(--ink);border-radius:8px 11px 7px 12px/11px 7px 12px 8px;box-shadow:0 3px 0 var(--ink)}
+/* Dev and the Testing Environment are workshop tools: the dark panel they were built on, in the new colours */
+#tabDev,#tabTest{--bone:var(--paper);--mute:#c9b8c4;--slate:var(--ink2);background:var(--ink);color:var(--paper);border:3px solid var(--ink);border-radius:var(--wobs);padding:14px!important}
+#tabDev .seg,#tabTest .seg{box-shadow:none;border-width:2px}
+#tabDev .seg button,#tabTest .seg button{background:var(--ink2);color:var(--paper);border-left-color:var(--ink)}
+#tabDev .seg button[aria-checked="true"],#tabTest .seg button[aria-checked="true"]{background:var(--gus);color:var(--ink)}
+#tabDev .tog,#tabTest .tog{background:var(--ink2);color:var(--paper);border:2px solid #5a4a5e;box-shadow:none}
+#tabDev .tog .box,#tabTest .tog .box{background:var(--ink);border-color:#8a7a8e}
+#tabDev .pmenu,#tabTest .pmenu{background:var(--ink2);color:var(--paper);border:2px solid #5a4a5e;box-shadow:none}
+#tabDev kbd,#tabTest kbd{background:var(--ink2);color:var(--paper);border-color:#5a4a5e}

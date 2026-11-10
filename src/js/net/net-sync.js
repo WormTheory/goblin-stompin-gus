@@ -280,7 +280,7 @@ function netSendSnap(p){   // (and the goblins' places are kept each frame, belo
   const N=p.net;if(!N.wsent)N.wsent={};
   const m={t:'s',n:++N.seq,tt:NET.now,p:[],g:[],gl:{},c:[],cl:{},e:N.out};N.out=[];
   for(let s=0;s<players.length;s++){const q=players[s];if(q.active)m.p.push(netPlayerState(q,s,N));}
-  netGoblins(p,N,m.g,m.gl);netCars(p,N,m.c,m.cl);m.v=[];netVenues(p,N,m.v);m.vh=netVenueHP(N);m.fa=netFalls();m.sc=[score,kills];
+  netGoblins(p,N,m.g,m.gl);netCars(p,N,m.c,m.cl);m.v=[];netVenues(p,N,m.v);m.vh=netVenueHP(N);m.fa=netFalls();m.sc=[score,kills,RAMP.cars,RAMP.best];
   N.wT=(N.wT||0)-1;if(N.wT<=0){N.wT=NET_SNAP_HZ;m.w=netWorldBits(N);m.k=netClock();N.vhsent=null;}   // (and the venues' health all again next time, for a venue the guest has only just made)
   try{NET.tr.send(m,N.peer);}catch(e){}
 }
@@ -397,7 +397,7 @@ function netCommit(m){
   netFallCommit(m);
   if(m.v)netVenueCommit(m.v,NET.now-NET.off-NET_DELAY);
   if(m.vh)netVenueHPSet(m.vh);
-  if(m.sc){score=m.sc[0];kills=m.sc[1];}
+  if(m.sc){score=m.sc[0];kills=m.sc[1];RAMP.cars=m.sc[2]||0;RAMP.best=m.sc[3]||0;}
   if(m.w)netWorld(m.w);
   if(m.k)netClockSet(m.k);
   NET.cur=m;

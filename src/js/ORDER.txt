@@ -77,6 +77,7 @@ vehicles/traffic-update.js
 ui/hud.js
 ui/title-scene.js
 ui/input.js
+ui/rampage.js
 core/loop.js
 ui/minimap.js
 render/far-city.js

@@ -57,20 +57,22 @@
 </div>
 
 <div class="pause" id="pause">
+  <div class="pausehd px out" id="pauseHd" aria-hidden="true">Paused</div>
   <div class="card">
+   <span class="menuwho" id="menuWho" hidden></span>
    <div class="main">
     <div class="tabs" role="tablist" aria-label="Menu">
+      <button type="button" class="ck go tresume" id="resumeBtn">Resume</button>
       <button type="button" role="tab" id="tabBtnGame" aria-selected="true" aria-controls="tabGame">Game</button>
-      <button type="button" role="tab" id="tabBtnTest" aria-selected="false" aria-controls="tabTest" hidden>Testing Environment</button>
-      <button type="button" role="tab" id="tabBtnMap" aria-selected="false" aria-controls="tabMap">Map</button>
-      <button type="button" role="tab" id="tabBtnObit" aria-selected="false" aria-controls="tabObit">Obituary<span class="cnt" id="obitCount">0</span></button>
-      <button type="button" role="tab" id="tabBtnCustom" aria-selected="false" aria-controls="tabCustom">Character</button>
-      <button type="button" role="tab" id="tabBtnControls" aria-selected="false" aria-controls="tabControls">Controls</button>
-      <button type="button" role="tab" id="tabBtnOptions" aria-selected="false" aria-controls="tabOptions">Game options</button>
-      <button type="button" role="tab" id="tabBtnNotes" aria-selected="false" aria-controls="tabNotes">Patch notes</button>
-      <button type="button" role="tab" id="tabBtnDev" aria-selected="false" aria-controls="tabDev">Dev</button>
-      <span class="menuwho" id="menuWho" hidden></span>
-
+      <button type="button" role="tab" class="ck yolk" id="tabBtnTest" aria-selected="false" aria-controls="tabTest" hidden>Testing Environment</button>
+      <button type="button" role="tab" class="ck on" id="tabBtnMap" aria-selected="false" aria-controls="tabMap">Map</button>
+      <button type="button" role="tab" class="ck on" id="tabBtnObit" aria-selected="false" aria-controls="tabObit">Obituary<span class="cnt" id="obitCount">0</span></button>
+      <button type="button" role="tab" class="ck set" id="tabBtnCustom" aria-selected="false" aria-controls="tabCustom">Character</button>
+      <button type="button" role="tab" class="ck set" id="tabBtnControls" aria-selected="false" aria-controls="tabControls">Controls</button>
+      <button type="button" role="tab" class="ck set" id="tabBtnOptions" aria-selected="false" aria-controls="tabOptions">Options</button>
+      <button type="button" class="ck quit" id="quitBtn">Quit to title</button>
+      <button type="button" role="tab" class="cornertag" id="tabBtnNotes" aria-selected="false" aria-controls="tabNotes">Patch notes</button>
+      <button type="button" role="tab" class="cornertag" id="tabBtnDev" aria-selected="false" aria-controls="tabDev">Dev</button>
     </div>
     <div class="subhead" id="subHead" hidden><button type="button" class="ck set subback" id="subBack"><span aria-hidden="true">‹</span> Back</button><h2 class="px out2" id="subTitle"></h2><span class="subwho" id="subWho"></span></div>
     <div class="tabpane gamepane" id="tabGame" role="tabpanel">
@@ -100,6 +102,17 @@
         <div class="tws"><span><b>Workshop:</b> <button type="button" class="lnk" id="testWorld">Testing Environment</button><span id="devLinkW"> · <button type="button" class="lnk" id="devLink">Dev</button></span></span><button type="button" class="lnk" id="fullBtn">Full screen</button></div>
       </nav>
      </div>
+      <section class="rampage" id="rampage" aria-label="This rampage">
+        <div class="rp-head"><h2 class="px">This rampage</h2><span class="rp-where" id="rpWhere"></span></div>
+        <div class="rp-tiles">
+          <div class="rp-t t-gob wob2"><span>Goblins flattened</span><b class="px" id="rpKills">0</b></div>
+          <div class="rp-t t-score wob"><span>Score</span><b class="px" id="rpScore">0</b></div>
+          <div class="rp-t t-combo wob"><span>Best combo</span><b class="px" id="rpCombo">x0</b></div>
+          <div class="rp-t t-cars wob2"><span>Cars tossed</span><b class="px" id="rpCars">0</b></div>
+        </div>
+        <div class="rp-wreck"><div class="rp-wl"><span>City wrecked</span><b id="rpWreckV"></b></div><div class="rp-bar"><i id="rpWreck"></i></div></div>
+        <p class="rp-note" id="rpNote" role="status"></p>
+      </section>
       <div class="gamefoot">
         <button type="button" class="pnlatest sticker px" id="pnLatest">What's new: <!-- build: patch-notes-latest --> <span aria-hidden="true">›</span></button>
         <div class="note" id="padNote">No controllers found yet. Press a button on one to wake it up.</div>

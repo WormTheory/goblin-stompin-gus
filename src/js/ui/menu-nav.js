@@ -47,7 +47,7 @@ function menuNav(dir){
   }
   if(dx&&cur&&cur.closest&&cur.closest('#charSel .cs-row')){const C=[...cur.closest('.cs-row').querySelectorAll('.cs-card')],i=C.indexOf(cur)+dx;if(i>=0&&i<C.length){C[i].click();padFocus(C[i]);}return;}
   // (the menu itself, title or pause: wherever's nearest that way)
-  if(curTab==='game'&&!(cur&&cur.closest&&cur.closest('.tabs'))){if(!moveFocus(dx,dy)&&dy&&pane)pane.scrollTop+=dy*80;return;}
+  if(curTab==='game'){if(!moveFocus(dx,dy)&&dy&&pane)pane.scrollTop+=dy*80;return;}
   if(cur===sb&&dy>0){const U=paneUnits(pane);if(U.length)unitFocus(U[0]);else pane.scrollTop+=80;return;}
   if(dx&&(title||cur&&cur.closest&&cur.closest('.tabs'))){showTab(tabIndex()+dx);padFocus(document.getElementById('tabBtn'+TABS[tabIndex()][1]));return;}
   if(dy&&title&&pane.contains(cur)){const U=paneUnits(pane),i=U.findIndex(u=>u===cur||u.contains(cur))+dy;if(i<0)padFocus(tabBtn);else if(i<U.length)unitFocus(U[i]);return;}
@@ -99,12 +99,14 @@ function menuPad(st,dt){
       const cf=document.getElementById('confirm');
       if(!cf.hidden)document.getElementById('confirmNo').click(),padFocus(document.getElementById('newWorld'));
       else if(curTab!=='game')backHome();
-      else{const op=document.getElementById('onlinePanel');if(op&&!op.hidden&&op.contains(document.activeElement)){document.getElementById('onlineBtn').click();padFocus(document.getElementById('onlineBtn'));}}
+      else{const op=document.getElementById('onlinePanel');if(op&&!op.hidden&&op.contains(document.activeElement)){document.getElementById('onlineBtn').click();padFocus(document.getElementById('onlineBtn'));}
+        else if(!atTitle&&begun){startPlay(null,true);return;}}   // (B on the pause menu itself: back to the game)
     }
     if(s.pr[9]){startPlay(s===st[1]&&!touchMode?'coop':null,true);return;}
     if(s.pr[0]){
       const el=document.activeElement;
-      if(!el||!menuCard.contains(el)||el===menuCard){const pb=document.getElementById(players[1].active?'playCoop':'play'),fs=menuFocusables();padFocus(fs.includes(pb)?pb:fs[0]);continue;}
+      if(!el||!menuCard.contains(el)||el===menuCard){const pb=document.getElementById(!atTitle?'resumeBtn':players[1].active?'playCoop':'play'),fs=menuFocusables();padFocus(fs.includes(pb)?pb:fs[0]);continue;}
+      if(el.id==='resumeBtn'){startPlay(null,true);return;}
       if(el.id==='play'){startPlay('solo',true);return;}
       if(el.id==='playCoop'){startPlay('coop',true);return;}
       if(el.matches('input[type=range]'))continue;
@@ -118,7 +120,7 @@ function menuPad(st,dt){
 }
 // the mouse takes over again: drop the controller highlight
 addEventListener('mousemove',e=>{if(menuOpen&&(Math.abs(e.movementX)+Math.abs(e.movementY)>2))for(const el of menuCard.querySelectorAll('.padfocus'))el.classList.remove('padfocus');});
-for(const [t,id] of TABS)document.getElementById('tabBtn'+id).addEventListener('click',()=>showTab(t));
+for(const [t,id] of TABS)document.getElementById('tabBtn'+id).addEventListener('click',()=>{if(t==='game')backHome();else openSub(t,'tabBtn'+id);});
 // (the title screen's "What's new" line opens the Patch notes tab, leaving the highlight on its tab so B and LB/RB carry on from there)
 // (the Patch notes tab's "Play 0.1" links open the website's copy of that version, kept at <site>/v/<version>/ beside the
 // live game (or beside /test/'s parent), in a new tab so this game keeps running; played from a file on disk there's no
@@ -176,8 +178,8 @@ function menuPromptItems(){
   const home=curTab==='game',card=act&&act.closest&&act.closest('#charRow');
   if(kind==='pad'){
     if(range)out.push([['DPAD:h'],'Adjust']);else out.push([['A'],card?'Ready!':'Pick']);
-    if(cf||!home)out.push([['B'],'Back']);
-    if(!home)out.push([['LB','RB'],'Jump between screens']);
+    if(cf||!home)out.push([['B'],'Back']);else if(!atTitle&&begun)out.push([['B'],'Resume']);
+    out.push([['LB','RB'],'Jump between screens']);
     if(curTab==='custom')out.push([['Y'],'Ability toggles']);
     if(curTab==='map'){out.push([['RS'],'Pan']);out.push([['LT','RT'],'Zoom']);out.push([['X'],'Re-centre']);}
     else if(curTab==='obit'){out.push([['RS:h'],'Turn']);if(scrolls)out.push([['RS:v'],'Scroll']);}
@@ -194,8 +196,8 @@ function menuPromptItems(){
     else if(curTab==='obit'){out.push([['MDRAG'],'Turn']);if(scrolls)out.push([['WHEEL'],'Scroll']);}
     else if(scrolls)out.push([['WHEEL'],'Scroll']);
     if(range)out.push([['KEY:←','KEY:→'],'Adjust']);else out.push([['KEY:Enter'],'Pick']);
-    if(cf||!home)out.push([['KEY:Esc'],'Back']);
-    if(!home)out.push([['KEY:Q','KEY:E'],'Jump between screens']);
+    if(cf||!home)out.push([['KEY:Esc'],'Back']);else if(!atTitle&&begun)out.push([['KEY:Esc'],'Resume']);
+    if(!home||!atTitle)out.push([['KEY:Q','KEY:E'],'Jump between screens']);
   }
   return out;
 }

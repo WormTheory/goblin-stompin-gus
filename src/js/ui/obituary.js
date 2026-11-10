@@ -27,7 +27,7 @@ function recordHippoObit(p,cause,killer){
   if(L.length>400)L.length=400;obitSave();renderObitCount();
   if(menuOpen&&curTab==='obit'){obitSel=Math.min(obitSel+1,L.length-1);renderObits();}
 }
-function renderObitCount(){const el=document.getElementById('obitCount');if(el){const L=obitList();el.textContent=String(Math.max(obitTotal,L.length));}}
+function renderObitCount(){const el=document.getElementById('obitCount');if(el){const L=obitList();const n=Math.max(obitTotal,L.length);el.textContent=String(n);el.classList.toggle('zero',!n);}}
 // the list: just numbers and names; picking one shows the rest beside it, with the goblin itself turning slowly
 function renderObits(){
   const L=obitList(),ol=document.getElementById('obitList'),sum=document.getElementById('obitSum'),wrap=document.getElementById('obitWrap');

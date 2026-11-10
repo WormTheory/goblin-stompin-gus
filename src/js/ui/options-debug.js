@@ -337,7 +337,7 @@ function explodeCar(c){const w=DBG_WHO;DBG_WHO='n';try{return withBlame(carIsPla
 function explodeCar0(c){
   c.alive=false;c.g.visible=false;c.respawnT=6;c.hunter=false;
   const p=c.pos.clone();reportNews(p.x,p.z,'car crash');
-  const pts=c.police?500:300;if(BLAME!=='acc'){reportCrime(p.x,p.z);score+=pts;flashLabel((c.police?'Police car destroyed  +':c.crew&&CREW_NAME[c.veh]?CREW_NAME[c.veh]+' destroyed  +':'Car destroyed  +')+pts,(nearestPlayer(p.x,p.z)||{}).p);}
+  const pts=c.police?500:300;if(BLAME!=='acc'){reportCrime(p.x,p.z);score+=pts;RAMP.cars++;flashLabel((c.police?'Police car destroyed  +':c.crew&&CREW_NAME[c.veh]?CREW_NAME[c.veh]+' destroyed  +':'Car destroyed  +')+pts,(nearestPlayer(p.x,p.z)||{}).p);}
   if(c.police&&c.spot){policeDown[c.spot.split(':')[0]]=playTime+90;c.spot=null;}c.parked=false;
   if(c.svcPool&&c.svc){const keep=c.alive;svcDone(c,true);}
   blastFx(p.x,p.y+1,p.z,0.6,1);

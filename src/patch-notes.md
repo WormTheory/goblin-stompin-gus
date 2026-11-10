@@ -17,6 +17,11 @@
 - The enemy hostility slider has moved from the main screen to the top of Options.
 - Picking a character is now "Who's stompin'?": four big cards for Gus, Gertie, Gnash and Grizzle, with a 1P tag on player one's pick and a 2P tag on player two's. Choose which player you're picking for at the top (player two's own menu always picks for player two), and a strip under the cards lists what that character can do with your current ability switches. Picking the other player's character still swaps you over.
 - On a controller, A on a character card picks them and takes you back ("Ready!"), and Y jumps down to the ability switches. Screens opened from a menu have a Back button: B or Esc goes back, and LB / RB (Q / E on the keyboard) jump between screens.
+- The pause menu is a column of big buttons (Resume, Map, Obituary with its count, Character, Controls, Options, Quit to title) beside a "This rampage" card: goblins flattened, your score, your best combo, cars tossed and how wrecked the place you're in is, with its name and the time of day. Underneath are this game's own controls: switch between solo and co-op, Play online, New city, the Testing Environment and Full screen.
+- Map, Obituary, Character, Controls, Options and Patch notes open in the same card, sliding in from the right, and always start you back on the menu's own buttons when you pause again. B or Esc on the menu itself resumes.
+- Quit to title takes you back to the title screen with Gus stomping along; your city, score and everyone in it are kept, so Play carries on where you left off.
+- Patch notes and Dev are small tags in the card's corner now. The card's corner says 1P MENU (green) or 2P MENU (pink), and player two's menu still leaves out Options, Dev, the Testing Environment, Quit to title and the city controls.
+- Options, Controls, the Map, the Obituary and the Patch notes are on paper in the new style. The Dev tools and the Testing Environment keep a dark panel, in the new colours.
 
 ### Split-screen co-op menus
 

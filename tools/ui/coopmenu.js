@@ -12,11 +12,12 @@ await p.addInitScript(()=>{const mk=i=>({index:i,id:'pad'+i,connected:true,mappi
   window.__pads=[mk(0),mk(1)];navigator.getGamepads=()=>window.__pads;
   window.__tap=async(i,btn)=>{const B=window.__pads[i].buttons[btn];B.pressed=true;B.value=1;await new Promise(r=>setTimeout(r,120));B.pressed=false;B.value=0;await new Promise(r=>setTimeout(r,120));};});
 await p.goto('file://'+process.cwd()+'/ui.html');await p.waitForTimeout(1500);
+const goChar=async()=>{if(await p.isVisible('#subBack'))await p.click('#subBack',{force:true});await p.click('#tabBtnCustom',{force:true});};   // (the pause menu's Character button: from a screen, Back to the menu first)
 const tap=(i,btn)=>p.evaluate(([i,btn])=>window.__tap(i,btn),[i,btn]);
 const st=()=>p.evaluate(()=>{const vis=id=>{const e=document.getElementById(id);return !!e&&!e.hidden&&e.offsetParent!==null;};
   return {menu:!document.getElementById('pause').hidden,who:vis('menuWho')?document.getElementById('menuWho').textContent:'',
     tabs:[...document.querySelectorAll('.tabs [role=tab]')].filter(t=>!t.hidden).map(t=>t.textContent.replace(/\d+$/,'')).join(','),
-    game:['play','playCoop','newWorld','testWorld','onlineBtn','fullBtn','charLink'].filter(vis).join(','),coopBtn:document.getElementById('playCoop').textContent,hostility:!!document.querySelector('.hostmain').offsetParent,
+    game:['resumeBtn','quitBtn','play','playCoop','newWorld','testWorld','onlineBtn','fullBtn','charLink'].filter(vis).join(','),coopBtn:document.getElementById('playCoop').textContent,hostility:!!document.querySelector('.hostmain').offsetParent,
     p1paused:!document.querySelectorAll('.view .ppause')[1].hidden,p2paused:!document.querySelectorAll('.view .ppause')[0].hidden,
     picks:(document.querySelector('#charRow').offsetParent?'':'(hidden)')+['p1','p2'].map(k=>(document.querySelector('#charRow .cs-card.'+k)||{dataset:{}}).dataset.c).join(' / ')+' (picking for '+(+document.getElementById('charRow').dataset.seat+1)+')',
     names:[...document.querySelectorAll('.view .who')].reverse().map(e=>e.textContent).join(' + ')};});
@@ -30,14 +31,14 @@ await tap(1,3);await p.waitForTimeout(300);console.log('player two pressed Y',JS
 await p.screenshot({path:out+'/coop-p2-menu.png'});
 await tap(0,5);await p.waitForTimeout(200);console.log('player one pressed RB (ignored)',JSON.stringify(await st()));
 for(let k=0;k<4;k++)await tap(1,5);await p.waitForTimeout(200);console.log('player two RB x4',JSON.stringify(await st()),await p.evaluate(()=>document.querySelector('.tabs [aria-selected=true]').textContent));
-await p.click('#tabBtnCustom');await p.waitForTimeout(200);
+await goChar();await p.waitForTimeout(200);
 await p.click('#charSel .cs-row[data-seat="1"] .cs-card[data-c="grizzle"]');await p.waitForTimeout(200);console.log('player two picked Grizzle',JSON.stringify(await st()));
 await p.screenshot({path:out+'/coop-p2-character.png'});
 await p.click('#charSel .cs-row[data-seat="1"] .cs-card[data-c="gus"]');await p.waitForTimeout(200);console.log('player two picked Gus (player one\'s): swapped',JSON.stringify(await st()));
 await tap(1,9);await p.waitForTimeout(400);console.log('player two pressed Start: playing',JSON.stringify(await st()));
 await tap(0,9);await p.waitForTimeout(200);await tap(0,3);await p.waitForTimeout(300);console.log('player one Start, Y',JSON.stringify(await st()));
 await p.screenshot({path:out+'/coop-p1-menu.png'});
-await p.click('#tabBtnCustom');await p.waitForTimeout(200);
+await goChar();await p.waitForTimeout(200);
 await p.click('#charSel .cs-row[data-seat="0"] .cs-card[data-c="gnash"]');await p.waitForTimeout(200);console.log('player one picked Gnash',JSON.stringify(await st()));
 await p.reload();await p.waitForTimeout(1500);console.log('after a reload',JSON.stringify(await st()));
 console.log(errs.join('\n')||'no errors');await b.close();})();

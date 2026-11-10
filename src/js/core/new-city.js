@@ -16,7 +16,7 @@ document.getElementById('confirmYes').addEventListener('click',()=>{
   confirmEl.hidden=true;TEST_OFF=new Set();seed=(Math.random()*1e9)|0;noteQ.length=0;edits={};collapses={};wrecked={};destroyed={};destroyVer++;setDCache.clear();downFix.clear();falling.clear();chunkEdits.clear();clearBodies();clearWorld();
   for(const d of decals)d.visible=false;decalsDirty=true;for(const p of players)p.pool.visible=false;for(const s of scorches)s.visible=false;
   for(const c of cars){c.alive=false;c.g.visible=false;c.respawnT=1;}
-  score=0;kills=0;playTime=0;resetGoblins();
+  score=0;kills=0;rampReset();playTime=0;resetGoblins();
   // a fresh game: the first morning of day 1, an empty obituary, nothing burning
   tod=0.08;dayN=1;clockT=0;wxReset();STN.clear();for(const c of SVC)if(c.alive){c.alive=false;c.g.visible=false;c.svc=null;}fires.length=0;pendingBooms.length=0;boomedAt.clear();
   obits=[];obitTotal=0;obitSeed=seed;obitSel=0;try{localStorage.removeItem(OBIT_KEY);}catch(e){}renderObitCount();if(curTab==='obit')renderObits();
