@@ -1,22 +1,41 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:06a7af6a97264611847c999238ef6d999e71cbf316c740cd7a0ddd5a3e0c892f -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:6b11af51ca62257835877c53c7bd98a4030715aaa8dd557320e01c4a1dfecb59 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;600;700;800&family=Atkinson+Hyperlegible+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jersey+10&family=Atkinson+Hyperlegible+Next:wght@400;500;600;700;800&family=Atkinson+Hyperlegible+Mono:wght@400;500;600;700&display=swap">
 <style>
 /* Layout: full-bleed 3D canvas split into one or two views; each view carries its own HUD; one pause card centered over the live city. */
 :root{
-  --night:#12161c;
-  --slate:#1d242d;
-  --bone:#eef0e6;
-  --moss:#7fc24a;
-  --clay:#b98a5a;
-  --mute:#9aa5ad;
-  --blood:#c2392e;
-  --gertie:#e59a86;
+  /* the crayon palette (docs/ui-overhaul): flat colours, ink outlines, paper panels */
+  --ink:#2b1b2e;
+  --paper:#fff6dc;
+  --paper2:#f6e6c2;
+  --gus:#7fd14a;
+  --pink:#f29a8c;
+  --yolk:#ffd447;
+  --tomato:#ff6b5e;
+  --sky:#8ec8f2;
+  --biscuit:#f6c66b;
+  --ink2:#3e2d42;
+  /* (the older names, kept so everything already using them picks up the palette) */
+  --night:var(--ink);
+  --slate:var(--ink2);
+  --bone:var(--paper);
+  --moss:var(--gus);
+  --clay:var(--biscuit);
+  --mute:#c9b8c4;
+  --blood:var(--tomato);
+  --gertie:var(--pink);
+  --f-px:"Jersey 10", "Atkinson Hyperlegible Mono", ui-monospace, monospace;
   --f-display:"Atkinson Hyperlegible Next", "Segoe UI", system-ui, sans-serif;
   --f-body:"Atkinson Hyperlegible Next", "Segoe UI", system-ui, sans-serif;
   --f-mono:"Atkinson Hyperlegible Mono", "Atkinson Hyperlegible Next", ui-monospace, monospace;
+  /* hand-drawn corners: uneven radii, so no two edges look ruled */
+  --wob:18px 26px 16px 28px/26px 16px 28px 18px;
+  --wob2:28px 14px 24px 16px/14px 26px 16px 24px;
+  --wobb:22px 30px 20px 32px/30px 20px 32px 22px;
+  --wobs:10px 14px 9px 15px/14px 9px 15px 10px;
+  --dither:repeating-conic-gradient(rgba(201,138,78,.13) 0 25%,transparent 0 50%);
   color-scheme:dark;
 }
 html,body{height:100%;overflow:hidden}
@@ -626,6 +645,48 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 .vchud .vc .ic{display:inline-block;width:1.3em;text-align:center}
 .vchud .vc.mute{opacity:.6}
 @media (pointer:coarse){.chat{bottom:calc(412px + env(safe-area-inset-bottom,0px))}}   /* (above the touch screen's minimap, which sits higher) */
+
+/* ================= UI overhaul: shared pieces (docs/ui-overhaul/Kit.html) ================= */
+/* Jersey 10 for anything shouted (titles, buttons, numbers); the reading font stays for anything read */
+.px{font-family:var(--f-px);font-weight:400!important;letter-spacing:.5px}
+/* a wobbly panel: thick ink line, uneven corners, a hard ink shadow with no blur */
+.wob{border:4px solid var(--ink);border-radius:var(--wob);box-shadow:6px 6px 0 var(--ink)}
+.wob2{border:4px solid var(--ink);border-radius:var(--wob2);box-shadow:6px 6px 0 var(--ink)}
+/* paper with a faint 2-pixel checker dither, like an old console's shading */
+.paper{background-color:var(--paper);background-image:var(--dither);background-size:6px 6px;color:var(--ink)}
+.sticker{border:3px solid var(--ink);border-radius:var(--wobs);box-shadow:4px 4px 0 var(--ink)}
+/* the stepped ink outline round shouted text (out: big, out2: small) */
+.out{text-shadow:3px 0 var(--ink),-3px 0 var(--ink),0 3px var(--ink),0 -3px var(--ink),3px 3px var(--ink),-3px 3px var(--ink),3px -3px var(--ink),-3px -3px var(--ink),0 7px var(--ink),3px 7px var(--ink),-3px 7px var(--ink)}
+.out2{text-shadow:2px 0 var(--ink),-2px 0 var(--ink),0 2px var(--ink),0 -2px var(--ink),2px 2px var(--ink),-2px 2px var(--ink),2px -2px var(--ink),-2px -2px var(--ink),0 4px var(--ink)}
+/* a chunky button: crayon fill, ink line, a lip of shadow underneath and a shine along the top */
+.ck{display:flex;align-items:center;justify-content:center;gap:12px;box-sizing:border-box;font:400 24px/1 var(--f-px);letter-spacing:.5px;color:var(--ink);background:var(--biscuit);text-decoration:none;
+  border:4px solid var(--ink);border-radius:var(--wobb);box-shadow:0 6px 0 var(--ink),inset 0 -7px 0 rgba(0,0,0,.16),inset 0 5px 0 rgba(255,255,255,.5);cursor:pointer;padding:10px 18px;text-transform:uppercase;transition:transform .08s}
+.ck:nth-child(even){border-radius:30px 20px 32px 22px/20px 30px 22px 32px}
+.ck:active{transform:translateY(3px);box-shadow:0 3px 0 var(--ink),inset 0 -7px 0 rgba(0,0,0,.16),inset 0 5px 0 rgba(255,255,255,.5)}
+.ck.go{background:var(--gus)}.ck.co{background:var(--pink)}.ck.on{background:var(--sky)}.ck.set{background:var(--biscuit)}.ck.quit{background:#eadfcc}.ck.yolk{background:var(--yolk)}
+.ck:hover{filter:brightness(1.05)}
+/* the focused one bobs and tilts inside a dashed yolk ring, so it can be spotted from the couch */
+.ck:focus-visible,.ck.padfocus,#pause .ck.padfocus{outline:5px dashed var(--yolk)!important;outline-offset:6px!important;animation:ckBob 1.1s ease-in-out infinite;box-shadow:0 6px 0 var(--ink),inset 0 -7px 0 rgba(0,0,0,.16),inset 0 5px 0 rgba(255,255,255,.5)!important}
+@keyframes ckBob{0%,100%{transform:rotate(-1.5deg) translateY(0) scale(1.04)}50%{transform:rotate(1deg) translateY(-5px) scale(1.04)}}
+@keyframes ckWig{0%,100%{transform:rotate(-5deg) scale(1)}50%{transform:rotate(4deg) scale(1.1)}}
+@keyframes ckRise{0%{transform:translateY(14px) scale(.6);opacity:0}15%{transform:translateY(0) scale(1.25);opacity:1}30%{transform:translateY(-6px) scale(1)}100%{transform:translateY(-54px) scale(1);opacity:0}}
+/* a tag in the corner (1P, 2P, NEW...) */
+.tag{display:inline-block;font:400 18px/1 var(--f-px);letter-spacing:.5px;padding:4px 9px 3px;color:var(--ink);background:var(--gus);border:3px solid var(--ink);border-radius:8px 11px 7px 12px/11px 7px 12px 8px;box-shadow:3px 3px 0 var(--ink);transform:rotate(-8deg)}
+.tag.p2{background:var(--pink)}
+/* reduced motion (the Options switch, or the system's own setting): no wobble, bob or pop */
+@media (prefers-reduced-motion:reduce){.ck:focus-visible,.ck.padfocus,#pause .ck.padfocus{animation:none}}
+body.calm .ck:focus-visible,body.calm .ck.padfocus,body.calm #pause .ck.padfocus{animation:none}
+body.calm *{animation-duration:0s!important;animation-iteration-count:1!important;transition-duration:0s!important}
+
+/* ---- button prompts, redrawn in the kit's style: face buttons as crayon discs, keys as paper keycaps ---- */
+.prompts{font:400 17px var(--f-px);letter-spacing:.4px;border-top:0;gap:8px 22px}
+.prompts .pl{color:var(--paper)}
+.g{font:400 15px/1 var(--f-px);letter-spacing:.3px}
+.gface{width:26px;height:26px;border:3px solid var(--ink);color:var(--ink);box-shadow:0 3px 0 var(--ink)}
+.gface.ps{background:var(--ink2);border-color:var(--ink)}
+.gsh,.gtr,.gpill{background:var(--paper);color:var(--ink);border:3px solid var(--ink);box-shadow:0 3px 0 var(--ink);height:26px}
+.gkey{min-width:28px;height:26px;padding:0 7px;background:var(--paper);color:var(--ink);border:3px solid var(--ink);border-radius:6px;box-shadow:0 3px 0 var(--ink)}
+.prompts .g,.hint .g,.label .g{margin-bottom:3px}
 </style>
 
 <canvas id="world"></canvas>
@@ -858,6 +919,8 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 <details class="pn-up pn-fold pn-new" id="version-0-3" open><summary tabindex="0"><h2>Version 0.3</h2><span class="pn-tog" aria-hidden="true"></span></summary>
 <h3>Highlights</h3>
 <ul><li>Play online: up to four players in one city over the internet. One hosts, and the others pick the game from the Open games list, or type in its room code for a private game. Find it under Play online on the main menu.</li><li>Text chat and opt-in voice chat in online games.</li><li>Two players can share one armed vehicle, one driving and one on the gun.</li><li>Police draw handguns at range, and every goblin attack has a proper wind-up and strike.</li></ul>
+<h3>A new look</h3>
+<ul><li>The game has a new coat of paint: flat crayon colours, thick ink outlines with hand-drawn corners, and a chunky pixel font (Jersey 10) for titles, buttons and numbers. Anything you read, like descriptions and these notes, keeps the easy-to-read font.</li><li>Button prompts are drawn as the buttons themselves in the new style: crayon-coloured face buttons and paper keycaps.</li></ul>
 <h3>Split-screen co-op menus</h3>
 <ul><li>Both players get the full pause menu now. Press Start to pause your own half of the screen, then Y (or click Pause menu) to open the menu as yours. Its corner says whose menu it is, and only that player's controller moves around it.</li><li>Player two's menu leaves out what changes the game for both of you: Game options, the Dev tab, the Testing Environment, and the new city, solo, online and hostility controls. Those stay with player one, and so does the debug menu on Select.</li><li>In player two's menu, the button that carries on playing says Resume rather than Co-op.</li><li>Picking characters has moved to the Character tab, and the Game tab just says who you're playing as, with a link there.</li><li>Each player can now be any of the four: Gus, Gertie, Gnash or Grizzle. Pick the one the other player has and you swap over, so you can always tell each other apart. Grizzle wears red, Gnash blue.</li></ul>
 <h3>Online co-op</h3>
@@ -8480,6 +8543,40 @@ function grunt(p,dbl){
   }catch(e){}
 }
 
+// ---------- Pixel sprites (the menus' and HUD's little portraits and hearts) ----------
+// Drawn the way the style kit draws them: one tiny square with a box-shadow per pixel, so they stay crisp at any size
+// and need no image files. Each is a grid of letters, a letter per colour in its palette ('.' is see-through).
+// sprCls(name,px) makes the CSS for that sprite at that pixel size the first time it's asked for and gives back the
+// class to put on an empty element (width and height come with it); sprHTML is the same as markup.
+const SPR={
+  gus:{c:['#2b1b2e','#8f86a8','#ffffff','#bdb5d0','#e8798a'],g:[
+    '..aa......aa..','.abba....abba.','.abbaaaaaabba.','abbbbbbbbbbbba','abbcabbbbcabba','abbccbbbbccbba',
+    'adddddddddddda','adaddddddddada','adddddddddddda','aeceeeeeeeceea','.aeeeeeeeeeea.','..aaaaaaaaaa..']},
+  gertie:{c:['#e2336b','#2b1b2e','#e99a8a','#ffffff','#f8c8b8','#c9455e'],g:[
+    '..aaa.....bb..','.baaab...bccb.','.bccbbbbbbccb.','bccccccccccccb','bccdbccccdbccb','bccddccccddccb',
+    'beeeeeeeeeeeeb','bebeeeeeeeebeb','beeeeeeeeeeeeb','bfdfffffffdffb','.bffffffffffb.','..bbbbbbbbbb..']},
+  gnash:{c:['#2b1b2e','#6fbf3a','#ffd447','#ffffff','#3d7fd6'],g:[
+    '....aaaaaa....','...abbbbbba...','aa.abbbbbba.aa','ababbbbbbbbaba','.abbcabbcabba.','..abbbbbbbba..',
+    '..abadadadba..','...abbbbbba...','...aeeeeeea...','..aeeeeeeeea..','..aaaaaaaaaa..']},
+  grizzle:{c:['#2b1b2e','#6fbf3a','#ffd447','#ffffff','#e0443a'],g:[
+    '....aaaaaa....','...abbbbbba...','aa.abbbbbba.aa','ababbbbbbbbaba','.abbcabbcabba.','..abbbbbbbba..',
+    '..abadadadba..','...abbbbbba...','...aeeeeeea...','..aeeeeeeeea..','..aaaaaaaaaa..']},
+  heart:{c:['#2b1b2e','#ff4d5e','#ffd0d6'],g:['.aa...aa.','abba.abba','abcbabbba','abbbbbbba','.abbbbba.','..abbba..','...aba...','....a....']},
+  // (half a heart: the right half emptied)
+  hearth:{c:['#2b1b2e','#ff4d5e','#ffd0d6','#6b5a6e'],g:['.aa...aa.','abba.adda','abcbaddda','abbbbddda','.abbbdda.','..abdda..','...ada...','....a....']},
+  hearte:{c:['#2b1b2e','#6b5a6e'],g:['.aa...aa.','abba.abba','abbbabbba','abbbbbbba','.abbbbba.','..abbba..','...aba...','....a....']},
+};
+const SPR_DONE=new Set();let SPR_SHEET=null;
+function sprCls(name,px){
+  const cl='spr-'+name+'-'+px;if(SPR_DONE.has(cl))return cl;SPR_DONE.add(cl);
+  const S=SPR[name];if(!S)return cl;
+  const sh=[];S.g.forEach((row,y)=>{for(let x=0;x<row.length;x++){const k=row.charCodeAt(x)-97;if(k>=0&&k<S.c.length)sh.push(((x+1)*px)+'px '+((y+1)*px)+'px 0 0 '+S.c[k]);}});
+  const css='.'+cl+'{display:inline-block;position:relative;width:'+(S.g[0].length*px)+'px;height:'+(S.g.length*px)+'px;flex:none;vertical-align:middle}'+
+    '.'+cl+'::before{content:"";position:absolute;left:'+(-px)+'px;top:'+(-px)+'px;width:'+px+'px;height:'+px+'px;box-shadow:'+sh.join(',')+'}';
+  try{if(!SPR_SHEET){SPR_SHEET=document.createElement('style');SPR_SHEET.id='sprCss';(document.head||document.body).appendChild(SPR_SHEET);}SPR_SHEET.textContent+=css;}catch(e){}
+  return cl;
+}
+const sprHTML=(name,px,extra)=>'<i class="spr '+sprCls(name,px)+(extra?' '+extra:'')+'" aria-hidden="true"></i>';
 // ---------- Particles, decals ----------
 // Dust, smoke, sparks, flying rubble and blood are hundreds of little boxes, and in a big collapse most are in the air at once.
 // Each is an ordinary object to the code that moves it (position, rotation, scale, material.color), but none is in the scene:
@@ -13727,7 +13824,7 @@ document.getElementById('pnLatest').addEventListener('click',()=>{showTab('notes
 // ---- button prompts: a row along the bottom of each menu showing just the inputs that do something there ----
 // glyph ids: A B X Y (face buttons), LB RB LT RT, LS/RS (':v' up-down, ':h' left-right), DPAD (':v'/':h'),
 // START SELECT, KEY:<label>, LMB WHEEL MDRAG (mouse), TAP TDRAG (touch)
-const GL_FACE={A:['#5bb04a','cross','#7fa8ff'],B:['#d8483b','circle','#ff6b6b'],X:['#3f7fd8','square','#f08ad0'],Y:['#e2b42c','triangle','#4fd0a0']};
+const GL_FACE={A:['#7fd14a','cross','#7fa8ff'],B:['#ff6b5e','circle','#ff6b6b'],X:['#8ec8f2','square','#f08ad0'],Y:['#ffd447','triangle','#4fd0a0']};   // (the palette's green, tomato, sky and yolk)
 const glEsc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function glyph(id){
   const ps=padStyle==='ps';

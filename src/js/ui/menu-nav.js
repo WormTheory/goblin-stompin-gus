@@ -123,7 +123,7 @@ document.getElementById('pnLatest').addEventListener('click',()=>{showTab('notes
 // ---- button prompts: a row along the bottom of each menu showing just the inputs that do something there ----
 // glyph ids: A B X Y (face buttons), LB RB LT RT, LS/RS (':v' up-down, ':h' left-right), DPAD (':v'/':h'),
 // START SELECT, KEY:<label>, LMB WHEEL MDRAG (mouse), TAP TDRAG (touch)
-const GL_FACE={A:['#5bb04a','cross','#7fa8ff'],B:['#d8483b','circle','#ff6b6b'],X:['#3f7fd8','square','#f08ad0'],Y:['#e2b42c','triangle','#4fd0a0']};
+const GL_FACE={A:['#7fd14a','cross','#7fa8ff'],B:['#ff6b5e','circle','#ff6b6b'],X:['#8ec8f2','square','#f08ad0'],Y:['#ffd447','triangle','#4fd0a0']};   // (the palette's green, tomato, sky and yolk)
 const glEsc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function glyph(id){
   const ps=padStyle==='ps';

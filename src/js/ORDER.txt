@@ -24,6 +24,7 @@ render/meshing.js
 render/sky.js
 render/weather.js
 core/audio.js
+ui/sprites.js
 destruction/smashing.js
 destruction/structure.js
 destruction/topple.js

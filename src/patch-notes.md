@@ -9,6 +9,11 @@
 - Two players can share one armed vehicle, one driving and one on the gun.
 - Police draw handguns at range, and every goblin attack has a proper wind-up and strike.
 
+### A new look
+
+- The game has a new coat of paint: flat crayon colours, thick ink outlines with hand-drawn corners, and a chunky pixel font (Jersey 10) for titles, buttons and numbers. Anything you read, like descriptions and these notes, keeps the easy-to-read font.
+- Button prompts are drawn as the buttons themselves in the new style: crayon-coloured face buttons and paper keycaps.
+
 ### Split-screen co-op menus
 
 - Both players get the full pause menu now. Press Start to pause your own half of the screen, then Y (or click Pause menu) to open the menu as yours. Its corner says whose menu it is, and only that player's controller moves around it.
