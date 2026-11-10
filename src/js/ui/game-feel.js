@@ -87,6 +87,11 @@ function wreckHud(p,dt){
   const pc=Math.round(v*100),t=(WRECK_WORD[setKind(S)]||'Town')+' wrecked',k=t+pc;
   if(u.wreckK!==k){u.wreckK=k;u.wkT.textContent=t;u.wkV.textContent=pc+'%';u.wkFill.style.width=pc+'%';u.wkFill.classList.toggle('none',pc===0);}
 }
+// (Options: reduced motion, kept in this browser; the system's own setting turns it on too, see reduceMotion)
+const CALM_KEY='goblin-stompin-gus-calm';
+{let on=false;try{on=localStorage.getItem(CALM_KEY)==='1';}catch(e){}
+ const t=document.getElementById('calmTog'),set=v=>{on=v;try{document.body.classList.toggle('calm',v);}catch(e){}if(t)t.setAttribute('aria-checked',String(v));};
+ set(on);if(t)t.addEventListener('click',()=>{set(!on);try{localStorage.setItem(CALM_KEY,on?'1':'0');}catch(e){}});}
 // (Options: the damage numbers and shouts switch)
 {const t=document.getElementById('popsTog');
  if(t){const show=()=>t.setAttribute('aria-checked',String(POPS_ON));show();

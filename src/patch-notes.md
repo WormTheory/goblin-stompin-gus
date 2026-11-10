@@ -29,6 +29,8 @@
 - What you've just wrecked is listed in stickers in the top right, newest on top, with the points it earned (combo included), fading as they get older.
 - A City wrecked card in the bottom right shows how much of the place you're in you've knocked down (Town or Village wrecked in smaller places).
 - In split screen and online, each player has their own combo, pop-ups and list of what they've wrecked, from their own hits. The best combo shows in the pause menu's rampage card, and a new city starts it all again.
+- A Reduced motion switch in Options, under On screen, stops the wobbling, bobbing and popping of the menus and the display and holds Gus still on the title screen. It's on by itself if your system asks for less motion.
+- Sounds for the points as they pop up (rising as your combo climbs) and a fanfare for each combo milestone.
 - Arriving somewhere puts its name up on a big sticker. Chat, voice chips, the controls hint, the debug menu and each co-op player's own pause panel are restyled too, and in split screen each half's name is a 1P-green or 2P-pink tag.
 
 ### Split-screen co-op menus
