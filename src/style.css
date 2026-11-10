@@ -903,6 +903,15 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
 .seg button[aria-checked="true"]{background:var(--gus);color:var(--ink)}
 .seg[data-p="1"] button[aria-checked="true"]{background:var(--pink);color:var(--ink)}
 .vrange{accent-color:#4f9a24}
+/* Options sliders: the label sits left of its slider in a column of one width, so every slider lines up, with the value
+   on the right and the note under the row. A narrow menu (a small window, a phone) puts the label back above the
+   slider, measured on the options column itself rather than the window */
+.opts{container-type:inline-size}
+.opts .hostmain{margin:0;max-width:none}
+.opts .crow{display:grid;grid-template-columns:240px minmax(0,1fr) auto;gap:6px 16px}
+.opts .crow .vrange{min-width:0;width:100%}
+.clab{font:400 18px/1 var(--f-px);letter-spacing:.5px;color:var(--ink);text-transform:uppercase;cursor:pointer}
+@container (max-width:520px){.opts .crow{grid-template-columns:minmax(0,1fr) auto}.opts .crow .clab{grid-column:1/-1}}
 .tog{background:#fffaf0;color:var(--ink);border:3px solid var(--ink);border-radius:9px 12px 8px 13px/12px 8px 13px 9px;box-shadow:0 3px 0 var(--ink)}
 .tog:hover{border-color:var(--ink);background:#fff2c8}
 .ab-row>.tog{border-left-width:6px;border-left-color:#8a7a8e}
