@@ -689,7 +689,10 @@ body.attitle #hud{visibility:hidden}
 .pause.title .tabs{display:none}
 .pause.title.home .card{width:100%;height:100%;max-height:none;background:none;border:0;box-shadow:none;padding:0;overflow:visible;display:block}
 .pause.title.home .card .main{height:100%;position:relative;gap:0}
-.pause.title.home #tabGame{position:absolute;inset:0;overflow:hidden;padding:0}
+/* (the menu card and, under it, the What's new sticker and the notes, stacked down the right in that order: one follows
+   the other, so the sticker can never land on the card's buttons whatever the window's size) */
+.pause.title.home #tabGame{position:absolute;inset:0;overflow:hidden;box-sizing:border-box;padding:max(20px,7vh) max(20px,6vw) 106px;display:flex;flex-direction:column;align-items:flex-end;justify-content:flex-start;gap:20px}
+.pause.title.home .gamemain{display:contents}
 .pause.title.home #tabGame>*{margin:0!important}
 /* the ground along the bottom, with the button prompts on it */
 .pause.title.home::after{content:"";position:fixed;left:0;right:0;bottom:0;height:92px;background-color:#c98a4e;background-image:repeating-conic-gradient(rgba(43,27,46,.16) 0 25%,transparent 0 50%);background-size:8px 8px;border-top:4px solid var(--ink);z-index:-1;pointer-events:none}
@@ -704,7 +707,7 @@ body.attitle #hud{visibility:hidden}
 @media (prefers-reduced-motion:reduce){.card h1.tlogo em.tl2{animation:none}}
 /* the main menu card, on the right */
 .tmenu{width:min(400px,100%);box-sizing:border-box;padding:28px 30px 24px;display:flex;flex-direction:column;gap:18px;margin-inline:auto;text-align:left}
-.pause.title.home .tmenu{position:absolute;right:max(20px,6vw);top:max(20px,9.5vh);transform:rotate(1.2deg);max-height:calc(100vh - 128px - max(20px,9.5vh));overflow-y:auto;overflow-x:hidden;scrollbar-width:thin}
+.pause.title.home .tmenu{position:relative;flex:0 1 auto;min-height:0;margin:0;transform:rotate(1.2deg);overflow-y:auto;overflow-x:hidden;scrollbar-width:thin}
 .tmenu .ck{width:100%;height:62px;font-size:28px;flex:none}
 .tmenu .ck.tbig{height:82px;font-size:40px}
 .tmenu .tm2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -724,12 +727,16 @@ body.attitle #hud{visibility:hidden}
 /* "What's new", a yolk sticker under the card; the version, bottom left */
 .gamepane .pnlatest.sticker{background:var(--yolk);color:var(--ink);font:400 20px/1 var(--f-px);letter-spacing:.5px;padding:10px 16px;transform:rotate(-4deg);text-transform:uppercase;text-decoration:none}
 .gamepane .pnlatest.sticker:hover{text-decoration:none;filter:brightness(1.05)}
-.pause.title.home .gamefoot{position:absolute;right:max(16px,5vw);bottom:112px;display:flex;flex-direction:column;align-items:flex-end;gap:6px;padding:0;max-width:44vw}
+.pause.title.home .gamefoot{position:static;flex:none;width:auto;display:flex;flex-direction:column;align-items:flex-end;gap:6px;padding:0;max-width:44vw}
 .pause.title.home .gamefoot .note{color:var(--paper);font:600 12px/1.35 var(--f-body);text-align:right;text-shadow:1px 0 var(--ink),-1px 0 var(--ink),0 1px var(--ink),0 -1px var(--ink),0 2px var(--ink)}
-.pause.title.home .gamefoot .pnlatest{align-self:flex-end;margin-bottom:8px}
+.pause.title.home .gamefoot .pnlatest{align-self:flex-end;margin:0 8px 0 0!important}
+/* (the controller and city seed notes go down on the ground, bottom right, clear of the prompts in the middle) */
+.pause.title.home .gamefoot .note{position:fixed;right:max(16px,3vw);max-width:calc(50vw - 230px);z-index:1}
+.pause.title.home .gamefoot #padNote{bottom:50px}.pause.title.home .gamefoot #seedNote{bottom:22px}
+@media (max-width:1100px){.pause.title.home .gamefoot .note{display:none}}
 .vertag{display:none}
 .pause.title.home .vertag{display:block;position:fixed;left:22px;bottom:30px;font:400 18px var(--f-px);color:var(--paper)}
-@media (max-width:860px){.pause.title .card h1.tlogo{left:16px;top:12px;width:calc(100% - 32px)}.pause.title.home .tmenu{left:16px;right:16px;margin:auto;top:auto;bottom:104px;transform:none;width:auto;max-height:calc(100vh - 300px)}.pause.title.home .gamefoot{display:none}}
+@media (max-width:860px){.pause.title .card h1.tlogo{left:16px;top:12px;width:calc(100% - 32px)}.pause.title.home .tmenu{position:absolute;left:16px;right:16px;margin:auto;top:auto;bottom:104px;transform:none;width:auto;max-height:calc(100vh - 300px)}.pause.title.home .gamefoot{display:none}}
 @media (max-height:620px){.tmenu .ck{height:50px;font-size:24px}.tmenu .ck.tbig{height:60px;font-size:32px}.tmenu{gap:12px;padding:18px 22px}}
 
 /* ---- a screen opened from the menu: its own head with a Back button ---- */
@@ -745,7 +752,9 @@ body.attitle #hud{visibility:hidden}
 .charsel{width:100%;gap:18px}
 .cs-top{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
 .cs-top .cs-h{font:600 14px var(--f-body);letter-spacing:0;text-transform:none;color:var(--mute)}
-.cs-row{grid-template-columns:repeat(4,minmax(0,1fr));gap:26px;padding:24px 14px 8px}
+/* (room all round the cards for what sticks out of them, so the pane they scroll in never cuts it off: a picked card's
+   ring, 10px out, the 1P / 2P tags, 16px over the edge, the tilt, and the focused card's dashed ring and bob) */
+.cs-row{grid-template-columns:repeat(4,minmax(0,1fr));gap:30px;padding:34px 30px 18px}
 .cs-card{--cc:#b7f08a;position:relative;justify-content:flex-start;gap:12px;min-height:270px;padding:22px 12px 16px;color:var(--ink);background-color:var(--paper);background-image:var(--dither);background-size:6px 6px;border:4px solid var(--ink);border-radius:var(--wob);box-shadow:6px 6px 0 var(--ink);transform:rotate(-1deg);transition:transform .12s}
 .cs-card:nth-child(even){border-radius:var(--wob2);transform:rotate(1.5deg)}
 .cs-card:nth-child(3){transform:rotate(-1deg)}.cs-card:nth-child(4){transform:rotate(2deg)}
@@ -809,12 +818,14 @@ body.attitle #hud{visibility:hidden}
 .pause:not(.title).home .card .main{display:grid;grid-template-columns:330px minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;gap:0 28px}
 .pause:not(.title).home .tabs{grid-row:1/3;grid-column:1}
 .pause:not(.title).home #tabGame{grid-row:1;grid-column:2}
-.pause:not(.title) .tabs{flex-direction:column;gap:12px;border:0;margin:0;padding:6px 4px 6px 2px;overflow-y:auto;overflow-x:visible;scrollbar-width:thin}
+/* (the column never scrolls: its buttons give up height, and their gaps, to fit whatever room there is, so no scroll
+   bars ever turn up round it; a focused button's bob and dashed ring are free to spill over its edges) */
+.pause:not(.title) .tabs{flex-direction:column;gap:clamp(4px,1.5vh,12px);border:0;margin:0;padding:6px 4px 6px 2px;overflow:visible;min-height:0;min-width:0}
 .pause:not(.home) .tabs{display:none}
 #pause .tabs #tabBtnGame{display:none}
-#pause .tabs .ck{display:flex;width:100%;height:48px;flex:none;margin:0;padding:4px 14px;font:400 22px/1 var(--f-px);letter-spacing:.5px;color:var(--ink);text-transform:uppercase;border:4px solid var(--ink);border-radius:var(--wobb);box-shadow:0 6px 0 var(--ink),inset 0 -7px 0 rgba(0,0,0,.16),inset 0 5px 0 rgba(255,255,255,.5)}
+#pause .tabs .ck{display:flex;width:100%;height:auto;flex:0 1 48px;min-height:24px;margin:0;padding:2px 14px;font:400 clamp(15px,3vh,22px)/1 var(--f-px);letter-spacing:.5px;color:var(--ink);text-transform:uppercase;border:4px solid var(--ink);border-radius:var(--wobb);box-shadow:0 6px 0 var(--ink),inset 0 -7px 0 rgba(0,0,0,.16),inset 0 5px 0 rgba(255,255,255,.5)}
 #pause .tabs .ck:nth-child(even){border-radius:30px 20px 32px 22px/20px 30px 22px 32px}
-#pause .tabs .ck.tresume{height:64px;font-size:30px;margin-bottom:2px}
+#pause .tabs .ck.tresume{flex-basis:64px;min-height:30px;font-size:clamp(18px,4.2vh,30px);margin-bottom:2px}
 #pause .tabs .ck[aria-selected="true"]{border-bottom-color:var(--ink)}
 #pause .tabs .cnt{display:inline-block;min-width:0;margin:0;padding:1px 8px 0;font:400 16px/1.2 var(--f-px);color:var(--paper);background:var(--tomato);border:3px solid var(--ink);border-radius:var(--wobs);box-shadow:2px 2px 0 var(--ink);vertical-align:0}
 #pause .tabs .cnt:empty,#pause .tabs .cnt.zero{display:none}
@@ -856,7 +867,18 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
 .rp-bar i.none{border-right:0}
 .card .rp-note{margin:0;font:400 16px/1.4 var(--f-body);color:var(--ink)}
 .rp-note:empty{display:none}
-@media (max-height:640px){.rp-t b{font-size:34px}.rp-t{padding:8px 12px}.rp-tiles{gap:10px}.pause:not(.title) .tabs{gap:8px}#pause .tabs .ck{height:40px;font-size:19px}#pause .tabs .ck.tresume{height:50px;font-size:24px}}
+/* (the rampage card shrinks with the window so it fits beside the column without scrolling; if a very small window
+   still can't hold it all, it scrolls with the wheel or controller, but never shows a scroll bar) */
+.pause:not(.title) #tabGame{scrollbar-width:none}
+.pause:not(.title) #tabGame::-webkit-scrollbar{display:none}
+.pause:not(.title) .rampage{gap:clamp(6px,1.8vh,14px)}
+.pause:not(.title) .rp-tiles{gap:clamp(8px,2vh,16px)}
+.pause:not(.title) .rp-t{padding:clamp(5px,1.4vh,12px) 16px}
+.pause:not(.title) .rp-t b{font-size:clamp(26px,5.6vh,44px)}
+.pause:not(.title) .rp-head h2{font-size:clamp(24px,4.4vh,32px)}
+@media (max-height:820px){.pause:not(.title) .gamefoot #padNote{display:none}}
+@media (max-height:640px){.pause:not(.title) .rp-note{display:none}.pause:not(.title) .rp-bar{height:18px}.pause:not(.title) .rp-wl{margin-bottom:3px}}
+@media (max-width:860px) and (min-width:520px){.pause:not(.title) .rp-tiles{grid-template-columns:repeat(4,minmax(0,1fr))}.pause:not(.title) .rp-t b{font-size:clamp(22px,4.6vh,34px)}}
 @media (max-width:860px){
   .pause:not(.title).home .card .main{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}
   .pause:not(.title).home .tabs{grid-row:1;flex-direction:row;flex-wrap:wrap;overflow:visible}
@@ -1025,7 +1047,10 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
 .pcard{background-color:var(--paper);background-image:var(--dither);background-size:6px 6px;color:var(--ink);border:4px solid var(--ink);border-radius:var(--wob);box-shadow:6px 6px 0 var(--ink);padding:20px 20px 16px;gap:14px;--bone:var(--ink);--mute:#5e4b60}
 .ptitle{font:400 30px/1 var(--f-px);letter-spacing:.5px;color:var(--ink)}
 .ptitle.p2{color:#b04a3e}
-.pcard .ck{width:100%;height:52px;font-size:24px}
+/* (a split-screen half's pause panel never scrolls either: its buttons give up height to fit a short half, and the
+   focused one's bob spills over freely) */
+.pcard{overflow:visible;min-height:0}
+.pcard .ck{width:100%;height:auto;flex:0 1 52px;min-height:30px;font-size:clamp(17px,3.4vh,24px)}
 .pcard .prompts .pl{color:var(--ink)}
 .join{font:400 26px/1.1 var(--f-px);letter-spacing:.5px;color:var(--paper);text-shadow:2px 0 var(--ink),-2px 0 var(--ink),0 2px var(--ink),0 -2px var(--ink),0 4px var(--ink);background:rgba(43,27,46,.4)}
 .divider{background:var(--ink)}

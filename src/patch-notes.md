@@ -6,14 +6,14 @@
 
 - The game has a new coat of paint: flat crayon colours, thick ink outlines with hand-drawn corners, and a chunky pixel font (Jersey 10) for titles, buttons and numbers. Anything you read, like descriptions and these notes, keeps the easy-to-read font.
 - Button prompts are drawn as the buttons themselves in the new style: crayon-coloured face buttons and paper keycaps.
-- A real title screen: the logo top left, and Gus himself stomping along a street in front of a scrolling city while you choose. The menu card on the right has Play, Co-op, Play online, New city and Options, with the Testing Environment, Dev and Full screen in a small Workshop line underneath, and a sticker for what's new.
+- A real title screen: the logo top left, and Gus himself stomping along a street in front of a scrolling city while you choose, flattening a goblin with every stomp. It's lit and shaded just like the game. The menu card on the right has Play, Co-op, Play online, New city and Options, with the Testing Environment, Dev and Full screen in a small Workshop line underneath, and a sticker for what's new.
 - The enemy hostility slider has moved from the main screen to the top of Options.
 - Picking a character is now "Who's stompin'?": four big cards for Gus, Gertie, Gnash and Grizzle, with a 1P tag on player one's pick and a 2P tag on player two's. Choose which player you're picking for at the top (player two's own menu always picks for player two), and a strip under the cards lists what that character can do with your current ability switches. Picking the other player's character still swaps you over.
 - On a controller, A on a character card picks them and takes you back ("Ready!"), and Y jumps down to the ability switches. Screens opened from a menu have a Back button: B or Esc goes back, and LB / RB (Q / E on the keyboard) jump between screens.
 - The pause menu is a column of big buttons (Resume, Map, Obituary with its count, Character, Controls, Options, Quit to title) beside a "This rampage" card: goblins flattened, your score, your best combo, cars tossed and how wrecked the place you're in is, with its name and the time of day. Underneath are this game's own controls: switch between solo and co-op, Play online, New city, the Testing Environment and Full screen.
 - Map, Obituary, Character, Controls, Options and Patch notes open in the same card, sliding in from the right, and always start you back on the menu's own buttons when you pause again. B or Esc on the menu itself resumes.
 - Quit to title takes you back to the title screen with Gus stomping along; your city, score and everyone in it are kept, so Play carries on where you left off.
-- Patch notes and Dev are small tags in the card's corner now. The card's corner says 1P MENU (green) or 2P MENU (pink), and player two's menu still leaves out Options, Dev, the Testing Environment, Quit to title and the city controls.
+- Patch notes and Dev are small tags in the card's corner now. In split-screen co-op the card's corner says 1P MENU (green) or 2P MENU (pink), so you can tell whose menu it is, and player two's menu still leaves out Options, Dev, the Testing Environment, Quit to title and the city controls.
 - Options, Controls, the Map, the Obituary and the Patch notes are on paper in the new style. The Dev tools and the Testing Environment keep a dark panel, in the new colours.
 - The HUD is redrawn to match: your score big in the top left with the goblins you've flattened under it (and stickers when cars or the police are after you), pixel hearts and the stamina bar in one paper panel at the bottom, the day and weather on a paper card beside a new clock disc, a round minimap, and the speedometer in ink and yolk.
 - Charging a stomp shows STOMP, then BIG STOMP, then shouts FULL CHARGE! when it's all the way up.
@@ -29,6 +29,11 @@
 ### Menus
 
 - In player two's menu, the button that carries on playing says Resume rather than Co-op.
+- The pause menu's buttons always fit in the window, at any size and in split screen, and never sit in a box with scroll bars.
+- The Map zooms out as far as it takes to see everywhere you've explored at once, however far you've roamed.
+- The highlight round the picked character cards, and their 1P and 2P tags, are no longer cut off at the edges.
+- The What's new sticker sits under the title menu instead of over the Full screen link, and the controller and city seed notes have moved down on to the ground.
+- The pixel-art portraits and hearts are solid at any zoom and on any screen, with no faint lines between their pixels.
 
 ## Version 0.3
 

@@ -62,8 +62,11 @@ function menuSeat(){
   if(two&&['options','dev','test'].includes(curTab))showTab('game');
 }
 // (the name over the tabs: whose menu it is, kept up to date if they pick someone else in the Character tab)
-// (the corner tag on the pause card: 1P MENU in Gus green, 2P MENU in Gertie pink, with whose it is beside it in co-op)
-function menuWhoShow(){const w=document.getElementById('menuWho');if(!w)return;w.hidden=!menuBy||atTitle;
+// (the corner tag on the pause card: 1P MENU in Gus green, 2P MENU in Gertie pink, with whose it is beside it; only in
+// split-screen co-op, since playing alone or online there's only ever the one menu on this screen)
+function menuWhoShow(){const w=document.getElementById('menuWho');if(!w)return;
+  let split=false;try{split=inCoop()&&!P2.net;}catch(e){}
+  w.hidden=!menuBy||atTitle||!split;
   if(menuBy){const two=menuBy!==P1;w.textContent=(two?'2P':'1P')+' menu';w.classList.toggle('p2',two);
     const sw=document.getElementById('subWho');if(sw)sw.textContent=inCoop()?charName(menuBy)+"'s menu":'';}}
 // The menu has two faces: the title screen (atTitle: before the first game, and after Quit to title), with the

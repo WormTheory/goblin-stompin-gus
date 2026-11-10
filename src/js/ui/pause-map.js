@@ -66,7 +66,25 @@ function seaMapCells(px,pz,n){
 }
 const MAPV={cx:null,cz:null,ppb:1.6,hl:null};   // hl: the legend entry being pointed at, lit up on the map   // centre (blocks) and pixels per block
 function mapPan(dx,dy){if(MAPV.cx===null)return;MAPV.cx+=dx/MAPV.ppb;MAPV.cz+=dy/MAPV.ppb;renderMap();}
-function mapZoom(k){MAPV.ppb=Math.max(0.35,Math.min(8,MAPV.ppb*k));renderMap();}
+// (the furthest out it goes is far enough to see everything you've explored at once, from wherever the map's centred,
+// however far you've roamed; never less far out than it always went)
+function mapMinPPB(){
+  const cv=document.getElementById('mapCanvas'),w=Math.max(200,cv&&cv.clientWidth||600),h=Math.max(200,cv&&cv.clientHeight||400),B=exploredBox();
+  if(!B)return 0.35;
+  const cx=MAPV.cx===null?B.x0*CELL:MAPV.cx,cz=MAPV.cz===null?B.z0*CELL:MAPV.cz;
+  const hx=Math.max(Math.abs(cx-(B.x0-1)*CELL),Math.abs((B.x1+2)*CELL-cx)),hz=Math.max(Math.abs(cz-(B.z0-1)*CELL),Math.abs((B.z1+2)*CELL-cz));
+  return Math.min(0.35,w/2/hx,h/2/hz);
+}
+function mapZoom(k){MAPV.ppb=Math.max(mapMinPPB(),Math.min(8,MAPV.ppb*k));renderMap();}
+// the corners of everything explored, in city blocks (worked out again only when more has been explored)
+let expBox=null,expBoxN=-1,expBoxSet=null;
+function exploredBox(){
+  if(expBoxN===explored.size&&expBoxSet===explored)return expBox;
+  expBoxN=explored.size;expBoxSet=explored;expBox=null;
+  for(const c of explored){const i=c.indexOf(','),a=+c.slice(0,i),b=+c.slice(i+1);
+    if(!expBox)expBox={x0:a,x1:a,z0:b,z1:b};else{if(a<expBox.x0)expBox.x0=a;if(a>expBox.x1)expBox.x1=a;if(b<expBox.z0)expBox.z0=b;if(b>expBox.z1)expBox.z1=b;}}
+  return expBox;
+}
 // back to where you are
 function mapRecentre(){MAPV.cx=null;renderMap();}
 function renderMap(){
@@ -79,7 +97,9 @@ function renderMap(){
   if(MAPV.cx===null){MAPV.cx=me.pos.x;MAPV.cz=me.pos.z;}
   const k=MAPV.ppb,ox=w/2-MAPV.cx*k,oz=h/2-MAPV.cz*k,X=v=>ox+v*k,Z=v=>oz+v*k;
   x.fillStyle='#0b0f13';x.fillRect(0,0,w,h);
-  const c0=Math.floor((MAPV.cx-w/2/k)/CELL)-1,c1=Math.ceil((MAPV.cx+w/2/k)/CELL)+1,r0=Math.floor((MAPV.cz-h/2/k)/CELL)-1,r1=Math.ceil((MAPV.cz+h/2/k)/CELL)+1;
+  let c0=Math.floor((MAPV.cx-w/2/k)/CELL)-1,c1=Math.ceil((MAPV.cx+w/2/k)/CELL)+1,r0=Math.floor((MAPV.cz-h/2/k)/CELL)-1,r1=Math.ceil((MAPV.cz+h/2/k)/CELL)+1;
+  // (zoomed right out, only look over the blocks that have been explored, not the whole view)
+  {const B=exploredBox();if(B){c0=Math.max(c0,B.x0-1);c1=Math.min(c1,B.x1+1);r0=Math.max(r0,B.z0-1);r1=Math.min(r1,B.z1+1);}}
   // everything drawn is tagged with its legend entry; the one being pointed at is drawn again, bright, over a dimmed map
   const HL=MAPV.hl,hits=[];
   const ruins=[];   // destroyed buildings, drawn last so they stand out

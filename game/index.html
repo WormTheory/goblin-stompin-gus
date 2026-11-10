@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:5535193ec0969b2c30f7d27a4c3d3a75e3af4c18e59c849395de929d62df36b0 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:3a7499377fc97d1aa52a8a78d086aa7bfd416e3fdfc4c10a2c524c4eaefc7ad5 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -695,7 +695,10 @@ body.attitle #hud{visibility:hidden}
 .pause.title .tabs{display:none}
 .pause.title.home .card{width:100%;height:100%;max-height:none;background:none;border:0;box-shadow:none;padding:0;overflow:visible;display:block}
 .pause.title.home .card .main{height:100%;position:relative;gap:0}
-.pause.title.home #tabGame{position:absolute;inset:0;overflow:hidden;padding:0}
+/* (the menu card and, under it, the What's new sticker and the notes, stacked down the right in that order: one follows
+   the other, so the sticker can never land on the card's buttons whatever the window's size) */
+.pause.title.home #tabGame{position:absolute;inset:0;overflow:hidden;box-sizing:border-box;padding:max(20px,7vh) max(20px,6vw) 106px;display:flex;flex-direction:column;align-items:flex-end;justify-content:flex-start;gap:20px}
+.pause.title.home .gamemain{display:contents}
 .pause.title.home #tabGame>*{margin:0!important}
 /* the ground along the bottom, with the button prompts on it */
 .pause.title.home::after{content:"";position:fixed;left:0;right:0;bottom:0;height:92px;background-color:#c98a4e;background-image:repeating-conic-gradient(rgba(43,27,46,.16) 0 25%,transparent 0 50%);background-size:8px 8px;border-top:4px solid var(--ink);z-index:-1;pointer-events:none}
@@ -710,7 +713,7 @@ body.attitle #hud{visibility:hidden}
 @media (prefers-reduced-motion:reduce){.card h1.tlogo em.tl2{animation:none}}
 /* the main menu card, on the right */
 .tmenu{width:min(400px,100%);box-sizing:border-box;padding:28px 30px 24px;display:flex;flex-direction:column;gap:18px;margin-inline:auto;text-align:left}
-.pause.title.home .tmenu{position:absolute;right:max(20px,6vw);top:max(20px,9.5vh);transform:rotate(1.2deg);max-height:calc(100vh - 128px - max(20px,9.5vh));overflow-y:auto;overflow-x:hidden;scrollbar-width:thin}
+.pause.title.home .tmenu{position:relative;flex:0 1 auto;min-height:0;margin:0;transform:rotate(1.2deg);overflow-y:auto;overflow-x:hidden;scrollbar-width:thin}
 .tmenu .ck{width:100%;height:62px;font-size:28px;flex:none}
 .tmenu .ck.tbig{height:82px;font-size:40px}
 .tmenu .tm2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -730,12 +733,16 @@ body.attitle #hud{visibility:hidden}
 /* "What's new", a yolk sticker under the card; the version, bottom left */
 .gamepane .pnlatest.sticker{background:var(--yolk);color:var(--ink);font:400 20px/1 var(--f-px);letter-spacing:.5px;padding:10px 16px;transform:rotate(-4deg);text-transform:uppercase;text-decoration:none}
 .gamepane .pnlatest.sticker:hover{text-decoration:none;filter:brightness(1.05)}
-.pause.title.home .gamefoot{position:absolute;right:max(16px,5vw);bottom:112px;display:flex;flex-direction:column;align-items:flex-end;gap:6px;padding:0;max-width:44vw}
+.pause.title.home .gamefoot{position:static;flex:none;width:auto;display:flex;flex-direction:column;align-items:flex-end;gap:6px;padding:0;max-width:44vw}
 .pause.title.home .gamefoot .note{color:var(--paper);font:600 12px/1.35 var(--f-body);text-align:right;text-shadow:1px 0 var(--ink),-1px 0 var(--ink),0 1px var(--ink),0 -1px var(--ink),0 2px var(--ink)}
-.pause.title.home .gamefoot .pnlatest{align-self:flex-end;margin-bottom:8px}
+.pause.title.home .gamefoot .pnlatest{align-self:flex-end;margin:0 8px 0 0!important}
+/* (the controller and city seed notes go down on the ground, bottom right, clear of the prompts in the middle) */
+.pause.title.home .gamefoot .note{position:fixed;right:max(16px,3vw);max-width:calc(50vw - 230px);z-index:1}
+.pause.title.home .gamefoot #padNote{bottom:50px}.pause.title.home .gamefoot #seedNote{bottom:22px}
+@media (max-width:1100px){.pause.title.home .gamefoot .note{display:none}}
 .vertag{display:none}
 .pause.title.home .vertag{display:block;position:fixed;left:22px;bottom:30px;font:400 18px var(--f-px);color:var(--paper)}
-@media (max-width:860px){.pause.title .card h1.tlogo{left:16px;top:12px;width:calc(100% - 32px)}.pause.title.home .tmenu{left:16px;right:16px;margin:auto;top:auto;bottom:104px;transform:none;width:auto;max-height:calc(100vh - 300px)}.pause.title.home .gamefoot{display:none}}
+@media (max-width:860px){.pause.title .card h1.tlogo{left:16px;top:12px;width:calc(100% - 32px)}.pause.title.home .tmenu{position:absolute;left:16px;right:16px;margin:auto;top:auto;bottom:104px;transform:none;width:auto;max-height:calc(100vh - 300px)}.pause.title.home .gamefoot{display:none}}
 @media (max-height:620px){.tmenu .ck{height:50px;font-size:24px}.tmenu .ck.tbig{height:60px;font-size:32px}.tmenu{gap:12px;padding:18px 22px}}
 
 /* ---- a screen opened from the menu: its own head with a Back button ---- */
@@ -751,7 +758,9 @@ body.attitle #hud{visibility:hidden}
 .charsel{width:100%;gap:18px}
 .cs-top{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
 .cs-top .cs-h{font:600 14px var(--f-body);letter-spacing:0;text-transform:none;color:var(--mute)}
-.cs-row{grid-template-columns:repeat(4,minmax(0,1fr));gap:26px;padding:24px 14px 8px}
+/* (room all round the cards for what sticks out of them, so the pane they scroll in never cuts it off: a picked card's
+   ring, 10px out, the 1P / 2P tags, 16px over the edge, the tilt, and the focused card's dashed ring and bob) */
+.cs-row{grid-template-columns:repeat(4,minmax(0,1fr));gap:30px;padding:34px 30px 18px}
 .cs-card{--cc:#b7f08a;position:relative;justify-content:flex-start;gap:12px;min-height:270px;padding:22px 12px 16px;color:var(--ink);background-color:var(--paper);background-image:var(--dither);background-size:6px 6px;border:4px solid var(--ink);border-radius:var(--wob);box-shadow:6px 6px 0 var(--ink);transform:rotate(-1deg);transition:transform .12s}
 .cs-card:nth-child(even){border-radius:var(--wob2);transform:rotate(1.5deg)}
 .cs-card:nth-child(3){transform:rotate(-1deg)}.cs-card:nth-child(4){transform:rotate(2deg)}
@@ -815,12 +824,14 @@ body.attitle #hud{visibility:hidden}
 .pause:not(.title).home .card .main{display:grid;grid-template-columns:330px minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;gap:0 28px}
 .pause:not(.title).home .tabs{grid-row:1/3;grid-column:1}
 .pause:not(.title).home #tabGame{grid-row:1;grid-column:2}
-.pause:not(.title) .tabs{flex-direction:column;gap:12px;border:0;margin:0;padding:6px 4px 6px 2px;overflow-y:auto;overflow-x:visible;scrollbar-width:thin}
+/* (the column never scrolls: its buttons give up height, and their gaps, to fit whatever room there is, so no scroll
+   bars ever turn up round it; a focused button's bob and dashed ring are free to spill over its edges) */
+.pause:not(.title) .tabs{flex-direction:column;gap:clamp(4px,1.5vh,12px);border:0;margin:0;padding:6px 4px 6px 2px;overflow:visible;min-height:0;min-width:0}
 .pause:not(.home) .tabs{display:none}
 #pause .tabs #tabBtnGame{display:none}
-#pause .tabs .ck{display:flex;width:100%;height:48px;flex:none;margin:0;padding:4px 14px;font:400 22px/1 var(--f-px);letter-spacing:.5px;color:var(--ink);text-transform:uppercase;border:4px solid var(--ink);border-radius:var(--wobb);box-shadow:0 6px 0 var(--ink),inset 0 -7px 0 rgba(0,0,0,.16),inset 0 5px 0 rgba(255,255,255,.5)}
+#pause .tabs .ck{display:flex;width:100%;height:auto;flex:0 1 48px;min-height:24px;margin:0;padding:2px 14px;font:400 clamp(15px,3vh,22px)/1 var(--f-px);letter-spacing:.5px;color:var(--ink);text-transform:uppercase;border:4px solid var(--ink);border-radius:var(--wobb);box-shadow:0 6px 0 var(--ink),inset 0 -7px 0 rgba(0,0,0,.16),inset 0 5px 0 rgba(255,255,255,.5)}
 #pause .tabs .ck:nth-child(even){border-radius:30px 20px 32px 22px/20px 30px 22px 32px}
-#pause .tabs .ck.tresume{height:64px;font-size:30px;margin-bottom:2px}
+#pause .tabs .ck.tresume{flex-basis:64px;min-height:30px;font-size:clamp(18px,4.2vh,30px);margin-bottom:2px}
 #pause .tabs .ck[aria-selected="true"]{border-bottom-color:var(--ink)}
 #pause .tabs .cnt{display:inline-block;min-width:0;margin:0;padding:1px 8px 0;font:400 16px/1.2 var(--f-px);color:var(--paper);background:var(--tomato);border:3px solid var(--ink);border-radius:var(--wobs);box-shadow:2px 2px 0 var(--ink);vertical-align:0}
 #pause .tabs .cnt:empty,#pause .tabs .cnt.zero{display:none}
@@ -862,7 +873,18 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
 .rp-bar i.none{border-right:0}
 .card .rp-note{margin:0;font:400 16px/1.4 var(--f-body);color:var(--ink)}
 .rp-note:empty{display:none}
-@media (max-height:640px){.rp-t b{font-size:34px}.rp-t{padding:8px 12px}.rp-tiles{gap:10px}.pause:not(.title) .tabs{gap:8px}#pause .tabs .ck{height:40px;font-size:19px}#pause .tabs .ck.tresume{height:50px;font-size:24px}}
+/* (the rampage card shrinks with the window so it fits beside the column without scrolling; if a very small window
+   still can't hold it all, it scrolls with the wheel or controller, but never shows a scroll bar) */
+.pause:not(.title) #tabGame{scrollbar-width:none}
+.pause:not(.title) #tabGame::-webkit-scrollbar{display:none}
+.pause:not(.title) .rampage{gap:clamp(6px,1.8vh,14px)}
+.pause:not(.title) .rp-tiles{gap:clamp(8px,2vh,16px)}
+.pause:not(.title) .rp-t{padding:clamp(5px,1.4vh,12px) 16px}
+.pause:not(.title) .rp-t b{font-size:clamp(26px,5.6vh,44px)}
+.pause:not(.title) .rp-head h2{font-size:clamp(24px,4.4vh,32px)}
+@media (max-height:820px){.pause:not(.title) .gamefoot #padNote{display:none}}
+@media (max-height:640px){.pause:not(.title) .rp-note{display:none}.pause:not(.title) .rp-bar{height:18px}.pause:not(.title) .rp-wl{margin-bottom:3px}}
+@media (max-width:860px) and (min-width:520px){.pause:not(.title) .rp-tiles{grid-template-columns:repeat(4,minmax(0,1fr))}.pause:not(.title) .rp-t b{font-size:clamp(22px,4.6vh,34px)}}
 @media (max-width:860px){
   .pause:not(.title).home .card .main{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}
   .pause:not(.title).home .tabs{grid-row:1;flex-direction:row;flex-wrap:wrap;overflow:visible}
@@ -1031,7 +1053,10 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
 .pcard{background-color:var(--paper);background-image:var(--dither);background-size:6px 6px;color:var(--ink);border:4px solid var(--ink);border-radius:var(--wob);box-shadow:6px 6px 0 var(--ink);padding:20px 20px 16px;gap:14px;--bone:var(--ink);--mute:#5e4b60}
 .ptitle{font:400 30px/1 var(--f-px);letter-spacing:.5px;color:var(--ink)}
 .ptitle.p2{color:#b04a3e}
-.pcard .ck{width:100%;height:52px;font-size:24px}
+/* (a split-screen half's pause panel never scrolls either: its buttons give up height to fit a short half, and the
+   focused one's bob spills over freely) */
+.pcard{overflow:visible;min-height:0}
+.pcard .ck{width:100%;height:auto;flex:0 1 52px;min-height:30px;font-size:clamp(17px,3.4vh,24px)}
 .pcard .prompts .pl{color:var(--ink)}
 .join{font:400 26px/1.1 var(--f-px);letter-spacing:.5px;color:var(--paper);text-shadow:2px 0 var(--ink),-2px 0 var(--ink),0 2px var(--ink),0 -2px var(--ink),0 4px var(--ink);background:rgba(43,27,46,.4)}
 .divider{background:var(--ink)}
@@ -1322,9 +1347,9 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <p class="pn-web">What's changed, newest first. These notes are also on <a href="patch-notes/index.html" target="_blank" rel="noopener">their own web page</a>.</p>
 <details class="pn-up pn-fold pn-new" id="version-0-4" open><summary tabindex="0"><h2>Version 0.4</h2><span class="pn-tog" aria-hidden="true"></span></summary>
 <h3>A new look</h3>
-<ul><li>The game has a new coat of paint: flat crayon colours, thick ink outlines with hand-drawn corners, and a chunky pixel font (Jersey 10) for titles, buttons and numbers. Anything you read, like descriptions and these notes, keeps the easy-to-read font.</li><li>Button prompts are drawn as the buttons themselves in the new style: crayon-coloured face buttons and paper keycaps.</li><li>A real title screen: the logo top left, and Gus himself stomping along a street in front of a scrolling city while you choose. The menu card on the right has Play, Co-op, Play online, New city and Options, with the Testing Environment, Dev and Full screen in a small Workshop line underneath, and a sticker for what's new.</li><li>The enemy hostility slider has moved from the main screen to the top of Options.</li><li>Picking a character is now "Who's stompin'?": four big cards for Gus, Gertie, Gnash and Grizzle, with a 1P tag on player one's pick and a 2P tag on player two's. Choose which player you're picking for at the top (player two's own menu always picks for player two), and a strip under the cards lists what that character can do with your current ability switches. Picking the other player's character still swaps you over.</li><li>On a controller, A on a character card picks them and takes you back ("Ready!"), and Y jumps down to the ability switches. Screens opened from a menu have a Back button: B or Esc goes back, and LB / RB (Q / E on the keyboard) jump between screens.</li><li>The pause menu is a column of big buttons (Resume, Map, Obituary with its count, Character, Controls, Options, Quit to title) beside a "This rampage" card: goblins flattened, your score, your best combo, cars tossed and how wrecked the place you're in is, with its name and the time of day. Underneath are this game's own controls: switch between solo and co-op, Play online, New city, the Testing Environment and Full screen.</li><li>Map, Obituary, Character, Controls, Options and Patch notes open in the same card, sliding in from the right, and always start you back on the menu's own buttons when you pause again. B or Esc on the menu itself resumes.</li><li>Quit to title takes you back to the title screen with Gus stomping along; your city, score and everyone in it are kept, so Play carries on where you left off.</li><li>Patch notes and Dev are small tags in the card's corner now. The card's corner says 1P MENU (green) or 2P MENU (pink), and player two's menu still leaves out Options, Dev, the Testing Environment, Quit to title and the city controls.</li><li>Options, Controls, the Map, the Obituary and the Patch notes are on paper in the new style. The Dev tools and the Testing Environment keep a dark panel, in the new colours.</li><li>The HUD is redrawn to match: your score big in the top left with the goblins you've flattened under it (and stickers when cars or the police are after you), pixel hearts and the stamina bar in one paper panel at the bottom, the day and weather on a paper card beside a new clock disc, a round minimap, and the speedometer in ink and yolk.</li><li>Charging a stomp shows STOMP, then BIG STOMP, then shouts FULL CHARGE! when it's all the way up.</li><li>Combos: every goblin flattened or thing smashed within 3 seconds of the last adds one to your combo, shown under your score with a bar that drains until the next. The combo multiplies your points: +10% for each step from the second, so x11 doubles them and x21 or more triples them (that's as high as it goes). Big combos get a name and a shout: x5 Stompin'!, x10 STOMPTACULAR!, x15 Hippo-critical!, x20 GOBLINGEDDON!, x30 Unstoppable lump!, x50 HIPPOCALYPSE!, x75 Wallow of doom! and x100 Legend of the bog!</li><li>Points float up from wherever you earned them, damage numbers pop off the goblins as you hit them, and a goblin going down gets a shout: SPLAT! for a stomp, CHOMP! for a bite, KABOOM! for an explosion, and so on. The damage numbers and shouts can be switched off in Options, under On screen.</li><li>What you've just wrecked is listed in stickers in the top right, newest on top, with the points it earned (combo included), fading as they get older.</li><li>A City wrecked card in the bottom right shows how much of the place you're in you've knocked down (Town or Village wrecked in smaller places).</li><li>In split screen and online, each player has their own combo, pop-ups and list of what they've wrecked, from their own hits. The best combo shows in the pause menu's rampage card, and a new city starts it all again.</li><li>A Reduced motion switch in Options, under On screen, stops the wobbling, bobbing and popping of the menus and the display and holds Gus still on the title screen. It's on by itself if your system asks for less motion.</li><li>Sounds for the points as they pop up (rising as your combo climbs) and a fanfare for each combo milestone.</li><li>Arriving somewhere puts its name up on a big sticker. Chat, voice chips, the controls hint, the debug menu and each co-op player's own pause panel are restyled too, and in split screen each half's name is a 1P-green or 2P-pink tag.</li></ul>
+<ul><li>The game has a new coat of paint: flat crayon colours, thick ink outlines with hand-drawn corners, and a chunky pixel font (Jersey 10) for titles, buttons and numbers. Anything you read, like descriptions and these notes, keeps the easy-to-read font.</li><li>Button prompts are drawn as the buttons themselves in the new style: crayon-coloured face buttons and paper keycaps.</li><li>A real title screen: the logo top left, and Gus himself stomping along a street in front of a scrolling city while you choose, flattening a goblin with every stomp. It's lit and shaded just like the game. The menu card on the right has Play, Co-op, Play online, New city and Options, with the Testing Environment, Dev and Full screen in a small Workshop line underneath, and a sticker for what's new.</li><li>The enemy hostility slider has moved from the main screen to the top of Options.</li><li>Picking a character is now "Who's stompin'?": four big cards for Gus, Gertie, Gnash and Grizzle, with a 1P tag on player one's pick and a 2P tag on player two's. Choose which player you're picking for at the top (player two's own menu always picks for player two), and a strip under the cards lists what that character can do with your current ability switches. Picking the other player's character still swaps you over.</li><li>On a controller, A on a character card picks them and takes you back ("Ready!"), and Y jumps down to the ability switches. Screens opened from a menu have a Back button: B or Esc goes back, and LB / RB (Q / E on the keyboard) jump between screens.</li><li>The pause menu is a column of big buttons (Resume, Map, Obituary with its count, Character, Controls, Options, Quit to title) beside a "This rampage" card: goblins flattened, your score, your best combo, cars tossed and how wrecked the place you're in is, with its name and the time of day. Underneath are this game's own controls: switch between solo and co-op, Play online, New city, the Testing Environment and Full screen.</li><li>Map, Obituary, Character, Controls, Options and Patch notes open in the same card, sliding in from the right, and always start you back on the menu's own buttons when you pause again. B or Esc on the menu itself resumes.</li><li>Quit to title takes you back to the title screen with Gus stomping along; your city, score and everyone in it are kept, so Play carries on where you left off.</li><li>Patch notes and Dev are small tags in the card's corner now. In split-screen co-op the card's corner says 1P MENU (green) or 2P MENU (pink), so you can tell whose menu it is, and player two's menu still leaves out Options, Dev, the Testing Environment, Quit to title and the city controls.</li><li>Options, Controls, the Map, the Obituary and the Patch notes are on paper in the new style. The Dev tools and the Testing Environment keep a dark panel, in the new colours.</li><li>The HUD is redrawn to match: your score big in the top left with the goblins you've flattened under it (and stickers when cars or the police are after you), pixel hearts and the stamina bar in one paper panel at the bottom, the day and weather on a paper card beside a new clock disc, a round minimap, and the speedometer in ink and yolk.</li><li>Charging a stomp shows STOMP, then BIG STOMP, then shouts FULL CHARGE! when it's all the way up.</li><li>Combos: every goblin flattened or thing smashed within 3 seconds of the last adds one to your combo, shown under your score with a bar that drains until the next. The combo multiplies your points: +10% for each step from the second, so x11 doubles them and x21 or more triples them (that's as high as it goes). Big combos get a name and a shout: x5 Stompin'!, x10 STOMPTACULAR!, x15 Hippo-critical!, x20 GOBLINGEDDON!, x30 Unstoppable lump!, x50 HIPPOCALYPSE!, x75 Wallow of doom! and x100 Legend of the bog!</li><li>Points float up from wherever you earned them, damage numbers pop off the goblins as you hit them, and a goblin going down gets a shout: SPLAT! for a stomp, CHOMP! for a bite, KABOOM! for an explosion, and so on. The damage numbers and shouts can be switched off in Options, under On screen.</li><li>What you've just wrecked is listed in stickers in the top right, newest on top, with the points it earned (combo included), fading as they get older.</li><li>A City wrecked card in the bottom right shows how much of the place you're in you've knocked down (Town or Village wrecked in smaller places).</li><li>In split screen and online, each player has their own combo, pop-ups and list of what they've wrecked, from their own hits. The best combo shows in the pause menu's rampage card, and a new city starts it all again.</li><li>A Reduced motion switch in Options, under On screen, stops the wobbling, bobbing and popping of the menus and the display and holds Gus still on the title screen. It's on by itself if your system asks for less motion.</li><li>Sounds for the points as they pop up (rising as your combo climbs) and a fanfare for each combo milestone.</li><li>Arriving somewhere puts its name up on a big sticker. Chat, voice chips, the controls hint, the debug menu and each co-op player's own pause panel are restyled too, and in split screen each half's name is a 1P-green or 2P-pink tag.</li></ul>
 <h3>Menus</h3>
-<ul><li>In player two's menu, the button that carries on playing says Resume rather than Co-op.</li></ul>
+<ul><li>In player two's menu, the button that carries on playing says Resume rather than Co-op.</li><li>The pause menu's buttons always fit in the window, at any size and in split screen, and never sit in a box with scroll bars.</li><li>The Map zooms out as far as it takes to see everywhere you've explored at once, however far you've roamed.</li><li>The highlight round the picked character cards, and their 1P and 2P tags, are no longer cut off at the edges.</li><li>The What's new sticker sits under the title menu instead of over the Full screen link, and the controller and city seed notes have moved down on to the ground.</li><li>The pixel-art portraits and hearts are solid at any zoom and on any screen, with no faint lines between their pixels.</li></ul>
 </details>
 <p class="pn-earlier">Earlier updates</p>
 <details class="pn-up pn-fold" id="version-0-3"><summary tabindex="0"><h2>Version 0.3</h2><a class="pn-play" data-ver="0.3" href="v/0.3/" tabindex="0">Play 0.3</a><span class="pn-tog" aria-hidden="true"></span></summary>
@@ -8950,8 +8975,11 @@ function grunt(p,dbl){
 }
 
 // ---------- Pixel sprites (the menus' and HUD's little portraits and hearts) ----------
-// Drawn the way the style kit draws them: one tiny square with a box-shadow per pixel, so they stay crisp at any size
-// and need no image files. Each is a grid of letters, a letter per colour in its palette ('.' is see-through).
+// Each is a grid of letters, a letter per colour in its palette ('.' is see-through), drawn as a little SVG (as the
+// element's background) with a square per pixel, run together along each row. The squares are drawn without smoothing
+// (crispEdges) and each one reaches a hair into the next pixel it touches, right and below (drawn after it, so it's
+// covered again): so there's never a seam between two pixels, at any zoom or screen density. (They used to be one
+// box-shadow per pixel, which leaves hairline gaps when the browser's scaled.)
 // sprCls(name,px) makes the CSS for that sprite at that pixel size the first time it's asked for and gives back the
 // class to put on an empty element (width and height come with it); sprHTML is the same as markup.
 const SPR={
@@ -8976,9 +9004,12 @@ const SPR_DONE=new Set();let SPR_SHEET=null;
 function sprCls(name,px){
   const cl='spr-'+name+'-'+px;if(SPR_DONE.has(cl))return cl;SPR_DONE.add(cl);
   const S=SPR[name];if(!S)return cl;
-  const sh=[];S.g.forEach((row,y)=>{for(let x=0;x<row.length;x++){const k=row.charCodeAt(x)-97;if(k>=0&&k<S.c.length)sh.push(((x+1)*px)+'px '+((y+1)*px)+'px 0 0 '+S.c[k]);}});
-  const css='.'+cl+'{display:inline-block;position:relative;width:'+(S.g[0].length*px)+'px;height:'+(S.g.length*px)+'px;flex:none;vertical-align:middle}'+
-    '.'+cl+'::before{content:"";position:absolute;left:'+(-px)+'px;top:'+(-px)+'px;width:'+px+'px;height:'+px+'px;box-shadow:'+sh.join(',')+'}';
+  const W=S.g[0].length,H=S.g.length,at=(x,y)=>{const r=S.g[y];if(!r||x<0||x>=r.length)return -1;const k=r.charCodeAt(x)-97;return k>=0&&k<S.c.length?k:-1;};
+  let svg='';const O=0.06;
+  S.g.forEach((row,y)=>{for(let x=0;x<W;){const k=at(x,y);if(k<0){x++;continue;}const below=at(x,y+1)>=0;let e=x+1;while(e<W&&at(e,y)===k&&(at(e,y+1)>=0)===below)e++;
+    svg+='<rect x="'+x+'" y="'+y+'" width="'+(e-x+(at(e,y)>=0?O:0))+'" height="'+(1+(below?O:0))+'" fill="'+S.c[k]+'"/>';x=e;}});
+  const url="data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+'" shape-rendering="crispEdges">'+svg+'</svg>');
+  const css='.'+cl+'{display:inline-block;position:relative;width:'+(W*px)+'px;height:'+(H*px)+'px;flex:none;vertical-align:middle;background:url("'+url+'") 0 0/100% 100% no-repeat}';
   try{if(!SPR_SHEET){SPR_SHEET=document.createElement('style');SPR_SHEET.id='sprCss';(document.head||document.body).appendChild(SPR_SHEET);}SPR_SHEET.textContent+=css;}catch(e){}
   return cl;
 }
@@ -13199,7 +13230,25 @@ function seaMapCells(px,pz,n){
 }
 const MAPV={cx:null,cz:null,ppb:1.6,hl:null};   // hl: the legend entry being pointed at, lit up on the map   // centre (blocks) and pixels per block
 function mapPan(dx,dy){if(MAPV.cx===null)return;MAPV.cx+=dx/MAPV.ppb;MAPV.cz+=dy/MAPV.ppb;renderMap();}
-function mapZoom(k){MAPV.ppb=Math.max(0.35,Math.min(8,MAPV.ppb*k));renderMap();}
+// (the furthest out it goes is far enough to see everything you've explored at once, from wherever the map's centred,
+// however far you've roamed; never less far out than it always went)
+function mapMinPPB(){
+  const cv=document.getElementById('mapCanvas'),w=Math.max(200,cv&&cv.clientWidth||600),h=Math.max(200,cv&&cv.clientHeight||400),B=exploredBox();
+  if(!B)return 0.35;
+  const cx=MAPV.cx===null?B.x0*CELL:MAPV.cx,cz=MAPV.cz===null?B.z0*CELL:MAPV.cz;
+  const hx=Math.max(Math.abs(cx-(B.x0-1)*CELL),Math.abs((B.x1+2)*CELL-cx)),hz=Math.max(Math.abs(cz-(B.z0-1)*CELL),Math.abs((B.z1+2)*CELL-cz));
+  return Math.min(0.35,w/2/hx,h/2/hz);
+}
+function mapZoom(k){MAPV.ppb=Math.max(mapMinPPB(),Math.min(8,MAPV.ppb*k));renderMap();}
+// the corners of everything explored, in city blocks (worked out again only when more has been explored)
+let expBox=null,expBoxN=-1,expBoxSet=null;
+function exploredBox(){
+  if(expBoxN===explored.size&&expBoxSet===explored)return expBox;
+  expBoxN=explored.size;expBoxSet=explored;expBox=null;
+  for(const c of explored){const i=c.indexOf(','),a=+c.slice(0,i),b=+c.slice(i+1);
+    if(!expBox)expBox={x0:a,x1:a,z0:b,z1:b};else{if(a<expBox.x0)expBox.x0=a;if(a>expBox.x1)expBox.x1=a;if(b<expBox.z0)expBox.z0=b;if(b>expBox.z1)expBox.z1=b;}}
+  return expBox;
+}
 // back to where you are
 function mapRecentre(){MAPV.cx=null;renderMap();}
 function renderMap(){
@@ -13212,7 +13261,9 @@ function renderMap(){
   if(MAPV.cx===null){MAPV.cx=me.pos.x;MAPV.cz=me.pos.z;}
   const k=MAPV.ppb,ox=w/2-MAPV.cx*k,oz=h/2-MAPV.cz*k,X=v=>ox+v*k,Z=v=>oz+v*k;
   x.fillStyle='#0b0f13';x.fillRect(0,0,w,h);
-  const c0=Math.floor((MAPV.cx-w/2/k)/CELL)-1,c1=Math.ceil((MAPV.cx+w/2/k)/CELL)+1,r0=Math.floor((MAPV.cz-h/2/k)/CELL)-1,r1=Math.ceil((MAPV.cz+h/2/k)/CELL)+1;
+  let c0=Math.floor((MAPV.cx-w/2/k)/CELL)-1,c1=Math.ceil((MAPV.cx+w/2/k)/CELL)+1,r0=Math.floor((MAPV.cz-h/2/k)/CELL)-1,r1=Math.ceil((MAPV.cz+h/2/k)/CELL)+1;
+  // (zoomed right out, only look over the blocks that have been explored, not the whole view)
+  {const B=exploredBox();if(B){c0=Math.max(c0,B.x0-1);c1=Math.min(c1,B.x1+1);r0=Math.max(r0,B.z0-1);r1=Math.min(r1,B.z1+1);}}
   // everything drawn is tagged with its legend entry; the one being pointed at is drawn again, bright, over a dimmed map
   const HL=MAPV.hl,hits=[];
   const ruins=[];   // destroyed buildings, drawn last so they stand out
@@ -21295,16 +21346,17 @@ addEventListener('resize',resize);
 // ---------- The title screen's backdrop ----------
 // A side view of Gus's real model (the same boxes the game builds him from, makePlayer) stomping along on the spot,
 // in front of a stylised city that scrolls past behind him: rows of blocky buildings in the menus' crayon colours, each
-// row further back than the last, so they slide by at different speeds, under a flat sky with a few clouds. Every box
-// has a thick ink outline (a slightly bigger copy of it, drawn from the inside, the "inverted hull" trick).
+// row further back than the last, so they slide by at different speeds, under a flat sky with a few clouds. It's lit and
+// shaded as the game is (no ink outlines). A row of goblins stands in the street ahead of him, carried along with it, and
+// each stomp lands on the next one and flattens it (tsGobs).
 // It's a little scene of its own, drawn on the game's own canvas in place of the city while the title screen is up
 // (titleDraw, from frame), and never touched once you're playing. With reduced motion on it holds still.
-const TSC={ok:null,t:0,scroll:0,stomp:0,shake:0,dust:[]};
+const TSC={ok:null,t:0,scroll:0,stomp:0,shake:0,dust:[],gobs:[],n:0,sqT:0};
 const TS_INK=0x2b1b2e;
 // (reduced motion: the system's setting, or the Options switch)
 const reduceMotion=()=>reduce||!!(document.body&&document.body.classList&&document.body.classList.contains('calm'));
-// many boxes as one mesh: {x,y,z,w,h,d,c} each (x,y,z its bottom middle), coloured per vertex; grow>0 makes the outline
-// copy instead (every box that much bigger all round, faces turned inside out, plain ink)
+// many boxes as one mesh: {x,y,z,w,h,d,c} each (x,y,z its bottom middle), coloured per vertex (grow makes every box
+// that much bigger all round)
 function tsGeo(L,grow){
   const n=L.length,P=new Float32Array(n*72),N=new Float32Array(n*72),C=new Float32Array(n*72),I=[];
   const F=[[0,1,0,[[-1,1,1],[1,1,1],[1,1,-1],[-1,1,-1]]],[0,-1,0,[[-1,-1,-1],[1,-1,-1],[1,-1,1],[-1,-1,1]]],[1,0,0,[[1,-1,1],[1,-1,-1],[1,1,-1],[1,1,1]]],
@@ -21318,9 +21370,9 @@ function tsGeo(L,grow){
   g.setAttribute('color',new THREE.BufferAttribute(C,3));g.setIndex(I);return g;
 }
 // a row of the backdrop: its boxes laid out over [0,L), drawn twice side by side so it can wrap round for ever
-function tsRow(S,L,boxes,line,speed){
-  const grp=new THREE.Group(),mat=TSC.mat,ink=TSC.ink,g=tsGeo(boxes,0),h=line>0?tsGeo(boxes,line):null;
-  for(const k of [0,1]){const m=new THREE.Mesh(g,mat);m.position.x=k*L;grp.add(m);if(h){const o=new THREE.Mesh(h,ink);o.position.x=k*L;grp.add(o);}}
+function tsRow(S,L,boxes,speed){
+  const grp=new THREE.Group(),mat=TSC.mat,g=tsGeo(boxes,0);
+  for(const k of [0,1]){const m=new THREE.Mesh(g,mat);m.position.x=k*L;grp.add(m);}
   S.add(grp);return {grp,L,speed};
 }
 const tsR=(i,salt)=>{const v=Math.sin(i*127.1+salt*311.7)*43758.5453;return v-Math.floor(v);};
@@ -21330,15 +21382,13 @@ function titleInit(){
   try{
     if(typeof renderer.getContext!=='function')return false;   // (the tests' stand-in for three.js has nothing to draw with)
     const S=TSC.scene=new THREE.Scene();S.background=new THREE.Color(0xa8e0f0);
-    S.add(new THREE.HemisphereLight(0xfff6dc,0x9a8aa0,0.95));const d=new THREE.DirectionalLight(0xffffff,0.5);d.position.set(5,9,10);S.add(d);
+    // (lit the way the game's other little scenes are, the Dev tab's and the obituary's: sky above, earth below, a warm sun)
+    S.add(new THREE.HemisphereLight(0xeef2e6,0x3a4030,0.95));const d=new THREE.DirectionalLight(0xffeedd,0.7);d.position.set(4,7,6);S.add(d);
     TSC.cam=new THREE.PerspectiveCamera(28,16/9,0.5,900);
     TSC.mat=new THREE.MeshLambertMaterial({vertexColors:true});
-    TSC.ink=new THREE.MeshBasicMaterial({color:TS_INK,side:THREE.BackSide});
-    // Gus himself: a hippo made the way the players are, side eyes, no bow, outlined box by box
+    // Gus himself: a hippo made the way the players are, side eyes, no bow
     const G=makePlayer(0);scene.remove(G.root);if(G.pool)scene.remove(G.pool);try{G.ui.view.remove();}catch(e){}
     for(const m of G.eyeFront)m.visible=false;for(const m of G.eyeSide)m.visible=true;for(const m of G.bow)m.visible=false;
-    const hull=[];G.root.traverse(o=>{if(o.isMesh&&o.geometry&&o.geometry.parameters)hull.push(o);});
-    for(const o of hull){const P=o.geometry.parameters,t=0.05,h=new THREE.Mesh(o.geometry,TSC.ink);h.scale.set((P.width+2*t)/P.width,(P.height+2*t)/P.height,(P.depth+2*t)/P.depth);o.add(h);}
     G.root.visible=true;G.root.rotation.y=Math.PI/2;S.add(G.root);TSC.gus=G;
     // the street he walks along: road, kerb, pavement, and the dashes down the middle (these scroll with him)
     const ground=new THREE.Mesh(new THREE.PlaneGeometry(4000,460),new THREE.MeshLambertMaterial({color:0x8a8296}));ground.rotation.x=-Math.PI/2;ground.position.set(0,-0.02,-180);S.add(ground);
@@ -21348,7 +21398,7 @@ function titleInit(){
     // lamp posts and trees along the pavement
     for(let i=0;i<W;i+=10){near.push({x:i+2,y:0,z:-3.6,w:0.22,h:3.6,d:0.22,c:0x5a4a5e},{x:i+2.45,y:3.5,z:-3.6,w:1.1,h:0.22,d:0.3,c:0x5a4a5e},{x:i+2.9,y:3.25,z:-3.6,w:0.45,h:0.28,d:0.4,c:0xffd447});
       near.push({x:i+7,y:0,z:-3.7,w:0.35,h:1.4,d:0.35,c:0x8a5a3a},{x:i+7,y:1.3,z:-3.7,w:1.7,h:1.5,d:1.7,c:0x6fbf3a});}
-    TSC.rows=[tsRow(S,W,near,0.05,1)];
+    TSC.rows=[tsRow(S,W,near,1)];
     // three rows of buildings, near to far: low shops and houses, then mid-rise blocks, then towers on the skyline
     // (each row wider than the most the camera can see of it, even on a very wide screen, so it can wrap unseen)
     const ROWS=[{z:-12,L:90,hm:[3.5,8],wd:[3.5,7],c:[0xc8a07a,0xb4a38d,0xe2c89a,0xd99a7a,0x9fae8a],line:0.09,win:0xfff1b8},
@@ -21362,16 +21412,44 @@ function titleInit(){
         const ww=Math.max(0.5,w*0.12),wh=ww*1.3,gx=ww*1.9,gy=wh*1.8,nx=Math.max(1,Math.floor((w*0.8)/gx)),ny=Math.max(1,Math.floor((h-1.5)/gy));
         for(let a=0;a<nx;a++)for(let b=0;b<ny;b++)if(tsR(i*31+a*7+b,R.z+9)>0.22)B.push({x:x+w/2+(a-(nx-1)/2)*gx,y:1+b*gy,z:R.z+dd/2+0.02,w:ww,h:wh,d:0.06,c:R.win});
         x+=w+0.6+tsR(i,R.z+3)*1.4;i++;}
-      TSC.rows.push(tsRow(S,R.L,B,R.line,1));}
+      TSC.rows.push(tsRow(S,R.L,B,1));}
     // a few clouds, high up and far off, drifting on their own
     const CL=[];for(let i=0;i<7;i++)CL.push({x:i*74+tsR(i,5)*30,y:32+tsR(i,6)*14,z:-140,w:22+tsR(i,7)*14,h:6,d:4,c:0xffffff},{x:i*74+tsR(i,5)*30+6,y:36+tsR(i,6)*14,z:-140,w:12,h:5,d:4,c:0xffffff});
-    TSC.clouds=tsRow(S,520,CL,0.35,0.15);TSC.rows.push(TSC.clouds);
+    TSC.clouds=tsRow(S,520,CL,0.15);TSC.rows.push(TSC.clouds);
     // dust kicked up by a stomp
     const dg=new THREE.BoxGeometry(0.3,0.3,0.3),dm=new THREE.MeshLambertMaterial({color:0xefe4d0});
     for(let i=0;i<14;i++){const m=new THREE.Mesh(dg,dm);m.visible=false;S.add(m);TSC.dust.push({m,t:9,vx:0,vy:0,vz:0});}
+    // the goblins in his way: real goblin models (goblinModel), a bit smaller than in the game so they fit under his
+    // chin, facing him, each in its own tunic
+    const TUN=[0x6a8a3a,0xa0522d,0x4a6a9a,0x8a3a6a,0xb08a2a,0x3a7a6a,0x9a4a3a,0x5a5a8a];
+    for(let i=0;i<TS_GOBS;i++){const r=new THREE.Group();const m=goblinModel(r,{tunic:TUN[i]});r.scale.setScalar(TS_GOB_S);r.rotation.y=-Math.PI/2;S.add(r);TSC.gobs.push({r,m,ph:i*1.7});}
     TSC.ok=true;
   }catch(e){TSC.ok=false;}
   return TSC.ok;
+}
+// The goblins: one is flattened each stomp, so they stand one stomp's worth of street apart (TS_GAP: how far the street
+// moves in one cycle, walking then slowed while he rears) and the next one reaches the spot under his front feet
+// (TS_FOOT) just as he comes down. Where each stands follows from how far into the cycle he is (tsNext), so they move
+// exactly with the street. Goblin n is model n mod TS_GOBS: models are reused once their goblin's gone off the left.
+const TS_CYC=3.4,TS_GOBS=8,TS_GOB_S=0.7,TS_FOOT=1.0,TS_WALK=2.4,TS_SLOW=0.4;
+const TS_GAP=TS_CYC*(TS_WALK*0.72+TS_SLOW*0.18+TS_WALK*0.1);
+const tsNext=u=>u<0.72?TS_CYC*(TS_WALK*(0.72-u)+TS_SLOW*0.18):u<0.9?TS_CYC*TS_SLOW*(0.9-u):TS_GAP-TS_CYC*TS_WALK*(u-0.9);
+function tsGobs(u,calm,dt){
+  const d=tsNext(u),n=TSC.n;
+  for(let j=-3;j<TS_GOBS-3;j++){const k=n+j,G=TSC.gobs[((k%TS_GOBS)+TS_GOBS)%TS_GOBS],r=G.r,m=G.m;
+    r.position.set(TS_FOOT+d+j*TS_GAP,0,0.35);
+    if(j<0){   // flattened: squashed wide and thin on the road, limbs splayed
+      const s=j===-1?Math.min(1,TSC.sqT/0.06):1;
+      r.scale.set(TS_GOB_S*(1+0.5*s),TS_GOB_S*(1-0.9*s),TS_GOB_S*(1+0.5*s));
+      m.legs.forEach((l,i)=>{l.rotation.x=0;l.rotation.z=(i?1:-1)*0.9*s;});m.arm.rotation.set(0,0,-1.3*s);m.armL.rotation.set(0,0,1.3*s);m.head.rotation.x=0;
+      continue;}
+    r.scale.setScalar(TS_GOB_S);
+    // still standing: shuffling on the spot and waving their clubs, the next one looking up at him in a panic
+    G.ph+=dt*(j===0?14:6);const w=calm?0:Math.sin(G.ph),near=j===0&&d<4.5;
+    m.legs.forEach((l,i)=>{l.rotation.z=0;l.rotation.x=w*0.4*(i?1:-1);});
+    m.arm.rotation.set(near?-2.6+w*0.3:-0.4+w*0.5,0,0);m.armL.rotation.set(near?-2.6-w*0.3:0.2-w*0.3,0,0);
+    m.head.rotation.x=near?-0.5:0;
+  }
 }
 // one frame of the title screen (false: nothing drawn, so the city is drawn as usual)
 function titleDraw(dt,w,h){
@@ -21379,10 +21457,11 @@ function titleDraw(dt,w,h){
   const calm=reduceMotion(),G=TSC.gus,cam=TSC.cam;
   dt=Math.min(dt,0.05);TSC.t+=dt;
   // stomping along: a walk on the spot, and every few seconds he rears up and slams down (and the street stops a moment)
-  const CYC=3.4,u=calm?0:(TSC.t%CYC)/CYC,rear=u>0.72&&u<0.86?Math.sin((u-0.72)/0.14*Math.PI/2):u>=0.86&&u<0.9?1-(u-0.86)/0.04:0;
-  if(u>=0.9&&TSC.stomp<0.9&&!calm){TSC.shake=0.35;for(const D of TSC.dust){D.t=0;const a=Math.random()*Math.PI*2;D.vx=Math.cos(a)*(2+Math.random()*3);D.vz=Math.sin(a)*1.5;D.vy=2+Math.random()*3;D.m.position.set(1.2+Math.random()*0.6,0.2,(Math.random()-0.5)*1.4);}}
+  const CYC=TS_CYC,u=calm?0:(TSC.t%CYC)/CYC,rear=u>0.72&&u<0.86?Math.sin((u-0.72)/0.14*Math.PI/2):u>=0.86&&u<0.9?1-(u-0.86)/0.04:0;
+  if(u>=0.9&&TSC.stomp<0.9&&!calm){TSC.shake=0.35;TSC.n++;TSC.sqT=0;for(const D of TSC.dust){D.t=0;const a=Math.random()*Math.PI*2;D.vx=Math.cos(a)*(2+Math.random()*3);D.vz=Math.sin(a)*1.5;D.vy=2+Math.random()*3;D.m.position.set(1.2+Math.random()*0.6,0.2,(Math.random()-0.5)*1.4);}}
   TSC.stomp=u;
-  const v=calm?0:rear>0?0.4:2.4;TSC.scroll+=v*dt;
+  const v=calm?0:rear>0?TS_SLOW:TS_WALK;TSC.scroll+=v*dt;TSC.sqT+=dt;
+  tsGobs(u,calm,dt);
   const ph=TSC.scroll*2.1;
   G.legs.forEach((l,i)=>{l.rotation.x=calm?0:Math.sin(ph+(i===0||i===3?0:Math.PI))*0.55*(1-rear);});
   G.rig.rotation.x=-0.34*rear;G.rig.position.y=0.4*rear;
@@ -21468,8 +21547,11 @@ function menuSeat(){
   if(two&&['options','dev','test'].includes(curTab))showTab('game');
 }
 // (the name over the tabs: whose menu it is, kept up to date if they pick someone else in the Character tab)
-// (the corner tag on the pause card: 1P MENU in Gus green, 2P MENU in Gertie pink, with whose it is beside it in co-op)
-function menuWhoShow(){const w=document.getElementById('menuWho');if(!w)return;w.hidden=!menuBy||atTitle;
+// (the corner tag on the pause card: 1P MENU in Gus green, 2P MENU in Gertie pink, with whose it is beside it; only in
+// split-screen co-op, since playing alone or online there's only ever the one menu on this screen)
+function menuWhoShow(){const w=document.getElementById('menuWho');if(!w)return;
+  let split=false;try{split=inCoop()&&!P2.net;}catch(e){}
+  w.hidden=!menuBy||atTitle||!split;
   if(menuBy){const two=menuBy!==P1;w.textContent=(two?'2P':'1P')+' menu';w.classList.toggle('p2',two);
     const sw=document.getElementById('subWho');if(sw)sw.textContent=inCoop()?charName(menuBy)+"'s menu":'';}}
 // The menu has two faces: the title screen (atTitle: before the first game, and after Quit to title), with the

@@ -1,16 +1,17 @@
 // ---------- The title screen's backdrop ----------
 // A side view of Gus's real model (the same boxes the game builds him from, makePlayer) stomping along on the spot,
 // in front of a stylised city that scrolls past behind him: rows of blocky buildings in the menus' crayon colours, each
-// row further back than the last, so they slide by at different speeds, under a flat sky with a few clouds. Every box
-// has a thick ink outline (a slightly bigger copy of it, drawn from the inside, the "inverted hull" trick).
+// row further back than the last, so they slide by at different speeds, under a flat sky with a few clouds. It's lit and
+// shaded as the game is (no ink outlines). A row of goblins stands in the street ahead of him, carried along with it, and
+// each stomp lands on the next one and flattens it (tsGobs).
 // It's a little scene of its own, drawn on the game's own canvas in place of the city while the title screen is up
 // (titleDraw, from frame), and never touched once you're playing. With reduced motion on it holds still.
-const TSC={ok:null,t:0,scroll:0,stomp:0,shake:0,dust:[]};
+const TSC={ok:null,t:0,scroll:0,stomp:0,shake:0,dust:[],gobs:[],n:0,sqT:0};
 const TS_INK=0x2b1b2e;
 // (reduced motion: the system's setting, or the Options switch)
 const reduceMotion=()=>reduce||!!(document.body&&document.body.classList&&document.body.classList.contains('calm'));
-// many boxes as one mesh: {x,y,z,w,h,d,c} each (x,y,z its bottom middle), coloured per vertex; grow>0 makes the outline
-// copy instead (every box that much bigger all round, faces turned inside out, plain ink)
+// many boxes as one mesh: {x,y,z,w,h,d,c} each (x,y,z its bottom middle), coloured per vertex (grow makes every box
+// that much bigger all round)
 function tsGeo(L,grow){
   const n=L.length,P=new Float32Array(n*72),N=new Float32Array(n*72),C=new Float32Array(n*72),I=[];
   const F=[[0,1,0,[[-1,1,1],[1,1,1],[1,1,-1],[-1,1,-1]]],[0,-1,0,[[-1,-1,-1],[1,-1,-1],[1,-1,1],[-1,-1,1]]],[1,0,0,[[1,-1,1],[1,-1,-1],[1,1,-1],[1,1,1]]],
@@ -24,9 +25,9 @@ function tsGeo(L,grow){
   g.setAttribute('color',new THREE.BufferAttribute(C,3));g.setIndex(I);return g;
 }
 // a row of the backdrop: its boxes laid out over [0,L), drawn twice side by side so it can wrap round for ever
-function tsRow(S,L,boxes,line,speed){
-  const grp=new THREE.Group(),mat=TSC.mat,ink=TSC.ink,g=tsGeo(boxes,0),h=line>0?tsGeo(boxes,line):null;
-  for(const k of [0,1]){const m=new THREE.Mesh(g,mat);m.position.x=k*L;grp.add(m);if(h){const o=new THREE.Mesh(h,ink);o.position.x=k*L;grp.add(o);}}
+function tsRow(S,L,boxes,speed){
+  const grp=new THREE.Group(),mat=TSC.mat,g=tsGeo(boxes,0);
+  for(const k of [0,1]){const m=new THREE.Mesh(g,mat);m.position.x=k*L;grp.add(m);}
   S.add(grp);return {grp,L,speed};
 }
 const tsR=(i,salt)=>{const v=Math.sin(i*127.1+salt*311.7)*43758.5453;return v-Math.floor(v);};
@@ -36,15 +37,13 @@ function titleInit(){
   try{
     if(typeof renderer.getContext!=='function')return false;   // (the tests' stand-in for three.js has nothing to draw with)
     const S=TSC.scene=new THREE.Scene();S.background=new THREE.Color(0xa8e0f0);
-    S.add(new THREE.HemisphereLight(0xfff6dc,0x9a8aa0,0.95));const d=new THREE.DirectionalLight(0xffffff,0.5);d.position.set(5,9,10);S.add(d);
+    // (lit the way the game's other little scenes are, the Dev tab's and the obituary's: sky above, earth below, a warm sun)
+    S.add(new THREE.HemisphereLight(0xeef2e6,0x3a4030,0.95));const d=new THREE.DirectionalLight(0xffeedd,0.7);d.position.set(4,7,6);S.add(d);
     TSC.cam=new THREE.PerspectiveCamera(28,16/9,0.5,900);
     TSC.mat=new THREE.MeshLambertMaterial({vertexColors:true});
-    TSC.ink=new THREE.MeshBasicMaterial({color:TS_INK,side:THREE.BackSide});
-    // Gus himself: a hippo made the way the players are, side eyes, no bow, outlined box by box
+    // Gus himself: a hippo made the way the players are, side eyes, no bow
     const G=makePlayer(0);scene.remove(G.root);if(G.pool)scene.remove(G.pool);try{G.ui.view.remove();}catch(e){}
     for(const m of G.eyeFront)m.visible=false;for(const m of G.eyeSide)m.visible=true;for(const m of G.bow)m.visible=false;
-    const hull=[];G.root.traverse(o=>{if(o.isMesh&&o.geometry&&o.geometry.parameters)hull.push(o);});
-    for(const o of hull){const P=o.geometry.parameters,t=0.05,h=new THREE.Mesh(o.geometry,TSC.ink);h.scale.set((P.width+2*t)/P.width,(P.height+2*t)/P.height,(P.depth+2*t)/P.depth);o.add(h);}
     G.root.visible=true;G.root.rotation.y=Math.PI/2;S.add(G.root);TSC.gus=G;
     // the street he walks along: road, kerb, pavement, and the dashes down the middle (these scroll with him)
     const ground=new THREE.Mesh(new THREE.PlaneGeometry(4000,460),new THREE.MeshLambertMaterial({color:0x8a8296}));ground.rotation.x=-Math.PI/2;ground.position.set(0,-0.02,-180);S.add(ground);
@@ -54,7 +53,7 @@ function titleInit(){
     // lamp posts and trees along the pavement
     for(let i=0;i<W;i+=10){near.push({x:i+2,y:0,z:-3.6,w:0.22,h:3.6,d:0.22,c:0x5a4a5e},{x:i+2.45,y:3.5,z:-3.6,w:1.1,h:0.22,d:0.3,c:0x5a4a5e},{x:i+2.9,y:3.25,z:-3.6,w:0.45,h:0.28,d:0.4,c:0xffd447});
       near.push({x:i+7,y:0,z:-3.7,w:0.35,h:1.4,d:0.35,c:0x8a5a3a},{x:i+7,y:1.3,z:-3.7,w:1.7,h:1.5,d:1.7,c:0x6fbf3a});}
-    TSC.rows=[tsRow(S,W,near,0.05,1)];
+    TSC.rows=[tsRow(S,W,near,1)];
     // three rows of buildings, near to far: low shops and houses, then mid-rise blocks, then towers on the skyline
     // (each row wider than the most the camera can see of it, even on a very wide screen, so it can wrap unseen)
     const ROWS=[{z:-12,L:90,hm:[3.5,8],wd:[3.5,7],c:[0xc8a07a,0xb4a38d,0xe2c89a,0xd99a7a,0x9fae8a],line:0.09,win:0xfff1b8},
@@ -68,16 +67,44 @@ function titleInit(){
         const ww=Math.max(0.5,w*0.12),wh=ww*1.3,gx=ww*1.9,gy=wh*1.8,nx=Math.max(1,Math.floor((w*0.8)/gx)),ny=Math.max(1,Math.floor((h-1.5)/gy));
         for(let a=0;a<nx;a++)for(let b=0;b<ny;b++)if(tsR(i*31+a*7+b,R.z+9)>0.22)B.push({x:x+w/2+(a-(nx-1)/2)*gx,y:1+b*gy,z:R.z+dd/2+0.02,w:ww,h:wh,d:0.06,c:R.win});
         x+=w+0.6+tsR(i,R.z+3)*1.4;i++;}
-      TSC.rows.push(tsRow(S,R.L,B,R.line,1));}
+      TSC.rows.push(tsRow(S,R.L,B,1));}
     // a few clouds, high up and far off, drifting on their own
     const CL=[];for(let i=0;i<7;i++)CL.push({x:i*74+tsR(i,5)*30,y:32+tsR(i,6)*14,z:-140,w:22+tsR(i,7)*14,h:6,d:4,c:0xffffff},{x:i*74+tsR(i,5)*30+6,y:36+tsR(i,6)*14,z:-140,w:12,h:5,d:4,c:0xffffff});
-    TSC.clouds=tsRow(S,520,CL,0.35,0.15);TSC.rows.push(TSC.clouds);
+    TSC.clouds=tsRow(S,520,CL,0.15);TSC.rows.push(TSC.clouds);
     // dust kicked up by a stomp
     const dg=new THREE.BoxGeometry(0.3,0.3,0.3),dm=new THREE.MeshLambertMaterial({color:0xefe4d0});
     for(let i=0;i<14;i++){const m=new THREE.Mesh(dg,dm);m.visible=false;S.add(m);TSC.dust.push({m,t:9,vx:0,vy:0,vz:0});}
+    // the goblins in his way: real goblin models (goblinModel), a bit smaller than in the game so they fit under his
+    // chin, facing him, each in its own tunic
+    const TUN=[0x6a8a3a,0xa0522d,0x4a6a9a,0x8a3a6a,0xb08a2a,0x3a7a6a,0x9a4a3a,0x5a5a8a];
+    for(let i=0;i<TS_GOBS;i++){const r=new THREE.Group();const m=goblinModel(r,{tunic:TUN[i]});r.scale.setScalar(TS_GOB_S);r.rotation.y=-Math.PI/2;S.add(r);TSC.gobs.push({r,m,ph:i*1.7});}
     TSC.ok=true;
   }catch(e){TSC.ok=false;}
   return TSC.ok;
+}
+// The goblins: one is flattened each stomp, so they stand one stomp's worth of street apart (TS_GAP: how far the street
+// moves in one cycle, walking then slowed while he rears) and the next one reaches the spot under his front feet
+// (TS_FOOT) just as he comes down. Where each stands follows from how far into the cycle he is (tsNext), so they move
+// exactly with the street. Goblin n is model n mod TS_GOBS: models are reused once their goblin's gone off the left.
+const TS_CYC=3.4,TS_GOBS=8,TS_GOB_S=0.7,TS_FOOT=1.0,TS_WALK=2.4,TS_SLOW=0.4;
+const TS_GAP=TS_CYC*(TS_WALK*0.72+TS_SLOW*0.18+TS_WALK*0.1);
+const tsNext=u=>u<0.72?TS_CYC*(TS_WALK*(0.72-u)+TS_SLOW*0.18):u<0.9?TS_CYC*TS_SLOW*(0.9-u):TS_GAP-TS_CYC*TS_WALK*(u-0.9);
+function tsGobs(u,calm,dt){
+  const d=tsNext(u),n=TSC.n;
+  for(let j=-3;j<TS_GOBS-3;j++){const k=n+j,G=TSC.gobs[((k%TS_GOBS)+TS_GOBS)%TS_GOBS],r=G.r,m=G.m;
+    r.position.set(TS_FOOT+d+j*TS_GAP,0,0.35);
+    if(j<0){   // flattened: squashed wide and thin on the road, limbs splayed
+      const s=j===-1?Math.min(1,TSC.sqT/0.06):1;
+      r.scale.set(TS_GOB_S*(1+0.5*s),TS_GOB_S*(1-0.9*s),TS_GOB_S*(1+0.5*s));
+      m.legs.forEach((l,i)=>{l.rotation.x=0;l.rotation.z=(i?1:-1)*0.9*s;});m.arm.rotation.set(0,0,-1.3*s);m.armL.rotation.set(0,0,1.3*s);m.head.rotation.x=0;
+      continue;}
+    r.scale.setScalar(TS_GOB_S);
+    // still standing: shuffling on the spot and waving their clubs, the next one looking up at him in a panic
+    G.ph+=dt*(j===0?14:6);const w=calm?0:Math.sin(G.ph),near=j===0&&d<4.5;
+    m.legs.forEach((l,i)=>{l.rotation.z=0;l.rotation.x=w*0.4*(i?1:-1);});
+    m.arm.rotation.set(near?-2.6+w*0.3:-0.4+w*0.5,0,0);m.armL.rotation.set(near?-2.6-w*0.3:0.2-w*0.3,0,0);
+    m.head.rotation.x=near?-0.5:0;
+  }
 }
 // one frame of the title screen (false: nothing drawn, so the city is drawn as usual)
 function titleDraw(dt,w,h){
@@ -85,10 +112,11 @@ function titleDraw(dt,w,h){
   const calm=reduceMotion(),G=TSC.gus,cam=TSC.cam;
   dt=Math.min(dt,0.05);TSC.t+=dt;
   // stomping along: a walk on the spot, and every few seconds he rears up and slams down (and the street stops a moment)
-  const CYC=3.4,u=calm?0:(TSC.t%CYC)/CYC,rear=u>0.72&&u<0.86?Math.sin((u-0.72)/0.14*Math.PI/2):u>=0.86&&u<0.9?1-(u-0.86)/0.04:0;
-  if(u>=0.9&&TSC.stomp<0.9&&!calm){TSC.shake=0.35;for(const D of TSC.dust){D.t=0;const a=Math.random()*Math.PI*2;D.vx=Math.cos(a)*(2+Math.random()*3);D.vz=Math.sin(a)*1.5;D.vy=2+Math.random()*3;D.m.position.set(1.2+Math.random()*0.6,0.2,(Math.random()-0.5)*1.4);}}
+  const CYC=TS_CYC,u=calm?0:(TSC.t%CYC)/CYC,rear=u>0.72&&u<0.86?Math.sin((u-0.72)/0.14*Math.PI/2):u>=0.86&&u<0.9?1-(u-0.86)/0.04:0;
+  if(u>=0.9&&TSC.stomp<0.9&&!calm){TSC.shake=0.35;TSC.n++;TSC.sqT=0;for(const D of TSC.dust){D.t=0;const a=Math.random()*Math.PI*2;D.vx=Math.cos(a)*(2+Math.random()*3);D.vz=Math.sin(a)*1.5;D.vy=2+Math.random()*3;D.m.position.set(1.2+Math.random()*0.6,0.2,(Math.random()-0.5)*1.4);}}
   TSC.stomp=u;
-  const v=calm?0:rear>0?0.4:2.4;TSC.scroll+=v*dt;
+  const v=calm?0:rear>0?TS_SLOW:TS_WALK;TSC.scroll+=v*dt;TSC.sqT+=dt;
+  tsGobs(u,calm,dt);
   const ph=TSC.scroll*2.1;
   G.legs.forEach((l,i)=>{l.rotation.x=calm?0:Math.sin(ph+(i===0||i===3?0:Math.PI))*0.55*(1-rear);});
   G.rig.rotation.x=-0.34*rear;G.rig.position.y=0.4*rear;
