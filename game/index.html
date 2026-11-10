@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:c5f5acd19fe425fc99e28a438e13ef0cf29bb55d100bba3b183799b62b159032 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:2e40031609f589d81e50e63d59ba3191c364965370382c2f3a7b4484ff390dae -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -488,10 +488,21 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 /* character select, on the title screen: three cards, the chosen one lit in its own colour */
 .charsel{width:min(640px,100%);display:flex;flex-direction:column;gap:8px}
 .cs-h{font:700 13px var(--f-display);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
-.cs-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.cs-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 .cs-card{--cc:var(--moss);display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 10px 12px;border:2px solid #0a0d10;background:#232b34;color:var(--bone);cursor:pointer;font:inherit;text-align:center;box-shadow:inset 0 -3px 0 #161b21}
 .cs-card.gertie{--cc:var(--gertie)}
 .cs-card.gob{--cc:#e8c14a}
+.cs-card.griz{--cc:#e8785a}
+.cs-h small{font:500 11px var(--f-body);letter-spacing:0;text-transform:none;margin-left:6px}
+.custom .charsel{width:100%;margin-bottom:14px}
+.charlink{font:600 13px var(--f-body);padding:4px 0;background:none;border:0;color:var(--mute);cursor:pointer}
+.charlink b{color:var(--bone)}
+.charlink:hover{color:var(--bone);text-decoration:underline}
+.charlink:focus-visible{outline:2px solid var(--moss);outline-offset:2px}
+/* (whose pause menu this is, in split screen) */
+.menuwho{margin-left:auto;align-self:center;font:700 12px var(--f-display);letter-spacing:.06em;text-transform:uppercase;color:#ffd75a;padding:0 4px;white-space:nowrap}
+.menuwho.p2{color:#ffb0d8}
+.pause.seat2 .p1only{display:none!important}
 .cs-card:hover{background:#2a333d}
 .cs-card[aria-checked="true"]{border-color:var(--cc);background:#2c3631;box-shadow:inset 0 0 0 2px var(--cc),0 0 18px -6px var(--cc)}
 .cs-pic{width:64px;height:56px;image-rendering:pixelated}
@@ -499,12 +510,6 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 .cs-card small{font-size:12px;line-height:1.35;color:var(--mute)}
 .cs-card[aria-checked="true"] small{color:var(--bone)}
 .cs-note{font-size:12.5px;color:var(--mute);min-height:1.3em}
-.cs-p2{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.cs-p2h{font:700 12px var(--f-display);letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin-right:4px}
-.cs-p2b{--cc:var(--moss);padding:5px 12px;border:2px solid #0a0d10;background:#232b34;color:var(--bone);cursor:pointer;font:600 13px var(--f-body)}
-.cs-p2b.gob{--cc:#e8c14a}
-.cs-p2b:hover{background:#2a333d}
-.cs-p2b[aria-checked="true"]{border-color:var(--cc);color:var(--cc);background:#2c3631}
 @media(max-width:560px){.cs-card small{display:none}.cs-name{font-size:16px}}
 .hostmain{margin:14px auto 0;max-width:360px;text-align:left}
 .hostlbl{font-weight:700}
@@ -686,21 +691,13 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
       <button type="button" role="tab" id="tabBtnOptions" aria-selected="false" aria-controls="tabOptions">Game options</button>
       <button type="button" role="tab" id="tabBtnNotes" aria-selected="false" aria-controls="tabNotes">Patch notes</button>
       <button type="button" role="tab" id="tabBtnDev" aria-selected="false" aria-controls="tabDev">Dev</button>
+      <span class="menuwho" id="menuWho" hidden></span>
 
     </div>
     <div class="tabpane gamepane" id="tabGame" role="tabpanel">
      <div class="gamemain">
       <h1>Goblin-Stompin' <em>Gus</em></h1>
-      <div class="charsel" id="charSel">
-        <div class="cs-h" id="charSelH">Choose your character</div>
-        <div class="cs-row" role="radiogroup" aria-labelledby="charSelH">
-          <button type="button" class="cs-card" role="radio" data-c="gus" aria-checked="true"><svg class="cs-pic" viewBox="0 0 64 56" aria-hidden="true"><rect x="10" y="10" width="44" height="30" fill="#8f8399"/><rect x="4" y="30" width="56" height="20" fill="#8f8399"/><rect x="12" y="4" width="10" height="9" fill="#8f8399"/><rect x="42" y="4" width="10" height="9" fill="#8f8399"/><rect x="15" y="7" width="4" height="4" fill="#6c6177"/><rect x="45" y="7" width="4" height="4" fill="#6c6177"/><rect x="6" y="18" width="5" height="7" fill="#f6f3ea"/><rect x="6" y="20" width="3" height="4" fill="#16161a"/><rect x="53" y="18" width="5" height="7" fill="#f6f3ea"/><rect x="55" y="20" width="3" height="4" fill="#16161a"/><rect x="18" y="34" width="8" height="4" fill="#6c6177"/><rect x="38" y="34" width="8" height="4" fill="#6c6177"/><rect x="8" y="44" width="48" height="4" fill="#d8697c"/><rect x="12" y="40" width="4" height="6" fill="#f4f0e2"/><rect x="48" y="40" width="4" height="6" fill="#f4f0e2"/></svg><span class="cs-name">Gus</span><small>The hippo himself. Bites, stomps, ground pounds, and flattens whatever's in his way.</small></button>
-          <button type="button" class="cs-card gertie" role="radio" data-c="gertie" aria-checked="false"><svg class="cs-pic" viewBox="0 0 64 56" aria-hidden="true"><rect x="10" y="10" width="44" height="30" fill="#c08a7c"/><rect x="4" y="30" width="56" height="20" fill="#c08a7c"/><rect x="12" y="4" width="10" height="9" fill="#c08a7c"/><rect x="42" y="4" width="10" height="9" fill="#c08a7c"/><rect x="15" y="7" width="4" height="4" fill="#93635a"/><rect x="45" y="7" width="4" height="4" fill="#93635a"/><rect x="22" y="0" width="20" height="5" fill="#e0406a"/><rect x="29" y="0" width="6" height="7" fill="#b02a50"/><rect x="17" y="17" width="10" height="9" fill="#f6f3ea"/><rect x="20" y="19" width="5" height="5" fill="#16161a"/><rect x="37" y="17" width="10" height="9" fill="#f6f3ea"/><rect x="39" y="19" width="5" height="5" fill="#16161a"/><rect x="18" y="34" width="8" height="4" fill="#93635a"/><rect x="38" y="34" width="8" height="4" fill="#93635a"/><rect x="8" y="44" width="48" height="4" fill="#d8697c"/><rect x="12" y="40" width="4" height="6" fill="#f4f0e2"/><rect x="48" y="40" width="4" height="6" fill="#f4f0e2"/></svg><span class="cs-name">Gertie</span><small>Every bit as much hippo as Gus, move for move. She just looks you in the eye while she does it.</small></button>
-          <button type="button" class="cs-card gob" role="radio" data-c="goblin" aria-checked="false"><svg class="cs-pic" viewBox="0 0 64 56" aria-hidden="true"><rect x="2" y="14" width="14" height="6" fill="#4f7426"/><rect x="48" y="14" width="14" height="6" fill="#4f7426"/><rect x="0" y="12" width="6" height="4" fill="#4f7426"/><rect x="58" y="12" width="6" height="4" fill="#4f7426"/><rect x="16" y="6" width="32" height="30" fill="#6f9a3a"/><rect x="16" y="6" width="32" height="5" fill="#4f7426"/><rect x="20" y="16" width="8" height="6" fill="#ffd23a"/><rect x="23" y="17" width="3" height="4" fill="#16161a"/><rect x="36" y="16" width="8" height="6" fill="#ffd23a"/><rect x="38" y="17" width="3" height="4" fill="#16161a"/><rect x="19" y="13" width="10" height="2" fill="#2a1a10"/><rect x="35" y="13" width="10" height="2" fill="#2a1a10"/><rect x="29" y="22" width="6" height="6" fill="#4f7426"/><rect x="22" y="30" width="20" height="3" fill="#2a1a10"/><rect x="25" y="28" width="3" height="3" fill="#f4f0e2"/><rect x="37" y="28" width="3" height="3" fill="#f4f0e2"/><rect x="18" y="36" width="28" height="18" fill="#3a5f8a"/><rect x="18" y="44" width="28" height="3" fill="#2b1d10"/><rect x="50" y="22" width="6" height="30" fill="#7a5530"/><rect x="47" y="14" width="12" height="12" fill="#7a5530"/></svg><span class="cs-name">Gnash</span><small>A goblin who's had enough. First person and goblin sized, with a club, and he can drive anything with wheels, wings or a hull.</small></button>
-        </div>
-        <div class="cs-p2" id="charSel2" role="radiogroup" aria-labelledby="charP2H"><span class="cs-p2h" id="charP2H">Co-op, player two</span><button type="button" class="cs-p2b" role="radio" data-k="hippo" aria-checked="true">Hippo</button><button type="button" class="cs-p2b gob" role="radio" data-k="goblin" aria-checked="false">Goblin</button></div>
-        <div class="cs-note" id="charNote"></div>
-      </div>
+      <button type="button" class="charlink" id="charLink">Playing as <b id="charLinkName">Gus</b>. Change character in the Character tab <span aria-hidden="true">›</span></button>
       <div class="row">
         <button class="big" id="play">Play solo</button>
         <button class="big coop" id="playCoop">Co-op</button>
@@ -761,6 +758,25 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
     <div class="tabpane" id="tabCustom" role="tabpanel" hidden>
     <div class="opts">
     <div class="custom">
+      <h2>CHARACTER</h2>
+      <p class="vnote">Each player picks any of the four. Pick the character the other player has and you swap.</p>
+      <div class="charsel" id="charSel">
+        <div class="cs-h p1only" id="charSelH">Player one</div>
+        <div class="cs-row p1only" role="radiogroup" aria-labelledby="charSelH" data-seat="0">
+          <button type="button" class="cs-card" role="radio" data-c="gus" aria-checked="true"><svg class="cs-pic" viewBox="0 0 64 56" aria-hidden="true"><rect x="10" y="10" width="44" height="30" fill="#8f8399"/><rect x="4" y="30" width="56" height="20" fill="#8f8399"/><rect x="12" y="4" width="10" height="9" fill="#8f8399"/><rect x="42" y="4" width="10" height="9" fill="#8f8399"/><rect x="15" y="7" width="4" height="4" fill="#6c6177"/><rect x="45" y="7" width="4" height="4" fill="#6c6177"/><rect x="6" y="18" width="5" height="7" fill="#f6f3ea"/><rect x="6" y="20" width="3" height="4" fill="#16161a"/><rect x="53" y="18" width="5" height="7" fill="#f6f3ea"/><rect x="55" y="20" width="3" height="4" fill="#16161a"/><rect x="18" y="34" width="8" height="4" fill="#6c6177"/><rect x="38" y="34" width="8" height="4" fill="#6c6177"/><rect x="8" y="44" width="48" height="4" fill="#d8697c"/><rect x="12" y="40" width="4" height="6" fill="#f4f0e2"/><rect x="48" y="40" width="4" height="6" fill="#f4f0e2"/></svg><span class="cs-name">Gus</span><small>The hippo himself. Bites, stomps, ground pounds, and flattens whatever's in his way.</small></button>
+          <button type="button" class="cs-card gertie" role="radio" data-c="gertie" aria-checked="false"><svg class="cs-pic" viewBox="0 0 64 56" aria-hidden="true"><rect x="10" y="10" width="44" height="30" fill="#c08a7c"/><rect x="4" y="30" width="56" height="20" fill="#c08a7c"/><rect x="12" y="4" width="10" height="9" fill="#c08a7c"/><rect x="42" y="4" width="10" height="9" fill="#c08a7c"/><rect x="15" y="7" width="4" height="4" fill="#93635a"/><rect x="45" y="7" width="4" height="4" fill="#93635a"/><rect x="22" y="0" width="20" height="5" fill="#e0406a"/><rect x="29" y="0" width="6" height="7" fill="#b02a50"/><rect x="17" y="17" width="10" height="9" fill="#f6f3ea"/><rect x="20" y="19" width="5" height="5" fill="#16161a"/><rect x="37" y="17" width="10" height="9" fill="#f6f3ea"/><rect x="39" y="19" width="5" height="5" fill="#16161a"/><rect x="18" y="34" width="8" height="4" fill="#93635a"/><rect x="38" y="34" width="8" height="4" fill="#93635a"/><rect x="8" y="44" width="48" height="4" fill="#d8697c"/><rect x="12" y="40" width="4" height="6" fill="#f4f0e2"/><rect x="48" y="40" width="4" height="6" fill="#f4f0e2"/></svg><span class="cs-name">Gertie</span><small>Every bit as much hippo as Gus, move for move. She just looks you in the eye while she does it.</small></button>
+          <button type="button" class="cs-card gob" role="radio" data-c="gnash" aria-checked="false"><svg class="cs-pic" viewBox="0 0 64 56" aria-hidden="true"><rect x="2" y="14" width="14" height="6" fill="#4f7426"/><rect x="48" y="14" width="14" height="6" fill="#4f7426"/><rect x="0" y="12" width="6" height="4" fill="#4f7426"/><rect x="58" y="12" width="6" height="4" fill="#4f7426"/><rect x="16" y="6" width="32" height="30" fill="#6f9a3a"/><rect x="16" y="6" width="32" height="5" fill="#4f7426"/><rect x="20" y="16" width="8" height="6" fill="#ffd23a"/><rect x="23" y="17" width="3" height="4" fill="#16161a"/><rect x="36" y="16" width="8" height="6" fill="#ffd23a"/><rect x="38" y="17" width="3" height="4" fill="#16161a"/><rect x="19" y="13" width="10" height="2" fill="#2a1a10"/><rect x="35" y="13" width="10" height="2" fill="#2a1a10"/><rect x="29" y="22" width="6" height="6" fill="#4f7426"/><rect x="22" y="30" width="20" height="3" fill="#2a1a10"/><rect x="25" y="28" width="3" height="3" fill="#f4f0e2"/><rect x="37" y="28" width="3" height="3" fill="#f4f0e2"/><rect x="18" y="36" width="28" height="18" fill="#3a5f8a"/><rect x="18" y="44" width="28" height="3" fill="#2b1d10"/><rect x="50" y="22" width="6" height="30" fill="#7a5530"/><rect x="47" y="14" width="12" height="12" fill="#7a5530"/></svg><span class="cs-name">Gnash</span><small>A goblin who's had enough. First person and goblin sized, with a club, and he can drive anything with wheels, wings or a hull.</small></button>
+          <button type="button" class="cs-card gob griz" role="radio" data-c="grizzle" aria-checked="false"><svg class="cs-pic" viewBox="0 0 64 56" aria-hidden="true"><rect x="2" y="14" width="14" height="6" fill="#4f7426"/><rect x="48" y="14" width="14" height="6" fill="#4f7426"/><rect x="0" y="12" width="6" height="4" fill="#4f7426"/><rect x="58" y="12" width="6" height="4" fill="#4f7426"/><rect x="16" y="6" width="32" height="30" fill="#6f9a3a"/><rect x="16" y="6" width="32" height="5" fill="#4f7426"/><rect x="20" y="16" width="8" height="6" fill="#ffd23a"/><rect x="23" y="17" width="3" height="4" fill="#16161a"/><rect x="36" y="16" width="8" height="6" fill="#ffd23a"/><rect x="38" y="17" width="3" height="4" fill="#16161a"/><rect x="19" y="13" width="10" height="2" fill="#2a1a10"/><rect x="35" y="13" width="10" height="2" fill="#2a1a10"/><rect x="29" y="22" width="6" height="6" fill="#4f7426"/><rect x="22" y="30" width="20" height="3" fill="#2a1a10"/><rect x="25" y="28" width="3" height="3" fill="#f4f0e2"/><rect x="37" y="28" width="3" height="3" fill="#f4f0e2"/><rect x="18" y="36" width="28" height="18" fill="#a83232"/><rect x="18" y="44" width="28" height="3" fill="#2b1d10"/><rect x="50" y="22" width="6" height="30" fill="#7a5530"/><rect x="47" y="14" width="12" height="12" fill="#7a5530"/></svg><span class="cs-name">Grizzle</span><small>Gnash's cousin, in red, and every bit as much goblin, move for move. Same club, same knack for stealing vehicles.</small></button>
+        </div>
+        <div class="cs-h" id="charSelH2">Player two <small>split-screen co-op</small></div>
+        <div class="cs-row" id="charSel2" role="radiogroup" aria-labelledby="charSelH2" data-seat="1">
+          <button type="button" class="cs-card" role="radio" data-c="gus" aria-checked="true"><svg class="cs-pic" viewBox="0 0 64 56" aria-hidden="true"><rect x="10" y="10" width="44" height="30" fill="#8f8399"/><rect x="4" y="30" width="56" height="20" fill="#8f8399"/><rect x="12" y="4" width="10" height="9" fill="#8f8399"/><rect x="42" y="4" width="10" height="9" fill="#8f8399"/><rect x="15" y="7" width="4" height="4" fill="#6c6177"/><rect x="45" y="7" width="4" height="4" fill="#6c6177"/><rect x="6" y="18" width="5" height="7" fill="#f6f3ea"/><rect x="6" y="20" width="3" height="4" fill="#16161a"/><rect x="53" y="18" width="5" height="7" fill="#f6f3ea"/><rect x="55" y="20" width="3" height="4" fill="#16161a"/><rect x="18" y="34" width="8" height="4" fill="#6c6177"/><rect x="38" y="34" width="8" height="4" fill="#6c6177"/><rect x="8" y="44" width="48" height="4" fill="#d8697c"/><rect x="12" y="40" width="4" height="6" fill="#f4f0e2"/><rect x="48" y="40" width="4" height="6" fill="#f4f0e2"/></svg><span class="cs-name">Gus</span><small>The hippo himself. Bites, stomps, ground pounds, and flattens whatever's in his way.</small></button>
+          <button type="button" class="cs-card gertie" role="radio" data-c="gertie" aria-checked="false"><svg class="cs-pic" viewBox="0 0 64 56" aria-hidden="true"><rect x="10" y="10" width="44" height="30" fill="#c08a7c"/><rect x="4" y="30" width="56" height="20" fill="#c08a7c"/><rect x="12" y="4" width="10" height="9" fill="#c08a7c"/><rect x="42" y="4" width="10" height="9" fill="#c08a7c"/><rect x="15" y="7" width="4" height="4" fill="#93635a"/><rect x="45" y="7" width="4" height="4" fill="#93635a"/><rect x="22" y="0" width="20" height="5" fill="#e0406a"/><rect x="29" y="0" width="6" height="7" fill="#b02a50"/><rect x="17" y="17" width="10" height="9" fill="#f6f3ea"/><rect x="20" y="19" width="5" height="5" fill="#16161a"/><rect x="37" y="17" width="10" height="9" fill="#f6f3ea"/><rect x="39" y="19" width="5" height="5" fill="#16161a"/><rect x="18" y="34" width="8" height="4" fill="#93635a"/><rect x="38" y="34" width="8" height="4" fill="#93635a"/><rect x="8" y="44" width="48" height="4" fill="#d8697c"/><rect x="12" y="40" width="4" height="6" fill="#f4f0e2"/><rect x="48" y="40" width="4" height="6" fill="#f4f0e2"/></svg><span class="cs-name">Gertie</span><small>Every bit as much hippo as Gus, move for move. She just looks you in the eye while she does it.</small></button>
+          <button type="button" class="cs-card gob" role="radio" data-c="gnash" aria-checked="false"><svg class="cs-pic" viewBox="0 0 64 56" aria-hidden="true"><rect x="2" y="14" width="14" height="6" fill="#4f7426"/><rect x="48" y="14" width="14" height="6" fill="#4f7426"/><rect x="0" y="12" width="6" height="4" fill="#4f7426"/><rect x="58" y="12" width="6" height="4" fill="#4f7426"/><rect x="16" y="6" width="32" height="30" fill="#6f9a3a"/><rect x="16" y="6" width="32" height="5" fill="#4f7426"/><rect x="20" y="16" width="8" height="6" fill="#ffd23a"/><rect x="23" y="17" width="3" height="4" fill="#16161a"/><rect x="36" y="16" width="8" height="6" fill="#ffd23a"/><rect x="38" y="17" width="3" height="4" fill="#16161a"/><rect x="19" y="13" width="10" height="2" fill="#2a1a10"/><rect x="35" y="13" width="10" height="2" fill="#2a1a10"/><rect x="29" y="22" width="6" height="6" fill="#4f7426"/><rect x="22" y="30" width="20" height="3" fill="#2a1a10"/><rect x="25" y="28" width="3" height="3" fill="#f4f0e2"/><rect x="37" y="28" width="3" height="3" fill="#f4f0e2"/><rect x="18" y="36" width="28" height="18" fill="#3a5f8a"/><rect x="18" y="44" width="28" height="3" fill="#2b1d10"/><rect x="50" y="22" width="6" height="30" fill="#7a5530"/><rect x="47" y="14" width="12" height="12" fill="#7a5530"/></svg><span class="cs-name">Gnash</span><small>A goblin who's had enough. First person and goblin sized, with a club, and he can drive anything with wheels, wings or a hull.</small></button>
+          <button type="button" class="cs-card gob griz" role="radio" data-c="grizzle" aria-checked="false"><svg class="cs-pic" viewBox="0 0 64 56" aria-hidden="true"><rect x="2" y="14" width="14" height="6" fill="#4f7426"/><rect x="48" y="14" width="14" height="6" fill="#4f7426"/><rect x="0" y="12" width="6" height="4" fill="#4f7426"/><rect x="58" y="12" width="6" height="4" fill="#4f7426"/><rect x="16" y="6" width="32" height="30" fill="#6f9a3a"/><rect x="16" y="6" width="32" height="5" fill="#4f7426"/><rect x="20" y="16" width="8" height="6" fill="#ffd23a"/><rect x="23" y="17" width="3" height="4" fill="#16161a"/><rect x="36" y="16" width="8" height="6" fill="#ffd23a"/><rect x="38" y="17" width="3" height="4" fill="#16161a"/><rect x="19" y="13" width="10" height="2" fill="#2a1a10"/><rect x="35" y="13" width="10" height="2" fill="#2a1a10"/><rect x="29" y="22" width="6" height="6" fill="#4f7426"/><rect x="22" y="30" width="20" height="3" fill="#2a1a10"/><rect x="25" y="28" width="3" height="3" fill="#f4f0e2"/><rect x="37" y="28" width="3" height="3" fill="#f4f0e2"/><rect x="18" y="36" width="28" height="18" fill="#a83232"/><rect x="18" y="44" width="28" height="3" fill="#2b1d10"/><rect x="50" y="22" width="6" height="30" fill="#7a5530"/><rect x="47" y="14" width="12" height="12" fill="#7a5530"/></svg><span class="cs-name">Grizzle</span><small>Gnash's cousin, in red, and every bit as much goblin, move for move. Same club, same knack for stealing vehicles.</small></button>
+        </div>
+        <div class="cs-note" id="charNote"></div>
+      </div>
       <h2>ABILITIES</h2>
       <p class="vnote">Switch moves on or off for both hippos.</p>
       <div class="abil2" id="abilList">
@@ -842,6 +858,8 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 <details class="pn-up pn-fold pn-new" id="version-0-3" open><summary tabindex="0"><h2>Version 0.3</h2><span class="pn-tog" aria-hidden="true"></span></summary>
 <h3>Highlights</h3>
 <ul><li>Play online: up to four players in one city over the internet. One hosts, and the others pick the game from the Open games list, or type in its room code for a private game. Find it under Play online on the main menu.</li><li>Text chat and opt-in voice chat in online games.</li><li>Two players can share one armed vehicle, one driving and one on the gun.</li><li>Police draw handguns at range, and every goblin attack has a proper wind-up and strike.</li></ul>
+<h3>Split-screen co-op menus</h3>
+<ul><li>Both players get the full pause menu now. Press Start to pause your own half of the screen, then Y (or click Pause menu) to open the menu as yours. Its corner says whose menu it is, and only that player's controller moves around it.</li><li>Player two's menu leaves out what changes the game for both of you: Game options, the Dev tab, the Testing Environment, and the new city, solo, online and hostility controls. Those stay with player one, and so does the debug menu on Select.</li><li>Picking characters has moved to the Character tab, and the Game tab just says who you're playing as, with a link there.</li><li>Each player can now be any of the four: Gus, Gertie, Gnash or Grizzle. Pick the one the other player has and you swap over, so you can always tell each other apart. Grizzle wears red, Gnash blue.</li></ul>
 <h3>Online co-op</h3>
 <ul><li>The host's city is the one you play in. Joining builds it in your browser without touching your own city, and leaving takes you back to yours.</li><li>Everything the host's game does shows up for the guest: goblins, traffic, trains, planes, boats, rides, smashed blocks, toppling buildings, fires, dust and sound.</li><li>Your own hippo moves the moment you press, even on a slow connection, and is nudged back into step with the host's game if the two drift apart.</li><li>Bites and stomps land on goblins where you saw them, not where they've moved to since.</li><li>Play Gnash online and you can drive, with the chase camera following you.</li><li>The host can switch to another tab or window and the game carries on for everyone else, so you can also try it out in two tabs of one browser (tick "Two tabs of this browser" in both).</li><li>Drop out and you're put straight back in your place when the connection comes back (within half a minute).</li><li>Each player keeps the abilities switched on in their own browser. The host's hostility setting is the game's, and the world never pauses while you're both in it.</li><li>If you both pick the same hippo, the guest plays the other one, so you can tell each other apart.</li></ul>
 <h3>Chat and voice chat online</h3>
@@ -9302,7 +9320,7 @@ function makePlayer(idx){
   root.visible=false;scene.add(root);
   p.pool=new THREE.Mesh(new THREE.CircleGeometry(1,18),flatMat(0x4d0707,1,-3));p.pool.rotation.x=-Math.PI/2;p.pool.visible=false;scene.add(p.pool);
   const v=document.createElement('div');v.className='view';v.hidden=true;
-  v.innerHTML=`<div class="water-tint" hidden></div><div class="hurt"></div><canvas class="mini" width="200" height="200" aria-hidden="true"></canvas><div class="speedo" aria-hidden="true"><svg viewBox="-50 -46 100 96"><path d="M-34.64,20 A40,40 0 1 1 34.64,20" pathLength="100" fill="none" stroke="rgba(238,240,230,.16)" stroke-width="7" stroke-linecap="round"/><path class="sp-fill" d="M-34.64,20 A40,40 0 1 1 34.64,20" pathLength="100" fill="none" stroke="#7fc24a" stroke-width="7" stroke-linecap="round" stroke-dasharray="0 200" visibility="hidden"/>${[0,1,2,3,4,5,6].map(i=>{const a=(-120+i*40)*Math.PI/180;return `<line x1="${(Math.sin(a)*29).toFixed(1)}" y1="${(-Math.cos(a)*29).toFixed(1)}" x2="${(Math.sin(a)*33).toFixed(1)}" y2="${(-Math.cos(a)*33).toFixed(1)}" stroke="rgba(238,240,230,.5)" stroke-width="1.5"/>`;}).join('')}<line class="sp-needle" x1="0" y1="4" x2="0" y2="-31" stroke="#ffd75a" stroke-width="2.6" stroke-linecap="round" transform="rotate(-120)"/><circle r="4.2" fill="#ffd75a" stroke="#0c0f14" stroke-width="1.4"/><text class="sp-num" x="0" y="27" text-anchor="middle">0</text><text x="0" y="36" text-anchor="middle" class="sp-unit">km/h</text><text class="sp-vert" x="0" y="48" text-anchor="middle" visibility="hidden"></text></svg></div><div class="bar"><div class="hint" hidden></div><div class="smeter lv0" hidden><div class="sbar"><div class="mfill"></div><i class="tick"></i></div><span class="slv">STOMP</span></div><div class="label"></div><div class="who${idx?' p2':''}">${S.name}</div><div class="hearts" aria-label="${S.name} health"></div><div class="meter stam" aria-label="${S.name} trample stamina"><div class="mfill"></div></div></div><div class="join" hidden>${S.name}: connect a controller and press any button</div><div class="ppause" hidden><div class="pcard"><div class="ptitle${idx?' p2':''}">${S.name} · PAUSED</div><p class="pstatus"></p><button type="button" class="big${idx?' coop':''} pres">Resume</button><button type="button" class="pmenu">Main menu</button><div class="prompts small pprompts"></div></div></div>`;
+  v.innerHTML=`<div class="water-tint" hidden></div><div class="hurt"></div><canvas class="mini" width="200" height="200" aria-hidden="true"></canvas><div class="speedo" aria-hidden="true"><svg viewBox="-50 -46 100 96"><path d="M-34.64,20 A40,40 0 1 1 34.64,20" pathLength="100" fill="none" stroke="rgba(238,240,230,.16)" stroke-width="7" stroke-linecap="round"/><path class="sp-fill" d="M-34.64,20 A40,40 0 1 1 34.64,20" pathLength="100" fill="none" stroke="#7fc24a" stroke-width="7" stroke-linecap="round" stroke-dasharray="0 200" visibility="hidden"/>${[0,1,2,3,4,5,6].map(i=>{const a=(-120+i*40)*Math.PI/180;return `<line x1="${(Math.sin(a)*29).toFixed(1)}" y1="${(-Math.cos(a)*29).toFixed(1)}" x2="${(Math.sin(a)*33).toFixed(1)}" y2="${(-Math.cos(a)*33).toFixed(1)}" stroke="rgba(238,240,230,.5)" stroke-width="1.5"/>`;}).join('')}<line class="sp-needle" x1="0" y1="4" x2="0" y2="-31" stroke="#ffd75a" stroke-width="2.6" stroke-linecap="round" transform="rotate(-120)"/><circle r="4.2" fill="#ffd75a" stroke="#0c0f14" stroke-width="1.4"/><text class="sp-num" x="0" y="27" text-anchor="middle">0</text><text x="0" y="36" text-anchor="middle" class="sp-unit">km/h</text><text class="sp-vert" x="0" y="48" text-anchor="middle" visibility="hidden"></text></svg></div><div class="bar"><div class="hint" hidden></div><div class="smeter lv0" hidden><div class="sbar"><div class="mfill"></div><i class="tick"></i></div><span class="slv">STOMP</span></div><div class="label"></div><div class="who${idx?' p2':''}">${S.name}</div><div class="hearts" aria-label="${S.name} health"></div><div class="meter stam" aria-label="${S.name} trample stamina"><div class="mfill"></div></div></div><div class="join" hidden>${S.name}: connect a controller and press any button</div><div class="ppause" hidden><div class="pcard"><div class="ptitle${idx?' p2':''}">${S.name} · PAUSED</div><p class="pstatus"></p><button type="button" class="big${idx?' coop':''} pres">Resume</button><button type="button" class="pmenu">Pause menu</button><div class="prompts small pprompts"></div></div></div>`;
   hudEl.insertBefore(v,hudEl.firstChild);
   p.ui={mini:v.querySelector('.mini'),pprompts:v.querySelector('.pprompts'),spVert:v.querySelector('.sp-vert'),speedo:v.querySelector('.speedo'),spFill:v.querySelector('.sp-fill'),spNeedle:v.querySelector('.sp-needle'),spNum:v.querySelector('.sp-num'),view:v,tint:v.querySelector('.water-tint'),hurt:v.querySelector('.hurt'),hint:v.querySelector('.hint'),label:v.querySelector('.label'),who:v.querySelector('.who'),hearts:v.querySelector('.hearts'),join:v.querySelector('.join'),stam:v.querySelector('.stam'),stamFill:v.querySelector('.stam .mfill'),smeter:v.querySelector('.smeter'),smFill:v.querySelector('.smeter .mfill'),slv:v.querySelector('.slv'),ppause:v.querySelector('.ppause'),pres:v.querySelector('.pres'),pmenu:v.querySelector('.pmenu'),pstatus:v.querySelector('.pstatus'),timer:null};
   p.paused=false;
@@ -9343,12 +9361,15 @@ function dressHippo(p){
   for(const m of p.eyeFront)m.visible=EYES[p.who]==='front';for(const m of p.eyeSide)m.visible=EYES[p.who]==='side';
   if(p.ui&&p.ui.who){p.ui.who.textContent=charName(p).toUpperCase();p.ui.who.classList.toggle('p2',charTint(p)===1);}
   // (and the join prompt and the pause card, which were written with the skin's name)
+  // (a goblin's tunic says which goblin: on the body the others see, and on the stand-in that carjacks)
+  for(const g of [p.gb,p.jackA])if(g&&g.m&&g.m.roles&&g.m.roles.tunic)g.m.roles.tunic.color.setHex(GOB_TUNIC[p.who?1:0]);
   if(p.ui&&p.ui.join){p.ui.join.textContent=charName(p).toUpperCase()+': connect a controller and press any button';const t=p.ui.ppause&&p.ui.ppause.querySelector('.ptitle');if(t&&t.textContent!==undefined)t.textContent=charName(p)+' · PAUSED';}
 }
 // (first called once the debug settings exist, from ui/char-select.js)
-const GOB_NAMES=['Gnash','Grizzle'];   // (the goblin you play is Gnash; in co-op his cousin Grizzle comes along)
-const charName=p=>p.gob?GOB_NAMES[p.idx&&P1.gob?1:0]:p.who?'Gertie':'Gus';   // (one goblin's Gnash, whichever seat; two, and player two's Grizzle)
-const charTint=p=>{if(!p.gob)return p.who;const o=players.find(q=>q!==p);return o&&!o.gob?1-o.who:p.idx;};   // (0 or 1: which of the two colours a player's marked in, on the maps and the HUD)
+const GOB_NAMES=['Gnash','Grizzle'];   // (the goblins you can play: Gnash and his cousin Grizzle, p.who 0 and 1 as for the hippos)
+const charName=p=>p.gob?GOB_NAMES[p.who?1:0]:p.who?'Gertie':'Gus';
+const GOB_TUNIC=[0x3a5f8a,0xa83232];   // (Gnash in blue, Grizzle in red)
+const charTint=p=>{if(!p.gob)return p.who;const o=players.find(q=>q!==p);return o&&!o.gob?1-o.who:p.who;};   // (0 or 1: which of the two colours a player's marked in, on the maps and the HUD)
 {
   const vs=document.getElementById('viewDist'),vl=document.getElementById('viewVal');
   const dds=document.getElementById('detailDist'),ddl=document.getElementById('detailVal');
@@ -10510,7 +10531,7 @@ function gobClub(p){
 function gobKit(p){
   if(p.gb)return p.gb;
   const root=new THREE.Group();root.rotation.order='YXZ';root.visible=false;root.scale.setScalar(ES);scene.add(root);
-  const m=goblinModel(root,{club:false,tunic:p.idx?0xa83232:0x3a5f8a});
+  const m=goblinModel(root,{club:false,tunic:GOB_TUNIC[p.who?1:0]});
   // (and what's in his hand, for the others to see: the weapon he's holding, the same shapes the enemies carry)
   const tp={},tm=c=>new THREE.MeshLambertMaterial({color:c}),tb=(w,h,d,c,x,y,z,g)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),tm(c));o.position.set(x,y,z);g.add(o);};
   for(const k of GOB_WPN_ORDER){tp[k]=new THREE.Group();m.arm.hand.add(tp[k]);tp[k].visible=k==='club';}   // (in the wrist, as the enemies hold theirs)
@@ -11198,7 +11219,7 @@ function jackKinds(){if(!FOES.soldier)FOES.soldier={name:'Soldier',label:'Soldie
 function jackActor(p){
   if(p.jackA)return p.jackA;
   const root=new THREE.Group();root.rotation.order='YXZ';root.visible=false;root.scale.setScalar(ES);scene.add(root);
-  const m=goblinModel(root,{tunic:p.idx?0xa83232:0x3a5f8a});
+  const m=goblinModel(root,{tunic:GOB_TUNIC[p.who?1:0]});
   return p.jackA={root,m};
 }
 // a piece of the vehicle that opens: a hinged car door, a sliding helicopter door, the tank's hatch lid
@@ -12517,10 +12538,10 @@ function recordObitAs(g,cause,who){const L=obitList();
   if(L.length>400)L.length=400;obitSave();renderObitCount();
   if(menuOpen&&curTab==='obit'){obitSel=Math.min(obitSel+1,L.length-1);renderObits();}
 }
-// Gus and Gertie go in the book too, and so do Gnash and Grizzle (idx: which hippo it was, or for a goblin which seat)
+// Gus and Gertie go in the book too, and so do Gnash and Grizzle (idx: which hippo it was, or which goblin)
 function recordHippoObit(p,cause,killer){
   const L=obitList(),gus=!p.who,dead={cause,killer:killer===ACCIDENT?'':killerName(killer),when:timeLabel(),n:++obitTotal};
-  if(p.gob)L.unshift(Object.assign({hippo:true,gob:true,idx:p.idx,name:charName(p),age:p.idx?22:27,occ:'Goblin',hobby:'Getting his own back',quirk:p.idx?'Follows Gnash everywhere':'Fed up with being stomped'},dead));
+  if(p.gob)L.unshift(Object.assign({hippo:true,gob:true,idx:p.who,name:charName(p),age:p.who?22:27,occ:'Goblin',hobby:'Getting his own back',quirk:p.who?'Follows Gnash everywhere':'Fed up with being stomped'},dead));
   else L.unshift(Object.assign({hippo:true,idx:p.who,name:gus?'Gus':'Gertie',age:gus?34:31,occ:'Hippopotamus',hobby:'Stomping goblins',quirk:gus?'Extremely wall-eyed':'Looks you right in the eye'},dead));
   if(L.length>400)L.length=400;obitSave();renderObitCount();
   if(menuOpen&&curTab==='obit'){obitSel=Math.min(obitSel+1,L.length-1);renderObits();}
@@ -13628,8 +13649,7 @@ function menuNav(dir){
     if(dy<0&&pane.scrollTop<=0){padFocus(tabBtn);return;}
     pane.scrollTop+=dy*80;return;
   }
-  if(dx&&cur&&cur.closest&&cur.closest('#charSel2')){const C=[...document.querySelectorAll('#charSel2 .cs-p2b')],i=C.indexOf(cur)+dx;if(i>=0&&i<C.length){C[i].click();padFocus(C[i]);}return;}
-  if(dx&&cur&&cur.closest&&cur.closest('#charSel')){const C=[...document.querySelectorAll('#charSel .cs-card')],i=C.indexOf(cur)+dx;if(i>=0&&i<C.length){C[i].click();padFocus(C[i]);}return;}
+  if(dx&&cur&&cur.closest&&cur.closest('#charSel .cs-row')){const C=[...cur.closest('.cs-row').querySelectorAll('.cs-card')],i=C.indexOf(cur)+dx;if(i>=0&&i<C.length){C[i].click();padFocus(C[i]);}return;}
   if(dx&&(title||cur&&cur.closest&&cur.closest('.tabs'))){showTab(tabIndex()+dx);padFocus(document.getElementById('tabBtn'+TABS[tabIndex()][1]));return;}
   if(dy&&title&&pane.contains(cur)){const U=paneUnits(pane),i=U.findIndex(u=>u===cur||u.contains(cur))+dy;if(i<0)padFocus(tabBtn);else if(i<U.length)unitFocus(U[i]);return;}
   if(dy&&pane&&cur&&cur.closest){
@@ -13778,7 +13798,7 @@ function promptTick(dt){
   // a paused co-op player's own panel: their controller (or, for Gus, the mouse)
   for(const p of players){if(!p.active||!p.paused||!p.ui.pprompts)continue;
     const pad=p.idx===1||inputKind==='pad';
-    setPrompts(p.ui.pprompts,pad?[[['A'],'Resume'],[['Y'],'Main menu']]:[[['LMB'],'Select'],[['KEY:Enter'],'Resume']]);}
+    setPrompts(p.ui.pprompts,pad?[[['A'],'Resume'],[['Y'],'Pause menu']]:[[['LMB'],'Select'],[['KEY:Enter'],'Resume']]);}
 }
 // ---- controls tab: shows whichever input the player is using (or the one they pick) ----
 let inputKind=matchMedia('(pointer: coarse)').matches?'touch':'kbm',padStyle='xbox',ctlView='auto';
@@ -16210,7 +16230,7 @@ function renderTime(){
   const dp=document.getElementById('dbgPad');dp.hidden=!DT.menu;
   for(const b of document.querySelectorAll('#dbgMenuTog .tog'))b.setAttribute('aria-checked',String(DT.quick));
   // (the Dev tab comes and goes with the debug menu; if it's the tab on show as it goes, Game options takes its place)
-  {const dv=document.getElementById('tabBtnDev');if(dv&&dv.hidden!==!DT.quick){dv.hidden=!DT.quick;try{if(!DT.quick&&curTab==='dev')showTab('options');}catch(e){}}}
+  {const dv=document.getElementById('tabBtnDev'),off=!DT.quick||menuP2();if(dv&&dv.hidden!==off){dv.hidden=off;try{if(!DT.quick&&curTab==='dev')showTab('options');}catch(e){}}}
   if(DT.menu){
     const dbgL=dbgItems();
     {const tb=document.getElementById('dpTabs');if(tb)tb.innerHTML=['Switches','Show / hide'].map((n,t)=>'<button type="button" data-t="'+t+'"'+(t===DT.tab?' class="on"':'')+'>'+n+'</button>').join('');}
@@ -16416,40 +16436,53 @@ function explodeCar0(c){
   if(!(c.trainT>0))for(const pr of trainsNear(p.x,p.z,6,p.y-6,p.y+6))trainHit(pr.T,40,null,pr.i);   // (a car it's just run down doesn't derail the train)
   for(const o of cars){if(!o.alive)continue;const n=carNearest(o,p.x,p.y,p.z),d=Math.hypot(n.d2,n.dy);if(d>=6||!vReach(o.pos.y-p.y,6)&&!vReach(o.pos.y+o.hy-p.y,6))continue;launchCar(o,Math.max(3,9-d),new V3(o.pos.x-p.x,0,o.pos.z-p.z),5);damageCar(o,d<4?14:8);}
 }
-// ---------- Character select (title screen) ----------
-// Who you play: Gus, Gertie or Gnash the goblin, kept in this browser. Picking Gertie makes player one Gertie (and a
-// second player Gus); the two hippos differ only in looks and voice (dressHippo), never in what they can do. Goblin mode
-// is each player's own (setGobP), so a second player can be a hippo or a goblin whatever player one is: the row under
-// the cards (kept as CHAR2; left unpicked, player two is the same kind as player one). A hippo with Gnash is Gus; a
-// goblin with a hippo is Gnash, and with Gnash his cousin Grizzle.
-const CHAR_KEY='goblin-stompin-gus-character',CHAR2_KEY='goblin-stompin-gus-character2',CHARS=['gus','gertie','goblin'];
+// ---------- Character select (the menu's Character tab) ----------
+// Who each player is: any of Gus, Gertie, Gnash or Grizzle, kept in this browser per seat. The two hippos differ only
+// in looks and voice (dressHippo), never in what they can do, and so do the two goblins; goblin mode is each player's
+// own (setGobP). A player's look is p.who (0 Gus or Gnash, 1 Gertie or Grizzle). Picking the character the other
+// player has swaps the two of you over, so you can always tell each other apart. Player two left unpicked (CHAR2 null,
+// as before there was a row for them) is player one's twin: Gertie with Gus, Grizzle with Gnash.
+const CHAR_KEY='goblin-stompin-gus-character',CHAR2_KEY='goblin-stompin-gus-character2',CHARS=['gus','gertie','gnash','grizzle'];
+const CHAR_TWIN={gus:'gertie',gertie:'gus',gnash:'grizzle',grizzle:'gnash'};
+const charGob=c=>c==='gnash'||c==='grizzle',charWho=c=>c==='gertie'||c==='grizzle'?1:0;
 let CHAR='gus',CHAR2=null;
-try{const s=localStorage.getItem(CHAR_KEY);if(CHARS.includes(s))CHAR=s;const t=localStorage.getItem(CHAR2_KEY);if(t==='hippo'||t==='goblin')CHAR2=t;}catch(e){}
-const p2Kind=()=>CHAR2||(CHAR==='goblin'?'goblin':'hippo');
-function charNote(){return 'Co-op: a second player joins as '+charName(P2)+'.';}
+// (older saves and callers: player one 'goblin' was Gnash; player two was just 'hippo' or 'goblin', not whichever of player one)
+const charLegacy2=k=>k==='goblin'?(CHAR==='gnash'?'grizzle':'gnash'):k==='hippo'?(CHAR==='gus'?'gertie':'gus'):k;
+try{let s=localStorage.getItem(CHAR_KEY);if(s==='goblin')s='gnash';if(CHARS.includes(s))CHAR=s;
+  const t=charLegacy2(localStorage.getItem(CHAR2_KEY));if(CHARS.includes(t)&&t!==CHAR)CHAR2=t;}catch(e){}
+const pick2=()=>CHAR2&&CHAR2!==CHAR?CHAR2:CHAR_TWIN[CHAR];
+const p2Kind=()=>charGob(pick2())?'goblin':'hippo';
+const CHAR_NAMES={gus:'Gus',gertie:'Gertie',gnash:'Gnash',grizzle:'Grizzle'};
+function charNote(){return 'Co-op: player two plays as '+CHAR_NAMES[pick2()]+'.';}
 function renderChar(){
-  for(const b of document.querySelectorAll('#charSel .cs-card'))b.setAttribute('aria-checked',String(b.dataset.c===CHAR));
-  // (the buttons name who player two would be)
-  for(const b of document.querySelectorAll('#charSel2 .cs-p2b')){const k=b.dataset.k;b.setAttribute('aria-checked',String(k===p2Kind()));
-    b.textContent=k==='goblin'?(CHAR==='goblin'?'Grizzle (goblin)':'Gnash (goblin)'):(CHAR==='gus'?'Gertie (hippo)':'Gus (hippo)');}
+  const c2=pick2();
+  for(const b of document.querySelectorAll('#charSel .cs-row')){const c=b.dataset.seat==='1'?c2:CHAR;
+    for(const k of b.querySelectorAll('.cs-card'))k.setAttribute('aria-checked',String(k.dataset.c===c));}
   const n=document.getElementById('charNote');if(n)n.textContent=charNote();
+  // (the Game tab's line naming who you are: both of you in split screen. renderChar runs again as the menu opens)
+  let two=false;try{two=begun&&P2.active&&!P2.net;menuWhoShow();}catch(e){}   // (not yet while the page loads: begun is declared later on)
+  const l=document.getElementById('charLinkName');if(l)l.textContent=CHAR_NAMES[CHAR]+(two?' and '+CHAR_NAMES[c2]:'');
 }
+function charSave(){try{localStorage.setItem(CHAR_KEY,CHAR);if(CHAR2)localStorage.setItem(CHAR2_KEY,CHAR2);}catch(e){}}
+// player one's pick ('goblin' still means Gnash)
 function setChar(c,quiet){
-  if(!CHARS.includes(c))return;CHAR=c;try{localStorage.setItem(CHAR_KEY,c);}catch(e){}
-  charApply();if(!quiet)tone('triangle',c==='goblin'?520:660,0,0.05,0.03);
+  if(c==='goblin')c='gnash';if(!CHARS.includes(c))return;
+  if(c===CHAR2)CHAR2=CHAR;   // (the other player had them: swap)
+  CHAR=c;charSave();charApply();if(!quiet)tone('triangle',charGob(c)?520:660,0,0.05,0.03);
 }
-// player two's kind: 'hippo' or 'goblin'
-function setChar2(k,quiet){
-  if(k!=='hippo'&&k!=='goblin')return;CHAR2=k;try{localStorage.setItem(CHAR2_KEY,k);}catch(e){}
-  charApply();if(!quiet)tone('triangle',k==='goblin'?520:660,0,0.05,0.03);
+// player two's pick ('hippo' and 'goblin' still mean whichever of the two player one isn't)
+function setChar2(c,quiet){
+  c=charLegacy2(c);if(!CHARS.includes(c))return;
+  if(c===CHAR)CHAR=pick2();   // (swap)
+  CHAR2=c;charSave();charApply();if(!quiet)tone('triangle',charGob(c)?520:660,0,0.05,0.03);
 }
 function charApply(){
-  const g1=CHAR==='goblin',g2=p2Kind()==='goblin';
-  P1.who=CHAR==='gertie'?1:0;P2.who=g1?0:1-P1.who;
-  setGob(g1,g2);renderChar();
+  const c2=pick2(),seats=[[P1,CHAR]];if(!P2.net)seats.push([P2,c2]);   // (online, player two's seat is someone else's own pick)
+  for(const [p,c] of seats){p.who=charWho(c);setGobP(p,charGob(c));}
+  for(const p of players)dressHippo(p);renderTime();renderChar();
 }
-for(const b of document.querySelectorAll('#charSel .cs-card'))b.addEventListener('click',()=>setChar(b.dataset.c));
-for(const b of document.querySelectorAll('#charSel2 .cs-p2b'))b.addEventListener('click',()=>setChar2(b.dataset.k));
+for(const r of document.querySelectorAll('#charSel .cs-row'))for(const b of r.querySelectorAll('.cs-card'))b.addEventListener('click',()=>r.dataset.seat==='1'?setChar2(b.dataset.c):setChar(b.dataset.c));
+{const l=document.getElementById('charLink');if(l)l.addEventListener('click',()=>{showTab('custom');const b=document.querySelector('#charSel .cs-row[data-seat="'+(menuP2()?1:0)+'"] .cs-card[aria-checked="true"]');if(b){if(inputKind==='pad')padFocus(b);else b.focus();}});}
 setChar(CHAR,true);
 // ---- the Dev tab's Enemies section: each kind of enemy acting out each of its animations on a flat field like the moves
 // preview's, recorded frame by frame and played back with its own controls, with its hits, what it fires and its timings.
@@ -20740,7 +20773,27 @@ function startPlay(mode,fromPad){
   if(!fromPad)wantLock();
 }
 let pauseAt=-1e9;   // (when play last paused: an Esc straight after it is the same press, e.g. the one that let the mouse go)
-function pause(){pauseAt=performance.now();if(TENV)tpShow(true);menuOpen=true;playing=false;keys.clear();mHeld.clear();pauseEl.hidden=false;renderObitCount();if(curTab==='obit'){obitSel=0;renderObits();}if(curTab==='controls')renderControls();if(curTab==='map'){MAPV.cx=null;saveExplored();setTimeout(renderMap,0);}try{if(locked())document.exitPointerLock();}catch(e){}const pf=document.getElementById(players[1].active&&!players[1].net?'playCoop':'play');if(inputKind==='pad')padFocus(pf);else pf.focus();}
+// Whose pause menu it is (menuBy): in split-screen co-op either player can open the whole menu, from their own pause
+// panel. Player two's leaves out what changes the game for both of you: Game options, the Dev tab, the Testing
+// Environment, and the Game tab's new city, solo, online and hostility controls (menuSeat). Only their controller
+// drives it, and only player one's drives player one's. (var: renderTime asks while the page is still loading)
+var menuBy=null;
+function menuP2(){return !!(menuBy&&menuBy!==P1&&inCoop());}
+const P1_ONLY=['play','newWorld','testWorld','onlineBtn','onlinePanel','confirm'];
+function menuSeat(){
+  const two=menuP2();pauseEl.classList.toggle('seat2',two);
+  for(const id of P1_ONLY){const el=document.getElementById(id);if(el)el.classList.toggle('p1only',true);}
+  for(const el of document.querySelectorAll('.gamepane .hostmain'))el.classList.add('p1only');
+  document.getElementById('tabBtnOptions').hidden=two;
+  document.getElementById('tabBtnDev').hidden=two||!DT.quick;
+  if(two)document.getElementById('tabBtnTest').hidden=true;
+  menuWhoShow();
+  if(two&&['options','dev','test'].includes(curTab))showTab('game');
+}
+// (the name over the tabs: whose menu it is, kept up to date if they pick someone else in the Character tab)
+function menuWhoShow(){const w=document.getElementById('menuWho');if(!w)return;w.hidden=!menuBy||!inCoop();
+  if(menuBy){w.textContent=charName(menuBy)+"'s menu";w.classList.toggle('p2',menuBy!==P1);}}
+function pause(by){menuBy=by&&by.ui?by:P1;pauseAt=performance.now();if(TENV)tpShow(true);menuSeat();renderChar();menuOpen=true;playing=false;keys.clear();mHeld.clear();pauseEl.hidden=false;renderObitCount();if(curTab==='obit'){obitSel=0;renderObits();}if(curTab==='controls')renderControls();if(curTab==='map'){MAPV.cx=null;saveExplored();setTimeout(renderMap,0);}try{if(locked())document.exitPointerLock();}catch(e){}const pf=document.getElementById(players[1].active&&!players[1].net?'playCoop':'play');if(inputKind==='pad')padFocus(pf);else pf.focus();}
 // losing the mouse (another window clicked, alt-tab) pauses -- unless you're playing on a controller, which keeps
 // working with the game in the background (as long as the page is still showing; 'on a controller': you've used one
 // in the last minute -- so the Alt of an Alt-Tab doesn't count against it)
@@ -20767,7 +20820,7 @@ function escResume(){
     startPlay(null);   // (as the controller's Start: same players as before, and the mouse is captured again)
   }else if(P1.paused&&!DT.kbdOpen)resumePlayer(P1,false);
 }
-for(const p of players){p.ui.pres.addEventListener('click',()=>resumePlayer(p,false));p.ui.pmenu.addEventListener('click',()=>pause());}
+for(const p of players){p.ui.pres.addEventListener('click',()=>resumePlayer(p,false));p.ui.pmenu.addEventListener('click',()=>pause(p));}
 document.addEventListener('pointerlockerror',lockFailed);
 document.getElementById('play').addEventListener('click',()=>startPlay('solo'));
 document.getElementById('playCoop').addEventListener('click',()=>startPlay('coop'));
@@ -20810,7 +20863,7 @@ document.querySelectorAll('.tb[data-a]').forEach(b=>{
   b.addEventListener('pointerup',up);b.addEventListener('pointercancel',up);b.addEventListener('pointerleave',up);
 });
 {const b=document.getElementById('tBite');b.addEventListener('pointerdown',e=>{e.preventDefault();touchHeld.add('bite');});const up=()=>{touchHeld.delete('bite');};b.addEventListener('pointerup',up);b.addEventListener('pointercancel',up);b.addEventListener('pointerleave',up);}
-document.getElementById('tMenu').addEventListener('click',pause);
+document.getElementById('tMenu').addEventListener('click',()=>pause(P1));
 
 // ---------- Gamepads ----------
 const padPrev=new Map();let padCount=-1;
@@ -20833,11 +20886,15 @@ function readInputs(dt){
   if(menuOpen&&BIND_CAP){if(performance.now()-BIND_CAP.t>200)for(const s of st){const i=s.pr.findIndex(Boolean);if(i<0)continue;
       if(BIND_CAP.dev==='pad'){if(PAD_RESERVED.has(i))bindCancel();else setBind(BIND_CAP.id,'pad',BIND_CAP.i,i);}else if(i===1||i===9)bindCancel();break;}
     mTap.clear();return;}
-  if(menuOpen){menuPad(st,dt);mTap.clear();return;}
+  if(menuOpen){
+    // (split screen: the menu answers only the controller of whoever opened it)
+    const mine=!inCoop()||!menuBy?st:st.filter(s=>menuBy===P2?s.p===P2.pad:s.p!==P2.pad||!P2.pad);
+    menuPad(mine,dt);mTap.clear();return;}
   // the debug quick menu: Select on any controller opens it and Select (or B) closes it again; ~ does the same on the
   // keyboard. The game is paused meanwhile, and the controllers drive the menu instead of the hippos.
   if(!DT.quick)DT.selHeld=false;
-  else for(const s of st){if(s.pr[8])DT.selHeld=!DT.selHeld;else if(DT.selHeld&&s.pr[1]){if(DT.edit){DT.edit=null;renderTime();}else if(DT.dd){DT.dd=null;renderTime();}else DT.selHeld=false;}}
+  else for(const s of st){if(inCoop()&&P2.pad&&s.p===P2.pad&&!DT.selHeld)continue;   // (player two can't open the debug menu: it's player one's, as the Dev tab is)
+    if(s.pr[8])DT.selHeld=!DT.selHeld;else if(DT.selHeld&&s.pr[1]){if(DT.edit){DT.edit=null;renderTime();}else if(DT.dd){DT.dd=null;renderTime();}else DT.selHeld=false;}}
   const wasOpen=DT.menu;DT.menu=DT.quick&&(DT.selHeld||DT.kbdOpen);if(!DT.menu){DT.dd=null;DT.edit=null;}
   if(DT.menu){
     let dy=0,dx=0;
@@ -20860,7 +20917,7 @@ function readInputs(dt){
   for(const [p,s] of [[P1,s1],[P2,s2]]){
     if(!p.active||!p.paused||!s)continue;
     if(s.pr[0]||s.pr[9]){resumePlayer(p,true);skip.add(p);}
-    else if(s.pr[3]){pause();break;}
+    else if(s.pr[3]){pause(p);break;}
   }
   if(menuOpen){mTap.clear();return;}
   if(!P2.active&&!netOn()&&s2&&(s2.pr[9]||s2.pr[0])){coop=true;activateP2();P2.pad=s2.p;skip.add(P2);}
@@ -21722,7 +21779,7 @@ async function netStartHost(kind){
 }
 // (what a guest sends about itself when it asks to join, and what the host takes from it)
 function netCid(){let c=null;try{c=sessionStorage.getItem('gsg-net-cid');if(!c){c=netId();sessionStorage.setItem('gsg-net-cid',c);}}catch(e){}return c||(NET.cid||(NET.cid=netId()));}   // (this tab, through a reload or a dropped connection, so the host keeps its seat for it)
-function netHello(){return{t:'hello',v:NET_PROTO,cid:netCid(),who:CHAR==='gertie'?1:0,gob:CHAR==='goblin',abil:Object.assign({},ABIL),seat:NET.wantSeat};}
+function netHello(){return{t:'hello',v:NET_PROTO,cid:netCid(),who:charWho(CHAR),gob:charGob(CHAR),abil:Object.assign({},ABIL),seat:NET.wantSeat};}
 function netHostMsg(peer,m){
   if(!m||typeof m!=='object')return;
   const p=NET.guests.get(peer);
@@ -21751,7 +21808,7 @@ function netSeat(peer,m){
   p.net.inb=null;p.net.pr={};p.net.inN=0;p.net.vo=false;   // (vo: on voice chat. A tab that's just joined, or reloaded, isn't till it says so)
   // (two players who've both picked the same hippo: the guest's the other one, so they can tell each other apart. The
   // two are the same in everything but looks)
-  p.who=m.who?1:0;if(!m.gob&&!P1.gob&&p.who===P1.who)p.who=1-P1.who;setGobP(p,!!m.gob);
+  p.who=m.who?1:0;if(!!m.gob===!!P1.gob&&p.who===P1.who)p.who=1-P1.who;setGobP(p,!!m.gob);
   // (each player keeps the abilities they've switched on in their own browser)
   p.abil={};for(const k in ABIL)p.abil[k]=typeof(m.abil||{})[k]==='boolean'?m.abil[k]:ABIL[k];
   dressHippo(p);

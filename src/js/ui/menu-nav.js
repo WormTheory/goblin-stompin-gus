@@ -45,8 +45,7 @@ function menuNav(dir){
     if(dy<0&&pane.scrollTop<=0){padFocus(tabBtn);return;}
     pane.scrollTop+=dy*80;return;
   }
-  if(dx&&cur&&cur.closest&&cur.closest('#charSel2')){const C=[...document.querySelectorAll('#charSel2 .cs-p2b')],i=C.indexOf(cur)+dx;if(i>=0&&i<C.length){C[i].click();padFocus(C[i]);}return;}
-  if(dx&&cur&&cur.closest&&cur.closest('#charSel')){const C=[...document.querySelectorAll('#charSel .cs-card')],i=C.indexOf(cur)+dx;if(i>=0&&i<C.length){C[i].click();padFocus(C[i]);}return;}
+  if(dx&&cur&&cur.closest&&cur.closest('#charSel .cs-row')){const C=[...cur.closest('.cs-row').querySelectorAll('.cs-card')],i=C.indexOf(cur)+dx;if(i>=0&&i<C.length){C[i].click();padFocus(C[i]);}return;}
   if(dx&&(title||cur&&cur.closest&&cur.closest('.tabs'))){showTab(tabIndex()+dx);padFocus(document.getElementById('tabBtn'+TABS[tabIndex()][1]));return;}
   if(dy&&title&&pane.contains(cur)){const U=paneUnits(pane),i=U.findIndex(u=>u===cur||u.contains(cur))+dy;if(i<0)padFocus(tabBtn);else if(i<U.length)unitFocus(U[i]);return;}
   if(dy&&pane&&cur&&cur.closest){
@@ -195,5 +194,5 @@ function promptTick(dt){
   // a paused co-op player's own panel: their controller (or, for Gus, the mouse)
   for(const p of players){if(!p.active||!p.paused||!p.ui.pprompts)continue;
     const pad=p.idx===1||inputKind==='pad';
-    setPrompts(p.ui.pprompts,pad?[[['A'],'Resume'],[['Y'],'Main menu']]:[[['LMB'],'Select'],[['KEY:Enter'],'Resume']]);}
+    setPrompts(p.ui.pprompts,pad?[[['A'],'Resume'],[['Y'],'Pause menu']]:[[['LMB'],'Select'],[['KEY:Enter'],'Resume']]);}
 }

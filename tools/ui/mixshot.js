@@ -11,8 +11,8 @@ const p=await b.newPage({viewport:{width:1280,height:720}});
 const errs=[];p.on('pageerror',e=>errs.push(e.message));p.on('console',m=>{if(m.type()==='error')errs.push(m.text().slice(0,200));});
 await p.addInitScript(([k,s])=>{if(!localStorage.getItem(k))localStorage.setItem(k,JSON.stringify({seed:s}));localStorage.setItem('goblin-stompin-gus-character','gus');},[SAVE_KEY,seed]);
 await p.goto('file://'+process.cwd()+'/t3.html');await p.waitForTimeout(3000);
-await p.click('#charSel2 .cs-p2b[data-k="goblin"]');await p.waitForTimeout(300);
-console.log('title:',await p.evaluate(()=>[...document.querySelectorAll('#charSel2 .cs-p2b')].map(b=>b.textContent+(b.getAttribute('aria-checked')==='true'?' *':'')).join(' / ')+'  |  '+document.getElementById('charNote').textContent),
+await p.click('#tabBtnCustom');await p.click('#charSel2 .cs-card[data-c="gnash"]');await p.waitForTimeout(300);
+console.log('title:',await p.evaluate(()=>[...document.querySelectorAll('#charSel2 .cs-card')].map(b=>b.dataset.c+(b.getAttribute('aria-checked')==='true'?' *':'')).join(' / ')+'  |  '+document.getElementById('charNote').textContent),
   ' saved',await p.evaluate(()=>localStorage.getItem('goblin-stompin-gus-character2')));
 await (await p.$('#charSel')).screenshot({path:out+'/mix-title.png'});
 await p.evaluate(()=>document.getElementById('playCoop').click());await p.waitForTimeout(12000);

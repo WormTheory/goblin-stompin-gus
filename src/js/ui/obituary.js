@@ -19,10 +19,10 @@ function recordObitAs(g,cause,who){const L=obitList();
   if(L.length>400)L.length=400;obitSave();renderObitCount();
   if(menuOpen&&curTab==='obit'){obitSel=Math.min(obitSel+1,L.length-1);renderObits();}
 }
-// Gus and Gertie go in the book too, and so do Gnash and Grizzle (idx: which hippo it was, or for a goblin which seat)
+// Gus and Gertie go in the book too, and so do Gnash and Grizzle (idx: which hippo it was, or which goblin)
 function recordHippoObit(p,cause,killer){
   const L=obitList(),gus=!p.who,dead={cause,killer:killer===ACCIDENT?'':killerName(killer),when:timeLabel(),n:++obitTotal};
-  if(p.gob)L.unshift(Object.assign({hippo:true,gob:true,idx:p.idx,name:charName(p),age:p.idx?22:27,occ:'Goblin',hobby:'Getting his own back',quirk:p.idx?'Follows Gnash everywhere':'Fed up with being stomped'},dead));
+  if(p.gob)L.unshift(Object.assign({hippo:true,gob:true,idx:p.who,name:charName(p),age:p.who?22:27,occ:'Goblin',hobby:'Getting his own back',quirk:p.who?'Follows Gnash everywhere':'Fed up with being stomped'},dead));
   else L.unshift(Object.assign({hippo:true,idx:p.who,name:gus?'Gus':'Gertie',age:gus?34:31,occ:'Hippopotamus',hobby:'Stomping goblins',quirk:gus?'Extremely wall-eyed':'Looks you right in the eye'},dead));
   if(L.length>400)L.length=400;obitSave();renderObitCount();
   if(menuOpen&&curTab==='obit'){obitSel=Math.min(obitSel+1,L.length-1);renderObits();}

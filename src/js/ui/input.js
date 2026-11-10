@@ -43,7 +43,27 @@ function startPlay(mode,fromPad){
   if(!fromPad)wantLock();
 }
 let pauseAt=-1e9;   // (when play last paused: an Esc straight after it is the same press, e.g. the one that let the mouse go)
-function pause(){pauseAt=performance.now();if(TENV)tpShow(true);menuOpen=true;playing=false;keys.clear();mHeld.clear();pauseEl.hidden=false;renderObitCount();if(curTab==='obit'){obitSel=0;renderObits();}if(curTab==='controls')renderControls();if(curTab==='map'){MAPV.cx=null;saveExplored();setTimeout(renderMap,0);}try{if(locked())document.exitPointerLock();}catch(e){}const pf=document.getElementById(players[1].active&&!players[1].net?'playCoop':'play');if(inputKind==='pad')padFocus(pf);else pf.focus();}
+// Whose pause menu it is (menuBy): in split-screen co-op either player can open the whole menu, from their own pause
+// panel. Player two's leaves out what changes the game for both of you: Game options, the Dev tab, the Testing
+// Environment, and the Game tab's new city, solo, online and hostility controls (menuSeat). Only their controller
+// drives it, and only player one's drives player one's. (var: renderTime asks while the page is still loading)
+var menuBy=null;
+function menuP2(){return !!(menuBy&&menuBy!==P1&&inCoop());}
+const P1_ONLY=['play','newWorld','testWorld','onlineBtn','onlinePanel','confirm'];
+function menuSeat(){
+  const two=menuP2();pauseEl.classList.toggle('seat2',two);
+  for(const id of P1_ONLY){const el=document.getElementById(id);if(el)el.classList.toggle('p1only',true);}
+  for(const el of document.querySelectorAll('.gamepane .hostmain'))el.classList.add('p1only');
+  document.getElementById('tabBtnOptions').hidden=two;
+  document.getElementById('tabBtnDev').hidden=two||!DT.quick;
+  if(two)document.getElementById('tabBtnTest').hidden=true;
+  menuWhoShow();
+  if(two&&['options','dev','test'].includes(curTab))showTab('game');
+}
+// (the name over the tabs: whose menu it is, kept up to date if they pick someone else in the Character tab)
+function menuWhoShow(){const w=document.getElementById('menuWho');if(!w)return;w.hidden=!menuBy||!inCoop();
+  if(menuBy){w.textContent=charName(menuBy)+"'s menu";w.classList.toggle('p2',menuBy!==P1);}}
+function pause(by){menuBy=by&&by.ui?by:P1;pauseAt=performance.now();if(TENV)tpShow(true);menuSeat();renderChar();menuOpen=true;playing=false;keys.clear();mHeld.clear();pauseEl.hidden=false;renderObitCount();if(curTab==='obit'){obitSel=0;renderObits();}if(curTab==='controls')renderControls();if(curTab==='map'){MAPV.cx=null;saveExplored();setTimeout(renderMap,0);}try{if(locked())document.exitPointerLock();}catch(e){}const pf=document.getElementById(players[1].active&&!players[1].net?'playCoop':'play');if(inputKind==='pad')padFocus(pf);else pf.focus();}
 // losing the mouse (another window clicked, alt-tab) pauses -- unless you're playing on a controller, which keeps
 // working with the game in the background (as long as the page is still showing; 'on a controller': you've used one
 // in the last minute -- so the Alt of an Alt-Tab doesn't count against it)
@@ -70,7 +90,7 @@ function escResume(){
     startPlay(null);   // (as the controller's Start: same players as before, and the mouse is captured again)
   }else if(P1.paused&&!DT.kbdOpen)resumePlayer(P1,false);
 }
-for(const p of players){p.ui.pres.addEventListener('click',()=>resumePlayer(p,false));p.ui.pmenu.addEventListener('click',()=>pause());}
+for(const p of players){p.ui.pres.addEventListener('click',()=>resumePlayer(p,false));p.ui.pmenu.addEventListener('click',()=>pause(p));}
 document.addEventListener('pointerlockerror',lockFailed);
 document.getElementById('play').addEventListener('click',()=>startPlay('solo'));
 document.getElementById('playCoop').addEventListener('click',()=>startPlay('coop'));
@@ -113,7 +133,7 @@ document.querySelectorAll('.tb[data-a]').forEach(b=>{
   b.addEventListener('pointerup',up);b.addEventListener('pointercancel',up);b.addEventListener('pointerleave',up);
 });
 {const b=document.getElementById('tBite');b.addEventListener('pointerdown',e=>{e.preventDefault();touchHeld.add('bite');});const up=()=>{touchHeld.delete('bite');};b.addEventListener('pointerup',up);b.addEventListener('pointercancel',up);b.addEventListener('pointerleave',up);}
-document.getElementById('tMenu').addEventListener('click',pause);
+document.getElementById('tMenu').addEventListener('click',()=>pause(P1));
 
 // ---------- Gamepads ----------
 const padPrev=new Map();let padCount=-1;
@@ -136,11 +156,15 @@ function readInputs(dt){
   if(menuOpen&&BIND_CAP){if(performance.now()-BIND_CAP.t>200)for(const s of st){const i=s.pr.findIndex(Boolean);if(i<0)continue;
       if(BIND_CAP.dev==='pad'){if(PAD_RESERVED.has(i))bindCancel();else setBind(BIND_CAP.id,'pad',BIND_CAP.i,i);}else if(i===1||i===9)bindCancel();break;}
     mTap.clear();return;}
-  if(menuOpen){menuPad(st,dt);mTap.clear();return;}
+  if(menuOpen){
+    // (split screen: the menu answers only the controller of whoever opened it)
+    const mine=!inCoop()||!menuBy?st:st.filter(s=>menuBy===P2?s.p===P2.pad:s.p!==P2.pad||!P2.pad);
+    menuPad(mine,dt);mTap.clear();return;}
   // the debug quick menu: Select on any controller opens it and Select (or B) closes it again; ~ does the same on the
   // keyboard. The game is paused meanwhile, and the controllers drive the menu instead of the hippos.
   if(!DT.quick)DT.selHeld=false;
-  else for(const s of st){if(s.pr[8])DT.selHeld=!DT.selHeld;else if(DT.selHeld&&s.pr[1]){if(DT.edit){DT.edit=null;renderTime();}else if(DT.dd){DT.dd=null;renderTime();}else DT.selHeld=false;}}
+  else for(const s of st){if(inCoop()&&P2.pad&&s.p===P2.pad&&!DT.selHeld)continue;   // (player two can't open the debug menu: it's player one's, as the Dev tab is)
+    if(s.pr[8])DT.selHeld=!DT.selHeld;else if(DT.selHeld&&s.pr[1]){if(DT.edit){DT.edit=null;renderTime();}else if(DT.dd){DT.dd=null;renderTime();}else DT.selHeld=false;}}
   const wasOpen=DT.menu;DT.menu=DT.quick&&(DT.selHeld||DT.kbdOpen);if(!DT.menu){DT.dd=null;DT.edit=null;}
   if(DT.menu){
     let dy=0,dx=0;
@@ -163,7 +187,7 @@ function readInputs(dt){
   for(const [p,s] of [[P1,s1],[P2,s2]]){
     if(!p.active||!p.paused||!s)continue;
     if(s.pr[0]||s.pr[9]){resumePlayer(p,true);skip.add(p);}
-    else if(s.pr[3]){pause();break;}
+    else if(s.pr[3]){pause(p);break;}
   }
   if(menuOpen){mTap.clear();return;}
   if(!P2.active&&!netOn()&&s2&&(s2.pr[9]||s2.pr[0])){coop=true;activateP2();P2.pad=s2.p;skip.add(P2);}

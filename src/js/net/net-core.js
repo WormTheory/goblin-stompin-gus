@@ -84,7 +84,7 @@ async function netStartHost(kind){
 }
 // (what a guest sends about itself when it asks to join, and what the host takes from it)
 function netCid(){let c=null;try{c=sessionStorage.getItem('gsg-net-cid');if(!c){c=netId();sessionStorage.setItem('gsg-net-cid',c);}}catch(e){}return c||(NET.cid||(NET.cid=netId()));}   // (this tab, through a reload or a dropped connection, so the host keeps its seat for it)
-function netHello(){return{t:'hello',v:NET_PROTO,cid:netCid(),who:CHAR==='gertie'?1:0,gob:CHAR==='goblin',abil:Object.assign({},ABIL),seat:NET.wantSeat};}
+function netHello(){return{t:'hello',v:NET_PROTO,cid:netCid(),who:charWho(CHAR),gob:charGob(CHAR),abil:Object.assign({},ABIL),seat:NET.wantSeat};}
 function netHostMsg(peer,m){
   if(!m||typeof m!=='object')return;
   const p=NET.guests.get(peer);
@@ -113,7 +113,7 @@ function netSeat(peer,m){
   p.net.inb=null;p.net.pr={};p.net.inN=0;p.net.vo=false;   // (vo: on voice chat. A tab that's just joined, or reloaded, isn't till it says so)
   // (two players who've both picked the same hippo: the guest's the other one, so they can tell each other apart. The
   // two are the same in everything but looks)
-  p.who=m.who?1:0;if(!m.gob&&!P1.gob&&p.who===P1.who)p.who=1-P1.who;setGobP(p,!!m.gob);
+  p.who=m.who?1:0;if(!!m.gob===!!P1.gob&&p.who===P1.who)p.who=1-P1.who;setGobP(p,!!m.gob);
   // (each player keeps the abilities they've switched on in their own browser)
   p.abil={};for(const k in ABIL)p.abil[k]=typeof(m.abil||{})[k]==='boolean'?m.abil[k]:ABIL[k];
   dressHippo(p);

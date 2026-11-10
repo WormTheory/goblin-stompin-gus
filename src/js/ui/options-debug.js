@@ -152,7 +152,7 @@ function renderTime(){
   const dp=document.getElementById('dbgPad');dp.hidden=!DT.menu;
   for(const b of document.querySelectorAll('#dbgMenuTog .tog'))b.setAttribute('aria-checked',String(DT.quick));
   // (the Dev tab comes and goes with the debug menu; if it's the tab on show as it goes, Game options takes its place)
-  {const dv=document.getElementById('tabBtnDev');if(dv&&dv.hidden!==!DT.quick){dv.hidden=!DT.quick;try{if(!DT.quick&&curTab==='dev')showTab('options');}catch(e){}}}
+  {const dv=document.getElementById('tabBtnDev'),off=!DT.quick||menuP2();if(dv&&dv.hidden!==off){dv.hidden=off;try{if(!DT.quick&&curTab==='dev')showTab('options');}catch(e){}}}
   if(DT.menu){
     const dbgL=dbgItems();
     {const tb=document.getElementById('dpTabs');if(tb)tb.innerHTML=['Switches','Show / hide'].map((n,t)=>'<button type="button" data-t="'+t+'"'+(t===DT.tab?' class="on"':'')+'>'+n+'</button>').join('');}

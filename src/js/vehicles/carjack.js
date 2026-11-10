@@ -21,7 +21,7 @@ function jackKinds(){if(!FOES.soldier)FOES.soldier={name:'Soldier',label:'Soldie
 function jackActor(p){
   if(p.jackA)return p.jackA;
   const root=new THREE.Group();root.rotation.order='YXZ';root.visible=false;root.scale.setScalar(ES);scene.add(root);
-  const m=goblinModel(root,{tunic:p.idx?0xa83232:0x3a5f8a});
+  const m=goblinModel(root,{tunic:GOB_TUNIC[p.who?1:0]});
   return p.jackA={root,m};
 }
 // a piece of the vehicle that opens: a hinged car door, a sliding helicopter door, the tank's hatch lid

@@ -184,7 +184,7 @@ function gobClub(p){
 function gobKit(p){
   if(p.gb)return p.gb;
   const root=new THREE.Group();root.rotation.order='YXZ';root.visible=false;root.scale.setScalar(ES);scene.add(root);
-  const m=goblinModel(root,{club:false,tunic:p.idx?0xa83232:0x3a5f8a});
+  const m=goblinModel(root,{club:false,tunic:GOB_TUNIC[p.who?1:0]});
   // (and what's in his hand, for the others to see: the weapon he's holding, the same shapes the enemies carry)
   const tp={},tm=c=>new THREE.MeshLambertMaterial({color:c}),tb=(w,h,d,c,x,y,z,g)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),tm(c));o.position.set(x,y,z);g.add(o);};
   for(const k of GOB_WPN_ORDER){tp[k]=new THREE.Group();m.arm.hand.add(tp[k]);tp[k].visible=k==='club';}   // (in the wrist, as the enemies hold theirs)
