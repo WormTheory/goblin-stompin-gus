@@ -77,6 +77,10 @@
 - If there's no way round on the wall, a goblin below you climbs back down and runs round to your side when that's quicker than going over the top.
 - A goblin on the roof above you climbs down over the edge to get you. It no longer runs off the edge or gets stuck up there.
 
+### Menus
+
+- Press Esc in the pause menu to carry on playing, the same as pressing Play. It captures the mouse again where the browser allows it; if it doesn't, the usual hint asks you to click once. In co-op, Esc resumes just your own hippo. On the "start a new city?" question, Esc answers No first.
+
 ### Bug fixes
 
 - Fixed flickering on the striped umbrellas over café tables, on beaches and in parks.

@@ -6,6 +6,10 @@ const touchMode=matchMedia('(pointer: coarse)').matches;
 if(touchMode){document.getElementById('touch').hidden=false;dragMode=true;}
 addEventListener('keydown',e=>{
   if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();
+  // Esc with the game paused carries on playing (in co-op, just your own hippo), or backs out of the new-world question
+  // first. (Checked before the pausing below, so the Esc that pauses in full screen doesn't also resume.) Keys that
+  // something else claims for Esc never get here: the chat box, choosing a new key on Controls, the expanded Dev preview.
+  if(e.code==='Escape'&&(menuOpen||P1.paused)){if(!e.repeat&&performance.now()-pauseAt>300)escResume();return;}
   if(menuOpen||P1.paused)return;
   keys.add(e.code);
   // (Esc normally reaches the page only in drag mode, since the browser keeps it to let go of the mouse. In full
@@ -38,7 +42,8 @@ function startPlay(mode,fromPad){
   try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();audioWanted=true;if(!(DT.paused||SPEEDS[DT.speedI]===0))audio.resume();}catch(e){}
   if(!fromPad)wantLock();
 }
-function pause(){if(TENV)tpShow(true);menuOpen=true;playing=false;keys.clear();mHeld.clear();pauseEl.hidden=false;renderObitCount();if(curTab==='obit'){obitSel=0;renderObits();}if(curTab==='controls')renderControls();if(curTab==='map'){MAPV.cx=null;saveExplored();setTimeout(renderMap,0);}try{if(locked())document.exitPointerLock();}catch(e){}const pf=document.getElementById(players[1].active&&!players[1].net?'playCoop':'play');if(inputKind==='pad')padFocus(pf);else pf.focus();}
+let pauseAt=-1e9;   // (when play last paused: an Esc straight after it is the same press, e.g. the one that let the mouse go)
+function pause(){pauseAt=performance.now();if(TENV)tpShow(true);menuOpen=true;playing=false;keys.clear();mHeld.clear();pauseEl.hidden=false;renderObitCount();if(curTab==='obit'){obitSel=0;renderObits();}if(curTab==='controls')renderControls();if(curTab==='map'){MAPV.cx=null;saveExplored();setTimeout(renderMap,0);}try{if(locked())document.exitPointerLock();}catch(e){}const pf=document.getElementById(players[1].active&&!players[1].net?'playCoop':'play');if(inputKind==='pad')padFocus(pf);else pf.focus();}
 // losing the mouse (another window clicked, alt-tab) pauses -- unless you're playing on a controller, which keeps
 // working with the game in the background (as long as the page is still showing; 'on a controller': you've used one
 // in the last minute -- so the Alt of an Alt-Tab doesn't count against it)
@@ -47,13 +52,23 @@ document.addEventListener('pointerlockchange',()=>{if(locked()){lockOk=true;lock
 const inCoop=()=>coop&&P2.active;
 function requestPause(p){if(inCoop())pausePlayer(p);else pause();}
 function pausePlayer(p){
-  p.paused=true;p.ui.ppause.hidden=false;
+  p.paused=true;p.ui.ppause.hidden=false;if(p===P1)pauseAt=performance.now();
   if(p===P1){keys.clear();mHeld.clear();try{if(locked())document.exitPointerLock();}catch(e){}p.ui.pres.focus();}
 }
 function resumePlayer(p,fromPad){
   p.paused=false;p.ui.ppause.hidden=true;
   if(p===P1&&!fromPad)wantLock();
   try{if(audio&&!(DT.paused||SPEEDS[DT.speedI]===0))audio.resume();}catch(e){}
+}
+function escResume(){
+  if(menuOpen){
+    if(!begun)return;   // (the title screen: nothing to go back to yet)
+    const cf=document.getElementById('confirm');
+    if(!cf.hidden){document.getElementById('confirmNo').click();const nw=document.getElementById('newWorld');if(inputKind==='pad')padFocus(nw);else nw.focus();return;}
+    const t=document.activeElement;
+    if(t&&(t.tagName==='TEXTAREA'||t.tagName==='SELECT'||t.tagName==='INPUT'&&/^(text|number|search)$/.test(t.type))){t.blur();return;}
+    startPlay(null);   // (as the controller's Start: same players as before, and the mouse is captured again)
+  }else if(P1.paused&&!DT.kbdOpen)resumePlayer(P1,false);
 }
 for(const p of players){p.ui.pres.addEventListener('click',()=>resumePlayer(p,false));p.ui.pmenu.addEventListener('click',()=>pause());}
 document.addEventListener('pointerlockerror',lockFailed);

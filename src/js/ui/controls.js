@@ -202,7 +202,7 @@ function renderControls(){
     <dl class="ctl-legend">
       ${legendRows('kb',gb,gs,gk,or)}
       <dt>${gs('Mouse',CC.look)}</dt><dd>Look around</dd>
-      <dt>${gk('Esc')}</dt><dd>Pause</dd>
+      <dt>${gk('Esc')}</dt><dd>Pause and resume</dd>
       <dt>${gs('Co-op',CC.menu)}</dt><dd>Gertie needs a controller</dd>
     </dl></div>${rebindHTML()}`;
   }
