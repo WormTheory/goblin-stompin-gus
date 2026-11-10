@@ -321,7 +321,7 @@ function gasBoom0(x,y,z){
     d.m.position.set(x+(Math.random()-.5)*2,y+1+Math.random(),z+(Math.random()-.5)*2);d.v.set((Math.random()-.5)*16,9+Math.random()*10,(Math.random()-.5)*16);d.spin.set((Math.random()-.5)*12,(Math.random()-.5)*12,(Math.random()-.5)*12);d.life=4;d.m.visible=true;}
   noise(2.6,1.3,500,'lowpass');tone('sawtooth',55,18,2.2,0.45);tone('sine',80,24,1.8,0.35);
   addShake(1.3,x,z,70);
-  if(BLAME!=='acc'){score+=150;flashLabel('Gas pump blown  +150',(nearestPlayer(x,z)||{}).p);}
+  if(BLAME!=='acc')award(150,'Gas pump blown',x,y+2,z);
   for(const q of players){if(!q.active)continue;const dg=Math.hypot(q.pos.x-x,q.pos.z-z),d3=Math.hypot(dg,q.pos.y-y);rumble(q,Math.max(0.2,1-d3/60),900);if(q===players.find(o=>o.active))dbgHit('dmg','cap',dbgCap(x,y,z,13));if(d3<13&&vReach(q.pos.y-y,13))damagePlayer(q,d3<6?8:5,new V3(q.pos.x,q.pos.y+1.2,q.pos.z),new V3((q.pos.x-x)/(dg||1),0.8,(q.pos.z-z)/(dg||1)),'Blown up in a gas explosion');}
   hitGoblins(x,z,15,14,'Blown up at the gas station',y);
   for(const pr of trainsNear(x,z,15,y-15,y+15))trainHit(pr.T,120,null,pr.i);   // (a blast tears into a train too)
@@ -337,7 +337,7 @@ function explodeCar(c){const w=DBG_WHO;DBG_WHO='n';try{return withBlame(carIsPla
 function explodeCar0(c){
   c.alive=false;c.g.visible=false;c.respawnT=6;c.hunter=false;
   const p=c.pos.clone();reportNews(p.x,p.z,'car crash');
-  const pts=c.police?500:300;if(BLAME!=='acc'){reportCrime(p.x,p.z);score+=pts;RAMP.cars++;flashLabel((c.police?'Police car destroyed  +':c.crew&&CREW_NAME[c.veh]?CREW_NAME[c.veh]+' destroyed  +':'Car destroyed  +')+pts,(nearestPlayer(p.x,p.z)||{}).p);}
+  const pts=c.police?500:300;if(BLAME!=='acc'){reportCrime(p.x,p.z);RAMP.cars++;award(pts,c.police?'Police car tossed':c.crew&&CREW_NAME[c.veh]?CREW_NAME[c.veh]+' destroyed':'Car tossed',p.x,p.y+2,p.z);}
   if(c.police&&c.spot){policeDown[c.spot.split(':')[0]]=playTime+90;c.spot=null;}c.parked=false;
   if(c.svcPool&&c.svc){const keep=c.alive;svcDone(c,true);}
   blastFx(p.x,p.y+1,p.z,0.6,1);

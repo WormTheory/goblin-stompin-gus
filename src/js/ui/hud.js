@@ -28,6 +28,7 @@ function healthHud(p,dt){
   } else if(p.ui.smLv!==undefined){p.ui.smLv=undefined;}
   p.hurtFx-=dt;p.ui.hurt.style.opacity=p.deadT>0?0.85:Math.max(0,p.hurtFx*2.2);
   renderHearts(p);
+  comboTick(p,dt);comboHud(p);wreckHud(p,dt);
 }
 let split='none';
 function layout(){
@@ -38,6 +39,8 @@ function layout(){
   if(split==='none'){set(P1.ui.view,0,0,w,h);divider.hidden=true;}
   else if(split==='lr'){set(P1.ui.view,0,0,w/2,h);set(P2.ui.view,w/2,0,w/2,h);set(divider,w/2-1,0,2,h);divider.hidden=false;}
   else{set(P1.ui.view,0,0,w,h/2);set(P2.ui.view,0,h/2,w,h/2);set(divider,0,h/2-1,w,2);divider.hidden=false;}
+  // (which corners of the screen each view has: the score sits in player one's top left, the clock in the top right)
+  P1.ui.view.classList.add('tl');P1.ui.view.classList.toggle('tr',split!=='lr');P2.ui.view.classList.toggle('tr',split==='lr');
   for(const p of players){p.ui.who.hidden=split==='none';if(p.ui.mini){const sz=split==='none'?160:118;p.ui.mini.style.width=p.ui.mini.style.height=sz+'px';}}
 }
 function resize(){renderer.setSize(innerWidth,innerHeight,false);layout();}

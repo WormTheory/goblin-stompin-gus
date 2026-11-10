@@ -36,7 +36,7 @@ bite a wall            player one moved 4.56 up 0.00  | furthest apart 0.000   s
    blocks left by Gus 22 by Gertie 22 of 28
 spider climb           player one moved 9.00 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
 roll? / lock on        player one moved 2.17 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
-picked Gnash: Gnash + Grizzle  goblin mode true
+picked Gnash: Gnash + Grizzle (bow)  goblin mode true
 == as goblins
 walk                   player one moved 2.81 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
 sprint                 player one moved 7.51 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 84 84

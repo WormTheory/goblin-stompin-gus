@@ -239,7 +239,7 @@ function dropFloating(starts,o={}){
       let m=0;for(const c of bottom)m=Math.max(m,(c.x+.5-bx)*dx+(c.z+.5-bz)*dz);m+=0.5;
       makeTopple(cl,new V3(bx+dx*m,minY,bz+dz*m),new V3(dx,0,dz));
     } else makeBody(cl,big);
-    if(big){let cx=0,cz=0;for(const c of cl){cx+=c.x;cz+=c.z;}cx/=cl.length;cz/=cl.length;{const pts=bldgPts(cl.length);score+=pts;flashLabel('Building down  +'+pts);}noise(3.2,0.9,300,'lowpass');tone('sawtooth',60,24,3.2,0.25);addShake(0.6,cx,cz,70);for(const p of players)if(p.active)rumble(p,0.9,900);}
+    if(big){let cx=0,cz=0;for(const c of cl){cx+=c.x;cz+=c.z;}cx/=cl.length;cz/=cl.length;award(bldgPts(cl.length),'Building down',cx,minY+4,cz);noise(3.2,0.9,300,'lowpass');tone('sawtooth',60,24,3.2,0.25);addShake(0.6,cx,cz,70);for(const p of players)if(p.active)rumble(p,0.9,900);}
   }
 }
 const bldgPts=n=>Math.max(100,Math.round(n*0.5/10)*10);
@@ -304,7 +304,7 @@ function collapseBuilding(B,L,push){
   if(tip)makeTopple(body,tip.p,tip.d);else makeBody(body,body.length>=60);
   const cx=X0+(b.x0+b.x1)/2,cz=Z0+(b.z0+b.z1)/2;
   if(body.length>=60){
-    const pts=bldgPts(body.length);score+=pts;flashLabel((L>G+(b.gf||FH)+1?'Building toppled  +':'Building down  +')+pts);
+    award(bldgPts(body.length),L>G+(b.gf||FH)+1?'Building toppled':'Building down',cx,L+4,cz);
     noise(3.2,0.9,300,'lowpass');tone('sawtooth',60,24,3.2,0.25);tone('triangle',150,60,0.9,0.1,0.3);tone('triangle',120,50,1.1,0.1,1.2);
     addShake(0.6,cx,cz,70);for(const p of players)if(p.active)rumble(p,0.9,900);
   }

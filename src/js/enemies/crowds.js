@@ -203,6 +203,7 @@ function damageGoblin(g,n,pt,dir,cause,by){
   if(g.state!=='chase')return;
   dmgPop(g.pos.x,g.pos.y+1.6,g.pos.z,n,'#ffe14a');
   if(!by&&BLAME==='acc')by=ACCIDENT;
+  if(!by&&n>0&&g.hp-n>0){const q=nearestPlayer(g.pos.x,g.pos.z);if(q)hudPop(g.pos.x,g.pos.y+1.9,g.pos.z,'-'+(Math.round(n*10)/10),'dmg',q.p);}   // (the damage number, for whoever did it; the killing blow gets a shout instead)
   g.hp-=n;g.hurt=0.1;if(cause!=='Fell to death')g.hitT=playTime;
   if(g.homeV&&!g.homeV.roused&&!calmNow())(g.cultist?cultRouse:siteRouse)(g.homeV);   // (hurt one at the altar or the compound and the whole lot turn on you)
   if(g.snowU&&g.snowU.value>0.05){puff(g.pos.x,g.pos.y+1.3*ES,g.pos.z,6,0xf0f4fa,0.35);g.snowU.value=0;}
@@ -222,7 +223,8 @@ function damageGoblin(g,n,pt,dir,cause,by){
     if(by){g.vendor=null;}
     else reportCrime(g.pos.x,g.pos.z);
     if(by){}
-    else if(g.civ){score+=25;g.vendor=null;flashLabel('Civilian flattened  +25',n2&&n2.p);}else{score+=100;kills++;flashLabel((g.cultist?'Cultist slain':g.foeKind?FOES[g.foeKind].label:'Goblin killed')+'  +100',n2&&n2.p);}
+    else if(g.civ){g.vendor=null;award(25,'Civilian flattened',g.pos.x,g.pos.y+1.4,g.pos.z,n2&&n2.p||null);}else{kills++;award(100,g.cultist?'Cultist slain':g.foeKind?FOES[g.foeKind].label:'Goblin flattened',g.pos.x,g.pos.y+1.4,g.pos.z,n2&&n2.p||null);}
+    if(!by&&n2)hudPop(g.pos.x,g.pos.y+2.4,g.pos.z,killShout(cause),'shout',n2.p);
     tone('sawtooth',620,110,0.45,0.1);splat(g.pos.x,g.pos.z,g.pos.y+0.5,0.6);}
 }
 function knockMove(o,dt){

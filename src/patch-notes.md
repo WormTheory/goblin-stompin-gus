@@ -24,6 +24,11 @@
 - Options, Controls, the Map, the Obituary and the Patch notes are on paper in the new style. The Dev tools and the Testing Environment keep a dark panel, in the new colours.
 - The HUD is redrawn to match: your score big in the top left with the goblins you've flattened under it (and stickers when cars or the police are after you), pixel hearts and the stamina bar in one paper panel at the bottom, the day and weather on a paper card beside a new clock disc, a round minimap, and the speedometer in ink and yolk.
 - Charging a stomp shows STOMP, then BIG STOMP, then shouts FULL CHARGE! when it's all the way up.
+- Combos: every goblin flattened or thing smashed within 3 seconds of the last adds one to your combo, shown under your score with a bar that drains until the next. The combo multiplies your points: +10% for each step from the second, so x11 doubles them and x21 or more triples them (that's as high as it goes). Big combos get a name and a shout: x5 Stompin'!, x10 STOMPTACULAR!, x15 Hippo-critical!, x20 GOBLINGEDDON!, x30 Unstoppable lump!, x50 HIPPOCALYPSE!, x75 Wallow of doom! and x100 Legend of the bog!
+- Points float up from wherever you earned them, damage numbers pop off the goblins as you hit them, and a goblin going down gets a shout: SPLAT! for a stomp, CHOMP! for a bite, KABOOM! for an explosion, and so on. The damage numbers and shouts can be switched off in Options, under On screen.
+- What you've just wrecked is listed in stickers in the top right, newest on top, with the points it earned (combo included), fading as they get older.
+- A City wrecked card in the bottom right shows how much of the place you're in you've knocked down (Town or Village wrecked in smaller places).
+- In split screen and online, each player has their own combo, pop-ups and list of what they've wrecked, from their own hits. The best combo shows in the pause menu's rampage card, and a new city starts it all again.
 - Arriving somewhere puts its name up on a big sticker. Chat, voice chips, the controls hint, the debug menu and each co-op player's own pause panel are restyled too, and in split screen each half's name is a 1P-green or 2P-pink tag.
 
 ### Split-screen co-op menus

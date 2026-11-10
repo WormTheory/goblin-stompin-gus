@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:dadb6af2ae92eb17637cbc3955eed6f4984574b2016aa80b56755a54f54a4e8a -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:d401e81814028c49bbe6366e5051ff068a4424033d6ff20857595aa7c2af3222 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1037,6 +1037,44 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
 .divider{background:var(--ink)}
 /* split screen: everything a size down, so two of them fit */
 @media (prefers-reduced-motion:reduce){.readout i,.smeter.lv2 .slv{animation:none}}
+
+/* ================= UI overhaul: game feel (combo, pop-ups, the wreck feed, the City wrecked card) ================= */
+/* the combo: a paper card under the score, the count in tomato, its name, a draining bar and what it does to the score */
+.combo{position:absolute;left:max(20px,env(safe-area-inset-left,0px));top:calc(16px + env(safe-area-inset-top,0px));display:flex;flex-direction:column;gap:5px;padding:7px 14px 9px;min-width:190px;box-sizing:border-box;color:var(--ink);background-color:var(--paper);background-image:var(--dither);background-size:6px 6px;border:4px solid var(--ink);border-radius:var(--wob);box-shadow:5px 5px 0 var(--ink);transform-origin:20% 50%;pointer-events:none}
+.view.tl .combo{top:calc(96px + env(safe-area-inset-top,0px))}
+.combo .cb1{display:flex;align-items:baseline;gap:10px}
+.combo .cbn{font:400 44px/1 var(--f-px);letter-spacing:1px;color:var(--tomato);text-shadow:2px 0 var(--ink),-2px 0 var(--ink),0 2px var(--ink),0 -2px var(--ink),2px 2px var(--ink),-2px 2px var(--ink),0 4px var(--ink)}
+.combo .cbm{font:400 21px/1 var(--f-px);letter-spacing:.5px;text-transform:uppercase}
+.combo .cbbar{height:10px;border:3px solid var(--ink);border-radius:6px;background:#fff;overflow:hidden}
+.combo .cbbar i{display:block;height:100%;width:100%;background:var(--yolk)}
+.combo .cbx{font:700 12px/1 var(--f-body);color:#5e4b60}
+.combo.bump{animation:cbBump .3s ease-out}
+@keyframes cbBump{0%{transform:scale(1)}35%{transform:rotate(-3deg) scale(1.12)}100%{transform:scale(1)}}
+/* the wreck feed: stickers stacked top right, newest on top */
+.feed{position:absolute;right:max(20px,env(safe-area-inset-right,0px));top:calc(16px + env(safe-area-inset-top,0px));width:min(270px,46%);display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.view.tr .feed{top:calc(178px + env(safe-area-inset-top,0px))}
+.feed .lbl{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 10px;font:700 15px/1.25 var(--f-body);color:var(--ink);background-color:var(--paper);background-image:var(--dither);background-size:6px 6px;border:3px solid var(--ink);border-radius:var(--wobs);box-shadow:4px 4px 0 var(--ink);animation:feedIn .25s ease-out;transition:opacity .4s}
+.feed .lbl:nth-child(even){border-radius:12px 8px 13px 9px/8px 12px 9px 13px}
+.feed .lbl b{font:400 19px/1 var(--f-px);letter-spacing:.5px;color:#b8401a;white-space:nowrap}
+.feed .lbl.old{opacity:0!important}
+.feed .lbl.bump{animation:cbBump .25s ease-out}
+@keyframes feedIn{from{transform:translateX(40px) rotate(4deg);opacity:0}to{transform:none;opacity:1}}
+/* the City wrecked card, bottom right; the speedometer moves up over it while it's there */
+.wreck{position:absolute;right:max(20px,env(safe-area-inset-right,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px));width:210px;box-sizing:border-box;padding:9px 14px 11px;display:flex;flex-direction:column;gap:6px;color:var(--ink);background-color:var(--paper);background-image:var(--dither);background-size:6px 6px;border:4px solid var(--ink);border-radius:var(--wob);box-shadow:5px 5px 0 var(--ink);pointer-events:none}
+.wreck .wk1{display:flex;justify-content:space-between;align-items:baseline;font:700 15px var(--f-body)}
+.wreck .wkv{font:400 20px/1 var(--f-px)}
+.wreck .wkbar{height:20px;border:3px solid var(--ink);border-radius:10px 12px 9px 13px;background:#fff;overflow:hidden;box-sizing:border-box}
+.wreck .wkbar i{display:block;height:100%;width:0;background:var(--tomato);border-right:3px solid var(--ink);box-sizing:border-box;transition:width .4s}
+.wreck .wkbar i.none{border-right:0}
+.view:has(.wreck:not([hidden])) .speedo{bottom:calc(112px + env(safe-area-inset-bottom,0px))}
+/* pop-ups: points (yolk), damage (tomato), shouts (paper), a combo milestone (big, in the middle of the view) */
+.pops{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:4}
+.pop{position:absolute;left:0;top:0;white-space:nowrap;will-change:transform,opacity;font:400 30px/1 var(--f-px);letter-spacing:.5px;color:var(--yolk);text-shadow:2px 0 var(--ink),-2px 0 var(--ink),0 2px var(--ink),0 -2px var(--ink),2px 2px var(--ink),-2px 2px var(--ink),2px -2px var(--ink),-2px -2px var(--ink),0 4px var(--ink)}
+.pop.dmg{font-size:26px;color:var(--tomato)}
+.pop.shout{font-size:36px;color:var(--paper);text-shadow:3px 0 var(--ink),-3px 0 var(--ink),0 3px var(--ink),0 -3px var(--ink),3px 3px var(--ink),-3px 3px var(--ink),3px -3px var(--ink),-3px -3px var(--ink),0 6px var(--ink)}
+.pop.mile{font-size:clamp(34px,5.5vw,64px);color:var(--yolk);text-transform:uppercase;text-shadow:3px 0 var(--ink),-3px 0 var(--ink),0 3px var(--ink),0 -3px var(--ink),3px 3px var(--ink),-3px 3px var(--ink),3px -3px var(--ink),-3px -3px var(--ink),0 7px var(--ink),3px 7px var(--ink),-3px 7px var(--ink)}
+body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
+@media (prefers-reduced-motion:reduce){.combo.bump,.feed .lbl,.feed .lbl.bump{animation:none}}
 </style>
 
 <canvas id="world"></canvas>
@@ -1067,6 +1105,7 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
   </div>
   <div class="clockTxt" id="clockTxt" aria-live="off"></div>
   <div class="divider" id="divider" hidden></div>
+  <div class="pops" id="pops" aria-hidden="true"></div>
   <div class="chat" id="chat" hidden>
     <div class="chat-log" id="chatLog" aria-live="polite"></div>
     <input type="text" class="chat-in" id="chatIn" maxlength="120" autocomplete="off" spellcheck="false" placeholder="Say something, Enter sends, Esc cancels" aria-label="Chat message" hidden>
@@ -1143,7 +1182,7 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
           <div class="rp-t t-combo wob"><span>Best combo</span><b class="px" id="rpCombo">x0</b></div>
           <div class="rp-t t-cars wob2"><span>Cars tossed</span><b class="px" id="rpCars">0</b></div>
         </div>
-        <div class="rp-wreck"><div class="rp-wl"><span>City wrecked</span><b id="rpWreckV"></b></div><div class="rp-bar"><i id="rpWreck"></i></div></div>
+        <div class="rp-wreck" id="rpWreckBox"><div class="rp-wl"><span>City wrecked</span><b id="rpWreckV"></b></div><div class="rp-bar"><i id="rpWreck"></i></div></div>
         <p class="rp-note" id="rpNote" role="status"></p>
       </section>
       <div class="gamefoot">
@@ -1248,6 +1287,12 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
       <div class="crow"><input type="range" id="fireCap" class="vrange" min="0" max="9" step="1" value="5" aria-label="Most fires and smoke plumes at once"><span class="vval" id="fireCapVal">70</span></div>
       <p class="vnote">The most fires and smoke plumes burning at once; when another starts, the oldest goes out. At the top there's no limit at all. Lower it if big disasters make the game stutter.</p>
     </div>
+    <div class="custom">
+      <h2>ON SCREEN</h2>
+      <div class="abil">
+        <button type="button" class="tog" role="checkbox" id="popsTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Damage numbers and shouts<small>Numbers over the goblins as you hit them, and a SPLAT!, CHOMP! or KABOOM! when one goes down. The points you earn still float up either way</small></span></button>
+      </div>
+    </div>
     <div class="custom" id="chatOpts">
       <h2>ONLINE CHAT &amp; VOICE</h2>
       <div class="abil">
@@ -1278,7 +1323,7 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
 <h3>Highlights</h3>
 <ul><li>Play online: up to four players in one city over the internet. One hosts, and the others pick the game from the Open games list, or type in its room code for a private game. Find it under Play online on the main menu.</li><li>Text chat and opt-in voice chat in online games.</li><li>Two players can share one armed vehicle, one driving and one on the gun.</li><li>Police draw handguns at range, and every goblin attack has a proper wind-up and strike.</li></ul>
 <h3>A new look</h3>
-<ul><li>The game has a new coat of paint: flat crayon colours, thick ink outlines with hand-drawn corners, and a chunky pixel font (Jersey 10) for titles, buttons and numbers. Anything you read, like descriptions and these notes, keeps the easy-to-read font.</li><li>Button prompts are drawn as the buttons themselves in the new style: crayon-coloured face buttons and paper keycaps.</li><li>A real title screen: the logo top left, and Gus himself stomping along a street in front of a scrolling city while you choose. The menu card on the right has Play, Co-op, Play online, New city and Options, with the Testing Environment, Dev and Full screen in a small Workshop line underneath, and a sticker for what's new.</li><li>The enemy hostility slider has moved from the main screen to the top of Options.</li><li>Picking a character is now "Who's stompin'?": four big cards for Gus, Gertie, Gnash and Grizzle, with a 1P tag on player one's pick and a 2P tag on player two's. Choose which player you're picking for at the top (player two's own menu always picks for player two), and a strip under the cards lists what that character can do with your current ability switches. Picking the other player's character still swaps you over.</li><li>On a controller, A on a character card picks them and takes you back ("Ready!"), and Y jumps down to the ability switches. Screens opened from a menu have a Back button: B or Esc goes back, and LB / RB (Q / E on the keyboard) jump between screens.</li><li>The pause menu is a column of big buttons (Resume, Map, Obituary with its count, Character, Controls, Options, Quit to title) beside a "This rampage" card: goblins flattened, your score, your best combo, cars tossed and how wrecked the place you're in is, with its name and the time of day. Underneath are this game's own controls: switch between solo and co-op, Play online, New city, the Testing Environment and Full screen.</li><li>Map, Obituary, Character, Controls, Options and Patch notes open in the same card, sliding in from the right, and always start you back on the menu's own buttons when you pause again. B or Esc on the menu itself resumes.</li><li>Quit to title takes you back to the title screen with Gus stomping along; your city, score and everyone in it are kept, so Play carries on where you left off.</li><li>Patch notes and Dev are small tags in the card's corner now. The card's corner says 1P MENU (green) or 2P MENU (pink), and player two's menu still leaves out Options, Dev, the Testing Environment, Quit to title and the city controls.</li><li>Options, Controls, the Map, the Obituary and the Patch notes are on paper in the new style. The Dev tools and the Testing Environment keep a dark panel, in the new colours.</li><li>The HUD is redrawn to match: your score big in the top left with the goblins you've flattened under it (and stickers when cars or the police are after you), pixel hearts and the stamina bar in one paper panel at the bottom, the day and weather on a paper card beside a new clock disc, a round minimap, and the speedometer in ink and yolk.</li><li>Charging a stomp shows STOMP, then BIG STOMP, then shouts FULL CHARGE! when it's all the way up.</li><li>Arriving somewhere puts its name up on a big sticker. Chat, voice chips, the controls hint, the debug menu and each co-op player's own pause panel are restyled too, and in split screen each half's name is a 1P-green or 2P-pink tag.</li></ul>
+<ul><li>The game has a new coat of paint: flat crayon colours, thick ink outlines with hand-drawn corners, and a chunky pixel font (Jersey 10) for titles, buttons and numbers. Anything you read, like descriptions and these notes, keeps the easy-to-read font.</li><li>Button prompts are drawn as the buttons themselves in the new style: crayon-coloured face buttons and paper keycaps.</li><li>A real title screen: the logo top left, and Gus himself stomping along a street in front of a scrolling city while you choose. The menu card on the right has Play, Co-op, Play online, New city and Options, with the Testing Environment, Dev and Full screen in a small Workshop line underneath, and a sticker for what's new.</li><li>The enemy hostility slider has moved from the main screen to the top of Options.</li><li>Picking a character is now "Who's stompin'?": four big cards for Gus, Gertie, Gnash and Grizzle, with a 1P tag on player one's pick and a 2P tag on player two's. Choose which player you're picking for at the top (player two's own menu always picks for player two), and a strip under the cards lists what that character can do with your current ability switches. Picking the other player's character still swaps you over.</li><li>On a controller, A on a character card picks them and takes you back ("Ready!"), and Y jumps down to the ability switches. Screens opened from a menu have a Back button: B or Esc goes back, and LB / RB (Q / E on the keyboard) jump between screens.</li><li>The pause menu is a column of big buttons (Resume, Map, Obituary with its count, Character, Controls, Options, Quit to title) beside a "This rampage" card: goblins flattened, your score, your best combo, cars tossed and how wrecked the place you're in is, with its name and the time of day. Underneath are this game's own controls: switch between solo and co-op, Play online, New city, the Testing Environment and Full screen.</li><li>Map, Obituary, Character, Controls, Options and Patch notes open in the same card, sliding in from the right, and always start you back on the menu's own buttons when you pause again. B or Esc on the menu itself resumes.</li><li>Quit to title takes you back to the title screen with Gus stomping along; your city, score and everyone in it are kept, so Play carries on where you left off.</li><li>Patch notes and Dev are small tags in the card's corner now. The card's corner says 1P MENU (green) or 2P MENU (pink), and player two's menu still leaves out Options, Dev, the Testing Environment, Quit to title and the city controls.</li><li>Options, Controls, the Map, the Obituary and the Patch notes are on paper in the new style. The Dev tools and the Testing Environment keep a dark panel, in the new colours.</li><li>The HUD is redrawn to match: your score big in the top left with the goblins you've flattened under it (and stickers when cars or the police are after you), pixel hearts and the stamina bar in one paper panel at the bottom, the day and weather on a paper card beside a new clock disc, a round minimap, and the speedometer in ink and yolk.</li><li>Charging a stomp shows STOMP, then BIG STOMP, then shouts FULL CHARGE! when it's all the way up.</li><li>Combos: every goblin flattened or thing smashed within 3 seconds of the last adds one to your combo, shown under your score with a bar that drains until the next. The combo multiplies your points: +10% for each step from the second, so x11 doubles them and x21 or more triples them (that's as high as it goes). Big combos get a name and a shout: x5 Stompin'!, x10 STOMPTACULAR!, x15 Hippo-critical!, x20 GOBLINGEDDON!, x30 Unstoppable lump!, x50 HIPPOCALYPSE!, x75 Wallow of doom! and x100 Legend of the bog!</li><li>Points float up from wherever you earned them, damage numbers pop off the goblins as you hit them, and a goblin going down gets a shout: SPLAT! for a stomp, CHOMP! for a bite, KABOOM! for an explosion, and so on. The damage numbers and shouts can be switched off in Options, under On screen.</li><li>What you've just wrecked is listed in stickers in the top right, newest on top, with the points it earned (combo included), fading as they get older.</li><li>A City wrecked card in the bottom right shows how much of the place you're in you've knocked down (Town or Village wrecked in smaller places).</li><li>In split screen and online, each player has their own combo, pop-ups and list of what they've wrecked, from their own hits. The best combo shows in the pause menu's rampage card, and a new city starts it all again.</li><li>Arriving somewhere puts its name up on a big sticker. Chat, voice chips, the controls hint, the debug menu and each co-op player's own pause panel are restyled too, and in split screen each half's name is a 1P-green or 2P-pink tag.</li></ul>
 <h3>Split-screen co-op menus</h3>
 <ul><li>Both players get the full pause menu now. Press Start to pause your own half of the screen, then Y (or click Pause menu) to open the menu as yours. Its corner says whose menu it is, and only that player's controller moves around it.</li><li>Player two's menu leaves out what changes the game for both of you: Game options, the Dev tab, the Testing Environment, and the new city, solo, online and hostility controls. Those stay with player one, and so does the debug menu on Select.</li><li>In player two's menu, the button that carries on playing says Resume rather than Co-op.</li><li>Picking characters has moved to the Character tab, and the Game tab just says who you're playing as, with a link there.</li><li>Each player can now be any of the four: Gus, Gertie, Gnash or Grizzle. Pick the one the other player has and you swap over, so you can always tell each other apart. Grizzle wears red, Gnash blue.</li></ul>
 <h3>Online co-op</h3>
@@ -2703,9 +2748,7 @@ function trainHit(T,n,dir,ci){
   for(let k=0;k<6;k++){const d=debris[(debrisIdx++)%debris.length];d.m.position.set(p.x+(Math.random()-.5)*2,p.y+2+Math.random(),p.z+(Math.random()-.5)*6);d.v.set((Math.random()-.5)*16,8+Math.random()*10,(Math.random()-.5)*16);d.spin.set((Math.random()-.5)*12,(Math.random()-.5)*12,(Math.random()-.5)*12);d.life=25;d.m.visible=true;}
   g.traverse(o=>{if(o.isMesh)o.material=TRM.dark;});g.rotation.z=(ci%2?1:-1)*(0.25+Math.random()*0.3);
   noise(1,1,600,'lowpass');tone('sawtooth',60,18,1.2,0.3);addShake(0.8,p.x,p.z,40);hitGoblins(p.x,p.z,9,8,'Blown up with a train',p.y+1);
-  score+=500;
-  const who=(nearestPlayer(p.x,p.z)||{}).p;
-  if(T.carDead.every(Boolean)){T.dead=true;score+=1000;flashLabel('Train destroyed  +1500',who);}else flashLabel('Train car destroyed  +500',who);
+  if(T.carDead.every(Boolean)){T.dead=true;award(1500,'Train destroyed',p.x,p.y+3,p.z);}else award(500,'Train car destroyed',p.x,p.y+3,p.z);
 }
 function refreshRailVenues(p,want){
   const ls=railLinksInBox(p.pos.x-1000,p.pos.z-1000,p.pos.x+1000,p.pos.z+1000),seen=new Set();
@@ -3413,7 +3456,7 @@ function milHit(M,n,dir){
   milDark(M);if(M.kind==='tank')M.tur.rotation.z=0.25;
   if(M.kind==='heli'&&!M.fall)airCrash(M.x,M.y+1,M.z,3.5,'Blown up with a helicopter');   // (shot down where it sits, or just above: it goes up there)
   sfx(I.name+' destroyed',()=>{noise(1.1,1,500,'lowpass');tone('sawtooth',70,16,1.3,0.3);});addShake(0.9,M.x,M.z,45);hitGoblins(M.x,M.z,8,8,'Blown up with a '+I.name.toLowerCase(),M.y+1);
-  if(BLAME!=='acc'){score+=I.pts;flashLabel(I.name+' destroyed  +'+I.pts,(nearestPlayer(M.x,M.z)||{}).p);}
+  if(BLAME!=='acc')award(I.pts,I.name+' destroyed',M.x,M.y+2,M.z);
 }
 // a wreck: a helicopter shot down drops, spinning, and goes up where it lands; then it all lies there smouldering
 function milWreck(M,dt){
@@ -8751,7 +8794,7 @@ const SL={tag:null,rows:new Map(),el:null,shown:false};
 function sfx(n,f){const o=SL.tag;SL.tag=n;try{f();}finally{SL.tag=o;}}
 const SND_PRIM=new Set(['tone','noise','woosh','sndNote','sndName','sfx','safe']),SND_HELP={thud:'Thud',clang:'Clang',horn:'Horn'};
 // (what the code that made a sound is called, in words: anything not listed is just its name spelt out)
-const SND_FN={squeal:'Civilian screams',stompGrunt:'Stomp grunt',grunt:'Grunt',destroyFX:'Blocks break',knockFix:'Knocked over',
+const SND_FN={hudPop:'Points',squeal:'Civilian screams',stompGrunt:'Stomp grunt',grunt:'Grunt',destroyFX:'Blocks break',knockFix:'Knocked over',
   dbgMenuNav:'Menu',dbgMenuToggle:'Menu',renderTime:'Menu',renderDbg:'Menu',renderAbil:'Menu',ddChoose:'Menu',resumePlayer:'Menu',
   airCrash:'Aircraft crashes',animalHit:'Animal hit',bellStrike:'Bell',bigCrashes:'Big crash',blastOff:'Blast off',boatHit:'Boat hit',carPhysics:'Vehicle lands',
   civAI:'Civilian',climbDismount:'Climb down',climbOverEdge:'Climb over an edge',climbToCeil:'Climb onto the ceiling',collapseBuilding:'Building collapses',
@@ -9437,7 +9480,7 @@ function dropFloating(starts,o={}){
       let m=0;for(const c of bottom)m=Math.max(m,(c.x+.5-bx)*dx+(c.z+.5-bz)*dz);m+=0.5;
       makeTopple(cl,new V3(bx+dx*m,minY,bz+dz*m),new V3(dx,0,dz));
     } else makeBody(cl,big);
-    if(big){let cx=0,cz=0;for(const c of cl){cx+=c.x;cz+=c.z;}cx/=cl.length;cz/=cl.length;{const pts=bldgPts(cl.length);score+=pts;flashLabel('Building down  +'+pts);}noise(3.2,0.9,300,'lowpass');tone('sawtooth',60,24,3.2,0.25);addShake(0.6,cx,cz,70);for(const p of players)if(p.active)rumble(p,0.9,900);}
+    if(big){let cx=0,cz=0;for(const c of cl){cx+=c.x;cz+=c.z;}cx/=cl.length;cz/=cl.length;award(bldgPts(cl.length),'Building down',cx,minY+4,cz);noise(3.2,0.9,300,'lowpass');tone('sawtooth',60,24,3.2,0.25);addShake(0.6,cx,cz,70);for(const p of players)if(p.active)rumble(p,0.9,900);}
   }
 }
 const bldgPts=n=>Math.max(100,Math.round(n*0.5/10)*10);
@@ -9502,7 +9545,7 @@ function collapseBuilding(B,L,push){
   if(tip)makeTopple(body,tip.p,tip.d);else makeBody(body,body.length>=60);
   const cx=X0+(b.x0+b.x1)/2,cz=Z0+(b.z0+b.z1)/2;
   if(body.length>=60){
-    const pts=bldgPts(body.length);score+=pts;flashLabel((L>G+(b.gf||FH)+1?'Building toppled  +':'Building down  +')+pts);
+    award(bldgPts(body.length),L>G+(b.gf||FH)+1?'Building toppled':'Building down',cx,L+4,cz);
     noise(3.2,0.9,300,'lowpass');tone('sawtooth',60,24,3.2,0.25);tone('triangle',150,60,0.9,0.1,0.3);tone('triangle',120,50,1.1,0.1,1.2);
     addShake(0.6,cx,cz,70);for(const p of players)if(p.active)rumble(p,0.9,900);
   }
@@ -9730,7 +9773,7 @@ const hudEl=document.getElementById('hud');
 function makePlayer(idx){
   const S=SKINS[idx%SKINS.length];   // (seats three and four exist only online, dressed as either hippo)
   const p={idx,who:idx,name:S.name,root:new THREE.Group(),rig:new THREE.Group(),legs:[],pupils:[],pos:new V3(),heading:0,state:'walk',t:0,phase:0,vy:0,hit:false,lastSin:0,biteT:0,biteRepeat:0,smashCD:0,chargeCD:0,hurt:0,slammed:false,fallDir:1,
-    cam:{yaw:0,pitch:-0.3},camera:new THREE.PerspectiveCamera(72,1,0.25,420),hp:20,deadT:0,hurtFx:0,regenT:0,lastHp:-1,shake:0,active:false,pad:null,
+    cam:{yaw:0,pitch:-0.3},camera:new THREE.PerspectiveCamera(72,1,0.25,420),hp:20,deadT:0,hurtFx:0,regenT:0,lastHp:-1,cbN:0,cbT:0,shake:0,active:false,pad:null,
     stam:100,exhausted:false,stamIdle:0,lungeT:0,airJumps:1,twirl:0,airDash:true,dashT:0,roarBurst:0,lastRoarK:0,wasCharging:false,biteHit:false,grounded:true,stompCharge:0,stompF:1,windPitch:0,fullPing:false,
     in:{x:0,z:0,charge:false,chargePress:false,stomp:false,bite:false,bitePress:false,jumpPress:false,jump:false}};
   p.camera.rotation.order='YXZ';
@@ -9775,9 +9818,9 @@ function makePlayer(idx){
   root.visible=false;scene.add(root);
   p.pool=new THREE.Mesh(new THREE.CircleGeometry(1,18),flatMat(0x4d0707,1,-3));p.pool.rotation.x=-Math.PI/2;p.pool.visible=false;scene.add(p.pool);
   const v=document.createElement('div');v.className='view';v.hidden=true;
-  v.innerHTML=`<div class="water-tint" hidden></div><div class="hurt"></div><canvas class="mini" width="200" height="200" aria-hidden="true"></canvas><div class="speedo" aria-hidden="true"><svg viewBox="-50 -46 100 96"><path d="M-34.64,20 A40,40 0 1 1 34.64,20" pathLength="100" fill="none" stroke="rgba(238,240,230,.16)" stroke-width="7" stroke-linecap="round"/><path class="sp-fill" d="M-34.64,20 A40,40 0 1 1 34.64,20" pathLength="100" fill="none" stroke="#7fc24a" stroke-width="7" stroke-linecap="round" stroke-dasharray="0 200" visibility="hidden"/>${[0,1,2,3,4,5,6].map(i=>{const a=(-120+i*40)*Math.PI/180;return `<line x1="${(Math.sin(a)*29).toFixed(1)}" y1="${(-Math.cos(a)*29).toFixed(1)}" x2="${(Math.sin(a)*33).toFixed(1)}" y2="${(-Math.cos(a)*33).toFixed(1)}" stroke="rgba(238,240,230,.5)" stroke-width="1.5"/>`;}).join('')}<line class="sp-needle" x1="0" y1="4" x2="0" y2="-31" stroke="#ffd75a" stroke-width="2.6" stroke-linecap="round" transform="rotate(-120)"/><circle r="4.2" fill="#ffd75a" stroke="#0c0f14" stroke-width="1.4"/><text class="sp-num" x="0" y="27" text-anchor="middle">0</text><text x="0" y="36" text-anchor="middle" class="sp-unit">km/h</text><text class="sp-vert" x="0" y="48" text-anchor="middle" visibility="hidden"></text></svg></div><div class="bar"><div class="hint" hidden></div><div class="smeter lv0" hidden><div class="sbar"><div class="mfill"></div><i class="tick"></i></div><span class="slv">STOMP</span></div><div class="label"></div><div class="who${idx?' p2':''}">${S.name}</div><div class="hpbox"><div class="hearts" role="img" aria-label="${S.name} health"></div><div class="meter stam" aria-label="${S.name} trample stamina"><div class="mfill"></div></div></div></div><div class="join" hidden>${S.name}: connect a controller and press any button</div><div class="ppause" hidden><div class="pcard"><div class="ptitle${idx?' p2':''}">${S.name} · PAUSED</div><p class="pstatus"></p><button type="button" class="ck ${idx?'co':'go'} pres">Resume</button><button type="button" class="ck set pmenu">Pause menu</button><div class="prompts small pprompts"></div></div></div>`;
+  v.innerHTML=`<div class="water-tint" hidden></div><div class="hurt"></div><canvas class="mini" width="200" height="200" aria-hidden="true"></canvas><div class="speedo" aria-hidden="true"><svg viewBox="-50 -46 100 96"><path d="M-34.64,20 A40,40 0 1 1 34.64,20" pathLength="100" fill="none" stroke="rgba(238,240,230,.16)" stroke-width="7" stroke-linecap="round"/><path class="sp-fill" d="M-34.64,20 A40,40 0 1 1 34.64,20" pathLength="100" fill="none" stroke="#7fc24a" stroke-width="7" stroke-linecap="round" stroke-dasharray="0 200" visibility="hidden"/>${[0,1,2,3,4,5,6].map(i=>{const a=(-120+i*40)*Math.PI/180;return `<line x1="${(Math.sin(a)*29).toFixed(1)}" y1="${(-Math.cos(a)*29).toFixed(1)}" x2="${(Math.sin(a)*33).toFixed(1)}" y2="${(-Math.cos(a)*33).toFixed(1)}" stroke="rgba(238,240,230,.5)" stroke-width="1.5"/>`;}).join('')}<line class="sp-needle" x1="0" y1="4" x2="0" y2="-31" stroke="#ffd75a" stroke-width="2.6" stroke-linecap="round" transform="rotate(-120)"/><circle r="4.2" fill="#ffd75a" stroke="#0c0f14" stroke-width="1.4"/><text class="sp-num" x="0" y="27" text-anchor="middle">0</text><text x="0" y="36" text-anchor="middle" class="sp-unit">km/h</text><text class="sp-vert" x="0" y="48" text-anchor="middle" visibility="hidden"></text></svg></div><div class="bar"><div class="hint" hidden></div><div class="smeter lv0" hidden><div class="sbar"><div class="mfill"></div><i class="tick"></i></div><span class="slv">STOMP</span></div><div class="label"></div><div class="who${idx?' p2':''}">${S.name}</div><div class="hpbox"><div class="hearts" role="img" aria-label="${S.name} health"></div><div class="meter stam" aria-label="${S.name} trample stamina"><div class="mfill"></div></div></div></div><div class="combo" hidden><div class="cb1"><b class="cbn"></b><span class="cbm"></span></div><div class="cbbar"><i></i></div><div class="cbx"></div></div><div class="feed" aria-live="polite"></div><div class="wreck" hidden><div class="wk1"><span class="wkt"></span><b class="wkv"></b></div><div class="wkbar"><i></i></div></div><div class="join" hidden>${S.name}: connect a controller and press any button</div><div class="ppause" hidden><div class="pcard"><div class="ptitle${idx?' p2':''}">${S.name} · PAUSED</div><p class="pstatus"></p><button type="button" class="ck ${idx?'co':'go'} pres">Resume</button><button type="button" class="ck set pmenu">Pause menu</button><div class="prompts small pprompts"></div></div></div>`;
   hudEl.insertBefore(v,hudEl.firstChild);
-  p.ui={mini:v.querySelector('.mini'),pprompts:v.querySelector('.pprompts'),spVert:v.querySelector('.sp-vert'),speedo:v.querySelector('.speedo'),spFill:v.querySelector('.sp-fill'),spNeedle:v.querySelector('.sp-needle'),spNum:v.querySelector('.sp-num'),view:v,tint:v.querySelector('.water-tint'),hurt:v.querySelector('.hurt'),hint:v.querySelector('.hint'),label:v.querySelector('.label'),who:v.querySelector('.who'),hearts:v.querySelector('.hearts'),join:v.querySelector('.join'),stam:v.querySelector('.stam'),stamFill:v.querySelector('.stam .mfill'),smeter:v.querySelector('.smeter'),smFill:v.querySelector('.smeter .mfill'),slv:v.querySelector('.slv'),ppause:v.querySelector('.ppause'),pres:v.querySelector('.pres'),pmenu:v.querySelector('.pmenu'),pstatus:v.querySelector('.pstatus'),timer:null};
+  p.ui={mini:v.querySelector('.mini'),pprompts:v.querySelector('.pprompts'),spVert:v.querySelector('.sp-vert'),speedo:v.querySelector('.speedo'),spFill:v.querySelector('.sp-fill'),spNeedle:v.querySelector('.sp-needle'),spNum:v.querySelector('.sp-num'),view:v,tint:v.querySelector('.water-tint'),hurt:v.querySelector('.hurt'),hint:v.querySelector('.hint'),label:v.querySelector('.label'),who:v.querySelector('.who'),hearts:v.querySelector('.hearts'),join:v.querySelector('.join'),stam:v.querySelector('.stam'),stamFill:v.querySelector('.stam .mfill'),smeter:v.querySelector('.smeter'),smFill:v.querySelector('.smeter .mfill'),slv:v.querySelector('.slv'),ppause:v.querySelector('.ppause'),pres:v.querySelector('.pres'),pmenu:v.querySelector('.pmenu'),pstatus:v.querySelector('.pstatus'),timer:null,feed:v.querySelector('.feed'),combo:v.querySelector('.combo'),cbn:v.querySelector('.cbn'),cbm:v.querySelector('.cbm'),cbx:v.querySelector('.cbx'),cbFill:v.querySelector('.cbbar i'),wreck:v.querySelector('.wreck'),wkT:v.querySelector('.wkt'),wkV:v.querySelector('.wkv'),wkFill:v.querySelector('.wkbar i')};
   p.paused=false;
   return p;
 }
@@ -9868,12 +9911,16 @@ function nearestPlayer(x,z,aliveOnly=true){let best=null,bd=1e9;for(const p of p
 function addShake(amt,x,z,radius=20){if(SBX)return;for(const p of players){if(!p.active)continue;const k=Math.max(0,1-Math.hypot(p.pos.x-x,p.pos.z-z)/radius);if(amt*k>p.shake)p.shake=amt*k;}}
 // messages stack up: each new one appears at the bottom and pushes the others up; each fades out after a couple of
 // seconds (a repeat of the newest just refreshes it), and at most four show at once
-function flashLabel(s,who){if(SBX)return;for(const p of (who?[who]:players)){if(!p.active)continue;const box=p.ui.label;if(!box)continue;try{
-  let el=box.lastElementChild;
-  if(el&&el._s===s&&!el.classList.contains('old')){clearTimeout(el._t);}
-  else{el=document.createElement('div');el.className='lbl';el._s=s;el.innerHTML=hudHTML(s);box.append(el);
-    const live=Array.from(box.children||[]).filter(c=>!c.classList.contains('old'));while(live.length>4){const o=live.shift();clearTimeout(o._t);o.remove();}}
-  el._t=setTimeout(()=>{el.classList.add('old');setTimeout(()=>el.remove(),400);},2400);}catch(e){}}}
+// The wreck feed: what just happened, as paper stickers stacked in the top right of the player's view, newest on top,
+// fading as they age. A line ending in "  +N" puts the points on the right in pixel type.
+function flashLabel(s,who){if(SBX)return;for(const p of (who?[who]:players)){if(!p.active)continue;const box=p.ui.feed||p.ui.label;if(!box)continue;try{
+  let el=box.firstElementChild;
+  if(el&&el._s===s&&!el.classList.contains('old')){clearTimeout(el._t);el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump');}
+  else{el=document.createElement('div');el.className='lbl';el._s=s;const m=/^(.*?)\s{2}\+(\d+)$/.exec(s);
+    el.innerHTML=m?'<span>'+hudHTML(m[1])+'</span><b>+'+Number(m[2]).toLocaleString('en-US')+'</b>':'<span>'+hudHTML(s)+'</span>';box.insertBefore(el,box.firstChild);
+    const live=Array.from(box.children||[]).filter(c=>!c.classList.contains('old'));while(live.length>4){const o=live.pop();clearTimeout(o._t);o.remove();}
+    live.forEach((c,i)=>c.style.opacity=String(Math.max(0.45,1-i*0.17)));}
+  el._t=setTimeout(()=>{el.classList.add('old');setTimeout(()=>el.remove(),400);},3200);}catch(e){}}}
 const HIPPO_FEET=[[0,0],[.55,.9],[-.55,.9],[.55,-.9],[-.55,-.9]].map(([a,b])=>[a*ES,b*ES]);
 const ptsOf=p=>p&&p.gob?GOB_FEET:HIPPO_FEET;   // (a player's feet: a hippo's, or a goblin's, see setGobP)
 const CAR_PTS=[[0,0],[.9,1.7],[-.9,1.7],[.9,-1.7],[-.9,-1.7]].map(([a,b])=>[a*ES,b*ES]);
@@ -10933,7 +10980,7 @@ function trampleFences(p){
     for(const y of ys){const v=get(wx,y,wz);if(!v||!BLOCK[v].brittle)continue;
       setRaw(wx,y,wz,AIR);addEdit(wx,y,wz,AIR);(br||(br=[])).push({x:wx,y,z:wz,b:v});ch=ch||new Set();
       for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((wx+ox)/CS),Math.floor((wz+oz)/CS)));}}
-  if(br){rebuildSet(ch);save();destroyFX(br,{force:0.6,dx:s,dz:c,up:1},true);noise(0.12,0.12,900,'bandpass');score+=2*br.length;}
+  if(br){rebuildSet(ch);save();destroyFX(br,{force:0.6,dx:s,dz:c,up:1},true);noise(0.12,0.12,900,'bandpass');award(2*br.length,null,p.pos.x,p.pos.y,p.pos.z,p,{bump:false,pop:false});}
 }
 // Play as Gnash the goblin (picked on the title screen's character select, ui/char-select.js): the same player code runs, with a goblin's abilities and speeds in place of the hippo's for
 // the length of the step, so none of the moves need to know. (Walking speed and the hop are what goblins themselves do.)
@@ -14746,6 +14793,7 @@ function damageGoblin(g,n,pt,dir,cause,by){
   if(g.state!=='chase')return;
   dmgPop(g.pos.x,g.pos.y+1.6,g.pos.z,n,'#ffe14a');
   if(!by&&BLAME==='acc')by=ACCIDENT;
+  if(!by&&n>0&&g.hp-n>0){const q=nearestPlayer(g.pos.x,g.pos.z);if(q)hudPop(g.pos.x,g.pos.y+1.9,g.pos.z,'-'+(Math.round(n*10)/10),'dmg',q.p);}   // (the damage number, for whoever did it; the killing blow gets a shout instead)
   g.hp-=n;g.hurt=0.1;if(cause!=='Fell to death')g.hitT=playTime;
   if(g.homeV&&!g.homeV.roused&&!calmNow())(g.cultist?cultRouse:siteRouse)(g.homeV);   // (hurt one at the altar or the compound and the whole lot turn on you)
   if(g.snowU&&g.snowU.value>0.05){puff(g.pos.x,g.pos.y+1.3*ES,g.pos.z,6,0xf0f4fa,0.35);g.snowU.value=0;}
@@ -14765,7 +14813,8 @@ function damageGoblin(g,n,pt,dir,cause,by){
     if(by){g.vendor=null;}
     else reportCrime(g.pos.x,g.pos.z);
     if(by){}
-    else if(g.civ){score+=25;g.vendor=null;flashLabel('Civilian flattened  +25',n2&&n2.p);}else{score+=100;kills++;flashLabel((g.cultist?'Cultist slain':g.foeKind?FOES[g.foeKind].label:'Goblin killed')+'  +100',n2&&n2.p);}
+    else if(g.civ){g.vendor=null;award(25,'Civilian flattened',g.pos.x,g.pos.y+1.4,g.pos.z,n2&&n2.p||null);}else{kills++;award(100,g.cultist?'Cultist slain':g.foeKind?FOES[g.foeKind].label:'Goblin flattened',g.pos.x,g.pos.y+1.4,g.pos.z,n2&&n2.p||null);}
+    if(!by&&n2)hudPop(g.pos.x,g.pos.y+2.4,g.pos.z,killShout(cause),'shout',n2.p);
     tone('sawtooth',620,110,0.45,0.1);splat(g.pos.x,g.pos.z,g.pos.y+0.5,0.6);}
 }
 function knockMove(o,dt){
@@ -16869,7 +16918,7 @@ function gasBoom0(x,y,z){
     d.m.position.set(x+(Math.random()-.5)*2,y+1+Math.random(),z+(Math.random()-.5)*2);d.v.set((Math.random()-.5)*16,9+Math.random()*10,(Math.random()-.5)*16);d.spin.set((Math.random()-.5)*12,(Math.random()-.5)*12,(Math.random()-.5)*12);d.life=4;d.m.visible=true;}
   noise(2.6,1.3,500,'lowpass');tone('sawtooth',55,18,2.2,0.45);tone('sine',80,24,1.8,0.35);
   addShake(1.3,x,z,70);
-  if(BLAME!=='acc'){score+=150;flashLabel('Gas pump blown  +150',(nearestPlayer(x,z)||{}).p);}
+  if(BLAME!=='acc')award(150,'Gas pump blown',x,y+2,z);
   for(const q of players){if(!q.active)continue;const dg=Math.hypot(q.pos.x-x,q.pos.z-z),d3=Math.hypot(dg,q.pos.y-y);rumble(q,Math.max(0.2,1-d3/60),900);if(q===players.find(o=>o.active))dbgHit('dmg','cap',dbgCap(x,y,z,13));if(d3<13&&vReach(q.pos.y-y,13))damagePlayer(q,d3<6?8:5,new V3(q.pos.x,q.pos.y+1.2,q.pos.z),new V3((q.pos.x-x)/(dg||1),0.8,(q.pos.z-z)/(dg||1)),'Blown up in a gas explosion');}
   hitGoblins(x,z,15,14,'Blown up at the gas station',y);
   for(const pr of trainsNear(x,z,15,y-15,y+15))trainHit(pr.T,120,null,pr.i);   // (a blast tears into a train too)
@@ -16885,7 +16934,7 @@ function explodeCar(c){const w=DBG_WHO;DBG_WHO='n';try{return withBlame(carIsPla
 function explodeCar0(c){
   c.alive=false;c.g.visible=false;c.respawnT=6;c.hunter=false;
   const p=c.pos.clone();reportNews(p.x,p.z,'car crash');
-  const pts=c.police?500:300;if(BLAME!=='acc'){reportCrime(p.x,p.z);score+=pts;RAMP.cars++;flashLabel((c.police?'Police car destroyed  +':c.crew&&CREW_NAME[c.veh]?CREW_NAME[c.veh]+' destroyed  +':'Car destroyed  +')+pts,(nearestPlayer(p.x,p.z)||{}).p);}
+  const pts=c.police?500:300;if(BLAME!=='acc'){reportCrime(p.x,p.z);RAMP.cars++;award(pts,c.police?'Police car tossed':c.crew&&CREW_NAME[c.veh]?CREW_NAME[c.veh]+' destroyed':'Car tossed',p.x,p.y+2,p.z);}
   if(c.police&&c.spot){policeDown[c.spot.split(':')[0]]=playTime+90;c.spot=null;}c.parked=false;
   if(c.svcPool&&c.svc){const keep=c.alive;svcDone(c,true);}
   blastFx(p.x,p.y+1,p.z,0.6,1);
@@ -19044,13 +19093,13 @@ function refreshFixtures(){
 function knockFix(f,dx,dz){
   if(downFix.has(f.key)||falling.has(f.key))return false;
   const ang=(dx||dz)?Math.atan2(dx,dz):Math.random()*Math.PI*2;
-  if(f.prop){falling.set(f.key,{t:0,ang,x:f.x,z:f.z,prop:true,y:f.y0});tone('square',320,140,0.1,0.03);puff(f.x,f.y0+.5,f.z,2,0xbfc5ca,0.25);score+=5;trafficRefreshT=0;return true;}
+  if(f.prop){falling.set(f.key,{t:0,ang,x:f.x,z:f.z,prop:true,y:f.y0});tone('square',320,140,0.1,0.03);puff(f.x,f.y0+.5,f.z,2,0xbfc5ca,0.25);award(5,null,f.x,f.y0+1,f.z);trafficRefreshT=0;return true;}
   falling.set(f.key,{t:0,ang,x:f.x,z:f.z});
   clang();tone('square',240,90,0.22,0.05);
   if(f.type==='lamp')puff(f.x+f.rx*1.5,G+6.6,f.z+f.rz*1.5,6,0xfff0c0,0.35);
-  else if(f.type==='board'){puff(f.x,G+7,f.z,14,0x9a948a,1.6);thud(0.5);score+=75;}
+  else if(f.type==='board'){puff(f.x,G+7,f.z,14,0x9a948a,1.6);thud(0.5);}
   else puff(f.x,G+1.4,f.z,4,0x9a948a,0.5);
-  score+=25;trafficRefreshT=0;return true;
+  award(f.type==='board'?100:25,null,f.x,G+2,f.z);trafficRefreshT=0;return true;
 }
 // ---- doors: real doors in the doorways, that swing open (or slide apart: the big automatic entrances) as anyone
 // walks up to them -- a hippo, a goblin -- and close again behind them. Wooden front doors on houses, glass doors on
@@ -19465,7 +19514,7 @@ function boatHit(bo,n){
   else{puff(p.x,p.y+.6,p.z,14,0x8a5a32,1.2);noise(.3,.5,1400,'bandpass');}
   for(let k=0,N=Math.round(3+sz*3);k<N;k++){const D=debris[(debrisIdx++)%debris.length];D.m.position.set(p.x+(Math.random()-.5)*K.W,p.y+1+Math.random()*2,p.z+(Math.random()-.5)*bo.L*.6);D.v.set((Math.random()-.5)*16,6+Math.random()*10,(Math.random()-.5)*16);D.spin.set((Math.random()-.5)*12,(Math.random()-.5)*12,(Math.random()-.5)*12);D.life=25;D.m.visible=true;}
   if(s)g.traverse(o=>{if(o.isMesh){o.userData.mat=o.userData.mat||o.material;o.material=TRM.dark;}});
-  score+=K.sc;flashLabel(K.name+' sunk  +'+K.sc,(nearestPlayer(p.x,p.z)||{}).p);
+  award(K.sc,K.name+' sunk',p.x,p.y+K.fb+2,p.z);
 }
 function boatWreck(V,dt){
   const bo=V.bo,g=V.boat,p=g.position,K=bo.K;bo.deadT+=dt;
@@ -19663,7 +19712,7 @@ function animalHit(A,n,dir){
   if(A.hp>0)return;
   A.dead=true;A.deadT=0;A.pr.alive=false;A.vy=h>0.05?5:2;A.fy=y;A.fall=Math.random()<.5?1:-1;wrecked[A.wk]=1;save();
   reportNews(A.x,A.z,'killing');
-  if(BLAME!=='acc'){reportCrime(A.x,A.z);score+=I.pts;flashLabel(I.name+' killed  +'+I.pts,(nearestPlayer(A.x,A.z)||{}).p);}
+  if(BLAME!=='acc'){reportCrime(A.x,A.z);award(I.pts,I.name+' killed',A.x,y+I.hy+0.5,A.z);}
   tone('sawtooth',620,110,0.45,0.1);splat(A.x,A.z,y+0.5,0.3+I.hx*0.5);
 }
 // (a dead one's thrown by the blow, keels over on its side, and lies where it lands)
@@ -19729,23 +19778,23 @@ function carouselWreck(Cs){Cs.dead=true;Cs.pr.alive=false;rideDark(Cs.g);Cs.g.po
 function wheelFall(W,why){
   if(W.dead||W.fall)return;W.fall={vy:-1,sg:Math.random()<.5?1:-1};W.rim.alive=false;for(const q of W.gonds)q.pr.alive=false;
   rideBang(W.hub.x,W.hub.y,W.hub.z,why?1.2:1.8,W,6,10,'Blown up with a Ferris wheel');crushBall(W.hub.x,W.top,W.hub.z,4);
-  score+=1000;flashLabel('Ferris wheel destroyed  +1000',(nearestPlayer(W.hub.x,W.hub.z)||{}).p);
+  award(1000,'Ferris wheel destroyed',W.hub.x,W.hub.y,W.hub.z);
 }
 function coasterMark(K){wrecked[K.k]={th:K.th,off:K.off,dead:K.cars.map(c=>c.dead)};save();}
 function rideHit(T,n,ci){
   if(T.kind==='coaster'){const c=T.cars[ci];if(!c||c.dead||c.fly)return;const p=c.g.position;dmgPop(p.x,p.y+1.2,p.z,Math.round(n),'#ffb04a');c.hp-=n;if(c.hp>0)return;
     // that car goes up and the rest grind to a stop on the track; they can still be taken apart
-    c.dead=true;c.pr.alive=false;rideDark(c.g);c.g.rotation.z=(ci%2?1:-1)*0.4;T.halted=true;rideBang(p.x,p.y+.5,p.z,0.8,T,4,6,'Blown up with a roller coaster');score+=200;
-    const who=(nearestPlayer(p.x,p.z)||{}).p;if(T.cars.every(q=>q.dead)){score+=500;flashLabel('Roller coaster destroyed  +700',who);}else flashLabel('Coaster car destroyed  +200',who);coasterMark(T);return;}
+    c.dead=true;c.pr.alive=false;rideDark(c.g);c.g.rotation.z=(ci%2?1:-1)*0.4;T.halted=true;rideBang(p.x,p.y+.5,p.z,0.8,T,4,6,'Blown up with a roller coaster');
+    if(T.cars.every(q=>q.dead))award(700,'Roller coaster destroyed',p.x,p.y+2,p.z);else award(200,'Coaster car destroyed',p.x,p.y+2,p.z);coasterMark(T);return;}
   if(T.kind==='wheel'){if(T.dead||T.fall)return;
     if(ci>=0){const q=T.gonds[ci];if(!q||q.dead)return;const p=q.pr.pos;dmgPop(p.x,p.y+1,p.z,Math.round(n),'#ffb04a');q.hp-=n;if(q.hp>0)return;
-      q.dead=true;q.pr.alive=false;q.g.visible=false;rideBang(p.x,p.y,p.z,0.6,T,3,4,'Blown up with a gondola');score+=50;flashLabel('Gondola destroyed  +50',(nearestPlayer(p.x,p.z)||{}).p);return;}
+      q.dead=true;q.pr.alive=false;q.g.visible=false;rideBang(p.x,p.y,p.z,0.6,T,3,4,'Blown up with a gondola');award(50,'Gondola destroyed',p.x,p.y+1,p.z);return;}
     dmgPop(T.hub.x,T.hub.y,T.hub.z,Math.round(n),'#ffb04a');T.hp-=n;if(T.hp<=0)wheelFall(T);return;}
   if(T.kind==='carousel'){if(T.dead)return;dmgPop(T.x,G+8,T.z,Math.round(n),'#ffb04a');T.hp-=n;if(T.hp<=0)carouselBlow(T);}
 }
 function carouselBlow(Cs){
   carouselWreck(Cs);wrecked[Cs.k]=1;save();rideBang(Cs.x,G+3,Cs.z,1.4,Cs,7,8,'Blown up with a carousel');
-  score+=300;flashLabel('Carousel destroyed  +300',(nearestPlayer(Cs.x,Cs.z)||{}).p);
+  award(300,'Carousel destroyed',Cs.x,G+5,Cs.z);
 }
 // is the track still there at this point round the circuit? (a car's the width of it, and the height goes in steps, so look close by)
 function coasterTrackAt(C,t){const x=Math.floor(C.cu+Math.cos(t)*C.a),z=Math.floor(C.cv+Math.sin(t)*C.b),h=G+coasterH(t);
@@ -19762,7 +19811,7 @@ function updateRides(V,dt){
     K.checkT-=dt;if(K.checkT<=0&&K.sp>0){K.checkT=0.1;const ahead=K.th+2.5/((C.a+C.b)/2);
       if(rideNear(C.cu+Math.cos(ahead)*C.a,C.cv+Math.sin(ahead)*C.b,110)&&!coasterTrackAt(C,ahead)){K.off=true;
         K.cars.forEach((c,i)=>{if(c.dead)return;const t=K.th-i*0.11,tx=-Math.sin(t)*C.a,tz=Math.cos(t)*C.b,l=Math.hypot(tx,tz)||1,v=Math.min(30,Math.max(6,K.sp*0.55*l));c.fly={vx:tx/l*v,vz:tz/l*v,vy:4+Math.random()*3,sx:(Math.random()-.5)*4,sz:(Math.random()-.5)*4};c.pr.alive=false;});
-        score+=500;flashLabel('Roller coaster derailed  +500',(nearestPlayer(C.cu,C.cv)||{}).p);coasterMark(K);}}
+        award(500,'Roller coaster derailed',C.cu,G+6,C.cv);coasterMark(K);}}
   }
   K.cars.forEach((c,i)=>{const cg=c.g;
     if(c.fly){const F=c.fly,P=cg.position;F.vy-=26*dt;P.x+=F.vx*dt;P.z+=F.vz*dt;P.y+=F.vy*dt;cg.rotation.x+=F.sx*dt;cg.rotation.z+=F.sz*dt;const gy=groundAt(P.x,P.z,P.y+2);
@@ -19840,7 +19889,7 @@ function planeHit(pl,n){
   for(let k=0;k<10;k++){const d=debris[(debrisIdx++)%debris.length];d.m.position.set(p.x+(Math.random()-.5)*8,p.y+2+Math.random()*2,p.z+(Math.random()-.5)*12);d.v.set((Math.random()-.5)*20,8+Math.random()*12,(Math.random()-.5)*20);d.spin.set((Math.random()-.5)*12,(Math.random()-.5)*12,(Math.random()-.5)*12);d.life=25;d.m.visible=true;}
   g.traverse(o=>{if(o.isMesh){o.userData.mat=o.userData.mat||o.material;o.material=TRM.dark;}});
   noise(1.2,1,500,'lowpass');tone('sawtooth',70,16,1.4,0.32);addShake(1,p.x,p.z,50);hitGoblins(p.x,p.z,12,10,'Blown up with a plane',p.y+1);
-  score+=1000;flashLabel('Airplane destroyed  +1000',(nearestPlayer(p.x,p.z)||{}).p);
+  award(1000,'Airplane destroyed',p.x,p.y+4,p.z);
   if(p.y>G+3){pl.fall=true;pl.vy=-2;pl.fv=pl.v||40;}else g.rotation.z=(Math.random()<.5?1:-1)*(0.12+Math.random()*0.14);
 }
 function planeWreck(pl,V,dt){
@@ -21220,6 +21269,7 @@ function healthHud(p,dt){
   } else if(p.ui.smLv!==undefined){p.ui.smLv=undefined;}
   p.hurtFx-=dt;p.ui.hurt.style.opacity=p.deadT>0?0.85:Math.max(0,p.hurtFx*2.2);
   renderHearts(p);
+  comboTick(p,dt);comboHud(p);wreckHud(p,dt);
 }
 let split='none';
 function layout(){
@@ -21230,6 +21280,8 @@ function layout(){
   if(split==='none'){set(P1.ui.view,0,0,w,h);divider.hidden=true;}
   else if(split==='lr'){set(P1.ui.view,0,0,w/2,h);set(P2.ui.view,w/2,0,w/2,h);set(divider,w/2-1,0,2,h);divider.hidden=false;}
   else{set(P1.ui.view,0,0,w,h/2);set(P2.ui.view,0,h/2,w,h/2);set(divider,0,h/2-1,w,2);divider.hidden=false;}
+  // (which corners of the screen each view has: the score sits in player one's top left, the clock in the top right)
+  P1.ui.view.classList.add('tl');P1.ui.view.classList.toggle('tr',split!=='lr');P2.ui.view.classList.toggle('tr',split==='lr');
   for(const p of players){p.ui.who.hidden=split==='none';if(p.ui.mini){const sz=split==='none'?160:118;p.ui.mini.style.width=p.ui.mini.style.height=sz+'px';}}
 }
 function resize(){renderer.setSize(innerWidth,innerHeight,false);layout();}
@@ -21642,7 +21694,7 @@ function readInputs(dt){
 // by accident), how wrecked the place you're in is, and where and when you are. Kept for the city you're in, so a new
 // city starts them again (rampReset); online, a guest gets the host's in the snapshot (m.sc) like the score.
 const RAMP={cars:0,best:0};
-function rampReset(){RAMP.cars=0;RAMP.best=0;}
+function rampReset(){RAMP.cars=0;RAMP.best=0;for(const p of players){p.cbN=0;p.cbT=0;}}
 const rpNum=n=>Math.round(n).toLocaleString('en-US');
 // (the place a player is in: a town's name, or the place the coast round it belongs to; null out on the plains)
 function placeOf(p){
@@ -21658,12 +21710,105 @@ function renderRampage(){
   try{where+=' · '+timeLabel();}catch(e){}
   $('rpWhere').textContent=where;
   // (how much of this place is wrecked: only once its total has been worked out, which happens as you go through it)
-  const v=S&&setListC.has(S.rx+','+S.rz)?setDestroyed(S):null,w=$('rpWreck'),wv=$('rpWreckV');
-  w.parentNode.parentNode.hidden=v==null;
+  const v=S&&setListC.has(S.rx+','+S.rz)?setDestroyed(S):null,w=$('rpWreck'),wv=$('rpWreckV'),box=$('rpWreckBox');
+  if(box)box.hidden=v==null;
   if(v!=null){const pc=Math.round(v*100);w.style.width=pc+'%';wv.textContent=pc+'%';w.classList.toggle('none',pc===0);}
   $('rpNote').textContent=TENV?'Nothing here counts toward a rampage: it\'s for trying things out.':
     !begun?'':kills+RAMP.cars===0?'Nothing flattened yet. Off you go.':'';
 }
+// ---------- Game feel: combos, score pop-ups, damage numbers and shouts, the City wrecked card ----------
+// Every kill or smash a player makes within COMBO_T seconds of their last adds one to their combo, and it multiplies
+// the points: +10% a step from the second, up to three times at x21 (comboMult). A combo's milestones get a name and a
+// shout (COMBO_MILES). Each player has their own (p.cbN, p.cbT: plain numbers, so an online guest gets its own in the
+// snapshot like the rest of the player); the best one this rampage is RAMP.best. Points are given out through award(),
+// which also puts the line in the wreck feed (flashLabel) and floats the points up from where they were earned (hudPop).
+const COMBO_T=3;
+const COMBO_MILES=[[5,"Stompin'!"],[10,'STOMPTACULAR!'],[15,'Hippo-critical!'],[20,'GOBLINGEDDON!'],[30,'Unstoppable lump!'],[50,'HIPPOCALYPSE!'],[75,'Wallow of doom!'],[100,'Legend of the bog!']];
+const comboMult=n=>Math.min(3,1+0.1*Math.max(0,n-1));
+function comboName(n){let s='';for(const [k,t] of COMBO_MILES)if(n>=k)s=t;return s;}
+// (damage numbers over the goblins and shouts like SPLAT!: on unless switched off in Options, kept in this browser)
+const POPS_KEY='goblin-stompin-gus-pops';
+let POPS_ON=true;try{POPS_ON=localStorage.getItem(POPS_KEY)!=='0';}catch(e){}
+function comboBump(p){
+  if(!p)return;p.cbN=(p.cbT>0?p.cbN||0:0)+1;p.cbT=COMBO_T;
+  if(p.cbN>RAMP.best)RAMP.best=p.cbN;
+  for(const [k,t] of COMBO_MILES)if(p.cbN===k)hudPop(null,null,null,'x'+k+' '+t,'mile',p);
+}
+// points for something a player did: who gets them (the nearest player to x,z unless said), the combo (unless
+// o.bump is false: a block or two knocked out isn't a smash), the feed line if there's a label, the pop-up if there's a place
+function award(pts,label,x,y,z,who,o){
+  o=o||{};
+  if(who===undefined){const n=x!=null?nearestPlayer(x,z):null;who=n&&n.p||null;}
+  if(o.bump!==false&&who)comboBump(who);
+  const got=Math.round(pts*(who?comboMult(who.cbN||0):1));
+  score+=got;
+  if(label)flashLabel(label+'  +'+got,who);
+  if(x!=null&&got>0&&o.pop!==false)hudPop(x,y,z,'+'+got,'pts',who);
+  return got;
+}
+// (the clock runs down on the host, or offline; a guest's comes in the snapshot)
+function comboTick(p,dt){if(p.cbT>0&&!netGuest()){p.cbT=Math.max(0,p.cbT-dt);if(p.cbT===0)p.cbN=0;}}
+function comboHud(p){
+  const u=p.ui;if(!u.combo)return;const n=p.cbN||0,on=n>=2&&p.cbT>0;
+  if(u.combo.hidden===on)u.combo.hidden=!on;if(!on){u.cbShown=0;return;}
+  if(u.cbShown!==n){u.cbShown=n;u.cbn.textContent='x'+n;u.cbm.textContent=comboName(n)||'Combo!';
+    const k=comboMult(n);u.cbx.textContent='Score x'+(Math.round(k*10)/10);
+    u.combo.classList.remove('bump');void u.combo.offsetWidth;u.combo.classList.add('bump');}
+  u.cbFill.style.width=(p.cbT/COMBO_T*100).toFixed(1)+'%';
+}
+// ---- pop-ups: pooled, placed on screen from a spot in the world each frame, floating up and fading ----
+// kind: 'pts' (yolk +points), 'dmg' (tomato -damage), 'shout' (SPLAT! and friends), 'mile' (a combo milestone, in the
+// middle of that player's half of the screen rather than at a spot). Only drawn in the view of the player they're for.
+const POPS={el:null,pool:[],live:[],max:20,v:null,sndT:0};
+function hudPop(x,y,z,txt,kind,who){
+  if(!POPS_ON&&(kind==='dmg'||kind==='shout'))return;
+  const p=who||P1;if(!p.active||p.net)return;
+  if(!POPS.el){POPS.el=document.getElementById('pops');if(!POPS.el)return;}
+  let P=POPS.live.length>=POPS.max?POPS.live.shift():POPS.pool.pop();
+  if(!P){P={el:document.createElement('div')};POPS.el.appendChild(P.el);}
+  P.x=x;P.y=y;P.z=z;P.p=p;P.t=0;P.kind=kind;P.life=kind==='mile'?1.8:kind==='shout'?1.1:0.95;
+  P.el.className='pop px '+kind;P.el.textContent=txt;P.el.style.display='';P.dx=kind==='mile'?0:((POPS.n=(POPS.n||0)+1)*37%27-13);   // (a little sideways drift, not from Math.random: that would shift the game's own dice)
+  POPS.live.push(P);
+  // (a little blip for points, rising as the combo climbs, at most one every 70 ms; a fanfare for a milestone)
+  try{const T=NET_FX&&NET_FX.tone||tone,now=performance.now();
+    if(kind==='mile'){T('square',520,1040,0.18,0.06);setTimeout(()=>{try{T('square',780,1560,0.22,0.06);}catch(e){}},110);}
+    else if(kind==='pts'&&now-POPS.sndT>70){POPS.sndT=now;const n=p.cbN||0;T('triangle',660+Math.min(30,n)*24,900+Math.min(30,n)*30,0.05,0.025);}}catch(e){}
+}
+function popTick(dt){
+  if(!POPS.live.length)return;
+  if(!POPS.v)try{POPS.v=new THREE.Vector3();}catch(e){return;}
+  const calm=reduceMotion();
+  for(let i=POPS.live.length-1;i>=0;i--){const P=POPS.live[i];P.t+=dt;
+    if(P.t>=P.life||!P.p.active){P.el.style.display='none';POPS.live.splice(i,1);POPS.pool.push(P);continue;}
+    const V=P.p.ui.view,vl=parseFloat(V.style.left)||0,vt=parseFloat(V.style.top)||0,vw=parseFloat(V.style.width)||innerWidth,vh=parseFloat(V.style.height)||innerHeight;
+    let sx,sy;
+    if(P.x==null){sx=vl+vw/2;sy=vt+vh*0.4;}
+    else{const v=POPS.v.set(P.x,P.y,P.z);try{v.project(P.p.camera);}catch(e){continue;}
+      if(!(v.z<1)||Math.abs(v.x)>1.2||Math.abs(v.y)>1.2){P.el.style.opacity='0';continue;}
+      sx=vl+(v.x+1)/2*vw;sy=vt+(1-v.y)/2*vh;}
+    const k=P.t/P.life,rise=calm?0:(P.kind==='mile'?14:P.kind==='shout'?30:48)*k,a=k<0.7?1:1-(k-0.7)/0.3;
+    const sc=calm?1:P.t<0.12?0.5+P.t/0.12*0.7:P.t<0.24?1.2-(P.t-0.12)/0.12*0.2:1;
+    P.el.style.opacity=a.toFixed(2);
+    P.el.style.transform='translate('+(sx+P.dx*k).toFixed(1)+'px,'+(sy-rise).toFixed(1)+'px) translate(-50%,-50%) scale('+sc.toFixed(2)+')'+(P.kind==='shout'?' rotate(-8deg)':'');}
+}
+// (what a goblin's death is shouted as, from how it died)
+function killShout(cause){
+  const c=String(cause||'').toLowerCase();
+  return /stomp|squash|flatten|landed|crash|sat on|pound/.test(c)?'SPLAT!':/bit|chomp|jaw/.test(c)?'CHOMP!':/trampl|run over|rammed|charg/.test(c)?'FLATTENED!':/blown|explo|blast|boom|rocket|grenade|shell/.test(c)?'KABOOM!':/shot|rifle|gun/.test(c)?'BLAM!':/club|dagger|stab/.test(c)?'WHACK!':'BONK!';
+}
+// ---- the City wrecked card, bottom right of each player's view: how much of the place they're in is wrecked ----
+const WRECK_WORD={city:'City',coastcity:'City',large:'Town',small:'Town',harbortown:'Town',resort:'Town',village:'Village',fishing:'Village'};
+function wreckHud(p,dt){
+  const u=p.ui;if(!u.wreck)return;u.wreckT=(u.wreckT||0)-dt;if(u.wreckT>0)return;u.wreckT=0.25;
+  let S=null,v=null;try{S=placeOf(p);v=S&&setListC.has(S.rx+','+S.rz)?setDestroyed(S):null;}catch(e){}
+  const on=v!=null&&playing;if(u.wreck.hidden===on)u.wreck.hidden=!on;if(!on)return;
+  const pc=Math.round(v*100),t=(WRECK_WORD[setKind(S)]||'Town')+' wrecked',k=t+pc;
+  if(u.wreckK!==k){u.wreckK=k;u.wkT.textContent=t;u.wkV.textContent=pc+'%';u.wkFill.style.width=pc+'%';u.wkFill.classList.toggle('none',pc===0);}
+}
+// (Options: the damage numbers and shouts switch)
+{const t=document.getElementById('popsTog');
+ if(t){const show=()=>t.setAttribute('aria-checked',String(POPS_ON));show();
+  t.addEventListener('click',()=>{POPS_ON=!POPS_ON;try{localStorage.setItem(POPS_KEY,POPS_ON?'1':'0');}catch(e){}show();});}}
 // ---------- Loop ----------
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 let last=performance.now();
@@ -22293,7 +22438,7 @@ function destLabel(){
     clockOrb.setAttribute('fill',day?'#ffd447':'#fff6dc');
     // stacked under the clock: the day (and the time of day), then the season, the weather and the moon
     if(clockTxt){const W=WX_TYPES[WX.type],M=moonInfo(),se=seasonOf(),part=timeLabel().split(', ')[1];
-      const h='<b>Day '+dayN+' · '+part+'</b><div>'+W.n+' · '+SEASONS[se]+'</div><div class="ct2">'+SEASON_ICONS[se]+' '+W.i+' '+M[1]+' '+M[0]+'</div><div class="ct3">'+whereLabel()+'</div>'+destLabel();
+      const h='<b>Day '+dayN+' · '+part+'</b><div>'+W.n+' · '+SEASONS[se]+'</div><div class="ct2">'+SEASON_ICONS[se]+' '+W.i+' '+M[1]+' '+M[0]+'</div><div class="ct3">'+whereLabel()+'</div>';   // (how wrecked it is: the City wrecked card, bottom right)
       if(clockTxt.dataset.h!==h){clockTxt.dataset.h=h;clockTxt.innerHTML=h;}}
   }
 }
@@ -22380,7 +22525,7 @@ function frame(now,bg){   // (bg: a tab in the background while online, kept goi
   }
   for(const p of act){if(!p.paused)continue;const o=act.find(q=>q!==p);const txt=!o?'':o.paused?'Both paused. The city is frozen.':`The city keeps going while ${charName(o)} plays.`;if(p.ui.pstatus.textContent!==txt)p.ui.pstatus.textContent=txt;}
   const hn=huntersCount(),pol=cars.some(c=>c.alive&&c.police&&c.hunter);
-  updateSiren(dt);promptTick(dt);
+  updateSiren(dt);promptTick(dt);safe('pops',()=>popTick(dt));
   // (the score, big, top left; under it the goblins flattened, and stickers for cars hunting you and the police)
   {const h=`<b class="sc">${score.toLocaleString('en-US')}</b><span class="rk">${kills.toLocaleString('en-US')} flattened</span>${hn?`<i>${hn} car${hn>1?'s':''} hunting you</i>`:''}${pol?'<i>Police pursuit</i>':''}`;if(h!==readoutH){readoutH=h;readout.innerHTML=h;}}   // (only when it's changed: rebuilding it makes the browser lay the page out again)
   if(bg)return;   // (nobody's looking: no drawing, and no next frame asked for, the browser having stopped giving this tab any)
@@ -22884,6 +23029,11 @@ tone=netFx('tone',tone);noise=netFx('noise',noise);woosh=netFx('woosh',woosh);tr
   if(NET_MUTE)return;
   if(NET.mode===1&&NET.guests.size){const seat=who?players.indexOf(who):-1;if(seat!==0)netEmit(['f','flashLabel',[s,seat>0?{$p:seat}:null]]);}
   return fl(s,who&&who.net&&NET.mode===1?null:who);};}
+// (pop-ups and shouts the same way: only for the player they're for, so each sees their own hits)
+{const hp=hudPop;NET_FX.hudPop=hp;hudPop=function hudPop(x,y,z,t,k,who){
+  if(NET_MUTE)return;
+  if(NET.mode===1&&NET.guests.size){const seat=who?players.indexOf(who):-1;if(seat!==0)netEmit(['f','hudPop',[x,y,z,t,k,seat>0?{$p:seat}:null]]);}
+  if(who&&who.net&&NET.mode===1)return;return hp(x,y,z,t,k,who);};}
 // blocks: every block the host's game changes for good goes through addEdit, so that's where they're picked up
 {const ae=addEdit;addEdit=function addEdit(x,y,z,b){if(NET.mode===2&&NET.joined&&!NET_APPLY)return;ae(x,y,z,b);
   if(NET.mode===1&&NET.guests.size){const v=edits[x+','+y+','+z];for(const p of NET.guests.values()){const out=p.net.out,L=out[out.length-1];if(L&&L[0]==='e'&&L[1].length<3000)L[1].push(x,y,z,v);else out.push(['e',[x,y,z,v]]);}}};}

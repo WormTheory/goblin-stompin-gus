@@ -185,6 +185,11 @@ tone=netFx('tone',tone);noise=netFx('noise',noise);woosh=netFx('woosh',woosh);tr
   if(NET_MUTE)return;
   if(NET.mode===1&&NET.guests.size){const seat=who?players.indexOf(who):-1;if(seat!==0)netEmit(['f','flashLabel',[s,seat>0?{$p:seat}:null]]);}
   return fl(s,who&&who.net&&NET.mode===1?null:who);};}
+// (pop-ups and shouts the same way: only for the player they're for, so each sees their own hits)
+{const hp=hudPop;NET_FX.hudPop=hp;hudPop=function hudPop(x,y,z,t,k,who){
+  if(NET_MUTE)return;
+  if(NET.mode===1&&NET.guests.size){const seat=who?players.indexOf(who):-1;if(seat!==0)netEmit(['f','hudPop',[x,y,z,t,k,seat>0?{$p:seat}:null]]);}
+  if(who&&who.net&&NET.mode===1)return;return hp(x,y,z,t,k,who);};}
 // blocks: every block the host's game changes for good goes through addEdit, so that's where they're picked up
 {const ae=addEdit;addEdit=function addEdit(x,y,z,b){if(NET.mode===2&&NET.joined&&!NET_APPLY)return;ae(x,y,z,b);
   if(NET.mode===1&&NET.guests.size){const v=edits[x+','+y+','+z];for(const p of NET.guests.values()){const out=p.net.out,L=out[out.length-1];if(L&&L[0]==='e'&&L[1].length<3000)L[1].push(x,y,z,v);else out.push(['e',[x,y,z,v]]);}}};}

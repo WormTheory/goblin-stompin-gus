@@ -321,11 +321,11 @@ function refreshFixtures(){
 function knockFix(f,dx,dz){
   if(downFix.has(f.key)||falling.has(f.key))return false;
   const ang=(dx||dz)?Math.atan2(dx,dz):Math.random()*Math.PI*2;
-  if(f.prop){falling.set(f.key,{t:0,ang,x:f.x,z:f.z,prop:true,y:f.y0});tone('square',320,140,0.1,0.03);puff(f.x,f.y0+.5,f.z,2,0xbfc5ca,0.25);score+=5;trafficRefreshT=0;return true;}
+  if(f.prop){falling.set(f.key,{t:0,ang,x:f.x,z:f.z,prop:true,y:f.y0});tone('square',320,140,0.1,0.03);puff(f.x,f.y0+.5,f.z,2,0xbfc5ca,0.25);award(5,null,f.x,f.y0+1,f.z);trafficRefreshT=0;return true;}
   falling.set(f.key,{t:0,ang,x:f.x,z:f.z});
   clang();tone('square',240,90,0.22,0.05);
   if(f.type==='lamp')puff(f.x+f.rx*1.5,G+6.6,f.z+f.rz*1.5,6,0xfff0c0,0.35);
-  else if(f.type==='board'){puff(f.x,G+7,f.z,14,0x9a948a,1.6);thud(0.5);score+=75;}
+  else if(f.type==='board'){puff(f.x,G+7,f.z,14,0x9a948a,1.6);thud(0.5);}
   else puff(f.x,G+1.4,f.z,4,0x9a948a,0.5);
-  score+=25;trafficRefreshT=0;return true;
+  award(f.type==='board'?100:25,null,f.x,G+2,f.z);trafficRefreshT=0;return true;
 }

@@ -225,9 +225,7 @@ function trainHit(T,n,dir,ci){
   for(let k=0;k<6;k++){const d=debris[(debrisIdx++)%debris.length];d.m.position.set(p.x+(Math.random()-.5)*2,p.y+2+Math.random(),p.z+(Math.random()-.5)*6);d.v.set((Math.random()-.5)*16,8+Math.random()*10,(Math.random()-.5)*16);d.spin.set((Math.random()-.5)*12,(Math.random()-.5)*12,(Math.random()-.5)*12);d.life=25;d.m.visible=true;}
   g.traverse(o=>{if(o.isMesh)o.material=TRM.dark;});g.rotation.z=(ci%2?1:-1)*(0.25+Math.random()*0.3);
   noise(1,1,600,'lowpass');tone('sawtooth',60,18,1.2,0.3);addShake(0.8,p.x,p.z,40);hitGoblins(p.x,p.z,9,8,'Blown up with a train',p.y+1);
-  score+=500;
-  const who=(nearestPlayer(p.x,p.z)||{}).p;
-  if(T.carDead.every(Boolean)){T.dead=true;score+=1000;flashLabel('Train destroyed  +1500',who);}else flashLabel('Train car destroyed  +500',who);
+  if(T.carDead.every(Boolean)){T.dead=true;award(1500,'Train destroyed',p.x,p.y+3,p.z);}else award(500,'Train car destroyed',p.x,p.y+3,p.z);
 }
 function refreshRailVenues(p,want){
   const ls=railLinksInBox(p.pos.x-1000,p.pos.z-1000,p.pos.x+1000,p.pos.z+1000),seen=new Set();

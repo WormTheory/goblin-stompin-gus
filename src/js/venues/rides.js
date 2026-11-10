@@ -54,23 +54,23 @@ function carouselWreck(Cs){Cs.dead=true;Cs.pr.alive=false;rideDark(Cs.g);Cs.g.po
 function wheelFall(W,why){
   if(W.dead||W.fall)return;W.fall={vy:-1,sg:Math.random()<.5?1:-1};W.rim.alive=false;for(const q of W.gonds)q.pr.alive=false;
   rideBang(W.hub.x,W.hub.y,W.hub.z,why?1.2:1.8,W,6,10,'Blown up with a Ferris wheel');crushBall(W.hub.x,W.top,W.hub.z,4);
-  score+=1000;flashLabel('Ferris wheel destroyed  +1000',(nearestPlayer(W.hub.x,W.hub.z)||{}).p);
+  award(1000,'Ferris wheel destroyed',W.hub.x,W.hub.y,W.hub.z);
 }
 function coasterMark(K){wrecked[K.k]={th:K.th,off:K.off,dead:K.cars.map(c=>c.dead)};save();}
 function rideHit(T,n,ci){
   if(T.kind==='coaster'){const c=T.cars[ci];if(!c||c.dead||c.fly)return;const p=c.g.position;dmgPop(p.x,p.y+1.2,p.z,Math.round(n),'#ffb04a');c.hp-=n;if(c.hp>0)return;
     // that car goes up and the rest grind to a stop on the track; they can still be taken apart
-    c.dead=true;c.pr.alive=false;rideDark(c.g);c.g.rotation.z=(ci%2?1:-1)*0.4;T.halted=true;rideBang(p.x,p.y+.5,p.z,0.8,T,4,6,'Blown up with a roller coaster');score+=200;
-    const who=(nearestPlayer(p.x,p.z)||{}).p;if(T.cars.every(q=>q.dead)){score+=500;flashLabel('Roller coaster destroyed  +700',who);}else flashLabel('Coaster car destroyed  +200',who);coasterMark(T);return;}
+    c.dead=true;c.pr.alive=false;rideDark(c.g);c.g.rotation.z=(ci%2?1:-1)*0.4;T.halted=true;rideBang(p.x,p.y+.5,p.z,0.8,T,4,6,'Blown up with a roller coaster');
+    if(T.cars.every(q=>q.dead))award(700,'Roller coaster destroyed',p.x,p.y+2,p.z);else award(200,'Coaster car destroyed',p.x,p.y+2,p.z);coasterMark(T);return;}
   if(T.kind==='wheel'){if(T.dead||T.fall)return;
     if(ci>=0){const q=T.gonds[ci];if(!q||q.dead)return;const p=q.pr.pos;dmgPop(p.x,p.y+1,p.z,Math.round(n),'#ffb04a');q.hp-=n;if(q.hp>0)return;
-      q.dead=true;q.pr.alive=false;q.g.visible=false;rideBang(p.x,p.y,p.z,0.6,T,3,4,'Blown up with a gondola');score+=50;flashLabel('Gondola destroyed  +50',(nearestPlayer(p.x,p.z)||{}).p);return;}
+      q.dead=true;q.pr.alive=false;q.g.visible=false;rideBang(p.x,p.y,p.z,0.6,T,3,4,'Blown up with a gondola');award(50,'Gondola destroyed',p.x,p.y+1,p.z);return;}
     dmgPop(T.hub.x,T.hub.y,T.hub.z,Math.round(n),'#ffb04a');T.hp-=n;if(T.hp<=0)wheelFall(T);return;}
   if(T.kind==='carousel'){if(T.dead)return;dmgPop(T.x,G+8,T.z,Math.round(n),'#ffb04a');T.hp-=n;if(T.hp<=0)carouselBlow(T);}
 }
 function carouselBlow(Cs){
   carouselWreck(Cs);wrecked[Cs.k]=1;save();rideBang(Cs.x,G+3,Cs.z,1.4,Cs,7,8,'Blown up with a carousel');
-  score+=300;flashLabel('Carousel destroyed  +300',(nearestPlayer(Cs.x,Cs.z)||{}).p);
+  award(300,'Carousel destroyed',Cs.x,G+5,Cs.z);
 }
 // is the track still there at this point round the circuit? (a car's the width of it, and the height goes in steps, so look close by)
 function coasterTrackAt(C,t){const x=Math.floor(C.cu+Math.cos(t)*C.a),z=Math.floor(C.cv+Math.sin(t)*C.b),h=G+coasterH(t);
@@ -87,7 +87,7 @@ function updateRides(V,dt){
     K.checkT-=dt;if(K.checkT<=0&&K.sp>0){K.checkT=0.1;const ahead=K.th+2.5/((C.a+C.b)/2);
       if(rideNear(C.cu+Math.cos(ahead)*C.a,C.cv+Math.sin(ahead)*C.b,110)&&!coasterTrackAt(C,ahead)){K.off=true;
         K.cars.forEach((c,i)=>{if(c.dead)return;const t=K.th-i*0.11,tx=-Math.sin(t)*C.a,tz=Math.cos(t)*C.b,l=Math.hypot(tx,tz)||1,v=Math.min(30,Math.max(6,K.sp*0.55*l));c.fly={vx:tx/l*v,vz:tz/l*v,vy:4+Math.random()*3,sx:(Math.random()-.5)*4,sz:(Math.random()-.5)*4};c.pr.alive=false;});
-        score+=500;flashLabel('Roller coaster derailed  +500',(nearestPlayer(C.cu,C.cv)||{}).p);coasterMark(K);}}
+        award(500,'Roller coaster derailed',C.cu,G+6,C.cv);coasterMark(K);}}
   }
   K.cars.forEach((c,i)=>{const cg=c.g;
     if(c.fly){const F=c.fly,P=cg.position;F.vy-=26*dt;P.x+=F.vx*dt;P.z+=F.vz*dt;P.y+=F.vy*dt;cg.rotation.x+=F.sx*dt;cg.rotation.z+=F.sz*dt;const gy=groundAt(P.x,P.z,P.y+2);
@@ -165,7 +165,7 @@ function planeHit(pl,n){
   for(let k=0;k<10;k++){const d=debris[(debrisIdx++)%debris.length];d.m.position.set(p.x+(Math.random()-.5)*8,p.y+2+Math.random()*2,p.z+(Math.random()-.5)*12);d.v.set((Math.random()-.5)*20,8+Math.random()*12,(Math.random()-.5)*20);d.spin.set((Math.random()-.5)*12,(Math.random()-.5)*12,(Math.random()-.5)*12);d.life=25;d.m.visible=true;}
   g.traverse(o=>{if(o.isMesh){o.userData.mat=o.userData.mat||o.material;o.material=TRM.dark;}});
   noise(1.2,1,500,'lowpass');tone('sawtooth',70,16,1.4,0.32);addShake(1,p.x,p.z,50);hitGoblins(p.x,p.z,12,10,'Blown up with a plane',p.y+1);
-  score+=1000;flashLabel('Airplane destroyed  +1000',(nearestPlayer(p.x,p.z)||{}).p);
+  award(1000,'Airplane destroyed',p.x,p.y+4,p.z);
   if(p.y>G+3){pl.fall=true;pl.vy=-2;pl.fv=pl.v||40;}else g.rotation.z=(Math.random()<.5?1:-1)*(0.12+Math.random()*0.14);
 }
 function planeWreck(pl,V,dt){

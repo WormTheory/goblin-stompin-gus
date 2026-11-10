@@ -1,0 +1,26 @@
+stairs
+  office 19x16 inner 21: drops straight
+  apartment 16x16 inner 12: drops straight
+  office 17x18 inner 18: drops straight
+  office 18x21 inner 26: drops straight
+  office 19x19 inner 28: drops straight
+  office 15x15 inner 23: drops straight
+  apartment 16x14 inner 17: drops straight
+  office 18x18 inner 24: drops straight
+  office 17x16 inner 19: drops straight
+  office 14x17 inner 20: drops straight
+  office 43x18 inner 52: drops straight
+  office 14x17 inner 19: drops straight
+  office 17x18 inner 35: drops straight
+  apartment 16x20 inner 12: drops straight
+  office 16x20 inner 24: drops straight
+  office 15x14 inner 14: drops straight
+  capitol 84x74 inner 5876: drops straight
+  apartment 16x14 inner 16: drops straight
+  office 14x16 inner 19: drops straight
+  office 18x18 inner 23: drops straight
+  apartment 16x16 inner 12: drops straight
+  office 17x16 inner 22: drops straight
+  apartment 13x13 inner 12: drops straight
+  office 16x16 inner 18: drops straight
+  office 16x16 inner 12: drops straight

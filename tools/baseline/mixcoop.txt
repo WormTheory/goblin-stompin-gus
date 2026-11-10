@@ -18,6 +18,6 @@ dash         Gnash moved 5.20 up 0.00 walk  |  Gus moved 5.85 up 0.00 walk
    camera from the feet: Gnash 1.04, Gus 6.88
    hint: Gnash: [X] swing the club  ·  [RT] throw a grenade  ·  [A] jump  ·   |  Gus: Hold [RT] stomp  ·  [X] bite  ·  [A] jump  ·  tap [B] dash, 
 both goblins: Gnash (goblin, tint 0, body 1.35 tall, model goblin) + Grizzle (goblin, tint 1, body 1.35 tall, model goblin)  any goblin true
-Gertie, player two still a goblin: Gertie (hippo, tint 1, body 1.78 tall, model hippo hippo-rig) + Gnash (goblin, tint 0, body 1.35 tall, model goblin)  any goblin true
+Gertie, player two still a goblin: Gertie (hippo, tint 1, body 1.78 tall, model hippo hippo-rig) + Grizzle (goblin, tint 0, body 1.35 tall, model goblin)  any goblin true
 player two a hippo again: Gertie (hippo, tint 1, body 1.78 tall, model hippo hippo-rig) + Gus (hippo, tint 0, body 1.78 tall, model hippo hippo-rig)  any goblin false
 back to Gus: Gus (hippo, tint 0, body 1.78 tall, model hippo hippo-rig) + Gertie (hippo, tint 1, body 1.78 tall, model hippo hippo-rig)  any goblin false

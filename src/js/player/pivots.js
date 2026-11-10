@@ -131,7 +131,7 @@ function trampleFences(p){
     for(const y of ys){const v=get(wx,y,wz);if(!v||!BLOCK[v].brittle)continue;
       setRaw(wx,y,wz,AIR);addEdit(wx,y,wz,AIR);(br||(br=[])).push({x:wx,y,z:wz,b:v});ch=ch||new Set();
       for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((wx+ox)/CS),Math.floor((wz+oz)/CS)));}}
-  if(br){rebuildSet(ch);save();destroyFX(br,{force:0.6,dx:s,dz:c,up:1},true);noise(0.12,0.12,900,'bandpass');score+=2*br.length;}
+  if(br){rebuildSet(ch);save();destroyFX(br,{force:0.6,dx:s,dz:c,up:1},true);noise(0.12,0.12,900,'bandpass');award(2*br.length,null,p.pos.x,p.pos.y,p.pos.z,p,{bump:false,pop:false});}
 }
 // Play as Gnash the goblin (picked on the title screen's character select, ui/char-select.js): the same player code runs, with a goblin's abilities and speeds in place of the hippo's for
 // the length of the step, so none of the moves need to know. (Walking speed and the hop are what goblins themselves do.)

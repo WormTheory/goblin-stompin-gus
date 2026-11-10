@@ -183,7 +183,7 @@ function milHit(M,n,dir){
   milDark(M);if(M.kind==='tank')M.tur.rotation.z=0.25;
   if(M.kind==='heli'&&!M.fall)airCrash(M.x,M.y+1,M.z,3.5,'Blown up with a helicopter');   // (shot down where it sits, or just above: it goes up there)
   sfx(I.name+' destroyed',()=>{noise(1.1,1,500,'lowpass');tone('sawtooth',70,16,1.3,0.3);});addShake(0.9,M.x,M.z,45);hitGoblins(M.x,M.z,8,8,'Blown up with a '+I.name.toLowerCase(),M.y+1);
-  if(BLAME!=='acc'){score+=I.pts;flashLabel(I.name+' destroyed  +'+I.pts,(nearestPlayer(M.x,M.z)||{}).p);}
+  if(BLAME!=='acc')award(I.pts,I.name+' destroyed',M.x,M.y+2,M.z);
 }
 // a wreck: a helicopter shot down drops, spinning, and goes up where it lands; then it all lies there smouldering
 function milWreck(M,dt){

@@ -7,7 +7,7 @@ elephant  found by an attack true bites to kill 9 dead true box alive false
 lion      found by an attack true bites to kill 4 dead true box alive false
 penguin   found by an attack true bites to kill 1 dead true box alive false
 monkey    found by an attack true bites to kill 2 dead true box alive false
-score from those 425
+score from those 513
 corpses lying 6 tipped true still hit by attacks false
 real stomp beside a giraffe hp 25 -> 17 state walk
 venue dropped away true
@@ -36,7 +36,7 @@ carousel gone after 8 charged stomps, score 300 on record true
 gondola gone after 6 bites, drawn false
 hole in the track: there still false
 derailed true after 9.9s cars flying 4 down after 1.2s all dead true score 500
-legs cut on one side: came down true after 0.9s lying at 1.5 tipped 1.57 score 1000 hits left false
+legs cut on one side: came down true after 0.9s lying at 1.5 tipped 1.57 score 1100 hits left false
 venue dropped away true
 back: wheel down true carousel down true coaster off true cars drawn 0 wheel height 1.5
 done

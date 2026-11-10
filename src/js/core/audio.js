@@ -7,7 +7,7 @@ const SL={tag:null,rows:new Map(),el:null,shown:false};
 function sfx(n,f){const o=SL.tag;SL.tag=n;try{f();}finally{SL.tag=o;}}
 const SND_PRIM=new Set(['tone','noise','woosh','sndNote','sndName','sfx','safe']),SND_HELP={thud:'Thud',clang:'Clang',horn:'Horn'};
 // (what the code that made a sound is called, in words: anything not listed is just its name spelt out)
-const SND_FN={squeal:'Civilian screams',stompGrunt:'Stomp grunt',grunt:'Grunt',destroyFX:'Blocks break',knockFix:'Knocked over',
+const SND_FN={hudPop:'Points',squeal:'Civilian screams',stompGrunt:'Stomp grunt',grunt:'Grunt',destroyFX:'Blocks break',knockFix:'Knocked over',
   dbgMenuNav:'Menu',dbgMenuToggle:'Menu',renderTime:'Menu',renderDbg:'Menu',renderAbil:'Menu',ddChoose:'Menu',resumePlayer:'Menu',
   airCrash:'Aircraft crashes',animalHit:'Animal hit',bellStrike:'Bell',bigCrashes:'Big crash',blastOff:'Blast off',boatHit:'Boat hit',carPhysics:'Vehicle lands',
   civAI:'Civilian',climbDismount:'Climb down',climbOverEdge:'Climb over an edge',climbToCeil:'Climb onto the ceiling',collapseBuilding:'Building collapses',

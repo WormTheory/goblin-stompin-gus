@@ -109,7 +109,7 @@ function boatHit(bo,n){
   else{puff(p.x,p.y+.6,p.z,14,0x8a5a32,1.2);noise(.3,.5,1400,'bandpass');}
   for(let k=0,N=Math.round(3+sz*3);k<N;k++){const D=debris[(debrisIdx++)%debris.length];D.m.position.set(p.x+(Math.random()-.5)*K.W,p.y+1+Math.random()*2,p.z+(Math.random()-.5)*bo.L*.6);D.v.set((Math.random()-.5)*16,6+Math.random()*10,(Math.random()-.5)*16);D.spin.set((Math.random()-.5)*12,(Math.random()-.5)*12,(Math.random()-.5)*12);D.life=25;D.m.visible=true;}
   if(s)g.traverse(o=>{if(o.isMesh){o.userData.mat=o.userData.mat||o.material;o.material=TRM.dark;}});
-  score+=K.sc;flashLabel(K.name+' sunk  +'+K.sc,(nearestPlayer(p.x,p.z)||{}).p);
+  award(K.sc,K.name+' sunk',p.x,p.y+K.fb+2,p.z);
 }
 function boatWreck(V,dt){
   const bo=V.bo,g=V.boat,p=g.position,K=bo.K;bo.deadT+=dt;
@@ -307,7 +307,7 @@ function animalHit(A,n,dir){
   if(A.hp>0)return;
   A.dead=true;A.deadT=0;A.pr.alive=false;A.vy=h>0.05?5:2;A.fy=y;A.fall=Math.random()<.5?1:-1;wrecked[A.wk]=1;save();
   reportNews(A.x,A.z,'killing');
-  if(BLAME!=='acc'){reportCrime(A.x,A.z);score+=I.pts;flashLabel(I.name+' killed  +'+I.pts,(nearestPlayer(A.x,A.z)||{}).p);}
+  if(BLAME!=='acc'){reportCrime(A.x,A.z);award(I.pts,I.name+' killed',A.x,y+I.hy+0.5,A.z);}
   tone('sawtooth',620,110,0.45,0.1);splat(A.x,A.z,y+0.5,0.3+I.hx*0.5);
 }
 // (a dead one's thrown by the blow, keels over on its side, and lies where it lands)
