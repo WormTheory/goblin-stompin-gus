@@ -198,8 +198,14 @@ function adMat(i){
 const brandTexCache=new Map();
 function brandTex(B,aspect){
   const key=B.n+'|'+B.bg+'|'+aspect;let t=brandTexCache.get(key);if(t)return t;
-  const cv=document.createElement('canvas'),W=512,Hh=Math.round(512/aspect);cv.width=W;cv.height=Hh;const x=cv.getContext('2d');
-  if(x&&x.beginPath&&x.fillText&&B.only){
+  const cv=document.createElement('canvas'),W=B.marq?1024:512,Hh=Math.round(W/aspect);cv.width=W;cv.height=Hh;const x=cv.getContext('2d');
+  if(x&&x.beginPath&&x.fillText&&B.marq){
+    // a marquee board: black letters on lit white, a thin red rule along the top and bottom
+    x.fillStyle=B.bg;x.fillRect(0,0,W,Hh);x.fillStyle=B.ac;x.fillRect(0,0,W,Hh*0.08);x.fillRect(0,Hh*0.92,W,Hh*0.08);
+    let px=Math.round(Hh*0.74);x.font='900 '+px+'px "Arial Black", Arial, sans-serif';const m=x.measureText(B.n).width||1;if(m>W*0.94){px=Math.floor(px*W*0.94/m);x.font='900 '+px+'px "Arial Black", Arial, sans-serif';}
+    x.textAlign='center';x.textBaseline='middle';x.fillStyle=B.fg;x.fillText(B.n,W/2,Hh*0.53);
+  }
+  else if(x&&x.beginPath&&x.fillText&&B.only){
     // just the words, painted straight on (a water tower's town name)
     let px=Math.round(Hh*0.78);x.font='900 '+px+'px "Arial Black", Arial, sans-serif';const m=x.measureText(B.n).width||1;if(m>W*0.94){px=Math.floor(px*W*0.94/m);x.font='900 '+px+'px "Arial Black", Arial, sans-serif';}
     x.textAlign='center';x.textBaseline='middle';x.fillStyle=B.fg;x.fillText(B.n,W/2,Hh/2);
@@ -255,6 +261,23 @@ function bSpot(b,px,pz,side,inset,yc,h,aspect,out){
   if(hit>2)return false;
   out.push(sp);return true;
 }
+// what's on at the cinema: the marquee's dark middle band (built in grounds.js, the front row of the canopy, G+8) carries
+// two boards of black letters on white, each a different film, picked from the seed and the site so a cinema keeps its bill
+const NOW_SHOWING=['GOBLIN WARS','JURASSIC GOBLIN','THE GOBLINFATHER','GOBLINBUSTERS','BACK TO THE GOBLIN','THE SILENCE OF THE GOBLINS',
+  'GOBLIN HARD','PULP GOBLIN','FINDING GOBLIN','GOBLINS OF THE CARIBBEAN','THE GOBLIN STRIKES BACK','GOBLIN STORY','MAD GOBLIN: FURY ROAD',
+  'THE FAST AND THE GOBLIN','GOBLIN CLUB','GOOD WILL GOBLIN','NO COUNTRY FOR OLD GOBLINS','SAVING PRIVATE GOBLIN','THE DARK GOBLIN',
+  'GOBLIN ALONE','THE LORD OF THE GOBLINS','GONE WITH THE GOBLIN','GOBLIN GUMP','THE SHAWSHANK GOBLIN','INDIANA GOBLIN','GOBLINS ON A PLANE',
+  '12 ANGRY GOBLINS','TOP GOBLIN','DESPICABLE GOBLIN','THE GOBLIN KING','RAIDERS OF THE LOST GOBLIN','HOW THE GOBLIN STOLE CHRISTMAS',
+  'EVERYTHING EVERYWHERE ALL AT GOBLIN','GOBLINS OF THE GALAXY','THE GOBLIN WHO KNEW TOO MUCH','A GOBLIN ODYSSEY','GOBLIN KONG',
+  'SOME LIKE IT GOBLIN','DIAL G FOR GOBLIN','THE GREAT GOBLIN ESCAPE'];
+function marqueeSpots(b,px,pz,out){
+  const X0=px*CELL,Z0=pz*CELL,cxm=(b.x0+b.x1)>>1,fz=b.z0-4,y=G+8,n=NOW_SHOWING.length;
+  const i0=Math.floor(hash2(px*7+3,pz*11+5)*n),i1=(i0+1+Math.floor(hash2(px*13+1,pz*5+9)*(n-1)))%n;
+  for(const [side,t] of [[-1,i0],[1,i1]]){
+    const c=cxm+0.5+side*6.15,anc=[];for(let k=-5;k<=5;k++)anc.push([X0+Math.floor(c+k),y,Z0+fz]);
+    out.push({x:X0+c,y:y+0.5,z:Z0+fz-0.06,yaw:Math.PI,w:11.7,h:0.86,anc,aspect:11.7/0.86,B:{n:NOW_SHOWING[t],bg:'#f6f0dc',fg:'#141414',ac:'#c81e28',marq:true}});
+  }
+}
 // the front first; failing that (something built right up against it), whichever other side has room
 function bSpotAny(b,px,pz,inset,yc,h,out){for(const sd of [b.door,(b.door+2)%4,b.door^1,(b.door+2)%4^1])if(bSpot(b,px,pz,sd,inset,yc,h,4,out))return;}
 const SMALL_SHOPS=new Set(['books','dentist','dispo','guns','bar','soup']),B2_SIGNS=new Set(['courthouse','library','radio','news','bank','disco','club','dealer','armory','theater','stocks','nursery','museum','aquarium','school','datacenter','electric','casino','factory','campus','prison','jail','water','power','lab','arena','base','airport','nuclear']);
@@ -281,7 +304,7 @@ function brandSpots(b,px,pz){
   }
   else if(cat==='sitdown')bSpot(b,px,pz,b.door,0,G+7.1,2.4,4,out);   // above the awning over the doors
   else if(cat==='shop'||SMALL_SHOPS.has(cat))bSpot(b,px,pz,b.door,0,G+(b.gf||FH)+0.9,2.1,4,out);
-  else if(cat==='cinema')bSpot(b,px,pz,b.door,0,G+12.6,3.6,4,out);   // big, high on the facade over the marquee
+  else if(cat==='cinema'){bSpot(b,px,pz,b.door,0,G+12.6,3.6,4,out);if(b.marquee&&plotInfo(px,pz).b[0]===b)marqueeSpots(b,px,pz,out);}   // big, high on the facade over the marquee
   else if(cat==='ikea')bSpot(b,px,pz,b.door,0,G+8.6,3.2,4,out);
   else if(cat==='nasa'){bSpot(b,px,pz,1,0,G+44,8,3.2,out);bSpot(b,px,pz,3,0,G+44,8,3.2,out);}   // the agency's name huge on the assembly building
   else if(cat==='zoo')bSpot(b,px,pz,b.door,0,G+4.2,1.3,4,out);

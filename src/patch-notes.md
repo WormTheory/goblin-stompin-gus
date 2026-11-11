@@ -40,6 +40,10 @@
 - The What's new sticker sits under the title menu instead of over the Full screen link, and the controller and city seed notes have moved down on to the ground.
 - The pixel-art portraits and hearts are solid at any zoom and on any screen, with no faint lines between their pixels.
 
+### The city
+
+- Cinema marquees now say what's on: two lit boards across the middle of the canopy, each showing a different goblin take on a famous film, like Goblin Wars, Jurassic Goblin, The Silence of the Goblins or Goblins of the Caribbean. Each cinema keeps its own bill, and the boards fall off when you knock the canopy down.
+
 ## Version 0.3
 
 ### Highlights
