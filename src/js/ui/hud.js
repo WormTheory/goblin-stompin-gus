@@ -24,7 +24,9 @@ function healthHud(p,dt){
   if(winding){
     const lv=stompLevelOf(p.stompCharge);
     p.ui.smFill.style.width=(p.stompCharge/2*100).toFixed(0)+'%';
-    if(p.ui.smLv!==lv){p.ui.smLv=lv;p.ui.smeter.classList.remove('lv0','lv1','lv2');p.ui.smeter.classList.add('lv'+lv);p.ui.slv.textContent=['STOMP','BIG STOMP','FULL CHARGE!'][lv];}
+    // (with shouts switched off in Options, a full charge just says FULL, in the meter's ordinary lettering)
+    const k=lv+(SHOUT_ON?'':'q');
+    if(p.ui.smLv!==k){p.ui.smLv=k;p.ui.smeter.classList.remove('lv0','lv1','lv2');p.ui.smeter.classList.add('lv'+lv);p.ui.smeter.classList.toggle('quiet',!SHOUT_ON);p.ui.slv.textContent=['STOMP','BIG STOMP',SHOUT_ON?'FULL CHARGE!':'FULL'][lv];}
   } else if(p.ui.smLv!==undefined){p.ui.smLv=undefined;}
   p.hurtFx-=dt;p.ui.hurt.style.opacity=p.deadT>0?0.85:Math.max(0,p.hurtFx*2.2);
   renderHearts(p);

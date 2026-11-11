@@ -1108,6 +1108,7 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
 .divider{background:var(--ink)}
 /* split screen: everything a size down, so two of them fit */
 @media (prefers-reduced-motion:reduce){.readout i,.smeter.lv2 .slv{animation:none}}
+.smeter.quiet.lv2 .slv{font-size:22px;transform:none;animation:none;text-shadow:2px 0 var(--ink),-2px 0 var(--ink),0 2px var(--ink),0 -2px var(--ink),0 4px var(--ink)}
 
 /* ================= UI overhaul: game feel (combo, pop-ups, the wreck feed, the City wrecked card) ================= */
 /* the combo: a paper card under the score, the count in tomato, its name, a draining bar and what it does to the score */

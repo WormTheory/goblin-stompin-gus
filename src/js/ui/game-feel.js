@@ -8,9 +8,14 @@ const COMBO_T=3;
 const COMBO_MILES=[[5,"Stompin'!"],[10,'STOMPTACULAR!'],[15,'Hippo-critical!'],[20,'GOBLINGEDDON!'],[30,'Unstoppable lump!'],[50,'HIPPOCALYPSE!'],[75,'Wallow of doom!'],[100,'Legend of the bog!']];
 const comboMult=n=>Math.min(3,1+0.1*Math.max(0,n-1));
 function comboName(n){let s='';for(const [k,t] of COMBO_MILES)if(n>=k)s=t;return s;}
-// (damage numbers over the goblins and shouts like SPLAT!: on unless switched off in Options, kept in this browser)
-const POPS_KEY='goblin-stompin-gus-pops';
-let POPS_ON=true;try{POPS_ON=localStorage.getItem(POPS_KEY)!=='0';}catch(e){}
+// (damage numbers over the goblins, and shouts: SPLAT! and friends, combo milestones, the stomp meter's FULL CHARGE!.
+// Each on unless switched off in Options, kept in this browser on its own. They were one switch, POPS_KEY: anyone who'd
+// turned that off starts with both off, and with the health bars off too, see popsMigrate)
+const POPS_KEY='goblin-stompin-gus-pops',DMGPOP_KEY='goblin-stompin-gus-pop-dmg',SHOUT_KEY='goblin-stompin-gus-pop-shout';
+let DMGPOP_ON=true,SHOUT_ON=true,POPS_OLD_OFF=false;
+try{POPS_OLD_OFF=localStorage.getItem(POPS_KEY)==='0';
+  const d=localStorage.getItem(DMGPOP_KEY),s=localStorage.getItem(SHOUT_KEY);
+  DMGPOP_ON=d!=null?d!=='0':!POPS_OLD_OFF;SHOUT_ON=s!=null?s!=='0':!POPS_OLD_OFF;}catch(e){}
 function comboBump(p){
   if(!p)return;p.cbN=(p.cbT>0?p.cbN||0:0)+1;p.cbT=COMBO_T;
   if(p.cbN>RAMP.best)RAMP.best=p.cbN;
@@ -43,7 +48,7 @@ function comboHud(p){
 // middle of that player's half of the screen rather than at a spot). Only drawn in the view of the player they're for.
 const POPS={el:null,pool:[],live:[],max:20,v:null,sndT:0};
 function hudPop(x,y,z,txt,kind,who){
-  if(!POPS_ON&&(kind==='dmg'||kind==='shout'))return;
+  if(!DMGPOP_ON&&kind==='dmg'||!SHOUT_ON&&(kind==='shout'||kind==='mile'))return;
   const p=who||P1;if(!p.active||p.net)return;
   if(!POPS.el){POPS.el=document.getElementById('pops');if(!POPS.el)return;}
   let P=POPS.live.length>=POPS.max?POPS.live.shift():POPS.pool.pop();
@@ -92,7 +97,16 @@ const CALM_KEY='goblin-stompin-gus-calm';
 {let on=false;try{on=localStorage.getItem(CALM_KEY)==='1';}catch(e){}
  const t=document.getElementById('calmTog'),set=v=>{on=v;try{document.body.classList.toggle('calm',v);}catch(e){}if(t)t.setAttribute('aria-checked',String(v));};
  set(on);if(t)t.addEventListener('click',()=>{set(!on);try{localStorage.setItem(CALM_KEY,on?'1':'0');}catch(e){}});}
-// (Options: the damage numbers and shouts switch)
-{const t=document.getElementById('popsTog');
- if(t){const show=()=>t.setAttribute('aria-checked',String(POPS_ON));show();
-  t.addEventListener('click',()=>{POPS_ON=!POPS_ON;try{localStorage.setItem(POPS_KEY,POPS_ON?'1':'0');}catch(e){}show();});}}
+// (Options: the damage numbers, shouts and health bars switches, each its own. The health bars are the ones over
+// goblins, vehicles and the other players, DT.hpBars, the same setting as the quick menu's Health bars row)
+function popsMigrate(){
+  if(!POPS_OLD_OFF)return;POPS_OLD_OFF=false;DT.hpBars=false;saveDT();
+  try{localStorage.setItem(DMGPOP_KEY,DMGPOP_ON?'1':'0');localStorage.setItem(SHOUT_KEY,SHOUT_ON?'1':'0');localStorage.setItem('goblin-stompin-gus-hpBars','0');localStorage.removeItem(POPS_KEY);}catch(e){}
+}
+popsMigrate();
+const POP_TOGS=[['dmgPopTog',()=>DMGPOP_ON,v=>{DMGPOP_ON=v;try{localStorage.setItem(DMGPOP_KEY,v?'1':'0');}catch(e){}}],
+  ['shoutTog',()=>SHOUT_ON,v=>{SHOUT_ON=v;try{localStorage.setItem(SHOUT_KEY,v?'1':'0');}catch(e){}}],
+  ['hpBarTog',()=>DT.hpBars,v=>{DT.hpBars=v;try{localStorage.setItem('goblin-stompin-gus-hpBars',v?'1':'0');}catch(e){}saveDT();}]];
+function popTogsShow(){for(const [id,get] of POP_TOGS){const t=document.getElementById(id);if(t)t.setAttribute('aria-checked',String(!!get()));}}
+for(const [id,get,set] of POP_TOGS){const t=document.getElementById(id);if(t)t.addEventListener('click',()=>{set(!get());popTogsShow();});}
+popTogsShow();
