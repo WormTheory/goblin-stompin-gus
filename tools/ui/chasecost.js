@@ -3,7 +3,7 @@
 // milliseconds, not the frame rate.) Usage, from tools/ui: node chasecost.js [seconds] [seed]
 const {chromium}=require('playwright');const fs=require('fs');
 let html=fs.readFileSync('t3.html','utf8');const SAVE_KEY=html.match(/SAVE_KEY='([^']+)'/)[1];
-html=html.replace("  navUpdate(dt);\n","  {const a0=performance.now();navUpdate(dt);(window.__nv=window.__nv||[]).push(performance.now()-a0);playTime=Math.max(playTime,900);}\n");
+html=html.replace("  if(!simple)navUpdate(dt);\n","  if(!simple){const a0=performance.now();navUpdate(dt);(window.__nv=window.__nv||[]).push(performance.now()-a0);playTime=Math.max(playTime,900);}\n");
 html=html.replace("safe('goblins',()=>updateGoblins(sdt));","safe('goblins',()=>{const a0=performance.now();updateGoblins(sdt);(window.__gb=window.__gb||[]).push(performance.now()-a0);});");
 fs.writeFileSync('t3cost.html',html);
 const secs=+(process.argv[2]||60),seed=+(process.argv[3]||12345);

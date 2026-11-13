@@ -33,7 +33,7 @@ global.requestAnimationFrame=()=>{};
 const mk=i=>({index:i,connected:true,axes:[0,0,0,0],buttons:Array.from({length:17},()=>({pressed:false,value:0})),vibrationActuator:{playEffect(){}}});
 const pads=[mk(0),mk(1)];
 Object.defineProperty(global,'navigator',{value:{getGamepads:()=>pads},configurable:true});
-src=src.replace(/  navUpdate\(dt\);/,'{const a0=performance.now();navUpdate(dt);(window.__nv=window.__nv||[]).push(performance.now()-a0);}');eval(src);const T=window.__t;let now=1000;const run=s=>{for(let i=0;i<s*60;i++){now+=16.7;T.frame(now);}};
+src=src.replace(/navUpdate\(dt\);/,'{const a0=performance.now();navUpdate(dt);(window.__nv=window.__nv||[]).push(performance.now()-a0);}');eval(src);const T=window.__t;let now=1000;const run=s=>{for(let i=0;i<s*60;i++){now+=16.7;T.frame(now);}};
 
 const [A,B]=T.players;const S=n=>{for(let i=0;i<n;i++){now+=16.7;T.frame(now);}};for(const f of els.play.L.click)f();pads.length=0;
 const S2=n=>{for(let i=0;i<n;i++){now+=16.7;T.frame(now);}};

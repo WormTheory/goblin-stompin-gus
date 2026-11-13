@@ -1,0 +1,22 @@
+  building: mid, 15 tall; Gus on the wall 8 up; roof spot 0.5,15,2.5
+  Advanced (pathSimple false)
+    Gus on a wall       jumps/climbs 1106 frames (1106 on a wall)23 blows, first after 6.6s  highest 6.5  route map yes
+    Gus on the roof     jumps/climbs 1106 frames (1106 on a wall)21 blows, first after 9.3s  highest 13.5  route map yes
+    Gus on the level    jumps/climbs 0 frames (0 on a wall)   18 blows, first after 4.4s  highest 0.0  route map yes
+    Advanced: climbs the wall after Gus and hits him
+    Advanced: reaches Gus on the roof
+    Advanced: runs Gus down on the level
+  Simple (pathSimple true)
+    Gus on a wall       jumps/climbs 0 frames (0 on a wall)   no blows                    highest 0.0  route map no
+    Gus on the roof     jumps/climbs 0 frames (0 on a wall)   no blows                    highest 0.0  route map no
+    Gus on the level    jumps/climbs 0 frames (0 on a wall)   17 blows, first after 4.5s  highest 0.0  route map no
+    Simple: never jumps or climbs
+    Simple: no route map built
+    Simple: still runs Gus down on the level
+    Simple: can't reach Gus up a wall or on the roof
+  switched to Simple with the goblin 3.0 up the wall: back on its feet after 0.5s at 0.0 hurt 0 state chase softLand false
+    it was on the wall when Simple was chosen
+    let go, dropped and landed unhurt, and stays off the wall
+  back to Advanced: Gus on a wall jumps/climbs 1106 frames (1106 on a wall)23 blows, first after 6.6s  highest 6.5  route map yes
+    Advanced again: climbs
+  all as they should be

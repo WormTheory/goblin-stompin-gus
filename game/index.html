@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:ce34498bf44c3b5c8bcabf27a1d66e9365a416bfd8705b8e430d98f6f57dc25b -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:88ffaa2f09995fc3a329eb75100a2eee84fb86cec3f570c0cae89d451b93f193 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -913,6 +913,7 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
 .opts .hostmain{margin:0;max-width:none}
 .opts .crow{display:grid;grid-template-columns:240px minmax(0,1fr) auto;gap:6px 16px}
 .opts .crow .vrange{min-width:0;width:100%}
+.opts .crow .seg{justify-self:start}   /* (two buttons in a slider's column: as wide as they need, not the whole column) */
 .clab{font:400 18px/1 var(--f-px);letter-spacing:.5px;color:var(--ink);text-transform:uppercase;cursor:pointer}
 @container (max-width:520px){.opts .crow{grid-template-columns:minmax(0,1fr) auto}.opts .crow .clab{grid-column:1/-1}}
 .tog{background:#fffaf0;color:var(--ink);border:3px solid var(--ink);border-radius:9px 12px 8px 13px/12px 8px 13px 9px;box-shadow:0 3px 0 var(--ink)}
@@ -1331,6 +1332,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
       <div class="custom hostmain">
       <div class="crow"><label class="clab" for="hostMain">ENEMY HOSTILITY</label><input type="range" id="hostMain" class="vrange" min="0" max="2" step="1" value="2" aria-label="Enemy hostility"><span class="vval" id="hostMainVal">Normal</span></div>
       <p class="vnote" id="hostMainTxt"></p>
+      <div class="crow"><span class="clab" id="pathLab">GOBLIN PATHFINDING</span><div class="seg" role="radiogroup" aria-labelledby="pathLab" id="pathSeg"><button type="button" role="radio" data-path="0" aria-checked="true">Advanced</button><button type="button" role="radio" data-path="1" aria-checked="false">Simple</button></div></div>
+      <p class="vnote" id="pathTxt"></p>
     </div>
     <div class="custom">
       <h2>RENDER DISTANCE</h2>
@@ -1399,6 +1402,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <ul><li>The game has a new coat of paint: flat crayon colours, thick ink outlines with hand-drawn corners, and a chunky pixel font (Jersey 10) for titles, buttons and numbers. Anything you read, like descriptions and these notes, keeps the easy-to-read font.</li><li>Button prompts are drawn as the buttons themselves in the new style: crayon-coloured face buttons and paper keycaps.</li><li>A real title screen: the logo top left, and Gus himself stomping along a street in front of a scrolling city while you choose, flattening a goblin with every stomp. It's lit and shaded just like the game. The menu card on the right has Play, Co-op, Play online, New city and Options, with the Testing Environment, Dev and Full screen in a small Workshop line underneath, and a sticker for what's new.</li><li>The enemy hostility slider has moved from the main screen to the top of Options.</li><li>In Options, each slider's name now sits to its left on the same row, with its setting on the right and the description underneath, and all the sliders line up. In a narrow window the name goes back above the slider.</li><li>Picking a character is now "Who's stompin'?": four big cards for Gus, Gertie, Gnash and Grizzle, with a 1P tag on player one's pick and a 2P tag on player two's in co-op. In split-screen co-op each of you picks your own character from your own pause menu's Character screen, and a strip under the cards lists what that character can do with your current ability switches. Picking the other player's character still swaps you over.</li><li>In split-screen co-op each player still has their own pause menu, driven only by their own controller. Player two's is just Resume, Map, Obituary, Character and Controls: what changes the game for both of you (Options, New city, Play online, the Testing Environment, Quit to title) stays in player one's.</li><li>The title screen's menu card no longer shows a scroll bar down its side when the game first opens.</li><li>Each player has their own ability switches. In split-screen co-op player two sets theirs in their own pause menu's Character screen, and they go with you whichever hippo you pick, so Gus and Gertie are still the same as each other: it's the player, not the hippo, who has the moves. Player one keeps the switches they had, and player two starts with a copy of them.</li><li>The ability switches are laid out as basic moves and their upgrades: each basic move (Bite, Stomp, Ground Pound, Dash, Sprint, Jump, Long Jump, Air Dash, Spider Climb) on the left, with the upgrades that improve it trailing off it as yellow tokens, each with a +1 or +2 coin for how many steps up it is (Bite combo, Charge Stomp, Full Charge Stomp, Ground Spike, Rocket Boost and so on). Crash Landing and Fall damage immunity are upgrades to every landing. No more tick boxes: a move that's on is in full colour and one that's off is greyed out, with On or Off in its corner. Click it, or press A on a controller, to switch it. An upgrade whose basic move is off is greyed with a dashed edge and says what it needs; switching it on switches that on too.</li><li>On a controller, A on a character card picks them and takes you back ("Ready!"), and Y jumps down to the ability switches. Screens opened from a menu have a Back button: B or Esc goes back, and LB / RB (Q / E on the keyboard) jump between screens.</li><li>The pause menu is a column of big buttons (Resume, Map, Obituary with its count, Character, Controls, Options, Quit to title) beside a "This rampage" card: goblins flattened, your score, your best combo, cars tossed and how wrecked the place you're in is, with its name and the time of day. Underneath are this game's own controls: switch between solo and co-op, Play online, New city, the Testing Environment and Full screen.</li><li>Map, Obituary, Character, Controls, Options and Patch notes open in the same card, sliding in from the right, and always start you back on the menu's own buttons when you pause again. B or Esc on the menu itself resumes.</li><li>Quit to title takes you back to the title screen with Gus stomping along; your city, score and everyone in it are kept, so Play carries on where you left off.</li><li>Patch notes and Dev are small tags in the card's corner now. In split-screen co-op the card's corner says 1P MENU (green) or 2P MENU (pink), so you can tell whose menu it is, and player two's menu still leaves out Options, Dev, the Testing Environment, Quit to title and the city controls.</li><li>Options, Controls, the Map, the Obituary and the Patch notes are on paper in the new style. The Dev tools and the Testing Environment keep a dark panel, in the new colours.</li><li>The HUD is redrawn to match: your score big in the top left with the goblins you've flattened under it (and stickers when cars or the police are after you), pixel hearts and the stamina bar in one paper panel at the bottom, the day and weather on a paper card beside a new clock disc, a round minimap, and the speedometer in ink and yolk.</li><li>Charging a stomp shows STOMP, then BIG STOMP, then shouts FULL CHARGE! when it's all the way up.</li><li>Combos: every goblin flattened or thing smashed within 3 seconds of the last adds one to your combo, shown under your score with a bar that drains until the next. The combo multiplies your points: +10% for each step from the second, so x11 doubles them and x21 or more triples them (that's as high as it goes). Big combos get a name and a shout: x5 Stompin'!, x10 STOMPTACULAR!, x15 Hippo-critical!, x20 GOBLINGEDDON!, x30 Unstoppable lump!, x50 HIPPOCALYPSE!, x75 Wallow of doom! and x100 Legend of the bog!</li><li>Points float up from wherever you earned them, damage numbers pop off the goblins as you hit them, and a goblin going down gets a shout: SPLAT! for a stomp, CHOMP! for a bite, KABOOM! for an explosion, and so on. Options, under On screen, has a switch each for Damage numbers, Shouts (the goblin-flattening shouts, combo milestones and FULL CHARGE!, which turns into a plain FULL) and Health bars (bars over the goblins, vehicles and other players near you, off to start with). If you'd switched off the old damage numbers and shouts switch, all three start off.</li><li>What you've just wrecked is listed in stickers in the top right, newest on top, with the points it earned (combo included), fading as they get older.</li><li>A City wrecked card in the bottom right shows how much of the place you're in you've knocked down (Town or Village wrecked in smaller places).</li><li>In split screen and online, each player has their own combo, pop-ups and list of what they've wrecked, from their own hits. The best combo shows in the pause menu's rampage card, and a new city starts it all again.</li><li>A Reduced motion switch in Options, under On screen, stops the wobbling, bobbing and popping of the menus and the display and holds Gus still on the title screen. It's on by itself if your system asks for less motion.</li><li>Sounds for the points as they pop up (rising as your combo climbs) and a fanfare for each combo milestone.</li><li>Arriving somewhere puts its name up on a big sticker. Chat, voice chips, the controls hint, the debug menu and each co-op player's own pause panel are restyled too, and in split screen each half's name is a 1P-green or 2P-pink tag.</li></ul>
 <h3>Menus</h3>
 <ul><li>In player two's menu, the button that carries on playing says Resume rather than Co-op.</li><li>The pause menu's buttons always fit in the window, at any size and in split screen, and never sit in a box with scroll bars.</li><li>The Map zooms out as far as it takes to see everywhere you've explored at once, however far you've roamed.</li><li>The highlight round the picked character cards, and their 1P and 2P tags, are no longer cut off at the edges.</li><li>The What's new sticker sits under the title menu instead of over the Full screen link, and the controller and city seed notes have moved down on to the ground.</li><li>The pixel-art portraits and hearts are solid at any zoom and on any screen, with no faint lines between their pixels.</li></ul>
+<h3>Goblins</h3>
+<ul><li>A new Goblin pathfinding setting in Options, just under Enemy hostility: Advanced (as before: goblins climb walls and buildings, jump gaps and find their way to you wherever you are) or Simple, the older chase, where goblins run straight at you, go round walls and take a building's stairs, but never climb or jump, so up on a roof you're out of their reach. Switching takes effect at once, and any goblin halfway up a wall lets go and drops down unhurt.</li></ul>
 <h3>The city</h3>
 <ul><li>Cinema marquees now say what's on: two lit boards across the middle of the canopy, each showing a different goblin take on a famous film, like Goblin Wars, Jurassic Goblin, The Silence of the Goblins or Goblins of the Caribbean. Each cinema keeps its own bill, and the boards fall off when you knock the canopy down.</li></ul>
 </details>
@@ -15488,7 +15493,8 @@ function gobStartMove(g,mv,t){
 // down after a fall: past the safe height it hurts, a point for every two blocks more (knocked off by a hippo, the hippo gets
 // the credit; a slip of its own is an accident)
 function gobLand(g){
-  const h=(g.fallTop??g.pos.y)-g.pos.y;g.fallTop=undefined;if(h<=GOB_SAFE||g.state!=='chase')return;
+  const h=(g.fallTop??g.pos.y)-g.pos.y;g.fallTop=undefined;if(g.softLand){g.softLand=false;return;}   // (let go of a wall by Simple pathfinding being chosen: see setPath)
+  if(h<=GOB_SAFE||g.state!=='chase')return;
   const n=Math.ceil((h-GOB_SAFE)/2);splat(g.pos.x,g.pos.z,g.pos.y+0.05,0.2+n*0.1);thud(Math.min(0.5,0.1+n*0.08));
   damageGoblin(g,n,new V3(g.pos.x,g.pos.y+0.4,g.pos.z),null,'Fell to death',playTime-(g.hitT??-99)<4?undefined:ACCIDENT);
 }
@@ -15586,7 +15592,8 @@ function gobMoveStep(g,dt){
 }
 const GOB_GRID=new Map(),gobCell=(x,z)=>(x+1048576)*2097152+(z+1048576);   // (a whole-number key for a block column, unique for a million blocks either way)
 function updateGoblins(dt){
-  navUpdate(dt);
+  const simple=pathSimple();   // (Options' Simple pathfinding: no route maps, no jumping or climbing. See setPath)
+  if(!simple)navUpdate(dt);
   const nAct=players.filter(p=>p.active).length;
   if(playing){playTime+=dt;posSaveT=(posSaveT||0)+dt;if(posSaveT>2){posSaveT=0;savePos();}}
   const sb=streetBusy(),active=Math.round(Math.min(14,(nAct>1?8:5)+Math.floor(playTime/75))*crowd*(0.75+0.25*sb)),civTarget=Math.round((nAct>1?12:9)*crowd*(0.4+0.6*sb));let gone=false;
@@ -15597,7 +15604,7 @@ function updateGoblins(dt){
   goblins.forEach(g=>{
     g.t+=dt;g.hurt-=dt;g.atkS=(g.atkS??9)+dt;g.relS=(g.relS??9)+dt;if(g.pkit)copKit(g);   // (since its last blow, and since its last shot, throw or fireball: see strikes.js)
     {const glow=g.hurt>0;if(glow!==g.glow){g.glow=glow;for(const m of g.mats)m.emissive.setHex(glow?0x440000:0x000000);}}   // (only when it changes: ten materials a goblin, every frame, adds up in a crowd)
-    if(g.state!=='chase'){g.act=null;g.fallTop=undefined;}
+    if(g.state!=='chase'||simple&&g.act){g.softLand=g.state==='chase';g.act=null;g.fallTop=undefined;}   // (Simple pathfinding: off the wall, down unhurt)
     if(g.state==='wait'){
       if(g.special)return;   // (cultists and the compounds' people: only ever brought out by their own place, or the Testing Environment)
       if(g.staff){if(g.t>1.5&&playing&&crowd>0&&!spawnStaff(g))g.t=0;}
@@ -15655,8 +15662,8 @@ function updateGoblins(dt){
       // after a hippo: the route to it, however that goes (and if it's within arm's reach, nothing to work out)
       const hunting=!copIdle&&(!g.indoor||g.alert),inReach=d<=reach&&canHit;
       // (right below a hippo stood on something, with nothing overhead: no use looking for a way round, it's a leap. See below.)
-      const below=!g.wet&&d<=reach&&ddy>=1.5&&ddy<4&&navOpen(Math.floor(g.pos.x),Math.floor(g.pos.z),Math.floor(g.pos.y)+2,Math.floor(g.pos.y+ddy));
-      g.navOn=false;if(hunting&&g.stun<=0&&!inReach&&!below&&playing){sr=navSteer(g,tgt.p);g.navOn=!!sr||!!g.act;if(g.act)return;}   // (and it's still after you, even if the way round takes it further off than usual)
+      const below=!simple&&!g.wet&&d<=reach&&ddy>=1.5&&ddy<4&&navOpen(Math.floor(g.pos.x),Math.floor(g.pos.z),Math.floor(g.pos.y)+2,Math.floor(g.pos.y+ddy));
+      g.navOn=false;if(!simple&&hunting&&g.stun<=0&&!inReach&&!below&&playing){sr=navSteer(g,tgt.p);g.navOn=!!sr||!!g.act;if(g.act)return;}   // (and it's still after you, even if the way round takes it further off than usual)
       // a hippo on another floor, close by: up or down the stairs after it (or, holed up indoors, off to another floor now and then)
       // (in a long building the stairs may be further from the hippo than the goblin started: once it's set off for them, it keeps going)
       const chaseUp=Math.abs(ddy)>2.5&&(d<(g.stUp!==undefined?90:32)||d<90&&!sr&&g.stun<=0&&(bldgAt(Math.floor(g.pos.x),Math.floor(g.pos.z))||{b:0}).b.style==='capitol');   // (the capitol's so big, and its rooms so many, that a route map may not reach the far ones)
@@ -15707,7 +15714,7 @@ function updateGoblins(dt){
           if(g.vy===0)g.atk=Math.max(g.atk,0.5);
         } else if(!canHit){if(g.vy===0)g.atk=Math.max(g.atk,0.5);
           // (a hippo stood on something just out of reach, a car roof, say: up at it, club first)
-          g.leapT=(g.leapT||0)-dt;if(ddy>=1.5&&ddy<4&&g.leapT<=0&&!g.wet&&g.vy===0){g.vy=Math.sqrt(50*(ddy-0.2));g.leapT=1.4;g.atk=0.1;}}
+          g.leapT=(g.leapT||0)-dt;if(!simple&&ddy>=1.5&&ddy<4&&g.leapT<=0&&!g.wet&&g.vy===0){g.vy=Math.sqrt(50*(ddy-0.2));g.leapT=1.4;g.atk=0.1;}}
         else {
           g.atk-=dt;
           if(g.atk<=0){dbgHit('dmg','cyl',{x:g.pos.x,y:g.pos.y-1.5,z:g.pos.z,r:2.3,h:2.8},'n');g.atk=g.cultist?0.85:g.foeKind?FOES[g.foeKind].melee[1]:1.5;g.atkS=0;const q=tgt.p,ux=-dx/(d||1),uz=-dz/(d||1);damagePlayer(q,1,new V3(q.pos.x+ux*1.2,q.pos.y+1.1,q.pos.z+uz*1.2),new V3(-ux,0.3,-uz),g.cultist?'Stabbed with a ritual dagger':g.foeKind?FOES[g.foeKind].melee[2]:'Clubbed to death',g.id);}   // (a dagger's quicker than a club)
@@ -16762,6 +16769,23 @@ function saveDT(){try{const o={};for(const k of DT_SAVED)o[k]=DT[k];localStorage
 const HOST_KEY='goblin-stompin-gus-hostility',HOST_N=['Passive','Peaceful','Normal'],HOST_TXT=['Nobody reacts to you, even when hit','Nobody attacks you, but townsfolk still run','Goblins, cars, police and soldiers come for you'];
 try{const s=localStorage.getItem(HOST_KEY);if(s==='0'||s==='1'||s==='2')DT.host=+s;else if(localStorage.getItem('goblin-stompin-gus-peaceful')==='1')DT.host=1;}catch(e){}   // (the old Peaceful box, ticked, is the middle step)
 function syncHost(){for(const [i,o] of [['hostMain','hostMainVal']]){const el=document.getElementById(i),v=document.getElementById(o);if(el){el.value=String(DT.host);v.textContent=HOST_N[DT.host];}}const t=document.getElementById('hostMainTxt');if(t)t.textContent=HOST_TXT[DT.host];}
+// Goblin pathfinding, two ways (Options, kept in this browser): 0 Advanced, the route maps of enemies/routes.js (goblins
+// jump gaps, climb walls and buildings, and come after a hippo up and down wherever it's gone); 1 Simple, the chase as it
+// was before those (straight at the hippo, along a wall that's in the way, and the stairs of a building close by: no
+// jumping, no climbing). Goblins only read it as pathSimple(); on a guest online it's the host's that counts
+const PATH_KEY='goblin-stompin-gus-pathing',PATH_TXT=['Goblins climb walls and buildings, jump gaps and swim, and find their way to you up high or down low','The old chase: goblins run straight at you, go round walls and take the stairs, but never climb or jump, so up high you\'re out of reach'];
+DT.path=0;try{if(localStorage.getItem(PATH_KEY)==='1')DT.path=1;}catch(e){}
+const pathSimple=()=>DT.path===1;
+function setPath(v){
+  v=v===1?1:0;if(v!==DT.path){DT.path=v;try{localStorage.setItem(PATH_KEY,String(v));}catch(e){}
+    // (into Simple: no goblin is left halfway up a wall, and the route maps go, since nothing reads them now. A goblin let go
+    // of a wall drops to its feet unhurt: see gobLand)
+    if(v===1){for(const g of goblins)if(g.act){g.act=null;g.navOn=false;g.softLand=true;}for(const p of players)p.nav=null;}}
+  syncPath();
+}
+function syncPath(){for(const b of document.querySelectorAll('#pathSeg [data-path]'))b.setAttribute('aria-checked',String(+b.dataset.path===DT.path));const t=document.getElementById('pathTxt');if(t)t.textContent=PATH_TXT[DT.path];}
+for(const b of document.querySelectorAll('#pathSeg [data-path]'))b.addEventListener('click',()=>{if(+b.dataset.path!==DT.path)tone('triangle',+b.dataset.path?440:660,0,0.05,0.03);setPath(+b.dataset.path);});
+syncPath();
 // the Interface switches: each part of the on-screen display, what picks it out on the page, and what it's called. (The
 // menus aren't here, and nor are the touch buttons: without them there'd be no way back on a phone.) Hidden with one style
 // sheet, so none of the code that updates them needs to know. Not saved, for the same reason as the Rendering switches.

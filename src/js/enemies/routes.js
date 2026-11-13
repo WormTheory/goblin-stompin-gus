@@ -181,7 +181,8 @@ function gobStartMove(g,mv,t){
 // down after a fall: past the safe height it hurts, a point for every two blocks more (knocked off by a hippo, the hippo gets
 // the credit; a slip of its own is an accident)
 function gobLand(g){
-  const h=(g.fallTop??g.pos.y)-g.pos.y;g.fallTop=undefined;if(h<=GOB_SAFE||g.state!=='chase')return;
+  const h=(g.fallTop??g.pos.y)-g.pos.y;g.fallTop=undefined;if(g.softLand){g.softLand=false;return;}   // (let go of a wall by Simple pathfinding being chosen: see setPath)
+  if(h<=GOB_SAFE||g.state!=='chase')return;
   const n=Math.ceil((h-GOB_SAFE)/2);splat(g.pos.x,g.pos.z,g.pos.y+0.05,0.2+n*0.1);thud(Math.min(0.5,0.1+n*0.08));
   damageGoblin(g,n,new V3(g.pos.x,g.pos.y+0.4,g.pos.z),null,'Fell to death',playTime-(g.hitT??-99)<4?undefined:ACCIDENT);
 }
@@ -279,7 +280,8 @@ function gobMoveStep(g,dt){
 }
 const GOB_GRID=new Map(),gobCell=(x,z)=>(x+1048576)*2097152+(z+1048576);   // (a whole-number key for a block column, unique for a million blocks either way)
 function updateGoblins(dt){
-  navUpdate(dt);
+  const simple=pathSimple();   // (Options' Simple pathfinding: no route maps, no jumping or climbing. See setPath)
+  if(!simple)navUpdate(dt);
   const nAct=players.filter(p=>p.active).length;
   if(playing){playTime+=dt;posSaveT=(posSaveT||0)+dt;if(posSaveT>2){posSaveT=0;savePos();}}
   const sb=streetBusy(),active=Math.round(Math.min(14,(nAct>1?8:5)+Math.floor(playTime/75))*crowd*(0.75+0.25*sb)),civTarget=Math.round((nAct>1?12:9)*crowd*(0.4+0.6*sb));let gone=false;
@@ -290,7 +292,7 @@ function updateGoblins(dt){
   goblins.forEach(g=>{
     g.t+=dt;g.hurt-=dt;g.atkS=(g.atkS??9)+dt;g.relS=(g.relS??9)+dt;if(g.pkit)copKit(g);   // (since its last blow, and since its last shot, throw or fireball: see strikes.js)
     {const glow=g.hurt>0;if(glow!==g.glow){g.glow=glow;for(const m of g.mats)m.emissive.setHex(glow?0x440000:0x000000);}}   // (only when it changes: ten materials a goblin, every frame, adds up in a crowd)
-    if(g.state!=='chase'){g.act=null;g.fallTop=undefined;}
+    if(g.state!=='chase'||simple&&g.act){g.softLand=g.state==='chase';g.act=null;g.fallTop=undefined;}   // (Simple pathfinding: off the wall, down unhurt)
     if(g.state==='wait'){
       if(g.special)return;   // (cultists and the compounds' people: only ever brought out by their own place, or the Testing Environment)
       if(g.staff){if(g.t>1.5&&playing&&crowd>0&&!spawnStaff(g))g.t=0;}
@@ -348,8 +350,8 @@ function updateGoblins(dt){
       // after a hippo: the route to it, however that goes (and if it's within arm's reach, nothing to work out)
       const hunting=!copIdle&&(!g.indoor||g.alert),inReach=d<=reach&&canHit;
       // (right below a hippo stood on something, with nothing overhead: no use looking for a way round, it's a leap. See below.)
-      const below=!g.wet&&d<=reach&&ddy>=1.5&&ddy<4&&navOpen(Math.floor(g.pos.x),Math.floor(g.pos.z),Math.floor(g.pos.y)+2,Math.floor(g.pos.y+ddy));
-      g.navOn=false;if(hunting&&g.stun<=0&&!inReach&&!below&&playing){sr=navSteer(g,tgt.p);g.navOn=!!sr||!!g.act;if(g.act)return;}   // (and it's still after you, even if the way round takes it further off than usual)
+      const below=!simple&&!g.wet&&d<=reach&&ddy>=1.5&&ddy<4&&navOpen(Math.floor(g.pos.x),Math.floor(g.pos.z),Math.floor(g.pos.y)+2,Math.floor(g.pos.y+ddy));
+      g.navOn=false;if(!simple&&hunting&&g.stun<=0&&!inReach&&!below&&playing){sr=navSteer(g,tgt.p);g.navOn=!!sr||!!g.act;if(g.act)return;}   // (and it's still after you, even if the way round takes it further off than usual)
       // a hippo on another floor, close by: up or down the stairs after it (or, holed up indoors, off to another floor now and then)
       // (in a long building the stairs may be further from the hippo than the goblin started: once it's set off for them, it keeps going)
       const chaseUp=Math.abs(ddy)>2.5&&(d<(g.stUp!==undefined?90:32)||d<90&&!sr&&g.stun<=0&&(bldgAt(Math.floor(g.pos.x),Math.floor(g.pos.z))||{b:0}).b.style==='capitol');   // (the capitol's so big, and its rooms so many, that a route map may not reach the far ones)
@@ -400,7 +402,7 @@ function updateGoblins(dt){
           if(g.vy===0)g.atk=Math.max(g.atk,0.5);
         } else if(!canHit){if(g.vy===0)g.atk=Math.max(g.atk,0.5);
           // (a hippo stood on something just out of reach, a car roof, say: up at it, club first)
-          g.leapT=(g.leapT||0)-dt;if(ddy>=1.5&&ddy<4&&g.leapT<=0&&!g.wet&&g.vy===0){g.vy=Math.sqrt(50*(ddy-0.2));g.leapT=1.4;g.atk=0.1;}}
+          g.leapT=(g.leapT||0)-dt;if(!simple&&ddy>=1.5&&ddy<4&&g.leapT<=0&&!g.wet&&g.vy===0){g.vy=Math.sqrt(50*(ddy-0.2));g.leapT=1.4;g.atk=0.1;}}
         else {
           g.atk-=dt;
           if(g.atk<=0){dbgHit('dmg','cyl',{x:g.pos.x,y:g.pos.y-1.5,z:g.pos.z,r:2.3,h:2.8},'n');g.atk=g.cultist?0.85:g.foeKind?FOES[g.foeKind].melee[1]:1.5;g.atkS=0;const q=tgt.p,ux=-dx/(d||1),uz=-dz/(d||1);damagePlayer(q,1,new V3(q.pos.x+ux*1.2,q.pos.y+1.1,q.pos.z+uz*1.2),new V3(-ux,0.3,-uz),g.cultist?'Stabbed with a ritual dagger':g.foeKind?FOES[g.foeKind].melee[2]:'Clubbed to death',g.id);}   // (a dagger's quicker than a club)

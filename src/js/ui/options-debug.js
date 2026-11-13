@@ -25,6 +25,23 @@ function saveDT(){try{const o={};for(const k of DT_SAVED)o[k]=DT[k];localStorage
 const HOST_KEY='goblin-stompin-gus-hostility',HOST_N=['Passive','Peaceful','Normal'],HOST_TXT=['Nobody reacts to you, even when hit','Nobody attacks you, but townsfolk still run','Goblins, cars, police and soldiers come for you'];
 try{const s=localStorage.getItem(HOST_KEY);if(s==='0'||s==='1'||s==='2')DT.host=+s;else if(localStorage.getItem('goblin-stompin-gus-peaceful')==='1')DT.host=1;}catch(e){}   // (the old Peaceful box, ticked, is the middle step)
 function syncHost(){for(const [i,o] of [['hostMain','hostMainVal']]){const el=document.getElementById(i),v=document.getElementById(o);if(el){el.value=String(DT.host);v.textContent=HOST_N[DT.host];}}const t=document.getElementById('hostMainTxt');if(t)t.textContent=HOST_TXT[DT.host];}
+// Goblin pathfinding, two ways (Options, kept in this browser): 0 Advanced, the route maps of enemies/routes.js (goblins
+// jump gaps, climb walls and buildings, and come after a hippo up and down wherever it's gone); 1 Simple, the chase as it
+// was before those (straight at the hippo, along a wall that's in the way, and the stairs of a building close by: no
+// jumping, no climbing). Goblins only read it as pathSimple(); on a guest online it's the host's that counts
+const PATH_KEY='goblin-stompin-gus-pathing',PATH_TXT=['Goblins climb walls and buildings, jump gaps and swim, and find their way to you up high or down low','The old chase: goblins run straight at you, go round walls and take the stairs, but never climb or jump, so up high you\'re out of reach'];
+DT.path=0;try{if(localStorage.getItem(PATH_KEY)==='1')DT.path=1;}catch(e){}
+const pathSimple=()=>DT.path===1;
+function setPath(v){
+  v=v===1?1:0;if(v!==DT.path){DT.path=v;try{localStorage.setItem(PATH_KEY,String(v));}catch(e){}
+    // (into Simple: no goblin is left halfway up a wall, and the route maps go, since nothing reads them now. A goblin let go
+    // of a wall drops to its feet unhurt: see gobLand)
+    if(v===1){for(const g of goblins)if(g.act){g.act=null;g.navOn=false;g.softLand=true;}for(const p of players)p.nav=null;}}
+  syncPath();
+}
+function syncPath(){for(const b of document.querySelectorAll('#pathSeg [data-path]'))b.setAttribute('aria-checked',String(+b.dataset.path===DT.path));const t=document.getElementById('pathTxt');if(t)t.textContent=PATH_TXT[DT.path];}
+for(const b of document.querySelectorAll('#pathSeg [data-path]'))b.addEventListener('click',()=>{if(+b.dataset.path!==DT.path)tone('triangle',+b.dataset.path?440:660,0,0.05,0.03);setPath(+b.dataset.path);});
+syncPath();
 // the Interface switches: each part of the on-screen display, what picks it out on the page, and what it's called. (The
 // menus aren't here, and nor are the touch buttons: without them there'd be no way back on a phone.) Hidden with one style
 // sheet, so none of the code that updates them needs to know. Not saved, for the same reason as the Rendering switches.

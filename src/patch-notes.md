@@ -40,6 +40,10 @@
 - The What's new sticker sits under the title menu instead of over the Full screen link, and the controller and city seed notes have moved down on to the ground.
 - The pixel-art portraits and hearts are solid at any zoom and on any screen, with no faint lines between their pixels.
 
+### Goblins
+
+- A new Goblin pathfinding setting in Options, just under Enemy hostility: Advanced (as before: goblins climb walls and buildings, jump gaps and find their way to you wherever you are) or Simple, the older chase, where goblins run straight at you, go round walls and take a building's stairs, but never climb or jump, so up on a roof you're out of their reach. Switching takes effect at once, and any goblin halfway up a wall lets go and drops down unhurt.
+
 ### The city
 
 - Cinema marquees now say what's on: two lit boards across the middle of the canopy, each showing a different goblin take on a famous film, like Goblin Wars, Jurassic Goblin, The Silence of the Goblins or Goblins of the Caribbean. Each cinema keeps its own bill, and the boards fall off when you knock the canopy down.
