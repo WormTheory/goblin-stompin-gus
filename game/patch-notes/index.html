@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:063545ad4f4d84a27770e7876dcc42d98b77e688331417ca1e5ab22bcf2452c8 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:2d29df49bea97926bf4d4c284cab606715959c989ba86b452ef76f2adc7d9eca -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -76,6 +76,8 @@ footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font:50
 <ul><li>In player two's menu, the button that carries on playing says Resume rather than Co-op.</li><li>The pause menu's buttons always fit in the window, at any size and in split screen, and never sit in a box with scroll bars.</li><li>The Map zooms out as far as it takes to see everywhere you've explored at once, however far you've roamed.</li><li>The highlight round the picked character cards, and their 1P and 2P tags, are no longer cut off at the edges.</li><li>The What's new sticker sits under the title menu instead of over the Full screen link, and the controller and city seed notes have moved down on to the ground.</li><li>The pixel-art portraits and hearts are solid at any zoom and on any screen, with no faint lines between their pixels.</li></ul>
 <h3>Goblins</h3>
 <ul><li>A new Goblin pathfinding setting in Options, just under Enemy hostility: Advanced (as before: goblins climb walls and buildings, jump gaps and find their way to you wherever you are) or Simple, the older chase, where goblins run straight at you, go round walls and take a building's stairs, but never climb or jump, so up on a roof you're out of their reach. Switching takes effect at once, and any goblin halfway up a wall lets go and drops down unhurt.</li></ul>
+<h3>Online co-op</h3>
+<ul><li>If you join someone else's game, goblins, cars, other players and everything else moving in the world now glide smoothly instead of jerking from spot to spot when the connection is a bit bumpy. Your game holds a little more in reserve when packets arrive unevenly, and briefly carries things on in the direction they were going if an update is late. Nothing extra is sent over the network, so it's no heavier on the connection.</li></ul>
 <h3>The city</h3>
 <ul><li>Cinema marquees now say what's on: two lit boards across the middle of the canopy, each showing a different goblin take on a famous film, like Goblin Wars, Jurassic Goblin, The Silence of the Goblins or Goblins of the Caribbean. Each cinema keeps its own bill, and the boards fall off when you knock the canopy down.</li></ul>
 </details>

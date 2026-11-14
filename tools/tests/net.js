@@ -30,9 +30,9 @@ function game(name,rseed,ls,ss){
   return g;
 }
 // the network: messages wait in a queue until pumped, and go through JSON on the way
-const hub={ts:[],q:[],sent:0,bytes:0,n:0,lat:0,   // (lat: frames each message takes to arrive, one way)
+const hub={ts:[],q:[],sent:0,bytes:0,n:0,lat:0,jit:0,rnd:Math.random,   // (lat: frames each message takes to arrive, one way; jit: up to that many more, at random, and whatever's behind a late one waits for it)
   make(){const T={kind:'mem',self:'m'+this.ts.length,on:{},open:true,
-      send:(d,to)=>{if(!T.open)return;const s=JSON.stringify(d);hub.sent++;hub.bytes+=s.length;hub.q.push({from:T.self,to:to||null,s,due:hub.n+2*hub.lat});},
+      send:(d,to)=>{if(!T.open)return;const s=JSON.stringify(d);hub.sent++;hub.bytes+=s.length;hub.q.push({from:T.self,to:to||null,s,due:hub.n+2*hub.lat+(hub.jit?Math.floor(hub.rnd()*hub.jit):0)});},
       close:()=>{if(!T.open)return;T.open=false;for(const o of hub.ts)if(o!==T&&o.open)hub.q.push({leave:T.self,to:o.self});}};
     for(const o of this.ts)if(o.open){this.q.push({join:T.self,to:o.self});this.q.push({join:o.self,to:T.self});}
     this.ts.push(T);return T;},
@@ -239,6 +239,27 @@ const lag=[];
 {const p=HT.P2;const t0=process.hrtime.bigint();for(let i=0;i<50;i++)HT.netSendSnap(p);const ms=Number(process.hrtime.bigint()-t0)/1e6/50;
  for(let i=0;i<10;i++){H.step(1);G.step(1);}
  console.log('cost: one snapshot built on the host',ms<2?'under 2 ms':ms.toFixed(1)+' ms (slow)',ok(ms<4));}
+
+// ---- a bumpy network: each message up to a sixth of a second late on top of a twentieth, and whatever's behind a late
+// one waits for it, as on a real connection. The host's hippo runs and the traffic drives; the guest should see them move
+// smoothly (the same distance each frame, near enough) rather than stop and jump. Nothing more is sent for it ----
+{let rs=12345;hub.rnd=()=>{rs=(rs*16807)%2147483647;return (rs-1)/2147483646;};hub.lat=3;hub.jit=10;
+ for(let i=0;i<90;i++){G.step(1);H.step(1);}   // (a few seconds for the guest to find how bumpy it is)
+ const hp=H.ctx.navigator.getGamepads(),steps=[],cs=new Map(),cp=new Map(),hs=new Map(),hq=new Map(),sent0=hub.sent,bytes0=hub.bytes;let prev=null;
+ hp[0].axes[1]=-1;
+ for(let i=0;i<180;i++){H.step(1);G.step(1);const p=GT.P2.pos;if(prev)steps.push(Math.hypot(p.x-prev.x,p.z-prev.z));prev={x:p.x,z:p.z};
+   for(const [id,c] of GT.NETM.c){if(!c.g.visible){cp.delete(id);continue;}const q=cp.get(id);if(q){let L=cs.get(id);if(!L)cs.set(id,L=[]);L.push(Math.hypot(c.g.position.x-q.x,c.g.position.z-q.z));}cp.set(id,{x:c.g.position.x,z:c.g.position.z});
+     const o=HT.cars[id];if(o){const r=hq.get(id);if(r){let L=hs.get(id);if(!L)hs.set(id,L=[]);L.push(Math.hypot(o.pos.x-r.x,o.pos.z-r.z));}hq.set(id,{x:o.pos.x,z:o.pos.z});}}}   // (and the same cars on the host, for how they really moved)
+ hp[0].axes[1]=0;
+ // (a jerk: a frame's step more than twice the usual for that moment -- the typical step of the frames either side --
+ // which is what stopping dead and then jumping to catch up looks like; speeding up or slowing down smoothly isn't one)
+ const jerks=L=>{let n=0;for(let i=0;i<L.length;i++){const w=L.slice(Math.max(0,i-4),i+5).sort((a,b)=>a-b),m=w[w.length>>1];if(L[i]>Math.max(0.03,2*m))n++;}return n;};
+ const jh=jerks(steps);let n=0,jc=0,jo=0;for(const [id,L] of cs){if(L.length<150)continue;n++;jc+=jerks(L);jo+=jerks(hs.get(id)||[]);}
+ if(process.env.DBG)for(const [id,L] of cs)if(L.length>=150&&jerks(L))console.log(' vehicle',id,'jerks',jerks(L),'on the guest:',L.map(f2).join(' '),'| on the host:',(hs.get(id)||[]).map(f2).join(' '));
+ console.log('bumpy network: guest draws',Math.round(GT.NET.dly),'ms behind (at least 100)',ok(GT.NET.dly>100&&GT.NET.dly<=300),'| jerks in 3 s (stopping, then jumping to catch up): the host hippo',jh,ok(jh<=1),
+   '| vehicles in view',n,'between them',jc,'(stopping and starting on the host itself',jo+')',ok(n>0&&jc<=jo+n),'| messages a second',(Math.round((hub.sent-sent0)/3)),'bytes each',Math.round((hub.bytes-bytes0)/((hub.sent-sent0)||1)));
+ hub.lat=0;hub.jit=0;for(let i=0;i<120;i++){G.step(1);H.step(1);}
+ console.log('back on a smooth network for 2 s: guest draws',Math.round(GT.NET.dly),'ms behind, easing back toward 100');}
 
 // ---- the guest leaves: the host plays on alone ----
 GT.netEnd();for(let i=0;i<10;i++){H.step(1);G.step(1);}

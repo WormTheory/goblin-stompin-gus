@@ -18,7 +18,7 @@ guest held forward 1.5 s: host P2 moved 6.23 ok camera yaw passed on ok host P1 
 guest sees itself there 0.00 ok (guessing its own moves: yes )
 guest tapped jump: host P2 rose 1.73 ok
 crush on the host: new edits 99 blocks the same on the guest 124 different 0 ok
-a topple on the host: guest showed 2 falling piece ok most its turn lagged 0.04 gone after ok blocks where it landed differ 0 ok
+a topple on the host: guest showed 2 falling piece ok most its turn lagged 0.05 gone after ok blocks where it landed differ 0 ok
 a building brought down on the host: solid blocks above the break, host 23383 -> 131 | guest 23383 -> 131 | blocks that differ 0 ok | guest knows it fell ok
 knocked over a chair 5.22 away: guest showed it falling for 27 frames midway ok | lying down on both ok | same way ok
 hearts: guest shows its own 13 ok | put right after wandering 13 ok | the host's 7 ok | hearts drawn -
@@ -27,17 +27,19 @@ police handgun on the guest: holster and club ok | gun drawn ok | a tracer ok
 host tab hidden: background clock on ok snapshots the guest got meanwhile 17 ok guest walked on the host 3.01 ok | clock off again when shown ok
 host turned goblin: guest P2 is a goblin ok
 guest pressed use by a car: host has it driving ok guest knows ok car
-drove for 1.5 s: car moved 11.42 ok guest camera from the car 6.07 ok guest car mirror apart 1.51
+drove for 1.5 s: car moved 11.42 ok guest camera from the car 6.07 ok guest car mirror apart 1.46
 guest vehicle display: Car  ·  19 / 30 ok
 pressed use again: out ok
 with 0.1 s each way: frames before moving, guest 6 host 12 ok | biggest step in one frame 0.06 ok | apart once stopped 0.07 ok
-lag compensation on a guest bite: on ok | goblins where the guest sees them: as they are now, off by 0.25 on average; put back, off by 0.02 ok
+lag compensation on a guest bite: on ok | goblins where the guest sees them: as they are now, off by 0.39 on average; put back, off by 0.14 ok
 dropped: host keeps the seat ok status Hosting online. Room code TESTA · waiting for Gertie to come back
 guest came back after 11.4 s ok no reload ok hippo where it was (give or take a shove) 2.34 ok guest shows itself there 0.00 ok
 a third player joins: seat 2 ok host players active 3 ok | first guest shows them ok apart 0.00 | the new one sees both others ok
 third player walks: moved on the host 0.96 BAD the other guests see it there 0.00 ok
 third player left: host ok first guest ok status: Hosting online. Room code TESTA · Gertie is here
 cost: one snapshot built on the host under N ms ok
+bumpy network: guest draws N ms behind (at least 100) ok | jerks in 3 s (stopping, then jumping to catch up): the host hippo 0 ok | vehicles in view 24 between them 50 (stopping and starting on the host itself 27) ok | messages a second 46 bytes each 2282
+back on a smooth network for 2 s: guest draws N ms behind, easing back toward 100
 guest left: host P2 gone ok host still hosting ok guest went home (reload) ok
 a guest rejoins ok
 host stopped: guest left the game ok host solo ok

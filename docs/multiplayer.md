@@ -41,9 +41,16 @@ none of the goblins, traffic, damage or smashing itself, so nothing can disagree
   `splat`, `destroyFX`, `shockwave`, `shockCone`, `blastFx`, `tone`, `noise`, `woosh`, and `flashLabel` to the player it
   was for); only the outermost call goes (`NET_FXD`), and the guest makes the same call. Toppling pieces and sinking
   collapses (`makeTopple`, `makeBody`) go as their blocks once, then where they are each snapshot.
-- **Showing it** (`netGuestFrame`): the guest draws the host's game `NET_DELAY` (100 ms) behind the host's clock,
-  blending between the snapshots either side, and does each snapshot's events as it becomes the one shown
-  (`netCommit`). The host's goblins and vehicles are mirror objects (`NETM`) pushed into `goblins` and `cars`, so
+- **Showing it** (`netGuestFrame`): the guest draws the host's game a little behind the host's clock, blending
+  between the snapshots either side, and does each snapshot's events as it becomes the one shown (`netCommit`). How
+  far behind is `NET.dly`: at least `NET_DELAY` (100 ms), more on a jittery connection (`netJitter`: the time between
+  snapshots plus an envelope of how much later than the quickest they arrive, up to `NET_DELAY_MAX`), so the next
+  snapshot is nearly always in hand. The time shown, `NET.rt`, runs on its own clock (`netShowClock`), sped up or
+  slowed by at most a tenth to follow the delay and the clock gap, so neither changing ever jumps the picture. If the
+  next snapshot still isn't in, places and headings carry on from the last two for up to `NET_EXTRA` (150 ms) while
+  limb poses hold, and anything that moved faster than 100 blocks a second between two snapshots (`NET_TP`) jumps
+  rather than slides. Inputs carry `NET.rt` as `vt`, so the host's lag compensation (`netRewind`, `NET_GH` frames of
+  history) matches what the guest saw. All of this is on the guest: the host sends exactly what it did before. The host's goblins and vehicles are mirror objects (`NETM`) pushed into `goblins` and `cars`, so
   `batDraw`, the minimap and lock-on see them as usual; the guest's own are hidden. Its venues are run quietly
   (`NET_MUTE`) so their models exist, and every joint the host has sent is pinned where the host has it.
 - **Its own hippo** (`NETP`, `netPredStep`): a guest moves its own hippo straight away with the same player code (with

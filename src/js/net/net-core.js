@@ -14,9 +14,9 @@ const NET_APP='goblin-stompin-gus/net1';
 // put some here (for instance Cloudflare's), as [{urls:['turn:...'],username:'...',credential:'...'}]. Never commit real ones.
 const NET_TURN=null;
 const NET_SEATS=4;   // (players online, the host among them: seats past the second are made when someone takes one)
-const NET_SNAP_HZ=15,NET_IN_HZ=30,NET_DELAY=100;   // (snapshots a second from the host, controls a second from a guest, and how far behind the host a guest draws, ms, so it always has two snapshots to blend between)
+const NET_SNAP_HZ=15,NET_IN_HZ=30,NET_DELAY=100;   // (snapshots a second from the host, controls a second from a guest, and the least a guest draws behind the host, ms, so it always has two snapshots to blend between; more on a jittery connection, NET.dly)
 const NET_SS_JOIN='gsg-net-join',NET_SS_WORLD='gsg-net-world';   // (sessionStorage: this tab's own, so a guest tab never touches the city saved in this browser)
-const NET={mode:0,tr:null,code:'',kind:'',seat:0,now:0,host:null,status:'',joined:false,snapT:0,inT:0,pingT:0,rtt:0,
+const NET={mode:0,tr:null,code:'',kind:'',seat:0,now:0,rt:null,rtAt:null,jit:0,span:1000/NET_SNAP_HZ,lastTT:null,dly:NET_DELAY,prev:null,gaps:[],host:null,status:'',joined:false,snapT:0,inT:0,pingT:0,rtt:0,
   guests:new Map(),   // (host: peer id -> the seat's player)
   lastHeard:0,q:[],cur:null,off:null,seq:0,wantSeat:1};
 const netHost=()=>NET.mode===1,netGuest=()=>NET.mode===2,netOn=()=>NET.mode>0;
@@ -166,7 +166,7 @@ function netHostInputs(){
 // ---- joining ----
 function netJoinWith(tr,code,kind){
   const back=!!NET.retry;   // (reconnecting: the game carries on showing the host's world, frozen, till it's back)
-  NET.mode=2;NET.tr=tr;NET.code=code;NET.kind=kind;if(!back)NET.joined=false;NET.host=null;NET.q.length=0;NET.cur=null;NET.off=null;NET.lastHeard=NET.now;
+  NET.mode=2;NET.tr=tr;NET.code=code;NET.kind=kind;if(!back)NET.joined=false;NET.host=null;NET.q.length=0;NET.cur=null;NET.off=null;netShowReset();NET.lastHeard=NET.now;
   tr.on.msg=netGuestMsg;tr.on.leave=peer=>{if(peer===NET.host)netDropped();};
   tr.on.join=peer=>{if(!NET.host)tr.send(netHello(),peer);};
   tr.send(netHello());
@@ -291,7 +291,7 @@ function netSendInput(dt){
   NET.inT-=dt*1000;if(NET.inT>0)return;NET.inT+=1000/NET_IN_HZ;if(NET.inT<0)NET.inT=0;
   const h={};for(const k of NET_HELD)if(I[k]||NET_IN.hh[k])h[k]=1;NET_IN.hh={};
   const pr={};for(const k in NET_IN.pr)pr[k]=1;
-  const m={t:'in',n:++NET.seq,vt:NET.off===null?null:Math.round(NET.now-NET.off-NET_DELAY),x:+(I.x||0).toFixed(3),z:+(I.z||0).toFixed(3),lx:+(I.lookX||0).toFixed(2),ly:+(I.lookY||0).toFixed(2),h,pr,yaw:+P1.cam.yaw.toFixed(4),pitch:+P1.cam.pitch.toFixed(4)};
+  const m={t:'in',n:++NET.seq,vt:NET.off===null?null:Math.round(NET.rt!==null?NET.rt:NET.now-NET.off-NET.dly),x:+(I.x||0).toFixed(3),z:+(I.z||0).toFixed(3),lx:+(I.lookX||0).toFixed(2),ly:+(I.lookY||0).toFixed(2),h,pr,yaw:+P1.cam.yaw.toFixed(4),pitch:+P1.cam.pitch.toFixed(4)};
   if(NET_IN.fl[0]||NET_IN.fl[1])m.fl=NET_IN.fl.slice();
   NET_IN.pr={};NET_IN.fl[0]=NET_IN.fl[1]=0;
   netPredSent(m.n);NET.tr.send(m,NET.host);

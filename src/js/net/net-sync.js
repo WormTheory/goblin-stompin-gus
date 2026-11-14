@@ -3,8 +3,10 @@
 // changed since the last one, their place, and the pose of each joint), the goblins and vehicles near that guest (place
 // and pose, with how each looks sent once), anything that happened meanwhile as events (blocks smashed or built, dust,
 // sounds, messages), the fires, and now and then the clock, the weather and what's been wrecked.
-// A guest draws everything NET_DELAY behind the host, blending between the two snapshots either side, so movement is
-// smooth whatever the network's doing; one-off events happen as the snapshot they came in becomes the one shown.
+// A guest draws everything a little behind the host (NET_DELAY at least, more on a jittery connection: netGotSnap),
+// blending between the two snapshots either side, so movement is smooth whatever the network's doing; one-off events
+// happen as the snapshot they came in becomes the one shown. If the next snapshot is late, places carry on along the
+// way things were going for a moment (NET_EXTRA) rather than stopping dead and then jumping.
 const r3=v=>Math.round(v*1000)/1000;
 const NETM={g:new Map(),c:new Map()};   // (guest: the host's goblins and vehicles, by the host's number for them)
 let NET_FXD=0,NET_APPLY=false,NET_MUTE=false,NET_SPOS=null;   // (NET_SPOS: the host's player whose step is running, so the sounds it makes can be heard from where it is)   // (NET_MUTE: a guest's own run of the venues, whose noise and dust the host's are standing in for)
@@ -124,10 +126,10 @@ function netVenueHPSet(L){
 const netHp=(o,hp)=>NET.mode===2&&o&&o.netHp!==undefined?o.netHp:hp,netDead=(o,dead)=>NET.mode===2&&o&&o.netDead!==undefined?o.netDead:!!dead;
 
 // ---- lag compensation: a guest's attacks land on goblins where that guest saw them ----
-// A guest sees the goblins as they were a moment ago (the trip over, and NET_DELAY behind on top). So while a guest's
+// A guest sees the goblins as they were a moment ago (the trip over, and NET.dly behind on top). So while a guest's
 // hippo is attacking, the host puts every goblin back where that guest was seeing it for that player's step, then
 // returns them. (Only goblins, and only their places: anything that happens to them, happens to them now.)
-const NET_GH=12;   // (frames of each goblin's places kept, about a fifth of a second)
+const NET_GH=30;   // (frames of each goblin's places kept, about half a second: a guest on a bumpy connection draws further behind)
 function netGobHist(){
   if(!(NET.mode===1&&NET.guests.size))return;
   for(const g of goblins){if(!g.root.visible){if(g.netH)g.netH.n=0;continue;}let H=g.netH;if(!H)H=g.netH={a:new Float64Array(NET_GH*4),i:0,n:0};
@@ -332,18 +334,40 @@ function netPredEase(dt){
 // ---- guest ----
 function netGotSnap(m){
   if(!Number.isFinite(m.tt))return;
-  // (how far the host's clock is from ours: the smallest gap seen lately, so a slow message never drags the picture back)
-  const gap=NET.now-m.tt;if(NET.off===null||gap<NET.off)NET.off=gap;else NET.off+=(gap-NET.off)*0.01;
+  // (how far the host's clock is from ours: the smallest gap of the last two seconds, so a slow message never drags the
+  // picture back, and a connection that's got slower for good is caught up with in two seconds rather than taken for jitter)
+  const gap=NET.now-m.tt,W=NET.gaps;W.push(NET.now,gap);while(W.length>2&&NET.now-W[0]>2000)W.splice(0,2);
+  let lo=gap;for(let i=1;i<W.length;i+=2)if(W[i]<lo)lo=W[i];NET.off=lo;
+  netJitter(m,gap);
   try{netPredCheck(m);}catch(e){}
   NET.q.push(m);
   if(NET.q.length>40)NET.q.splice(0,NET.q.length-40);
 }
+// How far behind to draw. A snapshot is needed by the time the one before it is being shown, so the delay has to cover
+// the time between snapshots plus however much later than the quickest they come in. That lateness is kept as an
+// envelope (up at once on a late one, down slowly over several seconds), so a bumpy connection is drawn far enough
+// behind to always have the next snapshot in hand, and a smooth one stays at NET_DELAY. Nothing extra is sent.
+const NET_DELAY_MAX=300,NET_EXTRA=150;   // (ms: the most a guest will draw behind on top of the trip, and the longest it carries things on past the last snapshot)
+function netJitter(m,gap){
+  const late=Math.max(0,gap-NET.off);NET.jit+=(late-NET.jit)*(late>NET.jit?0.5:0.01);
+  if(NET.lastTT!==null){const d=m.tt-NET.lastTT;if(d>0&&d<1000)NET.span+=(d-NET.span)*(d>NET.span?0.3:0.05);}
+  if(NET.lastTT===null||m.tt>NET.lastTT)NET.lastTT=m.tt;
+  NET.dly=Math.max(NET_DELAY,Math.min(NET_DELAY_MAX,NET.span+NET.jit*1.25+10));
+}
+// the host's time being shown, moved on each frame by how long the frame took, nudged (by up to a tenth) toward where the
+// delay says it should be, so a change in the delay or the clock gap slows or quickens things a touch, never jumps them
+function netShowClock(){
+  const want=NET.now-NET.off-NET.dly,fd=NET.rtAt===null?0:Math.max(0,NET.now-NET.rtAt);NET.rtAt=NET.now;
+  if(NET.rt===null||Math.abs(want-NET.rt)>500){NET.rt=want;return NET.rt;}   // (just joined, or a long stall: start again)
+  const err=want-NET.rt-fd;NET.rt+=fd+Math.max(-0.1*fd,Math.min(0.1*fd,err));return NET.rt;
+}
+function netShowReset(){NET.gaps.length=0;NET.rt=null;NET.rtAt=null;NET.jit=0;NET.span=1000/NET_SNAP_HZ;NET.lastTT=null;NET.dly=NET_DELAY;NET.prev=null;}
 // the host's game takes over: the city's own goblins and traffic stand down, and both hippos are the host's to move
 function netGuestBegin(h){
   for(const g of goblins){g.state='wait';g.root.visible=false;}
   for(const c of cars){c.alive=false;c.g.visible=false;}
   for(const [,g] of NETM.g)g.root.visible=false;for(const [,c] of NETM.c)c.g.visible=false;
-  NET.q.length=0;NET.cur=null;NET.off=null;NETP.on=false;NETP.snap=false;NETP.hist.length=0;NETP.corr.set(0,0,0);
+  NET.q.length=0;NET.cur=null;NET.off=null;netShowReset();NETP.on=false;NETP.snap=false;NETP.hist.length=0;NETP.corr.set(0,0,0);
   P1.net={mirror:true,seat:NET.seat};P2.net={mirror:true,seat:0};
   if(h){P2.who=h.who?1:0;setGobP(P2,!!h.gob);}
   P2.active=true;P2.root.visible=!P2.gob;P2.paused=false;dressHippo(P2);dressHippo(P1);
@@ -400,12 +424,12 @@ function netCommit(m){
       try{f(...a);}catch(er){}}}
   if(ch.size)rebuildSet(ch);
   netFallCommit(m);
-  if(m.v)netVenueCommit(m.v,NET.now-NET.off-NET_DELAY);
+  if(m.v)netVenueCommit(m.v,NET.rt!==null?NET.rt:NET.now-NET.off-NET.dly);
   if(m.vh)netVenueHPSet(m.vh);
   if(m.sc){score=m.sc[0];kills=m.sc[1];RAMP.cars=m.sc[2]||0;RAMP.best=m.sc[3]||0;}
   if(m.w)netWorld(m.w);
   if(m.k)netClockSet(m.k);
-  NET.cur=m;
+  if(NET.cur&&NET.cur.tt<m.tt)NET.prev=NET.cur;NET.cur=m;
 }
 function netWorld(w){
   if(w.tenv&&TENV){const key=B=>[B.k,B.ax,B.az,B.w,B.h].join(),want=new Set(w.tenv.map(key));
@@ -415,27 +439,35 @@ function netWorld(w){
   if(w.down){downFix.clear();for(const [k,v] of w.down)if(!falling.has(k))downFix.set(k,v);netDressT=0;}   // (one still falling here lands in its own time)   // (the street's fixtures drawn again, knocked-down ones lying down)
   if(w.fire){fires.length=0;for(const f of w.fire)fires.push({x:f[0],y:f[1],z:f[2],r:f[3],t:f[4],life:f[5],base:f[5],born:playTime,flames:!!f[6],acc:0,sacc:0,hurt:9,sm:f[7],rise:f[8],douse:!!f[9],blame:null});}
 }
-// every frame: show the host's game as it was NET_DELAY ago, blended between the snapshots either side
+// every frame: show the host's game as it was a moment ago (netShowClock), blended between the snapshots either side
+// (k, 0 to 1 from a to b). With no later snapshot in yet, places and headings carry on from the last two (kp: the same
+// sums toward the one before, the other way), for NET_EXTRA at most; the poses of limbs and the like just hold. Anything
+// that moved further between two snapshots than it could have (a respawn, a teleport) jumps rather than slides.
+const NET_TP=(d,ms)=>d>6+0.1*ms;   // (blocks, against the time between the two snapshots: faster than 100 a second is a jump)
+function netKP(e,f,i,kp,ms){if(!f)return 0;const dx=f[i]-e[i],dy=f[i+1]-e[i+1],dz=f[i+2]-e[i+2];return NET_TP(Math.sqrt(dx*dx+dy*dy+dz*dz),ms)?(kp>=0.5?1:0):kp;}
 function netGuestFrame(dt){
   if(NET.off===null)return;
-  const rt=NET.now-NET.off-NET_DELAY,Q=NET.q;
+  const rt=netShowClock(),Q=NET.q;
   // (fallen far behind -- a stall, a tab in the background: catch up rather than play it all out slowly)
-  while(Q.length>6)netCommit(Q.shift());
+  while(Q.length>12)netCommit(Q.shift());
   while(Q.length&&Q[0].tt<=rt)netCommit(Q.shift());
-  const a=NET.cur;if(!a)return;const b=Q[0],k=b&&b.tt>a.tt?Math.max(0,Math.min(1,(rt-a.tt)/(b.tt-a.tt))):0;
-  for(const e of a.p){const q=netSeatP(e.s,false);if(!q||!q.active)continue;if(q===P1&&NETP.on){netPredEase(dt);continue;}const f=b&&b.p.find(x=>x.s===e.s);
-    const P=e.pos,P2b=f?f.pos:P;q.pos.set(P[0]+(P2b[0]-P[0])*k,P[1]+(P2b[1]-P[1])*k,P[2]+(P2b[2]-P[2])*k);
-    q.heading=f?lerpA(e.h,f.h,k):e.h;netPoseSet(netJoints(q),e.pose,f&&f.pose,k);
-    if(e.dv&&q.drv&&q.drv.netS){const S=q.drv.netS,g=f&&f.dv&&f.dv[0]===e.dv[0]?f.dv:e.dv;S.x=e.dv[1]+(g[1]-e.dv[1])*k;S.y=e.dv[2]+(g[2]-e.dv[2])*k;S.z=e.dv[3]+(g[3]-e.dv[3])*k;S.h=lerpA(e.dv[4],g[4],k);}}
-  const bg=new Map(),bc=new Map();if(b){for(const e of b.g)bg.set(e[0],e);for(const e of b.c)bc.set(e[0],e);}
-  for(const e of a.g){const g=NETM.g.get(e[0]);if(!g)continue;const f=bg.get(e[0]),v=n=>f?e[n]+(f[n]-e[n])*k:e[n],w=n=>f?lerpA(e[n],f[n],k):e[n];
-    g.root.position.set(v(1),v(2),v(3));g.root.rotation.set(w(4),w(5),w(6));g.root.scale.set(v(7),v(8),v(7));g.pos.copy(g.root.position);g.heading=g.root.rotation.y;
+  const a=NET.cur;if(!a)return;let b=Q[0]&&Q[0].tt>a.tt?Q[0]:null;const k=b?Math.max(0,Math.min(1,(rt-a.tt)/(b.tt-a.tt))):0;
+  // (o: the snapshot the places are blended toward -- the next, or with none in yet the one before -- and kp how far)
+  let o=b,kp=k;if(!b&&NET.prev&&NET.prev.tt<a.tt&&rt>a.tt){o=NET.prev;kp=-Math.min(rt-a.tt,NET_EXTRA)/(a.tt-o.tt);}
+  const ms=o?Math.abs(o.tt-a.tt):0;
+  for(const e of a.p){const q=netSeatP(e.s,false);if(!q||!q.active)continue;if(q===P1&&NETP.on){netPredEase(dt);continue;}const f=b&&b.p.find(x=>x.s===e.s),fo=o&&o.p.find(x=>x.s===e.s);
+    const P=e.pos,P2b=fo?fo.pos:P,kq=fo?netKP(P,P2b,0,kp,ms):0;q.pos.set(P[0]+(P2b[0]-P[0])*kq,P[1]+(P2b[1]-P[1])*kq,P[2]+(P2b[2]-P[2])*kq);
+    q.heading=fo?lerpA(e.h,fo.h,kq):e.h;netPoseSet(netJoints(q),e.pose,f&&f.pose,k);
+    if(e.dv&&q.drv&&q.drv.netS){const S=q.drv.netS,g=fo&&fo.dv&&fo.dv[0]===e.dv[0]?fo.dv:e.dv,kd=netKP(e.dv,g,1,kp,ms);S.x=e.dv[1]+(g[1]-e.dv[1])*kd;S.y=e.dv[2]+(g[2]-e.dv[2])*kd;S.z=e.dv[3]+(g[3]-e.dv[3])*kd;S.h=lerpA(e.dv[4],g[4],kd);}}
+  const bg=new Map(),bc=new Map();if(o){for(const e of o.g)bg.set(e[0],e);for(const e of o.c)bc.set(e[0],e);}
+  for(const e of a.g){const g=NETM.g.get(e[0]);if(!g)continue;const fo=bg.get(e[0]),f=b?fo:null,kq=netKP(e,fo,1,kp,ms),v=n=>f?e[n]+(f[n]-e[n])*k:e[n],w=n=>f?lerpA(e[n],f[n],k):e[n];
+    g.root.position.set(fo?e[1]+(fo[1]-e[1])*kq:e[1],fo?e[2]+(fo[2]-e[2])*kq:e[2],fo?e[3]+(fo[3]-e[3])*kq:e[3]);g.root.rotation.set(w(4),fo?lerpA(e[5],fo[5],kq):e[5],w(6));g.root.scale.set(v(7),v(8),v(7));g.pos.copy(g.root.position);g.heading=g.root.rotation.y;
     g.legs[0].rotation.x=w(9);g.legs[1].rotation.x=w(10);g.arm.rotation.x=w(11);g.armL.rotation.x=w(12);g.head.rotation.z=w(13);
     if(e[18]!==undefined){g.arm.rotation.z=w(18);if(g.arm.hand)g.arm.hand.rotation.x=f&&f[19]!==undefined?e[19]+(f[19]-e[19])*k:e[19];}   // (the wrist turns past half a turn: straight between, not the short way round)
     if(g.pkit)copKitShow(g.pkit,e[20]||0);}   // (an officer's club, or handgun drawn, and holster)
   netVenuePose(rt);netFallPose(a,b,k);
-  for(const e of a.c){const c=NETM.c.get(e[0]);if(!c)continue;const f=bc.get(e[0]),v=n=>f?e[n]+(f[n]-e[n])*k:e[n],w=n=>f?lerpA(e[n],f[n],k):e[n];
-    c.g.position.set(v(1),v(2),v(3));c.g.rotation.set(w(4),w(5),w(6));c.pos.copy(c.g.position);c.heading=c.g.rotation.y;
+  for(const e of a.c){const c=NETM.c.get(e[0]);if(!c)continue;const fo=bc.get(e[0]),f=b?fo:null,kq=netKP(e,fo,1,kp,ms),w=n=>f?lerpA(e[n],f[n],k):e[n],x=n=>fo?e[n]+(fo[n]-e[n])*kq:e[n],y=n=>fo?lerpA(e[n],fo[n],kq):e[n];
+    c.g.position.set(x(1),x(2),x(3));c.g.rotation.set(w(4),y(5),w(6));c.pos.copy(c.g.position);c.heading=c.g.rotation.y;
     e[7].forEach((r,i)=>{if(c.wheels[i])c.wheels[i].rotation.x=f&&f[7][i]!==undefined?lerpA(r,f[7][i],k):r;});
     e[8].forEach((r,i)=>{if(c.front[i])c.front[i].rotation.y=r;});
     // (the lights flash here as the host's game flashes them, on this guest's own clock)
