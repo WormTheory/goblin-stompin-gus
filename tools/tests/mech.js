@@ -99,6 +99,14 @@ hold([],1);
    hold([],1.2);if(boost)tap('KeyC');run(0.5);};
  step(['KeyW'],'walking forward');step(['KeyS'],'walking back');step(['KeyA'],'walking left');step(['KeyD'],'walking right');
  step(['KeyW'],'skating forward',true);step(['KeyA'],'skating left',true);step(['KeyD'],'skating right',true);
+ // (skating across a pit three deep and four wide: the most a joint moves in a frame, and how far the feet reach down)
+ {const X=Math.floor(M.x),Z=Math.floor(M.z),Y=Math.floor(M.y)-1;for(let x=X-6;x<=X+6;x++)for(let z=Z+30;z<Z+34;z++)for(let y=Y-2;y<=Y;y++)T.setRaw(x,y,z,0);run(0.2);
+  tap('KeyC');let last=null,big=0,low=0,on=false;T.keys.add('KeyW');for(let i=0;i<150;i++){run(1/60);const a=M.J.legs.flatMap(L=>[L.hip.rotation.x,L.knee.rotation.x,L.ank.rotation.x]);
+    const over=M.z>Z+28&&M.z<Z+36;if(over&&last)for(let q=0;q<a.length;q++)big=Math.max(big,Math.abs(a[q]-last[q]));if(over){on=true;low=Math.min(low,...M.fy);}last=a;}
+  T.keys.delete('KeyW');console.log('  skating over a pit 3 deep: crossed',on,' most a leg joint moves in a frame',f2(big),' feet reached down',f2(-low),' still grounded',M.grounded);hold([],1.5);tap('KeyC');run(0.5);}
+ // (a quick boost on the ground: in the skating stance, not walking)
+ {run(1);let sw=0,ww=0;T.keys.add('KeyD');run(0.05);tap('ShiftLeft');for(let i=0;i<14;i++){run(1/60);sw=Math.max(sw,M.sW);ww=Math.max(ww,M.wW);}T.keys.delete('KeyD');
+  console.log('  quick boost on the ground: skating stance',f2(sw),' walking',f2(ww));run(1.5);}
  // (taking off and landing: the biggest change in any leg joint from one frame to the next, against walking's)
  const jmax=()=>{let last=null,big=0;return ()=>{const a=M.J.legs.flatMap(L=>[L.hip.rotation.x,L.hip.rotation.z,L.knee.rotation.x,L.ank.rotation.x]);if(last)for(let i=0;i<a.length;i++)big=Math.max(big,Math.abs(a[i]-last[i]));last=a;return big;};};
  {let j=jmax();T.keys.add('KeyW');for(let i=0;i<90;i++){run(1/60);j();}T.keys.delete('KeyW');const w=j();hold([],1);
@@ -106,7 +114,7 @@ hold([],1);
   j=jmax();for(let i=0;i<300&&!M.grounded;i++){run(1/60);j();}for(let i=0;i<30;i++){run(1/60);j();}const land=j();
   console.log('  most a leg joint moves in a frame: walking',f2(w),' taking off',f2(up),' flying up',f2(fly),' landing',f2(land),' soles after landing',sole(M));}
  // (the thrusters: which are lit, by direction, on a quick boost each way)
- {const lit=()=>{const L=M.J.flames.filter(F=>F.kind==='dir'&&F.m.visible).map(F=>F.d[0]>0.5?'left side':F.d[0]<-0.5?'right side':F.d[2]>0.5?'front':'back');return [...new Set(L)].join('+')||'none';};
+ {const lit=()=>{const L=M.J.flames.filter(F=>F.kind!=='lift'&&F.m.visible).map(F=>F.d[0]>0.5?'left side':F.d[0]<-0.5?'right side':F.d[2]>0.5?'front':'back');return [...new Set(L)].join('+')||'none';};
   for(const [k,label] of [['KeyW','ahead'],['KeyS','back'],['KeyA','left'],['KeyD','right']]){run(1);T.keys.add(k);run(0.05);tap('ShiftLeft');run(0.03);const l=lit(),pt=M.pt,rl=M.rl;T.keys.delete(k);console.log('  quick boost',label+': thrusters lit',l,' lean fwd',f2(pt),'side',f2(rl));}
   hold(['KeyF'],0.8);}}
 // ---- into a goblin
