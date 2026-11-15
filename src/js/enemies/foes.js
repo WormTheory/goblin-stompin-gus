@@ -81,6 +81,6 @@ function foeShoot(g,p,G6){
 function foeThrow(g,p,B6){
   const fx=Math.sin(g.heading),fz=Math.cos(g.heading),x0=g.pos.x+fx*0.4,y0=g.pos.y+1.6,z0=g.pos.z+fz*0.4;
   const a=Math.random()*6.283,e=Math.random()*1.8,tx=p.pos.x+Math.cos(a)*e,tz=p.pos.z+Math.sin(a)*e,ty=p.pos.y+0.3,D=Math.hypot(tx-x0,tz-z0),T=0.55+D/16,Gv=20;
-  shot({kind:'grenade',x:x0,y:y0,z:z0,vx:(tx-x0)/T,vy:(ty-y0+0.5*Gv*T*T)/T,vz:(tz-z0)/T,grav:Gv,fuse:B6[3],R:B6[4],dmg:B6[5],cause:B6[6],by:g.id,bounce:true});
+  shot({kind:'grenade',x:x0,y:y0,z:z0,vx:(tx-x0)/T,vy:(ty-y0+0.5*Gv*T*T)/T,vz:(tz-z0)/T,grav:Gv,fuse:B6[3],R:B6[4],dmg:B6[5],cause:B6[6],by:g.id,bounce:true,crush:GREN_CRUSH});
   if(audio)noise(0.2,0.04,500,'lowpass');
 }

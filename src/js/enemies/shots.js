@@ -42,6 +42,10 @@ function tracer(x0,y0,z0,x1,y1,z1){
 }
 // ---- things thrown and fired that go off: grenades, tank shells, rockets. Each flies under gravity (a shell
 // barely), a bomb bounces and rolls until its fuse is done; a shell or a rocket goes off on whatever it hits ----
+// GREN_CRUSH: how far a grenade's blast knocks out blocks. (More than a tank shell's 2.6 on paper, but a shell goes off
+// in the wall it hits, and a grenade's usually lying on the ground a step or two away when its fuse runs out: the ball's
+// flattened underneath, so this takes a shallow crater and the foot of a wall within about 3 blocks)
+const GREN_CRUSH=2.8;
 const SHOTS=[],SHOT_LOOK={grenade:[[0.24,0.24,0.24],0x3a4a22],shell:[[0.28,0.28,0.7],0x2a2a24],rocket:[[0.22,0.22,0.9],0xd8d8d0]},SHOT_M={};
 function shot(o){
   let S=SHOTS.find(q=>!q.live&&q.kind===o.kind);

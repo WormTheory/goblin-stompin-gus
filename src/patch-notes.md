@@ -2,6 +2,10 @@
 
 ## Version 0.4
 
+### Grenades break things
+
+- Grenades now blow holes in the world: one going off takes out a shallow crater in the ground and the walls, fences and anything else built within about three blocks of it, the way tank shells and helicopter rockets already did. A building that loses enough of itself comes down. That goes for Gnash's grenades and for the ones preppers and militia lob at you, so cover doesn't last forever.
+
 ### Flying planes with WASD
 
 - On the keyboard, planes now fly with WASD like a flight stick: W pushes the nose down and S pulls it up, A and D bank and turn as before, and Space and C open and close the throttle (C with the throttle shut brakes on the runway). On the runway, get up to speed and hold S to take off. Controllers fly just as before, and the prompt when you climb in shows whichever you're using.

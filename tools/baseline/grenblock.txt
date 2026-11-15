@@ -1,0 +1,7 @@
+GREN_CRUSH 2.8
+Gus    throws at a wall 5 ahead: wall 35 -> 35  floor near it 1156 -> 1156  edits saved 0  hp 20 
+Gertie throws at a wall 5 ahead: wall 35 -> 35  floor near it 1156 -> 1156  edits saved 0  hp 20 
+Gnash  throws at a wall 5 ahead: wall 35 -> 35  floor near it 1156 -> 1148  edits saved 8  hp 18  went off at 0.0,0.0,1.2 from him
+one lying at the foot of the wall: wall 35 -> 21
+prepper grenade at his feet: floor 1156 -> 1149
+at the bottom of the world: bedrock 49 -> 49

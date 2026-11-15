@@ -19,4 +19,10 @@ six militiamen down: drops grenade x1, grenade x1, grenade x2, grenade x2, grena
 picked up: grenades 9  left lying grenade x1
 right click, twice quickly: grenades 9 -> 8  in the air 1
   the thief 8 ahead, where it lands: hp 3 -> 0  dead true  my hp 20
+officer armed: true
+club an officer: drops handgun
+walk over it: club+rifle+dagger+handgun in hand handgun, grenades 8  new weapons 1
+handgun at a thief 12 ahead, twice: hp 5 -> 2
+and one 34 ahead, past its reach: hp 5 -> 5
+weapon button: handgun > rifle > club > dagger > handgun
 prepper throws: grenade (Blown up by a grenade)

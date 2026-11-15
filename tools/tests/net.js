@@ -213,6 +213,18 @@ const lag=[];
   console.log('pressed use again: out',ok(!HT.P2.drv&&!GT.P1.drv));}
  HT.setGobP(HT.P2,false);for(let i=0;i<20;i++){H.step(1);G.step(1);}}
 
+// ---- a grenade thrown by the guest's goblin: it goes off on the host, which breaks the blocks, and the guest gets the same ones ----
+{HT.setGobP(HT.P2,true);for(let i=0;i<20;i++){H.step(1);G.step(1);}
+ const before=Object.keys(HT.edits).length,pads=G.ctx.navigator.getGamepads();
+ HT.P2.gren=3;for(let i=0;i<5;i++){H.step(1);G.step(1);}const g0=HT.P2.gren;   // (a goblin starts with none: they're picked up)
+ pads[0].buttons[7].pressed=true;pads[0].buttons[7].value=1;for(let i=0;i<10;i++){G.step(1);H.step(1);}pads[0].buttons[7].pressed=false;pads[0].buttons[7].value=0;
+ const thrown=HT.P2.gren===g0-1;
+ for(let i=0;i<200;i++){H.step(1);G.step(1);}
+ let same=0,diff=0;for(const k of Object.keys(HT.edits)){const [a,b,c]=k.split(',').map(Number);if(HT.get(a,b,c)===GT.get(a,b,c))same++;else diff++;}
+ const n=Object.keys(HT.edits).length-before;
+ console.log('guest threw a grenade:',ok(thrown),'blocks it broke on the host',n,ok(n>0),'the same on the guest',same,'different',diff,ok(diff===0));
+ HT.setGobP(HT.P2,false);for(let i=0;i<20;i++){H.step(1);G.step(1);}}
+
 // ---- a slow network: a tenth of a second each way. The guest's own hippo still moves at once, and ends up where the host has it ----
 {hub.lat=6;for(let i=0;i<30;i++){G.step(1);H.step(1);}
  if(process.env.DBG)console.log('dbg pred',GT.NETP.on,GT.NETP.snap,GT.P1.state,GT.P1.gob,HT.P2.state,!!HT.P2.drv,!!HT.P2.standCar,!!HT.P2.rideC);
