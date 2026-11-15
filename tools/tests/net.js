@@ -63,7 +63,8 @@ console.log('guest asked to reload into the host world',ok(G1.reloads===1),'kept
 H.step(5);console.log('host keeps the seat for the guest while it reloads',ok(HT.P2.active&&HT.P2.net&&HT.P2.net.gone>0));
 
 // ---- the same tab after its reload: session storage carried over, the rest as it was ----
-const G=game('guest',SEED+977,Object.fromEntries(G1.LS._m),Object.fromEntries(G1.SS._m));
+// (score numbers start off now: switched on for this guest, so its pop-ups can be checked)
+const G=game('guest',SEED+977,Object.assign(Object.fromEntries(G1.LS._m),{'goblin-stompin-gus-pop-score':'1'}),Object.fromEntries(G1.SS._m));
 const GT=G.T;
 console.log('reloaded guest builds the host world: seed',GT.seed,ok(GT.seed===HT.seed),'edits',Object.keys(GT.edits).length,ok(Object.keys(GT.edits).length===Object.keys(HT.edits).length),'saving blocked',ok(GT.saveBlocked));
 for(let i=0;i<60&&!GT.NET.joined;i++){G.step(1);H.step(1);await yieldNow();}
