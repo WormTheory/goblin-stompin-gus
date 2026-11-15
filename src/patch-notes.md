@@ -65,8 +65,9 @@
 - The What's new sticker sits under the title menu instead of over the Full screen link, and the controller and city seed notes have moved down on to the ground.
 - The pixel-art portraits and hearts are solid at any zoom and on any screen, with no faint lines between their pixels.
 - Options, under On screen, has a new Score numbers switch for the points that float up when you flatten or smash something. Your score and the wreck list still count them either way.
-- The debug menu has a Combo system switch, under Player. Switched off, there are no combos at all: your points aren't multiplied, and the combo card, combo milestone shouts and the pause menu's Best combo are all hidden. Online, the host's switch counts for everyone.
+- The debug menu has a Combo system switch, under Player, and combos are now off to start with. Switched off, there are no combos at all: your points aren't multiplied, and the combo card, combo milestone shouts and the pause menu's Best combo are all hidden. Online, the host's switch counts for everyone.
 - The speedometer only shows while you're in a vehicle, driving or in the gunner's seat.
+- Every ability switch now starts on: Ground Spike, Triple jump, Rocket Boost, Roll, Blast Long Jump and Blast Air Dash join the rest. Blast Dash stays off, since it and Roll are one or the other. Switches you'd already set are kept, but those six are switched on once for you.
 - The "cars hunting you" sticker under your score is gone. The Police pursuit sticker stays.
 - The debug menu no longer has its own Health bars and Damage numbers switches: use the ones in Options, under On screen. Options' Damage numbers now also shows the damage vehicles, trains, boats, rides, tanks, animals and players take, which only the debug menu used to show.
 - Shorter, plainer descriptions on the Options switches.

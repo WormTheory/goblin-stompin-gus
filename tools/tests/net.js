@@ -106,6 +106,7 @@ const lag=[];
 
 // ---- points the guest earned: its pop-ups and its combo, shown on the guest ----
 {const P=HT.P2.pos,live=()=>GT.POPS.live.filter(q=>q.p===GT.P1);
+ HT.setCombo(true);GT.DT.combo=true;   // (combos are off to start with; the guest hears of it with the clock, but no need to wait for that here)
  for(let i=0;i<3;i++)HT.award(40,null,P.x+2,P.y+1,P.z,HT.P2);
  for(let i=0;i<20;i++){H.step(1);G.step(1);}
  const kinds=live().map(q=>q.kind).join(',');

@@ -68,20 +68,27 @@ const P1=players[0],P2=players[1];
 // keeps their own in their own browser (sent with hello as p.abil). abilOf(p) is the set a player's moves go by.
 const ABIL_KEY='goblin-stompin-gus-abilities',ABIL2_KEY='goblin-stompin-gus-abilities2';
 // the base moves (bite, stomp, ground pound, jump, sprint, dash, air dash, long jump), each with its improved
-// versions (an improved one only works while its base move is on; a 'full' one needs the one before it too)
-const ABIL={bite:true,biteCombo:true,stomp:true,chargeStomp:true,fullStomp:true,groundSpike:false,pound:true,chargePound:true,fullPound:true,jump:true,double:true,triple:false,
-  sprint:true,trample:true,dash:true,roll:false,blastDash:false,airDash:true,blastAirDash:false,longJump:true,blastJump:false,rocket:false,climb:true,crash:true,noFall:true};
+// versions (an improved one only works while its base move is on; a 'full' one needs the one before it too). Everything
+// starts on, but for Blast Dash: it and Roll are one or the other
+const ABIL={bite:true,biteCombo:true,stomp:true,chargeStomp:true,fullStomp:true,groundSpike:true,pound:true,chargePound:true,fullPound:true,jump:true,double:true,triple:true,
+  sprint:true,trample:true,dash:true,roll:true,blastDash:false,airDash:true,blastAirDash:true,longJump:true,blastJump:true,rocket:true,climb:true,crash:true,noFall:true};
+// (switches saved before everything started on: the ones that used to start off are switched on, once, for each player)
+const ABIL_ALLON_KEY='goblin-stompin-gus-abilities-allon',ABIL_WAS_OFF=['groundSpike','triple','roll','blastAirDash','blastJump','rocket'];
 function abilLoad(A,key){
   try{const s=JSON.parse(localStorage.getItem(key)||'null');if(!s||typeof s!=='object')return false;for(const k in A)if(typeof s[k]==='boolean')A[k]=s[k];
     // (saved before the full-charge versions existed: charging was both levels or none)
     if(s.fullStomp===undefined)A.fullStomp=A.chargeStomp;if(s.fullPound===undefined)A.fullPound=A.chargePound;return true;}catch(e){return false;}
 }
 function abilFix(A){if(A.triple)A.double=true;if(A.roll&&A.blastDash)A.blastDash=false;if(A.fullStomp)A.chargeStomp=true;if(A.fullPound)A.chargePound=true;}
-abilLoad(ABIL,ABIL_KEY);abilFix(ABIL);
+let abilAllOn=false;try{abilAllOn=localStorage.getItem(ABIL_ALLON_KEY)==='1';}catch(e){}
+function abilAllOnce(A,key){if(abilAllOn)return;for(const k of ABIL_WAS_OFF)if(!(k==='roll'&&A.blastDash))A[k]=true;abilFix(A);try{localStorage.setItem(key,JSON.stringify(A));}catch(e){}}
+if(abilLoad(ABIL,ABIL_KEY))abilAllOnce(ABIL,ABIL_KEY);abilFix(ABIL);
 // (player two starts as a copy of player one's, the switches there were before there were two sets; kept from then on)
 const ABIL2=Object.assign({},ABIL);
 if(!abilLoad(ABIL2,ABIL2_KEY))try{localStorage.setItem(ABIL2_KEY,JSON.stringify(ABIL2));}catch(e){}
+else abilAllOnce(ABIL2,ABIL2_KEY);
 abilFix(ABIL2);
+if(!abilAllOn)try{localStorage.setItem(ABIL_ALLON_KEY,'1');}catch(e){}
 const ABILS=[ABIL,ABIL2],ABIL_KEYS=[ABIL_KEY,ABIL2_KEY];
 // a hippo player's own switches: an online guest's sent from their browser, else their seat's here
 const abilSeatOf=p=>p.abil||(p.idx===1?ABIL2:ABIL);

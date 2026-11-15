@@ -7,10 +7,12 @@
 const COMBO_T=3;
 const COMBO_MILES=[[5,"Stompin'!"],[10,'STOMPTACULAR!'],[15,'Hippo-critical!'],[20,'GOBLINGEDDON!'],[30,'Unstoppable lump!'],[50,'HIPPOCALYPSE!'],[75,'Wallow of doom!'],[100,'Legend of the bog!']];
 const comboMult=n=>DT.combo?Math.min(3,1+0.1*Math.max(0,n-1)):1;
-// (the quick menu's Combo system switch, DT.combo, kept with the other debug settings: off, nothing builds a combo, the
+// (the quick menu's Combo system switch, DT.combo, off to start with and kept in this browser under its own key: off, nothing builds a combo, the
 // score isn't multiplied, and none of it shows: the combo card, its milestones, the pause menu's Best combo. Online it's
 // the host's that counts, sent with the clock, see netClockSet)
-function setCombo(on){DT.combo=!!on;if(!DT.combo)for(const p of players){p.cbN=0;p.cbT=0;}saveDT();comboUiSync();}
+const COMBO_KEY='goblin-stompin-gus-combo';
+try{DT.combo=localStorage.getItem(COMBO_KEY)==='1';}catch(e){}
+function setCombo(on){DT.combo=!!on;if(!DT.combo)for(const p of players){p.cbN=0;p.cbT=0;}try{localStorage.setItem(COMBO_KEY,DT.combo?'1':'0');}catch(e){}comboUiSync();}
 function comboUiSync(){const t=document.querySelector('.t-combo');if(t)t.hidden=!DT.combo;}
 function comboName(n){let s='';for(const [k,t] of COMBO_MILES)if(n>=k)s=t;return s;}
 // (score numbers, the points floating up from where they were earned; damage numbers over the goblins; and shouts:

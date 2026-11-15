@@ -9,12 +9,12 @@ const sbxCells=cells=>{const h=SBX&&SBX.hits[SBX.hits.length-1];if(h&&h.kind==='
 // game speed and free cam
 const SPEEDS=[0.05,0.1,0.25,0.5,0.75,0.9,1,1.25,1.5,2];
 const PSPEEDS=[1,1.5,2,2.5,3,4,5,6,7,8,9,10];
-const DT={combo:true,hpBars:false,fps:false,sndList:false,info:false,curve:2,psI:0,invuln:false,infStam:false,fly:false,gob:false,host:2,speedI:6,paused:false,freecam:false,step:false,quick:false,menu:false,kbdOpen:false,selHeld:false,cur:0,navDir:0,navT:0};
+const DT={combo:false,hpBars:false,fps:false,sndList:false,info:false,curve:2,psI:0,invuln:false,infStam:false,fly:false,gob:false,host:2,speedI:6,paused:false,freecam:false,step:false,quick:false,menu:false,kbdOpen:false,selHeld:false,cur:0,navDir:0,navT:0};
 try{const q=JSON.parse(localStorage.getItem('goblin-stompin-gus-quickdbg')||'null');if(typeof q==='boolean')DT.quick=q;}catch(e){}
 try{for(const k of ['fps','hpBars','sndList','info'])DT[k]=localStorage.getItem('goblin-stompin-gus-'+k)==='1';}catch(e){}
 // the debug settings carry over from one session to the next (all but stopping time and the free cam, which would
 // only be confusing to come back to)
-const DT_KEY='goblin-stompin-gus-debug',DT_SAVED=['curve','psI','speedI','invuln','infStam','fly','combo','fps','hpBars','sndList','info','quick'];
+const DT_KEY='goblin-stompin-gus-debug',DT_SAVED=['curve','psI','speedI','invuln','infStam','fly','fps','hpBars','sndList','info','quick'];
 try{const q=JSON.parse(localStorage.getItem(DT_KEY)||'null');if(q&&typeof q==='object')for(const k of DT_SAVED)if(typeof q[k]===typeof DT[k])DT[k]=q[k];
   if(!(DT.speedI>=0&&DT.speedI<SPEEDS.length))DT.speedI=SPEEDS.indexOf(1);if(!(DT.psI>=0&&DT.psI<PSPEEDS.length))DT.psI=0;}catch(e){}
 function saveDT(){try{const o={};for(const k of DT_SAVED)o[k]=DT[k];localStorage.setItem(DT_KEY,JSON.stringify(o));
