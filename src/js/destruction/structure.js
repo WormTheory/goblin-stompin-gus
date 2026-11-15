@@ -266,7 +266,7 @@ function collapseBuilding(B,L,push){
     noteFor=null;
   }
   for(let x=b.x0-1;x<=b.x1;x++)for(let z=b.z0-1;z<=b.z1;z++)ch.add(ckey(Math.floor((X0+x)/CS),Math.floor((Z0+z)/CS)));
-  collapses[B.key]=Math.min(collapses[B.key]??1e9,L);
+  collapses[B.key]=Math.min(collapses[B.key]??1e9,L);rampBldg(B.key);   // (This rampage's count: rampage.js)
   rebuildSet(ch);save();
   // whatever the collapse left hanging: bits of the stump or the furniture whose support was already smashed away,
   // and anything fixed to the outside of the building (signs, awnings, a skybridge) -- all of it comes down too

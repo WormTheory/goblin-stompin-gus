@@ -1,4 +1,4 @@
-// ---------- Game feel: combos, score pop-ups, damage numbers and shouts, the City wrecked card ----------
+// ---------- Game feel: combos, score pop-ups, damage numbers and shouts, the Settlement razed card ----------
 // Every kill or smash a player makes within COMBO_T seconds of their last adds one to their combo, and it multiplies
 // the points: +10% a step from the second, up to three times at x21 (comboMult). A combo's milestones get a name and a
 // shout (COMBO_MILES). Each player has their own (p.cbN, p.cbT: plain numbers, so an online guest gets its own in the
@@ -14,14 +14,13 @@ function setCombo(on){DT.combo=!!on;if(!DT.combo)for(const p of players){p.cbN=0
 function comboUiSync(){const t=document.querySelector('.t-combo');if(t)t.hidden=!DT.combo;}
 function comboName(n){let s='';for(const [k,t] of COMBO_MILES)if(n>=k)s=t;return s;}
 // (score numbers, the points floating up from where they were earned; damage numbers over the goblins; and shouts:
-// SPLAT! and friends, combo milestones, the stomp meter's FULL CHARGE!. Each on unless switched off in Options, kept in
+// SPLAT! and friends, combo milestones, the stomp meter's FULL CHARGE!. Each off until switched on in Options, kept in
 // this browser on its own. They were one switch, POPS_KEY: anyone who'd
 // turned that off starts with both off, and with the health bars off too, see popsMigrate)
 const POPS_KEY='goblin-stompin-gus-pops',DMGPOP_KEY='goblin-stompin-gus-pop-dmg',SHOUT_KEY='goblin-stompin-gus-pop-shout',SCOREPOP_KEY='goblin-stompin-gus-pop-score';
-let DMGPOP_ON=true,SHOUT_ON=true,SCOREPOP_ON=true,POPS_OLD_OFF=false;
-try{POPS_OLD_OFF=localStorage.getItem(POPS_KEY)==='0';SCOREPOP_ON=localStorage.getItem(SCOREPOP_KEY)!=='0';   // (the old single switch never covered the points, so they start on whatever it was)
-  const d=localStorage.getItem(DMGPOP_KEY),s=localStorage.getItem(SHOUT_KEY);
-  DMGPOP_ON=d!=null?d!=='0':!POPS_OLD_OFF;SHOUT_ON=s!=null?s!=='0':!POPS_OLD_OFF;}catch(e){}
+let DMGPOP_ON=false,SHOUT_ON=false,SCOREPOP_ON=false,POPS_OLD_OFF=false;
+try{POPS_OLD_OFF=localStorage.getItem(POPS_KEY)==='0';SCOREPOP_ON=localStorage.getItem(SCOREPOP_KEY)==='1';
+  DMGPOP_ON=localStorage.getItem(DMGPOP_KEY)==='1';SHOUT_ON=localStorage.getItem(SHOUT_KEY)==='1';}catch(e){}
 function comboBump(p){
   if(!p||!DT.combo)return;p.cbN=(p.cbT>0?p.cbN||0:0)+1;p.cbT=COMBO_T;
   if(p.cbN>RAMP.best)RAMP.best=p.cbN;
@@ -92,13 +91,12 @@ function killShout(cause){
   const c=String(cause||'').toLowerCase();
   return /stomp|squash|flatten|landed|crash|sat on|pound/.test(c)?'SPLAT!':/bit|chomp|jaw/.test(c)?'CHOMP!':/trampl|run over|rammed|charg/.test(c)?'FLATTENED!':/blown|explo|blast|boom|rocket|grenade|shell/.test(c)?'KABOOM!':/shot|rifle|gun/.test(c)?'BLAM!':/club|dagger|stab/.test(c)?'WHACK!':'BONK!';
 }
-// ---- the City wrecked card, bottom right of each player's view: how much of the place they're in is wrecked ----
-const WRECK_WORD={city:'City',coastcity:'City',large:'Town',small:'Town',harbortown:'Town',resort:'Town',village:'Village',fishing:'Village'};
+// ---- the Settlement razed card, bottom right of each player's view: how much of the place they're in is knocked down ----
 function wreckHud(p,dt){
   const u=p.ui;if(!u.wreck)return;u.wreckT=(u.wreckT||0)-dt;if(u.wreckT>0)return;u.wreckT=0.25;
   let S=null,v=null;try{S=placeOf(p);v=S&&setListC.has(S.rx+','+S.rz)?setDestroyed(S):null;}catch(e){}
   const on=v!=null&&playing;if(u.wreck.hidden===on)u.wreck.hidden=!on;if(!on)return;
-  const pc=Math.round(v*100),t=(WRECK_WORD[setKind(S)]||'Town')+' wrecked',k=t+pc;
+  const pc=Math.round(v*100),t='Settlement razed',k=t+pc;
   if(u.wreckK!==k){u.wreckK=k;u.wkT.textContent=t;u.wkV.textContent=pc+'%';u.wkFill.style.width=pc+'%';u.wkFill.classList.toggle('none',pc===0);}
 }
 // (Options: reduced motion, kept in this browser; the system's own setting turns it on too, see reduceMotion)

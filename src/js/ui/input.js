@@ -50,7 +50,7 @@ let pauseAt=-1e9;   // (when play last paused: an Esc straight after it is the s
 // drives it, and only player one's drives player one's. (var: renderTime asks while the page is still loading)
 var menuBy=null;
 function menuP2(){return !!(menuBy&&menuBy!==P1&&inCoop());}
-const P1_ONLY=['play','newWorld','testWorld','onlineBtn','onlinePanel','confirm','quitBtn','fullBtn'];
+const P1_ONLY=['play','newWorld','testWorld','onlineBtn','onlinePanel','confirm','quitBtn','fullBtn','fullBtnP'];
 function menuSeat(){
   const two=menuP2();pauseEl.classList.toggle('seat2',two);
   for(const id of P1_ONLY){const el=document.getElementById(id);if(el)el.classList.toggle('p1only',true);}

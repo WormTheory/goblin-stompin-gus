@@ -2,11 +2,24 @@
 
 ## Version 0.4
 
+### Tidier display
+
+- The goblin count under your score now reads "GOBLINS SLAIN" instead of "FLATTENED".
+- The card beside the clock now shows just the day, the time of day and the season, with no symbols. The weather, the moon and where you are have moved to a new info pane under the clock, which you switch on from the debug menu (Overlays, Info pane). It's off to begin with.
+- "Sunny" weather is now called "Clear".
+- Full screen is a big button now, in the title screen's menu under New city and Options, and in the pause menu's column of buttons above Quit to title.
+- The pause menu's This rampage card now counts goblins slain, cars totaled, buildings demolished (each building you bring down counts once) and settlements razed (every building in a town or village brought down). Its wrecked bar is gone; how much of the place you're in is down still shows on the card in the bottom right of the screen, which now says Settlement razed.
+- Score numbers, Damage numbers, Shouts and Health bars under On screen in Options now start off, and so does the Debug menu switch. Anything you've already switched on stays on.
+
+### Police handguns for Gnash
+
+- Kill a police officer while playing as a goblin and they drop their handgun. Walk over it to pick it up. It shoots where you look like the rifle, a little weaker and out to 30 blocks rather than 48, but it fires again much sooner. The weapon button now goes club, dagger, handgun, rifle.
+
 ### A new look
 
 - The game has a new coat of paint: flat crayon colours, thick ink outlines with hand-drawn corners, and a chunky pixel font (Jersey 10) for titles, buttons and numbers. Anything you read, like descriptions and these notes, keeps the easy-to-read font.
 - Button prompts are drawn as the buttons themselves in the new style: crayon-coloured face buttons and paper keycaps.
-- A real title screen: the logo top left, and Gus himself stomping along a street in front of a scrolling city while you choose, flattening a goblin with every stomp. It's lit and shaded just like the game. The menu card on the right has Play, Co-op, Play online, New city and Options, with the Testing Environment, Dev and Full screen in a small Workshop line underneath, and a sticker for what's new.
+- A real title screen: the logo top left, and Gus himself stomping along a street in front of a scrolling city while you choose, flattening a goblin with every stomp. It's lit and shaded just like the game. The menu card on the right has Play, Co-op, Play online, New city, Options and Full screen, with the Testing Environment and Dev in a small Workshop line underneath, and a sticker for what's new.
 - The enemy hostility slider has moved from the main screen to the top of Options.
 - In Options, each slider's name now sits to its left on the same row, with its setting on the right and the description underneath, and all the sliders line up. In a narrow window the name goes back above the slider.
 - Picking a character is now "Who's stompin'?": four big cards for Gus, Gertie, Gnash and Grizzle, with a 1P tag on player one's pick and a 2P tag on player two's in co-op. In split-screen co-op each of you picks your own character from your own pause menu's Character screen, and a strip under the cards lists what that character can do with your current ability switches. Picking the other player's character still swaps you over.
@@ -15,17 +28,17 @@
 - Each player has their own ability switches. In split-screen co-op player two sets theirs in their own pause menu's Character screen, and they go with you whichever hippo you pick, so Gus and Gertie are still the same as each other: it's the player, not the hippo, who has the moves. Player one keeps the switches they had, and player two starts with a copy of them.
 - The ability switches are laid out as basic moves and their upgrades: each basic move (Bite, Stomp, Ground Pound, Dash, Sprint, Jump, Long Jump, Air Dash, Spider Climb) on the left, with the upgrades that improve it trailing off it as yellow tokens, each with a +1 or +2 coin for how many steps up it is (Bite combo, Charge Stomp, Full Charge Stomp, Ground Spike, Rocket Boost and so on). Crash Landing and Fall damage immunity are upgrades to every landing. No more tick boxes: a move that's on is in full colour and one that's off is greyed out, with On or Off in its corner. Click it, or press A on a controller, to switch it. An upgrade whose basic move is off is greyed with a dashed edge and says what it needs; switching it on switches that on too.
 - On a controller, A on a character card picks them and takes you back ("Ready!"), and Y jumps down to the ability switches. Screens opened from a menu have a Back button: B or Esc goes back, and LB / RB (Q / E on the keyboard) jump between screens.
-- The pause menu is a column of big buttons (Resume, Map, Obituary with its count, Character, Controls, Options, Quit to title) beside a "This rampage" card: goblins flattened, your score, your best combo, cars tossed and how wrecked the place you're in is, with its name and the time of day. Underneath are this game's own controls: switch between solo and co-op, Play online, New city, the Testing Environment and Full screen.
+- The pause menu is a column of big buttons (Resume, Map, Obituary with its count, Character, Controls, Options, Quit to title) beside a "This rampage" card: goblins slain, your score, your best combo, cars totaled, buildings demolished and settlements razed, with the name of the place you're in and the time of day. Underneath are this game's own controls: switch between solo and co-op, Play online, New city and the Testing Environment.
 - Map, Obituary, Character, Controls, Options and Patch notes open in the same card, sliding in from the right, and always start you back on the menu's own buttons when you pause again. B or Esc on the menu itself resumes.
 - Quit to title takes you back to the title screen with Gus stomping along; your city, score and everyone in it are kept, so Play carries on where you left off.
 - Patch notes and Dev are small tags in the card's corner now. In split-screen co-op the card's corner says 1P MENU (green) or 2P MENU (pink), so you can tell whose menu it is, and player two's menu still leaves out Options, Dev, the Testing Environment, Quit to title and the city controls.
 - Options, Controls, the Map, the Obituary and the Patch notes are on paper in the new style. The Dev tools and the Testing Environment keep a dark panel, in the new colours.
-- The HUD is redrawn to match: your score big in the top left with the goblins you've flattened under it (and a sticker when the police are after you), pixel hearts and the stamina bar in one paper panel at the bottom, the day and weather on a paper card beside a new clock disc, a round minimap, and the speedometer in ink and yolk.
+- The HUD is redrawn to match: your score big in the top left with the goblins you've slain under it (and a sticker when the police are after you), pixel hearts and the stamina bar in one paper panel at the bottom, the day and season on a paper card beside a new clock disc, a round minimap, and the speedometer in ink and yolk.
 - Charging a stomp shows STOMP, then BIG STOMP, then shouts FULL CHARGE! when it's all the way up.
 - Combos: every goblin flattened or thing smashed within 3 seconds of the last adds one to your combo, shown under your score with a bar that drains until the next. The combo multiplies your points: +10% for each step from the second, so x11 doubles them and x21 or more triples them (that's as high as it goes). Big combos get a name and a shout: x5 Stompin'!, x10 STOMPTACULAR!, x15 Hippo-critical!, x20 GOBLINGEDDON!, x30 Unstoppable lump!, x50 HIPPOCALYPSE!, x75 Wallow of doom! and x100 Legend of the bog!
 - Points float up from wherever you earned them, damage numbers pop off the goblins as you hit them, and a goblin going down gets a shout: SPLAT! for a stomp, CHOMP! for a bite, KABOOM! for an explosion, and so on. Options, under On screen, has a switch each for Damage numbers, Shouts (the goblin-flattening shouts, combo milestones and FULL CHARGE!, which turns into a plain FULL) and Health bars (bars over the goblins, vehicles and other players near you, off to start with). If you'd switched off the old damage numbers and shouts switch, all three start off.
 - What you've just wrecked is listed in stickers in the top right, newest on top, with the points it earned (combo included), fading as they get older.
-- A City wrecked card in the bottom right shows how much of the place you're in you've knocked down (Town or Village wrecked in smaller places).
+- A Settlement razed card in the bottom right shows how much of the place you're in you've knocked down.
 - In split screen and online, each player has their own combo, pop-ups and list of what they've wrecked, from their own hits. The best combo shows in the pause menu's rampage card, and a new city starts it all again.
 - A Reduced motion switch in Options, under On screen, stops the wobbling, bobbing and popping of the menus and the display and holds Gus still on the title screen. It's on by itself if your system asks for less motion.
 - Sounds for the points as they pop up (rising as your combo climbs) and a fanfare for each combo milestone.

@@ -33,6 +33,7 @@
     </svg>
   </div>
   <div class="clockTxt" id="clockTxt" aria-live="off"></div>
+  <div class="infoPane" id="infoPane" hidden aria-live="off"></div>
   <div class="divider" id="divider" hidden></div>
   <div class="pops" id="pops" aria-hidden="true"></div>
   <div class="chat" id="chat" hidden>
@@ -71,6 +72,7 @@
       <button type="button" role="tab" class="ck set" id="tabBtnCustom" aria-selected="false" aria-controls="tabCustom">Character</button>
       <button type="button" role="tab" class="ck set" id="tabBtnControls" aria-selected="false" aria-controls="tabControls">Controls</button>
       <button type="button" role="tab" class="ck set" id="tabBtnOptions" aria-selected="false" aria-controls="tabOptions">Options</button>
+      <button type="button" class="ck set" id="fullBtnP">Full screen</button>
       <button type="button" class="ck quit" id="quitBtn">Quit to title</button>
       <button type="button" role="tab" class="cornertag" id="tabBtnNotes" aria-selected="false" aria-controls="tabNotes">Patch notes</button>
       <button type="button" role="tab" class="cornertag" id="tabBtnDev" aria-selected="false" aria-controls="tabDev">Dev</button>
@@ -94,24 +96,26 @@
         <button type="button" class="on-b on-leave" id="netLeave" hidden>Leave the online game</button>
       </div>
         <div class="tm2"><button type="button" class="ck set" id="newWorld">New city</button><button type="button" class="ck set" id="optBtn">Options</button></div>
+        <button type="button" class="ck set tfull" id="fullBtn">Full screen</button>
         <div class="confirm" id="confirm" hidden>
         <span>Start over in a brand-new city? The day, your kills, your score and the obituary all start again from scratch.</span>
         <button class="yes" id="confirmYes">New city</button>
         <button id="confirmNo">Keep this one</button>
       </div>
         <button type="button" class="charlink" id="charLink">Playing as <b id="charLinkName">Gus</b> · change <span aria-hidden="true">›</span></button>
-        <div class="tws"><span><b>Workshop:</b> <button type="button" class="lnk" id="testWorld">Testing Environment</button><span id="devLinkW"> · <button type="button" class="lnk" id="devLink">Dev</button></span></span><button type="button" class="lnk" id="fullBtn">Full screen</button></div>
+        <div class="tws"><span><b>Workshop:</b> <button type="button" class="lnk" id="testWorld">Testing Environment</button><span id="devLinkW"> · <button type="button" class="lnk" id="devLink">Dev</button></span></span></div>
       </nav>
      </div>
       <section class="rampage" id="rampage" aria-label="This rampage">
         <div class="rp-head"><h2 class="px">This rampage</h2><span class="rp-where" id="rpWhere"></span></div>
         <div class="rp-tiles">
-          <div class="rp-t t-gob wob2"><span>Goblins flattened</span><b class="px" id="rpKills">0</b></div>
+          <div class="rp-t t-gob wob2"><span>Goblins slain</span><b class="px" id="rpKills">0</b></div>
           <div class="rp-t t-score wob"><span>Score</span><b class="px" id="rpScore">0</b></div>
           <div class="rp-t t-combo wob"><span>Best combo</span><b class="px" id="rpCombo">x0</b></div>
-          <div class="rp-t t-cars wob2"><span>Cars tossed</span><b class="px" id="rpCars">0</b></div>
+          <div class="rp-t t-cars wob2"><span>Cars totaled</span><b class="px" id="rpCars">0</b></div>
+          <div class="rp-t t-bldg wob"><span>Buildings demolished</span><b class="px" id="rpBldgs">0</b></div>
+          <div class="rp-t t-razed wob2"><span>Settlements razed</span><b class="px" id="rpRazed">0</b></div>
         </div>
-        <div class="rp-wreck" id="rpWreckBox"><div class="rp-wl"><span>City wrecked</span><b id="rpWreckV"></b></div><div class="rp-bar"><i id="rpWreck"></i></div></div>
         <p class="rp-note" id="rpNote" role="status"></p>
       </section>
       <div class="gamefoot">
@@ -215,9 +219,9 @@
     <div class="custom">
       <h2>ON SCREEN</h2>
       <div class="abil">
-        <button type="button" class="tog" role="checkbox" id="scorePopTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Score numbers<small>Points float up from whatever you flatten or smash</small></span></button>
-        <button type="button" class="tog" role="checkbox" id="dmgPopTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Damage numbers<small>Numbers pop off goblins, vehicles and anything else as it takes a hit</small></span></button>
-        <button type="button" class="tog" role="checkbox" id="shoutTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Shouts<small>SPLAT!, CHOMP! or KABOOM! when a goblin goes down, combo milestones, and FULL CHARGE! on a charged stomp</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="scorePopTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Score numbers<small>Points float up from whatever you flatten or smash</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="dmgPopTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Damage numbers<small>Numbers pop off goblins, vehicles and anything else as it takes a hit</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="shoutTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Shouts<small>SPLAT!, CHOMP! or KABOOM! when a goblin goes down, combo milestones, and FULL CHARGE! on a charged stomp</small></span></button>
         <button type="button" class="tog" role="checkbox" id="hpBarTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Health bars<small>Over goblins, vehicles and other players nearby</small></span></button>
         <button type="button" class="tog" role="checkbox" id="calmTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Reduced motion<small>Stops the wobbling, bobbing and popping of the menus and display, and Gus on the title screen. On by itself if your system asks for less motion</small></span></button>
       </div>
@@ -241,7 +245,7 @@
     <div class="custom">
       <h2>DEBUG</h2>
       <div class="abil" id="dbgMenuTog">
-        <button type="button" class="tog" role="checkbox" data-k="quick"><span class="box" aria-hidden="true"></span><span class="tl">Debug menu<small>Press SELECT on a controller, or ~ on the keyboard, to open it. Also shows the Dev tab here</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="quick" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Debug menu<small>Press SELECT on a controller, or ~ on the keyboard, to open it. Also shows the Dev tab here</small></span></button>
       </div>
     </div>
     </div>

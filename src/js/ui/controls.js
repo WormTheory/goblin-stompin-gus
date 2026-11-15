@@ -74,7 +74,7 @@ function bindHint(pad,p){
 }
 // playing as Gnash: his own moves (the hippo's stomps and trample aren't his), with whatever's in his hand
 function gobHint(L,p){const w=p&&p.wpns?p.wpn:'club',out=[];
-  if(L('bite'))out.push(L('bite')+' '+(w==='rifle'?'shoot':w==='dagger'?'stab':'swing the club'));
+  if(L('bite'))out.push(L('bite')+' '+(w==='rifle'||w==='handgun'?'shoot':w==='dagger'?'stab':'swing the club'));
   if(L('stomp'))out.push(L('stomp')+' throw a grenade');if(L('jump'))out.push(L('jump')+' jump');
   if(L('dashSprint'))out.push('tap '+L('dashSprint')+' dash, hold to sprint');else{if(L('dash'))out.push(L('dash')+' dash');}
   if(L('sprint'))out.push('hold '+L('sprint')+' to sprint');

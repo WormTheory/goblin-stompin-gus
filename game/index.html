@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:1f836330717aa4f834a5ed44d918a236daf6a5019f0124e425c59c6f3d52a755 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:bed1aad860508b671fa7de7d8d4aa548a7f1b839c4a0d273ff7246c46a86a831 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -716,6 +716,8 @@ body.attitle #hud{visibility:hidden}
 .tmenu .tm2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .tmenu .tm2 .ck{height:54px;font-size:22px;padding:6px}
 .tmenu .tm2 .ck:nth-child(even){border-radius:30px 20px 32px 22px/20px 30px 22px 32px}
+.tmenu .tfull{height:54px;font-size:22px;padding:6px}
+.pause:not(.title) .tmenu .tfull{display:none}   /* (paused, it's in the column of buttons on the left instead: #fullBtnP) */
 .tws{display:flex;justify-content:space-between;align-items:center;gap:6px 10px;flex-wrap:wrap;font:400 15px/1.4 var(--f-body);padding-top:8px;border-top:3px dashed rgba(43,27,46,.35);color:var(--ink)}
 .lnk{background:none;border:0;padding:0;font:inherit;color:var(--ink);text-decoration:underline;text-underline-offset:2px;cursor:pointer}
 .lnk:hover{color:#7a2e5a}
@@ -863,11 +865,7 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
 .rp-t{display:flex;flex-direction:column;gap:2px;padding:12px 16px;border-width:3px;box-shadow:4px 4px 0 var(--ink)}
 .rp-t span{font:700 15px var(--f-body);color:var(--ink)}
 .rp-t b{font:400 44px/1.05 var(--f-px);color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.t-gob{background:#d9f3b8}.t-score{background:#ffe9a8}.t-combo{background:#fde0d8}.t-cars{background:#d6ecfb}
-.rp-wl{display:flex;justify-content:space-between;font:700 16px var(--f-body);margin-bottom:6px}
-.rp-bar{height:26px;border:4px solid var(--ink);border-radius:14px 18px 12px 16px;background:#fff;overflow:hidden}
-.rp-bar i{display:block;height:100%;width:0;background:var(--tomato);background-image:repeating-linear-gradient(90deg,rgba(0,0,0,.18) 0 4px,transparent 4px 12px);border-right:4px solid var(--ink);box-sizing:border-box}
-.rp-bar i.none{border-right:0}
+.t-gob{background:#d9f3b8}.t-score{background:#ffe9a8}.t-combo{background:#fde0d8}.t-cars{background:#d6ecfb}.t-bldg{background:#eadcf7}.t-razed{background:#ffd9b0}
 .card .rp-note{margin:0;font:400 16px/1.4 var(--f-body);color:var(--ink)}
 .rp-note:empty{display:none}
 /* (the rampage card shrinks with the window so it fits beside the column without scrolling; if a very small window
@@ -880,8 +878,8 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
 .pause:not(.title) .rp-t b{font-size:clamp(26px,5.6vh,44px)}
 .pause:not(.title) .rp-head h2{font-size:clamp(24px,4.4vh,32px)}
 @media (max-height:820px){.pause:not(.title) .gamefoot #padNote{display:none}}
-@media (max-height:640px){.pause:not(.title) .rp-note{display:none}.pause:not(.title) .rp-bar{height:18px}.pause:not(.title) .rp-wl{margin-bottom:3px}}
-@media (max-width:860px) and (min-width:520px){.pause:not(.title) .rp-tiles{grid-template-columns:repeat(4,minmax(0,1fr))}.pause:not(.title) .rp-t b{font-size:clamp(22px,4.6vh,34px)}}
+@media (max-height:640px){.pause:not(.title) .rp-note{display:none}}
+@media (max-width:860px) and (min-width:520px){.pause:not(.title) .rp-tiles{grid-template-columns:repeat(3,minmax(0,1fr))}.pause:not(.title) .rp-t b{font-size:clamp(22px,4.6vh,34px)}}
 @media (max-width:860px){
   .pause:not(.title).home .card .main{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}
   .pause:not(.title).home .tabs{grid-row:1;flex-direction:row;flex-wrap:wrap;overflow:visible}
@@ -1054,6 +1052,11 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
 .clockTxt .ct3,.clockTxt .dest{font-weight:600;font-size:13px}
 .clockTxt .sname{font:400 18px/1.1 var(--f-px);letter-spacing:.5px;text-transform:uppercase;color:var(--ink);margin:2px 0 0}
 .clockTxt .dest{color:#a8302a}
+/* the info pane (debug menu, Overlays), under the clock disc */
+.infoPane{position:absolute;top:calc(96px + env(safe-area-inset-top,0px));right:max(20px,env(safe-area-inset-right,0px));max-width:240px;padding:6px 12px 7px;font:600 13px/1.4 var(--f-body);color:var(--ink);background-color:var(--paper);background-image:var(--dither);background-size:6px 6px;border:3px solid var(--ink);border-radius:var(--wobs);box-shadow:4px 4px 0 var(--ink);pointer-events:none;z-index:5}
+.infoPane .ik{display:inline-block;min-width:62px;font-weight:400;opacity:.7}
+.infoPane .sname{display:inline;font:700 13px/1.4 var(--f-body)}
+.infoPane .sname::after{content:', '}
 /* the minimap: a round plate with an ink rim */
 .mini{border-radius:50%;border:4px solid var(--ink);box-shadow:5px 5px 0 var(--ink);background:var(--paper);filter:none;left:max(20px,env(safe-area-inset-left,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px))}
 /* the hearts and the stamina bar: one paper panel, bottom middle */
@@ -1190,6 +1193,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
     </svg>
   </div>
   <div class="clockTxt" id="clockTxt" aria-live="off"></div>
+  <div class="infoPane" id="infoPane" hidden aria-live="off"></div>
   <div class="divider" id="divider" hidden></div>
   <div class="pops" id="pops" aria-hidden="true"></div>
   <div class="chat" id="chat" hidden>
@@ -1228,6 +1232,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
       <button type="button" role="tab" class="ck set" id="tabBtnCustom" aria-selected="false" aria-controls="tabCustom">Character</button>
       <button type="button" role="tab" class="ck set" id="tabBtnControls" aria-selected="false" aria-controls="tabControls">Controls</button>
       <button type="button" role="tab" class="ck set" id="tabBtnOptions" aria-selected="false" aria-controls="tabOptions">Options</button>
+      <button type="button" class="ck set" id="fullBtnP">Full screen</button>
       <button type="button" class="ck quit" id="quitBtn">Quit to title</button>
       <button type="button" role="tab" class="cornertag" id="tabBtnNotes" aria-selected="false" aria-controls="tabNotes">Patch notes</button>
       <button type="button" role="tab" class="cornertag" id="tabBtnDev" aria-selected="false" aria-controls="tabDev">Dev</button>
@@ -1251,24 +1256,26 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <button type="button" class="on-b on-leave" id="netLeave" hidden>Leave the online game</button>
       </div>
         <div class="tm2"><button type="button" class="ck set" id="newWorld">New city</button><button type="button" class="ck set" id="optBtn">Options</button></div>
+        <button type="button" class="ck set tfull" id="fullBtn">Full screen</button>
         <div class="confirm" id="confirm" hidden>
         <span>Start over in a brand-new city? The day, your kills, your score and the obituary all start again from scratch.</span>
         <button class="yes" id="confirmYes">New city</button>
         <button id="confirmNo">Keep this one</button>
       </div>
         <button type="button" class="charlink" id="charLink">Playing as <b id="charLinkName">Gus</b> · change <span aria-hidden="true">›</span></button>
-        <div class="tws"><span><b>Workshop:</b> <button type="button" class="lnk" id="testWorld">Testing Environment</button><span id="devLinkW"> · <button type="button" class="lnk" id="devLink">Dev</button></span></span><button type="button" class="lnk" id="fullBtn">Full screen</button></div>
+        <div class="tws"><span><b>Workshop:</b> <button type="button" class="lnk" id="testWorld">Testing Environment</button><span id="devLinkW"> · <button type="button" class="lnk" id="devLink">Dev</button></span></span></div>
       </nav>
      </div>
       <section class="rampage" id="rampage" aria-label="This rampage">
         <div class="rp-head"><h2 class="px">This rampage</h2><span class="rp-where" id="rpWhere"></span></div>
         <div class="rp-tiles">
-          <div class="rp-t t-gob wob2"><span>Goblins flattened</span><b class="px" id="rpKills">0</b></div>
+          <div class="rp-t t-gob wob2"><span>Goblins slain</span><b class="px" id="rpKills">0</b></div>
           <div class="rp-t t-score wob"><span>Score</span><b class="px" id="rpScore">0</b></div>
           <div class="rp-t t-combo wob"><span>Best combo</span><b class="px" id="rpCombo">x0</b></div>
-          <div class="rp-t t-cars wob2"><span>Cars tossed</span><b class="px" id="rpCars">0</b></div>
+          <div class="rp-t t-cars wob2"><span>Cars totaled</span><b class="px" id="rpCars">0</b></div>
+          <div class="rp-t t-bldg wob"><span>Buildings demolished</span><b class="px" id="rpBldgs">0</b></div>
+          <div class="rp-t t-razed wob2"><span>Settlements razed</span><b class="px" id="rpRazed">0</b></div>
         </div>
-        <div class="rp-wreck" id="rpWreckBox"><div class="rp-wl"><span>City wrecked</span><b id="rpWreckV"></b></div><div class="rp-bar"><i id="rpWreck"></i></div></div>
         <p class="rp-note" id="rpNote" role="status"></p>
       </section>
       <div class="gamefoot">
@@ -1372,9 +1379,9 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
     <div class="custom">
       <h2>ON SCREEN</h2>
       <div class="abil">
-        <button type="button" class="tog" role="checkbox" id="scorePopTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Score numbers<small>Points float up from whatever you flatten or smash</small></span></button>
-        <button type="button" class="tog" role="checkbox" id="dmgPopTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Damage numbers<small>Numbers pop off goblins, vehicles and anything else as it takes a hit</small></span></button>
-        <button type="button" class="tog" role="checkbox" id="shoutTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Shouts<small>SPLAT!, CHOMP! or KABOOM! when a goblin goes down, combo milestones, and FULL CHARGE! on a charged stomp</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="scorePopTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Score numbers<small>Points float up from whatever you flatten or smash</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="dmgPopTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Damage numbers<small>Numbers pop off goblins, vehicles and anything else as it takes a hit</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="shoutTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Shouts<small>SPLAT!, CHOMP! or KABOOM! when a goblin goes down, combo milestones, and FULL CHARGE! on a charged stomp</small></span></button>
         <button type="button" class="tog" role="checkbox" id="hpBarTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Health bars<small>Over goblins, vehicles and other players nearby</small></span></button>
         <button type="button" class="tog" role="checkbox" id="calmTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Reduced motion<small>Stops the wobbling, bobbing and popping of the menus and display, and Gus on the title screen. On by itself if your system asks for less motion</small></span></button>
       </div>
@@ -1398,7 +1405,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
     <div class="custom">
       <h2>DEBUG</h2>
       <div class="abil" id="dbgMenuTog">
-        <button type="button" class="tog" role="checkbox" data-k="quick"><span class="box" aria-hidden="true"></span><span class="tl">Debug menu<small>Press SELECT on a controller, or ~ on the keyboard, to open it. Also shows the Dev tab here</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="quick" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Debug menu<small>Press SELECT on a controller, or ~ on the keyboard, to open it. Also shows the Dev tab here</small></span></button>
       </div>
     </div>
     </div>
@@ -1407,8 +1414,12 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
       <div class="pn">
         <p class="pn-web">What's changed, newest first. These notes are also on <a href="patch-notes/index.html" target="_blank" rel="noopener">their own web page</a>.</p>
 <details class="pn-up pn-fold pn-new" id="version-0-4" open><summary tabindex="0"><h2>Version 0.4</h2><span class="pn-tog" aria-hidden="true"></span></summary>
+<h3>Tidier display</h3>
+<ul><li>The goblin count under your score now reads "GOBLINS SLAIN" instead of "FLATTENED".</li><li>The card beside the clock now shows just the day, the time of day and the season, with no symbols. The weather, the moon and where you are have moved to a new info pane under the clock, which you switch on from the debug menu (Overlays, Info pane). It's off to begin with.</li><li>"Sunny" weather is now called "Clear".</li><li>Full screen is a big button now, in the title screen's menu under New city and Options, and in the pause menu's column of buttons above Quit to title.</li><li>The pause menu's This rampage card now counts goblins slain, cars totaled, buildings demolished (each building you bring down counts once) and settlements razed (every building in a town or village brought down). Its wrecked bar is gone; how much of the place you're in is down still shows on the card in the bottom right of the screen, which now says Settlement razed.</li><li>Score numbers, Damage numbers, Shouts and Health bars under On screen in Options now start off, and so does the Debug menu switch. Anything you've already switched on stays on.</li></ul>
+<h3>Police handguns for Gnash</h3>
+<ul><li>Kill a police officer while playing as a goblin and they drop their handgun. Walk over it to pick it up. It shoots where you look like the rifle, a little weaker and out to 30 blocks rather than 48, but it fires again much sooner. The weapon button now goes club, dagger, handgun, rifle.</li></ul>
 <h3>A new look</h3>
-<ul><li>The game has a new coat of paint: flat crayon colours, thick ink outlines with hand-drawn corners, and a chunky pixel font (Jersey 10) for titles, buttons and numbers. Anything you read, like descriptions and these notes, keeps the easy-to-read font.</li><li>Button prompts are drawn as the buttons themselves in the new style: crayon-coloured face buttons and paper keycaps.</li><li>A real title screen: the logo top left, and Gus himself stomping along a street in front of a scrolling city while you choose, flattening a goblin with every stomp. It's lit and shaded just like the game. The menu card on the right has Play, Co-op, Play online, New city and Options, with the Testing Environment, Dev and Full screen in a small Workshop line underneath, and a sticker for what's new.</li><li>The enemy hostility slider has moved from the main screen to the top of Options.</li><li>In Options, each slider's name now sits to its left on the same row, with its setting on the right and the description underneath, and all the sliders line up. In a narrow window the name goes back above the slider.</li><li>Picking a character is now "Who's stompin'?": four big cards for Gus, Gertie, Gnash and Grizzle, with a 1P tag on player one's pick and a 2P tag on player two's in co-op. In split-screen co-op each of you picks your own character from your own pause menu's Character screen, and a strip under the cards lists what that character can do with your current ability switches. Picking the other player's character still swaps you over.</li><li>In split-screen co-op each player still has their own pause menu, driven only by their own controller. Player two's is just Resume, Map, Obituary, Character and Controls: what changes the game for both of you (Options, New city, Play online, the Testing Environment, Quit to title) stays in player one's.</li><li>The title screen's menu card no longer shows a scroll bar down its side when the game first opens.</li><li>Each player has their own ability switches. In split-screen co-op player two sets theirs in their own pause menu's Character screen, and they go with you whichever hippo you pick, so Gus and Gertie are still the same as each other: it's the player, not the hippo, who has the moves. Player one keeps the switches they had, and player two starts with a copy of them.</li><li>The ability switches are laid out as basic moves and their upgrades: each basic move (Bite, Stomp, Ground Pound, Dash, Sprint, Jump, Long Jump, Air Dash, Spider Climb) on the left, with the upgrades that improve it trailing off it as yellow tokens, each with a +1 or +2 coin for how many steps up it is (Bite combo, Charge Stomp, Full Charge Stomp, Ground Spike, Rocket Boost and so on). Crash Landing and Fall damage immunity are upgrades to every landing. No more tick boxes: a move that's on is in full colour and one that's off is greyed out, with On or Off in its corner. Click it, or press A on a controller, to switch it. An upgrade whose basic move is off is greyed with a dashed edge and says what it needs; switching it on switches that on too.</li><li>On a controller, A on a character card picks them and takes you back ("Ready!"), and Y jumps down to the ability switches. Screens opened from a menu have a Back button: B or Esc goes back, and LB / RB (Q / E on the keyboard) jump between screens.</li><li>The pause menu is a column of big buttons (Resume, Map, Obituary with its count, Character, Controls, Options, Quit to title) beside a "This rampage" card: goblins flattened, your score, your best combo, cars tossed and how wrecked the place you're in is, with its name and the time of day. Underneath are this game's own controls: switch between solo and co-op, Play online, New city, the Testing Environment and Full screen.</li><li>Map, Obituary, Character, Controls, Options and Patch notes open in the same card, sliding in from the right, and always start you back on the menu's own buttons when you pause again. B or Esc on the menu itself resumes.</li><li>Quit to title takes you back to the title screen with Gus stomping along; your city, score and everyone in it are kept, so Play carries on where you left off.</li><li>Patch notes and Dev are small tags in the card's corner now. In split-screen co-op the card's corner says 1P MENU (green) or 2P MENU (pink), so you can tell whose menu it is, and player two's menu still leaves out Options, Dev, the Testing Environment, Quit to title and the city controls.</li><li>Options, Controls, the Map, the Obituary and the Patch notes are on paper in the new style. The Dev tools and the Testing Environment keep a dark panel, in the new colours.</li><li>The HUD is redrawn to match: your score big in the top left with the goblins you've flattened under it (and a sticker when the police are after you), pixel hearts and the stamina bar in one paper panel at the bottom, the day and weather on a paper card beside a new clock disc, a round minimap, and the speedometer in ink and yolk.</li><li>Charging a stomp shows STOMP, then BIG STOMP, then shouts FULL CHARGE! when it's all the way up.</li><li>Combos: every goblin flattened or thing smashed within 3 seconds of the last adds one to your combo, shown under your score with a bar that drains until the next. The combo multiplies your points: +10% for each step from the second, so x11 doubles them and x21 or more triples them (that's as high as it goes). Big combos get a name and a shout: x5 Stompin'!, x10 STOMPTACULAR!, x15 Hippo-critical!, x20 GOBLINGEDDON!, x30 Unstoppable lump!, x50 HIPPOCALYPSE!, x75 Wallow of doom! and x100 Legend of the bog!</li><li>Points float up from wherever you earned them, damage numbers pop off the goblins as you hit them, and a goblin going down gets a shout: SPLAT! for a stomp, CHOMP! for a bite, KABOOM! for an explosion, and so on. Options, under On screen, has a switch each for Damage numbers, Shouts (the goblin-flattening shouts, combo milestones and FULL CHARGE!, which turns into a plain FULL) and Health bars (bars over the goblins, vehicles and other players near you, off to start with). If you'd switched off the old damage numbers and shouts switch, all three start off.</li><li>What you've just wrecked is listed in stickers in the top right, newest on top, with the points it earned (combo included), fading as they get older.</li><li>A City wrecked card in the bottom right shows how much of the place you're in you've knocked down (Town or Village wrecked in smaller places).</li><li>In split screen and online, each player has their own combo, pop-ups and list of what they've wrecked, from their own hits. The best combo shows in the pause menu's rampage card, and a new city starts it all again.</li><li>A Reduced motion switch in Options, under On screen, stops the wobbling, bobbing and popping of the menus and the display and holds Gus still on the title screen. It's on by itself if your system asks for less motion.</li><li>Sounds for the points as they pop up (rising as your combo climbs) and a fanfare for each combo milestone.</li><li>Arriving somewhere puts its name up on a big sticker. Chat, voice chips, the controls hint, the debug menu and each co-op player's own pause panel are restyled too, and in split screen each half's name is a 1P-green or 2P-pink tag.</li></ul>
+<ul><li>The game has a new coat of paint: flat crayon colours, thick ink outlines with hand-drawn corners, and a chunky pixel font (Jersey 10) for titles, buttons and numbers. Anything you read, like descriptions and these notes, keeps the easy-to-read font.</li><li>Button prompts are drawn as the buttons themselves in the new style: crayon-coloured face buttons and paper keycaps.</li><li>A real title screen: the logo top left, and Gus himself stomping along a street in front of a scrolling city while you choose, flattening a goblin with every stomp. It's lit and shaded just like the game. The menu card on the right has Play, Co-op, Play online, New city, Options and Full screen, with the Testing Environment and Dev in a small Workshop line underneath, and a sticker for what's new.</li><li>The enemy hostility slider has moved from the main screen to the top of Options.</li><li>In Options, each slider's name now sits to its left on the same row, with its setting on the right and the description underneath, and all the sliders line up. In a narrow window the name goes back above the slider.</li><li>Picking a character is now "Who's stompin'?": four big cards for Gus, Gertie, Gnash and Grizzle, with a 1P tag on player one's pick and a 2P tag on player two's in co-op. In split-screen co-op each of you picks your own character from your own pause menu's Character screen, and a strip under the cards lists what that character can do with your current ability switches. Picking the other player's character still swaps you over.</li><li>In split-screen co-op each player still has their own pause menu, driven only by their own controller. Player two's is just Resume, Map, Obituary, Character and Controls: what changes the game for both of you (Options, New city, Play online, the Testing Environment, Quit to title) stays in player one's.</li><li>The title screen's menu card no longer shows a scroll bar down its side when the game first opens.</li><li>Each player has their own ability switches. In split-screen co-op player two sets theirs in their own pause menu's Character screen, and they go with you whichever hippo you pick, so Gus and Gertie are still the same as each other: it's the player, not the hippo, who has the moves. Player one keeps the switches they had, and player two starts with a copy of them.</li><li>The ability switches are laid out as basic moves and their upgrades: each basic move (Bite, Stomp, Ground Pound, Dash, Sprint, Jump, Long Jump, Air Dash, Spider Climb) on the left, with the upgrades that improve it trailing off it as yellow tokens, each with a +1 or +2 coin for how many steps up it is (Bite combo, Charge Stomp, Full Charge Stomp, Ground Spike, Rocket Boost and so on). Crash Landing and Fall damage immunity are upgrades to every landing. No more tick boxes: a move that's on is in full colour and one that's off is greyed out, with On or Off in its corner. Click it, or press A on a controller, to switch it. An upgrade whose basic move is off is greyed with a dashed edge and says what it needs; switching it on switches that on too.</li><li>On a controller, A on a character card picks them and takes you back ("Ready!"), and Y jumps down to the ability switches. Screens opened from a menu have a Back button: B or Esc goes back, and LB / RB (Q / E on the keyboard) jump between screens.</li><li>The pause menu is a column of big buttons (Resume, Map, Obituary with its count, Character, Controls, Options, Quit to title) beside a "This rampage" card: goblins slain, your score, your best combo, cars totaled, buildings demolished and settlements razed, with the name of the place you're in and the time of day. Underneath are this game's own controls: switch between solo and co-op, Play online, New city and the Testing Environment.</li><li>Map, Obituary, Character, Controls, Options and Patch notes open in the same card, sliding in from the right, and always start you back on the menu's own buttons when you pause again. B or Esc on the menu itself resumes.</li><li>Quit to title takes you back to the title screen with Gus stomping along; your city, score and everyone in it are kept, so Play carries on where you left off.</li><li>Patch notes and Dev are small tags in the card's corner now. In split-screen co-op the card's corner says 1P MENU (green) or 2P MENU (pink), so you can tell whose menu it is, and player two's menu still leaves out Options, Dev, the Testing Environment, Quit to title and the city controls.</li><li>Options, Controls, the Map, the Obituary and the Patch notes are on paper in the new style. The Dev tools and the Testing Environment keep a dark panel, in the new colours.</li><li>The HUD is redrawn to match: your score big in the top left with the goblins you've slain under it (and a sticker when the police are after you), pixel hearts and the stamina bar in one paper panel at the bottom, the day and season on a paper card beside a new clock disc, a round minimap, and the speedometer in ink and yolk.</li><li>Charging a stomp shows STOMP, then BIG STOMP, then shouts FULL CHARGE! when it's all the way up.</li><li>Combos: every goblin flattened or thing smashed within 3 seconds of the last adds one to your combo, shown under your score with a bar that drains until the next. The combo multiplies your points: +10% for each step from the second, so x11 doubles them and x21 or more triples them (that's as high as it goes). Big combos get a name and a shout: x5 Stompin'!, x10 STOMPTACULAR!, x15 Hippo-critical!, x20 GOBLINGEDDON!, x30 Unstoppable lump!, x50 HIPPOCALYPSE!, x75 Wallow of doom! and x100 Legend of the bog!</li><li>Points float up from wherever you earned them, damage numbers pop off the goblins as you hit them, and a goblin going down gets a shout: SPLAT! for a stomp, CHOMP! for a bite, KABOOM! for an explosion, and so on. Options, under On screen, has a switch each for Damage numbers, Shouts (the goblin-flattening shouts, combo milestones and FULL CHARGE!, which turns into a plain FULL) and Health bars (bars over the goblins, vehicles and other players near you, off to start with). If you'd switched off the old damage numbers and shouts switch, all three start off.</li><li>What you've just wrecked is listed in stickers in the top right, newest on top, with the points it earned (combo included), fading as they get older.</li><li>A Settlement razed card in the bottom right shows how much of the place you're in you've knocked down.</li><li>In split screen and online, each player has their own combo, pop-ups and list of what they've wrecked, from their own hits. The best combo shows in the pause menu's rampage card, and a new city starts it all again.</li><li>A Reduced motion switch in Options, under On screen, stops the wobbling, bobbing and popping of the menus and the display and holds Gus still on the title screen. It's on by itself if your system asks for less motion.</li><li>Sounds for the points as they pop up (rising as your combo climbs) and a fanfare for each combo milestone.</li><li>Arriving somewhere puts its name up on a big sticker. Chat, voice chips, the controls hint, the debug menu and each co-op player's own pause panel are restyled too, and in split screen each half's name is a 1P-green or 2P-pink tag.</li></ul>
 <h3>Menus</h3>
 <ul><li>In player two's menu, the button that carries on playing says Resume rather than Co-op.</li><li>The pause menu's buttons always fit in the window, at any size and in split screen, and never sit in a box with scroll bars.</li><li>The Map zooms out as far as it takes to see everywhere you've explored at once, however far you've roamed.</li><li>The highlight round the picked character cards, and their 1P and 2P tags, are no longer cut off at the edges.</li><li>The What's new sticker sits under the title menu instead of over the Full screen link, and the controller and city seed notes have moved down on to the ground.</li><li>The pixel-art portraits and hearts are solid at any zoom and on any screen, with no faint lines between their pixels.</li><li>Options, under On screen, has a new Score numbers switch for the points that float up when you flatten or smash something. Your score and the wreck list still count them either way.</li><li>The debug menu has a Combo system switch, under Player. Switched off, there are no combos at all: your points aren't multiplied, and the combo card, combo milestone shouts and the pause menu's Best combo are all hidden. Online, the host's switch counts for everyone.</li><li>The speedometer only shows while you're in a vehicle, driving or in the gunner's seat.</li><li>The "cars hunting you" sticker under your score is gone. The Police pursuit sticker stays.</li><li>The debug menu no longer has its own Health bars and Damage numbers switches: use the ones in Options, under On screen. Options' Damage numbers now also shows the damage vehicles, trains, boats, rides, tanks, animals and players take, which only the debug menu used to show.</li><li>Shorter, plainer descriptions on the Options switches.</li></ul>
 <h3>Goblins</h3>
@@ -8757,9 +8768,9 @@ let cloudDrift=0;
 // ---------- seasons, weather and the moon ----------
 // The year: four 30-day seasons. Each season has its own odds for the weather; a spell lasts a third of a day to a
 // day, and everything (cloud, darkness, fog, rain, snow, wind, storms) eases from one spell into the next.
-const SEASONS=['Spring','Summer','Autumn','Winter'],SEASON_ICONS=['🌸','🌻','🍂','⛄'],SEASON_LEN=30,MOON_LEN=30;
+const SEASONS=['Spring','Summer','Autumn','Winter'],SEASON_LEN=30,MOON_LEN=30;
 const WX_TYPES={
-  sunny:{n:'Sunny',i:'☀️',cover:0.05,wind:0.4},
+  clear:{n:'Clear',i:'☀️',cover:0.05,wind:0.4},
   partly:{n:'Partly cloudy',i:'⛅',cover:0.45,wind:0.6},
   cloudy:{n:'Cloudy',i:'☁️',cover:0.85,dark:0.22,fog:0.9,wind:0.7},
   windy:{n:'Windy',i:'💨',cover:0.4,wind:3.2},
@@ -8774,18 +8785,18 @@ const WX_TYPES={
 const WX_KEYS=['cover','dark','fog','rain','snow','wind','storm'],WX_DEF={cover:0,dark:0,fog:1,rain:0,snow:0,wind:0.5,storm:0};
 // the odds of each kind of weather, season by season
 const WX_ODDS=[
-  {sunny:3,partly:4,cloudy:2,windy:2,foggy:1.5,lrain:3,rain:2.5,hrain:1,storm:1,lsnow:0.3},
-  {sunny:6,partly:4,cloudy:1,windy:1,foggy:0.4,lrain:1.5,rain:1,hrain:0.8,storm:2},
-  {sunny:2,partly:3,cloudy:3,windy:3,foggy:2.5,lrain:2.5,rain:2,hrain:1,storm:0.5,lsnow:0.5},
-  {sunny:1.5,partly:2,cloudy:3,windy:1.5,foggy:2,lrain:0.5,rain:0.3,lsnow:3,snow:2.5,blizzard:1.2}];
-const WX={snowClock:0,type:'sunny',until:1,k:Object.assign({},WX_DEF,{cover:0.05,wind:0.4}),wet:0,snowCover:0,flash:0,boltT:6,thunder:[]};
+  {clear:3,partly:4,cloudy:2,windy:2,foggy:1.5,lrain:3,rain:2.5,hrain:1,storm:1,lsnow:0.3},
+  {clear:6,partly:4,cloudy:1,windy:1,foggy:0.4,lrain:1.5,rain:1,hrain:0.8,storm:2},
+  {clear:2,partly:3,cloudy:3,windy:3,foggy:2.5,lrain:2.5,rain:2,hrain:1,storm:0.5,lsnow:0.5},
+  {clear:1.5,partly:2,cloudy:3,windy:1.5,foggy:2,lrain:0.5,rain:0.3,lsnow:3,snow:2.5,blizzard:1.2}];
+const WX={snowClock:0,type:'clear',until:1,k:Object.assign({},WX_DEF,{cover:0.05,wind:0.4}),wet:0,snowCover:0,flash:0,boltT:6,thunder:[]};
 const seasonOf=()=>Math.floor((dayN-1)/SEASON_LEN)%4,seasonDay=()=>(dayN-1)%SEASON_LEN+1,gameDays=()=>dayN-1+tod;
 const moonPhase=()=>((dayN-1+tod)/MOON_LEN)%1;   // 0 new, 0.5 full
 const MOON_NAMES=[['New moon','🌑'],['Waxing crescent','🌒'],['First quarter','🌓'],['Waxing gibbous','🌔'],['Full moon','🌕'],['Waning gibbous','🌖'],['Last quarter','🌗'],['Waning crescent','🌘']];
 const moonInfo=()=>MOON_NAMES[Math.round(moonPhase()*8)%8];
 function wxPick(se){const O=WX_ODDS[se];let tot=0;for(const k in O)tot+=O[k];let u=Math.random()*tot;for(const k in O){if(u<O[k])return k;u-=O[k];}return'partly';}
 function wxSet(type,now){WX.type=type;WX.until=gameDays()+0.3+Math.random()*0.7;if(now){const T=WX_TYPES[type];for(const k of WX_KEYS)WX.k[k]=T[k]??WX_DEF[k];}}
-function wxReset(){WX.frozen=false;freezeQ.length=0;wxSet('sunny',true);WX.until=1;   // day 1 is always a sunny spring day
+function wxReset(){WX.frozen=false;freezeQ.length=0;wxSet('clear',true);WX.until=1;   // day 1 is always a clear spring day
  WX.wet=WX.k.rain>0.2?0.6:0;WX.snowCover=seasonOf()===3&&WX.k.snow>0?0.5:0;WX.flash=0;WX.thunder.length=0;}
 // precipitation: streaks of rain or flakes of snow in a box round the camera, fixed in the world as you move through it
 const PRECIP_N=2400,PBX=24,PBY=28;
@@ -9610,7 +9621,7 @@ function collapseBuilding(B,L,push){
     noteFor=null;
   }
   for(let x=b.x0-1;x<=b.x1;x++)for(let z=b.z0-1;z<=b.z1;z++)ch.add(ckey(Math.floor((X0+x)/CS),Math.floor((Z0+z)/CS)));
-  collapses[B.key]=Math.min(collapses[B.key]??1e9,L);
+  collapses[B.key]=Math.min(collapses[B.key]??1e9,L);rampBldg(B.key);   // (This rampage's count: rampage.js)
   rebuildSet(ch);save();
   // whatever the collapse left hanging: bits of the stump or the furniture whose support was already smashed away,
   // and anything fixed to the outside of the building (signs, awnings, a skybridge) -- all of it comes down too
@@ -10484,7 +10495,7 @@ const BITE_SOLO_CD=0.85;   // seconds from one bite to the next with the combo s
 // one cooldown shared by every bite, on the ground or in the air: biting in either puts the other on hold too
 function gusBite(p){
   if(p.biteT>0||p.state!=='walk'||!playing||!p.active||(p.biteCD||0)>0)return;
-  if(p.gob){const W=gobW(p);p.biteStep=-1;p.comboWin=0;p.biteDur=W.dur;p.biteT=W.dur;p.lungeT=W.lunge;p.biteHit=true;p.biteCD=W.cd;if(p.wpn!=='rifle')sfx('Club swing',()=>{woosh(0.13,0.22,520,1700,0.1);});return;}
+  if(p.gob){const W=gobW(p);p.biteStep=-1;p.comboWin=0;p.biteDur=W.dur;p.biteT=W.dur;p.lungeT=W.lunge;p.biteHit=true;p.biteCD=W.cd;if(!gobGun(p.wpn))sfx('Club swing',()=>{woosh(0.13,0.22,520,1700,0.1);});return;}
   // no aim assist: the bite goes exactly where he's facing (lock-on is how to aim at someone)
   // in the air: a single snap, no combo
   if(!p.grounded){if((p.airBiteCD||0)>0)return;hbStart(p,'airBite');p.airBiteCD=1.0;p.biteCD=BITE_SOLO_CD;p.biteStep=-1;p.comboWin=0;p.biteDur=0.3;p.biteT=0.3;p.lungeT=0.16;p.lurch={t:0,dur:Math.max(0.05,AB.airBite.dist/Math.max(0.1,AB.airBite.speed)),dist:AB.airBite.dist};p.biteHit=true;sfx('Air bite',()=>{tone('triangle',150,260,0.1,0.06);woosh(0.12,0.2,600,1900);});return;}
@@ -10984,15 +10995,15 @@ function wallFrame(p){const d=p.climbD,r=p.climbRoll||0,s=Math.sin(r);return{d,c
 function wallBite(p){
   if(p.biteT>0||(p.biteCD||0)>0)return;
   // (Gnash: whatever's in his hand, with its own timing)
-  if(p.gob){const W=gobW(p);p.biteStep=-1;p.comboWin=0;p.biteDur=W.dur;p.biteT=W.dur;p.lungeT=W.lunge;p.biteHit=true;p.biteCD=W.cd;p.wallBite=true;if(p.wpn!=='rifle')sfx('Club swing',()=>{woosh(0.13,0.22,520,1700,0.1);});return;}
+  if(p.gob){const W=gobW(p);p.biteStep=-1;p.comboWin=0;p.biteDur=W.dur;p.biteT=W.dur;p.lungeT=W.lunge;p.biteHit=true;p.biteCD=W.cd;p.wallBite=true;if(!gobGun(p.wpn))sfx('Club swing',()=>{woosh(0.13,0.22,520,1700,0.1);});return;}
   p.biteStep=-1;p.comboWin=0;p.biteDur=0.38;p.biteT=0.38;p.lungeT=0.26;p.biteHit=true;p.biteCD=BITE_SOLO_CD;p.wallBite=true;
   sfx('Bite',()=>{woosh(0.13,0.22,520,1700,0.1);tone('triangle',150,260,0.08,0.06,0.28);});
 }
 // the jaws land: anything within reach of the line from just past his snout out to about 2 blocks beyond it
 function wallBiteHit(p){
-  // (Gnash is a goblin, far smaller than a hippo: his club or dagger reaches about a block past his head. His rifle
-  // shoots where he's looking, as anywhere)
-  const gk=p.gob?gobW(p):null;if(gk===GOB_WPN.rifle){gobShoot(p);return;}
+  // (Gnash is a goblin, far smaller than a hippo: his club or dagger reaches about a block past his head. His rifle or
+  // handgun shoots where he's looking, as anywhere)
+  const gk=p.gob?gobW(p):null;if(gk&&gk.range){gobShoot(p);return;}
   let {d,c,u}=wallFrame(p);if(gk)c=[p.pos.x-d[0]*0.4,p.pos.y+0.7,p.pos.z-d[1]*0.4];
   const A=gk?{hitR:gk.r||1,dmg:gk.dmg||1}:AB.bite,J0=gk?0.3:1.0,J1=gk?1.4:3.2,a=[c[0]+u[0]*J0,c[1]+u[1]*J0,c[2]+u[2]*J0],cause=gk?gk.cause||'Clubbed by another goblin':'Bitten';
   dbgHit('dmg','sph',{x:c[0]+u[0]*(J0+J1)/2,y:c[1]+u[1]*(J0+J1)/2,z:c[2]+u[2]*(J0+J1)/2,r:A.hitR});
@@ -11171,6 +11182,7 @@ function gobKit(p){
   for(const k of GOB_WPN_ORDER){tp[k]=new THREE.Group();m.arm.hand.add(tp[k]);tp[k].visible=k==='club';}   // (in the wrist, as the enemies hold theirs)
   tb(0.11,0.11,0.55,GC.club,0,0.02,0.22,tp.club);tb(0.19,0.19,0.19,GC.club,0,0.02,0.5,tp.club);
   tb(0.08,0.08,0.12,0x2a1a10,0,-0.02,0.06,tp.dagger);tb(0.05,0.03,0.34,0xd0d4dc,0,-0.02,0.29,tp.dagger);
+  tb(0.07,0.27,0.09,0x22262c,0,-0.1,0.06,tp.handgun);tb(0.06,0.08,0.15,0x22262c,0,0.01,-0.03,tp.handgun);   // (as the police hold theirs: goblins.js)
   tb(0.1,0.3,0.14,0x4a3420,0,0.04,0.06,tp.rifle);tb(0.07,0.62,0.07,0x22262c,0,-0.38,0.06,tp.rifle);tb(0.05,0.12,0.05,0x22262c,0,-0.12,0.13,tp.rifle);
   // (drawn last and over everything, so it never pokes through a wall you're stood against)
   const vm=new THREE.Group();vm.rotation.order='YXZ';vm.visible=false;vm.scale.setScalar(0.5);scene.add(vm);
@@ -11182,6 +11194,7 @@ function gobKit(p){
   const held={};for(const k of GOB_WPN_ORDER){held[k]=new THREE.Group();arm.add(held[k]);held[k].visible=k==='club';}
   box(0.07,0.42,0.07,GC.club,0,0.17,-0.42,61,held.club);box(0.15,0.17,0.15,GC.club,0,0.42,-0.42,62,held.club);
   box(0.09,0.09,0.13,0x2a1a10,0,0.02,-0.44,61,held.dagger);box(0.14,0.04,0.04,0x6a5a3a,0,0.02,-0.52,61,held.dagger);box(0.025,0.05,0.34,0xd0d4dc,0,0.02,-0.71,62,held.dagger);   // (pointing forward, for stabbing)
+  box(0.07,0.13,0.1,0x22262c,0,-0.03,-0.4,61,held.handgun);box(0.06,0.07,0.3,0x22262c,0,0.06,-0.5,62,held.handgun);   // (the grip, and the slide pointing on along the view)
   box(0.1,0.12,0.34,0x4a3420,0,0.02,-0.36,61,held.rifle);box(0.07,0.07,0.78,0x22262c,0,0.07,-0.86,62,held.rifle);box(0.05,0.12,0.05,0x22262c,0,-0.04,-0.6,62,held.rifle);
   return p.gb={root,m,vm,arm,held,tp};
 }
@@ -11234,7 +11247,7 @@ function gobBodyPose(m,p){
   m.legs[0].rotation.x=walking?sn*0.7:0;m.legs[1].rotation.x=walking?-sn*0.7:0;
   const X=m.atkX||(m.atkX={tw:0,ln:0,lu:0});X.tw=X.ln=X.lu=0;m.arm.rotation.z=0;m.arm.hand.rotation.x=0;m.armL.rotation.x=0;
   if((p.thrS??9)<STRIKE_FT)gobStrike(m,'throw',1+p.thrS/STRIKE_FT,'L');   // (the throw's the instant you press: only its follow-through shows)
-  if(wk==='rifle')m.arm.rotation.x=-Math.PI/2-p.cam.pitch+(p.biteT>0?0.25*Math.max(0,1-sw*4):0);
+  if(gobGun(wk))m.arm.rotation.x=-Math.PI/2-p.cam.pitch+(p.biteT>0?0.25*Math.max(0,1-sw*4):0);
   else if(p.biteT>0)gobStrike(m,wk==='dagger'?'dagger':'club',gobSwingU(p));
   else m.arm.rotation.x=-0.5;
 }
@@ -11258,7 +11271,7 @@ function gobCamera(p){
   // goes up and back, a beat at the top, and chops down across the view as the blow lands; the dagger's drawn back and
   // thrust straight in, at full stretch as it lands: strikes.js, with the attack's own timing)
   const up=Math.max(0,1-(camClock-(p.wpnT??-9))/0.25),bob=walking?Math.abs(sn)*0.012:0;
-  if(wk==='rifle'){const kick=p.biteT>0?Math.max(0,1-sw*4):0;K.arm.rotation.x=0.04+0.22*kick;K.arm.position.set(0.34,-0.46-up*0.5+bob,-0.5+0.12*kick);}
+  if(gobGun(wk)){const kick=p.biteT>0?Math.max(0,1-sw*4):0,hg=wk==='handgun';K.arm.rotation.x=0.04+(hg?0.32:0.22)*kick;K.arm.position.set(hg?0.26:0.34,(hg?-0.4:-0.46)-up*0.5+bob,-0.5+(hg?0.08:0.12)*kick);}
   else{const v=strikeAt(wk==='dagger'?'vmDagger':'vmClub',gobSwingU(p));K.arm.rotation.x=v[0]+(walking?sn*0.03:0);K.arm.position.set(v[1],v[2]-up*0.5+bob,v[3]);}
 }
 // who's seen from this view: everyone's goblin but your own, unless the free cam has left it
@@ -14549,7 +14562,7 @@ function bindHint(pad,p){
 }
 // playing as Gnash: his own moves (the hippo's stomps and trample aren't his), with whatever's in his hand
 function gobHint(L,p){const w=p&&p.wpns?p.wpn:'club',out=[];
-  if(L('bite'))out.push(L('bite')+' '+(w==='rifle'?'shoot':w==='dagger'?'stab':'swing the club'));
+  if(L('bite'))out.push(L('bite')+' '+(w==='rifle'||w==='handgun'?'shoot':w==='dagger'?'stab':'swing the club'));
   if(L('stomp'))out.push(L('stomp')+' throw a grenade');if(L('jump'))out.push(L('jump')+' jump');
   if(L('dashSprint'))out.push('tap '+L('dashSprint')+' dash, hold to sprint');else{if(L('dash'))out.push(L('dash')+' dash');}
   if(L('sprint'))out.push('hold '+L('sprint')+' to sprint');
@@ -15233,32 +15246,34 @@ function dropGoblinCorpse(x,y,z,driver){
 // ---- Gnash's weapons: the club he starts with, and what he takes off the enemies he kills ----
 // Each player goblin carries a list (p.wpns, the one in hand p.wpn) and a stack of grenades (p.gren). The attack button
 // uses the one in hand (gobAttack, from doBite), the stomp button throws a grenade (gobThrow), and the weapon button goes
-// on to the next (gobNextWpn). Kill an enemy whose weapon you haven't got and it's dropped where they fell (gobDrop); a
-// soldier of any kind drops grenades as well, every time, since they stack. Walk over a drop to pick it up (gobPickups).
+// on to the next (gobNextWpn). Kill an enemy whose weapon you haven't got and it's dropped where they fell (gobDrop: a
+// police officer's handgun, a thief's or cultist's dagger, a rifle off the compounds and the army); a soldier of any kind drops grenades as well, every time, since they stack. Walk over a drop to pick it up (gobPickups).
 // (Pipe bombs are gone: the preppers throw grenades too.) Hippos never see any of this.
 const GOB_WPN={
   club:{name:'Club',dur:0.38,lunge:0.16,cd:0.45},
   dagger:{name:'Dagger',dur:0.26,lunge:0.1,cd:0.28,dmg:2,r:0.95,reach:1.0,cause:'Stabbed by a goblin'},
+  handgun:{name:'Handgun',dur:0.16,lunge:0.01,cd:0.32,dmg:1.5,range:30,cause:'Shot by a goblin'},   // (the police's: shorter reach than the rifle, quicker to fire again)
   rifle:{name:'Rifle',dur:0.2,lunge:0.01,cd:0.55,dmg:2,range:48,cause:'Shot by a goblin'}};
-const GOB_WPN_ORDER=['club','dagger','rifle'],GREN_MAX=9,GREN_CAUSE="Blown up by a goblin's grenade";
+const GOB_WPN_ORDER=['club','dagger','handgun','rifle'],GREN_MAX=9,GREN_CAUSE="Blown up by a goblin's grenade";
 // (the ways a player goblin kills: a kill by any of them drops the victim's gear)
 const GOB_CAUSES=new Set(['Clubbed by another goblin',GOB_WPN.dagger.cause,GOB_WPN.rifle.cause,GREN_CAUSE]);
 function gobArms(p){if(!p.wpns){p.wpns=['club'];p.wpn='club';p.gren=0;p.grenCD=0;}return p;}
 const gobW=p=>GOB_WPN[gobArms(p).wpn]||GOB_WPN.club;
+const gobGun=k=>k==='rifle'||k==='handgun';   // (the ones that shoot down the view: gobShoot)
 // what an enemy carries that can be taken off them
 function gobGear(g){const k=g.foeKind;
-  return{wpn:g.cultist||k==='thief'?'dagger':k==='prepper'||k==='militia'||k==='soldier'?'rifle':null,gren:k==='prepper'||k==='militia'?1+(Math.random()<0.5?1:0):k==='soldier'?1:0};}
+  return{wpn:g.gun===COP_FOE?'handgun':g.cultist||k==='thief'?'dagger':k==='prepper'||k==='militia'||k==='soldier'?'rifle':null,gren:k==='prepper'||k==='militia'?1+(Math.random()<0.5?1:0):k==='soldier'?1:0};}
 // the attack button's hit, for whatever's in hand (the club's is gobClub)
 function gobAttack(p){const k=gobArms(p).wpn;
   if(k==='dagger'){const W=GOB_WPN.dagger,hx=Math.sin(p.heading),hz=Math.cos(p.heading);hitGoblins(p.pos.x+hx*W.reach,p.pos.z+hz*W.reach,W.r,W.dmg,W.cause,p.pos.y);
     for(const c of carsNear(p.pos.x+hx*W.reach,p.pos.z+hz*W.reach,W.r,p.pos.y)){damageCar(c,1,new V3(hx,0,hz));clang();}return;}
-  if(k==='rifle'){gobShoot(p);return;}
+  if(gobGun(k)){gobShoot(p);return;}
   gobClub(p);
 }
-// a rifle shot straight down the middle of the view: the first goblin, vehicle or block it meets
+// a rifle or handgun shot straight down the middle of the view: the first goblin, vehicle or block it meets
 const _gr=new V3();
 function gobShoot(p){
-  const W=GOB_WPN.rifle,c=p.camera.position,cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp;
+  const W=gobGun(gobArms(p).wpn)?gobW(p):GOB_WPN.rifle,hg=W===GOB_WPN.handgun,c=p.camera.position,cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp;
   let hitG=null,hitC=null,d=0.3;
   for(;d<W.range&&!hitG&&!hitC;d+=0.2){const x=c.x+dx*d,y=c.y+dy*d,z=c.z+dz*d;
     if(solidAt(Math.floor(x),Math.floor(y),Math.floor(z)))break;
@@ -15266,8 +15281,8 @@ function gobShoot(p){
     if(!hitG&&(Math.round(d*5)%3===0))for(const q of carsNear(x,z,0.6,y-1)){hitC=q;break;}}
   const x1=c.x+dx*d,y1=c.y+dy*d,z1=c.z+dz*d,fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw);
   tracer(c.x+fx*0.5+Math.cos(p.cam.yaw)*0.18,c.y-0.18,c.z+fz*0.5-Math.sin(p.cam.yaw)*0.18,x1,y1,z1);
-  if(audio){noise(0.09,0.14,2600,'highpass');tone('square',220,90,0.06,0.04);}
-  p.shake=Math.max(p.shake||0,0.03);rumble(p,0.2,50);
+  if(audio){if(hg){noise(0.06,0.12,3400,'highpass');tone('square',330,140,0.045,0.035);}else{noise(0.09,0.14,2600,'highpass');tone('square',220,90,0.06,0.04);}}   // (the handgun cracks higher and shorter, as the police's does)
+  p.shake=Math.max(p.shake||0,hg?0.02:0.03);rumble(p,hg?0.14:0.2,50);
   if(hitG)damageGoblin(hitG,W.dmg,_gr.set(x1,y1,z1).clone(),new V3(dx,0.3,dz),W.cause);
   else if(hitC)damageCar(hitC,1,new V3(dx,0,dz));
   else puff(x1,y1,z1,2,0xb0a898,0.12);
@@ -15289,6 +15304,7 @@ function gobArmsTick(p,dt){gobArms(p);p.grenCD=Math.max(0,p.grenCD-dt);p.thrS=(p
 const PICKUPS=[],PU_MAT={};
 function puModel(k){const g=new THREE.Group(),m=c=>PU_MAT[c]||(PU_MAT[c]=new THREE.MeshLambertMaterial({color:c})),b=(w,h,d,c,x,y,z)=>{const o=new THREE.Mesh(FB_GEO,m(c));o.scale.set(w,h,d);o.position.set(x,y,z);g.add(o);};
   if(k==='dagger'){b(0.08,0.08,0.14,0x2a1a10,0,0,-0.14);b(0.05,0.03,0.36,0xd0d4dc,0,0,0.1);}
+  else if(k==='handgun'){b(0.06,0.09,0.22,0x22262c,0,0.03,0);b(0.06,0.14,0.07,0x22262c,0,-0.06,-0.07);}
   else if(k==='rifle'){b(0.1,0.14,0.3,0x4a3420,0,0,-0.36);b(0.07,0.07,0.7,0x22262c,0,0.02,0.12);b(0.05,0.12,0.05,0x22262c,0,-0.07,-0.12);}
   else{b(0.22,0.24,0.22,0x3a4a22,0,0,0);b(0.08,0.08,0.08,0x8a8a90,0,0.15,0);}
   g.visible=false;scene.add(g);return g;}
@@ -15315,7 +15331,7 @@ function gobArmsHud(p){
   let H=p.ui.gw;const show=p.gob&&p.active&&!p.drv&&p.state!=='dead';
   if(!H){if(!show)return;const el=document.createElement('div');el.className='gwpn';const xh=document.createElement('div');xh.className='gxh';xh.hidden=true;p.ui.view.append(xh);
     const bar=p.ui.view.querySelector('.bar'),who=bar&&bar.querySelector('.who');if(who)bar.insertBefore(el,who);else p.ui.view.append(el);H=p.ui.gw={el,xh,s:''};}
-  H.el.hidden=!show;H.xh.hidden=!show||gobArms(p).wpn!=='rifle';if(!show)return;
+  H.el.hidden=!show;H.xh.hidden=!show||!gobGun(gobArms(p).wpn);if(!show)return;
   const bl=id=>actMark(p,id),L=GOB_WPN_ORDER.filter(k=>p.wpns.includes(k));
   const s=L.map(k=>k===p.wpn?'<b>'+GOB_WPN[k].name+'</b>':GOB_WPN[k].name).join(' · ')+(L.length>1?'  '+bl('weapon')+' next':'')+'  |  Grenades '+p.gren+(p.gren?'  '+bl('stomp')+' throw':'');
   if(H.s!==s){H.s=s;H.el.innerHTML=s.split(/(<b>[^<]*<\/b>)/).map(t=>t.startsWith('<b>')?'<b>'+glEsc(t.slice(3,-4))+'</b>':hudHTML(t)).join('');}
@@ -16763,12 +16779,12 @@ const sbxCells=cells=>{const h=SBX&&SBX.hits[SBX.hits.length-1];if(h&&h.kind==='
 // game speed and free cam
 const SPEEDS=[0.05,0.1,0.25,0.5,0.75,0.9,1,1.25,1.5,2];
 const PSPEEDS=[1,1.5,2,2.5,3,4,5,6,7,8,9,10];
-const DT={combo:true,hpBars:false,fps:false,sndList:false,curve:2,psI:0,invuln:false,infStam:false,fly:false,gob:false,host:2,speedI:6,paused:false,freecam:false,step:false,quick:true,menu:false,kbdOpen:false,selHeld:false,cur:0,navDir:0,navT:0};
+const DT={combo:true,hpBars:false,fps:false,sndList:false,info:false,curve:2,psI:0,invuln:false,infStam:false,fly:false,gob:false,host:2,speedI:6,paused:false,freecam:false,step:false,quick:false,menu:false,kbdOpen:false,selHeld:false,cur:0,navDir:0,navT:0};
 try{const q=JSON.parse(localStorage.getItem('goblin-stompin-gus-quickdbg')||'null');if(typeof q==='boolean')DT.quick=q;}catch(e){}
-try{for(const k of ['fps','hpBars','sndList'])DT[k]=localStorage.getItem('goblin-stompin-gus-'+k)==='1';}catch(e){}
+try{for(const k of ['fps','hpBars','sndList','info'])DT[k]=localStorage.getItem('goblin-stompin-gus-'+k)==='1';}catch(e){}
 // the debug settings carry over from one session to the next (all but stopping time and the free cam, which would
 // only be confusing to come back to)
-const DT_KEY='goblin-stompin-gus-debug',DT_SAVED=['curve','psI','speedI','invuln','infStam','fly','combo','fps','hpBars','sndList','quick'];
+const DT_KEY='goblin-stompin-gus-debug',DT_SAVED=['curve','psI','speedI','invuln','infStam','fly','combo','fps','hpBars','sndList','info','quick'];
 try{const q=JSON.parse(localStorage.getItem(DT_KEY)||'null');if(q&&typeof q==='object')for(const k of DT_SAVED)if(typeof q[k]===typeof DT[k])DT[k]=q[k];
   if(!(DT.speedI>=0&&DT.speedI<SPEEDS.length))DT.speedI=SPEEDS.indexOf(1);if(!(DT.psI>=0&&DT.psI<PSPEEDS.length))DT.psI=0;}catch(e){}
 function saveDT(){try{const o={};for(const k of DT_SAVED)o[k]=DT[k];localStorage.setItem(DT_KEY,JSON.stringify(o));
@@ -16802,7 +16818,7 @@ syncPath();
 const UI_PARTS={
   uiScore:['#readout','Kills & score','Top left'],
   uiClock:['.clock','Clock','The dial at the top right'],
-  uiStatus:['#clockTxt','Status panel','Day, season, weather, moon and where you are, under the clock'],
+  uiStatus:['#clockTxt','Status panel','The day, the time of day and the season, beside the clock'],
   uiMini:['.mini','Minimap','Bottom left'],
   uiSpeedo:['.speedo','Speedometer','Bottom right, in a vehicle'],
   uiHearts:['.hearts','Hearts','Your health'],
@@ -16831,7 +16847,7 @@ const DBG_COLS=4,DBG_SECS=[
   [0,'Camera',[{k:'freecam',label:'Free cam'},{k:'curve',label:'World curve'}]],
   [0,'World',[{k:'wx',label:'Weather'},{k:'season',label:'Season'}]],
   [1,'Player',[{k:'pspeed',label:'Player speed'},{k:'invuln',label:'Invulnerable'},{k:'infStam',label:'Infinite stamina'},{k:'fly',label:'Flying'},{k:'host',label:'Enemy hostility'},{k:'combo',label:'Combo system'}]],
-  [1,'Overlays',[{k:'fps',label:'FPS counter'},{k:'sndList',label:'Sound list'}]],
+  [1,'Overlays',[{k:'fps',label:'FPS counter'},{k:'sndList',label:'Sound list'},{k:'info',label:'Info pane'}]],
   [2,'Rendering',[{k:'gProps',label:'Props'},{k:'gFixtures',label:'Fixtures'},{k:'gCaves',label:'Caves'},{k:'gSewers',label:'Sewers'},{k:'gSubway',label:'Subways'}]],
   [2,'Hitboxes',[{k:'show',label:'Display hitboxes'},
     {k:'pBlock',label:'Player block hitboxes',col:'#ff9a2a'},{k:'nBlock',label:'NPC block hitboxes',col:'#e8d040'},
@@ -16852,7 +16868,7 @@ function toggleGfx(k){const g=GFX_KEY[k],off=GFX_OFF[g]=!GFX_OFF[g];
   const P=P1.pos,d=e=>Math.hypot(e.cx*CS-P.x,e.cz*CS-P.z);
   leafQ.length=0;for(const e of [...meshes.values()].sort((a,b)=>d(b)-d(a)))leafQ.push(ckey(e.cx,e.cz));}
 const curveTxt=()=>DT.curve===0?'Flat':DT.curve>0?'Down '+DT.curve:'Up '+(-DT.curve);
-function dbgVal(k){return isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='paused'||k==='freecam'||k==='combo'||k==='invuln'||k==='infStam'||k==='fly'||k==='fps'||k==='sndList'?DT[k]:DBG[k];}
+function dbgVal(k){return isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='paused'||k==='freecam'||k==='combo'||k==='invuln'||k==='infStam'||k==='fly'||k==='fps'||k==='sndList'||k==='info'?DT[k]:DBG[k];}
 // the rows on show: the individual hitbox switches only while 'Display hitboxes' is on
 // the menu's two tabs: 0 the switches themselves, 1 "Show / hide", which picks the rows tab 0 lists (kept in this browser)
 const DBG_HIDE_KEY='goblin-stompin-gus-dbghide',DBG_HIDE=new Set();
@@ -16890,7 +16906,7 @@ function dbgMenuToggle(){const it=dbgItems()[DT.cur];if(!it)return;
   else if(it.k==='freecam')setFreecam(!DT.freecam);
   else if(it.k==='paused')DT.paused=!DT.paused;
   else if(it.k==='combo')setCombo(!DT.combo);
-  else if(it.k==='invuln'||it.k==='infStam'||it.k==='fly'||it.k==='fps'||it.k==='sndList'){DT[it.k]=!DT[it.k];try{localStorage.setItem('goblin-stompin-gus-'+it.k,DT[it.k]?'1':'0');}catch(e){}}
+  else if(it.k==='invuln'||it.k==='infStam'||it.k==='fly'||it.k==='fps'||it.k==='sndList'||it.k==='info'){DT[it.k]=!DT[it.k];try{localStorage.setItem('goblin-stompin-gus-'+it.k,DT[it.k]?'1':'0');}catch(e){}}
   else{DBG[it.k]=!DBG[it.k];try{localStorage.setItem(DBG_KEY,JSON.stringify(DBG));}catch(e){}}
   tone('triangle',620,0,0.05,0.03);renderTime();}
 // up/down move the highlight within its column (letting go of a picked slider); left/right move across to the next
@@ -21680,7 +21696,7 @@ let pauseAt=-1e9;   // (when play last paused: an Esc straight after it is the s
 // drives it, and only player one's drives player one's. (var: renderTime asks while the page is still loading)
 var menuBy=null;
 function menuP2(){return !!(menuBy&&menuBy!==P1&&inCoop());}
-const P1_ONLY=['play','newWorld','testWorld','onlineBtn','onlinePanel','confirm','quitBtn','fullBtn'];
+const P1_ONLY=['play','newWorld','testWorld','onlineBtn','onlinePanel','confirm','quitBtn','fullBtn','fullBtnP'];
 function menuSeat(){
   const two=menuP2();pauseEl.classList.toggle('seat2',two);
   for(const id of P1_ONLY){const el=document.getElementById(id);if(el)el.classList.toggle('p1only',true);}
@@ -21923,11 +21939,20 @@ function readInputs(dt){
 }
 
 // ---------- This rampage: the pause menu's stats card ----------
-// Beside the pause menu's buttons: goblins flattened, score, the best combo, cars tossed (wrecked by a player, not
-// by accident), how wrecked the place you're in is, and where and when you are. Kept for the city you're in, so a new
-// city starts them again (rampReset); online, a guest gets the host's in the snapshot (m.sc) like the score.
-const RAMP={cars:0,best:0};
-function rampReset(){RAMP.cars=0;RAMP.best=0;for(const p of players){p.cbN=0;p.cbT=0;}}
+// Beside the pause menu's buttons: goblins slain, score, the best combo, cars totaled (wrecked by a player, not
+// by accident), buildings demolished (each brought down by a player once, however many times it gives way: rampBldg),
+// settlements razed (every building in them down, rampRazeTick), and where and when you are. Kept for the city you're
+// in, so a new city starts them again (rampReset); online, a guest gets the host's in the snapshot (m.sc) like the score.
+const RAMP={cars:0,best:0,bldgs:new Set(),razed:new Set(),pre:new Set(),seen:new Set(),nB:0,nR:0};
+function rampReset(){RAMP.cars=0;RAMP.best=0;RAMP.nB=RAMP.nR=0;for(const k of ['bldgs','razed','pre','seen'])RAMP[k].clear();for(const p of players){p.cbN=0;p.cbT=0;}}
+function rampBldg(key){if(BLAME==='acc'||RAMP.bldgs.has(key))return;RAMP.bldgs.add(key);RAMP.nB=RAMP.bldgs.size;}
+// (a place counts once its total is known and it's all down. One already in ruins the first time it's worked out, from
+// before this rampage, never counts)
+function rampRazeTick(S){
+  const k=S.rx+','+S.rz;if(!setListC.has(k)||RAMP.razed.has(k)||RAMP.pre.has(k))return;
+  const gone=setDestroyed(S)>=1;if(!RAMP.seen.has(k)){RAMP.seen.add(k);if(gone){RAMP.pre.add(k);return;}}
+  if(gone){RAMP.razed.add(k);RAMP.nR=RAMP.razed.size;}
+}
 const rpNum=n=>Math.round(n).toLocaleString('en-US');
 // (the place a player is in: a town's name, or the place the coast round it belongs to; null out on the plains)
 function placeOf(p){
@@ -21939,17 +21964,14 @@ function renderRampage(){
   const p=menuBy&&menuBy.active?menuBy:players.find(q=>q.active)||P1;
   $('rpKills').textContent=rpNum(kills);$('rpScore').textContent=rpNum(score);
   $('rpCombo').textContent='x'+RAMP.best;$('rpCars').textContent=rpNum(RAMP.cars);
+  $('rpBldgs').textContent=rpNum(RAMP.nB);$('rpRazed').textContent=rpNum(RAMP.nR);
   const S=placeOf(p);let where=TENV?'Testing Environment':S?setName(S):'Out on the plains';
   try{where+=' · '+timeLabel();}catch(e){}
   $('rpWhere').textContent=where;
-  // (how much of this place is wrecked: only once its total has been worked out, which happens as you go through it)
-  const v=S&&setListC.has(S.rx+','+S.rz)?setDestroyed(S):null,w=$('rpWreck'),wv=$('rpWreckV'),box=$('rpWreckBox');
-  if(box)box.hidden=v==null;
-  if(v!=null){const pc=Math.round(v*100);w.style.width=pc+'%';wv.textContent=pc+'%';w.classList.toggle('none',pc===0);}
   $('rpNote').textContent=TENV?'Nothing here counts toward a rampage: it\'s for trying things out.':
-    !begun?'':kills+RAMP.cars===0?'Nothing flattened yet. Off you go.':'';
+    !begun?'':kills+RAMP.cars+RAMP.nB===0?'Nothing flattened yet. Off you go.':'';
 }
-// ---------- Game feel: combos, score pop-ups, damage numbers and shouts, the City wrecked card ----------
+// ---------- Game feel: combos, score pop-ups, damage numbers and shouts, the Settlement razed card ----------
 // Every kill or smash a player makes within COMBO_T seconds of their last adds one to their combo, and it multiplies
 // the points: +10% a step from the second, up to three times at x21 (comboMult). A combo's milestones get a name and a
 // shout (COMBO_MILES). Each player has their own (p.cbN, p.cbT: plain numbers, so an online guest gets its own in the
@@ -21965,14 +21987,13 @@ function setCombo(on){DT.combo=!!on;if(!DT.combo)for(const p of players){p.cbN=0
 function comboUiSync(){const t=document.querySelector('.t-combo');if(t)t.hidden=!DT.combo;}
 function comboName(n){let s='';for(const [k,t] of COMBO_MILES)if(n>=k)s=t;return s;}
 // (score numbers, the points floating up from where they were earned; damage numbers over the goblins; and shouts:
-// SPLAT! and friends, combo milestones, the stomp meter's FULL CHARGE!. Each on unless switched off in Options, kept in
+// SPLAT! and friends, combo milestones, the stomp meter's FULL CHARGE!. Each off until switched on in Options, kept in
 // this browser on its own. They were one switch, POPS_KEY: anyone who'd
 // turned that off starts with both off, and with the health bars off too, see popsMigrate)
 const POPS_KEY='goblin-stompin-gus-pops',DMGPOP_KEY='goblin-stompin-gus-pop-dmg',SHOUT_KEY='goblin-stompin-gus-pop-shout',SCOREPOP_KEY='goblin-stompin-gus-pop-score';
-let DMGPOP_ON=true,SHOUT_ON=true,SCOREPOP_ON=true,POPS_OLD_OFF=false;
-try{POPS_OLD_OFF=localStorage.getItem(POPS_KEY)==='0';SCOREPOP_ON=localStorage.getItem(SCOREPOP_KEY)!=='0';   // (the old single switch never covered the points, so they start on whatever it was)
-  const d=localStorage.getItem(DMGPOP_KEY),s=localStorage.getItem(SHOUT_KEY);
-  DMGPOP_ON=d!=null?d!=='0':!POPS_OLD_OFF;SHOUT_ON=s!=null?s!=='0':!POPS_OLD_OFF;}catch(e){}
+let DMGPOP_ON=false,SHOUT_ON=false,SCOREPOP_ON=false,POPS_OLD_OFF=false;
+try{POPS_OLD_OFF=localStorage.getItem(POPS_KEY)==='0';SCOREPOP_ON=localStorage.getItem(SCOREPOP_KEY)==='1';
+  DMGPOP_ON=localStorage.getItem(DMGPOP_KEY)==='1';SHOUT_ON=localStorage.getItem(SHOUT_KEY)==='1';}catch(e){}
 function comboBump(p){
   if(!p||!DT.combo)return;p.cbN=(p.cbT>0?p.cbN||0:0)+1;p.cbT=COMBO_T;
   if(p.cbN>RAMP.best)RAMP.best=p.cbN;
@@ -22043,13 +22064,12 @@ function killShout(cause){
   const c=String(cause||'').toLowerCase();
   return /stomp|squash|flatten|landed|crash|sat on|pound/.test(c)?'SPLAT!':/bit|chomp|jaw/.test(c)?'CHOMP!':/trampl|run over|rammed|charg/.test(c)?'FLATTENED!':/blown|explo|blast|boom|rocket|grenade|shell/.test(c)?'KABOOM!':/shot|rifle|gun/.test(c)?'BLAM!':/club|dagger|stab/.test(c)?'WHACK!':'BONK!';
 }
-// ---- the City wrecked card, bottom right of each player's view: how much of the place they're in is wrecked ----
-const WRECK_WORD={city:'City',coastcity:'City',large:'Town',small:'Town',harbortown:'Town',resort:'Town',village:'Village',fishing:'Village'};
+// ---- the Settlement razed card, bottom right of each player's view: how much of the place they're in is knocked down ----
 function wreckHud(p,dt){
   const u=p.ui;if(!u.wreck)return;u.wreckT=(u.wreckT||0)-dt;if(u.wreckT>0)return;u.wreckT=0.25;
   let S=null,v=null;try{S=placeOf(p);v=S&&setListC.has(S.rx+','+S.rz)?setDestroyed(S):null;}catch(e){}
   const on=v!=null&&playing;if(u.wreck.hidden===on)u.wreck.hidden=!on;if(!on)return;
-  const pc=Math.round(v*100),t=(WRECK_WORD[setKind(S)]||'Town')+' wrecked',k=t+pc;
+  const pc=Math.round(v*100),t='Settlement razed',k=t+pc;
   if(u.wreckK!==k){u.wreckK=k;u.wkT.textContent=t;u.wkV.textContent=pc+'%';u.wkFill.style.width=pc+'%';u.wkFill.classList.toggle('none',pc===0);}
 }
 // (Options: reduced motion, kept in this browser; the system's own setting turns it on too, see reduceMotion)
@@ -22692,7 +22712,7 @@ function destLabel(){
 }
 // HUD clock: daytime is the top half (sunrise on the left, sunset on the right), night the bottom half
   clockT-=dt;
-  safe('dest',()=>{const p=players.find(q=>q.active);const S=p&&settlementAt(Math.floor(p.pos.x/CELL),Math.floor(p.pos.z/CELL));if(S)setDestroyed(S);
+  safe('dest',()=>{const p=players.find(q=>q.active);const S=p&&settlementAt(Math.floor(p.pos.x/CELL),Math.floor(p.pos.z/CELL));if(S){setDestroyed(S);rampRazeTick(S);}
     // (otherwise, a little at a time, work out the totals for the places you've found but not been into, for the map)
     else if(destJob.S)setDestroyed(destJob.S);
     else for(const K of knownSets.values())if(!setListC.has(K.rx+','+K.rz)){setDestroyed(K);break;}});
@@ -22703,10 +22723,11 @@ function destLabel(){
     clockHand.setAttribute('x2',hx.toFixed(2));clockHand.setAttribute('y2',hy.toFixed(2));
     clockOrb.setAttribute('cx',hx.toFixed(2));clockOrb.setAttribute('cy',hy.toFixed(2));
     clockOrb.setAttribute('fill',day?'#ffd447':'#fff6dc');
-    // stacked under the clock: the day (and the time of day), then the season, the weather and the moon
-    if(clockTxt){const W=WX_TYPES[WX.type],M=moonInfo(),se=seasonOf(),part=timeLabel().split(', ')[1];
-      const h='<b>Day '+dayN+' · '+part+'</b><div>'+W.n+' · '+SEASONS[se]+'</div><div class="ct2">'+SEASON_ICONS[se]+' '+W.i+' '+M[1]+' '+M[0]+'</div><div class="ct3">'+whereLabel()+'</div>';   // (how wrecked it is: the City wrecked card, bottom right)
+    // beside the clock: the day (and the time of day), then the season. (How wrecked it is: the City wrecked card, bottom right)
+    if(clockTxt){const part=timeLabel().split(', ')[1];
+      const h='<b>Day '+dayN+' · '+part+'</b><div>'+SEASONS[seasonOf()]+'</div>';
       if(clockTxt.dataset.h!==h){clockTxt.dataset.h=h;clockTxt.innerHTML=h;}}
+    infoTick(whereLabel);   // (whereLabel lives in here, in updateSky)
   }
 }
 // one part of the world going wrong shouldn't stop the whole game: each update runs on its own, and an error in one is
@@ -22722,6 +22743,16 @@ function fpsTick(raw){
     FPS.el.className='fpsc'+(f<30?' low':f<50?' mid':'');FPS.n=0;FPS.t=0;FPS.worst=0;}
 }
 let readoutH='';
+// The info pane, under the clock: the weather, the moon and where you are, in words. Shown from the debug menu's Overlays
+// (DT.info, kept in this browser), off to begin with
+const noSym=s=>s.replace(/[\u{1F000}-\u{1FAFF}\u2190-\u2BFF\uFE0F\u200D]/gu,'').replace(/ {2,}/g,' ').replace(/> /g,'>').trim();
+let infoEl=null;
+function infoTick(whereLabel){
+  if(!infoEl)infoEl=document.getElementById('infoPane');if(!infoEl)return;
+  if(infoEl.hidden===DT.info)infoEl.hidden=!DT.info;if(!DT.info)return;
+  const h='<div><span class="ik">Weather</span>'+WX_TYPES[WX.type].n+'</div><div><span class="ik">Moon</span>'+moonInfo()[0]+'</div><div><span class="ik">Biome</span>'+noSym(whereLabel())+'</div>';
+  if(infoEl.dataset.h!==h){infoEl.dataset.h=h;infoEl.innerHTML=h;}
+}
 // The graphics card's programs are made the first time something needing each is drawn, and that's a stall: the first explosion, or
 // the first sprint. Everything hidden in the scene gets its program here instead, on the second frame, while the game is still
 // on the title screen. (Plus the speed lines, whose materials aren't made till they're needed. These stay referenced, as
@@ -22793,8 +22824,8 @@ function frame(now,bg){   // (bg: a tab in the background while online, kept goi
   for(const p of act){if(!p.paused)continue;const o=act.find(q=>q!==p);const txt=!o?'':o.paused?'Both paused. The city is frozen.':`The city keeps going while ${charName(o)} plays.`;if(p.ui.pstatus.textContent!==txt)p.ui.pstatus.textContent=txt;}
   const pol=cars.some(c=>c.alive&&c.police&&c.hunter);
   updateSiren(dt);promptTick(dt);safe('pops',()=>popTick(dt));
-  // (the score, big, top left; under it the goblins flattened, and a sticker for a police pursuit)
-  {const h=`<b class="sc">${score.toLocaleString('en-US')}</b><span class="rk">${kills.toLocaleString('en-US')} flattened</span>${pol?'<i>Police pursuit</i>':''}`;if(h!==readoutH){readoutH=h;readout.innerHTML=h;}}   // (only when it's changed: rebuilding it makes the browser lay the page out again)
+  // (the score, big, top left; under it the goblins slain, and a sticker for a police pursuit)
+  {const h=`<b class="sc">${score.toLocaleString('en-US')}</b><span class="rk">${kills.toLocaleString('en-US')} ${kills===1?'goblin':'goblins'} slain</span>${pol?'<i>Police pursuit</i>':''}`;if(h!==readoutH){readoutH=h;readout.innerHTML=h;}}   // (only when it's changed: rebuilding it makes the browser lay the page out again)
   if(bg)return;   // (nobody's looking: no drawing, and no next frame asked for, the browser having stopped giving this tab any)
   const w=innerWidth,h=innerHeight;
   // (the title screen draws its own backdrop instead of the city: see ui/title-scene.js)
@@ -23399,7 +23430,7 @@ function netSendSnap(p){   // (and the goblins' places are kept each frame, belo
   const N=p.net;if(!N.wsent)N.wsent={};
   const m={t:'s',n:++N.seq,tt:NET.now,p:[],g:[],gl:{},c:[],cl:{},e:N.out};N.out=[];
   for(let s=0;s<players.length;s++){const q=players[s];if(q.active)m.p.push(netPlayerState(q,s,N));}
-  netGoblins(p,N,m.g,m.gl);netCars(p,N,m.c,m.cl);m.v=[];netVenues(p,N,m.v);m.vh=netVenueHP(N);m.fa=netFalls();m.sc=[score,kills,RAMP.cars,RAMP.best];
+  netGoblins(p,N,m.g,m.gl);netCars(p,N,m.c,m.cl);m.v=[];netVenues(p,N,m.v);m.vh=netVenueHP(N);m.fa=netFalls();m.sc=[score,kills,RAMP.cars,RAMP.best,RAMP.nB,RAMP.nR];
   N.wT=(N.wT||0)-1;if(N.wT<=0){N.wT=NET_SNAP_HZ;m.w=netWorldBits(N);m.k=netClock();N.vhsent=null;}   // (and the venues' health all again next time, for a venue the guest has only just made)
   try{NET.tr.send(m,N.peer);}catch(e){}
 }
@@ -23538,7 +23569,7 @@ function netCommit(m){
   netFallCommit(m);
   if(m.v)netVenueCommit(m.v,NET.rt!==null?NET.rt:NET.now-NET.off-NET.dly);
   if(m.vh)netVenueHPSet(m.vh);
-  if(m.sc){score=m.sc[0];kills=m.sc[1];RAMP.cars=m.sc[2]||0;RAMP.best=m.sc[3]||0;}
+  if(m.sc){score=m.sc[0];kills=m.sc[1];RAMP.cars=m.sc[2]||0;RAMP.best=m.sc[3]||0;RAMP.nB=m.sc[4]||0;RAMP.nR=m.sc[5]||0;}
   if(m.w)netWorld(m.w);
   if(m.k)netClockSet(m.k);
   if(NET.cur&&NET.cur.tt<m.tt)NET.prev=NET.cur;NET.cur=m;
@@ -24131,14 +24162,14 @@ chatEl('vcMicVol').addEventListener('change',vcSave);
 vcOptsDraw();
 // ---------- New city & boot ----------
 const confirmEl=document.getElementById('confirm');
-// full screen: the whole page, toggled; the button says which way it will go
-{const fb=document.getElementById('fullBtn'),fsEl=()=>document.fullscreenElement||document.webkitFullscreenElement;
- const showFs=()=>{fb.textContent=fsEl()?'Exit full screen':'Full screen';kbLock();};
+// full screen: the whole page, toggled; the buttons (the title menu's, and the pause menu's column) say which way it will go
+{const fbs=['fullBtn','fullBtnP'].map(id=>document.getElementById(id)).filter(Boolean),fsEl=()=>document.fullscreenElement||document.webkitFullscreenElement;
+ const showFs=()=>{for(const fb of fbs)fb.textContent=fsEl()?'Exit full screen':'Full screen';kbLock();};
  // in full screen, claim Esc where the browser allows it (Chrome and Edge: the Keyboard Lock API), so a tap of Esc
  // pauses the game instead of dropping out of full screen; holding Esc still leaves. Elsewhere Esc works as before.
  function kbLock(){try{const k=navigator.keyboard;if(!k||!k.lock)return;if(fsEl()){const r=k.lock(['Escape']);if(r&&r.catch)r.catch(()=>{});}else k.unlock();}catch(e){}}
- const can=document.fullscreenEnabled||document.webkitFullscreenEnabled;if(!can)fb.hidden=true;
- fb.addEventListener('click',()=>{try{if(fsEl()){(document.exitFullscreen||document.webkitExitFullscreen).call(document);}else{const el=document.documentElement,rq=el.requestFullscreen||el.webkitRequestFullscreen;const pr=rq&&rq.call(el);if(pr&&pr.catch)pr.catch(()=>{});}}catch(e){}});
+ const can=document.fullscreenEnabled||document.webkitFullscreenEnabled;if(!can)for(const fb of fbs)fb.hidden=true;
+ for(const fb of fbs)fb.addEventListener('click',()=>{try{if(fsEl()){(document.exitFullscreen||document.webkitExitFullscreen).call(document);}else{const el=document.documentElement,rq=el.requestFullscreen||el.webkitRequestFullscreen;const pr=rq&&rq.call(el);if(pr&&pr.catch)pr.catch(()=>{});}}catch(e){}});
  document.addEventListener('fullscreenchange',()=>{showFs();setTimeout(()=>{try{resize();}catch(e){}},50);});document.addEventListener('webkitfullscreenchange',showFs);showFs();}
 document.getElementById('newWorld').addEventListener('click',()=>{confirmEl.hidden=false;document.getElementById('confirmNo').focus();});
 document.getElementById('confirmNo').addEventListener('click',()=>{confirmEl.hidden=true;});

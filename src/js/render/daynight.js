@@ -58,7 +58,7 @@ function destLabel(){
 }
 // HUD clock: daytime is the top half (sunrise on the left, sunset on the right), night the bottom half
   clockT-=dt;
-  safe('dest',()=>{const p=players.find(q=>q.active);const S=p&&settlementAt(Math.floor(p.pos.x/CELL),Math.floor(p.pos.z/CELL));if(S)setDestroyed(S);
+  safe('dest',()=>{const p=players.find(q=>q.active);const S=p&&settlementAt(Math.floor(p.pos.x/CELL),Math.floor(p.pos.z/CELL));if(S){setDestroyed(S);rampRazeTick(S);}
     // (otherwise, a little at a time, work out the totals for the places you've found but not been into, for the map)
     else if(destJob.S)setDestroyed(destJob.S);
     else for(const K of knownSets.values())if(!setListC.has(K.rx+','+K.rz)){setDestroyed(K);break;}});
@@ -69,10 +69,11 @@ function destLabel(){
     clockHand.setAttribute('x2',hx.toFixed(2));clockHand.setAttribute('y2',hy.toFixed(2));
     clockOrb.setAttribute('cx',hx.toFixed(2));clockOrb.setAttribute('cy',hy.toFixed(2));
     clockOrb.setAttribute('fill',day?'#ffd447':'#fff6dc');
-    // stacked under the clock: the day (and the time of day), then the season, the weather and the moon
-    if(clockTxt){const W=WX_TYPES[WX.type],M=moonInfo(),se=seasonOf(),part=timeLabel().split(', ')[1];
-      const h='<b>Day '+dayN+' · '+part+'</b><div>'+W.n+' · '+SEASONS[se]+'</div><div class="ct2">'+SEASON_ICONS[se]+' '+W.i+' '+M[1]+' '+M[0]+'</div><div class="ct3">'+whereLabel()+'</div>';   // (how wrecked it is: the City wrecked card, bottom right)
+    // beside the clock: the day (and the time of day), then the season. (How wrecked it is: the City wrecked card, bottom right)
+    if(clockTxt){const part=timeLabel().split(', ')[1];
+      const h='<b>Day '+dayN+' · '+part+'</b><div>'+SEASONS[seasonOf()]+'</div>';
       if(clockTxt.dataset.h!==h){clockTxt.dataset.h=h;clockTxt.innerHTML=h;}}
+    infoTick(whereLabel);   // (whereLabel lives in here, in updateSky)
   }
 }
 // one part of the world going wrong shouldn't stop the whole game: each update runs on its own, and an error in one is
@@ -88,6 +89,16 @@ function fpsTick(raw){
     FPS.el.className='fpsc'+(f<30?' low':f<50?' mid':'');FPS.n=0;FPS.t=0;FPS.worst=0;}
 }
 let readoutH='';
+// The info pane, under the clock: the weather, the moon and where you are, in words. Shown from the debug menu's Overlays
+// (DT.info, kept in this browser), off to begin with
+const noSym=s=>s.replace(/[\u{1F000}-\u{1FAFF}\u2190-\u2BFF\uFE0F\u200D]/gu,'').replace(/ {2,}/g,' ').replace(/> /g,'>').trim();
+let infoEl=null;
+function infoTick(whereLabel){
+  if(!infoEl)infoEl=document.getElementById('infoPane');if(!infoEl)return;
+  if(infoEl.hidden===DT.info)infoEl.hidden=!DT.info;if(!DT.info)return;
+  const h='<div><span class="ik">Weather</span>'+WX_TYPES[WX.type].n+'</div><div><span class="ik">Moon</span>'+moonInfo()[0]+'</div><div><span class="ik">Biome</span>'+noSym(whereLabel())+'</div>';
+  if(infoEl.dataset.h!==h){infoEl.dataset.h=h;infoEl.innerHTML=h;}
+}
 // The graphics card's programs are made the first time something needing each is drawn, and that's a stall: the first explosion, or
 // the first sprint. Everything hidden in the scene gets its program here instead, on the second frame, while the game is still
 // on the title screen. (Plus the speed lines, whose materials aren't made till they're needed. These stay referenced, as
@@ -159,8 +170,8 @@ function frame(now,bg){   // (bg: a tab in the background while online, kept goi
   for(const p of act){if(!p.paused)continue;const o=act.find(q=>q!==p);const txt=!o?'':o.paused?'Both paused. The city is frozen.':`The city keeps going while ${charName(o)} plays.`;if(p.ui.pstatus.textContent!==txt)p.ui.pstatus.textContent=txt;}
   const pol=cars.some(c=>c.alive&&c.police&&c.hunter);
   updateSiren(dt);promptTick(dt);safe('pops',()=>popTick(dt));
-  // (the score, big, top left; under it the goblins flattened, and a sticker for a police pursuit)
-  {const h=`<b class="sc">${score.toLocaleString('en-US')}</b><span class="rk">${kills.toLocaleString('en-US')} flattened</span>${pol?'<i>Police pursuit</i>':''}`;if(h!==readoutH){readoutH=h;readout.innerHTML=h;}}   // (only when it's changed: rebuilding it makes the browser lay the page out again)
+  // (the score, big, top left; under it the goblins slain, and a sticker for a police pursuit)
+  {const h=`<b class="sc">${score.toLocaleString('en-US')}</b><span class="rk">${kills.toLocaleString('en-US')} ${kills===1?'goblin':'goblins'} slain</span>${pol?'<i>Police pursuit</i>':''}`;if(h!==readoutH){readoutH=h;readout.innerHTML=h;}}   // (only when it's changed: rebuilding it makes the browser lay the page out again)
   if(bg)return;   // (nobody's looking: no drawing, and no next frame asked for, the browser having stopped giving this tab any)
   const w=innerWidth,h=innerHeight;
   // (the title screen draws its own backdrop instead of the city: see ui/title-scene.js)

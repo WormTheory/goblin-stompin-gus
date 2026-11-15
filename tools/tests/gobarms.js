@@ -1,7 +1,7 @@
 let __s=+(process.env.SEED||1);Math.random=()=>{__s=(__s*16807)%2147483647;return (__s-1)/2147483646;};
 const fs=require('fs');
 let src0=fs.readFileSync('g.js','utf8');
-let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={players,cars,goblins,keys,frame,setRaw,get,solidAt,groundAt,ABIL,AB,DT,setGob,mHeld,freeFoe,foeSpawn,jackKinds,PICKUPS,SHOTS,bindHint,FOES,foeThrow,damageGoblin,gobDrop};\n})();');
+let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={players,cars,goblins,keys,frame,setRaw,get,solidAt,groundAt,ABIL,AB,DT,setGob,mHeld,freeFoe,foeSpawn,jackKinds,PICKUPS,SHOTS,bindHint,FOES,foeThrow,damageGoblin,gobDrop,copArm,COP_FOE};\n})();');
 const deep=()=>new Proxy(function(){}, {get:(t,p)=>p===Symbol.toPrimitive?()=>0:(p==='length'?0:deep()),apply:()=>deep(),construct:()=>deep()});
 class Q{constructor(){this.x=0;this.y=0;this.z=0;this.w=1}set(x,y,z,w){this.x=x;this.y=y;this.z=z;this.w=w;return this}setFromAxisAngle(a,t){const s=Math.sin(t/2);this.x=a.x*s;this.y=a.y*s;this.z=a.z*s;this.w=Math.cos(t/2);return this}copy(q){this.x=q.x;this.y=q.y;this.z=q.z;this.w=q.w;return this}}
 class V3{project(){return this}fromBufferAttribute(a,i){const A=a.array||a.a;this.x=A[i*3];this.y=A[i*3+1];this.z=A[i*3+2];return this}applyMatrix4(m){const e=m.elements,x=this.x,y=this.y,z=this.z;this.x=e[0]*x+e[4]*y+e[8]*z+e[12];this.y=e[1]*x+e[5]*y+e[9]*z+e[13];this.z=e[2]*x+e[6]*y+e[10]*z+e[14];return this}setFromMatrixPosition(o){this.x=o.position.x;this.y=o.position.y;this.z=o.position.z;return this}normalize(){const l=Math.hypot(this.x,this.y,this.z)||1;this.x/=l;this.y/=l;this.z/=l;return this}add(v){this.x+=v.x;this.y+=v.y;this.z+=v.z;return this}applyQuaternion(q){const x=this.x,y=this.y,z=this.z,qx=q.x,qy=q.y,qz=q.z,qw=q.w;const ix=qw*x+qy*z-qz*y,iy=qw*y+qz*x-qx*z,iz=qw*z+qx*y-qy*x,iw=-qx*x-qy*y-qz*z;this.x=ix*qw+iw*-qx+iy*-qz-iz*-qy;this.y=iy*qw+iw*-qy+iz*-qx-ix*-qz;this.z=iz*qw+iw*-qz+ix*-qy-iy*-qx;return this}constructor(x=0,y=0,z=0){this.x=x;this.y=y;this.z=z}set(x,y,z){this.x=x;this.y=y;this.z=z;return this}copy(v){this.x=v.x;this.y=v.y;this.z=v.z;return this}clone(){return new V3(this.x,this.y,this.z)}addScaledVector(v,s){this.x+=v.x*s;this.y+=v.y*s;this.z+=v.z*s;return this}multiplyScalar(s){this.x*=s;this.y*=s;this.z*=s;return this}setScalar(s){return this.set(s,s,s)}}
@@ -83,6 +83,14 @@ for(const gob of [false,true]){
    hold([KF],60);S(5);console.log('picked up: grenades',A.gren,' left lying',drops());killAll();
    home();A.cam.pitch=-0.35;const g=foe('thief',8,3);freeze();const gz=g.pos.z,pin=n=>{for(let i=0;i<n;i++){g.pos.z=gz;g.kv.set(0,0,0);S(1);}};const n=A.gren;press(3,'Mouse2');pin(4);press(3,'Mouse2');pin(5);const live=T.SHOTS.filter(Q=>Q.live).length;
    console.log('right click, twice quickly: grenades',n,'->',A.gren,' in the air',live);pin(160);console.log('  the thief 8 ahead, where it lands: hp 3 ->',g.hp,' dead',g.state==='dead',' my hp',A.hp);killAll();A.cam.pitch=0;}
+  // a police officer's handgun: dropped where he falls, picked up, and fired (quicker than the rifle, shorter reach)
+  {home();const g=T.goblins.find(q=>q.pkit&&q.state==='wait'&&!q.special&&!q.cultist);
+   g.state='chase';g.root.visible=true;g.civ=false;g.foeKind=null;g.hp=4;g.stun=0;g.kv.set(0,0,0);g.pos.set(A.pos.x,F,A.pos.z+1.1);T.copArm(g);g.gunCD=1e9;
+   console.log('officer armed:',g.gun===T.COP_FOE);const n=A.wpns.length;T.damageGoblin(g,9,g.pos.clone(),null,'Clubbed by another goblin');S(2);console.log('club an officer: drops',drops());
+   hold([KF],60);S(5);console.log('walk over it:',kit(),' new weapons',A.wpns.length-n);
+   const g2=foe('thief',12,5);freeze();S(30);const h=g2.hp;press(4);S(25);press(4);S(20);console.log('handgun at a thief 12 ahead, twice: hp',h,'->',g2.hp);
+   const g3=foe('thief',34,5);g3.pos.x=A.pos.x;freeze();S(30);const h3=g3.hp;press(4);S(20);console.log('and one 34 ahead, past its reach: hp',h3,'->',g3.hp);
+   const seq=[A.wpn];for(let i=0;i<4;i++){tap('KeyR',3);S(3);seq.push(A.wpn);}console.log('weapon button:',seq.join(' > '));killAll();}
   // a prepper's bomb is a grenade now
   {home();const g=foe('prepper',8,5);T.foeThrow(g,A,T.FOES.prepper.bomb);const Q=T.SHOTS.filter(Q=>Q.live);console.log("prepper throws:",Q.map(q=>q.kind+' ('+q.cause+')').join(', '));killAll();}
 }

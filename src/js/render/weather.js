@@ -1,9 +1,9 @@
 // ---------- seasons, weather and the moon ----------
 // The year: four 30-day seasons. Each season has its own odds for the weather; a spell lasts a third of a day to a
 // day, and everything (cloud, darkness, fog, rain, snow, wind, storms) eases from one spell into the next.
-const SEASONS=['Spring','Summer','Autumn','Winter'],SEASON_ICONS=['🌸','🌻','🍂','⛄'],SEASON_LEN=30,MOON_LEN=30;
+const SEASONS=['Spring','Summer','Autumn','Winter'],SEASON_LEN=30,MOON_LEN=30;
 const WX_TYPES={
-  sunny:{n:'Sunny',i:'☀️',cover:0.05,wind:0.4},
+  clear:{n:'Clear',i:'☀️',cover:0.05,wind:0.4},
   partly:{n:'Partly cloudy',i:'⛅',cover:0.45,wind:0.6},
   cloudy:{n:'Cloudy',i:'☁️',cover:0.85,dark:0.22,fog:0.9,wind:0.7},
   windy:{n:'Windy',i:'💨',cover:0.4,wind:3.2},
@@ -18,18 +18,18 @@ const WX_TYPES={
 const WX_KEYS=['cover','dark','fog','rain','snow','wind','storm'],WX_DEF={cover:0,dark:0,fog:1,rain:0,snow:0,wind:0.5,storm:0};
 // the odds of each kind of weather, season by season
 const WX_ODDS=[
-  {sunny:3,partly:4,cloudy:2,windy:2,foggy:1.5,lrain:3,rain:2.5,hrain:1,storm:1,lsnow:0.3},
-  {sunny:6,partly:4,cloudy:1,windy:1,foggy:0.4,lrain:1.5,rain:1,hrain:0.8,storm:2},
-  {sunny:2,partly:3,cloudy:3,windy:3,foggy:2.5,lrain:2.5,rain:2,hrain:1,storm:0.5,lsnow:0.5},
-  {sunny:1.5,partly:2,cloudy:3,windy:1.5,foggy:2,lrain:0.5,rain:0.3,lsnow:3,snow:2.5,blizzard:1.2}];
-const WX={snowClock:0,type:'sunny',until:1,k:Object.assign({},WX_DEF,{cover:0.05,wind:0.4}),wet:0,snowCover:0,flash:0,boltT:6,thunder:[]};
+  {clear:3,partly:4,cloudy:2,windy:2,foggy:1.5,lrain:3,rain:2.5,hrain:1,storm:1,lsnow:0.3},
+  {clear:6,partly:4,cloudy:1,windy:1,foggy:0.4,lrain:1.5,rain:1,hrain:0.8,storm:2},
+  {clear:2,partly:3,cloudy:3,windy:3,foggy:2.5,lrain:2.5,rain:2,hrain:1,storm:0.5,lsnow:0.5},
+  {clear:1.5,partly:2,cloudy:3,windy:1.5,foggy:2,lrain:0.5,rain:0.3,lsnow:3,snow:2.5,blizzard:1.2}];
+const WX={snowClock:0,type:'clear',until:1,k:Object.assign({},WX_DEF,{cover:0.05,wind:0.4}),wet:0,snowCover:0,flash:0,boltT:6,thunder:[]};
 const seasonOf=()=>Math.floor((dayN-1)/SEASON_LEN)%4,seasonDay=()=>(dayN-1)%SEASON_LEN+1,gameDays=()=>dayN-1+tod;
 const moonPhase=()=>((dayN-1+tod)/MOON_LEN)%1;   // 0 new, 0.5 full
 const MOON_NAMES=[['New moon','🌑'],['Waxing crescent','🌒'],['First quarter','🌓'],['Waxing gibbous','🌔'],['Full moon','🌕'],['Waning gibbous','🌖'],['Last quarter','🌗'],['Waning crescent','🌘']];
 const moonInfo=()=>MOON_NAMES[Math.round(moonPhase()*8)%8];
 function wxPick(se){const O=WX_ODDS[se];let tot=0;for(const k in O)tot+=O[k];let u=Math.random()*tot;for(const k in O){if(u<O[k])return k;u-=O[k];}return'partly';}
 function wxSet(type,now){WX.type=type;WX.until=gameDays()+0.3+Math.random()*0.7;if(now){const T=WX_TYPES[type];for(const k of WX_KEYS)WX.k[k]=T[k]??WX_DEF[k];}}
-function wxReset(){WX.frozen=false;freezeQ.length=0;wxSet('sunny',true);WX.until=1;   // day 1 is always a sunny spring day
+function wxReset(){WX.frozen=false;freezeQ.length=0;wxSet('clear',true);WX.until=1;   // day 1 is always a clear spring day
  WX.wet=WX.k.rain>0.2?0.6:0;WX.snowCover=seasonOf()===3&&WX.k.snow>0?0.5:0;WX.flash=0;WX.thunder.length=0;}
 // precipitation: streaks of rain or flakes of snow in a box round the camera, fixed in the world as you move through it
 const PRECIP_N=2400,PBX=24,PBY=28;
