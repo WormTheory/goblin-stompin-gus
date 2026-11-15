@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:af495a60c718d86009e3d5c25474a085db13f7eac581d140f4afca8af48b7dc4 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:df47778871842c3c40d42d16f0d19557d850a5bdfccedbcab28258873918eaa8 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1365,7 +1365,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
     <div class="custom">
       <h2>ON SCREEN</h2>
       <div class="abil">
-        <button type="button" class="tog" role="checkbox" id="dmgPopTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Damage numbers<small>Numbers pop off the goblins as you hit them. The points you earn still float up either way</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="scorePopTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Score numbers<small>The points you earn float up from whatever you flattened or smashed. Your score and the wreck feed still count them either way</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="dmgPopTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Damage numbers<small>Numbers pop off the goblins as you hit them</small></span></button>
         <button type="button" class="tog" role="checkbox" id="shoutTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Shouts<small>SPLAT!, CHOMP! or KABOOM! when a goblin goes down, combo milestones, and FULL CHARGE! on a charged stomp</small></span></button>
         <button type="button" class="tog" role="checkbox" id="hpBarTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Health bars<small>A bar over every goblin, vehicle and other player nearby showing how hurt it is. Your own vehicle's health shows either way</small></span></button>
         <button type="button" class="tog" role="checkbox" id="calmTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Reduced motion<small>Stops the wobbling, bobbing and popping of the menus and the display, and Gus on the title screen holds still. On by itself if your system asks for less motion</small></span></button>
@@ -1401,11 +1402,11 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>A new look</h3>
 <ul><li>The game has a new coat of paint: flat crayon colours, thick ink outlines with hand-drawn corners, and a chunky pixel font (Jersey 10) for titles, buttons and numbers. Anything you read, like descriptions and these notes, keeps the easy-to-read font.</li><li>Button prompts are drawn as the buttons themselves in the new style: crayon-coloured face buttons and paper keycaps.</li><li>A real title screen: the logo top left, and Gus himself stomping along a street in front of a scrolling city while you choose, flattening a goblin with every stomp. It's lit and shaded just like the game. The menu card on the right has Play, Co-op, Play online, New city and Options, with the Testing Environment, Dev and Full screen in a small Workshop line underneath, and a sticker for what's new.</li><li>The enemy hostility slider has moved from the main screen to the top of Options.</li><li>In Options, each slider's name now sits to its left on the same row, with its setting on the right and the description underneath, and all the sliders line up. In a narrow window the name goes back above the slider.</li><li>Picking a character is now "Who's stompin'?": four big cards for Gus, Gertie, Gnash and Grizzle, with a 1P tag on player one's pick and a 2P tag on player two's in co-op. In split-screen co-op each of you picks your own character from your own pause menu's Character screen, and a strip under the cards lists what that character can do with your current ability switches. Picking the other player's character still swaps you over.</li><li>In split-screen co-op each player still has their own pause menu, driven only by their own controller. Player two's is just Resume, Map, Obituary, Character and Controls: what changes the game for both of you (Options, New city, Play online, the Testing Environment, Quit to title) stays in player one's.</li><li>The title screen's menu card no longer shows a scroll bar down its side when the game first opens.</li><li>Each player has their own ability switches. In split-screen co-op player two sets theirs in their own pause menu's Character screen, and they go with you whichever hippo you pick, so Gus and Gertie are still the same as each other: it's the player, not the hippo, who has the moves. Player one keeps the switches they had, and player two starts with a copy of them.</li><li>The ability switches are laid out as basic moves and their upgrades: each basic move (Bite, Stomp, Ground Pound, Dash, Sprint, Jump, Long Jump, Air Dash, Spider Climb) on the left, with the upgrades that improve it trailing off it as yellow tokens, each with a +1 or +2 coin for how many steps up it is (Bite combo, Charge Stomp, Full Charge Stomp, Ground Spike, Rocket Boost and so on). Crash Landing and Fall damage immunity are upgrades to every landing. No more tick boxes: a move that's on is in full colour and one that's off is greyed out, with On or Off in its corner. Click it, or press A on a controller, to switch it. An upgrade whose basic move is off is greyed with a dashed edge and says what it needs; switching it on switches that on too.</li><li>On a controller, A on a character card picks them and takes you back ("Ready!"), and Y jumps down to the ability switches. Screens opened from a menu have a Back button: B or Esc goes back, and LB / RB (Q / E on the keyboard) jump between screens.</li><li>The pause menu is a column of big buttons (Resume, Map, Obituary with its count, Character, Controls, Options, Quit to title) beside a "This rampage" card: goblins flattened, your score, your best combo, cars tossed and how wrecked the place you're in is, with its name and the time of day. Underneath are this game's own controls: switch between solo and co-op, Play online, New city, the Testing Environment and Full screen.</li><li>Map, Obituary, Character, Controls, Options and Patch notes open in the same card, sliding in from the right, and always start you back on the menu's own buttons when you pause again. B or Esc on the menu itself resumes.</li><li>Quit to title takes you back to the title screen with Gus stomping along; your city, score and everyone in it are kept, so Play carries on where you left off.</li><li>Patch notes and Dev are small tags in the card's corner now. In split-screen co-op the card's corner says 1P MENU (green) or 2P MENU (pink), so you can tell whose menu it is, and player two's menu still leaves out Options, Dev, the Testing Environment, Quit to title and the city controls.</li><li>Options, Controls, the Map, the Obituary and the Patch notes are on paper in the new style. The Dev tools and the Testing Environment keep a dark panel, in the new colours.</li><li>The HUD is redrawn to match: your score big in the top left with the goblins you've flattened under it (and stickers when cars or the police are after you), pixel hearts and the stamina bar in one paper panel at the bottom, the day and weather on a paper card beside a new clock disc, a round minimap, and the speedometer in ink and yolk.</li><li>Charging a stomp shows STOMP, then BIG STOMP, then shouts FULL CHARGE! when it's all the way up.</li><li>Combos: every goblin flattened or thing smashed within 3 seconds of the last adds one to your combo, shown under your score with a bar that drains until the next. The combo multiplies your points: +10% for each step from the second, so x11 doubles them and x21 or more triples them (that's as high as it goes). Big combos get a name and a shout: x5 Stompin'!, x10 STOMPTACULAR!, x15 Hippo-critical!, x20 GOBLINGEDDON!, x30 Unstoppable lump!, x50 HIPPOCALYPSE!, x75 Wallow of doom! and x100 Legend of the bog!</li><li>Points float up from wherever you earned them, damage numbers pop off the goblins as you hit them, and a goblin going down gets a shout: SPLAT! for a stomp, CHOMP! for a bite, KABOOM! for an explosion, and so on. Options, under On screen, has a switch each for Damage numbers, Shouts (the goblin-flattening shouts, combo milestones and FULL CHARGE!, which turns into a plain FULL) and Health bars (bars over the goblins, vehicles and other players near you, off to start with). If you'd switched off the old damage numbers and shouts switch, all three start off.</li><li>What you've just wrecked is listed in stickers in the top right, newest on top, with the points it earned (combo included), fading as they get older.</li><li>A City wrecked card in the bottom right shows how much of the place you're in you've knocked down (Town or Village wrecked in smaller places).</li><li>In split screen and online, each player has their own combo, pop-ups and list of what they've wrecked, from their own hits. The best combo shows in the pause menu's rampage card, and a new city starts it all again.</li><li>A Reduced motion switch in Options, under On screen, stops the wobbling, bobbing and popping of the menus and the display and holds Gus still on the title screen. It's on by itself if your system asks for less motion.</li><li>Sounds for the points as they pop up (rising as your combo climbs) and a fanfare for each combo milestone.</li><li>Arriving somewhere puts its name up on a big sticker. Chat, voice chips, the controls hint, the debug menu and each co-op player's own pause panel are restyled too, and in split screen each half's name is a 1P-green or 2P-pink tag.</li></ul>
 <h3>Menus</h3>
-<ul><li>In player two's menu, the button that carries on playing says Resume rather than Co-op.</li><li>The pause menu's buttons always fit in the window, at any size and in split screen, and never sit in a box with scroll bars.</li><li>The Map zooms out as far as it takes to see everywhere you've explored at once, however far you've roamed.</li><li>The highlight round the picked character cards, and their 1P and 2P tags, are no longer cut off at the edges.</li><li>The What's new sticker sits under the title menu instead of over the Full screen link, and the controller and city seed notes have moved down on to the ground.</li><li>The pixel-art portraits and hearts are solid at any zoom and on any screen, with no faint lines between their pixels.</li></ul>
+<ul><li>In player two's menu, the button that carries on playing says Resume rather than Co-op.</li><li>The pause menu's buttons always fit in the window, at any size and in split screen, and never sit in a box with scroll bars.</li><li>The Map zooms out as far as it takes to see everywhere you've explored at once, however far you've roamed.</li><li>The highlight round the picked character cards, and their 1P and 2P tags, are no longer cut off at the edges.</li><li>The What's new sticker sits under the title menu instead of over the Full screen link, and the controller and city seed notes have moved down on to the ground.</li><li>The pixel-art portraits and hearts are solid at any zoom and on any screen, with no faint lines between their pixels.</li><li>Options, under On screen, has a new Score numbers switch for the points that float up when you flatten or smash something. Your score and the wreck list still count them either way.</li><li>The debug menu has a Combo system switch, under Player. Switched off, there are no combos at all: your points aren't multiplied, and the combo card, combo milestone shouts and the pause menu's Best combo are all hidden. Online, the host's switch counts for everyone.</li><li>The speedometer only shows while you're in a vehicle, driving or in the gunner's seat.</li></ul>
 <h3>Goblins</h3>
 <ul><li>A new Goblin pathfinding setting in Options, just under Enemy hostility: Advanced (as before: goblins climb walls and buildings, jump gaps and find their way to you wherever you are) or Simple, the older chase, where goblins run straight at you, go round walls and take a building's stairs, but never climb or jump, so up on a roof you're out of their reach. Switching takes effect at once, and any goblin halfway up a wall lets go and drops down unhurt.</li></ul>
 <h3>Online co-op</h3>
-<ul><li>If you join someone else's game, goblins, cars, other players and everything else moving in the world now glide smoothly instead of jerking from spot to spot when the connection is a bit bumpy. Your game holds a little more in reserve when packets arrive unevenly, and briefly carries things on in the direction they were going if an update is late. Nothing extra is sent over the network, so it's no heavier on the connection.</li></ul>
+<ul><li>If you join someone else's game, goblins, cars, other players and everything else moving in the world now glide smoothly instead of jerking from spot to spot when the connection is a bit bumpy. Your game holds a little more in reserve when packets arrive unevenly, and briefly carries things on in the direction they were going if an update is late. Nothing extra is sent over the network, so it's no heavier on the connection.</li><li>If you join someone else's game, you now see your own score numbers, damage numbers and shouts (they never showed up for anyone but the host), and your combo bar drains as it should instead of sitting full. The debug menu's damage numbers show for you too.</li></ul>
 <h3>The city</h3>
 <ul><li>Cinema marquees now say what's on: two lit boards across the middle of the canopy, each showing a different goblin take on a famous film, like Goblin Wars, Jurassic Goblin, The Silence of the Goblins or Goblins of the Caribbean. Each cinema keeps its own bill, and the boards fall off when you knock the canopy down.</li></ul>
 </details>
@@ -9912,7 +9913,7 @@ function makePlayer(idx){
   root.visible=false;scene.add(root);
   p.pool=new THREE.Mesh(new THREE.CircleGeometry(1,18),flatMat(0x4d0707,1,-3));p.pool.rotation.x=-Math.PI/2;p.pool.visible=false;scene.add(p.pool);
   const v=document.createElement('div');v.className='view';v.hidden=true;
-  v.innerHTML=`<div class="water-tint" hidden></div><div class="hurt"></div><canvas class="mini" width="200" height="200" aria-hidden="true"></canvas><div class="speedo" aria-hidden="true"><svg viewBox="-50 -46 100 96"><path d="M-34.64,20 A40,40 0 1 1 34.64,20" pathLength="100" fill="none" stroke="rgba(238,240,230,.16)" stroke-width="7" stroke-linecap="round"/><path class="sp-fill" d="M-34.64,20 A40,40 0 1 1 34.64,20" pathLength="100" fill="none" stroke="#7fc24a" stroke-width="7" stroke-linecap="round" stroke-dasharray="0 200" visibility="hidden"/>${[0,1,2,3,4,5,6].map(i=>{const a=(-120+i*40)*Math.PI/180;return `<line x1="${(Math.sin(a)*29).toFixed(1)}" y1="${(-Math.cos(a)*29).toFixed(1)}" x2="${(Math.sin(a)*33).toFixed(1)}" y2="${(-Math.cos(a)*33).toFixed(1)}" stroke="rgba(238,240,230,.5)" stroke-width="1.5"/>`;}).join('')}<line class="sp-needle" x1="0" y1="4" x2="0" y2="-31" stroke="#ffd75a" stroke-width="2.6" stroke-linecap="round" transform="rotate(-120)"/><circle r="4.2" fill="#ffd75a" stroke="#0c0f14" stroke-width="1.4"/><text class="sp-num" x="0" y="27" text-anchor="middle">0</text><text x="0" y="36" text-anchor="middle" class="sp-unit">km/h</text><text class="sp-vert" x="0" y="48" text-anchor="middle" visibility="hidden"></text></svg></div><div class="bar"><div class="hint" hidden></div><div class="smeter lv0" hidden><div class="sbar"><div class="mfill"></div><i class="tick"></i></div><span class="slv">STOMP</span></div><div class="label"></div><div class="who${idx?' p2':''}">${S.name}</div><div class="hpbox"><div class="hearts" role="img" aria-label="${S.name} health"></div><div class="meter stam" aria-label="${S.name} trample stamina"><div class="mfill"></div></div></div></div><div class="combo" hidden><div class="cb1"><b class="cbn"></b><span class="cbm"></span></div><div class="cbbar"><i></i></div><div class="cbx"></div></div><div class="feed" aria-live="polite"></div><div class="wreck" hidden><div class="wk1"><span class="wkt"></span><b class="wkv"></b></div><div class="wkbar"><i></i></div></div><div class="join" hidden>${S.name}: connect a controller and press any button</div><div class="ppause" hidden><div class="pcard"><div class="ptitle${idx?' p2':''}">${S.name} · PAUSED</div><p class="pstatus"></p><button type="button" class="ck ${idx?'co':'go'} pres">Resume</button><button type="button" class="ck set pmenu">Pause menu</button><div class="prompts small pprompts"></div></div></div>`;
+  v.innerHTML=`<div class="water-tint" hidden></div><div class="hurt"></div><canvas class="mini" width="200" height="200" aria-hidden="true"></canvas><div class="speedo" aria-hidden="true" hidden><svg viewBox="-50 -46 100 96"><path d="M-34.64,20 A40,40 0 1 1 34.64,20" pathLength="100" fill="none" stroke="rgba(238,240,230,.16)" stroke-width="7" stroke-linecap="round"/><path class="sp-fill" d="M-34.64,20 A40,40 0 1 1 34.64,20" pathLength="100" fill="none" stroke="#7fc24a" stroke-width="7" stroke-linecap="round" stroke-dasharray="0 200" visibility="hidden"/>${[0,1,2,3,4,5,6].map(i=>{const a=(-120+i*40)*Math.PI/180;return `<line x1="${(Math.sin(a)*29).toFixed(1)}" y1="${(-Math.cos(a)*29).toFixed(1)}" x2="${(Math.sin(a)*33).toFixed(1)}" y2="${(-Math.cos(a)*33).toFixed(1)}" stroke="rgba(238,240,230,.5)" stroke-width="1.5"/>`;}).join('')}<line class="sp-needle" x1="0" y1="4" x2="0" y2="-31" stroke="#ffd75a" stroke-width="2.6" stroke-linecap="round" transform="rotate(-120)"/><circle r="4.2" fill="#ffd75a" stroke="#0c0f14" stroke-width="1.4"/><text class="sp-num" x="0" y="27" text-anchor="middle">0</text><text x="0" y="36" text-anchor="middle" class="sp-unit">km/h</text><text class="sp-vert" x="0" y="48" text-anchor="middle" visibility="hidden"></text></svg></div><div class="bar"><div class="hint" hidden></div><div class="smeter lv0" hidden><div class="sbar"><div class="mfill"></div><i class="tick"></i></div><span class="slv">STOMP</span></div><div class="label"></div><div class="who${idx?' p2':''}">${S.name}</div><div class="hpbox"><div class="hearts" role="img" aria-label="${S.name} health"></div><div class="meter stam" aria-label="${S.name} trample stamina"><div class="mfill"></div></div></div></div><div class="combo" hidden><div class="cb1"><b class="cbn"></b><span class="cbm"></span></div><div class="cbbar"><i></i></div><div class="cbx"></div></div><div class="feed" aria-live="polite"></div><div class="wreck" hidden><div class="wk1"><span class="wkt"></span><b class="wkv"></b></div><div class="wkbar"><i></i></div></div><div class="join" hidden>${S.name}: connect a controller and press any button</div><div class="ppause" hidden><div class="pcard"><div class="ptitle${idx?' p2':''}">${S.name} · PAUSED</div><p class="pstatus"></p><button type="button" class="ck ${idx?'co':'go'} pres">Resume</button><button type="button" class="ck set pmenu">Pause menu</button><div class="prompts small pprompts"></div></div></div>`;
   hudEl.insertBefore(v,hudEl.firstChild);
   p.ui={mini:v.querySelector('.mini'),pprompts:v.querySelector('.pprompts'),spVert:v.querySelector('.sp-vert'),speedo:v.querySelector('.speedo'),spFill:v.querySelector('.sp-fill'),spNeedle:v.querySelector('.sp-needle'),spNum:v.querySelector('.sp-num'),view:v,tint:v.querySelector('.water-tint'),hurt:v.querySelector('.hurt'),hint:v.querySelector('.hint'),label:v.querySelector('.label'),who:v.querySelector('.who'),hearts:v.querySelector('.hearts'),join:v.querySelector('.join'),stam:v.querySelector('.stam'),stamFill:v.querySelector('.stam .mfill'),smeter:v.querySelector('.smeter'),smFill:v.querySelector('.smeter .mfill'),slv:v.querySelector('.slv'),ppause:v.querySelector('.ppause'),pres:v.querySelector('.pres'),pmenu:v.querySelector('.pmenu'),pstatus:v.querySelector('.pstatus'),timer:null,feed:v.querySelector('.feed'),combo:v.querySelector('.combo'),cbn:v.querySelector('.cbn'),cbm:v.querySelector('.cbm'),cbx:v.querySelector('.cbx'),cbFill:v.querySelector('.cbbar i'),wreck:v.querySelector('.wreck'),wkT:v.querySelector('.wkt'),wkV:v.querySelector('.wkv'),wkFill:v.querySelector('.wkbar i')};
   p.paused=false;
@@ -16755,12 +16756,12 @@ const sbxCells=cells=>{const h=SBX&&SBX.hits[SBX.hits.length-1];if(h&&h.kind==='
 // game speed and free cam
 const SPEEDS=[0.05,0.1,0.25,0.5,0.75,0.9,1,1.25,1.5,2];
 const PSPEEDS=[1,1.5,2,2.5,3,4,5,6,7,8,9,10];
-const DT={hpBars:false,dmgNums:false,fps:false,sndList:false,curve:2,psI:0,invuln:false,infStam:false,fly:false,gob:false,host:2,speedI:6,paused:false,freecam:false,step:false,quick:true,menu:false,kbdOpen:false,selHeld:false,cur:0,navDir:0,navT:0};
+const DT={combo:true,hpBars:false,dmgNums:false,fps:false,sndList:false,curve:2,psI:0,invuln:false,infStam:false,fly:false,gob:false,host:2,speedI:6,paused:false,freecam:false,step:false,quick:true,menu:false,kbdOpen:false,selHeld:false,cur:0,navDir:0,navT:0};
 try{const q=JSON.parse(localStorage.getItem('goblin-stompin-gus-quickdbg')||'null');if(typeof q==='boolean')DT.quick=q;}catch(e){}
 try{for(const k of ['fps','hpBars','dmgNums','sndList'])DT[k]=localStorage.getItem('goblin-stompin-gus-'+k)==='1';}catch(e){}
 // the debug settings carry over from one session to the next (all but stopping time and the free cam, which would
 // only be confusing to come back to)
-const DT_KEY='goblin-stompin-gus-debug',DT_SAVED=['curve','psI','speedI','invuln','infStam','fly','fps','hpBars','dmgNums','sndList','quick'];
+const DT_KEY='goblin-stompin-gus-debug',DT_SAVED=['curve','psI','speedI','invuln','infStam','fly','combo','fps','hpBars','dmgNums','sndList','quick'];
 try{const q=JSON.parse(localStorage.getItem(DT_KEY)||'null');if(q&&typeof q==='object')for(const k of DT_SAVED)if(typeof q[k]===typeof DT[k])DT[k]=q[k];
   if(!(DT.speedI>=0&&DT.speedI<SPEEDS.length))DT.speedI=SPEEDS.indexOf(1);if(!(DT.psI>=0&&DT.psI<PSPEEDS.length))DT.psI=0;}catch(e){}
 function saveDT(){try{const o={};for(const k of DT_SAVED)o[k]=DT[k];localStorage.setItem(DT_KEY,JSON.stringify(o));
@@ -16796,7 +16797,7 @@ const UI_PARTS={
   uiClock:['.clock','Clock','The dial at the top right'],
   uiStatus:['#clockTxt','Status panel','Day, season, weather, moon and where you are, under the clock'],
   uiMini:['.mini','Minimap','Bottom left'],
-  uiSpeedo:['.speedo','Speedometer','Bottom right'],
+  uiSpeedo:['.speedo','Speedometer','Bottom right, in a vehicle'],
   uiHearts:['.hearts','Hearts','Your health'],
   uiStam:['.stam','Stamina bar','Under the hearts'],
   uiCharge:['.smeter','Charge meter','Winding up a stomp or a ground pound'],
@@ -16822,7 +16823,7 @@ const DBG_COLS=4,DBG_SECS=[
   [0,'Time',[{k:'speed',label:'Game speed'},{k:'paused',label:'Stop time'}]],
   [0,'Camera',[{k:'freecam',label:'Free cam'},{k:'curve',label:'World curve'}]],
   [0,'World',[{k:'wx',label:'Weather'},{k:'season',label:'Season'}]],
-  [1,'Player',[{k:'pspeed',label:'Player speed'},{k:'invuln',label:'Invulnerable'},{k:'infStam',label:'Infinite stamina'},{k:'fly',label:'Flying'},{k:'host',label:'Enemy hostility'}]],
+  [1,'Player',[{k:'pspeed',label:'Player speed'},{k:'invuln',label:'Invulnerable'},{k:'infStam',label:'Infinite stamina'},{k:'fly',label:'Flying'},{k:'host',label:'Enemy hostility'},{k:'combo',label:'Combo system'}]],
   [1,'Overlays',[{k:'fps',label:'FPS counter'},{k:'hpBars',label:'Health bars'},{k:'dmgNums',label:'Damage numbers'},{k:'sndList',label:'Sound list'}]],
   [2,'Rendering',[{k:'gProps',label:'Props'},{k:'gFixtures',label:'Fixtures'},{k:'gCaves',label:'Caves'},{k:'gSewers',label:'Sewers'},{k:'gSubway',label:'Subways'}]],
   [2,'Hitboxes',[{k:'show',label:'Display hitboxes'},
@@ -16844,7 +16845,7 @@ function toggleGfx(k){const g=GFX_KEY[k],off=GFX_OFF[g]=!GFX_OFF[g];
   const P=P1.pos,d=e=>Math.hypot(e.cx*CS-P.x,e.cz*CS-P.z);
   leafQ.length=0;for(const e of [...meshes.values()].sort((a,b)=>d(b)-d(a)))leafQ.push(ckey(e.cx,e.cz));}
 const curveTxt=()=>DT.curve===0?'Flat':DT.curve>0?'Down '+DT.curve:'Up '+(-DT.curve);
-function dbgVal(k){return isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='paused'||k==='freecam'||k==='invuln'||k==='infStam'||k==='fly'||k==='fps'||k==='hpBars'||k==='dmgNums'||k==='sndList'?DT[k]:DBG[k];}
+function dbgVal(k){return isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='paused'||k==='freecam'||k==='combo'||k==='invuln'||k==='infStam'||k==='fly'||k==='fps'||k==='hpBars'||k==='dmgNums'||k==='sndList'?DT[k]:DBG[k];}
 // the rows on show: the individual hitbox switches only while 'Display hitboxes' is on
 // the menu's two tabs: 0 the switches themselves, 1 "Show / hide", which picks the rows tab 0 lists (kept in this browser)
 const DBG_HIDE_KEY='goblin-stompin-gus-dbghide',DBG_HIDE=new Set();
@@ -16881,6 +16882,7 @@ function dbgMenuToggle(){const it=dbgItems()[DT.cur];if(!it)return;
   else if(isUi(it.k))toggleUi(it.k);
   else if(it.k==='freecam')setFreecam(!DT.freecam);
   else if(it.k==='paused')DT.paused=!DT.paused;
+  else if(it.k==='combo')setCombo(!DT.combo);
   else if(it.k==='invuln'||it.k==='infStam'||it.k==='fly'||it.k==='fps'||it.k==='hpBars'||it.k==='dmgNums'||it.k==='sndList'){DT[it.k]=!DT[it.k];try{localStorage.setItem('goblin-stompin-gus-'+it.k,DT[it.k]?'1':'0');}catch(e){}if(it.k==='hpBars')popTogsShow();}
   else{DBG[it.k]=!DBG[it.k];try{localStorage.setItem(DBG_KEY,JSON.stringify(DBG));}catch(e){}}
   tone('triangle',620,0,0.05,0.03);renderTime();}
@@ -21948,18 +21950,24 @@ function renderRampage(){
 // which also puts the line in the wreck feed (flashLabel) and floats the points up from where they were earned (hudPop).
 const COMBO_T=3;
 const COMBO_MILES=[[5,"Stompin'!"],[10,'STOMPTACULAR!'],[15,'Hippo-critical!'],[20,'GOBLINGEDDON!'],[30,'Unstoppable lump!'],[50,'HIPPOCALYPSE!'],[75,'Wallow of doom!'],[100,'Legend of the bog!']];
-const comboMult=n=>Math.min(3,1+0.1*Math.max(0,n-1));
+const comboMult=n=>DT.combo?Math.min(3,1+0.1*Math.max(0,n-1)):1;
+// (the quick menu's Combo system switch, DT.combo, kept with the other debug settings: off, nothing builds a combo, the
+// score isn't multiplied, and none of it shows: the combo card, its milestones, the pause menu's Best combo. Online it's
+// the host's that counts, sent with the clock, see netClockSet)
+function setCombo(on){DT.combo=!!on;if(!DT.combo)for(const p of players){p.cbN=0;p.cbT=0;}saveDT();comboUiSync();}
+function comboUiSync(){const t=document.querySelector('.t-combo');if(t)t.hidden=!DT.combo;}
 function comboName(n){let s='';for(const [k,t] of COMBO_MILES)if(n>=k)s=t;return s;}
-// (damage numbers over the goblins, and shouts: SPLAT! and friends, combo milestones, the stomp meter's FULL CHARGE!.
-// Each on unless switched off in Options, kept in this browser on its own. They were one switch, POPS_KEY: anyone who'd
+// (score numbers, the points floating up from where they were earned; damage numbers over the goblins; and shouts:
+// SPLAT! and friends, combo milestones, the stomp meter's FULL CHARGE!. Each on unless switched off in Options, kept in
+// this browser on its own. They were one switch, POPS_KEY: anyone who'd
 // turned that off starts with both off, and with the health bars off too, see popsMigrate)
-const POPS_KEY='goblin-stompin-gus-pops',DMGPOP_KEY='goblin-stompin-gus-pop-dmg',SHOUT_KEY='goblin-stompin-gus-pop-shout';
-let DMGPOP_ON=true,SHOUT_ON=true,POPS_OLD_OFF=false;
-try{POPS_OLD_OFF=localStorage.getItem(POPS_KEY)==='0';
+const POPS_KEY='goblin-stompin-gus-pops',DMGPOP_KEY='goblin-stompin-gus-pop-dmg',SHOUT_KEY='goblin-stompin-gus-pop-shout',SCOREPOP_KEY='goblin-stompin-gus-pop-score';
+let DMGPOP_ON=true,SHOUT_ON=true,SCOREPOP_ON=true,POPS_OLD_OFF=false;
+try{POPS_OLD_OFF=localStorage.getItem(POPS_KEY)==='0';SCOREPOP_ON=localStorage.getItem(SCOREPOP_KEY)!=='0';   // (the old single switch never covered the points, so they start on whatever it was)
   const d=localStorage.getItem(DMGPOP_KEY),s=localStorage.getItem(SHOUT_KEY);
   DMGPOP_ON=d!=null?d!=='0':!POPS_OLD_OFF;SHOUT_ON=s!=null?s!=='0':!POPS_OLD_OFF;}catch(e){}
 function comboBump(p){
-  if(!p)return;p.cbN=(p.cbT>0?p.cbN||0:0)+1;p.cbT=COMBO_T;
+  if(!p||!DT.combo)return;p.cbN=(p.cbT>0?p.cbN||0:0)+1;p.cbT=COMBO_T;
   if(p.cbN>RAMP.best)RAMP.best=p.cbN;
   for(const [k,t] of COMBO_MILES)if(p.cbN===k)hudPop(null,null,null,'x'+k+' '+t,'mile',p);
 }
@@ -21975,10 +21983,11 @@ function award(pts,label,x,y,z,who,o){
   if(x!=null&&got>0&&o.pop!==false)hudPop(x,y,z,'+'+got,'pts',who);
   return got;
 }
-// (the clock runs down on the host, or offline; a guest's comes in the snapshot)
-function comboTick(p,dt){if(p.cbT>0&&!netGuest()){p.cbT=Math.max(0,p.cbT-dt);if(p.cbT===0)p.cbN=0;}}
+// (the clock runs down on the host, or offline. A guest's comes in every snapshot, and runs down here in between, so
+// the bar drains smoothly; only the host ends a combo, though, since a kill on the way might have kept it going)
+function comboTick(p,dt){if(p.cbT>0){p.cbT=Math.max(0,p.cbT-dt);if(p.cbT===0&&!netGuest())p.cbN=0;}}
 function comboHud(p){
-  const u=p.ui;if(!u.combo)return;const n=p.cbN||0,on=n>=2&&p.cbT>0;
+  const u=p.ui;if(!u.combo)return;const n=p.cbN||0,on=DT.combo&&n>=2&&p.cbT>0;
   if(u.combo.hidden===on)u.combo.hidden=!on;if(!on){u.cbShown=0;return;}
   if(u.cbShown!==n){u.cbShown=n;u.cbn.textContent='x'+n;u.cbm.textContent=comboName(n)||'Combo!';
     const k=comboMult(n);u.cbx.textContent='Score x'+(Math.round(k*10)/10);
@@ -21990,8 +21999,10 @@ function comboHud(p){
 // middle of that player's half of the screen rather than at a spot). Only drawn in the view of the player they're for.
 const POPS={el:null,pool:[],live:[],max:20,v:null,sndT:0};
 function hudPop(x,y,z,txt,kind,who){
-  if(!DMGPOP_ON&&kind==='dmg'||!SHOUT_ON&&(kind==='shout'||kind==='mile'))return;
-  const p=who||P1;if(!p.active||p.net)return;
+  if(!SCOREPOP_ON&&kind==='pts'||!DMGPOP_ON&&kind==='dmg'||!SHOUT_ON&&(kind==='shout'||kind==='mile'))return;
+  // (a seat someone else plays online has no view here. On a guest, though, its own hippo is a mirror of the host's, so
+  // it has p.net too, and its pop-ups, passed on by the host, are just as much its own)
+  const p=who||P1;if(!p.active||p.net&&!(p===P1&&p.net.mirror))return;
   if(!POPS.el){POPS.el=document.getElementById('pops');if(!POPS.el)return;}
   let P=POPS.live.length>=POPS.max?POPS.live.shift():POPS.pool.pop();
   if(!P){P={el:document.createElement('div')};POPS.el.appendChild(P.el);}
@@ -22039,19 +22050,21 @@ const CALM_KEY='goblin-stompin-gus-calm';
 {let on=false;try{on=localStorage.getItem(CALM_KEY)==='1';}catch(e){}
  const t=document.getElementById('calmTog'),set=v=>{on=v;try{document.body.classList.toggle('calm',v);}catch(e){}if(t)t.setAttribute('aria-checked',String(v));};
  set(on);if(t)t.addEventListener('click',()=>{set(!on);try{localStorage.setItem(CALM_KEY,on?'1':'0');}catch(e){}});}
-// (Options: the damage numbers, shouts and health bars switches, each its own. The health bars are the ones over
+// (Options: the score numbers, damage numbers, shouts and health bars switches, each its own. The health bars are the ones over
 // goblins, vehicles and the other players, DT.hpBars, the same setting as the quick menu's Health bars row)
 function popsMigrate(){
   if(!POPS_OLD_OFF)return;POPS_OLD_OFF=false;DT.hpBars=false;saveDT();
   try{localStorage.setItem(DMGPOP_KEY,DMGPOP_ON?'1':'0');localStorage.setItem(SHOUT_KEY,SHOUT_ON?'1':'0');localStorage.setItem('goblin-stompin-gus-hpBars','0');localStorage.removeItem(POPS_KEY);}catch(e){}
 }
 popsMigrate();
-const POP_TOGS=[['dmgPopTog',()=>DMGPOP_ON,v=>{DMGPOP_ON=v;try{localStorage.setItem(DMGPOP_KEY,v?'1':'0');}catch(e){}}],
+const POP_TOGS=[['scorePopTog',()=>SCOREPOP_ON,v=>{SCOREPOP_ON=v;try{localStorage.setItem(SCOREPOP_KEY,v?'1':'0');}catch(e){}}],
+  ['dmgPopTog',()=>DMGPOP_ON,v=>{DMGPOP_ON=v;try{localStorage.setItem(DMGPOP_KEY,v?'1':'0');}catch(e){}}],
   ['shoutTog',()=>SHOUT_ON,v=>{SHOUT_ON=v;try{localStorage.setItem(SHOUT_KEY,v?'1':'0');}catch(e){}}],
   ['hpBarTog',()=>DT.hpBars,v=>{DT.hpBars=v;try{localStorage.setItem('goblin-stompin-gus-hpBars',v?'1':'0');}catch(e){}saveDT();}]];
 function popTogsShow(){for(const [id,get] of POP_TOGS){const t=document.getElementById(id);if(t)t.setAttribute('aria-checked',String(!!get()));}}
 for(const [id,get,set] of POP_TOGS){const t=document.getElementById(id);if(t)t.addEventListener('click',()=>{set(!get());popTogsShow();});}
 popTogsShow();
+comboUiSync();
 // ---------- Loop ----------
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 let last=performance.now();
@@ -22126,7 +22139,7 @@ function updateSpeedFx(p,dt){
   });
   S.ls.geometry.attributes.position.needsUpdate=true;
 }
-// ---- speedometer: sideways ground speed in km/h (one block = one metre); underneath, the fall speed shows only during a fall big enough to crash-land ----
+// ---- speedometer, in a vehicle only: sideways ground speed in km/h (one block = one metre); underneath, the fall speed shows only during a fall big enough to crash-land ----
 const SPEEDO_MAX=120;
 // ---- the minimap: the streets and blocks around you, turned so that up is the way the camera faces.
 // Hostile goblins and police in red, townsfolk in white, your partner in green (a green arrow on the rim when they're off it)
@@ -22193,6 +22206,8 @@ function updateSpeedo(p,dt){
   p.spX=x;p.spY=y;p.spZ=z;
   if(raw>400){raw=0;rawY=0;}   // a respawn or teleport isn't speed
   const kk=Math.min(1,dt*7);p.spV=(p.spV||0)+(raw-(p.spV||0))*kk;p.spVY=(p.spVY||0)+(rawY-(p.spVY||0))*kk;
+  // (only shown in a vehicle, driving or in the gunner's seat; on foot it's hidden, though the speed's still kept up, so it reads right the moment you get in)
+  const inV=!!p.drv;if(p.ui.speedo.hidden===inV)p.ui.speedo.hidden=!inV;if(!inV)return;
   p.spT=(p.spT||0)-dt;if(p.spT>0)return;p.spT=1/20;   // redraw at 20 Hz
   const v=Math.max(0,p.spV),k=Math.min(1,v/SPEEDO_MAX),shown=Math.round(v);
   if(shown!==p.spShown){p.spShown=shown;p.ui.spNum.textContent=String(shown);}
@@ -23268,7 +23283,7 @@ function netFx(name,f){
 }
 puff=netFx('puff',puff);smoke=netFx('smoke',smoke);blood=netFx('blood',blood);splat=netFx('splat',splat);
 destroyFX=netFx('destroyFX',destroyFX);shockwave=netFx('shockwave',shockwave);shockCone=netFx('shockCone',shockCone);blastFx=netFx('blastFx',blastFx);
-tone=netFx('tone',tone);noise=netFx('noise',noise);woosh=netFx('woosh',woosh);tracer=netFx('tracer',tracer);
+tone=netFx('tone',tone);noise=netFx('noise',noise);dmgPop=netFx('dmgPop',dmgPop);woosh=netFx('woosh',woosh);tracer=netFx('tracer',tracer);
 // (a message for one player goes to that player only; one for everyone, to everyone)
 {const fl=flashLabel;NET_FX.flashLabel=fl;flashLabel=function flashLabel(s,who){
   if(NET_MUTE)return;
@@ -23365,9 +23380,10 @@ function netWorldBits(N){
   J('fire',fires.map(F=>[r3(F.x),r3(F.y),r3(F.z),r3(F.r),Math.round(F.t*10)/10,Math.round(F.life*10)/10,F.flames?1:0,r3(F.sm),r3(F.rise),F.douse?1:0]));
   return out;
 }
-function netClock(){return{tod,dayN,clockT,tc:trafficClock,wc:wxClock,wx:{type:WX.type,until:WX.until,k:Object.assign({},WX.k),wet:WX.wet,snowCover:WX.snowCover,snowClock:WX.snowClock,frozen:!!WX.frozen},host:DT.host};}
+function netClock(){return{tod,dayN,clockT,tc:trafficClock,wc:wxClock,wx:{type:WX.type,until:WX.until,k:Object.assign({},WX.k),wet:WX.wet,snowCover:WX.snowCover,snowClock:WX.snowClock,frozen:!!WX.frozen},host:DT.host,combo:DT.combo};}
 function netClockSet(k){if(!k)return;tod=k.tod;dayN=k.dayN;clockT=k.clockT;trafficClock=k.tc;wxClock=k.wc;if(k.wx){const w=k.wx;WX.type=w.type;WX.until=w.until;Object.assign(WX.k,w.k);WX.wet=w.wet;WX.snowCover=w.snowCover;WX.snowClock=w.snowClock;WX.frozen=w.frozen;}
-  if(k.host!==undefined&&k.host!==DT.host){DT.host=k.host;try{syncHost();}catch(e){}}}
+  if(k.host!==undefined&&k.host!==DT.host){DT.host=k.host;try{syncHost();}catch(e){}}
+  if(k.combo!==undefined&&k.combo!==DT.combo){DT.combo=!!k.combo;try{comboUiSync();}catch(e){}}}   // (the host's Combo system switch: whether there's a combo to show at all)
 
 // ---- host: one guest's snapshot ----
 function netSendSnap(p){   // (and the goblins' places are kept each frame, below, for lag compensation)
@@ -23387,7 +23403,7 @@ function netSendSnap(p){   // (and the goblins' places are kept each frame, belo
 // has drifted, and he's eased back by that much over the next few frames, so a correction is a nudge, never a jump.
 // Anything the guest can't guess (riding or driving something, dying, a big knock) and it shows the host's own.
 const NET_PREDICT=true;
-const NET_AUTH=['wpns','gren','hp','deadT','hurtFx','regenT','hurt','stam','exhausted','lastHit','killer','score'];   // (what's always the host's to say, guessing or not)
+const NET_AUTH=['wpns','gren','hp','deadT','hurtFx','regenT','hurt','stam','exhausted','lastHit','killer','score','cbN','cbT'];   // (what's always the host's to say, guessing or not. The combo too: only the host's kills build one, and the guest's own clock runs it down between snapshots, so without it the bar sat still)
 const NETP={on:false,hist:[],sent:new Map(),corr:new V3(),snap:false};
 // (the guest's controls going out: when each went, so its history can be matched up)
 function netPredSent(n){if(NETP.sent.size>200)NETP.sent.clear();NETP.sent.set(n,NET.now);}

@@ -39,6 +39,9 @@
 - The highlight round the picked character cards, and their 1P and 2P tags, are no longer cut off at the edges.
 - The What's new sticker sits under the title menu instead of over the Full screen link, and the controller and city seed notes have moved down on to the ground.
 - The pixel-art portraits and hearts are solid at any zoom and on any screen, with no faint lines between their pixels.
+- Options, under On screen, has a new Score numbers switch for the points that float up when you flatten or smash something. Your score and the wreck list still count them either way.
+- The debug menu has a Combo system switch, under Player. Switched off, there are no combos at all: your points aren't multiplied, and the combo card, combo milestone shouts and the pause menu's Best combo are all hidden. Online, the host's switch counts for everyone.
+- The speedometer only shows while you're in a vehicle, driving or in the gunner's seat.
 
 ### Goblins
 
@@ -47,6 +50,7 @@
 ### Online co-op
 
 - If you join someone else's game, goblins, cars, other players and everything else moving in the world now glide smoothly instead of jerking from spot to spot when the connection is a bit bumpy. Your game holds a little more in reserve when packets arrive unevenly, and briefly carries things on in the direction they were going if an update is late. Nothing extra is sent over the network, so it's no heavier on the connection.
+- If you join someone else's game, you now see your own score numbers, damage numbers and shouts (they never showed up for anyone but the host), and your combo bar drains as it should instead of sitting full. The debug menu's damage numbers show for you too.
 
 ### The city
 

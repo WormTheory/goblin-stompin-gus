@@ -9,7 +9,7 @@ const d6=fs.readFileSync('dead6.js','utf8');
 const stubs=d6.slice(d6.indexOf('const deep='),d6.indexOf('\neval(src);'));
 const src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={tenvPlace,get TENV(){return TENV},netSendSnap,netRewind,netUnwind,NETP,makeTopple,topples,NETF,V3,BRICK,NET_VN,venues,TRAINS,netVenueModels,frame,players,P1,P2,NET,NETM,netHostWith,netJoinWith,netClose,netEnd,crush,get,goblins,cars,keys,ABIL,fires,setGobP,'+
   'collapseBuilding,bldgAt,plotInfo,CELL,FH,knockFix,activeFix,activeProps,falling,downFix,NET_BG,netBgTick,netBgClock,get collapses(){return collapses},'+
-  'copArm,TRACERS,get seed(){return seed},get edits(){return edits},get menuOpen(){return menuOpen},get saveBlocked(){return saveBlocked},chunks,ckey,CS,G};})();');
+  'copArm,TRACERS,award,POPS,DT,setCombo,get seed(){return seed},get edits(){return edits},get menuOpen(){return menuOpen},get saveBlocked(){return saveBlocked},chunks,ckey,CS,G};})();');
 if(src===src0)throw new Error('closing line not found');
 const store=init=>{const m=new Map(Object.entries(init||{}));return{getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,String(v)),removeItem:k=>m.delete(k),get _m(){return m}};};
 // one game: seed for its Math.random, its localStorage and sessionStorage contents
@@ -103,6 +103,21 @@ const lag=[];
  const y0=HT.P2.pos.y;pads[0].buttons[0].pressed=true;G.step(1);pads[0].buttons[0].pressed=false;let top=y0;
  for(let i=0;i<30;i++){G.step(1);H.step(1);top=Math.max(top,HT.P2.pos.y);}
  console.log('guest tapped jump: host P2 rose',f2(top-y0),ok(top-y0>1));}
+
+// ---- points the guest earned: its pop-ups and its combo, shown on the guest ----
+{const P=HT.P2.pos,live=()=>GT.POPS.live.filter(q=>q.p===GT.P1);
+ for(let i=0;i<3;i++)HT.award(40,null,P.x+2,P.y+1,P.z,HT.P2);
+ for(let i=0;i<20;i++){H.step(1);G.step(1);}
+ const kinds=live().map(q=>q.kind).join(',');
+ console.log('guest earns points: pop-ups on the guest',live().length,ok(live().length>=3),'('+kinds+') combo on the guest',GT.P1.cbN,ok(GT.P1.cbN===3),'card shown',ok(!GT.P1.ui.combo.hidden));
+ const t0=GT.P1.cbT;for(let i=0;i<30;i++){H.step(1);G.step(1);}
+ console.log('the guest\'s combo clock runs down: from',f2(t0),'to',f2(GT.P1.cbT),ok(GT.P1.cbT<t0-0.3&&GT.P1.cbT>0),'host has',f2(HT.P2.cbT));
+ for(let i=0;i<150;i++){H.step(1);G.step(1);}
+ console.log('and runs out: guest',f2(GT.P1.cbT),'card hidden',ok(GT.P1.ui.combo.hidden));
+ HT.setCombo(false);for(let i=0;i<90;i++){H.step(1);G.step(1);}
+ const sc=HT.award(40,null,P.x,P.y,P.z,HT.P2)+HT.award(40,null,P.x,P.y,P.z,HT.P2);for(let i=0;i<20;i++){H.step(1);G.step(1);}
+ console.log('combo system off on the host: no multiplier',sc,ok(sc===80),'no combo',HT.P2.cbN,ok(!HT.P2.cbN),'guest told',ok(GT.DT.combo===false),'guest card hidden',ok(GT.P1.ui.combo.hidden));
+ HT.setCombo(true);for(let i=0;i<90;i++){H.step(1);G.step(1);}}
 
 // ---- smashing on the host: the same blocks go on the guest ----
 {const p=HT.P2.pos,x=Math.floor(p.x)+4,z=Math.floor(p.z)+4,y=HT.G+1;

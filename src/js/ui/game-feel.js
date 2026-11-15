@@ -6,18 +6,24 @@
 // which also puts the line in the wreck feed (flashLabel) and floats the points up from where they were earned (hudPop).
 const COMBO_T=3;
 const COMBO_MILES=[[5,"Stompin'!"],[10,'STOMPTACULAR!'],[15,'Hippo-critical!'],[20,'GOBLINGEDDON!'],[30,'Unstoppable lump!'],[50,'HIPPOCALYPSE!'],[75,'Wallow of doom!'],[100,'Legend of the bog!']];
-const comboMult=n=>Math.min(3,1+0.1*Math.max(0,n-1));
+const comboMult=n=>DT.combo?Math.min(3,1+0.1*Math.max(0,n-1)):1;
+// (the quick menu's Combo system switch, DT.combo, kept with the other debug settings: off, nothing builds a combo, the
+// score isn't multiplied, and none of it shows: the combo card, its milestones, the pause menu's Best combo. Online it's
+// the host's that counts, sent with the clock, see netClockSet)
+function setCombo(on){DT.combo=!!on;if(!DT.combo)for(const p of players){p.cbN=0;p.cbT=0;}saveDT();comboUiSync();}
+function comboUiSync(){const t=document.querySelector('.t-combo');if(t)t.hidden=!DT.combo;}
 function comboName(n){let s='';for(const [k,t] of COMBO_MILES)if(n>=k)s=t;return s;}
-// (damage numbers over the goblins, and shouts: SPLAT! and friends, combo milestones, the stomp meter's FULL CHARGE!.
-// Each on unless switched off in Options, kept in this browser on its own. They were one switch, POPS_KEY: anyone who'd
+// (score numbers, the points floating up from where they were earned; damage numbers over the goblins; and shouts:
+// SPLAT! and friends, combo milestones, the stomp meter's FULL CHARGE!. Each on unless switched off in Options, kept in
+// this browser on its own. They were one switch, POPS_KEY: anyone who'd
 // turned that off starts with both off, and with the health bars off too, see popsMigrate)
-const POPS_KEY='goblin-stompin-gus-pops',DMGPOP_KEY='goblin-stompin-gus-pop-dmg',SHOUT_KEY='goblin-stompin-gus-pop-shout';
-let DMGPOP_ON=true,SHOUT_ON=true,POPS_OLD_OFF=false;
-try{POPS_OLD_OFF=localStorage.getItem(POPS_KEY)==='0';
+const POPS_KEY='goblin-stompin-gus-pops',DMGPOP_KEY='goblin-stompin-gus-pop-dmg',SHOUT_KEY='goblin-stompin-gus-pop-shout',SCOREPOP_KEY='goblin-stompin-gus-pop-score';
+let DMGPOP_ON=true,SHOUT_ON=true,SCOREPOP_ON=true,POPS_OLD_OFF=false;
+try{POPS_OLD_OFF=localStorage.getItem(POPS_KEY)==='0';SCOREPOP_ON=localStorage.getItem(SCOREPOP_KEY)!=='0';   // (the old single switch never covered the points, so they start on whatever it was)
   const d=localStorage.getItem(DMGPOP_KEY),s=localStorage.getItem(SHOUT_KEY);
   DMGPOP_ON=d!=null?d!=='0':!POPS_OLD_OFF;SHOUT_ON=s!=null?s!=='0':!POPS_OLD_OFF;}catch(e){}
 function comboBump(p){
-  if(!p)return;p.cbN=(p.cbT>0?p.cbN||0:0)+1;p.cbT=COMBO_T;
+  if(!p||!DT.combo)return;p.cbN=(p.cbT>0?p.cbN||0:0)+1;p.cbT=COMBO_T;
   if(p.cbN>RAMP.best)RAMP.best=p.cbN;
   for(const [k,t] of COMBO_MILES)if(p.cbN===k)hudPop(null,null,null,'x'+k+' '+t,'mile',p);
 }
@@ -33,10 +39,11 @@ function award(pts,label,x,y,z,who,o){
   if(x!=null&&got>0&&o.pop!==false)hudPop(x,y,z,'+'+got,'pts',who);
   return got;
 }
-// (the clock runs down on the host, or offline; a guest's comes in the snapshot)
-function comboTick(p,dt){if(p.cbT>0&&!netGuest()){p.cbT=Math.max(0,p.cbT-dt);if(p.cbT===0)p.cbN=0;}}
+// (the clock runs down on the host, or offline. A guest's comes in every snapshot, and runs down here in between, so
+// the bar drains smoothly; only the host ends a combo, though, since a kill on the way might have kept it going)
+function comboTick(p,dt){if(p.cbT>0){p.cbT=Math.max(0,p.cbT-dt);if(p.cbT===0&&!netGuest())p.cbN=0;}}
 function comboHud(p){
-  const u=p.ui;if(!u.combo)return;const n=p.cbN||0,on=n>=2&&p.cbT>0;
+  const u=p.ui;if(!u.combo)return;const n=p.cbN||0,on=DT.combo&&n>=2&&p.cbT>0;
   if(u.combo.hidden===on)u.combo.hidden=!on;if(!on){u.cbShown=0;return;}
   if(u.cbShown!==n){u.cbShown=n;u.cbn.textContent='x'+n;u.cbm.textContent=comboName(n)||'Combo!';
     const k=comboMult(n);u.cbx.textContent='Score x'+(Math.round(k*10)/10);
@@ -48,8 +55,10 @@ function comboHud(p){
 // middle of that player's half of the screen rather than at a spot). Only drawn in the view of the player they're for.
 const POPS={el:null,pool:[],live:[],max:20,v:null,sndT:0};
 function hudPop(x,y,z,txt,kind,who){
-  if(!DMGPOP_ON&&kind==='dmg'||!SHOUT_ON&&(kind==='shout'||kind==='mile'))return;
-  const p=who||P1;if(!p.active||p.net)return;
+  if(!SCOREPOP_ON&&kind==='pts'||!DMGPOP_ON&&kind==='dmg'||!SHOUT_ON&&(kind==='shout'||kind==='mile'))return;
+  // (a seat someone else plays online has no view here. On a guest, though, its own hippo is a mirror of the host's, so
+  // it has p.net too, and its pop-ups, passed on by the host, are just as much its own)
+  const p=who||P1;if(!p.active||p.net&&!(p===P1&&p.net.mirror))return;
   if(!POPS.el){POPS.el=document.getElementById('pops');if(!POPS.el)return;}
   let P=POPS.live.length>=POPS.max?POPS.live.shift():POPS.pool.pop();
   if(!P){P={el:document.createElement('div')};POPS.el.appendChild(P.el);}
@@ -97,16 +106,18 @@ const CALM_KEY='goblin-stompin-gus-calm';
 {let on=false;try{on=localStorage.getItem(CALM_KEY)==='1';}catch(e){}
  const t=document.getElementById('calmTog'),set=v=>{on=v;try{document.body.classList.toggle('calm',v);}catch(e){}if(t)t.setAttribute('aria-checked',String(v));};
  set(on);if(t)t.addEventListener('click',()=>{set(!on);try{localStorage.setItem(CALM_KEY,on?'1':'0');}catch(e){}});}
-// (Options: the damage numbers, shouts and health bars switches, each its own. The health bars are the ones over
+// (Options: the score numbers, damage numbers, shouts and health bars switches, each its own. The health bars are the ones over
 // goblins, vehicles and the other players, DT.hpBars, the same setting as the quick menu's Health bars row)
 function popsMigrate(){
   if(!POPS_OLD_OFF)return;POPS_OLD_OFF=false;DT.hpBars=false;saveDT();
   try{localStorage.setItem(DMGPOP_KEY,DMGPOP_ON?'1':'0');localStorage.setItem(SHOUT_KEY,SHOUT_ON?'1':'0');localStorage.setItem('goblin-stompin-gus-hpBars','0');localStorage.removeItem(POPS_KEY);}catch(e){}
 }
 popsMigrate();
-const POP_TOGS=[['dmgPopTog',()=>DMGPOP_ON,v=>{DMGPOP_ON=v;try{localStorage.setItem(DMGPOP_KEY,v?'1':'0');}catch(e){}}],
+const POP_TOGS=[['scorePopTog',()=>SCOREPOP_ON,v=>{SCOREPOP_ON=v;try{localStorage.setItem(SCOREPOP_KEY,v?'1':'0');}catch(e){}}],
+  ['dmgPopTog',()=>DMGPOP_ON,v=>{DMGPOP_ON=v;try{localStorage.setItem(DMGPOP_KEY,v?'1':'0');}catch(e){}}],
   ['shoutTog',()=>SHOUT_ON,v=>{SHOUT_ON=v;try{localStorage.setItem(SHOUT_KEY,v?'1':'0');}catch(e){}}],
   ['hpBarTog',()=>DT.hpBars,v=>{DT.hpBars=v;try{localStorage.setItem('goblin-stompin-gus-hpBars',v?'1':'0');}catch(e){}saveDT();}]];
 function popTogsShow(){for(const [id,get] of POP_TOGS){const t=document.getElementById(id);if(t)t.setAttribute('aria-checked',String(!!get()));}}
 for(const [id,get,set] of POP_TOGS){const t=document.getElementById(id);if(t)t.addEventListener('click',()=>{set(!get());popTogsShow();});}
 popTogsShow();
+comboUiSync();

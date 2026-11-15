@@ -181,7 +181,7 @@ function netFx(name,f){
 }
 puff=netFx('puff',puff);smoke=netFx('smoke',smoke);blood=netFx('blood',blood);splat=netFx('splat',splat);
 destroyFX=netFx('destroyFX',destroyFX);shockwave=netFx('shockwave',shockwave);shockCone=netFx('shockCone',shockCone);blastFx=netFx('blastFx',blastFx);
-tone=netFx('tone',tone);noise=netFx('noise',noise);woosh=netFx('woosh',woosh);tracer=netFx('tracer',tracer);
+tone=netFx('tone',tone);noise=netFx('noise',noise);dmgPop=netFx('dmgPop',dmgPop);woosh=netFx('woosh',woosh);tracer=netFx('tracer',tracer);
 // (a message for one player goes to that player only; one for everyone, to everyone)
 {const fl=flashLabel;NET_FX.flashLabel=fl;flashLabel=function flashLabel(s,who){
   if(NET_MUTE)return;
@@ -278,9 +278,10 @@ function netWorldBits(N){
   J('fire',fires.map(F=>[r3(F.x),r3(F.y),r3(F.z),r3(F.r),Math.round(F.t*10)/10,Math.round(F.life*10)/10,F.flames?1:0,r3(F.sm),r3(F.rise),F.douse?1:0]));
   return out;
 }
-function netClock(){return{tod,dayN,clockT,tc:trafficClock,wc:wxClock,wx:{type:WX.type,until:WX.until,k:Object.assign({},WX.k),wet:WX.wet,snowCover:WX.snowCover,snowClock:WX.snowClock,frozen:!!WX.frozen},host:DT.host};}
+function netClock(){return{tod,dayN,clockT,tc:trafficClock,wc:wxClock,wx:{type:WX.type,until:WX.until,k:Object.assign({},WX.k),wet:WX.wet,snowCover:WX.snowCover,snowClock:WX.snowClock,frozen:!!WX.frozen},host:DT.host,combo:DT.combo};}
 function netClockSet(k){if(!k)return;tod=k.tod;dayN=k.dayN;clockT=k.clockT;trafficClock=k.tc;wxClock=k.wc;if(k.wx){const w=k.wx;WX.type=w.type;WX.until=w.until;Object.assign(WX.k,w.k);WX.wet=w.wet;WX.snowCover=w.snowCover;WX.snowClock=w.snowClock;WX.frozen=w.frozen;}
-  if(k.host!==undefined&&k.host!==DT.host){DT.host=k.host;try{syncHost();}catch(e){}}}
+  if(k.host!==undefined&&k.host!==DT.host){DT.host=k.host;try{syncHost();}catch(e){}}
+  if(k.combo!==undefined&&k.combo!==DT.combo){DT.combo=!!k.combo;try{comboUiSync();}catch(e){}}}   // (the host's Combo system switch: whether there's a combo to show at all)
 
 // ---- host: one guest's snapshot ----
 function netSendSnap(p){   // (and the goblins' places are kept each frame, below, for lag compensation)
@@ -300,7 +301,7 @@ function netSendSnap(p){   // (and the goblins' places are kept each frame, belo
 // has drifted, and he's eased back by that much over the next few frames, so a correction is a nudge, never a jump.
 // Anything the guest can't guess (riding or driving something, dying, a big knock) and it shows the host's own.
 const NET_PREDICT=true;
-const NET_AUTH=['wpns','gren','hp','deadT','hurtFx','regenT','hurt','stam','exhausted','lastHit','killer','score'];   // (what's always the host's to say, guessing or not)
+const NET_AUTH=['wpns','gren','hp','deadT','hurtFx','regenT','hurt','stam','exhausted','lastHit','killer','score','cbN','cbT'];   // (what's always the host's to say, guessing or not. The combo too: only the host's kills build one, and the guest's own clock runs it down between snapshots, so without it the bar sat still)
 const NETP={on:false,hist:[],sent:new Map(),corr:new V3(),snap:false};
 // (the guest's controls going out: when each went, so its history can be matched up)
 function netPredSent(n){if(NETP.sent.size>200)NETP.sent.clear();NETP.sent.set(n,NET.now);}

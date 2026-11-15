@@ -1,4 +1,4 @@
-// ---- speedometer: sideways ground speed in km/h (one block = one metre); underneath, the fall speed shows only during a fall big enough to crash-land ----
+// ---- speedometer, in a vehicle only: sideways ground speed in km/h (one block = one metre); underneath, the fall speed shows only during a fall big enough to crash-land ----
 const SPEEDO_MAX=120;
 // ---- the minimap: the streets and blocks around you, turned so that up is the way the camera faces.
 // Hostile goblins and police in red, townsfolk in white, your partner in green (a green arrow on the rim when they're off it)
@@ -65,6 +65,8 @@ function updateSpeedo(p,dt){
   p.spX=x;p.spY=y;p.spZ=z;
   if(raw>400){raw=0;rawY=0;}   // a respawn or teleport isn't speed
   const kk=Math.min(1,dt*7);p.spV=(p.spV||0)+(raw-(p.spV||0))*kk;p.spVY=(p.spVY||0)+(rawY-(p.spVY||0))*kk;
+  // (only shown in a vehicle, driving or in the gunner's seat; on foot it's hidden, though the speed's still kept up, so it reads right the moment you get in)
+  const inV=!!p.drv;if(p.ui.speedo.hidden===inV)p.ui.speedo.hidden=!inV;if(!inV)return;
   p.spT=(p.spT||0)-dt;if(p.spT>0)return;p.spT=1/20;   // redraw at 20 Hz
   const v=Math.max(0,p.spV),k=Math.min(1,v/SPEEDO_MAX),shown=Math.round(v);
   if(shown!==p.spShown){p.spShown=shown;p.ui.spNum.textContent=String(shown);}
