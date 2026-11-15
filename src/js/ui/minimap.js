@@ -118,17 +118,21 @@ function placeCamera(p){
     p.camera.rotation.z+=(Math.sin(t*19)+Math.sin(t*37+0.9))*ease*0.12;
   }
 }
-// ---- health bars over everything that can be hurt, drawn over the 3D view (2D, projected through each player's camera,
-// bent like the world curve bends things) ----
-const _dov=new THREE.Vector3();
+// ---- overlays drawn over the 3D view: health bars over everything that can be hurt (Options' Health bars), and damage
+// numbers that pop up where vehicles, trains, boats, rides, tanks, animals and the players are hit (Options' Damage
+// numbers; a goblin's are hudPop's instead). 2D, projected through each player's camera, bent like the world curve ----
+const DMG_POPS=[],_dov=new THREE.Vector3();let DMG_J=0;
+function dmgPop(x,y,z,n,col){if(!DMGPOP_ON||SBX||!(n>0))return;const j=(DMG_J=(DMG_J+1)%997);DMG_POPS.push({x:x+((j*37)%27/26-0.5)*0.6,y,z:z+((j*53)%31/30-0.5)*0.6,n,col,t:0});if(DMG_POPS.length>200)DMG_POPS.shift();}   // (a little scatter, not from Math.random: that would shift the game's own dice)
 let dovCtx=null,dovOn=false;
 function drawDbgOverlay(dt,views){
   const cv=document.getElementById('dbgOver');if(!cv)return;
-  const want=DT.hpBars&&playing;
+  for(let i=DMG_POPS.length-1;i>=0;i--){DMG_POPS[i].t+=dt;if(DMG_POPS[i].t>1.1)DMG_POPS.splice(i,1);}
+  const want=(DT.hpBars||DMG_POPS.length>0)&&playing;
   if(!want){if(dovOn){dovCtx&&dovCtx.clearRect(0,0,cv.width,cv.height);dovOn=false;}return;}
   const dpr=Math.min(devicePixelRatio||1,2),W=Math.round(innerWidth*dpr),Hh=Math.round(innerHeight*dpr);
   if(cv.width!==W||cv.height!==Hh){cv.width=W;cv.height=Hh;}
-  const x=dovCtx||(dovCtx=cv.getContext('2d'));x.setTransform(dpr,0,0,dpr,0,0);x.clearRect(0,0,innerWidth,innerHeight);dovOn=true;
+  const x=dovCtx||(dovCtx=cv.getContext('2d'));if(!x||!x.setTransform)return;   // (no real 2D canvas: the node test suites)
+  x.setTransform(dpr,0,0,dpr,0,0);x.clearRect(0,0,innerWidth,innerHeight);dovOn=true;
   for(const [p,vx,vy,vw,vh] of views){
     const cam=p.camera,top=innerHeight-(vy+vh),k=CURVE_U.value;
     x.save();x.beginPath();x.rect(vx,top,vw,vh);x.clip();
@@ -148,6 +152,8 @@ function drawDbgOverlay(dt,views){
           if(!(gst?T.netDead:T.dead))V.cars.forEach((g,i)=>{if(!(cd&&cd[i]))bar(g.position.x,g.position.y+4.2,g.position.z,hp&&hp[i]!==undefined?hp[i]:CAR_HP,CAR_HP,'#5ab4ff');});}}
       for(const q of players){if(!q.active||q.state==='dead'||q===p)continue;bar(q.pos.x,q.pos.y+2.5,q.pos.z,q.hp,20,'#7fd04a');}
     }
+    for(const d of DMG_POPS){const s=proj(d.x,d.y+d.t*1.6,d.z);if(!s||s[2]>90)continue;const a=d.t<0.7?1:Math.max(0,1-(d.t-0.7)/0.4),sz=Math.round(16+Math.min(14,d.n*0.5)-s[2]*0.08);
+      x.font='800 '+Math.max(10,sz)+'px system-ui,sans-serif';x.textAlign='center';x.lineWidth=3;x.strokeStyle='rgba(0,0,0,'+0.8*a+')';x.globalAlpha=a;x.strokeText(String(Math.round(d.n*10)/10),s[0],s[1]);x.fillStyle=d.col;x.fillText(String(Math.round(d.n*10)/10),s[0],s[1]);x.globalAlpha=1;}
     x.restore();
   }
 }

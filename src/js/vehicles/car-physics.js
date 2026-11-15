@@ -119,7 +119,7 @@ function spawnTraffic(c){
 let BLAME=null;const ACCIDENT={name:'A traffic accident'};
 function withBlame(b,f){const prev=BLAME;BLAME=b;try{return f();}finally{BLAME=prev;}}
 const carIsPlayers=c=>c.pBlameT!==undefined&&playTime-c.pBlameT<8;
-function damageCar(c,n,dir,src){if(c.isTrain){trainHit(c.T,n,dir,c.i);return;}if(!c.alive)return;if(!(src==='acc'||(src===undefined&&BLAME==='acc')))c.pBlameT=playTime;c.hp-=n;c.hurt=0.1;if(dir){const h=Math.hypot(dir.x,dir.z);if(h>0.05){const kb=Math.min(9,2+n*0.3);c.kv.x+=dir.x/h*kb;c.kv.z+=dir.z/h*kb;}}if(c.hp<=0)explodeCar(c);}
+function damageCar(c,n,dir,src){if(c.isTrain){trainHit(c.T,n,dir,c.i);return;}if(!c.alive)return;dmgPop(c.pos.x,c.pos.y+(c.hy||1.4)+0.3,c.pos.z,n,'#ffb04a');if(!(src==='acc'||(src===undefined&&BLAME==='acc')))c.pBlameT=playTime;c.hp-=n;c.hurt=0.1;if(dir){const h=Math.hypot(dir.x,dir.z);if(h>0.05){const kb=Math.min(9,2+n*0.3);c.kv.x+=dir.x/h*kb;c.kv.z+=dir.z/h*kb;}}if(c.hp<=0)explodeCar(c);}
 // explosion effects pools
 const debris=[];let debrisIdx=0;
 const DEB_SIZES=[[1.0,0.5,1.6],[0.9,0.4,1.2],[1.6,0.15,1.0],[0.8,0.5,0.9],[0.32,0.72,0.72],[0.32,0.72,0.72],[0.32,0.72,0.72],[0.32,0.72,0.72],[0.8,0.35,0.7],[1.2,0.1,0.8],[2.0,0.18,0.15],[0.6,0.4,0.6]];

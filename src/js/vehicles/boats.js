@@ -102,7 +102,7 @@ const BOAT_GONE=new Map();
 // hitting a boat: it shudders and starts to burn and list; holed for good, it goes up (or, with no engine to speak of, just
 // breaks up) and goes down. Up in a dry dock or on the sand it stays where it is, burnt out
 function boatHit(bo,n){
-  if(bo.dead)return;const g=bo.g,p=g.position,K=bo.K;bo.hp-=n;bo.shake=.25;vHitFx(p.x,p.y+K.fb,p.z,n);if(bo.hp>0)return;
+  if(bo.dead)return;const g=bo.g,p=g.position,K=bo.K;dmgPop(p.x,p.y+K.fb+2,p.z,Math.round(n),'#ffb04a');bo.hp-=n;bo.shake=.25;vHitFx(p.x,p.y+K.fb,p.z,n);if(bo.hp>0)return;
   bo.dead=true;bo.deadT=0;bo.y0=p.y;BOAT_GONE.set(bo.key,playTime);const s=K.boom||0,sz=Math.max(1,Math.min(3,bo.L/10));
   if(s){blastFx(p.x,p.y+K.fb+1,p.z,.5+s*.15,1+s*.6);smoke(p.x,p.y+K.fb+1,p.z,Math.round(10+s*8),0x262626);
     noise(.6+s*.3,1,600,'lowpass');tone('sawtooth',70,16,.6+s*.3,.3);addShake(.3+s*.3,p.x,p.z,20+s*15);hitGoblins(p.x,p.z,3+s*4,4+s*3,'Blown up with a boat',p.y+1);}
@@ -300,7 +300,7 @@ function animalBox(A){
 }
 function animalHit(A,n,dir){
   if(A.dead||!A.pr)return;const I=ANIMALS[A.sp],y=A.g.position.y,by=y+I.hy*0.5;
-  A.hp-=n;A.frit=6;A.wait=0;
+  dmgPop(A.x,y+I.hy+0.2,A.z,Math.round(n),'#ffe14a');A.hp-=n;A.frit=6;A.wait=0;
   blood(A.x,by,A.z,5+n*2,dir?dir.clone().multiplyScalar(-0.4):null);if(dir)blood(A.x,by,A.z,3+n,dir);
   splat(A.x+(Math.random()-.5)*.6,A.z+(Math.random()-.5)*.6,y+0.5,0.15+Math.random()*0.2);tone('square',480,220,0.08,0.07);
   const h=dir?Math.hypot(dir.x,dir.z):0;if(h>0.05){const kb=Math.min(13,3+n*0.6)*(A.hp<=0?1.6:1);A.kx=(A.kx||0)+dir.x/h*kb;A.kz=(A.kz||0)+dir.z/h*kb;}

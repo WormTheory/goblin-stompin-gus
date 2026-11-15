@@ -181,7 +181,7 @@ function netFx(name,f){
 }
 puff=netFx('puff',puff);smoke=netFx('smoke',smoke);blood=netFx('blood',blood);splat=netFx('splat',splat);
 destroyFX=netFx('destroyFX',destroyFX);shockwave=netFx('shockwave',shockwave);shockCone=netFx('shockCone',shockCone);blastFx=netFx('blastFx',blastFx);
-tone=netFx('tone',tone);noise=netFx('noise',noise);woosh=netFx('woosh',woosh);tracer=netFx('tracer',tracer);
+tone=netFx('tone',tone);noise=netFx('noise',noise);dmgPop=netFx('dmgPop',dmgPop);woosh=netFx('woosh',woosh);tracer=netFx('tracer',tracer);
 // (a message for one player goes to that player only; one for everyone, to everyone)
 {const fl=flashLabel;NET_FX.flashLabel=fl;flashLabel=function flashLabel(s,who){
   if(NET_MUTE)return;

@@ -173,7 +173,7 @@ function updateHeli(M,V,dt){
   if(M.spin>0.3&&audio&&playing&&n&&n.d<90){M.thT=(M.thT||0)-dt;if(M.thT<=0){M.thT=0.11;sfx('Helicopter rotor',()=>noise(0.08,0.05*M.spin*(1-n.d/90),180,'lowpass'));}}   // (the thud of its rotor)
 }
 function milHit(M,n,dir){
-  if(M.dead)return;const I=MIL[M.kind];M.hp-=n;M.hurt=0.2;M.jolt=0.3;vHitFx(M.x,M.y+I.hy*0.6,M.z,n);
+  if(M.dead)return;const I=MIL[M.kind];dmgPop(M.x,M.y+I.hy+0.8,M.z,Math.round(n),'#ffb04a');M.hp-=n;M.hurt=0.2;M.jolt=0.3;vHitFx(M.x,M.y+I.hy*0.6,M.z,n);
   if(!M.V.alert&&!calmNow())milAlert(M.V,(nearestPlayer(M.x,M.z)||{}).p);   // (shot at, the whole base wakes up)
   if(M.hp>0)return;
   M.dead=true;M.deadT=0;M.fall=M.kind==='heli'&&M.y>G+2;M.vy=0;wrecked[M.key]=1;save();

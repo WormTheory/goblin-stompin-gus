@@ -43,7 +43,7 @@
 - The debug menu has a Combo system switch, under Player. Switched off, there are no combos at all: your points aren't multiplied, and the combo card, combo milestone shouts and the pause menu's Best combo are all hidden. Online, the host's switch counts for everyone.
 - The speedometer only shows while you're in a vehicle, driving or in the gunner's seat.
 - The "cars hunting you" sticker under your score is gone. The Police pursuit sticker stays.
-- The debug menu no longer has its own Health bars and Damage numbers switches: use the ones in Options, under On screen.
+- The debug menu no longer has its own Health bars and Damage numbers switches: use the ones in Options, under On screen. Options' Damage numbers now also shows the damage vehicles, trains, boats, rides, tanks, animals and players take, which only the debug menu used to show.
 - Shorter, plainer descriptions on the Options switches.
 
 ### Goblins
