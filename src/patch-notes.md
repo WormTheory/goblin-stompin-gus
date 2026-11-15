@@ -52,7 +52,7 @@
 
 ### Online co-op
 
-- Voice chat has two switches of its own, shown under it once it's on: My voice (the others hear you) and Others' voice (you hear them), each with its own volume. They replace the Listen only switch: untick My voice to just listen. Push to talk only shows while voice chat is on.
+- Voice chat has two switches of its own, shown under it once it's on: My voice (the others hear you) and Others' voice (you hear them), each with its own volume beside it on the same row, and both volumes go up to 200%. Push to talk sits above them. They replace the Listen only switch: untick My voice to just listen. Push to talk only shows while voice chat is on.
 - Showing chat now always shows everyone's messages: the switch to hide the other players' messages is gone.
 - If you join someone else's game, goblins, cars, other players and everything else moving in the world now glide smoothly instead of jerking from spot to spot when the connection is a bit bumpy. Your game holds a little more in reserve when packets arrive unevenly, and briefly carries things on in the direction they were going if an update is late. Nothing extra is sent over the network, so it's no heavier on the connection.
 - If you join someone else's game, you now see your own score numbers, damage numbers and shouts (they never showed up for anyone but the host), and your combo bar drains as it should instead of sitting full.

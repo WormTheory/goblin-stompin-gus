@@ -9,7 +9,7 @@
 // every connection, the microphone's let go, its audio lines are stopped and the AudioContext is closed.
 // Between two tabs of one browser there's no real connection to carry sound, so voice is for games over the internet.
 // Options has two switches under it, each with a volume: My voice (VC.talk: send the microphone, through a gain node,
-// VC.micVol) and Others' voice (VC.hear: be sent the others' voices, played at VC.vol). With My voice off (or no
+// VC.micVol) and Others' voice (VC.hear: be sent the others' voices, played at VC.vol, up to twice as loud: see vcOut). With My voice off (or no
 // microphone to be had, or it's refused) the player never asks for a microphone and sends nothing; an AudioContext is
 // only made, for the speaking indicators, when the first voice arrives. With Others' voice off the host's list says so
 // ('hr'), and nobody sends them anything.
@@ -19,7 +19,7 @@ const VC={on:false,want:false,busy:false,ptt:true,vol:1,micVol:1,mute:new Set(),
   ctx:null,mic:null,out:null,gain:null,an:null,buf:null,   // (the microphone's stream, the one sent (out: through the gain node, gain), and the AudioContext)
   tr:null,said:null,roster:[],sendTo:new Set(),remote:new Map(),pend:new Map(),
   talking:false,level:0,meterT:0,rsT:0,rsLast:'',hudKey:'',peersKey:'',note:''};
-{try{const o=JSON.parse(localStorage.getItem(VC_KEY)||'null');if(o&&typeof o==='object'){VC.ptt=o.ptt!==false;VC.talk=o.talk!=null?o.talk!==false:o.listen!==true;VC.hear=o.hear!==false;if(Number.isFinite(o.vol))VC.vol=Math.max(0,Math.min(1,o.vol));if(Number.isFinite(o.micVol))VC.micVol=Math.max(0,Math.min(2,o.micVol));}}catch(e){}}
+{try{const o=JSON.parse(localStorage.getItem(VC_KEY)||'null');if(o&&typeof o==='object'){VC.ptt=o.ptt!==false;VC.talk=o.talk!=null?o.talk!==false:o.listen!==true;VC.hear=o.hear!==false;if(Number.isFinite(o.vol))VC.vol=Math.max(0,Math.min(2,o.vol));if(Number.isFinite(o.micVol))VC.micVol=Math.max(0,Math.min(2,o.micVol));}}catch(e){}}
 function vcSave(){try{localStorage.setItem(VC_KEY,JSON.stringify({ptt:VC.ptt,vol:VC.vol,micVol:VC.micVol,talk:VC.talk,hear:VC.hear}));}catch(e){}}
 const vcCan=()=>chatAvail()&&!!NET.tr.av;
 const vcSelf=()=>NET.tr?NET.tr.self:null;
@@ -63,7 +63,8 @@ function vcBegin(st,msg,flash){
   vcNote(msg);if(flash)flashLabel('No microphone: listening only',P1);
   vcSync();vcAnnounce();vcHudDraw();vcOptsDraw();chatVis();
 }
-// (the AudioContext, made when first wanted: only ever used to measure how loud someone is)
+// (the AudioContext, made when first wanted: it measures how loud someone is, carries My voice through its gain node, and
+// plays the others' voices, see vcOut)
 function vcCtx(){if(!VC.ctx)try{const AC=window.AudioContext||window.webkitAudioContext;VC.ctx=new AC();}catch(e){VC.ctx=null;}return VC.ctx;}
 function vcOff(quiet){
   VC.want=false;if(!VC.on)return;VC.on=false;
@@ -127,15 +128,29 @@ function vcGotStream(st,peer){
   vcPlay(peer,st);
 }
 function vcPlay(peer,st){
-  vcDrop(peer);const r={st,el:null,src:null,an:null,buf:null,lvl:0};
-  try{const a=new Audio();a.autoplay=true;a.srcObject=st;a.volume=VC.vol;a.muted=VC.mute.has(peer);const pr=a.play();if(pr&&pr.catch)pr.catch(()=>{});r.el=a;}catch(e){}
-  try{if(vcCtx()){r.src=VC.ctx.createMediaStreamSource(st);r.an=VC.ctx.createAnalyser();r.an.fftSize=512;r.src.connect(r.an);r.buf=new Uint8Array(512);}}catch(e){}
-  VC.remote.set(peer,r);vcHudDraw();
+  vcDrop(peer);const r={st,el:null,src:null,g:null,an:null,buf:null,lvl:0};
+  try{const a=new Audio();a.autoplay=true;a.srcObject=st;const pr=a.play();if(pr&&pr.catch)pr.catch(()=>{});r.el=a;}catch(e){}
+  try{if(vcCtx()){r.src=VC.ctx.createMediaStreamSource(st);r.an=VC.ctx.createAnalyser();r.an.fftSize=512;r.src.connect(r.an);r.buf=new Uint8Array(512);
+    r.g=VC.ctx.createGain();r.src.connect(r.g);r.g.connect(VC.ctx.destination);
+    // (a browser that won't let it start yet lets it on the next click or key press)
+    if(VC.ctx.state==='suspended'){const go=()=>{if(VC.ctx&&VC.ctx.state==='suspended'){const q=VC.ctx.resume();if(q&&q.catch)q.catch(()=>{});}};go();addEventListener('pointerdown',go,{once:true});addEventListener('keydown',go,{once:true});}
+    if(!VC.ctx.onstatechange)VC.ctx.onstatechange=()=>{for(const x of VC.remote.values())vcOut(x);};}}catch(e){r.g=null;}
+  VC.remote.set(peer,r);vcOut(r);vcHudDraw();
+}
+// how loud one player's voice plays: Others' voice's volume, or nothing if muted. An audio element only goes up to 100%,
+// so while the AudioContext is running it's played through a gain node instead, which can go to 200%, and the element's
+// kept, silent (Chrome only passes a call's sound on to an AudioContext while an element is playing it). Until the context
+// is allowed to run, the element plays it, at up to 100%
+function vcOut(r){
+  const m=[...VC.remote.entries()].find(([,x])=>x===r),muted=!!m&&VC.mute.has(m[0]),live=!!r.g&&!!VC.ctx&&VC.ctx.state==='running';
+  if(r.el)try{r.el.volume=Math.min(1,VC.vol);r.el.muted=muted||live;}catch(e){}
+  if(r.g)try{r.g.gain.value=live&&!muted?VC.vol:0;}catch(e){}
 }
 function vcDrop(peer){
   const r=VC.remote.get(peer);if(!r)return;VC.remote.delete(peer);
   if(r.el)try{r.el.pause();r.el.srcObject=null;}catch(e){}
   if(r.src)try{r.src.disconnect();}catch(e){}
+  if(r.g)try{r.g.disconnect();}catch(e){}
 }
 function vcLevel(an,buf){if(!an||!buf)return 0;try{an.getByteTimeDomainData(buf);let s=0;for(let i=0;i<buf.length;i++){const v=(buf[i]-128)/128;s+=v*v;}return Math.sqrt(s/buf.length);}catch(e){return 0;}}
 
@@ -192,14 +207,14 @@ function vcOptsDraw(){
     const tl=document.createElement('span');tl.className='tl';tl.append('Mute '+r.n);const sm=document.createElement('small');sm.textContent=VC.mic&&r.hr?'Only for you: '+r.n+' still hears you':'Only for you';tl.append(sm);
     b.append(bx,tl);b.addEventListener('click',()=>vcMute(r.id,!VC.mute.has(r.id)));box.append(b);}
 }
-function vcMute(id,on){if(on)VC.mute.add(id);else VC.mute.delete(id);const r=VC.remote.get(id);if(r&&r.el)r.el.muted=on;vcHudDraw();vcOptsDraw();}
+function vcMute(id,on){if(on)VC.mute.add(id);else VC.mute.delete(id);const r=VC.remote.get(id);if(r)vcOut(r);vcHudDraw();vcOptsDraw();}
 chatEl('vcTog').addEventListener('click',()=>{if(VC.on||VC.busy)vcOff(false);else vcStart();});
 chatEl('vcPttTog').addEventListener('click',()=>{VC.ptt=!VC.ptt;vcSave();if(VC.on&&VC.mic)vcNote(VC.ptt?'Push to talk: hold '+vcTalkKeys()+' to talk.':'Open microphone: the others hear you whenever you speak.');vcOptsDraw();});
 // (My voice, switched while voice is on: it starts again the new way, asking for the microphone or letting it go)
 chatEl('vcMicTog').addEventListener('click',()=>{VC.talk=!VC.talk;vcSave();if(VC.on){vcOff(true);vcStart();}else vcOptsDraw();});
 // (Others' voice: the host's list says so, and the others stop or start sending; whatever's playing stops at once)
 chatEl('vcHearTog').addEventListener('click',()=>{VC.hear=!VC.hear;vcSave();if(!VC.hear)VC.pend.clear();if(VC.on){vcAnnounce();vcSync();vcHudDraw();}vcOptsDraw();});
-chatEl('vcVol').addEventListener('input',e=>{VC.vol=Math.max(0,Math.min(1,(+e.target.value||0)/100));for(const r of VC.remote.values())if(r.el)r.el.volume=VC.vol;chatEl('vcVolVal').textContent=Math.round(VC.vol*100)+'%';});
+chatEl('vcVol').addEventListener('input',e=>{VC.vol=Math.max(0,Math.min(2,(+e.target.value||0)/100));for(const r of VC.remote.values())vcOut(r);chatEl('vcVolVal').textContent=Math.round(VC.vol*100)+'%';});
 chatEl('vcVol').addEventListener('change',vcSave);
 chatEl('vcMicVol').addEventListener('input',e=>{VC.micVol=Math.max(0,Math.min(2,(+e.target.value||0)/100));if(VC.gain)try{VC.gain.gain.value=VC.micVol;}catch(x){}chatEl('vcMicVolVal').textContent=Math.round(VC.micVol*100)+'%';});
 chatEl('vcMicVol').addEventListener('change',vcSave);

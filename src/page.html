@@ -229,11 +229,11 @@
         <button type="button" class="tog" role="checkbox" id="vcTog"><span class="box" aria-hidden="true"></span><span class="tl">Voice chat<small>Talk to the others in an online game over the internet</small></span></button>
       </div>
       <div class="vcsub" id="vcSub" hidden>
-        <div class="abil"><button type="button" class="tog" role="checkbox" id="vcMicTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">My voice<small>Let the others hear you. Your browser asks for the microphone first</small></span></button></div>
-        <div class="crow"><label class="clab" for="vcMicVol">VOLUME</label><input type="range" id="vcMicVol" class="vrange" min="0" max="200" step="10" value="100" aria-label="My voice volume"><span class="vval" id="vcMicVolVal">100%</span></div>
         <div class="abil"><button type="button" class="tog" role="checkbox" id="vcPttTog"><span class="box" aria-hidden="true"></span><span class="tl">Push to talk<small><span id="vcPttTxt">Hold T (D-pad ← on a controller) to talk</span></small></span></button></div>
-        <div class="abil"><button type="button" class="tog" role="checkbox" id="vcHearTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Others' voice<small>Hear the other players</small></span></button></div>
-        <div class="crow"><label class="clab" for="vcVol">VOLUME</label><input type="range" id="vcVol" class="vrange" min="0" max="100" step="5" value="100" aria-label="Others' voice volume"><span class="vval" id="vcVolVal">100%</span></div>
+        <div class="vcrow"><button type="button" class="tog" role="checkbox" id="vcMicTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">My voice<small>Let the others hear you. Your browser asks for the microphone first</small></span></button>
+          <div class="crow"><label class="clab" for="vcMicVol">VOLUME</label><input type="range" id="vcMicVol" class="vrange" min="0" max="200" step="10" value="100" aria-label="My voice volume"><span class="vval" id="vcMicVolVal">100%</span></div></div>
+        <div class="vcrow"><button type="button" class="tog" role="checkbox" id="vcHearTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Others' voice<small>Hear the other players</small></span></button>
+          <div class="crow"><label class="clab" for="vcVol">VOLUME</label><input type="range" id="vcVol" class="vrange" min="0" max="200" step="10" value="100" aria-label="Others' voice volume"><span class="vval" id="vcVolVal">100%</span></div></div>
         <div class="abil" id="vcPeers"></div>
       </div>
       <p class="vnote" id="vcNote" role="status"></p>

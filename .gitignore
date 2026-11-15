@@ -2,6 +2,7 @@ node_modules/
 tools/tests/g.js
 tools/map/g.js
 tools/ui/ui.html
+tools/ui/vcvol.html
 *.png
 *.ppm
 tools/ui/t3.html
