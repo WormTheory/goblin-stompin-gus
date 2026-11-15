@@ -3,53 +3,56 @@ its own controls: mgJump Space/0, mgQB ShiftLeft/2, mgBoost KeyC/1, mgOut KeyF/3
 as Gus (a hippo), F beside it: on foot
 as Gnash, F beside it: mech  this one true  pilot hidden in its chest 5.0
   display: shown true  gauge true  crosshair true  says Mobile Gear  ·  600 / 600 | [KEY:Left Shift] quick boost  ·  [KEY:C] boost off  ·  [KEY:Space] jump, hold to fly  ·  hold [KEY:F] get out
-  camera: behind 9.0  up 7.6  over its right shoulder -1.7
-walk: W 3 s went 26.1  speed 9.0  energy 100.0 -> 100.0  grounded true
-boost on (C): W 0.4 s speed 17.7 , at 3 s 27.0  went 71.2  energy 100.0 -> 100.0  (free on the ground)  hud true  fov + 6.0
-  let go, 0.25 s on: still sliding at 15.4
+  camera: behind 10.9  up 10.5  over its right shoulder 0.0
+walk: W 3 s went 21.5  speed 10.8  energy 100.0 -> 100.0  grounded true
+boost on (C): W 0.4 s speed 21.2 , at 3 s 32.4  went 85.5  energy 100.0 -> 100.0  (free on the ground)  hud true  fov + 6.0
+  let go, 0.25 s on: still sliding at 18.5
   2 s more: 0.2
   C again: boost false
-quick boost with D: burst speed 51.0  sideways -14.6  forward 0.0  energy 100.0 -> 80.0  (the legs face 0.0 )
-  with nothing held: back 13.6  sideways -1.2
+quick boost with D: burst speed 61.0  sideways -19.9  forward 0.0  energy 100.0 -> 80.0  (the legs face 0.0 )
+  with nothing held: back 18.7  sideways -4.5
   quick boosts back to back from 100.0 energy: 8 before it redlines; 4.8 s
   redlined: another does nothing true  boost false  gauge says REDLINE
   redline lasted 1.6 s, energy then 91.3
   2.5 s later 100.0
 jump (a tap): up 4.8  energy 100.0 -> 100.0  back down true
-  held 2 s: up 18.2  energy 100.0 -> 39.4 ; kept on, it ran dry after 3.4 s, at 30.1  redlined true
+  held 2 s: up 17.2  energy 100.0 -> 42.9 ; kept on, it ran dry after 3.5 s, at 30.0  redlined true
   fell back down in 1.8 s, crouched on landing true
   flown up, then a second of falling: with boost on it sank 0.8 , off 4.7
-  walking at a 1-block ledge: up 1.0  went 12.3
+  walking at a 1-block ledge: up 1.0  went 11.9
   walking at a 2-block ledge: up 0.0  went 4.7
-  skating at a 2-block ledge: up 2.0  went 70.4
+  skating at a 2-block ledge: up 2.0  went 83.6
   skating at a 3-block wall: up 0.0  went 5.7
 smashing through:
-  walking into a wall: blocks broken 0 of 66  went 21.7 in 2.5 s  speed after 9.0
-  skating flat out into a wall: blocks broken 24 of 66  went 67.5 in 2.5 s  speed after 27.0
-  skating flat out into a building: blocks broken 68 of 237  went 61.8 in 2.5 s  speed after 26.6
-  a quick boost into a wall from standing: blocks broken 24 of 66  went 35.3 in 2.5 s  speed after 26.8
+  walking into a wall: blocks broken 0 of 66  went 16.3 in 2.5 s  speed after 10.8
+  skating flat out into a wall: blocks broken 24 of 66  went 80.9 in 2.5 s  speed after 32.4
+  skating flat out into a building: blocks broken 68 of 237  went 78.9 in 2.5 s  speed after 32.3
+  a quick boost into a wall from standing: blocks broken 24 of 66  went 52.3 in 2.5 s  speed after 32.3
 the legs: soles above the ground (left right), worst tilt off flat
   standing: 0.03 0.03  tilt 0.00
-  walking forward: speed 9.0  (ahead 9.0 aside -0.0)  soles low 0.01 0.01 high 0.77 0.77  tilt 0.00  lifted feet moving the way it goes 18.91  knees 1.42 0.67  lean fwd 0.02 side 0.00
-  walking back: speed 9.0  (ahead -9.0 aside 0.0)  soles low 0.01 0.01 high 0.77 0.77  tilt 0.00  lifted feet moving the way it goes 18.91  knees 1.42 0.67  lean fwd -0.02 side -0.00
-  walking left: speed 9.0  (ahead 0.0 aside 9.0)  soles low 0.01 0.01 high 0.77 0.77  tilt 0.00  lifted feet moving the way it goes 18.32  knees 0.93 1.21  lean fwd -0.00 side -0.02
-  walking right: speed 9.0  (ahead -0.0 aside -9.0)  soles low 0.01 0.01 high 0.77 0.77  tilt 0.00  lifted feet moving the way it goes 18.32  knees 1.21 0.93  lean fwd -0.00 side 0.02
-  skating forward: speed 27.0  (ahead 27.0 aside -0.0)  soles low 0.03 0.05 high 0.03 0.05  tilt 0.00  lifted feet moving the way it goes -  knees 1.02 1.17  lean fwd 0.22 side 0.00
-  skating left: speed 27.0  (ahead 0.0 aside 27.0)  soles low 0.01 0.07 high 0.01 0.07  tilt 0.00  lifted feet moving the way it goes -  knees 0.73 1.39  lean fwd 0.00 side -0.22
-  skating right: speed 27.0  (ahead 0.0 aside -27.0)  soles low 0.07 0.01 high 0.07 0.01  tilt 0.00  lifted feet moving the way it goes -  knees 1.39 0.73  lean fwd 0.00 side 0.22
-  skating over a pit 3 deep: crossed true  most a leg joint moves in a frame 0.07  feet reached down 0.10  still grounded true
-  quick boost on the ground: skating stance 0.98  walking 0.18
-  most a leg joint moves in a frame: walking 0.15  taking off 0.29  flying up 0.29  landing 0.14  soles after landing 0.03 0.03
-  quick boost ahead: thrusters lit back  lean fwd 0.19 side 0.00
+  turned on the spot 0.6 of a half turn: legs turned 1.87  steps 6  most a planted foot slid in a frame 0.00  soles after 0.03 0.03
+  a small turn (0.5): legs moved 0.00  (they stay planted till the body is 0.85 round)
+  setting off: speed at 0.25 s 0.8  0.6 s 2.3  1.2 s 6.1  2.2 s 10.8  (top 10.8)  arms apart 0.40   0.3 s after letting go 5.4
+  walking forward: speed 10.8  (ahead 10.8 aside -0.0)  soles low 0.01 0.01 high 1.14 1.14  tilt 0.00  lifted feet moving the way it goes 20.63  knees 1.58 0.86  lean fwd 0.04 side 0.00
+  walking back: speed 10.8  (ahead -10.8 aside 0.0)  soles low 0.01 0.01 high 1.14 1.14  tilt 0.00  lifted feet moving the way it goes 20.70  knees 0.86 1.58  lean fwd -0.04 side -0.00
+  walking left: speed 10.8  (ahead 0.0 aside 10.8)  soles low 0.01 0.01 high 1.13 1.13  tilt 0.00  lifted feet moving the way it goes 19.70  knees 1.08 1.56  lean fwd -0.00 side -0.04
+  walking right: speed 10.8  (ahead -0.0 aside -10.8)  soles low 0.01 0.01 high 1.13 1.13  tilt 0.00  lifted feet moving the way it goes 19.70  knees 1.56 1.08  lean fwd -0.00 side 0.04
+  skating forward: speed 32.4  (ahead 32.4 aside 0.0)  soles low 0.03 0.05 high 0.03 0.05  tilt 0.00  lifted feet moving the way it goes -  knees 1.02 1.17  lean fwd 0.22 side 0.00
+  skating left: speed 32.4  (ahead 0.0 aside 32.4)  soles low 0.01 0.07 high 0.01 0.07  tilt 0.00  lifted feet moving the way it goes -  knees 0.73 1.39  lean fwd 0.00 side -0.22
+  skating right: speed 32.4  (ahead 0.0 aside -32.4)  soles low 0.07 0.01 high 0.07 0.01  tilt 0.00  lifted feet moving the way it goes -  knees 1.39 0.73  lean fwd -0.00 side 0.22
+  skating over a pit 3 deep: crossed false  most a leg joint moves in a frame 0.00  feet reached down 0.00  still grounded true
+  quick boost on the ground: skating stance 0.98  walking 0.00
+  most a leg joint moves in a frame: walking 0.12  taking off 0.48  flying up 0.48  landing 0.16  soles after landing 0.03 0.03
+  quick boost ahead: thrusters lit back  lean fwd 0.18 side 0.00
   quick boost back: thrusters lit front  lean fwd -0.19 side -0.00
   quick boost left: thrusters lit right side  lean fwd -0.00 side -0.19
   quick boost right: thrusters lit left side  lean fwd -0.00 side 0.19
-skated into a goblin: its state dead  hp -10.0
+skated into a goblin: its state dead  hp -12.0
 F held 0.25 s: mech
 F held 0.7 s: on foot  beside it 2.2  on the ground 0.0
   left alone 2 s: stays 0.0  standing true
 hit for 50: hp 550  display Mobile Gear  ·  550 / 600
-hit for 1000: wrecked true  pilot on foot  thrown clear 2.1
+hit for 1000: wrecked true  pilot on foot  thrown clear 2.2
   F by the wreck: on foot
 Gnash and Grizzle, the same inputs: furthest apart 0.000
 Clear with 2 out, one driven: left 1

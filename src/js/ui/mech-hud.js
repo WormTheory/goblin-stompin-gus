@@ -1,13 +1,12 @@
 // ---- Piloting a Mobile Gear: the camera and the display (see vehicles/mech.js) ----
-// the view: over its right shoulder, well back, turned only by you (it never swings round behind it by itself, as the
+// the view: straight behind it, well back and high enough to see over its head with the crosshair in the middle of the
+// screen, turned only by you (it never swings round behind it by itself, as the
 // other vehicles' chase camera does), pulled in where something's in the way; it widens a little at speed and jolts on
 // quick boosts and hard landings
 function mechCamera(p){
-  const M=p.drv.o,cp=Math.cos(p.cam.pitch),fx=-Math.sin(p.cam.yaw)*cp,fy=Math.sin(p.cam.pitch),fz=-Math.cos(p.cam.yaw)*cp,rx=Math.cos(p.cam.yaw),rz=-Math.sin(p.cam.yaw);
-  const by=M.g.position.y+6.7;let side=1.7;
-  // (the shoulder it looks over can't be inside a wall: tucked in toward the middle if it would be)
-  while(side>0.1&&solidAt(Math.floor(M.x+rx*side),Math.floor(by),Math.floor(M.z+rz*side)))side*=0.5;
-  const tx=M.x+rx*side,ty=by,tz=M.z+rz*side,sp=Math.hypot(M.vx,M.vz),base=9+Math.min(1.5,sp*0.06);let dist=base;
+  const M=p.drv.o,cp=Math.cos(p.cam.pitch),fx=-Math.sin(p.cam.yaw)*cp,fy=Math.sin(p.cam.pitch),fz=-Math.cos(p.cam.yaw)*cp;
+  const by=M.g.position.y+9.4;
+  const tx=M.x,ty=by,tz=M.z,sp=Math.hypot(M.vx,M.vz),base=11+Math.min(1.5,sp*0.05);let dist=base;
   for(let t=0.6;t<=base;t+=0.3){if(solidAt(Math.floor(tx-fx*t),Math.floor(ty-fy*t),Math.floor(tz-fz*t))){dist=Math.max(0.8,t-0.5);break;}}
   let cx=tx-fx*dist,cy=ty-fy*dist,cz=tz-fz*dist;const gy=supportAt(cx,cz,cy);if(gy!==null&&cy<gy+0.4)cy=gy+0.4;
   p.drvCamD=dist;p.camera.position.set(cx,cy,cz);p.camera.rotation.set(p.cam.pitch,p.cam.yaw,0);

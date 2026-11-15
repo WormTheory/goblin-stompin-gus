@@ -6,7 +6,7 @@ const fs=require('fs');
 let hdr=fs.readFileSync('site.js','utf8').split('\n');
 const n=hdr.findIndex(l=>l.startsWith('eval(src);'));
 hdr=hdr.slice(0,n).join('\n');
-hdr=hdr.replace(/window\.__t=\{/,'window.__t={setGob,get:(x,y,z)=>get(x,y,z),keys,mHeld,setRaw,solidAt,tenvVeh,MG,BINDS,ACTS,setBind,drvFind,mgFits,get nEdits(){return Object.keys(edits).length},');
+hdr=hdr.replace(/window\.__t=\{/,'window.__t={setGob,angDiff,get:(x,y,z)=>get(x,y,z),keys,mHeld,setRaw,solidAt,tenvVeh,MG,BINDS,ACTS,setBind,drvFind,mgFits,get nEdits(){return Object.keys(edits).length},');
 eval(hdr+`
 eval(src);const T=window.__t;let now=1000;
 const quiet=()=>{for(const g of T.goblins)if(g.state==='chase'&&!g.keep){g.state='wait';g.t=-1e9;g.root.visible=false;}};
@@ -87,7 +87,18 @@ hold([],1);
  console.log('smashing through:');ram('walking into a wall',false,'walk');ram('skating flat out into a wall',false,'skate');ram('skating flat out into a building',true,'skate');ram('a quick boost into a wall from standing',false,'qb');
  // ---- the legs: soles on the ground (height above it, per foot) and flat (radians off level), in each pose
  console.log('the legs: soles above the ground (left right), worst tilt off flat');
- M=fresh();board(M);run(0.5);console.log('  standing:',sole(M),' tilt',flat(M));
+ M=fresh();board(M);run(2);console.log('  standing:',sole(M),' tilt',flat(M));
+ // (turning on the spot: the camera swung half round; how far the legs got, how many steps, and how far a planted foot
+ // slid along the ground meanwhile)
+ {const h0=M.h;let steps=0,ps=M.tS,slide=0,prev=fk(M),t=0;P.cam.yaw+=Math.PI*0.6;
+  for(;t<3;t+=1/60){run(1/60);const f=fk(M);if(M.tS!==ps&&M.tS>=0)steps++;ps=M.tS;
+    f.forEach((q,j)=>{if(j!==M.tS&&q.y-T.groundAt(q.x,q.z,M.y+1.5)<0.06)slide=Math.max(slide,Math.hypot(q.x-prev[j].x,q.z-prev[j].z));});prev=f;}
+  console.log('  turned on the spot 0.6 of a half turn: legs turned',f2(Math.abs(T.angDiff(h0,M.h))),' steps',steps,' most a planted foot slid in a frame',f2(slide),' soles after',sole(M));
+  {const h1=M.h;P.cam.yaw-=0.5;run(1.5);console.log('  a small turn (0.5): legs moved',f2(Math.abs(T.angDiff(h1,M.h))),' (they stay planted till the body is 0.85 round)');}}
+ // (setting off on foot: slow at first, then a jog)
+ {const sp=()=>f1(Math.hypot(M.vx,M.vz));T.keys.add('KeyW');run(0.25);const a=sp();run(0.35);const b=sp();run(0.6);const c=sp();run(1);const d=sp();T.keys.delete('KeyW');
+  const arm=f2(Math.abs(M.J.arms[0].sh.rotation.x-M.J.arms[1].sh.rotation.x));run(0.3);const stop=sp();
+  console.log('  setting off: speed at 0.25 s',a,' 0.6 s',b,' 1.2 s',c,' 2.2 s',d,' (top',f1(T.MG.walk)+')  arms apart',arm,'  0.3 s after letting go',stop);run(1);}
  const step=(keys,label,boost)=>{if(boost)tap('KeyC');for(const k of keys)T.keys.add(k);run(1.2);let lo=[9,9],hi=[-9,-9],ft=0,along=0,n=0;let prev=fk(M);
    for(let i=0;i<90;i++){run(1/60);const f=fk(M),sp=Math.hypot(M.vx,M.vz)||1;
      f.forEach((q,j)=>{const gy=q.y-T.groundAt(q.x,q.z,M.y+1.5);lo[j]=Math.min(lo[j],gy);hi[j]=Math.max(hi[j],gy);ft=Math.max(ft,q.flat);
