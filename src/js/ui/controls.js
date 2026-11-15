@@ -40,6 +40,11 @@ const ACTS=[
   {id:'mgQB',n:'Quick boost',c:'#5ec8f0',kb:['ShiftLeft'],pad:[2],mg:true},
   {id:'mgBoost',n:'Boost on / off',c:'#3a8fd8',kb:['KeyC'],pad:[1],mg:true},
   {id:'mgOut',n:'Get out (hold)',c:'#6ab0d8',kb:['KeyF'],pad:[3],mg:true},
+  {id:'mgArmL',n:'Left arm: Heat Cleaver',c:'#ff9a3a',kb:['Mouse0'],pad:[6],mg:true},
+  {id:'mgArmR',n:'Right arm: Rivet Rifle (hold)',c:CC.bite,kb:['Mouse2'],pad:[7],mg:true},
+  {id:'mgShL',n:'Left shoulder: Swarm Pod (hold to lock, let go to fire)',c:'#d8d8d0',kb:['KeyQ'],pad:[4],mg:true},
+  {id:'mgShR',n:'Right shoulder: Breaker Cannon',c:CC.stomp,kb:['KeyE'],pad:[5],mg:true},
+  {id:'mgLock',n:'Hard lock on / off',c:'#e0564a',kb:['Mouse1'],pad:[11],mg:true},
 ];
 const MG_IDS=ACTS.filter(a=>a.mg).map(a=>a.id),MG_PRESS=MG_IDS.map(k=>k+'P');
 const KB_RESERVED=new Set(['Escape','Backquote','KeyP','KeyV','Period','BracketLeft','BracketRight','Backspace','Delete','Enter','NumpadEnter']),PAD_RESERVED=new Set([8,9]);

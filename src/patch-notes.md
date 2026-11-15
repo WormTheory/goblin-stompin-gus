@@ -12,7 +12,13 @@
 - Thrusters run on the energy gauge under the crosshair. Empty it and it redlines: the gauge flashes red and you can't boost or fly until it recovers. Energy comes back quickly once you stop drawing on it, and faster on the ground.
 - It leans into the way it's going, and its thrusters fire from whichever side pushes it there: the back ones going forward, the side ones strafing, the chest ones going backwards. Its legs fold up smoothly as it leaves the ground and its feet stay planted flat, up and down steps too. Skating over a pit, its feet ease over the gap rather than dropping to the bottom. Its thruster flames taper to a point.
 - It steps up one-block ledges on foot and two-block ledges while boosting. Run into a wall or a building while boosting and it smashes a hole and carries on; at full boost it ploughs straight through with barely a stumble. Walking into one just stops it. Anything small in its way gets trampled, and a hard landing knocks goblins over.
-- It has 600 health. Wreck it and you're thrown out. Weapons, lock-on, the assault boost and repairs are coming in later updates.
+- It's armed, with a weapon on each trigger. Each has its own load and reloads by itself once it's empty, shown in four boxes round the crosshair:
+  - Right click (controller RT): the Rivet Rifle in its right hand. Hold it for a steady stream of rounds.
+  - Left click (controller LT): the Heat Cleaver on its left arm. With a target locked and close by, it lunges in, then sweeps a glowing blade across in front of it that cuts down goblins, tears into vehicles and slices clean through walls. It needs a moment to cool between swings.
+  - Q (controller LB): the Swarm Pod on its left shoulder. Hold it and the pod locks on to whatever's in the lock box, up to four locks, then let go and a homing missile flies at each. With nothing locked, a tap fires one where you're aiming.
+  - E (controller RB): the Breaker Cannon on its right shoulder. On the ground it stops, braces and swings the cannon over its shoulder before firing a heavy shell that blasts a crater. In the air it fires at once and the kick shoves it backwards.
+- Lock-on: anything in the box round the crosshair is picked out by itself, and the rifle and blade aim at it, leading a moving target. Middle click (controller R3) holds on to it with a hard lock, and the camera turns to keep it in view while you move round it. Press it again to let go.
+- It has 600 health. Wreck it and you're thrown out. The assault boost and repairs are coming in a later update.
 - Its controls can be rebound in Options, in their own "Piloting a Mobile Gear" section.
 - Mobile Gears aren't kept when you leave the Testing Environment.
 

@@ -202,9 +202,10 @@ function wpnClick(){if(audio)sfx('Dry fire click',()=>{tone('square',2400,1500,0
 // scattered, to the first goblin, vehicle or wall in the way; a tracer and a puff where it hits
 function heliGun(M,p){gunRound(M,p,M.x+Math.sin(M.h)*2.4,M.y+0.8,M.z+Math.cos(M.h)*2.4,2,0.012,'Gunned down from a helicopter','Helicopter gun');}
 // one round from a mounted gun (own: the vehicle it's on) at mx,my,mz, at where p is aiming: dmg to a goblin, sc how
-// much it scatters (per block), cause what kills, snd the sound's name
-function gunRound(M,p,mx,my,mz,dmg,sc0,cause,snd){
-  const A=drvAim(p,400);
+// much it scatters (per block), cause what kills, snd the sound's name; A0, if given, what it's aimed at (else where p's
+// crosshair is)
+function gunRound(M,p,mx,my,mz,dmg,sc0,cause,snd,A0){
+  const A=A0||drvAim(p,400);
   let dx=A.x-mx,dy=A.y-my,dz=A.z-mz;const L0=Math.hypot(dx,dy,dz)||1,sc=sc0*L0;
   dx+=(Math.random()-.5)*sc*2;dy+=(Math.random()-.5)*sc*2;dz+=(Math.random()-.5)*sc*2;
   const L=Math.hypot(dx,dy,dz)||1,ux=dx/L,uy=dy/L,uz=dz/L,R=Math.min(130,L0+20);

@@ -170,7 +170,7 @@ function look(p,dx,dy,k){
 canvas.addEventListener('contextmenu',e=>e.preventDefault());
 canvas.addEventListener('mousedown',e=>{
   if(menuOpen||P1.paused||DT.kbdOpen)return;
-  const code='Mouse'+e.button;
+  const code='Mouse'+e.button;if(e.button===1)e.preventDefault();   // (middle click: no scrolling the page)
   if(e.button===2){mHeld.add(code);mTap.add(code);if(!locked()&&dragMode&&!touchMode)downAt={x:e.clientX,y:e.clientY,b:2,moved:false};return;}
   if(locked()){mHeld.add(code);mTap.add(code);}
   else if(dragMode&&!touchMode)downAt={x:e.clientX,y:e.clientY,b:e.button,moved:false};

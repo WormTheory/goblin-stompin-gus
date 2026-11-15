@@ -41,6 +41,7 @@ vehicles/fight.js
 vehicles/carjack.js
 vehicles/hose.js
 vehicles/mech.js
+vehicles/mech-weapons.js
 ui/mech-hud.js
 player/move.js
 enemies/goblins.js

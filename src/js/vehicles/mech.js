@@ -14,7 +14,7 @@ const MG_L1=1.9,MG_L2=1.75,MG_HIP=3.75;
 DRV_NAME.mech='Mobile Gear';
 // its paint: gunmetal frame, off-white armour, hazard-yellow trim, and a cold blue-white glow from its thrusters and eye
 const MGM={frame:new THREE.MeshLambertMaterial({color:0x3e454c}),plate:new THREE.MeshLambertMaterial({color:0xd6d2c4}),trim:new THREE.MeshLambertMaterial({color:0xe8b020}),
-  dark:new THREE.MeshLambertMaterial({color:0x202428}),glow:new THREE.MeshBasicMaterial({color:0x9fe4ff}),flame:new THREE.MeshBasicMaterial({color:0xcff4ff,transparent:true,opacity:0.8})};
+  dark:new THREE.MeshLambertMaterial({color:0x202428}),glow:new THREE.MeshBasicMaterial({color:0x9fe4ff}),flame:new THREE.MeshBasicMaterial({color:0xcff4ff,transparent:true,opacity:0.8}),heat:new THREE.MeshBasicMaterial({color:0xff9a3a})};
 // the model: built of boxes in a tree of joints (hips, knees, ankles, waist, shoulders, elbows, head), so drvMech's
 // pose can walk it. The root sits on the ground between its feet, facing the way its legs face (M.h)
 function makeMech(){
@@ -50,17 +50,27 @@ function makeMech(){
     // (smaller nozzles: on the pack's sides, firing outward, and low on the chest, firing forward, for going sideways or back)
     bx(T,MGM.dark,0.16,0.45,0.45,s*0.98,1.55,-1.3);bx(T,MGM.glow,0.04,0.3,0.3,s*1.07,1.55,-1.3);flame(T,s*1.09,1.55,-1.3,[s,0,0],'dir',0.24);
     bx(T,MGM.dark,0.35,0.3,0.2,s*0.85,0.75,1.05);bx(T,MGM.glow,0.25,0.2,0.04,s*0.85,0.75,1.16);flame(T,s*0.85,0.75,1.18,[0,-0.25,0.97],'dir',0.22);
-    bx(T,MGM.frame,0.8,0.7,1.5,s*0.95,3.0,-0.7);bx(T,MGM.trim,0.82,0.18,0.08,s*0.95,3.2,0.06);bx(T,MGM.dark,0.6,0.5,0.06,s*0.95,2.95,0.07);
     bx(T,MGM.frame,0.25,0.9,0.25,s*0.95,2.45,-0.9);}
+  // (on its back, each on a pivot: over the left shoulder (x+) the missile pod, a box of four tubes under a lid that
+  // swings up while it's locking and firing; over the right the cannon, carried pointing up and back, swung down over
+  // the shoulder to fire)
+  {const pod=grp(T,0.95,3.0,-0.7);J.pod=pod;bx(pod,MGM.frame,0.8,0.7,1.5,0,0,0);bx(pod,MGM.trim,0.82,0.18,0.08,0,0.2,0.76);
+    for(const [a,b] of [[-0.18,-0.12],[0.18,-0.12],[-0.18,0.16],[0.18,0.16]])bx(pod,MGM.dark,0.26,0.22,0.06,a,b,0.77);
+    const lid=grp(pod,0,0.36,-0.75);J.podLid=lid;bx(lid,MGM.plate,0.86,0.1,1.56,0,0.04,0.78);}
+  {const cn=grp(T,-0.95,2.75,-1.2);J.cannon=cn;bx(cn,MGM.frame,0.7,0.75,1.1,0,0,0);bx(cn,MGM.trim,0.72,0.16,0.3,0,0.3,0.2);
+    bx(cn,MGM.dark,0.32,0.32,2.6,0,0.12,1.7);bx(cn,MGM.frame,0.44,0.44,0.5,0,0.12,2.95);J.cannonM=grp(cn,0,0.12,3.25);}
   const hd=grp(T,0,2.62,0.25);J.head=hd;
   bx(hd,MGM.frame,0.9,0.55,1.0,0,0.27,0);bx(hd,MGM.plate,0.95,0.2,0.7,0,0.6,-0.05);J.eye=bx(hd,MGM.glow,0.74,0.11,0.05,0,0.3,0.51);
   bx(hd,MGM.dark,0.06,0.7,0.06,0.3,0.95,-0.25);bx(hd,MGM.trim,0.1,0.14,0.8,0,0.75,0);
   for(const s of [-1,1]){const sh=grp(T,s*1.62,2.1,0.05);
     bx(sh,MGM.plate,0.95,0.75,1.25,s*0.18,0.15,0);bx(sh,MGM.trim,0.97,0.12,1.27,s*0.18,0.46,0);bx(sh,MGM.frame,0.55,1.3,0.6,s*0.22,-0.75,0);
     const el=grp(sh,s*0.22,-1.4,0);bx(el,MGM.plate,0.72,1.3,0.82,0,-0.55,0.05);bx(el,MGM.dark,0.45,0.4,0.45,0,-1.3,0.1);
-    if(s>0){bx(el,MGM.dark,0.36,2.3,0.46,0,-1.7,0.2);bx(el,MGM.trim,0.2,0.5,0.3,0,-0.95,0.5);}   // (the right hand's rifle, along the forearm)
-    else{bx(el,MGM.trim,0.32,1.0,0.32,0,-1.1,0.45);bx(el,MGM.dark,0.18,0.5,0.18,0,-1.75,0.45);}   // (the left's blade housing)
-    J.arms.push({sh,el,s});}
+    // (x is its left: the right hand (x-) holds the rifle along the forearm, the left carries the blade's housing, and the
+    // blade itself, a long glowing bar shown only while it cuts)
+    let mz=null,bl=null;
+    if(s<0){bx(el,MGM.dark,0.36,2.3,0.46,0,-1.7,0.2);bx(el,MGM.trim,0.2,0.5,0.3,0,-0.95,0.5);mz=grp(el,0,-2.9,0.2);}
+    else{bx(el,MGM.trim,0.32,1.0,0.32,0,-1.1,0.45);bx(el,MGM.dark,0.18,0.5,0.18,0,-1.75,0.45);bl=bx(el,MGM.heat,0.18,3.8,0.6,0,-3.8,0.45);bl.visible=false;}
+    J.arms.push({sh,el,s,mz,bl});}
   return{g,J};
 }
 // turning a thruster's group so its flame points along d (a direction in its parent's frame)
@@ -86,9 +96,10 @@ function mgDraw(M,n){if(M.red>0||M.en<=0)return false;M.en-=n;M.enIdle=0;
 const mgCanBoost=M=>M.red<=0&&M.en>0;
 // one step of piloting it (p's controls; called from updateMechs for a mech with a pilot)
 function drvMech(M,dt){
+  mgWeapons(M,M.drv,drvIn(M.drv),dt);   // (first: a hard lock turns the camera, and that's the way it moves)
   const p=M.drv,i=drvIn(p),yaw=p.cam.yaw+Math.PI,fx=Math.sin(yaw),fz=Math.cos(yaw),f=-i.z,r=i.x;
   // (which way you're pushing, on the ground's level, from where the camera looks: forward, back and strafing)
-  let wx=fx*f-Math.cos(yaw)*r,wz=fz*f+Math.sin(yaw)*r;const wm=Math.hypot(wx,wz);if(wm>1){wx/=wm;wz/=wm;}const moving=wm>0.15;
+  let wx=fx*f-Math.cos(yaw)*r,wz=fz*f+Math.sin(yaw)*r;if(M.brace>0&&M.grounded){wx=wz=0;}const wm=Math.hypot(wx,wz);if(wm>1){wx/=wm;wz/=wm;}const moving=wm>0.15;
   M.qbCD-=dt;M.enIdle+=dt;if(M.red>0)M.red-=dt;
   // getting out is a short hold (so it never happens by accident mid-fight), and only once the button's been let go
   // after getting in
@@ -112,7 +123,9 @@ function drvMech(M,dt){
   const spd=!air?(M.boostOn?MG.skate:MG.walk):airB?MG.air:MG.walk,acc=!air?(M.boostOn?(moving?2.6:2.2):8):airB?2.2:1.2;
   if(airB&&!M.asc)mgDraw(M,(moving?MG.airEN:MG.hoverEN)*dt);
   // (a quick boost: the burst, then for MG.qbDec it bleeds its speed off smoothly toward what you're holding)
-  if(M.qbT>0){M.qbT-=dt;M.vx=M.qbx;M.vz=M.qbz;if(M.qbT<=0)M.qbD=MG.qbDec;}
+  // (the blade's lunge, like a quick boost straight at what's locked, comes before anything else)
+  if(M.lgT>0){M.lgT-=dt;M.vx=M.lgx;M.vz=M.lgz;if(M.lgT<=0){M.lgT=0;M.qbD=MG.qbDec*0.6;}}
+  else if(M.qbT>0){M.qbT-=dt;M.vx=M.qbx;M.vz=M.qbz;if(M.qbT<=0)M.qbD=MG.qbDec;}
   else if(M.qbD>0){M.qbD-=dt;const k=Math.min(1,dt*6);M.vx+=(wx*spd-M.vx)*k;M.vz+=(wz*spd-M.vz)*k;}
   else if(!air&&!M.boostOn){
     // (on foot it gets going slowly and picks up into a jog -- pushing harder the faster it's already going -- and
@@ -132,7 +145,7 @@ function drvMech(M,dt){
   mgMove(M,dt,M.boostOn?MG.stepSkate:MG.stepWalk);
 }
 // with nobody in it: it stands where it was left (and falls if the ground's taken from under it), its energy filling
-function mechIdle(M,dt){M.boostOn=false;M.asc=false;M.airB=false;M.qbT=0;M.enIdle+=dt;if(M.red>0)M.red-=dt;
+function mechIdle(M,dt){mgDisarm(M,dt);M.boostOn=false;M.asc=false;M.airB=false;M.qbT=0;M.enIdle+=dt;if(M.red>0)M.red-=dt;
   if(M.enIdle>=MG.enDelay)M.en=Math.min(MG.enMax,M.en+MG.enRegen*dt);
   const k=Math.min(1,dt*6);M.vx-=M.vx*k;M.vz-=M.vz*k;mgMove(M,dt,MG.stepWalk);}
 // moving it: across (a side at a time, so it slides along a wall), up a step if it's low enough, then up or down
@@ -248,7 +261,8 @@ function mechPose(M,dt){
   // (the pelvis: a little knee bend standing, a bob walking, crouched skating, knocked down by a hard landing)
   // (the dip before a jump, let go quickly but not in a single frame as it springs up)
   {const t=M.jPre>0?Math.sin((1-M.jPre/MG.jumpPre)*Math.PI*0.5)*0.75:0;M.jd=ease(M.jd||0,t,t>(M.jd||0)?40:10);}
-  const dip=0.2+M.jd+M.wW*Math.abs(Math.sin(M.ph))*(0.35+0.2*jg)+M.sW*0.55+crouch*0.9;const by=MG_HIP-dip*M.gW;
+  M.brA=ease(M.brA||0,M.brace>0?1:0,12);   // (bracing to fire the cannon: down into a firm crouch)
+  const dip=0.2+M.jd+M.brA*0.45+M.wW*Math.abs(Math.sin(M.ph))*(0.35+0.2*jg)+M.sW*0.55+crouch*0.9;const by=MG_HIP-dip*M.gW;
   J.B.position.y=by;J.B.rotation.set(M.pt,0,M.rl,'ZXY');
   const cp=Math.cos(M.pt),sp2=Math.sin(M.pt),cr=Math.cos(M.rl),sr=Math.sin(M.rl);
   // (a jump: for a moment the feet stay where they pushed off, so the legs straighten under it, then they tuck up and
@@ -296,6 +310,7 @@ function mechPose(M,dt){
   // (jogging, the arms swing a little against the legs: each with the opposite leg)
   const swg=0.2*jg*M.wW*Math.sin(M.ph)*(uz<-0.3?-1:1);
   for(const A2 of J.arms){const w=swg*A2.s;A2.sh.rotation.x=-0.25-ap*0.3-M.pt*0.5-w;A2.el.rotation.x=-(Math.PI/2-0.25)-ap*0.7-M.pt*0.5-w*0.6;A2.sh.rotation.z=A2.s*0.06;}
+  mgWpnPose(M,J,ap,dt,ease);   // (aiming, slashing, the cannon and the pod: see mech-weapons.js)
   // (the thrusters. Lift ones, down the calves: full climbing, less hovering or skating. The body's: each burns by how
   // much it points away from where it's headed (the burst's way during a quick boost), in the torso's frame)
   const tyw=h+J.T.rotation.y,ct=Math.cos(tyw),st=Math.sin(tyw),qb=M.qbFlash>0?M.qbFlash/0.25:0;

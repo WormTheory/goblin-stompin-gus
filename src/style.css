@@ -158,6 +158,30 @@ canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;point
 .drvhud .mgen.red{color:#ff6a5a;animation:mgred .25s steps(2) infinite}
 .drvhud .mgen.boost .mgl{color:#7cd4ff}
 @keyframes mgred{50%{opacity:.45}}
+/* a Mobile Gear's weapons: the lock box, the lock brackets and missile pips, and the four weapon boxes round the crosshair */
+.drvhud .mgwh{position:absolute;inset:0}
+.drvhud .mgwh[hidden],.drvhud .mgwh>div[hidden]{display:none}
+.drvhud .mglb{position:absolute;left:50%;top:50%;aspect-ratio:1;transform:translate(-50%,-50%);border:1px dashed rgba(232,246,255,.35);border-radius:6px}
+.drvhud .mglb.on{border-color:rgba(255,120,90,.6)}
+.drvhud .tk{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border:2px solid #ffd75a;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.45);clip-path:polygon(0 0,35% 0,35% 12%,65% 12%,65% 0,100% 0,100% 35%,88% 35%,88% 65%,100% 65%,100% 100%,65% 100%,65% 88%,35% 88%,35% 100%,0 100%,0 65%,12% 65%,12% 35%,0 35%)}
+.drvhud .tk.hard{width:34px;height:34px;margin:-17px 0 0 -17px;border:3px solid #ff4a3a;box-shadow:0 0 6px rgba(255,60,40,.7)}
+.drvhud .pip{position:absolute;width:7px;height:7px;margin:-4px 0 0 -4px;background:#7cd4ff;box-shadow:0 0 0 1px rgba(0,0,0,.6)}
+.drvhud .mgw{position:absolute;display:grid;grid-template-columns:auto auto;align-items:center;column-gap:8px;row-gap:3px;padding:5px 8px;background:rgba(14,17,22,.62);border-radius:4px;font:600 11px var(--f-mono);color:var(--bone);text-shadow:0 1px 0 #000}
+.drvhud .mgw.tl,.drvhud .mgw.bl{right:calc(50% + 130px)}
+.drvhud .mgw.tr,.drvhud .mgw.br{left:calc(50% + 130px)}
+.drvhud .mgw.tl,.drvhud .mgw.tr{bottom:calc(50% + 30px)}
+.drvhud .mgw.bl,.drvhud .mgw.br{top:calc(50% + 30px)}
+.drvhud .mgw .an{grid-column:1/3;letter-spacing:.04em;text-transform:uppercase;font-size:10px;color:var(--mute)}
+.drvhud .mgw .ap{display:flex;gap:3px}
+.drvhud .mgw .ap .pip{position:static;margin:0;width:6px;height:12px;border-radius:2px;background:#ffd75a}
+.drvhud .mgw .ap .pip.e{background:rgba(238,240,230,.18)}
+.drvhud .mgw .belt{display:block;width:96px;height:7px;background:rgba(238,240,230,.18);border-radius:2px;overflow:hidden}
+.drvhud .mgw .belt i{display:block;height:100%;width:100%;background:#ffd75a}
+.drvhud .mgw .rlb{display:none;grid-column:1/3;width:100%;height:4px;background:rgba(238,240,230,.18);border-radius:2px;overflow:hidden}
+.drvhud .mgw .rlb i{display:block;height:100%;width:0;background:#f0a04a}
+.drvhud .mgw.rl .rlb{display:block}
+.drvhud .mgw.rl{color:var(--mute)}
+@media (max-width:700px){.drvhud .mgw.tl,.drvhud .mgw.bl{right:calc(50% + 70px)}.drvhud .mgw.tr,.drvhud .mgw.br{left:calc(50% + 70px)}}
 .rb-t tr.rb-sec th{padding-top:14px;font:600 11px var(--f-body);color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
 .dveh{display:flex;gap:6px;align-items:stretch;justify-content:center;flex-wrap:wrap;max-width:100%}
 .dveh[hidden]{display:none}

@@ -6,7 +6,7 @@ const fs=require('fs');
 let hdr=fs.readFileSync('site.js','utf8').split('\n');
 const n=hdr.findIndex(l=>l.startsWith('eval(src);'));
 hdr=hdr.slice(0,n).join('\n');
-hdr=hdr.replace(/window\.__t=\{/,'window.__t={setGob,angDiff,get:(x,y,z)=>get(x,y,z),keys,mHeld,setRaw,solidAt,tenvVeh,MG,BINDS,ACTS,setBind,drvFind,mgFits,get nEdits(){return Object.keys(edits).length},');
+hdr=hdr.replace(/window\.__t=\{/,'window.__t={setGob,angDiff,mgLead,mgTarget,MGW,get DRV_WPN(){return DRV_WPN},get:(x,y,z)=>get(x,y,z),keys,mHeld,setRaw,solidAt,tenvVeh,MG,BINDS,ACTS,setBind,drvFind,mgFits,get nEdits(){return Object.keys(edits).length},');
 eval(hdr+`
 eval(src);const T=window.__t;let now=1000;
 const quiet=()=>{for(const g of T.goblins)if(g.state==='chase'&&!g.keep){g.state='wait';g.t=-1e9;g.root.visible=false;}};
@@ -144,11 +144,55 @@ hold([],1);
  board(M);T.trainHit(M,50);run(0.05);console.log('hit for 50: hp',M.hp,' display',hudT(P.ui.drvHud.txt.n));
  T.trainHit(M,1000);run(0.3);console.log('hit for 1000: wrecked',M.dead,' pilot',st(),' thrown clear',f1(Math.hypot(P.pos.x-M.x,P.pos.z-M.z)));
  put(M.x-(T.MG.r+0.8),M.y+0.2,M.z);run(0.1);hold(['KeyF'],0.1);run(0.1);console.log('  F by the wreck:',st());}
+// ---- weapons and lock-on (nobody runs from it here: Passive)
+{T.DT.host=0;M=fresh();T.setGob(true);board(M);const mh=T.mHeld;
+ const gob=(dx,dz,hp)=>{const g=T.goblins.find(g=>g.state==='wait'&&!g.civ&&!g.special);g.state='chase';g.keep=true;g.hp=g.hpMax=hp||6;const x=M.x+dx,z=M.z+dz;g.pos.set(x,T.groundAt(x,z,G0+20),z);g.root.visible=true;return g;};
+ const clear=()=>{for(const g of T.goblins)if(g.keep){g.keep=false;}run(0.1);};
+ const W=()=>M.wpn,off=g=>{const c=P.camera.position,cp=Math.cos(P.cam.pitch),f=[-Math.sin(P.cam.yaw)*cp,Math.sin(P.cam.pitch),-Math.cos(P.cam.yaw)*cp],d=[g.pos.x-c.x,g.pos.y+1.1-c.y,g.pos.z-c.z],L=Math.hypot(...d);return Math.acos((d[0]*f[0]+d[1]*f[1]+d[2]*f[2])/L);};
+ console.log('weapons:',T.DRV_WPN.mech.map(w=>w.name+' '+w.max+'/'+w.reload+'s').join(', '));
+ // (the lock box: one ahead, one well off to the side)
+ {const a=gob(0,32),b=gob(26,22);run(0.3);console.log('lock box: ahead',f2(off(a)),'rad off the crosshair, locked',M.soft===a,' the one to the side',f2(off(b)),'in the box',M.inBox.includes(b),' marker shown',P.ui.drvHud.mgw.tk.some(e=>!e.hidden));
+  // (the rifle, held: rounds fired, the goblin down)
+  const n0=W().rifle.n;mh.add('Mouse2');run(0.6);mh.delete('Mouse2');run(0.3);console.log('  Rivet Rifle held 0.6 s: rounds',n0-W().rifle.n,' the goblin ahead',a.state,' arm raised',f2(M.raA));
+  // (hard lock on the one off to the side: the camera swings round on to it)
+  const o0=off(b);mh.add('Mouse1');run(0.05);mh.delete('Mouse1');const hl=M.hard===b;run(1);console.log('hard lock (middle click) on the one',f2(o0),'off: locked',hl,' 1 s later',f2(off(b)),'off  hint',hudT(P.ui.drvHud.txt.w).includes('let go'));
+  mh.add('Mouse1');run(0.05);mh.delete('Mouse1');console.log('  middle click again: let go',!M.hard);
+  // (a target crossing at 8 a second: the lead puts the shot ahead of it by its speed times the time to get there)
+  M.hard=b;let x0=b.pos.x;for(let k=0;k<60;k++){b.pos.x=x0-8*k/60;b.pos.z=M.z+22;run(1/60);}
+  const m={x:M.x,y:M.y+4.6,z:M.z},A=T.mgLead(M,P,m.x,m.y,m.z,100),tt=Math.hypot(b.pos.x-m.x,b.pos.z-m.z)/100;
+  console.log('  leading a goblin crossing at 8/s, 100/s shot: aims',f2(b.pos.x-A.x),'ahead of it (expected about',f2(8*tt)+')');M.hard=null;clear();}
+ // (emptying the rifle, and its reload)
+ {mh.add('Mouse2');let t=0;while(W().rifle.n>0&&t<8){run(0.1);t+=0.1;}mh.delete('Mouse2');let r=0;while(W().rifle.rl>0&&r<6){run(0.1);r+=0.1;}
+  console.log('  40 rounds gone in',f1(t),'s; reloaded in',f1(r),'s, back to',W().rifle.n);}
+ // (the blade: a goblin 9 ahead, locked: a lunge up to it and the slash; then a wall in front with nothing locked)
+ {run(1);const g=gob(0,11,12);run(0.2);const z0=M.z;M.hard=g;mh.add('Mouse0');run(0.05);mh.delete('Mouse0');let lt=0;run(0.12);const blade=M.J.arms.find(a=>a.s>0).bl.visible;run(0.5);
+  console.log('Heat Cleaver at a locked goblin 11 ahead: lunged',f1(M.z-z0),' goblin',g.state,' blade shown',blade,' cooling',W().blade.rl>0);
+  mh.add('Mouse0');run(0.05);mh.delete('Mouse0');console.log('  again at once: nothing (cooling down)',!(M.slT>0));M.hard=null;clear();run(1.5);
+  const X=Math.floor(M.x),Z=Math.floor(M.z)+5,Y=Math.floor(M.y);let n=0;for(let x=X-8;x<=X+8;x++)for(let y=Y;y<Y+7;y++){T.setRaw(x,y,Z,3);n++;}
+  const cnt=()=>{let c=0;for(let x=X-8;x<=X+8;x++)for(let y=Y;y<Y+7;y++)if(T.get(x,y,Z)===3)c++;return c;};run(0.1);const c0=cnt();
+  mh.add('Mouse0');run(0.05);mh.delete('Mouse0');run(0.5);const c1=cnt();console.log('  slashing at a wall 5 ahead, nothing locked: cut',c0-c1,'of',c0,'blocks');
+  for(let x=X-8;x<=X+8;x++)for(let y=Y;y<Y+7;y++)T.setRaw(x,y,Z,0);run(0.5);}
+ // (the pod: four goblins in the box, Q held a second locks them, let go fires four missiles)
+ {P.cam.yaw=Math.PI;run(0.5);const gs=[gob(-6,40,3),gob(-2,44,3),gob(2,44,3),gob(6,40,3)];run(0.3);const n0=W().pod.n;T.keys.add('KeyQ');run(0.35);const l1=M.pod.locks.length;run(0.7);const L=M.pod.locks.length,pips=P.ui.drvHud.mgw.tk.filter(e=>!e.hidden&&e.className==='pip').length;T.keys.delete('KeyQ');
+  run(0.05);const up=T.SHOTS.filter(S=>S.live&&S.kind==='missile').length;run(0.4);const fl=T.SHOTS.filter(S=>S.live&&S.kind==='missile').length;let t=0;while(T.SHOTS.some(S=>S.live&&S.kind==='missile')&&t<6){run(0.1);t+=0.1;}
+  console.log('Swarm Pod: Q held 0.35 s',l1,'locks, 1 s',L,'(pips',pips+')  let go: missiles out',fl,' all landed in',f1(t+0.45),'s  goblins down',gs.filter(g=>g.state!=='chase').length,'of 4  left in the pod',W().pod.n,'of',n0);
+  clear();T.keys.add('KeyQ');run(0.1);T.keys.delete('KeyQ');run(0.3);console.log('  tapped with nothing in the box: one missile at the crosshair, pod',W().pod.n);run(7);}
+ // (the cannon: on the ground it braces, then fires; a wall 40 ahead takes a crater)
+ {P.cam.yaw=Math.PI;run(0.5);const X=Math.floor(M.x),Z=Math.floor(M.z)+40,Y=Math.floor(M.y);for(let x=X-6;x<=X+6;x++)for(let y=Y;y<Y+12;y++)for(let z=Z;z<Z+3;z++)T.setRaw(x,y,z,3);run(0.2);P.cam.pitch=0.02;
+  const cnt=()=>{let c=0;for(let x=X-6;x<=X+6;x++)for(let y=Y;y<Y+12;y++)for(let z=Z;z<Z+3;z++)if(T.get(x,y,z)===3)c++;return c;},c0=cnt();
+  T.keys.add('KeyW');run(1);const v0=Math.hypot(M.vx,M.vz);tap('KeyE');let t=0.05,sh=null;while(!sh&&t<1.5){run(1/60);t+=1/60;sh=T.SHOTS.find(S=>S.live&&S.kind==='shell');}const vb=Math.hypot(M.vx,M.vz);T.keys.delete('KeyW');
+  run(1.5);console.log('Breaker Cannon on the ground, walking at',f1(v0)+': fired after',f2(t),'s braced, speed then',f1(vb),' blocks blown out of a wall 40 ahead',c0-cnt(),' shells left',W().cannon.n);
+  hold(['Space'],0.6);const vx0=M.vx,vz0=M.vz;tap('KeyE');run(0.02);console.log('  fired in the air: at once',T.SHOTS.some(S=>S.live&&S.kind==='shell'),' knocked back',f1(Math.hypot(M.vx-vx0,M.vz-vz0)),'(it pushes away from the shot:',M.vz<vz0,')');
+  for(let x=X-6;x<=X+6;x++)for(let y=Y;y<Y+12;y++)for(let z=Z;z<Z+3;z++)T.setRaw(x,y,z,0);for(let i=0;i<300&&!M.grounded;i++)run(1/60);run(1);
+  tap('KeyE');run(0.6);tap('KeyE');run(1);console.log('  two more, then empty: shells',W().cannon.n,' reloading',W().cannon.rl>0);P.cam.pitch=-0.1;}
+ hold(['KeyF'],0.8);console.log('  out of it: no locks',!M.soft&&!M.hard,' reloads go on: cannon',f1(W().cannon.rl));T.DT.host=1;}
 // ---- Gnash and Grizzle: the same inputs, the same flight
 {const script=()=>{const out=[];const rec=()=>out.push([M.x,M.y,M.z,M.en,M.h]);hold(['KeyW'],1);rec();tap('KeyC');hold(['KeyW','KeyD'],1.5);rec();T.keys.add('KeyA');tap('ShiftLeft');run(0.4);T.keys.delete('KeyA');rec();
-   hold(['Space'],1.5);rec();hold(['KeyW'],1);rec();run(2);rec();return out;};
+   hold(['Space'],1.5);rec();hold(['KeyW'],1);rec();run(2);rec();
+   T.mHeld.add('Mouse2');run(0.5);T.mHeld.delete('Mouse2');T.keys.add('KeyQ');run(0.4);T.keys.delete('KeyQ');tap('KeyE');run(0.6);T.mHeld.add('Mouse0');run(0.05);T.mHeld.delete('Mouse0');run(1);
+   out.push([M.x,M.y,M.z,M.wpn.rifle.n,M.wpn.pod.n,M.wpn.cannon.n,M.wpn.blade.rl]);return out;};
  const go=who=>{P.who=who;T.tenvClear();M=null;P.pos.set(0,G0+1,0);P.cam.yaw=Math.PI;run(0.5);T.tenvVeh('mech');run(0.3);M=V().mechs[0];M.x=0.5;M.z=10.5;M.y=T.groundAt(0.5,10.5,G0+20);board(M);M.h=0;const r=script();hold(['KeyF'],0.8);return r;};
- const a=go(0),b=go(1);let far=0;for(let k=0;k<a.length;k++)for(let j=0;j<5;j++)far=Math.max(far,Math.abs(a[k][j]-b[k][j]));
+ const a=go(0),b=go(1);let far=0;for(let k=0;k<a.length;k++)for(let j=0;j<a[k].length;j++)far=Math.max(far,Math.abs(a[k][j]-b[k][j]));
  console.log('Gnash and Grizzle, the same inputs: furthest apart',far.toFixed(3));P.who=0;}
 // ---- Clear takes them away (but not one being driven)
 {M=fresh();board(M);T.tenvVeh('mech');run(0.2);const n0=V().mechs.length;T.tenvClear();run(0.2);console.log('Clear with',n0,'out, one driven: left',V()?V().mechs.length:0);hold(['KeyF'],0.8);T.tenvClear();run(0.2);console.log('  Clear on foot: venue',!!V());}

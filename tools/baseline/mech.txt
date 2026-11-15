@@ -1,8 +1,8 @@
 button: venue true  mechs 1  feet on the ground 0.00  hp 600  energy 100  says Spawned 1 Mobile Gear ahead of Gus. Walk up to one as Gnash or Grizzle and press F (controller Y) to climb in.
-its own controls: mgJump Space/0, mgQB ShiftLeft/2, mgBoost KeyC/1, mgOut KeyF/3
+its own controls: mgJump Space/0, mgQB ShiftLeft/2, mgBoost KeyC/1, mgOut KeyF/3, mgArmL Mouse0/6, mgArmR Mouse2/7, mgShL KeyQ/4, mgShR KeyE/5, mgLock Mouse1/11
 as Gus (a hippo), F beside it: on foot
 as Gnash, F beside it: mech  this one true  pilot hidden in its chest 5.0
-  display: shown true  gauge true  crosshair true  says Mobile Gear  ·  600 / 600 | [KEY:Left Shift] quick boost  ·  [KEY:C] boost off  ·  [KEY:Space] jump, hold to fly  ·  hold [KEY:F] get out
+  display: shown true  gauge true  crosshair true  says Mobile Gear  ·  600 / 600 | [KEY:Left Shift] quick boost  ·  [KEY:C] boost off  ·  [KEY:Space] jump, hold to fly  ·  [WHEEL] lock on  ·  hold [KEY:F] get out
   camera: behind 10.9  up 10.5  over its right shoulder 0.0
 walk: W 3 s went 21.5  speed 10.8  energy 100.0 -> 100.0  grounded true
 boost on (C): W 0.4 s speed 21.2 , at 3 s 32.4  went 85.5  energy 100.0 -> 100.0  (free on the ground)  hud true  fov + 6.0
@@ -56,6 +56,22 @@ F held 0.7 s: on foot  beside it 2.2  on the ground 0.0
 hit for 50: hp 550  display Mobile Gear  ·  550 / 600
 hit for 1000: wrecked true  pilot on foot  thrown clear 2.2
   F by the wreck: on foot
+weapons: Rivet Rifle 40/2.5s, Heat Cleaver 1/1.2s, Swarm Pod 8/6s, Breaker Cannon 3/7s
+lock box: ahead 0.12 rad off the crosshair, locked true  the one to the side 0.67 in the box false  marker shown false
+  Rivet Rifle held 0.6 s: rounds 6  the goblin ahead dead  arm raised 1.00
+hard lock (middle click) on the one 0.69 off: locked true  1 s later 0.09 off  hint true
+  middle click again: let go true
+  leading a goblin crossing at 8/s, 100/s shot: aims 2.45 ahead of it (expected about 2.45)
+  40 rounds gone in 3.4 s; reloaded in 2.5 s, back to 40
+Heat Cleaver at a locked goblin 11 ahead: lunged 13.3  goblin dead  blade shown true  cooling true
+  again at once: nothing (cooling down) true
+  slashing at a wall 5 ahead, nothing locked: cut 22 of 119 blocks
+Swarm Pod: Q held 0.35 s 2 locks, 1 s 4 (pips 0)  let go: missiles out 4  all landed in 1.4 s  goblins down 4 of 4  left in the pod 4 of 8
+  tapped with nothing in the box: one missile at the crosshair, pod 3
+Breaker Cannon on the ground, walking at 4.6: fired after 0.40 s braced, speed then 0.1  blocks blown out of a wall 40 ahead 46  shells left 2
+  fired in the air: at once true  knocked back 12.7 (it pushes away from the shot: true )
+  two more, then empty: shells 0  reloading true
+  out of it: no locks true  reloads go on: cannon 4.9
 Gnash and Grizzle, the same inputs: furthest apart 0.000
 Clear with 2 out, one driven: left 1
   Clear on foot: venue false

@@ -46,11 +46,11 @@ function tracer(x0,y0,z0,x1,y1,z1){
 // in the wall it hits, and a grenade's usually lying on the ground a step or two away when its fuse runs out: the ball's
 // flattened underneath, so this takes a shallow crater and the foot of a wall within about 3 blocks)
 const GREN_CRUSH=2.8;
-const SHOTS=[],SHOT_LOOK={grenade:[[0.24,0.24,0.24],0x3a4a22],shell:[[0.28,0.28,0.7],0x2a2a24],rocket:[[0.22,0.22,0.9],0xd8d8d0]},SHOT_M={};
+const SHOTS=[],SHOT_LOOK={grenade:[[0.24,0.24,0.24],0x3a4a22],shell:[[0.28,0.28,0.7],0x2a2a24],rocket:[[0.22,0.22,0.9],0xd8d8d0],missile:[[0.2,0.2,0.75],0xe8e4d8]},SHOT_M={};
 function shot(o){
   let S=SHOTS.find(q=>!q.live&&q.kind===o.kind);
   if(!S){const L=SHOT_LOOK[o.kind],m=new THREE.Mesh(FB_GEO,SHOT_M[o.kind]||(SHOT_M[o.kind]=new THREE.MeshLambertMaterial({color:L[1]})));m.scale.set(...L[0]);m.visible=false;scene.add(m);S={kind:o.kind,g:m,pos:new V3(),v:new V3(),live:false};SHOTS.push(S);}
-  Object.assign(S,{grav:o.grav,fuse:o.fuse??9,R:o.R,dmg:o.dmg,cause:o.cause,by:o.by||null,bounce:!!o.bounce,t:0,live:true,trail:0,crush:o.crush||0,vd:o.vd,own:o.own||null});
+  Object.assign(S,{grav:o.grav,fuse:o.fuse??9,R:o.R,dmg:o.dmg,cause:o.cause,by:o.by||null,bounce:!!o.bounce,t:0,live:true,trail:0,crush:o.crush||0,vd:o.vd,own:o.own||null,tgt:o.tgt||null,at:o.at||null,sp:o.sp||0,turn:o.turn||0});
   S.pos.set(o.x,o.y,o.z);S.v.set(o.vx,o.vy,o.vz);S.g.position.copy(S.pos);S.g.visible=true;return S;
 }
 // a blast: the flash, smoke and noise, everyone near it hurt (less at the edge) and thrown, goblins too, maybe a crater
@@ -68,7 +68,7 @@ function updateShots(dt){
   for(const T of TRACERS)if(T.t>0){T.t-=dt;if(T.t<=0)T.m.visible=false;}
   if(!playing)return;
   for(const S of SHOTS){if(!S.live)continue;S.t+=dt;S.fuse-=dt;
-    let boom=S.fuse<=0;const ns=Math.max(1,Math.ceil(Math.hypot(S.v.x,S.v.y,S.v.z)*dt/0.4));
+    let boom=S.fuse<=0;if(S.tgt||S.at)boom=shotSteer(S,dt)||boom;const ns=Math.max(1,Math.ceil(Math.hypot(S.v.x,S.v.y,S.v.z)*dt/0.4));
     for(let k=0;k<ns&&!boom;k++){const h=dt/ns;S.v.y-=S.grav*h;const nx=S.pos.x+S.v.x*h,ny=S.pos.y+S.v.y*h,nz=S.pos.z+S.v.z*h;
       if(solidAt(nx,Math.floor(ny),nz)||ny<1){
         if(!S.bounce){boom=true;break;}
@@ -85,6 +85,19 @@ function updateShots(dt){
     else{const h=Math.hypot(S.v.x,S.v.z);S.g.rotation.set(-Math.atan2(S.v.y,h),Math.atan2(S.v.x,S.v.z),0,'YXZ');S.trail-=dt;if(S.trail<=0){S.trail=0.03;smoke(S.pos.x,S.pos.y,S.pos.z,1,S.kind==='rocket'?0xdadada:0x6a6a6a);}}
   }
 }
+// a homing missile (a Mobile Gear's): for a moment it flies as launched, then speeds up to S.sp and turns, at most
+// S.turn a second, after its target (S.tgt, while it lives) or the spot it was sent at (S.at). True once it's on
+// the target, to go off
+function shotSteer(S,dt){
+  let x,y,z;const T=S.tgt;
+  if(T&&!lockAlive(T))S.tgt=null;
+  if(S.tgt){x=T.pos.x;y=lockY(T);z=T.pos.z;}else if(S.at){x=S.at.x;y=S.at.y;z=S.at.z;}else return false;
+  const dx=x-S.pos.x,dy=y-S.pos.y,dz=z-S.pos.z,d=Math.hypot(dx,dy,dz)||0.01;
+  if(S.tgt&&d<(isMilT(T)?2.4:isCarT(T)?1.6:1.2))return true;
+  if(S.t<0.25)return false;
+  const v=S.v,sp=Math.min(S.sp,Math.hypot(v.x,v.y,v.z)+S.sp*2*dt),L=Math.hypot(v.x,v.y,v.z)||1,k=Math.min(1,S.turn*dt);
+  let ux=v.x/L+(dx/d-v.x/L)*k,uy=v.y/L+(dy/d-v.y/L)*k,uz=v.z/L+(dz/d-v.z/L)*k;const U=Math.hypot(ux,uy,uz)||1;
+  v.set(ux/U*sp,uy/U*sp,uz/U*sp);return false;}
 const vReach=(dy,r)=>dy>-Math.max(2.5,r*0.45)&&dy<Math.max(3,r*0.6);   // how far below/above the source an area hit still reaches
 function hitGoblins(x,z,r,n,cause,y){if(y!==undefined)dbgHit('dmg','cap',dbgCap(x,y,z,r));for(const g of goblins){if(g.state!=='chase')continue;const dx=g.pos.x-x,dz=g.pos.z-z,dy=y===undefined?0:g.pos.y-y,d=Math.hypot(dx,dz)||0.01;if(Math.hypot(d,dy)<r&&(y===undefined||vReach(dy,r)))damageGoblin(g,n,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(dx/d,0.6,dz/d),cause);}}
 // every car has someone at the wheel
