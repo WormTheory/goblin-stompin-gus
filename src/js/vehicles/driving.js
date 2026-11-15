@@ -67,7 +67,8 @@ function drvLetGo(p,D){const o=D.o;if(o.drv===p)o.drv=null;
 // what you're told as you take your seat
 function drvSays(p,D){const o=D.o,k=drvKey(p),sw=drvSwapTo(p)?'  ·  '+actMark(p,'weapon')+' '+(D.seat==='gun'?'drive':'man the gun'):'';
   if(D.seat==='gun'){flashLabel('On the gun of the '+drvName(D)+'  ·  '+actMark(p,'bite')+' fires'+(D.k==='heli'?', '+actMark(p,'stomp')+' rockets':'')+'  ·  '+k+' to get off'+sw,p);return;}
-  const how=D.k==='heli'?'  ·  '+actMark(p,'jump')+' climbs, '+actMark(p,'climb')+' drops':D.k==='plane'?'  ·  '+(p.pad?'Stick up/down':actMark(p,'fwd')+'/'+actMark(p,'back'))+' throttle, '+actMark(p,'jump')+' pulls up, '+actMark(p,'climb')+' pushes down, '+(p.pad?'stick left/right':actMark(p,'left')+'/'+actMark(p,'right'))+' bank':D.k==='tank'?'  ·  '+actMark(p,'bite')+' fires':D.k==='car'&&o.veh==='fire'?'  ·  '+actMark(p,'bite')+' sprays water':'';
+  const how=D.k==='heli'?'  ·  '+actMark(p,'jump')+' climbs, '+actMark(p,'climb')+' drops':D.k==='plane'?(p.pad?'  ·  Stick up/down throttle, '+actMark(p,'jump')+' pulls up, '+actMark(p,'climb')+' pushes down, stick left/right bank'
+    :'  ·  '+actMark(p,'fwd')+'/'+actMark(p,'back')+' nose down/up, '+actMark(p,'left')+'/'+actMark(p,'right')+' bank, '+actMark(p,'jump')+'/'+actMark(p,'climb')+' throttle up/down'):D.k==='tank'?'  ·  '+actMark(p,'bite')+' fires':D.k==='car'&&o.veh==='fire'?'  ·  '+actMark(p,'bite')+' sprays water':'';
   flashLabel('Driving the '+drvName(D)+'  ·  '+k+' to get out'+how+sw,p);
 }
 // out by the side (whichever has room), else the back or the front, else on the roof
@@ -325,10 +326,12 @@ function vehIn(x,z,h,hx,hz,y0,y1,self){const R=Math.hypot(hx,hz);   // (returns 
   return null;}
 // a vehicle run into by another (vehIn's answer), hurt by n
 function vehHurt(o,n){if(o.isMil)milHit(o,n);else damageCar(o,n,undefined,'acc');}
-// flying a plane, more or less as a real one flies. W and S set the throttle (it stays where you leave it); on the
-// runway A and D steer the nose wheel and S with the throttle closed brakes. Past rotation speed, Jump pulls the nose up
-// and the wings lift it off. In the air A and D bank it, and a banked plane turns; Jump pulls the nose up and Climb (or
-// Dash) pushes it down. Lift comes from speed and the wing's angle to the air: climbing costs speed and diving gains it,
+// flying a plane, more or less as a real one flies. On a controller the stick's up and down set the throttle (it stays
+// where you leave it); on the runway left and right steer the nose wheel and pulling back with the throttle closed
+// brakes. Past rotation speed, Jump pulls the nose up and the wings lift it off. In the air left and right bank it, and
+// a banked plane turns; Jump pulls the nose up and Climb (or Dash) pushes it down. On the keyboard (i.kbd) it's flown
+// with WASD alone, as a flight stick would: W pushes the nose down and S pulls it up, A and D bank, and Jump and Climb
+// (or Dash) open and close the throttle (Climb with it closed brakes on the runway). Lift comes from speed and the wing's angle to the air: climbing costs speed and diving gains it,
 // and too slow or too steep the wing stalls, lift goes and the nose drops. Let go and it eases back to level flight,
 // holding its height through a turn. Into anything at speed, down too hard or on a wingtip, and it's wrecked; left with
 // nobody at the controls the throttle closes and it glides down by itself. F: v airspeed, thr throttle, pt the nose's
@@ -339,7 +342,8 @@ const planeStalled=F=>F.air&&(F.v<20||F.pt-F.gm>PLANE_AOA);
 function drvPlane(pl,dt){
   const F=pl.free,g=pl.g,P=g.position,p=pl.drv,i=p?drvIn(p):null;
   if(F.thr===undefined){F.thr=Math.min(1,(F.v||0)/60);F.gm=Math.atan2(F.vy||0,Math.max(8,F.v||0));F.pt=Math.max(0,F.gm);F.rl=0;}
-  const tin=i?-i.z:0,bank=i?-i.x:0,up=i?(i.jump?1:0)-(i.climb||i.charge?1:0):0;
+  const btn=i?(i.jump?1:0)-(i.climb||i.charge?1:0):0,kb=i&&i.kbd;   // (the keyboard swaps the stick's up/down and the buttons over)
+  const tin=i?(kb?btn:-i.z):0,bank=i?-i.x:0,up=i?(kb?i.z:btn):0;
   // (the sea's surface counts as ground; so does sea level, out where nothing's been built yet)
   const wetAt=(x,z)=>!chunks.has(ckey(Math.floor(x/CS),Math.floor(z/CS)))||get(x,G,z)===WATER?G+1:0,gnd=(x,z,y)=>Math.max(groundAt(x,z,y),wetAt(x,z));
   const air=P.y>gnd(P.x,P.z,P.y+1)+0.05;F.air=air;

@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:bed1aad860508b671fa7de7d8d4aa548a7f1b839c4a0d273ff7246c46a86a831 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:443b676bc117368b5bc95c464cc419d6d475268ee218b7c173623922479e4eec -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1414,6 +1414,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
       <div class="pn">
         <p class="pn-web">What's changed, newest first. These notes are also on <a href="patch-notes/index.html" target="_blank" rel="noopener">their own web page</a>.</p>
 <details class="pn-up pn-fold pn-new" id="version-0-4" open><summary tabindex="0"><h2>Version 0.4</h2><span class="pn-tog" aria-hidden="true"></span></summary>
+<h3>Flying planes with WASD</h3>
+<ul><li>On the keyboard, planes now fly with WASD like a flight stick: W pushes the nose down and S pulls it up, A and D bank and turn as before, and Space and C open and close the throttle (C with the throttle shut brakes on the runway). On the runway, get up to speed and hold S to take off. Controllers fly just as before, and the prompt when you climb in shows whichever you're using.</li></ul>
 <h3>Tidier display</h3>
 <ul><li>The goblin count under your score now reads "GOBLINS SLAIN" instead of "FLATTENED".</li><li>The card beside the clock now shows just the day, the time of day and the season, with no symbols. The weather, the moon and where you are have moved to a new info pane under the clock, which you switch on from the debug menu (Overlays, Info pane). It's off to begin with.</li><li>"Sunny" weather is now called "Clear".</li><li>Full screen is a big button now, in the title screen's menu under New city and Options, and in the pause menu's column of buttons above Quit to title.</li><li>The pause menu's This rampage card now counts goblins slain, cars totaled, buildings demolished (each building you bring down counts once) and settlements razed (every building in a town or village brought down). Its wrecked bar is gone; how much of the place you're in is down still shows on the card in the bottom right of the screen, which now says Settlement razed.</li><li>Score numbers, Damage numbers, Shouts and Health bars under On screen in Options now start off, and so does the Debug menu switch. Anything you've already switched on stays on.</li></ul>
 <h3>Police handguns for Gnash</h3>
@@ -11350,7 +11352,8 @@ function drvLetGo(p,D){const o=D.o;if(o.drv===p)o.drv=null;
 // what you're told as you take your seat
 function drvSays(p,D){const o=D.o,k=drvKey(p),sw=drvSwapTo(p)?'  ·  '+actMark(p,'weapon')+' '+(D.seat==='gun'?'drive':'man the gun'):'';
   if(D.seat==='gun'){flashLabel('On the gun of the '+drvName(D)+'  ·  '+actMark(p,'bite')+' fires'+(D.k==='heli'?', '+actMark(p,'stomp')+' rockets':'')+'  ·  '+k+' to get off'+sw,p);return;}
-  const how=D.k==='heli'?'  ·  '+actMark(p,'jump')+' climbs, '+actMark(p,'climb')+' drops':D.k==='plane'?'  ·  '+(p.pad?'Stick up/down':actMark(p,'fwd')+'/'+actMark(p,'back'))+' throttle, '+actMark(p,'jump')+' pulls up, '+actMark(p,'climb')+' pushes down, '+(p.pad?'stick left/right':actMark(p,'left')+'/'+actMark(p,'right'))+' bank':D.k==='tank'?'  ·  '+actMark(p,'bite')+' fires':D.k==='car'&&o.veh==='fire'?'  ·  '+actMark(p,'bite')+' sprays water':'';
+  const how=D.k==='heli'?'  ·  '+actMark(p,'jump')+' climbs, '+actMark(p,'climb')+' drops':D.k==='plane'?(p.pad?'  ·  Stick up/down throttle, '+actMark(p,'jump')+' pulls up, '+actMark(p,'climb')+' pushes down, stick left/right bank'
+    :'  ·  '+actMark(p,'fwd')+'/'+actMark(p,'back')+' nose down/up, '+actMark(p,'left')+'/'+actMark(p,'right')+' bank, '+actMark(p,'jump')+'/'+actMark(p,'climb')+' throttle up/down'):D.k==='tank'?'  ·  '+actMark(p,'bite')+' fires':D.k==='car'&&o.veh==='fire'?'  ·  '+actMark(p,'bite')+' sprays water':'';
   flashLabel('Driving the '+drvName(D)+'  ·  '+k+' to get out'+how+sw,p);
 }
 // out by the side (whichever has room), else the back or the front, else on the roof
@@ -11608,10 +11611,12 @@ function vehIn(x,z,h,hx,hz,y0,y1,self){const R=Math.hypot(hx,hz);   // (returns 
   return null;}
 // a vehicle run into by another (vehIn's answer), hurt by n
 function vehHurt(o,n){if(o.isMil)milHit(o,n);else damageCar(o,n,undefined,'acc');}
-// flying a plane, more or less as a real one flies. W and S set the throttle (it stays where you leave it); on the
-// runway A and D steer the nose wheel and S with the throttle closed brakes. Past rotation speed, Jump pulls the nose up
-// and the wings lift it off. In the air A and D bank it, and a banked plane turns; Jump pulls the nose up and Climb (or
-// Dash) pushes it down. Lift comes from speed and the wing's angle to the air: climbing costs speed and diving gains it,
+// flying a plane, more or less as a real one flies. On a controller the stick's up and down set the throttle (it stays
+// where you leave it); on the runway left and right steer the nose wheel and pulling back with the throttle closed
+// brakes. Past rotation speed, Jump pulls the nose up and the wings lift it off. In the air left and right bank it, and
+// a banked plane turns; Jump pulls the nose up and Climb (or Dash) pushes it down. On the keyboard (i.kbd) it's flown
+// with WASD alone, as a flight stick would: W pushes the nose down and S pulls it up, A and D bank, and Jump and Climb
+// (or Dash) open and close the throttle (Climb with it closed brakes on the runway). Lift comes from speed and the wing's angle to the air: climbing costs speed and diving gains it,
 // and too slow or too steep the wing stalls, lift goes and the nose drops. Let go and it eases back to level flight,
 // holding its height through a turn. Into anything at speed, down too hard or on a wingtip, and it's wrecked; left with
 // nobody at the controls the throttle closes and it glides down by itself. F: v airspeed, thr throttle, pt the nose's
@@ -11622,7 +11627,8 @@ const planeStalled=F=>F.air&&(F.v<20||F.pt-F.gm>PLANE_AOA);
 function drvPlane(pl,dt){
   const F=pl.free,g=pl.g,P=g.position,p=pl.drv,i=p?drvIn(p):null;
   if(F.thr===undefined){F.thr=Math.min(1,(F.v||0)/60);F.gm=Math.atan2(F.vy||0,Math.max(8,F.v||0));F.pt=Math.max(0,F.gm);F.rl=0;}
-  const tin=i?-i.z:0,bank=i?-i.x:0,up=i?(i.jump?1:0)-(i.climb||i.charge?1:0):0;
+  const btn=i?(i.jump?1:0)-(i.climb||i.charge?1:0):0,kb=i&&i.kbd;   // (the keyboard swaps the stick's up/down and the buttons over)
+  const tin=i?(kb?btn:-i.z):0,bank=i?-i.x:0,up=i?(kb?i.z:btn):0;
   // (the sea's surface counts as ground; so does sea level, out where nothing's been built yet)
   const wetAt=(x,z)=>!chunks.has(ckey(Math.floor(x/CS),Math.floor(z/CS)))||get(x,G,z)===WATER?G+1:0,gnd=(x,z,y)=>Math.max(groundAt(x,z,y),wetAt(x,z));
   const air=P.y>gnd(P.x,P.z,P.y+1)+0.05;F.air=air;
@@ -21858,7 +21864,7 @@ function readInputs(dt){
   else{s1=st[0]||null;s2=st[1]||null;}
   if(s1)P1.pad=s1.p;if(s2&&P2.active&&!P2.net)P2.pad=s2.p;
   P2.ui.join.hidden=!(P2.active&&!P2.pad);
-  for(const p of players){const i=p.in;i.x=0;i.z=0;i.charge=false;i.chargePress=false;i.stomp=false;i.bite=false;i.bitePress=false;i.jumpPress=false;i.jump=false;i.lockPress=false;i.dash=false;i.dashPress=false;i.sprint=false;i.sprintPress=false;i.lookX=0;i.lookY=0;i.climb=false;i.use=false;i.weapon=false;i.talk=false;}
+  for(const p of players){const i=p.in;i.x=0;i.z=0;i.charge=false;i.chargePress=false;i.stomp=false;i.bite=false;i.bitePress=false;i.jumpPress=false;i.jump=false;i.lockPress=false;i.dash=false;i.dashPress=false;i.sprint=false;i.sprintPress=false;i.lookX=0;i.lookY=0;i.climb=false;i.use=false;i.weapon=false;i.talk=false;i.kbd=false;}
   // (rebinding a control in the menu: the next button pressed on any controller is the one)
   if(menuOpen&&BIND_CAP){if(performance.now()-BIND_CAP.t>200)for(const s of st){const i=s.pr.findIndex(Boolean);if(i<0)continue;
       if(BIND_CAP.dev==='pad'){if(PAD_RESERVED.has(i))bindCancel();else setBind(BIND_CAP.id,'pad',BIND_CAP.i,i);}else if(i===1||i===9)bindCancel();break;}
@@ -21902,6 +21908,7 @@ function readInputs(dt){
   if(!P1.paused){
     const A={};for(const a of ACTS){const h=kbAct(a.id);A[a.id]=h;A[a.id+'P']=h&&!kbPrevA[a.id];kbPrevA[a.id]=h;}
     I.z+=(A.back?1:0)-(A.fwd?1:0);I.x+=(A.right?1:0)-(A.left?1:0);
+    I.kbd=!P1.pad;   // (flying on the keyboard: a plane is flown WASD-style, see drvPlane; the same rule as the hints' p.pad)
     I.charge=A.dashSprint;I.chargePress=A.dashSprintP;I.dash=A.dash;I.dashPress=A.dashP;I.sprint=A.sprint;I.sprintPress=A.sprintP;
     I.stomp=A.stomp;I.jumpPress=A.jumpP;I.jump=A.jump;I.lockPress=A.lockP;I.climb=A.climb;I.bite=A.bite;I.bitePress=A.biteP;I.use=A.use;I.weapon=A.weapon;I.talk=A.talk;
   }else for(const a of ACTS)kbPrevA[a.id]=false;
@@ -22986,7 +22993,7 @@ function netHostLeft(peer){
 }
 // a guest's controls: what's held now replaces what was held; a press counts once, on the host's next frame, however many
 // of the guest's frames it was spread over (and none is lost between two of them)
-const NET_HELD=['charge','stomp','bite','jump','dash','sprint','climb','use','weapon'],NET_PRESS=['chargePress','bitePress','jumpPress','lockPress','dashPress','sprintPress'];
+const NET_HELD=['charge','stomp','bite','jump','dash','sprint','climb','use','weapon','kbd'],NET_PRESS=['chargePress','bitePress','jumpPress','lockPress','dashPress','sprintPress'];
 function netGotInput(p,m){
   const N=p.net;if(typeof m.n==='number'&&m.n<=(N.inN||0))return;N.inN=m.n;N.inAt=NET.now;
   N.inb=m;if(Number.isFinite(m.vt))N.vt=m.vt;if(m.pr&&(m.pr.bitePress||m.pr.chargePress)||m.h&&(m.h.bite||m.h.stomp))N.atkAt=NET.now;

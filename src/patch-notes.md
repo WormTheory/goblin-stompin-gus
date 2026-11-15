@@ -2,6 +2,10 @@
 
 ## Version 0.4
 
+### Flying planes with WASD
+
+- On the keyboard, planes now fly with WASD like a flight stick: W pushes the nose down and S pulls it up, A and D bank and turn as before, and Space and C open and close the throttle (C with the throttle shut brakes on the runway). On the runway, get up to speed and hold S to take off. Controllers fly just as before, and the prompt when you climb in shows whichever you're using.
+
 ### Tidier display
 
 - The goblin count under your score now reads "GOBLINS SLAIN" instead of "FLATTENED".
