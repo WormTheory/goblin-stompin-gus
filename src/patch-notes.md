@@ -1,5 +1,9 @@
 # Patch notes
 
+## Version 0.5
+
+- Nothing new yet since 0.4 went live.
+
 ## Version 0.4
 
 ### Goblins climb vehicles too
