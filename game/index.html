@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:53d2ead64542b08312474afd7f7a617b1650fb2bb656d94073d312b3f1b10196 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:2f23fe807a1def037d406c2247fe7ce5257970697087eb1d0032eccc9c44619a -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1427,7 +1427,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <p class="pn-web">What's changed, newest first. These notes are also on <a href="patch-notes/index.html" target="_blank" rel="noopener">their own web page</a>.</p>
 <details class="pn-up pn-fold pn-new" id="version-0-5" open><summary tabindex="0"><h2>Version 0.5</h2><span class="pn-tog" aria-hidden="true"></span></summary>
 <h3>Mobile Gear (Testing Environment)</h3>
-<ul><li>A new vehicle to try out in the Testing Environment: the Mobile Gear, an armoured walker eight blocks tall. Pick it from the vehicle buttons in the Testing Environment tab and it's set down in front of you. Only Gnash and Grizzle can pilot it for now.</li><li>Walk up and press F (controller Y) to climb in. Hold F for half a second to climb out, so a stray tap won't throw you out mid-fight.</li><li>It moves where the camera points, with the view over its right shoulder. Walking lumbers along; press C (controller B) to switch boost on and it skates along the ground much faster, at no cost.</li><li>Shift (controller X) is a quick boost: a sharp burst in the direction you're holding, or straight back with nothing held. Each one costs energy.</li><li>Space (controller A) jumps, and holding it flies upward on the thrusters. With boost on in the air it glides instead of dropping.</li><li>Thrusters run on the energy gauge under the crosshair. Empty it and it redlines: the gauge flashes red and you can't boost or fly until it recovers. Energy comes back quickly once you stop drawing on it, and faster on the ground.</li><li>It steps up one-block ledges on foot and two-block ledges while boosting. Anything small in its way gets trampled, and a hard landing knocks goblins over.</li><li>It has 600 health. Wreck it and you're thrown out. Weapons, lock-on, the assault boost and repairs are coming in later updates.</li><li>Its controls can be rebound in Options, in their own "Piloting a Mobile Gear" section.</li><li>Mobile Gears aren't kept when you leave the Testing Environment.</li></ul>
+<ul><li>A new vehicle to try out in the Testing Environment: the Mobile Gear, an armoured walker eight blocks tall. Pick it from the vehicle buttons in the Testing Environment tab and it's set down in front of you. Only Gnash and Grizzle can pilot it for now.</li><li>Walk up and press F (controller Y) to climb in. Hold F for half a second to climb out, so a stray tap won't throw you out mid-fight.</li><li>It moves where the camera points, with the view over its right shoulder. Walking lumbers along, stepping whichever way you're going, backwards and sideways included. Press C (controller B) to switch boost on and it drops into a wide, braced crouch and skates along the ground three times as fast, at no cost.</li><li>Shift (controller X) is a quick boost: a sharp burst in the direction you're holding, or straight back with nothing held. Each one costs energy.</li><li>Space (controller A) jumps, and holding it flies upward on the thrusters. With boost on in the air it glides instead of dropping.</li><li>Thrusters run on the energy gauge under the crosshair. Empty it and it redlines: the gauge flashes red and you can't boost or fly until it recovers. Energy comes back quickly once you stop drawing on it, and faster on the ground.</li><li>It leans into the way it's going, and its thrusters fire from whichever side pushes it there: the back ones going forward, the side ones strafing, the chest ones going backwards. Its legs fold up smoothly as it leaves the ground and its feet stay planted flat, up and down steps too.</li><li>It steps up one-block ledges on foot and two-block ledges while boosting. Run into a wall or a building while boosting and it smashes a hole and carries on; at full boost it ploughs straight through with barely a stumble. Walking into one just stops it. Anything small in its way gets trampled, and a hard landing knocks goblins over.</li><li>It has 600 health. Wreck it and you're thrown out. Weapons, lock-on, the assault boost and repairs are coming in later updates.</li><li>Its controls can be rebound in Options, in their own "Piloting a Mobile Gear" section.</li><li>Mobile Gears aren't kept when you leave the Testing Environment.</li></ul>
 <h3>Less prop pop-in</h3>
 <ul><li>Props out in the open (patio tables, beach and harbour gear, the stadium's fittings and the like) are now drawn out to 64 blocks, up from 34, and furniture indoors stays at 34 as before. The distance is now the same in every direction, so things on the diagonal no longer show up later than things straight ahead.</li><li>Props now grow up out of the ground over a moment as they come into range, instead of suddenly appearing.</li><li>New PROPS slider in Options, under Render distance: set how far props are drawn, from 32 to 192 blocks. Furniture indoors goes about half as far as the setting.</li></ul>
 </details>
@@ -12101,8 +12101,12 @@ function hoseHit(c,H){
 // ground is paid for from one energy bar (M.en); run it dry and it redlines (M.red), and nothing boosts until that's
 // over. It never asks who the pilot is, so every character drives it the same ----
 // (all the tuning in one place: speeds in blocks a second, energy out of enMax)
-const MG={hy:7.6,r:1.25,hp:600,walk:6,skate:18,air:16,airEN:12,hoverEN:5,grav:26,jumpV:16,jumpEN:8,ascV:9,ascEN:30,
-  qbV:34,qbT:0.22,qbCD:0.35,qbEN:20,qbKeep:0.45,enMax:100,enRegen:45,enDelay:0.5,red:1.8,stepWalk:1,stepSkate:2,outHold:0.5};
+// (ramV: from this fast, running into a wall or a building knocks a hole in it; plow: from this fast it hardly slows)
+const MG={hy:7.6,r:1.25,hp:600,walk:9,skate:27,air:24,airEN:12,hoverEN:5,grav:26,jumpV:16,jumpEN:8,ascV:9,ascEN:30,
+  qbV:51,qbT:0.22,qbCD:0.35,qbEN:20,qbKeep:0.45,enMax:100,enRegen:45,enDelay:0.5,red:1.8,stepWalk:1,stepSkate:2,outHold:0.5,
+  ramV:15,plow:24};
+// (the legs: thigh and shin lengths, and how high the hips stand)
+const MG_L1=1.9,MG_L2=1.75,MG_HIP=3.75;
 DRV_NAME.mech='Mobile Gear';
 // its paint: gunmetal frame, off-white armour, hazard-yellow trim, and a cold blue-white glow from its thrusters and eye
 const MGM={frame:new THREE.MeshLambertMaterial({color:0x3e454c}),plate:new THREE.MeshLambertMaterial({color:0xd6d2c4}),trim:new THREE.MeshLambertMaterial({color:0xe8b020}),
@@ -12111,22 +12115,31 @@ const MGM={frame:new THREE.MeshLambertMaterial({color:0x3e454c}),plate:new THREE
 // pose can walk it. The root sits on the ground between its feet, facing the way its legs face (M.h)
 function makeMech(){
   const g=new THREE.Group(),J={legs:[],arms:[],flames:[],eye:null},bx=milBx,grp=(par,x,y,z)=>{const o=new THREE.Group();o.position.set(x,y,z);par.add(o);return o;};
-  const flame=(par,x,y,z,dz)=>{const f=new THREE.Mesh(LM_BOX,MGM.flame);f.position.set(x,y,z);f.scale.set(0.32,0.32,0.01);f.visible=false;par.add(f);J.flames.push({m:f,z,dz});};
-  bx(g,MGM.frame,1.7,0.75,1.15,0,3.8,0);bx(g,MGM.trim,1.75,0.14,1.2,0,3.45,0);   // (the hips)
-  for(const s of [-1,1]){const hip=grp(g,s*0.8,3.75,0);
+  // (a thruster's flame: it points along d, in its part's own frame. 'lift' ones hold it up, 'dir' ones on the body push
+  // it about, so they burn on the side away from where it's going)
+  const flame=(par,x,y,z,d,kind,w)=>{const o=grp(par,x,y,z);o.rotation.set(-Math.asin(d[1]),Math.atan2(d[0],d[2]),0,'YXZ');
+    const f=new THREE.Mesh(LM_BOX,MGM.flame);f.scale.set(w,w,0.01);f.visible=false;o.add(f);J.flames.push({m:f,d,kind,L:0});};
+  // (everything above the legs hangs from the pelvis, B, at hip height, so the body can crouch and lean while the legs
+  // reach down to the ground)
+  const B=grp(g,0,MG_HIP,0);J.B=B;
+  bx(B,MGM.frame,1.7,0.75,1.15,0,0.05,0);bx(B,MGM.trim,1.75,0.14,1.2,0,-0.3,0);   // (the hips)
+  for(const s of [-1,1]){const hip=grp(B,s*0.8,0,0);hip.rotation.order='ZXY';
     bx(hip,MGM.plate,0.85,1.9,0.95,0,-0.95,0.05);bx(hip,MGM.frame,0.2,1.4,0.8,s*0.5,-0.85,0);
     const knee=grp(hip,0,-1.9,0.1);bx(knee,MGM.trim,0.7,0.5,0.45,0,0,0.38);bx(knee,MGM.frame,0.75,1.7,0.85,0,-0.85,-0.1);bx(knee,MGM.plate,0.8,1.25,0.3,0,-0.7,0.38);
-    bx(knee,MGM.glow,0.4,0.45,0.08,0,-0.95,-0.56);flame(knee,0,-0.95,-0.6,-1);   // (a thruster down the back of each calf)
-    const ank=grp(knee,0,-1.75,-0.1);bx(ank,MGM.dark,1.0,0.4,1.75,0,0.1,0.25);bx(ank,MGM.trim,0.9,0.18,0.3,0,0.2,1.08);bx(ank,MGM.frame,0.6,0.35,0.5,0,0.4,-0.1);
+    bx(knee,MGM.glow,0.4,0.45,0.08,0,-0.95,-0.56);flame(knee,0,-0.95,-0.6,[0,-0.6,-0.8],'lift',0.32);   // (a thruster down the back of each calf)
+    const ank=grp(knee,0,-1.75,-0.1);ank.rotation.order='XZY';bx(ank,MGM.dark,1.0,0.4,1.75,0,0.1,0.25);bx(ank,MGM.trim,0.9,0.18,0.3,0,0.2,1.08);bx(ank,MGM.frame,0.6,0.35,0.5,0,0.4,-0.1);
     J.legs.push({hip,knee,ank,s});}
-  const T=grp(g,0,4.1,0);J.T=T;
+  const T=grp(B,0,0.35,0);J.T=T;
   bx(T,MGM.dark,1.1,0.6,0.9,0,0.3,0);bx(T,MGM.frame,1.8,0.5,1.4,0,0.75,0.1);
   bx(T,MGM.plate,2.6,1.8,1.9,0,1.5,0.05);
   {const p=bx(T,MGM.plate,2.0,1.0,0.3,0,1.75,1.0);p.rotation.x=-0.2;}bx(T,MGM.trim,2.2,0.22,0.4,0,2.35,0.85);
   for(const s of [-1,1]){bx(T,MGM.dark,0.12,0.9,0.05,s*0.55,1.6,1.16);}   // (vents either side of the chest plate)
   // (the back: its thruster pack, two big nozzles, and the launchers carried on top)
   bx(T,MGM.frame,1.8,1.4,0.9,0,1.6,-1.3);
-  for(const s of [-1,1]){bx(T,MGM.dark,0.55,0.55,0.25,s*0.5,1.2,-1.8);bx(T,MGM.glow,0.4,0.4,0.05,s*0.5,1.2,-1.94);flame(T,s*0.5,1.2,-1.97,-1);
+  for(const s of [-1,1]){bx(T,MGM.dark,0.55,0.55,0.25,s*0.5,1.2,-1.8);bx(T,MGM.glow,0.4,0.4,0.05,s*0.5,1.2,-1.94);flame(T,s*0.5,1.2,-1.97,[0,0,-1],'dir',0.36);
+    // (smaller nozzles: on the pack's sides, firing outward, and low on the chest, firing forward, for going sideways or back)
+    bx(T,MGM.dark,0.16,0.45,0.45,s*0.98,1.55,-1.3);bx(T,MGM.glow,0.04,0.3,0.3,s*1.07,1.55,-1.3);flame(T,s*1.09,1.55,-1.3,[s,0,0],'dir',0.24);
+    bx(T,MGM.dark,0.35,0.3,0.2,s*0.85,0.75,1.05);bx(T,MGM.glow,0.25,0.2,0.04,s*0.85,0.75,1.16);flame(T,s*0.85,0.75,1.18,[0,-0.25,0.97],'dir',0.22);
     bx(T,MGM.frame,0.8,0.7,1.5,s*0.95,3.0,-0.7);bx(T,MGM.trim,0.82,0.18,0.08,s*0.95,3.2,0.06);bx(T,MGM.dark,0.6,0.5,0.06,s*0.95,2.95,0.07);
     bx(T,MGM.frame,0.25,0.9,0.25,s*0.95,2.45,-0.9);}
   const hd=grp(T,0,2.62,0.25);J.head=hd;
@@ -12204,11 +12217,13 @@ function mgMove(M,dt,step){
     for(let s=1;s<=step;s++){const y=Math.floor(M.y+0.05)+s;if(!mgFits(nx,y,nz))continue;const gy=mgGround(nx,nz,y+0.05);if(gy>y+0.01||gy<M.y)continue;
       if(mgBlocked(M,nx,nz,gy))return false;M.x=nx;M.z=nz;M.y=gy;M.stepT=0.15;return true;}
     return false;};
-  let hit=false;
-  if(M.vx&&!tryTo(M.x+M.vx*dt,M.z)){hit=true;M.vx=0;}
-  if(M.vz&&!tryTo(M.x,M.z+M.vz*dt)){hit=true;M.vz=0;}
-  if(hit&&sp0>14&&!M.clangT){M.clangT=0.4;clang();addShake(0.25,M.x,M.z,15);puff(M.x+M.vx*0.1,M.y+3,M.z+M.vz*0.1,5,0x9a948a,1);}
-  if(M.clangT>0)M.clangT=Math.max(0,M.clangT-dt);
+  let bx=M.vx&&!tryTo(M.x+M.vx*dt,M.z),bz=M.vz&&!tryTo(M.x,M.z+M.vz*dt);
+  // (fast enough, it smashes a way through whatever stopped it and carries on: boosting flat out it hardly slows)
+  if((bx||bz)&&sp0>=MG.ramV&&!M.dead&&mgRam(M,M.vx/sp0,M.vz/sp0,sp0)){const keep=sp0>=MG.plow?0.94:0.5;M.vx*=keep;M.vz*=keep;if(M.qbT>0){M.qbx*=keep;M.qbz*=keep;}
+    if(bx)bx=!tryTo(M.x+M.vx*dt,M.z);if(bz)bz=!tryTo(M.x,M.z+M.vz*dt);}
+  if(bx)M.vx=0;if(bz)M.vz=0;const hit=bx||bz;
+  if(hit&&sp0>12&&!M.clangT){M.clangT=0.4;clang();addShake(0.25,M.x,M.z,15);puff(M.x+M.vx*0.1,M.y+3,M.z+M.vz*0.1,5,0x9a948a,1);}
+  if(M.clangT>0)M.clangT=Math.max(0,M.clangT-dt);if(M.ramT>0)M.ramT=Math.max(0,M.ramT-dt);
   // (down: on the ground it keeps to it, down a step too; off it, it falls -- slowly while boosting -- and lands)
   const gy=mgGround(M.x,M.z,M.y+0.3);
   if(M.grounded&&M.vy<=0){if(gy>=M.y-1.05&&gy<=M.y+0.3){M.y=gy;M.vy=0;}else M.grounded=false;}
@@ -12220,6 +12235,21 @@ function mgMove(M,dt,step){
     if(ny<=g2&&M.vy<=0){mgLand(M,-M.vy);ny=g2;M.vy=0;M.grounded=true;}
     M.y=Math.min(ny,H+80);}
 }
+// knocking a hole in what's in front of it, as wide and tall as itself and deeper the faster it's going (the same
+// wreckage as a tank ramming: the blocks fly, and a building that loses enough comes down). Returns how many broke
+function mgRam(M,fx,fz,sp){
+  if(SBX)return 0;const depth=sp>=MG.plow?2.4:1.3,W=MG.r+0.35,y0=Math.floor(M.y+0.05),y1=Math.floor(M.y+MG.hy),E=Math.ceil(MG.r+depth+W)+1;
+  const ch=new Set(),broken=[],cx0=Math.floor(M.x),cz0=Math.floor(M.z);
+  for(let bz=cz0-E;bz<=cz0+E;bz++)for(let bx=cx0-E;bx<=cx0+E;bx++){const rx=bx+0.5-M.x,rz=bz+0.5-M.z,a=rx*fx+rz*fz,l=Math.abs(rx*fz-rz*fx);
+    for(let by=y0;by<=y1;by++){const rag=0.4*hash2(bx*5+by*3,bz*13+by);if(a<MG.r-0.7||a>MG.r+depth+rag||l>W+rag)continue;
+      const b=get(bx,by,bz);if(b===AIR||b===WATER||b===BEDROCK||by<1||by>=H)continue;
+      setRaw(bx,by,bz,AIR);addEdit(bx,by,bz,AIR);broken.push({x:bx,y:by,z:bz,b});
+      for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((bx+ox)/CS),Math.floor((bz+oz)/CS)));}}
+  if(!broken.length)return 0;
+  const o={force:0.8+sp*0.03,dx:fx,dz:fz,up:1};rebuildSet(ch);save();destroyFX(broken.slice(0,120),o);settle(broken,o);pumpsHit(broken);
+  knockProps(M.x+fx*(MG.r+1),M.y+1,M.z+fz*(MG.r+1),W+1,fx,fz);
+  if(!M.ramT){M.ramT=0.12;clang();addShake(sp>=MG.plow?0.35:0.5,M.x,M.z,25);}
+  return broken.length;}
 // coming down: the harder, the longer it crouches; from high up it shakes the ground and knocks the goblins round it flat
 function mgLand(M,v){M.landT=Math.min(0.5,0.08+v*0.015);M.landK=Math.min(1,v/22);
   if(v>6){thud(Math.min(1,v/25));puff(M.x,M.y+0.2,M.z,Math.min(16,4+v*0.4|0),0xb8b0a0,1.6);addShake(Math.min(0.6,v*0.02),M.x,M.z,25);}
@@ -12251,45 +12281,70 @@ function mechHit(M,n){
   M.g.traverse(o=>{if(o.isMesh)o.material=o.material===MGM.flame?o.material:TRM.dark;});for(const F of M.J.flames)F.m.visible=false;
   if(audio)sfx('Mobile Gear destroyed',()=>{noise(1.2,1,450,'lowpass');tone('sawtooth',60,14,1.4,0.3);});addShake(1,M.x,M.z,50);hitGoblins(M.x,M.z,8,8,'Blown up with a Mobile Gear',M.y+2);
 }
-// how it stands this step: the legs walking (or skating, or hanging in the air), the body leaning into how it's moving,
-// the arms up at what you're looking at, the thrusters' flames
+// one leg reaching for a point: the ankle put at (dx,dy,dz) from its hip, in the pelvis's frame (x to its left, y up, z
+// ahead), by swinging the hip out and forward and bending the knee (forward, as a knee does); then the ankle turned to
+// keep the foot flat on the ground, whatever the pelvis's lean (bp, br) and the leg's angles
+function mgLeg(L,dx,dy,dz,bp,br){
+  const a=Math.hypot(dx,Math.min(dy,-0.3)),ro=Math.atan2(dx,Math.max(0.3,-dy)),D=Math.max(0.5,Math.min(MG_L1+MG_L2-0.01,Math.hypot(a,dz)));
+  const cl=v=>Math.max(-1,Math.min(1,v)),fw=Math.atan2(dz,a)+Math.acos(cl((MG_L1*MG_L1+D*D-MG_L2*MG_L2)/(2*MG_L1*D))),kn=Math.PI-Math.acos(cl((MG_L1*MG_L1+MG_L2*MG_L2-D*D)/(2*MG_L1*MG_L2)));
+  L.hip.rotation.set(-fw,0,ro);L.knee.rotation.x=kn;L.ank.rotation.set(fw-kn-bp,0,-(ro+br));}
+// how it stands this step: the feet stepping the way it's going (walking), splayed and braced (boost skating), or drawn up
+// (in the air), every pose easing into the next; the body crouching and leaning into how it moves; the arms up at what
+// you're looking at; and the thrusters burning on the side away from where it's headed
 function mechPose(M,dt){
-  const J=M.J,g=M.g,sp=Math.hypot(M.vx,M.vz),h=M.h,lf=(M.vx*Math.sin(h)+M.vz*Math.cos(h)),ls=(M.vx*Math.cos(h)-M.vz*Math.sin(h));   // (its speed forward and to the left, in the legs' own frame)
+  const J=M.J,g=M.g,sp=Math.hypot(M.vx,M.vz),h=M.h,ch=Math.cos(h),sh=Math.sin(h),ease=(k,t,r)=>k+(t-k)*Math.min(1,dt*r);
   g.position.set(M.x,M.y,M.z);if(M.pos)M.pos.set(M.x,M.y,M.z);else M.pos=new V3(M.x,M.y,M.z);
   if(M.dead){g.rotation.set(0.12,h,0.2,'YXZ');return;}
-  const skate=M.grounded&&M.boostOn&&sp>1,walk=M.grounded&&!skate&&sp>0.6,stride=Math.max(-1,Math.min(1,(Math.abs(lf)>=Math.abs(ls)?Math.sign(lf):Math.sign(ls))));
-  // (the walking cycle: a step every 2.6 blocks or so; each foot coming down thumps)
-  const ph0=M.ph||0;if(walk)M.ph=ph0+sp*dt*Math.PI/2.6;else M.ph=ph0+(Math.round(ph0/Math.PI)*Math.PI-ph0)*Math.min(1,dt*8);
-  if(walk&&Math.floor(M.ph/Math.PI)!==Math.floor(ph0/Math.PI)){if(audio&&playing)sfx('Mobile Gear footstep',()=>thud(0.35));addShake(0.08,M.x,M.z,18);
-    const s=Math.floor(M.ph/Math.PI)%2?1:-1;puff(M.x+Math.cos(h)*s*0.8,M.y+0.1,M.z-Math.sin(h)*s*0.8,2,0xb8b0a0,0.5);}
+  g.rotation.set(0,h,0);
+  // (which way it's going in the legs' own frame: ux to its left, uz ahead)
+  const lf=M.vx*sh+M.vz*ch,ls=M.vx*ch-M.vz*sh,ux=sp>0.3?ls/sp:0,uz=sp>0.3?lf/sp:0;
+  const skate=M.grounded&&M.boostOn&&sp>1,walk=M.grounded&&!skate&&sp>0.6;
+  // (how much of each pose it's in: these ease, so nothing snaps from one to the next)
+  M.gW=ease(M.gW??1,M.grounded?1:0,M.grounded?14:6);M.aW=ease(M.aW||0,M.asc?1:0,5);M.sW=ease(M.sW??0,skate?1:0,6);M.wW=ease(M.wW??0,walk?1:0,6);
+  // (the walking cycle: a stride of 2A, so a planted foot keeps pace with the ground; shorter sideways, so the legs don't
+  // cross; each foot coming down thumps)
+  const A=sp>0.3?1/Math.hypot(ux/0.8,uz/1.45):1.45,ph0=M.ph||0;
+  if(walk)M.ph=ph0+sp*dt*Math.PI/(2*A);else M.ph=ph0+(Math.round(ph0/Math.PI)*Math.PI-ph0)*Math.min(1,dt*6);
+  if(walk&&Math.floor((M.ph-Math.PI/2)/Math.PI)!==Math.floor((ph0-Math.PI/2)/Math.PI)){if(audio&&playing)sfx('Mobile Gear footstep',()=>thud(0.35));addShake(0.08,M.x,M.z,18);}
   M.landT=Math.max(0,(M.landT||0)-dt);const crouch=M.landT>0?M.landK*Math.sin(Math.min(1,M.landT/0.5)*Math.PI)*0.9:0;
-  // (leaning: into a skate, and forward or back, side to side, with how it's speeding up; a quick boost throws it the
-  // other way for a moment)
-  const lean=k=>Math.max(-0.35,Math.min(0.35,k));M.qbFlash=Math.max(0,(M.qbFlash||0)-dt);
-  let pt=lean(lf*(skate?0.016:0.008)),rl=lean(-ls*(skate?0.016:0.008));
-  if(M.qbFlash>0&&M.qbDir){const k=M.qbFlash/0.25,qf=M.qbDir.x*Math.sin(h)+M.qbDir.z*Math.cos(h),qs=M.qbDir.x*Math.cos(h)-M.qbDir.z*Math.sin(h);pt-=qf*0.25*k;rl+=qs*0.25*k;}
-  M.pt=(M.pt||0)+(pt-(M.pt||0))*Math.min(1,dt*8);M.rl=(M.rl||0)+(rl-(M.rl||0))*Math.min(1,dt*8);
-  g.rotation.set(M.pt,h,M.rl,'YXZ');
-  const dip=(walk?Math.abs(Math.sin(M.ph))*0.12:0)+crouch*0.8+(skate?0.35:0);g.position.y=M.y-dip;
-  for(const L of J.legs){const k=L.s<0?0:Math.PI,sw=Math.sin(M.ph+k);
-    let hp=0,kn=0,an=0;
-    if(walk){hp=sw*0.45*stride;kn=Math.max(0,-Math.cos(M.ph+k))*0.7+0.05;an=-hp*0.5;}
-    else if(skate){hp=-0.35+L.s*0.08;kn=0.75;an=-0.4;}   // (crouched, one foot a little ahead, gliding)
-    else if(!M.grounded){hp=-0.5+(M.asc?0.2:0)+L.s*0.15;kn=0.9;an=0.3;}   // (in the air: knees drawn up)
-    hp-=crouch*0.6;kn+=crouch*1.2;an-=crouch*0.6;
-    L.hip.rotation.x=-hp;L.knee.rotation.x=kn;L.ank.rotation.x=an;
-    L.hip.rotation.z=!M.grounded?-L.s*0.08:0;}
-  // (the body turns to where you're looking, the head and arms tip up or down with the view)
-  J.T.rotation.y=Math.max(-1.6,Math.min(1.6,angDiff(h,M.ty??h)));J.T.rotation.x=-M.pt*0.4;
-  const ap=Math.max(-0.7,Math.min(0.6,M.aimP||0));J.head.rotation.x=-ap*0.5;
-  for(const A of J.arms){A.sh.rotation.x=-0.25-ap*0.3;A.el.rotation.x=-(Math.PI/2-0.25)-ap*0.7;A.sh.rotation.z=A.s*0.06;}
-  // (the thrusters: long flames while climbing or boosting through the air, short while skating, a burst on a quick boost)
-  const thr=M.asc?1:M.airB?0.7:skate?0.35:0,qb=M.qbFlash>0?M.qbFlash/0.25*1.4:0,fl=Math.max(thr,qb)*(0.85+Math.random()*0.3);
-  for(const F of J.flames){F.m.visible=fl>0.05;if(F.m.visible){const L=fl*1.6;F.m.scale.z=L;F.m.position.z=F.z+F.dz*L/2;}}
+  // (leaning: into the way it's going, more the faster; a quick boost throws it hard into the burst)
+  const k=Math.min(1,sp/MG.skate),lean=v=>Math.max(-0.4,Math.min(0.4,v));M.qbFlash=Math.max(0,(M.qbFlash||0)-dt);
+  const lk=0.06*M.wW+0.22*M.sW+0.3*(1-M.gW);let pt=uz*k*lk,rl=-ux*k*lk;
+  if(M.qbFlash>0&&M.qbDir){const q=M.qbFlash/0.25,qf=M.qbDir.x*sh+M.qbDir.z*ch,qs=M.qbDir.x*ch-M.qbDir.z*sh;pt+=qf*0.3*q;rl-=qs*0.3*q;}
+  M.pt=ease(M.pt||0,lean(pt),8);M.rl=ease(M.rl||0,lean(rl),8);
+  // (the pelvis: a little knee bend standing, a bob walking, crouched skating, knocked down by a hard landing)
+  const dip=0.2+M.wW*Math.abs(Math.sin(M.ph))*0.35+M.sW*0.55+crouch*0.9;const by=MG_HIP-dip*M.gW;
+  J.B.position.y=by;J.B.rotation.set(M.pt,0,M.rl,'ZXY');
+  const cp=Math.cos(M.pt),sp2=Math.sin(M.pt),cr=Math.cos(M.rl),sr=Math.sin(M.rl);
+  for(const L of J.legs){const s=L.s,psi=M.ph+(s<0?0:Math.PI);
+    // (on the ground: under the hip, stepping along the way it's going, lifted on the forward swing; skating, spread wide,
+    // one foot ahead, both trailing the way it's sliding so the leading leg folds and the trailing one stretches)
+    const sw=Math.sin(psi)*A*M.wW,lift=Math.max(0,Math.cos(psi))*0.7*M.wW;
+    let gx=s*0.9+ux*sw,gz=uz*sw;gx+=M.sW*(s*0.45-ux*0.75*k);gz+=M.sW*(s*0.3-uz*0.75*k);
+    // (the sole on the ground under it, up or down a step; once it's left the ground, level with where it was)
+    const wx=M.x+gx*ch+gz*sh,wz=M.z-gx*sh+gz*ch,gy=(M.grounded?Math.max(-1.2,Math.min(1.1,groundAt(wx,wz,M.y+1.2)-M.y)):0)+0.04+lift;
+    // (in the air: knees drawn up, more while climbing, the feet trailing the way it's flying)
+    const ax=s*0.95-ux*0.8*k,ay=0.9+M.aW*0.4+s*0.15,az=-0.3-uz*0.8*k;
+    const tx=ax+(gx-ax)*M.gW,ty=ay+(gy-ay)*M.gW,tz=az+(gz-az)*M.gW;
+    // (that point, seen from the leaning pelvis: undo its roll, then its pitch, then step across to the hip)
+    let x=tx,y=ty-by,z=tz;{const x1=x*cr+y*sr,y1=-x*sr+y*cr;x=x1;y=y1;}{const y2=y*cp+z*sp2,z2=-y*sp2+z*cp;y=y2;z=z2;}
+    mgLeg(L,x-s*0.8,y,z,M.pt,M.rl);}
+  // (the body turns to where you're looking, the head and arms tip up or down with the view, allowing for the lean)
+  J.T.rotation.y=Math.max(-1.6,Math.min(1.6,angDiff(h,M.ty??h)));J.T.rotation.x=0;
+  const ap=Math.max(-0.7,Math.min(0.6,M.aimP||0));J.head.rotation.x=-ap*0.5-M.pt*0.5;
+  for(const A2 of J.arms){A2.sh.rotation.x=-0.25-ap*0.3-M.pt*0.5;A2.el.rotation.x=-(Math.PI/2-0.25)-ap*0.7-M.pt*0.5;A2.sh.rotation.z=A2.s*0.06;}
+  // (the thrusters. Lift ones, down the calves: full climbing, less hovering or skating. The body's: each burns by how
+  // much it points away from where it's headed (the burst's way during a quick boost), in the torso's frame)
+  const tyw=h+J.T.rotation.y,ct=Math.cos(tyw),st=Math.sin(tyw),qb=M.qbFlash>0?M.qbFlash/0.25:0;
+  let mx=(M.vx*ct-M.vz*st)/(sp||1),mz=(M.vx*st+M.vz*ct)/(sp||1),dirT=(skate?0.55:M.airB?0.8:0)*Math.min(1,sp/8);
+  if(qb>0&&M.qbDir){mx=M.qbDir.x*ct-M.qbDir.z*st;mz=M.qbDir.x*st+M.qbDir.z*ct;dirT=Math.max(dirT,1.5*qb);}
+  const lift=M.asc?1:M.airB?0.55:skate?0.25:0;let big=0;
+  for(const F of J.flames){const want=F.kind==='lift'?lift:dirT*Math.max(0,-(F.d[0]*mx+F.d[2]*mz));F.L=ease(F.L,want,20);big=Math.max(big,F.L);
+    const L=F.L*1.6*(0.85+Math.random()*0.3);F.m.visible=L>0.08;if(F.m.visible){F.m.scale.z=L;F.m.position.z=L/2;}}
   J.eye.material=M.red>0&&Math.floor(camClock*8)%2?MGM.trim:MGM.glow;   // (its eye flashes while it's redlined)
-  if(fl>0.3&&Math.random()<dt*20){const b=-1.9;puff(M.x+Math.sin(h)*b,M.y+5.2,M.z+Math.cos(h)*b,1,0xcfeeff,0.4);}
-  if(skate&&Math.random()<dt*25)puff(M.x,M.y+0.15,M.z,1,0xffd080,0.5);   // (sparks off the feet)
-  if((M.asc||M.airB||skate)&&audio&&playing){M.hum=(M.hum||0)-dt;if(M.hum<=0){M.hum=0.12;sfx('Mobile Gear thrusters',()=>noise(0.13,0.04+thr*0.05,M.asc?900:600,'bandpass'));}}
+  if(big>0.3&&Math.random()<dt*20){const b=-1.9;puff(M.x+Math.sin(tyw)*b-(M.vx*0.05),M.y+5.2,M.z+Math.cos(tyw)*b-(M.vz*0.05),1,0xcfeeff,0.4);}
+  if(skate&&Math.random()<dt*25)puff(M.x-M.vx*0.04,M.y+0.15,M.z-M.vz*0.04,1,0xffd080,0.5);   // (sparks off the feet)
+  if((M.asc||M.airB||skate)&&audio&&playing){M.hum=(M.hum||0)-dt;if(M.hum<=0){M.hum=0.12;sfx('Mobile Gear thrusters',()=>noise(0.13,0.04+lift*0.05,M.asc?900:600,'bandpass'));}}
 }
 // every Mobile Gear in a venue, each step: piloted, or standing about; then posed and put among the big vehicles
 function updateMechs(V,dt){

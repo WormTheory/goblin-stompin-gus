@@ -1,11 +1,12 @@
 // The Mobile Gear (Testing Environment): its button stands one ahead of Gus; a hippo can't get in, a goblin can; walking,
 // boost skating, quick boosts, jumping and flying on its energy bar, the redline; steps, walls; trampling goblins; the
-// display; getting out (a hold); hurt and wrecked; Gnash and Grizzle flying it exactly the same. node mech.js
+// display; smashing through walls and buildings at speed; the legs (soles on the ground and flat, stepping the way it
+// goes, splayed skating, nothing snapping on takeoff or landing) and which thrusters fire; getting out (a hold); hurt and wrecked; Gnash and Grizzle flying it exactly the same. node mech.js
 const fs=require('fs');
 let hdr=fs.readFileSync('site.js','utf8').split('\n');
 const n=hdr.findIndex(l=>l.startsWith('eval(src);'));
 hdr=hdr.slice(0,n).join('\n');
-hdr=hdr.replace(/window\.__t=\{/,'window.__t={setGob,keys,mHeld,setRaw,solidAt,tenvVeh,MG,BINDS,ACTS,setBind,drvFind,mgFits,get nEdits(){return Object.keys(edits).length},');
+hdr=hdr.replace(/window\.__t=\{/,'window.__t={setGob,get:(x,y,z)=>get(x,y,z),keys,mHeld,setRaw,solidAt,tenvVeh,MG,BINDS,ACTS,setBind,drvFind,mgFits,get nEdits(){return Object.keys(edits).length},');
 eval(hdr+`
 eval(src);const T=window.__t;let now=1000;
 const quiet=()=>{for(const g of T.goblins)if(g.state==='chase'&&!g.keep){g.state='wait';g.t=-1e9;g.root.visible=false;}};
@@ -66,6 +67,48 @@ hold([],1);
    for(let x=X-6;x<=X+6;x++)for(let z=Z+6;z<Z+30;z++)for(let y=Y;y<Y+h;y++)T.setRaw(x,y,z,3);run(0.2);board(M);if(boost)tap('KeyC');const y0=M.y;let top=0;for(let k=0;k<180;k++){T.keys.add('KeyW');run(1/60);top=Math.max(top,M.y-y0);}T.keys.delete('KeyW');
    console.log('  '+label+': up',f1(top),' went',f1(M.z-Z));hold([],1);if(boost)tap('KeyC');hold(['KeyF'],0.8);};
  tryUp(1,false,'walking at a 1-block ledge');tryUp(2,false,'walking at a 2-block ledge');tryUp(2,true,'skating at a 2-block ledge');tryUp(3,true,'skating at a 3-block wall');}
+// ---- smashing through: a wall one block thick and six high, and a hollow building, met walking, skating flat out and
+// on a quick boost; the blocks broken and how much speed it kept
+{const fk=(M)=>{   // (where each sole is, worked out from the joints just as the renderer would)
+   const rx=(a,v)=>[v[0],v[1]*Math.cos(a)-v[2]*Math.sin(a),v[1]*Math.sin(a)+v[2]*Math.cos(a)],ry=(a,v)=>[v[0]*Math.cos(a)+v[2]*Math.sin(a),v[1],-v[0]*Math.sin(a)+v[2]*Math.cos(a)],rz=(a,v)=>[v[0]*Math.cos(a)-v[1]*Math.sin(a),v[0]*Math.sin(a)+v[1]*Math.cos(a),v[2]];
+   const add=(a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]],J=M.J,B=J.B.rotation;
+   return J.legs.map(L=>{const H=L.hip.rotation,K=L.knee.rotation,A=L.ank.rotation;
+     let v=rx(A.x,rz(A.z,[0,-0.1,0]));v=add(v,[0,-1.75,-0.1]);v=rx(K.x,v);v=add(v,[0,-1.9,0.1]);v=rz(H.z,rx(H.x,v));v=add(v,[L.s*0.8,0,0]);
+     v=rz(B.z,rx(B.x,v));v=add(v,[0,J.B.position.y,0]);v=ry(M.h,v);return {x:M.x+v[0],y:M.y+v[1],z:M.z+v[2],flat:Math.abs(B.x+H.x+K.x+A.x)+Math.abs(B.z+H.z+A.z)};});};
+ const sole=M=>fk(M).map(f=>f2(f.y-T.groundAt(f.x,f.z,M.y+1.5))).join(' '),flat=M=>f2(Math.max(...fk(M).map(f=>f.flat)));
+ const wallAt=(M,d,hollow)=>{const X=Math.floor(M.x),Z=Math.floor(M.z)+d,Y=Math.floor(M.y);let n=0;
+   for(let x=X-5;x<=X+5;x++)for(let y=Y;y<Y+6;y++){if(hollow){for(let z=Z;z<Z+7;z++)if(x===X-5||x===X+5||z===Z||z===Z+6||y===Y+5){T.setRaw(x,y,z,3);n++;}}else{T.setRaw(x,y,Z,3);n++;}}return {n,count:()=>{let c=0;for(let x=X-5;x<=X+5;x++)for(let y=Y;y<Y+6;y++)for(let z=Z;z<Z+(hollow?7:1);z++)if(T.get(x,y,z)===3)c++;return c;}};};
+ const ram=(label,hollow,how)=>{T.tenvClear();M=null;T.tenvVeh('mech');run(0.3);M=V().mechs[0];board(M);const z0=M.z;if(how!=='walk'){tap('KeyC');T.keys.add('KeyW');run(2.5);}
+   const w=wallAt(M,how==='qb'?12:28,hollow);run(0.05);let top=0,lo=1e9,t=0,z1=M.z;if(how==='walk')T.keys.add('KeyW');
+   if(how==='qb'){T.keys.delete('KeyW');run(0.2);tap('ShiftLeft');T.keys.add('KeyW');}
+   const zs=M.z;for(;t<2.5;t+=1/60){run(1/60);top=Math.max(top,Math.hypot(M.vx,M.vz));}T.keys.delete('KeyW');
+   console.log('  '+label+': blocks broken',w.n-w.count(),'of',w.n,' went',f1(M.z-zs),'in 2.5 s',' speed after',f1(Math.hypot(M.vx,M.vz)));
+   hold([],1);if(how!=='walk')tap('KeyC');hold(['KeyF'],0.8);};
+ console.log('smashing through:');ram('walking into a wall',false,'walk');ram('skating flat out into a wall',false,'skate');ram('skating flat out into a building',true,'skate');ram('a quick boost into a wall from standing',false,'qb');
+ // ---- the legs: soles on the ground (height above it, per foot) and flat (radians off level), in each pose
+ console.log('the legs: soles above the ground (left right), worst tilt off flat');
+ M=fresh();board(M);run(0.5);console.log('  standing:',sole(M),' tilt',flat(M));
+ const step=(keys,label,boost)=>{if(boost)tap('KeyC');for(const k of keys)T.keys.add(k);run(1.2);let lo=[9,9],hi=[-9,-9],ft=0,along=0,n=0;let prev=fk(M);
+   for(let i=0;i<90;i++){run(1/60);const f=fk(M),sp=Math.hypot(M.vx,M.vz)||1;
+     f.forEach((q,j)=>{const gy=q.y-T.groundAt(q.x,q.z,M.y+1.5);lo[j]=Math.min(lo[j],gy);hi[j]=Math.max(hi[j],gy);ft=Math.max(ft,q.flat);
+       const dx=q.x-prev[j].x,dz=q.z-prev[j].z,dy=q.y-prev[j].y;if(gy>0.15){along+=(dx*M.vx+dz*M.vz)/sp;n++;}});prev=f;}
+   for(const k of keys)T.keys.delete(k);const sp=Math.hypot(M.vx,M.vz),lf=M.vx*Math.sin(M.h)+M.vz*Math.cos(M.h),ls=M.vx*Math.cos(M.h)-M.vz*Math.sin(M.h);
+   const K=M.J.legs.map(L=>f2(L.knee.rotation.x)).join(' ');
+   console.log('  '+label+': speed',f1(sp),' (ahead',f1(lf),'aside',f1(ls)+')  soles low',lo.map(f2).join(' '),'high',hi.map(f2).join(' '),' tilt',f2(ft),
+     ' lifted feet moving the way it goes',n?f2(along/n*60):'-',' knees',K,' lean fwd',f2(M.pt),'side',f2(M.rl));
+   hold([],1.2);if(boost)tap('KeyC');run(0.5);};
+ step(['KeyW'],'walking forward');step(['KeyS'],'walking back');step(['KeyA'],'walking left');step(['KeyD'],'walking right');
+ step(['KeyW'],'skating forward',true);step(['KeyA'],'skating left',true);step(['KeyD'],'skating right',true);
+ // (taking off and landing: the biggest change in any leg joint from one frame to the next, against walking's)
+ const jmax=()=>{let last=null,big=0;return ()=>{const a=M.J.legs.flatMap(L=>[L.hip.rotation.x,L.hip.rotation.z,L.knee.rotation.x,L.ank.rotation.x]);if(last)for(let i=0;i<a.length;i++)big=Math.max(big,Math.abs(a[i]-last[i]));last=a;return big;};};
+ {let j=jmax();T.keys.add('KeyW');for(let i=0;i<90;i++){run(1/60);j();}T.keys.delete('KeyW');const w=j();hold([],1);
+  j=jmax();tap('Space');for(let i=0;i<20;i++){run(1/60);j();}const up=j();T.keys.add('Space');for(let i=0;i<40;i++){run(1/60);j();}T.keys.delete('Space');const fly=j();
+  j=jmax();for(let i=0;i<300&&!M.grounded;i++){run(1/60);j();}for(let i=0;i<30;i++){run(1/60);j();}const land=j();
+  console.log('  most a leg joint moves in a frame: walking',f2(w),' taking off',f2(up),' flying up',f2(fly),' landing',f2(land),' soles after landing',sole(M));}
+ // (the thrusters: which are lit, by direction, on a quick boost each way)
+ {const lit=()=>{const L=M.J.flames.filter(F=>F.kind==='dir'&&F.m.visible).map(F=>F.d[0]>0.5?'left side':F.d[0]<-0.5?'right side':F.d[2]>0.5?'front':'back');return [...new Set(L)].join('+')||'none';};
+  for(const [k,label] of [['KeyW','ahead'],['KeyS','back'],['KeyA','left'],['KeyD','right']]){run(1);T.keys.add(k);run(0.05);tap('ShiftLeft');run(0.03);const l=lit(),pt=M.pt,rl=M.rl;T.keys.delete(k);console.log('  quick boost',label+': thrusters lit',l,' lean fwd',f2(pt),'side',f2(rl));}
+  hold(['KeyF'],0.8);}}
 // ---- into a goblin
 {M=fresh();T.setGob(true);board(M);const g=T.goblins.find(g=>g.state==='wait');
  if(g){g.state='chase';g.keep=true;g.hp=6;g.pos.set(M.x,M.y,M.z+6);g.root.visible=true;const k0=T.goblins.filter(q=>q.state==='dying'||q.dead).length;tap('KeyC');hold(['KeyW'],1.5);
