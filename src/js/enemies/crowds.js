@@ -201,7 +201,6 @@ function spawnGoblin(g,any){
 }
 function damageGoblin(g,n,pt,dir,cause,by){
   if(g.state!=='chase')return;
-  dmgPop(g.pos.x,g.pos.y+1.6,g.pos.z,n,'#ffe14a');
   if(!by&&BLAME==='acc')by=ACCIDENT;
   if(!by&&n>0&&g.hp-n>0){const q=nearestPlayer(g.pos.x,g.pos.z);if(q)hudPop(g.pos.x,g.pos.y+1.9,g.pos.z,'-'+(Math.round(n*10)/10),'dmg',q.p);}   // (the damage number, for whoever did it; the killing blow gets a shout instead)
   g.hp-=n;g.hurt=0.1;if(cause!=='Fell to death')g.hitT=playTime;

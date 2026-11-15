@@ -157,10 +157,10 @@ function frame(now,bg){   // (bg: a tab in the background while online, kept goi
     else if(!hint.hidden){const txt=touchMode&&!p.pad?(p.gob?'BITE attacks  ·  STOMP throws a grenade  ·  JUMP  ·  tap DASH to dash, hold to sprint':'Hold STOMP  ·  BITE  ·  JUMP  ·  tap DASH to dash, hold to '+(abilOf(p).trample?'trample':'sprint')):bindHint(!!p.pad,p);if(hint._s!==txt){hint._s=txt;hint.innerHTML=hudHTML(txt);}}
   }
   for(const p of act){if(!p.paused)continue;const o=act.find(q=>q!==p);const txt=!o?'':o.paused?'Both paused. The city is frozen.':`The city keeps going while ${charName(o)} plays.`;if(p.ui.pstatus.textContent!==txt)p.ui.pstatus.textContent=txt;}
-  const hn=huntersCount(),pol=cars.some(c=>c.alive&&c.police&&c.hunter);
+  const pol=cars.some(c=>c.alive&&c.police&&c.hunter);
   updateSiren(dt);promptTick(dt);safe('pops',()=>popTick(dt));
-  // (the score, big, top left; under it the goblins flattened, and stickers for cars hunting you and the police)
-  {const h=`<b class="sc">${score.toLocaleString('en-US')}</b><span class="rk">${kills.toLocaleString('en-US')} flattened</span>${hn?`<i>${hn} car${hn>1?'s':''} hunting you</i>`:''}${pol?'<i>Police pursuit</i>':''}`;if(h!==readoutH){readoutH=h;readout.innerHTML=h;}}   // (only when it's changed: rebuilding it makes the browser lay the page out again)
+  // (the score, big, top left; under it the goblins flattened, and a sticker for a police pursuit)
+  {const h=`<b class="sc">${score.toLocaleString('en-US')}</b><span class="rk">${kills.toLocaleString('en-US')} flattened</span>${pol?'<i>Police pursuit</i>':''}`;if(h!==readoutH){readoutH=h;readout.innerHTML=h;}}   // (only when it's changed: rebuilding it makes the browser lay the page out again)
   if(bg)return;   // (nobody's looking: no drawing, and no next frame asked for, the browser having stopped giving this tab any)
   const w=innerWidth,h=innerHeight;
   // (the title screen draws its own backdrop instead of the city: see ui/title-scene.js)

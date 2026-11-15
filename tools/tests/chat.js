@@ -3,7 +3,8 @@
 // chat never move the hippo, lines are cut to length and only ever put on the page as text, the host's rate limit, the
 // Options switches, and that with voice off nothing asks for the microphone, makes an AudioContext or adds audio to a
 // connection. Then voice on at both ends (with a pretend microphone and connection): each sends to the other, push to
-// talk, a refused or missing microphone (listening only), the Listen only box, and voice off letting everything go.
+// talk, My voice's volume, a refused or missing microphone (listening only), My voice and Others' voice switched off, and
+// voice off letting everything go.
 const fs=require('fs'),vm=require('vm');
 const src0=fs.readFileSync('g.js','utf8');
 const d6=fs.readFileSync('dead6.js','utf8');
@@ -25,7 +26,8 @@ function game(name,rseed,ls,ss){
     '\nO3.prototype.isObject3D=true;global.localStorage=__LS;global.sessionStorage=__SS;global.location={reload(){}};\n'+
     // (the game's own sound effects make an AudioContext when play starts: counted too, so voice's can be told apart)
     'global.AudioContext=class{constructor(){__M.ac++;this.currentTime=0;this.destination={};}resume(){}close(){__M.acClosed++;return Promise.resolve();}'+
-    'createMediaStreamSource(){return{connect(){},disconnect(){}};}createAnalyser(){return{fftSize:512,getByteTimeDomainData(b){b.fill(128+(__M.loud?40:0));}};}'+
+    'createMediaStreamSource(){return{connect(){},disconnect(){}};}createMediaStreamDestination(){return{stream:__M.mk("out")};}'+
+    'createAnalyser(){return{fftSize:512,getByteTimeDomainData(b){b.fill(128+(__M.loud?40:0));}};}'+
     'createOscillator(){return{frequency:{setValueAtTime(){},exponentialRampToValueAtTime(){}},connect(g){return g;},start(){},stop(){}};}createGain(){return{gain:{setValueAtTime(){},exponentialRampToValueAtTime(){}},connect(d){return d;}};}};'+
     'global.Audio=class{play(){this.playing=true;return Promise.resolve();}pause(){this.playing=false;}};'+
     'navigator.mediaDevices={getUserMedia:async c=>{__M.gum++;__M.lastC=c;if(__M.deny){const e=new Error("denied");e.name=__M.deny;throw e;}return __M.mk("mic-'+name+'");}};\n';
@@ -115,11 +117,11 @@ console.log('joined',ok(GT.NET.joined),'chat available: host',ok(HT.chatAvail())
  const shown=HT.CHAT.lines.filter(l=>!l.sys).length-n1;
  console.log('a guest sending 10 at once past its own limit: host passes on',shown,ok(shown===1),'and tells it',ok(GT.CHAT.lines.some(l=>l.sys)));}
 
-// ---- Options: mute the others, hide chat ----
+// ---- Options: chat shown shows everyone's lines; hide chat ----
 {for(let i=0;i<400;i++){H.step(1);G.step(1);}
- H.click('chatInTog');const n0=HT.CHAT.lines.length,g0=GT.CHAT.lines.length;GT.chatSend('can you hear me');for(let i=0;i<6;i++){G.step(1);H.step(1);}
- console.log('host mutes incoming: guest line not shown on the host',ok(HT.CHAT.lines.length===n0),'guest still sees its own',ok(GT.CHAT.lines.length===g0+1),'kept',ok(H.LS.getItem('gsg-chat-v1').includes('"incoming":false')));
- H.click('chatInTog');H.click('chatShowTog');H.key('Enter');H.step(2);
+ const n0=HT.CHAT.lines.length,g0=GT.CHAT.lines.length;GT.chatSend('can you hear me');for(let i=0;i<6;i++){G.step(1);H.step(1);}
+ console.log('guest line shown on the host',ok(HT.CHAT.lines.length===n0+1),'and on the guest',ok(GT.CHAT.lines.length===g0+1),'no switch to mute the others',ok(!((H.el('chatInTog').L||{}).click||[]).length));
+ H.click('chatShowTog');H.key('Enter');H.step(2);
  console.log('host hides chat: Enter opens nothing',ok(!HT.CHAT.open),'log hidden',ok(H.el('chatLog').hidden===true));H.click('chatShowTog');H.step(2);}
 
 // ---- voice off all along: nothing asked of the microphone or the audio ----
@@ -127,7 +129,8 @@ console.log('voice off: microphones asked for',media.gum,ok(media.gum===0),'| Au
   '| audio added to a connection',hub.adds,ok(hub.adds===0),'| voice lists sent',hub.types.vr||0,ok(!hub.types.vr),'| voice chips drawn',G.el('vcHud').kids.length,ok(!G.el('vcHud').kids.length));
 
 // ---- voice on: the guest first (the host's off, so it sends to nobody), then the host ----
-{G.click('vcTog');await yieldNow();await yieldNow();for(let i=0;i<20;i++){G.step(1);H.step(1);}
+{const sub0=G.el('vcSub').hidden;G.click('vcTog');await yieldNow();await yieldNow();for(let i=0;i<20;i++){G.step(1);H.step(1);}
+ console.log('My voice, Others\' voice and push to talk only shown with voice on: before',sub0,'after',G.el('vcSub').hidden,ok(sub0===true&&G.el('vcSub').hidden===false));
  const c=media.lastC&&media.lastC.audio;
  console.log('guest voice on: microphone asked',media.gum,ok(media.gum===1),'with echo cancelling, noise suppression and gain control',ok(c&&c.echoCancellation&&c.noiseSuppression&&c.autoGainControl),
   '| its own AudioContext',ok(media.ac===acPlay+1),'| sending to anyone yet',hub.adds,ok(hub.adds===0),'| host knows',ok(HT.P2.net.vo===true));
@@ -140,6 +143,14 @@ console.log('voice off: microphones asked for',media.gum,ok(media.gum===0),'| Au
  media.loud=true;GT.keys.add('KeyT');for(let i=0;i<10;i++){G.step(1);H.step(1);}
  console.log('talking: the guest\'s own chip lit',ok(GT.VC.hudKey.includes('"talk":true')),'host sees the guest talking',ok(HT.VC.hudKey.includes('"talk":true')));
  GT.keys.delete('KeyT');media.loud=false;
+ // My voice's volume: the microphone goes through a gain node, and what's sent is that, not the microphone itself
+ const sentG=GT.VC.out,gn=GT.VC.gain;for(const f of G.el('vcMicVol').L.input||[])f({target:{value:'150'}});for(const f of G.el('vcMicVol').L.change||[])f({});
+ console.log('My voice volume 150%: gain',gn&&gn.gain.value,ok(gn&&gn.gain.value===1.5),'| sent stream is the gain\'s, not the raw mic',ok(sentG&&sentG!==GT.VC.mic&&sentG.id==='out'),'| kept',ok(G.LS.getItem('gsg-voice-v1').includes('"micVol":1.5')));
+ // Others' voice unticked on the guest: the host stops sending to it, and it plays nobody; ticked again, back as before
+ const add1=hub.adds;G.click('vcHearTog');for(let i=0;i<20;i++){G.step(1);H.step(1);}
+ console.log('guest unticks Others\' voice: host stops sending to it',ok(!HT.VC.sendTo.has(GT.NET.tr.self)),'| guest plays nobody',ok(GT.VC.remote.size===0),'| still sends its own',ok(GT.VC.sendTo.size===1&&HT.VC.remote.size===1));
+ G.click('vcHearTog');for(let i=0;i<20;i++){G.step(1);H.step(1);}
+ console.log('ticked again: host sends to it again',ok(HT.VC.sendTo.has(GT.NET.tr.self)&&hub.adds===add1+1),'| guest hears the host',ok(GT.VC.remote.size===1));
  // a per-player mute, only on the host's side
  const r=[...HT.VC.remote.values()][0];H.el('vcPeers').kids[0].L.click[0]();console.log('host mutes the guest: its audio muted',ok(r.el.muted===true),'guest unaffected',ok(![...GT.VC.remote.values()][0].el.muted));
  // the guest switches off
@@ -160,17 +171,17 @@ const lst=async n=>{for(let i=0;i<n;i++){G.step(1);H.step(1);if(i<3)await yieldN
  console.log('no microphone at all: listening only',ok(GT.VC.on&&GT.VC.lo&&GT.VC.remote.size===1),'says',JSON.stringify(G.el('vcNote').textContent.slice(0,40)));
  G.click('vcTog');await lst(10);media.deny=null;}
 
-// ---- Listen only ticked: never asks for the microphone, makes the AudioContext only once a voice arrives ----
-{const g0=media.gum,a0=media.ac,add0=hub.adds;G.click('vcLoTog');await lst(10);
- console.log('Listen only ticked, voice off: still no audio work',ok(media.gum===g0&&media.ac===a0&&hub.adds===add0&&!GT.VC.on),'kept',ok(G.LS.getItem('gsg-voice-v1').includes('"listen":true')));
+// ---- My voice unticked: never asks for the microphone, makes the AudioContext only once a voice arrives ----
+{const g0=media.gum,a0=media.ac,add0=hub.adds;G.click('vcMicTog');await lst(10);
+ console.log('My voice unticked, voice off: still no audio work',ok(media.gum===g0&&media.ac===a0&&hub.adds===add0&&!GT.VC.on),'kept',ok(G.LS.getItem('gsg-voice-v1').includes('"talk":false')));
  G.click('vcTog');await lst(30);
- console.log('voice on, listening only: microphone asked',media.gum-g0,ok(media.gum===g0),'| AudioContext made for the host\'s voice',media.ac-a0,ok(media.ac===a0+1),'| hears the host',ok(GT.VC.remote.size===1),'| sends nothing',ok(GT.VC.sendTo.size===0&&hub.adds===add0+1));
+ console.log('voice on, My voice off: microphone asked',media.gum-g0,ok(media.gum===g0),'| AudioContext made for the host\'s voice',media.ac-a0,ok(media.ac===a0+1),'| hears the host',ok(GT.VC.remote.size===1),'| sends nothing',ok(GT.VC.sendTo.size===0&&hub.adds===add0+1));
  media.loud=true;HT.keys.add('KeyT');await lst(10);
  console.log('host talks: its chip lights for the listener',ok(JSON.parse(GT.VC.hudKey).some(c=>c.talk)),'listener\'s own chip never lit',ok(!JSON.parse(GT.VC.hudKey)[0].talk));
  HT.keys.delete('KeyT');media.loud=false;
  const r=[...GT.VC.remote.values()][0];G.el('vcPeers').kids[G.el('vcPeers').kids.length-1].L.click[0]();
  console.log('listener mutes the host',ok(r.el.muted===true),'| host\'s chip shows the listener',ok(/listening/.test(HT.VC.hudKey)));
- const cl0=media.acClosed;G.click('vcTog');await lst(10);G.click('vcLoTog');
+ const cl0=media.acClosed;G.click('vcTog');await lst(10);G.click('vcMicTog');
  console.log('off again: AudioContext closed',ok(media.acClosed===cl0+1),'nothing left',ok(!GT.VC.on&&!GT.VC.ctx&&GT.VC.remote.size===0));}
 
 // ---- leaving the game lets everything go ----

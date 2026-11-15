@@ -20,7 +20,7 @@
 - Quit to title takes you back to the title screen with Gus stomping along; your city, score and everyone in it are kept, so Play carries on where you left off.
 - Patch notes and Dev are small tags in the card's corner now. In split-screen co-op the card's corner says 1P MENU (green) or 2P MENU (pink), so you can tell whose menu it is, and player two's menu still leaves out Options, Dev, the Testing Environment, Quit to title and the city controls.
 - Options, Controls, the Map, the Obituary and the Patch notes are on paper in the new style. The Dev tools and the Testing Environment keep a dark panel, in the new colours.
-- The HUD is redrawn to match: your score big in the top left with the goblins you've flattened under it (and stickers when cars or the police are after you), pixel hearts and the stamina bar in one paper panel at the bottom, the day and weather on a paper card beside a new clock disc, a round minimap, and the speedometer in ink and yolk.
+- The HUD is redrawn to match: your score big in the top left with the goblins you've flattened under it (and a sticker when the police are after you), pixel hearts and the stamina bar in one paper panel at the bottom, the day and weather on a paper card beside a new clock disc, a round minimap, and the speedometer in ink and yolk.
 - Charging a stomp shows STOMP, then BIG STOMP, then shouts FULL CHARGE! when it's all the way up.
 - Combos: every goblin flattened or thing smashed within 3 seconds of the last adds one to your combo, shown under your score with a bar that drains until the next. The combo multiplies your points: +10% for each step from the second, so x11 doubles them and x21 or more triples them (that's as high as it goes). Big combos get a name and a shout: x5 Stompin'!, x10 STOMPTACULAR!, x15 Hippo-critical!, x20 GOBLINGEDDON!, x30 Unstoppable lump!, x50 HIPPOCALYPSE!, x75 Wallow of doom! and x100 Legend of the bog!
 - Points float up from wherever you earned them, damage numbers pop off the goblins as you hit them, and a goblin going down gets a shout: SPLAT! for a stomp, CHOMP! for a bite, KABOOM! for an explosion, and so on. Options, under On screen, has a switch each for Damage numbers, Shouts (the goblin-flattening shouts, combo milestones and FULL CHARGE!, which turns into a plain FULL) and Health bars (bars over the goblins, vehicles and other players near you, off to start with). If you'd switched off the old damage numbers and shouts switch, all three start off.
@@ -42,6 +42,9 @@
 - Options, under On screen, has a new Score numbers switch for the points that float up when you flatten or smash something. Your score and the wreck list still count them either way.
 - The debug menu has a Combo system switch, under Player. Switched off, there are no combos at all: your points aren't multiplied, and the combo card, combo milestone shouts and the pause menu's Best combo are all hidden. Online, the host's switch counts for everyone.
 - The speedometer only shows while you're in a vehicle, driving or in the gunner's seat.
+- The "cars hunting you" sticker under your score is gone. The Police pursuit sticker stays.
+- The debug menu no longer has its own Health bars and Damage numbers switches: use the ones in Options, under On screen.
+- Shorter, plainer descriptions on the Options switches.
 
 ### Goblins
 
@@ -49,8 +52,10 @@
 
 ### Online co-op
 
+- Voice chat has two switches of its own, shown under it once it's on: My voice (the others hear you) and Others' voice (you hear them), each with its own volume. They replace the Listen only switch: untick My voice to just listen. Push to talk only shows while voice chat is on.
+- Showing chat now always shows everyone's messages: the switch to hide the other players' messages is gone.
 - If you join someone else's game, goblins, cars, other players and everything else moving in the world now glide smoothly instead of jerking from spot to spot when the connection is a bit bumpy. Your game holds a little more in reserve when packets arrive unevenly, and briefly carries things on in the direction they were going if an update is late. Nothing extra is sent over the network, so it's no heavier on the connection.
-- If you join someone else's game, you now see your own score numbers, damage numbers and shouts (they never showed up for anyone but the host), and your combo bar drains as it should instead of sitting full. The debug menu's damage numbers show for you too.
+- If you join someone else's game, you now see your own score numbers, damage numbers and shouts (they never showed up for anyone but the host), and your combo bar drains as it should instead of sitting full.
 
 ### The city
 

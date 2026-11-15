@@ -216,7 +216,7 @@ function trainHit(T,n,dir,ci){
   if(!T||T.dead||!T.cars)return;const N=T.cars.length;if(ci===undefined)ci=0;
   if(!T.carHP){T.carHP=T.cars.map(()=>CAR_HP);T.carDead=T.cars.map(()=>false);}
   if(T.carDead[ci])return;T.carHP[ci]-=n;
-  {const g=T.cars[ci];dmgPop(g.position.x,g.position.y+4,g.position.z,Math.round(n),'#ffb04a');vHitFx(g.position.x,g.position.y+2.5,g.position.z,n);}
+  {const g=T.cars[ci];vHitFx(g.position.x,g.position.y+2.5,g.position.z,n);}
   if(T.carHP[ci]>0)return;
   // that car blows up and lies there burning, and the train grinds to a stop; the rest can still be taken apart
   T.carDead[ci]=true;if(!T.halted){T.halted=true;T.deadT=0;T.wait=0;}

@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:df47778871842c3c40d42d16f0d19557d850a5bdfccedbcab28258873918eaa8 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:cd406e06ce0bbb764bc6c0346d98f7c9359c911e24edb0718186284676ce6bd8 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -914,6 +914,9 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
 .opts .crow{display:grid;grid-template-columns:240px minmax(0,1fr) auto;gap:6px 16px}
 .opts .crow .vrange{min-width:0;width:100%}
 .opts .crow .seg{justify-self:start}   /* (two buttons in a slider's column: as wide as they need, not the whole column) */
+/* voice chat's own switches and sliders, shown only while it's on, set in under it */
+.vcsub{display:flex;flex-direction:column;gap:8px;margin-left:14px;padding-left:12px;border-left:3px dashed rgba(43,27,46,.25)}
+.vcsub[hidden]{display:none}
 .clab{font:400 18px/1 var(--f-px);letter-spacing:.5px;color:var(--ink);text-transform:uppercase;cursor:pointer}
 @container (max-width:520px){.opts .crow{grid-template-columns:minmax(0,1fr) auto}.opts .crow .clab{grid-column:1/-1}}
 .tog{background:#fffaf0;color:var(--ink);border:3px solid var(--ink);border-radius:9px 12px 8px 13px/12px 8px 13px 9px;box-shadow:0 3px 0 var(--ink)}
@@ -1365,33 +1368,34 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
     <div class="custom">
       <h2>ON SCREEN</h2>
       <div class="abil">
-        <button type="button" class="tog" role="checkbox" id="scorePopTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Score numbers<small>The points you earn float up from whatever you flattened or smashed. Your score and the wreck feed still count them either way</small></span></button>
-        <button type="button" class="tog" role="checkbox" id="dmgPopTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Damage numbers<small>Numbers pop off the goblins as you hit them</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="scorePopTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Score numbers<small>Points float up from whatever you flatten or smash</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="dmgPopTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Damage numbers<small>Numbers pop off goblins as you hit them</small></span></button>
         <button type="button" class="tog" role="checkbox" id="shoutTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Shouts<small>SPLAT!, CHOMP! or KABOOM! when a goblin goes down, combo milestones, and FULL CHARGE! on a charged stomp</small></span></button>
-        <button type="button" class="tog" role="checkbox" id="hpBarTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Health bars<small>A bar over every goblin, vehicle and other player nearby showing how hurt it is. Your own vehicle's health shows either way</small></span></button>
-        <button type="button" class="tog" role="checkbox" id="calmTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Reduced motion<small>Stops the wobbling, bobbing and popping of the menus and the display, and Gus on the title screen holds still. On by itself if your system asks for less motion</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="hpBarTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Health bars<small>Over goblins, vehicles and other players nearby</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="calmTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Reduced motion<small>Stops the wobbling, bobbing and popping of the menus and display, and Gus on the title screen. On by itself if your system asks for less motion</small></span></button>
       </div>
     </div>
     <div class="custom" id="chatOpts">
       <h2>ONLINE CHAT &amp; VOICE</h2>
       <div class="abil">
-        <button type="button" class="tog" role="checkbox" id="chatShowTog"><span class="box" aria-hidden="true"></span><span class="tl">Show chat<small>In an online game, press Enter to type a message (Enter sends it, Esc cancels). On a controller, <span id="chatQkKey">D-pad ↑</span> picks a quick message. Untick to hide chat altogether</small></span></button>
-        <button type="button" class="tog" role="checkbox" id="chatInTog"><span class="box" aria-hidden="true"></span><span class="tl">Other players' messages<small>Untick to mute what the others type. Your own lines still show</small></span></button>
-        <button type="button" class="tog" role="checkbox" id="vcTog"><span class="box" aria-hidden="true"></span><span class="tl">Voice chat<small>Off until you switch it on, and never kept on between visits. Talk to the others in an online game over the internet: your browser asks to use the microphone first</small></span></button>
-        <button type="button" class="tog" role="checkbox" id="vcLoTog"><span class="box" aria-hidden="true"></span><span class="tl">Listen only<small>Hear the others with no microphone: the game never asks for one. With no microphone to be had, voice chat listens only anyway</small></span></button>
-        <button type="button" class="tog" role="checkbox" id="vcPttTog"><span class="box" aria-hidden="true"></span><span class="tl">Push to talk<small id="vcPttTxt">Hold T (D-pad ← on a controller) to talk. Untick for an open microphone</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="chatShowTog"><span class="box" aria-hidden="true"></span><span class="tl">Show chat<small>Press Enter to type a message, Esc to cancel. On a controller, <span id="chatQkKey">D-pad ↑</span> picks a quick message</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="vcTog"><span class="box" aria-hidden="true"></span><span class="tl">Voice chat<small>Talk to the others in an online game over the internet</small></span></button>
       </div>
-      <div class="crow"><label class="clab" for="vcVol">VOICE VOLUME</label><input type="range" id="vcVol" class="vrange" min="0" max="100" step="5" value="100" aria-label="Voice chat volume"><span class="vval" id="vcVolVal">100%</span></div>
-      <p class="vnote">Voice volume: how loud the other players are.</p>
-      <div class="abil" id="vcPeers"></div>
+      <div class="vcsub" id="vcSub" hidden>
+        <div class="abil"><button type="button" class="tog" role="checkbox" id="vcMicTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">My voice<small>Let the others hear you. Your browser asks for the microphone first</small></span></button></div>
+        <div class="crow"><label class="clab" for="vcMicVol">VOLUME</label><input type="range" id="vcMicVol" class="vrange" min="0" max="200" step="10" value="100" aria-label="My voice volume"><span class="vval" id="vcMicVolVal">100%</span></div>
+        <div class="abil"><button type="button" class="tog" role="checkbox" id="vcPttTog"><span class="box" aria-hidden="true"></span><span class="tl">Push to talk<small><span id="vcPttTxt">Hold T (D-pad ← on a controller) to talk</span></small></span></button></div>
+        <div class="abil"><button type="button" class="tog" role="checkbox" id="vcHearTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Others' voice<small>Hear the other players</small></span></button></div>
+        <div class="crow"><label class="clab" for="vcVol">VOLUME</label><input type="range" id="vcVol" class="vrange" min="0" max="100" step="5" value="100" aria-label="Others' voice volume"><span class="vval" id="vcVolVal">100%</span></div>
+        <div class="abil" id="vcPeers"></div>
+      </div>
       <p class="vnote" id="vcNote" role="status"></p>
     </div>
     <div class="custom">
       <h2>DEBUG</h2>
       <div class="abil" id="dbgMenuTog">
-        <button type="button" class="tog" role="checkbox" data-k="quick"><span class="box" aria-hidden="true"></span><span class="tl">Debug menu<small>Press SELECT on a controller, or ~ on the keyboard, to pause and open the debug menu (press it again to close). Also shows the Dev tab here</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="quick"><span class="box" aria-hidden="true"></span><span class="tl">Debug menu<small>Press SELECT on a controller, or ~ on the keyboard, to open it. Also shows the Dev tab here</small></span></button>
       </div>
-      <p class="vnote">In the quick menu: the left stick (or arrow keys / W A S D) moves the highlight, A (or Space / Enter) switches the highlighted item, and left / right move to the next column. To change a slider, pick it with A first: then left / right move it, and A, B or Esc (or moving up or down) lets it go. Weather and season open a list with A. LB / RB (or Tab) switch to the Show / hide tab, where A picks which switches the first tab lists.<br>Keyboard: [ and ] slow down and speed up. In the free cam: WASD or the left stick fly, the mouse or right stick look, Space / RT rise, C / LT sink, Shift / B goes fast. Gus stands still while you fly.<br>Flying (cheat): hold Space / A to rise, C / LB to sink, let go to hover.</p>
     </div>
     </div>
     </div>
@@ -1400,13 +1404,13 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <p class="pn-web">What's changed, newest first. These notes are also on <a href="patch-notes/index.html" target="_blank" rel="noopener">their own web page</a>.</p>
 <details class="pn-up pn-fold pn-new" id="version-0-4" open><summary tabindex="0"><h2>Version 0.4</h2><span class="pn-tog" aria-hidden="true"></span></summary>
 <h3>A new look</h3>
-<ul><li>The game has a new coat of paint: flat crayon colours, thick ink outlines with hand-drawn corners, and a chunky pixel font (Jersey 10) for titles, buttons and numbers. Anything you read, like descriptions and these notes, keeps the easy-to-read font.</li><li>Button prompts are drawn as the buttons themselves in the new style: crayon-coloured face buttons and paper keycaps.</li><li>A real title screen: the logo top left, and Gus himself stomping along a street in front of a scrolling city while you choose, flattening a goblin with every stomp. It's lit and shaded just like the game. The menu card on the right has Play, Co-op, Play online, New city and Options, with the Testing Environment, Dev and Full screen in a small Workshop line underneath, and a sticker for what's new.</li><li>The enemy hostility slider has moved from the main screen to the top of Options.</li><li>In Options, each slider's name now sits to its left on the same row, with its setting on the right and the description underneath, and all the sliders line up. In a narrow window the name goes back above the slider.</li><li>Picking a character is now "Who's stompin'?": four big cards for Gus, Gertie, Gnash and Grizzle, with a 1P tag on player one's pick and a 2P tag on player two's in co-op. In split-screen co-op each of you picks your own character from your own pause menu's Character screen, and a strip under the cards lists what that character can do with your current ability switches. Picking the other player's character still swaps you over.</li><li>In split-screen co-op each player still has their own pause menu, driven only by their own controller. Player two's is just Resume, Map, Obituary, Character and Controls: what changes the game for both of you (Options, New city, Play online, the Testing Environment, Quit to title) stays in player one's.</li><li>The title screen's menu card no longer shows a scroll bar down its side when the game first opens.</li><li>Each player has their own ability switches. In split-screen co-op player two sets theirs in their own pause menu's Character screen, and they go with you whichever hippo you pick, so Gus and Gertie are still the same as each other: it's the player, not the hippo, who has the moves. Player one keeps the switches they had, and player two starts with a copy of them.</li><li>The ability switches are laid out as basic moves and their upgrades: each basic move (Bite, Stomp, Ground Pound, Dash, Sprint, Jump, Long Jump, Air Dash, Spider Climb) on the left, with the upgrades that improve it trailing off it as yellow tokens, each with a +1 or +2 coin for how many steps up it is (Bite combo, Charge Stomp, Full Charge Stomp, Ground Spike, Rocket Boost and so on). Crash Landing and Fall damage immunity are upgrades to every landing. No more tick boxes: a move that's on is in full colour and one that's off is greyed out, with On or Off in its corner. Click it, or press A on a controller, to switch it. An upgrade whose basic move is off is greyed with a dashed edge and says what it needs; switching it on switches that on too.</li><li>On a controller, A on a character card picks them and takes you back ("Ready!"), and Y jumps down to the ability switches. Screens opened from a menu have a Back button: B or Esc goes back, and LB / RB (Q / E on the keyboard) jump between screens.</li><li>The pause menu is a column of big buttons (Resume, Map, Obituary with its count, Character, Controls, Options, Quit to title) beside a "This rampage" card: goblins flattened, your score, your best combo, cars tossed and how wrecked the place you're in is, with its name and the time of day. Underneath are this game's own controls: switch between solo and co-op, Play online, New city, the Testing Environment and Full screen.</li><li>Map, Obituary, Character, Controls, Options and Patch notes open in the same card, sliding in from the right, and always start you back on the menu's own buttons when you pause again. B or Esc on the menu itself resumes.</li><li>Quit to title takes you back to the title screen with Gus stomping along; your city, score and everyone in it are kept, so Play carries on where you left off.</li><li>Patch notes and Dev are small tags in the card's corner now. In split-screen co-op the card's corner says 1P MENU (green) or 2P MENU (pink), so you can tell whose menu it is, and player two's menu still leaves out Options, Dev, the Testing Environment, Quit to title and the city controls.</li><li>Options, Controls, the Map, the Obituary and the Patch notes are on paper in the new style. The Dev tools and the Testing Environment keep a dark panel, in the new colours.</li><li>The HUD is redrawn to match: your score big in the top left with the goblins you've flattened under it (and stickers when cars or the police are after you), pixel hearts and the stamina bar in one paper panel at the bottom, the day and weather on a paper card beside a new clock disc, a round minimap, and the speedometer in ink and yolk.</li><li>Charging a stomp shows STOMP, then BIG STOMP, then shouts FULL CHARGE! when it's all the way up.</li><li>Combos: every goblin flattened or thing smashed within 3 seconds of the last adds one to your combo, shown under your score with a bar that drains until the next. The combo multiplies your points: +10% for each step from the second, so x11 doubles them and x21 or more triples them (that's as high as it goes). Big combos get a name and a shout: x5 Stompin'!, x10 STOMPTACULAR!, x15 Hippo-critical!, x20 GOBLINGEDDON!, x30 Unstoppable lump!, x50 HIPPOCALYPSE!, x75 Wallow of doom! and x100 Legend of the bog!</li><li>Points float up from wherever you earned them, damage numbers pop off the goblins as you hit them, and a goblin going down gets a shout: SPLAT! for a stomp, CHOMP! for a bite, KABOOM! for an explosion, and so on. Options, under On screen, has a switch each for Damage numbers, Shouts (the goblin-flattening shouts, combo milestones and FULL CHARGE!, which turns into a plain FULL) and Health bars (bars over the goblins, vehicles and other players near you, off to start with). If you'd switched off the old damage numbers and shouts switch, all three start off.</li><li>What you've just wrecked is listed in stickers in the top right, newest on top, with the points it earned (combo included), fading as they get older.</li><li>A City wrecked card in the bottom right shows how much of the place you're in you've knocked down (Town or Village wrecked in smaller places).</li><li>In split screen and online, each player has their own combo, pop-ups and list of what they've wrecked, from their own hits. The best combo shows in the pause menu's rampage card, and a new city starts it all again.</li><li>A Reduced motion switch in Options, under On screen, stops the wobbling, bobbing and popping of the menus and the display and holds Gus still on the title screen. It's on by itself if your system asks for less motion.</li><li>Sounds for the points as they pop up (rising as your combo climbs) and a fanfare for each combo milestone.</li><li>Arriving somewhere puts its name up on a big sticker. Chat, voice chips, the controls hint, the debug menu and each co-op player's own pause panel are restyled too, and in split screen each half's name is a 1P-green or 2P-pink tag.</li></ul>
+<ul><li>The game has a new coat of paint: flat crayon colours, thick ink outlines with hand-drawn corners, and a chunky pixel font (Jersey 10) for titles, buttons and numbers. Anything you read, like descriptions and these notes, keeps the easy-to-read font.</li><li>Button prompts are drawn as the buttons themselves in the new style: crayon-coloured face buttons and paper keycaps.</li><li>A real title screen: the logo top left, and Gus himself stomping along a street in front of a scrolling city while you choose, flattening a goblin with every stomp. It's lit and shaded just like the game. The menu card on the right has Play, Co-op, Play online, New city and Options, with the Testing Environment, Dev and Full screen in a small Workshop line underneath, and a sticker for what's new.</li><li>The enemy hostility slider has moved from the main screen to the top of Options.</li><li>In Options, each slider's name now sits to its left on the same row, with its setting on the right and the description underneath, and all the sliders line up. In a narrow window the name goes back above the slider.</li><li>Picking a character is now "Who's stompin'?": four big cards for Gus, Gertie, Gnash and Grizzle, with a 1P tag on player one's pick and a 2P tag on player two's in co-op. In split-screen co-op each of you picks your own character from your own pause menu's Character screen, and a strip under the cards lists what that character can do with your current ability switches. Picking the other player's character still swaps you over.</li><li>In split-screen co-op each player still has their own pause menu, driven only by their own controller. Player two's is just Resume, Map, Obituary, Character and Controls: what changes the game for both of you (Options, New city, Play online, the Testing Environment, Quit to title) stays in player one's.</li><li>The title screen's menu card no longer shows a scroll bar down its side when the game first opens.</li><li>Each player has their own ability switches. In split-screen co-op player two sets theirs in their own pause menu's Character screen, and they go with you whichever hippo you pick, so Gus and Gertie are still the same as each other: it's the player, not the hippo, who has the moves. Player one keeps the switches they had, and player two starts with a copy of them.</li><li>The ability switches are laid out as basic moves and their upgrades: each basic move (Bite, Stomp, Ground Pound, Dash, Sprint, Jump, Long Jump, Air Dash, Spider Climb) on the left, with the upgrades that improve it trailing off it as yellow tokens, each with a +1 or +2 coin for how many steps up it is (Bite combo, Charge Stomp, Full Charge Stomp, Ground Spike, Rocket Boost and so on). Crash Landing and Fall damage immunity are upgrades to every landing. No more tick boxes: a move that's on is in full colour and one that's off is greyed out, with On or Off in its corner. Click it, or press A on a controller, to switch it. An upgrade whose basic move is off is greyed with a dashed edge and says what it needs; switching it on switches that on too.</li><li>On a controller, A on a character card picks them and takes you back ("Ready!"), and Y jumps down to the ability switches. Screens opened from a menu have a Back button: B or Esc goes back, and LB / RB (Q / E on the keyboard) jump between screens.</li><li>The pause menu is a column of big buttons (Resume, Map, Obituary with its count, Character, Controls, Options, Quit to title) beside a "This rampage" card: goblins flattened, your score, your best combo, cars tossed and how wrecked the place you're in is, with its name and the time of day. Underneath are this game's own controls: switch between solo and co-op, Play online, New city, the Testing Environment and Full screen.</li><li>Map, Obituary, Character, Controls, Options and Patch notes open in the same card, sliding in from the right, and always start you back on the menu's own buttons when you pause again. B or Esc on the menu itself resumes.</li><li>Quit to title takes you back to the title screen with Gus stomping along; your city, score and everyone in it are kept, so Play carries on where you left off.</li><li>Patch notes and Dev are small tags in the card's corner now. In split-screen co-op the card's corner says 1P MENU (green) or 2P MENU (pink), so you can tell whose menu it is, and player two's menu still leaves out Options, Dev, the Testing Environment, Quit to title and the city controls.</li><li>Options, Controls, the Map, the Obituary and the Patch notes are on paper in the new style. The Dev tools and the Testing Environment keep a dark panel, in the new colours.</li><li>The HUD is redrawn to match: your score big in the top left with the goblins you've flattened under it (and a sticker when the police are after you), pixel hearts and the stamina bar in one paper panel at the bottom, the day and weather on a paper card beside a new clock disc, a round minimap, and the speedometer in ink and yolk.</li><li>Charging a stomp shows STOMP, then BIG STOMP, then shouts FULL CHARGE! when it's all the way up.</li><li>Combos: every goblin flattened or thing smashed within 3 seconds of the last adds one to your combo, shown under your score with a bar that drains until the next. The combo multiplies your points: +10% for each step from the second, so x11 doubles them and x21 or more triples them (that's as high as it goes). Big combos get a name and a shout: x5 Stompin'!, x10 STOMPTACULAR!, x15 Hippo-critical!, x20 GOBLINGEDDON!, x30 Unstoppable lump!, x50 HIPPOCALYPSE!, x75 Wallow of doom! and x100 Legend of the bog!</li><li>Points float up from wherever you earned them, damage numbers pop off the goblins as you hit them, and a goblin going down gets a shout: SPLAT! for a stomp, CHOMP! for a bite, KABOOM! for an explosion, and so on. Options, under On screen, has a switch each for Damage numbers, Shouts (the goblin-flattening shouts, combo milestones and FULL CHARGE!, which turns into a plain FULL) and Health bars (bars over the goblins, vehicles and other players near you, off to start with). If you'd switched off the old damage numbers and shouts switch, all three start off.</li><li>What you've just wrecked is listed in stickers in the top right, newest on top, with the points it earned (combo included), fading as they get older.</li><li>A City wrecked card in the bottom right shows how much of the place you're in you've knocked down (Town or Village wrecked in smaller places).</li><li>In split screen and online, each player has their own combo, pop-ups and list of what they've wrecked, from their own hits. The best combo shows in the pause menu's rampage card, and a new city starts it all again.</li><li>A Reduced motion switch in Options, under On screen, stops the wobbling, bobbing and popping of the menus and the display and holds Gus still on the title screen. It's on by itself if your system asks for less motion.</li><li>Sounds for the points as they pop up (rising as your combo climbs) and a fanfare for each combo milestone.</li><li>Arriving somewhere puts its name up on a big sticker. Chat, voice chips, the controls hint, the debug menu and each co-op player's own pause panel are restyled too, and in split screen each half's name is a 1P-green or 2P-pink tag.</li></ul>
 <h3>Menus</h3>
-<ul><li>In player two's menu, the button that carries on playing says Resume rather than Co-op.</li><li>The pause menu's buttons always fit in the window, at any size and in split screen, and never sit in a box with scroll bars.</li><li>The Map zooms out as far as it takes to see everywhere you've explored at once, however far you've roamed.</li><li>The highlight round the picked character cards, and their 1P and 2P tags, are no longer cut off at the edges.</li><li>The What's new sticker sits under the title menu instead of over the Full screen link, and the controller and city seed notes have moved down on to the ground.</li><li>The pixel-art portraits and hearts are solid at any zoom and on any screen, with no faint lines between their pixels.</li><li>Options, under On screen, has a new Score numbers switch for the points that float up when you flatten or smash something. Your score and the wreck list still count them either way.</li><li>The debug menu has a Combo system switch, under Player. Switched off, there are no combos at all: your points aren't multiplied, and the combo card, combo milestone shouts and the pause menu's Best combo are all hidden. Online, the host's switch counts for everyone.</li><li>The speedometer only shows while you're in a vehicle, driving or in the gunner's seat.</li></ul>
+<ul><li>In player two's menu, the button that carries on playing says Resume rather than Co-op.</li><li>The pause menu's buttons always fit in the window, at any size and in split screen, and never sit in a box with scroll bars.</li><li>The Map zooms out as far as it takes to see everywhere you've explored at once, however far you've roamed.</li><li>The highlight round the picked character cards, and their 1P and 2P tags, are no longer cut off at the edges.</li><li>The What's new sticker sits under the title menu instead of over the Full screen link, and the controller and city seed notes have moved down on to the ground.</li><li>The pixel-art portraits and hearts are solid at any zoom and on any screen, with no faint lines between their pixels.</li><li>Options, under On screen, has a new Score numbers switch for the points that float up when you flatten or smash something. Your score and the wreck list still count them either way.</li><li>The debug menu has a Combo system switch, under Player. Switched off, there are no combos at all: your points aren't multiplied, and the combo card, combo milestone shouts and the pause menu's Best combo are all hidden. Online, the host's switch counts for everyone.</li><li>The speedometer only shows while you're in a vehicle, driving or in the gunner's seat.</li><li>The "cars hunting you" sticker under your score is gone. The Police pursuit sticker stays.</li><li>The debug menu no longer has its own Health bars and Damage numbers switches: use the ones in Options, under On screen.</li><li>Shorter, plainer descriptions on the Options switches.</li></ul>
 <h3>Goblins</h3>
 <ul><li>A new Goblin pathfinding setting in Options, just under Enemy hostility: Advanced (as before: goblins climb walls and buildings, jump gaps and find their way to you wherever you are) or Simple, the older chase, where goblins run straight at you, go round walls and take a building's stairs, but never climb or jump, so up on a roof you're out of their reach. Switching takes effect at once, and any goblin halfway up a wall lets go and drops down unhurt.</li></ul>
 <h3>Online co-op</h3>
-<ul><li>If you join someone else's game, goblins, cars, other players and everything else moving in the world now glide smoothly instead of jerking from spot to spot when the connection is a bit bumpy. Your game holds a little more in reserve when packets arrive unevenly, and briefly carries things on in the direction they were going if an update is late. Nothing extra is sent over the network, so it's no heavier on the connection.</li><li>If you join someone else's game, you now see your own score numbers, damage numbers and shouts (they never showed up for anyone but the host), and your combo bar drains as it should instead of sitting full. The debug menu's damage numbers show for you too.</li></ul>
+<ul><li>Voice chat has two switches of its own, shown under it once it's on: My voice (the others hear you) and Others' voice (you hear them), each with its own volume. They replace the Listen only switch: untick My voice to just listen. Push to talk only shows while voice chat is on.</li><li>Showing chat now always shows everyone's messages: the switch to hide the other players' messages is gone.</li><li>If you join someone else's game, goblins, cars, other players and everything else moving in the world now glide smoothly instead of jerking from spot to spot when the connection is a bit bumpy. Your game holds a little more in reserve when packets arrive unevenly, and briefly carries things on in the direction they were going if an update is late. Nothing extra is sent over the network, so it's no heavier on the connection.</li><li>If you join someone else's game, you now see your own score numbers, damage numbers and shouts (they never showed up for anyone but the host), and your combo bar drains as it should instead of sitting full.</li></ul>
 <h3>The city</h3>
 <ul><li>Cinema marquees now say what's on: two lit boards across the middle of the canopy, each showing a different goblin take on a famous film, like Goblin Wars, Jurassic Goblin, The Silence of the Goblins or Goblins of the Caribbean. Each cinema keeps its own bill, and the boards fall off when you knock the canopy down.</li></ul>
 </details>
@@ -2828,7 +2832,7 @@ function trainHit(T,n,dir,ci){
   if(!T||T.dead||!T.cars)return;const N=T.cars.length;if(ci===undefined)ci=0;
   if(!T.carHP){T.carHP=T.cars.map(()=>CAR_HP);T.carDead=T.cars.map(()=>false);}
   if(T.carDead[ci])return;T.carHP[ci]-=n;
-  {const g=T.cars[ci];dmgPop(g.position.x,g.position.y+4,g.position.z,Math.round(n),'#ffb04a');vHitFx(g.position.x,g.position.y+2.5,g.position.z,n);}
+  {const g=T.cars[ci];vHitFx(g.position.x,g.position.y+2.5,g.position.z,n);}
   if(T.carHP[ci]>0)return;
   // that car blows up and lies there burning, and the train grinds to a stop; the rest can still be taken apart
   T.carDead[ci]=true;if(!T.halted){T.halted=true;T.deadT=0;T.wait=0;}
@@ -3535,7 +3539,7 @@ function updateHeli(M,V,dt){
   if(M.spin>0.3&&audio&&playing&&n&&n.d<90){M.thT=(M.thT||0)-dt;if(M.thT<=0){M.thT=0.11;sfx('Helicopter rotor',()=>noise(0.08,0.05*M.spin*(1-n.d/90),180,'lowpass'));}}   // (the thud of its rotor)
 }
 function milHit(M,n,dir){
-  if(M.dead)return;const I=MIL[M.kind];dmgPop(M.x,M.y+I.hy+0.8,M.z,Math.round(n),'#ffb04a');M.hp-=n;M.hurt=0.2;M.jolt=0.3;vHitFx(M.x,M.y+I.hy*0.6,M.z,n);
+  if(M.dead)return;const I=MIL[M.kind];M.hp-=n;M.hurt=0.2;M.jolt=0.3;vHitFx(M.x,M.y+I.hy*0.6,M.z,n);
   if(!M.V.alert&&!calmNow())milAlert(M.V,(nearestPlayer(M.x,M.z)||{}).p);   // (shot at, the whole base wakes up)
   if(M.hp>0)return;
   M.dead=true;M.deadT=0;M.fall=M.kind==='heli'&&M.y>G+2;M.vy=0;wrecked[M.key]=1;save();
@@ -10519,7 +10523,6 @@ let score=0,kills=0;
 function damagePlayer(p,n,pt,dir,cause,killer){
   if(!p.active||p.state==='dead'||DT.invuln||p.drv)return;   // (driving: the vehicle takes it)
   if(p.dodge&&p.dodge.t<p.dodge.dur*0.85)return;   // mid-dodge: it misses
-  dmgPop(p.pos.x,p.pos.y+2.2,p.pos.z,n,'#ff5a5a');
   p.hurt=0.1;noise(0.08,0.35,600,'lowpass');
   const q=pt||new V3(p.pos.x,p.pos.y+1.3,p.pos.z);
   blood(q.x,q.y,q.z,8+n*4,dir?dir.clone().multiplyScalar(-0.5):null);
@@ -14939,7 +14942,6 @@ function spawnGoblin(g,any){
 }
 function damageGoblin(g,n,pt,dir,cause,by){
   if(g.state!=='chase')return;
-  dmgPop(g.pos.x,g.pos.y+1.6,g.pos.z,n,'#ffe14a');
   if(!by&&BLAME==='acc')by=ACCIDENT;
   if(!by&&n>0&&g.hp-n>0){const q=nearestPlayer(g.pos.x,g.pos.z);if(q)hudPop(g.pos.x,g.pos.y+1.9,g.pos.z,'-'+(Math.round(n*10)/10),'dmg',q.p);}   // (the damage number, for whoever did it; the killing blow gets a shout instead)
   g.hp-=n;g.hurt=0.1;if(cause!=='Fell to death')g.hitT=playTime;
@@ -16368,7 +16370,7 @@ function spawnTraffic(c){
 let BLAME=null;const ACCIDENT={name:'A traffic accident'};
 function withBlame(b,f){const prev=BLAME;BLAME=b;try{return f();}finally{BLAME=prev;}}
 const carIsPlayers=c=>c.pBlameT!==undefined&&playTime-c.pBlameT<8;
-function damageCar(c,n,dir,src){if(c.isTrain){trainHit(c.T,n,dir,c.i);return;}if(!c.alive)return;dmgPop(c.pos.x,c.pos.y+(c.hy||1.4)+0.3,c.pos.z,n,'#ffb04a');if(!(src==='acc'||(src===undefined&&BLAME==='acc')))c.pBlameT=playTime;c.hp-=n;c.hurt=0.1;if(dir){const h=Math.hypot(dir.x,dir.z);if(h>0.05){const kb=Math.min(9,2+n*0.3);c.kv.x+=dir.x/h*kb;c.kv.z+=dir.z/h*kb;}}if(c.hp<=0)explodeCar(c);}
+function damageCar(c,n,dir,src){if(c.isTrain){trainHit(c.T,n,dir,c.i);return;}if(!c.alive)return;if(!(src==='acc'||(src===undefined&&BLAME==='acc')))c.pBlameT=playTime;c.hp-=n;c.hurt=0.1;if(dir){const h=Math.hypot(dir.x,dir.z);if(h>0.05){const kb=Math.min(9,2+n*0.3);c.kv.x+=dir.x/h*kb;c.kv.z+=dir.z/h*kb;}}if(c.hp<=0)explodeCar(c);}
 // explosion effects pools
 const debris=[];let debrisIdx=0;
 const DEB_SIZES=[[1.0,0.5,1.6],[0.9,0.4,1.2],[1.6,0.15,1.0],[0.8,0.5,0.9],[0.32,0.72,0.72],[0.32,0.72,0.72],[0.32,0.72,0.72],[0.32,0.72,0.72],[0.8,0.35,0.7],[1.2,0.1,0.8],[2.0,0.18,0.15],[0.6,0.4,0.6]];
@@ -16756,12 +16758,12 @@ const sbxCells=cells=>{const h=SBX&&SBX.hits[SBX.hits.length-1];if(h&&h.kind==='
 // game speed and free cam
 const SPEEDS=[0.05,0.1,0.25,0.5,0.75,0.9,1,1.25,1.5,2];
 const PSPEEDS=[1,1.5,2,2.5,3,4,5,6,7,8,9,10];
-const DT={combo:true,hpBars:false,dmgNums:false,fps:false,sndList:false,curve:2,psI:0,invuln:false,infStam:false,fly:false,gob:false,host:2,speedI:6,paused:false,freecam:false,step:false,quick:true,menu:false,kbdOpen:false,selHeld:false,cur:0,navDir:0,navT:0};
+const DT={combo:true,hpBars:false,fps:false,sndList:false,curve:2,psI:0,invuln:false,infStam:false,fly:false,gob:false,host:2,speedI:6,paused:false,freecam:false,step:false,quick:true,menu:false,kbdOpen:false,selHeld:false,cur:0,navDir:0,navT:0};
 try{const q=JSON.parse(localStorage.getItem('goblin-stompin-gus-quickdbg')||'null');if(typeof q==='boolean')DT.quick=q;}catch(e){}
-try{for(const k of ['fps','hpBars','dmgNums','sndList'])DT[k]=localStorage.getItem('goblin-stompin-gus-'+k)==='1';}catch(e){}
+try{for(const k of ['fps','hpBars','sndList'])DT[k]=localStorage.getItem('goblin-stompin-gus-'+k)==='1';}catch(e){}
 // the debug settings carry over from one session to the next (all but stopping time and the free cam, which would
 // only be confusing to come back to)
-const DT_KEY='goblin-stompin-gus-debug',DT_SAVED=['curve','psI','speedI','invuln','infStam','fly','combo','fps','hpBars','dmgNums','sndList','quick'];
+const DT_KEY='goblin-stompin-gus-debug',DT_SAVED=['curve','psI','speedI','invuln','infStam','fly','combo','fps','hpBars','sndList','quick'];
 try{const q=JSON.parse(localStorage.getItem(DT_KEY)||'null');if(q&&typeof q==='object')for(const k of DT_SAVED)if(typeof q[k]===typeof DT[k])DT[k]=q[k];
   if(!(DT.speedI>=0&&DT.speedI<SPEEDS.length))DT.speedI=SPEEDS.indexOf(1);if(!(DT.psI>=0&&DT.psI<PSPEEDS.length))DT.psI=0;}catch(e){}
 function saveDT(){try{const o={};for(const k of DT_SAVED)o[k]=DT[k];localStorage.setItem(DT_KEY,JSON.stringify(o));
@@ -16824,7 +16826,7 @@ const DBG_COLS=4,DBG_SECS=[
   [0,'Camera',[{k:'freecam',label:'Free cam'},{k:'curve',label:'World curve'}]],
   [0,'World',[{k:'wx',label:'Weather'},{k:'season',label:'Season'}]],
   [1,'Player',[{k:'pspeed',label:'Player speed'},{k:'invuln',label:'Invulnerable'},{k:'infStam',label:'Infinite stamina'},{k:'fly',label:'Flying'},{k:'host',label:'Enemy hostility'},{k:'combo',label:'Combo system'}]],
-  [1,'Overlays',[{k:'fps',label:'FPS counter'},{k:'hpBars',label:'Health bars'},{k:'dmgNums',label:'Damage numbers'},{k:'sndList',label:'Sound list'}]],
+  [1,'Overlays',[{k:'fps',label:'FPS counter'},{k:'sndList',label:'Sound list'}]],
   [2,'Rendering',[{k:'gProps',label:'Props'},{k:'gFixtures',label:'Fixtures'},{k:'gCaves',label:'Caves'},{k:'gSewers',label:'Sewers'},{k:'gSubway',label:'Subways'}]],
   [2,'Hitboxes',[{k:'show',label:'Display hitboxes'},
     {k:'pBlock',label:'Player block hitboxes',col:'#ff9a2a'},{k:'nBlock',label:'NPC block hitboxes',col:'#e8d040'},
@@ -16845,7 +16847,7 @@ function toggleGfx(k){const g=GFX_KEY[k],off=GFX_OFF[g]=!GFX_OFF[g];
   const P=P1.pos,d=e=>Math.hypot(e.cx*CS-P.x,e.cz*CS-P.z);
   leafQ.length=0;for(const e of [...meshes.values()].sort((a,b)=>d(b)-d(a)))leafQ.push(ckey(e.cx,e.cz));}
 const curveTxt=()=>DT.curve===0?'Flat':DT.curve>0?'Down '+DT.curve:'Up '+(-DT.curve);
-function dbgVal(k){return isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='paused'||k==='freecam'||k==='combo'||k==='invuln'||k==='infStam'||k==='fly'||k==='fps'||k==='hpBars'||k==='dmgNums'||k==='sndList'?DT[k]:DBG[k];}
+function dbgVal(k){return isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='paused'||k==='freecam'||k==='combo'||k==='invuln'||k==='infStam'||k==='fly'||k==='fps'||k==='sndList'?DT[k]:DBG[k];}
 // the rows on show: the individual hitbox switches only while 'Display hitboxes' is on
 // the menu's two tabs: 0 the switches themselves, 1 "Show / hide", which picks the rows tab 0 lists (kept in this browser)
 const DBG_HIDE_KEY='goblin-stompin-gus-dbghide',DBG_HIDE=new Set();
@@ -16883,7 +16885,7 @@ function dbgMenuToggle(){const it=dbgItems()[DT.cur];if(!it)return;
   else if(it.k==='freecam')setFreecam(!DT.freecam);
   else if(it.k==='paused')DT.paused=!DT.paused;
   else if(it.k==='combo')setCombo(!DT.combo);
-  else if(it.k==='invuln'||it.k==='infStam'||it.k==='fly'||it.k==='fps'||it.k==='hpBars'||it.k==='dmgNums'||it.k==='sndList'){DT[it.k]=!DT[it.k];try{localStorage.setItem('goblin-stompin-gus-'+it.k,DT[it.k]?'1':'0');}catch(e){}if(it.k==='hpBars')popTogsShow();}
+  else if(it.k==='invuln'||it.k==='infStam'||it.k==='fly'||it.k==='fps'||it.k==='sndList'){DT[it.k]=!DT[it.k];try{localStorage.setItem('goblin-stompin-gus-'+it.k,DT[it.k]?'1':'0');}catch(e){}}
   else{DBG[it.k]=!DBG[it.k];try{localStorage.setItem(DBG_KEY,JSON.stringify(DBG));}catch(e){}}
   tone('triangle',620,0,0.05,0.03);renderTime();}
 // up/down move the highlight within its column (letting go of a picked slider); left/right move across to the next
@@ -19676,7 +19678,7 @@ const BOAT_GONE=new Map();
 // hitting a boat: it shudders and starts to burn and list; holed for good, it goes up (or, with no engine to speak of, just
 // breaks up) and goes down. Up in a dry dock or on the sand it stays where it is, burnt out
 function boatHit(bo,n){
-  if(bo.dead)return;const g=bo.g,p=g.position,K=bo.K;dmgPop(p.x,p.y+K.fb+2,p.z,Math.round(n),'#ffb04a');bo.hp-=n;bo.shake=.25;vHitFx(p.x,p.y+K.fb,p.z,n);if(bo.hp>0)return;
+  if(bo.dead)return;const g=bo.g,p=g.position,K=bo.K;bo.hp-=n;bo.shake=.25;vHitFx(p.x,p.y+K.fb,p.z,n);if(bo.hp>0)return;
   bo.dead=true;bo.deadT=0;bo.y0=p.y;BOAT_GONE.set(bo.key,playTime);const s=K.boom||0,sz=Math.max(1,Math.min(3,bo.L/10));
   if(s){blastFx(p.x,p.y+K.fb+1,p.z,.5+s*.15,1+s*.6);smoke(p.x,p.y+K.fb+1,p.z,Math.round(10+s*8),0x262626);
     noise(.6+s*.3,1,600,'lowpass');tone('sawtooth',70,16,.6+s*.3,.3);addShake(.3+s*.3,p.x,p.z,20+s*15);hitGoblins(p.x,p.z,3+s*4,4+s*3,'Blown up with a boat',p.y+1);}
@@ -19874,7 +19876,7 @@ function animalBox(A){
 }
 function animalHit(A,n,dir){
   if(A.dead||!A.pr)return;const I=ANIMALS[A.sp],y=A.g.position.y,by=y+I.hy*0.5;
-  dmgPop(A.x,y+I.hy+0.2,A.z,Math.round(n),'#ffe14a');A.hp-=n;A.frit=6;A.wait=0;
+  A.hp-=n;A.frit=6;A.wait=0;
   blood(A.x,by,A.z,5+n*2,dir?dir.clone().multiplyScalar(-0.4):null);if(dir)blood(A.x,by,A.z,3+n,dir);
   splat(A.x+(Math.random()-.5)*.6,A.z+(Math.random()-.5)*.6,y+0.5,0.15+Math.random()*0.2);tone('square',480,220,0.08,0.07);
   const h=dir?Math.hypot(dir.x,dir.z):0;if(h>0.05){const kb=Math.min(13,3+n*0.6)*(A.hp<=0?1.6:1);A.kx=(A.kx||0)+dir.x/h*kb;A.kz=(A.kz||0)+dir.z/h*kb;}
@@ -19951,15 +19953,15 @@ function wheelFall(W,why){
 }
 function coasterMark(K){wrecked[K.k]={th:K.th,off:K.off,dead:K.cars.map(c=>c.dead)};save();}
 function rideHit(T,n,ci){
-  if(T.kind==='coaster'){const c=T.cars[ci];if(!c||c.dead||c.fly)return;const p=c.g.position;dmgPop(p.x,p.y+1.2,p.z,Math.round(n),'#ffb04a');c.hp-=n;if(c.hp>0)return;
+  if(T.kind==='coaster'){const c=T.cars[ci];if(!c||c.dead||c.fly)return;const p=c.g.position;c.hp-=n;if(c.hp>0)return;
     // that car goes up and the rest grind to a stop on the track; they can still be taken apart
     c.dead=true;c.pr.alive=false;rideDark(c.g);c.g.rotation.z=(ci%2?1:-1)*0.4;T.halted=true;rideBang(p.x,p.y+.5,p.z,0.8,T,4,6,'Blown up with a roller coaster');
     if(T.cars.every(q=>q.dead))award(700,'Roller coaster destroyed',p.x,p.y+2,p.z);else award(200,'Coaster car destroyed',p.x,p.y+2,p.z);coasterMark(T);return;}
   if(T.kind==='wheel'){if(T.dead||T.fall)return;
-    if(ci>=0){const q=T.gonds[ci];if(!q||q.dead)return;const p=q.pr.pos;dmgPop(p.x,p.y+1,p.z,Math.round(n),'#ffb04a');q.hp-=n;if(q.hp>0)return;
+    if(ci>=0){const q=T.gonds[ci];if(!q||q.dead)return;const p=q.pr.pos;q.hp-=n;if(q.hp>0)return;
       q.dead=true;q.pr.alive=false;q.g.visible=false;rideBang(p.x,p.y,p.z,0.6,T,3,4,'Blown up with a gondola');award(50,'Gondola destroyed',p.x,p.y+1,p.z);return;}
-    dmgPop(T.hub.x,T.hub.y,T.hub.z,Math.round(n),'#ffb04a');T.hp-=n;if(T.hp<=0)wheelFall(T);return;}
-  if(T.kind==='carousel'){if(T.dead)return;dmgPop(T.x,G+8,T.z,Math.round(n),'#ffb04a');T.hp-=n;if(T.hp<=0)carouselBlow(T);}
+    T.hp-=n;if(T.hp<=0)wheelFall(T);return;}
+  if(T.kind==='carousel'){if(T.dead)return;T.hp-=n;if(T.hp<=0)carouselBlow(T);}
 }
 function carouselBlow(Cs){
   carouselWreck(Cs);wrecked[Cs.k]=1;save();rideBang(Cs.x,G+3,Cs.z,1.4,Cs,7,8,'Blown up with a carousel');
@@ -20052,7 +20054,7 @@ function planeStrike(pl,v){
     if(d){g2.trainT=1;damageGoblin(g2,Math.round(4+12*k),g2.pos.clone(),d.clone().multiplyScalar(1+k),'Hit by a plane',ACCIDENT);g2.vy=Math.max(g2.vy||0,12+16*k);g2.kv.x+=d.x*(14+26*k);g2.kv.z+=d.z*(14+26*k);}}
 }
 function planeHit(pl,n){
-  if(pl.dead)return;const g=pl.g,p=g.position;dmgPop(p.x,p.y+5,p.z,Math.round(n),'#ffb04a');pl.hp-=n;vHitFx(p.x,p.y+2.5,p.z,n);if(pl.hp>0)return;
+  if(pl.dead)return;const g=pl.g,p=g.position;pl.hp-=n;vHitFx(p.x,p.y+2.5,p.z,n);if(pl.hp>0)return;
   pl.dead=true;pl.deadT=0;
   blastFx(p.x,p.y+3,p.z,0.8,2.4);smoke(p.x,p.y+3,p.z,26,0x262626);
   for(let k=0;k<10;k++){const d=debris[(debrisIdx++)%debris.length];d.m.position.set(p.x+(Math.random()-.5)*8,p.y+2+Math.random()*2,p.z+(Math.random()-.5)*12);d.v.set((Math.random()-.5)*20,8+Math.random()*12,(Math.random()-.5)*20);d.spin.set((Math.random()-.5)*12,(Math.random()-.5)*12,(Math.random()-.5)*12);d.life=25;d.m.visible=true;}
@@ -22051,7 +22053,7 @@ const CALM_KEY='goblin-stompin-gus-calm';
  const t=document.getElementById('calmTog'),set=v=>{on=v;try{document.body.classList.toggle('calm',v);}catch(e){}if(t)t.setAttribute('aria-checked',String(v));};
  set(on);if(t)t.addEventListener('click',()=>{set(!on);try{localStorage.setItem(CALM_KEY,on?'1':'0');}catch(e){}});}
 // (Options: the score numbers, damage numbers, shouts and health bars switches, each its own. The health bars are the ones over
-// goblins, vehicles and the other players, DT.hpBars, the same setting as the quick menu's Health bars row)
+// goblins, vehicles and the other players, DT.hpBars)
 function popsMigrate(){
   if(!POPS_OLD_OFF)return;POPS_OLD_OFF=false;DT.hpBars=false;saveDT();
   try{localStorage.setItem(DMGPOP_KEY,DMGPOP_ON?'1':'0');localStorage.setItem(SHOUT_KEY,SHOUT_ON?'1':'0');localStorage.setItem('goblin-stompin-gus-hpBars','0');localStorage.removeItem(POPS_KEY);}catch(e){}
@@ -22259,15 +22261,13 @@ function placeCamera(p){
     p.camera.rotation.z+=(Math.sin(t*19)+Math.sin(t*37+0.9))*ease*0.12;
   }
 }
-// ---- debug overlays drawn over the 3D view: health bars over everything that can be hurt, and damage numbers that
-// pop up where hits land (2D, projected through each player's camera, bent like the world curve bends things) ----
-const DMG_POPS=[],_dov=new THREE.Vector3();
-function dmgPop(x,y,z,n,col){if(!DT.dmgNums||SBX||!(n>0))return;DMG_POPS.push({x:x+(Math.random()-0.5)*0.6,y,z:z+(Math.random()-0.5)*0.6,n,col,t:0});if(DMG_POPS.length>200)DMG_POPS.shift();}
+// ---- health bars over everything that can be hurt, drawn over the 3D view (2D, projected through each player's camera,
+// bent like the world curve bends things) ----
+const _dov=new THREE.Vector3();
 let dovCtx=null,dovOn=false;
 function drawDbgOverlay(dt,views){
   const cv=document.getElementById('dbgOver');if(!cv)return;
-  for(let i=DMG_POPS.length-1;i>=0;i--){DMG_POPS[i].t+=dt;if(DMG_POPS[i].t>1.1)DMG_POPS.splice(i,1);}
-  const want=(DT.hpBars||DMG_POPS.length>0)&&playing;
+  const want=DT.hpBars&&playing;
   if(!want){if(dovOn){dovCtx&&dovCtx.clearRect(0,0,cv.width,cv.height);dovOn=false;}return;}
   const dpr=Math.min(devicePixelRatio||1,2),W=Math.round(innerWidth*dpr),Hh=Math.round(innerHeight*dpr);
   if(cv.width!==W||cv.height!==Hh){cv.width=W;cv.height=Hh;}
@@ -22291,8 +22291,6 @@ function drawDbgOverlay(dt,views){
           if(!(gst?T.netDead:T.dead))V.cars.forEach((g,i)=>{if(!(cd&&cd[i]))bar(g.position.x,g.position.y+4.2,g.position.z,hp&&hp[i]!==undefined?hp[i]:CAR_HP,CAR_HP,'#5ab4ff');});}}
       for(const q of players){if(!q.active||q.state==='dead'||q===p)continue;bar(q.pos.x,q.pos.y+2.5,q.pos.z,q.hp,20,'#7fd04a');}
     }
-    for(const d of DMG_POPS){const s=proj(d.x,d.y+d.t*1.6,d.z);if(!s||s[2]>90)continue;const a=d.t<0.7?1:Math.max(0,1-(d.t-0.7)/0.4),sz=Math.round(16+Math.min(14,d.n*0.5)-s[2]*0.08);
-      x.font='800 '+Math.max(10,sz)+'px system-ui,sans-serif';x.textAlign='center';x.lineWidth=3;x.strokeStyle='rgba(0,0,0,'+0.8*a+')';x.globalAlpha=a;x.strokeText(String(Math.round(d.n*10)/10),s[0],s[1]);x.fillStyle=d.col;x.fillText(String(Math.round(d.n*10)/10),s[0],s[1]);x.globalAlpha=1;}
     x.restore();
   }
 }
@@ -22782,10 +22780,10 @@ function frame(now,bg){   // (bg: a tab in the background while online, kept goi
     else if(!hint.hidden){const txt=touchMode&&!p.pad?(p.gob?'BITE attacks  ·  STOMP throws a grenade  ·  JUMP  ·  tap DASH to dash, hold to sprint':'Hold STOMP  ·  BITE  ·  JUMP  ·  tap DASH to dash, hold to '+(abilOf(p).trample?'trample':'sprint')):bindHint(!!p.pad,p);if(hint._s!==txt){hint._s=txt;hint.innerHTML=hudHTML(txt);}}
   }
   for(const p of act){if(!p.paused)continue;const o=act.find(q=>q!==p);const txt=!o?'':o.paused?'Both paused. The city is frozen.':`The city keeps going while ${charName(o)} plays.`;if(p.ui.pstatus.textContent!==txt)p.ui.pstatus.textContent=txt;}
-  const hn=huntersCount(),pol=cars.some(c=>c.alive&&c.police&&c.hunter);
+  const pol=cars.some(c=>c.alive&&c.police&&c.hunter);
   updateSiren(dt);promptTick(dt);safe('pops',()=>popTick(dt));
-  // (the score, big, top left; under it the goblins flattened, and stickers for cars hunting you and the police)
-  {const h=`<b class="sc">${score.toLocaleString('en-US')}</b><span class="rk">${kills.toLocaleString('en-US')} flattened</span>${hn?`<i>${hn} car${hn>1?'s':''} hunting you</i>`:''}${pol?'<i>Police pursuit</i>':''}`;if(h!==readoutH){readoutH=h;readout.innerHTML=h;}}   // (only when it's changed: rebuilding it makes the browser lay the page out again)
+  // (the score, big, top left; under it the goblins flattened, and a sticker for a police pursuit)
+  {const h=`<b class="sc">${score.toLocaleString('en-US')}</b><span class="rk">${kills.toLocaleString('en-US')} flattened</span>${pol?'<i>Police pursuit</i>':''}`;if(h!==readoutH){readoutH=h;readout.innerHTML=h;}}   // (only when it's changed: rebuilding it makes the browser lay the page out again)
   if(bg)return;   // (nobody's looking: no drawing, and no next frame asked for, the browser having stopped giving this tab any)
   const w=innerWidth,h=innerHeight;
   // (the title screen draws its own backdrop instead of the city: see ui/title-scene.js)
@@ -22898,7 +22896,7 @@ function netHostMsg(peer,m){
   p.net.heard=NET.now;
   if(m.t==='in')netGotInput(p,m);
   else if(m.t==='chat')chatFromGuest(p,m);
-  else if(m.t==='vo'){p.net.vo=!!m.on;p.net.vm=m.mic!==0&&m.mic!==false;}   // (a guest switched its voice chat on or off, with a microphone or listening only: see vcRosterTick)
+  else if(m.t==='vo'){p.net.vo=!!m.on;p.net.vm=m.mic!==0&&m.mic!==false;p.net.vh=m.hr!==0&&m.hr!==false;}   // (a guest switched its voice chat on or off, or its microphone or hearing the others: see vcRosterTick)
   else if(m.t==='bye')netHostLeft(peer);
 }
 // a guest asking to join: seat them as player two, if that seat's free (online play is two players: the second split-screen
@@ -23283,7 +23281,7 @@ function netFx(name,f){
 }
 puff=netFx('puff',puff);smoke=netFx('smoke',smoke);blood=netFx('blood',blood);splat=netFx('splat',splat);
 destroyFX=netFx('destroyFX',destroyFX);shockwave=netFx('shockwave',shockwave);shockCone=netFx('shockCone',shockCone);blastFx=netFx('blastFx',blastFx);
-tone=netFx('tone',tone);noise=netFx('noise',noise);dmgPop=netFx('dmgPop',dmgPop);woosh=netFx('woosh',woosh);tracer=netFx('tracer',tracer);
+tone=netFx('tone',tone);noise=netFx('noise',noise);woosh=netFx('woosh',woosh);tracer=netFx('tracer',tracer);
 // (a message for one player goes to that player only; one for everyone, to everyone)
 {const fl=flashLabel;NET_FX.flashLabel=fl;flashLabel=function flashLabel(s,who){
   if(NET_MUTE)return;
@@ -23767,9 +23765,9 @@ const CHAT_MAX=120,CHAT_SHOW=8000,CHAT_KEEP=40;   // (longest line, ms a line st
 const CHAT_RATE={n:4,ms:5000,gap:300};   // (at most 4 lines in 5 seconds, and none within 0.3 s of the last)
 const CHAT_QUICK=['Over here!','Help!','Follow me!','Wait for me!','Nice one!','Smash it!'];   // (a controller's messages)
 const CHAT_KEY='gsg-chat-v1';
-const CHAT={open:false,quick:false,qi:0,qT:0,qy:0,lines:[],sent:[],show:true,incoming:true,closedAt:-1e9};
-{try{const o=JSON.parse(localStorage.getItem(CHAT_KEY)||'null');if(o&&typeof o==='object'){CHAT.show=o.show!==false;CHAT.incoming=o.incoming!==false;}}catch(e){}}
-function chatSave(){try{localStorage.setItem(CHAT_KEY,JSON.stringify({show:CHAT.show,incoming:CHAT.incoming}));}catch(e){}}
+const CHAT={open:false,quick:false,qi:0,qT:0,qy:0,lines:[],sent:[],show:true,closedAt:-1e9};
+{try{const o=JSON.parse(localStorage.getItem(CHAT_KEY)||'null');if(o&&typeof o==='object'){CHAT.show=o.show!==false;}}catch(e){}}
+function chatSave(){try{localStorage.setItem(CHAT_KEY,JSON.stringify({show:CHAT.show}));}catch(e){}}
 const chatEl=id=>document.getElementById(id);
 // (somebody to talk to: hosting, or in someone's game)
 const chatAvail=()=>!!(NET.tr&&(netHost()||netGuest()&&NET.joined&&NET.host));
@@ -23809,7 +23807,6 @@ function chatGot(m){
 
 // ---- on screen ----
 function chatShow(n,c,x,own){
-  if(!own&&!CHAT.incoming)return;
   const ln=document.createElement('div');ln.className='chat-ln';
   const a=document.createElement('span');a.className='chat-n';a.textContent=n+': ';a.style.color=c;
   const b=document.createElement('span');b.textContent=x;ln.append(a,b);
@@ -23893,14 +23890,12 @@ function chatQuickDraw(){
 }
 function chatQuickClose(){CHAT.quick=false;const e=chatEl('chatQuick');if(e){e.hidden=true;e.innerHTML='';}}
 
-// ---- the Options tab: show chat, mute the others ----
+// ---- the Options tab: show chat ----
 function chatOptsDraw(){
   chatEl('chatShowTog').setAttribute('aria-checked',String(CHAT.show));
-  chatEl('chatInTog').setAttribute('aria-checked',String(CHAT.incoming));
   const q=BINDS.quickChat.pad[0];chatEl('chatQkKey').textContent=q==null?'the Quick chat button (Controls tab)':padLabel(q,padStyle==='ps');
 }
 chatEl('chatShowTog').addEventListener('click',()=>{CHAT.show=!CHAT.show;if(!CHAT.show){chatClose();chatQuickClose();}chatSave();chatOptsDraw();chatVis();});
-chatEl('chatInTog').addEventListener('click',()=>{CHAT.incoming=!CHAT.incoming;chatSave();chatOptsDraw();});
 chatOptsDraw();
 // ---------- Online co-op: voice chat ----------
 // Off unless a player switches it on, and never kept on between visits. Until then nothing here touches the microphone,
@@ -23912,17 +23907,19 @@ chatOptsDraw();
 // message, from each guest's 'vo') and every player sends to whoever that list says. Switched off, the stream's taken off
 // every connection, the microphone's let go, its audio lines are stopped and the AudioContext is closed.
 // Between two tabs of one browser there's no real connection to carry sound, so voice is for games over the internet.
-// Listen only (ticked in Options, or when there's no microphone to be had, or it's refused): the player's on the list as
-// one to send to, but never asks for a microphone and sends nothing; an AudioContext is only made, for the speaking
-// indicators, when the first voice arrives.
+// Options has two switches under it, each with a volume: My voice (VC.talk: send the microphone, through a gain node,
+// VC.micVol) and Others' voice (VC.hear: be sent the others' voices, played at VC.vol). With My voice off (or no
+// microphone to be had, or it's refused) the player never asks for a microphone and sends nothing; an AudioContext is
+// only made, for the speaking indicators, when the first voice arrives. With Others' voice off the host's list says so
+// ('hr'), and nobody sends them anything.
 const VC_KEY='gsg-voice-v1',VC_SPEAK=0.02;   // (VC_SPEAK: how loud, as an RMS level, counts as talking for the indicator)
-const VC={on:false,want:false,busy:false,ptt:true,vol:1,mute:new Set(),listen:false,lo:false,   // (listen: the Options box, kept; lo: on voice now with no microphone)
+const VC={on:false,want:false,busy:false,ptt:true,vol:1,micVol:1,mute:new Set(),talk:true,hear:true,lo:false,   // (talk, hear: the Options boxes, kept; lo: on voice now with no microphone)
  
-  ctx:null,mic:null,an:null,buf:null,   // (the microphone's stream, and an AudioContext only for the speaking indicators)
+  ctx:null,mic:null,out:null,gain:null,an:null,buf:null,   // (the microphone's stream, the one sent (out: through the gain node, gain), and the AudioContext)
   tr:null,said:null,roster:[],sendTo:new Set(),remote:new Map(),pend:new Map(),
   talking:false,level:0,meterT:0,rsT:0,rsLast:'',hudKey:'',peersKey:'',note:''};
-{try{const o=JSON.parse(localStorage.getItem(VC_KEY)||'null');if(o&&typeof o==='object'){VC.ptt=o.ptt!==false;VC.listen=o.listen===true;if(Number.isFinite(o.vol))VC.vol=Math.max(0,Math.min(1,o.vol));}}catch(e){}}
-function vcSave(){try{localStorage.setItem(VC_KEY,JSON.stringify({ptt:VC.ptt,vol:VC.vol,listen:VC.listen}));}catch(e){}}
+{try{const o=JSON.parse(localStorage.getItem(VC_KEY)||'null');if(o&&typeof o==='object'){VC.ptt=o.ptt!==false;VC.talk=o.talk!=null?o.talk!==false:o.listen!==true;VC.hear=o.hear!==false;if(Number.isFinite(o.vol))VC.vol=Math.max(0,Math.min(1,o.vol));if(Number.isFinite(o.micVol))VC.micVol=Math.max(0,Math.min(2,o.micVol));}}catch(e){}}
+function vcSave(){try{localStorage.setItem(VC_KEY,JSON.stringify({ptt:VC.ptt,vol:VC.vol,micVol:VC.micVol,talk:VC.talk,hear:VC.hear}));}catch(e){}}
 const vcCan=()=>chatAvail()&&!!NET.tr.av;
 const vcSelf=()=>NET.tr?NET.tr.self:null;
 function vcNote(s){VC.note=s||'';const e=chatEl('vcNote');if(e)e.textContent=VC.note;}
@@ -23935,7 +23932,7 @@ async function vcStart(){
   if(!NET.tr.av){vcNote("Voice chat needs a game over the internet: between two tabs of one browser there's no connection to carry it.");vcOptsDraw();return;}
   VC.want=true;
   const md=typeof navigator!=='undefined'&&navigator.mediaDevices;
-  if(VC.listen)return vcBegin(null,'Voice chat is on, listening only: you hear the others, and the game never asks for your microphone.');
+  if(!VC.talk)return vcBegin(null,VC.hear?'Voice chat is on, with your microphone off.':'Voice chat is on, with your microphone and the others both off.');
   if(!md||!md.getUserMedia)return vcBegin(null,"No microphone: listening only. (This browser won't let the game use one here: it needs the game's website, rather than a file opened from disk.)",true);
   VC.busy=true;vcNote('Asking for the microphone...');vcOptsDraw();
   let st=null;
@@ -23952,11 +23949,15 @@ async function vcStart(){
 function vcBegin(st,msg,flash){
   // (switched off again, or out of the game, while the browser was asking: let it go at once)
   if(!VC.want||!vcCan()){if(st)for(const t of st.getTracks())t.stop();VC.want=false;vcNote(vcCan()?'':'Voice chat works in an online game: host one or join one first.');vcOptsDraw();return;}
-  VC.mic=st;VC.lo=!st;VC.talking=!!st&&!VC.ptt;
+  VC.mic=st;VC.out=st;VC.lo=!st;VC.talking=!!st&&!VC.ptt;
   if(st){for(const t of st.getAudioTracks())t.enabled=VC.talking;
-    try{vcCtx();const src=VC.ctx.createMediaStreamSource(st);
-      VC.an=VC.ctx.createAnalyser();VC.an.fftSize=512;src.connect(VC.an);VC.buf=new Uint8Array(VC.an.fftSize);}   // (measured only: never played back)
-    catch(e){VC.an=null;VC.buf=null;}}
+    // (the microphone through a gain node, My voice's volume, and that's what's sent; measured after it, never played back.
+    // If the browser can't, the microphone goes as it is)
+    try{vcCtx();if(VC.ctx.state==='suspended'){const r=VC.ctx.resume();if(r&&r.catch)r.catch(()=>{});}const src=VC.ctx.createMediaStreamSource(st);
+      VC.gain=VC.ctx.createGain();VC.gain.gain.value=VC.micVol;src.connect(VC.gain);
+      try{const d=VC.ctx.createMediaStreamDestination();VC.gain.connect(d);VC.out=d.stream;}catch(e){VC.out=st;}
+      VC.an=VC.ctx.createAnalyser();VC.an.fftSize=512;VC.gain.connect(VC.an);VC.buf=new Uint8Array(VC.an.fftSize);}
+    catch(e){VC.an=null;VC.buf=null;VC.gain=null;VC.out=st;}}
   VC.on=true;VC.tr=null;VC.said=null;
   vcNote(msg);if(flash)flashLabel('No microphone: listening only',P1);
   vcSync();vcAnnounce();vcHudDraw();vcOptsDraw();chatVis();
@@ -23966,12 +23967,12 @@ function vcCtx(){if(!VC.ctx)try{const AC=window.AudioContext||window.webkitAudio
 function vcOff(quiet){
   VC.want=false;if(!VC.on)return;VC.on=false;
   const T=VC.tr;
-  if(T&&T.av&&VC.mic)for(const id of VC.sendTo)try{T.av.remove(VC.mic,id);}catch(e){}
+  if(T&&T.av&&VC.out)for(const id of VC.sendTo)try{T.av.remove(VC.out,id);}catch(e){}
   VC.sendTo.clear();VC.pend.clear();for(const id of [...VC.remote.keys()])vcDrop(id);
   if(VC.mic)for(const t of VC.mic.getTracks())try{t.stop();}catch(e){}
-  VC.mic=null;VC.lo=false;VC.talking=false;VC.level=0;
+  VC.mic=null;VC.out=null;VC.lo=false;VC.talking=false;VC.level=0;
   if(VC.ctx)try{VC.ctx.close();}catch(e){}
-  VC.ctx=null;VC.an=null;VC.buf=null;
+  VC.ctx=null;VC.gain=null;VC.an=null;VC.buf=null;
   // (the connections' audio lines go too, so nothing's left negotiated, sent or decoded: switched on again, new ones are made)
   if(T&&T.av)for(const pc of T.av.conns())try{for(const x of pc.getTransceivers())if(!x.stopped&&x.receiver&&x.receiver.track&&x.receiver.track.kind==='audio')x.stop();}catch(e){}
   if(!quiet){vcAnnounce();vcNote('Voice chat is off.');}else vcNote('');
@@ -23980,14 +23981,14 @@ function vcOff(quiet){
 // (telling the host whether this player's on voice; the host itself just puts it in its list)
 function vcAnnounce(){
   if(netHost()){VC.rsT=0;return;}
-  if(netGuest()&&NET.joined&&NET.host&&NET.tr){NET.tr.send({t:'vo',on:VC.on?1:0,mic:VC.mic?1:0},NET.host);VC.said=NET.tr;}
+  if(netGuest()&&NET.joined&&NET.host&&NET.tr){NET.tr.send({t:'vo',on:VC.on?1:0,mic:VC.mic?1:0,hr:VC.hear?1:0},NET.host);VC.said=NET.tr;}
 }
 
 // ---- who's on voice (the host's list) ----
 function vcRosterTick(dt){
   VC.rsT-=dt;if(VC.rsT>0||!NET.tr)return;VC.rsT=0.25;
-  const L=[{s:0,id:NET.tr.self,n:chatName(P1),c:chatCol(P1),on:VC.on?1:0,mic:VC.mic?1:0}];   // (mic: sending as well as hearing; 0 listens only)
-  for(const q of NET.guests.values())if(!q.net.gone)L.push({s:q.idx,id:q.net.peer,n:chatName(q),c:chatCol(q),on:q.net.vo?1:0,mic:q.net.vo&&q.net.vm?1:0});
+  const L=[{s:0,id:NET.tr.self,n:chatName(P1),c:chatCol(P1),on:VC.on?1:0,mic:VC.mic?1:0,hr:VC.hear?1:0}];   // (mic: sending; hr: hearing the others)
+  for(const q of NET.guests.values())if(!q.net.gone)L.push({s:q.idx,id:q.net.peer,n:chatName(q),c:chatCol(q),on:q.net.vo?1:0,mic:q.net.vo&&q.net.vm?1:0,hr:q.net.vo&&q.net.vh!==false?1:0});
   if(!VC.rsLast&&!L.some(r=>r.on))return;   // (nobody's switched voice on yet: nothing to tell anyone)
   const k=JSON.stringify(L);if(k===VC.rsLast)return;VC.rsLast=k;
   for(const q of NET.guests.values())if(!q.net.gone)NET.tr.send({t:'vr',l:L},q.net.peer);
@@ -23997,21 +23998,22 @@ function vcRosterTick(dt){
 function vcRoster(l){
   if(!Array.isArray(l))return;
   VC.roster=l.slice(0,NET_SEATS+2).filter(r=>r&&typeof r.id==='string'&&r.id.length<80).map(r=>({s:r.s|0,id:r.id,n:chatClean(r.n).slice(0,32)||'Someone',
-    c:/^#[0-9a-f]{3,8}$/i.test(r.c)?r.c:'#eef0e6',on:!!r.on,mic:!!r.on&&r.mic!==0&&r.mic!==false}));
+    c:/^#[0-9a-f]{3,8}$/i.test(r.c)?r.c:'#eef0e6',on:!!r.on,mic:!!r.on&&r.mic!==0&&r.mic!==false,hr:!!r.on&&r.hr!==0&&r.hr!==false}));
   vcSync();vcHudDraw();vcOptsDraw();
 }
-// (who this player sends to: everyone on voice, listeners too; and who it hears: those of them with a microphone)
-const vcWanted=()=>{const me=vcSelf();return new Set(VC.roster.filter(r=>r.on&&r.id!==me).map(r=>r.id));};
-const vcHeard=()=>{const me=vcSelf();return new Set(VC.roster.filter(r=>r.on&&r.mic&&r.id!==me).map(r=>r.id));};
+// (who this player sends to: everyone on voice who's hearing the others; and who it hears, with Others' voice on: those
+// of them with a microphone)
+const vcWanted=()=>{const me=vcSelf();return new Set(VC.roster.filter(r=>r.on&&r.hr&&r.id!==me).map(r=>r.id));};
+const vcHeard=()=>{const me=vcSelf();return new Set(VC.hear?VC.roster.filter(r=>r.on&&r.mic&&r.id!==me).map(r=>r.id):[]);};
 function vcSync(){
   const T=NET.tr;
   if(VC.tr!==T){   // (a new connection, after a reconnect: whatever went over the old one went with it)
     VC.sendTo.clear();VC.pend.clear();for(const id of [...VC.remote.keys()])vcDrop(id);VC.tr=T;VC.said=null;
     if(VC.on&&T&&T.av)T.av.onStream(vcGotStream);}
   if(!VC.on||!T||!T.av)return;
-  if(VC.mic){const want=vcWanted();   // (listening only, nothing's ever sent)
-    for(const id of want)if(!VC.sendTo.has(id)){try{T.av.add(VC.mic,id);VC.sendTo.add(id);}catch(e){}}
-    for(const id of [...VC.sendTo])if(!want.has(id)){try{T.av.remove(VC.mic,id);}catch(e){}VC.sendTo.delete(id);}}
+  if(VC.out){const want=vcWanted();   // (My voice off, nothing's ever sent)
+    for(const id of want)if(!VC.sendTo.has(id)){try{T.av.add(VC.out,id);VC.sendTo.add(id);}catch(e){}}
+    for(const id of [...VC.sendTo])if(!want.has(id)){try{T.av.remove(VC.out,id);}catch(e){}VC.sendTo.delete(id);}}
   const hear=vcHeard();
   for(const id of [...VC.remote.keys()])if(!hear.has(id))vcDrop(id);
   for(const [id,st] of VC.pend)if(hear.has(id)){VC.pend.delete(id);vcPlay(id,st);}
@@ -24059,7 +24061,7 @@ function vcHudDraw(){
   else rows.push({n:(mine?mine.n:charName(P1))+' (you)',c:mine?mine.c:chatCol(P1),talk:VC.talking&&VC.level>VC_SPEAK,ic:'🎙',mute:!VC.talking});
   for(const r of VC.roster){if(!r.on||r.id===me)continue;
     if(!r.mic){rows.push({n:r.n+' (listening)',c:r.c,talk:false,ic:'🎧',mute:true});continue;}
-    const R=VC.remote.get(r.id),m=VC.mute.has(r.id);
+    const R=VC.remote.get(r.id),m=VC.mute.has(r.id)||!VC.hear;
     rows.push({n:r.n,c:r.c,talk:!m&&!!R&&R.lvl>VC_SPEAK,ic:m?'🔇':'🔊',mute:m||!R});}
   const k=JSON.stringify(rows);if(k===VC.hudKey)return;VC.hudKey=k;
   e.hidden=false;e.innerHTML='';
@@ -24072,27 +24074,34 @@ function vcHudDraw(){
 function vcOptsDraw(){
   const t=chatEl('vcTog');if(!t)return;
   t.setAttribute('aria-checked',String(VC.on||VC.busy));t.classList.toggle('dim',!VC.on&&!vcCan());
-  chatEl('vcPttTog').setAttribute('aria-checked',String(VC.ptt));chatEl('vcPttTog').classList.toggle('dim',VC.lo||VC.listen);   // (nothing to talk with)
-  chatEl('vcLoTog').setAttribute('aria-checked',String(VC.listen));
-  chatEl('vcPttTxt').textContent='Hold '+vcTalkKeys()+' to talk. Untick for an open microphone';
+  chatEl('vcSub').hidden=!(VC.on||VC.busy);   // (My voice, Others' voice and push to talk: only while voice chat's on)
+  chatEl('vcMicTog').setAttribute('aria-checked',String(VC.talk));
+  chatEl('vcHearTog').setAttribute('aria-checked',String(VC.hear));
+  chatEl('vcPttTog').setAttribute('aria-checked',String(VC.ptt));chatEl('vcPttTog').classList.toggle('dim',!VC.talk||VC.on&&VC.lo);   // (nothing to talk with)
+  chatEl('vcPttTxt').textContent='Hold '+vcTalkKeys()+' to talk';
   const v=chatEl('vcVol');if(document.activeElement!==v)v.value=String(Math.round(VC.vol*100));chatEl('vcVolVal').textContent=Math.round(VC.vol*100)+'%';
-  if(!VC.note)chatEl('vcNote').textContent=vcCan()?'':netOn()?'Voice chat needs a game over the internet, not between two tabs.':'Voice chat can be switched on once you\'re in an online game.';
+  const mv=chatEl('vcMicVol');if(document.activeElement!==mv)mv.value=String(Math.round(VC.micVol*100));chatEl('vcMicVolVal').textContent=Math.round(VC.micVol*100)+'%';
+  if(!VC.note)chatEl('vcNote').textContent=vcCan()||!netOn()?'':'Voice chat needs a game over the internet, not between two tabs.';
   // (one button per player on voice: muting them is only for you)
-  const me=vcSelf(),L=VC.on?VC.roster.filter(r=>r.on&&r.mic&&r.id!==me):[];
-  const k=JSON.stringify(L.map(r=>[r.id,r.n,VC.mute.has(r.id)]));if(k===VC.peersKey)return;VC.peersKey=k;
+  const me=vcSelf(),L=VC.on&&VC.hear?VC.roster.filter(r=>r.on&&r.mic&&r.id!==me):[];
+  const k=JSON.stringify([!!VC.mic,L.map(r=>[r.id,r.n,VC.mute.has(r.id),r.hr])]);if(k===VC.peersKey)return;VC.peersKey=k;
   const box=chatEl('vcPeers');box.innerHTML='';
   for(const r of L){const b=document.createElement('button');b.type='button';b.className='tog';b.setAttribute('role','checkbox');b.setAttribute('aria-checked',String(VC.mute.has(r.id)));
     const bx=document.createElement('span');bx.className='box';bx.setAttribute('aria-hidden','true');
-    const tl=document.createElement('span');tl.className='tl';tl.append('Mute '+r.n);const sm=document.createElement('small');sm.textContent=VC.lo?'Only for you':'Only for you: '+r.n+' still hears you';tl.append(sm);
+    const tl=document.createElement('span');tl.className='tl';tl.append('Mute '+r.n);const sm=document.createElement('small');sm.textContent=VC.mic&&r.hr?'Only for you: '+r.n+' still hears you':'Only for you';tl.append(sm);
     b.append(bx,tl);b.addEventListener('click',()=>vcMute(r.id,!VC.mute.has(r.id)));box.append(b);}
 }
 function vcMute(id,on){if(on)VC.mute.add(id);else VC.mute.delete(id);const r=VC.remote.get(id);if(r&&r.el)r.el.muted=on;vcHudDraw();vcOptsDraw();}
 chatEl('vcTog').addEventListener('click',()=>{if(VC.on||VC.busy)vcOff(false);else vcStart();});
-chatEl('vcPttTog').addEventListener('click',()=>{VC.ptt=!VC.ptt;vcSave();if(VC.on)vcNote(VC.ptt?'Push to talk: hold '+vcTalkKeys()+' to talk.':'Open microphone: the others hear you whenever you speak.');vcOptsDraw();});
-// (listening only, switched while voice is on: it starts again the new way)
-chatEl('vcLoTog').addEventListener('click',()=>{VC.listen=!VC.listen;vcSave();if(VC.on){vcOff(true);vcStart();}else vcOptsDraw();});
+chatEl('vcPttTog').addEventListener('click',()=>{VC.ptt=!VC.ptt;vcSave();if(VC.on&&VC.mic)vcNote(VC.ptt?'Push to talk: hold '+vcTalkKeys()+' to talk.':'Open microphone: the others hear you whenever you speak.');vcOptsDraw();});
+// (My voice, switched while voice is on: it starts again the new way, asking for the microphone or letting it go)
+chatEl('vcMicTog').addEventListener('click',()=>{VC.talk=!VC.talk;vcSave();if(VC.on){vcOff(true);vcStart();}else vcOptsDraw();});
+// (Others' voice: the host's list says so, and the others stop or start sending; whatever's playing stops at once)
+chatEl('vcHearTog').addEventListener('click',()=>{VC.hear=!VC.hear;vcSave();if(!VC.hear)VC.pend.clear();if(VC.on){vcAnnounce();vcSync();vcHudDraw();}vcOptsDraw();});
 chatEl('vcVol').addEventListener('input',e=>{VC.vol=Math.max(0,Math.min(1,(+e.target.value||0)/100));for(const r of VC.remote.values())if(r.el)r.el.volume=VC.vol;chatEl('vcVolVal').textContent=Math.round(VC.vol*100)+'%';});
 chatEl('vcVol').addEventListener('change',vcSave);
+chatEl('vcMicVol').addEventListener('input',e=>{VC.micVol=Math.max(0,Math.min(2,(+e.target.value||0)/100));if(VC.gain)try{VC.gain.gain.value=VC.micVol;}catch(x){}chatEl('vcMicVolVal').textContent=Math.round(VC.micVol*100)+'%';});
+chatEl('vcMicVol').addEventListener('change',vcSave);
 vcOptsDraw();
 // ---------- New city & boot ----------
 const confirmEl=document.getElementById('confirm');

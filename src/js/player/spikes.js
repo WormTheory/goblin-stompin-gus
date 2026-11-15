@@ -188,7 +188,6 @@ let score=0,kills=0;
 function damagePlayer(p,n,pt,dir,cause,killer){
   if(!p.active||p.state==='dead'||DT.invuln||p.drv)return;   // (driving: the vehicle takes it)
   if(p.dodge&&p.dodge.t<p.dodge.dur*0.85)return;   // mid-dodge: it misses
-  dmgPop(p.pos.x,p.pos.y+2.2,p.pos.z,n,'#ff5a5a');
   p.hurt=0.1;noise(0.08,0.35,600,'lowpass');
   const q=pt||new V3(p.pos.x,p.pos.y+1.3,p.pos.z);
   blood(q.x,q.y,q.z,8+n*4,dir?dir.clone().multiplyScalar(-0.5):null);

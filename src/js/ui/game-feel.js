@@ -107,7 +107,7 @@ const CALM_KEY='goblin-stompin-gus-calm';
  const t=document.getElementById('calmTog'),set=v=>{on=v;try{document.body.classList.toggle('calm',v);}catch(e){}if(t)t.setAttribute('aria-checked',String(v));};
  set(on);if(t)t.addEventListener('click',()=>{set(!on);try{localStorage.setItem(CALM_KEY,on?'1':'0');}catch(e){}});}
 // (Options: the score numbers, damage numbers, shouts and health bars switches, each its own. The health bars are the ones over
-// goblins, vehicles and the other players, DT.hpBars, the same setting as the quick menu's Health bars row)
+// goblins, vehicles and the other players, DT.hpBars)
 function popsMigrate(){
   if(!POPS_OLD_OFF)return;POPS_OLD_OFF=false;DT.hpBars=false;saveDT();
   try{localStorage.setItem(DMGPOP_KEY,DMGPOP_ON?'1':'0');localStorage.setItem(SHOUT_KEY,SHOUT_ON?'1':'0');localStorage.setItem('goblin-stompin-gus-hpBars','0');localStorage.removeItem(POPS_KEY);}catch(e){}

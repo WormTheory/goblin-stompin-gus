@@ -215,33 +215,34 @@
     <div class="custom">
       <h2>ON SCREEN</h2>
       <div class="abil">
-        <button type="button" class="tog" role="checkbox" id="scorePopTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Score numbers<small>The points you earn float up from whatever you flattened or smashed. Your score and the wreck feed still count them either way</small></span></button>
-        <button type="button" class="tog" role="checkbox" id="dmgPopTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Damage numbers<small>Numbers pop off the goblins as you hit them</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="scorePopTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Score numbers<small>Points float up from whatever you flatten or smash</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="dmgPopTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Damage numbers<small>Numbers pop off goblins as you hit them</small></span></button>
         <button type="button" class="tog" role="checkbox" id="shoutTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Shouts<small>SPLAT!, CHOMP! or KABOOM! when a goblin goes down, combo milestones, and FULL CHARGE! on a charged stomp</small></span></button>
-        <button type="button" class="tog" role="checkbox" id="hpBarTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Health bars<small>A bar over every goblin, vehicle and other player nearby showing how hurt it is. Your own vehicle's health shows either way</small></span></button>
-        <button type="button" class="tog" role="checkbox" id="calmTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Reduced motion<small>Stops the wobbling, bobbing and popping of the menus and the display, and Gus on the title screen holds still. On by itself if your system asks for less motion</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="hpBarTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Health bars<small>Over goblins, vehicles and other players nearby</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="calmTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Reduced motion<small>Stops the wobbling, bobbing and popping of the menus and display, and Gus on the title screen. On by itself if your system asks for less motion</small></span></button>
       </div>
     </div>
     <div class="custom" id="chatOpts">
       <h2>ONLINE CHAT &amp; VOICE</h2>
       <div class="abil">
-        <button type="button" class="tog" role="checkbox" id="chatShowTog"><span class="box" aria-hidden="true"></span><span class="tl">Show chat<small>In an online game, press Enter to type a message (Enter sends it, Esc cancels). On a controller, <span id="chatQkKey">D-pad ↑</span> picks a quick message. Untick to hide chat altogether</small></span></button>
-        <button type="button" class="tog" role="checkbox" id="chatInTog"><span class="box" aria-hidden="true"></span><span class="tl">Other players' messages<small>Untick to mute what the others type. Your own lines still show</small></span></button>
-        <button type="button" class="tog" role="checkbox" id="vcTog"><span class="box" aria-hidden="true"></span><span class="tl">Voice chat<small>Off until you switch it on, and never kept on between visits. Talk to the others in an online game over the internet: your browser asks to use the microphone first</small></span></button>
-        <button type="button" class="tog" role="checkbox" id="vcLoTog"><span class="box" aria-hidden="true"></span><span class="tl">Listen only<small>Hear the others with no microphone: the game never asks for one. With no microphone to be had, voice chat listens only anyway</small></span></button>
-        <button type="button" class="tog" role="checkbox" id="vcPttTog"><span class="box" aria-hidden="true"></span><span class="tl">Push to talk<small id="vcPttTxt">Hold T (D-pad ← on a controller) to talk. Untick for an open microphone</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="chatShowTog"><span class="box" aria-hidden="true"></span><span class="tl">Show chat<small>Press Enter to type a message, Esc to cancel. On a controller, <span id="chatQkKey">D-pad ↑</span> picks a quick message</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="vcTog"><span class="box" aria-hidden="true"></span><span class="tl">Voice chat<small>Talk to the others in an online game over the internet</small></span></button>
       </div>
-      <div class="crow"><label class="clab" for="vcVol">VOICE VOLUME</label><input type="range" id="vcVol" class="vrange" min="0" max="100" step="5" value="100" aria-label="Voice chat volume"><span class="vval" id="vcVolVal">100%</span></div>
-      <p class="vnote">Voice volume: how loud the other players are.</p>
-      <div class="abil" id="vcPeers"></div>
+      <div class="vcsub" id="vcSub" hidden>
+        <div class="abil"><button type="button" class="tog" role="checkbox" id="vcMicTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">My voice<small>Let the others hear you. Your browser asks for the microphone first</small></span></button></div>
+        <div class="crow"><label class="clab" for="vcMicVol">VOLUME</label><input type="range" id="vcMicVol" class="vrange" min="0" max="200" step="10" value="100" aria-label="My voice volume"><span class="vval" id="vcMicVolVal">100%</span></div>
+        <div class="abil"><button type="button" class="tog" role="checkbox" id="vcPttTog"><span class="box" aria-hidden="true"></span><span class="tl">Push to talk<small><span id="vcPttTxt">Hold T (D-pad ← on a controller) to talk</span></small></span></button></div>
+        <div class="abil"><button type="button" class="tog" role="checkbox" id="vcHearTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Others' voice<small>Hear the other players</small></span></button></div>
+        <div class="crow"><label class="clab" for="vcVol">VOLUME</label><input type="range" id="vcVol" class="vrange" min="0" max="100" step="5" value="100" aria-label="Others' voice volume"><span class="vval" id="vcVolVal">100%</span></div>
+        <div class="abil" id="vcPeers"></div>
+      </div>
       <p class="vnote" id="vcNote" role="status"></p>
     </div>
     <div class="custom">
       <h2>DEBUG</h2>
       <div class="abil" id="dbgMenuTog">
-        <button type="button" class="tog" role="checkbox" data-k="quick"><span class="box" aria-hidden="true"></span><span class="tl">Debug menu<small>Press SELECT on a controller, or ~ on the keyboard, to pause and open the debug menu (press it again to close). Also shows the Dev tab here</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="quick"><span class="box" aria-hidden="true"></span><span class="tl">Debug menu<small>Press SELECT on a controller, or ~ on the keyboard, to open it. Also shows the Dev tab here</small></span></button>
       </div>
-      <p class="vnote">In the quick menu: the left stick (or arrow keys / W A S D) moves the highlight, A (or Space / Enter) switches the highlighted item, and left / right move to the next column. To change a slider, pick it with A first: then left / right move it, and A, B or Esc (or moving up or down) lets it go. Weather and season open a list with A. LB / RB (or Tab) switch to the Show / hide tab, where A picks which switches the first tab lists.<br>Keyboard: [ and ] slow down and speed up. In the free cam: WASD or the left stick fly, the mouse or right stick look, Space / RT rise, C / LT sink, Shift / B goes fast. Gus stands still while you fly.<br>Flying (cheat): hold Space / A to rise, C / LB to sink, let go to hover.</p>
     </div>
     </div>
     </div>

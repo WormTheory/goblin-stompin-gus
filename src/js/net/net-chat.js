@@ -8,9 +8,9 @@ const CHAT_MAX=120,CHAT_SHOW=8000,CHAT_KEEP=40;   // (longest line, ms a line st
 const CHAT_RATE={n:4,ms:5000,gap:300};   // (at most 4 lines in 5 seconds, and none within 0.3 s of the last)
 const CHAT_QUICK=['Over here!','Help!','Follow me!','Wait for me!','Nice one!','Smash it!'];   // (a controller's messages)
 const CHAT_KEY='gsg-chat-v1';
-const CHAT={open:false,quick:false,qi:0,qT:0,qy:0,lines:[],sent:[],show:true,incoming:true,closedAt:-1e9};
-{try{const o=JSON.parse(localStorage.getItem(CHAT_KEY)||'null');if(o&&typeof o==='object'){CHAT.show=o.show!==false;CHAT.incoming=o.incoming!==false;}}catch(e){}}
-function chatSave(){try{localStorage.setItem(CHAT_KEY,JSON.stringify({show:CHAT.show,incoming:CHAT.incoming}));}catch(e){}}
+const CHAT={open:false,quick:false,qi:0,qT:0,qy:0,lines:[],sent:[],show:true,closedAt:-1e9};
+{try{const o=JSON.parse(localStorage.getItem(CHAT_KEY)||'null');if(o&&typeof o==='object'){CHAT.show=o.show!==false;}}catch(e){}}
+function chatSave(){try{localStorage.setItem(CHAT_KEY,JSON.stringify({show:CHAT.show}));}catch(e){}}
 const chatEl=id=>document.getElementById(id);
 // (somebody to talk to: hosting, or in someone's game)
 const chatAvail=()=>!!(NET.tr&&(netHost()||netGuest()&&NET.joined&&NET.host));
@@ -50,7 +50,6 @@ function chatGot(m){
 
 // ---- on screen ----
 function chatShow(n,c,x,own){
-  if(!own&&!CHAT.incoming)return;
   const ln=document.createElement('div');ln.className='chat-ln';
   const a=document.createElement('span');a.className='chat-n';a.textContent=n+': ';a.style.color=c;
   const b=document.createElement('span');b.textContent=x;ln.append(a,b);
@@ -134,12 +133,10 @@ function chatQuickDraw(){
 }
 function chatQuickClose(){CHAT.quick=false;const e=chatEl('chatQuick');if(e){e.hidden=true;e.innerHTML='';}}
 
-// ---- the Options tab: show chat, mute the others ----
+// ---- the Options tab: show chat ----
 function chatOptsDraw(){
   chatEl('chatShowTog').setAttribute('aria-checked',String(CHAT.show));
-  chatEl('chatInTog').setAttribute('aria-checked',String(CHAT.incoming));
   const q=BINDS.quickChat.pad[0];chatEl('chatQkKey').textContent=q==null?'the Quick chat button (Controls tab)':padLabel(q,padStyle==='ps');
 }
 chatEl('chatShowTog').addEventListener('click',()=>{CHAT.show=!CHAT.show;if(!CHAT.show){chatClose();chatQuickClose();}chatSave();chatOptsDraw();chatVis();});
-chatEl('chatInTog').addEventListener('click',()=>{CHAT.incoming=!CHAT.incoming;chatSave();chatOptsDraw();});
 chatOptsDraw();

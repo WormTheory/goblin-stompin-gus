@@ -8,17 +8,19 @@
 // message, from each guest's 'vo') and every player sends to whoever that list says. Switched off, the stream's taken off
 // every connection, the microphone's let go, its audio lines are stopped and the AudioContext is closed.
 // Between two tabs of one browser there's no real connection to carry sound, so voice is for games over the internet.
-// Listen only (ticked in Options, or when there's no microphone to be had, or it's refused): the player's on the list as
-// one to send to, but never asks for a microphone and sends nothing; an AudioContext is only made, for the speaking
-// indicators, when the first voice arrives.
+// Options has two switches under it, each with a volume: My voice (VC.talk: send the microphone, through a gain node,
+// VC.micVol) and Others' voice (VC.hear: be sent the others' voices, played at VC.vol). With My voice off (or no
+// microphone to be had, or it's refused) the player never asks for a microphone and sends nothing; an AudioContext is
+// only made, for the speaking indicators, when the first voice arrives. With Others' voice off the host's list says so
+// ('hr'), and nobody sends them anything.
 const VC_KEY='gsg-voice-v1',VC_SPEAK=0.02;   // (VC_SPEAK: how loud, as an RMS level, counts as talking for the indicator)
-const VC={on:false,want:false,busy:false,ptt:true,vol:1,mute:new Set(),listen:false,lo:false,   // (listen: the Options box, kept; lo: on voice now with no microphone)
+const VC={on:false,want:false,busy:false,ptt:true,vol:1,micVol:1,mute:new Set(),talk:true,hear:true,lo:false,   // (talk, hear: the Options boxes, kept; lo: on voice now with no microphone)
  
-  ctx:null,mic:null,an:null,buf:null,   // (the microphone's stream, and an AudioContext only for the speaking indicators)
+  ctx:null,mic:null,out:null,gain:null,an:null,buf:null,   // (the microphone's stream, the one sent (out: through the gain node, gain), and the AudioContext)
   tr:null,said:null,roster:[],sendTo:new Set(),remote:new Map(),pend:new Map(),
   talking:false,level:0,meterT:0,rsT:0,rsLast:'',hudKey:'',peersKey:'',note:''};
-{try{const o=JSON.parse(localStorage.getItem(VC_KEY)||'null');if(o&&typeof o==='object'){VC.ptt=o.ptt!==false;VC.listen=o.listen===true;if(Number.isFinite(o.vol))VC.vol=Math.max(0,Math.min(1,o.vol));}}catch(e){}}
-function vcSave(){try{localStorage.setItem(VC_KEY,JSON.stringify({ptt:VC.ptt,vol:VC.vol,listen:VC.listen}));}catch(e){}}
+{try{const o=JSON.parse(localStorage.getItem(VC_KEY)||'null');if(o&&typeof o==='object'){VC.ptt=o.ptt!==false;VC.talk=o.talk!=null?o.talk!==false:o.listen!==true;VC.hear=o.hear!==false;if(Number.isFinite(o.vol))VC.vol=Math.max(0,Math.min(1,o.vol));if(Number.isFinite(o.micVol))VC.micVol=Math.max(0,Math.min(2,o.micVol));}}catch(e){}}
+function vcSave(){try{localStorage.setItem(VC_KEY,JSON.stringify({ptt:VC.ptt,vol:VC.vol,micVol:VC.micVol,talk:VC.talk,hear:VC.hear}));}catch(e){}}
 const vcCan=()=>chatAvail()&&!!NET.tr.av;
 const vcSelf=()=>NET.tr?NET.tr.self:null;
 function vcNote(s){VC.note=s||'';const e=chatEl('vcNote');if(e)e.textContent=VC.note;}
@@ -31,7 +33,7 @@ async function vcStart(){
   if(!NET.tr.av){vcNote("Voice chat needs a game over the internet: between two tabs of one browser there's no connection to carry it.");vcOptsDraw();return;}
   VC.want=true;
   const md=typeof navigator!=='undefined'&&navigator.mediaDevices;
-  if(VC.listen)return vcBegin(null,'Voice chat is on, listening only: you hear the others, and the game never asks for your microphone.');
+  if(!VC.talk)return vcBegin(null,VC.hear?'Voice chat is on, with your microphone off.':'Voice chat is on, with your microphone and the others both off.');
   if(!md||!md.getUserMedia)return vcBegin(null,"No microphone: listening only. (This browser won't let the game use one here: it needs the game's website, rather than a file opened from disk.)",true);
   VC.busy=true;vcNote('Asking for the microphone...');vcOptsDraw();
   let st=null;
@@ -48,11 +50,15 @@ async function vcStart(){
 function vcBegin(st,msg,flash){
   // (switched off again, or out of the game, while the browser was asking: let it go at once)
   if(!VC.want||!vcCan()){if(st)for(const t of st.getTracks())t.stop();VC.want=false;vcNote(vcCan()?'':'Voice chat works in an online game: host one or join one first.');vcOptsDraw();return;}
-  VC.mic=st;VC.lo=!st;VC.talking=!!st&&!VC.ptt;
+  VC.mic=st;VC.out=st;VC.lo=!st;VC.talking=!!st&&!VC.ptt;
   if(st){for(const t of st.getAudioTracks())t.enabled=VC.talking;
-    try{vcCtx();const src=VC.ctx.createMediaStreamSource(st);
-      VC.an=VC.ctx.createAnalyser();VC.an.fftSize=512;src.connect(VC.an);VC.buf=new Uint8Array(VC.an.fftSize);}   // (measured only: never played back)
-    catch(e){VC.an=null;VC.buf=null;}}
+    // (the microphone through a gain node, My voice's volume, and that's what's sent; measured after it, never played back.
+    // If the browser can't, the microphone goes as it is)
+    try{vcCtx();if(VC.ctx.state==='suspended'){const r=VC.ctx.resume();if(r&&r.catch)r.catch(()=>{});}const src=VC.ctx.createMediaStreamSource(st);
+      VC.gain=VC.ctx.createGain();VC.gain.gain.value=VC.micVol;src.connect(VC.gain);
+      try{const d=VC.ctx.createMediaStreamDestination();VC.gain.connect(d);VC.out=d.stream;}catch(e){VC.out=st;}
+      VC.an=VC.ctx.createAnalyser();VC.an.fftSize=512;VC.gain.connect(VC.an);VC.buf=new Uint8Array(VC.an.fftSize);}
+    catch(e){VC.an=null;VC.buf=null;VC.gain=null;VC.out=st;}}
   VC.on=true;VC.tr=null;VC.said=null;
   vcNote(msg);if(flash)flashLabel('No microphone: listening only',P1);
   vcSync();vcAnnounce();vcHudDraw();vcOptsDraw();chatVis();
@@ -62,12 +68,12 @@ function vcCtx(){if(!VC.ctx)try{const AC=window.AudioContext||window.webkitAudio
 function vcOff(quiet){
   VC.want=false;if(!VC.on)return;VC.on=false;
   const T=VC.tr;
-  if(T&&T.av&&VC.mic)for(const id of VC.sendTo)try{T.av.remove(VC.mic,id);}catch(e){}
+  if(T&&T.av&&VC.out)for(const id of VC.sendTo)try{T.av.remove(VC.out,id);}catch(e){}
   VC.sendTo.clear();VC.pend.clear();for(const id of [...VC.remote.keys()])vcDrop(id);
   if(VC.mic)for(const t of VC.mic.getTracks())try{t.stop();}catch(e){}
-  VC.mic=null;VC.lo=false;VC.talking=false;VC.level=0;
+  VC.mic=null;VC.out=null;VC.lo=false;VC.talking=false;VC.level=0;
   if(VC.ctx)try{VC.ctx.close();}catch(e){}
-  VC.ctx=null;VC.an=null;VC.buf=null;
+  VC.ctx=null;VC.gain=null;VC.an=null;VC.buf=null;
   // (the connections' audio lines go too, so nothing's left negotiated, sent or decoded: switched on again, new ones are made)
   if(T&&T.av)for(const pc of T.av.conns())try{for(const x of pc.getTransceivers())if(!x.stopped&&x.receiver&&x.receiver.track&&x.receiver.track.kind==='audio')x.stop();}catch(e){}
   if(!quiet){vcAnnounce();vcNote('Voice chat is off.');}else vcNote('');
@@ -76,14 +82,14 @@ function vcOff(quiet){
 // (telling the host whether this player's on voice; the host itself just puts it in its list)
 function vcAnnounce(){
   if(netHost()){VC.rsT=0;return;}
-  if(netGuest()&&NET.joined&&NET.host&&NET.tr){NET.tr.send({t:'vo',on:VC.on?1:0,mic:VC.mic?1:0},NET.host);VC.said=NET.tr;}
+  if(netGuest()&&NET.joined&&NET.host&&NET.tr){NET.tr.send({t:'vo',on:VC.on?1:0,mic:VC.mic?1:0,hr:VC.hear?1:0},NET.host);VC.said=NET.tr;}
 }
 
 // ---- who's on voice (the host's list) ----
 function vcRosterTick(dt){
   VC.rsT-=dt;if(VC.rsT>0||!NET.tr)return;VC.rsT=0.25;
-  const L=[{s:0,id:NET.tr.self,n:chatName(P1),c:chatCol(P1),on:VC.on?1:0,mic:VC.mic?1:0}];   // (mic: sending as well as hearing; 0 listens only)
-  for(const q of NET.guests.values())if(!q.net.gone)L.push({s:q.idx,id:q.net.peer,n:chatName(q),c:chatCol(q),on:q.net.vo?1:0,mic:q.net.vo&&q.net.vm?1:0});
+  const L=[{s:0,id:NET.tr.self,n:chatName(P1),c:chatCol(P1),on:VC.on?1:0,mic:VC.mic?1:0,hr:VC.hear?1:0}];   // (mic: sending; hr: hearing the others)
+  for(const q of NET.guests.values())if(!q.net.gone)L.push({s:q.idx,id:q.net.peer,n:chatName(q),c:chatCol(q),on:q.net.vo?1:0,mic:q.net.vo&&q.net.vm?1:0,hr:q.net.vo&&q.net.vh!==false?1:0});
   if(!VC.rsLast&&!L.some(r=>r.on))return;   // (nobody's switched voice on yet: nothing to tell anyone)
   const k=JSON.stringify(L);if(k===VC.rsLast)return;VC.rsLast=k;
   for(const q of NET.guests.values())if(!q.net.gone)NET.tr.send({t:'vr',l:L},q.net.peer);
@@ -93,21 +99,22 @@ function vcRosterTick(dt){
 function vcRoster(l){
   if(!Array.isArray(l))return;
   VC.roster=l.slice(0,NET_SEATS+2).filter(r=>r&&typeof r.id==='string'&&r.id.length<80).map(r=>({s:r.s|0,id:r.id,n:chatClean(r.n).slice(0,32)||'Someone',
-    c:/^#[0-9a-f]{3,8}$/i.test(r.c)?r.c:'#eef0e6',on:!!r.on,mic:!!r.on&&r.mic!==0&&r.mic!==false}));
+    c:/^#[0-9a-f]{3,8}$/i.test(r.c)?r.c:'#eef0e6',on:!!r.on,mic:!!r.on&&r.mic!==0&&r.mic!==false,hr:!!r.on&&r.hr!==0&&r.hr!==false}));
   vcSync();vcHudDraw();vcOptsDraw();
 }
-// (who this player sends to: everyone on voice, listeners too; and who it hears: those of them with a microphone)
-const vcWanted=()=>{const me=vcSelf();return new Set(VC.roster.filter(r=>r.on&&r.id!==me).map(r=>r.id));};
-const vcHeard=()=>{const me=vcSelf();return new Set(VC.roster.filter(r=>r.on&&r.mic&&r.id!==me).map(r=>r.id));};
+// (who this player sends to: everyone on voice who's hearing the others; and who it hears, with Others' voice on: those
+// of them with a microphone)
+const vcWanted=()=>{const me=vcSelf();return new Set(VC.roster.filter(r=>r.on&&r.hr&&r.id!==me).map(r=>r.id));};
+const vcHeard=()=>{const me=vcSelf();return new Set(VC.hear?VC.roster.filter(r=>r.on&&r.mic&&r.id!==me).map(r=>r.id):[]);};
 function vcSync(){
   const T=NET.tr;
   if(VC.tr!==T){   // (a new connection, after a reconnect: whatever went over the old one went with it)
     VC.sendTo.clear();VC.pend.clear();for(const id of [...VC.remote.keys()])vcDrop(id);VC.tr=T;VC.said=null;
     if(VC.on&&T&&T.av)T.av.onStream(vcGotStream);}
   if(!VC.on||!T||!T.av)return;
-  if(VC.mic){const want=vcWanted();   // (listening only, nothing's ever sent)
-    for(const id of want)if(!VC.sendTo.has(id)){try{T.av.add(VC.mic,id);VC.sendTo.add(id);}catch(e){}}
-    for(const id of [...VC.sendTo])if(!want.has(id)){try{T.av.remove(VC.mic,id);}catch(e){}VC.sendTo.delete(id);}}
+  if(VC.out){const want=vcWanted();   // (My voice off, nothing's ever sent)
+    for(const id of want)if(!VC.sendTo.has(id)){try{T.av.add(VC.out,id);VC.sendTo.add(id);}catch(e){}}
+    for(const id of [...VC.sendTo])if(!want.has(id)){try{T.av.remove(VC.out,id);}catch(e){}VC.sendTo.delete(id);}}
   const hear=vcHeard();
   for(const id of [...VC.remote.keys()])if(!hear.has(id))vcDrop(id);
   for(const [id,st] of VC.pend)if(hear.has(id)){VC.pend.delete(id);vcPlay(id,st);}
@@ -155,7 +162,7 @@ function vcHudDraw(){
   else rows.push({n:(mine?mine.n:charName(P1))+' (you)',c:mine?mine.c:chatCol(P1),talk:VC.talking&&VC.level>VC_SPEAK,ic:'🎙',mute:!VC.talking});
   for(const r of VC.roster){if(!r.on||r.id===me)continue;
     if(!r.mic){rows.push({n:r.n+' (listening)',c:r.c,talk:false,ic:'🎧',mute:true});continue;}
-    const R=VC.remote.get(r.id),m=VC.mute.has(r.id);
+    const R=VC.remote.get(r.id),m=VC.mute.has(r.id)||!VC.hear;
     rows.push({n:r.n,c:r.c,talk:!m&&!!R&&R.lvl>VC_SPEAK,ic:m?'🔇':'🔊',mute:m||!R});}
   const k=JSON.stringify(rows);if(k===VC.hudKey)return;VC.hudKey=k;
   e.hidden=false;e.innerHTML='';
@@ -168,25 +175,32 @@ function vcHudDraw(){
 function vcOptsDraw(){
   const t=chatEl('vcTog');if(!t)return;
   t.setAttribute('aria-checked',String(VC.on||VC.busy));t.classList.toggle('dim',!VC.on&&!vcCan());
-  chatEl('vcPttTog').setAttribute('aria-checked',String(VC.ptt));chatEl('vcPttTog').classList.toggle('dim',VC.lo||VC.listen);   // (nothing to talk with)
-  chatEl('vcLoTog').setAttribute('aria-checked',String(VC.listen));
-  chatEl('vcPttTxt').textContent='Hold '+vcTalkKeys()+' to talk. Untick for an open microphone';
+  chatEl('vcSub').hidden=!(VC.on||VC.busy);   // (My voice, Others' voice and push to talk: only while voice chat's on)
+  chatEl('vcMicTog').setAttribute('aria-checked',String(VC.talk));
+  chatEl('vcHearTog').setAttribute('aria-checked',String(VC.hear));
+  chatEl('vcPttTog').setAttribute('aria-checked',String(VC.ptt));chatEl('vcPttTog').classList.toggle('dim',!VC.talk||VC.on&&VC.lo);   // (nothing to talk with)
+  chatEl('vcPttTxt').textContent='Hold '+vcTalkKeys()+' to talk';
   const v=chatEl('vcVol');if(document.activeElement!==v)v.value=String(Math.round(VC.vol*100));chatEl('vcVolVal').textContent=Math.round(VC.vol*100)+'%';
-  if(!VC.note)chatEl('vcNote').textContent=vcCan()?'':netOn()?'Voice chat needs a game over the internet, not between two tabs.':'Voice chat can be switched on once you\'re in an online game.';
+  const mv=chatEl('vcMicVol');if(document.activeElement!==mv)mv.value=String(Math.round(VC.micVol*100));chatEl('vcMicVolVal').textContent=Math.round(VC.micVol*100)+'%';
+  if(!VC.note)chatEl('vcNote').textContent=vcCan()||!netOn()?'':'Voice chat needs a game over the internet, not between two tabs.';
   // (one button per player on voice: muting them is only for you)
-  const me=vcSelf(),L=VC.on?VC.roster.filter(r=>r.on&&r.mic&&r.id!==me):[];
-  const k=JSON.stringify(L.map(r=>[r.id,r.n,VC.mute.has(r.id)]));if(k===VC.peersKey)return;VC.peersKey=k;
+  const me=vcSelf(),L=VC.on&&VC.hear?VC.roster.filter(r=>r.on&&r.mic&&r.id!==me):[];
+  const k=JSON.stringify([!!VC.mic,L.map(r=>[r.id,r.n,VC.mute.has(r.id),r.hr])]);if(k===VC.peersKey)return;VC.peersKey=k;
   const box=chatEl('vcPeers');box.innerHTML='';
   for(const r of L){const b=document.createElement('button');b.type='button';b.className='tog';b.setAttribute('role','checkbox');b.setAttribute('aria-checked',String(VC.mute.has(r.id)));
     const bx=document.createElement('span');bx.className='box';bx.setAttribute('aria-hidden','true');
-    const tl=document.createElement('span');tl.className='tl';tl.append('Mute '+r.n);const sm=document.createElement('small');sm.textContent=VC.lo?'Only for you':'Only for you: '+r.n+' still hears you';tl.append(sm);
+    const tl=document.createElement('span');tl.className='tl';tl.append('Mute '+r.n);const sm=document.createElement('small');sm.textContent=VC.mic&&r.hr?'Only for you: '+r.n+' still hears you':'Only for you';tl.append(sm);
     b.append(bx,tl);b.addEventListener('click',()=>vcMute(r.id,!VC.mute.has(r.id)));box.append(b);}
 }
 function vcMute(id,on){if(on)VC.mute.add(id);else VC.mute.delete(id);const r=VC.remote.get(id);if(r&&r.el)r.el.muted=on;vcHudDraw();vcOptsDraw();}
 chatEl('vcTog').addEventListener('click',()=>{if(VC.on||VC.busy)vcOff(false);else vcStart();});
-chatEl('vcPttTog').addEventListener('click',()=>{VC.ptt=!VC.ptt;vcSave();if(VC.on)vcNote(VC.ptt?'Push to talk: hold '+vcTalkKeys()+' to talk.':'Open microphone: the others hear you whenever you speak.');vcOptsDraw();});
-// (listening only, switched while voice is on: it starts again the new way)
-chatEl('vcLoTog').addEventListener('click',()=>{VC.listen=!VC.listen;vcSave();if(VC.on){vcOff(true);vcStart();}else vcOptsDraw();});
+chatEl('vcPttTog').addEventListener('click',()=>{VC.ptt=!VC.ptt;vcSave();if(VC.on&&VC.mic)vcNote(VC.ptt?'Push to talk: hold '+vcTalkKeys()+' to talk.':'Open microphone: the others hear you whenever you speak.');vcOptsDraw();});
+// (My voice, switched while voice is on: it starts again the new way, asking for the microphone or letting it go)
+chatEl('vcMicTog').addEventListener('click',()=>{VC.talk=!VC.talk;vcSave();if(VC.on){vcOff(true);vcStart();}else vcOptsDraw();});
+// (Others' voice: the host's list says so, and the others stop or start sending; whatever's playing stops at once)
+chatEl('vcHearTog').addEventListener('click',()=>{VC.hear=!VC.hear;vcSave();if(!VC.hear)VC.pend.clear();if(VC.on){vcAnnounce();vcSync();vcHudDraw();}vcOptsDraw();});
 chatEl('vcVol').addEventListener('input',e=>{VC.vol=Math.max(0,Math.min(1,(+e.target.value||0)/100));for(const r of VC.remote.values())if(r.el)r.el.volume=VC.vol;chatEl('vcVolVal').textContent=Math.round(VC.vol*100)+'%';});
 chatEl('vcVol').addEventListener('change',vcSave);
+chatEl('vcMicVol').addEventListener('input',e=>{VC.micVol=Math.max(0,Math.min(2,(+e.target.value||0)/100));if(VC.gain)try{VC.gain.gain.value=VC.micVol;}catch(x){}chatEl('vcMicVolVal').textContent=Math.round(VC.micVol*100)+'%';});
+chatEl('vcMicVol').addEventListener('change',vcSave);
 vcOptsDraw();
