@@ -196,11 +196,11 @@ function movePlayer(p,dt){
         moving=true;p.lastSp=sp;p.phase+=dt*sp*3.4*(charge?0.45:1);if(tramp&&!hbOn('trample')){hitGoblins(frontX,frontZ,AB.trample.hitR,AB.trample.dmg,'Trampled',p.pos.y);
           // and it ploughs straight through anything in the way: benches, bins, fences, railings, low walls
           p.trCD=(p.trCD||0)-dt;if(p.trCD<=0&&!hbOn('trample')&&!inp.climb){p.trCD=0.1;const o={force:1.1,dx:hx,dz:hz};if(blockHit(AB.trample,frontX,p.pos.y,frontZ,hx,hz,o,sz=>crushDisc(frontX,p.pos.y,frontZ,sz,3,o))){sfx('Trample ploughs through',()=>{thud(0.45);});addShake(0.18,frontX,frontZ,10);rumble(p,0.3,90);}}}
-        if(inp.climb&&p.grounded&&!(p.standCar&&!p.gob&&vOverEdge(p,mvx,mvz)))climbOverEdge(p,mvx,mvz);
+        if(inp.climb&&p.grounded&&!(p.standCar&&vOverEdge(p,mvx,mvz)))climbOverEdge(p,mvx,mvz);
       }
     }
     // holding climb and running (or jumping) into the side of a car, a train, a boat, a plane: grab on
-    if(p.state==='walk'&&inp.climb&&!p.gob&&(!p.grounded||Math.hypot(inp.x,inp.z)>0.3)&&vGrab(p,p.grounded?1.7:1.3)){}
+    if(p.state==='walk'&&inp.climb&&(!p.grounded||Math.hypot(inp.x,inp.z)>0.3)&&vGrab(p,p.grounded?1.7:1.3)){}
     // holding climb while jumping at a wall: grab on
     if(p.state==='walk'&&inp.climb&&!p.grounded){if(!startClimb(p,1.1)&&p.vy>-2&&!p.gob)grabCeil(p);}
     // R2 in mid-air: ground pound
@@ -509,7 +509,7 @@ function movePlayer(p,dt){
     // (on board, a deckhouse is just something in the way, not a thing to be thrown overboard by. On a little boat, with no way round it, you end up on top of it)
     if(B.proxy.isBoat&&p.standCar&&p.standCar.T===B.proxy.T){if(B.proxy.T.K.W<6)p.pos.y=B.top;else if(fc<=fa){const sg=ac>=0?1:-1;shove(p,-B.tz*sg*fc,B.tx*sg*fc);}else{const sg=al>=0?1:-1;shove(p,B.tx*sg*fa,B.tz*sg*fa);}continue;}
     // (a train at speed doesn't just nudge you aside: it hits you)
-    if(Math.abs(B.v)>=2&&!(p.trainT>0)&&!(p.standCar&&p.standCar.isTrain)&&p.hp>0&&inp.climb&&!p.gob&&!vOn&&vGrab(p,3,B.proxy))break;   // (holding climb: he catches hold of it as it comes by)
+    if(Math.abs(B.v)>=2&&!(p.trainT>0)&&!(p.standCar&&p.standCar.isTrain)&&p.hp>0&&inp.climb&&!vOn&&vGrab(p,3,B.proxy))break;   // (holding climb: he catches hold of it as it comes by, hippo or goblin)
     if(Math.abs(B.v)>=2&&!(p.trainT>0)&&!(p.standCar&&p.standCar.isTrain)&&p.hp>0){const sg=ac>=0?1:-1,sv=B.v<0?-1:1;trainStrike(p,new V3(B.tx*sv*0.8-B.tz*sg*0.6,0,B.tz*sv*0.8+B.tx*sg*0.6),Math.max(0.3,Math.min(1,Math.abs(B.v)/24)),B.proxy.isPlane?'Hit by a plane':B.proxy.isBoat?'Hit by a boat':undefined);}
     if(fc<=fa||Math.abs(B.v)>0.5){const sg=ac>=0?1:-1;shove(p,-B.tz*sg*fc,B.tx*sg*fc);}   // (out to the side -- always, from a moving one)
     else{const sg=al>=0?1:-1;shove(p,B.tx*sg*fa,B.tz*sg*fa);}}

@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:99d536da963928ceee2b7165c1b031ae4235f2255efb6cbc515e0dfb9658a59d -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:235f82f54532014be0aa844c85f78b56932275eb19d92cf6b1be014cac12f72a -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1414,6 +1414,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
       <div class="pn">
         <p class="pn-web">What's changed, newest first. These notes are also on <a href="patch-notes/index.html" target="_blank" rel="noopener">their own web page</a>.</p>
 <details class="pn-up pn-fold pn-new" id="version-0-4" open><summary tabindex="0"><h2>Version 0.4</h2><span class="pn-tog" aria-hidden="true"></span></summary>
+<h3>Goblins climb vehicles too</h3>
+<ul><li>Gnash and Grizzle can now spider-climb vehicles just as Gus and Gertie do: hold climb and walk or jump into a car, a lorry, a train, a boat's hull, a container stack or a plane to grab its side and hang on while it goes, climb up on to the roof, or walk off the roof's edge with climb held to drop on to its side. Holding climb as a train comes by catches hold of it instead of being run down. Your view stays outside the vehicle while you cling to it.</li></ul>
 <h3>Grenades break things</h3>
 <ul><li>Grenades now blow holes in the world: one going off takes out a shallow crater in the ground and the walls, fences and anything else built within about three blocks of it, the way tank shells and helicopter rockets already did. A building that loses enough of itself comes down. That goes for Gnash's grenades and for the ones preppers and militia lob at you, so cover doesn't last forever.</li></ul>
 <h3>Flying planes with WASD</h3>
@@ -2795,7 +2797,7 @@ function trainBoxes(cs,speed,y0,T){
   const n=TRAIN_BOXES.length-cs.length,k=Math.max(0.3,Math.min(1,Math.abs(speed)/24)),sgn=speed<0?-1:1;   // (the cars all point the same way, whichever way they're going)
   const hit=(o,r,y)=>{for(let i=n;i<TRAIN_BOXES.length;i++){const B=TRAIN_BOXES[i];if(y>B.top-0.3||y<B.y0-1.5)continue;
     const dx=o.pos.x-B.x,dz=o.pos.z-B.z,al=dx*B.tx+dz*B.tz,ac=-dx*B.tz+dz*B.tx;if(Math.abs(al)>TRAIN_HZ+r||Math.abs(ac)>TRAIN_HX+r)continue;
-    if(o.in&&o.cam&&o.in.climb&&!o.gob&&vGrab(o,3,B.proxy))return null;   // (a hippo holding climb catches hold of it instead)
+    if(o.in&&o.cam&&o.in.climb&&vGrab(o,3,B.proxy))return null;   // (a player holding climb, hippo or goblin, catches hold of it instead)
     const sg=ac>=0?1:-1,nx=-B.tz*sg,nz=B.tx*sg,need=TRAIN_HX+r-Math.abs(ac)+0.05;o.pos.x+=nx*need;o.pos.z+=nz*need;
     return new V3(B.tx*sgn*0.8+nx*0.6,0,B.tz*sgn*0.8+nz*0.6);}return null;};
   for(const p of players){if(p.trainT>0)continue;if(!p.active||p.hp<=0||p.standCar&&p.standCar.isTrain||p.vcl&&p.state==='climb'||p.drv)continue;const d=hit(p,0.75*ES,p.pos.y+0.5);
@@ -11266,6 +11268,8 @@ function gobCamera(p){
   else c.set(p.pos.x+(v?v.x:0),p.pos.y+(v?v.y:0)+eye,p.pos.z+(v?v.z:0));p.camera.rotation.set(p.cam.pitch,p.cam.yaw,lie*1.2);
   if(p.shake>0.002&&gameSpeed()>0){c.x+=(Math.random()-.5)*p.shake;c.y+=(Math.random()-.5)*p.shake;c.z+=(Math.random()-.5)*p.shake;}
   const ex=c.x,ez=c.z;eyeRoom(c);
+  // (a vehicle isn't blocks, so eyeRoom can't see it: clinging to one's side, the eye is put GOB_EYE_R out from its face)
+  if(p.vcl&&p.state==='climb'&&p.climbD){const d=p.climbD,k=GOB_EYE_R-0.06;c.x-=d[0]*k;c.z-=d[1]*k;}
   const sw=p.biteT>0?1-p.biteT/(p.biteDur||0.38):0;
   const wk=gobArms(p).wpn;for(const k in K.held)K.held[k].visible=k===wk;for(const k in K.tp)K.tp[k].visible=k===wk;
   gobBodyPose(K.m,p);
@@ -12248,11 +12252,11 @@ function movePlayer(p,dt){
         moving=true;p.lastSp=sp;p.phase+=dt*sp*3.4*(charge?0.45:1);if(tramp&&!hbOn('trample')){hitGoblins(frontX,frontZ,AB.trample.hitR,AB.trample.dmg,'Trampled',p.pos.y);
           // and it ploughs straight through anything in the way: benches, bins, fences, railings, low walls
           p.trCD=(p.trCD||0)-dt;if(p.trCD<=0&&!hbOn('trample')&&!inp.climb){p.trCD=0.1;const o={force:1.1,dx:hx,dz:hz};if(blockHit(AB.trample,frontX,p.pos.y,frontZ,hx,hz,o,sz=>crushDisc(frontX,p.pos.y,frontZ,sz,3,o))){sfx('Trample ploughs through',()=>{thud(0.45);});addShake(0.18,frontX,frontZ,10);rumble(p,0.3,90);}}}
-        if(inp.climb&&p.grounded&&!(p.standCar&&!p.gob&&vOverEdge(p,mvx,mvz)))climbOverEdge(p,mvx,mvz);
+        if(inp.climb&&p.grounded&&!(p.standCar&&vOverEdge(p,mvx,mvz)))climbOverEdge(p,mvx,mvz);
       }
     }
     // holding climb and running (or jumping) into the side of a car, a train, a boat, a plane: grab on
-    if(p.state==='walk'&&inp.climb&&!p.gob&&(!p.grounded||Math.hypot(inp.x,inp.z)>0.3)&&vGrab(p,p.grounded?1.7:1.3)){}
+    if(p.state==='walk'&&inp.climb&&(!p.grounded||Math.hypot(inp.x,inp.z)>0.3)&&vGrab(p,p.grounded?1.7:1.3)){}
     // holding climb while jumping at a wall: grab on
     if(p.state==='walk'&&inp.climb&&!p.grounded){if(!startClimb(p,1.1)&&p.vy>-2&&!p.gob)grabCeil(p);}
     // R2 in mid-air: ground pound
@@ -12561,7 +12565,7 @@ function movePlayer(p,dt){
     // (on board, a deckhouse is just something in the way, not a thing to be thrown overboard by. On a little boat, with no way round it, you end up on top of it)
     if(B.proxy.isBoat&&p.standCar&&p.standCar.T===B.proxy.T){if(B.proxy.T.K.W<6)p.pos.y=B.top;else if(fc<=fa){const sg=ac>=0?1:-1;shove(p,-B.tz*sg*fc,B.tx*sg*fc);}else{const sg=al>=0?1:-1;shove(p,B.tx*sg*fa,B.tz*sg*fa);}continue;}
     // (a train at speed doesn't just nudge you aside: it hits you)
-    if(Math.abs(B.v)>=2&&!(p.trainT>0)&&!(p.standCar&&p.standCar.isTrain)&&p.hp>0&&inp.climb&&!p.gob&&!vOn&&vGrab(p,3,B.proxy))break;   // (holding climb: he catches hold of it as it comes by)
+    if(Math.abs(B.v)>=2&&!(p.trainT>0)&&!(p.standCar&&p.standCar.isTrain)&&p.hp>0&&inp.climb&&!vOn&&vGrab(p,3,B.proxy))break;   // (holding climb: he catches hold of it as it comes by, hippo or goblin)
     if(Math.abs(B.v)>=2&&!(p.trainT>0)&&!(p.standCar&&p.standCar.isTrain)&&p.hp>0){const sg=ac>=0?1:-1,sv=B.v<0?-1:1;trainStrike(p,new V3(B.tx*sv*0.8-B.tz*sg*0.6,0,B.tz*sv*0.8+B.tx*sg*0.6),Math.max(0.3,Math.min(1,Math.abs(B.v)/24)),B.proxy.isPlane?'Hit by a plane':B.proxy.isBoat?'Hit by a boat':undefined);}
     if(fc<=fa||Math.abs(B.v)>0.5){const sg=ac>=0?1:-1;shove(p,-B.tz*sg*fc,B.tx*sg*fc);}   // (out to the side -- always, from a moving one)
     else{const sg=al>=0?1:-1;shove(p,B.tx*sg*fa,B.tz*sg*fa);}}
@@ -21423,7 +21427,7 @@ function updateCars(dt){
     for(const q of players){
       if(!q.active||q.state==='dead'||!c.alive)continue;
       if(q.vcl&&q.state==='climb'&&q.vcl.v===c||q.drv)continue;
-      if(Math.abs(c.speed)>3&&c.ramCD<=0&&q.standCar!==c&&q.in.climb&&!q.gob&&q.pos.y<c.pos.y+(c.hy||1.4)-0.6&&carHitsPlayer(c,q)&&vGrab(q,3,c))continue;   // (holding climb: he catches hold of it)
+      if(Math.abs(c.speed)>3&&c.ramCD<=0&&q.standCar!==c&&q.in.climb&&q.pos.y<c.pos.y+(c.hy||1.4)-0.6&&carHitsPlayer(c,q)&&vGrab(q,3,c))continue;   // (holding climb: he catches hold of it)
       if(Math.abs(c.speed)>3&&c.ramCD<=0&&q.standCar!==c&&!(q.standCar&&q.standCar.isTrain)&&q.pos.y<c.pos.y+(c.hy||1.4)-0.6&&carHitsPlayer(c,q)){   // (and a car the train's just sent flying doesn't knock its riders off)
         const fast=Math.abs(c.speed)>9;
         damagePlayer(q,fast?4:2,new V3(q.pos.x,q.pos.y+1.3,q.pos.z),new V3(fx*dir,0.3,fz*dir),fast?'Run down':'Hit by traffic',c.driver);

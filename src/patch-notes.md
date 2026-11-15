@@ -2,6 +2,10 @@
 
 ## Version 0.4
 
+### Goblins climb vehicles too
+
+- Gnash and Grizzle can now spider-climb vehicles just as Gus and Gertie do: hold climb and walk or jump into a car, a lorry, a train, a boat's hull, a container stack or a plane to grab its side and hang on while it goes, climb up on to the roof, or walk off the roof's edge with climb held to drop on to its side. Holding climb as a train comes by catches hold of it instead of being run down. Your view stays outside the vehicle while you cling to it.
+
 ### Grenades break things
 
 - Grenades now blow holes in the world: one going off takes out a shallow crater in the ground and the walls, fences and anything else built within about three blocks of it, the way tank shells and helicopter rockets already did. A building that loses enough of itself comes down. That goes for Gnash's grenades and for the ones preppers and militia lob at you, so cover doesn't last forever.

@@ -1,12 +1,13 @@
 // Spider-climbing vehicles: grab the side of a train, a car, a boat (and its container stacks) and a plane, hang on while
-// it moves, climb up on to its roof, tip back over its edge on to its side, let go. node vclimbt.js
+// it moves, climb up on to its roof, tip back over its edge on to its side, let go. node vclimbt.js (GOB=1 node vclimbt.js as Gnash)
 const fs=require('fs');
 let hdr=fs.readFileSync('stairs.js','utf8').split('\n');
 const n=hdr.findIndex(l=>l.startsWith('eval(src);'));
-hdr=hdr.slice(0,n).join('\n').replace(/window\.__t=\{/,'window.__t={G0:G,TRAINS,railPt,TRAIN_BOXES,BOATS,boatVenue,oceanDepth,vBox,ABIL,');
+hdr=hdr.slice(0,n).join('\n').replace(/window\.__t=\{/,'window.__t={G0:G,TRAINS,railPt,TRAIN_BOXES,BOATS,boatVenue,oceanDepth,vBox,ABIL,setGobP,');
 eval(hdr+`
 eval(src);const T=window.__t,G0=T.G0;let now=1000;
 const [A]=T.players;for(const f of els.play.L.click)f();pads.length=0;A.hp=9999;T.ABIL.climb=true;
+if(process.env.GOB){T.setGobP(A,true);console.log('as a goblin (Gnash)');}   // (GOB=1: the same, playing as a goblin)
 const quiet=()=>{for(const g of T.goblins)if(g.state==='chase'){g.state='wait';g.t=-1e9;g.root.visible=false;}};
 let face=false;const step=k=>{for(let i=0;i<k;i++){if(A.state!=="dead")A.hp=20;quiet();if(face)A.cam.yaw=A.heading+Math.PI;now+=16.7;T.frame(now);}};
 const hold=(...k)=>{for(const q of k)T.keys.add(q);},free=(...k)=>{for(const q of k)T.keys.delete(q);};
@@ -48,7 +49,8 @@ if(TQ&&TQ.cars){const pr=TQ.cars[1].userData.proxy;TQ.v=0;TQ.wait=30;step(2);
   overEdge('train',pr);
   // a train going by at speed, climb held: caught hold of, not run down
   TQ.wait=0;TQ.v=20;step(30);const pr2=TQ.cars[2].userData.proxy,b=T.vBox(pr2);
-  {let sv=1;{const b0=T.vBox(pr2);step(1);const b1=T.vBox(pr2);sv=Math.sign((b1.x-b0.x)*b1.ax+(b1.z-b0.z)*b1.az)||1;}const b=T.vBox(pr2);A.state='walk';A.vcl=null;A.trainT=0;A.pos.set(b.x+(-b.az)*(b.hc+0.6)+b.ax*sv*(b.hl+3),b.y0+.05,b.z+b.ax*(b.hc+0.6)+b.az*sv*(b.hl+3));}
+  {let sv=1;{const b0=T.vBox(pr2);step(1);const b1=T.vBox(pr2);sv=Math.sign((b1.x-b0.x)*b1.ax+(b1.z-b0.z)*b1.az)||1;}const b=T.vBox(pr2),gw=A.gob?0.3:0.6;A.state='walk';A.vcl=null;   // (a goblin's narrower: nearer, so it reaches him)
+  A.trainT=0;A.pos.set(b.x+(-b.az)*(b.hc+gw)+b.ax*sv*(b.hl+3),b.y0+.05,b.z+b.ax*(b.hc+gw)+b.az*sv*(b.hl+3));}
   face=false;hold('KeyC');const hp0=A.hp;let caught=null;for(let i=0;i<120&&!caught;i++){A.hp=20;quiet();now+=16.7;T.frame(now);if(A.vcl)caught=A.vcl.v;if(A.trainT>0)break;}
   console.log('train   ','passing at speed with climb held: caught hold',!!caught,'struck',A.trainT>0);free('KeyC');step(30);
 } else console.log('no train');

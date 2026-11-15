@@ -272,6 +272,8 @@ function gobCamera(p){
   else c.set(p.pos.x+(v?v.x:0),p.pos.y+(v?v.y:0)+eye,p.pos.z+(v?v.z:0));p.camera.rotation.set(p.cam.pitch,p.cam.yaw,lie*1.2);
   if(p.shake>0.002&&gameSpeed()>0){c.x+=(Math.random()-.5)*p.shake;c.y+=(Math.random()-.5)*p.shake;c.z+=(Math.random()-.5)*p.shake;}
   const ex=c.x,ez=c.z;eyeRoom(c);
+  // (a vehicle isn't blocks, so eyeRoom can't see it: clinging to one's side, the eye is put GOB_EYE_R out from its face)
+  if(p.vcl&&p.state==='climb'&&p.climbD){const d=p.climbD,k=GOB_EYE_R-0.06;c.x-=d[0]*k;c.z-=d[1]*k;}
   const sw=p.biteT>0?1-p.biteT/(p.biteDur||0.38):0;
   const wk=gobArms(p).wpn;for(const k in K.held)K.held[k].visible=k===wk;for(const k in K.tp)K.tp[k].visible=k===wk;
   gobBodyPose(K.m,p);
