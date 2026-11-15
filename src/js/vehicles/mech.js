@@ -282,9 +282,10 @@ function mechPose(M,dt){
     if(push>0&&!M.grounded)fg=Math.max(-0.6,M.jy0-M.y);
     else if(M.grounded){fg=Math.min(1.1,groundAt(wx,wz,M.y+1.2)-M.y);if(fg<-1.05)fg=-0.25;}
     M.fy[j]=push>0&&!M.grounded?fg:ease(M.fy[j],fg,fg>M.fy[j]&&M.grounded?30:7);const gy=M.fy[j]+0.04+lift;
-    // (in the air: legs nearly straight under it, trailing a little the way it's flying, so the calves' thrusters fire
-    // down; tucked up for a moment after a jump)
-    const ax=s*0.9-ux*0.6*k,ay=0.35+s*0.1+tuck*0.85,az=-0.45-M.aW*0.2-uz*0.6*k+tuck*0.5;
+    // (in the air: legs nearly straight, swept well back from the way it's flying: most of the way by walking speed,
+    // the rest as boosted flight builds to full speed; the feet rise a little as they swing back so the legs stay in
+    // reach; tucked up for a moment after a jump)
+    const ta=0.95*Math.min(1,sp/MG.walk)+0.55*Math.max(0,Math.min(1,(sp-MG.walk)/(MG.air-MG.walk))),ax=s*0.9-ux*ta,ay=0.35+s*0.1+tuck*0.85+0.45*ta*ta/2.25,az=-0.45-M.aW*0.2-uz*ta+tuck*0.5;
     const tx=ax+(gx-ax)*gw,ty=ay+(gy-ay)*gw,tz=az+(gz-az)*gw;
     // (that point, seen from the leaning pelvis: undo its roll, then its pitch, then step across to the hip)
     let x=tx,y=ty-by,z=tz;{const x1=x*cr+y*sr,y1=-x*sr+y*cr;x=x1;y=y1;}{const y2=y*cp+z*sp2,z2=-y*sp2+z*cp;y=y2;z=z2;}

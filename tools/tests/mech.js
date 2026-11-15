@@ -124,6 +124,12 @@ hold([],1);
   j=jmax();tap('Space');for(let i=0;i<20;i++){run(1/60);j();}const up=j();T.keys.add('Space');for(let i=0;i<40;i++){run(1/60);j();}T.keys.delete('Space');const fly=j();
   j=jmax();for(let i=0;i<300&&!M.grounded;i++){run(1/60);j();}for(let i=0;i<30;i++){run(1/60);j();}const land=j();
   console.log('  most a leg joint moves in a frame: walking',f2(w),' taking off',f2(up),' flying up',f2(fly),' landing',f2(land),' soles after landing',sole(M));}
+ // (flying forward flat out: how far back the legs sweep from straight down, in degrees, against the way it's going)
+ {const sweep=()=>{const v=Math.hypot(M.vx,M.vz)||1,ux=M.vx/v,uz=M.vz/v,hy=M.y+M.J.B.position.y;
+    return fk(M).map(f=>{const back=-((f.x-M.x)*ux+(f.z-M.z)*uz);return (Math.atan2(back,hy-f.y)*180/Math.PI).toFixed(0);}).join(' ');};
+  for(const bo of [false,true]){hold([],1);if(bo)tap('KeyC');T.keys.add('Space');run(0.6);T.keys.add('KeyW');run(3);const sp=Math.hypot(M.vx,M.vz),a=sweep();T.keys.delete('KeyW');run(0.8);const b=sweep();T.keys.delete('Space');
+   for(let i=0;i<300&&!M.grounded;i++)run(1/60);run(1);if(bo)tap('KeyC');
+   console.log('  flying forward'+(bo?' boosted':'')+' at',f1(sp),': legs swept back',a,'degrees; drifting slower',b);}}
  // (the thrusters: which are lit, by direction, on a quick boost each way)
  {const lit=()=>{const L=M.J.flames.filter(F=>F.kind!=='lift'&&F.m.visible).map(F=>F.d[0]>0.5?'left side':F.d[0]<-0.5?'right side':F.d[2]>0.5?'front':'back');return [...new Set(L)].join('+')||'none';};
   for(const [k,label] of [['KeyW','ahead'],['KeyS','back'],['KeyA','left'],['KeyD','right']]){run(1);T.keys.add(k);run(0.05);tap('ShiftLeft');run(0.03);const l=lit(),pt=M.pt,rl=M.rl;T.keys.delete(k);console.log('  quick boost',label+': thrusters lit',l,' lean fwd',f2(pt),'side',f2(rl));}
