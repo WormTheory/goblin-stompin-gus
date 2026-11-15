@@ -206,7 +206,11 @@ function stadiumProps(S){
 }
 const COAST_PROPS=new Set(['beach','harbor','yard','navy','rig']);
 function refreshProps(){
-  nPropL=nPropG=0;activeProps.length=0;propCells.clear();const R=34,seen=new Set(),got=new Set();   // (seen: per viewer, as each sees only what's near it; got: drawn already, for another)
+  nPropL=nPropG=0;activeProps.length=0;propCells.clear();propGen++;propSeen.clear();const seen=new Set(),got=new Set();   // (seen: per viewer, as each sees only what's near it; got: drawn already, for another)
+  // R: the open-air props, out to the prop distance setting (never past the fog); RI: the furniture indoors, about half as far,
+  // since it's mostly behind walls (34 at the usual 64), and RU the floors either side of yours, closer still. Each is measured
+  // round in a circle, so a prop on the diagonal comes in at the same distance as one straight ahead.
+  const R=Math.max(16,Math.min(propSetting,viewFar())),RI=Math.round(R*34/64),RU=Math.round(R*18/64),out=(f,p,r)=>(f.x-p.pos.x)**2+(f.z-p.pos.z)**2>r*r;
   // benches and litter bins, out to the same distance as the lamp posts beside them (they're out in the open, so 34 blocks
   // would have them popping in down the street). Listed with the fixtures too: traffic knocks them over, as it does lamps.
   {const RS=Math.min(viewFar(),96),seenS=new Set();
@@ -214,7 +218,7 @@ function refreshProps(){
      for(let px=Math.floor((p.pos.x-RS)/CELL);px<=Math.floor((p.pos.x+RS)/CELL);px++)for(let pz=Math.floor((p.pos.z-RS)/CELL);pz<=Math.floor((p.pos.z+RS)/CELL);pz++){
        const ck=px*100003+pz;if(seenS.has(ck))continue;seenS.add(ck);if(!tenvShow(px,pz))continue;
        // the markets, camps and yards out of doors (see siteProps), seen from as far off as the benches
-       if(siteKind(px,pz))for(const f of siteProps(plotInfo(px,pz),px,pz)){if(Math.abs(f.x-p.pos.x)>RS||Math.abs(f.z-p.pos.z)>RS)continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);
+       if(siteKind(px,pz))for(const f of siteProps(plotInfo(px,pz),px,pz)){if(out(f,p,RS))continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);
          if(!chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS)))||get(fx,f.y0-1,fz)===AIR||get(fx,f.y0,fz)!==AIR||got.has(f.key))continue;
          got.add(f.key);activeProps.push(f);drawProp(f);if(!f.low&&!downFix.has(f.key)&&!falling.has(f.key))propCells.set(propCK(f.x,f.y0,f.z),f);}
        if(biomeOf(px,pz)==='plains')continue;
@@ -227,18 +231,19 @@ function refreshProps(){
       if(!tenvShow(px,pz))continue;
       const S=superOf(px,pz),ax=S?S.ax:px,az=S?S.az:pz,P=plotInfo(ax,az);
       if(COAST_PROPS.has(P.type)&&!seen.has(P)){seen.add(P);
-        for(const f of coastProps(P,ax,az)){if(Math.abs(f.x-p.pos.x)>R||Math.abs(f.z-p.pos.z)>R)continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);if(!chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS))))continue;
+        for(const f of coastProps(P,ax,az)){if(out(f,p,R))continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);if(!chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS))))continue;
           if(f.snap){let y=G+10;while(y>G-4&&get(fx,y,fz)===AIR)y--;if(get(fx,y,fz)===WATER||y<=G-4)continue;f.y0=y+1;f.snap=false;}
           if(get(fx,Math.floor(f.y0)-(f.y0%1?0:1),fz)===AIR||get(fx,Math.ceil(f.y0),fz)!==AIR)continue;if(got.has(f.key))continue;got.add(f.key);activeProps.push(f);drawProp(f);if(!f.low&&!downFix.has(f.key)&&!falling.has(f.key))propCells.set(propCK(f.x,f.y0,f.z),f);}}
       if((P.patio||S&&S.kind==='stadium')&&!seen.has(P)){seen.add(P);
-        for(const f of P.patio?patioProps(P,ax,az):stadiumProps(S)){if(Math.abs(f.x-p.pos.x)>R||Math.abs(f.z-p.pos.z)>R)continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);if(!chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS))))continue;
+        for(const f of P.patio?patioProps(P,ax,az):stadiumProps(S)){if(out(f,p,R))continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);if(!chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS))))continue;
           if(get(fx,f.y0-1,fz)===AIR||get(fx,f.y0,fz)!==AIR)continue;if(got.has(f.key))continue;got.add(f.key);activeProps.push(f);drawProp(f);if(!f.low&&!downFix.has(f.key)&&!falling.has(f.key))propCells.set(propCK(f.x,f.y0,f.z),f);}}
+      if(Math.hypot(px*CELL+CELL/2-p.pos.x,pz*CELL+CELL/2-p.pos.z)>RI+CELL*0.71)continue;   // (no building on this plot is near enough to furnish)
       for(const b of P.b){const ward=b.kind==='ward';if(seen.has(b))continue;if(!ward&&!b._fp){if(b.style!=='church'&&b.style!=='cathedral'&&b.style!=='arena'&&b.style!=='capitol'&&!FURN_SEEN.has(ax+','+az+','+b.x0+','+b.z0))continue;b._fp=[ax,az];}seen.add(b);   // (a site's other blocks: they're all listed on its first plot)
         // the floors in sight: the one you're on and the ones either side (you can't see the others through the slabs)
         const f0=Math.max(0,Math.floor((p.pos.y-G-1-b.gf)/FH)+1);
         for(let n=Math.max(0,f0-1);n<=f0+1;n++){const y0=n===0?G+1:G+b.gf+1+FH*(n-1);if(y0>Math.min(b.detailTop,b.top-1)-2)break;
-          const RF=n===f0?R:18;   // (the floors above and below only matter close to, through a hole or from the stairs)
-          for(const f of roomProps(b,ax,az,n,ward)){if(Math.abs(f.x-p.pos.x)>RF||Math.abs(f.z-p.pos.z)>RF)continue;
+          const RF=n===f0?RI:RU;   // (the floors above and below only matter close to, through a hole or from the stairs)
+          for(const f of roomProps(b,ax,az,n,ward)){if(out(f,p,RF))continue;
             const fx=Math.floor(f.x),fz=Math.floor(f.z);if(!chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS))))continue;
             {const yb=f.base||y0;if(get(fx,yb-1,fz)===AIR||get(fx,yb,fz)!==AIR)continue;}   // (the floor under it gone, or rubble where it stood)
             if(got.has(f.key))continue;got.add(f.key);activeProps.push(f);drawProp(f);if(!f.low&&!downFix.has(f.key)&&!falling.has(f.key))propCells.set(propCK(f.x,f.y0,f.z),f);}}
@@ -264,6 +269,7 @@ function refreshProps(){
            for(let c=S.c0-1;c<S.c1;c++){const A=post(hole,c),B=post(hole,c+1);if(A&&B)pushSeg(A,B,0.1);}}}}
     }}
   fxSent(FIX_BAR,nBar);fxSent(PROP_L,nPropL);fxSent(PROP_G,nPropG);
+  for(const k of propBorn.keys())if(!propSeen.has(k))propBorn.delete(k);   // (gone out of range: it grows in again when it's back)
 }
 function knockProps(x,y,z,r,dx,dz){for(const f of activeProps){const ex=f.x-x,ez=f.z-z,rr=r+f.rad;if(ex*ex+ez*ez<rr*rr&&Math.abs(f.y0+.5-y)<r+1.5)knockFix(f,dx||ex,dz||ez);}}
 // which of a block's lamp spots the street plan allows: that never changes, and asking is most of what this refresh costs

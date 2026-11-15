@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:bf76d7e2f67ee0c6c51b8e1beab49156fbd39d47b75c926752eb09aaf50ac284 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:8c4d2023fc655833a7cd131f1b85b0e442ff15d90133aad7bebf190fc58a78fb -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1355,6 +1355,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
       <p class="vnote">Detail distance: how far out the full, smashable city is built, with its traffic, goblins and props. High settings are slow and memory-hungry.</p>
       <div class="crow"><label class="clab" for="viewDist">FAR VIEW</label><input type="range" id="viewDist" class="vrange" min="48" max="8000" step="16" value="112" aria-label="Far view distance"><span class="vval" id="viewVal">112 blocks</span></div>
       <p class="vnote">Far view (LOD) distance: how far you can see at all; past the detail distance the city is drawn as simplified blocks. It never reaches less far than the detail distance. Split screen draws about 70% of both.</p>
+      <div class="crow"><label class="clab" for="propDist">PROPS</label><input type="range" id="propDist" class="vrange" min="32" max="192" step="8" value="64" aria-label="Prop distance"><span class="vval" id="propVal">64 blocks</span></div>
+      <p class="vnote">Prop distance: how far out furniture and clutter are drawn: patio tables, beach and harbour gear and the like this far, the furniture inside buildings about half as far. It never reaches past the detail distance. Higher settings cost a little more processing.</p>
     </div>
     <div class="custom">
       <div class="crow"><label class="clab" for="crowdDist">CROWD DENSITY</label><input type="range" id="crowdDist" class="vrange" min="0" max="30" step="0.25" value="1" aria-label="Goblin and civilian density"><span class="vval" id="crowdVal">100%</span></div>
@@ -1414,7 +1416,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
       <div class="pn">
         <p class="pn-web">What's changed, newest first. These notes are also on <a href="patch-notes/index.html" target="_blank" rel="noopener">their own web page</a>.</p>
 <details class="pn-up pn-fold pn-new" id="version-0-5" open><summary tabindex="0"><h2>Version 0.5</h2><span class="pn-tog" aria-hidden="true"></span></summary>
-<ul><li>Nothing new yet since 0.4 went live.</li></ul>
+<h3>Less prop pop-in</h3>
+<ul><li>Props out in the open (patio tables, beach and harbour gear, the stadium's fittings and the like) are now drawn out to 64 blocks, up from 34, and furniture indoors stays at 34 as before. The distance is now the same in every direction, so things on the diagonal no longer show up later than things straight ahead.</li><li>Props now grow up out of the ground over a moment as they come into range, instead of suddenly appearing.</li><li>New PROPS slider in Options, under Render distance: set how far props are drawn, from 32 to 192 blocks. Furniture indoors goes about half as far as the setting.</li></ul>
 </details>
 <p class="pn-earlier">Earlier updates</p>
 <details class="pn-up pn-fold" id="version-0-4"><summary tabindex="0"><h2>Version 0.4</h2><a class="pn-play" data-ver="0.4" href="v/0.4/" tabindex="0">Play 0.4</a><span class="pn-tog" aria-hidden="true"></span></summary>
@@ -1736,6 +1739,9 @@ const VIEW_KEY='goblin-stompin-gus-view';let viewSetting=112;
 const VIEW_MIN=48,VIEW_MAX=8000,VOXEL_MAX=64;
 // the full-detail distance (the smashable voxel city, and the traffic, goblins and props that live in it), in blocks
 const DETAIL_KEY='goblin-stompin-gus-detail',DETAIL_MIN=48,DETAIL_MAX=1024;let detailSetting=null;
+// how far out props are drawn, in blocks: the open-air ones (patios, beaches, harbours, the stadium) this far, the furniture
+// indoors about half as far (it's mostly behind walls). Never past the fog, since the chunks under them aren't there anyway.
+const PROPD_KEY='goblin-stompin-gus-props',PROPD_MIN=32,PROPD_MAX=192;let propSetting=64;
 // traffic density: scales the number of cars on the road
 const TRAFFIC_KEY='goblin-stompin-gus-traffic';let traffic=1;
 try{const v=localStorage.getItem(TRAFFIC_KEY);if(v!==null&&+v>=0&&+v<=10)traffic=+v;}catch(e){}
@@ -1748,6 +1754,7 @@ const DAYSPD_KEY='goblin-stompin-gus-dayspeed',DAY_SPEEDS=[0,0.25,0.5,1,2,4,8,16
 try{const v=localStorage.getItem(DAYSPD_KEY);if(v!==null&&+v>=0&&+v<DAY_SPEEDS.length)daySpd=+v;}catch(e){}
 try{let v=+localStorage.getItem(VIEW_KEY);if(v>=3&&v<=20)v*=CS;if(v>=VIEW_MIN&&v<=VIEW_MAX)viewSetting=v;}catch(e){}
 try{const v=+localStorage.getItem(DETAIL_KEY);if(v>=DETAIL_MIN&&v<=DETAIL_MAX)detailSetting=v;}catch(e){}
+try{const v=+localStorage.getItem(PROPD_KEY);if(v>=PROPD_MIN&&v<=PROPD_MAX)propSetting=v;}catch(e){}
 if(detailSetting===null)detailSetting=Math.min(224,viewSetting);   // (what the one old slider gave)
 // where the fog fully hides things; traffic is born and removed beyond the part of it you can make out
 const viewFar=()=>viewR*CS-6;
@@ -10038,6 +10045,10 @@ const charTint=p=>{if(!p.gob)return p.who;const o=players.find(q=>q!==p);return 
     viewR=players[1].active?VIEW_COOP():VIEW_SOLO();show();farDirty=true;
     try{localStorage.setItem(DETAIL_KEY,String(detailSetting));}catch(e){}
   });
+  const pds=document.getElementById('propDist'),pdl=document.getElementById('propVal');
+  const showP=()=>{pds.value=String(propSetting);pdl.textContent=propSetting+' blocks';};showP();
+  pds.addEventListener('input',()=>{propSetting=Math.max(PROPD_MIN,Math.min(PROPD_MAX,Math.round((+pds.value||64)/8)*8));showP();trafficRefreshT=0;
+    try{localStorage.setItem(PROPD_KEY,String(propSetting));}catch(e){}});
   const cs=document.getElementById('crowdDist'),cl=document.getElementById('crowdVal');
   const showC=()=>{cs.value=String(crowd);cl.textContent=Math.round(crowd*100)+'%';};showC();
   cs.addEventListener('input',()=>{
@@ -17700,7 +17711,7 @@ function drawFix(f,near){
 // part of the voxel world: they're drawn as instanced boxes for whatever's near you, and get knocked flat by anything
 // big. Each part: colour, x, y, z (its centre, from the prop's foot) and size. x and z turn with the prop's yaw, and
 // its local -z is its back. PT stands for the prop's own tint; PG marks a part that glows. ----
-const PROP_MAX=30000,PROP_GLOW_MAX=3000,PT=-1,PG=0x1000000;
+const PROP_MAX=60000,PROP_GLOW_MAX=6000,PT=-1,PG=0x1000000;
 const PROP_L=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshLambertMaterial({color:0xffffff}),PROP_MAX);
 const PROP_G=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xffffff}),PROP_GLOW_MAX);
 for(const m of [PROP_L,PROP_G]){m.setColorAt(0,new THREE.Color(0xffffff));m.frustumCulled=false;m.count=0;scene.add(m);}
@@ -18069,11 +18080,22 @@ const PROPS={
   vending:[[0x7a1f24,0,.8,0,.9,1.6,.6],[PG+0xd8f0ff,-.12,.95,.305,.52,1,.01],[0xe0a030,-.12,1.2,.315,.46,.08,.01],[0x4aa3df,-.12,.95,.315,.46,.08,.01],[0xe05050,-.12,.7,.315,.46,.08,.01],[P_DARK,-.12,.27,.31,.56,.2,.01],[P_DARK,.32,.9,.31,.14,.3,.01]]
 };
 const _PC=new THREE.Color();
+// A prop coming into range grows up out of the floor over PROP_GROW seconds rather than just appearing. propBorn holds when
+// each one in range first showed; propGrowing the ones still growing, redrawn in place every frame by growProps (each keeps
+// where its boxes start in the two batches, _iL and _iG, as drawing it again writes the same number of boxes).
+const PROP_GROW=0.3,propBorn=new Map(),propGrowing=[],propNow=()=>performance.now()/1000;
+function propScale(f){
+  let b=propBorn.get(f.key);if(b===undefined){b=propNow();propBorn.set(f.key,b);}
+  const t=(propNow()-b)/PROP_GROW;if(t>=1)return 1;
+  if(!f._grow){f._grow=true;propGrowing.push(f);}
+  const k=1-(1-Math.max(0,t))**3;return Math.max(0.02,k);   // (eased out; never quite nothing, as a flat box has no sensible normals)
+}
 function drawProp(f){
   const dn=downFix.get(f.key),fl=falling.get(f.key);let theta=0,ang=0;
   if(dn!==undefined){theta=Math.PI/2*0.97;ang=dn;}else if(fl){const k=Math.min(1,fl.t/0.7);theta=Math.PI/2*0.97*k*k;ang=fl.ang;}
-  fallMatrix(f.x,f.z,theta,ang,f.y0);
-  _C.makeRotationY(f.yaw);_B.makeTranslation(f.x,f.y0,f.z);_C.premultiply(_B);_C.premultiply(_F);
+  fallMatrix(f.x,f.z,theta,ang,f.y0);f._iL=nPropL;f._iG=nPropG;f._gen=propGen;propSeen.add(f.key);
+  const s=propScale(f);
+  _C.makeRotationY(f.yaw);if(s<1){_B.makeScale(s,s,s);_C.multiply(_B);}_B.makeTranslation(f.x,f.y0,f.z);_C.premultiply(_B);_C.premultiply(_F);
   for(const q of PROPS[f.type]){
     let c=q[0];if(c===PT)c=f.tint;
     const glow=c>=PG;if(glow&&(nPropG>=PROP_GLOW_MAX))continue;if(!glow&&nPropL>=PROP_MAX)continue;
@@ -18084,6 +18106,16 @@ function drawProp(f){
   }
 }
 let nPropL=0,nPropG=0;const activeProps=[];
+// (every frame: the props still growing drawn again over their own boxes, a bit bigger. _gen says a prop was drawn in the
+// latest refresh, so its boxes are still where _iL and _iG say.)
+let propGen=0;const propSeen=new Set();
+function growProps(){
+  if(!propGrowing.length)return;const nL=nPropL,nG=nPropG;
+  for(let i=propGrowing.length-1;i>=0;i--){const f=propGrowing[i],live=f._gen===propGen;
+    if(live){nPropL=f._iL;nPropG=f._iG;drawProp(f);}
+    if(!live||propNow()-propBorn.get(f.key)>=PROP_GROW){f._grow=false;propGrowing.splice(i,1);}}
+  nPropL=nL;nPropG=nG;fallMatrix(0,0,0,0);fxSent(PROP_L,nPropL);fxSent(PROP_G,nPropG);
+}
 // the props on one floor of a hospital, laid out in the same frame as its blocks (iu, iv from just inside its walls)
 const P_BLANKET=[0x5b8fd0,0x4aa89a,0x8f7fc9,0xd98aa0],P_SEAT=[0x2f6f7a,0x3a7fa0];
 function hospProps(b,px,pz,floorNo){
@@ -19196,7 +19228,11 @@ function stadiumProps(S){
 }
 const COAST_PROPS=new Set(['beach','harbor','yard','navy','rig']);
 function refreshProps(){
-  nPropL=nPropG=0;activeProps.length=0;propCells.clear();const R=34,seen=new Set(),got=new Set();   // (seen: per viewer, as each sees only what's near it; got: drawn already, for another)
+  nPropL=nPropG=0;activeProps.length=0;propCells.clear();propGen++;propSeen.clear();const seen=new Set(),got=new Set();   // (seen: per viewer, as each sees only what's near it; got: drawn already, for another)
+  // R: the open-air props, out to the prop distance setting (never past the fog); RI: the furniture indoors, about half as far,
+  // since it's mostly behind walls (34 at the usual 64), and RU the floors either side of yours, closer still. Each is measured
+  // round in a circle, so a prop on the diagonal comes in at the same distance as one straight ahead.
+  const R=Math.max(16,Math.min(propSetting,viewFar())),RI=Math.round(R*34/64),RU=Math.round(R*18/64),out=(f,p,r)=>(f.x-p.pos.x)**2+(f.z-p.pos.z)**2>r*r;
   // benches and litter bins, out to the same distance as the lamp posts beside them (they're out in the open, so 34 blocks
   // would have them popping in down the street). Listed with the fixtures too: traffic knocks them over, as it does lamps.
   {const RS=Math.min(viewFar(),96),seenS=new Set();
@@ -19204,7 +19240,7 @@ function refreshProps(){
      for(let px=Math.floor((p.pos.x-RS)/CELL);px<=Math.floor((p.pos.x+RS)/CELL);px++)for(let pz=Math.floor((p.pos.z-RS)/CELL);pz<=Math.floor((p.pos.z+RS)/CELL);pz++){
        const ck=px*100003+pz;if(seenS.has(ck))continue;seenS.add(ck);if(!tenvShow(px,pz))continue;
        // the markets, camps and yards out of doors (see siteProps), seen from as far off as the benches
-       if(siteKind(px,pz))for(const f of siteProps(plotInfo(px,pz),px,pz)){if(Math.abs(f.x-p.pos.x)>RS||Math.abs(f.z-p.pos.z)>RS)continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);
+       if(siteKind(px,pz))for(const f of siteProps(plotInfo(px,pz),px,pz)){if(out(f,p,RS))continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);
          if(!chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS)))||get(fx,f.y0-1,fz)===AIR||get(fx,f.y0,fz)!==AIR||got.has(f.key))continue;
          got.add(f.key);activeProps.push(f);drawProp(f);if(!f.low&&!downFix.has(f.key)&&!falling.has(f.key))propCells.set(propCK(f.x,f.y0,f.z),f);}
        if(biomeOf(px,pz)==='plains')continue;
@@ -19217,18 +19253,19 @@ function refreshProps(){
       if(!tenvShow(px,pz))continue;
       const S=superOf(px,pz),ax=S?S.ax:px,az=S?S.az:pz,P=plotInfo(ax,az);
       if(COAST_PROPS.has(P.type)&&!seen.has(P)){seen.add(P);
-        for(const f of coastProps(P,ax,az)){if(Math.abs(f.x-p.pos.x)>R||Math.abs(f.z-p.pos.z)>R)continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);if(!chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS))))continue;
+        for(const f of coastProps(P,ax,az)){if(out(f,p,R))continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);if(!chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS))))continue;
           if(f.snap){let y=G+10;while(y>G-4&&get(fx,y,fz)===AIR)y--;if(get(fx,y,fz)===WATER||y<=G-4)continue;f.y0=y+1;f.snap=false;}
           if(get(fx,Math.floor(f.y0)-(f.y0%1?0:1),fz)===AIR||get(fx,Math.ceil(f.y0),fz)!==AIR)continue;if(got.has(f.key))continue;got.add(f.key);activeProps.push(f);drawProp(f);if(!f.low&&!downFix.has(f.key)&&!falling.has(f.key))propCells.set(propCK(f.x,f.y0,f.z),f);}}
       if((P.patio||S&&S.kind==='stadium')&&!seen.has(P)){seen.add(P);
-        for(const f of P.patio?patioProps(P,ax,az):stadiumProps(S)){if(Math.abs(f.x-p.pos.x)>R||Math.abs(f.z-p.pos.z)>R)continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);if(!chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS))))continue;
+        for(const f of P.patio?patioProps(P,ax,az):stadiumProps(S)){if(out(f,p,R))continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);if(!chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS))))continue;
           if(get(fx,f.y0-1,fz)===AIR||get(fx,f.y0,fz)!==AIR)continue;if(got.has(f.key))continue;got.add(f.key);activeProps.push(f);drawProp(f);if(!f.low&&!downFix.has(f.key)&&!falling.has(f.key))propCells.set(propCK(f.x,f.y0,f.z),f);}}
+      if(Math.hypot(px*CELL+CELL/2-p.pos.x,pz*CELL+CELL/2-p.pos.z)>RI+CELL*0.71)continue;   // (no building on this plot is near enough to furnish)
       for(const b of P.b){const ward=b.kind==='ward';if(seen.has(b))continue;if(!ward&&!b._fp){if(b.style!=='church'&&b.style!=='cathedral'&&b.style!=='arena'&&b.style!=='capitol'&&!FURN_SEEN.has(ax+','+az+','+b.x0+','+b.z0))continue;b._fp=[ax,az];}seen.add(b);   // (a site's other blocks: they're all listed on its first plot)
         // the floors in sight: the one you're on and the ones either side (you can't see the others through the slabs)
         const f0=Math.max(0,Math.floor((p.pos.y-G-1-b.gf)/FH)+1);
         for(let n=Math.max(0,f0-1);n<=f0+1;n++){const y0=n===0?G+1:G+b.gf+1+FH*(n-1);if(y0>Math.min(b.detailTop,b.top-1)-2)break;
-          const RF=n===f0?R:18;   // (the floors above and below only matter close to, through a hole or from the stairs)
-          for(const f of roomProps(b,ax,az,n,ward)){if(Math.abs(f.x-p.pos.x)>RF||Math.abs(f.z-p.pos.z)>RF)continue;
+          const RF=n===f0?RI:RU;   // (the floors above and below only matter close to, through a hole or from the stairs)
+          for(const f of roomProps(b,ax,az,n,ward)){if(out(f,p,RF))continue;
             const fx=Math.floor(f.x),fz=Math.floor(f.z);if(!chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS))))continue;
             {const yb=f.base||y0;if(get(fx,yb-1,fz)===AIR||get(fx,yb,fz)!==AIR)continue;}   // (the floor under it gone, or rubble where it stood)
             if(got.has(f.key))continue;got.add(f.key);activeProps.push(f);drawProp(f);if(!f.low&&!downFix.has(f.key)&&!falling.has(f.key))propCells.set(propCK(f.x,f.y0,f.z),f);}}
@@ -19254,6 +19291,7 @@ function refreshProps(){
            for(let c=S.c0-1;c<S.c1;c++){const A=post(hole,c),B=post(hole,c+1);if(A&&B)pushSeg(A,B,0.1);}}}}
     }}
   fxSent(FIX_BAR,nBar);fxSent(PROP_L,nPropL);fxSent(PROP_G,nPropG);
+  for(const k of propBorn.keys())if(!propSeen.has(k))propBorn.delete(k);   // (gone out of range: it grows in again when it's back)
 }
 function knockProps(x,y,z,r,dx,dz){for(const f of activeProps){const ex=f.x-x,ez=f.z-z,rr=r+f.rad;if(ex*ex+ez*ez<rr*rr&&Math.abs(f.y0+.5-y)<r+1.5)knockFix(f,dx||ex,dz||ez);}}
 // which of a block's lamp spots the street plan allows: that never changes, and asking is most of what this refresh costs
@@ -21100,6 +21138,7 @@ function updateTraffic(dt){
   // its way down needs the fixtures redrawn every frame, but only those.)
   if(trafficRefreshT<=0){trafficRefreshT=0.4;trafficJob=0;}
   if(trafficJob===0||anyFall)refreshFixtures();
+  growProps();   // (props that have just come into range, growing in)
   if(trafficJob===1)refreshBrandSigns();else if(trafficJob===2)refreshDoors();else if(trafficJob===3)refreshLandmarks();
   if(trafficJob<4)trafficJob++;
   updateDoors(dt);updateLandmarks(dt);safe('venues',()=>updateVenues(dt));

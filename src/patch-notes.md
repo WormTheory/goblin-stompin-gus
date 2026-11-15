@@ -2,7 +2,11 @@
 
 ## Version 0.5
 
-- Nothing new yet since 0.4 went live.
+### Less prop pop-in
+
+- Props out in the open (patio tables, beach and harbour gear, the stadium's fittings and the like) are now drawn out to 64 blocks, up from 34, and furniture indoors stays at 34 as before. The distance is now the same in every direction, so things on the diagonal no longer show up later than things straight ahead.
+- Props now grow up out of the ground over a moment as they come into range, instead of suddenly appearing.
+- New PROPS slider in Options, under Render distance: set how far props are drawn, from 32 to 192 blocks. Furniture indoors goes about half as far as the setting.
 
 ## Version 0.4
 

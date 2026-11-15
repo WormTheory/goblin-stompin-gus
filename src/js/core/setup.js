@@ -56,6 +56,9 @@ const VIEW_KEY='goblin-stompin-gus-view';let viewSetting=112;
 const VIEW_MIN=48,VIEW_MAX=8000,VOXEL_MAX=64;
 // the full-detail distance (the smashable voxel city, and the traffic, goblins and props that live in it), in blocks
 const DETAIL_KEY='goblin-stompin-gus-detail',DETAIL_MIN=48,DETAIL_MAX=1024;let detailSetting=null;
+// how far out props are drawn, in blocks: the open-air ones (patios, beaches, harbours, the stadium) this far, the furniture
+// indoors about half as far (it's mostly behind walls). Never past the fog, since the chunks under them aren't there anyway.
+const PROPD_KEY='goblin-stompin-gus-props',PROPD_MIN=32,PROPD_MAX=192;let propSetting=64;
 // traffic density: scales the number of cars on the road
 const TRAFFIC_KEY='goblin-stompin-gus-traffic';let traffic=1;
 try{const v=localStorage.getItem(TRAFFIC_KEY);if(v!==null&&+v>=0&&+v<=10)traffic=+v;}catch(e){}
@@ -68,6 +71,7 @@ const DAYSPD_KEY='goblin-stompin-gus-dayspeed',DAY_SPEEDS=[0,0.25,0.5,1,2,4,8,16
 try{const v=localStorage.getItem(DAYSPD_KEY);if(v!==null&&+v>=0&&+v<DAY_SPEEDS.length)daySpd=+v;}catch(e){}
 try{let v=+localStorage.getItem(VIEW_KEY);if(v>=3&&v<=20)v*=CS;if(v>=VIEW_MIN&&v<=VIEW_MAX)viewSetting=v;}catch(e){}
 try{const v=+localStorage.getItem(DETAIL_KEY);if(v>=DETAIL_MIN&&v<=DETAIL_MAX)detailSetting=v;}catch(e){}
+try{const v=+localStorage.getItem(PROPD_KEY);if(v>=PROPD_MIN&&v<=PROPD_MAX)propSetting=v;}catch(e){}
 if(detailSetting===null)detailSetting=Math.min(224,viewSetting);   // (what the one old slider gave)
 // where the fog fully hides things; traffic is born and removed beyond the part of it you can make out
 const viewFar=()=>viewR*CS-6;

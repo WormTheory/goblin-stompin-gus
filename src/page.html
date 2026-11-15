@@ -195,6 +195,8 @@
       <p class="vnote">Detail distance: how far out the full, smashable city is built, with its traffic, goblins and props. High settings are slow and memory-hungry.</p>
       <div class="crow"><label class="clab" for="viewDist">FAR VIEW</label><input type="range" id="viewDist" class="vrange" min="48" max="8000" step="16" value="112" aria-label="Far view distance"><span class="vval" id="viewVal">112 blocks</span></div>
       <p class="vnote">Far view (LOD) distance: how far you can see at all; past the detail distance the city is drawn as simplified blocks. It never reaches less far than the detail distance. Split screen draws about 70% of both.</p>
+      <div class="crow"><label class="clab" for="propDist">PROPS</label><input type="range" id="propDist" class="vrange" min="32" max="192" step="8" value="64" aria-label="Prop distance"><span class="vval" id="propVal">64 blocks</span></div>
+      <p class="vnote">Prop distance: how far out furniture and clutter are drawn: patio tables, beach and harbour gear and the like this far, the furniture inside buildings about half as far. It never reaches past the detail distance. Higher settings cost a little more processing.</p>
     </div>
     <div class="custom">
       <div class="crow"><label class="clab" for="crowdDist">CROWD DENSITY</label><input type="range" id="crowdDist" class="vrange" min="0" max="30" step="0.25" value="1" aria-label="Goblin and civilian density"><span class="vval" id="crowdVal">100%</span></div>

@@ -11,6 +11,7 @@ function updateTraffic(dt){
   // its way down needs the fixtures redrawn every frame, but only those.)
   if(trafficRefreshT<=0){trafficRefreshT=0.4;trafficJob=0;}
   if(trafficJob===0||anyFall)refreshFixtures();
+  growProps();   // (props that have just come into range, growing in)
   if(trafficJob===1)refreshBrandSigns();else if(trafficJob===2)refreshDoors();else if(trafficJob===3)refreshLandmarks();
   if(trafficJob<4)trafficJob++;
   updateDoors(dt);updateLandmarks(dt);safe('venues',()=>updateVenues(dt));

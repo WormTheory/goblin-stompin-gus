@@ -150,6 +150,10 @@ const charTint=p=>{if(!p.gob)return p.who;const o=players.find(q=>q!==p);return 
     viewR=players[1].active?VIEW_COOP():VIEW_SOLO();show();farDirty=true;
     try{localStorage.setItem(DETAIL_KEY,String(detailSetting));}catch(e){}
   });
+  const pds=document.getElementById('propDist'),pdl=document.getElementById('propVal');
+  const showP=()=>{pds.value=String(propSetting);pdl.textContent=propSetting+' blocks';};showP();
+  pds.addEventListener('input',()=>{propSetting=Math.max(PROPD_MIN,Math.min(PROPD_MAX,Math.round((+pds.value||64)/8)*8));showP();trafficRefreshT=0;
+    try{localStorage.setItem(PROPD_KEY,String(propSetting));}catch(e){}});
   const cs=document.getElementById('crowdDist'),cl=document.getElementById('crowdVal');
   const showC=()=>{cs.value=String(crowd);cl.textContent=Math.round(crowd*100)+'%';};showC();
   cs.addEventListener('input',()=>{

@@ -3,7 +3,7 @@
 // part of the voxel world: they're drawn as instanced boxes for whatever's near you, and get knocked flat by anything
 // big. Each part: colour, x, y, z (its centre, from the prop's foot) and size. x and z turn with the prop's yaw, and
 // its local -z is its back. PT stands for the prop's own tint; PG marks a part that glows. ----
-const PROP_MAX=30000,PROP_GLOW_MAX=3000,PT=-1,PG=0x1000000;
+const PROP_MAX=60000,PROP_GLOW_MAX=6000,PT=-1,PG=0x1000000;
 const PROP_L=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshLambertMaterial({color:0xffffff}),PROP_MAX);
 const PROP_G=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xffffff}),PROP_GLOW_MAX);
 for(const m of [PROP_L,PROP_G]){m.setColorAt(0,new THREE.Color(0xffffff));m.frustumCulled=false;m.count=0;scene.add(m);}
@@ -372,11 +372,22 @@ const PROPS={
   vending:[[0x7a1f24,0,.8,0,.9,1.6,.6],[PG+0xd8f0ff,-.12,.95,.305,.52,1,.01],[0xe0a030,-.12,1.2,.315,.46,.08,.01],[0x4aa3df,-.12,.95,.315,.46,.08,.01],[0xe05050,-.12,.7,.315,.46,.08,.01],[P_DARK,-.12,.27,.31,.56,.2,.01],[P_DARK,.32,.9,.31,.14,.3,.01]]
 };
 const _PC=new THREE.Color();
+// A prop coming into range grows up out of the floor over PROP_GROW seconds rather than just appearing. propBorn holds when
+// each one in range first showed; propGrowing the ones still growing, redrawn in place every frame by growProps (each keeps
+// where its boxes start in the two batches, _iL and _iG, as drawing it again writes the same number of boxes).
+const PROP_GROW=0.3,propBorn=new Map(),propGrowing=[],propNow=()=>performance.now()/1000;
+function propScale(f){
+  let b=propBorn.get(f.key);if(b===undefined){b=propNow();propBorn.set(f.key,b);}
+  const t=(propNow()-b)/PROP_GROW;if(t>=1)return 1;
+  if(!f._grow){f._grow=true;propGrowing.push(f);}
+  const k=1-(1-Math.max(0,t))**3;return Math.max(0.02,k);   // (eased out; never quite nothing, as a flat box has no sensible normals)
+}
 function drawProp(f){
   const dn=downFix.get(f.key),fl=falling.get(f.key);let theta=0,ang=0;
   if(dn!==undefined){theta=Math.PI/2*0.97;ang=dn;}else if(fl){const k=Math.min(1,fl.t/0.7);theta=Math.PI/2*0.97*k*k;ang=fl.ang;}
-  fallMatrix(f.x,f.z,theta,ang,f.y0);
-  _C.makeRotationY(f.yaw);_B.makeTranslation(f.x,f.y0,f.z);_C.premultiply(_B);_C.premultiply(_F);
+  fallMatrix(f.x,f.z,theta,ang,f.y0);f._iL=nPropL;f._iG=nPropG;f._gen=propGen;propSeen.add(f.key);
+  const s=propScale(f);
+  _C.makeRotationY(f.yaw);if(s<1){_B.makeScale(s,s,s);_C.multiply(_B);}_B.makeTranslation(f.x,f.y0,f.z);_C.premultiply(_B);_C.premultiply(_F);
   for(const q of PROPS[f.type]){
     let c=q[0];if(c===PT)c=f.tint;
     const glow=c>=PG;if(glow&&(nPropG>=PROP_GLOW_MAX))continue;if(!glow&&nPropL>=PROP_MAX)continue;
@@ -387,6 +398,16 @@ function drawProp(f){
   }
 }
 let nPropL=0,nPropG=0;const activeProps=[];
+// (every frame: the props still growing drawn again over their own boxes, a bit bigger. _gen says a prop was drawn in the
+// latest refresh, so its boxes are still where _iL and _iG say.)
+let propGen=0;const propSeen=new Set();
+function growProps(){
+  if(!propGrowing.length)return;const nL=nPropL,nG=nPropG;
+  for(let i=propGrowing.length-1;i>=0;i--){const f=propGrowing[i],live=f._gen===propGen;
+    if(live){nPropL=f._iL;nPropG=f._iG;drawProp(f);}
+    if(!live||propNow()-propBorn.get(f.key)>=PROP_GROW){f._grow=false;propGrowing.splice(i,1);}}
+  nPropL=nL;nPropG=nG;fallMatrix(0,0,0,0);fxSent(PROP_L,nPropL);fxSent(PROP_G,nPropG);
+}
 // the props on one floor of a hospital, laid out in the same frame as its blocks (iu, iv from just inside its walls)
 const P_BLANKET=[0x5b8fd0,0x4aa89a,0x8f7fc9,0xd98aa0],P_SEAT=[0x2f6f7a,0x3a7fa0];
 function hospProps(b,px,pz,floorNo){
