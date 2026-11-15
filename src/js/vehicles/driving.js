@@ -24,6 +24,7 @@ function drvFind(p){
     const hx=B.hx||TRAIN_HX,hz=B.hz||TRAIN_HZ;if(Math.abs(B.x-px)>hx+hz+R||Math.abs(B.z-pz)>hx+hz+R)continue;
     let D=null;
     if(T.isMil){if(!T.dead)D=T.drv?{k:T.kind,o:T,V:T.V,seat:'gun'}:{k:T.kind,o:T,V:T.V};}
+    else if(T.isMech){if(!T.dead)D={k:'mech',o:T,V:T.V};}   // (a Mobile Gear: see mech.js)
     else if(pr.isBoat){const V=venues.get(T.key);if(V&&V.bo===T&&!T.dead&&!V.dry&&!V.ground)D={k:'boat',o:T,V};}
     else if(T.isPlane){if(!T.dead&&!T.fall)for(const V of venues.values())if(V.kind==='airport'&&V.pl&&V.pl.includes(T)){D={k:'plane',o:T,V};break;}}
     else if(pr.veh==='train'&&T.C&&!T.dead)D={k:'train',o:T,ci:pr.i};
@@ -34,6 +35,7 @@ function drvFind(p){
 function drvPose(D){if(D.netS)return D.netS;const o=D.o;   // (D.netS: a guest online, shown where the host has the vehicle)
 
   if(D.k==='car')return{x:o.pos.x,y:o.pos.y,z:o.pos.z,h:o.heading,hx:o.hx,hz:o.hz,hy:o.hy||1.4,v:o.speed};
+  if(D.k==='mech')return{x:o.x,y:o.y,z:o.z,h:o.h,hx:MG.r,hz:MG.r,hy:MG.hy,v:Math.hypot(o.vx,o.vz)};
   if(D.k==='tank'||D.k==='heli'){const I=MIL[D.k];return{x:o.x,y:o.y,z:o.z,h:o.h,hx:I.hx,hz:I.hz,hy:I.hy,v:D.k==='tank'?o.sv||0:Math.hypot(o.hv?o.hv.x:0,o.hv?o.hv.z:0)};}
   if(D.k==='boat'){const g=o.g;return{x:g.position.x,y:g.position.y,z:g.position.z,h:g.rotation.y,hx:o.K.W/2,hz:o.L/2,hy:o.K.fb+1.5,v:o.sp||0};}
   if(D.k==='plane'){const g=o.g;return{x:g.position.x,y:g.position.y,z:g.position.z,h:g.rotation.y,hx:1.25,hz:9.9,hy:3.65,v:o.free?o.free.v:0};}
@@ -57,6 +59,7 @@ function drvTake(p,D){const o=D.o;o.drv=p;
   else if(D.k==='boat'){const g=o.g;D.V.lane=null;D.V.x=g.position.x;D.V.z=g.position.z;D.V.yaw=g.rotation.y;o.sp=0;}
   else if(D.k==='plane'){if(!o.free)o.free={v:o.v||0,vy:0};o.g.visible=true;}
   else if(D.k==='train'){o.wait=0;}
+  else if(D.k==='mech'){o.outArm=false;o.outT=0;}   // (the use button that got you in has to be let go before holding it gets you out)
 }
 // letting go of the controls: what the vehicle does with nobody driving it
 function drvLetGo(p,D){const o=D.o;if(o.drv===p)o.drv=null;
@@ -67,6 +70,7 @@ function drvLetGo(p,D){const o=D.o;if(o.drv===p)o.drv=null;
 // what you're told as you take your seat
 function drvSays(p,D){const o=D.o,k=drvKey(p),sw=drvSwapTo(p)?'  ·  '+actMark(p,'weapon')+' '+(D.seat==='gun'?'drive':'man the gun'):'';
   if(D.seat==='gun'){flashLabel('On the gun of the '+drvName(D)+'  ·  '+actMark(p,'bite')+' fires'+(D.k==='heli'?', '+actMark(p,'stomp')+' rockets':'')+'  ·  '+k+' to get off'+sw,p);return;}
+  if(D.k==='mech'){flashLabel('Piloting the Mobile Gear  ·  '+actMark(p,'mgQB')+' quick boost, '+actMark(p,'mgBoost')+' boost on/off, '+actMark(p,'mgJump')+' jump (hold to fly)  ·  hold '+actMark(p,'mgOut')+' to get out',p);clang();return;}
   const how=D.k==='heli'?'  ·  '+actMark(p,'jump')+' climbs, '+actMark(p,'climb')+' drops':D.k==='plane'?(p.pad?'  ·  Stick up/down throttle, '+actMark(p,'jump')+' pulls up, '+actMark(p,'climb')+' pushes down, stick left/right bank'
     :'  ·  '+actMark(p,'fwd')+'/'+actMark(p,'back')+' nose down/up, '+actMark(p,'left')+'/'+actMark(p,'right')+' bank, '+actMark(p,'jump')+'/'+actMark(p,'climb')+' throttle up/down'):D.k==='tank'?'  ·  '+actMark(p,'bite')+' fires':D.k==='car'&&o.veh==='fire'?'  ·  '+actMark(p,'bite')+' sprays water':'';
   flashLabel('Driving the '+drvName(D)+'  ·  '+k+' to get out'+how+sw,p);
@@ -90,7 +94,7 @@ function drvTick(p,dt){
   const use=p.in.use&&!p.useHeld;p.useHeld=p.in.use;
   if(p.drv&&p.drv.jack&&p.state!=='dead'){jackTick(p,dt);return true;}   // (still hauling the driver out)
   const wp=!!p.in.weapon&&!p.drvWpnHeld;p.drvWpnHeld=!!p.in.weapon;
-  if(p.drv){if(use||p.state==='dead')drvExit(p);else{if(wp&&drvSwapTo(p))drvSwap(p);drvLock(p,dt);return true;}return false;}
+  if(p.drv){if((p.drv.k==='mech'?p.drv.o.outT>=MG.outHold:use)||p.state==='dead')drvExit(p);else{if(wp&&drvSwapTo(p))drvSwap(p);drvLock(p,dt);return true;}return false;}
   if(p.state==='dead'||p.state!=='walk'&&p.state!=='climb')return false;
   if(use){const D=drvFind(p);if(D){drvEnter(p,D);return true;}}
   // (a vehicle in reach: say so, once for each one you come up to)
@@ -103,7 +107,7 @@ function drvSeat(p){
   const D=p.drv;if(!D)return;const o=D.o;
   if(D.k==='car'?!o.alive:o.dead||o.fall){drvExit(p,true);return;}
   if(D.jack){jackPose(p);return;}
-  const S=drvPose(D);p.pos.set(S.x,S.y+Math.min(1.2,S.hy*0.5),S.z);p.heading=S.h;
+  const S=drvPose(D);p.pos.set(S.x,S.y+(D.k==='mech'?5:Math.min(1.2,S.hy*0.5)),S.z);   // (a Mobile Gear's pilot sits up in its chest)p.heading=S.h;
   p.vy=0;p.grounded=true;p.mvx=p.mvz=0;p.standCar=null;p.vcl=null;p.peakY=p.pos.y;p.biteT=0;
   if(rideShown(p)){if(D.seat==='gun')gunPose(p,o);else ridePose(p,o);}
 }
@@ -157,6 +161,7 @@ function drvAim(p,sp){if(p.lockT&&p.drv&&lockAlive(p.lockT))return drvLead(p,sp|
 // the view from behind the vehicle: turned with the mouse or right stick as usual, and swinging back round behind it a
 // moment after you stop looking about, once it's moving
 function drvCamera(p){
+  if(p.drv.k==='mech'){mechCamera(p);return;}
   const D=p.drv,S=drvPose(D);
   if(p.drvYaw!==undefined&&Math.abs(angDiff(p.drvYaw,p.cam.yaw))>1e-5)p.drvLook=camClock;
   // (not a helicopter, which faces where you look anyway, nor a train, where the way you look is the way it goes)

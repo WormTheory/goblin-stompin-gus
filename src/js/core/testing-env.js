@@ -27,7 +27,7 @@ function tpRender(){
   for(const b of document.querySelectorAll('#tpVM [data-vm]'))b.setAttribute('aria-checked',String(b.dataset.vm===TS.vm));
   // (one button per kind of vehicle body the game has, so a new kind shows up here by itself; police cars are their own pool)
   const vb=document.getElementById('tpVehs');
-  if(vb&&!vb.childElementCount)for(const t of [...Object.keys(VEH),'police','tank','heli','plane']){const b=document.createElement('button');b.type='button';b.className='pmenu';b.dataset.veh=t;
+  if(vb&&!vb.childElementCount)for(const t of [...Object.keys(VEH),'police','tank','heli','plane','mech']){const b=document.createElement('button');b.type='button';b.className='pmenu';b.dataset.veh=t;
     b.textContent=(VEH_NAME[t]||[MIL[t]?MIL[t].name:t])[0].replace(/^./,c=>c.toUpperCase());b.addEventListener('click',()=>tenvVeh(t));vb.append(b);}
   const sn=document.getElementById('seedNote');if(sn&&TENV)sn.textContent=`Testing Environment · ${TENV.boxes.length} structure${TENV.boxes.length===1?'':'s'} spawned · seed ${seed}`;
 }
@@ -197,7 +197,7 @@ function tenvFoe(kind){
 // vehicles: any kind, a few steps further off than enemies. Hunting, they drive straight at Gus; parked, they sit there
 // with nobody in them, to stand on, smash or get into (a parked police car still wakes up when Gus comes close)
 const VEH_NAME={car:['car','cars'],van:['van','vans'],pickup:['pickup','pickups'],truck:['truck','trucks'],semi:['semi truck','semi trucks'],bus:['bus','buses'],
-  fire:['fire engine','fire engines'],amb:['ambulance','ambulances'],news:['news van','news vans'],rv:['motorhome','motorhomes'],technical:['technical','technicals'],quad:['four-wheeler','four-wheelers'],police:['police car','police cars'],moto:['motorcycle','motorcycles'],motorcycle:['motorcycle','motorcycles'],bike:['motorcycle','motorcycles']};
+  fire:['fire engine','fire engines'],amb:['ambulance','ambulances'],news:['news van','news vans'],rv:['motorhome','motorhomes'],technical:['technical','technicals'],quad:['four-wheeler','four-wheelers'],police:['police car','police cars'],moto:['motorcycle','motorcycles'],motorcycle:['motorcycle','motorcycles'],bike:['motorcycle','motorcycles'],mech:['Mobile Gear','Mobile Gears']};
 // is there room at x,z for a vehicle reaching r out from its middle? Level ground, and clear of every car, tank,
 // helicopter and plane already there (a plane's wings reach about 11 out)
 function tenvRoom(x,z,r){
@@ -205,11 +205,13 @@ function tenvRoom(x,z,r){
   if(cars.some(o=>o.alive&&Math.hypot(o.pos.x-x,o.pos.z-z)<r+4))return false;
   const A=venues.get('tenvArmy');if(A&&A.mil.some(M=>!M.dead&&Math.hypot(M.x-x,M.z-z)<r+3.5))return false;
   const L=venues.get('tenvPlanes');if(L&&L.pl.some(pl=>!pl.dead&&Math.hypot(pl.g.position.x-x,pl.g.position.z-z)<r+11))return false;
+  const Mg=venues.get('tenvMechs');if(Mg&&Mg.mechs.some(M=>Math.hypot(M.x-x,M.z-z)<r+3))return false;
   return true;
 }
 function tenvVeh(t){
   if(MIL[t]){tenvMil(t);return;}
   if(t==='plane'){tenvPlane();return;}
+  if(t==='mech'){tenvMech();return;}
   if(CREW_HP[t]){tenvCrew(t);return;}
   if(!TENV)return;const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active);if(!p)return;
   const park=TS.vm==='park',pol=t==='police',fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw),cx=p.pos.x+fx*20,cz=p.pos.z+fz*20;let made=0;
@@ -267,6 +269,18 @@ function tenvPlane(){
     V.planes.push(g);V.pl.push({isPlane:true,g,hp:PLANE_HP,dead:false,v:0});made++;}
   tsSet(made?'Spawned '+made+' plane'+(made>1?'s':'')+' ahead of Gus, ready to fly: get in, speed up, then jump to take off.':'There\'s no clear ground for a plane just ahead. Try looking another way.');
 }
+// the Mobile Gear (see vehicles/mech.js): only here for now. Each press stands as many as the count says a little way
+// ahead of Gus, facing him, empty, to climb into. They're kept in a venue of their own, 'tenvMechs'
+function tenvMech(){
+  if(!TENV)return;const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active);if(!p)return;
+  let V=venues.get('tenvMechs');if(!V){V={kind:'mech',mechs:[]};venues.set('tenvMechs',V);}
+  const fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw),cx=p.pos.x+fx*14,cz=p.pos.z+fz*14;let made=0;
+  for(let i=0;i<TS.n;i++){let x=cx,z=cz,ok=false;
+    for(let k=0;k<24&&!ok;k++){const a=Math.random()*Math.PI*2,r=i||k?5+Math.random()*(10+k*1.5):0;x=cx+Math.cos(a)*r;z=cz+Math.sin(a)*r;ok=tenvRoom(x,z,3)&&mgFits(x,groundAt(x,z,G+40),z);}
+    if(!ok)continue;newMech(V,x,z,Math.atan2(p.pos.x-x,p.pos.z-z));made++;}
+  if(!V.mechs.length)venues.delete('tenvMechs');
+  tsSet(made?'Spawned '+made+' Mobile Gear'+(made>1?'s':'')+' ahead of Gus. Walk up to one as Gnash or Grizzle and press '+keyLabel(BINDS.use.kb[0])+' (controller '+padLabel(BINDS.use.pad[0],padStyle==='ps')+') to climb in.':'No room for a Mobile Gear just there.');
+}
 function updateTenvPlanes(V,dt){
   for(const pl of V.pl){
     if(!pl.dead&&pl.g.visible)vDamaged(pl.g.position.x,pl.g.position.y+3,pl.g.position.z,pl.hp/PLANE_HP,dt);
@@ -280,6 +294,7 @@ function tenvClear(){
   for(const c of cars)if(c.alive&&!c.svcPool){c.alive=false;c.g.visible=false;c.hunter=false;c.respawnT=1e9;}
   // (the tanks and helicopters too, all but one Gus is driving)
   {const V=venues.get('tenvArmy');if(V){V.mil=V.mil.filter(M=>{if(players.some(q=>q.drv&&q.drv.o===M))return true;scene.remove(M.g);return false;});V.alert=false;if(!V.mil.length)venues.delete('tenvArmy');}}
+  {const V=venues.get('tenvMechs');if(V){V.mechs=V.mechs.filter(M=>{if(players.some(q=>q.drv&&q.drv.o===M))return true;scene.remove(M.g);return false;});if(!V.mechs.length)venues.delete('tenvMechs');}}
   {const V=venues.get('tenvPlanes');if(V){V.pl=V.pl.filter(pl=>{if(players.some(q=>q.drv&&q.drv.o===pl))return true;scene.remove(pl.g);return false;});V.planes=V.pl.map(pl=>pl.g);if(!V.pl.length)venues.delete('tenvPlanes');}}
   tsSet('Cleared every goblin and vehicle.');
 }

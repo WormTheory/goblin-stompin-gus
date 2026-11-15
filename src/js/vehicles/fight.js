@@ -42,6 +42,7 @@ function drvHP(D){if(D.netHP)return D.netHP;const o=D.o;   // (D.netHP: a guest 
 
   if(D.k==='car'){if(!(o.hpMax>=o.hp))o.hpMax=Math.max(o.hp,o.svcPool?45:30);return{hp:o.hp,max:o.hpMax};}
   if(D.k==='tank'||D.k==='heli')return{hp:o.hp,max:MIL[D.k].hp};
+  if(D.k==='mech')return{hp:o.hp,max:MG.hp};
   if(D.k==='boat')return{hp:o.hp,max:o.max};
   if(D.k==='plane')return{hp:o.hp,max:PLANE_HP};
   return{hp:o.carHP?o.carHP[D.ci]:CAR_HP,max:CAR_HP};
@@ -51,7 +52,7 @@ function drvHP(D){if(D.netHP)return D.netHP;const o=D.o;   // (D.netHP: a guest 
 const _dhv=new THREE.Vector3();
 function drvHud(p){
   let H=p.ui.drvHud;
-  if(!p.drv||!p.gob||p.drv.jack){if(H&&!H.el.hidden){H.el.hidden=true;H.dv.hidden=true;}return;}
+  if(!p.drv||!p.gob||p.drv.jack){if(H&&!H.el.hidden){H.el.hidden=true;H.dv.hidden=true;if(H.mg)H.mg.el.hidden=true;}return;}
   // (the crosshair and gun marker go over the view; the vehicle's health and its ammo sit just above your hearts)
   if(!H){const el=document.createElement('div');el.className='drvhud';el.innerHTML='<div class="xh"></div><div class="xt"></div>';p.ui.view.append(el);
     const dv=document.createElement('div');dv.className='dveh';dv.innerHTML='<div class="dbox"><div class="dname"></div><div class="dbar"><i></i></div><div class="dwpn"></div></div><div class="dammo"></div>';
@@ -69,8 +70,8 @@ function drvHud(p){
   const sw=drvSwapTo(p)?'  ·  '+bl('weapon')+(D.seat==='gun'?' drive':' man the gun'):!armed&&o.gnr&&(D.k==='tank'||D.k==='heli')?'  ·  Your gunner has the guns':'';
   set('w',H.wpn,(armed?(LT?'Locked on '+(isMilT(LT)?MIL[LT.kind].name.toLowerCase():isCarT(LT)?'a '+(LT.veh||'car'):'a goblin')+' ('+lk+' let go)':lk+' lock on')+'  ·  '+out+' get out'
     :D.k==='car'&&o.veh==='fire'?bl('bite')+' spray water  ·  '+bl('stomp')+' horn  ·  '+out+' get out'
-    :D.k==='plane'?planeHud(o.free)+'  ·  '+out+' get out':out+' get out')+sw);
-  const hose=D.k==='car'&&o.veh==='fire';H.xh.hidden=!armed&&!hose;if(hose){H.xh.classList.remove('cool','lock');H.xh.classList.toggle('water',!!o.hose);}if(armed){H.xh.classList.toggle('cool',!ready);H.xh.classList.toggle('lock',!!LT);}
+    :D.k==='plane'?planeHud(o.free)+'  ·  '+out+' get out':D.k==='mech'?mechHint(p):out+' get out')+sw);
+  const hose=D.k==='car'&&o.veh==='fire';H.xh.hidden=!armed&&!hose&&D.k!=='mech';mechHud(p,H);if(hose){H.xh.classList.remove('cool','lock');H.xh.classList.toggle('water',!!o.hose);}if(armed){H.xh.classList.toggle('cool',!ready);H.xh.classList.toggle('lock',!!LT);}
   // (the ammo by the crosshair: each weapon, its button, a pip for each round left -- or a bar, for a machine gun's
   // belt -- and while it reloads, a bar filling and the seconds to go)
   H.ammo.hidden=!W.length;

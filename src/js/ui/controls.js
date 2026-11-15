@@ -34,7 +34,14 @@ const ACTS=[
   {id:'weapon',n:'Next weapon (as Gnash)',c:'#b0b8c0',kb:['KeyR'],pad:[15]},
   {id:'talk',n:'Push to talk (online voice chat)',c:'#7fc8a0',kb:['KeyT'],pad:[14]},
   {id:'quickChat',n:'Quick chat message (online)',c:'#8fb8e0',kb:[],pad:[12]},
+  // (piloting a Mobile Gear: its own set, which only counts while you're in one, so these can share keys and buttons
+  // with the ones above. mg: one of these; see mech.js)
+  {id:'mgJump',n:'Jump (hold to fly up)',c:CC.jump,kb:['Space'],pad:[0],mg:true},
+  {id:'mgQB',n:'Quick boost',c:'#5ec8f0',kb:['ShiftLeft'],pad:[2],mg:true},
+  {id:'mgBoost',n:'Boost on / off',c:'#3a8fd8',kb:['KeyC'],pad:[1],mg:true},
+  {id:'mgOut',n:'Get out (hold)',c:'#6ab0d8',kb:['KeyF'],pad:[3],mg:true},
 ];
+const MG_IDS=ACTS.filter(a=>a.mg).map(a=>a.id),MG_PRESS=MG_IDS.map(k=>k+'P');
 const KB_RESERVED=new Set(['Escape','Backquote','KeyP','KeyV','Period','BracketLeft','BracketRight','Backspace','Delete','Enter','NumpadEnter']),PAD_RESERVED=new Set([8,9]);
 let BINDS={};
 function defaultBinds(){const o={};for(const a of ACTS)o[a.id]={kb:a.kb.slice(),pad:a.pad.slice()};return o;}
@@ -86,7 +93,8 @@ let BIND_CAP=null,bindMsg='',bindClickT=0;
 function bindCancel(){BIND_CAP=null;bindMsg='';renderControls();}
 function setBind(id,dev,i,val){
   bindMsg='';
-  if(val!=null)for(const a of ACTS){const L=BINDS[a.id][dev],j=L.indexOf(val);if(j>=0&&!(a.id===id&&j===i)){L.splice(j,1);if(a.id!==id)bindMsg=(dev==='kb'?keyLabel(val):padLabel(val,padStyle==='ps'))+' was taken off '+a.n+'.';}}
+  const mg=!!actOf(id).mg;   // (a Mobile Gear's controls and the ones on foot never take keys off each other)
+  if(val!=null)for(const a of ACTS){if(!!a.mg!==mg)continue;const L=BINDS[a.id][dev],j=L.indexOf(val);if(j>=0&&!(a.id===id&&j===i)){L.splice(j,1);if(a.id!==id)bindMsg=(dev==='kb'?keyLabel(val):padLabel(val,padStyle==='ps'))+' was taken off '+a.n+'.';}}
   const L=BINDS[id][dev];
   if(val==null){if(i<L.length)L.splice(i,1);}else if(i<L.length)L[i]=val;else L.push(val);
   BINDS[id][dev]=[...new Set(L)].slice(0,2);saveBinds();
@@ -122,12 +130,12 @@ function rebindHTML(){
   return `<div class="rb"><div class="rb-head"><h3>Rebind controls</h3><button type="button" class="pmenu" id="rbReset">Reset to defaults</button></div>
     <p class="rb-note" role="status">${glEsc(note)}</p>
     <div class="rb-wrap"><table class="rb-t"><thead><tr><th scope="col">Action</th><th scope="col" colspan="2">Keyboard and mouse</th><th scope="col" colspan="2">Controller</th></tr></thead><tbody>
-    ${ACTS.map(a=>`<tr><th scope="row"><i style="background:${a.c}"></i>${glEsc(a.n)}</th>${slot(a,'kb',0)}${slot(a,'kb',1)}${slot(a,'pad',0)}${slot(a,'pad',1)}</tr>`).join('')}
+    ${ACTS.map(a=>(a.id===MG_IDS[0]?`<tr class="rb-sec"><th scope="colgroup" colspan="5">Piloting a Mobile Gear (Testing Environment)</th></tr>`:'')+`<tr><th scope="row"><i style="background:${a.c}"></i>${glEsc(a.n)}</th>${slot(a,'kb',0)}${slot(a,'kb',1)}${slot(a,'pad',0)}${slot(a,'pad',1)}</tr>`).join('')}
     </tbody></table></div></div>`;
 }
 // colours for the pictures: what a key / controller button is bound to
-const keyCol=c=>{for(const a of ACTS)if(BINDS[a.id].kb.includes(c))return a.c;return null;};
-const padCol=i=>{for(const a of ACTS)if(BINDS[a.id].pad.includes(i))return a.c;return null;};
+const keyCol=c=>{for(const a of ACTS)if(!a.mg&&BINDS[a.id].kb.includes(c))return a.c;return null;};
+const padCol=i=>{for(const a of ACTS)if(!a.mg&&BINDS[a.id].pad.includes(i))return a.c;return null;};
 function padSVG(ps){
   const L=ps?{A:'✕',B:'○',X:'□',Y:'△',LB:'L1',RB:'R1',LT:'L2',RT:'R2',ST:'≡'}:{A:'A',B:'B',X:'X',Y:'Y',LB:'LB',RB:'RB',LT:'LT',RT:'RT',ST:'≡'};
   const btn=(x,y,t,c)=>`<circle cx="${x}" cy="${y}" r="12.5" fill="${c}" stroke="#0a0d10" stroke-width="2"/><text x="${x}" y="${y+4.5}" text-anchor="middle" style="font:700 12px var(--f-mono)" fill="#0c0f14">${t}</text>`;

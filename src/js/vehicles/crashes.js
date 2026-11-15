@@ -56,6 +56,7 @@ function updateVenues(dt){
     if(V.kind==='cult'){updateCultVenue(V,dt,t);continue;}
     if(V.kind==='wind'||V.kind==='guards'){updateSiteVenue(V,dt,t);continue;}
     if(V.kind==='army'){updateArmy(V,dt);continue;}
+    if(V.kind==='mech'){updateMechs(V,dt);continue;}
     if(V.kind==='train'){
       // the train: runs the line between the two stations, easing in and out, waiting a while at each platform
       const R=V.R,end=V.dir>0?R.L-46:46,left=(end-V.s)*V.dir;

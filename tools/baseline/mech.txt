@@ -1,0 +1,37 @@
+button: venue true  mechs 1  feet on the ground 0.00  hp 600  energy 100  says Spawned 1 Mobile Gear ahead of Gus. Walk up to one as Gnash or Grizzle and press F (controller Y) to climb in.
+its own controls: mgJump Space/0, mgQB ShiftLeft/2, mgBoost KeyC/1, mgOut KeyF/3
+as Gus (a hippo), F beside it: on foot
+as Gnash, F beside it: mech  this one true  pilot hidden in its chest 5.0
+  display: shown true  gauge true  crosshair true  says Mobile Gear  ·  600 / 600 | [KEY:Left Shift] quick boost  ·  [KEY:C] boost off  ·  [KEY:Space] jump, hold to fly  ·  hold [KEY:F] get out
+  camera: behind 9.0  up 7.6  over its right shoulder -1.7
+walk: W 3 s went 17.4  speed 6.0  energy 100.0 -> 100.0  grounded true
+boost on (C): W 0.4 s speed 11.8 , at 3 s 18.0  went 47.5  energy 100.0 -> 100.0  (free on the ground)  hud true  fov + 5.9
+  let go, 0.25 s on: still sliding at 10.3
+  2 s more: 0.1
+  C again: boost false
+quick boost with D: burst speed 34.0  sideways -9.7  forward 0.0  energy 100.0 -> 80.0  (the legs face 0.0 )
+  with nothing held: back 9.0  sideways -0.8
+  quick boosts back to back from 100.0 energy: 8 before it redlines; 4.8 s
+  redlined: another does nothing true  boost false  gauge says REDLINE
+  redline lasted 1.6 s, energy then 91.3
+  2.5 s later 100.0
+jump (a tap): up 4.8  energy 100.0 -> 100.0  back down true
+  held 2 s: up 18.2  energy 100.0 -> 39.4 ; kept on, it ran dry after 3.4 s, at 30.1  redlined true
+  fell back down in 1.8 s, crouched on landing true
+  flown up, then a second of falling: with boost on it sank 0.8 , off 4.7
+  walking at a 1-block ledge: up 1.0  went 12.2
+  walking at a 2-block ledge: up 0.0  went 4.7
+  skating at a 2-block ledge: up 2.0  went 47.2
+  skating at a 3-block wall: up 0.0  went 4.7
+skated into a goblin: its state dead  hp -7.0
+F held 0.25 s: mech
+F held 0.7 s: on foot  beside it 2.2  on the ground 0.0
+  left alone 2 s: stays 0.0  standing true
+hit for 50: hp 550  display Mobile Gear  ·  550 / 600
+hit for 1000: wrecked true  pilot on foot  thrown clear 2.2
+  F by the wreck: on foot
+Gnash and Grizzle, the same inputs: furthest apart 0.000
+Clear with 2 out, one driven: left 1
+  Clear on foot: venue false
+rebind quick boost to Space: jump keeps Space  quick boost Space
+errors 0 []

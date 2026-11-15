@@ -213,6 +213,7 @@ function trainHit(T,n,dir,ci){
   if(T&&T.isAnimal){animalHit(T,n,dir);return;}
   if(T&&T.isRide){rideHit(T,n,ci);return;}
   if(T&&T.isMil){milHit(T,n,dir);return;}
+  if(T&&T.isMech){mechHit(T,n);return;}
   if(!T||T.dead||!T.cars)return;const N=T.cars.length;if(ci===undefined)ci=0;
   if(!T.carHP){T.carHP=T.cars.map(()=>CAR_HP);T.carDead=T.cars.map(()=>false);}
   if(T.carDead[ci])return;T.carHP[ci]-=n;

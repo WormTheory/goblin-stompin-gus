@@ -2,6 +2,19 @@
 
 ## Version 0.5
 
+### Mobile Gear (Testing Environment)
+
+- A new vehicle to try out in the Testing Environment: the Mobile Gear, an armoured walker eight blocks tall. Pick it from the vehicle buttons in the Testing Environment tab and it's set down in front of you. Only Gnash and Grizzle can pilot it for now.
+- Walk up and press F (controller Y) to climb in. Hold F for half a second to climb out, so a stray tap won't throw you out mid-fight.
+- It moves where the camera points, with the view over its right shoulder. Walking lumbers along; press C (controller B) to switch boost on and it skates along the ground much faster, at no cost.
+- Shift (controller X) is a quick boost: a sharp burst in the direction you're holding, or straight back with nothing held. Each one costs energy.
+- Space (controller A) jumps, and holding it flies upward on the thrusters. With boost on in the air it glides instead of dropping.
+- Thrusters run on the energy gauge under the crosshair. Empty it and it redlines: the gauge flashes red and you can't boost or fly until it recovers. Energy comes back quickly once you stop drawing on it, and faster on the ground.
+- It steps up one-block ledges on foot and two-block ledges while boosting. Anything small in its way gets trampled, and a hard landing knocks goblins over.
+- It has 600 health. Wreck it and you're thrown out. Weapons, lock-on, the assault boost and repairs are coming in later updates.
+- Its controls can be rebound in Options, in their own "Piloting a Mobile Gear" section.
+- Mobile Gears aren't kept when you leave the Testing Environment.
+
 ### Less prop pop-in
 
 - Props out in the open (patio tables, beach and harbour gear, the stadium's fittings and the like) are now drawn out to 64 blocks, up from 34, and furniture indoors stays at 34 as before. The distance is now the same in every direction, so things on the diagonal no longer show up later than things straight ahead.
