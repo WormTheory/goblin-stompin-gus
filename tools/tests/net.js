@@ -127,7 +127,7 @@ const lag=[];
  GT.setPvp(false);const gOn=GT.pvpOn();
  const A=HT.P1,B=HT.P2,bite=()=>{A.pos.set(B.pos.x,B.pos.y,B.pos.z-2.2);A.heading=0;A.state='walk';A.biteStep=0;A.pvpT=null;B.pvpT=null;B.hp=20;B.dodge=null;const h0=B.hp;HT.doBite(A);return h0-B.hp;};
  const hurt=bite();for(let i=0;i<20;i++){H.step(1);G.step(1);}
- console.log('PvP on at the host: guest told',ok(gOn),'guest can't switch it off',ok(GT.pvpOn()),'host bites the guest's hippo: lost',hurt,ok(hurt>0),'guest shows',GT.P1.hp,ok(Math.abs(GT.P1.hp-B.hp)<0.01));
+ console.log('PvP on at the host: guest told',ok(gOn),"guest can't switch it off",ok(GT.pvpOn()),"host bites the guest's hippo: lost",hurt,ok(hurt>0),'guest shows',GT.P1.hp,ok(Math.abs(GT.P1.hp-B.hp)<0.01));
  HT.setPvp(false);for(let i=0;i<90;i++){H.step(1);G.step(1);}
  const none=bite();for(let i=0;i<20;i++){H.step(1);G.step(1);}
  console.log('PvP off at the host: guest told',ok(!GT.pvpOn()),'the same bite: lost',none,ok(none===0));

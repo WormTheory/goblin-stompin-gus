@@ -1,0 +1,15 @@
+switch starts off
+Gus at Gertie   PvP off bite 0.0 | uppercut 0.0 | stomp 0.0 | full stomp 0.0 | ground pound 0.0 | crash landing 0.0 | heli gun round 0.0 | tank shell blast 3.0
+Gus at Gertie   PvP on  bite 3.0 | uppercut 4.0 | stomp 3.0 | full stomp 8.0 | ground pound 8.0 | crash landing 9.0 | heli gun round 1.0 | tank shell blast 3.0
+Gertie at Gus   PvP off bite 0.0 | uppercut 0.0 | stomp 0.0 | full stomp 0.0 | ground pound 0.0 | crash landing 0.0 | heli gun round 0.0 | tank shell blast 3.0
+Gertie at Gus   PvP on  bite 3.0 | uppercut 4.0 | stomp 3.0 | full stomp 8.0 | ground pound 8.0 | crash landing 9.0 | heli gun round 1.0 | tank shell blast 3.0
+Gnash at Gus    PvP off club 0.0 | dagger 0.0 | rifle 0.0
+Gnash at Gus    PvP on  club 1.0 | dagger 2.0 | rifle 2.0
+Gus at Gnash    PvP off bite 0.0 | uppercut 0.0 | stomp 0.0 | full stomp 0.0 | ground pound 0.0 | crash landing 0.0 | heli gun round 0.0 | tank shell blast 3.0
+Gus at Gnash    PvP on  bite 3.0 | uppercut 4.0 | stomp 3.0 | full stomp 8.0 | ground pound 8.0 | crash landing 9.0 | heli gun round 1.0 | tank shell blast 3.0
+kill: Gertie dead | obituary: Gertie - Uppercut by Gus | points 500
+6s later Gertie walk hp 20
+own shell: Gus dead | obituary by ""
+lock-on PvP off B in Gus's targets: false  still locked: false
+lock-on PvP on  B in Gus's targets: true  still locked: true
+switched off: false
