@@ -16,7 +16,7 @@ DRV_WPN.mech=[{k:'rifle',name:'Rivet Rifle',max:40,gap:0.1,reload:2.5,act:'mgArm
 // (the lunge goes in this too), the blade lit for the last igniteT of it, the cut swept in sweepT, then backT to put it away)
 const MGW={box:0.22,range:150,hardRange:170,camTurn:2.4,
   rifleDmg:3,rifleSc:0.006,
-  bladeReach:24,bladeMid:8,lunge:7,lungeMax:12,bladeDmg:20,bladeVD:90,bladeR:13,bladeArc:1.92,lungeT:0.2,windT:0.34,igniteT:0.12,sweepT:0.14,backT:0.4,
+  bladeReach:24,bladeMid:8,lunge:7,lungeMax:12,bladeDmg:20,bladeVD:90,bladeR:13,bladeArc:1.92,lungeT:0.38,windT:0.34,igniteT:0.12,sweepT:0.14,backT:0.4,
   podLock:0.2,podLocks:4,missV:50,missTurn:5,missR:2.6,missDmg:4,missVD:35,missCrush:1.4,
   canV:95,canGrav:3,brace:0.4,canR:5.5,canDmg:10,canVD:180,canCrush:3.8,recoil:14};
 // a point on the mech in its torso's frame (x to its left, y up from its feet, z ahead), out in the world
@@ -71,8 +71,10 @@ function mgWeapons(M,p,i,dt){
   // blade), otherwise the way you're looking; then the sweep, right to left. Not again until this swing's done)
   if(i.mgArmLP&&!M.sl&&wpnFire(M,'blade')){const T=mgTarget(M),f=mgFwd(p),fh=Math.hypot(f.x,f.z)||1;let fx=f.x/fh,fz=f.z/fh,go=MGW.lunge;
     if(T){const dx=T.pos.x-M.x,dz=T.pos.z-M.z,d=Math.hypot(dx,dz)||1;if(d<MGW.bladeReach){fx=dx/d;fz=dz/d;go=Math.min(MGW.lungeMax,Math.max(0,d-MG.r-MGW.bladeMid));}}
-    M.lgT=0;if(go>0.5){const v=go/MGW.lungeT;M.lgT=MGW.lungeT;M.lgx=fx*v;M.lgz=fz*v;}
-    M.sl={fx,fz,e:0,w:Math.max(MGW.windT,M.lgT+0.12),f:0,hit:new Set()};if(audio)sfx('Mobile Gear blade',()=>tone('triangle',120,90,0.12,0.03));}
+    M.lgT=0;
+    // (the lunge starts at three times its average speed and eases to a stop, so it covers go in all and settles rather than halting)
+    if(go>0.5){const v=3*go/MGW.lungeT;M.lgT=MGW.lungeT;M.lgx=fx*v;M.lgz=fz*v;}
+    M.sl={fx,fz,e:0,w:Math.max(MGW.windT,M.lgT*0.75+0.08),f:0,hit:new Set()};if(audio)sfx('Mobile Gear blade',()=>tone('triangle',120,90,0.12,0.03));}
   if(M.sl){const S=M.sl;S.e+=dt;
     // (the blade lights as the reach finishes: a rising hum and a flash at the hand)
     if(!S.lit&&S.e>=S.w-MGW.igniteT){S.lit=true;const h=mgAt(M,-0.6,5.0,1.4);puff(h.x,h.y,h.z,6,0xffc070,0.5);if(audio)sfx('Mobile Gear blade',()=>{tone('sawtooth',90,520,0.14,0.05);noise(0.12,0.08,3200,'bandpass');});}

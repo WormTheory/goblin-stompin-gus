@@ -63,16 +63,16 @@ hard lock (middle click) on the one 0.69 off: locked true  1 s later 0.09 off  h
   middle click again: let go true
   leading a goblin crossing at 8/s, 100/s shot: aims 2.45 ahead of it (expected about 2.45)
   40 rounds gone in 3.4 s; reloaded in 2.5 s, back to 40
-Heat Cleaver at a locked goblin 18 ahead: lunged 9.0  goblin dead  blade shown true  cooling true  arm swept from -1.15 to 1.75 (right to left: true )
-  the swing, frame by frame (60 a second): blade appears at 10 full at 16  body turned -0.45 to 0.40  blade back in the hand by frame 35
+Heat Cleaver at a locked goblin 18 ahead: lunged 8.8  goblin dead  blade shown true  cooling true  arm swept from -1.15 to 1.74 (right to left: true )
+  the swing, frame by frame (60 a second): blade appears at 12 full at 18  body turned -0.45 to 0.42  blade back in the hand by frame 37
   pressed again mid-swing: a new swing false
   goblins 10 to its right, left, ahead, and behind either side: cut down yes yes yes no no
-  slashing at a wall 12 ahead, nothing locked: lunged 7.1  cut 81 blocks, 24 of them more than 5 off to one side and 30 to the other
-Rivet Rifle into a wall: rounds 20  blocks broken 8 (about half)
+  slashing at a wall 12 ahead, nothing locked: lunged 7.0  cut 81 blocks, 24 of them more than 5 off to one side and 30 to the other
+Rivet Rifle into a wall: rounds 20  blocks broken 12 (about half)
 Infinite ammo: rifle held 5 s, rounds 20 -> 20  reloading false  cannon after a shot 3  blade cooling still true
 Swarm Pod: Q held 0.35 s 2 locks, 1 s 4 (pips 0)  let go: missiles out 4  all landed in 1.4 s  goblins down 4 of 4  left in the pod 4 of 8
   tapped with nothing in the box: one missile at the crosshair, pod 3
-Breaker Cannon on the ground, walking at 4.6: fired after 0.40 s braced, speed then 0.1  blocks blown out of a wall 40 ahead 43  shells left 2
+Breaker Cannon on the ground, walking at 4.6: fired after 0.40 s braced, speed then 0.1  blocks blown out of a wall 40 ahead 47  shells left 2
   fired in the air: at once true  knocked back 12.7 (it pushes away from the shot: true )
   two more, then empty: shells 0  reloading true
   out of it: no locks true  reloads go on: cannon 4.9

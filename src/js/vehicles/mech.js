@@ -71,7 +71,7 @@ function makeMech(){
     // blade itself, a long glowing bar shown only while it cuts, on a group at the hand so it can grow out of it)
     let mz=null,bl=null;
     if(s<0){bx(el,MGM.dark,0.36,2.3,0.46,0,-1.7,0.2);bx(el,MGM.trim,0.2,0.5,0.3,0,-0.95,0.5);mz=grp(el,0,-2.9,0.2);}
-    else{bx(el,MGM.trim,0.32,1.0,0.32,0,-1.1,0.45);bx(el,MGM.dark,0.18,0.5,0.18,0,-1.75,0.45);bl=grp(el,0,-1.9,0.45);bx(bl,MGM.heat,0.22,11.4,0.85,0,-5.7,0);bl.visible=false;}
+    else{bx(el,MGM.trim,0.32,1.0,0.32,0,-1.1,0.45);bx(el,MGM.dark,0.18,0.5,0.18,0,-1.75,0.45);bl=grp(el,0,-1.9,0.45);bx(bl,MGM.heat,0.85,11.4,0.22,0,-5.7,0);bl.visible=false;}
     J.arms.push({sh,el,s,mz,bl});}
   return{g,J};
 }
@@ -126,7 +126,7 @@ function drvMech(M,dt){
   if(airB&&!M.asc)mgDraw(M,(moving?MG.airEN:MG.hoverEN)*dt);
   // (a quick boost: the burst, then for MG.qbDec it bleeds its speed off smoothly toward what you're holding)
   // (the blade's lunge, like a quick boost straight at what's locked, comes before anything else)
-  if(M.lgT>0){M.lgT-=dt;M.vx=M.lgx;M.vz=M.lgz;if(M.lgT<=0){M.lgT=0;M.vx*=0.15;M.vz*=0.15;M.qbD=MG.qbDec*0.6;}}   // (the lunge stops short, planted for the swing, rather than sliding on)
+  if(M.lgT>0){const a=Math.max(0,M.lgT-dt/2)/MGW.lungeT;M.lgT-=dt;M.vx=M.lgx*a*a;M.vz=M.lgz*a*a;if(M.lgT<=0){M.lgT=0;M.vx=M.vz=0;M.qbD=MG.qbDec*0.6;}}   // (the lunge's speed falls away smoothly, as the square of the time left, to nothing as the swing lands)
   else if(M.qbT>0){M.qbT-=dt;M.vx=M.qbx;M.vz=M.qbz;if(M.qbT<=0)M.qbD=MG.qbDec;}
   else if(M.qbD>0){M.qbD-=dt;const k=Math.min(1,dt*6);M.vx+=(wx*spd-M.vx)*k;M.vz+=(wz*spd-M.vz)*k;}
   else if(!air&&!M.boostOn){
