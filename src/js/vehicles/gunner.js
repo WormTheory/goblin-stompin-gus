@@ -20,7 +20,7 @@ function drvSwap(p){const D=p.drv,o=D.o;
   if(D.seat==='gun'){if(o.gnr===p)o.gnr=null;D.seat=undefined;drvTake(p,D);if(p.gb)rideReset(p.gb);}
   else{drvLetGo(p,D);D.seat='gun';o.gnr=p;}
   if(gunSeat(D))wpnInit(o,drvGunK(D));
-  drvSays(p,D);if(audio)tone('square',300,420,0.06,0.04);
+  if(audio)tone('square',300,420,0.06,0.04);
 }
 // a player on a technical's or four-wheeler's gun (from updateCars, whoever's driving): the gun swings round to where
 // they look, and bite fires it (held, the machine gun; pressed, the rifle)

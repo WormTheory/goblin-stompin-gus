@@ -50,7 +50,7 @@ function drvEnter(p,D){
   // (the camera starts out behind it)
   p.cam.yaw=drvPose(D).h+Math.PI;p.cam.pitch=-0.25;
   if(jack){jackStart(p,D);return;}   // (someone at the controls: they're thrown out first. See carjack.js)
-  drvSays(p,D);clang();
+  clang();
 }
 // taking the controls: whatever the vehicle was doing on its own, it stops doing
 function drvTake(p,D){const o=D.o;o.drv=p;
@@ -66,14 +66,6 @@ function drvLetGo(p,D){const o=D.o;if(o.drv===p)o.drv=null;
   if(D.k==='car'){o.hose=null;o.left=true;}   // (left where it stopped: see updateCars)
   else if(D.k==='tank'||D.k==='heli'){if(!o.dead)o.state='idle';o.v=0;o.sv=0;}
   else if(D.k==='train'){if(o.v<0){o.v=0;o.wait=4;}else o.wait=0;}   // (going its own way, it carries on to the next station)   // (a plane's left as it is: it carries on and comes down by itself)
-}
-// what you're told as you take your seat
-function drvSays(p,D){const o=D.o,k=drvKey(p),sw=drvSwapTo(p)?'  ·  '+actMark(p,'weapon')+' '+(D.seat==='gun'?'drive':'man the gun'):'';
-  if(D.seat==='gun'){flashLabel('On the gun of the '+drvName(D)+'  ·  '+actMark(p,'bite')+' fires'+(D.k==='heli'?', '+actMark(p,'stomp')+' rockets':'')+'  ·  '+k+' to get off'+sw,p);return;}
-  if(D.k==='mech'){flashLabel('Piloting the Mobile Gear  ·  '+actMark(p,'mgQB')+' quick boost, '+actMark(p,'mgBoost')+' boost on/off, '+actMark(p,'mgJump')+' jump (hold to fly)  ·  hold '+actMark(p,'mgOut')+' to get out',p);clang();return;}
-  const how=D.k==='heli'?'  ·  '+actMark(p,'jump')+' climbs, '+actMark(p,'climb')+' drops':D.k==='plane'?(p.pad?'  ·  Stick up/down throttle, '+actMark(p,'jump')+' pulls up, '+actMark(p,'climb')+' pushes down, stick left/right bank'
-    :'  ·  '+actMark(p,'fwd')+'/'+actMark(p,'back')+' nose down/up, '+actMark(p,'left')+'/'+actMark(p,'right')+' bank, '+actMark(p,'jump')+'/'+actMark(p,'climb')+' throttle up/down'):D.k==='tank'?'  ·  '+actMark(p,'bite')+' fires':D.k==='car'&&o.veh==='fire'?'  ·  '+actMark(p,'bite')+' sprays water':'';
-  flashLabel('Driving the '+drvName(D)+'  ·  '+k+' to get out'+how+sw,p);
 }
 // out by the side (whichever has room), else the back or the front, else on the roof
 function drvExit(p,thrown){

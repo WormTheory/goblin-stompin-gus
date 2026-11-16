@@ -30,6 +30,7 @@
 - Its controls can be rebound in Options, in their own "Piloting a Mobile Gear" section.
 - Mobile Gears aren't kept when you leave the Testing Environment.
 - While you're piloting, the controls line for on foot is hidden.
+- Getting into any vehicle or gun seat no longer pops up a card of its controls on the right: they're all in the list down the left, including a helicopter's climb and drop, flying a plane, and the fire buttons.
 
 ### PvP
 
