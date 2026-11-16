@@ -179,11 +179,11 @@ function milDismount(V,M){
 // the militia's own on foot, by the same names, if it's wrecked), or parked, empty
 function crewId(k){const g=freeFoe(k,24);if(!g)return null;foeSpawn(g,k,null,0);const id=g.id;g.state='wait';g.root.visible=false;return id;}
 function tenvCrew(t){
-  if(!TENV)return;const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active);if(!p)return;
+  if(!TENV&&!TS.dbg)return;const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active);if(!p)return;
   const park=TS.vm==='park',fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw),cx=p.pos.x+fx*20,cz=p.pos.z+fz*20;let made=0;
   for(let i=0;i<TS.n;i++){
     let x=cx,z=cz;for(let k=0;k<20;k++){const a=Math.random()*Math.PI*2,r=i||k?4+Math.random()*(10+k*1.5):0;x=cx+Math.cos(a)*r;z=cz+Math.sin(a)*r;if(tenvRoom(x,z,4))break;}
-    const c=crewCar();if(!c)break;crewPut(c,t,x,z,Math.atan2(p.pos.x-x,p.pos.z-z),null,'militia');c.spot=null;
+    const c=crewCar();if(!c)break;crewPut(c,t,x,z,Math.atan2(p.pos.x-x,p.pos.z-z),null,'militia');c.spot=null;c.pos.y=spGround(x,z);c.g.position.copy(c.pos);
     if(!park){c.crew.drv=crewId('militia');c.crew.gun=crewId('militia');c.crew.go=true;crewShow(c);}
     made++;}
   const nm=VEH_NAME[t];

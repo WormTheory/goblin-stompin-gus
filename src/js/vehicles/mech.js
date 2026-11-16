@@ -347,6 +347,6 @@ function updateMechs(V,dt){
     mechPose(M,dt);mechBoxes(M,Math.hypot(M.vx,M.vz));mechShove(M);}
 }
 // a new one, standing at x,z facing h, in venue V
-function newMech(V,x,z,h){const mk=makeMech(),M=Object.assign({isMech:true,kind:'mech',V,x,y:groundAt(x,z,G+40),z,h,ty:h,vx:0,vy:0,vz:0,hp:MG.hp,dead:false,grounded:true,
+function newMech(V,x,z,h){const mk=makeMech(),M=Object.assign({isMech:true,kind:'mech',V,x,y:spGround(x,z),z,h,ty:h,vx:0,vy:0,vz:0,hp:MG.hp,dead:false,grounded:true,
   en:MG.enMax,enIdle:9,red:0,boostOn:false,qbT:0,qbCD:0,ph:0,key:'mech:'+Date.now()+':'+V.mechs.length},mk);
   scene.add(M.g);V.mechs.push(M);mechPose(M,0);return M;}

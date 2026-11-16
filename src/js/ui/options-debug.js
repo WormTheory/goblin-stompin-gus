@@ -76,7 +76,7 @@ const DBG_COLS=4,DBG_SECS=[
   [0,'Time',[{k:'speed',label:'Game speed'},{k:'paused',label:'Stop time'}]],
   [0,'Camera',[{k:'freecam',label:'Free cam'},{k:'curve',label:'World curve'}]],
   [0,'World',[{k:'wx',label:'Weather'},{k:'season',label:'Season'}]],
-  // (Testing Environment only: pick a kind, then Spawn puts one down ahead of you, parked and empty)
+  // (pick a kind, then Spawn puts one down ahead of you, parked and empty: in the Testing Environment or the ordinary game)
   [0,'Vehicles',[{k:'vehSel',label:'Vehicle'},{k:'vehGo',label:'Spawn vehicle'}]],
   [1,'Player',[{k:'pspeed',label:'Player speed'},{k:'invuln',label:'Invulnerable'},{k:'infStam',label:'Infinite stamina'},{k:'infAmmo',label:'Infinite ammo'},{k:'fly',label:'Flying'},{k:'host',label:'Enemy hostility'},{k:'combo',label:'Combo system'}]],
   [1,'Overlays',[{k:'fps',label:'FPS counter'},{k:'sndList',label:'Sound list'},{k:'info',label:'Info pane'}]],

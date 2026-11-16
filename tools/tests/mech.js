@@ -6,7 +6,7 @@ const fs=require('fs');
 let hdr=fs.readFileSync('site.js','utf8').split('\n');
 const n=hdr.findIndex(l=>l.startsWith('eval(src);'));
 hdr=hdr.slice(0,n).join('\n');
-hdr=hdr.replace(/window\.__t=\{/,'window.__t={setGob,angDiff,tenvSpawnOne,tenvVehKinds,dbgItems,dbgMenuToggle,ddOpts,ddChoose,get DT(){return DT},get hintTxt(){return P1.ui.hint.hidden?"(hidden)":P1.ui.hint._s},mgLead,mgTarget,MGW,get DRV_WPN(){return DRV_WPN},get:(x,y,z)=>get(x,y,z),keys,mHeld,setRaw,solidAt,tenvVeh,MG,BINDS,ACTS,setBind,drvFind,mgFits,get nEdits(){return Object.keys(edits).length},');
+hdr=hdr.replace(/window\.__t=\{/,'window.__t={setGob,angDiff,tenvSpawnOne,setTenv(v){const w=TENV;TENV=v;return w;},tenvVehKinds,dbgItems,dbgMenuToggle,ddOpts,ddChoose,get DT(){return DT},get hintTxt(){return P1.ui.hint.hidden?"(hidden)":P1.ui.hint._s},mgLead,mgTarget,MGW,get DRV_WPN(){return DRV_WPN},get:(x,y,z)=>get(x,y,z),keys,mHeld,setRaw,solidAt,tenvVeh,MG,BINDS,ACTS,setBind,drvFind,mgFits,get nEdits(){return Object.keys(edits).length},');
 eval(hdr+`
 eval(src);const T=window.__t;let now=1000;
 const quiet=()=>{for(const g of T.goblins)if(g.state==='chase'&&!g.keep){g.state='wait';g.t=-1e9;g.root.visible=false;}};
@@ -177,7 +177,16 @@ hold([],1);
   const X=Math.floor(M.x),Z=Math.floor(M.z)+12,Y=Math.floor(M.y);for(let x=X-16;x<=X+16;x++)for(let y=Y;y<Y+8;y++)T.setRaw(x,y,Z,3);
   const cnt=(a,b)=>{let c=0;for(let x=X+a;x<=X+b;x++)for(let y=Y;y<Y+8;y++)if(T.get(x,y,Z)===3)c++;return c;};run(0.1);const c0=cnt(-16,16),l0=cnt(-16,-5),r0=cnt(5,16);const zz=M.z;
   mh.add('Mouse0');run(0.05);mh.delete('Mouse0');run(0.8);console.log('  slashing at a wall 12 ahead, nothing locked: lunged',f1(M.z-zz),' cut',c0-cnt(-16,16),'blocks,',l0-cnt(-16,-5),'of them more than 5 off to one side and',r0-cnt(5,16),'to the other');
-  for(let x=X-16;x<=X+16;x++)for(let y=Y;y<Y+8;y++)T.setRaw(x,y,Z,0);run(0.5);}
+  for(let x=X-16;x<=X+16;x++)for(let y=Y;y<Y+8;y++)T.setRaw(x,y,Z,0);run(0.5);
+  // (aimed low: a goblin locked at the bottom of a pit 12 ahead, 6 down, out of a level swing's reach; then nothing
+  // locked, looking down at the ground in front, the swing tilts down and cuts into it)
+  {const X=Math.floor(M.x),Z=Math.floor(M.z),Y=Math.floor(M.y);for(let x=X-3;x<=X+3;x++)for(let z=Z+9;z<=Z+15;z++)for(let y=Y-6;y<Y;y++)T.setRaw(x,y,z,0);run(0.1);
+   const g=gob(0,12,6);run(0.2);const gy=g.pos.y-M.y;M.hard=g;mh.add('Mouse0');run(0.05);mh.delete('Mouse0');const pt=M.sl&&M.sl.pt;let lean=0;for(let k=0;k<30;k++){run(1/60);lean=Math.max(lean,M.J.T.rotation.x);}run(0.4);
+   console.log('  a goblin locked in a pit',f1(-gy),'down: swing tilted',f2(pt),' bent at the hips',f2(lean),' goblin',g.state);M.hard=null;clear();
+   for(let x=X-3;x<=X+3;x++)for(let z=Z+9;z<=Z+15;z++)for(let y=Y-6;y<Y;y++)T.setRaw(x,y,z,3);run(1.5);
+   const y0=P.cam.pitch;P.cam.pitch=-0.75;run(0.3);const X2=Math.floor(M.x),Z2=Math.floor(M.z),Y2=Math.floor(M.y);const was=[];for(let x=X2-16;x<=X2+16;x++)for(let z=Z2-4;z<=Z2+20;z++)for(let y=Y2-4;y<Y2;y++)was.push([x,y,z,T.get(x,y,z)]);const dug=()=>was.filter(([x,y,z,b])=>b&&!T.get(x,y,z)).length;const d0=dug();
+   mh.add('Mouse0');run(0.05);mh.delete('Mouse0');const pt2=M.sl&&M.sl.pt;run(0.8);console.log('  nothing locked, looking down: swing tilted',f2(pt2),' ground cut',dug()-d0,'blocks');
+   for(const [x,y,z,b] of was)T.setRaw(x,y,z,b);M.y=Math.max(M.y,T.groundAt(M.x,M.z,M.y+10));P.cam.pitch=y0;run(1);}}
  // (bullets into a wall: about half the rounds that strike it break the block they hit)
  {run(3);P.cam.yaw=Math.PI;P.cam.pitch=-0.05;run(0.3);const X=Math.floor(M.x),Z=Math.floor(M.z)+20,Y=Math.floor(M.y);for(let x=X-5;x<=X+5;x++)for(let y=Y;y<Y+12;y++)for(let z=Z;z<Z+6;z++)T.setRaw(x,y,z,3);run(0.2);
   const cnt=()=>{let c=0;for(let x=X-5;x<=X+5;x++)for(let y=Y;y<Y+12;y++)for(let z=Z;z<Z+6;z++)if(T.get(x,y,z)===3)c++;return c;},c0=cnt(),n0=W().rifle.n;
@@ -204,7 +213,15 @@ hold([],1);
 {M=fresh();T.setGob(true);run(0.1);run(0.1);
  const kinds=T.tenvVehKinds();console.log('debug menu vehicles:',T.ddOpts('vehSel').length,'kinds, rows',T.dbgItems().filter(it=>it.sec==='Vehicles').map(it=>it.label).join(', '),' Infinite ammo row',T.dbgItems().some(it=>it.k==='infAmmo'));
  for(const t of ['car','tank','mech']){T.ddChoose('vehSel',kinds.indexOf(t));const msg=T.tenvSpawnOne(t);run(0.1);console.log('  spawn',t+':',msg);}
- T.tenvClear();run(0.2);}
+ T.tenvClear();run(0.2);
+ // (and out of the Testing Environment, in the ordinary game: on a raised patch of ground, each where it was put, on top)
+ {const was=T.setTenv(null),X=Math.floor(P.pos.x),Z=Math.floor(P.pos.z),Y=Math.floor(P.pos.y);const ups=[];for(let x=X-64;x<=X+64;x++)for(let z=Z-64;z<=Z+64;z++)for(let y=Y;y<Y+3;y++)if(Math.abs(x-X)>3||Math.abs(z-Z)>3){ups.push([x,y,z]);T.setRaw(x,y,z,3);}
+  const ok=[];for(const t of ['car','tank','mech','plane']){const msg=T.tenvSpawnOne(t);run(0.3);ok.push(t+': '+msg.split(' ').slice(0,3).join(' '));}
+  const mm=T.venues.get('tenvMechs'),mh=mm&&mm.mechs[0],ar=T.venues.get('tenvArmy'),tk=ar&&ar.mil[0],pl=T.venues.get('tenvPlanes'),pg=pl&&pl.pl[0];
+  console.log('debug menu in the ordinary game:',ok.join(';  '));
+  console.log('  on the raised ground (top',Y+3,'): mech at',mh?f1(mh.y):'none',' tank at',tk?f1(tk.y):'none',' plane at',pg?f1(pg.g.position.y):'none');
+  run(2);console.log('  2 s later, still there: mech',!!(T.venues.get('tenvMechs')||{mechs:[]}).mechs.length,' tank',!!(T.venues.get('tenvArmy')||{mil:[]}).mil.length,' plane',!!(T.venues.get('tenvPlanes')||{pl:[]}).pl.length);
+  T.tenvClear();for(const [x,y,z] of ups)T.setRaw(x,y,z,0);T.setTenv(was);run(0.2);}}
 // ---- Gnash and Grizzle: the same inputs, the same flight
 {const script=()=>{const out=[];const rec=()=>out.push([M.x,M.y,M.z,M.en,M.h]);hold(['KeyW'],1);rec();tap('KeyC');hold(['KeyW','KeyD'],1.5);rec();T.keys.add('KeyA');tap('ShiftLeft');run(0.4);T.keys.delete('KeyA');rec();
    hold(['Space'],1.5);rec();hold(['KeyW'],1);rec();run(2);rec();

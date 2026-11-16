@@ -16,7 +16,7 @@ DRV_WPN.mech=[{k:'rifle',name:'Rivet Rifle',max:40,gap:0.1,reload:2.5,act:'mgArm
 // (the lunge goes in this too), the blade lit for the last igniteT of it, the cut swept in sweepT, then backT to put it away)
 const MGW={box:0.22,range:150,hardRange:170,camTurn:2.4,
   rifleDmg:3,rifleSc:0.006,
-  bladeReach:24,bladeMid:8,lunge:7,lungeMax:12,bladeDmg:20,bladeVD:90,bladeR:13,bladeArc:1.92,lungeT:0.38,windT:0.34,igniteT:0.12,sweepT:0.14,backT:0.4,
+  bladeReach:24,bladeMid:8,lunge:7,lungeMax:12,bladeDmg:20,bladeVD:90,bladeR:13,bladeArc:1.92,bladeY:4.5,swingUp:0.6,swingDown:0.8,lungeT:0.38,windT:0.34,igniteT:0.12,sweepT:0.14,backT:0.4,
   podLock:0.2,podLocks:4,missV:50,missTurn:5,missR:2.6,missDmg:4,missVD:35,missCrush:1.4,
   canV:95,canGrav:3,brace:0.4,canR:5.5,canDmg:10,canVD:180,canCrush:3.8,recoil:14};
 // a point on the mech in its torso's frame (x to its left, y up from its feet, z ahead), out in the world
@@ -74,7 +74,7 @@ function mgWeapons(M,p,i,dt){
     M.lgT=0;
     // (the lunge starts at three times its average speed and eases to a stop, so it covers go in all and settles rather than halting)
     if(go>0.5){const v=3*go/MGW.lungeT;M.lgT=MGW.lungeT;M.lgx=fx*v;M.lgz=fz*v;}
-    M.sl={fx,fz,e:0,w:Math.max(MGW.windT,M.lgT*0.75+0.08),f:0,hit:new Set()};if(audio)sfx('Mobile Gear blade',()=>tone('triangle',120,90,0.12,0.03));}
+    M.sl={fx,fz,e:0,w:Math.max(MGW.windT,M.lgT*0.75+0.08),f:0,hit:new Set(),pt:mgSwingPitch(M,p,T)};if(audio)sfx('Mobile Gear blade',()=>tone('triangle',120,90,0.12,0.03));}
   if(M.sl){const S=M.sl;S.e+=dt;
     // (the blade lights as the reach finishes: a rising hum and a flash at the hand)
     if(!S.lit&&S.e>=S.w-MGW.igniteT){S.lit=true;const h=mgAt(M,-0.6,5.0,1.4);puff(h.x,h.y,h.z,6,0xffc070,0.5);if(audio)sfx('Mobile Gear blade',()=>{tone('sawtooth',90,520,0.14,0.05);noise(0.12,0.08,3200,'bandpass');});}
@@ -105,26 +105,47 @@ const mgEase=x=>{x=Math.max(0,Math.min(1,x));return x*x*(3-2*x);};
 const mgSlAng=(S,rx,rz)=>Math.atan2(rx*S.fz-rz*S.fx,rx*S.fx+rz*S.fz),mgSweepA=f=>-MGW.bladeArc+2*MGW.bladeArc*f;
 // one step of the sweep, from fraction f0 to f1 of the way round: goblins the blade passes through cut down (each once a
 // swing), vehicles hurt hard, the blocks in that slice of the arc cut through. Sparks and the sound with the first step
+// how far the swing tilts (radians, below level negative): at a locked target, the angle from the blade's height to it;
+// otherwise at whatever the crosshair is on within the blade's reach (the ground in front, looking down), or at the
+// crosshair's height that far out. The blade's height is MGW.bladeY up, and its plane through the mech dips or rises by
+// the tilt's slope going forward (mgSwY)
+function mgSwingPitch(M,p,T){
+  const hb=M.y+MGW.bladeY,cl=a=>Math.max(-MGW.swingDown,Math.min(MGW.swingUp,a));
+  if(T&&lockAlive(T)){const dx=T.pos.x-M.x,dz=T.pos.z-M.z;return cl(Math.atan2(lockY(T)-hb,Math.max(MG.r+2,Math.hypot(dx,dz))));}
+  // (the view's line from where mechCamera puts it: behind and above the head, p.drvCamD back)
+  if(!p.cam)return 0;const cp=Math.cos(p.cam.pitch),fx=-Math.sin(p.cam.yaw)*cp,fy=Math.sin(p.cam.pitch),fz=-Math.cos(p.cam.yaw)*cp,cd=p.drvCamD||11;
+  const c={x:M.x-fx*cd,y:(M.g?M.g.position.y:M.y)+9.4-fy*cd,z:M.z-fz*cd};
+  for(let t=0;t<90;t+=0.4){const x=c.x+fx*t,y=c.y+fy*t,z=c.z+fz*t,hd=Math.hypot(x-M.x,z-M.z);if(hd<MG.r+1)continue;
+    if(hd>=MGW.bladeReach||solidAt(Math.floor(x),Math.floor(y),Math.floor(z)))return cl(Math.atan2(y-hb,hd));}
+  return 0;
+}
+// the height of the swing's plane at fwd out in front of the mech (along the way it's swinging at)
+const mgSwY=(M,S,fwd)=>M.y+MGW.bladeY+fwd*Math.tan(S.pt||0);
 function mgSlash(M,S,f0,f1){
   const a0=mgSweepA(f0),a1=mgSweepA(f1),R=MGW.bladeR+MG.r,lx=S.fz,lz=-S.fx;
-  for(const g of goblins){if(g.state!=='chase'||S.hit.has(g)||g.pos.y<M.y-1.5||g.pos.y>M.y+MG.hy)continue;const dx=g.pos.x-M.x,dz=g.pos.z-M.z,d=Math.hypot(dx,dz)||0.01,a=mgSlAng(S,dx,dz);
+  // (goblins: anything from the blade's plane down to six below it, or two above: level, that's everything from its
+  // feet to its head)
+  for(const g of goblins){if(g.state!=='chase'||S.hit.has(g))continue;const dx=g.pos.x-M.x,dz=g.pos.z-M.z,py=mgSwY(M,S,dx*S.fx+dz*S.fz);if(g.pos.y<py-6||g.pos.y>py+2)continue;
+    const d=Math.hypot(dx,dz)||0.01,a=mgSlAng(S,dx,dz);
     if(d<=R&&(f0===0?a>=a0:a>a0)&&a<=a1){S.hit.add(g);damageGoblin(g,MGW.bladeDmg,g.pos.clone(),new V3(dx/d,0.8,dz/d),"Cut down by a Mobile Gear's heat blade");}}
   // (with PvP on, another player the blade passes through, once a swing)
-  for(const q of pvpFoes(M.drv)){if(S.hit.has(q)||q.pos.y<M.y-1.5||q.pos.y>M.y+MG.hy)continue;const dx=q.pos.x-M.x,dz=q.pos.z-M.z,d=Math.hypot(dx,dz)||0.01,a=mgSlAng(S,dx,dz);
+  for(const q of pvpFoes(M.drv)){if(S.hit.has(q))continue;const dx=q.pos.x-M.x,dz=q.pos.z-M.z,py=mgSwY(M,S,dx*S.fx+dz*S.fz);if(q.pos.y<py-6||q.pos.y>py+2)continue;const d=Math.hypot(dx,dz)||0.01,a=mgSlAng(S,dx,dz);
     if(d<=R&&(f0===0?a>=a0:a>a0)&&a<=a1){S.hit.add(q);pvpHurt(M.drv,q,MGW.bladeDmg,q.pos.clone(),new V3(dx/d,0.8,dz/d),"Cut down by a Mobile Gear's heat blade",{cd:0});}}
   // (vehicles: a blow at three points round the arc, a third of the way along the blade's length and two thirds)
   for(const q of [1/6,1/2,5/6])if(f0<q&&f1>=q){const a=mgSweepA(q),ux=S.fx*Math.cos(a)+lx*Math.sin(a),uz=S.fz*Math.cos(a)+lz*Math.sin(a);
-    for(const r of [MG.r+MGW.bladeR*0.35,MG.r+MGW.bladeR*0.75])vehBlast(M.x+ux*r,M.y+4.5,M.z+uz*r,MGW.bladeR*0.22,MGW.bladeVD*0.5,M);}
+    for(const r of [MG.r+MGW.bladeR*0.35,MG.r+MGW.bladeR*0.75])vehBlast(M.x+ux*r,mgSwY(M,S,r*Math.cos(a)),M.z+uz*r,MGW.bladeR*0.22,MGW.bladeVD*0.5,M);}
   mgSlice(M,S,f0===0?a0-1e-6:a0,a1);
-  if(f0===0){const e=mgAt(M,0,4.5,MG.r+3);puff(e.x,e.y,e.z,8,0xffa040,1.2);if(audio)sfx('Mobile Gear blade',()=>{noise(0.25,0.25,2600,'bandpass');tone('sawtooth',700,160,0.22,0.05);});addShake(0.25,M.x,M.z,16);}
+  if(f0===0){const e=mgAt(M,0,MGW.bladeY+(MG.r+3)*Math.tan(S.pt||0),MG.r+3);puff(e.x,e.y,e.z,8,0xffa040,1.2);if(audio)sfx('Mobile Gear blade',()=>{noise(0.25,0.25,2600,'bandpass');tone('sawtooth',700,160,0.22,0.05);});addShake(0.25,M.x,M.z,16);}
 }
 // the blade's cut through the blocks: the slice of the arc between angles lo and hi (see mgSlAng), from just past its
 // body to the blade's tip, at the blade's height, three blocks deep (the same wreckage as ramming: the blocks fly, and
 // what's left with nothing under it can come down)
 function mgSlice(M,S,lo,hi){
-  if(SBX)return 0;const R0=MG.r+1.2,R1=MG.r+MGW.bladeR,y0=Math.floor(M.y+3.6),y1=Math.floor(M.y+5.6),E=Math.ceil(R1)+1;
+  if(SBX)return 0;const R0=MG.r+1.2,R1=MG.r+MGW.bladeR,E=Math.ceil(R1)+1;
   const ch=new Set(),broken=[],cx0=Math.floor(M.x),cz0=Math.floor(M.z);
   for(let bz=cz0-E;bz<=cz0+E;bz++)for(let bx=cx0-E;bx<=cx0+E;bx++){const rx=bx+0.5-M.x,rz=bz+0.5-M.z,d=Math.hypot(rx,rz);if(d<R0||d>R1)continue;const a=mgSlAng(S,rx,rz);if(a<=lo||a>hi)continue;
+    // (three blocks deep round the plane's height there: tilted, the cut dips or climbs going out)
+    const yc=mgSwY(M,S,rx*S.fx+rz*S.fz),y0=Math.floor(yc-0.9),y1=Math.floor(yc+1.1);
     for(let by=y0;by<=y1;by++){const b=get(bx,by,bz);if(b===AIR||b===WATER||b===BEDROCK||by<1||by>=H)continue;
       setRaw(bx,by,bz,AIR);addEdit(bx,by,bz,AIR);broken.push({x:bx,y:by,z:bz,b});
       for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((bx+ox)/CS),Math.floor((bz+oz)/CS)));}}
@@ -167,15 +188,18 @@ function mgWpnPose(M,J,ap,dt,ease){
   // lifting out of the way; the blade lights from the hand as it gets there; then one quick level sweep out to its left,
   // the arm straightening and the body following through; then the blade goes back into the hand as it settles back.
   // k: how far the arm's in the swing's pose rather than its usual one; tw the body's extra turn; rr the right arm lifted)
-  const S=M.sl;let tw=0,rr=0,ig=0;
+  const S=M.sl;let tw=0,rr=0,ig=0,lean=0;
   if(S){const e=S.e,w=S.w,sw=MGW.sweepT;let k,y,x,el,z;
     if(e<w){k=mgEase(e/(w*0.75));y=-1.15;x=-0.55;el=-1.35;z=-0.2;tw=-0.45*k;rr=k;ig=mgEase((e-(w-MGW.igniteT))/MGW.igniteT);}
     else if(e<w+sw){const q=(e-w)/sw,s1=mgEase(q),s2=mgEase(q*1.6);k=1;y=-1.15+2.9*s1;x=-0.55-0.45*s2-ap*0.2;el=-1.35+0.8*s2;z=-0.2+0.2*s1;tw=-0.45+0.85*s1;rr=1-0.6*s1;ig=1;}
     else{const r=mgEase((e-w-sw)/MGW.backT);k=1-r;y=1.75;x=-1.0-ap*0.2;el=-0.55;z=0;tw=0.4*k;rr=0.4*k;ig=1-mgEase((e-w-sw)/(MGW.backT*0.45));}
+    // (aimed low it bends forward at the hips and the arm drops a little more, aimed high it leans back, so the sweep's
+    // plane tilts toward what it's aiming at)
+    lean=-(S.pt||0)*k;x+=lean*0.3;
     Lf.sh.rotation.y=y*k;Lf.sh.rotation.x+=(x-Lf.sh.rotation.x)*k;Lf.el.rotation.x+=(el-Lf.el.rotation.x)*k;Lf.sh.rotation.z+=(z-Lf.sh.rotation.z)*k;}
   else Lf.sh.rotation.y=0;
   Lf.bl.visible=ig>0.01;Lf.bl.scale.y=Math.max(0.01,ig);
-  J.T.rotation.y+=tw;R.sh.rotation.x-=0.35*rr;R.sh.rotation.z+=-0.3*rr;
+  J.T.rotation.y+=tw;J.T.rotation.x+=lean*0.8;R.sh.rotation.x-=0.35*rr;R.sh.rotation.z+=-0.3*rr;
   M.cnA=ease(M.cnA||0,M.brace>0||M.cnT>0?1:0,M.brace>0?14:5);J.cannon.rotation.x=-2.2*(1-M.cnA)+(-ap-M.pt)*M.cnA;
   M.pdA=ease(M.pdA||0,M.pod||M.podQ&&M.podQ.length||M.podT>0?1:0,10);J.podLid.rotation.x=-1.05*M.pdA;
 }

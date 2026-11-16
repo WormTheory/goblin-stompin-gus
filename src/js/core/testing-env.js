@@ -4,7 +4,7 @@
 const TENV_PARK='goblin-stompin-gus-city-parked';
 // (kinds that are parts of a highway rather than a place: there's no highway here to put them on)
 const TENV_SKIP=new Set(['pylons','billboards','tolls']);
-const TS={search:null,n:1,vm:'hunt'};
+const TS={search:null,n:1,vm:'hunt',dbg:false};
 function tsSet(m){const el=document.getElementById('tpInfo');if(el)el.textContent=m;}
 // (a source already spawned, or one that's under a box or the ring round it: a source is only ever used once, and away
 // from anything built, so what's worked out and kept for one place is never the other's)
@@ -203,12 +203,20 @@ const tenvVehKinds=()=>[...Object.keys(VEH),'police','tank','heli','plane','mech
 const tenvVehName=t=>(VEH_NAME[t]||[MIL[t]?MIL[t].name:t])[0].replace(/^./,c=>c.toUpperCase());
 // the debug menu's Spawn: one of the kind picked, parked and empty, ready to get into (whatever the panel's count and
 // hunting or parked say). What it managed is what the panel would have said
-function tenvSpawnOne(t){if(!TENV)return 'Only in the Testing Environment';const n=TS.n,vm=TS.vm;TS.n=1;TS.vm='park';
-  try{tenvVeh(t);}finally{TS.n=n;TS.vm=vm;}const el=document.getElementById('tpInfo');return el?el.textContent:'';}
+// one vehicle, parked, from the debug menu: in the Testing Environment or out in the city (TS.dbg lets the spawns below
+// run outside it, finding the ground wherever the player is rather than on the Testing Environment's flat floor)
+function tenvSpawnOne(t){const n=TS.n,vm=TS.vm;TS.n=1;TS.vm='park';TS.dbg=true;
+  try{tenvVeh(t);}finally{TS.n=n;TS.vm=vm;TS.dbg=false;}const el=document.getElementById('tpInfo');return el?el.textContent:'';}
 // is there room at x,z for a vehicle reaching r out from its middle? Level ground, and clear of every car, tank,
 // helicopter and plane already there (a plane's wings reach about 11 out)
+// the ground's height under x,z for a spawn: the Testing Environment's flat floor, or out in the city the first surface
+// down from a little above the player (so a hillside, not the inside of the hill, and not a roof far overhead)
+function spGround(x,z){if(TENV)return groundAt(x,z,G+40);const p=players.find(q=>q.active)||P1;return groundAt(x,z,Math.min(H-2,p.pos.y+24));}
 function tenvRoom(x,z,r){
-  if(groundAt(x,z,G+40)>G+1.05)return false;
+  if(TENV){if(groundAt(x,z,G+40)>G+1.05)return false;}
+  // (out in the city: level within a block across the vehicle's footprint, and not water)
+  else{const y=spGround(x,z),k=r*0.7;if(get(Math.floor(x),Math.floor(y)-1,Math.floor(z))===WATER)return false;
+    for(const [ox,oz] of [[k,0],[-k,0],[0,k],[0,-k]])if(Math.abs(spGround(x+ox,z+oz)-y)>1.05)return false;}
   if(cars.some(o=>o.alive&&Math.hypot(o.pos.x-x,o.pos.z-z)<r+4))return false;
   const A=venues.get('tenvArmy');if(A&&A.mil.some(M=>!M.dead&&Math.hypot(M.x-x,M.z-z)<r+3.5))return false;
   const L=venues.get('tenvPlanes');if(L&&L.pl.some(pl=>!pl.dead&&Math.hypot(pl.g.position.x-x,pl.g.position.z-z)<r+11))return false;
@@ -220,13 +228,13 @@ function tenvVeh(t){
   if(t==='plane'){tenvPlane();return;}
   if(t==='mech'){tenvMech();return;}
   if(CREW_HP[t]){tenvCrew(t);return;}
-  if(!TENV)return;const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active);if(!p)return;
+  if(!TENV&&!TS.dbg)return;const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active);if(!p)return;
   const park=TS.vm==='park',pol=t==='police',fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw),cx=p.pos.x+fx*20,cz=p.pos.z+fz*20;let made=0;
   for(let i=0;i<TS.n;i++){
     // (open ground, not a roof or a wall, and not on top of another vehicle: a few tries for a clear spot)
     let x=cx,z=cz;for(let k=0;k<20;k++){const a=Math.random()*Math.PI*2,r=i||k?4+Math.random()*(10+k*1.5):0;x=cx+Math.cos(a)*r;z=cz+Math.sin(a)*r;
       if(tenvRoom(x,z,5))break;}
-    const y=groundAt(x,z,G+40),h=Math.atan2(p.pos.x-x,p.pos.z-z);
+    const y=spGround(x,z),h=Math.atan2(p.pos.x-x,p.pos.z-z);
     // (parked ones come from the parked cars' pool, which sits still; hunters from the traffic's)
     const pk=park&&!pol;
     let c=cars.find(o=>!o.alive&&!o.svcPool&&!o.pullPool&&!o.rvPool&&!o.hwPool&&!!o.parkPool===pk&&!!o.police===pol);
@@ -245,13 +253,13 @@ function tenvVeh(t){
 function tenvArmy(){let V=venues.get('tenvArmy');
   if(!V){V={kind:'army',B:{ax:0,az:0,w:0,h:0},X0:0,Z0:0,W:0,Hh:0,cx:0,cz:0,mil:[],alert:false,awayT:0};venues.set('tenvArmy',V);}return V;}
 function tenvMil(kind){
-  if(!TENV)return;const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active);if(!p)return;
+  if(!TENV&&!TS.dbg)return;const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active);if(!p)return;
   const park=TS.vm==='park',V=tenvArmy(),fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw),cx=p.pos.x+fx*26,cz=p.pos.z+fz*26;let made=0;
   for(let i=0;i<TS.n;i++){
     let x=cx,z=cz;for(let k=0;k<24;k++){const a=Math.random()*Math.PI*2,r=i||k?6+Math.random()*(12+k*1.5):0;x=cx+Math.cos(a)*r;z=cz+Math.sin(a)*r;
       if(tenvRoom(x,z,kind==='heli'?6:4))break;}
     const h=Math.atan2(p.pos.x-x,p.pos.z-z),mk=kind==='tank'?makeTank():makeHeli();TS.mil=(TS.mil||0)+1;
-    const M=Object.assign({isMil:true,crew:MIL_CREW[kind],kind,V,x,y:groundAt(x,z,G+40),z,h,tu:0,hp:MIL[kind].hp,dead:false,key:'mil:tenv:'+Date.now()+':'+TS.mil,home:{x,z,h},state:park?'park':'hunt',
+    const M=Object.assign({isMil:true,crew:MIL_CREW[kind],kind,V,x,y:spGround(x,z),z,h,tu:0,hp:MIL[kind].hp,dead:false,key:'mil:tenv:'+Date.now()+':'+TS.mil,home:{x,z,h},state:park?'park':'hunt',
       cd:1.5+i*0.4,rcd:6,burst:0,bt:0,stuck:0,v:0,vy:0,spin:0,oa:Math.random()*6.3,hurt:0},mk);
     scene.add(M.g);milPlace(M);V.mil.push(M);made++;}
   if(!park&&made){V.alert=true;V.awayT=0;}
@@ -263,27 +271,27 @@ function tenvMil(kind){
 // so it can be got into and taken straight off (no runway needed: any flat run of about 40 blocks). They're kept in an
 // airport of their own (the 'tenvPlanes' venue, flagged tenv, so updateAirport's timetable leaves them be)
 function tenvPlane(){
-  if(!TENV)return;const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active);if(!p)return;
+  if(!TENV&&!TS.dbg)return;const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active);if(!p)return;
   let V=venues.get('tenvPlanes');if(!V){V={kind:'airport',tenv:true,planes:[],pl:[]};venues.set('tenvPlanes',V);}
   const fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw);let made=0;
   for(let i=0;i<TS.n;i++){
     // (each a wingspan apart, side by side across where Gus is looking, on open ground clear of the others)
     let x=0,z=0,ok=false;for(let k=0;k<30&&!ok;k++){const side=(i%2?1:-1)*Math.ceil(i/2)*24+(k?(Math.random()-.5)*k*4:0),ahead=30+(k?Math.random()*k*3:0);
       x=p.pos.x+fx*ahead-fz*side;z=p.pos.z+fz*ahead+fx*side;
-      ok=tenvRoom(x,z,11)&&groundAt(x+fx*9,z+fz*9,G+40)<=G+1.05&&groundAt(x-fx*9,z-fz*9,G+40)<=G+1.05;}
+      const y0=spGround(x,z);ok=tenvRoom(x,z,11)&&Math.abs(spGround(x+fx*9,z+fz*9)-y0)<1.05&&Math.abs(spGround(x-fx*9,z-fz*9)-y0)<1.05;}
     if(!ok)continue;
-    const g=makePlane(V.planes.length);g.position.set(x,G+1,z);g.rotation.set(0,Math.atan2(fx,fz),0);scene.add(g);
+    const g=makePlane(V.planes.length);g.position.set(x,spGround(x,z),z);g.rotation.set(0,Math.atan2(fx,fz),0);scene.add(g);
     V.planes.push(g);V.pl.push({isPlane:true,g,hp:PLANE_HP,dead:false,v:0});made++;}
   tsSet(made?'Spawned '+made+' plane'+(made>1?'s':'')+' ahead of Gus, ready to fly: get in, speed up, then jump to take off.':'There\'s no clear ground for a plane just ahead. Try looking another way.');
 }
 // the Mobile Gear (see vehicles/mech.js): only here for now. Each press stands as many as the count says a little way
 // ahead of Gus, facing him, empty, to climb into. They're kept in a venue of their own, 'tenvMechs'
 function tenvMech(){
-  if(!TENV)return;const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active);if(!p)return;
+  if(!TENV&&!TS.dbg)return;const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active);if(!p)return;
   let V=venues.get('tenvMechs');if(!V){V={kind:'mech',mechs:[]};venues.set('tenvMechs',V);}
   const fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw),cx=p.pos.x+fx*14,cz=p.pos.z+fz*14;let made=0;
   for(let i=0;i<TS.n;i++){let x=cx,z=cz,ok=false;
-    for(let k=0;k<24&&!ok;k++){const a=Math.random()*Math.PI*2,r=i||k?5+Math.random()*(10+k*1.5):0;x=cx+Math.cos(a)*r;z=cz+Math.sin(a)*r;ok=tenvRoom(x,z,3)&&mgFits(x,groundAt(x,z,G+40),z);}
+    for(let k=0;k<24&&!ok;k++){const a=Math.random()*Math.PI*2,r=i||k?5+Math.random()*(10+k*1.5):0;x=cx+Math.cos(a)*r;z=cz+Math.sin(a)*r;ok=tenvRoom(x,z,3)&&mgFits(x,spGround(x,z),z);}
     if(!ok)continue;newMech(V,x,z,Math.atan2(p.pos.x-x,p.pos.z-z));made++;}
   if(!V.mechs.length)venues.delete('tenvMechs');
   tsSet(made?'Spawned '+made+' Mobile Gear'+(made>1?'s':'')+' ahead of Gus. Walk up to one as Gnash or Grizzle and press '+keyLabel(BINDS.use.kb[0])+' (controller '+padLabel(BINDS.use.pad[0],padStyle==='ps')+') to climb in.':'No room for a Mobile Gear just there.');

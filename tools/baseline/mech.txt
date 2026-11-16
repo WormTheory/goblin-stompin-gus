@@ -68,11 +68,13 @@ Heat Cleaver at a locked goblin 18 ahead: lunged 8.8  goblin dead  blade shown t
   pressed again mid-swing: a new swing false
   goblins 10 to its right, left, ahead, and behind either side: cut down yes yes yes no no
   slashing at a wall 12 ahead, nothing locked: lunged 7.0  cut 81 blocks, 24 of them more than 5 off to one side and 30 to the other
-Rivet Rifle into a wall: rounds 20  blocks broken 12 (about half)
+  a goblin locked in a pit 6.0 down: swing tilted -0.66  bent at the hips 0.53  goblin dead
+  nothing locked, looking down: swing tilted -0.42  ground cut 157 blocks
+Rivet Rifle into a wall: rounds 20  blocks broken 8 (about half)
 Infinite ammo: rifle held 5 s, rounds 20 -> 20  reloading false  cannon after a shot 3  blade cooling still true
 Swarm Pod: Q held 0.35 s 2 locks, 1 s 4 (pips 0)  let go: missiles out 4  all landed in 1.4 s  goblins down 4 of 4  left in the pod 4 of 8
   tapped with nothing in the box: one missile at the crosshair, pod 3
-Breaker Cannon on the ground, walking at 4.6: fired after 0.40 s braced, speed then 0.1  blocks blown out of a wall 40 ahead 47  shells left 2
+Breaker Cannon on the ground, walking at 4.6: fired after 0.40 s braced, speed then 0.1  blocks blown out of a wall 40 ahead 48  shells left 2
   fired in the air: at once true  knocked back 12.7 (it pushes away from the shot: true )
   two more, then empty: shells 0  reloading true
   out of it: no locks true  reloads go on: cannon 4.9
@@ -80,6 +82,9 @@ debug menu vehicles: 18 kinds, rows Vehicle, Spawn vehicle  Infinite ammo row tr
   spawn car: Spawned 1 parked car ahead of Gus.
   spawn tank: Spawned 1 parked tank ahead of Gus.
   spawn mech: Spawned 1 Mobile Gear ahead of Gus. Walk up to one as Gnash or Grizzle and press F (controller Y) to climb in.
+debug menu in the ordinary game: car: Spawned 1 parked;  tank: Spawned 1 parked;  mech: Spawned 1 Mobile;  plane: Spawned 1 plane
+  on the raised ground (top 48 ): mech at 48.0  tank at 48.0  plane at 48.0
+  2 s later, still there: mech true  tank true  plane true
 Gnash and Grizzle, the same inputs: furthest apart 0.000
 Clear with 2 out, one driven: left 1
   Clear on foot: venue false
