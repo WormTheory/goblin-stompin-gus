@@ -29,9 +29,9 @@ function gobAttack(p){const k=gobArms(p).wpn;
 const _gr=new V3();
 function gobShoot(p){
   const W=gobGun(gobArms(p).wpn)?gobW(p):GOB_WPN.rifle,hg=W===GOB_WPN.handgun,c=p.camera.position,cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp;
-  let hitG=null,hitC=null,d=0.3;
+  let hitG=null,hitC=null,hitW=null,d=0.3;
   for(;d<W.range&&!hitG&&!hitC;d+=0.2){const x=c.x+dx*d,y=c.y+dy*d,z=c.z+dz*d;
-    if(solidAt(Math.floor(x),Math.floor(y),Math.floor(z)))break;
+    if(solidAt(Math.floor(x),Math.floor(y),Math.floor(z))){hitW=[Math.floor(x),Math.floor(y),Math.floor(z)];break;}
     for(const g of goblins){if(g.state!=='chase')continue;if(Math.hypot(g.pos.x-x,g.pos.z-z)<0.45&&y>g.pos.y&&y<g.pos.y+1.5){hitG=g;break;}}
     if(!hitG&&(Math.round(d*5)%3===0))for(const q of carsNear(x,z,0.6,y-1)){hitC=q;break;}}
   const x1=c.x+dx*d,y1=c.y+dy*d,z1=c.z+dz*d,fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw);
@@ -40,7 +40,7 @@ function gobShoot(p){
   p.shake=Math.max(p.shake||0,hg?0.02:0.03);rumble(p,hg?0.14:0.2,50);
   if(hitG)damageGoblin(hitG,W.dmg,_gr.set(x1,y1,z1).clone(),new V3(dx,0.3,dz),W.cause);
   else if(hitC)damageCar(hitC,1,new V3(dx,0,dz));
-  else puff(x1,y1,z1,2,0xb0a898,0.12);
+  else{puff(x1,y1,z1,2,0xb0a898,0.12);if(hitW)bulletBreak(hitW[0],hitW[1],hitW[2],dx,dz);}   // (half the time the block it hit breaks: see bulletBreak)
 }
 // the stomp button: lob a grenade the way you're looking
 function gobThrow(p){

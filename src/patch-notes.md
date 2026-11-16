@@ -12,15 +12,25 @@
 - Thrusters run on the energy gauge under the crosshair. Empty it and it redlines: the gauge flashes red and you can't boost or fly until it recovers. Energy comes back quickly once you stop drawing on it, and faster on the ground.
 - It leans into the way it's going, and its thrusters fire from whichever side pushes it there: the back ones going forward, the side ones strafing, the chest ones going backwards. Its legs fold up smoothly as it leaves the ground and its feet stay planted flat, up and down steps too. Skating over a pit, its feet ease over the gap rather than dropping to the bottom. Its thruster flames taper to a point.
 - It steps up one-block ledges on foot and two-block ledges while boosting. Run into a wall or a building while boosting and it smashes a hole and carries on; at full boost it ploughs straight through with barely a stumble. Walking into one just stops it. Anything small in its way gets trampled, and a hard landing knocks goblins over.
-- It's armed, with a weapon on each trigger. Each has its own load and reloads by itself once it's empty, shown in four boxes round the crosshair:
-  - Right click (controller RT): the Rivet Rifle in its right hand. Hold it for a steady stream of rounds.
-  - Left click (controller LT): the Heat Cleaver on its left arm. With a target locked and close by, it lunges in, then sweeps a glowing blade across in front of it that cuts down goblins, tears into vehicles and slices clean through walls. It needs a moment to cool between swings.
-  - Q (controller LB): the Swarm Pod on its left shoulder. Hold it and the pod locks on to whatever's in the lock box, up to four locks, then let go and a homing missile flies at each. With nothing locked, a tap fires one where you're aiming.
-  - E (controller RB): the Breaker Cannon on its right shoulder. On the ground it stops, braces and swings the cannon over its shoulder before firing a heavy shell that blasts a crater. In the air it fires at once and the kick shoves it backwards.
+- It's armed, with a weapon on each trigger. Each has its own load and reloads by itself once it's empty. Beside the speedometer, in the bottom corner, each weapon's button, what it has loaded and its name are laid out as they're carried (shoulders above, arms below), and up either side of the lock box round the crosshair a tall gauge for each weapon shows how full it is, or how far along its reload is:
+  - Right click (controller RB): the Rivet Rifle in its right hand. Hold it for a steady stream of rounds. Its rounds chip at walls: about half the time a round breaks the block it hits.
+  - Left click (controller LB): the Heat Cleaver on its left arm. It lunges forward (at a locked target if one's close, stopping with it in reach), then sweeps a long glowing blade from right to left in a wide arc round in front of it that cuts down goblins, tears into vehicles and slices clean through walls. It needs a moment to cool between swings.
+  - Q (controller LT): the Swarm Pod on its left shoulder. Hold it and the pod locks on to whatever's in the lock box, up to four locks, then let go and a homing missile flies at each. With nothing locked, a tap fires one where you're aiming.
+  - E (controller RT): the Breaker Cannon on its right shoulder. On the ground it stops, braces and swings the cannon over its shoulder before firing a heavy shell that blasts a crater. In the air it fires at once and the kick shoves it backwards. It sits up on a post, so firing low it clears the Gear's own chest.
 - Lock-on: anything in the box round the crosshair is picked out by itself, and the rifle and blade aim at it, leading a moving target. Middle click (controller R3) holds on to it with a hard lock, and the camera turns to keep it in view while you move round it. Press it again to let go.
 - It has 600 health. Wreck it and you're thrown out. The assault boost and repairs are coming in a later update.
 - Its controls can be rebound in Options, in their own "Piloting a Mobile Gear" section.
 - Mobile Gears aren't kept when you leave the Testing Environment.
+- While you're piloting, the controls line for on foot is hidden; the Gear's own controls line shows instead.
+
+### Debug menu
+
+- Vehicles: pick any vehicle from the list and press Spawn, and one is set down ahead of you, parked and empty, ready to get into. Testing Environment only.
+- Infinite ammo: while it's on, nothing that has to be reloaded ever runs out (the Mobile Gear's blade still has to cool between swings).
+
+### Bullets break blocks
+
+- Rounds from guns, the Mobile Gear's rifle, Gnash's rifle and handgun, the helicopter's machine gun and the militia's mounted guns, now break the block they hit about half the time, so sustained fire slowly chews through cover.
 
 ### Less prop pop-in
 

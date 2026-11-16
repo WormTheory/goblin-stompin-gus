@@ -57,7 +57,9 @@ function makeMech(){
   {const pod=grp(T,0.95,3.0,-0.7);J.pod=pod;bx(pod,MGM.frame,0.8,0.7,1.5,0,0,0);bx(pod,MGM.trim,0.82,0.18,0.08,0,0.2,0.76);
     for(const [a,b] of [[-0.18,-0.12],[0.18,-0.12],[-0.18,0.16],[0.18,0.16]])bx(pod,MGM.dark,0.26,0.22,0.06,a,b,0.77);
     const lid=grp(pod,0,0.36,-0.75);J.podLid=lid;bx(lid,MGM.plate,0.86,0.1,1.56,0,0.04,0.78);}
-  {const cn=grp(T,-0.95,2.75,-1.2);J.cannon=cn;bx(cn,MGM.frame,0.7,0.75,1.1,0,0,0);bx(cn,MGM.trim,0.72,0.16,0.3,0,0.3,0.2);
+  // (the cannon's pivot sits up on a post, forward over the shoulder, so swung down to fire low it clears the chest)
+  bx(T,MGM.frame,0.3,1.0,0.3,-0.95,2.95,-0.35);
+  {const cn=grp(T,-0.95,3.5,-0.35);J.cannon=cn;bx(cn,MGM.frame,0.7,0.75,1.1,0,0,0);bx(cn,MGM.trim,0.72,0.16,0.3,0,0.3,0.2);
     bx(cn,MGM.dark,0.32,0.32,2.6,0,0.12,1.7);bx(cn,MGM.frame,0.44,0.44,0.5,0,0.12,2.95);J.cannonM=grp(cn,0,0.12,3.25);}
   const hd=grp(T,0,2.62,0.25);J.head=hd;
   bx(hd,MGM.frame,0.9,0.55,1.0,0,0.27,0);bx(hd,MGM.plate,0.95,0.2,0.7,0,0.6,-0.05);J.eye=bx(hd,MGM.glow,0.74,0.11,0.05,0,0.3,0.51);
@@ -69,7 +71,7 @@ function makeMech(){
     // blade itself, a long glowing bar shown only while it cuts)
     let mz=null,bl=null;
     if(s<0){bx(el,MGM.dark,0.36,2.3,0.46,0,-1.7,0.2);bx(el,MGM.trim,0.2,0.5,0.3,0,-0.95,0.5);mz=grp(el,0,-2.9,0.2);}
-    else{bx(el,MGM.trim,0.32,1.0,0.32,0,-1.1,0.45);bx(el,MGM.dark,0.18,0.5,0.18,0,-1.75,0.45);bl=bx(el,MGM.heat,0.18,3.8,0.6,0,-3.8,0.45);bl.visible=false;}
+    else{bx(el,MGM.trim,0.32,1.0,0.32,0,-1.1,0.45);bx(el,MGM.dark,0.18,0.5,0.18,0,-1.75,0.45);bl=bx(el,MGM.heat,0.22,11.4,0.85,0,-7.6,0.45);bl.visible=false;}
     J.arms.push({sh,el,s,mz,bl});}
   return{g,J};
 }
@@ -124,7 +126,7 @@ function drvMech(M,dt){
   if(airB&&!M.asc)mgDraw(M,(moving?MG.airEN:MG.hoverEN)*dt);
   // (a quick boost: the burst, then for MG.qbDec it bleeds its speed off smoothly toward what you're holding)
   // (the blade's lunge, like a quick boost straight at what's locked, comes before anything else)
-  if(M.lgT>0){M.lgT-=dt;M.vx=M.lgx;M.vz=M.lgz;if(M.lgT<=0){M.lgT=0;M.qbD=MG.qbDec*0.6;}}
+  if(M.lgT>0){M.lgT-=dt;M.vx=M.lgx;M.vz=M.lgz;if(M.lgT<=0){M.lgT=0;M.vx*=0.15;M.vz*=0.15;M.qbD=MG.qbDec*0.6;}}   // (the lunge stops short, planted for the swing, rather than sliding on)
   else if(M.qbT>0){M.qbT-=dt;M.vx=M.qbx;M.vz=M.qbz;if(M.qbT<=0)M.qbD=MG.qbDec;}
   else if(M.qbD>0){M.qbD-=dt;const k=Math.min(1,dt*6);M.vx+=(wx*spd-M.vx)*k;M.vz+=(wz*spd-M.vz)*k;}
   else if(!air&&!M.boostOn){

@@ -163,7 +163,7 @@ function frame(now,bg){   // (bg: a tab in the background while online, kept goi
   hintTime-=dt;
   for(const p of act){
     if(netGuest())safe('arms',()=>gobArmsHud(p));else gobArmsHud(p);
-    const hint=p.ui.hint,grab=p===P1&&mouseNeedsClick();hint.hidden=!(grab||playing&&hintTime>0);
+    const hint=p.ui.hint,grab=p===P1&&mouseNeedsClick();hint.hidden=!(grab||playing&&hintTime>0&&!(p.drv&&p.drv.k==='mech'));   // (piloting the Mobile Gear its own controls line takes over: see mechHint)
     if(grab){const txt='Click to look around with the mouse';if(hint._s!==txt){hint._s=txt;hint.textContent=txt;}}
     else if(!hint.hidden){const txt=touchMode&&!p.pad?(p.gob?'BITE attacks  ·  STOMP throws a grenade  ·  JUMP  ·  tap DASH to dash, hold to sprint':'Hold STOMP  ·  BITE  ·  JUMP  ·  tap DASH to dash, hold to '+(abilOf(p).trample?'trample':'sprint')):bindHint(!!p.pad,p);if(hint._s!==txt){hint._s=txt;hint.innerHTML=hudHTML(txt);}}
   }

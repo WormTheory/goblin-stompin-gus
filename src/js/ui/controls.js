@@ -40,10 +40,10 @@ const ACTS=[
   {id:'mgQB',n:'Quick boost',c:'#5ec8f0',kb:['ShiftLeft'],pad:[2],mg:true},
   {id:'mgBoost',n:'Boost on / off',c:'#3a8fd8',kb:['KeyC'],pad:[1],mg:true},
   {id:'mgOut',n:'Get out (hold)',c:'#6ab0d8',kb:['KeyF'],pad:[3],mg:true},
-  {id:'mgArmL',n:'Left arm: Heat Cleaver',c:'#ff9a3a',kb:['Mouse0'],pad:[6],mg:true},
-  {id:'mgArmR',n:'Right arm: Rivet Rifle (hold)',c:CC.bite,kb:['Mouse2'],pad:[7],mg:true},
-  {id:'mgShL',n:'Left shoulder: Swarm Pod (hold to lock, let go to fire)',c:'#d8d8d0',kb:['KeyQ'],pad:[4],mg:true},
-  {id:'mgShR',n:'Right shoulder: Breaker Cannon',c:CC.stomp,kb:['KeyE'],pad:[5],mg:true},
+  {id:'mgArmL',n:'Left arm: Heat Cleaver',c:'#ff9a3a',kb:['Mouse0'],pad:[4],mg:true},
+  {id:'mgArmR',n:'Right arm: Rivet Rifle (hold)',c:CC.bite,kb:['Mouse2'],pad:[5],mg:true},
+  {id:'mgShL',n:'Left shoulder: Swarm Pod (hold to lock, let go to fire)',c:'#d8d8d0',kb:['KeyQ'],pad:[6],mg:true},
+  {id:'mgShR',n:'Right shoulder: Breaker Cannon',c:CC.stomp,kb:['KeyE'],pad:[7],mg:true},
   {id:'mgLock',n:'Hard lock on / off',c:'#e0564a',kb:['Mouse1'],pad:[11],mg:true},
 ];
 const MG_IDS=ACTS.filter(a=>a.mg).map(a=>a.id),MG_PRESS=MG_IDS.map(k=>k+'P');
@@ -53,7 +53,10 @@ function defaultBinds(){const o={};for(const a of ACTS)o[a.id]={kb:a.kb.slice(),
 function loadBinds(){BINDS=defaultBinds();
   try{const v=JSON.parse(localStorage.getItem(BIND_KEY)||'null');if(v&&typeof v==='object')for(const a of ACTS){const b=v[a.id];if(!b)continue;
     if(Array.isArray(b.kb))BINDS[a.id].kb=[...new Set(b.kb.filter(c=>typeof c==='string'&&c.length<40&&!KB_RESERVED.has(c)))].slice(0,2);
-    if(Array.isArray(b.pad))BINDS[a.id].pad=[...new Set(b.pad.filter(i=>Number.isInteger(i)&&i>=0&&i<24&&!PAD_RESERVED.has(i)))].slice(0,2);}}catch(e){}}
+    if(Array.isArray(b.pad))BINDS[a.id].pad=[...new Set(b.pad.filter(i=>Number.isInteger(i)&&i>=0&&i<24&&!PAD_RESERVED.has(i)))].slice(0,2);
+    // (the Mobile Gear's weapons moved buttons on the controller: saved controls still on the old ones take the new)
+    if(MG_PAD_WAS[a.id]!==undefined&&BINDS[a.id].pad.length===1&&BINDS[a.id].pad[0]===MG_PAD_WAS[a.id])BINDS[a.id].pad=a.pad.slice();}}catch(e){}}
+const MG_PAD_WAS={mgArmL:6,mgArmR:7,mgShL:4,mgShR:5};
 function saveBinds(){try{localStorage.setItem(BIND_KEY,JSON.stringify(BINDS));}catch(e){}}
 loadBinds();
 const KEY_NAMES={Mouse0:'Left click',Mouse1:'Middle click',Mouse2:'Right click',Mouse3:'Mouse 4',Mouse4:'Mouse 5',Space:'Space',ShiftLeft:'Left Shift',ShiftRight:'Right Shift',

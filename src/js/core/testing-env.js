@@ -27,8 +27,8 @@ function tpRender(){
   for(const b of document.querySelectorAll('#tpVM [data-vm]'))b.setAttribute('aria-checked',String(b.dataset.vm===TS.vm));
   // (one button per kind of vehicle body the game has, so a new kind shows up here by itself; police cars are their own pool)
   const vb=document.getElementById('tpVehs');
-  if(vb&&!vb.childElementCount)for(const t of [...Object.keys(VEH),'police','tank','heli','plane','mech']){const b=document.createElement('button');b.type='button';b.className='pmenu';b.dataset.veh=t;
-    b.textContent=(VEH_NAME[t]||[MIL[t]?MIL[t].name:t])[0].replace(/^./,c=>c.toUpperCase());b.addEventListener('click',()=>tenvVeh(t));vb.append(b);}
+  if(vb&&!vb.childElementCount)for(const t of tenvVehKinds()){const b=document.createElement('button');b.type='button';b.className='pmenu';b.dataset.veh=t;
+    b.textContent=tenvVehName(t);b.addEventListener('click',()=>tenvVeh(t));vb.append(b);}
   const sn=document.getElementById('seedNote');if(sn&&TENV)sn.textContent=`Testing Environment · ${TENV.boxes.length} structure${TENV.boxes.length===1?'':'s'} spawned · seed ${seed}`;
 }
 // the Testing Environment's own tab, just right of Game: there only while in it (on: shown and opened)
@@ -198,6 +198,13 @@ function tenvFoe(kind){
 // with nobody in them, to stand on, smash or get into (a parked police car still wakes up when Gus comes close)
 const VEH_NAME={car:['car','cars'],van:['van','vans'],pickup:['pickup','pickups'],truck:['truck','trucks'],semi:['semi truck','semi trucks'],bus:['bus','buses'],
   fire:['fire engine','fire engines'],amb:['ambulance','ambulances'],news:['news van','news vans'],rv:['motorhome','motorhomes'],technical:['technical','technicals'],quad:['four-wheeler','four-wheelers'],police:['police car','police cars'],moto:['motorcycle','motorcycles'],motorcycle:['motorcycle','motorcycles'],bike:['motorcycle','motorcycles'],mech:['Mobile Gear','Mobile Gears']};
+// every kind of vehicle that can be spawned here, and its name with a capital (the panel's buttons and the debug menu's list)
+const tenvVehKinds=()=>[...Object.keys(VEH),'police','tank','heli','plane','mech'];
+const tenvVehName=t=>(VEH_NAME[t]||[MIL[t]?MIL[t].name:t])[0].replace(/^./,c=>c.toUpperCase());
+// the debug menu's Spawn: one of the kind picked, parked and empty, ready to get into (whatever the panel's count and
+// hunting or parked say). What it managed is what the panel would have said
+function tenvSpawnOne(t){if(!TENV)return 'Only in the Testing Environment';const n=TS.n,vm=TS.vm;TS.n=1;TS.vm='park';
+  try{tenvVeh(t);}finally{TS.n=n;TS.vm=vm;}const el=document.getElementById('tpInfo');return el?el.textContent:'';}
 // is there room at x,z for a vehicle reaching r out from its middle? Level ground, and clear of every car, tank,
 // helicopter and plane already there (a plane's wings reach about 11 out)
 function tenvRoom(x,z,r){

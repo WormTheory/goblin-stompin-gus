@@ -1,19 +1,21 @@
 // ---- The Mobile Gear's weapons and lock-on (see mech.js for the machine itself). Four weapons, one on each trigger, each
 // with its own load and reload (DRV_WPN.mech, through the same wpnFire as a tank's): the Rivet Rifle in the right hand
-// (held: a stream of rounds), the Heat Cleaver in the left (a lunge at what's locked, then a glowing slash that cuts
-// through goblins, vehicles and walls), the Swarm Pod on the left shoulder (held: it locks up to four targets in the
+// (held: a stream of rounds), the Heat Cleaver in the left (a lunge forward, at what's locked if it's near, then a
+// long glowing blade swept right to left round in front of it, cutting through goblins, vehicles and walls), the Swarm Pod on the left shoulder (held: it locks up to four targets in the
 // lock box, let go: a homing missile at each) and the Breaker Cannon on the right (on the ground it braces a moment,
 // then a heavy shell; in the air it fires at once and the kick shoves it back).
 // Lock-on: whatever's in the lock box round the crosshair is picked out by itself (the soft lock, M.soft) and the arms'
 // shots go at it, led for its speed; the hard lock button holds on to it (M.hard), turning the camera to keep it in
 // view while you move round it ----
-DRV_WPN.mech=[{k:'rifle',name:'Rivet Rifle',max:40,gap:0.1,reload:2.5,act:'mgArmR'},{k:'blade',name:'Heat Cleaver',max:1,gap:0,reload:1.2,act:'mgArmL'},
+DRV_WPN.mech=[{k:'rifle',name:'Rivet Rifle',max:40,gap:0.1,reload:2.5,act:'mgArmR'},{k:'blade',name:'Heat Cleaver',max:1,gap:0,reload:1.2,act:'mgArmL',cool:true},
   {k:'pod',name:'Swarm Pod',max:8,gap:0.07,reload:6,act:'mgShL'},{k:'cannon',name:'Breaker Cannon',max:3,gap:0.9,reload:7,act:'mgShR'}];
 // (box: the lock box's half-width round the crosshair, as an angle; range: how far off it picks things out; hardRange:
-// past this a hard lock lets go; camTurn: how fast a hard lock turns the camera, a second)
+// past this a hard lock lets go; camTurn: how fast a hard lock turns the camera, a second. The blade: a locked target
+// within bladeReach is lunged at till it's bladeMid off, at most lungeMax; with none it lunges lunge ahead. Its cut
+// reaches bladeR past the body, bladeArc either side of straight ahead, swept in sweepT after windT (or the lunge))
 const MGW={box:0.22,range:150,hardRange:170,camTurn:2.4,
   rifleDmg:3,rifleSc:0.006,
-  bladeReach:9,bladeDmg:20,bladeVD:90,bladeR:6.5,lungeT:0.2,slashT:0.34,
+  bladeReach:24,bladeMid:8,lunge:7,lungeMax:12,bladeDmg:20,bladeVD:90,bladeR:13,bladeArc:1.92,lungeT:0.2,windT:0.1,sweepT:0.24,backT:0.22,
   podLock:0.2,podLocks:4,missV:50,missTurn:5,missR:2.6,missDmg:4,missVD:35,missCrush:1.4,
   canV:95,canGrav:3,brace:0.4,canR:5.5,canDmg:10,canVD:180,canCrush:3.8,recoil:14};
 // a point on the mech in its torso's frame (x to its left, y up from its feet, z ahead), out in the world
@@ -55,7 +57,7 @@ function mgLead(M,p,x,y,z,sp){const T=mgTarget(M);if(!T||!lockAlive(T))return dr
   const t=Math.min(3,Math.hypot(T.pos.x-x,ty-y,T.pos.z-z)/sp),cl=v=>Math.max(-30,Math.min(30,v));
   return{x:T.pos.x+cl(V.vx)*t,y:ty+cl(V.vy)*t,z:T.pos.z+cl(V.vz)*t};}
 // (the muzzles: the rifle's at the end of the right forearm, the cannon's over the right shoulder, the pod's tubes)
-const mgRifleAt=M=>mgAt(M,-1.84,4.6,3.0),mgCannonAt=M=>mgAt(M,-0.95,7.3,2.4),mgPodAt=M=>mgAt(M,0.95,7.1,-0.2);
+const mgRifleAt=M=>mgAt(M,-1.84,4.6,3.0),mgCannonAt=M=>mgAt(M,-0.95,7.9,2.9),mgPodAt=M=>mgAt(M,0.95,7.1,-0.2);
 // one step of the weapons, for the pilot p (called first thing in drvMech, so a hard lock's turn of the camera counts
 // this step)
 function mgWeapons(M,p,i,dt){
@@ -64,13 +66,13 @@ function mgWeapons(M,p,i,dt){
   // (the rifle: held, a round every W.gap, a little scattered, to the first goblin, vehicle or wall on the line)
   if(i.mgArmR&&wpnFire(M,'rifle')){const m=mgRifleAt(M),A=mgLead(M,p,m.x,m.y,m.z,400);
     gunRound(M,p,m.x,m.y,m.z,MGW.rifleDmg,MGW.rifleSc,'Riveted by a Mobile Gear','Mobile Gear rifle',A);M.rfT=0.6;M.rkT=0.08;puff(m.x,m.y,m.z,1,0xffd080,0.15);}
-  // (the blade: a lunge at the locked target if it's within reach, then the slash; with nothing locked, a slash where
-  // it stands)
-  if(i.mgArmLP&&wpnFire(M,'blade')){const T=mgTarget(M);let fx=Math.sin(M.ty),fz=Math.cos(M.ty);
-    if(T){const dx=T.pos.x-M.x,dz=T.pos.z-M.z,d=Math.hypot(dx,dz)||1;if(d<MGW.bladeReach+MG.r+3){fx=dx/d;fz=dz/d;
-      const go=Math.max(0,d-MG.r-2.5);if(go>0.5){const v=Math.min(50,go/MGW.lungeT);M.lgT=MGW.lungeT;M.lgx=fx*v;M.lgz=fz*v;}}}
-    M.slDir={x:fx,z:fz};M.slAt=M.lgT>0?M.lgT:0.06;M.slT=MGW.slashT+M.slAt;if(audio)sfx('Mobile Gear blade',()=>tone('sawtooth',220,880,0.18,0.04));}
-  if(M.slAt>0){M.slAt-=dt;if(M.slAt<=0)mgSlash(M);}if(M.slT>0)M.slT=Math.max(0,M.slT-dt);
+  // (the blade: a lunge forward, at the locked target if it's within reach (stopping with it about halfway along the
+  // blade), otherwise the way you're looking; then the sweep, right to left)
+  if(i.mgArmLP&&wpnFire(M,'blade')){const T=mgTarget(M),f=mgFwd(p),fh=Math.hypot(f.x,f.z)||1;let fx=f.x/fh,fz=f.z/fh,go=MGW.lunge;
+    if(T){const dx=T.pos.x-M.x,dz=T.pos.z-M.z,d=Math.hypot(dx,dz)||1;if(d<MGW.bladeReach){fx=dx/d;fz=dz/d;go=Math.min(MGW.lungeMax,Math.max(0,d-MG.r-MGW.bladeMid));}}
+    M.lgT=0;if(go>0.5){const v=go/MGW.lungeT;M.lgT=MGW.lungeT;M.lgx=fx*v;M.lgz=fz*v;}
+    M.sl={fx,fz,e:0,w:Math.max(MGW.windT,M.lgT),f:0,hit:new Set()};if(audio)sfx('Mobile Gear blade',()=>tone('sawtooth',220,880,0.18,0.04));}
+  if(M.sl){const S=M.sl;S.e+=dt;const f=Math.max(0,Math.min(1,(S.e-S.w)/MGW.sweepT));if(f>S.f){mgSlash(M,S,S.f,f);S.f=f;}if(S.e>S.w+MGW.sweepT+MGW.backT)M.sl=null;}
   // (the pod: held, a lock every MGW.podLock on what's in the box, the least locked first, up to four or what's
   // loaded; let go, the missiles go one after another, each at its own lock (none: one, at the crosshair))
   const pd=W.pod;
@@ -88,31 +90,39 @@ function mgWeapons(M,p,i,dt){
   if(M.brace>0){M.brace-=dt;if(M.brace<=0){M.brace=0;mgCannon(M,p);}}
 }
 // with nobody in it: no locks, nothing firing, but the weapons still reload
-function mgDisarm(M,dt){wpnInit(M,'mech');wpnTick(M,dt);M.soft=M.hard=null;M.inBox=[];M.pod=null;M.podQ=null;M.brace=0;M.lgT=0;M.slAt=0;
-  for(const k of ['rfT','rkT','cnT','podT','slT'])M[k]=Math.max(0,(M[k]||0)-dt);}
-// the slash: goblins in front of it, within the blade's reach, cut down; vehicles there hurt hard; and a curved cut
-// through the blocks at the blade's height
-function mgSlash(M){
-  const fx=M.slDir.x,fz=M.slDir.z,R=MGW.bladeR+MG.r;
-  for(const g of goblins){if(g.state!=='chase'||g.pos.y<M.y-1.5||g.pos.y>M.y+MG.hy)continue;const dx=g.pos.x-M.x,dz=g.pos.z-M.z,d=Math.hypot(dx,dz)||0.01;
-    if(d<=R&&(dx*fx+dz*fz)/d>0.15)damageGoblin(g,MGW.bladeDmg,g.pos.clone(),new V3(dx/d,0.8,dz/d),"Cut down by a Mobile Gear's heat blade");}
-  vehBlast(M.x+fx*(MG.r+2.8),M.y+3.5,M.z+fz*(MG.r+2.8),3.4,MGW.bladeVD,M);
-  mgSlice(M,fx,fz);
-  const e=mgAt(M,0,4,MG.r+3);puff(e.x,e.y,e.z,8,0xffa040,1.2);if(audio)sfx('Mobile Gear blade',()=>{noise(0.25,0.25,2600,'bandpass');tone('sawtooth',700,160,0.22,0.05);});addShake(0.2,M.x,M.z,14);
+function mgDisarm(M,dt){wpnInit(M,'mech');wpnTick(M,dt);M.soft=M.hard=null;M.inBox=[];M.pod=null;M.podQ=null;M.brace=0;M.lgT=0;M.sl=null;
+  for(const k of ['rfT','rkT','cnT','podT'])M[k]=Math.max(0,(M[k]||0)-dt);}
+// which way round from straight ahead (S.fx,S.fz) the point rx,rz is: 0 ahead, plus to the mech's left, minus to its
+// right; and the sweep's angle a fraction f of the way through it (from bladeArc to its right, round to bladeArc left)
+const mgSlAng=(S,rx,rz)=>Math.atan2(rx*S.fz-rz*S.fx,rx*S.fx+rz*S.fz),mgSweepA=f=>-MGW.bladeArc+2*MGW.bladeArc*f;
+// one step of the sweep, from fraction f0 to f1 of the way round: goblins the blade passes through cut down (each once a
+// swing), vehicles hurt hard, the blocks in that slice of the arc cut through. Sparks and the sound with the first step
+function mgSlash(M,S,f0,f1){
+  const a0=mgSweepA(f0),a1=mgSweepA(f1),R=MGW.bladeR+MG.r,lx=S.fz,lz=-S.fx;
+  for(const g of goblins){if(g.state!=='chase'||S.hit.has(g)||g.pos.y<M.y-1.5||g.pos.y>M.y+MG.hy)continue;const dx=g.pos.x-M.x,dz=g.pos.z-M.z,d=Math.hypot(dx,dz)||0.01,a=mgSlAng(S,dx,dz);
+    if(d<=R&&(f0===0?a>=a0:a>a0)&&a<=a1){S.hit.add(g);damageGoblin(g,MGW.bladeDmg,g.pos.clone(),new V3(dx/d,0.8,dz/d),"Cut down by a Mobile Gear's heat blade");}}
+  // (vehicles: a blow at three points round the arc, a third of the way along the blade's length and two thirds)
+  for(const q of [1/6,1/2,5/6])if(f0<q&&f1>=q){const a=mgSweepA(q),ux=S.fx*Math.cos(a)+lx*Math.sin(a),uz=S.fz*Math.cos(a)+lz*Math.sin(a);
+    for(const r of [MG.r+MGW.bladeR*0.35,MG.r+MGW.bladeR*0.75])vehBlast(M.x+ux*r,M.y+4.5,M.z+uz*r,MGW.bladeR*0.22,MGW.bladeVD*0.5,M);}
+  mgSlice(M,S,f0===0?a0-1e-6:a0,a1);
+  if(f0===0){const e=mgAt(M,0,4.5,MG.r+3);puff(e.x,e.y,e.z,8,0xffa040,1.2);if(audio)sfx('Mobile Gear blade',()=>{noise(0.25,0.25,2600,'bandpass');tone('sawtooth',700,160,0.22,0.05);});addShake(0.25,M.x,M.z,16);}
 }
-// the blade's cut through the blocks: an arc in front of it, from just past its body to the blade's tip, about 130
-// degrees wide and two blocks high at chest height (the same wreckage as ramming: the blocks fly, and what's left with
-// nothing under it can come down)
-function mgSlice(M,fx,fz){
-  if(SBX)return 0;const R0=MG.r+1.2,R1=MG.r+MGW.bladeR,y0=Math.floor(M.y+3),y1=Math.floor(M.y+4.6),E=Math.ceil(R1)+1;
+// the blade's cut through the blocks: the slice of the arc between angles lo and hi (see mgSlAng), from just past its
+// body to the blade's tip, at the blade's height, three blocks deep (the same wreckage as ramming: the blocks fly, and
+// what's left with nothing under it can come down)
+function mgSlice(M,S,lo,hi){
+  if(SBX)return 0;const R0=MG.r+1.2,R1=MG.r+MGW.bladeR,y0=Math.floor(M.y+3.6),y1=Math.floor(M.y+5.6),E=Math.ceil(R1)+1;
   const ch=new Set(),broken=[],cx0=Math.floor(M.x),cz0=Math.floor(M.z);
-  for(let bz=cz0-E;bz<=cz0+E;bz++)for(let bx=cx0-E;bx<=cx0+E;bx++){const rx=bx+0.5-M.x,rz=bz+0.5-M.z,d=Math.hypot(rx,rz);if(d<R0||d>R1||(rx*fx+rz*fz)/d<0.42)continue;
+  for(let bz=cz0-E;bz<=cz0+E;bz++)for(let bx=cx0-E;bx<=cx0+E;bx++){const rx=bx+0.5-M.x,rz=bz+0.5-M.z,d=Math.hypot(rx,rz);if(d<R0||d>R1)continue;const a=mgSlAng(S,rx,rz);if(a<=lo||a>hi)continue;
     for(let by=y0;by<=y1;by++){const b=get(bx,by,bz);if(b===AIR||b===WATER||b===BEDROCK||by<1||by>=H)continue;
       setRaw(bx,by,bz,AIR);addEdit(bx,by,bz,AIR);broken.push({x:bx,y:by,z:bz,b});
       for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((bx+ox)/CS),Math.floor((bz+oz)/CS)));}}
+  S.cut=(S.cut||0)+broken.length;
   if(!broken.length)return 0;
-  const o={force:0.9,dx:fx,dz:fz,up:0.6};rebuildSet(ch);save();destroyFX(broken.slice(0,120),o);settle(broken,o);pumpsHit(broken);
-  knockProps(M.x+fx*(MG.r+3),M.y+3,M.z+fz*(MG.r+3),MGW.bladeR,fx,fz);
+  // (the bits fly on round the way the blade's going: toward its left)
+  const am=(lo+hi)/2,lx=S.fz,lz=-S.fx,ux=S.fx*Math.cos(am)+lx*Math.sin(am),uz=S.fz*Math.cos(am)+lz*Math.sin(am);
+  const o={force:0.9,dx:ux+lx*0.6,dz:uz+lz*0.6,up:0.6};rebuildSet(ch);save();destroyFX(broken.slice(0,60),o);settle(broken,o);pumpsHit(broken);
+  knockProps(M.x+ux*(MG.r+MGW.bladeR*0.5),M.y+4.5,M.z+uz*(MG.r+MGW.bladeR*0.5),MGW.bladeR*0.5,ux,uz);
   return broken.length;}
 // one missile off the pod: up and out first, then it turns after its lock (or the crosshair's spot, with none)
 function mgMissile(M,p,T){
@@ -142,9 +152,11 @@ function mgWpnPose(M,J,ap,dt,ease){
     const k=M.raA,kick=M.rkT>0?0.12:0;R.sh.rotation.y+=(az-R.sh.rotation.y)*k;
     R.sh.rotation.x+=((-0.25-el*0.3-M.pt*0.5)-R.sh.rotation.x)*k;R.el.rotation.x+=((-(Math.PI/2-0.25)-el*0.7-M.pt*0.5+kick)-R.el.rotation.x)*k;}
   else R.sh.rotation.y=0;
-  // (the slash: drawn back across the body during the lunge, then swept from its left out across to the right)
-  const st=M.slT||0;Lf.bl.visible=st>0;
-  if(st>0){const q=1-Math.min(1,st/MGW.slashT),sw=q<0.15?1.2:1.2-2.4*Math.min(1,(q-0.15)/0.45);Lf.sh.rotation.y=sw;Lf.sh.rotation.x=-0.9-ap*0.3;Lf.el.rotation.x=-0.6;}
+  // (the swing: drawn back across the body to its right during the lunge, swept round out to its left, then back. The
+  // arm's turn only runs to about where the cut does, as far as a shoulder can)
+  const S=M.sl;Lf.bl.visible=!!S;
+  if(S){const sw=MGW.sweepT,e=S.e,y=e<S.w?-1.35*Math.min(1,e/Math.max(0.05,S.w*0.7)):e<S.w+sw?-1.35+3.25*((e-S.w)/sw):1.9*Math.max(0,1-(e-S.w-sw)/MGW.backT);
+    Lf.sh.rotation.y=y;Lf.sh.rotation.x=-0.95-ap*0.2;Lf.el.rotation.x=-0.6;}
   else Lf.sh.rotation.y=0;
   M.cnA=ease(M.cnA||0,M.brace>0||M.cnT>0?1:0,M.brace>0?14:5);J.cannon.rotation.x=-2.2*(1-M.cnA)+(-ap-M.pt)*M.cnA;
   M.pdA=ease(M.pdA||0,M.pod||M.podQ&&M.podQ.length||M.podT>0?1:0,10);J.podLid.rotation.x=-1.05*M.pdA;

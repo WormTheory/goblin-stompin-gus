@@ -96,6 +96,8 @@ canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;point
 .dbgpad .ddl{margin:2px 0 4px 20px;border:1px solid #e8c14a;border-radius:3px;background:#14181d;max-height:min(330px,50vh);overflow:auto;overscroll-behavior:contain}
 .dbgpad .ddo{padding:2px 10px;cursor:pointer;font-weight:600}
 .dbgpad .ddo.cur{background:#3a3420}.dbgpad .ddo.sel{color:#e8c14a}
+.dbgpad .dbtn{display:inline-block;padding:1px 10px;border:1px solid #e8c14a;border-radius:3px;cursor:pointer;background:#2a2614;color:#e8c14a;font-weight:700}
+.dbgpad .dmsg{display:block;max-width:220px;margin-top:2px;font-size:11px;font-weight:400;color:#c8c8b8;white-space:normal}
 .dbgpad .arw{cursor:pointer;padding:0 4px;border-radius:2px}
 .dbgpad .arw:hover{background:#e8c14a;color:#141a20}
 .fpsc{position:absolute;top:40px;left:50%;transform:translateX(-50%);text-align:center;background:rgba(18,22,28,.78);color:#9fe870;font:700 12px/1.35 ui-monospace,Menlo,Consolas,monospace;padding:4px 8px;border-radius:3px;z-index:6;pointer-events:none;white-space:pre}
@@ -166,22 +168,22 @@ canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;point
 .drvhud .tk{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border:2px solid #ffd75a;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.45);clip-path:polygon(0 0,35% 0,35% 12%,65% 12%,65% 0,100% 0,100% 35%,88% 35%,88% 65%,100% 65%,100% 100%,65% 100%,65% 88%,35% 88%,35% 100%,0 100%,0 65%,12% 65%,12% 35%,0 35%)}
 .drvhud .tk.hard{width:34px;height:34px;margin:-17px 0 0 -17px;border:3px solid #ff4a3a;box-shadow:0 0 6px rgba(255,60,40,.7)}
 .drvhud .pip{position:absolute;width:7px;height:7px;margin:-4px 0 0 -4px;background:#7cd4ff;box-shadow:0 0 0 1px rgba(0,0,0,.6)}
-.drvhud .mgw{position:absolute;display:grid;grid-template-columns:auto auto;align-items:center;column-gap:8px;row-gap:3px;padding:5px 8px;background:rgba(14,17,22,.62);border-radius:4px;font:600 11px var(--f-mono);color:var(--bone);text-shadow:0 1px 0 #000}
-.drvhud .mgw.tl,.drvhud .mgw.bl{right:calc(50% + 130px)}
-.drvhud .mgw.tr,.drvhud .mgw.br{left:calc(50% + 130px)}
-.drvhud .mgw.tl,.drvhud .mgw.tr{bottom:calc(50% + 30px)}
-.drvhud .mgw.bl,.drvhud .mgw.br{top:calc(50% + 30px)}
-.drvhud .mgw .an{grid-column:1/3;letter-spacing:.04em;text-transform:uppercase;font-size:10px;color:var(--mute)}
-.drvhud .mgw .ap{display:flex;gap:3px}
-.drvhud .mgw .ap .pip{position:static;margin:0;width:6px;height:12px;border-radius:2px;background:#ffd75a}
-.drvhud .mgw .ap .pip.e{background:rgba(238,240,230,.18)}
-.drvhud .mgw .belt{display:block;width:96px;height:7px;background:rgba(238,240,230,.18);border-radius:2px;overflow:hidden}
-.drvhud .mgw .belt i{display:block;height:100%;width:100%;background:#ffd75a}
-.drvhud .mgw .rlb{display:none;grid-column:1/3;width:100%;height:4px;background:rgba(238,240,230,.18);border-radius:2px;overflow:hidden}
-.drvhud .mgw .rlb i{display:block;height:100%;width:0;background:#f0a04a}
-.drvhud .mgw.rl .rlb{display:block}
-.drvhud .mgw.rl{color:var(--mute)}
-@media (max-width:700px){.drvhud .mgw.tl,.drvhud .mgw.bl{right:calc(50% + 70px)}.drvhud .mgw.tr,.drvhud .mgw.br{left:calc(50% + 70px)}}
+.drvhud .mglb .mgg{position:absolute;top:0;bottom:0;width:6px;background:rgba(10,13,16,.5);border:1px solid rgba(232,246,255,.3);border-radius:2px;overflow:hidden}
+.drvhud .mglb .mgg i{position:absolute;left:0;right:0;bottom:0;height:100%;background:#ffd75a}
+.drvhud .mglb .mgg.l1{right:calc(100% + 7px)}.drvhud .mglb .mgg.l2{right:calc(100% + 18px)}
+.drvhud .mglb .mgg.r1{left:calc(100% + 7px)}.drvhud .mglb .mgg.r2{left:calc(100% + 18px)}
+.drvhud .mglb .mgg.lo i{background:#ff6a4a}
+.drvhud .mglb .mgg.rl i{background:#f0a04a;opacity:.75}
+/* (the readouts: just above the speedometer, in the corner (beside it they'd run into the health bar on all but the
+   widest screens), two by two, each its button, then what's loaded, a rule, and its name) */
+.drvhud .mgro{position:absolute;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(172px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(2,minmax(128px,auto));gap:8px 16px;padding:8px 12px;background:rgba(14,17,22,.62);border-radius:4px;color:#ffd75a;text-shadow:0 1px 0 #000}
+.drvhud .mgc{display:grid;grid-template-columns:auto 1fr;align-items:end;column-gap:10px}
+.drvhud .mgc .cb{font:600 11px var(--f-mono)}
+.drvhud .mgc .cn{text-align:right;font:400 22px var(--f-px);line-height:1}
+.drvhud .mgc .cw{grid-column:1/3;margin-top:2px;padding-top:2px;border-top:2px solid currentColor;text-align:right;font:600 10px var(--f-mono);letter-spacing:.04em;text-transform:uppercase}
+.drvhud .mgc.rl{color:#f0a04a}
+@media (pointer:coarse){.drvhud .mgro{bottom:calc(352px + env(safe-area-inset-bottom,0px))}}
+@media (max-width:700px){.drvhud .mgro{grid-template-columns:repeat(2,minmax(96px,auto));gap:6px 10px;padding:6px 8px}.drvhud .mgc .cn{font-size:18px}}
 .rb-t tr.rb-sec th{padding-top:14px;font:600 11px var(--f-body);color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
 .dveh{display:flex;gap:6px;align-items:stretch;justify-content:center;flex-wrap:wrap;max-width:100%}
 .dveh[hidden]{display:none}

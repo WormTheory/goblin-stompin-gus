@@ -6,7 +6,7 @@ const fs=require('fs');
 let hdr=fs.readFileSync('site.js','utf8').split('\n');
 const n=hdr.findIndex(l=>l.startsWith('eval(src);'));
 hdr=hdr.slice(0,n).join('\n');
-hdr=hdr.replace(/window\.__t=\{/,'window.__t={setGob,angDiff,mgLead,mgTarget,MGW,get DRV_WPN(){return DRV_WPN},get:(x,y,z)=>get(x,y,z),keys,mHeld,setRaw,solidAt,tenvVeh,MG,BINDS,ACTS,setBind,drvFind,mgFits,get nEdits(){return Object.keys(edits).length},');
+hdr=hdr.replace(/window\.__t=\{/,'window.__t={setGob,angDiff,tenvSpawnOne,tenvVehKinds,dbgItems,dbgMenuToggle,ddOpts,ddChoose,get DT(){return DT},get hintTxt(){return P1.ui.hint.hidden?"(hidden)":P1.ui.hint._s},mgLead,mgTarget,MGW,get DRV_WPN(){return DRV_WPN},get:(x,y,z)=>get(x,y,z),keys,mHeld,setRaw,solidAt,tenvVeh,MG,BINDS,ACTS,setBind,drvFind,mgFits,get nEdits(){return Object.keys(edits).length},');
 eval(hdr+`
 eval(src);const T=window.__t;let now=1000;
 const quiet=()=>{for(const g of T.goblins)if(g.state==='chase'&&!g.keep){g.state='wait';g.t=-1e9;g.root.visible=false;}};
@@ -164,14 +164,26 @@ hold([],1);
  // (emptying the rifle, and its reload)
  {mh.add('Mouse2');let t=0;while(W().rifle.n>0&&t<8){run(0.1);t+=0.1;}mh.delete('Mouse2');let r=0;while(W().rifle.rl>0&&r<6){run(0.1);r+=0.1;}
   console.log('  40 rounds gone in',f1(t),'s; reloaded in',f1(r),'s, back to',W().rifle.n);}
- // (the blade: a goblin 9 ahead, locked: a lunge up to it and the slash; then a wall in front with nothing locked)
- {run(1);const g=gob(0,11,12);run(0.2);const z0=M.z;M.hard=g;mh.add('Mouse0');run(0.05);mh.delete('Mouse0');let lt=0;run(0.12);const blade=M.J.arms.find(a=>a.s>0).bl.visible;run(0.5);
-  console.log('Heat Cleaver at a locked goblin 11 ahead: lunged',f1(M.z-z0),' goblin',g.state,' blade shown',blade,' cooling',W().blade.rl>0);
-  mh.add('Mouse0');run(0.05);mh.delete('Mouse0');console.log('  again at once: nothing (cooling down)',!(M.slT>0));M.hard=null;clear();run(1.5);
-  const X=Math.floor(M.x),Z=Math.floor(M.z)+5,Y=Math.floor(M.y);let n=0;for(let x=X-8;x<=X+8;x++)for(let y=Y;y<Y+7;y++){T.setRaw(x,y,Z,3);n++;}
-  const cnt=()=>{let c=0;for(let x=X-8;x<=X+8;x++)for(let y=Y;y<Y+7;y++)if(T.get(x,y,Z)===3)c++;return c;};run(0.1);const c0=cnt();
-  mh.add('Mouse0');run(0.05);mh.delete('Mouse0');run(0.5);const c1=cnt();console.log('  slashing at a wall 5 ahead, nothing locked: cut',c0-c1,'of',c0,'blocks');
-  for(let x=X-8;x<=X+8;x++)for(let y=Y;y<Y+7;y++)T.setRaw(x,y,Z,0);run(0.5);}
+ // (the blade: a goblin 18 ahead, locked: a lunge up to it and the sweep; then a wide wall ahead with nothing locked)
+ {run(1);const g=gob(0,18,12);run(0.2);const z0=M.z;M.hard=g;mh.add('Mouse0');run(0.05);mh.delete('Mouse0');run(0.12);const blade=M.J.arms.find(a=>a.s>0).bl.visible,ys=[];
+  for(let k=0;k<30;k++){run(1/60);ys.push(M.J.arms.find(a=>a.s>0).sh.rotation.y);}run(0.2);
+  console.log('Heat Cleaver at a locked goblin 18 ahead: lunged',f1(M.z-z0),' goblin',g.state,' blade shown',blade,' cooling',W().blade.rl>0,' arm swept from',f2(Math.min(...ys)),'to',f2(Math.max(...ys)),'(right to left:',ys.indexOf(Math.min(...ys))<ys.indexOf(Math.max(...ys)),')');
+  mh.add('Mouse0');run(0.05);mh.delete('Mouse0');console.log('  again at once: nothing (cooling down)',!M.sl);M.hard=null;clear();run(1.5);
+  // (goblins round it, either side and just behind: the sweep takes the ones in front and to the sides, not behind)
+  {const ring=[[-10,2],[10,2],[0,10],[-7,-7],[7,-7]].map(([x,z])=>gob(x,z,6));run(0.1);mh.add('Mouse0');run(0.05);mh.delete('Mouse0');run(0.8);
+   console.log('  goblins 10 to its right, left, ahead, and behind either side: cut down',ring.map(g=>g.state!=='chase'?'yes':'no').join(' '));clear();run(1.5);}
+  const X=Math.floor(M.x),Z=Math.floor(M.z)+12,Y=Math.floor(M.y);for(let x=X-16;x<=X+16;x++)for(let y=Y;y<Y+8;y++)T.setRaw(x,y,Z,3);
+  const cnt=(a,b)=>{let c=0;for(let x=X+a;x<=X+b;x++)for(let y=Y;y<Y+8;y++)if(T.get(x,y,Z)===3)c++;return c;};run(0.1);const c0=cnt(-16,16),l0=cnt(-16,-5),r0=cnt(5,16);const zz=M.z;
+  mh.add('Mouse0');run(0.05);mh.delete('Mouse0');run(0.8);console.log('  slashing at a wall 12 ahead, nothing locked: lunged',f1(M.z-zz),' cut',c0-cnt(-16,16),'blocks,',l0-cnt(-16,-5),'of them more than 5 off to one side and',r0-cnt(5,16),'to the other');
+  for(let x=X-16;x<=X+16;x++)for(let y=Y;y<Y+8;y++)T.setRaw(x,y,Z,0);run(0.5);}
+ // (bullets into a wall: about half the rounds that strike it break the block they hit)
+ {run(3);P.cam.yaw=Math.PI;P.cam.pitch=-0.05;run(0.3);const X=Math.floor(M.x),Z=Math.floor(M.z)+20,Y=Math.floor(M.y);for(let x=X-5;x<=X+5;x++)for(let y=Y;y<Y+12;y++)for(let z=Z;z<Z+6;z++)T.setRaw(x,y,z,3);run(0.2);
+  const cnt=()=>{let c=0;for(let x=X-5;x<=X+5;x++)for(let y=Y;y<Y+12;y++)for(let z=Z;z<Z+6;z++)if(T.get(x,y,z)===3)c++;return c;},c0=cnt(),n0=W().rifle.n;
+  mh.add('Mouse2');run(2);mh.delete('Mouse2');run(0.2);const fired=n0-W().rifle.n;console.log('Rivet Rifle into a wall: rounds',fired,' blocks broken',c0-cnt(),'(about half)');
+  for(let x=X-5;x<=X+5;x++)for(let y=Y;y<Y+12;y++)for(let z=Z;z<Z+6;z++)T.setRaw(x,y,z,0);run(3);}
+ // (the debug menu's Infinite ammo: nothing used up, nothing reloads; the blade still cools)
+ {T.DT.infAmmo=true;const n0=W().rifle.n;mh.add('Mouse2');run(5);mh.delete('Mouse2');tap('KeyE');run(1.5);const cn=W().cannon.n;
+  mh.add('Mouse0');run(0.05);mh.delete('Mouse0');run(0.1);console.log('Infinite ammo: rifle held 5 s, rounds',n0,'->',W().rifle.n,' reloading',W().rifle.rl>0,' cannon after a shot',cn,' blade cooling still',W().blade.rl>0);T.DT.infAmmo=false;run(1.5);}
  // (the pod: four goblins in the box, Q held a second locks them, let go fires four missiles)
  {P.cam.yaw=Math.PI;run(0.5);const gs=[gob(-6,40,3),gob(-2,44,3),gob(2,44,3),gob(6,40,3)];run(0.3);const n0=W().pod.n;T.keys.add('KeyQ');run(0.35);const l1=M.pod.locks.length;run(0.7);const L=M.pod.locks.length,pips=P.ui.drvHud.mgw.tk.filter(e=>!e.hidden&&e.className==='pip').length;T.keys.delete('KeyQ');
   run(0.05);const up=T.SHOTS.filter(S=>S.live&&S.kind==='missile').length;run(0.4);const fl=T.SHOTS.filter(S=>S.live&&S.kind==='missile').length;let t=0;while(T.SHOTS.some(S=>S.live&&S.kind==='missile')&&t<6){run(0.1);t+=0.1;}
@@ -186,6 +198,11 @@ hold([],1);
   for(let x=X-6;x<=X+6;x++)for(let y=Y;y<Y+12;y++)for(let z=Z;z<Z+3;z++)T.setRaw(x,y,z,0);for(let i=0;i<300&&!M.grounded;i++)run(1/60);run(1);
   tap('KeyE');run(0.6);tap('KeyE');run(1);console.log('  two more, then empty: shells',W().cannon.n,' reloading',W().cannon.rl>0);P.cam.pitch=-0.1;}
  hold(['KeyF'],0.8);console.log('  out of it: no locks',!M.soft&&!M.hard,' reloads go on: cannon',f1(W().cannon.rl));T.DT.host=1;}
+// ---- the on-foot controls line is hidden while piloting; the debug menu spawns vehicles
+{M=fresh();T.setGob(true);run(0.1);run(0.1);
+ const kinds=T.tenvVehKinds();console.log('debug menu vehicles:',T.ddOpts('vehSel').length,'kinds, rows',T.dbgItems().filter(it=>it.sec==='Vehicles').map(it=>it.label).join(', '),' Infinite ammo row',T.dbgItems().some(it=>it.k==='infAmmo'));
+ for(const t of ['car','tank','mech']){T.ddChoose('vehSel',kinds.indexOf(t));const msg=T.tenvSpawnOne(t);run(0.1);console.log('  spawn',t+':',msg);}
+ T.tenvClear();run(0.2);}
 // ---- Gnash and Grizzle: the same inputs, the same flight
 {const script=()=>{const out=[];const rec=()=>out.push([M.x,M.y,M.z,M.en,M.h]);hold(['KeyW'],1);rec();tap('KeyC');hold(['KeyW','KeyD'],1.5);rec();T.keys.add('KeyA');tap('ShiftLeft');run(0.4);T.keys.delete('KeyA');rec();
    hold(['Space'],1.5);rec();hold(['KeyW'],1);rec();run(2);rec();

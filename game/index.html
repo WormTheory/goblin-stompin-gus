@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:ad1e157e94cf701f8a2e12172f6851be2bcf7516eac307c508aea48f1d2168c1 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:1d57abbe8262fa7225564d54faf814b96335948e7c3940f5044ddfc12f523fa9 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -102,6 +102,8 @@ canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;point
 .dbgpad .ddl{margin:2px 0 4px 20px;border:1px solid #e8c14a;border-radius:3px;background:#14181d;max-height:min(330px,50vh);overflow:auto;overscroll-behavior:contain}
 .dbgpad .ddo{padding:2px 10px;cursor:pointer;font-weight:600}
 .dbgpad .ddo.cur{background:#3a3420}.dbgpad .ddo.sel{color:#e8c14a}
+.dbgpad .dbtn{display:inline-block;padding:1px 10px;border:1px solid #e8c14a;border-radius:3px;cursor:pointer;background:#2a2614;color:#e8c14a;font-weight:700}
+.dbgpad .dmsg{display:block;max-width:220px;margin-top:2px;font-size:11px;font-weight:400;color:#c8c8b8;white-space:normal}
 .dbgpad .arw{cursor:pointer;padding:0 4px;border-radius:2px}
 .dbgpad .arw:hover{background:#e8c14a;color:#141a20}
 .fpsc{position:absolute;top:40px;left:50%;transform:translateX(-50%);text-align:center;background:rgba(18,22,28,.78);color:#9fe870;font:700 12px/1.35 ui-monospace,Menlo,Consolas,monospace;padding:4px 8px;border-radius:3px;z-index:6;pointer-events:none;white-space:pre}
@@ -172,22 +174,22 @@ canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;point
 .drvhud .tk{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border:2px solid #ffd75a;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.45);clip-path:polygon(0 0,35% 0,35% 12%,65% 12%,65% 0,100% 0,100% 35%,88% 35%,88% 65%,100% 65%,100% 100%,65% 100%,65% 88%,35% 88%,35% 100%,0 100%,0 65%,12% 65%,12% 35%,0 35%)}
 .drvhud .tk.hard{width:34px;height:34px;margin:-17px 0 0 -17px;border:3px solid #ff4a3a;box-shadow:0 0 6px rgba(255,60,40,.7)}
 .drvhud .pip{position:absolute;width:7px;height:7px;margin:-4px 0 0 -4px;background:#7cd4ff;box-shadow:0 0 0 1px rgba(0,0,0,.6)}
-.drvhud .mgw{position:absolute;display:grid;grid-template-columns:auto auto;align-items:center;column-gap:8px;row-gap:3px;padding:5px 8px;background:rgba(14,17,22,.62);border-radius:4px;font:600 11px var(--f-mono);color:var(--bone);text-shadow:0 1px 0 #000}
-.drvhud .mgw.tl,.drvhud .mgw.bl{right:calc(50% + 130px)}
-.drvhud .mgw.tr,.drvhud .mgw.br{left:calc(50% + 130px)}
-.drvhud .mgw.tl,.drvhud .mgw.tr{bottom:calc(50% + 30px)}
-.drvhud .mgw.bl,.drvhud .mgw.br{top:calc(50% + 30px)}
-.drvhud .mgw .an{grid-column:1/3;letter-spacing:.04em;text-transform:uppercase;font-size:10px;color:var(--mute)}
-.drvhud .mgw .ap{display:flex;gap:3px}
-.drvhud .mgw .ap .pip{position:static;margin:0;width:6px;height:12px;border-radius:2px;background:#ffd75a}
-.drvhud .mgw .ap .pip.e{background:rgba(238,240,230,.18)}
-.drvhud .mgw .belt{display:block;width:96px;height:7px;background:rgba(238,240,230,.18);border-radius:2px;overflow:hidden}
-.drvhud .mgw .belt i{display:block;height:100%;width:100%;background:#ffd75a}
-.drvhud .mgw .rlb{display:none;grid-column:1/3;width:100%;height:4px;background:rgba(238,240,230,.18);border-radius:2px;overflow:hidden}
-.drvhud .mgw .rlb i{display:block;height:100%;width:0;background:#f0a04a}
-.drvhud .mgw.rl .rlb{display:block}
-.drvhud .mgw.rl{color:var(--mute)}
-@media (max-width:700px){.drvhud .mgw.tl,.drvhud .mgw.bl{right:calc(50% + 70px)}.drvhud .mgw.tr,.drvhud .mgw.br{left:calc(50% + 70px)}}
+.drvhud .mglb .mgg{position:absolute;top:0;bottom:0;width:6px;background:rgba(10,13,16,.5);border:1px solid rgba(232,246,255,.3);border-radius:2px;overflow:hidden}
+.drvhud .mglb .mgg i{position:absolute;left:0;right:0;bottom:0;height:100%;background:#ffd75a}
+.drvhud .mglb .mgg.l1{right:calc(100% + 7px)}.drvhud .mglb .mgg.l2{right:calc(100% + 18px)}
+.drvhud .mglb .mgg.r1{left:calc(100% + 7px)}.drvhud .mglb .mgg.r2{left:calc(100% + 18px)}
+.drvhud .mglb .mgg.lo i{background:#ff6a4a}
+.drvhud .mglb .mgg.rl i{background:#f0a04a;opacity:.75}
+/* (the readouts: just above the speedometer, in the corner (beside it they'd run into the health bar on all but the
+   widest screens), two by two, each its button, then what's loaded, a rule, and its name) */
+.drvhud .mgro{position:absolute;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(172px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(2,minmax(128px,auto));gap:8px 16px;padding:8px 12px;background:rgba(14,17,22,.62);border-radius:4px;color:#ffd75a;text-shadow:0 1px 0 #000}
+.drvhud .mgc{display:grid;grid-template-columns:auto 1fr;align-items:end;column-gap:10px}
+.drvhud .mgc .cb{font:600 11px var(--f-mono)}
+.drvhud .mgc .cn{text-align:right;font:400 22px var(--f-px);line-height:1}
+.drvhud .mgc .cw{grid-column:1/3;margin-top:2px;padding-top:2px;border-top:2px solid currentColor;text-align:right;font:600 10px var(--f-mono);letter-spacing:.04em;text-transform:uppercase}
+.drvhud .mgc.rl{color:#f0a04a}
+@media (pointer:coarse){.drvhud .mgro{bottom:calc(352px + env(safe-area-inset-bottom,0px))}}
+@media (max-width:700px){.drvhud .mgro{grid-template-columns:repeat(2,minmax(96px,auto));gap:6px 10px;padding:6px 8px}.drvhud .mgc .cn{font-size:18px}}
 .rb-t tr.rb-sec th{padding-top:14px;font:600 11px var(--f-body);color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
 .dveh{display:flex;gap:6px;align-items:stretch;justify-content:center;flex-wrap:wrap;max-width:100%}
 .dveh[hidden]{display:none}
@@ -1451,7 +1453,11 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <p class="pn-web">What's changed, newest first. These notes are also on <a href="patch-notes/index.html" target="_blank" rel="noopener">their own web page</a>.</p>
 <details class="pn-up pn-fold pn-new" id="version-0-5" open><summary tabindex="0"><h2>Version 0.5</h2><span class="pn-tog" aria-hidden="true"></span></summary>
 <h3>Mobile Gear (Testing Environment)</h3>
-<ul><li>A new vehicle to try out in the Testing Environment: the Mobile Gear, an armoured walker eight blocks tall. Pick it from the vehicle buttons in the Testing Environment tab and it's set down in front of you. Only Gnash and Grizzle can pilot it for now.</li><li>Walk up and press F (controller Y) to climb in. Hold F for half a second to climb out, so a stray tap won't throw you out mid-fight.</li><li>It moves where the camera points, with the view from behind and above it so the crosshair sits in the middle of the screen and you can see over its head. On foot it sets off slowly and builds up into a jog, its strides lengthening and its arms swinging, stepping whichever way you're going, backwards and sideways included. Standing still, its legs stay planted as you look around until its body has turned too far on them, then they step round to catch up. Press C (controller B) to switch boost on and it drops into a wide, braced crouch and skates along the ground three times as fast, at no cost. Everything is about a fifth faster than it was.</li><li>Shift (controller X) is a quick boost: a sharp burst in the direction you're holding, or straight back with nothing held, taken in the same braced skating crouch as boosting, then easing off smoothly rather than stopping dead. Each one costs energy.</li><li>Space (controller A) jumps: it dips into a quick crouch, pushes off, tucks its legs up and swings them out beneath it. Holding it flies upward on the thrusters. In the air it leans well into the way it's flying, its legs hang nearly straight, swept back behind it the faster it goes, and its back and calf thrusters tip down to hold it up. With boost on in the air it glides instead of dropping.</li><li>Thrusters run on the energy gauge under the crosshair. Empty it and it redlines: the gauge flashes red and you can't boost or fly until it recovers. Energy comes back quickly once you stop drawing on it, and faster on the ground.</li><li>It leans into the way it's going, and its thrusters fire from whichever side pushes it there: the back ones going forward, the side ones strafing, the chest ones going backwards. Its legs fold up smoothly as it leaves the ground and its feet stay planted flat, up and down steps too. Skating over a pit, its feet ease over the gap rather than dropping to the bottom. Its thruster flames taper to a point.</li><li>It steps up one-block ledges on foot and two-block ledges while boosting. Run into a wall or a building while boosting and it smashes a hole and carries on; at full boost it ploughs straight through with barely a stumble. Walking into one just stops it. Anything small in its way gets trampled, and a hard landing knocks goblins over.</li><li>It's armed, with a weapon on each trigger. Each has its own load and reloads by itself once it's empty, shown in four boxes round the crosshair: - Right click (controller RT): the Rivet Rifle in its right hand. Hold it for a steady stream of rounds. - Left click (controller LT): the Heat Cleaver on its left arm. With a target locked and close by, it lunges in, then sweeps a glowing blade across in front of it that cuts down goblins, tears into vehicles and slices clean through walls. It needs a moment to cool between swings. - Q (controller LB): the Swarm Pod on its left shoulder. Hold it and the pod locks on to whatever's in the lock box, up to four locks, then let go and a homing missile flies at each. With nothing locked, a tap fires one where you're aiming. - E (controller RB): the Breaker Cannon on its right shoulder. On the ground it stops, braces and swings the cannon over its shoulder before firing a heavy shell that blasts a crater. In the air it fires at once and the kick shoves it backwards.</li><li>Lock-on: anything in the box round the crosshair is picked out by itself, and the rifle and blade aim at it, leading a moving target. Middle click (controller R3) holds on to it with a hard lock, and the camera turns to keep it in view while you move round it. Press it again to let go.</li><li>It has 600 health. Wreck it and you're thrown out. The assault boost and repairs are coming in a later update.</li><li>Its controls can be rebound in Options, in their own "Piloting a Mobile Gear" section.</li><li>Mobile Gears aren't kept when you leave the Testing Environment.</li></ul>
+<ul><li>A new vehicle to try out in the Testing Environment: the Mobile Gear, an armoured walker eight blocks tall. Pick it from the vehicle buttons in the Testing Environment tab and it's set down in front of you. Only Gnash and Grizzle can pilot it for now.</li><li>Walk up and press F (controller Y) to climb in. Hold F for half a second to climb out, so a stray tap won't throw you out mid-fight.</li><li>It moves where the camera points, with the view from behind and above it so the crosshair sits in the middle of the screen and you can see over its head. On foot it sets off slowly and builds up into a jog, its strides lengthening and its arms swinging, stepping whichever way you're going, backwards and sideways included. Standing still, its legs stay planted as you look around until its body has turned too far on them, then they step round to catch up. Press C (controller B) to switch boost on and it drops into a wide, braced crouch and skates along the ground three times as fast, at no cost. Everything is about a fifth faster than it was.</li><li>Shift (controller X) is a quick boost: a sharp burst in the direction you're holding, or straight back with nothing held, taken in the same braced skating crouch as boosting, then easing off smoothly rather than stopping dead. Each one costs energy.</li><li>Space (controller A) jumps: it dips into a quick crouch, pushes off, tucks its legs up and swings them out beneath it. Holding it flies upward on the thrusters. In the air it leans well into the way it's flying, its legs hang nearly straight, swept back behind it the faster it goes, and its back and calf thrusters tip down to hold it up. With boost on in the air it glides instead of dropping.</li><li>Thrusters run on the energy gauge under the crosshair. Empty it and it redlines: the gauge flashes red and you can't boost or fly until it recovers. Energy comes back quickly once you stop drawing on it, and faster on the ground.</li><li>It leans into the way it's going, and its thrusters fire from whichever side pushes it there: the back ones going forward, the side ones strafing, the chest ones going backwards. Its legs fold up smoothly as it leaves the ground and its feet stay planted flat, up and down steps too. Skating over a pit, its feet ease over the gap rather than dropping to the bottom. Its thruster flames taper to a point.</li><li>It steps up one-block ledges on foot and two-block ledges while boosting. Run into a wall or a building while boosting and it smashes a hole and carries on; at full boost it ploughs straight through with barely a stumble. Walking into one just stops it. Anything small in its way gets trampled, and a hard landing knocks goblins over.</li><li>It's armed, with a weapon on each trigger. Each has its own load and reloads by itself once it's empty. Beside the speedometer, in the bottom corner, each weapon's button, what it has loaded and its name are laid out as they're carried (shoulders above, arms below), and up either side of the lock box round the crosshair a tall gauge for each weapon shows how full it is, or how far along its reload is: - Right click (controller RB): the Rivet Rifle in its right hand. Hold it for a steady stream of rounds. Its rounds chip at walls: about half the time a round breaks the block it hits. - Left click (controller LB): the Heat Cleaver on its left arm. It lunges forward (at a locked target if one's close, stopping with it in reach), then sweeps a long glowing blade from right to left in a wide arc round in front of it that cuts down goblins, tears into vehicles and slices clean through walls. It needs a moment to cool between swings. - Q (controller LT): the Swarm Pod on its left shoulder. Hold it and the pod locks on to whatever's in the lock box, up to four locks, then let go and a homing missile flies at each. With nothing locked, a tap fires one where you're aiming. - E (controller RT): the Breaker Cannon on its right shoulder. On the ground it stops, braces and swings the cannon over its shoulder before firing a heavy shell that blasts a crater. In the air it fires at once and the kick shoves it backwards. It sits up on a post, so firing low it clears the Gear's own chest.</li><li>Lock-on: anything in the box round the crosshair is picked out by itself, and the rifle and blade aim at it, leading a moving target. Middle click (controller R3) holds on to it with a hard lock, and the camera turns to keep it in view while you move round it. Press it again to let go.</li><li>It has 600 health. Wreck it and you're thrown out. The assault boost and repairs are coming in a later update.</li><li>Its controls can be rebound in Options, in their own "Piloting a Mobile Gear" section.</li><li>Mobile Gears aren't kept when you leave the Testing Environment.</li><li>While you're piloting, the controls line for on foot is hidden; the Gear's own controls line shows instead.</li></ul>
+<h3>Debug menu</h3>
+<ul><li>Vehicles: pick any vehicle from the list and press Spawn, and one is set down ahead of you, parked and empty, ready to get into. Testing Environment only.</li><li>Infinite ammo: while it's on, nothing that has to be reloaded ever runs out (the Mobile Gear's blade still has to cool between swings).</li></ul>
+<h3>Bullets break blocks</h3>
+<ul><li>Rounds from guns, the Mobile Gear's rifle, Gnash's rifle and handgun, the helicopter's machine gun and the militia's mounted guns, now break the block they hit about half the time, so sustained fire slowly chews through cover.</li></ul>
 <h3>Less prop pop-in</h3>
 <ul><li>Props out in the open (patio tables, beach and harbour gear, the stadium's fittings and the like) are now drawn out to 64 blocks, up from 34, and furniture indoors stays at 34 as before. The distance is now the same in every direction, so things on the diagonal no longer show up later than things straight ahead.</li><li>Props now grow up out of the ground over a moment as they come into range, instead of suddenly appearing.</li><li>New PROPS slider in Options, under Render distance: set how far props are drawn, from 32 to 192 blocks. Furniture indoors goes about half as far as the setting.</li></ul>
 <h3>Weather</h3>
@@ -11574,7 +11580,8 @@ function wpnTick(o,dt){for(const k in o.wpn||{}){const s=o.wpn[k];s.cd-=dt;s.ck=
 // (pulling the trigger with nothing loaded clicks: once a press, or every quarter second held)
 function wpnFire(o,k){const s=o.wpn&&o.wpn[k];if(!s)return false;
   if(s.rl>0||s.n<=0){if(!(s.ck>0)){s.ck=0.25;wpnClick();}return false;}if(s.cd>0)return false;
-  s.n--;s.cd=s.W.gap;if(s.n<=0){s.rl=s.W.reload;if(audio)sfx('Magazine empty',()=>tone('square',300,180,0.12,0.03));}return true;}
+  s.cd=s.W.gap;if(DT.infAmmo&&!s.W.cool)return true;   // (the debug menu's Infinite ammo: nothing used up, so nothing reloads; a cooldown, the blade's, still counts)
+  s.n--;if(s.n<=0){s.rl=s.W.reload;if(audio)sfx('Magazine empty',()=>tone('square',300,180,0.12,0.03));}return true;}
 function wpnClick(){if(audio)sfx('Dry fire click',()=>{tone('square',2400,1500,0.018,0.05);tone('triangle',900,600,0.03,0.04,0.035);});}
 // the helicopter's machine gun, one round: down the line to where you're aiming (led onto a locked target), a little
 // scattered, to the first goblin, vehicle or wall in the way; a tracer and a puff where it hits
@@ -11591,13 +11598,21 @@ function gunRound(M,p,mx,my,mz,dmg,sc0,cause,snd,A0){
   let gt=1e9,gg=null;for(const g of goblins){if(g.state!=='chase')continue;const ox=g.pos.x-mx,oy=g.pos.y+0.8-my,oz=g.pos.z-mz,t=ox*ux+oy*uy+oz*uz;if(t<0||t>R||t>=gt)continue;
     const cx=ox-ux*t,cy=oy-uy*t,cz=oz-uz*t;if(cx*cx+cz*cz<0.5&&Math.abs(cy)<1.1){gt=t;gg=g;}}
   let t=0.5,hit='air';_sp.own=M;
-  for(;t<Math.min(R,gt);t+=0.5){const x=mx+ux*t,y=my+uy*t,z=mz+uz*t;if(y<1||solidAt(x,Math.floor(y),z)){hit='wall';break;}_sp.pos.set(x,y,z);if(shotHitsVeh(_sp)){hit='veh';break;}}
+  let wx=0,wy=0,wz=0;
+  for(;t<Math.min(R,gt);t+=0.5){const x=mx+ux*t,y=my+uy*t,z=mz+uz*t;if(y<1||solidAt(x,Math.floor(y),z)){hit='wall';wx=Math.floor(x);wy=Math.floor(y);wz=Math.floor(z);break;}_sp.pos.set(x,y,z);if(shotHitsVeh(_sp)){hit='veh';break;}}
   if(hit==='air'&&gg&&t>=gt){t=gt;hit='gob';}
   const ex=mx+ux*t,ey=my+uy*t,ez=mz+uz*t;tracer(mx,my,mz,ex,ey,ez);if(audio)sfx(snd,()=>noise(0.06,0.1,2400,'highpass'));
   if(hit==='gob')damageGoblin(gg,dmg,new V3(ex,ey,ez),new V3(ux,0.3,uz),cause);
   else if(hit==='veh')vehBlast(ex,ey,ez,0.8,4,M);
   if(hit!=='air')puff(ex,ey,ez,1,hit==='wall'?0x9a948a:0xffb040,0.2);
+  if(hit==='wall')bulletBreak(wx,wy,wz,ux,uz);
 }
+// a bullet into a wall: half the time the block it struck breaks (only that one, so a stream of rounds chews through a
+// wall slowly, well short of what a shell, a missile or a blade does), with the same wreckage as anything else breaking
+function bulletBreak(bx,by,bz,ux,uz){
+  if(SBX||Math.random()>=0.5||by<1||by>=H)return false;const b=get(bx,by,bz);if(b===AIR||b===WATER||b===BEDROCK)return false;
+  setRaw(bx,by,bz,AIR);addEdit(bx,by,bz,AIR);const ch=new Set();for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((bx+ox)/CS),Math.floor((bz+oz)/CS)));
+  const L=[{x:bx,y:by,z:bz,b}],o={force:0.5,dx:ux,dz:uz,up:0.4};rebuildSet(ch);save();destroyFX(L,o);settle(L,o);pumpsHit(L);return true;}
 // a tank's shell as it would leave the gun now: from the muzzle, along the turret as it's turned (it may still be swinging
 // round), climbing or dipping toward A only as far as the gun goes (about 31 degrees up, 27 down)
 function tankShell(M,A){const a=M.h+M.tu,fx=Math.sin(a),fz=Math.cos(a),x=M.x+fx*3.9,y=M.y+2.2,z=M.z+fz*3.9,L=Math.hypot(A.x-x,A.y-y,A.z-z)||1,sp=45,
@@ -12207,7 +12222,9 @@ function makeMech(){
   {const pod=grp(T,0.95,3.0,-0.7);J.pod=pod;bx(pod,MGM.frame,0.8,0.7,1.5,0,0,0);bx(pod,MGM.trim,0.82,0.18,0.08,0,0.2,0.76);
     for(const [a,b] of [[-0.18,-0.12],[0.18,-0.12],[-0.18,0.16],[0.18,0.16]])bx(pod,MGM.dark,0.26,0.22,0.06,a,b,0.77);
     const lid=grp(pod,0,0.36,-0.75);J.podLid=lid;bx(lid,MGM.plate,0.86,0.1,1.56,0,0.04,0.78);}
-  {const cn=grp(T,-0.95,2.75,-1.2);J.cannon=cn;bx(cn,MGM.frame,0.7,0.75,1.1,0,0,0);bx(cn,MGM.trim,0.72,0.16,0.3,0,0.3,0.2);
+  // (the cannon's pivot sits up on a post, forward over the shoulder, so swung down to fire low it clears the chest)
+  bx(T,MGM.frame,0.3,1.0,0.3,-0.95,2.95,-0.35);
+  {const cn=grp(T,-0.95,3.5,-0.35);J.cannon=cn;bx(cn,MGM.frame,0.7,0.75,1.1,0,0,0);bx(cn,MGM.trim,0.72,0.16,0.3,0,0.3,0.2);
     bx(cn,MGM.dark,0.32,0.32,2.6,0,0.12,1.7);bx(cn,MGM.frame,0.44,0.44,0.5,0,0.12,2.95);J.cannonM=grp(cn,0,0.12,3.25);}
   const hd=grp(T,0,2.62,0.25);J.head=hd;
   bx(hd,MGM.frame,0.9,0.55,1.0,0,0.27,0);bx(hd,MGM.plate,0.95,0.2,0.7,0,0.6,-0.05);J.eye=bx(hd,MGM.glow,0.74,0.11,0.05,0,0.3,0.51);
@@ -12219,7 +12236,7 @@ function makeMech(){
     // blade itself, a long glowing bar shown only while it cuts)
     let mz=null,bl=null;
     if(s<0){bx(el,MGM.dark,0.36,2.3,0.46,0,-1.7,0.2);bx(el,MGM.trim,0.2,0.5,0.3,0,-0.95,0.5);mz=grp(el,0,-2.9,0.2);}
-    else{bx(el,MGM.trim,0.32,1.0,0.32,0,-1.1,0.45);bx(el,MGM.dark,0.18,0.5,0.18,0,-1.75,0.45);bl=bx(el,MGM.heat,0.18,3.8,0.6,0,-3.8,0.45);bl.visible=false;}
+    else{bx(el,MGM.trim,0.32,1.0,0.32,0,-1.1,0.45);bx(el,MGM.dark,0.18,0.5,0.18,0,-1.75,0.45);bl=bx(el,MGM.heat,0.22,11.4,0.85,0,-7.6,0.45);bl.visible=false;}
     J.arms.push({sh,el,s,mz,bl});}
   return{g,J};
 }
@@ -12274,7 +12291,7 @@ function drvMech(M,dt){
   if(airB&&!M.asc)mgDraw(M,(moving?MG.airEN:MG.hoverEN)*dt);
   // (a quick boost: the burst, then for MG.qbDec it bleeds its speed off smoothly toward what you're holding)
   // (the blade's lunge, like a quick boost straight at what's locked, comes before anything else)
-  if(M.lgT>0){M.lgT-=dt;M.vx=M.lgx;M.vz=M.lgz;if(M.lgT<=0){M.lgT=0;M.qbD=MG.qbDec*0.6;}}
+  if(M.lgT>0){M.lgT-=dt;M.vx=M.lgx;M.vz=M.lgz;if(M.lgT<=0){M.lgT=0;M.vx*=0.15;M.vz*=0.15;M.qbD=MG.qbDec*0.6;}}   // (the lunge stops short, planted for the swing, rather than sliding on)
   else if(M.qbT>0){M.qbT-=dt;M.vx=M.qbx;M.vz=M.qbz;if(M.qbT<=0)M.qbD=MG.qbDec;}
   else if(M.qbD>0){M.qbD-=dt;const k=Math.min(1,dt*6);M.vx+=(wx*spd-M.vx)*k;M.vz+=(wz*spd-M.vz)*k;}
   else if(!air&&!M.boostOn){
@@ -12497,20 +12514,22 @@ function newMech(V,x,z,h){const mk=makeMech(),M=Object.assign({isMech:true,kind:
   scene.add(M.g);V.mechs.push(M);mechPose(M,0);return M;}
 // ---- The Mobile Gear's weapons and lock-on (see mech.js for the machine itself). Four weapons, one on each trigger, each
 // with its own load and reload (DRV_WPN.mech, through the same wpnFire as a tank's): the Rivet Rifle in the right hand
-// (held: a stream of rounds), the Heat Cleaver in the left (a lunge at what's locked, then a glowing slash that cuts
-// through goblins, vehicles and walls), the Swarm Pod on the left shoulder (held: it locks up to four targets in the
+// (held: a stream of rounds), the Heat Cleaver in the left (a lunge forward, at what's locked if it's near, then a
+// long glowing blade swept right to left round in front of it, cutting through goblins, vehicles and walls), the Swarm Pod on the left shoulder (held: it locks up to four targets in the
 // lock box, let go: a homing missile at each) and the Breaker Cannon on the right (on the ground it braces a moment,
 // then a heavy shell; in the air it fires at once and the kick shoves it back).
 // Lock-on: whatever's in the lock box round the crosshair is picked out by itself (the soft lock, M.soft) and the arms'
 // shots go at it, led for its speed; the hard lock button holds on to it (M.hard), turning the camera to keep it in
 // view while you move round it ----
-DRV_WPN.mech=[{k:'rifle',name:'Rivet Rifle',max:40,gap:0.1,reload:2.5,act:'mgArmR'},{k:'blade',name:'Heat Cleaver',max:1,gap:0,reload:1.2,act:'mgArmL'},
+DRV_WPN.mech=[{k:'rifle',name:'Rivet Rifle',max:40,gap:0.1,reload:2.5,act:'mgArmR'},{k:'blade',name:'Heat Cleaver',max:1,gap:0,reload:1.2,act:'mgArmL',cool:true},
   {k:'pod',name:'Swarm Pod',max:8,gap:0.07,reload:6,act:'mgShL'},{k:'cannon',name:'Breaker Cannon',max:3,gap:0.9,reload:7,act:'mgShR'}];
 // (box: the lock box's half-width round the crosshair, as an angle; range: how far off it picks things out; hardRange:
-// past this a hard lock lets go; camTurn: how fast a hard lock turns the camera, a second)
+// past this a hard lock lets go; camTurn: how fast a hard lock turns the camera, a second. The blade: a locked target
+// within bladeReach is lunged at till it's bladeMid off, at most lungeMax; with none it lunges lunge ahead. Its cut
+// reaches bladeR past the body, bladeArc either side of straight ahead, swept in sweepT after windT (or the lunge))
 const MGW={box:0.22,range:150,hardRange:170,camTurn:2.4,
   rifleDmg:3,rifleSc:0.006,
-  bladeReach:9,bladeDmg:20,bladeVD:90,bladeR:6.5,lungeT:0.2,slashT:0.34,
+  bladeReach:24,bladeMid:8,lunge:7,lungeMax:12,bladeDmg:20,bladeVD:90,bladeR:13,bladeArc:1.92,lungeT:0.2,windT:0.1,sweepT:0.24,backT:0.22,
   podLock:0.2,podLocks:4,missV:50,missTurn:5,missR:2.6,missDmg:4,missVD:35,missCrush:1.4,
   canV:95,canGrav:3,brace:0.4,canR:5.5,canDmg:10,canVD:180,canCrush:3.8,recoil:14};
 // a point on the mech in its torso's frame (x to its left, y up from its feet, z ahead), out in the world
@@ -12552,7 +12571,7 @@ function mgLead(M,p,x,y,z,sp){const T=mgTarget(M);if(!T||!lockAlive(T))return dr
   const t=Math.min(3,Math.hypot(T.pos.x-x,ty-y,T.pos.z-z)/sp),cl=v=>Math.max(-30,Math.min(30,v));
   return{x:T.pos.x+cl(V.vx)*t,y:ty+cl(V.vy)*t,z:T.pos.z+cl(V.vz)*t};}
 // (the muzzles: the rifle's at the end of the right forearm, the cannon's over the right shoulder, the pod's tubes)
-const mgRifleAt=M=>mgAt(M,-1.84,4.6,3.0),mgCannonAt=M=>mgAt(M,-0.95,7.3,2.4),mgPodAt=M=>mgAt(M,0.95,7.1,-0.2);
+const mgRifleAt=M=>mgAt(M,-1.84,4.6,3.0),mgCannonAt=M=>mgAt(M,-0.95,7.9,2.9),mgPodAt=M=>mgAt(M,0.95,7.1,-0.2);
 // one step of the weapons, for the pilot p (called first thing in drvMech, so a hard lock's turn of the camera counts
 // this step)
 function mgWeapons(M,p,i,dt){
@@ -12561,13 +12580,13 @@ function mgWeapons(M,p,i,dt){
   // (the rifle: held, a round every W.gap, a little scattered, to the first goblin, vehicle or wall on the line)
   if(i.mgArmR&&wpnFire(M,'rifle')){const m=mgRifleAt(M),A=mgLead(M,p,m.x,m.y,m.z,400);
     gunRound(M,p,m.x,m.y,m.z,MGW.rifleDmg,MGW.rifleSc,'Riveted by a Mobile Gear','Mobile Gear rifle',A);M.rfT=0.6;M.rkT=0.08;puff(m.x,m.y,m.z,1,0xffd080,0.15);}
-  // (the blade: a lunge at the locked target if it's within reach, then the slash; with nothing locked, a slash where
-  // it stands)
-  if(i.mgArmLP&&wpnFire(M,'blade')){const T=mgTarget(M);let fx=Math.sin(M.ty),fz=Math.cos(M.ty);
-    if(T){const dx=T.pos.x-M.x,dz=T.pos.z-M.z,d=Math.hypot(dx,dz)||1;if(d<MGW.bladeReach+MG.r+3){fx=dx/d;fz=dz/d;
-      const go=Math.max(0,d-MG.r-2.5);if(go>0.5){const v=Math.min(50,go/MGW.lungeT);M.lgT=MGW.lungeT;M.lgx=fx*v;M.lgz=fz*v;}}}
-    M.slDir={x:fx,z:fz};M.slAt=M.lgT>0?M.lgT:0.06;M.slT=MGW.slashT+M.slAt;if(audio)sfx('Mobile Gear blade',()=>tone('sawtooth',220,880,0.18,0.04));}
-  if(M.slAt>0){M.slAt-=dt;if(M.slAt<=0)mgSlash(M);}if(M.slT>0)M.slT=Math.max(0,M.slT-dt);
+  // (the blade: a lunge forward, at the locked target if it's within reach (stopping with it about halfway along the
+  // blade), otherwise the way you're looking; then the sweep, right to left)
+  if(i.mgArmLP&&wpnFire(M,'blade')){const T=mgTarget(M),f=mgFwd(p),fh=Math.hypot(f.x,f.z)||1;let fx=f.x/fh,fz=f.z/fh,go=MGW.lunge;
+    if(T){const dx=T.pos.x-M.x,dz=T.pos.z-M.z,d=Math.hypot(dx,dz)||1;if(d<MGW.bladeReach){fx=dx/d;fz=dz/d;go=Math.min(MGW.lungeMax,Math.max(0,d-MG.r-MGW.bladeMid));}}
+    M.lgT=0;if(go>0.5){const v=go/MGW.lungeT;M.lgT=MGW.lungeT;M.lgx=fx*v;M.lgz=fz*v;}
+    M.sl={fx,fz,e:0,w:Math.max(MGW.windT,M.lgT),f:0,hit:new Set()};if(audio)sfx('Mobile Gear blade',()=>tone('sawtooth',220,880,0.18,0.04));}
+  if(M.sl){const S=M.sl;S.e+=dt;const f=Math.max(0,Math.min(1,(S.e-S.w)/MGW.sweepT));if(f>S.f){mgSlash(M,S,S.f,f);S.f=f;}if(S.e>S.w+MGW.sweepT+MGW.backT)M.sl=null;}
   // (the pod: held, a lock every MGW.podLock on what's in the box, the least locked first, up to four or what's
   // loaded; let go, the missiles go one after another, each at its own lock (none: one, at the crosshair))
   const pd=W.pod;
@@ -12585,31 +12604,39 @@ function mgWeapons(M,p,i,dt){
   if(M.brace>0){M.brace-=dt;if(M.brace<=0){M.brace=0;mgCannon(M,p);}}
 }
 // with nobody in it: no locks, nothing firing, but the weapons still reload
-function mgDisarm(M,dt){wpnInit(M,'mech');wpnTick(M,dt);M.soft=M.hard=null;M.inBox=[];M.pod=null;M.podQ=null;M.brace=0;M.lgT=0;M.slAt=0;
-  for(const k of ['rfT','rkT','cnT','podT','slT'])M[k]=Math.max(0,(M[k]||0)-dt);}
-// the slash: goblins in front of it, within the blade's reach, cut down; vehicles there hurt hard; and a curved cut
-// through the blocks at the blade's height
-function mgSlash(M){
-  const fx=M.slDir.x,fz=M.slDir.z,R=MGW.bladeR+MG.r;
-  for(const g of goblins){if(g.state!=='chase'||g.pos.y<M.y-1.5||g.pos.y>M.y+MG.hy)continue;const dx=g.pos.x-M.x,dz=g.pos.z-M.z,d=Math.hypot(dx,dz)||0.01;
-    if(d<=R&&(dx*fx+dz*fz)/d>0.15)damageGoblin(g,MGW.bladeDmg,g.pos.clone(),new V3(dx/d,0.8,dz/d),"Cut down by a Mobile Gear's heat blade");}
-  vehBlast(M.x+fx*(MG.r+2.8),M.y+3.5,M.z+fz*(MG.r+2.8),3.4,MGW.bladeVD,M);
-  mgSlice(M,fx,fz);
-  const e=mgAt(M,0,4,MG.r+3);puff(e.x,e.y,e.z,8,0xffa040,1.2);if(audio)sfx('Mobile Gear blade',()=>{noise(0.25,0.25,2600,'bandpass');tone('sawtooth',700,160,0.22,0.05);});addShake(0.2,M.x,M.z,14);
+function mgDisarm(M,dt){wpnInit(M,'mech');wpnTick(M,dt);M.soft=M.hard=null;M.inBox=[];M.pod=null;M.podQ=null;M.brace=0;M.lgT=0;M.sl=null;
+  for(const k of ['rfT','rkT','cnT','podT'])M[k]=Math.max(0,(M[k]||0)-dt);}
+// which way round from straight ahead (S.fx,S.fz) the point rx,rz is: 0 ahead, plus to the mech's left, minus to its
+// right; and the sweep's angle a fraction f of the way through it (from bladeArc to its right, round to bladeArc left)
+const mgSlAng=(S,rx,rz)=>Math.atan2(rx*S.fz-rz*S.fx,rx*S.fx+rz*S.fz),mgSweepA=f=>-MGW.bladeArc+2*MGW.bladeArc*f;
+// one step of the sweep, from fraction f0 to f1 of the way round: goblins the blade passes through cut down (each once a
+// swing), vehicles hurt hard, the blocks in that slice of the arc cut through. Sparks and the sound with the first step
+function mgSlash(M,S,f0,f1){
+  const a0=mgSweepA(f0),a1=mgSweepA(f1),R=MGW.bladeR+MG.r,lx=S.fz,lz=-S.fx;
+  for(const g of goblins){if(g.state!=='chase'||S.hit.has(g)||g.pos.y<M.y-1.5||g.pos.y>M.y+MG.hy)continue;const dx=g.pos.x-M.x,dz=g.pos.z-M.z,d=Math.hypot(dx,dz)||0.01,a=mgSlAng(S,dx,dz);
+    if(d<=R&&(f0===0?a>=a0:a>a0)&&a<=a1){S.hit.add(g);damageGoblin(g,MGW.bladeDmg,g.pos.clone(),new V3(dx/d,0.8,dz/d),"Cut down by a Mobile Gear's heat blade");}}
+  // (vehicles: a blow at three points round the arc, a third of the way along the blade's length and two thirds)
+  for(const q of [1/6,1/2,5/6])if(f0<q&&f1>=q){const a=mgSweepA(q),ux=S.fx*Math.cos(a)+lx*Math.sin(a),uz=S.fz*Math.cos(a)+lz*Math.sin(a);
+    for(const r of [MG.r+MGW.bladeR*0.35,MG.r+MGW.bladeR*0.75])vehBlast(M.x+ux*r,M.y+4.5,M.z+uz*r,MGW.bladeR*0.22,MGW.bladeVD*0.5,M);}
+  mgSlice(M,S,f0===0?a0-1e-6:a0,a1);
+  if(f0===0){const e=mgAt(M,0,4.5,MG.r+3);puff(e.x,e.y,e.z,8,0xffa040,1.2);if(audio)sfx('Mobile Gear blade',()=>{noise(0.25,0.25,2600,'bandpass');tone('sawtooth',700,160,0.22,0.05);});addShake(0.25,M.x,M.z,16);}
 }
-// the blade's cut through the blocks: an arc in front of it, from just past its body to the blade's tip, about 130
-// degrees wide and two blocks high at chest height (the same wreckage as ramming: the blocks fly, and what's left with
-// nothing under it can come down)
-function mgSlice(M,fx,fz){
-  if(SBX)return 0;const R0=MG.r+1.2,R1=MG.r+MGW.bladeR,y0=Math.floor(M.y+3),y1=Math.floor(M.y+4.6),E=Math.ceil(R1)+1;
+// the blade's cut through the blocks: the slice of the arc between angles lo and hi (see mgSlAng), from just past its
+// body to the blade's tip, at the blade's height, three blocks deep (the same wreckage as ramming: the blocks fly, and
+// what's left with nothing under it can come down)
+function mgSlice(M,S,lo,hi){
+  if(SBX)return 0;const R0=MG.r+1.2,R1=MG.r+MGW.bladeR,y0=Math.floor(M.y+3.6),y1=Math.floor(M.y+5.6),E=Math.ceil(R1)+1;
   const ch=new Set(),broken=[],cx0=Math.floor(M.x),cz0=Math.floor(M.z);
-  for(let bz=cz0-E;bz<=cz0+E;bz++)for(let bx=cx0-E;bx<=cx0+E;bx++){const rx=bx+0.5-M.x,rz=bz+0.5-M.z,d=Math.hypot(rx,rz);if(d<R0||d>R1||(rx*fx+rz*fz)/d<0.42)continue;
+  for(let bz=cz0-E;bz<=cz0+E;bz++)for(let bx=cx0-E;bx<=cx0+E;bx++){const rx=bx+0.5-M.x,rz=bz+0.5-M.z,d=Math.hypot(rx,rz);if(d<R0||d>R1)continue;const a=mgSlAng(S,rx,rz);if(a<=lo||a>hi)continue;
     for(let by=y0;by<=y1;by++){const b=get(bx,by,bz);if(b===AIR||b===WATER||b===BEDROCK||by<1||by>=H)continue;
       setRaw(bx,by,bz,AIR);addEdit(bx,by,bz,AIR);broken.push({x:bx,y:by,z:bz,b});
       for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((bx+ox)/CS),Math.floor((bz+oz)/CS)));}}
+  S.cut=(S.cut||0)+broken.length;
   if(!broken.length)return 0;
-  const o={force:0.9,dx:fx,dz:fz,up:0.6};rebuildSet(ch);save();destroyFX(broken.slice(0,120),o);settle(broken,o);pumpsHit(broken);
-  knockProps(M.x+fx*(MG.r+3),M.y+3,M.z+fz*(MG.r+3),MGW.bladeR,fx,fz);
+  // (the bits fly on round the way the blade's going: toward its left)
+  const am=(lo+hi)/2,lx=S.fz,lz=-S.fx,ux=S.fx*Math.cos(am)+lx*Math.sin(am),uz=S.fz*Math.cos(am)+lz*Math.sin(am);
+  const o={force:0.9,dx:ux+lx*0.6,dz:uz+lz*0.6,up:0.6};rebuildSet(ch);save();destroyFX(broken.slice(0,60),o);settle(broken,o);pumpsHit(broken);
+  knockProps(M.x+ux*(MG.r+MGW.bladeR*0.5),M.y+4.5,M.z+uz*(MG.r+MGW.bladeR*0.5),MGW.bladeR*0.5,ux,uz);
   return broken.length;}
 // one missile off the pod: up and out first, then it turns after its lock (or the crosshair's spot, with none)
 function mgMissile(M,p,T){
@@ -12639,9 +12666,11 @@ function mgWpnPose(M,J,ap,dt,ease){
     const k=M.raA,kick=M.rkT>0?0.12:0;R.sh.rotation.y+=(az-R.sh.rotation.y)*k;
     R.sh.rotation.x+=((-0.25-el*0.3-M.pt*0.5)-R.sh.rotation.x)*k;R.el.rotation.x+=((-(Math.PI/2-0.25)-el*0.7-M.pt*0.5+kick)-R.el.rotation.x)*k;}
   else R.sh.rotation.y=0;
-  // (the slash: drawn back across the body during the lunge, then swept from its left out across to the right)
-  const st=M.slT||0;Lf.bl.visible=st>0;
-  if(st>0){const q=1-Math.min(1,st/MGW.slashT),sw=q<0.15?1.2:1.2-2.4*Math.min(1,(q-0.15)/0.45);Lf.sh.rotation.y=sw;Lf.sh.rotation.x=-0.9-ap*0.3;Lf.el.rotation.x=-0.6;}
+  // (the swing: drawn back across the body to its right during the lunge, swept round out to its left, then back. The
+  // arm's turn only runs to about where the cut does, as far as a shoulder can)
+  const S=M.sl;Lf.bl.visible=!!S;
+  if(S){const sw=MGW.sweepT,e=S.e,y=e<S.w?-1.35*Math.min(1,e/Math.max(0.05,S.w*0.7)):e<S.w+sw?-1.35+3.25*((e-S.w)/sw):1.9*Math.max(0,1-(e-S.w-sw)/MGW.backT);
+    Lf.sh.rotation.y=y;Lf.sh.rotation.x=-0.95-ap*0.2;Lf.el.rotation.x=-0.6;}
   else Lf.sh.rotation.y=0;
   M.cnA=ease(M.cnA||0,M.brace>0||M.cnT>0?1:0,M.brace>0?14:5);J.cannon.rotation.x=-2.2*(1-M.cnA)+(-ap-M.pt)*M.cnA;
   M.pdA=ease(M.pdA||0,M.pod||M.podQ&&M.podQ.length||M.podT>0?1:0,10);J.podLid.rotation.x=-1.05*M.pdA;
@@ -12677,13 +12706,14 @@ function mechHud(p,H){
   H.mg.spd.textContent=red?'REDLINE':Math.round(Math.hypot(M.vx,M.vz)*3.6)+' km/h';
 }
 // the weapons' display: the lock box round the crosshair (its size the lock box's angle at the view's field of view), a
-// bracket on what's soft-locked, a heavier one on a hard lock, the missile locks as pips by their targets; and the
-// four weapons in the corners round the crosshair, each where its trigger is (left arm low left, right shoulder high
-// right...), with its button, its load (pips, or a belt for the rifle) and while it reloads a bar and the seconds
-const MGW_SPOT={mgArmL:'bl',mgArmR:'br',mgShL:'tl',mgShR:'tr'};
+// bracket on what's soft-locked, a heavier one on a hard lock, the missile locks as pips by their targets; up either
+// side of the lock box a tall gauge for each weapon, the left-hand weapons' on the left (the arm's nearest the box), how
+// much is loaded, or while it reloads how far along it is; and down in the corner beside the speedometer each weapon's
+// button, its load and its name, laid out as they're carried (shoulders above, arms below, left side on the left)
+const MGW_SPOT={mgShL:'tl',mgShR:'tr',mgArmL:'bl',mgArmR:'br'},MGW_GAUGE={mgArmL:'l1',mgShL:'l2',mgArmR:'r1',mgShR:'r2'};
 function mgWpnHud(p,H,on){
   let W=H.mgw;
-  if(!W){if(!on)return;const el=document.createElement('div');el.className='mgwh';el.innerHTML='<div class="mglb"></div>';H.el.append(el);W=H.mgw={el,lb:el.querySelector('.mglb'),tk:[],wb:null,key:''};}
+  if(!W){if(!on)return;const el=document.createElement('div');el.className='mgwh';el.innerHTML='<div class="mglb"></div><div class="mgro"></div>';H.el.append(el);W=H.mgw={el,lb:el.querySelector('.mglb'),ro:el.querySelector('.mgro'),tk:[],wb:null,key:''};}
   W.el.hidden=!on;if(!on)return;
   const M=p.drv.o;wpnInit(M,'mech');const cam=p.camera,fov=cam.fov||72;
   {const h=(Math.tan(MGW.box)/Math.tan(fov*Math.PI/360)*100).toFixed(1)+'%';if(W.lbH!==h){W.lbH=h;W.lb.style.height=h;}}
@@ -12698,17 +12728,20 @@ function mgWpnHud(p,H,on){
     const sx=(_dhv.x+1)/2*100,sy=(1-_dhv.y)/2*100;e.style.left=sx.toFixed(2)+'%';e.style.top=sy.toFixed(2)+'%';
     if(m.c==='pip')e.style.transform='translate('+(14+m.n*9)+'px,-18px) rotate(45deg)';}
   for(;k<W.tk.length;k++)W.tk[k].hidden=true;
-  // (the four weapon boxes, made again if the controller's been picked up or put down, so the buttons are right)
+  // (the gauges and the readouts, made again if the controller's been picked up or put down, so the buttons are right)
   const key=p.pad?'p':'k';
-  if(W.key!==key){W.key=key;if(W.wb)for(const b of W.wb)b.r.remove();
-    W.wb=DRV_WPN.mech.map(D=>{const r=document.createElement('div');r.className='mgw '+MGW_SPOT[D.act];const many=D.max>8;
-      r.innerHTML='<span class="an">'+D.name+' '+hudHTML(actMark(p,D.act))+'</span><span class="ap">'+(many?'<span class="belt"><i></i></span>':'<span class="pip"></span>'.repeat(D.max))+'</span><span class="ac"></span><span class="rlb"><i></i></span>';
-      W.el.append(r);return{r,D,many,pips:[...r.querySelectorAll('.ap .pip')],belt:r.querySelector('.belt i'),ac:r.querySelector('.ac'),rl:r.querySelector('.rlb i'),last:''};});}
-  for(const b of W.wb){const s=M.wpn[b.D.k],rl=s.rl>0,st=(rl?'r'+s.rl.toFixed(1):'n'+s.n)+(b.D.k==='pod'&&M.pod?'l'+M.pod.locks.length:'')+(b.D.k==='cannon'&&M.brace>0?'b':'');if(st===b.last)continue;b.last=st;
-    b.r.classList.toggle('rl',rl);
-    if(b.many)b.belt.style.width=(s.n/s.W.max*100).toFixed(1)+'%';else b.pips.forEach((e,j)=>e.classList.toggle('e',j>=s.n));
-    if(rl){b.rl.style.width=((1-s.rl/s.W.reload)*100).toFixed(1)+'%';b.ac.textContent=(b.D.k==='blade'?'Cooling ':'Reloading ')+s.rl.toFixed(1)+'s';}
-    else b.ac.textContent=b.many?String(s.n):b.D.k==='pod'&&M.pod?'Locks '+M.pod.locks.length:b.D.k==='cannon'&&M.brace>0?'Bracing':b.D.k==='blade'?'Ready':'';}
+  if(W.key!==key){W.key=key;if(W.wb)for(const b of W.wb){b.c.remove();b.g.remove();}
+    W.wb=DRV_WPN.mech.map(D=>{const c=document.createElement('div');c.className='mgc '+MGW_SPOT[D.act];
+      c.innerHTML='<span class="cb">'+hudHTML(actMark(p,D.act))+'</span><b class="cn"></b><span class="cw"></span>';W.ro.append(c);
+      const g=document.createElement('div');g.className='mgg '+MGW_GAUGE[D.act];g.innerHTML='<i></i>';W.lb.append(g);
+      return{c,g,D,n:c.querySelector('.cn'),w:c.querySelector('.cw'),f:g.querySelector('i'),last:''};});
+    W.ro.append(...['tl','tr','bl','br'].map(sp=>W.wb.find(b=>MGW_SPOT[b.D.act]===sp).c));}   // (in reading order)
+  for(const b of W.wb){const s=M.wpn[b.D.k],rl=s.rl>0,cool=!!b.D.cool,locks=b.D.k==='pod'&&M.pod?M.pod.locks.length:-1,brace=b.D.k==='cannon'&&M.brace>0;
+    const st=(rl?'r'+s.rl.toFixed(1):'n'+s.n)+'l'+locks+(brace?'b':'');if(st===b.last)continue;b.last=st;
+    const f=rl?1-s.rl/s.W.reload:s.n/s.W.max;b.f.style.height=(Math.max(0,Math.min(1,f))*100).toFixed(1)+'%';
+    b.g.classList.toggle('rl',rl);b.c.classList.toggle('rl',rl);b.g.classList.toggle('lo',!rl&&!cool&&s.n<=s.W.max*0.25);
+    b.n.textContent=rl?s.rl.toFixed(1)+'s':cool?'—':String(s.n);
+    b.w.textContent=b.D.name+(rl?(cool?' · cooling':' · reloading'):locks>=0?' · '+locks+' locked':brace?' · bracing':'');}
 }
 const SWIM_HOLD=0.35;   // (holding jump in the water: seconds between paddle strokes upward)
 function movePlayer(p,dt){
@@ -15196,10 +15229,10 @@ const ACTS=[
   {id:'mgQB',n:'Quick boost',c:'#5ec8f0',kb:['ShiftLeft'],pad:[2],mg:true},
   {id:'mgBoost',n:'Boost on / off',c:'#3a8fd8',kb:['KeyC'],pad:[1],mg:true},
   {id:'mgOut',n:'Get out (hold)',c:'#6ab0d8',kb:['KeyF'],pad:[3],mg:true},
-  {id:'mgArmL',n:'Left arm: Heat Cleaver',c:'#ff9a3a',kb:['Mouse0'],pad:[6],mg:true},
-  {id:'mgArmR',n:'Right arm: Rivet Rifle (hold)',c:CC.bite,kb:['Mouse2'],pad:[7],mg:true},
-  {id:'mgShL',n:'Left shoulder: Swarm Pod (hold to lock, let go to fire)',c:'#d8d8d0',kb:['KeyQ'],pad:[4],mg:true},
-  {id:'mgShR',n:'Right shoulder: Breaker Cannon',c:CC.stomp,kb:['KeyE'],pad:[5],mg:true},
+  {id:'mgArmL',n:'Left arm: Heat Cleaver',c:'#ff9a3a',kb:['Mouse0'],pad:[4],mg:true},
+  {id:'mgArmR',n:'Right arm: Rivet Rifle (hold)',c:CC.bite,kb:['Mouse2'],pad:[5],mg:true},
+  {id:'mgShL',n:'Left shoulder: Swarm Pod (hold to lock, let go to fire)',c:'#d8d8d0',kb:['KeyQ'],pad:[6],mg:true},
+  {id:'mgShR',n:'Right shoulder: Breaker Cannon',c:CC.stomp,kb:['KeyE'],pad:[7],mg:true},
   {id:'mgLock',n:'Hard lock on / off',c:'#e0564a',kb:['Mouse1'],pad:[11],mg:true},
 ];
 const MG_IDS=ACTS.filter(a=>a.mg).map(a=>a.id),MG_PRESS=MG_IDS.map(k=>k+'P');
@@ -15209,7 +15242,10 @@ function defaultBinds(){const o={};for(const a of ACTS)o[a.id]={kb:a.kb.slice(),
 function loadBinds(){BINDS=defaultBinds();
   try{const v=JSON.parse(localStorage.getItem(BIND_KEY)||'null');if(v&&typeof v==='object')for(const a of ACTS){const b=v[a.id];if(!b)continue;
     if(Array.isArray(b.kb))BINDS[a.id].kb=[...new Set(b.kb.filter(c=>typeof c==='string'&&c.length<40&&!KB_RESERVED.has(c)))].slice(0,2);
-    if(Array.isArray(b.pad))BINDS[a.id].pad=[...new Set(b.pad.filter(i=>Number.isInteger(i)&&i>=0&&i<24&&!PAD_RESERVED.has(i)))].slice(0,2);}}catch(e){}}
+    if(Array.isArray(b.pad))BINDS[a.id].pad=[...new Set(b.pad.filter(i=>Number.isInteger(i)&&i>=0&&i<24&&!PAD_RESERVED.has(i)))].slice(0,2);
+    // (the Mobile Gear's weapons moved buttons on the controller: saved controls still on the old ones take the new)
+    if(MG_PAD_WAS[a.id]!==undefined&&BINDS[a.id].pad.length===1&&BINDS[a.id].pad[0]===MG_PAD_WAS[a.id])BINDS[a.id].pad=a.pad.slice();}}catch(e){}}
+const MG_PAD_WAS={mgArmL:6,mgArmR:7,mgShL:4,mgShR:5};
 function saveBinds(){try{localStorage.setItem(BIND_KEY,JSON.stringify(BINDS));}catch(e){}}
 loadBinds();
 const KEY_NAMES={Mouse0:'Left click',Mouse1:'Middle click',Mouse2:'Right click',Mouse3:'Mouse 4',Mouse4:'Mouse 5',Space:'Space',ShiftLeft:'Left Shift',ShiftRight:'Right Shift',
@@ -15972,9 +16008,9 @@ function gobAttack(p){const k=gobArms(p).wpn;
 const _gr=new V3();
 function gobShoot(p){
   const W=gobGun(gobArms(p).wpn)?gobW(p):GOB_WPN.rifle,hg=W===GOB_WPN.handgun,c=p.camera.position,cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp;
-  let hitG=null,hitC=null,d=0.3;
+  let hitG=null,hitC=null,hitW=null,d=0.3;
   for(;d<W.range&&!hitG&&!hitC;d+=0.2){const x=c.x+dx*d,y=c.y+dy*d,z=c.z+dz*d;
-    if(solidAt(Math.floor(x),Math.floor(y),Math.floor(z)))break;
+    if(solidAt(Math.floor(x),Math.floor(y),Math.floor(z))){hitW=[Math.floor(x),Math.floor(y),Math.floor(z)];break;}
     for(const g of goblins){if(g.state!=='chase')continue;if(Math.hypot(g.pos.x-x,g.pos.z-z)<0.45&&y>g.pos.y&&y<g.pos.y+1.5){hitG=g;break;}}
     if(!hitG&&(Math.round(d*5)%3===0))for(const q of carsNear(x,z,0.6,y-1)){hitC=q;break;}}
   const x1=c.x+dx*d,y1=c.y+dy*d,z1=c.z+dz*d,fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw);
@@ -15983,7 +16019,7 @@ function gobShoot(p){
   p.shake=Math.max(p.shake||0,hg?0.02:0.03);rumble(p,hg?0.14:0.2,50);
   if(hitG)damageGoblin(hitG,W.dmg,_gr.set(x1,y1,z1).clone(),new V3(dx,0.3,dz),W.cause);
   else if(hitC)damageCar(hitC,1,new V3(dx,0,dz));
-  else puff(x1,y1,z1,2,0xb0a898,0.12);
+  else{puff(x1,y1,z1,2,0xb0a898,0.12);if(hitW)bulletBreak(hitW[0],hitW[1],hitW[2],dx,dz);}   // (half the time the block it hit breaks: see bulletBreak)
 }
 // the stomp button: lob a grenade the way you're looking
 function gobThrow(p){
@@ -17477,12 +17513,12 @@ const sbxCells=cells=>{const h=SBX&&SBX.hits[SBX.hits.length-1];if(h&&h.kind==='
 // game speed and free cam
 const SPEEDS=[0.05,0.1,0.25,0.5,0.75,0.9,1,1.25,1.5,2];
 const PSPEEDS=[1,1.5,2,2.5,3,4,5,6,7,8,9,10];
-const DT={combo:false,hpBars:false,fps:false,sndList:false,info:false,curve:2,psI:0,invuln:false,infStam:false,fly:false,gob:false,host:2,speedI:6,paused:false,freecam:false,step:false,quick:false,menu:false,kbdOpen:false,selHeld:false,cur:0,navDir:0,navT:0};
+const DT={combo:false,hpBars:false,fps:false,sndList:false,info:false,curve:2,psI:0,invuln:false,infStam:false,infAmmo:false,veh:'car',vehMsg:'',fly:false,gob:false,host:2,speedI:6,paused:false,freecam:false,step:false,quick:false,menu:false,kbdOpen:false,selHeld:false,cur:0,navDir:0,navT:0};
 try{const q=JSON.parse(localStorage.getItem('goblin-stompin-gus-quickdbg')||'null');if(typeof q==='boolean')DT.quick=q;}catch(e){}
 try{for(const k of ['fps','hpBars','sndList','info'])DT[k]=localStorage.getItem('goblin-stompin-gus-'+k)==='1';}catch(e){}
 // the debug settings carry over from one session to the next (all but stopping time and the free cam, which would
 // only be confusing to come back to)
-const DT_KEY='goblin-stompin-gus-debug',DT_SAVED=['curve','psI','speedI','invuln','infStam','fly','fps','hpBars','sndList','info','quick'];
+const DT_KEY='goblin-stompin-gus-debug',DT_SAVED=['curve','psI','speedI','invuln','infStam','infAmmo','veh','fly','fps','hpBars','sndList','info','quick'];
 try{const q=JSON.parse(localStorage.getItem(DT_KEY)||'null');if(q&&typeof q==='object')for(const k of DT_SAVED)if(typeof q[k]===typeof DT[k])DT[k]=q[k];
   if(!(DT.speedI>=0&&DT.speedI<SPEEDS.length))DT.speedI=SPEEDS.indexOf(1);if(!(DT.psI>=0&&DT.psI<PSPEEDS.length))DT.psI=0;}catch(e){}
 function saveDT(){try{const o={};for(const k of DT_SAVED)o[k]=DT[k];localStorage.setItem(DT_KEY,JSON.stringify(o));
@@ -17544,7 +17580,9 @@ const DBG_COLS=4,DBG_SECS=[
   [0,'Time',[{k:'speed',label:'Game speed'},{k:'paused',label:'Stop time'}]],
   [0,'Camera',[{k:'freecam',label:'Free cam'},{k:'curve',label:'World curve'}]],
   [0,'World',[{k:'wx',label:'Weather'},{k:'season',label:'Season'}]],
-  [1,'Player',[{k:'pspeed',label:'Player speed'},{k:'invuln',label:'Invulnerable'},{k:'infStam',label:'Infinite stamina'},{k:'fly',label:'Flying'},{k:'host',label:'Enemy hostility'},{k:'combo',label:'Combo system'}]],
+  // (Testing Environment only: pick a kind, then Spawn puts one down ahead of you, parked and empty)
+  [0,'Vehicles',[{k:'vehSel',label:'Vehicle'},{k:'vehGo',label:'Spawn vehicle'}]],
+  [1,'Player',[{k:'pspeed',label:'Player speed'},{k:'invuln',label:'Invulnerable'},{k:'infStam',label:'Infinite stamina'},{k:'infAmmo',label:'Infinite ammo'},{k:'fly',label:'Flying'},{k:'host',label:'Enemy hostility'},{k:'combo',label:'Combo system'}]],
   [1,'Overlays',[{k:'fps',label:'FPS counter'},{k:'sndList',label:'Sound list'},{k:'info',label:'Info pane'}]],
   [2,'Rendering',[{k:'gProps',label:'Props'},{k:'gFixtures',label:'Fixtures'},{k:'gCaves',label:'Caves'},{k:'gSewers',label:'Sewers'},{k:'gSubway',label:'Subways'}]],
   [2,'Hitboxes',[{k:'show',label:'Display hitboxes'},
@@ -17566,7 +17604,7 @@ function toggleGfx(k){const g=GFX_KEY[k],off=GFX_OFF[g]=!GFX_OFF[g];
   const P=P1.pos,d=e=>Math.hypot(e.cx*CS-P.x,e.cz*CS-P.z);
   leafQ.length=0;for(const e of [...meshes.values()].sort((a,b)=>d(b)-d(a)))leafQ.push(ckey(e.cx,e.cz));}
 const curveTxt=()=>DT.curve===0?'Flat':DT.curve>0?'Down '+DT.curve:'Up '+(-DT.curve);
-function dbgVal(k){return isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='paused'||k==='freecam'||k==='combo'||k==='invuln'||k==='infStam'||k==='fly'||k==='fps'||k==='sndList'||k==='info'?DT[k]:DBG[k];}
+function dbgVal(k){return isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='vehSel'?tenvVehName(DT.veh):k==='vehGo'?DT.vehMsg:k==='paused'||k==='freecam'||k==='combo'||k==='invuln'||k==='infStam'||k==='infAmmo'||k==='fly'||k==='fps'||k==='sndList'||k==='info'?DT[k]:DBG[k];}
 // the rows on show: the individual hitbox switches only while 'Display hitboxes' is on
 // the menu's two tabs: 0 the switches themselves, 1 "Show / hide", which picks the rows tab 0 lists (kept in this browser)
 const DBG_HIDE_KEY='goblin-stompin-gus-dbghide',DBG_HIDE=new Set();
@@ -17586,25 +17624,29 @@ function setKbdMenu(on){
   DT.kbdOpen=on;DT.menu=DT.quick&&(on||DT.selHeld);mHeld.clear();mTap.clear();renderTime();
   try{if(on){if(locked())document.exitPointerLock();}else if(!dragMode&&!menuOpen&&!P1.paused){const r=canvas.requestPointerLock();if(r&&r.catch)r.catch(()=>{});}}catch(e){}
 }
-// the dropdown rows' choices, and choosing one (weather changes at once; season jumps to its first day)
-function ddOpts(k){return k==='wx'?Object.keys(WX_TYPES).map(t=>({v:t,n:WX_TYPES[t].i+' '+WX_TYPES[t].n})):SEASONS.map((n,i)=>({v:i,n}));}
-function ddCur(k){return k==='wx'?Object.keys(WX_TYPES).indexOf(WX.type):seasonOf();}
+// the dropdown rows' choices, and choosing one (weather changes at once; season jumps to its first day; a vehicle is
+// only picked, for Spawn)
+const DBG_DD=new Set(['wx','season','vehSel']);
+function ddOpts(k){return k==='vehSel'?tenvVehKinds().map(t=>({v:t,n:tenvVehName(t)})):k==='wx'?Object.keys(WX_TYPES).map(t=>({v:t,n:WX_TYPES[t].i+' '+WX_TYPES[t].n})):SEASONS.map((n,i)=>({v:i,n}));}
+function ddCur(k){return k==='vehSel'?Math.max(0,tenvVehKinds().indexOf(DT.veh)):k==='wx'?Object.keys(WX_TYPES).indexOf(WX.type):seasonOf();}
 function ddChoose(k,j){
-  if(k==='wx'){wxSet(Object.keys(WX_TYPES)[j],true);WX.until=gameDays()+1;}
+  if(k==='vehSel'){DT.veh=tenvVehKinds()[j];DT.vehMsg='';}
+  else if(k==='wx'){wxSet(Object.keys(WX_TYPES)[j],true);WX.until=gameDays()+1;}
   else{const y=Math.floor((dayN-1)/120);dayN=y*120+j*SEASON_LEN+1;wxSet(wxPick(seasonOf()),true);}
   DT.dd=null;tone('triangle',620,0,0.05,0.03);renderTime();
 }
 function dbgMenuToggle(){const it=dbgItems()[DT.cur];if(!it)return;
   if(DT.tab){if(it.k==='_all')DBG_HIDE.clear();else if(it.k==='_none'){for(const o of DBG_ITEMS)if(!o.act)DBG_HIDE.add(o.k);}else if(!DBG_HIDE.delete(it.k))DBG_HIDE.add(it.k);try{localStorage.setItem(DBG_HIDE_KEY,JSON.stringify([...DBG_HIDE]));}catch(e){}tone('triangle',it.k==='_none'||DBG_HIDE.has(it.k)?440:660,0,0.05,0.03);renderTime();return;}
-  if(it.k==='wx'||it.k==='season'){if(DT.dd&&DT.dd.k===it.k)ddChoose(it.k,DT.dd.i);else{DT.dd={k:it.k,i:ddCur(it.k)};DT.ddScroll=0;DT.ddNav=true;tone('triangle',560,0,0.04,0.02);renderTime();}return;}
+  if(DBG_DD.has(it.k)){if(DT.dd&&DT.dd.k===it.k)ddChoose(it.k,DT.dd.i);else{DT.dd={k:it.k,i:ddCur(it.k)};DT.ddScroll=0;DT.ddNav=true;tone('triangle',560,0,0.04,0.02);renderTime();}return;}
   DT.dd=null;
   if(DBG_SLIDE.has(it.k)){DT.edit=DT.edit===it.k?null:it.k;tone('triangle',DT.edit?620:480,0,0.05,0.03);renderTime();return;}
   if(GFX_KEY[it.k])toggleGfx(it.k);
   else if(isUi(it.k))toggleUi(it.k);
+  else if(it.k==='vehGo'){DT.vehMsg=tenvSpawnOne(DT.veh);tone('triangle',TENV?700:300,0,0.06,0.03);renderTime();return;}
   else if(it.k==='freecam')setFreecam(!DT.freecam);
   else if(it.k==='paused')DT.paused=!DT.paused;
   else if(it.k==='combo')setCombo(!DT.combo);
-  else if(it.k==='invuln'||it.k==='infStam'||it.k==='fly'||it.k==='fps'||it.k==='sndList'||it.k==='info'){DT[it.k]=!DT[it.k];try{localStorage.setItem('goblin-stompin-gus-'+it.k,DT[it.k]?'1':'0');}catch(e){}}
+  else if(it.k==='invuln'||it.k==='infStam'||it.k==='infAmmo'||it.k==='fly'||it.k==='fps'||it.k==='sndList'||it.k==='info'){DT[it.k]=!DT[it.k];try{localStorage.setItem('goblin-stompin-gus-'+it.k,DT[it.k]?'1':'0');}catch(e){}}
   else{DBG[it.k]=!DBG[it.k];try{localStorage.setItem(DBG_KEY,JSON.stringify(DBG));}catch(e){}}
   tone('triangle',620,0,0.05,0.03);renderTime();}
 // up/down move the highlight within its column (letting go of a picked slider); left/right move across to the next
@@ -17647,7 +17689,8 @@ function renderTime(){
       let body=txt;
       if(DT.tab){}
       else if(DBG_SLIDE.has(it.k)){const n=it.k==='curve'?21:it.k==='host'?3:(it.k==='speed'?SPEEDS:PSPEEDS).length,f=(it.k==='curve'?DT.curve+10:it.k==='host'?DT.host:it.k==='speed'?DT.speedI:DT.psI)/(n-1)*100;body='<span class="sl" data-k="'+it.k+'"><i style="width:'+f+'%"></i><b style="left:'+f+'%"></b></span><span class="slv">'+txt+'</span>';}
-      else if(it.k==='wx'||it.k==='season')body='<span class="dd">'+(it.k==='wx'?WX_TYPES[WX.type].i+' ':'')+txt+' ▾</span>';
+      else if(DBG_DD.has(it.k))body='<span class="dd">'+(it.k==='wx'?WX_TYPES[WX.type].i+' ':'')+txt+' ▾</span>';
+      else if(it.k==='vehGo')body='<span class="dbtn">Spawn</span>'+(txt?'<span class="dmsg">'+txt.replace(/[<&]/g,c=>c==='<'?'&lt;':'&amp;')+'</span>':'');
       let list='';
       if(DT.dd&&DT.dd.k===it.k){const cur=ddCur(it.k);list='<div class="ddl">'+ddOpts(it.k).map((o,j)=>'<div class="ddo'+(j===DT.dd.i?' cur':'')+(j===cur?' sel':'')+'" data-j="'+j+'">'+o.n+'</div>').join('')+'</div>';}
       return '<div class="dr'+(i===DT.cur?' cur':'')+(DT.edit===it.k?' edit':'')+'" data-i="'+i+'"><span>'+(it.col?'<i class="sw" style="background:'+it.col+'"></i>':'')+'</span><span>'+it.label+'</span><em'+(v===false?' class="off"':'')+'>'+body+'</em></div>'+list;});
@@ -23549,7 +23592,7 @@ function frame(now,bg){   // (bg: a tab in the background while online, kept goi
   hintTime-=dt;
   for(const p of act){
     if(netGuest())safe('arms',()=>gobArmsHud(p));else gobArmsHud(p);
-    const hint=p.ui.hint,grab=p===P1&&mouseNeedsClick();hint.hidden=!(grab||playing&&hintTime>0);
+    const hint=p.ui.hint,grab=p===P1&&mouseNeedsClick();hint.hidden=!(grab||playing&&hintTime>0&&!(p.drv&&p.drv.k==='mech'));   // (piloting the Mobile Gear its own controls line takes over: see mechHint)
     if(grab){const txt='Click to look around with the mouse';if(hint._s!==txt){hint._s=txt;hint.textContent=txt;}}
     else if(!hint.hidden){const txt=touchMode&&!p.pad?(p.gob?'BITE attacks  ·  STOMP throws a grenade  ·  JUMP  ·  tap DASH to dash, hold to sprint':'Hold STOMP  ·  BITE  ·  JUMP  ·  tap DASH to dash, hold to '+(abilOf(p).trample?'trample':'sprint')):bindHint(!!p.pad,p);if(hint._s!==txt){hint._s=txt;hint.innerHTML=hudHTML(txt);}}
   }
@@ -24955,8 +24998,8 @@ function tpRender(){
   for(const b of document.querySelectorAll('#tpVM [data-vm]'))b.setAttribute('aria-checked',String(b.dataset.vm===TS.vm));
   // (one button per kind of vehicle body the game has, so a new kind shows up here by itself; police cars are their own pool)
   const vb=document.getElementById('tpVehs');
-  if(vb&&!vb.childElementCount)for(const t of [...Object.keys(VEH),'police','tank','heli','plane','mech']){const b=document.createElement('button');b.type='button';b.className='pmenu';b.dataset.veh=t;
-    b.textContent=(VEH_NAME[t]||[MIL[t]?MIL[t].name:t])[0].replace(/^./,c=>c.toUpperCase());b.addEventListener('click',()=>tenvVeh(t));vb.append(b);}
+  if(vb&&!vb.childElementCount)for(const t of tenvVehKinds()){const b=document.createElement('button');b.type='button';b.className='pmenu';b.dataset.veh=t;
+    b.textContent=tenvVehName(t);b.addEventListener('click',()=>tenvVeh(t));vb.append(b);}
   const sn=document.getElementById('seedNote');if(sn&&TENV)sn.textContent=`Testing Environment · ${TENV.boxes.length} structure${TENV.boxes.length===1?'':'s'} spawned · seed ${seed}`;
 }
 // the Testing Environment's own tab, just right of Game: there only while in it (on: shown and opened)
@@ -25126,6 +25169,13 @@ function tenvFoe(kind){
 // with nobody in them, to stand on, smash or get into (a parked police car still wakes up when Gus comes close)
 const VEH_NAME={car:['car','cars'],van:['van','vans'],pickup:['pickup','pickups'],truck:['truck','trucks'],semi:['semi truck','semi trucks'],bus:['bus','buses'],
   fire:['fire engine','fire engines'],amb:['ambulance','ambulances'],news:['news van','news vans'],rv:['motorhome','motorhomes'],technical:['technical','technicals'],quad:['four-wheeler','four-wheelers'],police:['police car','police cars'],moto:['motorcycle','motorcycles'],motorcycle:['motorcycle','motorcycles'],bike:['motorcycle','motorcycles'],mech:['Mobile Gear','Mobile Gears']};
+// every kind of vehicle that can be spawned here, and its name with a capital (the panel's buttons and the debug menu's list)
+const tenvVehKinds=()=>[...Object.keys(VEH),'police','tank','heli','plane','mech'];
+const tenvVehName=t=>(VEH_NAME[t]||[MIL[t]?MIL[t].name:t])[0].replace(/^./,c=>c.toUpperCase());
+// the debug menu's Spawn: one of the kind picked, parked and empty, ready to get into (whatever the panel's count and
+// hunting or parked say). What it managed is what the panel would have said
+function tenvSpawnOne(t){if(!TENV)return 'Only in the Testing Environment';const n=TS.n,vm=TS.vm;TS.n=1;TS.vm='park';
+  try{tenvVeh(t);}finally{TS.n=n;TS.vm=vm;}const el=document.getElementById('tpInfo');return el?el.textContent:'';}
 // is there room at x,z for a vehicle reaching r out from its middle? Level ground, and clear of every car, tank,
 // helicopter and plane already there (a plane's wings reach about 11 out)
 function tenvRoom(x,z,r){

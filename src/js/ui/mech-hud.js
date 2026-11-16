@@ -29,13 +29,14 @@ function mechHud(p,H){
   H.mg.spd.textContent=red?'REDLINE':Math.round(Math.hypot(M.vx,M.vz)*3.6)+' km/h';
 }
 // the weapons' display: the lock box round the crosshair (its size the lock box's angle at the view's field of view), a
-// bracket on what's soft-locked, a heavier one on a hard lock, the missile locks as pips by their targets; and the
-// four weapons in the corners round the crosshair, each where its trigger is (left arm low left, right shoulder high
-// right...), with its button, its load (pips, or a belt for the rifle) and while it reloads a bar and the seconds
-const MGW_SPOT={mgArmL:'bl',mgArmR:'br',mgShL:'tl',mgShR:'tr'};
+// bracket on what's soft-locked, a heavier one on a hard lock, the missile locks as pips by their targets; up either
+// side of the lock box a tall gauge for each weapon, the left-hand weapons' on the left (the arm's nearest the box), how
+// much is loaded, or while it reloads how far along it is; and down in the corner beside the speedometer each weapon's
+// button, its load and its name, laid out as they're carried (shoulders above, arms below, left side on the left)
+const MGW_SPOT={mgShL:'tl',mgShR:'tr',mgArmL:'bl',mgArmR:'br'},MGW_GAUGE={mgArmL:'l1',mgShL:'l2',mgArmR:'r1',mgShR:'r2'};
 function mgWpnHud(p,H,on){
   let W=H.mgw;
-  if(!W){if(!on)return;const el=document.createElement('div');el.className='mgwh';el.innerHTML='<div class="mglb"></div>';H.el.append(el);W=H.mgw={el,lb:el.querySelector('.mglb'),tk:[],wb:null,key:''};}
+  if(!W){if(!on)return;const el=document.createElement('div');el.className='mgwh';el.innerHTML='<div class="mglb"></div><div class="mgro"></div>';H.el.append(el);W=H.mgw={el,lb:el.querySelector('.mglb'),ro:el.querySelector('.mgro'),tk:[],wb:null,key:''};}
   W.el.hidden=!on;if(!on)return;
   const M=p.drv.o;wpnInit(M,'mech');const cam=p.camera,fov=cam.fov||72;
   {const h=(Math.tan(MGW.box)/Math.tan(fov*Math.PI/360)*100).toFixed(1)+'%';if(W.lbH!==h){W.lbH=h;W.lb.style.height=h;}}
@@ -50,15 +51,18 @@ function mgWpnHud(p,H,on){
     const sx=(_dhv.x+1)/2*100,sy=(1-_dhv.y)/2*100;e.style.left=sx.toFixed(2)+'%';e.style.top=sy.toFixed(2)+'%';
     if(m.c==='pip')e.style.transform='translate('+(14+m.n*9)+'px,-18px) rotate(45deg)';}
   for(;k<W.tk.length;k++)W.tk[k].hidden=true;
-  // (the four weapon boxes, made again if the controller's been picked up or put down, so the buttons are right)
+  // (the gauges and the readouts, made again if the controller's been picked up or put down, so the buttons are right)
   const key=p.pad?'p':'k';
-  if(W.key!==key){W.key=key;if(W.wb)for(const b of W.wb)b.r.remove();
-    W.wb=DRV_WPN.mech.map(D=>{const r=document.createElement('div');r.className='mgw '+MGW_SPOT[D.act];const many=D.max>8;
-      r.innerHTML='<span class="an">'+D.name+' '+hudHTML(actMark(p,D.act))+'</span><span class="ap">'+(many?'<span class="belt"><i></i></span>':'<span class="pip"></span>'.repeat(D.max))+'</span><span class="ac"></span><span class="rlb"><i></i></span>';
-      W.el.append(r);return{r,D,many,pips:[...r.querySelectorAll('.ap .pip')],belt:r.querySelector('.belt i'),ac:r.querySelector('.ac'),rl:r.querySelector('.rlb i'),last:''};});}
-  for(const b of W.wb){const s=M.wpn[b.D.k],rl=s.rl>0,st=(rl?'r'+s.rl.toFixed(1):'n'+s.n)+(b.D.k==='pod'&&M.pod?'l'+M.pod.locks.length:'')+(b.D.k==='cannon'&&M.brace>0?'b':'');if(st===b.last)continue;b.last=st;
-    b.r.classList.toggle('rl',rl);
-    if(b.many)b.belt.style.width=(s.n/s.W.max*100).toFixed(1)+'%';else b.pips.forEach((e,j)=>e.classList.toggle('e',j>=s.n));
-    if(rl){b.rl.style.width=((1-s.rl/s.W.reload)*100).toFixed(1)+'%';b.ac.textContent=(b.D.k==='blade'?'Cooling ':'Reloading ')+s.rl.toFixed(1)+'s';}
-    else b.ac.textContent=b.many?String(s.n):b.D.k==='pod'&&M.pod?'Locks '+M.pod.locks.length:b.D.k==='cannon'&&M.brace>0?'Bracing':b.D.k==='blade'?'Ready':'';}
+  if(W.key!==key){W.key=key;if(W.wb)for(const b of W.wb){b.c.remove();b.g.remove();}
+    W.wb=DRV_WPN.mech.map(D=>{const c=document.createElement('div');c.className='mgc '+MGW_SPOT[D.act];
+      c.innerHTML='<span class="cb">'+hudHTML(actMark(p,D.act))+'</span><b class="cn"></b><span class="cw"></span>';W.ro.append(c);
+      const g=document.createElement('div');g.className='mgg '+MGW_GAUGE[D.act];g.innerHTML='<i></i>';W.lb.append(g);
+      return{c,g,D,n:c.querySelector('.cn'),w:c.querySelector('.cw'),f:g.querySelector('i'),last:''};});
+    W.ro.append(...['tl','tr','bl','br'].map(sp=>W.wb.find(b=>MGW_SPOT[b.D.act]===sp).c));}   // (in reading order)
+  for(const b of W.wb){const s=M.wpn[b.D.k],rl=s.rl>0,cool=!!b.D.cool,locks=b.D.k==='pod'&&M.pod?M.pod.locks.length:-1,brace=b.D.k==='cannon'&&M.brace>0;
+    const st=(rl?'r'+s.rl.toFixed(1):'n'+s.n)+'l'+locks+(brace?'b':'');if(st===b.last)continue;b.last=st;
+    const f=rl?1-s.rl/s.W.reload:s.n/s.W.max;b.f.style.height=(Math.max(0,Math.min(1,f))*100).toFixed(1)+'%';
+    b.g.classList.toggle('rl',rl);b.c.classList.toggle('rl',rl);b.g.classList.toggle('lo',!rl&&!cool&&s.n<=s.W.max*0.25);
+    b.n.textContent=rl?s.rl.toFixed(1)+'s':cool?'—':String(s.n);
+    b.w.textContent=b.D.name+(rl?(cool?' · cooling':' · reloading'):locks>=0?' · '+locks+' locked':brace?' · bracing':'');}
 }

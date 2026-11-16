@@ -196,7 +196,8 @@ function wpnTick(o,dt){for(const k in o.wpn||{}){const s=o.wpn[k];s.cd-=dt;s.ck=
 // (pulling the trigger with nothing loaded clicks: once a press, or every quarter second held)
 function wpnFire(o,k){const s=o.wpn&&o.wpn[k];if(!s)return false;
   if(s.rl>0||s.n<=0){if(!(s.ck>0)){s.ck=0.25;wpnClick();}return false;}if(s.cd>0)return false;
-  s.n--;s.cd=s.W.gap;if(s.n<=0){s.rl=s.W.reload;if(audio)sfx('Magazine empty',()=>tone('square',300,180,0.12,0.03));}return true;}
+  s.cd=s.W.gap;if(DT.infAmmo&&!s.W.cool)return true;   // (the debug menu's Infinite ammo: nothing used up, so nothing reloads; a cooldown, the blade's, still counts)
+  s.n--;if(s.n<=0){s.rl=s.W.reload;if(audio)sfx('Magazine empty',()=>tone('square',300,180,0.12,0.03));}return true;}
 function wpnClick(){if(audio)sfx('Dry fire click',()=>{tone('square',2400,1500,0.018,0.05);tone('triangle',900,600,0.03,0.04,0.035);});}
 // the helicopter's machine gun, one round: down the line to where you're aiming (led onto a locked target), a little
 // scattered, to the first goblin, vehicle or wall in the way; a tracer and a puff where it hits
@@ -213,13 +214,21 @@ function gunRound(M,p,mx,my,mz,dmg,sc0,cause,snd,A0){
   let gt=1e9,gg=null;for(const g of goblins){if(g.state!=='chase')continue;const ox=g.pos.x-mx,oy=g.pos.y+0.8-my,oz=g.pos.z-mz,t=ox*ux+oy*uy+oz*uz;if(t<0||t>R||t>=gt)continue;
     const cx=ox-ux*t,cy=oy-uy*t,cz=oz-uz*t;if(cx*cx+cz*cz<0.5&&Math.abs(cy)<1.1){gt=t;gg=g;}}
   let t=0.5,hit='air';_sp.own=M;
-  for(;t<Math.min(R,gt);t+=0.5){const x=mx+ux*t,y=my+uy*t,z=mz+uz*t;if(y<1||solidAt(x,Math.floor(y),z)){hit='wall';break;}_sp.pos.set(x,y,z);if(shotHitsVeh(_sp)){hit='veh';break;}}
+  let wx=0,wy=0,wz=0;
+  for(;t<Math.min(R,gt);t+=0.5){const x=mx+ux*t,y=my+uy*t,z=mz+uz*t;if(y<1||solidAt(x,Math.floor(y),z)){hit='wall';wx=Math.floor(x);wy=Math.floor(y);wz=Math.floor(z);break;}_sp.pos.set(x,y,z);if(shotHitsVeh(_sp)){hit='veh';break;}}
   if(hit==='air'&&gg&&t>=gt){t=gt;hit='gob';}
   const ex=mx+ux*t,ey=my+uy*t,ez=mz+uz*t;tracer(mx,my,mz,ex,ey,ez);if(audio)sfx(snd,()=>noise(0.06,0.1,2400,'highpass'));
   if(hit==='gob')damageGoblin(gg,dmg,new V3(ex,ey,ez),new V3(ux,0.3,uz),cause);
   else if(hit==='veh')vehBlast(ex,ey,ez,0.8,4,M);
   if(hit!=='air')puff(ex,ey,ez,1,hit==='wall'?0x9a948a:0xffb040,0.2);
+  if(hit==='wall')bulletBreak(wx,wy,wz,ux,uz);
 }
+// a bullet into a wall: half the time the block it struck breaks (only that one, so a stream of rounds chews through a
+// wall slowly, well short of what a shell, a missile or a blade does), with the same wreckage as anything else breaking
+function bulletBreak(bx,by,bz,ux,uz){
+  if(SBX||Math.random()>=0.5||by<1||by>=H)return false;const b=get(bx,by,bz);if(b===AIR||b===WATER||b===BEDROCK)return false;
+  setRaw(bx,by,bz,AIR);addEdit(bx,by,bz,AIR);const ch=new Set();for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((bx+ox)/CS),Math.floor((bz+oz)/CS)));
+  const L=[{x:bx,y:by,z:bz,b}],o={force:0.5,dx:ux,dz:uz,up:0.4};rebuildSet(ch);save();destroyFX(L,o);settle(L,o);pumpsHit(L);return true;}
 // a tank's shell as it would leave the gun now: from the muzzle, along the turret as it's turned (it may still be swinging
 // round), climbing or dipping toward A only as far as the gun goes (about 31 degrees up, 27 down)
 function tankShell(M,A){const a=M.h+M.tu,fx=Math.sin(a),fz=Math.cos(a),x=M.x+fx*3.9,y=M.y+2.2,z=M.z+fz*3.9,L=Math.hypot(A.x-x,A.y-y,A.z-z)||1,sp=45,
