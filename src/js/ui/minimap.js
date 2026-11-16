@@ -59,7 +59,7 @@ function updateMinimap(p,dt){
 }
 function updateSpeedo(p,dt){
   if(!p.ui.speedo)return;
-  const C=p.state==='dead'&&p.corpse?p.corpse:null,x=C?C.x:p.pos.x,y=C?C.y:p.pos.y,z=C?C.z:p.pos.z;
+  const C=p.state==='dead'&&p.corpse?p.corpse:null,x=C?C.x:pwx(p),y=C?C.y:p.pos.y,z=C?C.z:pwz(p);   // (aboard a ship, where it's really got to)
   let raw=0,rawY=0;
   if(p.spX!==undefined&&dt>0){raw=Math.hypot(x-p.spX,z-p.spZ)/dt*3.6;rawY=(y-p.spY)/dt*3.6;}
   p.spX=x;p.spY=y;p.spZ=z;

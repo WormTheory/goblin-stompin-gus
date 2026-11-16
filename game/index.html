@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:55b69d55b6fb98678b157d720cf424fd8407d391d6d82e750b521ca13b843f20 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:5e775f0faec2ffc87b7f47e67d70e07fcf14a8082a61193d72ba7d35201c1249 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -8507,6 +8507,9 @@ function buildChunk(cx,cz){
   const a0=gfx?gfxArr(cx,cz):chunkArr(cx,cz),x0=cx*CS,z0=cz*CS,A2=CS*CS,lf=leafFall>0;
   const gfxGet=(x,y,z)=>{const qx=Math.floor(x/CS),qz=Math.floor(z/CS),k=ckey(qx,qz);let v=gfx.get(k);if(!v){v=gfxArr(qx,qz);gfx.set(k,v);}return v[li(mod(x,CS),y,mod(z,CS))];};
   const a=lf?a0.map((b,i)=>{if(b!==LEAVES)return b;const y=Math.floor(i/A2),r=i-y*A2;return leafDown(x0+(r%CS),y,z0+Math.floor(r/CS))?AIR:b;}):a0;   // (leaves that have fallen)
+  // (a ship's chunk is laid out from the ship's own middle, not where its pocket is: numbers that big lose their fractions on
+  // the graphics card, and the deck shakes as it moves. See ships.js)
+  const pkS=cx>=SHIP_CX0?shipPg(cz):null,mx0=pkS?x0-pkS.ox:x0,mz0=pkS?z0-pkS.oz:z0;
   // (the eight chunks round about, fetched only if a block on the edge ends up asking)
   const NB=[null,null,null,null,null,null,null,null,null];
   const at=(lx,y,lz)=>{if(y<0)return STONE;if(y>=H)return AIR;
@@ -8530,9 +8533,9 @@ function buildChunk(cx,cz){
     for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){
     const i0=lx+lz*CS+y*A2,b=a[i0];if(!b)continue;
     const info=BLOCK[b],liquid=!!info.liquid,glow=!!info.glow,out=bufs[liquid?1:0];
-    if(info.ramp){emitRamp(out,x0+lx,y,z0+lz,info);continue;}
+    if(info.ramp){emitRamp(out,mx0+lx,y,mz0+lz,info);continue;}
     if(info.hide)continue;
-    if(info.thin){emitFence(out,x0+lx,y,z0+lz,b,info,at(lx-1,y,lz),at(lx+1,y,lz),at(lx,y,lz-1),at(lx,y,lz+1),at(lx,y+1,lz),tops[lz*CS+lx]===y);continue;}
+    if(info.thin){emitFence(out,mx0+lx,y,mz0+lz,b,info,at(lx-1,y,lz),at(lx+1,y,lz),at(lx,y,lz-1),at(lx,y,lz+1),at(lx,y+1,lz),tops[lz*CS+lx]===y);continue;}
     const skyTop=tops[lz*CS+lx]===y;
     const waterTop=liquid&&at(lx,y+1,lz)!==WATER;
     // (not on the chunk's edge, nor the world's top or bottom: every block asked about is right here in the array)
@@ -8546,7 +8549,7 @@ function buildChunk(cx,cz){
       const X=x0+lx,Z=z0+lz,sky=F.dy1&&skyTop?1+(snowBorn.get(X*65536+Z)||0):0,V0=1-(ty+1)/AR;
       for(let q=0;q<4;q++){
         const c=F.cn[q];
-        P[po++]=X+c.x;P[po++]=waterTop&&c.y===1?y+0.88:y+c.y;P[po++]=Z+c.z;
+        P[po++]=mx0+lx+c.x;P[po++]=waterTop&&c.y===1?y+0.88:y+c.y;P[po++]=mz0+lz+c.z;
         U[uo++]=(tx+0.002+c.u*0.996)/AC;U[uo++]=V0+(0.002+c.v*0.996)/AR;
         let s;
         if(glow)s=2;
@@ -8568,7 +8571,7 @@ function buildChunk(cx,cz){
   const k=ckey(cx,cz),old=meshes.get(k);
   regionTouch(cx,cz);
   if(old)for(const m of old.m){if(m.parent)m.parent.remove(m);m.geometry.dispose();}
-  const m=[],pk=cx>=SHIP_CX0,par=pk&&shipPg(cz)||scene;   // (a ship's blocks hang off the ship, wherever it's got to: see ships.js)
+  const m=[],pk=cx>=SHIP_CX0,par=pkS?pkS.grp:scene;   // (a ship's blocks hang off the ship, wherever it's got to: see ships.js)
   bufs.forEach((d,i)=>{
     if(i&&(!d.i.length||pk))return;   // (a ship's own water, round its hull, isn't drawn: the sea it's in is)   // (no water in this chunk: no mesh for it to go round every frame)
     const g=new THREE.BufferGeometry();
@@ -8578,7 +8581,7 @@ function buildChunk(cx,cz){
     const big=d.p.length/3>65535,ia=d.i.take();
     g.setIndex(new THREE.BufferAttribute(big?ia:Uint16Array.from(ia),1));
     // (where it is, known already: saves three.js going through every corner to find out)
-    if(THREE.Sphere)g.boundingSphere=new THREE.Sphere(new V3(x0+CS/2,(yLo+yTop+1)/2,z0+CS/2),Math.hypot(CS/2,(yTop+1-yLo)/2,CS/2)+0.01);
+    if(THREE.Sphere)g.boundingSphere=new THREE.Sphere(new V3(mx0+CS/2,(yLo+yTop+1)/2,mz0+CS/2),Math.hypot(CS/2,(yTop+1-yLo)/2,CS/2)+0.01);
     const mesh=new THREE.Mesh(g,i?matWater:matOpaque);if(i)mesh.renderOrder=1;par.add(mesh);m.push(mesh);
   });
   if(!pk){const mk=routeMarks(cx,cz);if(mk)m.push(mk);}
@@ -21619,7 +21622,8 @@ function knockFixtures(x,z,r,dx,dz){let n=0;for(const f of activeFix){const ex=f
 // SHIP_SLOT of z per ship, set up in world/places.js), where they never move. Anyone aboard is really standing in that
 // pocket, so walking, climbing, smashing, goblins' routes and saved edits all work on its blocks just as anywhere else, and
 // riding along as it sails and turns costs nothing: the pocket stays still and the ship's picture (S.grp, turned and moved
-// to where it is, with the pocket's chunks hung off it) is what moves. Coming within SHIP_M of its hull you're moved into
+// to where it is, with the pocket's chunks hung off it, laid out from the pocket's origin, and S.pg under it for anything
+// placed in the pocket's own numbers, such as a player's model) is what moves. Coming within SHIP_M of its hull you're moved into
 // the pocket, and going further than that from it you're moved back out; the camera, goblins' drawing and the dust and
 // rubble are put back where the ship really is when they're drawn. ----
 const SHIP_M=3,SHIP_BAND=SHIP_M+5;   // (how close to the hull you're taken aboard; the pocket's water reaches a little past that)
@@ -21664,8 +21668,8 @@ function worldToShip(S,x,z,out){const dx=x-S.x,dz=z-S.z,c=Math.cos(S.yaw),s=Math
 // where a player really is, out in the world (aboard a ship, or not)
 const pwx=p=>{const S=shipOf(p);return S?shipToWorld(S,p.pos.x,p.pos.z,_sv).x:p.pos.x;};
 const pwz=p=>{const S=shipOf(p);return S?shipToWorld(S,p.pos.x,p.pos.z,_sv).z:p.pos.z;};
-// the group a pocket chunk's meshes hang off (meshing.js)
-function shipPg(cz){const S=SHIPS[Math.floor(cz*CS/SHIP_SLOT)];return S?S.pg:null;}
+// the ship a pocket chunk belongs to (meshing.js: its meshes hang off S.grp, laid out from the pocket's origin)
+function shipPg(cz){return SHIPS[Math.floor(cz*CS/SHIP_SLOT)]||null;}
 // a pocket chunk: the ship's blocks, and round its hull, out to SHIP_BAND, water up to the sea's surface (so anyone
 // taken aboard while swimming is still swimming). Everywhere else in the pocket is air
 function shipChunk(cx,cz){
@@ -23821,7 +23825,7 @@ function updateMinimap(p,dt){
 }
 function updateSpeedo(p,dt){
   if(!p.ui.speedo)return;
-  const C=p.state==='dead'&&p.corpse?p.corpse:null,x=C?C.x:p.pos.x,y=C?C.y:p.pos.y,z=C?C.z:p.pos.z;
+  const C=p.state==='dead'&&p.corpse?p.corpse:null,x=C?C.x:pwx(p),y=C?C.y:p.pos.y,z=C?C.z:pwz(p);   // (aboard a ship, where it's really got to)
   let raw=0,rawY=0;
   if(p.spX!==undefined&&dt>0){raw=Math.hypot(x-p.spX,z-p.spZ)/dt*3.6;rawY=(y-p.spY)/dt*3.6;}
   p.spX=x;p.spY=y;p.spZ=z;

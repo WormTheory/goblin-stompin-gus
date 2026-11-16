@@ -197,6 +197,9 @@ function buildChunk(cx,cz){
   const a0=gfx?gfxArr(cx,cz):chunkArr(cx,cz),x0=cx*CS,z0=cz*CS,A2=CS*CS,lf=leafFall>0;
   const gfxGet=(x,y,z)=>{const qx=Math.floor(x/CS),qz=Math.floor(z/CS),k=ckey(qx,qz);let v=gfx.get(k);if(!v){v=gfxArr(qx,qz);gfx.set(k,v);}return v[li(mod(x,CS),y,mod(z,CS))];};
   const a=lf?a0.map((b,i)=>{if(b!==LEAVES)return b;const y=Math.floor(i/A2),r=i-y*A2;return leafDown(x0+(r%CS),y,z0+Math.floor(r/CS))?AIR:b;}):a0;   // (leaves that have fallen)
+  // (a ship's chunk is laid out from the ship's own middle, not where its pocket is: numbers that big lose their fractions on
+  // the graphics card, and the deck shakes as it moves. See ships.js)
+  const pkS=cx>=SHIP_CX0?shipPg(cz):null,mx0=pkS?x0-pkS.ox:x0,mz0=pkS?z0-pkS.oz:z0;
   // (the eight chunks round about, fetched only if a block on the edge ends up asking)
   const NB=[null,null,null,null,null,null,null,null,null];
   const at=(lx,y,lz)=>{if(y<0)return STONE;if(y>=H)return AIR;
@@ -220,9 +223,9 @@ function buildChunk(cx,cz){
     for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){
     const i0=lx+lz*CS+y*A2,b=a[i0];if(!b)continue;
     const info=BLOCK[b],liquid=!!info.liquid,glow=!!info.glow,out=bufs[liquid?1:0];
-    if(info.ramp){emitRamp(out,x0+lx,y,z0+lz,info);continue;}
+    if(info.ramp){emitRamp(out,mx0+lx,y,mz0+lz,info);continue;}
     if(info.hide)continue;
-    if(info.thin){emitFence(out,x0+lx,y,z0+lz,b,info,at(lx-1,y,lz),at(lx+1,y,lz),at(lx,y,lz-1),at(lx,y,lz+1),at(lx,y+1,lz),tops[lz*CS+lx]===y);continue;}
+    if(info.thin){emitFence(out,mx0+lx,y,mz0+lz,b,info,at(lx-1,y,lz),at(lx+1,y,lz),at(lx,y,lz-1),at(lx,y,lz+1),at(lx,y+1,lz),tops[lz*CS+lx]===y);continue;}
     const skyTop=tops[lz*CS+lx]===y;
     const waterTop=liquid&&at(lx,y+1,lz)!==WATER;
     // (not on the chunk's edge, nor the world's top or bottom: every block asked about is right here in the array)
@@ -236,7 +239,7 @@ function buildChunk(cx,cz){
       const X=x0+lx,Z=z0+lz,sky=F.dy1&&skyTop?1+(snowBorn.get(X*65536+Z)||0):0,V0=1-(ty+1)/AR;
       for(let q=0;q<4;q++){
         const c=F.cn[q];
-        P[po++]=X+c.x;P[po++]=waterTop&&c.y===1?y+0.88:y+c.y;P[po++]=Z+c.z;
+        P[po++]=mx0+lx+c.x;P[po++]=waterTop&&c.y===1?y+0.88:y+c.y;P[po++]=mz0+lz+c.z;
         U[uo++]=(tx+0.002+c.u*0.996)/AC;U[uo++]=V0+(0.002+c.v*0.996)/AR;
         let s;
         if(glow)s=2;
@@ -258,7 +261,7 @@ function buildChunk(cx,cz){
   const k=ckey(cx,cz),old=meshes.get(k);
   regionTouch(cx,cz);
   if(old)for(const m of old.m){if(m.parent)m.parent.remove(m);m.geometry.dispose();}
-  const m=[],pk=cx>=SHIP_CX0,par=pk&&shipPg(cz)||scene;   // (a ship's blocks hang off the ship, wherever it's got to: see ships.js)
+  const m=[],pk=cx>=SHIP_CX0,par=pkS?pkS.grp:scene;   // (a ship's blocks hang off the ship, wherever it's got to: see ships.js)
   bufs.forEach((d,i)=>{
     if(i&&(!d.i.length||pk))return;   // (a ship's own water, round its hull, isn't drawn: the sea it's in is)   // (no water in this chunk: no mesh for it to go round every frame)
     const g=new THREE.BufferGeometry();
@@ -268,7 +271,7 @@ function buildChunk(cx,cz){
     const big=d.p.length/3>65535,ia=d.i.take();
     g.setIndex(new THREE.BufferAttribute(big?ia:Uint16Array.from(ia),1));
     // (where it is, known already: saves three.js going through every corner to find out)
-    if(THREE.Sphere)g.boundingSphere=new THREE.Sphere(new V3(x0+CS/2,(yLo+yTop+1)/2,z0+CS/2),Math.hypot(CS/2,(yTop+1-yLo)/2,CS/2)+0.01);
+    if(THREE.Sphere)g.boundingSphere=new THREE.Sphere(new V3(mx0+CS/2,(yLo+yTop+1)/2,mz0+CS/2),Math.hypot(CS/2,(yTop+1-yLo)/2,CS/2)+0.01);
     const mesh=new THREE.Mesh(g,i?matWater:matOpaque);if(i)mesh.renderOrder=1;par.add(mesh);m.push(mesh);
   });
   if(!pk){const mk=routeMarks(cx,cz);if(mk)m.push(mk);}

@@ -55,7 +55,7 @@ console.log('spawn:',els.tpInfo.textContent);
 if(!S){console.log('no ship');process.exit(0);}
 const sea=T.TENV.sea;console.log('sea',JSON.stringify(sea),'water at its middle',T.get((sea.x0+sea.x1)/2,G0-1,(sea.z0+sea.z1)/2)===9,'| ship at',f1(S.x),f1(S.z),'yaw',f1(S.yaw),'| from gus',f1(Math.hypot(S.x-P.pos.x,S.z-P.pos.z)));
 run(0.5);
-{const M=pocketMeshes();console.log('pocket chunks drawn',M.length,'| hung off the ship',M.every(e=>e.m.every(m=>m.parent===S.pg)),'| meshes',M.reduce((n,e)=>n+e.m.length,0));}
+{const M=pocketMeshes();console.log('pocket chunks drawn',M.length,'| hung off the ship',M.every(e=>e.m.every(m=>m.parent===S.grp)),'| meshes',M.reduce((n,e)=>n+e.m.length,0));}
 console.log('blocks: deck',T.get(S.ox,G0,S.oz),'console',T.get(S.ox,G0+1,S.oz-5),'stair',T.get(S.ox-3,G0+1,S.oz-11),'roof',T.get(S.ox,G0+6,S.oz-8),'water off the side',T.get(S.ox+9,G0-1,S.oz));
 // ---- getting aboard: swimming up to the stern's swim platform from the open sea
 {T.shipToWorld(S,S.ox-0.5,S.oz-22,W);put(W.x,G0-0.6,W.z,S.yaw);run(0.3);console.log('swimming 5 off the stern:',where(P));
@@ -73,7 +73,7 @@ console.log('blocks: deck',T.get(S.ox,G0,S.oz),'console',T.get(S.ox,G0+1,S.oz-5)
 let drove=false;
 {put(S.ox+1,G0+1,S.oz-5.5,Math.PI);run(0.3);tap();drove=P.drv&&P.drv.k==='ship';console.log('F at the helm:',P.drv?P.drv.k:'on foot','| hud says',P.ui.drvHud&&P.ui.drvHud.txt.n);
  if(drove){const x0=S.x,z0=S.z,y0=S.yaw;hold(['KeyW'],8);
-  console.log('  W 8 s: speed',f1(S.sp),'went',f1(Math.hypot(S.x-x0,S.z-z0)),'| gus still at the helm',where(P),'| camera from the ship',f1(Math.hypot(P.camera.position.x-S.x,P.camera.position.z-S.z)));
+  console.log('  W 8 s: speed',f1(S.sp),'speedometer',P.ui.spNum&&P.ui.spNum.textContent,'went',f1(Math.hypot(S.x-x0,S.z-z0)),'| gus still at the helm',where(P),'| camera from the ship',f1(Math.hypot(P.camera.position.x-S.x,P.camera.position.z-S.z)));
   hold(['KeyW','KeyD'],4);console.log('  W+D 4 s: yaw turned',f1(S.yaw-y0),'(right is negative)');
   hold(['KeyW','KeyA'],4);console.log('  W+A 4 s: yaw now',f1(S.yaw-y0));
   // (the camera, drawn in the world, behind the ship: its yaw follows the ship's)

@@ -3,7 +3,8 @@
 // SHIP_SLOT of z per ship, set up in world/places.js), where they never move. Anyone aboard is really standing in that
 // pocket, so walking, climbing, smashing, goblins' routes and saved edits all work on its blocks just as anywhere else, and
 // riding along as it sails and turns costs nothing: the pocket stays still and the ship's picture (S.grp, turned and moved
-// to where it is, with the pocket's chunks hung off it) is what moves. Coming within SHIP_M of its hull you're moved into
+// to where it is, with the pocket's chunks hung off it, laid out from the pocket's origin, and S.pg under it for anything
+// placed in the pocket's own numbers, such as a player's model) is what moves. Coming within SHIP_M of its hull you're moved into
 // the pocket, and going further than that from it you're moved back out; the camera, goblins' drawing and the dust and
 // rubble are put back where the ship really is when they're drawn. ----
 const SHIP_M=3,SHIP_BAND=SHIP_M+5;   // (how close to the hull you're taken aboard; the pocket's water reaches a little past that)
@@ -48,8 +49,8 @@ function worldToShip(S,x,z,out){const dx=x-S.x,dz=z-S.z,c=Math.cos(S.yaw),s=Math
 // where a player really is, out in the world (aboard a ship, or not)
 const pwx=p=>{const S=shipOf(p);return S?shipToWorld(S,p.pos.x,p.pos.z,_sv).x:p.pos.x;};
 const pwz=p=>{const S=shipOf(p);return S?shipToWorld(S,p.pos.x,p.pos.z,_sv).z:p.pos.z;};
-// the group a pocket chunk's meshes hang off (meshing.js)
-function shipPg(cz){const S=SHIPS[Math.floor(cz*CS/SHIP_SLOT)];return S?S.pg:null;}
+// the ship a pocket chunk belongs to (meshing.js: its meshes hang off S.grp, laid out from the pocket's origin)
+function shipPg(cz){return SHIPS[Math.floor(cz*CS/SHIP_SLOT)]||null;}
 // a pocket chunk: the ship's blocks, and round its hull, out to SHIP_BAND, water up to the sea's surface (so anyone
 // taken aboard while swimming is still swimming). Everywhere else in the pocket is air
 function shipChunk(cx,cz){
