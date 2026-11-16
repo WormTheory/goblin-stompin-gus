@@ -261,7 +261,8 @@ hold([],1);
 {const script=()=>{const out=[];const rec=()=>out.push([M.x,M.y,M.z,M.en,M.h]);hold(['KeyW'],1);rec();tap('KeyC');hold(['KeyW','KeyD'],1.5);rec();T.keys.add('KeyA');tap('ShiftLeft');run(0.4);T.keys.delete('KeyA');rec();
    hold(['Space'],1.5);rec();hold(['KeyW'],1);rec();run(2);rec();
    T.mHeld.add('Mouse2');run(0.5);T.mHeld.delete('Mouse2');T.keys.add('KeyQ');run(0.4);T.keys.delete('KeyQ');tap('KeyE');run(0.6);T.mHeld.add('Mouse0');run(0.05);T.mHeld.delete('Mouse0');run(1);
-   out.push([M.x,M.y,M.z,M.wpn.rifle.n,M.wpn.pod.n,M.wpn.cannon.n,M.wpn.blade.rl]);return out;};
+   out.push([M.x,M.y,M.z,M.wpn.rifle.n,M.wpn.pod.n,M.wpn.cannon.n,M.wpn.blade.rl]);
+   M.en=T.MG.enMax;tap('KeyX');run(1.2);rec();tap('KeyX');run(0.6);rec();M.hp-=150;tap('KeyR');run(1.2);out.push([M.x,M.y,M.z,M.hp,M.kits]);T.trainHit(M,T.MG.impMax+5);hold(['KeyW'],2.5);rec();return out;};
  const go=who=>{P.who=who;T.tenvClear();M=null;P.pos.set(0,G0+1,0);P.cam.yaw=Math.PI;run(0.5);T.tenvVeh('mech');run(0.3);M=V().mechs[0];M.x=0.5;M.z=10.5;M.y=T.groundAt(0.5,10.5,G0+20);board(M);M.h=0;const r=script();hold(['KeyF'],0.8);return r;};
  const a=go(0),b=go(1);let far=0;for(let k=0;k<a.length;k++)for(let j=0;j<a[k].length;j++)far=Math.max(far,Math.abs(a[k][j]-b[k][j]));
  console.log('Gnash and Grizzle, the same inputs: furthest apart',far.toFixed(3));P.who=0;}

@@ -150,6 +150,10 @@ function drvMech(M,dt){
   // (an idle bar refills, faster on the ground; it can't boost again till a redline's over, but it fills meanwhile)
   if(M.enIdle>=MG.enDelay)M.en=Math.min(MG.enMax,M.en+MG.enRegen*(M.grounded?1.5:1)*dt);
   if(M.red<=0&&M.en>0&&M.wasRed){M.wasRed=false;if(audio)sfx('Mobile Gear energy back',()=>tone('triangle',380,760,0.15,0.04));}if(M.red>0)M.wasRed=true;
+  // (redlined, the thrusters cough and sputter now and then, a puff of dark smoke out of the back, till it's over)
+  if(M.red>0&&audio&&playing){M.sput=(M.sput||0)-dt;if(M.sput<=0){M.sput=0.16+Math.random()*0.4;const bx=Math.sin(M.h),bz=Math.cos(M.h);
+    sfx('Mobile Gear redline sputter',()=>{noise(0.09,0.09,260+Math.random()*200,'lowpass');tone('square',70+Math.random()*30,40,0.08,0.04);});
+    puff(M.x-bx*1.4,M.y+6.2,M.z-bz*1.4,2,0x3a3a3a,0.6);}}
   // (the body turns at once to where the camera looks. Moving, the legs follow it round. Standing, they stay planted
   // till the body's twisted too far round on them, then step round to catch up (mgTurn, posed in mechPose))
   M.ty=yaw;M.aimP=p.cam.pitch;
@@ -418,6 +422,7 @@ function mechPose(M,dt){
 }
 // every Mobile Gear in a venue, each step: piloted, or standing about; then posed and put among the big vehicles
 function updateMechs(V,dt){
+  if(netGuest()){netMechStep(V,dt);return;}   // (online, a guest's copies follow the host's: see net-sync.js)
   for(const M of V.mechs){
     if(M.dead){M.deadT+=dt;if(M.deadT<60&&Math.random()<dt*3)smoke(M.x,M.y+5,M.z,1,0x262626);M.vx=M.vz=0;
       {const gy=mgGround(M.x,M.z,M.y+0.3);if(M.y>gy+0.02){M.vy-=MG.grav*dt;M.y=Math.max(gy,M.y+M.vy*dt);}else M.vy=0;}}

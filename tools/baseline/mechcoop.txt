@@ -1,0 +1,7 @@
+spawn: Spawned 1 Mobile Gear ahead of Gus
+spawn: Spawned 1 Mobile Gear ahead of Gus
+two goblins, two Mobile Gears: player one in mech  player two in mech  each their own true  each display shown true true  each own energy bar true
+walking at each other: closest 2.50 (each is 2.5 wide)  overlapped false   player one went 18.8  player two 18.7
+quick boosting into the other: closest 2.50  overlapped false   the other moved 0.00
+player two strafes: theirs moved 5.4  player one's 0.00
+errors 0 []

@@ -37,7 +37,7 @@ function netPlayerState(p,seat,N){
     rd:!!(p.drv||p.rideC||p.standCar||p.vcl&&p.state==='climb')};
   // (in a vehicle: what it is and where, for the guest's chase camera)
   if(p.drv&&!p.drv.jack){try{const D=p.drv,S=drvPose(D),H=drvHP(D),o=D.o,W={};for(const k in o.wpn||{}){const s=o.wpn[k];W[k]=[s.n,Math.round(s.rl*10)/10];}
-    e.dv=[D.k,r3(S.x),r3(S.y),r3(S.z),r3(S.h),r3(S.hx),r3(S.hz),r3(S.hy),r3(S.v||0),drvName(D),Math.round(H.hp*10)/10,H.max,W,o.veh||'',!!o.hose,D.seat||'',!!o.gnr];}catch(er){}}   // (and its name, health and guns, for the guest's own display)   // (driving, riding or clinging to something that moves: the guest can't guess that, so it doesn't try)
+    e.dv=[D.k,r3(S.x),r3(S.y),r3(S.z),r3(S.h),r3(S.hx),r3(S.hz),r3(S.hy),r3(S.v||0),drvName(D),Math.round(H.hp*10)/10,H.max,W,o.veh||'',!!o.hose,D.seat||'',!!o.gnr,D.k==='mech'?o.key:0];}catch(er){}}   // (and its name, health and guns, for the guest's own display)   // (driving, riding or clinging to something that moves: the guest can't guess that, so it doesn't try)
   // (the guest's own seat: the last of its controls this took in, and how long ago, so it can tell how far its own guess has drifted)
   if(p.net&&p.net.seat===seat){e.ack=N.inN||0;e.adt=Math.round(NET.now-(N.inAt||NET.now));}
   return e;
@@ -79,13 +79,50 @@ function netCars(p,N,out,cfg){
 // every joint the host has sent is put where the host has it. Each model's joints are named by venue, field, place in
 // the list and order in the model, which come out the same on both ends; a joint's sent again only when it's moved.
 function netVenueModels(f){
-  for(const [vk,V] of venues)for(const k in V){const x=V[k];if(!x||typeof x!=='object')continue;
+  for(const [vk,V] of venues){if(V.kind==='mech')continue;for(const k in V){const x=V[k];if(!x||typeof x!=='object')continue;
     if(x.isObject3D)f(vk+'|'+k,x);
-    else if(Array.isArray(x)&&x.length&&x[0]&&(x[0].isObject3D||x[0].g&&x[0].g.isObject3D))x.forEach((e,i)=>{const o=e&&e.isObject3D?e:e&&e.g;if(o&&o.isObject3D)f(vk+'|'+k+'|'+i,o);});}
+    else if(Array.isArray(x)&&x.length&&x[0]&&(x[0].isObject3D||x[0].g&&x[0].g.isObject3D))x.forEach((e,i)=>{const o=e&&e.isObject3D?e:e&&e.g;if(o&&o.isObject3D)f(vk+'|'+k+'|'+i,o);});}}   // (a Mobile Gear isn't sent by its joints: see netMechs)
   for(const [tk,T] of TRAINS)if(T.cars)T.cars.forEach((g,i)=>{if(g&&g.isObject3D)f('T'+tk+'|'+i,g);});
 }
 // (a model's joints: itself and everything in it that isn't a plain box, up to a limit)
 function netNodes(o,out){out.push(o);for(let i=0;i<out.length&&out.length<80;i++){const c=out[i].children;if(c)for(const ch of c)if(!ch.isMesh||ch.children.length||ch.isInstancedMesh===false)out.push(ch);}return out;}
+// ---- Mobile Gears: they aren't saved, so a guest makes its own copy of each one the host has (by its key) and poses it
+// itself with mechPose, from the host's state for it each snapshot: where it is and how it's moving, and what its
+// thrusters, boosts and weapons are doing. Fewer bytes than its joints, and the flames and blade (which are scaled,
+// and joints are only placed and turned) come out right ----
+const NET_MGK=['hp','en','red','qbT','qbFlash','airB','asc','jT','jPre','jd','landT','landK','stag','imp','kits','brace','aimP','raA','rfT','rkT','cnA','cnT','pdA','podT','lgT','ty','vy','repT'],
+  NET_MGB=['dead','grounded','boostOn'];
+function netMechs(){const out=[];
+  for(const [vk,V] of venues){if(V.kind!=='mech')continue;
+    for(const M of V.mechs){const f={};for(const k of NET_MGK){const v=M[k];if(typeof v==='number'&&v)f[k]=r3(v);}for(const k of NET_MGB)if(M[k])f[k]=1;
+      if(M.qbDir)f.qd=[r3(M.qbDir.x),r3(M.qbDir.z)];if(M.ab)f.ab=M.ab.ph==='go'?2:1;if(M.kick)f.kk=M.kick.hit?2:1;
+      if(M.sl)f.sl=[r3(M.sl.fx),r3(M.sl.fz),r3(M.sl.e),r3(M.sl.w),r3(M.sl.f),r3(M.sl.pt||0)];
+      if(M.pod)f.pd=M.pod.locks.length+1;if(M.podQ&&M.podQ.length)f.pq=M.podQ.length;const hd=M.hard&&netRef(M.hard);if(hd)f.hd=hd;
+      out.push([vk,M.key,r3(M.x),r3(M.y),r3(M.z),r3(M.h),r3(M.vx),r3(M.vz),f]);}}
+  return out;}
+const netMechByKey=key=>{for(const V of venues.values())if(V.kind==='mech'){const M=V.mechs.find(o=>o.key===key);if(M)return M;}return null;};
+// (guest: made or dropped to match the host's, and each one's state as it was then; its place is blended in netMechPlace)
+function netMechSet(L){
+  const keep=new Set();
+  for(const e of L){const [vk,key,x,y,z,h,vx,vz,f]=e;keep.add(key);
+    let V=venues.get(vk);if(!V){V={kind:'mech',mechs:[]};venues.set(vk,V);}
+    let M=V.mechs.find(o=>o.key===key);if(!M){M=newMech(V,x,z,h);M.key=key;M.y=y;M.net=true;}
+    M.vx=vx;M.vz=vz;for(const k of NET_MGK)M[k]=f[k]||0;for(const k of NET_MGB)M[k]=!!f[k];
+    M.qbDir=f.qd?{x:f.qd[0],z:f.qd[1]}:null;M.ab=f.ab?{ph:f.ab===2?'go':'charge'}:null;M.kick=f.kk?{hit:f.kk===2}:null;
+    M.sl=f.sl?Object.assign(M.sl||{},{fx:f.sl[0],fz:f.sl[1],e:f.sl[2],w:f.sl[3],f:f.sl[4],pt:f.sl[5]}):null;
+    M.pod=f.pd?{locks:new Array(f.pd-1).fill(null)}:null;M.podQ=f.pq?new Array(f.pq).fill(null):[];M.hard=f.hd?netDeref(f.hd):null;}
+  for(const V of venues.values()){if(V.kind!=='mech')continue;for(let i=V.mechs.length-1;i>=0;i--)if(!keep.has(V.mechs[i].key)){scene.remove(V.mechs[i].g);V.mechs.splice(i,1);}}
+}
+// (guest, each frame: each one's place and heading, blended between snapshots as the goblins' are)
+function netMechPlace(a,o,kp,ms){if(!a.mg)return;const by=new Map();if(o&&o.mg)for(const e of o.mg)by.set(e[1],e);
+  for(const e of a.mg){const M=netMechByKey(e[1]);if(!M)continue;const fo=by.get(e[1]),kq=netKP(e,fo,2,kp,ms);
+    M.x=fo?e[2]+(fo[2]-e[2])*kq:e[2];M.y=fo?e[3]+(fo[3]-e[3])*kq:e[3];M.z=fo?e[4]+(fo[4]-e[4])*kq:e[4];M.h=fo?lerpA(e[5],fo[5],kq):e[5];}}
+// (guest: its copies are only posed, and stood on, never moved by themselves; a quick boost its own player presses
+// flashes the thrusters and shakes the view at once, ahead of the host's answer)
+function netMechStep(V,dt){
+  for(const M of V.mechs){
+    if(P1.drv&&P1.drv.o===M&&P1.in&&P1.in.mgQBP&&!M.dead){M.qbFlash=Math.max(M.qbFlash||0,0.25);P1.shake=Math.max(P1.shake||0,0.25);}
+    mechPose(M,dt);mechBoxes(M,Math.hypot(M.vx,M.vz));}}
 function netVenues(p,N,out){
   const R=330,px=p.pos.x,pz=p.pos.z,sent=N.vsent||(N.vsent=new Map());
   netVenueModels((key,o)=>{const P=o.position;if(Math.abs(P.x-px)>R||Math.abs(P.z-pz)>R)return;
@@ -291,7 +328,7 @@ function netSendSnap(p){   // (and the goblins' places are kept each frame, belo
   const N=p.net;if(!N.wsent)N.wsent={};
   const m={t:'s',n:++N.seq,tt:NET.now,p:[],g:[],gl:{},c:[],cl:{},e:N.out};N.out=[];
   for(let s=0;s<players.length;s++){const q=players[s];if(q.active)m.p.push(netPlayerState(q,s,N));}
-  netGoblins(p,N,m.g,m.gl);netCars(p,N,m.c,m.cl);m.v=[];netVenues(p,N,m.v);m.vh=netVenueHP(N);m.fa=netFalls();m.sc=[score,kills,RAMP.cars,RAMP.best,RAMP.nB,RAMP.nR];
+  netGoblins(p,N,m.g,m.gl);netCars(p,N,m.c,m.cl);m.v=[];netVenues(p,N,m.v);m.mg=netMechs();m.vh=netVenueHP(N);m.fa=netFalls();m.sc=[score,kills,RAMP.cars,RAMP.best,RAMP.nB,RAMP.nR];
   N.wT=(N.wT||0)-1;if(N.wT<=0){N.wT=NET_SNAP_HZ;m.w=netWorldBits(N);m.k=netClock();N.vhsent=null;}   // (and the venues' health all again next time, for a venue the guest has only just made)
   try{NET.tr.send(m,N.peer);}catch(e){}
 }
@@ -400,7 +437,8 @@ function netCommit(m){
     const own=q===P1&&NETP.on&&!NETP.snap;
     for(const k in e.f){if(own&&!NET_AUTH.includes(k))continue;const v=e.f[k];if(Array.isArray(v)){if(q[k] instanceof V3)q[k].set(v[0],v[1],v[2]);else q[k]=new V3(v[0],v[1],v[2]);}else if(v&&v.l)q[k]=v.l.slice();else q[k]=netDec(v);}
     if(!(q===P1&&NETP.on))q.lockT=netDeref(e.lk);
-    if(e.dv){if(!q.drv||!q.drv.netS)q.drv={k:e.dv[0],o:{},netS:{x:0,y:0,z:0,h:0,hx:1,hz:1,hy:1,v:0}};const D=q.drv,S=D.netS;D.k=e.dv[0];S.hx=e.dv[5];S.hz=e.dv[6];S.hy=e.dv[7];S.v=e.dv[8];
+    if(e.dv){if(!q.drv||!q.drv.netS)q.drv={k:e.dv[0],o:{},netS:{x:0,y:0,z:0,h:0,hx:1,hz:1,hy:1,v:0}};const D=q.drv,S=D.netS;D.k=e.dv[0];if(e.dv[17]){const M=netMechByKey(e.dv[17]);if(M)D.o=M;}   // (a Mobile Gear: its copy here, for the view and the display)
+      S.hx=e.dv[5];S.hz=e.dv[6];S.hy=e.dv[7];S.v=e.dv[8];
       D.netN=e.dv[9];D.netHP={hp:e.dv[10],max:e.dv[11]};D.o.veh=e.dv[13]||undefined;D.o.hose=!!e.dv[14];D.seat=e.dv[15]||undefined;D.o.gnr=e.dv[16]?q:null;
       const W=e.dv[12]||{};if(Object.keys(W).length){if(!D.o.wpn)wpnInit(D.o,drvGunK(D));for(const k in W)if(D.o.wpn[k]){D.o.wpn[k].n=W[k][0];D.o.wpn[k].rl=W[k][1];}}}
     else if(q.drv&&q.drv.netS)q.drv=null;
@@ -428,6 +466,7 @@ function netCommit(m){
       try{f(...a);}catch(er){}}}
   if(ch.size)rebuildSet(ch);
   netFallCommit(m);
+  if(m.mg)netMechSet(m.mg);
   if(m.v)netVenueCommit(m.v,NET.rt!==null?NET.rt:NET.now-NET.off-NET.dly);
   if(m.vh)netVenueHPSet(m.vh);
   if(m.sc){score=m.sc[0];kills=m.sc[1];RAMP.cars=m.sc[2]||0;RAMP.best=m.sc[3]||0;RAMP.nB=m.sc[4]||0;RAMP.nR=m.sc[5]||0;}
@@ -469,7 +508,7 @@ function netGuestFrame(dt){
     g.legs[0].rotation.x=w(9);g.legs[1].rotation.x=w(10);g.arm.rotation.x=w(11);g.armL.rotation.x=w(12);g.head.rotation.z=w(13);
     if(e[18]!==undefined){g.arm.rotation.z=w(18);if(g.arm.hand)g.arm.hand.rotation.x=f&&f[19]!==undefined?e[19]+(f[19]-e[19])*k:e[19];}   // (the wrist turns past half a turn: straight between, not the short way round)
     if(g.pkit)copKitShow(g.pkit,e[20]||0);}   // (an officer's club, or handgun drawn, and holster)
-  netVenuePose(rt);netFallPose(a,b,k);
+  netVenuePose(rt);netMechPlace(a,o,kp,ms);netFallPose(a,b,k);
   for(const e of a.c){const c=NETM.c.get(e[0]);if(!c)continue;const fo=bc.get(e[0]),f=b?fo:null,kq=netKP(e,fo,1,kp,ms),w=n=>f?lerpA(e[n],f[n],k):e[n],x=n=>fo?e[n]+(fo[n]-e[n])*kq:e[n],y=n=>fo?lerpA(e[n],fo[n],kq):e[n];
     c.g.position.set(x(1),x(2),x(3));c.g.rotation.set(w(4),y(5),w(6));c.pos.copy(c.g.position);c.heading=c.g.rotation.y;
     e[7].forEach((r,i)=>{if(c.wheels[i])c.wheels[i].rotation.x=f&&f[7][i]!==undefined?lerpA(r,f[7][i],k):r;});

@@ -7,7 +7,7 @@ const fs=require('fs'),vm=require('vm');
 const src0=fs.readFileSync('g.js','utf8');
 const d6=fs.readFileSync('dead6.js','utf8');
 const stubs=d6.slice(d6.indexOf('const deep='),d6.indexOf('\neval(src);'));
-const src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={tenvPlace,get TENV(){return TENV},netSendSnap,netRewind,netUnwind,NETP,makeTopple,topples,NETF,V3,BRICK,NET_VN,venues,TRAINS,netVenueModels,frame,players,P1,P2,NET,NETM,netHostWith,netJoinWith,netClose,netEnd,crush,get,goblins,cars,keys,ABIL,fires,setGobP,'+
+const src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={tenvPlace,tenvSpawnOne,tenvClear,MG,get TENV(){return TENV},netSendSnap,netRewind,netUnwind,NETP,makeTopple,topples,NETF,V3,BRICK,NET_VN,venues,TRAINS,netVenueModels,frame,players,P1,P2,NET,NETM,netHostWith,netJoinWith,netClose,netEnd,crush,get,goblins,cars,keys,ABIL,fires,setGobP,'+
   'collapseBuilding,bldgAt,plotInfo,CELL,FH,knockFix,activeFix,activeProps,falling,downFix,NET_BG,netBgTick,netBgClock,get collapses(){return collapses},'+
   'copArm,TRACERS,award,POPS,DT,setCombo,setPvp,pvpOn,doBite,obitList,get seed(){return seed},get edits(){return edits},get menuOpen(){return menuOpen},get saveBlocked(){return saveBlocked},chunks,ckey,CS,G};})();');
 if(src===src0)throw new Error('closing line not found');
@@ -301,6 +301,32 @@ const lag=[];
    '| vehicles in view',n,'between them',jc,'(stopping and starting on the host itself',jo+')',ok(n>0&&jc<=jo+n),'| messages a second',(Math.round((hub.sent-sent0)/3)),'bytes each',Math.round((hub.bytes-bytes0)/((hub.sent-sent0)||1)));
  hub.lat=0;hub.jit=0;for(let i=0;i<120;i++){G.step(1);H.step(1);}
  console.log('back on a smooth network for 2 s: guest draws',Math.round(GT.NET.dly),'ms behind, easing back toward 100');}
+
+// ---- the guest pilots a Mobile Gear the host spawned: it's on the guest too, gets in, walks it, quick-boosts, sees its
+// display, and gets out with a hold ----
+{const inv=HT.DT.invuln;HT.DT.invuln=true;for(let i=0;i<900&&(HT.P2.state==='dead'||HT.P2.deadT>0);i++){H.step(1);G.step(1);}   // (knocked out on the bumpy network: back up first)
+ const back={x:HT.P2.pos.x,y:HT.P2.pos.y,z:HT.P2.pos.z};HT.setGobP(HT.P2,true);for(let i=0;i<20;i++){H.step(1);G.step(1);}
+ const msg=HT.tenvSpawnOne('mech');for(let i=0;i<30;i++){H.step(1);G.step(1);}
+ const HV=HT.venues.get('tenvMechs'),M=HV&&HV.mechs[HV.mechs.length-1];
+ if(!M)console.log('Mobile Gear: none spawned',msg);else{
+  for(const c of HT.cars)if(c.alive&&Math.hypot(c.pos.x-M.x,c.pos.z-M.z)<30){c.alive=false;c.respawnT=1e9;c.g.visible=false;}   // (nothing else to climb into by mistake)
+  HT.P2.pos.set(M.x-(HT.MG.r+0.8),M.y+0.2,M.z);for(let i=0;i<30;i++){H.step(1);G.step(1);}
+  const GV=GT.venues.get('tenvMechs'),gm=GV&&GV.mechs[GV.mechs.length-1];
+  console.log('Mobile Gear spawned on the host: on the guest too',ok(!!gm),gm?'apart '+f2(Math.hypot(gm.g.position.x-M.x,gm.g.position.z-M.z)):'');
+  const pads=G.ctx.navigator.getGamepads(),btn=(b,on)=>{pads[0].buttons[b].pressed=on;pads[0].buttons[b].value=on?1:0;};
+  btn(3,true);G.step(1);H.step(1);btn(3,false);for(let i=0;i<40;i++){H.step(1);G.step(1);}
+  console.log('  guest pressed use beside it: host has it piloting',ok(HT.P2.drv&&HT.P2.drv.k==='mech'&&HT.P2.drv.o===M),'guest knows',ok(GT.P1.drv&&GT.P1.drv.k==='mech'));
+  const m0={x:M.x,z:M.z};pads[0].axes[1]=-1;for(let i=0;i<120;i++){G.step(1);H.step(1);}pads[0].axes[1]=0;
+  const gm2=GV&&GV.mechs[GV.mechs.length-1],cam=GT.P1.camera.position;
+  console.log('  walked for 2 s: moved',f2(Math.hypot(M.x-m0.x,M.z-m0.z)),ok(Math.hypot(M.x-m0.x,M.z-m0.z)>3),' guest model apart',gm2?f2(Math.hypot(gm2.g.position.x-M.x,gm2.g.position.z-M.z)):'-',
+    ' guest camera from it',f2(Math.hypot(cam.x-M.x,cam.z-M.z)),ok(Math.hypot(cam.x-M.x,cam.z-M.z)<18));
+  const e0=M.en,gq=GV.mechs[GV.mechs.length-1];gq.qbFlash=0;btn(2,true);G.step(1);const pred=gq.qbFlash>0;H.step(1);btn(2,false);for(let i=0;i<10;i++){G.step(1);H.step(1);}
+  console.log('  quick boost: thrusters flashed on the guest at once',ok(pred),' host fired it',ok(M.en<e0),'energy',f2(e0),'->',f2(M.en));
+  {const Hd=GT.P1.ui.drvHud;for(let i=0;i<10;i++){G.step(1);H.step(1);}console.log('  guest display:',Hd&&Hd.txt?String(Hd.txt.n):'(none)',ok(Hd&&!Hd.el.hidden&&Hd.mg&&!Hd.mg.el.hidden),' energy bar',Hd&&Hd.mg?Hd.mg.fill.style.width:'-',' host',f2(M.en/HT.MG.enMax*100)+'%');}
+  btn(3,true);for(let i=0;i<60;i++){G.step(1);H.step(1);}btn(3,false);for(let i=0;i<30;i++){H.step(1);G.step(1);}
+  console.log('  held use: out',ok(!HT.P2.drv&&!GT.P1.drv));
+  HT.tenvClear();for(let i=0;i<70;i++){H.step(1);G.step(1);}console.log('  cleared on the host: gone on the guest',ok(!GT.venues.get('tenvMechs')||!GT.venues.get('tenvMechs').mechs.length));}
+ HT.setGobP(HT.P2,false);HT.P2.pos.set(back.x,back.y,back.z);HT.P2.vy=0;HT.DT.invuln=inv;for(let i=0;i<40;i++){H.step(1);G.step(1);}}   // (back where it was, for what follows)
 
 // ---- the guest leaves: the host plays on alone ----
 GT.netEnd();for(let i=0;i<10;i++){H.step(1);G.step(1);}

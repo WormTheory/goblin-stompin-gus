@@ -24,6 +24,9 @@
 - Staggering: every hit fills a target's impact meter, which drains again once the hits stop. A full meter staggers it for 2 seconds: it can't move or shoot, and takes half again as much damage. Heavy blows (the kick, the Breaker Cannon, the Heat Cleaver) fill it faster. Tanks, helicopters and the Mobile Gear itself can all be staggered.
 - Your own impact meter is the thinner bar under the energy bar, with STAGGERED flashing under it while you are. A locked tank or helicopter shows its health and its impact meter under its bracket.
 - R (controller D-pad down) uses a repair kit, putting back 35% of its health over a second. Each Mobile Gear carries three, and the controls list on the left says how many are left.
+- Co-op: each player can climb into a Mobile Gear of their own, and two of them bump into each other rather than walking through.
+- Online: a guest sees the host's Mobile Gears move, stride, fire their thrusters and swing their weapons, and can climb in and pilot one, with its own display.
+- Redlined, its thrusters cough and sputter until the energy comes back.
 - Its controls can be rebound in Options, in their own "Piloting a Mobile Gear" section.
 - Mobile Gears aren't kept when you leave the Testing Environment.
 - While you're piloting, the controls line for on foot is hidden.
