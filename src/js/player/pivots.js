@@ -22,6 +22,8 @@ function wallBiteHit(p){
     if(Math.hypot(q[0]-u[0]*t,q[1]-u[1]*t,q[2]-u[2]*t)>=A.hitR)continue;
     // (knocked along the way his head points, and off the wall)
     damageGoblin(g,A.dmg,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(u[0]-d[0]*0.8,u[1]*0.6+0.3,u[2]-d[1]*0.8),cause);}
+  for(const q of pvpFoes(p)){const v=[q.pos.x-a[0],q.pos.y+0.7-a[1],q.pos.z-a[2]],t=Math.max(0,Math.min(J1-J0,v[0]*u[0]+v[1]*u[1]+v[2]*u[2]));   // (and with PvP on, another player)
+    if(Math.hypot(v[0]-u[0]*t,v[1]-u[1]*t,v[2]-u[2]*t)<A.hitR)pvpHurt(p,q,A.dmg,null,new V3(u[0]-d[0]*0.8,u[1]*0.6+0.3,u[2]-d[1]*0.8),cause);}
   // vehicles in reach too: the one he's clinging to, or one going by
   {const near=new Set();for(let t=0;t<=J1-J0+1e-6;t+=0.5){const x=a[0]+u[0]*t,y=a[1]+u[1]*t,z=a[2]+u[2]*t;for(const v of carsInCyl(x,z,A.hitR,y-1.5,y+1.5))near.add(v);}
    for(const v of near){damageCar(v,gk?1:A.carDmg,new V3(u[0]+d[0]*0.5,0,u[2]+d[1]*0.5));clang();}}
@@ -41,7 +43,7 @@ function wallBurst(p){
   const m=K?Math.max(1,K-2):1,hx=p.pos.x+d[0]*(m+0.5),hz=p.pos.z+d[1]*(m+0.5);
   const o={force:1.3,dx:d[0],dz:d[1],up:0.5},n=crush(hx,F,hz,1,0,2,o);
   if(!n)return false;   // (nothing gave: bedrock, or the Dev tab's sandbox)
-  hitGoblins(hx,hz,AB.stomp1.hitR,AB.stomp1.dmg,'Kicked through a wall',F);
+  hitGoblins(hx,hz,AB.stomp1.hitR,AB.stomp1.dmg,'Kicked through a wall',F);pvpArea(p,hx,hz,AB.stomp1.hitR,AB.stomp1.dmg,'Kicked through a wall',F);
   puff(hx,F+1,hz,14,0x9a948a,0.8);addShake(0.3,hx,hz,12);rumble(p,0.6,160);sfx('Stomp',()=>{thud(0.8);});
   p.qStomp=0;p.qBite=0;
   if(K){
@@ -179,7 +181,7 @@ function gobMove(p,dt){
 // the attack button swings the club: one goblin's blow, in front of you
 function gobClub(p){
   const hx=Math.sin(p.heading),hz=Math.cos(p.heading),fx=p.pos.x+hx*1.1,fz=p.pos.z+hz*1.1;
-  hitGoblins(fx,fz,1,1,'Clubbed by another goblin',p.pos.y);
+  hitGoblins(fx,fz,1,1,'Clubbed by another goblin',p.pos.y);pvpArea(p,fx,fz,1,1,'Clubbed',p.pos.y);
   for(const c of carsNear(fx,fz,1,p.pos.y)){damageCar(c,1,new V3(hx,0,hz));clang();}
 }
 // a goblin for others to see (the other player, or you from the free cam), and your own arm and club for you

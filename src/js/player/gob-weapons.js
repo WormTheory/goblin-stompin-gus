@@ -20,7 +20,7 @@ function gobGear(g){const k=g.foeKind;
   return{wpn:g.gun===COP_FOE?'handgun':g.cultist||k==='thief'?'dagger':k==='prepper'||k==='militia'||k==='soldier'?'rifle':null,gren:k==='prepper'||k==='militia'?1+(Math.random()<0.5?1:0):k==='soldier'?1:0};}
 // the attack button's hit, for whatever's in hand (the club's is gobClub)
 function gobAttack(p){const k=gobArms(p).wpn;
-  if(k==='dagger'){const W=GOB_WPN.dagger,hx=Math.sin(p.heading),hz=Math.cos(p.heading);hitGoblins(p.pos.x+hx*W.reach,p.pos.z+hz*W.reach,W.r,W.dmg,W.cause,p.pos.y);
+  if(k==='dagger'){const W=GOB_WPN.dagger,hx=Math.sin(p.heading),hz=Math.cos(p.heading);hitGoblins(p.pos.x+hx*W.reach,p.pos.z+hz*W.reach,W.r,W.dmg,W.cause,p.pos.y);pvpArea(p,p.pos.x+hx*W.reach,p.pos.z+hz*W.reach,W.r,W.dmg,'Stabbed',p.pos.y);
     for(const c of carsNear(p.pos.x+hx*W.reach,p.pos.z+hz*W.reach,W.r,p.pos.y)){damageCar(c,1,new V3(hx,0,hz));clang();}return;}
   if(gobGun(k)){gobShoot(p);return;}
   gobClub(p);
@@ -29,16 +29,18 @@ function gobAttack(p){const k=gobArms(p).wpn;
 const _gr=new V3();
 function gobShoot(p){
   const W=gobGun(gobArms(p).wpn)?gobW(p):GOB_WPN.rifle,hg=W===GOB_WPN.handgun,c=p.camera.position,cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp;
-  let hitG=null,hitC=null,hitW=null,d=0.3;
-  for(;d<W.range&&!hitG&&!hitC;d+=0.2){const x=c.x+dx*d,y=c.y+dy*d,z=c.z+dz*d;
+  let hitG=null,hitC=null,hitW=null,hitP=null,d=0.3;
+  for(;d<W.range&&!hitG&&!hitC&&!hitP;d+=0.2){const x=c.x+dx*d,y=c.y+dy*d,z=c.z+dz*d;
     if(solidAt(Math.floor(x),Math.floor(y),Math.floor(z))){hitW=[Math.floor(x),Math.floor(y),Math.floor(z)];break;}
     for(const g of goblins){if(g.state!=='chase')continue;if(Math.hypot(g.pos.x-x,g.pos.z-z)<0.45&&y>g.pos.y&&y<g.pos.y+1.5){hitG=g;break;}}
+    if(!hitG)for(const q of pvpFoes(p)){if(Math.hypot(q.pos.x-x,q.pos.z-z)<(q.gob?0.45:0.9)&&y>q.pos.y&&y<q.pos.y+(q.gob?1.5:2.3)){hitP=q;break;}}   // (with PvP on, another player)
     if(!hitG&&(Math.round(d*5)%3===0))for(const q of carsNear(x,z,0.6,y-1)){hitC=q;break;}}
   const x1=c.x+dx*d,y1=c.y+dy*d,z1=c.z+dz*d,fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw);
   tracer(c.x+fx*0.5+Math.cos(p.cam.yaw)*0.18,c.y-0.18,c.z+fz*0.5-Math.sin(p.cam.yaw)*0.18,x1,y1,z1);
   if(audio){if(hg){noise(0.06,0.12,3400,'highpass');tone('square',330,140,0.045,0.035);}else{noise(0.09,0.14,2600,'highpass');tone('square',220,90,0.06,0.04);}}   // (the handgun cracks higher and shorter, as the police's does)
   p.shake=Math.max(p.shake||0,hg?0.02:0.03);rumble(p,hg?0.14:0.2,50);
   if(hitG)damageGoblin(hitG,W.dmg,_gr.set(x1,y1,z1).clone(),new V3(dx,0.3,dz),W.cause);
+  else if(hitP)pvpHurt(p,hitP,W.dmg,_gr.set(x1,y1,z1).clone(),new V3(dx,0.3,dz),'Shot',{cd:0});
   else if(hitC)damageCar(hitC,1,new V3(dx,0,dz));
   else{puff(x1,y1,z1,2,0xb0a898,0.12);if(hitW)bulletBreak(hitW[0],hitW[1],hitW[2],dx,dz);}   // (half the time the block it hit breaks: see bulletBreak)
 }
@@ -46,7 +48,7 @@ function gobShoot(p){
 function gobThrow(p){
   gobArms(p);if(p.gren<=0||p.grenCD>0||p.state==='dead'||p.drv)return;
   p.gren--;p.grenCD=0.6;p.thrS=0;const c=p.camera.position,cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp,v=15;
-  shot({kind:'grenade',x:c.x+dx*0.6,y:c.y-0.1+dy*0.6,z:c.z+dz*0.6,vx:dx*v,vy:dy*v+4,vz:dz*v,grav:20,fuse:2.2,R:3.3,dmg:3,cause:GREN_CAUSE,bounce:true,crush:GREN_CRUSH});
+  shot({kind:'grenade',x:c.x+dx*0.6,y:c.y-0.1+dy*0.6,z:c.z+dz*0.6,vx:dx*v,vy:dy*v+4,vz:dz*v,grav:20,fuse:2.2,R:3.3,dmg:3,cause:GREN_CAUSE,by:pvpBy(p),bounce:true,crush:GREN_CRUSH});
   sfx('Goblin throws a grenade',()=>{woosh(0.15,0.2,400,1200,0.08);});
 }
 function gobNextWpn(p){gobArms(p);const L=GOB_WPN_ORDER.filter(k=>p.wpns.includes(k));if(L.length<2)return;

@@ -29,7 +29,7 @@ await press(0);s=await st(p);path.push('A→'+s.on);
 await press(15);path.push('right→'+await cur());await press(0);const s2=await st(p);path.push('A→'+s2.on);
 await press(13);path.push('down→'+await cur());await press(12);path.push('up→'+await cur());await press(12);path.push('up→'+await cur());
 check('pad: down from hostility to Simple (the one picked), left to Advanced, A picks it',path[1]==='down→Simple'&&path[2]==='left→Advanced'&&s.on==='Advanced'&&s.key==='0',path);
-check('pad: right to Simple, A picks it, down to the next setting, up back to it and on to hostility',path[4]==='right→Simple'&&s2.on==='Simple'&&path[6]==='down→detailDist'&&path[7]==='up→Simple'&&path[8]==='up→hostMain',path);
+check('pad: right to Simple, A picks it, down to the next setting (PvP), up back to it and on to hostility',path[4]==='right→Simple'&&s2.on==='Simple'&&path[6]==='down→Off'&&path[7]==='up→Simple'&&path[8]==='up→hostMain',path);
 if(process.argv[2]){const sec=await p.evaluateHandle(()=>document.getElementById('pathSeg').closest('.custom'));await sec.scrollIntoViewIfNeeded();await p.waitForTimeout(300);
   await sec.screenshot({path:process.argv[2]});console.log('shot '+process.argv[2]);}
 await ctx.close();

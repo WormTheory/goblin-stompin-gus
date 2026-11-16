@@ -60,11 +60,12 @@ function stepCorpse(p,dt){
 }
 // ---- lock-on (R3 / Q): pick a hostile goblin ahead, keep facing it, strafe around it ----
 // what can be locked onto: any living goblin (hostile or civilian), any working car (they all have a goblin at the wheel),
-// and the army's tanks and helicopters (unless someone's driving it)
+// and the army's tanks and helicopters (unless someone's driving it); with PvP on, the other players too (one in a
+// vehicle is locked as the player, so shots and missiles go for the vehicle; one in a car is the car already)
 const isCarT=t=>!!(t&&t.wheels),isMilT=t=>!!(t&&t.isMil);
-const lockAlive=t=>isMilT(t)?!t.dead&&!t.drv:isCarT(t)?t.alive:t.state==='chase';
+const lockAlive=t=>isPlT(t)?t.active&&t.state!=='dead'&&pvpOn():isMilT(t)?!t.dead&&!t.drv:isCarT(t)?t.alive:t.state==='chase';
 // the height of its middle (where the marker sits, and what a gun aims at)
-const lockY=t=>isMilT(t)?t.pos.y+MIL[t.kind].hy*0.55:t.pos.y+(isCarT(t)?0.9:1.1);
+const lockY=t=>isPlT(t)?t.pos.y+(t.drv?0.6:t.gob?1.0:1.4):isMilT(t)?t.pos.y+MIL[t.kind].hy*0.55:t.pos.y+(isCarT(t)?0.9:1.1);
 // can the camera actually see it? march from the camera to the target's middle through the voxels; anything solid
 // and opaque in between hides it (leaves and glass don't)
 function seenFrom(a,bx,by,bz){
@@ -81,6 +82,7 @@ function lockTargets(p,range){
   for(const g of goblins)if(g.state==='chase')add(g,g.pos.y);
   for(const c of cars)if(c.alive&&!c.parkPool&&c.drv!==p&&c.gnr!==p)add(c,c.pos.y);
   for(const V of venues.values())if(V.kind==='army')for(const M of V.mil)if(M.pos&&lockAlive(M))add(M,M.pos.y,2);
+  if(pvpOn())for(const q of players)if(q!==p&&lockAlive(q)&&!(q.drv&&(isCarT(q.drv.o)||q.drv.o===(p.drv&&p.drv.o))))add(q,q.pos.y,q.drv?2:1);
   return out;
 }
 function lockCandidate(p){
@@ -162,6 +164,7 @@ function updateLock(p,dt,inp){
   p.lockPulse=Math.max(0,(p.lockPulse||0)-dt);
   if(isCarT(T))m.position.set(T.pos.x,T.pos.y+0.95*ES,T.pos.z);
   else if(isMilT(T))m.position.set(T.pos.x,lockY(T),T.pos.z);
+  else if(isPlT(T))m.position.set(T.pos.x,lockY(T)+(T.drv?0:T.gob?0.1:0.4),T.pos.z);
   else{const r=T.root;m.position.set(r.position.x,r.position.y+0.72*r.scale.y,r.position.z);}
   // tilt the camera to follow the target up or down (biased a little downward so Gus stays in frame)
   {const hd=Math.max(1,Math.hypot(dx,dz)),rise=m.position.y-(p.pos.y+2.4*ES);

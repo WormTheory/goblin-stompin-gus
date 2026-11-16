@@ -15,6 +15,7 @@ function netUiRefresh(){
   netEl('playCoop').hidden=on&&!!P2.net;netEl('hostMain').disabled=netGuest()&&NET.joined;
   netEl('netPrivate').checked=LOBBY.priv;
   lobbySync();
+  try{syncPvp();}catch(e){}   // (a guest's PvP switch shows the host's, and can't be changed)
   try{vcOptsDraw();}catch(e){}   // (whether voice can be switched on goes with being online. Not yet made while the page loads)
 }
 {

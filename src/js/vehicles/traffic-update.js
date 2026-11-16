@@ -351,8 +351,9 @@ function updateCars(dt){
       if(q.vcl&&q.state==='climb'&&q.vcl.v===c||q.drv)continue;
       if(Math.abs(c.speed)>3&&c.ramCD<=0&&q.standCar!==c&&q.in.climb&&q.pos.y<c.pos.y+(c.hy||1.4)-0.6&&carHitsPlayer(c,q)&&vGrab(q,3,c))continue;   // (holding climb: he catches hold of it)
       if(Math.abs(c.speed)>3&&c.ramCD<=0&&q.standCar!==c&&!(q.standCar&&q.standCar.isTrain)&&q.pos.y<c.pos.y+(c.hy||1.4)-0.6&&carHitsPlayer(c,q)){   // (and a car the train's just sent flying doesn't knock its riders off)
-        const fast=Math.abs(c.speed)>9;
-        damagePlayer(q,fast?4:2,new V3(q.pos.x,q.pos.y+1.3,q.pos.z),new V3(fx*dir,0.3,fz*dir),fast?'Run down':'Hit by traffic',c.driver);
+        const fast=Math.abs(c.speed)>9,pd=pvpOn()&&pvpDriver(c),alive=q.state!=='dead';   // (driven by another player, with PvP on: theirs is the blame)
+        damagePlayer(q,fast?4:2,new V3(q.pos.x,q.pos.y+1.3,q.pos.z),new V3(fx*dir,0.3,fz*dir),fast?'Run down':'Hit by traffic',pd&&pd!==q?pvpWho(pd):c.driver);
+        if(pd&&pd!==q&&alive&&q.state==='dead')pvpKilled(pd,q);
         shove(q,fx*dir*1.4,fz*dir*1.4);
         c.speed*=-0.3;c.reverseT=0.9;c.ramCD=1.2;sfx('Vehicle rams a hippo',()=>{thud(0.8);clang();});addShake(0.4,q.pos.x,q.pos.z,10);
         flashLabel(fast?'Run down':'Hit by traffic',q);

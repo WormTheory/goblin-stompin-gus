@@ -43,8 +43,10 @@ function netPlayerState(p,seat,N){
   return e;
 }
 // (something a player can be locked on to, as both ends can name it)
-function netRef(o){let i=goblins.indexOf(o);if(i>=0)return['g',i];i=cars.indexOf(o);if(i>=0)return['c',i];return null;}
-function netDeref(r){if(!r)return null;return r[0]==='g'?NETM.g.get(r[1])||null:r[0]==='c'?NETM.c.get(r[1])||null:null;}
+function netRef(o){let i=goblins.indexOf(o);if(i>=0)return['g',i];i=cars.indexOf(o);if(i>=0)return['c',i];
+  if(isPlT(o)){const s=o===P1?0:o.net&&o.net.seat;if(s!==undefined&&s!==null)return['p',s];}   // (another player, locked on to with PvP on: by seat)
+  return null;}
+function netDeref(r){if(!r)return null;return r[0]==='g'?NETM.g.get(r[1])||null:r[0]==='c'?NETM.c.get(r[1])||null:r[0]==='p'?netSeatP(r[1],false):null;}
 // (guest: which of its players is that seat. Its own is P1; anyone else is drawn as P2)
 const NET_SEATP=new Map();   // (guest: the host's seats past the first two, as players here)
 function netSeatP(s,make){if(s===NET.seat)return P1;if(s===0)return P2;
@@ -278,9 +280,10 @@ function netWorldBits(N){
   J('fire',fires.map(F=>[r3(F.x),r3(F.y),r3(F.z),r3(F.r),Math.round(F.t*10)/10,Math.round(F.life*10)/10,F.flames?1:0,r3(F.sm),r3(F.rise),F.douse?1:0]));
   return out;
 }
-function netClock(){return{tod,dayN,clockT,tc:trafficClock,wc:wxClock,wx:{type:WX.type,until:WX.until,k:Object.assign({},WX.k),wet:WX.wet,snowCover:WX.snowCover,snowClock:WX.snowClock,frozen:!!WX.frozen},host:DT.host,combo:DT.combo};}
+function netClock(){return{tod,dayN,clockT,tc:trafficClock,wc:wxClock,wx:{type:WX.type,until:WX.until,k:Object.assign({},WX.k),wet:WX.wet,snowCover:WX.snowCover,snowClock:WX.snowClock,frozen:!!WX.frozen},host:DT.host,combo:DT.combo,pvp:DT.pvp};}
 function netClockSet(k){if(!k)return;tod=k.tod;dayN=k.dayN;clockT=k.clockT;trafficClock=k.tc;wxClock=k.wc;if(k.wx){const w=k.wx;WX.type=WX_TYPES[w.type]?w.type:'partly';WX.until=w.until;Object.assign(WX.k,w.k);WX.wet=w.wet;WX.snowCover=w.snowCover;WX.snowClock=w.snowClock;WX.frozen=w.frozen;}
   if(k.host!==undefined&&k.host!==DT.host){DT.host=k.host;try{syncHost();}catch(e){}}
+  if(k.pvp!==undefined&&!!k.pvp!==NET_PVP){NET_PVP=!!k.pvp;try{syncPvp();}catch(e){}}   // (PvP is the host's to say, as hostility is)
   if(k.combo!==undefined&&k.combo!==DT.combo){DT.combo=!!k.combo;try{comboUiSync();}catch(e){}}}   // (the host's Combo system switch: whether there's a combo to show at all)
 
 // ---- host: one guest's snapshot ----

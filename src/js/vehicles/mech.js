@@ -194,13 +194,16 @@ function mgRam(M,fx,fz,sp){
 // coming down: the harder, the longer it crouches; from high up it shakes the ground and knocks the goblins round it flat
 function mgLand(M,v){M.landT=Math.min(0.5,0.08+v*0.015);M.landK=Math.min(1,v/22);
   if(v>6){thud(Math.min(1,v/25));puff(M.x,M.y+0.2,M.z,Math.min(16,4+v*0.4|0),0xb8b0a0,1.6);addShake(Math.min(0.6,v*0.02),M.x,M.z,25);}
-  if(v>14)hitGoblins(M.x,M.z,4.5,Math.round(v/5),'Flattened by a Mobile Gear landing',M.y);}
+  if(v>14){hitGoblins(M.x,M.z,4.5,Math.round(v/5),'Flattened by a Mobile Gear landing',M.y);pvpArea(M.drv,M.x,M.z,4.5,Math.round(v/5),'Flattened by a Mobile Gear landing',M.y);}}
 // pushing goblins and cars out of its way; a goblin it walks on is squashed, a car it walks into shoved
 function mechShove(M){const r=MG.r,top=M.y+MG.hy,sp=Math.hypot(M.vx||0,M.vz||0),out=(o,rr)=>{const dx=o.pos.x-M.x,dz=o.pos.z-M.z;if(Math.abs(dx)>r+rr||Math.abs(dz)>r+rr)return null;
     const px=r+rr-Math.abs(dx),pz=r+rr-Math.abs(dz);return px<pz?{nx:Math.sign(dx)||1,nz:0,need:px+0.05}:{nx:0,nz:Math.sign(dz)||1,need:pz+0.05};};
   for(const g of goblins){if(g.state!=='chase'||g.pos.y+1.5<M.y||g.pos.y>top-0.3)continue;const c=out(g,0.4);if(!c)continue;
     g.pos.x+=c.nx*c.need;g.pos.z+=c.nz*c.need;
     if(!M.dead&&!(g.trainT>0)&&(sp>3||M.vy<-4)){g.trainT=1;damageGoblin(g,Math.round(4+sp*0.6),g.pos.clone(),new V3(c.nx,0.6,c.nz),'Trampled by a Mobile Gear');}}
+  // (with PvP on, another player it walks into or comes down on: trampled, raw damage, as a car's)
+  if(!M.dead&&(sp>3||M.vy<-4))for(const q of pvpFoes(M.drv)){if(q.pos.y+1.5<M.y||q.pos.y>top-0.3||!out(q,0.6))continue;const dx=q.pos.x-M.x,dz=q.pos.z-M.z,d=Math.hypot(dx,dz)||1;
+    pvpHurt(M.drv,q,Math.min(8,Math.round(2+sp*0.3)),null,new V3(dx/d,0.6,dz/d),'Trampled by a Mobile Gear',{raw:true,cd:1});}
   for(const c of cars){if(!c.alive||c.pos.y+(c.hy||1.4)<M.y||c.pos.y>top-0.3||Math.abs(c.pos.x-M.x)>r+c.hz+1||Math.abs(c.pos.z-M.z)>r+c.hz+1)continue;
     if(!boxesTouch(c.pos.x,c.pos.z,c.heading,c.hx,c.hz,M.x,M.z,0,r,r))continue;
     const k=outOf(c.pos.x,c.pos.z,Math.sin(c.heading),Math.cos(c.heading),c.hx,c.hz,{x:M.x,z:M.z,tx:0,tz:1,hx:r,hz:r});if(!k)continue;c.pos.x+=k.nx*k.need;c.pos.z+=k.nz*k.need;

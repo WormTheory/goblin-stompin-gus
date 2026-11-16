@@ -109,6 +109,9 @@ function mgSlash(M,S,f0,f1){
   const a0=mgSweepA(f0),a1=mgSweepA(f1),R=MGW.bladeR+MG.r,lx=S.fz,lz=-S.fx;
   for(const g of goblins){if(g.state!=='chase'||S.hit.has(g)||g.pos.y<M.y-1.5||g.pos.y>M.y+MG.hy)continue;const dx=g.pos.x-M.x,dz=g.pos.z-M.z,d=Math.hypot(dx,dz)||0.01,a=mgSlAng(S,dx,dz);
     if(d<=R&&(f0===0?a>=a0:a>a0)&&a<=a1){S.hit.add(g);damageGoblin(g,MGW.bladeDmg,g.pos.clone(),new V3(dx/d,0.8,dz/d),"Cut down by a Mobile Gear's heat blade");}}
+  // (with PvP on, another player the blade passes through, once a swing)
+  for(const q of pvpFoes(M.drv)){if(S.hit.has(q)||q.pos.y<M.y-1.5||q.pos.y>M.y+MG.hy)continue;const dx=q.pos.x-M.x,dz=q.pos.z-M.z,d=Math.hypot(dx,dz)||0.01,a=mgSlAng(S,dx,dz);
+    if(d<=R&&(f0===0?a>=a0:a>a0)&&a<=a1){S.hit.add(q);pvpHurt(M.drv,q,MGW.bladeDmg,q.pos.clone(),new V3(dx/d,0.8,dz/d),"Cut down by a Mobile Gear's heat blade",{cd:0});}}
   // (vehicles: a blow at three points round the arc, a third of the way along the blade's length and two thirds)
   for(const q of [1/6,1/2,5/6])if(f0<q&&f1>=q){const a=mgSweepA(q),ux=S.fx*Math.cos(a)+lx*Math.sin(a),uz=S.fz*Math.cos(a)+lz*Math.sin(a);
     for(const r of [MG.r+MGW.bladeR*0.35,MG.r+MGW.bladeR*0.75])vehBlast(M.x+ux*r,M.y+4.5,M.z+uz*r,MGW.bladeR*0.22,MGW.bladeVD*0.5,M);}
@@ -138,14 +141,14 @@ function mgMissile(M,p,T){
   const vx=f.x*0.45+c*sd*0.4,vy=0.85,vz=f.z*0.45-s*sd*0.4,L=Math.hypot(vx,vy,vz),v=24;
   const A=T?null:mgLead(M,p,m.x,m.y,m.z,MGW.missV);
   shot({kind:'missile',x:m.x,y:m.y,z:m.z,vx:vx/L*v,vy:vy/L*v,vz:vz/L*v,grav:0,fuse:6,R:MGW.missR,dmg:MGW.missDmg,crush:MGW.missCrush,vd:MGW.missVD,own:M,
-    cause:"Blown up by a Mobile Gear's missile",tgt:T,at:A,sp:MGW.missV,turn:MGW.missTurn});
+    cause:"Blown up by a Mobile Gear's missile",by:pvpBy(p),tgt:T,at:A,sp:MGW.missV,turn:MGW.missTurn});
   M.podT=0.5;puff(m.x,m.y,m.z,2,0xdadada,0.3);if(audio)sfx('Mobile Gear missile',()=>noise(0.3,0.16,1200,'bandpass'));}
 // the cannon's shell, from over the right shoulder at the lock (led) or the crosshair, lifted a touch for its drop; a
 // big flash, and a kick that shoves it back in the air
 function mgCannon(M,p){
   if(!wpnFire(M,'cannon'))return;const m=mgCannonAt(M),A=mgLead(M,p,m.x,m.y,m.z,MGW.canV),dx=A.x-m.x,dz=A.z-m.z,L=Math.hypot(dx,A.y-m.y,dz)||1,t=L/MGW.canV,sp=MGW.canV;
   shot({kind:'shell',x:m.x,y:m.y,z:m.z,vx:dx/L*sp,vy:(A.y-m.y)/L*sp+MGW.canGrav*t*0.5,vz:dz/L*sp,grav:MGW.canGrav,fuse:5,R:MGW.canR,dmg:MGW.canDmg,crush:MGW.canCrush,vd:MGW.canVD,own:M,
-    cause:"Blasted by a Mobile Gear's cannon"});
+    cause:"Blasted by a Mobile Gear's cannon",by:pvpBy(p)});
   M.cnT=Math.max(M.cnT||0,0.9);blastFx(m.x,m.y,m.z,0.25,1.2);smoke(m.x,m.y,m.z,6,0x8a8a8a);addShake(0.6,M.x,M.z,30);
   if(audio)sfx('Mobile Gear cannon',()=>{noise(0.6,0.5,700,'lowpass');tone('sawtooth',110,30,0.6,0.16);});
   if(!M.grounded){const h=Math.hypot(dx,dz)||1;M.vx-=dx/h*MGW.recoil;M.vz-=dz/h*MGW.recoil;M.vy=Math.max(M.vy,0)+2;}}

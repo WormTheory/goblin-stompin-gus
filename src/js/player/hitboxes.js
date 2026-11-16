@@ -100,6 +100,7 @@ function hbApply(p,B,hit,ox,oy,oz,hx,hz){
   if(SBX)return;
   for(const g of goblins){if(g.state!=='chase'||hit.has(g))continue;
     if(hbInside(B,ox,oy,oz,Bs,g.pos.x,g.pos.y+0.8,g.pos.z,0.45)){hit.add(g);damageGoblin(g,B.dmg,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(hx,0.5,hz),'Flattened by a hippo');}}
+  for(const q of pvpFoes(p))if(hbInside(B,ox,oy,oz,Bs,q.pos.x,q.pos.y+0.8,q.pos.z,0.45))pvpHurt(p,q,B.dmg,null,new V3(hx,0.5,hz),'Flattened by a hippo');
   for(const c of cars){if(!c.alive||hit.has(c)||Math.hypot(c.pos.x-ox,c.pos.z-oz)>B.r*1.75+B.len+c.hz+2)continue;
     const s=Math.sin(c.heading),k=Math.cos(c.heading),y=c.pos.y+c.hy/2;
     const pts=[[0,0],[c.hx,c.hz],[-c.hx,c.hz],[c.hx,-c.hz],[-c.hx,-c.hz],[0,c.hz],[0,-c.hz]];
@@ -161,7 +162,7 @@ function stompImpact(p,lvl=0){
   puff(ix,p.pos.y,iz,Math.round(8+8*f));
   const cust=hbOn('stomp'+(lvl+1));
   if(!cust){const o={force:0.9+0.4*f,up:1.2+0.3*f};blockHit(A,ix,p.pos.y,iz,fx,fz,o,sz=>crush(ix,p.pos.y,iz,Math.max(0,Math.round(sz)),L.d0,L.d1,o));}
-  if(!cust)hitGoblins(ix,iz,A.hitR,A.dmg,'Stomped flat',p.pos.y);
+  if(!cust){hitGoblins(ix,iz,A.hitR,A.dmg,'Stomped flat',p.pos.y);pvpArea(p,ix,iz,A.hitR,A.dmg,'Stomped flat',p.pos.y);}
   if(!cust)for(const c of carsNear(ix,iz,A.hitR,p.pos.y)){const away=new V3(c.pos.x-ix,0,c.pos.z-iz);damageCar(c,A.carDmg,away);if(lvl>=1)launchCar(c,lvl===2?9:5,away,lvl===2?4:2);clang();}
   if(lvl===2){for(let i=0;i<16;i++){const a=i/16*Math.PI*2,rr=5+Math.random()*3;puff(ix+Math.cos(a)*rr,p.pos.y,iz+Math.sin(a)*rr,2,0x9a948a,0.6);}}
   // the same ground shockwave as a ground pound, its outer ring spreading to exactly the edge of the damage (the custom

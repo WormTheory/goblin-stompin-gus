@@ -193,7 +193,7 @@ function movePlayer(p,dt){
         if(p.grounded){const xi=Math.floor(p.pos.x),zi=Math.floor(p.pos.z),y0=Math.floor(p.pos.y);for(let k=0;k<=3;k++){const bl=get(xi,y0+k,zi);if(bl&&BLOCK[bl].stair){const top=y0+k+rampH(bl,p.pos.x-xi,p.pos.z-zi);if(top>p.pos.y)p.pos.y=top;break;}}}
         // pure strafing circles the target at the same distance
         if(LT&&Math.abs(iz)<0.35&&d0>1.5){const ex=p.pos.x-LT.pos.x,ez=p.pos.z-LT.pos.z,e=Math.hypot(ex,ez)||1,nx=LT.pos.x+ex/e*d0,nz=LT.pos.z+ez/e*d0;if(canStand(nx,nz,p.pos.y)){p.pos.x=nx;p.pos.z=nz;}}
-        moving=true;p.lastSp=sp;p.phase+=dt*sp*3.4*(charge?0.45:1);if(tramp&&!hbOn('trample')){hitGoblins(frontX,frontZ,AB.trample.hitR,AB.trample.dmg,'Trampled',p.pos.y);
+        moving=true;p.lastSp=sp;p.phase+=dt*sp*3.4*(charge?0.45:1);if(tramp&&!hbOn('trample')){hitGoblins(frontX,frontZ,AB.trample.hitR,AB.trample.dmg,'Trampled',p.pos.y);pvpArea(p,frontX,frontZ,AB.trample.hitR,AB.trample.dmg,'Trampled',p.pos.y);
           // and it ploughs straight through anything in the way: benches, bins, fences, railings, low walls
           p.trCD=(p.trCD||0)-dt;if(p.trCD<=0&&!hbOn('trample')&&!inp.climb){p.trCD=0.1;const o={force:1.1,dx:hx,dz:hz};if(blockHit(AB.trample,frontX,p.pos.y,frontZ,hx,hz,o,sz=>crushDisc(frontX,p.pos.y,frontZ,sz,3,o))){sfx('Trample ploughs through',()=>{thud(0.45);});addShake(0.18,frontX,frontZ,10);rumble(p,0.3,90);}}}
         if(inp.climb&&p.grounded&&!(p.standCar&&vOverEdge(p,mvx,mvz)))climbOverEdge(p,mvx,mvz);
@@ -411,6 +411,8 @@ function movePlayer(p,dt){
           // (each goblin's hit once per roll, and sent flying on ahead of it)
           for(const g of goblins){if(g.state!=='chase'||D.hitG.has(g))continue;const dx=g.pos.x-fx,dz=g.pos.z-fz,dy=g.pos.y-p.pos.y,d=Math.hypot(dx,dz)||0.01;
             if(Math.hypot(d,dy)<R.hitR&&vReach(dy,R.hitR)){D.hitG.add(g);damageGoblin(g,R.dmg,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(D.dx*0.8+dx/d*0.4,0.7,D.dz*0.8+dz/d*0.4),D.blast?'Blasted aside by a blast-dashing hippo':'Bowled over by a rolling hippo');sfx('Roll hits a goblin',()=>{thud(0.35);});}}
+          for(const q of pvpFoes(p)){const dx=q.pos.x-fx,dz=q.pos.z-fz,dy=q.pos.y-p.pos.y,d=Math.hypot(dx,dz)||0.01;   // (and with PvP on, another player)
+            if(Math.hypot(d,dy)<R.hitR&&vReach(dy,R.hitR))pvpHurt(p,q,R.dmg,null,new V3(D.dx*0.8+dx/d*0.4,0.7,D.dz*0.8+dz/d*0.4),D.blast?'Blasted aside by a blast dash':'Bowled over by a roll');}
           for(const c of carsNear(fx,fz,R.hitR,p.pos.y)){if(c.rollHitT>camClock)continue;c.rollHitT=camClock+0.5;damageCar(c,R.carDmg,new V3(D.dx,0,D.dz));if(c.alive)launchCar(c,4,new V3(D.dx,0,D.dz),3);sfx('Roll hits a vehicle',()=>{clang();thud(0.5);});}}}
       if(groundAt(p.pos.x+D.dx*1.4,p.pos.z+D.dz*1.4,p.pos.y)-p.pos.y<=1.05&&(!bodyHits(p,nx,nz,p.heading)||bodyHits(p,p.pos.x,p.pos.z,p.heading))){p.pos.x=nx;p.pos.z=nz;}
       // (blocked -- often right at the start, pressed up against a wall: smash what's directly in front of him and try
@@ -454,10 +456,12 @@ function movePlayer(p,dt){
         if(!hbOn('blastAirDash')){const S=p.dashHitG||(p.dashHitG=new Set());
           for(const g of goblins){if(g.state!=='chase'||S.has(g))continue;const dx=g.pos.x-fx2,dz=g.pos.z-fz2,dy=g.pos.y-p.pos.y,d=Math.hypot(dx,dz)||0.01;
             if(Math.hypot(d,dy)<A.hitR&&vReach(dy,A.hitR)){S.add(g);damageGoblin(g,A.dmg,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(hx*0.8+dx/d*0.4,0.7,hz*0.8+dz/d*0.4),'Blasted aside by a flying hippo');}}
+          for(const q of pvpFoes(p)){const dx=q.pos.x-fx2,dz=q.pos.z-fz2,dy=q.pos.y-p.pos.y,d=Math.hypot(dx,dz)||0.01;
+            if(Math.hypot(d,dy)<A.hitR&&vReach(dy,A.hitR))pvpHurt(p,q,A.dmg,null,new V3(hx*0.8+dx/d*0.4,0.7,hz*0.8+dz/d*0.4),'Blasted aside by a blast air dash');}
           for(const c of carsNear(fx2,fz2,A.hitR,p.pos.y)){if(c.blastHitT>camClock)continue;c.blastHitT=camClock+0.6;damageCar(c,A.carDmg,new V3(hx,0,hz));if(c.alive)launchCar(c,6,new V3(hx,0,hz),4);sfx('Blast hits a vehicle',()=>{clang();});}}}}
     if(groundAt(p.pos.x+hx*1.6,p.pos.z+hz*1.6,p.pos.y)-p.pos.y<=1.05&&(!bodyHits(p,p.pos.x+hx*ds*dt,p.pos.z+hz*ds*dt,p.heading)||bodyHits(p,p.pos.x,p.pos.z,p.heading))){p.pos.x+=hx*ds*dt;p.pos.z+=hz*ds*dt;}
     else if(!p.dashBlast&&p.smashCD<=0&&!hbOn('dash')){p.smashCD=0.2;const o={force:1.3,dx:hx,dz:hz};if(blockHit(AB.dash,fx2,p.pos.y,fz2,hx,hz,o,sz=>crush(fx2,p.pos.y,fz2,Math.max(0,Math.round(sz)),0,2,o))){addShake(0.3,fx2,fz2,12);sfx('Dash smashes blocks',()=>{thud(0.7);});}}
-    if(!p.dashBlast&&!hbOn('dash'))hitGoblins(fx2,fz2,AB.dash.hitR,AB.dash.dmg,'Rammed by a flying hippo',p.pos.y);
+    if(!p.dashBlast&&!hbOn('dash')){hitGoblins(fx2,fz2,AB.dash.hitR,AB.dash.dmg,'Rammed by a flying hippo',p.pos.y);pvpArea(p,fx2,fz2,AB.dash.hitR,AB.dash.dmg,'Rammed by an air dash',p.pos.y);}
     if(!p.dashBlast&&p.chargeCD<=0&&!hbOn('dash')){const hit=carsNear(fx2,fz2,AB.dash.hitR,p.pos.y);if(hit.length){p.chargeCD=0.5;for(const c of hit)damageCar(c,AB.dash.carDmg,new V3(hx,0,hz));sfx('Dash hits a vehicle',()=>{clang();thud(0.6);});}}
   }
   // a blast long jump ploughs through whatever's in its way: blocks, goblins, cars
@@ -465,14 +469,14 @@ function movePlayer(p,dt){
   if(p.blastJ&&(p.mvx||p.mvz)){const m=Math.hypot(p.mvx,p.mvz),ux=p.mvx/m,uz=p.mvz/m,fx=p.pos.x+ux*1.8,fz=p.pos.z+uz*1.8,fy=p.pos.y+1.1*ES,A=AB.blastJump;
     if(!p.blastAt||Math.hypot(fx-p.blastAt.x,fz-p.blastAt.z,fy-p.blastAt.y)>1.2){p.blastAt={x:fx,y:fy,z:fz};
       if(!hbOn('blastJump'))crushBall(fx,fy,fz,2.3,{force:1.6+m*0.04,up:1.2});
-      hitGoblins(fx,fz,A.hitR,A.dmg,'Flattened by a blast long jump',p.pos.y);
+      hitGoblins(fx,fz,A.hitR,A.dmg,'Flattened by a blast long jump',p.pos.y);pvpArea(p,fx,fz,A.hitR,A.dmg,'Flattened by a blast long jump',p.pos.y);
       for(const c of carsNear(fx,fz,A.hitR,p.pos.y)){if(c.blastHitT>camClock)continue;c.blastHitT=camClock+0.6;damageCar(c,A.carDmg,new V3(ux,0,uz));if(c.alive)launchCar(c,6,new V3(ux,0,uz),4);sfx('Blast hits a vehicle',()=>{clang();});}}}
   // carried momentum (air-dash follow-through, long jumps): little drag in the air, skids out fast on the ground
   if(p.mvx||p.mvz){
     if(p.dashT>0||p.state==='pound'||p.state==='poundLand'||p.state==='windup'||p.state==='stomp'){if(p.state!=='walk'){p.mvx=p.mvz=0;}}
     else{
       const m=Math.hypot(p.mvx,p.mvz),ux=p.mvx/m,uz=p.mvz/m;
-      if(groundAt(p.pos.x+ux*(p.gob?0.45:1.6),p.pos.z+uz*(p.gob?0.45:1.6),p.pos.y)-p.pos.y<=1.05&&(!bodyHits(p,p.pos.x+p.mvx*dt,p.pos.z+p.mvz*dt,p.heading)||bodyHits(p,p.pos.x,p.pos.z,p.heading))){p.pos.x+=p.mvx*dt;p.pos.z+=p.mvz*dt;if(m>6)hitGoblins(p.pos.x+ux*1.8,p.pos.z+uz*1.8,1.6,4,'Bowled over',p.pos.y);}
+      if(groundAt(p.pos.x+ux*(p.gob?0.45:1.6),p.pos.z+uz*(p.gob?0.45:1.6),p.pos.y)-p.pos.y<=1.05&&(!bodyHits(p,p.pos.x+p.mvx*dt,p.pos.z+p.mvz*dt,p.heading)||bodyHits(p,p.pos.x,p.pos.z,p.heading))){p.pos.x+=p.mvx*dt;p.pos.z+=p.mvz*dt;if(m>6){hitGoblins(p.pos.x+ux*1.8,p.pos.z+uz*1.8,1.6,4,'Bowled over',p.pos.y);if(!(p.knockT>0))pvpArea(p,p.pos.x+ux*1.8,p.pos.z+uz*1.8,1.6,4,'Bowled over',p.pos.y);}}
       else{p.mvx=p.mvz=0;}
       const f=Math.exp(-(p.grounded?7:p.rocket?1.1:0.5)*dt);p.mvx*=f;p.mvz*=f;
       if(Math.hypot(p.mvx,p.mvz)<0.3)p.mvx=p.mvz=0;

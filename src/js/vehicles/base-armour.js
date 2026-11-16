@@ -101,6 +101,9 @@ function milShove(M){const I=MIL[M.kind],R=Math.max(I.hx,I.hz)+3,tx=Math.sin(M.h
   for(const g of goblins){if(g.state!=='chase'||Math.abs(g.pos.x-M.x)>R||Math.abs(g.pos.z-M.z)>R||g.pos.y+1.5<M.y||g.pos.y>top-0.3)continue;   // (one standing on top is left be)
     const c=out(g,0.4);if(!c)continue;g.pos.x+=c.nx*c.need;g.pos.z+=c.nz*c.need;
     if(run&&!(g.trainT>0)&&c.nx*tx+c.nz*tz>0.5){g.trainT=1;damageGoblin(g,Math.round(4+M.v*1.5),g.pos.clone(),new V3(c.nx,0.5,c.nz),'Run over by a tank',ACCIDENT);}}
+  // (with PvP on, a player driving it runs another player down too: raw damage, as a car's)
+  if(run)for(const q of pvpFoes(M.drv)){if(q.pos.y+1.5<M.y||q.pos.y>top-0.3)continue;const c=out(q,0.6);if(!c||c.nx*tx+c.nz*tz<=0.5)continue;
+    pvpHurt(M.drv,q,Math.min(8,Math.round(2+M.v*0.5)),null,new V3(c.nx,0.5,c.nz),'Run over by a tank',{raw:true,cd:1});}
   for(const c of cars){if(!c.alive||Math.abs(c.pos.x-M.x)>R+c.hz||Math.abs(c.pos.z-M.z)>R+c.hz||c.pos.y+(c.hy||1.4)<M.y||c.pos.y>top-0.3)continue;
     // (allowing for which way the car's facing: nose on, it's its whole length that has to come out)
     if(!boxesTouch(c.pos.x,c.pos.z,c.heading,c.hx,c.hz,M.x,M.z,M.h,I.hx,I.hz))continue;

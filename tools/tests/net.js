@@ -9,7 +9,7 @@ const d6=fs.readFileSync('dead6.js','utf8');
 const stubs=d6.slice(d6.indexOf('const deep='),d6.indexOf('\neval(src);'));
 const src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={tenvPlace,get TENV(){return TENV},netSendSnap,netRewind,netUnwind,NETP,makeTopple,topples,NETF,V3,BRICK,NET_VN,venues,TRAINS,netVenueModels,frame,players,P1,P2,NET,NETM,netHostWith,netJoinWith,netClose,netEnd,crush,get,goblins,cars,keys,ABIL,fires,setGobP,'+
   'collapseBuilding,bldgAt,plotInfo,CELL,FH,knockFix,activeFix,activeProps,falling,downFix,NET_BG,netBgTick,netBgClock,get collapses(){return collapses},'+
-  'copArm,TRACERS,award,POPS,DT,setCombo,get seed(){return seed},get edits(){return edits},get menuOpen(){return menuOpen},get saveBlocked(){return saveBlocked},chunks,ckey,CS,G};})();');
+  'copArm,TRACERS,award,POPS,DT,setCombo,setPvp,pvpOn,doBite,obitList,get seed(){return seed},get edits(){return edits},get menuOpen(){return menuOpen},get saveBlocked(){return saveBlocked},chunks,ckey,CS,G};})();');
 if(src===src0)throw new Error('closing line not found');
 const store=init=>{const m=new Map(Object.entries(init||{}));return{getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,String(v)),removeItem:k=>m.delete(k),get _m(){return m}};};
 // one game: seed for its Math.random, its localStorage and sessionStorage contents
@@ -120,6 +120,18 @@ const lag=[];
  const sc=HT.award(40,null,P.x,P.y,P.z,HT.P2)+HT.award(40,null,P.x,P.y,P.z,HT.P2);for(let i=0;i<20;i++){H.step(1);G.step(1);}
  console.log('combo system off on the host: no multiplier',sc,ok(sc===80),'no combo',HT.P2.cbN,ok(!HT.P2.cbN),'guest told',ok(GT.DT.combo===false),'guest card hidden',ok(GT.P1.ui.combo.hidden));
  HT.setCombo(true);for(let i=0;i<90;i++){H.step(1);G.step(1);}}
+
+// ---- PvP: the host's switch goes to the guest, which can't change it; the host's bite on the guest's hippo hurts it, and the
+// guest sees its health go down; switched off again, it doesn't ----
+{const was=HT.DT.pvp;HT.setPvp(true);for(let i=0;i<90;i++){H.step(1);G.step(1);}
+ GT.setPvp(false);const gOn=GT.pvpOn();
+ const A=HT.P1,B=HT.P2,bite=()=>{A.pos.set(B.pos.x,B.pos.y,B.pos.z-2.2);A.heading=0;A.state='walk';A.biteStep=0;A.pvpT=null;B.pvpT=null;B.hp=20;B.dodge=null;const h0=B.hp;HT.doBite(A);return h0-B.hp;};
+ const hurt=bite();for(let i=0;i<20;i++){H.step(1);G.step(1);}
+ console.log('PvP on at the host: guest told',ok(gOn),'guest can't switch it off',ok(GT.pvpOn()),'host bites the guest's hippo: lost',hurt,ok(hurt>0),'guest shows',GT.P1.hp,ok(Math.abs(GT.P1.hp-B.hp)<0.01));
+ HT.setPvp(false);for(let i=0;i<90;i++){H.step(1);G.step(1);}
+ const none=bite();for(let i=0;i<20;i++){H.step(1);G.step(1);}
+ console.log('PvP off at the host: guest told',ok(!GT.pvpOn()),'the same bite: lost',none,ok(none===0));
+ HT.setPvp(was);for(let i=0;i<30;i++){H.step(1);G.step(1);}}
 
 // ---- smashing on the host: the same blocks go on the guest ----
 {const p=HT.P2.pos,x=Math.floor(p.x)+4,z=Math.floor(p.z)+4,y=HT.G+1;

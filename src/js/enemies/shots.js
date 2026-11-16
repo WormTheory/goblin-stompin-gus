@@ -60,7 +60,9 @@ function foeBoom(x,y,z,R,dmg,cause,by,crush,vd,own){
   smoke(x,y+0.5,z,6+Math.round(R*2),0x2e2e2e);puff(x,y,z,8,0xff8a2a,0.6);
   if(audio){noise(0.7,0.5,500,'lowpass');tone('sawtooth',90,24,0.7,0.16);}addShake(0.25+R*0.08,x,z,R*8);
   for(const q of players){if(!q.active||q.state==='dead')continue;const dx=q.pos.x-x,dz=q.pos.z-z,dy=q.pos.y+1-y,d3=Math.hypot(dx,dz,dy);if(d3>R)continue;
-    const h=Math.hypot(dx,dz)||1;damagePlayer(q,Math.max(1,Math.round(dmg*(1-0.6*d3/R))),new V3(q.pos.x,q.pos.y+1,q.pos.z),new V3(dx/h,0.6,dz/h),cause,by);}
+    // (by, for a player's shot with PvP on, is that player: see pvpBy. Their own blast isn't blamed on them)
+    const h=Math.hypot(dx,dz)||1,pk=by&&by.pvp,alive=q.state!=='dead';damagePlayer(q,Math.max(1,Math.round(dmg*(1-0.6*d3/R))),new V3(q.pos.x,q.pos.y+1,q.pos.z),new V3(dx/h,0.6,dz/h),cause,pk===q?undefined:by);
+    if(pk&&pk!==q&&alive&&q.state==='dead')pvpKilled(pk,q);}
   hitGoblins(x,z,R,dmg,cause,y);vehBlast(x,y,z,R*1.15,vd??dmg*6,own);
   if(crush)crushBall(x,y,z,crush);
 }

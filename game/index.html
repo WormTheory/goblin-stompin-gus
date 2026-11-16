@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:b1322d3a174b94c57294d6f85bf3757d5d9321d51255852e8a931f3fe11b4106 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:f8d5aede6b13dc27f859052ea4ab9067d6cc555e44827d35ebc71bd293b17bf9 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1387,6 +1387,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
       <p class="vnote" id="hostMainTxt"></p>
       <div class="crow"><span class="clab" id="pathLab">GOBLIN PATHFINDING</span><div class="seg" role="radiogroup" aria-labelledby="pathLab" id="pathSeg"><button type="button" role="radio" data-path="0" aria-checked="true">Advanced</button><button type="button" role="radio" data-path="1" aria-checked="false">Simple</button></div></div>
       <p class="vnote" id="pathTxt"></p>
+      <div class="crow"><span class="clab" id="pvpLab">PVP</span><div class="seg" role="radiogroup" aria-labelledby="pvpLab" id="pvpSeg"><button type="button" role="radio" data-pvp="0" aria-checked="true">Off</button><button type="button" role="radio" data-pvp="1" aria-checked="false">On</button></div></div>
+      <p class="vnote" id="pvpTxt"></p>
     </div>
     <div class="custom">
       <h2>RENDER DISTANCE</h2>
@@ -1457,6 +1459,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <details class="pn-up pn-fold pn-new" id="version-0-5" open><summary tabindex="0"><h2>Version 0.5</h2><span class="pn-tog" aria-hidden="true"></span></summary>
 <h3>Mobile Gear (Testing Environment)</h3>
 <ul><li>A new vehicle to try out in the Testing Environment: the Mobile Gear, an armoured walker eight blocks tall. Pick it from the vehicle buttons in the Testing Environment tab and it's set down in front of you. Only Gnash and Grizzle can pilot it for now.</li><li>Walk up and press F (controller Y) to climb in. Hold F for half a second to climb out, so a stray tap won't throw you out mid-fight.</li><li>It moves where the camera points, with the view from behind and above it so the crosshair sits in the middle of the screen and you can see over its head. On foot it sets off slowly and builds up into a jog, its strides lengthening and its arms swinging, stepping whichever way you're going, backwards and sideways included. Standing still, its legs stay planted as you look around until its body has turned too far on them, then they step round to catch up. Press C (controller B) to switch boost on and it drops into a wide, braced crouch and skates along the ground three times as fast, at no cost. Everything is about a fifth faster than it was.</li><li>Shift (controller X) is a quick boost: a sharp burst in the direction you're holding, or straight back with nothing held, taken in the same braced skating crouch as boosting, then easing off smoothly rather than stopping dead. Each one costs energy.</li><li>Space (controller A) jumps: it dips into a quick crouch, pushes off, tucks its legs up and swings them out beneath it. Holding it flies upward on the thrusters. In the air it leans well into the way it's flying, its legs hang nearly straight, swept back behind it the faster it goes, and its back and calf thrusters tip down to hold it up. With boost on in the air it glides instead of dropping.</li><li>Thrusters run on the energy gauge, a thin bar right across the bottom of the lock box round the crosshair. Empty it and it redlines: the bar flashes red and you can't boost or fly until it recovers. Energy comes back quickly once you stop drawing on it, and faster on the ground.</li><li>It leans into the way it's going, and its thrusters fire from whichever side pushes it there: the back ones going forward, the side ones strafing, the chest ones going backwards. Its legs fold up smoothly as it leaves the ground and its feet stay planted flat, up and down steps too. Skating over a pit, its feet ease over the gap rather than dropping to the bottom. Its thruster flames taper to a point.</li><li>It steps up one-block ledges on foot and two-block ledges while boosting. Run into a wall or a building while boosting and it smashes a hole and carries on; at full boost it ploughs straight through with barely a stumble. Walking into one just stops it. Anything small in its way gets trampled, and a hard landing knocks goblins over.</li><li>It's armed, with a weapon on each trigger. Each has its own load and reloads by itself once it's empty. Above the speedometer, in the bottom corner, each weapon's button, what it has loaded and its name are laid out as they're carried (shoulders above, arms below), in a panel that keeps the same size whatever it says, and up either side of the lock box round the crosshair a tall gauge for each weapon shows how full it is, or how far along its reload is. The gauges and the energy bar are see-through, so they don't hide what you're aiming at: - Right click (controller RB): the Rivet Rifle in its right hand. Hold it for a steady stream of rounds. Its rounds chip at walls: about half the time a round breaks the block it hits. - Left click (controller LB): the Heat Cleaver on its left arm. It lunges forward (at a locked target if one's close, ending with it in reach), easing smoothly to a stop rather than halting, then swings. It reaches across to its right side, its whole upper body turning with it and its right arm lifting out of the way, the blade ignites from its left hand, a flat blade held level, and it whips the blade from right to left in a wide, level arc round in front of it that cuts down goblins, tears into vehicles and slices clean through walls. The blade retracts into its hand as it settles back. It needs a moment to cool between swings. - Q (controller LT): the Swarm Pod on its left shoulder. Hold it and the pod locks on to whatever's in the lock box, up to four locks, then let go and a homing missile flies at each. With nothing locked, a tap fires one where you're aiming. - E (controller RT): the Breaker Cannon on its right shoulder. On the ground it stops, braces and swings the cannon over its shoulder before firing a heavy shell that blasts a crater. In the air it fires at once and the kick shoves it backwards. It sits up on a post, so firing low it clears the Gear's own chest.</li><li>Lock-on: anything in the box round the crosshair is picked out by itself, and the rifle and blade aim at it, leading a moving target. Middle click (controller R3) holds on to it with a hard lock, and the camera turns to keep it in view while you move round it. Press it again to let go.</li><li>It has 600 health. Wreck it and you're thrown out. The assault boost and repairs are coming in a later update.</li><li>Its controls can be rebound in Options, in their own "Piloting a Mobile Gear" section.</li><li>Mobile Gears aren't kept when you leave the Testing Environment.</li><li>While you're piloting, the controls line for on foot is hidden.</li></ul>
+<h3>PvP</h3>
+<ul><li>A new PvP switch in Options, off unless you turn it on. With it on, players can fight each other, in split screen or online, whoever they're playing as.</li><li>Lock on to another player as you would a goblin, on foot, from a tank or helicopter, or with a Mobile Gear's lock box, and its missiles home in on them. A player in a vehicle is locked on as the vehicle.</li><li>Every attack lands on other players: bites and uppercuts, stomps, ground pounds, ground spikes, trampling, rolls, dashes, blast dashes and blast long jumps, and Gnash's club, dagger, guns and grenades. A hippo's blows hit another player for about a third of what they do to a goblin, so a fight lasts a while.</li><li>Vehicles too: run another player down in a car or a tank, shoot them with a tank's or helicopter's guns, shells and rockets, or with a Mobile Gear's rifle, blade, missiles and cannon (it tramples them as well).</li><li>A player killed by another is told who did it, the winner scores 500 points, and the obituaries name the killer. You get up again as usual.</li><li>Online, the host's switch decides for everyone. A guest's PvP switch shows the host's choice and can't be changed.</li></ul>
 <h3>Vehicle controls</h3>
 <ul><li>In every vehicle, its controls are listed down the left side of the screen, one to a line, instead of along the bottom. The controls line for on foot is hidden while you drive.</li></ul>
 <h3>Debug menu</h3>
@@ -3548,6 +3552,9 @@ function milShove(M){const I=MIL[M.kind],R=Math.max(I.hx,I.hz)+3,tx=Math.sin(M.h
   for(const g of goblins){if(g.state!=='chase'||Math.abs(g.pos.x-M.x)>R||Math.abs(g.pos.z-M.z)>R||g.pos.y+1.5<M.y||g.pos.y>top-0.3)continue;   // (one standing on top is left be)
     const c=out(g,0.4);if(!c)continue;g.pos.x+=c.nx*c.need;g.pos.z+=c.nz*c.need;
     if(run&&!(g.trainT>0)&&c.nx*tx+c.nz*tz>0.5){g.trainT=1;damageGoblin(g,Math.round(4+M.v*1.5),g.pos.clone(),new V3(c.nx,0.5,c.nz),'Run over by a tank',ACCIDENT);}}
+  // (with PvP on, a player driving it runs another player down too: raw damage, as a car's)
+  if(run)for(const q of pvpFoes(M.drv)){if(q.pos.y+1.5<M.y||q.pos.y>top-0.3)continue;const c=out(q,0.6);if(!c||c.nx*tx+c.nz*tz<=0.5)continue;
+    pvpHurt(M.drv,q,Math.min(8,Math.round(2+M.v*0.5)),null,new V3(c.nx,0.5,c.nz),'Run over by a tank',{raw:true,cd:1});}
   for(const c of cars){if(!c.alive||Math.abs(c.pos.x-M.x)>R+c.hz||Math.abs(c.pos.z-M.z)>R+c.hz||c.pos.y+(c.hy||1.4)<M.y||c.pos.y>top-0.3)continue;
     // (allowing for which way the car's facing: nose on, it's its whole length that has to come out)
     if(!boxesTouch(c.pos.x,c.pos.z,c.heading,c.hx,c.hz,M.x,M.z,M.h,I.hx,I.hz))continue;
@@ -10381,6 +10388,7 @@ function hbApply(p,B,hit,ox,oy,oz,hx,hz){
   if(SBX)return;
   for(const g of goblins){if(g.state!=='chase'||hit.has(g))continue;
     if(hbInside(B,ox,oy,oz,Bs,g.pos.x,g.pos.y+0.8,g.pos.z,0.45)){hit.add(g);damageGoblin(g,B.dmg,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(hx,0.5,hz),'Flattened by a hippo');}}
+  for(const q of pvpFoes(p))if(hbInside(B,ox,oy,oz,Bs,q.pos.x,q.pos.y+0.8,q.pos.z,0.45))pvpHurt(p,q,B.dmg,null,new V3(hx,0.5,hz),'Flattened by a hippo');
   for(const c of cars){if(!c.alive||hit.has(c)||Math.hypot(c.pos.x-ox,c.pos.z-oz)>B.r*1.75+B.len+c.hz+2)continue;
     const s=Math.sin(c.heading),k=Math.cos(c.heading),y=c.pos.y+c.hy/2;
     const pts=[[0,0],[c.hx,c.hz],[-c.hx,c.hz],[c.hx,-c.hz],[-c.hx,-c.hz],[0,c.hz],[0,-c.hz]];
@@ -10442,7 +10450,7 @@ function stompImpact(p,lvl=0){
   puff(ix,p.pos.y,iz,Math.round(8+8*f));
   const cust=hbOn('stomp'+(lvl+1));
   if(!cust){const o={force:0.9+0.4*f,up:1.2+0.3*f};blockHit(A,ix,p.pos.y,iz,fx,fz,o,sz=>crush(ix,p.pos.y,iz,Math.max(0,Math.round(sz)),L.d0,L.d1,o));}
-  if(!cust)hitGoblins(ix,iz,A.hitR,A.dmg,'Stomped flat',p.pos.y);
+  if(!cust){hitGoblins(ix,iz,A.hitR,A.dmg,'Stomped flat',p.pos.y);pvpArea(p,ix,iz,A.hitR,A.dmg,'Stomped flat',p.pos.y);}
   if(!cust)for(const c of carsNear(ix,iz,A.hitR,p.pos.y)){const away=new V3(c.pos.x-ix,0,c.pos.z-iz);damageCar(c,A.carDmg,away);if(lvl>=1)launchCar(c,lvl===2?9:5,away,lvl===2?4:2);clang();}
   if(lvl===2){for(let i=0;i<16;i++){const a=i/16*Math.PI*2,rr=5+Math.random()*3;puff(ix+Math.cos(a)*rr,p.pos.y,iz+Math.sin(a)*rr,2,0x9a948a,0.6);}}
   // the same ground shockwave as a ground pound, its outer ring spreading to exactly the edge of the damage (the custom
@@ -10504,6 +10512,8 @@ function spikeHit(S){
     dbgHit('dmg','cap',dbgCap(S.x,y,S.z,S.r+A.hitR));
     for(const g of goblins){if(g.state!=='chase')continue;const dx=g.pos.x-S.x,dz=g.pos.z-S.z,dd=Math.hypot(dx,dz)||0.01,dy=g.pos.y-y;
       if(dd<S.r+A.hitR&&dy>-1.5&&dy<S.h){damageGoblin(g,A.dmg,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(dx/dd*0.35,1.3,dz/dd*0.35),'Skewered by a ground spike');g.vy=Math.max(g.vy||0,A.launch*(0.8+S.h*0.04));}}
+    for(const q of pvpFoes(S.p)){const dx=q.pos.x-S.x,dz=q.pos.z-S.z,dd=Math.hypot(dx,dz)||0.01,dy=q.pos.y-y;   // (and with PvP on, another player: thrown up too)
+      if(dd<S.r+A.hitR&&dy>-1.5&&dy<S.h&&pvpHurt(S.p,q,A.dmg,null,new V3(dx/dd*0.35,1.3,dz/dd*0.35),'Skewered by a ground spike')&&q.hp>0){q.vy=Math.max(q.vy||0,A.launch*0.6);q.grounded=false;}}
     for(const c of carsNear(S.x,S.z,S.r+A.hitR,y)){const away=new V3(c.pos.x-S.x,0,c.pos.z-S.z);damageCar(c,A.carDmg,away);if(c.alive)launchCar(c,A.launch*(0.7+S.h*0.04),away.lengthSq()>0.01?away.normalize():new V3(S.dx,0,S.dz),2);clang();}}
 }
 function spikeMesh(S){
@@ -10570,7 +10580,7 @@ function blastOff(p,hx,hz,A=AB.blastJump,k=1){
   if(!SBX){noise(1.1,1.1,650,'lowpass');tone('sawtooth',70,26,0.9,0.32);tone('sine',90,30,0.7,0.25);
     addShake(0.7,x,z,40);rumble(p,1,320);p.shake=Math.max(p.shake,0.25);p.roarBurst=0.6;}
   // (whatever's right behind him gets caught in it)
-  if(A.blastR>0){hitGoblins(x,z,A.blastR,Math.round(A.dmg*0.75),'Caught in a blast long jump',p.pos.y);
+  if(A.blastR>0){hitGoblins(x,z,A.blastR,Math.round(A.dmg*0.75),'Caught in a blast long jump',p.pos.y);pvpArea(p,x,z,A.blastR,Math.round(A.dmg*0.75),'Caught in a blast long jump',p.pos.y);
     for(const c of carsNear(x,z,A.blastR,p.pos.y)){damageCar(c,Math.round(A.carDmg*0.75),new V3(-hx,0,-hz));if(c.alive)launchCar(c,7,new V3(-hx,0,-hz),5);}}
 }
 function fallImpact(p,drop,pound,lvl=0){
@@ -10585,7 +10595,7 @@ function fallImpact(p,drop,pound,lvl=0){
   const cust=hbOn(AK);
   if(!cust){const o={force:0.9+0.35*sev,up:1.3+0.3*sev};blockHit(A,fx,y,fz,Math.sin(p.heading),Math.cos(p.heading),o,sz=>crush(fx,y,fz,Math.max(0,Math.round(r*sz)),-deep,0,o));}
   const gr=A.hitR+drop*0.35,gd=pound?Math.round(Math.min(40,12+drop*1.6)*A.dmg/12):Math.min(40,Math.round(A.dmg+drop*1.6));
-  if(!cust)hitGoblins(fx,fz,gr,gd,pound?'Ground-pounded':'Landed on from a great height',y);
+  if(!cust){hitGoblins(fx,fz,gr,gd,pound?'Ground-pounded':'Landed on from a great height',y);pvpArea(p,fx,fz,gr,gd,pound?'Ground-pounded':'Landed on from a great height',y);}
   if(!cust)for(const c of carsNear(fx,fz,gr,y)){const away=new V3(c.pos.x-fx,0,c.pos.z-fz);damageCar(c,Math.round(gd*A.carMul),away);if(sev>1)launchCar(c,Math.min(9,3+sev*2),away,2);clang();}
   for(let i=0;i<14;i++){const a=i/14*Math.PI*2,rr=1.5+r;puff(fx+Math.cos(a)*rr,y,fz+Math.sin(a)*rr,2,0x9a948a,0.6);}
   addShake(Math.min(0.9,0.3+0.15*sev),fx,fz,14+8*sev);thud(Math.min(1,0.5+0.15*sev));
@@ -10632,6 +10642,7 @@ function doBite(p){
     for(const g of goblins){if(g.state!=='chase'||hitG.has(g))continue;if(segD(g.pos.x,g.pos.z)<JR&&Math.abs(g.pos.y-p.pos.y)<JH){hitG.add(g);damageGoblin(g,A.dmg,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),fin?new V3(hx*0.6,1.6,hz*0.6):new V3(hx,0.4,hz),fin?'Uppercut':'Bitten');
       // the uppercut shoves survivors well back, and pops anything it kills high into the air
       if(fin){if(g.state==='dead'){g.vy=Math.max(g.vy,21);g.kv.x+=hx*4;g.kv.z+=hz*4;}else{g.kv.x+=hx*1.5;g.kv.z+=hz*1.5;g.vy=Math.max(g.vy,10);g.stun=Math.max(g.stun||0,0.7);}}}}
+    for(const q of pvpFoes(p))if(segD(q.pos.x,q.pos.z)<JR&&Math.abs(q.pos.y-p.pos.y)<JH&&pvpHurt(p,q,A.dmg,null,fin?new V3(hx*0.6,1.6,hz*0.6):new V3(hx,0.4,hz),fin?'Uppercut':'Bitten')&&fin&&q.hp>0){q.vy=Math.max(q.vy,8);q.grounded=false;}   // (and with PvP on, another player)
     // cars: their body against the same slot (checked at points a half-block apart along it)
     const near=new Set();for(let t=0;t<=J1-J0+1e-6;t+=0.5)for(const c of carsInCyl(ax+hx*t,az+hz*t,JR,p.pos.y-JH,p.pos.y+JH))near.add(c);
     for(const c of near){if(hitC.has(c))continue;hitC.add(c);damageCar(c,A.carDmg,new V3(hx,0,hz));if(fin&&c.alive){c.kv.x+=hx*11;c.kv.z+=hz*11;c.vy=Math.max(c.vy||0,6.5);c.grounded=false;c.spinP=(c.spinP||0)-1.5;thud(0.4);}clang();}   // the uppercut shoves cars hard
@@ -10728,11 +10739,12 @@ function stepCorpse(p,dt){
 }
 // ---- lock-on (R3 / Q): pick a hostile goblin ahead, keep facing it, strafe around it ----
 // what can be locked onto: any living goblin (hostile or civilian), any working car (they all have a goblin at the wheel),
-// and the army's tanks and helicopters (unless someone's driving it)
+// and the army's tanks and helicopters (unless someone's driving it); with PvP on, the other players too (one in a
+// vehicle is locked as the player, so shots and missiles go for the vehicle; one in a car is the car already)
 const isCarT=t=>!!(t&&t.wheels),isMilT=t=>!!(t&&t.isMil);
-const lockAlive=t=>isMilT(t)?!t.dead&&!t.drv:isCarT(t)?t.alive:t.state==='chase';
+const lockAlive=t=>isPlT(t)?t.active&&t.state!=='dead'&&pvpOn():isMilT(t)?!t.dead&&!t.drv:isCarT(t)?t.alive:t.state==='chase';
 // the height of its middle (where the marker sits, and what a gun aims at)
-const lockY=t=>isMilT(t)?t.pos.y+MIL[t.kind].hy*0.55:t.pos.y+(isCarT(t)?0.9:1.1);
+const lockY=t=>isPlT(t)?t.pos.y+(t.drv?0.6:t.gob?1.0:1.4):isMilT(t)?t.pos.y+MIL[t.kind].hy*0.55:t.pos.y+(isCarT(t)?0.9:1.1);
 // can the camera actually see it? march from the camera to the target's middle through the voxels; anything solid
 // and opaque in between hides it (leaves and glass don't)
 function seenFrom(a,bx,by,bz){
@@ -10749,6 +10761,7 @@ function lockTargets(p,range){
   for(const g of goblins)if(g.state==='chase')add(g,g.pos.y);
   for(const c of cars)if(c.alive&&!c.parkPool&&c.drv!==p&&c.gnr!==p)add(c,c.pos.y);
   for(const V of venues.values())if(V.kind==='army')for(const M of V.mil)if(M.pos&&lockAlive(M))add(M,M.pos.y,2);
+  if(pvpOn())for(const q of players)if(q!==p&&lockAlive(q)&&!(q.drv&&(isCarT(q.drv.o)||q.drv.o===(p.drv&&p.drv.o))))add(q,q.pos.y,q.drv?2:1);
   return out;
 }
 function lockCandidate(p){
@@ -10830,6 +10843,7 @@ function updateLock(p,dt,inp){
   p.lockPulse=Math.max(0,(p.lockPulse||0)-dt);
   if(isCarT(T))m.position.set(T.pos.x,T.pos.y+0.95*ES,T.pos.z);
   else if(isMilT(T))m.position.set(T.pos.x,lockY(T),T.pos.z);
+  else if(isPlT(T))m.position.set(T.pos.x,lockY(T)+(T.drv?0:T.gob?0.1:0.4),T.pos.z);
   else{const r=T.root;m.position.set(r.position.x,r.position.y+0.72*r.scale.y,r.position.z);}
   // tilt the camera to follow the target up or down (biased a little downward so Gus stays in frame)
   {const hd=Math.max(1,Math.hypot(dx,dz)),rise=m.position.y-(p.pos.y+2.4*ES);
@@ -11116,6 +11130,8 @@ function wallBiteHit(p){
     if(Math.hypot(q[0]-u[0]*t,q[1]-u[1]*t,q[2]-u[2]*t)>=A.hitR)continue;
     // (knocked along the way his head points, and off the wall)
     damageGoblin(g,A.dmg,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(u[0]-d[0]*0.8,u[1]*0.6+0.3,u[2]-d[1]*0.8),cause);}
+  for(const q of pvpFoes(p)){const v=[q.pos.x-a[0],q.pos.y+0.7-a[1],q.pos.z-a[2]],t=Math.max(0,Math.min(J1-J0,v[0]*u[0]+v[1]*u[1]+v[2]*u[2]));   // (and with PvP on, another player)
+    if(Math.hypot(v[0]-u[0]*t,v[1]-u[1]*t,v[2]-u[2]*t)<A.hitR)pvpHurt(p,q,A.dmg,null,new V3(u[0]-d[0]*0.8,u[1]*0.6+0.3,u[2]-d[1]*0.8),cause);}
   // vehicles in reach too: the one he's clinging to, or one going by
   {const near=new Set();for(let t=0;t<=J1-J0+1e-6;t+=0.5){const x=a[0]+u[0]*t,y=a[1]+u[1]*t,z=a[2]+u[2]*t;for(const v of carsInCyl(x,z,A.hitR,y-1.5,y+1.5))near.add(v);}
    for(const v of near){damageCar(v,gk?1:A.carDmg,new V3(u[0]+d[0]*0.5,0,u[2]+d[1]*0.5));clang();}}
@@ -11135,7 +11151,7 @@ function wallBurst(p){
   const m=K?Math.max(1,K-2):1,hx=p.pos.x+d[0]*(m+0.5),hz=p.pos.z+d[1]*(m+0.5);
   const o={force:1.3,dx:d[0],dz:d[1],up:0.5},n=crush(hx,F,hz,1,0,2,o);
   if(!n)return false;   // (nothing gave: bedrock, or the Dev tab's sandbox)
-  hitGoblins(hx,hz,AB.stomp1.hitR,AB.stomp1.dmg,'Kicked through a wall',F);
+  hitGoblins(hx,hz,AB.stomp1.hitR,AB.stomp1.dmg,'Kicked through a wall',F);pvpArea(p,hx,hz,AB.stomp1.hitR,AB.stomp1.dmg,'Kicked through a wall',F);
   puff(hx,F+1,hz,14,0x9a948a,0.8);addShake(0.3,hx,hz,12);rumble(p,0.6,160);sfx('Stomp',()=>{thud(0.8);});
   p.qStomp=0;p.qBite=0;
   if(K){
@@ -11273,7 +11289,7 @@ function gobMove(p,dt){
 // the attack button swings the club: one goblin's blow, in front of you
 function gobClub(p){
   const hx=Math.sin(p.heading),hz=Math.cos(p.heading),fx=p.pos.x+hx*1.1,fz=p.pos.z+hz*1.1;
-  hitGoblins(fx,fz,1,1,'Clubbed by another goblin',p.pos.y);
+  hitGoblins(fx,fz,1,1,'Clubbed by another goblin',p.pos.y);pvpArea(p,fx,fz,1,1,'Clubbed',p.pos.y);
   for(const c of carsNear(fx,fz,1,p.pos.y)){damageCar(c,1,new V3(hx,0,hz));clang();}
 }
 // a goblin for others to see (the other player, or you from the free cam), and your own arm and club for you
@@ -11602,12 +11618,15 @@ function gunRound(M,p,mx,my,mz,dmg,sc0,cause,snd,A0){
   // (the nearest goblin within reach of the line)
   let gt=1e9,gg=null;for(const g of goblins){if(g.state!=='chase')continue;const ox=g.pos.x-mx,oy=g.pos.y+0.8-my,oz=g.pos.z-mz,t=ox*ux+oy*uy+oz*uz;if(t<0||t>R||t>=gt)continue;
     const cx=ox-ux*t,cy=oy-uy*t,cz=oz-uz*t;if(cx*cx+cz*cz<0.5&&Math.abs(cy)<1.1){gt=t;gg=g;}}
+  // (with PvP on, another player on foot nearer along it: a round each, one heart, ten a second at most)
+  const pr=pvpRay(p,mx,my,mz,ux,uy,uz,Math.min(R,gt));if(pr){gt=pr.t;gg=pr.q;}
   let t=0.5,hit='air';_sp.own=M;
   let wx=0,wy=0,wz=0;
   for(;t<Math.min(R,gt);t+=0.5){const x=mx+ux*t,y=my+uy*t,z=mz+uz*t;if(y<1||solidAt(x,Math.floor(y),z)){hit='wall';wx=Math.floor(x);wy=Math.floor(y);wz=Math.floor(z);break;}_sp.pos.set(x,y,z);if(shotHitsVeh(_sp)){hit='veh';break;}}
   if(hit==='air'&&gg&&t>=gt){t=gt;hit='gob';}
   const ex=mx+ux*t,ey=my+uy*t,ez=mz+uz*t;tracer(mx,my,mz,ex,ey,ez);if(audio)sfx(snd,()=>noise(0.06,0.1,2400,'highpass'));
-  if(hit==='gob')damageGoblin(gg,dmg,new V3(ex,ey,ez),new V3(ux,0.3,uz),cause);
+  if(hit==='gob'&&pr&&gg===pr.q)pvpHurt(p,gg,1,new V3(ex,ey,ez),new V3(ux,0.3,uz),cause,{raw:true,cd:0.1});
+  else if(hit==='gob')damageGoblin(gg,dmg,new V3(ex,ey,ez),new V3(ux,0.3,uz),cause);
   else if(hit==='veh')vehBlast(ex,ey,ez,0.8,4,M);
   if(hit!=='air')puff(ex,ey,ez,1,hit==='wall'?0x9a948a:0xffb040,0.2);
   if(hit==='wall')bulletBreak(wx,wy,wz,ux,uz);
@@ -11671,7 +11690,7 @@ function tankGun(M,g,dt){const i=drvIn(g);
   const A=drvAim(g,45);M.aim=A;M.tu=angTo(M.tu,Math.atan2(A.x-M.x,A.z-M.z)-M.h,1.4*dt);
   const F=tankShell(M,A);M.pred=shotPath(F,2,4,M,A);
   wpnTick(M,dt);if(i.bitePress&&wpnFire(M,'shell')){const mx=F.x,my=F.y,mz=F.z;
-    shot({kind:'shell',x:mx,y:my,z:mz,vx:F.vx,vy:F.vy,vz:F.vz,grav:2,fuse:4,R:4.5,dmg:4,cause:'Blown up by a goblin in a tank',crush:3.2,vd:60,own:M});
+    shot({kind:'shell',x:mx,y:my,z:mz,vx:F.vx,vy:F.vy,vz:F.vz,grav:2,fuse:4,R:4.5,dmg:4,cause:'Blown up by a goblin in a tank',by:pvpBy(g),crush:3.2,vd:60,own:M});
     smoke(mx,my,mz,4,0x8a8a80);puff(mx,my,mz,4,0xffc040,0.3);if(audio)sfx('Tank fires',()=>{noise(0.6,0.6,350,'lowpass');tone('sawtooth',70,30,0.5,0.15);});addShake(0.3,M.x,M.z,30);}
 }
 // flying a helicopter: it goes the way you push, relative to where you look, and turns to face that way; jump climbs,
@@ -11703,7 +11722,7 @@ function heliGuns(M,g,lift,dt){const i=drvIn(g);
    M.rk={x:mx,y:my,z:mz,vx:(A.x-mx)/L*sp2,vy:(A.y-my)/L*sp2,vz:(A.z-mz)/L*sp2};M.pred=lift?shotPath(M.rk,0.5,5,M,A):null;}
   wpnTick(M,dt);if(lift&&i.bite&&wpnFire(M,'gun'))heliGun(M,g);
   const rp=i.stomp&&!M.rkHeld;M.rkHeld=i.stomp;if(rp&&lift&&wpnFire(M,'rkt')){const F=M.rk;
-    shot({kind:'rocket',x:F.x,y:F.y,z:F.z,vx:F.vx,vy:F.vy,vz:F.vz,grav:0.5,fuse:5,R:4.2,dmg:4,cause:'Blown up by a goblin in a helicopter',crush:2.8,vd:45,own:M});if(audio)sfx('Helicopter rocket',()=>noise(0.5,0.25,900,'bandpass'));}
+    shot({kind:'rocket',x:F.x,y:F.y,z:F.z,vx:F.vx,vy:F.vy,vz:F.vz,grav:0.5,fuse:5,R:4.2,dmg:4,cause:'Blown up by a goblin in a helicopter',by:pvpBy(g),crush:2.8,vd:45,own:M});if(audio)sfx('Helicopter rocket',()=>noise(0.5,0.25,900,'bandpass'));}
 }
 // steering a boat: only where there's open water ahead of it (run it aground and it stops; hard, and it's holed a bit);
 // the bigger it is, the slower it answers. Returns its speed
@@ -12366,13 +12385,16 @@ function mgRam(M,fx,fz,sp){
 // coming down: the harder, the longer it crouches; from high up it shakes the ground and knocks the goblins round it flat
 function mgLand(M,v){M.landT=Math.min(0.5,0.08+v*0.015);M.landK=Math.min(1,v/22);
   if(v>6){thud(Math.min(1,v/25));puff(M.x,M.y+0.2,M.z,Math.min(16,4+v*0.4|0),0xb8b0a0,1.6);addShake(Math.min(0.6,v*0.02),M.x,M.z,25);}
-  if(v>14)hitGoblins(M.x,M.z,4.5,Math.round(v/5),'Flattened by a Mobile Gear landing',M.y);}
+  if(v>14){hitGoblins(M.x,M.z,4.5,Math.round(v/5),'Flattened by a Mobile Gear landing',M.y);pvpArea(M.drv,M.x,M.z,4.5,Math.round(v/5),'Flattened by a Mobile Gear landing',M.y);}}
 // pushing goblins and cars out of its way; a goblin it walks on is squashed, a car it walks into shoved
 function mechShove(M){const r=MG.r,top=M.y+MG.hy,sp=Math.hypot(M.vx||0,M.vz||0),out=(o,rr)=>{const dx=o.pos.x-M.x,dz=o.pos.z-M.z;if(Math.abs(dx)>r+rr||Math.abs(dz)>r+rr)return null;
     const px=r+rr-Math.abs(dx),pz=r+rr-Math.abs(dz);return px<pz?{nx:Math.sign(dx)||1,nz:0,need:px+0.05}:{nx:0,nz:Math.sign(dz)||1,need:pz+0.05};};
   for(const g of goblins){if(g.state!=='chase'||g.pos.y+1.5<M.y||g.pos.y>top-0.3)continue;const c=out(g,0.4);if(!c)continue;
     g.pos.x+=c.nx*c.need;g.pos.z+=c.nz*c.need;
     if(!M.dead&&!(g.trainT>0)&&(sp>3||M.vy<-4)){g.trainT=1;damageGoblin(g,Math.round(4+sp*0.6),g.pos.clone(),new V3(c.nx,0.6,c.nz),'Trampled by a Mobile Gear');}}
+  // (with PvP on, another player it walks into or comes down on: trampled, raw damage, as a car's)
+  if(!M.dead&&(sp>3||M.vy<-4))for(const q of pvpFoes(M.drv)){if(q.pos.y+1.5<M.y||q.pos.y>top-0.3||!out(q,0.6))continue;const dx=q.pos.x-M.x,dz=q.pos.z-M.z,d=Math.hypot(dx,dz)||1;
+    pvpHurt(M.drv,q,Math.min(8,Math.round(2+sp*0.3)),null,new V3(dx/d,0.6,dz/d),'Trampled by a Mobile Gear',{raw:true,cd:1});}
   for(const c of cars){if(!c.alive||c.pos.y+(c.hy||1.4)<M.y||c.pos.y>top-0.3||Math.abs(c.pos.x-M.x)>r+c.hz+1||Math.abs(c.pos.z-M.z)>r+c.hz+1)continue;
     if(!boxesTouch(c.pos.x,c.pos.z,c.heading,c.hx,c.hz,M.x,M.z,0,r,r))continue;
     const k=outOf(c.pos.x,c.pos.z,Math.sin(c.heading),Math.cos(c.heading),c.hx,c.hz,{x:M.x,z:M.z,tx:0,tz:1,hx:r,hz:r});if(!k)continue;c.pos.x+=k.nx*k.need;c.pos.z+=k.nz*k.need;
@@ -12630,6 +12652,9 @@ function mgSlash(M,S,f0,f1){
   const a0=mgSweepA(f0),a1=mgSweepA(f1),R=MGW.bladeR+MG.r,lx=S.fz,lz=-S.fx;
   for(const g of goblins){if(g.state!=='chase'||S.hit.has(g)||g.pos.y<M.y-1.5||g.pos.y>M.y+MG.hy)continue;const dx=g.pos.x-M.x,dz=g.pos.z-M.z,d=Math.hypot(dx,dz)||0.01,a=mgSlAng(S,dx,dz);
     if(d<=R&&(f0===0?a>=a0:a>a0)&&a<=a1){S.hit.add(g);damageGoblin(g,MGW.bladeDmg,g.pos.clone(),new V3(dx/d,0.8,dz/d),"Cut down by a Mobile Gear's heat blade");}}
+  // (with PvP on, another player the blade passes through, once a swing)
+  for(const q of pvpFoes(M.drv)){if(S.hit.has(q)||q.pos.y<M.y-1.5||q.pos.y>M.y+MG.hy)continue;const dx=q.pos.x-M.x,dz=q.pos.z-M.z,d=Math.hypot(dx,dz)||0.01,a=mgSlAng(S,dx,dz);
+    if(d<=R&&(f0===0?a>=a0:a>a0)&&a<=a1){S.hit.add(q);pvpHurt(M.drv,q,MGW.bladeDmg,q.pos.clone(),new V3(dx/d,0.8,dz/d),"Cut down by a Mobile Gear's heat blade",{cd:0});}}
   // (vehicles: a blow at three points round the arc, a third of the way along the blade's length and two thirds)
   for(const q of [1/6,1/2,5/6])if(f0<q&&f1>=q){const a=mgSweepA(q),ux=S.fx*Math.cos(a)+lx*Math.sin(a),uz=S.fz*Math.cos(a)+lz*Math.sin(a);
     for(const r of [MG.r+MGW.bladeR*0.35,MG.r+MGW.bladeR*0.75])vehBlast(M.x+ux*r,M.y+4.5,M.z+uz*r,MGW.bladeR*0.22,MGW.bladeVD*0.5,M);}
@@ -12659,14 +12684,14 @@ function mgMissile(M,p,T){
   const vx=f.x*0.45+c*sd*0.4,vy=0.85,vz=f.z*0.45-s*sd*0.4,L=Math.hypot(vx,vy,vz),v=24;
   const A=T?null:mgLead(M,p,m.x,m.y,m.z,MGW.missV);
   shot({kind:'missile',x:m.x,y:m.y,z:m.z,vx:vx/L*v,vy:vy/L*v,vz:vz/L*v,grav:0,fuse:6,R:MGW.missR,dmg:MGW.missDmg,crush:MGW.missCrush,vd:MGW.missVD,own:M,
-    cause:"Blown up by a Mobile Gear's missile",tgt:T,at:A,sp:MGW.missV,turn:MGW.missTurn});
+    cause:"Blown up by a Mobile Gear's missile",by:pvpBy(p),tgt:T,at:A,sp:MGW.missV,turn:MGW.missTurn});
   M.podT=0.5;puff(m.x,m.y,m.z,2,0xdadada,0.3);if(audio)sfx('Mobile Gear missile',()=>noise(0.3,0.16,1200,'bandpass'));}
 // the cannon's shell, from over the right shoulder at the lock (led) or the crosshair, lifted a touch for its drop; a
 // big flash, and a kick that shoves it back in the air
 function mgCannon(M,p){
   if(!wpnFire(M,'cannon'))return;const m=mgCannonAt(M),A=mgLead(M,p,m.x,m.y,m.z,MGW.canV),dx=A.x-m.x,dz=A.z-m.z,L=Math.hypot(dx,A.y-m.y,dz)||1,t=L/MGW.canV,sp=MGW.canV;
   shot({kind:'shell',x:m.x,y:m.y,z:m.z,vx:dx/L*sp,vy:(A.y-m.y)/L*sp+MGW.canGrav*t*0.5,vz:dz/L*sp,grav:MGW.canGrav,fuse:5,R:MGW.canR,dmg:MGW.canDmg,crush:MGW.canCrush,vd:MGW.canVD,own:M,
-    cause:"Blasted by a Mobile Gear's cannon"});
+    cause:"Blasted by a Mobile Gear's cannon",by:pvpBy(p)});
   M.cnT=Math.max(M.cnT||0,0.9);blastFx(m.x,m.y,m.z,0.25,1.2);smoke(m.x,m.y,m.z,6,0x8a8a8a);addShake(0.6,M.x,M.z,30);
   if(audio)sfx('Mobile Gear cannon',()=>{noise(0.6,0.5,700,'lowpass');tone('sawtooth',110,30,0.6,0.16);});
   if(!M.grounded){const h=Math.hypot(dx,dz)||1;M.vx-=dx/h*MGW.recoil;M.vz-=dz/h*MGW.recoil;M.vy=Math.max(M.vy,0)+2;}}
@@ -12961,7 +12986,7 @@ function movePlayer(p,dt){
         if(p.grounded){const xi=Math.floor(p.pos.x),zi=Math.floor(p.pos.z),y0=Math.floor(p.pos.y);for(let k=0;k<=3;k++){const bl=get(xi,y0+k,zi);if(bl&&BLOCK[bl].stair){const top=y0+k+rampH(bl,p.pos.x-xi,p.pos.z-zi);if(top>p.pos.y)p.pos.y=top;break;}}}
         // pure strafing circles the target at the same distance
         if(LT&&Math.abs(iz)<0.35&&d0>1.5){const ex=p.pos.x-LT.pos.x,ez=p.pos.z-LT.pos.z,e=Math.hypot(ex,ez)||1,nx=LT.pos.x+ex/e*d0,nz=LT.pos.z+ez/e*d0;if(canStand(nx,nz,p.pos.y)){p.pos.x=nx;p.pos.z=nz;}}
-        moving=true;p.lastSp=sp;p.phase+=dt*sp*3.4*(charge?0.45:1);if(tramp&&!hbOn('trample')){hitGoblins(frontX,frontZ,AB.trample.hitR,AB.trample.dmg,'Trampled',p.pos.y);
+        moving=true;p.lastSp=sp;p.phase+=dt*sp*3.4*(charge?0.45:1);if(tramp&&!hbOn('trample')){hitGoblins(frontX,frontZ,AB.trample.hitR,AB.trample.dmg,'Trampled',p.pos.y);pvpArea(p,frontX,frontZ,AB.trample.hitR,AB.trample.dmg,'Trampled',p.pos.y);
           // and it ploughs straight through anything in the way: benches, bins, fences, railings, low walls
           p.trCD=(p.trCD||0)-dt;if(p.trCD<=0&&!hbOn('trample')&&!inp.climb){p.trCD=0.1;const o={force:1.1,dx:hx,dz:hz};if(blockHit(AB.trample,frontX,p.pos.y,frontZ,hx,hz,o,sz=>crushDisc(frontX,p.pos.y,frontZ,sz,3,o))){sfx('Trample ploughs through',()=>{thud(0.45);});addShake(0.18,frontX,frontZ,10);rumble(p,0.3,90);}}}
         if(inp.climb&&p.grounded&&!(p.standCar&&vOverEdge(p,mvx,mvz)))climbOverEdge(p,mvx,mvz);
@@ -13179,6 +13204,8 @@ function movePlayer(p,dt){
           // (each goblin's hit once per roll, and sent flying on ahead of it)
           for(const g of goblins){if(g.state!=='chase'||D.hitG.has(g))continue;const dx=g.pos.x-fx,dz=g.pos.z-fz,dy=g.pos.y-p.pos.y,d=Math.hypot(dx,dz)||0.01;
             if(Math.hypot(d,dy)<R.hitR&&vReach(dy,R.hitR)){D.hitG.add(g);damageGoblin(g,R.dmg,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(D.dx*0.8+dx/d*0.4,0.7,D.dz*0.8+dz/d*0.4),D.blast?'Blasted aside by a blast-dashing hippo':'Bowled over by a rolling hippo');sfx('Roll hits a goblin',()=>{thud(0.35);});}}
+          for(const q of pvpFoes(p)){const dx=q.pos.x-fx,dz=q.pos.z-fz,dy=q.pos.y-p.pos.y,d=Math.hypot(dx,dz)||0.01;   // (and with PvP on, another player)
+            if(Math.hypot(d,dy)<R.hitR&&vReach(dy,R.hitR))pvpHurt(p,q,R.dmg,null,new V3(D.dx*0.8+dx/d*0.4,0.7,D.dz*0.8+dz/d*0.4),D.blast?'Blasted aside by a blast dash':'Bowled over by a roll');}
           for(const c of carsNear(fx,fz,R.hitR,p.pos.y)){if(c.rollHitT>camClock)continue;c.rollHitT=camClock+0.5;damageCar(c,R.carDmg,new V3(D.dx,0,D.dz));if(c.alive)launchCar(c,4,new V3(D.dx,0,D.dz),3);sfx('Roll hits a vehicle',()=>{clang();thud(0.5);});}}}
       if(groundAt(p.pos.x+D.dx*1.4,p.pos.z+D.dz*1.4,p.pos.y)-p.pos.y<=1.05&&(!bodyHits(p,nx,nz,p.heading)||bodyHits(p,p.pos.x,p.pos.z,p.heading))){p.pos.x=nx;p.pos.z=nz;}
       // (blocked -- often right at the start, pressed up against a wall: smash what's directly in front of him and try
@@ -13222,10 +13249,12 @@ function movePlayer(p,dt){
         if(!hbOn('blastAirDash')){const S=p.dashHitG||(p.dashHitG=new Set());
           for(const g of goblins){if(g.state!=='chase'||S.has(g))continue;const dx=g.pos.x-fx2,dz=g.pos.z-fz2,dy=g.pos.y-p.pos.y,d=Math.hypot(dx,dz)||0.01;
             if(Math.hypot(d,dy)<A.hitR&&vReach(dy,A.hitR)){S.add(g);damageGoblin(g,A.dmg,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(hx*0.8+dx/d*0.4,0.7,hz*0.8+dz/d*0.4),'Blasted aside by a flying hippo');}}
+          for(const q of pvpFoes(p)){const dx=q.pos.x-fx2,dz=q.pos.z-fz2,dy=q.pos.y-p.pos.y,d=Math.hypot(dx,dz)||0.01;
+            if(Math.hypot(d,dy)<A.hitR&&vReach(dy,A.hitR))pvpHurt(p,q,A.dmg,null,new V3(hx*0.8+dx/d*0.4,0.7,hz*0.8+dz/d*0.4),'Blasted aside by a blast air dash');}
           for(const c of carsNear(fx2,fz2,A.hitR,p.pos.y)){if(c.blastHitT>camClock)continue;c.blastHitT=camClock+0.6;damageCar(c,A.carDmg,new V3(hx,0,hz));if(c.alive)launchCar(c,6,new V3(hx,0,hz),4);sfx('Blast hits a vehicle',()=>{clang();});}}}}
     if(groundAt(p.pos.x+hx*1.6,p.pos.z+hz*1.6,p.pos.y)-p.pos.y<=1.05&&(!bodyHits(p,p.pos.x+hx*ds*dt,p.pos.z+hz*ds*dt,p.heading)||bodyHits(p,p.pos.x,p.pos.z,p.heading))){p.pos.x+=hx*ds*dt;p.pos.z+=hz*ds*dt;}
     else if(!p.dashBlast&&p.smashCD<=0&&!hbOn('dash')){p.smashCD=0.2;const o={force:1.3,dx:hx,dz:hz};if(blockHit(AB.dash,fx2,p.pos.y,fz2,hx,hz,o,sz=>crush(fx2,p.pos.y,fz2,Math.max(0,Math.round(sz)),0,2,o))){addShake(0.3,fx2,fz2,12);sfx('Dash smashes blocks',()=>{thud(0.7);});}}
-    if(!p.dashBlast&&!hbOn('dash'))hitGoblins(fx2,fz2,AB.dash.hitR,AB.dash.dmg,'Rammed by a flying hippo',p.pos.y);
+    if(!p.dashBlast&&!hbOn('dash')){hitGoblins(fx2,fz2,AB.dash.hitR,AB.dash.dmg,'Rammed by a flying hippo',p.pos.y);pvpArea(p,fx2,fz2,AB.dash.hitR,AB.dash.dmg,'Rammed by an air dash',p.pos.y);}
     if(!p.dashBlast&&p.chargeCD<=0&&!hbOn('dash')){const hit=carsNear(fx2,fz2,AB.dash.hitR,p.pos.y);if(hit.length){p.chargeCD=0.5;for(const c of hit)damageCar(c,AB.dash.carDmg,new V3(hx,0,hz));sfx('Dash hits a vehicle',()=>{clang();thud(0.6);});}}
   }
   // a blast long jump ploughs through whatever's in its way: blocks, goblins, cars
@@ -13233,14 +13262,14 @@ function movePlayer(p,dt){
   if(p.blastJ&&(p.mvx||p.mvz)){const m=Math.hypot(p.mvx,p.mvz),ux=p.mvx/m,uz=p.mvz/m,fx=p.pos.x+ux*1.8,fz=p.pos.z+uz*1.8,fy=p.pos.y+1.1*ES,A=AB.blastJump;
     if(!p.blastAt||Math.hypot(fx-p.blastAt.x,fz-p.blastAt.z,fy-p.blastAt.y)>1.2){p.blastAt={x:fx,y:fy,z:fz};
       if(!hbOn('blastJump'))crushBall(fx,fy,fz,2.3,{force:1.6+m*0.04,up:1.2});
-      hitGoblins(fx,fz,A.hitR,A.dmg,'Flattened by a blast long jump',p.pos.y);
+      hitGoblins(fx,fz,A.hitR,A.dmg,'Flattened by a blast long jump',p.pos.y);pvpArea(p,fx,fz,A.hitR,A.dmg,'Flattened by a blast long jump',p.pos.y);
       for(const c of carsNear(fx,fz,A.hitR,p.pos.y)){if(c.blastHitT>camClock)continue;c.blastHitT=camClock+0.6;damageCar(c,A.carDmg,new V3(ux,0,uz));if(c.alive)launchCar(c,6,new V3(ux,0,uz),4);sfx('Blast hits a vehicle',()=>{clang();});}}}
   // carried momentum (air-dash follow-through, long jumps): little drag in the air, skids out fast on the ground
   if(p.mvx||p.mvz){
     if(p.dashT>0||p.state==='pound'||p.state==='poundLand'||p.state==='windup'||p.state==='stomp'){if(p.state!=='walk'){p.mvx=p.mvz=0;}}
     else{
       const m=Math.hypot(p.mvx,p.mvz),ux=p.mvx/m,uz=p.mvz/m;
-      if(groundAt(p.pos.x+ux*(p.gob?0.45:1.6),p.pos.z+uz*(p.gob?0.45:1.6),p.pos.y)-p.pos.y<=1.05&&(!bodyHits(p,p.pos.x+p.mvx*dt,p.pos.z+p.mvz*dt,p.heading)||bodyHits(p,p.pos.x,p.pos.z,p.heading))){p.pos.x+=p.mvx*dt;p.pos.z+=p.mvz*dt;if(m>6)hitGoblins(p.pos.x+ux*1.8,p.pos.z+uz*1.8,1.6,4,'Bowled over',p.pos.y);}
+      if(groundAt(p.pos.x+ux*(p.gob?0.45:1.6),p.pos.z+uz*(p.gob?0.45:1.6),p.pos.y)-p.pos.y<=1.05&&(!bodyHits(p,p.pos.x+p.mvx*dt,p.pos.z+p.mvz*dt,p.heading)||bodyHits(p,p.pos.x,p.pos.z,p.heading))){p.pos.x+=p.mvx*dt;p.pos.z+=p.mvz*dt;if(m>6){hitGoblins(p.pos.x+ux*1.8,p.pos.z+uz*1.8,1.6,4,'Bowled over',p.pos.y);if(!(p.knockT>0))pvpArea(p,p.pos.x+ux*1.8,p.pos.z+uz*1.8,1.6,4,'Bowled over',p.pos.y);}}
       else{p.mvx=p.mvz=0;}
       const f=Math.exp(-(p.grounded?7:p.rocket?1.1:0.5)*dt);p.mvx*=f;p.mvz*=f;
       if(Math.hypot(p.mvx,p.mvz)<0.3)p.mvx=p.mvz=0;
@@ -15947,7 +15976,9 @@ function foeBoom(x,y,z,R,dmg,cause,by,crush,vd,own){
   smoke(x,y+0.5,z,6+Math.round(R*2),0x2e2e2e);puff(x,y,z,8,0xff8a2a,0.6);
   if(audio){noise(0.7,0.5,500,'lowpass');tone('sawtooth',90,24,0.7,0.16);}addShake(0.25+R*0.08,x,z,R*8);
   for(const q of players){if(!q.active||q.state==='dead')continue;const dx=q.pos.x-x,dz=q.pos.z-z,dy=q.pos.y+1-y,d3=Math.hypot(dx,dz,dy);if(d3>R)continue;
-    const h=Math.hypot(dx,dz)||1;damagePlayer(q,Math.max(1,Math.round(dmg*(1-0.6*d3/R))),new V3(q.pos.x,q.pos.y+1,q.pos.z),new V3(dx/h,0.6,dz/h),cause,by);}
+    // (by, for a player's shot with PvP on, is that player: see pvpBy. Their own blast isn't blamed on them)
+    const h=Math.hypot(dx,dz)||1,pk=by&&by.pvp,alive=q.state!=='dead';damagePlayer(q,Math.max(1,Math.round(dmg*(1-0.6*d3/R))),new V3(q.pos.x,q.pos.y+1,q.pos.z),new V3(dx/h,0.6,dz/h),cause,pk===q?undefined:by);
+    if(pk&&pk!==q&&alive&&q.state==='dead')pvpKilled(pk,q);}
   hitGoblins(x,z,R,dmg,cause,y);vehBlast(x,y,z,R*1.15,vd??dmg*6,own);
   if(crush)crushBall(x,y,z,crush);
 }
@@ -16022,7 +16053,7 @@ function gobGear(g){const k=g.foeKind;
   return{wpn:g.gun===COP_FOE?'handgun':g.cultist||k==='thief'?'dagger':k==='prepper'||k==='militia'||k==='soldier'?'rifle':null,gren:k==='prepper'||k==='militia'?1+(Math.random()<0.5?1:0):k==='soldier'?1:0};}
 // the attack button's hit, for whatever's in hand (the club's is gobClub)
 function gobAttack(p){const k=gobArms(p).wpn;
-  if(k==='dagger'){const W=GOB_WPN.dagger,hx=Math.sin(p.heading),hz=Math.cos(p.heading);hitGoblins(p.pos.x+hx*W.reach,p.pos.z+hz*W.reach,W.r,W.dmg,W.cause,p.pos.y);
+  if(k==='dagger'){const W=GOB_WPN.dagger,hx=Math.sin(p.heading),hz=Math.cos(p.heading);hitGoblins(p.pos.x+hx*W.reach,p.pos.z+hz*W.reach,W.r,W.dmg,W.cause,p.pos.y);pvpArea(p,p.pos.x+hx*W.reach,p.pos.z+hz*W.reach,W.r,W.dmg,'Stabbed',p.pos.y);
     for(const c of carsNear(p.pos.x+hx*W.reach,p.pos.z+hz*W.reach,W.r,p.pos.y)){damageCar(c,1,new V3(hx,0,hz));clang();}return;}
   if(gobGun(k)){gobShoot(p);return;}
   gobClub(p);
@@ -16031,16 +16062,18 @@ function gobAttack(p){const k=gobArms(p).wpn;
 const _gr=new V3();
 function gobShoot(p){
   const W=gobGun(gobArms(p).wpn)?gobW(p):GOB_WPN.rifle,hg=W===GOB_WPN.handgun,c=p.camera.position,cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp;
-  let hitG=null,hitC=null,hitW=null,d=0.3;
-  for(;d<W.range&&!hitG&&!hitC;d+=0.2){const x=c.x+dx*d,y=c.y+dy*d,z=c.z+dz*d;
+  let hitG=null,hitC=null,hitW=null,hitP=null,d=0.3;
+  for(;d<W.range&&!hitG&&!hitC&&!hitP;d+=0.2){const x=c.x+dx*d,y=c.y+dy*d,z=c.z+dz*d;
     if(solidAt(Math.floor(x),Math.floor(y),Math.floor(z))){hitW=[Math.floor(x),Math.floor(y),Math.floor(z)];break;}
     for(const g of goblins){if(g.state!=='chase')continue;if(Math.hypot(g.pos.x-x,g.pos.z-z)<0.45&&y>g.pos.y&&y<g.pos.y+1.5){hitG=g;break;}}
+    if(!hitG)for(const q of pvpFoes(p)){if(Math.hypot(q.pos.x-x,q.pos.z-z)<(q.gob?0.45:0.9)&&y>q.pos.y&&y<q.pos.y+(q.gob?1.5:2.3)){hitP=q;break;}}   // (with PvP on, another player)
     if(!hitG&&(Math.round(d*5)%3===0))for(const q of carsNear(x,z,0.6,y-1)){hitC=q;break;}}
   const x1=c.x+dx*d,y1=c.y+dy*d,z1=c.z+dz*d,fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw);
   tracer(c.x+fx*0.5+Math.cos(p.cam.yaw)*0.18,c.y-0.18,c.z+fz*0.5-Math.sin(p.cam.yaw)*0.18,x1,y1,z1);
   if(audio){if(hg){noise(0.06,0.12,3400,'highpass');tone('square',330,140,0.045,0.035);}else{noise(0.09,0.14,2600,'highpass');tone('square',220,90,0.06,0.04);}}   // (the handgun cracks higher and shorter, as the police's does)
   p.shake=Math.max(p.shake||0,hg?0.02:0.03);rumble(p,hg?0.14:0.2,50);
   if(hitG)damageGoblin(hitG,W.dmg,_gr.set(x1,y1,z1).clone(),new V3(dx,0.3,dz),W.cause);
+  else if(hitP)pvpHurt(p,hitP,W.dmg,_gr.set(x1,y1,z1).clone(),new V3(dx,0.3,dz),'Shot',{cd:0});
   else if(hitC)damageCar(hitC,1,new V3(dx,0,dz));
   else{puff(x1,y1,z1,2,0xb0a898,0.12);if(hitW)bulletBreak(hitW[0],hitW[1],hitW[2],dx,dz);}   // (half the time the block it hit breaks: see bulletBreak)
 }
@@ -16048,7 +16081,7 @@ function gobShoot(p){
 function gobThrow(p){
   gobArms(p);if(p.gren<=0||p.grenCD>0||p.state==='dead'||p.drv)return;
   p.gren--;p.grenCD=0.6;p.thrS=0;const c=p.camera.position,cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp,v=15;
-  shot({kind:'grenade',x:c.x+dx*0.6,y:c.y-0.1+dy*0.6,z:c.z+dz*0.6,vx:dx*v,vy:dy*v+4,vz:dz*v,grav:20,fuse:2.2,R:3.3,dmg:3,cause:GREN_CAUSE,bounce:true,crush:GREN_CRUSH});
+  shot({kind:'grenade',x:c.x+dx*0.6,y:c.y-0.1+dy*0.6,z:c.z+dz*0.6,vx:dx*v,vy:dy*v+4,vz:dz*v,grav:20,fuse:2.2,R:3.3,dmg:3,cause:GREN_CAUSE,by:pvpBy(p),bounce:true,crush:GREN_CRUSH});
   sfx('Goblin throws a grenade',()=>{woosh(0.15,0.2,400,1200,0.08);});
 }
 function gobNextWpn(p){gobArms(p);const L=GOB_WPN_ORDER.filter(k=>p.wpns.includes(k));if(L.length<2)return;
@@ -17911,6 +17944,57 @@ function explodeCar0(c){
   if(!(c.trainT>0))for(const pr of trainsNear(p.x,p.z,6,p.y-6,p.y+6))trainHit(pr.T,40,null,pr.i);   // (a car it's just run down doesn't derail the train)
   for(const o of cars){if(!o.alive)continue;const n=carNearest(o,p.x,p.y,p.z),d=Math.hypot(n.d2,n.dy);if(d>=6||!vReach(o.pos.y-p.y,6)&&!vReach(o.pos.y+o.hy-p.y,6))continue;launchCar(o,Math.max(3,9-d),new V3(o.pos.x-p.x,0,o.pos.z-p.z),5);damageCar(o,d<4?14:8);}
 }
+// ---- PvP (Options, kept in this browser, off at first): players can lock on to one another, and their attacks,
+// shots and vehicles hurt one another as they hurt goblins. Off, nothing here does anything. Online it's the host's
+// that counts: it goes to guests with the clock (netClock, as NET_PVP), and a guest's switch only shows it ----
+const PVP_KEY='goblin-stompin-gus-pvp',PVP_TXT=['Players can\'t lock on to or hurt each other with their attacks (blasts still catch anyone near)','Players can lock on to each other, and every attack, shot, blast and vehicle hurts another player as it would a goblin'];
+DT.pvp=false;try{DT.pvp=localStorage.getItem(PVP_KEY)==='1';}catch(e){}
+let NET_PVP=false;   // (the host's, while a guest)
+const pvpGuest=()=>{try{return netGuest()&&NET.joined;}catch(e){return false;}};   // (NET isn't made yet while the page loads)
+const pvpOn=()=>pvpGuest()?NET_PVP:DT.pvp;
+// PVP_K: a goblin's hit points are a handful and a player's are 20, so a hippo's blows (a bite's 10, a full stomp's 25)
+// come down to about a third against another player; blows of 3 or less (Gnash's club, dagger and guns) land as they
+// are. PVP_CD: the same attacker can't hurt the same player again for this long (a trample or a dash hits every frame)
+const PVP_K=0.3,PVP_CD=0.45;
+const isPlT=t=>!!t&&players.includes(t);
+const NO_PVP=[];
+// the players p can hurt now: everyone else who's in the game, alive, and not inside a vehicle (the vehicle takes it)
+function pvpFoes(p){if(!p||!pvpOn()||!isPlT(p))return NO_PVP;return players.filter(q=>q!==p&&q.active&&q.state!=='dead'&&!q.drv);}
+// the obituary's and the messages' name for the one who did it (killerName reads .name)
+const pvpWho=p=>({name:charName(p),pvp:p});
+// player p's blow of n (in goblin damage, unless o.raw) on player q; o.cd, if given, in place of PVP_CD (a gun's rounds)
+function pvpHurt(p,q,n,pt,dir,cause,o){const raw=o&&o.raw,cd=o&&o.cd!==undefined?o.cd:PVP_CD;
+  const T=q.pvpT||(q.pvpT=new Map()),t0=T.get(p),now=playTime;if(t0!==undefined&&now-t0<cd&&now>=t0)return false;T.set(p,now);
+  const dmg=raw?n:n<=3?n:Math.max(3,Math.round(n*PVP_K)),alive=q.state!=='dead';
+  damagePlayer(q,dmg,pt||new V3(q.pos.x,q.pos.y+1.1,q.pos.z),dir,cause,pvpWho(p));
+  if(alive&&q.state==='dead')pvpKilled(p,q);
+  return true;
+}
+// a kill: both told who did it, and points for it
+function pvpKilled(p,q){flashLabel(charName(q)+' was killed by '+charName(p),q);award(500,charName(q)+' flattened',q.pos.x,q.pos.y+2,q.pos.z,p);}
+// the hitGoblins of players: everyone within r of (x,z), and at height y (if given) within reach
+function pvpArea(p,x,z,r,n,cause,y){
+  for(const q of pvpFoes(p)){const dx=q.pos.x-x,dz=q.pos.z-z,dy=y===undefined?0:q.pos.y-y,d=Math.hypot(dx,dz)||0.01;
+    if(Math.hypot(d,dy)<r&&(y===undefined||vReach(dy,r)))pvpHurt(p,q,n,new V3(q.pos.x,q.pos.y+1.1,q.pos.z),new V3(dx/d,0.6,dz/d),cause);}}
+// the player nearest along a ray from (x,y,z) heading (ux,uy,uz), out to R, as a gun's round meets them ({q,t} or null)
+function pvpRay(p,x,y,z,ux,uy,uz,R){let best=null,bt=R;
+  for(const q of pvpFoes(p)){const hr=q.gob?0.45:0.9,ht=q.gob?0.8:1.2,ox=q.pos.x-x,oy=q.pos.y+ht-y,oz=q.pos.z-z,t=ox*ux+oy*uy+oz*uz;if(t<0||t>=bt)continue;
+    const cx=ox-ux*t,cy=oy-uy*t,cz=oz-uz*t;if(cx*cx+cz*cz<hr*hr&&Math.abs(cy)<ht+0.3){bt=t;best={q,t};}}
+  return best;}
+// a shell, grenade, rocket or missile a player sent: who to blame for its blast (only with PvP on, so with it off the
+// obituary reads as it always has)
+const pvpBy=p=>pvpOn()&&isPlT(p)?pvpWho(p):null;
+// a vehicle's driver or gunner, if that's a player
+const pvpDriver=o=>o&&isPlT(o.drv)?o.drv:o&&isPlT(o.gnr)?o.gnr:null;
+// ---- the Options switch ----
+function setPvp(v){v=!!v;if(pvpGuest())return syncPvp();if(v!==DT.pvp){DT.pvp=v;try{localStorage.setItem(PVP_KEY,v?'1':'0');}catch(e){}}   // (switched off, a lock on a player lets go by itself: see lockAlive)
+  syncPvp();}
+// (a guest's switch shows the host's, can't be changed, and says so)
+function syncPvp(){const on=pvpOn(),g=pvpGuest();
+  for(const b of document.querySelectorAll('#pvpSeg [data-pvp]')){b.setAttribute('aria-checked',String(+b.dataset.pvp===(on?1:0)));b.disabled=g;}
+  const t=document.getElementById('pvpTxt');if(t)t.textContent=PVP_TXT[on?1:0]+(g?' (set by the host)':'');}
+for(const b of document.querySelectorAll('#pvpSeg [data-pvp]'))b.addEventListener('click',()=>{if(pvpGuest())return;if((+b.dataset.pvp===1)!==DT.pvp)tone('triangle',+b.dataset.pvp?660:440,0,0.05,0.03);setPvp(+b.dataset.pvp===1);});
+syncPvp();
 // ---------- Character select (the menu's Character tab) ----------
 // Who each player is: any of Gus, Gertie, Gnash or Grizzle, kept in this browser per seat. The two hippos differ only
 // in looks and voice (dressHippo), never in what they can do, and so do the two goblins; goblin mode is each player's
@@ -22206,8 +22290,9 @@ function updateCars(dt){
       if(q.vcl&&q.state==='climb'&&q.vcl.v===c||q.drv)continue;
       if(Math.abs(c.speed)>3&&c.ramCD<=0&&q.standCar!==c&&q.in.climb&&q.pos.y<c.pos.y+(c.hy||1.4)-0.6&&carHitsPlayer(c,q)&&vGrab(q,3,c))continue;   // (holding climb: he catches hold of it)
       if(Math.abs(c.speed)>3&&c.ramCD<=0&&q.standCar!==c&&!(q.standCar&&q.standCar.isTrain)&&q.pos.y<c.pos.y+(c.hy||1.4)-0.6&&carHitsPlayer(c,q)){   // (and a car the train's just sent flying doesn't knock its riders off)
-        const fast=Math.abs(c.speed)>9;
-        damagePlayer(q,fast?4:2,new V3(q.pos.x,q.pos.y+1.3,q.pos.z),new V3(fx*dir,0.3,fz*dir),fast?'Run down':'Hit by traffic',c.driver);
+        const fast=Math.abs(c.speed)>9,pd=pvpOn()&&pvpDriver(c),alive=q.state!=='dead';   // (driven by another player, with PvP on: theirs is the blame)
+        damagePlayer(q,fast?4:2,new V3(q.pos.x,q.pos.y+1.3,q.pos.z),new V3(fx*dir,0.3,fz*dir),fast?'Run down':'Hit by traffic',pd&&pd!==q?pvpWho(pd):c.driver);
+        if(pd&&pd!==q&&alive&&q.state==='dead')pvpKilled(pd,q);
         shove(q,fx*dir*1.4,fz*dir*1.4);
         c.speed*=-0.3;c.reverseT=0.9;c.ramCD=1.2;sfx('Vehicle rams a hippo',()=>{thud(0.8);clang();});addShake(0.4,q.pos.x,q.pos.z,10);
         flashLabel(fast?'Run down':'Hit by traffic',q);
@@ -23983,8 +24068,10 @@ function netPlayerState(p,seat,N){
   return e;
 }
 // (something a player can be locked on to, as both ends can name it)
-function netRef(o){let i=goblins.indexOf(o);if(i>=0)return['g',i];i=cars.indexOf(o);if(i>=0)return['c',i];return null;}
-function netDeref(r){if(!r)return null;return r[0]==='g'?NETM.g.get(r[1])||null:r[0]==='c'?NETM.c.get(r[1])||null:null;}
+function netRef(o){let i=goblins.indexOf(o);if(i>=0)return['g',i];i=cars.indexOf(o);if(i>=0)return['c',i];
+  if(isPlT(o)){const s=o===P1?0:o.net&&o.net.seat;if(s!==undefined&&s!==null)return['p',s];}   // (another player, locked on to with PvP on: by seat)
+  return null;}
+function netDeref(r){if(!r)return null;return r[0]==='g'?NETM.g.get(r[1])||null:r[0]==='c'?NETM.c.get(r[1])||null:r[0]==='p'?netSeatP(r[1],false):null;}
 // (guest: which of its players is that seat. Its own is P1; anyone else is drawn as P2)
 const NET_SEATP=new Map();   // (guest: the host's seats past the first two, as players here)
 function netSeatP(s,make){if(s===NET.seat)return P1;if(s===0)return P2;
@@ -24218,9 +24305,10 @@ function netWorldBits(N){
   J('fire',fires.map(F=>[r3(F.x),r3(F.y),r3(F.z),r3(F.r),Math.round(F.t*10)/10,Math.round(F.life*10)/10,F.flames?1:0,r3(F.sm),r3(F.rise),F.douse?1:0]));
   return out;
 }
-function netClock(){return{tod,dayN,clockT,tc:trafficClock,wc:wxClock,wx:{type:WX.type,until:WX.until,k:Object.assign({},WX.k),wet:WX.wet,snowCover:WX.snowCover,snowClock:WX.snowClock,frozen:!!WX.frozen},host:DT.host,combo:DT.combo};}
+function netClock(){return{tod,dayN,clockT,tc:trafficClock,wc:wxClock,wx:{type:WX.type,until:WX.until,k:Object.assign({},WX.k),wet:WX.wet,snowCover:WX.snowCover,snowClock:WX.snowClock,frozen:!!WX.frozen},host:DT.host,combo:DT.combo,pvp:DT.pvp};}
 function netClockSet(k){if(!k)return;tod=k.tod;dayN=k.dayN;clockT=k.clockT;trafficClock=k.tc;wxClock=k.wc;if(k.wx){const w=k.wx;WX.type=WX_TYPES[w.type]?w.type:'partly';WX.until=w.until;Object.assign(WX.k,w.k);WX.wet=w.wet;WX.snowCover=w.snowCover;WX.snowClock=w.snowClock;WX.frozen=w.frozen;}
   if(k.host!==undefined&&k.host!==DT.host){DT.host=k.host;try{syncHost();}catch(e){}}
+  if(k.pvp!==undefined&&!!k.pvp!==NET_PVP){NET_PVP=!!k.pvp;try{syncPvp();}catch(e){}}   // (PvP is the host's to say, as hostility is)
   if(k.combo!==undefined&&k.combo!==DT.combo){DT.combo=!!k.combo;try{comboUiSync();}catch(e){}}}   // (the host's Combo system switch: whether there's a combo to show at all)
 
 // ---- host: one guest's snapshot ----
@@ -24570,6 +24658,7 @@ function netUiRefresh(){
   netEl('playCoop').hidden=on&&!!P2.net;netEl('hostMain').disabled=netGuest()&&NET.joined;
   netEl('netPrivate').checked=LOBBY.priv;
   lobbySync();
+  try{syncPvp();}catch(e){}   // (a guest's PvP switch shows the host's, and can't be changed)
   try{vcOptsDraw();}catch(e){}   // (whether voice can be switched on goes with being online. Not yet made while the page loads)
 }
 {

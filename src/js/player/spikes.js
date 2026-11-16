@@ -50,6 +50,8 @@ function spikeHit(S){
     dbgHit('dmg','cap',dbgCap(S.x,y,S.z,S.r+A.hitR));
     for(const g of goblins){if(g.state!=='chase')continue;const dx=g.pos.x-S.x,dz=g.pos.z-S.z,dd=Math.hypot(dx,dz)||0.01,dy=g.pos.y-y;
       if(dd<S.r+A.hitR&&dy>-1.5&&dy<S.h){damageGoblin(g,A.dmg,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(dx/dd*0.35,1.3,dz/dd*0.35),'Skewered by a ground spike');g.vy=Math.max(g.vy||0,A.launch*(0.8+S.h*0.04));}}
+    for(const q of pvpFoes(S.p)){const dx=q.pos.x-S.x,dz=q.pos.z-S.z,dd=Math.hypot(dx,dz)||0.01,dy=q.pos.y-y;   // (and with PvP on, another player: thrown up too)
+      if(dd<S.r+A.hitR&&dy>-1.5&&dy<S.h&&pvpHurt(S.p,q,A.dmg,null,new V3(dx/dd*0.35,1.3,dz/dd*0.35),'Skewered by a ground spike')&&q.hp>0){q.vy=Math.max(q.vy||0,A.launch*0.6);q.grounded=false;}}
     for(const c of carsNear(S.x,S.z,S.r+A.hitR,y)){const away=new V3(c.pos.x-S.x,0,c.pos.z-S.z);damageCar(c,A.carDmg,away);if(c.alive)launchCar(c,A.launch*(0.7+S.h*0.04),away.lengthSq()>0.01?away.normalize():new V3(S.dx,0,S.dz),2);clang();}}
 }
 function spikeMesh(S){
@@ -116,7 +118,7 @@ function blastOff(p,hx,hz,A=AB.blastJump,k=1){
   if(!SBX){noise(1.1,1.1,650,'lowpass');tone('sawtooth',70,26,0.9,0.32);tone('sine',90,30,0.7,0.25);
     addShake(0.7,x,z,40);rumble(p,1,320);p.shake=Math.max(p.shake,0.25);p.roarBurst=0.6;}
   // (whatever's right behind him gets caught in it)
-  if(A.blastR>0){hitGoblins(x,z,A.blastR,Math.round(A.dmg*0.75),'Caught in a blast long jump',p.pos.y);
+  if(A.blastR>0){hitGoblins(x,z,A.blastR,Math.round(A.dmg*0.75),'Caught in a blast long jump',p.pos.y);pvpArea(p,x,z,A.blastR,Math.round(A.dmg*0.75),'Caught in a blast long jump',p.pos.y);
     for(const c of carsNear(x,z,A.blastR,p.pos.y)){damageCar(c,Math.round(A.carDmg*0.75),new V3(-hx,0,-hz));if(c.alive)launchCar(c,7,new V3(-hx,0,-hz),5);}}
 }
 function fallImpact(p,drop,pound,lvl=0){
@@ -131,7 +133,7 @@ function fallImpact(p,drop,pound,lvl=0){
   const cust=hbOn(AK);
   if(!cust){const o={force:0.9+0.35*sev,up:1.3+0.3*sev};blockHit(A,fx,y,fz,Math.sin(p.heading),Math.cos(p.heading),o,sz=>crush(fx,y,fz,Math.max(0,Math.round(r*sz)),-deep,0,o));}
   const gr=A.hitR+drop*0.35,gd=pound?Math.round(Math.min(40,12+drop*1.6)*A.dmg/12):Math.min(40,Math.round(A.dmg+drop*1.6));
-  if(!cust)hitGoblins(fx,fz,gr,gd,pound?'Ground-pounded':'Landed on from a great height',y);
+  if(!cust){hitGoblins(fx,fz,gr,gd,pound?'Ground-pounded':'Landed on from a great height',y);pvpArea(p,fx,fz,gr,gd,pound?'Ground-pounded':'Landed on from a great height',y);}
   if(!cust)for(const c of carsNear(fx,fz,gr,y)){const away=new V3(c.pos.x-fx,0,c.pos.z-fz);damageCar(c,Math.round(gd*A.carMul),away);if(sev>1)launchCar(c,Math.min(9,3+sev*2),away,2);clang();}
   for(let i=0;i<14;i++){const a=i/14*Math.PI*2,rr=1.5+r;puff(fx+Math.cos(a)*rr,y,fz+Math.sin(a)*rr,2,0x9a948a,0.6);}
   addShake(Math.min(0.9,0.3+0.15*sev),fx,fz,14+8*sev);thud(Math.min(1,0.5+0.15*sev));
@@ -178,6 +180,7 @@ function doBite(p){
     for(const g of goblins){if(g.state!=='chase'||hitG.has(g))continue;if(segD(g.pos.x,g.pos.z)<JR&&Math.abs(g.pos.y-p.pos.y)<JH){hitG.add(g);damageGoblin(g,A.dmg,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),fin?new V3(hx*0.6,1.6,hz*0.6):new V3(hx,0.4,hz),fin?'Uppercut':'Bitten');
       // the uppercut shoves survivors well back, and pops anything it kills high into the air
       if(fin){if(g.state==='dead'){g.vy=Math.max(g.vy,21);g.kv.x+=hx*4;g.kv.z+=hz*4;}else{g.kv.x+=hx*1.5;g.kv.z+=hz*1.5;g.vy=Math.max(g.vy,10);g.stun=Math.max(g.stun||0,0.7);}}}}
+    for(const q of pvpFoes(p))if(segD(q.pos.x,q.pos.z)<JR&&Math.abs(q.pos.y-p.pos.y)<JH&&pvpHurt(p,q,A.dmg,null,fin?new V3(hx*0.6,1.6,hz*0.6):new V3(hx,0.4,hz),fin?'Uppercut':'Bitten')&&fin&&q.hp>0){q.vy=Math.max(q.vy,8);q.grounded=false;}   // (and with PvP on, another player)
     // cars: their body against the same slot (checked at points a half-block apart along it)
     const near=new Set();for(let t=0;t<=J1-J0+1e-6;t+=0.5)for(const c of carsInCyl(ax+hx*t,az+hz*t,JR,p.pos.y-JH,p.pos.y+JH))near.add(c);
     for(const c of near){if(hitC.has(c))continue;hitC.add(c);damageCar(c,A.carDmg,new V3(hx,0,hz));if(fin&&c.alive){c.kv.x+=hx*11;c.kv.z+=hz*11;c.vy=Math.max(c.vy||0,6.5);c.grounded=false;c.spinP=(c.spinP||0)-1.5;thud(0.4);}clang();}   // the uppercut shoves cars hard
