@@ -10,6 +10,7 @@
 - Fighter jet: flies like the airliner but far harder and faster, rolling and pulling hard and topping out at nearly twice the speed. Left click (controller RB) holds the cannon, right click (controller RT) fires a missile, homing on whatever you've locked on to with Q (controller R3). Debug menu only, for now.
 - Hot-air balloon: Space (controller A) lights the burner and it rises, C (controller LB) vents it and it sinks, and left alone it cools and slowly settles. Moving nudges it gently the way you're looking. You can stand on top of the envelope. Shoot it and the envelope tears and the basket drops. Debug menu only, for now.
 - All five are in the debug menu's vehicle list, and solid against every other vehicle like the rest.
+- Airliners are bigger, about half as long again, to sit in proportion with the rest of the city's vehicles (about two-thirds of the real thing, as the cars, buses and tanks are). The fighter jet is in the same proportion, a little longer than a tank.
 
 ### Mobile Gear (Testing Environment)
 

@@ -23,7 +23,7 @@ fighter jet: off the ground after 1.7 s  speed after 12 s more at full throttle 
   controls: [KEY:W]/[KEY:S] nose down/up | [KEY:A]/[KEY:D] bank | [KEY:Space]/[KEY:C] throttle up/down | [LMB] cannon | [RMB] missiles | Throttle 100% | Speed 167 | Climb -2 | [KEY:Q] lock on
 jet cannon held 1 s: 120 -> 100 rounds
   locked on the tank true  tank 26.0 off
-  a missile away true  tank hp 160.0 -> 101.6  missiles left 5
+  a missile away true  tank hp 160.0 -> 100.0  missiles left 5
 balloon: spawned 2 boxes
   get in: balloon
   burner 6 s: up 13.5  heat 1.00  flame lit while burning

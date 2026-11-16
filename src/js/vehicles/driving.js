@@ -43,7 +43,7 @@ function drvPose(D){if(D.netS)return D.netS;const o=D.o;   // (D.netS: a guest o
   if(D.k==='tank'||D.k==='heli'){const I=MIL[D.k];return{x:o.x,y:o.y,z:o.z,h:o.h,hx:I.hx,hz:I.hz,hy:I.hy,v:D.k==='tank'?o.sv||0:Math.hypot(o.hv?o.hv.x:0,o.hv?o.hv.z:0)};}
   if(D.k==='subway'){const g=D.V.cars[D.ci];return{x:g.position.x,y:g.position.y,z:g.position.z,h:g.rotation.y,hx:TRAIN_HX,hz:TRAIN_HZ,hy:TRAIN_H,v:D.V.v};}
   if(D.k==='boat'){const g=o.g;return{x:g.position.x,y:g.position.y,z:g.position.z,h:g.rotation.y,hx:o.K.W/2,hz:o.L/2,hy:o.K.fb+1.5,v:o.sp||0};}
-  if(D.k==='plane'){const g=o.g;return{x:g.position.x,y:g.position.y,z:g.position.z,h:g.rotation.y,hx:1.25,hz:9.9,hy:3.65,v:o.free?o.free.v:0};}
+  if(D.k==='plane'){const g=o.g,Q=planeDim(o);return{x:g.position.x,y:g.position.y,z:g.position.z,h:g.rotation.y,hx:Q.hx,hz:Q.hz,hy:Q.hy,v:o.free?o.free.v:0};}
   // a train: the car you got into (laid along the track as updateRailVenue lays it)
   const T=o,C=T.C,hi=T.dir>0?T.s:T.s+TRAIN_LEN,c=hi-5.3-D.ci*10.6,Fa=railPt(C,c+4),Ba=railPt(C,c-4);
   return{x:(Fa.x+Ba.x)/2,y:G+1.2,z:(Fa.z+Ba.z)/2,h:Math.atan2(Fa.x-Ba.x,Fa.z-Ba.z),hx:TRAIN_HX,hz:TRAIN_HZ,hy:TRAIN_H,v:T.v*T.dir};
@@ -425,9 +425,9 @@ function drvPlane(pl,dt){
   const tx=Math.sin(h),tz=Math.cos(h),nx=P.x+tx*vh*dt,nz=P.z+tz*vh*dt,ny=P.y+F.vy*dt;
   // something in the way: a fence or a car's height, on the ground, it ploughs through (and takes some damage); anything
   // bigger, at any speed, wrecks it; at a crawl it just stops
-  const ax=nx+tx*9.5,az=nz+tz*9.5,over=gnd(ax,az,ny+3.5)-ny;
-  const hitV=vehIn(nx,nz,h,1.25,9.9,ny,ny+3.65,pl);
-  if(hitV&&!vehIn(P.x,P.z,h,1.25,9.9,P.y,P.y+3.65,pl)){if(F.v>12){vehHurt(hitV,F.v*3);planeCrash(pl,ax,ny+2,az,!air);return;}if(F.v>3)vehHurt(hitV,F.v);F.v=0;}   // (another vehicle in the way)
+  const Q=planeDim(pl),ax=nx+tx*Q.nose,az=nz+tz*Q.nose,over=gnd(ax,az,ny+Q.hy-0.15)-ny;
+  const hitV=vehIn(nx,nz,h,Q.hx,Q.hz,ny,ny+Q.hy,pl);
+  if(hitV&&!vehIn(P.x,P.z,h,Q.hx,Q.hz,P.y,P.y+Q.hy,pl)){if(F.v>12){vehHurt(hitV,F.v*3);planeCrash(pl,ax,ny+2,az,!air);return;}if(F.v>3)vehHurt(hitV,F.v);F.v=0;}   // (another vehicle in the way)
   else if(over>(air?0.6:1.05)){   // (taxiing, it rolls up a one-block step)
     if(!air&&over<=2.6&&F.v>0.5){crushBall(ax,ny+1,az,1.8);F.v*=0.6;planeHit(pl,15);if(pl.dead)return;}
     else if(F.v>12){planeCrash(pl,ax,ny+2,az,!air);return;}
@@ -445,10 +445,10 @@ function drvPlane(pl,dt){
 // a fighter's weapons: the cannon held on Bite, down the line to the crosshair (or the lock, led); a missile a press of
 // Stomp, off the rails at the jet's own speed and on, homing on what you've locked or flying at the crosshair
 function jetGuns(pl,p,i,dt){const g=pl.g,h=g.rotation.y,tx=Math.sin(h),tz=Math.cos(h),P=g.position,v=pl.free.v;
-  wpnTick(pl,dt);if(i.bite&&wpnFire(pl,'gun'))gunRound(pl,p,P.x+tx*10.5,P.y+2.2,P.z+tz*10.5,3,0.008,'Gunned down by a fighter jet','Jet cannon',drvAim(p,v+200));
+  wpnTick(pl,dt);if(i.bite&&wpnFire(pl,'gun'))gunRound(pl,p,P.x+tx*6.8,P.y+1.2,P.z+tz*6.8,3,0.008,'Gunned down by a fighter jet','Jet cannon',drvAim(p,v+200));
   const rp=i.stomp&&!pl.rkHeld;pl.rkHeld=i.stomp;
   if(rp&&wpnFire(pl,'rkt')){const T=p.lockT&&lockAlive(p.lockT)?p.lockT:null,A=T?null:drvAim(p,v+70),sd=(pl.rkN=(pl.rkN||0)+1)%2?1:-1,
-      mx=P.x+tx*1-tz*sd*2.6,my=P.y+1.5,mz=P.z+tz*1+tx*sd*2.6,sp=v+60,F=pl.free;
+      mx=P.x+tx*0.6-tz*sd*1.8,my=P.y+0.9,mz=P.z+tz*0.6+tx*sd*1.8,sp=v+60,F=pl.free;
     shot({kind:'missile',x:mx,y:my,z:mz,vx:tx*Math.cos(F.gm||0)*sp,vy:Math.sin(F.gm||0)*sp,vz:tz*Math.cos(F.gm||0)*sp,grav:0,fuse:6,R:3.2,dmg:5,crush:1.8,vd:60,own:pl,
       cause:"Blown up by a fighter jet's missile",by:pvpBy(p),tgt:T,at:A,sp:v+90,turn:4});
     if(audio)sfx('Jet missile',()=>noise(0.4,0.2,1100,'bandpass'));}

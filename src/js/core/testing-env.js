@@ -208,7 +208,7 @@ const tenvVehName=t=>(VEH_NAME[t]||[MIL[t]?MIL[t].name:t])[0].replace(/^./,c=>c.
 function tenvSpawnOne(t){const n=TS.n,vm=TS.vm;TS.n=1;TS.vm='park';TS.dbg=true;
   try{tenvVeh(t);}finally{TS.n=n;TS.vm=vm;TS.dbg=false;}const el=document.getElementById('tpInfo');return el?el.textContent:'';}
 // is there room at x,z for a vehicle reaching r out from its middle? Level ground, and clear of every car, tank,
-// helicopter and plane already there (a plane's wings reach about 11 out)
+// helicopter and plane already there (an airliner's wings reach about 12 out, a fighter jet's under 4: planeDim)
 // the ground's height under x,z for a spawn: the Testing Environment's flat floor, or out in the city the first surface
 // down from a little above the player (so a hillside, not the inside of the hill, and not a roof far overhead)
 function spGround(x,z){if(TENV)return groundAt(x,z,G+40);const p=players.find(q=>q.active)||P1;return groundAt(x,z,Math.min(H-2,p.pos.y+24));}
@@ -219,7 +219,7 @@ function tenvRoom(x,z,r){
     for(const [ox,oz] of [[k,0],[-k,0],[0,k],[0,-k]])if(Math.abs(spGround(x+ox,z+oz)-y)>1.05)return false;}
   if(cars.some(o=>o.alive&&Math.hypot(o.pos.x-x,o.pos.z-z)<r+4))return false;
   const A=venues.get('tenvArmy');if(A&&A.mil.some(M=>!M.dead&&Math.hypot(M.x-x,M.z-z)<r+3.5))return false;
-  const L=venues.get('tenvPlanes');if(L&&L.pl.some(pl=>!pl.dead&&Math.hypot(pl.g.position.x-x,pl.g.position.z-z)<r+11))return false;
+  const L=venues.get('tenvPlanes');if(L&&L.pl.some(pl=>!pl.dead&&Math.hypot(pl.g.position.x-x,pl.g.position.z-z)<r+planeDim(pl).wx+0.5))return false;
   const Mg=venues.get('tenvMechs');if(Mg&&Mg.mechs.some(M=>Math.hypot(M.x-x,M.z-z)<r+3))return false;
   const Bl=venues.get('tenvBalloons');if(Bl&&Bl.bl.some(B=>Math.hypot(B.x-x,B.z-z)<r+BAL.er))return false;
   return true;
@@ -278,9 +278,9 @@ function tenvPlane(jet){
   const fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw);let made=0;
   for(let i=0;i<TS.n;i++){
     // (each a wingspan apart, side by side across where Gus is looking, on open ground clear of the others)
-    let x=0,z=0,ok=false;for(let k=0;k<30&&!ok;k++){const side=(i%2?1:-1)*Math.ceil(i/2)*24+(k?(Math.random()-.5)*k*4:0),ahead=30+(k?Math.random()*k*3:0);
+    let x=0,z=0,ok=false;for(let k=0;k<30&&!ok;k++){const side=(i%2?1:-1)*Math.ceil(i/2)*(jet?14:30)+(k?(Math.random()-.5)*k*4:0),ahead=(jet?24:36)+(k?Math.random()*k*3:0);
       x=p.pos.x+fx*ahead-fz*side;z=p.pos.z+fz*ahead+fx*side;
-      const y0=spGround(x,z);ok=tenvRoom(x,z,11)&&Math.abs(spGround(x+fx*9,z+fz*9)-y0)<1.05&&Math.abs(spGround(x-fx*9,z-fz*9)-y0)<1.05;}
+      const y0=spGround(x,z);const Q=jet?JET_DIM:PLANE_DIM;ok=tenvRoom(x,z,Q.wx+0.5)&&Math.abs(spGround(x+fx*Q.hz,z+fz*Q.hz)-y0)<1.05&&Math.abs(spGround(x-fx*Q.hz,z-fz*Q.hz)-y0)<1.05;}
     if(!ok)continue;
     const g=jet?makeJet():makePlane(V.planes.length);g.position.set(x,spGround(x,z),z);g.rotation.set(0,Math.atan2(fx,fz),0);scene.add(g);
     V.planes.push(g);V.pl.push({isPlane:true,jet:!!jet,g,hp:PLANE_HP,dead:false,v:0});made++;}

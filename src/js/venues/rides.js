@@ -128,19 +128,24 @@ function makeTrainCar(loco,rear){
 }
 // the airport's planes: two parked at the gates, one that goes round -- taxis out, takes off, flies away, comes back in to
 // land, and taxis back to its gate
+// (built at its old size, then stretched to about two-thirds of a real short-haul airliner's, as the game's other
+// vehicles are: PLANE_K, longer more than it's wider. Its boxes are PLANE_DIM)
+const PLANE_K=[1.15,1.25,1.45];
 function makePlane(i){
-  const g=new THREE.Group(),bx=(m,sx,sy,sz,x,y,z)=>{const o=new THREE.Mesh(LM_BOX,m);o.scale.set(sx,sy,sz);o.position.set(x,y,z);g.add(o);return o;},liv=[TRM.red,TRM.loco,LMM.gold][i%3];
+  const g0=new THREE.Group(),g=new THREE.Group();g.scale.set(...PLANE_K);g0.add(g);const bx=(m,sx,sy,sz,x,y,z)=>{const o=new THREE.Mesh(LM_BOX,m);o.scale.set(sx,sy,sz);o.position.set(x,y,z);g.add(o);return o;},liv=[TRM.red,TRM.loco,LMM.gold][i%3];
   bx(TRM.white,2.5,2.5,17,0,2.4,0);bx(TRM.white,1.8,1.8,1.6,0,2.3,9.2);bx(TRM.win,2.54,0.4,13,0,2.9,0.5);bx(liv,2.56,0.35,16,0,1.9,0);
   bx(TRM.wing,21,0.35,3.4,0,1.7,0.6);for(const s2 of[-1,1])bx(TRM.dark,1.2,1.2,2.8,s2*4.8,0.9,1.2);
   bx(liv,0.35,3.6,2.8,0,4.6,-7.2);bx(TRM.wing,7.2,0.3,1.9,0,2.6,-7.6);
   for(const [x,z] of [[0,6],[-1.6,-0.4],[1.6,-0.4]])bx(TRM.dark,0.4,1.0,0.6,x,0.5,z);
-  return g;
+  return g0;
 }
 // a fighter jet (the debug menu's only, so far): a grey dart of a fuselage with a pointed nose, the canopy, delta
 // wings, two tail fins canted out and the twin engines' glowing nozzles. It flies on the plane's own model, only
 // harder and faster (pl.jet: see drvPlane), and has a cannon and missiles
+// (built full size, about a real Hornet's, then shrunk to two-thirds as the game's other vehicles are: JET_K)
+const JET_K=0.65;
 function makeJet(){
-  const g=new THREE.Group(),bx=(m,sx,sy,sz,x,y,z)=>{const o=new THREE.Mesh(LM_BOX,m);o.scale.set(sx,sy,sz);o.position.set(x,y,z);g.add(o);return o;},
+  const g0=new THREE.Group(),g=new THREE.Group();g.scale.setScalar(JET_K);g0.add(g);const bx=(m,sx,sy,sz,x,y,z)=>{const o=new THREE.Mesh(LM_BOX,m);o.scale.set(sx,sy,sz);o.position.set(x,y,z);g.add(o);return o;},
     gry=JETM.grey,dk=JETM.dark;
   bx(gry,1.8,1.5,12,0,2.1,-1.0);bx(gry,1.3,1.1,3.0,0,2.15,6.4);bx(gry,0.8,0.7,1.8,0,2.2,8.6);bx(dk,0.3,0.3,0.8,0,2.2,9.7);
   bx(JETM.glass,0.9,0.6,2.6,0,3.0,4.4);bx(gry,0.95,0.3,2.0,0,2.85,2.4);
@@ -150,26 +155,32 @@ function makeJet(){
     bx(gry,1.6,0.2,1.6,s2*1.55,2.05,-6.4);bx(dk,0.8,0.8,0.6,s2*0.45,2.0,-7.3);bx(JETM.glow,0.6,0.6,0.08,s2*0.45,2.0,-7.62);}
   for(const o of g.children)o.position.y-=0.5;   // (it sits low on short legs)
   for(const [x,z] of [[0,5.6],[-1.3,-1.6],[1.3,-1.6]])bx(dk,0.3,0.85,0.4,x,0.42,z);
-  return g;
+  return g0;
 }
 const JETM={grey:new THREE.MeshLambertMaterial({color:0x7d8794}),dark:new THREE.MeshLambertMaterial({color:0x2e3238}),glass:new THREE.MeshLambertMaterial({color:0x2a3a48,emissive:0x0a1420}),glow:new THREE.MeshBasicMaterial({color:0xff9a3a})};
+// a plane's size, for its boxes and what it runs into: the fuselage's half width, half length and height, the wings'
+// half span, half chord and top, and how far ahead its nose reaches
+// half width, half length and height, the wings' half span, half chord, top and how far behind the middle, and how far
+// ahead its nose reaches
+const PLANE_DIM={hx:1.44,hz:14.4,hy:4.56,wx:12.1,wz:2.5,wy:2.4,wo:0.87,nose:13.8},JET_DIM={hx:1.0,hz:5.8,hy:2.7,wx:3.4,wz:1.5,wy:0.9,wo:0,nose:6.4};
+const planeDim=pl=>pl&&pl.jet?JET_DIM:PLANE_DIM;
 // a plane's body, for standing on and hitting: the fuselage and the wings, each a box like a train car's
 const PLANE_HP=300;
 function planeBoxes(pl,v){
   const g=pl.g,h=g.rotation.y,tx=Math.sin(h),tz=Math.cos(h),y=g.position.y;if(!g.visible||pl.fall)return;
-  const wx=pl.jet?5.6:10.5;   // (a fighter's wings are half an airliner's)
-  if(!pl.pr)pl.pr=[0,1].map(i=>({isTrain:true,isPlane:true,alive:true,pos:new V3(),kv:new V3(),vy:0,spinP:0,spinR:0,speed:0,hurt:0,hx:i?wx:1.25,hz:i?1.7:9.9,hy:i?1.9:3.65,heading:0,top:0,veh:'plane',T:pl,i}));
+  const Q=planeDim(pl);
+  if(!pl.pr)pl.pr=[0,1].map(i=>({isTrain:true,isPlane:true,alive:true,pos:new V3(),kv:new V3(),vy:0,spinP:0,spinR:0,speed:0,hurt:0,hx:i?Q.wx:Q.hx,hz:i?Q.wz:Q.hz,hy:i?Q.wy:Q.hy,heading:0,top:0,veh:'plane',T:pl,i}));
   for(const pr of pl.pr){pr.alive=!pl.dead;pr.pos.set(g.position.x,y,g.position.z);pr.heading=h;pr.top=y+pr.hy;}
-  TRAIN_BOXES.push({x:g.position.x,z:g.position.z,tx,tz,y0:y,top:pl.pr[0].top,v,hx:1.25,hz:9.9,proxy:pl.pr[0]});
+  TRAIN_BOXES.push({x:g.position.x,z:g.position.z,tx,tz,y0:y,top:pl.pr[0].top,v,hx:Q.hx,hz:Q.hz,proxy:pl.pr[0]});
   // (the wings are overhead to anyone on the ground: only their top counts)
-  TRAIN_BOXES.push({x:g.position.x+tx*.6,z:g.position.z+tz*.6,tx,tz,y0:pl.pr[1].top+1,top:pl.pr[1].top,v:0,hx:wx,hz:1.7,proxy:pl.pr[1]});
+  TRAIN_BOXES.push({x:g.position.x+tx*Q.wo,z:g.position.z+tz*Q.wo,tx,tz,y0:pl.pr[1].top+1,top:pl.pr[1].top,v:0,hx:Q.wx,hz:Q.wz,proxy:pl.pr[1]});
 }
 // hitting a plane: it takes a lot. Wrecked on the ground it burns where it stands; wrecked in the air it comes down, hard
 // (what a moving plane runs into, its body or the end of a wing: struck, thrown aside and up, hurt)
 function planeStrike(pl,v){
   const g=pl.g,y0=g.position.y,h=g.rotation.y,tx=Math.sin(h),tz=Math.cos(h),k=Math.max(0.3,Math.min(1.6,v/24)),x0=g.position.x,z0=g.position.z;
-  const hit=(o,r,H)=>{if(o.pos.y>y0+3.65||o.pos.y+H<y0)return null;const dx=o.pos.x-x0,dz=o.pos.z-z0;if(dx*dx+dz*dz>196+r*r*4)return null;const al=dx*tx+dz*tz,ac=-dx*tz+dz*tx;
-    if(!(Math.abs(al)<=9.9+r&&Math.abs(ac)<=1.25+r||o.pos.y+H>=y0+1.5&&Math.abs(al-.6)<=1.7+r&&Math.abs(ac)<=10.5+r))return null;
+  const Q=planeDim(pl),hit=(o,r,H)=>{if(o.pos.y>y0+Q.hy||o.pos.y+H<y0)return null;const dx=o.pos.x-x0,dz=o.pos.z-z0,R=Math.max(Q.hz,Q.wx)+2;if(dx*dx+dz*dz>R*R+r*r*4)return null;const al=dx*tx+dz*tz,ac=-dx*tz+dz*tx;
+    if(!(Math.abs(al)<=Q.hz+r&&Math.abs(ac)<=Q.hx+r||o.pos.y+H>=y0+Q.wy-0.4&&Math.abs(al-Q.wo)<=Q.wz+r&&Math.abs(ac)<=Q.wx+r))return null;
     const sg=ac>=0?1:-1;return new V3(tx*.8-tz*sg*.6,0,tz*.8+tx*sg*.6);};
   for(const c of cars){if(!c.alive||c.trainT>0)continue;const d=hit(c,c.hx,c.hy||1.4);
     if(d){c.trainT=1;damageCar(c,Math.round(10+24*k),d,'acc');if(c.alive)launchCar(c,6+10*k,d.clone().multiplyScalar(1+2.5*k),6);clang();thud(0.7);}}
@@ -208,7 +219,7 @@ function updateAirport(V,dt){
   for(const pl of V.pl)if(!pl.dead&&pl.g.visible)vDamaged(pl.g.position.x,pl.g.position.y+3,pl.g.position.z,pl.hp/PLANE_HP,dt);
   // (one that a goblin's flown, or is flying, goes its own way: see drvPlane)
   const free=pl=>{drvPlane(pl,dt);if(pl.dead)return;planeBoxes(pl,pl.free.v);if(pl.free.v>=2)planeStrike(pl,pl.free.v);};
-  for(let i=1;i<3;i++){const pl=V.pl[i],g=pl.g;if(pl.dead){planeWreck(pl,V,dt);planeBoxes(pl,0);}else if(pl.free)free(pl);else{g.position.set(X0+16+i*32,G+1,Z0+52);g.rotation.y=Math.PI;planeBoxes(pl,0);}}
+  for(let i=1;i<3;i++){const pl=V.pl[i],g=pl.g;if(pl.dead){planeWreck(pl,V,dt);planeBoxes(pl,0);}else if(pl.free)free(pl);else{g.position.set(X0+16+i*32,G+1,Z0+51);g.rotation.y=Math.PI;planeBoxes(pl,0);}}
   const pl0=V.pl[0];if(pl0.dead){planeWreck(pl0,V,dt);planeBoxes(pl0,0);return;}
   if(pl0.free){free(pl0);return;}
   if(!V.path){V.path=airportPath(V);V.i=0;V.t=0;V.pos={u:112,v:45.5,h:0};V.sp=0;V.hd=0;}

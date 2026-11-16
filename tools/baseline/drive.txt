@@ -107,5 +107,5 @@ plane on a controller: (thr+ stick up, thr- stick down, up A, down LB, right sti
   throttle shut (stick down), A held: throttle 0%, stalls true after 4.1 s at 17.4  display says true  nose drops 0.7 -> 0.3
   throttle up, let go: speed 72.3  climb rate -0.7  wrecked false
   F again: on foot  falling true
-  left to itself: down after 2.0 s, wrecked true  height -0.6  speed 65.8  air true  me on the ground true  crater blocks 207
+  left to itself: down after 2.0 s, wrecked true  height -0.6  speed 65.8  air true  me on the ground true  crater blocks 230
 errors 0 []
