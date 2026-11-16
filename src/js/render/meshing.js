@@ -257,10 +257,10 @@ function buildChunk(cx,cz){
   }
   const k=ckey(cx,cz),old=meshes.get(k);
   regionTouch(cx,cz);
-  if(old)for(const m of old.m){scene.remove(m);m.geometry.dispose();}
-  const m=[];
+  if(old)for(const m of old.m){if(m.parent)m.parent.remove(m);m.geometry.dispose();}
+  const m=[],pk=cx>=SHIP_CX0,par=pk&&shipPg(cz)||scene;   // (a ship's blocks hang off the ship, wherever it's got to: see ships.js)
   bufs.forEach((d,i)=>{
-    if(i&&!d.i.length)return;   // (no water in this chunk: no mesh for it to go round every frame)
+    if(i&&(!d.i.length||pk))return;   // (a ship's own water, round its hull, isn't drawn: the sea it's in is)   // (no water in this chunk: no mesh for it to go round every frame)
     const g=new THREE.BufferGeometry();
     g.setAttribute('position',new THREE.Float32BufferAttribute(d.p.take(),3));
     g.setAttribute('uv',new THREE.Float32BufferAttribute(d.u.take(),2));
@@ -269,10 +269,10 @@ function buildChunk(cx,cz){
     g.setIndex(new THREE.BufferAttribute(big?ia:Uint16Array.from(ia),1));
     // (where it is, known already: saves three.js going through every corner to find out)
     if(THREE.Sphere)g.boundingSphere=new THREE.Sphere(new V3(x0+CS/2,(yLo+yTop+1)/2,z0+CS/2),Math.hypot(CS/2,(yTop+1-yLo)/2,CS/2)+0.01);
-    const mesh=new THREE.Mesh(g,i?matWater:matOpaque);if(i)mesh.renderOrder=1;scene.add(mesh);m.push(mesh);
+    const mesh=new THREE.Mesh(g,i?matWater:matOpaque);if(i)mesh.renderOrder=1;par.add(mesh);m.push(mesh);
   });
-  {const mk=routeMarks(cx,cz);if(mk)m.push(mk);}
-  meshes.set(k,{cx,cz,m});markMeshed(cx,cz,true);
+  if(!pk){const mk=routeMarks(cx,cz);if(mk)m.push(mk);}
+  meshes.set(k,{cx,cz,m});if(!pk)markMeshed(cx,cz,true);
 }
 // ---- the paint on the highways out on the plains: thin flat strips laid on the road surface at the road's own angle,
 // following its curves -- the yellow centre line and the dashed white lines between the lanes. Built with each chunk
@@ -350,7 +350,7 @@ function routeMarks(cx,cz){
   g.setAttribute('color',new THREE.Float32BufferAttribute(C,3));g.setAttribute('aSky',new THREE.Float32BufferAttribute(K,1));g.setIndex(I);
   const mesh=new THREE.Mesh(g,matDecal);scene.add(mesh);return mesh;
 }
-function clearWorld(){rebuildQ.clear();regionsClear();planJob.S=null;for(const e of meshes.values())for(const m of e.m){scene.remove(m);m.geometry.dispose();}meshes.clear();MESHED.fill(0);meshedDirty=true;farDirty=true;chunks.clear();gfxRecC.clear();plotCache.clear();plotTypeC.clear();lampSpotC.clear();bridgeCache.clear();superCache.clear();setCache.clear();setAtCache.clear();jDegC.clear();linkNearC.clear();ctlCache.clear();zoneCache.clear();farmC.clear();cloverCache.clear();clearLayout();joinCache.clear();icCache.clear();ctlCache.clear();lastK=-1;}
+function clearWorld(){rebuildQ.clear();regionsClear();planJob.S=null;for(const e of meshes.values())for(const m of e.m){if(m.parent)m.parent.remove(m);m.geometry.dispose();}meshes.clear();MESHED.fill(0);meshedDirty=true;farDirty=true;chunks.clear();gfxRecC.clear();plotCache.clear();plotTypeC.clear();lampSpotC.clear();bridgeCache.clear();superCache.clear();setCache.clear();setAtCache.clear();jDegC.clear();linkNearC.clear();ctlCache.clear();zoneCache.clear();farmC.clear();cloverCache.clear();clearLayout();joinCache.clear();icCache.clear();ctlCache.clear();lastK=-1;}
 // ---- far chunks drawn in fours: each chunk is its own draw call or three, which at a long detail distance is the bulk of a frame's.
 // So a group of up to 4 x 4 chunks a little way off that nothing has happened to for a while is copied into one mesh per material,
 // and the chunks themselves hidden. The picture's the same. Anything changing in the group (a block smashed, a chunk dropped) simply
@@ -396,7 +396,7 @@ function regionTick(){
   // (every half second or so, which groups are ready; one merged every other frame)
   if(regClock%30===0){
     const act=players.filter(p=>p.active),groups=new Map();
-    for(const [k,e] of meshes){const rk=regionKey(e.cx,e.cz);if(REGIONS.has(rk))continue;let G2=groups.get(rk);if(!G2){G2={keys:[],cx:e.cx,cz:e.cz};groups.set(rk,G2);}G2.keys.push(k);}
+    for(const [k,e] of meshes){if(e.cx>=SHIP_CX0)continue;const rk=regionKey(e.cx,e.cz);if(REGIONS.has(rk))continue;let G2=groups.get(rk);if(!G2){G2={keys:[],cx:e.cx,cz:e.cz};groups.set(rk,G2);}G2.keys.push(k);}
     regionQ.length=0;
     for(const [rk,G2] of groups){if(G2.keys.length<REG_MIN||regClock-(regionChanged.get(rk)??-1e9)<REG_SETTLE)continue;
       const mx=(G2.cx>>2)*4+2,mz=(G2.cz>>2)*4+2;let far=true;for(const p of act)if(Math.max(Math.abs(mx-p.pos.x/CS),Math.abs(mz-p.pos.z/CS))<REG_FAR)far=false;
@@ -414,14 +414,15 @@ function chunkOrder(R){
 }
 function updateChunks(budget,dt){
   const R=viewR;
-  const centers=players.filter(p=>p.active).map(p=>[Math.floor(p.pos.x/CS),Math.floor(p.pos.z/CS)]);
+  shipChunks();   // (each ship's own blocks, all of them, kept for as long as it's there)
+  const centers=players.filter(p=>p.active).map(p=>[Math.floor(pwx(p)/CS),Math.floor(pwz(p)/CS)]);   // (aboard a ship: where the ship really is)
   if(DT.freecam)centers.push([Math.floor(FC.pos.x/CS),Math.floor(FC.pos.z/CS)]);
   const cheb=(cx,cz)=>{let m=1e9;for(const [a,b] of centers)m=Math.min(m,Math.max(Math.abs(cx-a),Math.abs(cz-b)));return m;};
   // (standing in the same chunk with everything in sight already made, there's nothing to go through)
   const key=R+'|'+centers.join('|'),same=key===chunkScan.key;
-  if(!same)for(const [k,e] of meshes){if(cheb(e.cx,e.cz)>R+1){regionTouch(e.cx,e.cz);for(const m of e.m){scene.remove(m);m.geometry.dispose();}meshes.delete(k);markMeshed(e.cx,e.cz,false);}}
+  if(!same)for(const [k,e] of meshes){if(e.cx<SHIP_CX0&&cheb(e.cx,e.cz)>R+1){regionTouch(e.cx,e.cz);for(const m of e.m){if(m.parent)m.parent.remove(m);m.geometry.dispose();}meshes.delete(k);markMeshed(e.cx,e.cz,false);}}
   unloadT-=dt;
-  if(unloadT<=0){unloadT=2;for(const k of chunks.keys()){const cx=Math.floor(k/65536)-32768,cz=(k%65536)-32768;if(cheb(cx,cz)>R+4)chunks.delete(k);}lastK=-1;if(plotCache.size>30000){plotCache.clear();plotTypeC.clear();lampSpotC.clear();bridgeCache.clear();superCache.clear();joinCache.clear();icCache.clear();ctlCache.clear();}}
+  if(unloadT<=0){unloadT=2;for(const k of chunks.keys()){const cx=Math.floor(k/65536)-32768,cz=(k%65536)-32768;if(cx<SHIP_CX0&&cheb(cx,cz)>R+4)chunks.delete(k);}lastK=-1;if(plotCache.size>30000){plotCache.clear();plotTypeC.clear();lampSpotC.clear();bridgeCache.clear();superCache.clear();joinCache.clear();icCache.clear();ctlCache.clear();}}
   if(same&&chunkScan.full&&chunkScan.size===meshes.size)return;
   let made=0,gens=0;
   scan:for(const [dx,dz] of chunkOrder(R))for(const [pcx,pcz] of centers){

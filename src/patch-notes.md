@@ -12,6 +12,14 @@
 - All five are in the debug menu's vehicle list, and solid against every other vehicle like the rest.
 - Airliners are bigger, about half as long again, to sit in proportion with the rest of the city's vehicles (about two-thirds of the real thing, as the cars, buses and tanks are). The fighter jet is in the same proportion, a little longer than a tank.
 
+### A barge you can walk around (Testing Environment)
+
+- The first step toward an aircraft carrier: a test barge, in the debug menu's vehicle list (Testing Environment only for now). Spawning it lays out a square of deep sea ahead of you, if there isn't one yet, and floats the barge on it.
+- It's built of real blocks, like a building, so everything works aboard it while it sails and turns: walking, jumping, climbing, fighting, and smashing holes in its deck. A wheelhouse at the stern has steel stairs up to its roof, a rail runs round the deck, and crates are stacked on the foredeck.
+- Swim out and climb aboard up the steps of the swim platform at the stern, or jump down on to the deck from above. Swim away from it and you're back in the open sea.
+- As Gnash or Grizzle, stand at the helm inside the wheelhouse's front window and press F (controller Y) to take the controls: W and S set the throttle, A and D the rudder, which only turns it while it's moving. It stops short of the shore. Let go of the helm and it drifts to a stop, with you still standing at it.
+- Goblins aboard chase you round the deck as anywhere else, and goblins in the sea swim out to it and climb aboard after you.
+
 ### Mobile Gear (Testing Environment)
 
 - A new vehicle to try out in the Testing Environment: the Mobile Gear, an armoured walker eight blocks tall. Pick it from the vehicle buttons in the Testing Environment tab and it's set down in front of you. Only Gnash and Grizzle can pilot it for now.

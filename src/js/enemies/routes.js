@@ -289,7 +289,7 @@ function updateGoblins(dt){
   // who's standing where, a block to a cell, so each goblin only checks the few around it for crowding (checking every
   // goblin against every other one gets slow fast: 600 of them took 30+ ms a frame)
   GOB_GRID.clear();for(const g of goblins)if(g.state==='chase'){const k=gobCell(Math.floor(g.pos.x),Math.floor(g.pos.z)),l=GOB_GRID.get(k);if(l)l.push(g);else GOB_GRID.set(k,[g]);}
-  goblins.forEach(g=>{
+  goblins.forEach(g=>shipSees(g,()=>{   // (anyone aboard a ship, or not, shown where they are to it: see ships.js)
     g.t+=dt;g.hurt-=dt;g.atkS=(g.atkS??9)+dt;g.relS=(g.relS??9)+dt;if(g.pkit)copKit(g);   // (since its last blow, and since its last shot, throw or fireball: see strikes.js)
     {const glow=g.hurt>0;if(glow!==g.glow){g.glow=glow;for(const m of g.mats)m.emissive.setHex(glow?0x440000:0x000000);}}   // (only when it changes: ten materials a goblin, every frame, adds up in a crowd)
     if(g.state!=='chase'||simple&&g.act){g.softLand=g.state==='chase';g.act=null;g.fallTop=undefined;}   // (Simple pathfinding: off the wall, down unhurt)
@@ -433,6 +433,6 @@ function updateGoblins(dt){
     if(g.wet&&moving){g.arm.rotation.x=-1.6+sn*0.9;g.armL.rotation.x=-1.6-sn*0.9;}else if(g.armL.rotation.x<-1.2&&!g.fleeing&&!g.special)g.armL.rotation.x=0;
     gobRootPose(g,g.pos.y+(moving?Math.abs(sn)*0.05:0),dt);
     g.head.rotation.z=Math.sin(g.t*2+g.heading)*0.08;
-  });
+  }));
 }
 

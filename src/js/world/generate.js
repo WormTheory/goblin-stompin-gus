@@ -21,6 +21,8 @@ function linkNear(x,z){
 }
 function genChunk(cx,cz){
   // (a chunk lies inside one block, so it's all shown or all flat)
+  if(cx>=SHIP_CX0)return shipChunk(cx,cz);   // (a ship's own blocks: see vehicles/ships.js)
+  if(TENV&&!TR.raw&&TENV.sea&&seaHas(cx,cz))return seaChunk(cx,cz);   // (the Testing Environment's sea, for ships)
   if(TENV&&!TR.raw){const B=TENV_PL.get(tenvK(Math.floor(cx*CS/CELL),Math.floor(cz*CS/CELL)));if(!B)return flatChunk(cx,cz);if(B.sx!==B.ax||B.sz!==B.az)return trChunk(cx,cz,B);}
   const a=new Uint8Array(CS*CS*H),x0=cx*CS,z0=cz*CS;
   for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){

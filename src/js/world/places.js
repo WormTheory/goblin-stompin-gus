@@ -14,7 +14,11 @@ function tenvIndex(){TENV_PL.clear();TENV_RM.clear();if(!TENV)return;
   for(const B of TENV.boxes){if(!Number.isFinite(B.sx)||!Number.isFinite(B.sz)){B.sx=B.ax;B.sz=B.az;}
     for(let i=0;i<B.w;i++)for(let j=0;j<B.h;j++){const k=tenvK(B.ax+i,B.az+j);TENV_PL.set(k,B);if(B.sx!==B.ax||B.sz!==B.az)TENV_RM.set(k,B);}}
   for(const B of TENV.boxes)if(B.sx!==B.ax||B.sz!==B.az)for(let i=-1;i<=B.w;i++)for(let j=-1;j<=B.h;j++){const k=tenvK(B.ax+i,B.az+j);if(!TENV_PL.has(k)&&!TENV_RM.has(k))TENV_RM.set(k,B);}}
-const tenvShow=(px,pz)=>!TENV||TENV_PL.has(tenvK(px,pz));
+// ships with insides (vehicles/ships.js): each one's blocks are kept far out in the world store, a 'pocket' of its own
+// (x from SHIP_X0 on, a SHIP_SLOT-long stretch of z each), and drawn wherever the ship really is. Nothing the plan makes is
+// ever there: no structure, no dressing
+const SHIP_X0=480000,SHIP_CX0=SHIP_X0/16,SHIP_PX0=SHIP_X0/32,SHIP_SLOT=1024,SHIPS=[];
+const tenvShow=(px,pz)=>px<SHIP_PX0&&(!TENV||TENV_PL.has(tenvK(px,pz)));
 // d: how deep in the wrapped plan lookups we are (only the outermost is moved); raw: making a source chunk
 const TR={d:0,raw:0,on:false,c:new WeakMap()};
 let seed=0, edits={}, collapses={}, wrecked={}, downFix=new Map(), destroyed={};   // destroyed: building key -> how many of its original blocks are gone

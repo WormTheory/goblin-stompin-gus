@@ -2,11 +2,12 @@
 // again, out you get. Cars and trucks, the bases' tanks and helicopters, boats, trains and the airport's planes. Each
 // one's own update reads its driver's controls in place of its usual round (p.drv says what you're in, and the
 // vehicle's .drv who's driving it); drvSeat keeps you in your seat once everything's moved ----
-const DRV_NAME={tank:'tank',heli:'helicopter',train:'train',subway:'subway train',plane:'plane',balloon:'hot-air balloon'};
+const DRV_NAME={ship:'ship',tank:'tank',heli:'helicopter',train:'train',subway:'subway train',plane:'plane',balloon:'hot-air balloon'};
 function drvName(D){if(D.netN)return D.netN;const o=D.o;   // (D.netN: a guest online, told by the host)
 
   if(D.k==='car')return o.police?'police car':{car:'car',bike:'motorcycle',van:'van',pickup:'pickup',truck:'truck',semi:'lorry',bus:'bus',fire:'fire engine',amb:'ambulance',news:'news van',rv:'motorhome',technical:'technical',quad:'four-wheeler',super:'supercar',forklift:'forklift',hover:'hovercraft'}[o.veh]||'car';
   if(D.k==='boat')return o.K.name.toLowerCase();
+  if(D.k==='ship')return o.K.name;
   if(D.k==='plane'&&o.jet)return'fighter jet';
   return DRV_NAME[D.k];
 }
@@ -32,12 +33,14 @@ function drvFind(p){
     else if(pr.veh==='train'&&T.C&&!T.dead)D={k:'train',o:T,ci:pr.i};
     else if(pr.veh==='train'&&T.sub&&!T.dead){for(const V of venues.values())if(V.kind==='sub'&&V.T===T){D={k:'subway',o:T,V,ci:pr.i};break;}}   // (a subway train, under the city: see drvSub)
     if(D)take(px-B.x,pz-B.z,B.tx,B.tz,hx,hz,Math.min(B.y0,B.top-0.5),B.top,D);}
+  {const h=shipHelm(p);if(h&&h.d<bd)best=h.D;}   // (aboard a ship, at its helm: see ships.js)
   return best;
 }
 // where the vehicle is and how it lies: its middle at the base, heading, half sizes, height, and speed along its heading
 function drvPose(D){if(D.netS)return D.netS;const o=D.o;   // (D.netS: a guest online, shown where the host has the vehicle)
 
   if(D.k==='car')return{x:o.pos.x,y:o.pos.y,z:o.pos.z,h:o.heading,hx:o.hx,hz:o.hz,hy:o.hy||1.4,v:o.speed};
+  if(D.k==='ship')return shipPose(o);
   if(D.k==='mech')return{x:o.x,y:o.y,z:o.z,h:o.h,hx:MG.r,hz:MG.r,hy:MG.hy,v:Math.hypot(o.vx,o.vz)};
   if(D.k==='balloon')return{x:o.x,y:o.y,z:o.z,h:o.h,hx:BAL.bw,hz:BAL.bw,hy:BAL.bh,v:Math.hypot(o.vx,o.vz)};
   if(D.k==='tank'||D.k==='heli'){const I=MIL[D.k];return{x:o.x,y:o.y,z:o.z,h:o.h,hx:I.hx,hz:I.hz,hy:I.hy,v:D.k==='tank'?o.sv||0:Math.hypot(o.hv?o.hv.x:0,o.hv?o.hv.z:0)};}
@@ -80,6 +83,7 @@ function drvExit(p,thrown){
   if(D.k==='car'&&p.gb)rideReset(p.gb);
   const S=drvPose(D);
   if(D.seat==='gun'){if(o.gnr===p)o.gnr=null;}else drvLetGo(p,D);
+  if(D.k==='ship'){shipLeave(p,o);return;}   // (left standing at the helm)
   const tx=Math.sin(S.h),tz=Math.cos(S.h),rx=Math.cos(S.h),rz=-Math.sin(S.h);let spot=null;
   for(const [a,b] of [[-(S.hx+0.9),0],[S.hx+0.9,0],[0,-(S.hz+0.9)],[0,S.hz+0.9]]){const x=S.x+rx*a+tx*b,z=S.z+rz*a+tz*b,y=Math.max(groundAt(x,z,S.y+2.5),S.y);
     if(!solidAt(x,Math.floor(y+0.3),z)&&!solidAt(x,Math.floor(y+1.2),z)){spot={x,y,z};break;}}
@@ -106,6 +110,7 @@ function drvSeat(p){
   const D=p.drv;if(!D)return;const o=D.o;
   if(D.k==='car'?!o.alive:o.dead||o.fall){drvExit(p,true);return;}
   if(D.jack){jackPose(p);return;}
+  if(D.k==='ship'){shipSeat(p,o);return;}
   const S=drvPose(D);p.pos.set(S.x,S.y+(D.k==='mech'?5:Math.min(1.2,S.hy*0.5)),S.z);   // (a Mobile Gear's pilot sits up in its chest)p.heading=S.h;
   p.vy=0;p.grounded=true;p.mvx=p.mvz=0;p.standCar=null;p.vcl=null;p.peakY=p.pos.y;p.biteT=0;
   if(rideShown(p)){if(D.seat==='gun')gunPose(p,o);else ridePose(p,o);}

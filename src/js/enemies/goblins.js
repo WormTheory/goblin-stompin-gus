@@ -70,7 +70,7 @@ function decoEach(f){
 }
 function batDraw(){
   for(const B of BAT.values())B.n=0;
-  for(const g of goblins){const r=g.root;if(!r.visible)continue;r.updateMatrixWorld(true);batPut(r,false);}   // (street goblins are kept out of the scene, so nothing else updates their matrices)
+  for(const g of goblins){const r=g.root;if(!r.visible)continue;shipGobMatrix(g);batPut(r,false);}   // (one aboard a ship is drawn where the ship is: see ships.js)   // (street goblins are kept out of the scene, so nothing else updates their matrices)
   wmFrame++;for(const c of cars){if(!c.g.visible)continue;c.g.updateMatrixWorld(true);c.g.wmDone=wmFrame;batPut(c.g,true);}
   decoEach(g=>{if(g.visible&&g.parent===scene&&g.wmDone!==wmFrame){g.updateMatrixWorld(true);g.wmDone=wmFrame;batPut(g,true,true);}});
   for(const B of BAT.values()){if(!B.n&&!B.m.count)continue;B.m.count=B.n;   // (and only the part of each buffer in use goes up to the graphics card)

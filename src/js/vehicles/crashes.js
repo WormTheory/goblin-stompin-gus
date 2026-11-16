@@ -58,6 +58,7 @@ function updateVenues(dt){
     if(V.kind==='army'){updateArmy(V,dt);continue;}
     if(V.kind==='mech'){updateMechs(V,dt);continue;}
     if(V.kind==='balloon'){updateBalloons(V,dt);continue;}
+    if(V.kind==='ship'){updateShips(V,dt);continue;}
     if(V.kind==='train'){
       // the train: runs the line between the two stations, easing in and out, waiting a while at each platform
       const R=V.R,end=V.dir>0?R.L-46:46,left=(end-V.s)*V.dir;

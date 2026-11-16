@@ -44,6 +44,7 @@ function drvHP(D){if(D.netHP)return D.netHP;const o=D.o;   // (D.netHP: a guest 
   if(D.k==='tank'||D.k==='heli')return{hp:o.hp,max:MIL[D.k].hp};
   if(D.k==='mech')return{hp:o.hp,max:MG.hp};
   if(D.k==='boat')return{hp:o.hp,max:o.max};
+  if(D.k==='ship')return{hp:o.hp,max:o.K.hp};
   if(D.k==='plane')return{hp:o.hp,max:PLANE_HP};
   if(D.k==='balloon')return{hp:o.hp,max:BAL.hp};
   return{hp:o.carHP?o.carHP[D.ci]:CAR_HP,max:CAR_HP};

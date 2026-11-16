@@ -19,6 +19,7 @@ function fxPut(M,i,o){
   e[j+4]=-D*H2*s.y;e[j+5]=(A*F-B*H2*E)*s.y;e[j+6]=(B*F+A*H2*E)*s.y;e[j+7]=0;
   e[j+8]=E*s.z;e[j+9]=-B*D*s.z;e[j+10]=A*D*s.z;e[j+11]=0;
   e[j+12]=t.x;e[j+13]=t.y;e[j+14]=t.z;e[j+15]=1;
+  if(t.x>=SHIP_X0)shipFx(e,j);   // (in a ship's pocket: drawn where the ship really is)
   C[i*3]=c.r;C[i*3+1]=c.g;C[i*3+2]=c.b;
 }
 // (n boxes written to an instanced mesh: only those are sent up to the graphics card, and nothing at all if it's empty and was already)
