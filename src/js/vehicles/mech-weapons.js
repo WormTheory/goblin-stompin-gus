@@ -7,8 +7,27 @@
 // Lock-on: whatever's in the lock box round the crosshair is picked out by itself (the soft lock, M.soft) and the arms'
 // shots go at it, led for its speed; the hard lock button holds on to it (M.hard), turning the camera to keep it in
 // view while you move round it ----
-DRV_WPN.mech=[{k:'rifle',name:'Rivet Rifle',max:40,gap:0.1,reload:2.5,act:'mgArmR'},{k:'blade',name:'Heat Cleaver',max:1,gap:0,reload:1.2,act:'mgArmL',cool:true},
-  {k:'pod',name:'Swarm Pod',max:8,gap:0.07,reload:6,act:'mgShL'},{k:'cannon',name:'Breaker Cannon',max:3,gap:0.9,reload:7,act:'mgShR'}];
+// (every weapon it can carry, by key. The first four are what it carries unless the loadout says otherwise)
+const MG_WPNS={rifle:{k:'rifle',name:'Rivet Rifle',max:40,gap:0.1,reload:2.5,act:'mgArmR'},blade:{k:'blade',name:'Heat Cleaver',max:1,gap:0,reload:1.2,act:'mgArmL',cool:true},
+  pod:{k:'pod',name:'Swarm Pod',max:8,gap:0.07,reload:6,act:'mgShL'},cannon:{k:'cannon',name:'Breaker Cannon',max:3,gap:0.9,reload:7,act:'mgShR'},
+  shotgun:{k:'shotgun',name:'Scrap Shotgun',max:6,gap:0.6,reload:3.2,act:'mgArmR'},rifleL:{k:'rifleL',name:'Rivet Rifle',max:40,gap:0.1,reload:2.5,act:'mgArmL'},
+  volley:{k:'volley',name:'Rocket Volley',max:12,gap:0.14,reload:7,act:'mgShL'},lobber:{k:'lobber',name:'Clod Lobber',max:6,gap:0.55,reload:5,act:'mgShR'}};
+DRV_WPN.mech=[MG_WPNS.rifle,MG_WPNS.blade,MG_WPNS.pod,MG_WPNS.cannon];
+// ---- the loadout: which weapon each of its four slots carries, picked in the Testing Environment panel (MG_LOAD, kept in
+// this browser) and copied into each Mobile Gear as it's spawned (M.load), so changing it never swaps the guns on one
+// already standing. Each slot's choices are weapons that fit that place on the body (arm or shoulder, left or right) ----
+const MG_SLOTS=[{act:'mgArmL',n:'Left arm',ks:['blade','rifleL']},{act:'mgArmR',n:'Right arm',ks:['rifle','shotgun']},
+  {act:'mgShL',n:'Left shoulder',ks:['pod','volley']},{act:'mgShR',n:'Right shoulder',ks:['cannon','lobber']}];
+const MG_LOAD_KEY='goblin-stompin-gus-mech-loadout',MG_LOAD_DEF={mgArmL:'blade',mgArmR:'rifle',mgShL:'pod',mgShR:'cannon'};
+// (a loadout with anything missing or not allowed in its slot gets that slot's first choice, so a bad save can't break it)
+const mgLoadFix=L=>{const o={};for(const S of MG_SLOTS)o[S.act]=L&&S.ks.includes(L[S.act])?L[S.act]:S.ks[0];return o;};
+let MG_LOAD=mgLoadFix((()=>{try{return JSON.parse(localStorage.getItem(MG_LOAD_KEY)||'null');}catch(e){return null;}})());
+function mgLoadSet(act,k){MG_LOAD=mgLoadFix(Object.assign({},MG_LOAD,{[act]:k}));try{localStorage.setItem(MG_LOAD_KEY,JSON.stringify(MG_LOAD));}catch(e){}}
+// (a loadout as four digits, each slot's choice, for sending online; and back)
+const mgLoadCode=L=>MG_SLOTS.map(S=>Math.max(0,S.ks.indexOf(L[S.act]))).join(''),mgLoadDecode=c=>mgLoadFix(Object.fromEntries(MG_SLOTS.map((S,i)=>[S.act,S.ks[+((c||'')[i]||0)]])));
+// the weapons one Mobile Gear carries, in the slots' order, and its ammunition made ready from them
+const mgWpnList=M=>{const L=M.load||MG_LOAD_DEF;return MG_SLOTS.map(S=>MG_WPNS[L[S.act]]);};
+const mgArm=M=>wpnInit(M,'mech',mgWpnList(M));
 // (box: the lock box's half-width round the crosshair, as an angle; range: how far off it picks things out; hardRange:
 // past this a hard lock lets go; camTurn: how fast a hard lock turns the camera, a second. The blade: a locked target
 // within bladeReach is lunged at till it's bladeMid off, at most lungeMax; with none it lunges lunge ahead. Its cut
@@ -18,7 +37,13 @@ const MGW={box:0.22,range:150,hardRange:170,camTurn:2.4,
   rifleDmg:3,rifleSc:0.006,
   bladeReach:24,bladeMid:8,lunge:7,lungeMax:12,bladeDmg:20,bladeVD:90,bladeR:13,bladeArc:1.92,bladeY:4.5,swingUp:0.6,swingDown:0.8,lungeT:0.38,windT:0.34,igniteT:0.12,sweepT:0.14,backT:0.4,
   podLock:0.2,podLocks:4,missV:50,missTurn:5,missR:2.6,missDmg:4,missVD:35,missCrush:1.4,
-  canV:95,canGrav:3,brace:0.4,canR:5.5,canDmg:10,canVD:180,canCrush:3.8,recoil:14,canImp:2,bladeImp:2};
+  canV:95,canGrav:3,brace:0.4,canR:5.5,canDmg:10,canVD:180,canCrush:3.8,recoil:14,canImp:2,bladeImp:2,
+  pellets:9,pelletDmg:2,shotSc:0.05,shotImp:1.6,
+  rktV:70,rktR:3.2,rktDmg:5,rktVD:50,rktCrush:1.8,rktTurn:0.6,
+  lobV:48,lobGrav:16,lobR:3.6,lobDmg:6,lobVD:80,lobCrush:2.4,lobImp:1.3};
+// (pellets: how many a shotgun shot holds, each pelletDmg to a goblin, scattered by shotSc; shotImp how much more it jolts
+// than a rifle round. The volley's rockets: speed rktV, turning only a little (rktTurn) toward where they were aimed.
+// The lobber's shells: lobV, under lobGrav, so they arc high and come down on what's aimed at)
 // a point on the mech in its torso's frame (x to its left, y up from its feet, z ahead), out in the world
 function mgAt(M,lx,ly,lz){const a=M.ty??M.h,c=Math.cos(a),s=Math.sin(a);return{x:M.x+lx*c+lz*s,y:M.y+ly,z:M.z-lx*s+lz*c};}
 // the camera's forward line
@@ -72,15 +97,23 @@ function mgLead(M,p,x,y,z,sp){const T=mgTarget(M);if(!T||!lockAlive(T))return dr
   const t=Math.min(3,Math.hypot(T.pos.x-x,ty-y,T.pos.z-z)/sp),cl=v=>Math.max(-30,Math.min(30,v));
   return{x:T.pos.x+cl(V.vx)*t,y:ty+cl(V.vy)*t,z:T.pos.z+cl(V.vz)*t};}
 // (the muzzles: the rifle's at the end of the right forearm, the cannon's over the right shoulder, the pod's tubes)
-const mgRifleAt=M=>mgAt(M,-1.84,4.6,3.0),mgCannonAt=M=>mgAt(M,-0.95,7.9,2.9),mgPodAt=M=>mgAt(M,0.95,7.1,-0.2);
+const mgRifleAt=M=>mgAt(M,-1.84,4.6,3.0),mgRifleLAt=M=>mgAt(M,1.84,4.6,3.0),mgCannonAt=M=>mgAt(M,-0.95,7.9,2.9),mgPodAt=M=>mgAt(M,0.95,7.1,-0.2);
 // one step of the weapons, for the pilot p (called first thing in drvMech, so a hard lock's turn of the camera counts
 // this step)
 function mgWeapons(M,p,i,dt){
-  wpnInit(M,'mech');wpnTick(M,dt);mgLocks(M,p,i,dt);const W=M.wpn;
-  M.rfT=Math.max(0,(M.rfT||0)-dt);M.rkT=Math.max(0,(M.rkT||0)-dt);M.cnT=Math.max(0,(M.cnT||0)-dt);M.podT=Math.max(0,(M.podT||0)-dt);
+  mgArm(M);wpnTick(M,dt);mgLocks(M,p,i,dt);const W=M.wpn;
+  M.rfT=Math.max(0,(M.rfT||0)-dt);M.rkT=Math.max(0,(M.rkT||0)-dt);M.rfLT=Math.max(0,(M.rfLT||0)-dt);M.rkLT=Math.max(0,(M.rkLT||0)-dt);M.cnT=Math.max(0,(M.cnT||0)-dt);M.podT=Math.max(0,(M.podT||0)-dt);
   // (the rifle: held, a round every W.gap, a little scattered, to the first goblin, vehicle or wall on the line)
   if(i.mgArmR&&wpnFire(M,'rifle')){const m=mgRifleAt(M),A=mgLead(M,p,m.x,m.y,m.z,400);
     gunRound(M,p,m.x,m.y,m.z,MGW.rifleDmg,MGW.rifleSc,'Riveted by a Mobile Gear','Mobile Gear rifle',A);M.rfT=0.6;M.rkT=0.08;puff(m.x,m.y,m.z,1,0xffd080,0.15);}
+  // (the same rifle carried in the left hand instead of the blade)
+  if(i.mgArmL&&W.rifleL&&wpnFire(M,'rifleL')){const m=mgRifleLAt(M),A=mgLead(M,p,m.x,m.y,m.z,400);
+    gunRound(M,p,m.x,m.y,m.z,MGW.rifleDmg,MGW.rifleSc,'Riveted by a Mobile Gear','Mobile Gear rifle',A);M.rfLT=0.6;M.rkLT=0.08;puff(m.x,m.y,m.z,1,0xffd080,0.15);}
+  // (the shotgun in the right hand: a spread of pellets each shot, short-ranged but hard-hitting, and it jolts what it
+  // hits more than the rifle does)
+  if(i.mgArmR&&W.shotgun&&wpnFire(M,'shotgun')){const m=mgRifleAt(M),A=mgLead(M,p,m.x,m.y,m.z,400);impX=MGW.shotImp;
+    for(let k=0;k<MGW.pellets;k++)gunRound(M,p,m.x,m.y,m.z,MGW.pelletDmg,MGW.shotSc,'Blasted by a Mobile Gear\'s shotgun',k?'Mobile Gear shotgun pellet':'Mobile Gear shotgun',A);
+    impX=1;M.rfT=0.8;M.rkT=0.2;puff(m.x,m.y,m.z,4,0xffd080,0.4);addShake(0.12,M.x,M.z,10);if(audio)sfx('Mobile Gear shotgun',()=>{noise(0.25,0.35,900,'lowpass');tone('square',140,60,0.12,0.06);});}
   // (the blade: a lunge forward, at the locked target if it's within reach (stopping with it about halfway along the
   // blade), otherwise the way you're looking; then the sweep, right to left. Not again until this swing's done)
   if(i.mgArmLP&&!M.sl&&wpnFire(M,'blade')){const T=mgTarget(M),f=mgFwd(p),fh=Math.hypot(f.x,f.z)||1;let fx=f.x/fh,fz=f.z/fh,go=MGW.lunge;
@@ -96,22 +129,26 @@ function mgWeapons(M,p,i,dt){
   // (the pod: held, a lock every MGW.podLock on what's in the box, the least locked first, up to four or what's
   // loaded; let go, the missiles go one after another, each at its own lock (none: one, at the crosshair))
   const pd=W.pod;
-  if(i.mgShL){if(!M.pod){M.pod={locks:[],k:0.05};if(pd.rl>0||pd.n<=0)wpnClick();}
+  if(pd&&i.mgShL){if(!M.pod){M.pod={locks:[],k:0.05};if(pd.rl>0||pd.n<=0)wpnClick();}
     const P=M.pod;P.k-=dt;P.locks=P.locks.filter(t=>lockAlive(t));
     if(P.k<=0&&pd.rl<=0&&P.locks.length<Math.min(MGW.podLocks,pd.n)&&M.inBox.length){
       let t=null,bn=1e9;for(const c of M.inBox){const n=P.locks.filter(q=>q===c).length*10+(c===M.soft?0:1)+(c.civ?3:0);if(n<bn){bn=n;t=c;}}
       P.locks.push(t);P.k=MGW.podLock;if(audio)sfx('Mobile Gear missile lock',()=>tone('square',1100+P.locks.length*180,1100+P.locks.length*180,0.05,0.03));}}
-  else if(M.pod){const L=M.pod.locks;M.pod=null;if(pd.rl<=0&&pd.n>0)M.podQ=L.length?L.slice():[null];}
-  if(M.podQ&&M.podQ.length){if(pd.rl>0)M.podQ=null;else if(pd.cd<=0&&wpnFire(M,'pod'))mgMissile(M,p,M.podQ.shift());}
+  else if(pd&&M.pod){const L=M.pod.locks;M.pod=null;if(pd.rl<=0&&pd.n>0)M.podQ=L.length?L.slice():[null];}
+  if(pd&&M.podQ&&M.podQ.length){if(pd.rl>0)M.podQ=null;else if(pd.cd<=0&&wpnFire(M,'pod'))mgMissile(M,p,M.podQ.shift());}
   // (the cannon: on the ground it braces first (M.brace: it stops, crouches and swings the barrel over its shoulder),
   // then fires; in the air at once)
+  // (the rocket volley instead: held, rockets one after another, unguided, straight at the crosshair or the lock)
+  if(i.mgShL&&W.volley&&wpnFire(M,'volley'))mgRocket(M,p);
+  // (the lobber instead: held, a clod of a shell every W.gap, lobbed high so it drops on to what's aimed at)
+  if(i.mgShR&&W.lobber&&wpnFire(M,'lobber'))mgLob(M,p);
   const cw=W.cannon;
-  if(i.mgShRP&&!(M.brace>0)){if(cw.rl>0||cw.n<=0)wpnClick();else if(cw.cd<=0){if(M.grounded&&!M.ab){M.brace=MGW.brace;M.cnT=MGW.brace+0.9;}else mgCannon(M,p);}}
+  if(cw&&i.mgShRP&&!(M.brace>0)){if(cw.rl>0||cw.n<=0)wpnClick();else if(cw.cd<=0){if(M.grounded&&!M.ab){M.brace=MGW.brace;M.cnT=MGW.brace+0.9;}else mgCannon(M,p);}}
   if(M.brace>0){M.brace-=dt;if(M.brace<=0){M.brace=0;mgCannon(M,p);}}
 }
 // with nobody in it: no locks, nothing firing, but the weapons still reload
-function mgDisarm(M,dt){wpnInit(M,'mech');wpnTick(M,dt);M.soft=M.hard=null;M.inBox=[];M.pod=null;M.podQ=null;M.brace=0;M.lgT=0;M.sl=null;
-  for(const k of ['rfT','rkT','cnT','podT'])M[k]=Math.max(0,(M[k]||0)-dt);}
+function mgDisarm(M,dt){mgArm(M);wpnTick(M,dt);M.soft=M.hard=null;M.inBox=[];M.pod=null;M.podQ=null;M.brace=0;M.lgT=0;M.sl=null;
+  for(const k of ['rfT','rkT','rfLT','rkLT','cnT','podT'])M[k]=Math.max(0,(M[k]||0)-dt);}
 // (smoothstep: slow out, fast through the middle, slow in; the swing's cut follows the arm's swing exactly)
 const mgEase=x=>{x=Math.max(0,Math.min(1,x));return x*x*(3-2*x);};
 // which way round from straight ahead (S.fx,S.fz) the point rx,rz is: 0 ahead, plus to the mech's left, minus to its
@@ -187,17 +224,35 @@ function mgCannon(M,p){
   M.cnT=Math.max(M.cnT||0,0.9);blastFx(m.x,m.y,m.z,0.25,1.2);smoke(m.x,m.y,m.z,6,0x8a8a8a);addShake(0.6,M.x,M.z,30);
   if(audio)sfx('Mobile Gear cannon',()=>{noise(0.6,0.5,700,'lowpass');tone('sawtooth',110,30,0.6,0.16);});
   if(!M.grounded){const h=Math.hypot(dx,dz)||1;M.vx-=dx/h*MGW.recoil;M.vz-=dz/h*MGW.recoil;M.vy=Math.max(M.vy,0)+2;}}
+// one rocket off the volley: straight out of the pod's tubes the way it's aimed (at the lock, led, or the crosshair),
+// steering only a little, a bigger blast than a missile's
+function mgRocket(M,p){
+  const m=mgPodAt(M),A=mgLead(M,p,m.x,m.y,m.z,MGW.rktV),dx=A.x-m.x,dy=A.y-m.y,dz=A.z-m.z,L=Math.hypot(dx,dy,dz)||1,k=(M.podN=(M.podN||0)+1),sd=((k%3)-1)*0.03;
+  shot({kind:'rocket',x:m.x,y:m.y,z:m.z,vx:(dx/L+sd)*MGW.rktV,vy:dy/L*MGW.rktV,vz:(dz/L-sd)*MGW.rktV,grav:0,fuse:5,R:MGW.rktR,dmg:MGW.rktDmg,crush:MGW.rktCrush,vd:MGW.rktVD,own:M,
+    cause:"Blown up by a Mobile Gear's rocket",by:pvpBy(p),at:A,sp:MGW.rktV,turn:MGW.rktTurn});
+  M.podT=0.5;puff(m.x,m.y,m.z,2,0xdadada,0.3);if(audio)sfx('Mobile Gear rocket',()=>noise(0.35,0.22,900,'bandpass'));}
+// one of the lobber's shells: out of the barrel over the right shoulder, lifted so it falls on the aim point (the time
+// to get there, times half its drop), a smaller blast than the cannon's but more of them and no brace
+function mgLob(M,p){
+  const m=mgCannonAt(M),A=mgLead(M,p,m.x,m.y,m.z,MGW.lobV),dx=A.x-m.x,dz=A.z-m.z,L=Math.hypot(dx,A.y-m.y,dz)||1,t=L/MGW.lobV,sp=MGW.lobV;
+  shot({kind:'shell',x:m.x,y:m.y,z:m.z,vx:dx/L*sp,vy:(A.y-m.y)/L*sp+MGW.lobGrav*t*0.5,vz:dz/L*sp,grav:MGW.lobGrav,fuse:6,R:MGW.lobR,dmg:MGW.lobDmg,crush:MGW.lobCrush,vd:MGW.lobVD,own:M,
+    cause:"Buried by a Mobile Gear's lobber",by:pvpBy(p),imp:MGW.lobImp});
+  M.cnT=Math.max(M.cnT||0,0.7);blastFx(m.x,m.y,m.z,0.15,0.7);smoke(m.x,m.y,m.z,3,0x8a8a8a);addShake(0.2,M.x,M.z,16);
+  if(audio)sfx('Mobile Gear lobber',()=>{noise(0.3,0.3,500,'lowpass');tone('sawtooth',160,70,0.25,0.08);});}
 // the weapons' part of the pose: the right arm brings the rifle on to what it's shooting at, kicking with each round;
 // the left swings the blade across; the cannon swings over the shoulder to fire and back after; the pod's lid opens
 // while it's locking and firing (ap: where the view's pitched, the arms' usual aim; ease: mechPose's easing)
 function mgWpnPose(M,J,ap,dt,ease){
-  const R=J.arms.find(a=>a.s<0),Lf=J.arms.find(a=>a.s>0),busy=M.rfT>0||!!mgTarget(M);
-  M.raA=ease(M.raA||0,busy?1:0,8);
-  if(M.raA>0.01){const T=mgTarget(M),m=mgRifleAt(M);let az=0,el=ap;
-    if(T&&lockAlive(T)){const dx=T.pos.x-m.x,dz=T.pos.z-m.z;az=Math.max(-0.7,Math.min(0.7,angDiff(M.ty,Math.atan2(dx,dz))));el=Math.max(-0.8,Math.min(0.7,Math.atan2(lockY(T)-m.y,Math.hypot(dx,dz))));}
-    const k=M.raA,kick=M.rkT>0?0.12:0;R.sh.rotation.y+=(az-R.sh.rotation.y)*k;
-    R.sh.rotation.x+=((-0.25-el*0.3-M.pt*0.5)-R.sh.rotation.x)*k;R.el.rotation.x+=((-(Math.PI/2-0.25)-el*0.7-M.pt*0.5+kick)-R.el.rotation.x)*k;}
-  else R.sh.rotation.y=0;
+  const R=J.arms.find(a=>a.s<0),Lf=J.arms.find(a=>a.s>0),T0=mgTarget(M);
+  // (an arm with a gun brings it up on to what it's shooting at while it fires or anything's locked, kicking with each
+  // round: the right always, the left too when it carries the rifle instead of the blade)
+  const aimArm=(A,a,m,kickT)=>{if(a<=0.01){A.sh.rotation.y=0;return;}let az=0,el=ap;
+    if(T0&&lockAlive(T0)){const dx=T0.pos.x-m.x,dz=T0.pos.z-m.z;az=Math.max(-0.7,Math.min(0.7,angDiff(M.ty,Math.atan2(dx,dz))));el=Math.max(-0.8,Math.min(0.7,Math.atan2(lockY(T0)-m.y,Math.hypot(dx,dz))));}
+    const kick=kickT>0?0.12:0;A.sh.rotation.y+=(az-A.sh.rotation.y)*a;
+    A.sh.rotation.x+=((-0.25-el*0.3-M.pt*0.5)-A.sh.rotation.x)*a;A.el.rotation.x+=((-(Math.PI/2-0.25)-el*0.7-M.pt*0.5+kick)-A.el.rotation.x)*a;};
+  M.raA=ease(M.raA||0,M.rfT>0||T0?1:0,8);aimArm(R,M.raA,mgRifleAt(M),M.rkT);
+  const lGun=!!(M.load&&M.load.mgArmL==='rifleL');
+  if(lGun){M.laA=ease(M.laA||0,M.rfLT>0||T0?1:0,8);aimArm(Lf,M.laA,mgRifleLAt(M),M.rkLT);}
   // (the swing. The reach: the left hand drawn across to its right side, the body turning with it and the right arm
   // lifting out of the way; the blade lights from the hand as it gets there; then one quick level sweep out to its left,
   // the arm straightening and the body following through; then the blade goes back into the hand as it settles back.
@@ -211,8 +266,8 @@ function mgWpnPose(M,J,ap,dt,ease){
     // plane tilts toward what it's aiming at)
     lean=-(S.pt||0)*k;x+=lean*0.3;
     Lf.sh.rotation.y=y*k;Lf.sh.rotation.x+=(x-Lf.sh.rotation.x)*k;Lf.el.rotation.x+=(el-Lf.el.rotation.x)*k;Lf.sh.rotation.z+=(z-Lf.sh.rotation.z)*k;}
-  else Lf.sh.rotation.y=0;
-  Lf.bl.visible=ig>0.01;Lf.bl.scale.y=Math.max(0.01,ig);
+  else if(!lGun)Lf.sh.rotation.y=0;
+  if(Lf.bl){Lf.bl.visible=ig>0.01;Lf.bl.scale.y=Math.max(0.01,ig);}
   J.T.rotation.y+=tw;J.T.rotation.x+=lean*0.8;R.sh.rotation.x-=0.35*rr;R.sh.rotation.z+=-0.3*rr;
   M.cnA=ease(M.cnA||0,M.brace>0||M.cnT>0?1:0,M.brace>0?14:5);J.cannon.rotation.x=-2.2*(1-M.cnA)+(-ap-M.pt)*M.cnA;
   M.pdA=ease(M.pdA||0,M.pod||M.podQ&&M.podQ.length||M.podT>0?1:0,10);J.podLid.rotation.x=-1.05*M.pdA;

@@ -29,6 +29,14 @@ function tpRender(){
   const vb=document.getElementById('tpVehs');
   if(vb&&!vb.childElementCount)for(const t of tenvVehKinds()){const b=document.createElement('button');b.type='button';b.className='pmenu';b.dataset.veh=t;
     b.textContent=tenvVehName(t);b.addEventListener('click',()=>tenvVeh(t));vb.append(b);}
+  // (the Mobile Gear's loadout: a row per slot, the weapons that fit it as a choice of buttons)
+  const ld=document.getElementById('tpLoad');
+  if(ld&&!ld.childElementCount)for(const S of MG_SLOTS){const r=document.createElement('div');r.className='tp-lr';const t=document.createElement('span');t.className='tp-count';t.textContent=S.n;
+    const g=document.createElement('div');g.className='seg';g.setAttribute('role','radiogroup');g.setAttribute('aria-label','Mobile Gear '+S.n.toLowerCase());
+    for(const k of S.ks){const b=document.createElement('button');b.type='button';b.setAttribute('role','radio');b.dataset.mgs=S.act;b.dataset.mgw=k;b.textContent=MG_WPNS[k].name;
+      b.addEventListener('click',()=>{mgLoadSet(S.act,k);tpRender();tsSet('New Mobile Gears will carry the '+MG_WPNS[k].name+' on the '+S.n.toLowerCase()+'.');});g.append(b);}
+    r.append(t,g);ld.append(r);}
+  for(const b of document.querySelectorAll('#tpLoad [data-mgs]'))b.setAttribute('aria-checked',String(MG_LOAD[b.dataset.mgs]===b.dataset.mgw));
   const sn=document.getElementById('seedNote');if(sn&&TENV)sn.textContent=`Testing Environment · ${TENV.boxes.length} structure${TENV.boxes.length===1?'':'s'} spawned · seed ${seed}`;
 }
 // the Testing Environment's own tab, just right of Game: there only while in it (on: shown and opened)

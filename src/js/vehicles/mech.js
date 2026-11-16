@@ -20,7 +20,8 @@ const MGM={frame:new THREE.MeshLambertMaterial({color:0x3e454c}),plate:new THREE
   dark:new THREE.MeshLambertMaterial({color:0x202428}),glow:new THREE.MeshBasicMaterial({color:0x9fe4ff}),flame:new THREE.MeshBasicMaterial({color:0xcff4ff,transparent:true,opacity:0.8}),heat:new THREE.MeshBasicMaterial({color:0xff9a3a})};
 // the model: built of boxes in a tree of joints (hips, knees, ankles, waist, shoulders, elbows, head), so drvMech's
 // pose can walk it. The root sits on the ground between its feet, facing the way its legs face (M.h)
-function makeMech(){
+function makeMech(L){
+  L=L||MG_LOAD_DEF;
   const g=new THREE.Group(),J={legs:[],arms:[],flames:[],eye:null},bx=milBx,grp=(par,x,y,z)=>{const o=new THREE.Group();o.position.set(x,y,z);par.add(o);return o;};
   // (a thruster's flame: it points along d, in its part's own frame. 'lift' ones hold it up, 'dir' ones on the body push
   // it about, so they burn on the side away from where it's going)
@@ -57,13 +58,17 @@ function makeMech(){
   // (on its back, each on a pivot: over the left shoulder (x+) the missile pod, a box of four tubes under a lid that
   // swings up while it's locking and firing; over the right the cannon, carried pointing up and back, swung down over
   // the shoulder to fire)
-  {const pod=grp(T,0.95,3.0,-0.7);J.pod=pod;bx(pod,MGM.frame,0.8,0.7,1.5,0,0,0);bx(pod,MGM.trim,0.82,0.18,0.08,0,0.2,0.76);
-    for(const [a,b] of [[-0.18,-0.12],[0.18,-0.12],[-0.18,0.16],[0.18,0.16]])bx(pod,MGM.dark,0.26,0.22,0.06,a,b,0.77);
+  // (the rocket volley's pod in its place is the same box with six round-ish tubes, two rows of three, and no trim band)
+  {const pod=grp(T,0.95,3.0,-0.7);J.pod=pod;bx(pod,MGM.frame,0.8,0.7,1.5,0,0,0);
+    if(L.mgShL==='volley')for(const a of [-0.24,0,0.24])for(const b of [-0.14,0.14])bx(pod,MGM.dark,0.18,0.18,0.06,a,b,0.77);
+    else{bx(pod,MGM.trim,0.82,0.18,0.08,0,0.2,0.76);for(const [a,b] of [[-0.18,-0.12],[0.18,-0.12],[-0.18,0.16],[0.18,0.16]])bx(pod,MGM.dark,0.26,0.22,0.06,a,b,0.77);}
     const lid=grp(pod,0,0.36,-0.75);J.podLid=lid;bx(lid,MGM.plate,0.86,0.1,1.56,0,0.04,0.78);}
   // (the cannon's pivot sits up on a post, forward over the shoulder, so swung down to fire low it clears the chest)
   bx(T,MGM.frame,0.3,1.0,0.3,-0.95,2.95,-0.35);
   {const cn=grp(T,-0.95,3.5,-0.35);J.cannon=cn;bx(cn,MGM.frame,0.7,0.75,1.1,0,0,0);bx(cn,MGM.trim,0.72,0.16,0.3,0,0.3,0.2);
-    bx(cn,MGM.dark,0.32,0.32,2.6,0,0.12,1.7);bx(cn,MGM.frame,0.44,0.44,0.5,0,0.12,2.95);J.cannonM=grp(cn,0,0.12,3.25);}
+    // (the lobber's barrel is short and wide, the cannon's long and thin)
+    if(L.mgShR==='lobber'){bx(cn,MGM.dark,0.6,0.6,1.5,0,0.12,1.2);bx(cn,MGM.trim,0.68,0.68,0.2,0,0.12,1.9);J.cannonM=grp(cn,0,0.12,2.0);}
+    else{bx(cn,MGM.dark,0.32,0.32,2.6,0,0.12,1.7);bx(cn,MGM.frame,0.44,0.44,0.5,0,0.12,2.95);J.cannonM=grp(cn,0,0.12,3.25);}}
   const hd=grp(T,0,2.62,0.25);J.head=hd;
   bx(hd,MGM.frame,0.9,0.55,1.0,0,0.27,0);bx(hd,MGM.plate,0.95,0.2,0.7,0,0.6,-0.05);J.eye=bx(hd,MGM.glow,0.74,0.11,0.05,0,0.3,0.51);
   bx(hd,MGM.dark,0.06,0.7,0.06,0.3,0.95,-0.25);bx(hd,MGM.trim,0.1,0.14,0.8,0,0.75,0);
@@ -72,8 +77,11 @@ function makeMech(){
     const el=grp(sh,s*0.22,-1.4,0);bx(el,MGM.plate,0.72,1.3,0.82,0,-0.55,0.05);bx(el,MGM.dark,0.45,0.4,0.45,0,-1.3,0.1);
     // (x is its left: the right hand (x-) holds the rifle along the forearm, the left carries the blade's housing, and the
     // blade itself, a long glowing bar shown only while it cuts, on a group at the hand so it can grow out of it)
-    let mz=null,bl=null;
-    if(s<0){bx(el,MGM.dark,0.36,2.3,0.46,0,-1.7,0.2);bx(el,MGM.trim,0.2,0.5,0.3,0,-0.95,0.5);mz=grp(el,0,-2.9,0.2);}
+    // (by the loadout: the right hand's shotgun is shorter and fatter, with a pump under it; the left can carry a rifle
+    // like the right's in place of the blade)
+    let mz=null,bl=null;const wp=s<0?L.mgArmR:L.mgArmL;
+    if(wp==='shotgun'){bx(el,MGM.dark,0.52,1.8,0.56,0,-1.5,0.2);bx(el,MGM.frame,0.3,0.7,0.24,0,-1.6,0.56);bx(el,MGM.trim,0.56,0.14,0.6,0,-2.2,0.2);mz=grp(el,0,-2.4,0.2);}
+    else if(wp==='rifle'||wp==='rifleL'){bx(el,MGM.dark,0.36,2.3,0.46,0,-1.7,0.2);bx(el,MGM.trim,0.2,0.5,0.3,0,-0.95,0.5);mz=grp(el,0,-2.9,0.2);}
     else{bx(el,MGM.trim,0.32,1.0,0.32,0,-1.1,0.45);bx(el,MGM.dark,0.18,0.5,0.18,0,-1.75,0.45);bl=grp(el,0,-1.9,0.45);bx(bl,MGM.heat,0.85,11.4,0.22,0,-5.7,0);bl.visible=false;}
     J.arms.push({sh,el,s,mz,bl});}
   return{g,J};
@@ -444,6 +452,7 @@ function updateMechs(V,dt){
     mechPose(M,dt);mechBoxes(M,Math.hypot(M.vx,M.vz));mechShove(M);}
 }
 // a new one, standing at x,z facing h, in venue V
-function newMech(V,x,z,h){const mk=makeMech(),M=Object.assign({isMech:true,kind:'mech',V,x,y:spGround(x,z),z,h,ty:h,vx:0,vy:0,vz:0,hp:MG.hp,dead:false,grounded:true,
+// (load: its weapons, MG_LOAD as it is now unless given)
+function newMech(V,x,z,h,load){const L=mgLoadFix(load||MG_LOAD),mk=makeMech(L),M=Object.assign({isMech:true,kind:'mech',load:L,V,x,y:spGround(x,z),z,h,ty:h,vx:0,vy:0,vz:0,hp:MG.hp,dead:false,grounded:true,
   en:MG.enMax,enIdle:9,red:0,boostOn:false,qbT:0,qbCD:0,ph:0,kits:MG.kits,imp:0,stag:0,key:'mech:'+Date.now()+':'+V.mechs.length},mk);
   scene.add(M.g);V.mechs.push(M);mechPose(M,0);return M;}

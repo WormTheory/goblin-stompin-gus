@@ -90,11 +90,12 @@ function netNodes(o,out){out.push(o);for(let i=0;i<out.length&&out.length<80;i++
 // itself with mechPose, from the host's state for it each snapshot: where it is and how it's moving, and what its
 // thrusters, boosts and weapons are doing. Fewer bytes than its joints, and the flames and blade (which are scaled,
 // and joints are only placed and turned) come out right ----
-const NET_MGK=['hp','en','red','qbT','qbFlash','airB','asc','jT','jPre','jd','landT','landK','stag','imp','kits','brace','aimP','raA','rfT','rkT','cnA','cnT','pdA','podT','lgT','ty','vy','repT'],
+const NET_MGK=['hp','en','red','qbT','qbFlash','airB','asc','jT','jPre','jd','landT','landK','stag','imp','kits','brace','aimP','raA','rfT','rkT','laA','rfLT','rkLT','cnA','cnT','pdA','podT','lgT','ty','vy','repT'],
   NET_MGB=['dead','grounded','boostOn'];
 function netMechs(){const out=[];
   for(const [vk,V] of venues){if(V.kind!=='mech')continue;
     for(const M of V.mechs){const f={};for(const k of NET_MGK){const v=M[k];if(typeof v==='number'&&v)f[k]=r3(v);}for(const k of NET_MGB)if(M[k])f[k]=1;
+      if(M.load)f.ld=mgLoadCode(M.load);   // (its weapons, so the guest's copy is built and shown carrying the same)
       if(M.qbDir)f.qd=[r3(M.qbDir.x),r3(M.qbDir.z)];if(M.ab)f.ab=M.ab.ph==='go'?2:1;if(M.kick)f.kk=M.kick.hit?2:1;
       if(M.sl)f.sl=[r3(M.sl.fx),r3(M.sl.fz),r3(M.sl.e),r3(M.sl.w),r3(M.sl.f),r3(M.sl.pt||0)];
       if(M.pod)f.pd=M.pod.locks.length+1;if(M.podQ&&M.podQ.length)f.pq=M.podQ.length;const hd=M.hard&&netRef(M.hard);if(hd)f.hd=hd;
@@ -106,7 +107,7 @@ function netMechSet(L){
   const keep=new Set();
   for(const e of L){const [vk,key,x,y,z,h,vx,vz,f]=e;keep.add(key);
     let V=venues.get(vk);if(!V){V={kind:'mech',mechs:[]};venues.set(vk,V);}
-    let M=V.mechs.find(o=>o.key===key);if(!M){M=newMech(V,x,z,h);M.key=key;M.y=y;M.net=true;}
+    let M=V.mechs.find(o=>o.key===key);if(!M){M=newMech(V,x,z,h,mgLoadDecode(f.ld));M.key=key;M.y=y;M.net=true;}
     M.vx=vx;M.vz=vz;for(const k of NET_MGK)M[k]=f[k]||0;for(const k of NET_MGB)M[k]=!!f[k];
     M.qbDir=f.qd?{x:f.qd[0],z:f.qd[1]}:null;M.ab=f.ab?{ph:f.ab===2?'go':'charge'}:null;M.kick=f.kk?{hit:f.kk===2}:null;
     M.sl=f.sl?Object.assign(M.sl||{},{fx:f.sl[0],fz:f.sl[1],e:f.sl[2],w:f.sl[3],f:f.sl[4],pt:f.sl[5]}):null;

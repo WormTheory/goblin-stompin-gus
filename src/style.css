@@ -585,6 +585,11 @@ button:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 .testpanel .tp-groups{max-height:min(34vh,420px)}
 .tp-sec{display:flex;flex-direction:column}
 .tp-sec .tp-tools{margin-top:0}
+.tp-load{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:8px 24px}
+.tp-lr{display:flex;align-items:center;gap:10px}
+.tp-lr .tp-count{margin-left:0;min-width:7.5em;white-space:nowrap}
+.tp-lr .seg button{white-space:nowrap}
+.testpanel .tp-note{margin:6px 0 0;font-size:12.5px}
 .tp-grid .tp-k{padding:6px 8px;font:500 13px var(--f-body);text-align:left;background:#1d252d;color:var(--bone);border:1px solid #3a4550;border-radius:3px;cursor:pointer}
 .tp-grid .tp-k:hover,.tp-grid .tp-k:focus-visible{border-color:#e8c14a;color:#e8c14a}
 .tp-placed{display:flex;flex-direction:column;gap:4px}

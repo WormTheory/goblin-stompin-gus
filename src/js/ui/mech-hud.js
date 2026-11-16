@@ -44,7 +44,7 @@ function mgWpnHud(p,H,on){
   let W=H.mgw;
   if(!W){if(!on)return;const el=document.createElement('div');el.className='mgwh';el.innerHTML='<div class="mglb"></div><div class="mgro"></div>';H.el.append(el);W=H.mgw={el,lb:el.querySelector('.mglb'),ro:el.querySelector('.mgro'),tk:[],wb:null,key:''};}
   W.el.hidden=!on;if(!on)return;
-  const M=p.drv.o;wpnInit(M,'mech');const cam=p.camera,fov=cam.fov||72;
+  const M=p.drv.o;mgArm(M);const cam=p.camera,fov=cam.fov||72;
   {const h=(Math.tan(MGW.box)/Math.tan(fov*Math.PI/360)*100).toFixed(1)+'%';if(W.lbH!==h){W.lbH=h;W.lb.style.height=h;}}
   W.lb.classList.toggle('on',!!M.soft||!!M.hard);H.xh.classList.toggle('lock',!!M.hard);
   // (the markers: the target, then a pip per missile lock beside each)
@@ -66,10 +66,11 @@ function mgWpnHud(p,H,on){
         W.ti.style.left=((_dhv.x+1)/2*100).toFixed(2)+'%';W.ti.style.top=((1-_dhv.y)/2*100).toFixed(2)+'%';
         const key=(hf*100).toFixed(0)+'/'+(mf*100).toFixed(0)+(st?'s':'');if(key!==W.tiK){W.tiK=key;W.tih.style.width=(hf*100).toFixed(0)+'%';W.tim.style.width=(mf*100).toFixed(0)+'%';W.ti.classList.toggle('st',st);}}}
     W.ti.hidden=!show;}
-  // (the gauges and the readouts, made again if the controller's been picked up or put down, so the buttons are right)
-  const key=p.pad?'p':'k';
+  // (the gauges and the readouts, made again if the controller's been picked up or put down, so the buttons are right,
+  // or it's another Mobile Gear with other weapons)
+  const key=(p.pad?'p':'k')+mgLoadCode(M.load||MG_LOAD_DEF);
   if(W.key!==key){W.key=key;if(W.wb)for(const b of W.wb){b.c.remove();b.g.remove();}
-    W.wb=DRV_WPN.mech.map(D=>{const c=document.createElement('div');c.className='mgc '+MGW_SPOT[D.act];
+    W.wb=mgWpnList(M).map(D=>{const c=document.createElement('div');c.className='mgc '+MGW_SPOT[D.act];
       c.innerHTML='<span class="cb">'+hudHTML(actMark(p,D.act))+'</span><b class="cn"></b><span class="cw"></span>';W.ro.append(c);
       const g=document.createElement('div');g.className='mgg '+MGW_GAUGE[D.act];g.innerHTML='<i></i>';W.lb.append(g);
       return{c,g,D,n:c.querySelector('.cn'),w:c.querySelector('.cw'),f:g.querySelector('i'),last:''};});

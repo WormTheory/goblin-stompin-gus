@@ -35,15 +35,16 @@ const ACTS=[
   {id:'talk',n:'Push to talk (online voice chat)',c:'#7fc8a0',kb:['KeyT'],pad:[14]},
   {id:'quickChat',n:'Quick chat message (online)',c:'#8fb8e0',kb:[],pad:[12]},
   // (piloting a Mobile Gear: its own set, which only counts while you're in one, so these can share keys and buttons
-  // with the ones above. mg: one of these; see mech.js)
+  // with the ones above. mg: one of these; see mech.js. The weapons are named by where they're carried, since the
+  // loadout picks what each slot holds)
   {id:'mgJump',n:'Jump (hold to fly up)',c:CC.jump,kb:['Space'],pad:[0],mg:true},
   {id:'mgQB',n:'Quick boost',c:'#5ec8f0',kb:['ShiftLeft'],pad:[2],mg:true},
   {id:'mgBoost',n:'Boost on / off',c:'#3a8fd8',kb:['KeyC'],pad:[1],mg:true},
   {id:'mgOut',n:'Get out (hold)',c:'#6ab0d8',kb:['KeyF'],pad:[3],mg:true},
-  {id:'mgArmL',n:'Left arm: Heat Cleaver',c:'#ff9a3a',kb:['Mouse0'],pad:[4],mg:true},
-  {id:'mgArmR',n:'Right arm: Rivet Rifle (hold)',c:CC.bite,kb:['Mouse2'],pad:[5],mg:true},
-  {id:'mgShL',n:'Left shoulder: Swarm Pod (hold to lock, let go to fire)',c:'#d8d8d0',kb:['KeyQ'],pad:[6],mg:true},
-  {id:'mgShR',n:'Right shoulder: Breaker Cannon',c:CC.stomp,kb:['KeyE'],pad:[7],mg:true},
+  {id:'mgArmL',n:'Left arm weapon',c:'#ff9a3a',kb:['Mouse0'],pad:[4],mg:true},
+  {id:'mgArmR',n:'Right arm weapon (hold)',c:CC.bite,kb:['Mouse2'],pad:[5],mg:true},
+  {id:'mgShL',n:'Left shoulder weapon (Swarm Pod: hold to lock, let go to fire)',c:'#d8d8d0',kb:['KeyQ'],pad:[6],mg:true},
+  {id:'mgShR',n:'Right shoulder weapon',c:CC.stomp,kb:['KeyE'],pad:[7],mg:true},
   {id:'mgLock',n:'Hard lock on / off',c:'#e0564a',kb:['Mouse1'],pad:[11],mg:true},
   {id:'mgAB',n:'Assault boost (again near a target: kick)',c:'#7fd0ff',kb:['KeyX'],pad:[10],mg:true},
   {id:'mgRep',n:'Repair kit',c:'#7ed060',kb:['KeyR'],pad:[13],mg:true},   // (D-pad down: up is the online quick chat)

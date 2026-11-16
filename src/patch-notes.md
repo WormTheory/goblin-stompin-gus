@@ -45,7 +45,8 @@
 - Co-op: each player can climb into a Mobile Gear of their own, and two of them bump into each other rather than walking through.
 - Online: a guest sees the host's Mobile Gears move, stride, fire their thrusters and swing their weapons, and can climb in and pilot one, with its own display.
 - Redlined, its thrusters cough and sputter until the energy comes back.
-- Its controls can be rebound in Options, in their own "Piloting a Mobile Gear" section.
+- Pick its loadout in the Testing Environment tab, under "Mobile Gear loadout": each of its four weapon slots has a second choice. The left arm can carry a second Rivet Rifle instead of the Heat Cleaver; the right arm a Scrap Shotgun (a spread of pellets, short-ranged and hard-hitting); the left shoulder a Rocket Volley (a stream of unguided rockets, no locking needed); and the right shoulder a Clod Lobber (shells lobbed high on to whatever you aim at, more of them than the cannon and no bracing). Your choice is remembered, and only Mobile Gears spawned after it carry it.
+- Its controls can be rebound in Options, in their own "Piloting a Mobile Gear" section. The weapon buttons are now named by slot (left arm, right shoulder and so on), since the loadout decides what's in each.
 - Mobile Gears aren't kept when you leave the Testing Environment.
 - While you're piloting, the controls line for on foot is hidden.
 - Getting into any vehicle or gun seat no longer pops up a card of its controls on the right: they're all in the list down the left, including a helicopter's climb and drop, flying a plane, and the fire buttons.

@@ -204,7 +204,8 @@ function hovDrift(c,dt){const vx=Math.sin(c.heading)*c.speed,vz=Math.cos(c.headi
 const DRV_WPN={tank:[{k:'shell',name:'Shells',max:4,gap:1.2,reload:5}],
   heli:[{k:'gun',name:'Gun',max:40,gap:0.09,reload:3},{k:'rkt',name:'Rockets',max:4,gap:0.6,reload:6}],
   jet:[{k:'gun',name:'Cannon',max:120,gap:0.05,reload:4},{k:'rkt',name:'Missiles',max:6,gap:0.45,reload:8}]};
-function wpnInit(o,kind){if(!o.wpn){o.wpn={};for(const W of DRV_WPN[kind]||[])o.wpn[W.k]={n:W.max,cd:0,rl:0,W};}}
+// (list: the weapons it carries, when they aren't the kind's usual ones: a Mobile Gear's loadout)
+function wpnInit(o,kind,list){if(!o.wpn){o.wpn={};for(const W of list||DRV_WPN[kind]||[])o.wpn[W.k]={n:W.max,cd:0,rl:0,W};}}
 function wpnTick(o,dt){for(const k in o.wpn||{}){const s=o.wpn[k];s.cd-=dt;s.ck=(s.ck||0)-dt;if(s.rl>0){s.rl-=dt;if(s.rl<=0){s.rl=0;s.n=s.W.max;if(audio)sfx('Weapon reloaded',()=>tone('square',380,520,0.08,0.03));}}}}
 // (pulling the trigger with nothing loaded clicks: once a press, or every quarter second held)
 function wpnFire(o,k){const s=o.wpn&&o.wpn[k];if(!s)return false;
