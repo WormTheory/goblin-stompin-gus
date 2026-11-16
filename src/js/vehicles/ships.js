@@ -34,10 +34,11 @@ function bargeBlock(u,y,w){
   if(y>=G+1&&y<=G+2&&u>=-2&&u<=1&&w>=4&&w<=7&&!(y===G+2&&(u===1||w===7)))return CRATE;
   return 0;
 }
-// a kind of ship: its footprint (u0..u1, w0..w1, whole blocks), its blocks, where the helm is stood at (pocket offsets,
-// facing +w), and how it handles
+// a kind of ship: its footprint (u0..u1, w0..w1, whole blocks), its blocks (only asked for from y0 to y1, if given), where
+// the helm is stood at (pocket offsets, facing +w), how it handles, its health, how far it goes down when it sinks, and the
+// boxes that stand for it from outside (u0,u1,w0,w1,y0,y1 each). The aircraft carrier is added in carrier.js
 const SHIP_KINDS={
-  barge:{name:'barge',u0:-6,u1:5,w0:-17,w1:14,block:bargeBlock,helm:[1,G+1,-5.5],hy:8,top:7,acc:0.35,turn:0.3,hp:200},
+  barge:{name:'barge',u0:-6,u1:5,w0:-17,w1:14,block:bargeBlock,helm:[1,G+1,-5.5],hy:8,top:7,acc:0.35,turn:0.3,hp:200,sc:800,sink:14,boxes:[[-6,5,-17,14,G-2,G+1]]},
 };
 // which ship's pocket (x,z) is in (null out in the world, or in a slot with no ship)
 const shipOfPos=(x,z)=>x>=SHIP_X0?SHIPS[Math.floor(z/SHIP_SLOT)]||null:null;
@@ -54,11 +55,11 @@ function shipPg(cz){return SHIPS[Math.floor(cz*CS/SHIP_SLOT)]||null;}
 // taken aboard while swimming is still swimming). Everywhere else in the pocket is air
 function shipChunk(cx,cz){
   const a=new Uint8Array(CS*CS*H),x0=cx*CS,z0=cz*CS,S=SHIPS[Math.floor(z0/SHIP_SLOT)];
-  if(S){const K=S.K;
+  if(S){const K=S.K,ya=K.y0??0,yb=K.y1??H-1;
     for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){const u=x0+lx-S.ox,w=z0+lz-S.oz;
       if(u<K.u0-SHIP_BAND||u>K.u1+SHIP_BAND||w<K.w0-SHIP_BAND||w>K.w1+SHIP_BAND)continue;
       const inF=u>=K.u0&&u<=K.u1&&w>=K.w0&&w<=K.w1;
-      for(let y=0;y<H;y++){let b=inF?K.block(u,y,w):0;if(!b&&y<G)b=WATER;if(b)a[li(lx,y,lz)]=b;}}}
+      for(let y=0;y<H;y++){let b=inF&&y>=ya&&y<=yb?K.block(u,y,w):0;if(!b&&y<G)b=WATER;if(b)a[li(lx,y,lz)]=b;}}}
   const ce=chunkEdits.get(ckey(cx,cz));
   if(ce)for(const [x,y,z,b] of ce)a[li(x-x0,y,z-z0)]=b;
   return a;
@@ -66,11 +67,12 @@ function shipChunk(cx,cz){
 // the pocket chunks a ship covers (its footprint, the water round it and a chunk more for the meshes' edges)
 function shipChunkBox(S){const K=S.K,b=SHIP_BAND+1;
   return[Math.floor((S.ox+K.u0-b)/CS),Math.floor((S.ox+K.u1+b)/CS),Math.floor((S.oz+K.w0-b)/CS),Math.floor((S.oz+K.w1+b)/CS)];}
-// every ship's chunks drawn (from updateChunks): only a dozen or so a ship, so all at once
-function shipChunks(){
-  if(!shipN)return;
+// every ship's chunks drawn (from updateChunks): a dozen or so for a barge, about sixty for the carrier, so a few
+// milliseconds' worth a frame (all at once with all set)
+function shipChunks(all){
+  if(!shipN)return;const t0=performance.now();
   for(const S of SHIPS){if(!S)continue;const [a,b,c,d]=shipChunkBox(S);
-    for(let cx=a;cx<=b;cx++)for(let cz=c;cz<=d;cz++)if(!meshes.has(ckey(cx,cz)))buildChunk(cx,cz);}
+    for(let cx=a;cx<=b;cx++)for(let cz=c;cz<=d;cz++)if(!meshes.has(ckey(cx,cz))){buildChunk(cx,cz);if(!all&&performance.now()-t0>8)return;}}
 }
 // a slot's blocks forgotten: its chunks, their meshes, and anything smashed there (a new ship there starts whole)
 function shipForget(slot){
@@ -86,7 +88,7 @@ function makeShip(kind,x,z,yaw){
   let slot=0;while(SHIPS[slot])slot++;
   const K=SHIP_KINDS[kind],grp=new THREE.Group(),pg=new THREE.Group();
   shipForget(slot);
-  const S={isShip:true,kind,K,slot,ox:SHIP_X0+SHIP_SLOT/2,oz:slot*SHIP_SLOT+SHIP_SLOT/2,x,z,yaw,sp:0,hp:K.hp,dead:false,drv:null,grp,pg,V:null};
+  const S={isShip:true,kind,K,slot,ox:SHIP_X0+SHIP_SLOT/2,oz:slot*SHIP_SLOT+SHIP_SLOT/2,x,z,yaw,sp:0,hp:K.hp,dead:false,deadT:0,sk:0,leak:0,drv:null,grp,pg,V:null,bx:null};
   pg.position.set(-S.ox,0,-S.oz);grp.add(pg);grp.position.set(x,0,z);grp.rotation.y=yaw;scene.add(grp);grp.updateMatrixWorld(true);
   SHIPS[slot]=S;shipN++;
   return S;
@@ -110,7 +112,10 @@ function shipFits(S,x,z,yaw){
 // each ship's step (from updateVenues): driven from the helm, W/S the throttle, A/D the rudder (which only bites with
 // way on); it stops dead short of shallow water
 function updateShips(V,dt){
-  for(const S of V.ships){
+  for(const S of [...V.ships]){
+    if(S.dead){shipSinking(S,V,dt);continue;}
+    if(S.leak)S.hp-=S.leak*SHIP_LEAK*dt;
+    if(S.hp<=0){shipSink(S);continue;}
     const K=S.K,i=S.drv?drvIn(S.drv):null,thr=i?-i.z:0,st=i?-i.x:0;
     const want=thr>0.1?K.top*thr:thr<-0.1?-K.top*0.4*-thr:0;
     S.sp+=(want-S.sp)*Math.min(1,dt*K.acc);
@@ -118,7 +123,53 @@ function updateShips(V,dt){
     if(Math.abs(S.sp)>0.01||ny!==S.yaw){if(shipFits(S,nx,nz,ny)){S.x=nx;S.z=nz;S.yaw=ny;}else{if(Math.abs(S.sp)>2)thud(0.5);S.sp*=-0.2;}}
     if(S.drv&&i.bitePress){S.hornT=(S.hornT||0);if(S.hornT<=0){horn(0.1);S.hornT=0.6;}}S.hornT=(S.hornT||0)-dt;
     S.grp.position.set(S.x,0,S.z);S.grp.rotation.y=S.yaw;S.grp.updateMatrixWorld(true);
+    shipBoxes(S);
   }
+}
+// ---- a ship's health: blocks knocked out of it (holes below the waterline cost more, and let the sea in, which goes on
+// costing it a little while they're there), and hits on it from outside (shells, rockets, blasts, rams: through the boxes
+// that stand for it out in the world). At none it sinks, straight down, washing off everyone aboard as the water reaches
+// them, and is gone ----
+const SHIP_LEAK=0.04;   // (health a second for each hole below the waterline)
+// the boxes that stand for a ship out in the world (in TRAIN_BOXES, so shots, blasts and other vehicles meet it: nobody
+// stands on them, since anyone that close has been taken aboard)
+function shipBoxes(S){
+  const K=S.K;if(!K.boxes||S.dead)return;const tx=Math.sin(S.yaw),tz=Math.cos(S.yaw);
+  if(!S.bx)S.bx=K.boxes.map((b,i)=>{const hx=(b[1]+1-b[0])/2,hz=(b[3]+1-b[2])/2;
+    return{u:(b[0]+b[1]+1)/2,w:(b[2]+b[3]+1)/2,hx,hz,y0:b[4],y1:b[5],pr:{isTrain:true,isShipBox:true,alive:true,pos:new V3(),kv:new V3(),vy:0,spinP:0,spinR:0,speed:0,hurt:0,hx,hz,hy:b[5]-b[4],heading:0,top:0,veh:'ship',T:S,i}};});
+  for(const B of S.bx){const pr=B.pr,x=S.x+B.u*tz+B.w*tx,z=S.z-B.u*tx+B.w*tz;pr.pos.set(x,B.y0,z);pr.heading=S.yaw;pr.top=B.y1;pr.speed=S.sp;
+    TRAIN_BOXES.push({x,z,tx,tz,y0:B.y0,top:B.y1,v:S.sp,hx:B.hx,hz:B.hz,proxy:pr});}
+}
+// hit from outside (trainHit): the number shown where it struck, on the piece it struck
+function shipHit(S,n,i){
+  if(S.dead)return;const B=S.bx&&S.bx[i||0],P=B?B.pr.pos:null;S.hp-=n;
+  if(P){dmgPop(P.x,B.y1+2,P.z,Math.round(n),'#ffb04a');vHitFx(P.x,B.y1,P.z,n);}
+}
+// a block of a ship knocked out (setRaw, before it's written): its health down a little, and if it was below the waterline
+// the sea comes in (the block becomes water). It sinks on its next step (updateShips), not in the middle of the smash
+function shipDent(x,y,z,b){
+  const S=shipOfPos(x,z);if(!S||S.dead||b!==AIR)return b;const o=rawGet(x,y,z);if(!o||o===WATER)return b;
+  if(y<G){S.leak++;S.hp-=3;return WATER;}
+  S.hp-=1;return b;
+}
+function shipSink(S){
+  if(S.dead)return;S.dead=true;S.deadT=0;S.hp=0;
+  for(const p of players)if(p.drv&&p.drv.o===S)drvExit(p);
+  const K=S.K,big=K.hp>=1000,c=shipToWorld(S,S.ox+(K.u0+K.u1+1)/2,S.oz+(K.w0+K.w1+1)/2,{x:0,z:0});
+  blastFx(c.x,G+4,c.z,1,big?4:2);smoke(c.x,G+4,c.z,big?30:12,0x262626);noise(1.2,1,500,'lowpass');tone('sawtooth',55,14,1.4,.35);addShake(big?1:.5,c.x,c.z,big?120:40);
+  award(K.sc||1000,'The '+K.name+' sunk',c.x,G+6,c.z);
+}
+// going down: slowly at first, then faster, steam where the water meets it and smoke from it, everyone the water reaches
+// washed off into the sea; gone once it's under
+function shipSinking(S,V,dt){
+  const K=S.K,T=K.hp>=1000?45:16;S.deadT+=dt;
+  const k=Math.min(1,S.deadT/T);S.sk=K.sink*k*k;S.sp*=Math.exp(-dt*0.5);
+  S.grp.position.set(S.x,-S.sk,S.z);S.grp.updateMatrixWorld(true);
+  if(Math.random()<dt*(K.hp>=1000?10:3)){shipToWorld(S,S.ox+K.u0+Math.random()*(K.u1+1-K.u0),S.oz+K.w0+Math.random()*(K.w1+1-K.w0),_sv);
+    puff(_sv.x,G+1,_sv.z,2,0xcfe8ff,.8);if(k<0.6&&Math.random()<0.5)smoke(_sv.x,G+4,_sv.z,2,0x262626);}
+  for(const p of players)if(p.active&&shipOf(p)===S&&p.pos.y-S.sk<G+0.3)shipMove(p,S,false,true);
+  for(const g of goblins)if(g.state!=='wait'&&shipOf(g)===S&&g.pos.y-S.sk<G+0.3)shipMove(g,S,false,false);
+  if(k>=1){const i=V.ships.indexOf(S);if(i>=0)V.ships.splice(i,1);shipDrop(S);if(!V.ships.length&&venues.get('tenvShips')===V)venues.delete('tenvShips');}
 }
 // ---- getting aboard and off: anyone within SHIP_M of a ship's hull is moved into its pocket, turned to match it; anyone
 // further than that from it (a little further, so nobody flickers between the two at the edge) back out ----
@@ -128,6 +179,7 @@ const shipRot=(o,kx,kz,a)=>{const x=o[kx],z=o[kz];if(x===undefined||z===undefine
 function shipParent(p,S){const par=S?S.pg:scene;for(const o of [p.root,p.pool,p.gb&&p.gb.root])if(o&&o.parent!==par)par.add(o);}
 function shipMove(o,S,into,isP){
   const P=o.pos,t=(into?worldToShip:shipToWorld)(S,P.x,P.z,_sv),a=into?-S.yaw:S.yaw;
+  P.y+=into?S.sk:-S.sk;   // (a ship going down: its pocket stays put, its picture sinks)
   if(into){   // (never into the hull: up on to whatever's above, or not aboard yet)
     let y=P.y,ok=false;for(let k=0;k<10;k++){if(!solidAt(t.x,Math.floor(y+0.2),t.z)&&!solidAt(t.x,Math.floor(y+1.2),t.z)){ok=true;break;}y=Math.floor(y+0.2)+1;}
     if(!ok)return false;P.y=y;}
@@ -142,7 +194,7 @@ function shipCross(o,isP){
   const P=o.pos;
   if(P.x>=SHIP_X0){const S=shipOfPos(P.x,P.z);if(!S)return;const K=S.K,m=SHIP_M+1.5,u=P.x-S.ox,w=P.z-S.oz;
     if(u<K.u0-m||u>K.u1+1+m||w<K.w0-m||w>K.w1+1+m)shipMove(o,S,false,isP);return;}
-  for(const S of SHIPS){if(!S)continue;const K=S.K,t=worldToShip(S,P.x,P.z,_sv),u=t.x-S.ox,w=t.z-S.oz;
+  for(const S of SHIPS){if(!S||S.dead)continue;const K=S.K,t=worldToShip(S,P.x,P.z,_sv),u=t.x-S.ox,w=t.z-S.oz;
     if(u>=K.u0-SHIP_M&&u<=K.u1+1+SHIP_M&&w>=K.w0-SHIP_M&&w<=K.w1+1+SHIP_M&&P.y>G-24){shipMove(o,S,true,isP);return;}}
 }
 // every step, once everything's moved (players at the controls stay where their seat is)
@@ -175,7 +227,7 @@ function shipView(fn){
 }
 // a point (anything with x and z) in a ship's pocket moved to where that is on the ship, in place; and how much a heading
 // there turns by out in the world (effects that are drawn as they're made: fires, shockwaves)
-function shipPt(v){if(v.x<SHIP_X0)return v;const S=shipOfPos(v.x,v.z);if(S){shipToWorld(S,v.x,v.z,_sv);v.x=_sv.x;v.z=_sv.z;}return v;}
+function shipPt(v){if(v.x<SHIP_X0)return v;const S=shipOfPos(v.x,v.z);if(S){shipToWorld(S,v.x,v.z,_sv);v.x=_sv.x;v.z=_sv.z;if(v.y!==undefined)v.y-=S.sk;}return v;}
 function shipYawAt(x,z){const S=shipOfPos(x,z);return S?S.yaw:0;}
 // how far a player is from x,z, measured where both really are (one aboard a ship, the other not; nearestPlayer: how loud a
 // sound is, who a goblin goes for)
@@ -184,7 +236,7 @@ function shipDist(p,x,z){const Sx=shipOfPos(x,z),Sp=shipOf(p);if(Sx===Sp)return 
 // the camera, placed in the pocket by the usual code, put where that is on the ship (after placeCamera)
 function shipCam(p){
   const S=shipOf(p)||p.drv&&p.drv.k==='ship'&&p.drv.o;if(!S||!S.isShip)return;
-  const c=p.camera.position;shipToWorld(S,c.x,c.z,_sv);c.x=_sv.x;c.z=_sv.z;p.camera.rotation.y+=S.yaw;
+  const c=p.camera.position;shipToWorld(S,c.x,c.z,_sv);c.x=_sv.x;c.z=_sv.z;c.y-=S.sk;p.camera.rotation.y+=S.yaw;
 }
 // a goblin's model aboard: worked out as if it hung off the ship's picture (street goblins aren't in the scene; batDraw)
 function shipGobMatrix(g){
@@ -196,7 +248,7 @@ function shipGobMatrix(g){
 function shipFx(e,j){
   const S=shipOfPos(e[j+12],e[j+14]);if(!S)return;const c=Math.cos(S.yaw),s=Math.sin(S.yaw);
   for(const o of [0,4,8]){const x=e[j+o],z=e[j+o+2];e[j+o]=x*c+z*s;e[j+o+2]=-x*s+z*c;}
-  shipToWorld(S,e[j+12],e[j+14],_sv);e[j+12]=_sv.x;e[j+14]=_sv.z;
+  shipToWorld(S,e[j+12],e[j+14],_sv);e[j+12]=_sv.x;e[j+14]=_sv.z;e[j+13]-=S.sk;
 }
 // ---- at the helm (driving.js): stood within reach of it, aboard, the use button takes the controls ----
 function shipHelm(p){
@@ -232,17 +284,21 @@ function tenvShip(kind){
   if(!TENV){tsSet('Ships can only be spawned in the Testing Environment for now.');return;}
   const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active);if(!p)return;
   const px=pwx(p),pz=pwz(p),yaw=(p.cam.yaw+Math.PI)+(shipOf(p)?shipOf(p).yaw:0),fx=Math.sin(yaw),fz=Math.cos(yaw);
-  if(!TENV.sea){const cx=Math.round(px+fx*184),cz=Math.round(pz+fz*184);TENV.sea={x0:cx-160,x1:cx+160,z0:cz-160,z1:cz+160};seaRebuild();updateChunks(999,0);save();}
-  const R=TENV.sea,S=makeShip(kind,0,0,yaw);let ok=false;
+  // (a carrier wants a sea twice the size: one that's there already grows away from him)
+  const K=SHIP_KINDS[kind],half=K.w1-K.w0>60?320:160;
+  if(!TENV.sea){const cx=Math.round(px+fx*(24+half)),cz=Math.round(pz+fz*(24+half));TENV.sea={x0:cx-half,x1:cx+half,z0:cz-half,z1:cz+half};seaRebuild();updateChunks(999,0);save();}
+  else if(TENV.sea.x1-TENV.sea.x0<2*half||TENV.sea.z1-TENV.sea.z0<2*half){const R=TENV.sea,grow=(a,b,q)=>{const n=2*half-(b-a);if(n<=0)return[a,b];return q<a?[a,b+n]:q>b?[a-n,b]:[a-n/2,b+n/2];};
+    [R.x0,R.x1]=grow(R.x0,R.x1,px);[R.z0,R.z1]=grow(R.z0,R.z1,pz);seaRebuild();updateChunks(999,0);save();}
+  const R=TENV.sea,S=makeShip(kind,0,0,yaw),r=Math.max(K.u1-K.u0,K.w1-K.w0)/2+12;let ok=false;
   // (the nearest open water straight ahead, else anywhere in the sea nearest him)
-  for(let d=40;d<=420&&!ok;d+=6)for(const side of [0,-12,12,-30,30]){const x=px+fx*d-fz*side,z=pz+fz*d+fx*side;
-    if(x<R.x0||x>R.x1||z<R.z0||z>R.z1)continue;for(let cx=Math.floor((x-40)/CS);cx<=Math.floor((x+40)/CS);cx++)for(let cz=Math.floor((z-40)/CS);cz<=Math.floor((z+40)/CS);cz++)chunkArr(cx,cz);
+  for(let d=40-K.w0;d<=420-K.w0&&!ok;d+=6)for(const side of [0,-12,12,-30,30]){const x=px+fx*d-fz*side,z=pz+fz*d+fx*side;
+    if(x<R.x0||x>R.x1||z<R.z0||z>R.z1)continue;for(let cx=Math.floor((x-r)/CS);cx<=Math.floor((x+r)/CS);cx++)for(let cz=Math.floor((z-r)/CS);cz<=Math.floor((z+r)/CS);cz++)chunkArr(cx,cz);
     if(shipFits(S,x,z,yaw)){S.x=x;S.z=z;ok=true;break;}}
   if(!ok){scene.remove(S.grp);SHIPS[S.slot]=null;shipN--;tsSet('No room on the sea for a '+S.K.name+' just there.');return;}
   S.grp.position.set(S.x,0,S.z);S.grp.updateMatrixWorld(true);
   let V=venues.get('tenvShips');if(!V){V={kind:'ship',ships:[]};venues.set('tenvShips',V);}S.V=V;V.ships.push(S);
   shipChunks();
-  tsSet('Spawned a '+S.K.name+' on the sea ahead of Gus. Swim out, climb aboard from the stern, and take the helm in the wheelhouse with '+keyLabel(BINDS.use.kb[0])+' (as Gnash or Grizzle).');
+  tsSet('Spawned a'+(/^[aeiou]/.test(K.name)?'n ':' ')+K.name+' on the sea ahead of Gus. Swim out, climb aboard from the stern, and take the helm '+(kind==='carrier'?'on the island\'s navigation bridge, its third storey,':'in the wheelhouse')+' with '+keyLabel(BINDS.use.kb[0])+' (as Gnash or Grizzle).');
 }
 // cleared away (tenvClear), all but one being driven
 function shipsClear(){const V=venues.get('tenvShips');if(!V)return;

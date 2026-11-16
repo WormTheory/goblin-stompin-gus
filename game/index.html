@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:5863b629812577fda6aa008fd1522d32ab3c678d715eb9800752bfea8324da7b -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:979efd938f4bda09d06ee75c56b9b6b6f64832f6181288a0f37cf5cd25f9157c -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1477,6 +1477,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <details class="pn-up pn-fold pn-new" id="version-0-5" open><summary tabindex="0"><h2>Version 0.5</h2><span class="pn-tog" aria-hidden="true"></span></summary>
 <h3>New vehicles</h3>
 <ul><li>Supercars: low, wide and very fast. Now and then one turns up in the traffic, tearing along the motorways well over the limit. Get in and it reaches over 60 a second, more than twice a car's top speed, so mind the walls. It steers a little less sharply the faster it goes.</li><li>Forklifts: parked out in a factory's yard by the loading docks, between the lorries. Slow, steered by their back wheels.</li><li>Hovercraft: rides over water just as it does over land, straight off the beach and out to sea, and slides round its turns. Debug menu only, for now.</li><li>Fighter jet: flies like the airliner but far harder and faster, rolling and pulling hard and topping out at nearly twice the speed. Left click (controller RB) holds the cannon, right click (controller RT) fires a missile, homing on whatever you've locked on to with Q (controller R3). Debug menu only, for now.</li><li>Hot-air balloon: Space (controller A) lights the burner and it rises, C (controller LB) vents it and it sinks, and left alone it cools and slowly settles. Moving nudges it gently the way you're looking. You can stand on top of the envelope. Shoot it and the envelope tears and the basket drops. Debug menu only, for now.</li><li>All five are in the debug menu's vehicle list, and solid against every other vehicle like the rest.</li><li>Airliners are bigger, about half as long again, to sit in proportion with the rest of the city's vehicles (about two-thirds of the real thing, as the cars, buses and tanks are). The fighter jet is in the same proportion, a little longer than a tank.</li></ul>
+<h3>An aircraft carrier (Testing Environment)</h3>
+<ul><li>An aircraft carrier joins the debug menu's vehicle list (Testing Environment only for now): 178 blocks long and 40 across its flight deck, about three-quarters the size of a real supercarrier. It gets a sea twice the size of the barge's, which grows away from you if a smaller one is already there.</li><li>Every bit of it is real blocks you can walk through, fight in and smash, while it sails. From the top: the island on the starboard edge, with flight deck control, the flag bridge, the navigation bridge and Pri-Fly, the glassed-in top storey, then a roof with its mast; the flight deck, with the angled landing strip, its arresting wires and the catapult tracks painted on; the gallery deck under it, with ready rooms, the paraloft, the wardroom, catapult machinery, berths and stores; the hangar, one long bay split in three by open fire doors, with the elevator bays open to the sea; and the lower deck, with the mess deck, the galley, sick bay, the Goblin Intelligence Centre, berthing, the armoury, a glowing reactor room and the stores.</li><li>Swim to the stern and climb out on to the landing under the flight deck's overhang, then go in by the stern door. Stairs run between every deck, fore and aft, up through hatches on to the flight deck, and up through the island to its roof. Goblins chase you through it all, up and down the stairs.</li><li>As Gnash or Grizzle, take the helm on the navigation bridge with F (controller Y). It's slow and heavy for now: proper driving comes next.</li><li>It can be sunk. Smashing its blocks wears it down, holes below the waterline let the sea in and keep wearing it down, and shells, rockets and blasts from outside hit it. When it's had enough it goes down slowly, washing everyone aboard into the sea as the water reaches them. The barge can be sunk the same way.</li></ul>
 <h3>A barge you can walk around (Testing Environment)</h3>
 <ul><li>The first step toward an aircraft carrier: a test barge, in the debug menu's vehicle list (Testing Environment only for now). Spawning it lays out a square of deep sea ahead of you, if there isn't one yet, and floats the barge on it.</li><li>It's built of real blocks, like a building, so everything works aboard it while it sails and turns: walking, jumping, climbing, fighting, and smashing holes in its deck. A wheelhouse at the stern has steel stairs up to its roof, a rail runs round the deck, and crates are stacked on the foredeck.</li><li>Swim out and climb aboard up the steps of the swim platform at the stern, or jump down on to the deck from above. Swim away from it and you're back in the open sea.</li><li>As Gnash or Grizzle, stand at the helm inside the wheelhouse's front window and press F (controller Y) to take the controls: W and S set the throttle, A and D the rudder, which only turns it while it's moving. It stops short of the shore. Let go of the helm and it drifts to a stop, with you still standing at it.</li><li>Goblins aboard chase you round the deck as anywhere else, and goblins in the sea swim out to it and climb aboard after you.</li></ul>
 <h3>Mobile Gear (Testing Environment)</h3>
@@ -2937,6 +2939,7 @@ const CAR_HP=150;
 function trainHit(T,n,dir,ci){
   if(T&&T.isPlane){planeHit(T,n);return;}
   if(T&&T.isBoat){boatHit(T,n);return;}
+  if(T&&T.isShip){shipHit(T,n,ci);return;}
   if(T&&T.isAnimal){animalHit(T,n,dir);return;}
   if(T&&T.isRide){rideHit(T,n,ci);return;}
   if(T&&T.isMil){milHit(T,n,dir);return;}
@@ -8264,7 +8267,7 @@ function purgeLeaves(){
 const leafHash=(x,y,z)=>hash2(x*7+y*131,z*13+y*17);
 const leafDown=(x,y,z)=>leafFall>0&&leafHash(x,y,z)<leafFall;
 function get(x,y,z){x=Math.floor(x);y=Math.floor(y);z=Math.floor(z);if(y<0||y>=H)return AIR;const cx=Math.floor(x/CS),cz=Math.floor(z/CS);const b=chunkArr(cx,cz)[li(x-cx*CS,y,z-cz*CS)];return b===LEAVES&&leafDown(x,y,z)?AIR:b;}
-function setRaw(x,y,z,b){if(y<0||y>=H)return;if(b===AIR&&y>G)noteRemoved(x,y,z);if(WX.snowCover>0){let open=true;for(let yy=y+1;yy<H;yy++)if(get(x,yy,z)){open=false;break;}if(open)snowBorn.set(Math.floor(x)*65536+Math.floor(z),WX.snowClock);}navCols.delete(Math.floor(x)*65536+Math.floor(z));const cx=Math.floor(x/CS),cz=Math.floor(z/CS);if(b!==LOG&&rawGet(x,y,z)===LOG)leafCheckQ.add(Math.floor(x)+','+Math.floor(y)+','+Math.floor(z));if(b===AIR&&get(x,y,z)===ICE)b=WATER;const A=chunkArr(cx,cz),lx=x-cx*CS,lz=z-cz*CS;if(b&&A.tileTops){const t=(Math.floor(lz)>>2)*4+(Math.floor(lx)>>2);if(y>A.tileTops[t])A.tileTops[t]=y;}A[li(lx,y,lz)]=b;}
+function setRaw(x,y,z,b){if(y<0||y>=H)return;if(x>=SHIP_X0&&shipN)b=shipDent(x,y,z,b);if(b===AIR&&y>G)noteRemoved(x,y,z);if(WX.snowCover>0){let open=true;for(let yy=y+1;yy<H;yy++)if(get(x,yy,z)){open=false;break;}if(open)snowBorn.set(Math.floor(x)*65536+Math.floor(z),WX.snowClock);}navCols.delete(Math.floor(x)*65536+Math.floor(z));const cx=Math.floor(x/CS),cz=Math.floor(z/CS);if(b!==LOG&&rawGet(x,y,z)===LOG)leafCheckQ.add(Math.floor(x)+','+Math.floor(y)+','+Math.floor(z));if(b===AIR&&get(x,y,z)===ICE)b=WATER;const A=chunkArr(cx,cz),lx=x-cx*CS,lz=z-cz*CS;if(b&&A.tileTops){const t=(Math.floor(lz)>>2)*4+(Math.floor(lx)>>2);if(y>A.tileTops[t])A.tileTops[t]=y;}A[li(lx,y,lz)]=b;}
 function addEdit(x,y,z,b){if(b===AIR&&get(x,y,z)===WATER)b=WATER;edits[x+','+y+','+z]=b;const k=ckey(Math.floor(x/CS),Math.floor(z/CS));let l=chunkEdits.get(k);if(!l){l=[];chunkEdits.set(k,l);}l.push([x,y,z,b]);}
 // the highest block in each 4 x 4 of a chunk's columns, kept with the chunk once something has asked. (A block knocked out can
 // leave it too high, which only means a closer look than was needed; a block put in raises it, in setRaw.)
@@ -21656,10 +21659,11 @@ function bargeBlock(u,y,w){
   if(y>=G+1&&y<=G+2&&u>=-2&&u<=1&&w>=4&&w<=7&&!(y===G+2&&(u===1||w===7)))return CRATE;
   return 0;
 }
-// a kind of ship: its footprint (u0..u1, w0..w1, whole blocks), its blocks, where the helm is stood at (pocket offsets,
-// facing +w), and how it handles
+// a kind of ship: its footprint (u0..u1, w0..w1, whole blocks), its blocks (only asked for from y0 to y1, if given), where
+// the helm is stood at (pocket offsets, facing +w), how it handles, its health, how far it goes down when it sinks, and the
+// boxes that stand for it from outside (u0,u1,w0,w1,y0,y1 each). The aircraft carrier is added in carrier.js
 const SHIP_KINDS={
-  barge:{name:'barge',u0:-6,u1:5,w0:-17,w1:14,block:bargeBlock,helm:[1,G+1,-5.5],hy:8,top:7,acc:0.35,turn:0.3,hp:200},
+  barge:{name:'barge',u0:-6,u1:5,w0:-17,w1:14,block:bargeBlock,helm:[1,G+1,-5.5],hy:8,top:7,acc:0.35,turn:0.3,hp:200,sc:800,sink:14,boxes:[[-6,5,-17,14,G-2,G+1]]},
 };
 // which ship's pocket (x,z) is in (null out in the world, or in a slot with no ship)
 const shipOfPos=(x,z)=>x>=SHIP_X0?SHIPS[Math.floor(z/SHIP_SLOT)]||null:null;
@@ -21676,11 +21680,11 @@ function shipPg(cz){return SHIPS[Math.floor(cz*CS/SHIP_SLOT)]||null;}
 // taken aboard while swimming is still swimming). Everywhere else in the pocket is air
 function shipChunk(cx,cz){
   const a=new Uint8Array(CS*CS*H),x0=cx*CS,z0=cz*CS,S=SHIPS[Math.floor(z0/SHIP_SLOT)];
-  if(S){const K=S.K;
+  if(S){const K=S.K,ya=K.y0??0,yb=K.y1??H-1;
     for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){const u=x0+lx-S.ox,w=z0+lz-S.oz;
       if(u<K.u0-SHIP_BAND||u>K.u1+SHIP_BAND||w<K.w0-SHIP_BAND||w>K.w1+SHIP_BAND)continue;
       const inF=u>=K.u0&&u<=K.u1&&w>=K.w0&&w<=K.w1;
-      for(let y=0;y<H;y++){let b=inF?K.block(u,y,w):0;if(!b&&y<G)b=WATER;if(b)a[li(lx,y,lz)]=b;}}}
+      for(let y=0;y<H;y++){let b=inF&&y>=ya&&y<=yb?K.block(u,y,w):0;if(!b&&y<G)b=WATER;if(b)a[li(lx,y,lz)]=b;}}}
   const ce=chunkEdits.get(ckey(cx,cz));
   if(ce)for(const [x,y,z,b] of ce)a[li(x-x0,y,z-z0)]=b;
   return a;
@@ -21688,11 +21692,12 @@ function shipChunk(cx,cz){
 // the pocket chunks a ship covers (its footprint, the water round it and a chunk more for the meshes' edges)
 function shipChunkBox(S){const K=S.K,b=SHIP_BAND+1;
   return[Math.floor((S.ox+K.u0-b)/CS),Math.floor((S.ox+K.u1+b)/CS),Math.floor((S.oz+K.w0-b)/CS),Math.floor((S.oz+K.w1+b)/CS)];}
-// every ship's chunks drawn (from updateChunks): only a dozen or so a ship, so all at once
-function shipChunks(){
-  if(!shipN)return;
+// every ship's chunks drawn (from updateChunks): a dozen or so for a barge, about sixty for the carrier, so a few
+// milliseconds' worth a frame (all at once with all set)
+function shipChunks(all){
+  if(!shipN)return;const t0=performance.now();
   for(const S of SHIPS){if(!S)continue;const [a,b,c,d]=shipChunkBox(S);
-    for(let cx=a;cx<=b;cx++)for(let cz=c;cz<=d;cz++)if(!meshes.has(ckey(cx,cz)))buildChunk(cx,cz);}
+    for(let cx=a;cx<=b;cx++)for(let cz=c;cz<=d;cz++)if(!meshes.has(ckey(cx,cz))){buildChunk(cx,cz);if(!all&&performance.now()-t0>8)return;}}
 }
 // a slot's blocks forgotten: its chunks, their meshes, and anything smashed there (a new ship there starts whole)
 function shipForget(slot){
@@ -21708,7 +21713,7 @@ function makeShip(kind,x,z,yaw){
   let slot=0;while(SHIPS[slot])slot++;
   const K=SHIP_KINDS[kind],grp=new THREE.Group(),pg=new THREE.Group();
   shipForget(slot);
-  const S={isShip:true,kind,K,slot,ox:SHIP_X0+SHIP_SLOT/2,oz:slot*SHIP_SLOT+SHIP_SLOT/2,x,z,yaw,sp:0,hp:K.hp,dead:false,drv:null,grp,pg,V:null};
+  const S={isShip:true,kind,K,slot,ox:SHIP_X0+SHIP_SLOT/2,oz:slot*SHIP_SLOT+SHIP_SLOT/2,x,z,yaw,sp:0,hp:K.hp,dead:false,deadT:0,sk:0,leak:0,drv:null,grp,pg,V:null,bx:null};
   pg.position.set(-S.ox,0,-S.oz);grp.add(pg);grp.position.set(x,0,z);grp.rotation.y=yaw;scene.add(grp);grp.updateMatrixWorld(true);
   SHIPS[slot]=S;shipN++;
   return S;
@@ -21732,7 +21737,10 @@ function shipFits(S,x,z,yaw){
 // each ship's step (from updateVenues): driven from the helm, W/S the throttle, A/D the rudder (which only bites with
 // way on); it stops dead short of shallow water
 function updateShips(V,dt){
-  for(const S of V.ships){
+  for(const S of [...V.ships]){
+    if(S.dead){shipSinking(S,V,dt);continue;}
+    if(S.leak)S.hp-=S.leak*SHIP_LEAK*dt;
+    if(S.hp<=0){shipSink(S);continue;}
     const K=S.K,i=S.drv?drvIn(S.drv):null,thr=i?-i.z:0,st=i?-i.x:0;
     const want=thr>0.1?K.top*thr:thr<-0.1?-K.top*0.4*-thr:0;
     S.sp+=(want-S.sp)*Math.min(1,dt*K.acc);
@@ -21740,7 +21748,53 @@ function updateShips(V,dt){
     if(Math.abs(S.sp)>0.01||ny!==S.yaw){if(shipFits(S,nx,nz,ny)){S.x=nx;S.z=nz;S.yaw=ny;}else{if(Math.abs(S.sp)>2)thud(0.5);S.sp*=-0.2;}}
     if(S.drv&&i.bitePress){S.hornT=(S.hornT||0);if(S.hornT<=0){horn(0.1);S.hornT=0.6;}}S.hornT=(S.hornT||0)-dt;
     S.grp.position.set(S.x,0,S.z);S.grp.rotation.y=S.yaw;S.grp.updateMatrixWorld(true);
+    shipBoxes(S);
   }
+}
+// ---- a ship's health: blocks knocked out of it (holes below the waterline cost more, and let the sea in, which goes on
+// costing it a little while they're there), and hits on it from outside (shells, rockets, blasts, rams: through the boxes
+// that stand for it out in the world). At none it sinks, straight down, washing off everyone aboard as the water reaches
+// them, and is gone ----
+const SHIP_LEAK=0.04;   // (health a second for each hole below the waterline)
+// the boxes that stand for a ship out in the world (in TRAIN_BOXES, so shots, blasts and other vehicles meet it: nobody
+// stands on them, since anyone that close has been taken aboard)
+function shipBoxes(S){
+  const K=S.K;if(!K.boxes||S.dead)return;const tx=Math.sin(S.yaw),tz=Math.cos(S.yaw);
+  if(!S.bx)S.bx=K.boxes.map((b,i)=>{const hx=(b[1]+1-b[0])/2,hz=(b[3]+1-b[2])/2;
+    return{u:(b[0]+b[1]+1)/2,w:(b[2]+b[3]+1)/2,hx,hz,y0:b[4],y1:b[5],pr:{isTrain:true,isShipBox:true,alive:true,pos:new V3(),kv:new V3(),vy:0,spinP:0,spinR:0,speed:0,hurt:0,hx,hz,hy:b[5]-b[4],heading:0,top:0,veh:'ship',T:S,i}};});
+  for(const B of S.bx){const pr=B.pr,x=S.x+B.u*tz+B.w*tx,z=S.z-B.u*tx+B.w*tz;pr.pos.set(x,B.y0,z);pr.heading=S.yaw;pr.top=B.y1;pr.speed=S.sp;
+    TRAIN_BOXES.push({x,z,tx,tz,y0:B.y0,top:B.y1,v:S.sp,hx:B.hx,hz:B.hz,proxy:pr});}
+}
+// hit from outside (trainHit): the number shown where it struck, on the piece it struck
+function shipHit(S,n,i){
+  if(S.dead)return;const B=S.bx&&S.bx[i||0],P=B?B.pr.pos:null;S.hp-=n;
+  if(P){dmgPop(P.x,B.y1+2,P.z,Math.round(n),'#ffb04a');vHitFx(P.x,B.y1,P.z,n);}
+}
+// a block of a ship knocked out (setRaw, before it's written): its health down a little, and if it was below the waterline
+// the sea comes in (the block becomes water). It sinks on its next step (updateShips), not in the middle of the smash
+function shipDent(x,y,z,b){
+  const S=shipOfPos(x,z);if(!S||S.dead||b!==AIR)return b;const o=rawGet(x,y,z);if(!o||o===WATER)return b;
+  if(y<G){S.leak++;S.hp-=3;return WATER;}
+  S.hp-=1;return b;
+}
+function shipSink(S){
+  if(S.dead)return;S.dead=true;S.deadT=0;S.hp=0;
+  for(const p of players)if(p.drv&&p.drv.o===S)drvExit(p);
+  const K=S.K,big=K.hp>=1000,c=shipToWorld(S,S.ox+(K.u0+K.u1+1)/2,S.oz+(K.w0+K.w1+1)/2,{x:0,z:0});
+  blastFx(c.x,G+4,c.z,1,big?4:2);smoke(c.x,G+4,c.z,big?30:12,0x262626);noise(1.2,1,500,'lowpass');tone('sawtooth',55,14,1.4,.35);addShake(big?1:.5,c.x,c.z,big?120:40);
+  award(K.sc||1000,'The '+K.name+' sunk',c.x,G+6,c.z);
+}
+// going down: slowly at first, then faster, steam where the water meets it and smoke from it, everyone the water reaches
+// washed off into the sea; gone once it's under
+function shipSinking(S,V,dt){
+  const K=S.K,T=K.hp>=1000?45:16;S.deadT+=dt;
+  const k=Math.min(1,S.deadT/T);S.sk=K.sink*k*k;S.sp*=Math.exp(-dt*0.5);
+  S.grp.position.set(S.x,-S.sk,S.z);S.grp.updateMatrixWorld(true);
+  if(Math.random()<dt*(K.hp>=1000?10:3)){shipToWorld(S,S.ox+K.u0+Math.random()*(K.u1+1-K.u0),S.oz+K.w0+Math.random()*(K.w1+1-K.w0),_sv);
+    puff(_sv.x,G+1,_sv.z,2,0xcfe8ff,.8);if(k<0.6&&Math.random()<0.5)smoke(_sv.x,G+4,_sv.z,2,0x262626);}
+  for(const p of players)if(p.active&&shipOf(p)===S&&p.pos.y-S.sk<G+0.3)shipMove(p,S,false,true);
+  for(const g of goblins)if(g.state!=='wait'&&shipOf(g)===S&&g.pos.y-S.sk<G+0.3)shipMove(g,S,false,false);
+  if(k>=1){const i=V.ships.indexOf(S);if(i>=0)V.ships.splice(i,1);shipDrop(S);if(!V.ships.length&&venues.get('tenvShips')===V)venues.delete('tenvShips');}
 }
 // ---- getting aboard and off: anyone within SHIP_M of a ship's hull is moved into its pocket, turned to match it; anyone
 // further than that from it (a little further, so nobody flickers between the two at the edge) back out ----
@@ -21750,6 +21804,7 @@ const shipRot=(o,kx,kz,a)=>{const x=o[kx],z=o[kz];if(x===undefined||z===undefine
 function shipParent(p,S){const par=S?S.pg:scene;for(const o of [p.root,p.pool,p.gb&&p.gb.root])if(o&&o.parent!==par)par.add(o);}
 function shipMove(o,S,into,isP){
   const P=o.pos,t=(into?worldToShip:shipToWorld)(S,P.x,P.z,_sv),a=into?-S.yaw:S.yaw;
+  P.y+=into?S.sk:-S.sk;   // (a ship going down: its pocket stays put, its picture sinks)
   if(into){   // (never into the hull: up on to whatever's above, or not aboard yet)
     let y=P.y,ok=false;for(let k=0;k<10;k++){if(!solidAt(t.x,Math.floor(y+0.2),t.z)&&!solidAt(t.x,Math.floor(y+1.2),t.z)){ok=true;break;}y=Math.floor(y+0.2)+1;}
     if(!ok)return false;P.y=y;}
@@ -21764,7 +21819,7 @@ function shipCross(o,isP){
   const P=o.pos;
   if(P.x>=SHIP_X0){const S=shipOfPos(P.x,P.z);if(!S)return;const K=S.K,m=SHIP_M+1.5,u=P.x-S.ox,w=P.z-S.oz;
     if(u<K.u0-m||u>K.u1+1+m||w<K.w0-m||w>K.w1+1+m)shipMove(o,S,false,isP);return;}
-  for(const S of SHIPS){if(!S)continue;const K=S.K,t=worldToShip(S,P.x,P.z,_sv),u=t.x-S.ox,w=t.z-S.oz;
+  for(const S of SHIPS){if(!S||S.dead)continue;const K=S.K,t=worldToShip(S,P.x,P.z,_sv),u=t.x-S.ox,w=t.z-S.oz;
     if(u>=K.u0-SHIP_M&&u<=K.u1+1+SHIP_M&&w>=K.w0-SHIP_M&&w<=K.w1+1+SHIP_M&&P.y>G-24){shipMove(o,S,true,isP);return;}}
 }
 // every step, once everything's moved (players at the controls stay where their seat is)
@@ -21797,7 +21852,7 @@ function shipView(fn){
 }
 // a point (anything with x and z) in a ship's pocket moved to where that is on the ship, in place; and how much a heading
 // there turns by out in the world (effects that are drawn as they're made: fires, shockwaves)
-function shipPt(v){if(v.x<SHIP_X0)return v;const S=shipOfPos(v.x,v.z);if(S){shipToWorld(S,v.x,v.z,_sv);v.x=_sv.x;v.z=_sv.z;}return v;}
+function shipPt(v){if(v.x<SHIP_X0)return v;const S=shipOfPos(v.x,v.z);if(S){shipToWorld(S,v.x,v.z,_sv);v.x=_sv.x;v.z=_sv.z;if(v.y!==undefined)v.y-=S.sk;}return v;}
 function shipYawAt(x,z){const S=shipOfPos(x,z);return S?S.yaw:0;}
 // how far a player is from x,z, measured where both really are (one aboard a ship, the other not; nearestPlayer: how loud a
 // sound is, who a goblin goes for)
@@ -21806,7 +21861,7 @@ function shipDist(p,x,z){const Sx=shipOfPos(x,z),Sp=shipOf(p);if(Sx===Sp)return 
 // the camera, placed in the pocket by the usual code, put where that is on the ship (after placeCamera)
 function shipCam(p){
   const S=shipOf(p)||p.drv&&p.drv.k==='ship'&&p.drv.o;if(!S||!S.isShip)return;
-  const c=p.camera.position;shipToWorld(S,c.x,c.z,_sv);c.x=_sv.x;c.z=_sv.z;p.camera.rotation.y+=S.yaw;
+  const c=p.camera.position;shipToWorld(S,c.x,c.z,_sv);c.x=_sv.x;c.z=_sv.z;c.y-=S.sk;p.camera.rotation.y+=S.yaw;
 }
 // a goblin's model aboard: worked out as if it hung off the ship's picture (street goblins aren't in the scene; batDraw)
 function shipGobMatrix(g){
@@ -21818,7 +21873,7 @@ function shipGobMatrix(g){
 function shipFx(e,j){
   const S=shipOfPos(e[j+12],e[j+14]);if(!S)return;const c=Math.cos(S.yaw),s=Math.sin(S.yaw);
   for(const o of [0,4,8]){const x=e[j+o],z=e[j+o+2];e[j+o]=x*c+z*s;e[j+o+2]=-x*s+z*c;}
-  shipToWorld(S,e[j+12],e[j+14],_sv);e[j+12]=_sv.x;e[j+14]=_sv.z;
+  shipToWorld(S,e[j+12],e[j+14],_sv);e[j+12]=_sv.x;e[j+14]=_sv.z;e[j+13]-=S.sk;
 }
 // ---- at the helm (driving.js): stood within reach of it, aboard, the use button takes the controls ----
 function shipHelm(p){
@@ -21854,21 +21909,172 @@ function tenvShip(kind){
   if(!TENV){tsSet('Ships can only be spawned in the Testing Environment for now.');return;}
   const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active);if(!p)return;
   const px=pwx(p),pz=pwz(p),yaw=(p.cam.yaw+Math.PI)+(shipOf(p)?shipOf(p).yaw:0),fx=Math.sin(yaw),fz=Math.cos(yaw);
-  if(!TENV.sea){const cx=Math.round(px+fx*184),cz=Math.round(pz+fz*184);TENV.sea={x0:cx-160,x1:cx+160,z0:cz-160,z1:cz+160};seaRebuild();updateChunks(999,0);save();}
-  const R=TENV.sea,S=makeShip(kind,0,0,yaw);let ok=false;
+  // (a carrier wants a sea twice the size: one that's there already grows away from him)
+  const K=SHIP_KINDS[kind],half=K.w1-K.w0>60?320:160;
+  if(!TENV.sea){const cx=Math.round(px+fx*(24+half)),cz=Math.round(pz+fz*(24+half));TENV.sea={x0:cx-half,x1:cx+half,z0:cz-half,z1:cz+half};seaRebuild();updateChunks(999,0);save();}
+  else if(TENV.sea.x1-TENV.sea.x0<2*half||TENV.sea.z1-TENV.sea.z0<2*half){const R=TENV.sea,grow=(a,b,q)=>{const n=2*half-(b-a);if(n<=0)return[a,b];return q<a?[a,b+n]:q>b?[a-n,b]:[a-n/2,b+n/2];};
+    [R.x0,R.x1]=grow(R.x0,R.x1,px);[R.z0,R.z1]=grow(R.z0,R.z1,pz);seaRebuild();updateChunks(999,0);save();}
+  const R=TENV.sea,S=makeShip(kind,0,0,yaw),r=Math.max(K.u1-K.u0,K.w1-K.w0)/2+12;let ok=false;
   // (the nearest open water straight ahead, else anywhere in the sea nearest him)
-  for(let d=40;d<=420&&!ok;d+=6)for(const side of [0,-12,12,-30,30]){const x=px+fx*d-fz*side,z=pz+fz*d+fx*side;
-    if(x<R.x0||x>R.x1||z<R.z0||z>R.z1)continue;for(let cx=Math.floor((x-40)/CS);cx<=Math.floor((x+40)/CS);cx++)for(let cz=Math.floor((z-40)/CS);cz<=Math.floor((z+40)/CS);cz++)chunkArr(cx,cz);
+  for(let d=40-K.w0;d<=420-K.w0&&!ok;d+=6)for(const side of [0,-12,12,-30,30]){const x=px+fx*d-fz*side,z=pz+fz*d+fx*side;
+    if(x<R.x0||x>R.x1||z<R.z0||z>R.z1)continue;for(let cx=Math.floor((x-r)/CS);cx<=Math.floor((x+r)/CS);cx++)for(let cz=Math.floor((z-r)/CS);cz<=Math.floor((z+r)/CS);cz++)chunkArr(cx,cz);
     if(shipFits(S,x,z,yaw)){S.x=x;S.z=z;ok=true;break;}}
   if(!ok){scene.remove(S.grp);SHIPS[S.slot]=null;shipN--;tsSet('No room on the sea for a '+S.K.name+' just there.');return;}
   S.grp.position.set(S.x,0,S.z);S.grp.updateMatrixWorld(true);
   let V=venues.get('tenvShips');if(!V){V={kind:'ship',ships:[]};venues.set('tenvShips',V);}S.V=V;V.ships.push(S);
   shipChunks();
-  tsSet('Spawned a '+S.K.name+' on the sea ahead of Gus. Swim out, climb aboard from the stern, and take the helm in the wheelhouse with '+keyLabel(BINDS.use.kb[0])+' (as Gnash or Grizzle).');
+  tsSet('Spawned a'+(/^[aeiou]/.test(K.name)?'n ':' ')+K.name+' on the sea ahead of Gus. Swim out, climb aboard from the stern, and take the helm '+(kind==='carrier'?'on the island\'s navigation bridge, its third storey,':'in the wheelhouse')+' with '+keyLabel(BINDS.use.kb[0])+' (as Gnash or Grizzle).');
 }
 // cleared away (tenvClear), all but one being driven
 function shipsClear(){const V=venues.get('tenvShips');if(!V)return;
   V.ships=V.ships.filter(S=>{if(players.some(q=>q.drv&&q.drv.o===S))return true;shipDrop(S);return false;});if(!V.ships.length)venues.delete('tenvShips');}
+// ---- The aircraft carrier (Testing Environment only for now): a Nimitz-style supercarrier at three-quarters of the real
+// size, 178 blocks from stern to bow and 40 across the flight deck, kept as a ship with insides (ships.js). Its blocks are
+// painted once into a grid of their own (cvBuild), which its pocket's chunks read. Top to bottom:
+//   the island on the starboard edge: flight deck control, the flag bridge, the navigation bridge (with the helm) and
+//     Pri-Fly, the glassed-in top storey, then the roof and the mast
+//   the flight deck (G+16): the angled landing strip with its arresting wires, catapult tracks, hatches down
+//   the gallery deck under it (G+12 to G+15): ready rooms, the paraloft, the wardroom, catapult machinery, berths
+//   the hangar (G+6 to G+10): one long bay split in three by fire doors, open to the sea where the elevators would be,
+//     and the forecastle at the bow
+//   the lower deck (G+1 to G+4, just above the waterline): the mess deck, galley, sick bay, the Goblin Intelligence
+//     Centre, berthing, the armoury, the reactor room and the stores
+//   and under the water a solid hull (nothing aboard is below the waterline, so the sea never shows through a room).
+// A swimmer climbs out on to the stern's landing, under the overhang of the flight deck, and goes in by the stern door.
+// s runs across the ship to starboard (s = -u: facing the bow, the pocket's +x is to port), w from stern to bow. ----
+const CV_Y0=G-8,CV_Y1=G+48,CV_U0=-18,CV_U1=21,CV_W0=-89,CV_W1=88,CV_NU=CV_U1-CV_U0+1,CV_NW=CV_W1-CV_W0+1;
+let CV_GRID=null;
+// the hull's half width at w (it narrows to the bow), and the furthest out a room reaches across it
+const cvHW=w=>w<=50?13:13-(w-50)*11/38,cvIn=w=>Math.floor(cvHW(w))-1;
+// the flight deck's outline: wider than the hull, with the angled deck's sponson out to port amidships, the island's out
+// to starboard, and a taper to the bow
+function cvDeck(s,w){
+  if(w<CV_W0||w>CV_W1)return false;let pe=-16,se=16;
+  if(w>=-55&&w<=30)pe=w<-45?-16-(w+55)*0.5:w>20?-21+(w-20)*0.5:-21;
+  if(w>=-32&&w<=8)se=w<-30?16+(w+32):w>6?18-(w-6):18;
+  if(w>70){const k=(w-70)*0.55;pe=Math.max(pe,-16+k);se=Math.min(se,16-k);}
+  return s>=pe-1e-6&&s<=se+1e-6;
+}
+// the angled deck's centre line, about 9 degrees off to port
+const cvAng=w=>-3-(w+89)*0.16;
+function cvSet(s,y,w,b){const u=-s;if(u<CV_U0||u>CV_U1||w<CV_W0||w>CV_W1||y<CV_Y0||y>CV_Y1)return;CV_GRID[((y-CV_Y0)*CV_NW+(w-CV_W0))*CV_NU+(u-CV_U0)]=b;}
+function cvGet(s,y,w){const u=-s;if(u<CV_U0||u>CV_U1||w<CV_W0||w>CV_W1||y<CV_Y0||y>CV_Y1)return 0;return CV_GRID[((y-CV_Y0)*CV_NW+(w-CV_W0))*CV_NU+(u-CV_U0)];}
+function cvBox(s0,s1,y0,y1,w0,w1,b){for(let s=s0;s<=s1;s++)for(let y=y0;y<=y1;y++)for(let w=w0;w<=w1;w++)cvSet(s,y,w,b);}
+// a block of the carrier (shipChunk), from the grid, painted the first time it's asked for
+function carrierBlock(u,y,w){
+  if(!CV_GRID)cvBuild();
+  if(u<CV_U0||u>CV_U1||w<CV_W0||w>CV_W1||y<CV_Y0||y>CV_Y1)return 0;
+  return CV_GRID[((y-CV_Y0)*CV_NW+(w-CV_W0))*CV_NU+(u-CV_U0)];
+}
+// a flight of steel stairs, two wide or more (Gus is broad), rising toward the bow from a floor at y0 to the one n above:
+// the floor above cut away over it for headroom, and a rail round that hole up there (not across its low end when another
+// flight carries on up from there: that's the next flight's way on)
+function cvStair(s0,s1,w0,n,y0,end){
+  for(let s=s0;s<=s1;s++){
+    for(let k=0;k<n;k++){const w=w0+k,y=y0+1+k;cvSet(s,y,w,stairId(2,1));for(let yy=y+1;yy<y0+n;yy++)cvSet(s,yy,w,0);if(k<n-1)cvSet(s,y0+n,w,0);}
+    for(let y=y0+1;y<y0+n;y++)cvSet(s,y,w0-1,0);   // (room to step on at the bottom)
+    for(let y=y0+n+1;y<y0+n+5;y++)cvSet(s,y,w0+n,0);}   // (and off at the top)
+  const R=(s,w)=>{if(!cvGet(s,y0+n+1,w)&&cvGet(s,y0+n,w))cvSet(s,y0+n+1,w,FENCE);};
+  for(let w=w0;w<=w0+n-2;w++){R(s0-1,w);R(s1+1,w);}
+  if(end)for(let s=s0;s<=s1;s++)R(s,w0-1);
+}
+// how far out from the corridor a room reaches at w (the last open block, looking out from |s|=3), on side sg (1 starboard)
+function cvOut(sg,w,y){let a=3;while(a<24&&!cvGet(sg*(a+1),y,w))a++;return a;}
+// a room's furniture, made of the game's furniture blocks: sg the side (1 starboard, -1 port), w0..w1 its length, y0 its
+// floor, wb the bulkhead at its forward end (screens go on it)
+function cvRoom(kind,sg,w0,w1,y0){
+  const S=a=>sg*a,y1=y0+1;
+  for(let w=w0;w<=w1;w++){const o=cvOut(sg,w,y1),i=w-w0,n=w1-w0;
+    if(kind==='bunks'){if(i%4!==3)for(const a of [o,o-1]){cvSet(S(a),y1,w,BED);cvSet(S(a),y1+2,w,BED);}if(i%2===0&&Math.abs(i-n/2)>2)cvSet(S(3),y1,w,SHELF);}
+    else if(kind==='galley'){cvSet(S(o),y1,w,i%2?SHELF:FRIDGE);cvSet(S(o),y1+1,w,i%2?SHELF:FRIDGE);if(i>1&&i<n-1)cvSet(S(6),y1,w,PLANKS);}
+    else if(kind==='sick'){for(let a=3;a<=o;a++)cvSet(S(a),y0,w,HOSPW);if(i%3===1)cvSet(S(o),y1,w,BED);if(i%3===1&&o>7)cvSet(S(o-4),y1,w,BED);}
+    else if(kind==='intel'){for(let a=3;a<=o;a++)cvSet(S(a),y0,w,PAINT_NAVY);cvSet(S(o),y1,w,SCREEN);cvSet(S(o),y1+1,w,SCREEN);cvSet(S(o),y1+2,w,NEON_B);if(i%3===1&&i<n)cvSet(S(6),y1,w,SCREEN);}
+    else if(kind==='armory'){cvSet(S(o),y1,w,SHELF);cvSet(S(o),y1+1,w,SHELF);cvSet(S(o),y1+2,w,SHELF);if(i>1&&i<n-1&&i%3!==0)cvSet(S(6),y1,w,CRATE);}
+    else if(kind==='lounge'){cvSet(S(o),y1,w,SOFA);if(i>2&&i<n-2&&i%4===0)cvSet(S(6),y1,w,PLANKS);}
+    else if(kind==='reactor'){for(let a=3;a<=o;a++)cvSet(S(a),y0,w,PAINT_YELLOW);   // (the core: a glowing column in a glass case, steel at the corners and on top)
+      if(i>=3&&i<=n-3)for(let a=6;a<=8;a++)for(let y=y1;y<y0+5;y++){const edge=(a!==7)+(i===3||i===n-3);cvSet(S(a),y,w,y===y0+4||edge===2?METAL:edge?GLASS:NEON_G);}}
+    else if(kind==='store'){if(i>0&&i<n)for(let a=5;a<=o;a++)if((a+w)%3!==0){cvSet(S(a),y1,w,CRATE);if((a*7+w)%4===0)cvSet(S(a),y1+1,w,CRATE);}}
+    else if(kind==='ready'){if(i%2===1&&i<n)for(let a=4;a<o;a++)cvSet(S(a),y1,w,SEAT_B);}
+    else if(kind==='paraloft'){cvSet(S(o),y1,w,SHELF);cvSet(S(o),y1+1,w,SHELF);if(i>1&&i<n-1&&i!==Math.floor(n/2))for(let y=y1;y<y1+2;y++)cvSet(S(6),y,w,SHELF);}
+    else if(kind==='wardroom'){cvSet(S(o),y1,w,SOFA);if(i>2&&i<n-2)cvSet(S(7),y1,w,PLANKS);}
+    else if(kind==='machine'){if(i>0&&i<n)for(let a=5;a<=Math.min(7,o-1);a++){cvSet(S(a),y1,w,i%5===2?RUST:METAL);if(a===6)cvSet(S(a),y1+1,w,METAL);}}
+    else if(kind==='office'){if(i%2===0){cvSet(S(o),y1,w,SCREEN);cvSet(S(o-1),y1,w,SEAT_B);}}}
+  // (a ready room's screen, the sick bay's red cross: on the bulkhead at the forward end)
+  if(kind==='ready'||kind==='wardroom')for(let a=5;a<=8;a++)for(let y=y1+1;y<=y1+2;y++)if(cvGet(S(a),y,w1+1))cvSet(S(a),y,w1+1,SCREEN);
+  if(kind==='sick')for(let a=5;a<=7;a++)if(cvGet(S(a),y1+2,w1+1))cvSet(S(a),y1+2,w1+1,a===6?HOSPX:HOSPW);
+}
+// rooms along a deck: bulkheads across at each of B (a gap down the middle for the corridor), corridor walls at s=+-2 from
+// c0 to c1 with a door into each room, and each room's kind, port then starboard
+function cvDeckRooms(y0,B,c0,c1,R){
+  const y1=y0+1,y4=y0+4,inner=w=>{let a=0;while(a<24&&!cvGet(a+1,y1,w))a++;let b=0;while(b<24&&!cvGet(-b-1,y1,w))b++;return[-b,a];};
+  for(const w of B){const [lo,hi]=inner(w);for(let s=lo;s<=hi;s++)if(Math.abs(s)>1)cvBox(s,s,y1,y4,w,w,PAINT_WHITE);}
+  for(let w=c0;w<=c1;w++)if(!B.includes(w))for(const s of [-2,2])cvBox(s,s,y1,y4,w,w,PAINT_WHITE);
+  for(let i=0;i+1<B.length;i++){const a=B[i]+1,b=B[i+1]-1;if(a<c0||b>c1)continue;const m=Math.round((a+b)/2);for(const s of [-2,2])cvBox(s,s,y1,y4,m-1,m+1,0);
+    const k=R[i];if(k){if(k[0])cvRoom(k[0],-1,a,b,y0);if(k[1])cvRoom(k[1],1,a,b,y0);}}
+}
+function cvBuild(){
+  CV_GRID=new Uint8Array(CV_NU*CV_NW*(CV_Y1-CV_Y0+1));
+  // the hull, solid to start with (narrowing a little toward the keel), and the gallery deck and flight deck over it
+  for(let w=-86;w<=CV_W1;w++)for(let y=G-6;y<=G+10;y++){const hw=cvHW(w)-(y<G?(G-1-y)*0.5:0);for(let s=-13;s<=13;s++)if(Math.abs(s)<=hw)cvSet(s,y,w,METAL);}
+  for(let w=CV_W0;w<=CV_W1;w++)for(let s=-21;s<=18;s++)if(cvDeck(s,w))for(let y=G+11;y<=G+16;y++)cvSet(s,y,w,y===G+16?ASPHALT:METAL);
+  // the lower deck and the hangar hollowed out of it (the hangar's forward bulkhead at 49, the forecastle past it)
+  for(let w=-85;w<=60;w++){const n=cvIn(w);for(let s=-n;s<=n;s++){cvSet(s,G,w,FLOORT);cvBox(s,s,G+1,G+4,w,w,0);}}
+  for(let w=-85;w<=70;w++){if(w===49)continue;const n=cvIn(w);for(let s=-n;s<=n;s++){cvSet(s,G+5,w,w<49&&s===0?PAINT_YELLOW:PAINT_DARK);cvBox(s,s,G+6,G+10,w,w,0);}}
+  cvBox(-2,2,G+6,G+9,49,49,0);
+  // the gallery deck: everything under the flight deck but its outer skin
+  for(let w=CV_W0+1;w<CV_W1;w++)for(let s=-20;s<=17;s++)if(cvDeck(s,w)&&cvDeck(s-1,w)&&cvDeck(s+1,w)&&cvDeck(s,w-1)&&cvDeck(s,w+1)){cvSet(s,G+11,w,FLOORT);cvBox(s,s,G+12,G+15,w,w,0);}
+  // ways in and out: the stern door off the landing, the hangar's stern opening and the elevator bays down its sides
+  // (railed at the floor: look out to sea, or jump), portholes along the lower deck, windows in the gallery's stern
+  cvBox(-2,2,G+1,G+4,-86,-86,0);
+  const bay=(s,w0,w1)=>{cvBox(s,s,G+6,G+10,w0,w1,0);cvBox(s,s,G+6,G+6,w0,w1,FENCE);};
+  bay(13,15,27);bay(13,31,43);bay(13,-50,-38);bay(-13,-62,-50);
+  cvBox(-6,6,G+6,G+10,-86,-86,0);cvBox(-6,6,G+6,G+6,-86,-86,FENCE);
+  for(let w=-82;w<=50;w+=8)for(const s of [-13,13])cvBox(s,s,G+2,G+3,w,w,GLASS);
+  for(let s=-12;s<=12;s+=4)cvBox(s,s+1,G+13,G+14,CV_W0,CV_W0,GLASS);
+  // the swim landing at the stern: a step just under the water, another, then level with the lower deck's floor
+  for(let s=-6;s<=6;s++){cvSet(s,G-2,-89,METAL);cvBox(s,s,G-2,G-1,-88,-88,METAL);cvBox(s,s,G-2,G,-87,-87,METAL);}
+  // the hangar's fire doors (open), dividing it into three bays
+  for(const w of [-30,10])for(const s of [-12,-11,-10,-9,9,10,11,12])cvBox(s,s,G+6,G+10,w,w,METAL);
+  // the lower deck's rooms: the stern lobby, the mess deck across the whole ship, then rooms either side of a corridor
+  cvDeckRooms(G,[-72,-58,-46,-34,-22,-10,2,14,26,38,50],-57,49,[null,['galley','galley'],['sick','intel'],['bunks','bunks'],['bunks','bunks'],['bunks','lounge'],['bunks','bunks'],['armory','lounge'],['reactor','reactor'],['store','store']]);
+  for(let w=-71;w<=-59;w++){const n=cvIn(w);for(let s=-n;s<=n;s++)cvSet(s,G,w,CHECKER);}
+  for(const w of [-69,-65,-61])for(const sg of [-1,1])for(let a=3;a<=10;a++){cvSet(sg*a,G+1,w,PLANKS);cvSet(sg*a,G+1,w-1,SEAT_B);cvSet(sg*a,G+1,w+1,SEAT_B);}
+  // the gallery deck's: arresting gear machinery right aft, then rooms either side of a corridor, and a store in the bow
+  cvDeckRooms(G+11,[-75,-63,-51,-39,-27,-15,-3,9,21,33,45,57,69,79],-75,79,[['ready','ready'],['paraloft','ready'],['wardroom','bunks'],['ready','store'],['machine','office'],['machine','office'],['machine','bunks'],['store','bunks'],['paraloft','wardroom'],['machine','machine'],['machine','machine'],['store',null],['store','store']]);
+  for(let w=-87;w<=-77;w++)if(w%3===0)for(const sg of [-1,1])for(let a=4;a<=6;a++){cvSet(sg*a,G+12,w,METAL);cvSet(sg*a,G+13,w,RUST);}
+  // the island: four storeys and a roof, on the starboard edge just aft of amidships
+  cvBox(12,18,G+17,G+36,-22,-4,METAL);
+  for(const f of [G+16,G+21,G+26,G+31]){cvBox(13,17,f+1,f+4,-21,-5,0);if(f>G+16)cvBox(13,17,f,f,-21,-5,FLOORT);
+    const top=f===G+31?f+4:f+3;   // (Pri-Fly, the top storey: glass from waist height up)
+    for(let y=f+2;y<=top;y++){for(let w=-20;w<=-6;w++)cvSet(12,y,w,GLASS);for(let s=13;s<=17;s++){cvSet(s,y,-4,GLASS);cvSet(s,y,-22,GLASS);}for(let w=-18;w<=-8;w+=5)cvSet(18,y,w,GLASS);}}
+  cvBox(13,17,G+16,G+16,-21,-5,FLOORT);cvBox(12,12,G+17,G+20,-13,-11,0);   // (its floor indoors, and its door, facing the deck)
+  cvBox(14,15,G+17,G+17,-9,-7,SCREEN);cvSet(13,G+17,-8,SEAT_B);   // (flight deck control: the 'Ouija board' of the deck's planes)
+  for(let w=-12;w<=-8;w++)cvSet(17,G+22,w,SOFA);cvBox(13,14,G+22,G+22,-5,-5,SCREEN);   // (the flag bridge)
+  cvBox(14,15,G+27,G+27,-5,-5,SCREEN);cvSet(17,G+27,-7,SEAT_R);cvBox(13,13,G+27,G+27,-11,-10,PLANKS);   // (the navigation bridge: the helm, the captain's chair, the chart table)
+  for(let w=-12;w<=-6;w+=2)cvSet(13,G+32,w,SEAT_B);   // (Pri-Fly: the Air Boss's seats along the windows over the deck)
+  for(let w=-22;w<=-4;w++)for(let s=12;s<=18;s++)if(s===12||s===18||w===-22||w===-4)cvSet(s,G+37,w,FENCE);
+  cvBox(15,15,G+37,G+46,-12,-12,METAL);cvBox(13,17,G+43,G+43,-12,-12,METAL);cvBox(14,16,G+47,G+47,-13,-11,PAINT_DARK);
+  // the flight deck's markings: the angled landing strip's centre line and edges, its four arresting wires, the
+  // catapult tracks (two at the bow, two in the waist), the bow's centre line
+  for(let w=CV_W0;w<=CV_W1;w++)for(let s=-21;s<=18;s++){if(cvGet(s,G+16,w)!==ASPHALT)continue;const c=cvAng(w);let b=0;
+    if(w<=12&&Math.abs(s-c)<0.5)b=(w&3)<2?PAINT_WHITE:0;
+    else if(w<=12&&(Math.abs(s-c-9)<0.5||Math.abs(s-c+9)<0.5))b=PAINT_YELLOW;
+    if([-70,-66,-62,-58].includes(w)&&Math.abs(s-c)<=7)b=METAL;
+    if((s===-5||s===5)&&w>=36&&w<=86)b=METAL;
+    if(w>=-24&&w<=8&&(Math.abs(s-c-3)<0.5||Math.abs(s-c+3)<0.5))b=METAL;
+    if(s===0&&w>=16&&(w&3)<2)b=PAINT_WHITE;
+    if(b)cvSet(s,G+16,w,b);}
+  // the stairs: lower deck to hangar (aft and forward), hangar to gallery deck, gallery deck up through hatches to the
+  // flight deck, and up through the island's storeys to its roof
+  cvStair(9,10,-84,5,G,true);cvStair(-8,-7,52,5,G,true);
+  cvStair(-11,-10,-84,6,G+5,true);cvStair(6,7,58,6,G+5,true);
+  cvStair(10,11,-80,5,G+11,true);cvStair(10,11,64,5,G+11,true);
+  for(const f of [G+16,G+21,G+26,G+31])cvStair(16,17,-19,5,f,f===G+31);
+}
+// what the carrier's pieces are, from outside (ships.js shipBoxes): the hull, the flight deck, the island. u0,u1,w0,w1,y0,y1
+SHIP_KINDS.carrier={name:'aircraft carrier',u0:CV_U0,u1:CV_U1,w0:CV_W0,w1:CV_W1,y0:CV_Y0,y1:CV_Y1,block:carrierBlock,
+  helm:[-14,G+27,-5.5],hy:24,top:8,acc:0.08,turn:0.07,hp:3000,sc:25000,sink:56,
+  boxes:[[-13,13,-86,88,G-6,G+11],[CV_U0,CV_U1,CV_W0,CV_W1,G+11,G+17],[-18,-12,-22,-4,G+17,G+37]]};
 // ---- chain-store signs: a lit panel with the brand's picture, "GOBLIN" and the name, on the building's front ----
 // Each sign knows which wall blocks hold it up; once most of them are smashed it falls away in a puff.
 function signIcon(x,ic,cx,cy,s,c,a){a=a||'#ffffff';
@@ -26054,9 +26260,9 @@ function tenvFoe(kind){
 // vehicles: any kind, a few steps further off than enemies. Hunting, they drive straight at Gus; parked, they sit there
 // with nobody in them, to stand on, smash or get into (a parked police car still wakes up when Gus comes close)
 const VEH_NAME={car:['car','cars'],van:['van','vans'],pickup:['pickup','pickups'],truck:['truck','trucks'],semi:['semi truck','semi trucks'],bus:['bus','buses'],
-  fire:['fire engine','fire engines'],jet:['fighter jet','fighter jets'],balloon:['hot-air balloon','hot-air balloons'],amb:['ambulance','ambulances'],news:['news van','news vans'],rv:['motorhome','motorhomes'],technical:['technical','technicals'],quad:['four-wheeler','four-wheelers'],police:['police car','police cars'],moto:['motorcycle','motorcycles'],motorcycle:['motorcycle','motorcycles'],bike:['motorcycle','motorcycles'],super:['supercar','supercars'],forklift:['forklift','forklifts'],hover:['hovercraft','hovercraft'],barge:['barge','barges'],mech:['Mobile Gear','Mobile Gears']};
+  fire:['fire engine','fire engines'],jet:['fighter jet','fighter jets'],balloon:['hot-air balloon','hot-air balloons'],amb:['ambulance','ambulances'],news:['news van','news vans'],rv:['motorhome','motorhomes'],technical:['technical','technicals'],quad:['four-wheeler','four-wheelers'],police:['police car','police cars'],moto:['motorcycle','motorcycles'],motorcycle:['motorcycle','motorcycles'],bike:['motorcycle','motorcycles'],super:['supercar','supercars'],forklift:['forklift','forklifts'],hover:['hovercraft','hovercraft'],barge:['barge','barges'],carrier:['aircraft carrier','aircraft carriers'],mech:['Mobile Gear','Mobile Gears']};
 // every kind of vehicle that can be spawned here, and its name with a capital (the panel's buttons and the debug menu's list)
-const tenvVehKinds=()=>[...Object.keys(VEH),'police','tank','heli','plane','jet','balloon','mech','barge'];
+const tenvVehKinds=()=>[...Object.keys(VEH),'police','tank','heli','plane','jet','balloon','mech','barge','carrier'];
 const tenvVehName=t=>(VEH_NAME[t]||[MIL[t]?MIL[t].name:t])[0].replace(/^./,c=>c.toUpperCase());
 // the debug menu's Spawn: one of the kind picked, parked and empty, ready to get into (whatever the panel's count and
 // hunting or parked say). What it managed is what the panel would have said

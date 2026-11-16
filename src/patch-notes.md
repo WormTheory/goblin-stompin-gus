@@ -12,6 +12,14 @@
 - All five are in the debug menu's vehicle list, and solid against every other vehicle like the rest.
 - Airliners are bigger, about half as long again, to sit in proportion with the rest of the city's vehicles (about two-thirds of the real thing, as the cars, buses and tanks are). The fighter jet is in the same proportion, a little longer than a tank.
 
+### An aircraft carrier (Testing Environment)
+
+- An aircraft carrier joins the debug menu's vehicle list (Testing Environment only for now): 178 blocks long and 40 across its flight deck, about three-quarters the size of a real supercarrier. It gets a sea twice the size of the barge's, which grows away from you if a smaller one is already there.
+- Every bit of it is real blocks you can walk through, fight in and smash, while it sails. From the top: the island on the starboard edge, with flight deck control, the flag bridge, the navigation bridge and Pri-Fly, the glassed-in top storey, then a roof with its mast; the flight deck, with the angled landing strip, its arresting wires and the catapult tracks painted on; the gallery deck under it, with ready rooms, the paraloft, the wardroom, catapult machinery, berths and stores; the hangar, one long bay split in three by open fire doors, with the elevator bays open to the sea; and the lower deck, with the mess deck, the galley, sick bay, the Goblin Intelligence Centre, berthing, the armoury, a glowing reactor room and the stores.
+- Swim to the stern and climb out on to the landing under the flight deck's overhang, then go in by the stern door. Stairs run between every deck, fore and aft, up through hatches on to the flight deck, and up through the island to its roof. Goblins chase you through it all, up and down the stairs.
+- As Gnash or Grizzle, take the helm on the navigation bridge with F (controller Y). It's slow and heavy for now: proper driving comes next.
+- It can be sunk. Smashing its blocks wears it down, holes below the waterline let the sea in and keep wearing it down, and shells, rockets and blasts from outside hit it. When it's had enough it goes down slowly, washing everyone aboard into the sea as the water reaches them. The barge can be sunk the same way.
+
 ### A barge you can walk around (Testing Environment)
 
 - The first step toward an aircraft carrier: a test barge, in the debug menu's vehicle list (Testing Environment only for now). Spawning it lays out a square of deep sea ahead of you, if there isn't one yet, and floats the barge on it.
