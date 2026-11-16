@@ -47,10 +47,11 @@ function furnProps(b,px,pz,floorNo){
 // the upright props in reach, by the cell each stands in, for goblins to walk round
 const propCells=new Map(),propCK=(x,y,z)=>Math.floor(x)*4194304+Math.floor(z)*1024+Math.floor(y);
 // what a goblin can step up to: a prop in the way counts as a wall. (With g and dt: one that's been held up by props
-// for a while shoves the next one over, so a room packed with desks can't pen it in. Gus gets no points for that.)
+// for a while shoves the next one over, so a room packed with desks can't pen it in. Gus gets no points for that.
+// A ship's props are bolted down: it squeezes past instead.)
 function gobGround(x,z,y,g,dt){
   const k=propCK(x,y+.2,z),f=propCells.get(k);if(!f||g&&propCK(g.pos.x,g.pos.y+.2,g.pos.z)===k)return groundAt(x,z,y);   // (already standing in its cell: let it walk out)
-  if(g){g.shove=(g.shove||0)+dt;if(g.shove>0.6){g.shove=0;propCells.delete(k);if(knockFix(f,f.x-g.pos.x,f.z-g.pos.z))score-=5;return groundAt(x,z,y);}}
+  if(g){g.shove=(g.shove||0)+dt;if(g.shove>0.6){g.shove=0;propCells.delete(k);if(!f.S&&knockFix(f,f.x-g.pos.x,f.z-g.pos.z))score-=5;return groundAt(x,z,y);}}
   return y+9;
 }
 // whatever's on this floor, with its bathrooms fitted: anything standing in their footprint goes, the fixtures go in
@@ -206,7 +207,7 @@ function stadiumProps(S){
 }
 const COAST_PROPS=new Set(['beach','harbor','yard','navy','rig']);
 function refreshProps(){
-  nPropL=nPropG=0;activeProps.length=0;propCells.clear();propGen++;propSeen.clear();const seen=new Set(),got=new Set();   // (seen: per viewer, as each sees only what's near it; got: drawn already, for another)
+  nPropL=nPropG=0;activeProps.length=0;propCells.clear();if(shipN)shipPropCells();propGen++;propSeen.clear();const seen=new Set(),got=new Set();   // (seen: per viewer, as each sees only what's near it; got: drawn already, for another)
   // R: the open-air props, out to the prop distance setting (never past the fog); RI: the furniture indoors, about half as far,
   // since it's mostly behind walls (34 at the usual 64), and RU the floors either side of yours, closer still. Each is measured
   // round in a circle, so a prop on the diagonal comes in at the same distance as one straight ahead.

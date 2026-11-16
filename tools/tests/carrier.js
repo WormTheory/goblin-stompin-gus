@@ -1,7 +1,7 @@
 let __s=+(process.env.SEED||1);Math.random=()=>{__s=(__s*16807)%2147483647;return (__s-1)/2147483646;};
 const fs=require('fs');
 let src0=fs.readFileSync('g.js','utf8');
-let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={shockwave,get shocks(){return shocks},shipPt,nearestPlayer,addFire,get fires(){return fires},SHIPS,SHIP_X0,SHIP_KINDS,TRAIN_BOXES,trainHit,buildChunk,shipToWorld,worldToShip,shipOf,tenvVeh,tenvFoe,tenvClear,get TENV(){return TENV},get TS(){return TS},frame,players,goblins,get,solidAt,groundAt,chunks,meshes,venues,setGob,keys,DT,crush,get nEdits(){return Object.keys(edits).length},get edits(){return edits},set menuOpen(v){menuOpen=v},SAVE_KEY};\n})();');
+let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={shockwave,get shocks(){return shocks},shipPt,nearestPlayer,addFire,get fires(){return fires},SHIPS,SHIP_X0,SHIP_KINDS,TRAIN_BOXES,trainHit,buildChunk,shipToWorld,worldToShip,shipOf,tenvVeh,tenvFoe,tenvClear,get TENV(){return TENV},get TS(){return TS},frame,players,goblins,get,solidAt,groundAt,chunks,meshes,venues,setGob,keys,DT,crush,doorsOn,propCells,get nEdits(){return Object.keys(edits).length},get edits(){return edits},set menuOpen(v){menuOpen=v},SAVE_KEY};\n})();');
 const deep=()=>new Proxy(function(){}, {get:(t,p)=>p===Symbol.toPrimitive?()=>0:(p==='length'?0:deep()),apply:()=>deep(),construct:()=>deep()});
 class Q{constructor(){this.x=0;this.y=0;this.z=0;this.w=1}set(x,y,z,w){this.x=x;this.y=y;this.z=z;this.w=w;return this}setFromAxisAngle(a,t){const s=Math.sin(t/2);this.x=a.x*s;this.y=a.y*s;this.z=a.z*s;this.w=Math.cos(t/2);return this}copy(q){this.x=q.x;this.y=q.y;this.z=q.z;this.w=q.w;return this}}
 class V3{project(){return this}fromBufferAttribute(a,i){const A=a.array||a.a;this.x=A[i*3];this.y=A[i*3+1];this.z=A[i*3+2];return this}applyMatrix4(m){const e=m.elements,x=this.x,y=this.y,z=this.z;this.x=e[0]*x+e[4]*y+e[8]*z+e[12];this.y=e[1]*x+e[5]*y+e[9]*z+e[13];this.z=e[2]*x+e[6]*y+e[10]*z+e[14];return this}setFromMatrixPosition(o){this.x=o.position.x;this.y=o.position.y;this.z=o.position.z;return this}normalize(){const l=Math.hypot(this.x,this.y,this.z)||1;this.x/=l;this.y/=l;this.z/=l;return this}add(v){this.x+=v.x;this.y+=v.y;this.z+=v.z;return this}applyQuaternion(q){const x=this.x,y=this.y,z=this.z,qx=q.x,qy=q.y,qz=q.z,qw=q.w;const ix=qw*x+qy*z-qz*y,iy=qw*y+qz*x-qx*z,iz=qw*z+qx*y-qy*x,iw=-qx*x-qy*y-qz*z;this.x=ix*qw+iw*-qx+iy*-qz-iz*-qy;this.y=iy*qw+iw*-qy+iz*-qx-ix*-qz;this.z=iz*qw+iw*-qz+ix*-qy-iy*-qx;return this}constructor(x=0,y=0,z=0){this.x=x;this.y=y;this.z=z}set(x,y,z){this.x=x;this.y=y;this.z=z;return this}copy(v){this.x=v.x;this.y=v.y;this.z=v.z;return this}clone(){return new V3(this.x,this.y,this.z)}addScaledVector(v,s){this.x+=v.x*s;this.y+=v.y*s;this.z+=v.z*s;return this}multiplyScalar(s){this.x*=s;this.y*=s;this.z*=s;return this}setScalar(s){return this.set(s,s,s)}}
@@ -68,6 +68,14 @@ let S;{const t0=Date.now();T.menuOpen=true;T.TS.n=1;T.tenvVeh('carrier');T.menuO
  for(const [n,a,b] of levels){const c={};let air=0;const isl=a>16;for(let y=a;y<=b;y++)for(let u=isl?-18:K.u0;u<=(isl?-12:K.u1);u++)for(let w=isl?-22:K.w0;w<=(isl?-4:K.w1);w++){const v=T.get(S.ox+u,G0+y,S.oz+w);if(!v||v===9){if(v===0)air++;continue;}const k=names[v]||(v>=140&&v<152?'stairs':'#'+v);c[k]=(c[k]||0)+1;}
   console.log(n.padEnd(17),'air',String(air).padStart(6),'|',Object.entries(c).sort((x,y)=>y[1]-x[1]).slice(0,12).map(([k,v])=>k+' '+v).join(', '));}}
 console.log('key blocks: landing',blk(0,0,-87),'stern door',blk(0,1,-86),'hangar',blk(0,7,0),'gallery',blk(0,13,0),'deck',blk(0,16,0),'island door',blk(12,17,-12),'helm console',blk(14,27,-5),'mast',blk(15,44,-12));
+// ---- its furniture (props, drawn with the ship) and its doors
+const cellOf=f=>'s '+f1(S.ox-f.x+.5)+' y '+f1(f.y0-G0)+' w '+f1(f.z-S.oz-.5);
+{const L=S.props||[],by={};for(const f of L)by[f.type]=(by[f.type]||0)+1;
+ console.log('props',L.length,'| boxes drawn',S.pm?S.pm[0].count+' + '+S.pm[1].count+' glowing':'none','| hung off the ship',!!S.pm&&S.pm.every(m=>m.parent===S.pg));
+ console.log(' ',Object.entries(by).sort((a,b)=>b[1]-a[1]).map(([k,v])=>k+' '+v).join(', '));
+ const bad=L.filter(f=>f.cells.some(c=>T.solidAt(Math.floor(c[0]),Math.floor(f.y0),Math.floor(c[1])))||f.y0%1===0&&!T.solidAt(Math.floor(f.x),f.y0-1,Math.floor(f.z)));
+ console.log('  in a wall or over nothing:',bad.length,bad.slice(0,6).map(f=>f.type+' '+cellOf(f)).join('; '));
+ const ds=T.SHIP_KINDS.carrier.doors();console.log('doorways',ds.length,'| all of them door markers',ds.every(d=>{for(let a=d.a0;a<=d.a1;a++){const b=d.ax==='w'?blk(d.c,d.y-G0,a):blk(a,d.y-G0,d.c);if(b!==124)return false;}return true;}));}
 // ---- aboard as Gnash: swim up to the stern, climb out, in at the stern door, and up every flight of stairs to the roof
 {T.shipToWorld(S,S.ox+0.5,S.oz-95,W);put(W.x,G0-0.6,W.z,S.yaw);run(0.3);console.log('swimming 6 off the stern:',where(P));
  P.cam.yaw=BOW;P.cam.pitch=0.1;let t=0;T.keys.add('KeyW');T.keys.add('Space');while(t<8&&!(P.pos.y>=G0+0.9&&P.grounded&&aboard(P)))run(0.1),t+=0.1;T.keys.delete('KeyW');T.keys.delete('Space');run(0.3);
@@ -88,6 +96,11 @@ climb(16,32,-20,3,'island: Pri-Fly to the roof',37);
 // ---- walking the length of each deck (W toward the bow from the stern end of each, straight down the middle)
 console.log('walking forward down the middle:');
 for(const [n,y,w0] of [['lower deck',1,-84],['hangar',6,-84],['gallery deck',12,-87],['flight deck',17,-88]]){at(0,y,w0,BOW);run(0.3);let t=0,z=P.pos.z,still=0;T.keys.add('KeyW');while(t<70&&still<3&&P.pos.z-S.oz<84){run(0.5);t+=0.5;still=P.pos.z-z<0.3?still+0.5:0;z=P.pos.z;}T.keys.delete('KeyW');console.log('  '+n.padEnd(13),'from w',w0,'got to w',f1(P.pos.z-S.oz),'| y',f1(P.pos.y-G0),still>=3?'(stopped)':P.pos.z-S.oz>=84?'(at the bow)':'');}
+// ---- doors and props near Gnash on the lower deck: drawn, hung off the ship, opening as he comes up to one
+{at(0,1,-52,Math.PI/2);run(1.5);const D=[...T.doorsOn.values()].filter(d=>d.R.S===S);
+ console.log('in the corridor by the sick bay: ship doors drawn',D.length,'| hung off the ship',D.every(d=>d.v.g.parent===S.pg),'| open (the two beside him)',D.filter(d=>d.open>0.5).map(d=>d.R.key.split(':')[1]).join(' '),
+  '| props goblins go round',[...T.propCells.values()].filter(f=>f.S===S).length);
+ hold(['KeyW'],1.2);console.log('  walked in through the starboard door:',where(P),S.ox-P.pos.x>2.5?'in the sick bay':'not in');}
 // ---- the helm, on the navigation bridge
 let drove=false;
 {at(14,27,-6,BOW);P.pos.x=S.ox-14;run(0.3);tap();drove=P.drv&&P.drv.k==='ship';console.log('F at the helm:',P.drv?P.drv.k:'on foot','| hud says',P.ui.drvHud&&P.ui.drvHud.txt.n);
@@ -115,6 +128,9 @@ let drove=false;
  const h1=S.hp;T.crush(S.ox+0.5,G0+0,S.oz-20.5,2,-1,1);run(0.2);console.log('  a crater through the lower deck floor into the hull:',f1(h1-S.hp),'off, holes letting the sea in',S.leak,'| water in the crater',blk(0,-1,-21)===9);
  const h2=S.hp;run(10);console.log('  10 s later it\'s lost',f1(h2-S.hp),'more to the sea coming in');
  const bx=T.TRAIN_BOXES.filter(B=>B.proxy.T===S);const h3=S.hp;T.trainHit(S,120,null,0);console.log('  boxes out in the world',bx.length,'| a 120 shell on the hull from outside:',f1(h3-S.hp),'off');}
+// (a bunk with the floor blown out from under it goes with it)
+{const f=S.props.find(q=>q.type==='bunk'&&!q.gone&&q.y0===G0+1);at(0,1,-30,BOW);run(0.3);T.crush(f.x-1,G0,f.z,2,-1,1);run(0.6);const n=S.pm[0].count;
+ console.log('  a bunk at',cellOf(f),'with its floor smashed out: gone',f.gone,'| boxes drawn now',n);}
 {at(0,17,0,BOW);run(0.3);const lo={x:S.ox+0.5,y:G0+1,z:S.oz-60.5};T.menuOpen=true;T.TS.n=1;T.tenvFoe('goblin');T.menuOpen=false;const g=T.goblins.find(q=>q.state==='chase');if(g){g.pos.set(lo.x,lo.y,lo.z);}
  S.hp=0;run(0.2);console.log('sinking:',S.dead,'| Gnash on the flight deck',where(P));let t=0,gOff=-1,pOff=-1;
  while(t<60&&T.SHIPS.some(s=>s)){run(0.5);t+=0.5;if(g&&gOff<0&&!aboard(g))gOff=t;if(pOff<0&&!aboard(P))pOff=t;}

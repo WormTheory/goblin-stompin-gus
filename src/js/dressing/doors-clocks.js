@@ -61,6 +61,7 @@ function doorVisual(R){
     else for(const side of [1,-1]){const hg=new THREE.Group();hg.position.x=side>0?0:W;hg.add(doorLeaf(R.kind,W/2,R.h,side));g.add(hg);leaves.push({hg,side,w:W/2});}
     scene.add(g);v={tag,g,leaves,used:false};doorPool.push(v);}
   v.used=true;v.g.visible=true;
+  {const par=R.S?R.S.pg:scene;if(v.g.parent!==par)par.add(v.g);}   // (a ship's door hangs off the ship, to go where it goes)
   const dy=R.y||G+1;if(R.ax==='x'){v.g.position.set(R.a0,dy,R.c+0.5);v.g.rotation.set(0,0,0);}else{v.g.position.set(R.c+0.5,dy,R.a0);v.g.rotation.set(0,-Math.PI/2,0);}
   return v;
 }
@@ -90,7 +91,8 @@ function refreshDoors(){
       P.b.forEach((b,bi)=>{if(collapses[px+','+pz+','+bi]!==undefined&&collapses[px+','+pz+','+bi]<=G+1+4)return;
         for(const R of doorRects(b,px,pz))tryDoor(R,p,want);});
       if(t==='super'&&superOf(px,pz).kind==='stadium')for(const R of stadiumDoors(superOf(px,pz)))tryDoor(R,p,want);
-    }}
+    }
+    if(shipN)shipDoorsSeen(p,(R,q)=>tryDoor(R,q,want));}   // (the ships' doors, in their pockets)
   // the nearest ones, up to the limit
   const list=[...want.values()].sort((a,b)=>a.d-b.d).slice(0,DOOR_MAX),keep=new Set(list.map(R=>R.key));
   for(const [k,D] of doorsOn)if(!keep.has(k)){if(D.v){D.v.used=false;D.v.g.visible=false;}doorsOn.delete(k);}

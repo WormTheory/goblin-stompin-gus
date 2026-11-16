@@ -88,16 +88,18 @@ function makeShip(kind,x,z,yaw){
   let slot=0;while(SHIPS[slot])slot++;
   const K=SHIP_KINDS[kind],grp=new THREE.Group(),pg=new THREE.Group();
   shipForget(slot);
-  const S={isShip:true,kind,K,slot,ox:SHIP_X0+SHIP_SLOT/2,oz:slot*SHIP_SLOT+SHIP_SLOT/2,x,z,yaw,sp:0,hp:K.hp,dead:false,deadT:0,sk:0,leak:0,drv:null,grp,pg,V:null,bx:null};
+  const S={isShip:true,n:++shipSerial,kind,K,slot,ox:SHIP_X0+SHIP_SLOT/2,oz:slot*SHIP_SLOT+SHIP_SLOT/2,x,z,yaw,sp:0,hp:K.hp,dead:false,deadT:0,sk:0,leak:0,drv:null,grp,pg,V:null,bx:null};
   pg.position.set(-S.ox,0,-S.oz);grp.add(pg);grp.position.set(x,0,z);grp.rotation.y=yaw;scene.add(grp);grp.updateMatrixWorld(true);
-  SHIPS[slot]=S;shipN++;
+  SHIPS[slot]=S;shipN++;shipPropsDraw(S);
   return S;
 }
+let shipSerial=0;   // (each ship's own number: a new one in an old one's slot isn't taken for it)
 // a ship gone (cleared away): anyone aboard is put back in the sea where they were, and its pocket forgotten
 function shipDrop(S){
   if(SHIPS[S.slot]!==S)return;
   for(const p of players){if(p.drv&&p.drv.o===S)drvExit(p);if(shipOf(p)===S)shipMove(p,S,false,true);}
   for(const g of goblins)if(g.state!=='wait'&&shipOf(g)===S)shipMove(g,S,false,false);
+  if(S.pm)for(const m of S.pm)if(m.dispose)m.dispose();
   scene.remove(S.grp);SHIPS[S.slot]=null;shipN--;shipForget(S.slot);
 }
 // is there room for the ship (and the water round it) at x,z facing yaw? Open sea under every edge, a little out past it
@@ -123,7 +125,7 @@ function updateShips(V,dt){
     if(Math.abs(S.sp)>0.01||ny!==S.yaw){if(shipFits(S,nx,nz,ny)){S.x=nx;S.z=nz;S.yaw=ny;}else{if(Math.abs(S.sp)>2)thud(0.5);S.sp*=-0.2;}}
     if(S.drv&&i.bitePress){S.hornT=(S.hornT||0);if(S.hornT<=0){horn(0.1);S.hornT=0.6;}}S.hornT=(S.hornT||0)-dt;
     S.grp.position.set(S.x,0,S.z);S.grp.rotation.y=S.yaw;S.grp.updateMatrixWorld(true);
-    shipBoxes(S);
+    shipBoxes(S);if(S.propsT>0&&(S.propsT-=dt)<=0)shipPropsDraw(S);
   }
 }
 // ---- a ship's health: blocks knocked out of it (holes below the waterline cost more, and let the sea in, which goes on
@@ -149,8 +151,47 @@ function shipHit(S,n,i){
 // the sea comes in (the block becomes water). It sinks on its next step (updateShips), not in the middle of the smash
 function shipDent(x,y,z,b){
   const S=shipOfPos(x,z);if(!S||S.dead||b!==AIR)return b;const o=rawGet(x,y,z);if(!o||o===WATER)return b;
+  if(S.props&&!(S.propsT>0))S.propsT=0.3;   // (anything stood on it goes too: looked over a moment later, once the smash is done)
   if(y<G){S.leak++;S.hp-=3;return WATER;}
   S.hp-=1;return b;
+}
+// ---- a ship's furniture and doors. Its props (K.props: [type, s, y, w, yaw, tint, cells], as props.js draws them) go in
+// instanced boxes of the ship's own, hung off its pocket, so they're carried along with it and need drawing only once (and
+// again when it's been smashed: a prop whose floor's gone goes with it). They're bolted down: nothing knocks them over,
+// though goblins go round them (shipPropCells, from refreshProps). Its doors (K.doors) are the town's doors (doors-clocks.js),
+// in its pocket: shipDoors lists them for refreshDoors, and their doors hang off the pocket too ----
+function shipPropsDraw(S){
+  const K=S.K;if(!K.props)return;S.propsT=0;
+  if(!S.props)S.props=K.props().filter(q=>PROPS[q[0]]).map(q=>{const f={prop:true,S,type:q[0],x:S.ox-q[1]+.5,y0:q[2],z:S.oz+q[3]+.5,yaw:q[4],tint:q[5]||0x6b7780,rad:.5,gone:false,
+    cells:(q[6]||[[q[1],q[3]]]).map(c=>[S.ox-Math.round(c[0])+.5,S.oz+Math.round(c[1])+.5])};f.sup=K.block(Math.floor(.5-q[1]),Math.floor(f.y0)-1,Math.floor(q[3]+.5));return f;});
+  let nL=0,nG=0;for(const f of S.props)for(const q of PROPS[f.type])q[0]!==PT&&q[0]>=PG?nG++:nL++;
+  if(!S.pm){S.pm=[new THREE.InstancedMesh(PROP_L.geometry,PROP_L.material,Math.max(1,nL)),new THREE.InstancedMesh(PROP_G.geometry,PROP_G.material,Math.max(1,nG))];
+    for(const m of S.pm){m.setColorAt(0,_PC.setHex(0xffffff));m.frustumCulled=false;m.count=0;S.pg.add(m);}}
+  const [ML,MG]=S.pm,A=_shA,B=_shB,C=_shC;let iL=0,iG=0;
+  for(const f of S.props){
+    if(!f.gone&&f.sup){const fx=Math.floor(f.x),fy=Math.floor(f.y0)-1,fz=Math.floor(f.z);if(chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS)))){const b=get(fx,fy,fz);if(b===AIR||b===WATER)f.gone=true;}}
+    if(f.gone)continue;
+    C.makeRotationY(f.yaw);B.makeTranslation(f.x,f.y0,f.z);C.premultiply(B);
+    for(const q of PROPS[f.type]){const c=q[0]===PT?f.tint:q[0],glow=c>=PG;
+      A.makeTranslation(q[1],q[2],q[3]);B.makeScale(q[4],q[5],q[6]);A.multiply(B);A.premultiply(C);
+      if(glow){MG.setMatrixAt(iG,A);MG.setColorAt(iG++,_PC.setHex(c-PG));}else{ML.setMatrixAt(iL,A);ML.setColorAt(iL++,_PC.setHex(c));}}}
+  fxSent(ML,iL);fxSent(MG,iG);
+}
+const _shA=new THREE.Matrix4(),_shB=new THREE.Matrix4(),_shC=new THREE.Matrix4();
+// the cells the props of every ship stand in, for goblins to walk round (refreshProps clears them with the rest)
+function shipPropCells(){
+  for(const S of SHIPS)if(S&&S.props)for(const f of S.props)if(!f.gone)for(const c of f.cells)propCells.set(propCK(c[0],f.y0,c[1]),f);
+}
+// a ship's doors as refreshDoors has them (in its pocket), and whoever's looking, put in the ship's frame
+function shipDoors(S){
+  if(S._doors)return S._doors;const D=S.K.doors?S.K.doors():[];
+  return S._doors=D.map(d=>d.ax==='w'?{ax:'z',a0:S.oz+d.a0,a1:S.oz+d.a1+1,c:S.ox-d.c,n:1,h:d.h,y:d.y,kind:'steel',slide:false,S,key:'ship'+S.n+':'+d.tag}
+    :{ax:'x',a0:S.ox-d.a1,a1:S.ox-d.a0+1,c:S.oz+d.c,n:1,h:d.h,y:d.y,kind:'steel',slide:false,S,key:'ship'+S.n+':'+d.tag});
+}
+function shipDoorsSeen(p,fn){
+  for(const S of SHIPS){if(!S||!S.K.doors)continue;let q;
+    if(shipOf(p)===S)q=p;else if(p.pos.x<SHIP_X0){worldToShip(S,p.pos.x,p.pos.z,_sv);q={pos:{x:_sv.x,y:p.pos.y,z:_sv.z}};}else continue;
+    for(const R of shipDoors(S))fn(R,q);}
 }
 function shipSink(S){
   if(S.dead)return;S.dead=true;S.deadT=0;S.hp=0;
