@@ -78,6 +78,7 @@ vehicles/balloon.js
 vehicles/crashes.js
 vehicles/ships.js
 vehicles/carrier.js
+vehicles/carrier-crew.js
 dressing/signs.js
 vehicles/emergency.js
 vehicles/traffic-update.js

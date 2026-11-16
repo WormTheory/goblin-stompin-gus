@@ -203,6 +203,7 @@ function milWreck(M,dt){
   if(M.deadT<60&&Math.random()<dt*3)smoke(M.x,M.y+2,M.z,1,0x262626);
 }
 function siteRouse(V){
+  if(V.ship){shipGQ(V);return;}   // (a carrier's crew: general quarters. See carrier-crew.js)
   if(V.roused)return;V.roused=true;V.awayT=0;const n=nearestPlayer(V.cx,V.cz),me=n&&n.p;
   V.slots.forEach((g,i)=>{if(!g||g.state!=='chase')return;g.gunCD=0.4+i*0.35+Math.random()*0.5;g.bombCD=2+Math.random()*3;if(me)g.heading=Math.atan2(me.pos.x-g.pos.x,me.pos.z-g.pos.z);});
   if(audio)tone('square',330,160,0.5,0.07);

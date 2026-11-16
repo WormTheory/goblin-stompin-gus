@@ -90,14 +90,14 @@ function makeShip(kind,x,z,yaw){
   shipForget(slot);
   const S={isShip:true,n:++shipSerial,kind,K,slot,ox:SHIP_X0+SHIP_SLOT/2,oz:slot*SHIP_SLOT+SHIP_SLOT/2,x,z,yaw,sp:0,ord:0,rud:0,yr:0,telD:0,telT:0,groundT:0,hp:K.hp,dead:false,deadT:0,sk:0,leak:0,drv:null,grp,pg,V:null,bx:null};
   pg.position.set(-S.ox,0,-S.oz);pg.shipPg=true;grp.add(pg);grp.position.set(x,0,z);grp.rotation.y=yaw;scene.add(grp);grp.updateMatrixWorld(true);
-  SHIPS[slot]=S;shipN++;shipPropsDraw(S);
+  SHIPS[slot]=S;shipN++;shipPropsDraw(S);shipCrewInit(S);
   return S;
 }
 let shipSerial=0;   // (each ship's own number: a new one in an old one's slot isn't taken for it)
 // a ship gone (cleared away): anyone aboard is put back in the sea where they were, and its pocket forgotten
 function shipDrop(S){
   if(SHIPS[S.slot]!==S)return;
-  for(const p of players){if(p.drv&&p.drv.o===S)drvExit(p);if(shipOf(p)===S)shipMove(p,S,false,true);}
+  for(const p of players){if(p.drv&&(p.drv.o===S||p.drv.o.S===S))drvExit(p);if(shipOf(p)===S)shipMove(p,S,false,true);}
   for(const g of goblins)if(g.state!=='wait'&&shipOf(g)===S)shipMove(g,S,false,false);
   shipVehEach((o,P)=>{if(shipOfPos(P.x,P.z)===S)shipVehMove(o,S,false);});
   if(S.pm)for(const m of S.pm)if(m.dispose)m.dispose();
@@ -120,7 +120,7 @@ function updateShips(V,dt){
     if(S.hp<=0){shipSink(S);continue;}
     shipHelmIn(S,dt);shipDrive(S,dt);
     S.grp.position.set(S.x,0,S.z);S.grp.rotation.y=S.yaw;S.grp.updateMatrixWorld(true);
-    shipBoxes(S);if(S.propsT>0&&(S.propsT-=dt)<=0)shipPropsDraw(S);shipPropsFall(S,dt);
+    shipBoxes(S);if(S.propsT>0&&(S.propsT-=dt)<=0)shipPropsDraw(S);shipPropsFall(S,dt);shipCrewTick(S,dt);
   }
 }
 // ---- driving from the bridge. W and S ring the engine telegraph up and down its orders, one a press (held, on down

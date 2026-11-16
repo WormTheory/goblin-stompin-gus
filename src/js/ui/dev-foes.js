@@ -13,8 +13,8 @@ const DEV_FOE_KINDS=[
     anims:['idle','walk','flee','stall','swim','death']},
   {k:'cultist',n:'Cultist',hp:4,spd:2.8,cult:true,melee:{dmg:1,every:0.85,w:'Ritual dagger'},look:{tunic:CULT_ROBE,pants:0x1a0a0c,hat:CULT_HOOD,acc:0x2a0408,acc2:0x2a0408,show:[]},
     anims:['chant','walk','attack','cast','jump','climb','swim','death']},
-  ...['thief','prepper','militia'].map(k=>{const F=FOES[k];return{k,n:F.name,hp:F.hp,spd:F.spd,foe:F,melee:{dmg:F.melee[0],every:F.melee[1],w:F.gear==='dagger'?'Dagger':'Rifle butt'},
-    look:{tunic:F.tunic,pants:F.pants,hat:F.hatc,acc:F.pants,show:[F.hat,k==='thief'?'eyepatch':'pouch']},
+  ...['thief','prepper','militia','sailor','marine','deckhand'].map(k=>{const F=FOES[k];return{k,n:F.name,hp:F.hp,spd:F.spd,foe:F,melee:{dmg:F.melee[0],every:F.melee[1],w:F.gear==='dagger'?'Dagger':F.gear?'Rifle butt':'Fists'},
+    look:{tunic:F.tunic,pants:F.pants,hat:F.hatc,acc:F.pants,show:k==='deckhand'||k==='sailor'?[F.hat]:[F.hat,k==='thief'?'eyepatch':'pouch']},
     gun:F.gun,anims:['guard','walk','attack',...(F.gun?['shoot']:[]),...(F.bomb?['throw']:[]),'jump','climb','swim','death']};})];
 const DEV_FOE_ANIM_N={idle:'Stand',walk:'Walk (chasing)',attack:'Attack',jump:'Jump up a step',climb:'Climb a wall',swim:'Swim',death:'Die',
   flee:'Run away screaming',stall:'Serve at a stall',chant:'Chant at the altar',cast:'Conjure a fireball',guard:'On guard',shoot:'Aim and fire',throw:'Throw a grenade'};

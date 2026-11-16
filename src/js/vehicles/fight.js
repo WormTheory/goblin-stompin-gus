@@ -45,6 +45,7 @@ function drvHP(D){if(D.netHP)return D.netHP;const o=D.o;   // (D.netHP: a guest 
   if(D.k==='mech')return{hp:o.hp,max:MG.hp};
   if(D.k==='boat')return{hp:o.hp,max:o.max};
   if(D.k==='ship')return{hp:o.hp,max:o.K.hp};
+  if(D.k==='mount')return{hp:o.S.hp,max:o.S.K.hp};   // (a carrier's deck weapon: the ship's own health)
   if(D.k==='plane')return{hp:o.hp,max:PLANE_HP};
   if(D.k==='balloon')return{hp:o.hp,max:BAL.hp};
   return{hp:o.carHP?o.carHP[D.ci]:CAR_HP,max:CAR_HP};
@@ -88,7 +89,7 @@ function drvHud(p){
     for(const a of H.aw){const s=o.wpn[a.s.W.k]||a.s,rl=s.rl>0,st=(rl?'r'+s.rl.toFixed(1):'n'+s.n);if(st===a.last)continue;a.last=st;
       a.r.classList.toggle('rl',rl);
       if(a.many)a.belt.style.width=(s.n/s.W.max*100).toFixed(1)+'%';else a.pips.forEach((e,k)=>e.classList.toggle('e',k>=s.n));
-      if(rl){a.rl.style.width=((1-s.rl/s.W.reload)*100).toFixed(1)+'%';a.ac.textContent='Reloading '+s.rl.toFixed(1)+'s';}
+      if(rl){a.rl.style.width=((1-s.rl/s.W.reload)*100).toFixed(1)+'%';a.ac.textContent=(s.W.heat?'Overheated ':'Reloading ')+s.rl.toFixed(1)+'s';}
       else a.ac.textContent=a.many?String(s.n):'';}}
   // (where the shot would really go off, fired now, put on the screen: the gun's reach, the turret still swinging round
   // and anything in the way all show; faint when it would burst in mid-air, out of range)
@@ -111,6 +112,7 @@ function planeHud(F){if(!F)return'Throttle 0%';const thr='Throttle '+Math.round(
 // about them on getting in), each ending in '  ·  ' so the rest follows
 function drvHow(p,D,armed){const A=id=>actMark(p,id),G=armed?D.k==='heli'?A('bite')+' gun  ·  '+A('stomp')+' rockets  ·  ':D.k==='plane'?A('bite')+' cannon  ·  '+A('stomp')+' missiles  ·  ':D.k==='tank'||D.seat==='gun'?A('bite')+' fire  ·  ':'':'';
   if(D.seat==='gun')return G;
+  if(D.k==='mount')return D.o.kind==='ciws'?A('bite')+' fire (hold)  ·  ':A('bite')+' launch'+(D.o.kind==='sparrow'?' (lock on first)':'')+'  ·  ';
   if(D.k==='ship')return shipHow(p,D.o);
   if(D.k==='heli')return A('jump')+' climb  ·  '+A('climb')+' drop  ·  '+G;
   if(D.k==='balloon')return A('jump')+' burner (rise)  ·  '+A('climb')+' vent (sink)  ·  Move to drift  ·  ';

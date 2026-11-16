@@ -10,7 +10,7 @@ const gunSeat=D=>D.k==='tank'||D.k==='heli'||D.k==='car'&&(D.o.veh==='technical'
 // which set of weapons (DRV_WPN) it carries
 const drvGunK=D=>D.k==='car'?D.o.veh:D.k;
 // are p's the hands on the guns? (the gunner's, or the driver's of a tank or helicopter with nobody on its gun)
-function drvArmed(p){const D=p.drv;if(!D)return false;if(D.seat==='gun')return true;return(D.k==='tank'||D.k==='heli'||D.k==='plane'&&D.o.jet)&&!D.o.gnr;}
+function drvArmed(p){const D=p.drv;if(!D)return false;if(D.seat==='gun')return true;return(D.k==='tank'||D.k==='heli'||D.k==='mount'||D.k==='plane'&&D.o.jet)&&!D.o.gnr;}
 // is the other seat free to move to?
 function drvSwapTo(p){const D=p.drv;if(!D||D.jack||D.netS||!gunSeat(D))return false;const o=D.o;
   if(D.seat==='gun')return!o.drv&&!jackable({k:D.k,o});

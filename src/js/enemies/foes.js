@@ -9,7 +9,14 @@ const FOES={
     jobs:['Prepper','Doomsday prepper','Bunker quartermaster','Canned-goods hoarder','Off-grid survivalist','Water-filter enthusiast']},
   militia:{name:'Militiaman',label:'Militiaman killed',tunic:0x4a5a2a,pants:0x2a3018,hat:'hardhat',hatc:0x3a4a22,gear:'rifle',held:[0.22,0.22,0.22,0x3a4a22],hp:5,spd:2.8,melee:[1,1.3,'Clubbed with a rifle butt'],
     gun:[3,48,0.55,[1.3,2.2],1,'Shot by the militia'],bomb:[6,24,[6,9],1.6,3.2,3,'Blown up by a grenade'],
-    jobs:['Militiaman','Weekend warrior','Self-styled colonel','Sentry','Rifleman','Camo enthusiast','Drill sergeant (unpaid)']}};
+    jobs:['Militiaman','Weekend warrior','Self-styled colonel','Sentry','Rifleman','Camo enthusiast','Drill sergeant (unpaid)']},
+  // (the aircraft carrier's crew: see carrier-crew.js)
+  deckhand:{name:'Deckhand',label:'Deckhand killed',tunic:0xe0c020,pants:0x2a2e3a,hat:'cap',hatc:0xe0c020,gear:null,hp:3,spd:3.4,melee:[1,1.0,'Punched by a deckhand'],
+    jobs:['Aircraft handler','Catapult crewman','Plane captain','Fuel handler','Ordnanceman','Chock runner','Landing signal officer','Safety observer']},
+  sailor:{name:'Sailor',label:'Sailor killed',tunic:0x3a5a8a,pants:0x22324a,hat:'cap',hatc:0xeef0f2,gear:'rifle',held:[0.22,0.22,0.22,0x2a2a2a],hp:4,spd:3.0,melee:[1,1.2,'Clubbed with a rifle butt'],
+    gun:[3,40,0.7,[1.6,2.6],1,'Shot by a sailor'],jobs:['Seaman','Boatswain\'s mate','Machinist\'s mate','Cook','Radioman','Fire controlman','Gunner\'s mate','Yeoman']},
+  marine:{name:'Marine',label:'Marine killed',tunic:0x5a6a3a,pants:0x3a4428,hat:'hardhat',hatc:0x4a5630,gear:'rifle',held:[0.22,0.22,0.22,0x2a2a2a],hp:6,spd:3.2,melee:[1,1.4,'Clubbed with a rifle butt'],
+    gun:[3,50,0.5,[1.2,2.0],1,'Shot by a marine'],bomb:[6,20,[8,12],2.0,3.2,3,'Blown up by a marine\'s grenade'],jobs:['Marine','Lance corporal','Sergeant of the guard','Sentry','Rifleman','Ship\'s guard']}};
 const foeMade={};
 function freeFoe(k,cap=12){let g=goblins.find(o=>o.foeKind===k&&o.state==='wait');if(!g&&(foeMade[k]||0)<cap){addFoe(k);g=goblins[goblins.length-1];}return g||null;}
 function addFoe(k){foeMade[k]=(foeMade[k]||0)+1;const F=FOES[k];
@@ -19,12 +26,13 @@ function addFoe(k){foeMade[k]=(foeMade[k]||0)+1;const F=FOES[k];
   root.visible=false;root.scale.setScalar(ES);   // (not added to the scene: batDraw draws it)
 }
 // one of them out of the pool, dressed and alive; V is its compound (null for one spawned to fight straight away), i its post
-function foeSpawn(g,k,V,i){
+function foeSpawn(g,k,V,i,look){
   const F=FOES[k],P=V&&V.posts[i];g.homeV=V;g.slot=i;g.post=P||null;g.hold=!!P&&P.y>G+3;   // (posted up a tower: it stays up there)
   g.hp=g.hpMax=F.hp;g.spd=F.spd;g.state='chase';g.t=0;g.sink=0;g.hurt=0;g.vy=0;g.atk=1;g.detour=0;g.stuck=0;g.kv.set(0,0,0);g.stun=0;g.act=null;g.wt=null;g.indoor=false;g.alert=false;
   g.cop=null;g.inv=false;g.ff=null;g.medic=null;g.news=null;g.vendor=null;g.employer=null;g.claim=null;g.trip=null;g.stUp=undefined;g.aim=0;g.gunCD=0.5+Math.random();g.bombCD=3+Math.random()*3;
   g.root.visible=true;g.root.rotation.set(0,0,0);g.arm.rotation.x=-0.5;g.armL.rotation.x=0;if(g.orb)g.orb.visible=false;
   const L={skin:pick(GPAL.skin),tunic:F.tunic,pants:F.pants,hat:F.hatc,acc:F.pants,acc2:0x111111,hair:0x1b1b1b,show:[F.hat],foe:k,hatType:F.hat,hatShown:F.hatc,h:0.9+Math.random()*0.25,w:0.92+Math.random()*0.16,hs:0.94+Math.random()*0.12};
+  if(look)Object.assign(L,look);   // (a carrier's deck crew: their jerseys)
   if(k==='thief'&&Math.random()<0.6)L.show.push('eyepatch');if(k!=='thief'&&Math.random()<0.3)L.show.push('pouch');
   applyLook(g,L,ES);g.id=makeIdentity(g,L);g.id.occ=pick(F.jobs);
   return g;

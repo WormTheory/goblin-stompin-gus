@@ -30,6 +30,14 @@
   - Bite sounds the horn.
 - Vehicles can go aboard. Spawn cars, tanks and helicopters from the debug menu while you're on the flight deck and they're parked on it; they ride along as it sails, can be driven about the deck, and fly or drive off its edge into the world. Fly a helicopter over the deck and let it down to land on it. A tank's shells and a helicopter's guns aim where you look from aboard and fly on out over the side. (A Mobile Gear spawned there stands on the deck too; planes and balloons are put out in the world beside it.)
 - Gnash's guns and grenades aim properly from aboard.
+- It has a crew now. Deck crew in coloured jerseys (yellow, green, blue, red, purple, white and brown, with helmets to match) work the flight deck, sailors go about the hangar, the gallery deck and the lower deck, and marines stand watch on the flight deck, the bridge and below. They come out as you get near and stroll between their spots while it's quiet.
+- Board it, bring a vehicle in close, or hurt one of them and it goes to general quarters: a klaxon sounds, the deck crew scatter, marines and sailors hunt you through the ship with their rifles (marines throw grenades too), and a sailor runs to each deck weapon and opens up on you. It stands down when you've been well away for half a minute. In Peaceful mode they leave you be.
+- Six deck weapons stand on the flight deck's edges, two of each kind, and they fire on whatever comes at the ship: rockets and missiles first, then aircraft, then vehicles, then you on foot (the Sea Sparrow only bothers with vehicles and aircraft). They don't fire at anything on the ship itself.
+  - The CIWS (Phalanx) spins up and pours out a fast stream of rounds, and shoots rockets and missiles out of the air. It overheats if you hold it down too long.
+  - The Sea Sparrow launcher fires big, slow-turning homing missiles that hit hard, eight to a load. Lock on first.
+  - The RAM launcher fires small, quick missiles at whatever's nearest the crosshair, 21 to a load.
+- Any goblin can take a deck weapon's seat with F (controller Y), crewed or not: whoever was manning it is thrown off, angry, and the ship goes to general quarters. Bite fires.
+- Sailors, marines and deck crew are also in the debug menu's goblin list.
 - It can be sunk. Smashing its blocks wears it down, holes below the waterline let the sea in and keep wearing it down, and shells, rockets and blasts from outside hit it and blow holes in its sides and deck, as they would any building. When it's had enough it goes down slowly, washing everyone aboard into the sea as the water reaches them. The barge can be sunk the same way.
 
 ### A barge you can walk around (Testing Environment)

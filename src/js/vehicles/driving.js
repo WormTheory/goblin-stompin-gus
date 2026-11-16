@@ -8,6 +8,7 @@ function drvName(D){if(D.netN)return D.netN;const o=D.o;   // (D.netN: a guest o
   if(D.k==='car')return o.police?'police car':{car:'car',bike:'motorcycle',van:'van',pickup:'pickup',truck:'truck',semi:'lorry',bus:'bus',fire:'fire engine',amb:'ambulance',news:'news van',rv:'motorhome',technical:'technical',quad:'four-wheeler',super:'supercar',forklift:'forklift',hover:'hovercraft'}[o.veh]||'car';
   if(D.k==='boat')return o.K.name.toLowerCase();
   if(D.k==='ship')return o.K.name;
+  if(D.k==='mount')return o.K.name;
   if(D.k==='plane'&&o.jet)return'fighter jet';
   return DRV_NAME[D.k];
 }
@@ -34,6 +35,7 @@ function drvFind(p){
     else if(pr.veh==='train'&&T.sub&&!T.dead){for(const V of venues.values())if(V.kind==='sub'&&V.T===T){D={k:'subway',o:T,V,ci:pr.i};break;}}   // (a subway train, under the city: see drvSub)
     if(D)take(px-B.x,pz-B.z,B.tx,B.tz,hx,hz,Math.min(B.y0,B.top-0.5),B.top,D);}
   {const h=shipHelm(p);if(h&&h.d<bd)best=h.D;}   // (aboard a ship, at its helm: see ships.js)
+  {const m=mountFind(p);if(m&&m.d<bd)best=m.D;}   // (or by one of a carrier's deck weapons: see carrier-crew.js)
   return best;
 }
 // where the vehicle is and how it lies: its middle at the base, heading, half sizes, height, and speed along its heading
@@ -41,6 +43,7 @@ function drvPose(D){if(D.netS)return D.netS;const o=D.o;   // (D.netS: a guest o
 
   if(D.k==='car')return{x:o.pos.x,y:o.pos.y,z:o.pos.z,h:o.heading,hx:o.hx,hz:o.hz,hy:o.hy||1.4,v:o.speed};
   if(D.k==='ship')return shipPose(o);
+  if(D.k==='mount')return{x:o.x,y:o.y,z:o.z,h:o.yaw,hx:0.8,hz:0.8,hy:2.2,v:0};
   if(D.k==='mech')return{x:o.x,y:o.y,z:o.z,h:o.h,hx:MG.r,hz:MG.r,hy:MG.hy,v:Math.hypot(o.vx,o.vz)};
   if(D.k==='balloon')return{x:o.x,y:o.y,z:o.z,h:o.h,hx:BAL.bw,hz:BAL.bw,hy:BAL.bh,v:Math.hypot(o.vx,o.vz)};
   if(D.k==='tank'||D.k==='heli'){const I=MIL[D.k];return{x:o.x,y:o.y,z:o.z,h:o.h,hx:I.hx,hz:I.hz,hy:I.hy,v:D.k==='tank'?o.sv||0:Math.hypot(o.hv?o.hv.x:0,o.hv?o.hv.z:0)};}
@@ -68,7 +71,8 @@ function drvTake(p,D){const o=D.o;o.drv=p;
   else if(D.k==='plane'){if(!o.free)o.free={v:o.v||0,vy:0};o.g.visible=true;if(o.jet){wpnInit(o,'jet');o.rkHeld=true;}}
   else if(D.k==='train'){o.wait=0;}
   else if(D.k==='subway'){D.V.wait=0;}
-  else if(D.k==='mech'){o.outArm=false;o.outT=0;}   // (the use button that got you in has to be let go before holding it gets you out)
+  else if(D.k==='mech'){o.outArm=false;o.outT=0;}
+  else if(D.k==='mount')mountTakeover(o);   // (a sailor at it is thrown off)   // (the use button that got you in has to be let go before holding it gets you out)
 }
 // letting go of the controls: what the vehicle does with nobody driving it
 function drvLetGo(p,D){const o=D.o;if(o.drv===p)o.drv=null;
@@ -97,7 +101,7 @@ function drvTick(p,dt){
   const use=p.in.use&&!p.useHeld;p.useHeld=p.in.use;
   if(p.drv&&p.drv.jack&&p.state!=='dead'){jackTick(p,dt);return true;}   // (still hauling the driver out)
   const wp=!!p.in.weapon&&!p.drvWpnHeld;p.drvWpnHeld=!!p.in.weapon;
-  if(p.drv){if((p.drv.k==='mech'?p.drv.o.outT>=MG.outHold:use)||p.state==='dead')drvExit(p);else{if(wp&&drvSwapTo(p))drvSwap(p);else if(wp&&p.drv.k==='ship')shipViewSwap(p);drvLock(p,dt);return true;}return false;}
+  if(p.drv){if((p.drv.k==='mech'?p.drv.o.outT>=MG.outHold:use)||p.state==='dead')drvExit(p);else{if(wp&&drvSwapTo(p))drvSwap(p);else if(wp&&p.drv.k==='ship')shipViewSwap(p);if(p.drv.k==='mount')shipOutside(()=>drvLock(p,dt));else drvLock(p,dt);return true;}return false;}
   if(p.state==='dead'||p.state!=='walk'&&p.state!=='climb')return false;
   if(use){const D=drvFind(p);if(D){drvEnter(p,D);return true;}}
   // (a vehicle in reach: say so, once for each one you come up to)
@@ -167,6 +171,7 @@ function drvAim(p,sp){if(p.lockT&&p.drv&&lockAlive(p.lockT))return drvLead(p,sp|
 function drvCamera(p){
   if(p.drv.k==='mech'){mechCamera(p);return;}
   if(p.drv.k==='ship'&&p.shipBridge){shipBridgeCam(p,p.drv.o);return;}   // (the view from the bridge: see ships.js)
+  if(p.drv.k==='mount'){mountCam(p,p.drv.o);return;}   // (at a carrier's deck weapon: see carrier-crew.js)
   const D=p.drv,S=drvPose(D);
   if(p.drvYaw!==undefined&&Math.abs(angDiff(p.drvYaw,p.cam.yaw))>1e-5)p.drvLook=camClock;
   // (not a helicopter, which faces where you look anyway, nor a train, where the way you look is the way it goes)
