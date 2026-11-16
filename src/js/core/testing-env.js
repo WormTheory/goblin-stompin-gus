@@ -219,10 +219,10 @@ function tenvSpawnOne(t){const n=TS.n,vm=TS.vm;TS.n=1;TS.vm='park';TS.dbg=true;
 // helicopter and plane already there (an airliner's wings reach about 12 out, a fighter jet's under 4: planeDim)
 // the ground's height under x,z for a spawn: the Testing Environment's flat floor, or out in the city the first surface
 // down from a little above the player (so a hillside, not the inside of the hill, and not a roof far overhead)
-function spGround(x,z){if(TENV)return groundAt(x,z,G+40);const p=players.find(q=>q.active)||P1;return groundAt(x,z,Math.min(H-2,p.pos.y+24));}
+function spGround(x,z){if(TENV&&x<SHIP_X0)return groundAt(x,z,G+40);const p=players.find(q=>q.active)||P1;return groundAt(x,z,Math.min(H-2,p.pos.y+24));}
 function tenvRoom(x,z,r){
-  if(TENV){if(groundAt(x,z,G+40)>G+1.05)return false;}
-  // (out in the city: level within a block across the vehicle's footprint, and not water)
+  if(TENV&&x<SHIP_X0){if(groundAt(x,z,G+40)>G+1.05)return false;}
+  // (out in the city, or on a ship's deck: level within a block across the vehicle's footprint, and not water)
   else{const y=spGround(x,z),k=r*0.7;if(get(Math.floor(x),Math.floor(y)-1,Math.floor(z))===WATER)return false;
     for(const [ox,oz] of [[k,0],[-k,0],[0,k],[0,-k]])if(Math.abs(spGround(x+ox,z+oz)-y)>1.05)return false;}
   if(cars.some(o=>o.alive&&Math.hypot(o.pos.x-x,o.pos.z-z)<r+4))return false;
@@ -234,9 +234,10 @@ function tenvRoom(x,z,r){
 }
 function tenvVeh(t){
   if(MIL[t]){tenvMil(t);return;}
-  if(t==='plane'||t==='jet'){tenvPlane(t==='jet');return;}
-  if(t==='balloon'){tenvBalloon();return;}
-  if(t==='mech'){tenvMech();return;}
+  // (these stay out in the world even beside a ship, so spawned from aboard one they're put by where Gus really is)
+  if(t==='plane'||t==='jet'){shipOutside(()=>tenvPlane(t==='jet'));return;}
+  if(t==='balloon'){shipOutside(tenvBalloon);return;}
+  if(t==='mech'){shipOutside(tenvMech);return;}
   if(SHIP_KINDS[t]){tenvShip(t);return;}
   if(CREW_HP[t]){tenvCrew(t);return;}
   if(!TENV&&!TS.dbg)return;const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active);if(!p)return;
@@ -303,7 +304,8 @@ function tenvMech(){
   const fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw),cx=p.pos.x+fx*14,cz=p.pos.z+fz*14;let made=0;
   for(let i=0;i<TS.n;i++){let x=cx,z=cz,ok=false;
     for(let k=0;k<24&&!ok;k++){const a=Math.random()*Math.PI*2,r=i||k?5+Math.random()*(10+k*1.5):0;x=cx+Math.cos(a)*r;z=cz+Math.sin(a)*r;ok=tenvRoom(x,z,3)&&mgFits(x,spGround(x,z),z);}
-    if(!ok)continue;newMech(V,x,z,Math.atan2(p.pos.x-x,p.pos.z-z));made++;}
+    if(!ok)continue;const M=newMech(V,x,z,Math.atan2(p.pos.x-x,p.pos.z-z));made++;
+    {const gy=mgGround(x,z,H+60,M);if(gy>M.y)M.y=gy;}}   // (over a ship: up on its deck, the top of the box that stands for it)
   if(!V.mechs.length)venues.delete('tenvMechs');
   tsSet(made?'Spawned '+made+' Mobile Gear'+(made>1?'s':'')+' ahead of Gus. Walk up to one as Gnash or Grizzle and press '+keyLabel(BINDS.use.kb[0])+' (controller '+padLabel(BINDS.use.pad[0],padStyle==='ps')+') to climb in.':'No room for a Mobile Gear just there.');
 }
@@ -319,7 +321,7 @@ function tenvClear(){
   fbClear();
   for(const c of cars)if(c.alive&&!c.svcPool){c.alive=false;c.g.visible=false;c.hunter=false;c.respawnT=1e9;}
   // (the tanks and helicopters too, all but one Gus is driving)
-  {const V=venues.get('tenvArmy');if(V){V.mil=V.mil.filter(M=>{if(players.some(q=>q.drv&&q.drv.o===M))return true;scene.remove(M.g);return false;});V.alert=false;if(!V.mil.length)venues.delete('tenvArmy');}}
+  {const V=venues.get('tenvArmy');if(V){V.mil=V.mil.filter(M=>{if(players.some(q=>q.drv&&q.drv.o===M))return true;if(M.g.parent)M.g.parent.remove(M.g);return false;});V.alert=false;if(!V.mil.length)venues.delete('tenvArmy');}}
   {const V=venues.get('tenvMechs');if(V){V.mechs=V.mechs.filter(M=>{if(players.some(q=>q.drv&&q.drv.o===M))return true;scene.remove(M.g);return false;});if(!V.mechs.length)venues.delete('tenvMechs');}}
   {const V=venues.get('tenvBalloons');if(V){V.bl=V.bl.filter(B=>{if(players.some(q=>q.drv&&q.drv.o===B))return true;scene.remove(B.g);return false;});if(!V.bl.length)venues.delete('tenvBalloons');}}
   shipsClear();

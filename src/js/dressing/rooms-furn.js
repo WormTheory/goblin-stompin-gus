@@ -47,11 +47,10 @@ function furnProps(b,px,pz,floorNo){
 // the upright props in reach, by the cell each stands in, for goblins to walk round
 const propCells=new Map(),propCK=(x,y,z)=>Math.floor(x)*4194304+Math.floor(z)*1024+Math.floor(y);
 // what a goblin can step up to: a prop in the way counts as a wall. (With g and dt: one that's been held up by props
-// for a while shoves the next one over, so a room packed with desks can't pen it in. Gus gets no points for that.
-// A ship's props are bolted down: it squeezes past instead.)
+// for a while shoves the next one over, so a room packed with desks can't pen it in. Gus gets no points for that.)
 function gobGround(x,z,y,g,dt){
   const k=propCK(x,y+.2,z),f=propCells.get(k);if(!f||g&&propCK(g.pos.x,g.pos.y+.2,g.pos.z)===k)return groundAt(x,z,y);   // (already standing in its cell: let it walk out)
-  if(g){g.shove=(g.shove||0)+dt;if(g.shove>0.6){g.shove=0;propCells.delete(k);if(!f.S&&knockFix(f,f.x-g.pos.x,f.z-g.pos.z))score-=5;return groundAt(x,z,y);}}
+  if(g){g.shove=(g.shove||0)+dt;if(g.shove>0.6){g.shove=0;propCells.delete(k);if((f.S?shipKnock:knockFix)(f,f.x-g.pos.x,f.z-g.pos.z))score-=5;return groundAt(x,z,y);}}
   return y+9;
 }
 // whatever's on this floor, with its bathrooms fitted: anything standing in their footprint goes, the fixtures go in
@@ -272,7 +271,7 @@ function refreshProps(){
   fxSent(FIX_BAR,nBar);fxSent(PROP_L,nPropL);fxSent(PROP_G,nPropG);
   for(const k of propBorn.keys())if(!propSeen.has(k))propBorn.delete(k);   // (gone out of range: it grows in again when it's back)
 }
-function knockProps(x,y,z,r,dx,dz){for(const f of activeProps){const ex=f.x-x,ez=f.z-z,rr=r+f.rad;if(ex*ex+ez*ez<rr*rr&&Math.abs(f.y0+.5-y)<r+1.5)knockFix(f,dx||ex,dz||ez);}}
+function knockProps(x,y,z,r,dx,dz){if(x>=SHIP_X0){shipKnockAt(x,y,z,r,dx,dz);return;}for(const f of activeProps){const ex=f.x-x,ez=f.z-z,rr=r+f.rad;if(ex*ex+ez*ez<rr*rr&&Math.abs(f.y0+.5-y)<r+1.5)knockFix(f,dx||ex,dz||ez);}}
 // which of a block's lamp spots the street plan allows: that never changes, and asking is most of what this refresh costs
 const lampSpotC=new Map();
 function lampSpotsOf(px,pz,X0,Z0,PBf){

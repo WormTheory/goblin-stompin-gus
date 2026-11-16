@@ -147,15 +147,15 @@ function cvBuild(){
   for(let w=-12;w<=-6;w+=2)cvP('swivel',13,G+32,w,Math.PI/2);   // (Pri-Fly: the Air Boss's seats along the windows over the deck)
   for(let w=-22;w<=-4;w++)for(let s=12;s<=18;s++)if(s===12||s===18||w===-22||w===-4)cvSet(s,G+37,w,FENCE);
   cvBox(15,15,G+37,G+46,-12,-12,METAL);cvBox(13,17,G+43,G+43,-12,-12,METAL);cvBox(14,16,G+47,G+47,-13,-11,PAINT_DARK);
-  // the flight deck's markings: the angled landing strip's centre line and edges, its four arresting wires, the
+  // the flight deck's markings, painted on the asphalt as the highways' are (LANE, LINE): the angled landing strip's centre line and edges, its four arresting wires, the
   // catapult tracks (two at the bow, two in the waist), the bow's centre line
   for(let w=CV_W0;w<=CV_W1;w++)for(let s=-21;s<=18;s++){if(cvGet(s,G+16,w)!==ASPHALT)continue;const c=cvAng(w);let b=0;
-    if(w<=12&&Math.abs(s-c)<0.5)b=(w&3)<2?PAINT_WHITE:0;
-    else if(w<=12&&(Math.abs(s-c-9)<0.5||Math.abs(s-c+9)<0.5))b=PAINT_YELLOW;
+    if(w<=12&&Math.abs(s-c)<0.5)b=(w&3)<2?LANE:0;
+    else if(w<=12&&(Math.abs(s-c-9)<0.5||Math.abs(s-c+9)<0.5))b=LINE;
     if([-70,-66,-62,-58].includes(w)&&Math.abs(s-c)<=7)b=METAL;
     if((s===-5||s===5)&&w>=36&&w<=86)b=METAL;
     if(w>=-24&&w<=8&&(Math.abs(s-c-3)<0.5||Math.abs(s-c+3)<0.5))b=METAL;
-    if(s===0&&w>=16&&(w&3)<2)b=PAINT_WHITE;
+    if(s===0&&w>=16&&(w&3)<2)b=LANE;
     if(b)cvSet(s,G+16,w,b);}
   // the stairs: lower deck to hangar (aft and forward), hangar to gallery deck, gallery deck up through hatches to the
   // flight deck, and up through the island's storeys to its roof

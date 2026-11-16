@@ -134,6 +134,7 @@ function updateFires(dt){
 const _upAx=new V3(0,1,0);
 // a round blast: knocks out everything within R (a ragged ball, flattened so it bites into the ground less)
 function crushBall(x,y,z,R,opt={}){
+  if(shipN&&x<SHIP_X0)shipSmash(x,y,z,R,opt,(X,Y,Z,o)=>crushBall(X,Y,Z,R,o));   // (a ship there: see ships.js)
   const o={force:opt.force||1,dx:0,dz:0,up:opt.up||1};
   dbgHit('block','sph',{x,y,z,r:R});
   const SC=SBX?[]:null;   // (in the Dev tab's sandbox: just list the blocks it would take)

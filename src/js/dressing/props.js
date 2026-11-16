@@ -371,6 +371,18 @@ const PROPS={
   // a snack machine: a lit window of rows of snacks
   vending:[[0x7a1f24,0,.8,0,.9,1.6,.6],[PG+0xd8f0ff,-.12,.95,.305,.52,1,.01],[0xe0a030,-.12,1.2,.315,.46,.08,.01],[0x4aa3df,-.12,.95,.315,.46,.08,.01],[0xe05050,-.12,.7,.315,.46,.08,.01],[P_DARK,-.12,.27,.31,.56,.2,.01],[P_DARK,.32,.9,.31,.14,.3,.01]]
 };
+// two boxes of one model sharing a face, the same way out (a blanket's end flush with its bunk's, a screen flush with its
+// frame), flicker as the graphics card picks one or the other a pixel at a time: the smaller one is brought out by a
+// hair there, so it's always the one seen (as it was meant to be). Done once, to every model, as the page loads
+function propUnfight(){const E=1e-3,H=0.006;
+  for(const k in PROPS){const M=PROPS[k];
+    for(let i=0;i<M.length;i++)for(let j=0;j<M.length;j++){if(i===j)continue;const a=M[i],b=M[j];
+      if(a[4]*a[5]*a[6]>b[4]*b[5]*b[6]||a[4]*a[5]*a[6]===b[4]*b[5]*b[6]&&i>j)continue;   // (a is the smaller, or the first of two the same)
+      for(let ax=0;ax<3;ax++){const o1=(ax+1)%3,o2=(ax+2)%3,ov=o=>Math.min(a[1+o]+a[4+o]/2,b[1+o]+b[4+o]/2)-Math.max(a[1+o]-a[4+o]/2,b[1+o]-b[4+o]/2)>E;
+        if(!ov(o1)||!ov(o2))continue;
+        for(const s of [-1,1])if(Math.abs(a[1+ax]+s*a[4+ax]/2-(b[1+ax]+s*b[4+ax]/2))<E){a[4+ax]+=H;a[1+ax]+=s*H/2;}}}}
+}
+propUnfight();
 const _PC=new THREE.Color();
 // A prop coming into range grows up out of the floor over PROP_GROW seconds rather than just appearing. propBorn holds when
 // each one in range first showed; propGrowing the ones still growing, redrawn in place every frame by growProps (each keeps

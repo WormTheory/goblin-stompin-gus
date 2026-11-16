@@ -38,6 +38,7 @@ function fbClear(){gobPickupsClear();for(const F of FIREB){F.live=false;F.g.visi
 const TRACERS=[],TR_MAT=new THREE.MeshBasicMaterial({color:0xfff0a0});
 function tracer(x0,y0,z0,x1,y1,z1){
   let T=TRACERS.find(o=>o.t<=0);if(!T){if(TRACERS.length>=24)T=TRACERS[0];else{const m=new THREE.Mesh(FB_GEO,TR_MAT);m.visible=false;scene.add(m);T={m,t:0};TRACERS.push(T);}}
+  if(x0>=SHIP_X0){const S=shipOfPos(x0,z0);if(S){shipToWorld(S,x0,z0,_sv);x0=_sv.x;z0=_sv.z;y0-=S.sk;shipToWorld(S,x1,z1,_sv);x1=_sv.x;z1=_sv.z;y1-=S.sk;}}   // (fired aboard a ship: drawn where that is)
   const L=Math.hypot(x1-x0,y1-y0,z1-z0)||0.01;T.m.position.set((x0+x1)/2,(y0+y1)/2,(z0+z1)/2);T.m.scale.set(0.05,0.05,L);T.m.lookAt(x1,y1,z1);T.m.visible=true;T.t=0.07;
 }
 // ---- things thrown and fired that go off: grenades, tank shells, rockets. Each flies under gravity (a shell
@@ -82,9 +83,11 @@ function updateShots(dt){
       if(!S.bounce)for(const q of players){if(!q.active||q.state==='dead'||q.drv&&q.drv.o===S.own)continue;const hx=S.pos.x-q.pos.x,hz=S.pos.z-q.pos.z,hy=S.pos.y-q.pos.y;if(hx*hx+hz*hz<1.6*1.6&&hy>-0.3&&hy<2.4){boom=true;break;}}
       if(!S.bounce&&!boom&&shotHitsVeh(S))boom=true;}
     if(boom||S.t>12){S.live=false;S.g.visible=false;impX=S.imp||1;foeBoom(S.pos.x,S.pos.y,S.pos.z,S.R,S.dmg,S.cause,S.by,S.crush,S.vd,S.own);impX=1;continue;}   // (imp: how much a heavy shell fills an impact meter: see impHit)
+    if(S.pos.x>=SHIP_X0)shipShotOut(S);   // (fired from aboard a ship and gone over its side: out into the world)
     S.g.position.copy(S.pos);
     if(S.bounce){S.g.rotation.x+=dt*Math.hypot(S.v.x,S.v.z)*1.5;S.trail-=dt;if(S.trail<=0){S.trail=0.08;puff(S.pos.x,S.pos.y+0.1,S.pos.z,1,0x9a9a8a,0.08);}}   // (the fuse fizzing)
     else{const h=Math.hypot(S.v.x,S.v.z);S.g.rotation.set(-Math.atan2(S.v.y,h),Math.atan2(S.v.x,S.v.z),0,'YXZ');S.trail-=dt;if(S.trail<=0){S.trail=0.03;smoke(S.pos.x,S.pos.y,S.pos.z,1,S.kind==='rocket'?0xdadada:0x6a6a6a);}}
+    if(S.pos.x>=SHIP_X0){shipPt(S.g.position);S.g.rotation.y+=shipYawAt(S.pos.x,S.pos.z);}   // (still aboard: drawn where that is on the ship)
   }
 }
 // a homing missile (a Mobile Gear's): for a moment it flies as launched, then speeds up to S.sp and turns, at most

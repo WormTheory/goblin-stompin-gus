@@ -89,7 +89,7 @@ function makeShip(kind,x,z,yaw){
   const K=SHIP_KINDS[kind],grp=new THREE.Group(),pg=new THREE.Group();
   shipForget(slot);
   const S={isShip:true,n:++shipSerial,kind,K,slot,ox:SHIP_X0+SHIP_SLOT/2,oz:slot*SHIP_SLOT+SHIP_SLOT/2,x,z,yaw,sp:0,ord:0,rud:0,yr:0,telD:0,telT:0,groundT:0,hp:K.hp,dead:false,deadT:0,sk:0,leak:0,drv:null,grp,pg,V:null,bx:null};
-  pg.position.set(-S.ox,0,-S.oz);grp.add(pg);grp.position.set(x,0,z);grp.rotation.y=yaw;scene.add(grp);grp.updateMatrixWorld(true);
+  pg.position.set(-S.ox,0,-S.oz);pg.shipPg=true;grp.add(pg);grp.position.set(x,0,z);grp.rotation.y=yaw;scene.add(grp);grp.updateMatrixWorld(true);
   SHIPS[slot]=S;shipN++;shipPropsDraw(S);
   return S;
 }
@@ -99,6 +99,7 @@ function shipDrop(S){
   if(SHIPS[S.slot]!==S)return;
   for(const p of players){if(p.drv&&p.drv.o===S)drvExit(p);if(shipOf(p)===S)shipMove(p,S,false,true);}
   for(const g of goblins)if(g.state!=='wait'&&shipOf(g)===S)shipMove(g,S,false,false);
+  shipVehEach((o,P)=>{if(shipOfPos(P.x,P.z)===S)shipVehMove(o,S,false);});
   if(S.pm)for(const m of S.pm)if(m.dispose)m.dispose();
   scene.remove(S.grp);SHIPS[S.slot]=null;shipN--;shipForget(S.slot);
 }
@@ -119,7 +120,7 @@ function updateShips(V,dt){
     if(S.hp<=0){shipSink(S);continue;}
     shipHelmIn(S,dt);shipDrive(S,dt);
     S.grp.position.set(S.x,0,S.z);S.grp.rotation.y=S.yaw;S.grp.updateMatrixWorld(true);
-    shipBoxes(S);if(S.propsT>0&&(S.propsT-=dt)<=0)shipPropsDraw(S);
+    shipBoxes(S);if(S.propsT>0&&(S.propsT-=dt)<=0)shipPropsDraw(S);shipPropsFall(S,dt);
   }
 }
 // ---- driving from the bridge. W and S ring the engine telegraph up and down its orders, one a press (held, on down
@@ -217,21 +218,40 @@ function shipPropsDraw(S){
     cells:(q[6]||[[q[1],q[3]]]).map(c=>[S.ox-Math.round(c[0])+.5,S.oz+Math.round(c[1])+.5])};f.sup=K.block(Math.floor(.5-q[1]),Math.floor(f.y0)-1,Math.floor(q[3]+.5));return f;});
   let nL=0,nG=0;for(const f of S.props)for(const q of PROPS[f.type])q[0]!==PT&&q[0]>=PG?nG++:nL++;
   if(!S.pm){S.pm=[new THREE.InstancedMesh(PROP_L.geometry,PROP_L.material,Math.max(1,nL)),new THREE.InstancedMesh(PROP_G.geometry,PROP_G.material,Math.max(1,nG))];
-    for(const m of S.pm){m.setColorAt(0,_PC.setHex(0xffffff));m.frustumCulled=false;m.count=0;S.pg.add(m);}}
+    for(const m of S.pm){m.setColorAt(0,_PC.setHex(0xffffff));m.frustumCulled=false;m.count=0;S.grp.add(m);}}   // (hung off the ship itself, laid out from the pocket's origin: half a million blocks out, they'd shake)
   const [ML,MG]=S.pm,A=_shA,B=_shB,C=_shC;let iL=0,iG=0;
   for(const f of S.props){
     if(!f.gone&&f.sup){const fx=Math.floor(f.x),fy=Math.floor(f.y0)-1,fz=Math.floor(f.z);if(chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS)))){const b=get(fx,fy,fz);if(b===AIR||b===WATER)f.gone=true;}}
     if(f.gone)continue;
-    C.makeRotationY(f.yaw);B.makeTranslation(f.x,f.y0,f.z);C.premultiply(B);
-    for(const q of PROPS[f.type]){const c=q[0]===PT?f.tint:q[0],glow=c>=PG;
+    // (one going over, or down: tipped about its foot toward ang, as props.js tips one over)
+    const ang=f.fall?f.fall.ang:f.down,theta=f.fall?Math.PI/2*0.97*Math.min(1,f.fall.t/0.7)**2:f.down!==undefined?Math.PI/2*0.97:0,flat=theta>0;
+    C.makeRotationY(f.yaw);if(flat){_shV.set(Math.cos(ang),0,-Math.sin(ang));B.makeRotationAxis(_shV,theta);C.premultiply(B);}B.makeTranslation(f.x-S.ox,f.y0,f.z-S.oz);C.premultiply(B);
+    for(const q of PROPS[f.type]){let c=q[0]===PT?f.tint:q[0],glow=c>=PG;if(glow&&flat){c=0x20262b;glow=false;}   // (a knocked-over machine's screen goes dark)
       A.makeTranslation(q[1],q[2],q[3]);B.makeScale(q[4],q[5],q[6]);A.multiply(B);A.premultiply(C);
       if(glow){MG.setMatrixAt(iG,A);MG.setColorAt(iG++,_PC.setHex(c-PG));}else{ML.setMatrixAt(iL,A);ML.setColorAt(iL++,_PC.setHex(c));}}}
   fxSent(ML,iL);fxSent(MG,iG);
 }
-const _shA=new THREE.Matrix4(),_shB=new THREE.Matrix4(),_shC=new THREE.Matrix4();
+const _shA=new THREE.Matrix4(),_shB=new THREE.Matrix4(),_shC=new THREE.Matrix4(),_shV=new THREE.Vector3();
+// knocked over (knockProps, a goblin shoving past): it tips over about its foot, the way it was pushed, as a building's
+// props do, and lies there; goblins step over it then. Each step any are still going over, the ship's props are drawn again
+function shipKnock(f,dx,dz){
+  if(f.gone||f.fall||f.down!==undefined)return false;const S=f.S;
+  f.fall={t:0,ang:(dx||dz)?Math.atan2(dx,dz):Math.random()*Math.PI*2};S.propsFall=(S.propsFall||0)+1;
+  tone('square',320,140,0.1,0.03);puff(f.x,f.y0+.5,f.z,2,0xbfc5ca,0.25);award(5,null,f.x,f.y0+1,f.z);
+  for(const c of f.cells)propCells.delete(propCK(c[0],f.y0,c[1]));
+  return true;
+}
+// knockProps in a ship's pocket: its props within r of x,z (and about level), knocked away from there
+function shipKnockAt(x,y,z,r,dx,dz){const S=shipOfPos(x,z);if(!S||!S.props)return;
+  for(const f of S.props){const ex=f.x-x,ez=f.z-z,rr=r+f.rad;if(ex*ex+ez*ez<rr*rr&&Math.abs(f.y0+.5-y)<r+1.5)shipKnock(f,dx||ex,dz||ez);}}
+function shipPropsFall(S,dt){
+  if(!S.propsFall)return;
+  for(const f of S.props)if(f.fall&&(f.fall.t+=dt)>=0.7){f.down=f.fall.ang;f.fall=null;S.propsFall--;}
+  shipPropsDraw(S);
+}
 // the cells the props of every ship stand in, for goblins to walk round (refreshProps clears them with the rest)
 function shipPropCells(){
-  for(const S of SHIPS)if(S&&S.props)for(const f of S.props)if(!f.gone)for(const c of f.cells)propCells.set(propCK(c[0],f.y0,c[1]),f);
+  for(const S of SHIPS)if(S&&S.props)for(const f of S.props)if(!f.gone&&!f.fall&&f.down===undefined)for(const c of f.cells)propCells.set(propCK(c[0],f.y0,c[1]),f);
 }
 // a ship's doors as refreshDoors has them (in its pocket), and whoever's looking, put in the ship's frame
 function shipDoors(S){
@@ -243,6 +263,14 @@ function shipDoorsSeen(p,fn){
   for(const S of SHIPS){if(!S||!S.K.doors)continue;let q;
     if(shipOf(p)===S)q=p;else if(p.pos.x<SHIP_X0){worldToShip(S,p.pos.x,p.pos.z,_sv);q={pos:{x:_sv.x,y:p.pos.y,z:_sv.z}};}else continue;
     for(const R of shipDoors(S))fn(R,q);}
+}
+// a smash out in the world (crush, crushBall, crushDisc, crushShape) that reaches a ship: done again in its pocket, where
+// its blocks are, so a shell, a rocket or a blow from outside knocks holes in it as one from aboard does. fn gets the
+// place in the pocket and a copy of opt with its push turned to match
+function shipSmash(x,y,z,R,opt,fn){
+  for(const S of SHIPS){if(!S||S.dead)continue;const K=S.K,t=worldToShip(S,x,z,_sv),u=t.x-S.ox,w=t.z-S.oz,Y=y+S.sk,m=R+1;
+    if(u<K.u0-m||u>K.u1+1+m||w<K.w0-m||w>K.w1+1+m||Y<K.y0-m||Y>K.y1+m)continue;
+    const o=Object.assign({},opt);shipRot(o,'dx','dz',-S.yaw);fn(t.x,Y,t.z,o,-S.yaw);}
 }
 function shipSink(S){
   if(S.dead)return;S.dead=true;S.deadT=0;S.hp=0;
@@ -261,6 +289,7 @@ function shipSinking(S,V,dt){
     puff(_sv.x,G+1,_sv.z,2,0xcfe8ff,.8);if(k<0.6&&Math.random()<0.5)smoke(_sv.x,G+4,_sv.z,2,0x262626);}
   for(const p of players)if(p.active&&shipOf(p)===S&&p.pos.y-S.sk<G+0.3)shipMove(p,S,false,true);
   for(const g of goblins)if(g.state!=='wait'&&shipOf(g)===S&&g.pos.y-S.sk<G+0.3)shipMove(g,S,false,false);
+  shipVehEach((o,P)=>{if(shipOfPos(P.x,P.z)===S&&P.y-S.sk<G+0.3)shipVehMove(o,S,false);});
   if(k>=1){const i=V.ships.indexOf(S);if(i>=0)V.ships.splice(i,1);shipDrop(S);if(!V.ships.length&&venues.get('tenvShips')===V)venues.delete('tenvShips');}
 }
 // ---- getting aboard and off: anyone within SHIP_M of a ship's hull is moved into its pocket, turned to match it; anyone
@@ -294,16 +323,56 @@ function shipCrossAll(){
   // (anyone left in a pocket with no ship there, its ship gone: players back to solid ground, goblins away)
   for(const p of players)if(p.active&&p.pos.x>=SHIP_X0&&!shipOf(p)){if(p.drv)drvExit(p);placePlayer(p,new V3(10.5,G+1,10.5));shipParent(p,null);}
   for(const g of goblins)if(g.state!=='wait'&&g.pos.x>=SHIP_X0&&!shipOf(g)){g.state='wait';g.t=0;g.root.visible=false;}
+  shipVehEach(shipVehCross);   // (even with no ship about: one used aboard one, since sunk, has its model put back)
   if(!shipN)return;
   for(const p of players)if(p.active&&!p.drv)shipCross(p,true);
   for(const g of goblins)if(g.state!=='wait')shipCross(g,false);
+}
+// ---- vehicles aboard: cars, tanks and helicopters cross into a ship's pocket the same way (over its hull and clear of
+// its blocks there), so they stand on its decks, ride along with it for nothing, land on it and are driven about on it,
+// and are taken back out once they're off it. Their models hang off the ship's picture meanwhile, and whoever's in one
+// goes with it. (The Mobile Gear stays out in the world: it stands on the ship's boxes and is carried by them.) ----
+// every car, tank and helicopter there is, each with its place and heading read the same way
+function shipVehEach(fn){
+  for(const c of cars)if(c.alive)fn(c,c.pos);
+  for(const V of venues.values())if(V.kind==='army'&&V.mil)for(const M of V.mil)if(!M.dead&&M.pos)fn(M,M.pos);
+}
+function shipVehMove(o,S,into){
+  const car=!o.isMil,P=car?o.pos:o,t=(into?worldToShip:shipToWorld)(S,P.x,P.z,_sv),a=into?-S.yaw:S.yaw;
+  P.x=t.x;P.z=t.z;P.y+=into?S.sk:-S.sk;
+  if(car){o.heading+=a;if(o.kv)shipRot(o.kv,'x','z',a);if(o.hvel)shipRot(o.hvel,'x','z',a);o.path=o.rt=o.hw=null;o.spot=null;}
+  else{o.h+=a;if(o.hv)shipRot(o.hv,'x','z',a);o.home={x:t.x,z:t.z,h:o.h};o.pos.set(o.x,o.y,o.z);o.g.position.set(o.x,o.y,o.z);o.g.rotation.y+=a;}
+  shipVehParent(o,into?S:null);
+  // (whoever's driving it or on its gun turns with it, so they're still looking the same way out in the world)
+  for(const q of [o.drv,o.gnr])if(q&&q.cam&&q.drv&&q.drv.o===o){q.cam.yaw+=a;if(q.drvYaw!==undefined)q.drvYaw+=a;shipParent(q,into?S:null);}
+}
+function shipVehParent(o,S){const par=S?S.pg:scene;if(o.g.parent!==par)par.add(o.g);}
+// (every step, from shipCrossAll; one left in a pocket whose ship has gone, or spawned straight into one, is seen to)
+function shipVehCross(o,P){
+  if(P.x>=SHIP_X0){const S=shipOfPos(P.x,P.z);
+    if(!S){if(o.isMil){o.dead=true;o.g.visible=false;}else{o.alive=false;o.g.visible=false;o.respawnT=1e9;}shipVehParent(o,null);return;}
+    shipVehParent(o,S);const K=S.K,m=SHIP_M+1.5,u=P.x-S.ox,w=P.z-S.oz;
+    if(u<K.u0-m||u>K.u1+1+m||w<K.w0-m||w>K.w1+1+m)shipVehMove(o,S,false);return;}
+  if(o.g.parent!==scene)shipVehParent(o,null);
+  for(const S of SHIPS){if(!S||S.dead)continue;const K=S.K,t=worldToShip(S,P.x,P.z,_sv),u=t.x-S.ox,w=t.z-S.oz;
+    if(u<K.u0-SHIP_M||u>K.u1+1+SHIP_M||w<K.w0-SHIP_M||w>K.w1+1+SHIP_M||P.y<G-24)continue;
+    // (only where it's clear of the ship's blocks: one down by the hull below the deck stays out, and meets its boxes)
+    const y=P.y+S.sk;if(solidAt(t.x,Math.floor(y+0.3),t.z)||solidAt(t.x,Math.floor(y+1.3),t.z))continue;
+    shipVehMove(o,S,true);return;}
+}
+// a shell or rocket fired aboard (from a tank or helicopter on the deck) that's gone past the ship's side: out into the
+// world, turned to match, so it flies on at whatever's out there
+function shipShotOut(o){
+  const S=shipOfPos(o.pos.x,o.pos.z);if(!S)return;const K=S.K,m=SHIP_M+1.5,u=o.pos.x-S.ox,w=o.pos.z-S.oz;
+  if(u>=K.u0-m&&u<=K.u1+1+m&&w>=K.w0-m&&w<=K.w1+1+m)return;
+  shipToWorld(S,o.pos.x,o.pos.z,_sv);o.pos.x=_sv.x;o.pos.z=_sv.z;o.pos.y-=S.sk;shipRot(o.v,'x','z',S.yaw);
 }
 // a goblin's step, with every player not where it is (one aboard a ship with it out in the sea, or the other way round)
 // shown to it where they really are, put into its own frame: so it chases them, swims out to the ship and climbs aboard
 // (from updateGoblins)
 function shipSees(g,fn){
   if(!shipN){fn();return;}
-  const Sg=shipOf(g);let sw=null;
+  const Sg=g.pos?shipOf(g):null;let sw=null;
   for(const p of players){if(!p.active)continue;const Sp=shipOf(p);if(Sp===Sg)continue;
     (sw||(sw=[])).push(p,p.pos.x,p.pos.z);
     if(Sp){shipToWorld(Sp,p.pos.x,p.pos.z,_sv);p.pos.x=_sv.x;p.pos.z=_sv.z;}
@@ -317,6 +386,12 @@ function shipView(fn){
   let sw=null;for(const p of players){const S=shipOf(p);if(!S)continue;(sw||(sw=[])).push(p,p.pos.x,p.pos.z);shipToWorld(S,p.pos.x,p.pos.z,_sv);p.pos.x=_sv.x;p.pos.z=_sv.z;}
   try{fn();}finally{if(sw)for(let i=0;i<sw.length;i+=3){const p=sw[i];p.pos.x=sw[i+1];p.pos.z=sw[i+2];}}
 }
+// fn run as shipView does, with everyone aboard looking the way they really are too (the debug menu's spawns of what
+// never goes aboard: planes, balloons, the Mobile Gear)
+function shipOutside(fn){
+  const L=[];for(const p of players){const S=shipOf(p);if(S){L.push(p,S.yaw);p.cam.yaw+=S.yaw;}}
+  try{shipView(fn);}finally{for(let i=0;i<L.length;i+=2)L[i].cam.yaw-=L[i+1];}
+}
 // a point (anything with x and z) in a ship's pocket moved to where that is on the ship, in place; and how much a heading
 // there turns by out in the world (effects that are drawn as they're made: fires, shockwaves)
 function shipPt(v){if(v.x<SHIP_X0)return v;const S=shipOfPos(v.x,v.z);if(S){shipToWorld(S,v.x,v.z,_sv);v.x=_sv.x;v.z=_sv.z;if(v.y!==undefined)v.y-=S.sk;}return v;}
@@ -325,6 +400,10 @@ function shipYawAt(x,z){const S=shipOfPos(x,z);return S?S.yaw:0;}
 // sound is, who a goblin goes for)
 function shipDist(p,x,z){const Sx=shipOfPos(x,z),Sp=shipOf(p);if(Sx===Sp)return Math.hypot(p.pos.x-x,p.pos.z-z);
   let px=pwx(p),pz=pwz(p);if(Sx){worldToShip(Sx,px,pz,_sv);px=_sv.x;pz=_sv.z;}return Math.hypot(px-x,pz-z);}
+// the camera's place in a player's own frame (shipCam has put it out in the world): what aiming from it, aboard, wants
+const _seye={x:0,y:0,z:0};
+function shipEye(p){const c=p.camera.position;if(!shipN)return c;const S=shipOf(p);if(!S||!S.isShip)return c;
+  worldToShip(S,c.x,c.z,_sv);_seye.x=_sv.x;_seye.y=c.y+S.sk;_seye.z=_sv.z;return _seye;}
 // the camera, placed in the pocket by the usual code, put where that is on the ship (after placeCamera)
 function shipCam(p){
   const S=shipOf(p)||p.drv&&p.drv.k==='ship'&&p.drv.o;if(!S||!S.isShip)return;

@@ -136,7 +136,7 @@ function drvLock(p,dt){
   if(!armed){if(p.lockT)setLock(p,null);return;}
   if(p.in.lockPress){
     if(p.lockT){setLock(p,null);tone('triangle',620,380,0.07,0.035);}
-    else{const c=p.camera.position,cp=Math.cos(p.cam.pitch),fx=-Math.sin(p.cam.yaw)*cp,fy=Math.sin(p.cam.pitch),fz=-Math.cos(p.cam.yaw)*cp;let best=null,bs=1e9;
+    else{const c=shipEye(p),cp=Math.cos(p.cam.pitch),fx=-Math.sin(p.cam.yaw)*cp,fy=Math.sin(p.cam.pitch),fz=-Math.cos(p.cam.yaw)*cp;let best=null,bs=1e9;
       for(const o of lockTargets(p,100)){if(o.t===D.o)continue;const ty=lockY(o.t),dx=o.t.pos.x-c.x,dy=ty-c.y,dz=o.t.pos.z-c.z,L=Math.hypot(dx,dy,dz)||1,
           a=Math.max(0,Math.acos(Math.max(-1,Math.min(1,(dx*fx+dy*fy+dz*fz)/L)))-Math.atan((isMilT(o.t)?MIL[o.t.kind].hz:0.5)/L));if(a>0.4)continue;   // (any part of it within about 23 degrees of the crosshair)
         const sc=a*60+L*0.05+(isMilT(o.t)?0:15)+o.hid;if(sc<bs){bs=sc;best=o.t;}}   // (tanks and helicopters first)
@@ -154,7 +154,7 @@ function drvLead(p,sp){const T=p.lockT,V=p.lockV,ty=lockY(T);if(!V||V.t!==T)retu
   const t=Math.min(3,Math.hypot(T.pos.x-p.pos.x,ty-p.pos.y,T.pos.z-p.pos.z)/sp),cl=v=>Math.max(-30,Math.min(30,v));
   return{x:T.pos.x+cl(V.vx)*t,y:ty+cl(V.vy)*t,z:T.pos.z+cl(V.vz)*t};}
 // where the middle of the screen points: the first block on the line from the camera, past the vehicle
-function drvAim(p,sp){if(p.lockT&&p.drv&&lockAlive(p.lockT))return drvLead(p,sp||40);const c=p.camera.position,cp=Math.cos(p.cam.pitch),fx=-Math.sin(p.cam.yaw)*cp,fy=Math.sin(p.cam.pitch),fz=-Math.cos(p.cam.yaw)*cp;
+function drvAim(p,sp){if(p.lockT&&p.drv&&lockAlive(p.lockT))return drvLead(p,sp||40);const c=shipEye(p),cp=Math.cos(p.cam.pitch),fx=-Math.sin(p.cam.yaw)*cp,fy=Math.sin(p.cam.pitch),fz=-Math.cos(p.cam.yaw)*cp;
   // (a goblin under the crosshair is what's aimed at, not the ground behind it: from a gun off to one side of the
   // camera, aiming past it would miss)
   let gt=160,ga=null;const t0=p.drvCamD||4;

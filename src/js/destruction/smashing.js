@@ -192,6 +192,7 @@ function smashSoftUnder(p,g){
 // trampling's block-breaking zone: the same round area in front of the hippo that tramples goblins (radius R), from
 // his feet up through his body (h blocks); ramps underfoot are left alone so he can still run up and down them
 function crushDisc(x,y,z,R,h,opt={}){
+  if(shipN&&x<SHIP_X0)shipSmash(x,y,z,R,opt,(X,Y,Z,o)=>crushDisc(X,Y,Z,R,h,o));   // (a ship there: see ships.js)
   const o={force:opt.force||1,dx:opt.dx||0,dz:opt.dz||0,up:opt.up||1},y0=Math.floor(y+0.05);
   dbgHit('block','cyl',{x,y:y0,z,r:R,h});
   const SC=SBX?[]:null;   // (in the Dev tab's sandbox: just list the blocks it would take)
@@ -214,6 +215,7 @@ function crushDisc(x,y,z,R,h,opt={}){
 // a smash of a chosen shape: a ball of radius R; a cube R either side; or a cone from the hit point out 2R along the
 // facing (hx,hz), opening at 35 degrees
 function crushShape(shape,x,y,z,R,hx,hz,opt={}){
+  if(shipN&&x<SHIP_X0)shipSmash(x,y,z,R*2,opt,(X,Y,Z,o,a)=>{const c=Math.cos(a),s=Math.sin(a);crushShape(shape,X,Y,Z,R,hx*c+hz*s,-hx*s+hz*c,o);});
   const o={force:opt.force||1,dx:opt.dx||0,dz:opt.dz||0,up:opt.up||1},L=opt.len||2*R,CT=opt.ct||0.7,hl=Math.hypot(hx,hz)||1,ux=hx/hl,uz=hz/hl;
   if(shape==='sphere')dbgHit('block','sph',{x,y,z,r:R});
   else if(shape==='semi')dbgHit('block','cap',{x,y,z,r:R,dn:0,up:R});
@@ -239,6 +241,7 @@ function crushShape(shape,x,y,z,R,hx,hz,opt={}){
   return broken.length;
 }
 function crush(x,y,z,r,d0,d1,opt={}){
+  if(shipN&&x<SHIP_X0)shipSmash(x,y,z,r+Math.max(Math.abs(d0),Math.abs(d1)),opt,(X,Y,Z,o)=>crush(X,Y,Z,r,d0,d1,o));
   const o={force:opt.force||1,dx:opt.dx||0,dz:opt.dz||0,up:opt.up||1};
   dbgHit('block','box',{x:Math.floor(x)+0.5,y:Math.floor(y)+d0,z:Math.floor(z)+0.5,sx:2*r+1,sy:d1-d0+1,sz:2*r+1});
   const SC=SBX?[]:null;   // (in the Dev tab's sandbox: just list the blocks it would take)

@@ -28,7 +28,7 @@ function gobAttack(p){const k=gobArms(p).wpn;
 // a rifle or handgun shot straight down the middle of the view: the first goblin, vehicle or block it meets
 const _gr=new V3();
 function gobShoot(p){
-  const W=gobGun(gobArms(p).wpn)?gobW(p):GOB_WPN.rifle,hg=W===GOB_WPN.handgun,c=p.camera.position,cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp;
+  const W=gobGun(gobArms(p).wpn)?gobW(p):GOB_WPN.rifle,hg=W===GOB_WPN.handgun,c=shipEye(p),cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp;
   let hitG=null,hitC=null,hitW=null,hitP=null,d=0.3;
   for(;d<W.range&&!hitG&&!hitC&&!hitP;d+=0.2){const x=c.x+dx*d,y=c.y+dy*d,z=c.z+dz*d;
     if(solidAt(Math.floor(x),Math.floor(y),Math.floor(z))){hitW=[Math.floor(x),Math.floor(y),Math.floor(z)];break;}
@@ -47,7 +47,7 @@ function gobShoot(p){
 // the stomp button: lob a grenade the way you're looking
 function gobThrow(p){
   gobArms(p);if(p.gren<=0||p.grenCD>0||p.state==='dead'||p.drv)return;
-  p.gren--;p.grenCD=0.6;p.thrS=0;const c=p.camera.position,cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp,v=15;
+  p.gren--;p.grenCD=0.6;p.thrS=0;const c=shipEye(p),cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp,v=15;
   shot({kind:'grenade',x:c.x+dx*0.6,y:c.y-0.1+dy*0.6,z:c.z+dz*0.6,vx:dx*v,vy:dy*v+4,vz:dz*v,grav:20,fuse:2.2,R:3.3,dmg:3,cause:GREN_CAUSE,by:pvpBy(p),bounce:true,crush:GREN_CRUSH});
   sfx('Goblin throws a grenade',()=>{woosh(0.15,0.2,400,1200,0.08);});
 }

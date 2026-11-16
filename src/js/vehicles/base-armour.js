@@ -76,7 +76,8 @@ function updateArmy(V,dt){
     // (staggered: it does nothing at all for a moment, rocking where it is; a helicopter sinks a little)
     if(M.stag>0&&!M.drv){M.jolt=Math.max(M.jolt,0.15);if(M.kind==='heli'&&M.spin>0.8)M.y=Math.max(groundAt(M.x,M.z,M.y+1)+1,M.y-2*dt);
       {const gy=groundAt(M.x,M.z,M.y+1.5);if(M.kind==='tank'&&gy<M.y){M.vy-=20*dt;M.y=Math.max(gy,M.y+M.vy*dt);}}milPlace(M);milBoxes(M,0);milShove(M);continue;}
-    if(M.kind==='tank')updateTank(M,V,dt);else updateHeli(M,V,dt);
+    // (one aboard a ship, or anyone it's after aboard one, sees them where they really are: see shipSees)
+    shipSees(M,()=>{if(M.kind==='tank')updateTank(M,V,dt);else updateHeli(M,V,dt);});
   }
 }
 // ---- the armour is solid: tanks and helicopters don't pass through each other or the other big vehicles (trains, planes,
