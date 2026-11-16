@@ -6,7 +6,7 @@ const fs=require('fs');
 let hdr=fs.readFileSync('site.js','utf8').split('\n');
 const n=hdr.findIndex(l=>l.startsWith('eval(src);'));
 hdr=hdr.slice(0,n).join('\n');
-hdr=hdr.replace(/window\.__t=\{/,'window.__t={setGob,angDiff,tenvSpawnOne,setTenv(v){const w=TENV;TENV=v;return w;},tenvVehKinds,dbgItems,dbgMenuToggle,ddOpts,ddChoose,get DT(){return DT},get hintTxt(){return P1.ui.hint.hidden?"(hidden)":P1.ui.hint._s},mgLead,mgTarget,MGW,get DRV_WPN(){return DRV_WPN},get:(x,y,z)=>get(x,y,z),keys,mHeld,setRaw,solidAt,tenvVeh,MG,BINDS,ACTS,setBind,drvFind,mgFits,get nEdits(){return Object.keys(edits).length},');
+hdr=hdr.replace(/window\.__t=\{/,'window.__t={setGob,mechHint,angDiff,milHit,mechHit,IMP,tenvSpawnOne,setTenv(v){const w=TENV;TENV=v;return w;},tenvVehKinds,dbgItems,dbgMenuToggle,ddOpts,ddChoose,get DT(){return DT},get hintTxt(){return P1.ui.hint.hidden?"(hidden)":P1.ui.hint._s},mgLead,mgTarget,MGW,get DRV_WPN(){return DRV_WPN},get:(x,y,z)=>get(x,y,z),keys,mHeld,setRaw,solidAt,tenvVeh,MG,BINDS,ACTS,setBind,drvFind,mgFits,get nEdits(){return Object.keys(edits).length},');
 eval(hdr+`
 eval(src);const T=window.__t;let now=1000;
 const quiet=()=>{for(const g of T.goblins)if(g.state==='chase'&&!g.keep){g.state='wait';g.t=-1e9;g.root.visible=false;}};
@@ -50,7 +50,7 @@ hold([],1);
  // (as fast as it'll go: cooldown between, then out of energy)
  run(3);let n=0,t=0;const e1=M.en;while(M.red<=0&&t<8){tap('ShiftLeft');run(0.55);t+=0.6;n++;}
  console.log('  quick boosts back to back from',f1(e1),'energy:',n,'before it redlines;',f1(t),'s');
- const e2=M.en;tap('ShiftLeft');console.log('  redlined: another does nothing',M.qbT<=0,' boost',M.boostOn,' energy bar red',P.ui.drvHud.mg.last.endsWith('r'));
+ const e2=M.en;tap('ShiftLeft');console.log('  redlined: another does nothing',M.qbT<=0,' boost',M.boostOn,' energy bar red',P.ui.drvHud.mg.last.split('i')[0].endsWith('r'));
  let r=0;while(M.red>0&&r<5){run(0.1);r+=0.1;}console.log('  redline lasted',f1(r+0.4),'s, energy then',f1(M.en));run(2.5);console.log('  2.5 s later',f1(M.en));}
 // ---- jumping and flying
 {run(2);const y0=M.y,e0=M.en;let top=0;tap('Space');for(let k=0;k<120;k++){run(1/60);top=Math.max(top,M.y-y0);}
@@ -214,6 +214,36 @@ hold([],1);
   for(let x=X-6;x<=X+6;x++)for(let y=Y;y<Y+12;y++)for(let z=Z;z<Z+3;z++)T.setRaw(x,y,z,0);for(let i=0;i<300&&!M.grounded;i++)run(1/60);run(1);
   tap('KeyE');run(0.6);tap('KeyE');run(1);console.log('  two more, then empty: shells',W().cannon.n,' reloading',W().cannon.rl>0);P.cam.pitch=-0.1;}
  hold(['KeyF'],0.8);console.log('  out of it: no locks',!M.soft&&!M.hard,' reloads go on: cannon',f1(W().cannon.rl));T.DT.host=1;}
+// ---- heavy hitting: the assault boost, the kick, impact and stagger, repair kits
+{T.DT.host=0;M=fresh();T.setGob(true);board(M);const sp=()=>Math.hypot(M.vx,M.vz),e0=M.en;
+ // (charge, then the dash where it's aimed; pressed again with nothing near, it stops and keeps a little speed)
+ tap('KeyX');run(0.3);const c1=sp(),ch=!!(M.ab&&M.ab.ph==='charge');run(0.5);const v1=sp(),go=!!(M.ab&&M.ab.ph==='go'),z0=M.z;run(1);const d1=M.z-z0,e1=M.en;
+ tap('KeyX');run(0.05);const v2=sp();run(0.5);
+ console.log('assault boost: charging',ch,'at',f1(c1),' then going',go,'at',f1(v1),' covered',f1(d1),'in 1 s, energy',f1(e0),'to',f1(e1),' pressed again: over',!M.ab,' speed',f1(v2),'then',f1(sp()),' boost left on',M.boostOn);
+ // (aimed up, it climbs; pulled back, it stops)
+ run(2);M.en=T.MG.enMax;P.cam.pitch=0.45;tap('KeyX');run(0.7);const y0=M.y;run(0.6);const up=M.y-y0;hold(['KeyS'],0.1);const stop=!M.ab;P.cam.pitch=-0.1;run(3);
+ console.log('  aimed up: climbed',f1(up),'in 0.6 s;  pulled back: over',stop);
+ // (through a wall: one block thick, eight high, thirty ahead)
+ run(1);M.en=T.MG.enMax;const X=Math.floor(M.x),Z=Math.floor(M.z)+30,Y=Math.floor(M.y);for(let x=X-6;x<=X+6;x++)for(let y=Y;y<Y+8;y++)T.setRaw(x,y,Z,3);
+ const cnt=()=>{let c=0;for(let x=X-6;x<=X+6;x++)for(let y=Y;y<Y+8;y++)if(T.get(x,y,Z)===3)c++;return c;};const c0=cnt();
+ tap('KeyX');run(1.6);console.log('  into a wall 30 ahead: through it',M.z>Z+1,' blocks broken',c0-cnt(),' still going',!!M.ab,'at',f1(sp()));if(M.ab)tap('KeyX');run(1.5);
+ for(let x=X-6;x<=X+6;x++)for(let y=Y;y<Y+8;y++)T.setRaw(x,y,Z,0);run(0.3);hold(['KeyF'],0.8);
+ // (the kick: a parked tank 40 ahead, hard-locked; boost at it, then press again once it's close)
+ M=fresh();board(M);M.en=T.MG.enMax;T.TS.vm='park';T.tenvVeh('tank');T.TS.vm='hunt';run(0.2);const A=T.venues.get('tenvArmy'),tk=A.mil[A.mil.length-1];
+ tk.x=M.x;tk.z=M.z+40;tk.y=T.groundAt(tk.x,tk.z,G0+20);run(0.2);M.hard=tk;const hp0=tk.hp;
+ tap('KeyX');let t=0;while(t<3&&Math.hypot(tk.x-M.x,tk.z-M.z)>14){run(0.05);t+=0.05;}tap('KeyX');const kicking=!!M.kick;run(0.6);
+ console.log('  kick at a tank: kicking',kicking,' landed',hp0-tk.hp>0,' damage',f1(hp0-tk.hp),' its impact meter',f1(tk.imp||0),'of',T.IMP.tank,' staggered',tk.stag>0,' bounced back to',f1(Math.hypot(tk.x-M.x,tk.z-M.z)));
+ // (filling a tank's meter staggers it for 2 s; staggered, it takes half again as much; then it recovers)
+ tk.imp=0;tk.stag=0;tk.hp=5000;run(2);T.milHit(tk,60);const s1=tk.stag>0;T.milHit(tk,70);const s2=tk.stag>0,h1=tk.hp;T.milHit(tk,10);const extra=h1-tk.hp;run(2.2);
+ console.log('impact: a tank hit for 60',s1?'staggered':'not staggered',' then 70 more',s2?'staggered':'not staggered',' hit for 10 while staggered: takes',f1(extra),' 2.2 s later still staggered',tk.stag>0);
+ tk.imp=0;T.milHit(tk,50);const im=tk.imp;run(1);const im1=tk.imp;run(2);console.log('  meter after a hit',f1(im),' 1 s later',f1(im1),' 3 s later',f1(tk.imp),'(drains once it stops being hit)');
+ // (the Mobile Gear itself: full, it's staggered and can't move or fire)
+ M.hard=null;run(1);M.imp=0;T.trainHit(M,T.MG.impMax+5);const ms=M.stag>0;run(0.05);const sgShown=P.ui.drvHud.mg.sg.hidden===false;hold(['KeyW'],0.5);const mv=sp(),n0=M.wpn.rifle.n;T.mHeld.add('Mouse2');run(0.3);T.mHeld.delete('Mouse2');const fired=n0-M.wpn.rifle.n;run(2);
+ hold(['KeyW'],0.5);console.log('  the Mobile Gear hit for',T.MG.impMax+5,': staggered',ms,' (STAGGERED shown',sgShown+')',' pushing forward:',f1(mv),' rounds fired',fired,' 2.5 s later moving again',f1(sp()));run(1);
+ // (repair: three kits, each puts back 35% over a second; not at full health)
+ M.hp=T.MG.hp;const k0=M.kits;tap('KeyR');run(0.2);const atFull=M.kits===k0,hintKits=T.mechHint(P).includes('repair (3 left)');M.hp=200;tap('KeyR');run(1.2);const hp1=M.hp;for(let k=0;k<3;k++){M.hp=100;tap('KeyR');run(1.2);}
+ console.log('repair kits:',k0,' (the controls say',hintKits?'3 left)':'?)',' at full health a press does nothing',atFull,' from 200:',f1(hp1),' after using them all',M.kits,'left, hp',f1(M.hp),'(the last press did nothing)');
+ hold(['KeyF'],0.8);T.tenvClear();run(0.3);}
 // ---- the on-foot controls line is hidden while piloting; the debug menu spawns vehicles
 {M=fresh();T.setGob(true);run(0.1);run(0.1);
  const kinds=T.tenvVehKinds();console.log('debug menu vehicles:',T.ddOpts('vehSel').length,'kinds, rows',T.dbgItems().filter(it=>it.sec==='Vehicles').map(it=>it.label).join(', '),' Infinite ammo row',T.dbgItems().some(it=>it.k==='infAmmo'));

@@ -8,7 +8,10 @@
 // (ramV: from this fast, running into a wall or a building knocks a hole in it; plow: from this fast it hardly slows)
 const MG={hy:7.6,r:1.25,hp:600,walk:10.8,skate:32.4,air:28.8,airEN:12,hoverEN:5,grav:26,jumpV:16,jumpEN:8,jumpPre:0.12,ascV:9,ascEN:30,
   qbV:61,qbT:0.18,qbCD:0.35,qbEN:20,qbDec:0.35,enMax:100,enRegen:45,enDelay:0.5,red:1.8,stepWalk:1,stepSkate:2,outHold:0.5,
-  ramV:15,plow:24};
+  ramV:15,plow:24,
+  // (the assault boost: a charge-up, then a long straight dash where you aim, up or down too, steering slowly; the kick:
+  // pressed again with a target this near, a flying kick at it; the impact meter that staggers it; repair kits)
+  abCharge:0.6,abV:65,abEN0:15,abEN:10,abTurn:1.4,kickR:18,kickV:55,kickT:0.4,kickDmg:30,kickVD:60,kickEN:10,kickImp:4,impMax:260,kits:3,repK:0.35,repT:1};
 // (the legs: thigh and shin lengths, and how high the hips stand)
 const MG_L1=1.9,MG_L2=1.75,MG_HIP=3.75;
 DRV_NAME.mech='Mobile Gear';
@@ -98,8 +101,10 @@ function mgDraw(M,n){if(M.red>0||M.en<=0)return false;M.en-=n;M.enIdle=0;
 const mgCanBoost=M=>M.red<=0&&M.en>0;
 // one step of piloting it (p's controls; called from updateMechs for a mech with a pilot)
 function drvMech(M,dt){
-  mgWeapons(M,M.drv,drvIn(M.drv),dt);   // (first: a hard lock turns the camera, and that's the way it moves)
-  const p=M.drv,i=drvIn(p),yaw=p.cam.yaw+Math.PI,fx=Math.sin(yaw),fz=Math.cos(yaw),f=-i.z,r=i.x;
+  // (staggered, it can't do anything at all for a moment: no moving, boosting or firing, whatever's pressed)
+  const stag=M.stag>0,i=stag?{x:0,z:0}:drvIn(M.drv);
+  mgWeapons(M,M.drv,i,dt);   // (first: a hard lock turns the camera, and that's the way it moves)
+  const p=M.drv,yaw=p.cam.yaw+Math.PI,fx=Math.sin(yaw),fz=Math.cos(yaw),f=-i.z,r=i.x;
   // (which way you're pushing, on the ground's level, from where the camera looks: forward, back and strafing)
   let wx=fx*f-Math.cos(yaw)*r,wz=fz*f+Math.sin(yaw)*r;if(M.brace>0&&M.grounded){wx=wz=0;}const wm=Math.hypot(wx,wz);if(wm>1){wx/=wm;wz/=wm;}const moving=wm>0.15;
   M.qbCD-=dt;M.enIdle+=dt;if(M.red>0)M.red-=dt;
@@ -113,12 +118,13 @@ function drvMech(M,dt){
     if(!M.grounded)M.vy=Math.max(M.vy,0)*0.3;   // (in the air it holds its height for the burst)
     if(audio)sfx('Mobile Gear quick boost',()=>{noise(0.2,0.3,1700,'bandpass');tone('sawtooth',180,90,0.18,0.05);});addShake(0.18,M.x,M.z,12);
     puff(M.x-dx*1.5,M.y+3.5,M.z-dz*1.5,5,0xcfeeff,0.6);}
+  mgAssault(M,p,i,dt,f);mgRepair(M,i,dt);
   // (jump: a tap's about five blocks up; held, or pressed again in the air, it climbs on its thrusters while there's energy)
   // (a jump starts with a short dip, MG.jumpPre, then it's off)
-  if(i.mgJumpP&&M.grounded&&mgCanBoost(M)&&!(M.jPre>0))M.jPre=MG.jumpPre;
+  if(i.mgJumpP&&M.grounded&&mgCanBoost(M)&&!(M.jPre>0)&&!M.ab&&!M.kick)M.jPre=MG.jumpPre;
   if(M.jPre>0){M.jPre-=dt;if(M.jPre<=0){M.jPre=0;
     if(M.grounded&&mgCanBoost(M)){mgDraw(M,MG.jumpEN);M.vy=MG.jumpV;M.grounded=false;M.jT=0.55;M.jy0=M.y;puff(M.x,M.y+0.2,M.z,8,0xb8b0a0,1.4);if(audio)sfx('Mobile Gear jump',()=>noise(0.3,0.25,600,'lowpass'));}}}
-  M.asc=!M.grounded&&i.mgJump&&mgCanBoost(M)&&M.vy<MG.ascV+0.5;
+  M.asc=!M.grounded&&i.mgJump&&mgCanBoost(M)&&M.vy<MG.ascV+0.5&&!M.ab&&!M.kick;
   if(M.asc){mgDraw(M,MG.ascEN*dt);M.vy=Math.min(MG.ascV,M.vy+40*dt);}
   // the speed it wants: walking, boost skating on the ground, boosting through the air (which costs), or drifting
   const air=!M.grounded,airB=air&&M.boostOn&&mgCanBoost(M);M.airB=airB;
@@ -129,7 +135,11 @@ function drvMech(M,dt){
   // added for the move below, then taken off again, so the movement underneath carries on as if it hadn't happened. Its
   // speed falls away as the square of the time left, to nothing as the swing lands)
   let lx=0,lz=0;if(M.lgT>0){const a=Math.max(0,M.lgT-dt/2)/MGW.lungeT;M.lgT=Math.max(0,M.lgT-dt);lx=M.lgx*a*a;lz=M.lgz*a*a;}
-  if(M.qbT>0){M.qbT-=dt;M.vx=M.qbx;M.vz=M.qbz;if(M.qbT<=0)M.qbD=MG.qbDec;}
+  // (the kick and the assault boost take it over completely; charging one up, it slows to a near stop, holding its height)
+  if(M.kick){const K=M.kick;M.vx=K.vx;M.vz=K.vz;M.vy=K.vy;}
+  else if(M.ab&&M.ab.ph==='go'){const d=M.ab.d;M.vx=d.x*MG.abV;M.vz=d.z*MG.abV;M.vy=M.grounded&&d.y<0.03?0:d.y*MG.abV+MG.grav*dt;if(M.vy>0)M.grounded=false;}
+  else if(M.ab){const k=Math.min(1,dt*5);M.vx-=M.vx*k;M.vz-=M.vz*k;if(!M.grounded)M.vy=Math.max(M.vy,0)*0.5+MG.grav*dt;}
+  else if(M.qbT>0){M.qbT-=dt;M.vx=M.qbx;M.vz=M.qbz;if(M.qbT<=0)M.qbD=MG.qbDec;}
   else if(M.qbD>0){M.qbD-=dt;const k=Math.min(1,dt*6);M.vx+=(wx*spd-M.vx)*k;M.vz+=(wz*spd-M.vz)*k;}
   else if(!air&&!M.boostOn){
     // (on foot it gets going slowly and picks up into a jog -- pushing harder the faster it's already going -- and
@@ -201,6 +211,61 @@ function mgLand(M,v){M.landT=Math.min(0.5,0.08+v*0.015);M.landK=Math.min(1,v/22)
   if(v>6){thud(Math.min(1,v/25));puff(M.x,M.y+0.2,M.z,Math.min(16,4+v*0.4|0),0xb8b0a0,1.6);addShake(Math.min(0.6,v*0.02),M.x,M.z,25);}
   if(v>14){hitGoblins(M.x,M.z,4.5,Math.round(v/5),'Flattened by a Mobile Gear landing',M.y);pvpArea(M.drv,M.x,M.z,4.5,Math.round(v/5),'Flattened by a Mobile Gear landing',M.y);}}
 // pushing goblins and cars out of its way; a goblin it walks on is squashed, a car it walks into shoved
+// the assault boost (mgAB): pressed, it charges for MG.abCharge (crouching, glowing, a rising whine), then dashes at
+// MG.abV straight where you're aiming, up or down too, turning toward the aim only slowly, drawing energy as it goes and
+// smashing through walls (mgMove's ram, at that speed). It stops when you pull back, press it again with nothing near to
+// kick, or run out of energy, and keeps a little of its speed for a moment after (M.qbD), boost left on. Pressed again
+// with the locked target within MG.kickR: a flying kick at it (M.kick, see mgKick)
+function mgAssault(M,p,i,dt,f){
+  const aim=()=>{const cp=Math.cos(p.cam.pitch);return{x:-Math.sin(p.cam.yaw)*cp,y:Math.sin(p.cam.pitch),z:-Math.cos(p.cam.yaw)*cp};};
+  const end=()=>{M.ab=null;M.boostOn=true;M.qbD=MG.qbDec*1.5;};
+  if(M.kick){mgKick(M,dt);return;}
+  if(i.mgABP){
+    if(!M.ab){if(mgCanBoost(M)&&M.en>=MG.abEN0){M.ab={ph:'charge',t:MG.abCharge};M.qbT=0;if(audio)sfx('Mobile Gear assault boost charge',()=>tone('sawtooth',90,420,MG.abCharge,0.06));}}
+    else if(M.ab.ph==='go'){const T=mgTarget(M);let near=false;
+      if(T&&lockAlive(T)){const dx=T.pos.x-M.x,dy=lockY(T)-(M.y+4),dz=T.pos.z-M.z;near=Math.hypot(dx,dy,dz)<MG.kickR;}
+      if(near&&mgDraw(M,MG.kickEN)){M.ab=null;mgKickStart(M,T);return;}
+      end();return;}
+    else{M.ab=null;return;}}   // (pressed again while it's still charging: called off)
+  if(!M.ab)return;const A=M.ab;
+  if(A.ph==='charge'){A.t-=dt;M.abGlow=1-A.t/MG.abCharge;
+    if(A.t<=0){if(!mgDraw(M,MG.abEN0)){M.ab=null;return;}A.ph='go';A.d=aim();if(M.grounded&&A.d.y<0)A.d.y=0;const m=Math.hypot(A.d.x,A.d.y,A.d.z)||1;A.d.x/=m;A.d.y/=m;A.d.z/=m;
+      M.qbFlash=0.25;M.qbDir={x:A.d.x,z:A.d.z};addShake(0.35,M.x,M.z,20);puff(M.x-A.d.x*2,M.y+4,M.z-A.d.z*2,10,0xcfeeff,1.2);
+      if(audio)sfx('Mobile Gear assault boost',()=>{noise(0.5,0.4,1200,'bandpass');tone('sawtooth',220,110,0.4,0.06);});}
+    return;}
+  // (going: steering slowly toward the aim, drawing energy; pulled back, or out of energy, it's over)
+  const W=aim(),d=A.d,k=Math.min(1,MG.abTurn*dt);d.x+=(W.x-d.x)*k;d.y+=(W.y-d.y)*k;d.z+=(W.z-d.z)*k;if(M.grounded&&d.y<0)d.y=0;
+  {const m=Math.hypot(d.x,d.y,d.z)||1;d.x/=m;d.y/=m;d.z/=m;}
+  M.abGlow=1;M.qbDir={x:d.x,z:d.z};M.qbFlash=Math.max(M.qbFlash||0,0.12);
+  if(f<-0.5||!mgDraw(M,MG.abEN*dt)){end();return;}
+  if(audio&&playing){M.abHum=(M.abHum||0)-dt;if(M.abHum<=0){M.abHum=0.1;sfx('Mobile Gear assault boost',()=>noise(0.12,0.08,1400,'bandpass'));}}
+}
+// the kick: straight at the target, feet first, for up to MG.kickT; on reaching it, one heavy blow (a lot of impact,
+// so it mostly staggers), then it bounces back off it and drops
+function mgKickStart(M,T){M.kick={T,t:MG.kickT,vx:0,vy:0,vz:0,hit:false};M.grounded=false;mgKick(M,0);
+  if(audio)sfx('Mobile Gear kick',()=>{noise(0.25,0.3,900,'bandpass');tone('sawtooth',160,320,0.2,0.05);});}
+function mgKick(M,dt){const K=M.kick,T=K.T;K.t-=dt;
+  // (after the blow: the bounce back, falling as it goes, then it's over)
+  if(K.hit||!lockAlive(T)||K.t<=0){K.vy-=MG.grav*dt;if(K.t<=-0.35||!K.hit){M.kick=null;M.boostOn=true;M.qbD=MG.qbDec;}return;}
+  const ty=lockY(T),dx=T.pos.x-M.x,dy=ty-(M.y+3),dz=T.pos.z-M.z,d=Math.hypot(dx,dy,dz)||1;
+  K.vx=dx/d*MG.kickV;K.vy=dy/d*MG.kickV+MG.grav*dt;K.vz=dz/d*MG.kickV;
+  const reach=MG.r+2.2+(isMilT(T)?Math.max(MIL[T.kind].hx,MIL[T.kind].hz):isCarT(T)?(T.hz||2):0.5);
+  if(Math.hypot(dx,dz)>reach||Math.abs(dy)>4)return;
+  // (it lands: the blow, then a bounce back the way it came)
+  K.hit=true;K.t=0;const nx=dx/(Math.hypot(dx,dz)||1),nz=dz/(Math.hypot(dx,dz)||1);
+  impX=MG.kickImp;
+  if(isMilT(T))milHit(T,MG.kickDmg,new V3(nx,0,nz));
+  else if(isCarT(T)){damageCar(T,MG.kickVD,new V3(nx,0,nz));if(T.alive)launchCar(T,6,new V3(nx*3,0,nz*3),4);}
+  else damageGoblin(T,MG.kickDmg,T.pos.clone(),new V3(nx*1.6,1.2,nz*1.6),"Kicked by a Mobile Gear");
+  impX=1;
+  K.vx=-nx*10;K.vz=-nz*10;K.vy=7;addShake(0.5,M.x,M.z,25);clang();puff(M.x+nx*reach,ty,M.z+nz*reach,10,0xffd080,1);
+}
+// a repair kit (mgRep): one of MG.kits, putting back MG.repK of its health over MG.repT
+function mgRepair(M,i,dt){
+  if(i.mgRepP&&!(M.repT>0)&&(M.kits??MG.kits)>0&&M.hp<MG.hp){M.kits=(M.kits??MG.kits)-1;M.repT=MG.repT;
+    if(audio)sfx('Mobile Gear repair',()=>{tone('triangle',330,660,0.3,0.05);tone('triangle',495,990,0.3,0.04);});}
+  if(M.repT>0){M.repT-=dt;M.hp=Math.min(MG.hp,M.hp+MG.hp*MG.repK*Math.min(dt,dt+M.repT)/MG.repT);if(Math.random()<dt*14)puff(M.x+(Math.random()-.5)*3,M.y+2+Math.random()*5,M.z+(Math.random()-.5)*3,1,0x9cf07a,0.5);}
+}
 function mechShove(M){const r=MG.r,top=M.y+MG.hy,sp=Math.hypot(M.vx||0,M.vz||0),out=(o,rr)=>{const dx=o.pos.x-M.x,dz=o.pos.z-M.z;if(Math.abs(dx)>r+rr||Math.abs(dz)>r+rr)return null;
     const px=r+rr-Math.abs(dx),pz=r+rr-Math.abs(dz);return px<pz?{nx:Math.sign(dx)||1,nz:0,need:px+0.05}:{nx:0,nz:Math.sign(dz)||1,need:pz+0.05};};
   for(const g of goblins){if(g.state!=='chase'||g.pos.y+1.5<M.y||g.pos.y>top-0.3)continue;const c=out(g,0.4);if(!c)continue;
@@ -223,7 +288,7 @@ function mechBoxes(M,v){
 }
 // hurt: by shells, rockets, bullets and blasts (through trainHit). At nothing it blows up and throws its pilot clear
 function mechHit(M,n){
-  if(M.dead)return;dmgPop(M.x,M.y+MG.hy+0.8,M.z,Math.round(n),'#ffb04a');M.hp-=n;M.hurt=0.2;vHitFx(M.x,M.y+5,M.z,n);
+  if(M.dead)return;n=impHit(M,n);dmgPop(M.x,M.y+MG.hy+0.8,M.z,Math.round(n),'#ffb04a');M.hp-=n;M.hurt=0.2;vHitFx(M.x,M.y+5,M.z,n);
   if(M.hp>0)return;
   M.dead=true;M.deadT=0;M.boostOn=false;
   blastFx(M.x,M.y+4,M.z,0.9,2.6);smoke(M.x,M.y+5,M.z,26,0x262626);
@@ -267,12 +332,15 @@ function mechPose(M,dt){
   // (in the air it leans hard into the way it's flying, judged against walking speed so even a drift tips it)
   const ka=Math.min(1,sp/MG.walk),lk=((0.05+0.08*jg)*M.wW+0.22*M.sW)*k+0.6*ka*(1-M.gW);let pt=uz*lk,rl=-ux*lk;
   if(M.qbFlash>0&&M.qbDir){const q=M.qbFlash/0.25,qf=M.qbDir.x*sh+M.qbDir.z*ch,qs=M.qbDir.x*ch-M.qbDir.z*sh;pt+=qf*0.3*q;rl-=qs*0.3*q;}
+  // (staggered: rocked back on its heels and shaking; charging an assault boost: hunched forward, ready to go)
+  if(M.stag>0){pt-=0.3;rl+=Math.sin(camClock*22)*0.14;}
+  M.abA=ease(M.abA||0,M.ab&&M.ab.ph==='charge'?1:0,10);pt+=M.abA*0.25;
   M.pt=ease(M.pt||0,lean(pt),8);M.rl=ease(M.rl||0,lean(rl),8);
   // (the pelvis: a little knee bend standing, a bob walking, crouched skating, knocked down by a hard landing)
   // (the dip before a jump, let go quickly but not in a single frame as it springs up)
   {const t=M.jPre>0?Math.sin((1-M.jPre/MG.jumpPre)*Math.PI*0.5)*0.75:0;M.jd=ease(M.jd||0,t,t>(M.jd||0)?40:10);}
   M.brA=ease(M.brA||0,M.brace>0?1:0,12);   // (bracing to fire the cannon: down into a firm crouch)
-  const dip=0.2+M.jd+M.brA*0.45+M.wW*Math.abs(Math.sin(M.ph))*(0.35+0.2*jg)+M.sW*0.55+crouch*0.9;const by=MG_HIP-dip*M.gW;
+  const dip=0.2+M.jd+M.abA*0.6+M.brA*0.45+M.wW*Math.abs(Math.sin(M.ph))*(0.35+0.2*jg)+M.sW*0.55+crouch*0.9;const by=MG_HIP-dip*M.gW;
   J.B.position.y=by;J.B.rotation.set(M.pt,0,M.rl,'ZXY');
   const cp=Math.cos(M.pt),sp2=Math.sin(M.pt),cr=Math.cos(M.rl),sr=Math.sin(M.rl);
   // (a jump: for a moment the feet stay where they pushed off, so the legs straighten under it, then they tuck up and
@@ -314,6 +382,12 @@ function mechPose(M,dt){
     // (that point, seen from the leaning pelvis: undo its roll, then its pitch, then step across to the hip)
     let x=tx,y=ty-by,z=tz;{const x1=x*cr+y*sr,y1=-x*sr+y*cr;x=x1;y=y1;}{const y2=y*cp+z*sp2,z2=-y*sp2+z*cp;y=y2;z=z2;}
     mgLeg(L,x-s*0.8,y,z,M.pt,M.rl);}
+  // (the kick: the right leg thrown out straight ahead, the left tucked; eased in and out over the normal pose)
+  M.kW=ease(M.kW||0,M.kick&&!M.kick.hit?1:0,M.kick?18:8);
+  if(M.kW>0.01)for(const L of J.legs){const r0=[L.hip.rotation.x,L.hip.rotation.z,L.knee.rotation.x,L.ank.rotation.x,L.ank.rotation.z];
+    if(L.s<0)mgLeg(L,0,-0.9,3.3,M.pt,M.rl);else mgLeg(L,0.1,-1.4,-0.6,M.pt,M.rl);
+    const k=M.kW,mix=(a,b)=>a+(b-a)*k;L.hip.rotation.x=mix(r0[0],L.hip.rotation.x);L.hip.rotation.z=mix(r0[1],L.hip.rotation.z);L.knee.rotation.x=mix(r0[2],L.knee.rotation.x);
+    L.ank.rotation.x=mix(r0[3],L.ank.rotation.x);L.ank.rotation.z=mix(r0[4],L.ank.rotation.z);}
   // (the body turns to where you're looking, the head and arms tip up or down with the view, allowing for the lean)
   J.T.rotation.y=Math.max(-1.6,Math.min(1.6,angDiff(h,M.ty??h)));J.T.rotation.x=0;
   const ap=Math.max(-0.7,Math.min(0.6,M.aimP||0));J.head.rotation.x=-ap*0.5-M.pt*0.5;
@@ -333,11 +407,11 @@ function mechPose(M,dt){
   for(const F of J.flames){
     if(F.kind==='lift'){const L=J.legs[F.o.parent===J.legs[0].knee?0:1],th=M.pt+L.hip.rotation.x+L.knee.rotation.x,wy=-0.97,wz=-0.25;
       const d=[0,F.d[1]+((wy*Math.cos(th)+wz*Math.sin(th))-F.d[1])*air,F.d[2]+((-wy*Math.sin(th)+wz*Math.cos(th))-F.d[2])*air];mgAim(F.o,d);}
-    const push2=dirT*Math.max(0,-(F.d[0]*mx+F.d[2]*mz)),want=F.kind==='lift'?lift:F.kind==='back'?Math.max(push2,lift*0.8*air):push2;
+    const push2=dirT*Math.max(0,-(F.d[0]*mx+F.d[2]*mz)),want=F.kind==='lift'?lift:F.kind==='back'?Math.max(push2,lift*0.8*air,(M.abA>0.01?M.abA*0.9*(0.7+0.3*Math.random()):0),M.ab&&M.ab.ph==='go'?1.6:0):push2;   // (the main pair glowing up while an assault boost charges, roaring once it goes)
     F.L=ease(F.L,want,20);big=Math.max(big,F.L);
     const L=F.L*1.6*(0.85+Math.random()*0.3);F.m.visible=F.t.visible=L>0.08;
     if(F.m.visible){F.m.scale.z=L;F.m.position.z=L/2;F.t.scale.z=L*0.6;F.t.position.z=L*1.25;}}
-  J.eye.material=M.red>0&&Math.floor(camClock*8)%2?MGM.trim:MGM.glow;   // (its eye flashes while it's redlined)
+  J.eye.material=(M.red>0||M.stag>0)&&Math.floor(camClock*8)%2?MGM.trim:MGM.glow;   // (its eye flashes while it's redlined or staggered)
   if(big>0.3&&Math.random()<dt*20){const b=-1.9;puff(M.x+Math.sin(tyw)*b-(M.vx*0.05),M.y+5.2,M.z+Math.cos(tyw)*b-(M.vz*0.05),1,0xcfeeff,0.4);}
   if(skate&&Math.random()<dt*25)puff(M.x-M.vx*0.04,M.y+0.15,M.z-M.vz*0.04,1,0xffd080,0.5);   // (sparks off the feet)
   if((M.asc||M.airB||skate)&&audio&&playing){M.hum=(M.hum||0)-dt;if(M.hum<=0){M.hum=0.12;sfx('Mobile Gear thrusters',()=>noise(0.13,0.04+lift*0.05,M.asc?900:600,'bandpass'));}}
@@ -348,10 +422,10 @@ function updateMechs(V,dt){
     if(M.dead){M.deadT+=dt;if(M.deadT<60&&Math.random()<dt*3)smoke(M.x,M.y+5,M.z,1,0x262626);M.vx=M.vz=0;
       {const gy=mgGround(M.x,M.z,M.y+0.3);if(M.y>gy+0.02){M.vy-=MG.grav*dt;M.y=Math.max(gy,M.y+M.vy*dt);}else M.vy=0;}}
     else if(M.drv)drvMech(M,dt);else mechIdle(M,dt);
-    M.hurt=(M.hurt||0)-dt;if(!M.dead)vDamaged(M.x,M.y+MG.hy,M.z,M.hp/MG.hp,dt);
+    M.hurt=(M.hurt||0)-dt;if(!M.dead)impTick(M,dt);if(!M.dead)vDamaged(M.x,M.y+MG.hy,M.z,M.hp/MG.hp,dt);
     mechPose(M,dt);mechBoxes(M,Math.hypot(M.vx,M.vz));mechShove(M);}
 }
 // a new one, standing at x,z facing h, in venue V
 function newMech(V,x,z,h){const mk=makeMech(),M=Object.assign({isMech:true,kind:'mech',V,x,y:spGround(x,z),z,h,ty:h,vx:0,vy:0,vz:0,hp:MG.hp,dead:false,grounded:true,
-  en:MG.enMax,enIdle:9,red:0,boostOn:false,qbT:0,qbCD:0,ph:0,key:'mech:'+Date.now()+':'+V.mechs.length},mk);
+  en:MG.enMax,enIdle:9,red:0,boostOn:false,qbT:0,qbCD:0,ph:0,kits:MG.kits,imp:0,stag:0,key:'mech:'+Date.now()+':'+V.mechs.length},mk);
   scene.add(M.g);V.mechs.push(M);mechPose(M,0);return M;}

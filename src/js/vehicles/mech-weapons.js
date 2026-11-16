@@ -18,7 +18,7 @@ const MGW={box:0.22,range:150,hardRange:170,camTurn:2.4,
   rifleDmg:3,rifleSc:0.006,
   bladeReach:24,bladeMid:8,lunge:7,lungeMax:12,bladeDmg:20,bladeVD:90,bladeR:13,bladeArc:1.92,bladeY:4.5,swingUp:0.6,swingDown:0.8,lungeT:0.38,windT:0.34,igniteT:0.12,sweepT:0.14,backT:0.4,
   podLock:0.2,podLocks:4,missV:50,missTurn:5,missR:2.6,missDmg:4,missVD:35,missCrush:1.4,
-  canV:95,canGrav:3,brace:0.4,canR:5.5,canDmg:10,canVD:180,canCrush:3.8,recoil:14};
+  canV:95,canGrav:3,brace:0.4,canR:5.5,canDmg:10,canVD:180,canCrush:3.8,recoil:14,canImp:2,bladeImp:2};
 // a point on the mech in its torso's frame (x to its left, y up from its feet, z ahead), out in the world
 function mgAt(M,lx,ly,lz){const a=M.ty??M.h,c=Math.cos(a),s=Math.sin(a);return{x:M.x+lx*c+lz*s,y:M.y+ly,z:M.z-lx*s+lz*c};}
 // the camera's forward line
@@ -28,6 +28,20 @@ function mgOff(p,t){const c=p.camera.position,f=mgFwd(p),ty=lockY(t),dx=t.pos.x-
   return Math.max(0,Math.acos(Math.max(-1,Math.min(1,(dx*f.x+dy*f.y+dz*f.z)/L)))-Math.atan((isMilT(t)?MIL[t.kind].hz:0.5)/L));}
 // what's locked: the hard lock, or else the soft one
 const mgTarget=M=>M.hard||M.soft||null;
+// ---- impact and stagger: the army's tanks and helicopters and the Mobile Gear each have an impact meter that every hit
+// fills (by its damage, times impX for the heavy blows: the cannon, the blade, the kick) and that drains once they've not
+// been hit for IMP.wait. Full, they're staggered for IMP.stag: they can't move or fire, and take IMP.mul times damage ----
+const IMP={tank:120,heli:90,wait:1.2,drain:30,stag:2,mul:1.5};let impX=1;
+const impMax=T=>T.isMech?MG.impMax:IMP[T.kind]||100;
+// a hit of n on T: its meter filled, and the damage it actually takes (more while staggered)
+function impHit(T,n){
+  if(T.stag>0)return n*IMP.mul;
+  T.imp=(T.imp||0)+n*impX;T.impT=0;
+  if(T.imp>=impMax(T)){T.imp=0;T.stag=IMP.stag;if(T.isMech){T.ab=null;T.kick=null;T.lgT=0;T.brace=0;}
+    if(audio)sfx('Staggered',()=>{tone('square',300,120,0.3,0.06);noise(0.3,0.2,900,'bandpass');});
+    puff(T.x,T.y+(T.isMech?6:2.5),T.z,12,0xffe060,1.2);}
+  return n;}
+function impTick(T,dt){if(T.stag>0){T.stag-=dt;if(T.stag<=0)T.stag=0;return;}T.impT=(T.impT||0)+dt;if(T.impT>IMP.wait)T.imp=Math.max(0,(T.imp||0)-IMP.drain*dt);}
 // the lock box: everything in it (M.inBox), the soft lock (the best of them: nearest the middle, hostile goblins and
 // the army's vehicles before townsfolk, ones in sight first, and the one already locked kept unless another's clearly
 // better), and the hard lock's button. Then the target's speed, smoothed, for leading it; and a hard lock turning the
@@ -92,7 +106,7 @@ function mgWeapons(M,p,i,dt){
   // (the cannon: on the ground it braces first (M.brace: it stops, crouches and swings the barrel over its shoulder),
   // then fires; in the air at once)
   const cw=W.cannon;
-  if(i.mgShRP&&!(M.brace>0)){if(cw.rl>0||cw.n<=0)wpnClick();else if(cw.cd<=0){if(M.grounded){M.brace=MGW.brace;M.cnT=MGW.brace+0.9;}else mgCannon(M,p);}}
+  if(i.mgShRP&&!(M.brace>0)){if(cw.rl>0||cw.n<=0)wpnClick();else if(cw.cd<=0){if(M.grounded&&!M.ab){M.brace=MGW.brace;M.cnT=MGW.brace+0.9;}else mgCannon(M,p);}}
   if(M.brace>0){M.brace-=dt;if(M.brace<=0){M.brace=0;mgCannon(M,p);}}
 }
 // with nobody in it: no locks, nothing firing, but the weapons still reload
@@ -133,7 +147,7 @@ function mgSlash(M,S,f0,f1){
     if(d<=R&&(f0===0?a>=a0:a>a0)&&a<=a1){S.hit.add(q);pvpHurt(M.drv,q,MGW.bladeDmg,q.pos.clone(),new V3(dx/d,0.8,dz/d),"Cut down by a Mobile Gear's heat blade",{cd:0});}}
   // (vehicles: a blow at three points round the arc, a third of the way along the blade's length and two thirds)
   for(const q of [1/6,1/2,5/6])if(f0<q&&f1>=q){const a=mgSweepA(q),ux=S.fx*Math.cos(a)+lx*Math.sin(a),uz=S.fz*Math.cos(a)+lz*Math.sin(a);
-    for(const r of [MG.r+MGW.bladeR*0.35,MG.r+MGW.bladeR*0.75])vehBlast(M.x+ux*r,mgSwY(M,S,r*Math.cos(a)),M.z+uz*r,MGW.bladeR*0.22,MGW.bladeVD*0.5,M);}
+    for(const r of [MG.r+MGW.bladeR*0.35,MG.r+MGW.bladeR*0.75]){impX=MGW.bladeImp;vehBlast(M.x+ux*r,mgSwY(M,S,r*Math.cos(a)),M.z+uz*r,MGW.bladeR*0.22,MGW.bladeVD*0.5,M);impX=1;}}
   mgSlice(M,S,f0===0?a0-1e-6:a0,a1);
   if(f0===0){const e=mgAt(M,0,MGW.bladeY+(MG.r+3)*Math.tan(S.pt||0),MG.r+3);puff(e.x,e.y,e.z,8,0xffa040,1.2);if(audio)sfx('Mobile Gear blade',()=>{noise(0.25,0.25,2600,'bandpass');tone('sawtooth',700,160,0.22,0.05);});addShake(0.25,M.x,M.z,16);}
 }
@@ -169,7 +183,7 @@ function mgMissile(M,p,T){
 function mgCannon(M,p){
   if(!wpnFire(M,'cannon'))return;const m=mgCannonAt(M),A=mgLead(M,p,m.x,m.y,m.z,MGW.canV),dx=A.x-m.x,dz=A.z-m.z,L=Math.hypot(dx,A.y-m.y,dz)||1,t=L/MGW.canV,sp=MGW.canV;
   shot({kind:'shell',x:m.x,y:m.y,z:m.z,vx:dx/L*sp,vy:(A.y-m.y)/L*sp+MGW.canGrav*t*0.5,vz:dz/L*sp,grav:MGW.canGrav,fuse:5,R:MGW.canR,dmg:MGW.canDmg,crush:MGW.canCrush,vd:MGW.canVD,own:M,
-    cause:"Blasted by a Mobile Gear's cannon",by:pvpBy(p)});
+    cause:"Blasted by a Mobile Gear's cannon",by:pvpBy(p),imp:MGW.canImp});
   M.cnT=Math.max(M.cnT||0,0.9);blastFx(m.x,m.y,m.z,0.25,1.2);smoke(m.x,m.y,m.z,6,0x8a8a8a);addShake(0.6,M.x,M.z,30);
   if(audio)sfx('Mobile Gear cannon',()=>{noise(0.6,0.5,700,'lowpass');tone('sawtooth',110,30,0.6,0.16);});
   if(!M.grounded){const h=Math.hypot(dx,dz)||1;M.vx-=dx/h*MGW.recoil;M.vz-=dz/h*MGW.recoil;M.vy=Math.max(M.vy,0)+2;}}

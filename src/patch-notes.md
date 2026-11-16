@@ -18,7 +18,12 @@
   - Q (controller LT): the Swarm Pod on its left shoulder. Hold it and the pod locks on to whatever's in the lock box, up to four locks, then let go and a homing missile flies at each. With nothing locked, a tap fires one where you're aiming.
   - E (controller RT): the Breaker Cannon on its right shoulder. On the ground it stops, braces and swings the cannon over its shoulder before firing a heavy shell that blasts a crater. In the air it fires at once and the kick shoves it backwards. It sits up on a post, so firing low it clears the Gear's own chest.
 - Lock-on: anything in the box round the crosshair is picked out by itself, and the rifle and blade aim at it, leading a moving target. Middle click (controller R3) holds on to it with a hard lock, and the camera turns to keep it in view while you move round it. Press it again to let go.
-- It has 600 health. Wreck it and you're thrown out. The assault boost and repairs are coming in a later update.
+- It has 600 health. Wreck it and you're thrown out.
+- X (controller L3) is the assault boost. It crouches and glows for a moment with a rising whine, then dashes off fast straight where you're aiming, up or down too, turning only slowly after your aim. Its weapons still fire on the way. It costs a chunk of energy to start and keeps drawing on it, and it smashes straight through walls. Press it again, or pull back, to stop.
+- Press it again near the target you're locked on to and it flies at it with a kick instead: not much damage, but it'll nearly always stagger what it hits.
+- Staggering: every hit fills a target's impact meter, which drains again once the hits stop. A full meter staggers it for 2 seconds: it can't move or shoot, and takes half again as much damage. Heavy blows (the kick, the Breaker Cannon, the Heat Cleaver) fill it faster. Tanks, helicopters and the Mobile Gear itself can all be staggered.
+- Your own impact meter is the thinner bar under the energy bar, with STAGGERED flashing under it while you are. A locked tank or helicopter shows its health and its impact meter under its bracket.
+- R (controller D-pad down) uses a repair kit, putting back 35% of its health over a second. Each Mobile Gear carries three, and the controls list on the left says how many are left.
 - Its controls can be rebound in Options, in their own "Piloting a Mobile Gear" section.
 - Mobile Gears aren't kept when you leave the Testing Environment.
 - While you're piloting, the controls line for on foot is hidden.

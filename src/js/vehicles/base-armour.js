@@ -72,6 +72,10 @@ function updateArmy(V,dt){
       // (the next tank off is the one nearest you)
       if(M.kind==='tank'){const n=nearestPlayer(M.x,M.z);let best=true;if(n)for(const o of V.mil)if(o!==M&&o.kind==='tank'&&!o.dead&&o.state==='park'&&Math.hypot(o.x-n.p.pos.x,o.z-n.p.pos.z)<n.d-0.01){best=false;break;}if(best){rolling++;if(milCall(V,M)){M.state='hunt';M.cd=1.5+Math.random();}}}
       else if(milCall(V,M)){M.state='hunt';M.cd=4;M.rcd=7+Math.random()*3;}}
+    impTick(M,dt);
+    // (staggered: it does nothing at all for a moment, rocking where it is; a helicopter sinks a little)
+    if(M.stag>0&&!M.drv){M.jolt=Math.max(M.jolt,0.15);if(M.kind==='heli'&&M.spin>0.8)M.y=Math.max(groundAt(M.x,M.z,M.y+1)+1,M.y-2*dt);
+      {const gy=groundAt(M.x,M.z,M.y+1.5);if(M.kind==='tank'&&gy<M.y){M.vy-=20*dt;M.y=Math.max(gy,M.y+M.vy*dt);}}milPlace(M);milBoxes(M,0);milShove(M);continue;}
     if(M.kind==='tank')updateTank(M,V,dt);else updateHeli(M,V,dt);
   }
 }
@@ -176,7 +180,7 @@ function updateHeli(M,V,dt){
   if(M.spin>0.3&&audio&&playing&&n&&n.d<90){M.thT=(M.thT||0)-dt;if(M.thT<=0){M.thT=0.11;sfx('Helicopter rotor',()=>noise(0.08,0.05*M.spin*(1-n.d/90),180,'lowpass'));}}   // (the thud of its rotor)
 }
 function milHit(M,n,dir){
-  if(M.dead)return;const I=MIL[M.kind];dmgPop(M.x,M.y+I.hy+0.8,M.z,Math.round(n),'#ffb04a');M.hp-=n;M.hurt=0.2;M.jolt=0.3;vHitFx(M.x,M.y+I.hy*0.6,M.z,n);
+  if(M.dead)return;const I=MIL[M.kind];n=impHit(M,n);dmgPop(M.x,M.y+I.hy+0.8,M.z,Math.round(n),'#ffb04a');M.hp-=n;M.hurt=0.2;M.jolt=0.3;vHitFx(M.x,M.y+I.hy*0.6,M.z,n);
   if(!M.V.alert&&!calmNow())milAlert(M.V,(nearestPlayer(M.x,M.z)||{}).p);   // (shot at, the whole base wakes up)
   if(M.hp>0)return;
   M.dead=true;M.deadT=0;M.fall=M.kind==='heli'&&M.y>G+2;M.vy=0;wrecked[M.key]=1;save();

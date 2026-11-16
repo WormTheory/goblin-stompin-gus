@@ -81,7 +81,7 @@ function updateShots(dt){
       // (a shell or a rocket goes off on whoever it reaches, too)
       if(!S.bounce)for(const q of players){if(!q.active||q.state==='dead'||q.drv&&q.drv.o===S.own)continue;const hx=S.pos.x-q.pos.x,hz=S.pos.z-q.pos.z,hy=S.pos.y-q.pos.y;if(hx*hx+hz*hz<1.6*1.6&&hy>-0.3&&hy<2.4){boom=true;break;}}
       if(!S.bounce&&!boom&&shotHitsVeh(S))boom=true;}
-    if(boom||S.t>12){S.live=false;S.g.visible=false;foeBoom(S.pos.x,S.pos.y,S.pos.z,S.R,S.dmg,S.cause,S.by,S.crush,S.vd,S.own);continue;}
+    if(boom||S.t>12){S.live=false;S.g.visible=false;impX=S.imp||1;foeBoom(S.pos.x,S.pos.y,S.pos.z,S.R,S.dmg,S.cause,S.by,S.crush,S.vd,S.own);impX=1;continue;}   // (imp: how much a heavy shell fills an impact meter: see impHit)
     S.g.position.copy(S.pos);
     if(S.bounce){S.g.rotation.x+=dt*Math.hypot(S.v.x,S.v.z)*1.5;S.trail-=dt;if(S.trail<=0){S.trail=0.08;puff(S.pos.x,S.pos.y+0.1,S.pos.z,1,0x9a9a8a,0.08);}}   // (the fuse fizzing)
     else{const h=Math.hypot(S.v.x,S.v.z);S.g.rotation.set(-Math.atan2(S.v.y,h),Math.atan2(S.v.x,S.v.z),0,'YXZ');S.trail-=dt;if(S.trail<=0){S.trail=0.03;smoke(S.pos.x,S.pos.y,S.pos.z,1,S.kind==='rocket'?0xdadada:0x6a6a6a);}}

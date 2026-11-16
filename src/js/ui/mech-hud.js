@@ -15,19 +15,24 @@ function mechCamera(p){
   if(p.shake>0.002&&gameSpeed()>0){const c=p.camera.position;c.x+=(Math.random()-.5)*p.shake;c.y+=(Math.random()-.5)*p.shake;c.z+=(Math.random()-.5)*p.shake;}
 }
 // the line of controls along the top of the display
-function mechHint(p){const L=id=>actMark(p,id);
-  return L('mgQB')+' quick boost  ·  '+L('mgBoost')+' boost '+(p.drv.o.boostOn?'ON':'off')+'  ·  '+L('mgJump')+' jump, hold to fly  ·  '+L('mgLock')+(p.drv.o.hard?' let go':' lock on')+'  ·  hold '+L('mgOut')+' get out';}
+function mechHint(p){const L=id=>actMark(p,id),M=p.drv.o;
+  return L('mgQB')+' quick boost  ·  '+L('mgBoost')+' boost '+(M.boostOn?'ON':'off')+'  ·  '+L('mgAB')+(M.ab&&M.ab.ph==='go'?' stop, or kick':' assault boost')+'  ·  '+L('mgJump')+' jump, hold to fly  ·  '+L('mgLock')+(M.hard?' let go':' lock on')+'  ·  '+L('mgRep')+' repair ('+(M.kits??MG.kits)+' left)  ·  hold '+L('mgOut')+' get out';}
 // the energy gauge: a thin bar along the bottom of the lock box, its whole width, how much is left, red and flashing while
-// it's redlined (made after the weapons' display, which makes the lock box)
+// it's redlined; under it, thinner, its own impact meter (how near it is to being staggered), with "STAGGERED" flashing
+// under that while it is (made after the weapons' display, which makes the lock box)
 function mechHud(p,H){
   const on=p.drv&&p.drv.k==='mech'&&!p.drv.jack;
   mgWpnHud(p,H,on);
   if(!H.mg){if(!on)return;const el=document.createElement('div');el.className='mgen';el.innerHTML='<i></i>';H.mgw.lb.append(el);
-    H.mg={el,fill:el.querySelector('i'),last:''};}
-  H.mg.el.hidden=!on;if(!on)return;
-  const M=p.drv.o,f=Math.max(0,Math.min(1,M.en/MG.enMax)),red=M.red>0,st=(f*100).toFixed(1)+(red?'r':'');
+    const im=document.createElement('div');im.className='mgim';im.innerHTML='<i></i>';H.mgw.lb.append(im);
+    const sg=document.createElement('div');sg.className='mgst';sg.textContent='STAGGERED';H.mgw.lb.append(sg);
+    H.mg={el,fill:el.querySelector('i'),im,imf:im.querySelector('i'),sg,last:''};}
+  H.mg.el.hidden=H.mg.im.hidden=!on;if(!on){H.mg.sg.hidden=true;return;}
+  const M=p.drv.o,f=Math.max(0,Math.min(1,M.en/MG.enMax)),red=M.red>0,stag=M.stag>0,fi=stag?1:Math.max(0,Math.min(1,(M.imp||0)/MG.impMax));
+  const st=(f*100).toFixed(1)+(red?'r':'')+'i'+(fi*100).toFixed(0)+(stag?'s':'');
   if(st===H.mg.last)return;H.mg.last=st;
   H.mg.fill.style.width=(f*100).toFixed(1)+'%';H.mg.el.classList.toggle('red',red);
+  H.mg.imf.style.width=(fi*100).toFixed(0)+'%';H.mg.im.classList.toggle('st',stag);H.mg.sg.hidden=!stag;
 }
 // the weapons' display: the lock box round the crosshair (its size the lock box's angle at the view's field of view), a
 // bracket on what's soft-locked, a heavier one on a hard lock, the missile locks as pips by their targets; up either
@@ -52,6 +57,15 @@ function mgWpnHud(p,H,on){
     const sx=(_dhv.x+1)/2*100,sy=(1-_dhv.y)/2*100;e.style.left=sx.toFixed(2)+'%';e.style.top=sy.toFixed(2)+'%';
     if(m.c==='pip')e.style.transform='translate('+(14+m.n*9)+'px,-18px) rotate(45deg)';}
   for(;k<W.tk.length;k++)W.tk[k].hidden=true;
+  // (a tank or helicopter locked on to: its health and its impact meter, two short bars under the bracket)
+  {if(!W.ti){W.ti=document.createElement('div');W.ti.className='mgti';W.ti.innerHTML='<i class="h"><b></b></i><i class="m"><b></b></i>';W.el.append(W.ti);
+      W.tih=W.ti.querySelector('.h b');W.tim=W.ti.querySelector('.m b');W.tiK='';}
+    let show=false;
+    if(T&&isMilT(T)&&!T.dead){const ty=lockY(T),d2=(T.pos.x-cam.position.x)**2+(T.pos.z-cam.position.z)**2;_dhv.set(T.pos.x,ty-CURVE_U.value*d2,T.pos.z).project(cam);
+      if(_dhv.z<1&&_dhv.z>-1){show=true;const I=MIL[T.kind],hf=Math.max(0,Math.min(1,T.hp/I.hp)),st=T.stag>0,mf=st?1:Math.max(0,Math.min(1,(T.imp||0)/impMax(T)));
+        W.ti.style.left=((_dhv.x+1)/2*100).toFixed(2)+'%';W.ti.style.top=((1-_dhv.y)/2*100).toFixed(2)+'%';
+        const key=(hf*100).toFixed(0)+'/'+(mf*100).toFixed(0)+(st?'s':'');if(key!==W.tiK){W.tiK=key;W.tih.style.width=(hf*100).toFixed(0)+'%';W.tim.style.width=(mf*100).toFixed(0)+'%';W.ti.classList.toggle('st',st);}}}
+    W.ti.hidden=!show;}
   // (the gauges and the readouts, made again if the controller's been picked up or put down, so the buttons are right)
   const key=p.pad?'p':'k';
   if(W.key!==key){W.key=key;if(W.wb)for(const b of W.wb){b.c.remove();b.g.remove();}

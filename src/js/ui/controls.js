@@ -45,6 +45,8 @@ const ACTS=[
   {id:'mgShL',n:'Left shoulder: Swarm Pod (hold to lock, let go to fire)',c:'#d8d8d0',kb:['KeyQ'],pad:[6],mg:true},
   {id:'mgShR',n:'Right shoulder: Breaker Cannon',c:CC.stomp,kb:['KeyE'],pad:[7],mg:true},
   {id:'mgLock',n:'Hard lock on / off',c:'#e0564a',kb:['Mouse1'],pad:[11],mg:true},
+  {id:'mgAB',n:'Assault boost (again near a target: kick)',c:'#7fd0ff',kb:['KeyX'],pad:[10],mg:true},
+  {id:'mgRep',n:'Repair kit',c:'#7ed060',kb:['KeyR'],pad:[13],mg:true},   // (D-pad down: up is the online quick chat)
 ];
 const MG_IDS=ACTS.filter(a=>a.mg).map(a=>a.id),MG_PRESS=MG_IDS.map(k=>k+'P');
 const KB_RESERVED=new Set(['Escape','Backquote','KeyP','KeyV','Period','BracketLeft','BracketRight','Backspace','Delete','Enter','NumpadEnter']),PAD_RESERVED=new Set([8,9]);

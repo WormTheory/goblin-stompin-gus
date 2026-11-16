@@ -156,6 +156,17 @@ canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;point
 .drvhud .mglb .mgen i{position:absolute;left:0;top:0;bottom:0;width:100%;background:#7cd4ff}
 .drvhud .mglb .mgen.red i{background:#ff4a3a}
 .drvhud .mglb .mgen.red{animation:mgen-red .25s steps(2) infinite}
+.drvhud .mglb .mgim{position:absolute;left:0;right:0;top:calc(100% + 16px);height:3px;opacity:.5;background:rgba(10,13,16,.5);border:1px solid rgba(232,246,255,.3);border-radius:2px;overflow:hidden}
+.drvhud .mglb .mgim i{position:absolute;left:0;top:0;bottom:0;width:0;background:#ffb04a}
+.drvhud .mglb .mgim.st i{background:#ffe060}
+.drvhud .mglb .mgst{position:absolute;left:0;right:0;top:calc(100% + 24px);text-align:center;font:700 13px/1 system-ui,sans-serif;letter-spacing:.12em;color:#ffe060;text-shadow:0 0 4px rgba(0,0,0,.8);animation:mgen-red .3s steps(2) infinite}
+.drvhud .mglb .mgst[hidden]{display:none}
+/* a locked tank's or helicopter's health (red) and impact meter (amber), under its bracket */
+.drvhud .mgti{position:absolute;width:44px;margin:24px 0 0 -22px;display:flex;flex-direction:column;gap:2px}
+.drvhud .mgti i{display:block;height:4px;background:rgba(10,13,16,.6);border:1px solid rgba(232,246,255,.35);border-radius:2px;overflow:hidden}
+.drvhud .mgti i b{display:block;height:100%;width:100%}
+.drvhud .mgti .h b{background:#ff5a4a}.drvhud .mgti .m b{background:#ffb04a}
+.drvhud .mgti.st .m b{background:#ffe060}.drvhud .mgti.st{animation:mgen-red .3s steps(2) infinite}
 @keyframes mgen-red{50%{opacity:.15}}
 @keyframes mgred{50%{opacity:.45}}
 /* a Mobile Gear's weapons: the lock box, the lock brackets and missile pips, and the four weapon boxes round the crosshair */
