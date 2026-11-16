@@ -187,6 +187,11 @@ hold([],1);
    const y0=P.cam.pitch;P.cam.pitch=-0.75;run(0.3);const X2=Math.floor(M.x),Z2=Math.floor(M.z),Y2=Math.floor(M.y);const was=[];for(let x=X2-16;x<=X2+16;x++)for(let z=Z2-4;z<=Z2+20;z++)for(let y=Y2-4;y<Y2;y++)was.push([x,y,z,T.get(x,y,z)]);const dug=()=>was.filter(([x,y,z,b])=>b&&!T.get(x,y,z)).length;const d0=dug();
    mh.add('Mouse0');run(0.05);mh.delete('Mouse0');const pt2=M.sl&&M.sl.pt;run(0.8);console.log('  nothing locked, looking down: swing tilted',f2(pt2),' ground cut',dug()-d0,'blocks');
    for(const [x,y,z,b] of was)T.setRaw(x,y,z,b);M.y=Math.max(M.y,T.groundAt(M.x,M.z,M.y+10));P.cam.pitch=y0;run(1);}}
+ // (the lunge rides on top of the movement: walking, then boosting, swing with nothing locked and it keeps going)
+ {run(1);P.cam.yaw=Math.PI;P.cam.pitch=-0.12;const sp=()=>Math.hypot(M.vx,M.vz),out=[];
+  for(const boost of [false,true]){if(boost!==M.boostOn)tap('KeyC');T.keys.add('KeyW');run(2.5);const v0=sp(),x0=M.x,z0=M.z;mh.add('Mouse0');run(0.05);mh.delete('Mouse0');let lo=99,hi=0;for(let k=0;k<45;k++){run(1/60);lo=Math.min(lo,sp());hi=Math.max(hi,sp());}
+   out.push((boost?'boosting':'walking')+' at '+f1(v0)+': its own speed during the swing '+f1(lo)+' to '+f1(hi)+', after '+f1(sp())+'; covered '+f1(Math.hypot(M.x-x0,M.z-z0))+' in 0.8 s ('+f1(v0*0.8)+' of it its own)');T.keys.delete('KeyW');run(1.5);}
+  if(M.boostOn)tap('KeyC');run(1);console.log('Heat Cleaver on the move,',out.join(';  '));}
  // (bullets into a wall: about half the rounds that strike it break the block they hit)
  {run(3);P.cam.yaw=Math.PI;P.cam.pitch=-0.05;run(0.3);const X=Math.floor(M.x),Z=Math.floor(M.z)+20,Y=Math.floor(M.y);for(let x=X-5;x<=X+5;x++)for(let y=Y;y<Y+12;y++)for(let z=Z;z<Z+6;z++)T.setRaw(x,y,z,3);run(0.2);
   const cnt=()=>{let c=0;for(let x=X-5;x<=X+5;x++)for(let y=Y;y<Y+12;y++)for(let z=Z;z<Z+6;z++)if(T.get(x,y,z)===3)c++;return c;},c0=cnt(),n0=W().rifle.n;

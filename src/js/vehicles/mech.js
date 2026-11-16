@@ -125,9 +125,11 @@ function drvMech(M,dt){
   const spd=!air?(M.boostOn?MG.skate:MG.walk):airB?MG.air:MG.walk,acc=!air?(M.boostOn?(moving?2.6:2.2):8):airB?2.2:1.2;
   if(airB&&!M.asc)mgDraw(M,(moving?MG.airEN:MG.hoverEN)*dt);
   // (a quick boost: the burst, then for MG.qbDec it bleeds its speed off smoothly toward what you're holding)
-  // (the blade's lunge, like a quick boost straight at what's locked, comes before anything else)
-  if(M.lgT>0){const a=Math.max(0,M.lgT-dt/2)/MGW.lungeT;M.lgT-=dt;M.vx=M.lgx*a*a;M.vz=M.lgz*a*a;if(M.lgT<=0){M.lgT=0;M.vx=M.vz=0;M.qbD=MG.qbDec*0.6;}}   // (the lunge's speed falls away smoothly, as the square of the time left, to nothing as the swing lands)
-  else if(M.qbT>0){M.qbT-=dt;M.vx=M.qbx;M.vz=M.qbz;if(M.qbT<=0)M.qbD=MG.qbDec;}
+  // (the blade's lunge rides on top of however it was already moving, walking or boosting, rather than taking its place:
+  // added for the move below, then taken off again, so the movement underneath carries on as if it hadn't happened. Its
+  // speed falls away as the square of the time left, to nothing as the swing lands)
+  let lx=0,lz=0;if(M.lgT>0){const a=Math.max(0,M.lgT-dt/2)/MGW.lungeT;M.lgT=Math.max(0,M.lgT-dt);lx=M.lgx*a*a;lz=M.lgz*a*a;}
+  if(M.qbT>0){M.qbT-=dt;M.vx=M.qbx;M.vz=M.qbz;if(M.qbT<=0)M.qbD=MG.qbDec;}
   else if(M.qbD>0){M.qbD-=dt;const k=Math.min(1,dt*6);M.vx+=(wx*spd-M.vx)*k;M.vz+=(wz*spd-M.vz)*k;}
   else if(!air&&!M.boostOn){
     // (on foot it gets going slowly and picks up into a jog -- pushing harder the faster it's already going -- and
@@ -141,10 +143,13 @@ function drvMech(M,dt){
   // (the body turns at once to where the camera looks. Moving, the legs follow it round. Standing, they stay planted
   // till the body's twisted too far round on them, then step round to catch up (mgTurn, posed in mechPose))
   M.ty=yaw;M.aimP=p.cam.pitch;
-  if(!M.grounded||Math.hypot(M.vx,M.vz)>1.2){M.h=angTo(M.h,yaw,3.2*dt);M.turn=0;}
+  if(!M.grounded||Math.hypot(M.vx+lx,M.vz+lz)>1.2){M.h=angTo(M.h,yaw,3.2*dt);M.turn=0;}
   else{const off=angDiff(M.h,yaw);if(!M.turn&&Math.abs(off)>0.85)M.turn=Math.sign(off);
     if(M.turn){const nh=angTo(M.h,yaw,2.6*dt);M.turnD=(M.turnD||0)+Math.abs(angDiff(M.h,nh));M.h=nh;if(Math.abs(angDiff(M.h,yaw))<0.03)M.turn=0;}}
+  const bx=M.vx,bz=M.vz;M.vx+=lx;M.vz+=lz;
   mgMove(M,dt,M.boostOn?MG.stepSkate:MG.stepWalk);
+  // (stopped by a wall it stays stopped; smashing through, the movement underneath slows as much as the whole did)
+  if(lx||lz){M.vx=M.vx&&bx+lx?bx*M.vx/(bx+lx):0;M.vz=M.vz&&bz+lz?bz*M.vz/(bz+lz):0;}
 }
 // with nobody in it: it stands where it was left (and falls if the ground's taken from under it), its energy filling
 function mechIdle(M,dt){mgDisarm(M,dt);M.boostOn=false;M.asc=false;M.airB=false;M.qbT=0;M.enIdle+=dt;if(M.red>0)M.red-=dt;

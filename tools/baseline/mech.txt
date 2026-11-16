@@ -68,13 +68,14 @@ Heat Cleaver at a locked goblin 18 ahead: lunged 8.8  goblin dead  blade shown t
   pressed again mid-swing: a new swing false
   goblins 10 to its right, left, ahead, and behind either side: cut down yes yes yes no no
   slashing at a wall 12 ahead, nothing locked: lunged 7.0  cut 81 blocks, 24 of them more than 5 off to one side and 30 to the other
-  a goblin locked in a pit 6.0 down: swing tilted -0.66  bent at the hips 0.53  goblin dead
-  nothing locked, looking down: swing tilted -0.42  ground cut 157 blocks
-Rivet Rifle into a wall: rounds 20  blocks broken 8 (about half)
+  a goblin locked in a pit 6.0 down: swing tilted -0.68  bent at the hips 0.54  goblin dead
+  nothing locked, looking down: swing tilted -0.42  ground cut 171 blocks
+Heat Cleaver on the move, walking at 10.8: its own speed during the swing 10.8 to 10.8, after 10.8; covered 15.7 in 0.8 s (8.6 of it its own);  boosting at 32.4: its own speed during the swing 32.4 to 32.4, after 32.4; covered 33.0 in 0.8 s (25.9 of it its own)
+Rivet Rifle into a wall: rounds 20  blocks broken 7 (about half)
 Infinite ammo: rifle held 5 s, rounds 20 -> 20  reloading false  cannon after a shot 3  blade cooling still true
 Swarm Pod: Q held 0.35 s 2 locks, 1 s 4 (pips 0)  let go: missiles out 4  all landed in 1.4 s  goblins down 4 of 4  left in the pod 4 of 8
   tapped with nothing in the box: one missile at the crosshair, pod 3
-Breaker Cannon on the ground, walking at 4.6: fired after 0.40 s braced, speed then 0.1  blocks blown out of a wall 40 ahead 48  shells left 2
+Breaker Cannon on the ground, walking at 4.6: fired after 0.40 s braced, speed then 0.1  blocks blown out of a wall 40 ahead 49  shells left 2
   fired in the air: at once true  knocked back 12.7 (it pushes away from the shot: true )
   two more, then empty: shells 0  reloading true
   out of it: no locks true  reloads go on: cannon 4.9
