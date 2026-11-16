@@ -38,7 +38,7 @@ function bargeBlock(u,y,w){
 // the helm is stood at (pocket offsets, facing +w), how it handles, its health, how far it goes down when it sinks, and the
 // boxes that stand for it from outside (u0,u1,w0,w1,y0,y1 each). The aircraft carrier is added in carrier.js
 const SHIP_KINDS={
-  barge:{name:'barge',u0:-6,u1:5,w0:-17,w1:14,block:bargeBlock,helm:[1,G+1,-5.5],hy:8,top:7,acc:0.35,turn:0.3,hp:200,sc:800,sink:14,boxes:[[-6,5,-17,14,G-2,G+1]]},
+  barge:{name:'barge',u0:-6,u1:5,w0:-17,w1:14,block:bargeBlock,helm:[1,G+1,-5.5],hy:8,top:7,acc:1.2,turn:0.3,yrk:1.2,hp:200,sc:800,sink:14,boxes:[[-6,5,-17,14,G-2,G+1]]},
 };
 // which ship's pocket (x,z) is in (null out in the world, or in a slot with no ship)
 const shipOfPos=(x,z)=>x>=SHIP_X0?SHIPS[Math.floor(z/SHIP_SLOT)]||null:null;
@@ -88,7 +88,7 @@ function makeShip(kind,x,z,yaw){
   let slot=0;while(SHIPS[slot])slot++;
   const K=SHIP_KINDS[kind],grp=new THREE.Group(),pg=new THREE.Group();
   shipForget(slot);
-  const S={isShip:true,n:++shipSerial,kind,K,slot,ox:SHIP_X0+SHIP_SLOT/2,oz:slot*SHIP_SLOT+SHIP_SLOT/2,x,z,yaw,sp:0,hp:K.hp,dead:false,deadT:0,sk:0,leak:0,drv:null,grp,pg,V:null,bx:null};
+  const S={isShip:true,n:++shipSerial,kind,K,slot,ox:SHIP_X0+SHIP_SLOT/2,oz:slot*SHIP_SLOT+SHIP_SLOT/2,x,z,yaw,sp:0,ord:0,rud:0,yr:0,telD:0,telT:0,groundT:0,hp:K.hp,dead:false,deadT:0,sk:0,leak:0,drv:null,grp,pg,V:null,bx:null};
   pg.position.set(-S.ox,0,-S.oz);grp.add(pg);grp.position.set(x,0,z);grp.rotation.y=yaw;scene.add(grp);grp.updateMatrixWorld(true);
   SHIPS[slot]=S;shipN++;shipPropsDraw(S);
   return S;
@@ -105,29 +105,80 @@ function shipDrop(S){
 // is there room for the ship (and the water round it) at x,z facing yaw? Open sea under every edge, a little out past it
 function shipFits(S,x,z,yaw){
   const K=S.K,m=SHIP_M+2,u0=K.u0-m,u1=K.u1+1+m,w0=K.w0-m,w1=K.w1+1+m,c=Math.cos(yaw),s=Math.sin(yaw);
-  const ok=(u,w)=>{const X=x+u*c+w*s,Z=z-u*s+w*c;if(!chunks.has(ckey(Math.floor(X/CS),Math.floor(Z/CS))))return false;
+  const ok=(u,w)=>{const X=x+u*c+w*s,Z=z-u*s+w*c;chunkArr(Math.floor(X/CS),Math.floor(Z/CS));   // (made now if it's past what's loaded: a big ship's bow can be further off than the view reaches)
     return get(X,G-1,Z)===WATER&&!solidAt(X,G,Z)&&!solidAt(X,G+1,Z);};
   for(let u=u0;u<=u1;u+=3)if(!ok(u,w0)||!ok(u,w1))return false;
   for(let w=w0;w<=w1;w+=3)if(!ok(u0,w)||!ok(u1,w))return false;
   return ok(u1,w1);
 }
-// each ship's step (from updateVenues): driven from the helm, W/S the throttle, A/D the rudder (which only bites with
-// way on); it stops dead short of shallow water
+// each ship's step (from updateVenues): driven from the helm (shipHelmIn, shipDrive)
 function updateShips(V,dt){
   for(const S of [...V.ships]){
     if(S.dead){shipSinking(S,V,dt);continue;}
     if(S.leak)S.hp-=S.leak*SHIP_LEAK*dt;
     if(S.hp<=0){shipSink(S);continue;}
-    const K=S.K,i=S.drv?drvIn(S.drv):null,thr=i?-i.z:0,st=i?-i.x:0;
-    const want=thr>0.1?K.top*thr:thr<-0.1?-K.top*0.4*-thr:0;
-    S.sp+=(want-S.sp)*Math.min(1,dt*K.acc);
-    const ny=S.yaw+st*K.turn*Math.max(-1,Math.min(1,S.sp/3))*dt,nx=S.x+Math.sin(ny)*S.sp*dt,nz=S.z+Math.cos(ny)*S.sp*dt;
-    if(Math.abs(S.sp)>0.01||ny!==S.yaw){if(shipFits(S,nx,nz,ny)){S.x=nx;S.z=nz;S.yaw=ny;}else{if(Math.abs(S.sp)>2)thud(0.5);S.sp*=-0.2;}}
-    if(S.drv&&i.bitePress){S.hornT=(S.hornT||0);if(S.hornT<=0){horn(0.1);S.hornT=0.6;}}S.hornT=(S.hornT||0)-dt;
+    shipHelmIn(S,dt);shipDrive(S,dt);
     S.grp.position.set(S.x,0,S.z);S.grp.rotation.y=S.yaw;S.grp.updateMatrixWorld(true);
     shipBoxes(S);if(S.propsT>0&&(S.propsT-=dt)<=0)shipPropsDraw(S);
   }
 }
+// ---- driving from the bridge. W and S ring the engine telegraph up and down its orders, one a press (held, on down
+// them every so often); the ship's way builds toward the order slowly, over many seconds, and falls off as slowly. A and
+// D put the rudder over a little at a time, and it stays where it's left (climb, C, brings it back amidships). The rudder
+// only bites with way on, and the turn builds up slowly and keeps going while it's over. Into water too shallow for it,
+// it runs aground: grinds to a stop, hurt by how fast it was going. K.acc is how quickly its speed changes (a second, a
+// second), K.turn its fastest turn (with the rudder hard over at speed), K.yrk how quickly a turn builds or comes off ----
+const SHIP_ORDERS=[['Back full',-0.45],['Back 1/3',-0.18],['Stop',0],['Ahead 1/3',0.3],['Ahead 2/3',0.55],['Ahead full',0.8],['Flank',1]];
+const SHIP_KN=4;   // (knots on the display, a block a second: flank is about a real carrier's 33 knots)
+const shipOrder=S=>SHIP_ORDERS[S.ord+2];
+function shipHelmIn(S,dt){
+  const i=S.drv?drvIn(S.drv):null;if(!i){S.telD=0;return;}
+  const thr=-i.z,st=-i.x,d=thr>0.5?1:thr<-0.5?-1:0;
+  if(d){if(S.telD!==d||(S.telT-=dt)<=0){const o=Math.max(-2,Math.min(4,S.ord+d));S.telT=S.telD===d?0.4:0.7;S.telD=d;
+    if(o!==S.ord){S.ord=o;shipBell(S);}}}else S.telD=0;
+  if(Math.abs(st)>0.2)S.rud=Math.max(-1,Math.min(1,S.rud+st*dt*0.55));
+  if(i.climb&&S.rud)S.rud-=Math.sign(S.rud)*Math.min(Math.abs(S.rud),dt*1.2);
+  if(i.bitePress&&!(S.hornT>0)){horn(0.1);S.hornT=0.6;}
+}
+// the telegraph's bell, rung on the bridge for each new order (lower for one astern)
+function shipBell(S){sfx('Ship telegraph',()=>{const f=S.ord<0?990:1320;tone('triangle',f,f-20,0.35,0.05);tone('sine',f*1.5,f*1.5-30,0.25,0.02);});}
+function shipDrive(S,dt){
+  const K=S.K,want=shipOrder(S)[1]*K.top,a=K.acc*(Math.abs(want)<Math.abs(S.sp)||want*S.sp<0?1.3:1)*dt;   // (it loses way a little quicker than it gathers it)
+  S.sp+=Math.max(-a,Math.min(a,want-S.sp));if(!want&&Math.abs(S.sp)<0.02)S.sp=0;
+  const bite=Math.max(-1,Math.min(1,S.sp/(K.top*0.35)));S.yr+=(S.rud*K.turn*bite-S.yr)*Math.min(1,dt*K.yrk);
+  S.hornT=(S.hornT||0)-dt;if(S.groundT>0)S.groundT-=dt;
+  if(Math.abs(S.sp)<0.005&&Math.abs(S.yr)<1e-5)return;
+  const ny=S.yaw+S.yr*dt,nx=S.x+Math.sin(ny)*S.sp*dt,nz=S.z+Math.cos(ny)*S.sp*dt;
+  if(shipFits(S,nx,nz,ny)){S.x=nx;S.z=nz;S.yaw=ny;return;}
+  // (no room to swing: straight on, if there's room for that)
+  const sx=S.x+Math.sin(S.yaw)*S.sp*dt,sz=S.z+Math.cos(S.yaw)*S.sp*dt;if(Math.abs(S.yr)>1e-5&&shipFits(S,sx,sz,S.yaw)){S.x=sx;S.z=sz;S.yr=0;return;}
+  shipAground(S);
+}
+// run aground: stopped dead, the engines rung down to stop, and hurt by how hard it hit (at top speed about a sixteenth
+// of its health). A scrape at a crawl does nothing
+function shipAground(S){
+  const K=S.K,v=Math.abs(S.sp),fwd=S.sp>=0;S.sp=0;S.yr=0;S.ord=0;S.telD=0;
+  if(v<0.6||S.groundT>0)return;S.groundT=1;
+  const n=Math.round(v*v*K.hp/1000),w=fwd?K.w1:K.w0,c=shipToWorld(S,S.ox+(K.u0+K.u1+1)/2,S.oz+w+(fwd?1:0),{x:0,z:0});S.hp-=n;
+  dmgPop(c.x,G+4,c.z,n,'#ffb04a');puff(c.x,G+1,c.z,14,0xc8b48a,2.2);puff(c.x,G+1,c.z,8,0xe8f4ff,1.4);
+  const np=nearestPlayer(c.x,c.z,false),k=np?Math.max(0.15,1-np.d/220):0.15;
+  sfx('Ship aground',()=>{noise(1.6,0.35*k,160,'lowpass');tone('sawtooth',62,30,1.4,0.12*k);thud(0.8*k);});
+  const sh=Math.min(1.2,v*0.15);addShake(sh,c.x,c.z,K.hp>=1000?260:60);for(const p of players)if(p.active&&(shipOf(p)===S||p.drv&&p.drv.o===S))p.shake=Math.max(p.shake,sh);   // (everyone aboard feels it)
+  if(S.drv)flashLabel('Run aground! Ring astern ('+actMark(S.drv,'back')+') to back off',S.drv);
+}
+// what the helm's display says: the order rung, the speed, where the rudder is, then the controls
+function shipHow(p,S){
+  const A=id=>actMark(p,id),r=Math.round(S.rud*35),kn=Math.round(Math.abs(S.sp)*SHIP_KN);
+  return shipOrder(S)[0]+'  ·  '+kn+' knots'+(S.sp<-0.05?' astern':'')+'  ·  Rudder '+(r?Math.abs(r)+'° '+(r>0?'port':'starboard'):'amidships')+'  ·  '
+    +A('fwd')+'/'+A('back')+' engine orders  ·  '+A('left')+'/'+A('right')+' rudder  ·  '+A('climb')+' rudder amidships  ·  '+A('weapon')+(p.shipBridge?' chase view':' bridge view')+'  ·  '+A('bite')+' horn  ·  ';
+}
+// the view from the bridge (the weapon button, while at the helm): from the helmsman's eyes, looking about with the
+// mouse or stick as usual, in the ship's own frame (shipCam turns it with the ship)
+function shipBridgeCam(p,S){
+  const h=S.K.helm;p.camera.position.set(S.ox+h[0],h[1]+1.45,S.oz+h[2]+0.45);p.camera.rotation.set(p.cam.pitch,p.cam.yaw,0);p.drvCamD=1;
+  if(p.shake>0.002&&gameSpeed()>0){const c=p.camera.position;c.x+=(Math.random()-.5)*p.shake;c.y+=(Math.random()-.5)*p.shake;c.z+=(Math.random()-.5)*p.shake;}
+}
+function shipViewSwap(p){p.shipBridge=!p.shipBridge;p.drvLook=camClock;if(p.shipBridge){p.cam.yaw=Math.PI;p.cam.pitch=-0.08;}else{p.cam.yaw=Math.PI;p.cam.pitch=-0.25;}tone('square',660,640,0.05,0.02);}
 // ---- a ship's health: blocks knocked out of it (holes below the waterline cost more, and let the sea in, which goes on
 // costing it a little while they're there), and hits on it from outside (shells, rockets, blasts, rams: through the boxes
 // that stand for it out in the world). At none it sinks, straight down, washing off everyone aboard as the water reaches

@@ -16,7 +16,10 @@ function bigCrashes(){
       if(crashedLately(va,vb))continue;
       // how hard: their speeds along the line between them
       const dx=b.x-a.x,dz=b.z-a.z,dl=Math.hypot(dx,dz)||1,ux=dx/dl,uz=dz/dl,rel=Math.abs((a.tx*a.v-b.tx*b.v)*ux+(a.tz*a.v-b.tz*b.v)*uz)+0.3*Math.abs(Math.abs(a.v)-Math.abs(b.v));
-      const n=Math.round(6+rel*2.5);damageCar(a.proxy,n,new V3(-ux,0,-uz),'acc');damageCar(b.proxy,n,new V3(ux,0,uz),'acc');
+      // (a ship rams: whatever it hits takes the knock several times over, the ship barely a scratch of it; the bigger of
+      // two ships counts as the ship)
+      const n=Math.round(6+rel*2.5),ma=va.isShip?va.K.hp:0,mb=vb.isShip?vb.K.hp:0,sa=ma>mb,sb=mb>ma;
+      damageCar(a.proxy,sb?n*5:sa?Math.ceil(n/4):n,new V3(-ux,0,-uz),'acc');damageCar(b.proxy,sa?n*5:sb?Math.ceil(n/4):n,new V3(ux,0,uz),'acc');
       const mx=(a.x+b.x)/2,mz=(a.z+b.z)/2,my=Math.max(a.y0,b.y0)+1;puff(mx,my,mz,10,0x8c8a84,1.2);
       const np=nearestPlayer(mx,mz,false);if(np&&np.d<90){const k=1-np.d/90;clang();thud(0.6*k);noise(0.5,0.3*k,300,'lowpass');}
       addShake(0.4,mx,mz,30);reportNews(mx,mz,'crash');}}

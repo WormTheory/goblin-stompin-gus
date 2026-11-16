@@ -166,5 +166,5 @@ function cvBuild(){
 }
 // what the carrier's pieces are, from outside (ships.js shipBoxes): the hull, the flight deck, the island. u0,u1,w0,w1,y0,y1
 SHIP_KINDS.carrier={name:'aircraft carrier',u0:CV_U0,u1:CV_U1,w0:CV_W0,w1:CV_W1,y0:CV_Y0,y1:CV_Y1,block:carrierBlock,
-  helm:[-14,G+27,-5.5],props:()=>{if(!CV_GRID)cvBuild();return CV_PROPS;},doors:()=>{if(!CV_GRID)cvBuild();return CV_DOORS;},hy:24,top:8,acc:0.08,turn:0.07,hp:3000,sc:25000,sink:56,
+  helm:[-14,G+27,-5.5],props:()=>{if(!CV_GRID)cvBuild();return CV_PROPS;},doors:()=>{if(!CV_GRID)cvBuild();return CV_DOORS;},hy:24,top:8,acc:0.2,turn:0.07,yrk:0.25,hp:3000,sc:25000,sink:56,
   boxes:[[-13,13,-86,88,G-6,G+11],[CV_U0,CV_U1,CV_W0,CV_W1,G+11,G+17],[-18,-12,-22,-4,G+17,G+37]]};

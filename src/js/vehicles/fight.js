@@ -111,6 +111,7 @@ function planeHud(F){if(!F)return'Throttle 0%';const thr='Throttle '+Math.round(
 // about them on getting in), each ending in '  ·  ' so the rest follows
 function drvHow(p,D,armed){const A=id=>actMark(p,id),G=armed?D.k==='heli'?A('bite')+' gun  ·  '+A('stomp')+' rockets  ·  ':D.k==='plane'?A('bite')+' cannon  ·  '+A('stomp')+' missiles  ·  ':D.k==='tank'||D.seat==='gun'?A('bite')+' fire  ·  ':'':'';
   if(D.seat==='gun')return G;
+  if(D.k==='ship')return shipHow(p,D.o);
   if(D.k==='heli')return A('jump')+' climb  ·  '+A('climb')+' drop  ·  '+G;
   if(D.k==='balloon')return A('jump')+' burner (rise)  ·  '+A('climb')+' vent (sink)  ·  Move to drift  ·  ';
   if(D.k==='plane')return p.pad?'Stick up/down throttle  ·  Stick left/right bank  ·  '+A('jump')+' pull up  ·  '+A('climb')+' push down  ·  '+G

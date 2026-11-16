@@ -1,7 +1,7 @@
 let __s=+(process.env.SEED||1);Math.random=()=>{__s=(__s*16807)%2147483647;return (__s-1)/2147483646;};
 const fs=require('fs');
 let src0=fs.readFileSync('g.js','utf8');
-let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={shockwave,get shocks(){return shocks},shipPt,nearestPlayer,addFire,get fires(){return fires},SHIPS,SHIP_X0,SHIP_KINDS,TRAIN_BOXES,trainHit,buildChunk,shipToWorld,worldToShip,shipOf,tenvVeh,tenvFoe,tenvClear,get TENV(){return TENV},get TS(){return TS},frame,players,goblins,get,solidAt,groundAt,chunks,meshes,venues,setGob,keys,DT,crush,doorsOn,propCells,get nEdits(){return Object.keys(edits).length},get edits(){return edits},set menuOpen(v){menuOpen=v},SAVE_KEY};\n})();');
+let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={shockwave,get shocks(){return shocks},shipPt,nearestPlayer,addFire,get fires(){return fires},SHIPS,SHIP_X0,SHIP_KINDS,TRAIN_BOXES,trainHit,buildChunk,shipToWorld,worldToShip,shipOf,tenvVeh,tenvFoe,tenvClear,get TENV(){return TENV},get TS(){return TS},frame,players,goblins,get,solidAt,groundAt,chunks,meshes,venues,setGob,keys,DT,crush,doorsOn,propCells,shipFits,get nEdits(){return Object.keys(edits).length},get edits(){return edits},set menuOpen(v){menuOpen=v},SAVE_KEY};\n})();');
 const deep=()=>new Proxy(function(){}, {get:(t,p)=>p===Symbol.toPrimitive?()=>0:(p==='length'?0:deep()),apply:()=>deep(),construct:()=>deep()});
 class Q{constructor(){this.x=0;this.y=0;this.z=0;this.w=1}set(x,y,z,w){this.x=x;this.y=y;this.z=z;this.w=w;return this}setFromAxisAngle(a,t){const s=Math.sin(t/2);this.x=a.x*s;this.y=a.y*s;this.z=a.z*s;this.w=Math.cos(t/2);return this}copy(q){this.x=q.x;this.y=q.y;this.z=q.z;this.w=q.w;return this}}
 class V3{project(){return this}fromBufferAttribute(a,i){const A=a.array||a.a;this.x=A[i*3];this.y=A[i*3+1];this.z=A[i*3+2];return this}applyMatrix4(m){const e=m.elements,x=this.x,y=this.y,z=this.z;this.x=e[0]*x+e[4]*y+e[8]*z+e[12];this.y=e[1]*x+e[5]*y+e[9]*z+e[13];this.z=e[2]*x+e[6]*y+e[10]*z+e[14];return this}setFromMatrixPosition(o){this.x=o.position.x;this.y=o.position.y;this.z=o.position.z;return this}normalize(){const l=Math.hypot(this.x,this.y,this.z)||1;this.x/=l;this.y/=l;this.z/=l;return this}add(v){this.x+=v.x;this.y+=v.y;this.z+=v.z;return this}applyQuaternion(q){const x=this.x,y=this.y,z=this.z,qx=q.x,qy=q.y,qz=q.z,qw=q.w;const ix=qw*x+qy*z-qz*y,iy=qw*y+qz*x-qx*z,iz=qw*z+qx*y-qy*x,iw=-qx*x-qy*y-qz*z;this.x=ix*qw+iw*-qx+iy*-qz-iz*-qy;this.y=iy*qw+iw*-qy+iz*-qx-ix*-qz;this.z=iz*qw+iw*-qz+ix*-qy-iy*-qx;return this}constructor(x=0,y=0,z=0){this.x=x;this.y=y;this.z=z}set(x,y,z){this.x=x;this.y=y;this.z=z;return this}copy(v){this.x=v.x;this.y=v.y;this.z=v.z;return this}clone(){return new V3(this.x,this.y,this.z)}addScaledVector(v,s){this.x+=v.x*s;this.y+=v.y*s;this.z+=v.z*s;return this}multiplyScalar(s){this.x*=s;this.y*=s;this.z*=s;return this}setScalar(s){return this.set(s,s,s)}}
@@ -101,12 +101,35 @@ for(const [n,y,w0] of [['lower deck',1,-84],['hangar',6,-84],['gallery deck',12,
  console.log('in the corridor by the sick bay: ship doors drawn',D.length,'| hung off the ship',D.every(d=>d.v.g.parent===S.pg),'| open (the two beside him)',D.filter(d=>d.open>0.5).map(d=>d.R.key.split(':')[1]).join(' '),
   '| props goblins go round',[...T.propCells.values()].filter(f=>f.S===S).length);
  hold(['KeyW'],1.2);console.log('  walked in through the starboard door:',where(P),S.ox-P.pos.x>2.5?'in the sick bay':'not in');}
-// ---- the helm, on the navigation bridge
+// ---- driving from the bridge: the engine telegraph, the rudder, the bridge view, running aground, ramming
+const pr=k=>{T.keys.add(k);run(0.15);T.keys.delete(k);run(0.15);};   // (one press)
+const hud=()=>P.ui.drvHud&&P.ui.drvHud.txt.w?P.ui.drvHud.txt.w.split('  ·  ').slice(0,3).join(' | '):'(none)';
+const mid=(dz,yaw)=>{const R=T.TENV.sea;S.x=(R.x0+R.x1)/2;S.z=(R.z0+R.z1)/2+dz;S.yaw=yaw;S.yr=0;const o=S.ord,v=S.sp;S.ord=0;S.sp=0;run(2);S.ord=o;S.sp=v;};   // (back to the middle of the sea, with a moment for the water round it to load)
+const helmW=()=>T.shipToWorld(S,S.ox-14,S.oz-5.5,{x:0,z:0});
 let drove=false;
-{at(14,27,-6,BOW);P.pos.x=S.ox-14;run(0.3);tap();drove=P.drv&&P.drv.k==='ship';console.log('F at the helm:',P.drv?P.drv.k:'on foot','| hud says',P.ui.drvHud&&P.ui.drvHud.txt.n);
- if(drove){const x0=S.x,z0=S.z,y0=S.yaw;hold(['KeyW'],15);
-  console.log('  W 15 s: speed',f1(S.sp),'went',f1(Math.hypot(S.x-x0,S.z-z0)),'| still at the helm',where(P),'| camera from the ship',f1(Math.hypot(P.camera.position.x-S.x,P.camera.position.z-S.z)),'up',f1(P.camera.position.y-G0));
-  hold(['KeyW','KeyD'],8);console.log('  W+D 8 s: yaw turned',f1(S.yaw-y0));
+{at(14,27,-6,BOW);P.pos.x=S.ox-14;run(0.3);tap();drove=P.drv&&P.drv.k==='ship';console.log('F at the helm:',P.drv?P.drv.k:'on foot','| hud says',P.ui.drvHud&&P.ui.drvHud.txt.n,'|',hud());
+ if(drove){
+  mid(-140,0);pr('KeyW');pr('KeyW');console.log('  W pressed twice:',hud());
+  {const x0=S.x,z0=S.z,v=[];for(let t=0;t<40;t+=5){run(5);v.push(f1(S.sp));}console.log('  speed every 5 s:',v.join(' '),'| went',f1(Math.hypot(S.x-x0,S.z-z0)),'| still at the helm',where(P));}
+  hold(['KeyW'],2);console.log('  W held 2 s:',hud());
+  {const v=[];for(let t=0;t<30;t+=5){run(5);v.push(f1(S.sp));}console.log('  speed every 5 s:',v.join(' '),'|',hud());}
+  mid(0,0);{const y0=S.yaw;hold(['KeyD'],1);console.log('  D held 1 s:',hud().split(' | ')[2]);run(8);const y1=S.yaw;run(8);console.log('  turned',f1((S.yaw-y0)*180/Math.PI),'degrees in 16 s, the second 8 s',f1((S.yaw-y1)*180/Math.PI),'(keeps turning)');
+   hold(['KeyC'],1.5);const y2=S.yaw;run(10);console.log('  C held:',hud().split(' | ')[2],'| turned',f1((S.yaw-y2)*180/Math.PI),'more in the 10 s after, turning now',f1(S.yr*180/Math.PI),'degrees a second');}
+  mid(-140,0);S.ord=4;S.sp=8;{for(let k=0;k<4;k++)pr('KeyS');console.log('  S pressed four times:',hud().split(' | ')[0]);let t=0;const x0=S.x,z0=S.z;while(t<120&&S.sp>0.02){run(1);t++;}console.log('  stopped after',t,'s, in',f1(Math.hypot(S.x-x0,S.z-z0)));}
+  {pr('KeyR');run(0.3);const h=helmW();console.log('  R, the bridge view: camera from the helm',f1(Math.hypot(P.camera.position.x-h.x,P.camera.position.z-h.z)),'up',f1(P.camera.position.y-G0),'|',P.ui.drvHud.txt.w.includes('chase view')?'offers the chase view':'');
+   pr('KeyR');run(0.3);console.log('  R again: camera from the ship',f1(Math.hypot(P.camera.position.x-S.x,P.camera.position.z-S.z)),'up',f1(P.camera.position.y-G0));}
+  // (aground: put 30 short of the sea's edge, heading for it at flank)
+  {const R=T.TENV.sea;S.x=(R.x0+R.x1)/2;S.z=R.z1-S.K.w1-30;S.yaw=0;S.yr=0;S.rud=0;S.ord=0;S.sp=0;run(2);console.log('  put 30 short of the sea\'s edge, fits',T.shipFits(S,S.x,S.z,0));
+   S.ord=4;S.sp=8;const h0=S.hp,z0=S.z;let t=0;while(t<10&&S.sp>0){run(0.1);t+=0.1;}
+   console.log('  ran aground at flank after',f1(t),'s, going',f1(S.z-z0),'| health lost',f1(h0-S.hp),'| now',hud().split(' | ').slice(0,2).join(' | '),'| shake',f1(P.shake));
+   pr('KeyS');const z1=S.z;run(20);console.log('  S, astern: backed off',f1(z1-S.z),'in 20 s |',hud().split(' | ')[0]);pr('KeyW');run(25);console.log('  W: back to',hud().split(' | ').slice(0,2).join(' | '));}
+  // (ramming the barge, at two-thirds)
+  {T.menuOpen=true;T.TS.n=1;T.tenvVeh('barge');T.menuOpen=false;const B=T.SHIPS.find(q=>q&&q!==S);const R=T.TENV.sea;
+   S.x=(R.x0+R.x1)/2;S.z=(R.z0+R.z1)/2-60;S.yaw=0;S.yr=0;S.sp=0;S.ord=0;
+   if(B){B.x=S.x;B.z=S.z+S.K.w1+30;B.yaw=0;B.sp=0;run(2);const hb=B.hp,hs=S.hp;S.ord=2;S.sp=4.4;let t=0;while(t<15&&B.hp>=hb){run(0.1);t+=0.1;}run(0.5);
+    console.log('  rammed the barge at',f1(S.sp*4),'knots: the barge lost',f1(hb-B.hp),'of',B.K.hp,'| the carrier',f1(hs-S.hp),'| barge sinking',B.dead);
+    B.hp=0;let u=0;while(u<30&&T.SHIPS.includes(B)){run(0.5);u+=0.5;}}else console.log('  no barge');}
+  S.ord=0;S.sp=0;S.rud=0;S.yr=0;
   tap();console.log('  F again:',P.drv?P.drv.k:'on foot',where(P));}}
 // ---- goblins aboard: spawned round Gnash in the hangar, chasing him there
 {S.sp=0;at(0,6,-10,BOW);run(0.5);T.menuOpen=true;T.TS.n=4;T.tenvFoe('goblin');T.menuOpen=false;

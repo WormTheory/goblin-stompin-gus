@@ -19,7 +19,15 @@
 - It's furnished throughout with proper furniture rather than blocks, carried along with it as it sails: two-tier bunks and lockers in the berths, long tables and benches on the mess deck, fridges, ranges and sinks in the galley, beds, monitors and drips in the sick bay, desks and swivel chairs at the Intelligence Centre's screens, gun racks and ammo boxes in the armoury, sofas and tables in the lounges and the wardroom, rows of seats in the ready rooms, flight gear and kit racks in the paraloft, machinery, crates stacked in the stores, tool racks and fuel drums down the hangar's sides, and chairs on the island's bridges. Goblins go round it. It's bolted down, so it doesn't get knocked over, but smash the deck out from under something and it goes.
 - Every doorway has a steel door that swings open as you or a goblin come up to it and closes behind you: each room's door off the corridors, the corridors' doors through the bulkheads, the stern door, the hangar's forward door and the island's door on to the flight deck.
 - Swim to the stern and climb out on to the landing under the flight deck's overhang, then go in by the stern door. Stairs run between every deck, fore and aft, up through hatches on to the flight deck, and up through the island to its roof. Goblins chase you through it all, up and down the stairs.
-- As Gnash or Grizzle, take the helm on the navigation bridge with F (controller Y). It's slow and heavy for now: proper driving comes next.
+- As Gnash or Grizzle, take the helm on the navigation bridge with F (controller Y) and drive it like a ship:
+  - W and S ring the engine telegraph up and down its orders, one a press, with a bell: Back full, Back 1/3, Stop, Ahead 1/3, Ahead 2/3, Ahead full and Flank. It gathers way slowly toward the order, taking about forty seconds to work up to flank, 32 knots, and about thirty to stop again.
+  - A and D put the rudder over a little at a time, and it stays where you leave it. The turn builds up slowly and keeps going while the rudder's over. C brings the rudder back amidships. The rudder only bites while it's moving.
+  - The display shows the order, the speed in knots and where the rudder is.
+  - The camera hangs well back and high, to take in the whole ship. R switches to the view from the bridge, through its windows, and back.
+  - The engines keep to the last order when you let go of the helm, so you can set it going and walk about while it sails.
+  - Run it into water too shallow for it and it runs aground: it grinds to a stop with a shudder, takes damage by how fast it hit (about a sixteenth of its health at flank), and its engines are rung down to Stop. Ring astern to back off.
+  - It rams what it runs into: a boat, or the barge, takes five times the knock, and the carrier hardly feels it.
+  - Bite sounds the horn.
 - It can be sunk. Smashing its blocks wears it down, holes below the waterline let the sea in and keep wearing it down, and shells, rockets and blasts from outside hit it. When it's had enough it goes down slowly, washing everyone aboard into the sea as the water reaches them. The barge can be sunk the same way.
 
 ### A barge you can walk around (Testing Environment)
@@ -27,7 +35,7 @@
 - The first step toward an aircraft carrier: a test barge, in the debug menu's vehicle list (Testing Environment only for now). Spawning it lays out a square of deep sea ahead of you, if there isn't one yet, and floats the barge on it.
 - It's built of real blocks, like a building, so everything works aboard it while it sails and turns: walking, jumping, climbing, fighting, and smashing holes in its deck. A wheelhouse at the stern has steel stairs up to its roof, a rail runs round the deck, and crates are stacked on the foredeck.
 - Swim out and climb aboard up the steps of the swim platform at the stern, or jump down on to the deck from above. Swim away from it and you're back in the open sea.
-- As Gnash or Grizzle, stand at the helm inside the wheelhouse's front window and press F (controller Y) to take the controls: W and S set the throttle, A and D the rudder, which only turns it while it's moving. It stops short of the shore. Let go of the helm and it drifts to a stop, with you still standing at it.
+- As Gnash or Grizzle, stand at the helm inside the wheelhouse's front window and press F (controller Y) to take the controls: it's driven the same way as the aircraft carrier, with the engine telegraph and the rudder, but it's much quicker to speed up, slow down and turn.
 - Goblins aboard chase you round the deck as anywhere else, and goblins in the sea swim out to it and climb aboard after you.
 
 ### Mobile Gear (Testing Environment)
