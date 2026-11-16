@@ -9,7 +9,6 @@
 // rubble are put back where the ship really is when they're drawn. ----
 const SHIP_M=3,SHIP_BAND=SHIP_M+5;   // (how close to the hull you're taken aboard; the pocket's water reaches a little past that)
 const _sv={x:0,z:0};
-let shipN=0;   // (how many ships there are: nothing here costs anything without one)
 // the test barge: a flat steel pontoon with a plank deck and a rail, a two-storey wheelhouse at the stern with stairs up
 // to its roof, the helm inside its front window, crates on the foredeck and a swim platform off the stern to climb out on
 // (two steps, the first just under the water's surface, so a swimmer walks straight up them).
@@ -134,7 +133,7 @@ function shipMove(o,S,into,isP){
     if(!ok)return false;P.y=y;}
   P.x=t.x;P.z=t.z;o.heading+=a;
   if(o.kv)shipRot(o.kv,'x','z',a);
-  if(isP){o.cam.yaw+=a;shipRot(o,'mvx','mvz',a);shipRot(o,'bvx','bvz',a);o.bsx=P.x;o.bsz=P.z;o.standCar=null;
+  if(isP){o.cam.yaw+=a;shipRot(o,'mvx','mvz',a);o.standCar=null;
     if(o.vcl){o.vcl=null;if(o.state==='climb')o.state='walk';}if(o.drvYaw!==undefined)o.drvYaw+=a;shipParent(o,into?S:null);}
   else{o.act=null;o.wt=null;o.path=null;o.fallTop=undefined;o.standCar=null;}
   return true;
@@ -174,6 +173,14 @@ function shipView(fn){
   let sw=null;for(const p of players){const S=shipOf(p);if(!S)continue;(sw||(sw=[])).push(p,p.pos.x,p.pos.z);shipToWorld(S,p.pos.x,p.pos.z,_sv);p.pos.x=_sv.x;p.pos.z=_sv.z;}
   try{fn();}finally{if(sw)for(let i=0;i<sw.length;i+=3){const p=sw[i];p.pos.x=sw[i+1];p.pos.z=sw[i+2];}}
 }
+// a point (anything with x and z) in a ship's pocket moved to where that is on the ship, in place; and how much a heading
+// there turns by out in the world (effects that are drawn as they're made: fires, shockwaves)
+function shipPt(v){if(v.x<SHIP_X0)return v;const S=shipOfPos(v.x,v.z);if(S){shipToWorld(S,v.x,v.z,_sv);v.x=_sv.x;v.z=_sv.z;}return v;}
+function shipYawAt(x,z){const S=shipOfPos(x,z);return S?S.yaw:0;}
+// how far a player is from x,z, measured where both really are (one aboard a ship, the other not; nearestPlayer: how loud a
+// sound is, who a goblin goes for)
+function shipDist(p,x,z){const Sx=shipOfPos(x,z),Sp=shipOf(p);if(Sx===Sp)return Math.hypot(p.pos.x-x,p.pos.z-z);
+  let px=pwx(p),pz=pwz(p);if(Sx){worldToShip(Sx,px,pz,_sv);px=_sv.x;pz=_sv.z;}return Math.hypot(px-x,pz-z);}
 // the camera, placed in the pocket by the usual code, put where that is on the ship (after placeCamera)
 function shipCam(p){
   const S=shipOf(p)||p.drv&&p.drv.k==='ship'&&p.drv.o;if(!S||!S.isShip)return;

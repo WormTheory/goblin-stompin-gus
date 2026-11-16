@@ -5,8 +5,9 @@ let last=performance.now();
 // running (trample or sprint): speed lines in the world around Gus, streaming back past him along the way he's
 // actually moving -- real geometry in the scene, so the other player sees them too
 function bodyStreaks(p,dt){
-  const ox=p.bsx??p.pos.x,oz=p.bsz??p.pos.z;p.bsx=p.pos.x;p.bsz=p.pos.z;
-  if(dt>0){const vx=(p.pos.x-ox)/dt,vz=(p.pos.z-oz)/dt,a=Math.min(1,dt*10);if(Math.hypot(vx,vz)<60){p.bvx=(p.bvx||0)+(vx-(p.bvx||0))*a;p.bvz=(p.bvz||0)+(vz-(p.bvz||0))*a;}}
+  const PX=pwx(p),PZ=pwz(p);   // (aboard a ship, where it's really got to: the streaks are out in the world)
+  const ox=p.bsx??PX,oz=p.bsz??PZ;p.bsx=PX;p.bsz=PZ;
+  if(dt>0){const vx=(PX-ox)/dt,vz=(PZ-oz)/dt,a=Math.min(1,dt*10);if(Math.hypot(vx,vz)<60){p.bvx=(p.bvx||0)+(vx-(p.bvx||0))*a;p.bvz=(p.bvz||0)+(vz-(p.bvz||0))*a;}}
   const sp=Math.hypot(p.bvx||0,p.bvz||0),want=(p.trK||0)>0.05&&p.state==='walk'&&sp>2&&!p.paused?Math.min(1,p.trK):0;
   p.bsK=(p.bsK||0)+(want-(p.bsK||0))*Math.min(1,dt*(want>(p.bsK||0)?6:5.5));
   // each streak is a thin tapered ribbon, drawn twice crossed (flat and upright) so it reads from any angle; a gradient
@@ -30,7 +31,7 @@ function bodyStreaks(p,dt){
     s.t+=dt/(s.life||1);
     if(s.t>=1&&live&&Math.random()<dt*14){   // (staggered, so they don't all appear at once)
       const a=Math.random()*Math.PI*2,r=1.35+Math.random()*1.0,sx=Math.cos(a)*r*1.15,sy=Math.sin(a)*r*0.75+0.15,ahead=0.8+Math.random()*2.2;
-      s.x=p.pos.x+dx*ahead+px*sx;s.y=p.pos.y+1.1+sy;s.z=p.pos.z+dz*ahead+pz*sx;s.dx=dx;s.dz=dz;s.vx=-dx*(1.5+Math.random()*2);s.vz=-dz*(1.5+Math.random()*2);
+      s.x=PX+dx*ahead+px*sx;s.y=p.pos.y+1.1+sy;s.z=PZ+dz*ahead+pz*sx;s.dx=dx;s.dz=dz;s.vx=-dx*(1.5+Math.random()*2);s.vz=-dz*(1.5+Math.random()*2);
       s.l=(1.3+Math.random()*1.4)*(0.6+0.4*Math.min(1,sp/14));s.w=0.025+Math.random()*0.02;s.life=0.35+Math.random()*0.25;s.t=0;}
     const o0=i*36;
     if(s.t>=1){for(let k=0;k<36;k++)P[o0+k]=0;return;}

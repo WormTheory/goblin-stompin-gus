@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:5e775f0faec2ffc87b7f47e67d70e07fcf14a8082a61193d72ba7d35201c1249 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:5863b629812577fda6aa008fd1522d32ab3c678d715eb9800752bfea8324da7b -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2101,6 +2101,7 @@ function tenvIndex(){TENV_PL.clear();TENV_RM.clear();if(!TENV)return;
 // (x from SHIP_X0 on, a SHIP_SLOT-long stretch of z each), and drawn wherever the ship really is. Nothing the plan makes is
 // ever there: no structure, no dressing
 const SHIP_X0=480000,SHIP_CX0=SHIP_X0/16,SHIP_PX0=SHIP_X0/32,SHIP_SLOT=1024,SHIPS=[];
+let shipN=0;   // (how many ships there are: nothing about ships costs anything without one)
 const tenvShow=(px,pz)=>px<SHIP_PX0&&(!TENV||TENV_PL.has(tenvK(px,pz)));
 // d: how deep in the wrapped plan lookups we are (only the outermost is moved); raw: making a source chunk
 const TR={d:0,raw:0,on:false,c:new WeakMap()};
@@ -10197,7 +10198,8 @@ const charTint=p=>{if(!p.gob)return p.who;const o=players.find(q=>q!==p);return 
   ds.addEventListener('input',()=>{daySpd=Math.max(0,Math.min(DAY_SPEEDS.length-1,Math.round(+ds.value)||0));showD();try{localStorage.setItem(DAYSPD_KEY,String(daySpd));}catch(e){}});
 }
 const alivePlayers=()=>players.filter(p=>p.active&&p.state!=='dead');
-function nearestPlayer(x,z,aliveOnly=true){let best=null,bd=1e9;for(const p of players){if(!p.active||(aliveOnly&&p.state==='dead'))continue;const d=Math.hypot(p.pos.x-x,p.pos.z-z);if(d<bd){bd=d;best=p;}}return best?{p:best,d:bd}:null;}
+// (one aboard a ship, or not: measured where they really are, shipDist)
+function nearestPlayer(x,z,aliveOnly=true){let best=null,bd=1e9;for(const p of players){if(!p.active||(aliveOnly&&p.state==='dead'))continue;const d=shipN?shipDist(p,x,z):Math.hypot(p.pos.x-x,p.pos.z-z);if(d<bd){bd=d;best=p;}}return best?{p:best,d:bd}:null;}
 function addShake(amt,x,z,radius=20){if(SBX)return;for(const p of players){if(!p.active)continue;const k=Math.max(0,1-Math.hypot(p.pos.x-x,p.pos.z-z)/radius);if(amt*k>p.shake)p.shake=amt*k;}}
 // messages stack up: each new one appears at the bottom and pushes the others up; each fades out after a couple of
 // seconds (a repeat of the newest just refreshes it), and at most four show at once
@@ -10581,14 +10583,15 @@ const shocks=[];
 function shockwave(x,y,z,r,face,life0){if(SBX)return;
   const L=life0||0.45;
   [[0,r,L],[0.07,r*0.6,L*0.78]].forEach(([delay,rr,life])=>{const s=shocks.find(o=>o.t<=0&&o.d<=0)||shocks[0];s.d=delay;s.t=life;s.life=life;s.r=rr;
-    if(face===undefined){s.m.rotation.set(-Math.PI/2,0,0);s.m.position.set(x,y+0.08,z);}else{s.m.rotation.set(0,face,0);s.m.position.set(x,y,z);}
+    if(face===undefined){s.m.rotation.set(-Math.PI/2,0,0);s.m.position.set(x,y+0.08,z);}else{s.m.rotation.set(0,face+shipYawAt(x,z),0);s.m.position.set(x,y,z);}
+    shipPt(s.m.position);   // (in a ship's pocket: where the ship really is)
     s.m.scale.setScalar(0.3);s.m.material.opacity=0;s.m.visible=true;});
 }
 // a cone-shaped burst: point at the launch spot, flaring out backwards along the path, left behind as the hippo flies off
 const cones=[];
 {const geo=new THREE.ConeGeometry(1,1,28,1,true);for(let i=0;i<4;i++){const g=new THREE.Group(),m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:0xf2efe6,transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false}));m.rotation.x=Math.PI/2;g.add(m);g.visible=false;scene.add(g);cones.push({g,m,t:0,life:0.35,d:0,R:1,Lm:1});}}
 function shockCone(x,y,z,heading,R,len,life){if(SBX)return;
-  [[0,1,1],[0.05,0.68,0.8]].forEach(([delay,k,lk])=>{const c=cones.find(o=>o.t<=0&&o.d<=0)||cones[0];c.d=delay;c.t=c.life=life*lk;c.R=R*k;c.Lm=len*k;c.g.position.set(x,y,z);c.g.rotation.set(0,heading,0);c.m.material.opacity=0;c.m.scale.set(0.05,0.05,0.05);c.g.visible=true;});
+  [[0,1,1],[0.05,0.68,0.8]].forEach(([delay,k,lk])=>{const c=cones.find(o=>o.t<=0&&o.d<=0)||cones[0];c.d=delay;c.t=c.life=life*lk;c.R=R*k;c.Lm=len*k;c.g.position.set(x,y,z);c.g.rotation.set(0,heading+shipYawAt(x,z),0);shipPt(c.g.position);c.m.material.opacity=0;c.m.scale.set(0.05,0.05,0.05);c.g.visible=true;});
 }
 function updateCones(dt){for(const c of cones){if(c.t<=0)continue;if(c.d>0){c.d-=dt;continue;}c.t-=dt;const k=1-Math.max(0,c.t)/c.life,e=1-(1-k)*(1-k),r=0.12+c.R*e,l=0.3+c.Lm*e;c.m.scale.set(r,l,r);c.m.position.z=-l/2;c.m.material.opacity=0.55*(1-k);if(c.t<=0)c.g.visible=false;}}
 function updateShocks(dt){for(const s of shocks){if(s.t<=0)continue;if(s.d>0){s.d-=dt;continue;}s.t-=dt;const k=1-Math.max(0,s.t)/s.life,e=1-(1-k)*(1-k);s.m.scale.setScalar(0.3+s.r*e);s.m.material.opacity=0.8*(1-k);if(s.t<=0)s.m.visible=false;}}
@@ -17849,7 +17852,7 @@ function updateFires(dt){
   for(let i=0;i<FL_N;i++){const p=flameP[i];
     if(p.life<=0)continue;
     p.life-=dt;const u=1-Math.max(0,p.life)/p.max;p.y+=p.vy*dt;p.x+=Math.sin(p.ph+u*9)*dt*0.6;
-    const sc=p.s*(1-u*0.8);_firS.set(sc,sc*1.4,sc);_firP.set(p.x,p.y,p.z);_firQ.setFromAxisAngle(_upAx,p.ph+u*2);
+    const sc=p.s*(1-u*0.8);_firS.set(sc,sc*1.4,sc);shipPt(_firP.set(p.x,p.y,p.z));_firQ.setFromAxisAngle(_upAx,p.ph+u*2);
     flameM.setMatrixAt(nf,_firM.compose(_firP,_firQ,_firS));flameM.setColorAt(nf,_firC.setHex(FL_COLS[Math.min(3,Math.floor(u*4))]));nf++;}
   flLive=nf;flameM.count=nf;
   // smoke is see-through, so it has to be drawn far-to-near: live puffs are sorted by distance from the camera
@@ -17858,10 +17861,10 @@ function updateFires(dt){
   for(let i=0;i<SM_N;i++){const p=smokeP[i];if(p.life<=0)continue;
     p.life-=dt;if(p.life<=0)continue;p.x+=p.vx*dt;p.y+=p.vy*dt;p.z+=p.vz*dt;p.vy*=1-0.08*dt;p.i=i;live.push(p);}
   const cp=(players.find(q=>q.active)||players[0]).camera.position;
-  for(const p of live)p.cd=(p.x-cp.x)**2+(p.y-cp.y)**2+(p.z-cp.z)**2;
+  for(const p of live){shipPt(_firP.set(p.x,p.y,p.z));p.cd=(_firP.x-cp.x)**2+(p.y-cp.y)**2+(_firP.z-cp.z)**2;}
   live.sort((a,b)=>b.cd-a.cd);
   for(let n=0;n<live.length;n++){const p=live[n],u=1-p.life/p.max;
-    const sc=p.s*(1+u*2.6)*(u>0.85?(1-u)/0.15:1);_firS.set(sc,sc,sc);_firP.set(p.x,p.y,p.z);_firQ.setFromAxisAngle(_upAx,u*1.5+p.i);
+    const sc=p.s*(1+u*2.6)*(u>0.85?(1-u)/0.15:1);_firS.set(sc,sc,sc);shipPt(_firP.set(p.x,p.y,p.z));_firQ.setFromAxisAngle(_upAx,u*1.5+p.i);
     smokeM.setMatrixAt(n,_firM.compose(_firP,_firQ,_firS));const g=p.g*(1-u*0.25)*WORLD_LIGHT.value.r,w=p.glow*Math.max(0,1-u*3.2);   // lit orange from below while it's still low over the flames
     smokeM.setColorAt(n,_firC.setRGB(g*(1-w)+1.0*w,g*(1-w)+0.42*w,g*1.05*(1-w)+0.12*w));}
   smLive=live.length;smokeM.count=live.length;
@@ -21628,7 +21631,6 @@ function knockFixtures(x,z,r,dx,dz){let n=0;for(const f of activeFix){const ex=f
 // rubble are put back where the ship really is when they're drawn. ----
 const SHIP_M=3,SHIP_BAND=SHIP_M+5;   // (how close to the hull you're taken aboard; the pocket's water reaches a little past that)
 const _sv={x:0,z:0};
-let shipN=0;   // (how many ships there are: nothing here costs anything without one)
 // the test barge: a flat steel pontoon with a plank deck and a rail, a two-storey wheelhouse at the stern with stairs up
 // to its roof, the helm inside its front window, crates on the foredeck and a swim platform off the stern to climb out on
 // (two steps, the first just under the water's surface, so a swimmer walks straight up them).
@@ -21753,7 +21755,7 @@ function shipMove(o,S,into,isP){
     if(!ok)return false;P.y=y;}
   P.x=t.x;P.z=t.z;o.heading+=a;
   if(o.kv)shipRot(o.kv,'x','z',a);
-  if(isP){o.cam.yaw+=a;shipRot(o,'mvx','mvz',a);shipRot(o,'bvx','bvz',a);o.bsx=P.x;o.bsz=P.z;o.standCar=null;
+  if(isP){o.cam.yaw+=a;shipRot(o,'mvx','mvz',a);o.standCar=null;
     if(o.vcl){o.vcl=null;if(o.state==='climb')o.state='walk';}if(o.drvYaw!==undefined)o.drvYaw+=a;shipParent(o,into?S:null);}
   else{o.act=null;o.wt=null;o.path=null;o.fallTop=undefined;o.standCar=null;}
   return true;
@@ -21793,6 +21795,14 @@ function shipView(fn){
   let sw=null;for(const p of players){const S=shipOf(p);if(!S)continue;(sw||(sw=[])).push(p,p.pos.x,p.pos.z);shipToWorld(S,p.pos.x,p.pos.z,_sv);p.pos.x=_sv.x;p.pos.z=_sv.z;}
   try{fn();}finally{if(sw)for(let i=0;i<sw.length;i+=3){const p=sw[i];p.pos.x=sw[i+1];p.pos.z=sw[i+2];}}
 }
+// a point (anything with x and z) in a ship's pocket moved to where that is on the ship, in place; and how much a heading
+// there turns by out in the world (effects that are drawn as they're made: fires, shockwaves)
+function shipPt(v){if(v.x<SHIP_X0)return v;const S=shipOfPos(v.x,v.z);if(S){shipToWorld(S,v.x,v.z,_sv);v.x=_sv.x;v.z=_sv.z;}return v;}
+function shipYawAt(x,z){const S=shipOfPos(x,z);return S?S.yaw:0;}
+// how far a player is from x,z, measured where both really are (one aboard a ship, the other not; nearestPlayer: how loud a
+// sound is, who a goblin goes for)
+function shipDist(p,x,z){const Sx=shipOfPos(x,z),Sp=shipOf(p);if(Sx===Sp)return Math.hypot(p.pos.x-x,p.pos.z-z);
+  let px=pwx(p),pz=pwz(p);if(Sx){worldToShip(Sx,px,pz,_sv);px=_sv.x;pz=_sv.z;}return Math.hypot(px-x,pz-z);}
 // the camera, placed in the pocket by the usual code, put where that is on the ship (after placeCamera)
 function shipCam(p){
   const S=shipOf(p)||p.drv&&p.drv.k==='ship'&&p.drv.o;if(!S||!S.isShip)return;
@@ -23697,8 +23707,9 @@ let last=performance.now();
 // running (trample or sprint): speed lines in the world around Gus, streaming back past him along the way he's
 // actually moving -- real geometry in the scene, so the other player sees them too
 function bodyStreaks(p,dt){
-  const ox=p.bsx??p.pos.x,oz=p.bsz??p.pos.z;p.bsx=p.pos.x;p.bsz=p.pos.z;
-  if(dt>0){const vx=(p.pos.x-ox)/dt,vz=(p.pos.z-oz)/dt,a=Math.min(1,dt*10);if(Math.hypot(vx,vz)<60){p.bvx=(p.bvx||0)+(vx-(p.bvx||0))*a;p.bvz=(p.bvz||0)+(vz-(p.bvz||0))*a;}}
+  const PX=pwx(p),PZ=pwz(p);   // (aboard a ship, where it's really got to: the streaks are out in the world)
+  const ox=p.bsx??PX,oz=p.bsz??PZ;p.bsx=PX;p.bsz=PZ;
+  if(dt>0){const vx=(PX-ox)/dt,vz=(PZ-oz)/dt,a=Math.min(1,dt*10);if(Math.hypot(vx,vz)<60){p.bvx=(p.bvx||0)+(vx-(p.bvx||0))*a;p.bvz=(p.bvz||0)+(vz-(p.bvz||0))*a;}}
   const sp=Math.hypot(p.bvx||0,p.bvz||0),want=(p.trK||0)>0.05&&p.state==='walk'&&sp>2&&!p.paused?Math.min(1,p.trK):0;
   p.bsK=(p.bsK||0)+(want-(p.bsK||0))*Math.min(1,dt*(want>(p.bsK||0)?6:5.5));
   // each streak is a thin tapered ribbon, drawn twice crossed (flat and upright) so it reads from any angle; a gradient
@@ -23722,7 +23733,7 @@ function bodyStreaks(p,dt){
     s.t+=dt/(s.life||1);
     if(s.t>=1&&live&&Math.random()<dt*14){   // (staggered, so they don't all appear at once)
       const a=Math.random()*Math.PI*2,r=1.35+Math.random()*1.0,sx=Math.cos(a)*r*1.15,sy=Math.sin(a)*r*0.75+0.15,ahead=0.8+Math.random()*2.2;
-      s.x=p.pos.x+dx*ahead+px*sx;s.y=p.pos.y+1.1+sy;s.z=p.pos.z+dz*ahead+pz*sx;s.dx=dx;s.dz=dz;s.vx=-dx*(1.5+Math.random()*2);s.vz=-dz*(1.5+Math.random()*2);
+      s.x=PX+dx*ahead+px*sx;s.y=p.pos.y+1.1+sy;s.z=PZ+dz*ahead+pz*sx;s.dx=dx;s.dz=dz;s.vx=-dx*(1.5+Math.random()*2);s.vz=-dz*(1.5+Math.random()*2);
       s.l=(1.3+Math.random()*1.4)*(0.6+0.4*Math.min(1,sp/14));s.w=0.025+Math.random()*0.02;s.life=0.35+Math.random()*0.25;s.t=0;}
     const o0=i*36;
     if(s.t>=1){for(let k=0;k<36;k++)P[o0+k]=0;return;}

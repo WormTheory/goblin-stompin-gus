@@ -1,7 +1,7 @@
 let __s=+(process.env.SEED||1);Math.random=()=>{__s=(__s*16807)%2147483647;return (__s-1)/2147483646;};
 const fs=require('fs');
 let src0=fs.readFileSync('g.js','utf8');
-let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={SHIPS,SHIP_X0,shipToWorld,worldToShip,shipOf,tenvVeh,tenvFoe,tenvClear,get TENV(){return TENV},get TS(){return TS},frame,players,goblins,get,solidAt,groundAt,chunks,meshes,venues,setGob,keys,DT,crush,get nEdits(){return Object.keys(edits).length},get edits(){return edits},set menuOpen(v){menuOpen=v},SAVE_KEY};\n})();');
+let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={shockwave,get shocks(){return shocks},shipPt,nearestPlayer,addFire,get fires(){return fires},SHIPS,SHIP_X0,shipToWorld,worldToShip,shipOf,tenvVeh,tenvFoe,tenvClear,get TENV(){return TENV},get TS(){return TS},frame,players,goblins,get,solidAt,groundAt,chunks,meshes,venues,setGob,keys,DT,crush,get nEdits(){return Object.keys(edits).length},get edits(){return edits},set menuOpen(v){menuOpen=v},SAVE_KEY};\n})();');
 const deep=()=>new Proxy(function(){}, {get:(t,p)=>p===Symbol.toPrimitive?()=>0:(p==='length'?0:deep()),apply:()=>deep(),construct:()=>deep()});
 class Q{constructor(){this.x=0;this.y=0;this.z=0;this.w=1}set(x,y,z,w){this.x=x;this.y=y;this.z=z;this.w=w;return this}setFromAxisAngle(a,t){const s=Math.sin(t/2);this.x=a.x*s;this.y=a.y*s;this.z=a.z*s;this.w=Math.cos(t/2);return this}copy(q){this.x=q.x;this.y=q.y;this.z=q.z;this.w=q.w;return this}}
 class V3{project(){return this}fromBufferAttribute(a,i){const A=a.array||a.a;this.x=A[i*3];this.y=A[i*3+1];this.z=A[i*3+2];return this}applyMatrix4(m){const e=m.elements,x=this.x,y=this.y,z=this.z;this.x=e[0]*x+e[4]*y+e[8]*z+e[12];this.y=e[1]*x+e[5]*y+e[9]*z+e[13];this.z=e[2]*x+e[6]*y+e[10]*z+e[14];return this}setFromMatrixPosition(o){this.x=o.position.x;this.y=o.position.y;this.z=o.position.z;return this}normalize(){const l=Math.hypot(this.x,this.y,this.z)||1;this.x/=l;this.y/=l;this.z/=l;return this}add(v){this.x+=v.x;this.y+=v.y;this.z+=v.z;return this}applyQuaternion(q){const x=this.x,y=this.y,z=this.z,qx=q.x,qy=q.y,qz=q.z,qw=q.w;const ix=qw*x+qy*z-qz*y,iy=qw*y+qz*x-qx*z,iz=qw*z+qx*y-qy*x,iw=-qx*x-qy*y-qz*z;this.x=ix*qw+iw*-qx+iy*-qz-iz*-qy;this.y=iy*qw+iw*-qy+iz*-qx-ix*-qz;this.z=iz*qw+iw*-qz+ix*-qy-iy*-qx;return this}constructor(x=0,y=0,z=0){this.x=x;this.y=y;this.z=z}set(x,y,z){this.x=x;this.y=y;this.z=z;return this}copy(v){this.x=v.x;this.y=v.y;this.z=v.z;return this}clone(){return new V3(this.x,this.y,this.z)}addScaledVector(v,s){this.x+=v.x*s;this.y+=v.y*s;this.z+=v.z*s;return this}multiplyScalar(s){this.x*=s;this.y*=s;this.z*=s;return this}setScalar(s){return this.set(s,s,s)}}
@@ -88,6 +88,13 @@ let drove=false;
  console.log('  8 s on: closest a goblin got',f1(near),'| still aboard',gs.filter(g=>g.state==='chase'&&aboard(g)).length,'| fell in',gs.filter(g=>g.state==='chase'&&aboard(g)&&g.pos.y<G0).length);
  const e0=T.nEdits;T.crush(S.ox+3,G0+1,S.oz+10,1,-1,1);console.log('  crushed the deck: blocks changed',T.nEdits-e0,'all in the pocket',Object.keys(T.edits).every(k=>+k.split(',')[0]>=T.SHIP_X0));
  quietG();run(0.2);}
+// ---- effects and sounds aboard: drawn and heard where the ship really is
+{put(S.ox+0.5,G0+1,S.oz+2.5,Math.PI);run(0.3);
+ T.shockwave(S.ox+0.5,G0+1,S.oz+2.5,3);const sh=T.shocks.find(s=>s.m.visible);T.shipToWorld(S,S.ox+0.5,S.oz+2.5,W);
+ console.log('shockwave on the deck: drawn',sh?f1(Math.hypot(sh.m.position.x-W.x,sh.m.position.z-W.z)):'nowhere','from where that is on the ship');
+ const q={x:S.ox+3,z:S.oz-8};T.shipPt(q);T.shipToWorld(S,S.ox+3,S.oz-8,W);console.log('a flame on the wheelhouse: drawn',f1(Math.hypot(q.x-W.x,q.z-W.z)),'from where it is on the ship');
+ T.shipToWorld(S,S.ox+0.5,S.oz+12.5,W);const n=T.nearestPlayer(W.x,W.z,false);console.log('a sound out in the sea 10 off the bow: Gus',n?f1(n.d):'none','away (should be about 10)');
+ const n2=T.nearestPlayer(S.ox+0.5,S.oz+6.5,false);console.log('a sound on the deck 4 ahead of him:',n2?f1(n2.d):'none','away');}
 // ---- a goblin out in the sea goes for Gus aboard: swims to the ship and climbs on
 {T.shipToWorld(S,S.ox+0.5,S.oz+2.5,W);put(S.ox+0.5,G0+1,S.oz+2.5,Math.PI);run(0.3);
  // (spawned ahead of a stand-in out in the water, then Gus put back aboard)

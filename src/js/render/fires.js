@@ -113,7 +113,7 @@ function updateFires(dt){
   for(let i=0;i<FL_N;i++){const p=flameP[i];
     if(p.life<=0)continue;
     p.life-=dt;const u=1-Math.max(0,p.life)/p.max;p.y+=p.vy*dt;p.x+=Math.sin(p.ph+u*9)*dt*0.6;
-    const sc=p.s*(1-u*0.8);_firS.set(sc,sc*1.4,sc);_firP.set(p.x,p.y,p.z);_firQ.setFromAxisAngle(_upAx,p.ph+u*2);
+    const sc=p.s*(1-u*0.8);_firS.set(sc,sc*1.4,sc);shipPt(_firP.set(p.x,p.y,p.z));_firQ.setFromAxisAngle(_upAx,p.ph+u*2);
     flameM.setMatrixAt(nf,_firM.compose(_firP,_firQ,_firS));flameM.setColorAt(nf,_firC.setHex(FL_COLS[Math.min(3,Math.floor(u*4))]));nf++;}
   flLive=nf;flameM.count=nf;
   // smoke is see-through, so it has to be drawn far-to-near: live puffs are sorted by distance from the camera
@@ -122,10 +122,10 @@ function updateFires(dt){
   for(let i=0;i<SM_N;i++){const p=smokeP[i];if(p.life<=0)continue;
     p.life-=dt;if(p.life<=0)continue;p.x+=p.vx*dt;p.y+=p.vy*dt;p.z+=p.vz*dt;p.vy*=1-0.08*dt;p.i=i;live.push(p);}
   const cp=(players.find(q=>q.active)||players[0]).camera.position;
-  for(const p of live)p.cd=(p.x-cp.x)**2+(p.y-cp.y)**2+(p.z-cp.z)**2;
+  for(const p of live){shipPt(_firP.set(p.x,p.y,p.z));p.cd=(_firP.x-cp.x)**2+(p.y-cp.y)**2+(_firP.z-cp.z)**2;}
   live.sort((a,b)=>b.cd-a.cd);
   for(let n=0;n<live.length;n++){const p=live[n],u=1-p.life/p.max;
-    const sc=p.s*(1+u*2.6)*(u>0.85?(1-u)/0.15:1);_firS.set(sc,sc,sc);_firP.set(p.x,p.y,p.z);_firQ.setFromAxisAngle(_upAx,u*1.5+p.i);
+    const sc=p.s*(1+u*2.6)*(u>0.85?(1-u)/0.15:1);_firS.set(sc,sc,sc);shipPt(_firP.set(p.x,p.y,p.z));_firQ.setFromAxisAngle(_upAx,u*1.5+p.i);
     smokeM.setMatrixAt(n,_firM.compose(_firP,_firQ,_firS));const g=p.g*(1-u*0.25)*WORLD_LIGHT.value.r,w=p.glow*Math.max(0,1-u*3.2);   // lit orange from below while it's still low over the flames
     smokeM.setColorAt(n,_firC.setRGB(g*(1-w)+1.0*w,g*(1-w)+0.42*w,g*1.05*(1-w)+0.12*w));}
   smLive=live.length;smokeM.count=live.length;

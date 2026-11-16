@@ -180,7 +180,8 @@ const charTint=p=>{if(!p.gob)return p.who;const o=players.find(q=>q!==p);return 
   ds.addEventListener('input',()=>{daySpd=Math.max(0,Math.min(DAY_SPEEDS.length-1,Math.round(+ds.value)||0));showD();try{localStorage.setItem(DAYSPD_KEY,String(daySpd));}catch(e){}});
 }
 const alivePlayers=()=>players.filter(p=>p.active&&p.state!=='dead');
-function nearestPlayer(x,z,aliveOnly=true){let best=null,bd=1e9;for(const p of players){if(!p.active||(aliveOnly&&p.state==='dead'))continue;const d=Math.hypot(p.pos.x-x,p.pos.z-z);if(d<bd){bd=d;best=p;}}return best?{p:best,d:bd}:null;}
+// (one aboard a ship, or not: measured where they really are, shipDist)
+function nearestPlayer(x,z,aliveOnly=true){let best=null,bd=1e9;for(const p of players){if(!p.active||(aliveOnly&&p.state==='dead'))continue;const d=shipN?shipDist(p,x,z):Math.hypot(p.pos.x-x,p.pos.z-z);if(d<bd){bd=d;best=p;}}return best?{p:best,d:bd}:null;}
 function addShake(amt,x,z,radius=20){if(SBX)return;for(const p of players){if(!p.active)continue;const k=Math.max(0,1-Math.hypot(p.pos.x-x,p.pos.z-z)/radius);if(amt*k>p.shake)p.shake=amt*k;}}
 // messages stack up: each new one appears at the bottom and pushes the others up; each fades out after a couple of
 // seconds (a repeat of the newest just refreshes it), and at most four show at once

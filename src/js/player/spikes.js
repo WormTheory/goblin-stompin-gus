@@ -81,14 +81,15 @@ const shocks=[];
 function shockwave(x,y,z,r,face,life0){if(SBX)return;
   const L=life0||0.45;
   [[0,r,L],[0.07,r*0.6,L*0.78]].forEach(([delay,rr,life])=>{const s=shocks.find(o=>o.t<=0&&o.d<=0)||shocks[0];s.d=delay;s.t=life;s.life=life;s.r=rr;
-    if(face===undefined){s.m.rotation.set(-Math.PI/2,0,0);s.m.position.set(x,y+0.08,z);}else{s.m.rotation.set(0,face,0);s.m.position.set(x,y,z);}
+    if(face===undefined){s.m.rotation.set(-Math.PI/2,0,0);s.m.position.set(x,y+0.08,z);}else{s.m.rotation.set(0,face+shipYawAt(x,z),0);s.m.position.set(x,y,z);}
+    shipPt(s.m.position);   // (in a ship's pocket: where the ship really is)
     s.m.scale.setScalar(0.3);s.m.material.opacity=0;s.m.visible=true;});
 }
 // a cone-shaped burst: point at the launch spot, flaring out backwards along the path, left behind as the hippo flies off
 const cones=[];
 {const geo=new THREE.ConeGeometry(1,1,28,1,true);for(let i=0;i<4;i++){const g=new THREE.Group(),m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:0xf2efe6,transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false}));m.rotation.x=Math.PI/2;g.add(m);g.visible=false;scene.add(g);cones.push({g,m,t:0,life:0.35,d:0,R:1,Lm:1});}}
 function shockCone(x,y,z,heading,R,len,life){if(SBX)return;
-  [[0,1,1],[0.05,0.68,0.8]].forEach(([delay,k,lk])=>{const c=cones.find(o=>o.t<=0&&o.d<=0)||cones[0];c.d=delay;c.t=c.life=life*lk;c.R=R*k;c.Lm=len*k;c.g.position.set(x,y,z);c.g.rotation.set(0,heading,0);c.m.material.opacity=0;c.m.scale.set(0.05,0.05,0.05);c.g.visible=true;});
+  [[0,1,1],[0.05,0.68,0.8]].forEach(([delay,k,lk])=>{const c=cones.find(o=>o.t<=0&&o.d<=0)||cones[0];c.d=delay;c.t=c.life=life*lk;c.R=R*k;c.Lm=len*k;c.g.position.set(x,y,z);c.g.rotation.set(0,heading+shipYawAt(x,z),0);shipPt(c.g.position);c.m.material.opacity=0;c.m.scale.set(0.05,0.05,0.05);c.g.visible=true;});
 }
 function updateCones(dt){for(const c of cones){if(c.t<=0)continue;if(c.d>0){c.d-=dt;continue;}c.t-=dt;const k=1-Math.max(0,c.t)/c.life,e=1-(1-k)*(1-k),r=0.12+c.R*e,l=0.3+c.Lm*e;c.m.scale.set(r,l,r);c.m.position.z=-l/2;c.m.material.opacity=0.55*(1-k);if(c.t<=0)c.g.visible=false;}}
 function updateShocks(dt){for(const s of shocks){if(s.t<=0)continue;if(s.d>0){s.d-=dt;continue;}s.t-=dt;const k=1-Math.max(0,s.t)/s.life,e=1-(1-k)*(1-k);s.m.scale.setScalar(0.3+s.r*e);s.m.material.opacity=0.8*(1-k);if(s.t<=0)s.m.visible=false;}}

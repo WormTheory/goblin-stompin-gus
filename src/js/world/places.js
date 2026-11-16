@@ -18,6 +18,7 @@ function tenvIndex(){TENV_PL.clear();TENV_RM.clear();if(!TENV)return;
 // (x from SHIP_X0 on, a SHIP_SLOT-long stretch of z each), and drawn wherever the ship really is. Nothing the plan makes is
 // ever there: no structure, no dressing
 const SHIP_X0=480000,SHIP_CX0=SHIP_X0/16,SHIP_PX0=SHIP_X0/32,SHIP_SLOT=1024,SHIPS=[];
+let shipN=0;   // (how many ships there are: nothing about ships costs anything without one)
 const tenvShow=(px,pz)=>px<SHIP_PX0&&(!TENV||TENV_PL.has(tenvK(px,pz)));
 // d: how deep in the wrapped plan lookups we are (only the outermost is moved); raw: making a source chunk
 const TR={d:0,raw:0,on:false,c:new WeakMap()};
