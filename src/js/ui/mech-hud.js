@@ -17,16 +17,17 @@ function mechCamera(p){
 // the line of controls along the top of the display
 function mechHint(p){const L=id=>actMark(p,id);
   return L('mgQB')+' quick boost  ·  '+L('mgBoost')+' boost '+(p.drv.o.boostOn?'ON':'off')+'  ·  '+L('mgJump')+' jump, hold to fly  ·  '+L('mgLock')+(p.drv.o.hard?' let go':' lock on')+'  ·  hold '+L('mgOut')+' get out';}
-// the energy gauge under the crosshair: how much is left, red and flashing while it's redlined; beside it the speed
+// the energy gauge: a thin bar along the bottom of the lock box, its whole width, how much is left, red and flashing while
+// it's redlined (made after the weapons' display, which makes the lock box)
 function mechHud(p,H){
   const on=p.drv&&p.drv.k==='mech'&&!p.drv.jack;
-  if(!H.mg){if(!on)return;const el=document.createElement('div');el.className='mgen';el.innerHTML='<span class="mgl">EN</span><span class="mgb"><i></i></span><span class="mgs"></span>';H.el.append(el);
-    H.mg={el,fill:el.querySelector('.mgb i'),spd:el.querySelector('.mgs'),last:''};}
-  H.mg.el.hidden=!on;mgWpnHud(p,H,on);if(!on)return;
-  const M=p.drv.o,f=Math.max(0,Math.min(1,M.en/MG.enMax)),red=M.red>0,st=(f*100).toFixed(0)+(red?'r':'')+(M.boostOn?'b':'')+Math.round(Math.hypot(M.vx,M.vz));
+  mgWpnHud(p,H,on);
+  if(!H.mg){if(!on)return;const el=document.createElement('div');el.className='mgen';el.innerHTML='<i></i>';H.mgw.lb.append(el);
+    H.mg={el,fill:el.querySelector('i'),last:''};}
+  H.mg.el.hidden=!on;if(!on)return;
+  const M=p.drv.o,f=Math.max(0,Math.min(1,M.en/MG.enMax)),red=M.red>0,st=(f*100).toFixed(1)+(red?'r':'');
   if(st===H.mg.last)return;H.mg.last=st;
-  H.mg.fill.style.width=(f*100).toFixed(1)+'%';H.mg.el.classList.toggle('red',red);H.mg.el.classList.toggle('boost',M.boostOn);
-  H.mg.spd.textContent=red?'REDLINE':Math.round(Math.hypot(M.vx,M.vz)*3.6)+' km/h';
+  H.mg.fill.style.width=(f*100).toFixed(1)+'%';H.mg.el.classList.toggle('red',red);
 }
 // the weapons' display: the lock box round the crosshair (its size the lock box's angle at the view's field of view), a
 // bracket on what's soft-locked, a heavier one on a hard lock, the missile locks as pips by their targets; up either

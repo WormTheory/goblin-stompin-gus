@@ -64,14 +64,14 @@ function makeMech(){
   const hd=grp(T,0,2.62,0.25);J.head=hd;
   bx(hd,MGM.frame,0.9,0.55,1.0,0,0.27,0);bx(hd,MGM.plate,0.95,0.2,0.7,0,0.6,-0.05);J.eye=bx(hd,MGM.glow,0.74,0.11,0.05,0,0.3,0.51);
   bx(hd,MGM.dark,0.06,0.7,0.06,0.3,0.95,-0.25);bx(hd,MGM.trim,0.1,0.14,0.8,0,0.75,0);
-  for(const s of [-1,1]){const sh=grp(T,s*1.62,2.1,0.05);
+  for(const s of [-1,1]){const sh=grp(T,s*1.62,2.1,0.05);sh.rotation.order='YXZ';   // (turned about the upright last, so a raised arm swings level)
     bx(sh,MGM.plate,0.95,0.75,1.25,s*0.18,0.15,0);bx(sh,MGM.trim,0.97,0.12,1.27,s*0.18,0.46,0);bx(sh,MGM.frame,0.55,1.3,0.6,s*0.22,-0.75,0);
     const el=grp(sh,s*0.22,-1.4,0);bx(el,MGM.plate,0.72,1.3,0.82,0,-0.55,0.05);bx(el,MGM.dark,0.45,0.4,0.45,0,-1.3,0.1);
     // (x is its left: the right hand (x-) holds the rifle along the forearm, the left carries the blade's housing, and the
-    // blade itself, a long glowing bar shown only while it cuts)
+    // blade itself, a long glowing bar shown only while it cuts, on a group at the hand so it can grow out of it)
     let mz=null,bl=null;
     if(s<0){bx(el,MGM.dark,0.36,2.3,0.46,0,-1.7,0.2);bx(el,MGM.trim,0.2,0.5,0.3,0,-0.95,0.5);mz=grp(el,0,-2.9,0.2);}
-    else{bx(el,MGM.trim,0.32,1.0,0.32,0,-1.1,0.45);bx(el,MGM.dark,0.18,0.5,0.18,0,-1.75,0.45);bl=bx(el,MGM.heat,0.22,11.4,0.85,0,-7.6,0.45);bl.visible=false;}
+    else{bx(el,MGM.trim,0.32,1.0,0.32,0,-1.1,0.45);bx(el,MGM.dark,0.18,0.5,0.18,0,-1.75,0.45);bl=grp(el,0,-1.9,0.45);bx(bl,MGM.heat,0.22,11.4,0.85,0,-5.7,0);bl.visible=false;}
     J.arms.push({sh,el,s,mz,bl});}
   return{g,J};
 }

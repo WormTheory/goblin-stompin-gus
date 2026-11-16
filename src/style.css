@@ -152,13 +152,11 @@ canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;point
 .drvhud .xt.air{opacity:.45}
 .drvhud .xt.off{border-color:#ff9a3a}
 /* a Mobile Gear's energy gauge, just under the crosshair: blue, red and flashing while redlined */
-.drvhud .mgen{position:absolute;left:50%;top:calc(50% + 34px);transform:translateX(-50%);display:flex;align-items:center;gap:6px;font:400 17px var(--f-px);color:#e8f6ff;text-shadow:0 1px 0 #000,0 0 3px #000}
-.drvhud .mgen .mgb{width:150px;height:9px;border:2px solid #0a0d10;border-radius:5px;background:rgba(10,13,16,.55);overflow:hidden}
-.drvhud .mgen .mgb i{display:block;height:100%;width:100%;background:#7cd4ff}
-.drvhud .mgen .mgs{min-width:72px}
-.drvhud .mgen.red .mgb i{background:#ff4a3a}
-.drvhud .mgen.red{color:#ff6a5a;animation:mgred .25s steps(2) infinite}
-.drvhud .mgen.boost .mgl{color:#7cd4ff}
+.drvhud .mglb .mgen{position:absolute;left:0;right:0;top:calc(100% + 7px);height:6px;opacity:.5;background:rgba(10,13,16,.5);border:1px solid rgba(232,246,255,.3);border-radius:2px;overflow:hidden}
+.drvhud .mglb .mgen i{position:absolute;left:0;top:0;bottom:0;width:100%;background:#7cd4ff}
+.drvhud .mglb .mgen.red i{background:#ff4a3a}
+.drvhud .mglb .mgen.red{animation:mgen-red .25s steps(2) infinite}
+@keyframes mgen-red{50%{opacity:.15}}
 @keyframes mgred{50%{opacity:.45}}
 /* a Mobile Gear's weapons: the lock box, the lock brackets and missile pips, and the four weapon boxes round the crosshair */
 .drvhud .mgwh{position:absolute;inset:0}
@@ -168,22 +166,24 @@ canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;point
 .drvhud .tk{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border:2px solid #ffd75a;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.45);clip-path:polygon(0 0,35% 0,35% 12%,65% 12%,65% 0,100% 0,100% 35%,88% 35%,88% 65%,100% 65%,100% 100%,65% 100%,65% 88%,35% 88%,35% 100%,0 100%,0 65%,12% 65%,12% 35%,0 35%)}
 .drvhud .tk.hard{width:34px;height:34px;margin:-17px 0 0 -17px;border:3px solid #ff4a3a;box-shadow:0 0 6px rgba(255,60,40,.7)}
 .drvhud .pip{position:absolute;width:7px;height:7px;margin:-4px 0 0 -4px;background:#7cd4ff;box-shadow:0 0 0 1px rgba(0,0,0,.6)}
-.drvhud .mglb .mgg{position:absolute;top:0;bottom:0;width:6px;background:rgba(10,13,16,.5);border:1px solid rgba(232,246,255,.3);border-radius:2px;overflow:hidden}
+.drvhud .mglb .mgg{position:absolute;top:0;bottom:0;width:6px;opacity:.5;background:rgba(10,13,16,.5);border:1px solid rgba(232,246,255,.3);border-radius:2px;overflow:hidden}
 .drvhud .mglb .mgg i{position:absolute;left:0;right:0;bottom:0;height:100%;background:#ffd75a}
 .drvhud .mglb .mgg.l1{right:calc(100% + 7px)}.drvhud .mglb .mgg.l2{right:calc(100% + 18px)}
 .drvhud .mglb .mgg.r1{left:calc(100% + 7px)}.drvhud .mglb .mgg.r2{left:calc(100% + 18px)}
 .drvhud .mglb .mgg.lo i{background:#ff6a4a}
-.drvhud .mglb .mgg.rl i{background:#f0a04a;opacity:.75}
+.drvhud .mglb .mgg.rl i{background:#f0a04a}
 /* (the readouts: just above the speedometer, in the corner (beside it they'd run into the health bar on all but the
    widest screens), two by two, each its button, then what's loaded, a rule, and its name) */
-.drvhud .mgro{position:absolute;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(172px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(2,minmax(128px,auto));gap:8px 16px;padding:8px 12px;background:rgba(14,17,22,.62);border-radius:4px;color:#ffd75a;text-shadow:0 1px 0 #000}
-.drvhud .mgc{display:grid;grid-template-columns:auto 1fr;align-items:end;column-gap:10px}
-.drvhud .mgc .cb{font:600 11px var(--f-mono)}
+.drvhud .mgro{position:absolute;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(172px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(2,176px);gap:8px 16px;padding:8px 12px;background:rgba(14,17,22,.62);border-radius:4px;color:#ffd75a;text-shadow:0 1px 0 #000}
+.drvhud .mgc{display:grid;grid-template-columns:auto 1fr;align-items:end;column-gap:10px;min-width:0}
+/* (the button drawn at about the height of the text: the glyphs are made for the hint line, so they're scaled down) */
+.drvhud .mgc .cb{display:flex;align-items:center;height:16px;width:22px;overflow:visible}
+.drvhud .mgc .cb .g{margin:0;transform:scale(.6);transform-origin:left center}
 .drvhud .mgc .cn{text-align:right;font:400 22px var(--f-px);line-height:1}
-.drvhud .mgc .cw{grid-column:1/3;margin-top:2px;padding-top:2px;border-top:2px solid currentColor;text-align:right;font:600 10px var(--f-mono);letter-spacing:.04em;text-transform:uppercase}
+.drvhud .mgc .cw{grid-column:1/3;margin-top:2px;padding-top:2px;border-top:2px solid currentColor;text-align:right;font:600 10px var(--f-mono);letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .drvhud .mgc.rl{color:#f0a04a}
 @media (pointer:coarse){.drvhud .mgro{bottom:calc(352px + env(safe-area-inset-bottom,0px))}}
-@media (max-width:700px){.drvhud .mgro{grid-template-columns:repeat(2,minmax(96px,auto));gap:6px 10px;padding:6px 8px}.drvhud .mgc .cn{font-size:18px}}
+@media (max-width:700px){.drvhud .mgro{grid-template-columns:repeat(2,128px);gap:6px 10px;padding:6px 8px}.drvhud .mgc .cn{font-size:18px}}
 .rb-t tr.rb-sec th{padding-top:14px;font:600 11px var(--f-body);color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
 .dveh{display:flex;gap:6px;align-items:stretch;justify-content:center;flex-wrap:wrap;max-width:100%}
 .dveh[hidden]{display:none}
@@ -207,7 +207,10 @@ canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;point
 .dveh .dbox.hit{background:rgba(130,24,18,.82)}
 .dveh .dbar{height:6px;margin-top:5px;background:rgba(238,240,230,.16);border-radius:2px;overflow:hidden}
 .dveh .dbar i{display:block;height:100%;width:100%;background:#7fc24a}
-.dveh .dwpn{margin-top:5px;font:600 11px var(--f-mono);color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* (a vehicle's controls: down the left of the view, a line each) */
+.drvhud .dkeys{position:absolute;left:max(14px,env(safe-area-inset-left,0px));top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:5px;padding:8px 10px;background:rgba(18,22,28,.62);border-radius:4px;font:600 11px var(--f-mono);color:var(--bone);white-space:nowrap;max-width:40%}
+.drvhud .dkeys:empty{display:none}
+.drvhud .dkeys>div{display:flex;align-items:center;gap:2px}
 .bar{position:absolute;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;max-width:calc(100% - 32px)}
 .who{font:700 13px var(--f-display);letter-spacing:.02em;text-shadow:0 2px 0 rgba(0,0,0,.6)}
 .who.p2{color:var(--gertie)}

@@ -55,14 +55,16 @@ function drvHud(p){
   if(!p.drv||!p.gob||p.drv.jack){if(H&&!H.el.hidden){H.el.hidden=true;H.dv.hidden=true;if(H.mg)H.mg.el.hidden=true;}return;}
   // (the crosshair and gun marker go over the view; the vehicle's health and its ammo sit just above your hearts)
   if(!H){const el=document.createElement('div');el.className='drvhud';el.innerHTML='<div class="xh"></div><div class="xt"></div>';p.ui.view.append(el);
-    const dv=document.createElement('div');dv.className='dveh';dv.innerHTML='<div class="dbox"><div class="dname"></div><div class="dbar"><i></i></div><div class="dwpn"></div></div><div class="dammo"></div>';
+    const dv=document.createElement('div');dv.className='dveh';dv.innerHTML='<div class="dbox"><div class="dname"></div><div class="dbar"><i></i></div></div><div class="dammo"></div>';
+    // (the controls: a column down the left of the view, one to a line, rather than a row under the health bar)
+    const dk=document.createElement('div');dk.className='dkeys';el.append(dk);
     const bar=p.ui.view.querySelector('.bar'),who=bar&&bar.querySelector('.who');if(who)bar.insertBefore(dv,who);else el.append(dv);
-    H=p.ui.drvHud={el,dv,xh:el.querySelector('.xh'),xt:el.querySelector('.xt'),box:dv.querySelector('.dbox'),name:dv.querySelector('.dname'),fill:dv.querySelector('.dbar i'),wpn:dv.querySelector('.dwpn'),ammo:dv.querySelector('.dammo'),txt:{}};}
+    H=p.ui.drvHud={el,dv,xh:el.querySelector('.xh'),xt:el.querySelector('.xt'),box:dv.querySelector('.dbox'),name:dv.querySelector('.dname'),fill:dv.querySelector('.dbar i'),wpn:dk,ammo:dv.querySelector('.dammo'),txt:{}};}
   const D=p.drv,o=D.o,armed=drvArmed(p),{hp,max}=drvHP(D),f=Math.max(0,Math.min(1,hp/max));
-  const set=(k,el,v)=>{if(H.txt[k]!==v){H.txt[k]=v;el.innerHTML=hudHTML(v);}};
+  const set=(k,el,v)=>{if(H.txt[k]!==v){H.txt[k]=v;el.innerHTML=k==='w'?String(v).split(/\s+·\s+/).map(l=>'<div>'+hudHTML(l)+'</div>').join(''):hudHTML(v);}};
   H.el.hidden=false;H.dv.hidden=false;
   set('n',H.name,(D.seat==='gun'?'Gunner  ·  ':'')+drvName(D).replace(/^./,c=>c.toUpperCase())+'  ·  '+Math.max(0,Math.ceil(hp))+' / '+Math.round(max));
-  const w=(f*100).toFixed(1)+'%';if(H.txt.w!==w){H.txt.w=w;H.fill.style.width=w;H.fill.style.background=f>0.5?'#7fc24a':f>0.25?'#f0a04a':'#e0564a';}
+  const w=(f*100).toFixed(1)+'%';if(H.txt.hpw!==w){H.txt.hpw=w;H.fill.style.width=w;H.fill.style.background=f>0.5?'#7fc24a':f>0.25?'#f0a04a':'#e0564a';}
   if(H.lastHp!==undefined&&hp<H.lastHp)H.hitT=camClock;H.lastHp=hp;H.box.classList.toggle('hit',camClock-(H.hitT??-9)<0.25);
   const bl=id=>btnMark(p.pad?bindGlyph('pad',BINDS[id].pad[p.pad&&id==='bite'?1:0]??BINDS[id].pad[0]):bindGlyph('kb',BINDS[id].kb[0])),out=drvKey(p);
   const lk=bl('lock'),LT=p.lockT,W=armed&&o.wpn?Object.values(o.wpn):[],w0=W[0],ready=!w0||w0.rl<=0&&w0.n>0;

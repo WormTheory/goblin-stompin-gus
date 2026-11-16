@@ -12,7 +12,7 @@ boost on (C): W 0.4 s speed 21.2 , at 3 s 32.4  went 85.5  energy 100.0 -> 100.0
 quick boost with D: burst speed 61.0  sideways -19.9  forward 0.0  energy 100.0 -> 80.0  (the legs face 0.0 )
   with nothing held: back 18.7  sideways -4.5
   quick boosts back to back from 100.0 energy: 8 before it redlines; 4.8 s
-  redlined: another does nothing true  boost false  gauge says REDLINE
+  redlined: another does nothing true  boost false  energy bar red true
   redline lasted 1.6 s, energy then 91.3
   2.5 s later 100.0
 jump (a tap): up 4.8  energy 100.0 -> 100.0  back down true
@@ -63,8 +63,9 @@ hard lock (middle click) on the one 0.69 off: locked true  1 s later 0.09 off  h
   middle click again: let go true
   leading a goblin crossing at 8/s, 100/s shot: aims 2.45 ahead of it (expected about 2.45)
   40 rounds gone in 3.4 s; reloaded in 2.5 s, back to 40
-Heat Cleaver at a locked goblin 18 ahead: lunged 9.0  goblin dead  blade shown true  cooling true  arm swept from -1.34 to 1.82 (right to left: true )
-  again at once: nothing (cooling down) true
+Heat Cleaver at a locked goblin 18 ahead: lunged 9.0  goblin dead  blade shown true  cooling true  arm swept from -1.15 to 1.75 (right to left: true )
+  the swing, frame by frame (60 a second): blade appears at 10 full at 16  body turned -0.45 to 0.40  blade back in the hand by frame 35
+  pressed again mid-swing: a new swing false
   goblins 10 to its right, left, ahead, and behind either side: cut down yes yes yes no no
   slashing at a wall 12 ahead, nothing locked: lunged 7.1  cut 81 blocks, 24 of them more than 5 off to one side and 30 to the other
 Rivet Rifle into a wall: rounds 20  blocks broken 8 (about half)

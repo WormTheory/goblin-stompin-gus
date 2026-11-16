@@ -12,10 +12,11 @@ DRV_WPN.mech=[{k:'rifle',name:'Rivet Rifle',max:40,gap:0.1,reload:2.5,act:'mgArm
 // (box: the lock box's half-width round the crosshair, as an angle; range: how far off it picks things out; hardRange:
 // past this a hard lock lets go; camTurn: how fast a hard lock turns the camera, a second. The blade: a locked target
 // within bladeReach is lunged at till it's bladeMid off, at most lungeMax; with none it lunges lunge ahead. Its cut
-// reaches bladeR past the body, bladeArc either side of straight ahead, swept in sweepT after windT (or the lunge))
+// reaches bladeR past the body, bladeArc either side of straight ahead. The swing: windT reaching across to its right
+// (the lunge goes in this too), the blade lit for the last igniteT of it, the cut swept in sweepT, then backT to put it away)
 const MGW={box:0.22,range:150,hardRange:170,camTurn:2.4,
   rifleDmg:3,rifleSc:0.006,
-  bladeReach:24,bladeMid:8,lunge:7,lungeMax:12,bladeDmg:20,bladeVD:90,bladeR:13,bladeArc:1.92,lungeT:0.2,windT:0.1,sweepT:0.24,backT:0.22,
+  bladeReach:24,bladeMid:8,lunge:7,lungeMax:12,bladeDmg:20,bladeVD:90,bladeR:13,bladeArc:1.92,lungeT:0.2,windT:0.34,igniteT:0.12,sweepT:0.14,backT:0.4,
   podLock:0.2,podLocks:4,missV:50,missTurn:5,missR:2.6,missDmg:4,missVD:35,missCrush:1.4,
   canV:95,canGrav:3,brace:0.4,canR:5.5,canDmg:10,canVD:180,canCrush:3.8,recoil:14};
 // a point on the mech in its torso's frame (x to its left, y up from its feet, z ahead), out in the world
@@ -67,12 +68,15 @@ function mgWeapons(M,p,i,dt){
   if(i.mgArmR&&wpnFire(M,'rifle')){const m=mgRifleAt(M),A=mgLead(M,p,m.x,m.y,m.z,400);
     gunRound(M,p,m.x,m.y,m.z,MGW.rifleDmg,MGW.rifleSc,'Riveted by a Mobile Gear','Mobile Gear rifle',A);M.rfT=0.6;M.rkT=0.08;puff(m.x,m.y,m.z,1,0xffd080,0.15);}
   // (the blade: a lunge forward, at the locked target if it's within reach (stopping with it about halfway along the
-  // blade), otherwise the way you're looking; then the sweep, right to left)
-  if(i.mgArmLP&&wpnFire(M,'blade')){const T=mgTarget(M),f=mgFwd(p),fh=Math.hypot(f.x,f.z)||1;let fx=f.x/fh,fz=f.z/fh,go=MGW.lunge;
+  // blade), otherwise the way you're looking; then the sweep, right to left. Not again until this swing's done)
+  if(i.mgArmLP&&!M.sl&&wpnFire(M,'blade')){const T=mgTarget(M),f=mgFwd(p),fh=Math.hypot(f.x,f.z)||1;let fx=f.x/fh,fz=f.z/fh,go=MGW.lunge;
     if(T){const dx=T.pos.x-M.x,dz=T.pos.z-M.z,d=Math.hypot(dx,dz)||1;if(d<MGW.bladeReach){fx=dx/d;fz=dz/d;go=Math.min(MGW.lungeMax,Math.max(0,d-MG.r-MGW.bladeMid));}}
     M.lgT=0;if(go>0.5){const v=go/MGW.lungeT;M.lgT=MGW.lungeT;M.lgx=fx*v;M.lgz=fz*v;}
-    M.sl={fx,fz,e:0,w:Math.max(MGW.windT,M.lgT),f:0,hit:new Set()};if(audio)sfx('Mobile Gear blade',()=>tone('sawtooth',220,880,0.18,0.04));}
-  if(M.sl){const S=M.sl;S.e+=dt;const f=Math.max(0,Math.min(1,(S.e-S.w)/MGW.sweepT));if(f>S.f){mgSlash(M,S,S.f,f);S.f=f;}if(S.e>S.w+MGW.sweepT+MGW.backT)M.sl=null;}
+    M.sl={fx,fz,e:0,w:Math.max(MGW.windT,M.lgT+0.12),f:0,hit:new Set()};if(audio)sfx('Mobile Gear blade',()=>tone('triangle',120,90,0.12,0.03));}
+  if(M.sl){const S=M.sl;S.e+=dt;
+    // (the blade lights as the reach finishes: a rising hum and a flash at the hand)
+    if(!S.lit&&S.e>=S.w-MGW.igniteT){S.lit=true;const h=mgAt(M,-0.6,5.0,1.4);puff(h.x,h.y,h.z,6,0xffc070,0.5);if(audio)sfx('Mobile Gear blade',()=>{tone('sawtooth',90,520,0.14,0.05);noise(0.12,0.08,3200,'bandpass');});}
+    const f=mgEase((S.e-S.w)/MGW.sweepT);if(f>S.f){mgSlash(M,S,S.f,f);S.f=f;}if(S.e>S.w+MGW.sweepT+MGW.backT)M.sl=null;}
   // (the pod: held, a lock every MGW.podLock on what's in the box, the least locked first, up to four or what's
   // loaded; let go, the missiles go one after another, each at its own lock (none: one, at the crosshair))
   const pd=W.pod;
@@ -92,6 +96,8 @@ function mgWeapons(M,p,i,dt){
 // with nobody in it: no locks, nothing firing, but the weapons still reload
 function mgDisarm(M,dt){wpnInit(M,'mech');wpnTick(M,dt);M.soft=M.hard=null;M.inBox=[];M.pod=null;M.podQ=null;M.brace=0;M.lgT=0;M.sl=null;
   for(const k of ['rfT','rkT','cnT','podT'])M[k]=Math.max(0,(M[k]||0)-dt);}
+// (smoothstep: slow out, fast through the middle, slow in; the swing's cut follows the arm's swing exactly)
+const mgEase=x=>{x=Math.max(0,Math.min(1,x));return x*x*(3-2*x);};
 // which way round from straight ahead (S.fx,S.fz) the point rx,rz is: 0 ahead, plus to the mech's left, minus to its
 // right; and the sweep's angle a fraction f of the way through it (from bladeArc to its right, round to bladeArc left)
 const mgSlAng=(S,rx,rz)=>Math.atan2(rx*S.fz-rz*S.fx,rx*S.fx+rz*S.fz),mgSweepA=f=>-MGW.bladeArc+2*MGW.bladeArc*f;
@@ -152,12 +158,19 @@ function mgWpnPose(M,J,ap,dt,ease){
     const k=M.raA,kick=M.rkT>0?0.12:0;R.sh.rotation.y+=(az-R.sh.rotation.y)*k;
     R.sh.rotation.x+=((-0.25-el*0.3-M.pt*0.5)-R.sh.rotation.x)*k;R.el.rotation.x+=((-(Math.PI/2-0.25)-el*0.7-M.pt*0.5+kick)-R.el.rotation.x)*k;}
   else R.sh.rotation.y=0;
-  // (the swing: drawn back across the body to its right during the lunge, swept round out to its left, then back. The
-  // arm's turn only runs to about where the cut does, as far as a shoulder can)
-  const S=M.sl;Lf.bl.visible=!!S;
-  if(S){const sw=MGW.sweepT,e=S.e,y=e<S.w?-1.35*Math.min(1,e/Math.max(0.05,S.w*0.7)):e<S.w+sw?-1.35+3.25*((e-S.w)/sw):1.9*Math.max(0,1-(e-S.w-sw)/MGW.backT);
-    Lf.sh.rotation.y=y;Lf.sh.rotation.x=-0.95-ap*0.2;Lf.el.rotation.x=-0.6;}
+  // (the swing. The reach: the left hand drawn across to its right side, the body turning with it and the right arm
+  // lifting out of the way; the blade lights from the hand as it gets there; then one quick level sweep out to its left,
+  // the arm straightening and the body following through; then the blade goes back into the hand as it settles back.
+  // k: how far the arm's in the swing's pose rather than its usual one; tw the body's extra turn; rr the right arm lifted)
+  const S=M.sl;let tw=0,rr=0,ig=0;
+  if(S){const e=S.e,w=S.w,sw=MGW.sweepT;let k,y,x,el,z;
+    if(e<w){k=mgEase(e/(w*0.75));y=-1.15;x=-0.55;el=-1.35;z=-0.2;tw=-0.45*k;rr=k;ig=mgEase((e-(w-MGW.igniteT))/MGW.igniteT);}
+    else if(e<w+sw){const q=(e-w)/sw,s1=mgEase(q),s2=mgEase(q*1.6);k=1;y=-1.15+2.9*s1;x=-0.55-0.45*s2-ap*0.2;el=-1.35+0.8*s2;z=-0.2+0.2*s1;tw=-0.45+0.85*s1;rr=1-0.6*s1;ig=1;}
+    else{const r=mgEase((e-w-sw)/MGW.backT);k=1-r;y=1.75;x=-1.0-ap*0.2;el=-0.55;z=0;tw=0.4*k;rr=0.4*k;ig=1-mgEase((e-w-sw)/(MGW.backT*0.45));}
+    Lf.sh.rotation.y=y*k;Lf.sh.rotation.x+=(x-Lf.sh.rotation.x)*k;Lf.el.rotation.x+=(el-Lf.el.rotation.x)*k;Lf.sh.rotation.z+=(z-Lf.sh.rotation.z)*k;}
   else Lf.sh.rotation.y=0;
+  Lf.bl.visible=ig>0.01;Lf.bl.scale.y=Math.max(0.01,ig);
+  J.T.rotation.y+=tw;R.sh.rotation.x-=0.35*rr;R.sh.rotation.z+=-0.3*rr;
   M.cnA=ease(M.cnA||0,M.brace>0||M.cnT>0?1:0,M.brace>0?14:5);J.cannon.rotation.x=-2.2*(1-M.cnA)+(-ap-M.pt)*M.cnA;
   M.pdA=ease(M.pdA||0,M.pod||M.podQ&&M.podQ.length||M.podT>0?1:0,10);J.podLid.rotation.x=-1.05*M.pdA;
 }

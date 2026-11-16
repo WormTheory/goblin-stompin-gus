@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:1d57abbe8262fa7225564d54faf814b96335948e7c3940f5044ddfc12f523fa9 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:61da3948728b01ce6f99588930cfc17d5dd2d60cf9741023ebe1528bafb189af -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -158,13 +158,11 @@ canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;point
 .drvhud .xt.air{opacity:.45}
 .drvhud .xt.off{border-color:#ff9a3a}
 /* a Mobile Gear's energy gauge, just under the crosshair: blue, red and flashing while redlined */
-.drvhud .mgen{position:absolute;left:50%;top:calc(50% + 34px);transform:translateX(-50%);display:flex;align-items:center;gap:6px;font:400 17px var(--f-px);color:#e8f6ff;text-shadow:0 1px 0 #000,0 0 3px #000}
-.drvhud .mgen .mgb{width:150px;height:9px;border:2px solid #0a0d10;border-radius:5px;background:rgba(10,13,16,.55);overflow:hidden}
-.drvhud .mgen .mgb i{display:block;height:100%;width:100%;background:#7cd4ff}
-.drvhud .mgen .mgs{min-width:72px}
-.drvhud .mgen.red .mgb i{background:#ff4a3a}
-.drvhud .mgen.red{color:#ff6a5a;animation:mgred .25s steps(2) infinite}
-.drvhud .mgen.boost .mgl{color:#7cd4ff}
+.drvhud .mglb .mgen{position:absolute;left:0;right:0;top:calc(100% + 7px);height:6px;opacity:.5;background:rgba(10,13,16,.5);border:1px solid rgba(232,246,255,.3);border-radius:2px;overflow:hidden}
+.drvhud .mglb .mgen i{position:absolute;left:0;top:0;bottom:0;width:100%;background:#7cd4ff}
+.drvhud .mglb .mgen.red i{background:#ff4a3a}
+.drvhud .mglb .mgen.red{animation:mgen-red .25s steps(2) infinite}
+@keyframes mgen-red{50%{opacity:.15}}
 @keyframes mgred{50%{opacity:.45}}
 /* a Mobile Gear's weapons: the lock box, the lock brackets and missile pips, and the four weapon boxes round the crosshair */
 .drvhud .mgwh{position:absolute;inset:0}
@@ -174,22 +172,24 @@ canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;point
 .drvhud .tk{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border:2px solid #ffd75a;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.45);clip-path:polygon(0 0,35% 0,35% 12%,65% 12%,65% 0,100% 0,100% 35%,88% 35%,88% 65%,100% 65%,100% 100%,65% 100%,65% 88%,35% 88%,35% 100%,0 100%,0 65%,12% 65%,12% 35%,0 35%)}
 .drvhud .tk.hard{width:34px;height:34px;margin:-17px 0 0 -17px;border:3px solid #ff4a3a;box-shadow:0 0 6px rgba(255,60,40,.7)}
 .drvhud .pip{position:absolute;width:7px;height:7px;margin:-4px 0 0 -4px;background:#7cd4ff;box-shadow:0 0 0 1px rgba(0,0,0,.6)}
-.drvhud .mglb .mgg{position:absolute;top:0;bottom:0;width:6px;background:rgba(10,13,16,.5);border:1px solid rgba(232,246,255,.3);border-radius:2px;overflow:hidden}
+.drvhud .mglb .mgg{position:absolute;top:0;bottom:0;width:6px;opacity:.5;background:rgba(10,13,16,.5);border:1px solid rgba(232,246,255,.3);border-radius:2px;overflow:hidden}
 .drvhud .mglb .mgg i{position:absolute;left:0;right:0;bottom:0;height:100%;background:#ffd75a}
 .drvhud .mglb .mgg.l1{right:calc(100% + 7px)}.drvhud .mglb .mgg.l2{right:calc(100% + 18px)}
 .drvhud .mglb .mgg.r1{left:calc(100% + 7px)}.drvhud .mglb .mgg.r2{left:calc(100% + 18px)}
 .drvhud .mglb .mgg.lo i{background:#ff6a4a}
-.drvhud .mglb .mgg.rl i{background:#f0a04a;opacity:.75}
+.drvhud .mglb .mgg.rl i{background:#f0a04a}
 /* (the readouts: just above the speedometer, in the corner (beside it they'd run into the health bar on all but the
    widest screens), two by two, each its button, then what's loaded, a rule, and its name) */
-.drvhud .mgro{position:absolute;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(172px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(2,minmax(128px,auto));gap:8px 16px;padding:8px 12px;background:rgba(14,17,22,.62);border-radius:4px;color:#ffd75a;text-shadow:0 1px 0 #000}
-.drvhud .mgc{display:grid;grid-template-columns:auto 1fr;align-items:end;column-gap:10px}
-.drvhud .mgc .cb{font:600 11px var(--f-mono)}
+.drvhud .mgro{position:absolute;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(172px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(2,176px);gap:8px 16px;padding:8px 12px;background:rgba(14,17,22,.62);border-radius:4px;color:#ffd75a;text-shadow:0 1px 0 #000}
+.drvhud .mgc{display:grid;grid-template-columns:auto 1fr;align-items:end;column-gap:10px;min-width:0}
+/* (the button drawn at about the height of the text: the glyphs are made for the hint line, so they're scaled down) */
+.drvhud .mgc .cb{display:flex;align-items:center;height:16px;width:22px;overflow:visible}
+.drvhud .mgc .cb .g{margin:0;transform:scale(.6);transform-origin:left center}
 .drvhud .mgc .cn{text-align:right;font:400 22px var(--f-px);line-height:1}
-.drvhud .mgc .cw{grid-column:1/3;margin-top:2px;padding-top:2px;border-top:2px solid currentColor;text-align:right;font:600 10px var(--f-mono);letter-spacing:.04em;text-transform:uppercase}
+.drvhud .mgc .cw{grid-column:1/3;margin-top:2px;padding-top:2px;border-top:2px solid currentColor;text-align:right;font:600 10px var(--f-mono);letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .drvhud .mgc.rl{color:#f0a04a}
 @media (pointer:coarse){.drvhud .mgro{bottom:calc(352px + env(safe-area-inset-bottom,0px))}}
-@media (max-width:700px){.drvhud .mgro{grid-template-columns:repeat(2,minmax(96px,auto));gap:6px 10px;padding:6px 8px}.drvhud .mgc .cn{font-size:18px}}
+@media (max-width:700px){.drvhud .mgro{grid-template-columns:repeat(2,128px);gap:6px 10px;padding:6px 8px}.drvhud .mgc .cn{font-size:18px}}
 .rb-t tr.rb-sec th{padding-top:14px;font:600 11px var(--f-body);color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
 .dveh{display:flex;gap:6px;align-items:stretch;justify-content:center;flex-wrap:wrap;max-width:100%}
 .dveh[hidden]{display:none}
@@ -213,7 +213,10 @@ canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;point
 .dveh .dbox.hit{background:rgba(130,24,18,.82)}
 .dveh .dbar{height:6px;margin-top:5px;background:rgba(238,240,230,.16);border-radius:2px;overflow:hidden}
 .dveh .dbar i{display:block;height:100%;width:100%;background:#7fc24a}
-.dveh .dwpn{margin-top:5px;font:600 11px var(--f-mono);color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* (a vehicle's controls: down the left of the view, a line each) */
+.drvhud .dkeys{position:absolute;left:max(14px,env(safe-area-inset-left,0px));top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:5px;padding:8px 10px;background:rgba(18,22,28,.62);border-radius:4px;font:600 11px var(--f-mono);color:var(--bone);white-space:nowrap;max-width:40%}
+.drvhud .dkeys:empty{display:none}
+.drvhud .dkeys>div{display:flex;align-items:center;gap:2px}
 .bar{position:absolute;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;max-width:calc(100% - 32px)}
 .who{font:700 13px var(--f-display);letter-spacing:.02em;text-shadow:0 2px 0 rgba(0,0,0,.6)}
 .who.p2{color:var(--gertie)}
@@ -1453,7 +1456,9 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <p class="pn-web">What's changed, newest first. These notes are also on <a href="patch-notes/index.html" target="_blank" rel="noopener">their own web page</a>.</p>
 <details class="pn-up pn-fold pn-new" id="version-0-5" open><summary tabindex="0"><h2>Version 0.5</h2><span class="pn-tog" aria-hidden="true"></span></summary>
 <h3>Mobile Gear (Testing Environment)</h3>
-<ul><li>A new vehicle to try out in the Testing Environment: the Mobile Gear, an armoured walker eight blocks tall. Pick it from the vehicle buttons in the Testing Environment tab and it's set down in front of you. Only Gnash and Grizzle can pilot it for now.</li><li>Walk up and press F (controller Y) to climb in. Hold F for half a second to climb out, so a stray tap won't throw you out mid-fight.</li><li>It moves where the camera points, with the view from behind and above it so the crosshair sits in the middle of the screen and you can see over its head. On foot it sets off slowly and builds up into a jog, its strides lengthening and its arms swinging, stepping whichever way you're going, backwards and sideways included. Standing still, its legs stay planted as you look around until its body has turned too far on them, then they step round to catch up. Press C (controller B) to switch boost on and it drops into a wide, braced crouch and skates along the ground three times as fast, at no cost. Everything is about a fifth faster than it was.</li><li>Shift (controller X) is a quick boost: a sharp burst in the direction you're holding, or straight back with nothing held, taken in the same braced skating crouch as boosting, then easing off smoothly rather than stopping dead. Each one costs energy.</li><li>Space (controller A) jumps: it dips into a quick crouch, pushes off, tucks its legs up and swings them out beneath it. Holding it flies upward on the thrusters. In the air it leans well into the way it's flying, its legs hang nearly straight, swept back behind it the faster it goes, and its back and calf thrusters tip down to hold it up. With boost on in the air it glides instead of dropping.</li><li>Thrusters run on the energy gauge under the crosshair. Empty it and it redlines: the gauge flashes red and you can't boost or fly until it recovers. Energy comes back quickly once you stop drawing on it, and faster on the ground.</li><li>It leans into the way it's going, and its thrusters fire from whichever side pushes it there: the back ones going forward, the side ones strafing, the chest ones going backwards. Its legs fold up smoothly as it leaves the ground and its feet stay planted flat, up and down steps too. Skating over a pit, its feet ease over the gap rather than dropping to the bottom. Its thruster flames taper to a point.</li><li>It steps up one-block ledges on foot and two-block ledges while boosting. Run into a wall or a building while boosting and it smashes a hole and carries on; at full boost it ploughs straight through with barely a stumble. Walking into one just stops it. Anything small in its way gets trampled, and a hard landing knocks goblins over.</li><li>It's armed, with a weapon on each trigger. Each has its own load and reloads by itself once it's empty. Beside the speedometer, in the bottom corner, each weapon's button, what it has loaded and its name are laid out as they're carried (shoulders above, arms below), and up either side of the lock box round the crosshair a tall gauge for each weapon shows how full it is, or how far along its reload is: - Right click (controller RB): the Rivet Rifle in its right hand. Hold it for a steady stream of rounds. Its rounds chip at walls: about half the time a round breaks the block it hits. - Left click (controller LB): the Heat Cleaver on its left arm. It lunges forward (at a locked target if one's close, stopping with it in reach), then sweeps a long glowing blade from right to left in a wide arc round in front of it that cuts down goblins, tears into vehicles and slices clean through walls. It needs a moment to cool between swings. - Q (controller LT): the Swarm Pod on its left shoulder. Hold it and the pod locks on to whatever's in the lock box, up to four locks, then let go and a homing missile flies at each. With nothing locked, a tap fires one where you're aiming. - E (controller RT): the Breaker Cannon on its right shoulder. On the ground it stops, braces and swings the cannon over its shoulder before firing a heavy shell that blasts a crater. In the air it fires at once and the kick shoves it backwards. It sits up on a post, so firing low it clears the Gear's own chest.</li><li>Lock-on: anything in the box round the crosshair is picked out by itself, and the rifle and blade aim at it, leading a moving target. Middle click (controller R3) holds on to it with a hard lock, and the camera turns to keep it in view while you move round it. Press it again to let go.</li><li>It has 600 health. Wreck it and you're thrown out. The assault boost and repairs are coming in a later update.</li><li>Its controls can be rebound in Options, in their own "Piloting a Mobile Gear" section.</li><li>Mobile Gears aren't kept when you leave the Testing Environment.</li><li>While you're piloting, the controls line for on foot is hidden; the Gear's own controls line shows instead.</li></ul>
+<ul><li>A new vehicle to try out in the Testing Environment: the Mobile Gear, an armoured walker eight blocks tall. Pick it from the vehicle buttons in the Testing Environment tab and it's set down in front of you. Only Gnash and Grizzle can pilot it for now.</li><li>Walk up and press F (controller Y) to climb in. Hold F for half a second to climb out, so a stray tap won't throw you out mid-fight.</li><li>It moves where the camera points, with the view from behind and above it so the crosshair sits in the middle of the screen and you can see over its head. On foot it sets off slowly and builds up into a jog, its strides lengthening and its arms swinging, stepping whichever way you're going, backwards and sideways included. Standing still, its legs stay planted as you look around until its body has turned too far on them, then they step round to catch up. Press C (controller B) to switch boost on and it drops into a wide, braced crouch and skates along the ground three times as fast, at no cost. Everything is about a fifth faster than it was.</li><li>Shift (controller X) is a quick boost: a sharp burst in the direction you're holding, or straight back with nothing held, taken in the same braced skating crouch as boosting, then easing off smoothly rather than stopping dead. Each one costs energy.</li><li>Space (controller A) jumps: it dips into a quick crouch, pushes off, tucks its legs up and swings them out beneath it. Holding it flies upward on the thrusters. In the air it leans well into the way it's flying, its legs hang nearly straight, swept back behind it the faster it goes, and its back and calf thrusters tip down to hold it up. With boost on in the air it glides instead of dropping.</li><li>Thrusters run on the energy gauge, a thin bar right across the bottom of the lock box round the crosshair. Empty it and it redlines: the bar flashes red and you can't boost or fly until it recovers. Energy comes back quickly once you stop drawing on it, and faster on the ground.</li><li>It leans into the way it's going, and its thrusters fire from whichever side pushes it there: the back ones going forward, the side ones strafing, the chest ones going backwards. Its legs fold up smoothly as it leaves the ground and its feet stay planted flat, up and down steps too. Skating over a pit, its feet ease over the gap rather than dropping to the bottom. Its thruster flames taper to a point.</li><li>It steps up one-block ledges on foot and two-block ledges while boosting. Run into a wall or a building while boosting and it smashes a hole and carries on; at full boost it ploughs straight through with barely a stumble. Walking into one just stops it. Anything small in its way gets trampled, and a hard landing knocks goblins over.</li><li>It's armed, with a weapon on each trigger. Each has its own load and reloads by itself once it's empty. Above the speedometer, in the bottom corner, each weapon's button, what it has loaded and its name are laid out as they're carried (shoulders above, arms below), in a panel that keeps the same size whatever it says, and up either side of the lock box round the crosshair a tall gauge for each weapon shows how full it is, or how far along its reload is. The gauges and the energy bar are see-through, so they don't hide what you're aiming at: - Right click (controller RB): the Rivet Rifle in its right hand. Hold it for a steady stream of rounds. Its rounds chip at walls: about half the time a round breaks the block it hits. - Left click (controller LB): the Heat Cleaver on its left arm. It lunges forward (at a locked target if one's close, stopping with it in reach), then swings. It reaches across to its right side, its whole upper body turning with it and its right arm lifting out of the way, the blade ignites from its left hand, and it whips the blade from right to left in a wide, level arc round in front of it that cuts down goblins, tears into vehicles and slices clean through walls. The blade retracts into its hand as it settles back. It needs a moment to cool between swings. - Q (controller LT): the Swarm Pod on its left shoulder. Hold it and the pod locks on to whatever's in the lock box, up to four locks, then let go and a homing missile flies at each. With nothing locked, a tap fires one where you're aiming. - E (controller RT): the Breaker Cannon on its right shoulder. On the ground it stops, braces and swings the cannon over its shoulder before firing a heavy shell that blasts a crater. In the air it fires at once and the kick shoves it backwards. It sits up on a post, so firing low it clears the Gear's own chest.</li><li>Lock-on: anything in the box round the crosshair is picked out by itself, and the rifle and blade aim at it, leading a moving target. Middle click (controller R3) holds on to it with a hard lock, and the camera turns to keep it in view while you move round it. Press it again to let go.</li><li>It has 600 health. Wreck it and you're thrown out. The assault boost and repairs are coming in a later update.</li><li>Its controls can be rebound in Options, in their own "Piloting a Mobile Gear" section.</li><li>Mobile Gears aren't kept when you leave the Testing Environment.</li><li>While you're piloting, the controls line for on foot is hidden.</li></ul>
+<h3>Vehicle controls</h3>
+<ul><li>In every vehicle, its controls are listed down the left side of the screen, one to a line, instead of along the bottom. The controls line for on foot is hidden while you drive.</li></ul>
 <h3>Debug menu</h3>
 <ul><li>Vehicles: pick any vehicle from the list and press Spawn, and one is set down ahead of you, parked and empty, ready to get into. Testing Environment only.</li><li>Infinite ammo: while it's on, nothing that has to be reloaded ever runs out (the Mobile Gear's blade still has to cool between swings).</li></ul>
 <h3>Bullets break blocks</h3>
@@ -11910,14 +11915,16 @@ function drvHud(p){
   if(!p.drv||!p.gob||p.drv.jack){if(H&&!H.el.hidden){H.el.hidden=true;H.dv.hidden=true;if(H.mg)H.mg.el.hidden=true;}return;}
   // (the crosshair and gun marker go over the view; the vehicle's health and its ammo sit just above your hearts)
   if(!H){const el=document.createElement('div');el.className='drvhud';el.innerHTML='<div class="xh"></div><div class="xt"></div>';p.ui.view.append(el);
-    const dv=document.createElement('div');dv.className='dveh';dv.innerHTML='<div class="dbox"><div class="dname"></div><div class="dbar"><i></i></div><div class="dwpn"></div></div><div class="dammo"></div>';
+    const dv=document.createElement('div');dv.className='dveh';dv.innerHTML='<div class="dbox"><div class="dname"></div><div class="dbar"><i></i></div></div><div class="dammo"></div>';
+    // (the controls: a column down the left of the view, one to a line, rather than a row under the health bar)
+    const dk=document.createElement('div');dk.className='dkeys';el.append(dk);
     const bar=p.ui.view.querySelector('.bar'),who=bar&&bar.querySelector('.who');if(who)bar.insertBefore(dv,who);else el.append(dv);
-    H=p.ui.drvHud={el,dv,xh:el.querySelector('.xh'),xt:el.querySelector('.xt'),box:dv.querySelector('.dbox'),name:dv.querySelector('.dname'),fill:dv.querySelector('.dbar i'),wpn:dv.querySelector('.dwpn'),ammo:dv.querySelector('.dammo'),txt:{}};}
+    H=p.ui.drvHud={el,dv,xh:el.querySelector('.xh'),xt:el.querySelector('.xt'),box:dv.querySelector('.dbox'),name:dv.querySelector('.dname'),fill:dv.querySelector('.dbar i'),wpn:dk,ammo:dv.querySelector('.dammo'),txt:{}};}
   const D=p.drv,o=D.o,armed=drvArmed(p),{hp,max}=drvHP(D),f=Math.max(0,Math.min(1,hp/max));
-  const set=(k,el,v)=>{if(H.txt[k]!==v){H.txt[k]=v;el.innerHTML=hudHTML(v);}};
+  const set=(k,el,v)=>{if(H.txt[k]!==v){H.txt[k]=v;el.innerHTML=k==='w'?String(v).split(/\s+·\s+/).map(l=>'<div>'+hudHTML(l)+'</div>').join(''):hudHTML(v);}};
   H.el.hidden=false;H.dv.hidden=false;
   set('n',H.name,(D.seat==='gun'?'Gunner  ·  ':'')+drvName(D).replace(/^./,c=>c.toUpperCase())+'  ·  '+Math.max(0,Math.ceil(hp))+' / '+Math.round(max));
-  const w=(f*100).toFixed(1)+'%';if(H.txt.w!==w){H.txt.w=w;H.fill.style.width=w;H.fill.style.background=f>0.5?'#7fc24a':f>0.25?'#f0a04a':'#e0564a';}
+  const w=(f*100).toFixed(1)+'%';if(H.txt.hpw!==w){H.txt.hpw=w;H.fill.style.width=w;H.fill.style.background=f>0.5?'#7fc24a':f>0.25?'#f0a04a':'#e0564a';}
   if(H.lastHp!==undefined&&hp<H.lastHp)H.hitT=camClock;H.lastHp=hp;H.box.classList.toggle('hit',camClock-(H.hitT??-9)<0.25);
   const bl=id=>btnMark(p.pad?bindGlyph('pad',BINDS[id].pad[p.pad&&id==='bite'?1:0]??BINDS[id].pad[0]):bindGlyph('kb',BINDS[id].kb[0])),out=drvKey(p);
   const lk=bl('lock'),LT=p.lockT,W=armed&&o.wpn?Object.values(o.wpn):[],w0=W[0],ready=!w0||w0.rl<=0&&w0.n>0;
@@ -12229,14 +12236,14 @@ function makeMech(){
   const hd=grp(T,0,2.62,0.25);J.head=hd;
   bx(hd,MGM.frame,0.9,0.55,1.0,0,0.27,0);bx(hd,MGM.plate,0.95,0.2,0.7,0,0.6,-0.05);J.eye=bx(hd,MGM.glow,0.74,0.11,0.05,0,0.3,0.51);
   bx(hd,MGM.dark,0.06,0.7,0.06,0.3,0.95,-0.25);bx(hd,MGM.trim,0.1,0.14,0.8,0,0.75,0);
-  for(const s of [-1,1]){const sh=grp(T,s*1.62,2.1,0.05);
+  for(const s of [-1,1]){const sh=grp(T,s*1.62,2.1,0.05);sh.rotation.order='YXZ';   // (turned about the upright last, so a raised arm swings level)
     bx(sh,MGM.plate,0.95,0.75,1.25,s*0.18,0.15,0);bx(sh,MGM.trim,0.97,0.12,1.27,s*0.18,0.46,0);bx(sh,MGM.frame,0.55,1.3,0.6,s*0.22,-0.75,0);
     const el=grp(sh,s*0.22,-1.4,0);bx(el,MGM.plate,0.72,1.3,0.82,0,-0.55,0.05);bx(el,MGM.dark,0.45,0.4,0.45,0,-1.3,0.1);
     // (x is its left: the right hand (x-) holds the rifle along the forearm, the left carries the blade's housing, and the
-    // blade itself, a long glowing bar shown only while it cuts)
+    // blade itself, a long glowing bar shown only while it cuts, on a group at the hand so it can grow out of it)
     let mz=null,bl=null;
     if(s<0){bx(el,MGM.dark,0.36,2.3,0.46,0,-1.7,0.2);bx(el,MGM.trim,0.2,0.5,0.3,0,-0.95,0.5);mz=grp(el,0,-2.9,0.2);}
-    else{bx(el,MGM.trim,0.32,1.0,0.32,0,-1.1,0.45);bx(el,MGM.dark,0.18,0.5,0.18,0,-1.75,0.45);bl=bx(el,MGM.heat,0.22,11.4,0.85,0,-7.6,0.45);bl.visible=false;}
+    else{bx(el,MGM.trim,0.32,1.0,0.32,0,-1.1,0.45);bx(el,MGM.dark,0.18,0.5,0.18,0,-1.75,0.45);bl=grp(el,0,-1.9,0.45);bx(bl,MGM.heat,0.22,11.4,0.85,0,-5.7,0);bl.visible=false;}
     J.arms.push({sh,el,s,mz,bl});}
   return{g,J};
 }
@@ -12526,10 +12533,11 @@ DRV_WPN.mech=[{k:'rifle',name:'Rivet Rifle',max:40,gap:0.1,reload:2.5,act:'mgArm
 // (box: the lock box's half-width round the crosshair, as an angle; range: how far off it picks things out; hardRange:
 // past this a hard lock lets go; camTurn: how fast a hard lock turns the camera, a second. The blade: a locked target
 // within bladeReach is lunged at till it's bladeMid off, at most lungeMax; with none it lunges lunge ahead. Its cut
-// reaches bladeR past the body, bladeArc either side of straight ahead, swept in sweepT after windT (or the lunge))
+// reaches bladeR past the body, bladeArc either side of straight ahead. The swing: windT reaching across to its right
+// (the lunge goes in this too), the blade lit for the last igniteT of it, the cut swept in sweepT, then backT to put it away)
 const MGW={box:0.22,range:150,hardRange:170,camTurn:2.4,
   rifleDmg:3,rifleSc:0.006,
-  bladeReach:24,bladeMid:8,lunge:7,lungeMax:12,bladeDmg:20,bladeVD:90,bladeR:13,bladeArc:1.92,lungeT:0.2,windT:0.1,sweepT:0.24,backT:0.22,
+  bladeReach:24,bladeMid:8,lunge:7,lungeMax:12,bladeDmg:20,bladeVD:90,bladeR:13,bladeArc:1.92,lungeT:0.2,windT:0.34,igniteT:0.12,sweepT:0.14,backT:0.4,
   podLock:0.2,podLocks:4,missV:50,missTurn:5,missR:2.6,missDmg:4,missVD:35,missCrush:1.4,
   canV:95,canGrav:3,brace:0.4,canR:5.5,canDmg:10,canVD:180,canCrush:3.8,recoil:14};
 // a point on the mech in its torso's frame (x to its left, y up from its feet, z ahead), out in the world
@@ -12581,12 +12589,15 @@ function mgWeapons(M,p,i,dt){
   if(i.mgArmR&&wpnFire(M,'rifle')){const m=mgRifleAt(M),A=mgLead(M,p,m.x,m.y,m.z,400);
     gunRound(M,p,m.x,m.y,m.z,MGW.rifleDmg,MGW.rifleSc,'Riveted by a Mobile Gear','Mobile Gear rifle',A);M.rfT=0.6;M.rkT=0.08;puff(m.x,m.y,m.z,1,0xffd080,0.15);}
   // (the blade: a lunge forward, at the locked target if it's within reach (stopping with it about halfway along the
-  // blade), otherwise the way you're looking; then the sweep, right to left)
-  if(i.mgArmLP&&wpnFire(M,'blade')){const T=mgTarget(M),f=mgFwd(p),fh=Math.hypot(f.x,f.z)||1;let fx=f.x/fh,fz=f.z/fh,go=MGW.lunge;
+  // blade), otherwise the way you're looking; then the sweep, right to left. Not again until this swing's done)
+  if(i.mgArmLP&&!M.sl&&wpnFire(M,'blade')){const T=mgTarget(M),f=mgFwd(p),fh=Math.hypot(f.x,f.z)||1;let fx=f.x/fh,fz=f.z/fh,go=MGW.lunge;
     if(T){const dx=T.pos.x-M.x,dz=T.pos.z-M.z,d=Math.hypot(dx,dz)||1;if(d<MGW.bladeReach){fx=dx/d;fz=dz/d;go=Math.min(MGW.lungeMax,Math.max(0,d-MG.r-MGW.bladeMid));}}
     M.lgT=0;if(go>0.5){const v=go/MGW.lungeT;M.lgT=MGW.lungeT;M.lgx=fx*v;M.lgz=fz*v;}
-    M.sl={fx,fz,e:0,w:Math.max(MGW.windT,M.lgT),f:0,hit:new Set()};if(audio)sfx('Mobile Gear blade',()=>tone('sawtooth',220,880,0.18,0.04));}
-  if(M.sl){const S=M.sl;S.e+=dt;const f=Math.max(0,Math.min(1,(S.e-S.w)/MGW.sweepT));if(f>S.f){mgSlash(M,S,S.f,f);S.f=f;}if(S.e>S.w+MGW.sweepT+MGW.backT)M.sl=null;}
+    M.sl={fx,fz,e:0,w:Math.max(MGW.windT,M.lgT+0.12),f:0,hit:new Set()};if(audio)sfx('Mobile Gear blade',()=>tone('triangle',120,90,0.12,0.03));}
+  if(M.sl){const S=M.sl;S.e+=dt;
+    // (the blade lights as the reach finishes: a rising hum and a flash at the hand)
+    if(!S.lit&&S.e>=S.w-MGW.igniteT){S.lit=true;const h=mgAt(M,-0.6,5.0,1.4);puff(h.x,h.y,h.z,6,0xffc070,0.5);if(audio)sfx('Mobile Gear blade',()=>{tone('sawtooth',90,520,0.14,0.05);noise(0.12,0.08,3200,'bandpass');});}
+    const f=mgEase((S.e-S.w)/MGW.sweepT);if(f>S.f){mgSlash(M,S,S.f,f);S.f=f;}if(S.e>S.w+MGW.sweepT+MGW.backT)M.sl=null;}
   // (the pod: held, a lock every MGW.podLock on what's in the box, the least locked first, up to four or what's
   // loaded; let go, the missiles go one after another, each at its own lock (none: one, at the crosshair))
   const pd=W.pod;
@@ -12606,6 +12617,8 @@ function mgWeapons(M,p,i,dt){
 // with nobody in it: no locks, nothing firing, but the weapons still reload
 function mgDisarm(M,dt){wpnInit(M,'mech');wpnTick(M,dt);M.soft=M.hard=null;M.inBox=[];M.pod=null;M.podQ=null;M.brace=0;M.lgT=0;M.sl=null;
   for(const k of ['rfT','rkT','cnT','podT'])M[k]=Math.max(0,(M[k]||0)-dt);}
+// (smoothstep: slow out, fast through the middle, slow in; the swing's cut follows the arm's swing exactly)
+const mgEase=x=>{x=Math.max(0,Math.min(1,x));return x*x*(3-2*x);};
 // which way round from straight ahead (S.fx,S.fz) the point rx,rz is: 0 ahead, plus to the mech's left, minus to its
 // right; and the sweep's angle a fraction f of the way through it (from bladeArc to its right, round to bladeArc left)
 const mgSlAng=(S,rx,rz)=>Math.atan2(rx*S.fz-rz*S.fx,rx*S.fx+rz*S.fz),mgSweepA=f=>-MGW.bladeArc+2*MGW.bladeArc*f;
@@ -12666,12 +12679,19 @@ function mgWpnPose(M,J,ap,dt,ease){
     const k=M.raA,kick=M.rkT>0?0.12:0;R.sh.rotation.y+=(az-R.sh.rotation.y)*k;
     R.sh.rotation.x+=((-0.25-el*0.3-M.pt*0.5)-R.sh.rotation.x)*k;R.el.rotation.x+=((-(Math.PI/2-0.25)-el*0.7-M.pt*0.5+kick)-R.el.rotation.x)*k;}
   else R.sh.rotation.y=0;
-  // (the swing: drawn back across the body to its right during the lunge, swept round out to its left, then back. The
-  // arm's turn only runs to about where the cut does, as far as a shoulder can)
-  const S=M.sl;Lf.bl.visible=!!S;
-  if(S){const sw=MGW.sweepT,e=S.e,y=e<S.w?-1.35*Math.min(1,e/Math.max(0.05,S.w*0.7)):e<S.w+sw?-1.35+3.25*((e-S.w)/sw):1.9*Math.max(0,1-(e-S.w-sw)/MGW.backT);
-    Lf.sh.rotation.y=y;Lf.sh.rotation.x=-0.95-ap*0.2;Lf.el.rotation.x=-0.6;}
+  // (the swing. The reach: the left hand drawn across to its right side, the body turning with it and the right arm
+  // lifting out of the way; the blade lights from the hand as it gets there; then one quick level sweep out to its left,
+  // the arm straightening and the body following through; then the blade goes back into the hand as it settles back.
+  // k: how far the arm's in the swing's pose rather than its usual one; tw the body's extra turn; rr the right arm lifted)
+  const S=M.sl;let tw=0,rr=0,ig=0;
+  if(S){const e=S.e,w=S.w,sw=MGW.sweepT;let k,y,x,el,z;
+    if(e<w){k=mgEase(e/(w*0.75));y=-1.15;x=-0.55;el=-1.35;z=-0.2;tw=-0.45*k;rr=k;ig=mgEase((e-(w-MGW.igniteT))/MGW.igniteT);}
+    else if(e<w+sw){const q=(e-w)/sw,s1=mgEase(q),s2=mgEase(q*1.6);k=1;y=-1.15+2.9*s1;x=-0.55-0.45*s2-ap*0.2;el=-1.35+0.8*s2;z=-0.2+0.2*s1;tw=-0.45+0.85*s1;rr=1-0.6*s1;ig=1;}
+    else{const r=mgEase((e-w-sw)/MGW.backT);k=1-r;y=1.75;x=-1.0-ap*0.2;el=-0.55;z=0;tw=0.4*k;rr=0.4*k;ig=1-mgEase((e-w-sw)/(MGW.backT*0.45));}
+    Lf.sh.rotation.y=y*k;Lf.sh.rotation.x+=(x-Lf.sh.rotation.x)*k;Lf.el.rotation.x+=(el-Lf.el.rotation.x)*k;Lf.sh.rotation.z+=(z-Lf.sh.rotation.z)*k;}
   else Lf.sh.rotation.y=0;
+  Lf.bl.visible=ig>0.01;Lf.bl.scale.y=Math.max(0.01,ig);
+  J.T.rotation.y+=tw;R.sh.rotation.x-=0.35*rr;R.sh.rotation.z+=-0.3*rr;
   M.cnA=ease(M.cnA||0,M.brace>0||M.cnT>0?1:0,M.brace>0?14:5);J.cannon.rotation.x=-2.2*(1-M.cnA)+(-ap-M.pt)*M.cnA;
   M.pdA=ease(M.pdA||0,M.pod||M.podQ&&M.podQ.length||M.podT>0?1:0,10);J.podLid.rotation.x=-1.05*M.pdA;
 }
@@ -12694,16 +12714,17 @@ function mechCamera(p){
 // the line of controls along the top of the display
 function mechHint(p){const L=id=>actMark(p,id);
   return L('mgQB')+' quick boost  ·  '+L('mgBoost')+' boost '+(p.drv.o.boostOn?'ON':'off')+'  ·  '+L('mgJump')+' jump, hold to fly  ·  '+L('mgLock')+(p.drv.o.hard?' let go':' lock on')+'  ·  hold '+L('mgOut')+' get out';}
-// the energy gauge under the crosshair: how much is left, red and flashing while it's redlined; beside it the speed
+// the energy gauge: a thin bar along the bottom of the lock box, its whole width, how much is left, red and flashing while
+// it's redlined (made after the weapons' display, which makes the lock box)
 function mechHud(p,H){
   const on=p.drv&&p.drv.k==='mech'&&!p.drv.jack;
-  if(!H.mg){if(!on)return;const el=document.createElement('div');el.className='mgen';el.innerHTML='<span class="mgl">EN</span><span class="mgb"><i></i></span><span class="mgs"></span>';H.el.append(el);
-    H.mg={el,fill:el.querySelector('.mgb i'),spd:el.querySelector('.mgs'),last:''};}
-  H.mg.el.hidden=!on;mgWpnHud(p,H,on);if(!on)return;
-  const M=p.drv.o,f=Math.max(0,Math.min(1,M.en/MG.enMax)),red=M.red>0,st=(f*100).toFixed(0)+(red?'r':'')+(M.boostOn?'b':'')+Math.round(Math.hypot(M.vx,M.vz));
+  mgWpnHud(p,H,on);
+  if(!H.mg){if(!on)return;const el=document.createElement('div');el.className='mgen';el.innerHTML='<i></i>';H.mgw.lb.append(el);
+    H.mg={el,fill:el.querySelector('i'),last:''};}
+  H.mg.el.hidden=!on;if(!on)return;
+  const M=p.drv.o,f=Math.max(0,Math.min(1,M.en/MG.enMax)),red=M.red>0,st=(f*100).toFixed(1)+(red?'r':'');
   if(st===H.mg.last)return;H.mg.last=st;
-  H.mg.fill.style.width=(f*100).toFixed(1)+'%';H.mg.el.classList.toggle('red',red);H.mg.el.classList.toggle('boost',M.boostOn);
-  H.mg.spd.textContent=red?'REDLINE':Math.round(Math.hypot(M.vx,M.vz)*3.6)+' km/h';
+  H.mg.fill.style.width=(f*100).toFixed(1)+'%';H.mg.el.classList.toggle('red',red);
 }
 // the weapons' display: the lock box round the crosshair (its size the lock box's angle at the view's field of view), a
 // bracket on what's soft-locked, a heavier one on a hard lock, the missile locks as pips by their targets; up either
@@ -23592,7 +23613,7 @@ function frame(now,bg){   // (bg: a tab in the background while online, kept goi
   hintTime-=dt;
   for(const p of act){
     if(netGuest())safe('arms',()=>gobArmsHud(p));else gobArmsHud(p);
-    const hint=p.ui.hint,grab=p===P1&&mouseNeedsClick();hint.hidden=!(grab||playing&&hintTime>0&&!(p.drv&&p.drv.k==='mech'));   // (piloting the Mobile Gear its own controls line takes over: see mechHint)
+    const hint=p.ui.hint,grab=p===P1&&mouseNeedsClick();hint.hidden=!(grab||playing&&hintTime>0&&!p.drv);   // (in any vehicle its own controls column down the left takes over)
     if(grab){const txt='Click to look around with the mouse';if(hint._s!==txt){hint._s=txt;hint.textContent=txt;}}
     else if(!hint.hidden){const txt=touchMode&&!p.pad?(p.gob?'BITE attacks  ·  STOMP throws a grenade  ·  JUMP  ·  tap DASH to dash, hold to sprint':'Hold STOMP  ·  BITE  ·  JUMP  ·  tap DASH to dash, hold to '+(abilOf(p).trample?'trample':'sprint')):bindHint(!!p.pad,p);if(hint._s!==txt){hint._s=txt;hint.innerHTML=hudHTML(txt);}}
   }

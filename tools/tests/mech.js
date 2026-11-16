@@ -50,7 +50,7 @@ hold([],1);
  // (as fast as it'll go: cooldown between, then out of energy)
  run(3);let n=0,t=0;const e1=M.en;while(M.red<=0&&t<8){tap('ShiftLeft');run(0.55);t+=0.6;n++;}
  console.log('  quick boosts back to back from',f1(e1),'energy:',n,'before it redlines;',f1(t),'s');
- const e2=M.en;tap('ShiftLeft');console.log('  redlined: another does nothing',M.qbT<=0,' boost',M.boostOn,' gauge says',P.ui.drvHud.mg.spd.textContent);
+ const e2=M.en;tap('ShiftLeft');console.log('  redlined: another does nothing',M.qbT<=0,' boost',M.boostOn,' energy bar red',P.ui.drvHud.mg.last.endsWith('r'));
  let r=0;while(M.red>0&&r<5){run(0.1);r+=0.1;}console.log('  redline lasted',f1(r+0.4),'s, energy then',f1(M.en));run(2.5);console.log('  2.5 s later',f1(M.en));}
 // ---- jumping and flying
 {run(2);const y0=M.y,e0=M.en;let top=0;tap('Space');for(let k=0;k<120;k++){run(1/60);top=Math.max(top,M.y-y0);}
@@ -165,10 +165,12 @@ hold([],1);
  {mh.add('Mouse2');let t=0;while(W().rifle.n>0&&t<8){run(0.1);t+=0.1;}mh.delete('Mouse2');let r=0;while(W().rifle.rl>0&&r<6){run(0.1);r+=0.1;}
   console.log('  40 rounds gone in',f1(t),'s; reloaded in',f1(r),'s, back to',W().rifle.n);}
  // (the blade: a goblin 18 ahead, locked: a lunge up to it and the sweep; then a wide wall ahead with nothing locked)
- {run(1);const g=gob(0,18,12);run(0.2);const z0=M.z;M.hard=g;mh.add('Mouse0');run(0.05);mh.delete('Mouse0');run(0.12);const blade=M.J.arms.find(a=>a.s>0).bl.visible,ys=[];
-  for(let k=0;k<30;k++){run(1/60);ys.push(M.J.arms.find(a=>a.s>0).sh.rotation.y);}run(0.2);
-  console.log('Heat Cleaver at a locked goblin 18 ahead: lunged',f1(M.z-z0),' goblin',g.state,' blade shown',blade,' cooling',W().blade.rl>0,' arm swept from',f2(Math.min(...ys)),'to',f2(Math.max(...ys)),'(right to left:',ys.indexOf(Math.min(...ys))<ys.indexOf(Math.max(...ys)),')');
-  mh.add('Mouse0');run(0.05);mh.delete('Mouse0');console.log('  again at once: nothing (cooling down)',!M.sl);M.hard=null;clear();run(1.5);
+ {run(1);const g=gob(0,18,12);run(0.2);const z0=M.z;M.hard=g;mh.add('Mouse0');run(0.05);mh.delete('Mouse0');const ys=[],tw=[],bl=[];
+  let cool=false,again=false;for(let k=0;k<60;k++){if(k===30)mh.add('Mouse0');if(k===31){mh.delete('Mouse0');cool=W().blade.rl>0;}const s0=M.sl;run(1/60);if(k===30&&M.sl!==s0)again=true;const A=M.J.arms.find(a=>a.s>0);ys.push(A.sh.rotation.y);bl.push(A.bl.visible?A.bl.scale.y:0);tw.push(M.J.T.rotation.y);}const blade=bl.some(v=>v>0.99);run(0.2);
+  const lit=bl.findIndex(v=>v>0.99),out=bl.findIndex(v=>v>0),gone=bl.lastIndexOf(bl.find(v=>v>0)===undefined?0:bl.filter(v=>v>0).pop());
+  const swingLine=['  the swing, frame by frame (60 a second): blade appears at',out,'full at',lit,' body turned',f2(Math.min(...tw)),'to',f2(Math.max(...tw)),' blade back in the hand by frame',bl.length-1-[...bl].reverse().findIndex(v=>v>0)+1];
+  console.log('Heat Cleaver at a locked goblin 18 ahead: lunged',f1(M.z-z0),' goblin',g.state,' blade shown',blade,' cooling',cool,' arm swept from',f2(Math.min(...ys)),'to',f2(Math.max(...ys)),'(right to left:',ys.indexOf(Math.min(...ys))<ys.indexOf(Math.max(...ys)),')');console.log(...swingLine);
+  console.log('  pressed again mid-swing: a new swing',again);M.hard=null;clear();run(1.5);
   // (goblins round it, either side and just behind: the sweep takes the ones in front and to the sides, not behind)
   {const ring=[[-10,2],[10,2],[0,10],[-7,-7],[7,-7]].map(([x,z])=>gob(x,z,6));run(0.1);mh.add('Mouse0');run(0.05);mh.delete('Mouse0');run(0.8);
    console.log('  goblins 10 to its right, left, ahead, and behind either side: cut down',ring.map(g=>g.state!=='chase'?'yes':'no').join(' '));clear();run(1.5);}
