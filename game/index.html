@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:989826039723eb6470722998123a8fdef5c47f14cbfb28dc78827a490938b638 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:2ab18acd1126584e7ac39a4d53ad2ae4788b79a2404128bf830205663467ebf9 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1468,6 +1468,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
       <div class="pn">
         <p class="pn-web">What's changed, newest first. These notes are also on <a href="patch-notes/index.html" target="_blank" rel="noopener">their own web page</a>.</p>
 <details class="pn-up pn-fold pn-new" id="version-0-5" open><summary tabindex="0"><h2>Version 0.5</h2><span class="pn-tog" aria-hidden="true"></span></summary>
+<h3>New vehicles</h3>
+<ul><li>Supercars: low, wide and very fast. Now and then one turns up in the traffic, tearing along the motorways well over the limit. Get in and it reaches over 60 a second, more than twice a car's top speed, so mind the walls. It steers a little less sharply the faster it goes.</li><li>Forklifts: parked out in a factory's yard by the loading docks, between the lorries. Slow, steered by their back wheels.</li><li>Hovercraft: rides over water just as it does over land, straight off the beach and out to sea, and slides round its turns. Debug menu only, for now.</li><li>Fighter jet: flies like the airliner but far harder and faster, rolling and pulling hard and topping out at nearly twice the speed. Left click (controller RB) holds the cannon, right click (controller RT) fires a missile, homing on whatever you've locked on to with Q (controller R3). Debug menu only, for now.</li><li>Hot-air balloon: Space (controller A) lights the burner and it rises, C (controller LB) vents it and it sinks, and left alone it cools and slowly settles. Moving nudges it gently the way you're looking. You can stand on top of the envelope. Shoot it and the envelope tears and the basket drops. Debug menu only, for now.</li><li>All five are in the debug menu's vehicle list, and solid against every other vehicle like the rest.</li></ul>
 <h3>Mobile Gear (Testing Environment)</h3>
 <ul><li>A new vehicle to try out in the Testing Environment: the Mobile Gear, an armoured walker eight blocks tall. Pick it from the vehicle buttons in the Testing Environment tab and it's set down in front of you. Only Gnash and Grizzle can pilot it for now.</li><li>Walk up and press F (controller Y) to climb in. Hold F for half a second to climb out, so a stray tap won't throw you out mid-fight.</li><li>It moves where the camera points, with the view from behind and above it so the crosshair sits in the middle of the screen and you can see over its head. On foot it sets off slowly and builds up into a jog, its strides lengthening and its arms swinging, stepping whichever way you're going, backwards and sideways included. Standing still, its legs stay planted as you look around until its body has turned too far on them, then they step round to catch up. Press C (controller B) to switch boost on and it drops into a wide, braced crouch and skates along the ground three times as fast, at no cost. Everything is about a fifth faster than it was.</li><li>Shift (controller X) is a quick boost: a sharp burst in the direction you're holding, or straight back with nothing held, taken in the same braced skating crouch as boosting, then easing off smoothly rather than stopping dead. Each one costs energy.</li><li>Space (controller A) jumps: it dips into a quick crouch, pushes off, tucks its legs up and swings them out beneath it. Holding it flies upward on the thrusters. In the air it leans well into the way it's flying, its legs hang nearly straight, swept back behind it the faster it goes, and its back and calf thrusters tip down to hold it up. With boost on in the air it glides instead of dropping.</li><li>Thrusters run on the energy gauge, a thin bar right across the bottom of the lock box round the crosshair. Empty it and it redlines: the bar flashes red and you can't boost or fly until it recovers. Energy comes back quickly once you stop drawing on it, and faster on the ground.</li><li>It leans into the way it's going, and its thrusters fire from whichever side pushes it there: the back ones going forward, the side ones strafing, the chest ones going backwards. Its legs fold up smoothly as it leaves the ground and its feet stay planted flat, up and down steps too. Skating over a pit, its feet ease over the gap rather than dropping to the bottom. Its thruster flames taper to a point.</li><li>It steps up one-block ledges on foot and two-block ledges while boosting. Run into a wall or a building while boosting and it smashes a hole and carries on; at full boost it ploughs straight through with barely a stumble. Walking into one just stops it. Anything small in its way gets trampled, and a hard landing knocks goblins over.</li><li>It's armed, with a weapon on each trigger. Each has its own load and reloads by itself once it's empty. Above the speedometer, in the bottom corner, each weapon's button, what it has loaded and its name are laid out as they're carried (shoulders above, arms below), in a panel that keeps the same size whatever it says, and up either side of the lock box round the crosshair a tall gauge for each weapon shows how full it is, or how far along its reload is. The gauges and the energy bar are see-through, so they don't hide what you're aiming at: - Right click (controller RB): the Rivet Rifle in its right hand. Hold it for a steady stream of rounds. Its rounds chip at walls: about half the time a round breaks the block it hits. - Left click (controller LB): the Heat Cleaver on its left arm. It lunges forward (at a locked target if one's close, ending with it in reach), easing smoothly off rather than halting, then swings. The lunge adds to however you're already moving, so walking or boosting you keep going through the attack. It reaches across to its right side, its whole upper body turning with it and its right arm lifting out of the way, the blade ignites from its left hand, a flat blade held level, and it whips the blade from right to left in a wide, level arc round in front of it that cuts down goblins, tears into vehicles and slices clean through walls. The swing follows your aim: locked on to something low, or looking down, it bends forward at the hips and slices downward, so it can reach goblins below it and cut into the ground; aimed high it leans back and slices upward. The blade retracts into its hand as it settles back. It needs a moment to cool between swings. - Q (controller LT): the Swarm Pod on its left shoulder. Hold it and the pod locks on to whatever's in the lock box, up to four locks, then let go and a homing missile flies at each. With nothing locked, a tap fires one where you're aiming. - E (controller RT): the Breaker Cannon on its right shoulder. On the ground it stops, braces and swings the cannon over its shoulder before firing a heavy shell that blasts a crater. In the air it fires at once and the kick shoves it backwards. It sits up on a post, so firing low it clears the Gear's own chest.</li><li>Lock-on: anything in the box round the crosshair is picked out by itself, and the rifle and blade aim at it, leading a moving target. Middle click (controller R3) holds on to it with a hard lock, and the camera turns to keep it in view while you move round it. Press it again to let go.</li><li>It has 600 health. Wreck it and you're thrown out.</li><li>X (controller L3) is the assault boost. It crouches and glows for a moment with a rising whine, then dashes off fast straight where you're aiming, up or down too, turning only slowly after your aim. Its weapons still fire on the way. It costs a chunk of energy to start and keeps drawing on it, and it smashes straight through walls. Press it again, or pull back, to stop.</li><li>Press it again near the target you're locked on to and it flies at it with a kick instead: not much damage, but it'll nearly always stagger what it hits.</li><li>Staggering: every hit fills a target's impact meter, which drains again once the hits stop. A full meter staggers it for 2 seconds: it can't move or shoot, and takes half again as much damage. Heavy blows (the kick, the Breaker Cannon, the Heat Cleaver) fill it faster. Tanks, helicopters and the Mobile Gear itself can all be staggered.</li><li>Your own impact meter is the thinner bar under the energy bar, with STAGGERED flashing under it while you are. A locked tank or helicopter shows its health and its impact meter under its bracket.</li><li>R (controller D-pad down) uses a repair kit, putting back 35% of its health over a second. Each Mobile Gear carries three, and the controls list on the left says how many are left.</li><li>Co-op: each player can climb into a Mobile Gear of their own, and two of them bump into each other rather than walking through.</li><li>Online: a guest sees the host's Mobile Gears move, stride, fire their thrusters and swing their weapons, and can climb in and pilot one, with its own display.</li><li>Redlined, its thrusters cough and sputter until the energy comes back.</li><li>Its controls can be rebound in Options, in their own "Piloting a Mobile Gear" section.</li><li>Mobile Gears aren't kept when you leave the Testing Environment.</li><li>While you're piloting, the controls line for on foot is hidden.</li><li>Getting into any vehicle or gun seat no longer pops up a card of its controls on the right: they're all in the list down the left, including a helicopter's climb and drop, flying a plane, and the fire buttons.</li><li>The Mobile Gear is now solid against boats (it used to walk straight through them) and every other vehicle, and can stand on any of them: a boat, a train, a plane, a tank, another Mobile Gear. Stood on something that moves, it's carried along.</li><li>Every vehicle can now be driven. Subway trains: climb in at a station and drive one round its loop, forwards or back. A rowboat pulled up on the beach, or a ship in a dry dock, is pushed off into the nearest open water as you climb in.</li></ul>
 <h3>PvP</h3>
@@ -2925,6 +2927,7 @@ function trainHit(T,n,dir,ci){
   if(T&&T.isRide){rideHit(T,n,ci);return;}
   if(T&&T.isMil){milHit(T,n,dir);return;}
   if(T&&T.isMech){mechHit(T,n);return;}
+  if(T&&T.isBalloon){balloonHit(T,n);return;}
   if(!T||T.dead||!T.cars)return;const N=T.cars.length;if(ci===undefined)ci=0;
   if(!T.carHP){T.carHP=T.cars.map(()=>CAR_HP);T.carDead=T.cars.map(()=>false);}
   if(T.carDead[ci])return;T.carHP[ci]-=n;
@@ -11422,11 +11425,12 @@ function gobView(v){
 // again, out you get. Cars and trucks, the bases' tanks and helicopters, boats, trains and the airport's planes. Each
 // one's own update reads its driver's controls in place of its usual round (p.drv says what you're in, and the
 // vehicle's .drv who's driving it); drvSeat keeps you in your seat once everything's moved ----
-const DRV_NAME={tank:'tank',heli:'helicopter',train:'train',subway:'subway train',plane:'plane'};
+const DRV_NAME={tank:'tank',heli:'helicopter',train:'train',subway:'subway train',plane:'plane',balloon:'hot-air balloon'};
 function drvName(D){if(D.netN)return D.netN;const o=D.o;   // (D.netN: a guest online, told by the host)
 
-  if(D.k==='car')return o.police?'police car':{car:'car',bike:'motorcycle',van:'van',pickup:'pickup',truck:'truck',semi:'lorry',bus:'bus',fire:'fire engine',amb:'ambulance',news:'news van',rv:'motorhome',technical:'technical',quad:'four-wheeler'}[o.veh]||'car';
+  if(D.k==='car')return o.police?'police car':{car:'car',bike:'motorcycle',van:'van',pickup:'pickup',truck:'truck',semi:'lorry',bus:'bus',fire:'fire engine',amb:'ambulance',news:'news van',rv:'motorhome',technical:'technical',quad:'four-wheeler',super:'supercar',forklift:'forklift',hover:'hovercraft'}[o.veh]||'car';
   if(D.k==='boat')return o.K.name.toLowerCase();
+  if(D.k==='plane'&&o.jet)return'fighter jet';
   return DRV_NAME[D.k];
 }
 // the key (or button) that gets you in and out, as bound
@@ -11445,6 +11449,7 @@ function drvFind(p){
     let D=null;
     if(T.isMil){if(!T.dead)D=T.drv?{k:T.kind,o:T,V:T.V,seat:'gun'}:{k:T.kind,o:T,V:T.V};}
     else if(T.isMech){if(!T.dead)D={k:'mech',o:T,V:T.V};}   // (a Mobile Gear: see mech.js)
+    else if(T.isBalloon){if(!T.dead&&pr.i===0)D={k:'balloon',o:T,V:T.V};}   // (a hot-air balloon's basket: see balloon.js)
     else if(pr.isBoat){const V=venues.get(T.key);if(V&&V.bo===T&&!T.dead)D={k:'boat',o:T,V};}   // (one pulled up on the sand or in a dry dock too: see drvLaunch)
     else if(T.isPlane){if(!T.dead&&!T.fall)for(const V of venues.values())if(V.kind==='airport'&&V.pl&&V.pl.includes(T)){D={k:'plane',o:T,V};break;}}
     else if(pr.veh==='train'&&T.C&&!T.dead)D={k:'train',o:T,ci:pr.i};
@@ -11457,6 +11462,7 @@ function drvPose(D){if(D.netS)return D.netS;const o=D.o;   // (D.netS: a guest o
 
   if(D.k==='car')return{x:o.pos.x,y:o.pos.y,z:o.pos.z,h:o.heading,hx:o.hx,hz:o.hz,hy:o.hy||1.4,v:o.speed};
   if(D.k==='mech')return{x:o.x,y:o.y,z:o.z,h:o.h,hx:MG.r,hz:MG.r,hy:MG.hy,v:Math.hypot(o.vx,o.vz)};
+  if(D.k==='balloon')return{x:o.x,y:o.y,z:o.z,h:o.h,hx:BAL.bw,hz:BAL.bw,hy:BAL.bh,v:Math.hypot(o.vx,o.vz)};
   if(D.k==='tank'||D.k==='heli'){const I=MIL[D.k];return{x:o.x,y:o.y,z:o.z,h:o.h,hx:I.hx,hz:I.hz,hy:I.hy,v:D.k==='tank'?o.sv||0:Math.hypot(o.hv?o.hv.x:0,o.hv?o.hv.z:0)};}
   if(D.k==='subway'){const g=D.V.cars[D.ci];return{x:g.position.x,y:g.position.y,z:g.position.z,h:g.rotation.y,hx:TRAIN_HX,hz:TRAIN_HZ,hy:TRAIN_H,v:D.V.v};}
   if(D.k==='boat'){const g=o.g;return{x:g.position.x,y:g.position.y,z:g.position.z,h:g.rotation.y,hx:o.K.W/2,hz:o.L/2,hy:o.K.fb+1.5,v:o.sp||0};}
@@ -11479,7 +11485,7 @@ function drvTake(p,D){const o=D.o;o.drv=p;
   if(D.k==='car'){o.hunter=false;o.path=null;o.rt=null;o.hw=null;o.parked=false;o.left=false;o.reverseT=0;o.makeWay=0;o.leaving=false;o.yieldSv=false;o.hazard=false;if(o.hazG)o.hazG.visible=false;}
   else if(D.k==='tank'||D.k==='heli'){o.state='drive';o.sv=0;o.hv={x:0,z:0};o.vy=0;o.cd=0;o.detour=0;wpnInit(o,D.k);o.rkHeld=true;}
   else if(D.k==='boat'){drvLaunch(D);const g=o.g;D.V.lane=null;D.V.x=g.position.x;D.V.z=g.position.z;D.V.yaw=g.rotation.y;o.sp=0;}
-  else if(D.k==='plane'){if(!o.free)o.free={v:o.v||0,vy:0};o.g.visible=true;}
+  else if(D.k==='plane'){if(!o.free)o.free={v:o.v||0,vy:0};o.g.visible=true;if(o.jet){wpnInit(o,'jet');o.rkHeld=true;}}
   else if(D.k==='train'){o.wait=0;}
   else if(D.k==='subway'){D.V.wait=0;}
   else if(D.k==='mech'){o.outArm=false;o.outT=0;}   // (the use button that got you in has to be let go before holding it gets you out)
@@ -11581,11 +11587,12 @@ function drvCamera(p){
   const D=p.drv,S=drvPose(D);
   if(p.drvYaw!==undefined&&Math.abs(angDiff(p.drvYaw,p.cam.yaw))>1e-5)p.drvLook=camClock;
   // (not a helicopter, which faces where you look anyway, nor a train, where the way you look is the way it goes)
-  if(D.k!=='heli'&&D.k!=='train'&&D.k!=='subway'&&D.seat!=='gun'&&camClock-(p.drvLook??-9)>1.2&&Math.abs(S.v)>1.5)p.cam.yaw+=angDiff(p.cam.yaw,S.h+Math.PI)*0.035;
+  if(D.k!=='heli'&&D.k!=='train'&&D.k!=='subway'&&D.k!=='balloon'&&D.seat!=='gun'&&camClock-(p.drvLook??-9)>1.2&&Math.abs(S.v)>1.5)p.cam.yaw+=angDiff(p.cam.yaw,S.h+Math.PI)*0.035;
   p.drvYaw=p.cam.yaw;
   const cp=Math.cos(p.cam.pitch),fx=-Math.sin(p.cam.yaw)*cp,fy=Math.sin(p.cam.pitch),fz=-Math.cos(p.cam.yaw)*cp;
   // (a tank or a helicopter: up higher and further back, so you see over it to what you're aiming at)
-  const gun=D.k==='tank'||D.k==='heli',tx=S.x,ty=S.y+S.hy+(gun?2.6:0.8),tz=S.z,base=4+Math.max(S.hz,S.hx)*1.4+(gun?2:0);let dist=base;
+  // (a balloon: well back and up level with its envelope, so you see it and round it)
+  const gun=D.k==='tank'||D.k==='heli',bal=D.k==='balloon',tx=S.x,ty=S.y+S.hy+(bal?4.5:gun?2.6:0.8),tz=S.z,base=bal?17:4+Math.max(S.hz,S.hx)*1.4+(gun?2:0);let dist=base;
   for(let t=0.6;t<=base;t+=0.3){if(solidAt(Math.floor(tx-fx*t),Math.floor(ty-fy*t),Math.floor(tz-fz*t))){dist=Math.max(0.8,t-0.5);break;}}
   let cx=tx-fx*dist,cy=ty-fy*dist,cz=tz-fz*dist;const gy=supportAt(cx,cz,cy);if(gy!==null&&cy<gy+0.4)cy=gy+0.4;
   if(fy>0.2&&cy<S.y+S.hy*0.8)cy=S.y+S.hy*0.8;   // (looking up: not from down inside the vehicle)
@@ -11594,19 +11601,27 @@ function drvCamera(p){
 }
 // driving a car: much as a hunting car drives itself (updateCars does the rest: the ground, walls, what it runs into)
 function drvCar(c,dt){
-  const i=drvIn(c.drv),thr=-i.z,st=-i.x,top=c.veh==='semi'||c.veh==='bus'?17:c.veh==='car'?24:c.veh==='bike'?28:c.veh==='quad'?22:20;
+  const i=drvIn(c.drv),thr=-i.z,st=-i.x,V=c.veh,top=V==='super'?62:V==='forklift'?8:V==='hover'?27:V==='semi'||V==='bus'?17:V==='car'?24:V==='bike'?28:V==='quad'?22:20;
+  // (a supercar pulls hard, a forklift barely; a hovercraft has no wheels to brake with)
+  const acc=V==='super'?24:V==='forklift'?5:V==='hover'?8:10,brk=V==='hover'?7:26;
   if(c.grounded||rampUnder(c.pos.x,c.pos.z,c.pos.y+0.5)){
-    if(thr>0.1)c.speed+=(c.speed<0?26:10)*thr*dt;else if(thr<-0.1)c.speed-=(c.speed>0?26:8)*-thr*dt;else c.speed*=Math.exp(-dt*0.9);}
-  c.speed=Math.max(-8,Math.min(top,c.speed));
-  c.steer+=(st-c.steer)*Math.min(1,dt*8);c.heading+=c.steer*dt*Math.max(-1,Math.min(1,c.speed/5))*1.7;
+    if(thr>0.1)c.speed+=(c.speed<0?brk:acc*(V==='super'?Math.max(0.45,1-c.speed/90):1))*thr*dt;else if(thr<-0.1)c.speed-=(c.speed>0?brk:Math.min(acc,8))*-thr*dt;else c.speed*=Math.exp(-dt*(V==='hover'?0.35:0.9));}
+  c.speed=Math.max(V==='forklift'?-6:-8,Math.min(top,c.speed));
+  c.steer+=(st-c.steer)*Math.min(1,dt*8);c.heading+=c.steer*dt*Math.max(-1,Math.min(1,c.speed/5))*(V==='super'?1.7*Math.max(0.45,1-Math.abs(c.speed)/110):1.7);
+  if(V==='hover')hovDrift(c,dt);
   if(c.veh==='fire'){drvHose(c,i,dt);const hp=i.stomp&&!c.stHeld;c.stHeld=i.stomp;if(hp&&c.honkT<=0){horn(0.12);c.honkT=0.4;}}   // (a fire engine: bite sprays water, stomp sounds the horn. See hose.js)
   else if(i.bitePress&&c.honkT<=0){horn(0.12);c.honkT=0.4;}   // (bite sounds the horn)
 }
+// a hovercraft slides: the way it's going only slowly comes round to the way it points (updateCars moves it along its
+// heading; this adds the rest, sideways, where there's nothing in the way)
+function hovDrift(c,dt){const vx=Math.sin(c.heading)*c.speed,vz=Math.cos(c.heading)*c.speed;if(!c.hvel)c.hvel={x:vx,z:vz};const H=c.hvel,k=Math.min(1,dt*1.5);
+  H.x+=(vx-H.x)*k;H.z+=(vz-H.z)*k;const sx=(H.x-vx)*dt,sz=(H.z-vz)*dt;if(Math.abs(sx)+Math.abs(sz)>1e-4){const x0=c.pos.x,z0=c.pos.z;nudgeFlat(c,sx,sz);if(c.pos.x===x0&&c.pos.z===z0){H.x=vx;H.z=vz;}}}
 // ---- a driven tank's or helicopter's weapons: a load of rounds each, a moment between shots, and once the last is
 // gone a reload (a tank's cannon: Bite; a helicopter's machine gun: Bite, held; its rockets: Stomp). o.wpn[k]: {n
 // rounds left, cd till the next shot, rl reload time left}
 const DRV_WPN={tank:[{k:'shell',name:'Shells',max:4,gap:1.2,reload:5}],
-  heli:[{k:'gun',name:'Gun',max:40,gap:0.09,reload:3},{k:'rkt',name:'Rockets',max:4,gap:0.6,reload:6}]};
+  heli:[{k:'gun',name:'Gun',max:40,gap:0.09,reload:3},{k:'rkt',name:'Rockets',max:4,gap:0.6,reload:6}],
+  jet:[{k:'gun',name:'Cannon',max:120,gap:0.05,reload:4},{k:'rkt',name:'Missiles',max:6,gap:0.45,reload:8}]};
 function wpnInit(o,kind){if(!o.wpn){o.wpn={};for(const W of DRV_WPN[kind]||[])o.wpn[W.k]={n:W.max,cd:0,rl:0,W};}}
 function wpnTick(o,dt){for(const k in o.wpn||{}){const s=o.wpn[k];s.cd-=dt;s.ck=(s.ck||0)-dt;if(s.rl>0){s.rl-=dt;if(s.rl<=0){s.rl=0;s.n=s.W.max;if(audio)sfx('Weapon reloaded',()=>tone('square',380,520,0.08,0.03));}}}}
 // (pulling the trigger with nothing loaded clicks: once a press, or every quarter second held)
@@ -11793,6 +11808,8 @@ function drvPlane(pl,dt){
   if(F.thr===undefined){F.thr=Math.min(1,(F.v||0)/60);F.gm=Math.atan2(F.vy||0,Math.max(8,F.v||0));F.pt=Math.max(0,F.gm);F.rl=0;}
   const btn=i?(i.jump?1:0)-(i.climb||i.charge?1:0):0,kb=i&&i.kbd;   // (the keyboard swaps the stick's up/down and the buttons over)
   const tin=i?(kb?btn:-i.z):0,bank=i?-i.x:0,up=i?(kb?i.z:btn):0;
+  // (a fighter jet: rolls and pulls far harder, and has the engines to go about twice as fast)
+  const J=pl.jet,ROLL=J?2.8:1.0,RL=J?1.4:1.05,PITCH=J?1.2:0.5,THR=J?PLANE_THRUST*4.2:PLANE_THRUST,VMAX=J?185:90;
   // (the sea's surface counts as ground; so does sea level, out where nothing's been built yet)
   const wetAt=(x,z)=>!chunks.has(ckey(Math.floor(x/CS),Math.floor(z/CS)))||get(x,G,z)===WATER?G+1:0,gnd=(x,z,y)=>Math.max(groundAt(x,z,y),wetAt(x,z));
   const air=P.y>gnd(P.x,P.z,P.y+1)+0.05;F.air=air;
@@ -11802,11 +11819,11 @@ function drvPlane(pl,dt){
   const v=Math.max(0.5,F.v);let h=g.rotation.y;
   if(air){
     // bank: rolled with A/D, easing back level when let go
-    if(bank)F.rl+=bank*1.0*dt;else F.rl-=F.rl*Math.min(1,dt*0.7);F.rl=Math.max(-1.05,Math.min(1.05,F.rl));
+    if(bank)F.rl+=bank*ROLL*dt;else F.rl-=F.rl*Math.min(1,dt*(J?1.6:0.7));F.rl=Math.max(-RL,Math.min(RL,F.rl));
     // the nose: pulled up or pushed down, or (let go) eased to the angle that flies it level, through a turn too
     const trim=Math.min(PLANE_AOA*0.9,PLANE_G/(PLANE_KL*v*v*Math.max(0.35,Math.cos(F.rl))));
     if(!p)F.pt+=(F.gm-0.25-F.pt)*Math.min(1,dt*0.8);   // (nobody flying it: the nose sags and down it comes)
-    else if(up)F.pt+=up*0.5*dt;else F.pt+=(trim-F.pt)*Math.min(1,dt*0.6);
+    else if(up)F.pt+=up*PITCH*dt;else F.pt+=(trim-F.pt)*Math.min(1,dt*0.6);
     const stall=planeStalled(F);if(stall)F.pt-=0.9*dt;   // (a stalled wing: the nose falls through)
     F.pt=Math.max(-0.6,Math.min(0.7,F.pt));
     // lift, square on to the wing, from the speed and its angle to the air; beyond the stall it falls away
@@ -11814,19 +11831,19 @@ function drvPlane(pl,dt){
     F.gm+=(L*Math.cos(F.rl)-PLANE_G*Math.cos(F.gm))/v*dt;F.gm=Math.max(-1.3,Math.min(1.1,F.gm));
     h+=L*Math.sin(F.rl)/(v*Math.max(0.3,Math.cos(F.gm)))*dt;
     // speed: thrust against drag (more of it the harder the wing's working) and gravity along the way it's going
-    F.v+=(F.thr*PLANE_THRUST-PLANE_DRAG*v*v-0.25*Math.abs(L*cl)-PLANE_G*Math.sin(F.gm))*dt;
+    F.v+=(F.thr*THR-PLANE_DRAG*v*v-0.25*Math.abs(L*cl)-PLANE_G*Math.sin(F.gm))*dt;
     if(stall&&p){F.stT=(F.stT||0)-dt;if(F.stT<=0){F.stT=0.5;if(audio)sfx('Stall warning',()=>tone('square',880,880,0.18,0.03));}}
   } else {
     // on the ground: wings level, the nose wheel steers, S with the throttle shut brakes; past rotation speed Jump
     // lifts the nose, and once the wings carry it, it's off
     F.rl-=F.rl*Math.min(1,dt*6);h+=bank*dt*Math.min(0.9,0.25+F.v*0.05);
     const brake=p&&tin<-0.1&&F.thr<0.05?22:1.5+(p?0:3);
-    F.v+=(F.thr*PLANE_THRUST-PLANE_DRAG*v*v)*dt;F.v-=Math.min(F.v,brake*dt);
+    F.v+=(F.thr*THR-PLANE_DRAG*v*v)*dt;F.v-=Math.min(F.v,brake*dt);
     if(up>0&&F.v>=PLANE_LIFT*0.8)F.pt=Math.min(0.25,F.pt+0.5*dt);else F.pt+=(0-F.pt)*Math.min(1,dt*3);
     const L=PLANE_KL*v*v*Math.max(0,Math.min(F.pt,PLANE_AOA));
     F.gm=L>PLANE_G?Math.min(0.2,(L-PLANE_G)/v):0;
   }
-  F.v=Math.max(0,Math.min(90,F.v));F.vy=F.v*Math.sin(F.gm);
+  F.v=Math.max(0,Math.min(VMAX,F.v));F.vy=F.v*Math.sin(F.gm);
   const vh=F.v*Math.cos(F.gm);
   const tx=Math.sin(h),tz=Math.cos(h),nx=P.x+tx*vh*dt,nz=P.z+tz*vh*dt,ny=P.y+F.vy*dt;
   // something in the way: a fence or a car's height, on the ground, it ploughs through (and takes some damage); anything
@@ -11846,6 +11863,18 @@ function drvPlane(pl,dt){
   if(P.y>=H+80&&F.gm>0){F.gm=0;F.vy=0;}   // (the ceiling)
   g.rotation.set(-F.pt,h,-F.rl,'YXZ');
   pl.v=F.v;g.visible=true;
+  if(J&&p)jetGuns(pl,p,i,dt);
+}
+// a fighter's weapons: the cannon held on Bite, down the line to the crosshair (or the lock, led); a missile a press of
+// Stomp, off the rails at the jet's own speed and on, homing on what you've locked or flying at the crosshair
+function jetGuns(pl,p,i,dt){const g=pl.g,h=g.rotation.y,tx=Math.sin(h),tz=Math.cos(h),P=g.position,v=pl.free.v;
+  wpnTick(pl,dt);if(i.bite&&wpnFire(pl,'gun'))gunRound(pl,p,P.x+tx*10.5,P.y+2.2,P.z+tz*10.5,3,0.008,'Gunned down by a fighter jet','Jet cannon',drvAim(p,v+200));
+  const rp=i.stomp&&!pl.rkHeld;pl.rkHeld=i.stomp;
+  if(rp&&wpnFire(pl,'rkt')){const T=p.lockT&&lockAlive(p.lockT)?p.lockT:null,A=T?null:drvAim(p,v+70),sd=(pl.rkN=(pl.rkN||0)+1)%2?1:-1,
+      mx=P.x+tx*1-tz*sd*2.6,my=P.y+1.5,mz=P.z+tz*1+tx*sd*2.6,sp=v+60,F=pl.free;
+    shot({kind:'missile',x:mx,y:my,z:mz,vx:tx*Math.cos(F.gm||0)*sp,vy:Math.sin(F.gm||0)*sp,vz:tz*Math.cos(F.gm||0)*sp,grav:0,fuse:6,R:3.2,dmg:5,crush:1.8,vd:60,own:pl,
+      cause:"Blown up by a fighter jet's missile",by:pvpBy(p),tgt:T,at:A,sp:v+90,turn:4});
+    if(audio)sfx('Jet missile',()=>noise(0.4,0.2,1100,'bandpass'));}
 }
 // driving a train: forward is whichever way along the track you're looking; it stops at the ends of the line
 function drvTrain(T,dt){
@@ -11870,7 +11899,7 @@ const gunSeat=D=>D.k==='tank'||D.k==='heli'||D.k==='car'&&(D.o.veh==='technical'
 // which set of weapons (DRV_WPN) it carries
 const drvGunK=D=>D.k==='car'?D.o.veh:D.k;
 // are p's the hands on the guns? (the gunner's, or the driver's of a tank or helicopter with nobody on its gun)
-function drvArmed(p){const D=p.drv;if(!D)return false;if(D.seat==='gun')return true;return(D.k==='tank'||D.k==='heli')&&!D.o.gnr;}
+function drvArmed(p){const D=p.drv;if(!D)return false;if(D.seat==='gun')return true;return(D.k==='tank'||D.k==='heli'||D.k==='plane'&&D.o.jet)&&!D.o.gnr;}
 // is the other seat free to move to?
 function drvSwapTo(p){const D=p.drv;if(!D||D.jack||D.netS||!gunSeat(D))return false;const o=D.o;
   if(D.seat==='gun')return!o.drv&&!jackable({k:D.k,o});
@@ -11950,6 +11979,7 @@ function drvHP(D){if(D.netHP)return D.netHP;const o=D.o;   // (D.netHP: a guest 
   if(D.k==='mech')return{hp:o.hp,max:MG.hp};
   if(D.k==='boat')return{hp:o.hp,max:o.max};
   if(D.k==='plane')return{hp:o.hp,max:PLANE_HP};
+  if(D.k==='balloon')return{hp:o.hp,max:BAL.hp};
   return{hp:o.carHP?o.carHP[D.ci]:CAR_HP,max:CAR_HP};
 }
 // the driving display: what you're in and its health along the top; for a tank or a helicopter a crosshair in the middle
@@ -11976,7 +12006,7 @@ function drvHud(p){
   // (the other seat, if it's free: the weapon button moves you to it. See gunner.js)
   const sw=drvSwapTo(p)?'  ·  '+bl('weapon')+(D.seat==='gun'?' drive':' man the gun'):!armed&&o.gnr&&(D.k==='tank'||D.k==='heli')?'  ·  Your gunner has the guns':'';
   const how=drvHow(p,D,armed);
-  set('w',H.wpn,how+(armed?(LT?'Locked on '+(isMilT(LT)?MIL[LT.kind].name.toLowerCase():isCarT(LT)?'a '+(LT.veh||'car'):'a goblin')+' ('+lk+' let go)':lk+' lock on')+'  ·  '+out+' get out'
+  set('w',H.wpn,how+(D.k==='plane'&&armed?planeHud(o.free)+'  ·  ':'')+(armed?(LT?'Locked on '+(isMilT(LT)?MIL[LT.kind].name.toLowerCase():isCarT(LT)?'a '+(LT.veh||'car'):'a goblin')+' ('+lk+' let go)':lk+' lock on')+'  ·  '+out+' get out'
     :D.k==='car'&&o.veh==='fire'?bl('bite')+' spray water  ·  '+bl('stomp')+' horn  ·  '+out+' get out'
     :D.k==='plane'?planeHud(o.free)+'  ·  '+out+' get out':D.k==='mech'?mechHint(p):out+' get out')+sw);
   const hose=D.k==='car'&&o.veh==='fire';H.xh.hidden=!armed&&!hose&&D.k!=='mech';mechHud(p,H);if(hose){H.xh.classList.remove('cool','lock');H.xh.classList.toggle('water',!!o.hose);}if(armed){H.xh.classList.toggle('cool',!ready);H.xh.classList.toggle('lock',!!LT);}
@@ -12012,11 +12042,12 @@ function planeHud(F){if(!F)return'Throttle 0%';const thr='Throttle '+Math.round(
   return thr+'  ·  Climb '+(F.vy>=0?'+':'')+Math.round(F.vy)+(planeStalled(F)?'  ·  STALL':'');}
 // the vehicle's own controls, at the top of the column down the left (the only place they're shown: there's no card
 // about them on getting in), each ending in '  ·  ' so the rest follows
-function drvHow(p,D,armed){const A=id=>actMark(p,id),G=armed?D.k==='heli'?A('bite')+' gun  ·  '+A('stomp')+' rockets  ·  ':D.k==='tank'||D.seat==='gun'?A('bite')+' fire  ·  ':'':'';
+function drvHow(p,D,armed){const A=id=>actMark(p,id),G=armed?D.k==='heli'?A('bite')+' gun  ·  '+A('stomp')+' rockets  ·  ':D.k==='plane'?A('bite')+' cannon  ·  '+A('stomp')+' missiles  ·  ':D.k==='tank'||D.seat==='gun'?A('bite')+' fire  ·  ':'':'';
   if(D.seat==='gun')return G;
   if(D.k==='heli')return A('jump')+' climb  ·  '+A('climb')+' drop  ·  '+G;
-  if(D.k==='plane')return p.pad?'Stick up/down throttle  ·  Stick left/right bank  ·  '+A('jump')+' pull up  ·  '+A('climb')+' push down  ·  '
-    :A('fwd')+'/'+A('back')+' nose down/up  ·  '+A('left')+'/'+A('right')+' bank  ·  '+A('jump')+'/'+A('climb')+' throttle up/down  ·  ';
+  if(D.k==='balloon')return A('jump')+' burner (rise)  ·  '+A('climb')+' vent (sink)  ·  Move to drift  ·  ';
+  if(D.k==='plane')return p.pad?'Stick up/down throttle  ·  Stick left/right bank  ·  '+A('jump')+' pull up  ·  '+A('climb')+' push down  ·  '+G
+    :A('fwd')+'/'+A('back')+' nose down/up  ·  '+A('left')+'/'+A('right')+' bank  ·  '+A('jump')+'/'+A('climb')+' throttle up/down  ·  '+G;
   return G;}
 // on his way down a ramp he stays on it, instead of falling a little and landing every few steps
 function stickToRamp(p,g){
@@ -16808,15 +16839,21 @@ const VEH={bus:{hx:1.25,hz:5.2,hy:3.3,head:[0.5,2.7,4.3],roof:l=>3.3},
   // (the militia's: a pickup with a machine gun on a post in its bed and a gunner stood at it, and a four-wheeler with a
   // rider and a rifleman sat behind him. See crews.js. Never in the traffic: VEH_MIX leaves them out)
   technical:{hx:1.0,hz:2.6,hy:2.7,head:[0.35,1.9,0.5],roof:l=>l>-0.4&&l<1.4?1.95:1.0},
-  quad:{hx:0.75,hz:1.15,hy:1.6,head:[0,1.32,0.05],roof:l=>l>-0.9&&l<0.4?1.0:0.85}};
+  quad:{hx:0.75,hz:1.15,hy:1.6,head:[0,1.32,0.05],roof:l=>l>-0.9&&l<0.4?1.0:0.85},
+  // (a supercar: low and wide, now and then in the traffic, and very fast. See drvCar)
+  super:{hx:1.0,hz:2.2,hy:1.2,head:[0.35,0.95,-0.35],roof:l=>l>-1.1&&l<0.5?1.2:0.8},
+  // (a forklift: out in a factory's yard by the loading docks, never in the traffic; slow)
+  forklift:{hx:0.7,hz:1.6,hy:2.6,head:[0,1.55,-0.35],roof:l=>l<0.6?2.55:0.4},
+  // (a hovercraft: the debug menu's only, never in the traffic; it rides over water as over the road. See carPhysics)
+  hover:{hx:1.3,hz:2.6,hy:2.8,head:[0,1.55,0.5],roof:l=>l>-0.4&&l<1.6?1.75:0.9}};
 // which vehicles each kind of traffic is made of
-const VEH_MIX={street:[['car',0.58],['bike',0.08],['van',0.12],['pickup',0.12],['truck',0.10]],hw:[['car',0.5],['bike',0.05],['van',0.1],['pickup',0.1],['truck',0.12],['semi',0.13]],park:[['car',0.67],['bike',0.08],['van',0.12],['pickup',0.13]]};
+const VEH_MIX={street:[['car',0.57],['super',0.01],['bike',0.08],['van',0.12],['pickup',0.12],['truck',0.10]],hw:[['car',0.49],['super',0.01],['bike',0.05],['van',0.1],['pickup',0.1],['truck',0.12],['semi',0.13]],park:[['car',0.67],['bike',0.08],['van',0.12],['pickup',0.13]]};
 const pickVeh=mix=>{let u=Math.random();for(const [t,p] of VEH_MIX[mix]){if(u<p)return t;u-=p;}return'car';};
 // build (once) and show a vehicle body on a car object; its size, wheel footprint and roof go with it
 function setVeh(c,t){
   if(!c.vehG[t])c.vehG[t]=buildVeh(c,t);
   for(const k in c.vehG)c.vehG[k].g.visible=k===t;
-  const V=VEH[t],G2=c.vehG[t];c.veh=t;c.wheels=G2.wheels;c.front=G2.front;
+  const V=VEH[t],G2=c.vehG[t];c.veh=t;c.wheels=G2.wheels;c.front=G2.front;c.fan=G2.fan||null;c.hvel=null;
   c.hx=V.hx*ES;c.hz=V.hz*ES;c.hy=V.hy*ES;
   c.pts=[[0,0],[V.hx*0.9,V.hz-0.2],[-V.hx*0.9,V.hz-0.2],[V.hx*0.9,-V.hz+0.2],[-V.hx*0.9,-V.hz+0.2]].map(([a,b])=>[a*ES,b*ES]);
   if(t==='semi')c.pts.push([0,(V.hz/2)*ES],[0,(-V.hz/2)*ES]);
@@ -16966,6 +17003,35 @@ function buildVeh(c,t){
     lights(0.85,1.05,6.55,-6.62);
     for(const [x,z,st] of [[-1,5.6,1],[1,5.6,1],[-1,3.0,0],[1,3.0,0],[-1,2.0,0],[1,2.0,0],[-1,-4.6,0],[1,-4.6,0],[-1,-5.7,0],[1,-5.7,0]])wheel(x*1.05,z,st,true);
   }
+  else if(t==='super'){
+    // a supercar: a low wedge, the cabin set well back, intakes down the sides and a wing on the back
+    b(2.0,0.5,4.4,c.paint,0,0.55,0);b(1.9,0.22,1.1,c.paint,0,0.7,1.6);b(1.6,0.42,1.9,c.paint,0,1.0,-0.35);
+    {const w=b(1.5,0.08,0.75,glass,0,1.0,0.85);w.rotation.x=0.45;}b(1.3,0.06,0.9,glass,0,1.22,-0.3);for(const s2 of[-1,1])b(0.06,0.3,1.3,glass,s2*0.81,1.02,-0.35);
+    for(const s2 of[-1,1]){b(0.06,0.24,0.9,dark,s2*1.01,0.62,-0.75);b(0.1,0.32,0.1,dark,s2*0.6,0.96,-2.0);}b(2.0,0.08,0.45,dark,0,1.16,-2.05);
+    b(2.04,0.14,0.12,dark,0,0.36,2.2);b(2.04,0.18,0.12,dark,0,0.42,-2.2);lights(0.7,0.66,2.21,-2.21);
+    for(const [x,z,st] of [[-1,1.45,1],[1,1.45,1],[-1,-1.4,0],[1,-1.4,0]])wheel(x*0.9,z,st);
+  } else if(t==='forklift'){
+    // a forklift: a yellow body with a counterweight at the back, the seat under a cage of a roof, the mast up the
+    // front with its forks; it steers with its back wheels
+    const yel=c.forkM||(c.forkM=snowCar(new THREE.MeshLambertMaterial({color:0xf0b414}),c));
+    b(1.3,0.75,1.8,yel,0,0.75,-0.3);b(1.32,0.85,0.5,dark,0,0.8,-1.3);b(0.6,0.14,0.55,dark,0,1.2,-0.45);b(0.5,0.5,0.1,dark,0,1.5,-0.72);
+    for(const [x,z] of [[-1,0.4],[1,0.4],[-1,-1.0],[1,-1.0]])b(0.08,1.35,0.08,dark,x*0.6,1.85,z);b(1.3,0.08,1.55,dark,0,2.52,-0.3);
+    b(0.08,0.08,0.4,dark,0,1.4,0.15);b(0.4,0.06,0.06,dark,0,1.6,0.3);   // (the steering wheel)
+    for(const s2 of[-1,1])b(0.12,2.5,0.14,dark,s2*0.45,1.3,0.72);b(1.0,0.12,0.14,dark,0,2.5,0.72);b(1.0,0.5,0.08,dark,0,0.5,0.85);
+    for(const s2 of[-1,1])b(0.14,0.07,1.15,chrome,s2*0.3,0.22,1.45);
+    b(0.2,0.14,0.06,smat(CARC.head),0.5,1.05,0.62);b(0.2,0.14,0.06,smat(CARC.head),-0.5,1.05,0.62);b(0.2,0.12,0.06,smat(CARC.tail),0,1.1,-1.56);
+    for(const [x,z,st] of [[-1,0.3,0],[1,0.3,0],[-1,-1.05,1],[1,-1.05,1]])wheel(x*0.55,z,st);
+  } else if(t==='hover'){
+    // a hovercraft: a rubber skirt all round, a deck and a cabin, a big fan in a duct at the back (spun by updateCars)
+    // and a pair of rudders behind it
+    const rub=smat(0x23252a);b(2.6,0.6,5.2,rub,0,0.32,0);b(2.4,0.24,5.0,c.paint,0,0.74,0);b(1.8,0.85,2.1,c.paint,0,1.28,0.75);
+    b(1.7,0.45,0.08,glass,0,1.42,1.82);for(const s2 of[-1,1])b(0.06,0.4,1.6,glass,s2*0.91,1.42,0.75);b(1.9,0.1,2.2,smat(0xf2f2ee),0,1.75,0.75);
+    b(2.3,0.22,0.5,c.paint,0,2.8,-1.95);for(const s2 of[-1,1])b(0.22,1.95,0.5,c.paint,s2*1.04,1.82,-1.95);
+    const fan=new THREE.Group();fan.position.set(0,1.82,-1.95);g.add(fan);b(1.7,0.16,0.06,dark,0,0,0,fan);b(0.16,1.7,0.06,dark,0,0,0,fan);b(0.3,0.3,0.12,chrome,0,0,0,fan);
+    for(const s2 of[-1,1])b(0.06,1.3,0.55,dark,s2*0.45,1.8,-2.5);
+    b(0.3,0.16,0.06,smat(CARC.head),0.6,1.05,2.36);b(0.3,0.16,0.06,smat(CARC.head),-0.6,1.05,2.36);
+    return{g,wheels,front,rider,gun,gunner,fan};
+  }
   return{g,wheels,front,rider,gun,gunner};
 }
 for(let i=0;i<26;i++)cars.push(makeCar(i));
@@ -17077,7 +17143,10 @@ function parkSpots(px,pz){
     out.push({x:X0+PL0+4.5,z:Z0+PL0+6,y:G+1,h:0.6,key:px+','+pz+':show0',p:0.95});out.push({x:X0+PL0+10,z:Z0+PL0+6.5,y:G+1,h:-0.5,key:px+','+pz+':show1',p:0.95});}
   if(P.type==='trailers')for(const b of P.b){const sx=b.door===1?b.x1+2.2:b.x0-2.2;out.push({x:X0+sx,z:Z0+b.z0+5,y:G+1,h:0,key:px+','+pz+':tr'+b.x0+b.z0,p:0.55,veh:'pickup'});}
   if(P.buses){const B0=P.b[0];for(let k=0;k*13+12<B0.x1-B0.x0;k++)out.push({x:X0+B0.x0+6.5+k*13,z:Z0+PL0+2.4,y:G+1,h:Math.PI/2,key:px+','+pz+':bus'+k,p:0.8,veh:'bus'});}
-  if(P.lorries){const L=P.lorries;for(const c of L.cs)out.push(L.wide?{x:X0+L.a,z:Z0+c+0.5,y:G+1,h:Math.PI/2,key:px+','+pz+':lor'+c,p:0.8,veh:r2(c)}:{x:X0+c+0.5,z:Z0+L.a,y:G+1,h:0,key:px+','+pz+':lor'+c,p:0.8,veh:r2(c)});}
+  if(P.lorries){const L=P.lorries;
+    // (forklifts in the factory's yard between the lorries, by the loading docks, facing the hall)
+    const fs=[...L.cs.map(c=>c-4),L.cs[L.cs.length-1]+4];for(const c of fs)out.push(L.wide?{x:X0+L.a-4.1,z:Z0+c+0.5,y:G+1,h:-Math.PI/2,key:px+','+pz+':fk'+c,p:0.75,veh:'forklift'}:{x:X0+c+0.5,z:Z0+L.a-4.1,y:G+1,h:Math.PI,key:px+','+pz+':fk'+c,p:0.75,veh:'forklift'});
+    for(const c of L.cs)out.push(L.wide?{x:X0+L.a,z:Z0+c+0.5,y:G+1,h:Math.PI/2,key:px+','+pz+':lor'+c,p:0.8,veh:r2(c)}:{x:X0+c+0.5,z:Z0+L.a,y:G+1,h:0,key:px+','+pz+':lor'+c,p:0.8,veh:r2(c)});}
   if(P.lots)P.lots.forEach((L,li)=>{if(L.police)return;const skip=li===0&&P.super&&P.super.kind==='hospital'?ambBayIdx(P):null;lotBays(L).forEach((o,k)=>{if(skip&&skip.includes(k))return;out.push({x:X0+o.x,z:Z0+o.z,y:G+1,h:o.h,key:px+','+pz+':L'+li+':'+k,p:0.4});});});
   return out;
 }
@@ -17247,13 +17316,15 @@ function laneOf(c){
 }
 function carFoot(c){return supportMax(c.pos.x,c.pos.z,c.heading,c.pos.y,c.pts);}
 // ---- car body physics: sits on four wheels, tips over edges, falls into pits, lands hard ----
+// the ground under a vehicle; a hovercraft also rides on open water, at its surface (as a road is at sea level)
+function hovSup(c,x,z,y){const v=supportAt(x,z,y);if(c.veh!=='hover'||y<G+0.6||!(v===null||v<G+1))return v;return get(Math.floor(x),G,Math.floor(z))===WATER&&!solidAt(x,G+1,z)?G+1:v;}
 function carPhysics(c,dt){
   const s=Math.sin(c.heading),k=Math.cos(c.heading),wx=c.hx*1.1,wz=c.hz-0.36;
   // on a ramp the wheels ride the slope (a long truck's sit well above or below its middle); anywhere else a car won't climb a ledge
   const onRamp=rampUnder(c.pos.x,c.pos.z,c.pos.y+0.5)||rampUnder(c.pos.x+s*wz,c.pos.z+k*wz,c.pos.y+0.5)||rampUnder(c.pos.x-s*wz,c.pos.z-k*wz,c.pos.y+0.5);
   const slope=onRamp?wz*0.5+0.2:0,reach=c.pos.y+0.4+slope;
   // a wheel inside a wall gives no support (it doesn't hold the car up mid-air)
-  const sup=(a,b)=>{const v=supportAt(c.pos.x+a*k+b*s,c.pos.z-a*s+b*k,reach);return v===null?-1e9:v;};
+  const sup=(a,b)=>{const v=hovSup(c,c.pos.x+a*k+b*s,c.pos.z-a*s+b*k,reach);return v===null?-1e9:v;};
   const fl=sup(wx,wz),fr=sup(-wx,wz),bl=sup(wx,-wz),br=sup(-wx,-wz),ce=sup(0,0);
   if(Math.max(fl,fr,bl,br,ce)<-1e8){c.grounded=true;c.vy=0;return;}
   const cl=v=>Math.max(v,c.pos.y-6);
@@ -17285,7 +17356,7 @@ function carPhysics(c,dt){
     tp=Math.max(-1.2,Math.min(1.2,Math.atan2((cl(bl)+cl(br))/2-(cl(fl)+cl(fr))/2,2*wz)*1.6));
     tr=Math.max(-1.2,Math.min(1.2,Math.atan2((cl(fl)+cl(bl))/2-(cl(fr)+cl(br))/2,2*wx)*1.6));
     if(was&&!comOK){const lx=((fl+bl)-(fr+br))>0?-1:1,lz=((bl+br)-(fl+fr))>0?1:-1;const sx=(Math.abs(fl+fr-bl-br)>0.3?lz:0),sr=(Math.abs(fl+bl-fr-br)>0.3?lx:0);c.kv.x+=(sr*k+sx*s)*2.5;c.kv.z+=(-sr*s+sx*k)*2.5;}
-    const land=supportAt(c.pos.x,c.pos.z,c.pos.y+0.4);
+    const land=hovSup(c,c.pos.x,c.pos.z,c.pos.y+0.4);
     // with its middle over the hole, the wheels still up on the lip don't hold it
     const floor=comOK?Math.max(land===null?-1e9:land,fl,fr,bl,br):(land===null?-1e9:land);
     if(c.vy<0&&c.pos.y<=floor){
@@ -20933,7 +21004,7 @@ function refreshVenues(){
           scene.add(g);arms.push({g,lift,L,a:0,x:g.position.x,z:g.position.z});}
         venues.set(k,{kind:'toll',R,ts,arms});}}}}
   // (what was spawned from the Testing Environment or the debug menu stays wherever it was put)
-  for(const k of ['tenvArmy','tenvPlanes','tenvMechs'])if(venues.has(k))want.add(k);
+  for(const k of ['tenvArmy','tenvPlanes','tenvMechs','tenvBalloons'])if(venues.has(k))want.add(k);
   for(const [k,V] of venues)if(!want.has(k)&&!drvHeld(V)){if(V.ride)scene.remove(V.ride);if(V.animals)for(const A of V.animals)scene.remove(A.g);if(V.arms)for(const A of V.arms)scene.remove(A.g);if(V.cars)for(const g of V.cars)scene.remove(g);if(V.planes)for(const g of V.planes)scene.remove(g);if(V.rocket){scene.remove(V.rocket);}if(V.boat)scene.remove(V.boat);if(V.figs)for(const F of V.figs)scene.remove(F.g);if(V.glow)scene.remove(V.glow);if(V.slots)homeDrop(V);if(V.vcar)crewDrop(V);if(V.mil)for(const M of V.mil)scene.remove(M.g);if(V.mechs)for(const M of V.mechs)scene.remove(M.g);if(V.rotor)scene.remove(V.rotor);if(V.T&&V.T.cars===V.cars)V.T.cars=null;venues.delete(k);}
 }
 // the zoo's animals: built from boxes, each wandering its enclosure
@@ -21115,15 +21186,33 @@ function makePlane(i){
   for(const [x,z] of [[0,6],[-1.6,-0.4],[1.6,-0.4]])bx(TRM.dark,0.4,1.0,0.6,x,0.5,z);
   return g;
 }
+// a fighter jet (the debug menu's only, so far): a grey dart of a fuselage with a pointed nose, the canopy, delta
+// wings, two tail fins canted out and the twin engines' glowing nozzles. It flies on the plane's own model, only
+// harder and faster (pl.jet: see drvPlane), and has a cannon and missiles
+function makeJet(){
+  const g=new THREE.Group(),bx=(m,sx,sy,sz,x,y,z)=>{const o=new THREE.Mesh(LM_BOX,m);o.scale.set(sx,sy,sz);o.position.set(x,y,z);g.add(o);return o;},
+    gry=JETM.grey,dk=JETM.dark;
+  bx(gry,1.8,1.5,12,0,2.1,-1.0);bx(gry,1.3,1.1,3.0,0,2.15,6.4);bx(gry,0.8,0.7,1.8,0,2.2,8.6);bx(dk,0.3,0.3,0.8,0,2.2,9.7);
+  bx(JETM.glass,0.9,0.6,2.6,0,3.0,4.4);bx(gry,0.95,0.3,2.0,0,2.85,2.4);
+  for(const s2 of[-1,1]){bx(gry,0.9,1.0,3.2,s2*1.25,2.0,1.8);   // (the intakes)
+    for(let k=0;k<4;k++)bx(gry,1.3,0.28,4.6-k*1.05,s2*(1.4+k*1.05),1.75,-1.6-k*0.55);   // (a delta wing, stepped out to its tip)
+    {const f=bx(gry,0.22,2.1,2.0,s2*0.75,3.6,-5.6);f.rotation.z=-s2*0.3;}
+    bx(gry,1.6,0.2,1.6,s2*1.55,2.05,-6.4);bx(dk,0.8,0.8,0.6,s2*0.45,2.0,-7.3);bx(JETM.glow,0.6,0.6,0.08,s2*0.45,2.0,-7.62);}
+  for(const o of g.children)o.position.y-=0.5;   // (it sits low on short legs)
+  for(const [x,z] of [[0,5.6],[-1.3,-1.6],[1.3,-1.6]])bx(dk,0.3,0.85,0.4,x,0.42,z);
+  return g;
+}
+const JETM={grey:new THREE.MeshLambertMaterial({color:0x7d8794}),dark:new THREE.MeshLambertMaterial({color:0x2e3238}),glass:new THREE.MeshLambertMaterial({color:0x2a3a48,emissive:0x0a1420}),glow:new THREE.MeshBasicMaterial({color:0xff9a3a})};
 // a plane's body, for standing on and hitting: the fuselage and the wings, each a box like a train car's
 const PLANE_HP=300;
 function planeBoxes(pl,v){
   const g=pl.g,h=g.rotation.y,tx=Math.sin(h),tz=Math.cos(h),y=g.position.y;if(!g.visible||pl.fall)return;
-  if(!pl.pr)pl.pr=[0,1].map(i=>({isTrain:true,isPlane:true,alive:true,pos:new V3(),kv:new V3(),vy:0,spinP:0,spinR:0,speed:0,hurt:0,hx:i?10.5:1.25,hz:i?1.7:9.9,hy:i?1.9:3.65,heading:0,top:0,veh:'plane',T:pl,i}));
+  const wx=pl.jet?5.6:10.5;   // (a fighter's wings are half an airliner's)
+  if(!pl.pr)pl.pr=[0,1].map(i=>({isTrain:true,isPlane:true,alive:true,pos:new V3(),kv:new V3(),vy:0,spinP:0,spinR:0,speed:0,hurt:0,hx:i?wx:1.25,hz:i?1.7:9.9,hy:i?1.9:3.65,heading:0,top:0,veh:'plane',T:pl,i}));
   for(const pr of pl.pr){pr.alive=!pl.dead;pr.pos.set(g.position.x,y,g.position.z);pr.heading=h;pr.top=y+pr.hy;}
   TRAIN_BOXES.push({x:g.position.x,z:g.position.z,tx,tz,y0:y,top:pl.pr[0].top,v,hx:1.25,hz:9.9,proxy:pl.pr[0]});
   // (the wings are overhead to anyone on the ground: only their top counts)
-  TRAIN_BOXES.push({x:g.position.x+tx*.6,z:g.position.z+tz*.6,tx,tz,y0:pl.pr[1].top+1,top:pl.pr[1].top,v:0,hx:10.5,hz:1.7,proxy:pl.pr[1]});
+  TRAIN_BOXES.push({x:g.position.x+tx*.6,z:g.position.z+tz*.6,tx,tz,y0:pl.pr[1].top+1,top:pl.pr[1].top,v:0,hx:wx,hz:1.7,proxy:pl.pr[1]});
 }
 // hitting a plane: it takes a lot. Wrecked on the ground it burns where it stands; wrecked in the air it comes down, hard
 // (what a moving plane runs into, its body or the end of a wing: struck, thrown aside and up, hurt)
@@ -21216,6 +21305,95 @@ function updateLaunch(V,dt){
   if(V.st==='gone'){V.t+=dt;if(V.t>90){V.st='pad';V.y=0;g.visible=true;}}
   g.position.set(x,G+2+V.y,z);
 }
+// ---- Hot-air balloons (the debug menu's only, so far): a wicker basket under a big striped envelope, kept in a venue
+// of their own ('tenvBalloons', kind 'balloon', updated by updateBalloons from updateVenues). It flies on its heat: Jump
+// burns (the flame roars and the air in the envelope warms, so it rises), Climb vents (it cools, and down it comes),
+// and left alone it cools slowly and settles. Moving only nudges it about, slowly, the way the view points, as a
+// balloon's never quick to answer. The basket and the envelope are boxes in TRAIN_BOXES like any vehicle's, so it's
+// stood on, bumped into and shot through the same code (trainHit passes it to balloonHit). Shot down, the envelope
+// goes and the basket falls ----
+const BAL={hp:60,rise:5.5,sink:4.5,drift:5,bh:1.3,bw:1.1,e0:4.2,e1:13.6,er:3.7,ceil:60};
+const BALM={wick:new THREE.MeshLambertMaterial({color:0x9a6a34}),rim:new THREE.MeshLambertMaterial({color:0x5a3a1c}),rope:new THREE.MeshLambertMaterial({color:0x3a3028}),
+  burner:new THREE.MeshLambertMaterial({color:0x6a6e74}),flame:new THREE.MeshBasicMaterial({color:0xffa83a}),
+  env:[0xd8322a,0xf2c230,0x2a6ad0,0xf2f2ee].map(c=>new THREE.MeshLambertMaterial({color:c}))},BAL_COL=[0xd8322a,0xf2c230,0x2a6ad0,0xf2f2ee];
+function makeBalloon(k){
+  const g=new THREE.Group(),bx=(m,sx,sy,sz,x,y,z,p=g)=>{const o=new THREE.Mesh(LM_BOX,m);o.scale.set(sx,sy,sz);o.position.set(x,y,z);p.add(o);return o;};
+  // (the basket, its rim, the ropes up to the envelope's mouth, the burner and its flame)
+  bx(BALM.wick,2.2,1.3,2.2,0,0.65,0);bx(BALM.rim,2.3,0.14,2.3,0,1.33,0);
+  for(const [x,z] of [[-1,-1],[1,-1],[-1,1],[1,1]]){const r=bx(BALM.rope,0.06,3.0,0.06,x*0.95,2.75,z*0.95);r.rotation.set(-z*0.1,0,x*0.1);}
+  bx(BALM.burner,0.7,0.35,0.7,0,3.3,0);const flame=bx(BALM.flame,0.45,1.1,0.45,0,4.0,0);flame.visible=false;
+  // (the envelope: a stack of slices, each an octagon of two squares, narrow at the mouth, widest high up, rounded on top,
+  // in bands of two colours)
+  const c1=BALM.env[k%4],c2=BALM.env[(k+1)%4],N=11,env=new THREE.Group();g.add(env);
+  for(let i=0;i<N;i++){const t=(i+0.5)/N,r=BAL.er*(t<0.65?0.32+0.68*Math.sin(t/0.65*Math.PI/2):Math.sqrt(Math.max(0.05,1-((t-0.65)/0.38)**2))),h=(BAL.e1-BAL.e0)/N,y=BAL.e0+h*(i+0.5),m=i%2?c1:c2;
+    bx(m,r*1.7,h+0.02,r*1.7,0,y,0,env);const o=bx(m,r*1.7,h+0.02,r*1.7,0,y,0,env);o.rotation.y=Math.PI/4;}
+  return{g,flame,env};
+}
+// one standing ahead of the player, facing them (see tenvMech, whose spot it's found as)
+function tenvBalloon(){
+  if(!TENV&&!TS.dbg)return;const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active);if(!p)return;
+  let V=venues.get('tenvBalloons');if(!V){V={kind:'balloon',bl:[]};venues.set('tenvBalloons',V);}
+  const fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw),cx=p.pos.x+fx*12,cz=p.pos.z+fz*12;let made=0;
+  for(let i=0;i<TS.n;i++){let x=cx,z=cz,ok=false;
+    for(let k=0;k<24&&!ok;k++){const a=Math.random()*Math.PI*2,r=i||k?5+Math.random()*(10+k*1.5):0;x=cx+Math.cos(a)*r;z=cz+Math.sin(a)*r;ok=tenvRoom(x,z,BAL.er)&&balClear(x,spGround(x,z),z);}
+    if(!ok)continue;
+    const n=(TS.bal=(TS.bal||0)+1),M=makeBalloon(n),B={isBalloon:true,key:'bal:'+n,ck:n,V,g:M.g,flame:M.flame,env:M.env,x,y:spGround(x,z),z,h:Math.atan2(p.pos.x-x,p.pos.z-z),vx:0,vz:0,vy:0,heat:0,hp:BAL.hp,dead:false,deadT:0};
+    scene.add(B.g);balPlace(B);V.bl.push(B);made++;}
+  if(!V.bl.length)venues.delete('tenvBalloons');
+  tsSet(made?'Spawned '+made+' hot-air balloon'+(made>1?'s':'')+' ahead of Gus. Get in as Gnash or Grizzle: '+keyLabel(BINDS.jump.kb[0])+' burns to rise, '+keyLabel(BINDS.climb.kb[0])+' vents to sink.':'No room for a hot-air balloon just there.');
+}
+// is there nothing solid where the basket and the envelope would be, with it standing at y?
+function balClear(x,y,z){const w=BAL.bw*0.9,r=BAL.er*0.75;
+  for(const yy of [y+0.3,y+1.1])for(const [a,b] of [[-w,-w],[w,-w],[-w,w],[w,w],[0,0]])if(solidAt(Math.floor(x+a),Math.floor(yy),Math.floor(z+b)))return false;
+  for(const yy of [y+BAL.e0+1,y+(BAL.e0+BAL.e1)/2,y+BAL.e1-0.5])for(const [a,b] of [[-r,0],[r,0],[0,-r],[0,r],[0,0]])if(solidAt(Math.floor(x+a),Math.floor(yy),Math.floor(z+b)))return false;
+  return true;}
+// the ground (or the sea) under the basket
+function balGround(x,z,y){const wet=get(Math.floor(x),G,Math.floor(z))===WATER?G+1:0;let g=wet;const w=BAL.bw*0.9;
+  for(const [a,b] of [[0,0],[-w,-w],[w,-w],[-w,w],[w,w]])g=Math.max(g,groundAt(x+a,z+b,y+0.6));return g;}
+function balPlace(B){B.g.position.set(B.x,B.y,B.z);B.g.rotation.set(0,B.h,0);}
+function updateBalloons(V,dt){
+  for(const B of V.bl){
+    if(B.dead){
+      // (shot down: the basket drops, and lies there a while before it's cleared away)
+      B.deadT+=dt;const gy=balGround(B.x,B.z,B.y);
+      if(B.y>gy){B.vy-=20*dt;B.y=Math.max(gy,B.y+B.vy*dt);if(B.y<=gy){if(B.vy<-8){thud(0.5);puff(B.x,B.y+0.5,B.z,10,0x8c7a5a,1.4);hitGoblins(B.x,B.z,2,6,'Crushed by a falling balloon',B.y);}B.vy=0;}}
+      balPlace(B);balloonBoxes(B);continue;}
+    const p=B.drv,i=p?drvIn(p):null,burn=!!(i&&i.jump),vent=!!(i&&(i.climb||i.charge));
+    // the heat in the envelope: up while the burner's lit, down a little all the time, and quickly through the vent
+    B.heat+=(burn?0.32:-0.05)*dt-(vent?0.35*dt:0);B.heat=Math.max(0,Math.min(1,B.heat));
+    const tv=B.heat>0.45?(B.heat-0.45)/0.55*BAL.rise:-(0.45-B.heat)/0.45*BAL.sink;B.vy+=(tv-B.vy)*Math.min(1,dt*0.7);
+    B.flame.visible=burn;if(burn){B.flame.scale.y=0.9+Math.random()*0.5;B.burnT=(B.burnT||0)-dt;if(B.burnT<=0&&audio){B.burnT=0.3;sfx('Balloon burner',()=>noise(0.32,0.12,500,'lowpass'));}}
+    const gy=balGround(B.x,B.z,B.y),air=B.y>gy+0.05;
+    // drifting: the way the view points, slowly, and only off the ground
+    let wx=0,wz=0;if(i&&air){const yaw=p.cam.yaw+Math.PI,fx=Math.sin(yaw),fz=Math.cos(yaw),f=-i.z,r=i.x;wx=fx*f-Math.cos(yaw)*r;wz=fz*f+Math.sin(yaw)*r;const m=Math.hypot(wx,wz);if(m>1){wx/=m;wz/=m;}}
+    const k=Math.min(1,dt*(air?0.6:4));B.vx+=(wx*BAL.drift-B.vx)*k;B.vz+=(wz*BAL.drift-B.vz)*k;
+    {const nx=B.x+B.vx*dt,nz=B.z+B.vz*dt;
+     if((nx!==B.x||nz!==B.z)&&balClear(nx,B.y,nz)&&!balHits(B,nx,nz,B.y))B.x=nx,B.z=nz;else{B.vx*=-0.2;B.vz*=-0.2;}}
+    {let ny=B.y+B.vy*dt;const g2=balGround(B.x,B.z,B.y);if(ny<=g2){ny=g2;if(B.vy<-6)thud(0.3);B.vy=Math.max(0,B.vy);}
+     if(B.vy>0&&(!balClear(B.x,ny,B.z)||balHits(B,B.x,B.z,ny))){ny=B.y;B.vy=0;}   // (up against something overhead)
+     B.y=Math.min(ny,H+BAL.ceil);}
+    if(B.hp<BAL.hp*0.5)vDamaged(B.x,B.y+BAL.e0,B.z,B.hp/BAL.hp,dt);
+    balPlace(B);balloonBoxes(B);}
+  V.bl=V.bl.filter(B=>{if(B.dead&&B.deadT>20&&!players.some(q=>q.drv&&q.drv.o===B)){scene.remove(B.g);return false;}return true;});
+}
+// another vehicle where the basket or the envelope would be?
+function balHits(B,x,z,y){return!!(vehIn(x,z,B.h,BAL.bw,BAL.bw,y,y+BAL.bh,B)||vehIn(x,z,0,BAL.er*0.8,BAL.er*0.8,y+BAL.e0,y+BAL.e1,B));}
+// the basket and the envelope, as boxes (the envelope's top can be stood on)
+function balloonBoxes(B){
+  if(!B.pr)B.pr=[0,1].map(i=>({isTrain:true,isPlane:true,alive:true,pos:new V3(),kv:new V3(),vy:0,spinP:0,spinR:0,speed:0,hurt:0,hx:i?BAL.er*0.8:BAL.bw,hz:i?BAL.er*0.8:BAL.bw,hy:i?BAL.e1-BAL.e0:BAL.bh,heading:0,top:0,veh:'plane',T:B,i}));
+  const [b,e]=B.pr;b.alive=e.alive=true;b.pos.set(B.x,B.y,B.z);b.heading=B.h;b.top=B.y+BAL.bh;e.pos.set(B.x,B.y+BAL.e0,B.z);e.top=B.y+BAL.e1;e.alive=!B.dead;
+  const v=Math.hypot(B.vx,B.vz);
+  TRAIN_BOXES.push({x:B.x,z:B.z,tx:Math.sin(B.h),tz:Math.cos(B.h),y0:B.y,top:b.top,v,hx:BAL.bw,hz:BAL.bw,proxy:b});
+  if(!B.dead)TRAIN_BOXES.push({x:B.x,z:B.z,tx:0,tz:1,y0:B.y+BAL.e0,top:e.top,v,hx:BAL.er*0.8,hz:BAL.er*0.8,proxy:e});
+}
+// hurt: the envelope tears and goes, and the basket (and anyone in it) comes down
+function balloonHit(B,n){
+  if(B.dead)return;B.hp-=n;dmgPop(B.x,B.y+BAL.e1,B.z,Math.round(n),'#ffb04a');vHitFx(B.x,B.y+BAL.e0+2,B.z,n);
+  if(B.hp>0)return;
+  B.dead=true;B.deadT=0;B.env.visible=false;B.flame.visible=false;
+  for(let k=0;k<3;k++)puff(B.x,B.y+BAL.e0+k*3,B.z,10,BAL_COL[(B.ck+k)%4],2.2);
+  if(audio)sfx('Balloon torn',()=>{noise(0.6,0.5,700,'bandpass');thud(0.4);});
+}
 // ---- big vehicles running into each other: a train, a boat, a plane, a ride's car, meeting another one ----
 // (cars already bump each other, and trains and planes already smash the cars in their way. These are what's left: two of
 // the big ones whose boxes meet, at least one of them moving. Both take a knock that grows with how fast they met, and
@@ -21275,6 +21453,7 @@ function updateVenues(dt){
     if(V.kind==='wind'||V.kind==='guards'){updateSiteVenue(V,dt,t);continue;}
     if(V.kind==='army'){updateArmy(V,dt);continue;}
     if(V.kind==='mech'){updateMechs(V,dt);continue;}
+    if(V.kind==='balloon'){updateBalloons(V,dt);continue;}
     if(V.kind==='train'){
       // the train: runs the line between the two stations, easing in and out, waiting a while at each platform
       const R=V.R,end=V.dir>0?R.L-46:46,left=(end-V.s)*V.dir;
@@ -22264,7 +22443,7 @@ function updateCars(dt){
         c.heading+=Math.max(-2*dt,Math.min(2*dt,diff));c.steer=Math.max(-1,Math.min(1,diff*2));
         // ease off round the tighter bends (how much the line turns over the next stretch)
         const P2=rtPoint(R,me.s+T.dir*(look+18)),bend=Math.abs(Math.atan2(P.tx*P2.tz-P.tz*P2.tx,P.tx*P2.tx+P.tz*P2.tz));
-        let target=(R.kind==='moto'?19:17)-Math.min(8,bend*14);
+        let target=(R.kind==='moto'?19:17)-Math.min(8,bend*14);if(c.veh==='super')target+=Math.max(0,11-bend*40);   // (a supercar: well over the limit on the straights)
         // (slow right down through a toll plaza, pause at the booth)
         for(const ts of tollsOf(R)){const ahead=(ts-me.s)*T.dir;if(ahead>-2&&ahead<70)target=Math.min(target,ahead<2.5?1.6:1.6+ahead*0.28);}const sh=Math.sin(c.heading),ch=Math.cos(c.heading);
         // a country highway narrows to one lane each way into town: well before the end, the outer lane's cars move over
@@ -22308,7 +22487,7 @@ function updateCars(dt){
         const side=H.ax==='x'?(H.dir>0?1:-1):(H.dir>0?-1:1);
         let diff=want-Math.max(-0.35,Math.min(0.35,off*0.25))*side-c.heading;while(diff>Math.PI)diff-=Math.PI*2;while(diff<-Math.PI)diff+=Math.PI*2;
         c.heading+=Math.max(-2*dt,Math.min(2*dt,diff));c.steer=Math.max(-1,Math.min(1,diff*2));
-        let target=sloped?14:19;const sh=Math.sin(c.heading),ch=Math.cos(c.heading);
+        let target=sloped?14:c.veh==='super'?30:19;const sh=Math.sin(c.heading),ch=Math.cos(c.heading);
         c.jamT=Math.abs(c.speed)<0.3?(c.jamT||0)+dt:0;if(c.jamT>8)c.jamT=0;
         if(c.jamT<6.5)for(const o of cars){if(o===c||!o.alive)continue;const ox=o.pos.x-c.pos.x,oz=o.pos.z-c.pos.z,along=(H.ax==='x'?ox:oz)*H.dir,lat=Math.abs(H.ax==='x'?oz:ox);if(along>0&&along<30+c.hz+o.hz&&lat<1.8&&Math.abs(o.pos.y-c.pos.y)<2){const ga=along-(c.hz+o.hz-3.2);target=Math.min(target,ga<7?0:Math.max(0,o.speed*Math.cos(o.heading-c.heading))+(ga-9)*0.9);}}
         if(tgt){const ox=tgt.p.pos.x-c.pos.x,oz=tgt.p.pos.z-c.pos.z,along=ox*sh+oz*ch,lat=Math.abs(ox*ch-oz*sh);if(along>0&&along<14&&lat<2.4&&Math.abs(tgt.p.pos.y-c.pos.y)<2.5&&c.honkT<=0){sfx('Car horn',()=>{horn(0.07);});c.honkT=2;}}
@@ -22500,7 +22679,8 @@ function updateCars(dt){
     if(Math.abs(c.kv.x)+Math.abs(c.kv.z)>0.05){nudgeFlat(c,c.kv.x*dt,c.kv.z*dt);const k=Math.exp(-dt*3.5);c.kv.x*=k;c.kv.z*=k;}
     c.g.position.copy(c.pos);c.g.rotation.set(c.pitch,c.heading,c.roll+(c.veh==='bike'?-c.steer*Math.min(1,Math.abs(c.speed)/8)*0.4:0));   // (a motorcycle leans into its turns)
     for(const w of c.wheels)w.rotation.x+=c.speed*dt/0.36;
-    for(const f of c.front)f.rotation.y=c.steer*0.45;
+    for(const f of c.front)f.rotation.y=c.steer*(c.veh==='forklift'?-0.6:0.45);   // (a forklift steers with its back wheels)
+    if(c.fan&&c.drv)c.fan.rotation.z+=dt*(14+Math.abs(c.speed)*0.8);   // (a hovercraft's fan, while someone's at the controls)
   }
   // fender benders
   for(let i=0;i<cars.length;i++){const a=cars[i];if(!a.alive)continue;for(let j=i+1;j<cars.length;j++){const b=cars[j];if(!b.alive)continue;
@@ -25507,9 +25687,9 @@ function tenvFoe(kind){
 // vehicles: any kind, a few steps further off than enemies. Hunting, they drive straight at Gus; parked, they sit there
 // with nobody in them, to stand on, smash or get into (a parked police car still wakes up when Gus comes close)
 const VEH_NAME={car:['car','cars'],van:['van','vans'],pickup:['pickup','pickups'],truck:['truck','trucks'],semi:['semi truck','semi trucks'],bus:['bus','buses'],
-  fire:['fire engine','fire engines'],amb:['ambulance','ambulances'],news:['news van','news vans'],rv:['motorhome','motorhomes'],technical:['technical','technicals'],quad:['four-wheeler','four-wheelers'],police:['police car','police cars'],moto:['motorcycle','motorcycles'],motorcycle:['motorcycle','motorcycles'],bike:['motorcycle','motorcycles'],mech:['Mobile Gear','Mobile Gears']};
+  fire:['fire engine','fire engines'],jet:['fighter jet','fighter jets'],balloon:['hot-air balloon','hot-air balloons'],amb:['ambulance','ambulances'],news:['news van','news vans'],rv:['motorhome','motorhomes'],technical:['technical','technicals'],quad:['four-wheeler','four-wheelers'],police:['police car','police cars'],moto:['motorcycle','motorcycles'],motorcycle:['motorcycle','motorcycles'],bike:['motorcycle','motorcycles'],super:['supercar','supercars'],forklift:['forklift','forklifts'],hover:['hovercraft','hovercraft'],mech:['Mobile Gear','Mobile Gears']};
 // every kind of vehicle that can be spawned here, and its name with a capital (the panel's buttons and the debug menu's list)
-const tenvVehKinds=()=>[...Object.keys(VEH),'police','tank','heli','plane','mech'];
+const tenvVehKinds=()=>[...Object.keys(VEH),'police','tank','heli','plane','jet','balloon','mech'];
 const tenvVehName=t=>(VEH_NAME[t]||[MIL[t]?MIL[t].name:t])[0].replace(/^./,c=>c.toUpperCase());
 // the debug menu's Spawn: one of the kind picked, parked and empty, ready to get into (whatever the panel's count and
 // hunting or parked say). What it managed is what the panel would have said
@@ -25531,11 +25711,13 @@ function tenvRoom(x,z,r){
   const A=venues.get('tenvArmy');if(A&&A.mil.some(M=>!M.dead&&Math.hypot(M.x-x,M.z-z)<r+3.5))return false;
   const L=venues.get('tenvPlanes');if(L&&L.pl.some(pl=>!pl.dead&&Math.hypot(pl.g.position.x-x,pl.g.position.z-z)<r+11))return false;
   const Mg=venues.get('tenvMechs');if(Mg&&Mg.mechs.some(M=>Math.hypot(M.x-x,M.z-z)<r+3))return false;
+  const Bl=venues.get('tenvBalloons');if(Bl&&Bl.bl.some(B=>Math.hypot(B.x-x,B.z-z)<r+BAL.er))return false;
   return true;
 }
 function tenvVeh(t){
   if(MIL[t]){tenvMil(t);return;}
-  if(t==='plane'){tenvPlane();return;}
+  if(t==='plane'||t==='jet'){tenvPlane(t==='jet');return;}
+  if(t==='balloon'){tenvBalloon();return;}
   if(t==='mech'){tenvMech();return;}
   if(CREW_HP[t]){tenvCrew(t);return;}
   if(!TENV&&!TS.dbg)return;const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active);if(!p)return;
@@ -25580,7 +25762,7 @@ function tenvMil(kind){
 // planes, in the Testing Environment: an airliner parked on the grass ahead of Gus, nose pointing the way he's looking,
 // so it can be got into and taken straight off (no runway needed: any flat run of about 40 blocks). They're kept in an
 // airport of their own (the 'tenvPlanes' venue, flagged tenv, so updateAirport's timetable leaves them be)
-function tenvPlane(){
+function tenvPlane(jet){
   if(!TENV&&!TS.dbg)return;const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active);if(!p)return;
   let V=venues.get('tenvPlanes');if(!V){V={kind:'airport',tenv:true,planes:[],pl:[]};venues.set('tenvPlanes',V);}
   const fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw);let made=0;
@@ -25590,9 +25772,9 @@ function tenvPlane(){
       x=p.pos.x+fx*ahead-fz*side;z=p.pos.z+fz*ahead+fx*side;
       const y0=spGround(x,z);ok=tenvRoom(x,z,11)&&Math.abs(spGround(x+fx*9,z+fz*9)-y0)<1.05&&Math.abs(spGround(x-fx*9,z-fz*9)-y0)<1.05;}
     if(!ok)continue;
-    const g=makePlane(V.planes.length);g.position.set(x,spGround(x,z),z);g.rotation.set(0,Math.atan2(fx,fz),0);scene.add(g);
-    V.planes.push(g);V.pl.push({isPlane:true,g,hp:PLANE_HP,dead:false,v:0});made++;}
-  tsSet(made?'Spawned '+made+' plane'+(made>1?'s':'')+' ahead of Gus, ready to fly: get in, speed up, then jump to take off.':'There\'s no clear ground for a plane just ahead. Try looking another way.');
+    const g=jet?makeJet():makePlane(V.planes.length);g.position.set(x,spGround(x,z),z);g.rotation.set(0,Math.atan2(fx,fz),0);scene.add(g);
+    V.planes.push(g);V.pl.push({isPlane:true,jet:!!jet,g,hp:PLANE_HP,dead:false,v:0});made++;}
+  tsSet(made?'Spawned '+made+(jet?' fighter jet':' plane')+(made>1?'s':'')+' ahead of Gus, ready to fly: get in, speed up, then jump to take off.':'There\'s no clear ground for a plane just ahead. Try looking another way.');
 }
 // the Mobile Gear (see vehicles/mech.js): only here for now. Each press stands as many as the count says a little way
 // ahead of Gus, facing him, empty, to climb into. They're kept in a venue of their own, 'tenvMechs'
@@ -25620,6 +25802,7 @@ function tenvClear(){
   // (the tanks and helicopters too, all but one Gus is driving)
   {const V=venues.get('tenvArmy');if(V){V.mil=V.mil.filter(M=>{if(players.some(q=>q.drv&&q.drv.o===M))return true;scene.remove(M.g);return false;});V.alert=false;if(!V.mil.length)venues.delete('tenvArmy');}}
   {const V=venues.get('tenvMechs');if(V){V.mechs=V.mechs.filter(M=>{if(players.some(q=>q.drv&&q.drv.o===M))return true;scene.remove(M.g);return false;});if(!V.mechs.length)venues.delete('tenvMechs');}}
+  {const V=venues.get('tenvBalloons');if(V){V.bl=V.bl.filter(B=>{if(players.some(q=>q.drv&&q.drv.o===B))return true;scene.remove(B.g);return false;});if(!V.bl.length)venues.delete('tenvBalloons');}}
   {const V=venues.get('tenvPlanes');if(V){V.pl=V.pl.filter(pl=>{if(players.some(q=>q.drv&&q.drv.o===pl))return true;scene.remove(pl.g);return false;});V.planes=V.pl.map(pl=>pl.g);if(!V.pl.length)venues.delete('tenvPlanes');}}
   tsSet('Cleared every goblin and vehicle.');
 }

@@ -1,0 +1,38 @@
+supercar share: street 0.01  highway 0.01  parked 0
+  20000 street picks: supercars 219 (about 200 expected), forklifts 0  hovercraft 0
+  mixes add up to 1.00 1.00 1.00
+factory -38 -27 along x: 1 docks, 2 forklift spots, in the hall 0  nearest lorry middle 5.7  facing the docks true
+factory 42 -34 along x: 3 docks, 4 forklift spots, in the hall 0  nearest lorry middle 5.7  facing the docks true
+factories within 60 plots: 2
+  forklifts parked there after waiting: 2  first at a forklift spot true, nobody in it true
+errors 0 []
+spawn list has: supercar true  forklift true  hovercraft true  fighter jet true  balloon true  names Supercar, Forklift, Hovercraft, Fighter jet, Hot-air balloon
+Car: car, W 6 s: top speed 24.0, 20 a second after 2 s, went 115.7, hp 30.0
+Supercar: car, W 8 s: top speed 62.0, 20 a second after 1 s, went 388.7, hp 30.0
+Forklift: car, W 4 s: top speed 8.0, 20 a second after never, went 25.7, hp 30.0
+Supercar: car, W 1 s: top speed 21.1, 20 a second after 1 s, went 11.2, hp 30.0
+  display says Supercar  ·  30 / 30
+flat floor: ground at 45.0  sea level block 44
+Car: driven 4 s into a pool, frames over the water 28  lowest there -5.0  (start 0), now -5.0  speed 24.0  went 52.0
+Hovercraft: driven 4 s into a pool, frames over the water 22  lowest there 0.0  (start 0), now 0.0  speed 27.0  went 47.6
+  hard turn on the water: slides up to 40.9 degrees off the way it points; still afloat true
+  got out over the water: hovercraft still at 1.0 over sea level, alive true
+airliner: off the ground after 3.5 s  speed after 12 s more at full throttle 81.1  height 159.4  bank after half a second of A 0.50  dead false
+  controls: [KEY:W]/[KEY:S] nose down/up | [KEY:A]/[KEY:D] bank | [KEY:Space]/[KEY:C] throttle up/down | Throttle 100% | Speed 81 | Climb 0 | [KEY:F] get out
+fighter jet: off the ground after 1.7 s  speed after 12 s more at full throttle 167.3  height 234.7  bank after half a second of A 1.40  dead false
+  controls: [KEY:W]/[KEY:S] nose down/up | [KEY:A]/[KEY:D] bank | [KEY:Space]/[KEY:C] throttle up/down | [LMB] cannon | [RMB] missiles | Throttle 100% | Speed 167 | Climb -2 | [KEY:Q] lock on
+jet cannon held 1 s: 120 -> 100 rounds
+  locked on the tank true  tank 26.0 off
+  a missile away true  tank hp 160.0 -> 101.6  missiles left 5
+balloon: spawned 2 boxes
+  get in: balloon
+  burner 6 s: up 13.5  heat 1.00  flame lit while burning
+  4 s more, let go: up another 19.4  rising at 4.1
+  W 5 s (drifting the way the view points): went 17.2  height 47.5
+  vent 5 s: height 37.0  sinking at -4.2
+  display: Hot-air balloon  ·  60 / 60  controls: [KEY:Space] burner (rise) | [KEY:C] vent (sink) | Move to drift | [KEY:F] get out
+  back down on the ground after 8.5 s more, at 0.0
+  dropped on the envelope: standing at 0.0 above its top, standing on it true
+  shot down at 24.1 up: dead true  pilot thrown out true
+  5 s later the basket lies at 0.0  envelope shown false
+errors 0 []

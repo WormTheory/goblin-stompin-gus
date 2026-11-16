@@ -197,9 +197,9 @@ function tenvFoe(kind){
 // vehicles: any kind, a few steps further off than enemies. Hunting, they drive straight at Gus; parked, they sit there
 // with nobody in them, to stand on, smash or get into (a parked police car still wakes up when Gus comes close)
 const VEH_NAME={car:['car','cars'],van:['van','vans'],pickup:['pickup','pickups'],truck:['truck','trucks'],semi:['semi truck','semi trucks'],bus:['bus','buses'],
-  fire:['fire engine','fire engines'],amb:['ambulance','ambulances'],news:['news van','news vans'],rv:['motorhome','motorhomes'],technical:['technical','technicals'],quad:['four-wheeler','four-wheelers'],police:['police car','police cars'],moto:['motorcycle','motorcycles'],motorcycle:['motorcycle','motorcycles'],bike:['motorcycle','motorcycles'],mech:['Mobile Gear','Mobile Gears']};
+  fire:['fire engine','fire engines'],jet:['fighter jet','fighter jets'],balloon:['hot-air balloon','hot-air balloons'],amb:['ambulance','ambulances'],news:['news van','news vans'],rv:['motorhome','motorhomes'],technical:['technical','technicals'],quad:['four-wheeler','four-wheelers'],police:['police car','police cars'],moto:['motorcycle','motorcycles'],motorcycle:['motorcycle','motorcycles'],bike:['motorcycle','motorcycles'],super:['supercar','supercars'],forklift:['forklift','forklifts'],hover:['hovercraft','hovercraft'],mech:['Mobile Gear','Mobile Gears']};
 // every kind of vehicle that can be spawned here, and its name with a capital (the panel's buttons and the debug menu's list)
-const tenvVehKinds=()=>[...Object.keys(VEH),'police','tank','heli','plane','mech'];
+const tenvVehKinds=()=>[...Object.keys(VEH),'police','tank','heli','plane','jet','balloon','mech'];
 const tenvVehName=t=>(VEH_NAME[t]||[MIL[t]?MIL[t].name:t])[0].replace(/^./,c=>c.toUpperCase());
 // the debug menu's Spawn: one of the kind picked, parked and empty, ready to get into (whatever the panel's count and
 // hunting or parked say). What it managed is what the panel would have said
@@ -221,11 +221,13 @@ function tenvRoom(x,z,r){
   const A=venues.get('tenvArmy');if(A&&A.mil.some(M=>!M.dead&&Math.hypot(M.x-x,M.z-z)<r+3.5))return false;
   const L=venues.get('tenvPlanes');if(L&&L.pl.some(pl=>!pl.dead&&Math.hypot(pl.g.position.x-x,pl.g.position.z-z)<r+11))return false;
   const Mg=venues.get('tenvMechs');if(Mg&&Mg.mechs.some(M=>Math.hypot(M.x-x,M.z-z)<r+3))return false;
+  const Bl=venues.get('tenvBalloons');if(Bl&&Bl.bl.some(B=>Math.hypot(B.x-x,B.z-z)<r+BAL.er))return false;
   return true;
 }
 function tenvVeh(t){
   if(MIL[t]){tenvMil(t);return;}
-  if(t==='plane'){tenvPlane();return;}
+  if(t==='plane'||t==='jet'){tenvPlane(t==='jet');return;}
+  if(t==='balloon'){tenvBalloon();return;}
   if(t==='mech'){tenvMech();return;}
   if(CREW_HP[t]){tenvCrew(t);return;}
   if(!TENV&&!TS.dbg)return;const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active);if(!p)return;
@@ -270,7 +272,7 @@ function tenvMil(kind){
 // planes, in the Testing Environment: an airliner parked on the grass ahead of Gus, nose pointing the way he's looking,
 // so it can be got into and taken straight off (no runway needed: any flat run of about 40 blocks). They're kept in an
 // airport of their own (the 'tenvPlanes' venue, flagged tenv, so updateAirport's timetable leaves them be)
-function tenvPlane(){
+function tenvPlane(jet){
   if(!TENV&&!TS.dbg)return;const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active);if(!p)return;
   let V=venues.get('tenvPlanes');if(!V){V={kind:'airport',tenv:true,planes:[],pl:[]};venues.set('tenvPlanes',V);}
   const fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw);let made=0;
@@ -280,9 +282,9 @@ function tenvPlane(){
       x=p.pos.x+fx*ahead-fz*side;z=p.pos.z+fz*ahead+fx*side;
       const y0=spGround(x,z);ok=tenvRoom(x,z,11)&&Math.abs(spGround(x+fx*9,z+fz*9)-y0)<1.05&&Math.abs(spGround(x-fx*9,z-fz*9)-y0)<1.05;}
     if(!ok)continue;
-    const g=makePlane(V.planes.length);g.position.set(x,spGround(x,z),z);g.rotation.set(0,Math.atan2(fx,fz),0);scene.add(g);
-    V.planes.push(g);V.pl.push({isPlane:true,g,hp:PLANE_HP,dead:false,v:0});made++;}
-  tsSet(made?'Spawned '+made+' plane'+(made>1?'s':'')+' ahead of Gus, ready to fly: get in, speed up, then jump to take off.':'There\'s no clear ground for a plane just ahead. Try looking another way.');
+    const g=jet?makeJet():makePlane(V.planes.length);g.position.set(x,spGround(x,z),z);g.rotation.set(0,Math.atan2(fx,fz),0);scene.add(g);
+    V.planes.push(g);V.pl.push({isPlane:true,jet:!!jet,g,hp:PLANE_HP,dead:false,v:0});made++;}
+  tsSet(made?'Spawned '+made+(jet?' fighter jet':' plane')+(made>1?'s':'')+' ahead of Gus, ready to fly: get in, speed up, then jump to take off.':'There\'s no clear ground for a plane just ahead. Try looking another way.');
 }
 // the Mobile Gear (see vehicles/mech.js): only here for now. Each press stands as many as the count says a little way
 // ahead of Gus, facing him, empty, to climb into. They're kept in a venue of their own, 'tenvMechs'
@@ -310,6 +312,7 @@ function tenvClear(){
   // (the tanks and helicopters too, all but one Gus is driving)
   {const V=venues.get('tenvArmy');if(V){V.mil=V.mil.filter(M=>{if(players.some(q=>q.drv&&q.drv.o===M))return true;scene.remove(M.g);return false;});V.alert=false;if(!V.mil.length)venues.delete('tenvArmy');}}
   {const V=venues.get('tenvMechs');if(V){V.mechs=V.mechs.filter(M=>{if(players.some(q=>q.drv&&q.drv.o===M))return true;scene.remove(M.g);return false;});if(!V.mechs.length)venues.delete('tenvMechs');}}
+  {const V=venues.get('tenvBalloons');if(V){V.bl=V.bl.filter(B=>{if(players.some(q=>q.drv&&q.drv.o===B))return true;scene.remove(B.g);return false;});if(!V.bl.length)venues.delete('tenvBalloons');}}
   {const V=venues.get('tenvPlanes');if(V){V.pl=V.pl.filter(pl=>{if(players.some(q=>q.drv&&q.drv.o===pl))return true;scene.remove(pl.g);return false;});V.planes=V.pl.map(pl=>pl.g);if(!V.pl.length)venues.delete('tenvPlanes');}}
   tsSet('Cleared every goblin and vehicle.');
 }

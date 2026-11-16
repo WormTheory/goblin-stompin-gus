@@ -1,11 +1,13 @@
 // ---- car body physics: sits on four wheels, tips over edges, falls into pits, lands hard ----
+// the ground under a vehicle; a hovercraft also rides on open water, at its surface (as a road is at sea level)
+function hovSup(c,x,z,y){const v=supportAt(x,z,y);if(c.veh!=='hover'||y<G+0.6||!(v===null||v<G+1))return v;return get(Math.floor(x),G,Math.floor(z))===WATER&&!solidAt(x,G+1,z)?G+1:v;}
 function carPhysics(c,dt){
   const s=Math.sin(c.heading),k=Math.cos(c.heading),wx=c.hx*1.1,wz=c.hz-0.36;
   // on a ramp the wheels ride the slope (a long truck's sit well above or below its middle); anywhere else a car won't climb a ledge
   const onRamp=rampUnder(c.pos.x,c.pos.z,c.pos.y+0.5)||rampUnder(c.pos.x+s*wz,c.pos.z+k*wz,c.pos.y+0.5)||rampUnder(c.pos.x-s*wz,c.pos.z-k*wz,c.pos.y+0.5);
   const slope=onRamp?wz*0.5+0.2:0,reach=c.pos.y+0.4+slope;
   // a wheel inside a wall gives no support (it doesn't hold the car up mid-air)
-  const sup=(a,b)=>{const v=supportAt(c.pos.x+a*k+b*s,c.pos.z-a*s+b*k,reach);return v===null?-1e9:v;};
+  const sup=(a,b)=>{const v=hovSup(c,c.pos.x+a*k+b*s,c.pos.z-a*s+b*k,reach);return v===null?-1e9:v;};
   const fl=sup(wx,wz),fr=sup(-wx,wz),bl=sup(wx,-wz),br=sup(-wx,-wz),ce=sup(0,0);
   if(Math.max(fl,fr,bl,br,ce)<-1e8){c.grounded=true;c.vy=0;return;}
   const cl=v=>Math.max(v,c.pos.y-6);
@@ -37,7 +39,7 @@ function carPhysics(c,dt){
     tp=Math.max(-1.2,Math.min(1.2,Math.atan2((cl(bl)+cl(br))/2-(cl(fl)+cl(fr))/2,2*wz)*1.6));
     tr=Math.max(-1.2,Math.min(1.2,Math.atan2((cl(fl)+cl(bl))/2-(cl(fr)+cl(br))/2,2*wx)*1.6));
     if(was&&!comOK){const lx=((fl+bl)-(fr+br))>0?-1:1,lz=((bl+br)-(fl+fr))>0?1:-1;const sx=(Math.abs(fl+fr-bl-br)>0.3?lz:0),sr=(Math.abs(fl+bl-fr-br)>0.3?lx:0);c.kv.x+=(sr*k+sx*s)*2.5;c.kv.z+=(-sr*s+sx*k)*2.5;}
-    const land=supportAt(c.pos.x,c.pos.z,c.pos.y+0.4);
+    const land=hovSup(c,c.pos.x,c.pos.z,c.pos.y+0.4);
     // with its middle over the hole, the wheels still up on the lip don't hold it
     const floor=comOK?Math.max(land===null?-1e9:land,fl,fr,bl,br):(land===null?-1e9:land);
     if(c.vy<0&&c.pos.y<=floor){

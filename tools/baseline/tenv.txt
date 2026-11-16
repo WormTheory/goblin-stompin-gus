@@ -5,14 +5,14 @@ after 20 s: cars alive 0 goblins about 0
 hospital  from 0,8 built at 1,-1 ahead 68 aside 13 yaw 4.44
 hospital  box {"k":"hospital","ax":1,"az":-1,"w":3,"h":3,"sx":0,"sz":8} search+build ms N | blocks in box 12089 top 97 | outside (south strip) 0 | gus 11 45.0 11 | fixtures 35 props 0 doors 0 signs 1 venues 0
 homes     from -5,7 built at -1,-1 ahead 9 aside 36 yaw 5.74
-homes     box {"k":"homes","ax":-1,"az":-1,"w":1,"h":1,"sx":-5,"sz":7} search+build ms N | blocks in box 320 top 60 | outside (south strip) 1436 | gus 11 45.0 11 | fixtures 45 props 29 doors 1 signs 1 venues 0
+homes     box {"k":"homes","ax":-1,"az":-1,"w":1,"h":1,"sx":-5,"sz":7} search+build ms N | blocks in box 320 top 60 | outside (south strip) 1436 | gus 11 45.0 11 | fixtures 45 props 18 doors 1 signs 1 venues 0
 fire      from -2,4 built at -2,1 ahead 13 aside 68 yaw 0.76
-fire      box {"k":"fire","ax":-2,"az":1,"w":1,"h":1,"sx":-2,"sz":4} search+build ms N | blocks in box 260 top 74 | outside (south strip) 0 | gus 11 45.0 11 | fixtures 64 props 35 doors 1 signs 2 venues 0
+fire      box {"k":"fire","ax":-2,"az":1,"w":1,"h":1,"sx":-2,"sz":4} search+build ms N | blocks in box 260 top 74 | outside (south strip) 0 | gus 11 45.0 11 | fixtures 64 props 24 doors 1 signs 2 venues 0
 mall      not found There's no mall within 4,800 blocks in this world's plan. Try another kind, or go to one spawned further off and look from there.
 zoo       from -72,66 built at 4,3 ahead 204 aside 157 yaw 3.36
-zoo       box {"k":"zoo","ax":4,"az":3,"w":5,"h":5,"sx":-72,"sz":66} search+build ms N | blocks in box 1254 top 52 | outside (south strip) 0 | gus 11 45.0 11 | fixtures 64 props 35 doors 1 signs 2 venues 1
+zoo       box {"k":"zoo","ax":4,"az":3,"w":5,"h":5,"sx":-72,"sz":66} search+build ms N | blocks in box 1254 top 52 | outside (south strip) 0 | gus 11 45.0 11 | fixtures 64 props 24 doors 1 signs 2 venues 1
 farm      from -23,-27 built at 1,-3 ahead 33 aside 92 yaw 4.66
-farm      box {"k":"farm","ax":1,"az":-3,"w":1,"h":1,"sx":-23,"sz":-27} search+build ms N | blocks in box 212 top 56 | outside (south strip) 1425 | gus 11 45.0 11 | fixtures 64 props 35 doors 1 signs 2 venues 1
+farm      box {"k":"farm","ax":1,"az":-3,"w":1,"h":1,"sx":-23,"sz":-27} search+build ms N | blocks in box 212 top 56 | outside (south strip) 1425 | gus 11 45.0 11 | fixtures 64 props 24 doors 1 signs 2 venues 1
 foe goblin  Spawned 5 goblins ahead of Gus.
 foe cop     Spawned 1 police officer ahead of Gus.
 foe civ     Spawned 1 civilian ahead of Gus.
@@ -29,15 +29,18 @@ veh bike    Spawned 1 hunting motorcycle ahead of Gus.
 veh rv      Spawned 1 hunting motorhome ahead of Gus.
 veh technical Spawned 1 hunting technical ahead of Gus.
 veh quad    Spawned 1 hunting four-wheeler ahead of Gus.
+veh super   Spawned 1 hunting supercar ahead of Gus.
+veh forklift Spawned 1 hunting forklift ahead of Gus.
+veh hover   Spawned 1 hunting hovercraft ahead of Gus.
 veh police  Spawned 1 hunting police car ahead of Gus.
 veh tank    Spawned 1 hunting tank ahead of Gus.
 veh heli    Spawned 1 hunting helicopter ahead of Gus.
 veh plane   Spawned 1 plane ahead of Gus, ready to fly: get in, speed up, then jump to take off.
 veh park Spawned 3 parked buses ahead of Gus.
-goblins out 15 distances 5.3 7.7 7.4 8.5 2.3 6.7 6.1 70.9 68.8 60.0 73.6 67.2 63.2 64.5 65.9 cars Ch18 Ch30 Ch11 Ch34 Ch11 Ch29 Ch25 Ch21 Ch20 Ch10 Ch34 Ph34 C27 C16 C20 C74 C91 C70 C88 C67 C94 C15 C33
-after 4 s: goblins out 62.8 61.1 64.5 62.8 70.2 66.5 68.6 69.3 | gus hp 0 | cars C7 C24 C18 C25 C66 C97 C63 C94 C59 C100 C18 C18
-army tank:hunt 10m up 0.0, heli:hunt 42m up 3.5
-cleared: goblins out 4 cars 6
+goblins out 15 distances 6.7 9.1 8.7 9.9 3.6 8.1 7.5 69.9 67.8 61.5 72.6 68.6 64.6 65.9 67.3 cars Ch20 Ch32 Ch12 Ch36 Ch12 Ch27 Ch26 Ch22 Ch22 Ch10 Ch35 Ch35 Ch7 Ch38 Ph7 C33 C40 C20 C73 C92 C69 C89 C66 C95 C15 C34
+after 4 s: goblins out 56.2 71.4 55.5 57.5 | gus hp 0 | cars C23 C21 C19 C29 P14 C47 C56 C32 C57 C113 C54 C110 C52 C116 C13 C32
+army tank:hunt 55m up 0.0, heli:hunt 68m up 0.0
+cleared: goblins out 3 cars 6
 removed hospital blocks left in its box 0 boxes 4 saved null
 reset 1st press: Sure? Press again | boxes 4
 reset 2nd press: boxes 0 army false cars 0 in tenv true

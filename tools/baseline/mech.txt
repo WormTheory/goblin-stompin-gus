@@ -88,8 +88,8 @@ impact: a tank hit for 60 not staggered  then 70 more staggered  hit for 10 whil
   the Mobile Gear hit for 265 : staggered true  (STAGGERED shown true)  pushing forward: 0.0  rounds fired 0  2.5 s later moving again 1.4
 repair kits: 3  (the controls say 3 left)  at full health a press does nothing true  from 200: 410.0  after using them all 0 left, hp 100.0 (the last press did nothing)
 walked at a boat 22 ahead: stopped 2.8 from its middle (it is 2.8 to touching)  inside it false
-  dropped on its deck (top 47.2): stands at 47.2  the boat moved 5: carried 5.0
-debug menu vehicles: 18 kinds, rows Vehicle, Spawn vehicle  Infinite ammo row true
+  dropped on its deck (top 47.1): stands at 47.1  the boat moved 5: carried 5.0
+debug menu vehicles: 23 kinds, rows Vehicle, Spawn vehicle  Infinite ammo row true
   spawn car: Spawned 1 parked car ahead of Gus.
   spawn tank: Spawned 1 parked tank ahead of Gus.
   spawn mech: Spawned 1 Mobile Gear ahead of Gus. Walk up to one as Gnash or Grizzle and press F (controller Y) to climb in.

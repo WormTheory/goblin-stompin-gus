@@ -137,7 +137,7 @@ function updateCars(dt){
         c.heading+=Math.max(-2*dt,Math.min(2*dt,diff));c.steer=Math.max(-1,Math.min(1,diff*2));
         // ease off round the tighter bends (how much the line turns over the next stretch)
         const P2=rtPoint(R,me.s+T.dir*(look+18)),bend=Math.abs(Math.atan2(P.tx*P2.tz-P.tz*P2.tx,P.tx*P2.tx+P.tz*P2.tz));
-        let target=(R.kind==='moto'?19:17)-Math.min(8,bend*14);
+        let target=(R.kind==='moto'?19:17)-Math.min(8,bend*14);if(c.veh==='super')target+=Math.max(0,11-bend*40);   // (a supercar: well over the limit on the straights)
         // (slow right down through a toll plaza, pause at the booth)
         for(const ts of tollsOf(R)){const ahead=(ts-me.s)*T.dir;if(ahead>-2&&ahead<70)target=Math.min(target,ahead<2.5?1.6:1.6+ahead*0.28);}const sh=Math.sin(c.heading),ch=Math.cos(c.heading);
         // a country highway narrows to one lane each way into town: well before the end, the outer lane's cars move over
@@ -181,7 +181,7 @@ function updateCars(dt){
         const side=H.ax==='x'?(H.dir>0?1:-1):(H.dir>0?-1:1);
         let diff=want-Math.max(-0.35,Math.min(0.35,off*0.25))*side-c.heading;while(diff>Math.PI)diff-=Math.PI*2;while(diff<-Math.PI)diff+=Math.PI*2;
         c.heading+=Math.max(-2*dt,Math.min(2*dt,diff));c.steer=Math.max(-1,Math.min(1,diff*2));
-        let target=sloped?14:19;const sh=Math.sin(c.heading),ch=Math.cos(c.heading);
+        let target=sloped?14:c.veh==='super'?30:19;const sh=Math.sin(c.heading),ch=Math.cos(c.heading);
         c.jamT=Math.abs(c.speed)<0.3?(c.jamT||0)+dt:0;if(c.jamT>8)c.jamT=0;
         if(c.jamT<6.5)for(const o of cars){if(o===c||!o.alive)continue;const ox=o.pos.x-c.pos.x,oz=o.pos.z-c.pos.z,along=(H.ax==='x'?ox:oz)*H.dir,lat=Math.abs(H.ax==='x'?oz:ox);if(along>0&&along<30+c.hz+o.hz&&lat<1.8&&Math.abs(o.pos.y-c.pos.y)<2){const ga=along-(c.hz+o.hz-3.2);target=Math.min(target,ga<7?0:Math.max(0,o.speed*Math.cos(o.heading-c.heading))+(ga-9)*0.9);}}
         if(tgt){const ox=tgt.p.pos.x-c.pos.x,oz=tgt.p.pos.z-c.pos.z,along=ox*sh+oz*ch,lat=Math.abs(ox*ch-oz*sh);if(along>0&&along<14&&lat<2.4&&Math.abs(tgt.p.pos.y-c.pos.y)<2.5&&c.honkT<=0){sfx('Car horn',()=>{horn(0.07);});c.honkT=2;}}
@@ -373,7 +373,8 @@ function updateCars(dt){
     if(Math.abs(c.kv.x)+Math.abs(c.kv.z)>0.05){nudgeFlat(c,c.kv.x*dt,c.kv.z*dt);const k=Math.exp(-dt*3.5);c.kv.x*=k;c.kv.z*=k;}
     c.g.position.copy(c.pos);c.g.rotation.set(c.pitch,c.heading,c.roll+(c.veh==='bike'?-c.steer*Math.min(1,Math.abs(c.speed)/8)*0.4:0));   // (a motorcycle leans into its turns)
     for(const w of c.wheels)w.rotation.x+=c.speed*dt/0.36;
-    for(const f of c.front)f.rotation.y=c.steer*0.45;
+    for(const f of c.front)f.rotation.y=c.steer*(c.veh==='forklift'?-0.6:0.45);   // (a forklift steers with its back wheels)
+    if(c.fan&&c.drv)c.fan.rotation.z+=dt*(14+Math.abs(c.speed)*0.8);   // (a hovercraft's fan, while someone's at the controls)
   }
   // fender benders
   for(let i=0;i<cars.length;i++){const a=cars[i];if(!a.alive)continue;for(let j=i+1;j<cars.length;j++){const b=cars[j];if(!b.alive)continue;

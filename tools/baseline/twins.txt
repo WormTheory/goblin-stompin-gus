@@ -5,13 +5,13 @@ sprint                 player one moved 12.02 up 0.00  | furthest apart 0.000   
 trample (hold dash)    player one moved 11.33 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 76 76
 jump                   player one moved 0.00 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
 double jump            player one moved 0.00 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
-dash                   player one moved 5.85 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
-long jump              player one moved 19.63 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 81 81
-air dash               player one moved 14.39 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+dash                   player one moved 9.40 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+long jump              player one moved 44.01 up -12.30  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+air dash               player one moved 40.86 up -13.18  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 93 93
 stomp by a wall        player one moved 0.00 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
-   blocks left by Gus 28 by Gertie 28 of 28
+   blocks left by Gus 25 by Gertie 25 of 28
 charged stomp          player one moved 0.00 up -2.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
-   blocks left by Gus 18 by Gertie 18 of 28
+   blocks left by Gus 17 by Gertie 17 of 28
 ground pound           player one moved 0.00 up -1.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
 bite a wall            player one moved 4.56 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
    blocks left by Gus 22 by Gertie 22 of 28
@@ -24,13 +24,13 @@ sprint                 player one moved 12.02 up 0.00  | furthest apart 0.000   
 trample (hold dash)    player one moved 11.33 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 76 76
 jump                   player one moved 0.00 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
 double jump            player one moved 0.00 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
-dash                   player one moved 5.85 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
-long jump              player one moved 19.63 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 81 81
-air dash               player one moved 14.39 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+dash                   player one moved 9.40 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+long jump              player one moved 44.01 up -12.30  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
+air dash               player one moved 40.86 up -13.18  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 93 93
 stomp by a wall        player one moved 0.00 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
-   blocks left by Gus 28 by Gertie 28 of 28
+   blocks left by Gus 25 by Gertie 25 of 28
 charged stomp          player one moved 0.00 up -2.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
-   blocks left by Gus 18 by Gertie 18 of 28
+   blocks left by Gus 17 by Gertie 17 of 28
 ground pound           player one moved 0.00 up -1.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
 bite a wall            player one moved 4.56 up 0.00  | furthest apart 0.000   states differed 0 frames  end gap 0.000  hp 20 20  stamina 100 100
    blocks left by Gus 22 by Gertie 22 of 28
@@ -59,6 +59,6 @@ picked Gus again: Gus + Gertie (bow)  goblin mode false
 hp after the same fall from 30 up:
   player one 20 two 20
 == each player's own switches
-  player one Gus, player one without Double jump: highest jump player one 1.73 player two 4.34  (sets used: own, own)
-  player one Gertie, player one without Double jump: highest jump player one 1.73 player two 4.34  (sets used: own, own)
-  player one Gus, player two without Double jump: highest jump player one 4.34 player two 1.73  (sets used: own, own)
+  player one Gus, player one without Double jump: highest jump player one 4.34 player two 4.34  (sets used: own, own)
+  player one Gertie, player one without Double jump: highest jump player one 4.34 player two 4.34  (sets used: own, own)
+  player one Gus, player two without Double jump: highest jump player one 4.34 player two 4.34  (sets used: own, own)

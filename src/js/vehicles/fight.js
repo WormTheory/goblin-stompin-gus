@@ -45,6 +45,7 @@ function drvHP(D){if(D.netHP)return D.netHP;const o=D.o;   // (D.netHP: a guest 
   if(D.k==='mech')return{hp:o.hp,max:MG.hp};
   if(D.k==='boat')return{hp:o.hp,max:o.max};
   if(D.k==='plane')return{hp:o.hp,max:PLANE_HP};
+  if(D.k==='balloon')return{hp:o.hp,max:BAL.hp};
   return{hp:o.carHP?o.carHP[D.ci]:CAR_HP,max:CAR_HP};
 }
 // the driving display: what you're in and its health along the top; for a tank or a helicopter a crosshair in the middle
@@ -71,7 +72,7 @@ function drvHud(p){
   // (the other seat, if it's free: the weapon button moves you to it. See gunner.js)
   const sw=drvSwapTo(p)?'  ·  '+bl('weapon')+(D.seat==='gun'?' drive':' man the gun'):!armed&&o.gnr&&(D.k==='tank'||D.k==='heli')?'  ·  Your gunner has the guns':'';
   const how=drvHow(p,D,armed);
-  set('w',H.wpn,how+(armed?(LT?'Locked on '+(isMilT(LT)?MIL[LT.kind].name.toLowerCase():isCarT(LT)?'a '+(LT.veh||'car'):'a goblin')+' ('+lk+' let go)':lk+' lock on')+'  ·  '+out+' get out'
+  set('w',H.wpn,how+(D.k==='plane'&&armed?planeHud(o.free)+'  ·  ':'')+(armed?(LT?'Locked on '+(isMilT(LT)?MIL[LT.kind].name.toLowerCase():isCarT(LT)?'a '+(LT.veh||'car'):'a goblin')+' ('+lk+' let go)':lk+' lock on')+'  ·  '+out+' get out'
     :D.k==='car'&&o.veh==='fire'?bl('bite')+' spray water  ·  '+bl('stomp')+' horn  ·  '+out+' get out'
     :D.k==='plane'?planeHud(o.free)+'  ·  '+out+' get out':D.k==='mech'?mechHint(p):out+' get out')+sw);
   const hose=D.k==='car'&&o.veh==='fire';H.xh.hidden=!armed&&!hose&&D.k!=='mech';mechHud(p,H);if(hose){H.xh.classList.remove('cool','lock');H.xh.classList.toggle('water',!!o.hose);}if(armed){H.xh.classList.toggle('cool',!ready);H.xh.classList.toggle('lock',!!LT);}
@@ -107,11 +108,12 @@ function planeHud(F){if(!F)return'Throttle 0%';const thr='Throttle '+Math.round(
   return thr+'  ·  Climb '+(F.vy>=0?'+':'')+Math.round(F.vy)+(planeStalled(F)?'  ·  STALL':'');}
 // the vehicle's own controls, at the top of the column down the left (the only place they're shown: there's no card
 // about them on getting in), each ending in '  ·  ' so the rest follows
-function drvHow(p,D,armed){const A=id=>actMark(p,id),G=armed?D.k==='heli'?A('bite')+' gun  ·  '+A('stomp')+' rockets  ·  ':D.k==='tank'||D.seat==='gun'?A('bite')+' fire  ·  ':'':'';
+function drvHow(p,D,armed){const A=id=>actMark(p,id),G=armed?D.k==='heli'?A('bite')+' gun  ·  '+A('stomp')+' rockets  ·  ':D.k==='plane'?A('bite')+' cannon  ·  '+A('stomp')+' missiles  ·  ':D.k==='tank'||D.seat==='gun'?A('bite')+' fire  ·  ':'':'';
   if(D.seat==='gun')return G;
   if(D.k==='heli')return A('jump')+' climb  ·  '+A('climb')+' drop  ·  '+G;
-  if(D.k==='plane')return p.pad?'Stick up/down throttle  ·  Stick left/right bank  ·  '+A('jump')+' pull up  ·  '+A('climb')+' push down  ·  '
-    :A('fwd')+'/'+A('back')+' nose down/up  ·  '+A('left')+'/'+A('right')+' bank  ·  '+A('jump')+'/'+A('climb')+' throttle up/down  ·  ';
+  if(D.k==='balloon')return A('jump')+' burner (rise)  ·  '+A('climb')+' vent (sink)  ·  Move to drift  ·  ';
+  if(D.k==='plane')return p.pad?'Stick up/down throttle  ·  Stick left/right bank  ·  '+A('jump')+' pull up  ·  '+A('climb')+' push down  ·  '+G
+    :A('fwd')+'/'+A('back')+' nose down/up  ·  '+A('left')+'/'+A('right')+' bank  ·  '+A('jump')+'/'+A('climb')+' throttle up/down  ·  '+G;
   return G;}
 // on his way down a ramp he stays on it, instead of falling a little and landing every few steps
 function stickToRamp(p,g){

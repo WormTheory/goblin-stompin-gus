@@ -136,15 +136,33 @@ function makePlane(i){
   for(const [x,z] of [[0,6],[-1.6,-0.4],[1.6,-0.4]])bx(TRM.dark,0.4,1.0,0.6,x,0.5,z);
   return g;
 }
+// a fighter jet (the debug menu's only, so far): a grey dart of a fuselage with a pointed nose, the canopy, delta
+// wings, two tail fins canted out and the twin engines' glowing nozzles. It flies on the plane's own model, only
+// harder and faster (pl.jet: see drvPlane), and has a cannon and missiles
+function makeJet(){
+  const g=new THREE.Group(),bx=(m,sx,sy,sz,x,y,z)=>{const o=new THREE.Mesh(LM_BOX,m);o.scale.set(sx,sy,sz);o.position.set(x,y,z);g.add(o);return o;},
+    gry=JETM.grey,dk=JETM.dark;
+  bx(gry,1.8,1.5,12,0,2.1,-1.0);bx(gry,1.3,1.1,3.0,0,2.15,6.4);bx(gry,0.8,0.7,1.8,0,2.2,8.6);bx(dk,0.3,0.3,0.8,0,2.2,9.7);
+  bx(JETM.glass,0.9,0.6,2.6,0,3.0,4.4);bx(gry,0.95,0.3,2.0,0,2.85,2.4);
+  for(const s2 of[-1,1]){bx(gry,0.9,1.0,3.2,s2*1.25,2.0,1.8);   // (the intakes)
+    for(let k=0;k<4;k++)bx(gry,1.3,0.28,4.6-k*1.05,s2*(1.4+k*1.05),1.75,-1.6-k*0.55);   // (a delta wing, stepped out to its tip)
+    {const f=bx(gry,0.22,2.1,2.0,s2*0.75,3.6,-5.6);f.rotation.z=-s2*0.3;}
+    bx(gry,1.6,0.2,1.6,s2*1.55,2.05,-6.4);bx(dk,0.8,0.8,0.6,s2*0.45,2.0,-7.3);bx(JETM.glow,0.6,0.6,0.08,s2*0.45,2.0,-7.62);}
+  for(const o of g.children)o.position.y-=0.5;   // (it sits low on short legs)
+  for(const [x,z] of [[0,5.6],[-1.3,-1.6],[1.3,-1.6]])bx(dk,0.3,0.85,0.4,x,0.42,z);
+  return g;
+}
+const JETM={grey:new THREE.MeshLambertMaterial({color:0x7d8794}),dark:new THREE.MeshLambertMaterial({color:0x2e3238}),glass:new THREE.MeshLambertMaterial({color:0x2a3a48,emissive:0x0a1420}),glow:new THREE.MeshBasicMaterial({color:0xff9a3a})};
 // a plane's body, for standing on and hitting: the fuselage and the wings, each a box like a train car's
 const PLANE_HP=300;
 function planeBoxes(pl,v){
   const g=pl.g,h=g.rotation.y,tx=Math.sin(h),tz=Math.cos(h),y=g.position.y;if(!g.visible||pl.fall)return;
-  if(!pl.pr)pl.pr=[0,1].map(i=>({isTrain:true,isPlane:true,alive:true,pos:new V3(),kv:new V3(),vy:0,spinP:0,spinR:0,speed:0,hurt:0,hx:i?10.5:1.25,hz:i?1.7:9.9,hy:i?1.9:3.65,heading:0,top:0,veh:'plane',T:pl,i}));
+  const wx=pl.jet?5.6:10.5;   // (a fighter's wings are half an airliner's)
+  if(!pl.pr)pl.pr=[0,1].map(i=>({isTrain:true,isPlane:true,alive:true,pos:new V3(),kv:new V3(),vy:0,spinP:0,spinR:0,speed:0,hurt:0,hx:i?wx:1.25,hz:i?1.7:9.9,hy:i?1.9:3.65,heading:0,top:0,veh:'plane',T:pl,i}));
   for(const pr of pl.pr){pr.alive=!pl.dead;pr.pos.set(g.position.x,y,g.position.z);pr.heading=h;pr.top=y+pr.hy;}
   TRAIN_BOXES.push({x:g.position.x,z:g.position.z,tx,tz,y0:y,top:pl.pr[0].top,v,hx:1.25,hz:9.9,proxy:pl.pr[0]});
   // (the wings are overhead to anyone on the ground: only their top counts)
-  TRAIN_BOXES.push({x:g.position.x+tx*.6,z:g.position.z+tz*.6,tx,tz,y0:pl.pr[1].top+1,top:pl.pr[1].top,v:0,hx:10.5,hz:1.7,proxy:pl.pr[1]});
+  TRAIN_BOXES.push({x:g.position.x+tx*.6,z:g.position.z+tz*.6,tx,tz,y0:pl.pr[1].top+1,top:pl.pr[1].top,v:0,hx:wx,hz:1.7,proxy:pl.pr[1]});
 }
 // hitting a plane: it takes a lot. Wrecked on the ground it burns where it stands; wrecked in the air it comes down, hard
 // (what a moving plane runs into, its body or the end of a wing: struck, thrown aside and up, hurt)

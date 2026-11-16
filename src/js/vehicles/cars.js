@@ -56,15 +56,21 @@ const VEH={bus:{hx:1.25,hz:5.2,hy:3.3,head:[0.5,2.7,4.3],roof:l=>3.3},
   // (the militia's: a pickup with a machine gun on a post in its bed and a gunner stood at it, and a four-wheeler with a
   // rider and a rifleman sat behind him. See crews.js. Never in the traffic: VEH_MIX leaves them out)
   technical:{hx:1.0,hz:2.6,hy:2.7,head:[0.35,1.9,0.5],roof:l=>l>-0.4&&l<1.4?1.95:1.0},
-  quad:{hx:0.75,hz:1.15,hy:1.6,head:[0,1.32,0.05],roof:l=>l>-0.9&&l<0.4?1.0:0.85}};
+  quad:{hx:0.75,hz:1.15,hy:1.6,head:[0,1.32,0.05],roof:l=>l>-0.9&&l<0.4?1.0:0.85},
+  // (a supercar: low and wide, now and then in the traffic, and very fast. See drvCar)
+  super:{hx:1.0,hz:2.2,hy:1.2,head:[0.35,0.95,-0.35],roof:l=>l>-1.1&&l<0.5?1.2:0.8},
+  // (a forklift: out in a factory's yard by the loading docks, never in the traffic; slow)
+  forklift:{hx:0.7,hz:1.6,hy:2.6,head:[0,1.55,-0.35],roof:l=>l<0.6?2.55:0.4},
+  // (a hovercraft: the debug menu's only, never in the traffic; it rides over water as over the road. See carPhysics)
+  hover:{hx:1.3,hz:2.6,hy:2.8,head:[0,1.55,0.5],roof:l=>l>-0.4&&l<1.6?1.75:0.9}};
 // which vehicles each kind of traffic is made of
-const VEH_MIX={street:[['car',0.58],['bike',0.08],['van',0.12],['pickup',0.12],['truck',0.10]],hw:[['car',0.5],['bike',0.05],['van',0.1],['pickup',0.1],['truck',0.12],['semi',0.13]],park:[['car',0.67],['bike',0.08],['van',0.12],['pickup',0.13]]};
+const VEH_MIX={street:[['car',0.57],['super',0.01],['bike',0.08],['van',0.12],['pickup',0.12],['truck',0.10]],hw:[['car',0.49],['super',0.01],['bike',0.05],['van',0.1],['pickup',0.1],['truck',0.12],['semi',0.13]],park:[['car',0.67],['bike',0.08],['van',0.12],['pickup',0.13]]};
 const pickVeh=mix=>{let u=Math.random();for(const [t,p] of VEH_MIX[mix]){if(u<p)return t;u-=p;}return'car';};
 // build (once) and show a vehicle body on a car object; its size, wheel footprint and roof go with it
 function setVeh(c,t){
   if(!c.vehG[t])c.vehG[t]=buildVeh(c,t);
   for(const k in c.vehG)c.vehG[k].g.visible=k===t;
-  const V=VEH[t],G2=c.vehG[t];c.veh=t;c.wheels=G2.wheels;c.front=G2.front;
+  const V=VEH[t],G2=c.vehG[t];c.veh=t;c.wheels=G2.wheels;c.front=G2.front;c.fan=G2.fan||null;c.hvel=null;
   c.hx=V.hx*ES;c.hz=V.hz*ES;c.hy=V.hy*ES;
   c.pts=[[0,0],[V.hx*0.9,V.hz-0.2],[-V.hx*0.9,V.hz-0.2],[V.hx*0.9,-V.hz+0.2],[-V.hx*0.9,-V.hz+0.2]].map(([a,b])=>[a*ES,b*ES]);
   if(t==='semi')c.pts.push([0,(V.hz/2)*ES],[0,(-V.hz/2)*ES]);
@@ -214,6 +220,35 @@ function buildVeh(c,t){
     lights(0.85,1.05,6.55,-6.62);
     for(const [x,z,st] of [[-1,5.6,1],[1,5.6,1],[-1,3.0,0],[1,3.0,0],[-1,2.0,0],[1,2.0,0],[-1,-4.6,0],[1,-4.6,0],[-1,-5.7,0],[1,-5.7,0]])wheel(x*1.05,z,st,true);
   }
+  else if(t==='super'){
+    // a supercar: a low wedge, the cabin set well back, intakes down the sides and a wing on the back
+    b(2.0,0.5,4.4,c.paint,0,0.55,0);b(1.9,0.22,1.1,c.paint,0,0.7,1.6);b(1.6,0.42,1.9,c.paint,0,1.0,-0.35);
+    {const w=b(1.5,0.08,0.75,glass,0,1.0,0.85);w.rotation.x=0.45;}b(1.3,0.06,0.9,glass,0,1.22,-0.3);for(const s2 of[-1,1])b(0.06,0.3,1.3,glass,s2*0.81,1.02,-0.35);
+    for(const s2 of[-1,1]){b(0.06,0.24,0.9,dark,s2*1.01,0.62,-0.75);b(0.1,0.32,0.1,dark,s2*0.6,0.96,-2.0);}b(2.0,0.08,0.45,dark,0,1.16,-2.05);
+    b(2.04,0.14,0.12,dark,0,0.36,2.2);b(2.04,0.18,0.12,dark,0,0.42,-2.2);lights(0.7,0.66,2.21,-2.21);
+    for(const [x,z,st] of [[-1,1.45,1],[1,1.45,1],[-1,-1.4,0],[1,-1.4,0]])wheel(x*0.9,z,st);
+  } else if(t==='forklift'){
+    // a forklift: a yellow body with a counterweight at the back, the seat under a cage of a roof, the mast up the
+    // front with its forks; it steers with its back wheels
+    const yel=c.forkM||(c.forkM=snowCar(new THREE.MeshLambertMaterial({color:0xf0b414}),c));
+    b(1.3,0.75,1.8,yel,0,0.75,-0.3);b(1.32,0.85,0.5,dark,0,0.8,-1.3);b(0.6,0.14,0.55,dark,0,1.2,-0.45);b(0.5,0.5,0.1,dark,0,1.5,-0.72);
+    for(const [x,z] of [[-1,0.4],[1,0.4],[-1,-1.0],[1,-1.0]])b(0.08,1.35,0.08,dark,x*0.6,1.85,z);b(1.3,0.08,1.55,dark,0,2.52,-0.3);
+    b(0.08,0.08,0.4,dark,0,1.4,0.15);b(0.4,0.06,0.06,dark,0,1.6,0.3);   // (the steering wheel)
+    for(const s2 of[-1,1])b(0.12,2.5,0.14,dark,s2*0.45,1.3,0.72);b(1.0,0.12,0.14,dark,0,2.5,0.72);b(1.0,0.5,0.08,dark,0,0.5,0.85);
+    for(const s2 of[-1,1])b(0.14,0.07,1.15,chrome,s2*0.3,0.22,1.45);
+    b(0.2,0.14,0.06,smat(CARC.head),0.5,1.05,0.62);b(0.2,0.14,0.06,smat(CARC.head),-0.5,1.05,0.62);b(0.2,0.12,0.06,smat(CARC.tail),0,1.1,-1.56);
+    for(const [x,z,st] of [[-1,0.3,0],[1,0.3,0],[-1,-1.05,1],[1,-1.05,1]])wheel(x*0.55,z,st);
+  } else if(t==='hover'){
+    // a hovercraft: a rubber skirt all round, a deck and a cabin, a big fan in a duct at the back (spun by updateCars)
+    // and a pair of rudders behind it
+    const rub=smat(0x23252a);b(2.6,0.6,5.2,rub,0,0.32,0);b(2.4,0.24,5.0,c.paint,0,0.74,0);b(1.8,0.85,2.1,c.paint,0,1.28,0.75);
+    b(1.7,0.45,0.08,glass,0,1.42,1.82);for(const s2 of[-1,1])b(0.06,0.4,1.6,glass,s2*0.91,1.42,0.75);b(1.9,0.1,2.2,smat(0xf2f2ee),0,1.75,0.75);
+    b(2.3,0.22,0.5,c.paint,0,2.8,-1.95);for(const s2 of[-1,1])b(0.22,1.95,0.5,c.paint,s2*1.04,1.82,-1.95);
+    const fan=new THREE.Group();fan.position.set(0,1.82,-1.95);g.add(fan);b(1.7,0.16,0.06,dark,0,0,0,fan);b(0.16,1.7,0.06,dark,0,0,0,fan);b(0.3,0.3,0.12,chrome,0,0,0,fan);
+    for(const s2 of[-1,1])b(0.06,1.3,0.55,dark,s2*0.45,1.8,-2.5);
+    b(0.3,0.16,0.06,smat(CARC.head),0.6,1.05,2.36);b(0.3,0.16,0.06,smat(CARC.head),-0.6,1.05,2.36);
+    return{g,wheels,front,rider,gun,gunner,fan};
+  }
   return{g,wheels,front,rider,gun,gunner};
 }
 for(let i=0;i<26;i++)cars.push(makeCar(i));
@@ -325,7 +360,10 @@ function parkSpots(px,pz){
     out.push({x:X0+PL0+4.5,z:Z0+PL0+6,y:G+1,h:0.6,key:px+','+pz+':show0',p:0.95});out.push({x:X0+PL0+10,z:Z0+PL0+6.5,y:G+1,h:-0.5,key:px+','+pz+':show1',p:0.95});}
   if(P.type==='trailers')for(const b of P.b){const sx=b.door===1?b.x1+2.2:b.x0-2.2;out.push({x:X0+sx,z:Z0+b.z0+5,y:G+1,h:0,key:px+','+pz+':tr'+b.x0+b.z0,p:0.55,veh:'pickup'});}
   if(P.buses){const B0=P.b[0];for(let k=0;k*13+12<B0.x1-B0.x0;k++)out.push({x:X0+B0.x0+6.5+k*13,z:Z0+PL0+2.4,y:G+1,h:Math.PI/2,key:px+','+pz+':bus'+k,p:0.8,veh:'bus'});}
-  if(P.lorries){const L=P.lorries;for(const c of L.cs)out.push(L.wide?{x:X0+L.a,z:Z0+c+0.5,y:G+1,h:Math.PI/2,key:px+','+pz+':lor'+c,p:0.8,veh:r2(c)}:{x:X0+c+0.5,z:Z0+L.a,y:G+1,h:0,key:px+','+pz+':lor'+c,p:0.8,veh:r2(c)});}
+  if(P.lorries){const L=P.lorries;
+    // (forklifts in the factory's yard between the lorries, by the loading docks, facing the hall)
+    const fs=[...L.cs.map(c=>c-4),L.cs[L.cs.length-1]+4];for(const c of fs)out.push(L.wide?{x:X0+L.a-4.1,z:Z0+c+0.5,y:G+1,h:-Math.PI/2,key:px+','+pz+':fk'+c,p:0.75,veh:'forklift'}:{x:X0+c+0.5,z:Z0+L.a-4.1,y:G+1,h:Math.PI,key:px+','+pz+':fk'+c,p:0.75,veh:'forklift'});
+    for(const c of L.cs)out.push(L.wide?{x:X0+L.a,z:Z0+c+0.5,y:G+1,h:Math.PI/2,key:px+','+pz+':lor'+c,p:0.8,veh:r2(c)}:{x:X0+c+0.5,z:Z0+L.a,y:G+1,h:0,key:px+','+pz+':lor'+c,p:0.8,veh:r2(c)});}
   if(P.lots)P.lots.forEach((L,li)=>{if(L.police)return;const skip=li===0&&P.super&&P.super.kind==='hospital'?ambBayIdx(P):null;lotBays(L).forEach((o,k)=>{if(skip&&skip.includes(k))return;out.push({x:X0+o.x,z:Z0+o.z,y:G+1,h:o.h,key:px+','+pz+':L'+li+':'+k,p:0.4});});});
   return out;
 }
