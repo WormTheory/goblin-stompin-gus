@@ -8,7 +8,7 @@ hdr=hdr.slice(0,n).join('\n');
 // (site.js starts in the empty Testing Environment; the city half of this runs in a real city, and the other half is
 // run as a second process)
 if(!TENVMODE)hdr=hdr.replace(/const LS=\{\};global\.localStorage=.*\n/,'global.localStorage={getItem:()=>null,setItem(){},removeItem(){}};\n');
-hdr=hdr.replace(/window\.__t=\{/,'window.__t={setGob,setVeh,addFire,fires,planeStalled,VEH_MIX,keys,mHeld,TRAINS,railPt,BOATS,boatVenue,oceanDepth,PLANE_LIFT,drvFind,setRaw,solidAt,vehBlast,get nEdits(){return Object.keys(edits).length},');
+hdr=hdr.replace(/window\.__t=\{/,'window.__t={setTenv(v){const w=TENV;TENV=v;return w;},setGob,setVeh,addFire,fires,planeStalled,VEH_MIX,keys,mHeld,TRAINS,railPt,BOATS,boatVenue,oceanDepth,PLANE_LIFT,drvFind,setRaw,solidAt,vehBlast,get nEdits(){return Object.keys(edits).length},');
 eval(hdr+`
 eval(src);const T=window.__t;let now=1000;
 const quiet=()=>{for(const g of T.goblins)if(g.state==='chase'&&!g.jackHow){g.state='wait';g.t=-1e9;g.root.visible=false;}};
@@ -127,6 +127,15 @@ console.log('  turned round, W 3 s: speed',f1(TQ.v*TQ.dir),'(the other way now)'
 
 }else{
 // ---- the military base (Testing Environment)
+// ---- a rowboat pulled up on the sand (pushed off into the water as you get in) and a subway train ----
+{const home={x:P.pos.x,y:P.pos.y,z:P.pos.z},was=T.setTenv(null);const find=f=>{for(let gx=-6;gx<=6;gx++)for(let gz=-6;gz<=6;gz++){put(gx*700+0.5,G0+40,gz*700+0.5);run(0.4);for(const V of T.venues.values())if(f(V))return V;}return null;};
+ const V=find(V=>V.kind==='boat'&&V.ground);if(!V)console.log('no beached boat');else{const g=V.boat;put(V.x+3,G0+30,V.z);run(1.5);put(g.position.x+2.5,g.position.y+1.5,g.position.z);run(0.3);
+  const D=T.drvFind(P),x0=g.position.x,z0=g.position.z;tap();run(0.5);
+  console.log('beached '+V.bo.K.name.toLowerCase()+': F finds',D&&D.k,' in',st(),' pushed off',f1(Math.hypot(g.position.x-x0,g.position.z-z0)),'into the water',!V.ground);
+  const p0={x:g.position.x,z:g.position.z};hold(['KeyW'],3);console.log('  W 3 s: moved',f1(Math.hypot(g.position.x-p0.x,g.position.z-p0.z)));tap();run(0.5);console.log('  F again:',st());}
+ const S=find(V=>V.kind==='sub'&&V.cars&&V.cars[1]);if(!S)console.log('no subway');else{let n=0;while(n<600&&!(S.wait>1)){run(0.1);n++;}const c=S.cars[1].position,h=S.cars[1].rotation.y;
+  put(c.x+Math.cos(h)*2,c.y-0.2,c.z-Math.sin(h)*2);run(0.2);const D=T.drvFind(P);tap();run(0.3);console.log('subway train at a station: F finds',D&&D.k,' in',st());
+  const s0=S.s;P.cam.yaw=S.cars[0].rotation.y+Math.PI;hold(['KeyW'],3);console.log('  W 3 s: went',f1(S.s-s0),' speed',f1(S.v));tap();run(0.5);console.log('  F again:',st(),' it goes back to its rounds',!S.T.drv);}T.setTenv(was);put(home.x,home.y,home.z);run(2);}
 const spawnK=k=>{T.tenvSpawn(k);let n=0;while(T.TS.search&&n<5000){T.tenvTick();n++;}return T.TENV.boxes[T.TENV.boxes.length-1];};
 {T.DT.host=1;   // (enemy hostility at Peaceful: walking into the base would set it off now that a goblin gets no special treatment, and this is about driving, not the alarm)
 const B=spawnK('base');run(3);const V=[...T.venues.values()].find(v=>v.kind==='army');

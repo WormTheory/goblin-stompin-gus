@@ -31,6 +31,8 @@
 - Mobile Gears aren't kept when you leave the Testing Environment.
 - While you're piloting, the controls line for on foot is hidden.
 - Getting into any vehicle or gun seat no longer pops up a card of its controls on the right: they're all in the list down the left, including a helicopter's climb and drop, flying a plane, and the fire buttons.
+- The Mobile Gear is now solid against boats (it used to walk straight through them) and every other vehicle, and can stand on any of them: a boat, a train, a plane, a tank, another Mobile Gear. Stood on something that moves, it's carried along.
+- Every vehicle can now be driven. Subway trains: climb in at a station and drive one round its loop, forwards or back. A rowboat pulled up on the beach, or a ship in a dry dock, is pushed off into the nearest open water as you climb in.
 
 ### PvP
 

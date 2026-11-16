@@ -6,7 +6,7 @@ const fs=require('fs');
 let hdr=fs.readFileSync('site.js','utf8').split('\n');
 const n=hdr.findIndex(l=>l.startsWith('eval(src);'));
 hdr=hdr.slice(0,n).join('\n');
-hdr=hdr.replace(/window\.__t=\{/,'window.__t={setGob,mechHint,angDiff,milHit,mechHit,IMP,tenvSpawnOne,setTenv(v){const w=TENV;TENV=v;return w;},tenvVehKinds,dbgItems,dbgMenuToggle,ddOpts,ddChoose,get DT(){return DT},get hintTxt(){return P1.ui.hint.hidden?"(hidden)":P1.ui.hint._s},mgLead,mgTarget,MGW,get DRV_WPN(){return DRV_WPN},get:(x,y,z)=>get(x,y,z),keys,mHeld,setRaw,solidAt,tenvVeh,MG,BINDS,ACTS,setBind,drvFind,mgFits,get nEdits(){return Object.keys(edits).length},');
+hdr=hdr.replace(/window\.__t=\{/,'window.__t={setGob,mechHint,boatVenue,angDiff,milHit,mechHit,IMP,tenvSpawnOne,setTenv(v){const w=TENV;TENV=v;return w;},tenvVehKinds,dbgItems,dbgMenuToggle,ddOpts,ddChoose,get DT(){return DT},get hintTxt(){return P1.ui.hint.hidden?"(hidden)":P1.ui.hint._s},mgLead,mgTarget,MGW,get DRV_WPN(){return DRV_WPN},get:(x,y,z)=>get(x,y,z),keys,mHeld,setRaw,solidAt,tenvVeh,MG,BINDS,ACTS,setBind,drvFind,mgFits,get nEdits(){return Object.keys(edits).length},');
 eval(hdr+`
 eval(src);const T=window.__t;let now=1000;
 const quiet=()=>{for(const g of T.goblins)if(g.state==='chase'&&!g.keep){g.state='wait';g.t=-1e9;g.root.visible=false;}};
@@ -244,6 +244,17 @@ hold([],1);
  M.hp=T.MG.hp;const k0=M.kits;tap('KeyR');run(0.2);const atFull=M.kits===k0,hintKits=T.mechHint(P).includes('repair (3 left)');M.hp=200;tap('KeyR');run(1.2);const hp1=M.hp;for(let k=0;k<3;k++){M.hp=100;tap('KeyR');run(1.2);}
  console.log('repair kits:',k0,' (the controls say',hintKits?'3 left)':'?)',' at full health a press does nothing',atFull,' from 200:',f1(hp1),' after using them all',M.kits,'left, hp',f1(M.hp),'(the last press did nothing)');
  hold(['KeyF'],0.8);T.tenvClear();run(0.3);}
+// ---- other vehicles are solid to it and can be stood on: a boat (made after it each frame), walked into, then landed on
+// and carried along as it moves
+{M=fresh();T.setGob(true);board(M);const del=T.venues.delete.bind(T.venues);T.venues.delete=k=>String(k).startsWith('mgtest')?false:del(k);
+ const BX=M.x+0.5,BZ=M.z+22;T.boatVenue('mgtest','launch',{x:BX,z:BZ,yaw:Math.PI/2,lane:null},new Set());const BV=T.venues.get('mgtest'),bg=BV.boat;run(0.5);
+ const top=Math.max(...T.TRAIN_BOXES.filter(B=>B.proxy.isBoat&&Math.hypot(B.x-BX,B.z-BZ)<12).map(B=>B.top));
+ let least=1e9;T.keys.add('KeyW');for(let i=0;i<240;i++){run(1/60);least=Math.min(least,Math.abs(M.z-BZ));}T.keys.delete('KeyW');run(0.3);
+ console.log('walked at a boat 22 ahead: stopped',f1(least),'from its middle (it is',f1(BV.bo.K.W/2+T.MG.r),'to touching)  inside it',least<BV.bo.K.W/2+T.MG.r-0.3);
+ M.x=BX;M.z=BZ;M.y=top+6;M.vy=0;M.grounded=false;run(1.5);const on=M.y;
+ const x0=M.x;for(let i=0;i<60;i++){BV.x+=5/60;bg.position.x+=5/60;run(1/60);}run(0.2);
+ console.log('  dropped on its deck (top',f1(top)+'): stands at',f1(on),' the boat moved 5: carried',f1(M.x-x0));
+ hold(['KeyF'],0.8);T.venues.delete=del;del('mgtest');T.tenvClear();run(0.3);}
 // ---- the on-foot controls line is hidden while piloting; the debug menu spawns vehicles
 {M=fresh();T.setGob(true);run(0.1);run(0.1);
  const kinds=T.tenvVehKinds();console.log('debug menu vehicles:',T.ddOpts('vehSel').length,'kinds, rows',T.dbgItems().filter(it=>it.sec==='Vehicles').map(it=>it.label).join(', '),' Infinite ammo row',T.dbgItems().some(it=>it.k==='infAmmo'));

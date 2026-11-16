@@ -2,7 +2,7 @@
 // again, out you get. Cars and trucks, the bases' tanks and helicopters, boats, trains and the airport's planes. Each
 // one's own update reads its driver's controls in place of its usual round (p.drv says what you're in, and the
 // vehicle's .drv who's driving it); drvSeat keeps you in your seat once everything's moved ----
-const DRV_NAME={tank:'tank',heli:'helicopter',train:'train',plane:'plane'};
+const DRV_NAME={tank:'tank',heli:'helicopter',train:'train',subway:'subway train',plane:'plane'};
 function drvName(D){if(D.netN)return D.netN;const o=D.o;   // (D.netN: a guest online, told by the host)
 
   if(D.k==='car')return o.police?'police car':{car:'car',bike:'motorcycle',van:'van',pickup:'pickup',truck:'truck',semi:'lorry',bus:'bus',fire:'fire engine',amb:'ambulance',news:'news van',rv:'motorhome',technical:'technical',quad:'four-wheeler'}[o.veh]||'car';
@@ -25,9 +25,10 @@ function drvFind(p){
     let D=null;
     if(T.isMil){if(!T.dead)D=T.drv?{k:T.kind,o:T,V:T.V,seat:'gun'}:{k:T.kind,o:T,V:T.V};}
     else if(T.isMech){if(!T.dead)D={k:'mech',o:T,V:T.V};}   // (a Mobile Gear: see mech.js)
-    else if(pr.isBoat){const V=venues.get(T.key);if(V&&V.bo===T&&!T.dead&&!V.dry&&!V.ground)D={k:'boat',o:T,V};}
+    else if(pr.isBoat){const V=venues.get(T.key);if(V&&V.bo===T&&!T.dead)D={k:'boat',o:T,V};}   // (one pulled up on the sand or in a dry dock too: see drvLaunch)
     else if(T.isPlane){if(!T.dead&&!T.fall)for(const V of venues.values())if(V.kind==='airport'&&V.pl&&V.pl.includes(T)){D={k:'plane',o:T,V};break;}}
     else if(pr.veh==='train'&&T.C&&!T.dead)D={k:'train',o:T,ci:pr.i};
+    else if(pr.veh==='train'&&T.sub&&!T.dead){for(const V of venues.values())if(V.kind==='sub'&&V.T===T){D={k:'subway',o:T,V,ci:pr.i};break;}}   // (a subway train, under the city: see drvSub)
     if(D)take(px-B.x,pz-B.z,B.tx,B.tz,hx,hz,Math.min(B.y0,B.top-0.5),B.top,D);}
   return best;
 }
@@ -37,6 +38,7 @@ function drvPose(D){if(D.netS)return D.netS;const o=D.o;   // (D.netS: a guest o
   if(D.k==='car')return{x:o.pos.x,y:o.pos.y,z:o.pos.z,h:o.heading,hx:o.hx,hz:o.hz,hy:o.hy||1.4,v:o.speed};
   if(D.k==='mech')return{x:o.x,y:o.y,z:o.z,h:o.h,hx:MG.r,hz:MG.r,hy:MG.hy,v:Math.hypot(o.vx,o.vz)};
   if(D.k==='tank'||D.k==='heli'){const I=MIL[D.k];return{x:o.x,y:o.y,z:o.z,h:o.h,hx:I.hx,hz:I.hz,hy:I.hy,v:D.k==='tank'?o.sv||0:Math.hypot(o.hv?o.hv.x:0,o.hv?o.hv.z:0)};}
+  if(D.k==='subway'){const g=D.V.cars[D.ci];return{x:g.position.x,y:g.position.y,z:g.position.z,h:g.rotation.y,hx:TRAIN_HX,hz:TRAIN_HZ,hy:TRAIN_H,v:D.V.v};}
   if(D.k==='boat'){const g=o.g;return{x:g.position.x,y:g.position.y,z:g.position.z,h:g.rotation.y,hx:o.K.W/2,hz:o.L/2,hy:o.K.fb+1.5,v:o.sp||0};}
   if(D.k==='plane'){const g=o.g;return{x:g.position.x,y:g.position.y,z:g.position.z,h:g.rotation.y,hx:1.25,hz:9.9,hy:3.65,v:o.free?o.free.v:0};}
   // a train: the car you got into (laid along the track as updateRailVenue lays it)
@@ -56,16 +58,18 @@ function drvEnter(p,D){
 function drvTake(p,D){const o=D.o;o.drv=p;
   if(D.k==='car'){o.hunter=false;o.path=null;o.rt=null;o.hw=null;o.parked=false;o.left=false;o.reverseT=0;o.makeWay=0;o.leaving=false;o.yieldSv=false;o.hazard=false;if(o.hazG)o.hazG.visible=false;}
   else if(D.k==='tank'||D.k==='heli'){o.state='drive';o.sv=0;o.hv={x:0,z:0};o.vy=0;o.cd=0;o.detour=0;wpnInit(o,D.k);o.rkHeld=true;}
-  else if(D.k==='boat'){const g=o.g;D.V.lane=null;D.V.x=g.position.x;D.V.z=g.position.z;D.V.yaw=g.rotation.y;o.sp=0;}
+  else if(D.k==='boat'){drvLaunch(D);const g=o.g;D.V.lane=null;D.V.x=g.position.x;D.V.z=g.position.z;D.V.yaw=g.rotation.y;o.sp=0;}
   else if(D.k==='plane'){if(!o.free)o.free={v:o.v||0,vy:0};o.g.visible=true;}
   else if(D.k==='train'){o.wait=0;}
+  else if(D.k==='subway'){D.V.wait=0;}
   else if(D.k==='mech'){o.outArm=false;o.outT=0;}   // (the use button that got you in has to be let go before holding it gets you out)
 }
 // letting go of the controls: what the vehicle does with nobody driving it
 function drvLetGo(p,D){const o=D.o;if(o.drv===p)o.drv=null;
   if(D.k==='car'){o.hose=null;o.left=true;}   // (left where it stopped: see updateCars)
   else if(D.k==='tank'||D.k==='heli'){if(!o.dead)o.state='idle';o.v=0;o.sv=0;}
-  else if(D.k==='train'){if(o.v<0){o.v=0;o.wait=4;}else o.wait=0;}   // (going its own way, it carries on to the next station)   // (a plane's left as it is: it carries on and comes down by itself)
+  else if(D.k==='train'){if(o.v<0){o.v=0;o.wait=4;}else o.wait=0;}
+  else if(D.k==='subway'){if(D.V.v<0)D.V.v=0;D.V.wait=0;}   // (it goes back to its rounds)   // (going its own way, it carries on to the next station)   // (a plane's left as it is: it carries on and comes down by itself)
 }
 // out by the side (whichever has room), else the back or the front, else on the roof
 function drvExit(p,thrown){
@@ -157,7 +161,7 @@ function drvCamera(p){
   const D=p.drv,S=drvPose(D);
   if(p.drvYaw!==undefined&&Math.abs(angDiff(p.drvYaw,p.cam.yaw))>1e-5)p.drvLook=camClock;
   // (not a helicopter, which faces where you look anyway, nor a train, where the way you look is the way it goes)
-  if(D.k!=='heli'&&D.k!=='train'&&D.seat!=='gun'&&camClock-(p.drvLook??-9)>1.2&&Math.abs(S.v)>1.5)p.cam.yaw+=angDiff(p.cam.yaw,S.h+Math.PI)*0.035;
+  if(D.k!=='heli'&&D.k!=='train'&&D.k!=='subway'&&D.seat!=='gun'&&camClock-(p.drvLook??-9)>1.2&&Math.abs(S.v)>1.5)p.cam.yaw+=angDiff(p.cam.yaw,S.h+Math.PI)*0.035;
   p.drvYaw=p.cam.yaw;
   const cp=Math.cos(p.cam.pitch),fx=-Math.sin(p.cam.yaw)*cp,fy=Math.sin(p.cam.pitch),fz=-Math.cos(p.cam.yaw)*cp;
   // (a tank or a helicopter: up higher and further back, so you see over it to what you're aiming at)
@@ -325,13 +329,28 @@ function drvBoat(V,dt){
   bo.hornT=(bo.hornT||0)-dt;if(i.bitePress&&bo.hornT<=0){horn(0.1);bo.hornT=0.5;}
   return Math.abs(bo.sp);
 }
+// a boat pulled up on the sand, or in a dry dock, is pushed off into the nearest open water as you get in (big enough
+// for it, nothing in the way), so it can be driven; with none near, it stays where it is
+function drvLaunch(D){const V=D.V,bo=D.o,g=V.boat;if(!V.ground&&!V.dry)return;
+  const K=bo.K,h=g.rotation.y,tx=Math.sin(h),tz=Math.cos(h),w=K.W/2+0.5,l=bo.L/2+0.5,x0=g.position.x,z0=g.position.z;
+  const wet=(x,z)=>get(Math.floor(x),G,Math.floor(z))===WATER&&!solidAt(x,G+1,z),fits=(x,z)=>{for(const a of [-l,0,l])for(const b of [-w,0,w])if(!wet(x+tx*a+tz*b,z+tz*a-tx*b))return false;return true;};
+  for(let r=2;r<=40;r+=2)for(let k=0;k<16;k++){const x=x0+Math.cos(k/16*Math.PI*2)*r,z=z0+Math.sin(k/16*Math.PI*2)*r;
+    if(!fits(x,z)||vehIn(x,z,h,w,l,G,G+K.fb+1,bo))continue;
+    g.position.x=V.x=x;g.position.z=V.z=z;V.y0=G+.85;V.ground=false;V.dry=false;g.visible=true;puff(x,G+1,z,12,0xd8ecff,1.4);return;}}
+// driving a subway train round its loop: forward or back the way you're looking along it, as a train on a line
+function drvSub(V,dt){const T=V.T,p=T.drv,i=p.in,M=V.M,N=M.path.length,k=Math.floor(V.s),a=M.path[k%N],b=M.path[(k+1)%N],dx=b[0]-a[0],dz=b[1]-a[1],m=Math.hypot(dx,dz)||1;
+  const look=-Math.sin(p.cam.yaw)*dx/m-Math.cos(p.cam.yaw)*dz/m>=0?1:-1,thr=-i.z;let v=V.v;
+  if(Math.abs(thr)>0.1){const want=thr*look;v+=want*(v*want<0?18:5)*Math.abs(thr)*dt;}else v*=Math.exp(-dt*0.15);
+  V.v=Math.max(-25,Math.min(25,v));V.s=mod(V.s+V.v*dt,N);V.wait=0;
+  T.hornT=(T.hornT||0)-dt;if(i.bitePress&&T.hornT<=0){T.hornT=0.6;sfx('Train horn',()=>{tone('sawtooth',311,300,0.6,0.07);tone('sawtooth',370,360,0.6,0.06);});}
+}
 // is there another vehicle in a box at x,z (facing h, half-width hx, half-length hz, from y0 up to y1)? A car, a tank or
 // helicopter, or a piece of a train, boat, plane or ride; not self's own
 function vehIn(x,z,h,hx,hz,y0,y1,self){const R=Math.hypot(hx,hz);   // (returns what it met)
   for(const c of cars){if(!c.alive||c===self||Math.hypot(c.pos.x-x,c.pos.z-z)>R+c.hz||c.pos.y>=y1||c.pos.y+(c.hy||1.4)<=y0)continue;if(boxesTouch(x,z,h,hx,hz,c.pos.x,c.pos.z,c.heading,c.hx,c.hz))return c;}
   for(const V of venues.values()){if(V.kind!=='army')continue;for(const o of V.mil){if(o===self||o.dead||Math.hypot(o.x-x,o.z-z)>R+7)continue;const ox=Math.sin(o.h),oz=Math.cos(o.h);
     for(const b of MIL_PARTS[o.kind]){if(o.y+b.y0>=y1||o.y+b.y1<=y0)continue;if(boxesTouch(x,z,h,hx,hz,o.x+ox*b.c,o.z+oz*b.c,o.h,b.hx,b.hz))return o;}}}
-  for(const B of TRAIN_BOXES){const pr=B.proxy;if(B.soft||!pr.alive||(pr.T||pr)===self||pr.T&&pr.T.isMil||B.y0>=y1||B.top<=y0||B.y0>=B.top)continue;const bx=B.hx||TRAIN_HX,bz=B.hz||TRAIN_HZ;
+  for(const L of [TRAIN_BOXES,PREV_BOXES])for(const B of L){const pr=B.proxy;if(B.soft||!pr.alive||(pr.T||pr)===self||pr.T&&pr.T.isMil||B.y0>=y1||B.top<=y0||B.y0>=B.top)continue;const bx=B.hx||TRAIN_HX,bz=B.hz||TRAIN_HZ;
     if(Math.hypot(B.x-x,B.z-z)>R+Math.hypot(bx,bz))continue;if(boxesTouch(x,z,h,hx,hz,B.x,B.z,Math.atan2(B.tx,B.tz),bx,bz))return pr;}
   return null;}
 // a vehicle run into by another (vehIn's answer), hurt by n

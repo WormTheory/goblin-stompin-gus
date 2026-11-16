@@ -147,7 +147,7 @@ function railPass(a,x0,z0){
 const TRAIN_LEN=4*10.6;
 // ---- the train cars as solid boxes, this frame: you can climb onto one and ride it (like a car); a moving train
 // smashes into whatever's on the track -- you, cars, goblins -- and sends it flying; and it can be wrecked ----
-const TRAIN_BOXES=[],TRAIN_HX=1.3,TRAIN_HZ=4.9,TRAIN_H=3.5;
+const PREV_BOXES=[],TRAIN_BOXES=[],TRAIN_HX=1.3,TRAIN_HZ=4.9,TRAIN_H=3.5;
 // (hit by a moving train: hurt, and thrown forward and up)
 function trainStrike(p,d,k,cause){p.trainT=1;damagePlayer(p,Math.max(4,Math.round(3+9*k)),p.pos.clone(),d,cause||'Hit by a train');if(p.hp>0){const f=14+26*k;p.mvx=d.x*f;p.mvz=d.z*f;p.vy=Math.max(p.vy||0,10+14*k);p.grounded=false;p.knockT=1.2;p.state='walk';}thud(0.8);addShake(0.5,p.pos.x,p.pos.z,20);}
 function trainBoxes(cs,speed,y0,T){

@@ -85,10 +85,19 @@ function mgFits(x,y,z){const r=MG.r,y0=Math.floor(y+0.05),y1=Math.floor(y+MG.hy)
   for(const ox of [-r,0,r])for(const oz of [-r,0,r]){const bx=Math.floor(x+ox),bz=Math.floor(z+oz);for(let yy=y0;yy<=y1;yy++)if(solidAt(bx,yy,bz))return false;}
   return true;}
 // the highest ground under its feet, no higher than a little above them
-function mgGround(x,z,y){const r=MG.r*0.8;let g=-1;for(const [ox,oz] of [[0,0],[-r,-r],[r,-r],[-r,r],[r,r]])g=Math.max(g,groundAt(x+ox,z+oz,y-0.9));return g;}
+function mgGround(x,z,y,M){const r=MG.r*0.8;let g=-1;for(const [ox,oz] of [[0,0],[-r,-r],[r,-r],[-r,r],[r,r]])g=Math.max(g,groundAt(x+ox,z+oz,y-0.9));
+  // (and the top of any vehicle under it -- a boat, a train car, a plane, a tank, another Mobile Gear -- that's no higher
+  // than y: it stands on that too. mgSup says which, so it can be carried along with it)
+  mgSup=null;if(M)for(const L of [TRAIN_BOXES,PREV_BOXES])for(const B of L){const pr=B.proxy;if(pr===M.pr||B.soft||!pr.alive||B.top>y||B.top<=g)continue;
+    const bx=B.hx||TRAIN_HX,bz=B.hz||TRAIN_HZ;if(Math.abs(B.x-x)>MG.r+bx+bz||Math.abs(B.z-z)>MG.r+bx+bz)continue;
+    if(boxesTouch(x,z,0,r,r,B.x,B.z,Math.atan2(B.tx,B.tz),bx,bz)){g=B.top;mgSup=pr;}}
+  return g;}
+let mgSup=null;
 // would it overlap another vehicle there (a train, plane, boat, ride car, tank, helicopter or another Mobile Gear)?
+// (TRAIN_BOXES has only what's moved so far this frame, so last frame's are checked too: PREV_BOXES, kept by
+// updateVenues. Without them anything updated after the Mobile Gears, such as boats, would be passed through)
 function mgBlocked(M,x,z,y){const r=MG.r,top=y+MG.hy;
-  for(const B of TRAIN_BOXES){const pr=B.proxy;if(pr===M.pr||B.soft||!pr.alive||y>=B.top||B.y0>=top)continue;const bx=B.hx||TRAIN_HX,bz=B.hz||TRAIN_HZ;
+  for(const L of [TRAIN_BOXES,PREV_BOXES])for(const B of L){const pr=B.proxy;if(pr===M.pr||B.soft||!pr.alive||y>=B.top||B.y0>=top)continue;const bx=B.hx||TRAIN_HX,bz=B.hz||TRAIN_HZ;
     if(Math.abs(B.x-x)>r+bx+bz||Math.abs(B.z-z)>r+bx+bz)continue;if(boxesTouch(x,z,0,r,r,B.x,B.z,Math.atan2(B.tx,B.tz),bx,bz))return true;}
   for(const V of venues.values()){if(V.kind==='army')for(const o of V.mil){if(Math.hypot(o.x-x,o.z-z)>12)continue;const ox=Math.sin(o.h),oz=Math.cos(o.h);
       for(const b of MIL_PARTS[o.kind]){if(y>=o.y+b.y1||o.y+b.y0>=top)continue;if(boxesTouch(x,z,0,r,r,o.x+ox*b.c,o.z+oz*b.c,o.h,b.hx,b.hz))return true;}}
@@ -171,10 +180,12 @@ function mechIdle(M,dt){mgDisarm(M,dt);M.boostOn=false;M.asc=false;M.airB=false;
   const k=Math.min(1,dt*6);M.vx-=M.vx*k;M.vz-=M.vz*k;mgMove(M,dt,MG.stepWalk);}
 // moving it: across (a side at a time, so it slides along a wall), up a step if it's low enough, then up or down
 function mgMove(M,dt,step){
+  if(M.onPr&&M.onP&&M.onPr.alive){const P=M.onPr.pos,dx=P.x-M.onP[0],dz=P.z-M.onP[2];   // (riding a vehicle it's standing on)
+    if(Math.abs(dx)+Math.abs(dz)<5&&(dx||dz)&&mgFits(M.x+dx,M.y,M.z+dz)){M.x+=dx;M.z+=dz;M.y+=Math.max(0,P.y-M.onP[1]);}}
   const sp0=Math.hypot(M.vx,M.vz),tryTo=(nx,nz)=>{
     if(mgFits(nx,M.y,nz)){if(mgBlocked(M,nx,nz,M.y))return false;M.x=nx;M.z=nz;return true;}
     if(!M.grounded)return false;
-    for(let s=1;s<=step;s++){const y=Math.floor(M.y+0.05)+s;if(!mgFits(nx,y,nz))continue;const gy=mgGround(nx,nz,y+0.05);if(gy>y+0.01||gy<M.y)continue;
+    for(let s=1;s<=step;s++){const y=Math.floor(M.y+0.05)+s;if(!mgFits(nx,y,nz))continue;const gy=mgGround(nx,nz,y+0.05,M);if(gy>y+0.01||gy<M.y)continue;
       if(mgBlocked(M,nx,nz,gy))return false;M.x=nx;M.z=nz;M.y=gy;M.stepT=0.15;return true;}
     return false;};
   let bx=M.vx&&!tryTo(M.x+M.vx*dt,M.z),bz=M.vz&&!tryTo(M.x,M.z+M.vz*dt);
@@ -185,15 +196,17 @@ function mgMove(M,dt,step){
   if(hit&&sp0>12&&!M.clangT){M.clangT=0.4;clang();addShake(0.25,M.x,M.z,15);puff(M.x+M.vx*0.1,M.y+3,M.z+M.vz*0.1,5,0x9a948a,1);}
   if(M.clangT>0)M.clangT=Math.max(0,M.clangT-dt);if(M.ramT>0)M.ramT=Math.max(0,M.ramT-dt);
   // (down: on the ground it keeps to it, down a step too; off it, it falls -- slowly while boosting -- and lands)
-  const gy=mgGround(M.x,M.z,M.y+0.3);
+  const gy=mgGround(M.x,M.z,M.y+0.3,M);let sup=mgSup;
   if(M.grounded&&M.vy<=0){if(gy>=M.y-1.05&&gy<=M.y+0.3){M.y=gy;M.vy=0;}else M.grounded=false;}
   if(!M.grounded){
     const g=M.airB&&M.vy<=0?MG.grav*0.35:MG.grav;M.vy-=g*dt;if(M.airB&&M.vy<-5)M.vy=Math.max(M.vy,-5-dt*20);
     let ny=M.y+M.vy*dt;
     if(M.vy>0&&!mgFits(M.x,ny,M.z)){ny=M.y;M.vy=0;}
-    const g2=mgGround(M.x,M.z,Math.max(M.y,ny)+0.3);
+    const g2=mgGround(M.x,M.z,Math.max(M.y,ny)+0.3,M);sup=mgSup;
     if(ny<=g2&&M.vy<=0){mgLand(M,-M.vy);ny=g2;M.vy=0;M.grounded=true;}
     M.y=Math.min(ny,H+80);}
+  // (stood on a vehicle: remember where it is, so next step it's carried along by however far that's moved)
+  M.onPr=M.grounded&&sup&&sup.pos?sup:null;if(M.onPr)M.onP=[sup.pos.x,sup.pos.y,sup.pos.z];
 }
 // knocking a hole in what's in front of it, as wide and tall as itself and deeper the faster it's going (the same
 // wreckage as a tank ramming: the blocks fly, and a building that loses enough comes down). Returns how many broke
@@ -425,7 +438,7 @@ function updateMechs(V,dt){
   if(netGuest()){netMechStep(V,dt);return;}   // (online, a guest's copies follow the host's: see net-sync.js)
   for(const M of V.mechs){
     if(M.dead){M.deadT+=dt;if(M.deadT<60&&Math.random()<dt*3)smoke(M.x,M.y+5,M.z,1,0x262626);M.vx=M.vz=0;
-      {const gy=mgGround(M.x,M.z,M.y+0.3);if(M.y>gy+0.02){M.vy-=MG.grav*dt;M.y=Math.max(gy,M.y+M.vy*dt);}else M.vy=0;}}
+      {const gy=mgGround(M.x,M.z,M.y+0.3,M);if(M.y>gy+0.02){M.vy-=MG.grav*dt;M.y=Math.max(gy,M.y+M.vy*dt);}else M.vy=0;}}
     else if(M.drv)drvMech(M,dt);else mechIdle(M,dt);
     M.hurt=(M.hurt||0)-dt;if(!M.dead)impTick(M,dt);if(!M.dead)vDamaged(M.x,M.y+MG.hy,M.z,M.hp/MG.hp,dt);
     mechPose(M,dt);mechBoxes(M,Math.hypot(M.vx,M.vz));mechShove(M);}

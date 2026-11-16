@@ -37,6 +37,12 @@ boat (launch): in boat
   F again: on foot  in the water beside it 2.4  y -1.3
   3 s on: it stays put (off its route) 0.0
 errors 0 []
+beached rowboat: F finds boat  in boat  pushed off 22.0 into the water true
+  W 3 s: moved 10.3
+  F again: on foot
+subway train at a station: F finds subway  in subway
+  W 3 s: went 22.7  speed 15.0
+  F again: on foot  it goes back to its rounds true
   no one at the controls
 tank: in tank  base alerted false
   W 3 s: moved 14.8  speed 5.4
@@ -73,8 +79,8 @@ helicopter: in heli
   3 s on: Gun 40/40, Rockets 4/4
   rocket marker to where it went off: 0.1  display: marker shown false
   F again 24.0 up: on foot  heli idle  me falling yes
-helicopter flown into a wall at speed: wrecked true  blocks blown out 252  me thrown clear on foot  hp 20
-a stopped helicopter (wrecked), ground under it dug out 6 deep: dropped 6.0  hp 11.249704322865938 -> -8.9
+helicopter flown into a wall at speed: wrecked true  blocks blown out 246  me thrown clear on foot  hp 20
+a stopped helicopter (wrecked), ground under it dug out 6 deep: dropped 6.0  hp 11.249704323068286 -> -8.9
 first helicopter, 8 s on: height 0.0  rotor 0.4  me on the ground true  hp 20
 plane on the keyboard: (thr+ Space, thr- C, up S, down W, right D)
   in plane  this one true
@@ -88,7 +94,7 @@ plane on the keyboard: (thr+ Space, thr- C, up S, down W, right D)
   throttle shut (C), S held: throttle 0%, stalls true after 4.1 s at 17.4  display says true  nose drops 0.7 -> 0.3
   throttle up, let go: speed 72.3  climb rate -0.7  wrecked false
   F again: on foot  falling true
-  left to itself: down after 2.0 s, wrecked true  height 0.0  speed 66.1  air true  me on the ground true  crater blocks 214
+  left to itself: down after 2.0 s, wrecked true  height 0.0  speed 66.1  air true  me on the ground true  crater blocks 211
 plane on a controller: (thr+ stick up, thr- stick down, up A, down LB, right stick right)
   in plane  this one true
   stick up 1.5 s: throttle 90%, rolling at 11.4  moved 5.4  height 0.0
@@ -101,5 +107,5 @@ plane on a controller: (thr+ stick up, thr- stick down, up A, down LB, right sti
   throttle shut (stick down), A held: throttle 0%, stalls true after 4.1 s at 17.4  display says true  nose drops 0.7 -> 0.3
   throttle up, let go: speed 72.3  climb rate -0.7  wrecked false
   F again: on foot  falling true
-  left to itself: down after 2.0 s, wrecked true  height -0.6  speed 65.8  air true  me on the ground true  crater blocks 219
+  left to itself: down after 2.0 s, wrecked true  height -0.6  speed 65.8  air true  me on the ground true  crater blocks 207
 errors 0 []

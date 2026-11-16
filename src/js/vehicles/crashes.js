@@ -46,7 +46,7 @@ function crashedLately(a,b){const now=playTime,m=bigPairs.get(a)||new Map(),t=m.
   if(bigPairs.size>64)for(const [k,mm] of bigPairs){for(const [k2,t2] of mm)if(now-t2>2)mm.delete(k2);if(!mm.size)bigPairs.delete(k);}
   return t!==undefined&&now-t<0.5;}
 function updateVenues(dt){
-  TRAIN_BOXES.length=0;updateTrains(dt);
+  PREV_BOXES.length=0;for(const B of TRAIN_BOXES)PREV_BOXES.push(B);TRAIN_BOXES.length=0;updateTrains(dt);   // (last frame's kept: see mgBlocked)
   for(const p of players)if(p.trainT>0)p.trainT-=dt;for(const c of cars)if(c.trainT>0)c.trainT-=dt;for(const g of goblins)if(g.trainT>0)g.trainT-=dt;
   venueT-=dt;if(venueT<=0){venueT=1;refreshVenues();}
   let nC=0,nP=0;BALL.visible=false;const t=performance.now()/1000;

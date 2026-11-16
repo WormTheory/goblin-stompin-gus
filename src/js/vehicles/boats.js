@@ -236,7 +236,8 @@ function updateSeaVenue(V,dt,t){
   if(V.kind==='boat'){updateBoat(V,dt,t);return;}
   // a subway train: round and round its loop, waiting a while at each station
   const M=V.M,N=M.path.length;let next=1e9;for(const st of M.stops){let d=mod(st+16-V.s,N);if(d<0.3)d+=N;if(d<next)next=d;}
-  if(V.T.halted)V.v=0;
+  if(V.T.drv&&!V.T.halted)drvSub(V,dt);   // (a goblin at the controls: see driving.js)
+  else if(V.T.halted)V.v=0;
   else if(V.wait>0){V.wait-=dt;if(V.wait<=0)V.s+=0.5;}
   else{const want=next<40?Math.max(1.2,next*0.4):16;V.v+=(want-V.v)*Math.min(1,dt*(want<V.v?1.6:0.4));V.s=mod(V.s+V.v*dt,N);if(next<=0.4){V.v=0;V.wait=10;}}
   V.cars.forEach((g,i)=>{if(V.T.carDead&&V.T.carDead[i])return;const s2=mod(V.s-5.3-i*10.6,N),k=Math.floor(s2),a=M.path[k],b=M.path[(k+1)%N],f=s2-k;
