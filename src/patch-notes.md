@@ -28,6 +28,13 @@
 - Props now grow up out of the ground over a moment as they come into range, instead of suddenly appearing.
 - New PROPS slider in Options, under Render distance: set how far props are drawn, from 32 to 192 blocks. Furniture indoors goes about half as far as the setting.
 
+### Weather
+
+- Foggy weather now really closes in. The weather's fog used to shrink with the FAR VIEW setting, so with the view turned up it all but vanished; now fog, rain and snow limit how far you can see by the same number of blocks whatever the setting, with thick fog and blizzards down to about 30 blocks.
+- Windy weather is gone.
+- Tanks, helicopters, planes and Mobile Gears now gather snow on top as cars do, as deep as the snow on the ground while they stand out in the open. It blows off a plane in the air or a helicopter going fast.
+- The main menu's "New city" button is now "New world".
+
 ## Version 0.4
 
 ### Goblins climb vehicles too

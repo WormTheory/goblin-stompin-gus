@@ -279,7 +279,7 @@ function netWorldBits(N){
   return out;
 }
 function netClock(){return{tod,dayN,clockT,tc:trafficClock,wc:wxClock,wx:{type:WX.type,until:WX.until,k:Object.assign({},WX.k),wet:WX.wet,snowCover:WX.snowCover,snowClock:WX.snowClock,frozen:!!WX.frozen},host:DT.host,combo:DT.combo};}
-function netClockSet(k){if(!k)return;tod=k.tod;dayN=k.dayN;clockT=k.clockT;trafficClock=k.tc;wxClock=k.wc;if(k.wx){const w=k.wx;WX.type=w.type;WX.until=w.until;Object.assign(WX.k,w.k);WX.wet=w.wet;WX.snowCover=w.snowCover;WX.snowClock=w.snowClock;WX.frozen=w.frozen;}
+function netClockSet(k){if(!k)return;tod=k.tod;dayN=k.dayN;clockT=k.clockT;trafficClock=k.tc;wxClock=k.wc;if(k.wx){const w=k.wx;WX.type=WX_TYPES[w.type]?w.type:'partly';WX.until=w.until;Object.assign(WX.k,w.k);WX.wet=w.wet;WX.snowCover=w.snowCover;WX.snowClock=w.snowClock;WX.frozen=w.frozen;}
   if(k.host!==undefined&&k.host!==DT.host){DT.host=k.host;try{syncHost();}catch(e){}}
   if(k.combo!==undefined&&k.combo!==DT.combo){DT.combo=!!k.combo;try{comboUiSync();}catch(e){}}}   // (the host's Combo system switch: whether there's a combo to show at all)
 

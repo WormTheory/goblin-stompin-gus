@@ -1,12 +1,12 @@
 // ---------- seasons, weather and the moon ----------
 // The year: four 30-day seasons. Each season has its own odds for the weather; a spell lasts a third of a day to a
 // day, and everything (cloud, darkness, fog, rain, snow, wind, storms) eases from one spell into the next.
+// (fog: how far you can see, as a share of the plain view; renderView turns it into blocks, see wxFogFar)
 const SEASONS=['Spring','Summer','Autumn','Winter'],SEASON_LEN=30,MOON_LEN=30;
 const WX_TYPES={
   clear:{n:'Clear',i:'☀️',cover:0.05,wind:0.4},
   partly:{n:'Partly cloudy',i:'⛅',cover:0.45,wind:0.6},
   cloudy:{n:'Cloudy',i:'☁️',cover:0.85,dark:0.22,fog:0.9,wind:0.7},
-  windy:{n:'Windy',i:'💨',cover:0.4,wind:3.2},
   foggy:{n:'Foggy',i:'🌫️',cover:0.6,dark:0.14,fog:0.28,wind:0.15},
   lrain:{n:'Light rain',i:'🌦️',cover:0.85,dark:0.26,fog:0.85,rain:0.3,wind:0.8},
   rain:{n:'Rain',i:'🌧️',cover:0.95,dark:0.38,fog:0.7,rain:0.65,wind:1.1},
@@ -18,10 +18,10 @@ const WX_TYPES={
 const WX_KEYS=['cover','dark','fog','rain','snow','wind','storm'],WX_DEF={cover:0,dark:0,fog:1,rain:0,snow:0,wind:0.5,storm:0};
 // the odds of each kind of weather, season by season
 const WX_ODDS=[
-  {clear:3,partly:4,cloudy:2,windy:2,foggy:1.5,lrain:3,rain:2.5,hrain:1,storm:1,lsnow:0.3},
-  {clear:6,partly:4,cloudy:1,windy:1,foggy:0.4,lrain:1.5,rain:1,hrain:0.8,storm:2},
-  {clear:2,partly:3,cloudy:3,windy:3,foggy:2.5,lrain:2.5,rain:2,hrain:1,storm:0.5,lsnow:0.5},
-  {clear:1.5,partly:2,cloudy:3,windy:1.5,foggy:2,lrain:0.5,rain:0.3,lsnow:3,snow:2.5,blizzard:1.2}];
+  {clear:3,partly:4,cloudy:2,foggy:1.5,lrain:3,rain:2.5,hrain:1,storm:1,lsnow:0.3},
+  {clear:6,partly:4,cloudy:1,foggy:0.4,lrain:1.5,rain:1,hrain:0.8,storm:2},
+  {clear:2,partly:3,cloudy:3,foggy:2.5,lrain:2.5,rain:2,hrain:1,storm:0.5,lsnow:0.5},
+  {clear:1.5,partly:2,cloudy:3,foggy:2,lrain:0.5,rain:0.3,lsnow:3,snow:2.5,blizzard:1.2}];
 const WX={snowClock:0,type:'clear',until:1,k:Object.assign({},WX_DEF,{cover:0.05,wind:0.4}),wet:0,snowCover:0,flash:0,boltT:6,thunder:[]};
 const seasonOf=()=>Math.floor((dayN-1)/SEASON_LEN)%4,seasonDay=()=>(dayN-1)%SEASON_LEN+1,gameDays=()=>dayN-1+tod;
 const moonPhase=()=>((dayN-1+tod)/MOON_LEN)%1;   // 0 new, 0.5 full
@@ -103,6 +103,32 @@ function snowGather(o,dt,moving){
   else u.value=Math.max(0,u.value-dt/(WX.k.snow>0.08?240:45));
 }
 function shakeSnow(o,y){if(o.snowU&&o.snowU.value>0.08){puff(o.pos.x,o.pos.y+y,o.pos.z,10,0xf0f4fa,0.45);o.snowU.value=0;}}
+// snow on the big vehicles (tanks, helicopters, planes and Mobile Gears), as on cars. Their paints are shared by every
+// one of a kind, so each gets copies of its own with the cars' snow (snowCar) the first time any snow is lying, and the
+// batched drawing reads each box's snow from those (batPut). It settles as deep as the snow on the ground while the
+// vehicle stands out under the sky, and blows off one that's going fast (a plane in the air, a helicopter at speed)
+function vehSnowKit(o){
+  o.snowU={value:0};const own=new Map();
+  o.g.traverse(m=>{const t=m.isMesh&&m.material;if(!t||t.type!=='MeshLambertMaterial'||t.transparent||t.snowU||t._obc)return;
+    let c=own.get(t);if(!c){c=snowCar(t.clone(),o);own.set(t,c);}m.material=c;
+    if(m.userData.mat===t)m.userData.mat=c;});   // (a plane put back after it was wrecked gets its snowy paint back: see planeWreck)
+}
+function vehSnow(o,x,y,z,gone,dt){
+  if(gone)return;
+  if(!o.snowU){if(WX.snowCover<0.01)return;vehSnowKit(o);}
+  const P=o.snowP||(o.snowP={x,z}),sp=Math.hypot(x-P.x,z-P.z)/Math.max(dt,1e-3);P.x=x;P.z=z;
+  o.skyT=(o.skyT||0)-dt;if(o.skyT<=0){o.skyT=0.6+Math.random()*0.4;o.skyOpen=openSky(x,y,z);}
+  const fast=sp>20,u=o.snowU;u.value+=((o.skyOpen&&!fast?WX.snowCover:0)-u.value)*Math.min(1,dt*(fast?1.5:0.4));
+}
+function updateVehSnow(dt){
+  for(const V of venues.values()){
+    if(V.kind==='army'&&V.mil)for(const M of V.mil)vehSnow(M,M.x,M.y,M.z,M.dead,dt);
+    else if(V.kind==='airport'&&V.pl)for(const pl of V.pl){const p=pl.g.position;vehSnow(pl,p.x,p.y,p.z,pl.dead||!pl.g.visible,dt);}
+    else if(V.kind==='mech'&&V.mechs)for(const M of V.mechs)vehSnow(M,M.x,M.y,M.z,M.dead,dt);}
+}
+// how far the weather lets you see, in blocks: the same at any view distance (it once scaled with the FAR VIEW setting,
+// so turned up far the fog all but vanished). Clear skies don't limit it; thick fog or a blizzard closes in to about 30
+const wxFogFar=fk=>fk>=0.995?Infinity:24/(1-fk);
 function updateWeather(dt){
   if(playing){wxClock+=dt;
     if(gameDays()>=WX.until)wxSet(wxPick(seasonOf()),false);
@@ -112,6 +138,7 @@ function updateWeather(dt){
     if(WX.k.rain>0.08)WX.wet=Math.min(1,WX.wet+dt*WX.k.rain/25);else WX.wet=Math.max(0,WX.wet-dt/(WX.k.cover<0.5?60:150));
     if(WX.k.snow>0.08){WX.snowCover=Math.min(1,WX.snowCover+dt*WX.k.snow/70);WX.snowClock+=dt*WX.k.snow/70;}
     else{WX.snowCover=Math.max(0,WX.snowCover-dt/(seasonOf()===3?600:120)*(WX.k.rain>0.1?3:1));if(WX.snowCover===0&&snowBorn.size)snowBorn.clear();}
+    updateVehSnow(dt);
     // rain puts fires out (slowly)
     if(WX.k.rain>0.25)for(const F of fires){F.douse=true;F.t-=dt*WX.k.rain*0.5;}
     // lightning

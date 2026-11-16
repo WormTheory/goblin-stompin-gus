@@ -162,7 +162,7 @@ function renderView(p,x,y,w,h){
   p.ui.tint.hidden=!under;
   const far=lodFar();
   if(under){scene.fog.color.copy(DEEP);scene.background.copy(DEEP);scene.fog.near=1;scene.fog.far=18;}
-  else{const fk=Math.max(0.2,WX.k.fog);scene.fog.color.copy(SKY);scene.background.copy(SKY);scene.fog.near=far*0.45*fk*fk;scene.fog.far=far*fk;}
+  else{const fk=Math.max(0.2,WX.k.fog),ff=Math.min(far,wxFogFar(fk));scene.fog.color.copy(SKY);scene.background.copy(SKY);scene.fog.near=ff*0.45*fk*fk;scene.fog.far=ff;}
   placePrecip(c,p.idx);
   p.camera.aspect=w/h;p.camera.fov=72-6*(p.speedFx||0)-8*(p.windZoom||0)+(p.drv&&p.drv.k==='mech'?p.mgFov||0:0);p.camera.far=far+40;p.camera.near=p.gob?0.12:0.25;p.camera.updateProjectionMatrix();
   renderer.setViewport(x,y,w,h);renderer.setScissor(x,y,w,h);
