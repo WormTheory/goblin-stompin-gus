@@ -95,6 +95,7 @@ function menuPad(st,dt){
     if(s.pr[3]&&curTab==='custom'){const t=document.querySelector('#abilList .tog');if(t&&t.offsetParent)padFocus(t);}
     const ry=s.p.axes[3]||0;
     if(curTab==='map'&&s.pr[2])mapRecentre();
+    if(curTab==='map'&&s.pr[3])mapClick();   // (Y: a marker at the crosshair)
     if(curTab==='map'){const rx2=s.p.axes[2]||0;if(Math.abs(rx2)>0.2||Math.abs(ry)>0.2)mapPan(rx2*dt*420,ry*dt*420);if(s.b[7])mapZoom(1+dt*1.6);if(s.b[6])mapZoom(1/(1+dt*1.6));}
     else if(Math.abs(ry)>0.25){const pane=document.querySelector('.main .tabpane:not([hidden])');if(pane)pane.scrollTop+=ry*14;}
     // right stick left/right turns the goblin in the obituary preview
@@ -189,18 +190,18 @@ function menuPromptItems(){
     if(cf||!home)out.push([['B'],'Back']);else if(!atTitle&&begun)out.push([['B'],'Resume']);
     out.push([['LB','RB'],'Jump between screens']);
     if(curTab==='custom')out.push([['Y'],'Ability toggles']);
-    if(curTab==='map'){out.push([['RS'],'Pan']);out.push([['LT','RT'],'Zoom']);out.push([['X'],'Re-centre']);}
+    if(curTab==='map'){out.push([['RS'],'Pan']);out.push([['LT','RT'],'Zoom']);out.push([['X'],'Re-centre']);out.push([['Y'],'Marker']);}
     else if(curTab==='obit'){out.push([['RS:h'],'Turn']);if(scrolls)out.push([['RS:v'],'Scroll']);}
     else if(scrolls)out.push([['RS:v'],'Scroll']);
     out.push([['START'],atTitle?'Play':'Resume']);
   } else if(kind==='touch'){
     out.push([['TAP'],'Select']);
-    if(curTab==='map'){out.push([['TDRAG'],'Pan']);out.push([['TDRAG','TDRAG'],'Pinch to zoom']);out.push([['TAP','TAP'],'Re-centre']);}
+    if(curTab==='map'){out.push([['TDRAG'],'Pan']);out.push([['TDRAG','TDRAG'],'Pinch to zoom']);out.push([['TAP'],'Marker']);out.push([['TAP','TAP'],'Re-centre']);}
     else if(curTab==='obit')out.push([['TDRAG'],'Turn']);
     else if(scrolls)out.push([['TDRAG'],'Scroll']);
   } else {
     out.push([['LMB'],'Select']);
-    if(curTab==='map'){out.push([['MDRAG'],'Pan']);out.push([['WHEEL'],'Zoom']);out.push([['KEY:C'],'Re-centre']);}
+    if(curTab==='map'){out.push([['MDRAG'],'Pan']);out.push([['WHEEL'],'Zoom']);out.push([['LMB'],'Marker']);out.push([['KEY:C'],'Re-centre']);}
     else if(curTab==='obit'){out.push([['MDRAG'],'Turn']);if(scrolls)out.push([['WHEEL'],'Scroll']);}
     else if(scrolls)out.push([['WHEEL'],'Scroll']);
     if(range)out.push([['KEY:←','KEY:→'],'Adjust']);else out.push([['KEY:Enter'],'Pick']);

@@ -109,6 +109,15 @@
 
 - In every vehicle, its controls are listed down the left side of the screen, one to a line, instead of along the bottom. The controls line for on foot is hidden while you drive.
 
+### Map markers
+
+- Mark a spot on the map: click it on the pause menu's Map tab (tap it on a touch screen; on a controller, pan the crosshair over it and press Y). A pin goes there and shows on your minimap too, or, while it's off the minimap's edge, an arrow on the rim points the way with how far it is. Click the pin again to take it away, or somewhere else to move it.
+- In split screen each player has a marker of their own, set from their own pause menu and shown on their own minimap, in their own colour. Markers are kept for each world.
+
+### Enemy hostility: Pacifist
+
+- A new step at the far left of the Enemy hostility slider: Pacifist. Goblins can't be harmed at all, whatever hits them, and as with Passive nobody reacts to you. Vehicles and buildings still break.
+
 ### Debug menu
 
 - Vehicles: pick any vehicle from the list and press Spawn, and one is set down ahead of you, parked and empty, ready to get into. It works in the ordinary game too, not just the Testing Environment: anywhere with a level patch of ground in front of you, and what you spawn stays where you left it.
@@ -116,6 +125,7 @@
 - Infinite stamina now keeps the Mobile Gear's energy bar full too, so it never redlines.
 - Invulnerability now covers whatever you're driving, flying or manning too: a car, tank, helicopter, plane, boat, balloon, Mobile Gear or deck weapon takes no damage while you're in it, and nor does the carrier while you're at its helm (its blocks can still be smashed).
 - The vehicle list scrolls all the way to the bottom now. The mouse wheel no longer jumps back as it scrolls, and opening the list scrolls the menu far enough to show all of it, so the last few vehicles (down to the aircraft carrier) can be reached with the mouse, the wheel, the keyboard or a controller.
+- Time of day: a slider in the World section that sets the clock to any hour, 00:00 to 23:00. The day carries on from there as usual.
 
 ### Bullets break blocks
 
@@ -135,6 +145,10 @@
 - Tanks, helicopters, planes and Mobile Gears now gather snow on top as cars do, as deep as the snow on the ground while they stand out in the open. It blows off a plane in the air or a helicopter going fast.
 - The main menu's "New city" button is now "New world".
 - The save screens now call a save a world rather than a city: "New file: new world", "Export this world", the world seed under the menu, and the rest.
+
+### Fixes
+
+- The minimap no longer draws the grey of the surrounding blocks over big sites that take up several blocks, such as theme parks, which hid most of their buildings.
 
 ## Version 0.4.1
 

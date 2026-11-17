@@ -9,7 +9,7 @@ const sbxCells=cells=>{const h=SBX&&SBX.hits[SBX.hits.length-1];if(h&&h.kind==='
 // game speed and free cam
 const SPEEDS=[0.05,0.1,0.25,0.5,0.75,0.9,1,1.25,1.5,2];
 const PSPEEDS=[1,1.5,2,2.5,3,4,5,6,7,8,9,10];
-const DT={combo:false,hpBars:false,fps:false,sndList:false,info:false,curve:2,psI:0,invuln:false,infStam:false,infAmmo:false,veh:'car',vehMsg:'',fly:false,gob:false,host:2,speedI:6,paused:false,freecam:false,step:false,quick:false,menu:false,kbdOpen:false,selHeld:false,cur:0,navDir:0,navT:0};
+const DT={combo:false,hpBars:false,fps:false,sndList:false,info:false,curve:2,psI:0,invuln:false,infStam:false,infAmmo:false,veh:'car',vehMsg:'',fly:false,gob:false,host:3,speedI:6,paused:false,freecam:false,step:false,quick:false,menu:false,kbdOpen:false,selHeld:false,cur:0,navDir:0,navT:0};
 try{const q=JSON.parse(localStorage.getItem('goblin-stompin-gus-quickdbg')||'null');if(typeof q==='boolean')DT.quick=q;}catch(e){}
 try{for(const k of ['fps','hpBars','sndList','info'])DT[k]=localStorage.getItem('goblin-stompin-gus-'+k)==='1';}catch(e){}
 // the debug settings carry over from one session to the next (all but stopping time and the free cam, which would
@@ -19,11 +19,13 @@ try{const q=JSON.parse(localStorage.getItem(DT_KEY)||'null');if(q&&typeof q==='o
   if(!(DT.speedI>=0&&DT.speedI<SPEEDS.length))DT.speedI=SPEEDS.indexOf(1);if(!(DT.psI>=0&&DT.psI<PSPEEDS.length))DT.psI=0;}catch(e){}
 function saveDT(){try{const o={};for(const k of DT_SAVED)o[k]=DT[k];localStorage.setItem(DT_KEY,JSON.stringify(o));
   localStorage.setItem(HOST_KEY,String(DT.host));}catch(e){}}
-// Enemy hostility, three steps (the main screen's slider and the quick menu's are one setting, kept
-// from one session to the next): 0 Passive, nobody reacts to you at all, not even to being hit (they still get hurt);
-// 1 Peaceful, nobody attacks or hunts you, but the townsfolk still run from you; 2 Normal
-const HOST_KEY='goblin-stompin-gus-hostility',HOST_N=['Passive','Peaceful','Normal'],HOST_TXT=['Nobody reacts to you, even when hit','Nobody attacks you, but townsfolk still run','Goblins, cars, police and soldiers come for you'];
-try{const s=localStorage.getItem(HOST_KEY);if(s==='0'||s==='1'||s==='2')DT.host=+s;else if(localStorage.getItem('goblin-stompin-gus-peaceful')==='1')DT.host=1;}catch(e){}   // (the old Peaceful box, ticked, is the middle step)
+// Enemy hostility, four steps (the main screen's slider and the quick menu's are one setting, kept
+// from one session to the next): 0 Pacifist, as Passive, and no goblin can be hurt at all (pacifistNow);
+// 1 Passive, nobody reacts to you at all, not even to being hit (they still get hurt);
+// 2 Peaceful, nobody attacks or hunts you, but the townsfolk still run from you; 3 Normal
+const HOST_MAX=3,HOST_KEY='goblin-stompin-gus-hostility2',HOST_N=['Pacifist','Passive','Peaceful','Normal'],HOST_TXT=['Goblins cannot be harmed, and nobody reacts to you','Nobody reacts to you, even when hit','Nobody attacks you, but townsfolk still run','Goblins, cars, police and soldiers come for you'];
+// (the steps used to be 0 Passive to 2 Normal under the old key: those move up one, as Pacifist came in below them)
+try{const s=localStorage.getItem(HOST_KEY),o=localStorage.getItem('goblin-stompin-gus-hostility');if(s!==null&&+s>=0&&+s<=HOST_MAX&&s===String(+s))DT.host=+s;else if(o==='0'||o==='1'||o==='2')DT.host=+o+1;else if(localStorage.getItem('goblin-stompin-gus-peaceful')==='1')DT.host=2;}catch(e){}   // (the old Peaceful box, ticked, is Peaceful)
 function syncHost(){for(const [i,o] of [['hostMain','hostMainVal']]){const el=document.getElementById(i),v=document.getElementById(o);if(el){el.value=String(DT.host);v.textContent=HOST_N[DT.host];}}const t=document.getElementById('hostMainTxt');if(t)t.textContent=HOST_TXT[DT.host];}
 // Goblin pathfinding, two ways (Options, kept in this browser): 0 Advanced, the route maps of enemies/routes.js (goblins
 // jump gaps, climb walls and buildings, and come after a hippo up and down wherever it's gone); 1 Simple, the chase as it
@@ -75,7 +77,7 @@ const DBG_COLS=4,DBG_SECS=[
   [0,'All',[{k:'_all',label:'Show all',act:true},{k:'_none',label:'Hide all',act:true}]],
   [0,'Time',[{k:'speed',label:'Game speed'},{k:'paused',label:'Stop time'}]],
   [0,'Camera',[{k:'freecam',label:'Free cam'},{k:'curve',label:'World curve'}]],
-  [0,'World',[{k:'wx',label:'Weather'},{k:'season',label:'Season'}]],
+  [0,'World',[{k:'tod',label:'Time of day'},{k:'wx',label:'Weather'},{k:'season',label:'Season'}]],
   // (pick a kind, then Spawn puts one down ahead of you, parked and empty: in the Testing Environment or the ordinary game)
   [0,'Vehicles',[{k:'vehSel',label:'Vehicle'},{k:'vehGo',label:'Spawn vehicle'}]],
   [1,'Player',[{k:'pspeed',label:'Player speed'},{k:'invuln',label:'Invulnerable'},{k:'infStam',label:'Infinite stamina'},{k:'infAmmo',label:'Infinite ammo'},{k:'fly',label:'Flying'},{k:'host',label:'Enemy hostility'},{k:'combo',label:'Combo system'}]],
@@ -89,7 +91,12 @@ const DBG_COLS=4,DBG_SECS=[
 const DBG_ITEMS=DBG_SECS.flatMap(([c,sec,rows])=>rows.map(it=>Object.assign(it,{c,sec})));
 // (the sliders: left and right only move one once it's been picked with A, and until then they go to the next column,
 // as on any other row, so a slider never gets in the way of crossing the menu)
-const DBG_SLIDE=new Set(['speed','pspeed','curve','host']);
+const DBG_SLIDE=new Set(['speed','pspeed','curve','host','tod']);
+// the Time of day slider: the clock's hour, 00:00 to 23:00 (tod 0 is six in the morning: hourNow). Setting it jumps
+// straight there, the same day, and the day goes on from it as usual (online, only the host's clock counts)
+const todHour=()=>Math.floor(hourNow()+1e-6)%24;
+function setTodHour(h){h=((h%24)+24)%24;if(netGuest())return;tod=(((h-6)%24+24)%24)/24;clockT=0;}
+const todTxt=()=>String(todHour()).padStart(2,'0')+':00';
 // the Rendering switches, and what each one stops being drawn (not saved: a world with holes in the picture would only
 // be confusing to come back to). The caves, sewers and subways redraw over the next few frames, nearest first.
 const GFX_KEY={gProps:'props',gFixtures:'fixtures',gCaves:'caves',gSewers:'sewers',gSubway:'subway'};
@@ -100,7 +107,7 @@ function toggleGfx(k){const g=GFX_KEY[k],off=GFX_OFF[g]=!GFX_OFF[g];
   const P=P1.pos,d=e=>Math.hypot(e.cx*CS-P.x,e.cz*CS-P.z);
   leafQ.length=0;for(const e of [...meshes.values()].sort((a,b)=>d(b)-d(a)))leafQ.push(ckey(e.cx,e.cz));}
 const curveTxt=()=>DT.curve===0?'Flat':DT.curve>0?'Down '+DT.curve:'Up '+(-DT.curve);
-function dbgVal(k){return isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='vehSel'?tenvVehName(DT.veh):k==='vehGo'?DT.vehMsg:k==='paused'||k==='freecam'||k==='combo'||k==='invuln'||k==='infStam'||k==='infAmmo'||k==='fly'||k==='fps'||k==='sndList'||k==='info'?DT[k]:DBG[k];}
+function dbgVal(k){return isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='tod'?todTxt():k==='vehSel'?tenvVehName(DT.veh):k==='vehGo'?DT.vehMsg:k==='paused'||k==='freecam'||k==='combo'||k==='invuln'||k==='infStam'||k==='infAmmo'||k==='fly'||k==='fps'||k==='sndList'||k==='info'?DT[k]:DBG[k];}
 // the rows on show: the individual hitbox switches only while 'Display hitboxes' is on
 // the menu's two tabs: 0 the switches themselves, 1 "Show / hide", which picks the rows tab 0 lists (kept in this browser)
 const DBG_HIDE_KEY='goblin-stompin-gus-dbghide',DBG_HIDE=new Set();
@@ -114,7 +121,8 @@ function dbgTab(t){const k=(dbgItems()[DT.cur]||{}).k;DT.tab=t;DT.edit=null;DT.d
 function dbgStep(k,d){if(k==='wx'){const L=Object.keys(WX_TYPES);wxSet(L[(L.indexOf(WX.type)+d+L.length)%L.length],true);WX.until=gameDays()+1;}
   else if(k==='season'){const y=Math.floor((dayN-1)/120);dayN=y*120+((seasonOf()+d+4)%4)*SEASON_LEN+1;wxSet(wxPick(seasonOf()),true);}
   else if(k==='curve')DT.curve=Math.max(-10,Math.min(10,DT.curve+d));
-  else if(k==='host')DT.host=Math.max(0,Math.min(2,DT.host+d));
+  else if(k==='host')DT.host=Math.max(0,Math.min(HOST_MAX,DT.host+d));
+  else if(k==='tod')setTodHour(todHour()+d);
   else if(k==='speed')DT.speedI=Math.max(0,Math.min(SPEEDS.length-1,DT.speedI+d));else if(k==='pspeed')DT.psI=Math.max(0,Math.min(PSPEEDS.length-1,DT.psI+d));}
 function setKbdMenu(on){
   DT.kbdOpen=on;DT.menu=DT.quick&&(on||DT.selHeld);mHeld.clear();mTap.clear();renderTime();
@@ -184,7 +192,7 @@ function renderTime(){
     const dbgRows=dbgL.map((it,i)=>{const nAll=DBG_ITEMS.filter(o=>!o.act).length,v=it.act?(it.k==='_all'?(nAll-DBG_HIDE.size)+' / '+nAll+' shown':''):DT.tab?!DBG_HIDE.has(it.k):dbgVal(it.k),txt=typeof v==='boolean'?(DT.tab?(v?'SHOWN':'HIDDEN'):v?'ON':'OFF'):v;
       let body=txt;
       if(DT.tab){}
-      else if(DBG_SLIDE.has(it.k)){const n=it.k==='curve'?21:it.k==='host'?3:(it.k==='speed'?SPEEDS:PSPEEDS).length,f=(it.k==='curve'?DT.curve+10:it.k==='host'?DT.host:it.k==='speed'?DT.speedI:DT.psI)/(n-1)*100;body='<span class="sl" data-k="'+it.k+'"><i style="width:'+f+'%"></i><b style="left:'+f+'%"></b></span><span class="slv">'+txt+'</span>';}
+      else if(DBG_SLIDE.has(it.k)){const n=it.k==='curve'?21:it.k==='host'?HOST_MAX+1:it.k==='tod'?24:(it.k==='speed'?SPEEDS:PSPEEDS).length,f=(it.k==='curve'?DT.curve+10:it.k==='host'?DT.host:it.k==='tod'?todHour():it.k==='speed'?DT.speedI:DT.psI)/(n-1)*100;body='<span class="sl" data-k="'+it.k+'"><i style="width:'+f+'%"></i><b style="left:'+f+'%"></b></span><span class="slv">'+txt+'</span>';}
       else if(DBG_DD.has(it.k))body='<span class="dd">'+(it.k==='wx'?WX_TYPES[WX.type].i+' ':'')+txt+' ▾</span>';
       else if(it.k==='vehGo')body='<span class="dbtn">Spawn</span>'+(txt?'<span class="dmsg">'+txt.replace(/[<&]/g,c=>c==='<'?'&lt;':'&amp;')+'</span>':'');
       let list='';
@@ -224,7 +232,7 @@ function renderTime(){
    const row=e.target.closest('.dr');if(!row)return;const ni=+row.dataset.i;if(DT.dd&&dbgItems()[ni].k!==DT.dd.k)DT.dd=null;DT.cur=ni;dbgMenuToggle();});
  // the sliders: press and drag anywhere along the track
  const slSet=x=>{const k=DT.slDrag,el=rows.querySelector('.sl[data-k="'+k+'"]');if(!el)return;const r=el.getBoundingClientRect(),f=Math.max(0,Math.min(1,(x-r.left)/r.width));
-   if(k==='curve')DT.curve=Math.round(f*20)-10;else if(k==='host')DT.host=Math.round(f*2);else if(k==='speed')DT.speedI=Math.round(f*(SPEEDS.length-1));else DT.psI=Math.round(f*(PSPEEDS.length-1));renderTime();};
+   if(k==='curve')DT.curve=Math.round(f*20)-10;else if(k==='host')DT.host=Math.round(f*HOST_MAX);else if(k==='tod')setTodHour(Math.round(f*23));else if(k==='speed')DT.speedI=Math.round(f*(SPEEDS.length-1));else DT.psI=Math.round(f*(PSPEEDS.length-1));renderTime();};
  rows.addEventListener('pointerdown',e=>{const sl=e.target.closest('.sl');if(!sl)return;DT.slDrag=sl.dataset.k;DT.dd=null;const row=sl.closest('.dr');if(row)DT.cur=+row.dataset.i;slSet(e.clientX);e.preventDefault();});
  addEventListener('pointermove',e=>{if(DT.slDrag)slSet(e.clientX);});
  addEventListener('pointerup',()=>{DT.slDrag=null;});

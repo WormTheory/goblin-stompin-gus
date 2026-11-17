@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:38b0090db9a85c160e730049d1a5c024aa78c577c9095168d98ded1ca566b5ab -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:ee82ae7f27d9e26edaba0d5ec5fb8bd690b86a972b6a3e3ef1bde27fd422d8c7 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1464,7 +1464,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
     <div class="tabpane" id="tabOptions" role="tabpanel" hidden>
     <div class="opts">
       <div class="custom hostmain">
-      <div class="crow"><label class="clab" for="hostMain">ENEMY HOSTILITY</label><input type="range" id="hostMain" class="vrange" min="0" max="2" step="1" value="2" aria-label="Enemy hostility"><span class="vval" id="hostMainVal">Normal</span></div>
+      <div class="crow"><label class="clab" for="hostMain">ENEMY HOSTILITY</label><input type="range" id="hostMain" class="vrange" min="0" max="3" step="1" value="3" aria-label="Enemy hostility"><span class="vval" id="hostMainVal">Normal</span></div>
       <p class="vnote" id="hostMainTxt"></p>
       <div class="crow"><span class="clab" id="pathLab">GOBLIN PATHFINDING</span><div class="seg" role="radiogroup" aria-labelledby="pathLab" id="pathSeg"><button type="button" role="radio" data-path="0" aria-checked="true">Advanced</button><button type="button" role="radio" data-path="1" aria-checked="false">Simple</button></div></div>
       <p class="vnote" id="pathTxt"></p>
@@ -1558,14 +1558,20 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <ul><li>A new PvP switch in Options, off unless you turn it on. With it on, players can fight each other, in split screen or online, whoever they're playing as.</li><li>Lock on to another player as you would a goblin, on foot, from a tank or helicopter, or with a Mobile Gear's lock box, and its missiles home in on them. A player in a vehicle is locked on as the vehicle.</li><li>Every attack lands on other players: bites and uppercuts, stomps, ground pounds, ground spikes, trampling, rolls, dashes, blast dashes and blast long jumps, and Gnash's club, dagger, guns and grenades. A hippo's blows hit another player for about a third of what they do to a goblin, so a fight lasts a while.</li><li>Vehicles too: run another player down in a car or a tank, shoot them with a tank's or helicopter's guns, shells and rockets, or with a Mobile Gear's rifle, blade, missiles and cannon (it tramples them as well).</li><li>A player killed by another is told who did it, the winner scores 500 points, and the obituaries name the killer. You get up again as usual.</li><li>Online, the host's switch decides for everyone. A guest's PvP switch shows the host's choice and can't be changed.</li></ul>
 <h3>Vehicle controls</h3>
 <ul><li>In every vehicle, its controls are listed down the left side of the screen, one to a line, instead of along the bottom. The controls line for on foot is hidden while you drive.</li></ul>
+<h3>Map markers</h3>
+<ul><li>Mark a spot on the map: click it on the pause menu's Map tab (tap it on a touch screen; on a controller, pan the crosshair over it and press Y). A pin goes there and shows on your minimap too, or, while it's off the minimap's edge, an arrow on the rim points the way with how far it is. Click the pin again to take it away, or somewhere else to move it.</li><li>In split screen each player has a marker of their own, set from their own pause menu and shown on their own minimap, in their own colour. Markers are kept for each world.</li></ul>
+<h3>Enemy hostility: Pacifist</h3>
+<ul><li>A new step at the far left of the Enemy hostility slider: Pacifist. Goblins can't be harmed at all, whatever hits them, and as with Passive nobody reacts to you. Vehicles and buildings still break.</li></ul>
 <h3>Debug menu</h3>
-<ul><li>Vehicles: pick any vehicle from the list and press Spawn, and one is set down ahead of you, parked and empty, ready to get into. It works in the ordinary game too, not just the Testing Environment: anywhere with a level patch of ground in front of you, and what you spawn stays where you left it.</li><li>Infinite ammo: while it's on, nothing that has to be reloaded ever runs out (the Mobile Gear's blade still has to cool between swings).</li><li>Infinite stamina now keeps the Mobile Gear's energy bar full too, so it never redlines.</li><li>Invulnerability now covers whatever you're driving, flying or manning too: a car, tank, helicopter, plane, boat, balloon, Mobile Gear or deck weapon takes no damage while you're in it, and nor does the carrier while you're at its helm (its blocks can still be smashed).</li><li>The vehicle list scrolls all the way to the bottom now. The mouse wheel no longer jumps back as it scrolls, and opening the list scrolls the menu far enough to show all of it, so the last few vehicles (down to the aircraft carrier) can be reached with the mouse, the wheel, the keyboard or a controller.</li></ul>
+<ul><li>Vehicles: pick any vehicle from the list and press Spawn, and one is set down ahead of you, parked and empty, ready to get into. It works in the ordinary game too, not just the Testing Environment: anywhere with a level patch of ground in front of you, and what you spawn stays where you left it.</li><li>Infinite ammo: while it's on, nothing that has to be reloaded ever runs out (the Mobile Gear's blade still has to cool between swings).</li><li>Infinite stamina now keeps the Mobile Gear's energy bar full too, so it never redlines.</li><li>Invulnerability now covers whatever you're driving, flying or manning too: a car, tank, helicopter, plane, boat, balloon, Mobile Gear or deck weapon takes no damage while you're in it, and nor does the carrier while you're at its helm (its blocks can still be smashed).</li><li>The vehicle list scrolls all the way to the bottom now. The mouse wheel no longer jumps back as it scrolls, and opening the list scrolls the menu far enough to show all of it, so the last few vehicles (down to the aircraft carrier) can be reached with the mouse, the wheel, the keyboard or a controller.</li><li>Time of day: a slider in the World section that sets the clock to any hour, 00:00 to 23:00. The day carries on from there as usual.</li></ul>
 <h3>Bullets break blocks</h3>
 <ul><li>Goblins' rifle and handgun rounds stop at the first block in the way. They used to hit you through a wall if they'd taken aim before you ducked behind it.</li><li>Rounds from guns, the Mobile Gear's rifle, Gnash's rifle and handgun, the helicopter's machine gun and the militia's mounted guns, now break the block they hit about half the time, so sustained fire slowly chews through cover.</li></ul>
 <h3>Less prop pop-in</h3>
 <ul><li>Props out in the open (patio tables, beach and harbour gear, the stadium's fittings and the like) are now drawn out to 64 blocks, up from 34, and furniture indoors stays at 34 as before. The distance is now the same in every direction, so things on the diagonal no longer show up later than things straight ahead.</li><li>Props now grow up out of the ground over a moment as they come into range, instead of suddenly appearing.</li><li>New PROPS slider in Options, under Render distance: set how far props are drawn, from 32 to 192 blocks. Furniture indoors goes about half as far as the setting.</li></ul>
 <h3>Weather</h3>
 <ul><li>Foggy weather now really closes in. The weather's fog used to shrink with the FAR VIEW setting, so with the view turned up it all but vanished; now fog, rain and snow limit how far you can see by the same number of blocks whatever the setting, with thick fog and blizzards down to about 30 blocks.</li><li>Windy weather is gone.</li><li>Tanks, helicopters, planes and Mobile Gears now gather snow on top as cars do, as deep as the snow on the ground while they stand out in the open. It blows off a plane in the air or a helicopter going fast.</li><li>The main menu's "New city" button is now "New world".</li><li>The save screens now call a save a world rather than a city: "New file: new world", "Export this world", the world seed under the menu, and the rest.</li></ul>
+<h3>Fixes</h3>
+<ul><li>The minimap no longer draws the grey of the surrounding blocks over big sites that take up several blocks, such as theme parks, which hid most of their buildings.</li></ul>
 </details>
 <p class="pn-earlier">Earlier updates</p>
 <details class="pn-up pn-fold" id="version-0-4-1"><summary tabindex="0"><h2>Version 0.4.1</h2><a class="pn-play" data-ver="0.4.1" href="v/0.4.1/" tabindex="0">Play 0.4.1</a><span class="pn-tog" aria-hidden="true"></span></summary>
@@ -1877,7 +1883,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='46e9ea2dc94a';
+const GAME_VER='0.5',GAME_BUILD='c19d67c7194d';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v95';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -11432,8 +11438,9 @@ function trampleFences(p){
 const GOB_ABIL={bite:true,biteCombo:false,stomp:false,chargeStomp:false,fullStomp:false,groundSpike:false,pound:false,chargePound:false,fullPound:false,jump:true,double:false,triple:false,
   sprint:true,trample:false,dash:true,roll:false,blastDash:false,airDash:false,blastAirDash:false,longJump:false,blastJump:false,rocket:false,climb:true,crash:false,noFall:false};
 const GOB_FEET=[[0,0],[.25,.25],[-.25,.25],[.25,-.25],[-.25,-.25]],GOB_WALK=2.8,GOB_RUN=5,GOB_HOP=8.4,GOB_EYE=1.22*ES;
-const calmNow=()=>DT.host<2;   // (nobody's after you: enemy hostility is turned down. Playing as a goblin makes no difference: they're after you all the same)
-const passiveNow=()=>DT.host===0;   // (and nobody minds you at all, not even when you hit them)
+const calmNow=()=>DT.host<3;   // (nobody's after you: enemy hostility is turned down. Playing as a goblin makes no difference: they're after you all the same)
+const passiveNow=()=>DT.host<=1;   // (and nobody minds you at all, not even when you hit them)
+const pacifistNow=()=>DT.host===0;   // (and no goblin can come to any harm: damageGoblin does nothing)
 const camPitch=(v,p)=>p&&p.gob?Math.max(-1.5,Math.min(1.5,v)):Math.max(-1.1,Math.min(0.55,v));   // (in first person you can look right up)
 // Goblin mode is each player's own (p.gob): in co-op one can be a hippo and the other a goblin. DT.gob says whether
 // anyone is (the dropped weapons stay about only while someone can pick them up). Their body sizes go with it (bodyOf, ptsOf).
@@ -14557,6 +14564,27 @@ function updateExplore(dt){
       for(let dx=-2;dx<=2;dx++)for(let dz=-2;dz<=2;dz++){if(dx*dx+dz*dz>5)continue;const k=(cx+dx)+','+(cz+dz);if(!explored.has(k)&&tenvShow(cx+dx,cz+dz)){explored.add(k);exploreDirty=true;noteKnown(cx+dx,cz+dz);}}}}
   if(exploreDirty&&mapSaveT<=0){mapSaveT=5;exploreDirty=false;saveExplored();}
 }
+// ---- map markers: each player can mark one spot on the Map tab (click or tap it there; on a controller, Y marks the
+// crosshair in the middle). It's that player's own: shown on the map and on their own minimap, with an arrow on the
+// minimap's rim and how far it is when it's off the edge. Marking it again takes it away; marking somewhere else moves
+// it. Kept in this browser for each seat, per world (a new world starts with none) ----
+const MARK_KEY='goblin-stompin-gus-marks',MARK_COL=['#3fd6ff','#ff7ad6','#ffd75a','#9cff6a'];let marksSeed=null;
+const markCol=p=>MARK_COL[p.idx%MARK_COL.length];
+function loadMarks(){marksSeed=seed;for(const p of players)p.mark=null;
+  try{const m=JSON.parse(localStorage.getItem(MARK_KEY)||'null');if(m&&m.seed===seed&&Array.isArray(m.m))m.m.forEach((q,i)=>{if(players[i]&&Array.isArray(q)&&isFinite(q[0])&&isFinite(q[1]))players[i].mark={x:+q[0],z:+q[1]};});}catch(e){}}
+function saveMarks(){try{localStorage.setItem(MARK_KEY,JSON.stringify({seed,m:players.map(p=>p.mark?[Math.round(p.mark.x*10)/10,Math.round(p.mark.z*10)/10]:null)}));}catch(e){}}
+function markOf(p){if(marksSeed!==seed)loadMarks();return p.mark||null;}
+// whose marker the Map tab sets: whoever's menu it is (in split screen, either player's)
+function mapOwner(){return menuBy&&menuBy.active?menuBy:players.find(q=>q.active)||P1;}
+// mark a spot for p, or take the marker away if 'onIt' (pointing at the one that's there)
+function toggleMark(p,wx,wz,onIt){
+  if(onIt&&markOf(p)){p.mark=null;tone('triangle',440,0,0.05,0.03);}
+  else{p.mark={x:wx,z:wz};tone('triangle',760,0,0.06,0.03);}
+  saveMarks();}
+// the marker on the map: a pin with its point on the spot, in the player's colour
+function drawPin(x,sx,sy,col,big){const r=big?7:5.5,h=big?17:13;x.save();x.fillStyle=col;x.strokeStyle='#0c0f14';x.lineWidth=1.6;
+  x.beginPath();x.moveTo(sx,sy);x.arc(sx,sy-h+r,r,Math.PI*0.78,Math.PI*0.22);x.closePath();x.fill();x.stroke();
+  x.fillStyle='#0c0f14';x.beginPath();x.arc(sx,sy-h+r,r*0.38,0,Math.PI*2);x.fill();x.restore();}
 // a destroyed building, on the map and minimap: dark grey with pale diagonal hatching (like a rubble site)
 const RUIN_SW='repeating-linear-gradient(45deg,#2e3034 0 3px,#a3a7ad 3px 5px)';
 const ruinPats=new WeakMap();
@@ -14630,6 +14658,14 @@ function exploredBox(){
 }
 // back to where you are
 function mapRecentre(){MAPV.cx=null;renderMap();}
+// a marker at a point on the map canvas (CSS pixels from its corner), or at the middle (the controller's crosshair)
+function mapClick(sx,sy){const cv=document.getElementById('mapCanvas');if(!cv||MAPV.cx===null)return;
+  const w=Math.max(200,cv.clientWidth||600),h=Math.max(200,cv.clientHeight||400),k=MAPV.ppb;
+  if(sx===undefined){sx=w/2;sy=h/2;}
+  const p=mapOwner(),m=markOf(p),wx=MAPV.cx+(sx-w/2)/k,wz=MAPV.cz+(sy-h/2)/k;
+  // (within a few pixels of the spot, or on the pin's head standing above it, counts as pointing at the marker)
+  const onIt=!!m&&(Math.hypot(m.x-wx,m.z-wz)*k<=12||Math.abs(m.x-wx)*k<=9&&(m.z-wz)*k>=0&&(m.z-wz)*k<=19);
+  toggleMark(p,wx,wz,onIt);renderMap();}
 function renderMap(){
   const cv=document.getElementById('mapCanvas');if(!cv||!cv.getContext)return;
   if(exploredSeed!==seed)loadExplored();
@@ -14753,12 +14789,16 @@ function renderMap(){
    x.textAlign='start';x.textBaseline='alphabetic';}
   // the capitol: a star on the dome
   if(seenCap){const g=capGeo(),sx=X(seenCap.ax*CELL+PL0+g.c),sz=Z(seenCap.az*CELL+PL0+g.dc);x.fillStyle='#ffe27a';x.beginPath();for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?4:9;x.lineTo(sx+Math.cos(a)*rr,sz+Math.sin(a)*rr);}x.closePath();x.fill();}
+  // the markers: everyone's, the one whose menu it is drawn last, on top (and on a controller, the crosshair that Y marks)
+  {const own=mapOwner();for(const p of [...players.filter(q=>q!==own),own]){const m=p.active&&markOf(p);if(m)drawPin(x,X(m.x),Z(m.z),markCol(p),p===own);}
+   if(inputKind==='pad'){const cx=w/2,cy=h/2;x.strokeStyle='rgba(0,0,0,.7)';x.lineWidth=3;x.beginPath();x.moveTo(cx-9,cy);x.lineTo(cx+9,cy);x.moveTo(cx,cy-9);x.lineTo(cx,cy+9);x.stroke();
+     x.strokeStyle='#f4f1e6';x.lineWidth=1.4;x.stroke();}}
   // you (and your friend): arrows pointing the way you face
   for(const p of players){if(!p.active)continue;const px=X(p.pos.x),pz=Z(p.pos.z),hx=Math.sin(p.heading),hz=Math.cos(p.heading);
     x.fillStyle=charTint(p)?'#f08ac0':'#ffffff';x.strokeStyle='#000';x.lineWidth=1.5;x.beginPath();
     x.moveTo(px+hx*11,pz+hz*11);x.lineTo(px-hx*6+hz*6,pz-hz*6-hx*6);x.lineTo(px-hx*3,pz-hz*3);x.lineTo(px-hx*6-hz*6,pz-hz*6+hx*6);x.closePath();x.fill();x.stroke();}
   const note=document.getElementById('mapNote');
-  if(note)note.textContent=explored.size+' city blocks explored. Drag to pan, scroll to zoom; on a controller, the right stick pans and the triggers zoom.';
+  if(note)note.textContent=explored.size+' blocks explored. Drag to pan, scroll to zoom, click to set a marker; on a controller, the right stick pans, the triggers zoom and Y sets a marker.';
 }
 // the legend, and mouse panning / zooming
 {const lg=document.getElementById('mapLegend');
@@ -14770,13 +14810,19 @@ function renderMap(){
  if(cv&&cv.addEventListener){
   // one finger (or the mouse) drags the map; two fingers pinch to zoom
   const spread=()=>{const v=[...ptrs.values()];return v.length>=2?Math.hypot(v[0].x-v[1].x,v[0].y-v[1].y):0;};
-  cv.addEventListener('pointerdown',e=>{ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});drag={x:e.clientX,y:e.clientY};pinch=spread();cv.setPointerCapture&&cv.setPointerCapture(e.pointerId);});
-  cv.addEventListener('pointermove',e=>{if(!ptrs.has(e.pointerId))return;ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  // (a click or tap that doesn't drag sets a marker there: see mapClick)
+  let tap=null,tapT=0;
+  cv.addEventListener('pointerdown',e=>{ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});drag={x:e.clientX,y:e.clientY};pinch=spread();cv.setPointerCapture&&cv.setPointerCapture(e.pointerId);
+    tap=ptrs.size===1&&(e.button===undefined||e.button===0)?{x:e.clientX,y:e.clientY,moved:0}:null;});
+  cv.addEventListener('pointermove',e=>{if(!ptrs.has(e.pointerId))return;if(tap)tap.moved=Math.max(tap.moved,Math.hypot(e.clientX-tap.x,e.clientY-tap.y));ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
     if(ptrs.size>=2){const d=spread();if(pinch>0&&d>0)mapZoom(d/pinch);pinch=d;drag=null;return;}
     if(!drag)return;mapPan(-(e.clientX-drag.x),-(e.clientY-drag.y));drag={x:e.clientX,y:e.clientY};});
   const up=e=>{ptrs.delete(e.pointerId);pinch=spread();drag=null;};
-  cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
-  cv.addEventListener('dblclick',()=>mapRecentre());
+  cv.addEventListener('pointerup',e=>{const t=tap;tap=null;up(e);
+    // (held back a moment: a double click or double tap re-centres instead, and leaves the marker alone)
+    if(t&&t.moved<6&&e.type==='pointerup'){clearTimeout(tapT);const r=cv.getBoundingClientRect(),sx=e.clientX-r.left,sy=e.clientY-r.top;tapT=setTimeout(()=>mapClick(sx,sy),260);}});
+  cv.addEventListener('pointercancel',e=>{tap=null;up(e);});
+  cv.addEventListener('dblclick',()=>{clearTimeout(tapT);mapRecentre();});
   cv.addEventListener('wheel',e=>{e.preventDefault();mapZoom(e.deltaY<0?1.15:1/1.15);},{passive:false});
  }
  addEventListener('keydown',e=>{if(menuOpen&&curTab==='map'&&e.code==='KeyC'&&!e.repeat)mapRecentre();});
@@ -15637,6 +15683,7 @@ function menuPad(st,dt){
     if(s.pr[3]&&curTab==='custom'){const t=document.querySelector('#abilList .tog');if(t&&t.offsetParent)padFocus(t);}
     const ry=s.p.axes[3]||0;
     if(curTab==='map'&&s.pr[2])mapRecentre();
+    if(curTab==='map'&&s.pr[3])mapClick();   // (Y: a marker at the crosshair)
     if(curTab==='map'){const rx2=s.p.axes[2]||0;if(Math.abs(rx2)>0.2||Math.abs(ry)>0.2)mapPan(rx2*dt*420,ry*dt*420);if(s.b[7])mapZoom(1+dt*1.6);if(s.b[6])mapZoom(1/(1+dt*1.6));}
     else if(Math.abs(ry)>0.25){const pane=document.querySelector('.main .tabpane:not([hidden])');if(pane)pane.scrollTop+=ry*14;}
     // right stick left/right turns the goblin in the obituary preview
@@ -15731,18 +15778,18 @@ function menuPromptItems(){
     if(cf||!home)out.push([['B'],'Back']);else if(!atTitle&&begun)out.push([['B'],'Resume']);
     out.push([['LB','RB'],'Jump between screens']);
     if(curTab==='custom')out.push([['Y'],'Ability toggles']);
-    if(curTab==='map'){out.push([['RS'],'Pan']);out.push([['LT','RT'],'Zoom']);out.push([['X'],'Re-centre']);}
+    if(curTab==='map'){out.push([['RS'],'Pan']);out.push([['LT','RT'],'Zoom']);out.push([['X'],'Re-centre']);out.push([['Y'],'Marker']);}
     else if(curTab==='obit'){out.push([['RS:h'],'Turn']);if(scrolls)out.push([['RS:v'],'Scroll']);}
     else if(scrolls)out.push([['RS:v'],'Scroll']);
     out.push([['START'],atTitle?'Play':'Resume']);
   } else if(kind==='touch'){
     out.push([['TAP'],'Select']);
-    if(curTab==='map'){out.push([['TDRAG'],'Pan']);out.push([['TDRAG','TDRAG'],'Pinch to zoom']);out.push([['TAP','TAP'],'Re-centre']);}
+    if(curTab==='map'){out.push([['TDRAG'],'Pan']);out.push([['TDRAG','TDRAG'],'Pinch to zoom']);out.push([['TAP'],'Marker']);out.push([['TAP','TAP'],'Re-centre']);}
     else if(curTab==='obit')out.push([['TDRAG'],'Turn']);
     else if(scrolls)out.push([['TDRAG'],'Scroll']);
   } else {
     out.push([['LMB'],'Select']);
-    if(curTab==='map'){out.push([['MDRAG'],'Pan']);out.push([['WHEEL'],'Zoom']);out.push([['KEY:C'],'Re-centre']);}
+    if(curTab==='map'){out.push([['MDRAG'],'Pan']);out.push([['WHEEL'],'Zoom']);out.push([['LMB'],'Marker']);out.push([['KEY:C'],'Re-centre']);}
     else if(curTab==='obit'){out.push([['MDRAG'],'Turn']);if(scrolls)out.push([['WHEEL'],'Scroll']);}
     else if(scrolls)out.push([['WHEEL'],'Scroll']);
     if(range)out.push([['KEY:←','KEY:→'],'Adjust']);else out.push([['KEY:Enter'],'Pick']);
@@ -16253,6 +16300,7 @@ function spawnGoblin(g,any){
 }
 function damageGoblin(g,n,pt,dir,cause,by){
   if(g.state!=='chase')return;
+  if(pacifistNow())return;   // (Enemy hostility at Pacifist: no goblin comes to any harm, whatever hits them)
   if(!by&&BLAME==='acc')by=ACCIDENT;
   if(!by&&n>0&&g.hp-n>0){const q=nearestPlayer(g.pos.x,g.pos.z);if(q)hudPop(g.pos.x,g.pos.y+1.9,g.pos.z,'-'+(Math.round(n*10)/10),'dmg',q.p);}   // (the damage number, for whoever did it; the killing blow gets a shout instead)
   g.hp-=n;g.hurt=0.1;if(cause!=='Fell to death')g.hitT=playTime;
@@ -18188,7 +18236,7 @@ const sbxCells=cells=>{const h=SBX&&SBX.hits[SBX.hits.length-1];if(h&&h.kind==='
 // game speed and free cam
 const SPEEDS=[0.05,0.1,0.25,0.5,0.75,0.9,1,1.25,1.5,2];
 const PSPEEDS=[1,1.5,2,2.5,3,4,5,6,7,8,9,10];
-const DT={combo:false,hpBars:false,fps:false,sndList:false,info:false,curve:2,psI:0,invuln:false,infStam:false,infAmmo:false,veh:'car',vehMsg:'',fly:false,gob:false,host:2,speedI:6,paused:false,freecam:false,step:false,quick:false,menu:false,kbdOpen:false,selHeld:false,cur:0,navDir:0,navT:0};
+const DT={combo:false,hpBars:false,fps:false,sndList:false,info:false,curve:2,psI:0,invuln:false,infStam:false,infAmmo:false,veh:'car',vehMsg:'',fly:false,gob:false,host:3,speedI:6,paused:false,freecam:false,step:false,quick:false,menu:false,kbdOpen:false,selHeld:false,cur:0,navDir:0,navT:0};
 try{const q=JSON.parse(localStorage.getItem('goblin-stompin-gus-quickdbg')||'null');if(typeof q==='boolean')DT.quick=q;}catch(e){}
 try{for(const k of ['fps','hpBars','sndList','info'])DT[k]=localStorage.getItem('goblin-stompin-gus-'+k)==='1';}catch(e){}
 // the debug settings carry over from one session to the next (all but stopping time and the free cam, which would
@@ -18198,11 +18246,13 @@ try{const q=JSON.parse(localStorage.getItem(DT_KEY)||'null');if(q&&typeof q==='o
   if(!(DT.speedI>=0&&DT.speedI<SPEEDS.length))DT.speedI=SPEEDS.indexOf(1);if(!(DT.psI>=0&&DT.psI<PSPEEDS.length))DT.psI=0;}catch(e){}
 function saveDT(){try{const o={};for(const k of DT_SAVED)o[k]=DT[k];localStorage.setItem(DT_KEY,JSON.stringify(o));
   localStorage.setItem(HOST_KEY,String(DT.host));}catch(e){}}
-// Enemy hostility, three steps (the main screen's slider and the quick menu's are one setting, kept
-// from one session to the next): 0 Passive, nobody reacts to you at all, not even to being hit (they still get hurt);
-// 1 Peaceful, nobody attacks or hunts you, but the townsfolk still run from you; 2 Normal
-const HOST_KEY='goblin-stompin-gus-hostility',HOST_N=['Passive','Peaceful','Normal'],HOST_TXT=['Nobody reacts to you, even when hit','Nobody attacks you, but townsfolk still run','Goblins, cars, police and soldiers come for you'];
-try{const s=localStorage.getItem(HOST_KEY);if(s==='0'||s==='1'||s==='2')DT.host=+s;else if(localStorage.getItem('goblin-stompin-gus-peaceful')==='1')DT.host=1;}catch(e){}   // (the old Peaceful box, ticked, is the middle step)
+// Enemy hostility, four steps (the main screen's slider and the quick menu's are one setting, kept
+// from one session to the next): 0 Pacifist, as Passive, and no goblin can be hurt at all (pacifistNow);
+// 1 Passive, nobody reacts to you at all, not even to being hit (they still get hurt);
+// 2 Peaceful, nobody attacks or hunts you, but the townsfolk still run from you; 3 Normal
+const HOST_MAX=3,HOST_KEY='goblin-stompin-gus-hostility2',HOST_N=['Pacifist','Passive','Peaceful','Normal'],HOST_TXT=['Goblins cannot be harmed, and nobody reacts to you','Nobody reacts to you, even when hit','Nobody attacks you, but townsfolk still run','Goblins, cars, police and soldiers come for you'];
+// (the steps used to be 0 Passive to 2 Normal under the old key: those move up one, as Pacifist came in below them)
+try{const s=localStorage.getItem(HOST_KEY),o=localStorage.getItem('goblin-stompin-gus-hostility');if(s!==null&&+s>=0&&+s<=HOST_MAX&&s===String(+s))DT.host=+s;else if(o==='0'||o==='1'||o==='2')DT.host=+o+1;else if(localStorage.getItem('goblin-stompin-gus-peaceful')==='1')DT.host=2;}catch(e){}   // (the old Peaceful box, ticked, is Peaceful)
 function syncHost(){for(const [i,o] of [['hostMain','hostMainVal']]){const el=document.getElementById(i),v=document.getElementById(o);if(el){el.value=String(DT.host);v.textContent=HOST_N[DT.host];}}const t=document.getElementById('hostMainTxt');if(t)t.textContent=HOST_TXT[DT.host];}
 // Goblin pathfinding, two ways (Options, kept in this browser): 0 Advanced, the route maps of enemies/routes.js (goblins
 // jump gaps, climb walls and buildings, and come after a hippo up and down wherever it's gone); 1 Simple, the chase as it
@@ -18254,7 +18304,7 @@ const DBG_COLS=4,DBG_SECS=[
   [0,'All',[{k:'_all',label:'Show all',act:true},{k:'_none',label:'Hide all',act:true}]],
   [0,'Time',[{k:'speed',label:'Game speed'},{k:'paused',label:'Stop time'}]],
   [0,'Camera',[{k:'freecam',label:'Free cam'},{k:'curve',label:'World curve'}]],
-  [0,'World',[{k:'wx',label:'Weather'},{k:'season',label:'Season'}]],
+  [0,'World',[{k:'tod',label:'Time of day'},{k:'wx',label:'Weather'},{k:'season',label:'Season'}]],
   // (pick a kind, then Spawn puts one down ahead of you, parked and empty: in the Testing Environment or the ordinary game)
   [0,'Vehicles',[{k:'vehSel',label:'Vehicle'},{k:'vehGo',label:'Spawn vehicle'}]],
   [1,'Player',[{k:'pspeed',label:'Player speed'},{k:'invuln',label:'Invulnerable'},{k:'infStam',label:'Infinite stamina'},{k:'infAmmo',label:'Infinite ammo'},{k:'fly',label:'Flying'},{k:'host',label:'Enemy hostility'},{k:'combo',label:'Combo system'}]],
@@ -18268,7 +18318,12 @@ const DBG_COLS=4,DBG_SECS=[
 const DBG_ITEMS=DBG_SECS.flatMap(([c,sec,rows])=>rows.map(it=>Object.assign(it,{c,sec})));
 // (the sliders: left and right only move one once it's been picked with A, and until then they go to the next column,
 // as on any other row, so a slider never gets in the way of crossing the menu)
-const DBG_SLIDE=new Set(['speed','pspeed','curve','host']);
+const DBG_SLIDE=new Set(['speed','pspeed','curve','host','tod']);
+// the Time of day slider: the clock's hour, 00:00 to 23:00 (tod 0 is six in the morning: hourNow). Setting it jumps
+// straight there, the same day, and the day goes on from it as usual (online, only the host's clock counts)
+const todHour=()=>Math.floor(hourNow()+1e-6)%24;
+function setTodHour(h){h=((h%24)+24)%24;if(netGuest())return;tod=(((h-6)%24+24)%24)/24;clockT=0;}
+const todTxt=()=>String(todHour()).padStart(2,'0')+':00';
 // the Rendering switches, and what each one stops being drawn (not saved: a world with holes in the picture would only
 // be confusing to come back to). The caves, sewers and subways redraw over the next few frames, nearest first.
 const GFX_KEY={gProps:'props',gFixtures:'fixtures',gCaves:'caves',gSewers:'sewers',gSubway:'subway'};
@@ -18279,7 +18334,7 @@ function toggleGfx(k){const g=GFX_KEY[k],off=GFX_OFF[g]=!GFX_OFF[g];
   const P=P1.pos,d=e=>Math.hypot(e.cx*CS-P.x,e.cz*CS-P.z);
   leafQ.length=0;for(const e of [...meshes.values()].sort((a,b)=>d(b)-d(a)))leafQ.push(ckey(e.cx,e.cz));}
 const curveTxt=()=>DT.curve===0?'Flat':DT.curve>0?'Down '+DT.curve:'Up '+(-DT.curve);
-function dbgVal(k){return isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='vehSel'?tenvVehName(DT.veh):k==='vehGo'?DT.vehMsg:k==='paused'||k==='freecam'||k==='combo'||k==='invuln'||k==='infStam'||k==='infAmmo'||k==='fly'||k==='fps'||k==='sndList'||k==='info'?DT[k]:DBG[k];}
+function dbgVal(k){return isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='tod'?todTxt():k==='vehSel'?tenvVehName(DT.veh):k==='vehGo'?DT.vehMsg:k==='paused'||k==='freecam'||k==='combo'||k==='invuln'||k==='infStam'||k==='infAmmo'||k==='fly'||k==='fps'||k==='sndList'||k==='info'?DT[k]:DBG[k];}
 // the rows on show: the individual hitbox switches only while 'Display hitboxes' is on
 // the menu's two tabs: 0 the switches themselves, 1 "Show / hide", which picks the rows tab 0 lists (kept in this browser)
 const DBG_HIDE_KEY='goblin-stompin-gus-dbghide',DBG_HIDE=new Set();
@@ -18293,7 +18348,8 @@ function dbgTab(t){const k=(dbgItems()[DT.cur]||{}).k;DT.tab=t;DT.edit=null;DT.d
 function dbgStep(k,d){if(k==='wx'){const L=Object.keys(WX_TYPES);wxSet(L[(L.indexOf(WX.type)+d+L.length)%L.length],true);WX.until=gameDays()+1;}
   else if(k==='season'){const y=Math.floor((dayN-1)/120);dayN=y*120+((seasonOf()+d+4)%4)*SEASON_LEN+1;wxSet(wxPick(seasonOf()),true);}
   else if(k==='curve')DT.curve=Math.max(-10,Math.min(10,DT.curve+d));
-  else if(k==='host')DT.host=Math.max(0,Math.min(2,DT.host+d));
+  else if(k==='host')DT.host=Math.max(0,Math.min(HOST_MAX,DT.host+d));
+  else if(k==='tod')setTodHour(todHour()+d);
   else if(k==='speed')DT.speedI=Math.max(0,Math.min(SPEEDS.length-1,DT.speedI+d));else if(k==='pspeed')DT.psI=Math.max(0,Math.min(PSPEEDS.length-1,DT.psI+d));}
 function setKbdMenu(on){
   DT.kbdOpen=on;DT.menu=DT.quick&&(on||DT.selHeld);mHeld.clear();mTap.clear();renderTime();
@@ -18363,7 +18419,7 @@ function renderTime(){
     const dbgRows=dbgL.map((it,i)=>{const nAll=DBG_ITEMS.filter(o=>!o.act).length,v=it.act?(it.k==='_all'?(nAll-DBG_HIDE.size)+' / '+nAll+' shown':''):DT.tab?!DBG_HIDE.has(it.k):dbgVal(it.k),txt=typeof v==='boolean'?(DT.tab?(v?'SHOWN':'HIDDEN'):v?'ON':'OFF'):v;
       let body=txt;
       if(DT.tab){}
-      else if(DBG_SLIDE.has(it.k)){const n=it.k==='curve'?21:it.k==='host'?3:(it.k==='speed'?SPEEDS:PSPEEDS).length,f=(it.k==='curve'?DT.curve+10:it.k==='host'?DT.host:it.k==='speed'?DT.speedI:DT.psI)/(n-1)*100;body='<span class="sl" data-k="'+it.k+'"><i style="width:'+f+'%"></i><b style="left:'+f+'%"></b></span><span class="slv">'+txt+'</span>';}
+      else if(DBG_SLIDE.has(it.k)){const n=it.k==='curve'?21:it.k==='host'?HOST_MAX+1:it.k==='tod'?24:(it.k==='speed'?SPEEDS:PSPEEDS).length,f=(it.k==='curve'?DT.curve+10:it.k==='host'?DT.host:it.k==='tod'?todHour():it.k==='speed'?DT.speedI:DT.psI)/(n-1)*100;body='<span class="sl" data-k="'+it.k+'"><i style="width:'+f+'%"></i><b style="left:'+f+'%"></b></span><span class="slv">'+txt+'</span>';}
       else if(DBG_DD.has(it.k))body='<span class="dd">'+(it.k==='wx'?WX_TYPES[WX.type].i+' ':'')+txt+' ▾</span>';
       else if(it.k==='vehGo')body='<span class="dbtn">Spawn</span>'+(txt?'<span class="dmsg">'+txt.replace(/[<&]/g,c=>c==='<'?'&lt;':'&amp;')+'</span>':'');
       let list='';
@@ -18403,7 +18459,7 @@ function renderTime(){
    const row=e.target.closest('.dr');if(!row)return;const ni=+row.dataset.i;if(DT.dd&&dbgItems()[ni].k!==DT.dd.k)DT.dd=null;DT.cur=ni;dbgMenuToggle();});
  // the sliders: press and drag anywhere along the track
  const slSet=x=>{const k=DT.slDrag,el=rows.querySelector('.sl[data-k="'+k+'"]');if(!el)return;const r=el.getBoundingClientRect(),f=Math.max(0,Math.min(1,(x-r.left)/r.width));
-   if(k==='curve')DT.curve=Math.round(f*20)-10;else if(k==='host')DT.host=Math.round(f*2);else if(k==='speed')DT.speedI=Math.round(f*(SPEEDS.length-1));else DT.psI=Math.round(f*(PSPEEDS.length-1));renderTime();};
+   if(k==='curve')DT.curve=Math.round(f*20)-10;else if(k==='host')DT.host=Math.round(f*HOST_MAX);else if(k==='tod')setTodHour(Math.round(f*23));else if(k==='speed')DT.speedI=Math.round(f*(SPEEDS.length-1));else DT.psI=Math.round(f*(PSPEEDS.length-1));renderTime();};
  rows.addEventListener('pointerdown',e=>{const sl=e.target.closest('.sl');if(!sl)return;DT.slDrag=sl.dataset.k;DT.dd=null;const row=sl.closest('.dr');if(row)DT.cur=+row.dataset.i;slSet(e.clientX);e.preventDefault();});
  addEventListener('pointermove',e=>{if(DT.slDrag)slSet(e.clientX);});
  addEventListener('pointerup',()=>{DT.slDrag=null;});
@@ -25066,6 +25122,9 @@ function updateMinimap(p,dt){
   // the world, drawn in world coordinates through a rotating transform
   x.setTransform(rx*k,-fx*k,rz*k,-fz*k,C-(rx*px+rz*pz)*k,C+(fx*px+fz*pz)*k);
   const R=MINI_RANGE*1.45,c0x=Math.floor((px-R)/CELL),c1x=Math.floor((px+R)/CELL),c0z=Math.floor((pz-R)/CELL),c1z=Math.floor((pz+R)/CELL),done=new Set();
+  // (two passes: every block's ground first, then the buildings and the sites spread over several blocks. Drawn in one
+  // go, a big site, or a building reaching past its own block, was painted over by the grey of the blocks drawn after it)
+  const late=[];
   for(let cx=c0x;cx<=c1x;cx++)for(let cz=c0z;cz<=c1z;cz++){
     const X0=cx*CELL,Z0=cz*CELL,t=plotType(cx,cz);
     if(!tenvShow(cx,cz)){x.fillStyle=MAPC.plains;x.fillRect(X0,Z0,CELL,CELL);continue;}
@@ -25074,15 +25133,16 @@ function updateMinimap(p,dt){
     if(t==='plains'||t==='farm'||t==='truckstop'){x.fillStyle=MAPC.plains;x.fillRect(X0,Z0,CELL,CELL);x.fillStyle='#5b5f63';if(gRow(cz,X0+16))x.fillRect(X0,Z0-3,CELL,14);if(gCol(cx,Z0+16))x.fillRect(X0-3,Z0,14,CELL);continue;}
     x.fillStyle='#565b5f';x.fillRect(X0+ROADW,Z0+ROADW,CELL-ROADW,CELL-ROADW);
     const Sp=superOf(cx,cz);
-    if(Sp){if(done.has(Sp))continue;done.add(Sp);
+    if(Sp){if(done.has(Sp))continue;done.add(Sp);late.push(()=>{
       const sx0=Sp.ax*CELL+PL0,sz0=Sp.az*CELL+PL0;x.fillStyle=Sp.kind==='bigpark'?MAPC.park:Sp.kind==='stadium'?MAPC.stadium:'#4a4f53';
       x.fillRect(sx0,sz0,(Sp.w-1)*CELL+PW,(Sp.h-1)*CELL+PW);
       if(Sp.kind!=='bigpark'&&Sp.kind!=='stadium'){const allR=blockRuined(Sp.ax,Sp.az);plotInfo(Sp.ax,Sp.az).b.forEach((b,bi)=>{const ru=!allR&&ruinedB(Sp.ax,Sp.az,bi);x.fillStyle=ru?ruinPat(x,4):(MAPC[Sp.kind]||MAPC.mega);x.fillRect(Sp.ax*CELL+b.x0,Sp.az*CELL+b.z0,b.x1-b.x0,b.z1-b.z0);if(ru){x.strokeStyle='#e0503c';x.lineWidth=0.7;x.strokeRect(Sp.ax*CELL+b.x0+0.35,Sp.az*CELL+b.z0+0.35,b.x1-b.x0-0.7,b.z1-b.z0-0.7);}});}
-      continue;}
+      });continue;}
     const B=plotBounds(cx,cz);x.fillStyle=t==='park'?MAPC.park:t==='plaza'?MAPC.plaza:t==='homes'?'#5f8a46':t==='ramp'?MAPC.ramp:'#4a4f53';
     x.fillRect(X0+B.x0,Z0+B.z0,B.x1-B.x0,B.z1-B.z0);
-    const col=MAPC[t]||'#7a7f86';const allR=blockRuined(cx,cz);plotInfo(cx,cz).b.forEach((b,bi)=>{const ru=!allR&&ruinedB(cx,cz,bi);x.fillStyle=ru?ruinPat(x,4):col;x.fillRect(X0+b.x0,Z0+b.z0,b.x1-b.x0,b.z1-b.z0);if(ru){x.strokeStyle='#e0503c';x.lineWidth=0.7;x.strokeRect(X0+b.x0+0.35,Z0+b.z0+0.35,b.x1-b.x0-0.7,b.z1-b.z0-0.7);}});
+    late.push(()=>{const col=MAPC[t]||'#7a7f86';const allR=blockRuined(cx,cz);plotInfo(cx,cz).b.forEach((b,bi)=>{const ru=!allR&&ruinedB(cx,cz,bi);x.fillStyle=ru?ruinPat(x,4):col;x.fillRect(X0+b.x0,Z0+b.z0,b.x1-b.x0,b.z1-b.z0);if(ru){x.strokeStyle='#e0503c';x.lineWidth=0.7;x.strokeRect(X0+b.x0+0.35,Z0+b.z0+0.35,b.x1-b.x0-0.7,b.z1-b.z0-0.7);}});});
   }
+  for(const f of late)f();
   // the railways
   if(!TENV){x.strokeStyle=MAPC.rail;x.lineWidth=4;x.beginPath();for(const L of railLinksInBox(c0x*CELL,c0z*CELL,(c1x+1)*CELL,(c1z+1)*CELL))for(let i=0;i+4<L.L;i+=4){x.moveTo(L.pts[i][0],L.pts[i][1]);x.lineTo(L.pts[Math.min(L.L-1,i+4)][0],L.pts[Math.min(L.L-1,i+4)][1]);}x.stroke();}
   // rivers and highways out across the plains, on their own lines
@@ -25101,6 +25161,13 @@ function updateMinimap(p,dt){
     if(dd<=RAD-6)dot(o.pos.x,o.pos.z,'#5fe36a',4.2);
     else{const a=Math.atan2(sy-C,sx-C),ex=C+Math.cos(a)*(RAD-7),ey=C+Math.sin(a)*(RAD-7);x.save();x.translate(ex,ey);x.rotate(a);x.fillStyle='#5fe36a';x.strokeStyle='rgba(0,0,0,.6)';x.lineWidth=1.2;
       x.beginPath();x.moveTo(7,0);x.lineTo(-5,-6);x.lineTo(-5,6);x.closePath();x.fill();x.stroke();x.restore();}}
+  // your marker (set on the Map tab): a pin on the spot, or on the rim pointing its way with how far it is
+  {const m=markOf(p);if(m){const col=markCol(p),[sx,sy]=toS(m.x,m.z),dd=Math.hypot(sx-C,sy-C);
+    if(dd<=RAD-8)drawPin(x,sx,sy,col,false);
+    else{const a=Math.atan2(sy-C,sx-C),ex=C+Math.cos(a)*(RAD-8),ey=C+Math.sin(a)*(RAD-8),far=Math.hypot(m.x-px,m.z-pz);
+      x.save();x.translate(ex,ey);x.rotate(a+Math.PI/4);x.fillStyle=col;x.strokeStyle='#0c0f14';x.lineWidth=1.4;x.fillRect(-4.5,-4.5,9,9);x.strokeRect(-4.5,-4.5,9,9);x.restore();
+      const lx=C+Math.cos(a)*(RAD-24),ly=C+Math.sin(a)*(RAD-24),t=far>=1000?(far/1000).toFixed(1)+' km':Math.round(far/10)*10+' m';
+      x.font='700 10px system-ui,sans-serif';x.textAlign='center';x.textBaseline='middle';x.lineWidth=3;x.strokeStyle='rgba(0,0,0,.8)';x.strokeText(t,lx,ly);x.fillStyle=col;x.fillText(t,lx,ly);}}}
   // you: an arrow in the middle, pointing the way you face
   {const h=p.heading,sx=rx*Math.sin(h)+rz*Math.cos(h),sy=-(fx*Math.sin(h)+fz*Math.cos(h)),a=Math.atan2(sy,sx);
    x.save();x.translate(C,C);x.rotate(a);x.fillStyle=charTint(p)?'#ffb0d8':'#ffd75a';x.strokeStyle='#0c0f14';x.lineWidth=1.5;x.beginPath();x.moveTo(8,0);x.lineTo(-6,-6);x.lineTo(-3,0);x.lineTo(-6,6);x.closePath();x.fill();x.stroke();x.restore();}
@@ -26344,9 +26411,9 @@ function netWorldBits(N){
   J('fire',fires.map(F=>[r3(F.x),r3(F.y),r3(F.z),r3(F.r),Math.round(F.t*10)/10,Math.round(F.life*10)/10,F.flames?1:0,r3(F.sm),r3(F.rise),F.douse?1:0]));
   return out;
 }
-function netClock(){return{tod,dayN,clockT,tc:trafficClock,wc:wxClock,wx:{type:WX.type,until:WX.until,k:Object.assign({},WX.k),wet:WX.wet,snowCover:WX.snowCover,snowClock:WX.snowClock,frozen:!!WX.frozen},host:DT.host,combo:DT.combo,pvp:DT.pvp};}
+function netClock(){return{tod,dayN,clockT,tc:trafficClock,wc:wxClock,wx:{type:WX.type,until:WX.until,k:Object.assign({},WX.k),wet:WX.wet,snowCover:WX.snowCover,snowClock:WX.snowClock,frozen:!!WX.frozen},host:Math.max(0,DT.host-1),hostV:DT.host,combo:DT.combo,pvp:DT.pvp};}
 function netClockSet(k){if(!k)return;tod=k.tod;dayN=k.dayN;clockT=k.clockT;trafficClock=k.tc;wxClock=k.wc;if(k.wx){const w=k.wx;WX.type=WX_TYPES[w.type]?w.type:'partly';WX.until=w.until;Object.assign(WX.k,w.k);WX.wet=w.wet;WX.snowCover=w.snowCover;WX.snowClock=w.snowClock;WX.frozen=w.frozen;}
-  if(k.host!==undefined&&k.host!==DT.host){DT.host=k.host;try{syncHost();}catch(e){}}
+  {const h=k.hostV!==undefined?k.hostV:k.host!==undefined?k.host+1:undefined;if(h!==undefined&&h!==DT.host){DT.host=h;try{syncHost();}catch(e){}}}   // (hostV: the four steps; a host on an older version sends only host, its three, which start at Passive)
   if(k.pvp!==undefined&&!!k.pvp!==NET_PVP){NET_PVP=!!k.pvp;try{syncPvp();}catch(e){}}   // (PvP is the host's to say, as hostility is)
   if(k.combo!==undefined&&k.combo!==DT.combo){DT.combo=!!k.combo;try{comboUiSync();}catch(e){}}}   // (the host's Combo system switch: whether there's a combo to show at all)
 

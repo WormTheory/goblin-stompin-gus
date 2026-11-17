@@ -14,6 +14,9 @@ function updateMinimap(p,dt){
   // the world, drawn in world coordinates through a rotating transform
   x.setTransform(rx*k,-fx*k,rz*k,-fz*k,C-(rx*px+rz*pz)*k,C+(fx*px+fz*pz)*k);
   const R=MINI_RANGE*1.45,c0x=Math.floor((px-R)/CELL),c1x=Math.floor((px+R)/CELL),c0z=Math.floor((pz-R)/CELL),c1z=Math.floor((pz+R)/CELL),done=new Set();
+  // (two passes: every block's ground first, then the buildings and the sites spread over several blocks. Drawn in one
+  // go, a big site, or a building reaching past its own block, was painted over by the grey of the blocks drawn after it)
+  const late=[];
   for(let cx=c0x;cx<=c1x;cx++)for(let cz=c0z;cz<=c1z;cz++){
     const X0=cx*CELL,Z0=cz*CELL,t=plotType(cx,cz);
     if(!tenvShow(cx,cz)){x.fillStyle=MAPC.plains;x.fillRect(X0,Z0,CELL,CELL);continue;}
@@ -22,15 +25,16 @@ function updateMinimap(p,dt){
     if(t==='plains'||t==='farm'||t==='truckstop'){x.fillStyle=MAPC.plains;x.fillRect(X0,Z0,CELL,CELL);x.fillStyle='#5b5f63';if(gRow(cz,X0+16))x.fillRect(X0,Z0-3,CELL,14);if(gCol(cx,Z0+16))x.fillRect(X0-3,Z0,14,CELL);continue;}
     x.fillStyle='#565b5f';x.fillRect(X0+ROADW,Z0+ROADW,CELL-ROADW,CELL-ROADW);
     const Sp=superOf(cx,cz);
-    if(Sp){if(done.has(Sp))continue;done.add(Sp);
+    if(Sp){if(done.has(Sp))continue;done.add(Sp);late.push(()=>{
       const sx0=Sp.ax*CELL+PL0,sz0=Sp.az*CELL+PL0;x.fillStyle=Sp.kind==='bigpark'?MAPC.park:Sp.kind==='stadium'?MAPC.stadium:'#4a4f53';
       x.fillRect(sx0,sz0,(Sp.w-1)*CELL+PW,(Sp.h-1)*CELL+PW);
       if(Sp.kind!=='bigpark'&&Sp.kind!=='stadium'){const allR=blockRuined(Sp.ax,Sp.az);plotInfo(Sp.ax,Sp.az).b.forEach((b,bi)=>{const ru=!allR&&ruinedB(Sp.ax,Sp.az,bi);x.fillStyle=ru?ruinPat(x,4):(MAPC[Sp.kind]||MAPC.mega);x.fillRect(Sp.ax*CELL+b.x0,Sp.az*CELL+b.z0,b.x1-b.x0,b.z1-b.z0);if(ru){x.strokeStyle='#e0503c';x.lineWidth=0.7;x.strokeRect(Sp.ax*CELL+b.x0+0.35,Sp.az*CELL+b.z0+0.35,b.x1-b.x0-0.7,b.z1-b.z0-0.7);}});}
-      continue;}
+      });continue;}
     const B=plotBounds(cx,cz);x.fillStyle=t==='park'?MAPC.park:t==='plaza'?MAPC.plaza:t==='homes'?'#5f8a46':t==='ramp'?MAPC.ramp:'#4a4f53';
     x.fillRect(X0+B.x0,Z0+B.z0,B.x1-B.x0,B.z1-B.z0);
-    const col=MAPC[t]||'#7a7f86';const allR=blockRuined(cx,cz);plotInfo(cx,cz).b.forEach((b,bi)=>{const ru=!allR&&ruinedB(cx,cz,bi);x.fillStyle=ru?ruinPat(x,4):col;x.fillRect(X0+b.x0,Z0+b.z0,b.x1-b.x0,b.z1-b.z0);if(ru){x.strokeStyle='#e0503c';x.lineWidth=0.7;x.strokeRect(X0+b.x0+0.35,Z0+b.z0+0.35,b.x1-b.x0-0.7,b.z1-b.z0-0.7);}});
+    late.push(()=>{const col=MAPC[t]||'#7a7f86';const allR=blockRuined(cx,cz);plotInfo(cx,cz).b.forEach((b,bi)=>{const ru=!allR&&ruinedB(cx,cz,bi);x.fillStyle=ru?ruinPat(x,4):col;x.fillRect(X0+b.x0,Z0+b.z0,b.x1-b.x0,b.z1-b.z0);if(ru){x.strokeStyle='#e0503c';x.lineWidth=0.7;x.strokeRect(X0+b.x0+0.35,Z0+b.z0+0.35,b.x1-b.x0-0.7,b.z1-b.z0-0.7);}});});
   }
+  for(const f of late)f();
   // the railways
   if(!TENV){x.strokeStyle=MAPC.rail;x.lineWidth=4;x.beginPath();for(const L of railLinksInBox(c0x*CELL,c0z*CELL,(c1x+1)*CELL,(c1z+1)*CELL))for(let i=0;i+4<L.L;i+=4){x.moveTo(L.pts[i][0],L.pts[i][1]);x.lineTo(L.pts[Math.min(L.L-1,i+4)][0],L.pts[Math.min(L.L-1,i+4)][1]);}x.stroke();}
   // rivers and highways out across the plains, on their own lines
@@ -49,6 +53,13 @@ function updateMinimap(p,dt){
     if(dd<=RAD-6)dot(o.pos.x,o.pos.z,'#5fe36a',4.2);
     else{const a=Math.atan2(sy-C,sx-C),ex=C+Math.cos(a)*(RAD-7),ey=C+Math.sin(a)*(RAD-7);x.save();x.translate(ex,ey);x.rotate(a);x.fillStyle='#5fe36a';x.strokeStyle='rgba(0,0,0,.6)';x.lineWidth=1.2;
       x.beginPath();x.moveTo(7,0);x.lineTo(-5,-6);x.lineTo(-5,6);x.closePath();x.fill();x.stroke();x.restore();}}
+  // your marker (set on the Map tab): a pin on the spot, or on the rim pointing its way with how far it is
+  {const m=markOf(p);if(m){const col=markCol(p),[sx,sy]=toS(m.x,m.z),dd=Math.hypot(sx-C,sy-C);
+    if(dd<=RAD-8)drawPin(x,sx,sy,col,false);
+    else{const a=Math.atan2(sy-C,sx-C),ex=C+Math.cos(a)*(RAD-8),ey=C+Math.sin(a)*(RAD-8),far=Math.hypot(m.x-px,m.z-pz);
+      x.save();x.translate(ex,ey);x.rotate(a+Math.PI/4);x.fillStyle=col;x.strokeStyle='#0c0f14';x.lineWidth=1.4;x.fillRect(-4.5,-4.5,9,9);x.strokeRect(-4.5,-4.5,9,9);x.restore();
+      const lx=C+Math.cos(a)*(RAD-24),ly=C+Math.sin(a)*(RAD-24),t=far>=1000?(far/1000).toFixed(1)+' km':Math.round(far/10)*10+' m';
+      x.font='700 10px system-ui,sans-serif';x.textAlign='center';x.textBaseline='middle';x.lineWidth=3;x.strokeStyle='rgba(0,0,0,.8)';x.strokeText(t,lx,ly);x.fillStyle=col;x.fillText(t,lx,ly);}}}
   // you: an arrow in the middle, pointing the way you face
   {const h=p.heading,sx=rx*Math.sin(h)+rz*Math.cos(h),sy=-(fx*Math.sin(h)+fz*Math.cos(h)),a=Math.atan2(sy,sx);
    x.save();x.translate(C,C);x.rotate(a);x.fillStyle=charTint(p)?'#ffb0d8':'#ffd75a';x.strokeStyle='#0c0f14';x.lineWidth=1.5;x.beginPath();x.moveTo(8,0);x.lineTo(-6,-6);x.lineTo(-3,0);x.lineTo(-6,6);x.closePath();x.fill();x.stroke();x.restore();}

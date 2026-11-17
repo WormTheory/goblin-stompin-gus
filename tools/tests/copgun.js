@@ -58,11 +58,11 @@ for(const [label,dist] of [['far',14],['close',1.5]]){
   console.log(label.padEnd(5),'cops',C.length,'| bullets',shots,'| hits on gus',hits,'| frames club+holster',frames[1],'gun out',frames[2],'none',frames[0],'| recoil frames',kicks,'| closest',minD.toFixed(1));
 }
 // calm: no shooting, gun put away
-T.DT.host=1;for(const g of cops()){g.state='wait';g.root.visible=false;g.gun=null;}
+T.DT.host=2;for(const g of cops()){g.state='wait';g.root.visible=false;g.gun=null;}
 T.tenvFoe('cop');const C2=cops();for(const g of C2){g.pos.set(P.pos.x+12,P.pos.y,P.pos.z);g.inv=false;}
 let sh=0;const sT=new Map();for(let i=0;i<5*60;i++){now+=16.7;T.frame(now);for(const t of T.TRACERS){if(t.t>(sT.get(t)??0)+0.001)sh++;sT.set(t,t.t);}}
 console.log('peaceful: cops',C2.length,'calm',T.calmNow(),'bullets',sh,'gun out',C2.filter(g=>g.pkit.shown===2).length);
 // an ordinary goblin out of the same pool: no gun, no holster
-T.DT.host=2;
+T.DT.host=3;
 const plain=T.goblins.find(g=>g.pkit&&!g.gun&&g.state==='chase');console.log('ordinary goblin with the kit:',plain?('shown '+plain.pkit.shown+' pistol visible '+plain.pkit.pis.some(m=>m.visible)+' holster visible '+plain.pkit.hol.some(m=>m.visible)):'none about');
 console.log('pistol pose keys',T.STRIKES.pistol.length,'| errors',errs.length,errs.slice(0,3));

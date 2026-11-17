@@ -14,6 +14,27 @@ function updateExplore(dt){
       for(let dx=-2;dx<=2;dx++)for(let dz=-2;dz<=2;dz++){if(dx*dx+dz*dz>5)continue;const k=(cx+dx)+','+(cz+dz);if(!explored.has(k)&&tenvShow(cx+dx,cz+dz)){explored.add(k);exploreDirty=true;noteKnown(cx+dx,cz+dz);}}}}
   if(exploreDirty&&mapSaveT<=0){mapSaveT=5;exploreDirty=false;saveExplored();}
 }
+// ---- map markers: each player can mark one spot on the Map tab (click or tap it there; on a controller, Y marks the
+// crosshair in the middle). It's that player's own: shown on the map and on their own minimap, with an arrow on the
+// minimap's rim and how far it is when it's off the edge. Marking it again takes it away; marking somewhere else moves
+// it. Kept in this browser for each seat, per world (a new world starts with none) ----
+const MARK_KEY='goblin-stompin-gus-marks',MARK_COL=['#3fd6ff','#ff7ad6','#ffd75a','#9cff6a'];let marksSeed=null;
+const markCol=p=>MARK_COL[p.idx%MARK_COL.length];
+function loadMarks(){marksSeed=seed;for(const p of players)p.mark=null;
+  try{const m=JSON.parse(localStorage.getItem(MARK_KEY)||'null');if(m&&m.seed===seed&&Array.isArray(m.m))m.m.forEach((q,i)=>{if(players[i]&&Array.isArray(q)&&isFinite(q[0])&&isFinite(q[1]))players[i].mark={x:+q[0],z:+q[1]};});}catch(e){}}
+function saveMarks(){try{localStorage.setItem(MARK_KEY,JSON.stringify({seed,m:players.map(p=>p.mark?[Math.round(p.mark.x*10)/10,Math.round(p.mark.z*10)/10]:null)}));}catch(e){}}
+function markOf(p){if(marksSeed!==seed)loadMarks();return p.mark||null;}
+// whose marker the Map tab sets: whoever's menu it is (in split screen, either player's)
+function mapOwner(){return menuBy&&menuBy.active?menuBy:players.find(q=>q.active)||P1;}
+// mark a spot for p, or take the marker away if 'onIt' (pointing at the one that's there)
+function toggleMark(p,wx,wz,onIt){
+  if(onIt&&markOf(p)){p.mark=null;tone('triangle',440,0,0.05,0.03);}
+  else{p.mark={x:wx,z:wz};tone('triangle',760,0,0.06,0.03);}
+  saveMarks();}
+// the marker on the map: a pin with its point on the spot, in the player's colour
+function drawPin(x,sx,sy,col,big){const r=big?7:5.5,h=big?17:13;x.save();x.fillStyle=col;x.strokeStyle='#0c0f14';x.lineWidth=1.6;
+  x.beginPath();x.moveTo(sx,sy);x.arc(sx,sy-h+r,r,Math.PI*0.78,Math.PI*0.22);x.closePath();x.fill();x.stroke();
+  x.fillStyle='#0c0f14';x.beginPath();x.arc(sx,sy-h+r,r*0.38,0,Math.PI*2);x.fill();x.restore();}
 // a destroyed building, on the map and minimap: dark grey with pale diagonal hatching (like a rubble site)
 const RUIN_SW='repeating-linear-gradient(45deg,#2e3034 0 3px,#a3a7ad 3px 5px)';
 const ruinPats=new WeakMap();
@@ -87,6 +108,14 @@ function exploredBox(){
 }
 // back to where you are
 function mapRecentre(){MAPV.cx=null;renderMap();}
+// a marker at a point on the map canvas (CSS pixels from its corner), or at the middle (the controller's crosshair)
+function mapClick(sx,sy){const cv=document.getElementById('mapCanvas');if(!cv||MAPV.cx===null)return;
+  const w=Math.max(200,cv.clientWidth||600),h=Math.max(200,cv.clientHeight||400),k=MAPV.ppb;
+  if(sx===undefined){sx=w/2;sy=h/2;}
+  const p=mapOwner(),m=markOf(p),wx=MAPV.cx+(sx-w/2)/k,wz=MAPV.cz+(sy-h/2)/k;
+  // (within a few pixels of the spot, or on the pin's head standing above it, counts as pointing at the marker)
+  const onIt=!!m&&(Math.hypot(m.x-wx,m.z-wz)*k<=12||Math.abs(m.x-wx)*k<=9&&(m.z-wz)*k>=0&&(m.z-wz)*k<=19);
+  toggleMark(p,wx,wz,onIt);renderMap();}
 function renderMap(){
   const cv=document.getElementById('mapCanvas');if(!cv||!cv.getContext)return;
   if(exploredSeed!==seed)loadExplored();
@@ -210,12 +239,16 @@ function renderMap(){
    x.textAlign='start';x.textBaseline='alphabetic';}
   // the capitol: a star on the dome
   if(seenCap){const g=capGeo(),sx=X(seenCap.ax*CELL+PL0+g.c),sz=Z(seenCap.az*CELL+PL0+g.dc);x.fillStyle='#ffe27a';x.beginPath();for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?4:9;x.lineTo(sx+Math.cos(a)*rr,sz+Math.sin(a)*rr);}x.closePath();x.fill();}
+  // the markers: everyone's, the one whose menu it is drawn last, on top (and on a controller, the crosshair that Y marks)
+  {const own=mapOwner();for(const p of [...players.filter(q=>q!==own),own]){const m=p.active&&markOf(p);if(m)drawPin(x,X(m.x),Z(m.z),markCol(p),p===own);}
+   if(inputKind==='pad'){const cx=w/2,cy=h/2;x.strokeStyle='rgba(0,0,0,.7)';x.lineWidth=3;x.beginPath();x.moveTo(cx-9,cy);x.lineTo(cx+9,cy);x.moveTo(cx,cy-9);x.lineTo(cx,cy+9);x.stroke();
+     x.strokeStyle='#f4f1e6';x.lineWidth=1.4;x.stroke();}}
   // you (and your friend): arrows pointing the way you face
   for(const p of players){if(!p.active)continue;const px=X(p.pos.x),pz=Z(p.pos.z),hx=Math.sin(p.heading),hz=Math.cos(p.heading);
     x.fillStyle=charTint(p)?'#f08ac0':'#ffffff';x.strokeStyle='#000';x.lineWidth=1.5;x.beginPath();
     x.moveTo(px+hx*11,pz+hz*11);x.lineTo(px-hx*6+hz*6,pz-hz*6-hx*6);x.lineTo(px-hx*3,pz-hz*3);x.lineTo(px-hx*6-hz*6,pz-hz*6+hx*6);x.closePath();x.fill();x.stroke();}
   const note=document.getElementById('mapNote');
-  if(note)note.textContent=explored.size+' city blocks explored. Drag to pan, scroll to zoom; on a controller, the right stick pans and the triggers zoom.';
+  if(note)note.textContent=explored.size+' blocks explored. Drag to pan, scroll to zoom, click to set a marker; on a controller, the right stick pans, the triggers zoom and Y sets a marker.';
 }
 // the legend, and mouse panning / zooming
 {const lg=document.getElementById('mapLegend');
@@ -227,13 +260,19 @@ function renderMap(){
  if(cv&&cv.addEventListener){
   // one finger (or the mouse) drags the map; two fingers pinch to zoom
   const spread=()=>{const v=[...ptrs.values()];return v.length>=2?Math.hypot(v[0].x-v[1].x,v[0].y-v[1].y):0;};
-  cv.addEventListener('pointerdown',e=>{ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});drag={x:e.clientX,y:e.clientY};pinch=spread();cv.setPointerCapture&&cv.setPointerCapture(e.pointerId);});
-  cv.addEventListener('pointermove',e=>{if(!ptrs.has(e.pointerId))return;ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  // (a click or tap that doesn't drag sets a marker there: see mapClick)
+  let tap=null,tapT=0;
+  cv.addEventListener('pointerdown',e=>{ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});drag={x:e.clientX,y:e.clientY};pinch=spread();cv.setPointerCapture&&cv.setPointerCapture(e.pointerId);
+    tap=ptrs.size===1&&(e.button===undefined||e.button===0)?{x:e.clientX,y:e.clientY,moved:0}:null;});
+  cv.addEventListener('pointermove',e=>{if(!ptrs.has(e.pointerId))return;if(tap)tap.moved=Math.max(tap.moved,Math.hypot(e.clientX-tap.x,e.clientY-tap.y));ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
     if(ptrs.size>=2){const d=spread();if(pinch>0&&d>0)mapZoom(d/pinch);pinch=d;drag=null;return;}
     if(!drag)return;mapPan(-(e.clientX-drag.x),-(e.clientY-drag.y));drag={x:e.clientX,y:e.clientY};});
   const up=e=>{ptrs.delete(e.pointerId);pinch=spread();drag=null;};
-  cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
-  cv.addEventListener('dblclick',()=>mapRecentre());
+  cv.addEventListener('pointerup',e=>{const t=tap;tap=null;up(e);
+    // (held back a moment: a double click or double tap re-centres instead, and leaves the marker alone)
+    if(t&&t.moved<6&&e.type==='pointerup'){clearTimeout(tapT);const r=cv.getBoundingClientRect(),sx=e.clientX-r.left,sy=e.clientY-r.top;tapT=setTimeout(()=>mapClick(sx,sy),260);}});
+  cv.addEventListener('pointercancel',e=>{tap=null;up(e);});
+  cv.addEventListener('dblclick',()=>{clearTimeout(tapT);mapRecentre();});
   cv.addEventListener('wheel',e=>{e.preventDefault();mapZoom(e.deltaY<0?1.15:1/1.15);},{passive:false});
  }
  addEventListener('keydown',e=>{if(menuOpen&&curTab==='map'&&e.code==='KeyC'&&!e.repeat)mapRecentre();});

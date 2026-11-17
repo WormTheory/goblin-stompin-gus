@@ -93,9 +93,9 @@ const runners=()=>T.goblins.filter(g=>g.state==='chase'&&g.mount);
  if(t0){const nm=t0.crew.name,d0=T.goblins.filter(g=>g.state==='dead').length;for(let i=0;i<20&&!t0.dead;i++)T.trainHit(t0,20,null,0);run(0.2);
    console.log('tank destroyed: its crewman\'s body out of it',T.goblins.filter(g=>g.state==='dead').length-d0>=1&&T.goblins.some(g=>g.state==='dead'&&g.id&&g.id.name===nm));}
  // (away long enough to stand down: back home, the crew climbs out and walks to the barracks)
- T.DT.host=1;run(0.2);console.log('hostility to Peaceful: alert',V.alert,'| going home',tanks().filter(M=>M.state==='home').length);
+ T.DT.host=2;run(0.2);console.log('hostility to Peaceful: alert',V.alert,'| going home',tanks().filter(M=>M.state==='home').length);
  const HS=tanks().filter(M=>M.state==='home');let back=0,walk=0;for(let i=0;i<60*40&&back<HS.length;i++){now+=16.7;T.frame(now);walk=Math.max(walk,runners().filter(g=>g.mount.home).length);back=HS.filter(M=>M.state==='park'&&!M.crew).length;}
- console.log('   back in their places, empty',back,'of',HS.length,'| soldiers seen walking back to the barracks',walk);T.DT.host=2;
+ console.log('   back in their places, empty',back,'of',HS.length,'| soldiers seen walking back to the barracks',walk);T.DT.host=3;
  T.DT.invuln=false;T.tenvClear();place(P.pos.x,P.pos.z+700);run(2);}
 // ---- the Testing Environment's buttons ----
 for(const [t,vm] of [['technical','hunt'],['quad','hunt'],['technical','park']]){T.tenvClear();run(0.5);T.menuOpen=true;T.TS.n=2;T.TS.vm=vm;T.tenvVeh(t);console.log(t,vm,els.tpInfo.textContent);T.menuOpen=false;P.hp=20;
