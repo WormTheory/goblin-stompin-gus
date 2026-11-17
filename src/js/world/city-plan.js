@@ -567,7 +567,9 @@ function plotInfo(px,pz){
         const SW=W+PW,SD=D+PW,X1=PL0+SW-1,Z1=PL0+SD-1;
         const g=base({x0:PL0+18,x1:X1-18,z0:PL0+1,z1:PL0+4,top:G+11,style:'gate',wall:STUCCO,win:STUCCO,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2});g.noIndoor=true;g.doorSpec=null;g.detailTop=g.top;brandOn(g,'studio',r(140));p.b.push(g);
         for(let i=0;i<(S.w>=4?5:2);i++)for(let row=0;row<(S.w>=4?2:1);row++){const ss=base({x0:PL0+1+i*16,x1:PL0+14+i*16,z0:PL0+7+row*27,z1:PL0+30+row*27,gf:16,top:G+16,wall:[PAINT_WHITE,STUCCO,CONCRETE][i%3],win:CONCRETE,kind:'studio',ground:'stage',floor:CONCRETE,door:2});ss.blank=true;ss.doorSpec={w:1,h:4,k:'steel'};ss.detailTop=ss.top-1;ss.stageNo=i+1;p.b.push(ss);}
-        for(let i=0;i<(S.w>=4?13:4);i++){const fx=base({x0:PL0+2+i*7,x1:PL0+8+i*7,z0:Z1-14,z1:Z1-12,top:G+FH*(2+i%2),style:'facade',wall:[BRICK,SIDING,STUCCO,SIDING_Y][i],win:WIN_WARM,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2});fx.noIndoor=true;fx.doorSpec=null;fx.detailTop=fx.top;p.b.push(fx);}
+        // (the false fronts take the four walls in turn: past the fourth there was no wall at all, so most of a big backlot's
+        // fronts stood as bare windows and could never count as destroyed)
+        for(let i=0;i<(S.w>=4?13:4);i++){const fx=base({x0:PL0+2+i*7,x1:PL0+8+i*7,z0:Z1-14,z1:Z1-12,top:G+FH*(2+i%2),style:'facade',wall:[BRICK,SIDING,STUCCO,SIDING_Y][i%4],win:WIN_WARM,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2});fx.noIndoor=true;fx.doorSpec=null;fx.detailTop=fx.top;p.b.push(fx);}
         for(let i=0;i<3;i++){const t=base({x0:X1-14+i*5,x1:X1-10+i*5,z0:PL0+8,z1:PL0+16,gf:4,top:G+4,wall:PAINT_WHITE,win:WIN_WARM,kind:'apartment',ground:'apartment',floor:PLANKS,door:2});t.doorSpec={w:0,h:3,k:'wood'};t.detailTop=t.top-1;p.b.push(t);}
         p.tank={x0:X1-16,x1:X1-1,z0:PL0+20,z1:PL0+34};
       } else if(S.kind==='nuclear'){
@@ -722,8 +724,11 @@ function plotInfo(px,pz){
     const b=base({x0:PL0+1,x1:PL0+13,z0:PL0+2,z1:PL0+12,gf:7,top:G+7,wall:[PAINT_WHITE,METAL,PAINT_RED,PAINT_BLUE][Math.floor(r(80)*4)],win:GLASS,kind:'shop',ground:'dealer',floor:FLOORT,door:2,front:true,neon:NEON_B});
     b.glassAll=true;b.detailTop=b.top-1;brandOn(b,'dealer',r(150));p.b.push(b);p.dealer=true;
   } else if(type==='armory'){
-    // an armory: a brick fortress -- a tall drill hall behind battlements, a round turret on each corner, big doors
-    const b=base({x0:PL0+1,x1:PL1-1,z0:PL0+3,z1:PL1-2,gf:8,top:G+8+FH+1,wall:BRICK,win:WIN_WARM,band:MOSSSTONE,kind:'office',ground:'armory',floor:CONCRETE,door:2});
+    // an armory: a brick fortress -- a tall drill hall behind battlements, a round turret on each corner, big doors.
+    // (The hall's set in far enough for its turrets, which stand two blocks out from its corners, to fit inside the block:
+    // past its edge they were cut off by the sidewalk, and never counted as destroyed, as the blocks that weren't there
+    // couldn't be knocked out.)
+    const b=base({x0:PL0+2,x1:PL1-3,z0:PL0+3,z1:PL1-3,gf:8,top:G+8+FH+1,wall:BRICK,win:WIN_WARM,band:MOSSSTONE,kind:'office',ground:'armory',floor:CONCRETE,door:2});
     b.stair={ax:'x',c0:b.z1-3,c1:b.z1-1,r0:b.x0+4,L:8};b.crenel=true;   // (between the corner turrets)
     b.doorSpec={w:1,h:4,k:'wood'};b.detailTop=b.top-2;brandOn(b,'armory',r(150));
     for(const [cx,cz] of [[b.x0,b.z0],[b.x1,b.z0],[b.x0,b.z1],[b.x1,b.z1]]){const t=base({x0:cx-2,x1:cx+3,z0:cz-2,z1:cz+3,top:b.top+4,style:'turret',wall:BRICK,win:WIN_WARM,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2});

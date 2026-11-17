@@ -81,7 +81,7 @@ let WXA=null;
 function wxAudio(){
   if(!audio)return;
   if(!WXA){try{const mk=(type,f,q)=>{const len=audio.sampleRate*2|0,buf=audio.createBuffer(1,len,audio.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<len;i++)ch[i]=Math.random()*2-1;
-      const src=audio.createBufferSource(),fl=audio.createBiquadFilter(),g=audio.createGain();src.buffer=buf;src.loop=true;fl.type=type;fl.frequency.value=f;fl.Q.value=q;g.gain.value=0;src.connect(fl).connect(g).connect(audio.destination);src.start();return{src,fl,g};};
+      const src=audio.createBufferSource(),fl=audio.createBiquadFilter(),g=audio.createGain();src.buffer=buf;src.loop=true;fl.type=type;fl.frequency.value=f;fl.Q.value=q;g.gain.value=0;src.connect(fl).connect(g).connect(sndDest());src.start();return{src,fl,g};};
     WXA={rain:mk('highpass',1400,0.5),wind:mk('bandpass',320,0.8)};}catch(e){WXA={};}}
   if(!WXA.rain)return;const t=audio.currentTime,on=playing?1:0,P=players.find(p=>p.active),inside=COVERS[0].under;
   WXA.rain.g.gain.setTargetAtTime(on*WX.k.rain*(inside?0.025:0.07),t,0.4);

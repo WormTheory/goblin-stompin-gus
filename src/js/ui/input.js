@@ -50,7 +50,7 @@ let pauseAt=-1e9;   // (when play last paused: an Esc straight after it is the s
 // drives it, and only player one's drives player one's. (var: renderTime asks while the page is still loading)
 var menuBy=null;
 function menuP2(){return !!(menuBy&&menuBy!==P1&&inCoop());}
-const P1_ONLY=['play','newWorld','testWorld','onlineBtn','onlinePanel','confirm','quitBtn','fullBtn','fullBtnP'];
+const P1_ONLY=['play','newWorld','testWorld','onlineBtn','onlinePanel','confirm','saveSw','savePanel','quitBtn','fullBtn','fullBtnP'];
 function menuSeat(){
   const two=menuP2();pauseEl.classList.toggle('seat2',two);
   for(const id of P1_ONLY){const el=document.getElementById(id);if(el)el.classList.toggle('p1only',true);}
@@ -144,6 +144,9 @@ function escResume(){
   if(menuOpen){
     const cf=document.getElementById('confirm');
     if(!cf.hidden){document.getElementById('confirmNo').click();const nw=document.getElementById('newWorld');if(inputKind==='pad')padFocus(nw);else nw.focus();return;}
+    // (Esc closes a card popped out beside the title menu, Local saves or Play online)
+    for(const [pid,bid] of [['savePanel','saveLocal'],['onlinePanel','onlineBtn']]){const pn=document.getElementById(pid);
+      if(pn&&!pn.hidden&&atTitle){titlePop(null);const b=document.getElementById(bid);if(inputKind==='pad')padFocus(b);else b.focus();return;}}
     const t=document.activeElement;
     if(t&&(t.tagName==='TEXTAREA'||t.tagName==='SELECT'||t.tagName==='INPUT'&&/^(text|number|search)$/.test(t.type))){t.blur();return;}
     if(curTab!=='game'){backHome();return;}   // (a screen opened from the menu: back to the menu first)

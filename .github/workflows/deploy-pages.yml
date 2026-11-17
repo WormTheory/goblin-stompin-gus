@@ -1,6 +1,7 @@
-# Publishes the game to GitHub Pages on every push to main or test that changes it.
-# main's game/ is the site's root and test's game/ goes under /test/, so either branch can be pushed on its own
-# and the other's copy stays as it was. (Every run builds both, from each branch's latest pushed commit.)
+# Publishes the game to GitHub Pages on every push to main, test or hotfix that changes it.
+# main's game/ is the site's root, test's game/ goes under /test/ and hotfix's under /hotfix/ (a fix being tried out
+# before it goes on main), so any branch can be pushed on its own and the others' copies stay as they were. (Every run
+# builds all of them, from each branch's latest pushed commit; a branch that isn't on GitHub is simply left out.)
 # Earlier versions go under /v/<version>/, one for each tag vX, so the Patch notes can link to them
 # (tools/archive_versions.py): pushing a new tag republishes too.
 
@@ -8,7 +9,7 @@ name: Deploy game to Pages
 
 on:
   push:
-    branches: [main, test]
+    branches: [main, test, hotfix]
     tags: ['v*']
     paths:
       - 'game/**'
@@ -42,16 +43,25 @@ jobs:
           if git ls-remote --exit-code --heads "https://github.com/${{ github.repository }}" test >/dev/null; then
             echo "yes=true" >> "$GITHUB_OUTPUT"
           fi
+          if git ls-remote --exit-code --heads "https://github.com/${{ github.repository }}" hotfix >/dev/null; then
+            echo "hotfix=true" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/checkout@v4
         if: steps.hastest.outputs.yes == 'true'
         with:
           ref: test
           path: testsrc
           fetch-depth: 0
+      - uses: actions/checkout@v4
+        if: steps.hastest.outputs.hotfix == 'true'
+        with:
+          ref: hotfix
+          path: hotfixsrc
       - run: |
           mkdir site
           cp -r live/game/. site/
           if [ -d testsrc/game ]; then mkdir -p site/test && cp -r testsrc/game/. site/test/; fi
+          if [ -d hotfixsrc/game ]; then mkdir -p site/hotfix && cp -r hotfixsrc/game/. site/hotfix/; fi
           # (the archiver comes from main, or from test while main hasn't been pushed with it yet)
           if [ -f live/tools/archive_versions.py ]; then python3 live/tools/archive_versions.py site
           elif [ -f testsrc/tools/archive_versions.py ]; then python3 testsrc/tools/archive_versions.py site; fi

@@ -8,8 +8,8 @@ Caves switch: true -> false
 Sewers switch: true -> false
 Subways switch: true -> false
 props meshes visible after switching back true true
-columns [["speed","paused","freecam","curve","wx","season"],["pspeed","invuln","infStam","fly","host","combo","fps","sndList"],["gProps","gFixtures","gCaves","gSewers","gSubway","show"],["uiAll","uiScore","uiClock","uiStatus","uiMini","uiSpeedo","uiHearts","uiStam","uiCharge","uiMsg","uiHint","uiPlace","uiHurt","uiWater","uiBadge","uiWho","uiJoin","uiSplit"]]
-rows reached by walking the menu 24 of 38
+columns [["speed","paused","freecam","curve","wx","season"],["pspeed","invuln","infStam","fly","host","combo","fps","sndList","info"],["gProps","gFixtures","gCaves","gSewers","gSubway","show"],["uiAll","uiScore","uiClock","uiStatus","uiMini","uiSpeedo","uiHearts","uiStam","uiCharge","uiMsg","uiHint","uiPlace","uiHurt","uiWater","uiBadge","uiWho","uiJoin","uiSplit"]]
+rows reached by walking the menu 22 of 39
 right from Stop time goes to invuln , then left back to paused
 left on Game speed, not picked: goes to uiAll and speed index stays 6 -> 6
 picked with A: speed ; then left: stays on speed speed index 6 -> 5 ; A again lets go: null ; picked again, then down lets go: paused null
@@ -25,4 +25,4 @@ one back on: row says true rules 16
 all off again, rules 17
 all on again, css empty true
 Show / hide tab first rows: Show all, Hide all | on the main tab too: false
-main tab rows: before 38 after Hide all 0 after Show all 38
+main tab rows: before 39 after Hide all 0 after Show all 39

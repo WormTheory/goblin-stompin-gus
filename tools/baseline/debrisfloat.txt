@@ -1,0 +1,20 @@
+    -6,-5,0 roof block at y 58: live gone, made again gone, under it air
+    -6,-3,0 roof block at y 56: live gone, made again gone, under it air
+    -6,0,0 roof block at y 65: live gone, made again gone, under it air
+    -6,1,0 roof block at y 95: live gone, made again gone, under it air
+    -6,2,0 roof block at y 96: live gone, made again gone, under it air
+    -6,3,0 roof block at y 70: live gone, made again gone, under it air
+    -5,-6,0 roof block at y 120: live gone, made again gone, under it air
+    -5,-5,0 roof block at y 111: live gone, made again gone, under it air
+buildings tried 8 debris left floating 0
+buildings brought down 14 saved blocks 16019 made again with nothing touching them 0 
+<anonymous_script>:8438
+  el._t=setTimeout(()=>{el.classList.add('old');setTimeout(()=>el.remove(),400);},3200);}catch(e){}}}
+                                                                  ^
+
+TypeError: el.remove is not a function
+    at Timeout.eval [as _onTimeout] (eval at <anonymous> (/home/user/gus/tools/tests/debrisfloat.js:36:1), <anonymous>:8438:67)
+    at listOnTimeout (node:internal/timers:585:17)
+    at process.processTimers (node:internal/timers:521:7)
+
+Node.js v22.23.4

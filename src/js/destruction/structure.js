@@ -79,16 +79,25 @@ function flushNotes(ms){
   if(i>=noteQ.length)noteQ.length=0;else noteQ.splice(0,i);
 }
 function colTop(b,rx,rz){const tierOn=b.tier>0&&(b.x1-b.x0)>=8,inner=rx>=b.x0+2&&rx<b.x1-2&&rz>=b.z0+2&&rz<b.z1-2;return ((tierOn&&!inner)?b.tier:b.top)+(b.roof||0);}
-// a building's original block count (estimated from up to 72 of its columns, picked evenly across the footprint)
-function bldgSolid(b,px,pz,key){
+// a building's original block count, every block of it counted. (It used to be estimated from up to 72 of its columns, and
+// those could keep landing on its walls, where every block is solid: a tower came out about a tenth bigger than it was, and
+// as a tall tower only counts as destroyed with less than a tenth of it left, it never could be, however much was knocked
+// out.) A big building takes a few milliseconds, so while a place's total is being worked out a frame at a time it's
+// counted a slice at a time too (bldgSolidPart, which says undefined until it's done); asked outright, it's counted in one.
+const bSolidJob=new Map();
+function bldgSolidPart(b,px,pz,key,until){
   let n=bSolidC.get(key);if(n!==undefined)return n;
-  const W=b.x1-b.x0,D=b.z1-b.z0,A=W*D,K=Math.min(A,72),sv=STRUCT;let sum=0;
-  for(let i=0;i<K;i++){const c=K===A?i:Math.floor((i+0.5)*A/K),rx=b.x0+c%W,rz=b.z0+Math.floor(c/W),t=colTop(b,rx,rz);
-    for(let y=G+1;y<=t&&y<H;y++)if(blockAt(b,rx,rz,y,px,pz)!==AIR)sum++;}
-  STRUCT=sv;n=Math.max(1,Math.round(sum*A/K));bSolidC.set(key,n);return n;
+  let J=bSolidJob.get(key);if(!J){J={c:0,sum:0};bSolidJob.set(key,J);}
+  const W=b.x1-b.x0,A=W*(b.z1-b.z0),sv=STRUCT;
+  while(J.c<A){const rx=b.x0+J.c%W,rz=b.z0+Math.floor(J.c/W),t=colTop(b,rx,rz);
+    for(let y=G+1;y<=t&&y<H;y++)if(blockAt(b,rx,rz,y,px,pz)!==AIR)J.sum++;
+    J.c++;if(!(J.c&15)&&performance.now()>until)break;}
+  STRUCT=sv;if(J.c<A)return undefined;
+  bSolidJob.delete(key);n=J.sum;bSolidC.set(key,n);return n;   // (0: nothing there to knock down, see bldgLeft)
 }
+function bldgSolid(b,px,pz,key){return bldgSolidPart(b,px,pz,key,Infinity);}
 // what's left of a building, 0..1
-function bldgLeft(b,px,pz,key){return Math.max(0,1-(destroyed[key]||0)/bldgSolid(b,px,pz,key));}
+function bldgLeft(b,px,pz,key){const N=bldgSolid(b,px,pz,key);return N?Math.max(0,1-(destroyed[key]||0)/N):0;}   // (nothing to it: nothing left of it)
 // how little of it has to be left for it to count as destroyed, by its size: a one- or two-storey place is gone once
 // half of it is; the taller it is the less of it can be left (what's left of a tower is still a lot of building), down
 // to a tenth at a dozen storeys or more. A very big footprint lowers it a little more (half a superstore still stands).
@@ -116,14 +125,14 @@ function setDestroyed(S){
   if(!L){
     if(destJob.S!==S){destJob.S=S;destJob.list=setBuildings(S);destJob.i=0;destJob.tot=0;}
     const t0=performance.now();
-    while(destJob.i<destJob.list.length&&performance.now()-t0<3){const E=destJob.list[destJob.i++];destJob.tot+=bldgSolid(E.b,E.px,E.pz,E.key);}
+    while(destJob.i<destJob.list.length&&performance.now()-t0<3){const E=destJob.list[destJob.i],n=bldgSolidPart(E.b,E.px,E.pz,E.key,t0+3);if(n===undefined)break;destJob.tot+=n;destJob.i++;}
     if(destJob.i<destJob.list.length)return null;
     L=destJob.list;setListC.set(k,L);setTotC.set(k,destJob.tot);destJob.S=null;}
   if(!L.length)return 0;
   const now=performance.now();let C=setDCache.get(k);
   if(!C||C.ver!==destroyVer&&now-C.t>250){
     let D=0,stand=0;
-    for(const E of L){const N=bldgSolid(E.b,E.px,E.pz,E.key),d=destroyed[E.key]||0;
+    for(const E of L){const N=bldgSolid(E.b,E.px,E.pz,E.key),d=destroyed[E.key]||0;if(!N)continue;   // (a building with no blocks at all neither stands nor counts)
       if(d&&!bldgStanding(E.b,E.px,E.pz,E.key))D+=N;else{stand++;D+=Math.min(d,N);}}
     const v=stand===0?1:Math.min(1,D/Math.max(1,setTotC.get(k)));if(!C||C.v!==v)setDVer++;
     C={ver:destroyVer,t:now,v};setDCache.set(k,C);}
@@ -262,7 +271,11 @@ function collapseBuilding(B,L,push){
   for(let x=b.x0;x<b.x1;x++)for(let z=b.z0;z<b.z1;z++){
     const wx=X0+x,wz=Z0+z;
     noteFor=B;
-    for(let y=L;y<H;y++){const v=get(wx,y,wz);if(v===AIR)continue;if(y===L)stood.push({x:wx,z:wz});if(y<L+FH+1&&collapseKeep(b,B.px,B.pz,x,z,y,L))continue;(y===L?crumble:body).push({x:wx,y,z:wz,b:v});setRaw(wx,y,wz,AIR);}
+    for(let y=L;y<H;y++){const v=get(wx,y,wz);if(v===AIR)continue;if(y===L)stood.push({x:wx,z:wz});if(y<L+FH+1&&collapseKeep(b,B.px,B.pz,x,z,y,L))continue;(y===L?crumble:body).push({x:wx,y,z:wz,b:v});setRaw(wx,y,wz,AIR);
+      // (the building's own blocks don't need saving as gone: `collapses` stops the plan making them again. But rubble that
+      // had landed on it, or anything else put there since, is in the edits, and would be put back hanging in the air the
+      // next time this chunk's made, so that's saved as gone)
+      const ek=wx+','+y+','+wz;if(edits[ek]!==undefined&&edits[ek]!==AIR)addEdit(wx,y,wz,AIR);}
     noteFor=null;
   }
   for(let x=b.x0-1;x<=b.x1;x++)for(let z=b.z0-1;z<=b.z1;z++)ch.add(ckey(Math.floor((X0+x)/CS),Math.floor((Z0+z)/CS)));

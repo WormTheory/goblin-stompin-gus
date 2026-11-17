@@ -23,13 +23,19 @@ function editsUnpack(P){
         edits[x+','+y+','+z]=b;l.push([x,y,z,b]);}}}
 }
 // (the world as saved; extra: anything else to go in with it)
-const saveText=extra=>JSON.stringify(Object.assign({seed,ed2:editsPacked(),coll:collapses,wreck:wrecked,down:[...downFix],dest:destroyed,test:[...TEST_OFF]},extra));
+const saveObj=extra=>Object.assign({seed,ed2:editsPacked(),coll:collapses,wreck:wrecked,down:[...downFix],dest:destroyed,test:[...TEST_OFF]},extra);
+const saveText=extra=>JSON.stringify(saveObj(extra));
 let saveFullSaid=false;
-function save(){if(saveBlocked)return;clearTimeout(saveTimer);saveTimer=setTimeout(()=>{flushNotes(Infinity);try{localStorage.setItem(SAVE_KEY,saveText({tenv:TENV||undefined}));saveFullSaid=false;}catch(e){
+var WB={on:false,pending:null};   // (a city too big for localStorage: see worldPut in ui/saves.js)
+// (worldPut, in ui/saves.js, puts it in localStorage, or once the city's grown too big for that, its smashed blocks in
+// IndexedDB and the rest in localStorage. Saving waits while a big city's smashed blocks are still being read back in.)
+function save(){if(saveBlocked||WB.pending)return;clearTimeout(saveTimer);saveTimer=setTimeout(()=>{if(saveBlocked||WB.pending)return;flushNotes(Infinity);
+  let o;try{o=saveObj({tenv:TENV||undefined});}catch(e){return;}
+  worldPut(o).then(()=>{saveFullSaid=false;},()=>{
   // (better to say so once than to quietly stop saving)
-  if(!saveFullSaid){saveFullSaid=true;try{flashLabel("Can't save: the browser's storage is full");}catch(e2){}}}},700);}
+  if(!saveFullSaid){saveFullSaid=true;try{flashLabel("Can't save: the browser's storage is full");}catch(e2){}}});},700);}
 function load(){try{const s=JSON.parse(netWorldText()||localStorage.getItem(SAVE_KEY)||'null');   // (a tab joining a game online builds the host's world, kept in its own session storage)
-  if(netWorldText())saveBlocked=true;if(s&&typeof s.seed==='number'){seed=s.seed;TEST_OFF=new Set(Array.isArray(s.test)?s.test:[]);TENV=s.tenv&&Array.isArray(s.tenv.boxes)?{boxes:s.tenv.boxes.filter(B=>B&&[B.ax,B.az,B.w,B.h].every(Number.isFinite))}:null;tenvIndex();edits=s.ed2?{}:s.edits||{};collapses=s.coll||{};wrecked=(s.wreck&&typeof s.wreck==='object')?s.wreck:{};destroyed=(s.dest&&typeof s.dest==='object')?s.dest:{};destroyVer++;setDCache.clear();downFix=new Map(Array.isArray(s.down)?s.down:[]);if(s.ed2)editsUnpack(s.ed2);else for(const k in edits){const [x,y,z]=k.split(',').map(Number);const ck=ckey(Math.floor(x/CS),Math.floor(z/CS));let l=chunkEdits.get(ck);if(!l){l=[];chunkEdits.set(ck,l);}l.push([x,y,z,edits[k]]);}return true;}}catch(e){}return false;}
+  if(netWorldText())saveBlocked=true;if(s&&typeof s.seed==='number'){seed=s.seed;TEST_OFF=new Set(Array.isArray(s.test)?s.test:[]);TENV=s.tenv&&Array.isArray(s.tenv.boxes)?{boxes:s.tenv.boxes.filter(B=>B&&[B.ax,B.az,B.w,B.h].every(Number.isFinite))}:null;tenvIndex();if(s.ed2db&&!s.ed2){WB.on=true;WB.pending=s.ed2db;}edits=s.ed2?{}:s.edits||{};collapses=s.coll||{};wrecked=(s.wreck&&typeof s.wreck==='object')?s.wreck:{};destroyed=(s.dest&&typeof s.dest==='object')?s.dest:{};destroyVer++;setDCache.clear();downFix=new Map(Array.isArray(s.down)?s.down:[]);if(s.ed2)editsUnpack(s.ed2);else for(const k in edits){const [x,y,z]=k.split(',').map(Number);const ck=ckey(Math.floor(x/CS),Math.floor(z/CS));let l=chunkEdits.get(ck);if(!l){l=[];chunkEdits.set(ck,l);}l.push([x,y,z,edits[k]]);}return true;}}catch(e){}return false;}
 
 // ---------- Renderer ----------
 const canvas=document.getElementById('world');

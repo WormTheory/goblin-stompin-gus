@@ -1,5 +1,6 @@
 # Builds game/index.html, the one playable file, from src/: page.html with style.css and the scripts in src/js dropped in.
-# It also builds game/patch-notes/index.html, the patch notes page on the website, from src/patch-notes.md, the same notes
+# It also builds game/version.json (the version and build id, for open copies of the game to check for an update) and
+# game/patch-notes/index.html, the patch notes page on the website, from src/patch-notes.md, the same notes
 # the menu's Patch notes tab shows, so the two can't drift apart.
 # The scripts are one program split into files, not separate modules: they're joined in the order src/js/ORDER.txt gives
 # and all share one scope, so any file can call anything in any other. (Order only matters for code that runs as the page loads.)
@@ -16,6 +17,9 @@ MARK_JS='// build: js\n'
 MARK_NOTES='<!-- build: patch-notes -->'
 MARK_LATEST='<!-- build: patch-notes-latest -->'
 MARK_TOC='<!-- build: patch-notes-toc -->'
+MARK_VER='{{GSG_VERSION}}'
+MARK_BUILD='{{GSG_BUILD}}'
+VERSION_OUT=os.path.join(ROOT,'game','version.json')
 BANNER='<!-- Built by tools/build.py from src/: edit there, not here. sha256:%s -->\n'
 
 def rd(p):
@@ -90,7 +94,22 @@ def page():
   html=one(html,MARK_NOTES,body,'page.html')
   html=one(html,MARK_LATEST,inline(ups[0][1]),'page.html')
   html=html.replace(MARK_CSS,rd(os.path.join(SRC,'style.css')))
-  return html.replace(MARK_JS,''.join(rd(os.path.join(SRC,'js',n)) for n in order()))
+  html=html.replace(MARK_JS,''.join(rd(os.path.join(SRC,'js',n)) for n in order()))
+  # (the game's version and this build's id, which the running game compares with game/version.json to offer an update)
+  ver,bid=version_info(ups,html)
+  for mark,val in ((MARK_VER,ver),(MARK_BUILD,bid)):html=one(html,mark,val,'src/js')
+  return html
+
+def version_info(ups,html):
+  # -> (the newest "Version X" in the notes, an id that changes whenever anything in the built page does)
+  ver=next((m.group(1) for m in (re.fullmatch(r'Version (\S+)',t) for _,t in ups) if m),'?')
+  return ver,hashlib.sha256(html.encode('utf-8')).hexdigest()[:12]
+
+def version_json():
+  # game/version.json, served beside the game: what's been published there, for an open copy of the game to check against
+  html=page()
+  ver=re.search(r"GAME_VER='([^']*)',GAME_BUILD='([^']*)'",html)
+  return '{"version":"%s","build":"%s"}\n'%(ver.group(1),ver.group(2))
 
 def notes_page():
   # (the website's own page of them, at <site>/patch-notes/)
@@ -106,12 +125,16 @@ def hand_edited(old):
   head,_,body=old.partition('\n')
   return head+'\n'!=stamp(body)
 
-def built(): return ((OUT,page()),(NOTES_OUT,notes_page()))
+def built(): return ((OUT,page()),(NOTES_OUT,notes_page()),(VERSION_OUT,version_json()))
 def rel(p):return os.path.relpath(p,ROOT).replace('\\','/')
 
 def build(force=False):
   changed=False
   for out,new in built():
+    if out.endswith('.json'):
+      # (no banner on a JSON file: it's only ever written by the build, so it's simply rewritten)
+      if not(os.path.exists(out) and open(out,encoding='utf-8',newline='').read()==new):open(out,'w',encoding='utf-8',newline='').write(new);changed=True
+      continue
     new=stamp(new)+new
     old=None
     if os.path.exists(out):old=open(out,encoding='utf-8',newline='').read()
@@ -125,7 +148,7 @@ def build(force=False):
 
 if __name__=='__main__':
   if '--check' in sys.argv:
-    stale=[rel(out) for out,new in built() if not(os.path.exists(out) and open(out,encoding='utf-8',newline='').read()==stamp(new)+new)]
-    print('game/index.html and game/patch-notes/index.html are up to date' if not stale else ' and '.join(stale)+(' is' if len(stale)<2 else ' are')+' out of date: run python tools/build.py')
+    stale=[rel(out) for out,new in built() if not(os.path.exists(out) and open(out,encoding='utf-8',newline='').read()==(new if out.endswith('.json') else stamp(new)+new))]
+    print('game/index.html, game/patch-notes/index.html and game/version.json are up to date' if not stale else ' and '.join(stale)+(' is' if len(stale)<2 else ' are')+' out of date: run python tools/build.py')
     sys.exit(0 if not stale else 1)
-  print('built game/index.html and game/patch-notes/index.html' if build('--force' in sys.argv) else 'game/index.html and game/patch-notes/index.html already up to date')
+  print('built game/index.html, game/patch-notes/index.html and game/version.json' if build('--force' in sys.argv) else 'game/index.html, game/patch-notes/index.html and game/version.json already up to date')

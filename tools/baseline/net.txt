@@ -6,7 +6,7 @@ guest asked to reload into the host world ok kept in session storage ok local sa
 host keeps the seat for the guest while it reloads ok
 reloaded guest builds the host world: seed 266144506 ok edits 25 ok saving blocked ok
 guest joined ok seat 1 playing ok host has player two ok
-messages so far 55 bytes 82278 (about 1496 a message)
+messages so far 55 bytes 82138 (about 1493 a message)
 guest P1 vs host P2 0.00 guest P2 vs host P1 0.00 ok
 camera from its hippo: guest 7.24 host 7.24 (guest P2 on the host 7.24)
 hp shown 20 state walk host P2 20 walk
@@ -17,7 +17,7 @@ frames before it moved: on the guest 4 on the host 5 | guest ahead of the host w
 guest held forward 1.5 s: host P2 moved 6.23 ok camera yaw passed on ok host P1 stayed 0.00 ok
 guest sees itself there 0.00 ok (guessing its own moves: yes )
 guest tapped jump: host P2 rose 1.73 ok
-guest earns points: pop-ups on the guest 0 BAD () combo on the guest 3 ok card shown ok
+guest earns points: pop-ups on the guest 3 ok (pts,pts,pts) combo on the guest 3 ok card shown ok
 the guest's combo clock runs down: from 2.77 to 2.27 ok host has 2.17
 and runs out: guest 0.00 card hidden ok
 combo system off on the host: no multiplier 80 ok no combo 0 ok guest told ok guest card hidden ok

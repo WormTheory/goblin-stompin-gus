@@ -1,5 +1,11 @@
 // ---------- Audio ----------
 let audio=null,audioWanted=false;
+// ---- the Sound volume in Options: every game sound goes out through one gain node, so one setting turns them all up or
+// down at once (voice chat has its own volumes). One sound system serves both halves of split screen. ----
+const VOL_KEY='goblin-stompin-gus-volume';let sndVol=1,sndMaster=null;
+try{const v=localStorage.getItem(VOL_KEY);if(v!==null&&+v>=0&&+v<=1)sndVol=+v;}catch(e){}
+function sndDest(){if(!sndMaster||sndMaster.context!==audio){sndMaster=audio.createGain();sndMaster.gain.value=sndVol;sndMaster.connect(audio.destination);}return sndMaster;}
+function setSndVol(v){sndVol=Math.max(0,Math.min(1,v));try{if(sndMaster)sndMaster.gain.setTargetAtTime(sndVol,audio.currentTime,0.02);}catch(e){}try{localStorage.setItem(VOL_KEY,String(sndVol));}catch(e){}}
 // ---- the sound list (debug): every sound by name as it starts, lit while it plays and fading for 2 seconds after, so even
 // a click too short to see can be read. A sound made inside sfx(name,...) takes that name; any other is named after the code
 // that made it (a stack trace, only taken while the list is showing). ----
@@ -49,13 +55,13 @@ function sndTick(){
     const on=t<=r.end,txt=n+(r.n>1?' ×'+r.n:'');if(r.el.textContent!==txt)r.el.textContent=txt;
     r.el.classList.toggle('on',on);r.el.style.opacity=on?'1':String(Math.max(0,1-(t-r.end)/2000));}
 }
-function tone(type,f0,f1,dur,vol,delay=0){if(SBX)return;if(!audio)return;if(DT.sndList)sndNote(delay+dur);try{const t=audio.currentTime+delay;const o=audio.createOscillator(),g=audio.createGain();o.type=type;o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f1,t+dur);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);o.connect(g).connect(audio.destination);o.start(t);o.stop(t+dur+0.02);}catch(e){}}
-function noise(dur,vol,freq,type){if(SBX)return;if(!audio)return;if(DT.sndList)sndNote(dur);try{const t=audio.currentTime;const len=audio.sampleRate*dur|0,buf=audio.createBuffer(1,len,audio.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<len;i++)ch[i]=(Math.random()*2-1)*Math.pow(1-i/len,2);const n=audio.createBufferSource(),f=audio.createBiquadFilter(),g=audio.createGain();n.buffer=buf;f.type=type;f.frequency.value=freq;g.gain.value=vol;n.connect(f).connect(g).connect(audio.destination);n.start(t);}catch(e){}}
+function tone(type,f0,f1,dur,vol,delay=0){if(SBX)return;if(!audio)return;if(DT.sndList)sndNote(delay+dur);try{const t=audio.currentTime+delay;const o=audio.createOscillator(),g=audio.createGain();o.type=type;o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f1,t+dur);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);o.connect(g).connect(sndDest());o.start(t);o.stop(t+dur+0.02);}catch(e){}}
+function noise(dur,vol,freq,type){if(SBX)return;if(!audio)return;if(DT.sndList)sndNote(dur);try{const t=audio.currentTime;const len=audio.sampleRate*dur|0,buf=audio.createBuffer(1,len,audio.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<len;i++)ch[i]=(Math.random()*2-1)*Math.pow(1-i/len,2);const n=audio.createBufferSource(),f=audio.createBiquadFilter(),g=audio.createGain();n.buffer=buf;f.type=type;f.frequency.value=freq;g.gain.value=vol;n.connect(f).connect(g).connect(sndDest());n.start(t);}catch(e){}}
 function thud(vol){if(vol<=0.02)return;tone('sine',95,32,0.45,vol*0.9);noise(0.25,vol*0.6,380,'lowpass');}
 // a swish of air: band-passed noise that swells and sweeps up in pitch
 function woosh(vol,dur,f0,f1,delay=0){if(SBX)return;if(!audio)return;if(DT.sndList)sndNote(delay+dur);try{const t=audio.currentTime+delay,len=audio.sampleRate*dur|0,buf=audio.createBuffer(1,len,audio.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<len;i++)ch[i]=Math.random()*2-1;
   const n=audio.createBufferSource(),f=audio.createBiquadFilter(),g=audio.createGain();n.buffer=buf;f.type='bandpass';f.Q.value=1.1;f.frequency.setValueAtTime(f0,t);f.frequency.exponentialRampToValueAtTime(f1,t+dur);
-  g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(vol,t+dur*0.4);g.gain.linearRampToValueAtTime(0.0001,t+dur);n.connect(f).connect(g).connect(audio.destination);n.start(t);n.stop(t+dur+0.02);}catch(e){}}
+  g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(vol,t+dur*0.4);g.gain.linearRampToValueAtTime(0.0001,t+dur);n.connect(f).connect(g).connect(sndDest());n.start(t);n.stop(t+dur+0.02);}catch(e){}}
 // a ground pound's plunge: a rushing wind that swells and climbs in pitch with his speed, cut off the instant he lands.
 // One looping noise source per hippo, filtered and faded in and out each frame.
 function poundWoosh(p){
@@ -66,7 +72,7 @@ function poundWoosh(p){
     const len=audio.sampleRate*2|0,buf=audio.createBuffer(1,len,audio.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<len;i++)ch[i]=Math.random()*2-1;
     const src=audio.createBufferSource(),f=audio.createBiquadFilter(),f2=audio.createBiquadFilter(),g=audio.createGain();src.buffer=buf;src.loop=true;
     f.type='bandpass';f.Q.value=0.9;f.frequency.value=380;f2.type='lowpass';f2.frequency.value=2600;g.gain.value=0.0001;
-    src.connect(f).connect(f2).connect(g).connect(audio.destination);src.start();p.wsh={src,f,g};}catch(e){}}
+    src.connect(f).connect(f2).connect(g).connect(sndDest());src.start();p.wsh={src,f,g};}catch(e){}}
   const W=p.wsh;if(!W)return;const t=audio.currentTime;
   if(on){const sp=Math.max(0,Math.min(1,-p.vy/40));if(DT.sndList)sndNote(0.1,'Ground pound rush');
     W.g.gain.setTargetAtTime(0.16+0.18*sp,t,0.025);W.f.frequency.setTargetAtTime(520+1200*sp,t,0.05);}
@@ -83,7 +89,7 @@ function runWoosh(p){
     const len=audio.sampleRate*2|0,buf=audio.createBuffer(1,len,audio.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<len;i++)ch[i]=Math.random()*2-1;
     const src=audio.createBufferSource(),f=audio.createBiquadFilter(),f2=audio.createBiquadFilter(),g=audio.createGain();src.buffer=buf;src.loop=true;
     f.type='bandpass';f.Q.value=0.7;f.frequency.value=650;f2.type='lowpass';f2.frequency.value=2200;g.gain.value=0.0001;
-    src.connect(f).connect(f2).connect(g).connect(audio.destination);src.start();p.rwsh={src,f,g};}catch(e){}}
+    src.connect(f).connect(f2).connect(g).connect(sndDest());src.start();p.rwsh={src,f,g};}catch(e){}}
   const W=p.rwsh;if(!W)return;const t=audio.currentTime;
   if(on){if(DT.sndList)sndNote(0.1,p.sprinting?'Sprint rush':'Trample rush');const k=Math.min(1,p.trK),pulse=0.8+0.2*Math.abs(Math.sin(p.phase)),v=(p.sprinting?0.05:0.065)*k*pulse;
     W.g.gain.setTargetAtTime(Math.max(0.0001,v),t,0.05);W.f.frequency.setTargetAtTime((p.sprinting?620:720)+120*pulse,t,0.08);W.end=0;}
@@ -95,7 +101,7 @@ const horn=(v=0.06)=>{tone('square',330,330,0.3,v);tone('square',415,415,0.3,v);
 function voice(p){
   if(!audio)return null;if(p.voice)return p.voice;
   try{
-    const out=audio.createGain();out.gain.value=0;out.connect(audio.destination);
+    const out=audio.createGain();out.gain.value=0;out.connect(sndDest());
     const o1=audio.createOscillator(),o2=audio.createOscillator();o1.type='sawtooth';o2.type='sawtooth';
     const len=audio.sampleRate*2,buf=audio.createBuffer(1,len,audio.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<len;i++)ch[i]=Math.random()*2-1;
     const ns=audio.createBufferSource();ns.buffer=buf;ns.loop=true;const ng=audio.createGain();ng.gain.value=0.35;
@@ -138,7 +144,7 @@ function stompGrunt(p,lvl){
     o2.frequency.setValueAtTime((64-5*lvl)*m,t);o2.frequency.exponentialRampToValueAtTime((38-3*lvl)*m,t+0.13);
     const peak=Math.min(0.9,0.62+0.12*lvl),len=0.16+0.02*lvl;
     g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(peak,t+0.006);g.gain.exponentialRampToValueAtTime(0.001,t+len);
-    o.connect(f);o2.connect(f);f.connect(g).connect(audio.destination);
+    o.connect(f);o2.connect(f);f.connect(g).connect(sndDest());
     o.start(t);o2.start(t);o.stop(t+len+0.02);o2.stop(t+len+0.02);
     noise(0.08,0.42+0.08*lvl,1300,'bandpass');
   }catch(e){}
@@ -152,7 +158,7 @@ function grunt(p,dbl){
     else{o.frequency.setValueAtTime(185*m,t);o.frequency.linearRampToValueAtTime(265*m,t+0.07);o.frequency.exponentialRampToValueAtTime(165*m,t+0.24);f.frequency.value=1150*m;}
     const len=dbl?0.27:0.21;
     g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.28,t+0.02);g.gain.exponentialRampToValueAtTime(0.001,t+len);
-    o.connect(f).connect(g).connect(audio.destination);o.start(t);o.stop(t+len+0.03);
+    o.connect(f).connect(g).connect(sndDest());o.start(t);o.stop(t+len+0.03);
     noise(dbl?0.1:0.13,0.12,dbl?1900:850,'bandpass');
   }catch(e){}
 }

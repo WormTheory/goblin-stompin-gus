@@ -29,7 +29,7 @@ camp            10 props    6.3 /k   Town blocks / Encampments    bedroll:5 pcra
 farmers         88 props   55.0 /k   Town blocks / Farmers' markets    mpost:32 bushel:16 mtable:8 pcrates:8 stool:8 litterbin:6 parkbench:5 aboard:5
 nursery         23 props   14.4 /k   Town blocks / Tree nurseries    sapling:21 barrow:1 fridge2:1
 dealer          17 props   10.6 /k   Town blocks / Car dealers    litterbin:4 parkbench:2 chair:2 plant:2 showcar:2 desk:1 swivel:1 toilet:1
-armory          33 props   20.6 /k   Town blocks / Armories    locker:9 swivel:8 cube:7 gunrack:4 parkbench:1 litterbin:1 stall:1 basin:1
+armory          21 props   13.1 /k   Town blocks / Armories    locker:7 cube:5 swivel:3 gunrack:2 parkbench:1 litterbin:1 toilet:1 wcsign:1
 theater         24 props   15.0 /k   Town blocks / Theatres    musicstand:6 chair:6 litterbin:4 parkbench:3 sofa:2 plant:1 toilet:1 basin:1
 stocks          26 props   16.3 /k   Town blocks / Stock exchange    cube:10 swivel:8 litterbin:4 parkbench:1 toilet:1 basin:1 wcsign:1
 datacenter       6 props    3.8 /k   Town blocks / Data centers    litterbin:4 parkbench:2

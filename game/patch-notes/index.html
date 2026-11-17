@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:596dfd6dd5de16c14ebb2d658cd99963713aef09b4699d5074e906868ba7bc20 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:36305ccb62e24323454219ff184c1bf11d0d4d95c3a4e73a9fefc009597dae4b -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -67,9 +67,20 @@ footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font:50
   <div><h1>Goblin-Stompin' <em>Gus</em></h1><p>Patch notes, newest first. The same notes are in the game's Patch notes tab.</p></div>
   <a class="play" href="../index.html">Play the game</a>
 </header>
-<nav aria-label="Updates"><h2>Updates</h2><ul><li><a href="#version-0-4">Version 0.4</a></li><li><a href="#version-0-3">Version 0.3</a></li><li><a href="#version-0-2">Version 0.2</a></li><li><a href="#version-0-1">Version 0.1</a></li><li><a href="#version-0">Version 0</a></li></ul></nav>
+<nav aria-label="Updates"><h2>Updates</h2><ul><li><a href="#version-0-4-1">Version 0.4.1</a></li><li><a href="#version-0-4">Version 0.4</a></li><li><a href="#version-0-3">Version 0.3</a></li><li><a href="#version-0-2">Version 0.2</a></li><li><a href="#version-0-1">Version 0.1</a></li><li><a href="#version-0">Version 0</a></li></ul></nav>
 <main>
-<details class="pn-up pn-fold pn-new" id="version-0-4" open><summary tabindex="0"><h2>Version 0.4</h2><span class="pn-tog" aria-hidden="true"></span></summary>
+<details class="pn-up pn-fold pn-new" id="version-0-4-1" open><summary tabindex="0"><h2>Version 0.4.1</h2><span class="pn-tog" aria-hidden="true"></span></summary>
+<h3>Saving</h3>
+<ul><li><strong>Your city now keeps saving however big the mess gets.</strong> A browser only lets a website keep about 5 MB, and a long rampage's smashed blocks could outgrow that. When they did, the game quietly stopped saving them, so every time you came back the city was back to how it was the last time it fitted. Now a big city's smashed blocks are kept in the browser's much bigger database instead, and the game says so if a save ever does fail.</li><li><strong>Save now</strong>, in the pause menu, saves everything straight away and tells you whether it worked. (The game still saves by itself as you play.)</li><li><strong>Browser save or Local save:</strong> a new switch in the title menu. Browser save is how it's always worked. Local save keeps your city in a file on your computer, so clearing the browser can't lose it, and you can keep as many save files as you like: start a new file from the city you're in or from a brand-new one, open one you saved before, and switch between them from the Local saves card. Your browser save stays as it was, and you can switch back to it any time. The game opens the same file next time; the browser asks once a visit whether the game may keep saving to it (choose "Allow on every visit" to stop it asking). Local save needs Chrome or Edge on a computer; in other browsers and on phones it's greyed out and says why.</li></ul>
+<h3>Main menu</h3>
+<ul><li>The title menu no longer scrolls. Play online, New city's "are you sure?" and Local saves pop out to the left of the menu instead of stretching it, and its buttons shrink to fit shorter windows.</li><li>When a newer version of the game has been put on the website since you opened it, an <strong>Update</strong> button appears on the title screen and at the foot of the pause menu. It saves your city and reloads into the new version, with no need for a hard refresh.</li><li>The foot of the pause menu shows the game's version beside the city's seed, and whether your game's saving in the browser or to a file.</li></ul>
+<h3>Options</h3>
+<ul><li><strong>Sound volume</strong> and <strong>Brightness</strong> sliders, in a new Sound &amp; picture section at the top of Options. Brightness only changes the game's picture, not the menus or the display, and in split screen it goes for both halves.</li><li><strong>Hide blood</strong>, under On screen: no blood sprays, splats on the ground or pools.</li></ul>
+<h3>Fixes</h3>
+<ul><li>Armories' corner turrets were cut off where they stuck out past the edge of their block, and could never count as destroyed. The drill hall is a little smaller now so its turrets fit.</li><li>Office towers, big police stations, the stadium and other big buildings sometimes never counted as destroyed, however much of them was knocked down, because the game overestimated how many blocks they had. It now counts every block.</li><li>Most of the false fronts on a film studio's backlot had no walls, only windows. They have their walls back.</li><li>Rubble that had landed on a building's roof came back hanging in mid-air, where the roof used to be, once that building had come down and you'd left the area and returned (or loaded the game). It's now saved as gone with the building. (Rubble already left hanging in a saved city still falls if you knock it.)</li></ul>
+</details>
+<p class="pn-earlier">Earlier updates</p>
+<details class="pn-up pn-fold" id="version-0-4"><summary tabindex="0"><h2>Version 0.4</h2><a class="pn-play" data-ver="0.4" href="v/0.4/" tabindex="0">Play 0.4</a><span class="pn-tog" aria-hidden="true"></span></summary>
 <h3>Goblins climb vehicles too</h3>
 <ul><li>Gnash and Grizzle can now spider-climb vehicles just as Gus and Gertie do: hold climb and walk or jump into a car, a lorry, a train, a boat's hull, a container stack or a plane to grab its side and hang on while it goes, climb up on to the roof, or walk off the roof's edge with climb held to drop on to its side. Holding climb as a train comes by catches hold of it instead of being run down. Your view stays outside the vehicle while you cling to it.</li></ul>
 <h3>Grenades break things</h3>
@@ -91,7 +102,6 @@ footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font:50
 <h3>The city</h3>
 <ul><li>Cinema marquees now say what's on: two lit boards across the middle of the canopy, each showing a different goblin take on a famous film, like Goblin Wars, Jurassic Goblin, The Silence of the Goblins or Goblins of the Caribbean. Each cinema keeps its own bill, and the boards fall off when you knock the canopy down.</li></ul>
 </details>
-<p class="pn-earlier">Earlier updates</p>
 <details class="pn-up pn-fold" id="version-0-3"><summary tabindex="0"><h2>Version 0.3</h2><a class="pn-play" data-ver="0.3" href="v/0.3/" tabindex="0">Play 0.3</a><span class="pn-tog" aria-hidden="true"></span></summary>
 <h3>Highlights</h3>
 <ul><li>Play online: up to four players in one city over the internet. One hosts, and the others pick the game from the Open games list, or type in its room code for a private game. Find it under Play online on the main menu.</li><li>Text chat and opt-in voice chat in online games.</li><li>Two players can share one armed vehicle, one driving and one on the gun.</li><li>Police draw handguns at range, and every goblin attack has a proper wind-up and strike.</li></ul>

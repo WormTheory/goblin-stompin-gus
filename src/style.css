@@ -737,6 +737,53 @@ body.attitle #hud{visibility:hidden}
 .pause.title.home .vertag{display:block;position:fixed;left:22px;bottom:30px;font:400 18px var(--f-px);color:var(--paper)}
 @media (max-width:860px){.pause.title .card h1.tlogo{left:16px;top:12px;width:calc(100% - 32px)}.pause.title.home .tmenu{position:absolute;left:16px;right:16px;margin:auto;top:auto;bottom:104px;transform:none;width:auto;max-height:calc(100vh - 300px)}.pause.title.home .gamefoot{display:none}}
 @media (max-height:620px){.tmenu .ck{height:50px;font-size:24px}.tmenu .ck.tbig{height:60px;font-size:32px}.tmenu{gap:12px;padding:18px 22px}}
+/* (wide enough for the card on the right: it never scrolls. Its buttons shrink with the window's height so it all fits,
+   and what a button opens pops out to the left of it instead of stretching it: ui/title-pop.js places it beside its button) */
+@media (min-width:861px){
+  .pause.title.home .tmenu{overflow:visible;gap:clamp(8px,1.8vh,18px);padding:clamp(14px,2.6vh,28px) 30px clamp(12px,2.4vh,24px)}
+  .pause.title.home .tmenu .ck{height:clamp(40px,7vh,62px);font-size:clamp(20px,3.3vh,28px)}
+  .pause.title.home .tmenu .ck.tbig{height:clamp(50px,9vh,82px);font-size:clamp(28px,4.6vh,40px)}
+  .pause.title.home .tmenu .tm2 .ck,.pause.title.home .tmenu .tfull{height:clamp(36px,6vh,54px);font-size:clamp(17px,2.6vh,22px)}
+  .pause.title.home .tmenu .savesw{height:clamp(36px,6vh,54px)}
+  .pause.title.home .tmenu .savesw .sv{font-size:clamp(17px,2.6vh,22px)}
+  .pause.title.home .tmenu>.online,.pause.title.home .tmenu>.confirm{position:absolute;right:calc(100% + 28px);top:0;width:min(400px,calc(100vw - 540px));max-height:calc(100vh - 140px);
+    overflow-y:auto;scrollbar-width:thin;box-sizing:border-box;box-shadow:6px 7px 0 var(--ink);transform:rotate(-1.6deg);z-index:3;animation:popIn .16s ease-out}
+  .pause.title.home .tmenu>.confirm{align-items:center;padding:14px 16px}
+}
+@keyframes popIn{from{opacity:0;translate:16px 0}to{opacity:1;translate:0 0}}
+body.calm .tmenu>.online,body.calm .tmenu>.confirm{animation:none!important}
+/* the save switch: Browser save and Local save, side by side in one pill; the one in use is in full colour, the other greyed */
+.savesw{display:grid;grid-template-columns:1fr 1fr;height:54px;flex:none;border:4px solid var(--ink);border-radius:var(--wobb);box-shadow:0 6px 0 var(--ink);overflow:hidden;background:var(--ink);gap:4px}
+.savesw .sv{font:400 22px/1 var(--f-px);letter-spacing:.5px;text-transform:uppercase;color:var(--ink);background:var(--biscuit);border:0;padding:4px 8px;cursor:pointer;
+  box-shadow:inset 0 -6px 0 rgba(0,0,0,.16),inset 0 4px 0 rgba(255,255,255,.5);transition:background .12s,color .12s}
+.savesw .sv[aria-checked="false"]{background:#cdc3bd;color:rgba(43,27,46,.42);box-shadow:inset 0 5px 0 rgba(0,0,0,.14)}
+.savesw .sv[aria-checked="false"]:hover{background:#ddd2c9;color:rgba(43,27,46,.7)}
+.savesw .sv.cant{text-decoration:line-through 2px rgba(43,27,46,.35)}
+#pause .savesw .sv.padfocus,.savesw .sv:focus-visible{outline:4px dashed var(--yolk)!important;outline-offset:-8px!important;box-shadow:none!important}
+.pause:not(.title) .savesw,.pause:not(.title) #savePanel{display:none!important}
+.pause.title #saveNow{display:none}   /* (paused only: on the title screen nothing's changed since it last saved) */
+#saveNow.ok{background:var(--gus)}#saveNow.bad{background:var(--tomato)}
+/* the Local saves card */
+.tmenu .online.savepanel{background:#fdf0d2}
+.sv-list{display:flex;flex-direction:column;gap:8px}
+.sv-list[hidden]{display:none}
+.sv-row{display:flex;gap:8px;align-items:stretch}
+.sv-file{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;border:3px solid var(--ink);border-radius:8px;background:var(--paper);color:var(--ink);padding:7px 10px;cursor:pointer}
+.sv-file b{font:400 19px/1.1 var(--f-px);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sv-file small{font:400 12px/1.3 var(--f-body);color:#4a3a4e}
+.sv-row.cur .sv-file{background:#d9f3b8;box-shadow:inset 6px 0 0 var(--gus)}
+.sv-file:hover:not(:disabled),.sv-file.padfocus{background:#fff2b8}
+.sv-x{font:600 12px var(--f-body);background:none;border:0;color:#7a2e5a;text-decoration:underline;cursor:pointer;padding:0 4px}
+.sv-btns{display:flex;flex-wrap:wrap;gap:8px}
+.sv-btns .on-b{flex:1 1 auto}
+.tmenu .sv-btns .sv-open{background:var(--biscuit)}
+.tmenu .note.bad{color:#a8442f;font-weight:700}
+/* the foot of the screen: the version on the title screen, bottom left; paused, at the start of the seed line */
+.pause.title .sn-ver{display:none}
+.updbtn[hidden]{display:none!important}
+.gamepane .updbtn.sticker{border:3px solid var(--ink);border-radius:8px;box-shadow:0 4px 0 var(--ink);background:var(--gus);color:var(--ink);font:400 20px/1 var(--f-px);letter-spacing:.5px;padding:9px 14px;cursor:pointer;text-transform:uppercase;transform:rotate(-3deg)}
+.pause.title.home .updbtn{position:fixed;left:18px;bottom:62px;z-index:2}
+.pause:not(.title) .updbtn{align-self:flex-start;font-size:16px!important;padding:6px 10px!important;transform:none!important}
 
 /* ---- a screen opened from the menu: its own head with a Back button ---- */
 .subhead{display:flex;align-items:center;gap:18px;flex:none;margin-top:-4px}
@@ -871,7 +918,7 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
 .pause:not(.title) .rp-t{padding:clamp(5px,1.4vh,12px) 16px}
 .pause:not(.title) .rp-t b{font-size:clamp(26px,5.6vh,44px)}
 .pause:not(.title) .rp-head h2{font-size:clamp(24px,4.4vh,32px)}
-@media (max-height:820px){.pause:not(.title) .gamefoot #padNote{display:none}}
+.pause:not(.title) .gamefoot #padNote{display:none}   /* (paused, the foot is the version and seed line; the title screen still says when no controller's found) */
 @media (max-height:640px){.pause:not(.title) .rp-note{display:none}}
 @media (max-width:860px) and (min-width:520px){.pause:not(.title) .rp-tiles{grid-template-columns:repeat(3,minmax(0,1fr))}.pause:not(.title) .rp-t b{font-size:clamp(22px,4.6vh,34px)}}
 @media (max-width:860px){

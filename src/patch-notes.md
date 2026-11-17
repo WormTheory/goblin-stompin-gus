@@ -1,5 +1,31 @@
 # Patch notes
 
+## Version 0.4.1
+
+### Saving
+
+- **Your city now keeps saving however big the mess gets.** A browser only lets a website keep about 5 MB, and a long rampage's smashed blocks could outgrow that. When they did, the game quietly stopped saving them, so every time you came back the city was back to how it was the last time it fitted. Now a big city's smashed blocks are kept in the browser's much bigger database instead, and the game says so if a save ever does fail.
+- **Save now**, in the pause menu, saves everything straight away and tells you whether it worked. (The game still saves by itself as you play.)
+- **Browser save or Local save:** a new switch in the title menu. Browser save is how it's always worked. Local save keeps your city in a file on your computer, so clearing the browser can't lose it, and you can keep as many save files as you like: start a new file from the city you're in or from a brand-new one, open one you saved before, and switch between them from the Local saves card. Your browser save stays as it was, and you can switch back to it any time. The game opens the same file next time; the browser asks once a visit whether the game may keep saving to it (choose "Allow on every visit" to stop it asking). Local save needs Chrome or Edge on a computer; in other browsers and on phones it's greyed out and says why.
+
+### Main menu
+
+- The title menu no longer scrolls. Play online, New city's "are you sure?" and Local saves pop out to the left of the menu instead of stretching it, and its buttons shrink to fit shorter windows.
+- When a newer version of the game has been put on the website since you opened it, an **Update** button appears on the title screen and at the foot of the pause menu. It saves your city and reloads into the new version, with no need for a hard refresh.
+- The foot of the pause menu shows the game's version beside the city's seed, and whether your game's saving in the browser or to a file.
+
+### Options
+
+- **Sound volume** and **Brightness** sliders, in a new Sound & picture section at the top of Options. Brightness only changes the game's picture, not the menus or the display, and in split screen it goes for both halves.
+- **Hide blood**, under On screen: no blood sprays, splats on the ground or pools.
+
+### Fixes
+
+- Armories' corner turrets were cut off where they stuck out past the edge of their block, and could never count as destroyed. The drill hall is a little smaller now so its turrets fit.
+- Office towers, big police stations, the stadium and other big buildings sometimes never counted as destroyed, however much of them was knocked down, because the game overestimated how many blocks they had. It now counts every block.
+- Most of the false fronts on a film studio's backlot had no walls, only windows. They have their walls back.
+- Rubble that had landed on a building's roof came back hanging in mid-air, where the roof used to be, once that building had come down and you'd left the area and returned (or loaded the game). It's now saved as gone with the building. (Rubble already left hanging in a saved city still falls if you knock it.)
+
 ## Version 0.4
 
 ### Goblins climb vehicles too

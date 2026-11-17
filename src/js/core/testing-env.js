@@ -29,7 +29,7 @@ function tpRender(){
   const vb=document.getElementById('tpVehs');
   if(vb&&!vb.childElementCount)for(const t of [...Object.keys(VEH),'police','tank','heli','plane']){const b=document.createElement('button');b.type='button';b.className='pmenu';b.dataset.veh=t;
     b.textContent=(VEH_NAME[t]||[MIL[t]?MIL[t].name:t])[0].replace(/^./,c=>c.toUpperCase());b.addEventListener('click',()=>tenvVeh(t));vb.append(b);}
-  const sn=document.getElementById('seedNote');if(sn&&TENV)sn.textContent=`Testing Environment · ${TENV.boxes.length} structure${TENV.boxes.length===1?'':'s'} spawned · seed ${seed}`;
+  if(TENV)seedLine();
 }
 // the Testing Environment's own tab, just right of Game: there only while in it (on: shown and opened)
 function tpShow(on){
@@ -47,8 +47,19 @@ function freshWorld(off,tenv){
 }
 // into the Testing Environment: your city (as it is this moment, where you stand, its obituary) is put aside first
 function tenvEnter(){
-  try{savePos();localStorage.setItem(TENV_PARK,JSON.stringify({key:SAVE_KEY,save:saveText(),
-    pos:localStorage.getItem(POS_KEY),obit:localStorage.getItem(OBIT_KEY)}));}catch(e){}
+  if(WB.pending)return;   // (a big city still being read back in: it can't be put aside half loaded)
+  try{savePos();}catch(e){}
+  const park={key:SAVE_KEY,pos:localStorage.getItem(POS_KEY),obit:localStorage.getItem(OBIT_KEY)};
+  try{localStorage.setItem(TENV_PARK,JSON.stringify(Object.assign({save:saveText()},park)));}
+  catch(e){
+    // (a city too big for localStorage goes aside in IndexedDB, as its saves do: see worldPut)
+    if(!window.indexedDB){try{flashLabel("Can't put your city aside: the browser's storage is full");}catch(e2){}return;}
+    svKv('park:'+SAVE_KEY,saveObj()).then(()=>{localStorage.setItem(TENV_PARK,JSON.stringify(Object.assign({idb:1},park)));tenvEnterNow();},
+      ()=>{try{flashLabel("Can't put your city aside: the browser's storage is full");}catch(e2){}});
+    return;}
+  tenvEnterNow();
+}
+function tenvEnterNow(){
   if(freshWorld([],{boxes:[]}))return;
   // (no storage to reload from: started here and now)
   TENV={boxes:[]};tenvIndex();trInstall();document.getElementById('confirmYes').click();tpShow(true);
@@ -56,6 +67,10 @@ function tenvEnter(){
 // and back out: the city you left, just as it was (or, if there isn't one, a brand-new one)
 function tenvLeave(){
   let P=null;try{P=JSON.parse(localStorage.getItem(TENV_PARK)||'null');}catch(e){}
+  if(P&&P.key===SAVE_KEY&&P.idb){svKv('park:'+SAVE_KEY).then(o=>{if(!o)throw 0;return worldPut(o);}).then(()=>{
+      for(const [k,v] of [[POS_KEY,P.pos],[OBIT_KEY,P.obit]])if(v)localStorage.setItem(k,v);else localStorage.removeItem(k);
+      localStorage.removeItem(TENV_PARK);svKv('park:'+SAVE_KEY,null).catch(()=>{});clearTimeout(saveTimer);saveBlocked=true;location.reload();},
+    ()=>{try{flashLabel("Couldn't bring your city back");}catch(e){}});return;}
   if(P&&P.key===SAVE_KEY&&P.save){try{localStorage.setItem(SAVE_KEY,P.save);
     for(const [k,v] of [[POS_KEY,P.pos],[OBIT_KEY,P.obit]])if(v)localStorage.setItem(k,v);else localStorage.removeItem(k);
     localStorage.removeItem(TENV_PARK);clearTimeout(saveTimer);saveBlocked=true;location.reload();return;}catch(e){}}
@@ -318,7 +333,7 @@ function boot(){
   // (once the ground under him has been built, stand him back on it)
   if(sp){const f=footprint(P1);if(f!==null&&f!==undefined&&f>=P1.pos.y-1.5)P1.pos.y=f;}
   layout();
-  document.getElementById('seedNote').textContent=TENV?`Testing Environment · ${TENV.boxes.length} structure${TENV.boxes.length===1?'':'s'} spawned · seed ${seed}`:`City seed ${seed} · endless · smashed blocks save in this browser`;
+  seedLine();   // (ui/saves.js: the version, the seed and where it's saved)
   if(TENV)tpShow(true);
 }
 if(!load())seed=(Math.random()*1e9)|0;

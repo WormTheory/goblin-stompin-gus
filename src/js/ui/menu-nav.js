@@ -103,7 +103,8 @@ function menuPad(st,dt){
       const cf=document.getElementById('confirm');
       if(!cf.hidden)document.getElementById('confirmNo').click(),padFocus(document.getElementById('newWorld'));
       else if(curTab!=='game')backHome();
-      else{const op=document.getElementById('onlinePanel');if(op&&!op.hidden&&op.contains(document.activeElement)){document.getElementById('onlineBtn').click();padFocus(document.getElementById('onlineBtn'));}
+      else{const op=document.getElementById('onlinePanel'),sp=document.getElementById('savePanel');if(op&&!op.hidden&&op.contains(document.activeElement)){document.getElementById('onlineBtn').click();padFocus(document.getElementById('onlineBtn'));}
+        else if(sp&&!sp.hidden){titlePop(null);padFocus(document.getElementById('saveLocal'));}
         else if(!atTitle&&begun){startPlay(null,true);return;}}   // (B on the pause menu itself: back to the game)
     }
     if(s.pr[9]){startPlay(s===st[1]&&!touchMode?'coop':null,true);return;}
@@ -118,6 +119,9 @@ function menuPad(st,dt){
       if(el.closest('#charRow')){el.click();backHome();continue;}
       el.click();
       if(el.id==='newWorld')padFocus(document.getElementById('confirmNo'));
+      // (a card popping out beside the menu: straight into it, as it's off to the side)
+      if(el.id==='onlineBtn'||el.id==='saveLocal'){const pn=document.getElementById(el.id==='onlineBtn'?'onlinePanel':'savePanel');
+        if(pn&&!pn.hidden){const f=menuFocusables().find(e=>pn.contains(e));if(f)padFocus(f);}}
       if(el.id==='confirmNo'||el.id==='confirmYes')padFocus(document.getElementById('newWorld'));
     }
   }
