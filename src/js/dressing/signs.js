@@ -280,7 +280,7 @@ function marqueeSpots(b,px,pz,out){
 }
 // the front first; failing that (something built right up against it), whichever other side has room
 function bSpotAny(b,px,pz,inset,yc,h,out){for(const sd of [b.door,(b.door+2)%4,b.door^1,(b.door+2)%4^1])if(bSpot(b,px,pz,sd,inset,yc,h,4,out))return;}
-const SMALL_SHOPS=new Set(['books','dentist','dispo','guns','bar','soup']),B2_SIGNS=new Set(['courthouse','library','radio','news','bank','disco','club','dealer','armory','theater','stocks','nursery','museum','aquarium','school','datacenter','electric','casino','factory','campus','prison','jail','water','power','lab','arena','base','airport','nuclear']);
+const SMALL_SHOPS=new Set(['books','dentist','dispo','guns','bar','soup']),B2_SIGNS=new Set(['courthouse','library','radio','news','bank','disco','club','dealer','armory','theater','stocks','nursery','museum','aquarium','school','datacenter','electric','casino','factory','campus','prison','jail','water','power','lab','arena','base','airport','airfield','nuclear']);
 function brandSpots(b,px,pz){
   if(b._signs)return b._signs;
   const out=[],cat=b.signCat,tierOn=b.tier>0&&(b.x1-b.x0)>=8,ins=tierOn?2:0;

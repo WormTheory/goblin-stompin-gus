@@ -47,7 +47,7 @@ function drvHP(D){if(D.netHP)return D.netHP;const o=D.o;   // (D.netHP: a guest 
   if(D.k==='boat')return{hp:o.hp,max:o.max};
   if(D.k==='ship')return{hp:o.hp,max:o.K.hp};
   if(D.k==='mount')return{hp:o.S.hp,max:o.S.K.hp};   // (a carrier's deck weapon: the ship's own health)
-  if(D.k==='plane')return{hp:o.hp,max:PLANE_HP};
+  if(D.k==='plane')return{hp:o.hp,max:planeMax(o)};
   if(D.k==='balloon')return{hp:o.hp,max:BAL.hp};
   return{hp:o.carHP?o.carHP[D.ci]:CAR_HP,max:CAR_HP};
 }
@@ -78,9 +78,9 @@ function drvHud(p){
   // (the other seat, if it's free: the weapon button moves you to it. See gunner.js)
   const sw=drvSwapTo(p)?'  ·  '+bl('weapon')+(D.seat==='gun'?' drive':' man the gun'):!armed&&o.gnr&&(D.k==='tank'||D.k==='heli')?'  ·  Your gunner has the guns':'';
   const how=drvHow(p,D,armed);
-  set('w',H.wpn,how+(D.k==='plane'&&armed?planeHud(o.free)+'  ·  ':'')+(armed?(LT?'Locked on '+(isMilT(LT)?MIL[LT.kind].name.toLowerCase():isCarT(LT)?'a '+(LT.veh||'car'):'a goblin')+' ('+lk+' let go)':lk+' lock on')+'  ·  '+out+' get out'
+  set('w',H.wpn,how+(D.k==='plane'&&armed?planeHud(o.free,o)+'  ·  ':'')+(armed?(LT?'Locked on '+(isMilT(LT)?MIL[LT.kind].name.toLowerCase():isCarT(LT)?'a '+(LT.veh||'car'):'a goblin')+' ('+lk+' let go)':lk+' lock on')+'  ·  '+out+' get out'
     :D.k==='car'&&o.veh==='fire'?bl('bite')+' spray water  ·  '+bl('stomp')+' horn  ·  '+out+' get out'
-    :D.k==='plane'?planeHud(o.free)+'  ·  '+out+' get out':D.k==='mech'?mechHint(p):out+' get out')+sw);
+    :D.k==='plane'?planeHud(o.free,o)+'  ·  '+out+' get out':D.k==='mech'?mechHint(p):out+' get out')+sw);
   const hose=D.k==='car'&&o.veh==='fire';H.xh.hidden=!armed&&!hose&&D.k!=='mech';mechHud(p,H);if(hose){H.xh.classList.remove('cool','lock');H.xh.classList.toggle('water',!!o.hose);}if(armed){H.xh.classList.toggle('cool',!ready);H.xh.classList.toggle('lock',!!LT);}
   // (the ammo by the crosshair: each weapon, its button, a pip for each round left -- or a bar, for a machine gun's
   // belt -- and while it reloads, a bar filling and the seconds to go)
@@ -109,9 +109,9 @@ function drvHud(p){
   H.xt.hidden=!tShow;
 }
 // a flown plane's gauges: throttle, airspeed, climb rate, and a stall warning (on the runway, the speed it lifts off at)
-function planeHud(F){if(!F)return'Throttle 0%';const thr='Throttle '+Math.round((F.thr||0)*100)+'%  ·  Speed '+Math.round(F.v);
-  if(!F.air)return thr+(F.v<PLANE_LIFT?'  ·  Take-off at '+PLANE_LIFT:'  ·  Pull up to take off');
-  return thr+'  ·  Climb '+(F.vy>=0?'+':'')+Math.round(F.vy)+(planeStalled(F)?'  ·  STALL':'');}
+function planeHud(F,pl){if(!F)return'Throttle 0%';const LIFT=pl&&pl.light?LIGHT_FLY.lift:PLANE_LIFT;const thr='Throttle '+Math.round((F.thr||0)*100)+'%  ·  Speed '+Math.round(F.v);
+  if(!F.air)return thr+(F.v<LIFT?'  ·  Take-off at '+LIFT:'  ·  Pull up to take off');
+  return thr+'  ·  Climb '+(F.vy>=0?'+':'')+Math.round(F.vy)+(planeStalled(F,pl)?'  ·  STALL':'');}
 // the vehicle's own controls, at the top of the column down the left (the only place they're shown: there's no card
 // about them on getting in), each ending in '  ·  ' so the rest follows
 function drvHow(p,D,armed){const A=id=>actMark(p,id),G=armed?D.k==='heli'?A('bite')+' gun  ·  '+A('stomp')+' rockets  ·  ':D.k==='plane'?A('bite')+' cannon  ·  '+A('stomp')+' missiles  ·  ':D.k==='tank'||D.seat==='gun'?A('bite')+' fire  ·  ':'':'';

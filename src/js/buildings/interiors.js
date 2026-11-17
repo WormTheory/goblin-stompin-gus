@@ -1,7 +1,7 @@
 // ---- bathrooms: a walled room in a corner, clear of the stairs and the doors, a small part of the floor. They're secondary to
 // what the building is for: one to an establishment on its ground floor (two only on a vast floor), one to a flat or a
 // house (upstairs in a two-storey one), and in offices and wards one every third floor. ----
-const WC_ROOMS=new Set(['diner','pizza','cafe','fastfood','sitdown','bar','soup','books','dentist','dispo','guns','dealer','armory','shop','market','drug','bigbox','grocery','ikea','office','lobby','bank','news','radio','stocks','school','library','police','firehall','courtroom','museum','aquarium','cinema','theater','disco','club','casino','factory','lab','barracks','terminal','stage','hosp','ward','lecture','mission','turbine','apartment']);
+const WC_ROOMS=new Set(['diner','pizza','cafe','fastfood','sitdown','bar','soup','books','dentist','dispo','guns','dealer','armory','shop','market','drug','bigbox','grocery','ikea','office','lobby','bank','news','radio','stocks','school','library','police','firehall','courtroom','museum','aquarium','cinema','theater','disco','club','casino','factory','lab','barracks','terminal','stage','aeroclub','hosp','ward','lecture','mission','turbine','apartment']);
 // (which side of a flat its bedroom and bathroom go: the wall away from any stairs in it)
 const flats4=(I,J)=>I>=9&&J>=12&&I*J>=260;   // (four flats to a floor, or two; each with room for its own bathroom)
 function flatBack(b,y0,y1,ez0){const S=b.stair;if(!S||S.ax!=='x')return 1;const c=(S.c0+S.c1)/2-ez0-1;return c>=y0&&c<y1&&c>(y0+y1)/2?-1:1;}
@@ -363,7 +363,7 @@ function furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
       return AIR;
     case 'terminal':
       // the check-in desks, rows of seats at the gates, the screens of departures
-      if(iv===J-1&&level===3&&iu%5===2)return SCREEN;
+      if(iv===(b.apFlip?0:J-1)&&level===3&&iu%5===2)return SCREEN;
       return AIR;
     case 'mission':
       // mission control: tiers of consoles facing the big screens on the end wall

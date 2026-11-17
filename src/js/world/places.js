@@ -79,6 +79,7 @@ const BRANDS={
     BR('FEDEX','#4d148c','#ffffff','#ffffff','fx'),
     BR('APPLE','#111111','#ffffff','#b8e08a','wormapple'),BR('TESLA','#111111','#ffffff','#e31837','teslat'),BR('NETFLIX','#111111','#e50914','#e50914','nflx'),BR('META','#ffffff','#0668e1','#0668e1','infin'),BR('GEICO','#00447c','#ffffff','#ffd200','gecko'),BR('UPS','#351c15','#ffb500','#ffb500','shield')],
   base:[BR('ARMY BASE','#2e3a1e','#f0e2b0','#c8a84a','badge')],airport:[BR('AIRPORT','#0d2a5a','#ffffff','#5ad0ff','globe'),BR('INTERNATIONAL','#1a1a2a','#ffffff','#ffd23a','globe')],
+  airfield:[BR('FLYING CLUB','#1f4a2a','#ffffff','#ffd23a','globe'),BR('AERO CLUB','#7a2a1a','#ffffff','#ffffff','globe')],
   nasa:[BR('NASA','#0b3d91','#ffffff','#fc3d21','globe')],theme:[BR('FUN PARK','#c8202a','#ffe23a','#ffffff','globe'),BR('ADVENTURE LAND','#1a5a2a','#ffe23a','#ff7a2a','globe'),BR('SIX FLAGS','#0a3a8a','#ffffff','#e31837','flag6'),BR('DISNEY WORLD','#0a3a8a','#ffffff','#ffd23a','spires')],
   nuclear:[BR('NUCLEAR','#2a2a10','#ffe23a','#ffe23a','bolt')],
   arena:[BR('ARENA','#1a1a2a','#ffffff','#ff7a2a','globe'),BR('SPORTS CENTER','#0d2a5a','#ffffff','#ffd23a','globe')],

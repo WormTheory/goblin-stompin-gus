@@ -131,7 +131,7 @@ function civicRoom(b,px,pz,floorNo,L,kd){
   }
 }
 // places to go, and places of work
-const VENUE_ROOMS=new Set(['barn','cinema','disco','club','theater','museum','aquarium','casino','factory','lab','barracks','terminal','stage']);
+const VENUE_ROOMS=new Set(['barn','cinema','disco','club','theater','museum','aquarium','casino','factory','lab','barracks','terminal','stage','aeroclub']);
 function venueRoom(b,px,pz,floorNo,L,kd){
   const {I,J,add,hg}=floorKit(b,px,pz,floorNo,L,false),cu=I/2,PI=Math.PI,HP=Math.PI/2,pick=(A,a,c,n)=>A[Math.floor(hg(a,c,n)*A.length)%A.length];
   const set=(u,v,t,c)=>{add('rtable',u,v,0,t);add('chair',u-.68,v,HP,c,0,true);add('chair',u+.68,v,-HP,c,0,true);};
@@ -212,11 +212,30 @@ function venueRoom(b,px,pz,floorNo,L,kd){
     for(let u=1.5;u<I-1;u+=3){add('bunk',u,.9,0,0x4a5a3a);add('locker',u,2.2,PI);add('bunk',u,J-.9,PI,0x4a5a3a);add('locker',u,J-2.2,0);}
     if(J>=8)for(let u=3;u<I-2;u+=6)set(u,J/2,0x5a3a22,0x46505a);add('flag',I-.7,J/2,-HP);
   }else if(kd==='terminal'){
-    // check-in desks and the belt behind them, rows of seats at the gates, luggage, vending machines
-    for(let u=1.5;u<I-1;u+=4){add('bar',u,J-2,0,0x2b5fb8);add('bar',u+1,J-2,0,0x2b5fb8);add('monitor',u,J-2,0,0,.9);add('swivel',u,J-1.2,PI,0,0,true);}
-    for(let u=.5;u<I;u++)add('conveyor',u,J-.5,HP);for(let u=2;u<I-2;u+=7)add('pcrate',u,J-.5,0,0,.7);
-    for(let v=3;v<J-5;v+=3)for(let u=1.2;u<I-1;u+=2.2){if(Math.floor(u)%6===0)continue;add('seats',u,v,v%6===3?0:PI,0x2b5fb8);}
-    add('vending',.5,1.5,HP);add('vending',I-.5,1.5,-HP);add('plant',.5,.5,0);add('plant',I-.5,.5,1);
+    // a terminal hall, from the street doors (v at J) to the windows on the apron (v at 0): the check-in hall (the
+    // queue lines, the desks with their screens, the agents and the baggage belt behind them), then security across
+    // the middle (the lanes' metal detectors, the bag scanners and their belts, the officers posted there:
+    // AIRPORT_POSTS), then airside the gate's lounge (rows of seats facing the windows, the gate desk, the
+    // departures board, a coffee bar, vending machines)
+    // (an airport the far side of its city is mirrored, the street doors on the low side: so is its hall's layout)
+    const A=b.apFlip?(t,u,v,y,...r)=>add(t,u,J-v,PI-y,...r):add;
+    const ci=J-8,sv=Math.max(8,Math.round(J*0.42));
+    for(let u=1.5;u<I-1;u+=1){if(Math.abs(u-cu)<3)continue;A('bar',u,ci,PI,0x2b5fb8);if(Math.floor(u)%3===1){A('monitor',u,ci,PI,0,.9);A('swivel',u,ci-.9,0,0,0,true);}A('conveyor',u,ci-1.9,HP);}
+    for(let u=1.5;u<I-1;u+=1.2)if(Math.abs(u-cu)>=3&&Math.floor(u*5)%6!==0){A('stanchion',u,ci+2.2,0);A('stanchion',u,ci+4,0);}
+    for(const s2 of [-1,1]){const u=cu+s2*3;A('detector',u,sv,0);A('scanner',u+s2*1.7,sv+.2,0);A('conveyor',u+s2*1.7,sv+1.5,0);A('conveyor',u+s2*1.7,sv-1.2,0);}
+    for(let u=.8;u<I;u+=1.1)if(Math.abs(u-cu-3)>2.6&&Math.abs(u-cu+3)>2.6)A('stanchion',u,sv,0);
+    A('desk',cu,sv+1.2,0);A('monitor',cu,sv+1.2,0,0,.9);
+    for(let v=1.8;v<sv-2.5;v+=2.2)for(let u=1.6;u<I-5;u+=1.1){if(Math.abs(u-cu)<1.6)continue;A('seats',u,v,PI,0x2b5fb8);}
+    A('bar',cu-.5,.6,0,0x46505a);A('bar',cu+.5,.6,0,0x46505a);A('monitor',cu,.6,0,0,.9);A('board',.4,sv-2,HP,0x1d2a44);
+    for(let v=1.5;v<5.5;v++){A('bar',I-2.4,v,-HP,0x5a3a22);A('stool',I-3.2,v,HP,0x46505a,0,true);}A('espresso',I-2.4,1.5,-HP,0,.9);
+    A('vending',I-.5,sv-2.5,-HP);A('plant',.5,J-.5,0);A('plant',I-.5,J-.5,1);A('pcrate',2,J-2.6,0.3,0,.7);
+  }else if(kd==='aeroclub'){
+    // the flying club's clubhouse: the desk by the door with the bookings screen, a lounge of sofas round a low table,
+    // the briefing table with its chairs under the chart on the wall, lockers for the members' kit
+    add('bar',1.5,1.8,HP,0x5a3a22);add('bar',1.5,2.8,HP,0x5a3a22);add('monitor',1.5,2.3,HP,0,.9);add('swivel',.6,2.3,HP,0,0,true);
+    for(const u of [cu-1,cu,cu+1])add('sofa',u,J-.6,PI,0x3f6b8c);add('table',cu,J-2,0);add('sofa',cu-2.4,J-2,HP,0x3f6b8c);
+    add('rtable',I-3,3,0,0x6a5a4a);add('chair',I-3.7,3,HP,0x46505a,0,true);add('chair',I-2.3,3,-HP,0x46505a,0,true);add('chair',I-3,3.7,PI,0x46505a,0,true);
+    add('board',I-.4,3,-HP,0xd8c8a8);for(let v=J-1.5;v>J-4;v--)add('locker',I-.5,v,-HP);add('plant',.5,J-.5,0);add('flag',.6,J-.6,0);
   }else if(kd==='barn'){
     // stalls down one side, bales stacked at the back, a tractor's worth of tools
     for(let v=1;v<J-3;v+=2.4){add('bench',.8,v,HP);add('hay',I-.7,v,0);add('hay',I-.7,v+1.2,0);}
@@ -414,7 +433,7 @@ function patioProps(P,px,pz){
 // encampment's bedding and carts, a cult's book, candles and bones, a building site's barrows and bricks, a nursery's
 // pots, a trailer park's lawn chairs and junk, the flowers on the graves. (A site over more than one plot gives each plot
 // just its own, so nothing's listed twice.) Drawn out to the same distance as the benches in the street.
-const SITE_PROPS=new Set(['farmers','camp','campsite','cult','build','nursery','trailers','cemetery','mine','quarry','lumber','prepper','militia','thieves','ruins','dump','park','plaza','court','lighthouse','homes']);
+const SITE_PROPS=new Set(['farmers','camp','campsite','cult','build','nursery','trailers','cemetery','mine','quarry','lumber','prepper','militia','thieves','ruins','dump','park','plaza','court','lighthouse','homes','airport','airfield']);
 // (the big sites dressed the same way: the ones whose plan says where their open ground is)
 const SITE_SUPER=new Set(['power','zoo','theme','stadium','garage','bigpark']);
 // which of those a block is, if any (a bunker or a few wrecked cars out on open grass count too)
@@ -508,6 +527,25 @@ function bunkerProps(add,cx,cz){
   for(const u of [-1.5,1.5]){a('rtable',u,6,0,0x6a5a4a);a('chair',u,4.9,0,0x4f5a32);a('chair',u,7.1,Math.PI,0x4f5a32);}
 }
 const SITE_FN={
+  // the airport's apron: cones off each parked airliner's wingtips and nose, a baggage train of crates beside it waiting
+  // to be loaded, chocks of drums and tyres by the hangars, fuel drums round the fuel farm, benches along the kerb
+  airport(P,px,pz,add,putAt){const B=bigPlainsAt(px,pz);if(!B)return;const put0=putAt(B.ax*CELL,B.az*CELL),V=AP.gateV;
+    const put=(t,u,v,y,...r)=>put0(t,u,apV(B,v),apYaw(B,y),...r);   // (mirrored with the airport)
+    for(const u of AP.gates){for(const du of [-13,13])put('cone',u+du,V+1,0,0,true);put('cone',u+3,V+16,0,0,true);
+      for(let k=0;k<4;k++){put('pcrate',u+7,V+4+k*1.6,0,0);if(k%2===0)put('pcrate',u+7,V+4+k*1.6,0.1,0,false,G+1.64);}}
+    for(const u of AP.stands)for(const du of [-13,13])put('cone',u+du,V+1,0,0,true);
+    for(const c of [11,12,13]){put('tyres',c*32+6,90,0,0);put('drum',c*32+26,90,0,P_RUSTY);put('toolrack',c*32+16,92.5,0,0);}
+    for(const [u,v] of [[353,104],[353,116],[376,104],[376,116]])put('drum',u,v,0,0xc8302a);put('jerrycans',376,110,0,P_FUEL[0],true);
+    for(let c=3;c<=8;c++)for(const du of [6,24])put('bench',c*32+du,126.4,Math.PI,0);
+  },
+  // the airfield: chocks and a tool rack in the hangar, fuel cans by the pump, a picnic table and chairs outside the
+  // clubhouse, cones along the apron's edge, tyres and a drum round the back
+  airfield(P,px,pz,add,putAt){const B=bigPlainsAt(px,pz);if(!B)return;const put=putAt(B.ax*CELL,B.az*CELL);
+    put('toolrack',38,60.5,0,0);put('tyres',56,60,0,0);put('drum',55.5,57,0,P_RUSTY);put('pcrate',39,58,0.2,0);
+    put('jerrycans',85.5,49.5,0,P_FUEL[0],true);put('jerrycans',85.5,50.7,0,P_FUEL[1],true);
+    put('picnic',7,45.5,0,0);put('campchair',4.5,45.4,0.3,0x3f6b8c);put('campchair',9.8,45.6,-0.3,0xc83a32);
+    for(const u of [12,30,62,80,96])put('cone',u,32.4,0,0,true);put('drum',26,62,0,P_RUSTY);put('tyre',28,61.5,0.4,0,true);
+  },
   bunker(P,px,pz,add){bunkerProps(add,px*CELL+PC,pz*CELL+PC);},
   // abandoned cars: their old tyres lying round them, now and then a heap of them or a rusty drum
   wrecks(P,px,pz,add){

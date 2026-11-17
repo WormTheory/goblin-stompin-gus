@@ -11,6 +11,7 @@ vehicles/base-armour.js
 world/coast-columns.js
 world/routes.js
 world/country-sites.js
+world/airfields.js
 world/highways.js
 world/city-plan.js
 world/parking-bridges.js
@@ -74,6 +75,7 @@ dressing/rooms-furn.js
 dressing/doors-clocks.js
 vehicles/boats.js
 venues/rides.js
+vehicles/airfields.js
 vehicles/balloon.js
 vehicles/crashes.js
 vehicles/ships.js

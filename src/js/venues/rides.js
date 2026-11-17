@@ -126,17 +126,18 @@ function makeTrainCar(loco,rear){
   if(loco){const e=rear?-1:1;bx(TRM.red,2.66,0.4,9.9,0,1.2,0);bx(TRM.win,2.2,0.9,0.06,0,2.8,e*4.92);bx(LMM.ledOn2,0.4,0.25,0.06,0,1.6,e*4.93);}
   return g;
 }
-// the airport's planes: two parked at the gates, one that goes round -- taxis out, takes off, flies away, comes back in to
-// land, and taxis back to its gate
+// an airport's airliners (where they go and when: vehicles/airfields.js)
 // (built at its old size, then stretched to about two-thirds of a real short-haul airliner's, as the game's other
 // vehicles are: PLANE_K, longer more than it's wider. Its boxes are PLANE_DIM)
 const PLANE_K=[1.15,1.25,1.45];
 function makePlane(i){
   const g0=new THREE.Group(),g=new THREE.Group();g.scale.set(...PLANE_K);g0.add(g);const bx=(m,sx,sy,sz,x,y,z)=>{const o=new THREE.Mesh(LM_BOX,m);o.scale.set(sx,sy,sz);o.position.set(x,y,z);g.add(o);return o;},liv=[TRM.red,TRM.loco,LMM.gold][i%3];
-  bx(TRM.white,2.5,2.5,17,0,2.4,0);bx(TRM.white,1.8,1.8,1.6,0,2.3,9.2);bx(TRM.win,2.54,0.4,13,0,2.9,0.5);bx(liv,2.56,0.35,16,0,1.9,0);
+  bx(TRM.white,2.5,2.5,17,0,2.4,0);bx(TRM.white,1.8,1.1,1.6,0,1.95,9.2);bx(LPM.glass,1.7,0.7,1.3,0,2.85,9.05);bx(TRM.white,1.8,0.12,1.6,0,3.26,9.2);   // (the nose, the cockpit's windscreen and its roof)bx(TRM.win,2.54,0.4,13,0,2.9,0.5);bx(liv,2.56,0.35,16,0,1.9,0);
   bx(TRM.wing,21,0.35,3.4,0,1.7,0.6);for(const s2 of[-1,1])bx(TRM.dark,1.2,1.2,2.8,s2*4.8,0.9,1.2);
   bx(liv,0.35,3.6,2.8,0,4.6,-7.2);bx(TRM.wing,7.2,0.3,1.9,0,2.6,-7.6);
   for(const [x,z] of [[0,6],[-1.6,-0.4],[1.6,-0.4]])bx(TRM.dark,0.4,1.0,0.6,x,0.5,z);
+  // (the captain and first officer, sat behind the windscreen: drawn unstretched, on the outer group)
+  planePilot(g0,[[-0.5*PLANE_K[0],2.62*PLANE_K[1],8.9*PLANE_K[2]],[0.5*PLANE_K[0],2.62*PLANE_K[1],8.9*PLANE_K[2]]],1.1);
   return g0;
 }
 // a fighter jet (the debug menu's only, so far): a grey dart of a fuselage with a pointed nose, the canopy, delta
@@ -163,7 +164,7 @@ const JETM={grey:new THREE.MeshLambertMaterial({color:0x7d8794}),dark:new THREE.
 // half width, half length and height, the wings' half span, half chord, top and how far behind the middle, and how far
 // ahead its nose reaches
 const PLANE_DIM={hx:1.44,hz:14.4,hy:4.56,wx:12.1,wz:2.5,wy:2.4,wo:0.87,nose:13.8},JET_DIM={hx:1.0,hz:5.8,hy:2.7,wx:3.4,wz:1.5,wy:0.9,wo:0,nose:6.4};
-const planeDim=pl=>pl&&pl.jet?JET_DIM:PLANE_DIM;
+const planeDim=pl=>pl&&pl.jet?JET_DIM:pl&&pl.light?LIGHT_DIM:PLANE_DIM;
 // a plane's body, for standing on and hitting: the fuselage and the wings, each a box like a train car's
 const PLANE_HP=300;
 function planeBoxes(pl,v){
@@ -204,43 +205,7 @@ function planeWreck(pl,V,dt){
       blastFx(p.x,p.y+2,p.z,0.8,2.4);smoke(p.x,p.y+2,p.z,26,0x262626);noise(1.4,1,400,'lowpass');addShake(1.2,p.x,p.z,60);hitGoblins(p.x,p.z,14,14,'Flattened by a falling plane',p.y+1);}}
   else if(Math.random()<dt*3)smoke(p.x,p.y+3,p.z,2,0x262626);
   // (a new one's been brought in, once no one's looking)
-  if(pl.deadT>120&&!players.some(q=>q.active&&Math.hypot(p.x-q.pos.x,p.z-q.pos.z)<350)){pl.dead=false;pl.free=null;pl.hp=PLANE_HP;g.traverse(o=>{if(o.isMesh&&o.userData.mat)o.material=o.userData.mat;});g.rotation.set(0,0,0);if(pl===V.pl[0])V.path=null;}
-}
-function airportPath(V){
-  // the plane's round trip in the airport's own coordinates [u, v, height, speed]
-  const B=V.B,W=B.w*CELL;
-  return[[112,45.5,0,4],[112,39.5,0,7],[112,28.5,0,5],[170,28.5,0,24],[240,28.5,1,46],[300,28.5,12,60],[440,28.5,70,70],[520,28.5,90,75],[900,28.5,110,80],
-    ['wait',30],[-700,28.5,90,70],[-200,28.5,40,60],[10,28.5,4,48],[30,28.5,0,40],[120,28.5,0,14],[W-22.5,28.5,0,8],[W-22.5,39.5,0,7],[112,39.5,0,7],[112,45.5,0,3],['wait',35]];
-}
-function updateAirport(V,dt){
-  const B=V.B,X0=B.ax*CELL,Z0=B.az*CELL;
-  // the two parked ones stand at their gates, noses to the taxiway
-  if(!V.pl)V.pl=V.planes.map(g=>({isPlane:true,g,hp:PLANE_HP,dead:false,v:0}));
-  for(const pl of V.pl)if(!pl.dead&&pl.g.visible)vDamaged(pl.g.position.x,pl.g.position.y+3,pl.g.position.z,pl.hp/PLANE_HP,dt);
-  // (one that a goblin's flown, or is flying, goes its own way: see drvPlane)
-  const free=pl=>{drvPlane(pl,dt);if(pl.dead)return;planeBoxes(pl,pl.free.v);if(pl.free.v>=2)planeStrike(pl,pl.free.v);};
-  for(let i=1;i<3;i++){const pl=V.pl[i],g=pl.g;if(pl.dead){planeWreck(pl,V,dt);planeBoxes(pl,0);}else if(pl.free)free(pl);else{g.position.set(X0+16+i*32,G+1,Z0+51);g.rotation.y=Math.PI;planeBoxes(pl,0);}}
-  const pl0=V.pl[0];if(pl0.dead){planeWreck(pl0,V,dt);planeBoxes(pl0,0);return;}
-  if(pl0.free){free(pl0);return;}
-  if(!V.path){V.path=airportPath(V);V.i=0;V.t=0;V.pos={u:112,v:45.5,h:0};V.sp=0;V.hd=0;}
-  const P=V.path[V.i],g=V.planes[0],rider=players.some(q=>q.active&&q.standCar&&q.standCar.T===pl0);
-  if(P[0]==='wait'){
-    // (out of sight beyond the horizon, normally; with someone aboard it just turns round, and comes back)
-    if(V.i===9&&rider){V.t=0;V.i=10;planeBoxes(pl0,V.sp);return;}
-    V.t+=dt;g.visible=V.i!==9;if(V.t>=P[1]){V.t=0;V.i=(V.i+1)%V.path.length;if(V.i===10){const q=V.path[10];V.pos={u:q[0],v:q[1],h:q[2]};}}pl0.v=0;planeBoxes(pl0,0);return;}
-  // (with someone aboard it doesn't go so far that the airport's forgotten about)
-  const tu=rider?(P[0]===900?560:P[0]===-700?-480:P[0]):P[0];
-  g.visible=true;const du=tu-V.pos.u,dv=P[1]-V.pos.v,d=Math.hypot(du,dv);
-  V.sp+=(P[3]-V.sp)*Math.min(1,dt*0.6);const step=Math.min(d,V.sp*dt);pl0.v=V.sp;
-  const air=V.pos.h>15;
-  if(air&&d>45){let a=Math.atan2(du,dv)-V.hd;a=Math.atan2(Math.sin(a),Math.cos(a));V.hd+=Math.max(-0.7*dt,Math.min(0.7*dt,a));V.pos.u+=Math.sin(V.hd)*V.sp*dt;V.pos.v+=Math.cos(V.hd)*V.sp*dt;V.pos.h+=(P[2]-V.pos.h)*Math.min(1,step/Math.max(1,d));}   // (in the air it banks round, rather than swinging about on the spot)
-  else if(d<(air?45:0.5)){if(!air){V.pos.u=tu;V.pos.v=P[1];V.pos.h=P[2];}V.i=(V.i+1)%V.path.length;}
-  else{   // (on the ground it stops and swings round before moving off, so anyone standing on it isn't thrown)
-    let a=d>2?Math.atan2(du,dv)-V.hd:0;a=Math.atan2(Math.sin(a),Math.cos(a));V.hd+=Math.max(-0.9*dt,Math.min(0.9*dt,a));
-    if(Math.abs(a)<0.2){V.pos.u+=du/d*step;V.pos.v+=dv/d*step;V.pos.h+=(P[2]-V.pos.h)*Math.min(1,step/Math.max(1,d));}else{V.sp*=1-Math.min(1,dt*2);pl0.v=V.sp;}}
-  const climb=Math.max(-0.25,Math.min(0.25,(P[2]-V.pos.h)/Math.max(1,d)*1.5));
-  g.position.set(X0+V.pos.u,G+1+V.pos.h,Z0+V.pos.v);g.rotation.set(-climb,V.hd||0,0,'YXZ');
-  planeBoxes(pl0,V.sp);if(V.sp>=2)planeStrike(pl0,V.sp);
+  if(pl.deadT>120&&!players.some(q=>q.active&&Math.hypot(p.x-q.pos.x,p.z-q.pos.z)<350)){pl.dead=false;pl.free=null;pl.hp=planeMax(pl);g.traverse(o=>{if(o.isMesh&&o.userData.mat)o.material=o.userData.mat;});g.rotation.set(0,0,0);if(pl.fly){pl.fly.i=0;pl.fly.t=0;pl.fly.sp=0;pl.fly.pos={u:pl.fly.path[1][0],v:pl.fly.path[1][1],h:0};pl.fly.hd=apYaw(V.B,0);}}
 }
 // the launch site's rocket: on the pad, then on the hour (three times a day) a countdown, ignition, and up it goes,
 // faster and faster, out of sight; a new one is rolled out a while later

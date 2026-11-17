@@ -158,7 +158,7 @@ function drawDbgOverlay(dt,views){
       for(const V of venues.values()){
         // (online, a guest reads the host's figures: netHp, netDead)
         if(V.kind==='army')for(const M of V.mil){if(!netDead(M,M.dead))bar(M.x,M.y+MIL[M.kind].hy+0.6,M.z,netHp(M,M.hp),MIL[M.kind].hp,'#5ab4ff');}
-        else if(V.kind==='airport'&&V.pl)for(const pl of V.pl){if(!netDead(pl,pl.dead)&&pl.g.visible)bar(pl.g.position.x,pl.g.position.y+5,pl.g.position.z,netHp(pl,pl.hp),PLANE_HP,'#5ab4ff');}
+        else if(V.kind==='airport'&&V.pl)for(const pl of V.pl){if(!netDead(pl,pl.dead)&&pl.g.visible)bar(pl.g.position.x,pl.g.position.y+planeDim(pl).hy+0.8,pl.g.position.z,netHp(pl,pl.hp),planeMax(pl),'#5ab4ff');}
         else if(V.kind==='boat'&&V.bo&&!netDead(V.bo,V.bo.dead)&&V.boat.visible){const g=V.boat;bar(g.position.x,g.position.y+V.bo.K.fb+2,g.position.z,netHp(V.bo,V.bo.hp),V.bo.max,'#5ab4ff');}
         else if(V.kind==='rtrain'&&V.T&&V.cars){const T=V.T,gst=netGuest()&&T.netHP,hp=gst?T.netHP:T.carHP,cd=gst?T.netCarDead:T.carDead;
           if(!(gst?T.netDead:T.dead))V.cars.forEach((g,i)=>{if(!(cd&&cd[i]))bar(g.position.x,g.position.y+4.2,g.position.z,hp&&hp[i]!==undefined?hp[i]:CAR_HP,CAR_HP,'#5ab4ff');});}

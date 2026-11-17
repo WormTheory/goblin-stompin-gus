@@ -89,6 +89,6 @@ if(TQ&&TQ.cars){const pr=TQ.cars[1].userData.proxy;TQ.v=0;TQ.wait=30;step(2);
 {let B=null;for(let r=0;r<500&&!B;r++)for(let i=-r;i<=r&&!B;i++)for(const [x,z] of [[i,-r],[i,r],[-r,i],[r,i]]){const q=T.bigPlainsAt(x,z);if(q&&q.kind==='airport'){B=q;break;}}
  if(!B)console.log('no airport');else{const X0=B.ax*32,Z0=B.az*32;for(let i=0;i<200;i++){A.pos.set(X0+100,70,Z0+70);A.vy=0;step(1);}
   const V=[...T.venues.values()].find(v=>v.kind==='airport'&&v.B.ax===B.ax&&v.B.az===B.az);
-  if(V&&V.pl){const pl=V.pl[1];climbIt('plane',pl.pr[0],.9,-5,2);}else console.log('no planes');}}
+  if(V&&V.pl){const pl=V.pl[2];climbIt('plane',pl.pr[0],.9,-5,2);}else console.log('no planes');}}
 `);
 process.exit(0);

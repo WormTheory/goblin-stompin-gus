@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:58d5e9b7e678d09906b25730c513060586af645bcb5567cd668aee8dfac7a644 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:40238b346ba7d4f784bd90c01ebf2d98c5d712585cf383a6b0c22cc3d71d6f30 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1548,6 +1548,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <details class="pn-up pn-fold pn-new" id="version-0-5" open><summary tabindex="0"><h2>Version 0.5</h2><span class="pn-tog" aria-hidden="true"></span></summary>
 <h3>New vehicles</h3>
 <ul><li>Supercars: low, wide and very fast. Now and then one turns up in the traffic, tearing along the motorways well over the limit. Get in and it reaches over 60 a second, more than twice a car's top speed, so mind the walls. It steers a little less sharply the faster it goes.</li><li>Forklifts: parked out in a factory's yard by the loading docks, between the lorries. Slow, steered by their back wheels.</li><li>Tractors: parked on farms, one out in front of the barn and often another on the grass by the field, red on some farms and green on others. Get in and trundle off: slow, but they pull away steadily. Also in the debug menu's vehicle list.</li><li>Hovercraft: rides over water just as it does over land, straight off the beach and out to sea, and slides round its turns. Debug menu only, for now.</li><li>Fighter jet: flies like the airliner but far harder and faster, rolling and pulling hard and topping out at nearly twice the speed. Left click (controller RB) holds the cannon, right click (controller RT) fires a missile, homing on whatever you've locked on to with Q (controller R3). Debug menu only, for now.</li><li>Hot-air balloon: Space (controller A) lights the burner and it rises, C (controller LB) vents it and it sinks, and left alone it cools and slowly settles. Moving nudges it gently the way you're looking. You can stand on top of the envelope. Shoot it and the envelope tears and the basket drops. Debug menu only, for now.</li><li>All five are in the debug menu's vehicle list, and solid against every other vehicle like the rest.</li><li>Airliners are bigger, about half as long again, to sit in proportion with the rest of the city's vehicles (about two-thirds of the real thing, as the cars, buses and tanks are). The fighter jet is in the same proportion, a little longer than a tank.</li></ul>
+<h3>Airports and airfields</h3>
+<ul><li>Airports have been rebuilt, bigger (16 by 8 blocks), and now sit just outside the big cities, one at most to a city, where one of its streets runs out of town straight to the terminal's drop-off road and car park.</li><li>A terminal of six glass halls, each with check-in desks, a security checkpoint with metal detectors and bag scanners, and a departures lounge with its gate desk, coffee bar and seats looking out on the apron. Jet bridges reach out to the airliners parked at the gates. There's a control tower, three hangars, a fuel farm and a cargo shed.</li><li>Security officers stand at each hall's checkpoint. They let you walk through, but hurt one and they all come for you.</li><li>A runway with a parallel taxiway. Two airliners take turns flying: one taxis out, takes off and flies off over the horizon, the other comes in to land and taxis back to its stand, and neither moves while the other is using the runway.</li><li>New: small country airfields out on the plains, with a grass strip, a windsock, a fuel pump, a hangar and a flying club's clubhouse (a desk, sofas, a briefing table and lockers, and a bathroom). Each has three two-seater planes: one flying circuits round the field, one tied down on the apron and one in the hangar.</li><li>Two-seaters can be flown like the airliners: slower and lighter on the controls, they take off in a short run from grass and stall at much lower speeds.</li><li>Every airport and airfield plane shows a pilot in the cockpit while it's flying or taxiing, and has a health bar.</li></ul>
 <h3>An aircraft carrier (Testing Environment)</h3>
 <ul><li>An aircraft carrier joins the debug menu's vehicle list (Testing Environment only for now): 178 blocks long and 40 across its flight deck, about three-quarters the size of a real supercarrier. It gets a sea twice the size of the barge's, which grows away from you if a smaller one is already there.</li><li>Every bit of it is real blocks you can walk through, fight in and smash, while it sails. From the top: the island on the starboard edge, with flight deck control, the flag bridge, the navigation bridge and Pri-Fly, the glassed-in top storey, then a roof with its mast; the flight deck, with the angled landing strip, its arresting wires and the catapult tracks painted on in thin lines like a highway's; the gallery deck under it, with ready rooms, the paraloft, the wardroom, catapult machinery, berths and stores; the hangar, one long bay split in three by open fire doors, with the elevator bays open to the sea; and the lower deck, with the mess deck, the galley, sick bay, the Goblin Intelligence Centre, berthing, the armoury, a glowing reactor room and the stores.</li><li>It's furnished throughout with proper furniture rather than blocks, carried along with it as it sails: two-tier bunks and lockers in the berths, long tables and benches on the mess deck, fridges, ranges and sinks in the galley, beds, monitors and drips in the sick bay, desks and swivel chairs at the Intelligence Centre's screens, gun racks and ammo boxes in the armoury, sofas and tables in the lounges and the wardroom, rows of seats in the ready rooms, flight gear and kit racks in the paraloft, machinery, crates stacked in the stores, tool racks and fuel drums down the hangar's sides, and chairs on the island's bridges. It stays steady as the ship sails. Goblins go round it, but Gus and Gertie knock it flying as they barge through, and stomps, blasts and crashes topple it like any other furniture; smash the deck out from under something and it goes.</li><li>Every doorway has a steel door that swings open as you or a goblin come up to it and closes behind you: each room's door off the corridors, the corridors' doors through the bulkheads, the stern door, the hangar's forward door and the island's door on to the flight deck.</li><li>Swim to the stern and climb out on to the landing under the flight deck's overhang, then go in by the stern door. Stairs run between every deck, fore and aft, up through hatches on to the flight deck, and up through the island to its roof. Goblins chase you through it all, up and down the stairs.</li><li>As Gnash or Grizzle, take the helm on the navigation bridge with F (controller Y) and drive it like a ship: - W and S ring the engine telegraph up and down its orders, one a press, with a bell: Back full, Back 1/3, Stop, Ahead 1/3, Ahead 2/3, Ahead full and Flank. It gathers way slowly toward the order, taking about forty seconds to work up to flank, 32 knots, and about thirty to stop again. - A and D put the rudder over a little at a time, and it stays where you leave it. The turn builds up slowly and keeps going while the rudder's over. C brings the rudder back amidships. The rudder only bites while it's moving. - The display shows the order, the speed in knots and where the rudder is. - The camera hangs well back and high, to take in the whole ship. R switches to the view from the bridge, through its windows, and back. - The engines keep to the last order when you let go of the helm, so you can set it going and walk about while it sails. - Run it into water too shallow for it and it runs aground: it grinds to a stop with a shudder, takes damage by how fast it hit (about a sixteenth of its health at flank), and its engines are rung down to Stop. Ring astern to back off. - It rams what it runs into: a boat, or the barge, takes five times the knock, and the carrier hardly feels it. - Bite sounds the horn.</li><li>Vehicles can go aboard. Spawn cars, tanks and helicopters from the debug menu while you're on the flight deck and they're parked on it; they ride along as it sails, can be driven about the deck, and fly or drive off its edge into the world. Fly a helicopter over the deck and let it down to land on it. A tank's shells and a helicopter's guns aim where you look from aboard and fly on out over the side. (A Mobile Gear spawned there stands on the deck too, and you can climb into it from the deck; planes and balloons are put out in the world beside it.)</li><li>Gnash's guns and grenades aim properly from aboard.</li><li>It has a crew now. Deck crew in coloured jerseys (yellow, green, blue, red, purple, white and brown, with helmets to match) work the flight deck, sailors go about the hangar, the gallery deck and the lower deck, and marines stand watch on the flight deck, the bridge and below. They come out as you get near and stroll between their spots while it's quiet.</li><li>Board it, bring a vehicle in close, or hurt one of them and it goes to general quarters: a klaxon sounds, the deck crew scatter, marines and sailors hunt you through the ship with their rifles (marines throw grenades too), and a sailor runs to each deck weapon and opens up on you. It stands down when you've been well away for half a minute. In Peaceful mode they leave you be.</li><li>Six deck weapons stand on the flight deck's edges, two of each kind, and they fire on whatever comes at the ship: rockets and missiles first, then aircraft, then vehicles, then you on foot (the Sea Sparrow only bothers with vehicles and aircraft). They don't fire at anything on the ship itself. - The CIWS (Phalanx) spins up and pours out a fast stream of rounds, and shoots rockets and missiles out of the air. It overheats if you hold it down too long. - The Sea Sparrow launcher fires big, slow-turning homing missiles that hit hard, eight to a load. Lock on first. - The RAM launcher fires small, quick missiles at whatever's nearest the crosshair, 21 to a load. - The Sea Sparrow and RAM launchers have proper models now. The Sea Sparrow is a turntable with two arms holding a pair of white four-cell launcher boxes, and the RAM is a squat launcher with a 21-cell face and seeker pods. The covers on their cells come off one by one as they fire, and they're all back on once it's reloaded.</li><li>Any goblin can take a deck weapon's seat with F (controller Y), crewed or not: whoever was manning it is thrown off, angry, and the ship goes to general quarters. Bite fires.</li><li>Sailors, marines and deck crew are also in the debug menu's goblin list.</li><li>It can be sunk, but only by wrecking its hull: the decks, the island and the flight deck can be smashed to pieces without sinking it. Its health is how much of its hull is left. Cut right through the hull anywhere (even a narrow cut will do, as long as it goes all the way through) and the ship snaps in two there, with a blast all along the break and a long groan of steel. The shorter end breaks off and goes down while the rest stays afloat, and you can do it again and again. The piece that's going stays level for a while, so you can walk across on to it from the rest, or jump or climb on to it, and ride it down until the water reaches you. After a few seconds it drifts away from the rest, and once nobody's on it, its far end tips under and it's gone. Lose too much of the hull altogether and the rest goes down too. Shells, rockets and blasts from outside count by the holes they blow, and the hit itself does nothing, and neither does running aground. (The barge still takes damage from hits as before.)</li><li>Bullets work across its side now: rounds from outside (a helicopter's gun, the Mobile Gear's rifle on its deck, Gnash's rifle from the shore) break its blocks and hit the goblins aboard, and rounds fired from aboard hit what's out in the world past the side.</li><li>The Mobile Gear's Heat Cleaver works on the carrier now: it cuts through its blocks, and through goblins and vehicles aboard, whether you're stood on its deck or swinging at it from alongside.</li><li>A RAM or Sea Sparrow missile you fire from one of its deck weapons can hit the carrier itself now. (The crew's missiles still never touch it.)</li><li>Its deck weapons are targets in their own right, like small vehicles bolted to the deck: lock on to them from a vehicle or the Mobile Gear, and shoot, blast or ram them. Each has its own health; wrecked, it goes up in a blast and smoke, its gunner is thrown off, and it's left a blackened, lopsided wreck that nobody can man.</li><li>Eight fighter jets are parked on the flight deck, along the starboard side and the port bow. - Climb into one with F (controller Y) and fly it like any jet. - Catapults: taxi on to the start of one of the four tracks (two at the bow, two in the waist) and stop there, and it hooks on. Open the throttle all the way and it holds you for a moment, then flings you down the track and off the bow at flying speed. - Landing: press R (the weapon button) to lower the hook (any jet has one, so a jet from the debug menu can land on it too), and come in low and slow over the stern along the angled strip. Catch one of the four wires and you're pulled up in a few lengths. Miss them (or forget the hook) and you'll need full power to go round again before the deck runs out. - They ride along with the ship while it sails, and they're carried into the world when you fly off.</li><li>At general quarters, pilots run to the parked jets. Each jet is towed to a free catapult and launched, and it goes after you: cannon passes up close and missiles from further off. After a while, or out of missiles, it flies round behind the stern, lines up on the angled strip, comes down the glide slope with its hook down and catches a wire. Then it's towed back to its spot, and its pilot heads below. A jet that misses the wires goes round and tries again. The carrier's own anti-missile guns leave its jets' missiles alone, and its jets don't run into each other on the deck.</li></ul>
 <h3>A barge you can walk around (Testing Environment)</h3>
@@ -1889,8 +1891,8 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='56ff01fdbdeb';
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v95';
+const GAME_VER='0.5',GAME_BUILD='c2b00e509b02';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -2260,6 +2262,7 @@ const BRANDS={
     BR('FEDEX','#4d148c','#ffffff','#ffffff','fx'),
     BR('APPLE','#111111','#ffffff','#b8e08a','wormapple'),BR('TESLA','#111111','#ffffff','#e31837','teslat'),BR('NETFLIX','#111111','#e50914','#e50914','nflx'),BR('META','#ffffff','#0668e1','#0668e1','infin'),BR('GEICO','#00447c','#ffffff','#ffd200','gecko'),BR('UPS','#351c15','#ffb500','#ffb500','shield')],
   base:[BR('ARMY BASE','#2e3a1e','#f0e2b0','#c8a84a','badge')],airport:[BR('AIRPORT','#0d2a5a','#ffffff','#5ad0ff','globe'),BR('INTERNATIONAL','#1a1a2a','#ffffff','#ffd23a','globe')],
+  airfield:[BR('FLYING CLUB','#1f4a2a','#ffffff','#ffd23a','globe'),BR('AERO CLUB','#7a2a1a','#ffffff','#ffffff','globe')],
   nasa:[BR('NASA','#0b3d91','#ffffff','#fc3d21','globe')],theme:[BR('FUN PARK','#c8202a','#ffe23a','#ffffff','globe'),BR('ADVENTURE LAND','#1a5a2a','#ffe23a','#ff7a2a','globe'),BR('SIX FLAGS','#0a3a8a','#ffffff','#e31837','flag6'),BR('DISNEY WORLD','#0a3a8a','#ffffff','#ffd23a','spires')],
   nuclear:[BR('NUCLEAR','#2a2a10','#ffe23a','#ffe23a','bolt')],
   arena:[BR('ARENA','#1a1a2a','#ffffff','#ff7a2a','globe'),BR('SPORTS CENTER','#0d2a5a','#ffffff','#ffd23a','globe')],
@@ -3532,12 +3535,13 @@ function thievesColumn(col,B,U,V,x,z){
 }
 // ---- the people of the compounds and hideouts: real goblins the whole time (their own kinds: FOES), standing about,
 // watching from the towers, at their posts. Come close, or hurt one, and the lot of them come for you ----
-const FIG_STYLE={militia:{foe:'militia',rouse:30},prepper:{foe:'prepper',rouse:22},thieves:{foe:'thief',rouse:14}};
+const FIG_STYLE={militia:{foe:'militia',rouse:30},prepper:{foe:'prepper',rouse:22},thieves:{foe:'thief',rouse:14},airport:{foe:'security',rouse:0}};   // (rouse: how near you can come before they go for you; airport security only when one's hurt)
 // where each kind of site keeps its people (site coordinates, and the height they stand at)
 function sitePeople(B){
   if(B.kind==='militia')return [[5,5,G+11],[B.w*CELL-6,5,G+11],[5,B.h*CELL-6,G+11],[B.w*CELL-6,B.h*CELL-6,G+11],[31,6,G+1],[34,6,G+1],[24,37,G+1],[40,44,G+1],[20,22,G+1]];
   if(B.kind==='prepper')return [[56,7,G+10],[31.5,10,G+1],[16,25,G+1]];
   if(B.kind==='thieves')return [[16,9,G+1],[22,15,G+1],[11,8,G+1],[18,21,G+1]];
+  if(B.kind==='airport')return AP.gates.map(u=>[u-0.5,apV(B,AP.term.z0+9),G+1]);   // (one at each terminal hall's checkpoint, airside of it: see the terminal's props)
   return [];
 }
 function refreshSiteVenues(p,want){
@@ -3549,9 +3553,9 @@ function refreshSiteVenues(p,want){
       venues.set(key,{kind:'wind',rotor:g,sp:0.55+hash2(Math.floor(px/7),Math.floor(pz/7))*0.4,ck:ckey(Math.floor((px*CELL+16)/CS),Math.floor((pz*CELL+16)/CS))});}}}
   for(let px=Math.floor((p.pos.x-150)/CELL);px<=Math.floor((p.pos.x+150)/CELL);px++)for(let pz=Math.floor((p.pos.z-150)/CELL);pz<=Math.floor((p.pos.z+150)/CELL);pz++){
     if(biomeOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;
-    const B=bigPlainsAt(px,pz);if(!B||B.ax!==px||B.az!==pz||!FIG_STYLE[B.kind])continue;
-    const key='g'+px+','+pz;want.add(key);if(venues.has(key))continue;
-    const posts=sitePeople(B).map(([u,v,y],i)=>({x:B.ax*CELL+u+0.5,z:B.az*CELL+v+0.5,y,h0:hash2(px+i,pz*3+i)*6.28}));
+    const B=bigPlainsAt(px,pz);if(!B||!FIG_STYLE[B.kind]||(B.ax!==px||B.az!==pz)&&B.kind!=='airport')continue;   // (an airport's too big to wait till its corner's in reach)
+    const key='g'+B.ax+','+B.az;want.add(key);if(venues.has(key))continue;
+    const posts=sitePeople(B).map(([u,v,y],i)=>({x:B.ax*CELL+u+0.5,z:B.az*CELL+v+0.5,y,h0:hash2(B.ax+i,B.az*3+i)*6.28}));
     const V={kind:'guards',key,style:B.kind,foe:FIG_STYLE[B.kind].foe,posts,slots:posts.map(()=>null),slain:posts.map(()=>false),X0:B.ax*CELL,Z0:B.az*CELL,cx:B.ax*CELL+B.w*CELL/2,cz:B.az*CELL+B.h*CELL/2,roused:false,awayT:0};
     // (the militia's technicals and four-wheelers: see crewSite)
     if(B.kind==='militia'){V.vspots=CREW_SPOTS.map(S=>({t:S.t,x:V.X0+S.u,z:V.Z0+S.v,h:S.h}));V.vcar=V.vspots.map(()=>null);V.vgone=V.vspots.map(()=>false);}
@@ -4345,24 +4349,26 @@ function castleColumn(a,col,px,pz,rx,rz,lx,lz,x,z){
   // the bailey: grass, two low outbuildings along the walls
   if((rx===8||rx===23)&&rz>=17&&rz<=21){for(let y=top+1;y<=top+4;y++)col(y,y===top+4?ROOF:wall);}
 }
-// ---- the big sites out on the plains, each over a rectangle of blocks: an airport (6 x 2 blocks, its runway along x), a
+// ---- the big sites out on the plains, each over a rectangle of blocks: an airport (16 x 8 blocks, its runway along x,
+// placed by airportAt just outside a city rather than on a grid, and winning any overlap), a
+// country airfield (4 x 2, a grass strip along x; last in the list, so it never moves any of the others), a
 // space agency's launch site (2 x 3) and a military base (2 x 2). Each sits on its own grid of anchor blocks, and only
 // where the whole rectangle (and a ring of a couple of blocks round it) is open country clear of everything else. ----
-const BIGP=[{kind:'airport',w:14,h:6,p:0.11,salt:11},{kind:'nasa',w:2,h:3,p:0.005,salt:23},{kind:'base',w:4,h:4,p:0.02,salt:37},{kind:'quarry',w:6,h:6,p:0.035,salt:67},{kind:'mine',w:3,h:3,p:0.016,salt:53},{kind:'lumber',w:4,h:3,p:0.018,salt:79},{kind:'campsite',w:2,h:2,p:0.009,salt:83},{kind:'nuclear',w:8,h:8,p:0.1,salt:131},{kind:'cult',w:1,h:1,p:0.0025,salt:97},{kind:'tower5g',w:1,h:1,p:0.004,salt:101},{kind:'prepper',w:2,h:2,p:0.006,salt:103},{kind:'militia',w:2,h:2,p:0.005,salt:107},{kind:'ruins',w:2,h:2,p:0.008,salt:109},{kind:'thieves',w:1,h:1,p:0.002,salt:113}],bigPC=new Map(),bigOK=new Map();
+const BIGP=[{kind:'airport',w:16,h:8,p:0,salt:11},{kind:'nasa',w:2,h:3,p:0.005,salt:23},{kind:'base',w:4,h:4,p:0.02,salt:37},{kind:'quarry',w:6,h:6,p:0.035,salt:67},{kind:'mine',w:3,h:3,p:0.016,salt:53},{kind:'lumber',w:4,h:3,p:0.018,salt:79},{kind:'campsite',w:2,h:2,p:0.009,salt:83},{kind:'nuclear',w:8,h:8,p:0.1,salt:131},{kind:'cult',w:1,h:1,p:0.0025,salt:97},{kind:'tower5g',w:1,h:1,p:0.004,salt:101},{kind:'prepper',w:2,h:2,p:0.006,salt:103},{kind:'militia',w:2,h:2,p:0.005,salt:107},{kind:'ruins',w:2,h:2,p:0.008,salt:109},{kind:'thieves',w:1,h:1,p:0.002,salt:113},{kind:'airfield',w:4,h:2,p:0.012,salt:127}],bigPC=new Map(),bigOK=new Map();
 // is kind i's site (anchored at ax,az) there? (clear of the places, the sea, the roads, the farms... and of the
 // sites of the kinds before it in the list, which win any overlap)
 function bigCell(i,ax,az){
-  const K=BIGP[i],kk=K.kind+ax+','+az;let ok=bigOK.get(kk);if(ok!==undefined)return ok;
+  const K=BIGP[i],kk=K.kind+ax+','+az;if(i===0)return false;let ok=bigOK.get(kk);if(ok!==undefined)return ok;
   ok=hash2(ax*389+K.salt,az*211+K.salt*3)<K.p&&!TEST_OFF.has(K.kind);
   if(ok)for(let a=ax-2;a<ax+K.w+2&&ok;a++)for(let b=az-2;b<az+K.h+2&&ok;b++){const inR=a>=ax&&a<ax+K.w&&b>=az&&b<az+K.h;if(settlementAt(a,b)||seaPlot(a,b)||inR&&railPlot(a,b)||inR&&(farmK(a,b)!==null||tsPlot(a,b)||plotNearLines(a,b,2)||rivPlotNear(a,b)))ok=false;}
-  if(ok)for(let a=ax;a<ax+K.w&&ok;a++)for(let b=az;b<az+K.h&&ok;b++)for(let i2=0;i2<i&&ok;i2++){const K2=BIGP[i2];if(bigCell(i2,Math.floor(a/K2.w)*K2.w,Math.floor(b/K2.h)*K2.h))ok=false;}
-  bigOK.set(kk,ok);return ok;
+  if(ok)for(let a=ax;a<ax+K.w&&ok;a++)for(let b=az;b<az+K.h&&ok;b++)for(let i2=0;i2<i&&ok;i2++){const K2=BIGP[i2];if(i2===0?airportAt(a,b):bigCell(i2,Math.floor(a/K2.w)*K2.w,Math.floor(b/K2.h)*K2.h))ok=false;}
+  if(!apBusy)bigOK.set(kk,ok);return ok;
 }
 function bigPlainsAt(px,pz){
-  const k=px*100003+pz;let v=bigPC.get(k);if(v!==undefined)return v;v=null;
-  for(let i=0;i<BIGP.length;i++){const K=BIGP[i],ax=Math.floor(px/K.w)*K.w,az=Math.floor(pz/K.h)*K.h;
+  const k=px*100003+pz;let v=bigPC.get(k);if(v!==undefined)return v;v=airportAt(px,pz);
+  for(let i=1;i<BIGP.length&&!v;i++){const K=BIGP[i],ax=Math.floor(px/K.w)*K.w,az=Math.floor(pz/K.h)*K.h;
     if(bigCell(i,ax,az)){v={kind:K.kind,ax,az,w:K.w,h:K.h};break;}}
-  bigPC.set(k,v);return v;
+  if(!apBusy)bigPC.set(k,v);return v;
 }
 function bigColumn(col,B,U,V,x,z){
   col(G-1,DIRT);col(G,GRASS);for(let y=G+1;y<G+60;y++)col(y,AIR);
@@ -4409,24 +4415,8 @@ function bigColumn(col,B,U,V,x,z){
     if(U>=36&&U<=60&&V>=66&&V<=92){col(G,DIRT);if((V-66)%8===0&&U%6<4){col(G+1,PLANKS);col(G+2,PLANKS);}return;}
     if(U>=36&&U<=60&&V>=36&&V<=58){col(G,ASPHALT);return;}   // the motor pool (its row of tanks are vehicles: see armyVenue)
     if(hash2(x*7+1,z*3+5)<0.05)col(G,DIRT);return;}
-  if(B.kind==='airport'){
-    if(fence&&!(V===Hh-2&&U>=78&&U<=82)){for(let y=G+1;y<=G+3;y++)col(y,CHAINLINK);return;}
-    // a second runway along the far side, joined up by taxiways at either end
-    if(V>=124&&V<=133&&U>=112&&U<=W-9){col(G,ASPHALT);if((V===128||V===129)&&U%12<6&&U>120&&U<W-17)col(G,PAINT_WHITE);if((U>=114&&U<=118||U>=W-15&&U<=W-11)&&V>=125&&V<=132&&V%2===1)col(G,PAINT_WHITE);if((V===124||V===133)&&U%8===0)col(G,NEON_Y);return;}
-    if(V>=42&&V<=123&&(U>=124&&U<=127||U>=W-24&&U<=W-21)){col(G,ASPHALT);if(U===125||U===W-22)col(G,PAINT_YELLOW);return;}
-    // the road in from the gate, the long-stay car park beside it, the cargo apron
-    if(U>=78&&U<=82&&V>=77){col(G,ASPHALT);return;}
-    if(U>=30&&U<=76&&V>=128&&V<=180){col(G,ASPHALT);if((U-30)%3===0&&(V-128)%12<5)col(G,LANE);return;}
-    if(U>=36&&U<=76&&V>=80&&V<=118){col(G,ASPHALT);if((U-36)%3===0&&(V-80)%12<5)col(G,LANE);return;}
-    if(U>=160&&U<=W-60&&V>=88&&V<=98){col(G,CONCRETE);return;}
-    if(V>=24&&V<=33&&U>=8&&U<=W-9){col(G,ASPHALT);   // the runway: centre dashes, threshold bars, edge lights
-      if((V===28||V===29)&&U%12<6&&U>16&&U<W-17)col(G,PAINT_WHITE);
-      if((U>=10&&U<=14||U>=W-15&&U<=W-11)&&V>=25&&V<=32&&V%2===1)col(G,PAINT_WHITE);
-      if((V===24||V===33)&&U%8===0)col(G,NEON_Y);return;}
-    if(V>=38&&V<=41&&U>=20&&U<=W-21||V>=34&&V<=37&&(U>=20&&U<=23||U>=110&&U<=113||U>=W-24&&U<=W-21)){col(G,ASPHALT);if((V===39&&U>22&&U<W-23)||(V<38&&(U===21||U===111||U===W-22)))col(G,PAINT_YELLOW);return;}   // the taxiway
-    if(V>=42&&V<=63&&U>=30&&U<=130){col(G,CONCRETE);if((U===48||U===80||U===112)&&V<60)col(G,PAINT_YELLOW);return;}   // the apron
-    if(V>=64&&V<=76&&U>=30&&U<=100&&!(U>=66&&U<94&&V<76)&&!(U>=34&&U<62&&V<76)){col(G,ASPHALT);return;}   // the car park and the drop-off
-    return;}
+  if(B.kind==='airport'){airportColumn(col,B,U,V,x,z,W,Hh,fence);return;}
+  if(B.kind==='airfield'){airfieldColumn(col,B,U,V,x,z,W,Hh);return;}
   // the space agency
   if(fence&&!(V===1&&U>=40&&U<=43)){for(let y=G+1;y<=G+3;y++)col(y,CHAINLINK);return;}
   if(U>=40&&U<=43&&V<=4||U>=40&&U<=43&&V>=20&&V<=24){col(G,ASPHALT);return;}
@@ -4649,6 +4639,130 @@ function plainsH(x,z){
   const n=(Math.sin(x*0.043+1.7)+Math.sin(z*0.051+0.4)+Math.sin((x+z)*0.029+2.3)*0.8+Math.sin((x-z)*0.037+0.9)*0.6)/3.4;
   const h=(n+0.3)*4.4*f;
   return h<-0.9?-1:Math.max(0,Math.round(h));
+}
+// ---- flying sites: the big airport (16 x 8 blocks) and the country airfield (4 x 2). Their ground, laid out in the site's
+// own coordinates (U along x, V along z, from the site's corner), and the buildings on it (airportBuildings,
+// airfieldBuildings: city-plan.js adds the ones that fall on each block). Their planes are in vehicles/airfields.js ----
+//
+// The airport (16 x 8 blocks), as laid out with the city to its south (B.flip: the city's to its north, and it's all
+// mirrored north to south): the runway along the far side, the parallel taxiway, then the apron with six gates, each an
+// airliner parked nose-in at a jet bridge from the terminal: six terminal halls in a row (check-in, security, the gate
+// lounge), joined by glass links. Two more airliners come and go from the remote stands at the west end of the apron.
+// The control tower beside the terminal, hangars, the fuel farm and the cargo shed to the east; landside the drop-off
+// road along the front of the halls, the car park, and the road in through the gate, which carries straight on as the
+// city street it meets (B.i: how many blocks along from the site's west side that street is)
+const AP={W:512,H:256,gates:[112,144,176,208,240,272],stands:[24,52],gateV:80,taxi:45.5,rwy:18.5,term:{z0:98,z1:124},tower:[300,104]};
+// (where a spot in the site's own layout really is: mirrored when the city's to the north)
+const apV=(B,v)=>B.flip?AP.H-v:v,apYaw=(B,h)=>B.flip?Math.PI-h:h;
+// ---- where the airports go: one at most to each city, just outside it, where one of its streets comes to an end at the
+// edge of town and there's room for all of it on open plains (searched once per city, nearest the middle first) ----
+let apBusy=0;const apAtC=new Map();
+function airportOf(S){
+  if(S.ap!==undefined)return S.ap;S.ap=null;apBusy++;let v=null;
+  // (the neighbouring cities ahead of it in the order go first and keep theirs: no two airports overlap)
+  const others=[];for(let rx=S.rx-2;rx<=S.rx+2;rx++)for(let rz=S.rz-2;rz<=S.rz+2;rz++){const S2=settlementLat(rx,rz);
+    if(S2.type==='city'&&(S2.cx<S.cx||S2.cx===S.cx&&S2.cz<S.cz)&&settlementAt(S2.cx,S2.cz)===S2){const A=airportOf(S2);if(A)others.push(A);}}
+  const free=(ax,az)=>{if(others.some(A=>ax<A.ax+A.w+1&&ax+16>A.ax-1&&az<A.az+A.h+1&&az+8>A.az-1))return false;for(let a=ax;a<ax+16;a++)for(let b=az;b<az+8;b++)if(biomeOf(a,b)!=='plains'||settlementAt(a,b)||seaPlot(a,b)||railPlot(a,b)||farmK(a,b)!==null||tsPlot(a,b)||plotNearLines(a,b,1)||rivPlotNear(a,b))return false;return true;};
+  const R=Math.ceil(S.R)+3,cols=[];for(let d=0;d<=R;d++){cols.push(S.cx+d);if(d)cols.push(S.cx-d);}
+  for(const flip of [false,true]){if(v)break;
+    for(const ix of cols){if(v)break;
+      // the city's edge in this column (the first row, coming in from that side, with blocks of it either side of the
+      // street), and a street there leaving it for the open country
+      let iz=null;
+      if(!flip){for(let z=S.cz-R;z<=S.cz;z++)if(settlementAt(ix,z)===S&&settlementAt(ix-1,z)===S){iz=z;break;}}
+      else{for(let z=S.cz+R;z>=S.cz;z--)if(settlementAt(ix,z)===S&&settlementAt(ix-1,z)===S){iz=z+1;break;}}
+      if(iz===null||!(flip?segBase(ix,iz-1,0):segBase(ix,iz,0)))continue;
+      const az=flip?iz:iz-8;
+      for(const i of [8,7,9,6,10,5,11,4,12,3,13,2]){const ax=ix-i;if(free(ax,az)){v={kind:'airport',ax,az,w:16,h:8,i,flip};break;}}}}
+  apBusy--;S.ap=v;return v;
+}
+function airportAt(px,pz){
+  if(TEST_OFF.has('airport'))return null;
+  const k=px*100003+pz;let v=apAtC.get(k);if(v!==undefined)return v;v=null;
+  const rx0=Math.round(px/SET_SP),rz0=Math.round(pz/SET_SP);
+  for(let rx=rx0-1;rx<=rx0+1&&!v;rx++)for(let rz=rz0-1;rz<=rz0+1&&!v;rz++){const S=settlementLat(rx,rz);if(S.type!=='city'||S.ap===null&&apBusy)continue;
+    if(settlementAt(S.cx,S.cz)!==S)continue;const A=airportOf(S);if(A&&px>=A.ax&&px<A.ax+A.w&&pz>=A.az&&pz<A.az+A.h)v=A;}
+  if(!apBusy)apAtC.set(k,v);return v;
+}
+// the street's last junction, right at the airport's gate: paved through to it
+function airportGateAt(ix,iz){const B=airportAt(ix,iz-1);return!!B&&!B.flip&&iz===B.az+8&&ix===B.ax+B.i;}
+function airportColumn(col,B,U,V0,x,z,W,Hh,fence){
+  const V=B.flip?Hh-1-V0:V0,r0=B.i*CELL,r1=r0+ROADW-1;
+  if(fence&&!(V===Hh-2&&U>=r0&&U<=r1)){for(let y=G+1;y<=G+3;y++)col(y,CHAINLINK);return;}
+  // the road in, through the gate, out to the street it carries on as
+  if(U>=r0&&U<=r1&&V>=136){col(G,ASPHALT);if((U===r0+3||U===r0+4)&&V%6<3&&V<Hh-2)col(G,LANE);return;}
+  // the runway: centre dashes, threshold bars, edge lights
+  if(V>=14&&V<=23&&U>=8&&U<=W-9){col(G,ASPHALT);
+    if((V===18||V===19)&&U%12<6&&U>16&&U<W-17)col(G,PAINT_WHITE);
+    if((U>=10&&U<=14||U>=W-15&&U<=W-11)&&V>=15&&V<=22&&V%2===1)col(G,PAINT_WHITE);
+    if((V===14||V===23)&&U%8===0)col(G,NEON_Y);return;}
+  // the taxiway alongside it, a wingspan and more away (so a plane on each never touch wings), joined to it at both
+  // ends and in the middle
+  const mid=W/2-2;
+  if(V>=44&&V<=47&&U>=20&&U<=W-21||V>=24&&V<=43&&(U>=20&&U<=23||U>=mid&&U<=mid+3||U>=W-24&&U<=W-21)){col(G,ASPHALT);
+    if(V===45&&U>22&&U<W-23||V<44&&(U===21||U===mid+1||U===W-22))col(G,PAINT_YELLOW);return;}
+  // the jet bridges: a glass-sided tube on legs from each hall out to the front door of the plane at its gate, its
+  // mouth open on the plane's side
+  for(const u of AP.gates){if(U<u-6||U>u-4||V<86||V>97)continue;
+    col(G,CONCRETE);if(U===u-5&&(V===89||V===94)){col(G+1,METAL);col(G+2,METAL);}
+    const side=U!==u-5,mouth=U===u-4&&V<=90,end=V===86;
+    col(G+3,METAL);col(G+6,METAL);
+    if(side&&!mouth||end){col(G+4,GLASS);col(G+5,METAL);}
+    return;}
+  // the apron: concrete, a yellow lead-in line up to each gate and stand
+  if(V>=48&&V<=97&&U>=8&&U<=W-30){col(G,CONCRETE);
+    for(const u of AP.gates.concat(AP.stands))if(U===u&&V>=62&&V<=95)col(G,PAINT_YELLOW);
+    if(V===97&&U%2===0&&U>=96&&U<=288)col(G,PAINT_WHITE);   // (the line nothing parks past)
+    return;}
+  // the glass links between the terminal halls
+  for(let c=3;c<8;c++){const a=U-(c*32+30);if(a<0||a>3||V<104||V>118)continue;
+    col(G,FLOORT);const edge=V===104||V===118;for(let y=G+1;y<=G+6;y++)col(y,edge?(y===G+6?METAL:GLASS):AIR);col(G+7,METAL);return;}
+  // the service yard by the hangars and the fuel farm
+  if(V>=98&&V<=127&&U>=330&&U<=W-30){col(G,CONCRETE);return;}
+  // landside: the kerb in front of the halls, the drop-off road, the car park
+  if(V>=125&&V<=127&&U>=96&&U<=288){col(G,SIDEWALK);return;}
+  if(V>=128&&V<=135&&U>=40&&U<=W-60){col(G,ASPHALT);if(V===131&&U%6<3)col(G,LANE);return;}
+  if(V>=140&&V<=220&&U>=96&&U<=288){col(G,ASPHALT);if((U-96)%3===0&&(V-140)%12<5)col(G,LANE);return;}
+  if(hash2(x*7+1,z*3+5)<0.03)col(G+1,FLOWER);
+}
+// the airport's buildings, in site coordinates (add builds the ones inside the block it's working on; mirrored, the
+// doors and the hangars' open ends turn round with it)
+function airportBuildings(add0,B){
+  const add=(o,brand)=>{if(B.flip){o=Object.assign({},o,{z0:AP.H-o.z1,z1:AP.H-o.z0,door:o.door===3?2:o.door===2?3:o.door});if(o.style==='hangar')o.openZ1=true;if(o.ground==='terminal')o.apFlip=true;}add0(o,brand);};
+  // the terminal: six halls in a row, two storeys, glass all round; one in the middle carries the airport's name
+  for(let c=3;c<=8;c++)add({x0:c*32+2,x1:c*32+30,z0:AP.term.z0,z1:AP.term.z1,gf:7,top:G+7+FH,wall:PAINT_WHITE,win:GLASS,band:METAL,kind:'office',ground:'terminal',floor:FLOORT,door:3,doorSpec:{w:1,h:4,k:'glass'},glassAll:true},c===5?'airport':null);
+  // the control tower
+  {const [tu,tv]=AP.tower;add({x0:tu,x1:tu+5,z0:tv,z1:tv+5,top:G+34,style:'ctrl',wall:CONCRETE,win:GLASS,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});}
+  // the hangars, open on to the apron, and the fuel farm and cargo shed behind them
+  for(const [c,w] of [[11,METAL],[12,PAINT_WHITE],[13,METAL]])add({x0:c*32+3,x1:c*32+29,z0:66,z1:94,top:G+13,style:'hangar',wall:w,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
+  for(const uz of [102,112])for(const ux of [356,366])add({x0:ux,x1:ux+7,z0:uz,z1:uz+7,top:G+7,style:'tank',wall:PAINT_WHITE,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
+  add({x0:388,x1:414,z0:100,z1:124,top:G+10,wall:METAL,win:METAL,band:RUST,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
+}
+// The country airfield: a mown grass strip along the north side, a gravel apron in front of the hangar and the
+// clubhouse, a fuel pump and its tank, the windsock, a farm fence all round and a gravel lane in from the gate.
+// Its two-seaters: one flies circuits from its spot on the apron, one's tied down, one's in the hangar.
+const AF={strip:20,taxi:35,stand:[20,42],tie:[70,44],hangar:[47,55],exits:[12.5,92.5],gate:[60,63]};
+function airfieldColumn(col,B,U,V,x,z,W,Hh){
+  const [g0,g1]=AF.gate;
+  if((U===1||U===W-2||V===1||V===Hh-2)&&U>=1&&U<=W-2&&V>=1&&V<=Hh-2){if(!(V===Hh-2&&U>=g0&&U<=g1))col(G+1,FENCE);return;}
+  // the strip: mown grass, its centre line, the bars at each end; white markers down both edges
+  if(V>=14&&V<=25&&U>=6&&U<=W-7){col(G,FIELD);
+    if((V===19||V===20)&&U%10<5&&U>14&&U<W-15)col(G,FIELD_L);
+    if((U>=8&&U<=10||U>=W-11&&U<=W-9)&&V>=15&&V<=24&&V%2===1)col(G,FIELD_L);return;}
+  if((V===12||V===27)&&U>=6&&U<=W-7&&U%10===6){col(G+1,PAINT_WHITE);return;}
+  // the gravel: the two links off the strip, the apron, the lane in
+  if(V>=26&&V<=31&&(U>=10&&U<=15||U>=90&&U<=95)||V>=32&&V<=47&&U>=10&&U<=96||U>=g0&&U<=g1&&V>=48){col(G,GRAVEL);return;}
+  // the fuel pump, and its tank up on legs
+  if(U===84&&V===49){col(G,CONCRETE);col(G+1,PUMP);col(G+2,PUMP);return;}
+  if(U>=87&&U<=91&&V>=50&&V<=52){col(G,CONCRETE);if((U===87||U===91)&&V===51)col(G+1,METAL);col(G+2,PAINT_WHITE);col(G+3,V===51&&U%2?PAINT_RED:PAINT_WHITE);if(V===51)col(G+4,PAINT_WHITE);return;}
+  // the windsock on its pole, streaming out
+  if(V===34&&U>=104&&U<=107){if(U===104)for(let y=G+1;y<=G+7;y++)col(y,METAL);else col(G+7,U%2?PAINT_ORANGE:PAINT_WHITE);return;}
+  if(hash2(x*5+3,z*9+1)<0.04)col(G+1,FLOWER);
+}
+function airfieldBuildings(add){
+  // the clubhouse (one room: the desk, a lounge, the briefing table and the map, a bathroom) and the hangar
+  add({x0:4,x1:24,z0:48,z1:60,style:'house',roof:4,top:G+FH,wall:SIDING,win:WIN_WARM,kind:'office',ground:'aeroclub',floor:PLANKS,door:2,doorSpec:{w:0,h:3,k:'wood'}},'airfield');
+  add({x0:36,x1:58,z0:48,z1:62,top:G+11,style:'hangar',wall:METAL,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
 }
 // ---- raised highways: through a place, a motorway runs up on a deck on pillars along its line. Along-x ones run 14
 // blocks up, along-z ones 20 up, so where they cross one passes over the other. (Out on the plains they stay up too,
@@ -5677,7 +5791,7 @@ function plotInfo(px,pz){
     // its rows of desks and screens, the big board, a ticker running across the back wall
     const b=base({x0:PL0+1,x1:PL1-1,z0:PL0+6,z1:PL1-1,gf:9,top:G+9,wall:MARBLE,win:WIN_WARM,band:MARBLE,kind:'office',ground:'stocks',floor:MARBLE,door:2});
     b.doorSpec={w:1,h:4,k:'wood'};b.detailTop=b.top-1;brandOn(b,'stocks',r(150));b.ticker=true;p.b.push(b);p.b.push(portico(b,4,G+8));
-  } else if(type==='nuclear'||type==='base'||type==='airport'||type==='nasa'||type==='mine'||type==='quarry'||type==='lumber'||type==='campsite'||type==='cult'||type==='tower5g'||type==='prepper'||type==='militia'||type==='ruins'||type==='thieves'){
+  } else if(type==='nuclear'||type==='base'||type==='airport'||type==='airfield'||type==='nasa'||type==='mine'||type==='quarry'||type==='lumber'||type==='campsite'||type==='cult'||type==='tower5g'||type==='prepper'||type==='militia'||type==='ruins'||type==='thieves'){
     // the buildings of a big plains site that fall on this block (each laid out in the site's own coordinates, and
     // only the ones inside this block built here)
     const B=bigPlainsAt(px,pz),U0=(px-B.ax)*CELL,V0=(pz-B.az)*CELL;
@@ -5719,15 +5833,8 @@ function plotInfo(px,pz){
     else if(type==='lumber'){
       add({x0:40,x1:62,z0:14,z1:30,top:G+8,wall:PLANKS,win:PLANKS,band:LOG,kind:'shop',ground:'shop',floor:PLANKS,door:3,doorSpec:{w:1,h:4,k:'barn'}});           // the sawmill
       for(const [x0,z0] of [[10,6],[22,6]])add({x0,x1:x0+8,z0,z1:z0+7,style:'house',roof:3,top:G+FH,wall:LOG,win:WIN_WARM,kind:'apartment',ground:'apartment',floor:PLANKS,door:3,doorSpec:{w:0,h:3,k:'wood'}});}   // the loggers' cabins
-    else if(type==='airport'){
-      add({x0:66,x1:94,z0:64,z1:76,gf:7,top:G+7+FH,wall:PAINT_WHITE,win:GLASS,band:METAL,kind:'office',ground:'terminal',floor:FLOORT,door:3,doorSpec:{w:1,h:4,k:'glass'},glassAll:true},'airport');
-      add({x0:100,x1:105,z0:54,z1:59,top:G+30,style:'ctrl',wall:CONCRETE,win:GLASS,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
-      add({x0:132,x1:150,z0:50,z1:64,top:G+12,style:'hangar',wall:METAL,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
-      add({x0:164,x1:182,z0:50,z1:64,top:G+12,style:'hangar',wall:PAINT_WHITE,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
-      add({x0:34,x1:62,z0:64,z1:76,gf:7,top:G+7+FH,wall:PAINT_WHITE,win:GLASS,band:METAL,kind:'office',ground:'terminal',floor:FLOORT,door:3,doorSpec:{w:1,h:4,k:'glass'},glassAll:true});
-      add({x0:388,x1:406,z0:50,z1:64,top:G+12,style:'hangar',wall:METAL,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
-      for(const ux of [164,196,228,260,292,324,356])add({x0:ux,x1:ux+24,z0:68,z1:88,top:G+12,style:'hangar',wall:[METAL,CONCRETE,RUST][(ux>>2)%3],win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
-      for(const uz of [100,108])for(const ux of [130,140])add({x0:ux,x1:ux+7,z0:uz,z1:uz+7,top:G+7,style:'tank',wall:PAINT_WHITE,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});}
+    else if(type==='airport')airportBuildings(add,B);
+    else if(type==='airfield')airfieldBuildings(add);
     else{
       add({x0:3,x1:30,z0:4,z1:30,gf:50,top:G+56,wall:PAINT_WHITE,win:PAINT_WHITE,band:PAINT_BLUE,kind:'landmark',ground:'landmark',floor:CONCRETE,door:3,doorSpec:null,noIndoor:true,blank:true,vab:true},'nasa');
       add({x0:36,x1:60,z0:4,z1:20,top:G+2*FH,wall:CONCRETE,win:WIN_BLUE,kind:'office',ground:'mission',floor:FLOORT,door:2,doorSpec:{w:1,h:4,k:'glass'}});}
@@ -6047,7 +6154,7 @@ function flo(b,fl){
 // ---- bathrooms: a walled room in a corner, clear of the stairs and the doors, a small part of the floor. They're secondary to
 // what the building is for: one to an establishment on its ground floor (two only on a vast floor), one to a flat or a
 // house (upstairs in a two-storey one), and in offices and wards one every third floor. ----
-const WC_ROOMS=new Set(['diner','pizza','cafe','fastfood','sitdown','bar','soup','books','dentist','dispo','guns','dealer','armory','shop','market','drug','bigbox','grocery','ikea','office','lobby','bank','news','radio','stocks','school','library','police','firehall','courtroom','museum','aquarium','cinema','theater','disco','club','casino','factory','lab','barracks','terminal','stage','hosp','ward','lecture','mission','turbine','apartment']);
+const WC_ROOMS=new Set(['diner','pizza','cafe','fastfood','sitdown','bar','soup','books','dentist','dispo','guns','dealer','armory','shop','market','drug','bigbox','grocery','ikea','office','lobby','bank','news','radio','stocks','school','library','police','firehall','courtroom','museum','aquarium','cinema','theater','disco','club','casino','factory','lab','barracks','terminal','stage','aeroclub','hosp','ward','lecture','mission','turbine','apartment']);
 // (which side of a flat its bedroom and bathroom go: the wall away from any stairs in it)
 const flats4=(I,J)=>I>=9&&J>=12&&I*J>=260;   // (four flats to a floor, or two; each with room for its own bathroom)
 function flatBack(b,y0,y1,ez0){const S=b.stair;if(!S||S.ax!=='x')return 1;const c=(S.c0+S.c1)/2-ez0-1;return c>=y0&&c<y1&&c>(y0+y1)/2?-1:1;}
@@ -6409,7 +6516,7 @@ function furnRaw(b,rx,rz,fl,ex0,ex1,ez0,ez1,px,pz){
       return AIR;
     case 'terminal':
       // the check-in desks, rows of seats at the gates, the screens of departures
-      if(iv===J-1&&level===3&&iu%5===2)return SCREEN;
+      if(iv===(b.apFlip?0:J-1)&&level===3&&iu%5===2)return SCREEN;
       return AIR;
     case 'mission':
       // mission control: tiers of consoles facing the big screens on the end wall
@@ -7650,7 +7757,7 @@ function containAt(b,rx,rz,y){
 }
 // a hangar: a half-barrel of corrugated metal over a wide floor, its front end open
 function hangarAt(b,rx,rz,y){
-  const W=b.x1-b.x0,c=(W-1)/2,u=rx-b.x0-c,v=rz-b.z0,D=b.z1-b.z0,fl=y-G,R=c+0.3,d=Math.hypot(u,fl*0.95);
+  const W=b.x1-b.x0,c=(W-1)/2,u=rx-b.x0-c,D=b.z1-b.z0,v=b.openZ1?b.z1-1-rz:rz-b.z0,fl=y-G,R=c+0.3,d=Math.hypot(u,fl*0.95);
   if(d>R)return AIR;
   if(d>R-1.1){STRUCT=true;return(v===0&&fl<R-2&&Math.abs(u)<R-1.5)?AIR:b.wall;}
   if(v===D-1){STRUCT=true;return fl%4===2&&Math.abs(u)<2?GLASS:b.wall;}
@@ -8058,7 +8165,7 @@ function stripOpen(px,pz,roadX,roadZ){
 function jSquare(ix,iz){let n=0;for(let d=0;d<4;d++)if(segOpen(ix,iz,d)&&++n>=2)return true;
   // (where a country highway leaves town on its west or north side, the junction at the edge of town is where it
   // carries on out across the plains)
-  return n===1&&(ghwRow(iz,ix)&&hwLine('x',iz,ix-1)===null||ghwCol(ix,iz)&&hwLine('z',ix,iz-1)===null||dumpGateAt(ix,iz));}
+  return n===1&&(ghwRow(iz,ix)&&hwLine('x',iz,ix-1)===null||ghwCol(ix,iz)&&hwLine('z',ix,iz-1)===null||dumpGateAt(ix,iz)||airportGateAt(ix,iz));}
 // how many streets meet at an intersection
 const jDegC=new Map();
 function jDeg(ix,iz){const k=ix*100003+iz;let v=jDegC.get(k);if(v===undefined){v=0;for(let d=0;d<4;d++)if(segOpen(ix,iz,d))v++;jDegC.set(k,v);}return v;}
@@ -11622,6 +11729,8 @@ function drvName(D){if(D.netN)return D.netN;const o=D.o;   // (D.netN: a guest o
   if(D.k==='ship')return o.K.name;
   if(D.k==='mount')return o.K.name;
   if(D.k==='plane'&&o.jet)return'fighter jet';
+  if(D.k==='plane'&&o.light)return'two-seater plane';
+  if(D.k==='plane'&&!o.jet)return'airliner';
   return DRV_NAME[D.k];
 }
 // the key (or button) that gets you in and out, as bound
@@ -12042,7 +12151,9 @@ function vehHurt(o,n){if(o.isMil)milHit(o,n);else damageCar(o,n,undefined,'acc')
 // pitch, rl the bank (positive turning left), gm the flight path's climb angle, vy its climb rate
 const PLANE_LIFT=34,PLANE_G=14,PLANE_KL=0.07,PLANE_AOA=0.32,PLANE_THRUST=20,PLANE_DRAG=0.003;
 // is the wing stalled? too slow, or pulled up too steeply for the air going past it
-const planeStalled=F=>F.air&&(F.v<20||F.pt-F.gm>PLANE_AOA);
+const planeStalled=(F,pl)=>F.air&&(F.v<(pl&&pl.light?LIGHT_FLY.stall:20)||F.pt-F.gm>PLANE_AOA);
+// (a two-seater: lighter on the controls, a far smaller engine, and a wing that carries it at much lower speeds)
+const LIGHT_FLY={kl:0.17,lift:16,stall:11,roll:1.6,rl:1.1,pitch:0.8,thr:10,vmax:46};
 function drvPlane(pl,dt){
   if(pl.ai&&jetAI(pl,dt))return;   // (a carrier's pilot flying it: carrier-jets.js)
   const F=pl.free,g=pl.g,P=g.position,p=pl.drv,i=p?drvIn(p):null,fly=p||pl.ai;
@@ -12050,7 +12161,7 @@ function drvPlane(pl,dt){
   const btn=i?(i.jump?1:0)-(i.climb||i.charge?1:0):0,kb=i&&i.kbd;   // (the keyboard swaps the stick's up/down and the buttons over)
   const tin=i?(kb?btn:-i.z):0,bank=i?-i.x:0,up=i?(kb?i.z:btn):0;
   // (a fighter jet: rolls and pulls far harder, and has the engines to go about twice as fast)
-  const J=pl.jet,ROLL=J?2.8:1.0,RL=J?1.4:1.05,PITCH=J?1.2:0.5,THR=J?PLANE_THRUST*4.2:PLANE_THRUST,VMAX=J?185:90;
+  const J=pl.jet,LT=pl.light?LIGHT_FLY:null,ROLL=J?2.8:LT?LT.roll:1.0,RL=J?1.4:LT?LT.rl:1.05,PITCH=J?1.2:LT?LT.pitch:0.5,THR=J?PLANE_THRUST*4.2:LT?LT.thr:PLANE_THRUST,VMAX=J?185:LT?LT.vmax:90,KL=LT?LT.kl:PLANE_KL,LIFT=LT?LT.lift:PLANE_LIFT;
   // (the sea's surface counts as ground; so does sea level, out where nothing's been built yet)
   const wetAt=(x,z)=>!chunks.has(ckey(Math.floor(x/CS),Math.floor(z/CS)))||get(x,G,z)===WATER?G+1:0,gnd=(x,z,y)=>Math.max(groundAt(x,z,y),wetAt(x,z));
   const air=P.y>gnd(P.x,P.z,P.y+1)+0.05;F.air=air;
@@ -12064,13 +12175,13 @@ function drvPlane(pl,dt){
     // bank: rolled with A/D, easing back level when let go
     if(bank)F.rl+=bank*ROLL*dt;else F.rl-=F.rl*Math.min(1,dt*(J?1.6:0.7));F.rl=Math.max(-RL,Math.min(RL,F.rl));
     // the nose: pulled up or pushed down, or (let go) eased to the angle that flies it level, through a turn too
-    const trim=Math.min(PLANE_AOA*0.9,PLANE_G/(PLANE_KL*v*v*Math.max(0.35,Math.cos(F.rl))));
+    const trim=Math.min(PLANE_AOA*0.9,PLANE_G/(KL*v*v*Math.max(0.35,Math.cos(F.rl))));
     if(!p)F.pt+=(F.gm-0.25-F.pt)*Math.min(1,dt*0.8);   // (nobody flying it: the nose sags and down it comes)
     else if(up)F.pt+=up*PITCH*dt;else F.pt+=(trim-F.pt)*Math.min(1,dt*0.6);
-    const stall=planeStalled(F);if(stall)F.pt-=0.9*dt;   // (a stalled wing: the nose falls through)
+    const stall=planeStalled(F,pl);if(stall)F.pt-=(LT?1.4:0.9)*dt;   // (a stalled wing: the nose falls through)
     F.pt=Math.max(-0.6,Math.min(0.7,F.pt));
     // lift, square on to the wing, from the speed and its angle to the air; beyond the stall it falls away
-    const aoa=F.pt-F.gm,cl=stall?Math.max(0,Math.min(aoa,PLANE_AOA))*0.45:Math.max(-0.3,Math.min(aoa,PLANE_AOA)),L=PLANE_KL*v*v*cl;
+    const aoa=F.pt-F.gm,cl=stall?Math.max(0,Math.min(aoa,PLANE_AOA))*0.45:Math.max(-0.3,Math.min(aoa,PLANE_AOA)),L=KL*v*v*cl;
     F.gm+=(L*Math.cos(F.rl)-PLANE_G*Math.cos(F.gm))/v*dt;F.gm=Math.max(-1.3,Math.min(1.1,F.gm));
     h+=L*Math.sin(F.rl)/(v*Math.max(0.3,Math.cos(F.gm)))*dt;
     // speed: thrust against drag (more of it the harder the wing's working) and gravity along the way it's going
@@ -12082,8 +12193,8 @@ function drvPlane(pl,dt){
     F.rl-=F.rl*Math.min(1,dt*6);h+=bank*dt*Math.min(0.9,0.25+F.v*0.05);
     const brake=p&&tin<-0.1&&F.thr<0.05?22:1.5+(p?0:3);
     F.v+=(F.thr*THR-PLANE_DRAG*v*v)*dt;F.v-=Math.min(F.v,brake*dt);
-    if(up>0&&F.v>=PLANE_LIFT*0.8)F.pt=Math.min(0.25,F.pt+0.5*dt);else F.pt+=(0-F.pt)*Math.min(1,dt*3);
-    const L=PLANE_KL*v*v*Math.max(0,Math.min(F.pt,PLANE_AOA));
+    if(up>0&&F.v>=LIFT*0.8)F.pt=Math.min(0.25,F.pt+0.5*dt);else F.pt+=(0-F.pt)*Math.min(1,dt*3);
+    const L=KL*v*v*Math.max(0,Math.min(F.pt,PLANE_AOA));
     F.gm=L>PLANE_G?Math.min(0.2,(L-PLANE_G)/v):0;
     if(pl.jet){jetTrapCheck(pl,p);if(pl.trap)jetTrapTick(pl,dt);else if(p)jetCatCheck(pl,p);}   // (a carrier's wires and catapults: carrier-jets.js)
   }
@@ -12225,7 +12336,7 @@ function drvHP(D){if(D.netHP)return D.netHP;const o=D.o;   // (D.netHP: a guest 
   if(D.k==='boat')return{hp:o.hp,max:o.max};
   if(D.k==='ship')return{hp:o.hp,max:o.K.hp};
   if(D.k==='mount')return{hp:o.S.hp,max:o.S.K.hp};   // (a carrier's deck weapon: the ship's own health)
-  if(D.k==='plane')return{hp:o.hp,max:PLANE_HP};
+  if(D.k==='plane')return{hp:o.hp,max:planeMax(o)};
   if(D.k==='balloon')return{hp:o.hp,max:BAL.hp};
   return{hp:o.carHP?o.carHP[D.ci]:CAR_HP,max:CAR_HP};
 }
@@ -12256,9 +12367,9 @@ function drvHud(p){
   // (the other seat, if it's free: the weapon button moves you to it. See gunner.js)
   const sw=drvSwapTo(p)?'  ·  '+bl('weapon')+(D.seat==='gun'?' drive':' man the gun'):!armed&&o.gnr&&(D.k==='tank'||D.k==='heli')?'  ·  Your gunner has the guns':'';
   const how=drvHow(p,D,armed);
-  set('w',H.wpn,how+(D.k==='plane'&&armed?planeHud(o.free)+'  ·  ':'')+(armed?(LT?'Locked on '+(isMilT(LT)?MIL[LT.kind].name.toLowerCase():isCarT(LT)?'a '+(LT.veh||'car'):'a goblin')+' ('+lk+' let go)':lk+' lock on')+'  ·  '+out+' get out'
+  set('w',H.wpn,how+(D.k==='plane'&&armed?planeHud(o.free,o)+'  ·  ':'')+(armed?(LT?'Locked on '+(isMilT(LT)?MIL[LT.kind].name.toLowerCase():isCarT(LT)?'a '+(LT.veh||'car'):'a goblin')+' ('+lk+' let go)':lk+' lock on')+'  ·  '+out+' get out'
     :D.k==='car'&&o.veh==='fire'?bl('bite')+' spray water  ·  '+bl('stomp')+' horn  ·  '+out+' get out'
-    :D.k==='plane'?planeHud(o.free)+'  ·  '+out+' get out':D.k==='mech'?mechHint(p):out+' get out')+sw);
+    :D.k==='plane'?planeHud(o.free,o)+'  ·  '+out+' get out':D.k==='mech'?mechHint(p):out+' get out')+sw);
   const hose=D.k==='car'&&o.veh==='fire';H.xh.hidden=!armed&&!hose&&D.k!=='mech';mechHud(p,H);if(hose){H.xh.classList.remove('cool','lock');H.xh.classList.toggle('water',!!o.hose);}if(armed){H.xh.classList.toggle('cool',!ready);H.xh.classList.toggle('lock',!!LT);}
   // (the ammo by the crosshair: each weapon, its button, a pip for each round left -- or a bar, for a machine gun's
   // belt -- and while it reloads, a bar filling and the seconds to go)
@@ -12287,9 +12398,9 @@ function drvHud(p){
   H.xt.hidden=!tShow;
 }
 // a flown plane's gauges: throttle, airspeed, climb rate, and a stall warning (on the runway, the speed it lifts off at)
-function planeHud(F){if(!F)return'Throttle 0%';const thr='Throttle '+Math.round((F.thr||0)*100)+'%  ·  Speed '+Math.round(F.v);
-  if(!F.air)return thr+(F.v<PLANE_LIFT?'  ·  Take-off at '+PLANE_LIFT:'  ·  Pull up to take off');
-  return thr+'  ·  Climb '+(F.vy>=0?'+':'')+Math.round(F.vy)+(planeStalled(F)?'  ·  STALL':'');}
+function planeHud(F,pl){if(!F)return'Throttle 0%';const LIFT=pl&&pl.light?LIGHT_FLY.lift:PLANE_LIFT;const thr='Throttle '+Math.round((F.thr||0)*100)+'%  ·  Speed '+Math.round(F.v);
+  if(!F.air)return thr+(F.v<LIFT?'  ·  Take-off at '+LIFT:'  ·  Pull up to take off');
+  return thr+'  ·  Climb '+(F.vy>=0?'+':'')+Math.round(F.vy)+(planeStalled(F,pl)?'  ·  STALL':'');}
 // the vehicle's own controls, at the top of the column down the left (the only place they're shown: there's no card
 // about them on getting in), each ending in '  ·  ' so the rest follows
 function drvHow(p,D,armed){const A=id=>actMark(p,id),G=armed?D.k==='heli'?A('bite')+' gun  ·  '+A('stomp')+' rockets  ·  ':D.k==='plane'?A('bite')+' cannon  ·  '+A('stomp')+' missiles  ·  ':D.k==='tank'||D.seat==='gun'?A('bite')+' fire  ·  ':'':'';
@@ -14733,9 +14844,9 @@ function ruinGrid(c0,c1,r0,r1,ok){
     if(!inG(i-1,j))edges.push([a,b,a,d]);if(!inG(i+1,j))edges.push([c,b,c,d]);if(!inG(i,j-1))edges.push([a,b,c,b]);if(!inG(i,j+1))edges.push([a,d,c,d]);}
   return{cells,edges};
 }
-const MAPC={nuclear:'#c8c850',tower5g:'#c8c8d0',prepper:'#7a6a3a',militia:'#3a4a2a',ruins:'#8a8a78',thieves:'#2a2420',wind:'#f0f4f4',campsite:'#6a9a4a',cult:'#5a1a24',mine:'#6a5a48',quarry:'#a8a090',lumber:'#4a6a2a',base:'#5a6a3a',airport:'#8a9aa8',nasa:'#e8e8f0',theme:'#f05a8a',nuclear:'#d8d03a',arena:'#e07a2a',campus:'#a03a4a',prison:'#5a5a5a',jail:'#6a6a6a',water:'#4a9ad8',power:'#8a8a3a',zoo:'#5aa83a',studio:'#d0a04a',lab:'#3ad04a',castle:'#9a9a8a',ikea:'#0058a3',cathedral:'#c8b890',museum:'#d8c8a0',aquarium:'#3aa0d8',casino:'#e04ab0',school:'#c87a4a',factory:'#7a6a5a',datacenter:'#4a5a6a',electric:'#d8c83a',dump:'#7a6a50',derelict:'#6a6258',mansion:'#d8b0a0',trailers:'#a8a078',camp:'#8a7a5a',farmers:'#d0904a',nursery:'#5aa04a',dealer:'#4a8ad0',armory:'#8a4a3a',theater:'#a0283a',stocks:'#c8c0a0',court:'#3e766c',cemetery:'#5c6e58',church:'#a89880',library:'#8a6a4a',cinema:'#b03a4a',radio:'#d05a5a',news:'#3a5a9a',bank:'#c8a84a',disco:'#b04ac8',club:'#4aa04a',shops:'#c0607a',wtower:'#b8c4cc',bell:'#9a8a70',market:'#2f9a8a',drug:'#d0506a',food:'#c86a3a',fastfood:'#e0a030',sitdown:'#a0522d',fire:'#b8302a',build:'#a89060',ramp:'#5a6a4a',plains:'#6c9448',field:'#9a8a4a',orchard:'#4c7a32',truckstop:'#e0a52e',farm:'#b0503a',road:'#3a3f45',walk:'#565b5f',tower:'#4a5a70',mid:'#7a6450',park:'#3f8a3a',plaza:'#9a9a90',police:'#3456a8',grocery:'#2f9a8a',homes:'#c8a870',
+const MAPC={nuclear:'#c8c850',tower5g:'#c8c8d0',prepper:'#7a6a3a',militia:'#3a4a2a',ruins:'#8a8a78',thieves:'#2a2420',wind:'#f0f4f4',campsite:'#6a9a4a',cult:'#5a1a24',mine:'#6a5a48',quarry:'#a8a090',lumber:'#4a6a2a',base:'#5a6a3a',airport:'#8a9aa8',airfield:'#9ab878',nasa:'#e8e8f0',theme:'#f05a8a',nuclear:'#d8d03a',arena:'#e07a2a',campus:'#a03a4a',prison:'#5a5a5a',jail:'#6a6a6a',water:'#4a9ad8',power:'#8a8a3a',zoo:'#5aa83a',studio:'#d0a04a',lab:'#3ad04a',castle:'#9a9a8a',ikea:'#0058a3',cathedral:'#c8b890',museum:'#d8c8a0',aquarium:'#3aa0d8',casino:'#e04ab0',school:'#c87a4a',factory:'#7a6a5a',datacenter:'#4a5a6a',electric:'#d8c83a',dump:'#7a6a50',derelict:'#6a6258',mansion:'#d8b0a0',trailers:'#a8a078',camp:'#8a7a5a',farmers:'#d0904a',nursery:'#5aa04a',dealer:'#4a8ad0',armory:'#8a4a3a',theater:'#a0283a',stocks:'#c8c0a0',court:'#3e766c',cemetery:'#5c6e58',church:'#a89880',library:'#8a6a4a',cinema:'#b03a4a',radio:'#d05a5a',news:'#3a5a9a',bank:'#c8a84a',disco:'#b04ac8',club:'#4aa04a',shops:'#c0607a',wtower:'#b8c4cc',bell:'#9a8a70',market:'#2f9a8a',drug:'#d0506a',food:'#c86a3a',fastfood:'#e0a030',sitdown:'#a0522d',fire:'#b8302a',build:'#a89060',ramp:'#5a6a4a',plains:'#6c9448',field:'#9a8a4a',orchard:'#4c7a32',truckstop:'#e0a52e',farm:'#b0503a',road:'#3a3f45',walk:'#565b5f',tower:'#4a5a70',mid:'#7a6450',park:'#3f8a3a',plaza:'#9a9a90',police:'#3456a8',grocery:'#2f9a8a',homes:'#c8a870',
   gas:'#c8433a',garage:'#6c7076',hospital:'#e8eaec',mall:'#9a52b8',stadium:'#56b04a',capitol:'#e8c35a',ghw:'#b07a3a',bigbox:'#2f7fd0',mega:'#5e7f9a',bigpark:'#3a9a3a',river:'#2f6fc8',highway:'#e8963a',empty:'#4a4f53',metro:'#3a6ad0',rail:'#3a3036',sea:'#2a5f9e',rig:'#c8c040',beach:'#d8c890',harbor:'#9a9488',yard:'#8f949a',navy:'#5c6672',lighthouse:'#e04040'};
-const MAP_LEG=[['base','Military bases'],['airport','Airports'],['mine','Mines'],['quarry','Quarries'],['lumber','Lumber camps'],['campsite','Campsites'],['cult','Cult altars'],['tower5g','5G towers'],['prepper','Prepper compounds'],['militia','Militia compounds'],['ruins','Ruins'],['thieves',"Thieves' hideouts"],['wind','Wind farms'],['nasa','Launch sites'],['theme','Theme parks'],['nuclear','Nuclear plants'],['arena','Arenas'],['campus','Universities'],['prison','Prisons'],['jail','Jails'],['water','Water works'],['power','Power stations'],['zoo','Zoos'],['studio','Film studios'],['lab','Goblin labs'],['ikea','Furniture superstores'],['cathedral','Cathedrals'],['museum','Museums'],['aquarium','Aquariums'],['casino','Casinos'],['school','Schools'],['factory','Factories'],['datacenter','Data centers'],['electric','Electric company'],['dump','Garbage dumps'],['derelict','Abandoned buildings'],['mansion','Mansions'],['trailers','Trailer parks'],['camp','Encampments'],['farmers',"Farmer's markets"],['nursery','Tree nurseries'],['dealer','Car dealers'],['armory','Armories'],['theater','Theatres'],['stocks','Stock exchange'],['church','Churches'],['cemetery','Cemeteries'],['library','Libraries'],['cinema','Cinemas'],['bank','Banks'],['disco','Discos'],['club','Night clubs'],['news','TV news'],['radio','Radio stations'],['court','Basketball courts'],['shops','Little shops & bars'],['wtower','Water towers'],['bell','Bell towers'],['ramp','Interchanges'],['food','Restaurants'],['fastfood','Fast food'],['sitdown','Sit-down restaurants'],['fire','Fire stations'],['build','Building sites'],['plains','Plains'],['farm','Farms'],['truckstop','Truck stops'],['tower','Towers'],['mid','Mid-rises'],['homes','Homes'],['park','Parks'],['plaza','Plazas'],['market','Supermarkets'],['drug','Drugstores'],['gas','Gas stations'],['police','Police'],
+const MAP_LEG=[['base','Military bases'],['airport','Airports'],['airfield','Airfields'],['mine','Mines'],['quarry','Quarries'],['lumber','Lumber camps'],['campsite','Campsites'],['cult','Cult altars'],['tower5g','5G towers'],['prepper','Prepper compounds'],['militia','Militia compounds'],['ruins','Ruins'],['thieves',"Thieves' hideouts"],['wind','Wind farms'],['nasa','Launch sites'],['theme','Theme parks'],['nuclear','Nuclear plants'],['arena','Arenas'],['campus','Universities'],['prison','Prisons'],['jail','Jails'],['water','Water works'],['power','Power stations'],['zoo','Zoos'],['studio','Film studios'],['lab','Goblin labs'],['ikea','Furniture superstores'],['cathedral','Cathedrals'],['museum','Museums'],['aquarium','Aquariums'],['casino','Casinos'],['school','Schools'],['factory','Factories'],['datacenter','Data centers'],['electric','Electric company'],['dump','Garbage dumps'],['derelict','Abandoned buildings'],['mansion','Mansions'],['trailers','Trailer parks'],['camp','Encampments'],['farmers',"Farmer's markets"],['nursery','Tree nurseries'],['dealer','Car dealers'],['armory','Armories'],['theater','Theatres'],['stocks','Stock exchange'],['church','Churches'],['cemetery','Cemeteries'],['library','Libraries'],['cinema','Cinemas'],['bank','Banks'],['disco','Discos'],['club','Night clubs'],['news','TV news'],['radio','Radio stations'],['court','Basketball courts'],['shops','Little shops & bars'],['wtower','Water towers'],['bell','Bell towers'],['ramp','Interchanges'],['food','Restaurants'],['fastfood','Fast food'],['sitdown','Sit-down restaurants'],['fire','Fire stations'],['build','Building sites'],['plains','Plains'],['farm','Farms'],['truckstop','Truck stops'],['tower','Towers'],['mid','Mid-rises'],['homes','Homes'],['park','Parks'],['plaza','Plazas'],['market','Supermarkets'],['drug','Drugstores'],['gas','Gas stations'],['police','Police'],
   ['hospital','Hospitals'],['garage','Car parks'],['mall','Malls'],['bigbox','Superstores'],['mega','Mega-buildings'],['stadium','Stadiums'],['capitol','The capitol'],['river','Rivers'],['rail','Railways'],['sea','Ocean'],['beach','Beaches'],['yard','Shipping ports'],['navy','Naval bases'],['lighthouse','Lighthouses'],['rig','Oil rigs'],['ghw','Country highways'],['ruin','Destroyed'],['highway','Highways']];
 // the sea on the maps: each block sampled on a grid (water, beach, land), ports and harbours in their own colours
 const seaMapC=new Map();
@@ -14813,7 +14924,7 @@ function renderMap(){
       if(t==='dump')rect(X0+1,Z0+1,X0+CELL-1,Z0+CELL-1,MAPC.dump,'dump');
       if(turbineAt(px,pz))rect(X0+13,Z0+13,X0+19,Z0+19,MAPC.wind,'wind');
       if(t==='castle')rect(X0+5,Z0+5,X0+CELL-5,Z0+CELL-5,MAPC.castle,'castle');
-      if(t==='nuclear'||t==='base'||t==='airport'||t==='nasa'||t==='mine'||t==='quarry'||t==='lumber'||t==='campsite'||t==='cult'||t==='tower5g'||t==='prepper'||t==='militia'||t==='ruins'||t==='thieves'){rect(X0,Z0,X0+CELL,Z0+CELL,MAPC[t],t);const P=plotInfo(px,pz);for(const b of P.b)rect(X0+b.x0,Z0+b.z0,X0+b.x1,Z0+b.z1,'#3a3f45',t);}
+      if(t==='nuclear'||t==='base'||t==='airport'||t==='airfield'||t==='nasa'||t==='mine'||t==='quarry'||t==='lumber'||t==='campsite'||t==='cult'||t==='tower5g'||t==='prepper'||t==='militia'||t==='ruins'||t==='thieves'){rect(X0,Z0,X0+CELL,Z0+CELL,MAPC[t],t);const P=plotInfo(px,pz);for(const b of P.b)rect(X0+b.x0,Z0+b.z0,X0+b.x1,Z0+b.z1,'#3a3f45',t);}
       {const FD=t==='plains'&&farmlandOf(px,pz);if(FD)rect(X0,Z0,X0+CELL,Z0+CELL,FD.kind==='orchard'?MAPC.orchard:MAPC.field,'farm');}
       if(t==='farm'){const P=plotInfo(px,pz);if(P.north)rect(X0+PC-1,Z0+P.field.z1,X0+PC+1,Z0+CELL,'#a89a78','farm');else rect(X0+PC-1,Z0,X0+PC+1,Z0+P.field.z0,'#a89a78','farm');rect(X0+P.field.x0,Z0+P.field.z0,X0+P.field.x1,Z0+P.field.z1,MAPC.field,'farm');for(const b of P.b)rect(X0+b.x0,Z0+b.z0,X0+b.x1,Z0+b.z1,MAPC.farm,'farm');}
       continue;
@@ -16184,12 +16295,12 @@ function addCultist(){cultMade++;
   goblins.push({snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,orb:m.orb,pos:new V3(),kv:new V3(),stun:0,heading:0,vy:0,hp:4,state:'wait',t:0,phase:0,atk:1,hurt:0,sink:0,detour:0,detourH:0,stuck:0,civ:false,cultist:true,special:true,homeV:null,ring:0,slot:0,cast:0,castCD:0});
   root.visible=false;root.scale.setScalar(ES);   // (not added to the scene: batDraw draws it)
 }
-const STAFF_CAP={courthouse:3,base:4,airport:4,nasa:4,nuclear:3,campus:4,prison:4,jail:2,water:2,power:4,zoo:2,lab:3,ikea:6,museum:3,aquarium:3,casino:6,school:5,factory:5,datacenter:1,electric:2,dealer:3,armory:2,theater:3,stocks:4,nursery:2,library:2,cinema:3,radio:2,news:4,bank:3,disco:3,club:3,books:1,dentist:2,dispo:1,guns:1,bar:2,soup:3,bigbox:8,market:5,drug:3,grocery:3,hospital:5,police:3,fire:3,sitdown:4,fastfood:3,kiosk:2,diner:2,pizza:2,cafe:2,shop:2};
+const STAFF_CAP={courthouse:3,base:4,airport:4,airfield:2,nasa:4,nuclear:3,campus:4,prison:4,jail:2,water:2,power:4,zoo:2,lab:3,ikea:6,museum:3,aquarium:3,casino:6,school:5,factory:5,datacenter:1,electric:2,dealer:3,armory:2,theater:3,stocks:4,nursery:2,library:2,cinema:3,radio:2,news:4,bank:3,disco:3,club:3,books:1,dentist:2,dispo:1,guns:1,bar:2,soup:3,bigbox:8,market:5,drug:3,grocery:3,hospital:5,police:3,fire:3,sitdown:4,fastfood:3,kiosk:2,diner:2,pizza:2,cafe:2,shop:2};
 const STAFF_JOBS={bigbox:['Cashier','Greeter','Stocker','Shift manager','Electronics associate','Cart wrangler'],grocery:['Cashier','Stocker','Deli clerk','Bagger','Produce clerk'],market:['Cashier','Stocker','Deli clerk','Bagger','Produce clerk','Butcher'],drug:['Pharmacist','Pharmacy tech','Cashier','Stocker'],
   hospital:['Nurse','Doctor','Orderly','Surgeon','Paramedic','Receptionist'],police:['Police officer','Desk sergeant','Detective'],fire:['Firefighter','Fire captain'],
   sitdown:['Server','Host','Line cook','Bartender'],fastfood:['Fry cook','Cashier','Drive-thru attendant','Shift manager'],kiosk:['Gas station attendant','Clerk'],
   diner:['Waiter','Short-order cook'],pizza:['Pizza maker','Delivery driver'],cafe:['Barista'],shop:['Sales clerk','Store manager','Cashier'],
-  base:['Soldier','Sergeant','Officer'],airport:['Pilot','Flight attendant','Check-in agent','Baggage handler'],nasa:['Rocket scientist','Flight director','Astronaut'],nuclear:['Reactor operator','Safety inspector'],
+  base:['Soldier','Sergeant','Officer'],airport:['Pilot','Flight attendant','Check-in agent','Baggage handler','Air traffic controller','Gate agent'],airfield:['Flying instructor','Mechanic','Pilot','Club secretary'],nasa:['Rocket scientist','Flight director','Astronaut'],nuclear:['Reactor operator','Safety inspector'],
   campus:['Professor','Student','Librarian','Dean'],prison:['Prison guard','Warden'],jail:['Jailer','Deputy'],water:['Plant operator'],power:['Plant operator','Engineer'],zoo:['Zookeeper','Gift shop clerk'],lab:['Mad scientist','Lab assistant','Henchgoblin'],
   ikea:['Co-worker','Cashier','Meatball cook','Warehouse picker'],museum:['Curator','Guard','Guide','Gift shop clerk'],aquarium:['Aquarist','Guide','Ticket clerk'],casino:['Croupier','Cashier','Security','Waitress','Pit boss'],
   school:['Teacher','Principal','Janitor','Lunch lady'],factory:['Machinist','Foreman','Forklift driver','Welder'],datacenter:['Systems engineer'],electric:['Lineman','Clerk'],
@@ -16463,6 +16574,9 @@ const FOES={
   militia:{name:'Militiaman',label:'Militiaman killed',tunic:0x4a5a2a,pants:0x2a3018,hat:'hardhat',hatc:0x3a4a22,gear:'rifle',held:[0.22,0.22,0.22,0x3a4a22],hp:5,spd:2.8,melee:[1,1.3,'Clubbed with a rifle butt'],
     gun:[3,48,0.55,[1.3,2.2],1,'Shot by the militia'],bomb:[6,24,[6,9],1.6,3.2,3,'Blown up by a grenade'],
     jobs:['Militiaman','Weekend warrior','Self-styled colonel','Sentry','Rifleman','Camo enthusiast','Drill sergeant (unpaid)']},
+  // (an airport's security officers, posted at the checkpoint in each terminal hall: no guns, but they'll tackle you)
+  security:{name:'Security officer',label:'Security officer down',tunic:0x2a3550,pants:0x1c2233,hat:'cap',hatc:0x1c2233,gear:null,hp:4,spd:3.3,melee:[1,1.0,'Tackled by airport security'],
+    jobs:['Airport security officer','Bag screener','Checkpoint supervisor','Behaviour detection officer','Security dog handler (no dog)']},
   // (the aircraft carrier's crew: see carrier-crew.js)
   deckhand:{name:'Deckhand',label:'Deckhand killed',tunic:0xe0c020,pants:0x2a2e3a,hat:'cap',hatc:0xe0c020,gear:null,hp:3,spd:3.4,melee:[1,1.0,'Punched by a deckhand'],
     jobs:['Aircraft handler','Catapult crewman','Plane captain','Fuel handler','Ordnanceman','Chock runner','Landing signal officer','Safety observer']},
@@ -18897,8 +19011,8 @@ const DEV_FOE_KINDS=[
     anims:['idle','walk','flee','stall','swim','death']},
   {k:'cultist',n:'Cultist',hp:4,spd:2.8,cult:true,melee:{dmg:1,every:0.85,w:'Ritual dagger'},look:{tunic:CULT_ROBE,pants:0x1a0a0c,hat:CULT_HOOD,acc:0x2a0408,acc2:0x2a0408,show:[]},
     anims:['chant','walk','attack','cast','jump','climb','swim','death']},
-  ...['thief','prepper','militia','sailor','marine','deckhand'].map(k=>{const F=FOES[k];return{k,n:F.name,hp:F.hp,spd:F.spd,foe:F,melee:{dmg:F.melee[0],every:F.melee[1],w:F.gear==='dagger'?'Dagger':F.gear?'Rifle butt':'Fists'},
-    look:{tunic:F.tunic,pants:F.pants,hat:F.hatc,acc:F.pants,show:k==='deckhand'||k==='sailor'?[F.hat]:[F.hat,k==='thief'?'eyepatch':'pouch']},
+  ...['thief','prepper','militia','sailor','marine','deckhand','security'].map(k=>{const F=FOES[k];return{k,n:F.name,hp:F.hp,spd:F.spd,foe:F,melee:{dmg:F.melee[0],every:F.melee[1],w:F.gear==='dagger'?'Dagger':F.gear?'Rifle butt':'Fists'},
+    look:{tunic:F.tunic,pants:F.pants,hat:F.hatc,acc:F.pants,show:k==='deckhand'||k==='sailor'||k==='security'?[F.hat]:[F.hat,k==='thief'?'eyepatch':'pouch']},
     gun:F.gun,anims:['guard','walk','attack',...(F.gun?['shoot']:[]),...(F.bomb?['throw']:[]),'jump','climb','swim','death']};})];
 const DEV_FOE_ANIM_N={idle:'Stand',walk:'Walk (chasing)',attack:'Attack',jump:'Jump up a step',climb:'Climb a wall',swim:'Swim',death:'Die',
   flee:'Run away screaming',stall:'Serve at a stall',chant:'Chant at the altar',cast:'Conjure a fireball',guard:'On guard',shoot:'Aim and fire',throw:'Throw a grenade'};
@@ -20145,7 +20259,7 @@ function civicRoom(b,px,pz,floorNo,L,kd){
   }
 }
 // places to go, and places of work
-const VENUE_ROOMS=new Set(['barn','cinema','disco','club','theater','museum','aquarium','casino','factory','lab','barracks','terminal','stage']);
+const VENUE_ROOMS=new Set(['barn','cinema','disco','club','theater','museum','aquarium','casino','factory','lab','barracks','terminal','stage','aeroclub']);
 function venueRoom(b,px,pz,floorNo,L,kd){
   const {I,J,add,hg}=floorKit(b,px,pz,floorNo,L,false),cu=I/2,PI=Math.PI,HP=Math.PI/2,pick=(A,a,c,n)=>A[Math.floor(hg(a,c,n)*A.length)%A.length];
   const set=(u,v,t,c)=>{add('rtable',u,v,0,t);add('chair',u-.68,v,HP,c,0,true);add('chair',u+.68,v,-HP,c,0,true);};
@@ -20226,11 +20340,30 @@ function venueRoom(b,px,pz,floorNo,L,kd){
     for(let u=1.5;u<I-1;u+=3){add('bunk',u,.9,0,0x4a5a3a);add('locker',u,2.2,PI);add('bunk',u,J-.9,PI,0x4a5a3a);add('locker',u,J-2.2,0);}
     if(J>=8)for(let u=3;u<I-2;u+=6)set(u,J/2,0x5a3a22,0x46505a);add('flag',I-.7,J/2,-HP);
   }else if(kd==='terminal'){
-    // check-in desks and the belt behind them, rows of seats at the gates, luggage, vending machines
-    for(let u=1.5;u<I-1;u+=4){add('bar',u,J-2,0,0x2b5fb8);add('bar',u+1,J-2,0,0x2b5fb8);add('monitor',u,J-2,0,0,.9);add('swivel',u,J-1.2,PI,0,0,true);}
-    for(let u=.5;u<I;u++)add('conveyor',u,J-.5,HP);for(let u=2;u<I-2;u+=7)add('pcrate',u,J-.5,0,0,.7);
-    for(let v=3;v<J-5;v+=3)for(let u=1.2;u<I-1;u+=2.2){if(Math.floor(u)%6===0)continue;add('seats',u,v,v%6===3?0:PI,0x2b5fb8);}
-    add('vending',.5,1.5,HP);add('vending',I-.5,1.5,-HP);add('plant',.5,.5,0);add('plant',I-.5,.5,1);
+    // a terminal hall, from the street doors (v at J) to the windows on the apron (v at 0): the check-in hall (the
+    // queue lines, the desks with their screens, the agents and the baggage belt behind them), then security across
+    // the middle (the lanes' metal detectors, the bag scanners and their belts, the officers posted there:
+    // AIRPORT_POSTS), then airside the gate's lounge (rows of seats facing the windows, the gate desk, the
+    // departures board, a coffee bar, vending machines)
+    // (an airport the far side of its city is mirrored, the street doors on the low side: so is its hall's layout)
+    const A=b.apFlip?(t,u,v,y,...r)=>add(t,u,J-v,PI-y,...r):add;
+    const ci=J-8,sv=Math.max(8,Math.round(J*0.42));
+    for(let u=1.5;u<I-1;u+=1){if(Math.abs(u-cu)<3)continue;A('bar',u,ci,PI,0x2b5fb8);if(Math.floor(u)%3===1){A('monitor',u,ci,PI,0,.9);A('swivel',u,ci-.9,0,0,0,true);}A('conveyor',u,ci-1.9,HP);}
+    for(let u=1.5;u<I-1;u+=1.2)if(Math.abs(u-cu)>=3&&Math.floor(u*5)%6!==0){A('stanchion',u,ci+2.2,0);A('stanchion',u,ci+4,0);}
+    for(const s2 of [-1,1]){const u=cu+s2*3;A('detector',u,sv,0);A('scanner',u+s2*1.7,sv+.2,0);A('conveyor',u+s2*1.7,sv+1.5,0);A('conveyor',u+s2*1.7,sv-1.2,0);}
+    for(let u=.8;u<I;u+=1.1)if(Math.abs(u-cu-3)>2.6&&Math.abs(u-cu+3)>2.6)A('stanchion',u,sv,0);
+    A('desk',cu,sv+1.2,0);A('monitor',cu,sv+1.2,0,0,.9);
+    for(let v=1.8;v<sv-2.5;v+=2.2)for(let u=1.6;u<I-5;u+=1.1){if(Math.abs(u-cu)<1.6)continue;A('seats',u,v,PI,0x2b5fb8);}
+    A('bar',cu-.5,.6,0,0x46505a);A('bar',cu+.5,.6,0,0x46505a);A('monitor',cu,.6,0,0,.9);A('board',.4,sv-2,HP,0x1d2a44);
+    for(let v=1.5;v<5.5;v++){A('bar',I-2.4,v,-HP,0x5a3a22);A('stool',I-3.2,v,HP,0x46505a,0,true);}A('espresso',I-2.4,1.5,-HP,0,.9);
+    A('vending',I-.5,sv-2.5,-HP);A('plant',.5,J-.5,0);A('plant',I-.5,J-.5,1);A('pcrate',2,J-2.6,0.3,0,.7);
+  }else if(kd==='aeroclub'){
+    // the flying club's clubhouse: the desk by the door with the bookings screen, a lounge of sofas round a low table,
+    // the briefing table with its chairs under the chart on the wall, lockers for the members' kit
+    add('bar',1.5,1.8,HP,0x5a3a22);add('bar',1.5,2.8,HP,0x5a3a22);add('monitor',1.5,2.3,HP,0,.9);add('swivel',.6,2.3,HP,0,0,true);
+    for(const u of [cu-1,cu,cu+1])add('sofa',u,J-.6,PI,0x3f6b8c);add('table',cu,J-2,0);add('sofa',cu-2.4,J-2,HP,0x3f6b8c);
+    add('rtable',I-3,3,0,0x6a5a4a);add('chair',I-3.7,3,HP,0x46505a,0,true);add('chair',I-2.3,3,-HP,0x46505a,0,true);add('chair',I-3,3.7,PI,0x46505a,0,true);
+    add('board',I-.4,3,-HP,0xd8c8a8);for(let v=J-1.5;v>J-4;v--)add('locker',I-.5,v,-HP);add('plant',.5,J-.5,0);add('flag',.6,J-.6,0);
   }else if(kd==='barn'){
     // stalls down one side, bales stacked at the back, a tractor's worth of tools
     for(let v=1;v<J-3;v+=2.4){add('bench',.8,v,HP);add('hay',I-.7,v,0);add('hay',I-.7,v+1.2,0);}
@@ -20428,7 +20561,7 @@ function patioProps(P,px,pz){
 // encampment's bedding and carts, a cult's book, candles and bones, a building site's barrows and bricks, a nursery's
 // pots, a trailer park's lawn chairs and junk, the flowers on the graves. (A site over more than one plot gives each plot
 // just its own, so nothing's listed twice.) Drawn out to the same distance as the benches in the street.
-const SITE_PROPS=new Set(['farmers','camp','campsite','cult','build','nursery','trailers','cemetery','mine','quarry','lumber','prepper','militia','thieves','ruins','dump','park','plaza','court','lighthouse','homes']);
+const SITE_PROPS=new Set(['farmers','camp','campsite','cult','build','nursery','trailers','cemetery','mine','quarry','lumber','prepper','militia','thieves','ruins','dump','park','plaza','court','lighthouse','homes','airport','airfield']);
 // (the big sites dressed the same way: the ones whose plan says where their open ground is)
 const SITE_SUPER=new Set(['power','zoo','theme','stadium','garage','bigpark']);
 // which of those a block is, if any (a bunker or a few wrecked cars out on open grass count too)
@@ -20522,6 +20655,25 @@ function bunkerProps(add,cx,cz){
   for(const u of [-1.5,1.5]){a('rtable',u,6,0,0x6a5a4a);a('chair',u,4.9,0,0x4f5a32);a('chair',u,7.1,Math.PI,0x4f5a32);}
 }
 const SITE_FN={
+  // the airport's apron: cones off each parked airliner's wingtips and nose, a baggage train of crates beside it waiting
+  // to be loaded, chocks of drums and tyres by the hangars, fuel drums round the fuel farm, benches along the kerb
+  airport(P,px,pz,add,putAt){const B=bigPlainsAt(px,pz);if(!B)return;const put0=putAt(B.ax*CELL,B.az*CELL),V=AP.gateV;
+    const put=(t,u,v,y,...r)=>put0(t,u,apV(B,v),apYaw(B,y),...r);   // (mirrored with the airport)
+    for(const u of AP.gates){for(const du of [-13,13])put('cone',u+du,V+1,0,0,true);put('cone',u+3,V+16,0,0,true);
+      for(let k=0;k<4;k++){put('pcrate',u+7,V+4+k*1.6,0,0);if(k%2===0)put('pcrate',u+7,V+4+k*1.6,0.1,0,false,G+1.64);}}
+    for(const u of AP.stands)for(const du of [-13,13])put('cone',u+du,V+1,0,0,true);
+    for(const c of [11,12,13]){put('tyres',c*32+6,90,0,0);put('drum',c*32+26,90,0,P_RUSTY);put('toolrack',c*32+16,92.5,0,0);}
+    for(const [u,v] of [[353,104],[353,116],[376,104],[376,116]])put('drum',u,v,0,0xc8302a);put('jerrycans',376,110,0,P_FUEL[0],true);
+    for(let c=3;c<=8;c++)for(const du of [6,24])put('bench',c*32+du,126.4,Math.PI,0);
+  },
+  // the airfield: chocks and a tool rack in the hangar, fuel cans by the pump, a picnic table and chairs outside the
+  // clubhouse, cones along the apron's edge, tyres and a drum round the back
+  airfield(P,px,pz,add,putAt){const B=bigPlainsAt(px,pz);if(!B)return;const put=putAt(B.ax*CELL,B.az*CELL);
+    put('toolrack',38,60.5,0,0);put('tyres',56,60,0,0);put('drum',55.5,57,0,P_RUSTY);put('pcrate',39,58,0.2,0);
+    put('jerrycans',85.5,49.5,0,P_FUEL[0],true);put('jerrycans',85.5,50.7,0,P_FUEL[1],true);
+    put('picnic',7,45.5,0,0);put('campchair',4.5,45.4,0.3,0x3f6b8c);put('campchair',9.8,45.6,-0.3,0xc83a32);
+    for(const u of [12,30,62,80,96])put('cone',u,32.4,0,0,true);put('drum',26,62,0,P_RUSTY);put('tyre',28,61.5,0.4,0,true);
+  },
   bunker(P,px,pz,add){bunkerProps(add,px*CELL+PC,pz*CELL+PC);},
   // abandoned cars: their old tyres lying round them, now and then a heap of them or a rusty drum
   wrecks(P,px,pz,add){
@@ -21558,14 +21710,15 @@ function refreshVenues(){
         else{const b=plotInfo(px,pz).b[0],c=(b.x1-b.x0-1)/2;V.pitch={x0:px*CELL+b.x0+c+0.5-13,z0:pz*CELL+b.z0+c+0.5-8,w:26,h:16,y:G+2,long:false};}
         venues.set(k,V);}}
       if(S.kind==='zoo'){const k='z'+px+','+pz;want.add(k);if(!venues.has(k))venues.set(k,{S,kind:'zoo',animals:null});}}
-    // trains on the railways near you; the airports' planes and the launch sites' rockets
+    // trains on the railways near you; the airports' and airfields' planes and the launch sites' rockets
     if(!TENV){const l=routesNearBox(p.pos.x-420,p.pos.z-420,p.pos.x+420,p.pos.z+420),rs=new Set();for(let q=0;q<l.length;q+=2){const R=l[q];if(rs.has(R)||!railOf(R))continue;rs.add(R);
       const k='r'+Math.round(R.pts[0][0])+','+Math.round(R.pts[0][1]);want.add(k);if(venues.has(k))continue;
       const cars2=[];for(let i=0;i<4;i++){const g=makeTrainCar(i===0);scene.add(g);cars2.push(g);}
       venues.set(k,{kind:'train',R,s:45+Math.random()*(R.L-90),dir:Math.random()<0.5?1:-1,v:0,wait:0,cars:cars2});}}
     for(let px=Math.floor((p.pos.x-700)/CELL);px<=Math.floor((p.pos.x+700)/CELL);px+=1)for(let pz=Math.floor((p.pos.z-700)/CELL);pz<=Math.floor((p.pos.z+700)/CELL);pz+=1){
-      if(biomeOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;const B=bigPlainsAt(px,pz);if(!B||B.ax!==px||B.az!==pz||B.kind!=='airport'&&B.kind!=='nasa')continue;const k='b'+px+','+pz;want.add(k);if(venues.has(k))continue;
-      if(B.kind==='airport'){const planes=[];for(let i=0;i<3;i++){const g=makePlane(i);scene.add(g);planes.push(g);}venues.set(k,{kind:'airport',B,planes,st:0,t:0,path:null});}
+      if(biomeOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;const B=bigPlainsAt(px,pz);if(!B||B.ax!==px||B.az!==pz||B.kind!=='airport'&&B.kind!=='airfield'&&B.kind!=='nasa')continue;const k='b'+px+','+pz;want.add(k);if(venues.has(k))continue;
+      if(B.kind==='airport'||B.kind==='airfield'){   // (an airport's airliners: two that come and go, one at each gate; an airfield's three two-seaters)
+        const planes=[],n=B.kind==='airport'?2+AP.gates.length:3;for(let i=0;i<n;i++){const g=B.kind==='airport'?makePlane(i):makeLightPlane(i);scene.add(g);planes.push(g);}venues.set(k,{kind:'airport',B,planes});}
       else{const g=makeRocket();scene.add(g);venues.set(k,{kind:'nasa',B,rocket:g,st:'pad',t:0,y:0,v:0,lastHr:-1});}}
     if(!TENV){const l=routesNearBox(p.pos.x-180,p.pos.z-180,p.pos.x+180,p.pos.z+180),rs=new Set();for(let q=0;q<l.length;q+=2){const R=l[q];if(rs.has(R))continue;rs.add(R);
       for(const ts of tollsOf(R)){const k='t'+Math.round(R.pts[0][0])+','+Math.round(R.pts[0][1])+':'+ts;want.add(k);if(venues.has(k))continue;
@@ -21749,17 +21902,18 @@ function makeTrainCar(loco,rear){
   if(loco){const e=rear?-1:1;bx(TRM.red,2.66,0.4,9.9,0,1.2,0);bx(TRM.win,2.2,0.9,0.06,0,2.8,e*4.92);bx(LMM.ledOn2,0.4,0.25,0.06,0,1.6,e*4.93);}
   return g;
 }
-// the airport's planes: two parked at the gates, one that goes round -- taxis out, takes off, flies away, comes back in to
-// land, and taxis back to its gate
+// an airport's airliners (where they go and when: vehicles/airfields.js)
 // (built at its old size, then stretched to about two-thirds of a real short-haul airliner's, as the game's other
 // vehicles are: PLANE_K, longer more than it's wider. Its boxes are PLANE_DIM)
 const PLANE_K=[1.15,1.25,1.45];
 function makePlane(i){
   const g0=new THREE.Group(),g=new THREE.Group();g.scale.set(...PLANE_K);g0.add(g);const bx=(m,sx,sy,sz,x,y,z)=>{const o=new THREE.Mesh(LM_BOX,m);o.scale.set(sx,sy,sz);o.position.set(x,y,z);g.add(o);return o;},liv=[TRM.red,TRM.loco,LMM.gold][i%3];
-  bx(TRM.white,2.5,2.5,17,0,2.4,0);bx(TRM.white,1.8,1.8,1.6,0,2.3,9.2);bx(TRM.win,2.54,0.4,13,0,2.9,0.5);bx(liv,2.56,0.35,16,0,1.9,0);
+  bx(TRM.white,2.5,2.5,17,0,2.4,0);bx(TRM.white,1.8,1.1,1.6,0,1.95,9.2);bx(LPM.glass,1.7,0.7,1.3,0,2.85,9.05);bx(TRM.white,1.8,0.12,1.6,0,3.26,9.2);   // (the nose, the cockpit's windscreen and its roof)bx(TRM.win,2.54,0.4,13,0,2.9,0.5);bx(liv,2.56,0.35,16,0,1.9,0);
   bx(TRM.wing,21,0.35,3.4,0,1.7,0.6);for(const s2 of[-1,1])bx(TRM.dark,1.2,1.2,2.8,s2*4.8,0.9,1.2);
   bx(liv,0.35,3.6,2.8,0,4.6,-7.2);bx(TRM.wing,7.2,0.3,1.9,0,2.6,-7.6);
   for(const [x,z] of [[0,6],[-1.6,-0.4],[1.6,-0.4]])bx(TRM.dark,0.4,1.0,0.6,x,0.5,z);
+  // (the captain and first officer, sat behind the windscreen: drawn unstretched, on the outer group)
+  planePilot(g0,[[-0.5*PLANE_K[0],2.62*PLANE_K[1],8.9*PLANE_K[2]],[0.5*PLANE_K[0],2.62*PLANE_K[1],8.9*PLANE_K[2]]],1.1);
   return g0;
 }
 // a fighter jet (the debug menu's only, so far): a grey dart of a fuselage with a pointed nose, the canopy, delta
@@ -21786,7 +21940,7 @@ const JETM={grey:new THREE.MeshLambertMaterial({color:0x7d8794}),dark:new THREE.
 // half width, half length and height, the wings' half span, half chord, top and how far behind the middle, and how far
 // ahead its nose reaches
 const PLANE_DIM={hx:1.44,hz:14.4,hy:4.56,wx:12.1,wz:2.5,wy:2.4,wo:0.87,nose:13.8},JET_DIM={hx:1.0,hz:5.8,hy:2.7,wx:3.4,wz:1.5,wy:0.9,wo:0,nose:6.4};
-const planeDim=pl=>pl&&pl.jet?JET_DIM:PLANE_DIM;
+const planeDim=pl=>pl&&pl.jet?JET_DIM:pl&&pl.light?LIGHT_DIM:PLANE_DIM;
 // a plane's body, for standing on and hitting: the fuselage and the wings, each a box like a train car's
 const PLANE_HP=300;
 function planeBoxes(pl,v){
@@ -21827,43 +21981,7 @@ function planeWreck(pl,V,dt){
       blastFx(p.x,p.y+2,p.z,0.8,2.4);smoke(p.x,p.y+2,p.z,26,0x262626);noise(1.4,1,400,'lowpass');addShake(1.2,p.x,p.z,60);hitGoblins(p.x,p.z,14,14,'Flattened by a falling plane',p.y+1);}}
   else if(Math.random()<dt*3)smoke(p.x,p.y+3,p.z,2,0x262626);
   // (a new one's been brought in, once no one's looking)
-  if(pl.deadT>120&&!players.some(q=>q.active&&Math.hypot(p.x-q.pos.x,p.z-q.pos.z)<350)){pl.dead=false;pl.free=null;pl.hp=PLANE_HP;g.traverse(o=>{if(o.isMesh&&o.userData.mat)o.material=o.userData.mat;});g.rotation.set(0,0,0);if(pl===V.pl[0])V.path=null;}
-}
-function airportPath(V){
-  // the plane's round trip in the airport's own coordinates [u, v, height, speed]
-  const B=V.B,W=B.w*CELL;
-  return[[112,45.5,0,4],[112,39.5,0,7],[112,28.5,0,5],[170,28.5,0,24],[240,28.5,1,46],[300,28.5,12,60],[440,28.5,70,70],[520,28.5,90,75],[900,28.5,110,80],
-    ['wait',30],[-700,28.5,90,70],[-200,28.5,40,60],[10,28.5,4,48],[30,28.5,0,40],[120,28.5,0,14],[W-22.5,28.5,0,8],[W-22.5,39.5,0,7],[112,39.5,0,7],[112,45.5,0,3],['wait',35]];
-}
-function updateAirport(V,dt){
-  const B=V.B,X0=B.ax*CELL,Z0=B.az*CELL;
-  // the two parked ones stand at their gates, noses to the taxiway
-  if(!V.pl)V.pl=V.planes.map(g=>({isPlane:true,g,hp:PLANE_HP,dead:false,v:0}));
-  for(const pl of V.pl)if(!pl.dead&&pl.g.visible)vDamaged(pl.g.position.x,pl.g.position.y+3,pl.g.position.z,pl.hp/PLANE_HP,dt);
-  // (one that a goblin's flown, or is flying, goes its own way: see drvPlane)
-  const free=pl=>{drvPlane(pl,dt);if(pl.dead)return;planeBoxes(pl,pl.free.v);if(pl.free.v>=2)planeStrike(pl,pl.free.v);};
-  for(let i=1;i<3;i++){const pl=V.pl[i],g=pl.g;if(pl.dead){planeWreck(pl,V,dt);planeBoxes(pl,0);}else if(pl.free)free(pl);else{g.position.set(X0+16+i*32,G+1,Z0+51);g.rotation.y=Math.PI;planeBoxes(pl,0);}}
-  const pl0=V.pl[0];if(pl0.dead){planeWreck(pl0,V,dt);planeBoxes(pl0,0);return;}
-  if(pl0.free){free(pl0);return;}
-  if(!V.path){V.path=airportPath(V);V.i=0;V.t=0;V.pos={u:112,v:45.5,h:0};V.sp=0;V.hd=0;}
-  const P=V.path[V.i],g=V.planes[0],rider=players.some(q=>q.active&&q.standCar&&q.standCar.T===pl0);
-  if(P[0]==='wait'){
-    // (out of sight beyond the horizon, normally; with someone aboard it just turns round, and comes back)
-    if(V.i===9&&rider){V.t=0;V.i=10;planeBoxes(pl0,V.sp);return;}
-    V.t+=dt;g.visible=V.i!==9;if(V.t>=P[1]){V.t=0;V.i=(V.i+1)%V.path.length;if(V.i===10){const q=V.path[10];V.pos={u:q[0],v:q[1],h:q[2]};}}pl0.v=0;planeBoxes(pl0,0);return;}
-  // (with someone aboard it doesn't go so far that the airport's forgotten about)
-  const tu=rider?(P[0]===900?560:P[0]===-700?-480:P[0]):P[0];
-  g.visible=true;const du=tu-V.pos.u,dv=P[1]-V.pos.v,d=Math.hypot(du,dv);
-  V.sp+=(P[3]-V.sp)*Math.min(1,dt*0.6);const step=Math.min(d,V.sp*dt);pl0.v=V.sp;
-  const air=V.pos.h>15;
-  if(air&&d>45){let a=Math.atan2(du,dv)-V.hd;a=Math.atan2(Math.sin(a),Math.cos(a));V.hd+=Math.max(-0.7*dt,Math.min(0.7*dt,a));V.pos.u+=Math.sin(V.hd)*V.sp*dt;V.pos.v+=Math.cos(V.hd)*V.sp*dt;V.pos.h+=(P[2]-V.pos.h)*Math.min(1,step/Math.max(1,d));}   // (in the air it banks round, rather than swinging about on the spot)
-  else if(d<(air?45:0.5)){if(!air){V.pos.u=tu;V.pos.v=P[1];V.pos.h=P[2];}V.i=(V.i+1)%V.path.length;}
-  else{   // (on the ground it stops and swings round before moving off, so anyone standing on it isn't thrown)
-    let a=d>2?Math.atan2(du,dv)-V.hd:0;a=Math.atan2(Math.sin(a),Math.cos(a));V.hd+=Math.max(-0.9*dt,Math.min(0.9*dt,a));
-    if(Math.abs(a)<0.2){V.pos.u+=du/d*step;V.pos.v+=dv/d*step;V.pos.h+=(P[2]-V.pos.h)*Math.min(1,step/Math.max(1,d));}else{V.sp*=1-Math.min(1,dt*2);pl0.v=V.sp;}}
-  const climb=Math.max(-0.25,Math.min(0.25,(P[2]-V.pos.h)/Math.max(1,d)*1.5));
-  g.position.set(X0+V.pos.u,G+1+V.pos.h,Z0+V.pos.v);g.rotation.set(-climb,V.hd||0,0,'YXZ');
-  planeBoxes(pl0,V.sp);if(V.sp>=2)planeStrike(pl0,V.sp);
+  if(pl.deadT>120&&!players.some(q=>q.active&&Math.hypot(p.x-q.pos.x,p.z-q.pos.z)<350)){pl.dead=false;pl.free=null;pl.hp=planeMax(pl);g.traverse(o=>{if(o.isMesh&&o.userData.mat)o.material=o.userData.mat;});g.rotation.set(0,0,0);if(pl.fly){pl.fly.i=0;pl.fly.t=0;pl.fly.sp=0;pl.fly.pos={u:pl.fly.path[1][0],v:pl.fly.path[1][1],h:0};pl.fly.hd=apYaw(V.B,0);}}
 }
 // the launch site's rocket: on the pad, then on the hour (three times a day) a countdown, ignition, and up it goes,
 // faster and faster, out of sight; a new one is rolled out a while later
@@ -21888,6 +22006,129 @@ function updateLaunch(V,dt){
     if(V.y>700){V.st='gone';V.t=0;g.visible=false;g.userData.flame.visible=false;}}
   if(V.st==='gone'){V.t+=dt;if(V.t>90){V.st='pad';V.y=0;g.visible=true;}}
   g.position.set(x,G+2+V.y,z);
+}
+// ---- the planes of the airports and airfields: the country airfield's two-seaters (makeLightPlane, LIGHT_DIM), the
+// pilots you can see in the cockpit (planePilot), and the timetables both kinds of site fly to (airportInit, aiFly).
+// An airport's airliners are makePlane's; both are planes in its venue's V.pl, so standing on them, hitting them,
+// flying them (drvPlane) and their health bars are the same code ----
+//
+// a two-seater: a high-winged little plane on its wheels, the engine and propeller at the front, the cabin's windows
+// under the wing, struts out to it, a tail with its fin. Built straight at its size in blocks (a real one is about
+// 7 m long and 10 m across, so about 5 and 7 blocks; it's drawn a little bigger, as the game's cars are, so a goblin
+// fits in its seat)
+const LIGHT_DIM={hx:0.56,hz:3.3,hy:2.3,wx:4.0,wz:0.65,wy:2.4,wo:0.7,nose:3.5},LIGHT_HP=120;
+const LPM={white:new THREE.MeshLambertMaterial({color:0xeef0f2}),dark:new THREE.MeshLambertMaterial({color:0x26292e}),
+  glass:new THREE.MeshLambertMaterial({color:0x6a8aa8,transparent:true,opacity:0.38}),
+  liv:[0xc8302a,0x2b5fb8,0xe0a020].map(c=>new THREE.MeshLambertMaterial({color:c}))};
+// how much a plane can take (its health bar's full length)
+const planeMax=pl=>pl&&pl.light?LIGHT_HP:PLANE_HP;
+function makeLightPlane(i){
+  const g=new THREE.Group(),liv=LPM.liv[i%3],bx=(m,sx,sy,sz,x,y,z,par=g)=>{const o=new THREE.Mesh(LM_BOX,m);o.scale.set(sx,sy,sz);o.position.set(x,y,z);par.add(o);return o;};
+  bx(LPM.white,1.1,0.9,3.4,0,1.25,0.6);bx(LPM.glass,1.1,0.55,1.6,0,1.98,1.0);bx(LPM.white,1.1,0.55,1.8,0,1.98,-0.7);   // (the cabin, its windows)
+  bx(LPM.white,0.75,0.75,2.6,0,1.45,-2.2);bx(liv,1.12,0.18,4.8,0,1.15,-0.3);   // (the tail cone, the stripe down the side)
+  bx(liv,1.0,0.95,0.9,0,1.25,2.75);bx(LPM.dark,0.35,0.35,0.3,0,1.25,3.35);   // (the cowling, the spinner)
+  const prop=new THREE.Group();prop.position.set(0,1.25,3.52);g.add(prop);bx(LPM.dark,0.16,2.0,0.06,0,0,0,prop);g.userData.prop=prop;
+  bx(LPM.white,8.0,0.14,1.3,0,2.32,0.7);for(const s of [-1,1]){bx(liv,0.6,0.16,1.32,s*3.72,2.32,0.7);
+    const st=bx(LPM.dark,0.08,2.07,0.08,s*1.38,1.62,0.7);st.rotation.z=-s*0.92;   // (the wing struts)
+    bx(LPM.dark,0.08,0.6,0.08,s*0.72,0.5,1.1);bx(LPM.dark,0.2,0.45,0.45,s*0.9,0.23,1.1);}   // (the main wheels)
+  bx(LPM.dark,0.18,0.4,0.4,0,0.2,2.6);
+  bx(liv,0.1,1.1,1.0,0,2.1,-3.0);bx(LPM.white,2.6,0.1,0.8,0,1.6,-3.1);   // (the fin, the tailplane)
+  planePilot(g,[[-0.25,1.0,1.0]],1);
+  return g;
+}
+// a goblin pilot (or two), sat at the controls: shown while someone's flying it (planeCrewShow). s is its size
+const PILOT_M={skin:new THREE.MeshLambertMaterial({color:0x6aa040}),shirt:new THREE.MeshLambertMaterial({color:0xf2f2f0}),cap:new THREE.MeshLambertMaterial({color:0x1d2a44})};
+function planePilot(g,seats,s){
+  const P=g.userData.pilots=[];
+  for(const [x,y,z] of seats){const f=new THREE.Group(),bx=(m,sx,sy,sz,px,py,pz)=>{const o=new THREE.Mesh(LM_BOX,m);o.scale.set(sx*s,sy*s,sz*s);o.position.set(px*s,py*s,pz*s);f.add(o);};
+    bx(PILOT_M.shirt,0.48,0.5,0.3,0,0.25,0);bx(PILOT_M.skin,0.36,0.36,0.34,0,0.7,0.02);bx(PILOT_M.cap,0.4,0.1,0.42,0,0.92,0.04);
+    bx(PILOT_M.skin,0.1,0.14,0.14,-0.22,0.72,0);bx(PILOT_M.skin,0.1,0.14,0.14,0.22,0.72,0);   // (the ears)
+    f.position.set(x,y,z);f.visible=false;g.add(f);P.push(f);}
+}
+// whoever's at the controls shows in the seat: the airport's own pilots on their rounds, or a player flying it
+function planeCrewShow(pl,dt){
+  const g=pl.g,on=!pl.dead&&!!(pl.drv||pl.crewed&&!pl.free),P=g.userData.pilots;
+  if(P)for(const f of P)f.visible=on;
+  const pr=g.userData.prop;if(pr){const run=on&&(pl.drv?pl.free&&pl.free.thr>0.02||pl.v>0.5:pl.v>0.2||pl.fly&&pl.fly.path&&pl.fly.path[pl.fly.i][0]!=='wait');pr.rotation.z+=dt*(run?45:0);}
+}
+// ---- the timetables. Each plane that goes round has its own (pl.fly): a list of waypoints in the site's coordinates,
+// [u, v, height, speed, (u instead, with someone riding it)], or ['wait', seconds, 'hide' if out of sight meanwhile].
+// The airport's two airliners: from their remote stands out to the runway's west end, off to the east and away beyond
+// the horizon, back in from the west to land, off at the far end and back along the taxiway to their stands. The
+// airfield's two-seater: out to the west end of the strip, off, round a circuit of the field, down and back to its spot ----
+function airportFlyPath(B,k){
+  const su=AP.stands[k],sv=AP.gateV,tw=AP.taxi,rw=AP.rwy,W=B.w*CELL;
+  const P=[['wait',15+k*5],[su,sv,0,3],[su,62,0,4],[su,tw,0,6],[21.5,tw,0,6],[21.5,rw,0,4],[60,rw,0,24],[140,rw,1,46],[200,rw,12,60],[340,rw,70,70],[420,rw,90,75],[900,rw,110,80,560],
+    ['wait',30,'hide'],[-700,rw,90,70,-480],[-200,rw,40,60],[10,rw,4,48],[30,rw,0,40],[120,rw,0,30],[W-70,rw,0,16],[W-22.5,rw,0,8],[W-22.5,tw,0,9],[su,tw,0,10],[su,62,0,4],[su,sv,0,3],['wait',60]]
+    .map(P=>typeof P[0]==='number'?[P[0],apV(B,P[1]),...P.slice(2)]:P);   // (mirrored with the airport)
+  // (one moves about the airport at a time: the other waits on its stand, or out of sight, till it's away -- see aiNext)
+  P[2].claim=true;P[9].rel=true;P[13].claim=true;P[23].rel=true;
+  return P;
+}
+function airfieldFlyPath(){
+  const [su,sv]=AF.stand,s=AF.strip,t=AF.taxi,[e0,e1]=AF.exits;
+  return[['wait',20],[su,sv,0,2],[su,t,0,3],[e0,t,0,3],[e0,s,0,3],[30,s,0,10],[55,s,1,16],[80,s,6,20],[125,s,18,22],[165,s-25,25,22],[150,s-70,28,22],[40,s-75,28,22],
+    [-30,s-55,24,20],[-40,s,14,18],[-5,s,5,16],[14,s,0,14],[60,s,0,6],[e1,s,0,4],[e1,t,0,3],[su,t,0,3],[su,sv,0,2],['wait',45]];
+}
+// how each kind follows its waypoints: height counted as flying, how near a waypoint counts as reached in the air, how
+// fast it can turn in the air and on the ground
+const FLY_AIRLINER={airH:15,airR:45,turn:0.7,gturn:0.9},FLY_LIGHT={airH:4,airR:12,turn:1.0,gturn:1.2};
+// a site's planes, first time round: which go round (and from where, and when), which stay parked where
+function airportInit(V){
+  const B=V.B,light=B.kind==='airfield';
+  V.pl=V.planes.map(g=>({isPlane:true,light,g,hp:light?LIGHT_HP:PLANE_HP,dead:false,v:0}));
+  if(light){
+    const [a,b,c]=V.pl;a.fly={path:airfieldFlyPath(),i:0,t:0,pos:{u:AF.stand[0],v:AF.stand[1],h:0},sp:0,hd:0,o:FLY_LIGHT};a.crewed=true;
+    b.park=[AF.tie[0],AF.tie[1],Math.PI];c.park=[AF.hangar[0],AF.hangar[1],Math.PI];}
+  else{const lock={by:null};V.pl.forEach((pl,i)=>{
+    if(i<2){const path=airportFlyPath(B,i),hide=path.findIndex(P=>P[2]==='hide'),i0=i===0?0:hide;
+      pl.fly={path,i:i0,t:0,pos:{u:AP.stands[i],v:apV(B,AP.gateV),h:0},sp:0,hd:apYaw(B,0),o:FLY_AIRLINER,lock};pl.crewed=true;}
+    else pl.park=[AP.gates[i-2],apV(B,AP.gateV),apYaw(B,0)];});}
+}
+function updateAirport(V,dt){
+  const B=V.B,X0=B.ax*CELL,Z0=B.az*CELL;
+  if(!V.pl)airportInit(V);
+  for(const pl of V.pl)if(!pl.dead&&pl.g.visible)vDamaged(pl.g.position.x,pl.g.position.y+3,pl.g.position.z,pl.hp/planeMax(pl),dt);
+  // (one that a goblin's flown, or is flying, goes its own way: see drvPlane)
+  for(const pl of V.pl){const g=pl.g;planeCrewShow(pl,dt);
+    if(pl.dead){planeWreck(pl,V,dt);planeBoxes(pl,0);continue;}
+    if(pl.free){drvPlane(pl,dt);if(pl.dead)continue;planeBoxes(pl,pl.free.v);if(pl.free.v>=2)planeStrike(pl,pl.free.v);continue;}
+    if(pl.fly){aiFly(pl,pl.fly,X0,Z0,dt);continue;}
+    const P=pl.park;g.position.set(X0+P[0],G+1,Z0+P[1]);g.rotation.set(0,P[2],0);pl.v=0;planeBoxes(pl,0);}
+}
+// one plane along its timetable
+// on to the next waypoint, if it may: a step that needs the airport to itself waits till no other's using it (one
+// that's wrecked, or a goblin's taken, lets go)
+function aiNext(pl,S){
+  const L=S.path.length,n=(S.i+1)%L,K=S.lock;
+  if(K){const by=K.by;if(S.path[n].claim){if(by&&by!==pl&&!by.dead&&!by.free&&by.fly)return false;K.by=pl;}
+    if(S.path[S.i].rel&&K.by===pl)K.by=null;}
+  S.i=n;return true;
+}
+function aiFly(pl,S,X0,Z0,dt){
+  const o=S.o,g=pl.g,L=S.path.length,P=S.path[S.i],rider=players.some(q=>q.active&&q.standCar&&q.standCar.T===pl);
+  if(P[0]==='wait'){
+    // (out of sight beyond the horizon, normally; with someone aboard it just turns round, and comes back)
+    if(P[2]==='hide'&&rider){if(aiNext(pl,S))S.t=0;planeBoxes(pl,S.sp);return;}
+    S.t+=dt;g.visible=P[2]!=='hide';
+    if(S.t>=P[1]&&aiNext(pl,S)){S.t=0;if(P[2]==='hide'){const q=S.path[S.i];S.pos={u:q[0],v:q[1],h:q[2]};}}
+    if(g.visible){g.position.set(X0+S.pos.u,G+1+S.pos.h,Z0+S.pos.v);g.rotation.set(0,S.hd,0,'YXZ');}
+    pl.v=0;S.sp=0;planeBoxes(pl,0);return;}
+  // (with someone aboard it doesn't go so far that the site's forgotten about)
+  const tu=rider&&P[4]!==undefined?P[4]:P[0];
+  g.visible=true;const du=tu-S.pos.u,dv=P[1]-S.pos.v,d=Math.hypot(du,dv),hd0=S.hd;
+  S.sp+=(P[3]-S.sp)*Math.min(1,dt*0.6);const step=Math.min(d,S.sp*dt);pl.v=S.sp;
+  const air=S.pos.h>o.airH;
+  if(air&&d>o.airR){let a=Math.atan2(du,dv)-S.hd;a=Math.atan2(Math.sin(a),Math.cos(a));S.hd+=Math.max(-o.turn*dt,Math.min(o.turn*dt,a));S.pos.u+=Math.sin(S.hd)*S.sp*dt;S.pos.v+=Math.cos(S.hd)*S.sp*dt;S.pos.h+=(P[2]-S.pos.h)*Math.min(1,step/Math.max(1,d));}   // (in the air it banks round, rather than swinging about on the spot)
+  else if(d<(air?o.airR:0.5)){if(!air){S.pos.u=tu;S.pos.v=P[1];S.pos.h=P[2];}if(!aiNext(pl,S)){S.sp=0;pl.v=0;}}
+  else{   // (on the ground it stops and swings round before moving off, so anyone standing on it isn't thrown)
+    let a=d>2?Math.atan2(du,dv)-S.hd:0;a=Math.atan2(Math.sin(a),Math.cos(a));S.hd+=Math.max(-o.gturn*dt,Math.min(o.gturn*dt,a));
+    if(Math.abs(a)<0.2){S.pos.u+=du/d*step;S.pos.v+=dv/d*step;S.pos.h+=(P[2]-S.pos.h)*Math.min(1,step/Math.max(1,d));}else{S.sp*=1-Math.min(1,dt*2);pl.v=S.sp;}}
+  const climb=Math.max(-0.25,Math.min(0.25,(P[2]-S.pos.h)/Math.max(1,d)*1.5));
+  // (banked into its turns in the air)
+  let tr=dt>0?Math.atan2(Math.sin(S.hd-hd0),Math.cos(S.hd-hd0))/dt:0;S.roll=(S.roll||0)+((air?Math.max(-0.6,Math.min(0.6,tr*0.8)):0)-(S.roll||0))*Math.min(1,dt*2);
+  g.position.set(X0+S.pos.u,G+1+S.pos.h,Z0+S.pos.v);g.rotation.set(-climb,S.hd,-S.roll,'YXZ');
+  planeBoxes(pl,S.sp);if(S.sp>=2)planeStrike(pl,S.sp);
 }
 // ---- Hot-air balloons (the debug menu's only, so far): a wicker basket under a big striped envelope, kept in a venue
 // of their own ('tenvBalloons', kind 'balloon', updated by updateBalloons from updateVenues). It flies on its heat: Jump
@@ -23620,7 +23861,7 @@ function marqueeSpots(b,px,pz,out){
 }
 // the front first; failing that (something built right up against it), whichever other side has room
 function bSpotAny(b,px,pz,inset,yc,h,out){for(const sd of [b.door,(b.door+2)%4,b.door^1,(b.door+2)%4^1])if(bSpot(b,px,pz,sd,inset,yc,h,4,out))return;}
-const SMALL_SHOPS=new Set(['books','dentist','dispo','guns','bar','soup']),B2_SIGNS=new Set(['courthouse','library','radio','news','bank','disco','club','dealer','armory','theater','stocks','nursery','museum','aquarium','school','datacenter','electric','casino','factory','campus','prison','jail','water','power','lab','arena','base','airport','nuclear']);
+const SMALL_SHOPS=new Set(['books','dentist','dispo','guns','bar','soup']),B2_SIGNS=new Set(['courthouse','library','radio','news','bank','disco','club','dealer','armory','theater','stocks','nursery','museum','aquarium','school','datacenter','electric','casino','factory','campus','prison','jail','water','power','lab','arena','base','airport','airfield','nuclear']);
 function brandSpots(b,px,pz){
   if(b._signs)return b._signs;
   const out=[],cat=b.signCat,tierOn=b.tier>0&&(b.x1-b.x0)>=8,ins=tierOn?2:0;
@@ -25407,7 +25648,7 @@ function drawDbgOverlay(dt,views){
       for(const V of venues.values()){
         // (online, a guest reads the host's figures: netHp, netDead)
         if(V.kind==='army')for(const M of V.mil){if(!netDead(M,M.dead))bar(M.x,M.y+MIL[M.kind].hy+0.6,M.z,netHp(M,M.hp),MIL[M.kind].hp,'#5ab4ff');}
-        else if(V.kind==='airport'&&V.pl)for(const pl of V.pl){if(!netDead(pl,pl.dead)&&pl.g.visible)bar(pl.g.position.x,pl.g.position.y+5,pl.g.position.z,netHp(pl,pl.hp),PLANE_HP,'#5ab4ff');}
+        else if(V.kind==='airport'&&V.pl)for(const pl of V.pl){if(!netDead(pl,pl.dead)&&pl.g.visible)bar(pl.g.position.x,pl.g.position.y+planeDim(pl).hy+0.8,pl.g.position.z,netHp(pl,pl.hp),planeMax(pl),'#5ab4ff');}
         else if(V.kind==='boat'&&V.bo&&!netDead(V.bo,V.bo.dead)&&V.boat.visible){const g=V.boat;bar(g.position.x,g.position.y+V.bo.K.fb+2,g.position.z,netHp(V.bo,V.bo.hp),V.bo.max,'#5ab4ff');}
         else if(V.kind==='rtrain'&&V.T&&V.cars){const T=V.T,gst=netGuest()&&T.netHP,hp=gst?T.netHP:T.carHP,cd=gst?T.netCarDead:T.carDead;
           if(!(gst?T.netDead:T.dead))V.cars.forEach((g,i)=>{if(!(cd&&cd[i]))bar(g.position.x,g.position.y+4.2,g.position.z,hp&&hp[i]!==undefined?hp[i]:CAR_HP,CAR_HP,'#5ab4ff');});}
@@ -25800,7 +26041,7 @@ function whereLabel(){
   if(tsAt(Math.floor(p.pos.x),Math.floor(p.pos.z)))return'\u26FD Truck stop';
   if(dumpAt(px,pz)!==null)return'\u{1F5D1}\uFE0F Garbage dump';
   if(castleAt(px,pz))return'\u{1F3F0} Castle';
-  {const B=bigPlainsAt(px,pz);if(B)return B.kind==='nuclear'?'\u2622\uFE0F Nuclear plant':B.kind==='airport'?'\u2708\uFE0F Airport':B.kind==='nasa'?'\u{1F680} Launch site':B.kind==='mine'?'\u26CF\uFE0F Mine':B.kind==='quarry'?'\u{1FAA8} Quarry':B.kind==='lumber'?'\u{1FAB5} Lumber camp':B.kind==='campsite'?'\u{1F3D5}\uFE0F Campsite':B.kind==='cult'?'\u{1F56F}\uFE0F Cult altar':B.kind==='tower5g'?'\u{1F4E1} 5G tower':B.kind==='prepper'?'\u{1F6E1}\uFE0F Prepper compound':B.kind==='militia'?'\u{1F3AF} Militia compound':B.kind==='ruins'?'\u{1F3DB}\uFE0F Ruins':B.kind==='thieves'?"\u{1F977} Thieves' hideout":'\u{1FA96} Military base';}
+  {const B=bigPlainsAt(px,pz);if(B)return B.kind==='nuclear'?'\u2622\uFE0F Nuclear plant':B.kind==='airport'?'\u2708\uFE0F Airport':B.kind==='airfield'?'\u{1F6E9}\uFE0F Airfield':B.kind==='nasa'?'\u{1F680} Launch site':B.kind==='mine'?'\u26CF\uFE0F Mine':B.kind==='quarry'?'\u{1FAA8} Quarry':B.kind==='lumber'?'\u{1FAB5} Lumber camp':B.kind==='campsite'?'\u{1F3D5}\uFE0F Campsite':B.kind==='cult'?'\u{1F56F}\uFE0F Cult altar':B.kind==='tower5g'?'\u{1F4E1} 5G tower':B.kind==='prepper'?'\u{1F6E1}\uFE0F Prepper compound':B.kind==='militia'?'\u{1F3AF} Militia compound':B.kind==='ruins'?'\u{1F3DB}\uFE0F Ruins':B.kind==='thieves'?"\u{1F977} Thieves' hideout":'\u{1FA96} Military base';}
   if(caveMouth(px,pz))return'\u{1F987} Cave';
   if(turbineAt(px,pz))return'\u{1F32C}\uFE0F Wind farm';
   return farmK(px,pz)!==null||farmlandOf(px,pz)?'\u{1F69C} Farmland':'\u{1F33E} Plains';
@@ -27669,7 +27910,7 @@ document.getElementById('confirmYes').addEventListener('click',()=>{
 const TEST_GROUPS=[
   ['Town blocks',[['courthouse','Courthouses'],['tower','Office towers'],['mid','Mid-rise blocks'],['homes','Houses'],['shops','Little shops'],['park','Parks'],['plaza','Plazas'],['gas','Gas stations'],['food','Restaurants'],['fastfood','Fast food'],['fire','Fire stations'],['police','Police stations'],['build','Construction sites'],['wtower','Water towers'],['bell','Bell towers'],['church','Churches'],['cemetery','Cemeteries'],['library','Libraries'],['bank','Banks'],['news','TV news'],['radio','Radio stations'],['disco','Discos'],['club','Night clubs'],['court','Basketball courts'],['derelict','Derelict buildings'],['mansion','Mansions'],['trailers','Trailer parks'],['camp','Encampments'],['farmers',"Farmers' markets"],['nursery','Tree nurseries'],['dealer','Car dealers'],['armory','Armories'],['theater','Theatres'],['stocks','Stock exchange'],['datacenter','Data centers'],['electric','Electric company'],['lab','Goblin labs'],['jail','Jails']]],
   ['Big sites',[['hospital','Hospitals'],['garage','Car parks'],['mega','Mega-buildings'],['market','Supermarkets'],['drug','Drugstores'],['sitdown','Sit-down restaurants'],['mall','Malls'],['bigbox','Superstores'],['ikea','Furniture superstores'],['cathedral','Cathedrals'],['museum','Museums'],['aquarium','Aquariums'],['casino','Casinos'],['school','Schools'],['factory','Factories'],['cinema','Cinemas'],['stadium','Stadiums'],['arena','Arenas'],['campus','Universities'],['prison','Prisons'],['water','Water works'],['power','Power stations'],['nuclear','Nuclear plants'],['zoo','Zoos'],['studio','Film studios'],['theme','Theme parks'],['bigpark','Big parks'],['hood','Housing estates'],['capitol','The capitol']]],
-  ['Countryside',[['farm','Farms'],['truckstop','Truck stops'],['dump','Garbage dumps'],['mine','Mines'],['quarry','Quarries'],['lumber','Lumber camps'],['campsite','Campsites'],['cult','Cult altars'],['wrecks','Abandoned cars'],['tower5g','5G towers'],['prepper','Prepper compounds'],['militia','Militia compounds'],['ruins','Ruins'],['thieves',"Thieves' hideouts"],['wind','Wind farms'],['airport','Airports'],['nasa','Launch sites'],['base','Military bases'],['bunker','Bunkers'],['pylons','Power lines'],['billboards','Billboards'],['tolls','Toll plazas']]],
+  ['Countryside',[['farm','Farms'],['truckstop','Truck stops'],['dump','Garbage dumps'],['mine','Mines'],['quarry','Quarries'],['lumber','Lumber camps'],['campsite','Campsites'],['cult','Cult altars'],['wrecks','Abandoned cars'],['tower5g','5G towers'],['prepper','Prepper compounds'],['militia','Militia compounds'],['ruins','Ruins'],['thieves',"Thieves' hideouts"],['wind','Wind farms'],['airport','Airports'],['airfield','Airfields'],['nasa','Launch sites'],['base','Military bases'],['bunker','Bunkers'],['pylons','Power lines'],['billboards','Billboards'],['tolls','Toll plazas']]],
   ['Railways',[['rail','Railways'],['station','Train stations']]],
   ['Coast',[['sea','The ocean'],['beach','Beaches'],['harbor','Docks'],['yard','Shipping ports (coastal cities)'],['navy','Naval bases'],['lighthouse','Lighthouses'],['rig','Oil rigs'],['wreck','Shipwrecks']]],
   ['Underground',[['sewers','Sewers'],['subway','Subway'],['caves','Caves']]]];
@@ -28001,7 +28242,7 @@ function tenvMech(){
 }
 function updateTenvPlanes(V,dt){
   for(const pl of V.pl){
-    if(!pl.dead&&pl.g.visible)vDamaged(pl.g.position.x,pl.g.position.y+3,pl.g.position.z,pl.hp/PLANE_HP,dt);
+    if(!pl.dead&&pl.g.visible)vDamaged(pl.g.position.x,pl.g.position.y+3,pl.g.position.z,pl.hp/planeMax(pl),dt);
     if(pl.dead){planeWreck(pl,V,dt);planeBoxes(pl,0);}
     else if(pl.free){drvPlane(pl,dt);if(!pl.dead){planeBoxes(pl,pl.free.v);if(pl.free.v>=2)planeStrike(pl,pl.free.v);}}
     else planeBoxes(pl,0);}

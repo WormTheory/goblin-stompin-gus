@@ -27,7 +27,8 @@ Sizes as built, in plots (W x H; one plot is 32 blocks):
 | Zoo | 5 x 5 |
 | University, quarry | 6 x 6 |
 | Theme park, nuclear plant | 8 x 8 |
-| Airport | 14 x 6 |
+| Country airfield | 4 x 2 |
+| Airport | 16 x 8 |
 | Farm, with its land | up to 4 to 6 each way, less where something's in the way |
 
 Smaller versions exist in small towns. A theme park is too big for one 6 x 6 cell of the big plan, so `themeOf` lets it reach into its neighbours. All of it has to be in town: he wants whole parks, so one that would run on to open ground or anything else is moved along a little, or left out (`themeaudit.js` checks).
@@ -41,8 +42,8 @@ Each kind of site belongs somewhere in a place (`SITE_F`, how far out from the m
 | Downtown | Office towers, mega-buildings, stock exchange, theaters, museums, capitol, TV news |
 | City ring | Mid-rises, hospitals, universities, arenas, stadiums, cathedrals, malls |
 | Suburbs | Houses, schools, supermarkets, superstores, parks, churches, cinemas |
-| Edge of town, with a road in | Dumps, factories, power stations, water works, prisons, data centers, car dealers, film studios, zoos, theme parks |
-| Out in the country | Nuclear plants, airports, military bases, launch sites, mines, quarries, farms, wind farms |
+| Edge of town, with a road in | Dumps, airports (just outside a big city, its street running in to the terminal), factories, power stations, water works, prisons, data centers, car dealers, film studios, zoos, theme parks |
+| Out in the country | Nuclear plants, country airfields, military bases, launch sites, mines, quarries, farms, wind farms |
 
 Nothing heavy, smelly or sprawling in a town center, and no dump against high-rises.
 

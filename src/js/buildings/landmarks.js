@@ -273,7 +273,7 @@ function containAt(b,rx,rz,y){
 }
 // a hangar: a half-barrel of corrugated metal over a wide floor, its front end open
 function hangarAt(b,rx,rz,y){
-  const W=b.x1-b.x0,c=(W-1)/2,u=rx-b.x0-c,v=rz-b.z0,D=b.z1-b.z0,fl=y-G,R=c+0.3,d=Math.hypot(u,fl*0.95);
+  const W=b.x1-b.x0,c=(W-1)/2,u=rx-b.x0-c,D=b.z1-b.z0,v=b.openZ1?b.z1-1-rz:rz-b.z0,fl=y-G,R=c+0.3,d=Math.hypot(u,fl*0.95);
   if(d>R)return AIR;
   if(d>R-1.1){STRUCT=true;return(v===0&&fl<R-2&&Math.abs(u)<R-1.5)?AIR:b.wall;}
   if(v===D-1){STRUCT=true;return fl%4===2&&Math.abs(u)<2?GLASS:b.wall;}
@@ -681,7 +681,7 @@ function stripOpen(px,pz,roadX,roadZ){
 function jSquare(ix,iz){let n=0;for(let d=0;d<4;d++)if(segOpen(ix,iz,d)&&++n>=2)return true;
   // (where a country highway leaves town on its west or north side, the junction at the edge of town is where it
   // carries on out across the plains)
-  return n===1&&(ghwRow(iz,ix)&&hwLine('x',iz,ix-1)===null||ghwCol(ix,iz)&&hwLine('z',ix,iz-1)===null||dumpGateAt(ix,iz));}
+  return n===1&&(ghwRow(iz,ix)&&hwLine('x',iz,ix-1)===null||ghwCol(ix,iz)&&hwLine('z',ix,iz-1)===null||dumpGateAt(ix,iz)||airportGateAt(ix,iz));}
 // how many streets meet at an intersection
 const jDegC=new Map();
 function jDeg(ix,iz){const k=ix*100003+iz;let v=jDegC.get(k);if(v===undefined){v=0;for(let d=0;d<4;d++)if(segOpen(ix,iz,d))v++;jDegC.set(k,v);}return v;}

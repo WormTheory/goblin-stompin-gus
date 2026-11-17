@@ -209,15 +209,15 @@ const B=spawnK('base');run(3);const V=[...T.venues.values()].find(v=>v.kind==='a
      const v=on?1:0;if(c==='thr+')gp.axes[1]=-v;else if(c==='thr-')gp.axes[1]=v;else if(c==='right')gp.axes[0]=v;else gp.buttons[c==='up'?0:4]={pressed:!!on,value:v};};
    const ctl=(cs,s)=>{for(const c of cs)set(c,true);run(s);for(const c of cs)set(c,false);};
    const N=pad?{'thr+':'stick up','thr-':'stick down',up:'A',down:'LB',right:'stick right'}:{'thr+':'Space','thr-':'C',up:'S',down:'W',right:'D'};
-   console.log('plane on '+(pad?'a controller':'the keyboard')+': ('+Object.entries(N).map(e=>e[0]+' '+e[1]).join(', ')+')');
-   beside(g.position.x,g.position.y+0.2,g.position.z,g.rotation.y,1.25);run(0.05);tap();
+   console.log((pl.light?'two-seater':'airliner')+' on '+(pad?'a controller':'the keyboard')+': ('+Object.entries(N).map(e=>e[0]+' '+e[1]).join(', ')+')');
+   beside(g.position.x,g.position.y+0.2,g.position.z,g.rotation.y,pl.light?0.8:1.25);run(0.05);tap();
    console.log('  in',st(),' this one',P.drv&&P.drv.o===pl);
    // (then put at the start of the runway, so there's room to take off)
-   g.position.set(V.B.ax*32+120,g.position.y,V.B.az*32+28.5);g.rotation.y=Math.PI/2;P.cam.yaw=-Math.PI/2;run(0.2);
+   const lt=V.B.kind==='airfield';g.position.set(V.B.ax*32+(lt?10:120),g.position.y,V.B.az*32+(lt?20:V.B.flip?256-28.5:28.5));g.rotation.y=Math.PI/2;P.cam.yaw=-Math.PI/2;run(0.2);
    const x0=g.position.x,z0=g.position.z;ctl(['thr+'],1.5);console.log('  '+N['thr+']+' 1.5 s: throttle',Math.round(F().thr*100)+'%, rolling at',f1(F().v),' moved',f1(Math.hypot(g.position.x-x0,g.position.z-z0)),' height',ht());
    ctl(['up'],1);console.log('  '+N.up+' (nose up) below take-off speed: height',ht(),' nose up',f1(F().pt));
-   ctl(['thr+'],1);{let t=0,v0=0;set('up',true);while(t<8&&!F().air){run(0.1);t+=0.1;}v0=F().v;run(2);set('up',false);
-    console.log('  full throttle, '+N.up+': off the ground at',f1(v0),' 2 s on: height',ht(),' speed',f1(F().v),' wrecked',pl.dead);}
+   ctl(['thr+'],1);{let t=0,v0=0;set('up',true);while(t<8&&!F().air){run(0.1);t+=0.1;}v0=F().v;const run0=Math.hypot(g.position.x-x0,g.position.z-z0);run(2);set('up',false);
+    console.log('  full throttle, '+N.up+': off the ground at',f1(v0),' after a run of',f1(run0),' 2 s on: height',ht(),' speed',f1(F().v),' wrecked',pl.dead);}
    run(3);{const y=g.position.y;run(2);console.log('  let go: settles level, climb rate',f1(F().vy),' height change over 2 s',f1(g.position.y-y),' speed',f1(F().v));}
    {const h0=g.rotation.y,y=g.position.y;ctl(['right'],1.2);const b=F().rl;run(2);console.log('  '+N.right+' 1.2 s: banked',f1(b),'(right is negative), heading turned',f1(g.rotation.y-h0),' height held to',f1(g.position.y-y));run(2);console.log('  let go 2 s: bank',f1(F().rl));}
    {const y1=g.position.y,v1=F().v;ctl(['down'],1.5);run(1);console.log('  '+N.down+' (nose down) 1.5 s: nose',f1(F().pt),' came down',f1(y1-g.position.y),' speed',f1(v1),'->',f1(F().v));}
@@ -228,10 +228,14 @@ const B=spawnK('base');run(3);const V=[...T.venues.values()].find(v=>v.kind==='a
    let t=0;while(t<40&&!pl.dead&&(t<1||pl.free.vy<0)){run(0.5);t+=0.5;}
    console.log('  left to itself: down after',f1(t),'s, wrecked',pl.dead,' height',ht(),' speed',f1(pl.free.v),' air',pl.free.air,' me on the ground',P.grounded,' crater blocks',T.nEdits-eP);
    if(pad)PAD.length=0;run(3);};
-  fly(V.pl[1],false,V);
+  console.log('airport',V.B.ax,V.B.az,'mirrored',!!V.B.flip,' pilots shown in the moving airliners',V.pl.slice(0,2).map(pl=>pl.g.userData.pilots.every(f=>f.visible)).join(','),' in the parked ones',V.pl[2].g.userData.pilots.some(f=>f.visible));
+  fly(V.pl[2],false,V);
   // (back to the airport, which may have been dropped meanwhile, for the other parked plane)
-  {const q=V.pl[2].g.position;put(q.x+20,q.y+1,q.z+20);run(3);const V2=[...T.venues.values()].find(v=>v.kind==='airport'),pl2=V2&&V2.pl&&V2.pl[2];
-   if(pl2)fly(pl2,true,V2);else console.log('no second parked plane for the controller run');}}}
+  {const q=V.pl[3].g.position;put(q.x+20,q.y+1,q.z+20);run(3);const V2=[...T.venues.values()].find(v=>v.kind==='airport'&&v.B&&v.B.kind==='airport'),pl2=V2&&V2.pl&&V2.pl[3];
+   if(pl2)fly(pl2,true,V2);else console.log('no second parked plane for the controller run');}
+  // ---- a country airfield's two-seater (the one tied down on the apron), on the keyboard
+  {const B2=spawnK('airfield');run(3);const V3=[...T.venues.values()].find(v=>v.kind==='airport'&&v.B&&v.B.kind==='airfield');
+   if(!V3||!V3.pl)console.log('no airfield',!!V3);else{console.log('airfield',V3.B.ax,V3.B.az,' its planes',V3.pl.length,' pilot shown in the one going round',V3.pl[0].g.userData.pilots[0].visible);fly(V3.pl[1],false,V3);}}}}
 }
 console.log('errors',errs.length,errs.slice(0,3));
 `);

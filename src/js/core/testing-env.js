@@ -326,7 +326,7 @@ function tenvMech(){
 }
 function updateTenvPlanes(V,dt){
   for(const pl of V.pl){
-    if(!pl.dead&&pl.g.visible)vDamaged(pl.g.position.x,pl.g.position.y+3,pl.g.position.z,pl.hp/PLANE_HP,dt);
+    if(!pl.dead&&pl.g.visible)vDamaged(pl.g.position.x,pl.g.position.y+3,pl.g.position.z,pl.hp/planeMax(pl),dt);
     if(pl.dead){planeWreck(pl,V,dt);planeBoxes(pl,0);}
     else if(pl.free){drvPlane(pl,dt);if(!pl.dead){planeBoxes(pl,pl.free.v);if(pl.free.v>=2)planeStrike(pl,pl.free.v);}}
     else planeBoxes(pl,0);}

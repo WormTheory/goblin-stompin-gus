@@ -10,6 +10,9 @@ const FOES={
   militia:{name:'Militiaman',label:'Militiaman killed',tunic:0x4a5a2a,pants:0x2a3018,hat:'hardhat',hatc:0x3a4a22,gear:'rifle',held:[0.22,0.22,0.22,0x3a4a22],hp:5,spd:2.8,melee:[1,1.3,'Clubbed with a rifle butt'],
     gun:[3,48,0.55,[1.3,2.2],1,'Shot by the militia'],bomb:[6,24,[6,9],1.6,3.2,3,'Blown up by a grenade'],
     jobs:['Militiaman','Weekend warrior','Self-styled colonel','Sentry','Rifleman','Camo enthusiast','Drill sergeant (unpaid)']},
+  // (an airport's security officers, posted at the checkpoint in each terminal hall: no guns, but they'll tackle you)
+  security:{name:'Security officer',label:'Security officer down',tunic:0x2a3550,pants:0x1c2233,hat:'cap',hatc:0x1c2233,gear:null,hp:4,spd:3.3,melee:[1,1.0,'Tackled by airport security'],
+    jobs:['Airport security officer','Bag screener','Checkpoint supervisor','Behaviour detection officer','Security dog handler (no dog)']},
   // (the aircraft carrier's crew: see carrier-crew.js)
   deckhand:{name:'Deckhand',label:'Deckhand killed',tunic:0xe0c020,pants:0x2a2e3a,hat:'cap',hatc:0xe0c020,gear:null,hp:3,spd:3.4,melee:[1,1.0,'Punched by a deckhand'],
     jobs:['Aircraft handler','Catapult crewman','Plane captain','Fuel handler','Ordnanceman','Chock runner','Landing signal officer','Safety observer']},

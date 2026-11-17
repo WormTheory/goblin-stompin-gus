@@ -261,14 +261,15 @@ function refreshVenues(){
         else{const b=plotInfo(px,pz).b[0],c=(b.x1-b.x0-1)/2;V.pitch={x0:px*CELL+b.x0+c+0.5-13,z0:pz*CELL+b.z0+c+0.5-8,w:26,h:16,y:G+2,long:false};}
         venues.set(k,V);}}
       if(S.kind==='zoo'){const k='z'+px+','+pz;want.add(k);if(!venues.has(k))venues.set(k,{S,kind:'zoo',animals:null});}}
-    // trains on the railways near you; the airports' planes and the launch sites' rockets
+    // trains on the railways near you; the airports' and airfields' planes and the launch sites' rockets
     if(!TENV){const l=routesNearBox(p.pos.x-420,p.pos.z-420,p.pos.x+420,p.pos.z+420),rs=new Set();for(let q=0;q<l.length;q+=2){const R=l[q];if(rs.has(R)||!railOf(R))continue;rs.add(R);
       const k='r'+Math.round(R.pts[0][0])+','+Math.round(R.pts[0][1]);want.add(k);if(venues.has(k))continue;
       const cars2=[];for(let i=0;i<4;i++){const g=makeTrainCar(i===0);scene.add(g);cars2.push(g);}
       venues.set(k,{kind:'train',R,s:45+Math.random()*(R.L-90),dir:Math.random()<0.5?1:-1,v:0,wait:0,cars:cars2});}}
     for(let px=Math.floor((p.pos.x-700)/CELL);px<=Math.floor((p.pos.x+700)/CELL);px+=1)for(let pz=Math.floor((p.pos.z-700)/CELL);pz<=Math.floor((p.pos.z+700)/CELL);pz+=1){
-      if(biomeOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;const B=bigPlainsAt(px,pz);if(!B||B.ax!==px||B.az!==pz||B.kind!=='airport'&&B.kind!=='nasa')continue;const k='b'+px+','+pz;want.add(k);if(venues.has(k))continue;
-      if(B.kind==='airport'){const planes=[];for(let i=0;i<3;i++){const g=makePlane(i);scene.add(g);planes.push(g);}venues.set(k,{kind:'airport',B,planes,st:0,t:0,path:null});}
+      if(biomeOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;const B=bigPlainsAt(px,pz);if(!B||B.ax!==px||B.az!==pz||B.kind!=='airport'&&B.kind!=='airfield'&&B.kind!=='nasa')continue;const k='b'+px+','+pz;want.add(k);if(venues.has(k))continue;
+      if(B.kind==='airport'||B.kind==='airfield'){   // (an airport's airliners: two that come and go, one at each gate; an airfield's three two-seaters)
+        const planes=[],n=B.kind==='airport'?2+AP.gates.length:3;for(let i=0;i<n;i++){const g=B.kind==='airport'?makePlane(i):makeLightPlane(i);scene.add(g);planes.push(g);}venues.set(k,{kind:'airport',B,planes});}
       else{const g=makeRocket();scene.add(g);venues.set(k,{kind:'nasa',B,rocket:g,st:'pad',t:0,y:0,v:0,lastHr:-1});}}
     if(!TENV){const l=routesNearBox(p.pos.x-180,p.pos.z-180,p.pos.x+180,p.pos.z+180),rs=new Set();for(let q=0;q<l.length;q+=2){const R=l[q];if(rs.has(R))continue;rs.add(R);
       for(const ts of tollsOf(R)){const k='t'+Math.round(R.pts[0][0])+','+Math.round(R.pts[0][1])+':'+ts;want.add(k);if(venues.has(k))continue;

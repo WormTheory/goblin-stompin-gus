@@ -37,24 +37,26 @@ function castleColumn(a,col,px,pz,rx,rz,lx,lz,x,z){
   // the bailey: grass, two low outbuildings along the walls
   if((rx===8||rx===23)&&rz>=17&&rz<=21){for(let y=top+1;y<=top+4;y++)col(y,y===top+4?ROOF:wall);}
 }
-// ---- the big sites out on the plains, each over a rectangle of blocks: an airport (6 x 2 blocks, its runway along x), a
+// ---- the big sites out on the plains, each over a rectangle of blocks: an airport (16 x 8 blocks, its runway along x,
+// placed by airportAt just outside a city rather than on a grid, and winning any overlap), a
+// country airfield (4 x 2, a grass strip along x; last in the list, so it never moves any of the others), a
 // space agency's launch site (2 x 3) and a military base (2 x 2). Each sits on its own grid of anchor blocks, and only
 // where the whole rectangle (and a ring of a couple of blocks round it) is open country clear of everything else. ----
-const BIGP=[{kind:'airport',w:14,h:6,p:0.11,salt:11},{kind:'nasa',w:2,h:3,p:0.005,salt:23},{kind:'base',w:4,h:4,p:0.02,salt:37},{kind:'quarry',w:6,h:6,p:0.035,salt:67},{kind:'mine',w:3,h:3,p:0.016,salt:53},{kind:'lumber',w:4,h:3,p:0.018,salt:79},{kind:'campsite',w:2,h:2,p:0.009,salt:83},{kind:'nuclear',w:8,h:8,p:0.1,salt:131},{kind:'cult',w:1,h:1,p:0.0025,salt:97},{kind:'tower5g',w:1,h:1,p:0.004,salt:101},{kind:'prepper',w:2,h:2,p:0.006,salt:103},{kind:'militia',w:2,h:2,p:0.005,salt:107},{kind:'ruins',w:2,h:2,p:0.008,salt:109},{kind:'thieves',w:1,h:1,p:0.002,salt:113}],bigPC=new Map(),bigOK=new Map();
+const BIGP=[{kind:'airport',w:16,h:8,p:0,salt:11},{kind:'nasa',w:2,h:3,p:0.005,salt:23},{kind:'base',w:4,h:4,p:0.02,salt:37},{kind:'quarry',w:6,h:6,p:0.035,salt:67},{kind:'mine',w:3,h:3,p:0.016,salt:53},{kind:'lumber',w:4,h:3,p:0.018,salt:79},{kind:'campsite',w:2,h:2,p:0.009,salt:83},{kind:'nuclear',w:8,h:8,p:0.1,salt:131},{kind:'cult',w:1,h:1,p:0.0025,salt:97},{kind:'tower5g',w:1,h:1,p:0.004,salt:101},{kind:'prepper',w:2,h:2,p:0.006,salt:103},{kind:'militia',w:2,h:2,p:0.005,salt:107},{kind:'ruins',w:2,h:2,p:0.008,salt:109},{kind:'thieves',w:1,h:1,p:0.002,salt:113},{kind:'airfield',w:4,h:2,p:0.012,salt:127}],bigPC=new Map(),bigOK=new Map();
 // is kind i's site (anchored at ax,az) there? (clear of the places, the sea, the roads, the farms... and of the
 // sites of the kinds before it in the list, which win any overlap)
 function bigCell(i,ax,az){
-  const K=BIGP[i],kk=K.kind+ax+','+az;let ok=bigOK.get(kk);if(ok!==undefined)return ok;
+  const K=BIGP[i],kk=K.kind+ax+','+az;if(i===0)return false;let ok=bigOK.get(kk);if(ok!==undefined)return ok;
   ok=hash2(ax*389+K.salt,az*211+K.salt*3)<K.p&&!TEST_OFF.has(K.kind);
   if(ok)for(let a=ax-2;a<ax+K.w+2&&ok;a++)for(let b=az-2;b<az+K.h+2&&ok;b++){const inR=a>=ax&&a<ax+K.w&&b>=az&&b<az+K.h;if(settlementAt(a,b)||seaPlot(a,b)||inR&&railPlot(a,b)||inR&&(farmK(a,b)!==null||tsPlot(a,b)||plotNearLines(a,b,2)||rivPlotNear(a,b)))ok=false;}
-  if(ok)for(let a=ax;a<ax+K.w&&ok;a++)for(let b=az;b<az+K.h&&ok;b++)for(let i2=0;i2<i&&ok;i2++){const K2=BIGP[i2];if(bigCell(i2,Math.floor(a/K2.w)*K2.w,Math.floor(b/K2.h)*K2.h))ok=false;}
-  bigOK.set(kk,ok);return ok;
+  if(ok)for(let a=ax;a<ax+K.w&&ok;a++)for(let b=az;b<az+K.h&&ok;b++)for(let i2=0;i2<i&&ok;i2++){const K2=BIGP[i2];if(i2===0?airportAt(a,b):bigCell(i2,Math.floor(a/K2.w)*K2.w,Math.floor(b/K2.h)*K2.h))ok=false;}
+  if(!apBusy)bigOK.set(kk,ok);return ok;
 }
 function bigPlainsAt(px,pz){
-  const k=px*100003+pz;let v=bigPC.get(k);if(v!==undefined)return v;v=null;
-  for(let i=0;i<BIGP.length;i++){const K=BIGP[i],ax=Math.floor(px/K.w)*K.w,az=Math.floor(pz/K.h)*K.h;
+  const k=px*100003+pz;let v=bigPC.get(k);if(v!==undefined)return v;v=airportAt(px,pz);
+  for(let i=1;i<BIGP.length&&!v;i++){const K=BIGP[i],ax=Math.floor(px/K.w)*K.w,az=Math.floor(pz/K.h)*K.h;
     if(bigCell(i,ax,az)){v={kind:K.kind,ax,az,w:K.w,h:K.h};break;}}
-  bigPC.set(k,v);return v;
+  if(!apBusy)bigPC.set(k,v);return v;
 }
 function bigColumn(col,B,U,V,x,z){
   col(G-1,DIRT);col(G,GRASS);for(let y=G+1;y<G+60;y++)col(y,AIR);
@@ -101,24 +103,8 @@ function bigColumn(col,B,U,V,x,z){
     if(U>=36&&U<=60&&V>=66&&V<=92){col(G,DIRT);if((V-66)%8===0&&U%6<4){col(G+1,PLANKS);col(G+2,PLANKS);}return;}
     if(U>=36&&U<=60&&V>=36&&V<=58){col(G,ASPHALT);return;}   // the motor pool (its row of tanks are vehicles: see armyVenue)
     if(hash2(x*7+1,z*3+5)<0.05)col(G,DIRT);return;}
-  if(B.kind==='airport'){
-    if(fence&&!(V===Hh-2&&U>=78&&U<=82)){for(let y=G+1;y<=G+3;y++)col(y,CHAINLINK);return;}
-    // a second runway along the far side, joined up by taxiways at either end
-    if(V>=124&&V<=133&&U>=112&&U<=W-9){col(G,ASPHALT);if((V===128||V===129)&&U%12<6&&U>120&&U<W-17)col(G,PAINT_WHITE);if((U>=114&&U<=118||U>=W-15&&U<=W-11)&&V>=125&&V<=132&&V%2===1)col(G,PAINT_WHITE);if((V===124||V===133)&&U%8===0)col(G,NEON_Y);return;}
-    if(V>=42&&V<=123&&(U>=124&&U<=127||U>=W-24&&U<=W-21)){col(G,ASPHALT);if(U===125||U===W-22)col(G,PAINT_YELLOW);return;}
-    // the road in from the gate, the long-stay car park beside it, the cargo apron
-    if(U>=78&&U<=82&&V>=77){col(G,ASPHALT);return;}
-    if(U>=30&&U<=76&&V>=128&&V<=180){col(G,ASPHALT);if((U-30)%3===0&&(V-128)%12<5)col(G,LANE);return;}
-    if(U>=36&&U<=76&&V>=80&&V<=118){col(G,ASPHALT);if((U-36)%3===0&&(V-80)%12<5)col(G,LANE);return;}
-    if(U>=160&&U<=W-60&&V>=88&&V<=98){col(G,CONCRETE);return;}
-    if(V>=24&&V<=33&&U>=8&&U<=W-9){col(G,ASPHALT);   // the runway: centre dashes, threshold bars, edge lights
-      if((V===28||V===29)&&U%12<6&&U>16&&U<W-17)col(G,PAINT_WHITE);
-      if((U>=10&&U<=14||U>=W-15&&U<=W-11)&&V>=25&&V<=32&&V%2===1)col(G,PAINT_WHITE);
-      if((V===24||V===33)&&U%8===0)col(G,NEON_Y);return;}
-    if(V>=38&&V<=41&&U>=20&&U<=W-21||V>=34&&V<=37&&(U>=20&&U<=23||U>=110&&U<=113||U>=W-24&&U<=W-21)){col(G,ASPHALT);if((V===39&&U>22&&U<W-23)||(V<38&&(U===21||U===111||U===W-22)))col(G,PAINT_YELLOW);return;}   // the taxiway
-    if(V>=42&&V<=63&&U>=30&&U<=130){col(G,CONCRETE);if((U===48||U===80||U===112)&&V<60)col(G,PAINT_YELLOW);return;}   // the apron
-    if(V>=64&&V<=76&&U>=30&&U<=100&&!(U>=66&&U<94&&V<76)&&!(U>=34&&U<62&&V<76)){col(G,ASPHALT);return;}   // the car park and the drop-off
-    return;}
+  if(B.kind==='airport'){airportColumn(col,B,U,V,x,z,W,Hh,fence);return;}
+  if(B.kind==='airfield'){airfieldColumn(col,B,U,V,x,z,W,Hh);return;}
   // the space agency
   if(fence&&!(V===1&&U>=40&&U<=43)){for(let y=G+1;y<=G+3;y++)col(y,CHAINLINK);return;}
   if(U>=40&&U<=43&&V<=4||U>=40&&U<=43&&V>=20&&V<=24){col(G,ASPHALT);return;}

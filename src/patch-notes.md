@@ -13,6 +13,16 @@
 - All five are in the debug menu's vehicle list, and solid against every other vehicle like the rest.
 - Airliners are bigger, about half as long again, to sit in proportion with the rest of the city's vehicles (about two-thirds of the real thing, as the cars, buses and tanks are). The fighter jet is in the same proportion, a little longer than a tank.
 
+### Airports and airfields
+
+- Airports have been rebuilt, bigger (16 by 8 blocks), and now sit just outside the big cities, one at most to a city, where one of its streets runs out of town straight to the terminal's drop-off road and car park.
+- A terminal of six glass halls, each with check-in desks, a security checkpoint with metal detectors and bag scanners, and a departures lounge with its gate desk, coffee bar and seats looking out on the apron. Jet bridges reach out to the airliners parked at the gates. There's a control tower, three hangars, a fuel farm and a cargo shed.
+- Security officers stand at each hall's checkpoint. They let you walk through, but hurt one and they all come for you.
+- A runway with a parallel taxiway. Two airliners take turns flying: one taxis out, takes off and flies off over the horizon, the other comes in to land and taxis back to its stand, and neither moves while the other is using the runway.
+- New: small country airfields out on the plains, with a grass strip, a windsock, a fuel pump, a hangar and a flying club's clubhouse (a desk, sofas, a briefing table and lockers, and a bathroom). Each has three two-seater planes: one flying circuits round the field, one tied down on the apron and one in the hangar.
+- Two-seaters can be flown like the airliners: slower and lighter on the controls, they take off in a short run from grass and stall at much lower speeds.
+- Every airport and airfield plane shows a pilot in the cockpit while it's flying or taxiing, and has a health bar.
+
 ### An aircraft carrier (Testing Environment)
 
 - An aircraft carrier joins the debug menu's vehicle list (Testing Environment only for now): 178 blocks long and 40 across its flight deck, about three-quarters the size of a real supercarrier. It gets a sea twice the size of the barge's, which grows away from you if a smaller one is already there.

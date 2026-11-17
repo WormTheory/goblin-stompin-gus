@@ -1,51 +1,57 @@
-// Airplanes: stand on a parked one's wing and body, ride the flying one its whole round trip, wreck them. node planeride.js
+// Airports and airfields: where the airports go (by a city, joined to its street), standing on a parked plane, riding the
+// one going round its whole round trip, whether anything going round clips the buildings or the parked planes, the
+// pilots shown, the checkpoint's security, wrecking and replacing. node planeride.js
 const fs=require('fs');
 let hdr=fs.readFileSync('stairs.js','utf8').split('\n');
 const n=hdr.findIndex(l=>l.startsWith('eval(src);'));
-hdr=hdr.slice(0,n).join('\n').replace(/window\.__t=\{/,'window.__t={G0:G,plotInfo,venues,bigPlainsAt,damageCar,TRAIN_BOXES,get scoreNow(){return score},');
+hdr=hdr.slice(0,n).join('\n').replace(/window\.__t=\{/,'window.__t={G0:G,plotInfo,venues,bigPlainsAt,damageCar,settlementAt,jSquare,ASPHALT,LANE,rawGet,planeDim,get scoreNow(){return score},');
 eval(hdr+`
 eval(src);const T=window.__t,G0=T.G0;let now=1000;
 const [A]=T.players;for(const f of els.play.L.click)f();pads.length=0;A.hp=9999;
-let keepG=null;const quiet=()=>{for(const g of T.goblins)if(g.state==='chase'&&g!==keepG){g.state='wait';g.t=-1e9;g.root.visible=false;}};
+const quiet=()=>{for(const g of T.goblins)if(g.state==='chase'&&!g.homeV){g.state='wait';g.t=-1e9;g.root.visible=false;}};
 const step=k=>{for(let i=0;i<k;i++){if(A.state!=='dead')A.hp=9999;quiet();now+=16.7;T.frame(now);}};
-let B=null;for(let r=0;r<500&&!B;r++)for(let i=-r;i<=r&&!B;i++)for(const [x,z] of [[i,-r],[i,r],[-r,i],[r,i]]){const q=T.bigPlainsAt(x,z);if(q&&q.kind==='airport'){B=q;break;}}
-if(!B){console.log('no airport');process.exit(0);}
-const X0=B.ax*32,Z0=B.az*32;console.log('airport at',B.ax,B.az);
-for(let i=0;i<200;i++){A.pos.set(X0+100,70,Z0+70);A.vy=0;step(1);}
-const V=[...T.venues.values()].find(v=>v.kind==='airport'&&v.B===B||v.kind==='airport'&&v.B.ax===B.ax&&v.B.az===B.az);if(!V||!V.pl){console.log('no planes',!!V,[...T.venues.values()].map(v=>v.kind).join(','));process.exit(0);}
+const f1=v=>(+v).toFixed(1);
+const find=(kind,flip)=>{for(let r=0;r<600;r++)for(let i=-r;i<=r;i++)for(const [x,z] of [[i,-r],[i,r],[-r,i],[r,i]]){const q=T.bigPlainsAt(x,z);if(q&&q.kind===kind&&(flip===undefined||!!q.flip===flip))return q;}return null;};
 const drop=(x,y,z)=>{A.state='walk';A.grounded=false;A.mvx=A.mvz=0;A.vy=0;A.pos.set(x,y,z);};
-// a parked plane: drop on the body, then on a wing, then walk under the wing
-{const g=V.pl[1].g;drop(g.position.x,g.position.y+7,g.position.z);step(90);console.log('parked, body:','on plane',!!(A.standCar&&A.standCar.isPlane),'height above its wheels',(A.pos.y-g.position.y).toFixed(2));
- drop(g.position.x+7,g.position.y+5,g.position.z-.6);step(90);console.log('parked, wing:','on plane',!!(A.standCar&&A.standCar.isPlane),'height',(A.pos.y-g.position.y).toFixed(2));
- drop(g.position.x+7,g.position.y+.2,g.position.z+.6);step(30);console.log('under the wing: on plane',!!(A.standCar&&A.standCar.isPlane),'height',(A.pos.y-g.position.y).toFixed(2));}
-// the moving one: on board at the gate, for a whole round trip
-{const pl=V.pl[0],g=pl.g;V.path=null;step(2);drop(g.position.x,g.position.y+3.9,g.position.z);step(30);
- let t=0,off=0,maxH=0,lastI=-1,seq=[],far=0,turnMax=0,lastH=g.rotation.y,hid=0;while(t<320){const on=!!(A.standCar&&A.standCar.T===pl);if(!on)off++;step(6);t+=.1;maxH=Math.max(maxH,g.position.y-45);if(V.i!==lastI){seq.push(V.i);lastI=V.i;}far=Math.max(far,Math.hypot(g.position.x-X0,g.position.z-Z0));if(!g.visible)hid++;
-  if(!on){drop(g.position.x,g.position.y+3.9,g.position.z);}
-  const d=Math.atan2(Math.sin(g.rotation.y-lastH),Math.cos(g.rotation.y-lastH));turnMax=Math.max(turnMax,Math.abs(d));lastH=g.rotation.y;if(seq.length>22)break;}
- console.log('round trip',t.toFixed(0)+'s','checks off the plane',off,'of',Math.round(t*10),'highest',maxH.toFixed(0),'furthest from the airport',far.toFixed(0),'hidden',hid,'biggest turn in a tenth of a second',turnMax.toFixed(2),'waypoints',seq.join(','));}
-// does anything clip? the flying plane's whole round trip, without a rider, against the buildings and the parked planes
-{const pl=V.pl[0],g=pl.g,rects=[];for(let a=0;a<B.w;a++)for(let c=0;c<B.h;c++){const Pq=T.plotInfo(B.ax+a,B.az+c),ox=X0+a*32,oz=Z0+c*32;for(const b of Pq.b)rects.push([ox+b.x0,ox+b.x1,oz+b.z0,oz+b.z1,b.ground+'/'+b.style]);}console.log('airport buildings',rects.length,JSON.stringify(rects.filter(R=>/terminal|hangar/.test(R[4])).slice(0,6).map(R=>[R[0]-X0,R[2]-Z0,R[4]])));
- const pts=(g2)=>{const h=g2.rotation.y,tx=Math.sin(h),tz=Math.cos(h),o=[];for(let a=-9;a<=9;a+=1)o.push([g2.position.x+tx*a,g2.position.z+tz*a]);for(let c=-10;c<=10;c+=1)o.push([g2.position.x+tx*.6+tz*c,g2.position.z+tz*.6-tx*c]);return o;};
- for(const i of [1,2]){const hit={};for(const [x,z] of pts(V.pl[i].g))for(const R of rects)if(x>=R[0]&&x<R[1]&&z>=R[2]&&z<R[3])hit[R[4]]=1;console.log('parked plane',i,'at',(V.pl[i].g.position.x-X0),(V.pl[i].g.position.z-Z0),'inside',JSON.stringify(Object.keys(hit)));}
- A.pos.set(X0+100,90,Z0+70);A.vy=0;V.path=null;step(2);const hits={},seen=new Set();let t2=0,lastI=-1;const P1=pts(V.pl[1].g).concat(pts(V.pl[2].g));
- while(t2<300){A.pos.set(Math.max(X0-300,Math.min(X0+500,g.position.x)),120,g.position.z);A.vy=0;step(3);t2+=.05;if(V.i!==lastI){seen.add(V.i);lastI=V.i;}if(g.position.y>G0+1)continue;
-  for(const [x,z] of pts(g)){for(const R of rects)if(x>=R[0]&&x<R[1]&&z>=R[2]&&z<R[3])hits[R[4]]=(hits[R[4]]||0)+1;for(const [a,c] of P1)if(Math.hypot(a-x,c-z)<.6)hits.parked=(hits.parked||0)+1;}if(seen.size>=19&&V.i===0)break;}
- console.log('taxi and runway clips',JSON.stringify(hits),'after',t2.toFixed(0)+'s','waypoints seen',seen.size);}
-// a goblin and a car in its way, on the taxiway
-{const pl=V.pl[0],g=pl.g;V.path=null;step(2);V.i=2;V.pos={u:112,v:39.5,h:0};V.sp=7;V.hd=Math.PI;A.pos.set(X0+100,90,Z0+70);A.vy=0;step(3);
- const gb=T.goblins.find(q=>!q.civ&&!q.staff&&!q.medic&&!q.ff&&!q.cop)||T.goblins[0],c=T.cars.find(q=>q.alive&&!q.svc&&!q.isTrain)||T.cars[0];
- const put=()=>{const h=g.rotation.y,tx=Math.sin(h),tz=Math.cos(h);return [g.position.x+tx*14,g.position.z+tz*14];};
- keepG=gb;const [gx,gz]=put();gb.state='chase';gb.hp=9999;gb.stun=0;gb.root.visible=true;gb.civ=false;gb.pos.set(gx,g.position.y,gz);gb.vy=0;gb.trainT=0;
- const hp0=gb.hp;let t3=0,ghit=false;while(t3<6&&!ghit){gb.pos.set(gx,g.position.y,gz);gb.state='chase';gb.root.visible=true;step(3);t3+=.05;if(gb.hp<hp0)ghit=true;}
- keepG=null;console.log('goblin in the way: hit',ghit,'damage',hp0-gb.hp,'after',t3.toFixed(1)+'s','thrown up',gb.vy.toFixed(1),'plane speed',V.sp.toFixed(0));
- V.i=3;V.pos={u:140,v:28.5,h:0};V.sp=24;V.hd=Math.PI/2;step(3);
- const [cx,cz]=put();c.alive=true;c.hp=9999;c.trainT=0;c.speed=0;c.pos.set(cx,g.position.y,cz);const hc=c.hp;let t4=0,chit=false;while(t4<4&&!chit){c.pos.set(cx,g.position.y,cz);step(2);t4+=.033;if(c.hp<hc)chit=true;}
- console.log('car in the way: hit',chit,'damage',hc-c.hp,'after',t4.toFixed(1)+'s','plane speed',V.sp.toFixed(0));}
-// wrecking: a parked one, by repeated hits, and the flying one in the air
-{const pl=V.pl[2],p0=pl.pr[0],s0=T.scoreNow;A.pos.set(X0+100,60,Z0+60);let hits=0;while(!pl.dead&&hits<100){T.damageCar(p0,40);hits++;}console.log('parked wrecked after',hits,'hits of 40, score',T.scoreNow-s0,'alive flag',p0.alive);step(5);console.log('  proxy alive now',p0.alive);}
-{const pl=V.pl[0],g=pl.g;V.path=null;step(2);V.i=7;V.pos={u:300,v:28.5,h:60};V.sp=70;step(10);const y0=g.position.y;drop(g.position.x,g.position.y+3.9,g.position.z);step(10);T.damageCar(pl.pr[0],999);let t=0;while(pl.fall&&t<20){step(6);t+=.1;}console.log('shot down at height',(y0-45).toFixed(0),'hit the ground after',t.toFixed(1)+'s','at',(g.position.y-45).toFixed(1),'player on it',!!(A.standCar&&A.standCar.T===pl));
- for(let i=0;i<50;i++)step(6);pl.deadT=121;A.pos.set(X0+5000,120,Z0+5000);step(5);console.log('replaced after 2 minutes out of sight',!pl.dead);}
+for(const [kind,flip] of [['airport',false],['airport',true],['airfield',undefined]].filter((c,i)=>!process.env.ONLY||process.env.ONLY.includes(i))){
+ const B=find(kind,flip);if(!B){console.log('no',kind,flip);continue;}
+ const X0=B.ax*32,Z0=B.az*32,W=B.w*32,H=B.h*32,ap=kind==='airport';
+ console.log('==== '+kind+(ap?(B.flip?' (city to its north, mirrored)':' (city to its south)'):'')+' at',B.ax,B.az,B.w+'x'+B.h);
+ if(ap){// the road in: through the gate and on into the town's street, paved all the way
+  const ix=B.ax+B.i,x=ix*32+3,zs=B.flip?[Z0-40,Z0-20,Z0-4,Z0+2,Z0+30,Z0+60]:[Z0+H+40,Z0+H+20,Z0+H+3,Z0+H-3,Z0+H-30,Z0+H-60];
+  console.log('  town plots beyond the gate:',[-1,0,1].map(d=>!!T.settlementAt(ix+d,B.flip?B.az-1:B.az+B.h)).join(','),' the junction paved',B.flip?'(inside the fence)':T.jSquare(ix,B.az+B.h));
+  console.log('  road surface from town to the drop-off:',zs.map(z=>{const b=T.rawGet(x,G0,z);return b===T.ASPHALT||b===T.LANE?'road':'block '+b;}).join(', '));}
+ for(let i=0;i<200;i++){A.pos.set(X0+W/2,70,Z0+H/2);A.vy=0;step(1);}
+ const V=[...T.venues.values()].find(v=>v.kind==='airport'&&v.B&&v.B.ax===B.ax&&v.B.az===B.az);if(!V||!V.pl){console.log('  no planes',!!V);continue;}
+ const pk=V.pl.filter(pl=>pl.park),fl=V.pl.filter(pl=>pl.fly);
+ console.log('  planes',V.pl.length,'(going round',fl.length+', parked',pk.length+')  health',V.pl.map(pl=>pl.hp).join(','),' pilots shown in the ones going round',fl.map(pl=>pl.g.userData.pilots.every(f=>f.visible)).join(','),' in the parked',pk.some(pl=>pl.g.userData.pilots.some(f=>f.visible)));
+ if(ap){const G2=[...T.venues.values()].find(v=>v.kind==='guards'&&v.key==='g'+B.ax+','+B.az);console.log('  security posts',G2?G2.posts.length:0,' on duty',G2?G2.slots.filter(Boolean).length:0,' foe',G2&&G2.foe,' posts inside the terminal',G2?G2.posts.filter(F=>{const z=F.z-Z0;return B.flip?z>256-124&&z<256-98:z>98&&z<124;}).length:0);}
+ // the buildings, to check against
+ const rects=[];for(let a=0;a<B.w;a++)for(let c=0;c<B.h;c++){const Pq=T.plotInfo(B.ax+a,B.az+c),ox=X0+a*32,oz=Z0+c*32;for(const b of Pq.b)rects.push([ox+b.x0,ox+b.x1,oz+b.z0,oz+b.z1,b.ground+'/'+b.style]);}
+ console.log('  buildings',rects.length,' kinds',[...new Set(rects.map(R=>R[4]))].join(' '));
+ const pts=pl=>{const g2=pl.g,Q=T.planeDim(pl),h=g2.rotation.y,tx=Math.sin(h),tz=Math.cos(h),o=[];for(let a=-Q.hz;a<=Q.hz;a+=0.5)o.push([g2.position.x+tx*a,g2.position.z+tz*a]);for(let c=-Q.wx;c<=Q.wx;c+=0.5)o.push([g2.position.x+tx*Q.wo+tz*c,g2.position.z+tz*Q.wo-tx*c]);return o;};
+ for(const pl of pk){const hit={};for(const [x,z] of pts(pl))for(const R of rects)if(x>=R[0]&&x<R[1]&&z>=R[2]&&z<R[3])hit[R[4]]=1;console.log('  parked at',f1(pl.g.position.x-X0),f1(pl.g.position.z-Z0),'facing',f1(pl.g.rotation.y),' inside',JSON.stringify(Object.keys(hit)));}
+ // a parked plane: drop on the body, then on a wing
+ {const pl=pk[0],g=pl.g,Q=T.planeDim(pl);drop(g.position.x,g.position.y+Q.hy+3,g.position.z);step(90);console.log('  health',V.pl.map(pl=>pl.hp).join(','));console.log('  parked, body: on plane',!!(A.standCar&&A.standCar.isPlane),' height above its wheels',f1(A.pos.y-g.position.y));
+  drop(g.position.x+Q.wx*0.8,g.position.y+Q.wy+3,g.position.z+Math.cos(g.rotation.y)*Q.wo);step(90);console.log('  parked, wing: on plane',!!(A.standCar&&A.standCar.isPlane),' height',f1(A.pos.y-g.position.y));}
+ // the one going round: its whole round trip without a rider, watched from above it, for clipping and how it goes
+ {A.standCar=null;const pl=fl[0],g=pl.g,S=pl.fly,L=S.path.length;S.i=0;S.t=0;S.sp=0;S.pos={u:S.path[1][0],v:S.path[1][1],h:0};
+  const hits={},seen=new Set(),sq=[];let t=0,maxH=0,hid=0,far=0,pil=0,mv=0,out=0,lastI=-1,laps=0;const P1=[].concat(...pk.map(pts));
+  while(t<900){A.pos.set(Math.max(X0-300,Math.min(X0+W+300,g.position.x)),G0+260,g.position.z);A.vy=0;step(3);t+=.05;
+   if(S.i!==lastI){if(S.i===0&&lastI>0)laps++;seen.add(S.i);lastI=S.i;sq.push(S.i);}if(laps)break;
+   maxH=Math.max(maxH,g.position.y-G0-1);if(!g.visible)hid++;far=Math.max(far,Math.hypot(g.position.x-X0-W/2,g.position.z-Z0-H/2));
+   if(g.visible&&S.path[S.i][0]!=='wait'){mv++;if(g.userData.pilots.every(f=>f.visible))pil++;}
+   if(g.position.y>G0+1.5||!g.visible)continue;const u=g.position.x-X0,v=g.position.z-Z0;if(u<0||u>W||v<0||v>H)out++;
+   for(const [x,z] of pts(pl)){for(const R of rects)if(x>=R[0]&&x<R[1]&&z>=R[2]&&z<R[3])hits[R[4]]=(hits[R[4]]||0)+1;for(const [a,c] of P1)if(Math.hypot(a-x,c-z)<.6)hits.parked=(hits.parked||0)+1;}}
+  console.log('  round trip',f1(t)+'s, waypoints',seen.size,'of',L,' highest',f1(maxH),' furthest',f1(far),' hidden',f1(hid*.05)+'s',' pilot shown',pil+'/'+mv,' on the ground off the site',out,' clips',JSON.stringify(hits),' order',sq.join(','),' health',V.pl.map(pl=>pl.hp).join(','));}
+ // riding it: on board at its stand, the whole way round
+ {const pl=fl[0],g=pl.g,S=pl.fly,Q=T.planeDim(pl);S.i=0;S.t=0;S.sp=0;S.pos={u:S.path[1][0],v:S.path[1][1],h:0};step(2);drop(g.position.x,g.position.y+Q.hy+1.6,g.position.z);step(30);
+  let t=0,off=0,n=0,seq=0,lastI=S.i;while(t<900){const on=!!(A.standCar&&A.standCar.T===pl);n++;if(!on){off++;drop(g.position.x,g.position.y+Q.hy+1.6,g.position.z);}step(6);t+=.1;if(S.i!==lastI){seq++;if(S.i===0)break;lastI=S.i;}}
+  console.log('  ridden round:',f1(t)+'s, checks off the plane',off,'of',n,' waypoints',seq,' health',V.pl.map(pl=>pl.hp).join(','));}
+ // wrecking: a parked one, and it's replaced once out of sight a while
+ {console.log('  health now',V.pl.map(pl=>pl.dead?'dead':pl.hp).join(','));const pl=pk.find(q=>!q.dead)||pk[0],p0=pl.pr[0],s0=T.scoreNow;A.pos.set(pl.g.position.x+30,G0+40,pl.g.position.z+30);let hits=0;while(!pl.dead&&hits<100){T.damageCar(p0,40);hits++;}
+  console.log('  parked one wrecked after',hits,'hits of 40, score',T.scoreNow-s0);for(let i=0;i<50;i++)step(6);pl.deadT=121;A.pos.set(X0+5000,G0+120,Z0+5000);step(5);console.log('  replaced after 2 minutes out of sight',!pl.dead,' health',pl.hp);}
+}
 console.log('done');
 `);
 process.exit(0);

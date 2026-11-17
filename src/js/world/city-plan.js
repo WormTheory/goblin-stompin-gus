@@ -744,7 +744,7 @@ function plotInfo(px,pz){
     // its rows of desks and screens, the big board, a ticker running across the back wall
     const b=base({x0:PL0+1,x1:PL1-1,z0:PL0+6,z1:PL1-1,gf:9,top:G+9,wall:MARBLE,win:WIN_WARM,band:MARBLE,kind:'office',ground:'stocks',floor:MARBLE,door:2});
     b.doorSpec={w:1,h:4,k:'wood'};b.detailTop=b.top-1;brandOn(b,'stocks',r(150));b.ticker=true;p.b.push(b);p.b.push(portico(b,4,G+8));
-  } else if(type==='nuclear'||type==='base'||type==='airport'||type==='nasa'||type==='mine'||type==='quarry'||type==='lumber'||type==='campsite'||type==='cult'||type==='tower5g'||type==='prepper'||type==='militia'||type==='ruins'||type==='thieves'){
+  } else if(type==='nuclear'||type==='base'||type==='airport'||type==='airfield'||type==='nasa'||type==='mine'||type==='quarry'||type==='lumber'||type==='campsite'||type==='cult'||type==='tower5g'||type==='prepper'||type==='militia'||type==='ruins'||type==='thieves'){
     // the buildings of a big plains site that fall on this block (each laid out in the site's own coordinates, and
     // only the ones inside this block built here)
     const B=bigPlainsAt(px,pz),U0=(px-B.ax)*CELL,V0=(pz-B.az)*CELL;
@@ -786,15 +786,8 @@ function plotInfo(px,pz){
     else if(type==='lumber'){
       add({x0:40,x1:62,z0:14,z1:30,top:G+8,wall:PLANKS,win:PLANKS,band:LOG,kind:'shop',ground:'shop',floor:PLANKS,door:3,doorSpec:{w:1,h:4,k:'barn'}});           // the sawmill
       for(const [x0,z0] of [[10,6],[22,6]])add({x0,x1:x0+8,z0,z1:z0+7,style:'house',roof:3,top:G+FH,wall:LOG,win:WIN_WARM,kind:'apartment',ground:'apartment',floor:PLANKS,door:3,doorSpec:{w:0,h:3,k:'wood'}});}   // the loggers' cabins
-    else if(type==='airport'){
-      add({x0:66,x1:94,z0:64,z1:76,gf:7,top:G+7+FH,wall:PAINT_WHITE,win:GLASS,band:METAL,kind:'office',ground:'terminal',floor:FLOORT,door:3,doorSpec:{w:1,h:4,k:'glass'},glassAll:true},'airport');
-      add({x0:100,x1:105,z0:54,z1:59,top:G+30,style:'ctrl',wall:CONCRETE,win:GLASS,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
-      add({x0:132,x1:150,z0:50,z1:64,top:G+12,style:'hangar',wall:METAL,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
-      add({x0:164,x1:182,z0:50,z1:64,top:G+12,style:'hangar',wall:PAINT_WHITE,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
-      add({x0:34,x1:62,z0:64,z1:76,gf:7,top:G+7+FH,wall:PAINT_WHITE,win:GLASS,band:METAL,kind:'office',ground:'terminal',floor:FLOORT,door:3,doorSpec:{w:1,h:4,k:'glass'},glassAll:true});
-      add({x0:388,x1:406,z0:50,z1:64,top:G+12,style:'hangar',wall:METAL,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
-      for(const ux of [164,196,228,260,292,324,356])add({x0:ux,x1:ux+24,z0:68,z1:88,top:G+12,style:'hangar',wall:[METAL,CONCRETE,RUST][(ux>>2)%3],win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});
-      for(const uz of [100,108])for(const ux of [130,140])add({x0:ux,x1:ux+7,z0:uz,z1:uz+7,top:G+7,style:'tank',wall:PAINT_WHITE,win:METAL,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2,doorSpec:null,noIndoor:true});}
+    else if(type==='airport')airportBuildings(add,B);
+    else if(type==='airfield')airfieldBuildings(add);
     else{
       add({x0:3,x1:30,z0:4,z1:30,gf:50,top:G+56,wall:PAINT_WHITE,win:PAINT_WHITE,band:PAINT_BLUE,kind:'landmark',ground:'landmark',floor:CONCRETE,door:3,doorSpec:null,noIndoor:true,blank:true,vab:true},'nasa');
       add({x0:36,x1:60,z0:4,z1:20,top:G+2*FH,wall:CONCRETE,win:WIN_BLUE,kind:'office',ground:'mission',floor:FLOORT,door:2,doorSpec:{w:1,h:4,k:'glass'}});}

@@ -10,6 +10,8 @@ function drvName(D){if(D.netN)return D.netN;const o=D.o;   // (D.netN: a guest o
   if(D.k==='ship')return o.K.name;
   if(D.k==='mount')return o.K.name;
   if(D.k==='plane'&&o.jet)return'fighter jet';
+  if(D.k==='plane'&&o.light)return'two-seater plane';
+  if(D.k==='plane'&&!o.jet)return'airliner';
   return DRV_NAME[D.k];
 }
 // the key (or button) that gets you in and out, as bound
@@ -430,7 +432,9 @@ function vehHurt(o,n){if(o.isMil)milHit(o,n);else damageCar(o,n,undefined,'acc')
 // pitch, rl the bank (positive turning left), gm the flight path's climb angle, vy its climb rate
 const PLANE_LIFT=34,PLANE_G=14,PLANE_KL=0.07,PLANE_AOA=0.32,PLANE_THRUST=20,PLANE_DRAG=0.003;
 // is the wing stalled? too slow, or pulled up too steeply for the air going past it
-const planeStalled=F=>F.air&&(F.v<20||F.pt-F.gm>PLANE_AOA);
+const planeStalled=(F,pl)=>F.air&&(F.v<(pl&&pl.light?LIGHT_FLY.stall:20)||F.pt-F.gm>PLANE_AOA);
+// (a two-seater: lighter on the controls, a far smaller engine, and a wing that carries it at much lower speeds)
+const LIGHT_FLY={kl:0.17,lift:16,stall:11,roll:1.6,rl:1.1,pitch:0.8,thr:10,vmax:46};
 function drvPlane(pl,dt){
   if(pl.ai&&jetAI(pl,dt))return;   // (a carrier's pilot flying it: carrier-jets.js)
   const F=pl.free,g=pl.g,P=g.position,p=pl.drv,i=p?drvIn(p):null,fly=p||pl.ai;
@@ -438,7 +442,7 @@ function drvPlane(pl,dt){
   const btn=i?(i.jump?1:0)-(i.climb||i.charge?1:0):0,kb=i&&i.kbd;   // (the keyboard swaps the stick's up/down and the buttons over)
   const tin=i?(kb?btn:-i.z):0,bank=i?-i.x:0,up=i?(kb?i.z:btn):0;
   // (a fighter jet: rolls and pulls far harder, and has the engines to go about twice as fast)
-  const J=pl.jet,ROLL=J?2.8:1.0,RL=J?1.4:1.05,PITCH=J?1.2:0.5,THR=J?PLANE_THRUST*4.2:PLANE_THRUST,VMAX=J?185:90;
+  const J=pl.jet,LT=pl.light?LIGHT_FLY:null,ROLL=J?2.8:LT?LT.roll:1.0,RL=J?1.4:LT?LT.rl:1.05,PITCH=J?1.2:LT?LT.pitch:0.5,THR=J?PLANE_THRUST*4.2:LT?LT.thr:PLANE_THRUST,VMAX=J?185:LT?LT.vmax:90,KL=LT?LT.kl:PLANE_KL,LIFT=LT?LT.lift:PLANE_LIFT;
   // (the sea's surface counts as ground; so does sea level, out where nothing's been built yet)
   const wetAt=(x,z)=>!chunks.has(ckey(Math.floor(x/CS),Math.floor(z/CS)))||get(x,G,z)===WATER?G+1:0,gnd=(x,z,y)=>Math.max(groundAt(x,z,y),wetAt(x,z));
   const air=P.y>gnd(P.x,P.z,P.y+1)+0.05;F.air=air;
@@ -452,13 +456,13 @@ function drvPlane(pl,dt){
     // bank: rolled with A/D, easing back level when let go
     if(bank)F.rl+=bank*ROLL*dt;else F.rl-=F.rl*Math.min(1,dt*(J?1.6:0.7));F.rl=Math.max(-RL,Math.min(RL,F.rl));
     // the nose: pulled up or pushed down, or (let go) eased to the angle that flies it level, through a turn too
-    const trim=Math.min(PLANE_AOA*0.9,PLANE_G/(PLANE_KL*v*v*Math.max(0.35,Math.cos(F.rl))));
+    const trim=Math.min(PLANE_AOA*0.9,PLANE_G/(KL*v*v*Math.max(0.35,Math.cos(F.rl))));
     if(!p)F.pt+=(F.gm-0.25-F.pt)*Math.min(1,dt*0.8);   // (nobody flying it: the nose sags and down it comes)
     else if(up)F.pt+=up*PITCH*dt;else F.pt+=(trim-F.pt)*Math.min(1,dt*0.6);
-    const stall=planeStalled(F);if(stall)F.pt-=0.9*dt;   // (a stalled wing: the nose falls through)
+    const stall=planeStalled(F,pl);if(stall)F.pt-=(LT?1.4:0.9)*dt;   // (a stalled wing: the nose falls through)
     F.pt=Math.max(-0.6,Math.min(0.7,F.pt));
     // lift, square on to the wing, from the speed and its angle to the air; beyond the stall it falls away
-    const aoa=F.pt-F.gm,cl=stall?Math.max(0,Math.min(aoa,PLANE_AOA))*0.45:Math.max(-0.3,Math.min(aoa,PLANE_AOA)),L=PLANE_KL*v*v*cl;
+    const aoa=F.pt-F.gm,cl=stall?Math.max(0,Math.min(aoa,PLANE_AOA))*0.45:Math.max(-0.3,Math.min(aoa,PLANE_AOA)),L=KL*v*v*cl;
     F.gm+=(L*Math.cos(F.rl)-PLANE_G*Math.cos(F.gm))/v*dt;F.gm=Math.max(-1.3,Math.min(1.1,F.gm));
     h+=L*Math.sin(F.rl)/(v*Math.max(0.3,Math.cos(F.gm)))*dt;
     // speed: thrust against drag (more of it the harder the wing's working) and gravity along the way it's going
@@ -470,8 +474,8 @@ function drvPlane(pl,dt){
     F.rl-=F.rl*Math.min(1,dt*6);h+=bank*dt*Math.min(0.9,0.25+F.v*0.05);
     const brake=p&&tin<-0.1&&F.thr<0.05?22:1.5+(p?0:3);
     F.v+=(F.thr*THR-PLANE_DRAG*v*v)*dt;F.v-=Math.min(F.v,brake*dt);
-    if(up>0&&F.v>=PLANE_LIFT*0.8)F.pt=Math.min(0.25,F.pt+0.5*dt);else F.pt+=(0-F.pt)*Math.min(1,dt*3);
-    const L=PLANE_KL*v*v*Math.max(0,Math.min(F.pt,PLANE_AOA));
+    if(up>0&&F.v>=LIFT*0.8)F.pt=Math.min(0.25,F.pt+0.5*dt);else F.pt+=(0-F.pt)*Math.min(1,dt*3);
+    const L=KL*v*v*Math.max(0,Math.min(F.pt,PLANE_AOA));
     F.gm=L>PLANE_G?Math.min(0.2,(L-PLANE_G)/v):0;
     if(pl.jet){jetTrapCheck(pl,p);if(pl.trap)jetTrapTick(pl,dt);else if(p)jetCatCheck(pl,p);}   // (a carrier's wires and catapults: carrier-jets.js)
   }

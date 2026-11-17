@@ -1,11 +1,12 @@
 // ---- the people of the compounds and hideouts: real goblins the whole time (their own kinds: FOES), standing about,
 // watching from the towers, at their posts. Come close, or hurt one, and the lot of them come for you ----
-const FIG_STYLE={militia:{foe:'militia',rouse:30},prepper:{foe:'prepper',rouse:22},thieves:{foe:'thief',rouse:14}};
+const FIG_STYLE={militia:{foe:'militia',rouse:30},prepper:{foe:'prepper',rouse:22},thieves:{foe:'thief',rouse:14},airport:{foe:'security',rouse:0}};   // (rouse: how near you can come before they go for you; airport security only when one's hurt)
 // where each kind of site keeps its people (site coordinates, and the height they stand at)
 function sitePeople(B){
   if(B.kind==='militia')return [[5,5,G+11],[B.w*CELL-6,5,G+11],[5,B.h*CELL-6,G+11],[B.w*CELL-6,B.h*CELL-6,G+11],[31,6,G+1],[34,6,G+1],[24,37,G+1],[40,44,G+1],[20,22,G+1]];
   if(B.kind==='prepper')return [[56,7,G+10],[31.5,10,G+1],[16,25,G+1]];
   if(B.kind==='thieves')return [[16,9,G+1],[22,15,G+1],[11,8,G+1],[18,21,G+1]];
+  if(B.kind==='airport')return AP.gates.map(u=>[u-0.5,apV(B,AP.term.z0+9),G+1]);   // (one at each terminal hall's checkpoint, airside of it: see the terminal's props)
   return [];
 }
 function refreshSiteVenues(p,want){
@@ -17,9 +18,9 @@ function refreshSiteVenues(p,want){
       venues.set(key,{kind:'wind',rotor:g,sp:0.55+hash2(Math.floor(px/7),Math.floor(pz/7))*0.4,ck:ckey(Math.floor((px*CELL+16)/CS),Math.floor((pz*CELL+16)/CS))});}}}
   for(let px=Math.floor((p.pos.x-150)/CELL);px<=Math.floor((p.pos.x+150)/CELL);px++)for(let pz=Math.floor((p.pos.z-150)/CELL);pz<=Math.floor((p.pos.z+150)/CELL);pz++){
     if(biomeOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;
-    const B=bigPlainsAt(px,pz);if(!B||B.ax!==px||B.az!==pz||!FIG_STYLE[B.kind])continue;
-    const key='g'+px+','+pz;want.add(key);if(venues.has(key))continue;
-    const posts=sitePeople(B).map(([u,v,y],i)=>({x:B.ax*CELL+u+0.5,z:B.az*CELL+v+0.5,y,h0:hash2(px+i,pz*3+i)*6.28}));
+    const B=bigPlainsAt(px,pz);if(!B||!FIG_STYLE[B.kind]||(B.ax!==px||B.az!==pz)&&B.kind!=='airport')continue;   // (an airport's too big to wait till its corner's in reach)
+    const key='g'+B.ax+','+B.az;want.add(key);if(venues.has(key))continue;
+    const posts=sitePeople(B).map(([u,v,y],i)=>({x:B.ax*CELL+u+0.5,z:B.az*CELL+v+0.5,y,h0:hash2(B.ax+i,B.az*3+i)*6.28}));
     const V={kind:'guards',key,style:B.kind,foe:FIG_STYLE[B.kind].foe,posts,slots:posts.map(()=>null),slain:posts.map(()=>false),X0:B.ax*CELL,Z0:B.az*CELL,cx:B.ax*CELL+B.w*CELL/2,cz:B.az*CELL+B.h*CELL/2,roused:false,awayT:0};
     // (the militia's technicals and four-wheelers: see crewSite)
     if(B.kind==='militia'){V.vspots=CREW_SPOTS.map(S=>({t:S.t,x:V.X0+S.u,z:V.Z0+S.v,h:S.h}));V.vcar=V.vspots.map(()=>null);V.vgone=V.vspots.map(()=>false);}
