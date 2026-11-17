@@ -84,13 +84,13 @@ function shipForget(slot){
   lastK=-1;
 }
 // a new ship, at x,z in the world facing yaw, in the first free slot of the pocket
-function makeShip(kind,x,z,yaw){
+function makeShip(kind,x,z,yaw,Kw){
   let slot=0;while(SHIPS[slot])slot++;
-  const K=SHIP_KINDS[kind],grp=new THREE.Group(),pg=new THREE.Group();
+  const K=Kw||SHIP_KINDS[kind],grp=new THREE.Group(),pg=new THREE.Group();   // (Kw: a kind of its own, a wreck broken off one: ship-break.js)
   shipForget(slot);
   const S={isShip:true,n:++shipSerial,kind,K,slot,ox:SHIP_X0+SHIP_SLOT/2,oz:slot*SHIP_SLOT+SHIP_SLOT/2,x,z,yaw,sp:0,ord:0,rud:0,yr:0,telD:0,telT:0,groundT:0,hp:K.hp,dead:false,deadT:0,sk:0,leak:0,drv:null,grp,pg,V:null,bx:null};
   pg.position.set(-S.ox,0,-S.oz);pg.shipPg=true;grp.add(pg);grp.position.set(x,0,z);grp.rotation.y=yaw;scene.add(grp);grp.updateMatrixWorld(true);
-  SHIPS[slot]=S;shipN++;shipPropsDraw(S);shipCrewInit(S);shipJetsInit(S);
+  SHIPS[slot]=S;shipN++;shipHullInit(S);shipPropsDraw(S);shipCrewInit(S);shipJetsInit(S);
   return S;
 }
 let shipSerial=0;   // (each ship's own number: a new one in an old one's slot isn't taken for it)
@@ -116,8 +116,9 @@ function shipFits(S,x,z,yaw){
 function updateShips(V,dt){
   for(const S of [...V.ships]){
     if(S.dead){shipSinking(S,V,dt);continue;}
-    if(S.leak&&!drvSafe(S))S.hp-=S.leak*SHIP_LEAK*dt;
+    if(S.leak&&!S.hull&&!drvSafe(S))S.hp-=S.leak*SHIP_LEAK*dt;   // (one that breaks up only floods where it's holed: ship-break.js)
     if(S.hp<=0){shipSink(S);continue;}
+    if(S.hull&&S.hull.brk&&shipBreakCheck(S))continue;
     shipHelmIn(S,dt);shipDrive(S,dt);
     S.grp.position.set(S.x,0,S.z);S.grp.rotation.y=S.yaw;S.grp.updateMatrixWorld(true);
     shipBoxes(S);if(S.propsT>0&&(S.propsT-=dt)<=0)shipPropsDraw(S);shipPropsFall(S,dt);shipCrewTick(S,dt);shipJetsTick(S,dt);
@@ -188,11 +189,11 @@ const SHIP_LEAK=0.04;   // (health a second for each hole below the waterline)
 // the boxes that stand for a ship out in the world (in TRAIN_BOXES, so shots, blasts and other vehicles meet it: nobody
 // stands on them, since anyone that close has been taken aboard)
 function shipBoxes(S){
-  const K=S.K;if(!K.boxes||S.dead)return;const tx=Math.sin(S.yaw),tz=Math.cos(S.yaw);
+  const K=S.K;if(!K.boxes||S.brk&&S.brk.tilt)return;const tx=Math.sin(S.yaw),tz=Math.cos(S.yaw),sk=S.sk;   // (going down, still level: they go down with it, so the Mobile Gear stood on it rides it down too)
   if(!S.bx)S.bx=K.boxes.map((b,i)=>{const hx=(b[1]+1-b[0])/2,hz=(b[3]+1-b[2])/2;
     return{u:(b[0]+b[1]+1)/2,w:(b[2]+b[3]+1)/2,hx,hz,y0:b[4],y1:b[5],pr:{isTrain:true,isShipBox:true,alive:true,pos:new V3(),kv:new V3(),vy:0,spinP:0,spinR:0,speed:0,hurt:0,hx,hz,hy:b[5]-b[4],heading:0,top:0,veh:'ship',T:S,i}};});
-  for(const B of S.bx){const pr=B.pr,x=S.x+B.u*tz+B.w*tx,z=S.z-B.u*tx+B.w*tz;pr.pos.set(x,B.y0,z);pr.heading=S.yaw;pr.top=B.y1;pr.speed=S.sp;
-    TRAIN_BOXES.push({x,z,tx,tz,y0:B.y0,top:B.y1,v:S.sp,hx:B.hx,hz:B.hz,proxy:pr});}
+  for(const B of S.bx){const pr=B.pr,x=S.x+B.u*tz+B.w*tx,z=S.z-B.u*tx+B.w*tz;pr.pos.set(x,B.y0-sk,z);pr.heading=S.yaw;pr.top=B.y1-sk;pr.speed=S.sp;
+    TRAIN_BOXES.push({x,z,tx,tz,y0:B.y0-sk,top:B.y1-sk,v:S.sp,hx:B.hx,hz:B.hz,proxy:pr});}
   mountBoxes(S);   // (its deck weapons: carrier-crew.js)
 }
 // hit from outside (trainHit): the number shown where it struck, on the piece it struck. A ship that's only sunk by
@@ -207,6 +208,7 @@ function shipDent(x,y,z,b){
   const S=shipOfPos(x,z);if(!S||S.dead||b!==AIR)return b;const o=rawGet(x,y,z);if(!o||o===WATER)return b;
   if(S.props&&!(S.propsT>0))S.propsT=0.3;   // (anything stood on it goes too: looked over a moment later, once the smash is done)
   const safe=drvSafe(S);   // (Invulnerability, at its helm: its blocks still go, but not its health)
+  if(S.hull){if(!safe)shipHullDent(S,y,z);if(y<G){S.leak++;return WATER;}return b;}   // (one that breaks up: only its hull counts, ship-break.js)
   if(y<G){S.leak++;if(!safe)S.hp-=3;return WATER;}
   if(!safe)S.hp-=1;return b;
 }
@@ -288,6 +290,8 @@ function shipSinking(S,V,dt){
   const K=S.K,T=K.hp>=1000?45:16;S.deadT+=dt;
   const k=Math.min(1,S.deadT/T);S.sk=K.sink*k*k;S.sp*=Math.exp(-dt*0.5);
   S.grp.position.set(S.x,-S.sk,S.z);S.grp.updateMatrixWorld(true);
+  if(S.brk)shipWreckTilt(S,dt);   // (a wreck broken off one: level while anyone's on it, then tipping, ship-break.js)
+  if(k<1)shipBoxes(S);
   if(Math.random()<dt*(K.hp>=1000?10:3)){shipToWorld(S,S.ox+K.u0+Math.random()*(K.u1+1-K.u0),S.oz+K.w0+Math.random()*(K.w1+1-K.w0),_sv);
     puff(_sv.x,G+1,_sv.z,2,0xcfe8ff,.8);if(k<0.6&&Math.random()<0.5)smoke(_sv.x,G+4,_sv.z,2,0x262626);}
   for(const p of players)if(p.active&&shipOf(p)===S&&p.pos.y-S.sk<G+0.3)shipMove(p,S,false,true);

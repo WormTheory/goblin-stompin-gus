@@ -96,7 +96,7 @@ function shipCrewTick(S,dt){
   if(V.alarmT>0){V.alarmT-=dt;V.alarmK-=dt;if(V.alarmK<=0&&audio&&dmin<200){V.alarmK=0.9;sfx('General quarters alarm',()=>{tone('sawtooth',560,360,0.6,0.06);tone('square',280,180,0.6,0.025);});}}
   // (at their posts while anyone's near enough to see them: each post filled when someone's within 60 of it; with general
   // quarters sounded, the marines and sailors still turn out, straight after you, but the deck crew have gone below)
-  if(playing)for(let i=0;i<V.posts.length;i++){if(V.slots[i]||V.slain[i])continue;const P=V.posts[i];if(V.roused&&P.k==='deckhand')continue;
+  if(playing)for(let i=0;i<V.posts.length;i++){if(V.slots[i]||V.slain[i]||V.posts[i].cut)continue;const P=V.posts[i];if(V.roused&&P.k==='deckhand')continue;
     if(!players.some(p=>p.active&&shipDist(p,P.x,P.z)<60))continue;
     const g=freeFoe(P.k,16);if(!g)break;foeSpawn(g,P.k,V,i,P.jersey?{tunic:P.jersey,hatShown:P.jersey,hat:P.jersey}:null);
     g.post=P;g.hold=P.k==='marine'&&P.y>G+20;if(V.roused){g.gunCD=0.8+Math.random()*1.5;g.bombCD=3+Math.random()*3;}g.pos.set(P.x,P.y,P.z);g.heading=P.h0;g.stroll=0;g.root.position.copy(g.pos);V.slots[i]=g;}
