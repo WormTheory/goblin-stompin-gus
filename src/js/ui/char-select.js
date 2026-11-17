@@ -22,9 +22,9 @@ function charNote(){let co=false;try{co=inCoop()&&!P2.net;}catch(e){}
 // the 2P tag on player two's, so you can see who the other player is (picking theirs swaps you over).
 const csSeat=()=>{let two=false;try{two=menuP2();}catch(e){}return two?1:0;};
 // what each character can do, for the strip under the cards (a hippo's from the ability switches as they are now)
-const CS_GOB_MOVES=['Club','Dagger','Rifle','Grenades','Dash','Drive anything'];
 function csMoves(c){
-  if(charGob(c))return CS_GOB_MOVES;
+  if(charGob(c)){const L=GOB_LOADS[csSeat()];   // (a goblin's: the weapons chosen for him, then what every goblin can do)
+    return[...GOB_WPN_ORDER.filter(k=>L.w[k]).map(k=>WEAPONS[k].name),...(L.gren?[L.gren+' '+WEAPONS.grenade.name.toLowerCase()]:[]),'Dash','Drive anything'];}
   const A=ABILS[csSeat()],L=[];   // (the switches of whoever's menu it is)
   if(A.bite)L.push(A.biteCombo?'Bite combo':'Bite');
   if(A.stomp)L.push(A.fullStomp?'Full charge stomp':A.chargeStomp?'Charge stomp':'Stomp');
@@ -48,7 +48,7 @@ function renderChar(){
       k.classList.toggle('p1',c===CHAR);k.classList.toggle('p2',co&&c===c2);
       const pic=k.querySelector('.cs-pic');if(pic&&!pic.dataset.done){pic.dataset.done='1';pic.className='cs-pic '+sprCls(pic.dataset.spr,6);}}}
   const n=document.getElementById('charNote');if(n)n.textContent=charNote();
-  renderAbil();   // (the ability switches shown are this menu's player's)
+  renderAbil();renderGwpn();charSecs();   // (the ability switches or goblin weapons shown are this menu's player's)
   // (the moves strip: whoever's highlighted, or the seat's pick)
   {const f=document.activeElement,fc=f&&f.closest&&f.closest('#charRow .cs-card'),c=fc?fc.dataset.c:seat?c2:CHAR;
    const h=document.getElementById('csCanH'),m=document.getElementById('csMoves');

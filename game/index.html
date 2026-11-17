@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:d5e148ccd854345073820d445a9d81c8dacfefe534ddcb1e919807d289374002 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:41a1129efa60843767d955e8c9e207500346e55915734205cd6355da4793e178 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1037,48 +1037,59 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
    off it to the right (a "+1" or "+2" coin: how many steps up from the basic move). No tick boxes: a move that's on is
    in full colour, one that's off greyed out but still readable, with the word On or Off (or what it needs) in its corner
    for anyone who can't tell the colours apart. Player one's moves are Gus green, player two's (in their own menu) pink */
-#abilNote{color:#4a3a4d;font:500 14px/1.4 var(--f-body)}
-#abilList{gap:9px;margin-top:4px}
-#abilList .ab-h,#abilList .ab-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.1fr);gap:10px 16px;align-items:start}
-#abilList .ab-h span{font-size:18px;line-height:1;color:var(--ink);text-transform:uppercase}
-#abilList .ab-h span+span{padding-left:26px}
-#abilList .ab-up{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch;position:relative;padding-left:26px;min-height:46px}
+#abilNote,#gwpnNote{color:#4a3a4d;font:500 14px/1.4 var(--f-body)}
+:is(#abilList,#gwpnList){gap:9px;margin-top:4px}
+:is(#abilList,#gwpnList) .ab-h,:is(#abilList,#gwpnList) .ab-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.1fr);gap:10px 16px;align-items:start}
+:is(#abilList,#gwpnList) .ab-h span{font-size:18px;line-height:1;color:var(--ink);text-transform:uppercase}
+:is(#abilList,#gwpnList) .ab-h span+span{padding-left:26px}
+:is(#abilList,#gwpnList) .ab-up{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch;position:relative;padding-left:26px;min-height:46px}
 /* (the dashed lead from the basic move to its upgrades) */
-#abilList .ab-up::before{content:"";position:absolute;left:0;top:22px;width:15px;border-top:3px dashed var(--ink)}
-#abilList .ab-up::after{content:"";position:absolute;left:14px;top:17px;border:6px solid transparent;border-left:8px solid var(--ink);border-right:0}
-#abilList .ab-up:empty::before,#abilList .ab-up:empty::after{display:none}
-#abilList .tog{position:relative;display:flex;align-items:flex-start;gap:8px;padding:8px 10px;color:var(--ink);background:#fffaf0;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);transition:background-color .12s,transform .12s}
-#abilList .tog:hover{transform:translateY(-1px)}
-#abilList .tog:active{transform:translateY(1px)}
-#abilList .tog .tl{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
-#abilList .tog .nm{font:400 19px/1 var(--f-px);letter-spacing:.5px;text-transform:uppercase}
-#abilList .tog small{font:500 12px/1.3 var(--f-body);color:#4a3a4d}
-#abilList .tog .st{flex:none;font:400 13px/1 var(--f-px);letter-spacing:.4px;text-transform:uppercase;padding:3px 6px 2px;border:2px solid var(--ink);border-radius:6px 8px 5px 9px;background:var(--paper);white-space:nowrap}
+:is(#abilList,#gwpnList) .ab-up::before{content:"";position:absolute;left:0;top:22px;width:15px;border-top:3px dashed var(--ink)}
+:is(#abilList,#gwpnList) .ab-up::after{content:"";position:absolute;left:14px;top:17px;border:6px solid transparent;border-left:8px solid var(--ink);border-right:0}
+:is(#abilList,#gwpnList) .ab-up:empty::before,:is(#abilList,#gwpnList) .ab-up:empty::after{display:none}
+:is(#abilList,#gwpnList) .tog{position:relative;display:flex;align-items:flex-start;gap:8px;padding:8px 10px;color:var(--ink);background:#fffaf0;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);transition:background-color .12s,transform .12s}
+:is(#abilList,#gwpnList) .tog:hover{transform:translateY(-1px)}
+:is(#abilList,#gwpnList) .tog:active{transform:translateY(1px)}
+:is(#abilList,#gwpnList) .tog .tl{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+:is(#abilList,#gwpnList) .tog .nm{font:400 19px/1 var(--f-px);letter-spacing:.5px;text-transform:uppercase}
+:is(#abilList,#gwpnList) .tog small{font:500 12px/1.3 var(--f-body);color:#4a3a4d}
+:is(#abilList,#gwpnList) .tog .st{flex:none;font:400 13px/1 var(--f-px);letter-spacing:.4px;text-transform:uppercase;padding:3px 6px 2px;border:2px solid var(--ink);border-radius:6px 8px 5px 9px;background:var(--paper);white-space:nowrap}
 /* a basic move: a big card */
-#abilList .ab-base{min-height:46px}
-#abilList .ab-base[aria-checked="true"]{background:#d9f3b8}
-#abilList .ab-base[aria-checked="true"] .st{background:var(--gus)}
-#abilList[data-seat="1"] .ab-base[aria-checked="true"]{background:#fde0d8}
-#abilList[data-seat="1"] .ab-base[aria-checked="true"] .st{background:var(--pink)}
+:is(#abilList,#gwpnList) .ab-base{min-height:46px}
+:is(#abilList,#gwpnList) .ab-base[aria-checked="true"]{background:#d9f3b8}
+:is(#abilList,#gwpnList) .ab-base[aria-checked="true"] .st{background:var(--gus)}
+:is(#abilList,#gwpnList)[data-seat="1"] .ab-base[aria-checked="true"]{background:#fde0d8}
+:is(#abilList,#gwpnList)[data-seat="1"] .ab-base[aria-checked="true"] .st{background:var(--pink)}
 /* an upgrade: a yolk token with its coin */
-#abilList .ab-tok{flex:1 1 230px;padding-left:44px;border-radius:14px 18px 12px 16px/16px 12px 18px 14px;border-style:solid}
-#abilList .ab-tok[aria-checked="true"]{background:#fff0b0}
-#abilList .ab-tok[aria-checked="true"] .st{background:var(--yolk)}
-#abilList .ab-tok .lv{position:absolute;left:7px;top:6px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font:400 14px/1 var(--f-px);font-style:normal;color:var(--ink);background:var(--yolk);border:3px solid var(--ink);box-shadow:inset 0 -3px 0 rgba(0,0,0,.14)}
+:is(#abilList,#gwpnList) .ab-tok{flex:1 1 230px;padding-left:44px;border-radius:14px 18px 12px 16px/16px 12px 18px 14px;border-style:solid}
+:is(#abilList,#gwpnList) .ab-tok[aria-checked="true"]{background:#fff0b0}
+:is(#abilList,#gwpnList) .ab-tok[aria-checked="true"] .st{background:var(--yolk)}
+:is(#abilList,#gwpnList) .ab-tok .lv{position:absolute;left:7px;top:6px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font:400 14px/1 var(--f-px);font-style:normal;color:var(--ink);background:var(--yolk);border:3px solid var(--ink);box-shadow:inset 0 -3px 0 rgba(0,0,0,.14)}
 /* off: greyed out, still readable (the name and description stay well over 4.5:1 on the grey) */
-#abilList .tog[aria-checked="false"]{background:#e2dadb;border-color:#6e5f70;box-shadow:3px 3px 0 #6e5f70;color:#4b3c4e}
-#abilList .tog[aria-checked="false"] small{color:#594a5b}
-#abilList .tog[aria-checked="false"] .st,#abilList .tog[aria-checked="false"] .lv{background:#cbc1c4;border-color:#6e5f70;color:#4b3c4e}
-#abilList .tog[aria-checked="false"] .lv{box-shadow:none}
+:is(#abilList,#gwpnList) .tog[aria-checked="false"]{background:#e2dadb;border-color:#6e5f70;box-shadow:3px 3px 0 #6e5f70;color:#4b3c4e}
+:is(#abilList,#gwpnList) .tog[aria-checked="false"] small{color:#594a5b}
+:is(#abilList,#gwpnList) .tog[aria-checked="false"] .st,:is(#abilList,#gwpnList) .tog[aria-checked="false"] .lv{background:#cbc1c4;border-color:#6e5f70;color:#4b3c4e}
+:is(#abilList,#gwpnList) .tog[aria-checked="false"] .lv{box-shadow:none}
 /* an upgrade whose basic move is off: greyed, and dashed round, as it can't do anything yet */
-#abilList .tog.dim{border-style:dashed;box-shadow:none}
-#abilList .tog:focus-visible,#pause #abilList .tog.padfocus{outline:4px dashed var(--yolk)!important;outline-offset:3px;box-shadow:0 0 0 3px var(--ink)!important}
-#abilList .ab-or{align-self:center;font:400 16px/1 var(--f-px);text-transform:uppercase;color:var(--ink)}
+:is(#abilList,#gwpnList) .tog.dim{border-style:dashed;box-shadow:none}
+:is(#abilList,#gwpnList) .tog:focus-visible,#pause :is(#abilList,#gwpnList) .tog.padfocus{outline:4px dashed var(--yolk)!important;outline-offset:3px;box-shadow:0 0 0 3px var(--ink)!important}
+:is(#abilList,#gwpnList) .ab-or{align-self:center;font:400 16px/1 var(--f-px);text-transform:uppercase;color:var(--ink)}
 /* (the landings: no switch of their own, every hippo lands; just the upgrades to how) */
-#abilList .ab-lbl{display:flex;flex-direction:column;gap:4px;padding:10px 12px;border:3px dashed rgba(43,27,46,.4);border-radius:var(--wobs)}
-#abilList .ab-lbl .nm{font-size:19px;line-height:1;color:var(--ink);text-transform:uppercase}
-#abilList .ab-lbl small{font:500 12.5px/1.35 var(--f-body);color:#4a3a4d}
-@media (prefers-reduced-motion:reduce){#abilList .tog{transition:none}#abilList .tog:hover,#abilList .tog:active{transform:none}}
+:is(#abilList,#gwpnList) .ab-lbl{display:flex;flex-direction:column;gap:4px;padding:10px 12px;border:3px dashed rgba(43,27,46,.4);border-radius:var(--wobs)}
+:is(#abilList,#gwpnList) .ab-lbl .nm{font-size:19px;line-height:1;color:var(--ink);text-transform:uppercase}
+:is(#abilList,#gwpnList) .ab-lbl small{font:500 12.5px/1.35 var(--f-body);color:#4a3a4d}
+@media (prefers-reduced-motion:reduce){:is(#abilList,#gwpnList) .tog{transition:none}:is(#abilList,#gwpnList) .tog:hover,:is(#abilList,#gwpnList) .tog:active{transform:none}}
+/* (a goblin's weapons: two cards a row, under a heading for each kind) */
+#gwpnList .ab-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+#gwpnList .ab-h{grid-template-columns:1fr;margin-top:6px}
+/* (the grenade count: a card across the row, with a minus and plus either side of the number) */
+#gwpnList .gl-cnt{grid-column:1/-1;align-items:center;cursor:default}
+#gwpnList .gl-cnt:hover{transform:none}
+#gwpnList .gl-b{flex:none;width:40px;height:40px;font:400 24px/1 var(--f-px);color:var(--ink);background:var(--paper);border:3px solid var(--ink);border-radius:9px 12px 8px 13px;box-shadow:2px 2px 0 var(--ink);cursor:pointer}
+#gwpnList .gl-b:hover{background:var(--yolk)}
+#gwpnList .gl-b[aria-disabled="true"]{opacity:.45;cursor:default}
+#gwpnList .gl-n{flex:none;min-width:64px;text-align:center;font:400 22px/1 var(--f-px)}
+#gwpnList .gl-b:focus-visible,#pause #gwpnList .gl-b.padfocus{outline:4px dashed var(--yolk)!important;outline-offset:3px;box-shadow:0 0 0 3px var(--ink)!important}
 @container (max-width:640px){#abilList .ab-h{display:none}#abilList .ab-row{grid-template-columns:1fr}#abilList .ab-up{margin-left:18px}}
 .card .pmenu,.confirm button{background:var(--biscuit);color:var(--ink);border:3px solid var(--ink);border-radius:8px 11px 7px 12px/11px 7px 12px 8px;box-shadow:0 3px 0 var(--ink)}
 .confirm button.yes{background:var(--tomato);border-color:var(--ink)}
@@ -1443,6 +1454,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <div class="cs-moves paper wob"><span class="px" id="csCanH">GUS CAN:</span><div class="cs-chips" id="csMoves"></div></div>
         <div class="cs-note" id="charNote"></div>
       </div>
+      <div id="abilSec">
       <h2>ABILITIES</h2>
       <p class="vnote" id="abilNote">Tap a move to switch it on or off.</p>
       <div class="abil2" id="abilList">
@@ -1457,6 +1469,12 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <div class="ab-row" role="group" aria-label="Air Dash and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="airDash"><span class="tl"><b class="nm">Air Dash</b><small>A roaring burst forward in mid-air</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="blastAirDash" data-base="airDash"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Blast Air Dash</b><small>The air dash goes off with an explosion out of his backside: faster and much further, smashing through blocks and blasting enemies aside</small></span><span class="st" aria-hidden="true"></span></button></div></div>
         <div class="ab-row" role="group" aria-label="Spider Climb"><button type="button" class="tog ab-base" role="switch" data-k="climb"><span class="tl"><b class="nm">Spider Climb</b><small>Cling to walls and ceilings</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"></div></div>
         <div class="ab-row ab-any" role="group" aria-label="Upgrades for every move"><div class="ab-lbl"><b class="nm px">Landings</b><small>Every hippo lands. These change how.</small></div><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="crash"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Crash Landing</b><small>Falling five blocks or more, you slam down on whatever you land on (off: you just land)</small></span><span class="st" aria-hidden="true"></span></button><button type="button" class="tog ab-tok" role="switch" data-k="noFall"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Fall damage immunity</b><small>Long falls don't hurt (ground pounds never do)</small></span><span class="st" aria-hidden="true"></span></button></div></div>
+      </div>
+      </div>
+      <div id="gwpnSec" hidden>
+      <h2>LOADOUT</h2>
+      <p class="vnote" id="gwpnNote">Tap a weapon to carry it or leave it behind.</p>
+      <div class="abil2" id="gwpnList"></div>
       </div>
     </div>
     </div>
@@ -1556,6 +1574,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <ul><li>The first step toward an aircraft carrier: a test barge, in the debug menu's vehicle list (Testing Environment only for now). Spawning it lays out a square of deep sea ahead of you, if there isn't one yet, and floats the barge on it.</li><li>It's built of real blocks, like a building, so everything works aboard it while it sails and turns: walking, jumping, climbing, fighting, and smashing holes in its deck. A wheelhouse at the stern has steel stairs up to its roof, a rail runs round the deck, and crates are stacked on the foredeck.</li><li>Swim out and climb aboard up the steps of the swim platform at the stern, or jump down on to the deck from above. Swim away from it and you're back in the open sea.</li><li>As Gnash or Grizzle, stand at the helm inside the wheelhouse's front window and press F (controller Y) to take the controls: it's driven the same way as the aircraft carrier, with the engine telegraph and the rudder, but it's much quicker to speed up, slow down and turn.</li><li>Goblins aboard chase you round the deck as anywhere else, and goblins in the sea swim out to it and climb aboard after you.</li></ul>
 <h3>Mobile Gear (Testing Environment)</h3>
 <ul><li>A new vehicle to try out in the Testing Environment: the Mobile Gear, an armoured walker eight blocks tall. Pick it from the vehicle buttons in the Testing Environment tab and it's set down in front of you. Only Gnash and Grizzle can pilot it for now.</li><li>Walk up and press F (controller Y) to climb in. Hold F for half a second to climb out, so a stray tap won't throw you out mid-fight.</li><li>It moves where the camera points, with the view from behind and above it so the crosshair sits in the middle of the screen and you can see over its head. On foot it sets off slowly and builds up into a jog, its strides lengthening and its arms swinging, stepping whichever way you're going, backwards and sideways included. Standing still, its legs stay planted as you look around until its body has turned too far on them, then they step round to catch up. Press C (controller B) to switch boost on and it drops into a wide, braced crouch and skates along the ground three times as fast, at no cost. Everything is about a fifth faster than it was.</li><li>Shift (controller X) is a quick boost: a sharp burst in the direction you're holding, or straight back with nothing held, taken in the same braced skating crouch as boosting, then easing off smoothly rather than stopping dead. Each one costs energy.</li><li>Space (controller A) jumps: it dips into a quick crouch, pushes off, tucks its legs up and swings them out beneath it. Holding it flies upward on the thrusters. In the air it leans well into the way it's flying, its legs hang nearly straight, swept back behind it the faster it goes, and its back and calf thrusters tip down to hold it up. With boost on in the air it glides instead of dropping.</li><li>Thrusters run on the energy gauge, a thin bar right across the bottom of the lock box round the crosshair. Empty it and it redlines: the bar flashes red and you can't boost or fly until it recovers. Energy comes back quickly once you stop drawing on it, and faster on the ground.</li><li>It leans into the way it's going, and its thrusters fire from whichever side pushes it there: the back ones going forward, the side ones strafing, the chest ones going backwards. Its legs fold up smoothly as it leaves the ground and its feet stay planted flat, up and down steps too. Skating over a pit, its feet ease over the gap rather than dropping to the bottom. Its thruster flames taper to a point.</li><li>It steps up one-block ledges on foot and two-block ledges while boosting. Run into a wall or a building while boosting and it smashes a hole and carries on; at full boost it ploughs straight through with barely a stumble. Walking into one just stops it. Anything small in its way gets trampled, and a hard landing knocks goblins over.</li><li>It's armed, with a weapon on each trigger. Each has its own load and reloads by itself once it's empty. Above the speedometer, in the bottom corner, each weapon's button, what it has loaded and its name are laid out as they're carried (shoulders above, arms below), in a panel that keeps the same size whatever it says, and up either side of the lock box round the crosshair a tall gauge for each weapon shows how full it is, or how far along its reload is. The gauges and the energy bar are see-through, so they don't hide what you're aiming at: - Right click (controller RB): the Rivet Rifle in its right hand. Hold it for a steady stream of rounds. Its rounds chip at walls: about half the time a round breaks the block it hits. - Left click (controller LB): the Heat Cleaver on its left arm. It lunges forward (at a locked target if one's close, ending with it in reach), easing smoothly off rather than halting, then swings. The lunge adds to however you're already moving, so walking or boosting you keep going through the attack. It reaches across to its right side, its whole upper body turning with it and its right arm lifting out of the way, the blade ignites from its left hand, a flat blade held level, and it whips the blade from right to left in a wide, level arc round in front of it that cuts down goblins, tears into vehicles and slices clean through walls. The swing follows your aim: locked on to something low, or looking down, it bends forward at the hips and slices downward, so it can reach goblins below it and cut into the ground; aimed high it leans back and slices upward. The blade retracts into its hand as it settles back. It needs a moment to cool between swings. - Q (controller LT): the Swarm Pod on its left shoulder. Hold it and the pod locks on to whatever's in the lock box, up to four locks, then let go and a homing missile flies at each. With nothing locked, a tap fires one where you're aiming. - E (controller RT): the Breaker Cannon on its right shoulder. On the ground it stops, braces and swings the cannon over its shoulder before firing a heavy shell that blasts a crater. In the air it fires at once and the kick shoves it backwards. It sits up on a post, so firing low it clears the Gear's own chest.</li><li>Lock-on: anything in the box round the crosshair is picked out by itself, and the rifle and blade aim at it, leading a moving target. Middle click (controller R3) holds on to it with a hard lock, and the camera turns to keep it in view while you move round it. Press it again to let go.</li><li>It has 600 health. Wreck it and you're thrown out.</li><li>X (controller L3) is the assault boost. It crouches and glows for a moment with a rising whine, then dashes off fast straight where you're aiming, up or down too, turning only slowly after your aim. Its weapons still fire on the way. It costs a chunk of energy to start and keeps drawing on it, and it smashes straight through walls. Press it again, or pull back, to stop.</li><li>Press it again near the target you're locked on to and it flies at it with a kick instead: not much damage, but it'll nearly always stagger what it hits.</li><li>Staggering: every hit fills a target's impact meter, which drains again once the hits stop. A full meter staggers it for 2 seconds: it can't move or shoot, and takes half again as much damage. Heavy blows (the kick, the Breaker Cannon, the Heat Cleaver) fill it faster. Tanks, helicopters and the Mobile Gear itself can all be staggered.</li><li>Your own impact meter is the thinner bar under the energy bar, with STAGGERED flashing under it while you are. A locked tank or helicopter shows its health and its impact meter under its bracket.</li><li>R (controller D-pad down) uses a repair kit, putting back 35% of its health over a second. Each Mobile Gear carries three, and the controls list on the left says how many are left.</li><li>Co-op: each player can climb into a Mobile Gear of their own, and two of them bump into each other rather than walking through.</li><li>Online: a guest sees the host's Mobile Gears move, stride, fire their thrusters and swing their weapons, and can climb in and pilot one, with its own display.</li><li>Redlined, its thrusters cough and sputter until the energy comes back.</li><li>Its thrusters make a steady roar while they burn, instead of a string of clicks. It's quiet, and swells and dies away with the flames.</li><li>It gets going quicker from a standstill, and no longer gets stuck walking slowly into a step or a ledge (it used to end up wedged in it, and only a jump or a quick boost got it free).</li><li>Its lock-on picks out tanks, helicopters, an aircraft carrier's deck weapons and its jets in the air twice as far off as goblins, and holds a lock on them that far too.</li><li>Pick its loadout in the Testing Environment tab, under "Mobile Gear loadout": each of its four weapon slots has a second choice. The left arm can carry a second Rivet Rifle instead of the Heat Cleaver; the right arm a Scrap Shotgun (a spread of pellets, short-ranged and hard-hitting); the left shoulder a Rocket Volley (a stream of unguided rockets, no locking needed); and the right shoulder a Clod Lobber (shells lobbed high on to whatever you aim at, more of them than the cannon and no bracing). Your choice is remembered, and only Mobile Gears spawned after it carry it.</li><li>Its controls can be rebound in Options, in their own "Piloting a Mobile Gear" section. The weapon buttons are now named by slot (left arm, right shoulder and so on), since the loadout decides what's in each.</li><li>Mobile Gears aren't kept when you leave the Testing Environment.</li><li>While you're piloting, the controls line for on foot is hidden.</li><li>Getting into any vehicle or gun seat no longer pops up a card of its controls on the right: they're all in the list down the left, including a helicopter's climb and drop, flying a plane, and the fire buttons.</li><li>The Mobile Gear is now solid against boats (it used to walk straight through them) and every other vehicle, and can stand on any of them: a boat, a train, a plane, a tank, another Mobile Gear. Stood on something that moves, it's carried along.</li><li>Its guns now fire from the ends of their barrels wherever the arms happen to be pointing, and the arms swing round smoothly on to what they're aiming at instead of snapping between positions.</li><li>A small diamond on the screen shows where each gun arm is pointing right now, as a tank's does for its cannon, so you can see the arm come on to the crosshair or the lock.</li><li>Its thrusters are a little louder.</li><li>Every vehicle can now be driven. Subway trains: climb in at a station and drive one round its loop, forwards or back. A rowboat pulled up on the beach, or a ship in a dry dock, is pushed off into the nearest open water as you climb in.</li></ul>
+<h3>Goblin loadout</h3>
+<ul><li>Playing as Gnash or Grizzle, the Character tab now shows a Loadout in place of the hippos' abilities: pick which weapons he starts with (club, dagger, handgun, rifle) and how many grenades, from none to 9.</li><li>At first it's as before: just the club and no grenades. He always keeps at least one weapon, and anything else you can still take off the enemies you kill.</li><li>Each player has their own loadout, kept between visits, and in split screen player two picks theirs from their own pause menu. Gnash and Grizzle share it, as they share everything else.</li><li>Changing it while playing re-arms your goblin at once.</li></ul>
 <h3>PvP</h3>
 <ul><li>A new PvP switch in Options, off unless you turn it on. With it on, players can fight each other, in split screen or online, whoever they're playing as.</li><li>Lock on to another player as you would a goblin, on foot, from a tank or helicopter, or with a Mobile Gear's lock box, and its missiles home in on them. A player in a vehicle is locked on as the vehicle.</li><li>Every attack lands on other players: bites and uppercuts, stomps, ground pounds, ground spikes, trampling, rolls, dashes, blast dashes and blast long jumps, and Gnash's club, dagger, guns and grenades. A hippo's blows hit another player for about a third of what they do to a goblin, so a fight lasts a while.</li><li>Vehicles too: run another player down in a car or a tank, shoot them with a tank's or helicopter's guns, shells and rockets, or with a Mobile Gear's rifle, blade, missiles and cannon (it tramples them as well).</li><li>A player killed by another is told who did it, the winner scores 500 points, and the obituaries name the killer. You get up again as usual.</li><li>Online, the host's switch decides for everyone. A guest's PvP switch shows the host's choice and can't be changed.</li></ul>
 <h3>Vehicle controls</h3>
@@ -1891,7 +1911,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='1db8b8e58a96';
+const GAME_VER='0.5',GAME_BUILD='e7f7eaef5cf5';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -11605,10 +11625,7 @@ function gobKit(p){
   // (and what's in his hand, for the others to see: the weapon he's holding, the same shapes the enemies carry)
   const tp={},tm=c=>new THREE.MeshLambertMaterial({color:c}),tb=(w,h,d,c,x,y,z,g)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),tm(c));o.position.set(x,y,z);g.add(o);};
   for(const k of GOB_WPN_ORDER){tp[k]=new THREE.Group();m.arm.hand.add(tp[k]);tp[k].visible=k==='club';}   // (in the wrist, as the enemies hold theirs)
-  tb(0.11,0.11,0.55,GC.club,0,0.02,0.22,tp.club);tb(0.19,0.19,0.19,GC.club,0,0.02,0.5,tp.club);
-  tb(0.08,0.08,0.12,0x2a1a10,0,-0.02,0.06,tp.dagger);tb(0.05,0.03,0.34,0xd0d4dc,0,-0.02,0.29,tp.dagger);
-  tb(0.07,0.27,0.09,0x22262c,0,-0.1,0.06,tp.handgun);tb(0.06,0.08,0.15,0x22262c,0,0.01,-0.03,tp.handgun);   // (as the police hold theirs: goblins.js)
-  tb(0.1,0.3,0.14,0x4a3420,0,0.04,0.06,tp.rifle);tb(0.07,0.62,0.07,0x22262c,0,-0.38,0.06,tp.rifle);tb(0.05,0.12,0.05,0x22262c,0,-0.12,0.13,tp.rifle);
+  for(const k of GOB_WPN_ORDER)wpnBoxes(WEAPONS[k].model.held,(w,h,d,c,x,y,z)=>tb(w,h,d,c,x,y,z,tp[k]));   // (WEAPONS: as the enemies hold them)
   // (drawn last and over everything, so it never pokes through a wall you're stood against)
   const vm=new THREE.Group();vm.rotation.order='YXZ';vm.visible=false;vm.scale.setScalar(0.5);scene.add(vm);
   const arm=new THREE.Group();arm.position.set(0.52,-0.62,-0.72);vm.add(arm);
@@ -11617,15 +11634,12 @@ function gobKit(p){
   box(0.11,0.11,0.42,GC.skin,0,0,-0.2,60);
   // (one of these in the hand at a time: see gob-weapons.js)
   const held={};for(const k of GOB_WPN_ORDER){held[k]=new THREE.Group();arm.add(held[k]);held[k].visible=k==='club';}
-  box(0.07,0.42,0.07,GC.club,0,0.17,-0.42,61,held.club);box(0.15,0.17,0.15,GC.club,0,0.42,-0.42,62,held.club);
-  box(0.09,0.09,0.13,0x2a1a10,0,0.02,-0.44,61,held.dagger);box(0.14,0.04,0.04,0x6a5a3a,0,0.02,-0.52,61,held.dagger);box(0.025,0.05,0.34,0xd0d4dc,0,0.02,-0.71,62,held.dagger);   // (pointing forward, for stabbing)
-  box(0.07,0.13,0.1,0x22262c,0,-0.03,-0.4,61,held.handgun);box(0.06,0.07,0.3,0x22262c,0,0.06,-0.5,62,held.handgun);   // (the grip, and the slide pointing on along the view)
-  box(0.1,0.12,0.34,0x4a3420,0,0.02,-0.36,61,held.rifle);box(0.07,0.07,0.78,0x22262c,0,0.07,-0.86,62,held.rifle);box(0.05,0.12,0.05,0x22262c,0,-0.04,-0.6,62,held.rifle);
+  for(const k of GOB_WPN_ORDER)wpnBoxes(WEAPONS[k].model.view,(w,h,d,c,x,y,z,o)=>box(w,h,d,c,x,y,z,o,held[k]));   // (each in your own view: WEAPONS)
   // (and the other arm coming in from the bottom left, its hand under the rifle's barrel or wrapped round the handgun's
   // grip, as the others see him hold them: a forearm from S, off the edge of the picture, to the hand at P)
   const fore=(P,S,to)=>{const d=[S[0]-P[0],S[1]-P[1],S[2]-P[2]],L=Math.hypot(...d),b=new THREE.Mesh(new THREE.BoxGeometry(0.11,0.11,L),mat(GC.skin));
     b.position.set((P[0]+S[0])/2,(P[1]+S[1])/2,(P[2]+S[2])/2);b.rotation.order='YXZ';b.rotation.set(-Math.asin(d[1]/L),Math.atan2(d[0],d[2]),0);b.renderOrder=60;b.frustumCulled=false;to.add(b);};
-  fore([0,-0.01,-0.92],[-0.62,-0.42,-0.1],held.rifle);fore([-0.07,-0.06,-0.42],[-0.5,-0.42,0],held.handgun);
+  for(const k of GOB_WPN_ORDER){const F=WEAPONS[k].model.fore;if(F)fore(F[0],F[1],held[k]);}
   return p.gb={root,m,vm,arm,held,tp};
 }
 // the first-person view, and the body that goes with it
@@ -14367,6 +14381,61 @@ function movePlayer(p,dt){
   p.lastSin=sn;
 }
 
+// ---- Every weapon a goblin can carry, in one table: the enemies' and a player goblin's (Gnash's) alike ----
+// One entry per weapon, in the order the weapon button goes through them (WEAPON_ORDER). Each has:
+//   name, about (a line for the Character tab's loadout), kind ('melee', 'gun' or 'throw');
+//   model: the boxes it's made of, [w,h,d,colour,x,y,z,role] (a colour of null is the goblins' club brown, GC.club):
+//     held in the hand, in the hand's own frame (an enemy's, and a player goblin as the others see him: goblinModel, gobKit),
+//     view in your own first-person view ([...,renderOrder], with fore: where the other forearm reaches in to hold it),
+//     drop lying on the ground to be picked up (puModel);
+//   npc: how an enemy uses it: the blow it strikes up close (strike, in STRIKES), the pose it aims in (aim, a GUN_GRIP
+//     key), and for the handgun the police's own shooting stats (gun, as foeRanged reads them; each compound's rifle is
+//     tuned in its own FOES entry);
+//   player: Gnash's numbers (gob-weapons.js: GOB_WPN is these blocks), what it's called when it kills (cause), and for
+//     a gun its kick (shake, rumble);
+//   crack: a gun's sound, the same from either side ([noise], [tone]: wpnCrack);
+//   drop: whether a killed enemy leaves it for Gnash to pick up, and stack: whether you carry a pile of them.
+// To add a weapon: an entry here, and gear:'<key>' on whichever foes carry it in FOES (foes.js). The Character tab's
+// goblin loadout, the drops, the HUD and the weapon button all pick it up from here.
+const WEAPONS={
+  club:{name:'Club',about:'A heavy swing that knocks goblins flat and dents cars',kind:'melee',drop:false,
+    model:{held:[[0.11,0.11,0.55,null,0,0.02,0.22,'club'],[0.19,0.19,0.19,null,0,0.02,0.5,'club']],
+      view:[[0.07,0.42,0.07,null,0,0.17,-0.42,61],[0.15,0.17,0.15,null,0,0.42,-0.42,62]]},
+    npc:{strike:'club'},
+    player:{dur:0.38,lunge:0.16,cd:0.45,cause:'Clubbed by another goblin',pvp:'Clubbed'}},
+  dagger:{name:'Dagger',about:'Quick stabs at whatever is right in front of you',kind:'melee',drop:true,
+    model:{held:[[0.08,0.08,0.12,0x2a1a10,0,-0.02,0.06,'hilt'],[0.05,0.03,0.34,0xd0d4dc,0,-0.02,0.29,'blade']],
+      view:[[0.09,0.09,0.13,0x2a1a10,0,0.02,-0.44,61],[0.14,0.04,0.04,0x6a5a3a,0,0.02,-0.52,61],[0.025,0.05,0.34,0xd0d4dc,0,0.02,-0.71,62]],   // (pointing forward, for stabbing)
+      drop:[[0.08,0.08,0.14,0x2a1a10,0,0,-0.14],[0.05,0.03,0.36,0xd0d4dc,0,0,0.1]]},
+    npc:{strike:'dagger'},
+    player:{dur:0.26,lunge:0.1,cd:0.28,dmg:2,r:0.95,reach:1.0,cause:'Stabbed by a goblin',pvp:'Stabbed'}},
+  handgun:{name:'Handgun',about:'A police pistol: quick to fire again, but a shorter reach',kind:'gun',drop:true,
+    // (as the police hold theirs: its barrel on down past the fist like the rifle's, so it points straight out when the
+    // arm's raised to aim)
+    model:{held:[[0.07,0.27,0.09,0x22262c,0,-0.1,0.06,'gun'],[0.06,0.08,0.15,0x22262c,0,0.01,-0.03,'gun']],
+      view:[[0.07,0.13,0.1,0x22262c,0,-0.03,-0.4,61],[0.06,0.07,0.3,0x22262c,0,0.06,-0.5,62]],fore:[[-0.07,-0.06,-0.42],[-0.5,-0.42,0]],   // (the grip, and the slide pointing on along the view)
+      drop:[[0.06,0.09,0.22,0x22262c,0,0.03,0],[0.06,0.14,0.07,0x22262c,0,-0.06,-0.07]]},
+    npc:{strike:'club',aim:'pistol',gun:[4,30,0.45,[1.6,2.6],1,'Shot by the police']},   // (an officer clubs up close)
+    player:{dur:0.16,lunge:0.01,cd:0.32,dmg:1.5,range:30,cause:'Shot by a goblin',shake:0.02,rumble:0.14},   // (shorter reach than the rifle, quicker to fire again)
+    crack:[[0.06,0.12,3400],[330,140,0.045,0.035]]},   // (sharper and shorter than a rifle's)
+  rifle:{name:'Rifle',about:'Hits hard and far, down the middle of your view',kind:'gun',drop:true,
+    // (pointing on down past the hand, so it's level when the arm is raised to aim)
+    model:{held:[[0.1,0.3,0.14,0x4a3420,0,0.04,0.06,'stock'],[0.07,0.62,0.07,0x22262c,0,-0.38,0.06,'gun'],[0.05,0.12,0.05,0x22262c,0,-0.12,0.13,'gun']],
+      view:[[0.1,0.12,0.34,0x4a3420,0,0.02,-0.36,61],[0.07,0.07,0.78,0x22262c,0,0.07,-0.86,62],[0.05,0.12,0.05,0x22262c,0,-0.04,-0.6,62]],fore:[[0,-0.01,-0.92],[-0.62,-0.42,-0.1]],
+      drop:[[0.1,0.14,0.3,0x4a3420,0,0,-0.36],[0.07,0.07,0.7,0x22262c,0,0.02,0.12],[0.05,0.12,0.05,0x22262c,0,-0.07,-0.12]]},
+    npc:{strike:'butt',aim:'rifle'},
+    player:{dur:0.2,lunge:0.01,cd:0.55,dmg:2,range:48,cause:'Shot by a goblin',shake:0.03,rumble:0.2},
+    crack:[[0.09,0.14,2600],[220,90,0.06,0.04]]},
+  grenade:{name:'Grenades',about:'Thrown with Stomp: how many he starts with',kind:'throw',drop:true,stack:true,
+    // (an enemy holds its own, in its own colours, while winding up to throw: FOES' held)
+    model:{drop:[[0.22,0.24,0.22,0x3a4a22,0,0,0],[0.08,0.08,0.08,0x8a8a90,0,0.15,0]]},
+    player:{cause:"Blown up by a goblin's grenade",max:9,cd:0.6,v:15,fuse:2.2,R:3.3,dmg:3}}};
+const WEAPON_ORDER=Object.keys(WEAPONS);
+for(const k of WEAPON_ORDER){const W=WEAPONS[k];W.k=k;if(W.player)W.player.name=W.name;}
+// a gun going off, heard the same whoever fires it
+function wpnCrack(k){const C=WEAPONS[k]&&WEAPONS[k].crack;if(!C||!audio)return;noise(C[0][0],C[0][1],C[0][2],'highpass');tone('square',C[1][0],C[1][1],C[1][2],C[1][3]);}
+// a weapon's boxes, each handed to make(w,h,d,colour,x,y,z,last) (the role or render order)
+function wpnBoxes(list,make){for(const b of list||[])make(b[0],b[1],b[2],b[3]??GC.club,b[4],b[5],b[6],b[7]);}
 // ---------- Goblins ----------
 const goblins=[];
 const GC={skin:0x6f9a3a,dark:0x4f7426,tunic:0x5a3d22,eye:0xffd23a,club:0x7a5530,belt:0x2b1d10,mouth:0x2a1a10};
@@ -14471,24 +14540,24 @@ function goblinModel(parent,o={}){
   // (whatever's in that hand hangs off a wrist, so a blow can turn it: a club chopped down, a dagger kept point first, a
   // rifle swung round stock first. See strikes.js)
   const hand=new THREE.Group();hand.position.set(0,-0.4,0);arm.add(hand);arm.hand=hand;
-  const club=o.club!==false?[box(0.11,0.11,0.55,'club',GC.club,0,0.02,0.22,hand),box(0.19,0.19,0.19,'club',GC.club,0,0.02,0.5,hand)]:[];
+  const wb=(k,to)=>{const L=[];wpnBoxes(WEAPONS[k].model.held,(w,h,d,c,x,y,z,r)=>L.push(box(w,h,d,r,c,x,y,z,to)));return L;};   // (a weapon's own shapes, from its entry in WEAPONS)
+  const club=o.club!==false?wb('club',hand):[];
   // a street goblin's other kit, for when it's in police blue (pistol: police-gun.js): a handgun in the same hand, its barrel
   // on down past the fist like the rifle's, so it points straight out when the arm's raised to aim, and a holster on the
   // belt. Both hidden until an officer wears them
-  if(o.pistol){const pis=[box(0.07,0.27,0.09,'gun',0x22262c,0,-0.1,0.06,hand),box(0.06,0.08,0.15,'gun',0x22262c,0,0.01,-0.03,hand)],hol=[box(0.09,0.2,0.15,'holster',0x14110e,0.29,0.4,0.03,parent)];
+  if(o.pistol){const pis=wb('handgun',hand),hol=[box(0.09,0.2,0.15,'holster',0x14110e,0.29,0.4,0.03,parent)];
     for(const m of pis.concat(hol))m.visible=false;out.pkit={club,pis,hol,shown:0};}
   if(o.cult){
     // a cultist: a robe down to the ankles, a pointed hood (the ears poke out of it), a ritual dagger in the right hand,
     // and in the left a fireball, shown only while one's being conjured
     box(0.54,0.4,0.36,'tunic',o.tunic||GC.tunic,0,0.25,0,parent);
     box(0.58,0.1,0.52,'hood',0x2a0408,0,0.47,0,head);box(0.58,0.5,0.08,'hood',0x2a0408,0,0.22,-0.24,head);for(const s of[-1,1])box(0.07,0.44,0.5,'hood',0x2a0408,s*0.28,0.24,0,head);box(0.22,0.14,0.22,'hood',0x2a0408,0,0.58,-0.08,head);
-    box(0.08,0.08,0.12,'hilt',0x2a1a10,0,-0.02,0.06,hand);box(0.05,0.03,0.34,'blade',0xd0d4dc,0,-0.02,0.29,hand);
+    wb('dagger',hand);
     out.orb=box(0.24,0.24,0.24,'orb',0xff7a1a,0,-0.46,0.04,armL);out.orb.visible=false;
   }
   // the compounds' people: a dagger (thieves), or a rifle (pointing on down past the hand, so it's level when the arm is
   // raised to aim); and whatever they throw, in the left hand, shown only while they're winding up to throw it
-  if(o.gear==='dagger'){box(0.08,0.08,0.12,'hilt',0x2a1a10,0,-0.02,0.06,hand);box(0.05,0.03,0.3,'blade',0xd0d4dc,0,-0.02,0.27,hand);}
-  if(o.gear==='rifle'){parent.gunK='rifle';box(0.1,0.3,0.14,'stock',0x4a3420,0,0.04,0.06,hand);box(0.07,0.62,0.07,'gun',0x22262c,0,-0.38,0.06,hand);box(0.05,0.12,0.05,'gun',0x22262c,0,-0.12,0.13,hand);}
+  {const W=o.gear&&WEAPONS[o.gear];if(W&&W.model.held){if(W.npc&&W.npc.aim)parent.gunK=W.npc.aim;wb(o.gear,hand);}}   // (a gun's held to aim in its own pose: gunGrip)
   if(o.held){const [w,h,d,c]=o.held;out.orb=box(w,h,d,'orb',c,0,-0.46,0.04,armL);out.orb.visible=false;}
   // hats
   acc('cap',[box(0.52,0.12,0.48,'hat',0x2a2a2a,0,0.47,0.02,head),box(0.34,0.04,0.2,'hat',0x2a2a2a,0,0.425,0.31,head)]);
@@ -14610,7 +14679,7 @@ function strikeAt(w,u){
 const strikeSwing=w=>{const K=STRIKES[w];let u=0;for(const k of K)if(k[0]<1)u=k[0];return 1-u;};
 // which blow a goblin strikes with: a dagger (cultists, thieves), a rifle butt (whoever carries a rifle), or a club (the
 // street's goblins and police, and anyone bare-handed, whose blow is the same overarm swing)
-const gobWk=g=>g.cultist||g.foeKind==='thief'?'dagger':g.foeKind&&FOES[g.foeKind]&&FOES[g.foeKind].gear==='rifle'?'butt':'club';
+const gobWk=g=>{if(g.cultist)return'dagger';const F=g.foeKind&&FOES[g.foeKind],W=F&&WEAPONS[F.gear];return W&&W.npc&&W.npc.strike||'club';};   // (the blow its weapon strikes: WEAPONS)
 // pose a goblin model's arms at u along a blow (only:'L' just the free arm), and keep the twist, lean and step on m.atkX
 // for whoever places its root
 function gobStrike(m,w,u,only){
@@ -14700,7 +14769,7 @@ function gunGripUndo(m,root=m.arm.parent){const v=m._gg;if(!v)return;m._gg=null;
 // drawn, a rifle always, unless the goblin is dead, climbing, swimming, or has the free hand busy (a grenade, a fireball,
 // thrown up in a panic)
 function gunHeld(g){
-  const k=g.pkit&&g.pkit.shown===2?'pistol':g.root.gunK;if(!k)return null;
+  const k=g.pkit&&g.pkit.shown===2?WEAPONS.handgun.npc.aim:g.root.gunK;if(!k)return null;
   if(g.state==='dead'||g.dead||g.hp<=0||g.act||g.wet||g.orb&&g.orb.visible||g.armL.rotation.x<-1.9||g.arm.rotation.x<-2.3)return null;
   return k;
 }
@@ -15904,6 +15973,10 @@ function menuNav(dir){
   if(dy&&title&&pane.contains(cur)){const U=paneUnits(pane),i=U.findIndex(u=>u===cur||u.contains(cur))+dy;if(i<0)padFocus(tabBtn);else if(i<U.length)unitFocus(U[i]);return;}
   // (the ability switches: up and down from a basic move goes to the next basic move, not into the upgrades beside it)
   // (and left and right along a basic move's row: the move, then its upgrades in order)
+  // (a goblin's weapons: two cards a row, so up and down keep to the same side, left and right go across)
+  if((dx||dy)&&cur&&cur.matches&&cur.matches('#gwpnList button')){const R=[...document.querySelectorAll('#gwpnList .ab-row')],r=R.indexOf(cur.closest('.ab-row')),B=i=>[...R[i].querySelectorAll('button')],c=B(r).indexOf(cur);
+    if(dx){const n=B(r)[c+dx];if(n)padFocus(n);return;}
+    if(R[r+dy]){const q=B(r+dy);unitFocus(q[Math.min(c,q.length-1)]);return;}}
   if(dx&&cur&&cur.matches&&cur.matches('#abilList .tog')){const R=[...cur.closest('.ab-row').querySelectorAll('.tog')],n=R[R.indexOf(cur)+dx];if(n)padFocus(n);return;}
   if(dy&&cur&&cur.matches&&cur.matches('#abilList .ab-base')){const B=[...document.querySelectorAll('#abilList .ab-base')],n=B[B.indexOf(cur)+dy];if(n){unitFocus(n);return;}}
   if(dy&&pane&&cur&&cur.closest){
@@ -15943,7 +16016,7 @@ function menuPad(st,dt){
     if(s.pr[4])subStep(-1);
     if(s.pr[5])subStep(1);
     // (Y on the character cards: down to the ability switches)
-    if(s.pr[3]&&curTab==='custom'){const t=document.querySelector('#abilList .tog');if(t&&t.offsetParent)padFocus(t);}
+    if(s.pr[3]&&curTab==='custom'){const t=[...document.querySelectorAll('#abilList .tog,#gwpnList button')].find(o=>o.offsetParent);if(t)padFocus(t);}   // (or a goblin's weapons)
     const ry=s.p.axes[3]||0;
     if(curTab==='map'&&s.pr[2])mapRecentre();
     if(curTab==='map'&&s.pr[3])mapClick();   // (Y: a marker at the crosshair)
@@ -16686,7 +16759,7 @@ function foeShoot(g,p,G6){
   // (a block in the way stops the round there: they may have taken aim before he ducked behind something)
   let hit2=hit;{const ex=tx-x0,ey=ty-y0,ez=tz-z0,n=Math.ceil(Math.hypot(ex,ey,ez)/0.4);for(let i=1;i<n;i++){const k=i/n,x=x0+ex*k,y=y0+ey*k,z=z0+ez*k;if(solidAt(Math.floor(x),Math.floor(y),Math.floor(z))){tx=x;ty=y;tz=z;hit2=false;break;}}}
   tracer(x0,y0,z0,tx,ty,tz);puff(x0,y0-0.1,z0,1,0xffe070,0.1);
-  if(audio){if(G6===COP_GUN){noise(0.06,0.12,3400,'highpass');tone('square',330,140,0.045,0.035);}else{noise(0.09,0.14,2600,'highpass');tone('square',220,90,0.06,0.04);}}   // (a handgun's crack is sharper and shorter)
+  wpnCrack(G6===COP_GUN?'handgun':'rifle');   // (a handgun's crack is sharper and shorter: WEAPONS)
   if(hit2){const h=Math.hypot(tx-x0,tz-z0)||1;damagePlayer(p,G6[4],new V3(tx,ty,tz),new V3((tx-x0)/h,0.2,(tz-z0)/h),G6[5],g.id);}
 }
 // a bomb lobbed in an arc at where he's standing (give or take), fuse fizzing
@@ -16699,7 +16772,7 @@ function foeThrow(g,p,B6){
 // ---- the police's handgun: drawn and fired at range, holstered for the club up close ----
 // (as FOES' guns: shortest and longest range, seconds to aim, cooldown range, damage, cause. Shorter reach and quicker on
 // the draw than a rifle; inside 4 blocks they put it away and use the club)
-const COP_GUN=[4,30,0.45,[1.6,2.6],1,'Shot by the police'];
+const COP_GUN=WEAPONS.handgun.npc.gun;   // (the handgun's police stats: weapons.js)
 const COP_FOE={gun:COP_GUN,pistol:true};   // (what foeRanged reads for an officer: a handgun, no grenades)
 // an officer of any kind (out of a police car, carjacked out of one, or the Testing Environment's): armed and ready
 function copArm(g){if(!g.pkit)return;g.gun=COP_FOE;g.aim=0;g.aimK=null;g.gunCD=0.4+Math.random()*0.8;g.bombCD=99;g.relK=null;}
@@ -16884,41 +16957,41 @@ function dropGoblinCorpse(x,y,z,driver){
   g.id=makeIdentity(g,dressGoblin(g));Object.assign(g.id,{name:D.name,age:D.age,occ:D.occ,hobby:D.hobby,quirk:D.quirk,civ:D.civ});
   damageGoblin(g,99,new V3(x,y+1,z),new V3(0,1,0),'Killed when their car exploded');
 }
-// ---- Gnash's weapons: the club he starts with, and what he takes off the enemies he kills ----
+// ---- Gnash's weapons: what he starts with (his seat's loadout, gob-loadout.js), and what he takes off the enemies he kills ----
+// (each weapon's numbers, shapes and sounds are its entry in WEAPONS, weapons.js)
 // Each player goblin carries a list (p.wpns, the one in hand p.wpn) and a stack of grenades (p.gren). The attack button
 // uses the one in hand (gobAttack, from doBite), the stomp button throws a grenade (gobThrow), and the weapon button goes
 // on to the next (gobNextWpn). Kill an enemy whose weapon you haven't got and it's dropped where they fell (gobDrop: a
 // police officer's handgun, a thief's or cultist's dagger, a rifle off the compounds, the army and the carrier's crew,
 // whatever FOES says they carry); a soldier of any kind drops grenades as well, every time, since they stack. Walk over a drop to pick it up (gobPickups).
 // (Pipe bombs are gone: the preppers throw grenades too.) Hippos never see any of this.
-const GOB_WPN={
-  club:{name:'Club',dur:0.38,lunge:0.16,cd:0.45},
-  dagger:{name:'Dagger',dur:0.26,lunge:0.1,cd:0.28,dmg:2,r:0.95,reach:1.0,cause:'Stabbed by a goblin'},
-  handgun:{name:'Handgun',dur:0.16,lunge:0.01,cd:0.32,dmg:1.5,range:30,cause:'Shot by a goblin'},   // (the police's: shorter reach than the rifle, quicker to fire again)
-  rifle:{name:'Rifle',dur:0.2,lunge:0.01,cd:0.55,dmg:2,range:48,cause:'Shot by a goblin'}};
-const GOB_WPN_ORDER=['club','dagger','handgun','rifle'],GREN_MAX=9,GREN_CAUSE="Blown up by a goblin's grenade";
+// (Gnash's side of each weapon in WEAPONS (weapons.js): GOB_WPN[k] is its player block, GOB_WPN_ORDER the ones he can hold,
+// in the order the weapon button goes through them; grenades are thrown with stomp instead)
+const GOB_WPN={},GOB_WPN_ORDER=WEAPON_ORDER.filter(k=>WEAPONS[k].player&&WEAPONS[k].kind!=='throw');
+for(const k of GOB_WPN_ORDER)GOB_WPN[k]=WEAPONS[k].player;
+const GREN=WEAPONS.grenade.player,GREN_MAX=GREN.max,GREN_CAUSE=GREN.cause;
 // (the ways a player goblin kills: a kill by any of them drops the victim's gear)
-const GOB_CAUSES=new Set(['Clubbed by another goblin',GOB_WPN.dagger.cause,GOB_WPN.rifle.cause,GREN_CAUSE]);
-function gobArms(p){if(!p.wpns){p.wpns=['club'];p.wpn='club';p.gren=0;p.grenCD=0;}return p;}
+const GOB_CAUSES=new Set(WEAPON_ORDER.map(k=>WEAPONS[k].player&&WEAPONS[k].player.cause).filter(Boolean));
+function gobArms(p){if(!p.wpns)gobLoadArm(p);return p;}   // (what he starts with is his seat's choice on the Character screen: gob-loadout.js)
 const gobW=p=>GOB_WPN[gobArms(p).wpn]||GOB_WPN.club;
-const gobGun=k=>k==='rifle'||k==='handgun';   // (the ones that shoot down the view: gobShoot)
+const gobGun=k=>!!WEAPONS[k]&&WEAPONS[k].kind==='gun';   // (the ones that shoot down the view: gobShoot)
 // what an enemy carries that can be taken off them
 // (read off the foe's own entry in FOES: whatever it holds (gear) that a goblin can wield, and grenades if it throws them,
 // so a new kind of foe drops its gear with nothing added here. Police carry theirs on g.gun; cultists aren't in FOES)
 function gobGear(g){const k=g.foeKind,F=k&&FOES[k];
-  return{wpn:g.gun===COP_FOE?'handgun':g.cultist?'dagger':F&&GOB_WPN[F.gear]?F.gear:null,gren:F&&F.bomb?1+(Math.random()<0.5?1:0):k==='soldier'?1:0};}
+  return{wpn:g.gun===COP_FOE?'handgun':g.cultist?'dagger':F&&GOB_WPN[F.gear]&&WEAPONS[F.gear].drop?F.gear:null,gren:F&&F.bomb?1+(Math.random()<0.5?1:0):k==='soldier'?1:0};}
 // the attack button's hit, for whatever's in hand (the club's is gobClub)
-function gobAttack(p){const k=gobArms(p).wpn;
-  if(k==='dagger'){const W=GOB_WPN.dagger,hx=Math.sin(p.heading),hz=Math.cos(p.heading);hitGoblins(p.pos.x+hx*W.reach,p.pos.z+hz*W.reach,W.r,W.dmg,W.cause,p.pos.y);pvpArea(p,p.pos.x+hx*W.reach,p.pos.z+hz*W.reach,W.r,W.dmg,'Stabbed',p.pos.y);
+function gobAttack(p){const k=gobArms(p).wpn,K=WEAPONS[k];
+  if(K&&K.kind==='gun'){gobShoot(p);return;}
+  if(K&&K.kind==='melee'&&K.player.reach){const W=K.player,hx=Math.sin(p.heading),hz=Math.cos(p.heading);hitGoblins(p.pos.x+hx*W.reach,p.pos.z+hz*W.reach,W.r,W.dmg,W.cause,p.pos.y);pvpArea(p,p.pos.x+hx*W.reach,p.pos.z+hz*W.reach,W.r,W.dmg,W.pvp,p.pos.y);
     for(const c of carsNear(p.pos.x+hx*W.reach,p.pos.z+hz*W.reach,W.r,p.pos.y)){damageCar(c,1,new V3(hx,0,hz));clang();}return;}
-  if(gobGun(k)){gobShoot(p);return;}
-  gobClub(p);
+  gobClub(p);   // (the club: pivots.js)
 }
 // a rifle or handgun shot straight down the middle of the view: the first goblin, vehicle or block it meets
 const _gr=new V3();
 const _gsp={pos:new V3(),own:null,noShip:false};
 function gobShoot(p){
-  const W=gobGun(gobArms(p).wpn)?gobW(p):GOB_WPN.rifle,hg=W===GOB_WPN.handgun,c=shipEye(p),cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp;
+  const wk=gobGun(gobArms(p).wpn)?p.wpn:'rifle',W=GOB_WPN[wk],c=shipEye(p),cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp;
   let hitG=null,hitC=null,hitW=null,hitP=null,hitV=null,d=0.3,oh=null;
   // (followed across a ship's side too: from the shore or the sea at its blocks and the goblins aboard, or from aboard
   // out into the world. See shipLines)
@@ -16934,8 +17007,8 @@ function gobShoot(p){
     if(!hitG&&(Math.round(d*5)%3===0))for(const q of carsNear(x,z,0.6,y-1)){hitC=q;break;}}
   const x1=c.x+dx*d,y1=c.y+dy*d,z1=c.z+dz*d,fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw);
   tracer(c.x+fx*0.5+Math.cos(p.cam.yaw)*0.18,c.y-0.18,c.z+fz*0.5-Math.sin(p.cam.yaw)*0.18,x1,y1,z1);
-  if(audio){if(hg){noise(0.06,0.12,3400,'highpass');tone('square',330,140,0.045,0.035);}else{noise(0.09,0.14,2600,'highpass');tone('square',220,90,0.06,0.04);}}   // (the handgun cracks higher and shorter, as the police's does)
-  p.shake=Math.max(p.shake||0,hg?0.02:0.03);rumble(p,hg?0.14:0.2,50);
+  wpnCrack(wk);   // (the handgun cracks higher and shorter, as the police's does)
+  p.shake=Math.max(p.shake||0,W.shake);rumble(p,W.rumble,50);
   if(hitG)damageGoblin(hitG,W.dmg,SL?new V3(hitG.pos.x,hitG.pos.y+0.8,hitG.pos.z):_gr.set(x1,y1,z1).clone(),new V3(dx,0.3,dz),W.cause);
   else if(hitP)pvpHurt(p,hitP,W.dmg,_gr.set(x1,y1,z1).clone(),new V3(dx,0.3,dz),'Shot',{cd:0});
   else if(hitC)damageCar(hitC,1,new V3(dx,0,dz));
@@ -16945,8 +17018,8 @@ function gobShoot(p){
 // the stomp button: lob a grenade the way you're looking
 function gobThrow(p){
   gobArms(p);if(p.gren<=0||p.grenCD>0||p.state==='dead'||p.drv)return;
-  p.gren--;p.grenCD=0.6;p.thrS=0;const c=shipEye(p),cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp,v=15;
-  shot({kind:'grenade',x:c.x+dx*0.6,y:c.y-0.1+dy*0.6,z:c.z+dz*0.6,vx:dx*v,vy:dy*v+4,vz:dz*v,grav:20,fuse:2.2,R:3.3,dmg:3,cause:GREN_CAUSE,by:pvpBy(p),bounce:true,crush:GREN_CRUSH});
+  p.gren--;p.grenCD=GREN.cd;p.thrS=0;const c=shipEye(p),cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp,v=GREN.v;
+  shot({kind:'grenade',x:c.x+dx*0.6,y:c.y-0.1+dy*0.6,z:c.z+dz*0.6,vx:dx*v,vy:dy*v+4,vz:dz*v,grav:20,fuse:GREN.fuse,R:GREN.R,dmg:GREN.dmg,cause:GREN_CAUSE,by:pvpBy(p),bounce:true,crush:GREN_CRUSH});
   sfx('Goblin throws a grenade',()=>{woosh(0.15,0.2,400,1200,0.08);});
 }
 function gobNextWpn(p){gobArms(p);const L=GOB_WPN_ORDER.filter(k=>p.wpns.includes(k));if(L.length<2)return;
@@ -16957,11 +17030,8 @@ function gobArmsTick(p,dt){gobArms(p);p.grenCD=Math.max(0,p.grenCD-dt);p.thrS=(p
   if(st&&!p.gStompWas&&playing)gobThrow(p);if(wp&&!p.gWpnWas&&playing)gobNextWpn(p);p.gStompWas=st;p.gWpnWas=wp;}
 // ---- what's dropped: a little model on the ground, turning, until someone picks it up (or a minute and a half) ----
 const PICKUPS=[],PU_MAT={};
-function puModel(k){const g=new THREE.Group(),m=c=>PU_MAT[c]||(PU_MAT[c]=new THREE.MeshLambertMaterial({color:c})),b=(w,h,d,c,x,y,z)=>{const o=new THREE.Mesh(FB_GEO,m(c));o.scale.set(w,h,d);o.position.set(x,y,z);g.add(o);};
-  if(k==='dagger'){b(0.08,0.08,0.14,0x2a1a10,0,0,-0.14);b(0.05,0.03,0.36,0xd0d4dc,0,0,0.1);}
-  else if(k==='handgun'){b(0.06,0.09,0.22,0x22262c,0,0.03,0);b(0.06,0.14,0.07,0x22262c,0,-0.06,-0.07);}
-  else if(k==='rifle'){b(0.1,0.14,0.3,0x4a3420,0,0,-0.36);b(0.07,0.07,0.7,0x22262c,0,0.02,0.12);b(0.05,0.12,0.05,0x22262c,0,-0.07,-0.12);}
-  else{b(0.22,0.24,0.22,0x3a4a22,0,0,0);b(0.08,0.08,0.08,0x8a8a90,0,0.15,0);}
+function puModel(k){const g=new THREE.Group(),m=c=>PU_MAT[c]||(PU_MAT[c]=new THREE.MeshLambertMaterial({color:c}));
+  wpnBoxes(WEAPONS[k].model.drop,(w,h,d,c,x,y,z)=>{const o=new THREE.Mesh(FB_GEO,m(c));o.scale.set(w,h,d);o.position.set(x,y,z);g.add(o);});   // (its shape lying on the ground: WEAPONS)
   g.visible=false;scene.add(g);return g;}
 function gobDrop(g){const G2=gobGear(g),at=(k,n,o)=>{let P=PICKUPS.find(q=>!q.live&&q.k===k);if(!P){if(PICKUPS.length>=32){P=PICKUPS.find(q=>q.k===k);if(!P)return;}else{P={k,m:puModel(k),pos:new V3()};PICKUPS.push(P);}}
     const y=supportAt(g.pos.x+o,g.pos.z,g.pos.y+1.5);P.pos.set(g.pos.x+o,(y??g.pos.y)+0.3,g.pos.z);P.n=n;P.t=0;P.live=true;P.m.visible=true;P.m.position.copy(P.pos);
@@ -16977,7 +17047,7 @@ function gobPickups(dt){
     P.m.rotation.y+=dt*1.6;P.m.position.y=P.pos.y+0.08*Math.sin(P.t*3);
     for(const p of players){if(!p.gob||!p.active||p.state==='dead'||p.drv)continue;if(Math.hypot(p.pos.x-P.pos.x,p.pos.z-P.pos.z)>1.1||Math.abs(p.pos.y+0.3-P.pos.y)>1.6)continue;
       gobArms(p);
-      if(P.k==='grenade'){if(p.gren>=GREN_MAX)continue;const n=Math.min(P.n,GREN_MAX-p.gren);p.gren+=n;P.n-=n;flashLabel('Grenade'+(n>1?'s':'')+' +'+n+'  ·  '+p.gren+' in all',p);if(P.n>0)continue;}
+      if(WEAPONS[P.k].stack){if(p.gren>=GREN_MAX)continue;const n=Math.min(P.n,GREN_MAX-p.gren);p.gren+=n;P.n-=n;flashLabel('Grenade'+(n>1?'s':'')+' +'+n+'  ·  '+p.gren+' in all',p);if(P.n>0)continue;}
       else{if(p.wpns.includes(P.k))continue;p.wpns.push(P.k);p.wpn=P.k;p.wpnT=camClock;flashLabel('Picked up a '+GOB_WPN[P.k].name.toLowerCase(),p);}
       sfx('Pick up',()=>{tone('triangle',660,990,0.08,0.06);});P.live=false;P.m.visible=false;break;}}
 }
@@ -16992,6 +17062,74 @@ function gobArmsHud(p){
   const s=L.map(k=>k===p.wpn?'<b>'+GOB_WPN[k].name+'</b>':GOB_WPN[k].name).join(' · ')+(L.length>1?'  '+bl('weapon')+' next':'')+'  |  Grenades '+p.gren+(p.gren?'  '+bl('stomp')+' throw':'');
   if(H.s!==s){H.s=s;H.el.innerHTML=s.split(/(<b>[^<]*<\/b>)/).map(t=>t.startsWith('<b>')?'<b>'+glEsc(t.slice(3,-4))+'</b>':hudHTML(t)).join('');}
 }
+// ---- A goblin's loadout, on the Character tab (in place of the hippos' ability switches) ----
+// Each seat picks what its goblin starts with: which of the weapons in WEAPONS he carries (a switch each, made from the
+// table, so a new weapon shows up here by itself) and how many grenades, 0 to GREN_MAX. Kept per seat like the
+// abilities (GOB_LOAD for player one, GOB_LOAD2 for player two, first copied from player one's); an online guest's come
+// as p.gload. They're the seat's, not the character's, so Gnash and Grizzle stay the same (suite twins). gobArms reads
+// them whenever a goblin is armed afresh, and a change in the menu re-arms that seat's goblin at once (gobRearm).
+const GLOAD_KEY='goblin-stompin-gus-gob-loadout',GLOAD2_KEY='goblin-stompin-gus-gob-loadout2';
+// (as a goblin was before there was a choice: just his club, no grenades)
+const gloadDef=()=>{const w={};for(const k of GOB_WPN_ORDER)w[k]=k==='club';return{w,gren:0};};
+// (mended: only weapons we know, a whole number of grenades in range, and never nothing in hand: the club, then)
+function gloadFix(L){const D=gloadDef();if(!L||typeof L!=='object')return D;
+  const w=L.w&&typeof L.w==='object'?L.w:{};for(const k of GOB_WPN_ORDER)D.w[k]=typeof w[k]==='boolean'?w[k]:D.w[k];
+  if(!GOB_WPN_ORDER.some(k=>D.w[k]))D.w.club=true;
+  D.gren=Math.max(0,Math.min(GREN_MAX,Math.round(+L.gren)||0));return D;}
+function gloadRead(key){try{const s=localStorage.getItem(key);return s?gloadFix(JSON.parse(s)):null;}catch(e){return null;}}
+const GOB_LOAD=gloadRead(GLOAD_KEY)||gloadDef();
+let GOB_LOAD2=gloadRead(GLOAD2_KEY);
+if(!GOB_LOAD2){GOB_LOAD2=gloadFix(GOB_LOAD);try{localStorage.setItem(GLOAD2_KEY,JSON.stringify(GOB_LOAD2));}catch(e){}}
+const GOB_LOADS=[GOB_LOAD,GOB_LOAD2],GLOAD_KEYS=[GLOAD_KEY,GLOAD2_KEY];
+// a player goblin's own choice: an online guest's from their browser, else their seat's here (anything else, such as
+// the Dev tab's preview goblin, starts as goblins always did)
+const GLOAD_PLAIN=gloadDef();
+const gobLoadOf=p=>p.gload||(players.includes(p)?GOB_LOADS[p.idx===1?1:0]:GLOAD_PLAIN);
+// arm a player goblin from their choice (gobArms calls it for a goblin with no weapons yet)
+function gobLoadArm(p){const L=gobLoadOf(p);p.wpns=GOB_WPN_ORDER.filter(k=>L.w[k]);if(!p.wpns.length)p.wpns=['club'];
+  p.wpn=p.wpns[0];p.gren=L.gren;p.grenCD=0;}
+// a change in the menu takes effect at once (anything picked up since is put down: the new choice is what he carries)
+function gobRearm(p){if(!p||!p.gob)return;p.wpns=null;gobArms(p);p.wpnT=camClock;}
+function gloadSave(seat){try{localStorage.setItem(GLOAD_KEYS[seat],JSON.stringify(GOB_LOADS[seat]));}catch(e){}
+  for(const p of players)if(!p.net&&p.idx===seat)gobRearm(p);}
+// The switches: built once from WEAPONS, two cards a row, then the grenade count
+function gwpnBuild(){
+  const list=document.getElementById('gwpnList');if(!list||list.firstChild)return list;
+  const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const card=k=>'<button type="button" class="tog ab-base" role="switch" data-k="'+k+'"><span class="tl"><b class="nm">'+esc(WEAPONS[k].name)+'</b><small>'+esc(WEAPONS[k].about||'')+'</small></span><span class="st" aria-hidden="true"></span></button>';
+  let h='<div class="ab-h" aria-hidden="true"><span class="px">Weapons</span></div>';
+  for(let i=0;i<GOB_WPN_ORDER.length;i+=2)h+='<div class="ab-row" role="group" aria-label="Weapons">'+GOB_WPN_ORDER.slice(i,i+2).map(card).join('')+'</div>';
+  const G=WEAPONS.grenade;
+  h+='<div class="ab-h" aria-hidden="true"><span class="px">'+esc(G.name)+'</span></div><div class="ab-row" role="group" aria-label="'+esc(G.name)+'"><div class="tog ab-base gl-cnt"><span class="tl"><b class="nm">'+esc(G.name)+'</b><small>'+esc(G.about||'')+'</small></span>'
+    +'<button type="button" class="gl-b" data-d="-1" aria-label="Fewer grenades">&minus;</button><span class="gl-n" aria-live="polite">0</span><button type="button" class="gl-b" data-d="1" aria-label="More grenades">+</button></div></div>';
+  list.innerHTML=h;
+  for(const b of list.querySelectorAll('.tog[data-k]'))b.addEventListener('click',()=>{
+    const seat=abilSeat(),L=GOB_LOADS[seat],k=b.dataset.k;
+    // (the last weapon carried stays: there's always something in hand)
+    if(L.w[k]&&GOB_WPN_ORDER.filter(q=>L.w[q]).length<2){tone('square',180,0,0.06,0.03);return;}
+    L.w[k]=!L.w[k];gloadSave(seat);renderGwpn();tone('triangle',L.w[k]?660:440,0,0.05,0.03);try{renderChar();}catch(e){}});
+  for(const b of list.querySelectorAll('.gl-b'))b.addEventListener('click',()=>{
+    const seat=abilSeat(),L=GOB_LOADS[seat],n=Math.max(0,Math.min(GREN_MAX,L.gren+(+b.dataset.d)));
+    if(n===L.gren){tone('square',180,0,0.06,0.03);return;}
+    L.gren=n;gloadSave(seat);renderGwpn();tone('triangle',440+n*30,0,0.05,0.03);try{renderChar();}catch(e){}});
+  return list;
+}
+// The switches shown are those of whoever's menu it is, like the abilities (abilSeat)
+function renderGwpn(){
+  const seat=abilSeat(),L=GOB_LOADS[seat],list=gwpnBuild();if(!list)return;list.dataset.seat=String(seat);
+  const n=GOB_WPN_ORDER.filter(k=>L.w[k]).length;
+  for(const b of list.querySelectorAll('.tog[data-k]')){const k=b.dataset.k,on=!!L.w[k];b.setAttribute('aria-checked',String(on));
+    const t=b.querySelector('.st');if(t)t.textContent=on&&n===1?'Last one':on?'On':'Off';}
+  const c=list.querySelector('.gl-cnt');if(c){c.setAttribute('aria-checked',String(L.gren>0));const nm=c.querySelector('.gl-n');if(nm)nm.textContent=L.gren+' / '+GREN_MAX;
+    const B=[...c.querySelectorAll('.gl-b')];if(B.length===2){B[0].setAttribute('aria-disabled',String(L.gren<=0));B[1].setAttribute('aria-disabled',String(L.gren>=GREN_MAX));}}   // (not disabled: the controller's focus stays on it)
+  const no=document.getElementById('gwpnNote');
+  if(no){let co=false;try{co=inCoop()&&!P2.net;}catch(e){}no.textContent=(co?(seat?"Player two's":"Player one's")+' loadout: it goes with you whichever goblin you pick. ':'')+'What he starts with. Tap a weapon to carry it or leave it behind (he always keeps one), and pick how many grenades. Anything else you take off the enemies you kill.';}
+}
+// which section the Character tab shows: the loadout for a goblin, the hippos' abilities for a hippo (the character
+// the menu's seat has picked)
+function charSecs(){const gob=charGob(abilSeat()?pick2():CHAR),a=document.getElementById('abilSec'),w=document.getElementById('gwpnSec');
+  if(a)a.hidden=gob;if(w)w.hidden=!gob;}
+renderGwpn();
 // ---------- Goblin routes ----------
 // One map of the way to each hippo, worked out backwards from where it stands and shared by every goblin after it: each
 // standing place near it knows the next place along the cheapest way there, and how to get to it (walk, jump, climb). It's
@@ -18982,9 +19120,9 @@ function charNote(){let co=false;try{co=inCoop()&&!P2.net;}catch(e){}
 // the 2P tag on player two's, so you can see who the other player is (picking theirs swaps you over).
 const csSeat=()=>{let two=false;try{two=menuP2();}catch(e){}return two?1:0;};
 // what each character can do, for the strip under the cards (a hippo's from the ability switches as they are now)
-const CS_GOB_MOVES=['Club','Dagger','Rifle','Grenades','Dash','Drive anything'];
 function csMoves(c){
-  if(charGob(c))return CS_GOB_MOVES;
+  if(charGob(c)){const L=GOB_LOADS[csSeat()];   // (a goblin's: the weapons chosen for him, then what every goblin can do)
+    return[...GOB_WPN_ORDER.filter(k=>L.w[k]).map(k=>WEAPONS[k].name),...(L.gren?[L.gren+' '+WEAPONS.grenade.name.toLowerCase()]:[]),'Dash','Drive anything'];}
   const A=ABILS[csSeat()],L=[];   // (the switches of whoever's menu it is)
   if(A.bite)L.push(A.biteCombo?'Bite combo':'Bite');
   if(A.stomp)L.push(A.fullStomp?'Full charge stomp':A.chargeStomp?'Charge stomp':'Stomp');
@@ -19008,7 +19146,7 @@ function renderChar(){
       k.classList.toggle('p1',c===CHAR);k.classList.toggle('p2',co&&c===c2);
       const pic=k.querySelector('.cs-pic');if(pic&&!pic.dataset.done){pic.dataset.done='1';pic.className='cs-pic '+sprCls(pic.dataset.spr,6);}}}
   const n=document.getElementById('charNote');if(n)n.textContent=charNote();
-  renderAbil();   // (the ability switches shown are this menu's player's)
+  renderAbil();renderGwpn();charSecs();   // (the ability switches or goblin weapons shown are this menu's player's)
   // (the moves strip: whoever's highlighted, or the seat's pick)
   {const f=document.activeElement,fc=f&&f.closest&&f.closest('#charRow .cs-card'),c=fc?fc.dataset.c:seat?c2:CHAR;
    const h=document.getElementById('csCanH'),m=document.getElementById('csMoves');
@@ -26314,7 +26452,7 @@ async function netStartHost(kind){
 }
 // (what a guest sends about itself when it asks to join, and what the host takes from it)
 function netCid(){let c=null;try{c=sessionStorage.getItem('gsg-net-cid');if(!c){c=netId();sessionStorage.setItem('gsg-net-cid',c);}}catch(e){}return c||(NET.cid||(NET.cid=netId()));}   // (this tab, through a reload or a dropped connection, so the host keeps its seat for it)
-function netHello(){return{t:'hello',v:NET_PROTO,cid:netCid(),who:charWho(CHAR),gob:charGob(CHAR),abil:Object.assign({},ABIL),seat:NET.wantSeat};}
+function netHello(){return{t:'hello',v:NET_PROTO,cid:netCid(),who:charWho(CHAR),gob:charGob(CHAR),abil:Object.assign({},ABIL),gload:GOB_LOAD,seat:NET.wantSeat};}
 function netHostMsg(peer,m){
   if(!m||typeof m!=='object')return;
   const p=NET.guests.get(peer);
@@ -26346,6 +26484,7 @@ function netSeat(peer,m){
   p.who=m.who?1:0;if(!!m.gob===!!P1.gob&&p.who===P1.who)p.who=1-P1.who;setGobP(p,!!m.gob);
   // (each player keeps the abilities they've switched on in their own browser)
   p.abil={};for(const k in ABIL)p.abil[k]=typeof(m.abil||{})[k]==='boolean'?m.abil[k]:ABIL[k];
+  p.gload=gloadFix(m.gload);p.wpns=null;   // (and the weapons they've chosen for a goblin: gob-loadout.js)
   dressHippo(p);
   if(!p.active)netActivate(p);layout();
   p.net.sent={};p.net.looks.clear();p.net.cars.clear();p.net.out.length=0;
@@ -26365,7 +26504,7 @@ function netHostDropped(peer){
 }
 function netHostLeft(peer){
   const p=NET.guests.get(peer);if(!p)return;NET.guests.delete(peer);
-  const nm=charName(p);p.net=null;p.abil=null;
+  const nm=charName(p);p.net=null;p.abil=null;p.gload=null;
   for(const k in p.in)if(typeof p.in[k]==='boolean')p.in[k]=false;p.in.x=p.in.z=0;
   if(p.drv)drvExit(p);netDeactivate(p);layout();
   flashLabel(nm+' left the game');netHostStatus();

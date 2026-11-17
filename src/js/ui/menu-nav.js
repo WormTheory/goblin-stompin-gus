@@ -53,6 +53,10 @@ function menuNav(dir){
   if(dy&&title&&pane.contains(cur)){const U=paneUnits(pane),i=U.findIndex(u=>u===cur||u.contains(cur))+dy;if(i<0)padFocus(tabBtn);else if(i<U.length)unitFocus(U[i]);return;}
   // (the ability switches: up and down from a basic move goes to the next basic move, not into the upgrades beside it)
   // (and left and right along a basic move's row: the move, then its upgrades in order)
+  // (a goblin's weapons: two cards a row, so up and down keep to the same side, left and right go across)
+  if((dx||dy)&&cur&&cur.matches&&cur.matches('#gwpnList button')){const R=[...document.querySelectorAll('#gwpnList .ab-row')],r=R.indexOf(cur.closest('.ab-row')),B=i=>[...R[i].querySelectorAll('button')],c=B(r).indexOf(cur);
+    if(dx){const n=B(r)[c+dx];if(n)padFocus(n);return;}
+    if(R[r+dy]){const q=B(r+dy);unitFocus(q[Math.min(c,q.length-1)]);return;}}
   if(dx&&cur&&cur.matches&&cur.matches('#abilList .tog')){const R=[...cur.closest('.ab-row').querySelectorAll('.tog')],n=R[R.indexOf(cur)+dx];if(n)padFocus(n);return;}
   if(dy&&cur&&cur.matches&&cur.matches('#abilList .ab-base')){const B=[...document.querySelectorAll('#abilList .ab-base')],n=B[B.indexOf(cur)+dy];if(n){unitFocus(n);return;}}
   if(dy&&pane&&cur&&cur.closest){
@@ -92,7 +96,7 @@ function menuPad(st,dt){
     if(s.pr[4])subStep(-1);
     if(s.pr[5])subStep(1);
     // (Y on the character cards: down to the ability switches)
-    if(s.pr[3]&&curTab==='custom'){const t=document.querySelector('#abilList .tog');if(t&&t.offsetParent)padFocus(t);}
+    if(s.pr[3]&&curTab==='custom'){const t=[...document.querySelectorAll('#abilList .tog,#gwpnList button')].find(o=>o.offsetParent);if(t)padFocus(t);}   // (or a goblin's weapons)
     const ry=s.p.axes[3]||0;
     if(curTab==='map'&&s.pr[2])mapRecentre();
     if(curTab==='map'&&s.pr[3])mapClick();   // (Y: a marker at the crosshair)

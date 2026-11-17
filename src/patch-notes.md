@@ -111,6 +111,13 @@
 - Its thrusters are a little louder.
 - Every vehicle can now be driven. Subway trains: climb in at a station and drive one round its loop, forwards or back. A rowboat pulled up on the beach, or a ship in a dry dock, is pushed off into the nearest open water as you climb in.
 
+### Goblin loadout
+
+- Playing as Gnash or Grizzle, the Character tab now shows a Loadout in place of the hippos' abilities: pick which weapons he starts with (club, dagger, handgun, rifle) and how many grenades, from none to 9.
+- At first it's as before: just the club and no grenades. He always keeps at least one weapon, and anything else you can still take off the enemies you kill.
+- Each player has their own loadout, kept between visits, and in split screen player two picks theirs from their own pause menu. Gnash and Grizzle share it, as they share everything else.
+- Changing it while playing re-arms your goblin at once.
+
 ### PvP
 
 - A new PvP switch in Options, off unless you turn it on. With it on, players can fight each other, in split screen or online, whoever they're playing as.

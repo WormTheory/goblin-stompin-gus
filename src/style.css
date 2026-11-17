@@ -1031,48 +1031,59 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
    off it to the right (a "+1" or "+2" coin: how many steps up from the basic move). No tick boxes: a move that's on is
    in full colour, one that's off greyed out but still readable, with the word On or Off (or what it needs) in its corner
    for anyone who can't tell the colours apart. Player one's moves are Gus green, player two's (in their own menu) pink */
-#abilNote{color:#4a3a4d;font:500 14px/1.4 var(--f-body)}
-#abilList{gap:9px;margin-top:4px}
-#abilList .ab-h,#abilList .ab-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.1fr);gap:10px 16px;align-items:start}
-#abilList .ab-h span{font-size:18px;line-height:1;color:var(--ink);text-transform:uppercase}
-#abilList .ab-h span+span{padding-left:26px}
-#abilList .ab-up{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch;position:relative;padding-left:26px;min-height:46px}
+#abilNote,#gwpnNote{color:#4a3a4d;font:500 14px/1.4 var(--f-body)}
+:is(#abilList,#gwpnList){gap:9px;margin-top:4px}
+:is(#abilList,#gwpnList) .ab-h,:is(#abilList,#gwpnList) .ab-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.1fr);gap:10px 16px;align-items:start}
+:is(#abilList,#gwpnList) .ab-h span{font-size:18px;line-height:1;color:var(--ink);text-transform:uppercase}
+:is(#abilList,#gwpnList) .ab-h span+span{padding-left:26px}
+:is(#abilList,#gwpnList) .ab-up{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch;position:relative;padding-left:26px;min-height:46px}
 /* (the dashed lead from the basic move to its upgrades) */
-#abilList .ab-up::before{content:"";position:absolute;left:0;top:22px;width:15px;border-top:3px dashed var(--ink)}
-#abilList .ab-up::after{content:"";position:absolute;left:14px;top:17px;border:6px solid transparent;border-left:8px solid var(--ink);border-right:0}
-#abilList .ab-up:empty::before,#abilList .ab-up:empty::after{display:none}
-#abilList .tog{position:relative;display:flex;align-items:flex-start;gap:8px;padding:8px 10px;color:var(--ink);background:#fffaf0;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);transition:background-color .12s,transform .12s}
-#abilList .tog:hover{transform:translateY(-1px)}
-#abilList .tog:active{transform:translateY(1px)}
-#abilList .tog .tl{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
-#abilList .tog .nm{font:400 19px/1 var(--f-px);letter-spacing:.5px;text-transform:uppercase}
-#abilList .tog small{font:500 12px/1.3 var(--f-body);color:#4a3a4d}
-#abilList .tog .st{flex:none;font:400 13px/1 var(--f-px);letter-spacing:.4px;text-transform:uppercase;padding:3px 6px 2px;border:2px solid var(--ink);border-radius:6px 8px 5px 9px;background:var(--paper);white-space:nowrap}
+:is(#abilList,#gwpnList) .ab-up::before{content:"";position:absolute;left:0;top:22px;width:15px;border-top:3px dashed var(--ink)}
+:is(#abilList,#gwpnList) .ab-up::after{content:"";position:absolute;left:14px;top:17px;border:6px solid transparent;border-left:8px solid var(--ink);border-right:0}
+:is(#abilList,#gwpnList) .ab-up:empty::before,:is(#abilList,#gwpnList) .ab-up:empty::after{display:none}
+:is(#abilList,#gwpnList) .tog{position:relative;display:flex;align-items:flex-start;gap:8px;padding:8px 10px;color:var(--ink);background:#fffaf0;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);transition:background-color .12s,transform .12s}
+:is(#abilList,#gwpnList) .tog:hover{transform:translateY(-1px)}
+:is(#abilList,#gwpnList) .tog:active{transform:translateY(1px)}
+:is(#abilList,#gwpnList) .tog .tl{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+:is(#abilList,#gwpnList) .tog .nm{font:400 19px/1 var(--f-px);letter-spacing:.5px;text-transform:uppercase}
+:is(#abilList,#gwpnList) .tog small{font:500 12px/1.3 var(--f-body);color:#4a3a4d}
+:is(#abilList,#gwpnList) .tog .st{flex:none;font:400 13px/1 var(--f-px);letter-spacing:.4px;text-transform:uppercase;padding:3px 6px 2px;border:2px solid var(--ink);border-radius:6px 8px 5px 9px;background:var(--paper);white-space:nowrap}
 /* a basic move: a big card */
-#abilList .ab-base{min-height:46px}
-#abilList .ab-base[aria-checked="true"]{background:#d9f3b8}
-#abilList .ab-base[aria-checked="true"] .st{background:var(--gus)}
-#abilList[data-seat="1"] .ab-base[aria-checked="true"]{background:#fde0d8}
-#abilList[data-seat="1"] .ab-base[aria-checked="true"] .st{background:var(--pink)}
+:is(#abilList,#gwpnList) .ab-base{min-height:46px}
+:is(#abilList,#gwpnList) .ab-base[aria-checked="true"]{background:#d9f3b8}
+:is(#abilList,#gwpnList) .ab-base[aria-checked="true"] .st{background:var(--gus)}
+:is(#abilList,#gwpnList)[data-seat="1"] .ab-base[aria-checked="true"]{background:#fde0d8}
+:is(#abilList,#gwpnList)[data-seat="1"] .ab-base[aria-checked="true"] .st{background:var(--pink)}
 /* an upgrade: a yolk token with its coin */
-#abilList .ab-tok{flex:1 1 230px;padding-left:44px;border-radius:14px 18px 12px 16px/16px 12px 18px 14px;border-style:solid}
-#abilList .ab-tok[aria-checked="true"]{background:#fff0b0}
-#abilList .ab-tok[aria-checked="true"] .st{background:var(--yolk)}
-#abilList .ab-tok .lv{position:absolute;left:7px;top:6px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font:400 14px/1 var(--f-px);font-style:normal;color:var(--ink);background:var(--yolk);border:3px solid var(--ink);box-shadow:inset 0 -3px 0 rgba(0,0,0,.14)}
+:is(#abilList,#gwpnList) .ab-tok{flex:1 1 230px;padding-left:44px;border-radius:14px 18px 12px 16px/16px 12px 18px 14px;border-style:solid}
+:is(#abilList,#gwpnList) .ab-tok[aria-checked="true"]{background:#fff0b0}
+:is(#abilList,#gwpnList) .ab-tok[aria-checked="true"] .st{background:var(--yolk)}
+:is(#abilList,#gwpnList) .ab-tok .lv{position:absolute;left:7px;top:6px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font:400 14px/1 var(--f-px);font-style:normal;color:var(--ink);background:var(--yolk);border:3px solid var(--ink);box-shadow:inset 0 -3px 0 rgba(0,0,0,.14)}
 /* off: greyed out, still readable (the name and description stay well over 4.5:1 on the grey) */
-#abilList .tog[aria-checked="false"]{background:#e2dadb;border-color:#6e5f70;box-shadow:3px 3px 0 #6e5f70;color:#4b3c4e}
-#abilList .tog[aria-checked="false"] small{color:#594a5b}
-#abilList .tog[aria-checked="false"] .st,#abilList .tog[aria-checked="false"] .lv{background:#cbc1c4;border-color:#6e5f70;color:#4b3c4e}
-#abilList .tog[aria-checked="false"] .lv{box-shadow:none}
+:is(#abilList,#gwpnList) .tog[aria-checked="false"]{background:#e2dadb;border-color:#6e5f70;box-shadow:3px 3px 0 #6e5f70;color:#4b3c4e}
+:is(#abilList,#gwpnList) .tog[aria-checked="false"] small{color:#594a5b}
+:is(#abilList,#gwpnList) .tog[aria-checked="false"] .st,:is(#abilList,#gwpnList) .tog[aria-checked="false"] .lv{background:#cbc1c4;border-color:#6e5f70;color:#4b3c4e}
+:is(#abilList,#gwpnList) .tog[aria-checked="false"] .lv{box-shadow:none}
 /* an upgrade whose basic move is off: greyed, and dashed round, as it can't do anything yet */
-#abilList .tog.dim{border-style:dashed;box-shadow:none}
-#abilList .tog:focus-visible,#pause #abilList .tog.padfocus{outline:4px dashed var(--yolk)!important;outline-offset:3px;box-shadow:0 0 0 3px var(--ink)!important}
-#abilList .ab-or{align-self:center;font:400 16px/1 var(--f-px);text-transform:uppercase;color:var(--ink)}
+:is(#abilList,#gwpnList) .tog.dim{border-style:dashed;box-shadow:none}
+:is(#abilList,#gwpnList) .tog:focus-visible,#pause :is(#abilList,#gwpnList) .tog.padfocus{outline:4px dashed var(--yolk)!important;outline-offset:3px;box-shadow:0 0 0 3px var(--ink)!important}
+:is(#abilList,#gwpnList) .ab-or{align-self:center;font:400 16px/1 var(--f-px);text-transform:uppercase;color:var(--ink)}
 /* (the landings: no switch of their own, every hippo lands; just the upgrades to how) */
-#abilList .ab-lbl{display:flex;flex-direction:column;gap:4px;padding:10px 12px;border:3px dashed rgba(43,27,46,.4);border-radius:var(--wobs)}
-#abilList .ab-lbl .nm{font-size:19px;line-height:1;color:var(--ink);text-transform:uppercase}
-#abilList .ab-lbl small{font:500 12.5px/1.35 var(--f-body);color:#4a3a4d}
-@media (prefers-reduced-motion:reduce){#abilList .tog{transition:none}#abilList .tog:hover,#abilList .tog:active{transform:none}}
+:is(#abilList,#gwpnList) .ab-lbl{display:flex;flex-direction:column;gap:4px;padding:10px 12px;border:3px dashed rgba(43,27,46,.4);border-radius:var(--wobs)}
+:is(#abilList,#gwpnList) .ab-lbl .nm{font-size:19px;line-height:1;color:var(--ink);text-transform:uppercase}
+:is(#abilList,#gwpnList) .ab-lbl small{font:500 12.5px/1.35 var(--f-body);color:#4a3a4d}
+@media (prefers-reduced-motion:reduce){:is(#abilList,#gwpnList) .tog{transition:none}:is(#abilList,#gwpnList) .tog:hover,:is(#abilList,#gwpnList) .tog:active{transform:none}}
+/* (a goblin's weapons: two cards a row, under a heading for each kind) */
+#gwpnList .ab-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+#gwpnList .ab-h{grid-template-columns:1fr;margin-top:6px}
+/* (the grenade count: a card across the row, with a minus and plus either side of the number) */
+#gwpnList .gl-cnt{grid-column:1/-1;align-items:center;cursor:default}
+#gwpnList .gl-cnt:hover{transform:none}
+#gwpnList .gl-b{flex:none;width:40px;height:40px;font:400 24px/1 var(--f-px);color:var(--ink);background:var(--paper);border:3px solid var(--ink);border-radius:9px 12px 8px 13px;box-shadow:2px 2px 0 var(--ink);cursor:pointer}
+#gwpnList .gl-b:hover{background:var(--yolk)}
+#gwpnList .gl-b[aria-disabled="true"]{opacity:.45;cursor:default}
+#gwpnList .gl-n{flex:none;min-width:64px;text-align:center;font:400 22px/1 var(--f-px)}
+#gwpnList .gl-b:focus-visible,#pause #gwpnList .gl-b.padfocus{outline:4px dashed var(--yolk)!important;outline-offset:3px;box-shadow:0 0 0 3px var(--ink)!important}
 @container (max-width:640px){#abilList .ab-h{display:none}#abilList .ab-row{grid-template-columns:1fr}#abilList .ab-up{margin-left:18px}}
 .card .pmenu,.confirm button{background:var(--biscuit);color:var(--ink);border:3px solid var(--ink);border-radius:8px 11px 7px 12px/11px 7px 12px 8px;box-shadow:0 3px 0 var(--ink)}
 .confirm button.yes{background:var(--tomato);border-color:var(--ink)}

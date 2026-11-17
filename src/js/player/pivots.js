@@ -193,10 +193,7 @@ function gobKit(p){
   // (and what's in his hand, for the others to see: the weapon he's holding, the same shapes the enemies carry)
   const tp={},tm=c=>new THREE.MeshLambertMaterial({color:c}),tb=(w,h,d,c,x,y,z,g)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),tm(c));o.position.set(x,y,z);g.add(o);};
   for(const k of GOB_WPN_ORDER){tp[k]=new THREE.Group();m.arm.hand.add(tp[k]);tp[k].visible=k==='club';}   // (in the wrist, as the enemies hold theirs)
-  tb(0.11,0.11,0.55,GC.club,0,0.02,0.22,tp.club);tb(0.19,0.19,0.19,GC.club,0,0.02,0.5,tp.club);
-  tb(0.08,0.08,0.12,0x2a1a10,0,-0.02,0.06,tp.dagger);tb(0.05,0.03,0.34,0xd0d4dc,0,-0.02,0.29,tp.dagger);
-  tb(0.07,0.27,0.09,0x22262c,0,-0.1,0.06,tp.handgun);tb(0.06,0.08,0.15,0x22262c,0,0.01,-0.03,tp.handgun);   // (as the police hold theirs: goblins.js)
-  tb(0.1,0.3,0.14,0x4a3420,0,0.04,0.06,tp.rifle);tb(0.07,0.62,0.07,0x22262c,0,-0.38,0.06,tp.rifle);tb(0.05,0.12,0.05,0x22262c,0,-0.12,0.13,tp.rifle);
+  for(const k of GOB_WPN_ORDER)wpnBoxes(WEAPONS[k].model.held,(w,h,d,c,x,y,z)=>tb(w,h,d,c,x,y,z,tp[k]));   // (WEAPONS: as the enemies hold them)
   // (drawn last and over everything, so it never pokes through a wall you're stood against)
   const vm=new THREE.Group();vm.rotation.order='YXZ';vm.visible=false;vm.scale.setScalar(0.5);scene.add(vm);
   const arm=new THREE.Group();arm.position.set(0.52,-0.62,-0.72);vm.add(arm);
@@ -205,15 +202,12 @@ function gobKit(p){
   box(0.11,0.11,0.42,GC.skin,0,0,-0.2,60);
   // (one of these in the hand at a time: see gob-weapons.js)
   const held={};for(const k of GOB_WPN_ORDER){held[k]=new THREE.Group();arm.add(held[k]);held[k].visible=k==='club';}
-  box(0.07,0.42,0.07,GC.club,0,0.17,-0.42,61,held.club);box(0.15,0.17,0.15,GC.club,0,0.42,-0.42,62,held.club);
-  box(0.09,0.09,0.13,0x2a1a10,0,0.02,-0.44,61,held.dagger);box(0.14,0.04,0.04,0x6a5a3a,0,0.02,-0.52,61,held.dagger);box(0.025,0.05,0.34,0xd0d4dc,0,0.02,-0.71,62,held.dagger);   // (pointing forward, for stabbing)
-  box(0.07,0.13,0.1,0x22262c,0,-0.03,-0.4,61,held.handgun);box(0.06,0.07,0.3,0x22262c,0,0.06,-0.5,62,held.handgun);   // (the grip, and the slide pointing on along the view)
-  box(0.1,0.12,0.34,0x4a3420,0,0.02,-0.36,61,held.rifle);box(0.07,0.07,0.78,0x22262c,0,0.07,-0.86,62,held.rifle);box(0.05,0.12,0.05,0x22262c,0,-0.04,-0.6,62,held.rifle);
+  for(const k of GOB_WPN_ORDER)wpnBoxes(WEAPONS[k].model.view,(w,h,d,c,x,y,z,o)=>box(w,h,d,c,x,y,z,o,held[k]));   // (each in your own view: WEAPONS)
   // (and the other arm coming in from the bottom left, its hand under the rifle's barrel or wrapped round the handgun's
   // grip, as the others see him hold them: a forearm from S, off the edge of the picture, to the hand at P)
   const fore=(P,S,to)=>{const d=[S[0]-P[0],S[1]-P[1],S[2]-P[2]],L=Math.hypot(...d),b=new THREE.Mesh(new THREE.BoxGeometry(0.11,0.11,L),mat(GC.skin));
     b.position.set((P[0]+S[0])/2,(P[1]+S[1])/2,(P[2]+S[2])/2);b.rotation.order='YXZ';b.rotation.set(-Math.asin(d[1]/L),Math.atan2(d[0],d[2]),0);b.renderOrder=60;b.frustumCulled=false;to.add(b);};
-  fore([0,-0.01,-0.92],[-0.62,-0.42,-0.1],held.rifle);fore([-0.07,-0.06,-0.42],[-0.5,-0.42,0],held.handgun);
+  for(const k of GOB_WPN_ORDER){const F=WEAPONS[k].model.fore;if(F)fore(F[0],F[1],held[k]);}
   return p.gb={root,m,vm,arm,held,tp};
 }
 // the first-person view, and the body that goes with it

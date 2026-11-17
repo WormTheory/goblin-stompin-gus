@@ -84,7 +84,7 @@ async function netStartHost(kind){
 }
 // (what a guest sends about itself when it asks to join, and what the host takes from it)
 function netCid(){let c=null;try{c=sessionStorage.getItem('gsg-net-cid');if(!c){c=netId();sessionStorage.setItem('gsg-net-cid',c);}}catch(e){}return c||(NET.cid||(NET.cid=netId()));}   // (this tab, through a reload or a dropped connection, so the host keeps its seat for it)
-function netHello(){return{t:'hello',v:NET_PROTO,cid:netCid(),who:charWho(CHAR),gob:charGob(CHAR),abil:Object.assign({},ABIL),seat:NET.wantSeat};}
+function netHello(){return{t:'hello',v:NET_PROTO,cid:netCid(),who:charWho(CHAR),gob:charGob(CHAR),abil:Object.assign({},ABIL),gload:GOB_LOAD,seat:NET.wantSeat};}
 function netHostMsg(peer,m){
   if(!m||typeof m!=='object')return;
   const p=NET.guests.get(peer);
@@ -116,6 +116,7 @@ function netSeat(peer,m){
   p.who=m.who?1:0;if(!!m.gob===!!P1.gob&&p.who===P1.who)p.who=1-P1.who;setGobP(p,!!m.gob);
   // (each player keeps the abilities they've switched on in their own browser)
   p.abil={};for(const k in ABIL)p.abil[k]=typeof(m.abil||{})[k]==='boolean'?m.abil[k]:ABIL[k];
+  p.gload=gloadFix(m.gload);p.wpns=null;   // (and the weapons they've chosen for a goblin: gob-loadout.js)
   dressHippo(p);
   if(!p.active)netActivate(p);layout();
   p.net.sent={};p.net.looks.clear();p.net.cars.clear();p.net.out.length=0;
@@ -135,7 +136,7 @@ function netHostDropped(peer){
 }
 function netHostLeft(peer){
   const p=NET.guests.get(peer);if(!p)return;NET.guests.delete(peer);
-  const nm=charName(p);p.net=null;p.abil=null;
+  const nm=charName(p);p.net=null;p.abil=null;p.gload=null;
   for(const k in p.in)if(typeof p.in[k]==='boolean')p.in[k]=false;p.in.x=p.in.z=0;
   if(p.drv)drvExit(p);netDeactivate(p);layout();
   flashLabel(nm+' left the game');netHostStatus();

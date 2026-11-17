@@ -1,0 +1,55 @@
+// ---- Every weapon a goblin can carry, in one table: the enemies' and a player goblin's (Gnash's) alike ----
+// One entry per weapon, in the order the weapon button goes through them (WEAPON_ORDER). Each has:
+//   name, about (a line for the Character tab's loadout), kind ('melee', 'gun' or 'throw');
+//   model: the boxes it's made of, [w,h,d,colour,x,y,z,role] (a colour of null is the goblins' club brown, GC.club):
+//     held in the hand, in the hand's own frame (an enemy's, and a player goblin as the others see him: goblinModel, gobKit),
+//     view in your own first-person view ([...,renderOrder], with fore: where the other forearm reaches in to hold it),
+//     drop lying on the ground to be picked up (puModel);
+//   npc: how an enemy uses it: the blow it strikes up close (strike, in STRIKES), the pose it aims in (aim, a GUN_GRIP
+//     key), and for the handgun the police's own shooting stats (gun, as foeRanged reads them; each compound's rifle is
+//     tuned in its own FOES entry);
+//   player: Gnash's numbers (gob-weapons.js: GOB_WPN is these blocks), what it's called when it kills (cause), and for
+//     a gun its kick (shake, rumble);
+//   crack: a gun's sound, the same from either side ([noise], [tone]: wpnCrack);
+//   drop: whether a killed enemy leaves it for Gnash to pick up, and stack: whether you carry a pile of them.
+// To add a weapon: an entry here, and gear:'<key>' on whichever foes carry it in FOES (foes.js). The Character tab's
+// goblin loadout, the drops, the HUD and the weapon button all pick it up from here.
+const WEAPONS={
+  club:{name:'Club',about:'A heavy swing that knocks goblins flat and dents cars',kind:'melee',drop:false,
+    model:{held:[[0.11,0.11,0.55,null,0,0.02,0.22,'club'],[0.19,0.19,0.19,null,0,0.02,0.5,'club']],
+      view:[[0.07,0.42,0.07,null,0,0.17,-0.42,61],[0.15,0.17,0.15,null,0,0.42,-0.42,62]]},
+    npc:{strike:'club'},
+    player:{dur:0.38,lunge:0.16,cd:0.45,cause:'Clubbed by another goblin',pvp:'Clubbed'}},
+  dagger:{name:'Dagger',about:'Quick stabs at whatever is right in front of you',kind:'melee',drop:true,
+    model:{held:[[0.08,0.08,0.12,0x2a1a10,0,-0.02,0.06,'hilt'],[0.05,0.03,0.34,0xd0d4dc,0,-0.02,0.29,'blade']],
+      view:[[0.09,0.09,0.13,0x2a1a10,0,0.02,-0.44,61],[0.14,0.04,0.04,0x6a5a3a,0,0.02,-0.52,61],[0.025,0.05,0.34,0xd0d4dc,0,0.02,-0.71,62]],   // (pointing forward, for stabbing)
+      drop:[[0.08,0.08,0.14,0x2a1a10,0,0,-0.14],[0.05,0.03,0.36,0xd0d4dc,0,0,0.1]]},
+    npc:{strike:'dagger'},
+    player:{dur:0.26,lunge:0.1,cd:0.28,dmg:2,r:0.95,reach:1.0,cause:'Stabbed by a goblin',pvp:'Stabbed'}},
+  handgun:{name:'Handgun',about:'A police pistol: quick to fire again, but a shorter reach',kind:'gun',drop:true,
+    // (as the police hold theirs: its barrel on down past the fist like the rifle's, so it points straight out when the
+    // arm's raised to aim)
+    model:{held:[[0.07,0.27,0.09,0x22262c,0,-0.1,0.06,'gun'],[0.06,0.08,0.15,0x22262c,0,0.01,-0.03,'gun']],
+      view:[[0.07,0.13,0.1,0x22262c,0,-0.03,-0.4,61],[0.06,0.07,0.3,0x22262c,0,0.06,-0.5,62]],fore:[[-0.07,-0.06,-0.42],[-0.5,-0.42,0]],   // (the grip, and the slide pointing on along the view)
+      drop:[[0.06,0.09,0.22,0x22262c,0,0.03,0],[0.06,0.14,0.07,0x22262c,0,-0.06,-0.07]]},
+    npc:{strike:'club',aim:'pistol',gun:[4,30,0.45,[1.6,2.6],1,'Shot by the police']},   // (an officer clubs up close)
+    player:{dur:0.16,lunge:0.01,cd:0.32,dmg:1.5,range:30,cause:'Shot by a goblin',shake:0.02,rumble:0.14},   // (shorter reach than the rifle, quicker to fire again)
+    crack:[[0.06,0.12,3400],[330,140,0.045,0.035]]},   // (sharper and shorter than a rifle's)
+  rifle:{name:'Rifle',about:'Hits hard and far, down the middle of your view',kind:'gun',drop:true,
+    // (pointing on down past the hand, so it's level when the arm is raised to aim)
+    model:{held:[[0.1,0.3,0.14,0x4a3420,0,0.04,0.06,'stock'],[0.07,0.62,0.07,0x22262c,0,-0.38,0.06,'gun'],[0.05,0.12,0.05,0x22262c,0,-0.12,0.13,'gun']],
+      view:[[0.1,0.12,0.34,0x4a3420,0,0.02,-0.36,61],[0.07,0.07,0.78,0x22262c,0,0.07,-0.86,62],[0.05,0.12,0.05,0x22262c,0,-0.04,-0.6,62]],fore:[[0,-0.01,-0.92],[-0.62,-0.42,-0.1]],
+      drop:[[0.1,0.14,0.3,0x4a3420,0,0,-0.36],[0.07,0.07,0.7,0x22262c,0,0.02,0.12],[0.05,0.12,0.05,0x22262c,0,-0.07,-0.12]]},
+    npc:{strike:'butt',aim:'rifle'},
+    player:{dur:0.2,lunge:0.01,cd:0.55,dmg:2,range:48,cause:'Shot by a goblin',shake:0.03,rumble:0.2},
+    crack:[[0.09,0.14,2600],[220,90,0.06,0.04]]},
+  grenade:{name:'Grenades',about:'Thrown with Stomp: how many he starts with',kind:'throw',drop:true,stack:true,
+    // (an enemy holds its own, in its own colours, while winding up to throw: FOES' held)
+    model:{drop:[[0.22,0.24,0.22,0x3a4a22,0,0,0],[0.08,0.08,0.08,0x8a8a90,0,0.15,0]]},
+    player:{cause:"Blown up by a goblin's grenade",max:9,cd:0.6,v:15,fuse:2.2,R:3.3,dmg:3}}};
+const WEAPON_ORDER=Object.keys(WEAPONS);
+for(const k of WEAPON_ORDER){const W=WEAPONS[k];W.k=k;if(W.player)W.player.name=W.name;}
+// a gun going off, heard the same whoever fires it
+function wpnCrack(k){const C=WEAPONS[k]&&WEAPONS[k].crack;if(!C||!audio)return;noise(C[0][0],C[0][1],C[0][2],'highpass');tone('square',C[1][0],C[1][1],C[1][2],C[1][3]);}
+// a weapon's boxes, each handed to make(w,h,d,colour,x,y,z,last) (the role or render order)
+function wpnBoxes(list,make){for(const b of list||[])make(b[0],b[1],b[2],b[3]??GC.club,b[4],b[5],b[6],b[7]);}

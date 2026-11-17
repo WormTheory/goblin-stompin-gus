@@ -45,6 +45,7 @@ vehicles/mech.js
 vehicles/mech-weapons.js
 ui/mech-hud.js
 player/move.js
+enemies/weapons.js
 enemies/goblins.js
 enemies/strikes.js
 ui/obituary.js
@@ -59,6 +60,7 @@ enemies/police-gun.js
 enemies/cultists.js
 enemies/shots.js
 player/gob-weapons.js
+ui/gob-loadout.js
 enemies/routes.js
 vehicles/cars.js
 vehicles/car-physics.js
