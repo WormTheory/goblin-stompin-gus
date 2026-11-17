@@ -81,14 +81,12 @@ function foeRanged(g,p,d,ddy,dt,F=FOES[g.foeKind]){
 // a rifle shot: there and back in the instant, a tracer to show it; more likely to miss the further off he is
 function foeShoot(g,p,G6){
   const fx=Math.sin(g.heading),fz=Math.cos(g.heading),x0=g.pos.x+fx*0.8,y0=g.pos.y+1.05,z0=g.pos.z+fz*0.8;
-  const d=Math.hypot(p.pos.x-x0,p.pos.z-z0),hit=!(p.dodge&&p.dodge.t<p.dodge.dur*0.85)&&Math.random()<Math.max(0.3,0.92-d/60);
-  let tx=p.pos.x,ty=p.pos.y+1.2,tz=p.pos.z;
-  if(!hit){const a=Math.random()*6.283,r=1.6+Math.random()*1.5;tx+=Math.cos(a)*r;tz+=Math.sin(a)*r;ty+=(Math.random()-0.3)*1.5;const k=1.6;tx=x0+(tx-x0)*k;ty=y0+(ty-y0)*k;tz=z0+(tz-z0)*k;}
-  // (a block in the way stops the round there: they may have taken aim before he ducked behind something)
-  let hit2=hit;{const w=wallStop(x0,y0,z0,tx,ty,tz);if(w){tx=w.x;ty=w.y;tz=w.z;hit2=false;}}
-  tracer(x0,y0,z0,tx,ty,tz);puff(x0,y0-0.1,z0,1,0xffe070,0.1);
-  wpnCrack(G6===COP_GUN?'handgun':'rifle');   // (a handgun's crack is sharper and shorter: WEAPONS)
-  if(hit2){const h=Math.hypot(tx-x0,tz-z0)||1;shotPlayer(p,G6[4],new V3(tx,ty,tz),new V3((tx-x0)/h,0.2,(tz-z0)/h),G6[5],g.id);}
+  const d=Math.hypot(p.pos.x-x0,p.pos.z-z0);
+  // (a block in the way stops the round there: they may have taken aim before he ducked behind something. A handgun's
+  // crack is sharper and shorter: WEAPONS)
+  fireRound({x:x0,y:y0,z:z0,at:{x:p.pos.x,y:p.pos.y+1.2,z:p.pos.z},tgt:p,hit:Math.max(0.3,0.92-d/60),miss:[1.6,3.1,-0.45,1.5,1.6],step:0.4,
+    pdmg:G6[4],cause:G6[5],id:g.id,snd:()=>wpnCrack(G6===COP_GUN?'handgun':'rifle')});
+  puff(x0,y0-0.1,z0,1,0xffe070,0.1);
 }
 // a bomb lobbed in an arc at where he's standing (give or take), fuse fizzing
 function foeThrow(g,p,B6){

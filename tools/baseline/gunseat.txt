@@ -19,7 +19,7 @@ players: Gnash (goblin) + Grizzle (goblin)
   B display: true  crosshair true  says Gunner  ·  Four-wheeler  ·  24 / 45 | [LMB] fire  ·  [KEY:Q] lock on  ·  [KEY:F] get out  ammo panel true
   A display: crosshair false  says [KEY:F] get out
   gun swung 1.7  toward the goblin at 1.8
-  B fires: rounds 6 -> 2  goblin hp 6 -> 0 dead
+  B fires: rounds 6 -> 2  goblin hp 6 -> 3 chase
   A bite (the horn): rounds used 0
   B gets off: on foot  car.gnr null  A still driver of car
   A alone, free seat to move to true

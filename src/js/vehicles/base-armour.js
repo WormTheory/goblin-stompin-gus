@@ -159,11 +159,8 @@ function updateHeli(M,V,dt){
     if(M.spin<0.8){tx=M.x;tz=M.z;ty=M.y;}   // (the rotor running up before it lifts)
     else{const mx=M.x+Math.sin(M.h)*2.6,my=M.y+1.2,mz=M.z+Math.cos(M.h)*2.6,d3=Math.hypot(p.pos.x-mx,p.pos.y+1-my,p.pos.z-mz),see=d3<70&&Math.abs(angDiff(M.h,face))<0.35&&lineClear(mx,my,mz,p.pos.x,p.pos.y+1.2,p.pos.z);
       // its gun: a burst of six, then a pause
-      M.cd-=dt;if(M.burst>0){M.bt-=dt;if(M.bt<=0){M.bt=0.12;M.burst--;const hit=see&&!(p.dodge&&p.dodge.t<p.dodge.dur*0.85)&&Math.random()<0.3;
-          const a=Math.random()*6.28,r=hit?0:1.5+Math.random()*2;let ex=p.pos.x+Math.cos(a)*r,ez=p.pos.z+Math.sin(a)*r,ey=p.pos.y+(hit?1.2:0),hit2=hit;
-          {const w=wallStop(mx,my,mz,ex,ey,ez);if(w){ex=w.x;ey=w.y;ez=w.z;hit2=false;}}   // (each round stops at a wall)
-          tracer(mx,my,mz,ex,ey,ez);if(audio)sfx('Helicopter gun',()=>noise(0.06,0.1,2400,'highpass'));if(!hit2)puff(ex,ey,ez,1,0x9a948a,0.2);
-          if(hit2){const h=Math.hypot(ex-mx,ez-mz)||1;shotPlayer(p,1,new V3(ex,ey,ez),new V3((ex-mx)/h,0.2,(ez-mz)/h),'Gunned down from a helicopter',MIL_CREW.heli);}}}
+      M.cd-=dt;if(M.burst>0){M.bt-=dt;if(M.bt<=0){M.bt=0.12;M.burst--;   // (a miss kicks up the ground round him; each round stops at a wall)
+          fireRound({x:mx,y:my,z:mz,at:{x:p.pos.x,y:p.pos.y+1.2,z:p.pos.z},tgt:p,hit:see?0.3:0,miss:[1.5,3.5,-1.2,0],step:0.4,pdmg:1,cause:'Gunned down from a helicopter',id:MIL_CREW.heli,snd:'Helicopter gun'});}}
       else if(M.cd<=0){if(see){M.burst=6;M.bt=0;M.cd=3+Math.random()*1.5;}else M.cd=0.5;}
       // and now and then a rocket
       M.rcd-=dt;if(M.rcd<=0&&see&&M.burst<=0){const L=d3||1,sp=30;shot({kind:'rocket',x:mx,y:my,z:mz,vx:(p.pos.x-mx)/L*sp,vy:(p.pos.y+1-my)/L*sp,vz:(p.pos.z-mz)/L*sp,grav:0.5,fuse:5,R:3.4,dmg:4,cause:'Blown up by a helicopter rocket',by:MIL_CREW.heli,crush:2.4,vd:35,own:M});M.rcd=7+Math.random()*4;if(audio)sfx('Helicopter rocket',()=>noise(0.5,0.25,900,'bandpass'));}}}

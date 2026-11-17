@@ -191,11 +191,8 @@ function jetAI(pl,dt){
 function jetAIGun(pl,Q,dt){const A=pl.ai;if(A.gcd>0)return;const P=pl.g.position,h=pl.g.rotation.y,mx=P.x+Math.sin(h)*6.8,my=P.y+1.2,mz=P.z+Math.cos(h)*6.8,q=Q.q;
   for(let n=0;n<3;n++){if(!wpnFire(pl,'gun'))break;pl.wpn.gun.cd=0;
     if(q.drv){gunRound(pl,null,mx,my,mz,3,0.01,'Gunned down by a fighter jet','Jet cannon',{x:Q.x,y:Q.y+0.8,z:Q.z});continue;}
-    let hit=Math.random()<0.1&&!(q.dodge&&q.dodge.t<q.dodge.dur*0.85),a=Math.random()*6.283,r=hit?0:1+Math.random()*3,ex=Q.x+Math.cos(a)*r,ey=Q.y+0.6,ez=Q.z+Math.sin(a)*r;
-    {const w=wallStop(mx,my,mz,ex,ey,ez);if(w){ex=w.x;ey=w.y;ez=w.z;hit=false;}}   // (a wall in the way takes it)
-    tracer(mx,my,mz,ex,ey,ez);if(audio)sfx('Jet cannon',()=>noise(0.05,0.1,2400,'highpass'));
-    if(hit){const L=Math.hypot(ex-mx,ez-mz)||1;shotPlayer(q,1,new V3(ex,ey,ez),new V3((ex-mx)/L,0.2,(ez-mz)/L),'Gunned down by a fighter jet',pl.crew);}
-    else puff(ex,ey,ez,1,0x9a948a,0.15);}
+    fireRound({x:mx,y:my,z:mz,at:{x:Q.x,y:Q.y+0.6,z:Q.z},tgt:q,hit:0.1,miss:[1,4,0,0],step:0.4,pdmg:1,cause:'Gunned down by a fighter jet',id:pl.crew,   // (a wall in the way takes it)
+      snd:()=>{if(audio)sfx('Jet cannon',()=>noise(0.05,0.1,2400,'highpass'));}});}
   A.gcd=0.1;}
 // a missile at them, homing on where they really are (it's fired out in the world)
 function jetAIMissile(pl,q){const P=pl.g.position,h=pl.g.rotation.y,F=pl.free,sd=(pl.rkN=(pl.rkN||0)+1)%2?1:-1,tx=Math.sin(h),tz=Math.cos(h),sp=F.v+60;

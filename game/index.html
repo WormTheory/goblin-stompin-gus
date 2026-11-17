@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:15fa7986eb72fb91b1b6d0e49601ea398e359c82a8a91e9e3793f93f70cdfc18 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:0eeb94f8070ff19a7e5aab4e6e45efdf1462156bbc932de8b845273277289206 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1599,7 +1599,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Health bars</h3>
 <ul><li>With Options' Health bars on, Mobile Gears, hot-air balloons, the barge, the aircraft carrier and its deck weapons, and subway trains now show health bars like every other vehicle; they never had one.</li><li>Anything aboard a ship (goblins, cars, tanks, helicopters, the carrier's jets) now has its health bar over it, rather than out of sight far away.</li></ul>
 <h3>Fixes</h3>
-<ul><li>Gnash's rifle and handgun now hit the carrier's deck weapons and damage them. Before, the rounds went straight through them, and through every other vehicle except cars. Tanks, trains and the like now stop the rounds but shrug them off.</li><li>The minimap no longer draws the grey of the surrounding blocks over big sites that take up several blocks, such as theme parks, which hid most of their buildings.</li><li>Enemy gunfire now hits whatever you're driving. Before, rifles, the militia's machine guns, the helicopters' guns and the cultists' fireballs did nothing at all to a goblin behind the wheel; now the vehicle takes the hit instead.</li><li>Rounds from the fighter jets' cannons, the carrier's CIWS, the militia's machine guns and the helicopters' guns are stopped by walls, one round at a time. Before, some went straight through buildings, and a burst kept coming even after you ducked behind something.</li><li>Invulnerability now covers a train or subway train you're driving, as it does every other vehicle.</li><li>Grenades, shells and rockets now hurt zoo animals, the Ferris wheel's rim and the carousel, as stomps already did, and a shell or rocket goes off when it hits an animal.</li></ul>
+<ul><li>Gnash's rifle and handgun now damage every vehicle they hit, the same way: cars, tanks, helicopters, trains, planes, boats, balloons, Mobile Gears and the carrier's deck weapons all take three times what a goblin would. Before, they went straight through most vehicles, did a single point to cars, and only the deck weapons took real harm.</li><li>The minimap no longer draws the grey of the surrounding blocks over big sites that take up several blocks, such as theme parks, which hid most of their buildings.</li><li>Enemy gunfire now hits whatever you're driving. Before, rifles, the militia's machine guns, the helicopters' guns and the cultists' fireballs did nothing at all to a goblin behind the wheel; now the vehicle takes the hit instead.</li><li>Rounds from the fighter jets' cannons, the carrier's CIWS, the militia's machine guns and the helicopters' guns are stopped by walls, one round at a time. Before, some went straight through buildings, and a burst kept coming even after you ducked behind something.</li><li>Invulnerability now covers a train or subway train you're driving, as it does every other vehicle.</li><li>Grenades, shells and rockets now hurt zoo animals, the Ferris wheel's rim and the carousel, as stomps already did, and a shell or rocket goes off when it hits an animal.</li></ul>
 </details>
 <p class="pn-earlier">Earlier updates</p>
 <details class="pn-up pn-fold" id="version-0-4-1"><summary tabindex="0"><h2>Version 0.4.1</h2><a class="pn-play" data-ver="0.4.1" href="v/0.4.1/" tabindex="0">Play 0.4.1</a><span class="pn-tog" aria-hidden="true"></span></summary>
@@ -1911,7 +1911,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='f92b7e43f3be';
+const GAME_VER='0.5',GAME_BUILD='98ff8a2f826a';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -3762,11 +3762,8 @@ function updateHeli(M,V,dt){
     if(M.spin<0.8){tx=M.x;tz=M.z;ty=M.y;}   // (the rotor running up before it lifts)
     else{const mx=M.x+Math.sin(M.h)*2.6,my=M.y+1.2,mz=M.z+Math.cos(M.h)*2.6,d3=Math.hypot(p.pos.x-mx,p.pos.y+1-my,p.pos.z-mz),see=d3<70&&Math.abs(angDiff(M.h,face))<0.35&&lineClear(mx,my,mz,p.pos.x,p.pos.y+1.2,p.pos.z);
       // its gun: a burst of six, then a pause
-      M.cd-=dt;if(M.burst>0){M.bt-=dt;if(M.bt<=0){M.bt=0.12;M.burst--;const hit=see&&!(p.dodge&&p.dodge.t<p.dodge.dur*0.85)&&Math.random()<0.3;
-          const a=Math.random()*6.28,r=hit?0:1.5+Math.random()*2;let ex=p.pos.x+Math.cos(a)*r,ez=p.pos.z+Math.sin(a)*r,ey=p.pos.y+(hit?1.2:0),hit2=hit;
-          {const w=wallStop(mx,my,mz,ex,ey,ez);if(w){ex=w.x;ey=w.y;ez=w.z;hit2=false;}}   // (each round stops at a wall)
-          tracer(mx,my,mz,ex,ey,ez);if(audio)sfx('Helicopter gun',()=>noise(0.06,0.1,2400,'highpass'));if(!hit2)puff(ex,ey,ez,1,0x9a948a,0.2);
-          if(hit2){const h=Math.hypot(ex-mx,ez-mz)||1;shotPlayer(p,1,new V3(ex,ey,ez),new V3((ex-mx)/h,0.2,(ez-mz)/h),'Gunned down from a helicopter',MIL_CREW.heli);}}}
+      M.cd-=dt;if(M.burst>0){M.bt-=dt;if(M.bt<=0){M.bt=0.12;M.burst--;   // (a miss kicks up the ground round him; each round stops at a wall)
+          fireRound({x:mx,y:my,z:mz,at:{x:p.pos.x,y:p.pos.y+1.2,z:p.pos.z},tgt:p,hit:see?0.3:0,miss:[1.5,3.5,-1.2,0],step:0.4,pdmg:1,cause:'Gunned down from a helicopter',id:MIL_CREW.heli,snd:'Helicopter gun'});}}
       else if(M.cd<=0){if(see){M.burst=6;M.bt=0;M.cd=3+Math.random()*1.5;}else M.cd=0.5;}
       // and now and then a rocket
       M.rcd-=dt;if(M.rcd<=0&&see&&M.burst<=0){const L=d3||1,sp=30;shot({kind:'rocket',x:mx,y:my,z:mz,vx:(p.pos.x-mx)/L*sp,vy:(p.pos.y+1-my)/L*sp,vz:(p.pos.z-mz)/L*sp,grav:0.5,fuse:5,R:3.4,dmg:4,cause:'Blown up by a helicopter rocket',by:MIL_CREW.heli,crush:2.4,vd:35,own:M});M.rcd=7+Math.random()*4;if(audio)sfx('Helicopter rocket',()=>noise(0.5,0.25,900,'bandpass'));}}}
@@ -11994,31 +11991,57 @@ function heliGun(M,p){gunRound(M,p,M.x+Math.sin(M.h)*2.4,M.y+0.8,M.z+Math.cos(M.
 // much it scatters (per block), cause what kills, snd the sound's name; A0, if given, what it's aimed at (else where p's
 // crosshair is)
 function gunRound(M,p,mx,my,mz,dmg,sc0,cause,snd,A0){
-  const A=A0||drvAim(p,400);
-  let dx=A.x-mx,dy=A.y-my,dz=A.z-mz;const L0=Math.hypot(dx,dy,dz)||1,sc=sc0*L0;
-  dx+=(Math.random()-.5)*sc*2;dy+=(Math.random()-.5)*sc*2;dz+=(Math.random()-.5)*sc*2;
-  const L=Math.hypot(dx,dy,dz)||1,ux=dx/L,uy=dy/L,uz=dz/L,R=Math.min(130,L0+20);
+  return fireRound({x:mx,y:my,z:mz,at:A0||drvAim(p,400),own:M,by:p,dmg,sc:sc0,cause,snd,gobs:true,vehs:true,breaks:true,ship:true,pvp:{n:1,opt:{raw:true,cd:0.1}}});}
+// ---- one round from any gun: down the line from the muzzle to the first thing in its way, with a tracer to show it ----
+// Where it goes: x,y,z the muzzle; at {x,y,z} what it's aimed at, or dir (a unit vector) and range; sc how much it scatters
+// (per block it's aimed off); step how finely the line's followed (0.5 by default); tr where the tracer starts, if not at
+// the muzzle; own the vehicle it's fired from (spared); by the player firing (or null).
+// What it can hit (each gun's own switches): gobs, goblins (dmg each; gb [radius, lowest, highest] how near the line,
+// from its feet), and with PvP on another player (pvp {n, cause, opt} for pvpHurt); vehs, stopping at a vehicle in its
+// way (vd to it through vehBlast, 4 by default); breaks, half the time the block it hits breaks (bulletBreak); ship,
+// followed across a ship's side (shipLines). An enemy's shot is aimed at a player, tgt: hit the chance it finds them,
+// else it's aimed off to one side by miss [nearest, furthest, up, up at random, how much further on], pdmg hearts (a
+// driver's vehicle takes vd, else pdmg times VEH_SHOT_K: shotPlayer), id the goblin to blame; walls stop it, and for now
+// it passes vehicles and goblins by and breaks nothing (its switches are off). cause what kills; snd its sound (a name
+// for sfx, or a function to call). Returns what it hit ('gob', 'veh', 'wall', 'sea', 'tgt', 'air') and where it ended
+const _rdir=new V3();
+function fireRound(o){
+  const mx=o.x,my=o.y,mz=o.z;let A=o.at,tgtHit=false;
+  // (an enemy's: does it find him? A miss goes off to one side of him)
+  if(o.tgt){const q=o.tgt;tgtHit=!(q.dodge&&q.dodge.t<q.dodge.dur*0.85)&&Math.random()<(o.hit||0);
+    if(!tgtHit&&o.miss){const m=o.miss,a=Math.random()*6.283,r=m[0]+Math.random()*(m[1]-m[0]);A={x:A.x+Math.cos(a)*r,y:A.y+m[2]+(m[3]?Math.random()*m[3]:0),z:A.z+Math.sin(a)*r};
+      if(m[4]&&m[4]!==1)A={x:mx+(A.x-mx)*m[4],y:my+(A.y-my)*m[4],z:mz+(A.z-mz)*m[4]};}}
+  let dx,dy,dz,L0;if(A){dx=A.x-mx;dy=A.y-my;dz=A.z-mz;L0=Math.hypot(dx,dy,dz)||1;}else{dx=o.dir.x;dy=o.dir.y;dz=o.dir.z;L0=o.range;}
+  if(o.sc){const sc=o.sc*L0;dx+=(Math.random()-.5)*sc*2;dy+=(Math.random()-.5)*sc*2;dz+=(Math.random()-.5)*sc*2;}
+  const L=Math.hypot(dx,dy,dz)||1,ux=dx/L,uy=dy/L,uz=dz/L,R=o.range||(o.tgt?L:Math.min(130,L0+20)),who=o.own||o.by||null;
   // (followed across a ship's side too, into its pocket or out of it: see shipLines)
-  const SL=shipLines(mx,my,mz,ux,uy,uz,R),S0=SL&&mx>=SHIP_X0?shipOfPos(mx,mz):null;
+  const SL=o.ship?shipLines(mx,my,mz,ux,uy,uz,R):null,S0=SL&&mx>=SHIP_X0?shipOfPos(mx,mz):null;
   // (the nearest goblin within reach of the line)
-  let gt=1e9,gg=null;for(const g of goblins){if(g.state!=='chase')continue;const q=SL?shipPosIn(g.pos,S0):g.pos,ox=q.x-mx,oy=q.y+0.8-my,oz=q.z-mz,t=ox*ux+oy*uy+oz*uz;if(t<0||t>R||t>=gt)continue;
-    const cx=ox-ux*t,cy=oy-uy*t,cz=oz-uz*t;if(cx*cx+cz*cz<0.5&&Math.abs(cy)<1.1){gt=t;gg=g;}}
-  // (with PvP on, another player on foot nearer along it: a round each, one heart, ten a second at most)
-  const pr=pvpRay(p,mx,my,mz,ux,uy,uz,Math.min(R,gt));if(pr){gt=pr.t;gg=pr.q;}
-  let t=0.5,hit='air',oh=null;_sp.own=M;_sp.noShip=!!SL;
-  let wx=0,wy=0,wz=0;
-  for(;t<Math.min(R,gt);t+=0.5){const x=mx+ux*t,y=my+uy*t,z=mz+uz*t;if(y<1||solidAt(x,Math.floor(y),z)){hit='wall';wx=Math.floor(x);wy=Math.floor(y);wz=Math.floor(z);break;}_sp.pos.set(x,y,z);if(shotHitsVeh(_sp)){hit='veh';break;}
-    if(SL&&(oh=shipLineAt(SL,t,M,true))){hit=oh.veh?'veh':oh.b?'wall':'sea';break;}}
-  _sp.noShip=false;
+  let gt=1e9,gg=null,pr=null;
+  if(o.gobs){const B=o.gb||[0.707,-0.3,1.9],r2=B[0]*B[0],mid=(B[1]+B[2])/2,half=(B[2]-B[1])/2;
+    for(const g of goblins){if(g.state!=='chase')continue;const q=SL?shipPosIn(g.pos,S0):g.pos,ox=q.x-mx,oy=q.y+mid-my,oz=q.z-mz,t=ox*ux+oy*uy+oz*uz;if(t<0||t>R||t>=gt)continue;
+      const cx=ox-ux*t,cy=oy-uy*t,cz=oz-uz*t;if(cx*cx+cz*cz<r2&&Math.abs(cy)<half){gt=t;gg=g;}}
+    // (with PvP on, another player nearer along it)
+    if(o.pvp){pr=pvpRay(o.by,mx,my,mz,ux,uy,uz,Math.min(R,gt));if(pr){gt=pr.t;gg=pr.q;}}}
+  const st=o.step||0.5,ve=Math.max(1,Math.round(0.4/st)),lim=Math.min(R,gt);   // (vehicles looked for every 0.4 or so: the narrowest box is far wider)
+  let t=st,i=0,hit='air',oh=null,wx=0,wy=0,wz=0;_sp.own=o.own||null;_sp.noShip=!!SL;
+  for(;t<lim;t+=st,i++){const x=mx+ux*t,y=my+uy*t,z=mz+uz*t;if(y<1||solidAt(x,Math.floor(y),z)){hit='wall';wx=Math.floor(x);wy=Math.floor(y);wz=Math.floor(z);break;}
+    if(o.vehs&&i%ve===0){_sp.pos.set(x,y,z);if(shotHitsVeh(_sp)){hit='veh';break;}}
+    if(SL&&(oh=shipLineAt(SL,t,who,true))){hit=oh.veh?'veh':oh.b?'wall':'sea';break;}}
+  _sp.noShip=false;_sp.own=null;
   if(hit==='air'&&gg&&t>=gt){t=gt;hit='gob';}
-  const ex=mx+ux*t,ey=my+uy*t,ez=mz+uz*t;tracer(mx,my,mz,ex,ey,ez);if(audio)sfx(snd,()=>noise(0.06,0.1,2400,'highpass'));
+  if(hit==='air'&&tgtHit)hit='tgt';   // (reached him)
+  t=Math.min(t,R);const ex=mx+ux*t,ey=my+uy*t,ez=mz+uz*t,T0=o.tr||o;tracer(T0.x,T0.y,T0.z,ex,ey,ez);
+  if(typeof o.snd==='function')o.snd();else if(o.snd&&audio)sfx(o.snd,()=>noise(0.06,0.1,2400,'highpass'));
   // (where it struck, in the frame of whatever it struck)
   const hx=oh?oh.x:ex,hy=oh?oh.y:ey,hz=oh?oh.z:ez;if(oh&&oh.b){wx=oh.b[0];wy=oh.b[1];wz=oh.b[2];}
-  if(hit==='gob'&&pr&&gg===pr.q)pvpHurt(p,gg,1,new V3(ex,ey,ez),new V3(ux,0.3,uz),cause,{raw:true,cd:0.1});
-  else if(hit==='gob')damageGoblin(gg,dmg,SL?new V3(gg.pos.x,gg.pos.y+0.8,gg.pos.z):new V3(ex,ey,ez),new V3(ux,0.3,uz),cause);
-  else if(hit==='veh')vehBlast(hx,hy,hz,0.8,4,M);
-  if(hit!=='air')puff(hx,hy,hz,1,hit==='wall'||hit==='sea'?0x9a948a:0xffb040,0.2);
-  if(hit==='wall')bulletBreak(wx,wy,wz,ux,uz);
+  if(hit==='gob'&&pr&&gg===pr.q)pvpHurt(o.by,gg,o.pvp.n,new V3(ex,ey,ez),new V3(ux,0.3,uz),o.pvp.cause||o.cause,o.pvp.opt);
+  else if(hit==='gob')damageGoblin(gg,o.dmg,SL?new V3(gg.pos.x,gg.pos.y+0.8,gg.pos.z):new V3(ex,ey,ez),new V3(ux,0.3,uz),o.cause);
+  else if(hit==='veh')vehBlast(hx,hy,hz,0.8,o.vd??4,o.own);
+  else if(hit==='tgt'){const h=Math.hypot(ux,uz)||1;shotPlayer(o.tgt,o.pdmg,new V3(ex,ey,ez),new V3(ux/h,0.2,uz/h),o.cause,o.id,o.vd);}
+  if(hit!=='tgt'&&(hit!=='air'||o.tgt))puff(hx,hy,hz,1,hit==='gob'||hit==='veh'?0xffb040:0x9a948a,0.2);   // (an enemy's miss raises dust where it ends)
+  if(hit==='wall'&&o.breaks)bulletBreak(wx,wy,wz,ux,uz);
+  return{hit,x:ex,y:ey,z:ez};
 }
 // a bullet into a wall: half the time the block it struck breaks (only that one, so a stream of rounds chews through a
 // wall slowly, well short of what a shell, a missile or a blade does), with the same wreckage as anything else breaking
@@ -12156,11 +12179,9 @@ function drvSafe(o){if(!DT.invuln||!o)return false;for(const p of players)if(p.a
 // a round or a fireball reaching a player: on foot they're hurt; driving, flying or manning something, it's the vehicle
 // that takes it (damagePlayer leaves a driver alone), VEH_SHOT_K times over: a rifle round's heart is 3 off a car
 const VEH_SHOT_K=3;
-function hurtDriven(p,n,dir){const D=p.drv;if(!D||!D.o)return;const v=n*VEH_SHOT_K;if(D.k==='car')damageCar(D.o,v,dir);else trainHit(D.o,v,dir,D.ci);}
-function shotPlayer(p,n,pt,dir,cause,killer){if(p.drv)hurtDriven(p,n,dir);else damagePlayer(p,n,pt,dir,cause,killer);}
-// where a round from x0,y0,z0 to x1,y1,z1 first meets a solid block ({x,y,z}, looked for every 0.4), or null if it's clear
-function wallStop(x0,y0,z0,x1,y1,z1){const ex=x1-x0,ey=y1-y0,ez=z1-z0,n=Math.ceil(Math.hypot(ex,ey,ez)/0.4);
-  for(let i=1;i<n;i++){const k=i/n,x=x0+ex*k,y=y0+ey*k,z=z0+ez*k;if(solidAt(Math.floor(x),Math.floor(y),Math.floor(z)))return{x,y,z};}return null;}
+function hurtDriven(p,v,dir){const D=p.drv;if(!D||!D.o)return;if(D.k==='car')damageCar(D.o,v,dir);else trainHit(D.o,v,dir,D.ci);}
+// (vd: what the vehicle takes, if not n times VEH_SHOT_K)
+function shotPlayer(p,n,pt,dir,cause,killer,vd){if(p.drv)hurtDriven(p,vd??n*VEH_SHOT_K,dir);else damagePlayer(p,n,pt,dir,cause,killer);}
 // a vehicle run into by another (vehIn's answer), hurt by n
 function vehHurt(o,n){if(o.isMil)milHit(o,n);else damageCar(o,n,undefined,'acc');}
 // flying a plane, more or less as a real one flies. On a controller the stick's up and down set the throttle (it stays
@@ -16765,14 +16786,12 @@ function foeRanged(g,p,d,ddy,dt,F=FOES[g.foeKind]){
 // a rifle shot: there and back in the instant, a tracer to show it; more likely to miss the further off he is
 function foeShoot(g,p,G6){
   const fx=Math.sin(g.heading),fz=Math.cos(g.heading),x0=g.pos.x+fx*0.8,y0=g.pos.y+1.05,z0=g.pos.z+fz*0.8;
-  const d=Math.hypot(p.pos.x-x0,p.pos.z-z0),hit=!(p.dodge&&p.dodge.t<p.dodge.dur*0.85)&&Math.random()<Math.max(0.3,0.92-d/60);
-  let tx=p.pos.x,ty=p.pos.y+1.2,tz=p.pos.z;
-  if(!hit){const a=Math.random()*6.283,r=1.6+Math.random()*1.5;tx+=Math.cos(a)*r;tz+=Math.sin(a)*r;ty+=(Math.random()-0.3)*1.5;const k=1.6;tx=x0+(tx-x0)*k;ty=y0+(ty-y0)*k;tz=z0+(tz-z0)*k;}
-  // (a block in the way stops the round there: they may have taken aim before he ducked behind something)
-  let hit2=hit;{const w=wallStop(x0,y0,z0,tx,ty,tz);if(w){tx=w.x;ty=w.y;tz=w.z;hit2=false;}}
-  tracer(x0,y0,z0,tx,ty,tz);puff(x0,y0-0.1,z0,1,0xffe070,0.1);
-  wpnCrack(G6===COP_GUN?'handgun':'rifle');   // (a handgun's crack is sharper and shorter: WEAPONS)
-  if(hit2){const h=Math.hypot(tx-x0,tz-z0)||1;shotPlayer(p,G6[4],new V3(tx,ty,tz),new V3((tx-x0)/h,0.2,(tz-z0)/h),G6[5],g.id);}
+  const d=Math.hypot(p.pos.x-x0,p.pos.z-z0);
+  // (a block in the way stops the round there: they may have taken aim before he ducked behind something. A handgun's
+  // crack is sharper and shorter: WEAPONS)
+  fireRound({x:x0,y:y0,z:z0,at:{x:p.pos.x,y:p.pos.y+1.2,z:p.pos.z},tgt:p,hit:Math.max(0.3,0.92-d/60),miss:[1.6,3.1,-0.45,1.5,1.6],step:0.4,
+    pdmg:G6[4],cause:G6[5],id:g.id,snd:()=>wpnCrack(G6===COP_GUN?'handgun':'rifle')});
+  puff(x0,y0-0.1,z0,1,0xffe070,0.1);
 }
 // a bomb lobbed in an arc at where he's standing (give or take), fuse fizzing
 function foeThrow(g,p,B6){
@@ -16999,33 +17018,17 @@ function gobAttack(p){const k=gobArms(p).wpn,K=WEAPONS[k];
     for(const c of carsNear(p.pos.x+hx*W.reach,p.pos.z+hz*W.reach,W.r,p.pos.y)){damageCar(c,1,new V3(hx,0,hz));clang();}return;}
   gobClub(p);   // (the club: pivots.js)
 }
-// a rifle or handgun shot straight down the middle of the view: the first goblin, vehicle or block it meets
-const _gr=new V3();
-const _gsp={pos:new V3(),own:null,noShip:false};
+// a rifle or handgun shot straight down the middle of the view: the first goblin, vehicle or block it meets (fireRound).
+// Followed across a ship's side too, from the shore or the sea at its blocks and the goblins aboard, or from aboard out
+// into the world. A vehicle takes VEH_SHOT_K times a goblin's damage, as from the enemies' rounds; half the time the
+// block it hits breaks (bulletBreak)
 function gobShoot(p){
-  const wk=gobGun(gobArms(p).wpn)?p.wpn:'rifle',W=GOB_WPN[wk],c=shipEye(p),cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp;
-  let hitG=null,hitC=null,hitW=null,hitP=null,hitV=null,d=0.3,oh=null;
-  // (followed across a ship's side too: from the shore or the sea at its blocks and the goblins aboard, or from aboard
-  // out into the world. See shipLines)
-  const SL=shipLines(c.x,c.y,c.z,dx,dy,dz,W.range),S0=SL&&c.x>=SHIP_X0?shipOfPos(c.x,c.z):null;
-  for(;d<W.range&&!hitG&&!hitC&&!hitP;d+=0.2){const x=c.x+dx*d,y=c.y+dy*d,z=c.z+dz*d;
-    if(solidAt(Math.floor(x),Math.floor(y),Math.floor(z))){hitW=[Math.floor(x),Math.floor(y),Math.floor(z)];break;}
-    if(SL&&(oh=shipLineAt(SL,d,p,true))){if(oh.veh)hitV=oh.veh;else hitW=oh.b;break;}
-    // (a vehicle's box stops it too: a tank's or a train's armour shrugs it off, but a carrier's deck weapon takes the
-    // round. Before, it went straight through them all. Every other step: the narrowest box is far wider than two)
-    if(Math.round(d*5)%2===0){_gsp.pos.set(x,y,z);_gsp.noShip=!!SL;const h=shotHitsVeh(_gsp);if(h&&h.proxy){hitV=h;break;}}   // (cars: carsNear, below)
-    for(const g of goblins){if(g.state!=='chase')continue;const q=SL?shipPosIn(g.pos,S0):g.pos;if(Math.hypot(q.x-x,q.z-z)<0.45&&y>q.y&&y<q.y+1.5){hitG=g;break;}}
-    if(!hitG)for(const q of pvpFoes(p)){if(Math.hypot(q.pos.x-x,q.pos.z-z)<(q.gob?0.45:0.9)&&y>q.pos.y&&y<q.pos.y+(q.gob?1.5:2.3)){hitP=q;break;}}   // (with PvP on, another player)
-    if(!hitG&&(Math.round(d*5)%3===0))for(const q of carsNear(x,z,0.6,y-1)){hitC=q;break;}}
-  const x1=c.x+dx*d,y1=c.y+dy*d,z1=c.z+dz*d,fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw);
-  tracer(c.x+fx*0.5+Math.cos(p.cam.yaw)*0.18,c.y-0.18,c.z+fz*0.5-Math.sin(p.cam.yaw)*0.18,x1,y1,z1);
-  wpnCrack(wk);   // (the handgun cracks higher and shorter, as the police's does)
+  const wk=gobGun(gobArms(p).wpn)?p.wpn:'rifle',W=GOB_WPN[wk],c=shipEye(p),cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp,
+    fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw);
+  fireRound({x:c.x,y:c.y,z:c.z,dir:{x:dx,y:dy,z:dz},range:W.range,step:0.2,by:p,tr:{x:c.x+fx*0.5+Math.cos(p.cam.yaw)*0.18,y:c.y-0.18,z:c.z+fz*0.5-Math.sin(p.cam.yaw)*0.18},
+    gobs:true,gb:[0.45,0,1.5],dmg:W.dmg,cause:W.cause,pvp:{n:W.dmg,cause:'Shot',opt:{cd:0}},vehs:true,vd:W.dmg*VEH_SHOT_K,breaks:true,ship:true,
+    snd:()=>wpnCrack(wk)});   // (the handgun cracks higher and shorter, as the police's does)
   p.shake=Math.max(p.shake||0,W.shake);rumble(p,W.rumble,50);
-  if(hitG)damageGoblin(hitG,W.dmg,SL?new V3(hitG.pos.x,hitG.pos.y+0.8,hitG.pos.z):_gr.set(x1,y1,z1).clone(),new V3(dx,0.3,dz),W.cause);
-  else if(hitP)pvpHurt(p,hitP,W.dmg,_gr.set(x1,y1,z1).clone(),new V3(dx,0.3,dz),'Shot',{cd:0});
-  else if(hitC)damageCar(hitC,1,new V3(dx,0,dz));
-  else if(hitV){const P=oh||{x:x1,y:y1,z:z1},T=hitV.proxy&&hitV.proxy.T;puff(P.x,P.y,P.z,2,0xffb040,0.15);if(T&&T.isMount)trainHit(T,W.dmg);}
-  else{if(oh)puff(oh.x,oh.y,oh.z,2,0xb0a898,0.12);else puff(x1,y1,z1,2,0xb0a898,0.12);if(hitW)bulletBreak(hitW[0],hitW[1],hitW[2],dx,dz);}   // (half the time the block it hit breaks: see bulletBreak)
 }
 // the stomp button: lob a grenade the way you're looking
 function gobThrow(p){
@@ -18403,13 +18406,10 @@ function crewGun(c,dt){
     C.burst=F.burst;C.bt=0;}
   C.bt-=dt;if(C.bt>0)return;C.bt=F.bt;C.burst--;
   if(C.burst<=0)C.cd=F.cd[0]+Math.random()*(F.cd[1]-F.cd[0]);
-  const hit=!(p.dodge&&p.dodge.t<p.dodge.dur*0.85)&&Math.random()<F.hit*Math.max(0.35,1-d/F.range);
-  let tx=p.pos.x,ty=p.pos.y+1.2,tz=p.pos.z,hit2=hit;
-  if(!hit){const r=Math.random()*6.283,e=1.5+Math.random()*2;tx+=Math.cos(r)*e;tz+=Math.sin(r)*e;ty+=(Math.random()-0.4)*1.5;}
-  {const w=wallStop(mx,py,mz,tx,ty,tz);if(w){tx=w.x;ty=w.y;tz=w.z;hit2=false;}}   // (each round: he may have ducked behind something mid-burst)
-  tracer(mx,py,mz,tx,ty,tz);puff(mx,py,mz,1,0xffe070,0.1);if(!hit2)puff(tx,ty,tz,1,0x9a948a,0.2);
-  if(audio){if(c.veh==='technical')sfx('Technical machine gun',()=>{noise(0.07,0.13,2000,'highpass');tone('square',140,70,0.05,0.04);});else{noise(0.09,0.14,2600,'highpass');tone('square',220,90,0.06,0.04);}}
-  if(hit2){const L=Math.hypot(tx-mx,tz-mz)||1;shotPlayer(p,F.dmg,new V3(tx,ty,tz),new V3((tx-mx)/L,0.2,(tz-mz)/L),F.cause,C.gun);}
+  // (each round stops at a wall: he may have ducked behind something mid-burst)
+  fireRound({x:mx,y:py,z:mz,at:{x:p.pos.x,y:p.pos.y+1.2,z:p.pos.z},tgt:p,hit:F.hit*Math.max(0.35,1-d/F.range),miss:[1.5,3.5,-0.6,1.5],step:0.4,pdmg:F.dmg,cause:F.cause,id:C.gun,
+    snd:()=>{if(audio){if(c.veh==='technical')sfx('Technical machine gun',()=>{noise(0.07,0.13,2000,'highpass');tone('square',140,70,0.05,0.04);});else{noise(0.09,0.14,2600,'highpass');tone('square',220,90,0.06,0.04);}}}});
+  puff(mx,py,mz,1,0xffe070,0.1);
 }
 // blown up with them aboard: the crew's bodies are thrown out of the wreck
 function crewWreck(c,p){const C=c.crew;if(!C)return;
@@ -23548,10 +23548,8 @@ function mountAI(Mt,dt){
       if(o.shot){ciwsRoundAt(Mt,m,T);continue;}
       if(o.veh){gunRound(S,null,m.x,m.y,m.z,2,0.02,'Shredded by a CIWS','CIWS',{x:T.x,y:T.y+0.5,z:T.z});continue;}
       // (someone in the open: the rounds are spread about, and each has a chance of finding them)
-      let hit=Math.random()<0.12&&!(o.p.dodge&&o.p.dodge.t<o.p.dodge.dur*0.85),a=Math.random()*6.283,r=hit?0:1+Math.random()*2.5,ex=T.x+Math.cos(a)*r,ez=T.z+Math.sin(a)*r,ey=T.y;
-      {const w=wallStop(m.x,m.y,m.z,ex,ey,ez);if(w){ex=w.x;ey=w.y;ez=w.z;hit=false;}}   // (a wall in the way takes it)
-      tracer(m.x,m.y,m.z,ex,ey,ez);if(audio)sfx('CIWS',()=>noise(0.05,0.08,2600,'highpass'));if(!hit)puff(ex,ey,ez,1,0x9a948a,0.15);
-      else{const h=Math.hypot(ex-m.x,ez-m.z)||1;shotPlayer(o.p,1,new V3(ex,ey,ez),new V3((ex-m.x)/h,0.2,(ez-m.z)/h),'Shredded by a CIWS',Mt.crew);}}
+      fireRound({x:m.x,y:m.y,z:m.z,at:{x:T.x,y:T.y,z:T.z},tgt:o.p,hit:0.12,miss:[1,3.5,0,0],step:0.4,pdmg:1,cause:'Shredded by a CIWS',id:Mt.crew,   // (a wall in the way takes it)
+        snd:()=>{if(audio)sfx('CIWS',()=>noise(0.05,0.08,2600,'highpass'));}});}
     return;}
   if(Mt.cd>0||Mt.spin<0)return;
   // (a missile at it every few seconds, chasing where they really are)
@@ -23765,11 +23763,8 @@ function jetAI(pl,dt){
 function jetAIGun(pl,Q,dt){const A=pl.ai;if(A.gcd>0)return;const P=pl.g.position,h=pl.g.rotation.y,mx=P.x+Math.sin(h)*6.8,my=P.y+1.2,mz=P.z+Math.cos(h)*6.8,q=Q.q;
   for(let n=0;n<3;n++){if(!wpnFire(pl,'gun'))break;pl.wpn.gun.cd=0;
     if(q.drv){gunRound(pl,null,mx,my,mz,3,0.01,'Gunned down by a fighter jet','Jet cannon',{x:Q.x,y:Q.y+0.8,z:Q.z});continue;}
-    let hit=Math.random()<0.1&&!(q.dodge&&q.dodge.t<q.dodge.dur*0.85),a=Math.random()*6.283,r=hit?0:1+Math.random()*3,ex=Q.x+Math.cos(a)*r,ey=Q.y+0.6,ez=Q.z+Math.sin(a)*r;
-    {const w=wallStop(mx,my,mz,ex,ey,ez);if(w){ex=w.x;ey=w.y;ez=w.z;hit=false;}}   // (a wall in the way takes it)
-    tracer(mx,my,mz,ex,ey,ez);if(audio)sfx('Jet cannon',()=>noise(0.05,0.1,2400,'highpass'));
-    if(hit){const L=Math.hypot(ex-mx,ez-mz)||1;shotPlayer(q,1,new V3(ex,ey,ez),new V3((ex-mx)/L,0.2,(ez-mz)/L),'Gunned down by a fighter jet',pl.crew);}
-    else puff(ex,ey,ez,1,0x9a948a,0.15);}
+    fireRound({x:mx,y:my,z:mz,at:{x:Q.x,y:Q.y+0.6,z:Q.z},tgt:q,hit:0.1,miss:[1,4,0,0],step:0.4,pdmg:1,cause:'Gunned down by a fighter jet',id:pl.crew,   // (a wall in the way takes it)
+      snd:()=>{if(audio)sfx('Jet cannon',()=>noise(0.05,0.1,2400,'highpass'));}});}
   A.gcd=0.1;}
 // a missile at them, homing on where they really are (it's fired out in the world)
 function jetAIMissile(pl,q){const P=pl.g.position,h=pl.g.rotation.y,F=pl.free,sd=(pl.rkN=(pl.rkN||0)+1)%2?1:-1,tx=Math.sin(h),tz=Math.cos(h),sp=F.v+60;

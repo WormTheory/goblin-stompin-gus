@@ -43,6 +43,8 @@ E('setGobP')(P,true);run(0.3);
 const shoot=E("typeof shotPlayer==='function'?shotPlayer:damagePlayer");   // (so this runs on an older build too)
 const hpOf=D=>{const h=E('drvHP')(D);return h&&isFinite(h.hp)?h.hp:NaN;};
 const hurt=(D,n)=>{if(D.k==='car')E('damageCar')(D.o,n,new V3(1,0,0));else E('trainHit')(D.o,n,new V3(1,0,0),D.ci);};
+const centre=D=>{if(D.k==='car'){const c=D.o;return{x:c.pos.x,y:c.pos.y+(c.hy||1.4)*0.5,z:c.pos.z,r:c.hx+c.hz};}
+  const B=E('TRAIN_BOXES').find(B=>B.proxy.T===D.o&&!B.soft);return B?{x:B.x,y:(B.y0+B.top)/2,z:B.z,r:(B.hx||1.5)+(B.hz||2)}:null;};
 const famOf=(t,D)=>D.k==='car'?'car':t==='plane'||t==='jet'?'plane':t==='barge'||t==='carrier'?t:D.k;
 function findNew(t,beforeC,beforeT,beforeS){
   const c=T.cars.find(c=>c.alive&&!beforeC.has(c));if(c)return{k:'car',o:c};
@@ -51,8 +53,8 @@ function findNew(t,beforeC,beforeT,beforeS){
     P.pos.set(B.x,B.top,B.z);const D=E('drvFind')(P);if(D&&D.o===o)return D;}
   return null;}
 const kinds=E('tenvVehKinds()');const did={},spare={};
-for(const t of kinds){
-  E('tenvClear()');quiet();put(0,0);P.cam.yaw=0;run(0.3);
+let kx=-600;for(const t of kinds){
+  E('tenvClear()');quiet();put(kx+=60,0);   // (each on fresh ground: the last one's wreck leaves a crater)P.cam.yaw=0;run(0.3);
   const bc=new Set(T.cars.filter(c=>c.alive)),bt=new Set(E('TRAIN_BOXES').map(B=>B.proxy.T).filter(Boolean)),bs=new Set(E('SHIPS').filter(Boolean));
   E('menuOpen=true');E('TS').n=1;E('TS').vm='park';E('tenvVeh')(t);E('menuOpen=false');run(0.3);
   const D=findNew(t,bc,bt,bs);if(!D){check(t,'spawned',false);continue;}
@@ -66,6 +68,11 @@ for(const t of kinds){
   {const w=P.drv;P.drv=D;DT.invuln=true;shoot(P,1,null,new V3(1,0,0),'test','t');const h1=hpOf(D);DT.invuln=false;
    shoot(P,1,null,new V3(1,0,0),'test','t');const h2=hpOf(D);P.drv=w;
    check(fam==='car'?t:fam,'invuln',h1===h0,h0+' -> '+h1);check(fam==='car'?t:fam,'damage',h2<h1,h1+' -> '+h2);}
+  // one of Gnash's rifle rounds at it from the side (fireRound, as gobShoot fires it): it takes the hit (not a ship: a
+  // round only knocks out the block it strikes there)
+  if(D.k!=='ship'&&E("typeof fireRound==='function'")){const c=centre(D);if(c){const h1=hpOf(D);
+    E('fireRound')({x:c.x-c.r-6,y:c.y,z:c.z,dir:{x:1,y:0,z:0},range:c.r+12,step:0.2,by:P,gobs:true,gb:[0.45,0,1.5],dmg:2,cause:'test',vehs:true,vd:6,ship:true});
+    check(fam==='car'?t:fam,'bullets',hpOf(D)<h1,h1+' -> '+hpOf(D));}}
   // destroyed (nobody in it): points for it
   {const s0=E('score');hurt(D,1e5);run(0.2);check(fam==='car'?t:fam,'points',E('score')>s0,'score unchanged');}
   // online: is its health sent to guests? (cars in the car snapshot, a Mobile Gear in its own, the rest by venue)
@@ -76,9 +83,9 @@ for(const t of kinds){
   if(t==='tank'||t==='heli')spare[t]=1;
   flush('vehicle '+t+' ('+D.k+')');
 }
-// a carrier's deck weapon (one spawned again, since the one above was wrecked)
+// a carrier's deck weapon (on a carrier spawned again, or else the one above: a carrier takes no harm from hits)
 {E('tenvClear()');quiet();put(0,0);P.cam.yaw=0;run(0.3);const bs=new Set(E('SHIPS').filter(Boolean));E('menuOpen=true');E('TS').n=1;E('tenvVeh')('carrier');E('menuOpen=false');run(0.5);
- const S=E('SHIPS').find(q=>q&&!bs.has(q));const Mt=S&&S.mounts&&S.mounts[0];
+ const S=E('SHIPS').find(q=>q&&!bs.has(q))||spare.carrier;const Mt=S&&S.mounts&&S.mounts[0];
  if(!Mt)check('mount','spawned',false);else{const D={k:'mount',o:Mt,V:S.V};
   {const W=E('WX'),sc=W.snowCover;W.snowCover=1;for(let i=0;i<8;i++)E('updateVehSnow')(0.5);W.snowCover=sc;check('mount','snow',!!Mt.snowU);}
   check('mount','hp',isFinite(hpOf(D)));
