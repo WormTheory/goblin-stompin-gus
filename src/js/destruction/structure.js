@@ -262,7 +262,10 @@ function collapseBuilding(B,L,push){
   for(let x=b.x0;x<b.x1;x++)for(let z=b.z0;z<b.z1;z++){
     const wx=X0+x,wz=Z0+z;
     noteFor=B;
-    for(let y=L;y<H;y++){const v=get(wx,y,wz);if(v===AIR)continue;if(y===L)stood.push({x:wx,z:wz});if(y<L+FH+1&&collapseKeep(b,B.px,B.pz,x,z,y,L))continue;(y===L?crumble:body).push({x:wx,y,z:wz,b:v});setRaw(wx,y,wz,AIR);}
+    for(let y=L;y<H;y++){const v=get(wx,y,wz);if(v===AIR)continue;if(y===L)stood.push({x:wx,z:wz});if(y<L+FH+1&&collapseKeep(b,B.px,B.pz,x,z,y,L))continue;(y===L?crumble:body).push({x:wx,y,z:wz,b:v});setRaw(wx,y,wz,AIR);
+      // (the plan leaves the building out from this floor up when the chunk's made again, but not what was added to it
+      // since: rubble that had landed on it would come back hanging in mid-air, so that's knocked out in the edits too)
+      if((wx+','+y+','+wz) in edits)addEdit(wx,y,wz,AIR);}
     noteFor=null;
   }
   for(let x=b.x0-1;x<=b.x1;x++)for(let z=b.z0-1;z<=b.z1;z++)ch.add(ckey(Math.floor((X0+x)/CS),Math.floor((Z0+z)/CS)));

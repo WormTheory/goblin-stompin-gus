@@ -189,6 +189,7 @@ It renders in software, so the picture is right but the frame rate says nothing 
   - blj: blast long jump
   - rkt*: rocket boost
   - lean / tilt: collapse lean
+  - floatdebris: rubble lying on a building that then collapses under it is gone from the edits too, so a chunk made afresh has none of it floating (every line should say `made afresh 0`)
   - falldir: which way a collapsing building falls, from its outer walls (`SC=stairs` should all drop straight, `SC=east` and `SC=eastwall` all tip 1.00,0.00)
   - bob: rocket pose
   - rollt / rollw / lockroll: roll

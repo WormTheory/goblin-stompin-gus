@@ -131,6 +131,10 @@
 - Tanks, helicopters, planes and Mobile Gears now gather snow on top as cars do, as deep as the snow on the ground while they stand out in the open. It blows off a plane in the air or a helicopter going fast.
 - The main menu's "New city" button is now "New world".
 
+### Fixes
+
+- Rubble no longer hangs in mid-air when you come back to a spot. If wreckage landed on a building (a tower toppling on to its neighbour, a museum's dome falling on to its roof) and that building came down later, the rubble used to come back floating where the roof had been once you'd gone away and returned.
+
 ## Version 0.4
 
 ### Goblins climb vehicles too

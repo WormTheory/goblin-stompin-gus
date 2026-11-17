@@ -1,0 +1,13 @@
+landmark top 31: pile 18, in the live world after the collapse 0, made afresh 0
+office top 35: pile 18, in the live world after the collapse 0, made afresh 0
+apartment top 15: pile 18, in the live world after the collapse 0, made afresh 0
+office top 90: pile 18, in the live world after the collapse 0, made afresh 0
+office top 45: pile 18, in the live world after the collapse 0, made afresh 0
+office top 73: pile 18, in the live world after the collapse 0, made afresh 0
+landmark top 26: pile 18, in the live world after the collapse 0, made afresh 0
+shop top 9: pile 18, in the live world after the collapse 0, made afresh 0
+apartment top 10: pile 18, in the live world after the collapse 0, made afresh 0
+office top 63: pile 18, in the live world after the collapse 0, made afresh 0
+apartment top 12: pile 18, in the live world after the collapse 0, made afresh 0
+office top 100: pile 18, in the live world after the collapse 0, made afresh 0
+buildings 12, floating rubble after reload in 0

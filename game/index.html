@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:a04e873ed1f6ef419e568acbe28f063b71f3c6c57602cc37c60045bab302fead -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:0c1b29c3b40d4f7bd6e8023a3dcab3d9c8ed8a623b260fc117f3238b71904b66 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1495,6 +1495,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <ul><li>Props out in the open (patio tables, beach and harbour gear, the stadium's fittings and the like) are now drawn out to 64 blocks, up from 34, and furniture indoors stays at 34 as before. The distance is now the same in every direction, so things on the diagonal no longer show up later than things straight ahead.</li><li>Props now grow up out of the ground over a moment as they come into range, instead of suddenly appearing.</li><li>New PROPS slider in Options, under Render distance: set how far props are drawn, from 32 to 192 blocks. Furniture indoors goes about half as far as the setting.</li></ul>
 <h3>Weather</h3>
 <ul><li>Foggy weather now really closes in. The weather's fog used to shrink with the FAR VIEW setting, so with the view turned up it all but vanished; now fog, rain and snow limit how far you can see by the same number of blocks whatever the setting, with thick fog and blizzards down to about 30 blocks.</li><li>Windy weather is gone.</li><li>Tanks, helicopters, planes and Mobile Gears now gather snow on top as cars do, as deep as the snow on the ground while they stand out in the open. It blows off a plane in the air or a helicopter going fast.</li><li>The main menu's "New city" button is now "New world".</li></ul>
+<h3>Fixes</h3>
+<ul><li>Rubble no longer hangs in mid-air when you come back to a spot. If wreckage landed on a building (a tower toppling on to its neighbour, a museum's dome falling on to its roof) and that building came down later, the rubble used to come back floating where the roof had been once you'd gone away and returned.</li></ul>
 </details>
 <p class="pn-earlier">Earlier updates</p>
 <details class="pn-up pn-fold" id="version-0-4"><summary tabindex="0"><h2>Version 0.4</h2><a class="pn-play" data-ver="0.4" href="v/0.4/" tabindex="0">Play 0.4</a><span class="pn-tog" aria-hidden="true"></span></summary>
@@ -9764,7 +9766,10 @@ function collapseBuilding(B,L,push){
   for(let x=b.x0;x<b.x1;x++)for(let z=b.z0;z<b.z1;z++){
     const wx=X0+x,wz=Z0+z;
     noteFor=B;
-    for(let y=L;y<H;y++){const v=get(wx,y,wz);if(v===AIR)continue;if(y===L)stood.push({x:wx,z:wz});if(y<L+FH+1&&collapseKeep(b,B.px,B.pz,x,z,y,L))continue;(y===L?crumble:body).push({x:wx,y,z:wz,b:v});setRaw(wx,y,wz,AIR);}
+    for(let y=L;y<H;y++){const v=get(wx,y,wz);if(v===AIR)continue;if(y===L)stood.push({x:wx,z:wz});if(y<L+FH+1&&collapseKeep(b,B.px,B.pz,x,z,y,L))continue;(y===L?crumble:body).push({x:wx,y,z:wz,b:v});setRaw(wx,y,wz,AIR);
+      // (the plan leaves the building out from this floor up when the chunk's made again, but not what was added to it
+      // since: rubble that had landed on it would come back hanging in mid-air, so that's knocked out in the edits too)
+      if((wx+','+y+','+wz) in edits)addEdit(wx,y,wz,AIR);}
     noteFor=null;
   }
   for(let x=b.x0-1;x<=b.x1;x++)for(let z=b.z0-1;z<=b.z1;z++)ch.add(ckey(Math.floor((X0+x)/CS),Math.floor((Z0+z)/CS)));
