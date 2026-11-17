@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:22e247db0bc7eaac522482b21851e82135257a796e889c30a24886a7d373fc6d -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:38b0090db9a85c160e730049d1a5c024aa78c577c9095168d98ded1ca566b5ab -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1877,7 +1877,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='40e1bd498827';
+const GAME_VER='0.5',GAME_BUILD='46e9ea2dc94a';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v95';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -27292,7 +27292,7 @@ async function svUseBrowser(){
 async function svRec(h){for(const r of SV.files){try{if(await r.handle.isSameEntry(h))return r;}catch(e){}}
   return {id:(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2)),name:h.name,handle:h,t:Date.now()};}
 const SV_TYPES=[{description:"Goblin-Stompin' Gus save",accept:{'application/json':['.json']}}];
-function svNewName(){const used=new Set(SV.files.map(r=>r.name));let n=1,s='gus-city.json';while(used.has(s))s='gus-city-'+(++n)+'.json';return s;}
+function svNewName(){const used=new Set(SV.files.map(r=>r.name));let n=1,s='gus-world.json';while(used.has(s))s='gus-world-'+(++n)+'.json';return s;}
 // ---- the menu: the switch, and the Local saves card that pops out beside it ----
 const svEl=id=>document.getElementById(id);
 function svWhen(t){if(!t)return '';const d=new Date(t),n=new Date();
@@ -27342,7 +27342,7 @@ function seedLine(){const sn=svEl('seedNote');if(!sn)return;
 // for itself; once is enough)
 let svPersistAsked=false;
 function svPersist(){if(svPersistAsked)return;svPersistAsked=true;try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});}catch(e){}}
-function svExportName(){const d=new Date(),z=n=>String(n).padStart(2,'0');return 'gus-city-'+seed+'-'+d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())+'.json';}
+function svExportName(){const d=new Date(),z=n=>String(n).padStart(2,'0');return 'gus-world-'+seed+'-'+d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())+'.json';}
 async function svExport(){
   if(saveBlocked)throw new Error("In someone else's online game it's their world: they can export it.");
   await svFlushAll();const name=svExportName(),url=URL.createObjectURL(new Blob([svText(svData(),Date.now())],{type:'application/json'}));

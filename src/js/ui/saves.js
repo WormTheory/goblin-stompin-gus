@@ -150,7 +150,7 @@ async function svUseBrowser(){
 async function svRec(h){for(const r of SV.files){try{if(await r.handle.isSameEntry(h))return r;}catch(e){}}
   return {id:(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2)),name:h.name,handle:h,t:Date.now()};}
 const SV_TYPES=[{description:"Goblin-Stompin' Gus save",accept:{'application/json':['.json']}}];
-function svNewName(){const used=new Set(SV.files.map(r=>r.name));let n=1,s='gus-city.json';while(used.has(s))s='gus-city-'+(++n)+'.json';return s;}
+function svNewName(){const used=new Set(SV.files.map(r=>r.name));let n=1,s='gus-world.json';while(used.has(s))s='gus-world-'+(++n)+'.json';return s;}
 // ---- the menu: the switch, and the Local saves card that pops out beside it ----
 const svEl=id=>document.getElementById(id);
 function svWhen(t){if(!t)return '';const d=new Date(t),n=new Date();
@@ -200,7 +200,7 @@ function seedLine(){const sn=svEl('seedNote');if(!sn)return;
 // for itself; once is enough)
 let svPersistAsked=false;
 function svPersist(){if(svPersistAsked)return;svPersistAsked=true;try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});}catch(e){}}
-function svExportName(){const d=new Date(),z=n=>String(n).padStart(2,'0');return 'gus-city-'+seed+'-'+d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())+'.json';}
+function svExportName(){const d=new Date(),z=n=>String(n).padStart(2,'0');return 'gus-world-'+seed+'-'+d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())+'.json';}
 async function svExport(){
   if(saveBlocked)throw new Error("In someone else's online game it's their world: they can export it.");
   await svFlushAll();const name=svExportName(),url=URL.createObjectURL(new Blob([svText(svData(),Date.now())],{type:'application/json'}));
