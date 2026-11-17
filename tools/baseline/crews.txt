@@ -20,9 +20,9 @@ tank destroyed: its crewman's body out of it true
 hostility to Peaceful: alert false | going home 3
    back in their places, empty 1 of 3 | soldiers seen walking back to the barracks 2
 technical hunt Spawned 2 hunting technicals ahead of Gus.
-   6 s | bullets 20 | hits on gus 7 lowest hp 13 | t:DGhg moved 30.0, t:DGhg moved 43.0
+   6 s | bullets 23 | hits on gus 4 lowest hp 15 | t:DGhg moved 33.0, t:DGhg moved 40.9
 quad hunt Spawned 2 hunting four-wheelers ahead of Gus.
-   6 s | bullets 6 | hits on gus 4 lowest hp 16 | q:DGhg moved 14.5, q:DGhg moved 14.1
+   6 s | bullets 6 | hits on gus 2 lowest hp 18 | q:DGhg moved 10.7, q:DGhg moved 9.9
 technical park Spawned 2 parked technicals ahead of Gus.
    6 s | bullets 0 | hits on gus 0 lowest hp 20 | t:-- moved 0.0, t:-- moved 0.0
 errors 0 []

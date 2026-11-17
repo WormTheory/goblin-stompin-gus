@@ -418,6 +418,14 @@ function vehIn(x,z,h,hx,hz,y0,y1,self){const R=Math.hypot(hx,hz);   // (returns 
   return null;}
 // the debug menu's Invulnerability covers whatever a player is driving, flying or manning, too: it takes no damage
 function drvSafe(o){if(!DT.invuln||!o)return false;for(const p of players)if(p.active&&p.drv&&p.drv.o===o)return true;return false;}
+// a round or a fireball reaching a player: on foot they're hurt; driving, flying or manning something, it's the vehicle
+// that takes it (damagePlayer leaves a driver alone), VEH_SHOT_K times over: a rifle round's heart is 3 off a car
+const VEH_SHOT_K=3;
+function hurtDriven(p,n,dir){const D=p.drv;if(!D||!D.o)return;const v=n*VEH_SHOT_K;if(D.k==='car')damageCar(D.o,v,dir);else trainHit(D.o,v,dir,D.ci);}
+function shotPlayer(p,n,pt,dir,cause,killer){if(p.drv)hurtDriven(p,n,dir);else damagePlayer(p,n,pt,dir,cause,killer);}
+// where a round from x0,y0,z0 to x1,y1,z1 first meets a solid block ({x,y,z}, looked for every 0.4), or null if it's clear
+function wallStop(x0,y0,z0,x1,y1,z1){const ex=x1-x0,ey=y1-y0,ez=z1-z0,n=Math.ceil(Math.hypot(ex,ey,ez)/0.4);
+  for(let i=1;i<n;i++){const k=i/n,x=x0+ex*k,y=y0+ey*k,z=z0+ez*k;if(solidAt(Math.floor(x),Math.floor(y),Math.floor(z)))return{x,y,z};}return null;}
 // a vehicle run into by another (vehIn's answer), hurt by n
 function vehHurt(o,n){if(o.isMil)milHit(o,n);else damageCar(o,n,undefined,'acc');}
 // flying a plane, more or less as a real one flies. On a controller the stick's up and down set the throttle (it stays

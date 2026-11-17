@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:41a1129efa60843767d955e8c9e207500346e55915734205cd6355da4793e178 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:15fa7986eb72fb91b1b6d0e49601ea398e359c82a8a91e9e3793f93f70cdfc18 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1599,7 +1599,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Health bars</h3>
 <ul><li>With Options' Health bars on, Mobile Gears, hot-air balloons, the barge, the aircraft carrier and its deck weapons, and subway trains now show health bars like every other vehicle; they never had one.</li><li>Anything aboard a ship (goblins, cars, tanks, helicopters, the carrier's jets) now has its health bar over it, rather than out of sight far away.</li></ul>
 <h3>Fixes</h3>
-<ul><li>Gnash's rifle and handgun now hit the carrier's deck weapons and damage them. Before, the rounds went straight through them, and through every other vehicle except cars. Tanks, trains and the like now stop the rounds but shrug them off.</li><li>The minimap no longer draws the grey of the surrounding blocks over big sites that take up several blocks, such as theme parks, which hid most of their buildings.</li></ul>
+<ul><li>Gnash's rifle and handgun now hit the carrier's deck weapons and damage them. Before, the rounds went straight through them, and through every other vehicle except cars. Tanks, trains and the like now stop the rounds but shrug them off.</li><li>The minimap no longer draws the grey of the surrounding blocks over big sites that take up several blocks, such as theme parks, which hid most of their buildings.</li><li>Enemy gunfire now hits whatever you're driving. Before, rifles, the militia's machine guns, the helicopters' guns and the cultists' fireballs did nothing at all to a goblin behind the wheel; now the vehicle takes the hit instead.</li><li>Rounds from the fighter jets' cannons, the carrier's CIWS, the militia's machine guns and the helicopters' guns are stopped by walls, one round at a time. Before, some went straight through buildings, and a burst kept coming even after you ducked behind something.</li><li>Invulnerability now covers a train or subway train you're driving, as it does every other vehicle.</li><li>Grenades, shells and rockets now hurt zoo animals, the Ferris wheel's rim and the carousel, as stomps already did, and a shell or rocket goes off when it hits an animal.</li></ul>
 </details>
 <p class="pn-earlier">Earlier updates</p>
 <details class="pn-up pn-fold" id="version-0-4-1"><summary tabindex="0"><h2>Version 0.4.1</h2><a class="pn-play" data-ver="0.4.1" href="v/0.4.1/" tabindex="0">Play 0.4.1</a><span class="pn-tog" aria-hidden="true"></span></summary>
@@ -1911,7 +1911,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='e7f7eaef5cf5';
+const GAME_VER='0.5',GAME_BUILD='f92b7e43f3be';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -3065,7 +3065,7 @@ function trainHit(T,n,dir,ci){
   if(T&&T.isMil){milHit(T,n,dir);return;}
   if(T&&T.isMech){mechHit(T,n);return;}
   if(T&&T.isBalloon){balloonHit(T,n);return;}
-  if(!T||T.dead||!T.cars)return;const N=T.cars.length;if(ci===undefined)ci=0;
+  if(!T||T.dead||!T.cars||drvSafe(T))return;const N=T.cars.length;if(ci===undefined)ci=0;   // (drvSafe: Invulnerability covers a train or subway being driven, like every other vehicle)
   if(!T.carHP){T.carHP=T.cars.map(()=>CAR_HP);T.carDead=T.cars.map(()=>false);}
   if(T.carDead[ci])return;T.carHP[ci]-=n;
   {const g=T.cars[ci];dmgPop(g.position.x,g.position.y+4,g.position.z,Math.round(n),'#ffb04a');vHitFx(g.position.x,g.position.y+2.5,g.position.z,n);}
@@ -3763,8 +3763,10 @@ function updateHeli(M,V,dt){
     else{const mx=M.x+Math.sin(M.h)*2.6,my=M.y+1.2,mz=M.z+Math.cos(M.h)*2.6,d3=Math.hypot(p.pos.x-mx,p.pos.y+1-my,p.pos.z-mz),see=d3<70&&Math.abs(angDiff(M.h,face))<0.35&&lineClear(mx,my,mz,p.pos.x,p.pos.y+1.2,p.pos.z);
       // its gun: a burst of six, then a pause
       M.cd-=dt;if(M.burst>0){M.bt-=dt;if(M.bt<=0){M.bt=0.12;M.burst--;const hit=see&&!(p.dodge&&p.dodge.t<p.dodge.dur*0.85)&&Math.random()<0.3;
-          const a=Math.random()*6.28,r=hit?0:1.5+Math.random()*2,ex=p.pos.x+Math.cos(a)*r,ez=p.pos.z+Math.sin(a)*r,ey=p.pos.y+(hit?1.2:0);tracer(mx,my,mz,ex,ey,ez);if(audio)sfx('Helicopter gun',()=>noise(0.06,0.1,2400,'highpass'));if(!hit)puff(ex,ey,ez,1,0x9a948a,0.2);
-          if(hit){const h=Math.hypot(ex-mx,ez-mz)||1;damagePlayer(p,1,new V3(ex,ey,ez),new V3((ex-mx)/h,0.2,(ez-mz)/h),'Gunned down from a helicopter',MIL_CREW.heli);}}}
+          const a=Math.random()*6.28,r=hit?0:1.5+Math.random()*2;let ex=p.pos.x+Math.cos(a)*r,ez=p.pos.z+Math.sin(a)*r,ey=p.pos.y+(hit?1.2:0),hit2=hit;
+          {const w=wallStop(mx,my,mz,ex,ey,ez);if(w){ex=w.x;ey=w.y;ez=w.z;hit2=false;}}   // (each round stops at a wall)
+          tracer(mx,my,mz,ex,ey,ez);if(audio)sfx('Helicopter gun',()=>noise(0.06,0.1,2400,'highpass'));if(!hit2)puff(ex,ey,ez,1,0x9a948a,0.2);
+          if(hit2){const h=Math.hypot(ex-mx,ez-mz)||1;shotPlayer(p,1,new V3(ex,ey,ez),new V3((ex-mx)/h,0.2,(ez-mz)/h),'Gunned down from a helicopter',MIL_CREW.heli);}}}
       else if(M.cd<=0){if(see){M.burst=6;M.bt=0;M.cd=3+Math.random()*1.5;}else M.cd=0.5;}
       // and now and then a rocket
       M.rcd-=dt;if(M.rcd<=0&&see&&M.burst<=0){const L=d3||1,sp=30;shot({kind:'rocket',x:mx,y:my,z:mz,vx:(p.pos.x-mx)/L*sp,vy:(p.pos.y+1-my)/L*sp,vz:(p.pos.z-mz)/L*sp,grav:0.5,fuse:5,R:3.4,dmg:4,cause:'Blown up by a helicopter rocket',by:MIL_CREW.heli,crush:2.4,vd:35,own:M});M.rcd=7+Math.random()*4;if(audio)sfx('Helicopter rocket',()=>noise(0.5,0.25,900,'bandpass'));}}}
@@ -12151,6 +12153,14 @@ function vehIn(x,z,h,hx,hz,y0,y1,self){const R=Math.hypot(hx,hz);   // (returns 
   return null;}
 // the debug menu's Invulnerability covers whatever a player is driving, flying or manning, too: it takes no damage
 function drvSafe(o){if(!DT.invuln||!o)return false;for(const p of players)if(p.active&&p.drv&&p.drv.o===o)return true;return false;}
+// a round or a fireball reaching a player: on foot they're hurt; driving, flying or manning something, it's the vehicle
+// that takes it (damagePlayer leaves a driver alone), VEH_SHOT_K times over: a rifle round's heart is 3 off a car
+const VEH_SHOT_K=3;
+function hurtDriven(p,n,dir){const D=p.drv;if(!D||!D.o)return;const v=n*VEH_SHOT_K;if(D.k==='car')damageCar(D.o,v,dir);else trainHit(D.o,v,dir,D.ci);}
+function shotPlayer(p,n,pt,dir,cause,killer){if(p.drv)hurtDriven(p,n,dir);else damagePlayer(p,n,pt,dir,cause,killer);}
+// where a round from x0,y0,z0 to x1,y1,z1 first meets a solid block ({x,y,z}, looked for every 0.4), or null if it's clear
+function wallStop(x0,y0,z0,x1,y1,z1){const ex=x1-x0,ey=y1-y0,ez=z1-z0,n=Math.ceil(Math.hypot(ex,ey,ez)/0.4);
+  for(let i=1;i<n;i++){const k=i/n,x=x0+ex*k,y=y0+ey*k,z=z0+ez*k;if(solidAt(Math.floor(x),Math.floor(y),Math.floor(z)))return{x,y,z};}return null;}
 // a vehicle run into by another (vehIn's answer), hurt by n
 function vehHurt(o,n){if(o.isMil)milHit(o,n);else damageCar(o,n,undefined,'acc');}
 // flying a plane, more or less as a real one flies. On a controller the stick's up and down set the throttle (it stays
@@ -12310,22 +12320,24 @@ function vDamaged(x,y,z,f,dt){
   if(f<0.5&&Math.random()<dt*(f<0.25?12:4))smoke(x+(Math.random()-.5),y,z+(Math.random()-.5),1,f<0.25?0x1a1a1a:0x6a6a6a);
   if(f<0.25&&Math.random()<dt*6)puff(x,y,z,1,Math.random()<.5?0xff8a2a:0xffc040,0.3);
 }
-// does a shell or rocket at S.pos meet a vehicle (other than the one that fired it)?
+// does a shell or rocket at S.pos meet a vehicle (other than the one that fired it)? (Of the soft boxes, only a zoo
+// animal's stops it: a Ferris wheel's rim or a carousel's box is mostly air, so a shot goes on through to its frame)
 // (true-ish: the car, or the vehicle box, it meets, for anything that wants to know which. S.noShip: a bullet, which goes on into a ship's pocket instead of stopping at the boxes standing for it: shipLines)
 function shotHitsVeh(S){const x=S.pos.x,y=S.pos.y,z=S.pos.z;
   for(const c of cars){if(!c.alive||c===S.own)continue;const dx=x-c.pos.x,dz=z-c.pos.z;if(dx*dx+dz*dz>(c.hz+1)*(c.hz+1)||y<c.pos.y-0.2||y>c.pos.y+(c.hy||1.4)+0.2)continue;
     const s=Math.sin(c.heading),k=Math.cos(c.heading);if(Math.abs(dx*s+dz*k)<=c.hz+0.2&&Math.abs(dx*k-dz*s)<=c.hx+0.2)return c;}
-  for(const B of TRAIN_BOXES){const pr=B.proxy;if(!pr.alive||B.soft||pr.T===S.own||S.noShip&&(pr.isShipBox||B.mw)||pr.isMountBox&&pr.T.S===S.own||y<B.y0-0.2||y>B.top+0.2)continue;const dx=x-B.x,dz=z-B.z,hx=B.hx||TRAIN_HX,hz=B.hz||TRAIN_HZ;
+  for(const B of TRAIN_BOXES){const pr=B.proxy;if(!pr.alive||B.soft&&!(pr.T&&pr.T.isAnimal)||pr.T===S.own||S.noShip&&(pr.isShipBox||B.mw)||pr.isMountBox&&pr.T.S===S.own||y<B.y0-0.2||y>B.top+0.2)continue;const dx=x-B.x,dz=z-B.z,hx=B.hx||TRAIN_HX,hz=B.hz||TRAIN_HZ;
     if(Math.abs(dx)>hx+hz+1||Math.abs(dz)>hx+hz+1)continue;if(Math.abs(dx*B.tx+dz*B.tz)<=hz+0.2&&Math.abs(-dx*B.tz+dz*B.tx)<=hx+0.2)return B;}
   return false;}
 // a blast's harm to the vehicles round it (vd at the middle, less at the edge): cars, and every train car, boat, plane,
-// tank, helicopter and ride within reach of it (each just once). own: the vehicle that fired, spared
+// tank, helicopter, ride and zoo animal within reach of it (each just once; soft boxes too: a zoo animal, a wheel's rim,
+// a carousel). own: the vehicle that fired, spared
 function vehBlast(x,y,z,R,vd,own){
   if(!(vd>0)||!(R>0))return;
   for(const c of cars){if(!c.alive||c===own)continue;const dx=c.pos.x-x,dz=c.pos.z-z,d=Math.hypot(dx,dz,(c.pos.y+0.8-y)*0.7),r=R+c.hz*0.5;if(d>r)continue;
     const n=vd*(1-0.6*d/r),dir=new V3(dx,0,dz);damageCar(c,n,dir);if(c.alive&&n>12)launchCar(c,3+n*0.08,dir,4);}
   const done=new Set();
-  for(const B of TRAIN_BOXES){const pr=B.proxy,T=pr.T;if(!pr.alive||B.soft||!T||T===own)continue;const key=T.cars&&T.C?T.cars[pr.i]||pr:T;if(done.has(key))continue;
+  for(const B of TRAIN_BOXES){const pr=B.proxy,T=pr.T;if(!pr.alive||!T||T===own)continue;const key=T.cars&&T.C?T.cars[pr.i]||pr:T;if(done.has(key))continue;
     const hx=B.hx||TRAIN_HX,hz=B.hz||TRAIN_HZ,dx=x-B.x,dz=z-B.z,al=dx*B.tx+dz*B.tz,ac=-dx*B.tz+dz*B.tx,ea=Math.max(0,Math.abs(al)-hz),ec=Math.max(0,Math.abs(ac)-hx),
       dy=y<B.y0?B.y0-y:y>B.top?y-B.top:0,d=Math.hypot(ea,ec,dy);if(d>R)continue;
     done.add(key);trainHit(T,vd*(1-0.6*d/R),new V3(-dx,0,-dz),pr.i);}
@@ -16757,10 +16769,10 @@ function foeShoot(g,p,G6){
   let tx=p.pos.x,ty=p.pos.y+1.2,tz=p.pos.z;
   if(!hit){const a=Math.random()*6.283,r=1.6+Math.random()*1.5;tx+=Math.cos(a)*r;tz+=Math.sin(a)*r;ty+=(Math.random()-0.3)*1.5;const k=1.6;tx=x0+(tx-x0)*k;ty=y0+(ty-y0)*k;tz=z0+(tz-z0)*k;}
   // (a block in the way stops the round there: they may have taken aim before he ducked behind something)
-  let hit2=hit;{const ex=tx-x0,ey=ty-y0,ez=tz-z0,n=Math.ceil(Math.hypot(ex,ey,ez)/0.4);for(let i=1;i<n;i++){const k=i/n,x=x0+ex*k,y=y0+ey*k,z=z0+ez*k;if(solidAt(Math.floor(x),Math.floor(y),Math.floor(z))){tx=x;ty=y;tz=z;hit2=false;break;}}}
+  let hit2=hit;{const w=wallStop(x0,y0,z0,tx,ty,tz);if(w){tx=w.x;ty=w.y;tz=w.z;hit2=false;}}
   tracer(x0,y0,z0,tx,ty,tz);puff(x0,y0-0.1,z0,1,0xffe070,0.1);
   wpnCrack(G6===COP_GUN?'handgun':'rifle');   // (a handgun's crack is sharper and shorter: WEAPONS)
-  if(hit2){const h=Math.hypot(tx-x0,tz-z0)||1;damagePlayer(p,G6[4],new V3(tx,ty,tz),new V3((tx-x0)/h,0.2,(tz-z0)/h),G6[5],g.id);}
+  if(hit2){const h=Math.hypot(tx-x0,tz-z0)||1;shotPlayer(p,G6[4],new V3(tx,ty,tz),new V3((tx-x0)/h,0.2,(tz-z0)/h),G6[5],g.id);}
 }
 // a bomb lobbed in an arc at where he's standing (give or take), fuse fizzing
 function foeThrow(g,p,B6){
@@ -16863,7 +16875,7 @@ function updateFireballs(dt){
     for(let k=0;k<ns&&!done;k++){F.pos.addScaledVector(F.v,dt/ns);
       for(const p of players){if(!p.active||p.state==='dead')continue;if(p.dodge&&p.dodge.t<p.dodge.dur*0.85)continue;   // (mid-dodge: it flies on by)
         const hx=F.pos.x-p.pos.x,hz=F.pos.z-p.pos.z,hy=F.pos.y-p.pos.y;
-        if(hx*hx+hz*hz<1.4*1.4&&hy>-0.3&&hy<2.4){const h=Math.hypot(F.v.x,F.v.z)||1;damagePlayer(p,2,F.pos.clone(),new V3(F.v.x/h,0.3,F.v.z/h),"Burned up by a cultist's fireball",F.by);done=true;break;}}
+        if(hx*hx+hz*hz<1.4*1.4&&hy>-0.3&&hy<2.4){const h=Math.hypot(F.v.x,F.v.z)||1;shotPlayer(p,2,F.pos.clone(),new V3(F.v.x/h,0.3,F.v.z/h),"Burned up by a cultist's fireball",F.by);done=true;break;}}
       if(!done&&(solidAt(F.pos.x,Math.floor(F.pos.y),F.pos.z)||F.pos.y<0))done=true;}
     if(done||F.t>3.5){fbBurst(F);continue;}
     F.g.position.copy(F.pos);F.g.rotation.x+=dt*7;F.g.rotation.y+=dt*5;F.halo.scale.setScalar(0.55+0.12*Math.sin(F.t*30));
@@ -18392,11 +18404,12 @@ function crewGun(c,dt){
   C.bt-=dt;if(C.bt>0)return;C.bt=F.bt;C.burst--;
   if(C.burst<=0)C.cd=F.cd[0]+Math.random()*(F.cd[1]-F.cd[0]);
   const hit=!(p.dodge&&p.dodge.t<p.dodge.dur*0.85)&&Math.random()<F.hit*Math.max(0.35,1-d/F.range);
-  let tx=p.pos.x,ty=p.pos.y+1.2,tz=p.pos.z;
+  let tx=p.pos.x,ty=p.pos.y+1.2,tz=p.pos.z,hit2=hit;
   if(!hit){const r=Math.random()*6.283,e=1.5+Math.random()*2;tx+=Math.cos(r)*e;tz+=Math.sin(r)*e;ty+=(Math.random()-0.4)*1.5;}
-  tracer(mx,py,mz,tx,ty,tz);puff(mx,py,mz,1,0xffe070,0.1);if(!hit)puff(tx,ty,tz,1,0x9a948a,0.2);
+  {const w=wallStop(mx,py,mz,tx,ty,tz);if(w){tx=w.x;ty=w.y;tz=w.z;hit2=false;}}   // (each round: he may have ducked behind something mid-burst)
+  tracer(mx,py,mz,tx,ty,tz);puff(mx,py,mz,1,0xffe070,0.1);if(!hit2)puff(tx,ty,tz,1,0x9a948a,0.2);
   if(audio){if(c.veh==='technical')sfx('Technical machine gun',()=>{noise(0.07,0.13,2000,'highpass');tone('square',140,70,0.05,0.04);});else{noise(0.09,0.14,2600,'highpass');tone('square',220,90,0.06,0.04);}}
-  if(hit){const L=Math.hypot(tx-mx,tz-mz)||1;damagePlayer(p,F.dmg,new V3(tx,ty,tz),new V3((tx-mx)/L,0.2,(tz-mz)/L),F.cause,C.gun);}
+  if(hit2){const L=Math.hypot(tx-mx,tz-mz)||1;shotPlayer(p,F.dmg,new V3(tx,ty,tz),new V3((tx-mx)/L,0.2,(tz-mz)/L),F.cause,C.gun);}
 }
 // blown up with them aboard: the crew's bodies are thrown out of the wreck
 function crewWreck(c,p){const C=c.crew;if(!C)return;
@@ -23535,9 +23548,10 @@ function mountAI(Mt,dt){
       if(o.shot){ciwsRoundAt(Mt,m,T);continue;}
       if(o.veh){gunRound(S,null,m.x,m.y,m.z,2,0.02,'Shredded by a CIWS','CIWS',{x:T.x,y:T.y+0.5,z:T.z});continue;}
       // (someone in the open: the rounds are spread about, and each has a chance of finding them)
-      const hit=Math.random()<0.12&&!(o.p.dodge&&o.p.dodge.t<o.p.dodge.dur*0.85),a=Math.random()*6.283,r=hit?0:1+Math.random()*2.5,ex=T.x+Math.cos(a)*r,ez=T.z+Math.sin(a)*r,ey=T.y;
+      let hit=Math.random()<0.12&&!(o.p.dodge&&o.p.dodge.t<o.p.dodge.dur*0.85),a=Math.random()*6.283,r=hit?0:1+Math.random()*2.5,ex=T.x+Math.cos(a)*r,ez=T.z+Math.sin(a)*r,ey=T.y;
+      {const w=wallStop(m.x,m.y,m.z,ex,ey,ez);if(w){ex=w.x;ey=w.y;ez=w.z;hit=false;}}   // (a wall in the way takes it)
       tracer(m.x,m.y,m.z,ex,ey,ez);if(audio)sfx('CIWS',()=>noise(0.05,0.08,2600,'highpass'));if(!hit)puff(ex,ey,ez,1,0x9a948a,0.15);
-      else{const h=Math.hypot(ex-m.x,ez-m.z)||1;damagePlayer(o.p,1,new V3(ex,ey,ez),new V3((ex-m.x)/h,0.2,(ez-m.z)/h),'Shredded by a CIWS',Mt.crew);}}
+      else{const h=Math.hypot(ex-m.x,ez-m.z)||1;shotPlayer(o.p,1,new V3(ex,ey,ez),new V3((ex-m.x)/h,0.2,(ez-m.z)/h),'Shredded by a CIWS',Mt.crew);}}
     return;}
   if(Mt.cd>0||Mt.spin<0)return;
   // (a missile at it every few seconds, chasing where they really are)
@@ -23751,9 +23765,10 @@ function jetAI(pl,dt){
 function jetAIGun(pl,Q,dt){const A=pl.ai;if(A.gcd>0)return;const P=pl.g.position,h=pl.g.rotation.y,mx=P.x+Math.sin(h)*6.8,my=P.y+1.2,mz=P.z+Math.cos(h)*6.8,q=Q.q;
   for(let n=0;n<3;n++){if(!wpnFire(pl,'gun'))break;pl.wpn.gun.cd=0;
     if(q.drv){gunRound(pl,null,mx,my,mz,3,0.01,'Gunned down by a fighter jet','Jet cannon',{x:Q.x,y:Q.y+0.8,z:Q.z});continue;}
-    const hit=Math.random()<0.1&&!(q.dodge&&q.dodge.t<q.dodge.dur*0.85),a=Math.random()*6.283,r=hit?0:1+Math.random()*3,ex=Q.x+Math.cos(a)*r,ey=Q.y+0.6,ez=Q.z+Math.sin(a)*r;
+    let hit=Math.random()<0.1&&!(q.dodge&&q.dodge.t<q.dodge.dur*0.85),a=Math.random()*6.283,r=hit?0:1+Math.random()*3,ex=Q.x+Math.cos(a)*r,ey=Q.y+0.6,ez=Q.z+Math.sin(a)*r;
+    {const w=wallStop(mx,my,mz,ex,ey,ez);if(w){ex=w.x;ey=w.y;ez=w.z;hit=false;}}   // (a wall in the way takes it)
     tracer(mx,my,mz,ex,ey,ez);if(audio)sfx('Jet cannon',()=>noise(0.05,0.1,2400,'highpass'));
-    if(hit){const L=Math.hypot(ex-mx,ez-mz)||1;damagePlayer(q,1,new V3(ex,ey,ez),new V3((ex-mx)/L,0.2,(ez-mz)/L),'Gunned down by a fighter jet',pl.crew);}
+    if(hit){const L=Math.hypot(ex-mx,ez-mz)||1;shotPlayer(q,1,new V3(ex,ey,ez),new V3((ex-mx)/L,0.2,(ez-mz)/L),'Gunned down by a fighter jet',pl.crew);}
     else puff(ex,ey,ez,1,0x9a948a,0.15);}
   A.gcd=0.1;}
 // a missile at them, homing on where they really are (it's fired out in the world)

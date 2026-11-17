@@ -40,4 +40,5 @@ foe militia  guard 360 | walk 144 | attack 156 h0,78 | shoot 99 h51 s1 | throw 1
 foe sailor   guard 360 | walk 144 | attack 144 h0,72 | shoot 108 h59 s1 | jump 96 | climb 168 | swim 144 | death 120
 foe marine   guard 360 | walk 144 | attack 168 h0,84 | shoot 96 h48 s1 | throw 204 h173 s1 | jump 96 | climb 168 | swim 144 | death 120
 foe deckhand guard 360 | walk 144 | attack 120 h0,60 | jump 96 | climb 168 | swim 144 | death 120
+foe security guard 360 | walk 144 | attack 120 h0,60 | jump 96 | climb 168 | swim 144 | death 120
 real world untouched: true player still at  0.00 chunks 103 -> 103

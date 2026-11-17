@@ -120,11 +120,12 @@ function crewGun(c,dt){
   C.bt-=dt;if(C.bt>0)return;C.bt=F.bt;C.burst--;
   if(C.burst<=0)C.cd=F.cd[0]+Math.random()*(F.cd[1]-F.cd[0]);
   const hit=!(p.dodge&&p.dodge.t<p.dodge.dur*0.85)&&Math.random()<F.hit*Math.max(0.35,1-d/F.range);
-  let tx=p.pos.x,ty=p.pos.y+1.2,tz=p.pos.z;
+  let tx=p.pos.x,ty=p.pos.y+1.2,tz=p.pos.z,hit2=hit;
   if(!hit){const r=Math.random()*6.283,e=1.5+Math.random()*2;tx+=Math.cos(r)*e;tz+=Math.sin(r)*e;ty+=(Math.random()-0.4)*1.5;}
-  tracer(mx,py,mz,tx,ty,tz);puff(mx,py,mz,1,0xffe070,0.1);if(!hit)puff(tx,ty,tz,1,0x9a948a,0.2);
+  {const w=wallStop(mx,py,mz,tx,ty,tz);if(w){tx=w.x;ty=w.y;tz=w.z;hit2=false;}}   // (each round: he may have ducked behind something mid-burst)
+  tracer(mx,py,mz,tx,ty,tz);puff(mx,py,mz,1,0xffe070,0.1);if(!hit2)puff(tx,ty,tz,1,0x9a948a,0.2);
   if(audio){if(c.veh==='technical')sfx('Technical machine gun',()=>{noise(0.07,0.13,2000,'highpass');tone('square',140,70,0.05,0.04);});else{noise(0.09,0.14,2600,'highpass');tone('square',220,90,0.06,0.04);}}
-  if(hit){const L=Math.hypot(tx-mx,tz-mz)||1;damagePlayer(p,F.dmg,new V3(tx,ty,tz),new V3((tx-mx)/L,0.2,(tz-mz)/L),F.cause,C.gun);}
+  if(hit2){const L=Math.hypot(tx-mx,tz-mz)||1;shotPlayer(p,F.dmg,new V3(tx,ty,tz),new V3((tx-mx)/L,0.2,(tz-mz)/L),F.cause,C.gun);}
 }
 // blown up with them aboard: the crew's bodies are thrown out of the wreck
 function crewWreck(c,p){const C=c.crew;if(!C)return;

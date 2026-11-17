@@ -216,9 +216,10 @@ function mountAI(Mt,dt){
       if(o.shot){ciwsRoundAt(Mt,m,T);continue;}
       if(o.veh){gunRound(S,null,m.x,m.y,m.z,2,0.02,'Shredded by a CIWS','CIWS',{x:T.x,y:T.y+0.5,z:T.z});continue;}
       // (someone in the open: the rounds are spread about, and each has a chance of finding them)
-      const hit=Math.random()<0.12&&!(o.p.dodge&&o.p.dodge.t<o.p.dodge.dur*0.85),a=Math.random()*6.283,r=hit?0:1+Math.random()*2.5,ex=T.x+Math.cos(a)*r,ez=T.z+Math.sin(a)*r,ey=T.y;
+      let hit=Math.random()<0.12&&!(o.p.dodge&&o.p.dodge.t<o.p.dodge.dur*0.85),a=Math.random()*6.283,r=hit?0:1+Math.random()*2.5,ex=T.x+Math.cos(a)*r,ez=T.z+Math.sin(a)*r,ey=T.y;
+      {const w=wallStop(m.x,m.y,m.z,ex,ey,ez);if(w){ex=w.x;ey=w.y;ez=w.z;hit=false;}}   // (a wall in the way takes it)
       tracer(m.x,m.y,m.z,ex,ey,ez);if(audio)sfx('CIWS',()=>noise(0.05,0.08,2600,'highpass'));if(!hit)puff(ex,ey,ez,1,0x9a948a,0.15);
-      else{const h=Math.hypot(ex-m.x,ez-m.z)||1;damagePlayer(o.p,1,new V3(ex,ey,ez),new V3((ex-m.x)/h,0.2,(ez-m.z)/h),'Shredded by a CIWS',Mt.crew);}}
+      else{const h=Math.hypot(ex-m.x,ez-m.z)||1;shotPlayer(o.p,1,new V3(ex,ey,ez),new V3((ex-m.x)/h,0.2,(ez-m.z)/h),'Shredded by a CIWS',Mt.crew);}}
     return;}
   if(Mt.cd>0||Mt.spin<0)return;
   // (a missile at it every few seconds, chasing where they really are)

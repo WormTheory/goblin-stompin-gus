@@ -217,7 +217,7 @@ function trainHit(T,n,dir,ci){
   if(T&&T.isMil){milHit(T,n,dir);return;}
   if(T&&T.isMech){mechHit(T,n);return;}
   if(T&&T.isBalloon){balloonHit(T,n);return;}
-  if(!T||T.dead||!T.cars)return;const N=T.cars.length;if(ci===undefined)ci=0;
+  if(!T||T.dead||!T.cars||drvSafe(T))return;const N=T.cars.length;if(ci===undefined)ci=0;   // (drvSafe: Invulnerability covers a train or subway being driven, like every other vehicle)
   if(!T.carHP){T.carHP=T.cars.map(()=>CAR_HP);T.carDead=T.cars.map(()=>false);}
   if(T.carDead[ci])return;T.carHP[ci]-=n;
   {const g=T.cars[ci];dmgPop(g.position.x,g.position.y+4,g.position.z,Math.round(n),'#ffb04a');vHitFx(g.position.x,g.position.y+2.5,g.position.z,n);}

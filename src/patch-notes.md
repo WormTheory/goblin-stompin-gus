@@ -189,6 +189,10 @@
 
 - Gnash's rifle and handgun now hit the carrier's deck weapons and damage them. Before, the rounds went straight through them, and through every other vehicle except cars. Tanks, trains and the like now stop the rounds but shrug them off.
 - The minimap no longer draws the grey of the surrounding blocks over big sites that take up several blocks, such as theme parks, which hid most of their buildings.
+- Enemy gunfire now hits whatever you're driving. Before, rifles, the militia's machine guns, the helicopters' guns and the cultists' fireballs did nothing at all to a goblin behind the wheel; now the vehicle takes the hit instead.
+- Rounds from the fighter jets' cannons, the carrier's CIWS, the militia's machine guns and the helicopters' guns are stopped by walls, one round at a time. Before, some went straight through buildings, and a burst kept coming even after you ducked behind something.
+- Invulnerability now covers a train or subway train you're driving, as it does every other vehicle.
+- Grenades, shells and rockets now hurt zoo animals, the Ferris wheel's rim and the carousel, as stomps already did, and a shell or rocket goes off when it hits an animal.
 
 ## Version 0.4.1
 

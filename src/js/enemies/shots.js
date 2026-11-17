@@ -26,7 +26,7 @@ function updateFireballs(dt){
     for(let k=0;k<ns&&!done;k++){F.pos.addScaledVector(F.v,dt/ns);
       for(const p of players){if(!p.active||p.state==='dead')continue;if(p.dodge&&p.dodge.t<p.dodge.dur*0.85)continue;   // (mid-dodge: it flies on by)
         const hx=F.pos.x-p.pos.x,hz=F.pos.z-p.pos.z,hy=F.pos.y-p.pos.y;
-        if(hx*hx+hz*hz<1.4*1.4&&hy>-0.3&&hy<2.4){const h=Math.hypot(F.v.x,F.v.z)||1;damagePlayer(p,2,F.pos.clone(),new V3(F.v.x/h,0.3,F.v.z/h),"Burned up by a cultist's fireball",F.by);done=true;break;}}
+        if(hx*hx+hz*hz<1.4*1.4&&hy>-0.3&&hy<2.4){const h=Math.hypot(F.v.x,F.v.z)||1;shotPlayer(p,2,F.pos.clone(),new V3(F.v.x/h,0.3,F.v.z/h),"Burned up by a cultist's fireball",F.by);done=true;break;}}
       if(!done&&(solidAt(F.pos.x,Math.floor(F.pos.y),F.pos.z)||F.pos.y<0))done=true;}
     if(done||F.t>3.5){fbBurst(F);continue;}
     F.g.position.copy(F.pos);F.g.rotation.x+=dt*7;F.g.rotation.y+=dt*5;F.halo.scale.setScalar(0.55+0.12*Math.sin(F.t*30));

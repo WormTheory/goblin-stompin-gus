@@ -34,7 +34,7 @@ train: in train  car 1
 boat (launch): in boat
   W 4 s: moved 28.1  speed 10.2  afloat at 0.9
   W+A 2 s: turned 2.3
-  F again: on foot  in the water beside it 2.4  y -1.3
+  F again: on foot  in the water beside it 2.4  y -1.2
   3 s on: it stays put (off its route) 0.0
 errors 0 []
 beached rowboat: F finds boat  in boat  pushed off 22.0 into the water true
@@ -79,33 +79,48 @@ helicopter: in heli
   3 s on: Gun 40/40, Rockets 4/4
   rocket marker to where it went off: 0.1  display: marker shown false
   F again 24.0 up: on foot  heli idle  me falling yes
-helicopter flown into a wall at speed: wrecked true  blocks blown out 246  me thrown clear on foot  hp 20
-a stopped helicopter (wrecked), ground under it dug out 6 deep: dropped 6.0  hp 11.249704323068286 -> -8.9
+helicopter flown into a wall at speed: wrecked true  blocks blown out 252  me thrown clear on foot  hp 20
+a stopped helicopter (wrecked), ground under it dug out 6 deep: dropped 6.0  hp 11.249704323068684 -> -8.9
 first helicopter, 8 s on: height 0.0  rotor 0.4  me on the ground true  hp 20
-plane on the keyboard: (thr+ Space, thr- C, up S, down W, right D)
+airport -8 6 mirrored true  pilots shown in the moving airliners true,true  in the parked ones false
+airliner on the keyboard: (thr+ Space, thr- C, up S, down W, right D)
   in plane  this one true
   Space 1.5 s: throttle 90%, rolling at 11.4  moved 5.4  height 0.0
-  S (nose up) below take-off speed: height 0.0  nose up 0.0
-  full throttle, S: off the ground at 45.5  2 s on: height 42.0  speed 55.8  wrecked false
+  S (nose up) below take-off speed: height 0.2  nose up 0.2
+  full throttle, S: off the ground at 43.7  after a run of 61.5  2 s on: height 38.4  speed 55.3  wrecked false
   let go: settles level, climb rate 3.1  height change over 2 s 10.9  speed 74.8
-  D 1.2 s: banked -1.1 (right is negative), heading turned -0.4  height held to 4.2
+  D 1.2 s: banked -1.1 (right is negative), heading turned -0.4  height held to 4.3
   let go 2 s: bank -0.1
   W (nose down) 1.5 s: nose -0.3  came down 78.0  speed 80.6 -> 88.8
-  throttle shut (C), S held: throttle 0%, stalls true after 4.1 s at 17.4  display says true  nose drops 0.7 -> 0.3
-  throttle up, let go: speed 72.3  climb rate -0.7  wrecked false
+  throttle shut (C), S held: throttle 0%, stalls true after 4.0 s at 17.5  display says true  nose drops 0.7 -> 0.3
+  throttle up, let go: speed 72.5  climb rate -0.9  wrecked false
   F again: on foot  falling true
-  left to itself: down after 2.0 s, wrecked true  height 0.0  speed 66.1  air true  me on the ground true  crater blocks 211
-plane on a controller: (thr+ stick up, thr- stick down, up A, down LB, right stick right)
+  left to itself: down after 2.0 s, wrecked true  height 0.0  speed 67.1  air true  me on the ground true  crater blocks 210
+airliner on a controller: (thr+ stick up, thr- stick down, up A, down LB, right stick right)
   in plane  this one true
   stick up 1.5 s: throttle 90%, rolling at 11.4  moved 5.4  height 0.0
-  A (nose up) below take-off speed: height 0.0  nose up 0.0
-  full throttle, A: off the ground at 45.5  2 s on: height 42.0  speed 55.8  wrecked false
+  A (nose up) below take-off speed: height 0.2  nose up 0.2
+  full throttle, A: off the ground at 43.7  after a run of 61.5  2 s on: height 38.4  speed 55.3  wrecked false
   let go: settles level, climb rate 3.1  height change over 2 s 10.9  speed 74.8
-  stick right 1.2 s: banked -1.1 (right is negative), heading turned -0.4  height held to 4.2
+  stick right 1.2 s: banked -1.1 (right is negative), heading turned -0.4  height held to 4.3
   let go 2 s: bank -0.1
   LB (nose down) 1.5 s: nose -0.3  came down 78.0  speed 80.6 -> 88.8
-  throttle shut (stick down), A held: throttle 0%, stalls true after 4.1 s at 17.4  display says true  nose drops 0.7 -> 0.3
-  throttle up, let go: speed 72.3  climb rate -0.7  wrecked false
+  throttle shut (stick down), A held: throttle 0%, stalls true after 4.0 s at 17.5  display says true  nose drops 0.7 -> 0.3
+  throttle up, let go: speed 72.5  climb rate -0.9  wrecked false
   F again: on foot  falling true
-  left to itself: down after 2.0 s, wrecked true  height -0.6  speed 65.8  air true  me on the ground true  crater blocks 230
+  left to itself: down after 2.0 s, wrecked true  height -0.5  speed 66.9  air true  me on the ground true  crater blocks 86
+airfield 45 27  its planes 3  pilot shown in the one going round true
+two-seater on the keyboard: (thr+ Space, thr- C, up S, down W, right D)
+  in plane  this one true
+  Space 1.5 s: throttle 90%, rolling at 4.8  moved 2.0  height 0.0
+  S (nose up) below take-off speed: height 0.0  nose up 0.0
+  full throttle, S: off the ground at 22.6  after a run of 35.1  2 s on: height 21.6  speed 25.0  wrecked false
+  let go: settles level, climb rate 2.3  height change over 2 s 6.6  speed 42.6
+  D 1.2 s: banked -1.1 (right is negative), heading turned -0.9  height held to 3.1
+  let go 2 s: bank -0.1
+  W (nose down) 1.5 s: nose -0.3  came down 49.5  speed 46.0 -> 46.0
+  throttle shut (C), S held: throttle 0%, stalls true after 1.5 s at 12.5  display says true  nose drops 0.7 -> 0.6
+  throttle up, let go: speed 42.9  climb rate 0.8  wrecked false
+  F again: on foot  falling true
+  left to itself: down after 1.5 s, wrecked true  height 0.0  speed 45.6  air true  me on the ground true  crater blocks 221
 errors 0 []

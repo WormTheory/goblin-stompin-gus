@@ -7,22 +7,24 @@ function vDamaged(x,y,z,f,dt){
   if(f<0.5&&Math.random()<dt*(f<0.25?12:4))smoke(x+(Math.random()-.5),y,z+(Math.random()-.5),1,f<0.25?0x1a1a1a:0x6a6a6a);
   if(f<0.25&&Math.random()<dt*6)puff(x,y,z,1,Math.random()<.5?0xff8a2a:0xffc040,0.3);
 }
-// does a shell or rocket at S.pos meet a vehicle (other than the one that fired it)?
+// does a shell or rocket at S.pos meet a vehicle (other than the one that fired it)? (Of the soft boxes, only a zoo
+// animal's stops it: a Ferris wheel's rim or a carousel's box is mostly air, so a shot goes on through to its frame)
 // (true-ish: the car, or the vehicle box, it meets, for anything that wants to know which. S.noShip: a bullet, which goes on into a ship's pocket instead of stopping at the boxes standing for it: shipLines)
 function shotHitsVeh(S){const x=S.pos.x,y=S.pos.y,z=S.pos.z;
   for(const c of cars){if(!c.alive||c===S.own)continue;const dx=x-c.pos.x,dz=z-c.pos.z;if(dx*dx+dz*dz>(c.hz+1)*(c.hz+1)||y<c.pos.y-0.2||y>c.pos.y+(c.hy||1.4)+0.2)continue;
     const s=Math.sin(c.heading),k=Math.cos(c.heading);if(Math.abs(dx*s+dz*k)<=c.hz+0.2&&Math.abs(dx*k-dz*s)<=c.hx+0.2)return c;}
-  for(const B of TRAIN_BOXES){const pr=B.proxy;if(!pr.alive||B.soft||pr.T===S.own||S.noShip&&(pr.isShipBox||B.mw)||pr.isMountBox&&pr.T.S===S.own||y<B.y0-0.2||y>B.top+0.2)continue;const dx=x-B.x,dz=z-B.z,hx=B.hx||TRAIN_HX,hz=B.hz||TRAIN_HZ;
+  for(const B of TRAIN_BOXES){const pr=B.proxy;if(!pr.alive||B.soft&&!(pr.T&&pr.T.isAnimal)||pr.T===S.own||S.noShip&&(pr.isShipBox||B.mw)||pr.isMountBox&&pr.T.S===S.own||y<B.y0-0.2||y>B.top+0.2)continue;const dx=x-B.x,dz=z-B.z,hx=B.hx||TRAIN_HX,hz=B.hz||TRAIN_HZ;
     if(Math.abs(dx)>hx+hz+1||Math.abs(dz)>hx+hz+1)continue;if(Math.abs(dx*B.tx+dz*B.tz)<=hz+0.2&&Math.abs(-dx*B.tz+dz*B.tx)<=hx+0.2)return B;}
   return false;}
 // a blast's harm to the vehicles round it (vd at the middle, less at the edge): cars, and every train car, boat, plane,
-// tank, helicopter and ride within reach of it (each just once). own: the vehicle that fired, spared
+// tank, helicopter, ride and zoo animal within reach of it (each just once; soft boxes too: a zoo animal, a wheel's rim,
+// a carousel). own: the vehicle that fired, spared
 function vehBlast(x,y,z,R,vd,own){
   if(!(vd>0)||!(R>0))return;
   for(const c of cars){if(!c.alive||c===own)continue;const dx=c.pos.x-x,dz=c.pos.z-z,d=Math.hypot(dx,dz,(c.pos.y+0.8-y)*0.7),r=R+c.hz*0.5;if(d>r)continue;
     const n=vd*(1-0.6*d/r),dir=new V3(dx,0,dz);damageCar(c,n,dir);if(c.alive&&n>12)launchCar(c,3+n*0.08,dir,4);}
   const done=new Set();
-  for(const B of TRAIN_BOXES){const pr=B.proxy,T=pr.T;if(!pr.alive||B.soft||!T||T===own)continue;const key=T.cars&&T.C?T.cars[pr.i]||pr:T;if(done.has(key))continue;
+  for(const B of TRAIN_BOXES){const pr=B.proxy,T=pr.T;if(!pr.alive||!T||T===own)continue;const key=T.cars&&T.C?T.cars[pr.i]||pr:T;if(done.has(key))continue;
     const hx=B.hx||TRAIN_HX,hz=B.hz||TRAIN_HZ,dx=x-B.x,dz=z-B.z,al=dx*B.tx+dz*B.tz,ac=-dx*B.tz+dz*B.tx,ea=Math.max(0,Math.abs(al)-hz),ec=Math.max(0,Math.abs(ac)-hx),
       dy=y<B.y0?B.y0-y:y>B.top?y-B.top:0,d=Math.hypot(ea,ec,dy);if(d>R)continue;
     done.add(key);trainHit(T,vd*(1-0.6*d/R),new V3(-dx,0,-dz),pr.i);}
