@@ -61,9 +61,9 @@ function tenvEnter(){
   try{localStorage.setItem(TENV_PARK,JSON.stringify(Object.assign({save:saveText()},park)));}
   catch(e){
     // (a city too big for localStorage goes aside in IndexedDB, as its saves do: see worldPut)
-    if(!window.indexedDB){try{flashLabel("Can't put your city aside: the browser's storage is full");}catch(e2){}return;}
+    if(!window.indexedDB){try{flashLabel("Can't put your world aside: the browser's storage is full");}catch(e2){}return;}
     svKv('park:'+SAVE_KEY,saveObj()).then(()=>{localStorage.setItem(TENV_PARK,JSON.stringify(Object.assign({idb:1},park)));tenvEnterNow();},
-      ()=>{try{flashLabel("Can't put your city aside: the browser's storage is full");}catch(e2){}});
+      ()=>{try{flashLabel("Can't put your world aside: the browser's storage is full");}catch(e2){}});
     return;}
   tenvEnterNow();
 }
@@ -78,7 +78,7 @@ function tenvLeave(){
   if(P&&P.key===SAVE_KEY&&P.idb){svKv('park:'+SAVE_KEY).then(o=>{if(!o)throw 0;return worldPut(o);}).then(()=>{
       for(const [k,v] of [[POS_KEY,P.pos],[OBIT_KEY,P.obit]])if(v)localStorage.setItem(k,v);else localStorage.removeItem(k);
       localStorage.removeItem(TENV_PARK);svKv('park:'+SAVE_KEY,null).catch(()=>{});clearTimeout(saveTimer);saveBlocked=true;location.reload();},
-    ()=>{try{flashLabel("Couldn't bring your city back");}catch(e){}});return;}
+    ()=>{try{flashLabel("Couldn't bring your world back");}catch(e){}});return;}
   if(P&&P.key===SAVE_KEY&&P.save){try{localStorage.setItem(SAVE_KEY,P.save);
     for(const [k,v] of [[POS_KEY,P.pos],[OBIT_KEY,P.obit]])if(v)localStorage.setItem(k,v);else localStorage.removeItem(k);
     localStorage.removeItem(TENV_PARK);clearTimeout(saveTimer);saveBlocked=true;location.reload();return;}catch(e){}}

@@ -134,6 +134,7 @@
 - Windy weather is gone.
 - Tanks, helicopters, planes and Mobile Gears now gather snow on top as cars do, as deep as the snow on the ground while they stand out in the open. It blows off a plane in the air or a helicopter going fast.
 - The main menu's "New city" button is now "New world".
+- The save screens now call a save a world rather than a city: "New file: new world", "Export this world", the world seed under the menu, and the rest.
 
 ## Version 0.4.1
 

@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:0a6dc627a5c1b286f27657074288146a0ac4991156fc50392302fc2b58c40a76 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:22e247db0bc7eaac522482b21851e82135257a796e889c30a24886a7d373fc6d -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1353,7 +1353,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <button type="button" class="ck co" id="playCoop">Co-op</button>
         <button type="button" class="ck on" id="onlineBtn" aria-expanded="false" aria-controls="onlinePanel">Play online</button>
         <div class="online" id="onlinePanel" hidden>
-        <div class="on-h">Play online <small>Up to four players over the internet. Host your city and it shows up under Open games for anyone to join, or make it private and share the room code. The host's browser runs the game, so the host's computer should be the quicker one.</small></div>
+        <div class="on-h">Play online <small>Up to four players over the internet. Host your world and it shows up under Open games for anyone to join, or make it private and share the room code. The host's browser runs the game, so the host's computer should be the quicker one.</small></div>
         <div class="on-list" id="netList" hidden><div class="on-lh">Open games</div><div class="on-games" id="netGames"></div><div class="note on-gnote" id="netGamesNote" role="status"></div></div>
         <div class="on-row"><button type="button" class="on-b" id="netHost">Host a game</button><span class="on-or">or</span><input type="text" id="netCode" class="on-code-in" maxlength="8" placeholder="Room code" autocomplete="off" spellcheck="false" aria-label="Room code"><button type="button" class="on-b" id="netJoin">Join</button></div>
         <label class="on-loc"><input type="checkbox" id="netPrivate"> Private game: keep it off the Open games list, so only people you give the room code to can join</label>
@@ -1366,10 +1366,10 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <button type="button" class="ck set tsave" id="saveNow" title="Your game saves by itself as you play. This saves it straight away, and says so.">Save now</button>
         <div class="savesw" id="saveSw" role="radiogroup" aria-label="Where your game is saved"><button type="button" role="radio" class="sv" id="saveBrowser" aria-checked="true">Browser save</button><button type="button" role="radio" class="sv" id="saveLocal" aria-checked="false" aria-expanded="false" aria-controls="savePanel">Local save</button></div>
         <div class="online savepanel" id="savePanel" hidden>
-          <div class="on-h">Local saves <small id="saveIntro">Keep your cities in files on this computer instead of in the browser, so clearing the browser can't lose them and you can keep as many as you like. Your browser save stays as it is: switch back to it any time.</small></div>
+          <div class="on-h">Local saves <small id="saveIntro">Keep your worlds in files on this computer instead of in the browser, so clearing the browser can't lose them and you can keep as many as you like. Your browser save stays as it is: switch back to it any time.</small></div>
           <div class="sv-list" id="saveList"></div>
-          <div class="sv-btns" id="saveFileBtns"><button type="button" class="on-b" id="saveNewCopy">New file: this city</button><button type="button" class="on-b" id="saveNewFresh">New file: new city</button><button type="button" class="on-b sv-open" id="saveOpen">Open a save file</button></div>
-          <div class="sv-btns sv-xfer"><button type="button" class="on-b" id="saveExport">Export this city</button><button type="button" class="on-b sv-open" id="saveImport">Import a save file</button><input type="file" id="saveImportFile" accept=".json,application/json" hidden></div>
+          <div class="sv-btns" id="saveFileBtns"><button type="button" class="on-b" id="saveNewCopy">New file: this world</button><button type="button" class="on-b" id="saveNewFresh">New file: new world</button><button type="button" class="on-b sv-open" id="saveOpen">Open a save file</button></div>
+          <div class="sv-btns sv-xfer"><button type="button" class="on-b" id="saveExport">Export this world</button><button type="button" class="on-b sv-open" id="saveImport">Import a save file</button><input type="file" id="saveImportFile" accept=".json,application/json" hidden></div>
           <div class="sv-ask" id="saveAsk" hidden><span id="saveAskTxt"></span><button type="button" class="on-b" id="saveAskYes">Load it</button><button type="button" class="on-b sv-open" id="saveAskNo">Cancel</button></div>
           <div class="note on-st" id="saveStatus" role="status"></div>
         </div>
@@ -1418,7 +1418,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <div class="tp-load" id="tpLoad"></div><p class="tp-note">Mobile Gears spawned from now on carry these. Ones already standing keep what they have.</p></div>
       <div class="tp-sec" id="tpPlacedSec" hidden><div class="tp-gh">Spawned here</div><div class="tp-placed" id="tpPlaced"></div></div>
       <div class="tp-groups" id="tpGroups"></div>
-      <div class="tp-foot"><button type="button" class="big" id="tpGo">Play</button><button type="button" class="pmenu" id="tpNormal">Back to your city</button><button type="button" class="pmenu" id="tpReset">Reset world</button></div>
+      <div class="tp-foot"><button type="button" class="big" id="tpGo">Play</button><button type="button" class="pmenu" id="tpNormal">Back to your world</button><button type="button" class="pmenu" id="tpReset">Reset world</button></div>
     </div>
     </div>
     <div class="tabpane" id="tabControls" role="tabpanel" hidden>
@@ -1565,7 +1565,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Less prop pop-in</h3>
 <ul><li>Props out in the open (patio tables, beach and harbour gear, the stadium's fittings and the like) are now drawn out to 64 blocks, up from 34, and furniture indoors stays at 34 as before. The distance is now the same in every direction, so things on the diagonal no longer show up later than things straight ahead.</li><li>Props now grow up out of the ground over a moment as they come into range, instead of suddenly appearing.</li><li>New PROPS slider in Options, under Render distance: set how far props are drawn, from 32 to 192 blocks. Furniture indoors goes about half as far as the setting.</li></ul>
 <h3>Weather</h3>
-<ul><li>Foggy weather now really closes in. The weather's fog used to shrink with the FAR VIEW setting, so with the view turned up it all but vanished; now fog, rain and snow limit how far you can see by the same number of blocks whatever the setting, with thick fog and blizzards down to about 30 blocks.</li><li>Windy weather is gone.</li><li>Tanks, helicopters, planes and Mobile Gears now gather snow on top as cars do, as deep as the snow on the ground while they stand out in the open. It blows off a plane in the air or a helicopter going fast.</li><li>The main menu's "New city" button is now "New world".</li></ul>
+<ul><li>Foggy weather now really closes in. The weather's fog used to shrink with the FAR VIEW setting, so with the view turned up it all but vanished; now fog, rain and snow limit how far you can see by the same number of blocks whatever the setting, with thick fog and blizzards down to about 30 blocks.</li><li>Windy weather is gone.</li><li>Tanks, helicopters, planes and Mobile Gears now gather snow on top as cars do, as deep as the snow on the ground while they stand out in the open. It blows off a plane in the air or a helicopter going fast.</li><li>The main menu's "New city" button is now "New world".</li><li>The save screens now call a save a world rather than a city: "New file: new world", "Export this world", the world seed under the menu, and the rest.</li></ul>
 </details>
 <p class="pn-earlier">Earlier updates</p>
 <details class="pn-up pn-fold" id="version-0-4-1"><summary tabindex="0"><h2>Version 0.4.1</h2><a class="pn-play" data-ver="0.4.1" href="v/0.4.1/" tabindex="0">Play 0.4.1</a><span class="pn-tog" aria-hidden="true"></span></summary>
@@ -1877,7 +1877,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='4aa7932fb4d7';
+const GAME_VER='0.5',GAME_BUILD='40e1bd498827';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v95';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -27156,7 +27156,7 @@ try{const o=JSON.parse(localStorage.getItem(SV_MODE_KEY)||'null');if(o&&o.mode==
 // (whether this browser can save to files at all, and if not, why not, in words for the menu)
 {let top=true;try{top=window.top===window.self;}catch(e){top=false;}
  if(typeof window.showSaveFilePicker!=='function'||typeof window.showOpenFilePicker!=='function'||!window.indexedDB)
-   SV.why=/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent||'')?"Local saves need Chrome or Edge on a computer: phones and tablets can't keep saving to a file. Your game saves in this browser, but you can export it to a file and import it again.":"This browser can't keep saving to a file by itself (only Chrome and Edge on a computer can), so your game saves in the browser. But you can export your city to a file whenever you like, to keep it safe or carry it to another browser or computer, and import it again.";
+   SV.why=/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent||'')?"Local saves need Chrome or Edge on a computer: phones and tablets can't keep saving to a file. Your game saves in this browser, but you can export it to a file and import it again.":"This browser can't keep saving to a file by itself (only Chrome and Edge on a computer can), so your game saves in the browser. But you can export your world to a file whenever you like, to keep it safe or carry it to another browser or computer, and import it again.";
  else if(!top)SV.why='Local saves only work with the game open in its own tab or window. Open it on its own to use them.';
  else SV.can=true;}
 function svSaveMode(){try{localStorage.setItem(SV_MODE_KEY,JSON.stringify(SV.mode==='local'?{mode:'local',cur:SV.cur,t:SV.t}:{mode:'browser'}));}catch(e){}}
@@ -27189,7 +27189,7 @@ async function worldPut(o){
 async function worldLoadBig(){
   const want=WB.pending;if(!want)return;let r=null;try{r=await svKv(WB_ID());}catch(e){}
   if(r&&r.t===want&&r.ed2&&typeof r.ed2==='object'){editsUnpack(r.ed2);worldRefresh();}
-  else try{flashLabel("Couldn't find all of this city's smashed blocks");}catch(e){}
+  else try{flashLabel("Couldn't find all of this world's smashed blocks");}catch(e){}
   WB.pending=null;save();
 }
 // (the chunks already built while the smashed blocks were being read, and their neighbours, built again with them)
@@ -27209,7 +27209,7 @@ function svFlush(){if(saveBlocked)return;
 // (and the world too, wherever it goes)
 async function svFlushAll(){if(saveBlocked||WB.pending)return;clearTimeout(saveTimer);svFlush();flushNotes(Infinity);await worldPut(saveObj({tenv:TENV||undefined}));}
 // (everything a save file holds: the world as it is this moment, and the other keys as they're kept)
-function svData(){if(WB.pending)throw new Error("Just a moment: the city's still loading.");
+function svData(){if(WB.pending)throw new Error("Just a moment: the world's still loading.");
   const d={};for(const k of SV_KEYS()){try{const v=localStorage.getItem(k);if(v!==null)d[k]=v;}catch(e){}}
   if(!saveBlocked){flushNotes(Infinity);d[SAVE_KEY]=saveText({tenv:TENV||undefined});}
   return d;}
@@ -27222,7 +27222,7 @@ const svText=(d,t)=>JSON.stringify({game:"Goblin-Stompin' Gus",kind:'save',versi
 // cities are built differently, throws with a reason to show)
 function svParse(text){if(!String(text||'').trim())return {empty:true};let o=null;try{o=JSON.parse(text);}catch(e){}
   if(!o||o.kind!=='save'||!o.data||typeof o.data!=='object')throw new Error("That file isn't a Goblin-Stompin' Gus save.");
-  if(o.key!==SAVE_KEY)throw new Error('That save is from version '+(o.version||'?')+", whose cities are built differently, so it can't be opened in this version.");
+  if(o.key!==SAVE_KEY)throw new Error('That save is from version '+(o.version||'?')+", whose worlds are built differently, so it can't be opened in this version.");
   return o;}
 async function svRead(h){const f=await h.getFile();return svParse(await f.text());}
 let svQ=Promise.resolve();   // (one write at a time, in order)
@@ -27266,7 +27266,7 @@ async function svConnect(ask){
 async function svGo(fn){if(SV.busy)return;SV.busy=true;SV.status='';SV.ok='';svUi();try{await fn();}catch(e){SV.status=e&&e.name==='AbortError'?'':(e&&e.message||String(e));}SV.busy=false;svUi();}
 // Local save, in the file rec: data is what goes in it (null: whatever the file has already)
 async function svUseLocal(rec,data){
-  if(TENV)throw new Error('Leave the Testing Environment first: your city is parked while you\'re in it.');
+  if(TENV)throw new Error('Leave the Testing Environment first: your world is parked while you\'re in it.');
   if(await svPerm(rec.handle,true)!=='granted')throw new Error('The browser needs your permission to save in '+rec.name+'. Pick it again and choose Allow (or "Allow on every visit").');
   let o=null;if(!data){o=await svRead(rec.handle);if(o.empty)data={};}
   if(saveBlocked)throw new Error("Not while you're in someone else's online game.");
@@ -27282,7 +27282,7 @@ async function svUseLocal(rec,data){
 }
 async function svUseBrowser(){
   if(SV.mode!=='local')return;
-  if(TENV)throw new Error('Leave the Testing Environment first: your city is parked while you\'re in it.');
+  if(TENV)throw new Error('Leave the Testing Environment first: your world is parked while you\'re in it.');
   if(saveBlocked)throw new Error("Not while you're in someone else's online game.");
   svFlush();if(SV.rec&&SV.perm==='granted'&&!SV.block){try{await svWrite(SV.rec.handle,svText(svData(),Date.now()));}catch(e){}}
   const b=await svKv('browser');await svApply(b&&typeof b==='object'?b:{});await svKv('browser',null);
@@ -27302,7 +27302,7 @@ function svUi(){
   b.setAttribute('aria-checked',String(SV.mode!=='local'));l.setAttribute('aria-checked',String(SV.mode==='local'));
   l.title=SV.can?'Save your game in files on this computer':'Export and import save files (this browser can\'t keep saving to a file by itself)';
   b.title=SV.mode==='local'?'Switch back to the game saved in this browser':'Your game is saved in this browser';
-  svEl('saveIntro').textContent=SV.can?"Keep your cities in files on this computer instead of in the browser, so clearing the browser can't lose them, and keep as many as you like. Your browser save stays as it is: switch back to it any time.":SV.why;
+  svEl('saveIntro').textContent=SV.can?"Keep your worlds in files on this computer instead of in the browser, so clearing the browser can't lose them, and keep as many as you like. Your browser save stays as it is: switch back to it any time.":SV.why;
   for(const id of ['saveNewCopy','saveNewFresh','saveOpen']){const e=svEl(id);e.hidden=!SV.can;e.disabled=SV.busy;}
   // (export works everywhere; import is for browsers without Local save, since Open a save file does the same there)
   svEl('saveFileBtns').hidden=!SV.can;svEl('saveExport').disabled=SV.busy;svEl('saveImport').hidden=SV.can;svEl('saveImport').disabled=SV.busy;
@@ -27322,7 +27322,7 @@ function svUi(){
 // (the line under the menu and at the foot of the pause menu: the version, the city's seed and where it's saved)
 function seedLine(){const sn=svEl('seedNote');if(!sn)return;
   const where=SV.mode==='local'&&SV.rec?(SV.perm==='granted'&&!SV.block?'saving to '+SV.rec.name:'saving in this browser until '+SV.rec.name+' can be reached'):'smashed blocks save in this browser';
-  const t=TENV?`Testing Environment · ${TENV.boxes.length} structure${TENV.boxes.length===1?'':'s'} spawned · seed ${seed}`:`City seed ${seed} · endless · ${where}`;
+  const t=TENV?`Testing Environment · ${TENV.boxes.length} structure${TENV.boxes.length===1?'':'s'} spawned · seed ${seed}`:`World seed ${seed} · endless · ${where}`;
   sn.textContent='';const v=document.createElement('span');v.className='sn-ver';v.textContent='Version '+GAME_VER+' · ';sn.append(v,t);}
 {
   const pan=svEl('savePanel'),l=svEl('saveLocal');
@@ -27344,7 +27344,7 @@ let svPersistAsked=false;
 function svPersist(){if(svPersistAsked)return;svPersistAsked=true;try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});}catch(e){}}
 function svExportName(){const d=new Date(),z=n=>String(n).padStart(2,'0');return 'gus-city-'+seed+'-'+d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())+'.json';}
 async function svExport(){
-  if(saveBlocked)throw new Error("In someone else's online game it's their city: they can export it.");
+  if(saveBlocked)throw new Error("In someone else's online game it's their world: they can export it.");
   await svFlushAll();const name=svExportName(),url=URL.createObjectURL(new Blob([svText(svData(),Date.now())],{type:'application/json'}));
   const a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
   SV.status='';SV.ok='Exported '+name+' (look in your Downloads).';
@@ -27355,11 +27355,11 @@ function svAskShow(on){svEl('saveAsk').hidden=!on;if(on)svEl('saveAskYes').focus
 async function svImportPick(f){
   svPending=null;svAskShow(false);if(!f)return;
   if(saveBlocked)throw new Error("Not while you're in someone else's online game.");
-  if(TENV)throw new Error('Leave the Testing Environment first: your city is parked while you\'re in it.');
+  if(TENV)throw new Error('Leave the Testing Environment first: your world is parked while you\'re in it.');
   if(f.size>200e6)throw new Error("That file's too big to be a save.");
   const o=svParse(await f.text());if(o.empty)throw new Error("That file's empty.");
   svPending={o,name:f.name};
-  svEl('saveAskTxt').textContent='Load '+f.name+(o.t?', saved '+svWhen(+o.t):'')+'? It replaces the city in this browser, so export that first if you want to keep it.';
+  svEl('saveAskTxt').textContent='Load '+f.name+(o.t?', saved '+svWhen(+o.t):'')+'? It replaces the world in this browser, so export that first if you want to keep it.';
   svAskShow(true);
 }
 async function svImport(){
@@ -27377,8 +27377,8 @@ async function svImport(){
 {const b=svEl('saveNow');let tm=null;
  const say=(t,cls,why)=>{b.textContent=t;b.classList.remove('ok','bad');if(cls)b.classList.add(cls);b.title=why||'';clearTimeout(tm);tm=setTimeout(()=>{b.textContent='Save now';b.classList.remove('ok','bad');},why?8000:2500);};
  b.addEventListener('click',async()=>{
-   if(saveBlocked){say('Not saved','bad',"In someone else's online game it's their city, saved on their computer.");return;}
-   if(WB.pending){say('Still loading','bad','The city is still being read back in. Try again in a moment.');return;}
+   if(saveBlocked){say('Not saved','bad',"In someone else's online game it's their world, saved on their computer.");return;}
+   if(WB.pending){say('Still loading','bad','The world is still being read back in. Try again in a moment.');return;}
    b.textContent='Saving…';svPersist();
    try{await svFlushAll();}catch(e){say("Couldn't save",'bad',"The browser's storage is full"+(SV.can?': try Local save on the title screen, which saves to a file instead.':'.'));return;}
    if(SV.mode==='local'&&SV.rec&&!TENV){
@@ -27407,7 +27407,7 @@ svUi();
 const UPD={v:null};
 function updShow(){const b=document.getElementById('updBtn');if(!b||!UPD.v)return;b.hidden=false;
   const nv=UPD.v.version&&UPD.v.version!==GAME_VER?'Update to version '+UPD.v.version:'Update available';
-  b.firstChild.textContent=nv+' ';b.title='A newer build of the game has been published. Your city is saved first, then the page reloads with it.';}
+  b.firstChild.textContent=nv+' ';b.title='A newer build of the game has been published. Your world is saved first, then the page reloads with it.';}
 function updCheck(){
   if(typeof location==='undefined'||!/^https?:$/.test(location.protocol)||!window.fetch||GAME_BUILD.indexOf('{{')===0)return;
   fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(v=>{
@@ -27519,9 +27519,9 @@ function tenvEnter(){
   try{localStorage.setItem(TENV_PARK,JSON.stringify(Object.assign({save:saveText()},park)));}
   catch(e){
     // (a city too big for localStorage goes aside in IndexedDB, as its saves do: see worldPut)
-    if(!window.indexedDB){try{flashLabel("Can't put your city aside: the browser's storage is full");}catch(e2){}return;}
+    if(!window.indexedDB){try{flashLabel("Can't put your world aside: the browser's storage is full");}catch(e2){}return;}
     svKv('park:'+SAVE_KEY,saveObj()).then(()=>{localStorage.setItem(TENV_PARK,JSON.stringify(Object.assign({idb:1},park)));tenvEnterNow();},
-      ()=>{try{flashLabel("Can't put your city aside: the browser's storage is full");}catch(e2){}});
+      ()=>{try{flashLabel("Can't put your world aside: the browser's storage is full");}catch(e2){}});
     return;}
   tenvEnterNow();
 }
@@ -27536,7 +27536,7 @@ function tenvLeave(){
   if(P&&P.key===SAVE_KEY&&P.idb){svKv('park:'+SAVE_KEY).then(o=>{if(!o)throw 0;return worldPut(o);}).then(()=>{
       for(const [k,v] of [[POS_KEY,P.pos],[OBIT_KEY,P.obit]])if(v)localStorage.setItem(k,v);else localStorage.removeItem(k);
       localStorage.removeItem(TENV_PARK);svKv('park:'+SAVE_KEY,null).catch(()=>{});clearTimeout(saveTimer);saveBlocked=true;location.reload();},
-    ()=>{try{flashLabel("Couldn't bring your city back");}catch(e){}});return;}
+    ()=>{try{flashLabel("Couldn't bring your world back");}catch(e){}});return;}
   if(P&&P.key===SAVE_KEY&&P.save){try{localStorage.setItem(SAVE_KEY,P.save);
     for(const [k,v] of [[POS_KEY,P.pos],[OBIT_KEY,P.obit]])if(v)localStorage.setItem(k,v);else localStorage.removeItem(k);
     localStorage.removeItem(TENV_PARK);clearTimeout(saveTimer);saveBlocked=true;location.reload();return;}catch(e){}}

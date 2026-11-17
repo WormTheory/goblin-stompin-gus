@@ -86,7 +86,7 @@
         <button type="button" class="ck co" id="playCoop">Co-op</button>
         <button type="button" class="ck on" id="onlineBtn" aria-expanded="false" aria-controls="onlinePanel">Play online</button>
         <div class="online" id="onlinePanel" hidden>
-        <div class="on-h">Play online <small>Up to four players over the internet. Host your city and it shows up under Open games for anyone to join, or make it private and share the room code. The host's browser runs the game, so the host's computer should be the quicker one.</small></div>
+        <div class="on-h">Play online <small>Up to four players over the internet. Host your world and it shows up under Open games for anyone to join, or make it private and share the room code. The host's browser runs the game, so the host's computer should be the quicker one.</small></div>
         <div class="on-list" id="netList" hidden><div class="on-lh">Open games</div><div class="on-games" id="netGames"></div><div class="note on-gnote" id="netGamesNote" role="status"></div></div>
         <div class="on-row"><button type="button" class="on-b" id="netHost">Host a game</button><span class="on-or">or</span><input type="text" id="netCode" class="on-code-in" maxlength="8" placeholder="Room code" autocomplete="off" spellcheck="false" aria-label="Room code"><button type="button" class="on-b" id="netJoin">Join</button></div>
         <label class="on-loc"><input type="checkbox" id="netPrivate"> Private game: keep it off the Open games list, so only people you give the room code to can join</label>
@@ -99,10 +99,10 @@
         <button type="button" class="ck set tsave" id="saveNow" title="Your game saves by itself as you play. This saves it straight away, and says so.">Save now</button>
         <div class="savesw" id="saveSw" role="radiogroup" aria-label="Where your game is saved"><button type="button" role="radio" class="sv" id="saveBrowser" aria-checked="true">Browser save</button><button type="button" role="radio" class="sv" id="saveLocal" aria-checked="false" aria-expanded="false" aria-controls="savePanel">Local save</button></div>
         <div class="online savepanel" id="savePanel" hidden>
-          <div class="on-h">Local saves <small id="saveIntro">Keep your cities in files on this computer instead of in the browser, so clearing the browser can't lose them and you can keep as many as you like. Your browser save stays as it is: switch back to it any time.</small></div>
+          <div class="on-h">Local saves <small id="saveIntro">Keep your worlds in files on this computer instead of in the browser, so clearing the browser can't lose them and you can keep as many as you like. Your browser save stays as it is: switch back to it any time.</small></div>
           <div class="sv-list" id="saveList"></div>
-          <div class="sv-btns" id="saveFileBtns"><button type="button" class="on-b" id="saveNewCopy">New file: this city</button><button type="button" class="on-b" id="saveNewFresh">New file: new city</button><button type="button" class="on-b sv-open" id="saveOpen">Open a save file</button></div>
-          <div class="sv-btns sv-xfer"><button type="button" class="on-b" id="saveExport">Export this city</button><button type="button" class="on-b sv-open" id="saveImport">Import a save file</button><input type="file" id="saveImportFile" accept=".json,application/json" hidden></div>
+          <div class="sv-btns" id="saveFileBtns"><button type="button" class="on-b" id="saveNewCopy">New file: this world</button><button type="button" class="on-b" id="saveNewFresh">New file: new world</button><button type="button" class="on-b sv-open" id="saveOpen">Open a save file</button></div>
+          <div class="sv-btns sv-xfer"><button type="button" class="on-b" id="saveExport">Export this world</button><button type="button" class="on-b sv-open" id="saveImport">Import a save file</button><input type="file" id="saveImportFile" accept=".json,application/json" hidden></div>
           <div class="sv-ask" id="saveAsk" hidden><span id="saveAskTxt"></span><button type="button" class="on-b" id="saveAskYes">Load it</button><button type="button" class="on-b sv-open" id="saveAskNo">Cancel</button></div>
           <div class="note on-st" id="saveStatus" role="status"></div>
         </div>
@@ -151,7 +151,7 @@
         <div class="tp-load" id="tpLoad"></div><p class="tp-note">Mobile Gears spawned from now on carry these. Ones already standing keep what they have.</p></div>
       <div class="tp-sec" id="tpPlacedSec" hidden><div class="tp-gh">Spawned here</div><div class="tp-placed" id="tpPlaced"></div></div>
       <div class="tp-groups" id="tpGroups"></div>
-      <div class="tp-foot"><button type="button" class="big" id="tpGo">Play</button><button type="button" class="pmenu" id="tpNormal">Back to your city</button><button type="button" class="pmenu" id="tpReset">Reset world</button></div>
+      <div class="tp-foot"><button type="button" class="big" id="tpGo">Play</button><button type="button" class="pmenu" id="tpNormal">Back to your world</button><button type="button" class="pmenu" id="tpReset">Reset world</button></div>
     </div>
     </div>
     <div class="tabpane" id="tabControls" role="tabpanel" hidden>
