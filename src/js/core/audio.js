@@ -4,7 +4,10 @@ let audio=null,audioWanted=false;
 // down at once (voice chat has its own volumes). One sound system serves both halves of split screen. ----
 const VOL_KEY='goblin-stompin-gus-volume';let sndVol=1,sndMaster=null;
 try{const v=localStorage.getItem(VOL_KEY);if(v!==null&&+v>=0&&+v<=1)sndVol=+v;}catch(e){}
-function sndDest(){if(!sndMaster||sndMaster.context!==audio){sndMaster=audio.createGain();audioSet(sndMaster.gain,sndVol);sndMaster.connect(audio.destination);}return sndMaster;}
+// (and then a limiter, so a pile-up of sounds in one moment can't come out as one deafening crack)
+function sndDest(){if(!sndMaster||sndMaster.context!==audio){sndMaster=audio.createGain();audioSet(sndMaster.gain,sndVol);
+  let out=audio.destination;try{const L=audio.createDynamicsCompressor();audioSet(L.threshold,-8);audioSet(L.knee,4);audioSet(L.ratio,16);audioSet(L.attack,0.003);audioSet(L.release,0.2);L.connect(out);out=L;}catch(e){}
+  sndMaster.connect(out);}return sndMaster;}
 // (an AudioParam's starting value, set as an automation event as well: Firefox can start a later setTargetAtTime from the
 // param's default, ignoring a value only assigned, so a sound faded in from silence there began at full volume. That was
 // the rain's loud hiss, like breaking glass, as a new city began)
