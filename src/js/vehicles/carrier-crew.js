@@ -28,17 +28,40 @@ const MOUNT_STAND=30;   // (seconds well away, everyone, before general quarters
 const _mtv={x:0,z:0};
 // ---- the mounts' models: a pedestal, and on it a head that turns (and a gun or launcher in it that lifts) ----
 const MT_MAT={};const mtMat=c=>MT_MAT[c]||(MT_MAT[c]=new THREE.MeshLambertMaterial({color:c}));
-function mtBox(par,c,w,h,d,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mtMat(c));m.position.set(x,y,z);par.add(m);return m;}
+// (shared box shapes, so batDraw draws every mount's boxes in a few batches: see decoEach)
+function mtBox(par,c,w,h,d,x,y,z){const m=new THREE.Mesh(boxGeo(w,h,d),mtMat(c));m.position.set(x,y,z);par.add(m);return m;}
+const MT_WHITE=0xeceee8,MT_GREY=0xb4b9be,MT_DARK=0x2a2e33,MT_HOLE=0x16181b;
 function makeMount(kind){
-  const g=new THREE.Group(),head=new THREE.Group(),lift=new THREE.Group();g.add(head);head.position.y=1.0;head.add(lift);
+  const g=new THREE.Group(),head=new THREE.Group(),lift=new THREE.Group();g.add(head);head.position.y=1.0;head.add(lift);const caps=[];
   mtBox(g,0x8a9098,1.4,1.0,1.4,0,0.5,0);mtBox(g,0x6a7078,1.6,0.12,1.6,0,0.06,0);
   if(kind==='ciws'){lift.position.y=0.55;mtBox(head,0xb8bcc0,1.0,0.5,1.0,0,0.25,0);mtBox(lift,0xf2f2f0,0.95,1.3,0.95,0,0.75,-0.05);mtBox(lift,0xf2f2f0,0.7,0.35,0.7,0,1.55,-0.05);
     mtBox(lift,0x30343a,0.42,0.42,0.6,0,0.15,0.6);mtBox(lift,0x202428,0.28,0.28,1.5,0,0.15,1.4);}
-  else{lift.position.y=0.9;const big=kind==='sparrow',w=big?1.5:1.0,h=big?1.1:1.0,d=big?2.2:1.8;mtBox(head,0x9aa0a8,0.5,0.9,0.5,0,0.45,0);
-    mtBox(lift,0xc8ccd0,w,h,d,0,0,0);const n=big?[4,2]:[7,3],cw=w/(n[0]+1),ch=h/(n[1]+1);
-    for(let a=0;a<n[0];a++)for(let b=0;b<n[1];b++)mtBox(lift,0x30343a,cw*0.7,ch*0.7,0.04,-w/2+cw*(a+1),-h/2+ch*(b+1),d/2+0.02);}
-  return{g,head,lift};
+  else if(kind==='sparrow'){
+    // (the Sea Sparrow's launcher: a turntable, a yoke of two arms, and between them two boxes of four cells side by
+    // side, each cell's front shut by a frangible cover until its missile goes, then open and dark)
+    mtBox(head,MT_GREY,1.9,0.28,1.9,0,0.14,0);mtBox(head,MT_GREY,1.2,0.35,1.2,0,0.45,0);
+    for(const sx of [-1,1]){mtBox(head,MT_GREY,0.26,1.35,0.7,sx*1.06,0.95,0);mtBox(head,MT_DARK,0.1,0.3,0.3,sx*1.2,1.45,0);}
+    lift.position.y=1.45;mtBox(lift,MT_DARK,1.9,0.16,0.16,0,0,0);   // (the trunnion through the arms)
+    for(const bx of [-0.46,0.46]){mtBox(lift,MT_WHITE,0.86,0.86,2.5,bx,0,0.15);
+      for(const z of [-0.95,1.25])mtBox(lift,MT_GREY,0.92,0.92,0.14,bx,0,z);   // (the frames round each end)
+      mtBox(lift,MT_GREY,0.6,0.08,2.0,bx,0.47,0.15);mtBox(lift,MT_DARK,0.8,0.8,0.06,bx,0,1.41);   // (a stiffener along the top; the open fronts behind the covers)
+      for(const cy of [0.2,-0.2])for(const cx of [-0.2,0.2])caps.push(mtBox(lift,0xd8dad2,0.34,0.34,0.08,bx+cx,cy,1.45));}
+    mtBox(lift,MT_GREY,0.12,0.6,1.6,0,0,0.15);}
+  else{
+    // (RAM: a turntable with a squat housing, side arms, and the launcher between them: 21 tubes in three rows of
+    // seven, a rounded back, and its two seeker pods up on top at the front corners)
+    mtBox(head,MT_GREY,1.7,0.28,1.7,0,0.14,0);mtBox(head,0xc4c8cc,1.05,0.55,1.1,0,0.55,-0.1);
+    for(const sx of [-1,1]){mtBox(head,MT_GREY,0.22,1.2,0.6,sx*0.86,0.85,0);mtBox(head,MT_DARK,0.08,0.26,0.26,sx*0.98,1.25,0);}
+    lift.position.y=1.25;const W=1.3,H=0.95,D=1.9;
+    mtBox(lift,MT_WHITE,W,H,D,0,0,0.1);mtBox(lift,MT_WHITE,W-0.24,H-0.2,0.3,0,0,-0.98);mtBox(lift,MT_WHITE,W-0.5,H-0.4,0.18,0,0,-1.2);
+    mtBox(lift,MT_DARK,W-0.08,H-0.08,0.06,0,0,1.06);mtBox(lift,MT_GREY,W+0.06,0.1,0.14,0,H/2,1.0);mtBox(lift,MT_GREY,W+0.06,0.1,0.14,0,-H/2,1.0);
+    const cw=(W-0.16)/7,ch=(H-0.16)/3;for(let r=0;r<3;r++)for(let c=0;c<7;c++)caps.push(mtBox(lift,MT_WHITE,cw*0.7,ch*0.7,0.08,-W/2+0.08+cw*(c+0.5),H/2-0.08-ch*(r+0.5),1.1));
+    for(const sx of [-1,1]){mtBox(lift,0x9aa0a6,0.3,0.34,0.62,sx*(W/2-0.18),H/2+0.17,0.62);mtBox(lift,MT_HOLE,0.2,0.2,0.04,sx*(W/2-0.18),H/2+0.19,0.94);}}
+  return{g,head,lift,caps};
 }
+// (a launcher's covers shown over the cells still loaded: the last ones fired first, so it empties from the bottom up)
+function mountCaps(Mt){const C=Mt.caps;if(!C||!C.length)return;const w=Mt.wpn&&Mt.wpn.rkt,n=w?(w.rl>0?0:w.n):C.length;
+  if(n===Mt.capN)return;Mt.capN=n;for(let i=0;i<C.length;i++)C[i].visible=i<n;}
 // ---- the crew and mounts of a ship, made with it (makeShip) ----
 function shipCrewInit(S){
   if(S.kind!=='carrier'||S.crewV)return;
@@ -46,7 +69,7 @@ function shipCrewInit(S){
     roused:false,awayT:0,alarmT:0,cx:S.ox,cz:S.oz};
   V.slots=V.posts.map(()=>null);V.slain=V.posts.map(()=>false);S.crewV=V;
   S.mounts=CV_MOUNTS.map(([kind,s,w,h],i)=>{const m=makeMount(kind),K=MOUNT_K[kind],x=S.ox-s+0.5,z=S.oz+w+0.5,y=G+17;m.g.position.set(x,y,z);m.g.rotation.y=h;S.pg.add(m.g);
-    const Mt={isMount:true,kind,K,S,i,x,y,z,h,hx:0.8,hz:0.8,yaw:h,pitch:0,g:m.g,head:m.head,lift:m.lift,pos:new V3(x,y,z),drv:null,crew:null,cd:0,heat:0,spin:0,acc:0,burst:0};if(kind!=='ciws')Mt.pitch=0.4;wpnInit(Mt,null,K.wpn);return Mt;});
+    const Mt={isMount:true,kind,K,S,i,x,y,z,h,hx:0.8,hz:0.8,yaw:h,pitch:0,g:m.g,head:m.head,lift:m.lift,caps:m.caps,capN:-1,pos:new V3(x,y,z),drv:null,crew:null,cd:0,heat:0,spin:0,acc:0,burst:0};if(kind!=='ciws')Mt.pitch=0.4;wpnInit(Mt,null,K.wpn);return Mt;});
 }
 // ---- general quarters: the alarm, and everyone at their posts after you ----
 function shipGQ(V){
@@ -89,12 +112,12 @@ function mountFind(p){
   return best?{d:Math.max(0,bd),D:{k:'mount',o:best,V:S.V}}:null;
 }
 // the muzzle, out in the world (the mount's head turned to yaw, its gun lifted to pitch, both in the ship's frame)
-function mountMuzzle(Mt){const S=Mt.S,L=Mt.kind==='ciws'?2.2:1.2,cp=Math.cos(Mt.pitch),y=Mt.y+(Mt.kind==='ciws'?1.7:1.9)+Math.sin(Mt.pitch)*L;
+function mountMuzzle(Mt){const S=Mt.S,L=Mt.kind==='ciws'?2.2:1.4,cp=Math.cos(Mt.pitch),y=Mt.y+(Mt.kind==='ciws'?1.7:Mt.kind==='sparrow'?2.45:2.25)+Math.sin(Mt.pitch)*L;
   shipToWorld(S,Mt.x+Math.sin(Mt.yaw)*cp*L,Mt.z+Math.cos(Mt.yaw)*cp*L,_mtv);return{x:_mtv.x,y:y-S.sk,z:_mtv.z};}
 // turning the head toward a point out in the world (A), as far as it turns this step
 function mountAimAt(Mt,A,dt){const S=Mt.S,m=mountMuzzle(Mt);worldToShip(S,A.x,A.z,_mtv);const dx=_mtv.x-Mt.x,dz=_mtv.z-Mt.z;
   Mt.yaw=angTo(Mt.yaw,Math.atan2(dx,dz),(Mt.kind==='ciws'?4:2.5)*dt);Mt.pitch+=(Math.max(-0.3,Math.min(1.3,Math.atan2(A.y-m.y,Math.hypot(dx,dz))))-Mt.pitch)*Math.min(1,dt*6);}
-function mountPose(Mt){Mt.head.rotation.y=Mt.yaw-Mt.h;Mt.lift.rotation.x=-Mt.pitch;}
+function mountPose(Mt){Mt.head.rotation.y=Mt.yaw-Mt.h;Mt.lift.rotation.x=-Mt.pitch;mountCaps(Mt);}
 function mountTick(Mt,dt){
   const S=Mt.S,V=S.crewV;wpnTick(Mt,dt);const W=Mt.wpn.gun;
   // (the Phalanx cools while it isn't firing: its 'rounds' are how much more it can take before it overheats)
@@ -151,7 +174,7 @@ function mountMissile(Mt,p,T,A){
 function mountThreat(Mt){
   const S=Mt.S,K=Mt.K,m=mountMuzzle(Mt),near=(x,z)=>{worldToShip(S,x,z,_mtv);const u=_mtv.x-S.ox,w=_mtv.z-S.oz;return u>S.K.u0-10&&u<S.K.u1+11&&w>S.K.w0-10&&w<S.K.w1+11;};
   let best=null,bs=1e9;const cand=(x,y,z,pri,o)=>{const d=Math.hypot(x-m.x,y-m.y,z-m.z);if(d>K.range||near(x,z))return;const sc=d+pri*1000;if(sc<bs){bs=sc;best={x,y,z,o};}};
-  if(Mt.kind==='ciws')for(const Q of SHOTS)if(Q.live&&Q.own!==S&&Q.pos.x<SHIP_X0&&Q.kind!=='grenade')cand(Q.pos.x,Q.pos.y,Q.pos.z,0,{shot:Q});
+  if(Mt.kind==='ciws')for(const Q of SHOTS)if(Q.live&&Q.own!==S&&!(Q.own&&Q.own.S===S)&&Q.pos.x<SHIP_X0&&Q.kind!=='grenade')cand(Q.pos.x,Q.pos.y,Q.pos.z,0,{shot:Q});
   for(const p of players){if(!p.active||p.state==='dead'||shipOf(p)===S)continue;const x=pwx(p),z=pwz(p);
     if(p.drv){const D=p.drv,air=D.k==='heli'||D.k==='plane'||D.k==='balloon'||D.k==='mech'&&!D.o.grounded;cand(x,p.pos.y,z,air?1:2,{p,veh:true});}
     else if(Mt.kind!=='sparrow')cand(x,p.pos.y+1,z,3,{p});}

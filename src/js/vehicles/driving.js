@@ -59,7 +59,7 @@ function drvPose(D){if(D.netS)return D.netS;const o=D.o;   // (D.netS: a guest o
   return{x:(Fa.x+Ba.x)/2,y:G+1.2,z:(Fa.z+Ba.z)/2,h:Math.atan2(Fa.x-Ba.x,Fa.z-Ba.z),hx:TRAIN_HX,hz:TRAIN_HZ,hy:TRAIN_H,v:T.v*T.dir};
 }
 function drvEnter(p,D){
-  {const S=D&&shipN?shipOf(p):null;if(S&&D.k!=='ship'&&D.k!=='mount'&&!(D.o.pos&&D.o.pos.x>=SHIP_X0||D.o.x>=SHIP_X0))shipMove(p,S,false,true);}   // (from aboard a ship into something out in the world, the Mobile Gear on its deck: put out there with it)
+  {const S=D&&shipN?shipOf(p):null;if(S&&D.k!=='ship'&&D.k!=='mount'&&!((D.o.pos?D.o.pos.x:D.o.isPlane?D.o.g.position.x:D.o.x)>=SHIP_X0))shipMove(p,S,false,true);}   // (from aboard a ship into something out in the world, the Mobile Gear on its deck: put out there with it)
   const o=D.o,gun=D.seat==='gun',jack=!gun&&jackable(D);p.drv=D;p.standCar=null;p.vcl=null;p.state='walk';p.vy=0;p.mvx=p.mvz=0;p.biteT=0;p.drvLook=-9;p.drvYaw=undefined;p.shipBridge=false;
   if(gun)o.gnr=p;else drvTake(p,D);
   if(gunSeat(D))wpnInit(o,drvGunK(D));
@@ -106,7 +106,7 @@ function drvTick(p,dt){
   const use=p.in.use&&!p.useHeld;p.useHeld=p.in.use;
   if(p.drv&&p.drv.jack&&p.state!=='dead'){jackTick(p,dt);return true;}   // (still hauling the driver out)
   const wp=!!p.in.weapon&&!p.drvWpnHeld;p.drvWpnHeld=!!p.in.weapon;
-  if(p.drv){if((p.drv.k==='mech'?p.drv.o.outT>=MG.outHold:use)||p.state==='dead')drvExit(p);else{if(wp&&drvSwapTo(p))drvSwap(p);else if(wp&&p.drv.k==='ship')shipViewSwap(p);if(p.drv.k==='mount')shipOutside(()=>drvLock(p,dt));else drvLock(p,dt);return true;}return false;}
+  if(p.drv){if((p.drv.k==='mech'?p.drv.o.outT>=MG.outHold:use)||p.state==='dead')drvExit(p);else{if(wp&&drvSwapTo(p))drvSwap(p);else if(wp&&p.drv.k==='ship')shipViewSwap(p);else if(wp&&p.drv.k==='plane'&&p.drv.o.jet)jetHookSwap(p.drv.o,p);if(p.drv.k==='mount')shipOutside(()=>drvLock(p,dt));else drvLock(p,dt);return true;}return false;}
   if(p.state==='dead'||p.state!=='walk'&&p.state!=='climb')return false;
   if(use){const D=drvFind(p);if(D){drvEnter(p,D);return true;}}
   // (a vehicle in reach: say so, once for each one you come up to)
@@ -383,11 +383,11 @@ function drvSub(V,dt){const T=V.T,p=T.drv,i=p.in,M=V.M,N=M.path.length,k=Math.fl
 }
 // is there another vehicle in a box at x,z (facing h, half-width hx, half-length hz, from y0 up to y1)? A car, a tank or
 // helicopter, or a piece of a train, boat, plane or ride; not self's own
-function vehIn(x,z,h,hx,hz,y0,y1,self){const R=Math.hypot(hx,hz);   // (returns what it met)
+function vehIn(x,z,h,hx,hz,y0,y1,self){const R=Math.hypot(hx,hz);   // (returns what it met; a carrier's jets pass each other on its deck: the deck crew keeps them apart)
   for(const c of cars){if(!c.alive||c===self||Math.hypot(c.pos.x-x,c.pos.z-z)>R+c.hz||c.pos.y>=y1||c.pos.y+(c.hy||1.4)<=y0)continue;if(boxesTouch(x,z,h,hx,hz,c.pos.x,c.pos.z,c.heading,c.hx,c.hz))return c;}
   for(const V of venues.values()){if(V.kind!=='army')continue;for(const o of V.mil){if(o===self||o.dead||Math.hypot(o.x-x,o.z-z)>R+7)continue;const ox=Math.sin(o.h),oz=Math.cos(o.h);
     for(const b of MIL_PARTS[o.kind]){if(o.y+b.y0>=y1||o.y+b.y1<=y0)continue;if(boxesTouch(x,z,h,hx,hz,o.x+ox*b.c,o.z+oz*b.c,o.h,b.hx,b.hz))return o;}}}
-  for(const L of [TRAIN_BOXES,PREV_BOXES])for(const B of L){const pr=B.proxy;if(B.soft||!pr.alive||(pr.T||pr)===self||pr.T&&pr.T.isMil||B.y0>=y1||B.top<=y0||B.y0>=B.top)continue;const bx=B.hx||TRAIN_HX,bz=B.hz||TRAIN_HZ;
+  for(const L of [TRAIN_BOXES,PREV_BOXES])for(const B of L){const pr=B.proxy;if(B.soft||!pr.alive||(pr.T||pr)===self||pr.T&&pr.T.isMil||self&&self.cvJet&&pr.T&&pr.T.cvJet||B.y0>=y1||B.top<=y0||B.y0>=B.top)continue;const bx=B.hx||TRAIN_HX,bz=B.hz||TRAIN_HZ;
     if(Math.hypot(B.x-x,B.z-z)>R+Math.hypot(bx,bz))continue;if(boxesTouch(x,z,h,hx,hz,B.x,B.z,Math.atan2(B.tx,B.tz),bx,bz))return pr;}
   return null;}
 // a vehicle run into by another (vehIn's answer), hurt by n
@@ -406,7 +406,8 @@ const PLANE_LIFT=34,PLANE_G=14,PLANE_KL=0.07,PLANE_AOA=0.32,PLANE_THRUST=20,PLAN
 // is the wing stalled? too slow, or pulled up too steeply for the air going past it
 const planeStalled=F=>F.air&&(F.v<20||F.pt-F.gm>PLANE_AOA);
 function drvPlane(pl,dt){
-  const F=pl.free,g=pl.g,P=g.position,p=pl.drv,i=p?drvIn(p):null;
+  if(pl.ai&&jetAI(pl,dt))return;   // (a carrier's pilot flying it: carrier-jets.js)
+  const F=pl.free,g=pl.g,P=g.position,p=pl.drv,i=p?drvIn(p):null,fly=p||pl.ai;
   if(F.thr===undefined){F.thr=Math.min(1,(F.v||0)/60);F.gm=Math.atan2(F.vy||0,Math.max(8,F.v||0));F.pt=Math.max(0,F.gm);F.rl=0;}
   const btn=i?(i.jump?1:0)-(i.climb||i.charge?1:0):0,kb=i&&i.kbd;   // (the keyboard swaps the stick's up/down and the buttons over)
   const tin=i?(kb?btn:-i.z):0,bank=i?-i.x:0,up=i?(kb?i.z:btn):0;
@@ -415,9 +416,11 @@ function drvPlane(pl,dt){
   // (the sea's surface counts as ground; so does sea level, out where nothing's been built yet)
   const wetAt=(x,z)=>!chunks.has(ckey(Math.floor(x/CS),Math.floor(z/CS)))||get(x,G,z)===WATER?G+1:0,gnd=(x,z,y)=>Math.max(groundAt(x,z,y),wetAt(x,z));
   const air=P.y>gnd(P.x,P.z,P.y+1)+0.05;F.air=air;
-  if(!air&&F.vy<-0.5&&(F.vy<-14||!p&&F.v>20)){planeCrash(pl,P.x,P.y,P.z,true);return;}   // (touched down too hard, or with nobody flying it)
+  if(!air&&F.vy<-0.5&&(F.vy<-14||!fly&&F.v>20)){planeCrash(pl,P.x,P.y,P.z,true);return;}   // (touched down too hard, or with nobody flying it)
   // the throttle: up and down with W and S, and shut when nobody's flying it
   if(p)F.thr=Math.max(0,Math.min(1,F.thr+tin*0.6*dt));else F.thr=Math.max(0,F.thr-dt*0.5);
+  // (a jet on a carrier's catapult is held, then flung down it, not flown: see carrier-jets.js)
+  if(pl.cat&&jetCatTick(pl,dt)){g.visible=true;return;}
   const v=Math.max(0.5,F.v);let h=g.rotation.y;
   if(air){
     // bank: rolled with A/D, easing back level when let go
@@ -444,6 +447,7 @@ function drvPlane(pl,dt){
     if(up>0&&F.v>=PLANE_LIFT*0.8)F.pt=Math.min(0.25,F.pt+0.5*dt);else F.pt+=(0-F.pt)*Math.min(1,dt*3);
     const L=PLANE_KL*v*v*Math.max(0,Math.min(F.pt,PLANE_AOA));
     F.gm=L>PLANE_G?Math.min(0.2,(L-PLANE_G)/v):0;
+    if(pl.jet){jetTrapCheck(pl,p);if(pl.trap)jetTrapTick(pl,dt);else if(p)jetCatCheck(pl,p);}   // (a carrier's wires and catapults: carrier-jets.js)
   }
   F.v=Math.max(0,Math.min(VMAX,F.v));F.vy=F.v*Math.sin(F.gm);
   const vh=F.v*Math.cos(F.gm);
@@ -460,7 +464,7 @@ function drvPlane(pl,dt){
   else{P.x=nx;P.z=nz;}
   const g2=gnd(P.x,P.z,ny+1.5);
   // (touching down: too fast a sink, nobody flying it at speed, or a wing down, and it's wrecked; otherwise it lands)
-  if(ny<=g2){if(air&&(F.vy<-14||!p&&F.v>20||Math.abs(F.rl)>0.6&&F.v>15)){P.y=g2;planeCrash(pl,P.x,P.y,P.z,true);return;}P.y=g2;if(air){F.gm=0;F.vy=0;F.pt=Math.max(0,Math.min(0.2,F.pt));}}
+  if(ny<=g2){if(air&&(F.vy<-14||!fly&&F.v>20||Math.abs(F.rl)>0.6&&F.v>15)){P.y=g2;planeCrash(pl,P.x,P.y,P.z,true);return;}P.y=g2;if(air){F.gm=0;F.vy=0;F.pt=Math.max(0,Math.min(0.2,F.pt));}}
   else P.y=Math.min(ny,H+80);
   if(P.y>=H+80&&F.gm>0){F.gm=0;F.vy=0;}   // (the ceiling)
   g.rotation.set(-F.pt,h,-F.rl,'YXZ');

@@ -67,6 +67,7 @@ function decoEach(f){
   // (a venue's models: a ride, a boat, a rotor, or lists of planes, train cars, animals, figures, barrier arms)
   for(const V of venues.values())for(const k in V){const x=V[k];if(x&&x.isObject3D)f(x);
     else if(Array.isArray(x)&&x.length&&x[0]&&(x[0].isObject3D||x[0].g&&x[0].g.isObject3D))for(const e of x){if(e&&e.isObject3D)f(e);else if(e&&e.g&&e.g.isObject3D)f(e.g);}}
+  for(const S of SHIPS)if(S&&S.mounts)for(const M of S.mounts)f(M.g);   // (a carrier's deck weapons: carrier-crew.js)
 }
 function batDraw(){
   for(const B of BAT.values())B.n=0;

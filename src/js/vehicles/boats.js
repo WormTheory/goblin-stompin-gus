@@ -276,6 +276,7 @@ function refreshVenues(){
         venues.set(k,{kind:'toll',R,ts,arms});}}}}
   // (what was spawned from the Testing Environment or the debug menu stays wherever it was put)
   for(const k of ['tenvArmy','tenvPlanes','tenvMechs','tenvBalloons','tenvShips'])if(venues.has(k))want.add(k);
+  for(const [k,V] of venues)if(V.ship)want.add(k);   // (and a ship's own, its jets: kept while the ship is, carrier-jets.js)
   for(const [k,V] of venues)if(!want.has(k)&&!drvHeld(V)){if(V.ride)scene.remove(V.ride);if(V.animals)for(const A of V.animals)scene.remove(A.g);if(V.arms)for(const A of V.arms)scene.remove(A.g);if(V.cars)for(const g of V.cars)scene.remove(g);if(V.planes)for(const g of V.planes)scene.remove(g);if(V.rocket){scene.remove(V.rocket);}if(V.boat)scene.remove(V.boat);if(V.figs)for(const F of V.figs)scene.remove(F.g);if(V.glow)scene.remove(V.glow);if(V.slots)homeDrop(V);if(V.vcar)crewDrop(V);if(V.mil)for(const M of V.mil)scene.remove(M.g);if(V.mechs)for(const M of V.mechs)scene.remove(M.g);if(V.ships)for(const S of V.ships)shipDrop(S);if(V.rotor)scene.remove(V.rotor);if(V.T&&V.T.cars===V.cars)V.T.cars=null;venues.delete(k);}
 }
 // the zoo's animals: built from boxes, each wandering its enclosure

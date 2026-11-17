@@ -117,8 +117,10 @@ function drvHow(p,D,armed){const A=id=>actMark(p,id),G=armed?D.k==='heli'?A('bit
   if(D.k==='ship')return shipHow(p,D.o);
   if(D.k==='heli')return A('jump')+' climb  ·  '+A('climb')+' drop  ·  '+G;
   if(D.k==='balloon')return A('jump')+' burner (rise)  ·  '+A('climb')+' vent (sink)  ·  Move to drift  ·  ';
-  if(D.k==='plane')return p.pad?'Stick up/down throttle  ·  Stick left/right bank  ·  '+A('jump')+' pull up  ·  '+A('climb')+' push down  ·  '+G
-    :A('fwd')+'/'+A('back')+' nose down/up  ·  '+A('left')+'/'+A('right')+' bank  ·  '+A('jump')+'/'+A('climb')+' throttle up/down  ·  '+G;
+  // (a jet's arresting hook, for landing on a carrier: carrier-jets.js)
+  if(D.k==='plane'){const hk=D.o.jet?A('weapon')+(D.o.hook?' hook up':' hook down')+'  ·  ':'';
+    return p.pad?'Stick up/down throttle  ·  Stick left/right bank  ·  '+A('jump')+' pull up  ·  '+A('climb')+' push down  ·  '+G+hk
+    :A('fwd')+'/'+A('back')+' nose down/up  ·  '+A('left')+'/'+A('right')+' bank  ·  '+A('jump')+'/'+A('climb')+' throttle up/down  ·  '+G+hk;}
   return G;}
 // on his way down a ramp he stays on it, instead of falling a little and landing every few steps
 function stickToRamp(p,g){

@@ -7,7 +7,7 @@ function bigCrashes(){
   carsOutOfBig();
   const L=[];for(const B of TRAIN_BOXES){if(B.soft||!B.proxy.alive||B.y0>=B.top||B.proxy.T&&B.proxy.T.dead)continue;L.push(B);}   // (a wreck going down, or burning out, is out of it)
   for(let i=0;i<L.length;i++){const a=L[i],va=a.proxy.T||a.proxy,ra=Math.max(a.hx||TRAIN_HX,a.hz||TRAIN_HZ);
-    for(let j=i+1;j<L.length;j++){const b=L[j],vb=b.proxy.T||b.proxy;if(va===vb||Math.abs(a.v)<2&&Math.abs(b.v)<2)continue;
+    for(let j=i+1;j<L.length;j++){const b=L[j],vb=b.proxy.T||b.proxy;if(va===vb||Math.abs(a.v)<2&&Math.abs(b.v)<2||va.cvJet&&vb.cvJet)continue;   // (a carrier's own jets don't meet on its deck)
       if(Math.abs(a.x-b.x)>ra+Math.max(b.hx||TRAIN_HX,b.hz||TRAIN_HZ)||Math.abs(a.z-b.z)>ra+Math.max(b.hx||TRAIN_HX,b.hz||TRAIN_HZ))continue;
       if(a.y0>=b.top||b.y0>=a.top)continue;
       if(!boxesTouch(a.x,a.z,Math.atan2(a.tx,a.tz),a.hx||TRAIN_HX,a.hz||TRAIN_HZ,b.x,b.z,Math.atan2(b.tx,b.tz),b.hx||TRAIN_HX,b.hz||TRAIN_HZ))continue;

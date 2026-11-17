@@ -37,10 +37,17 @@
   - The CIWS (Phalanx) spins up and pours out a fast stream of rounds, and shoots rockets and missiles out of the air. It overheats if you hold it down too long.
   - The Sea Sparrow launcher fires big, slow-turning homing missiles that hit hard, eight to a load. Lock on first.
   - The RAM launcher fires small, quick missiles at whatever's nearest the crosshair, 21 to a load.
+  - The Sea Sparrow and RAM launchers have proper models now. The Sea Sparrow is a turntable with two arms holding a pair of white four-cell launcher boxes, and the RAM is a squat launcher with a 21-cell face and seeker pods. The covers on their cells come off one by one as they fire, and they're all back on once it's reloaded.
 - Any goblin can take a deck weapon's seat with F (controller Y), crewed or not: whoever was manning it is thrown off, angry, and the ship goes to general quarters. Bite fires.
 - Sailors, marines and deck crew are also in the debug menu's goblin list.
 - It can be sunk, but only by wrecking it: it goes down once enough of its blocks have been knocked out, holes below the waterline counting extra and letting the sea in, which keeps wearing it down. Shells, rockets and blasts from outside count by the holes they blow in its sides and deck, and the hit itself does nothing, and neither does running aground. When it's had enough it goes down slowly, washing everyone aboard into the sea as the water reaches them. (The barge still takes damage from hits as before.)
 - Bullets work across its side now: rounds from outside (a helicopter's gun, the Mobile Gear's rifle on its deck, Gnash's rifle from the shore) break its blocks and hit the goblins aboard, and rounds fired from aboard hit what's out in the world past the side.
+- Eight fighter jets are parked on the flight deck, along the starboard side and the port bow.
+  - Climb into one with F (controller Y) and fly it like any jet.
+  - Catapults: taxi on to the start of one of the four tracks (two at the bow, two in the waist) and stop there, and it hooks on. Open the throttle all the way and it holds you for a moment, then flings you down the track and off the bow at flying speed.
+  - Landing: press R (the weapon button) to lower the hook (any jet has one, so a jet from the debug menu can land on it too), and come in low and slow over the stern along the angled strip. Catch one of the four wires and you're pulled up in a few lengths. Miss them (or forget the hook) and you'll need full power to go round again before the deck runs out.
+  - They ride along with the ship while it sails, and they're carried into the world when you fly off.
+- At general quarters, pilots run to the parked jets. Each jet is towed to a free catapult and launched, and it goes after you: cannon passes up close and missiles from further off. After a while, or out of missiles, it flies round behind the stern, lines up on the angled strip, comes down the glide slope with its hook down and catches a wire. Then it's towed back to its spot, and its pilot heads below. A jet that misses the wires goes round and tries again. The carrier's own anti-missile guns leave its jets' missiles alone, and its jets don't run into each other on the deck.
 
 ### A barge you can walk around (Testing Environment)
 

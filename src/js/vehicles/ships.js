@@ -90,7 +90,7 @@ function makeShip(kind,x,z,yaw){
   shipForget(slot);
   const S={isShip:true,n:++shipSerial,kind,K,slot,ox:SHIP_X0+SHIP_SLOT/2,oz:slot*SHIP_SLOT+SHIP_SLOT/2,x,z,yaw,sp:0,ord:0,rud:0,yr:0,telD:0,telT:0,groundT:0,hp:K.hp,dead:false,deadT:0,sk:0,leak:0,drv:null,grp,pg,V:null,bx:null};
   pg.position.set(-S.ox,0,-S.oz);pg.shipPg=true;grp.add(pg);grp.position.set(x,0,z);grp.rotation.y=yaw;scene.add(grp);grp.updateMatrixWorld(true);
-  SHIPS[slot]=S;shipN++;shipPropsDraw(S);shipCrewInit(S);
+  SHIPS[slot]=S;shipN++;shipPropsDraw(S);shipCrewInit(S);shipJetsInit(S);
   return S;
 }
 let shipSerial=0;   // (each ship's own number: a new one in an old one's slot isn't taken for it)
@@ -99,7 +99,7 @@ function shipDrop(S){
   if(SHIPS[S.slot]!==S)return;
   for(const p of players){if(p.drv&&(p.drv.o===S||p.drv.o.S===S))drvExit(p);if(shipOf(p)===S)shipMove(p,S,false,true);}
   for(const g of goblins)if(g.state!=='wait'&&shipOf(g)===S)shipMove(g,S,false,false);
-  shipVehEach((o,P)=>{if(shipOfPos(P.x,P.z)===S)shipVehMove(o,S,false);});
+  shipVehEach((o,P)=>{if(shipOfPos(P.x,P.z)===S)shipVehMove(o,S,false);});shipJetsDrop(S);
   if(S.pm)for(const m of S.pm)if(m.dispose)m.dispose();
   scene.remove(S.grp);SHIPS[S.slot]=null;shipN--;shipForget(S.slot);
 }
@@ -120,7 +120,7 @@ function updateShips(V,dt){
     if(S.hp<=0){shipSink(S);continue;}
     shipHelmIn(S,dt);shipDrive(S,dt);
     S.grp.position.set(S.x,0,S.z);S.grp.rotation.y=S.yaw;S.grp.updateMatrixWorld(true);
-    shipBoxes(S);if(S.propsT>0&&(S.propsT-=dt)<=0)shipPropsDraw(S);shipPropsFall(S,dt);shipCrewTick(S,dt);
+    shipBoxes(S);if(S.propsT>0&&(S.propsT-=dt)<=0)shipPropsDraw(S);shipPropsFall(S,dt);shipCrewTick(S,dt);shipJetsTick(S,dt);
   }
 }
 // ---- driving from the bridge. W and S ring the engine telegraph up and down its orders, one a press (held, on down
@@ -332,13 +332,18 @@ function shipCrossAll(){
 // ---- vehicles aboard: cars, tanks and helicopters cross into a ship's pocket the same way (over its hull and clear of
 // its blocks there), so they stand on its decks, ride along with it for nothing, land on it and are driven about on it,
 // and are taken back out once they're off it. Their models hang off the ship's picture meanwhile, and whoever's in one
-// goes with it. (The Mobile Gear stays out in the world: it stands on the ship's boxes and is carried by them.) ----
+// goes with it, and so do planes (carrier-jets.js). (The Mobile Gear stays out in the world: it stands on the ship's
+// boxes and is carried by them.) ----
 // every car, tank and helicopter there is, each with its place and heading read the same way
 function shipVehEach(fn){
   for(const c of cars)if(c.alive)fn(c,c.pos);
-  for(const V of venues.values())if(V.kind==='army'&&V.mil)for(const M of V.mil)if(!M.dead&&M.pos)fn(M,M.pos);
+  for(const V of venues.values()){if(V.kind==='army'&&V.mil)for(const M of V.mil)if(!M.dead&&M.pos)fn(M,M.pos);
+    // (and planes: a carrier's own jets, and any other the Testing Environment spawned, flown in over a ship or off one)
+    if(V.kind==='airport'&&V.tenv&&V.pl)for(const pl of V.pl)if(!pl.dead&&!pl.fall)fn(pl,pl.g.position);}
 }
 function shipVehMove(o,S,into){
+  if(o.isPlane){const P=o.g.position,t=(into?worldToShip:shipToWorld)(S,P.x,P.z,_sv),a=into?-S.yaw:S.yaw;P.x=t.x;P.z=t.z;P.y+=into?S.sk:-S.sk;o.g.rotation.y+=a;
+    shipVehParent(o,into?S:null);if(o.drv&&o.drv.cam){o.drv.cam.yaw+=a;if(o.drv.drvYaw!==undefined)o.drv.drvYaw+=a;shipParent(o.drv,into?S:null);}return;}   // (a plane: its flight is all its own heading, speed and angles)
   const car=!o.isMil,P=car?o.pos:o,t=(into?worldToShip:shipToWorld)(S,P.x,P.z,_sv),a=into?-S.yaw:S.yaw;
   P.x=t.x;P.z=t.z;P.y+=into?S.sk:-S.sk;
   if(car){o.heading+=a;if(o.kv)shipRot(o.kv,'x','z',a);if(o.hvel)shipRot(o.hvel,'x','z',a);o.path=o.rt=o.hw=null;o.spot=null;}
@@ -351,7 +356,7 @@ function shipVehParent(o,S){const par=S?S.pg:scene;if(o.g.parent!==par)par.add(o
 // (every step, from shipCrossAll; one left in a pocket whose ship has gone, or spawned straight into one, is seen to)
 function shipVehCross(o,P){
   if(P.x>=SHIP_X0){const S=shipOfPos(P.x,P.z);
-    if(!S){if(o.isMil){o.dead=true;o.g.visible=false;}else{o.alive=false;o.g.visible=false;o.respawnT=1e9;}shipVehParent(o,null);return;}
+    if(!S){if(o.isMil||o.isPlane){o.dead=true;o.g.visible=false;}else{o.alive=false;o.g.visible=false;o.respawnT=1e9;}shipVehParent(o,null);return;}
     shipVehParent(o,S);const K=S.K,m=SHIP_M+1.5,u=P.x-S.ox,w=P.z-S.oz;
     if(u<K.u0-m||u>K.u1+1+m||w<K.w0-m||w>K.w1+1+m)shipVehMove(o,S,false);return;}
   if(o.g.parent!==scene)shipVehParent(o,null);

@@ -31,6 +31,7 @@ function crewAt(x,z,h,a,c){return{x:x+Math.cos(h)*a+Math.sin(h)*c,z:z-Math.sin(h
 // four-wheeler's), a tank's or helicopter's side
 function crewDoor(o,seat){
   if(o.isMount)return crewAt(o.x,o.z,o.yaw,0,-1.5);   // (a carrier's deck weapon: behind it. See carrier-crew.js)
+  if(o.cvJet)return crewAt(o.x,o.z,o.yaw,1.9,2.4);   // (a carrier's jet: up the ladder by its cockpit. See carrier-jets.js)
   if(o.isMil){const I=MIL[o.kind];return crewAt(o.x,o.z,o.h,I.hx+0.9,0);}
   const V=VEH[o.veh];
   if(seat==='drv')return crewAt(o.pos.x,o.pos.z,o.heading,(V.hx+0.8)*ES*(V.head[0]<0?-1:1),V.head[2]*ES);
@@ -39,13 +40,14 @@ function crewDoor(o,seat){
 // is the seat it's running for still there to fill?
 function crewWanted(m){const o=m.o;if(m.home)return true;
   if(o.isMount)return!o.drv&&!o.crew&&o.S.crewV.roused&&!o.S.dead;
+  if(o.cvJet)return!o.drv&&!o.crew&&!o.ai&&!o.dead&&o.S.crewV.roused&&!o.S.dead;
   if(o.isMil)return!o.dead&&!o.crew&&!o.drv&&o.state==='man';
   return o.alive&&!!o.crew&&!o.crew[m.seat]&&!o.drv&&!o.gnr;}
 // one of the camp's kind (k), out of the pools at x,z, running for o's seat
 function crewSend(k,x,z,o,seat){
   if(k==='soldier')jackKinds();const g=freeFoe(k,24);if(!g)return null;
   foeSpawn(g,k,null,0);g.pos.set(x,groundAt(x,z,G+6),z);g.mount={o,seat};g.mt=0;
-  const at=o.isMil?{x:o.x,z:o.z}:o.pos;g.heading=Math.atan2(at.x-x,at.z-z);g.root.position.copy(g.pos);
+  const at=o.isMil||o.cvJet?{x:o.x,z:o.z}:o.pos;g.heading=Math.atan2(at.x-x,at.z-z);g.root.position.copy(g.pos);
   if(k==='soldier')g.id.occ=o.kind==='heli'?'Helicopter pilot':pick(['Tank crewman','Tank commander','Tank driver']);
   else g.id.occ=seat==='drv'?'Militia driver':o.veh==='technical'?'Machine gunner':'Rifleman';
   return g;
@@ -56,7 +58,7 @@ function crewRun(g,dt){
   const m=g.mount;if(!crewWanted(m)){g.mount=null;return false;}
   g.aim=0;if(g.orb)g.orb.visible=false;
   const at=m.home||crewDoor(m.o,m.seat),dx=at.x-g.pos.x,dz=at.z-g.pos.z,dd=Math.hypot(dx,dz);
-  const o=m.o,ox=o?(o.isMil||o.isMount?o.x:o.pos.x):0,oz=o?(o.isMil||o.isMount?o.z:o.pos.z):0,R=o?(o.isMil?Math.max(MIL[o.kind].hx,MIL[o.kind].hz):Math.max(o.hx,o.hz))+1.4:0;
+  const o=m.o,ox=o?(o.isMil||o.isMount||o.cvJet?o.x:o.pos.x):0,oz=o?(o.isMil||o.isMount||o.cvJet?o.z:o.pos.z):0,R=o?(o.isMil?Math.max(MIL[o.kind].hx,MIL[o.kind].hz):o.cvJet?2.4:Math.max(o.hx,o.hz))+1.4:0;
   g.mt=(g.mt||0)+dt;
   // (there: in it goes. Or it's been at it so long it must be stuck: it's let in all the same)
   if(dd<1.4||o&&!m.home&&Math.hypot(ox-g.pos.x,oz-g.pos.z)<R||g.mt>20){crewBoard(g);return false;}
@@ -76,7 +78,7 @@ function crewRun(g,dt){
 function crewBoard(g){
   const m=g.mount;g.mount=null;g.mt=0;
   if(m&&!m.home&&crewWanted(m)){const o=m.o;
-    if(o.isMil||o.isMount)o.crew=g.id;else{o.crew[m.seat]=g.id;o.left=false;crewShow(o);}
+    if(o.isMil||o.isMount||o.cvJet)o.crew=g.id;else{o.crew[m.seat]=g.id;o.left=false;crewShow(o);}
     if(audio){const n=nearestPlayer(g.pos.x,g.pos.z);if(n&&n.d<40)sfx('Crew climbs aboard',()=>{tone('square',150,90,0.08,0.05*(1-n.d/40));});}}
   g.state='wait';g.t=0;g.root.visible=false;g.homeV=null;
 }

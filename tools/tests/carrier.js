@@ -1,7 +1,7 @@
 let __s=+(process.env.SEED||1);Math.random=()=>{__s=(__s*16807)%2147483647;return (__s-1)/2147483646;};
 const fs=require('fs');
 let src0=fs.readFileSync('g.js','utf8');
-let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={shockwave,get shocks(){return shocks},shipPt,nearestPlayer,addFire,get fires(){return fires},SHIPS,SHIP_X0,SHIP_KINDS,TRAIN_BOXES,trainHit,buildChunk,shipToWorld,worldToShip,shipOf,tenvVeh,tenvFoe,tenvClear,get TENV(){return TENV},get TS(){return TS},frame,players,goblins,get,solidAt,groundAt,chunks,meshes,venues,setGob,keys,DT,crush,doorsOn,propCells,shipFits,PROPS,PT,FOES,award,shot,damagePlayer,crushBall,get SHOTS(){return SHOTS},mHeld,cars,drvFind,drvEnter,drvExit,gunRound,gobShoot,mgDraw,MG,worldToShip,get nEdits(){return Object.keys(edits).length},get edits(){return edits},set menuOpen(v){menuOpen=v},SAVE_KEY};\n})();');
+let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={shockwave,get shocks(){return shocks},shipPt,nearestPlayer,addFire,get fires(){return fires},SHIPS,SHIP_X0,SHIP_KINDS,TRAIN_BOXES,trainHit,buildChunk,shipToWorld,worldToShip,shipOf,tenvVeh,tenvFoe,tenvClear,get TENV(){return TENV},get TS(){return TS},frame,players,goblins,get,solidAt,groundAt,chunks,meshes,venues,setGob,keys,DT,crush,doorsOn,propCells,shipFits,PROPS,PT,FOES,award,shot,damagePlayer,crushBall,get SHOTS(){return SHOTS},mHeld,cars,drvFind,drvEnter,drvExit,gunRound,gobShoot,mgDraw,MG,worldToShip,shipGQ,get playing(){return playing},get nEdits(){return Object.keys(edits).length},get edits(){return edits},set menuOpen(v){menuOpen=v},SAVE_KEY};\n})();');
 const deep=()=>new Proxy(function(){}, {get:(t,p)=>p===Symbol.toPrimitive?()=>0:(p==='length'?0:deep()),apply:()=>deep(),construct:()=>deep()});
 class Q{constructor(){this.x=0;this.y=0;this.z=0;this.w=1}set(x,y,z,w){this.x=x;this.y=y;this.z=z;this.w=w;return this}setFromAxisAngle(a,t){const s=Math.sin(t/2);this.x=a.x*s;this.y=a.y*s;this.z=a.z*s;this.w=Math.cos(t/2);return this}copy(q){this.x=q.x;this.y=q.y;this.z=q.z;this.w=q.w;return this}}
 class V3{project(){return this}fromBufferAttribute(a,i){const A=a.array||a.a;this.x=A[i*3];this.y=A[i*3+1];this.z=A[i*3+2];return this}applyMatrix4(m){const e=m.elements,x=this.x,y=this.y,z=this.z;this.x=e[0]*x+e[4]*y+e[8]*z+e[12];this.y=e[1]*x+e[5]*y+e[9]*z+e[13];this.z=e[2]*x+e[6]*y+e[10]*z+e[14];return this}setFromMatrixPosition(o){this.x=o.position.x;this.y=o.position.y;this.z=o.position.z;return this}normalize(){const l=Math.hypot(this.x,this.y,this.z)||1;this.x/=l;this.y/=l;this.z/=l;return this}add(v){this.x+=v.x;this.y+=v.y;this.z+=v.z;return this}applyQuaternion(q){const x=this.x,y=this.y,z=this.z,qx=q.x,qy=q.y,qz=q.z,qw=q.w;const ix=qw*x+qy*z-qz*y,iy=qw*y+qz*x-qx*z,iz=qw*z+qx*y-qy*x,iw=-qx*x-qy*y-qz*z;this.x=ix*qw+iw*-qx+iy*-qz-iz*-qy;this.y=iy*qw+iw*-qy+iz*-qx-ix*-qz;this.z=iz*qw+iw*-qz+ix*-qy-iy*-qx;return this}constructor(x=0,y=0,z=0){this.x=x;this.y=y;this.z=z}set(x,y,z){this.x=x;this.y=y;this.z=z;return this}copy(v){this.x=v.x;this.y=v.y;this.z=v.z;return this}clone(){return new V3(this.x,this.y,this.z)}addScaledVector(v,s){this.x+=v.x*s;this.y+=v.y*s;this.z+=v.z*s;return this}multiplyScalar(s){this.x*=s;this.y*=s;this.z*=s;return this}setScalar(s){return this.set(s,s,s)}}
@@ -162,20 +162,20 @@ let drove=false;
 {const K=S.K,w=0,y=9;let u=K.u1;while(u>K.u0&&!T.solidAt(S.ox+u,G0+y,S.oz+w))u--;T.shipToWorld(S,S.ox+u+1.2,S.oz+w+0.5,W);const e0=T.nEdits,b0=blk(-u,y,w),h0=S.hp;
  T.crushBall(W.x,G0+y+0.5,W.z,2.5);run(0.3);console.log('a blast just outside the hull (out in the world, by the hangar wall): blocks smashed',T.nEdits-e0,'| hull block there',b0,'->',blk(-u,y,w),'| health',f1(h0-S.hp),'off');}
 // ---- vehicles aboard: spawned on the flight deck, driven about, a helicopter flown off and landed back, a shell off the side
-{const near=(x,y,z)=>{for(let r=1;r<8;r+=0.5){put(x+r,y+0.3,z);run(0.2);const d=T.drvFind(P);if(d)return d;}return null;};
+{const near=(x,y,z,o)=>{for(let r=1;r<8;r+=0.5)for(const sg of [1,-1]){put(x+r*sg,y+0.3,z);run(0.2);const d=T.drvFind(P);if(d&&(!o||d.o===o))return d;}return null;};   // (o: that one, not a parked jet beside it)
  const wh=o=>{const p=o.pos||o;return p.x>=T.SHIP_X0?'aboard (s '+f1(S.ox-p.x)+' w '+f1(p.z-S.oz)+' y '+f1(p.y-G0)+')':'in the world (y '+f1(p.y-G0)+')';};
  at(0,17,-20,BOW);run(0.5);T.TS.vm='park';
  for(const k of ['car','tank','heli','mech']){T.menuOpen=true;T.TS.n=1;T.tenvVeh(k);T.menuOpen=false;console.log('spawned from the flight deck:',els.tpInfo.textContent.split('.')[0]);}
  run(1);const c=T.cars.find(c=>c.alive),A=T.venues.get('tenvArmy'),Tk=A.mil.find(M=>M.kind==='tank'),Hc=A.mil.find(M=>M.kind==='heli'),Mg=(T.venues.get('tenvMechs')||{mechs:[]}).mechs[0];
  for(const [n,o] of [['car',c],['tank',Tk],['helicopter',Hc]])console.log(' ',n,wh(o),'| model hung off the ship',o.g.parent===S.pg);
  if(Mg){const d=T.shipToWorld(S,S.ox,S.oz,{x:0,z:0});console.log('  Mobile Gear (stays out in the world, on the ship\'s box): y',f1(Mg.y-G0),'|',f1(Math.hypot(Mg.x-S.x,Mg.z-S.z)),'from the ship\'s middle');}
- {const d=near(c.pos.x,c.pos.y,c.pos.z);T.drvEnter(P,d);const z0=c.pos.z;T.keys.add('KeyW');run(2);T.keys.delete('KeyW');run(1);console.log('  car driven along the deck',f1(Math.abs(c.pos.z-z0)),'blocks, still',wh(c),'| Gnash',wh(P));T.drvExit(P);run(0.5);}
+ {const d=near(c.pos.x,c.pos.y,c.pos.z,c);T.drvEnter(P,d);const z0=c.pos.z;T.keys.add('KeyW');run(2);T.keys.delete('KeyW');run(1);console.log('  car driven along the deck',f1(Math.abs(c.pos.z-z0)),'blocks, still',wh(c),'| Gnash',wh(P));T.drvExit(P);run(0.5);}
  {let p0=[c.pos.x,c.pos.z];run(3);console.log('  the car left standing 3 s: moved',f1(Math.hypot(c.pos.x-p0[0],c.pos.z-p0[1])));p0=[c.pos.x,c.pos.z];const w0=[S.x,S.z];S.ord=3;run(6);console.log('  the carrier under way: moved',f1(Math.hypot(S.x-w0[0],S.z-w0[1])),'| the parked car on its deck moved',f1(Math.hypot(c.pos.x-p0[0],c.pos.z-p0[1])),'in the ship\'s frame');S.ord=0;S.sp=0;run(0.5);}
- {const d=near(Hc.x,Hc.y,Hc.z);T.drvEnter(P,d);T.keys.add('Space');run(3);T.keys.delete('Space');console.log('  helicopter lifted off:',wh(Hc));
+ {const d=near(Hc.x,Hc.y,Hc.z,Hc);T.drvEnter(P,d);T.keys.add('Space');run(3);T.keys.delete('Space');console.log('  helicopter lifted off:',wh(Hc));
   P.cam.yaw=-Math.PI/2;T.keys.add('KeyW');run(4);T.keys.delete('KeyW');run(2);console.log('  flown off the side:',wh(Hc),'| model back in the world',Hc.g.parent!==S.pg,'| Gnash',wh(P));
   P.cam.yaw=Math.PI/2;T.keys.add('KeyW');let tb=0;while(tb<8&&!(Hc.pos.x>=T.SHIP_X0&&S.ox-Hc.pos.x>-12))run(0.1),tb+=0.1;T.keys.delete('KeyW');run(2);console.log('  flown back over the deck (',f1(tb),'s):',wh(Hc),'| model hung off the ship',Hc.g.parent===S.pg);
   T.keys.add('KeyC');run(5);T.keys.delete('KeyC');run(1);console.log('  let down: landed',wh(Hc),'| hp',Hc.hp);T.drvExit(P);run(0.5);console.log('  Gnash out on the deck',wh(P));}
- {const d=near(Tk.x,Tk.y,Tk.z);T.drvEnter(P,d);P.cam.yaw=-Math.PI/2;P.cam.pitch=0.1;run(1.5);Tk.wpn.shell.cd=0;Tk.wpn.shell.rl=0;Tk.wpn.shell.n=4;const n0=new Set(T.SHOTS.filter(s=>s.live));
+ {const d=near(Tk.x,Tk.y,Tk.z,Tk);T.drvEnter(P,d);P.cam.yaw=-Math.PI/2;P.cam.pitch=0.1;run(1.5);Tk.wpn.shell.cd=0;Tk.wpn.shell.rl=0;Tk.wpn.shell.n=4;const n0=new Set(T.SHOTS.filter(s=>s.live));
   T.mHeld.add('Mouse0');run(0.02);T.mHeld.delete('Mouse0');const sh=T.SHOTS.find(s=>s.live&&!n0.has(s));let out=-1,t=0,d0=sh?Math.hypot(sh.g.position.x-S.x,sh.g.position.z-S.z):0;
   while(sh&&sh.live&&t<2){run(1/60);t+=1/60;if(out<0&&sh.pos.x<T.SHIP_X0)out=t;}
   console.log('  tank shell fired over the side: started',sh?f1(d0)+' from the ship\'s middle, drawn there':'none','| out into the world after',f1(out),'s');T.drvExit(P);run(0.5);}
@@ -198,6 +198,7 @@ let drove=false;
  }
 }
 // ---- its crew and deck weapons: posts, general quarters, the mounts manned and firing, a player at them, standing down
+for(const pl of S.jetV.pl)pl.rest=1e9;   // (its pilots kept below for now: the jets have their own checks after these)
 {const V=S.crewV;V.off=false;quietG();const act=()=>T.goblins.filter(g=>g.state==='chase');console.log('crew posts',V.posts.length,'| deck weapons',S.mounts.length);
 // posts standable?
 for(const P0 of V.posts){const x=Math.floor(P0.x),z=Math.floor(P0.z),y=P0.y;const ok=!T.solidAt(x,y,z)&&!T.solidAt(x,y+1,z)&&T.solidAt(x,y-1,z);if(!ok)console.log('  a post with no room to stand:',P0.k,'s',f1(S.ox-P0.x+.5),'y',P0.y-G0,'w',f1(P0.z-S.oz-.5),T.get(x,y-1,z),T.get(x,y,z),T.get(x,y+1,z));}
@@ -239,6 +240,49 @@ const live=k=>T.SHOTS.filter(q=>q.live&&q.kind===k).length;
  T.mHeld.add('Mouse0');let t=0;while(Q.live&&t<3){run(1/30);t+=1/30;}T.mHeld.delete('Mouse0');console.log('Gnash at the Phalanx, holding fire on a rocket coming at it: gone after',f1(t),'s',f1(Math.hypot(Q.pos.x-mz.x,Q.pos.z-mz.z)),'off it | heat',Math.round(C.wpn.gun.n));
  T.drvExit(P);run(0.3);}
 V.off=true;quietG();}
+// ---- jets on the deck: parked, climbed into, the catapult, the wires, flown off and back over
+for(const pl of S.jetV.pl)pl.rest=0;
+{const V=S.jetV,J=V?V.pl:[];const sw=o=>{const p=o.g.position;return p.x>=T.SHIP_X0?'aboard (s '+f1(S.ox-p.x)+' w '+f1(p.z-S.oz)+' y '+f1(p.y-G0)+')':'in the world (y '+f1(p.y-G0)+')';};
+ console.log('jets parked',J.length,'| all on the deck',J.every(pl=>Math.abs(pl.g.position.y-(G0+17))<0.01),'| hung off the ship',J.every(pl=>pl.g.parent===S.pg));
+ // (each parked one standing on deck, not over the side, not in another's way)
+ for(const pl of J){const p=pl.g.position,s=S.ox-p.x-0.5,w=p.z-S.oz-0.5;let bad=0;for(const [a,b] of [[0,5.8],[0,-5.8],[3.4,0],[-3.4,0]]){const h=pl.g.rotation.y,x=p.x+Math.cos(h)*a+Math.sin(h)*b,z=p.z-Math.sin(h)*a+Math.cos(h)*b;if(!T.solidAt(x,G0+16,z))bad++;}
+   if(bad)console.log('  jet at s',f1(s),'w',f1(w),': corners over nothing',bad);}
+ const pl=J[3];const p0=pl.g.position;
+ // (Gnash beside it on the deck, F)
+ let d=null;for(let r=3;r<8&&!d;r+=0.5){put(p0.x+r,G0+17.05,p0.z-2);run(0.3);d=T.drvFind(P);}
+ console.log('beside jet 4: F finds',d&&d.k,d&&d.o===pl);if(!d||d.o!==pl){process.exit(0);}
+ T.drvEnter(P,d);run(0.5);console.log('  in:',P.drv&&P.drv.k,'| Gnash',aboard(P)?'aboard':'in the world');
+ // (put on the bow's port catapult, a few blocks back from its start, and the throttle opened)
+ pl.g.position.set(S.ox+5+0.5,G0+17,S.oz+36+0.5);pl.g.rotation.set(0,0,0);pl.free.v=0;pl.free.thr=0;run(0.3);
+ console.log('  stopped on the bow catapult: hooked on',!!pl.cat,pl.cat&&pl.cat.ph);let t=0;T.keys.add('Space');while(t<3&&pl.cat&&pl.cat.ph==='wait')run(0.05),t+=0.05;console.log('  Space held (throttle up): held for launch after',f1(t),'s |',pl.cat?pl.cat.ph:'not hooked','| throttle',f1(pl.free.thr),'| speed',f1(pl.free.v));
+ t=0;let t1=-1,v1=0;while(t<5){run(1/30);t+=1/30;if(t1<0&&!pl.cat){t1=t;v1=pl.free.v;}}T.keys.delete('Space');
+ console.log('  let go of it after',f1(t1),'s at',f1(v1),'| 5 s on:',sw(pl),'speed',f1(pl.free.v),'flying',pl.free.air,'| model hung off',pl.g.parent===S.pg?'the ship':'the scene','| Gnash',aboard(P)?'aboard':'in the world');
+ // (round again, and back in over the stern, low, along the angled strip, hook down: placed there in the pocket)
+ run(2);T.drvExit(P);run(0.2);
+ // (fresh: jet 5, set flying down the angled deck's line toward the wires)
+ const q=J[4];{let d2=null;for(let r=3;r<8&&!d2;r+=0.5){put(q.g.position.x+r,G0+17.05,q.g.position.z-2);run(0.3);d2=T.drvFind(P);}T.drvEnter(P,d2);run(0.3);}
+ const h=Math.atan(0.16),w0=-88,s0=-3-(w0+89)*0.16;q.g.position.set(S.ox-s0+0.5,G0+19.5,S.oz+w0+0.5);q.g.rotation.set(0,h,0);Object.assign(q.free,{v:40,thr:0,gm:-0.06,pt:0.05,rl:0,vy:-2.4,air:true});
+ T.keys.add('KeyR');run(0.05);T.keys.delete('KeyR');T.keys.add('KeyW');console.log('  jet 5 coming in over the stern on the angled strip at 40, R: hook',q.hook?'down':'up');
+ const z0=q.g.position.z;t=0;let trapped=null;while(t<6&&!(q.free&&q.free.v<0.5&&!q.free.air)&&!q.dead){run(1/30);t+=1/30;if(process.env.DBG&&Math.round(t*30)%3===0)console.log('    t',f1(t),sw(q),'v',f1(q.free.v),'vy',f1(q.free.vy),'air',q.free.air,'pt',q.free.pt.toFixed(2),'trap',!!q.trap);if(!q.free.air)T.keys.delete('KeyW');if(q.trap&&!trapped)trapped={n:q.trap.n,t};}T.keys.delete('KeyW');
+ console.log('  after',f1(t),'s:',q.dead?'WRECKED':sw(q),'| caught wire',trapped?trapped.n:'none','| rolled',f1(q.g.position.z-z0),'blocks along w | hook now',q.hook?'down':'up');
+ // (no hook: the same approach rolls on and brakes)
+ Object.assign(q.free,{v:40,thr:0,gm:-0.06,pt:0.05,rl:0,vy:-2.4,air:true});q.g.position.set(S.ox-s0+0.5,G0+19.5,S.oz+w0+0.5);q.g.rotation.set(0,h,0);
+ if(q.hook)T.keys.add('KeyR'),run(0.05),T.keys.delete('KeyR');t=0;T.keys.add('KeyW');while(t<8&&!(q.free.v<0.5&&!q.free.air)&&!q.dead){run(1/30);t+=1/30;if(!q.free.air)T.keys.delete('KeyW');}T.keys.delete('KeyW');
+ console.log('  hook up, the same approach: after',f1(t),'s',q.dead?'WRECKED':sw(q),'| speed',f1(q.free.v));
+ T.drvExit(P);run(0.3);
+}
+
+// ---- pilots at general quarters: launched, flying at Gnash out at sea, coming back and landing on the wires
+{const V=S.jetV,C=S.crewV;C.off=false;for(const M of S.mounts)M.crew=null;
+ // (Gnash swimming 150 off the port side, invulnerable; the mounts left unmanned so it's the jets that go for him)
+ const w=T.shipToWorld(S,S.ox+150,S.oz,{x:0,z:0});put(w.x,G0+1,w.z);run(0.5);T.shipGQ(C);
+ const ph=()=>V.pl.map(pl=>pl.dead?'X':pl.ai?(pl.ai.ph==='final'?'FN':pl.ai.ph.slice(0,2))+(pl.trap?'*':' '):pl.call?'r ':'- ').join(' ');
+ let launched=new Set(),trapped=new Set(),landed=new Set(),sh=0;const s0=T.SHOTS.length;
+ for(let t=0;t<90;t+=0.5){run(0.5);for(const M of S.mounts)M.crew=null;
+   V.pl.forEach((pl,i)=>{if(pl.ai&&pl.ai.ph==='fight')launched.add(i);if(pl.trap)trapped.add(i);if(pl.ai&&pl.ai.ph==='park')landed.add(i);});
+   if(Math.round(t*2)%20===0)console.log('  t',t.toFixed(0),'jets',ph(),'| flying',V.pl.filter(pl=>pl.ai&&pl.free&&pl.free.air).map(pl=>{const p=pl.g.position;return (p.x>=T.SHIP_X0?'a':'w')+Math.round(p.y-G0)+'/'+Math.round(pl.free.v);}).join(' '));}
+ console.log('pilots at GQ: launched',launched.size,'| caught a wire',trapped.size,'| towed home after landing',landed.size,'| wrecked',V.pl.filter(pl=>pl.dead).length);
+ C.off=true;quietG();}
 {at(0,17,0,BOW);run(0.3);const lo={x:S.ox+0.5,y:G0+1,z:S.oz-60.5};T.menuOpen=true;T.TS.n=1;T.tenvFoe('goblin');T.menuOpen=false;const g=T.goblins.find(q=>q.state==='chase');if(g){g.pos.set(lo.x,lo.y,lo.z);}
  S.hp=0;run(0.2);console.log('sinking:',S.dead,'| Gnash on the flight deck',where(P));let t=0,gOff=-1,pOff=-1;
  while(t<60&&T.SHIPS.some(s=>s)){run(0.5);t+=0.5;if(g&&gOff<0&&!aboard(g))gOff=t;if(pOff<0&&!aboard(P))pOff=t;}
