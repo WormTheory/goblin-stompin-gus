@@ -2,7 +2,8 @@
 // Each player goblin carries a list (p.wpns, the one in hand p.wpn) and a stack of grenades (p.gren). The attack button
 // uses the one in hand (gobAttack, from doBite), the stomp button throws a grenade (gobThrow), and the weapon button goes
 // on to the next (gobNextWpn). Kill an enemy whose weapon you haven't got and it's dropped where they fell (gobDrop: a
-// police officer's handgun, a thief's or cultist's dagger, a rifle off the compounds and the army); a soldier of any kind drops grenades as well, every time, since they stack. Walk over a drop to pick it up (gobPickups).
+// police officer's handgun, a thief's or cultist's dagger, a rifle off the compounds, the army and the carrier's crew,
+// whatever FOES says they carry); a soldier of any kind drops grenades as well, every time, since they stack. Walk over a drop to pick it up (gobPickups).
 // (Pipe bombs are gone: the preppers throw grenades too.) Hippos never see any of this.
 const GOB_WPN={
   club:{name:'Club',dur:0.38,lunge:0.16,cd:0.45},
@@ -16,8 +17,10 @@ function gobArms(p){if(!p.wpns){p.wpns=['club'];p.wpn='club';p.gren=0;p.grenCD=0
 const gobW=p=>GOB_WPN[gobArms(p).wpn]||GOB_WPN.club;
 const gobGun=k=>k==='rifle'||k==='handgun';   // (the ones that shoot down the view: gobShoot)
 // what an enemy carries that can be taken off them
-function gobGear(g){const k=g.foeKind;
-  return{wpn:g.gun===COP_FOE?'handgun':g.cultist||k==='thief'?'dagger':k==='prepper'||k==='militia'||k==='soldier'?'rifle':null,gren:k==='prepper'||k==='militia'?1+(Math.random()<0.5?1:0):k==='soldier'?1:0};}
+// (read off the foe's own entry in FOES: whatever it holds (gear) that a goblin can wield, and grenades if it throws them,
+// so a new kind of foe drops its gear with nothing added here. Police carry theirs on g.gun; cultists aren't in FOES)
+function gobGear(g){const k=g.foeKind,F=k&&FOES[k];
+  return{wpn:g.gun===COP_FOE?'handgun':g.cultist?'dagger':F&&GOB_WPN[F.gear]?F.gear:null,gren:F&&F.bomb?1+(Math.random()<0.5?1:0):k==='soldier'?1:0};}
 // the attack button's hit, for whatever's in hand (the club's is gobClub)
 function gobAttack(p){const k=gobArms(p).wpn;
   if(k==='dagger'){const W=GOB_WPN.dagger,hx=Math.sin(p.heading),hz=Math.cos(p.heading);hitGoblins(p.pos.x+hx*W.reach,p.pos.z+hz*W.reach,W.r,W.dmg,W.cause,p.pos.y);pvpArea(p,p.pos.x+hx*W.reach,p.pos.z+hz*W.reach,W.r,W.dmg,'Stabbed',p.pos.y);
@@ -75,7 +78,8 @@ function puModel(k){const g=new THREE.Group(),m=c=>PU_MAT[c]||(PU_MAT[c]=new THR
   else{b(0.22,0.24,0.22,0x3a4a22,0,0,0);b(0.08,0.08,0.08,0x8a8a90,0,0.15,0);}
   g.visible=false;scene.add(g);return g;}
 function gobDrop(g){const G2=gobGear(g),at=(k,n,o)=>{let P=PICKUPS.find(q=>!q.live&&q.k===k);if(!P){if(PICKUPS.length>=32){P=PICKUPS.find(q=>q.k===k);if(!P)return;}else{P={k,m:puModel(k),pos:new V3()};PICKUPS.push(P);}}
-    const y=supportAt(g.pos.x+o,g.pos.z,g.pos.y+1.5);P.pos.set(g.pos.x+o,(y??g.pos.y)+0.3,g.pos.z);P.n=n;P.t=0;P.live=true;P.m.visible=true;P.m.position.copy(P.pos);};
+    const y=supportAt(g.pos.x+o,g.pos.z,g.pos.y+1.5);P.pos.set(g.pos.x+o,(y??g.pos.y)+0.3,g.pos.z);P.n=n;P.t=0;P.live=true;P.m.visible=true;P.m.position.copy(P.pos);
+    const par=shipPar(P.pos.x,P.pos.z);if(P.m.parent!==par)par.add(P.m);};   // (aboard a ship it's in the ship's pocket: hung off the ship's picture so it shows where the ship really is, see ships.js)
   const own=players.filter(q=>q.active&&q.gob&&q.wpns);
   // (dropped only if a player goblin hasn't got one already; grenades always, as they stack)
   if(G2.wpn&&!(own.length&&own.every(q=>q.wpns.includes(G2.wpn))))at(G2.wpn,1,-0.3);
