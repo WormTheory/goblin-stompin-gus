@@ -190,12 +190,20 @@ function renderTime(){
       let list='';
       if(DT.dd&&DT.dd.k===it.k){const cur=ddCur(it.k);list='<div class="ddl">'+ddOpts(it.k).map((o,j)=>'<div class="ddo'+(j===DT.dd.i?' cur':'')+(j===cur?' sel':'')+'" data-j="'+j+'">'+o.n+'</div>').join('')+'</div>';}
       return '<div class="dr'+(i===DT.cur?' cur':'')+(DT.edit===it.k?' edit':'')+'" data-i="'+i+'"><span>'+(it.col?'<i class="sw" style="background:'+it.col+'"></i>':'')+'</span><span>'+it.label+'</span><em'+(v===false?' class="off"':'')+'>'+body+'</em></div>'+list;});
-    // laid out by column, then by section
+    // laid out by column, then by section (an open dropdown's list is about to be drawn afresh, so take how far it's
+    // scrolled from the list itself: the scroll event that would have noted it may not have come yet, and going by the
+    // older figure threw the list back up the moment the wheel moved it)
+    {const o=document.querySelector('#dpRows .ddl');if(o)DT.ddScroll=o.scrollTop;}
     document.getElementById('dpRows').innerHTML=Array.from({length:DBG_COLS},(_,c)=>c).map(c=>'<div>'+DBG_SECS.filter(s=>s[0]===c).map(s=>dbgL.some(it=>it.sec===s[1])?'<div class="dps"><h5>'+s[1]+'</h5>'+dbgL.map((it,i)=>it.sec===s[1]?dbgRows[i]:'').join('')+'</div>':'').join('')+'</div>').join('');
     if(!dbgL.length)document.getElementById('dpRows').innerHTML='<p class="dpnone">Every switch is hidden. Show some on the Show / hide tab.</p>';
     // (on a short screen the menu scrolls: keep the highlight in view)
     {const r=document.querySelector('#dpRows .dr.cur');if(r&&r.scrollIntoView)r.scrollIntoView({block:'nearest'});}
-    {const l=document.querySelector('#dpRows .ddl');if(l){l.scrollTop=DT.ddScroll||0;if(DT.ddNav){DT.ddNav=false;const cur=l.querySelector('.ddo.cur');if(cur){const t=cur.offsetTop,b=t+cur.offsetHeight;if(t<l.scrollTop)l.scrollTop=t;else if(b>l.scrollTop+l.clientHeight)l.scrollTop=b-l.clientHeight;DT.ddScroll=l.scrollTop;}}}}
+    {const l=document.querySelector('#dpRows .ddl');if(l){l.scrollTop=DT.ddScroll||0;if(DT.ddNav){DT.ddNav=false;const cur=l.querySelector('.ddo.cur');if(cur){const t=cur.offsetTop,b=t+cur.offsetHeight;if(t<l.scrollTop)l.scrollTop=t;else if(b>l.scrollTop+l.clientHeight)l.scrollTop=b-l.clientHeight;DT.ddScroll=l.scrollTop;}
+       // (and the whole list on show in the menu: a long one, such as the vehicles, opened near the bottom used to hang
+       // past the menu's edge, where neither the wheel nor the d-pad could get at its last few choices. Scrolls the menu
+       // down only as far as keeps the dropdown's own row in sight.)
+       const pr=dp.getBoundingClientRect(),vt=pr.top+dp.clientTop,vb=vt+dp.clientHeight,lr=l.getBoundingClientRect(),row=l.previousElementSibling,rt=row?row.getBoundingClientRect().top:lr.top;
+       if(lr.bottom>vb-4)dp.scrollTop+=Math.max(0,Math.min(lr.bottom-vb+8,rt-vt-4));}}}
     dp.classList.toggle('mouse',DT.kbdOpen);
     const pad=DT.selHeld;
     document.getElementById('dpHint').textContent=DT.tab?'pick which switches the first tab lists':'game paused';
@@ -206,7 +214,10 @@ function renderTime(){
 }
 {const rows=document.getElementById('dpRows');
  rows.addEventListener('scroll',e=>{if(e.target.classList&&e.target.classList.contains('ddl'))DT.ddScroll=e.target.scrollTop;},true);
- rows.addEventListener('mouseover',e=>{const o=e.target.closest('.ddo');if(o&&DT.dd){const j=+o.dataset.j;if(j!==DT.dd.i){DT.dd.i=j;renderTime();}return;}
+ rows.addEventListener('mouseover',e=>{const o=e.target.closest('.ddo');if(o&&DT.dd){const j=+o.dataset.j;
+     // (just the highlight moves: drawing the whole menu again here, as the list scrolled under a still mouse, kept
+     // undoing the wheel's scrolling)
+     if(j!==DT.dd.i){DT.dd.i=j;for(const q of o.parentNode.children)q.classList.toggle('cur',q===o);}return;}
    const row=e.target.closest('.dr');if(!row||!DT.kbdOpen)return;const i=+row.dataset.i;if(i!==DT.cur){DT.cur=i;renderTime();}});
  rows.addEventListener('click',e=>{const o=e.target.closest('.ddo');if(o&&DT.dd){ddChoose(DT.dd.k,+o.dataset.j);return;}
    if(e.target.closest('.sl'))return;

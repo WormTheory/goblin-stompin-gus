@@ -99,6 +99,7 @@
 
 - Vehicles: pick any vehicle from the list and press Spawn, and one is set down ahead of you, parked and empty, ready to get into. It works in the ordinary game too, not just the Testing Environment: anywhere with a level patch of ground in front of you, and what you spawn stays where you left it.
 - Infinite ammo: while it's on, nothing that has to be reloaded ever runs out (the Mobile Gear's blade still has to cool between swings).
+- The vehicle list scrolls all the way to the bottom now. The mouse wheel no longer jumps back as it scrolls, and opening the list scrolls the menu far enough to show all of it, so the last few vehicles (down to the aircraft carrier) can be reached with the mouse, the wheel, the keyboard or a controller.
 
 ### Bullets break blocks
 
