@@ -6,6 +6,7 @@
 
 - Supercars: low, wide and very fast. Now and then one turns up in the traffic, tearing along the motorways well over the limit. Get in and it reaches over 60 a second, more than twice a car's top speed, so mind the walls. It steers a little less sharply the faster it goes.
 - Forklifts: parked out in a factory's yard by the loading docks, between the lorries. Slow, steered by their back wheels.
+- Tractors: parked on farms, one out in front of the barn and often another on the grass by the field, red on some farms and green on others. Get in and trundle off: slow, but they pull away steadily. Also in the debug menu's vehicle list.
 - Hovercraft: rides over water just as it does over land, straight off the beach and out to sea, and slides round its turns. Debug menu only, for now.
 - Fighter jet: flies like the airliner but far harder and faster, rolling and pulling hard and topping out at nearly twice the speed. Left click (controller RB) holds the cannon, right click (controller RT) fires a missile, homing on whatever you've locked on to with Q (controller R3). Debug menu only, for now.
 - Hot-air balloon: Space (controller A) lights the burner and it rises, C (controller LB) vents it and it sinks, and left alone it cools and slowly settles. Moving nudges it gently the way you're looking. You can stand on top of the envelope. Shoot it and the envelope tears and the basket drops. Debug menu only, for now.

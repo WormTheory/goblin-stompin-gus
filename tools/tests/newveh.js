@@ -1,4 +1,4 @@
-// The newer vehicles: the supercar (rare in the traffic, very fast), forklifts by factory loading docks, the hovercraft
+// The newer vehicles: the supercar (rare in the traffic, very fast), forklifts by factory loading docks, tractors on farms, the hovercraft
 // (over water as over land, sliding round its turns), the fighter jet (flies harder and faster than the airliner, a
 // cannon and missiles) and the hot-air balloon (burn to rise, vent to sink, drift, shot down). node newveh.js
 // (the city half: the traffic's mix and the factories; then the Testing Environment half, as a second process)
@@ -42,9 +42,27 @@ if(!TENVMODE){
  // (go there and wait: the parked cars' pool puts forklifts out by the docks)
  if(first){const o=first.fk[0];put(o.x+30,T.G+1.2,o.z+30);let fl=[];for(let k=0;k<40&&fl.length<1;k++){run(0.5);fl=T.cars.filter(c=>c.alive&&c.veh==='forklift');}
    console.log('  forklifts parked there after waiting:',fl.length,fl.length?' first at a forklift spot '+first.fk.some(o=>o.key===fl[0].spot)+', nobody in it '+!fl[0].driver:'');}}
+// ---- tractors: their spots on every farm near here (on open ground, clear of the buildings and the field, one colour a farm)
+{const px0=Math.floor(P.pos.x/T.CELL),pz0=Math.floor(P.pos.z/T.CELL);let nF=0,shown=0,first=null,bad=0,all=0,nN=0;
+ for(let dx=-60;dx<=60;dx++)for(let dz=-60;dz<=60;dz++){const px=px0+dx,pz=pz0+dz;if(T.plotType(px,pz)!=='farm')continue;
+   nF++;const I=T.plotInfo(px,pz),X0=px*T.CELL,Z0=pz*T.CELL,tr=T.parkSpots(px,pz).filter(o=>o.veh==='tractor');
+   // (the tractor's own footprint, turned its way: inside a building or the field, or blocked at its spot's height)
+   let hit=0;for(const o of tr){all++;const V=T.VEH.tractor,c=Math.cos(o.h),sn=Math.sin(o.h);let ok=true;
+     for(let a=-V.hx;a<=V.hx;a+=0.5)for(let b=-V.hz;b<=V.hz;b+=0.5){const x=o.x+a*c+b*sn,z=o.z-a*sn+b*c,rx=x-X0,rz=z-Z0;
+       if(I.b.some(B=>rx>=B.x0-0.5&&rx<B.x1+0.5&&rz>=B.z0-0.5&&rz<B.z1+0.5)||I.field&&rx>=I.field.x0&&rx<I.field.x1&&rz>=I.field.z0&&rz<I.field.z1)ok=false;}
+     if(!ok)hit++;}
+   bad+=hit;const tints=new Set(tr.map(o=>o.tint));
+   if(!first&&tr.length)first={px,pz,tr};if(I.north)nN++;
+   if(shown<4){shown++;console.log('farm',px,pz,I.north?'(road south)':'(road north)',tr.length,'tractor spots, overlapping a building or the field',hit,' one colour',tints.size===1,' facing',tr.map(o=>f2(o.h)).join(' '));}}
+ console.log('farms within 60 plots:',nF,'(',nN,'with the road south ) tractor spots',all,' overlapping',bad);
+ if(first){const o=first.tr[0];put(o.x+30,T.G+1.2,o.z+30);let tl=[];for(let k=0;k<40&&tl.length<1;k++){run(0.5);tl=T.cars.filter(c=>c.alive&&c.veh==='tractor');}
+   console.log('  tractors parked there after waiting:',tl.length,tl.length?' first at a tractor spot '+first.tr.some(o=>o.key===tl[0].spot)+', nobody in it '+!tl[0].driver+', the farm colour '+(Math.round(tl[0].tracM.color.g*255)===(first.tr[0].tint>>8&255)):'');
+   // (stood on: dropped on its cab roof, then its bonnet)
+   if(tl.length){const c=tl[0];T.setGob(false);run(0.2);for(const [lbl,l] of [['cab roof',-0.9],['bonnet',1.0]]){put(c.pos.x+Math.sin(c.heading)*l*c.hz/T.VEH.tractor.hz,c.pos.y+4.5,c.pos.z+Math.cos(c.heading)*l*c.hz/T.VEH.tractor.hz);run(1.2);
+     console.log('  Gus dropped on its '+lbl+': standing on it',P.standCar===c,' feet',f2(P.pos.y-c.pos.y),'above its wheels');}T.setGob(true);run(0.2);}}}
 }
 else{
-const tk=T.tenvVehKinds();console.log('spawn list has: supercar',tk.includes('super'),' forklift',tk.includes('forklift'),' hovercraft',tk.includes('hover'),' fighter jet',tk.includes('jet'),' balloon',tk.includes('balloon'),' names',['super','forklift','hover','jet','balloon'].map(T.tenvVehName).join(', '));
+const tk=T.tenvVehKinds();console.log('spawn list has: supercar',tk.includes('super'),' forklift',tk.includes('forklift'),' hovercraft',tk.includes('hover'),' fighter jet',tk.includes('jet'),' balloon',tk.includes('balloon'),' tractor',tk.includes('tractor'),' names',['super','forklift','hover','jet','balloon','tractor'].map(T.tenvVehName).join(', '));
 P.cam.yaw=Math.PI;P.cam.pitch=0;   // (looking toward +z)
 const newest=()=>T.cars.filter(c=>c.alive).sort((a,b)=>b.pos.z-a.pos.z)[0];
 const clear=()=>{if(P.drv)tap();T.tenvClear();run(0.3);};
@@ -53,7 +71,7 @@ const drag=(k,s)=>{clear();P.cam.yaw=Math.PI;T.tenvSpawnOne(k);run(0.3);const c=
   beside(c.pos.x,c.pos.y+0.2,c.pos.z,c.heading,c.hx);run(0.05);tap();if(!P.drv){console.log(k,': could not get in');return null;}
   c.heading=Math.PI;const x0=c.pos.x,z0=c.pos.z;let t50=null,mx=0;for(let i=0;i<s*10;i++){hold(['KeyW'],0.1);mx=Math.max(mx,c.speed);if(t50===null&&c.speed>=20)t50=(i+1)/10;}
   const d=Math.hypot(c.pos.x-x0,c.pos.z-z0);console.log(T.tenvVehName(k)+': '+st()+', W '+s+' s: top speed '+f1(mx)+', 20 a second after '+(t50===null?'never':t50+' s')+', went '+f1(d)+', hp '+f1(c.hp));return c;};
-drag('car',6);drag('super',8);drag('forklift',4);
+drag('car',6);drag('super',8);drag('forklift',4);drag('tractor',4);
 {const c=drag('super',1);if(c){const H=P.ui.drvHud;console.log('  display says',hudT(H&&H.txt.n));}}
 // ---- the hovercraft: a pool dug ahead, driven across it; a car driven into it sinks
 {const GG=T.G;console.log('flat floor: ground at',f1(T.groundAt(0,0,GG+20)),' sea level block',GG);

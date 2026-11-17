@@ -5,16 +5,25 @@ factory -38 -27 along x: 1 docks, 2 forklift spots, in the hall 0  nearest lorry
 factory 42 -34 along x: 3 docks, 4 forklift spots, in the hall 0  nearest lorry middle 5.7  facing the docks true
 factories within 60 plots: 2
   forklifts parked there after waiting: 2  first at a forklift spot true, nobody in it true
+farm -92 -61 (road north) 2 tractor spots, overlapping a building or the field 0  one colour true  facing 3.14 3.14
+farm -89 -59 (road north) 2 tractor spots, overlapping a building or the field 0  one colour true  facing 3.14 3.14
+farm -84 -61 (road north) 2 tractor spots, overlapping a building or the field 0  one colour true  facing 3.14 3.14
+farm -83 -62 (road north) 2 tractor spots, overlapping a building or the field 0  one colour true  facing 3.14 3.14
+farms within 60 plots: 87 ( 42 with the road south ) tractor spots 174  overlapping 0
+  tractors parked there after waiting: 1  first at a tractor spot true, nobody in it true, the farm colour true
+  Gus dropped on its cab roof: standing on it true  feet 1.95 above its wheels
+  Gus dropped on its bonnet: standing on it true  feet 1.02 above its wheels
 errors 0 []
-spawn list has: supercar true  forklift true  hovercraft true  fighter jet true  balloon true  names Supercar, Forklift, Hovercraft, Fighter jet, Hot-air balloon
+spawn list has: supercar true  forklift true  hovercraft true  fighter jet true  balloon true  tractor true  names Supercar, Forklift, Hovercraft, Fighter jet, Hot-air balloon, Tractor
 Car: car, W 6 s: top speed 24.0, 20 a second after 2 s, went 115.7, hp 30.0
 Supercar: car, W 8 s: top speed 62.0, 20 a second after 1 s, went 388.7, hp 30.0
 Forklift: car, W 4 s: top speed 8.0, 20 a second after never, went 25.7, hp 30.0
+Tractor: car, W 4 s: top speed 11.0, 20 a second after never, went 35.5, hp 30.0
 Supercar: car, W 1 s: top speed 21.1, 20 a second after 1 s, went 11.2, hp 30.0
   display says Supercar  ·  30 / 30
 flat floor: ground at 45.0  sea level block 44
-Car: driven 4 s into a pool, frames over the water 28  lowest there -5.0  (start 0), now -5.0  speed 24.0  went 52.0
-Hovercraft: driven 4 s into a pool, frames over the water 22  lowest there 0.0  (start 0), now 0.0  speed 27.0  went 47.6
+Car: driven 4 s into a pool, frames over the water 28  lowest there -5.0  (start 0), now -5.0  speed 24.0  went 52.3
+Hovercraft: driven 4 s into a pool, frames over the water 22  lowest there 0.0  (start 0), now 0.0  speed 27.0  went 46.9
   hard turn on the water: slides up to 40.9 degrees off the way it points; still afloat true
   got out over the water: hovercraft still at 1.0 over sea level, alive true
 airliner: off the ground after 3.5 s  speed after 12 s more at full throttle 81.1  height 159.4  bank after half a second of A 0.50  dead false

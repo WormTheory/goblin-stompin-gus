@@ -62,7 +62,9 @@ const VEH={bus:{hx:1.25,hz:5.2,hy:3.3,head:[0.5,2.7,4.3],roof:l=>3.3},
   // (a forklift: out in a factory's yard by the loading docks, never in the traffic; slow)
   forklift:{hx:0.7,hz:1.6,hy:2.6,head:[0,1.55,-0.35],roof:l=>l<0.6?2.55:0.4},
   // (a hovercraft: the debug menu's only, never in the traffic; it rides over water as over the road. See carPhysics)
-  hover:{hx:1.3,hz:2.6,hy:2.8,head:[0,1.55,0.5],roof:l=>l>-0.4&&l<1.6?1.75:0.9}};
+  hover:{hx:1.3,hz:2.6,hy:2.8,head:[0,1.55,0.5],roof:l=>l>-0.4&&l<1.6?1.75:0.9},
+  // (a farm tractor: parked in a farm's yard or by its field, never in the traffic; slow but strong. See drvCar)
+  tractor:{hx:0.96,hz:1.68,hy:2.35,head:[0,1.6,-0.7],roof:l=>l>-1.28&&l<-0.16?2.3:l>=-0.16?1.2:1.52}};
 // which vehicles each kind of traffic is made of
 const VEH_MIX={street:[['car',0.57],['super',0.01],['bike',0.08],['van',0.12],['pickup',0.12],['truck',0.10]],hw:[['car',0.49],['super',0.01],['bike',0.05],['van',0.1],['pickup',0.1],['truck',0.12],['semi',0.13]],park:[['car',0.67],['bike',0.08],['van',0.12],['pickup',0.13]]};
 const pickVeh=mix=>{let u=Math.random();for(const [t,p] of VEH_MIX[mix]){if(u<p)return t;u-=p;}return'car';};
@@ -248,6 +250,29 @@ function buildVeh(c,t){
     for(const s2 of[-1,1])b(0.06,1.3,0.55,dark,s2*0.45,1.8,-2.5);
     b(0.3,0.16,0.06,smat(CARC.head),0.6,1.05,2.36);b(0.3,0.16,0.06,smat(CARC.head),-0.6,1.05,2.36);
     return{g,wheels,front,rider,gun,gunner,fan};
+  } else if(t==='tractor'){
+    // a farm tractor: great ridged back wheels under mudguards, little front ones, a long bonnet with a grille and an
+    // exhaust stack, the seat under a small cab with windows all round. Red or green (spawnParked tints it per farm).
+    // Drawn at K of the numbers below, so in the world it's about 0.7 of a real one (2.9 long, 1.7 wide, 2.0 tall, back
+    // wheels 1.15 across), as the game's vehicles roughly are
+    const K=0.8,bk=(w,h,d,m,x,y,z)=>b(w*K,h*K,d*K,m,x*K,y*K,z*K);
+    const bod=c.tracM||(c.tracM=snowCar(new THREE.MeshLambertMaterial({color:0xb8241c}),c)),blk=smat(0x1d1f22),tire=smat(CARC.tire),hub=smat(0xe8c21a);
+    const twheel=(x,z,R,W,steer)=>{const piv=new THREE.Group();piv.position.set(x,R/2,z);g.add(piv);const sp=new THREE.Group();piv.add(sp);
+      b(W,R,R*0.72,tire,0,0,0,sp);b(W,R*0.72,R,tire,0,0,0,sp);b(W+0.04,R*0.4,R*0.4,hub,0,0,0,sp);
+      if(R>1)for(let k=0;k<4;k++){const tr=b(W+0.06,0.12*K,R*0.98,blk,0,0,0,sp);tr.rotation.x=k*Math.PI/4;}   // (the tread's ridges)
+      wheels.push(sp);if(steer)front.push(piv);};
+    bk(0.9,0.5,3.4,blk,0,0.7,0.1);   // (the frame between the axles)
+    bk(0.95,0.8,2.0,bod,0,1.15,0.95);bk(1.0,0.12,2.05,bod,0,1.58,0.95);   // (the bonnet)
+    bk(0.85,0.62,0.06,blk,0,1.12,1.97);for(let k=0;k<3;k++)bk(0.8,0.05,0.07,chrome,0,0.9+k*0.2,1.99);   // (the grille)
+    bk(0.14,1.0,0.14,blk,0.28,2.05,1.35);bk(0.2,0.08,0.2,blk,0.28,2.58,1.35);   // (the exhaust stack)
+    lights(0.32*K,1.4*K,1.99*K,-1.72*K);
+    for(const s2 of[-1,1]){bk(0.62,0.1,1.5,bod,s2*0.98,1.85,-0.9);bk(0.62,0.7,0.1,bod,s2*0.98,1.5,-0.2);}   // (the mudguards)
+    bk(1.3,0.5,1.5,bod,0,1.15,-0.9);bk(0.6,0.12,0.55,blk,0,1.5,-1.0);bk(0.6,0.5,0.1,blk,0,1.75,-1.3);   // (the seat)
+    bk(0.08,0.08,0.45,blk,0,1.75,-0.45);bk(0.42,0.06,0.06,blk,0,1.95,-0.3);   // (the steering wheel)
+    for(const [x,z] of [[-1,-0.25],[1,-0.25],[-1,-1.6],[1,-1.6]])bk(0.08,1.3,0.08,blk,x*0.62,2.2,z);bk(1.42,0.12,1.55,bod,0,2.88,-0.92);
+    bk(1.16,0.8,0.05,glass,0,2.3,-0.25);bk(1.16,0.8,0.05,glass,0,2.3,-1.6);for(const s2 of[-1,1])bk(0.05,0.62,1.2,glass,s2*0.63,2.4,-0.92);
+    bk(0.3,0.16,0.3,blk,0,0.75,-1.85);   // (the hitch)
+    for(const s2 of[-1,1]){twheel(s2*0.98*K,-0.95*K,1.7*K,0.55*K,false);twheel(s2*0.72*K,1.35*K,0.85*K,0.3*K,true);}
   }
   return{g,wheels,front,rider,gun,gunner};
 }
@@ -364,6 +389,12 @@ function parkSpots(px,pz){
     // (forklifts in the factory's yard between the lorries, by the loading docks, facing the hall)
     const fs=[...L.cs.map(c=>c-4),L.cs[L.cs.length-1]+4];for(const c of fs)out.push(L.wide?{x:X0+L.a-4.1,z:Z0+c+0.5,y:G+1,h:-Math.PI/2,key:px+','+pz+':fk'+c,p:0.75,veh:'forklift'}:{x:X0+c+0.5,z:Z0+L.a-4.1,y:G+1,h:Math.PI,key:px+','+pz+':fk'+c,p:0.75,veh:'forklift'});
     for(const c of L.cs)out.push(L.wide?{x:X0+L.a,z:Z0+c+0.5,y:G+1,h:Math.PI/2,key:px+','+pz+':lor'+c,p:0.8,veh:r2(c)}:{x:X0+c+0.5,z:Z0+L.a,y:G+1,h:0,key:px+','+pz+':lor'+c,p:0.8,veh:r2(c)});}
+  if(P.type==='farm'){
+    // (tractors: one out in front of the barn doors, facing the lane, and one on the grass beside the field, facing
+    // the yard; the same colour on any one farm, red or green. P.north: the road's to the south, the barn's doors too)
+    const N=P.north,tint=hash2(px*29+11,pz*17+3)<0.5?0xb8241c:0x2f7d32,bn=P.b[1],fd=P.field;
+    if(bn)out.push({x:X0+(bn.x0+bn.x1)/2,z:Z0+(N?bn.z1+5.5:bn.z0-5.5),y:G+1,h:N?0:Math.PI,key:px+','+pz+':trac0',p:0.85,veh:'tractor',tint});
+    if(fd)out.push({x:X0+PL0-4.5,z:Z0+(fd.z0+fd.z1)/2,y:G+1,h:N?0:Math.PI,key:px+','+pz+':trac1',p:0.6,veh:'tractor',tint});}
   if(P.lots)P.lots.forEach((L,li)=>{if(L.police)return;const skip=li===0&&P.super&&P.super.kind==='hospital'?ambBayIdx(P):null;lotBays(L).forEach((o,k)=>{if(skip&&skip.includes(k))return;out.push({x:X0+o.x,z:Z0+o.z,y:G+1,h:o.h,key:px+','+pz+':L'+li+':'+k,p:0.4});});});
   return out;
 }
@@ -390,7 +421,7 @@ function spawnParked(c){
     if(solidAt(Math.floor(o.x),o.y,Math.floor(o.z))||solidAt(Math.floor(o.x),o.y+1,Math.floor(o.z)))continue;
     if(players.some(q=>q.active&&Math.hypot(q.pos.x-o.x,q.pos.z-o.z)<6))continue;
     if(visibleToAny(o.x,o.y+1,o.z))continue;   // (never pops into a bay in plain view)
-    setVeh(c,o.veh||pickVeh('park'));c.paint.color.setHex(o.rust?RUST_PAINTS[Math.floor(hash2(Math.floor(o.x),Math.floor(o.z))*RUST_PAINTS.length)]:c.color);c.rusted=!!o.rust;c.spot=o.key;c.pos.set(o.x,o.y,o.z);c.heading=o.h;c.speed=0;c.kv.set(0,0,0);c.hp=30;c.alive=true;c.hunter=false;c.parked=true;c.vy=0;c.driver=null;c.dh.visible=false;
+    setVeh(c,o.veh||pickVeh('park'));if(o.tint&&c.tracM)c.tracM.color.setHex(o.tint);c.paint.color.setHex(o.rust?RUST_PAINTS[Math.floor(hash2(Math.floor(o.x),Math.floor(o.z))*RUST_PAINTS.length)]:c.color);c.rusted=!!o.rust;c.spot=o.key;c.pos.set(o.x,o.y,o.z);c.heading=o.h;c.speed=0;c.kv.set(0,0,0);c.hp=30;c.alive=true;c.hunter=false;c.parked=true;c.vy=0;c.driver=null;c.dh.visible=false;
     c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.paint.emissive.setHex(0);c.g.visible=true;
     return true;
   }

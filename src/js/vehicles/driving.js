@@ -5,7 +5,7 @@
 const DRV_NAME={ship:'ship',tank:'tank',heli:'helicopter',train:'train',subway:'subway train',plane:'plane',balloon:'hot-air balloon'};
 function drvName(D){if(D.netN)return D.netN;const o=D.o;   // (D.netN: a guest online, told by the host)
 
-  if(D.k==='car')return o.police?'police car':{car:'car',bike:'motorcycle',van:'van',pickup:'pickup',truck:'truck',semi:'lorry',bus:'bus',fire:'fire engine',amb:'ambulance',news:'news van',rv:'motorhome',technical:'technical',quad:'four-wheeler',super:'supercar',forklift:'forklift',hover:'hovercraft'}[o.veh]||'car';
+  if(D.k==='car')return o.police?'police car':{car:'car',bike:'motorcycle',van:'van',pickup:'pickup',truck:'truck',semi:'lorry',bus:'bus',fire:'fire engine',amb:'ambulance',news:'news van',rv:'motorhome',technical:'technical',quad:'four-wheeler',super:'supercar',forklift:'forklift',hover:'hovercraft',tractor:'tractor'}[o.veh]||'car';
   if(D.k==='boat')return o.K.name.toLowerCase();
   if(D.k==='ship')return o.K.name;
   if(D.k==='mount')return o.K.name;
@@ -189,12 +189,12 @@ function drvCamera(p){
 }
 // driving a car: much as a hunting car drives itself (updateCars does the rest: the ground, walls, what it runs into)
 function drvCar(c,dt){
-  const i=drvIn(c.drv),thr=-i.z,st=-i.x,V=c.veh,top=V==='super'?62:V==='forklift'?8:V==='hover'?27:V==='semi'||V==='bus'?17:V==='car'?24:V==='bike'?28:V==='quad'?22:20;
-  // (a supercar pulls hard, a forklift barely; a hovercraft has no wheels to brake with)
-  const acc=V==='super'?24:V==='forklift'?5:V==='hover'?8:10,brk=V==='hover'?7:26;
+  const i=drvIn(c.drv),thr=-i.z,st=-i.x,V=c.veh,top=V==='super'?62:V==='forklift'?8:V==='tractor'?11:V==='hover'?27:V==='semi'||V==='bus'?17:V==='car'?24:V==='bike'?28:V==='quad'?22:20;
+  // (a supercar pulls hard, a forklift barely, a tractor steadily up to a crawl; a hovercraft has no wheels to brake with)
+  const acc=V==='super'?24:V==='forklift'?5:V==='tractor'?7:V==='hover'?8:10,brk=V==='hover'?7:26;
   if(c.grounded||rampUnder(c.pos.x,c.pos.z,c.pos.y+0.5)){
     if(thr>0.1)c.speed+=(c.speed<0?brk:acc*(V==='super'?Math.max(0.45,1-c.speed/90):1))*thr*dt;else if(thr<-0.1)c.speed-=(c.speed>0?brk:Math.min(acc,8))*-thr*dt;else c.speed*=Math.exp(-dt*(V==='hover'?0.35:0.9));}
-  c.speed=Math.max(V==='forklift'?-6:-8,Math.min(top,c.speed));
+  c.speed=Math.max(V==='forklift'||V==='tractor'?-6:-8,Math.min(top,c.speed));
   c.steer+=(st-c.steer)*Math.min(1,dt*8);c.heading+=c.steer*dt*Math.max(-1,Math.min(1,c.speed/5))*(V==='super'?1.7*Math.max(0.45,1-Math.abs(c.speed)/110):1.7);
   if(V==='hover')hovDrift(c,dt);
   if(c.veh==='fire'){drvHose(c,i,dt);const hp=i.stomp&&!c.stHeld;c.stHeld=i.stomp;if(hp&&c.honkT<=0){horn(0.12);c.honkT=0.4;}}   // (a fire engine: bite sprays water, stomp sounds the horn. See hose.js)

@@ -3,7 +3,7 @@
 const fs=require('fs');
 let hdr=fs.readFileSync('stairs.js','utf8').split('\n');
 const n=hdr.findIndex(l=>l.startsWith('eval(src);'));
-hdr=hdr.slice(0,n).join('\n').replace(/window\.__t=\{/,'window.__t={G0:G,TRAINS,railPt,TRAIN_BOXES,BOATS,boatVenue,oceanDepth,vBox,ABIL,setGobP,');
+hdr=hdr.slice(0,n).join('\n').replace(/window\.__t=\{/,'window.__t={G0:G,setVeh,TRAINS,railPt,TRAIN_BOXES,BOATS,boatVenue,oceanDepth,vBox,ABIL,setGobP,');
 eval(hdr+`
 eval(src);const T=window.__t,G0=T.G0;let now=1000;
 const [A]=T.players;for(const f of els.play.L.click)f();pads.length=0;A.hp=9999;T.ABIL.climb=true;
@@ -60,7 +60,10 @@ if(TQ&&TQ.cars){const pr=TQ.cars[1].userData.proxy;TQ.v=0;TQ.wait=30;step(2);
    const c=T.cars.find(c=>c.alive&&!c.parked&&!c.isTrain&&!c.svc&&!seen.has(c.veh)&&Math.abs(c.speed)>4&&Math.hypot(c.pos.x,c.pos.z)<150);
    if(!c){A.pos.set(0,70,0);A.vy=0;step(10);continue;}seen.add(c.veh);
    if(climbIt(c.veh,c,.95,0,3))overEdge(c.veh,c);
-   A.pos.set(0,70,0);A.vy=0;step(30);}}
+   A.pos.set(0,70,0);A.vy=0;step(30);}
+ // (a tractor: one of the moving cars made into one, as it never drives in the traffic by itself)
+ {let c=null;for(let tries=0;tries<300&&!c;tries++){c=T.cars.find(c=>c.alive&&!c.parked&&!c.isTrain&&!c.svc&&Math.abs(c.speed)>4&&Math.hypot(c.pos.x,c.pos.z)<150);if(!c){A.pos.set(0,70,0);A.vy=0;step(10);}}
+  if(c){T.setVeh(c,'tractor');if(climbIt('tractor',c,.95,0,3))overEdge('tractor',c);A.pos.set(0,70,0);A.vy=0;step(30);}else console.log('no car to make a tractor of');}}
 // ---- a container ship ----
 {let SP=null;for(let r=30;r<900&&!SP;r+=3)for(let a=0;a<40&&!SP;a++){const x=Math.round(Math.cos(a/40*6.28)*r),z=Math.round(Math.sin(a/40*6.28)*r);let ok=true;for(let i=-4;i<=4&&ok;i++)for(let j=-4;j<=4&&ok;j++)if(T.plotType(x+i,z+j)!=='sea'||T.oceanDepth((x+i)*32,(z+j)*32)<7)ok=false;if(ok)SP=[x,z];}
  if(!SP)console.log('no open sea');else{const X=SP[0]*32+16,Z=SP[1]*32+16;for(let i=0;i<120;i++){A.pos.set(X,G0+30,Z);A.vy=0;step(1);}
