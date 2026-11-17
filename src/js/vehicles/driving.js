@@ -17,14 +17,18 @@ function drvKey(p){const B=BINDS.use;return btnMark(p.pad?bindGlyph('pad',B.pad[
 // the vehicle nearest you that you could get into: within reach of its box, and about level with it
 function drvFind(p){
   const R=1.8,px=p.pos.x,pz=p.pos.z,py=p.pos.y;let best=null,bd=1e9;
-  const take=(dx,dz,tx,tz,hx,hz,y0,top,D)=>{const al=dx*tx+dz*tz,ac=-dx*tz+dz*tx,ea=Math.abs(al)-hz,ec=Math.abs(ac)-hx;
-    if(ea>R||ec>R||py<y0-1.6||py>top+1.2)return;const d=Math.max(ea,ec,0)+Math.max(0,py-top);if(d<bd){bd=d;best=D;}};
+  const take=(dx,dz,tx,tz,hx,hz,y0,top,D,y=py)=>{const al=dx*tx+dz*tz,ac=-dx*tz+dz*tx,ea=Math.abs(al)-hz,ec=Math.abs(ac)-hx;
+    if(ea>R||ec>R||y<y0-1.6||y>top+1.2)return;const d=Math.max(ea,ec,0)+Math.max(0,y-top);if(d<bd){bd=d;best=D;}};
   for(const c of cars){if(!c.alive||!c.g.visible||c.gnr&&c.drv||Math.abs(c.pos.x-px)>14||Math.abs(c.pos.z-pz)>14)continue;
     // (another player at the wheel: the gunner's place, if it has one and nobody's in it)
     let D={k:'car',o:c};if(c.drv){D.seat='gun';if(!gunSeat(D)||c.crew&&c.crew.gun)continue;}
     take(px-c.pos.x,pz-c.pos.z,Math.sin(c.heading),Math.cos(c.heading),c.hx,c.hz,c.pos.y,c.pos.y+(c.hy||1.4),D);}
-  for(const B of TRAIN_BOXES){const pr=B.proxy,T=pr.T;if(!pr.alive||!T||B.soft||T.drv&&(!T.isMil||T.gnr))continue;
-    const hx=B.hx||TRAIN_HX,hz=B.hz||TRAIN_HZ;if(Math.abs(B.x-px)>hx+hz+R||Math.abs(B.z-pz)>hx+hz+R)continue;
+  // (a player aboard a ship is measured from where they really are for one out in the world, so they can climb into a
+  // Mobile Gear stood on its deck; a tank or helicopter aboard has its box in the pocket with them)
+  const Sp=shipN?shipOf(p):null,wp=Sp?shipToWorld(Sp,px,pz,{x:0,z:0}):null;
+  for(const B of TRAIN_BOXES){const pr=B.proxy,T=pr.T;if(!pr.alive||!T||B.soft||pr.isShipBox||T.drv&&(!T.isMil||T.gnr))continue;
+    const out=wp&&B.x<SHIP_X0,qx=out?wp.x:px,qz=out?wp.z:pz,qy=out?py-Sp.sk:py;
+    const hx=B.hx||TRAIN_HX,hz=B.hz||TRAIN_HZ;if(Math.abs(B.x-qx)>hx+hz+R||Math.abs(B.z-qz)>hx+hz+R)continue;
     let D=null;
     if(T.isMil){if(!T.dead)D=T.drv?{k:T.kind,o:T,V:T.V,seat:'gun'}:{k:T.kind,o:T,V:T.V};}
     else if(T.isMech){if(!T.dead)D={k:'mech',o:T,V:T.V};}   // (a Mobile Gear: see mech.js)
@@ -33,7 +37,7 @@ function drvFind(p){
     else if(T.isPlane){if(!T.dead&&!T.fall)for(const V of venues.values())if(V.kind==='airport'&&V.pl&&V.pl.includes(T)){D={k:'plane',o:T,V};break;}}
     else if(pr.veh==='train'&&T.C&&!T.dead)D={k:'train',o:T,ci:pr.i};
     else if(pr.veh==='train'&&T.sub&&!T.dead){for(const V of venues.values())if(V.kind==='sub'&&V.T===T){D={k:'subway',o:T,V,ci:pr.i};break;}}   // (a subway train, under the city: see drvSub)
-    if(D)take(px-B.x,pz-B.z,B.tx,B.tz,hx,hz,Math.min(B.y0,B.top-0.5),B.top,D);}
+    if(D)take(qx-B.x,qz-B.z,B.tx,B.tz,hx,hz,Math.min(B.y0,B.top-0.5),B.top,D,qy);}
   {const h=shipHelm(p);if(h&&h.d<bd)best=h.D;}   // (aboard a ship, at its helm: see ships.js)
   {const m=mountFind(p);if(m&&m.d<bd)best=m.D;}   // (or by one of a carrier's deck weapons: see carrier-crew.js)
   return best;
@@ -55,6 +59,7 @@ function drvPose(D){if(D.netS)return D.netS;const o=D.o;   // (D.netS: a guest o
   return{x:(Fa.x+Ba.x)/2,y:G+1.2,z:(Fa.z+Ba.z)/2,h:Math.atan2(Fa.x-Ba.x,Fa.z-Ba.z),hx:TRAIN_HX,hz:TRAIN_HZ,hy:TRAIN_H,v:T.v*T.dir};
 }
 function drvEnter(p,D){
+  {const S=D&&shipN?shipOf(p):null;if(S&&D.k!=='ship'&&D.k!=='mount'&&!(D.o.pos&&D.o.pos.x>=SHIP_X0||D.o.x>=SHIP_X0))shipMove(p,S,false,true);}   // (from aboard a ship into something out in the world, the Mobile Gear on its deck: put out there with it)
   const o=D.o,gun=D.seat==='gun',jack=!gun&&jackable(D);p.drv=D;p.standCar=null;p.vcl=null;p.state='walk';p.vy=0;p.mvx=p.mvz=0;p.biteT=0;p.drvLook=-9;p.drvYaw=undefined;p.shipBridge=false;
   if(gun)o.gnr=p;else drvTake(p,D);
   if(gunSeat(D))wpnInit(o,drvGunK(D));
@@ -162,9 +167,11 @@ function drvAim(p,sp){if(p.lockT&&p.drv&&lockAlive(p.lockT))return drvLead(p,sp|
   // (a goblin under the crosshair is what's aimed at, not the ground behind it: from a gun off to one side of the
   // camera, aiming past it would miss)
   let gt=160,ga=null;const t0=p.drvCamD||4;
-  for(const g of goblins){if(g.state!=='chase')continue;const ox=g.pos.x-c.x,oy=g.pos.y+0.8-c.y,oz=g.pos.z-c.z,t=ox*fx+oy*fy+oz*fz;if(t<t0||t>=gt)continue;
-    const ex=ox-fx*t,ey=oy-fy*t,ez=oz-fz*t;if(ex*ex+ez*ez<0.5&&Math.abs(ey)<1.1){gt=t;ga={x:g.pos.x,y:g.pos.y+0.8,z:g.pos.z};}}
-  for(let t=t0;t<gt;t+=0.5){const x=c.x+fx*t,y=c.y+fy*t,z=c.z+fz*t;if(y<1||solidAt(x,Math.floor(y),z))return{x,y,z};}
+  // (and across a ship's side: aimed at its deck, or someone on it, from the Mobile Gear stood on it, say. See shipLines)
+  const SL=shipLines(c.x,c.y,c.z,fx,fy,fz,gt),S0=SL&&c.x>=SHIP_X0?shipOfPos(c.x,c.z):null;
+  for(const g of goblins){if(g.state!=='chase')continue;const q=SL?shipPosIn(g.pos,S0):g.pos,ox=q.x-c.x,oy=q.y+0.8-c.y,oz=q.z-c.z,t=ox*fx+oy*fy+oz*fz;if(t<t0||t>=gt)continue;
+    const ex=ox-fx*t,ey=oy-fy*t,ez=oz-fz*t;if(ex*ex+ez*ez<0.5&&Math.abs(ey)<1.1){gt=t;ga={x:q.x,y:q.y+0.8,z:q.z};}}
+  for(let t=t0;t<gt;t+=0.5){const x=c.x+fx*t,y=c.y+fy*t,z=c.z+fz*t;if(y<1||solidAt(x,Math.floor(y),z)||SL&&shipLineAt(SL,t))return{x,y,z};}
   return ga||{x:c.x+fx*160,y:c.y+fy*160,z:c.z+fz*160};}
 // the view from behind the vehicle: turned with the mouse or right stick as usual, and swinging back round behind it a
 // moment after you stop looking about, once it's moving
@@ -230,20 +237,26 @@ function gunRound(M,p,mx,my,mz,dmg,sc0,cause,snd,A0){
   let dx=A.x-mx,dy=A.y-my,dz=A.z-mz;const L0=Math.hypot(dx,dy,dz)||1,sc=sc0*L0;
   dx+=(Math.random()-.5)*sc*2;dy+=(Math.random()-.5)*sc*2;dz+=(Math.random()-.5)*sc*2;
   const L=Math.hypot(dx,dy,dz)||1,ux=dx/L,uy=dy/L,uz=dz/L,R=Math.min(130,L0+20);
+  // (followed across a ship's side too, into its pocket or out of it: see shipLines)
+  const SL=shipLines(mx,my,mz,ux,uy,uz,R),S0=SL&&mx>=SHIP_X0?shipOfPos(mx,mz):null;
   // (the nearest goblin within reach of the line)
-  let gt=1e9,gg=null;for(const g of goblins){if(g.state!=='chase')continue;const ox=g.pos.x-mx,oy=g.pos.y+0.8-my,oz=g.pos.z-mz,t=ox*ux+oy*uy+oz*uz;if(t<0||t>R||t>=gt)continue;
+  let gt=1e9,gg=null;for(const g of goblins){if(g.state!=='chase')continue;const q=SL?shipPosIn(g.pos,S0):g.pos,ox=q.x-mx,oy=q.y+0.8-my,oz=q.z-mz,t=ox*ux+oy*uy+oz*uz;if(t<0||t>R||t>=gt)continue;
     const cx=ox-ux*t,cy=oy-uy*t,cz=oz-uz*t;if(cx*cx+cz*cz<0.5&&Math.abs(cy)<1.1){gt=t;gg=g;}}
   // (with PvP on, another player on foot nearer along it: a round each, one heart, ten a second at most)
   const pr=pvpRay(p,mx,my,mz,ux,uy,uz,Math.min(R,gt));if(pr){gt=pr.t;gg=pr.q;}
-  let t=0.5,hit='air';_sp.own=M;
+  let t=0.5,hit='air',oh=null;_sp.own=M;_sp.noShip=!!SL;
   let wx=0,wy=0,wz=0;
-  for(;t<Math.min(R,gt);t+=0.5){const x=mx+ux*t,y=my+uy*t,z=mz+uz*t;if(y<1||solidAt(x,Math.floor(y),z)){hit='wall';wx=Math.floor(x);wy=Math.floor(y);wz=Math.floor(z);break;}_sp.pos.set(x,y,z);if(shotHitsVeh(_sp)){hit='veh';break;}}
+  for(;t<Math.min(R,gt);t+=0.5){const x=mx+ux*t,y=my+uy*t,z=mz+uz*t;if(y<1||solidAt(x,Math.floor(y),z)){hit='wall';wx=Math.floor(x);wy=Math.floor(y);wz=Math.floor(z);break;}_sp.pos.set(x,y,z);if(shotHitsVeh(_sp)){hit='veh';break;}
+    if(SL&&(oh=shipLineAt(SL,t,M,true))){hit=oh.veh?'veh':oh.b?'wall':'sea';break;}}
+  _sp.noShip=false;
   if(hit==='air'&&gg&&t>=gt){t=gt;hit='gob';}
   const ex=mx+ux*t,ey=my+uy*t,ez=mz+uz*t;tracer(mx,my,mz,ex,ey,ez);if(audio)sfx(snd,()=>noise(0.06,0.1,2400,'highpass'));
+  // (where it struck, in the frame of whatever it struck)
+  const hx=oh?oh.x:ex,hy=oh?oh.y:ey,hz=oh?oh.z:ez;if(oh&&oh.b){wx=oh.b[0];wy=oh.b[1];wz=oh.b[2];}
   if(hit==='gob'&&pr&&gg===pr.q)pvpHurt(p,gg,1,new V3(ex,ey,ez),new V3(ux,0.3,uz),cause,{raw:true,cd:0.1});
-  else if(hit==='gob')damageGoblin(gg,dmg,new V3(ex,ey,ez),new V3(ux,0.3,uz),cause);
-  else if(hit==='veh')vehBlast(ex,ey,ez,0.8,4,M);
-  if(hit!=='air')puff(ex,ey,ez,1,hit==='wall'?0x9a948a:0xffb040,0.2);
+  else if(hit==='gob')damageGoblin(gg,dmg,SL?new V3(gg.pos.x,gg.pos.y+0.8,gg.pos.z):new V3(ex,ey,ez),new V3(ux,0.3,uz),cause);
+  else if(hit==='veh')vehBlast(hx,hy,hz,0.8,4,M);
+  if(hit!=='air')puff(hx,hy,hz,1,hit==='wall'||hit==='sea'?0x9a948a:0xffb040,0.2);
   if(hit==='wall')bulletBreak(wx,wy,wz,ux,uz);
 }
 // a bullet into a wall: half the time the block it struck breaks (only that one, so a stream of rounds chews through a

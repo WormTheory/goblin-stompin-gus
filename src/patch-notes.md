@@ -29,7 +29,7 @@
   - Run it into water too shallow for it and it runs aground: it grinds to a stop with a shudder, takes damage by how fast it hit (about a sixteenth of its health at flank), and its engines are rung down to Stop. Ring astern to back off.
   - It rams what it runs into: a boat, or the barge, takes five times the knock, and the carrier hardly feels it.
   - Bite sounds the horn.
-- Vehicles can go aboard. Spawn cars, tanks and helicopters from the debug menu while you're on the flight deck and they're parked on it; they ride along as it sails, can be driven about the deck, and fly or drive off its edge into the world. Fly a helicopter over the deck and let it down to land on it. A tank's shells and a helicopter's guns aim where you look from aboard and fly on out over the side. (A Mobile Gear spawned there stands on the deck too; planes and balloons are put out in the world beside it.)
+- Vehicles can go aboard. Spawn cars, tanks and helicopters from the debug menu while you're on the flight deck and they're parked on it; they ride along as it sails, can be driven about the deck, and fly or drive off its edge into the world. Fly a helicopter over the deck and let it down to land on it. A tank's shells and a helicopter's guns aim where you look from aboard and fly on out over the side. (A Mobile Gear spawned there stands on the deck too, and you can climb into it from the deck; planes and balloons are put out in the world beside it.)
 - Gnash's guns and grenades aim properly from aboard.
 - It has a crew now. Deck crew in coloured jerseys (yellow, green, blue, red, purple, white and brown, with helmets to match) work the flight deck, sailors go about the hangar, the gallery deck and the lower deck, and marines stand watch on the flight deck, the bridge and below. They come out as you get near and stroll between their spots while it's quiet.
 - Board it, bring a vehicle in close, or hurt one of them and it goes to general quarters: a klaxon sounds, the deck crew scatter, marines and sailors hunt you through the ship with their rifles (marines throw grenades too), and a sailor runs to each deck weapon and opens up on you. It stands down when you've been well away for half a minute. In Peaceful mode they leave you be.
@@ -39,7 +39,8 @@
   - The RAM launcher fires small, quick missiles at whatever's nearest the crosshair, 21 to a load.
 - Any goblin can take a deck weapon's seat with F (controller Y), crewed or not: whoever was manning it is thrown off, angry, and the ship goes to general quarters. Bite fires.
 - Sailors, marines and deck crew are also in the debug menu's goblin list.
-- It can be sunk. Smashing its blocks wears it down, holes below the waterline let the sea in and keep wearing it down, and shells, rockets and blasts from outside hit it and blow holes in its sides and deck, as they would any building. When it's had enough it goes down slowly, washing everyone aboard into the sea as the water reaches them. The barge can be sunk the same way.
+- It can be sunk, but only by wrecking it: it goes down once enough of its blocks have been knocked out, holes below the waterline counting extra and letting the sea in, which keeps wearing it down. Shells, rockets and blasts from outside count by the holes they blow in its sides and deck, and the hit itself does nothing, and neither does running aground. When it's had enough it goes down slowly, washing everyone aboard into the sea as the water reaches them. (The barge still takes damage from hits as before.)
+- Bullets work across its side now: rounds from outside (a helicopter's gun, the Mobile Gear's rifle on its deck, Gnash's rifle from the shore) break its blocks and hit the goblins aboard, and rounds fired from aboard hit what's out in the world past the side.
 
 ### A barge you can walk around (Testing Environment)
 
@@ -99,6 +100,7 @@
 
 - Vehicles: pick any vehicle from the list and press Spawn, and one is set down ahead of you, parked and empty, ready to get into. It works in the ordinary game too, not just the Testing Environment: anywhere with a level patch of ground in front of you, and what you spawn stays where you left it.
 - Infinite ammo: while it's on, nothing that has to be reloaded ever runs out (the Mobile Gear's blade still has to cool between swings).
+- Infinite stamina now keeps the Mobile Gear's energy bar full too, so it never redlines.
 - The vehicle list scrolls all the way to the bottom now. The mouse wheel no longer jumps back as it scrolls, and opening the list scrolls the menu far enough to show all of it, so the last few vehicles (down to the aircraft carrier) can be reached with the mouse, the wheel, the keyboard or a controller.
 
 ### Bullets break blocks

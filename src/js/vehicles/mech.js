@@ -112,7 +112,8 @@ function mgBlocked(M,x,z,y){const r=MG.r,top=y+MG.hy;
     if(V.kind==='mech')for(const o of V.mechs){if(o===M)continue;if(Math.abs(o.x-x)<r*2&&Math.abs(o.z-z)<r*2&&y<o.y+MG.hy&&o.y<top)return true;}}
   return false;}
 // the energy bar: n drawn from it (a redline if that empties it). Returns whether there was any to draw
-function mgDraw(M,n){if(M.red>0||M.en<=0)return false;M.en-=n;M.enIdle=0;
+function mgDraw(M,n){if(DT.infStam){M.en=MG.enMax;M.red=0;M.enIdle=0;return true;}   // (the debug menu's Infinite stamina: the bar never goes down)
+  if(M.red>0||M.en<=0)return false;M.en-=n;M.enIdle=0;
   if(M.en<=0){M.en=0;M.red=MG.red;M.boostOn=false;if(audio)sfx('Mobile Gear energy out',()=>{tone('square',520,140,0.35,0.06);noise(0.3,0.12,500,'lowpass');});}
   return true;}
 const mgCanBoost=M=>M.red<=0&&M.en>0;
@@ -164,6 +165,7 @@ function drvMech(M,dt){
     const tx=wx*spd,tz=wz*spd,dx=tx-M.vx,dz=tz-M.vz,d=Math.hypot(dx,dz),v=Math.hypot(M.vx,M.vz);
     if(d>1e-4){const a=Math.hypot(tx,tz)<v-0.05?18:3+9*Math.min(1,v/MG.walk),st=Math.min(d,a*dt);M.vx+=dx/d*st;M.vz+=dz/d*st;}}
   else{const k=Math.min(1,dt*acc);M.vx+=(wx*spd-M.vx)*k;M.vz+=(wz*spd-M.vz)*k;}
+  if(DT.infStam){M.en=MG.enMax;M.red=0;}   // (Infinite stamina: always full, even switched on with it low)
   // (an idle bar refills, faster on the ground; it can't boost again till a redline's over, but it fills meanwhile)
   if(M.enIdle>=MG.enDelay)M.en=Math.min(MG.enMax,M.en+MG.enRegen*(M.grounded?1.5:1)*dt);
   if(M.red<=0&&M.en>0&&M.wasRed){M.wasRed=false;if(audio)sfx('Mobile Gear energy back',()=>tone('triangle',380,760,0.15,0.04));}if(M.red>0)M.wasRed=true;

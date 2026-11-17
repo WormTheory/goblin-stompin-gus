@@ -8,10 +8,11 @@ function vDamaged(x,y,z,f,dt){
   if(f<0.25&&Math.random()<dt*6)puff(x,y,z,1,Math.random()<.5?0xff8a2a:0xffc040,0.3);
 }
 // does a shell or rocket at S.pos meet a vehicle (other than the one that fired it)?
+// (S.noShip: a bullet, which goes on into a ship's pocket instead of stopping at the boxes standing for it: shipLines)
 function shotHitsVeh(S){const x=S.pos.x,y=S.pos.y,z=S.pos.z;
   for(const c of cars){if(!c.alive||c===S.own)continue;const dx=x-c.pos.x,dz=z-c.pos.z;if(dx*dx+dz*dz>(c.hz+1)*(c.hz+1)||y<c.pos.y-0.2||y>c.pos.y+(c.hy||1.4)+0.2)continue;
     const s=Math.sin(c.heading),k=Math.cos(c.heading);if(Math.abs(dx*s+dz*k)<=c.hz+0.2&&Math.abs(dx*k-dz*s)<=c.hx+0.2)return true;}
-  for(const B of TRAIN_BOXES){const pr=B.proxy;if(!pr.alive||B.soft||pr.T===S.own||y<B.y0-0.2||y>B.top+0.2)continue;const dx=x-B.x,dz=z-B.z,hx=B.hx||TRAIN_HX,hz=B.hz||TRAIN_HZ;
+  for(const B of TRAIN_BOXES){const pr=B.proxy;if(!pr.alive||B.soft||pr.T===S.own||S.noShip&&pr.isShipBox||y<B.y0-0.2||y>B.top+0.2)continue;const dx=x-B.x,dz=z-B.z,hx=B.hx||TRAIN_HX,hz=B.hz||TRAIN_HZ;
     if(Math.abs(dx)>hx+hz+1||Math.abs(dz)>hx+hz+1)continue;if(Math.abs(dx*B.tx+dz*B.tz)<=hz+0.2&&Math.abs(-dx*B.tz+dz*B.tx)<=hx+0.2)return true;}
   return false;}
 // a blast's harm to the vehicles round it (vd at the middle, less at the edge): cars, and every train car, boat, plane,

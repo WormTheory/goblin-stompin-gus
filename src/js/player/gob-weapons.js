@@ -29,20 +29,24 @@ function gobAttack(p){const k=gobArms(p).wpn;
 const _gr=new V3();
 function gobShoot(p){
   const W=gobGun(gobArms(p).wpn)?gobW(p):GOB_WPN.rifle,hg=W===GOB_WPN.handgun,c=shipEye(p),cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp;
-  let hitG=null,hitC=null,hitW=null,hitP=null,d=0.3;
+  let hitG=null,hitC=null,hitW=null,hitP=null,d=0.3,oh=null;
+  // (followed across a ship's side too: from the shore or the sea at its blocks and the goblins aboard, or from aboard
+  // out into the world. See shipLines)
+  const SL=shipLines(c.x,c.y,c.z,dx,dy,dz,W.range),S0=SL&&c.x>=SHIP_X0?shipOfPos(c.x,c.z):null;
   for(;d<W.range&&!hitG&&!hitC&&!hitP;d+=0.2){const x=c.x+dx*d,y=c.y+dy*d,z=c.z+dz*d;
     if(solidAt(Math.floor(x),Math.floor(y),Math.floor(z))){hitW=[Math.floor(x),Math.floor(y),Math.floor(z)];break;}
-    for(const g of goblins){if(g.state!=='chase')continue;if(Math.hypot(g.pos.x-x,g.pos.z-z)<0.45&&y>g.pos.y&&y<g.pos.y+1.5){hitG=g;break;}}
+    if(SL&&(oh=shipLineAt(SL,d))){hitW=oh.b;break;}
+    for(const g of goblins){if(g.state!=='chase')continue;const q=SL?shipPosIn(g.pos,S0):g.pos;if(Math.hypot(q.x-x,q.z-z)<0.45&&y>q.y&&y<q.y+1.5){hitG=g;break;}}
     if(!hitG)for(const q of pvpFoes(p)){if(Math.hypot(q.pos.x-x,q.pos.z-z)<(q.gob?0.45:0.9)&&y>q.pos.y&&y<q.pos.y+(q.gob?1.5:2.3)){hitP=q;break;}}   // (with PvP on, another player)
     if(!hitG&&(Math.round(d*5)%3===0))for(const q of carsNear(x,z,0.6,y-1)){hitC=q;break;}}
   const x1=c.x+dx*d,y1=c.y+dy*d,z1=c.z+dz*d,fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw);
   tracer(c.x+fx*0.5+Math.cos(p.cam.yaw)*0.18,c.y-0.18,c.z+fz*0.5-Math.sin(p.cam.yaw)*0.18,x1,y1,z1);
   if(audio){if(hg){noise(0.06,0.12,3400,'highpass');tone('square',330,140,0.045,0.035);}else{noise(0.09,0.14,2600,'highpass');tone('square',220,90,0.06,0.04);}}   // (the handgun cracks higher and shorter, as the police's does)
   p.shake=Math.max(p.shake||0,hg?0.02:0.03);rumble(p,hg?0.14:0.2,50);
-  if(hitG)damageGoblin(hitG,W.dmg,_gr.set(x1,y1,z1).clone(),new V3(dx,0.3,dz),W.cause);
+  if(hitG)damageGoblin(hitG,W.dmg,SL?new V3(hitG.pos.x,hitG.pos.y+0.8,hitG.pos.z):_gr.set(x1,y1,z1).clone(),new V3(dx,0.3,dz),W.cause);
   else if(hitP)pvpHurt(p,hitP,W.dmg,_gr.set(x1,y1,z1).clone(),new V3(dx,0.3,dz),'Shot',{cd:0});
   else if(hitC)damageCar(hitC,1,new V3(dx,0,dz));
-  else{puff(x1,y1,z1,2,0xb0a898,0.12);if(hitW)bulletBreak(hitW[0],hitW[1],hitW[2],dx,dz);}   // (half the time the block it hit breaks: see bulletBreak)
+  else{if(oh)puff(oh.x,oh.y,oh.z,2,0xb0a898,0.12);else puff(x1,y1,z1,2,0xb0a898,0.12);if(hitW)bulletBreak(hitW[0],hitW[1],hitW[2],dx,dz);}   // (half the time the block it hit breaks: see bulletBreak)
 }
 // the stomp button: lob a grenade the way you're looking
 function gobThrow(p){

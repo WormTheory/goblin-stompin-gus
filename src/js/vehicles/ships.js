@@ -156,12 +156,12 @@ function shipDrive(S,dt){
   shipAground(S);
 }
 // run aground: stopped dead, the engines rung down to stop, and hurt by how hard it hit (at top speed about a sixteenth
-// of its health). A scrape at a crawl does nothing
+// of its health; the carrier, only sunk by wrecking it, takes nothing from it). A scrape at a crawl does nothing
 function shipAground(S){
   const K=S.K,v=Math.abs(S.sp),fwd=S.sp>=0;S.sp=0;S.yr=0;S.ord=0;S.telD=0;
   if(v<0.6||S.groundT>0)return;S.groundT=1;
-  const n=Math.round(v*v*K.hp/1000),w=fwd?K.w1:K.w0,c=shipToWorld(S,S.ox+(K.u0+K.u1+1)/2,S.oz+w+(fwd?1:0),{x:0,z:0});S.hp-=n;
-  dmgPop(c.x,G+4,c.z,n,'#ffb04a');puff(c.x,G+1,c.z,14,0xc8b48a,2.2);puff(c.x,G+1,c.z,8,0xe8f4ff,1.4);
+  const n=Math.round(v*v*K.hp/1000),w=fwd?K.w1:K.w0,c=shipToWorld(S,S.ox+(K.u0+K.u1+1)/2,S.oz+w+(fwd?1:0),{x:0,z:0});if(!K.wreck){S.hp-=n;dmgPop(c.x,G+4,c.z,n,'#ffb04a');}
+  puff(c.x,G+1,c.z,14,0xc8b48a,2.2);puff(c.x,G+1,c.z,8,0xe8f4ff,1.4);
   const np=nearestPlayer(c.x,c.z,false),k=np?Math.max(0.15,1-np.d/220):0.15;
   sfx('Ship aground',()=>{noise(1.6,0.35*k,160,'lowpass');tone('sawtooth',62,30,1.4,0.12*k);thud(0.8*k);});
   const sh=Math.min(1.2,v*0.15);addShake(sh,c.x,c.z,K.hp>=1000?260:60);for(const p of players)if(p.active&&(shipOf(p)===S||p.drv&&p.drv.o===S))p.shake=Math.max(p.shake,sh);   // (everyone aboard feels it)
@@ -194,10 +194,11 @@ function shipBoxes(S){
   for(const B of S.bx){const pr=B.pr,x=S.x+B.u*tz+B.w*tx,z=S.z-B.u*tx+B.w*tz;pr.pos.set(x,B.y0,z);pr.heading=S.yaw;pr.top=B.y1;pr.speed=S.sp;
     TRAIN_BOXES.push({x,z,tx,tz,y0:B.y0,top:B.y1,v:S.sp,hx:B.hx,hz:B.hz,proxy:pr});}
 }
-// hit from outside (trainHit): the number shown where it struck, on the piece it struck
+// hit from outside (trainHit): the number shown where it struck, on the piece it struck. A ship that's only sunk by
+// wrecking it (K.wreck: the carrier) takes nothing from the hit itself, only from the blocks the blast knocks out of it
 function shipHit(S,n,i){
-  if(S.dead)return;const B=S.bx&&S.bx[i||0],P=B?B.pr.pos:null;S.hp-=n;
-  if(P){dmgPop(P.x,B.y1+2,P.z,Math.round(n),'#ffb04a');vHitFx(P.x,B.y1,P.z,n);}
+  if(S.dead)return;const B=S.bx&&S.bx[i||0],P=B?B.pr.pos:null;if(!S.K.wreck)S.hp-=n;
+  if(P){if(!S.K.wreck)dmgPop(P.x,B.y1+2,P.z,Math.round(n),'#ffb04a');vHitFx(P.x,B.y1,P.z,n);}
 }
 // a block of a ship knocked out (setRaw, before it's written): its health down a little, and if it was below the waterline
 // the sea comes in (the block becomes water). It sinks on its next step (updateShips), not in the middle of the smash
@@ -366,6 +367,39 @@ function shipShotOut(o){
   const S=shipOfPos(o.pos.x,o.pos.z);if(!S)return;const K=S.K,m=SHIP_M+1.5,u=o.pos.x-S.ox,w=o.pos.z-S.oz;
   if(u>=K.u0-m&&u<=K.u1+1+m&&w>=K.w0-m&&w<=K.w1+1+m)return;
   shipToWorld(S,o.pos.x,o.pos.z,_sv);o.pos.x=_sv.x;o.pos.z=_sv.z;o.pos.y-=S.sk;shipRot(o.v,'x','z',S.yaw);
+}
+// ---- lines of fire across a ship's side. A round (gunRound, gobShoot, drvAim) is followed in every frame it might meet
+// something in: one fired out in the world (a helicopter's gun, the Mobile Gear's rifle on the deck) through any ship
+// it passes near, put into that ship's pocket, so it hits the ship's blocks, the goblins and vehicles aboard; one fired
+// aboard on out into the world past the side. shipLines lists those other frames with the line put into each (null if
+// none), shipLineAt the first block or vehicle met in any of them at t along it, and shipPosIn where something is (a
+// goblin, in another frame) in the frame the line was fired in ----
+function shipLines(mx,my,mz,ux,uy,uz,R){
+  if(!shipN)return null;const L=[],S0=mx>=SHIP_X0?shipOfPos(mx,mz):null;
+  const put=(S,from,into)=>{const t=(into?worldToShip:shipToWorld)(from||S,mx,mz,{x:0,z:0}),d={x:ux,z:uz},a=into?-S.yaw:(from||S).yaw;shipRot(d,'x','z',a);
+    L.push({S:into?S:null,x:t.x,y:my+(into?S.sk:-(from||S).sk),z:t.z,ux:d.x,uy,uz:d.z});};
+  if(S0){if(!S0.dead)put(null,S0,false);return L.length?L:null;}
+  for(const S of SHIPS){if(!S||S.dead)continue;const K=S.K,r=Math.hypot(K.u1-K.u0,K.w1-K.w0)/2+4,ox=S.x-mx,oz=S.z-mz,hz=Math.hypot(ux,uz)||1,
+      t=Math.max(0,Math.min(R,(ox*ux+oz*uz)/(hz*hz)));if(Math.hypot(ox-ux*t,oz-uz*t)>r)continue;put(S,null,true);}
+  return L.length?L:null;
+}
+const _sl={pos:new V3(),own:null,noShip:true};
+// (at t along the line: {e, x,y,z (where, in e's frame), b: the block [x,y,z] it's in, or veh: true})
+function shipLineAt(L,t,own,veh){
+  for(const e of L){const x=e.x+e.ux*t,y=e.y+e.uy*t,z=e.z+e.uz*t;
+    if(e.S){const K=e.S.K,u=x-e.S.ox,w=z-e.S.oz;if(u<K.u0-2||u>K.u1+3||w<K.w0-2||w>K.w1+3)continue;
+      if(solidAt(x,Math.floor(y),z))return{e,x,y,z,b:[Math.floor(x),Math.floor(y),Math.floor(z)]};}
+    else if(y<1||solidAt(x,Math.floor(y),z))return{e,x,y,z,b:y<1?null:[Math.floor(x),Math.floor(y),Math.floor(z)]};
+    if(veh){_sl.pos.set(x,y,z);_sl.own=own;if(shotHitsVeh(_sl))return{e,x,y,z,veh:true};}}
+  return null;
+}
+// pos (in whatever frame it's in) as it is in ship S0's pocket, or the world (S0 null)
+const _spi={x:0,y:0,z:0};
+function shipPosIn(pos,S0){
+  const Sp=pos.x>=SHIP_X0?shipOfPos(pos.x,pos.z):null;if(Sp===S0)return pos;
+  let x=pos.x,y=pos.y,z=pos.z;if(Sp){shipToWorld(Sp,x,z,_sv);x=_sv.x;z=_sv.z;y-=Sp.sk;}
+  if(S0){worldToShip(S0,x,z,_sv);x=_sv.x;z=_sv.z;y+=S0.sk;}
+  _spi.x=x;_spi.y=y;_spi.z=z;return _spi;
 }
 // a goblin's step, with every player not where it is (one aboard a ship with it out in the sea, or the other way round)
 // shown to it where they really are, put into its own frame: so it chases them, swims out to the ship and climbs aboard

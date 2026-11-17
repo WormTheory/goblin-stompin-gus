@@ -1,7 +1,7 @@
 let __s=+(process.env.SEED||1);Math.random=()=>{__s=(__s*16807)%2147483647;return (__s-1)/2147483646;};
 const fs=require('fs');
 let src0=fs.readFileSync('g.js','utf8');
-let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={shockwave,get shocks(){return shocks},shipPt,nearestPlayer,addFire,get fires(){return fires},SHIPS,SHIP_X0,SHIP_KINDS,TRAIN_BOXES,trainHit,buildChunk,shipToWorld,worldToShip,shipOf,tenvVeh,tenvFoe,tenvClear,get TENV(){return TENV},get TS(){return TS},frame,players,goblins,get,solidAt,groundAt,chunks,meshes,venues,setGob,keys,DT,crush,doorsOn,propCells,shipFits,PROPS,PT,FOES,award,shot,damagePlayer,crushBall,get SHOTS(){return SHOTS},mHeld,cars,drvFind,drvEnter,drvExit,get nEdits(){return Object.keys(edits).length},get edits(){return edits},set menuOpen(v){menuOpen=v},SAVE_KEY};\n})();');
+let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={shockwave,get shocks(){return shocks},shipPt,nearestPlayer,addFire,get fires(){return fires},SHIPS,SHIP_X0,SHIP_KINDS,TRAIN_BOXES,trainHit,buildChunk,shipToWorld,worldToShip,shipOf,tenvVeh,tenvFoe,tenvClear,get TENV(){return TENV},get TS(){return TS},frame,players,goblins,get,solidAt,groundAt,chunks,meshes,venues,setGob,keys,DT,crush,doorsOn,propCells,shipFits,PROPS,PT,FOES,award,shot,damagePlayer,crushBall,get SHOTS(){return SHOTS},mHeld,cars,drvFind,drvEnter,drvExit,gunRound,gobShoot,mgDraw,MG,worldToShip,get nEdits(){return Object.keys(edits).length},get edits(){return edits},set menuOpen(v){menuOpen=v},SAVE_KEY};\n})();');
 const deep=()=>new Proxy(function(){}, {get:(t,p)=>p===Symbol.toPrimitive?()=>0:(p==='length'?0:deep()),apply:()=>deep(),construct:()=>deep()});
 class Q{constructor(){this.x=0;this.y=0;this.z=0;this.w=1}set(x,y,z,w){this.x=x;this.y=y;this.z=z;this.w=w;return this}setFromAxisAngle(a,t){const s=Math.sin(t/2);this.x=a.x*s;this.y=a.y*s;this.z=a.z*s;this.w=Math.cos(t/2);return this}copy(q){this.x=q.x;this.y=q.y;this.z=q.z;this.w=q.w;return this}}
 class V3{project(){return this}fromBufferAttribute(a,i){const A=a.array||a.a;this.x=A[i*3];this.y=A[i*3+1];this.z=A[i*3+2];return this}applyMatrix4(m){const e=m.elements,x=this.x,y=this.y,z=this.z;this.x=e[0]*x+e[4]*y+e[8]*z+e[12];this.y=e[1]*x+e[5]*y+e[9]*z+e[13];this.z=e[2]*x+e[6]*y+e[10]*z+e[14];return this}setFromMatrixPosition(o){this.x=o.position.x;this.y=o.position.y;this.z=o.position.z;return this}normalize(){const l=Math.hypot(this.x,this.y,this.z)||1;this.x/=l;this.y/=l;this.z/=l;return this}add(v){this.x+=v.x;this.y+=v.y;this.z+=v.z;return this}applyQuaternion(q){const x=this.x,y=this.y,z=this.z,qx=q.x,qy=q.y,qz=q.z,qw=q.w;const ix=qw*x+qy*z-qz*y,iy=qw*y+qz*x-qx*z,iz=qw*z+qx*y-qy*x,iw=-qx*x-qy*y-qz*z;this.x=ix*qw+iw*-qx+iy*-qz-iz*-qy;this.y=iy*qw+iw*-qy+iz*-qx-ix*-qz;this.z=iz*qw+iw*-qz+ix*-qy-iy*-qx;return this}constructor(x=0,y=0,z=0){this.x=x;this.y=y;this.z=z}set(x,y,z){this.x=x;this.y=y;this.z=z;return this}copy(v){this.x=v.x;this.y=v.y;this.z=v.z;return this}clone(){return new V3(this.x,this.y,this.z)}addScaledVector(v,s){this.x+=v.x*s;this.y+=v.y*s;this.z+=v.z*s;return this}multiplyScalar(s){this.x*=s;this.y*=s;this.z*=s;return this}setScalar(s){return this.set(s,s,s)}}
@@ -179,6 +179,23 @@ let drove=false;
   T.mHeld.add('Mouse0');run(0.02);T.mHeld.delete('Mouse0');const sh=T.SHOTS.find(s=>s.live&&!n0.has(s));let out=-1,t=0,d0=sh?Math.hypot(sh.g.position.x-S.x,sh.g.position.z-S.z):0;
   while(sh&&sh.live&&t<2){run(1/60);t+=1/60;if(out<0&&sh.pos.x<T.SHIP_X0)out=t;}
   console.log('  tank shell fired over the side: started',sh?f1(d0)+' from the ship\'s middle, drawn there':'none','| out into the world after',f1(out),'s');T.drvExit(P);run(0.5);}
+ // (the Mobile Gear stood on the deck, out in the world: climbed into from aboard, its rifle at the deck and at a goblin
+ // on it, a round from out at sea at the hull, Infinite stamina)
+ if(Mg){const q=T.worldToShip(S,Mg.x,Mg.z,{x:0,z:0});let d=null;for(let r=2;r<6&&!d;r+=0.5){put(q.x+r,Mg.y+S.sk+0.3,q.z);run(0.3);d=T.drvFind(P);}
+  console.log('Mobile Gear on the deck: Gnash aboard beside it finds',d?d.k:'nothing');
+  if(d&&d.k==='mech'){T.drvEnter(P,d);run(0.5);console.log('  in:',P.drv&&P.drv.k,'| Gnash',wh(P));
+   const e0=T.nEdits,h0=S.hp,A0={x:Mg.x+3,y:Mg.y-3,z:Mg.z+3};for(let i=0;i<20;i++)T.gunRound(Mg,P,Mg.x,Mg.y+6,Mg.z,4,0.002,'test','test',A0);run(0.3);
+   console.log('  20 rifle rounds at the deck at its feet: blocks broken',T.nEdits-e0,'| health',f1(h0-S.hp),'off');
+   at(0,17,0,BOW);T.menuOpen=true;T.TS.n=1;T.tenvFoe('goblin');T.menuOpen=false;const g=T.goblins.find(q=>q.state==='chase');
+   if(g){g.pos.set(q.x-6,G0+17,q.z+6);g.act=null;const gw=T.shipToWorld(S,g.pos.x,g.pos.z,{x:0,z:0}),hp=g.hp;T.gunRound(Mg,P,Mg.x,Mg.y+6,Mg.z,4,0.0001,'test','test',{x:gw.x,y:g.pos.y-S.sk+0.8,z:gw.z});
+    console.log('  a rifle round at a goblin stood on the deck: its hp',hp,'->',g.hp,g.state);}
+   quietG();
+   T.DT.infStam=true;Mg.en=10;run(0.2);T.mgDraw(Mg,50);T.mgDraw(Mg,50);console.log('  Infinite stamina: energy',Math.round(Mg.en),'of',T.MG.enMax,'after drawing 100 | redlined',Mg.red>0);T.DT.infStam=false;
+   T.drvExit(P);run(1);console.log('  out again:',wh(P));}
+  // (from out at sea: a round at the hull's side, from 30 off the port side)
+  {const w=T.shipToWorld(S,S.ox-14,S.oz+0.5,{x:0,z:0}),f=T.shipToWorld(S,S.ox+30,S.oz+0.5,{x:0,z:0}),e0=T.nEdits;let n=0;
+   for(let i=0;i<20;i++)T.gunRound(Mg,P,f.x,G0+3,f.z,4,0.002,'test','test',{x:w.x,y:G0+3,z:w.z});console.log('  20 rounds at the hull from 30 off the port side: blocks broken',T.nEdits-e0);}
+ }
 }
 // ---- its crew and deck weapons: posts, general quarters, the mounts manned and firing, a player at them, standing down
 {const V=S.crewV;V.off=false;quietG();const act=()=>T.goblins.filter(g=>g.state==='chase');console.log('crew posts',V.posts.length,'| deck weapons',S.mounts.length);
