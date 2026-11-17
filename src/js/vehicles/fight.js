@@ -8,12 +8,12 @@ function vDamaged(x,y,z,f,dt){
   if(f<0.25&&Math.random()<dt*6)puff(x,y,z,1,Math.random()<.5?0xff8a2a:0xffc040,0.3);
 }
 // does a shell or rocket at S.pos meet a vehicle (other than the one that fired it)?
-// (S.noShip: a bullet, which goes on into a ship's pocket instead of stopping at the boxes standing for it: shipLines)
+// (true-ish: the car, or the vehicle box, it meets, for anything that wants to know which. S.noShip: a bullet, which goes on into a ship's pocket instead of stopping at the boxes standing for it: shipLines)
 function shotHitsVeh(S){const x=S.pos.x,y=S.pos.y,z=S.pos.z;
   for(const c of cars){if(!c.alive||c===S.own)continue;const dx=x-c.pos.x,dz=z-c.pos.z;if(dx*dx+dz*dz>(c.hz+1)*(c.hz+1)||y<c.pos.y-0.2||y>c.pos.y+(c.hy||1.4)+0.2)continue;
-    const s=Math.sin(c.heading),k=Math.cos(c.heading);if(Math.abs(dx*s+dz*k)<=c.hz+0.2&&Math.abs(dx*k-dz*s)<=c.hx+0.2)return true;}
+    const s=Math.sin(c.heading),k=Math.cos(c.heading);if(Math.abs(dx*s+dz*k)<=c.hz+0.2&&Math.abs(dx*k-dz*s)<=c.hx+0.2)return c;}
   for(const B of TRAIN_BOXES){const pr=B.proxy;if(!pr.alive||B.soft||pr.T===S.own||S.noShip&&(pr.isShipBox||B.mw)||pr.isMountBox&&pr.T.S===S.own||y<B.y0-0.2||y>B.top+0.2)continue;const dx=x-B.x,dz=z-B.z,hx=B.hx||TRAIN_HX,hz=B.hz||TRAIN_HZ;
-    if(Math.abs(dx)>hx+hz+1||Math.abs(dz)>hx+hz+1)continue;if(Math.abs(dx*B.tx+dz*B.tz)<=hz+0.2&&Math.abs(-dx*B.tz+dz*B.tx)<=hx+0.2)return true;}
+    if(Math.abs(dx)>hx+hz+1||Math.abs(dz)>hx+hz+1)continue;if(Math.abs(dx*B.tx+dz*B.tz)<=hz+0.2&&Math.abs(-dx*B.tz+dz*B.tx)<=hx+0.2)return B;}
   return false;}
 // a blast's harm to the vehicles round it (vd at the middle, less at the edge): cars, and every train car, boat, plane,
 // tank, helicopter and ride within reach of it (each just once). own: the vehicle that fired, spared
@@ -97,16 +97,22 @@ function drvHud(p){
       else a.ac.textContent=a.many?String(s.n):'';}}
   // (where the shot would really go off, fired now, put on the screen: the gun's reach, the turret still swinging round
   // and anything in the way all show; faint when it would burst in mid-air, out of range)
-  let tShow=false;
-  if(armed&&o.pred){const P=o.pred,cam=p.camera,d2=(P.x-cam.position.x)**2+(P.z-cam.position.z)**2;
-    _dhv.set(P.x,P.y-CURVE_U.value*d2,P.z).project(cam);
-    // (off the screen -- the turret still swung well away, or the gun far below where you're looking -- it sits at the
-    // edge, toward where the shot will go)
-    if(_dhv.z<1&&_dhv.z>-1){tShow=true;const off=Math.abs(_dhv.x)>0.97||Math.abs(_dhv.y)>0.95;
-      H.xt.style.left=((Math.max(-0.97,Math.min(0.97,_dhv.x))+1)/2*100).toFixed(2)+'%';H.xt.style.top=((1-Math.max(-0.95,Math.min(0.95,_dhv.y)))/2*100).toFixed(2)+'%';
-      H.xt.classList.toggle('off',off);}
-    H.xt.classList.toggle('air',!!P.air);}
-  H.xt.hidden=!tShow;
+  // (where the shot would really go off, fired now, put on the screen: the gun's reach, the turret still swinging round
+  // and anything in the way all show; faint when it would burst in mid-air, out of range)
+  // (a Mobile Gear's the same for each gun arm, where its barrel points: gunMk, from mgWpnPose. One for the right arm,
+  // and one for the left when it carries a rifle too)
+  const pts=D.k==='mech'?o.gunMk||[]:[armed&&o.pred?o.pred:null];
+  if(!H.xt2){H.xt2=document.createElement('div');H.xt2.className='xt';H.el.append(H.xt2);}
+  [H.xt,H.xt2].forEach((e,k)=>{const P=pts[k];let show=false;
+    if(P){const cam=p.camera;_dhv.set(P.x,P.y,P.z);if(P.x>=SHIP_X0)shipPt(_dhv);   // (aboard a ship, in its pocket: put where the ship really is)
+      _dhv.y-=CURVE_U.value*((_dhv.x-cam.position.x)**2+(_dhv.z-cam.position.z)**2);_dhv.project(cam);
+      // (off the screen -- the turret still swung well away, or the gun far below where you're looking -- it sits at the
+      // edge, toward where the shot will go)
+      if(_dhv.z<1&&_dhv.z>-1){show=true;const off=Math.abs(_dhv.x)>0.97||Math.abs(_dhv.y)>0.95;
+        e.style.left=((Math.max(-0.97,Math.min(0.97,_dhv.x))+1)/2*100).toFixed(2)+'%';e.style.top=((1-Math.max(-0.95,Math.min(0.95,_dhv.y)))/2*100).toFixed(2)+'%';
+        e.classList.toggle('off',off);}
+      e.classList.toggle('air',!!P.air);}
+    e.hidden=!show;});
 }
 // a flown plane's gauges: throttle, airspeed, climb rate, and a stall warning (on the runway, the speed it lifts off at)
 function planeHud(F,pl){if(!F)return'Throttle 0%';const LIFT=pl&&pl.light?LIGHT_FLY.lift:PLANE_LIFT;const thr='Throttle '+Math.round((F.thr||0)*100)+'%  ·  Speed '+Math.round(F.v);

@@ -407,13 +407,13 @@ function shipLines(mx,my,mz,ux,uy,uz,R){
   return L.length?L:null;
 }
 const _sl={pos:new V3(),own:null,noShip:true};
-// (at t along the line: {e, x,y,z (where, in e's frame), b: the block [x,y,z] it's in, or veh: true})
+// (at t along the line: {e, x,y,z (where, in e's frame), b: the block [x,y,z] it's in, or veh: the vehicle it meets, as shotHitsVeh)
 function shipLineAt(L,t,own,veh){
   for(const e of L){const x=e.x+e.ux*t,y=e.y+e.uy*t,z=e.z+e.uz*t;
     if(e.S){const K=e.S.K,u=x-e.S.ox,w=z-e.S.oz;if(u<K.u0-2||u>K.u1+3||w<K.w0-2||w>K.w1+3)continue;
       if(solidAt(x,Math.floor(y),z))return{e,x,y,z,b:[Math.floor(x),Math.floor(y),Math.floor(z)]};}
     else if(y<1||solidAt(x,Math.floor(y),z))return{e,x,y,z,b:y<1?null:[Math.floor(x),Math.floor(y),Math.floor(z)]};
-    if(veh){_sl.pos.set(x,y,z);_sl.own=own;if(shotHitsVeh(_sl))return{e,x,y,z,veh:true};}}
+    if(veh){_sl.pos.set(x,y,z);_sl.own=own;const h=shotHitsVeh(_sl);if(h)return{e,x,y,z,veh:h};}}
   return null;
 }
 // pos (in whatever frame it's in) as it is in ship S0's pocket, or the world (S0 null)

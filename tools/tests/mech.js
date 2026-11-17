@@ -154,6 +154,10 @@ hold([],1);
  {const a=gob(0,32),b=gob(26,22);run(0.3);console.log('lock box: ahead',f2(off(a)),'rad off the crosshair, locked',M.soft===a,' the one to the side',f2(off(b)),'in the box',M.inBox.includes(b),' marker shown',P.ui.drvHud.mgw.tk.some(e=>!e.hidden));
   // (the rifle, held: rounds fired, the goblin down)
   const n0=W().rifle.n;mh.add('Mouse2');run(0.6);mh.delete('Mouse2');run(0.3);console.log('  Rivet Rifle held 0.6 s: rounds',n0-W().rifle.n,' the goblin ahead',a.state,' arm raised',f2(M.raA));
+  // (the rounds leave the muzzle at the end of the forearm, wherever it's pointing; the arm's turn never jumps; the gun marker's set)
+  {const R=M.J.arms.find(q=>q.s<0);let mx=0,pv=R.sh.rotation.y,mk=0;mh.add('Mouse2');for(let k=0;k<60;k++){run(1/60);mx=Math.max(mx,Math.abs(R.sh.rotation.y-pv));pv=R.sh.rotation.y;if(M.gunMk&&M.gunMk[0])mk++;}
+   mh.delete('Mouse2');for(let k=0;k<90;k++){run(1/60);mx=Math.max(mx,Math.abs(R.sh.rotation.y-pv));pv=R.sh.rotation.y;}
+   console.log('  muzzle on the forearm',!!M.mzR,' gun marker set while firing',mk>30,' the arm turned at most',f2(mx),'a step');}
   // (hard lock on the one off to the side: the camera swings round on to it)
   const o0=off(b);mh.add('Mouse1');run(0.05);mh.delete('Mouse1');const hl=M.hard===b;run(1);console.log('hard lock (middle click) on the one',f2(o0),'off: locked',hl,' 1 s later',f2(off(b)),'off  hint',hudT(P.ui.drvHud.txt.w).includes('let go'));
   mh.add('Mouse1');run(0.05);mh.delete('Mouse1');console.log('  middle click again: let go',!M.hard);

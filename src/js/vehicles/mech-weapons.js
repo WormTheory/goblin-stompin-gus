@@ -98,8 +98,21 @@ function mgLead(M,p,x,y,z,sp){const T=mgTarget(M);if(!T||!lockAlive(T))return dr
   const V=M.lv,ty=lockY(T);if(!V||V.t!==T)return{x:T.pos.x,y:ty,z:T.pos.z};
   const t=Math.min(3,Math.hypot(T.pos.x-x,ty-y,T.pos.z-z)/sp),cl=v=>Math.max(-30,Math.min(30,v));
   return{x:T.pos.x+cl(V.vx)*t,y:ty+cl(V.vy)*t,z:T.pos.z+cl(V.vz)*t};}
-// (the muzzles: the rifle's at the end of the right forearm, the cannon's over the right shoulder, the pod's tubes)
-const mgRifleAt=M=>mgAt(M,-1.84,4.6,3.0),mgRifleLAt=M=>mgAt(M,1.84,4.6,3.0),mgCannonAt=M=>mgAt(M,-0.95,7.9,2.9),mgPodAt=M=>mgAt(M,0.95,7.1,-0.2);
+// a spot on the model (lx,ly,lz in the frame of its part o) where it is now, as posed: so a round leaves the end of the
+// barrel wherever the arm happens to be pointing. (Worked out from each part's own position and turn, up through the
+// model's, not from where it's drawn: aboard a ship the model's drawn in the ship's picture, but M.x is in the ship's
+// pocket. And moved on by however far it's gone since it was last posed)
+function mgEul(v,r){const o=r.order||'XYZ';   // (an Euler turn of order 'ABC' is A(B(C(v))): C first)
+  for(let i=2;i>=0;i--){const ax=o[i],a=ax==='X'?r.x:ax==='Y'?r.y:r.z;if(!a)continue;const c=Math.cos(a),s=Math.sin(a),x=v.x,y=v.y,z=v.z;
+    if(ax==='X'){v.y=c*y-s*z;v.z=s*y+c*z;}else if(ax==='Y'){v.x=c*x+s*z;v.z=-s*x+c*z;}else{v.x=c*x-s*y;v.y=s*x+c*y;}}}
+function mgPt(M,o,lx,ly,lz){const g=M.g,v={x:lx,y:ly,z:lz};let q=o;
+  for(;q;q=q.parent){const S=q.scale;if(S){v.x*=S.x;v.y*=S.y;v.z*=S.z;}mgEul(v,q.rotation);v.x+=q.position.x;v.y+=q.position.y;v.z+=q.position.z;if(q===g)break;}
+  if(q!==g)return null;return{x:v.x-g.position.x+M.x,y:v.y-g.position.y+M.y,z:v.z-g.position.z+M.z};}
+// (the muzzles: the rifle's (or shotgun's) at the end of each forearm, the cannon's at the end of its barrel, from the
+// model as posed; without one, where they usually are. The pod's tubes, which don't move but for its lid, always there)
+const mgArmOf=(M,s)=>M.J&&M.J.arms.find(a=>a.s===s),mgMz=(M,A,f)=>A&&A.mz&&M.g&&mgPt(M,A.mz,0,0,0)||f;
+const mgRifleAt=M=>mgMz(M,mgArmOf(M,-1),mgAt(M,-1.84,4.6,3.0)),mgRifleLAt=M=>mgMz(M,mgArmOf(M,1),mgAt(M,1.84,4.6,3.0)),
+  mgCannonAt=M=>M.J&&M.J.cannonM&&M.g&&mgPt(M,M.J.cannonM,0,0,0)||mgAt(M,-0.95,7.9,2.9),mgPodAt=M=>mgAt(M,0.95,7.1,-0.2);
 // one step of the weapons, for the pilot p (called first thing in drvMech, so a hard lock's turn of the camera counts
 // this step)
 function mgWeapons(M,p,i,dt){
@@ -261,14 +274,23 @@ function mgWpnPose(M,J,ap,dt,ease){
   // round: the right always, the left too when it carries the rifle instead of the blade)
   // (at the very point its rounds went to while it's firing, else at what's locked: the muzzle sits off to the side and
   // below the view, so pointing it the way the view looks would miss whatever the crosshair's on)
-  const aimArm=(A,a,m,kickT,fT,Q)=>{if(a<=0.01){A.sh.rotation.y=0;return;}let az=0,el=ap;
-    if(!(fT>0&&Q))Q=T0&&lockAlive(T0)?{x:T0.pos.x,y:lockY(T0),z:T0.pos.z}:null;
-    if(Q){const dx=Q.x-m.x,dz=Q.z-m.z;az=Math.max(-0.9,Math.min(0.9,angDiff(M.ty,Math.atan2(dx,dz))));el=Math.max(-0.9,Math.min(0.9,Math.atan2(Q.y-m.y,Math.hypot(dx,dz))));}
-    const kick=kickT>0?0.12:0;A.sh.rotation.y+=(az-A.sh.rotation.y)*a;
+  // (the arm's own aim, A.az and A.el, swings round to its mark at a steady rate rather than jumping there: the mark
+  // moves from the last round's point to the lock, or back to straight ahead, the moment the firing stops, and the arm
+  // went straight there with it. From the muzzle where it was last step, as the line from there is the barrel's)
+  // (Q: what it's aimed at, kept as A.Q for the gun marker; null, along the view)
+  const aimArm=(A,a,m,kickT,fT,Q)=>{
+    if(!(fT>0&&Q))Q=T0&&lockAlive(T0)?{x:T0.pos.x,y:lockY(T0),z:T0.pos.z}:null;A.Q=Q;
+    let az=0,el=ap;if(Q){const dx=Q.x-m.x,dz=Q.z-m.z;az=Math.max(-0.9,Math.min(0.9,angDiff(M.ty,Math.atan2(dx,dz))));el=Math.max(-0.9,Math.min(0.9,Math.atan2(Q.y-m.y,Math.hypot(dx,dz))));}
+    // (its turn is set afresh each step from that, eased in by a, rather than left over from the step before: left over,
+    // it stayed turned once the arm dropped, then snapped straight the moment it was all the way down)
+    if(A.az===undefined){A.az=az;A.ael=el;}
+    else{const k=Math.min(1,dt*12),mv=3*dt;A.az+=Math.max(-mv,Math.min(mv,(az-A.az)*k));A.ael+=Math.max(-mv,Math.min(mv,(el-A.ael)*k));}
+    A.sh.rotation.y=A.az*a;if(a<=0.01)return;az=A.az;el=A.ael;
+    const kick=kickT>0?0.12:0;
     A.sh.rotation.x+=((-0.25-el*0.3-M.pt*0.5)-A.sh.rotation.x)*a;A.el.rotation.x+=((-(Math.PI/2-0.25)-el*0.7-M.pt*0.5+kick)-A.el.rotation.x)*a;};
-  M.raA=ease(M.raA||0,M.rfT>0||T0?1:0,8);aimArm(R,M.raA,mgRifleAt(M),M.rkT,M.rfT,M.rA);
+  M.raA=ease(M.raA||0,M.rfT>0||T0?1:0,8);aimArm(R,M.raA,M.mzR||mgAt(M,-1.84,4.6,3.0),M.rkT,M.rfT,M.rA);
   const lGun=!!(M.load&&M.load.mgArmL==='rifleL');
-  if(lGun){M.laA=ease(M.laA||0,M.rfLT>0||T0?1:0,8);aimArm(Lf,M.laA,mgRifleLAt(M),M.rkLT,M.rfLT,M.rAL);}
+  if(lGun){M.laA=ease(M.laA||0,M.rfLT>0||T0?1:0,8);aimArm(Lf,M.laA,M.mzL||mgAt(M,1.84,4.6,3.0),M.rkLT,M.rfLT,M.rAL);}
   // (the swing. The reach: the left hand drawn across to its right side, the body turning with it and the right arm
   // lifting out of the way; the blade lights from the hand as it gets there; then one quick level sweep out to its left,
   // the arm straightening and the body following through; then the blade goes back into the hand as it settles back.
@@ -288,7 +310,14 @@ function mgWpnPose(M,J,ap,dt,ease){
   M.cnA=ease(M.cnA||0,M.brace>0||M.cnT>0?1:0,M.brace>0?14:5);
   // (the cannon at what it fired at, or what's locked, or along the view)
   {let ce=ap,cy=0,Q=M.cnT>0&&M.cA?M.cA:T0&&lockAlive(T0)?{x:T0.pos.x,y:lockY(T0),z:T0.pos.z}:null;
-    if(Q){const m=mgCannonAt(M),dx=Q.x-m.x,dz=Q.z-m.z;cy=Math.max(-0.5,Math.min(0.5,angDiff(M.ty,Math.atan2(dx,dz))));ce=Math.max(-1,Math.min(1,Math.atan2(Q.y-m.y,Math.hypot(dx,dz))));}
+    if(Q){const m=M.mzC||mgAt(M,-0.95,7.9,2.9),dx=Q.x-m.x,dz=Q.z-m.z;cy=Math.max(-0.5,Math.min(0.5,angDiff(M.ty,Math.atan2(dx,dz))));ce=Math.max(-1,Math.min(1,Math.atan2(Q.y-m.y,Math.hypot(dx,dz))));}
     J.cannon.rotation.order='YXZ';J.cannon.rotation.y=cy*M.cnA;J.cannon.rotation.x=-2.2*(1-M.cnA)+(-ce-M.pt)*M.cnA;}
   M.pdA=ease(M.pdA||0,M.pod||M.podQ&&M.podQ.length||M.podT>0?1:0,10);J.podLid.rotation.x=-1.05*M.pdA;
+  // (where the muzzles are, posed as now, for aiming them next step; and for the pilot's gun markers, where each gun's
+  // barrel points: along it from the muzzle, as far as what it's aimed at, or a long way off)
+  if(!M.g)return;
+  const mz=(A,lx,ly,lz)=>A&&A.mz?mgPt(M,A.mz,lx,ly,lz):null;M.mzR=mz(R,0,0,0);M.mzL=lGun?mz(Lf,0,0,0):null;M.mzC=J.cannonM?mgPt(M,J.cannonM,0,0,0):null;
+  const mark=(A,m,a)=>{if(!m||a<0.5)return null;const f=mz(A,0,-1,0);if(!f)return null;const Q=A.Q,d=Q?Math.max(5,Math.hypot(Q.x-m.x,Q.y-m.y,Q.z-m.z)):80;
+    return{x:m.x+(f.x-m.x)*d,y:m.y+(f.y-m.y)*d,z:m.z+(f.z-m.z)*d};};
+  M.gunMk=M.drv?[mark(R,M.mzR,M.raA),lGun?mark(Lf,M.mzL,M.laA):null]:null;
 }

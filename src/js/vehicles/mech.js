@@ -444,7 +444,7 @@ function mechPose(M,dt){
   if(skate&&Math.random()<dt*25)puff(M.x-M.vx*0.04,M.y+0.15,M.z-M.vz*0.04,1,0xffd080,0.5);   // (sparks off the feet)
   // (its roar follows the biggest flame: swelling as they flare up, dying away as they die down)
   {const on=big>0.05&&playing&&!M.dead,np=on?nearestPlayer(M.x,M.z,false):null,k=np?Math.max(0,1-np.d/120):0,b=Math.min(1.6,big);
-   mgThrustSnd(M,on?0.035*b*k:0,500+450*b);}
+   mgThrustSnd(M,on?0.06*b*k:0,500+450*b);}   // (a little louder than it was: under the guns and footsteps it was hard to hear)
 }
 // the thrusters' roar: one loop of filtered noise for each Mobile Gear, faded up and down each frame to how hard they're
 // burning (short bursts played back to back sounded like clicking). Each frame's level is held only a moment, so it
