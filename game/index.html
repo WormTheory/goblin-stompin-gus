@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:453227907bbf6e32076203ce64095485e3babfc3f853ccd8fc65abe6145df2c6 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:58d5e9b7e678d09906b25730c513060586af645bcb5567cd668aee8dfac7a644 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1570,6 +1570,12 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <ul><li>Props out in the open (patio tables, beach and harbour gear, the stadium's fittings and the like) are now drawn out to 64 blocks, up from 34, and furniture indoors stays at 34 as before. The distance is now the same in every direction, so things on the diagonal no longer show up later than things straight ahead.</li><li>Props now grow up out of the ground over a moment as they come into range, instead of suddenly appearing.</li><li>New PROPS slider in Options, under Render distance: set how far props are drawn, from 32 to 192 blocks. Furniture indoors goes about half as far as the setting.</li></ul>
 <h3>Weather</h3>
 <ul><li>Foggy weather now really closes in. The weather's fog used to shrink with the FAR VIEW setting, so with the view turned up it all but vanished; now fog, rain and snow limit how far you can see by the same number of blocks whatever the setting, with thick fog and blizzards down to about 30 blocks.</li><li>Windy weather is gone.</li><li>Tanks, helicopters, planes and Mobile Gears now gather snow on top as cars do, as deep as the snow on the ground while they stand out in the open. It blows off a plane in the air or a helicopter going fast.</li><li>The main menu's "New city" button is now "New world".</li><li>The save screens now call a save a world rather than a city: "New file: new world", "Export this world", the world seed under the menu, and the rest.</li></ul>
+<h3>Both hands on the gun</h3>
+<ul><li>Goblins now hold their guns in both hands. Police raise the handgun out in front of them with their other hand wrapped under the grip, and preppers, militiamen, soldiers, sailors and marines tuck the rifle's stock into the shoulder and hold it by the barrel, turning side-on to aim as a rifleman does. Before, the free hand just hung in the air beside the gun.</li><li>A rifle that isn't being aimed is carried low across the body in both hands, rather than dangling from one.</li><li>Gnash and Grizzle hold the handgun and rifle the same way, as the others see them, and in your own view your other hand now comes in from the bottom left to hold the rifle's barrel or the handgun's grip.</li></ul>
+<h3>Who's driving</h3>
+<ul><li>Get into a forklift or a tractor and your goblin is sat at the wheel where everyone can see him, the tractor's cab now having windows you can see through. In a pedal boat, a rowboat or a speedboat he sits in it, at a ship's wheel he stands there, and in a hot-air balloon he stands in the basket, looking out over its rim. Before, all of these went off empty as soon as you climbed in.</li><li>In a car, van, truck, bus, supercar, hovercraft or anything else with a roof, your goblin's head now shows at the wheel, as every other driver's does. Before, a car you were driving looked empty.</li><li>Speedboats out on their rounds have a goblin at the wheel.</li></ul>
+<h3>Health bars</h3>
+<ul><li>With Options' Health bars on, Mobile Gears, hot-air balloons, the barge, the aircraft carrier and its deck weapons, and subway trains now show health bars like every other vehicle; they never had one.</li><li>Anything aboard a ship (goblins, cars, tanks, helicopters, the carrier's jets) now has its health bar over it, rather than out of sight far away.</li></ul>
 <h3>Fixes</h3>
 <ul><li>The minimap no longer draws the grey of the surrounding blocks over big sites that take up several blocks, such as theme parks, which hid most of their buildings.</li></ul>
 </details>
@@ -1883,7 +1889,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='0df3c4a667b5';
+const GAME_VER='0.5',GAME_BUILD='56ff01fdbdeb';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v95';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -11508,6 +11514,11 @@ function gobKit(p){
   box(0.09,0.09,0.13,0x2a1a10,0,0.02,-0.44,61,held.dagger);box(0.14,0.04,0.04,0x6a5a3a,0,0.02,-0.52,61,held.dagger);box(0.025,0.05,0.34,0xd0d4dc,0,0.02,-0.71,62,held.dagger);   // (pointing forward, for stabbing)
   box(0.07,0.13,0.1,0x22262c,0,-0.03,-0.4,61,held.handgun);box(0.06,0.07,0.3,0x22262c,0,0.06,-0.5,62,held.handgun);   // (the grip, and the slide pointing on along the view)
   box(0.1,0.12,0.34,0x4a3420,0,0.02,-0.36,61,held.rifle);box(0.07,0.07,0.78,0x22262c,0,0.07,-0.86,62,held.rifle);box(0.05,0.12,0.05,0x22262c,0,-0.04,-0.6,62,held.rifle);
+  // (and the other arm coming in from the bottom left, its hand under the rifle's barrel or wrapped round the handgun's
+  // grip, as the others see him hold them: a forearm from S, off the edge of the picture, to the hand at P)
+  const fore=(P,S,to)=>{const d=[S[0]-P[0],S[1]-P[1],S[2]-P[2]],L=Math.hypot(...d),b=new THREE.Mesh(new THREE.BoxGeometry(0.11,0.11,L),mat(GC.skin));
+    b.position.set((P[0]+S[0])/2,(P[1]+S[1])/2,(P[2]+S[2])/2);b.rotation.order='YXZ';b.rotation.set(-Math.asin(d[1]/L),Math.atan2(d[0],d[2]),0);b.renderOrder=60;b.frustumCulled=false;to.add(b);};
+  fore([0,-0.01,-0.92],[-0.62,-0.42,-0.1],held.rifle);fore([-0.07,-0.06,-0.42],[-0.5,-0.42,0],held.handgun);
   return p.gb={root,m,vm,arm,held,tp};
 }
 // the first-person view, and the body that goes with it
@@ -11555,6 +11566,7 @@ function gobSwingU(p){
 // chopped and the dagger thrust as the enemies do theirs, and the arm coming through after a grenade's thrown (the Dev
 // tab's preview poses his model with this too). The body's twist, lean and step are left on m.atkX: see gobBodyRoot.
 function gobBodyPose(m,p){
+  gunGripUndo(m);   // (last frame's two-handed grip, drawn and done with: gobGunGrip)
   const walking=p.state==='walk'&&p.grounded&&p.lastSp>0.2,sn=Math.sin(p.phase),sw=p.biteT>0?1-p.biteT/(p.biteDur||0.38):0,wk=gobArms(p).wpn;
   m.legs[0].rotation.x=walking?sn*0.7:0;m.legs[1].rotation.x=walking?-sn*0.7:0;
   const X=m.atkX||(m.atkX={tw:0,ln:0,lu:0});X.tw=X.ln=X.lu=0;m.arm.rotation.z=0;m.arm.hand.rotation.x=0;m.armL.rotation.x=0;
@@ -11563,6 +11575,9 @@ function gobBodyPose(m,p){
   else if(p.biteT>0)gobStrike(m,wk==='dagger'?'dagger':'club',gobSwingU(p));
   else m.arm.rotation.x=-0.5;
 }
+// a rifle or handgun in his hand: held in both, as the enemies hold theirs (strikes.js), once his root's placed; not while
+// his free arm's coming through after a grenade, dead, or in a vehicle
+function gobGunGrip(m,root,p){const wk=gobArms(p).wpn;if(gobGun(wk)&&p.state!=='dead'&&!p.drv&&!((p.thrS??9)<STRIKE_FT))gunGrip(m,root,wk==='rifle'?'rifle':'pistol');}
 function gobCamera(p){
   const K=gobKit(p),lie=p.state==='dead'?Math.min(1,p.t*3):0,walking=p.state==='walk'&&p.grounded&&p.lastSp>0.2,sn=Math.sin(p.phase),v=p.visOff;
   p.camHang=(p.camHang||0)+((p.state==='ceil'||(p.state==='piv'&&p.piv&&p.piv.next==='ceil')?1:0)-(p.camHang||0))*0.12;
@@ -11580,7 +11595,7 @@ function gobCamera(p){
   const wk=gobArms(p).wpn;for(const k in K.held)K.held[k].visible=k===wk;for(const k in K.tp)K.tp[k].visible=k===wk;
   gobBodyPose(K.m,p);
   // (his body comes off the wall with his eye; facing where he looks, turning into a blow, and flat on his back when he's dead)
-  gobBodyRoot(K.root,K.m,p.pos.x+c.x-ex,p.pos.y+lie*0.15,p.pos.z+c.z-ez,p.heading,-lie*Math.PI/2);K.root.rotation.z=0;
+  gobBodyRoot(K.root,K.m,p.pos.x+c.x-ex,p.pos.y+lie*0.15,p.pos.z+c.z-ez,p.heading,-lie*Math.PI/2);K.root.rotation.z=0;gobGunGrip(K.m,K.root,p);
   // (switching: the new one comes up from below; the rifle's held level along the view and kicks when it fires. The club
   // goes up and back, a beat at the top, and chops down across the view as the blow lands; the dagger's drawn back and
   // thrust straight in, at full stretch as it lands: strikes.js, with the attack's own timing)
@@ -11686,7 +11701,9 @@ function drvLetGo(p,D){const o=D.o;if(o.drv===p)o.drv=null;
 // out by the side (whichever has room), else the back or the front, else on the roof
 function drvExit(p,thrown){
   const D=p.drv;if(!D)return;if(D.jack)jackEnd(p,D,true);p.drv=null;const o=D.o;if(p.lockT)setLock(p,null);
-  if(D.k==='car'&&p.gb)rideReset(p.gb);
+  if(p.gb)rideReset(p.gb);
+  // (your head at the wheel goes with you, unless someone else is still driving it: a crew's driver)
+  if(D.k==='car'&&D.seat!=='gun'&&o.dh&&!(o.crew&&o.crew.drv)&&!rideShown({drv:D,state:''}))o.dh.visible=false;
   const S=drvPose(D);
   if(D.seat==='gun'){if(o.gnr===p)o.gnr=null;}else drvLetGo(p,D);
   if(D.k==='ship'){shipLeave(p,o);return;}   // (left standing at the helm)
@@ -11719,11 +11736,33 @@ function drvSeat(p){
   if(D.k==='ship'){shipSeat(p,o);return;}
   const S=drvPose(D);p.pos.set(S.x,S.y+(D.k==='mech'?5:Math.min(1.2,S.hy*0.5)),S.z);   // (a Mobile Gear's pilot sits up in its chest)p.heading=S.h;
   p.vy=0;p.grounded=true;p.mvx=p.mvz=0;p.standCar=null;p.vcl=null;p.peakY=p.pos.y;p.biteT=0;
-  if(rideShown(p)){if(D.seat==='gun')gunPose(p,o);else ridePose(p,o);}
+  if(p.gb)gunGripUndo(p.gb.m);   // (a gun held two-handed the moment before getting in: strikes.js)
+  if(rideShown(p)){if(D.seat==='gun')gunPose(p,o);else if(rideSeatOf(D))seatPose(p,D);else ridePose(p,o);}
+  // (in anything closed, it's your head the others see at the wheel, as they see every other driver's: cars.js's dh)
+  else if(D.k==='car'&&D.seat!=='gun'&&!D.jack&&o.dh&&!o.dh.visible)o.dh.visible=true;
+}
+// where a goblin at the controls of something open sits, or stands, in its own frame, so the others see him there: the
+// spot under his hips (or his feet, standing), and 'sit' or 'stand'; w: in blocks rather than the model's own units
+// (the ship's helm: he's stood there already, see shipSeat)
+const RIDE_SEAT={forklift:[0,1.27,-0.48,'sit'],tractor:[0,1.25,-0.84,'sit'],pedalo:[0.3,0.8,-0.5,'sit',1],row:[0,0.63,0.2,'sit',1],
+  speed:[0.35,1.1,0.05,'sit',1],balloon:[0,0.72,0,'stand',1]};
+const rideKind=D=>D.k==='car'?D.o.veh:D.k==='boat'?D.o.k:D.k==='balloon'?'balloon':null;
+const rideSeatOf=D=>D.k==='ship'?SHIP_STAND:RIDE_SEAT[rideKind(D)]||null,SHIP_STAND=[0,0,0,'stand',1];
+// sat at the wheel (hands on it, knees up) or stood at the basket's rim or the ship's wheel, carried with the vehicle
+function seatPose(p,D){
+  const K=gobKit(p),R=K.root,S=rideSeatOf(D),sit=S[3]==='sit';
+  if(D.k==='ship'){R.position.set(p.pos.x,p.pos.y,p.pos.z);R.rotation.set(0,p.heading,0);}
+  else{const g=D.o.g,e=g.rotation,k=S[4]?1:ES,cx=Math.cos(e.x),sx=Math.sin(e.x),cy=Math.cos(e.y),sy=Math.sin(e.y),cz=Math.cos(e.z),sz=Math.sin(e.z);
+    // (the seat turned with the vehicle, pitch, heading and roll, as its 'YXZ' rotation turns its model)
+    let x=S[0]*k,y=S[1]*k,z=S[2]*k;[x,y]=[x*cz-y*sz,x*sz+y*cz];[y,z]=[y*cx-z*sx,y*sx+z*cx];[x,z]=[x*cy+z*sy,-x*sy+z*cy];
+    R.position.set(g.position.x+x,g.position.y+y-(sit?0.45*ES:0),g.position.z+z);R.rotation.set(e.x,e.y,e.z);}
+  for(const L of K.m.legs)L.rotation.set(sit?-1.25:0,0,0);if(sit){K.m.legs[0].rotation.z=0.2;K.m.legs[1].rotation.z=-0.2;}
+  const a=sit?-1.3:-1.15;K.m.arm.rotation.set(a,0,-0.12);K.m.arm.hand.rotation.set(0,0,0);if(K.m.armL)K.m.armL.rotation.set(a,0,0.12);
 }
 // on a motorcycle you're out in the open: your goblin's sat astride it, leaning with it, hands on the bars, feet on the
-// pegs (in anything with a roof you're out of sight: see gobView)
-const rideShown=q=>!!(q.drv&&q.drv.k==='car'&&(q.drv.o.veh==='bike'||q.drv.o.veh==='quad'||q.drv.o.veh==='technical'&&q.drv.seat==='gun')&&!q.drv.jack&&q.state!=='dead');
+// pegs; likewise sat on a forklift or a tractor, in an open boat, stood in a balloon's basket or at a ship's wheel
+// (seatPose). In anything with a roof you're out of sight (gobView), and your head shows at the wheel as other drivers' do
+const rideShown=q=>!!(q.drv&&(q.drv.k==='car'&&(q.drv.o.veh==='bike'||q.drv.o.veh==='quad'||q.drv.o.veh==='technical'&&q.drv.seat==='gun')||q.drv.seat!=='gun'&&rideSeatOf(q.drv))&&!q.drv.jack&&q.state!=='dead');   // (and anything else open: RIDE_SEAT)
 function ridePose(p,c){const K=gobKit(p),R=K.root,s=Math.sin(c.heading),k=Math.cos(c.heading);
   R.rotation.set(c.g.rotation.x,c.g.rotation.y,c.g.rotation.z);
   // (the seat, from the bike's own middle: up 0.42 and back 0.25 of its body, tipped over with its lean)
@@ -14255,7 +14294,7 @@ function decoEach(f){
 }
 function batDraw(){
   for(const B of BAT.values())B.n=0;
-  for(const g of goblins){const r=g.root;if(!r.visible)continue;shipGobMatrix(g);batPut(r,false);}   // (one aboard a ship is drawn where the ship is: see ships.js)   // (street goblins are kept out of the scene, so nothing else updates their matrices)
+  for(const g of goblins){const r=g.root;if(!r.visible)continue;const gk=gunHeld(g);if(gk)gunGrip(g,r,gk);shipGobMatrix(g);batPut(r,false);if(gk)gunGripUndo(g,r);}   // (a gun held in both hands, just for the drawing: strikes.js)   // (one aboard a ship is drawn where the ship is: see ships.js)   // (street goblins are kept out of the scene, so nothing else updates their matrices)
   wmFrame++;for(const c of cars){if(!c.g.visible)continue;c.g.updateMatrixWorld(true);c.g.wmDone=wmFrame;batPut(c.g,true);}
   decoEach(g=>{if(g.visible&&(g.parent===scene||g.parent&&g.parent.shipPg)&&g.wmDone!==wmFrame){g.updateMatrixWorld(true);g.wmDone=wmFrame;batPut(g,true,true);}});   // (a tank or helicopter aboard a ship hangs off its picture: see shipVehMove)
   for(const B of BAT.values()){if(!B.n&&!B.m.count)continue;B.m.count=B.n;   // (and only the part of each buffer in use goes up to the graphics card)
@@ -14303,7 +14342,7 @@ function goblinModel(parent,o={}){
   // the compounds' people: a dagger (thieves), or a rifle (pointing on down past the hand, so it's level when the arm is
   // raised to aim); and whatever they throw, in the left hand, shown only while they're winding up to throw it
   if(o.gear==='dagger'){box(0.08,0.08,0.12,'hilt',0x2a1a10,0,-0.02,0.06,hand);box(0.05,0.03,0.3,'blade',0xd0d4dc,0,-0.02,0.27,hand);}
-  if(o.gear==='rifle'){box(0.1,0.3,0.14,'stock',0x4a3420,0,0.04,0.06,hand);box(0.07,0.62,0.07,'gun',0x22262c,0,-0.38,0.06,hand);box(0.05,0.12,0.05,'gun',0x22262c,0,-0.12,0.13,hand);}
+  if(o.gear==='rifle'){parent.gunK='rifle';box(0.1,0.3,0.14,'stock',0x4a3420,0,0.04,0.06,hand);box(0.07,0.62,0.07,'gun',0x22262c,0,-0.38,0.06,hand);box(0.05,0.12,0.05,'gun',0x22262c,0,-0.12,0.13,hand);}
   if(o.held){const [w,h,d,c]=o.held;out.orb=box(w,h,d,'orb',c,0,-0.46,0.04,armL);out.orb.visible=false;}
   // hats
   acc('cap',[box(0.52,0.12,0.48,'hat',0x2a2a2a,0,0.47,0.02,head),box(0.34,0.04,0.2,'hat',0x2a2a2a,0,0.425,0.31,head)]);
@@ -14452,6 +14491,73 @@ function gobBodyRoot(root,m,x,y,z,h,x0=0){
 }
 // a street goblin's root, at height y: anything a blow set and nothing posed this frame eases back first
 function gobRootPose(g,y,dt){if(!g.posed&&g.atkX)gobStrikeEase(g,dt);g.posed=false;gobBodyRoot(g.root,g,g.pos.x,y,g.pos.z,g.heading);}
+// ---- both hands on a gun ----
+// The rig has no elbows: each arm is a straight 0.4 from its shoulder, and the shoulders are 0.64 apart, so with the gun
+// held out along the weapon arm (as the poses above have it) the free hand was left hanging in the air beside it. Just
+// before a goblin with a gun is drawn (batDraw, gobCamera, the Dev tab's recordings), the pose is read for where the gun
+// points, and the arms are put round it: the weapon hand in toward the middle (a rifle's stock tucked into the shoulder,
+// a handgun out in front of the chest), the wrist turning the gun back to where it pointed, and the free hand on the
+// rifle's foregrip or wrapped under the handgun's grip. A rifleman turns side-on to his target, the head turned back to
+// it; a rifle that isn't being aimed is carried low across the body, both hands on it. What the pose said is put back
+// after drawing (gunGripUndo), so the goblin's own code, and what's sent online, never see any of this.
+// (rows of 3 x 3 rotation matrices; ggEul is a three.js 'XYZ' Euler's)
+const ggEul=(x,y,z)=>{const a=Math.cos(x),b=Math.sin(x),c=Math.cos(y),d=Math.sin(y),e=Math.cos(z),f=Math.sin(z),af=a*f,be=b*e,ae=a*e,bf=b*f;
+  return [c*e,-c*f,d,af+be*d,ae-bf*d,-b*c,bf-ae*d,be+af*d,a*c];};
+const ggMul=(A,B)=>{const o=new Array(9);for(let r=0;r<3;r++)for(let c=0;c<3;c++)o[r*3+c]=A[r*3]*B[c]+A[r*3+1]*B[3+c]+A[r*3+2]*B[6+c];return o;};
+const ggT=A=>[A[0],A[3],A[6],A[1],A[4],A[7],A[2],A[5],A[8]];
+const ggNorm=v=>{const n=Math.hypot(v[0],v[1],v[2])||1;return [v[0]/n,v[1]/n,v[2]/n];};
+const ggX=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+// where each hand goes (in the body's own frame: x to the weapon arm's side, y up, z forward), how far round the body
+// turns, and how far a shoulder may reach to get its hand there
+const GUN_GRIP={
+  rifle:{sh:[0.1,0.84,0.12],out:0.16,fore:[0.12,0.22],tw:[0.75,0.75],low:-0.5,reach:0.1},
+  pistol:{sh:[0.04,0.92,0],out:0.29,fore:[0,0],tw:[0,0],reach:0.08}};
+// turn an arm (a straight 0.4 from its pivot) to put its end at T, the shoulder giving a little (up to r) if it's too far
+// or too near; [shoulder x,y,z] is where it starts
+function ggArm(arm,P0,T,r){
+  const v=[T[0]-P0[0],T[1]-P0[1],T[2]-P0[2]],L=Math.hypot(v[0],v[1],v[2])||1,d=[v[0]/L,v[1]/L,v[2]/L],s=Math.max(-r,Math.min(r,L-0.4));
+  arm.position.set(P0[0]+d[0]*s,P0[1]+d[1]*s,P0[2]+d[2]*s);
+  const z=Math.asin(Math.max(-1,Math.min(1,d[0]))),x=Math.atan2(-d[2],-d[1]);arm.rotation.set(x,0,z);return ggEul(x,0,z);
+}
+// m a goblin model, root what it hangs off, k 'rifle' or 'pistol'
+function gunGrip(m,root,k){
+  const C=GUN_GRIP[k],A=m.arm,H=A.hand,Lm=m.armL;if(!C||!H)return;
+  const butt=Math.abs(H.rotation.x)>1.2;if(butt)return;   // (turned over for a blow with the butt: as the blow has it, strikes.js)
+  m._gg=[A.rotation.x,A.rotation.y,A.rotation.z,A.position.x,A.position.y,A.position.z,H.rotation.x,H.rotation.y,H.rotation.z,
+    Lm.rotation.x,Lm.rotation.y,Lm.rotation.z,Lm.position.x,Lm.position.y,Lm.position.z,root.rotation.y,m.head.rotation.y];
+  // where the pose has the gun pointing, and which way is its top
+  const Mi=ggMul(ggEul(A.rotation.x,A.rotation.y,A.rotation.z),ggEul(H.rotation.x,H.rotation.y,H.rotation.z));
+  let g=[-Mi[1],-Mi[4],-Mi[7]],up=[Mi[2],Mi[5],Mi[8]];
+  // (a rifle that isn't up at the shoulder is carried low, pointing ahead and down)
+  let s=1;
+  if(k==='rifle'){s=Math.max(0,Math.min(1,(-0.9-A.rotation.x)/0.5));s=s*s*(3-2*s);
+    if(s<1){const h=Math.atan2(g[0],g[2]),e=C.low,c=[Math.sin(h)*Math.cos(e),Math.sin(e),Math.cos(h)*Math.cos(e)];
+      g=ggNorm([c[0]+(g[0]-c[0])*s,c[1]+(g[1]-c[1])*s,c[2]+(g[2]-c[2])*s]);up=[up[0]*s,up[1]*s+(1-s),up[2]*s];}}
+  // turned side-on: the body round by tw, and the gun (and the head) back by as much, so it points where it did
+  const tw=C.tw[0]+(C.tw[1]-C.tw[0])*s,ct=Math.cos(tw),st=Math.sin(tw),ry=v=>[v[0]*ct-v[2]*st,v[1],v[0]*st+v[2]*ct];
+  if(tw){root.rotation.y+=tw;m.head.rotation.y=-tw*0.85;g=ry(g);up=ry(up);}
+  const dg=up[0]*g[0]+up[1]*g[1]+up[2]*g[2];up=ggNorm([up[0]-g[0]*dg,up[1]-g[1]*dg,up[2]-g[2]*dg]);
+  // the weapon hand, and the gun in it turned to point along g
+  const Hd=[C.sh[0]+g[0]*C.out,C.sh[1]+g[1]*C.out,C.sh[2]+g[2]*C.out];
+  const Ma=ggArm(A,[0.32,0.92,0],Hd,C.reach),X=ggX([-g[0],-g[1],-g[2]],up),Mg=[X[0],-g[0],up[0],X[1],-g[1],up[1],X[2],-g[2],up[2]];
+  const Mh=ggMul(ggT(Ma),Mg),y=Math.asin(Math.max(-1,Math.min(1,Mh[2])));
+  if(Math.abs(Mh[2])<0.9999999)H.rotation.set(Math.atan2(-Mh[5],Mh[8]),y,Math.atan2(-Mh[1],Mh[0]));else H.rotation.set(Math.atan2(Mh[7],Mh[4]),y,0);
+  // the free hand: under the rifle's barrel, or wrapped round the handgun's grip from the other side
+  const sd=ggX(g,up),f=C.fore[0]+(C.fore[1]-C.fore[0])*s,T=k==='rifle'?[Hd[0]+g[0]*f-up[0]*0.05,Hd[1]+g[1]*f-up[1]*0.05,Hd[2]+g[2]*f-up[2]*0.05]
+    :[Hd[0]+sd[0]*0.08-up[0]*0.05+g[0]*0.02,Hd[1]+sd[1]*0.08-up[1]*0.05+g[1]*0.02,Hd[2]+sd[2]*0.08-up[2]*0.05+g[2]*0.02];
+  ggArm(Lm,[-0.32,0.92,0],T,C.reach);
+}
+// back to what the pose said
+function gunGripUndo(m,root=m.arm.parent){const v=m._gg;if(!v)return;m._gg=null;const A=m.arm,H=A.hand,Lm=m.armL;
+  A.rotation.set(v[0],v[1],v[2]);A.position.set(v[3],v[4],v[5]);H.rotation.set(v[6],v[7],v[8]);Lm.rotation.set(v[9],v[10],v[11]);Lm.position.set(v[12],v[13],v[14]);root.rotation.y=v[15];m.head.rotation.y=v[16];}
+// which gun a street goblin has out to grip, if any (null: one hand, or none, as posed): an officer's handgun while it's
+// drawn, a rifle always, unless the goblin is dead, climbing, swimming, or has the free hand busy (a grenade, a fireball,
+// thrown up in a panic)
+function gunHeld(g){
+  const k=g.pkit&&g.pkit.shown===2?'pistol':g.root.gunK;if(!k)return null;
+  if(g.state==='dead'||g.dead||g.hp<=0||g.act||g.wet||g.orb&&g.orb.visible||g.armL.rotation.x<-1.9||g.arm.rotation.x<-2.3)return null;
+  return k;
+}
 // ---- the obituary: every goblin that dies, newest first (kept per city) ----
 const OBIT_KEY='goblin-stompin-gus-obits';let obits=null,obitSeed=null,obitTotal=0,obitSel=0;
 function obitList(){if(!obits||obitSeed!==seed){obits=[];obitTotal=0;obitSeed=seed;try{const s=JSON.parse(localStorage.getItem(OBIT_KEY)||'null');if(s&&s.seed===seed&&Array.isArray(s.list)){obits=s.list;obitTotal=s.total||s.list.length;}}catch(e){}}return obits;}
@@ -14933,7 +15039,7 @@ function devSimulate(key,ch=DEVP.char){
       SBX.frame=f;const t=f/60,v=sc.inp(t);
       I.x=v.x||0;I.z=v.z||0;for(const k of ['charge','chargePress','dash','dashPress','sprint','sprintPress','stomp','bite','bitePress','jumpPress','jump','lockPress','climb','use'])I[k]=!!v[k];I.chargeHeld=I.charge;I.lookX=I.lookY=0;
       if(gn){if(PV.state==='walk')PV.heading=PV.cam.yaw+Math.PI;gobMove(PV,1/60);   // (as updatePlayer runs him: his body faces where he looks)
-        gobBodyPose(GB.m,PV);gobBodyRoot(GB.root,GB.m,PV.pos.x,PV.pos.y,PV.pos.z,PV.heading);}
+        gobBodyPose(GB.m,PV);gobBodyRoot(GB.root,GB.m,PV.pos.x,PV.pos.y,PV.pos.z,PV.heading);gobGunGrip(GB.m,GB.root,PV);}
       else updatePlayer(PV,1/60);
       for(let i=0;i<M;i++){const o=nodes[i],b=(f*M+i)*FL,T=rec.tr;T[b]=o.position.x;T[b+1]=o.position.y;T[b+2]=o.position.z;T[b+3]=o.quaternion.x;T[b+4]=o.quaternion.y;T[b+5]=o.quaternion.z;T[b+6]=o.quaternion.w;T[b+7]=o.scale.x;T[b+8]=o.scale.y;T[b+9]=o.scale.z;T[b+10]=o.visible?1:0;}
       rec.pos[f*4]=PV.pos.x-DEV_O.x;rec.pos[f*4+1]=PV.pos.y;rec.pos[f*4+2]=PV.pos.z-DEV_O.z;rec.pos[f*4+3]=PV.heading;
@@ -17438,7 +17544,9 @@ function buildVeh(c,t){
     bk(1.3,0.5,1.5,bod,0,1.15,-0.9);bk(0.6,0.12,0.55,blk,0,1.5,-1.0);bk(0.6,0.5,0.1,blk,0,1.75,-1.3);   // (the seat)
     bk(0.08,0.08,0.45,blk,0,1.75,-0.45);bk(0.42,0.06,0.06,blk,0,1.95,-0.3);   // (the steering wheel)
     for(const [x,z] of [[-1,-0.25],[1,-0.25],[-1,-1.6],[1,-1.6]])bk(0.08,1.3,0.08,blk,x*0.62,2.2,z);bk(1.42,0.12,1.55,bod,0,2.88,-0.92);
-    bk(1.16,0.8,0.05,glass,0,2.3,-0.25);bk(1.16,0.8,0.05,glass,0,2.3,-1.6);for(const s2 of[-1,1])bk(0.05,0.62,1.2,glass,s2*0.63,2.4,-0.92);
+    // (the cab's windows you can see through, to whoever's sat in there: RIDE_SEAT)
+    const tg=c.tglM||(c.tglM=new THREE.MeshLambertMaterial({color:0xa8c8d8,transparent:true,opacity:0.28,depthWrite:false}));
+    bk(1.16,0.8,0.05,tg,0,2.3,-0.25);bk(1.16,0.8,0.05,tg,0,2.3,-1.6);for(const s2 of[-1,1])bk(0.05,0.62,1.2,tg,s2*0.63,2.4,-0.92);
     bk(0.3,0.16,0.3,blk,0,0.75,-1.85);   // (the hitch)
     for(const s2 of[-1,1]){twheel(s2*0.98*K,-0.95*K,1.7*K,0.55*K,false);twheel(s2*0.72*K,1.35*K,0.85*K,0.3*K,true);}
   }
@@ -18930,8 +19038,9 @@ function devFoSim(kind,anim){
   if(A.init)A.init(g,K,C);
   for(let f=0;f<N;f++){C.f=f;
     if(f)g.t+=dt;A.step(g,K,dt,C);if(g.pkit)copKitShow(g.pkit,copKitState(g));   // (club, or the handgun drawn, and the holster)
+    const gk=gunHeld(g);if(gk)gunGrip(m,m.root,gk);   // (both hands on a gun, as batDraw draws it: strikes.js; undone once it's recorded)
     for(let i=0;i<M;i++){const o=nodes[i],b=(f*M+i)*FL,T=rec.tr;T[b]=o.position.x;T[b+1]=o.position.y;T[b+2]=o.position.z;T[b+3]=o.quaternion.x;T[b+4]=o.quaternion.y;T[b+5]=o.quaternion.z;T[b+6]=o.quaternion.w;T[b+7]=o.scale.x;T[b+8]=o.scale.y;T[b+9]=o.scale.z;T[b+10]=o.visible?1:0;}
-    rec.pos[f*4]=g.pos.x;rec.pos[f*4+1]=g.pos.y;rec.pos[f*4+2]=g.pos.z;rec.pos[f*4+3]=g.heading;}
+    if(gk)gunGripUndo(m,m.root);rec.pos[f*4]=g.pos.x;rec.pos[f*4+1]=g.pos.y;rec.pos[f*4+2]=g.pos.z;rec.pos[f*4+3]=g.heading;}
   if(A.marks)rec.marks.push(...A.marks(K,N,rec));
   for(const h of rec.hits)h.until=Math.min(N-1,h.until);
   rec.data=[['Health',K.hp+' points'],...A.data(K),['Recording',N+' frames ('+(N/60).toFixed(2)+' s)']];
@@ -21336,6 +21445,9 @@ function boatVenue(key,k,o,want){
   want.add(key);if(venues.has(key))return;
   {const t0=BOAT_GONE.get(key);if(t0!==undefined){if(playTime-t0<120)return;BOAT_GONE.delete(key);}}
   const seed=Math.abs(key.split('').reduce((a,c)=>(a*31+c.charCodeAt(0))|0,7))%9973,g=makeBoat(k,o.L,seed);scene.add(g);const K=BOATS[k],L=o.L||K.L,max=K.hp*Math.max(.6,L/K.L);
+  // (a speedboat out on its rounds has a goblin at the wheel, sat where a player who takes it over sits: RIDE_SEAT)
+  if(k==='speed'){const r=new THREE.Group(),m=goblinModel(r,{shareGeo:true,club:false,tunic:GPAL.tunic[seed%GPAL.tunic.length]}),S=RIDE_SEAT.speed;
+    r.scale.setScalar(ES);r.position.set(S[0],S[1]-0.45*ES,S[2]);for(const L of m.legs)L.rotation.x=-1.25;m.arm.rotation.x=m.armL.rotation.x=-1.3;r.visible=false;g.add(r);g.userData.helm=r;}
   const V=Object.assign({kind:'boat',boat:g,ph:hash2(seed,3)*6.28,y0:G+.85},o);
   V.bo={isBoat:true,key,k,K,g,L,hp:max,max,dead:false,deadT:0};
   if(V.lane){V.s=hash2(seed,7)*(4*V.lane.len+2*Math.PI*V.lane.R);V.dir=hash2(seed,9)<.5?1:-1;}
@@ -21344,6 +21456,7 @@ function boatVenue(key,k,o,want){
 }
 function updateBoat(V,dt,t){
   const bo=V.bo,g=V.boat,K=bo.K;
+  if(g.userData.helm)g.userData.helm.visible=!bo.dead&&!!V.lane&&!bo.drv;   // (gone once someone takes it over, or it's tied up)
   if(bo.dead){boatWreck(V,dt);return;}
   if(g.userData.radar)g.userData.radar.rotation.y=t*1.4;
   // (pulled up on the sand: it lies wherever the ground turns out to be, once that's been built)
@@ -25267,7 +25380,7 @@ function placeCamera(p){
 // ---- overlays drawn over the 3D view: health bars over everything that can be hurt (Options' Health bars), and damage
 // numbers that pop up where vehicles, trains, boats, rides, tanks, animals and the players are hit (Options' Damage
 // numbers; a goblin's are hudPop's instead). 2D, projected through each player's camera, bent like the world curve ----
-const DMG_POPS=[],_dov=new THREE.Vector3();let DMG_J=0;
+const DMG_POPS=[],_dov=new THREE.Vector3(),_dbp={x:0,y:0,z:0};let DMG_J=0;
 function dmgPop(x,y,z,n,col){if(!DMGPOP_ON||SBX||!(n>0))return;const j=(DMG_J=(DMG_J+1)%997);DMG_POPS.push({x:x+((j*37)%27/26-0.5)*0.6,y,z:z+((j*53)%31/30-0.5)*0.6,n,col,t:0});if(DMG_POPS.length>200)DMG_POPS.shift();}   // (a little scatter, not from Math.random: that would shift the game's own dice)
 let dovCtx=null,dovOn=false;
 function drawDbgOverlay(dt,views){
@@ -25284,7 +25397,9 @@ function drawDbgOverlay(dt,views){
     x.save();x.beginPath();x.rect(vx,top,vw,vh);x.clip();
     const proj=(wx,wy,wz)=>{const d2=(wx-cam.position.x)**2+(wz-cam.position.z)**2;_dov.set(wx,wy-k*d2,wz).project(cam);if(_dov.z>1||_dov.z<-1)return null;return[vx+(_dov.x+1)/2*vw,top+(1-_dov.y)/2*vh,Math.sqrt(d2)];};
     if(DT.hpBars){
-      const bar=(wx,wy,wz,hp,max,col)=>{const s=proj(wx,wy,wz);if(!s||s[2]>70)return;const f=Math.max(0,Math.min(1,hp/max)),bw=Math.max(18,46-s[2]*0.4),bh=5;
+      const bar=(wx,wy,wz,hp,max,col)=>{
+        if(wx>=SHIP_X0){_dbp.x=wx;_dbp.y=wy;_dbp.z=wz;shipPt(_dbp);wx=_dbp.x;wy=_dbp.y;wz=_dbp.z;}   // (aboard a ship, in its pocket: shown where the ship really is, ships.js)
+        const s=proj(wx,wy,wz);if(!s||s[2]>70)return;const f=Math.max(0,Math.min(1,hp/max)),bw=Math.max(18,46-s[2]*0.4),bh=5;
         x.fillStyle='rgba(10,12,16,.75)';x.fillRect(s[0]-bw/2-1,s[1]-bh-1,bw+2,bh+2);x.fillStyle=f>0.6?col:f>0.3?'#e8c14a':'#ff4a3a';x.fillRect(s[0]-bw/2,s[1]-bh,bw*f,bh);
         if(s[2]<28){x.font='600 10px ui-monospace,Menlo,monospace';x.fillStyle='#e8ece4';x.textAlign='center';x.fillText(Math.max(0,Math.ceil(hp))+'/'+Math.round(max),s[0],s[1]-bh-3);}};
       for(const g of goblins){if(!g.root.visible||g.state==='wait'||g.state==='dead'||!(g.hp>0))continue;if(!(g.hpMax>=g.hp))g.hpMax=g.hp;bar(g.pos.x,g.pos.y+2.1,g.pos.z,g.hp,g.hpMax,g.civ?'#9ad0ff':'#7fd04a');}
@@ -25295,7 +25410,15 @@ function drawDbgOverlay(dt,views){
         else if(V.kind==='airport'&&V.pl)for(const pl of V.pl){if(!netDead(pl,pl.dead)&&pl.g.visible)bar(pl.g.position.x,pl.g.position.y+5,pl.g.position.z,netHp(pl,pl.hp),PLANE_HP,'#5ab4ff');}
         else if(V.kind==='boat'&&V.bo&&!netDead(V.bo,V.bo.dead)&&V.boat.visible){const g=V.boat;bar(g.position.x,g.position.y+V.bo.K.fb+2,g.position.z,netHp(V.bo,V.bo.hp),V.bo.max,'#5ab4ff');}
         else if(V.kind==='rtrain'&&V.T&&V.cars){const T=V.T,gst=netGuest()&&T.netHP,hp=gst?T.netHP:T.carHP,cd=gst?T.netCarDead:T.carDead;
-          if(!(gst?T.netDead:T.dead))V.cars.forEach((g,i)=>{if(!(cd&&cd[i]))bar(g.position.x,g.position.y+4.2,g.position.z,hp&&hp[i]!==undefined?hp[i]:CAR_HP,CAR_HP,'#5ab4ff');});}}
+          if(!(gst?T.netDead:T.dead))V.cars.forEach((g,i)=>{if(!(cd&&cd[i]))bar(g.position.x,g.position.y+4.2,g.position.z,hp&&hp[i]!==undefined?hp[i]:CAR_HP,CAR_HP,'#5ab4ff');});}
+        // (the subway's trains, Mobile Gears, hot-air balloons, ships and a carrier's deck weapons had none: each is hurt
+        // through trainHit like the rest, so each gets its bar, from the same figures the driving display shows, drvHP)
+        else if(V.kind==='sub'&&V.T&&V.cars){const T=V.T,gst=netGuest()&&T.netHP,hp=gst?T.netHP:T.carHP,cd=gst?T.netCarDead:T.carDead;
+          if(!(gst?T.netDead:T.dead))V.cars.forEach((g,i)=>{if(!(cd&&cd[i]))bar(g.position.x,g.position.y+TRAIN_H+0.7,g.position.z,hp&&hp[i]!==undefined?hp[i]:CAR_HP,CAR_HP,'#5ab4ff');});}
+        else if(V.kind==='mech'&&V.mechs)for(const M of V.mechs){if(!netDead(M,M.dead))bar(M.x,M.y+MG.hy+0.8,M.z,netHp(M,M.hp),MG.hp,'#5ab4ff');}
+        else if(V.kind==='balloon'&&V.bl)for(const B of V.bl){if(!netDead(B,B.dead))bar(B.x,B.y+BAL.e1+0.8,B.z,netHp(B,B.hp),BAL.hp,'#5ab4ff');}
+        else if(V.kind==='ship'&&V.ships)for(const S of V.ships){if(S.dead)continue;const P=shipPose(S);bar(P.x,P.y+P.hy+2,P.z,S.hp,S.K.hp,'#5ab4ff');
+          if(S.mounts)for(const Mt of S.mounts)if(!Mt.dead)bar(Mt.x,Mt.y+2.4,Mt.z,Mt.hp,Mt.K.hp,'#5ab4ff');}}
       for(const q of players){if(!q.active||q.state==='dead'||q===p)continue;bar(q.pos.x,q.pos.y+2.5,q.pos.z,q.hp,20,'#7fd04a');}
     }
     for(const d of DMG_POPS){const s=proj(d.x,d.y+d.t*1.6,d.z);if(!s||s[2]>90)continue;const a=d.t<0.7?1:Math.max(0,1-(d.t-0.7)/0.4),sz=Math.round(16+Math.min(14,d.n*0.5)-s[2]*0.08);
@@ -26272,7 +26395,7 @@ function netVenueHP(N){
     if(V.kind==='army'&&V.mil)a=V.mil.map(M=>[r3(M.hp),M.dead?1:0]);
     else if(V.kind==='airport'&&V.pl)a=V.pl.map(q=>[r3(q.hp),q.dead?1:0]);
     else if(V.kind==='boat'&&V.bo)a=[[r3(V.bo.hp),V.bo.dead?1:0]];
-    else if(V.kind==='rtrain'&&V.T)a=[[V.T.dead?1:0],(V.T.carHP||[]).map(r3),(V.T.carDead||[]).map(x=>x?1:0)];
+    else if((V.kind==='rtrain'||V.kind==='sub')&&V.T)a=[[V.T.dead?1:0],(V.T.carHP||[]).map(r3),(V.T.carDead||[]).map(x=>x?1:0)];
     if(!a)continue;const k=JSON.stringify(a);if(sent.get(vk)===k)continue;sent.set(vk,k);out.push([vk,a]);}
   return out;
 }
@@ -26280,7 +26403,7 @@ function netVenueHPSet(L){
   for(const [vk,a] of L){const V=venues.get(vk);if(!V)continue;
     const each=(list)=>{if(list)list.forEach((o,i)=>{if(o&&a[i]){o.netHp=a[i][0];o.netDead=!!a[i][1];}});};
     if(V.kind==='army')each(V.mil);else if(V.kind==='airport')each(V.pl);else if(V.kind==='boat')each(V.bo?[V.bo]:null);
-    else if(V.kind==='rtrain'&&V.T){V.T.netDead=!!a[0][0];V.T.netHP=a[1];V.T.netCarDead=a[2];}}
+    else if((V.kind==='rtrain'||V.kind==='sub')&&V.T){V.T.netDead=!!a[0][0];V.T.netHP=a[1];V.T.netCarDead=a[2];}}
 }
 // (what the health bars read: on a guest the host's figures, wherever they've come)
 const netHp=(o,hp)=>NET.mode===2&&o&&o.netHp!==undefined?o.netHp:hp,netDead=(o,dead)=>NET.mode===2&&o&&o.netDead!==undefined?o.netDead:!!dead;

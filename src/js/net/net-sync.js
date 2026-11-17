@@ -152,7 +152,7 @@ function netVenueHP(N){
     if(V.kind==='army'&&V.mil)a=V.mil.map(M=>[r3(M.hp),M.dead?1:0]);
     else if(V.kind==='airport'&&V.pl)a=V.pl.map(q=>[r3(q.hp),q.dead?1:0]);
     else if(V.kind==='boat'&&V.bo)a=[[r3(V.bo.hp),V.bo.dead?1:0]];
-    else if(V.kind==='rtrain'&&V.T)a=[[V.T.dead?1:0],(V.T.carHP||[]).map(r3),(V.T.carDead||[]).map(x=>x?1:0)];
+    else if((V.kind==='rtrain'||V.kind==='sub')&&V.T)a=[[V.T.dead?1:0],(V.T.carHP||[]).map(r3),(V.T.carDead||[]).map(x=>x?1:0)];
     if(!a)continue;const k=JSON.stringify(a);if(sent.get(vk)===k)continue;sent.set(vk,k);out.push([vk,a]);}
   return out;
 }
@@ -160,7 +160,7 @@ function netVenueHPSet(L){
   for(const [vk,a] of L){const V=venues.get(vk);if(!V)continue;
     const each=(list)=>{if(list)list.forEach((o,i)=>{if(o&&a[i]){o.netHp=a[i][0];o.netDead=!!a[i][1];}});};
     if(V.kind==='army')each(V.mil);else if(V.kind==='airport')each(V.pl);else if(V.kind==='boat')each(V.bo?[V.bo]:null);
-    else if(V.kind==='rtrain'&&V.T){V.T.netDead=!!a[0][0];V.T.netHP=a[1];V.T.netCarDead=a[2];}}
+    else if((V.kind==='rtrain'||V.kind==='sub')&&V.T){V.T.netDead=!!a[0][0];V.T.netHP=a[1];V.T.netCarDead=a[2];}}
 }
 // (what the health bars read: on a guest the host's figures, wherever they've come)
 const netHp=(o,hp)=>NET.mode===2&&o&&o.netHp!==undefined?o.netHp:hp,netDead=(o,dead)=>NET.mode===2&&o&&o.netDead!==undefined?o.netDead:!!dead;

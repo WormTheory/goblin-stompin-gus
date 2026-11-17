@@ -209,6 +209,11 @@ function gobKit(p){
   box(0.09,0.09,0.13,0x2a1a10,0,0.02,-0.44,61,held.dagger);box(0.14,0.04,0.04,0x6a5a3a,0,0.02,-0.52,61,held.dagger);box(0.025,0.05,0.34,0xd0d4dc,0,0.02,-0.71,62,held.dagger);   // (pointing forward, for stabbing)
   box(0.07,0.13,0.1,0x22262c,0,-0.03,-0.4,61,held.handgun);box(0.06,0.07,0.3,0x22262c,0,0.06,-0.5,62,held.handgun);   // (the grip, and the slide pointing on along the view)
   box(0.1,0.12,0.34,0x4a3420,0,0.02,-0.36,61,held.rifle);box(0.07,0.07,0.78,0x22262c,0,0.07,-0.86,62,held.rifle);box(0.05,0.12,0.05,0x22262c,0,-0.04,-0.6,62,held.rifle);
+  // (and the other arm coming in from the bottom left, its hand under the rifle's barrel or wrapped round the handgun's
+  // grip, as the others see him hold them: a forearm from S, off the edge of the picture, to the hand at P)
+  const fore=(P,S,to)=>{const d=[S[0]-P[0],S[1]-P[1],S[2]-P[2]],L=Math.hypot(...d),b=new THREE.Mesh(new THREE.BoxGeometry(0.11,0.11,L),mat(GC.skin));
+    b.position.set((P[0]+S[0])/2,(P[1]+S[1])/2,(P[2]+S[2])/2);b.rotation.order='YXZ';b.rotation.set(-Math.asin(d[1]/L),Math.atan2(d[0],d[2]),0);b.renderOrder=60;b.frustumCulled=false;to.add(b);};
+  fore([0,-0.01,-0.92],[-0.62,-0.42,-0.1],held.rifle);fore([-0.07,-0.06,-0.42],[-0.5,-0.42,0],held.handgun);
   return p.gb={root,m,vm,arm,held,tp};
 }
 // the first-person view, and the body that goes with it
@@ -256,6 +261,7 @@ function gobSwingU(p){
 // chopped and the dagger thrust as the enemies do theirs, and the arm coming through after a grenade's thrown (the Dev
 // tab's preview poses his model with this too). The body's twist, lean and step are left on m.atkX: see gobBodyRoot.
 function gobBodyPose(m,p){
+  gunGripUndo(m);   // (last frame's two-handed grip, drawn and done with: gobGunGrip)
   const walking=p.state==='walk'&&p.grounded&&p.lastSp>0.2,sn=Math.sin(p.phase),sw=p.biteT>0?1-p.biteT/(p.biteDur||0.38):0,wk=gobArms(p).wpn;
   m.legs[0].rotation.x=walking?sn*0.7:0;m.legs[1].rotation.x=walking?-sn*0.7:0;
   const X=m.atkX||(m.atkX={tw:0,ln:0,lu:0});X.tw=X.ln=X.lu=0;m.arm.rotation.z=0;m.arm.hand.rotation.x=0;m.armL.rotation.x=0;
@@ -264,6 +270,9 @@ function gobBodyPose(m,p){
   else if(p.biteT>0)gobStrike(m,wk==='dagger'?'dagger':'club',gobSwingU(p));
   else m.arm.rotation.x=-0.5;
 }
+// a rifle or handgun in his hand: held in both, as the enemies hold theirs (strikes.js), once his root's placed; not while
+// his free arm's coming through after a grenade, dead, or in a vehicle
+function gobGunGrip(m,root,p){const wk=gobArms(p).wpn;if(gobGun(wk)&&p.state!=='dead'&&!p.drv&&!((p.thrS??9)<STRIKE_FT))gunGrip(m,root,wk==='rifle'?'rifle':'pistol');}
 function gobCamera(p){
   const K=gobKit(p),lie=p.state==='dead'?Math.min(1,p.t*3):0,walking=p.state==='walk'&&p.grounded&&p.lastSp>0.2,sn=Math.sin(p.phase),v=p.visOff;
   p.camHang=(p.camHang||0)+((p.state==='ceil'||(p.state==='piv'&&p.piv&&p.piv.next==='ceil')?1:0)-(p.camHang||0))*0.12;
@@ -281,7 +290,7 @@ function gobCamera(p){
   const wk=gobArms(p).wpn;for(const k in K.held)K.held[k].visible=k===wk;for(const k in K.tp)K.tp[k].visible=k===wk;
   gobBodyPose(K.m,p);
   // (his body comes off the wall with his eye; facing where he looks, turning into a blow, and flat on his back when he's dead)
-  gobBodyRoot(K.root,K.m,p.pos.x+c.x-ex,p.pos.y+lie*0.15,p.pos.z+c.z-ez,p.heading,-lie*Math.PI/2);K.root.rotation.z=0;
+  gobBodyRoot(K.root,K.m,p.pos.x+c.x-ex,p.pos.y+lie*0.15,p.pos.z+c.z-ez,p.heading,-lie*Math.PI/2);K.root.rotation.z=0;gobGunGrip(K.m,K.root,p);
   // (switching: the new one comes up from below; the rifle's held level along the view and kicks when it fires. The club
   // goes up and back, a beat at the top, and chops down across the view as the blow lands; the dagger's drawn back and
   // thrust straight in, at full stretch as it lands: strikes.js, with the attack's own timing)

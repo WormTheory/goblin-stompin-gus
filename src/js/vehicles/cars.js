@@ -270,7 +270,9 @@ function buildVeh(c,t){
     bk(1.3,0.5,1.5,bod,0,1.15,-0.9);bk(0.6,0.12,0.55,blk,0,1.5,-1.0);bk(0.6,0.5,0.1,blk,0,1.75,-1.3);   // (the seat)
     bk(0.08,0.08,0.45,blk,0,1.75,-0.45);bk(0.42,0.06,0.06,blk,0,1.95,-0.3);   // (the steering wheel)
     for(const [x,z] of [[-1,-0.25],[1,-0.25],[-1,-1.6],[1,-1.6]])bk(0.08,1.3,0.08,blk,x*0.62,2.2,z);bk(1.42,0.12,1.55,bod,0,2.88,-0.92);
-    bk(1.16,0.8,0.05,glass,0,2.3,-0.25);bk(1.16,0.8,0.05,glass,0,2.3,-1.6);for(const s2 of[-1,1])bk(0.05,0.62,1.2,glass,s2*0.63,2.4,-0.92);
+    // (the cab's windows you can see through, to whoever's sat in there: RIDE_SEAT)
+    const tg=c.tglM||(c.tglM=new THREE.MeshLambertMaterial({color:0xa8c8d8,transparent:true,opacity:0.28,depthWrite:false}));
+    bk(1.16,0.8,0.05,tg,0,2.3,-0.25);bk(1.16,0.8,0.05,tg,0,2.3,-1.6);for(const s2 of[-1,1])bk(0.05,0.62,1.2,tg,s2*0.63,2.4,-0.92);
     bk(0.3,0.16,0.3,blk,0,0.75,-1.85);   // (the hitch)
     for(const s2 of[-1,1]){twheel(s2*0.98*K,-0.95*K,1.7*K,0.55*K,false);twheel(s2*0.72*K,1.35*K,0.85*K,0.3*K,true);}
   }

@@ -131,7 +131,7 @@ function placeCamera(p){
 // ---- overlays drawn over the 3D view: health bars over everything that can be hurt (Options' Health bars), and damage
 // numbers that pop up where vehicles, trains, boats, rides, tanks, animals and the players are hit (Options' Damage
 // numbers; a goblin's are hudPop's instead). 2D, projected through each player's camera, bent like the world curve ----
-const DMG_POPS=[],_dov=new THREE.Vector3();let DMG_J=0;
+const DMG_POPS=[],_dov=new THREE.Vector3(),_dbp={x:0,y:0,z:0};let DMG_J=0;
 function dmgPop(x,y,z,n,col){if(!DMGPOP_ON||SBX||!(n>0))return;const j=(DMG_J=(DMG_J+1)%997);DMG_POPS.push({x:x+((j*37)%27/26-0.5)*0.6,y,z:z+((j*53)%31/30-0.5)*0.6,n,col,t:0});if(DMG_POPS.length>200)DMG_POPS.shift();}   // (a little scatter, not from Math.random: that would shift the game's own dice)
 let dovCtx=null,dovOn=false;
 function drawDbgOverlay(dt,views){
@@ -148,7 +148,9 @@ function drawDbgOverlay(dt,views){
     x.save();x.beginPath();x.rect(vx,top,vw,vh);x.clip();
     const proj=(wx,wy,wz)=>{const d2=(wx-cam.position.x)**2+(wz-cam.position.z)**2;_dov.set(wx,wy-k*d2,wz).project(cam);if(_dov.z>1||_dov.z<-1)return null;return[vx+(_dov.x+1)/2*vw,top+(1-_dov.y)/2*vh,Math.sqrt(d2)];};
     if(DT.hpBars){
-      const bar=(wx,wy,wz,hp,max,col)=>{const s=proj(wx,wy,wz);if(!s||s[2]>70)return;const f=Math.max(0,Math.min(1,hp/max)),bw=Math.max(18,46-s[2]*0.4),bh=5;
+      const bar=(wx,wy,wz,hp,max,col)=>{
+        if(wx>=SHIP_X0){_dbp.x=wx;_dbp.y=wy;_dbp.z=wz;shipPt(_dbp);wx=_dbp.x;wy=_dbp.y;wz=_dbp.z;}   // (aboard a ship, in its pocket: shown where the ship really is, ships.js)
+        const s=proj(wx,wy,wz);if(!s||s[2]>70)return;const f=Math.max(0,Math.min(1,hp/max)),bw=Math.max(18,46-s[2]*0.4),bh=5;
         x.fillStyle='rgba(10,12,16,.75)';x.fillRect(s[0]-bw/2-1,s[1]-bh-1,bw+2,bh+2);x.fillStyle=f>0.6?col:f>0.3?'#e8c14a':'#ff4a3a';x.fillRect(s[0]-bw/2,s[1]-bh,bw*f,bh);
         if(s[2]<28){x.font='600 10px ui-monospace,Menlo,monospace';x.fillStyle='#e8ece4';x.textAlign='center';x.fillText(Math.max(0,Math.ceil(hp))+'/'+Math.round(max),s[0],s[1]-bh-3);}};
       for(const g of goblins){if(!g.root.visible||g.state==='wait'||g.state==='dead'||!(g.hp>0))continue;if(!(g.hpMax>=g.hp))g.hpMax=g.hp;bar(g.pos.x,g.pos.y+2.1,g.pos.z,g.hp,g.hpMax,g.civ?'#9ad0ff':'#7fd04a');}
@@ -159,7 +161,15 @@ function drawDbgOverlay(dt,views){
         else if(V.kind==='airport'&&V.pl)for(const pl of V.pl){if(!netDead(pl,pl.dead)&&pl.g.visible)bar(pl.g.position.x,pl.g.position.y+5,pl.g.position.z,netHp(pl,pl.hp),PLANE_HP,'#5ab4ff');}
         else if(V.kind==='boat'&&V.bo&&!netDead(V.bo,V.bo.dead)&&V.boat.visible){const g=V.boat;bar(g.position.x,g.position.y+V.bo.K.fb+2,g.position.z,netHp(V.bo,V.bo.hp),V.bo.max,'#5ab4ff');}
         else if(V.kind==='rtrain'&&V.T&&V.cars){const T=V.T,gst=netGuest()&&T.netHP,hp=gst?T.netHP:T.carHP,cd=gst?T.netCarDead:T.carDead;
-          if(!(gst?T.netDead:T.dead))V.cars.forEach((g,i)=>{if(!(cd&&cd[i]))bar(g.position.x,g.position.y+4.2,g.position.z,hp&&hp[i]!==undefined?hp[i]:CAR_HP,CAR_HP,'#5ab4ff');});}}
+          if(!(gst?T.netDead:T.dead))V.cars.forEach((g,i)=>{if(!(cd&&cd[i]))bar(g.position.x,g.position.y+4.2,g.position.z,hp&&hp[i]!==undefined?hp[i]:CAR_HP,CAR_HP,'#5ab4ff');});}
+        // (the subway's trains, Mobile Gears, hot-air balloons, ships and a carrier's deck weapons had none: each is hurt
+        // through trainHit like the rest, so each gets its bar, from the same figures the driving display shows, drvHP)
+        else if(V.kind==='sub'&&V.T&&V.cars){const T=V.T,gst=netGuest()&&T.netHP,hp=gst?T.netHP:T.carHP,cd=gst?T.netCarDead:T.carDead;
+          if(!(gst?T.netDead:T.dead))V.cars.forEach((g,i)=>{if(!(cd&&cd[i]))bar(g.position.x,g.position.y+TRAIN_H+0.7,g.position.z,hp&&hp[i]!==undefined?hp[i]:CAR_HP,CAR_HP,'#5ab4ff');});}
+        else if(V.kind==='mech'&&V.mechs)for(const M of V.mechs){if(!netDead(M,M.dead))bar(M.x,M.y+MG.hy+0.8,M.z,netHp(M,M.hp),MG.hp,'#5ab4ff');}
+        else if(V.kind==='balloon'&&V.bl)for(const B of V.bl){if(!netDead(B,B.dead))bar(B.x,B.y+BAL.e1+0.8,B.z,netHp(B,B.hp),BAL.hp,'#5ab4ff');}
+        else if(V.kind==='ship'&&V.ships)for(const S of V.ships){if(S.dead)continue;const P=shipPose(S);bar(P.x,P.y+P.hy+2,P.z,S.hp,S.K.hp,'#5ab4ff');
+          if(S.mounts)for(const Mt of S.mounts)if(!Mt.dead)bar(Mt.x,Mt.y+2.4,Mt.z,Mt.hp,Mt.K.hp,'#5ab4ff');}}
       for(const q of players){if(!q.active||q.state==='dead'||q===p)continue;bar(q.pos.x,q.pos.y+2.5,q.pos.z,q.hp,20,'#7fd04a');}
     }
     for(const d of DMG_POPS){const s=proj(d.x,d.y+d.t*1.6,d.z);if(!s||s[2]>90)continue;const a=d.t<0.7?1:Math.max(0,1-(d.t-0.7)/0.4),sz=Math.round(16+Math.min(14,d.n*0.5)-s[2]*0.08);

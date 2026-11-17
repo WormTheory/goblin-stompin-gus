@@ -146,6 +146,23 @@
 - The main menu's "New city" button is now "New world".
 - The save screens now call a save a world rather than a city: "New file: new world", "Export this world", the world seed under the menu, and the rest.
 
+### Both hands on the gun
+
+- Goblins now hold their guns in both hands. Police raise the handgun out in front of them with their other hand wrapped under the grip, and preppers, militiamen, soldiers, sailors and marines tuck the rifle's stock into the shoulder and hold it by the barrel, turning side-on to aim as a rifleman does. Before, the free hand just hung in the air beside the gun.
+- A rifle that isn't being aimed is carried low across the body in both hands, rather than dangling from one.
+- Gnash and Grizzle hold the handgun and rifle the same way, as the others see them, and in your own view your other hand now comes in from the bottom left to hold the rifle's barrel or the handgun's grip.
+
+### Who's driving
+
+- Get into a forklift or a tractor and your goblin is sat at the wheel where everyone can see him, the tractor's cab now having windows you can see through. In a pedal boat, a rowboat or a speedboat he sits in it, at a ship's wheel he stands there, and in a hot-air balloon he stands in the basket, looking out over its rim. Before, all of these went off empty as soon as you climbed in.
+- In a car, van, truck, bus, supercar, hovercraft or anything else with a roof, your goblin's head now shows at the wheel, as every other driver's does. Before, a car you were driving looked empty.
+- Speedboats out on their rounds have a goblin at the wheel.
+
+### Health bars
+
+- With Options' Health bars on, Mobile Gears, hot-air balloons, the barge, the aircraft carrier and its deck weapons, and subway trains now show health bars like every other vehicle; they never had one.
+- Anything aboard a ship (goblins, cars, tanks, helicopters, the carrier's jets) now has its health bar over it, rather than out of sight far away.
+
 ### Fixes
 
 - The minimap no longer draws the grey of the surrounding blocks over big sites that take up several blocks, such as theme parks, which hid most of their buildings.

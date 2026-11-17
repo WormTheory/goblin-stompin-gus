@@ -89,7 +89,9 @@ function drvLetGo(p,D){const o=D.o;if(o.drv===p)o.drv=null;
 // out by the side (whichever has room), else the back or the front, else on the roof
 function drvExit(p,thrown){
   const D=p.drv;if(!D)return;if(D.jack)jackEnd(p,D,true);p.drv=null;const o=D.o;if(p.lockT)setLock(p,null);
-  if(D.k==='car'&&p.gb)rideReset(p.gb);
+  if(p.gb)rideReset(p.gb);
+  // (your head at the wheel goes with you, unless someone else is still driving it: a crew's driver)
+  if(D.k==='car'&&D.seat!=='gun'&&o.dh&&!(o.crew&&o.crew.drv)&&!rideShown({drv:D,state:''}))o.dh.visible=false;
   const S=drvPose(D);
   if(D.seat==='gun'){if(o.gnr===p)o.gnr=null;}else drvLetGo(p,D);
   if(D.k==='ship'){shipLeave(p,o);return;}   // (left standing at the helm)
@@ -122,11 +124,33 @@ function drvSeat(p){
   if(D.k==='ship'){shipSeat(p,o);return;}
   const S=drvPose(D);p.pos.set(S.x,S.y+(D.k==='mech'?5:Math.min(1.2,S.hy*0.5)),S.z);   // (a Mobile Gear's pilot sits up in its chest)p.heading=S.h;
   p.vy=0;p.grounded=true;p.mvx=p.mvz=0;p.standCar=null;p.vcl=null;p.peakY=p.pos.y;p.biteT=0;
-  if(rideShown(p)){if(D.seat==='gun')gunPose(p,o);else ridePose(p,o);}
+  if(p.gb)gunGripUndo(p.gb.m);   // (a gun held two-handed the moment before getting in: strikes.js)
+  if(rideShown(p)){if(D.seat==='gun')gunPose(p,o);else if(rideSeatOf(D))seatPose(p,D);else ridePose(p,o);}
+  // (in anything closed, it's your head the others see at the wheel, as they see every other driver's: cars.js's dh)
+  else if(D.k==='car'&&D.seat!=='gun'&&!D.jack&&o.dh&&!o.dh.visible)o.dh.visible=true;
+}
+// where a goblin at the controls of something open sits, or stands, in its own frame, so the others see him there: the
+// spot under his hips (or his feet, standing), and 'sit' or 'stand'; w: in blocks rather than the model's own units
+// (the ship's helm: he's stood there already, see shipSeat)
+const RIDE_SEAT={forklift:[0,1.27,-0.48,'sit'],tractor:[0,1.25,-0.84,'sit'],pedalo:[0.3,0.8,-0.5,'sit',1],row:[0,0.63,0.2,'sit',1],
+  speed:[0.35,1.1,0.05,'sit',1],balloon:[0,0.72,0,'stand',1]};
+const rideKind=D=>D.k==='car'?D.o.veh:D.k==='boat'?D.o.k:D.k==='balloon'?'balloon':null;
+const rideSeatOf=D=>D.k==='ship'?SHIP_STAND:RIDE_SEAT[rideKind(D)]||null,SHIP_STAND=[0,0,0,'stand',1];
+// sat at the wheel (hands on it, knees up) or stood at the basket's rim or the ship's wheel, carried with the vehicle
+function seatPose(p,D){
+  const K=gobKit(p),R=K.root,S=rideSeatOf(D),sit=S[3]==='sit';
+  if(D.k==='ship'){R.position.set(p.pos.x,p.pos.y,p.pos.z);R.rotation.set(0,p.heading,0);}
+  else{const g=D.o.g,e=g.rotation,k=S[4]?1:ES,cx=Math.cos(e.x),sx=Math.sin(e.x),cy=Math.cos(e.y),sy=Math.sin(e.y),cz=Math.cos(e.z),sz=Math.sin(e.z);
+    // (the seat turned with the vehicle, pitch, heading and roll, as its 'YXZ' rotation turns its model)
+    let x=S[0]*k,y=S[1]*k,z=S[2]*k;[x,y]=[x*cz-y*sz,x*sz+y*cz];[y,z]=[y*cx-z*sx,y*sx+z*cx];[x,z]=[x*cy+z*sy,-x*sy+z*cy];
+    R.position.set(g.position.x+x,g.position.y+y-(sit?0.45*ES:0),g.position.z+z);R.rotation.set(e.x,e.y,e.z);}
+  for(const L of K.m.legs)L.rotation.set(sit?-1.25:0,0,0);if(sit){K.m.legs[0].rotation.z=0.2;K.m.legs[1].rotation.z=-0.2;}
+  const a=sit?-1.3:-1.15;K.m.arm.rotation.set(a,0,-0.12);K.m.arm.hand.rotation.set(0,0,0);if(K.m.armL)K.m.armL.rotation.set(a,0,0.12);
 }
 // on a motorcycle you're out in the open: your goblin's sat astride it, leaning with it, hands on the bars, feet on the
-// pegs (in anything with a roof you're out of sight: see gobView)
-const rideShown=q=>!!(q.drv&&q.drv.k==='car'&&(q.drv.o.veh==='bike'||q.drv.o.veh==='quad'||q.drv.o.veh==='technical'&&q.drv.seat==='gun')&&!q.drv.jack&&q.state!=='dead');
+// pegs; likewise sat on a forklift or a tractor, in an open boat, stood in a balloon's basket or at a ship's wheel
+// (seatPose). In anything with a roof you're out of sight (gobView), and your head shows at the wheel as other drivers' do
+const rideShown=q=>!!(q.drv&&(q.drv.k==='car'&&(q.drv.o.veh==='bike'||q.drv.o.veh==='quad'||q.drv.o.veh==='technical'&&q.drv.seat==='gun')||q.drv.seat!=='gun'&&rideSeatOf(q.drv))&&!q.drv.jack&&q.state!=='dead');   // (and anything else open: RIDE_SEAT)
 function ridePose(p,c){const K=gobKit(p),R=K.root,s=Math.sin(c.heading),k=Math.cos(c.heading);
   R.rotation.set(c.g.rotation.x,c.g.rotation.y,c.g.rotation.z);
   // (the seat, from the bike's own middle: up 0.42 and back 0.25 of its body, tipped over with its lean)

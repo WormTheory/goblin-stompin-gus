@@ -154,8 +154,9 @@ function devFoSim(kind,anim){
   if(A.init)A.init(g,K,C);
   for(let f=0;f<N;f++){C.f=f;
     if(f)g.t+=dt;A.step(g,K,dt,C);if(g.pkit)copKitShow(g.pkit,copKitState(g));   // (club, or the handgun drawn, and the holster)
+    const gk=gunHeld(g);if(gk)gunGrip(m,m.root,gk);   // (both hands on a gun, as batDraw draws it: strikes.js; undone once it's recorded)
     for(let i=0;i<M;i++){const o=nodes[i],b=(f*M+i)*FL,T=rec.tr;T[b]=o.position.x;T[b+1]=o.position.y;T[b+2]=o.position.z;T[b+3]=o.quaternion.x;T[b+4]=o.quaternion.y;T[b+5]=o.quaternion.z;T[b+6]=o.quaternion.w;T[b+7]=o.scale.x;T[b+8]=o.scale.y;T[b+9]=o.scale.z;T[b+10]=o.visible?1:0;}
-    rec.pos[f*4]=g.pos.x;rec.pos[f*4+1]=g.pos.y;rec.pos[f*4+2]=g.pos.z;rec.pos[f*4+3]=g.heading;}
+    if(gk)gunGripUndo(m,m.root);rec.pos[f*4]=g.pos.x;rec.pos[f*4+1]=g.pos.y;rec.pos[f*4+2]=g.pos.z;rec.pos[f*4+3]=g.heading;}
   if(A.marks)rec.marks.push(...A.marks(K,N,rec));
   for(const h of rec.hits)h.until=Math.min(N-1,h.until);
   rec.data=[['Health',K.hp+' points'],...A.data(K),['Recording',N+' frames ('+(N/60).toFixed(2)+' s)']];

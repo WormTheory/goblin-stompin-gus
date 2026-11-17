@@ -148,6 +148,9 @@ function boatVenue(key,k,o,want){
   want.add(key);if(venues.has(key))return;
   {const t0=BOAT_GONE.get(key);if(t0!==undefined){if(playTime-t0<120)return;BOAT_GONE.delete(key);}}
   const seed=Math.abs(key.split('').reduce((a,c)=>(a*31+c.charCodeAt(0))|0,7))%9973,g=makeBoat(k,o.L,seed);scene.add(g);const K=BOATS[k],L=o.L||K.L,max=K.hp*Math.max(.6,L/K.L);
+  // (a speedboat out on its rounds has a goblin at the wheel, sat where a player who takes it over sits: RIDE_SEAT)
+  if(k==='speed'){const r=new THREE.Group(),m=goblinModel(r,{shareGeo:true,club:false,tunic:GPAL.tunic[seed%GPAL.tunic.length]}),S=RIDE_SEAT.speed;
+    r.scale.setScalar(ES);r.position.set(S[0],S[1]-0.45*ES,S[2]);for(const L of m.legs)L.rotation.x=-1.25;m.arm.rotation.x=m.armL.rotation.x=-1.3;r.visible=false;g.add(r);g.userData.helm=r;}
   const V=Object.assign({kind:'boat',boat:g,ph:hash2(seed,3)*6.28,y0:G+.85},o);
   V.bo={isBoat:true,key,k,K,g,L,hp:max,max,dead:false,deadT:0};
   if(V.lane){V.s=hash2(seed,7)*(4*V.lane.len+2*Math.PI*V.lane.R);V.dir=hash2(seed,9)<.5?1:-1;}
@@ -156,6 +159,7 @@ function boatVenue(key,k,o,want){
 }
 function updateBoat(V,dt,t){
   const bo=V.bo,g=V.boat,K=bo.K;
+  if(g.userData.helm)g.userData.helm.visible=!bo.dead&&!!V.lane&&!bo.drv;   // (gone once someone takes it over, or it's tied up)
   if(bo.dead){boatWreck(V,dt);return;}
   if(g.userData.radar)g.userData.radar.rotation.y=t*1.4;
   // (pulled up on the sand: it lies wherever the ground turns out to be, once that's been built)

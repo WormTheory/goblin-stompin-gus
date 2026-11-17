@@ -71,7 +71,7 @@ function decoEach(f){
 }
 function batDraw(){
   for(const B of BAT.values())B.n=0;
-  for(const g of goblins){const r=g.root;if(!r.visible)continue;shipGobMatrix(g);batPut(r,false);}   // (one aboard a ship is drawn where the ship is: see ships.js)   // (street goblins are kept out of the scene, so nothing else updates their matrices)
+  for(const g of goblins){const r=g.root;if(!r.visible)continue;const gk=gunHeld(g);if(gk)gunGrip(g,r,gk);shipGobMatrix(g);batPut(r,false);if(gk)gunGripUndo(g,r);}   // (a gun held in both hands, just for the drawing: strikes.js)   // (one aboard a ship is drawn where the ship is: see ships.js)   // (street goblins are kept out of the scene, so nothing else updates their matrices)
   wmFrame++;for(const c of cars){if(!c.g.visible)continue;c.g.updateMatrixWorld(true);c.g.wmDone=wmFrame;batPut(c.g,true);}
   decoEach(g=>{if(g.visible&&(g.parent===scene||g.parent&&g.parent.shipPg)&&g.wmDone!==wmFrame){g.updateMatrixWorld(true);g.wmDone=wmFrame;batPut(g,true,true);}});   // (a tank or helicopter aboard a ship hangs off its picture: see shipVehMove)
   for(const B of BAT.values()){if(!B.n&&!B.m.count)continue;B.m.count=B.n;   // (and only the part of each buffer in use goes up to the graphics card)
@@ -119,7 +119,7 @@ function goblinModel(parent,o={}){
   // the compounds' people: a dagger (thieves), or a rifle (pointing on down past the hand, so it's level when the arm is
   // raised to aim); and whatever they throw, in the left hand, shown only while they're winding up to throw it
   if(o.gear==='dagger'){box(0.08,0.08,0.12,'hilt',0x2a1a10,0,-0.02,0.06,hand);box(0.05,0.03,0.3,'blade',0xd0d4dc,0,-0.02,0.27,hand);}
-  if(o.gear==='rifle'){box(0.1,0.3,0.14,'stock',0x4a3420,0,0.04,0.06,hand);box(0.07,0.62,0.07,'gun',0x22262c,0,-0.38,0.06,hand);box(0.05,0.12,0.05,'gun',0x22262c,0,-0.12,0.13,hand);}
+  if(o.gear==='rifle'){parent.gunK='rifle';box(0.1,0.3,0.14,'stock',0x4a3420,0,0.04,0.06,hand);box(0.07,0.62,0.07,'gun',0x22262c,0,-0.38,0.06,hand);box(0.05,0.12,0.05,'gun',0x22262c,0,-0.12,0.13,hand);}
   if(o.held){const [w,h,d,c]=o.held;out.orb=box(w,h,d,'orb',c,0,-0.46,0.04,armL);out.orb.visible=false;}
   // hats
   acc('cap',[box(0.52,0.12,0.48,'hat',0x2a2a2a,0,0.47,0.02,head),box(0.34,0.04,0.2,'hat',0x2a2a2a,0,0.425,0.31,head)]);
