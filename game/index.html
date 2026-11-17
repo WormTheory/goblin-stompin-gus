@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:81a15fe69ef3e34870d332cb69e912e0a3d3691b2c98265a1088146b80746611 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:0779b1a8923c3e51b3a04971b1b6ba57781fcc38a5a60235344e19f8a45b3558 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1492,7 +1492,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Options</h3>
 <ul><li><strong>Sound volume</strong> and <strong>Brightness</strong> sliders, in a new Sound &amp; picture section at the top of Options. Brightness goes from 20% to 250% and only changes the game's picture, not the menus or the display, and in split screen it goes for both halves.</li><li><strong>Hide blood</strong>, under On screen: no blood sprays, splats on the ground or pools.</li></ul>
 <h3>Fixes</h3>
-<ul><li>Armories' corner turrets were cut off where they stuck out past the edge of their block, and could never count as destroyed. The drill hall is a little smaller now so its turrets fit.</li><li>Office towers, big police stations, the stadium and other big buildings sometimes never counted as destroyed, however much of them was knocked down, because the game overestimated how many blocks they had. It now counts every block.</li><li>Most of the false fronts on a film studio's backlot had no walls, only windows. They have their walls back.</li><li>Loading into a city or the Testing Environment could start with a loud crash, like breaking glass (heard in Firefox): every door with someone already standing at it swung open with its sound at the same moment. Doors already in use when you arrive are simply open now, door sounds are spaced out, and a limiter stops any pile-up of sounds coming out as one deafening crack. The rain and wind sounds are now only started once there's weather to hear, and fade in by a simpler route, as in Firefox they could start at full volume.</li><li>Rubble that had landed on a building's roof came back hanging in mid-air, where the roof used to be, once that building had come down and you'd left the area and returned (or loaded the game). It's now saved as gone with the building. (Rubble already left hanging in a saved city still falls if you knock it.)</li></ul>
+<ul><li>Armories' corner turrets were cut off where they stuck out past the edge of their block, and could never count as destroyed. The drill hall is a little smaller now so its turrets fit.</li><li>Office towers, big police stations, the stadium and other big buildings sometimes never counted as destroyed, however much of them was knocked down, because the game overestimated how many blocks they had. It now counts every block.</li><li>Most of the false fronts on a film studio's backlot had no walls, only windows. They have their walls back.</li><li>Loading into a city or the Testing Environment could start with a loud burst of hiss, like breaking glass (in Firefox): the rain and wind sounds started at full volume. They're only started once there's weather to hear now, and fade in properly. Doors you arrive beside no longer all creak open at once either, and a limiter stops any pile-up of sounds coming out as one deafening crack.</li><li>Rubble that had landed on a building's roof came back hanging in mid-air, where the roof used to be, once that building had come down and you'd left the area and returned (or loaded the game). It's now saved as gone with the building. (Rubble already left hanging in a saved city still falls if you knock it.)</li></ul>
 </details>
 <p class="pn-earlier">Earlier updates</p>
 <details class="pn-up pn-fold" id="version-0-4"><summary tabindex="0"><h2>Version 0.4</h2><a class="pn-play" data-ver="0.4" href="v/0.4/" tabindex="0">Play 0.4</a><span class="pn-tog" aria-hidden="true"></span></summary>
@@ -1794,7 +1794,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.4.1',GAME_BUILD='c27ea80335e5';
+const GAME_VER='0.4.1',GAME_BUILD='34d5fc21b6f8';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v95';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
