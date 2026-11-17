@@ -116,7 +116,7 @@ function shipFits(S,x,z,yaw){
 function updateShips(V,dt){
   for(const S of [...V.ships]){
     if(S.dead){shipSinking(S,V,dt);continue;}
-    if(S.leak)S.hp-=S.leak*SHIP_LEAK*dt;
+    if(S.leak&&!drvSafe(S))S.hp-=S.leak*SHIP_LEAK*dt;
     if(S.hp<=0){shipSink(S);continue;}
     shipHelmIn(S,dt);shipDrive(S,dt);
     S.grp.position.set(S.x,0,S.z);S.grp.rotation.y=S.yaw;S.grp.updateMatrixWorld(true);
@@ -193,11 +193,12 @@ function shipBoxes(S){
     return{u:(b[0]+b[1]+1)/2,w:(b[2]+b[3]+1)/2,hx,hz,y0:b[4],y1:b[5],pr:{isTrain:true,isShipBox:true,alive:true,pos:new V3(),kv:new V3(),vy:0,spinP:0,spinR:0,speed:0,hurt:0,hx,hz,hy:b[5]-b[4],heading:0,top:0,veh:'ship',T:S,i}};});
   for(const B of S.bx){const pr=B.pr,x=S.x+B.u*tz+B.w*tx,z=S.z-B.u*tx+B.w*tz;pr.pos.set(x,B.y0,z);pr.heading=S.yaw;pr.top=B.y1;pr.speed=S.sp;
     TRAIN_BOXES.push({x,z,tx,tz,y0:B.y0,top:B.y1,v:S.sp,hx:B.hx,hz:B.hz,proxy:pr});}
+  mountBoxes(S);   // (its deck weapons: carrier-crew.js)
 }
 // hit from outside (trainHit): the number shown where it struck, on the piece it struck. A ship that's only sunk by
 // wrecking it (K.wreck: the carrier) takes nothing from the hit itself, only from the blocks the blast knocks out of it
 function shipHit(S,n,i){
-  if(S.dead)return;const B=S.bx&&S.bx[i||0],P=B?B.pr.pos:null;if(!S.K.wreck)S.hp-=n;
+  if(S.dead)return;const B=S.bx&&S.bx[i||0],P=B?B.pr.pos:null;if(!S.K.wreck&&!drvSafe(S))S.hp-=n;
   if(P){if(!S.K.wreck)dmgPop(P.x,B.y1+2,P.z,Math.round(n),'#ffb04a');vHitFx(P.x,B.y1,P.z,n);}
 }
 // a block of a ship knocked out (setRaw, before it's written): its health down a little, and if it was below the waterline
@@ -205,8 +206,9 @@ function shipHit(S,n,i){
 function shipDent(x,y,z,b){
   const S=shipOfPos(x,z);if(!S||S.dead||b!==AIR)return b;const o=rawGet(x,y,z);if(!o||o===WATER)return b;
   if(S.props&&!(S.propsT>0))S.propsT=0.3;   // (anything stood on it goes too: looked over a moment later, once the smash is done)
-  if(y<G){S.leak++;S.hp-=3;return WATER;}
-  S.hp-=1;return b;
+  const safe=drvSafe(S);   // (Invulnerability, at its helm: its blocks still go, but not its health)
+  if(y<G){S.leak++;if(!safe)S.hp-=3;return WATER;}
+  if(!safe)S.hp-=1;return b;
 }
 // ---- a ship's furniture and doors. Its props (K.props: [type, s, y, w, yaw, tint, cells], as props.js draws them) go in
 // instanced boxes of the ship's own, hung off its pocket, so they're carried along with it and need drawing only once (and

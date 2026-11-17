@@ -71,17 +71,19 @@ function impTick(T,dt){if(T.stag>0){T.stag-=dt;if(T.stag<=0)T.stag=0;return;}T.i
 // the army's vehicles before townsfolk, ones in sight first, and the one already locked kept unless another's clearly
 // better), and the hard lock's button. Then the target's speed, smoothed, for leading it; and a hard lock turning the
 // camera after it
+// a hostile vehicle, a deck weapon or a jet: picked out (lockTargets) and held twice as far off as anyone on foot
+const mgBigT=t=>isMilT(t)||!!(t&&(t.isMountT||t.isJetT));
 function mgLocks(M,p,i,dt){
   let best=null,bs=1e9;M.inBox=[];
   for(const o of lockTargets(p,MGW.range)){const t=o.t,a=mgOff(p,t);if(a>MGW.box)continue;M.inBox.push(t);
-    const sc=a*40+o.d*0.02+(t.civ?3:0)+(isMilT(t)?-1:0)+o.hid+(t===M.soft?-1.5:0);if(sc<bs){bs=sc;best=t;}}
+    const sc=a*40+o.d*0.02+(t.civ?3:0)+(isMilT(t)||t.isMountT||t.isJetT?-1:0)+o.hid+(t===M.soft?-1.5:0);if(sc<bs){bs=sc;best=t;}}
   if(best!==M.soft&&best&&audio)sfx('Mobile Gear lock',()=>tone('square',1400,1400,0.03,0.025));
   M.soft=best;
   if(i.mgLockP){
     if(M.hard){M.hard=null;tone('triangle',620,380,0.07,0.035);}
     else{let t=best;if(!t){let b2=1e9;for(const o of lockTargets(p,MGW.range)){const a=mgOff(p,o.t);if(a>0.8)continue;const sc=a*40+o.d*0.02+o.hid;if(sc<b2){b2=sc;t=o.t;}}}   // (nothing in the box: anything a little wider of it)
       if(t){M.hard=t;tone('square',880,1320,0.08,0.035);}else tone('square',180,140,0.06,0.03);}}
-  if(M.hard&&(!lockAlive(M.hard)||Math.hypot(M.hard.pos.x-M.x,M.hard.pos.z-M.z)>MGW.hardRange)){M.hard=null;tone('triangle',520,300,0.08,0.03);}
+  if(M.hard&&(!lockAlive(M.hard)||Math.hypot(M.hard.pos.x-M.x,M.hard.pos.z-M.z)>MGW.hardRange*(mgBigT(M.hard)?2:1))){M.hard=null;tone('triangle',520,300,0.08,0.03);}
   const T=mgTarget(M);
   if(T&&dt>0){const ty=lockY(T),V=M.lv;if(V&&V.t===T){const k=Math.min(1,dt*5);V.vx+=((T.pos.x-V.x)/dt-V.vx)*k;V.vy+=((ty-V.y)/dt-V.vy)*k;V.vz+=((T.pos.z-V.z)/dt-V.vz)*k;V.x=T.pos.x;V.y=ty;V.z=T.pos.z;}
     else M.lv={t:T,x:T.pos.x,y:ty,z:T.pos.z,vx:0,vy:0,vz:0};}

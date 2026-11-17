@@ -63,9 +63,9 @@ function stepCorpse(p,dt){
 // and the army's tanks and helicopters (unless someone's driving it); with PvP on, the other players too (one in a
 // vehicle is locked as the player, so shots and missiles go for the vehicle; one in a car is the car already)
 const isCarT=t=>!!(t&&t.wheels),isMilT=t=>!!(t&&t.isMil);
-const lockAlive=t=>isPlT(t)?t.active&&t.state!=='dead'&&pvpOn():isMilT(t)?!t.dead&&!t.drv:isCarT(t)?t.alive:t.state==='chase';
+const lockAlive=t=>t&&t.isMountT?!t.Mt.dead&&!t.Mt.S.dead:t&&t.isJetT?!t.pl.dead&&t.pl.g.position.x<SHIP_X0:isPlT(t)?t.active&&t.state!=='dead'&&pvpOn():isMilT(t)?!t.dead&&!t.drv:isCarT(t)?t.alive:t.state==='chase';
 // the height of its middle (where the marker sits, and what a gun aims at)
-const lockY=t=>isPlT(t)?t.pos.y+(t.drv?0.6:t.gob?1.0:1.4):isMilT(t)?t.pos.y+MIL[t.kind].hy*0.55:t.pos.y+(isCarT(t)?0.9:1.1);
+const lockY=t=>t&&t.isMountT?t.pos.y+1.6:t&&t.isJetT?t.pos.y+1.2:isPlT(t)?t.pos.y+(t.drv?0.6:t.gob?1.0:1.4):isMilT(t)?t.pos.y+MIL[t.kind].hy*0.55:t.pos.y+(isCarT(t)?0.9:1.1);
 // can the camera actually see it? march from the camera to the target's middle through the voxels; anything solid
 // and opaque in between hides it (leaves and glass don't)
 function seenFrom(a,bx,by,bz){
@@ -82,6 +82,10 @@ function lockTargets(p,range){
   for(const g of goblins)if(g.state==='chase')add(g,g.pos.y);
   for(const c of cars)if(c.alive&&!c.parkPool&&c.drv!==p&&c.gnr!==p)add(c,c.pos.y);
   for(const V of venues.values())if(V.kind==='army')for(const M of V.mil)if(M.pos&&lockAlive(M))add(M,M.pos.y,2);
+  // (a carrier's deck weapons, and its jets in the air, from out in the world: big enough to pick out twice as far off.
+  // Through stand-ins kept where they really are, Mt.lk and pl.lk)
+  if(shipN&&p.pos.x<SHIP_X0)for(const S of SHIPS){if(!S||S.dead)continue;for(const Mt of S.mounts||[])if(lockAlive(Mt.lk))add(Mt.lk,Mt.lk.pos.y,2);
+    if(S.jetV)for(const pl of S.jetV.pl){if(!pl.ai||!pl.free||!pl.free.air)continue;pl.lk=pl.lk||{isJetT:true,pl,pos:pl.g.position};if(lockAlive(pl.lk))add(pl.lk,pl.g.position.y,2);}}
   if(pvpOn())for(const q of players)if(q!==p&&lockAlive(q)&&!(q.drv&&(isCarT(q.drv.o)||q.drv.o===(p.drv&&p.drv.o))))add(q,q.pos.y,q.drv?2:1);
   return out;
 }

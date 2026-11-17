@@ -188,7 +188,7 @@ function planeStrike(pl,v){
     if(d){g2.trainT=1;damageGoblin(g2,Math.round(4+12*k),g2.pos.clone(),d.clone().multiplyScalar(1+k),'Hit by a plane',ACCIDENT);g2.vy=Math.max(g2.vy||0,12+16*k);g2.kv.x+=d.x*(14+26*k);g2.kv.z+=d.z*(14+26*k);}}
 }
 function planeHit(pl,n){
-  if(pl.dead)return;const g=pl.g,p=g.position;dmgPop(p.x,p.y+5,p.z,Math.round(n),'#ffb04a');pl.hp-=n;vHitFx(p.x,p.y+2.5,p.z,n);if(pl.hp>0)return;
+  if(pl.dead||drvSafe(pl))return;const g=pl.g,p=g.position;dmgPop(p.x,p.y+5,p.z,Math.round(n),'#ffb04a');pl.hp-=n;vHitFx(p.x,p.y+2.5,p.z,n);if(pl.hp>0)return;
   pl.dead=true;pl.deadT=0;
   blastFx(p.x,p.y+3,p.z,0.8,2.4);smoke(p.x,p.y+3,p.z,26,0x262626);
   for(let k=0;k<10;k++){const d=debris[(debrisIdx++)%debris.length];d.m.position.set(p.x+(Math.random()-.5)*8,p.y+2+Math.random()*2,p.z+(Math.random()-.5)*12);d.v.set((Math.random()-.5)*20,8+Math.random()*12,(Math.random()-.5)*20);d.spin.set((Math.random()-.5)*12,(Math.random()-.5)*12,(Math.random()-.5)*12);d.life=25;d.m.visible=true;}

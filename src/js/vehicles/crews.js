@@ -39,7 +39,7 @@ function crewDoor(o,seat){
 }
 // is the seat it's running for still there to fill?
 function crewWanted(m){const o=m.o;if(m.home)return true;
-  if(o.isMount)return!o.drv&&!o.crew&&o.S.crewV.roused&&!o.S.dead;
+  if(o.isMount)return!o.dead&&!o.drv&&!o.crew&&o.S.crewV.roused&&!o.S.dead;
   if(o.cvJet)return!o.drv&&!o.crew&&!o.ai&&!o.dead&&o.S.crewV.roused&&!o.S.dead;
   if(o.isMil)return!o.dead&&!o.crew&&!o.drv&&o.state==='man';
   return o.alive&&!!o.crew&&!o.crew[m.seat]&&!o.drv&&!o.gnr;}

@@ -12,7 +12,7 @@ function vDamaged(x,y,z,f,dt){
 function shotHitsVeh(S){const x=S.pos.x,y=S.pos.y,z=S.pos.z;
   for(const c of cars){if(!c.alive||c===S.own)continue;const dx=x-c.pos.x,dz=z-c.pos.z;if(dx*dx+dz*dz>(c.hz+1)*(c.hz+1)||y<c.pos.y-0.2||y>c.pos.y+(c.hy||1.4)+0.2)continue;
     const s=Math.sin(c.heading),k=Math.cos(c.heading);if(Math.abs(dx*s+dz*k)<=c.hz+0.2&&Math.abs(dx*k-dz*s)<=c.hx+0.2)return true;}
-  for(const B of TRAIN_BOXES){const pr=B.proxy;if(!pr.alive||B.soft||pr.T===S.own||S.noShip&&pr.isShipBox||y<B.y0-0.2||y>B.top+0.2)continue;const dx=x-B.x,dz=z-B.z,hx=B.hx||TRAIN_HX,hz=B.hz||TRAIN_HZ;
+  for(const B of TRAIN_BOXES){const pr=B.proxy;if(!pr.alive||B.soft||pr.T===S.own||S.noShip&&(pr.isShipBox||B.mw)||pr.isMountBox&&pr.T.S===S.own||y<B.y0-0.2||y>B.top+0.2)continue;const dx=x-B.x,dz=z-B.z,hx=B.hx||TRAIN_HX,hz=B.hz||TRAIN_HZ;
     if(Math.abs(dx)>hx+hz+1||Math.abs(dz)>hx+hz+1)continue;if(Math.abs(dx*B.tx+dz*B.tz)<=hz+0.2&&Math.abs(-dx*B.tz+dz*B.tx)<=hx+0.2)return true;}
   return false;}
 // a blast's harm to the vehicles round it (vd at the middle, less at the edge): cars, and every train car, boat, plane,

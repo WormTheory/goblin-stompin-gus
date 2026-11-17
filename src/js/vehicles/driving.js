@@ -390,6 +390,8 @@ function vehIn(x,z,h,hx,hz,y0,y1,self){const R=Math.hypot(hx,hz);   // (returns 
   for(const L of [TRAIN_BOXES,PREV_BOXES])for(const B of L){const pr=B.proxy;if(B.soft||!pr.alive||(pr.T||pr)===self||pr.T&&pr.T.isMil||self&&self.cvJet&&pr.T&&pr.T.cvJet||B.y0>=y1||B.top<=y0||B.y0>=B.top)continue;const bx=B.hx||TRAIN_HX,bz=B.hz||TRAIN_HZ;
     if(Math.hypot(B.x-x,B.z-z)>R+Math.hypot(bx,bz))continue;if(boxesTouch(x,z,h,hx,hz,B.x,B.z,Math.atan2(B.tx,B.tz),bx,bz))return pr;}
   return null;}
+// the debug menu's Invulnerability covers whatever a player is driving, flying or manning, too: it takes no damage
+function drvSafe(o){if(!DT.invuln||!o)return false;for(const p of players)if(p.active&&p.drv&&p.drv.o===o)return true;return false;}
 // a vehicle run into by another (vehIn's answer), hurt by n
 function vehHurt(o,n){if(o.isMil)milHit(o,n);else damageCar(o,n,undefined,'acc');}
 // flying a plane, more or less as a real one flies. On a controller the stick's up and down set the throttle (it stays

@@ -100,7 +100,7 @@ function shotSteer(S,dt){
   else if(S.chase){const c=S.chase();if(!c){S.chase=null;return false;}x=c.x;y=c.y;z=c.z;if(Math.hypot(x-S.pos.x,y-S.pos.y,z-S.pos.z)<1.4)return true;}   // (a point that moves: a carrier's missile after someone)
   else if(S.at){x=S.at.x;y=S.at.y;z=S.at.z;}else return false;
   const dx=x-S.pos.x,dy=y-S.pos.y,dz=z-S.pos.z,d=Math.hypot(dx,dy,dz)||0.01;
-  if(S.tgt&&d<(isMilT(T)?2.4:isCarT(T)?1.6:1.2))return true;
+  if(S.tgt&&d<(isMilT(T)||T.isMountT||T.isJetT?2.4:isCarT(T)?1.6:1.2))return true;
   if(S.t<0.25)return false;
   const v=S.v,sp=Math.min(S.sp,Math.hypot(v.x,v.y,v.z)+S.sp*2*dt),L=Math.hypot(v.x,v.y,v.z)||1,k=Math.min(1,S.turn*dt);
   let ux=v.x/L+(dx/d-v.x/L)*k,uy=v.y/L+(dy/d-v.y/L)*k,uz=v.z/L+(dz/d-v.z/L)*k;const U=Math.hypot(ux,uy,uz)||1;

@@ -21,9 +21,9 @@ const CV_POSTS=[
 const CV_MOUNTS=[['ciws',-12,72,0.6],['ciws',14,-80,-2.2],['sparrow',13,50,-1.2],['sparrow',-13,-80,2.4],['ram',14,-55,-1.6],['ram',-12,62,1.0]];
 // what each weapon is: its name, the magazine (DRV_WPN's shape), how far it reaches
 const MOUNT_K={
-  ciws:{name:'CIWS (Phalanx)',wpn:[{k:'gun',name:'Phalanx heat',max:160,gap:0.04,reload:4,heat:true}],range:70},
-  sparrow:{name:'Sea Sparrow launcher',wpn:[{k:'rkt',name:'Sea Sparrow',max:8,gap:0.6,reload:12}],range:160,sp:55,turn:2.4,R:4.6,dmg:5,crush:2.6,vd:90},
-  ram:{name:'RAM launcher',wpn:[{k:'rkt',name:'RAM',max:21,gap:0.22,reload:10}],range:100,sp:70,turn:3.6,R:3.0,dmg:3,crush:1.6,vd:45}};
+  ciws:{name:'CIWS (Phalanx)',wpn:[{k:'gun',name:'Phalanx heat',max:160,gap:0.04,reload:4,heat:true}],range:70,hp:150},
+  sparrow:{name:'Sea Sparrow launcher',wpn:[{k:'rkt',name:'Sea Sparrow',max:8,gap:0.6,reload:12}],range:160,hp:180,sp:55,turn:2.4,R:4.6,dmg:5,crush:2.6,vd:90},
+  ram:{name:'RAM launcher',wpn:[{k:'rkt',name:'RAM',max:21,gap:0.22,reload:10}],range:100,hp:150,sp:70,turn:3.6,R:3.0,dmg:3,crush:1.6,vd:45}};
 const MOUNT_STAND=30;   // (seconds well away, everyone, before general quarters stands down)
 const _mtv={x:0,z:0};
 // ---- the mounts' models: a pedestal, and on it a head that turns (and a gun or launcher in it that lifts) ----
@@ -69,7 +69,7 @@ function shipCrewInit(S){
     roused:false,awayT:0,alarmT:0,cx:S.ox,cz:S.oz};
   V.slots=V.posts.map(()=>null);V.slain=V.posts.map(()=>false);S.crewV=V;
   S.mounts=CV_MOUNTS.map(([kind,s,w,h],i)=>{const m=makeMount(kind),K=MOUNT_K[kind],x=S.ox-s+0.5,z=S.oz+w+0.5,y=G+17;m.g.position.set(x,y,z);m.g.rotation.y=h;S.pg.add(m.g);
-    const Mt={isMount:true,kind,K,S,i,x,y,z,h,hx:0.8,hz:0.8,yaw:h,pitch:0,g:m.g,head:m.head,lift:m.lift,caps:m.caps,capN:-1,pos:new V3(x,y,z),drv:null,crew:null,cd:0,heat:0,spin:0,acc:0,burst:0};if(kind!=='ciws')Mt.pitch=0.4;wpnInit(Mt,null,K.wpn);return Mt;});
+    const Mt={isMount:true,kind,K,S,i,x,y,z,h,hx:0.8,hz:0.8,yaw:h,pitch:0,g:m.g,head:m.head,lift:m.lift,caps:m.caps,capN:-1,pos:new V3(x,y,z),drv:null,crew:null,cd:0,heat:0,spin:0,acc:0,burst:0,hp:K.hp,dead:false,lk:{isMountT:true,Mt:null,pos:new V3()}};Mt.lk.Mt=Mt;if(kind!=='ciws')Mt.pitch=0.4;wpnInit(Mt,null,K.wpn);return Mt;});
 }
 // ---- general quarters: the alarm, and everyone at their posts after you ----
 function shipGQ(V){
@@ -108,7 +108,7 @@ function shipCrewTick(S,dt){
 // ---- the mounts: a player in the seat, or a sailor sent to man it, or nobody ----
 function mountFind(p){
   const S=shipOf(p);if(!S||!S.mounts)return null;let best=null,bd=1e9;
-  for(const Mt of S.mounts){if(Mt.drv)continue;const d=Math.hypot(p.pos.x-Mt.x,p.pos.z-Mt.z)-0.8;if(d<1.8&&d<bd&&Math.abs(p.pos.y-Mt.y)<1.6){bd=d;best=Mt;}}
+  for(const Mt of S.mounts){if(Mt.drv||Mt.dead)continue;const d=Math.hypot(p.pos.x-Mt.x,p.pos.z-Mt.z)-0.8;if(d<1.8&&d<bd&&Math.abs(p.pos.y-Mt.y)<1.6){bd=d;best=Mt;}}
   return best?{d:Math.max(0,bd),D:{k:'mount',o:best,V:S.V}}:null;
 }
 // the muzzle, out in the world (the mount's head turned to yaw, its gun lifted to pitch, both in the ship's frame)
@@ -119,6 +119,7 @@ function mountAimAt(Mt,A,dt){const S=Mt.S,m=mountMuzzle(Mt);worldToShip(S,A.x,A.
   Mt.yaw=angTo(Mt.yaw,Math.atan2(dx,dz),(Mt.kind==='ciws'?4:2.5)*dt);Mt.pitch+=(Math.max(-0.3,Math.min(1.3,Math.atan2(A.y-m.y,Math.hypot(dx,dz))))-Mt.pitch)*Math.min(1,dt*6);}
 function mountPose(Mt){Mt.head.rotation.y=Mt.yaw-Mt.h;Mt.lift.rotation.x=-Mt.pitch;mountCaps(Mt);}
 function mountTick(Mt,dt){
+  if(Mt.dead)return;   // (wrecked: see mountHit)
   const S=Mt.S,V=S.crewV;wpnTick(Mt,dt);const W=Mt.wpn.gun;
   // (the Phalanx cools while it isn't firing: its 'rounds' are how much more it can take before it overheats)
   if(W&&W.rl<=0&&W.cd<-0.3&&W.n<W.W.max)W.n=Math.min(W.W.max,W.n+dt*60);
@@ -130,6 +131,29 @@ function mountTick(Mt,dt){
     if(g){g.pos.y=Mt.y;g.root.position.copy(g.pos);g.id.occ=Mt.kind==='ciws'?'Phalanx gunner':'Missile technician';Mt.call=g;}}
   if(Mt.call&&(Mt.call.state!=='chase'||!Mt.call.mount))Mt.call=null;
   mountPose(Mt);
+}
+// ---- the mounts as targets: each is a small, fixed vehicle. Its box goes among the vehicles' (TRAIN_BOXES) twice: out
+// in the world where the ship is (B.mw), for shots, blasts, missiles and vehicles from outside; and in the pocket, for
+// anything aboard. Its lock-on stand-in (Mt.lk) is kept where it really is in the world
+function mountBoxes(S){if(!S.mounts)return;const tx=Math.sin(S.yaw),tz=Math.cos(S.yaw);
+  for(const Mt of S.mounts){if(Mt.dead)continue;const hy=Mt.kind==='ciws'?3.2:2.9,h=0.9;
+    if(!Mt.pr)Mt.pr={isTrain:true,isMountBox:true,alive:true,pos:new V3(),kv:new V3(),vy:0,spinP:0,spinR:0,speed:0,hurt:0,hx:h,hz:h,hy,heading:0,top:0,veh:'mount',T:Mt,i:0};
+    shipToWorld(S,Mt.x,Mt.z,_mtv);const y=Mt.y-S.sk,pr=Mt.pr;Mt.lk.pos.set(_mtv.x,y,_mtv.z);pr.pos.set(_mtv.x,y,_mtv.z);pr.top=y+hy;pr.heading=S.yaw;
+    TRAIN_BOXES.push({x:_mtv.x,z:_mtv.z,tx,tz,y0:y,top:y+hy,v:S.sp,hx:h,hz:h,proxy:pr,mw:true});
+    TRAIN_BOXES.push({x:Mt.x,z:Mt.z,tx:0,tz:1,y0:Mt.y,top:Mt.y+hy,v:0,hx:h,hz:h,proxy:pr});}}
+// hit (trainHit, from shots, blasts and rams): the number where it struck, and at none it's wrecked
+function mountHit(Mt,n){
+  if(Mt.dead||Mt.S.dead||drvSafe(Mt))return;const P=Mt.lk.pos;dmgPop(P.x,P.y+3.6,P.z,Math.round(n),'#ffb04a');Mt.hp-=n;vHitFx(P.x,P.y+1.5,P.z,n);
+  if(Mt.hp<=0)mountWreck(Mt);}
+// wrecked: whoever's at it thrown off, a blast and smoke, and what's left blackened, its head knocked askew. It does
+// nothing more, and nobody can man it
+function mountWreck(Mt){
+  Mt.dead=true;Mt.hp=0;Mt.crew=null;Mt.call=null;if(Mt.pr)Mt.pr.alive=false;const P=Mt.lk.pos;
+  if(Mt.drv){const p=Mt.drv;drvExit(p);}
+  blastFx(P.x,P.y+1.5,P.z,0.6,2);smoke(P.x,P.y+2,P.z,14,0x262626);addShake(0.3,P.x,P.z,25);
+  if(audio)sfx('Deck weapon destroyed',()=>{noise(0.8,0.5,500,'lowpass');tone('sawtooth',90,30,0.8,0.1);});
+  Mt.g.traverse(o=>{if(o.isMesh)o.material=mtMat(0x1e1f21);});Mt.head.rotation.z=0.35;Mt.lift.rotation.x=0.5;
+  if(Mt.caps)for(const c of Mt.caps)c.visible=false;
 }
 // a player at it: the head follows their view; bite (or stomp) fires. Run with everyone aboard put where they really are
 // (shipOutside), so the aim, the lock and the shots are all out in the world

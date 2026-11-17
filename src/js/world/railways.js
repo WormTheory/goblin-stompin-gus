@@ -211,6 +211,7 @@ function trainHit(T,n,dir,ci){
   if(T&&T.isPlane){planeHit(T,n);return;}
   if(T&&T.isBoat){boatHit(T,n);return;}
   if(T&&T.isShip){shipHit(T,n,ci);return;}
+  if(T&&T.isMount){mountHit(T,n);return;}   // (a carrier's deck weapon: carrier-crew.js)
   if(T&&T.isAnimal){animalHit(T,n,dir);return;}
   if(T&&T.isRide){rideHit(T,n,ci);return;}
   if(T&&T.isMil){milHit(T,n,dir);return;}

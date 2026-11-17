@@ -81,7 +81,7 @@ function balloonBoxes(B){
 }
 // hurt: the envelope tears and goes, and the basket (and anyone in it) comes down
 function balloonHit(B,n){
-  if(B.dead)return;B.hp-=n;dmgPop(B.x,B.y+BAL.e1,B.z,Math.round(n),'#ffb04a');vHitFx(B.x,B.y+BAL.e0+2,B.z,n);
+  if(B.dead||drvSafe(B))return;B.hp-=n;dmgPop(B.x,B.y+BAL.e1,B.z,Math.round(n),'#ffb04a');vHitFx(B.x,B.y+BAL.e0+2,B.z,n);
   if(B.hp>0)return;
   B.dead=true;B.deadT=0;B.env.visible=false;B.flame.visible=false;
   for(let k=0;k<3;k++)puff(B.x,B.y+BAL.e0+k*3,B.z,10,BAL_COL[(B.ck+k)%4],2.2);

@@ -92,8 +92,10 @@ function mgAim(o,d){const l=Math.hypot(d[0],d[1],d[2])||1;o.rotation.set(-Math.a
 function mgFits(x,y,z){const r=MG.r,y0=Math.floor(y+0.05),y1=Math.floor(y+MG.hy);
   for(const ox of [-r,0,r])for(const oz of [-r,0,r]){const bx=Math.floor(x+ox),bz=Math.floor(z+oz);for(let yy=y0;yy<=y1;yy++)if(solidAt(bx,yy,bz))return false;}
   return true;}
-// the highest ground under its feet, no higher than a little above them
-function mgGround(x,z,y,M){const r=MG.r*0.8;let g=-1;for(const [ox,oz] of [[0,0],[-r,-r],[r,-r],[-r,r],[r,r]])g=Math.max(g,groundAt(x+ox,z+oz,y-0.9));
+// the highest ground under its feet, no higher than a little above them. (Felt for over the same footprint mgFits
+// keeps clear, its edges and corners too: felt any narrower, a step its body had already run into wasn't under its feet
+// yet, so walking up to one slowly it was moved into it instead of up on to it, and stuck there)
+function mgGround(x,z,y,M){const r=MG.r;let g=-1;for(const ox of [-r,0,r])for(const oz of [-r,0,r])g=Math.max(g,groundAt(x+ox,z+oz,y-0.9));
   // (and the top of any vehicle under it -- a boat, a train car, a plane, a tank, another Mobile Gear -- that's no higher
   // than y: it stands on that too. mgSup says which, so it can be carried along with it)
   mgSup=null;if(M)for(const L of [TRAIN_BOXES,PREV_BOXES])for(const B of L){const pr=B.proxy;if(pr===M.pr||B.soft||!pr.alive||B.top>y||B.top<=g)continue;
@@ -160,10 +162,10 @@ function drvMech(M,dt){
   else if(M.qbT>0){M.qbT-=dt;M.vx=M.qbx;M.vz=M.qbz;if(M.qbT<=0)M.qbD=MG.qbDec;}
   else if(M.qbD>0){M.qbD-=dt;const k=Math.min(1,dt*6);M.vx+=(wx*spd-M.vx)*k;M.vz+=(wz*spd-M.vz)*k;}
   else if(!air&&!M.boostOn){
-    // (on foot it gets going slowly and picks up into a jog -- pushing harder the faster it's already going -- and
+    // (on foot it gets going briskly and picks up into a jog -- pushing harder the faster it's already going -- and
     // stops a good deal quicker than it starts)
     const tx=wx*spd,tz=wz*spd,dx=tx-M.vx,dz=tz-M.vz,d=Math.hypot(dx,dz),v=Math.hypot(M.vx,M.vz);
-    if(d>1e-4){const a=Math.hypot(tx,tz)<v-0.05?18:3+9*Math.min(1,v/MG.walk),st=Math.min(d,a*dt);M.vx+=dx/d*st;M.vz+=dz/d*st;}}
+    if(d>1e-4){const a=Math.hypot(tx,tz)<v-0.05?18:9+6*Math.min(1,v/MG.walk),st=Math.min(d,a*dt);M.vx+=dx/d*st;M.vz+=dz/d*st;}}
   else{const k=Math.min(1,dt*acc);M.vx+=(wx*spd-M.vx)*k;M.vz+=(wz*spd-M.vz)*k;}
   if(DT.infStam){M.en=MG.enMax;M.red=0;}   // (Infinite stamina: always full, even switched on with it low)
   // (an idle bar refills, faster on the ground; it can't boost again till a redline's over, but it fills meanwhile)
@@ -314,7 +316,7 @@ function mechBoxes(M,v){
 }
 // hurt: by shells, rockets, bullets and blasts (through trainHit). At nothing it blows up and throws its pilot clear
 function mechHit(M,n){
-  if(M.dead)return;n=impHit(M,n);dmgPop(M.x,M.y+MG.hy+0.8,M.z,Math.round(n),'#ffb04a');M.hp-=n;M.hurt=0.2;vHitFx(M.x,M.y+5,M.z,n);
+  if(M.dead||drvSafe(M))return;n=impHit(M,n);dmgPop(M.x,M.y+MG.hy+0.8,M.z,Math.round(n),'#ffb04a');M.hp-=n;M.hurt=0.2;vHitFx(M.x,M.y+5,M.z,n);
   if(M.hp>0)return;
   M.dead=true;M.deadT=0;M.boostOn=false;
   blastFx(M.x,M.y+4,M.z,0.9,2.6);smoke(M.x,M.y+5,M.z,26,0x262626);
@@ -440,8 +442,9 @@ function mechPose(M,dt){
   J.eye.material=(M.red>0||M.stag>0)&&Math.floor(camClock*8)%2?MGM.trim:MGM.glow;   // (its eye flashes while it's redlined or staggered)
   if(big>0.3&&Math.random()<dt*20){const b=-1.9;puff(M.x+Math.sin(tyw)*b-(M.vx*0.05),M.y+5.2,M.z+Math.cos(tyw)*b-(M.vz*0.05),1,0xcfeeff,0.4);}
   if(skate&&Math.random()<dt*25)puff(M.x-M.vx*0.04,M.y+0.15,M.z-M.vz*0.04,1,0xffd080,0.5);   // (sparks off the feet)
-  {const go=M.ab&&M.ab.ph==='go',on=(M.asc||M.airB||skate||go)&&playing&&!M.dead,np=on?nearestPlayer(M.x,M.z,false):null,k=np?Math.max(0,1-np.d/120):0;
-   mgThrustSnd(M,on?(go?0.13:0.05+lift*0.06)*k:0,go?1400:M.asc?900:600);}
+  // (its roar follows the biggest flame: swelling as they flare up, dying away as they die down)
+  {const on=big>0.05&&playing&&!M.dead,np=on?nearestPlayer(M.x,M.z,false):null,k=np?Math.max(0,1-np.d/120):0,b=Math.min(1.6,big);
+   mgThrustSnd(M,on?0.035*b*k:0,500+450*b);}
 }
 // the thrusters' roar: one loop of filtered noise for each Mobile Gear, faded up and down each frame to how hard they're
 // burning (short bursts played back to back sounded like clicking). Each frame's level is held only a moment, so it

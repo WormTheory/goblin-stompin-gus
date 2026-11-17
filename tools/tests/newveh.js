@@ -7,6 +7,9 @@ let hdr=fs.readFileSync('site.js','utf8').split('\n');
 const n=hdr.findIndex(l=>l.startsWith('eval(src);'));
 const TENVMODE=process.argv[2]==='tenv';
 hdr=hdr.slice(0,n).join('\n');
+// (these check vehicles taking damage with the player kept safe on foot, so Invulnerability isn't let cover the vehicles
+// here: see drvSafe)
+hdr+="\nsrc=src.replace('function drvSafe(o){if(!DT.invuln','function drvSafe(o){if(!DT.invulnVeh');\n";
 if(!TENVMODE)hdr=hdr.replace(/const LS=\{\};global\.localStorage=.*\n/,'global.localStorage={getItem:()=>null,setItem(){},removeItem(){}};\n');
 hdr=hdr.replace(/window\.__t=\{/,'window.__t={setGob,VEH,VEH_MIX,pickVeh,parkSpots,plotInfo,CELL,keys,mHeld,setRaw,solidAt,BAL,tenvSpawnOne,tenvVehKinds,tenvVehName,WATER,get G(){return G},drvFind,SHOTS,lockTargets,');
 eval(hdr+`
