@@ -173,6 +173,17 @@ function mgSwingPitch(M,p,T){
 // the height of the swing's plane at fwd out in front of the mech (along the way it's swinging at)
 const mgSwY=(M,S,fwd)=>M.y+MGW.bladeY+fwd*Math.tan(S.pt||0);
 function mgSlash(M,S,f0,f1){
+  mgSlashAt(M,M,S,f0,f1,false);
+  // (a ship alongside, or under it: the same cut again in the ship's pocket, with the Mobile Gear and its swing turned
+  // into the ship's frame. It stands out in the world on the ship's boxes, but the ship's blocks, and anyone and
+  // anything aboard, are in the pocket)
+  if(shipN)for(const Sh of SHIPS){if(!Sh||Sh.dead)continue;const K=Sh.K,r=Math.hypot(K.u1-K.u0,K.w1-K.w0)/2+MG.r+MGW.bladeR+2;if(Math.hypot(Sh.x-M.x,Sh.z-M.z)>r)continue;
+    const t=worldToShip(Sh,M.x,M.z,{x:0,z:0}),d={x:S.fx,z:S.fz};shipRot(d,'x','z',-Sh.yaw);
+    const Si=Object.create(S);Si.fx=d.x;Si.fz=d.z;Si.cut=S.cut||0;mgSlashAt({x:t.x,y:M.y+Sh.sk,z:t.z,drv:M.drv},M,Si,f0,f1,true);S.cut=Si.cut;}
+}
+// one step of the cut in one frame: M where the Mobile Gear is in it (Mo the Mobile Gear itself, spared its own blows),
+// S the swing turned into it; inShip: a ship's pocket (the flash, sound and shake are made once, in the world)
+function mgSlashAt(M,Mo,S,f0,f1,inShip){
   const a0=mgSweepA(f0),a1=mgSweepA(f1),R=MGW.bladeR+MG.r,lx=S.fz,lz=-S.fx;
   // (goblins: anything from the blade's plane down to six below it, or two above: level, that's everything from its
   // feet to its head)
@@ -184,9 +195,9 @@ function mgSlash(M,S,f0,f1){
     if(d<=R&&(f0===0?a>=a0:a>a0)&&a<=a1){S.hit.add(q);pvpHurt(M.drv,q,MGW.bladeDmg,q.pos.clone(),new V3(dx/d,0.8,dz/d),"Cut down by a Mobile Gear's heat blade",{cd:0});}}
   // (vehicles: a blow at three points round the arc, a third of the way along the blade's length and two thirds)
   for(const q of [1/6,1/2,5/6])if(f0<q&&f1>=q){const a=mgSweepA(q),ux=S.fx*Math.cos(a)+lx*Math.sin(a),uz=S.fz*Math.cos(a)+lz*Math.sin(a);
-    for(const r of [MG.r+MGW.bladeR*0.35,MG.r+MGW.bladeR*0.75]){impX=MGW.bladeImp;vehBlast(M.x+ux*r,mgSwY(M,S,r*Math.cos(a)),M.z+uz*r,MGW.bladeR*0.22,MGW.bladeVD*0.5,M);impX=1;}}
+    for(const r of [MG.r+MGW.bladeR*0.35,MG.r+MGW.bladeR*0.75]){impX=MGW.bladeImp;vehBlast(M.x+ux*r,mgSwY(M,S,r*Math.cos(a)),M.z+uz*r,MGW.bladeR*0.22,MGW.bladeVD*0.5,Mo);impX=1;}}
   mgSlice(M,S,f0===0?a0-1e-6:a0,a1);
-  if(f0===0){const e=mgAt(M,0,MGW.bladeY+(MG.r+3)*Math.tan(S.pt||0),MG.r+3);puff(e.x,e.y,e.z,8,0xffa040,1.2);if(audio)sfx('Mobile Gear blade',()=>{noise(0.25,0.25,2600,'bandpass');tone('sawtooth',700,160,0.22,0.05);});addShake(0.25,M.x,M.z,16);}
+  if(f0===0&&!inShip){const e=mgAt(M,0,MGW.bladeY+(MG.r+3)*Math.tan(S.pt||0),MG.r+3);puff(e.x,e.y,e.z,8,0xffa040,1.2);if(audio)sfx('Mobile Gear blade',()=>{noise(0.25,0.25,2600,'bandpass');tone('sawtooth',700,160,0.22,0.05);});addShake(0.25,M.x,M.z,16);}
 }
 // the blade's cut through the blocks: the slice of the arc between angles lo and hi (see mgSlAng), from just past its
 // body to the blade's tip, at the blade's height, three blocks deep (the same wreckage as ramming: the blocks fly, and

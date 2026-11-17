@@ -157,15 +157,16 @@ function mountPick(p){const c=p.camera.position,cp=Math.cos(p.cam.pitch),fx=-Mat
 function ciwsRound(Mt,p,A0){
   const m=mountMuzzle(Mt),A=A0||drvAim(p,400);gunRound(Mt.S,p,m.x,m.y,m.z,2,0.01,'Shredded by a CIWS','CIWS',A);
   const dx=A.x-m.x,dy=A.y-m.y,dz=A.z-m.z,L=Math.hypot(dx,dy,dz)||1,ux=dx/L,uy=dy/L,uz=dz/L;
-  for(const Q of SHOTS){if(!Q.live||Q.own===Mt.S||Q.pos.x>=SHIP_X0||Q.kind==='grenade')continue;const ox=Q.pos.x-m.x,oy=Q.pos.y-m.y,oz=Q.pos.z-m.z,t=ox*ux+oy*uy+oz*uz;if(t<0||t>Mt.K.range)continue;
+  for(const Q of SHOTS){if(!Q.live||Q.own===Mt.S||Q.own&&Q.own.S===Mt.S||Q.pos.x>=SHIP_X0||Q.kind==='grenade')continue;const ox=Q.pos.x-m.x,oy=Q.pos.y-m.y,oz=Q.pos.z-m.z,t=ox*ux+oy*uy+oz*uz;if(t<0||t>Mt.K.range)continue;
     const cx=ox-ux*t,cy=oy-uy*t,cz=oz-uz*t;if(cx*cx+cy*cy+cz*cz<2.2*2.2&&Math.random()<0.35){Q.fuse=0;Q.tgt=null;Q.chase=null;
       if(p&&p.drv)award(15,'Shot down',Q.pos.x,Q.pos.y,Q.pos.z);}}
 }
 // a missile up out of the launcher, then after its target: T, {t} a lockable target, {fn} a point that moves, or none
-// (straight at A)
+// (straight at A). A player's missile can hit the ship itself, if that's what they fire at (owned by the mount, not the
+// ship); the crew's are the ship's, and never touch it
 function mountMissile(Mt,p,T,A){
   const K=Mt.K,m=mountMuzzle(Mt),S=Mt.S,a=Mt.yaw+S.yaw,f=Math.cos(Mt.pitch);
-  shot({kind:'missile',x:m.x,y:m.y+0.4,z:m.z,vx:Math.sin(a)*f*14,vy:16,vz:Math.cos(a)*f*14,grav:0,fuse:8,R:K.R,dmg:K.dmg,crush:K.crush,vd:K.vd,own:S,
+  shot({kind:'missile',x:m.x,y:m.y+0.4,z:m.z,vx:Math.sin(a)*f*14,vy:16,vz:Math.cos(a)*f*14,grav:0,fuse:8,R:K.R,dmg:K.dmg,crush:K.crush,vd:K.vd,own:p?Mt:S,
     cause:'Blown up by a '+(Mt.kind==='ram'?'RAM':'Sea Sparrow')+' missile',by:p?pvpBy(p):null,tgt:T&&T.t||null,chase:T&&T.fn||null,at:T?null:{x:A.x,y:A.y,z:A.z},sp:K.sp,turn:K.turn});
   smoke(m.x,m.y,m.z,3,0xdadada);puff(m.x,m.y,m.z,3,0xffc060,0.3);if(audio)sfx(Mt.kind==='ram'?'RAM launch':'Sea Sparrow launch',()=>noise(0.5,0.22,1000,'bandpass'));
 }

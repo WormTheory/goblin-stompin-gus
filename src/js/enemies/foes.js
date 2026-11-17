@@ -81,9 +81,11 @@ function foeShoot(g,p,G6){
   const d=Math.hypot(p.pos.x-x0,p.pos.z-z0),hit=!(p.dodge&&p.dodge.t<p.dodge.dur*0.85)&&Math.random()<Math.max(0.3,0.92-d/60);
   let tx=p.pos.x,ty=p.pos.y+1.2,tz=p.pos.z;
   if(!hit){const a=Math.random()*6.283,r=1.6+Math.random()*1.5;tx+=Math.cos(a)*r;tz+=Math.sin(a)*r;ty+=(Math.random()-0.3)*1.5;const k=1.6;tx=x0+(tx-x0)*k;ty=y0+(ty-y0)*k;tz=z0+(tz-z0)*k;}
+  // (a block in the way stops the round there: they may have taken aim before he ducked behind something)
+  let hit2=hit;{const ex=tx-x0,ey=ty-y0,ez=tz-z0,n=Math.ceil(Math.hypot(ex,ey,ez)/0.4);for(let i=1;i<n;i++){const k=i/n,x=x0+ex*k,y=y0+ey*k,z=z0+ez*k;if(solidAt(Math.floor(x),Math.floor(y),Math.floor(z))){tx=x;ty=y;tz=z;hit2=false;break;}}}
   tracer(x0,y0,z0,tx,ty,tz);puff(x0,y0-0.1,z0,1,0xffe070,0.1);
   if(audio){if(G6===COP_GUN){noise(0.06,0.12,3400,'highpass');tone('square',330,140,0.045,0.035);}else{noise(0.09,0.14,2600,'highpass');tone('square',220,90,0.06,0.04);}}   // (a handgun's crack is sharper and shorter)
-  if(hit){const h=Math.hypot(tx-x0,tz-z0)||1;damagePlayer(p,G6[4],new V3(tx,ty,tz),new V3((tx-x0)/h,0.2,(tz-z0)/h),G6[5],g.id);}
+  if(hit2){const h=Math.hypot(tx-x0,tz-z0)||1;damagePlayer(p,G6[4],new V3(tx,ty,tz),new V3((tx-x0)/h,0.2,(tz-z0)/h),G6[5],g.id);}
 }
 // a bomb lobbed in an arc at where he's standing (give or take), fuse fizzing
 function foeThrow(g,p,B6){

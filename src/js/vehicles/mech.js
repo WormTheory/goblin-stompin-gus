@@ -265,7 +265,6 @@ function mgAssault(M,p,i,dt,f){
   {const m=Math.hypot(d.x,d.y,d.z)||1;d.x/=m;d.y/=m;d.z/=m;}
   M.abGlow=1;M.qbDir={x:d.x,z:d.z};M.qbFlash=Math.max(M.qbFlash||0,0.12);
   if(f<-0.5||!mgDraw(M,MG.abEN*dt)){end();return;}
-  if(audio&&playing){M.abHum=(M.abHum||0)-dt;if(M.abHum<=0){M.abHum=0.1;sfx('Mobile Gear assault boost',()=>noise(0.12,0.08,1400,'bandpass'));}}
 }
 // the kick: straight at the target, feet first, for up to MG.kickT; on reaching it, one heavy blow (a lot of impact,
 // so it mostly staggers), then it bounces back off it and drops
@@ -441,8 +440,23 @@ function mechPose(M,dt){
   J.eye.material=(M.red>0||M.stag>0)&&Math.floor(camClock*8)%2?MGM.trim:MGM.glow;   // (its eye flashes while it's redlined or staggered)
   if(big>0.3&&Math.random()<dt*20){const b=-1.9;puff(M.x+Math.sin(tyw)*b-(M.vx*0.05),M.y+5.2,M.z+Math.cos(tyw)*b-(M.vz*0.05),1,0xcfeeff,0.4);}
   if(skate&&Math.random()<dt*25)puff(M.x-M.vx*0.04,M.y+0.15,M.z-M.vz*0.04,1,0xffd080,0.5);   // (sparks off the feet)
-  if((M.asc||M.airB||skate)&&audio&&playing){M.hum=(M.hum||0)-dt;if(M.hum<=0){M.hum=0.12;sfx('Mobile Gear thrusters',()=>noise(0.13,0.04+lift*0.05,M.asc?900:600,'bandpass'));}}
+  {const go=M.ab&&M.ab.ph==='go',on=(M.asc||M.airB||skate||go)&&playing&&!M.dead,np=on?nearestPlayer(M.x,M.z,false):null,k=np?Math.max(0,1-np.d/120):0;
+   mgThrustSnd(M,on?(go?0.13:0.05+lift*0.06)*k:0,go?1400:M.asc?900:600);}
 }
+// the thrusters' roar: one loop of filtered noise for each Mobile Gear, faded up and down each frame to how hard they're
+// burning (short bursts played back to back sounded like clicking). Each frame's level is held only a moment, so it
+// falls silent by itself if the Mobile Gear stops being updated (taken away, or out of the world)
+let mgThrustBuf=null;
+function mgThrustSnd(M,lvl,freq){if(SBX||!audio)return;
+  try{if(lvl>0.002&&!M.thSnd){
+      if(!mgThrustBuf){const n=audio.sampleRate*2|0;mgThrustBuf=audio.createBuffer(1,n,audio.sampleRate);const ch=mgThrustBuf.getChannelData(0);let b=0;for(let i=0;i<n;i++){b=b*0.5+(Math.random()*2-1)*0.5;ch[i]=b;}}
+      const src=audio.createBufferSource(),f=audio.createBiquadFilter(),g=audio.createGain();src.buffer=mgThrustBuf;src.loop=true;f.type='bandpass';f.Q.value=0.8;f.frequency.value=freq;g.gain.value=0;
+      src.connect(f).connect(g).connect(audio.destination);src.start();M.thSnd={src,f,g,end:0};}
+    const S=M.thSnd;if(!S)return;const t=audio.currentTime,G=S.g.gain;
+    if(G.cancelAndHoldAtTime)G.cancelAndHoldAtTime(t);else G.cancelScheduledValues(t);
+    if(lvl>0.002){G.setTargetAtTime(lvl,t,0.05);G.setTargetAtTime(0,t+0.3,0.08);S.f.frequency.setTargetAtTime(freq,t,0.08);S.end=0;if(DT.sndList)sndNote(0.1,'Mobile Gear thrusters');}
+    else{G.setTargetAtTime(0,t,0.08);if(!S.end)S.end=t+0.6;if(t>=S.end){S.src.stop();M.thSnd=null;}}
+  }catch(e){}}
 // every Mobile Gear in a venue, each step: piloted, or standing about; then posed and put among the big vehicles
 function updateMechs(V,dt){
   if(netGuest()){netMechStep(V,dt);return;}   // (online, a guest's copies follow the host's: see net-sync.js)

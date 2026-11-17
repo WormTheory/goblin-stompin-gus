@@ -42,6 +42,8 @@
 - Sailors, marines and deck crew are also in the debug menu's goblin list.
 - It can be sunk, but only by wrecking it: it goes down once enough of its blocks have been knocked out, holes below the waterline counting extra and letting the sea in, which keeps wearing it down. Shells, rockets and blasts from outside count by the holes they blow in its sides and deck, and the hit itself does nothing, and neither does running aground. When it's had enough it goes down slowly, washing everyone aboard into the sea as the water reaches them. (The barge still takes damage from hits as before.)
 - Bullets work across its side now: rounds from outside (a helicopter's gun, the Mobile Gear's rifle on its deck, Gnash's rifle from the shore) break its blocks and hit the goblins aboard, and rounds fired from aboard hit what's out in the world past the side.
+- The Mobile Gear's Heat Cleaver works on the carrier now: it cuts through its blocks, and through goblins and vehicles aboard, whether you're stood on its deck or swinging at it from alongside.
+- A RAM or Sea Sparrow missile you fire from one of its deck weapons can hit the carrier itself now. (The crew's missiles still never touch it.)
 - Eight fighter jets are parked on the flight deck, along the starboard side and the port bow.
   - Climb into one with F (controller Y) and fly it like any jet.
   - Catapults: taxi on to the start of one of the four tracks (two at the bow, two in the waist) and stop there, and it hooks on. Open the throttle all the way and it holds you for a moment, then flings you down the track and off the bow at flying speed.
@@ -82,6 +84,7 @@
 - Co-op: each player can climb into a Mobile Gear of their own, and two of them bump into each other rather than walking through.
 - Online: a guest sees the host's Mobile Gears move, stride, fire their thrusters and swing their weapons, and can climb in and pilot one, with its own display.
 - Redlined, its thrusters cough and sputter until the energy comes back.
+- Its thrusters make a steady roar while they burn, rising and falling with how hard they're working, instead of a string of clicks.
 - Pick its loadout in the Testing Environment tab, under "Mobile Gear loadout": each of its four weapon slots has a second choice. The left arm can carry a second Rivet Rifle instead of the Heat Cleaver; the right arm a Scrap Shotgun (a spread of pellets, short-ranged and hard-hitting); the left shoulder a Rocket Volley (a stream of unguided rockets, no locking needed); and the right shoulder a Clod Lobber (shells lobbed high on to whatever you aim at, more of them than the cannon and no bracing). Your choice is remembered, and only Mobile Gears spawned after it carry it.
 - Its controls can be rebound in Options, in their own "Piloting a Mobile Gear" section. The weapon buttons are now named by slot (left arm, right shoulder and so on), since the loadout decides what's in each.
 - Mobile Gears aren't kept when you leave the Testing Environment.
@@ -112,6 +115,7 @@
 
 ### Bullets break blocks
 
+- Goblins' rifle and handgun rounds stop at the first block in the way. They used to hit you through a wall if they'd taken aim before you ducked behind it.
 - Rounds from guns, the Mobile Gear's rifle, Gnash's rifle and handgun, the helicopter's machine gun and the militia's mounted guns, now break the block they hit about half the time, so sustained fire slowly chews through cover.
 
 ### Less prop pop-in
