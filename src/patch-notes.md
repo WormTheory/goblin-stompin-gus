@@ -17,7 +17,7 @@
 
 ### Options
 
-- **Sound volume** and **Brightness** sliders, in a new Sound & picture section at the top of Options. Brightness only changes the game's picture, not the menus or the display, and in split screen it goes for both halves.
+- **Sound volume** and **Brightness** sliders, in a new Sound & picture section at the top of Options. Brightness goes from 20% to 250% and only changes the game's picture, not the menus or the display, and in split screen it goes for both halves.
 - **Hide blood**, under On screen: no blood sprays, splats on the ground or pools.
 
 ### Fixes
@@ -25,6 +25,7 @@
 - Armories' corner turrets were cut off where they stuck out past the edge of their block, and could never count as destroyed. The drill hall is a little smaller now so its turrets fit.
 - Office towers, big police stations, the stadium and other big buildings sometimes never counted as destroyed, however much of them was knocked down, because the game overestimated how many blocks they had. It now counts every block.
 - Most of the false fronts on a film studio's backlot had no walls, only windows. They have their walls back.
+- In Firefox, a new city began with a loud burst of hiss, like breaking glass: the rain and wind sounds started at full volume instead of fading in from silence. They fade in properly now.
 - Rubble that had landed on a building's roof came back hanging in mid-air, where the roof used to be, once that building had come down and you'd left the area and returned (or loaded the game). It's now saved as gone with the building. (Rubble already left hanging in a saved city still falls if you knock it.)
 
 ## Version 0.4

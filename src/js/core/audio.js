@@ -4,7 +4,11 @@ let audio=null,audioWanted=false;
 // down at once (voice chat has its own volumes). One sound system serves both halves of split screen. ----
 const VOL_KEY='goblin-stompin-gus-volume';let sndVol=1,sndMaster=null;
 try{const v=localStorage.getItem(VOL_KEY);if(v!==null&&+v>=0&&+v<=1)sndVol=+v;}catch(e){}
-function sndDest(){if(!sndMaster||sndMaster.context!==audio){sndMaster=audio.createGain();sndMaster.gain.value=sndVol;sndMaster.connect(audio.destination);}return sndMaster;}
+function sndDest(){if(!sndMaster||sndMaster.context!==audio){sndMaster=audio.createGain();audioSet(sndMaster.gain,sndVol);sndMaster.connect(audio.destination);}return sndMaster;}
+// (an AudioParam's starting value, set as an automation event as well: Firefox can start a later setTargetAtTime from the
+// param's default, ignoring a value only assigned, so a sound faded in from silence there began at full volume. That was
+// the rain's loud hiss, like breaking glass, as a new city began)
+function audioSet(a,v){a.value=v;try{a.setValueAtTime(v,audio.currentTime);}catch(e){}}
 function setSndVol(v){sndVol=Math.max(0,Math.min(1,v));try{if(sndMaster)sndMaster.gain.setTargetAtTime(sndVol,audio.currentTime,0.02);}catch(e){}try{localStorage.setItem(VOL_KEY,String(sndVol));}catch(e){}}
 // ---- the sound list (debug): every sound by name as it starts, lit while it plays and fading for 2 seconds after, so even
 // a click too short to see can be read. A sound made inside sfx(name,...) takes that name; any other is named after the code
@@ -71,7 +75,7 @@ function poundWoosh(p){
   if(on&&!p.wsh){try{
     const len=audio.sampleRate*2|0,buf=audio.createBuffer(1,len,audio.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<len;i++)ch[i]=Math.random()*2-1;
     const src=audio.createBufferSource(),f=audio.createBiquadFilter(),f2=audio.createBiquadFilter(),g=audio.createGain();src.buffer=buf;src.loop=true;
-    f.type='bandpass';f.Q.value=0.9;f.frequency.value=380;f2.type='lowpass';f2.frequency.value=2600;g.gain.value=0.0001;
+    f.type='bandpass';f.Q.value=0.9;f.frequency.value=380;f2.type='lowpass';f2.frequency.value=2600;audioSet(g.gain,0.0001);
     src.connect(f).connect(f2).connect(g).connect(sndDest());src.start();p.wsh={src,f,g};}catch(e){}}
   const W=p.wsh;if(!W)return;const t=audio.currentTime;
   if(on){const sp=Math.max(0,Math.min(1,-p.vy/40));if(DT.sndList)sndNote(0.1,'Ground pound rush');
@@ -88,7 +92,7 @@ function runWoosh(p){
   if(on&&!p.rwsh){try{
     const len=audio.sampleRate*2|0,buf=audio.createBuffer(1,len,audio.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<len;i++)ch[i]=Math.random()*2-1;
     const src=audio.createBufferSource(),f=audio.createBiquadFilter(),f2=audio.createBiquadFilter(),g=audio.createGain();src.buffer=buf;src.loop=true;
-    f.type='bandpass';f.Q.value=0.7;f.frequency.value=650;f2.type='lowpass';f2.frequency.value=2200;g.gain.value=0.0001;
+    f.type='bandpass';f.Q.value=0.7;f.frequency.value=650;f2.type='lowpass';f2.frequency.value=2200;audioSet(g.gain,0.0001);
     src.connect(f).connect(f2).connect(g).connect(sndDest());src.start();p.rwsh={src,f,g};}catch(e){}}
   const W=p.rwsh;if(!W)return;const t=audio.currentTime;
   if(on){if(DT.sndList)sndNote(0.1,p.sprinting?'Sprint rush':'Trample rush');const k=Math.min(1,p.trK),pulse=0.8+0.2*Math.abs(Math.sin(p.phase)),v=(p.sprinting?0.05:0.065)*k*pulse;
@@ -101,14 +105,14 @@ const horn=(v=0.06)=>{tone('square',330,330,0.3,v);tone('square',415,415,0.3,v);
 function voice(p){
   if(!audio)return null;if(p.voice)return p.voice;
   try{
-    const out=audio.createGain();out.gain.value=0;out.connect(sndDest());
+    const out=audio.createGain();audioSet(out.gain,0);out.connect(sndDest());
     const o1=audio.createOscillator(),o2=audio.createOscillator();o1.type='sawtooth';o2.type='sawtooth';
     const len=audio.sampleRate*2,buf=audio.createBuffer(1,len,audio.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<len;i++)ch[i]=Math.random()*2-1;
     const ns=audio.createBufferSource();ns.buffer=buf;ns.loop=true;const ng=audio.createGain();ng.gain.value=0.35;
     const bp=audio.createBiquadFilter();bp.type='bandpass';bp.Q.value=1.1;
     const lp=audio.createBiquadFilter();lp.type='lowpass';lp.frequency.value=1200;
     const am=audio.createGain();am.gain.value=1;
-    const lfo=audio.createOscillator();lfo.frequency.value=26;const lfoG=audio.createGain();lfoG.gain.value=0;lfo.connect(lfoG).connect(am.gain);
+    const lfo=audio.createOscillator();lfo.frequency.value=26;const lfoG=audio.createGain();audioSet(lfoG.gain,0);lfo.connect(lfoG).connect(am.gain);
     o1.connect(bp);o2.connect(bp);ns.connect(ng).connect(bp);bp.connect(lp).connect(am).connect(out);
     o1.start();o2.start();ns.start();lfo.start();
     p.voice={out,o1,o2,bp,lp,lfo,lfoG};

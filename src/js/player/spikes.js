@@ -98,7 +98,7 @@ function rocketSound(p,on){if(SBX||!audio)return;
   try{const R=p.rkSnd;
     if(on&&!R){if(!rocketBuf){const n=audio.sampleRate*2|0;rocketBuf=audio.createBuffer(1,n,audio.sampleRate);const ch=rocketBuf.getChannelData(0);let b=0;for(let i=0;i<n;i++){b=b*0.6+(Math.random()*2-1)*0.4;ch[i]=b;}}
       const src=audio.createBufferSource(),f=audio.createBiquadFilter(),f2=audio.createBiquadFilter(),g=audio.createGain();src.buffer=rocketBuf;src.loop=true;
-      f.type='lowpass';f.frequency.value=900;f2.type='peaking';f2.frequency.value=180;f2.gain.value=9;g.gain.value=0;
+      f.type='lowpass';f.frequency.value=900;f2.type='peaking';f2.frequency.value=180;f2.gain.value=9;audioSet(g.gain,0);
       src.connect(f).connect(f2).connect(g).connect(sndDest());src.start();p.rkSnd={src,f,g};}
     const S=p.rkSnd;if(!S)return;const t=audio.currentTime;
     S.g.gain.setTargetAtTime(on?0.11:0,t,on?0.05:0.06);if(on&&DT.sndList)sndNote(0.1,'Rocket boost');
