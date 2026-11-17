@@ -96,8 +96,9 @@ function refreshDoors(){
   // the nearest ones, up to the limit
   const list=[...want.values()].sort((a,b)=>a.d-b.d).slice(0,DOOR_MAX),keep=new Set(list.map(R=>R.key));
   for(const [k,D] of doorsOn)if(!keep.has(k)){if(D.v){D.v.used=false;D.v.g.visible=false;}doorsOn.delete(k);}
-  for(const R of list){const D=doorsOn.get(R.key);if(D){D.R=R;continue;}const v=doorVisual(R);if(v)doorsOn.set(R.key,{R,v,open:0,dir:1});}
+  for(const R of list){const D=doorsOn.get(R.key);if(D){D.R=R;continue;}const v=doorVisual(R);if(v)doorsOn.set(R.key,{R,v,open:0,dir:1,fresh:true});}
 }
+let doorSndT=-1;const clockNow=()=>performance.now()/1000;
 function updateDoors(dt){
   const who=[];for(const p of players)if(p.active&&p.state!=='dead')who.push([p.pos.x,p.pos.z,p.pos.y,3.4]);
   for(const g of goblins)if(g.root.visible&&g.state!=='wait'&&g.state!=='dead'&&g.hp>0)who.push([g.pos.x,g.pos.z,g.pos.y,2.2]);
@@ -105,8 +106,12 @@ function updateDoors(dt){
     const R=D.R;let near=null,nd=1e9;
     for(const [x,z,y,r] of who){if(Math.abs(y-(R.y||G+1))>3)continue;const d=Math.hypot(x-R.x,z-R.z)-((R.a1-R.a0)/2-0.5);if(d<r&&d<nd){nd=d;near=[x,z];}}
     const tgt=near?1:0;
+    // (a door just come into range with someone already at it, as when a city or the Testing Environment loads with
+    // you or a crowd by a row of doors, is simply open: no sound. Otherwise they all went off at once, a loud crash of
+    // glass. And never more than one door sound in a short while)
+    if(D.fresh){D.fresh=false;if(near){D.dir=(R.ax==='x'?near[1]-R.z:near[0]-R.x)*R.n>0?1:-1;D.open=1;}}
     if(near&&D.open<0.05){const out=(R.ax==='x'?near[1]-R.z:near[0]-R.x)*R.n>0;D.dir=out?1:-1;   // (swings away from whoever's coming)
-      if(D.open<0.02&&D.R.d<40)R.kind==='glass'?noise(0.18,0.03,1800,'bandpass'):tone('sawtooth',140,95,0.18,0.012);}
+      if(D.open<0.02&&D.R.d<40&&clockNow()-doorSndT>0.12){doorSndT=clockNow();R.kind==='glass'?noise(0.18,0.03,1800,'bandpass'):tone('sawtooth',140,95,0.18,0.012);}}
     D.open+=(tgt-D.open)*Math.min(1,dt*(tgt?7:3.5));
     const v=D.v;if(!v)continue;const o=D.open;
     for(const L of v.leaves){

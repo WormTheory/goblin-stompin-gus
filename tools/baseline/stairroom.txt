@@ -1,7 +1,7 @@
+    8 armory/armory/office               share avg 36% max 36% (11x10) door blocked 0 room beside 7
   209 fire/firehall/apartment            share avg 30% max 30% (11x11) door blocked 0 room beside 8
    18 campus/apartment/apartment         share avg 24% max 29% (12x10) door blocked 6 room beside 6
   415 tower/lobby/office                 share avg 16% max 29% (14x12) door blocked 0 room beside 9
-    8 armory/armory/office               share avg 26% max 26% (14x11) door blocked 0 room beside 8
     5 lab/lab/lab                        share avg 24% max 24% (14x13) door blocked 0 room beside 10
    24 police/police/police               share avg 9% max 22% (14x9) door blocked 8 room beside 6
    97 mansion/apartment/apartment        share avg 22% max 22% (14x9) door blocked 0 room beside 6

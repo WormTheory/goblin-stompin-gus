@@ -1,0 +1,16 @@
+buildings 503 that can never count as destroyed 0
+  armory/normal x1 never 0 least built 74.0%
+  homes/house x120 never 0 least built 100.0%
+  derelict/normal x5 never 0 least built 100.0%
+  mid/normal x60 never 0 least built 100.0%
+  food/normal x33 never 0 least built 100.0%
+  super/normal x18 never 0 least built 100.0%
+  shops/normal x27 never 0 least built 100.0%
+  jail/normal x2 never 0 least built 100.0%
+  nursery/greenhouse x2 never 0 least built 100.0%
+  nursery/house x2 never 0 least built 100.0%
+  gas/normal x18 never 0 least built 100.0%
+  mansion/house x5 never 0 least built 100.0%
+  mansion/portico x5 never 0 least built 100.0%
+  fire/normal x26 never 0 least built 100.0%
+  park/statue x6 never 0 least built 100.0%

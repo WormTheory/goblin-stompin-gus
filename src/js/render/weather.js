@@ -78,16 +78,22 @@ function strikeBolt(){
 }
 // the weather's sounds: a rain hiss and a wind roar (looping noise, faded with the weather), and thunderclaps
 let WXA=null;
+// (their volumes are plain values eased here frame by frame, not the audio system's own fades: Firefox could start
+// those from full volume, a loud burst of hiss as every city loaded. And the loops are only made once the weather's
+// actually audible)
 function wxAudio(){
   if(!audio)return;
-  if(!WXA){try{const mk=(type,f,q)=>{const len=audio.sampleRate*2|0,buf=audio.createBuffer(1,len,audio.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<len;i++)ch[i]=Math.random()*2-1;
-      const src=audio.createBufferSource(),fl=audio.createBiquadFilter(),g=audio.createGain();src.buffer=buf;src.loop=true;fl.type=type;fl.frequency.value=f;fl.Q.value=q;g.gain.value=0;src.connect(fl).connect(g).connect(audio.destination);src.start();return{src,fl,g};};
-    WXA={rain:mk('highpass',1400,0.5),wind:mk('bandpass',320,0.8)};}catch(e){WXA={};}}
-  if(!WXA.rain)return;const t=audio.currentTime,on=playing?1:0,P=players.find(p=>p.active),inside=COVERS[0].under;
-  WXA.rain.g.gain.setTargetAtTime(on*WX.k.rain*(inside?0.025:0.07),t,0.4);
-  WXA.wind.g.gain.setTargetAtTime(on*Math.max(0,WX.k.wind-0.5)*0.03,t,0.6);
+  const t=audio.currentTime,on=playing?1:0,inside=COVERS[0].under;
+  const want={rain:on*WX.k.rain*(inside?0.025:0.07),wind:on*Math.max(0,WX.k.wind-0.5)*0.03};
+  if(!WXA){if(want.rain<0.0005&&want.wind<0.0005)return;
+    try{const mk=(type,f,q)=>{const len=audio.sampleRate*2|0,buf=audio.createBuffer(1,len,audio.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<len;i++)ch[i]=Math.random()*2-1;
+      const src=audio.createBufferSource(),fl=audio.createBiquadFilter(),g=audio.createGain();src.buffer=buf;src.loop=true;fl.type=type;fl.frequency.value=f;fl.Q.value=q;g.gain.value=0;src.connect(fl).connect(g).connect(sndDest());src.start();return{src,fl,g,v:0};};
+    WXA={rain:mk('highpass',1400,0.5),wind:mk('bandpass',320,0.8),t};}catch(e){WXA={};}}
+  if(!WXA.rain)return;
+  const dt=Math.max(0,Math.min(0.25,t-WXA.t));WXA.t=t;
+  for(const [k,tc] of [['rain',0.4],['wind',0.6]]){const L=WXA[k];L.v+=(want[k]-L.v)*(1-Math.exp(-dt/tc));if(L.v<1e-5)L.v=0;L.g.gain.value=L.v;}
   if(DT.sndList&&on){if(WX.k.rain>0.02)sndNote(0.1,inside?'Rain (under cover)':'Rain');if(WX.k.wind>0.52)sndNote(0.1,'Wind');}
-  WXA.wind.fl.frequency.setTargetAtTime(260+Math.sin(t*0.7)*90+WX.k.wind*60,t,0.5);
+  WXA.wind.fl.frequency.value=260+Math.sin(t*0.7)*90+WX.k.wind*60;
 }
 // winter: the top layer of every pond, river and fountain freezes to ice (loaded chunks are converted and re-meshed a
 // few at a time; chunks built later freeze as they're made), and thaws back to water in spring

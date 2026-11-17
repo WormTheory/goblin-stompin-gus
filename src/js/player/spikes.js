@@ -101,8 +101,8 @@ function rocketSound(p,on){if(SBX||!audio)return;
   try{const R=p.rkSnd;
     if(on&&!R){if(!rocketBuf){const n=audio.sampleRate*2|0;rocketBuf=audio.createBuffer(1,n,audio.sampleRate);const ch=rocketBuf.getChannelData(0);let b=0;for(let i=0;i<n;i++){b=b*0.6+(Math.random()*2-1)*0.4;ch[i]=b;}}
       const src=audio.createBufferSource(),f=audio.createBiquadFilter(),f2=audio.createBiquadFilter(),g=audio.createGain();src.buffer=rocketBuf;src.loop=true;
-      f.type='lowpass';f.frequency.value=900;f2.type='peaking';f2.frequency.value=180;f2.gain.value=9;g.gain.value=0;
-      src.connect(f).connect(f2).connect(g).connect(audio.destination);src.start();p.rkSnd={src,f,g};}
+      f.type='lowpass';f.frequency.value=900;f2.type='peaking';f2.frequency.value=180;f2.gain.value=9;audioSet(g.gain,0);
+      src.connect(f).connect(f2).connect(g).connect(sndDest());src.start();p.rkSnd={src,f,g};}
     const S=p.rkSnd;if(!S)return;const t=audio.currentTime;
     S.g.gain.setTargetAtTime(on?0.11:0,t,on?0.05:0.06);if(on&&DT.sndList)sndNote(0.1,'Rocket boost');
     if(on)S.f.frequency.setTargetAtTime(750+Math.random()*350,t,0.03);
@@ -213,6 +213,6 @@ function damagePlayer(p,n,pt,dir,cause,killer){
     startCorpse(p,n,dir);
     flashLabel(charName(p)+' has fallen');recordHippoObit(p,cause||'Died',killer);
     tone('sawtooth',150,38,1.6,0.2);tone('sawtooth',110,30,1.8,0.12,0.15);
-    p.pool.position.set(p.pos.x,groundAt(p.pos.x,p.pos.z,p.pos.y)+0.02+p.idx*0.005,p.pos.z);p.pool.scale.setScalar(0.1);p.pool.visible=true;
+    p.pool.position.set(p.pos.x,groundAt(p.pos.x,p.pos.z,p.pos.y)+0.02+p.idx*0.005,p.pos.z);p.pool.scale.setScalar(0.1);p.pool.visible=!BLOOD_OFF;
   } else if(p.hp<=6&&Math.random()<0.4)tone('sawtooth',180,90,0.5,0.12);
 }

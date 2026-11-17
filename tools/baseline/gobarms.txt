@@ -1,6 +1,6 @@
 == GUS
-dash, nothing held: moved -3.89  (ahead is +)
-dash, holding back: moved -3.85
+dash, nothing held: moved 8.84  (ahead is +)
+dash, holding back: moved -9.14
 bite a militiaman: dead true  drops none  kit none
 == GNASH
 dash, nothing held: moved 3.89  (ahead is +)

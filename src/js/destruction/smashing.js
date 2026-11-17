@@ -31,7 +31,10 @@ let pIdx=0;
 function takePart(){for(let k=0;k<parts.length;k++){const p=parts[(pIdx+k)%parts.length];if(p.life<=0){pIdx=(pIdx+k+1)%parts.length;return p;}}const p=parts[pIdx];pIdx=(pIdx+1)%parts.length;return p;}
 function puff(x,y,z,n,color=0x9a948a,spread=1){if(SBX)return;for(let i=0;i<n;i++){const p=takePart();p.kind=0;p.life=0.7+Math.random()*0.5;p.m.material.color.setHex(color);p.m.position.set(x+(Math.random()-.5)*1.4*spread,y+0.15,z+(Math.random()-.5)*1.4*spread);const a=Math.random()*Math.PI*2,s=(2+Math.random()*3)*spread;p.v.set(Math.cos(a)*s,1.5+Math.random()*2.5,Math.sin(a)*s);p.m.scale.setScalar(1);p.m.visible=true;}}
 function smoke(x,y,z,n,color){for(let i=0;i<n;i++){const p=takePart();p.kind=2;p.life=1.4+Math.random();p.m.material.color.setHex(color);p.m.position.set(x+(Math.random()-.5)*0.6,y,z+(Math.random()-.5)*0.6);p.v.set((Math.random()-.5)*0.8,1.6+Math.random()*1.4,(Math.random()-.5)*0.8);p.m.scale.setScalar(1.5);p.m.visible=true;}}
-function blood(x,y,z,n,dir){if(SBX)return;for(let i=0;i<n;i++){const p=takePart();p.kind=1;p.life=1.4;const s=(0.05+Math.random()*0.1)/0.22;p.m.scale.set(s,s,s);p.m.material.color.setHex([0x7a0b0b,0x9c1212,0x5c0707][i%3]);p.m.position.set(x,y,z);p.v.set((Math.random()-.5)*3,Math.random()*3,(Math.random()-.5)*3);if(dir)p.v.addScaledVector(dir,2+Math.random()*5);p.m.visible=true;}}
+// (Options' Hide blood: no spray, no splats on the ground and no pool under a fallen hippo. Each player's own choice,
+// online too: a guest's game makes the blood the host sends through these same functions.)
+const BLOOD_KEY='goblin-stompin-gus-noblood';let BLOOD_OFF=false;try{BLOOD_OFF=localStorage.getItem(BLOOD_KEY)==='1';}catch(e){}
+function blood(x,y,z,n,dir){if(SBX||BLOOD_OFF)return;for(let i=0;i<n;i++){const p=takePart();p.kind=1;p.life=1.4;const s=(0.05+Math.random()*0.1)/0.22;p.m.scale.set(s,s,s);p.m.material.color.setHex([0x7a0b0b,0x9c1212,0x5c0707][i%3]);p.m.position.set(x,y,z);p.v.set((Math.random()-.5)*3,Math.random()*3,(Math.random()-.5)*3);if(dir)p.v.addScaledVector(dir,2+Math.random()*5);p.m.visible=true;}}
 function updateParts(dt){for(const p of parts){if(p.life<=0)continue;p.life-=dt;const m=p.m;
   if(p.kind===1){p.v.y-=20*dt;m.position.addScaledVector(p.v,dt);const g=groundAt(m.position.x,m.position.z,m.position.y);if(m.position.y<=g){if(Math.random()<0.5)splat(m.position.x,m.position.z,g+0.5,0.08+Math.random()*0.2);p.life=0;}m.material.opacity=1;}
   else if(p.kind===2){p.v.multiplyScalar(1-0.9*dt);m.position.addScaledVector(p.v,dt);m.scale.setScalar(1.5+(2.4-p.life)*1.3);m.material.opacity=Math.max(0,Math.min(1,p.life))*0.75;}
@@ -44,7 +47,7 @@ const DECAL_M=fxBatch(new THREE.CircleGeometry(1,10),new THREE.MeshBasicMaterial
 // depth, and are drawn oldest first, so where two overlap the newer one is simply painted over the older; drawn after
 // the rest of the solid scene, so the ground under them can't paint over them in turn)
 DECAL_M.renderOrder=2;
-function splat(x,z,y,r){if(SBX)return;const g=supportAt(x,z,y);if(g===null)return;const m=decals[decalIdx++%decals.length];m.position.set(x,g+0.015,z);m.scale.set(r*(0.7+Math.random()*0.6),r*(0.7+Math.random()*0.6),1);m.rotation.z=Math.random()*6.28;m.visible=true;decalsDirty=true;}
+function splat(x,z,y,r){if(SBX||BLOOD_OFF)return;const g=supportAt(x,z,y);if(g===null)return;const m=decals[decalIdx++%decals.length];m.position.set(x,g+0.015,z);m.scale.set(r*(0.7+Math.random()*0.6),r*(0.7+Math.random()*0.6),1);m.rotation.z=Math.random()*6.28;m.visible=true;decalsDirty=true;}
 const flatMat=(c,o,f)=>new THREE.MeshBasicMaterial({color:c,transparent:o<1,opacity:o,polygonOffset:true,polygonOffsetFactor:f,polygonOffsetUnits:f});
 const scorches=[];let scorchIdx=0;
 {const sg=new THREE.CircleGeometry(1,14),sm=flatMat(0x141210,0.85,-4);for(let i=0;i<8;i++){const m=new THREE.Mesh(sg,sm);m.rotation.x=-Math.PI/2;m.visible=false;scene.add(m);scorches.push(m);}}

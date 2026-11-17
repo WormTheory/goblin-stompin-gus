@@ -28,7 +28,7 @@ function movePlayer(p,dt){
     p.legs.forEach((l,i)=>{l.rotation.x=buckle*(i<2?-0.9:0.9)*(1-lying*0.5)+(i%2?flail:-flail)+((i===1||i===2)?tw:0);l.rotation.z=lying*0.3*(i%2?1:-1);});
     p.jaw.rotation.x=0.35+lying*0.25;p.head.rotation.x=lying*0.2;p.tail.rotation.z=0;
     // the pool spreads once the body has come to rest
-    const rt=C?C.rest:t;p.pool.scale.setScalar(Math.min(2.8,0.1+rt*0.5));
+    const rt=C?C.rest:t;p.pool.scale.setScalar(Math.min(2.8,0.1+rt*0.5));if(BLOOD_OFF)p.pool.visible=false;
     // the body hitting the ground for good: a heavy thud and a burst of blood
     if(C&&!p.slammed&&(C.hits>0||C.rest>0.05||(C.cause==='beaten'&&Math.abs(Math.sin(C.roll))>0.95))){p.slammed=true;blood(p.pos.x,p.pos.y+0.8,p.pos.z,26,new V3(0,0.8,0));sfx('Body hits the ground',()=>{thud(0.8);});addShake(0.3,p.pos.x,p.pos.z,14);}
     return;

@@ -96,6 +96,16 @@
         <button type="button" class="on-b on-leave" id="netLeave" hidden>Leave the online game</button>
       </div>
         <div class="tm2"><button type="button" class="ck set" id="newWorld">New world</button><button type="button" class="ck set" id="optBtn">Options</button></div>
+        <button type="button" class="ck set tsave" id="saveNow" title="Your game saves by itself as you play. This saves it straight away, and says so.">Save now</button>
+        <div class="savesw" id="saveSw" role="radiogroup" aria-label="Where your game is saved"><button type="button" role="radio" class="sv" id="saveBrowser" aria-checked="true">Browser save</button><button type="button" role="radio" class="sv" id="saveLocal" aria-checked="false" aria-expanded="false" aria-controls="savePanel">Local save</button></div>
+        <div class="online savepanel" id="savePanel" hidden>
+          <div class="on-h">Local saves <small id="saveIntro">Keep your cities in files on this computer instead of in the browser, so clearing the browser can't lose them and you can keep as many as you like. Your browser save stays as it is: switch back to it any time.</small></div>
+          <div class="sv-list" id="saveList"></div>
+          <div class="sv-btns" id="saveFileBtns"><button type="button" class="on-b" id="saveNewCopy">New file: this city</button><button type="button" class="on-b" id="saveNewFresh">New file: new city</button><button type="button" class="on-b sv-open" id="saveOpen">Open a save file</button></div>
+          <div class="sv-btns sv-xfer"><button type="button" class="on-b" id="saveExport">Export this city</button><button type="button" class="on-b sv-open" id="saveImport">Import a save file</button><input type="file" id="saveImportFile" accept=".json,application/json" hidden></div>
+          <div class="sv-ask" id="saveAsk" hidden><span id="saveAskTxt"></span><button type="button" class="on-b" id="saveAskYes">Load it</button><button type="button" class="on-b sv-open" id="saveAskNo">Cancel</button></div>
+          <div class="note on-st" id="saveStatus" role="status"></div>
+        </div>
         <button type="button" class="ck set tfull" id="fullBtn">Full screen</button>
         <div class="confirm" id="confirm" hidden>
         <span>Start over in a brand-new world? The day, your kills, your score and the obituary all start again from scratch.</span>
@@ -123,6 +133,7 @@
         <div class="note" id="padNote">No controllers found yet. Press a button on one to wake it up.</div>
         <div class="note" id="seedNote"></div>
         <div class="vertag px" id="verTag" aria-hidden="true"></div>
+        <button type="button" class="updbtn sticker px" id="updBtn" hidden>Update available <span aria-hidden="true">›</span></button>
       </div>
     </div>
     <div class="tabpane testpane" id="tabTest" role="tabpanel" hidden>
@@ -193,6 +204,13 @@
       <div class="crow"><span class="clab" id="pvpLab">PVP</span><div class="seg" role="radiogroup" aria-labelledby="pvpLab" id="pvpSeg"><button type="button" role="radio" data-pvp="0" aria-checked="true">Off</button><button type="button" role="radio" data-pvp="1" aria-checked="false">On</button></div></div>
       <p class="vnote" id="pvpTxt"></p>
     </div>
+    <div class="custom" id="avOpts">
+      <h2>SOUND &amp; PICTURE</h2>
+      <div class="crow"><label class="clab" for="sndVol">SOUND VOLUME</label><input type="range" id="sndVol" class="vrange" min="0" max="100" step="5" value="100" aria-label="Sound volume"><span class="vval" id="sndVolVal">100%</span></div>
+      <p class="vnote">How loud the game's sounds are. 0% is silent. Voice chat keeps its own volumes, under Online.</p>
+      <div class="crow"><label class="clab" for="brightness">BRIGHTNESS</label><input type="range" id="brightness" class="vrange" min="20" max="250" step="5" value="100" aria-label="Brightness"><span class="vval" id="brightVal">100%</span></div>
+      <p class="vnote">How bright the picture is: turn it up if nights are too dark to see by. The menus and the display stay as they are. In split screen it goes for both halves.</p>
+    </div>
     <div class="custom">
       <h2>RENDER DISTANCE</h2>
       <div class="crow"><label class="clab" for="detailDist">DETAIL</label><input type="range" id="detailDist" class="vrange" min="48" max="1024" step="16" value="112" aria-label="Detail distance"><span class="vval" id="detailVal">112 blocks</span></div>
@@ -229,6 +247,7 @@
         <button type="button" class="tog" role="checkbox" id="dmgPopTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Damage numbers<small>Numbers pop off goblins, vehicles and anything else as it takes a hit</small></span></button>
         <button type="button" class="tog" role="checkbox" id="shoutTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Shouts<small>SPLAT!, CHOMP! or KABOOM! when a goblin goes down, combo milestones, and FULL CHARGE! on a charged stomp</small></span></button>
         <button type="button" class="tog" role="checkbox" id="hpBarTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Health bars<small>Over goblins, vehicles and other players nearby</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="bloodTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Hide blood<small>No blood sprays, splats on the ground or pools, from goblins, hippos or anyone else</small></span></button>
         <button type="button" class="tog" role="checkbox" id="calmTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Reduced motion<small>Stops the wobbling, bobbing and popping of the menus and display, and Gus on the title screen. On by itself if your system asks for less motion</small></span></button>
       </div>
     </div>

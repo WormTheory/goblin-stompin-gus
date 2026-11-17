@@ -8,7 +8,7 @@ base/base/normal                         14 {"1":14}
 bigbox/bigbox/normal                     4 {"1":4}
 campus/campus/normal                     2 {"1":2}
 casino/casino/normal                     10 {"1":10}
-cinema/cinema/normal                     21 {"1":21}
+cinema/cinema/normal                     21 {"3":21}
 club/club/normal                         52 {"1":52}
 courthouse/courthouse/normal/porch       51 {"1":51}
 datacenter/datacenter/dc                 16 {"1":16}

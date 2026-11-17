@@ -31,7 +31,7 @@ HAS STAIRS
     13 casino/normal/casino/apartment w 16-48 d 12-44 floors 3-3 gf 8-8
     10 school/normal/school/school w 16-60 d 12-21 floors 2-2 gf 5-5
     10 hospital/normal/hosp/ward w 16-54 d 30-41 floors 2-11 gf 8-8
-     8 armory/normal/armory/office w 16-16 d 13-13 floors 2-2 gf 8-8
+     8 armory/normal/armory/office w 13-13 d 12-12 floors 2-2 gf 8-8
      8 nuclear/normal/office/office w 26-26 d 18-18 floors 3-3 gf 5-5
      8 nuclear/normal/office/police w 26-26 d 18-18 floors 2-2 gf 5-5
      8 hospital/normal/ward/ward w 74-74 d 24-24 floors 4-4 gf 8-8

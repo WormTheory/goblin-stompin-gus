@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:d965e917dcf170e975ba7190d2752b564c05e05178806b28d2e91f1e4d2be207 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:0a6dc627a5c1b286f27657074288146a0ac4991156fc50392302fc2b58c40a76 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -798,6 +798,58 @@ body.attitle #hud{visibility:hidden}
 .pause.title.home .vertag{display:block;position:fixed;left:22px;bottom:30px;font:400 18px var(--f-px);color:var(--paper)}
 @media (max-width:860px){.pause.title .card h1.tlogo{left:16px;top:12px;width:calc(100% - 32px)}.pause.title.home .tmenu{position:absolute;left:16px;right:16px;margin:auto;top:auto;bottom:104px;transform:none;width:auto;max-height:calc(100vh - 300px)}.pause.title.home .gamefoot{display:none}}
 @media (max-height:620px){.tmenu .ck{height:50px;font-size:24px}.tmenu .ck.tbig{height:60px;font-size:32px}.tmenu{gap:12px;padding:18px 22px}}
+/* (wide enough for the card on the right: it never scrolls. Its buttons shrink with the window's height so it all fits,
+   and what a button opens pops out to the left of it instead of stretching it: ui/title-pop.js places it beside its button) */
+@media (min-width:861px){
+  .pause.title.home .tmenu{overflow:visible;gap:clamp(8px,1.8vh,18px);padding:clamp(14px,2.6vh,28px) 30px clamp(12px,2.4vh,24px)}
+  .pause.title.home .tmenu .ck{height:clamp(40px,7vh,62px);font-size:clamp(20px,3.3vh,28px)}
+  .pause.title.home .tmenu .ck.tbig{height:clamp(50px,9vh,82px);font-size:clamp(28px,4.6vh,40px)}
+  .pause.title.home .tmenu .tm2 .ck,.pause.title.home .tmenu .tfull{height:clamp(36px,6vh,54px);font-size:clamp(17px,2.6vh,22px)}
+  .pause.title.home .tmenu .savesw{height:clamp(36px,6vh,54px)}
+  .pause.title.home .tmenu .savesw .sv{font-size:clamp(17px,2.6vh,22px)}
+  .pause.title.home .tmenu>.online,.pause.title.home .tmenu>.confirm{position:absolute;right:calc(100% + 28px);top:0;width:min(400px,calc(100vw - 540px));max-height:calc(100vh - 140px);
+    overflow-y:auto;scrollbar-width:thin;box-sizing:border-box;box-shadow:6px 7px 0 var(--ink);transform:rotate(-1.6deg);z-index:3;animation:popIn .16s ease-out}
+  .pause.title.home .tmenu>.confirm{align-items:center;padding:14px 16px}
+}
+@keyframes popIn{from{opacity:0;translate:16px 0}to{opacity:1;translate:0 0}}
+body.calm .tmenu>.online,body.calm .tmenu>.confirm{animation:none!important}
+/* the save switch: Browser save and Local save, side by side in one pill; the one in use is in full colour, the other greyed */
+.savesw{display:grid;grid-template-columns:1fr 1fr;height:54px;flex:none;border:4px solid var(--ink);border-radius:var(--wobb);box-shadow:0 6px 0 var(--ink);overflow:hidden;background:var(--ink);gap:4px}
+.savesw .sv{font:400 22px/1 var(--f-px);letter-spacing:.5px;text-transform:uppercase;color:var(--ink);background:var(--biscuit);border:0;padding:4px 8px;cursor:pointer;
+  box-shadow:inset 0 -6px 0 rgba(0,0,0,.16),inset 0 4px 0 rgba(255,255,255,.5);transition:background .12s,color .12s}
+.savesw .sv[aria-checked="false"]{background:#cdc3bd;color:rgba(43,27,46,.42);box-shadow:inset 0 5px 0 rgba(0,0,0,.14)}
+.savesw .sv[aria-checked="false"]:hover{background:#ddd2c9;color:rgba(43,27,46,.7)}
+#pause .savesw .sv.padfocus,.savesw .sv:focus-visible{outline:4px dashed var(--yolk)!important;outline-offset:-8px!important;box-shadow:none!important}
+.pause:not(.title) .savesw,.pause:not(.title) #savePanel{display:none!important}
+.pause.title #saveNow{display:none}   /* (paused only: on the title screen nothing's changed since it last saved) */
+#saveNow.ok{background:var(--gus)}#saveNow.bad{background:var(--tomato)}
+/* the Local saves card */
+.tmenu .online.savepanel{background:#fdf0d2}
+.sv-list{display:flex;flex-direction:column;gap:8px}
+.sv-list[hidden]{display:none}
+.sv-row{display:flex;gap:8px;align-items:stretch}
+.sv-file{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;border:3px solid var(--ink);border-radius:8px;background:var(--paper);color:var(--ink);padding:7px 10px;cursor:pointer}
+.sv-file b{font:400 19px/1.1 var(--f-px);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sv-file small{font:400 12px/1.3 var(--f-body);color:#4a3a4e}
+.sv-row.cur .sv-file{background:#d9f3b8;box-shadow:inset 6px 0 0 var(--gus)}
+.sv-file:hover:not(:disabled),.sv-file.padfocus{background:#fff2b8}
+.sv-x{font:600 12px var(--f-body);background:none;border:0;color:#7a2e5a;text-decoration:underline;cursor:pointer;padding:0 4px}
+.sv-btns{display:flex;flex-wrap:wrap;gap:8px}
+.sv-btns .on-b{flex:1 1 auto}
+.tmenu .sv-btns .sv-open{background:var(--biscuit)}
+.sv-btns[hidden]{display:none}
+.sv-xfer{margin-top:8px}
+.sv-ask{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px;font-size:14px;line-height:1.3}
+.sv-ask[hidden]{display:none}
+.sv-ask span{flex:1 1 100%}
+.tmenu .sv-ask .sv-open{background:var(--biscuit)}
+.tmenu .note.bad{color:#a8442f;font-weight:700}
+/* the foot of the screen: the version on the title screen, bottom left; paused, at the start of the seed line */
+.pause.title .sn-ver{display:none}
+.updbtn[hidden]{display:none!important}
+.gamepane .updbtn.sticker{border:3px solid var(--ink);border-radius:8px;box-shadow:0 4px 0 var(--ink);background:var(--gus);color:var(--ink);font:400 20px/1 var(--f-px);letter-spacing:.5px;padding:9px 14px;cursor:pointer;text-transform:uppercase;transform:rotate(-3deg)}
+.pause.title.home .updbtn{position:fixed;left:18px;bottom:62px;z-index:2}
+.pause:not(.title) .updbtn{align-self:flex-start;font-size:16px!important;padding:6px 10px!important;transform:none!important}
 
 /* ---- a screen opened from the menu: its own head with a Back button ---- */
 .subhead{display:flex;align-items:center;gap:18px;flex:none;margin-top:-4px}
@@ -932,7 +984,7 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
 .pause:not(.title) .rp-t{padding:clamp(5px,1.4vh,12px) 16px}
 .pause:not(.title) .rp-t b{font-size:clamp(26px,5.6vh,44px)}
 .pause:not(.title) .rp-head h2{font-size:clamp(24px,4.4vh,32px)}
-@media (max-height:820px){.pause:not(.title) .gamefoot #padNote{display:none}}
+.pause:not(.title) .gamefoot #padNote{display:none}   /* (paused, the foot is the version and seed line; the title screen still says when no controller's found) */
 @media (max-height:640px){.pause:not(.title) .rp-note{display:none}}
 @media (max-width:860px) and (min-width:520px){.pause:not(.title) .rp-tiles{grid-template-columns:repeat(3,minmax(0,1fr))}.pause:not(.title) .rp-t b{font-size:clamp(22px,4.6vh,34px)}}
 @media (max-width:860px){
@@ -1311,6 +1363,16 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <button type="button" class="on-b on-leave" id="netLeave" hidden>Leave the online game</button>
       </div>
         <div class="tm2"><button type="button" class="ck set" id="newWorld">New world</button><button type="button" class="ck set" id="optBtn">Options</button></div>
+        <button type="button" class="ck set tsave" id="saveNow" title="Your game saves by itself as you play. This saves it straight away, and says so.">Save now</button>
+        <div class="savesw" id="saveSw" role="radiogroup" aria-label="Where your game is saved"><button type="button" role="radio" class="sv" id="saveBrowser" aria-checked="true">Browser save</button><button type="button" role="radio" class="sv" id="saveLocal" aria-checked="false" aria-expanded="false" aria-controls="savePanel">Local save</button></div>
+        <div class="online savepanel" id="savePanel" hidden>
+          <div class="on-h">Local saves <small id="saveIntro">Keep your cities in files on this computer instead of in the browser, so clearing the browser can't lose them and you can keep as many as you like. Your browser save stays as it is: switch back to it any time.</small></div>
+          <div class="sv-list" id="saveList"></div>
+          <div class="sv-btns" id="saveFileBtns"><button type="button" class="on-b" id="saveNewCopy">New file: this city</button><button type="button" class="on-b" id="saveNewFresh">New file: new city</button><button type="button" class="on-b sv-open" id="saveOpen">Open a save file</button></div>
+          <div class="sv-btns sv-xfer"><button type="button" class="on-b" id="saveExport">Export this city</button><button type="button" class="on-b sv-open" id="saveImport">Import a save file</button><input type="file" id="saveImportFile" accept=".json,application/json" hidden></div>
+          <div class="sv-ask" id="saveAsk" hidden><span id="saveAskTxt"></span><button type="button" class="on-b" id="saveAskYes">Load it</button><button type="button" class="on-b sv-open" id="saveAskNo">Cancel</button></div>
+          <div class="note on-st" id="saveStatus" role="status"></div>
+        </div>
         <button type="button" class="ck set tfull" id="fullBtn">Full screen</button>
         <div class="confirm" id="confirm" hidden>
         <span>Start over in a brand-new world? The day, your kills, your score and the obituary all start again from scratch.</span>
@@ -1338,6 +1400,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <div class="note" id="padNote">No controllers found yet. Press a button on one to wake it up.</div>
         <div class="note" id="seedNote"></div>
         <div class="vertag px" id="verTag" aria-hidden="true"></div>
+        <button type="button" class="updbtn sticker px" id="updBtn" hidden>Update available <span aria-hidden="true">›</span></button>
       </div>
     </div>
     <div class="tabpane testpane" id="tabTest" role="tabpanel" hidden>
@@ -1408,6 +1471,13 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
       <div class="crow"><span class="clab" id="pvpLab">PVP</span><div class="seg" role="radiogroup" aria-labelledby="pvpLab" id="pvpSeg"><button type="button" role="radio" data-pvp="0" aria-checked="true">Off</button><button type="button" role="radio" data-pvp="1" aria-checked="false">On</button></div></div>
       <p class="vnote" id="pvpTxt"></p>
     </div>
+    <div class="custom" id="avOpts">
+      <h2>SOUND &amp; PICTURE</h2>
+      <div class="crow"><label class="clab" for="sndVol">SOUND VOLUME</label><input type="range" id="sndVol" class="vrange" min="0" max="100" step="5" value="100" aria-label="Sound volume"><span class="vval" id="sndVolVal">100%</span></div>
+      <p class="vnote">How loud the game's sounds are. 0% is silent. Voice chat keeps its own volumes, under Online.</p>
+      <div class="crow"><label class="clab" for="brightness">BRIGHTNESS</label><input type="range" id="brightness" class="vrange" min="20" max="250" step="5" value="100" aria-label="Brightness"><span class="vval" id="brightVal">100%</span></div>
+      <p class="vnote">How bright the picture is: turn it up if nights are too dark to see by. The menus and the display stay as they are. In split screen it goes for both halves.</p>
+    </div>
     <div class="custom">
       <h2>RENDER DISTANCE</h2>
       <div class="crow"><label class="clab" for="detailDist">DETAIL</label><input type="range" id="detailDist" class="vrange" min="48" max="1024" step="16" value="112" aria-label="Detail distance"><span class="vval" id="detailVal">112 blocks</span></div>
@@ -1444,6 +1514,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <button type="button" class="tog" role="checkbox" id="dmgPopTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Damage numbers<small>Numbers pop off goblins, vehicles and anything else as it takes a hit</small></span></button>
         <button type="button" class="tog" role="checkbox" id="shoutTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Shouts<small>SPLAT!, CHOMP! or KABOOM! when a goblin goes down, combo milestones, and FULL CHARGE! on a charged stomp</small></span></button>
         <button type="button" class="tog" role="checkbox" id="hpBarTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Health bars<small>Over goblins, vehicles and other players nearby</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="bloodTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Hide blood<small>No blood sprays, splats on the ground or pools, from goblins, hippos or anyone else</small></span></button>
         <button type="button" class="tog" role="checkbox" id="calmTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Reduced motion<small>Stops the wobbling, bobbing and popping of the menus and display, and Gus on the title screen. On by itself if your system asks for less motion</small></span></button>
       </div>
     </div>
@@ -1495,10 +1566,18 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <ul><li>Props out in the open (patio tables, beach and harbour gear, the stadium's fittings and the like) are now drawn out to 64 blocks, up from 34, and furniture indoors stays at 34 as before. The distance is now the same in every direction, so things on the diagonal no longer show up later than things straight ahead.</li><li>Props now grow up out of the ground over a moment as they come into range, instead of suddenly appearing.</li><li>New PROPS slider in Options, under Render distance: set how far props are drawn, from 32 to 192 blocks. Furniture indoors goes about half as far as the setting.</li></ul>
 <h3>Weather</h3>
 <ul><li>Foggy weather now really closes in. The weather's fog used to shrink with the FAR VIEW setting, so with the view turned up it all but vanished; now fog, rain and snow limit how far you can see by the same number of blocks whatever the setting, with thick fog and blizzards down to about 30 blocks.</li><li>Windy weather is gone.</li><li>Tanks, helicopters, planes and Mobile Gears now gather snow on top as cars do, as deep as the snow on the ground while they stand out in the open. It blows off a plane in the air or a helicopter going fast.</li><li>The main menu's "New city" button is now "New world".</li></ul>
-<h3>Fixes</h3>
-<ul><li>Rubble no longer hangs in mid-air when you come back to a spot. If wreckage landed on a building (a tower toppling on to its neighbour, a museum's dome falling on to its roof) and that building came down later, the rubble used to come back floating where the roof had been once you'd gone away and returned.</li></ul>
 </details>
 <p class="pn-earlier">Earlier updates</p>
+<details class="pn-up pn-fold" id="version-0-4-1"><summary tabindex="0"><h2>Version 0.4.1</h2><a class="pn-play" data-ver="0.4.1" href="v/0.4.1/" tabindex="0">Play 0.4.1</a><span class="pn-tog" aria-hidden="true"></span></summary>
+<h3>Saving</h3>
+<ul><li><strong>Your city now keeps saving however big the mess gets.</strong> A browser only lets a website keep about 5 MB, and a long rampage's smashed blocks could outgrow that. When they did, the game quietly stopped saving them, so every time you came back the city was back to how it was the last time it fitted. Now a big city's smashed blocks are kept in the browser's much bigger database instead, and the game says so if a save ever does fail.</li><li><strong>Save now</strong>, in the pause menu, saves everything straight away and tells you whether it worked. (The game still saves by itself as you play.)</li><li><strong>Browser save or Local save:</strong> a new switch in the title menu. Browser save is how it's always worked. Local save keeps your city in a file on your computer, so clearing the browser can't lose it, and you can keep as many save files as you like: start a new file from the city you're in or from a brand-new one, open one you saved before, and switch between them from the Local saves card. Your browser save stays as it was, and you can switch back to it any time. The game opens the same file next time; the browser asks once a visit whether the game may keep saving to it (choose "Allow on every visit" to stop it asking). Local save that keeps saving by itself needs Chrome or Edge on a computer.</li><li><strong>Export and import:</strong> in any browser, Firefox and phones included, the Local saves card can export your city to a save file (it goes in your Downloads) and, where the browser can't do Local save, import one again. The files are the same as Local save's, so a city exported in Firefox opens in Chrome's Local save and the other way round. The game also asks the browser to keep its saves safe when the disk gets low, rather than clearing them.</li></ul>
+<h3>Main menu</h3>
+<ul><li>The title menu no longer scrolls. Play online, New city's "are you sure?" and Local saves pop out to the left of the menu instead of stretching it, and its buttons shrink to fit shorter windows.</li><li>When a newer version of the game has been put on the website since you opened it, an <strong>Update</strong> button appears on the title screen and at the foot of the pause menu. It saves your city and reloads into the new version, with no need for a hard refresh.</li><li>The foot of the pause menu shows the game's version beside the city's seed, and whether your game's saving in the browser or to a file.</li></ul>
+<h3>Options</h3>
+<ul><li><strong>Sound volume</strong> and <strong>Brightness</strong> sliders, in a new Sound &amp; picture section at the top of Options. Brightness goes from 20% to 250% and only changes the game's picture, not the menus or the display, and in split screen it goes for both halves.</li><li><strong>Hide blood</strong>, under On screen: no blood sprays, splats on the ground or pools.</li></ul>
+<h3>Fixes</h3>
+<ul><li>Armories' corner turrets were cut off where they stuck out past the edge of their block, and could never count as destroyed. The drill hall is a little smaller now so its turrets fit.</li><li>Office towers, big police stations, the stadium and other big buildings sometimes never counted as destroyed, however much of them was knocked down, because the game overestimated how many blocks they had. It now counts every block.</li><li>Most of the false fronts on a film studio's backlot had no walls, only windows. They have their walls back.</li><li>Loading into a city or the Testing Environment could start with a loud burst of hiss, like breaking glass (in Firefox): the rain and wind sounds started at full volume. They're only started once there's weather to hear now, and fade in properly. Doors you arrive beside no longer all creak open at once either, and a limiter stops any pile-up of sounds coming out as one deafening crack.</li><li>Rubble that had landed on a building's roof came back hanging in mid-air, where the roof used to be, once that building had come down and you'd left the area and returned (or loaded the game). It's now saved as gone with the building. (Rubble already left hanging in a saved city still falls if you knock it.)</li></ul>
+</details>
 <details class="pn-up pn-fold" id="version-0-4"><summary tabindex="0"><h2>Version 0.4</h2><a class="pn-play" data-ver="0.4" href="v/0.4/" tabindex="0">Play 0.4</a><span class="pn-tog" aria-hidden="true"></span></summary>
 <h3>Goblins climb vehicles too</h3>
 <ul><li>Gnash and Grizzle can now spider-climb vehicles just as Gus and Gertie do: hold climb and walk or jump into a car, a lorry, a train, a boat's hull, a container stack or a plane to grab its side and hang on while it goes, climb up on to the roof, or walk off the roof's edge with climb held to drop on to its side. Holding climb as a train comes by catches hold of it instead of being run down. Your view stays outside the vehicle while you cling to it.</li></ul>
@@ -1796,6 +1875,9 @@ function horizHidden(cx,cy,cz,hr,top){
     if(!o.isInstancedMesh&&horizHidden(sp.center.x,sp.center.y,sp.center.z,sp.radius,sp.center.y+sp.radius))return false;   // (over the horizon)
     const d=Math.hypot(sp.center.x-CURVE_CAM.x,sp.center.z-CURVE_CAM.z),r=sp.radius,lo=k*Math.max(0,d-r)**2,hi=k*(d+r)**2;
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
+// (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
+// tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
+const GAME_VER='0.5',GAME_BUILD='4aa7932fb4d7';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v95';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -5406,7 +5488,9 @@ function plotInfo(px,pz){
         const SW=W+PW,SD=D+PW,X1=PL0+SW-1,Z1=PL0+SD-1;
         const g=base({x0:PL0+18,x1:X1-18,z0:PL0+1,z1:PL0+4,top:G+11,style:'gate',wall:STUCCO,win:STUCCO,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2});g.noIndoor=true;g.doorSpec=null;g.detailTop=g.top;brandOn(g,'studio',r(140));p.b.push(g);
         for(let i=0;i<(S.w>=4?5:2);i++)for(let row=0;row<(S.w>=4?2:1);row++){const ss=base({x0:PL0+1+i*16,x1:PL0+14+i*16,z0:PL0+7+row*27,z1:PL0+30+row*27,gf:16,top:G+16,wall:[PAINT_WHITE,STUCCO,CONCRETE][i%3],win:CONCRETE,kind:'studio',ground:'stage',floor:CONCRETE,door:2});ss.blank=true;ss.doorSpec={w:1,h:4,k:'steel'};ss.detailTop=ss.top-1;ss.stageNo=i+1;p.b.push(ss);}
-        for(let i=0;i<(S.w>=4?13:4);i++){const fx=base({x0:PL0+2+i*7,x1:PL0+8+i*7,z0:Z1-14,z1:Z1-12,top:G+FH*(2+i%2),style:'facade',wall:[BRICK,SIDING,STUCCO,SIDING_Y][i],win:WIN_WARM,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2});fx.noIndoor=true;fx.doorSpec=null;fx.detailTop=fx.top;p.b.push(fx);}
+        // (the false fronts take the four walls in turn: past the fourth there was no wall at all, so most of a big backlot's
+        // fronts stood as bare windows and could never count as destroyed)
+        for(let i=0;i<(S.w>=4?13:4);i++){const fx=base({x0:PL0+2+i*7,x1:PL0+8+i*7,z0:Z1-14,z1:Z1-12,top:G+FH*(2+i%2),style:'facade',wall:[BRICK,SIDING,STUCCO,SIDING_Y][i%4],win:WIN_WARM,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2});fx.noIndoor=true;fx.doorSpec=null;fx.detailTop=fx.top;p.b.push(fx);}
         for(let i=0;i<3;i++){const t=base({x0:X1-14+i*5,x1:X1-10+i*5,z0:PL0+8,z1:PL0+16,gf:4,top:G+4,wall:PAINT_WHITE,win:WIN_WARM,kind:'apartment',ground:'apartment',floor:PLANKS,door:2});t.doorSpec={w:0,h:3,k:'wood'};t.detailTop=t.top-1;p.b.push(t);}
         p.tank={x0:X1-16,x1:X1-1,z0:PL0+20,z1:PL0+34};
       } else if(S.kind==='nuclear'){
@@ -5561,8 +5645,11 @@ function plotInfo(px,pz){
     const b=base({x0:PL0+1,x1:PL0+13,z0:PL0+2,z1:PL0+12,gf:7,top:G+7,wall:[PAINT_WHITE,METAL,PAINT_RED,PAINT_BLUE][Math.floor(r(80)*4)],win:GLASS,kind:'shop',ground:'dealer',floor:FLOORT,door:2,front:true,neon:NEON_B});
     b.glassAll=true;b.detailTop=b.top-1;brandOn(b,'dealer',r(150));p.b.push(b);p.dealer=true;
   } else if(type==='armory'){
-    // an armory: a brick fortress -- a tall drill hall behind battlements, a round turret on each corner, big doors
-    const b=base({x0:PL0+1,x1:PL1-1,z0:PL0+3,z1:PL1-2,gf:8,top:G+8+FH+1,wall:BRICK,win:WIN_WARM,band:MOSSSTONE,kind:'office',ground:'armory',floor:CONCRETE,door:2});
+    // an armory: a brick fortress -- a tall drill hall behind battlements, a round turret on each corner, big doors.
+    // (The hall's set in far enough for its turrets, which stand two blocks out from its corners, to fit inside the block:
+    // past its edge they were cut off by the sidewalk, and never counted as destroyed, as the blocks that weren't there
+    // couldn't be knocked out.)
+    const b=base({x0:PL0+2,x1:PL1-3,z0:PL0+3,z1:PL1-3,gf:8,top:G+8+FH+1,wall:BRICK,win:WIN_WARM,band:MOSSSTONE,kind:'office',ground:'armory',floor:CONCRETE,door:2});
     b.stair={ax:'x',c0:b.z1-3,c1:b.z1-1,r0:b.x0+4,L:8};b.crenel=true;   // (between the corner turrets)
     b.doorSpec={w:1,h:4,k:'wood'};b.detailTop=b.top-2;brandOn(b,'armory',r(150));
     for(const [cx,cz] of [[b.x0,b.z0],[b.x1,b.z0],[b.x0,b.z1],[b.x1,b.z1]]){const t=base({x0:cx-2,x1:cx+3,z0:cz-2,z1:cz+3,top:b.top+4,style:'turret',wall:BRICK,win:WIN_WARM,kind:'landmark',ground:'landmark',floor:CONCRETE,door:2});
@@ -8794,13 +8881,19 @@ function editsUnpack(P){
         edits[x+','+y+','+z]=b;l.push([x,y,z,b]);}}}
 }
 // (the world as saved; extra: anything else to go in with it)
-const saveText=extra=>JSON.stringify(Object.assign({seed,ed2:editsPacked(),coll:collapses,wreck:wrecked,down:[...downFix],dest:destroyed,test:[...TEST_OFF]},extra));
+const saveObj=extra=>Object.assign({seed,ed2:editsPacked(),coll:collapses,wreck:wrecked,down:[...downFix],dest:destroyed,test:[...TEST_OFF]},extra);
+const saveText=extra=>JSON.stringify(saveObj(extra));
 let saveFullSaid=false;
-function save(){if(saveBlocked)return;clearTimeout(saveTimer);saveTimer=setTimeout(()=>{flushNotes(Infinity);try{localStorage.setItem(SAVE_KEY,saveText({tenv:TENV||undefined}));saveFullSaid=false;}catch(e){
+var WB={on:false,pending:null};   // (a city too big for localStorage: see worldPut in ui/saves.js)
+// (worldPut, in ui/saves.js, puts it in localStorage, or once the city's grown too big for that, its smashed blocks in
+// IndexedDB and the rest in localStorage. Saving waits while a big city's smashed blocks are still being read back in.)
+function save(){if(saveBlocked||WB.pending)return;clearTimeout(saveTimer);saveTimer=setTimeout(()=>{if(saveBlocked||WB.pending)return;flushNotes(Infinity);
+  let o;try{o=saveObj({tenv:TENV||undefined});}catch(e){return;}
+  worldPut(o).then(()=>{saveFullSaid=false;},()=>{
   // (better to say so once than to quietly stop saving)
-  if(!saveFullSaid){saveFullSaid=true;try{flashLabel("Can't save: the browser's storage is full");}catch(e2){}}}},700);}
+  if(!saveFullSaid){saveFullSaid=true;try{flashLabel("Can't save: the browser's storage is full");}catch(e2){}}});},700);}
 function load(){try{const s=JSON.parse(netWorldText()||localStorage.getItem(SAVE_KEY)||'null');   // (a tab joining a game online builds the host's world, kept in its own session storage)
-  if(netWorldText())saveBlocked=true;if(s&&typeof s.seed==='number'){seed=s.seed;TEST_OFF=new Set(Array.isArray(s.test)?s.test:[]);TENV=s.tenv&&Array.isArray(s.tenv.boxes)?{boxes:s.tenv.boxes.filter(B=>B&&[B.ax,B.az,B.w,B.h].every(Number.isFinite))}:null;if(TENV&&s.tenv.sea&&['x0','x1','z0','z1'].every(k=>Number.isFinite(s.tenv.sea[k])))TENV.sea=s.tenv.sea;tenvIndex();edits=s.ed2?{}:s.edits||{};collapses=s.coll||{};wrecked=(s.wreck&&typeof s.wreck==='object')?s.wreck:{};destroyed=(s.dest&&typeof s.dest==='object')?s.dest:{};destroyVer++;setDCache.clear();downFix=new Map(Array.isArray(s.down)?s.down:[]);if(s.ed2)editsUnpack(s.ed2);else for(const k in edits){const [x,y,z]=k.split(',').map(Number);const ck=ckey(Math.floor(x/CS),Math.floor(z/CS));let l=chunkEdits.get(ck);if(!l){l=[];chunkEdits.set(ck,l);}l.push([x,y,z,edits[k]]);}return true;}}catch(e){}return false;}
+  if(netWorldText())saveBlocked=true;if(s&&typeof s.seed==='number'){seed=s.seed;TEST_OFF=new Set(Array.isArray(s.test)?s.test:[]);TENV=s.tenv&&Array.isArray(s.tenv.boxes)?{boxes:s.tenv.boxes.filter(B=>B&&[B.ax,B.az,B.w,B.h].every(Number.isFinite))}:null;if(TENV&&s.tenv.sea&&['x0','x1','z0','z1'].every(k=>Number.isFinite(s.tenv.sea[k])))TENV.sea=s.tenv.sea;tenvIndex();if(s.ed2db&&!s.ed2){WB.on=true;WB.pending=s.ed2db;}edits=s.ed2?{}:s.edits||{};collapses=s.coll||{};wrecked=(s.wreck&&typeof s.wreck==='object')?s.wreck:{};destroyed=(s.dest&&typeof s.dest==='object')?s.dest:{};destroyVer++;setDCache.clear();downFix=new Map(Array.isArray(s.down)?s.down:[]);if(s.ed2)editsUnpack(s.ed2);else for(const k in edits){const [x,y,z]=k.split(',').map(Number);const ck=ckey(Math.floor(x/CS),Math.floor(z/CS));let l=chunkEdits.get(ck);if(!l){l=[];chunkEdits.set(ck,l);}l.push([x,y,z,edits[k]]);}return true;}}catch(e){}return false;}
 
 // ---------- Renderer ----------
 const canvas=document.getElementById('world');
@@ -8964,16 +9057,22 @@ function strikeBolt(){
 }
 // the weather's sounds: a rain hiss and a wind roar (looping noise, faded with the weather), and thunderclaps
 let WXA=null;
+// (their volumes are plain values eased here frame by frame, not the audio system's own fades: Firefox could start
+// those from full volume, a loud burst of hiss as every city loaded. And the loops are only made once the weather's
+// actually audible)
 function wxAudio(){
   if(!audio)return;
-  if(!WXA){try{const mk=(type,f,q)=>{const len=audio.sampleRate*2|0,buf=audio.createBuffer(1,len,audio.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<len;i++)ch[i]=Math.random()*2-1;
-      const src=audio.createBufferSource(),fl=audio.createBiquadFilter(),g=audio.createGain();src.buffer=buf;src.loop=true;fl.type=type;fl.frequency.value=f;fl.Q.value=q;g.gain.value=0;src.connect(fl).connect(g).connect(audio.destination);src.start();return{src,fl,g};};
-    WXA={rain:mk('highpass',1400,0.5),wind:mk('bandpass',320,0.8)};}catch(e){WXA={};}}
-  if(!WXA.rain)return;const t=audio.currentTime,on=playing?1:0,P=players.find(p=>p.active),inside=COVERS[0].under;
-  WXA.rain.g.gain.setTargetAtTime(on*WX.k.rain*(inside?0.025:0.07),t,0.4);
-  WXA.wind.g.gain.setTargetAtTime(on*Math.max(0,WX.k.wind-0.5)*0.03,t,0.6);
+  const t=audio.currentTime,on=playing?1:0,inside=COVERS[0].under;
+  const want={rain:on*WX.k.rain*(inside?0.025:0.07),wind:on*Math.max(0,WX.k.wind-0.5)*0.03};
+  if(!WXA){if(want.rain<0.0005&&want.wind<0.0005)return;
+    try{const mk=(type,f,q)=>{const len=audio.sampleRate*2|0,buf=audio.createBuffer(1,len,audio.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<len;i++)ch[i]=Math.random()*2-1;
+      const src=audio.createBufferSource(),fl=audio.createBiquadFilter(),g=audio.createGain();src.buffer=buf;src.loop=true;fl.type=type;fl.frequency.value=f;fl.Q.value=q;g.gain.value=0;src.connect(fl).connect(g).connect(sndDest());src.start();return{src,fl,g,v:0};};
+    WXA={rain:mk('highpass',1400,0.5),wind:mk('bandpass',320,0.8),t};}catch(e){WXA={};}}
+  if(!WXA.rain)return;
+  const dt=Math.max(0,Math.min(0.25,t-WXA.t));WXA.t=t;
+  for(const [k,tc] of [['rain',0.4],['wind',0.6]]){const L=WXA[k];L.v+=(want[k]-L.v)*(1-Math.exp(-dt/tc));if(L.v<1e-5)L.v=0;L.g.gain.value=L.v;}
   if(DT.sndList&&on){if(WX.k.rain>0.02)sndNote(0.1,inside?'Rain (under cover)':'Rain');if(WX.k.wind>0.52)sndNote(0.1,'Wind');}
-  WXA.wind.fl.frequency.setTargetAtTime(260+Math.sin(t*0.7)*90+WX.k.wind*60,t,0.5);
+  WXA.wind.fl.frequency.value=260+Math.sin(t*0.7)*90+WX.k.wind*60;
 }
 // winter: the top layer of every pond, river and fountain freezes to ice (loaded chunks are converted and re-meshed a
 // few at a time; chunks built later freeze as they're made), and thaws back to water in spring
@@ -9041,6 +9140,19 @@ function updateWeather(dt){
 
 // ---------- Audio ----------
 let audio=null,audioWanted=false;
+// ---- the Sound volume in Options: every game sound goes out through one gain node, so one setting turns them all up or
+// down at once (voice chat has its own volumes). One sound system serves both halves of split screen. ----
+const VOL_KEY='goblin-stompin-gus-volume';let sndVol=1,sndMaster=null;
+try{const v=localStorage.getItem(VOL_KEY);if(v!==null&&+v>=0&&+v<=1)sndVol=+v;}catch(e){}
+// (and then a limiter, so a pile-up of sounds in one moment can't come out as one deafening crack)
+function sndDest(){if(!sndMaster||sndMaster.context!==audio){sndMaster=audio.createGain();audioSet(sndMaster.gain,sndVol);
+  let out=audio.destination;try{const L=audio.createDynamicsCompressor();audioSet(L.threshold,-8);audioSet(L.knee,4);audioSet(L.ratio,16);audioSet(L.attack,0.003);audioSet(L.release,0.2);L.connect(out);out=L;}catch(e){}
+  sndMaster.connect(out);}return sndMaster;}
+// (an AudioParam's starting value, set as an automation event as well: Firefox can start a later setTargetAtTime from the
+// param's default, ignoring a value only assigned, so a sound faded in from silence there began at full volume. That was
+// the rain's loud hiss, like breaking glass, as a new city began)
+function audioSet(a,v){a.value=v;try{a.setValueAtTime(v,audio.currentTime);}catch(e){}}
+function setSndVol(v){sndVol=Math.max(0,Math.min(1,v));try{if(sndMaster)sndMaster.gain.setTargetAtTime(sndVol,audio.currentTime,0.02);}catch(e){}try{localStorage.setItem(VOL_KEY,String(sndVol));}catch(e){}}
 // ---- the sound list (debug): every sound by name as it starts, lit while it plays and fading for 2 seconds after, so even
 // a click too short to see can be read. A sound made inside sfx(name,...) takes that name; any other is named after the code
 // that made it (a stack trace, only taken while the list is showing). ----
@@ -9090,13 +9202,13 @@ function sndTick(){
     const on=t<=r.end,txt=n+(r.n>1?' ×'+r.n:'');if(r.el.textContent!==txt)r.el.textContent=txt;
     r.el.classList.toggle('on',on);r.el.style.opacity=on?'1':String(Math.max(0,1-(t-r.end)/2000));}
 }
-function tone(type,f0,f1,dur,vol,delay=0){if(SBX)return;if(!audio)return;if(DT.sndList)sndNote(delay+dur);try{const t=audio.currentTime+delay;const o=audio.createOscillator(),g=audio.createGain();o.type=type;o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f1,t+dur);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);o.connect(g).connect(audio.destination);o.start(t);o.stop(t+dur+0.02);}catch(e){}}
-function noise(dur,vol,freq,type){if(SBX)return;if(!audio)return;if(DT.sndList)sndNote(dur);try{const t=audio.currentTime;const len=audio.sampleRate*dur|0,buf=audio.createBuffer(1,len,audio.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<len;i++)ch[i]=(Math.random()*2-1)*Math.pow(1-i/len,2);const n=audio.createBufferSource(),f=audio.createBiquadFilter(),g=audio.createGain();n.buffer=buf;f.type=type;f.frequency.value=freq;g.gain.value=vol;n.connect(f).connect(g).connect(audio.destination);n.start(t);}catch(e){}}
+function tone(type,f0,f1,dur,vol,delay=0){if(SBX)return;if(!audio)return;if(DT.sndList)sndNote(delay+dur);try{const t=audio.currentTime+delay;const o=audio.createOscillator(),g=audio.createGain();o.type=type;o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f1,t+dur);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);o.connect(g).connect(sndDest());o.start(t);o.stop(t+dur+0.02);}catch(e){}}
+function noise(dur,vol,freq,type){if(SBX)return;if(!audio)return;if(DT.sndList)sndNote(dur);try{const t=audio.currentTime;const len=audio.sampleRate*dur|0,buf=audio.createBuffer(1,len,audio.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<len;i++)ch[i]=(Math.random()*2-1)*Math.pow(1-i/len,2);const n=audio.createBufferSource(),f=audio.createBiquadFilter(),g=audio.createGain();n.buffer=buf;f.type=type;f.frequency.value=freq;g.gain.value=vol;n.connect(f).connect(g).connect(sndDest());n.start(t);}catch(e){}}
 function thud(vol){if(vol<=0.02)return;tone('sine',95,32,0.45,vol*0.9);noise(0.25,vol*0.6,380,'lowpass');}
 // a swish of air: band-passed noise that swells and sweeps up in pitch
 function woosh(vol,dur,f0,f1,delay=0){if(SBX)return;if(!audio)return;if(DT.sndList)sndNote(delay+dur);try{const t=audio.currentTime+delay,len=audio.sampleRate*dur|0,buf=audio.createBuffer(1,len,audio.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<len;i++)ch[i]=Math.random()*2-1;
   const n=audio.createBufferSource(),f=audio.createBiquadFilter(),g=audio.createGain();n.buffer=buf;f.type='bandpass';f.Q.value=1.1;f.frequency.setValueAtTime(f0,t);f.frequency.exponentialRampToValueAtTime(f1,t+dur);
-  g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(vol,t+dur*0.4);g.gain.linearRampToValueAtTime(0.0001,t+dur);n.connect(f).connect(g).connect(audio.destination);n.start(t);n.stop(t+dur+0.02);}catch(e){}}
+  g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(vol,t+dur*0.4);g.gain.linearRampToValueAtTime(0.0001,t+dur);n.connect(f).connect(g).connect(sndDest());n.start(t);n.stop(t+dur+0.02);}catch(e){}}
 // a ground pound's plunge: a rushing wind that swells and climbs in pitch with his speed, cut off the instant he lands.
 // One looping noise source per hippo, filtered and faded in and out each frame.
 function poundWoosh(p){
@@ -9106,8 +9218,8 @@ function poundWoosh(p){
   if(on&&!p.wsh){try{
     const len=audio.sampleRate*2|0,buf=audio.createBuffer(1,len,audio.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<len;i++)ch[i]=Math.random()*2-1;
     const src=audio.createBufferSource(),f=audio.createBiquadFilter(),f2=audio.createBiquadFilter(),g=audio.createGain();src.buffer=buf;src.loop=true;
-    f.type='bandpass';f.Q.value=0.9;f.frequency.value=380;f2.type='lowpass';f2.frequency.value=2600;g.gain.value=0.0001;
-    src.connect(f).connect(f2).connect(g).connect(audio.destination);src.start();p.wsh={src,f,g};}catch(e){}}
+    f.type='bandpass';f.Q.value=0.9;f.frequency.value=380;f2.type='lowpass';f2.frequency.value=2600;audioSet(g.gain,0.0001);
+    src.connect(f).connect(f2).connect(g).connect(sndDest());src.start();p.wsh={src,f,g};}catch(e){}}
   const W=p.wsh;if(!W)return;const t=audio.currentTime;
   if(on){const sp=Math.max(0,Math.min(1,-p.vy/40));if(DT.sndList)sndNote(0.1,'Ground pound rush');
     W.g.gain.setTargetAtTime(0.16+0.18*sp,t,0.025);W.f.frequency.setTargetAtTime(520+1200*sp,t,0.05);}
@@ -9123,8 +9235,8 @@ function runWoosh(p){
   if(on&&!p.rwsh){try{
     const len=audio.sampleRate*2|0,buf=audio.createBuffer(1,len,audio.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<len;i++)ch[i]=Math.random()*2-1;
     const src=audio.createBufferSource(),f=audio.createBiquadFilter(),f2=audio.createBiquadFilter(),g=audio.createGain();src.buffer=buf;src.loop=true;
-    f.type='bandpass';f.Q.value=0.7;f.frequency.value=650;f2.type='lowpass';f2.frequency.value=2200;g.gain.value=0.0001;
-    src.connect(f).connect(f2).connect(g).connect(audio.destination);src.start();p.rwsh={src,f,g};}catch(e){}}
+    f.type='bandpass';f.Q.value=0.7;f.frequency.value=650;f2.type='lowpass';f2.frequency.value=2200;audioSet(g.gain,0.0001);
+    src.connect(f).connect(f2).connect(g).connect(sndDest());src.start();p.rwsh={src,f,g};}catch(e){}}
   const W=p.rwsh;if(!W)return;const t=audio.currentTime;
   if(on){if(DT.sndList)sndNote(0.1,p.sprinting?'Sprint rush':'Trample rush');const k=Math.min(1,p.trK),pulse=0.8+0.2*Math.abs(Math.sin(p.phase)),v=(p.sprinting?0.05:0.065)*k*pulse;
     W.g.gain.setTargetAtTime(Math.max(0.0001,v),t,0.05);W.f.frequency.setTargetAtTime((p.sprinting?620:720)+120*pulse,t,0.08);W.end=0;}
@@ -9136,14 +9248,14 @@ const horn=(v=0.06)=>{tone('square',330,330,0.3,v);tone('square',415,415,0.3,v);
 function voice(p){
   if(!audio)return null;if(p.voice)return p.voice;
   try{
-    const out=audio.createGain();out.gain.value=0;out.connect(audio.destination);
+    const out=audio.createGain();audioSet(out.gain,0);out.connect(sndDest());
     const o1=audio.createOscillator(),o2=audio.createOscillator();o1.type='sawtooth';o2.type='sawtooth';
     const len=audio.sampleRate*2,buf=audio.createBuffer(1,len,audio.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<len;i++)ch[i]=Math.random()*2-1;
     const ns=audio.createBufferSource();ns.buffer=buf;ns.loop=true;const ng=audio.createGain();ng.gain.value=0.35;
     const bp=audio.createBiquadFilter();bp.type='bandpass';bp.Q.value=1.1;
     const lp=audio.createBiquadFilter();lp.type='lowpass';lp.frequency.value=1200;
     const am=audio.createGain();am.gain.value=1;
-    const lfo=audio.createOscillator();lfo.frequency.value=26;const lfoG=audio.createGain();lfoG.gain.value=0;lfo.connect(lfoG).connect(am.gain);
+    const lfo=audio.createOscillator();lfo.frequency.value=26;const lfoG=audio.createGain();audioSet(lfoG.gain,0);lfo.connect(lfoG).connect(am.gain);
     o1.connect(bp);o2.connect(bp);ns.connect(ng).connect(bp);bp.connect(lp).connect(am).connect(out);
     o1.start();o2.start();ns.start();lfo.start();
     p.voice={out,o1,o2,bp,lp,lfo,lfoG};
@@ -9179,7 +9291,7 @@ function stompGrunt(p,lvl){
     o2.frequency.setValueAtTime((64-5*lvl)*m,t);o2.frequency.exponentialRampToValueAtTime((38-3*lvl)*m,t+0.13);
     const peak=Math.min(0.9,0.62+0.12*lvl),len=0.16+0.02*lvl;
     g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(peak,t+0.006);g.gain.exponentialRampToValueAtTime(0.001,t+len);
-    o.connect(f);o2.connect(f);f.connect(g).connect(audio.destination);
+    o.connect(f);o2.connect(f);f.connect(g).connect(sndDest());
     o.start(t);o2.start(t);o.stop(t+len+0.02);o2.stop(t+len+0.02);
     noise(0.08,0.42+0.08*lvl,1300,'bandpass');
   }catch(e){}
@@ -9193,7 +9305,7 @@ function grunt(p,dbl){
     else{o.frequency.setValueAtTime(185*m,t);o.frequency.linearRampToValueAtTime(265*m,t+0.07);o.frequency.exponentialRampToValueAtTime(165*m,t+0.24);f.frequency.value=1150*m;}
     const len=dbl?0.27:0.21;
     g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.28,t+0.02);g.gain.exponentialRampToValueAtTime(0.001,t+len);
-    o.connect(f).connect(g).connect(audio.destination);o.start(t);o.stop(t+len+0.03);
+    o.connect(f).connect(g).connect(sndDest());o.start(t);o.stop(t+len+0.03);
     noise(dbl?0.1:0.13,0.12,dbl?1900:850,'bandpass');
   }catch(e){}
 }
@@ -9271,7 +9383,10 @@ let pIdx=0;
 function takePart(){for(let k=0;k<parts.length;k++){const p=parts[(pIdx+k)%parts.length];if(p.life<=0){pIdx=(pIdx+k+1)%parts.length;return p;}}const p=parts[pIdx];pIdx=(pIdx+1)%parts.length;return p;}
 function puff(x,y,z,n,color=0x9a948a,spread=1){if(SBX)return;for(let i=0;i<n;i++){const p=takePart();p.kind=0;p.life=0.7+Math.random()*0.5;p.m.material.color.setHex(color);p.m.position.set(x+(Math.random()-.5)*1.4*spread,y+0.15,z+(Math.random()-.5)*1.4*spread);const a=Math.random()*Math.PI*2,s=(2+Math.random()*3)*spread;p.v.set(Math.cos(a)*s,1.5+Math.random()*2.5,Math.sin(a)*s);p.m.scale.setScalar(1);p.m.visible=true;}}
 function smoke(x,y,z,n,color){for(let i=0;i<n;i++){const p=takePart();p.kind=2;p.life=1.4+Math.random();p.m.material.color.setHex(color);p.m.position.set(x+(Math.random()-.5)*0.6,y,z+(Math.random()-.5)*0.6);p.v.set((Math.random()-.5)*0.8,1.6+Math.random()*1.4,(Math.random()-.5)*0.8);p.m.scale.setScalar(1.5);p.m.visible=true;}}
-function blood(x,y,z,n,dir){if(SBX)return;for(let i=0;i<n;i++){const p=takePart();p.kind=1;p.life=1.4;const s=(0.05+Math.random()*0.1)/0.22;p.m.scale.set(s,s,s);p.m.material.color.setHex([0x7a0b0b,0x9c1212,0x5c0707][i%3]);p.m.position.set(x,y,z);p.v.set((Math.random()-.5)*3,Math.random()*3,(Math.random()-.5)*3);if(dir)p.v.addScaledVector(dir,2+Math.random()*5);p.m.visible=true;}}
+// (Options' Hide blood: no spray, no splats on the ground and no pool under a fallen hippo. Each player's own choice,
+// online too: a guest's game makes the blood the host sends through these same functions.)
+const BLOOD_KEY='goblin-stompin-gus-noblood';let BLOOD_OFF=false;try{BLOOD_OFF=localStorage.getItem(BLOOD_KEY)==='1';}catch(e){}
+function blood(x,y,z,n,dir){if(SBX||BLOOD_OFF)return;for(let i=0;i<n;i++){const p=takePart();p.kind=1;p.life=1.4;const s=(0.05+Math.random()*0.1)/0.22;p.m.scale.set(s,s,s);p.m.material.color.setHex([0x7a0b0b,0x9c1212,0x5c0707][i%3]);p.m.position.set(x,y,z);p.v.set((Math.random()-.5)*3,Math.random()*3,(Math.random()-.5)*3);if(dir)p.v.addScaledVector(dir,2+Math.random()*5);p.m.visible=true;}}
 function updateParts(dt){for(const p of parts){if(p.life<=0)continue;p.life-=dt;const m=p.m;
   if(p.kind===1){p.v.y-=20*dt;m.position.addScaledVector(p.v,dt);const g=groundAt(m.position.x,m.position.z,m.position.y);if(m.position.y<=g){if(Math.random()<0.5)splat(m.position.x,m.position.z,g+0.5,0.08+Math.random()*0.2);p.life=0;}m.material.opacity=1;}
   else if(p.kind===2){p.v.multiplyScalar(1-0.9*dt);m.position.addScaledVector(p.v,dt);m.scale.setScalar(1.5+(2.4-p.life)*1.3);m.material.opacity=Math.max(0,Math.min(1,p.life))*0.75;}
@@ -9284,7 +9399,7 @@ const DECAL_M=fxBatch(new THREE.CircleGeometry(1,10),new THREE.MeshBasicMaterial
 // depth, and are drawn oldest first, so where two overlap the newer one is simply painted over the older; drawn after
 // the rest of the solid scene, so the ground under them can't paint over them in turn)
 DECAL_M.renderOrder=2;
-function splat(x,z,y,r){if(SBX)return;const g=supportAt(x,z,y);if(g===null)return;const m=decals[decalIdx++%decals.length];m.position.set(x,g+0.015,z);m.scale.set(r*(0.7+Math.random()*0.6),r*(0.7+Math.random()*0.6),1);m.rotation.z=Math.random()*6.28;m.visible=true;decalsDirty=true;}
+function splat(x,z,y,r){if(SBX||BLOOD_OFF)return;const g=supportAt(x,z,y);if(g===null)return;const m=decals[decalIdx++%decals.length];m.position.set(x,g+0.015,z);m.scale.set(r*(0.7+Math.random()*0.6),r*(0.7+Math.random()*0.6),1);m.rotation.z=Math.random()*6.28;m.visible=true;decalsDirty=true;}
 const flatMat=(c,o,f)=>new THREE.MeshBasicMaterial({color:c,transparent:o<1,opacity:o,polygonOffset:true,polygonOffsetFactor:f,polygonOffsetUnits:f});
 const scorches=[];let scorchIdx=0;
 {const sg=new THREE.CircleGeometry(1,14),sm=flatMat(0x141210,0.85,-4);for(let i=0;i<8;i++){const m=new THREE.Mesh(sg,sm);m.rotation.x=-Math.PI/2;m.visible=false;scene.add(m);scorches.push(m);}}
@@ -9584,16 +9699,25 @@ function flushNotes(ms){
   if(i>=noteQ.length)noteQ.length=0;else noteQ.splice(0,i);
 }
 function colTop(b,rx,rz){const tierOn=b.tier>0&&(b.x1-b.x0)>=8,inner=rx>=b.x0+2&&rx<b.x1-2&&rz>=b.z0+2&&rz<b.z1-2;return ((tierOn&&!inner)?b.tier:b.top)+(b.roof||0);}
-// a building's original block count (estimated from up to 72 of its columns, picked evenly across the footprint)
-function bldgSolid(b,px,pz,key){
+// a building's original block count, every block of it counted. (It used to be estimated from up to 72 of its columns, and
+// those could keep landing on its walls, where every block is solid: a tower came out about a tenth bigger than it was, and
+// as a tall tower only counts as destroyed with less than a tenth of it left, it never could be, however much was knocked
+// out.) A big building takes a few milliseconds, so while a place's total is being worked out a frame at a time it's
+// counted a slice at a time too (bldgSolidPart, which says undefined until it's done); asked outright, it's counted in one.
+const bSolidJob=new Map();
+function bldgSolidPart(b,px,pz,key,until){
   let n=bSolidC.get(key);if(n!==undefined)return n;
-  const W=b.x1-b.x0,D=b.z1-b.z0,A=W*D,K=Math.min(A,72),sv=STRUCT;let sum=0;
-  for(let i=0;i<K;i++){const c=K===A?i:Math.floor((i+0.5)*A/K),rx=b.x0+c%W,rz=b.z0+Math.floor(c/W),t=colTop(b,rx,rz);
-    for(let y=G+1;y<=t&&y<H;y++)if(blockAt(b,rx,rz,y,px,pz)!==AIR)sum++;}
-  STRUCT=sv;n=Math.max(1,Math.round(sum*A/K));bSolidC.set(key,n);return n;
+  let J=bSolidJob.get(key);if(!J){J={c:0,sum:0};bSolidJob.set(key,J);}
+  const W=b.x1-b.x0,A=W*(b.z1-b.z0),sv=STRUCT;
+  while(J.c<A){const rx=b.x0+J.c%W,rz=b.z0+Math.floor(J.c/W),t=colTop(b,rx,rz);
+    for(let y=G+1;y<=t&&y<H;y++)if(blockAt(b,rx,rz,y,px,pz)!==AIR)J.sum++;
+    J.c++;if(!(J.c&15)&&performance.now()>until)break;}
+  STRUCT=sv;if(J.c<A)return undefined;
+  bSolidJob.delete(key);n=J.sum;bSolidC.set(key,n);return n;   // (0: nothing there to knock down, see bldgLeft)
 }
+function bldgSolid(b,px,pz,key){return bldgSolidPart(b,px,pz,key,Infinity);}
 // what's left of a building, 0..1
-function bldgLeft(b,px,pz,key){return Math.max(0,1-(destroyed[key]||0)/bldgSolid(b,px,pz,key));}
+function bldgLeft(b,px,pz,key){const N=bldgSolid(b,px,pz,key);return N?Math.max(0,1-(destroyed[key]||0)/N):0;}   // (nothing to it: nothing left of it)
 // how little of it has to be left for it to count as destroyed, by its size: a one- or two-storey place is gone once
 // half of it is; the taller it is the less of it can be left (what's left of a tower is still a lot of building), down
 // to a tenth at a dozen storeys or more. A very big footprint lowers it a little more (half a superstore still stands).
@@ -9621,14 +9745,14 @@ function setDestroyed(S){
   if(!L){
     if(destJob.S!==S){destJob.S=S;destJob.list=setBuildings(S);destJob.i=0;destJob.tot=0;}
     const t0=performance.now();
-    while(destJob.i<destJob.list.length&&performance.now()-t0<3){const E=destJob.list[destJob.i++];destJob.tot+=bldgSolid(E.b,E.px,E.pz,E.key);}
+    while(destJob.i<destJob.list.length&&performance.now()-t0<3){const E=destJob.list[destJob.i],n=bldgSolidPart(E.b,E.px,E.pz,E.key,t0+3);if(n===undefined)break;destJob.tot+=n;destJob.i++;}
     if(destJob.i<destJob.list.length)return null;
     L=destJob.list;setListC.set(k,L);setTotC.set(k,destJob.tot);destJob.S=null;}
   if(!L.length)return 0;
   const now=performance.now();let C=setDCache.get(k);
   if(!C||C.ver!==destroyVer&&now-C.t>250){
     let D=0,stand=0;
-    for(const E of L){const N=bldgSolid(E.b,E.px,E.pz,E.key),d=destroyed[E.key]||0;
+    for(const E of L){const N=bldgSolid(E.b,E.px,E.pz,E.key),d=destroyed[E.key]||0;if(!N)continue;   // (a building with no blocks at all neither stands nor counts)
       if(d&&!bldgStanding(E.b,E.px,E.pz,E.key))D+=N;else{stand++;D+=Math.min(d,N);}}
     const v=stand===0?1:Math.min(1,D/Math.max(1,setTotC.get(k)));if(!C||C.v!==v)setDVer++;
     C={ver:destroyVer,t:now,v};setDCache.set(k,C);}
@@ -9768,9 +9892,10 @@ function collapseBuilding(B,L,push){
     const wx=X0+x,wz=Z0+z;
     noteFor=B;
     for(let y=L;y<H;y++){const v=get(wx,y,wz);if(v===AIR)continue;if(y===L)stood.push({x:wx,z:wz});if(y<L+FH+1&&collapseKeep(b,B.px,B.pz,x,z,y,L))continue;(y===L?crumble:body).push({x:wx,y,z:wz,b:v});setRaw(wx,y,wz,AIR);
-      // (the plan leaves the building out from this floor up when the chunk's made again, but not what was added to it
-      // since: rubble that had landed on it would come back hanging in mid-air, so that's knocked out in the edits too)
-      if((wx+','+y+','+wz) in edits)addEdit(wx,y,wz,AIR);}
+      // (the building's own blocks don't need saving as gone: `collapses` stops the plan making them again. But rubble that
+      // had landed on it, or anything else put there since, is in the edits, and would be put back hanging in the air the
+      // next time this chunk's made, so that's saved as gone)
+      const ek=wx+','+y+','+wz;if(edits[ek]!==undefined&&edits[ek]!==AIR)addEdit(wx,y,wz,AIR);}
     noteFor=null;
   }
   for(let x=b.x0-1;x<=b.x1;x++)for(let z=b.z0-1;z<=b.z1;z++)ch.add(ckey(Math.floor((X0+x)/CS),Math.floor((Z0+z)/CS)));
@@ -10617,8 +10742,8 @@ function rocketSound(p,on){if(SBX||!audio)return;
   try{const R=p.rkSnd;
     if(on&&!R){if(!rocketBuf){const n=audio.sampleRate*2|0;rocketBuf=audio.createBuffer(1,n,audio.sampleRate);const ch=rocketBuf.getChannelData(0);let b=0;for(let i=0;i<n;i++){b=b*0.6+(Math.random()*2-1)*0.4;ch[i]=b;}}
       const src=audio.createBufferSource(),f=audio.createBiquadFilter(),f2=audio.createBiquadFilter(),g=audio.createGain();src.buffer=rocketBuf;src.loop=true;
-      f.type='lowpass';f.frequency.value=900;f2.type='peaking';f2.frequency.value=180;f2.gain.value=9;g.gain.value=0;
-      src.connect(f).connect(f2).connect(g).connect(audio.destination);src.start();p.rkSnd={src,f,g};}
+      f.type='lowpass';f.frequency.value=900;f2.type='peaking';f2.frequency.value=180;f2.gain.value=9;audioSet(g.gain,0);
+      src.connect(f).connect(f2).connect(g).connect(sndDest());src.start();p.rkSnd={src,f,g};}
     const S=p.rkSnd;if(!S)return;const t=audio.currentTime;
     S.g.gain.setTargetAtTime(on?0.11:0,t,on?0.05:0.06);if(on&&DT.sndList)sndNote(0.1,'Rocket boost');
     if(on)S.f.frequency.setTargetAtTime(750+Math.random()*350,t,0.03);
@@ -10729,7 +10854,7 @@ function damagePlayer(p,n,pt,dir,cause,killer){
     startCorpse(p,n,dir);
     flashLabel(charName(p)+' has fallen');recordHippoObit(p,cause||'Died',killer);
     tone('sawtooth',150,38,1.6,0.2);tone('sawtooth',110,30,1.8,0.12,0.15);
-    p.pool.position.set(p.pos.x,groundAt(p.pos.x,p.pos.z,p.pos.y)+0.02+p.idx*0.005,p.pos.z);p.pool.scale.setScalar(0.1);p.pool.visible=true;
+    p.pool.position.set(p.pos.x,groundAt(p.pos.x,p.pos.z,p.pos.y)+0.02+p.idx*0.005,p.pos.z);p.pool.scale.setScalar(0.1);p.pool.visible=!BLOOD_OFF;
   } else if(p.hp<=6&&Math.random()<0.4)tone('sawtooth',180,90,0.5,0.12);
 }
 // ---- the hippo's body after death: a tumbling rigid box, launched according to what killed it ----
@@ -13212,7 +13337,7 @@ function movePlayer(p,dt){
     p.legs.forEach((l,i)=>{l.rotation.x=buckle*(i<2?-0.9:0.9)*(1-lying*0.5)+(i%2?flail:-flail)+((i===1||i===2)?tw:0);l.rotation.z=lying*0.3*(i%2?1:-1);});
     p.jaw.rotation.x=0.35+lying*0.25;p.head.rotation.x=lying*0.2;p.tail.rotation.z=0;
     // the pool spreads once the body has come to rest
-    const rt=C?C.rest:t;p.pool.scale.setScalar(Math.min(2.8,0.1+rt*0.5));
+    const rt=C?C.rest:t;p.pool.scale.setScalar(Math.min(2.8,0.1+rt*0.5));if(BLOOD_OFF)p.pool.visible=false;
     // the body hitting the ground for good: a heavy thud and a burst of blood
     if(C&&!p.slammed&&(C.hits>0||C.rest>0.05||(C.cause==='beaten'&&Math.abs(Math.sin(C.roll))>0.95))){p.slammed=true;blood(p.pos.x,p.pos.y+0.8,p.pos.z,26,new V3(0,0.8,0));sfx('Body hits the ground',()=>{thud(0.8);});addShake(0.3,p.pos.x,p.pos.z,14);}
     return;
@@ -15520,7 +15645,8 @@ function menuPad(st,dt){
       const cf=document.getElementById('confirm');
       if(!cf.hidden)document.getElementById('confirmNo').click(),padFocus(document.getElementById('newWorld'));
       else if(curTab!=='game')backHome();
-      else{const op=document.getElementById('onlinePanel');if(op&&!op.hidden&&op.contains(document.activeElement)){document.getElementById('onlineBtn').click();padFocus(document.getElementById('onlineBtn'));}
+      else{const op=document.getElementById('onlinePanel'),sp=document.getElementById('savePanel');if(op&&!op.hidden&&op.contains(document.activeElement)){document.getElementById('onlineBtn').click();padFocus(document.getElementById('onlineBtn'));}
+        else if(sp&&!sp.hidden){titlePop(null);padFocus(document.getElementById('saveLocal'));}
         else if(!atTitle&&begun){startPlay(null,true);return;}}   // (B on the pause menu itself: back to the game)
     }
     if(s.pr[9]){startPlay(s===st[1]&&!touchMode?'coop':null,true);return;}
@@ -15535,6 +15661,9 @@ function menuPad(st,dt){
       if(el.closest('#charRow')){el.click();backHome();continue;}
       el.click();
       if(el.id==='newWorld')padFocus(document.getElementById('confirmNo'));
+      // (a card popping out beside the menu: straight into it, as it's off to the side)
+      if(el.id==='onlineBtn'||el.id==='saveLocal'){const pn=document.getElementById(el.id==='onlineBtn'?'onlinePanel':'savePanel');
+        if(pn&&!pn.hidden){const f=menuFocusables().find(e=>pn.contains(e));if(f)padFocus(f);}}
       if(el.id==='confirmNo'||el.id==='confirmYes')padFocus(document.getElementById('newWorld'));
     }
   }
@@ -20779,8 +20908,9 @@ function refreshDoors(){
   // the nearest ones, up to the limit
   const list=[...want.values()].sort((a,b)=>a.d-b.d).slice(0,DOOR_MAX),keep=new Set(list.map(R=>R.key));
   for(const [k,D] of doorsOn)if(!keep.has(k)){if(D.v){D.v.used=false;D.v.g.visible=false;}doorsOn.delete(k);}
-  for(const R of list){const D=doorsOn.get(R.key);if(D){D.R=R;continue;}const v=doorVisual(R);if(v)doorsOn.set(R.key,{R,v,open:0,dir:1});}
+  for(const R of list){const D=doorsOn.get(R.key);if(D){D.R=R;continue;}const v=doorVisual(R);if(v)doorsOn.set(R.key,{R,v,open:0,dir:1,fresh:true});}
 }
+let doorSndT=-1;const clockNow=()=>performance.now()/1000;
 function updateDoors(dt){
   const who=[];for(const p of players)if(p.active&&p.state!=='dead')who.push([p.pos.x,p.pos.z,p.pos.y,3.4]);
   for(const g of goblins)if(g.root.visible&&g.state!=='wait'&&g.state!=='dead'&&g.hp>0)who.push([g.pos.x,g.pos.z,g.pos.y,2.2]);
@@ -20788,8 +20918,12 @@ function updateDoors(dt){
     const R=D.R;let near=null,nd=1e9;
     for(const [x,z,y,r] of who){if(Math.abs(y-(R.y||G+1))>3)continue;const d=Math.hypot(x-R.x,z-R.z)-((R.a1-R.a0)/2-0.5);if(d<r&&d<nd){nd=d;near=[x,z];}}
     const tgt=near?1:0;
+    // (a door just come into range with someone already at it, as when a city or the Testing Environment loads with
+    // you or a crowd by a row of doors, is simply open: no sound. Otherwise they all went off at once, a loud crash of
+    // glass. And never more than one door sound in a short while)
+    if(D.fresh){D.fresh=false;if(near){D.dir=(R.ax==='x'?near[1]-R.z:near[0]-R.x)*R.n>0?1:-1;D.open=1;}}
     if(near&&D.open<0.05){const out=(R.ax==='x'?near[1]-R.z:near[0]-R.x)*R.n>0;D.dir=out?1:-1;   // (swings away from whoever's coming)
-      if(D.open<0.02&&D.R.d<40)R.kind==='glass'?noise(0.18,0.03,1800,'bandpass'):tone('sawtooth',140,95,0.18,0.012);}
+      if(D.open<0.02&&D.R.d<40&&clockNow()-doorSndT>0.12){doorSndT=clockNow();R.kind==='glass'?noise(0.18,0.03,1800,'bandpass'):tone('sawtooth',140,95,0.18,0.012);}}
     D.open+=(tgt-D.open)*Math.min(1,dt*(tgt?7:3.5));
     const v=D.v;if(!v)continue;const o=D.open;
     for(const L of v.leaves){
@@ -24437,7 +24571,7 @@ let pauseAt=-1e9;   // (when play last paused: an Esc straight after it is the s
 // drives it, and only player one's drives player one's. (var: renderTime asks while the page is still loading)
 var menuBy=null;
 function menuP2(){return !!(menuBy&&menuBy!==P1&&inCoop());}
-const P1_ONLY=['play','newWorld','testWorld','onlineBtn','onlinePanel','confirm','quitBtn','fullBtn','fullBtnP'];
+const P1_ONLY=['play','newWorld','testWorld','onlineBtn','onlinePanel','confirm','saveSw','savePanel','quitBtn','fullBtn','fullBtnP'];
 function menuSeat(){
   const two=menuP2();pauseEl.classList.toggle('seat2',two);
   for(const id of P1_ONLY){const el=document.getElementById(id);if(el)el.classList.toggle('p1only',true);}
@@ -24531,6 +24665,9 @@ function escResume(){
   if(menuOpen){
     const cf=document.getElementById('confirm');
     if(!cf.hidden){document.getElementById('confirmNo').click();const nw=document.getElementById('newWorld');if(inputKind==='pad')padFocus(nw);else nw.focus();return;}
+    // (Esc closes a card popped out beside the title menu, Local saves or Play online)
+    for(const [pid,bid] of [['savePanel','saveLocal'],['onlinePanel','onlineBtn']]){const pn=document.getElementById(pid);
+      if(pn&&!pn.hidden&&atTitle){titlePop(null);const b=document.getElementById(bid);if(inputKind==='pad')padFocus(b);else b.focus();return;}}
     const t=document.activeElement;
     if(t&&(t.tagName==='TEXTAREA'||t.tagName==='SELECT'||t.tagName==='INPUT'&&/^(text|number|search)$/.test(t.type))){t.blur();return;}
     if(curTab!=='game'){backHome();return;}   // (a screen opened from the menu: back to the menu first)
@@ -26951,6 +27088,340 @@ chatEl('vcVol').addEventListener('change',vcSave);
 chatEl('vcMicVol').addEventListener('input',e=>{VC.micVol=Math.max(0,Math.min(2,(+e.target.value||0)/100));if(VC.gain)try{VC.gain.gain.value=VC.micVol;}catch(x){}chatEl('vcMicVolVal').textContent=Math.round(VC.micVol*100)+'%';});
 chatEl('vcMicVol').addEventListener('change',vcSave);
 vcOptsDraw();
+// ---------- Options: Sound volume, Brightness and Hide blood ----------
+// All three are kept in this browser and go for everyone at once: split screen shares one sound system and one picture.
+// (The volume itself is in core/audio.js, sndDest; Hide blood in destruction/smashing.js, BLOOD_OFF.)
+const BRIGHT_KEY='goblin-stompin-gus-brightness';
+const BRIGHT_MIN=0.2,BRIGHT_MAX=2.5;   // (20% to 250%: from a dim night-time look to washed out)
+let brightness=1;try{const v=localStorage.getItem(BRIGHT_KEY);if(v!==null&&+v>=BRIGHT_MIN&&+v<=BRIGHT_MAX)brightness=+v;}catch(e){}
+// (brightness is a filter on the 3D view's own canvas, so the menus, HUD and text over it stay as they are; at 100% there's
+// no filter at all, so it costs nothing unless it's used)
+function brightApply(){const c=document.getElementById('world');if(c&&c.style)c.style.filter=Math.abs(brightness-1)<0.001?'':'brightness('+brightness+')';}
+{
+  const vs=document.getElementById('sndVol'),vl=document.getElementById('sndVolVal');
+  const showV=()=>{vs.value=String(Math.round(sndVol*100));vl.textContent=Math.round(sndVol*100)+'%';};showV();
+  vs.addEventListener('input',()=>{setSndVol(Math.round(+vs.value||0)/100);showV();});
+  // (a little blip at the new volume once the slider's let go, so you can hear what it's set to)
+  vs.addEventListener('change',()=>{tone('triangle',660,0,0.08,0.06);});
+  const bs=document.getElementById('brightness'),bl=document.getElementById('brightVal');
+  const showB=()=>{bs.value=String(Math.round(brightness*100));bl.textContent=Math.round(brightness*100)+'%';};showB();brightApply();
+  bs.addEventListener('input',()=>{brightness=Math.max(BRIGHT_MIN,Math.min(BRIGHT_MAX,Math.round(+bs.value||100)/100));showB();brightApply();try{localStorage.setItem(BRIGHT_KEY,String(brightness));}catch(e){}});
+  const bt=document.getElementById('bloodTog');
+  const showBl=()=>bt.setAttribute('aria-checked',String(BLOOD_OFF));showBl();
+  bt.addEventListener('click',()=>{BLOOD_OFF=!BLOOD_OFF;showBl();try{localStorage.setItem(BLOOD_KEY,BLOOD_OFF?'1':'0');}catch(e){}
+    // (switched on: what's already been spilt goes too)
+    if(BLOOD_OFF){for(const d of decals)d.visible=false;decalsDirty=true;for(const p of players)p.pool.visible=false;}});
+}
+// ---------- The title menu's pop-out cards ----------
+// The title screen's menu card never scrolls: what a button opens (Play online, New city's "are you sure?", Local saves)
+// pops out to the left of the card, beside the button that opened it, one at a time. (Paused, the same cards open in
+// the pause menu's own row, and on a narrow screen inside the card, as before: see style.css, .tpop.)
+const TITLE_POPS=['onlinePanel','confirm','savePanel'];
+const TITLE_POP_BY={onlinePanel:'onlineBtn',confirm:'newWorld',savePanel:'saveLocal'};
+// (show one of them, by id, and close the rest; null closes them all)
+function titlePop(id){
+  for(const k of TITLE_POPS){const el=document.getElementById(k);if(!el)continue;const on=k===id;
+    if(k==='onlinePanel'&&!on&&!el.hidden){document.getElementById('onlineBtn').click();continue;}   // (closed its own way, so the lobby stops listening)
+    if(el.hidden===on)el.hidden=!on;const b=document.getElementById(TITLE_POP_BY[k]);if(b&&k!=='confirm')b.setAttribute('aria-expanded',String(on));}
+  titlePopPlace();
+}
+// (beside its button: level with it where there's room, otherwise as low as it fits on screen, never off the top)
+function titlePopPlace(){
+  const menu=document.getElementById('titleMenu');if(!menu||!menu.getBoundingClientRect)return;
+  for(const k of TITLE_POPS){const el=document.getElementById(k);if(!el||el.hidden)continue;
+    const b=document.getElementById(TITLE_POP_BY[k]),mr=menu.getBoundingClientRect();
+    if(getComputedStyle(el).position!=='absolute'){el.style.top='';continue;}
+    const want=b?b.offsetTop-12:0,h=el.offsetHeight,room=innerHeight-110-mr.top;
+    el.style.top=Math.round(Math.max(16-mr.top,Math.min(want,room-h)))+'px';}
+}
+for(const k of TITLE_POPS){const b=document.getElementById(TITLE_POP_BY[k]),el=document.getElementById(k);
+  // (each button already opens its own card; this closes the others, and places it, once the button's own handler has
+  // run: New city's is added further on)
+  if(b&&k!=='savePanel')b.addEventListener('click',()=>setTimeout(()=>{if(!el.hidden)titlePop(k);},0));
+  if(el&&window.ResizeObserver)new ResizeObserver(()=>titlePopPlace()).observe(el);}
+addEventListener('resize',titlePopPlace);
+// ---------- Where the game is saved: Browser save or Local save (the title menu's switch) ----------
+// Browser save keeps the city in this browser's localStorage, as it always has. Local save keeps it in a file on this
+// computer that the player picks, through the File System Access API (Chrome and Edge on a computer only), and they can
+// have as many files as they like and switch between them. Either way the game itself still plays from localStorage:
+// the working copy is SAVE_KEY and the few keys kept beside it (SV_KEYS). In Local save that's just a copy of the file,
+// written back to it as the game saves (svTick). Switching puts the browser save aside in IndexedDB, which has far more
+// room than localStorage, and brings it back when switching back, then reloads, the way New city and the Testing
+// Environment do. The files' handles are kept in IndexedDB too, so next time the game opens the same file again (the
+// browser asks once a session whether the game may still change it, on the first click or key press).
+const SV_MODE_KEY='goblin-stompin-gus-savemode';
+const SV_KEYS=()=>[SAVE_KEY,POS_KEY,OBIT_KEY,MAP_KEY,TENV_PARK];   // (a function: some of these are declared further on)
+const SV={mode:'browser',cur:null,t:0,can:false,why:'',files:[],rec:null,perm:'',err:'',block:false,busy:false,last:null,status:''};
+try{const o=JSON.parse(localStorage.getItem(SV_MODE_KEY)||'null');if(o&&o.mode==='local'&&o.cur){SV.mode='local';SV.cur=String(o.cur);SV.t=+o.t||0;}}catch(e){}
+// (whether this browser can save to files at all, and if not, why not, in words for the menu)
+{let top=true;try{top=window.top===window.self;}catch(e){top=false;}
+ if(typeof window.showSaveFilePicker!=='function'||typeof window.showOpenFilePicker!=='function'||!window.indexedDB)
+   SV.why=/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent||'')?"Local saves need Chrome or Edge on a computer: phones and tablets can't keep saving to a file. Your game saves in this browser, but you can export it to a file and import it again.":"This browser can't keep saving to a file by itself (only Chrome and Edge on a computer can), so your game saves in the browser. But you can export your city to a file whenever you like, to keep it safe or carry it to another browser or computer, and import it again.";
+ else if(!top)SV.why='Local saves only work with the game open in its own tab or window. Open it on its own to use them.';
+ else SV.can=true;}
+function svSaveMode(){try{localStorage.setItem(SV_MODE_KEY,JSON.stringify(SV.mode==='local'?{mode:'local',cur:SV.cur,t:SV.t}:{mode:'browser'}));}catch(e){}}
+// ---- IndexedDB: 'files' holds each known save file ({id, name, handle, t}), 'kv' the browser save while it's put aside.
+// (An old version played from the website's /v/X/ gets a database of its own, as its localStorage keys are kept apart.) ----
+const SV_DB='gsg-saves'+(m=>m?'-v'+m[1]:'')(typeof location!=='undefined'&&/\/v\/([^/]+)\//.exec(location.pathname||''));
+function svDb(){return new Promise((ok,no)=>{const r=indexedDB.open(SV_DB,1);
+  r.onupgradeneeded=()=>{const d=r.result;if(!d.objectStoreNames.contains('files'))d.createObjectStore('files',{keyPath:'id'});if(!d.objectStoreNames.contains('kv'))d.createObjectStore('kv');};
+  r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error);});}
+function svIdb(store,mode,fn){return svDb().then(db=>new Promise((ok,no)=>{const tx=db.transaction(store,mode),r=fn(tx.objectStore(store));let out;
+  if(r)r.onsuccess=()=>{out=r.result;};tx.oncomplete=()=>{db.close();ok(out);};tx.onerror=tx.onabort=()=>{db.close();no(tx.error);};}));}
+const svFiles=()=>svIdb('files','readonly',s=>s.getAll()).then(a=>(a||[]).sort((x,y)=>(y.t||0)-(x.t||0)));
+const svPut=rec=>svIdb('files','readwrite',s=>s.put(rec));
+const svForget=id=>svIdb('files','readwrite',s=>s.delete(id));
+const svKv=(k,v)=>v===undefined?svIdb('kv','readonly',s=>s.get(k)):svIdb('kv','readwrite',s=>v===null?s.delete(k):s.put(v,k));
+// ---- a city too big for localStorage. A site gets about 5 MB of it, shared with every other version played from the same
+// website, and a long rampage's smashed blocks can outgrow that: a save that didn't fit simply wasn't made, so the city kept
+// going back to how it was the last time it fitted. Now, once it doesn't fit, its smashed blocks (nearly all of a big save)
+// go in IndexedDB, which has far more room, and the rest stays in localStorage with a note of which copy of them goes with it
+// (ed2db). load() sees the note and the blocks are read back in just after the page loads (worldLoadBig), with saving held
+// off until they are. ----
+const WB_ID=()=>'world:'+SAVE_KEY;
+async function worldPut(o){
+  if(!WB.on||!o.ed2){try{localStorage.setItem(SAVE_KEY,JSON.stringify(o));return;}catch(e){if(!window.indexedDB||!o.ed2)throw e;WB.on=true;}}
+  const t=Date.now()+'-'+Math.random().toString(36).slice(2,8);
+  await svKv(WB_ID(),{t,ed2:o.ed2});
+  const small=Object.assign({},o,{ed2db:t});delete small.ed2;
+  localStorage.setItem(SAVE_KEY,JSON.stringify(small));
+}
+async function worldLoadBig(){
+  const want=WB.pending;if(!want)return;let r=null;try{r=await svKv(WB_ID());}catch(e){}
+  if(r&&r.t===want&&r.ed2&&typeof r.ed2==='object'){editsUnpack(r.ed2);worldRefresh();}
+  else try{flashLabel("Couldn't find all of this city's smashed blocks");}catch(e){}
+  WB.pending=null;save();
+}
+// (the chunks already built while the smashed blocks were being read, and their neighbours, built again with them)
+function worldRefresh(){
+  const S=new Set();
+  for(const k of chunkEdits.keys()){const cx=Math.floor(k/65536)-32768,cz=(k%65536)-32768;for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++)S.add(ckey(cx+dx,cz+dz));}
+  for(const k of S)if(chunks.has(k)){chunks.delete(k);gfxRecC.delete(k);}
+  lastK=-1;
+  for(const k of S)if(meshes.has(k))buildChunk(Math.floor(k/65536)-32768,(k%65536)-32768);
+  farDirty=true;
+}
+// ---- the working copy, and a save file's contents ----
+// (where you're standing, the obituary and the map, saved now; the world itself is taken live, by svData)
+function svFlush(){if(saveBlocked)return;
+  try{savePos();}catch(e){}try{saveExplored();}catch(e){}
+  try{if(obits&&obitSeed===seed)localStorage.setItem(OBIT_KEY,JSON.stringify({seed,total:obitTotal,list:obitList()}));}catch(e){}}
+// (and the world too, wherever it goes)
+async function svFlushAll(){if(saveBlocked||WB.pending)return;clearTimeout(saveTimer);svFlush();flushNotes(Infinity);await worldPut(saveObj({tenv:TENV||undefined}));}
+// (everything a save file holds: the world as it is this moment, and the other keys as they're kept)
+function svData(){if(WB.pending)throw new Error("Just a moment: the city's still loading.");
+  const d={};for(const k of SV_KEYS()){try{const v=localStorage.getItem(k);if(v!==null)d[k]=v;}catch(e){}}
+  if(!saveBlocked){flushNotes(Infinity);d[SAVE_KEY]=saveText({tenv:TENV||undefined});}
+  return d;}
+async function svApply(d){
+  for(const k of SV_KEYS()){if(k===SAVE_KEY)continue;if(d&&typeof d[k]==='string')localStorage.setItem(k,d[k]);else localStorage.removeItem(k);}
+  if(d&&typeof d[SAVE_KEY]==='string')await worldPut(JSON.parse(d[SAVE_KEY]));else localStorage.removeItem(SAVE_KEY);
+}
+const svText=(d,t)=>JSON.stringify({game:"Goblin-Stompin' Gus",kind:'save',version:GAME_VER,key:SAVE_KEY,t,data:d});
+// (a file read back: {empty} for a new file, otherwise its contents; a file that isn't a save, or is one from a version whose
+// cities are built differently, throws with a reason to show)
+function svParse(text){if(!String(text||'').trim())return {empty:true};let o=null;try{o=JSON.parse(text);}catch(e){}
+  if(!o||o.kind!=='save'||!o.data||typeof o.data!=='object')throw new Error("That file isn't a Goblin-Stompin' Gus save.");
+  if(o.key!==SAVE_KEY)throw new Error('That save is from version '+(o.version||'?')+", whose cities are built differently, so it can't be opened in this version.");
+  return o;}
+async function svRead(h){const f=await h.getFile();return svParse(await f.text());}
+let svQ=Promise.resolve();   // (one write at a time, in order)
+function svWrite(h,text){const q=svQ.catch(()=>{}).then(async()=>{const w=await h.createWritable();try{await w.write(text);await w.close();}catch(e){try{await w.abort();}catch(e2){}throw e;}});svQ=q;return q;}
+async function svPerm(h,ask){const o={mode:'readwrite'};try{let s=await h.queryPermission(o);if(s!=='granted'&&ask)s=await h.requestPermission(o);return s;}catch(e){return 'denied';}}
+function svReload(){clearTimeout(saveTimer);saveBlocked=true;location.reload();}
+// ---- Local save, while playing: the working copy goes to the file whenever the game saves, and every few seconds if
+// anything else has changed (where you're standing, the obituary, the map). Not in the Testing Environment, whose
+// empty world isn't the city in the file, and not as a guest in someone else's online game. ----
+function svTick(force){
+  if(SV.mode!=='local'||!SV.rec||SV.perm!=='granted'||SV.block||SV.busy||saveBlocked||WB.pending||TENV||netGuest())return;
+  const d=svData(),s=JSON.stringify(d);if(s===SV.last&&!force)return;SV.last=s;const t=Date.now();
+  svWrite(SV.rec.handle,svText(d,t)).then(()=>{SV.t=t;svSaveMode();if(SV.err){SV.err='';svUi();}},e=>{SV.last=null;
+    if(!SV.err){SV.err="Couldn't save to "+SV.rec.name+(e&&e.message?' ('+e.message+')':'')+'. Your game is still kept in this browser.';svUi();try{flashLabel("Can't save to your save file");}catch(e2){}}});
+}
+{const s0=save;let t=null;save=function save(){s0();if(SV.mode==='local'){clearTimeout(t);t=setTimeout(()=>svTick(),1500);}};}
+{const iv=setInterval(()=>svTick(),10000);if(iv&&iv.unref)iv.unref();}   // (unref: the tests' Node can still finish)
+document.addEventListener('visibilitychange',()=>{if(document.hidden){svFlush();svTick();}});   // (the world itself is saved as it changes)
+// (opened again in a new session: the file's own copy wins if it's newer than the one kept here, say from playing on
+// another computer; otherwise what's kept here is written to it)
+async function svSync(){
+  if(!SV.rec)return;let o;
+  try{o=await svRead(SV.rec.handle);}catch(e){SV.block=true;SV.err="Can't use "+SV.rec.name+': '+(e&&e.message||'it could not be read')+' Pick another file, or switch to Browser save.';svUi();return;}
+  if(!o.empty&&(+o.t||0)>SV.t&&JSON.stringify(o.data)!==JSON.stringify(svData())){
+    try{await svApply(o.data);}catch(e){SV.block=true;SV.err="This browser hasn't room to load "+SV.rec.name+'.';svUi();return;}
+    SV.t=+o.t||Date.now();svSaveMode();try{flashLabel('Loading '+SV.rec.name+', saved more recently than this copy');}catch(e){}
+    setTimeout(svReload,600);return;}
+  svFlush();svTick(true);svUi();
+}
+// (asking the browser to let the game change the file again: it needs a click or a key press to ask)
+async function svConnect(ask){
+  if(SV.mode!=='local'||!SV.rec||SV.perm==='granted')return;
+  const s=await svPerm(SV.rec.handle,ask);if(s===SV.perm&&s!=='granted')return;SV.perm=s;
+  if(s==='granted'){SV.err='';await svSync();}
+  else if(ask&&s==='denied'){SV.err="The browser wasn't allowed to change "+SV.rec.name+", so your game is only being kept in this browser for now. Pick it in Local saves to try again.";}
+  svUi();
+}
+{const ask=()=>{if(SV.mode==='local'&&SV.rec&&SV.perm!=='granted'&&!SV.asked){SV.asked=true;svConnect(true);}};
+ document.addEventListener('click',ask,true);document.addEventListener('keydown',e=>{if(e.key!=='Escape')ask();},true);}
+// ---- switching ----
+async function svGo(fn){if(SV.busy)return;SV.busy=true;SV.status='';SV.ok='';svUi();try{await fn();}catch(e){SV.status=e&&e.name==='AbortError'?'':(e&&e.message||String(e));}SV.busy=false;svUi();}
+// Local save, in the file rec: data is what goes in it (null: whatever the file has already)
+async function svUseLocal(rec,data){
+  if(TENV)throw new Error('Leave the Testing Environment first: your city is parked while you\'re in it.');
+  if(await svPerm(rec.handle,true)!=='granted')throw new Error('The browser needs your permission to save in '+rec.name+'. Pick it again and choose Allow (or "Allow on every visit").');
+  let o=null;if(!data){o=await svRead(rec.handle);if(o.empty)data={};}
+  if(saveBlocked)throw new Error("Not while you're in someone else's online game.");
+  svFlush();const now=svData();
+  // (put the browser save aside, or write the last file's last moments to it, before the working copy is swapped)
+  if(SV.mode==='browser')await svKv('browser',now);
+  else if(SV.rec&&SV.perm==='granted'&&!SV.block&&SV.rec.id!==rec.id){try{await svWrite(SV.rec.handle,svText(now,Date.now()));}catch(e){}}
+  const d=data||o.data,t=data?Date.now():(+o.t||Date.now());
+  if(data)await svWrite(rec.handle,svText(d,t));
+  try{await svApply(d);}catch(e){if(SV.mode==='browser'){try{await svApply(now);}catch(e2){}}throw new Error("This browser hasn't room to load that save.");}
+  rec.t=Date.now();await svPut(rec);
+  SV.mode='local';SV.cur=rec.id;SV.t=t;svSaveMode();svReload();
+}
+async function svUseBrowser(){
+  if(SV.mode!=='local')return;
+  if(TENV)throw new Error('Leave the Testing Environment first: your city is parked while you\'re in it.');
+  if(saveBlocked)throw new Error("Not while you're in someone else's online game.");
+  svFlush();if(SV.rec&&SV.perm==='granted'&&!SV.block){try{await svWrite(SV.rec.handle,svText(svData(),Date.now()));}catch(e){}}
+  const b=await svKv('browser');await svApply(b&&typeof b==='object'?b:{});await svKv('browser',null);
+  SV.mode='browser';SV.cur=null;SV.t=0;svSaveMode();svReload();
+}
+// (a file picked from the browser's own picker: the one already listed if it's the same file)
+async function svRec(h){for(const r of SV.files){try{if(await r.handle.isSameEntry(h))return r;}catch(e){}}
+  return {id:(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2)),name:h.name,handle:h,t:Date.now()};}
+const SV_TYPES=[{description:"Goblin-Stompin' Gus save",accept:{'application/json':['.json']}}];
+function svNewName(){const used=new Set(SV.files.map(r=>r.name));let n=1,s='gus-city.json';while(used.has(s))s='gus-city-'+(++n)+'.json';return s;}
+// ---- the menu: the switch, and the Local saves card that pops out beside it ----
+const svEl=id=>document.getElementById(id);
+function svWhen(t){if(!t)return '';const d=new Date(t),n=new Date();
+  return (d.toDateString()===n.toDateString()?'today':d.toLocaleDateString(undefined,{day:'numeric',month:'short'}))+' at '+d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});}
+function svUi(){
+  const b=svEl('saveBrowser'),l=svEl('saveLocal');if(!b||!l)return;
+  b.setAttribute('aria-checked',String(SV.mode!=='local'));l.setAttribute('aria-checked',String(SV.mode==='local'));
+  l.title=SV.can?'Save your game in files on this computer':'Export and import save files (this browser can\'t keep saving to a file by itself)';
+  b.title=SV.mode==='local'?'Switch back to the game saved in this browser':'Your game is saved in this browser';
+  svEl('saveIntro').textContent=SV.can?"Keep your cities in files on this computer instead of in the browser, so clearing the browser can't lose them, and keep as many as you like. Your browser save stays as it is: switch back to it any time.":SV.why;
+  for(const id of ['saveNewCopy','saveNewFresh','saveOpen']){const e=svEl(id);e.hidden=!SV.can;e.disabled=SV.busy;}
+  // (export works everywhere; import is for browsers without Local save, since Open a save file does the same there)
+  svEl('saveFileBtns').hidden=!SV.can;svEl('saveExport').disabled=SV.busy;svEl('saveImport').hidden=SV.can;svEl('saveImport').disabled=SV.busy;
+  const L=svEl('saveList');L.textContent='';L.hidden=!SV.can||!SV.files.length;
+  for(const r of SV.files){const cur=SV.mode==='local'&&r.id===SV.cur,row=document.createElement('div');row.className='sv-row'+(cur?' cur':'');
+    const go=document.createElement('button');go.type='button';go.className='sv-file';go.disabled=SV.busy;
+    const nm=document.createElement('b');nm.textContent=r.name;const inf=document.createElement('small');
+    inf.textContent=cur?(SV.perm==='granted'?'In use · saved '+(svWhen(SV.t)||'just now'):'In use · click to let the game save to it'):'Last played '+svWhen(r.t);
+    go.append(nm,inf);go.addEventListener('click',()=>{if(cur){if(SV.perm!=='granted')svGo(()=>svConnect(true));return;}svGo(()=>svUseLocal(r,null));});row.append(go);
+    if(!cur){const x=document.createElement('button');x.type='button';x.className='sv-x';x.textContent='Forget';x.title='Take '+r.name+' off this list (the file itself stays where it is)';x.disabled=SV.busy;
+      x.addEventListener('click',()=>svGo(async()=>{await svForget(r.id);SV.files=SV.files.filter(f=>f.id!==r.id);}));row.append(x);}
+    L.append(row);}
+  const st=svEl('saveStatus');st.textContent=SV.busy?'Just a moment…':(SV.status||SV.err||SV.ok||(SV.can&&!SV.files.length?'No save files yet: make a new one, or open one you saved before.':''));
+  st.classList.toggle('bad',!!(SV.status||SV.err)&&!SV.busy);
+  try{seedLine();}catch(e){}
+}
+// (the line under the menu and at the foot of the pause menu: the version, the city's seed and where it's saved)
+function seedLine(){const sn=svEl('seedNote');if(!sn)return;
+  const where=SV.mode==='local'&&SV.rec?(SV.perm==='granted'&&!SV.block?'saving to '+SV.rec.name:'saving in this browser until '+SV.rec.name+' can be reached'):'smashed blocks save in this browser';
+  const t=TENV?`Testing Environment · ${TENV.boxes.length} structure${TENV.boxes.length===1?'':'s'} spawned · seed ${seed}`:`City seed ${seed} · endless · ${where}`;
+  sn.textContent='';const v=document.createElement('span');v.className='sn-ver';v.textContent='Version '+GAME_VER+' · ';sn.append(v,t);}
+{
+  const pan=svEl('savePanel'),l=svEl('saveLocal');
+  l.addEventListener('click',()=>{const open=pan.hidden;titlePop(open?'savePanel':null);if(open&&SV.mode==='local'&&SV.perm!=='granted')svConnect(true);});
+  svEl('saveBrowser').addEventListener('click',()=>{if(SV.mode==='local')svGo(svUseBrowser);});
+  // (the pickers must open straight from the click, before anything's waited for)
+  const newFile=fresh=>{if(!SV.can||SV.busy)return;const p=window.showSaveFilePicker({suggestedName:svNewName(),types:SV_TYPES,id:'gsg-saves'});
+    svGo(async()=>{const h=await p,r=await svRec(h);r.name=h.name;svFlush();await svUseLocal(r,fresh?{}:svData());});};
+  svEl('saveNewCopy').addEventListener('click',()=>newFile(false));
+  svEl('saveNewFresh').addEventListener('click',()=>newFile(true));
+  svEl('saveOpen').addEventListener('click',()=>{if(!SV.can||SV.busy)return;const p=window.showOpenFilePicker({types:SV_TYPES,id:'gsg-saves'});
+    svGo(async()=>{const [h]=await p,r=await svRec(h);if(SV.mode==='local'&&r.id===SV.cur)return;await svUseLocal(r,null);});});
+}
+// ---- Export and import: a save file downloaded by hand, and one read back in. They're the same files Local save writes,
+// so they open in either. Any browser can do this, Firefox and phones too, where Local save can't. ----
+// (asking the browser not to clear the game's storage when the disk gets low: Firefox asks the player, Chrome decides
+// for itself; once is enough)
+let svPersistAsked=false;
+function svPersist(){if(svPersistAsked)return;svPersistAsked=true;try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});}catch(e){}}
+function svExportName(){const d=new Date(),z=n=>String(n).padStart(2,'0');return 'gus-city-'+seed+'-'+d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())+'.json';}
+async function svExport(){
+  if(saveBlocked)throw new Error("In someone else's online game it's their city: they can export it.");
+  await svFlushAll();const name=svExportName(),url=URL.createObjectURL(new Blob([svText(svData(),Date.now())],{type:'application/json'}));
+  const a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+  SV.status='';SV.ok='Exported '+name+' (look in your Downloads).';
+}
+// (an imported file replaces the city in this browser: it asks first, as the city there would be lost unless exported)
+let svPending=null;
+function svAskShow(on){svEl('saveAsk').hidden=!on;if(on)svEl('saveAskYes').focus();}
+async function svImportPick(f){
+  svPending=null;svAskShow(false);if(!f)return;
+  if(saveBlocked)throw new Error("Not while you're in someone else's online game.");
+  if(TENV)throw new Error('Leave the Testing Environment first: your city is parked while you\'re in it.');
+  if(f.size>200e6)throw new Error("That file's too big to be a save.");
+  const o=svParse(await f.text());if(o.empty)throw new Error("That file's empty.");
+  svPending={o,name:f.name};
+  svEl('saveAskTxt').textContent='Load '+f.name+(o.t?', saved '+svWhen(+o.t):'')+'? It replaces the city in this browser, so export that first if you want to keep it.';
+  svAskShow(true);
+}
+async function svImport(){
+  const P=svPending;svPending=null;svAskShow(false);if(!P)return;
+  try{await svApply(P.o.data);}catch(e){throw new Error("This browser hasn't room to load "+P.name+'.');}
+  SV.ok='Loading '+P.name+'…';svUi();setTimeout(svReload,400);
+}
+{const inp=svEl('saveImportFile');
+ svEl('saveExport').addEventListener('click',()=>{if(SV.busy)return;svPersist();svGo(svExport);});
+ svEl('saveImport').addEventListener('click',()=>{if(SV.busy)return;svPersist();inp.value='';inp.click();});
+ inp.addEventListener('change',()=>{const f=inp.files&&inp.files[0];svGo(()=>svImportPick(f));});
+ svEl('saveAskYes').addEventListener('click',()=>svGo(svImport));
+ svEl('saveAskNo').addEventListener('click',()=>{svPending=null;svAskShow(false);svEl('saveImport').focus();});}
+// Save now (the pause menu): everything saved this moment, to the file too in Local save, and it says whether it worked
+{const b=svEl('saveNow');let tm=null;
+ const say=(t,cls,why)=>{b.textContent=t;b.classList.remove('ok','bad');if(cls)b.classList.add(cls);b.title=why||'';clearTimeout(tm);tm=setTimeout(()=>{b.textContent='Save now';b.classList.remove('ok','bad');},why?8000:2500);};
+ b.addEventListener('click',async()=>{
+   if(saveBlocked){say('Not saved','bad',"In someone else's online game it's their city, saved on their computer.");return;}
+   if(WB.pending){say('Still loading','bad','The city is still being read back in. Try again in a moment.');return;}
+   b.textContent='Saving…';svPersist();
+   try{await svFlushAll();}catch(e){say("Couldn't save",'bad',"The browser's storage is full"+(SV.can?': try Local save on the title screen, which saves to a file instead.':'.'));return;}
+   if(SV.mode==='local'&&SV.rec&&!TENV){
+     if(SV.perm!=='granted'||SV.block){say('Saved in browser','bad',SV.err||('The game isn\'t allowed to change '+SV.rec.name+' yet.'));return;}
+     try{const t=Date.now(),d=svData();await svWrite(SV.rec.handle,svText(d,t));SV.last=JSON.stringify(d);SV.t=t;svSaveMode();svUi();}
+     catch(e){say('Saved in browser','bad',"Couldn't write "+SV.rec.name+(e&&e.message?': '+e.message:''));return;}}
+   say('Saved','ok');});}
+// (getting going: the known files, and the one in use)
+(async()=>{
+  await null;   // (once the whole script has run, load() included)
+  if(WB.pending)await worldLoadBig();
+  if(SV.can)try{SV.files=await svFiles();}catch(e){SV.files=[];}
+  if(SV.mode==='local'){SV.rec=SV.files.find(r=>r.id===SV.cur)||null;
+    if(!SV.rec){SV.err=SV.can?"The save file in use last time isn't known any more: open it again, or pick another.":SV.why;}
+    else{SV.perm=await svPerm(SV.rec.handle,false);if(SV.perm==='granted')await svSync();}}
+  svUi();
+})();
+svUi();
+// ---------- Is there a newer version? ----------
+// Every build writes game/version.json beside the game (tools/build.py): its version and an id for that exact build. When
+// the game's opened from the website it fetches that file, past the browser's cache, and if the id isn't its own, a newer
+// game has been published there since this copy was loaded (or cached), so an Update button appears on the title screen
+// and at the foot of the pause menu. Each copy on the site checks its own folder's file, so the test and hotfix links
+// check against their own latest, and an old version kept under /v/X/ only ever finds itself. Opened as a file, it
+// doesn't check at all.
+const UPD={v:null};
+function updShow(){const b=document.getElementById('updBtn');if(!b||!UPD.v)return;b.hidden=false;
+  const nv=UPD.v.version&&UPD.v.version!==GAME_VER?'Update to version '+UPD.v.version:'Update available';
+  b.firstChild.textContent=nv+' ';b.title='A newer build of the game has been published. Your city is saved first, then the page reloads with it.';}
+function updCheck(){
+  if(typeof location==='undefined'||!/^https?:$/.test(location.protocol)||!window.fetch||GAME_BUILD.indexOf('{{')===0)return;
+  fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(v=>{
+    if(v&&typeof v.build==='string'&&v.build&&v.build!==GAME_BUILD){UPD.v=v;updShow();}}).catch(()=>{});
+}
+// (updating: the game's saved first, to its file too in Local save, then reloaded at an address the browser hasn't cached)
+document.getElementById('updBtn').addEventListener('click',async()=>{
+  if(!UPD.v)return;const b=document.getElementById('updBtn');b.disabled=true;b.firstChild.textContent='Updating… ';
+  try{await svFlushAll();if(SV.mode==='local'&&SV.rec&&SV.perm==='granted'&&!SV.block&&!TENV)await svWrite(SV.rec.handle,svText(svData(),Date.now()));}catch(e){}
+  clearTimeout(saveTimer);saveBlocked=true;location.replace(location.pathname+'?u='+encodeURIComponent(UPD.v.build)+location.hash);
+});
+updCheck();
+// (and again now and then, for a game left open: every half hour)
+{const iv=setInterval(updCheck,30*60*1000);if(iv&&iv.unref)iv.unref();}
 // ---------- New city & boot ----------
 const confirmEl=document.getElementById('confirm');
 // full screen: the whole page, toggled; the buttons (the title menu's, and the pause menu's column) say which way it will go
@@ -27024,7 +27495,7 @@ function tpRender(){
       b.addEventListener('click',()=>{mgLoadSet(S.act,k);tpRender();tsSet('New Mobile Gears will carry the '+MG_WPNS[k].name+' on the '+S.n.toLowerCase()+'.');});g.append(b);}
     r.append(t,g);ld.append(r);}
   for(const b of document.querySelectorAll('#tpLoad [data-mgs]'))b.setAttribute('aria-checked',String(MG_LOAD[b.dataset.mgs]===b.dataset.mgw));
-  const sn=document.getElementById('seedNote');if(sn&&TENV)sn.textContent=`Testing Environment · ${TENV.boxes.length} structure${TENV.boxes.length===1?'':'s'} spawned · seed ${seed}`;
+  if(TENV)seedLine();
 }
 // the Testing Environment's own tab, just right of Game: there only while in it (on: shown and opened)
 function tpShow(on){
@@ -27042,8 +27513,19 @@ function freshWorld(off,tenv){
 }
 // into the Testing Environment: your city (as it is this moment, where you stand, its obituary) is put aside first
 function tenvEnter(){
-  try{savePos();localStorage.setItem(TENV_PARK,JSON.stringify({key:SAVE_KEY,save:saveText(),
-    pos:localStorage.getItem(POS_KEY),obit:localStorage.getItem(OBIT_KEY)}));}catch(e){}
+  if(WB.pending)return;   // (a big city still being read back in: it can't be put aside half loaded)
+  try{savePos();}catch(e){}
+  const park={key:SAVE_KEY,pos:localStorage.getItem(POS_KEY),obit:localStorage.getItem(OBIT_KEY)};
+  try{localStorage.setItem(TENV_PARK,JSON.stringify(Object.assign({save:saveText()},park)));}
+  catch(e){
+    // (a city too big for localStorage goes aside in IndexedDB, as its saves do: see worldPut)
+    if(!window.indexedDB){try{flashLabel("Can't put your city aside: the browser's storage is full");}catch(e2){}return;}
+    svKv('park:'+SAVE_KEY,saveObj()).then(()=>{localStorage.setItem(TENV_PARK,JSON.stringify(Object.assign({idb:1},park)));tenvEnterNow();},
+      ()=>{try{flashLabel("Can't put your city aside: the browser's storage is full");}catch(e2){}});
+    return;}
+  tenvEnterNow();
+}
+function tenvEnterNow(){
   if(freshWorld([],{boxes:[]}))return;
   // (no storage to reload from: started here and now)
   TENV={boxes:[]};tenvIndex();trInstall();document.getElementById('confirmYes').click();tpShow(true);
@@ -27051,6 +27533,10 @@ function tenvEnter(){
 // and back out: the city you left, just as it was (or, if there isn't one, a brand-new one)
 function tenvLeave(){
   let P=null;try{P=JSON.parse(localStorage.getItem(TENV_PARK)||'null');}catch(e){}
+  if(P&&P.key===SAVE_KEY&&P.idb){svKv('park:'+SAVE_KEY).then(o=>{if(!o)throw 0;return worldPut(o);}).then(()=>{
+      for(const [k,v] of [[POS_KEY,P.pos],[OBIT_KEY,P.obit]])if(v)localStorage.setItem(k,v);else localStorage.removeItem(k);
+      localStorage.removeItem(TENV_PARK);svKv('park:'+SAVE_KEY,null).catch(()=>{});clearTimeout(saveTimer);saveBlocked=true;location.reload();},
+    ()=>{try{flashLabel("Couldn't bring your city back");}catch(e){}});return;}
   if(P&&P.key===SAVE_KEY&&P.save){try{localStorage.setItem(SAVE_KEY,P.save);
     for(const [k,v] of [[POS_KEY,P.pos],[OBIT_KEY,P.obit]])if(v)localStorage.setItem(k,v);else localStorage.removeItem(k);
     localStorage.removeItem(TENV_PARK);clearTimeout(saveTimer);saveBlocked=true;location.reload();return;}catch(e){}}
@@ -27350,7 +27836,7 @@ function boot(){
   // (once the ground under him has been built, stand him back on it)
   if(sp){const f=footprint(P1);if(f!==null&&f!==undefined&&f>=P1.pos.y-1.5)P1.pos.y=f;}
   layout();
-  document.getElementById('seedNote').textContent=TENV?`Testing Environment · ${TENV.boxes.length} structure${TENV.boxes.length===1?'':'s'} spawned · seed ${seed}`:`City seed ${seed} · endless · smashed blocks save in this browser`;
+  seedLine();   // (ui/saves.js: the version, the seed and where it's saved)
   if(TENV)tpShow(true);
 }
 if(!load())seed=(Math.random()*1e9)|0;

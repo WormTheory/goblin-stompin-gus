@@ -1,0 +1,12 @@
+place with 42 buildings
+wrecked at first 0
+one building brought down twice: demolished 1
+another by accident: demolished 1
+razed so far 0
+all down: wrecked 1  demolished 42  razed 1
+again: razed 1
+card: 0 / 0 / 42 / 1
+a new rampage, already in ruins: razed 0
+info pane at first: hidden true
+switched on: hidden false  says Weather Clear Moon New moon Biome Sootbridge City
+status card: Day 1 · morning Spring
