@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:40238b346ba7d4f784bd90c01ebf2d98c5d712585cf383a6b0c22cc3d71d6f30 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:ce4ad581df57e9590914ea5a0a8a2b652d0675cb9b0ce35fee3fa2f4d835dc78 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1829,7 +1829,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
     </div>
     <div class="tabpane" id="tabMap" role="tabpanel" hidden>
       <div class="map-wrap">
-        <div class="map-fig"><canvas id="mapCanvas" aria-label="Map of the parts of the city you have explored"></canvas></div>
+        <div class="map-fig"><canvas id="mapCanvas" aria-label="Map of the parts of the world you have explored"></canvas></div>
         <div class="map-side">
           <ul class="map-legend" id="mapLegend"></ul>
         </div>
@@ -1891,7 +1891,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='c2b00e509b02';
+const GAME_VER='0.5',GAME_BUILD='8b0f7a16bcde';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
