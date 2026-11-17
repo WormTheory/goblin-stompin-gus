@@ -101,7 +101,9 @@
         <div class="online savepanel" id="savePanel" hidden>
           <div class="on-h">Local saves <small id="saveIntro">Keep your cities in files on this computer instead of in the browser, so clearing the browser can't lose them and you can keep as many as you like. Your browser save stays as it is: switch back to it any time.</small></div>
           <div class="sv-list" id="saveList"></div>
-          <div class="sv-btns"><button type="button" class="on-b" id="saveNewCopy">New file: this city</button><button type="button" class="on-b" id="saveNewFresh">New file: new city</button><button type="button" class="on-b sv-open" id="saveOpen">Open a save file</button></div>
+          <div class="sv-btns" id="saveFileBtns"><button type="button" class="on-b" id="saveNewCopy">New file: this city</button><button type="button" class="on-b" id="saveNewFresh">New file: new city</button><button type="button" class="on-b sv-open" id="saveOpen">Open a save file</button></div>
+          <div class="sv-btns sv-xfer"><button type="button" class="on-b" id="saveExport">Export this city</button><button type="button" class="on-b sv-open" id="saveImport">Import a save file</button><input type="file" id="saveImportFile" accept=".json,application/json" hidden></div>
+          <div class="sv-ask" id="saveAsk" hidden><span id="saveAskTxt"></span><button type="button" class="on-b" id="saveAskYes">Load it</button><button type="button" class="on-b sv-open" id="saveAskNo">Cancel</button></div>
           <div class="note on-st" id="saveStatus" role="status"></div>
         </div>
         <button type="button" class="ck set tfull" id="fullBtn">Full screen</button>

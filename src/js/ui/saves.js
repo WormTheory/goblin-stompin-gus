@@ -14,7 +14,7 @@ try{const o=JSON.parse(localStorage.getItem(SV_MODE_KEY)||'null');if(o&&o.mode==
 // (whether this browser can save to files at all, and if not, why not, in words for the menu)
 {let top=true;try{top=window.top===window.self;}catch(e){top=false;}
  if(typeof window.showSaveFilePicker!=='function'||typeof window.showOpenFilePicker!=='function'||!window.indexedDB)
-   SV.why=/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent||'')?"Local saves need Chrome or Edge on a computer: phones and tablets can't save games to files. Your game saves in this browser instead.":"Local saves need Chrome or Edge on a computer. This browser can't let a web page save to a file, so your game saves in the browser instead.";
+   SV.why=/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent||'')?"Local saves need Chrome or Edge on a computer: phones and tablets can't keep saving to a file. Your game saves in this browser, but you can export it to a file and import it again.":"This browser can't keep saving to a file by itself (only Chrome and Edge on a computer can), so your game saves in the browser. But you can export your city to a file whenever you like, to keep it safe or carry it to another browser or computer, and import it again.";
  else if(!top)SV.why='Local saves only work with the game open in its own tab or window. Open it on its own to use them.';
  else SV.can=true;}
 function svSaveMode(){try{localStorage.setItem(SV_MODE_KEY,JSON.stringify(SV.mode==='local'?{mode:'local',cur:SV.cur,t:SV.t}:{mode:'browser'}));}catch(e){}}
@@ -121,7 +121,7 @@ async function svConnect(ask){
 {const ask=()=>{if(SV.mode==='local'&&SV.rec&&SV.perm!=='granted'&&!SV.asked){SV.asked=true;svConnect(true);}};
  document.addEventListener('click',ask,true);document.addEventListener('keydown',e=>{if(e.key!=='Escape')ask();},true);}
 // ---- switching ----
-async function svGo(fn){if(SV.busy)return;SV.busy=true;SV.status='';svUi();try{await fn();}catch(e){SV.status=e&&e.name==='AbortError'?'':(e&&e.message||String(e));}SV.busy=false;svUi();}
+async function svGo(fn){if(SV.busy)return;SV.busy=true;SV.status='';SV.ok='';svUi();try{await fn();}catch(e){SV.status=e&&e.name==='AbortError'?'':(e&&e.message||String(e));}SV.busy=false;svUi();}
 // Local save, in the file rec: data is what goes in it (null: whatever the file has already)
 async function svUseLocal(rec,data){
   if(TENV)throw new Error('Leave the Testing Environment first: your city is parked while you\'re in it.');
@@ -158,10 +158,12 @@ function svWhen(t){if(!t)return '';const d=new Date(t),n=new Date();
 function svUi(){
   const b=svEl('saveBrowser'),l=svEl('saveLocal');if(!b||!l)return;
   b.setAttribute('aria-checked',String(SV.mode!=='local'));l.setAttribute('aria-checked',String(SV.mode==='local'));
-  l.classList.toggle('cant',!SV.can);l.title=SV.can?'Save your game in files on this computer':SV.why;
+  l.title=SV.can?'Save your game in files on this computer':'Export and import save files (this browser can\'t keep saving to a file by itself)';
   b.title=SV.mode==='local'?'Switch back to the game saved in this browser':'Your game is saved in this browser';
   svEl('saveIntro').textContent=SV.can?"Keep your cities in files on this computer instead of in the browser, so clearing the browser can't lose them, and keep as many as you like. Your browser save stays as it is: switch back to it any time.":SV.why;
   for(const id of ['saveNewCopy','saveNewFresh','saveOpen']){const e=svEl(id);e.hidden=!SV.can;e.disabled=SV.busy;}
+  // (export works everywhere; import is for browsers without Local save, since Open a save file does the same there)
+  svEl('saveFileBtns').hidden=!SV.can;svEl('saveExport').disabled=SV.busy;svEl('saveImport').hidden=SV.can;svEl('saveImport').disabled=SV.busy;
   const L=svEl('saveList');L.textContent='';L.hidden=!SV.can||!SV.files.length;
   for(const r of SV.files){const cur=SV.mode==='local'&&r.id===SV.cur,row=document.createElement('div');row.className='sv-row'+(cur?' cur':'');
     const go=document.createElement('button');go.type='button';go.className='sv-file';go.disabled=SV.busy;
@@ -171,7 +173,7 @@ function svUi(){
     if(!cur){const x=document.createElement('button');x.type='button';x.className='sv-x';x.textContent='Forget';x.title='Take '+r.name+' off this list (the file itself stays where it is)';x.disabled=SV.busy;
       x.addEventListener('click',()=>svGo(async()=>{await svForget(r.id);SV.files=SV.files.filter(f=>f.id!==r.id);}));row.append(x);}
     L.append(row);}
-  const st=svEl('saveStatus');st.textContent=SV.busy?'Just a moment…':(SV.status||SV.err||(SV.can&&!SV.files.length?'No save files yet: make a new one, or open one you saved before.':''));
+  const st=svEl('saveStatus');st.textContent=SV.busy?'Just a moment…':(SV.status||SV.err||SV.ok||(SV.can&&!SV.files.length?'No save files yet: make a new one, or open one you saved before.':''));
   st.classList.toggle('bad',!!(SV.status||SV.err)&&!SV.busy);
   try{seedLine();}catch(e){}
 }
@@ -192,13 +194,50 @@ function seedLine(){const sn=svEl('seedNote');if(!sn)return;
   svEl('saveOpen').addEventListener('click',()=>{if(!SV.can||SV.busy)return;const p=window.showOpenFilePicker({types:SV_TYPES,id:'gsg-saves'});
     svGo(async()=>{const [h]=await p,r=await svRec(h);if(SV.mode==='local'&&r.id===SV.cur)return;await svUseLocal(r,null);});});
 }
+// ---- Export and import: a save file downloaded by hand, and one read back in. They're the same files Local save writes,
+// so they open in either. Any browser can do this, Firefox and phones too, where Local save can't. ----
+// (asking the browser not to clear the game's storage when the disk gets low: Firefox asks the player, Chrome decides
+// for itself; once is enough)
+let svPersistAsked=false;
+function svPersist(){if(svPersistAsked)return;svPersistAsked=true;try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});}catch(e){}}
+function svExportName(){const d=new Date(),z=n=>String(n).padStart(2,'0');return 'gus-city-'+seed+'-'+d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())+'.json';}
+async function svExport(){
+  if(saveBlocked)throw new Error("In someone else's online game it's their city: they can export it.");
+  await svFlushAll();const name=svExportName(),url=URL.createObjectURL(new Blob([svText(svData(),Date.now())],{type:'application/json'}));
+  const a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+  SV.status='';SV.ok='Exported '+name+' (look in your Downloads).';
+}
+// (an imported file replaces the city in this browser: it asks first, as the city there would be lost unless exported)
+let svPending=null;
+function svAskShow(on){svEl('saveAsk').hidden=!on;if(on)svEl('saveAskYes').focus();}
+async function svImportPick(f){
+  svPending=null;svAskShow(false);if(!f)return;
+  if(saveBlocked)throw new Error("Not while you're in someone else's online game.");
+  if(TENV)throw new Error('Leave the Testing Environment first: your city is parked while you\'re in it.');
+  if(f.size>200e6)throw new Error("That file's too big to be a save.");
+  const o=svParse(await f.text());if(o.empty)throw new Error("That file's empty.");
+  svPending={o,name:f.name};
+  svEl('saveAskTxt').textContent='Load '+f.name+(o.t?', saved '+svWhen(+o.t):'')+'? It replaces the city in this browser, so export that first if you want to keep it.';
+  svAskShow(true);
+}
+async function svImport(){
+  const P=svPending;svPending=null;svAskShow(false);if(!P)return;
+  try{await svApply(P.o.data);}catch(e){throw new Error("This browser hasn't room to load "+P.name+'.');}
+  SV.ok='Loading '+P.name+'…';svUi();setTimeout(svReload,400);
+}
+{const inp=svEl('saveImportFile');
+ svEl('saveExport').addEventListener('click',()=>{if(SV.busy)return;svPersist();svGo(svExport);});
+ svEl('saveImport').addEventListener('click',()=>{if(SV.busy)return;svPersist();inp.value='';inp.click();});
+ inp.addEventListener('change',()=>{const f=inp.files&&inp.files[0];svGo(()=>svImportPick(f));});
+ svEl('saveAskYes').addEventListener('click',()=>svGo(svImport));
+ svEl('saveAskNo').addEventListener('click',()=>{svPending=null;svAskShow(false);svEl('saveImport').focus();});}
 // Save now (the pause menu): everything saved this moment, to the file too in Local save, and it says whether it worked
 {const b=svEl('saveNow');let tm=null;
  const say=(t,cls,why)=>{b.textContent=t;b.classList.remove('ok','bad');if(cls)b.classList.add(cls);b.title=why||'';clearTimeout(tm);tm=setTimeout(()=>{b.textContent='Save now';b.classList.remove('ok','bad');},why?8000:2500);};
  b.addEventListener('click',async()=>{
    if(saveBlocked){say('Not saved','bad',"In someone else's online game it's their city, saved on their computer.");return;}
    if(WB.pending){say('Still loading','bad','The city is still being read back in. Try again in a moment.');return;}
-   b.textContent='Saving…';
+   b.textContent='Saving…';svPersist();
    try{await svFlushAll();}catch(e){say("Couldn't save",'bad',"The browser's storage is full"+(SV.can?': try Local save on the title screen, which saves to a file instead.':'.'));return;}
    if(SV.mode==='local'&&SV.rec&&!TENV){
      if(SV.perm!=='granted'||SV.block){say('Saved in browser','bad',SV.err||('The game isn\'t allowed to change '+SV.rec.name+' yet.'));return;}
