@@ -149,7 +149,7 @@ function frame(now,bg){   // (bg: a tab in the background while online, kept goi
   safe('chunks',()=>{updateChunks(P2.active?2:1,dt);flushRebuilds();flushNotes(2);planAhead();regionTick();});
   camClock+=dt;
   // (a guest online is shown players it doesn't run itself: anything amiss with one mustn't stop the whole game)
-  for(const p of players){try{poundWoosh(p);runWoosh(p);bodyStreaks(p,gdt);if(!p.active)continue;updateSpeedFx(p,gdt);placeCamera(p);shipCam(p);updateSpeedo(p,dt);shipView(()=>updateMinimap(p,dt));p.shake*=Math.exp(-gdt*7);}catch(e){if(!netGuest())throw e;safe('view',()=>{throw e;});}}
+  for(const p of players){try{poundWoosh(p);runWoosh(p);bodyStreaks(p,gdt);if(!p.active)continue;updateSpeedFx(p,gdt);placeCamera(p);shipCam(p);drvHud(p);updateSpeedo(p,dt);shipView(()=>updateMinimap(p,dt));p.shake*=Math.exp(-gdt*7);}catch(e){if(!netGuest())throw e;safe('view',()=>{throw e;});}}
   if(DT.freecam){P1.camera.position.copy(FC.pos);P1.camera.rotation.set(FC.pitch,FC.yaw,0,'YXZ');}
   const act=players.filter(p=>p.active);
   const mx=act.reduce((s,p)=>s+pwx(p),0)/act.length,mz=act.reduce((s,p)=>s+pwz(p),0)/act.length;

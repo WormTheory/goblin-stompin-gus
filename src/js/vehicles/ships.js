@@ -49,6 +49,9 @@ function worldToShip(S,x,z,out){const dx=x-S.x,dz=z-S.z,c=Math.cos(S.yaw),s=Math
 // where a player really is, out in the world (aboard a ship, or not)
 const pwx=p=>{const S=shipOf(p);return S?shipToWorld(S,p.pos.x,p.pos.z,_sv).x:p.pos.x;};
 const pwz=p=>{const S=shipOf(p);return S?shipToWorld(S,p.pos.x,p.pos.z,_sv).z:p.pos.z;};
+// what a model made at x,z hangs off: the scene, or in a ship's pocket the ship's picture (laid out from the pocket's
+// origin, so a falling piece of the island is drawn on the ship, going where it goes)
+const shipPar=(x,z)=>{const S=x>=SHIP_X0?shipOfPos(x,z):null;return S?S.pg:scene;};
 // the ship a pocket chunk belongs to (meshing.js: its meshes hang off S.grp, laid out from the pocket's origin)
 function shipPg(cz){return SHIPS[Math.floor(cz*CS/SHIP_SLOT)]||null;}
 // a pocket chunk: the ship's blocks, and round its hull, out to SHIP_BAND, water up to the sea's surface (so anyone
@@ -200,7 +203,7 @@ function shipBoxes(S){
 // wrecking it (K.wreck: the carrier) takes nothing from the hit itself, only from the blocks the blast knocks out of it
 function shipHit(S,n,i){
   if(S.dead)return;const B=S.bx&&S.bx[i||0],P=B?B.pr.pos:null;if(!S.K.wreck&&!drvSafe(S))S.hp-=n;
-  if(P){if(!S.K.wreck)dmgPop(P.x,B.y1+2,P.z,Math.round(n),'#ffb04a');vHitFx(P.x,B.y1,P.z,n);}
+  if(P&&!S.K.wreck){dmgPop(P.x,B.y1+2,P.z,Math.round(n),'#ffb04a');vHitFx(P.x,B.y1,P.z,n);}   // (the carrier: nothing, the hit's own blast and the holes it knocks show where it struck; its boxes are too big for their middles to mean anything)
 }
 // a block of a ship knocked out (setRaw, before it's written): its health down a little, and if it was below the waterline
 // the sea comes in (the block becomes water). It sinks on its next step (updateShips), not in the middle of the smash
@@ -310,7 +313,7 @@ function shipMove(o,S,into,isP){
   P.y+=into?S.sk:-S.sk;   // (a ship going down: its pocket stays put, its picture sinks)
   if(into){   // (never into the hull: up on to whatever's above, or not aboard yet)
     let y=P.y,ok=false;for(let k=0;k<10;k++){if(!solidAt(t.x,Math.floor(y+0.2),t.z)&&!solidAt(t.x,Math.floor(y+1.2),t.z)){ok=true;break;}y=Math.floor(y+0.2)+1;}
-    if(!ok)return false;P.y=y;}
+    if(!ok){P.y-=S.sk;return false;}P.y=y;}
   P.x=t.x;P.z=t.z;o.heading+=a;
   if(o.kv)shipRot(o.kv,'x','z',a);
   if(isP){o.cam.yaw+=a;shipRot(o,'mvx','mvz',a);o.standCar=null;
@@ -318,11 +321,20 @@ function shipMove(o,S,into,isP){
   else{o.act=null;o.wt=null;o.path=null;o.fallTop=undefined;o.standCar=null;}
   return true;
 }
+// (a ship going down can still be climbed on to while it's level, from above the water: a wreck broken off another, or
+// the whole of one, so you can get on and ride it down)
+const shipOpen=(S,y)=>S&&(!S.dead||!(S.brk&&S.brk.tilt)&&y-S.sk>G+0.5);
 function shipCross(o,isP){
   const P=o.pos;
   if(P.x>=SHIP_X0){const S=shipOfPos(P.x,P.z);if(!S)return;const K=S.K,m=SHIP_M+1.5,u=P.x-S.ox,w=P.z-S.oz;
+    // (off its end and over another ship's blocks, the two side by side: one broken in two, its pieces still together.
+    // Straight across into that one's pocket, so you walk from one on to the other)
+    if(shipN>1&&(u<K.u0||u>K.u1+1||w<K.w0||w>K.w1+1)){shipToWorld(S,P.x,P.z,_sv);const wx=_sv.x,wz=_sv.z,wy=P.y-S.sk;
+      for(const T of SHIPS){if(T===S||!shipOpen(T,wy))continue;const KT=T.K,t=worldToShip(T,wx,wz,_sv),ut=t.x-T.ox,wt=t.z-T.oz;
+        if(ut<KT.u0||ut>KT.u1+1||wt<KT.w0||wt>KT.w1+1)continue;
+        shipMove(o,S,false,isP);if(!shipMove(o,T,true,isP)&&isP)shipParent(o,null);return;}}
     if(u<K.u0-m||u>K.u1+1+m||w<K.w0-m||w>K.w1+1+m)shipMove(o,S,false,isP);return;}
-  for(const S of SHIPS){if(!S||S.dead)continue;const K=S.K,t=worldToShip(S,P.x,P.z,_sv),u=t.x-S.ox,w=t.z-S.oz;
+  for(const S of SHIPS){if(!shipOpen(S,P.y))continue;const K=S.K,t=worldToShip(S,P.x,P.z,_sv),u=t.x-S.ox,w=t.z-S.oz;
     if(u>=K.u0-SHIP_M&&u<=K.u1+1+SHIP_M&&w>=K.w0-SHIP_M&&w<=K.w1+1+SHIP_M&&P.y>G-24){shipMove(o,S,true,isP);return;}}
 }
 // every step, once everything's moved (players at the controls stay where their seat is)

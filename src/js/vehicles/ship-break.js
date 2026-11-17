@@ -1,11 +1,13 @@
 // ---- a ship that breaks up (one whose kind has K.hullY: the carrier). Only its hull counts toward sinking it, the blocks
 // at or below K.hullY (so craters in the flight deck, the island and the hangar's roof cost it nothing), counted in slices
-// SHIP_SL long from stern to bow. Knock enough out of one slice (till it has under SHIP_BREAK of what it started with)
-// and the ship snaps there: the shorter end, broken slice and all, becomes a wreck of its own (a ship of kind 'wreck',
+// SHIP_SL long from stern to bow (one block: a cut a couple of blocks wide right through it has to count, however it
+// lines up). Knock enough out of one slice (till it has under SHIP_BREAK of what it started with) and the ship snaps
+// there, as many times as you cut it: the shorter end, broken slice and all, becomes a wreck of its own (a ship of kind 'wreck',
 // its blocks copied into a pocket of its own) that goes down while the rest stays afloat. Anyone aboard the wreck rides
-// it down till the water reaches them, as on any ship going down; once nobody is, it tips its broken end under. With
+// it down till the water reaches them, as on any ship going down, and can climb on to it from the rest or the sea while
+// it's still level; it drifts clear of the rest, and once nobody's on it, its far end tips under, so it falls away. With
 // too little hull left (under SHIP_HULL_MIN of it all), the rest goes down too ----
-const SHIP_SL=8,SHIP_BREAK=0.35,SHIP_HULL_MIN=0.3,SHIP_SL_MIN=150;   // (a slice with fewer hull blocks than SHIP_SL_MIN, out past the ends of the hull, never breaks)
+const SHIP_SL=1,SHIP_BREAK=0.35,SHIP_HULL_MIN=0.3,SHIP_SL_MIN=20;   // (a slice with fewer hull blocks than SHIP_SL_MIN, out past the ends of the hull, never breaks)
 // its hull counted, slice by slice (from makeShip)
 function shipHullInit(S){
   const K=S.K;if(K.hullY===undefined)return;const n=Math.ceil((K.w1+1-K.w0)/SHIP_SL),c=new Int32Array(n),y0=K.y0??0;let tot=0;
@@ -39,7 +41,7 @@ function shipBreak(S,i){
     props:base.props?()=>base.props().filter(q=>q[3]>=pa&&q[3]<=pb+1):undefined,
     doors:base.doors?()=>base.doors().filter(d=>d.ax==='w'?d.a0>=pa&&d.a1<=pb:d.c>=pa&&d.c<=pb):undefined});
   const W=makeShip('wreck',S.x,S.z,S.yaw,PK),dz=W.oz-S.oz;
-  W.dead=true;W.deadT=0;W.sk=S.sk;W.V=S.V;if(S.V)S.V.ships.push(W);W.brk={dir:fore?-1:1,wc:(pa+pb+1)/2,tilt:0};
+  W.dead=true;W.deadT=0;W.sk=S.sk;W.V=S.V;if(S.V)S.V.ships.push(W);W.brk={dir:fore?1:-1,wc:(pa+pb+1)/2,tilt:0,v:fore?1.5:-1.5};   // (dir: its far end goes down first; v: it drifts off that way)
   // (its deck weapons on that end: gone with it, nobody to man them; their models carried on the wreck)
   for(const Mt of S.mounts||[]){if(!side(Mt.z-0.5-S.oz))continue;if(Mt.drv)drvExit(Mt.drv);
     Mt.dead=true;Mt.crew=null;Mt.call=null;if(Mt.pr)Mt.pr.alive=false;Mt.g.position.z+=dz;W.pg.add(Mt.g);}
@@ -73,12 +75,15 @@ function shipBreak(S,i){
   if(Hl.tot<Hl.tot0*SHIP_HULL_MIN)shipSink(S);
   return W;
 }
-// a wreck going down (shipSinking): level while anyone's aboard it (so they can stand on it), then tipping its broken
+// a wreck going down (shipSinking): level while anyone's aboard it (so they can stand on it), then tipping its far
 // end under. It's turned about its middle at the waterline, so that stays put while the ends go down and up
 function shipWreckTilt(S,dt){
-  const B=S.brk;let on=players.some(p=>p.active&&(shipOf(p)===S||p.drv&&p.drv.o&&p.drv.o.onPr&&p.drv.o.onPr.T===S));
+  const B=S.brk;
+  // (drifting off, away from the rest, slower and slower)
+  // (after a few seconds, so there's time to step across on to it first)
+  if(B.v&&S.deadT>6){const v=B.v*Math.min(1,(S.deadT-6)/4)*Math.exp(-(S.deadT-6)*0.08);S.x+=Math.sin(S.yaw)*v*dt;S.z+=Math.cos(S.yaw)*v*dt;S.grp.position.set(S.x,-S.sk,S.z);S.grp.updateMatrixWorld(true);}let on=players.some(p=>p.active&&(shipOf(p)===S||p.drv&&p.drv.o&&p.drv.o.onPr&&p.drv.o.onPr.T===S));
   if(!on)shipVehEach((o,P)=>{if(P.x>=SHIP_X0&&shipOfPos(P.x,P.z)===S)on=true;});
-  if(!on){if(!B.tilt)for(const g of goblins)if(g.state!=='wait'&&shipOf(g)===S){g.state='wait';g.t=0;g.root.visible=false;}   // (nobody to see them go)
+  if(!on&&S.deadT>10){if(!B.tilt)for(const g of goblins)if(g.state!=='wait'&&shipOf(g)===S){g.state='wait';g.t=0;g.root.visible=false;}   // (nobody to see them go)
     B.tilt=Math.min(0.45,B.tilt+dt*0.03);}
   if(!B.tilt)return;
   const a=B.dir*B.tilt,c=Math.cos(a),s=Math.sin(a),oy=G-(G*c-B.wc*s),oz=B.wc-(G*s+B.wc*c);

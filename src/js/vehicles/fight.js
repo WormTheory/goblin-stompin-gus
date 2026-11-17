@@ -57,6 +57,9 @@ const _dhv=new THREE.Vector3();
 function drvHud(p){
   let H=p.ui.drvHud;
   if(!p.drv||!p.gob||p.drv.jack){if(H&&!H.el.hidden){H.el.hidden=true;H.dv.hidden=true;if(H.mg)H.mg.el.hidden=true;}return;}
+  // (after the camera's been placed for this step, and its matrices brought up to date, so markers put on things in the
+  // view (the Mobile Gear's lock box, the gun marker) sit on them now, not where they were a frame ago)
+  p.camera.updateMatrixWorld();   // (a camera's brings its inverse up to date too)
   // (the crosshair and gun marker go over the view; the vehicle's health and its ammo sit just above your hearts)
   if(!H){const el=document.createElement('div');el.className='drvhud';el.innerHTML='<div class="xh"></div><div class="xt"></div>';p.ui.view.append(el);
     const dv=document.createElement('div');dv.className='dveh';dv.innerHTML='<div class="dbox"><div class="dname"></div><div class="dbar"><i></i></div></div><div class="dammo"></div>';

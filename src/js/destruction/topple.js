@@ -17,7 +17,7 @@ function toppleSections(surface,loc){
 }
 function makeTopple(blocks,pivot,D){
   const mesh=buildBodyMesh(blocks,null),surface=mesh.userData.surface;
-  const grp=new THREE.Group();grp.position.copy(pivot);mesh.position.set(-pivot.x,-pivot.y,-pivot.z);grp.add(mesh);scene.add(grp);
+  const grp=new THREE.Group();grp.position.copy(pivot);mesh.position.set(-pivot.x,-pivot.y,-pivot.z);grp.add(mesh);shipPar(pivot.x,pivot.z).add(grp);   // (in a ship's pocket: hung off the ship, so it's drawn where the ship is)
   const loc=new Float32Array(surface.length*3);
   surface.forEach((q,i)=>{loc[i*3]=q.x+.5-pivot.x;loc[i*3+1]=q.y+.5-pivot.y;loc[i*3+2]=q.z+.5-pivot.z;});
   // only the far end hitting the ground ends the fall; the base near the hinge just grinds into it
@@ -107,6 +107,6 @@ function crashTopple(T){
   }
   if(T.big){noise(2.2,1,280,'lowpass');tone('sawtooth',55,22,2,0.3);thud(1);addShake(0.85,sx,sz,90);for(const p of players)if(p.active)rumble(p,1,800);smoke(sx,G+2,sz,14,0x77756e);}
   else{thud(0.5);addShake(0.25,sx,sz,20);}
-  scene.remove(T.grp);T.mesh.geometry.dispose();
+  if(T.grp.parent)T.grp.parent.remove(T.grp);T.mesh.geometry.dispose();
 }
 

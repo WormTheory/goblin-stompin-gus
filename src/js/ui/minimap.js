@@ -95,7 +95,6 @@ function updateSpeedo(p,dt){
 }
 let camClock=0;   // real seconds, for camera effects (they run on even when the game is slowed)
 function placeCamera(p){
-  drvHud(p);
   if(p.gob){if(p.drv)drvCamera(p);else gobCamera(p);return;}
   const cp=Math.cos(p.cam.pitch),fx=-Math.sin(p.cam.yaw)*cp,fy=Math.sin(p.cam.pitch),fz=-Math.cos(p.cam.yaw)*cp;
   const hang=p.state==='ceil'||(p.state==='piv'&&p.piv&&p.piv.next==='ceil');p.camHang=(p.camHang||0)+((hang?1:0)-(p.camHang||0))*0.12;

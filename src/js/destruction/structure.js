@@ -360,7 +360,7 @@ function makeBody(blocks,big){
   const sup=[];for(const c of cols.values())sup.push(colSupport(c.x,c.z,c.minY));sup.sort((a,b)=>a-b);
   const clipY=sup[Math.floor(sup.length/2)]||0;
   const plane=new THREE.Plane(new V3(0,1,0),-clipY);
-  const mesh=buildBodyMesh(blocks,plane);scene.add(mesh);
+  const mesh=buildBodyMesh(blocks,plane);shipPar(sx/blocks.length,sz/blocks.length).add(mesh);   // (in a ship's pocket: hung off the ship)
   bodies.push({mesh,cols,layers,minY,maxY,clipY,off:0,v:0,vmax:big?9:22,mass:blocks.length,layersDone:0,hit:new Set(),big,cx:sx/blocks.length+.5,cz:sz/blocks.length+.5,pumps:blocks.filter(q=>q.b===PUMP)});
   if(!big){noise(0.2,0.2,900,'bandpass');}
 }
@@ -401,7 +401,7 @@ function updateBodies(dt){
     if(B.pumps.length&&!B.boomed&&B.minY+B.off<=B.clipY+0.05){B.boomed=true;pumpsFell(B.pumps.map(q=>({x:q.x,y:B.clipY,z:q.z})));}
     if(B.maxY+1+B.off<=B.clipY){
       if(B.mass>=6)placePile(B);
-      scene.remove(B.mesh);B.mesh.geometry.dispose();B.mesh.material.dispose();
+      if(B.mesh.parent)B.mesh.parent.remove(B.mesh);B.mesh.geometry.dispose();B.mesh.material.dispose();
       bodies.splice(i,1);
     }
   }
@@ -421,5 +421,5 @@ function placePile(B){
   ruinFires([...B.cols.values()],B.mass);
   if(B.big){smoke(B.cx,B.clipY+1,B.cz,12,0x77756e);thud(1);}
 }
-function clearBodies(){for(const B of bodies){scene.remove(B.mesh);B.mesh.geometry.dispose();B.mesh.material.dispose();}bodies.length=0;for(const T of topples){scene.remove(T.grp);T.mesh.geometry.dispose();}topples.length=0;}
+function clearBodies(){for(const B of bodies){if(B.mesh.parent)B.mesh.parent.remove(B.mesh);B.mesh.geometry.dispose();B.mesh.material.dispose();}bodies.length=0;for(const T of topples){if(T.grp.parent)T.grp.parent.remove(T.grp);T.mesh.geometry.dispose();}topples.length=0;}
 

@@ -75,10 +75,11 @@ for(let i=0;i<260;i++)rubble.push({m:fxObj(0xffffff,1),v:new V3(),spin:new V3(),
 const RUBBLE_M=fxBatch(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xffffff}),260,false);
 // (the see-through ones are written furthest from the camera first, so they blend the way they would drawn one at a time)
 const fxOrder=[];
+let decalsShip=false;   // (blood or scorch marks in a ship's pocket, drawn where the ship is now)
 function fxDraw(){
   let n=0;for(const r of rubble)if(r.m.visible)fxPut(RUBBLE_M,n++,r.m);
   if(n||RUBBLE_M.count)fxSent(RUBBLE_M,n);
-  if(decalsDirty){decalsDirty=false;n=0;const L=decals.length;for(let k=0;k<L;k++){const d=decals[(decalIdx+k)%L];if(d.visible)fxPut(DECAL_M,n++,d);}fxSent(DECAL_M,n);}
+  if(decalsDirty||decalsShip&&shipN){decalsDirty=false;decalsShip=false;n=0;const L=decals.length;for(let k=0;k<L;k++){const d=decals[(decalIdx+k)%L];if(d.visible){fxPut(DECAL_M,n++,d);if(d.position.x>=SHIP_X0)decalsShip=true;}}fxSent(DECAL_M,n);}   // (any on a ship: put again every frame, so they go where it goes)
   fxOrder.length=0;const c=P1.camera.position;
   for(const p of parts)if(p.m.visible){const t=p.m.position;p.d=(t.x-c.x)*(t.x-c.x)+(t.y-c.y)*(t.y-c.y)+(t.z-c.z)*(t.z-c.z);fxOrder.push(p);}
   if(fxOrder.length>1)fxOrder.sort((a,b)=>b.d-a.d);

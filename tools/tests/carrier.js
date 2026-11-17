@@ -298,18 +298,29 @@ for(const pl of S.jetV.pl)pl.rest=0;
    if(Math.round(t*2)%20===0)console.log('  t',t.toFixed(0),'jets',ph(),'| flying',V.pl.filter(pl=>pl.ai&&pl.free&&pl.free.air).map(pl=>{const p=pl.g.position;return (p.x>=T.SHIP_X0?'a':'w')+Math.round(p.y-G0)+'/'+Math.round(pl.free.v);}).join(' '));}
  console.log('pilots at GQ: launched',launched.size,'| caught a wire',trapped.size,'| towed home after landing',landed.size,'| wrecked',V.pl.filter(pl=>pl.dead).length);
  C.off=true;quietG();}
-// ---- breaking up: a cross-section of the hull near the stern blown out, Gnash stood on the stern end beyond it
-{const n0=T.SHIPS.filter(s=>s).length,hp0=S.hp,len0=S.K.w1-S.K.w0;at(0,17,-80,BOW);run(0.5);let k=0,W=null,brkMs=0;
- for(const w of [-70,-67,-73,-64])for(let y=-6;y<=10&&!W;y+=3)for(let u=-15;u<=15&&!W;u+=3){T.crush(S.ox+u+0.5,G0+y,S.oz+w+0.5,3,-1,1);k++;const t0=Date.now();run(0.05);W=T.SHIPS.find(s=>s&&s.brk)||null;if(W)brkMs=Date.now()-t0;}
- console.log('breaking up: blasts in the hull near the stern',k,'| broke',!!W,'| carrier afloat',!S.dead,'| health',hp0,'->',f1(S.hp),'| its length',len0,'->',S.K.w1-S.K.w0,'| ships',n0,'->',T.SHIPS.filter(s=>s).length,'| the frames it broke in took',brkMs,'ms');
- if(W){console.log('  the stern end:',W.K.w0,'to',W.K.w1,'| sinking',W.dead,'| Gnash on it',T.shipOf(P)===W,'| its chunks drawn',[...T.meshes.values()].filter(e=>e.cz*16>=W.slot*1024&&e.cz*16<(W.slot+1)*1024).length,'| a carrier block where it was',T.get(S.ox,G0+5,S.oz-80),'| on the wreck',T.get(W.ox,G0+5,W.oz-80));
-  const wy=()=>P.pos.y-W.sk;let t=0,off=-1,y0=wy(),lo=y0,okY=true;
-  while(t<60&&T.SHIPS[W.slot]===W){run(0.5);t+=0.5;if(off<0&&T.shipOf(P)!==W){off=t;console.log('  Gnash washed off after',t,'s, having gone down',f1(y0-lo),'| still stood on it till then',okY);}
+// ---- breaking up: a narrow cut right through the hull near the stern, Gnash just forward of it walking aft on to the
+// stern end once it's broken off; then a cut near the bow too (it breaks more than once), Gnash climbing on to that
+// end from outside, and each end falling away from the rest
+const nShips=()=>T.SHIPS.filter(s=>s).length;
+const cutAt=w=>{let k=0,W=null,ms=0;const n=nShips();for(let y=-6;y<=10&&!W;y+=2)for(let u=-15;u<=15&&!W;u+=2){T.crush(S.ox+u+0.5,G0+y,S.oz+w+0.5,2,-1,1);k++;const t0=Date.now();run(0.05);
+  W=T.SHIPS.find(s=>s&&s.brk&&!s.seen)||null;if(W){W.seen=true;ms=Date.now()-t0;}}return{k,W,ms,n};};
+const ride=(W,lab)=>{const wy=()=>P.pos.y-W.sk;let t=0,off=-1,y0=wy(),lo=y0,okY=true,far=null;
+  while(t<60&&T.SHIPS[W.slot]===W){run(0.5);t+=0.5;if(off<0&&T.shipOf(P)!==W){off=t;console.log('  Gnash washed off',lab,'after',t,'s, having gone down',f1(y0-lo),'| stood on it till then',okY,'| it drifted',f1(Math.hypot(W.x-S.x,W.z-S.z)),'clear of the carrier\'s middle');}
    if(off<0){if(!P.grounded)okY=false;lo=Math.min(lo,wy());}
-   if(off>0&&Math.round(t*2)%10===0)console.log('    t',t,'tilt',f1(W.brk.tilt),'down',f1(W.sk));}
-  console.log('  the wreck gone after',t,'s:',T.SHIPS[W.slot]!==W,'| the carrier still afloat',!S.dead,'| health',f1(S.hp));}
+   if(off>0&&W.brk.tilt>0.2&&!far){const a=W.brk.dir*W.brk.tilt,yA=-Math.sin(a)*(W.K.w0-W.brk.wc),yB=-Math.sin(a)*(W.K.w1+1-W.brk.wc);far=W.brk.dir>0?yB<yA:yA<yB;}}
+  console.log('  that end gone after',t,'s:',T.SHIPS[W.slot]!==W,'| its far end went down first',far,'| the carrier still afloat',!S.dead,'| health',f1(S.hp));};
+{const hp0=S.hp,len0=S.K.w1-S.K.w0;at(0,17,-64,0);run(0.5);const r=cutAt(-70),W=r.W;
+ console.log('breaking up: blasts in a narrow cut through the hull near the stern',r.k,'| broke',!!W,'| carrier afloat',!S.dead,'| health',hp0,'->',f1(S.hp),'| its length',len0,'->',S.K.w1-S.K.w0,'| ships',r.n,'->',nShips(),'| the frames it broke in took',r.ms,'ms');
+ if(W){console.log('  the stern end:',W.K.w0,'to',W.K.w1,'| sinking',W.dead,'| Gnash still on the carrier',T.shipOf(P)===S,'| its chunks drawn',[...T.meshes.values()].filter(e=>e.cz*16>=W.slot*1024&&e.cz*16<(W.slot+1)*1024).length,'| a carrier block where it was',T.get(S.ox,G0+5,S.oz-80),'| on the wreck',T.get(W.ox,G0+5,W.oz-80));
+  P.cam.yaw=0;T.keys.add('KeyW');let t=0;while(t<5&&T.shipOf(P)!==W){run(0.05);t+=0.05;}T.keys.delete('KeyW');run(0.4);   // (let go as soon as he's on it: it's only 19 long)
+  console.log('  Gnash walked aft across the break:',T.shipOf(P)===W?'on the stern end':'not on it',where(P),'grounded',P.grounded);
+  ride(W,'the stern end');}
+ // (the bow too: a second break; Gnash put just over its deck from outside, as if he'd jumped across)
+ const r2=cutAt(70),W2=r2.W;console.log('  a narrow cut near the bow: blasts',r2.k,'| broke',!!W2,'| its length now',S.K.w1-S.K.w0,'| carrier afloat',!S.dead);
+ if(W2){run(1);const c=T.shipToWorld(W2,W2.ox+0.5,W2.oz+80.5,{x:0,z:0});P.pos.set(c.x,G0+17.5-W2.sk,c.z);P.vy=0;run(0.5);
+  console.log('  Gnash dropped on to the bow end from outside:',T.shipOf(P)===W2?'aboard it':'not aboard',where(P));ride(W2,'the bow end');}
  // (a hit on the flight deck alone never breaks it)
- const n1=T.SHIPS.filter(s=>s).length;for(let u=-15;u<=15;u+=3)T.crush(S.ox+u+0.5,G0+15,S.oz+20.5,3,-1,1);run(0.5);console.log('  a row of craters across the flight deck: broke',T.SHIPS.filter(s=>s).length!==n1,'| health',f1(S.hp));
+ const n1=nShips();for(let u=-15;u<=15;u+=3)T.crush(S.ox+u+0.5,G0+15,S.oz+20.5,3,-1,1);run(0.5);console.log('  a row of craters across the flight deck: broke',nShips()!==n1,'| health',f1(S.hp));
  P.vy=0;}
 {at(0,17,0,BOW);run(0.3);const lo={x:S.ox+0.5,y:G0+1,z:S.oz-60.5};T.menuOpen=true;T.TS.n=1;T.tenvFoe('goblin');T.menuOpen=false;const g=T.goblins.find(q=>q.state==='chase');if(g){g.pos.set(lo.x,lo.y,lo.z);}
  S.hp=0;run(0.2);console.log('sinking:',S.dead,'| Gnash on the flight deck',where(P));let t=0,gOff=-1,pOff=-1;
