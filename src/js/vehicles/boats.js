@@ -278,6 +278,7 @@ function refreshVenues(){
           for(let i=0;i<4;i++){const m=new THREE.Mesh(LM_BOX,i%2?LMM.ledOff:TOLLM);m.scale.set(0.65,0.13,0.13);m.position.x=0.33+i*0.65;lift.add(m);}
           scene.add(g);arms.push({g,lift,L,a:0,x:g.position.x,z:g.position.z});}
         venues.set(k,{kind:'toll',R,ts,arms});}}}}
+  cvWorldRefresh(want);   // (the aircraft carriers off the naval bases: made and dropped as players come and go, carrier-world.js)
   // (what was spawned from the Testing Environment or the debug menu stays wherever it was put)
   for(const k of ['tenvArmy','tenvPlanes','tenvMechs','tenvBalloons','tenvShips'])if(venues.has(k))want.add(k);
   for(const [k,V] of venues)if(V.ship)want.add(k);   // (and a ship's own, its jets: kept while the ship is, carrier-jets.js)

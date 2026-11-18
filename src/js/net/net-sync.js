@@ -140,7 +140,7 @@ const netNear=(P,px,pz,R)=>{const w=netWorldXZ(P.x,P.z);return Math.abs(w.x-px)<
 const netFrameYaw=p=>{const S=shipOf(p);return S?S.yaw:0;};
 function netShips(){const out=[];
   for(const S of SHIPS)if(S&&S.V)out.push([S.slot,S.n,S.kind,r3(S.x),r3(S.z),r3(S.yaw),r3(S.sp),r3(S.sk),r3(S.hp),S.dead?1:0,S.ord,r3(S.rud),S.brks||0,
-    S.mounts?S.mounts.map(Mt=>{const w=Mt.wpn&&(Mt.wpn.rkt||Mt.wpn.gun);return[r3(Mt.yaw),r3(Mt.pitch),r3(Mt.hp),Mt.dead?1:0,w?w.n:0,w&&w.rl>0?1:0];}):0,S.brk?r3(S.brk.tilt):0]);
+    S.mounts?S.mounts.map(Mt=>{const w=Mt.wpn&&(Mt.wpn.rkt||Mt.wpn.gun);return[r3(Mt.yaw),r3(Mt.pitch),r3(Mt.hp),Mt.dead?1:0,w?w.n:0,w&&w.rl>0?1:0];}):0,S.brk?r3(S.brk.tilt):0,S.cvNet||0]);
   return out;}
 let NET_SHIP0=false,NET_SHIPF=false;   // (guest: had its first word of the host's ships. Those it already had are in the save it built from, smashed as they were)
 const netShipBy=n=>SHIPS.find(S=>S&&S.n===n)||null;
@@ -152,6 +152,7 @@ function netShipSet(L){
     let S=SHIPS[slot];if(S&&S.n!==n){netShipGone(S);S=null;}
     if(!S&&!SHIP_KINDS[kind])continue;   // (a wreck: made as its ship breaks, netShipBreaks)
     if(!S){S=makeShip(kind,x,z,yaw,null,{slot,n,keep:!NET_SHIP0});S.sk=sk;
+      if(e[15])cvNetApply(S,e[15]);   // (a carrier out in the world, remembered broken or with jets gone: carrier-world.js)
       let V=venues.get('tenvShips');if(!V){V={kind:'ship',ships:[]};venues.set('tenvShips',V);}S.V=V;V.ships.push(S);made=true;netShipPose(S);}
     S.sp=sp;S.hp=hp;S.dead=!!dead;S.ord=ord|0;S.rud=rud||0;
     if(e[13]&&S.mounts)e[13].forEach((m,i)=>{const Mt=S.mounts[i];if(!Mt)return;Mt.hp=m[2];
@@ -388,7 +389,7 @@ function netSetBlock(x,y,z,b,ch){
 // ---- the world's other saved state, the clock and the weather: sent when changed, checked once a second ----
 function netWorldBits(N){
   const out={},J=(k,v)=>{const s=JSON.stringify(v);if(N.wsent[k]!==s){N.wsent[k]=s;out[k]=v;}};
-  if(TENV){J('tenv',TENV.boxes);J('sea',TENV.sea||null);if(shipN)J('sprop',netShipProps());}   // (and its sea, laid out for the first ship, and the furniture knocked over aboard ships)   // (the Testing Environment's structures, as they're spawned and removed)
+  if(TENV){J('tenv',TENV.boxes);J('sea',TENV.sea||null);}if(shipN)J('sprop',netShipProps());   // (and its sea, laid out for the first ship, and the furniture knocked over aboard ships)   // (the Testing Environment's structures, as they're spawned and removed)
   J('coll',collapses);J('wreck',wrecked);J('down',[...downFix]);J('dest',destroyed);
   J('fire',fires.map(F=>[r3(F.x),r3(F.y),r3(F.z),r3(F.r),Math.round(F.t*10)/10,Math.round(F.life*10)/10,F.flames?1:0,r3(F.sm),r3(F.rise),F.douse?1:0]));
   return out;

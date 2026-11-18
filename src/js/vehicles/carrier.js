@@ -1,4 +1,4 @@
-// ---- The aircraft carrier (Testing Environment only for now): a Nimitz-style supercarrier at three-quarters of the real
+// ---- The aircraft carrier (the debug menu's in the Testing Environment; out in the world, one off each naval base: carrier-world.js): a Nimitz-style supercarrier at three-quarters of the real
 // size, 178 blocks from stern to bow and 40 across the flight deck, kept as a ship with insides (ships.js). Its blocks are
 // painted once into a grid of their own (cvBuild), which its pocket's chunks read. Top to bottom:
 //   the island on the starboard edge: flight deck control, the flag bridge, the navigation bridge (with the helm) and

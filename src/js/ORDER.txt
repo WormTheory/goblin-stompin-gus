@@ -87,6 +87,7 @@ vehicles/ship-break.js
 vehicles/carrier.js
 vehicles/carrier-crew.js
 vehicles/carrier-jets.js
+vehicles/carrier-world.js
 dressing/signs.js
 vehicles/emergency.js
 vehicles/traffic-update.js

@@ -1,0 +1,24 @@
+world seed 4242 | Testing Environment false
+naval bases 21 | with an anchorage 21 | N ms
+  cv13,-2 anchored at 3332.5 -612.5 yaw 5.0 | 119.7 from the base | open sea true
+  cv9,-13 anchored at 2401.5 -3431.5 yaw 4.8 | 119.9 from the base | open sea true
+  cv10,-21 anchored at 2664.5 -5244.5 yaw 0.3 | 119.6 from the base | open sea true
+  cv24,-6 anchored at 6024.5 -1461.5 yaw 0.1 | 135.9 from the base | open sea true
+Gnash at the naval base, 119.7 from the anchorage: carrier made true | venue true
+  at 3332.5 -612.5 yaw 5.0 | where it should be true | fits true | health 3000 | crew true mounts 6 jets 8 | jets venue true
+  pocket chunks drawn 56 after 1 frames
+Gnash dropped on the flight deck: aboard true | crew out 9 | general quarters true
+Gnash 3000 away: carrier gone true | venue gone true | jets venue gone true | its crew left about 0 | ships 0
+back again: a carrier true | a new one true | at its anchorage true | health 3000.0
+knocked about: health 2995.1 | leaking 25 | weapon wrecked true | prop toolrack down true | moved to 3532.5 -612.5
+left: remembered true | its size 2298 chars
+back: a carrier true | where it was left true | none at the anchorage true | health 2995.1 (was 2995.1) | leak 25 | blocks the same true | weapon still wrecked true others fine true | prop down true | the jet where it was true hp 123
+a cut near the stern: 48 blasts | broke true | length 177 -> 164 | afloat true
+back: length 164 (was 164) | health 2770.5 (was 2770.5) | blocks the same true | weapons wrecked or gone 2 (was 2) | jets 8 (was 8)
+sailed 2500 off with Gnash aboard: kept true | Gnash aboard true | the anchorage gets no second one true
+sunk: sinking true | noted true
+  50 s on: gone true | venue gone true
+  away and back: no carrier true
+  in the save true
+the next naval base ( cv9,-13 ): carrier true | ships out 1
+errors 0 []
