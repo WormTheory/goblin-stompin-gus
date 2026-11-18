@@ -1,8 +1,8 @@
 // ---- how a goblin's blow looks: a wind-up, the strike, and the follow-through, for each weapon ----
 // One timeline per kind of blow, u from 0 to 2: 0 to 1 the wind-up, the blow landing at exactly 1 (the frame its hit is
-// worked out, so nothing about when a blow lands has changed), 1 to 2 the follow-through and back to the rest. Each key:
-// [u, arm's swing, arm out to the side, wrist, free arm's swing, twist at the waist, lean forward, half-step forward, ease
-// in to it ('i' gathering speed, for the strike itself; 'o' slowing; otherwise smooth)]. The twist, lean and step are
+// worked out, so nothing about when a blow lands has changed), 1 to 2 the follow-through and back to the rest. The
+// channels: arm's swing, arm out to the side, wrist, free arm's swing, twist at the waist, lean forward, half-step forward,
+// each keyed on its own, a key easing in to it ('i' gathering speed, for the strike itself; 'o' slowing; otherwise smooth). The twist, lean and step are
 // only for the look: where the goblin really stands doesn't move. The street's goblins, the compounds' people, cultists,
 // Gnash and Grizzle as others see them, and the Dev tab's Enemies section all pose from these.
 // (The arm's swing: 0 hangs down, -1.57 straight out in front, -3.14 straight up, past that back behind the head. The
@@ -17,13 +17,17 @@ const STRIKES=assetClipsAll(ASSETS);
 const _SP=new Float32Array(8);
 // (a blow's own wind-up and follow-through, in seconds: a heavy weapon's are longer, its npc's wind and ft)
 const strikeWind=k=>WEAPONS[k]&&WEAPONS[k].npc&&WEAPONS[k].npc.wind||0.45,strikeFt=k=>WEAPONS[k]&&WEAPONS[k].npc&&WEAPONS[k].npc.ft||STRIKE_FT;
+// (each channel has keys of its own: a track [[u,value,ease?],...], going from one of its keys to the next, holding its
+// first and last values beyond them; core/assets.js, assetPoseAt, is the same sums for the editor)
 function strikeAt(w,u){
-  const K=STRIKES[w];u=Math.max(0,Math.min(2,u));let i=1;while(i<K.length-1&&K[i][0]<u)i++;
-  const a=K[i-1],b=K[i],s=Math.max(0,Math.min(1,(u-a[0])/(b[0]-a[0]))),e=b[b.length-1],k=e==='i'?s*s:e==='o'?1-(1-s)*(1-s):s*s*(3-2*s);
-  const n=typeof e==='string'?b.length-2:b.length-1;for(let j=0;j<n;j++)_SP[j]=a[j+1]+(b[j+1]-a[j+1])*k;return _SP;
+  const C=STRIKES[w];u=Math.max(0,Math.min(2,u));
+  for(let j=0;j<C.length;j++){const K=C[j];if(K.length<2){_SP[j]=K[0][1];continue;}let i=1;while(i<K.length-1&&K[i][0]<u)i++;
+    const a=K[i-1],b=K[i],s=Math.max(0,Math.min(1,(u-a[0])/(b[0]-a[0]))),e=b[2],k=e==='i'?s*s:e==='o'?1-(1-s)*(1-s):s*s*(3-2*s);
+    _SP[j]=a[1]+(b[1]-a[1])*k;}
+  return _SP;
 }
-// how long the strike itself takes: from the last key before the blow lands to the blow (the Dev tab's frame data)
-const strikeSwing=w=>{const K=STRIKES[w];let u=0;for(const k of K)if(k[0]<1)u=k[0];return 1-u;};
+// how long the strike itself takes: from the last key before the blow lands (in any channel) to the blow (the Dev tab's frame data)
+const strikeSwing=w=>{let u=0;for(const K of STRIKES[w])for(const k of K)if(k[0]<1&&k[0]>u)u=k[0];return 1-u;};
 // which blow a goblin strikes with: what it strikes with up close (foeMeleeK: a dagger, a club, a rifle by its butt), or
 // with nothing, its fists, whose blow is the club's overarm swing
 const gobWk=g=>{const k=foeMeleeK(foeOf(g)),W=k&&WEAPONS[k];return W&&W.npc&&W.npc.strike||'club';};   // (the blow its weapon strikes: WEAPONS)

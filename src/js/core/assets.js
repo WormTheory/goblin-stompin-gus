@@ -90,11 +90,22 @@ function assetWeaponOf(W){
     o.model=m;}
   return o;
 }
-// a clip's file -> the timeline STRIKES holds: [[u, ...values, ease?], ...]
-function assetClip(c){return c.keys.map(k=>{const a=[k.t,...k.v];if(k.e)a.push(k.e);return a;});}
-function assetClipOf(name,K){
-  return {layout:assetLayoutOf(name),keys:K.map(a=>{const e=typeof a[a.length-1]==='string'?a[a.length-1]:null,v=a.slice(1,e?-1:undefined),k={t:a[0],v};if(e)k.e=e;return k;}),
-    events:assetLayoutOf(name)==='body'&&!/^rl/.test(name)?[{t:1,k:'hit'}]:[]};
+// A clip runs u 0 to 2 and keeps a track of keys per channel: tracks {arm:[[u,value,ease?],...], ...}, its channels named
+// by its layout, in the layout's order (a layout's optional channels at its end may be left out). Each channel goes from
+// one of its own keys to the next (ease 'i' gathering speed into a key, 'o' slowing into it, smooth if left out) and
+// holds its first and last values beyond them; a track of one key holds that value throughout.
+// the clip's file -> what STRIKES holds: a list of tracks in channel order, each [[u, value, ease?], ...] (strikeAt reads it)
+const assetChNames=c=>{const L=ASSET_LAYOUTS[c.layout],o=[];if(!L)return o;for(const [k] of L.ch){if(!c.tracks||!c.tracks[k])break;o.push(k);}return o;};
+function assetClip(c){return assetChNames(c).map(k=>c.tracks[k].map(a=>a.slice()));}
+function assetClipOf(name,T){
+  const layout=assetLayoutOf(name),tracks={};T.forEach((K,j)=>{tracks[ASSET_LAYOUTS[layout].ch[j][0]]=K.map(a=>a.slice());});
+  return {layout,tracks,events:layout==='body'&&!/^rl/.test(name)?[{t:1,k:'hit'}]:[]};
+}
+// a clip's pose at u, from its file (the editor's, and what strikeAt does with the table)
+function assetPoseAt(c,u){
+  u=Math.max(0,Math.min(2,u));
+  return assetChNames(c).map(k=>{const K=c.tracks[k];if(K.length<2)return K[0][1];let i=1;while(i<K.length-1&&K[i][0]<u)i++;
+    const a=K[i-1],b=K[i],s=Math.max(0,Math.min(1,(u-a[0])/(b[0]-a[0]))),e=b[2],q=e==='i'?s*s:e==='o'?1-(1-s)*(1-s):s*s*(3-2*s);return a[1]+(b[1]-a[1])*q;});
 }
 // the tables, from ASSETS (files in the order their _order.json gives)
 function assetWeaponsAll(A){const o={};for(const k in A.weapons)o[k]=assetWeapon(A.weapons[k]);return o;}
@@ -132,6 +143,8 @@ function assetFmt(v){
     const s=inl(x);if(s.length<=100||!x||typeof x!=='object')return s;
     // (a box or a key is always one line, however long)
     if(!Array.isArray(x)&&(x.s&&x.p||'t' in x&&'v' in x))return s;
+    // (and so is an animation's track, a channel's keys: [[u,value,ease?],...])
+    if(Array.isArray(x)&&x.length&&x.every(q=>Array.isArray(q)&&q.length>=2&&q.length<=3&&typeof q[0]==='number'&&typeof q[1]==='number'))return s;
     const i2=ind+'  ';
     if(Array.isArray(x))return '[\n'+x.map(e=>i2+go(e,i2)).join(',\n')+'\n'+ind+']';
     return '{\n'+Object.keys(x).filter(k=>x[k]!==undefined).map(k=>i2+JSON.stringify(k)+': '+go(x[k],i2)).join(',\n')+'\n'+ind+'}';
@@ -165,15 +178,19 @@ function assetCheck(kind,name,a){
     if(a.hit)assetCheckHit(a.hit,'hit',E);
   }else if(kind==='clips'){
     const L=ASSET_LAYOUTS[a.layout];if(!L)E.push('layout must be one of '+Object.keys(ASSET_LAYOUTS).join(', '));
-    if(!Array.isArray(a.keys)||a.keys.length<2)E.push('a clip needs at least two keys');
-    else{let t0=-1,len=null;a.keys.forEach((k,i)=>{
-      if(!n(k.t))E.push('key '+i+': time t must be a number');else{if(k.t<t0)E.push('key '+i+': keys must be in time order');t0=k.t;}
-      if(!Array.isArray(k.v)||!k.v.every(n))E.push('key '+i+': values v must be numbers');
-      else if(L){if(k.v.length<L.min||k.v.length>L.ch.length)E.push('key '+i+': '+L.min+' to '+L.ch.length+' values for layout '+a.layout);
-        if(len!==null&&k.v.length!==len)E.push('key '+i+': every key needs the same number of values');len=k.v.length;}
-      if(k.e!==undefined&&k.e!=='i'&&k.e!=='o')E.push("key "+i+": ease e must be 'i', 'o' or left out");});
-      const t1=a.keys[a.keys.length-1].t;
-      for(const ev of a.events||[])if(!n(ev.t)||ev.t<a.keys[0].t||ev.t>t1)E.push('event '+ev.k+' is outside the clip');}
+    if(!a.tracks||typeof a.tracks!=='object'||Array.isArray(a.tracks))E.push('tracks missing: a key list for each channel');
+    else if(L){const names=L.ch.map(c=>c[0]),have=assetChNames(a);
+      for(const k in a.tracks)if(!names.includes(k))E.push('track '+k+': not a channel of layout '+a.layout+' ('+names.join(', ')+')');
+      if(have.length<L.min)E.push('layout '+a.layout+' needs tracks for '+names.slice(0,L.min).join(', '));
+      for(const k in a.tracks)if(names.includes(k)&&!have.includes(k))E.push('track '+k+': the channels before it need tracks too');
+      for(const k of have){const K=a.tracks[k];
+        if(!Array.isArray(K)||!K.length){E.push('track '+k+': needs at least one key');continue;}
+        let t0=-1;K.forEach((q,i)=>{const at='track '+k+' key '+i;
+          if(!Array.isArray(q)||q.length<2||q.length>3)return E.push(at+': a key is [time, value] or [time, value, ease]');
+          if(!n(q[0])||q[0]<0||q[0]>2)E.push(at+': time must be a number from 0 to 2');else{if(q[0]<=t0)E.push(at+': keys must be in time order, no two at once');t0=q[0];}
+          if(!n(q[1]))E.push(at+': value must be a number');
+          if(q.length>2&&q[2]!=='i'&&q[2]!=='o')E.push(at+": ease must be 'i', 'o' or left out");});}}
+    for(const ev of a.events||[])if(!n(ev.t)||ev.t<0||ev.t>2)E.push('event '+ev.k+' is outside the clip (0 to 2)');
   }else if(kind==='grips'){
     // (enemies/grip.js: sh the weapon hand's spot, out how far along the gun from it, fore [aimed, carried] how far along
     // for the free hand, tw [aimed, carried] the turn side-on, low a carried gun's droop, reach the shoulder's give)

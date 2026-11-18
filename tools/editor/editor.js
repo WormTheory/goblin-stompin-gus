@@ -7,7 +7,7 @@
 // the live game.
 'use strict';
 const $=id=>document.getElementById(id);
-const S={grip:true,tab:'models',kind:null,name:null,wl:'held',sel:-1,ctx:true,insp:'box',hsel:-1,t:0,playing:false,speed:1,loop:true,kSel:-1,autoKey:true,
+const S={grip:true,tab:'models',kind:null,name:null,wl:'held',sel:-1,ctx:true,insp:'box',hsel:-1,t:0,playing:false,speed:1,loop:true,key:null,autoKey:true,
   snap:0.01,mode:'translate',game:null,gameOk:false,list:{weapons:[],clips:[],bodies:[],grips:[]},search:'',previewW:null,fp:true};
 const DOCS=new Map();
 const key=(k,n)=>k+'/'+n;
@@ -89,7 +89,7 @@ function renderList(){
 }
 async function open(kind,name,w){
   try{await loadDoc(kind,name);}catch(e){return status('Could not open '+name+': '+e.message,true);}
-  S.kind=kind;S.name=name;S.sel=-1;S.hsel=-1;S.kSel=-1;mergeTag=null;S.playing=false;renderTLBar();
+  S.kind=kind;S.name=name;S.sel=-1;S.hsel=-1;S.key=null;mergeTag=null;S.playing=false;renderTLBar();
   if(kind==='clips'){S.t=1;S.previewW=w||weaponFor(name);S.insp='clip';if(w)OPEN.add(w);}
   else if(kind==='bodies')S.insp='hit';
   else if(kind==='grips')S.insp='stats';
@@ -198,7 +198,9 @@ const viewList=(W,j)=>(W&&W.model&&assetList(W.model,j))||[];
 function editList(W,j,make){
   if(!W.model){if(!make)return [];W.model={};}
   const M=W.model;let v=M[j];
-  if(!v){if(!make)return [];M.boxes=M.boxes||[];v=M[j]={at:{p:[0,0,0]}};}
+  // (a new first-person view starts turned as every hand-held weapon's is: a club's head up the screen, a gun's barrel
+  // into it and its grip down; tools/assets/share_models.js, VIEW_TURN)
+  if(!v){if(!make)return [];M.boxes=M.boxes||[];v=M[j]={at:j==='view'?{p:[0,-0.1,-0.5],r:[1.5708,3.1416,0]}:{p:[0,0,0]}};}
   return Array.isArray(v)?v:v.own?v.own:(M.boxes=M.boxes||[]);
 }
 // a group placing the shared shape as at says (moved, turned XYZ, scaled: the same sums as assetPlace)
@@ -262,11 +264,7 @@ function budget(L,mode){
 function hud(t){$('hud').textContent=t;}
 
 // ---- poses: the same sums the game does (strikeAt in strikes.js; gobCamera and gobViewGun in pivots.js) ----
-function clipAt(c,u){
-  const K=c.keys;u=Math.max(K[0].t,Math.min(K[K.length-1].t,u));let i=1;while(i<K.length-1&&K[i].t<u)i++;
-  const a=K[i-1],b=K[i],s=Math.max(0,Math.min(1,(u-a.t)/((b.t-a.t)||1))),e=b.e,k=e==='i'?s*s:e==='o'?1-(1-s)*(1-s):s*s*(3-2*s);
-  return a.v.map((x,j)=>x+(b.v[j]-x)*k);
-}
+const clipAt=(c,u)=>assetPoseAt(c,u);   // (each channel from its own keys: core/assets.js)
 function fpPose(F,W,c,u){
   F.arm.rotation.set(0,0,0);
   const gun=W&&(W.kind==='gun');
@@ -300,7 +298,7 @@ const gripChk=()=>'<label title="The game puts both hands on a gun just before d
 function buildGrip(k){
   const ws=S.list.weapons.filter(n=>WDATA[n]&&WDATA[n].npc&&WDATA[n].npc.aim===k);let x=0;
   for(const n of ws.length?ws:[]){const W=WDATA[n],ac=aimClip(W);if(!ac)continue;
-    for(const u of [ac.keys[0].t,1]){const J=goblin(false);J.root.position.x=0;for(const b of viewList(W,'held'))J.hand.add(boxMesh(b));
+    for(const u of [0,1]){const J=goblin(false);J.root.position.x=0;for(const b of viewList(W,'held'))J.hand.add(boxMesh(b));
       const g=new THREE.Group();g.position.x=x;g.add(J.root);content.add(g);poseBody(J,ac,u,W);x+=1.1;}}
   if(S.grip)gripStatus(k,ws);else hud('Two hands on the gun is off: the poses as their animations have them');
   if(!ws.length)hud('No weapon uses this grip yet (a weapon names its grip in npc.aim)');
@@ -571,103 +569,155 @@ function renderHitInsp(B,d){
 }
 
 // ---- animations: the inspector and the timeline ----
+// A clip keeps a track of keys per channel ([[u,value,ease?],...], core/assets.js), u from 0 to 2. What's selected (S.key)
+// is one key, {j (the channel), i (its place in the track)}, or every channel's key at one time, {all: u}, or nothing.
+const chNames=c=>assetChNames(c);
+const trackOf=(c,j)=>c.tracks[chNames(c)[j]];
+const KEY_EPS=1e-4;
+const keyIn=(K,t)=>K.findIndex(q=>Math.abs(q[0]-t)<KEY_EPS);
+// every time any channel has a key at, in order
+function keyTimes(c){const o=[];for(const n of chNames(c))for(const q of c.tracks[n])if(!o.some(t=>Math.abs(t-q[0])<KEY_EPS))o.push(q[0]);return o.sort((a,b)=>a-b);}
+// channel j's key at t, made from the pose there if it hasn't one (make); its index, or -1
+function keyCh(C,j,t,make){const K=trackOf(C,j);let i=keyIn(K,t);if(i>=0||!make)return i;
+  const v=r4(clipAt(C,t)[j]);i=K.findIndex(q=>q[0]>t);if(i<0)i=K.length;K.splice(i,0,[r4(t),v]);return i;}
+// the selected key's time (or the playhead's, with none)
+const keyT=c=>{const k=S.key;if(!k)return S.t;if(k.all!==undefined)return k.all;const q=trackOf(c,k.j)[k.i];return q?q[0]:S.t;};
+const easeSel=(id,e,mixed)=>'<select id="'+id+'">'+(mixed?'<option value="-" selected>(mixed)</option>':'')+'<option value=""'+(!mixed&&!e?' selected':'')+'>smooth</option><option value="i"'+(!mixed&&e==='i'?' selected':'')+'>gathering speed (in)</option><option value="o"'+(!mixed&&e==='o'?' selected':'')+'>slowing (out)</option></select>';
 function renderClipInsp(B,d){
-  const c=d.data,L=ASSET_LAYOUTS[c.layout],k=c.keys[S.kSel],n=c.keys[0].v.length,v=k?k.v:clipAt(c,S.t);
+  const c=d.data,L=ASSET_LAYOUTS[c.layout],names=chNames(c),n=names.length,v=clipAt(c,S.t),k=S.key,dis=S.playing?' disabled':'';
   let h='<div class="row"><label>Layout</label><b>'+esc(c.layout)+'</b></div><p class="note">'+esc(L?L.about:'')+'. Users: '+esc(users(S.name).join(', ')||'none yet')+'</p>';
-  h+='<div class="row"><button id="kAdd">+ Key at playhead (K)</button><button id="kDel"'+(k?'':' disabled')+'>Delete key</button></div>';
-  h+='<div class="row"><label style="width:auto"><input type="checkbox" id="autoK"'+(S.autoKey?' checked':'')+'> Auto-key: moving a slider keys the pose at the playhead</label></div>';
-  h+='<h3 id="poseH">'+(k?'Key '+(S.kSel+1)+' of '+c.keys.length:'Pose at '+S.t.toFixed(3))+'</h3>';poseShownK=k?S.kSel:-1;
+  h+='<div class="row"><button id="kAdd" title="A key on every channel at the playhead (K)">+ Key every channel</button><button id="kDel"'+(k?'':' disabled')+'>Delete key'+(k&&k.all!==undefined?'s':'')+'</button></div>';
+  h+='<div class="row"><label style="width:auto"><input type="checkbox" id="autoK"'+(S.autoKey?' checked':'')+'> Auto-key: moving a channel keys just that channel at the playhead</label></div>';
+  h+='<h3 id="poseH">'+poseTitle(c)+'</h3>';poseShownK=JSON.stringify(k);
   if(S.playing)h+='<p class="note">Playing: pause (Space) to change the pose.</p>';
-  if(k)h+='<div class="row"><label>Time</label>'+num(k.t,'kt',0.01)+'</div><div class="row"><label>Ease into it</label><select id="ke"><option value="">smooth</option><option value="i"'+(k.e==='i'?' selected':'')+'>gathering speed (in)</option><option value="o"'+(k.e==='o'?' selected':'')+'>slowing (out)</option></select></div>';
-  for(let j=0;j<n;j++){const ch=L.ch[j]||['v'+j,'value '+j];
-    h+='<div class="row"><label title="'+esc(ch[1])+'" style="color:'+CH_COL[j%CH_COL.length]+'">'+esc(ch[1])+'</label><input type="range" min="-4" max="4" step="0.01" id="cr'+j+'" value="'+v[j]+'"'+(S.playing?' disabled':'')+'>'+num(+v[j].toFixed(4),'cn'+j).replace('<input','<input'+(S.playing?' disabled':''))+'</div>';}
+  if(k&&k.all===undefined){const q=trackOf(c,k.j)[k.i];if(q)h+='<div class="row"><label>Time</label>'+num(q[0],'kt',0.01)+'</div><div class="row"><label>Ease into it</label>'+easeSel('ke',q[2])+'</div>';}
+  else if(k){const es=names.map(nm=>{const K=c.tracks[nm],i=keyIn(K,k.all);return i<0?null:(K[i][2]||'');}).filter(e=>e!==null);
+    h+='<div class="row"><label>Time</label>'+num(k.all,'kt',0.01)+'</div><div class="row"><label>Ease into them</label>'+easeSel('ke',es[0],es.some(e=>e!==es[0]))+'</div>';}
+  for(let j=0;j<n;j++){const ch=L.ch[j],has=keyIn(trackOf(c,j),S.t)>=0;
+    h+='<div class="row"><button class="kd'+(has?' on':'')+'" id="kd'+j+'"'+dis+' title="'+(has?'This channel has a key here: click to delete it':'Key this channel at the playhead')+'" style="color:'+CH_COL[j%CH_COL.length]+'">'+(has?'◆':'◇')+'</button>'+
+      '<label title="'+esc(ch[1])+'" style="color:'+CH_COL[j%CH_COL.length]+';width:74px">'+esc(ch[1])+'</label><input type="range" min="-4" max="4" step="0.01" id="cr'+j+'" value="'+v[j]+'"'+dis+'>'+num(+v[j].toFixed(4),'cn'+j).replace('<input','<input'+dis)+'</div>';}
   if(L&&n<L.ch.length)h+='<div class="row"><button id="addCh">+ '+esc(L.ch[n][1])+' channel</button></div>';
   h+='<h3>Events</h3><p class="note">Marks the game\'s code reads: hit (the blow lands, always at 1 on a blow).</p>'+(c.events||[]).map((e,i)=>'<div class="row"><input id="evk'+i+'" value="'+esc(e.k)+'" style="width:90px">'+num(e.t,'evt'+i)+'<button class="x" data-ev="'+i+'">×</button></div>').join('')+'<div class="row"><button id="evAdd">+ Event at playhead</button></div>';
   h+='<h3>Note</h3><textarea id="cnote" rows="4" style="width:100%">'+esc(c.note||'')+'</textarea>';
   B.innerHTML=h;
   $('kAdd').onclick=addKey;$('kDel').onclick=delKey;$('autoK').onchange=e=>{S.autoKey=e.target.checked;};
-  if(k){$('kt').onchange=e=>edit(C=>{const K=C.keys,lo=S.kSel>0?K[S.kSel-1].t:-1e9,hi=S.kSel<K.length-1?K[S.kSel+1].t:1e9;K[S.kSel].t=r4(Math.max(lo,Math.min(hi,+e.target.value)));});
-    $('ke').onchange=e=>edit(C=>{if(e.target.value)C.keys[S.kSel].e=e.target.value;else delete C.keys[S.kSel].e;});}
+  if(k&&$('kt'))$('kt').onchange=e=>{moveKey(+e.target.value);mergeTag=null;renderInsp();};
+  if(k&&$('ke'))$('ke').onchange=e=>{const val=e.target.value;if(val==='-')return;edit(C=>{
+    const set=q=>{if(val)q[2]=val;else q.length=2;};
+    if(k.all===undefined)set(trackOf(C,k.j)[k.i]);else for(const nm of chNames(C)){const K=C.tracks[nm],i=keyIn(K,k.all);if(i>=0)set(K[i]);}});};
   for(let j=0;j<n;j++){
     // (soft while dragging a slider: the goblin is posed again, nothing else made again; letting go draws the inspector again)
-    const put=(val,tag,soft)=>{if(S.playing)return;if(!k&&!S.autoKey&&S.kSel<0)return status('Select a key, or switch Auto-key on, to change the pose',true);
-      edit(C=>{let i=S.kSel;if(i<0){i=keyAt(C,S.t,true);S.kSel=i;}C.keys[i].v[j]=r4(val);},tag,soft);};
+    const put=(val,tag,soft)=>{if(S.playing)return;const C0=doc().data;if(keyIn(trackOf(C0,j),S.t)<0&&!S.autoKey)return status('Switch Auto-key on, or key the channel (◇), to change it here',true);
+      edit(C=>{const i=keyCh(C,j,S.t,true);trackOf(C,j)[i][1]=r4(val);},tag,soft);};
     $('cr'+j).oninput=e=>{$('cn'+j).value=e.target.value;put(+e.target.value,'cr'+j,true);};
     $('cr'+j).onchange=()=>{mergeTag=null;rebuild();renderInsp();};
-    $('cn'+j).onchange=e=>put(+e.target.value,'cn'+j);}
-  if($('addCh'))$('addCh').onclick=()=>edit(C=>{for(const K of C.keys)K.v.push(0);});
+    $('cn'+j).onchange=e=>put(+e.target.value,'cn'+j);
+    $('kd'+j).onclick=()=>{const C0=doc().data,K=trackOf(C0,j),i=keyIn(K,S.t);
+      if(i<0){edit(C=>{const ii=keyCh(C,j,S.t,true);S.key={j,i:ii};});}
+      else{if(K.length<2)return status('A channel keeps at least one key',true);edit(C=>{trackOf(C,j).splice(i,1);});S.key=null;}
+      renderInsp();};}
+  if($('addCh'))$('addCh').onclick=()=>edit(C=>{C.tracks[L.ch[n][0]]=[[0,0]];});
   for(let i=0;i<(c.events||[]).length;i++){$('evk'+i).onchange=e=>edit(C=>{C.events[i].k=e.target.value;});$('evt'+i).onchange=e=>edit(C=>{C.events[i].t=r4(+e.target.value);});}
   for(const x of B.querySelectorAll('[data-ev]'))x.onclick=()=>edit(C=>{C.events.splice(+x.dataset.ev,1);});
   $('evAdd').onclick=()=>edit(C=>{(C.events=C.events||[]).push({t:r4(S.t),k:'hit'});});
   $('cnote').onchange=e=>edit(C=>{if(e.target.value)C.note=e.target.value;else delete C.note;});
 }
+function poseTitle(c){const k=S.key;
+  if(!k)return 'Pose at '+S.t.toFixed(3);
+  if(k.all!==undefined)return 'Keys at '+k.all.toFixed(3)+' (every channel keyed there)';
+  return 'Key: '+esc(ASSET_LAYOUTS[c.layout].ch[k.j][1])+', '+(k.i+1)+' of '+trackOf(c,k.j).length;}
 function users(c){const o=[];for(const n of S.list.weapons){const W=WDATA[n];if(!W)continue;const N=W.npc||{},P=W.player||{};
   for(const [f,v] of [['strike',N.strike],['pose',N.pose],['reload',N.rl],['first-person swing',P.swing],['first-person reload',P.rl],['as others see him',P.body]])if(v===c)o.push((W.name||n)+' ('+f+')');}return o;}
-// the index of the key at time t, made from the pose there if there isn't one (make)
-function keyAt(C,t,make){const K=C.keys;let i=K.findIndex(k=>Math.abs(k.t-t)<1e-4);if(i>=0||!make)return i;
-  const v=clipAt(C,t).map(r4);i=K.findIndex(k=>k.t>t);if(i<0)i=K.length;K.splice(i,0,{t:r4(t),v});return i;}
-function addKey(){edit(C=>{S.kSel=keyAt(C,S.t,true);});renderInsp();}
-function delKey(){const d=doc();if(!d||S.kSel<0)return;if(d.data.keys.length<=2)return status('A clip needs at least two keys',true);
-  edit(C=>{C.keys.splice(S.kSel,1);S.kSel=-1;});renderInsp();}
+// a key on every channel at the playhead (K)
+function addKey(){const d=doc();if(!d||d.kind!=='clips'||S.playing)return;edit(C=>{for(let j=0;j<chNames(C).length;j++)keyCh(C,j,S.t,true);});S.key={all:r4(S.t)};renderInsp();}
+function delKey(){const d=doc();if(!d||!S.key)return;const k=S.key;
+  if(k.all===undefined){if(trackOf(d.data,k.j).length<2)return status('A channel keeps at least one key',true);edit(C=>{trackOf(C,k.j).splice(k.i,1);});}
+  else{let kept=0;edit(C=>{for(const nm of chNames(C)){const K=C.tracks[nm],i=keyIn(K,k.all);if(i<0)continue;if(K.length<2){kept++;continue;}K.splice(i,1);}});
+    if(kept)status(kept+' channel'+(kept>1?'s keep their':' keeps its')+' only key',true);}
+  S.key=null;renderInsp();}
+// move the selected key (or keys) to u, as far as its neighbours on its own channel allow (merge: one undo for a drag)
+function moveKey(u,merge){const d=doc();if(!d||!S.key)return;const k=S.key,c=d.data;
+  const lim=(K,i)=>[i>0?K[i-1][0]+0.005:0,i<K.length-1?K[i+1][0]-0.005:2];
+  if(k.all===undefined){const K=trackOf(c,k.j),[lo,hi]=lim(K,k.i);const t=r4(Math.max(lo,Math.min(hi,u)));edit(C=>{trackOf(C,k.j)[k.i][0]=t;},merge);S.t=t;return;}
+  // (every channel's key at one time moves by the same amount, as far as all their neighbours allow)
+  let dlo=-1e9,dhi=1e9;for(const nm of chNames(c)){const K=c.tracks[nm],i=keyIn(K,k.all);if(i<0)continue;const [lo,hi]=lim(K,i);dlo=Math.max(dlo,lo-k.all);dhi=Math.min(dhi,hi-k.all);}
+  const dt=Math.max(dlo,Math.min(dhi,u-k.all)),t0=k.all,t=r4(t0+dt);if(Math.abs(t-t0)<KEY_EPS/2)return;
+  edit(C=>{for(const nm of chNames(C)){const K=C.tracks[nm],i=keyIn(K,t0);if(i>=0)K[i][0]=t;}},merge);S.key={all:t};S.t=t;}
 let poseClip=null;
-function copyKey(){const d=doc();if(!d)return;poseClip=clipAt(d.data,S.t);status('Pose copied: select a key and press Ctrl+V');}
-function pasteKey(){const d=doc();if(!d||!poseClip)return;edit(C=>{const i=S.kSel>=0?S.kSel:keyAt(C,S.t,true);S.kSel=i;C.keys[i].v=poseClip.slice(0,C.keys[i].v.length).map(r4);});renderInsp();}
+function copyKey(){const d=doc();if(!d)return;poseClip=clipAt(d.data,S.t);status('Pose copied: move the playhead and press Ctrl+V to key every channel there');}
+function pasteKey(){const d=doc();if(!d||!poseClip||S.playing)return;edit(C=>{chNames(C).forEach((nm,j)=>{if(j>=poseClip.length)return;const i=keyCh(C,j,S.t,true);C.tracks[nm][i][1]=r4(poseClip[j]);});});S.key={all:r4(S.t)};renderInsp();}
 const CH_COL=['#e06a5a','#e0b040','#7fb24a','#4ab0c0','#6a8ae0','#b07ae0','#e07ab0'];
-// the timeline: a curve per channel over u, keys as diamonds along the top, events as flags, the playhead
+// the timeline: along the top a row of every time something's keyed (drag one to move every channel's key there), then
+// a row of keys per channel, then a curve per channel over u, events as flags, the playhead
 const TL=$('tl'),tg=TL.getContext('2d');
-const tlX=(c,u)=>{const K=c.keys,a=K[0].t,b=K[K.length-1].t;return 40+(u-a)/((b-a)||1)*(TL.width/devicePixelRatio-60);};
-const tlU=(c,x)=>{const K=c.keys,a=K[0].t,b=K[K.length-1].t;return a+(x-40)/(TL.width/devicePixelRatio-60)*(b-a);};
+const TL_L=78,TL_R=20,TL_ROW=12,TL_TOP=18;
+const tlX=(c,u)=>TL_L+u/2*(TL.width/devicePixelRatio-TL_L-TL_R);
+const tlU=(c,x)=>Math.max(0,Math.min(2,(x-TL_L)/(TL.width/devicePixelRatio-TL_L-TL_R)*2));
+const tlRowY=j=>TL_TOP+j*TL_ROW+TL_ROW/2;
 // (playing, the pose can't be changed: the key selected is let go, and the inspector's sliders follow the playhead)
-function setPlaying(v){const d=doc();if(v&&!(d&&d.kind==='clips'))return;S.playing=v;if(v)S.kSel=-1;renderTLBar();renderInsp();drawTL();}
+function setPlaying(v){const d=doc();if(v&&!(d&&d.kind==='clips'))return;S.playing=v;if(v)S.key=null;renderTLBar();renderInsp();drawTL();}
 // the inspector's pose follows the playhead, as it plays or is dragged (without drawing it all again, which would drop a slider)
 let poseShownK=null;
 function syncPose(){
   const d=doc();if(!d||d.kind!=='clips'||S.insp!=='clip'||!$('poseH'))return;
-  const c=d.data,k=c.keys[S.kSel];
-  if((k?S.kSel:-1)!==poseShownK)return renderInsp();
-  const v=k?k.v:clipAt(c,S.t),a=document.activeElement;
-  if(!k)$('poseH').textContent='Pose at '+S.t.toFixed(3);
-  for(let j=0;j<v.length;j++){const r=$('cr'+j),n=$('cn'+j);if(!r)continue;if(a!==r)r.value=v[j];if(a!==n)n.value=+v[j].toFixed(4);}
+  const c=d.data;if(JSON.stringify(S.key)!==poseShownK)return renderInsp();
+  const v=clipAt(c,S.t),a=document.activeElement;$('poseH').innerHTML=poseTitle(c);
+  for(let j=0;j<v.length;j++){const r=$('cr'+j),n=$('cn'+j),kd=$('kd'+j);if(!r)continue;if(a!==r)r.value=v[j];if(a!==n)n.value=+v[j].toFixed(4);
+    if(kd){const has=keyIn(trackOf(c,j),S.t)>=0;kd.textContent=has?'◆':'◇';kd.classList.toggle('on',has);}}
 }
 function renderTLBar(){
   $('tlbar').innerHTML='<button id="tlPlay">'+(S.playing?'Pause':'Play')+' (Space)</button><label><input type="checkbox" id="tlLoop"'+(S.loop?' checked':'')+'> Loop</label>'+
-    '<label>Speed <select id="tlSpd">'+[0.1,0.25,0.5,1].map(v=>'<option'+(v===S.speed?' selected':'')+'>'+v+'</option>').join('')+'</select></label><span class="note" id="tlU"></span><span class="grow"></span><span class="note">Click: playhead · drag a diamond: move the key · double-click: add a key</span>';
+    '<label>Speed <select id="tlSpd">'+[0.1,0.25,0.5,1].map(v=>'<option'+(v===S.speed?' selected':'')+'>'+v+'</option>').join('')+'</select></label><span class="note" id="tlU"></span><span class="grow"></span><span class="note">Click: playhead · drag a diamond: move the key (the top row moves every channel\'s) · double-click a channel\'s row: key it, elsewhere: key every channel</span>';
   $('tlPlay').onclick=()=>setPlaying(!S.playing);$('tlLoop').onchange=e=>S.loop=e.target.checked;$('tlSpd').onchange=e=>S.speed=+e.target.value;
 }
+function diamond(x,y,r,col){tg.fillStyle=col;tg.beginPath();tg.moveTo(x,y-r);tg.lineTo(x+r,y);tg.lineTo(x,y+r);tg.lineTo(x-r,y);tg.fill();}
 function drawTL(){
   const d=doc();if(!d||d.kind!=='clips')return;const c=d.data,W=TL.clientWidth,H=TL.clientHeight;
   if(TL.width!==W*devicePixelRatio||TL.height!==H*devicePixelRatio){TL.width=W*devicePixelRatio;TL.height=H*devicePixelRatio;}
   tg.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);tg.clearRect(0,0,W,H);
-  const top=26,bot=H-14,K=c.keys;let lo=1e9,hi=-1e9;for(const k of K)for(const v of k.v){lo=Math.min(lo,v);hi=Math.max(hi,v);}if(hi-lo<0.5){hi+=0.25;lo-=0.25;}
+  const names=chNames(c),n=names.length,L=ASSET_LAYOUTS[c.layout],k=S.key;
+  const top=TL_TOP+n*TL_ROW+8,bot=H-14;let lo=1e9,hi=-1e9;for(const nm of names)for(const q of c.tracks[nm]){lo=Math.min(lo,q[1]);hi=Math.max(hi,q[1]);}if(hi-lo<0.5){hi+=0.25;lo-=0.25;}
   const Y=v=>bot-(v-lo)/(hi-lo)*(bot-top-6);
-  tg.fillStyle='#181a1f';tg.fillRect(40,top-2,W-60,bot-top+4);
-  // (where the blow lands, and the wind-up and follow-through either side of it)
-  tg.font='11px system-ui';tg.fillStyle='#8890a0';
-  for(let u=Math.ceil(K[0].t*4)/4;u<=K[K.length-1].t+1e-6;u+=0.25){const x=tlX(c,u);tg.fillStyle=u%1===0?'#3a404c':'#262a32';tg.fillRect(x,top-2,1,bot-top+4);tg.fillStyle='#8890a0';tg.fillText(u.toFixed(2),x-10,H-2);}
-  if(c.layout==='body'){tg.fillStyle='#8890a0';tg.fillText('wind-up',tlX(c,0.4),top+10);tg.fillText('follow-through',tlX(c,1.35),top+10);}
-  tg.fillStyle='#3a404c';tg.fillRect(40,Y(0),W-60,1);
-  const n=K[0].v.length;
-  for(let j=0;j<n;j++){tg.strokeStyle=CH_COL[j%CH_COL.length];tg.lineWidth=1.5;tg.beginPath();
-    for(let x=40;x<=W-20;x+=2){const v=clipAt(c,tlU(c,x))[j];x===40?tg.moveTo(x,Y(v)):tg.lineTo(x,Y(v));}tg.stroke();}
-  K.forEach((k,i)=>{const x=tlX(c,k.t);tg.fillStyle=i===S.kSel?'#ffd060':'#d0d4dc';tg.beginPath();tg.moveTo(x,4);tg.lineTo(x+6,11);tg.lineTo(x,18);tg.lineTo(x-6,11);tg.fill();
-    if(k.e){tg.fillStyle='#8890a0';tg.fillText(k.e==='i'?'in':'out',x+7,16);}
-    tg.fillStyle='#ffffff18';tg.fillRect(x,top,1,bot-top);});
-  for(const e of c.events||[]){const x=tlX(c,e.t);tg.fillStyle='#ff6a50';tg.fillRect(x-1,top-2,2,bot-top+4);tg.fillText(e.k,x+3,bot-4);}
+  tg.font='11px system-ui';
+  // (the rows of keys: every channel's, then each channel's own)
+  tg.fillStyle='#8890a0';tg.fillText('all',6,11);
+  for(let j=0;j<n;j++){const y=tlRowY(j);tg.fillStyle=j%2?'#1c1f24':'#20232a';tg.fillRect(TL_L,y-TL_ROW/2,W-TL_L-TL_R,TL_ROW);tg.fillStyle=CH_COL[j%CH_COL.length];tg.fillText(L.ch[j][0],6,y+4);}
+  if(bot>top+10){tg.fillStyle='#181a1f';tg.fillRect(TL_L,top-2,W-TL_L-TL_R,bot-top+4);}
+  for(let u=0;u<=2+1e-6;u+=0.25){const x=tlX(c,u);tg.fillStyle=u%1===0?'#3a404c':'#262a32';tg.fillRect(x,TL_TOP,1,bot-TL_TOP+2);tg.fillStyle='#8890a0';tg.fillText(u.toFixed(2),x-10,H-2);}
+  if(bot>top+10){
+    if(c.layout==='body'){tg.fillStyle='#8890a0';tg.fillText('wind-up',tlX(c,0.4),top+10);tg.fillText('follow-through',tlX(c,1.35),top+10);}
+    tg.fillStyle='#3a404c';tg.fillRect(TL_L,Y(0),W-TL_L-TL_R,1);
+    for(let j=0;j<n;j++){tg.strokeStyle=CH_COL[j%CH_COL.length];tg.lineWidth=1.5;tg.beginPath();
+      for(let x=TL_L;x<=W-TL_R;x+=2){const v=clipAt(c,tlU(c,x))[j];x===TL_L?tg.moveTo(x,Y(v)):tg.lineTo(x,Y(v));}tg.stroke();
+      for(const q of trackOf(c,j))diamond(tlX(c,q[0]),Y(q[1]),3,CH_COL[j%CH_COL.length]);}}
+  for(const t of keyTimes(c))diamond(tlX(c,t),9,6,k&&k.all!==undefined&&Math.abs(k.all-t)<KEY_EPS?'#ffd060':'#d0d4dc');
+  for(let j=0;j<n;j++)trackOf(c,j).forEach((q,i)=>{const x=tlX(c,q[0]),y=tlRowY(j),on=k&&k.all===undefined&&k.j===j&&k.i===i;
+    diamond(x,y,5,on?'#ffd060':CH_COL[j%CH_COL.length]);if(q[2]){tg.fillStyle='#8890a0';tg.fillText(q[2]==='i'?'in':'out',x+6,y+4);}});
+  for(const e of c.events||[]){const x=tlX(c,e.t);tg.fillStyle='#ff6a50';tg.fillRect(x-1,TL_TOP,2,bot-TL_TOP+2);tg.fillText(e.k,x+3,bot-4);}
   const x=tlX(c,S.t);tg.fillStyle='#ffd060';tg.fillRect(x-1,0,2,H);
   const u=$('tlU');if(u)u.textContent='u '+S.t.toFixed(3);
 }
+// what's under a point on the timeline: {all:t} on the top row, {j,i} on a channel's row, else null
+function tlHit(c,x,y){
+  if(y<TL_TOP){let best=null,bd=7;for(const t of keyTimes(c)){const dd=Math.abs(tlX(c,t)-x);if(dd<bd){bd=dd;best={all:t};}}return best;}
+  const j=Math.floor((y-TL_TOP)/TL_ROW);if(j<0||j>=chNames(c).length)return null;
+  let best=null,bd=7;trackOf(c,j).forEach((q,i)=>{const dd=Math.abs(tlX(c,q[0])-x);if(dd<bd){bd=dd;best={j,i};}});return best||{row:j};
+}
 {let drag=null;
   TL.addEventListener('pointerdown',e=>{const d=doc();if(!d||d.kind!=='clips')return;const c=d.data,r=TL.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
-    const i=c.keys.findIndex(k=>Math.abs(tlX(c,k.t)-x)<7&&y<24);
-    if(i>=0){S.kSel=i;drag={i};S.t=c.keys[i].t;}else{S.kSel=-1;S.t=Math.max(c.keys[0].t,Math.min(c.keys[c.keys.length-1].t,tlU(c,x)));drag={t:1};const ki=c.keys.findIndex(k=>Math.abs(k.t-S.t)<0.012);if(ki>=0){S.kSel=ki;S.t=c.keys[ki].t;}}
+    const h=tlHit(c,x,y);
+    if(h&&h.row===undefined){S.key=h;S.t=keyT(c);drag={key:true};}
+    else{S.key=null;S.t=tlU(c,x);drag={t:1};}
     TL.setPointerCapture(e.pointerId);poseAt(S.t);drawTL();renderInsp();});
   TL.addEventListener('pointermove',e=>{if(!drag)return;const d=doc(),c=d.data,r=TL.getBoundingClientRect(),u=tlU(c,e.clientX-r.left);
-    if(drag.i!==undefined){const i=drag.i,K=c.keys;if(i===0||i===K.length-1)return;   // (the first and last keys stay where they are: the ends of the clip)
-      edit(C=>{const K=C.keys;K[i].t=r4(Math.max(K[i-1].t+0.005,Math.min(K[i+1].t-0.005,u)));},'tlk'+i);S.t=c.keys[i].t;}
-    else S.t=Math.max(c.keys[0].t,Math.min(c.keys[c.keys.length-1].t,u));
+    if(drag.key){if(S.playing)return;moveKey(u,'tlk');}
+    else S.t=u;
     poseAt(S.t);drawTL();syncPose();});
   TL.addEventListener('pointerup',()=>{drag=null;mergeTag=null;renderInsp();});
-  TL.addEventListener('dblclick',e=>{const d=doc();if(!d)return;const r=TL.getBoundingClientRect();S.t=r4(tlU(d.data,e.clientX-r.left));addKey();});}
+  TL.addEventListener('dblclick',e=>{const d=doc();if(!d||S.playing)return;const c=d.data,r=TL.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,h=tlHit(c,x,y);
+    S.t=r4(tlU(c,x));
+    if(h&&(h.row!==undefined||h.j!==undefined)){const j=h.row!==undefined?h.row:h.j;edit(C=>{S.key={j,i:keyCh(C,j,S.t,true)};});renderInsp();}
+    else addKey();});}
 
 // ---- keys ----
 addEventListener('keydown',e=>{
@@ -685,7 +735,7 @@ addEventListener('keydown',e=>{
   else if(k==='m')mirror();else if(k==='delete'||k==='backspace')del();else if(k==='f')frameView();
   else if(k===' '){e.preventDefault();setPlaying(!S.playing);}
   else if(k==='k'&&doc()&&doc().kind==='clips')addKey();
-  else if((k===','||k==='.')&&doc()&&doc().kind==='clips'){const C=doc().data;S.t=Math.max(C.keys[0].t,Math.min(C.keys[C.keys.length-1].t,S.t+(k===','?-1:1)*0.01));S.kSel=keyAt(C,S.t,false);poseAt(S.t);drawTL();renderInsp();}
+  else if((k===','||k==='.')&&doc()&&doc().kind==='clips'){const C=doc().data;S.t=Math.max(0,Math.min(2,S.t+(k===','?-1:1)*0.01));S.key=null;poseAt(S.t);drawTL();renderInsp();}
   else if(k==='?'||k==='/')$('help').classList.toggle('show');
   else if(k==='escape'){$('help').classList.remove('show');closeDlg();}
 });
@@ -696,7 +746,7 @@ function resize(){const r=$('viewWrap').getBoundingClientRect();R.setSize(r.widt
 addEventListener('resize',resize);
 new ResizeObserver(()=>resize()).observe($('viewWrap'));
 // ---- the panes' sizes: the bars between them drag, and are kept in this browser ----
-const PANES={lw:[150,520,230],rw:[240,640,320],th:[120,600,230]};
+const PANES={lw:[150,520,230],rw:[240,640,320],th:[160,700,300]};
 function paneSet(k,v){const [lo,hi]=PANES[k];v=Math.round(Math.max(lo,Math.min(hi,v)));$('app').style.setProperty('--'+k,v+'px');try{localStorage.setItem('gsg-editor-'+k,v);}catch(e){}}
 for(const k in PANES){let v=PANES[k][2];try{v=+localStorage.getItem('gsg-editor-'+k)||v;}catch(e){}paneSet(k,v);}
 for(const bar of document.querySelectorAll('[data-split]')){const k=bar.dataset.split;
@@ -710,7 +760,7 @@ let last=performance.now();
 function loop(now){
   const dt=Math.min(0.1,(now-last)/1000);last=now;
   const d=doc();
-  if(S.playing&&d&&d.kind==='clips'){const K=d.data.keys,a=K[0].t,b=K[K.length-1].t;S.t+=dt*S.speed*(b-a)/1.0;
+  if(S.playing&&d&&d.kind==='clips'){const a=0,b=2;S.t+=dt*S.speed*(b-a)/1.0;   // (every clip runs u 0 to 2)
     if(S.t>b){if(S.loop)S.t=a+(S.t-b)%((b-a)||1);else{S.t=b;setPlaying(false);}}poseAt(S.t);drawTL();syncPose();}
   orbit.update();
   const r=$('viewWrap').getBoundingClientRect();

@@ -65,4 +65,4 @@ console.log('peaceful: cops',C2.length,'calm',T.calmNow(),'bullets',sh,'gun out'
 // an ordinary goblin out of the same pool: no gun, no holster
 T.DT.host=3;
 const plain=T.goblins.find(g=>g.wkit&&!g.arms&&g.state==='chase');console.log('ordinary goblin with the kit:',plain?('shown '+plain.wkit.shown+' pistol visible '+plain.wkit.gun.some(m=>m.visible)+' holster visible '+plain.wkit.stow.some(m=>m.visible)):'none about');
-console.log('pistol pose keys',T.STRIKES.pistol.length,'| errors',errs.length,errs.slice(0,3));
+console.log('pistol pose keys',new Set(T.STRIKES.pistol.flat().map(q=>q[0])).size,'| errors',errs.length,errs.slice(0,3));

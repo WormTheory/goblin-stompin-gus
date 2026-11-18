@@ -307,7 +307,7 @@ function gobCamera(p){
     K.orb.visible=on;K.torb.visible=on;if(on){K.orb.scale.setScalar(0.4+u*0.9);K.torb.scale.setScalar(0.4+u*0.9);}}
   if(WEAPONS[wk]&&WEAPONS[wk].kind==='spell'){const u=p.biteT>0?gobSwingU(p):0,th=u>=1&&u<1.4?Math.max(0,1-(u-1)*2.5):0;K.arm.rotation.x=0.18-0.1*th;K.arm.rotation.z=0;K.arm.position.set(0.3,-0.5-up*0.5+bob,-0.56-0.08*th);}
   else if(gobGun(wk))gobViewGun(p,K,wk,sw,up,bob);
-  else{const sk=WEAPONS[wk]&&WEAPONS[wk].player.swing||'vmClub',u=gobSwingU(p),v=strikeAt(sk,u);K.arm.rotation.x=v[0]+(walking?sn*0.03:0);K.arm.rotation.z=STRIKES[sk][0].length>5?v[4]:0;K.arm.position.set(v[1],v[2]-up*0.5+bob,v[3]);
+  else{const sk=WEAPONS[wk]&&WEAPONS[wk].player.swing||'vmClub',u=gobSwingU(p),v=strikeAt(sk,u);K.arm.rotation.x=v[0]+(walking?sn*0.03:0);K.arm.rotation.z=STRIKES[sk].length>4?v[4]:0;K.arm.position.set(v[1],v[2]-up*0.5+bob,v[3]);
     // (a landmine's gone from the hand once it's set down, till the arm's back up with the next)
     if(WEAPONS[wk]&&WEAPONS[wk].kind==='mine')K.held[wk].visible=!(u>1&&u<1.6)&&p.mines>0;}
 }

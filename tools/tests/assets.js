@@ -86,5 +86,5 @@ console.log('above his head: a goblin on a ledge 1.5 up',hitAt({hit:{hitboxes:[{
   f.model.boxes[0].s=[0.5,0.5,0.5];f.dmg=dmg0+7;   // (the shared model, which held uses)
   console.log('live weapon:',T.liveWeapon('dagger',f),'| same entry kept',T.WEAPONS.dagger===same,'| new shape',T.WEAPONS.dagger.model.held[0][0]===0.5,'| new damage reaches Gnash',T.GOB_WPN.dagger===gw&&T.GOB_WPN.dagger.dmg===dmg0+7,'| unknown weapon:',T.liveWeapon('nope',f));
   const back=JSON.parse(fs.readFileSync(path.join(AS,'weapons','dagger.json'),'utf8'));T.liveWeapon('dagger',back);console.log('put back: damage',T.GOB_WPN.dagger.dmg===dmg0);
-  const c=JSON.parse(fs.readFileSync(path.join(AS,'clips','club.json'),'utf8'));c.keys[1].v[0]=-2;console.log('live clip:',T.liveClip('club',c),'| in the table',T.STRIKES.club[1][1]===-2);}
+  const c=JSON.parse(fs.readFileSync(path.join(AS,'clips','club.json'),'utf8'));c.tracks.arm[1][1]=-2;console.log('live clip:',T.liveClip('club',c),'| in the table',T.STRIKES.club[0][1][1]===-2);}
 S(5);console.log('frames after: ok');
