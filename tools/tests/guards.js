@@ -203,9 +203,9 @@ for(const [name,fire] of Object.entries(guns)){
    check(k,'weapons list',!bad.length,bad.join(', '));if(bad.length)continue;
    const kOf=t=>L.filter(w=>W[w].kind===t),mk=kOf('melee'),gk=kOf('gun'),tk=kOf('throw');
    check(k,'no more than one of each kind',mk.length<2&&gk.length<2&&tk.length<2,L.join(','));
-   // (the model: a blade or club and a gun each as the weapon's boxes, a gun beside a blade or club with a holster; an orb in
+   // (the model: a blade or club and a gun each as the weapon's boxes, a gun beside a blade or club with its stow too; an orb in
    // the left hand for grenades or a spell)
-   const want=bare+mk.concat(gk).reduce((s,w)=>s+nBox(w),0)+(mk.length&&gk.length?1:0)+(tk.length||f.spell?1:0),got=nodes(fo(f));
+   const want=bare+mk.concat(gk).reduce((s,w)=>s+nBox(w),0)+(mk.length&&gk.length?(W[gk[0]].model.stow||[]).length:0)+(tk.length||f.spell?1:0),got=nodes(fo(f));
    check(k,'model carries its weapons',got===want,'parts '+(got-bare)+' over a bare goblin, its weapons make '+(want-bare));
    // (the AI: each gun has how it's used (gun) and is aimed inside its range; grenades have bomb and are thrown; up close
    // it strikes with its blade or club, or a rifle by its butt, at the weapon's numbers, else with fists of its own)
@@ -227,6 +227,28 @@ for(const [name,fire] of Object.entries(guns)){
    // (and the Dev tab plays each: a shoot for a gun, a throw for grenades, an attack up close)
    {const D=devK.get(f),a=D?D.anims:[];check(k,'Dev tab plays its weapons',!!D&&(!gk.length||a.includes('shoot'))&&(!tk.length||a.includes('throw'))&&(k==='civilian'||a.includes('attack')),D?a.join(','):'not listed');}}
  flush('weapons lists ('+kinds.map(([k,f])=>k+': '+(f.weapons||[]).join('+')).join('; ')+')');}
+
+// ==== a gun at range, a blade or club up close, for any kind whose list has both: a made-up kind carrying a dagger and a
+// rifle draws the rifle to fire at range and slings it for the dagger close in ====
+{const F=E('FOES'),W=E('WEAPONS'),fk=E('foeGunK');
+ for(const k in W)if(W[k].kind==='gun')check('weapon '+k,'can be put away (model.stow)',!!(W[k].model.stow&&W[k].model.stow.length));
+ F.testpair=Object.assign({},F.thief,{name:'Test pair',weapons:['dagger','rifle'],gun:F.militia.gun,hitBy:'Stabbed in a test'});
+ try{E('tenvClear()');quiet();put(X0,Z0);for(let a=-60;a<=6;a++)for(let b=-6;b<=6;b++)for(let y=0;y<8;y++)E('setRaw')(X0+a,G0+1+y,Z0+b,0);
+  const q=E('freeFoe')('testpair',2);E('foeSpawn')(q,'testpair',null,0);q.vy=0;q.stun=0;q.act=null;q.state='chase';
+  const K=q.wkit,vis=L=>L.length&&L.every(m=>m.visible);
+  check('dagger and rifle','model: rifle hidden in the hand, its stow',!!K&&K.k==='rifle'&&K.stow.length===W.rifle.model.stow.length,K?'stow '+K.stow.length:'no kit');
+  if(K){const at=d=>{q.pos.set(P.pos.x-d,P.pos.y,P.pos.z);q.heading=Math.PI/2;q.aim=0;q.aimK=null;q.gunCD=0;q.bombCD=99;
+      const r=E('foeRanged')(q,P,d,0,0.01);E('wkitTick')(q);return r;};
+   at(20);const far=q.aimK==='gun'&&K.shown===2&&vis(K.gun)&&!K.melee.some(m=>m.visible)&&!K.stow.some(m=>m.visible);
+   const st=E('wkitState');q.aim=0;q.aimK=null;q.relS=9;E('wkitTick')(q);const away=K.shown===1&&vis(K.stow)&&vis(K.melee)&&!K.gun.some(m=>m.visible);
+   at(F.testpair.gun.near-1);const near=q.aimK!=='gun';const s=E('strikeOf')(E('foeOf')(q));
+   check('dagger and rifle','at range: the rifle drawn',far,'aim '+q.aimK+' shown '+K.shown);
+   check('dagger and rifle','after: the rifle slung, the dagger in hand',away,'shown '+K.shown);
+   check('dagger and rifle','up close: no shot, the dagger',near&&s.dmg===W.dagger.dmg&&s.every===W.dagger.every,JSON.stringify(s));
+   }
+  q.state='wait';q.root.visible=false;q.aim=0;}
+ finally{delete F.testpair;}
+ flush('a gun at range, a blade or club up close (any kind)');}
 
 // ==== one weapon, one set of numbers: nothing about a weapon set anywhere but WEAPONS, and the same in either hand ====
 {const F=E('FOES'),W=E('WEAPONS'),GF=E('GOB_FOES'),COP=GF.police,STAT=['dmg','range','every','cd','breaks','r','reach','R','fuse','refire','hp'];

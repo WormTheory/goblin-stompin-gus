@@ -50,7 +50,7 @@ for(const [label,dist] of [['far',14],['close',1.5]]){
   let shots=0,hits=0,last=P.hp,frames={0:0,1:0,2:0},seenT=new Map(),kicks=0,minD=99;
   for(let i=0;i<10*60;i++){now+=16.7;T.frame(now);
     for(const t of T.TRACERS){if(t.t>(seenT.get(t)??0)+0.001)shots++;seenT.set(t,t.t);}
-    for(const g of C){frames[g.pkit.shown]=(frames[g.pkit.shown]||0)+1;if(g.arm.hand.rotation.x<-0.3&&g.pkit.shown===2)kicks++;minD=Math.min(minD,Math.hypot(g.pos.x-P.pos.x,g.pos.z-P.pos.z));
+    for(const g of C){frames[g.wkit.shown]=(frames[g.wkit.shown]||0)+1;if(g.arm.hand.rotation.x<-0.3&&g.wkit.shown===2)kicks++;minD=Math.min(minD,Math.hypot(g.pos.x-P.pos.x,g.pos.z-P.pos.z));
       if(label==='close'&&Math.hypot(g.pos.x-P.pos.x,g.pos.z-P.pos.z)>3){g.pos.set(P.pos.x+1.5,P.pos.y,P.pos.z);}}
     if(P.hp<last){hits++;}last=P.hp;if(P.hp<8)P.hp=20;
     if(label==='far')for(const g of C)if(Math.hypot(g.pos.x-P.pos.x,g.pos.z-P.pos.z)<8){const a=Math.atan2(g.pos.x-P.pos.x,g.pos.z-P.pos.z);g.pos.set(P.pos.x+Math.sin(a)*14,g.pos.y,P.pos.z+Math.cos(a)*14);}}
@@ -61,8 +61,8 @@ for(const [label,dist] of [['far',14],['close',1.5]]){
 T.DT.host=2;for(const g of cops()){g.state='wait';g.root.visible=false;g.arms=null;}
 T.tenvFoe('cop');const C2=cops();for(const g of C2){g.pos.set(P.pos.x+12,P.pos.y,P.pos.z);g.inv=false;}
 let sh=0;const sT=new Map();for(let i=0;i<5*60;i++){now+=16.7;T.frame(now);for(const t of T.TRACERS){if(t.t>(sT.get(t)??0)+0.001)sh++;sT.set(t,t.t);}}
-console.log('peaceful: cops',C2.length,'calm',T.calmNow(),'bullets',sh,'gun out',C2.filter(g=>g.pkit.shown===2).length);
+console.log('peaceful: cops',C2.length,'calm',T.calmNow(),'bullets',sh,'gun out',C2.filter(g=>g.wkit.shown===2).length);
 // an ordinary goblin out of the same pool: no gun, no holster
 T.DT.host=3;
-const plain=T.goblins.find(g=>g.pkit&&!g.arms&&g.state==='chase');console.log('ordinary goblin with the kit:',plain?('shown '+plain.pkit.shown+' pistol visible '+plain.pkit.pis.some(m=>m.visible)+' holster visible '+plain.pkit.hol.some(m=>m.visible)):'none about');
+const plain=T.goblins.find(g=>g.wkit&&!g.arms&&g.state==='chase');console.log('ordinary goblin with the kit:',plain?('shown '+plain.wkit.shown+' pistol visible '+plain.wkit.gun.some(m=>m.visible)+' holster visible '+plain.wkit.stow.some(m=>m.visible)):'none about');
 console.log('pistol pose keys',T.STRIKES.pistol.length,'| errors',errs.length,errs.slice(0,3));

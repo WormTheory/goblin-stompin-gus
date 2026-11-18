@@ -138,7 +138,7 @@ function gunGripUndo(m,root=m.arm.parent){const v=m._gg;if(!v)return;m._gg=null;
 // drawn, a rifle always, unless the goblin is dead, climbing, swimming, or has the free hand busy (a grenade, a fireball,
 // thrown up in a panic)
 function gunHeld(g){
-  const k=g.pkit&&g.pkit.shown===2?WEAPONS[g.pkit.k].npc.aim:g.root.gunK;if(!k)return null;
+  const k=g.wkit&&g.wkit.shown===2?WEAPONS[g.wkit.k].npc.aim:g.root.gunK;if(!k)return null;
   if(g.state==='dead'||g.dead||g.hp<=0||g.act||g.wet||g.orb&&g.orb.visible||g.armL.rotation.x<-1.9||g.arm.rotation.x<-2.3)return null;
   return k;
 }

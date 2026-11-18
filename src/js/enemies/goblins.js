@@ -86,7 +86,7 @@ const UNIT_BOX=new THREE.BoxGeometry(1,1,1);
 function makeGoblin(o,x){
   const root=new THREE.Group();root.rotation.order='YXZ';
   const m=goblinModel(root,Object.assign({shareGeo:true},o));
-  const g=Object.assign({snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,pkit:m.pkit||null,orb:m.orb||null,
+  const g=Object.assign({snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,wkit:m.wkit||null,orb:m.orb||null,
     pos:new V3(),kv:new V3(),stun:0,heading:0,vy:0,hp:4,state:'wait',t:0,phase:0,atk:1,hurt:0,sink:0,detour:0,detourH:0,stuck:0,civ:false},x);
   root.visible=false;root.scale.setScalar(ES);goblins.push(g);return g;
 }
@@ -116,12 +116,13 @@ function goblinModel(parent,o={}){
   // what's in its hands is its kind's weapons list (o.weapons, keys in WEAPONS: see GOB_FOES); a model made without one
   // (a player goblin's, the title screen's) has the club, unless club is false. A blade or club in the hand; a gun on
   // its own in the hand too (pointing on down past it, so it's level when the arm is raised to aim, held in its own pose:
-  // gunGrip); a gun beside a blade or club (a street goblin's handgun, for when it's in police blue: police-gun.js) in the
-  // same hand but hidden till it's drawn, with a holster on the belt, also hidden till an officer wears it
+  // gunGrip); a gun beside a blade or club (a street goblin's handgun, for when it's in police blue) in the same hand but
+  // hidden till it's drawn, and put away (its model's stow: a holster, a rifle slung on the back) while it isn't, which
+  // shows only once it's armed with it (wkit: what's in hand, foes.js)
   const WL=o.weapons||(o.club!==false?['club']:[]),mk=wpnOfKind(WL,'melee'),gk=wpnOfKind(WL,'gun');
   const club=mk?wb(mk,hand):[];
-  if(gk&&mk){const pis=wb(gk,hand),hol=[box(0.09,0.2,0.15,'holster',0x14110e,0.29,0.4,0.03,parent)];
-    for(const m of pis.concat(hol))m.visible=false;out.pkit={club,pis,hol,shown:0,k:gk};}
+  if(gk&&mk){const gun=wb(gk,hand),stow=[];wpnBoxes(WEAPONS[gk].model.stow,(w,h,d,c,x,y,z,r)=>stow.push(box(w,h,d,r,c,x,y,z,parent)));
+    for(const m of gun.concat(stow))m.visible=false;out.wkit={melee:club,gun,stow,shown:0,k:gk};}
   else if(gk){if(WEAPONS[gk].npc&&WEAPONS[gk].npc.aim)parent.gunK=WEAPONS[gk].npc.aim;wb(gk,hand);}
   if(o.cult){
     // a cultist: a robe down to the ankles and a pointed hood (the ears poke out of it)

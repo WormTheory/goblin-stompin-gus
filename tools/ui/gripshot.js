@@ -28,7 +28,7 @@ await p.waitForTimeout(300);
 // the free camera beside a goblin, looking at it from its right (s=1) or left (s=-1), d away
 const cam=(sel,s,d,ang)=>p.evaluate(([sel,s,d,ang])=>{const G=window.__G;clearInterval(window.__fc);
   if(!G.DT.freecam)dispatchEvent(new KeyboardEvent('keydown',{code:'KeyV'}));
-  window.__fc=setInterval(()=>{const g=G.goblins.find(o=>o.root.visible&&(sel==='cop'?o.pkit&&o.gun:o.foeKind===sel));if(!g)return;
+  window.__fc=setInterval(()=>{const g=G.goblins.find(o=>o.root.visible&&(sel==='cop'?o.wkit&&o.arms:o.foeKind===sel));if(!g)return;
     const h=g.heading+ang*s,cx=g.pos.x+Math.sin(h)*d,cz=g.pos.z+Math.cos(h)*d;
     G.FC.pos.set(cx,g.pos.y+1.0,cz);G.FC.yaw=Math.atan2(-(g.pos.x-cx),-(g.pos.z-cz));G.FC.pitch=-0.12;},5);},[sel,s,d,ang]);
 const burst=async(nm,n,gap)=>{for(let i=0;i<n;i++){await p.waitForTimeout(gap);await p.screenshot({path:out+'/grip-'+nm+'-'+i+'.png'});}};

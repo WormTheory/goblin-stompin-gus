@@ -39,6 +39,7 @@ gun gunRound | goblin hurt 10 in the open, 0 through a wall ok
 blasts and shells vs every kind of vehicle box ok
 enemy kinds (thief, prepper, militia, security, deckhand, sailor, marine, soldier) ok
 weapons lists (goblin: club; police: club+handgun; civilian: ; cultist: dagger; thief: dagger; prepper: rifle+grenade; militia: rifle+grenade; security: ; deckhand: ; sailor: rifle; marine: rifle+grenade; soldier: rifle) ok
+a gun at range, a blade or club up close (any kind) ok
 weapon stats only in WEAPONS (club, dagger, handgun, rifle, grenade; FOES, GOB_FOES) ok
 the same weapon in the hands of an enemy as of a player ok
 errors 0 

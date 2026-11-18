@@ -9,7 +9,7 @@ const d6=fs.readFileSync('dead6.js','utf8');
 const stubs=d6.slice(d6.indexOf('const deep='),d6.indexOf('\neval(src);'));
 const src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={tenvPlace,tenvSpawnOne,tenvClear,MG,get TENV(){return TENV},netSendSnap,netRewind,netUnwind,NETP,makeTopple,topples,NETF,V3,BRICK,NET_VN,venues,TRAINS,netVenueModels,frame,players,P1,P2,NET,NETM,netHostWith,netJoinWith,netClose,netEnd,crush,get,goblins,cars,keys,ABIL,fires,setGobP,'+
   'collapseBuilding,bldgAt,plotInfo,CELL,FH,knockFix,activeFix,activeProps,falling,downFix,NET_BG,netBgTick,netBgClock,get collapses(){return collapses},'+
-  'copArm,TRACERS,award,POPS,DT,setCombo,setPvp,pvpOn,doBite,obitList,get seed(){return seed},get edits(){return edits},get menuOpen(){return menuOpen},get saveBlocked(){return saveBlocked},chunks,ckey,CS,G};})();');
+  'foeArm,GOB_FOES,TRACERS,award,POPS,DT,setCombo,setPvp,pvpOn,doBite,obitList,get seed(){return seed},get edits(){return edits},get menuOpen(){return menuOpen},get saveBlocked(){return saveBlocked},chunks,ckey,CS,G};})();');
 if(src===src0)throw new Error('closing line not found');
 const store=init=>{const m=new Map(Object.entries(init||{}));return{getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,String(v)),removeItem:k=>m.delete(k),get _m(){return m}};};
 // one game: seed for its Math.random, its localStorage and sessionStorage contents
@@ -191,11 +191,11 @@ const lag=[];
  console.log('health bars on the guest: goblins hurt',gs.length,'the same',gOk,ok(gOk===gs.length),'| vehicles hurt',cs.length,'the same',cOk,ok(cOk===cs.length),'| a venue vehicle',vOk);}
 
 // ---- a police officer's handgun: drawn on the guest's mirror, and the shot's tracer shown there ----
-{const mk=HT.goblins.map((g,i)=>[g,i]).filter(([g,i])=>g.pkit&&g.root.visible&&g.state==='chase'&&GT.NETM.g.has(i));
- if(!mk.length)console.log('police handgun: no goblin about to try it on');else{const [g,i]=mk[0];HT.copArm(g);g.inv=false;
+{const mk=HT.goblins.map((g,i)=>[g,i]).filter(([g,i])=>g.wkit&&g.root.visible&&g.state==='chase'&&GT.NETM.g.has(i));
+ if(!mk.length)console.log('police handgun: no goblin about to try it on');else{const [g,i]=mk[0];HT.foeArm(g,HT.GOB_FOES.police);g.inv=false;
   // (stood off from both hippos, past the club's reach: 10 blocks out from the host's, on the far side from the guest's)
   const A=HT.P1.pos,B=HT.P2.pos,ux=A.x-B.x,uz=A.z-B.z,ul=Math.hypot(ux,uz)||1,hold=()=>{g.pos.x=A.x+ux/ul*10;g.pos.z=A.z+uz/ul*10;g.pos.y=A.y;g.vy=0;};
-  let drawn=false,tr=false,club=false;for(let n=0;n<240;n++){if(!(g.aim>0))g.gunCD=n<40?9:0;hold();H.step(1);G.step(1);const m=GT.NETM.g.get(i);if(m&&m.pkit){if(m.pkit.shown===2&&m.pkit.pis.every(o=>o.visible)&&m.pkit.club.every(o=>!o.visible))drawn=true;if(m.pkit.shown===1&&m.pkit.hol.every(o=>o.visible))club=true;}if(GT.TRACERS.some(t=>t.t>0))tr=true;}
+  let drawn=false,tr=false,club=false;for(let n=0;n<240;n++){if(!(g.aim>0))g.gunCD=n<40?9:0;hold();H.step(1);G.step(1);const m=GT.NETM.g.get(i);if(m&&m.wkit){if(m.wkit.shown===2&&m.wkit.gun.every(o=>o.visible)&&m.wkit.melee.every(o=>!o.visible))drawn=true;if(m.wkit.shown===1&&m.wkit.stow.every(o=>o.visible))club=true;}if(GT.TRACERS.some(t=>t.t>0))tr=true;}
   console.log('police handgun on the guest: holster and club',ok(club),'| gun drawn',ok(drawn),'| a tracer',ok(tr));
   g.arms=null;g.state='wait';g.root.visible=false;for(let n=0;n<5;n++){H.step(1);G.step(1);}}}   // (gone again, so nothing after this is shot at)
 

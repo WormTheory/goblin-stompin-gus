@@ -61,7 +61,7 @@ function netGoblins(p,N,out,looks){
   const R=170,px=pwx(p),pz=pwz(p);
   for(let i=0;i<goblins.length;i++){const g=goblins[i],r=g.root;if(!r.visible||!netNear(r.position,px,pz,R))continue;
     const P=r.position,Q=r.rotation;
-    out.push([i,r3(P.x),r3(P.y),r3(P.z),r3(Q.x),r3(Q.y),r3(Q.z),r3(r.scale.x),r3(r.scale.y),r3(g.legs[0].rotation.x),r3(g.legs[1].rotation.x),r3(g.arm.rotation.x),r3(g.armL.rotation.x),r3(g.head.rotation.z),g.orb&&g.orb.visible?1:0,g.state,r3(g.hp),g.hpMax>=g.hp?g.hpMax:r3(g.hp),r3(g.arm.rotation.z),r3(g.arm.hand?g.arm.hand.rotation.x:0),g.pkit?g.pkit.shown:0]);   // (and its health, for the health bars; then the rest of a blow's pose, strikes.js; then an officer's club, handgun or holster, police-gun.js)
+    out.push([i,r3(P.x),r3(P.y),r3(P.z),r3(Q.x),r3(Q.y),r3(Q.z),r3(r.scale.x),r3(r.scale.y),r3(g.legs[0].rotation.x),r3(g.legs[1].rotation.x),r3(g.arm.rotation.x),r3(g.armL.rotation.x),r3(g.head.rotation.z),g.orb&&g.orb.visible?1:0,g.state,r3(g.hp),g.hpMax>=g.hp?g.hpMax:r3(g.hp),r3(g.arm.rotation.z),r3(g.arm.hand?g.arm.hand.rotation.x:0),g.wkit?g.wkit.shown:0]);   // (and its health, for the health bars; then the rest of a blow's pose, strikes.js; then an officer's club, handgun or holster, police-gun.js)
     const L=g.id&&g.id.look;if(!L)continue;let v=netLookOf.get(g.id);if(!v){v=++netLookN;netLookOf.set(g.id,v);}
     if(N.looks.get(i)!==v){N.looks.set(i,v);looks[i]={o:r.netOpt||(g.civ?{club:false}:{}),civ:!!g.civ,L,id:{name:g.id.name,occ:g.id.occ,age:g.id.age}};}}
 }
@@ -588,7 +588,7 @@ function netGuestFrame(dt){
     g.root.position.set(fo?e[1]+(fo[1]-e[1])*kq:e[1],fo?e[2]+(fo[2]-e[2])*kq:e[2],fo?e[3]+(fo[3]-e[3])*kq:e[3]);g.root.rotation.set(w(4),fo?lerpA(e[5],fo[5],kq):e[5],w(6));g.root.scale.set(v(7),v(8),v(7));g.pos.copy(g.root.position);g.heading=g.root.rotation.y;
     g.legs[0].rotation.x=w(9);g.legs[1].rotation.x=w(10);g.arm.rotation.x=w(11);g.armL.rotation.x=w(12);g.head.rotation.z=w(13);
     if(e[18]!==undefined){g.arm.rotation.z=w(18);if(g.arm.hand)g.arm.hand.rotation.x=f&&f[19]!==undefined?e[19]+(f[19]-e[19])*k:e[19];}   // (the wrist turns past half a turn: straight between, not the short way round)
-    if(g.pkit)copKitShow(g.pkit,e[20]||0);}   // (an officer's club, or handgun drawn, and holster)
+    if(g.wkit)wkitShow(g.wkit,e[20]||0);}   // (a blade or club in hand, or the gun drawn, and the gun put away: foes.js)
   netVenuePose(rt);netMechPlace(a,o,kp,ms);netShipPlace(a,o,kp);netFallPose(a,b,k);
   for(const e of a.c){const c=NETM.c.get(e[0]);if(!c)continue;const fo=bc.get(e[0]),f=b?fo:null,kq=netKP(e,fo,1,kp,ms),w=n=>f?lerpA(e[n],f[n],k):e[n],x=n=>fo?e[n]+(fo[n]-e[n])*kq:e[n],y=n=>fo?lerpA(e[n],fo[n],kq):e[n];
     c.g.position.set(x(1),x(2),x(3));c.g.rotation.set(w(4),y(5),w(6));c.pos.copy(c.g.position);c.heading=c.g.rotation.y;

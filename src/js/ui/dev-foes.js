@@ -15,7 +15,7 @@ function devFoArms(K,arms,first,last){const gk=foeGunK(arms),GW=gk&&arms.gun?WEA
     anims:[...first,...(arms.spell?['cast']:[]),...(GW?['shoot']:[]),...(foeThrowK(arms)&&arms.bomb?['throw']:[]),...last]});}
 const DEV_FOE_KINDS=[
   devFoArms({k:'goblin',n:'Goblin',hp:4,spd:2.8,look:{tunic:GC.tunic,pants:0x3a3328,hat:0x2a2a2a,show:['bandana','pouch']}},GOB_FOES.goblin,['idle','walk','attack'],['jump','climb','swim','death']),
-  devFoArms({k:'cop',n:'Police officer',hp:4,spd:2.8,look:{tunic:0x1c2a5a,pants:0x1c2a5a,hat:0x1c2a5a,show:['cap']}},GOB_FOES.police,['idle','walk','attack'],['jump','climb','swim','death']),   // (the handgun: police-gun.js)
+  devFoArms({k:'cop',n:'Police officer',hp:4,spd:2.8,look:{tunic:0x1c2a5a,pants:0x1c2a5a,hat:0x1c2a5a,show:['cap']}},GOB_FOES.police,['idle','walk','attack'],['jump','climb','swim','death']),   // (the handgun, drawn at range: foeArm, foes.js)
   devFoArms({k:'civ',n:'Civilian',hp:3,spd:1.5,civ:true,look:{skin:0x7aa848,tunic:0x2a7a5a,pants:0x2b2f38,hat:0xc9a02a,show:['cap','glasses']}},GOB_FOES.civilian,['idle','walk','flee','stall'],['swim','death']),
   devFoArms({k:'cultist',n:'Cultist',hp:4,spd:2.8,cult:true,look:{tunic:CULT_ROBE,pants:0x1a0a0c,hat:CULT_HOOD,acc:0x2a0408,acc2:0x2a0408,show:[]}},GOB_FOES.cultist,['chant','walk','attack'],['jump','climb','swim','death']),
   // (every kind in the FOES table, so a new one is listed by itself)
@@ -116,7 +116,7 @@ const DEV_FOE_ANIM={
       g.relS+=dt;if(!dfFollow(g)){g.armL.rotation.x+=(0-g.armL.rotation.x)*Math.min(1,dt*6);dfArm(g,false,dt);}dfEnd(g,false);},
     data:K=>[['Conjures for',dfFrames(CULT_CAST)+' (the warning you get)'],['Range','4.5 to 30 blocks, when it can see you'],['Fireball','flies at '+FB_SPEED+' blocks/s, bending a little after you'],['Damage','2 hearts'],['Again after','2.4–4 s']]},
   // a rifle shot: raised and aimed for a moment, then hitscan with a tracer
-  // (or, for a gun carried beside a club, like a police officer's handgun, drawn from the holster as the aim starts: police-gun.js;
+  // (or, for a gun carried beside a club, like a police officer's handgun, drawn from the holster as the aim starts: wkit, foes.js;
   // its pose is the gun's, in WEAPONS)
   shoot:{dur:K=>0.3+K.gun.aim+0.8,init(g,K,C){C.target(DEV_TARGET);g.aimT=0.3;},step(g,K,dt,C){const F=K,w=K.gunW.npc.pose;
       if(g.aimT>0&&(g.aimT-=dt)<=0){g.aim=F.gun.aim;g.aimK='gun';C.mark('Aim',C.f,C.f+Math.round(F.gun.aim*60)-1,'wind');}
@@ -142,9 +142,9 @@ const DEV_FOE_ANIM={
 function devFoSim(kind,anim){
   const K=devFoKind(kind),A=DEV_FOE_ANIM[anim],fig=devFoFig(K),m=fig.m,nodes=fig.nodes,M=nodes.length,FL=11,N=Math.max(2,Math.round(A.dur(K)*60)),dt=1/60;
   const rec={kind,anim,N,M,fig:K.k,tr:new Float32Array(N*M*FL),pos:new Float32Array(N*4),hits:[],shots:[],boxes:[],marks:[],target:null,water:null};
-  const g={pos:new V3(0.5,G+1,0.5),heading:0,phase:0,t:0,atk:1,atkS:9,relS:9,relK:null,cultist:!!K.cult,foeKind:K.foe?K.k:null,arms:K.arms,aim:0,aimK:null,pkit:m.pkit||null,legs:m.legs,arm:m.arm,armL:m.armL,head:m.head,root:m.root,orb:m.orb||null,act:null,wet:false};
+  const g={pos:new V3(0.5,G+1,0.5),heading:0,phase:0,t:0,atk:1,atkS:9,relS:9,relK:null,cultist:!!K.cult,foeKind:K.foe?K.k:null,arms:K.arms,aim:0,aimK:null,wkit:m.wkit||null,legs:m.legs,arm:m.arm,armL:m.armL,head:m.head,root:m.root,orb:m.orb||null,act:null,wet:false};
   m.root.rotation.set(0,0,0);m.arm.rotation.set(K.civ?0:-0.5,0,0);m.arm.hand.rotation.x=0;m.armL.rotation.x=0;for(const l of m.legs)l.rotation.x=0;m.head.rotation.z=0;if(m.orb){m.orb.visible=false;m.orb.scale.setScalar(1);}
-  if(m.pkit)m.pkit.shown=-1;   // (playing a recording back sets what's shown behind its back)
+  if(m.wkit)m.wkit.shown=-1;   // (playing a recording back sets what's shown behind its back)
   const C={f:0,
     hit(f,kind,shape,o,dmg){rec.hits.push({f,until:f+12,kind,shape,o,dmg});},
     target(d){rec.target={x:0.5,z:0.5+d};},
@@ -159,7 +159,7 @@ function devFoSim(kind,anim){
       const fe=f+path.length-1,q=path[path.length-1];rec.shots.push({k:'ball',f,path,col});C.hit(fe,'dmg','sph',{x:q[0],y:q[1],z:q[2],r:hit.r},hit.dmg);C.mark(hit.fuse?'Grenade':'Fireball',f,fe,'shot');}};
   if(A.init)A.init(g,K,C);
   for(let f=0;f<N;f++){C.f=f;
-    if(f)g.t+=dt;A.step(g,K,dt,C);if(g.pkit)copKitShow(g.pkit,copKitState(g));   // (club, or the handgun drawn, and the holster)
+    if(f)g.t+=dt;A.step(g,K,dt,C);if(g.wkit)wkitShow(g.wkit,wkitState(g));   // (club, or the handgun drawn, and the holster: foes.js)
     const gk=gunHeld(g);if(gk)gunGrip(m,m.root,gk);   // (both hands on a gun, as batDraw draws it: strikes.js; undone once it's recorded)
     for(let i=0;i<M;i++){const o=nodes[i],b=(f*M+i)*FL,T=rec.tr;T[b]=o.position.x;T[b+1]=o.position.y;T[b+2]=o.position.z;T[b+3]=o.quaternion.x;T[b+4]=o.quaternion.y;T[b+5]=o.quaternion.z;T[b+6]=o.quaternion.w;T[b+7]=o.scale.x;T[b+8]=o.scale.y;T[b+9]=o.scale.z;T[b+10]=o.visible?1:0;}
     if(gk)gunGripUndo(m,m.root);rec.pos[f*4]=g.pos.x;rec.pos[f*4+1]=g.pos.y;rec.pos[f*4+2]=g.pos.z;rec.pos[f*4+3]=g.heading;}

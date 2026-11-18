@@ -4,7 +4,8 @@
 //   model: the boxes it's made of, [w,h,d,colour,x,y,z,role] (a colour of null is the goblins' club brown, GC.club):
 //     held in the hand, in the hand's own frame (an enemy's, and a player goblin as the others see him: goblinModel, gobKit),
 //     view in your own first-person view ([...,renderOrder], with fore: where the other forearm reaches in to hold it),
-//     drop lying on the ground to be picked up (puModel);
+//     drop lying on the ground to be picked up (puModel); stow, for a gun, where an enemy carrying it beside a blade or
+//     club keeps it while it isn't drawn, in the body's own frame (a holster on the belt, a rifle slung on the back);
 //   its numbers, the same whoever uses it (a player goblin or any enemy): dmg, the damage of a blow, a round or a
 //     blast; every, seconds between one use and the next; range, how far a gun reaches; breaks, whether its rounds can
 //     break the block they hit (half the time: bulletBreak); r and reach, a blade's or a club's hit, how wide and how
@@ -39,7 +40,8 @@ const WEAPONS={
     // arm's raised to aim)
     model:{held:[[0.07,0.27,0.09,0x22262c,0,-0.1,0.06,'gun'],[0.06,0.08,0.15,0x22262c,0,0.01,-0.03,'gun']],
       view:[[0.07,0.13,0.1,0x22262c,0,-0.03,-0.4,61],[0.06,0.07,0.3,0x22262c,0,0.06,-0.5,62]],fore:[[-0.07,-0.06,-0.42],[-0.5,-0.42,0]],   // (the grip, and the slide pointing on along the view)
-      drop:[[0.06,0.09,0.22,0x22262c,0,0.03,0],[0.06,0.14,0.07,0x22262c,0,-0.06,-0.07]]},
+      drop:[[0.06,0.09,0.22,0x22262c,0,0.03,0],[0.06,0.14,0.07,0x22262c,0,-0.06,-0.07]],
+      stow:[[0.09,0.2,0.15,0x14110e,0.29,0.4,0.03,'holster']]},   // (in its holster on the right hip)
     npc:{aim:'pistol',pose:'pistol'},   // (raised in both hands; up close an officer uses the club it also carries)
     player:{dur:0.16,lunge:0.01,cause:'Shot by a goblin',shake:0.02,rumble:0.14},
     crack:[[0.06,0.12,3400],[330,140,0.045,0.035]]},   // (sharper and shorter than a rifle's)
@@ -48,7 +50,8 @@ const WEAPONS={
     // (pointing on down past the hand, so it's level when the arm is raised to aim)
     model:{held:[[0.1,0.3,0.14,0x4a3420,0,0.04,0.06,'stock'],[0.07,0.62,0.07,0x22262c,0,-0.38,0.06,'gun'],[0.05,0.12,0.05,0x22262c,0,-0.12,0.13,'gun']],
       view:[[0.1,0.12,0.34,0x4a3420,0,0.02,-0.36,61],[0.07,0.07,0.78,0x22262c,0,0.07,-0.86,62],[0.05,0.12,0.05,0x22262c,0,-0.04,-0.6,62]],fore:[[0,-0.01,-0.92],[-0.62,-0.42,-0.1]],
-      drop:[[0.1,0.14,0.3,0x4a3420,0,0,-0.36],[0.07,0.07,0.7,0x22262c,0,0.02,0.12],[0.05,0.12,0.05,0x22262c,0,-0.07,-0.12]]},
+      drop:[[0.1,0.14,0.3,0x4a3420,0,0,-0.36],[0.07,0.07,0.7,0x22262c,0,0.02,0.12],[0.05,0.12,0.05,0x22262c,0,-0.07,-0.12]],
+      stow:[[0.1,0.3,0.14,0x4a3420,0.12,0.3,-0.25,'stock'],[0.07,0.62,0.07,0x22262c,0.12,0.74,-0.25,'gun']]},   // (slung upright on the back, the barrel up past the shoulder)
     npc:{strike:'butt',aim:'rifle',pose:'aim'},   // (up close, its butt: a rifle's the blow of whoever carries no blade or club)
     player:{dur:0.2,lunge:0.01,cause:'Shot by a goblin',shake:0.03,rumble:0.2},
     crack:[[0.09,0.14,2600],[220,90,0.06,0.04]]},
@@ -63,11 +66,11 @@ for(const k of WEAPON_ORDER){const W=WEAPONS[k];W.k=k;if(!W.player)continue;W.pl
   for(const s of ['dmg','range','breaks','r','reach','R','fuse'])if(W[s]!==undefined)W.player[s]=W[s];if(W.every!==undefined)W.player.cd=W.every;}
 // ---- what each kind of goblin carries: weapons, a list of keys in WEAPONS, on its own entry. The compounds', the
 // carrier's and the bases' people are in FOES (foes.js); the street's are here: an ordinary hostile goblin, a police
-// officer (any street goblin in police blue, armed by copArm: police-gun.js), the townsfolk, who carry nothing and run,
+// officer (any street goblin in police blue, armed as one by foeArm: foes.js), the townsfolk, who carry nothing and run,
 // and the cultists, whose spell is the fireball (cultists.js). Everything reads the list: the model (which weapons are
 // in its hands, a holster for a gun it carries beside a blade or club: goblinModel), the AI (a gun at range, the blade,
 // club or rifle butt up close, grenades when it throws: foeRanged and the chase in routes.js), what it drops (gobGear),
-// the online kit state (copKitState) and the Dev tab. How each kind uses its gun and grenades (gun, bomb), what its blow
+// what's in its hand, gun or blade (wkitState, foes.js; online too) and the Dev tab. How each kind uses its gun and grenades (gun, bomb), what its blow
 // is called (hitBy) and the fists of one with nothing to strike with (melee) are on the entry too; pack is anything it
 // carries but never uses, dropped when it's killed. So giving a goblin a new weapon is one edit to its list ----
 const GOB_FOES={
@@ -80,7 +83,7 @@ const wpnOfKind=(L,kind)=>(L||[]).find(k=>WEAPONS[k]&&WEAPONS[k].kind===kind)||n
 // nothing, its fists)
 const foeGunK=F=>wpnOfKind(F&&F.weapons,'gun'),foeThrowK=F=>wpnOfKind(F&&F.weapons,'throw');
 const foeMeleeK=F=>wpnOfKind(F&&F.weapons,'melee')||(F&&F.weapons||[]).find(k=>WEAPONS[k]&&WEAPONS[k].butt)||null;
-// (which kind a goblin is: one out of FOES, a cultist, one of the townsfolk, an officer (g.arms, set by copArm) or else
+// (which kind a goblin is: one out of FOES, a cultist, one of the townsfolk, an officer (g.arms, set by foeArm) or else
 // an ordinary hostile goblin)
 const foeOf=g=>g.arms||(g.foeKind?FOES[g.foeKind]:g.cultist?GOB_FOES.cultist:g.civ?GOB_FOES.civilian:GOB_FOES.goblin);
 // (goblinModel's options for a kind: its weapons in its hands, the grenade's colour, its spell)

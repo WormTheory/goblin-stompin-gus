@@ -104,3 +104,22 @@ function foeThrow(g,p,B6){const GR=WEAPONS.grenade;   // (its fuse, blast and da
   shot({kind:'grenade',x:x0,y:y0,z:z0,vx:(tx-x0)/T,vy:(ty-y0+0.5*Gv*T*T)/T,vz:(tz-z0)/T,grav:Gv,fuse:GR.fuse,R:GR.R,dmg:GR.dmg,cause:B6.cause,by:g.id,bounce:true,crush:GREN_CRUSH});
   if(audio)noise(0.2,0.04,500,'lowpass');
 }
+
+// ---- a gun and a blade or club: any enemy whose weapons list has both (a police officer's club and handgun) draws the gun
+// to aim and fire at range and puts it away (its model's stow: holstered, slung) for the blade or club up close. Which it
+// does is foeRanged's: inside its kind's gun.near it won't shoot, so the chase closes in and strikes ----
+// armed as kind F (an officer out of a police car, carjacked out of one, or the Testing Environment's: GOB_FOES.police),
+// if its model carries F's gun (only a street goblin's does: goblinModel)
+function foeArm(g,F){const gk=foeGunK(F);if(gk&&!(g.wkit&&g.wkit.k===gk))return;
+  g.arms=F;g.aim=0;g.aimK=null;g.gunCD=0.4+Math.random()*0.8;g.bombCD=foeThrowK(F)?3+Math.random()*3:99;g.relK=null;}
+// which is in hand: the gun while it's aimed and just after the shot, the blade or club the rest of the time, the gun put
+// away whenever it isn't out. 0 the blade or club alone (its kind carries no gun), 1 blade or club with the gun put away,
+// 2 the gun out (online guests are sent this: net-sync.js)
+const wkitState=g=>{const k=foeGunK(foeOf(g));if(!k||!g.wkit||g.wkit.k!==k)return 0;
+  return g.aim>0&&g.aimK==='gun'||(g.relS??9)<STRIKE_FT&&g.relK===WEAPONS[k].npc.pose?2:1;};
+function wkitShow(K,n){
+  if(K.shown===n)return;K.shown=n;   // (only when it changes: batDraw picks the change up)
+  for(const m of K.melee)m.visible=n!==2;for(const m of K.gun)m.visible=n===2;for(const m of K.stow)m.visible=n===1;
+}
+// (in the game: put away once it's dead, or calmed down by the hostility setting with a shot half aimed)
+const wkitTick=g=>{const n=wkitState(g);wkitShow(g.wkit,n===2&&(g.state!=='chase'||calmNow())?1:n);};

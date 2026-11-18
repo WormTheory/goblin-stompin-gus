@@ -228,7 +228,7 @@ function renderControls(){
 }
 renderControls();
 function addHostile(){
-  const g=makeGoblin({weapons:GOB_FOES.police.weapons});g.t=Math.random()*6;   // (any of them may be sent out as police, so all carry an officer's weapons, the handgun hidden till then: police-gun.js)
+  const g=makeGoblin({weapons:GOB_FOES.police.weapons});g.t=Math.random()*6;   // (any of them may be sent out as police, so all carry an officer's weapons, the handgun hidden till then: foeArm, foes.js)
 }
 for(let i=0;i<16;i++)addHostile();
 // civilians: shoppers, commuters and stall vendors who never fight back
