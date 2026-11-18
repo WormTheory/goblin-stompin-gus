@@ -286,6 +286,7 @@ function shipSink(S){
   const K=S.K,big=K.hp>=1000,c=shipToWorld(S,S.ox+(K.u0+K.u1+1)/2,S.oz+(K.w0+K.w1+1)/2,{x:0,z:0});
   blastFx(c.x,G+4,c.z,1,big?4:2);smoke(c.x,G+4,c.z,big?30:12,0x262626);noise(1.2,1,500,'lowpass');tone('sawtooth',55,14,1.4,.35);addShake(big?1:.5,c.x,c.z,big?120:40);
   award(K.sc||1000,'The '+K.name+' sunk',c.x,G+6,c.z);
+  if(S.kind!=='wreck'&&VEHICLE_KINDS.ship.rampage)RAMP.cars++;   // (once a ship: not again for an end broken off it, see ship-break.js)
 }
 // going down: slowly at first, then faster, steam where the water meets it and smoke from it, everyone the water reaches
 // washed off into the sea; gone once it's under

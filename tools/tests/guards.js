@@ -19,7 +19,7 @@ const EXPECTED=new Set([
   // (ships and their deck weapons aren't online at all yet: a guest has no ship. See the registry's note)
   'barge: net','carrier: net','mount: net',
   // (the carrier loses health only from its blocks, by design: shipHit leaves it alone)
-  'carrier: damage','carrier: points',
+  'carrier: damage','carrier: points','carrier: rampage',
 ]);
 const seen=new Set(),out=[];let newGaps=0,fixed=0;
 const check=(who,what,ok,info)=>{const k=who+': '+what;seen.add(k);const exp=EXPECTED.has(k);
@@ -76,7 +76,8 @@ let kx=-600;for(const t of kinds){
     E('fireRound')({x:c.x-c.r-6,y:c.y,z:c.z,dir:{x:1,y:0,z:0},range:c.r+12,step:0.2,by:P,gobs:true,gb:[0.45,0,1.5],dmg:2,cause:'test',vehs:true,vd:6,ship:true});
     check(fam==='car'?t:fam,'bullets',hpOf(D)<h1,h1+' -> '+hpOf(D));}}
   // destroyed (nobody in it): points for it
-  {const s0=E('score');hurt(D,1e5);run(0.2);check(fam==='car'?t:fam,'points',E('score')>s0,'score unchanged');}
+  {const s0=E('score'),r0=E('RAMP').cars;hurt(D,1e5);run(0.2);check(fam==='car'?t:fam,'points',E('score')>s0,'score unchanged');
+   check(fam==='car'?t:fam,'rampage',E('RAMP').cars===r0+1,'vehicles destroyed '+r0+' -> '+E('RAMP').cars);}
   // online: is its health sent to guests? (cars in the car snapshot, a Mobile Gear in its own, the rest by venue)
   {let ok=false;if(D.k==='car')ok=true;else if(D.k==='mech')ok=E('NET_MGK').includes('hp');
    else{const L=E('netVenueHP')({});ok=L.some(([vk])=>{const V=T.venues.get(vk);return V&&(V===D.V||V.mil&&V.mil.includes(D.o)||V.pl&&V.pl.includes(D.o)||V.bo===D.o||V.T===D.o);});}
@@ -97,12 +98,14 @@ let kx=-600;for(const t of kinds){
     check('mount','bullets',Mt.hp<h1,h1+' -> '+Mt.hp);}else check('mount','bullets',false,'no box in the world');}
   const h0=Mt.hp,w=P.drv;P.drv=D;DT.invuln=true;shoot(P,1,null,new V3(1,0,0),'test','t');const h1=Mt.hp;DT.invuln=false;shoot(P,1,null,new V3(1,0,0),'test','t');const h2=Mt.hp;P.drv=w;
   check('mount','invuln',h1===h0,h0+' -> '+h1);check('mount','damage',h2<h1,h1+' -> '+h2+' (its own health)');
-  const s0=E('score');E('trainHit')(Mt,1e5);check('mount','points',E('score')>s0);
+  const s0=E('score'),r0=E('RAMP').cars;E('trainHit')(Mt,1e5);check('mount','points',E('score')>s0);check('mount','rampage',E('RAMP').cars===r0+1,r0+' -> '+E('RAMP').cars);
   check('mount','net',false);}
  flush('vehicle carrier deck weapon');}
 // a train being driven, with Invulnerability on (a stand-in train: there are no railways here)
 {const g={position:new V3(),rotation:{},traverse(){}},Tr={cars:[g,g],C:{}},w=P.drv;P.drv={k:'train',o:Tr,ci:0};DT.invuln=true;E('trainHit')(Tr,10,undefined,0);DT.invuln=false;P.drv=w;
- {const h=Tr.carHP?Tr.carHP[0]:E('CAR_HP');check('train','invuln',h===E('CAR_HP'),'car hp '+h);}flush('vehicle train (stand-in)');}
+ {const h=Tr.carHP?Tr.carHP[0]:E('CAR_HP');check('train','invuln',h===E('CAR_HP'),'car hp '+h);}
+ // (This rampage counts each train car wrecked)
+ {const r0=E('RAMP').cars;E('trainHit')(Tr,1e5,undefined,0);check('train','rampage',E('RAMP').cars===r0+1,r0+' -> '+E('RAMP').cars);}flush('vehicle train (stand-in)');}
 console.log('families covered:',Object.entries(did).map(([k,n])=>k+(n>1?' x'+n:'')).join(', '),'| not spawnable here: boats, trains, subways, two-seater planes');
 
 // ==== the registry itself: every kind has what the shared code reads ====

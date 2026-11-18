@@ -197,6 +197,7 @@
 - The Dev tab's Enemies section now has the soldiers who crew the military bases' tanks and helicopters, with every animation the other armed enemies have.
 - The aircraft carrier's deck weapons gather snow in a blizzard like every other vehicle (its decks already did).
 - Every weapon now works the same whoever carries it, you or the enemy. Rifles hit for a full heart, reach 48 blocks and fire once a second; handguns hit for three quarters of a heart, reach 30 and fire every half second; both chip away at the wall they hit, the enemies' rounds too, so cover doesn't last for ever. Daggers stab for a full heart every half second, clubs hit for half a heart every 0.8 s, and grenades are the same for everyone. Enemy rifles and police handguns hit harder and fire faster than before, while Gnash and Grizzle fire and swing a little slower. Enemies still take a moment to aim and miss more from far off.
+- The pause menu's This rampage card counts "Vehicles destroyed" instead of "Cars totaled": every vehicle you wreck now counts, not just cars. Tanks, helicopters, planes, boats, hot-air balloons, Mobile Gears, the carrier's deck weapons, each car of a train you wreck, and a ship you sink.
 - Grenades, shells and rockets now hurt zoo animals, the Ferris wheel's rim and the carousel, as stomps already did, and a shell or rocket goes off when it hits an animal.
 
 ## Version 0.4.1

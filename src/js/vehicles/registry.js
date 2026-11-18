@@ -6,9 +6,9 @@
 // The switches: snow, gathers snow on top (true: updateVehSnow does it; 'blocks': it's made of real blocks, whose
 // chunks settle snow on their open tops like the ground's, aSky in meshing.js, so there's nothing to add); smoke, smokes once its health is under that share of the whole (and burns
 // under half of it); pts, points for destroying it (and label, what the award says); rampage, counted among the
-// cars totaled in This rampage; invuln, Invulnerability covers it while someone drives it (drvSafe); net, its health
+// vehicles destroyed in This rampage (every kind: a train by the car, a ship once when it sinks); invuln, Invulnerability covers it while someone drives it (drvSafe); net, its health
 // sent to guests by its venue (netOwn: in a snapshot of its own); bullets and blasts, what can hurt it.
-const VEHICLE_BASE={snow:true,smoke:0.5,pts:0,label:null,rampage:false,invuln:true,net:true,netOwn:false,bullets:true,blasts:true,impact:false};
+const VEHICLE_BASE={snow:true,smoke:0.5,pts:0,label:null,rampage:true,invuln:true,net:true,netOwn:false,bullets:true,blasts:true,impact:false};
 // Each kind: venue, the kind of venue its vehicles are kept in, and list(V) those in one (a car has none: they're the
 // traffic, cars); pos(o) where it stands; top(o) how far above that its health bar goes (a hit's number a little
 // higher); mid(o) where a hit's sparks fly; hp(o,i) and max(o) its health (i: a train's car); dead(o); shown(o), whether
@@ -57,7 +57,7 @@ function vehEach(fn){for(const V of venues.values()){const ks=VEH_BY_VENUE[V.kin
 function vehDamage(k,o,n){const K=VEHICLE_KINDS[k];if(K.dead(o)||K.invuln&&drvSafe(o))return 0;if(K.impact)n=impHit(o,n);
   const P=K.pos(o),x=P.x,y=P.y,z=P.z;dmgPop(x,y+K.top(o),z,Math.round(n),'#ffb04a');o.hp-=n;vHitFx(x,y+K.mid(o),z,n);
   if(o.hp>0)return 1;
-  o.dead=true;o.deadT=0;const pts=K.pts(o);if(pts&&BLAME!=='acc'){award(pts,K.label(o),x,y+K.top(o)+1,z);if(K.rampage)RAMP.cars++;}
+  o.dead=true;o.deadT=0;const pts=K.pts(o);if(BLAME!=='acc'){if(pts)award(pts,K.label(o),x,y+K.top(o)+1,z);if(K.rampage)RAMP.cars++;}
   return 2;}
 // smoke off a badly hurt vehicle, from where it is (x,y,z), by its health as its kind reads it (a guest: the host's)
 function vehSmoke(k,o,x,y,z,dt,i){const K=VEHICLE_KINDS[k];if(!(K.smoke>0))return;vDamaged(x,y,z,netHp(o,K.hp(o,i))/K.max(o),dt,K.smoke);}

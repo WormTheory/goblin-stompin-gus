@@ -1,5 +1,5 @@
 // ---------- This rampage: the pause menu's stats card ----------
-// Beside the pause menu's buttons: goblins slain, score, the best combo, cars totaled (wrecked by a player, not
+// Beside the pause menu's buttons: goblins slain, score, the best combo, vehicles destroyed (any kind, wrecked by a player, not
 // by accident), buildings demolished (each brought down by a player once, however many times it gives way: rampBldg),
 // settlements razed (every building in them down, rampRazeTick), and where and when you are. Kept for the city you're
 // in, so a new city starts them again (rampReset); online, a guest gets the host's in the snapshot (m.sc) like the score.
