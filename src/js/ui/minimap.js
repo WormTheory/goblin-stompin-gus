@@ -76,22 +76,9 @@ function updateSpeedo(p,dt){
   p.spX=x;p.spY=y;p.spZ=z;
   if(raw>400){raw=0;rawY=0;}   // a respawn or teleport isn't speed
   const kk=Math.min(1,dt*7);p.spV=(p.spV||0)+(raw-(p.spV||0))*kk;p.spVY=(p.spVY||0)+(rawY-(p.spVY||0))*kk;
-  // (only shown in a vehicle, driving or in the gunner's seat; on foot it's hidden, though the speed's still kept up, so it reads right the moment you get in)
-  const inV=!!p.drv;if(p.ui.speedo.hidden===inV)p.ui.speedo.hidden=!inV;if(!inV)return;
-  p.spT=(p.spT||0)-dt;if(p.spT>0)return;p.spT=1/20;   // redraw at 20 Hz
-  const v=Math.max(0,p.spV),k=Math.min(1,v/SPEEDO_MAX),shown=Math.round(v);
-  if(shown!==p.spShown){p.spShown=shown;p.ui.spNum.textContent=String(shown);}
-  // a crash landing is coming when you're falling from 5+ blocks above the ground (or ground-pounding)
-  let crash=false;
-  if(!C&&!p.grounded&&p.vy<0){const gnd=groundAt(p.pos.x,p.pos.z,p.pos.y);crash=p.state==='pound'||abilOf(p).crash&&((p.peakY??p.pos.y)-gnd)>=5;}
-  const vy=Math.round(p.spVY),vtxt=crash&&vy<-2?'↓ '+Math.abs(vy):'';
-  // colour by how hard the landing will be: yellow, then orange, then red
-  const heat=-vy<70?'y':-vy<95?'o':'r';
-  if(vtxt!==p.spVShown){p.spVShown=vtxt;p.ui.spVert.textContent=vtxt;p.ui.spVert.setAttribute('visibility',vtxt?'visible':'hidden');}
-  if(heat!==p.spHeat){p.spHeat=heat;p.ui.spVert.setAttribute('class','sp-vert '+heat);}
-  p.ui.spNeedle.setAttribute('transform','rotate('+(-120+240*k).toFixed(1)+')');
-  p.ui.spFill.setAttribute('stroke-dasharray',(k*100).toFixed(1)+' 200');p.ui.spFill.setAttribute('visibility',k<0.01?'hidden':'visible');
-  p.ui.spFill.setAttribute('stroke',k<0.55?'#7fc24a':k<0.8?'#f0a04a':'#e0564a');
+  // (only shown in a vehicle, and then as the instrument that vehicle has, its kind's inst: see instruments.js; on foot
+  // it's hidden, though the speed's still kept up, so it reads right the moment you get in)
+  instTick(p,dt);
 }
 let camClock=0;   // real seconds, for camera effects (they run on even when the game is slowed)
 function placeCamera(p){

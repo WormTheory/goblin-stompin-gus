@@ -65,7 +65,7 @@ function drvHud(p){
   set('n',H.name,(D.seat==='gun'?'Gunner  ·  ':'')+drvName(D).replace(/^./,c=>c.toUpperCase())+'  ·  '+Math.max(0,Math.ceil(hp))+' / '+Math.round(max));
   const w=(f*100).toFixed(1)+'%';if(H.txt.hpw!==w){H.txt.hpw=w;H.fill.style.width=w;H.fill.style.background=f>0.5?'#7fc24a':f>0.25?'#f0a04a':'#e0564a';}
   if(H.lastHp!==undefined&&hp<H.lastHp)H.hitT=camClock;H.lastHp=hp;H.box.classList.toggle('hit',camClock-(H.hitT??-9)<0.25);
-  const bl=id=>btnMark(p.pad?bindGlyph('pad',BINDS[id].pad[p.pad&&id==='bite'?1:0]??BINDS[id].pad[0]):bindGlyph('kb',BINDS[id].kb[0])),out=drvKey(p);
+  const bl=id=>(id=ctxId(p,id),btnMark(p.pad?bindGlyph('pad',BINDS[id].pad[p.pad&&id==='bite'?1:0]??BINDS[id].pad[0]):bindGlyph('kb',BINDS[id].kb[0]))),out=drvKey(p);
   const lk=bl('lock'),LT=p.lockT,W=armed&&o.wpn?Object.values(o.wpn):[],w0=W[0],ready=!w0||w0.rl<=0&&w0.n>0;
   // (the other seat, if it's free: the weapon button moves you to it. See gunner.js)
   const sw=drvSwapTo(p)?'  ·  '+bl('weapon')+(D.seat==='gun'?' drive':' man the gun'):!armed&&o.gnr&&(D.k==='tank'||D.k==='heli')?'  ·  Your gunner has the guns':'';
@@ -114,15 +114,11 @@ function planeHud(F,pl){if(!F)return'Throttle 0%';const LIFT=pl&&pl.light?LIGHT_
 // about them on getting in), each ending in '  ·  ' so the rest follows
 function drvHow(p,D,armed){const A=id=>actMark(p,id),G=armed?D.k==='heli'?A('bite')+' gun  ·  '+A('stomp')+' rockets  ·  ':D.k==='plane'?A('bite')+' cannon  ·  '+A('stomp')+' missiles  ·  ':D.k==='tank'||D.seat==='gun'?A('bite')+' fire  ·  ':'':'';
   if(D.seat==='gun')return G;
-  if(D.k==='mount')return D.o.kind==='ciws'?A('bite')+' fire (hold)  ·  ':A('bite')+' launch'+(D.o.kind==='sparrow'?' (lock on first)':'')+'  ·  ';
-  if(D.k==='ship')return shipHow(p,D.o);
-  if(D.k==='heli')return A('jump')+' climb  ·  '+A('climb')+' drop  ·  '+G;
-  if(D.k==='balloon')return A('jump')+' burner (rise)  ·  '+A('climb')+' vent (sink)  ·  Move to drift  ·  ';
-  // (a jet's arresting hook, for landing on a carrier: carrier-jets.js)
-  if(D.k==='plane'){const hk=D.o.jet?A('weapon')+(D.o.hook?' hook up':' hook down')+'  ·  ':'';
-    return p.pad?'Stick up/down throttle  ·  Stick left/right bank  ·  '+A('jump')+' pull up  ·  '+A('climb')+' push down  ·  '+G+hk
+  const K=VEHICLE_KINDS[D.k];return K?K.how(p,D,armed,G):G;}
+// a plane's (a jet's arresting hook too, for landing on a carrier: carrier-jets.js)
+function planeHow(p,D,armed,G){const A=id=>actMark(p,id),hk=D.o.jet?A('weapon')+(D.o.hook?' hook up':' hook down')+'  ·  ':'';
+  return p.pad?'Stick up/down throttle  ·  Stick left/right bank  ·  '+A('jump')+' pull up  ·  '+A('climb')+' push down  ·  '+G+hk
     :A('fwd')+'/'+A('back')+' nose down/up  ·  '+A('left')+'/'+A('right')+' bank  ·  '+A('jump')+'/'+A('climb')+' throttle up/down  ·  '+G+hk;}
-  return G;}
 // on his way down a ramp he stays on it, instead of falling a little and landing every few steps
 function stickToRamp(p,g){
   if(!p.grounded||p.state!=='walk'||p.standCar||p.dodge||p.pos.y-g>=0.4)return false;

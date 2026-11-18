@@ -95,6 +95,7 @@ ui/rampage.js
 ui/game-feel.js
 core/loop.js
 ui/minimap.js
+ui/instruments.js
 render/far-city.js
 render/daynight.js
 net/net-core.js

@@ -137,7 +137,7 @@ function frame(now,bg){   // (bg: a tab in the background while online, kept goi
   const nSub=Math.max(1,Math.ceil(gdt/0.05)),sdt=gdt/nSub;
   for(let sI=0;sI<nSub;sI++){
     if(netG){netGuestStep(sdt,sI===0);continue;}   // (a guest online: the host's game does the playing, see net/net-sync.js)
-    if(sI>0)for(const p of players){const I=p.in;I.jumpPress=I.bitePress=I.lockPress=I.chargePress=I.dashPress=I.sprintPress=false;for(const k of MG_PRESS)I[k]=false;}
+    if(sI>0)for(const p of players){const I=p.in;I.jumpPress=I.bitePress=I.lockPress=I.chargePress=I.dashPress=I.sprintPress=false;for(const k of CTX_PRESS)I[k]=false;}
     for(const p of players){DBG_WHO='p';safe('player',()=>updatePlayer(p,sdt));DBG_WHO='n';}
     safe('goblins',()=>updateGoblins(sdt));safe('fireballs',()=>{updateFireballs(sdt);updateShots(sdt);gobPickups(sdt);});safe('cars',()=>updateCars(sdt));safe('stations',()=>updateStations(sdt));safe('services',()=>updateServices(sdt));
     safe('traffic',()=>updateTraffic(sdt));safe('ships',shipCrossAll);for(const p of players)if(p.drv)safe('drive',()=>drvSeat(p));for(const p of players)if(p.vcl&&p.state==='climb')safe('vpin',()=>vRepin(p));safe('spikes',()=>updateSpikes(sdt));safe('weather',()=>updateWeather(sdt));safe('sky',()=>updateSky(sdt));

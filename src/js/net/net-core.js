@@ -143,7 +143,7 @@ function netHostLeft(peer){
 }
 // a guest's controls: what's held now replaces what was held; a press counts once, on the host's next frame, however many
 // of the guest's frames it was spread over (and none is lost between two of them)
-const NET_HELD=['charge','stomp','bite','jump','dash','sprint','climb','use','weapon','kbd',...MG_IDS],NET_PRESS=['chargePress','bitePress','jumpPress','lockPress','dashPress','sprintPress',...MG_PRESS];
+const NET_HELD=['charge','stomp','bite','jump','dash','sprint','climb','use','weapon','kbd',...CTX_IDS],NET_PRESS=['chargePress','bitePress','jumpPress','lockPress','dashPress','sprintPress',...CTX_PRESS];
 function netGotInput(p,m){
   const N=p.net;if(typeof m.n==='number'&&m.n<=(N.inN||0))return;N.inN=m.n;N.inAt=NET.now;
   N.inb=m;if(Number.isFinite(m.vt))N.vt=m.vt;if(m.pr&&(m.pr.bitePress||m.pr.chargePress)||m.h&&(m.h.bite||m.h.stomp))N.atkAt=NET.now;
@@ -156,7 +156,7 @@ function netHostInputs(){
   for(const p of NET.guests.values()){const N=p.net,I=p.in,m=N.inb;
     for(const k in I)if(typeof I[k]==='boolean')I[k]=false;I.x=I.z=0;I.lookX=I.lookY=0;
     if(!m||p.paused)continue;
-    I.x=Math.max(-1,Math.min(1,+m.x||0));I.z=Math.max(-1,Math.min(1,+m.z||0));I.lookX=+m.lx||0;I.lookY=+m.ly||0;
+    I.x=Math.max(-1,Math.min(1,+m.x||0));I.z=Math.max(-1,Math.min(1,+m.z||0));I.lookX=+m.lx||0;I.lookY=+m.ly||0;I.rt=Math.max(0,Math.min(1,+m.rt||0));I.lt=Math.max(0,Math.min(1,+m.lt||0));
     for(const k of NET_HELD)I[k]=!!(m.h&&m.h[k]);
     for(const k of NET_PRESS){I[k]=!!N.pr[k];N.pr[k]=false;}
     I.chargeHeld=I.charge;
@@ -292,7 +292,7 @@ function netSendInput(dt){
   NET.inT-=dt*1000;if(NET.inT>0)return;NET.inT+=1000/NET_IN_HZ;if(NET.inT<0)NET.inT=0;
   const h={};for(const k of NET_HELD)if(I[k]||NET_IN.hh[k])h[k]=1;NET_IN.hh={};
   const pr={};for(const k in NET_IN.pr)pr[k]=1;
-  const m={t:'in',n:++NET.seq,vt:NET.off===null?null:Math.round(NET.rt!==null?NET.rt:NET.now-NET.off-NET.dly),x:+(I.x||0).toFixed(3),z:+(I.z||0).toFixed(3),lx:+(I.lookX||0).toFixed(2),ly:+(I.lookY||0).toFixed(2),h,pr,yaw:+(P1.cam.yaw+netFrameYaw(P1)).toFixed(4),pitch:+P1.cam.pitch.toFixed(4)};
+  const m={t:'in',n:++NET.seq,vt:NET.off===null?null:Math.round(NET.rt!==null?NET.rt:NET.now-NET.off-NET.dly),x:+(I.x||0).toFixed(3),z:+(I.z||0).toFixed(3),lx:+(I.lookX||0).toFixed(2),ly:+(I.lookY||0).toFixed(2),h,pr,rt:+(I.rt||0).toFixed(2),lt:+(I.lt||0).toFixed(2),yaw:+(P1.cam.yaw+netFrameYaw(P1)).toFixed(4),pitch:+P1.cam.pitch.toFixed(4)};
   if(NET_IN.fl[0]||NET_IN.fl[1])m.fl=NET_IN.fl.slice();
   NET_IN.pr={};NET_IN.fl[0]=NET_IN.fl[1]=0;
   netPredSent(m.n);NET.tr.send(m,NET.host);

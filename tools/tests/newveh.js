@@ -97,9 +97,9 @@ const fly=jet=>{clear();P.cam.yaw=Math.PI;T.tenvSpawnOne(jet?'jet':'plane');run(
   const g=pl.g;beside(g.position.x,g.position.y+0.3,g.position.z,g.rotation.y,1.25);run(0.05);tap();if(!P.drv){console.log('could not get in');return null;}
   const y0=g.position.y;let tOff=null,t=0;
   // (throttle up, then pull up once fast enough)
-  for(let i=0;i<300&&tOff===null;i++){hold(['Space'].concat(pl.free&&pl.free.v>30?['KeyS']:[]),0.1);t+=0.1;if(g.position.y>y0+2)tOff=t;}
-  for(let i=0;i<30;i++)hold(['Space','KeyS'],0.1);
-  for(let i=0;i<120;i++)hold(['Space'],0.1);
+  for(let i=0;i<300&&tOff===null;i++){hold(['ShiftLeft'].concat(pl.free&&pl.free.v>30?['KeyS']:[]),0.1);t+=0.1;if(g.position.y>y0+2)tOff=t;}
+  for(let i=0;i<30;i++)hold(['ShiftLeft','KeyS'],0.1);
+  for(let i=0;i<120;i++)hold(['ShiftLeft'],0.1);
   const F=pl.free,v12=F.v;hold(['KeyA'],0.5);const r1=F.rl;run(0.1);
   console.log((jet?'fighter jet':'airliner')+': off the ground after',tOff===null?'never':f1(tOff)+' s',' speed after 12 s more at full throttle',f1(v12),' height',f1(g.position.y-y0),' bank after half a second of A',f2(r1),' dead',pl.dead);
   const H=P.ui.drvHud;console.log('  controls:',hudT(H&&H.txt.w).split('  ·  ').slice(0,9).join(' | '));
@@ -114,7 +114,7 @@ fly(false);fly(true);
  const h=g.rotation.y,tx=Math.sin(h),tz=Math.cos(h),A=T.venues.get('tenvArmy');
  P.cam.yaw=h+Math.PI;run(0.1);const pp=P.pos.clone();P.pos.set(g.position.x,P.pos.y,g.position.z);T.tenvSpawnOne('tank');P.pos.copy(pp);run(0.3);
  const M=T.venues.get('tenvArmy')&&T.venues.get('tenvArmy').mil.slice(-1)[0];
- if(M){const hp0=M.hp;P.cam.yaw=Math.atan2(-(M.x-P.camera.position.x),-(M.z-P.camera.position.z));P.cam.pitch=-0.1;run(0.2);hold(['KeyQ'],0.05);run(0.1);
+ if(M){const hp0=M.hp;P.cam.yaw=Math.atan2(-(M.x-P.camera.position.x),-(M.z-P.camera.position.z));P.cam.pitch=-0.1;run(0.2);T.mHeld.add('Mouse1');run(0.05);T.mHeld.delete('Mouse1');run(0.1);
    console.log('  locked on the tank',P.lockT&&P.lockT.T===M||P.lockT===M||!!(P.lockT&&P.lockT.kind==='tank'),' tank',f1(Math.hypot(M.x-g.position.x,M.z-g.position.z)),'off');
    T.mHeld.add('Mouse2');run(0.05);T.mHeld.delete('Mouse2');const ms=T.SHOTS.filter(s=>s.kind==='missile').length;run(4);
    console.log('  a missile away',ms>0,' tank hp',f1(hp0),'->',f1(M.hp),' missiles left',pl.wpn.rkt.n);}

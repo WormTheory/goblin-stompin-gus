@@ -222,17 +222,21 @@ function drvCamera(p){
 }
 // driving a car: much as a hunting car drives itself (updateCars does the rest: the ground, walls, what it runs into)
 function drvCar(c,dt){
-  const i=drvIn(c.drv),thr=-i.z,st=-i.x,V=c.veh,top=V==='super'?62:V==='forklift'?8:V==='tractor'?11:V==='hover'?27:V==='semi'||V==='bus'?17:V==='car'?24:V==='bike'?28:V==='quad'?22:20;
-  // (a supercar pulls hard, a forklift barely, a tractor steadily up to a crawl; a hovercraft has no wheels to brake with)
-  const acc=V==='super'?24:V==='forklift'?5:V==='tractor'?7:V==='hover'?8:10,brk=V==='hover'?7:26;
+  const i=drvIn(c.drv),thr=drvThr(i),st=-i.x,V=c.veh,Hd=handOf(V||'car'),top=Hd.top;
+  // (its numbers are its handling profile, HANDLING: a supercar pulls hard, a forklift barely, a tractor steadily up to a
+  // crawl; a hovercraft has no wheels to brake with)
+  const acc=Hd.acc,brk=Hd.brk;
   if(c.grounded||rampUnder(c.pos.x,c.pos.z,c.pos.y+0.5)){
-    if(thr>0.1)c.speed+=(c.speed<0?brk:acc*(V==='super'?Math.max(0.45,1-c.speed/90):1))*thr*dt;else if(thr<-0.1)c.speed-=(c.speed>0?brk:Math.min(acc,8))*-thr*dt;else c.speed*=Math.exp(-dt*(V==='hover'?0.35:0.9));}
-  c.speed=Math.max(V==='forklift'||V==='tractor'?-6:-8,Math.min(top,c.speed));
-  c.steer+=(st-c.steer)*Math.min(1,dt*8);c.heading+=c.steer*dt*Math.max(-1,Math.min(1,c.speed/5))*(V==='super'?1.7*Math.max(0.45,1-Math.abs(c.speed)/110):1.7);
+    if(thr>0.1)c.speed+=(c.speed<0?brk:acc*(Hd.accFall?Math.max(0.45,1-c.speed/Hd.accFall):1))*thr*dt;else if(thr<-0.1)c.speed-=(c.speed>0?brk:Math.min(acc,8))*-thr*dt;else c.speed*=Math.exp(-dt*Hd.coast);}
+  c.speed=Math.max(-Hd.rev,Math.min(top,c.speed));
+  c.steer+=(st-c.steer)*Math.min(1,dt*8);c.heading+=c.steer*dt*Math.max(-1,Math.min(1,c.speed/5))*Hd.steer*(Hd.fall?Math.max(0.45,1-Math.abs(c.speed)/Hd.fall):1);
   if(V==='hover')hovDrift(c,dt);
   if(c.veh==='fire'){drvHose(c,i,dt);const hp=i.stomp&&!c.stHeld;c.stHeld=i.stomp;if(hp&&c.honkT<=0){horn(0.12);c.honkT=0.4;}}   // (a fire engine: bite sprays water, stomp sounds the horn. See hose.js)
   else if(i.bitePress&&c.honkT<=0){horn(0.12);c.honkT=0.4;}   // (bite sounds the horn)
 }
+// the throttle from the controls, -1 (full brake or reverse) to 1: on a controller the triggers, as far as they're
+// pulled (RT throttle, LT brake), or else the stick; on the keyboard W and S
+function drvThr(i){const t=(i.rt||0)-(i.lt||0);return Math.abs(t)>0.05?t:-i.z;}
 // a hovercraft slides: the way it's going only slowly comes round to the way it points (updateCars moves it along its
 // heading; this adds the rest, sideways, where there's nothing in the way)
 function hovDrift(c,dt){const vx=Math.sin(c.heading)*c.speed,vz=Math.cos(c.heading)*c.speed;if(!c.hvel)c.hvel={x:vx,z:vz};const H=c.hvel,k=Math.min(1,dt*1.5);

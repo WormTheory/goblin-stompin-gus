@@ -134,6 +134,11 @@
 ### Vehicle controls
 
 - In every vehicle, its controls are listed down the left side of the screen, one to a line, instead of along the bottom. The controls line for on foot is hidden while you drive.
+- Every kind of vehicle has its own set of controls, each with its own section in Controls to rebind: cars and trucks, the forklift, the tractor, the tank, the helicopter, planes, boats and ships, trains and the hot-air balloon, as the Mobile Gear already had. Keys only clash within the same set, so the same key can do different things in different vehicles. Steering and the throttle are still the walking keys and the left stick; Get in / out, Lock on and the online chat keys work everywhere.
+- On a controller, the triggers are now an analog throttle and brake in cars: squeeze RT to go, LT to brake and reverse.
+- Planes: on the keyboard the throttle is now Left Shift and C (Space is the brakes); on a controller RT and LT. Lock on in a plane is the middle mouse button (R3), so Q and E are free for the rudder.
+- Tanks fire with RT on a controller, helicopters fire their gun with RT and rockets with LT, and LB and RB descend and climb.
+- Options: the Speedometer switch is now Vehicle instruments.
 
 ### Map markers
 

@@ -204,6 +204,16 @@ const padPrev=new Map();let padCount=-1;
 const DZ=0.18,dead=v=>Math.abs(v)<DZ?0:(v-Math.sign(v)*DZ)/(1-DZ);
 function connectedPads(){let ps=[];try{ps=navigator.getGamepads?Array.from(navigator.getGamepads()):[];}catch(e){}return ps.filter(p=>p&&p.connected).sort((a,b)=>a.index-b.index);}
 function rumble(p,s,ms){try{const pad=p&&p.pad;if(pad&&pad.vibrationActuator)pad.vibrationActuator.playEffect('dual-rumble',{duration:ms,strongMagnitude:Math.min(1,s),weakMagnitude:Math.min(1,s*0.6)});}catch(e){}}
+// in a vehicle, its own controls (its control context, ctx in VEHICLE_KINDS) take the place of the ones on foot: those
+// the vehicle reads under their old names (as: a car's horn is still bite) are filled from it, the rest left off
+const CTX_PRESSES={bite:'bitePress',jump:'jumpPress',charge:'chargePress',dash:'dashPress',sprint:'sprintPress'};
+function ctxApply(p){const cx=p.drv&&!p.drv.jack?drvCtx(p.drv):null;if(!cx||cx==='mg')return;const i=p.in;
+  for(const k of CTX_TAKES){i[k]=false;if(CTX_PRESSES[k])i[CTX_PRESSES[k]]=false;}
+  let lock=null;
+  for(const a of ACTS){if(a.ctx!==cx||!a.as)continue;const h=!!i[a.id],pr=!!i[a.id+'P'];
+    if(a.as==='lock'){lock=(lock||false)||pr;continue;}
+    i[a.as]=i[a.as]||h;if(CTX_PRESSES[a.as])i[CTX_PRESSES[a.as]]=i[CTX_PRESSES[a.as]]||pr;}
+  if(lock!==null)i.lockPress=lock;}
 function readInputs(dt){
   const pads=connectedPads();
   if(pads.length!==padCount){padCount=pads.length;document.getElementById('padNote').textContent=padCount===0?'No controllers found yet. Press a button on one to wake it up.':padCount===1?'1 controller ready. Press A or Start to play. For co-op, plug in a second controller, or pick Co-op to play keyboard + controller.':padCount+' controllers ready. Press Start on the second one for co-op.';}
@@ -215,7 +225,7 @@ function readInputs(dt){
   else{s1=st[0]||null;s2=st[1]||null;}
   if(s1)P1.pad=s1.p;if(s2&&P2.active&&!P2.net)P2.pad=s2.p;
   P2.ui.join.hidden=!(P2.active&&!P2.pad);
-  for(const p of players){const i=p.in;i.x=0;i.z=0;i.charge=false;i.chargePress=false;i.stomp=false;i.bite=false;i.bitePress=false;i.jumpPress=false;i.jump=false;i.lockPress=false;i.dash=false;i.dashPress=false;i.sprint=false;i.sprintPress=false;i.lookX=0;i.lookY=0;i.climb=false;i.use=false;i.weapon=false;i.talk=false;i.kbd=false;for(const k of MG_IDS)i[k]=i[k+'P']=false;}
+  for(const p of players){const i=p.in;i.x=0;i.z=0;i.charge=false;i.chargePress=false;i.stomp=false;i.bite=false;i.bitePress=false;i.jumpPress=false;i.jump=false;i.lockPress=false;i.dash=false;i.dashPress=false;i.sprint=false;i.sprintPress=false;i.lookX=0;i.lookY=0;i.climb=false;i.use=false;i.weapon=false;i.talk=false;i.kbd=false;i.rt=i.lt=0;for(const k of CTX_IDS)i[k]=i[k+'P']=false;}
   // (rebinding a control in the menu: the next button pressed on any controller is the one)
   if(menuOpen&&BIND_CAP){if(performance.now()-BIND_CAP.t>200)for(const s of st){const i=s.pr.findIndex(Boolean);if(i<0)continue;
       if(BIND_CAP.dev==='pad'){if(PAD_RESERVED.has(i))bindCancel();else setBind(BIND_CAP.id,'pad',BIND_CAP.i,i);}else if(i===1||i===9)bindCancel();break;}
@@ -262,7 +272,7 @@ function readInputs(dt){
     I.kbd=!P1.pad;   // (flying on the keyboard: a plane is flown WASD-style, see drvPlane; the same rule as the hints' p.pad)
     I.charge=A.dashSprint;I.chargePress=A.dashSprintP;I.dash=A.dash;I.dashPress=A.dashP;I.sprint=A.sprint;I.sprintPress=A.sprintP;
     I.stomp=A.stomp;I.jumpPress=A.jumpP;I.jump=A.jump;I.lockPress=A.lockP;I.climb=A.climb;I.bite=A.bite;I.bitePress=A.biteP;I.use=A.use;I.weapon=A.weapon;I.talk=A.talk;
-    for(const k of MG_IDS){I[k]=A[k];I[k+'P']=A[k+'P'];}
+    for(const k of CTX_IDS){I[k]=A[k];I[k+'P']=A[k+'P'];}
   }else for(const a of ACTS)kbPrevA[a.id]=false;
   mTap.clear();
   const apply=(p,s)=>{
@@ -285,13 +295,16 @@ function readInputs(dt){
     i.bite=i.bite||pb('bite');
     i.bitePress=i.bitePress||pp('bite');
     i.talk=i.talk||pb('talk');
-    for(const k of MG_IDS){if(pb(k))i[k]=true;if(pp(k))i[k+'P']=true;}
+    for(const k of CTX_IDS){if(pb(k))i[k]=true;if(pp(k))i[k+'P']=true;}
+    // (the triggers, as far as they're pulled: a vehicle's analog throttle and brake)
+    {const tv=k=>{const x=s.p.buttons[k];return x?Math.max(0,Math.min(1,+x.value||(x.pressed?1:0))):0;};i.rt=tv(7);i.lt=tv(6);}
   };
   if(DT.menu&&DT.kbdOpen){const I=P1.in;for(const k in I)if(typeof I[k]==='boolean')I[k]=false;I.x=I.z=0;}
   // (online chat: the controller's quick messages take it over while their list is up, and while a line's being typed
   // or picked player one stands still, so the keys typed never walk them off)
   if(s1&&chatPad(s1))s1=null;
   apply(P1,s1);if(P2.active&&!P2.net)apply(P2,s2);
+  for(const p of players)if(!p.net)ctxApply(p);
   if(CHAT.open||CHAT.quick){const I=P1.in;for(const k in I)if(typeof I[k]==='boolean')I[k]=false;I.x=I.z=0;I.lookX=I.lookY=0;}
   for(const p of players)p.in.chargeHeld=p.in.charge;
   if(DT.freecam&&!P1.paused)updateFreecam(dt,s1);

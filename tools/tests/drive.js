@@ -202,13 +202,13 @@ const B=spawnK('base');run(3);const V=[...T.venues.values()].find(v=>v.kind==='a
 {const B=spawnK('airport');run(3);const V=[...T.venues.values()].find(v=>v.kind==='airport');
  if(!V||!V.pl)console.log('no airport',!!V);else{
   // (flown twice through the same course: on the keyboard, WASD-style, and on a controller, the stick being the throttle)
-  const PAD=pads;const KB={'thr+':'Space','thr-':'KeyC',up:'KeyS',down:'KeyW',right:'KeyD'};
+  const PAD=pads;const KB={'thr+':'ShiftLeft','thr-':'KeyC',up:'KeyS',down:'KeyW',right:'KeyD'};
   const fly=(pl,pad,V)=>{const g=pl.g,F=()=>pl.free,ht=()=>f1(g.position.y-G0-1);let gp=null;
    if(pad){gp=mk(0);PAD.push(gp);}
    const set=(c,on)=>{if(!pad){if(on)T.keys.add(KB[c]);else T.keys.delete(KB[c]);return;}
-     const v=on?1:0;if(c==='thr+')gp.axes[1]=-v;else if(c==='thr-')gp.axes[1]=v;else if(c==='right')gp.axes[0]=v;else gp.buttons[c==='up'?0:4]={pressed:!!on,value:v};};
+     const v=on?1:0;if(c==='thr+')gp.axes[1]=-v;else if(c==='thr-')gp.axes[1]=v;else if(c==='right')gp.axes[0]=v;else gp.buttons[c==='up'?7:6]={pressed:!!on,value:v};};
    const ctl=(cs,s)=>{for(const c of cs)set(c,true);run(s);for(const c of cs)set(c,false);};
-   const N=pad?{'thr+':'stick up','thr-':'stick down',up:'A',down:'LB',right:'stick right'}:{'thr+':'Space','thr-':'C',up:'S',down:'W',right:'D'};
+   const N=pad?{'thr+':'stick up','thr-':'stick down',up:'RT',down:'LT',right:'stick right'}:{'thr+':'Shift','thr-':'C',up:'S',down:'W',right:'D'};
    console.log((pl.light?'two-seater':'airliner')+' on '+(pad?'a controller':'the keyboard')+': ('+Object.entries(N).map(e=>e[0]+' '+e[1]).join(', ')+')');
    beside(g.position.x,g.position.y+0.2,g.position.z,g.rotation.y,pl.light?0.8:1.25);run(0.05);tap();
    console.log('  in',st(),' this one',P.drv&&P.drv.o===pl);

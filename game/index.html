@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:1706bf8e171ce1c6a49eb830d75063b130decf907c64e8d7a67a1f85de380eed -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:3e7cb9e53f75063d091984bc38a176b196ba1524c43fd91b36fb48cf3e137c58 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1579,7 +1579,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>PvP</h3>
 <ul><li>A new PvP switch in Options, off unless you turn it on. With it on, players can fight each other, in split screen or online, whoever they're playing as.</li><li>Lock on to another player as you would a goblin, on foot, from a tank or helicopter, or with a Mobile Gear's lock box, and its missiles home in on them. A player in a vehicle is locked on as the vehicle.</li><li>Every attack lands on other players: bites and uppercuts, stomps, ground pounds, ground spikes, trampling, rolls, dashes, blast dashes and blast long jumps, and Gnash's club, dagger, guns and grenades. A hippo's blows hit another player for about a third of what they do to a goblin, so a fight lasts a while.</li><li>Vehicles too: run another player down in a car or a tank, shoot them with a tank's or helicopter's guns, shells and rockets, or with a Mobile Gear's rifle, blade, missiles and cannon (it tramples them as well).</li><li>A player killed by another is told who did it, the winner scores 500 points, and the obituaries name the killer. You get up again as usual.</li><li>Online, the host's switch decides for everyone. A guest's PvP switch shows the host's choice and can't be changed.</li></ul>
 <h3>Vehicle controls</h3>
-<ul><li>In every vehicle, its controls are listed down the left side of the screen, one to a line, instead of along the bottom. The controls line for on foot is hidden while you drive.</li></ul>
+<ul><li>In every vehicle, its controls are listed down the left side of the screen, one to a line, instead of along the bottom. The controls line for on foot is hidden while you drive.</li><li>Every kind of vehicle has its own set of controls, each with its own section in Controls to rebind: cars and trucks, the forklift, the tractor, the tank, the helicopter, planes, boats and ships, trains and the hot-air balloon, as the Mobile Gear already had. Keys only clash within the same set, so the same key can do different things in different vehicles. Steering and the throttle are still the walking keys and the left stick; Get in / out, Lock on and the online chat keys work everywhere.</li><li>On a controller, the triggers are now an analog throttle and brake in cars: squeeze RT to go, LT to brake and reverse.</li><li>Planes: on the keyboard the throttle is now Left Shift and C (Space is the brakes); on a controller RT and LT. Lock on in a plane is the middle mouse button (R3), so Q and E are free for the rudder.</li><li>Tanks fire with RT on a controller, helicopters fire their gun with RT and rockets with LT, and LB and RB descend and climb.</li><li>Options: the Speedometer switch is now Vehicle instruments.</li></ul>
 <h3>Map markers</h3>
 <ul><li>Mark a spot on the map: click it on the pause menu's Map tab (tap it on a touch screen; on a controller, pan the crosshair over it and press Y). A pin goes there and shows on your minimap too, or, while it's off the minimap's edge, an arrow on the rim points the way with how far it is. Click the pin again to take it away, or somewhere else to move it.</li><li>In split screen each player has a marker of their own, set from their own pause menu and shown on their own minimap, in their own colour. Markers are kept for each world.</li></ul>
 <h3>Enemy hostility: Pacifist</h3>
@@ -1911,7 +1911,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='90fa273cf19e';
+const GAME_VER='0.5',GAME_BUILD='7a8067eb3917';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -11961,17 +11961,21 @@ function drvCamera(p){
 }
 // driving a car: much as a hunting car drives itself (updateCars does the rest: the ground, walls, what it runs into)
 function drvCar(c,dt){
-  const i=drvIn(c.drv),thr=-i.z,st=-i.x,V=c.veh,top=V==='super'?62:V==='forklift'?8:V==='tractor'?11:V==='hover'?27:V==='semi'||V==='bus'?17:V==='car'?24:V==='bike'?28:V==='quad'?22:20;
-  // (a supercar pulls hard, a forklift barely, a tractor steadily up to a crawl; a hovercraft has no wheels to brake with)
-  const acc=V==='super'?24:V==='forklift'?5:V==='tractor'?7:V==='hover'?8:10,brk=V==='hover'?7:26;
+  const i=drvIn(c.drv),thr=drvThr(i),st=-i.x,V=c.veh,Hd=handOf(V||'car'),top=Hd.top;
+  // (its numbers are its handling profile, HANDLING: a supercar pulls hard, a forklift barely, a tractor steadily up to a
+  // crawl; a hovercraft has no wheels to brake with)
+  const acc=Hd.acc,brk=Hd.brk;
   if(c.grounded||rampUnder(c.pos.x,c.pos.z,c.pos.y+0.5)){
-    if(thr>0.1)c.speed+=(c.speed<0?brk:acc*(V==='super'?Math.max(0.45,1-c.speed/90):1))*thr*dt;else if(thr<-0.1)c.speed-=(c.speed>0?brk:Math.min(acc,8))*-thr*dt;else c.speed*=Math.exp(-dt*(V==='hover'?0.35:0.9));}
-  c.speed=Math.max(V==='forklift'||V==='tractor'?-6:-8,Math.min(top,c.speed));
-  c.steer+=(st-c.steer)*Math.min(1,dt*8);c.heading+=c.steer*dt*Math.max(-1,Math.min(1,c.speed/5))*(V==='super'?1.7*Math.max(0.45,1-Math.abs(c.speed)/110):1.7);
+    if(thr>0.1)c.speed+=(c.speed<0?brk:acc*(Hd.accFall?Math.max(0.45,1-c.speed/Hd.accFall):1))*thr*dt;else if(thr<-0.1)c.speed-=(c.speed>0?brk:Math.min(acc,8))*-thr*dt;else c.speed*=Math.exp(-dt*Hd.coast);}
+  c.speed=Math.max(-Hd.rev,Math.min(top,c.speed));
+  c.steer+=(st-c.steer)*Math.min(1,dt*8);c.heading+=c.steer*dt*Math.max(-1,Math.min(1,c.speed/5))*Hd.steer*(Hd.fall?Math.max(0.45,1-Math.abs(c.speed)/Hd.fall):1);
   if(V==='hover')hovDrift(c,dt);
   if(c.veh==='fire'){drvHose(c,i,dt);const hp=i.stomp&&!c.stHeld;c.stHeld=i.stomp;if(hp&&c.honkT<=0){horn(0.12);c.honkT=0.4;}}   // (a fire engine: bite sprays water, stomp sounds the horn. See hose.js)
   else if(i.bitePress&&c.honkT<=0){horn(0.12);c.honkT=0.4;}   // (bite sounds the horn)
 }
+// the throttle from the controls, -1 (full brake or reverse) to 1: on a controller the triggers, as far as they're
+// pulled (RT throttle, LT brake), or else the stick; on the keyboard W and S
+function drvThr(i){const t=(i.rt||0)-(i.lt||0);return Math.abs(t)>0.05?t:-i.z;}
 // a hovercraft slides: the way it's going only slowly comes round to the way it points (updateCars moves it along its
 // heading; this adds the rest, sideways, where there's nothing in the way)
 function hovDrift(c,dt){const vx=Math.sin(c.heading)*c.speed,vz=Math.cos(c.heading)*c.speed;if(!c.hvel)c.hvel={x:vx,z:vz};const H=c.hvel,k=Math.min(1,dt*1.5);
@@ -12406,7 +12410,7 @@ function drvHud(p){
   set('n',H.name,(D.seat==='gun'?'Gunner  ·  ':'')+drvName(D).replace(/^./,c=>c.toUpperCase())+'  ·  '+Math.max(0,Math.ceil(hp))+' / '+Math.round(max));
   const w=(f*100).toFixed(1)+'%';if(H.txt.hpw!==w){H.txt.hpw=w;H.fill.style.width=w;H.fill.style.background=f>0.5?'#7fc24a':f>0.25?'#f0a04a':'#e0564a';}
   if(H.lastHp!==undefined&&hp<H.lastHp)H.hitT=camClock;H.lastHp=hp;H.box.classList.toggle('hit',camClock-(H.hitT??-9)<0.25);
-  const bl=id=>btnMark(p.pad?bindGlyph('pad',BINDS[id].pad[p.pad&&id==='bite'?1:0]??BINDS[id].pad[0]):bindGlyph('kb',BINDS[id].kb[0])),out=drvKey(p);
+  const bl=id=>(id=ctxId(p,id),btnMark(p.pad?bindGlyph('pad',BINDS[id].pad[p.pad&&id==='bite'?1:0]??BINDS[id].pad[0]):bindGlyph('kb',BINDS[id].kb[0]))),out=drvKey(p);
   const lk=bl('lock'),LT=p.lockT,W=armed&&o.wpn?Object.values(o.wpn):[],w0=W[0],ready=!w0||w0.rl<=0&&w0.n>0;
   // (the other seat, if it's free: the weapon button moves you to it. See gunner.js)
   const sw=drvSwapTo(p)?'  ·  '+bl('weapon')+(D.seat==='gun'?' drive':' man the gun'):!armed&&o.gnr&&(D.k==='tank'||D.k==='heli')?'  ·  Your gunner has the guns':'';
@@ -12455,15 +12459,11 @@ function planeHud(F,pl){if(!F)return'Throttle 0%';const LIFT=pl&&pl.light?LIGHT_
 // about them on getting in), each ending in '  ·  ' so the rest follows
 function drvHow(p,D,armed){const A=id=>actMark(p,id),G=armed?D.k==='heli'?A('bite')+' gun  ·  '+A('stomp')+' rockets  ·  ':D.k==='plane'?A('bite')+' cannon  ·  '+A('stomp')+' missiles  ·  ':D.k==='tank'||D.seat==='gun'?A('bite')+' fire  ·  ':'':'';
   if(D.seat==='gun')return G;
-  if(D.k==='mount')return D.o.kind==='ciws'?A('bite')+' fire (hold)  ·  ':A('bite')+' launch'+(D.o.kind==='sparrow'?' (lock on first)':'')+'  ·  ';
-  if(D.k==='ship')return shipHow(p,D.o);
-  if(D.k==='heli')return A('jump')+' climb  ·  '+A('climb')+' drop  ·  '+G;
-  if(D.k==='balloon')return A('jump')+' burner (rise)  ·  '+A('climb')+' vent (sink)  ·  Move to drift  ·  ';
-  // (a jet's arresting hook, for landing on a carrier: carrier-jets.js)
-  if(D.k==='plane'){const hk=D.o.jet?A('weapon')+(D.o.hook?' hook up':' hook down')+'  ·  ':'';
-    return p.pad?'Stick up/down throttle  ·  Stick left/right bank  ·  '+A('jump')+' pull up  ·  '+A('climb')+' push down  ·  '+G+hk
+  const K=VEHICLE_KINDS[D.k];return K?K.how(p,D,armed,G):G;}
+// a plane's (a jet's arresting hook too, for landing on a carrier: carrier-jets.js)
+function planeHow(p,D,armed,G){const A=id=>actMark(p,id),hk=D.o.jet?A('weapon')+(D.o.hook?' hook up':' hook down')+'  ·  ':'';
+  return p.pad?'Stick up/down throttle  ·  Stick left/right bank  ·  '+A('jump')+' pull up  ·  '+A('climb')+' push down  ·  '+G+hk
     :A('fwd')+'/'+A('back')+' nose down/up  ·  '+A('left')+'/'+A('right')+' bank  ·  '+A('jump')+'/'+A('climb')+' throttle up/down  ·  '+G+hk;}
-  return G;}
 // on his way down a ramp he stays on it, instead of falling a little and landing every few steps
 function stickToRamp(p,g){
   if(!p.grounded||p.state!=='walk'||p.standCar||p.dodge||p.pos.y-g>=0.4)return false;
@@ -12481,7 +12481,26 @@ function stickToRamp(p,g){
 // under half of it); pts, points for destroying it (and label, what the award says); rampage, counted among the
 // vehicles destroyed in This rampage (every kind: a train by the car, a ship once when it sinks); invuln, Invulnerability covers it while someone drives it (drvSafe); net, its health
 // sent to guests by its venue (netOwn: in a snapshot of its own); bullets and blasts, what can hurt it.
-const VEHICLE_BASE={snow:true,smoke:0.5,pts:0,label:null,rampage:true,invuln:true,net:true,netOwn:false,bullets:true,blasts:true,impact:false};
+// And how it's driven, each kind saying for itself (functions of D, what p.drv holds, since a car's kind covers forklifts
+// and tractors too): ctx, its control context (its own set of controls in ACTS, read only while you're in it; null: the
+// ones on foot); handling, its numbers (a profile from HANDLING: handOf); inst, the instrument in the bottom-right
+// corner (a key in INSTRUMENTS, or null for none); how(p,D,armed,G), its own lines at the top of the controls column
+// down the left (drvHud; G the weapons' lines, if it's armed), each ending in '  ·  '.
+// All of it lives on the vehicle, never on who's driving, so every character drives each one alike.
+const VEHICLE_BASE={snow:true,smoke:0.5,pts:0,label:null,rampage:true,invuln:true,net:true,netOwn:false,bullets:true,blasts:true,impact:false,
+  ctx:()=>null,handling:D=>handOf(D.k),inst:()=>'dial',how:(p,D,armed,G)=>G};
+// ---- each vehicle's handling: one profile per kind (a car's by its body, c.veh), over the defaults in HANDLING._ ----
+// top speed and acc (blocks a second, and a second squared), brk braking, rev the most it goes backwards, steer how fast
+// it turns at full lock (radians a second), fall the speed at which that's eased right off (1 - speed/fall, never under 45%; 0: it doesn't), coast how fast
+// it slows with nothing pressed, accFall (a supercar) the speed by which its pull has gone, mass for crashes
+const HANDLING={_:{top:20,acc:10,brk:26,rev:8,steer:1.7,fall:0,coast:0.9,accFall:0,mass:1},
+  car:{top:24},bike:{top:28,mass:0.4},quad:{top:22,mass:0.6},technical:{},van:{mass:1.4},pickup:{mass:1.3},news:{mass:1.4},rv:{mass:2},
+  amb:{mass:1.6},fire:{mass:3},truck:{mass:2.5},semi:{top:17,mass:4},bus:{top:17,mass:4},
+  super:{top:62,acc:24,fall:110,accFall:90},   // (its pull and its steering ease off with speed, to no less than 45%)
+  forklift:{top:8,acc:5,rev:6,mass:1.5},tractor:{top:11,acc:7,rev:6,mass:2},hover:{top:27,acc:8,brk:7,coast:0.35,mass:1.2},
+  tank:{top:7,mass:8},heli:{top:16,mass:4},plane:{mass:6},boat:{mass:3},train:{top:30,mass:20},subway:{top:25,mass:15},balloon:{mass:1},ship:{mass:50},mech:{mass:10}};
+const _hand={};
+function handOf(k){if(_hand[k])return _hand[k];const H=Object.assign({},HANDLING._,HANDLING[k]||{});H.k=k;return _hand[k]=H;}
 // Each kind: venue, the kind of venue its vehicles are kept in, and list(V) those in one (a car has none: they're the
 // traffic, cars); pos(o) where it stands; top(o) how far above that its health bar goes (a hit's number a little
 // higher); mid(o) where a hit's sparks fly; hp(o,i) and max(o) its health (i: a train's car); dead(o); shown(o), whether
@@ -12490,29 +12509,30 @@ const VEHICLE_BASE={snow:true,smoke:0.5,pts:0,label:null,rampage:true,invuln:tru
 const _vkp={x:0,y:0,z:0},vkAt=(x,y,z)=>{_vkp.x=x;_vkp.y=y;_vkp.z=z;return _vkp;};
 const VEHICLE_KINDS={
   car:{name:'Car',rampage:true,snow:false,smoke:0,   // (their own snow and smoke: snowCar, updateCars)
+    ctx:D=>D.seat==='gun'?null:D.o.veh==='forklift'?'lift':D.o.veh==='tractor'?'farm':'road',handling:D=>handOf(D.o.veh||'car'),
     pos:c=>c.pos,top:c=>(c.hy||1.4)+0.5,mid:c=>(c.hy||1.4)*0.6,max:c=>c.hpMax>=c.hp?c.hpMax:Math.max(c.hp,carHP(c)),
     dead:c=>!c.alive,shown:c=>c.g.visible,hit:(c,n,dir)=>damageCar(c,n,dir)},
-  train:{name:'Train',venue:'rtrain',list:V=>V.T&&V.cars?[V.T]:[],perCar:true,carTop:()=>4.2,top:()=>4.2,mid:()=>2.5,groups:T=>T.cars||[],
+  train:{name:'Train',venue:'rtrain',ctx:()=>'rail',list:V=>V.T&&V.cars?[V.T]:[],perCar:true,carTop:()=>4.2,top:()=>4.2,mid:()=>2.5,groups:T=>T.cars||[],
     pos:T=>T.cars[0].position,hp:(T,i)=>T.carHP?T.carHP[i||0]:CAR_HP,max:()=>CAR_HP,hit:(T,n,dir,i)=>trainHit(T,n,dir,i)},
-  subway:{name:'Subway train',venue:'sub',list:V=>V.T&&V.cars?[V.T]:[],perCar:true,carTop:()=>TRAIN_H+0.7,top:()=>TRAIN_H+0.7,mid:()=>2.5,groups:T=>T.cars||[],
+  subway:{name:'Subway train',venue:'sub',ctx:()=>'rail',list:V=>V.T&&V.cars?[V.T]:[],perCar:true,carTop:()=>TRAIN_H+0.7,top:()=>TRAIN_H+0.7,mid:()=>2.5,groups:T=>T.cars||[],
     pos:T=>T.cars[0].position,hp:(T,i)=>T.carHP?T.carHP[i||0]:CAR_HP,max:()=>CAR_HP,hit:(T,n,dir,i)=>trainHit(T,n,dir,i)},
-  tank:{name:'Tank',venue:'army',list:V=>V.mil.filter(M=>M.kind==='tank'),impact:true,pts:()=>MIL.tank.pts,label:()=>'Tank destroyed',
+  tank:{name:'Tank',venue:'army',ctx:()=>'tank',list:V=>V.mil.filter(M=>M.kind==='tank'),impact:true,pts:()=>MIL.tank.pts,label:()=>'Tank destroyed',
     pos:M=>vkAt(M.x,M.y,M.z),top:M=>MIL[M.kind].hy+0.6,mid:M=>MIL[M.kind].hy*0.6,max:M=>MIL[M.kind].hp,hit:(M,n,dir)=>milHit(M,n,dir)},
-  heli:{name:'Helicopter',venue:'army',list:V=>V.mil.filter(M=>M.kind==='heli'),impact:true,pts:()=>MIL.heli.pts,label:()=>'Helicopter destroyed',
+  heli:{name:'Helicopter',venue:'army',ctx:()=>'heli',how:(p,D,armed,G)=>actMark(p,'jump')+' climb  ·  '+actMark(p,'climb')+' drop  ·  '+G,list:V=>V.mil.filter(M=>M.kind==='heli'),impact:true,pts:()=>MIL.heli.pts,label:()=>'Helicopter destroyed',
     pos:M=>vkAt(M.x,M.y,M.z),top:M=>MIL[M.kind].hy+0.6,mid:M=>MIL[M.kind].hy*0.6,max:M=>MIL[M.kind].hp,hit:(M,n,dir)=>milHit(M,n,dir)},
-  plane:{name:'Plane',venue:'airport',list:V=>V.pl||[],pts:()=>1000,label:()=>'Airplane destroyed',
+  plane:{name:'Plane',venue:'airport',ctx:()=>'air',how:planeHow,list:V=>V.pl||[],pts:()=>1000,label:()=>'Airplane destroyed',
     pos:pl=>pl.g.position,top:pl=>planeDim(pl).hy+0.8,mid:()=>2.5,max:pl=>planeMax(pl),shown:pl=>pl.g.visible,hit:(pl,n)=>planeHit(pl,n)},
-  boat:{name:'Boat',venue:'boat',list:V=>V.bo?[V.bo]:[],pts:bo=>bo.K.sc,label:bo=>bo.K.name+' sunk',
+  boat:{name:'Boat',venue:'boat',ctx:()=>'sea',list:V=>V.bo?[V.bo]:[],pts:bo=>bo.K.sc,label:bo=>bo.K.name+' sunk',
     pos:bo=>bo.g.position,top:bo=>bo.K.fb+2,mid:bo=>bo.K.fb,max:bo=>bo.max,shown:bo=>bo.g.visible,hit:(bo,n)=>boatHit(bo,n)},
-  balloon:{name:'Hot-air balloon',venue:'balloon',list:V=>V.bl||[],pts:()=>400,label:()=>'Hot-air balloon brought down',
+  balloon:{name:'Hot-air balloon',venue:'balloon',ctx:()=>'balloon',how:(p,D)=>actMark(p,'jump')+' burner (rise)  ·  '+actMark(p,'climb')+' vent (sink)  ·  Move to drift  ·  ',list:V=>V.bl||[],pts:()=>400,label:()=>'Hot-air balloon brought down',
     pos:B=>vkAt(B.x,B.y,B.z),top:()=>BAL.e1+0.8,mid:()=>BAL.e0+2,max:()=>BAL.hp,hit:(B,n)=>balloonHit(B,n)},
-  mech:{name:'Mobile Gear',venue:'mech',list:V=>V.mechs||[],impact:true,netOwn:true,pts:()=>2000,label:()=>'Mobile Gear destroyed',   // (its health goes in its own snapshot: netMechs)
+  mech:{name:'Mobile Gear',venue:'mech',ctx:()=>'mg',list:V=>V.mechs||[],impact:true,netOwn:true,pts:()=>2000,label:()=>'Mobile Gear destroyed',   // (its health goes in its own snapshot: netMechs)
     pos:M=>vkAt(M.x,M.y,M.z),top:()=>MG.hy+0.8,mid:()=>5,max:()=>MG.hp,hit:(M,n)=>mechHit(M,n)},
   // (a ship's health, and its deck weapons', go in its own snapshot, netShips. See docs/multiplayer.md)
-  ship:{name:'Ship',venue:'ship',list:V=>V.ships||[],snow:'blocks',smoke:0,netOwn:true,
+  ship:{name:'Ship',venue:'ship',ctx:()=>'sea',how:(p,D)=>shipHow(p,D.o),list:V=>V.ships||[],snow:'blocks',smoke:0,netOwn:true,
     pos:S=>{const P=shipPose(S);return vkAt(P.x,P.y,P.z);},top:S=>shipPose(S).hy+2,mid:S=>S.K.hy||2,max:S=>S.K.hp,hit:(S,n,dir,i)=>shipHit(S,n,i)},
   // (where it is, x,y,z, is in its ship's pocket, which is right for snow: what's over it there is the ship's own blocks)
-  mount:{name:'Deck weapon',venue:'ship',list:V=>(V.ships||[]).flatMap(S=>S.dead?[]:S.mounts||[]),netOwn:true,pts:()=>300,label:Mt=>Mt.K.name+' destroyed',groups:Mt=>[Mt.g],
+  mount:{name:'Deck weapon',venue:'ship',how:(p,D)=>D.o.kind==='ciws'?actMark(p,'bite')+' fire (hold)  ·  ':actMark(p,'bite')+' launch'+(D.o.kind==='sparrow'?' (lock on first)':'')+'  ·  ',list:V=>(V.ships||[]).flatMap(S=>S.dead?[]:S.mounts||[]),netOwn:true,pts:()=>300,label:Mt=>Mt.K.name+' destroyed',groups:Mt=>[Mt.g],
     pos:Mt=>vkAt(Mt.x,Mt.y,Mt.z),top:()=>2.4,mid:()=>1.5,max:Mt=>Mt.K.hp,dead:Mt=>Mt.dead||Mt.S.dead,hit:(Mt,n)=>mountHit(Mt,n)},
 };
 // (filled in: the base's switches under each kind's own, and the usual ways of reading health)
@@ -12537,6 +12557,10 @@ function vehSmoke(k,o,x,y,z,dt,i){const K=VEHICLE_KINDS[k];if(!(K.smoke>0))retur
 // the health of what's being driven, by its kind (a carrier's deck weapon shows its ship's)
 function vehHealth(D){const K=VEHICLE_KINDS[D.k],o=D.o;if(!K)return{hp:CAR_HP,max:CAR_HP};
   if(D.k==='mount')return{hp:o.S.hp,max:o.S.K.hp};return{hp:K.hp(o,D.ci),max:K.max(o)};}
+// the control context of what's being driven (see ctx above)
+function drvCtx(D){const K=D&&VEHICLE_KINDS[D.k];return K?K.ctx(D):null;}
+// the handling profile of what's being driven
+function drvHand(D){const K=VEHICLE_KINDS[D.k];return K?K.handling(D):handOf(D.k);}
 // ---- Play as a goblin: stealing a vehicle with someone in it. Getting into one that has a driver plays out a carjacking
 // first: you go to the door (or climb up to the hatch), get it open, haul the driver out and throw them clear, and climb
 // in. Each vehicle does it its own way: a car's door swings open, a motorcycle's rider is shoved off the side, a tank's
@@ -16365,8 +16389,70 @@ const ACTS=[
   {id:'mgLock',n:'Hard lock on / off',c:'#e0564a',kb:['Mouse1'],pad:[11],mg:true},
   {id:'mgAB',n:'Assault boost (again near a target: kick)',c:'#7fd0ff',kb:['KeyX'],pad:[10],mg:true},
   {id:'mgRep',n:'Repair kit',c:'#7ed060',kb:['KeyR'],pad:[13],mg:true},   // (D-pad down: up is the online quick chat)
+  // (driving: each kind of vehicle has a set of its own, its control context (ctx, from its kind's entry in VEHICLE_KINDS),
+  // read only while you're in one of that kind, so they never take keys off each other or the ones on foot. Steering and
+  // the throttle are the walking keys and the left stick, as the Mobile Gear's movement is, and on a controller the
+  // triggers are an analog throttle and brake in anything with wheels or a hull (i.rt, i.lt). Get in / out, Lock on and
+  // the online chat keys stay as they are on foot. as: the control on foot whose place this takes, so the vehicles that
+  // read it (a car's horn on bite, say) need nothing else)
+  {id:'rdHand',n:'Handbrake, drift',c:CC.jump,kb:['Space'],pad:[5],ctx:'road'},
+  {id:'rdHorn',n:'Horn (fire engine: water cannon)',c:CC.bite,kb:['Mouse0'],pad:[2],ctx:'road',as:'bite'},
+  {id:'rdSpec',n:'Special (siren, nitro, wheelie, hop...)',c:CC.stomp,kb:['Mouse2'],pad:[4],ctx:'road',as:'stomp'},
+  {id:'rdBehind',n:'Look behind (hold)',c:CC.look,kb:['KeyC'],pad:[10],ctx:'road'},
+  {id:'rdSeat',n:'Swap seats (driver / gunner)',c:'#b0b8c0',kb:['KeyX'],pad:[1],ctx:'road',as:'weapon'},
+  {id:'lfUp',n:'Raise the forks (hold)',c:CC.jump,kb:['Space'],pad:[5],ctx:'lift'},
+  {id:'lfDown',n:'Lower the forks (hold)',c:'#9a7ae0',kb:['KeyC'],pad:[4],ctx:'lift'},
+  {id:'lfTilt',n:'Tilt the mast (hold, with raise / lower)',c:CC.charge,kb:['ShiftLeft'],pad:[2],ctx:'lift'},
+  {id:'lfHorn',n:'Horn',c:CC.bite,kb:['Mouse0'],pad:[1],ctx:'lift',as:'bite'},
+  {id:'fmCruise',n:'Hand throttle: next cruise step',c:CC.charge,kb:['KeyR'],pad:[15],ctx:'farm'},
+  {id:'fmImp',n:'Raise / lower the implement',c:CC.jump,kb:['Space'],pad:[5],ctx:'farm'},
+  {id:'fmSwap',n:'Swap implement (plough, mower, none)',c:CC.stomp,kb:['Mouse2'],pad:[4],ctx:'farm'},
+  {id:'fmHorn',n:'Horn',c:CC.bite,kb:['Mouse0'],pad:[2],ctx:'farm',as:'bite'},
+  {id:'tkFire',n:'Fire the gun',c:CC.bite,kb:['Mouse0'],pad:[7],ctx:'tank',as:'bite'},
+  {id:'tkZoom',n:'Gunsight (hold)',c:CC.look,kb:['Mouse2'],pad:[6],ctx:'tank'},
+  {id:'tkHull',n:'Hull lock on / off',c:'#9a7ae0',kb:['KeyC'],pad:[4],ctx:'tank'},
+  {id:'tkCruise',n:'Cruise step',c:CC.charge,kb:['ShiftLeft'],pad:[10],ctx:'tank'},
+  {id:'tkShell',n:'Shell: HE / AP',c:CC.stomp,kb:['KeyR'],pad:[15],ctx:'tank'},
+  {id:'tkSeat',n:'Swap seats (driver / gunner)',c:'#b0b8c0',kb:['KeyX'],pad:[1],ctx:'tank',as:'weapon'},
+  {id:'hcUp',n:'Climb',c:CC.jump,kb:['Space'],pad:[5],ctx:'heli',as:'jump'},
+  {id:'hcDown',n:'Descend',c:'#9a7ae0',kb:['KeyC'],pad:[4],ctx:'heli',as:'climb'},
+  {id:'hcGun',n:'Machine gun (hold)',c:CC.bite,kb:['Mouse0'],pad:[7],ctx:'heli',as:'bite'},
+  {id:'hcRkt',n:'Rockets',c:CC.stomp,kb:['Mouse2'],pad:[6],ctx:'heli',as:'stomp'},
+  {id:'hcMode',n:'Flight mode: Simple / Agile',c:CC.charge,kb:['KeyR'],pad:[15],ctx:'heli'},
+  {id:'hcSeat',n:'Swap seats (pilot / gunner)',c:'#b0b8c0',kb:['KeyX'],pad:[1],ctx:'heli',as:'weapon'},
+  {id:'arThrUp',n:'Throttle up (Direct mode)',c:CC.charge,kb:['ShiftLeft'],pad:[7],ctx:'air',as:'jump'},
+  {id:'arThrDn',n:'Throttle down (Direct mode)',c:'#9a7ae0',kb:['KeyC'],pad:[6],ctx:'air',as:'climb'},
+  {id:'arYawL',n:'Rudder left',c:CC.walk,kb:['KeyQ'],pad:[4],ctx:'air'},
+  {id:'arYawR',n:'Rudder right',c:CC.walk,kb:['KeyE'],pad:[5],ctx:'air'},
+  {id:'arBrake',n:'Brakes, airbrake',c:CC.jump,kb:['Space'],pad:[0],ctx:'air'},
+  {id:'arGun',n:'Cannon (hold)',c:CC.bite,kb:['Mouse0'],pad:[2],ctx:'air',as:'bite'},
+  {id:'arMsl',n:'Missile, smoke trail, autopilot',c:CC.stomp,kb:['Mouse2'],pad:[1],ctx:'air',as:'stomp'},
+  {id:'arGear',n:'Undercarriage (jet: hook)',c:'#b0b8c0',kb:['KeyR'],pad:[10],ctx:'air',as:'weapon'},
+  {id:'arLook',n:'Free look (hold, Mouse-aim)',c:CC.look,kb:['KeyX'],pad:[],ctx:'air'},
+  {id:'arLock',n:'Lock on',c:'#e0564a',kb:['Mouse1'],pad:[11],ctx:'air',as:'lock'},
+  {id:'seAnchor',n:'Drop / raise the anchor',c:CC.jump,kb:['Space'],pad:[5],ctx:'sea'},
+  {id:'seHorn',n:'Horn (rowboat: left oar)',c:CC.bite,kb:['Mouse0'],pad:[2],ctx:'sea',as:'bite'},
+  {id:'seSpec',n:'Special (rowboat: right oar)',c:CC.stomp,kb:['Mouse2'],pad:[4],ctx:'sea',as:'stomp'},
+  {id:'seMid',n:'Ship: rudder amidships',c:'#9a7ae0',kb:['KeyC'],pad:[1],ctx:'sea',as:'climb'},
+  {id:'seView',n:'Ship: bridge view',c:'#b0b8c0',kb:['KeyR'],pad:[15],ctx:'sea',as:'weapon'},
+  {id:'rlRev',n:'Reverser: forward, neutral, reverse',c:CC.charge,kb:['KeyR'],pad:[15],ctx:'rail'},
+  {id:'rlEmerg',n:'Emergency brake',c:CC.jump,kb:['Space'],pad:[0],ctx:'rail'},
+  {id:'rlHorn',n:'Horn (hold for a long blast)',c:CC.bite,kb:['Mouse0'],pad:[2],ctx:'rail',as:'bite'},
+  {id:'rlBell',n:'Bell (subway: doors)',c:CC.stomp,kb:['Mouse2'],pad:[4],ctx:'rail'},
+  {id:'blBurn',n:'Burner (hold)',c:CC.jump,kb:['Space'],pad:[0,7],ctx:'balloon',as:'jump'},
+  {id:'blVent',n:'Vent',c:'#9a7ae0',kb:['KeyC'],pad:[1,6],ctx:'balloon',as:'climb'},
+  {id:'blBag',n:'Drop a sandbag',c:CC.stomp,kb:['Mouse2'],pad:[5],ctx:'balloon'},
+  {id:'blRope',n:'Drop / pull up the rope',c:CC.bite,kb:['Mouse0'],pad:[2],ctx:'balloon'},
 ];
+for(const a of ACTS)if(a.mg)a.ctx='mg';
 const MG_IDS=ACTS.filter(a=>a.mg).map(a=>a.id),MG_PRESS=MG_IDS.map(k=>k+'P');
+// every vehicle's own controls (the Mobile Gear's among them), and the headings of their sections in the Controls tab
+const CTX_IDS=ACTS.filter(a=>a.ctx).map(a=>a.id),CTX_PRESS=CTX_IDS.map(k=>k+'P');
+const CTX_NAMES={road:'Driving cars, bikes and trucks',lift:'Driving a forklift',farm:'Driving a tractor',tank:'Driving a tank',heli:'Flying a helicopter',
+  air:'Flying a plane',sea:'Boats and ships',rail:'Driving a train',balloon:'Flying a hot-air balloon',mg:'Piloting a Mobile Gear (Testing Environment)'};
+// (the controls on foot that a vehicle's own set takes over while you're in it: everything but Get in / out, Lock on and
+// the online chat keys, which work everywhere)
+const CTX_TAKES=['bite','stomp','jump','climb','charge','dash','sprint','weapon'];
 const KB_RESERVED=new Set(['Escape','Backquote','KeyP','KeyV','Period','BracketLeft','BracketRight','Backspace','Delete','Enter','NumpadEnter']),PAD_RESERVED=new Set([8,9]);
 let BINDS={};
 function defaultBinds(){const o={};for(const a of ACTS)o[a.id]={kb:a.kb.slice(),pad:a.pad.slice()};return o;}
@@ -16396,7 +16482,10 @@ const PAD_GLYPH=['A','B','X','Y','LB','RB','LT','RT','SELECT','START','LS','RS',
 function bindGlyph(dev,v){if(v==null)return null;if(dev==='pad')return PAD_GLYPH[v]||'KEY:'+padLabel(v,padStyle==='ps');return v==='Mouse0'?'LMB':v==='Mouse2'?'RMB':v==='Mouse1'?'WHEEL':'KEY:'+keyLabel(v);}
 const btnMark=g=>g?'⟦'+g+'⟧':'';
 // (the first button bound to an action, on a player's controller or else the keyboard and mouse)
-const actMark=(p,id)=>{const B=BINDS[id];return btnMark(p&&p.pad?bindGlyph('pad',B.pad[0]):bindGlyph('kb',B.kb[0]));};
+// (in a vehicle, a control on foot that its own set takes over is named by what's bound there: a car's horn, not bite)
+const CTX_AS={};for(const a of ACTS)if(a.ctx&&a.as)(CTX_AS[a.ctx]=CTX_AS[a.ctx]||{})[a.as]=a.id;
+const ctxId=(p,id)=>{if(!p||!p.drv||p.drv.jack)return id;const cx=drvCtx(p.drv),m=cx&&cx!=='mg'&&CTX_AS[cx];return m&&m[id]||id;};
+const actMark=(p,id)=>{id=ctxId(p,id);const B=BINDS[id];return btnMark(p&&p.pad?bindGlyph('pad',B.pad[0]):bindGlyph('kb',B.kb[0]));};
 function hudHTML(s){return String(s).split(/⟦([^⟧]*)⟧/).map((t,i)=>i%2?glyph(t):glEsc(t)).join('');}
 // the bottom-of-screen hint, from the bindings
 function bindHint(pad,p){
@@ -16421,8 +16510,8 @@ let BIND_CAP=null,bindMsg='',bindClickT=0;
 function bindCancel(){BIND_CAP=null;bindMsg='';renderControls();}
 function setBind(id,dev,i,val){
   bindMsg='';
-  const mg=!!actOf(id).mg;   // (a Mobile Gear's controls and the ones on foot never take keys off each other)
-  if(val!=null)for(const a of ACTS){if(!!a.mg!==mg)continue;const L=BINDS[a.id][dev],j=L.indexOf(val);if(j>=0&&!(a.id===id&&j===i)){L.splice(j,1);if(a.id!==id)bindMsg=(dev==='kb'?keyLabel(val):padLabel(val,padStyle==='ps'))+' was taken off '+a.n+'.';}}
+  const cx=actOf(id).ctx||'';   // (a vehicle's controls (a Mobile Gear's, a car's...) and the ones on foot never take keys off each other)
+  if(val!=null)for(const a of ACTS){if((a.ctx||'')!==cx)continue;const L=BINDS[a.id][dev],j=L.indexOf(val);if(j>=0&&!(a.id===id&&j===i)){L.splice(j,1);if(a.id!==id)bindMsg=(dev==='kb'?keyLabel(val):padLabel(val,padStyle==='ps'))+' was taken off '+a.n+'.';}}
   const L=BINDS[id][dev];
   if(val==null){if(i<L.length)L.splice(i,1);}else if(i<L.length)L[i]=val;else L.push(val);
   BINDS[id][dev]=[...new Set(L)].slice(0,2);saveBinds();
@@ -16454,16 +16543,16 @@ function rebindHTML(){
     const txt=cap?(dev==='kb'?'Press a key or click…':'Press a button…'):v==null?'+ Add':(dev==='kb'?keyLabel(v):padLabel(v,ps));
     return `<td><button type="button" class="rbs${cap?' cap':''}${v==null&&!cap?' empty':''}" data-a="${a.id}" data-d="${dev}" data-i="${i}" aria-label="${glEsc(a.n)}, ${dev==='kb'?'keyboard':'controller'} ${i+1}: ${glEsc(txt)}">${glEsc(txt)}</button></td>`;};
   const note=BIND_CAP?(BIND_CAP.dev==='kb'?'Press the key or mouse button for '+actOf(BIND_CAP.id).n+'. Backspace clears the slot; Esc cancels.':'Press the controller button for '+actOf(BIND_CAP.id).n+'. Start cancels.'):
-    (bindMsg||'Pick a slot, then press the key, mouse button or controller button you want for it.');
+    (bindMsg||'Pick a slot, then press the key, mouse button or controller button you want for it. In a vehicle, steering and the throttle are the walking keys and the left stick (on a controller the triggers are the throttle and brake), and each kind of vehicle has its own set below.');
   return `<div class="rb"><div class="rb-head"><h3>Rebind controls</h3><button type="button" class="pmenu" id="rbReset">Reset to defaults</button></div>
     <p class="rb-note" role="status">${glEsc(note)}</p>
     <div class="rb-wrap"><table class="rb-t"><thead><tr><th scope="col">Action</th><th scope="col" colspan="2">Keyboard and mouse</th><th scope="col" colspan="2">Controller</th></tr></thead><tbody>
-    ${ACTS.map(a=>(a.id===MG_IDS[0]?`<tr class="rb-sec"><th scope="colgroup" colspan="5">Piloting a Mobile Gear (Testing Environment)</th></tr>`:'')+`<tr><th scope="row"><i style="background:${a.c}"></i>${glEsc(a.n)}</th>${slot(a,'kb',0)}${slot(a,'kb',1)}${slot(a,'pad',0)}${slot(a,'pad',1)}</tr>`).join('')}
+    ${ACTS.map((a,k)=>(a.ctx&&(k===0||ACTS[k-1].ctx!==a.ctx)?`<tr class="rb-sec"><th scope="colgroup" colspan="5">${glEsc(CTX_NAMES[a.ctx]||a.ctx)}</th></tr>`:'')+`<tr><th scope="row"><i style="background:${a.c}"></i>${glEsc(a.n)}</th>${slot(a,'kb',0)}${slot(a,'kb',1)}${slot(a,'pad',0)}${slot(a,'pad',1)}</tr>`).join('')}
     </tbody></table></div></div>`;
 }
 // colours for the pictures: what a key / controller button is bound to
-const keyCol=c=>{for(const a of ACTS)if(!a.mg&&BINDS[a.id].kb.includes(c))return a.c;return null;};
-const padCol=i=>{for(const a of ACTS)if(!a.mg&&BINDS[a.id].pad.includes(i))return a.c;return null;};
+const keyCol=c=>{for(const a of ACTS)if(!a.ctx&&BINDS[a.id].kb.includes(c))return a.c;return null;};
+const padCol=i=>{for(const a of ACTS)if(!a.ctx&&BINDS[a.id].pad.includes(i))return a.c;return null;};
 function padSVG(ps){
   const L=ps?{A:'✕',B:'○',X:'□',Y:'△',LB:'L1',RB:'R1',LT:'L2',RT:'R2',ST:'≡'}:{A:'A',B:'B',X:'X',Y:'Y',LB:'LB',RB:'RB',LT:'LT',RT:'RT',ST:'≡'};
   const btn=(x,y,t,c)=>`<circle cx="${x}" cy="${y}" r="12.5" fill="${c}" stroke="#0a0d10" stroke-width="2"/><text x="${x}" y="${y+4.5}" text-anchor="middle" style="font:700 12px var(--f-mono)" fill="#0c0f14">${t}</text>`;
@@ -18873,7 +18962,7 @@ const UI_PARTS={
   uiClock:['.clock','Clock','The dial at the top right'],
   uiStatus:['#clockTxt','Status panel','The day, the time of day and the season, beside the clock'],
   uiMini:['.mini','Minimap','Bottom left'],
-  uiSpeedo:['.speedo','Speedometer','Bottom right, in a vehicle'],
+  uiSpeedo:['.speedo','Vehicle instruments','Bottom right, in a vehicle: its speedometer, or whatever it has'],
   uiHearts:['.hearts','Hearts','Your health'],
   uiStam:['.stam','Stamina bar','Under the hearts'],
   uiCharge:['.smeter','Charge meter','Winding up a stomp or a ground pound'],
@@ -25535,6 +25624,16 @@ const padPrev=new Map();let padCount=-1;
 const DZ=0.18,dead=v=>Math.abs(v)<DZ?0:(v-Math.sign(v)*DZ)/(1-DZ);
 function connectedPads(){let ps=[];try{ps=navigator.getGamepads?Array.from(navigator.getGamepads()):[];}catch(e){}return ps.filter(p=>p&&p.connected).sort((a,b)=>a.index-b.index);}
 function rumble(p,s,ms){try{const pad=p&&p.pad;if(pad&&pad.vibrationActuator)pad.vibrationActuator.playEffect('dual-rumble',{duration:ms,strongMagnitude:Math.min(1,s),weakMagnitude:Math.min(1,s*0.6)});}catch(e){}}
+// in a vehicle, its own controls (its control context, ctx in VEHICLE_KINDS) take the place of the ones on foot: those
+// the vehicle reads under their old names (as: a car's horn is still bite) are filled from it, the rest left off
+const CTX_PRESSES={bite:'bitePress',jump:'jumpPress',charge:'chargePress',dash:'dashPress',sprint:'sprintPress'};
+function ctxApply(p){const cx=p.drv&&!p.drv.jack?drvCtx(p.drv):null;if(!cx||cx==='mg')return;const i=p.in;
+  for(const k of CTX_TAKES){i[k]=false;if(CTX_PRESSES[k])i[CTX_PRESSES[k]]=false;}
+  let lock=null;
+  for(const a of ACTS){if(a.ctx!==cx||!a.as)continue;const h=!!i[a.id],pr=!!i[a.id+'P'];
+    if(a.as==='lock'){lock=(lock||false)||pr;continue;}
+    i[a.as]=i[a.as]||h;if(CTX_PRESSES[a.as])i[CTX_PRESSES[a.as]]=i[CTX_PRESSES[a.as]]||pr;}
+  if(lock!==null)i.lockPress=lock;}
 function readInputs(dt){
   const pads=connectedPads();
   if(pads.length!==padCount){padCount=pads.length;document.getElementById('padNote').textContent=padCount===0?'No controllers found yet. Press a button on one to wake it up.':padCount===1?'1 controller ready. Press A or Start to play. For co-op, plug in a second controller, or pick Co-op to play keyboard + controller.':padCount+' controllers ready. Press Start on the second one for co-op.';}
@@ -25546,7 +25645,7 @@ function readInputs(dt){
   else{s1=st[0]||null;s2=st[1]||null;}
   if(s1)P1.pad=s1.p;if(s2&&P2.active&&!P2.net)P2.pad=s2.p;
   P2.ui.join.hidden=!(P2.active&&!P2.pad);
-  for(const p of players){const i=p.in;i.x=0;i.z=0;i.charge=false;i.chargePress=false;i.stomp=false;i.bite=false;i.bitePress=false;i.jumpPress=false;i.jump=false;i.lockPress=false;i.dash=false;i.dashPress=false;i.sprint=false;i.sprintPress=false;i.lookX=0;i.lookY=0;i.climb=false;i.use=false;i.weapon=false;i.talk=false;i.kbd=false;for(const k of MG_IDS)i[k]=i[k+'P']=false;}
+  for(const p of players){const i=p.in;i.x=0;i.z=0;i.charge=false;i.chargePress=false;i.stomp=false;i.bite=false;i.bitePress=false;i.jumpPress=false;i.jump=false;i.lockPress=false;i.dash=false;i.dashPress=false;i.sprint=false;i.sprintPress=false;i.lookX=0;i.lookY=0;i.climb=false;i.use=false;i.weapon=false;i.talk=false;i.kbd=false;i.rt=i.lt=0;for(const k of CTX_IDS)i[k]=i[k+'P']=false;}
   // (rebinding a control in the menu: the next button pressed on any controller is the one)
   if(menuOpen&&BIND_CAP){if(performance.now()-BIND_CAP.t>200)for(const s of st){const i=s.pr.findIndex(Boolean);if(i<0)continue;
       if(BIND_CAP.dev==='pad'){if(PAD_RESERVED.has(i))bindCancel();else setBind(BIND_CAP.id,'pad',BIND_CAP.i,i);}else if(i===1||i===9)bindCancel();break;}
@@ -25593,7 +25692,7 @@ function readInputs(dt){
     I.kbd=!P1.pad;   // (flying on the keyboard: a plane is flown WASD-style, see drvPlane; the same rule as the hints' p.pad)
     I.charge=A.dashSprint;I.chargePress=A.dashSprintP;I.dash=A.dash;I.dashPress=A.dashP;I.sprint=A.sprint;I.sprintPress=A.sprintP;
     I.stomp=A.stomp;I.jumpPress=A.jumpP;I.jump=A.jump;I.lockPress=A.lockP;I.climb=A.climb;I.bite=A.bite;I.bitePress=A.biteP;I.use=A.use;I.weapon=A.weapon;I.talk=A.talk;
-    for(const k of MG_IDS){I[k]=A[k];I[k+'P']=A[k+'P'];}
+    for(const k of CTX_IDS){I[k]=A[k];I[k+'P']=A[k+'P'];}
   }else for(const a of ACTS)kbPrevA[a.id]=false;
   mTap.clear();
   const apply=(p,s)=>{
@@ -25616,13 +25715,16 @@ function readInputs(dt){
     i.bite=i.bite||pb('bite');
     i.bitePress=i.bitePress||pp('bite');
     i.talk=i.talk||pb('talk');
-    for(const k of MG_IDS){if(pb(k))i[k]=true;if(pp(k))i[k+'P']=true;}
+    for(const k of CTX_IDS){if(pb(k))i[k]=true;if(pp(k))i[k+'P']=true;}
+    // (the triggers, as far as they're pulled: a vehicle's analog throttle and brake)
+    {const tv=k=>{const x=s.p.buttons[k];return x?Math.max(0,Math.min(1,+x.value||(x.pressed?1:0))):0;};i.rt=tv(7);i.lt=tv(6);}
   };
   if(DT.menu&&DT.kbdOpen){const I=P1.in;for(const k in I)if(typeof I[k]==='boolean')I[k]=false;I.x=I.z=0;}
   // (online chat: the controller's quick messages take it over while their list is up, and while a line's being typed
   // or picked player one stands still, so the keys typed never walk them off)
   if(s1&&chatPad(s1))s1=null;
   apply(P1,s1);if(P2.active&&!P2.net)apply(P2,s2);
+  for(const p of players)if(!p.net)ctxApply(p);
   if(CHAT.open||CHAT.quick){const I=P1.in;for(const k in I)if(typeof I[k]==='boolean')I[k]=false;I.x=I.z=0;I.lookX=I.lookY=0;}
   for(const p of players)p.in.chargeHeld=p.in.charge;
   if(DT.freecam&&!P1.paused)updateFreecam(dt,s1);
@@ -25938,22 +26040,9 @@ function updateSpeedo(p,dt){
   p.spX=x;p.spY=y;p.spZ=z;
   if(raw>400){raw=0;rawY=0;}   // a respawn or teleport isn't speed
   const kk=Math.min(1,dt*7);p.spV=(p.spV||0)+(raw-(p.spV||0))*kk;p.spVY=(p.spVY||0)+(rawY-(p.spVY||0))*kk;
-  // (only shown in a vehicle, driving or in the gunner's seat; on foot it's hidden, though the speed's still kept up, so it reads right the moment you get in)
-  const inV=!!p.drv;if(p.ui.speedo.hidden===inV)p.ui.speedo.hidden=!inV;if(!inV)return;
-  p.spT=(p.spT||0)-dt;if(p.spT>0)return;p.spT=1/20;   // redraw at 20 Hz
-  const v=Math.max(0,p.spV),k=Math.min(1,v/SPEEDO_MAX),shown=Math.round(v);
-  if(shown!==p.spShown){p.spShown=shown;p.ui.spNum.textContent=String(shown);}
-  // a crash landing is coming when you're falling from 5+ blocks above the ground (or ground-pounding)
-  let crash=false;
-  if(!C&&!p.grounded&&p.vy<0){const gnd=groundAt(p.pos.x,p.pos.z,p.pos.y);crash=p.state==='pound'||abilOf(p).crash&&((p.peakY??p.pos.y)-gnd)>=5;}
-  const vy=Math.round(p.spVY),vtxt=crash&&vy<-2?'↓ '+Math.abs(vy):'';
-  // colour by how hard the landing will be: yellow, then orange, then red
-  const heat=-vy<70?'y':-vy<95?'o':'r';
-  if(vtxt!==p.spVShown){p.spVShown=vtxt;p.ui.spVert.textContent=vtxt;p.ui.spVert.setAttribute('visibility',vtxt?'visible':'hidden');}
-  if(heat!==p.spHeat){p.spHeat=heat;p.ui.spVert.setAttribute('class','sp-vert '+heat);}
-  p.ui.spNeedle.setAttribute('transform','rotate('+(-120+240*k).toFixed(1)+')');
-  p.ui.spFill.setAttribute('stroke-dasharray',(k*100).toFixed(1)+' 200');p.ui.spFill.setAttribute('visibility',k<0.01?'hidden':'visible');
-  p.ui.spFill.setAttribute('stroke',k<0.55?'#7fc24a':k<0.8?'#f0a04a':'#e0564a');
+  // (only shown in a vehicle, and then as the instrument that vehicle has, its kind's inst: see instruments.js; on foot
+  // it's hidden, though the speed's still kept up, so it reads right the moment you get in)
+  instTick(p,dt);
 }
 let camClock=0;   // real seconds, for camera effects (they run on even when the game is slowed)
 function placeCamera(p){
@@ -26051,6 +26140,38 @@ function renderView(p,x,y,w,h){
 for(const p of players)p.root.scale.setScalar(ES);
 for(const g of goblins)g.root.scale.setScalar(ES);
 for(const c of cars)c.g.scale.setScalar(ES);
+// ---- the instrument in the bottom-right corner, in a vehicle: one slot (.speedo), drawn by its kind's renderer ----
+// Which one a vehicle has is its kind's inst (VEHICLE_KINDS, a key here, or null for none). The speed it shows is the
+// speed measured from the player's own movement (updateSpeedo: p.spV in km/h, p.spVY), so it reads right for anything,
+// aboard a ship too. Each renderer: units, what it shows speed in; update(p,dt), called 20 times a second while shown.
+// The Options' Vehicle instruments switch (uiSpeedo) hides the whole slot.
+const KMH_KN=1/1.852;   // (km/h to knots: knots on water and in the air, km/h on land)
+const INSTRUMENTS={
+  // the ink dial: a needle round to SPEEDO_MAX, a fill coloured by how far round, and the speed in the middle
+  dial:{units:'km/h',
+    update(p){const v=Math.max(0,p.spV),k=Math.min(1,v/SPEEDO_MAX),shown=Math.round(v);
+      if(shown!==p.spShown){p.spShown=shown;p.ui.spNum.textContent=String(shown);}
+      p.ui.spNeedle.setAttribute('transform','rotate('+(-120+240*k).toFixed(1)+')');
+      p.ui.spFill.setAttribute('stroke-dasharray',(k*100).toFixed(1)+' 200');p.ui.spFill.setAttribute('visibility',k<0.01?'hidden':'visible');
+      p.ui.spFill.setAttribute('stroke',k<0.55?'#7fc24a':k<0.8?'#f0a04a':'#e0564a');}},
+};
+// what's in the slot for this player now: their vehicle's instrument, or nothing on foot
+function drvInst(p){const D=p.drv;if(!D||D.jack)return null;const K=VEHICLE_KINDS[D.k];return K?K.inst(D):'dial';}
+function instTick(p,dt){
+  const key=drvInst(p),I=key&&INSTRUMENTS[key],el=p.ui.speedo;
+  if(el.hidden===!!I)el.hidden=!I;if(!I){p.instK=null;return;}
+  if(p.instK!==key){p.instK=key;p.spT=0;p.spShown=null;}
+  p.spT=(p.spT||0)-dt;if(p.spT>0)return;p.spT=1/20;   // redraw at 20 Hz
+  I.update(p,dt);
+  // a crash landing is coming when you're falling from 5+ blocks above the ground (or ground-pounding)
+  let crash=false;const C=p.state==='dead'&&p.corpse?p.corpse:null;
+  if(!C&&!p.grounded&&p.vy<0){const gnd=groundAt(p.pos.x,p.pos.z,p.pos.y);crash=p.state==='pound'||abilOf(p).crash&&((p.peakY??p.pos.y)-gnd)>=5;}
+  const vy=Math.round(p.spVY),vtxt=crash&&vy<-2?'↓ '+Math.abs(vy):'';
+  // colour by how hard the landing will be: yellow, then orange, then red
+  const heat=-vy<70?'y':-vy<95?'o':'r';
+  if(vtxt!==p.spVShown){p.spVShown=vtxt;p.ui.spVert.textContent=vtxt;p.ui.spVert.setAttribute('visibility',vtxt?'visible':'hidden');}
+  if(heat!==p.spHeat){p.spHeat=heat;p.ui.spVert.setAttribute('class','sp-vert '+heat);}
+}
 // ---- far city: past the smashable voxel range every building is one box, with window rows that light up at night ----
 const MESHED_TEX=new THREE.DataTexture(MESHED,256,256,THREE.RGBAFormat);MESHED_TEX.magFilter=MESHED_TEX.minFilter=THREE.NearestFilter;MESHED_TEX.needsUpdate=true;
 // (shaded the way the voxel world is: each face by its direction, as FACES' shade times DIM, so a box comes out as dark as the
@@ -26496,7 +26617,7 @@ function frame(now,bg){   // (bg: a tab in the background while online, kept goi
   const nSub=Math.max(1,Math.ceil(gdt/0.05)),sdt=gdt/nSub;
   for(let sI=0;sI<nSub;sI++){
     if(netG){netGuestStep(sdt,sI===0);continue;}   // (a guest online: the host's game does the playing, see net/net-sync.js)
-    if(sI>0)for(const p of players){const I=p.in;I.jumpPress=I.bitePress=I.lockPress=I.chargePress=I.dashPress=I.sprintPress=false;for(const k of MG_PRESS)I[k]=false;}
+    if(sI>0)for(const p of players){const I=p.in;I.jumpPress=I.bitePress=I.lockPress=I.chargePress=I.dashPress=I.sprintPress=false;for(const k of CTX_PRESS)I[k]=false;}
     for(const p of players){DBG_WHO='p';safe('player',()=>updatePlayer(p,sdt));DBG_WHO='n';}
     safe('goblins',()=>updateGoblins(sdt));safe('fireballs',()=>{updateFireballs(sdt);updateShots(sdt);gobPickups(sdt);});safe('cars',()=>updateCars(sdt));safe('stations',()=>updateStations(sdt));safe('services',()=>updateServices(sdt));
     safe('traffic',()=>updateTraffic(sdt));safe('ships',shipCrossAll);for(const p of players)if(p.drv)safe('drive',()=>drvSeat(p));for(const p of players)if(p.vcl&&p.state==='climb')safe('vpin',()=>vRepin(p));safe('spikes',()=>updateSpikes(sdt));safe('weather',()=>updateWeather(sdt));safe('sky',()=>updateSky(sdt));
@@ -26692,7 +26813,7 @@ function netHostLeft(peer){
 }
 // a guest's controls: what's held now replaces what was held; a press counts once, on the host's next frame, however many
 // of the guest's frames it was spread over (and none is lost between two of them)
-const NET_HELD=['charge','stomp','bite','jump','dash','sprint','climb','use','weapon','kbd',...MG_IDS],NET_PRESS=['chargePress','bitePress','jumpPress','lockPress','dashPress','sprintPress',...MG_PRESS];
+const NET_HELD=['charge','stomp','bite','jump','dash','sprint','climb','use','weapon','kbd',...CTX_IDS],NET_PRESS=['chargePress','bitePress','jumpPress','lockPress','dashPress','sprintPress',...CTX_PRESS];
 function netGotInput(p,m){
   const N=p.net;if(typeof m.n==='number'&&m.n<=(N.inN||0))return;N.inN=m.n;N.inAt=NET.now;
   N.inb=m;if(Number.isFinite(m.vt))N.vt=m.vt;if(m.pr&&(m.pr.bitePress||m.pr.chargePress)||m.h&&(m.h.bite||m.h.stomp))N.atkAt=NET.now;
@@ -26705,7 +26826,7 @@ function netHostInputs(){
   for(const p of NET.guests.values()){const N=p.net,I=p.in,m=N.inb;
     for(const k in I)if(typeof I[k]==='boolean')I[k]=false;I.x=I.z=0;I.lookX=I.lookY=0;
     if(!m||p.paused)continue;
-    I.x=Math.max(-1,Math.min(1,+m.x||0));I.z=Math.max(-1,Math.min(1,+m.z||0));I.lookX=+m.lx||0;I.lookY=+m.ly||0;
+    I.x=Math.max(-1,Math.min(1,+m.x||0));I.z=Math.max(-1,Math.min(1,+m.z||0));I.lookX=+m.lx||0;I.lookY=+m.ly||0;I.rt=Math.max(0,Math.min(1,+m.rt||0));I.lt=Math.max(0,Math.min(1,+m.lt||0));
     for(const k of NET_HELD)I[k]=!!(m.h&&m.h[k]);
     for(const k of NET_PRESS){I[k]=!!N.pr[k];N.pr[k]=false;}
     I.chargeHeld=I.charge;
@@ -26841,7 +26962,7 @@ function netSendInput(dt){
   NET.inT-=dt*1000;if(NET.inT>0)return;NET.inT+=1000/NET_IN_HZ;if(NET.inT<0)NET.inT=0;
   const h={};for(const k of NET_HELD)if(I[k]||NET_IN.hh[k])h[k]=1;NET_IN.hh={};
   const pr={};for(const k in NET_IN.pr)pr[k]=1;
-  const m={t:'in',n:++NET.seq,vt:NET.off===null?null:Math.round(NET.rt!==null?NET.rt:NET.now-NET.off-NET.dly),x:+(I.x||0).toFixed(3),z:+(I.z||0).toFixed(3),lx:+(I.lookX||0).toFixed(2),ly:+(I.lookY||0).toFixed(2),h,pr,yaw:+(P1.cam.yaw+netFrameYaw(P1)).toFixed(4),pitch:+P1.cam.pitch.toFixed(4)};
+  const m={t:'in',n:++NET.seq,vt:NET.off===null?null:Math.round(NET.rt!==null?NET.rt:NET.now-NET.off-NET.dly),x:+(I.x||0).toFixed(3),z:+(I.z||0).toFixed(3),lx:+(I.lookX||0).toFixed(2),ly:+(I.lookY||0).toFixed(2),h,pr,rt:+(I.rt||0).toFixed(2),lt:+(I.lt||0).toFixed(2),yaw:+(P1.cam.yaw+netFrameYaw(P1)).toFixed(4),pitch:+P1.cam.pitch.toFixed(4)};
   if(NET_IN.fl[0]||NET_IN.fl[1])m.fl=NET_IN.fl.slice();
   NET_IN.pr={};NET_IN.fl[0]=NET_IN.fl[1]=0;
   netPredSent(m.n);NET.tr.send(m,NET.host);

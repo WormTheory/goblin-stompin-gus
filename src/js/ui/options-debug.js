@@ -52,7 +52,7 @@ const UI_PARTS={
   uiClock:['.clock','Clock','The dial at the top right'],
   uiStatus:['#clockTxt','Status panel','The day, the time of day and the season, beside the clock'],
   uiMini:['.mini','Minimap','Bottom left'],
-  uiSpeedo:['.speedo','Speedometer','Bottom right, in a vehicle'],
+  uiSpeedo:['.speedo','Vehicle instruments','Bottom right, in a vehicle: its speedometer, or whatever it has'],
   uiHearts:['.hearts','Hearts','Your health'],
   uiStam:['.stam','Stamina bar','Under the hearts'],
   uiCharge:['.smeter','Charge meter','Winding up a stomp or a ground pound'],
