@@ -41,19 +41,42 @@ const WB_ID=()=>'world:'+SAVE_KEY;
 // localStorage naming a copy of the blocks that IndexedDB no longer had. The first starts at once, as before, so a save as
 // the page closes still reaches localStorage; any made while one's still going wait their turn.)
 let WB_Q=Promise.resolve(),WB_N=0;
+// (each chunk's smashed blocks are a record of their own, keyed WB_ID()+'|'+chunk, beside a note under WB_ID() naming which
+// copy they are. A save writes only the chunks that changed since the last one it wrote (WB.saved, what IndexedDB holds),
+// in one transaction with the note, over one connection kept open: copying and writing every chunk each time made a hitch
+// every few seconds in a long rampage's city. Before anything's known of what's there (the first save since the page
+// loaded a small world, or after one failed), it clears them all and writes the lot. An older save, with all the chunks
+// in the note as ed2, still loads, and is rewritten this way the first time it's saved.)
+let WB_DB=null;
+function wbDb(){if(!WB_DB)WB_DB=svDb().then(db=>{db.onversionchange=()=>{db.close();WB_DB=null;};db.onclose=()=>{WB_DB=null;};return db;},e=>{WB_DB=null;throw e;});return WB_DB;}
+function wbTx(mode,fn){return wbDb().then(db=>new Promise((ok,no)=>{let tx;try{tx=db.transaction('kv',mode);}catch(e){WB_DB=null;no(e);return;}
+  const out=fn(tx.objectStore('kv'));tx.oncomplete=()=>ok(out);tx.onerror=tx.onabort=()=>no(tx.error);}));}
+const wbRange=()=>IDBKeyRange.bound(WB_ID()+'|',WB_ID()+'|￿');
+function wbWrite(t,ed2){const was=WB.saved,id=WB_ID()+'|',has=k=>Object.prototype.hasOwnProperty.call(ed2,k);WB.saved=null;   // (not known again till this one's done)
+  return wbTx('readwrite',s=>{
+    if(!was)s.delete(wbRange());
+    for(const k in ed2)if(!was||was.get(k)!==ed2[k])s.put(ed2[k],id+k);
+    if(was)for(const k of was.keys())if(!has(k))s.delete(id+k);
+    s.put({t,parts:1},WB_ID());
+  }).then(()=>{WB.saved=new Map(Object.entries(ed2));});}
+// (the smashed blocks back as one ed2, or null if there are none)
+function wbRead(){const R=wbRange();return wbTx('readonly',s=>({a:s.get(WB_ID()),ks:s.getAllKeys(R),vs:s.getAll(R)})).then(({a,ks,vs})=>{
+  const n=a.result;if(!n)return null;if(n.ed2&&typeof n.ed2==='object')return n.ed2;if(!n.parts)return null;
+  const ed2={},L=WB_ID().length+1;ks.result.forEach((k,i)=>{ed2[String(k).slice(L)]=vs.result[i];});
+  WB.saved=new Map(Object.entries(ed2));return ed2;});}
 function worldPut(o){WB_N++;const run=()=>worldPut0(o),p=WB_N===1?run():WB_Q.then(run,run),done=()=>{WB_N--;};WB_Q=p.then(done,done);return p;}
 async function worldPut0(o){
   if(!WB.on||!o.ed2){try{localStorage.setItem(SAVE_KEY,JSON.stringify(o));return;}catch(e){if(!window.indexedDB||!o.ed2)throw e;WB.on=true;}}
   const t=Date.now()+'-'+Math.random().toString(36).slice(2,8);
-  await svKv(WB_ID(),{t,ed2:o.ed2});
+  await wbWrite(t,o.ed2);
   const small=Object.assign({},o,{ed2db:t});delete small.ed2;
   localStorage.setItem(SAVE_KEY,JSON.stringify(small));
 }
 async function worldLoadBig(){
-  const want=WB.pending;if(!want)return;let r=null;try{r=await svKv(WB_ID());}catch(e){}
+  const want=WB.pending;if(!want)return;let ed2=null;try{ed2=await wbRead();}catch(e){}
   // (a copy other than the one named is the newest one written, so it's taken rather than thrown away; with none at all,
   // nothing's saved straight away, so the save isn't overwritten with no smashed blocks)
-  const got=!!(r&&r.ed2&&typeof r.ed2==='object');if(got){editsUnpack(r.ed2);worldRefresh();}
+  const got=!!(ed2&&typeof ed2==='object');if(got){editsUnpack(ed2);worldRefresh();}
   else try{flashLabel("Couldn't find all of this world's smashed blocks");}catch(e){}
   WB.pending=null;if(got)save();
 }

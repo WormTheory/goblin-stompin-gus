@@ -94,7 +94,7 @@ function boatDrive(V,bo,p,i,dt){const g=bo.g,K=bo.K,fast=BOAT_FAST(K),oars=bo.k=
   bo.ws=s;}
 // pushing another boat (a tug's push mode): it's moved along with this one, the smaller the more
 function boatPush(bo,hit,dx,dz){const o=hit&&hit.T;if(!o||o===bo||!o.K||!o.g)return false;const k=Math.min(1,bo.L/o.L*1.2);
-  o.g.position.x+=dx*k;o.g.position.z+=dz*k;const V=[...venues.values()].find(v=>v.bo===o);if(V){V.x=o.g.position.x;V.z=o.g.position.z;}return true;}
+  o.g.position.x+=dx*k;o.g.position.z+=dz*k;const V=venues.get(o.key);if(V&&V.bo===o){V.x=o.g.position.x;V.z=o.g.position.z;}return true;}
 // the controls, for the column down the left
 function boatHow(p,D,armed,G){const A=id=>actMark(p,id),bo=D.o,sp=BOAT_SPEC[bo.k],an=A('seAnchor')+(bo.anchor?' raise the anchor':' drop the anchor')+'  ·  ';
   if(bo.k==='row')return A('seHorn')+' left oar  ·  '+A('seSpec')+' right oar  ·  both: straight on, in a steady stroke  ·  '+an;

@@ -26,7 +26,7 @@ function editsUnpack(P){
 const saveObj=extra=>Object.assign({seed,ed2:editsPacked(),coll:collapses,wreck:wrecked,down:[...downFix],dest:destroyed,test:[...TEST_OFF]},extra);
 const saveText=extra=>JSON.stringify(saveObj(extra));
 let saveFullSaid=false;
-var WB={on:false,pending:null};   // (a city too big for localStorage: see worldPut in ui/saves.js)
+var WB={on:false,pending:null,saved:null};   // (a city too big for localStorage: see worldPut in ui/saves.js)
 // (worldPut, in ui/saves.js, puts it in localStorage, or once the city's grown too big for that, its smashed blocks in
 // IndexedDB and the rest in localStorage. Saving waits while a big city's smashed blocks are still being read back in.)
 function save(){if(saveBlocked||WB.pending)return;clearTimeout(saveTimer);saveTimer=setTimeout(()=>{if(saveBlocked||WB.pending)return;flushNotes(Infinity);

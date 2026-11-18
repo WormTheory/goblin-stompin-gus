@@ -285,6 +285,7 @@
 - If you'd moved X (or D-pad down) on to another control, the new Reload action no longer takes it as well: it's left unbound for you to set.
 - Theme park rides' and zoo animals' health now shows correctly to guests online.
 - Big worlds saved into the browser's database could be saved over by an older save finishing late, or not loaded back at all after a save that didn't finish; saves now go one at a time, and loading finds the blocks either way.
+- A badly smashed-up world no longer stutters every few seconds as it saves: the game only writes the parts of it that changed since the last save.
 
 ## Version 0.4.1
 
