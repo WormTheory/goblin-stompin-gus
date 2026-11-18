@@ -110,9 +110,10 @@ if(!TENVMODE){
  if(!TQ||!TQ.cars)console.log('no train found');else{
   TQ.v=0;TQ.wait=99;run(0.1);const g=TQ.cars[1];beside(g.position.x,G0+1.2,g.position.z,g.rotation.y,1.3);run(0.05);tap();
   console.log('train: in',st(),' car',P.drv&&P.drv.ci);
-  const s0=TQ.s;hold(['KeyW'],4);const v1=TQ.v*TQ.dir;console.log('  W 4 s (looking along it): moved along the track',f1(TQ.s-s0),' speed',f1(v1),' me by the car',f1(Math.hypot(P.pos.x-TQ.cars[1].position.x,P.pos.z-TQ.cars[1].position.z)));
-  {const Q=T.railPt(TQ.C,TQ.s),lk=-Math.sin(P.cam.yaw)*Q.tx-Math.cos(P.cam.yaw)*Q.tz;P.cam.yaw=lk>=0?Math.atan2(Q.tx,Q.tz):Math.atan2(-Q.tx,-Q.tz);}run(0.1);hold(['KeyW'],3);   // (looking straight back along the track, so a bend doesn't turn it round again)
-console.log('  turned round, W 3 s: speed',f1(TQ.v*TQ.dir),'(the other way now)');
+  const s0=TQ.s;hold(['KeyW'],4);const v1=TQ.v*TQ.dir;console.log('  W 4 s (the lever to P'+TQ.rail.n+'): moved along the track',f1(TQ.s-s0),' speed',f1(v1),' me by the car',f1(Math.hypot(P.pos.x-TQ.cars[1].position.x,P.pos.z-TQ.cars[1].position.z)));
+  // (braked to a stop with the lever (S held to B5), the reverser to reverse (R twice), then W)
+  hold(['KeyS'],3);{let n=0;while(Math.abs(TQ.v)>0.05&&n<200){run(0.1);n++;}}hold(['KeyR'],0.05);run(0.05);hold(['KeyR'],0.05);run(0.05);hold(['KeyW'],3);
+console.log('  braked, reversed, W 3 s: speed',f1(TQ.v*TQ.dir),'(the other way now)');
   tap();console.log('  F again:',st(),' train speed',f1(TQ.v),' waits',f1(TQ.wait));run(1);}}
 
 // ---- a boat (out on open sea)
@@ -138,7 +139,7 @@ console.log('  turned round, W 3 s: speed',f1(TQ.v*TQ.dir),'(the other way now)'
   const p0={x:g.position.x,z:g.position.z};if(V.bo.k==='row')for(let k=0;k<4;k++){T.mHeld.add('Mouse0');T.mHeld.add('Mouse2');run(0.05);T.mHeld.delete('Mouse0');T.mHeld.delete('Mouse2');run(0.7);}else hold(['KeyW'],3);console.log(V.bo.k==='row'?'  both oars 4 strokes: moved':'  W 3 s: moved',f1(Math.hypot(g.position.x-p0.x,g.position.z-p0.z)));tap();run(0.5);console.log('  F again:',st());}
  const S=find(V=>V.kind==='sub'&&V.cars&&V.cars[1]);if(!S)console.log('no subway');else{let n=0;while(n<600&&!(S.wait>1)){run(0.1);n++;}const c=S.cars[1].position,h=S.cars[1].rotation.y;
   put(c.x+Math.cos(h)*2,c.y-0.2,c.z-Math.sin(h)*2);run(0.2);const D=T.drvFind(P);tap();run(0.3);console.log('subway train at a station: F finds',D&&D.k,' in',st());
-  const s0=S.s;P.cam.yaw=S.cars[0].rotation.y+Math.PI;hold(['KeyW'],3);console.log('  W 3 s: went',f1(S.s-s0),' speed',f1(S.v));tap();run(0.5);console.log('  F again:',st(),' it goes back to its rounds',!S.T.drv);}T.setTenv(was);put(home.x,home.y,home.z);run(2);}
+  const s0=S.s;hold(['KeyW'],3);console.log('  W 3 s: went',f1(S.s-s0),' speed',f1(S.v));tap();run(0.5);console.log('  F again:',st(),' it goes back to its rounds',!S.T.drv);}T.setTenv(was);put(home.x,home.y,home.z);run(2);}
 const spawnK=k=>{T.tenvSpawn(k);let n=0;while(T.TS.search&&n<5000){T.tenvTick();n++;}return T.TENV.boxes[T.TENV.boxes.length-1];};
 {T.DT.host=1;   // (enemy hostility at Peaceful: walking into the base would set it off now that a goblin gets no special treatment, and this is about driving, not the alarm)
 const B=spawnK('base');run(3);const V=[...T.venues.values()].find(v=>v.kind==='army');

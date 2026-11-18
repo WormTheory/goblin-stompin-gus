@@ -178,6 +178,10 @@
 - The rowboat is rowed: left and right click pull each oar. Both together go straight, one alone turns it, and a steady rhythm goes faster. The pedalo is pedalled with W (faster tapped in rhythm) and steered with A and D.
 - Right click is each boat's own special: a speedboat's boost, a launch's or ferry's horn blast that scatters goblins, the sailboat's boom swinging across to knock goblins overboard, the trawler's net hauling in swimming goblins, the tug's push mode for shoving moored boats about, the patrol boat's deck gun and the pedalo's bell.
 - There's a wind now, slowly wandering round and stronger in storms. The sailboat goes fastest across it.
+- Trains are driven with one lever: tap W for more power and S for more brake (five notches each way, or hold to sweep through them), and it stays where you leave it, so you can look round freely. A train carries its weight: it gathers speed slowly and takes real distance to stop. Space throws the emergency brake.
+- The reverser (R) sets forward, neutral or reverse, but only once the train has stopped.
+- Every bend has a safe speed, and the instrument shows the next one coming up. Take it too fast and the wheels squeal; far too fast and the train comes off the rails.
+- Left click sounds the horn (hold it for a long blast) and right click rings the bell. Subway trains use the same lever.
 
 ### Map markers
 

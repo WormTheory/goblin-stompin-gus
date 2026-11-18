@@ -48,6 +48,7 @@ vehicles/plane-flight.js
 vehicles/tank-handling.js
 vehicles/heli-handling.js
 vehicles/boat-handling.js
+vehicles/train-handling.js
 vehicles/mech.js
 vehicles/mech-weapons.js
 ui/mech-hud.js

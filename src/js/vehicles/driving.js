@@ -442,11 +442,8 @@ function drvLaunch(D){const V=D.V,bo=D.o,g=V.boat;if(!V.ground&&!V.dry)return;
     if(!fits(x,z)||vehIn(x,z,h,w,l,G,G+K.fb+1,bo))continue;
     g.position.x=V.x=x;g.position.z=V.z=z;V.y0=G+.85;V.ground=false;V.dry=false;g.visible=true;puff(x,G+1,z,12,0xd8ecff,1.4);return;}}
 // driving a subway train round its loop: forward or back the way you're looking along it, as a train on a line
-function drvSub(V,dt){const T=V.T,p=T.drv,i=p.in,M=V.M,N=M.path.length,k=Math.floor(V.s),a=M.path[k%N],b=M.path[(k+1)%N],dx=b[0]-a[0],dz=b[1]-a[1],m=Math.hypot(dx,dz)||1;
-  const look=-Math.sin(p.cam.yaw)*dx/m-Math.cos(p.cam.yaw)*dz/m>=0?1:-1,thr=-i.z;let v=V.v;
-  if(Math.abs(thr)>0.1){const want=thr*look;v+=want*(v*want<0?18:5)*Math.abs(thr)*dt;}else v*=Math.exp(-dt*0.15);
-  V.v=Math.max(-25,Math.min(25,v));V.s=mod(V.s+V.v*dt,N);V.wait=0;
-  T.hornT=(T.hornT||0)-dt;if(i.bitePress&&T.hornT<=0){T.hornT=0.6;sfx('Train horn',()=>{tone('sawtooth',311,300,0.6,0.07);tone('sawtooth',370,360,0.6,0.06);});}
+function drvSub(V,dt){const T=V.T,p=T.drv,i=drvIn(p),N=V.M.path.length;
+  const R=trainLever(T,p,i,dt,V.v);V.v=trainPull(R,V.v,R.rev,dt,25);V.s=mod(V.s+V.v*dt,N);V.wait=0;   // (train-handling.js)
 }
 // is there another vehicle in a box at x,z (facing h, half-width hx, half-length hz, from y0 up to y1)? A car, a tank or
 // helicopter, or a piece of a train, boat, plane or ride; not self's own
@@ -560,12 +557,12 @@ function jetGuns(pl,p,i,dt){const g=pl.g,h=g.rotation.y,tx=Math.sin(h),tz=Math.c
 }
 // driving a train: forward is whichever way along the track you're looking; it stops at the ends of the line
 function drvTrain(T,dt){
-  const p=T.drv,i=p.in,C=T.C,P=railPt(C,T.s),look=-Math.sin(p.cam.yaw)*P.tx-Math.cos(p.cam.yaw)*P.tz>=0?1:-1,thr=-i.z;
-  let v=T.v*T.dir;
-  if(Math.abs(thr)>0.1){const want=thr*look;v+=want*(v*want<0?18:5)*Math.abs(thr)*dt;}else v*=Math.exp(-dt*0.15);
-  v=Math.max(-30,Math.min(30,v));
+  const p=T.drv,i=drvIn(p),C=T.C;let v=T.v*T.dir;
+  // (the lever, the reverser and the brakes; then the bends: train-handling.js)
+  const R=trainLever(T,p,i,dt,v);v=trainPull(R,v,R.rev*T.dir,dt,TRAIN_DRV.top);
   const lo=T.dir>0?TRAIN_LEN+1:1,hi=T.dir>0?C.L-2:C.L-2-TRAIN_LEN;T.s+=v*dt;
   if(T.s<lo){T.s=lo;v=0;}if(T.s>hi){T.s=hi;v=0;}
   T.v=v*T.dir;
-  T.hornT=(T.hornT||0)-dt;if(i.bitePress&&T.hornT<=0){T.hornT=0.6;sfx('Train horn',()=>{tone('sawtooth',311,300,0.6,0.07);tone('sawtooth',370,360,0.6,0.06);});}
+  const dir=Math.sign(v)||R.rev*T.dir||T.dir,lead=dir===T.dir?T.s:T.s-T.dir*TRAIN_LEN;
+  trainBends(T,p,R,v,lead,dir,dt);
 }
