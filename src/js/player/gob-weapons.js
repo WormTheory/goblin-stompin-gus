@@ -118,7 +118,7 @@ function gobNextWpn(p){gobArms(p);const L=GOB_WPN_ORDER.filter(k=>p.wpns.include
   p.wpn=L[(L.indexOf(p.wpn)+1)%L.length];p.wpnT=camClock;p.relT=0;   // (a reload's dropped: it starts again next time)
   sfx('Goblin switches weapon',()=>{tone('square',700,900,0.04,0.03);});}
 // once a frame per player goblin, before the move: the throw and the weapon buttons, and the cooldown
-function gobArmsTick(p,dt){gobArms(p);p.grenCD=Math.max(0,p.grenCD-dt);p.thrS=(p.thrS??9)+dt;   // (since his last throw: the arm coming through, gobBodyPose)
+function gobArmsTick(p,dt){gobArms(p);wpnHitSweep(p);p.grenCD=Math.max(0,p.grenCD-dt);p.thrS=(p.thrS??9)+dt;   // (since his last throw: the arm coming through, gobBodyPose)
   const st=!!p.in.stomp,wp=!!p.in.weapon,rl=!!p.in.reload;
   // (with a scoped gun in hand stomp looks down the scope instead: gobScope)
   if(st&&!p.gStompWas&&playing&&!gobW(p).scope)gobThrow(p);if(wp&&!p.gWpnWas&&playing)gobNextWpn(p);if(rl&&!p.gRelWas&&playing)gobReload(p);p.gStompWas=st;p.gWpnWas=wp;p.gRelWas=rl;

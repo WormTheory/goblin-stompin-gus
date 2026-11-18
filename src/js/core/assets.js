@@ -9,8 +9,8 @@
 //   for the held and stowed boxes), o (render order, first-person boxes), tag (a part the game moves on its own: mag, load,
 //   bolt, pump, slide), r:[x,y,z] (tilted, radians), sh (a shape other than a box: 'cyl', 'cone', 'wedge', 'sphere', each
 //   filling the box's size)}.
-// A clip: {layout, keys:[{t, v:[...the layout's channels], e:'i' (gathering speed) or 'o' (slowing), or none (smooth)}],
-//   events:[{t,k}]}: its layout names what each number in v is (ASSET_LAYOUTS).
+// A clip: {layout, tracks:{channel:[[u, value, ease?],...],...}}: a track of keys per channel, its layout naming them in
+//   order (ASSET_LAYOUTS), u 0 to 2; ease 'i' (gathering speed) or 'o' (slowing), or none (smooth).
 const ASSET_LAYOUTS={
   // a goblin's blow, shot, throw or reload as anyone sees it, u 0 to 2, the blow landing at 1 (strikes.js)
   body:{about:'A goblin, as everyone sees it',ch:[['arm',"Arm's swing"],['armOut','Arm out to the side'],['wrist','Wrist'],['free',"Free arm's swing"],
@@ -99,7 +99,7 @@ const assetChNames=c=>{const L=ASSET_LAYOUTS[c.layout],o=[];if(!L)return o;for(c
 function assetClip(c){return assetChNames(c).map(k=>c.tracks[k].map(a=>a.slice()));}
 function assetClipOf(name,T){
   const layout=assetLayoutOf(name),tracks={};T.forEach((K,j)=>{tracks[ASSET_LAYOUTS[layout].ch[j][0]]=K.map(a=>a.slice());});
-  return {layout,tracks,events:layout==='body'&&!/^rl/.test(name)?[{t:1,k:'hit'}]:[]};
+  return {layout,tracks};
 }
 // a clip's pose at u, from its file (the editor's, and what strikeAt does with the table)
 function assetPoseAt(c,u){
@@ -190,7 +190,7 @@ function assetCheck(kind,name,a){
           if(!n(q[0])||q[0]<0||q[0]>2)E.push(at+': time must be a number from 0 to 2');else{if(q[0]<=t0)E.push(at+': keys must be in time order, no two at once');t0=q[0];}
           if(!n(q[1]))E.push(at+': value must be a number');
           if(q.length>2&&q[2]!=='i'&&q[2]!=='o')E.push(at+": ease must be 'i', 'o' or left out");});}}
-    for(const ev of a.events||[])if(!n(ev.t)||ev.t<0||ev.t>2)E.push('event '+ev.k+' is outside the clip (0 to 2)');
+    if(a.events!==undefined)E.push('events are no longer used: the hitboxes of a blow and when they hurt are on its weapon (hit.hitboxes, t)');
   }else if(kind==='grips'){
     // (enemies/grip.js: sh the weapon hand's spot, out how far along the gun from it, fore [aimed, carried] how far along
     // for the free hand, tw [aimed, carried] the turn side-on, low a carried gun's droop, reach the shoulder's give)
@@ -204,8 +204,9 @@ function assetCheck(kind,name,a){
   }
   return E;
 }
-// hit shapes: {hitboxes:[...], hurtboxes:[...], collision:[...]}, each {k:'box'|'sphere'|'capsule', on:pivot name, p, s (box
-// size), r (radius), h (capsule length), rot, t:[from,to] (a hitbox's live span on its clip, u)}
+// hit shapes: {hitboxes:[...], hurtboxes:[...], collision:[...]}, each {k:'box'|'sphere'|'capsule', on (a weapon's hitbox
+// only: 'hand' for one that follows the hand through the blow, else it's from the feet), p, s (box size), r (radius),
+// h (capsule length), rot, t:[from,to] (a hitbox's live span on its weapon's third-person blow, u 0 to 2)}
 const HIT_KINDS=['box','sphere','capsule'],HIT_SETS=['hitboxes','hurtboxes','collision'];
 function assetCheckHit(H,at,E){
   const n=v=>typeof v==='number'&&isFinite(v),v3=v=>Array.isArray(v)&&v.length===3&&v.every(n);
@@ -217,5 +218,6 @@ function assetCheckHit(H,at,E){
       if(s.k!=='box'&&!(n(s.r)&&s.r>0))E.push(w+': needs a radius r above 0');
       if(s.k==='capsule'&&!(n(s.h)&&s.h>=0))E.push(w+': a capsule needs a length h');
       if(s.rot!==undefined&&!v3(s.rot))E.push(w+': tilt rot must be three numbers');
+      if(s.on!==undefined&&!(set==='hitboxes'&&s.on==='hand'))E.push(w+': on can only be hand, on a hitbox');
       if(s.t!==undefined&&!(Array.isArray(s.t)&&s.t.length===2&&s.t.every(n)&&s.t[0]<=s.t[1]))E.push(w+': live span t must be [from, to]');});}
 }

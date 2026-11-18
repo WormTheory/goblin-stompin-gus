@@ -1,7 +1,7 @@
 let __s=+(process.env.SEED||1);Math.random=()=>{__s=(__s*16807)%2147483647;return (__s-1)/2147483646;};
 const fs=require('fs');
 let src0=fs.readFileSync('g.js','utf8');
-let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={players,cars,goblins,frame,setGob,WEAPONS,GOB_WPN,STRIKES,ASSETS,assetCheck,assetFmt,assetWeapon,assetWeaponOf,assetClip,assetClipOf,wpnHitShapes,hitWorld,hitTouch,liveWeapon,liveClip,PICKUPS,hitGoblins,assetList,assetPlace,ASSET_LISTS};\n})();');
+let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={players,cars,goblins,frame,setGob,WEAPONS,GOB_WPN,STRIKES,ASSETS,assetCheck,assetFmt,assetWeapon,assetWeaponOf,assetClip,assetClipOf,wpnHitShapes,hitWorld,hitTouch,liveWeapon,liveClip,PICKUPS,hitGoblins,assetList,assetPlace,ASSET_LISTS,wpnHitSweep,hitHand,gobSwingU};\n})();');
 const deep=()=>new Proxy(function(){}, {get:(t,p)=>p===Symbol.toPrimitive?()=>0:(p==='length'?0:deep()),apply:()=>deep(),construct:()=>deep()});
 class Q{constructor(){this.x=0;this.y=0;this.z=0;this.w=1}set(x,y,z,w){this.x=x;this.y=y;this.z=z;this.w=w;return this}setFromAxisAngle(a,t){const s=Math.sin(t/2);this.x=a.x*s;this.y=a.y*s;this.z=a.z*s;this.w=Math.cos(t/2);return this}copy(q){this.x=q.x;this.y=q.y;this.z=q.z;this.w=q.w;return this}}
 class V3{project(){return this}fromBufferAttribute(a,i){const A=a.array||a.a;this.x=A[i*3];this.y=A[i*3+1];this.z=A[i*3+2];return this}applyMatrix4(m){const e=m.elements,x=this.x,y=this.y,z=this.z;this.x=e[0]*x+e[4]*y+e[8]*z+e[12];this.y=e[1]*x+e[5]*y+e[9]*z+e[13];this.z=e[2]*x+e[6]*y+e[10]*z+e[14];return this}setFromMatrixPosition(o){this.x=o.position.x;this.y=o.position.y;this.z=o.position.z;return this}normalize(){const l=Math.hypot(this.x,this.y,this.z)||1;this.x/=l;this.y/=l;this.z/=l;return this}add(v){this.x+=v.x;this.y+=v.y;this.z+=v.z;return this}applyQuaternion(q){const x=this.x,y=this.y,z=this.z,qx=q.x,qy=q.y,qz=q.z,qw=q.w;const ix=qw*x+qy*z-qz*y,iy=qw*y+qz*x-qx*z,iz=qw*z+qx*y-qy*x,iw=-qx*x-qy*y-qz*z;this.x=ix*qw+iw*-qx+iy*-qz-iz*-qy;this.y=iy*qw+iw*-qy+iz*-qx-ix*-qz;this.z=iz*qw+iw*-qz+ix*-qy-iy*-qx;return this}constructor(x=0,y=0,z=0){this.x=x;this.y=y;this.z=z}set(x,y,z){this.x=x;this.y=y;this.z=z;return this}copy(v){this.x=v.x;this.y=v.y;this.z=v.z;return this}clone(){return new V3(this.x,this.y,this.z)}addScaledVector(v,s){this.x+=v.x*s;this.y+=v.y*s;this.z+=v.z*s;return this}multiplyScalar(s){this.x*=s;this.y*=s;this.z*=s;return this}setScalar(s){return this.set(s,s,s)}}
@@ -81,6 +81,19 @@ console.log('box out to his +x side: there',hitAt(side,0.8,0.6),'| the other sid
 const tilt={hit:{hitboxes:[{k:'capsule',p:[0,0.6,0.8],r:0.15,h:1.6,rot:[0,0,Math.PI/2]}]}};
 console.log('a sweep across, tilted on its side: at its left end',hitAt(tilt,-0.75,0.8),'| right end',hitAt(tilt,0.75,0.8),'| standing up (no tilt) the ends miss',hitAt({hit:{hitboxes:[{k:'capsule',p:[0,0.6,0.8],r:0.15,h:1.6}]}},0.75,0.8));
 console.log('above his head: a goblin on a ledge 1.5 up',hitAt({hit:{hitboxes:[{k:'sphere',p:[0,2,0.8],r:0.4}]}},0,0.8,1.5),'| on the ground under it',hitAt({hit:{hitboxes:[{k:'sphere',p:[0,2,0.8],r:0.4}]}},0,0.8,0));
+// (a swing in time: a katana with a capsule along its blade, following the hand, live on part of the blow. The swing is
+// stepped as the game steps it (biteT counting down, wpnHitSweep each frame) and the goblin is hit only while the
+// capsule's live and touching it, once a swing)
+{const K=T.WEAPONS.katana,old=K.hit,P=K.player;A.gob=true;A.wpns=['club','katana'];A.wpn='katana';A.state='walk';
+  const swing=(span,dx,dz,dt=1/60)=>{K.hit={hitboxes:[{k:'capsule',on:'hand',p:[0,0,0.55],r:0.15,h:0.9,rot:[1.5708,0,0],t:span}]};
+    A.heading=0;G.state='chase';G.hp=1000;G.heading=Math.PI;G.pos.x=A.pos.x+dx;G.pos.y=A.pos.y;G.pos.z=A.pos.z+dz;
+    A.biteDur=P.dur;A.biteT=P.dur;A.lungeT=P.lunge;A.hsOn=false;let first=null,n=0,hp=G.hp;
+    while(A.biteT>0){T.wpnHitSweep(A);if(G.hp<hp){n++;hp=G.hp;if(first===null)first=+T.gobSwingU(A).toFixed(2);}A.biteT-=dt;A.lungeT-=dt;}
+    T.wpnHitSweep(A);G.state='wait';G.hp=0;return n?'hit at u '+first+(n>1?' ('+n+' times!)':''):'missed';};
+  console.log('a swing in time: live as it lands, goblin ahead',swing([0.85,1.1],0,0.9),'| well behind',swing([0.85,1.1],0,-2),'| live only in the wind-up',swing([0.05,0.3],0,0.9),
+    '| a short span at 60 fps',swing([1.02,1.06],0,0.9),'| and at 15 fps (stepped over, still counted)',swing([1.02,1.06],0,0.9,1/15),'| live all through: hit once',swing([0,2],0,0.9));
+  const h0=T.hitHand('katana',0.2),h1=T.hitHand('katana',1);console.log('the hand moves with the blow: wind-up',h0.o.map(v=>+v.toFixed(2)).join(','),'| landing',h1.o.map(v=>+v.toFixed(2)).join(','));
+  K.hit=old;}
 // ---- the live preview ----
 {const f=JSON.parse(fs.readFileSync(path.join(AS,'weapons','dagger.json'),'utf8'));const same=T.WEAPONS.dagger,gw=T.GOB_WPN.dagger,dmg0=same.dmg;
   f.model.boxes[0].s=[0.5,0.5,0.5];f.dmg=dmg0+7;   // (the shared model, which held uses)

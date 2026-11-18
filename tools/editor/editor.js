@@ -96,7 +96,7 @@ async function open(kind,name,w){
   else if(!['box','stats','hit'].includes(S.insp))S.insp='box';
   $('empty').style.display='none';
   renderList();renderToolbar();renderInsp();rebuild();frameView();
-  $('timeline').classList.toggle('show',kind==='clips');resize();drawTL();
+  tlShow();
   status((kind==='weapons'?'Weapon ':kind==='bodies'?'Body ':'Animation ')+name);
 }
 // (which weapon to show an animation with: the first that uses it)
@@ -301,6 +301,7 @@ function fpPose(F,W,c,u){
   else{const v=FP_REF.rest;F.arm.rotation.x=v[0];F.arm.position.set(v[1],v[2],v[3]);}
 }
 function poseAt(u){
+  if(hitTL())return hitPoseAt(u);
   const d=doc();if(!posed||!d||d.kind!=='clips')return;const c=d.data;
   if(posed.k==='body')poseBody(posed.J,c,u,WDATA[S.previewW],/^rl/.test(d.name));
   else{fpPose(posed.F,posed.W,c,u);fpPose(fpView,posed.W,c,u);}
@@ -349,20 +350,35 @@ const hitSet=()=>doc()&&doc().kind==='bodies'?'hurtboxes':'hitboxes';
 const goblinHurt=()=>{const d=DOCS.get(key('bodies','goblin'));return (d&&d.data.hit&&d.data.hit.hurtboxes)||[];};
 function buildHit(W){
   const set=hitSet(),body=set==='hurtboxes',col=body?0x50c0ff:0xff5040;
-  const J=goblin(true);content.add(J.root);
-  if(!body){J.arm.rotation.x=-1.2;for(const b of viewList(W,'held'))J.hand.add(boxMesh(b,true));
+  const J=goblin(true);content.add(J.root);hitPose=null;
+  const bc=body?null:hitBlow(W);
+  if(!body){if(bc)poseBody(J,bc,S.t,W,false);else J.arm.rotation.x=-1.2;for(const b of viewList(W,'held'))J.hand.add(boxMesh(b,true));
     // (the built-in hit, for reference: everything within r of a point reach ahead, a little below to well above the feet)
     if(W.r&&W.reach){const ref=hitMesh({k:'capsule',p:[0,0.25,W.reach],r:W.r,h:5.5},0x60a0ff,true);ref.material.opacity=0.35;content.add(ref);}
     // (a goblin where the blow lands, facing back, with its hurtboxes)
     const T=goblin(true),z=(W.reach||1)+0.3;T.root.position.z=z;T.root.rotation.y=Math.PI;content.add(T.root);
     const tg=new THREE.Group();tg.position.z=z;tg.rotation.y=Math.PI;content.add(tg);for(const s of goblinHurt())tg.add(hitMesh(s,0x50c0ff,true));}
   const H=(W.hit&&W.hit[set])||[];
-  H.forEach((s,i)=>{const m=hitMesh(s,selList().includes(i)?0xffd060:col,false);m.userData.i=i;content.add(m);pickable.push(m);m.add(new THREE.Mesh(m.geometry,new THREE.MeshBasicMaterial({color:col,wireframe:true})));});
+  H.forEach((s,i)=>{const m=hitMesh(s,selList().includes(i)?0xffd060:col,false);m.userData.i=i;(!body&&s.on==='hand'?J.hand:content).add(m);pickable.push(m);
+    const w=new THREE.Mesh(m.geometry,new THREE.MeshBasicMaterial({color:col,wireframe:true,transparent:true}));m.add(w);m.userData.w=w;});
   hitMeshes=pickable;
+  if(bc){hitPose={J,c:bc,W};hitLive(S.t);}
   if(S.hsel>=0)attachSel();
   hud(body?H.length+' hurtbox'+(H.length===1?'':'es')+'\nwhere a goblin can be hurt, from its feet (+z the way it faces)\nonly weapons with hitboxes of their own test against these':
-    H.length+' hitbox'+(H.length===1?'':'es')+(H.length?'':' (the game uses the built-in hit, in blue)')+'\nin the goblin\'s own frame: +z is the way it faces\nthe goblin ahead shows its hurtboxes (Bodies: goblin)');
+    H.length+' hitbox'+(H.length===1?'':'es')+(H.length?'':' (the game uses the built-in hit, in blue)')+'\nposed on its blow, '+hitBlowName(W)+', at the playhead: solid where it hurts then\nfrom the feet (+z the way it faces), or following the hand\nthe goblin ahead shows its hurtboxes (Bodies: goblin)');
 }
+// ---- a weapon's hitboxes on the timeline of its blow (the one Gnash's third person swings: gobBodyPose) ----
+const hitBlowName=W=>W&&(W.player&&W.player.body||W.npc&&W.npc.strike)||'club';
+const hitBlow=W=>{const d=DOCS.get(key('clips',hitBlowName(W)));return d&&d.data.layout==='body'?d.data:null;};
+// (the timeline is a weapon's hitboxes', on its Hitboxes tab)
+const hitTL=()=>{const d=doc();return !!d&&d.kind==='weapons'&&S.insp==='hit';};
+function tlShow(){const d=doc();$('timeline').classList.toggle('show',!!d&&(d.kind==='clips'||hitTL()));renderTLBar();resize();drawTL();}
+let hitPose=null;
+// is a hitbox live at u? (one without a span: only as the blow lands)
+const hitIsLive=(s,u)=>s.t?u>=s.t[0]-1e-6&&u<=s.t[1]+1e-6:Math.abs(u-1)<0.02;
+function hitLive(u){const d=doc();if(!d||!d.data.hit)return;const H=d.data.hit.hitboxes||[];
+  pickable.forEach((m,i)=>{const s=H[i];if(!s||!m.userData.w)return;const on=hitIsLive(s,u);m.material.opacity=on?0.32:0.04;m.userData.w.material.opacity=on?0.9:0.25;});}
+function hitPoseAt(u){if(!hitPose)return;poseBody(hitPose.J,hitPose.c,u,hitPose.W,false);hitLive(u);}
 
 // gizmo -> the file
 gizmo.addEventListener('objectChange',()=>{
@@ -449,7 +465,7 @@ function renderInsp(){
   const d=doc();
   const tabs=!d?[]:d.kind==='weapons'?[['box','Boxes'],['stats','Stats'],['hit','Hitboxes']]:d.kind==='bodies'?[['hit','Hurtboxes']]:d.kind==='grips'?[['stats','Numbers']]:[['clip','Animation']];
   $('inspTabs').innerHTML=tabs.map(([k,t])=>'<button class="'+(S.insp===k?'on':'')+'" data-t="'+k+'">'+t+'</button>').join('');
-  for(const b of $('inspTabs').querySelectorAll('button'))b.onclick=()=>{S.insp=b.dataset.t;S.sel=-1;S.hsel=-1;renderToolbar();renderInsp();rebuild();frameView();};
+  for(const b of $('inspTabs').querySelectorAll('button'))b.onclick=()=>{S.insp=b.dataset.t;S.sel=-1;S.hsel=-1;S.playing=false;if(hitTL())S.t=1;renderToolbar();renderInsp();rebuild();frameView();tlShow();};
   const B=$('inspBody');if(!d){B.innerHTML='';return;}
   if(d.kind==='clips')return renderClipInsp(B,d);
   if(S.insp==='stats')return renderStats(B,d);
@@ -575,7 +591,7 @@ function renderStats(B,d){
 function renderHitInsp(B,d){
   const set=hitSet(),body=set==='hurtboxes',W=d.data,H=(W.hit&&W.hit[set])||[],s=H[S.hsel];
   let h=body?'<div class="row"><label>Name</label><input id="bname" value="'+esc(W.name||'')+'"></div><p class="note">Where this body can be hurt, from its feet (+z the way it faces). A weapon with hitboxes of its own hits it when one of them touches one of these.</p>':
-    '<p class="note">Where a blow with this weapon hurts, in the goblin\'s own frame (+z ahead). With none, the game uses the built-in hit in blue: everything within r of a point reach ahead. With hitboxes, it hits a goblin when one touches its hurtboxes (Bodies: goblin).</p>';
+    '<p class="note">Where and when a blow with this weapon hurts. Each hitbox is placed from the goblin\'s feet (+z ahead) or follows its hand, and hurts for a stretch of the blow (the timeline below). It hits a goblin when it touches one of its hurtboxes (Bodies: goblin). With none, the game uses the built-in hit in blue: everything within r of a point reach ahead, as the blow lands. (Gnash and Grizzle use them; enemies keep the built-in hit for now.)</p>';
   h+='<div class="row"><button data-add="sphere">+ Sphere</button><button data-add="capsule">+ Capsule</button><button data-add="box">+ Box</button></div>';
   h+='<div class="row">'+(body?'':'<button id="hbCopy"'+(W.r&&W.reach?'':' disabled')+'>Copy the built-in hit</button>')+(s?'<button id="hbDel">Delete</button>':'')+'</div>';
   h+='<div class="list">'+H.map((x,i)=>'<div class="item'+(selList().includes(i)?' on':'')+'" data-i="'+i+'">'+x.k+' <small>'+(body?'':x.t?'live '+x.t.join('–'):'always')+'</small></div>').join('')+'</div>';
@@ -583,7 +599,9 @@ function renderHitInsp(B,d){
     if(s.k==='box')h+='<div class="row"><label>Size</label>'+v3(s.s,'hs')+'</div>';else h+='<div class="row"><label>Radius</label>'+num(s.r,'hr')+'</div>';
     if(s.k==='capsule')h+='<div class="row"><label>Length</label>'+num(s.h,'hh')+'</div>';
     h+='<div class="row"><label>Tilt (degrees)</label>'+v3((s.rot||[0,0,0]).map(v=>+(v*180/Math.PI).toFixed(2)),'hro')+'</div>';
-    if(!body)h+='<div class="row"><label>Live on its blow</label><input type="checkbox" id="hlv"'+(s.t?' checked':'')+'> from '+num(s.t?s.t[0]:0.9,'ht0')+' to '+num(s.t?s.t[1]:1.1,'ht1')+'</div><p class="note">On the blow\'s timeline: 1 is where it lands. (Gnash\'s blows land in one go for now, so the game counts every hitbox at the moment of the blow.)</p>';}
+    if(!body)h+='<div class="row"><label>Follows</label><select id="hon"><option value="">the feet (where it stands)</option><option value="hand"'+(s.on==='hand'?' selected':'')+'>the hand (swings with the blow)</option></select></div>'+
+      '<div class="row"><label>Hurts</label><select id="hlv"><option value="">only as the blow lands (1)</option><option value="1"'+(s.t?' selected':'')+'>from … to …</option></select></div>'+(s.t?'<div class="row"><label>From, to</label>'+num(s.t[0],'ht0')+num(s.t[1],'ht1')+'</div>':'')+
+      '<p class="note">On the timeline below, 0 to 2: the wind-up, the blow landing at 1, the follow-through. A goblin is hit once a swing, by the first hitbox to touch it.'+(s.on==='hand'?' Its numbers are in the hand\'s own frame.':'')+'</p>';}
   B.innerHTML=h;
   for(const e of B.querySelectorAll('.list .item'))e.onclick=ev=>{pickSel(+e.dataset.i,ev.shiftKey);rebuild();renderInsp();};
   const add=sh=>edit(W2=>{W2.hit=W2.hit||{};const L=W2.hit[set]=W2.hit[set]||[];const R0=body?0.25:W2.r||1,F=body?0:W2.reach||1;
@@ -596,7 +614,11 @@ function renderHitInsp(B,d){
     for(const j of[0,1,2]){$('hp'+j).onchange=put((x,t)=>{x.p[j]=r4(+t.value);});if($('hs'+j))$('hs'+j).onchange=put((x,t)=>{x.s[j]=Math.max(0.01,r4(+t.value));});
       $('hro'+j).onchange=put((x,t)=>{x.rot=x.rot||[0,0,0];x.rot[j]=r4(+t.value*Math.PI/180);if(!x.rot.some(v=>v))delete x.rot;});}
     if($('hr'))$('hr').onchange=put((x,t)=>{x.r=Math.max(0.01,r4(+t.value));});if($('hh'))$('hh').onchange=put((x,t)=>{x.h=Math.max(0,r4(+t.value));});
-    if($('hlv'))$('hlv').onchange=put((x,t)=>{if(t.checked)x.t=[0.9,1.1];else delete x.t;});
+    if($('hlv'))$('hlv').onchange=put((x,t)=>{if(t.value)x.t=[r4(Math.max(0,S.t-0.1)),r4(Math.min(2,S.t+0.1))];else delete x.t;});
+    // (changing what it follows keeps it where it is now, at the playhead)
+    if($('hon'))$('hon').onchange=e=>{const i=S.hsel,m=pickable[i],to=e.target.value;if(!m||!hitPose)return;content.updateMatrixWorld(true);
+      const par=to==='hand'?hitPose.J.hand:content,o=inParent({m,par});
+      edit(W2=>{const x=W2.hit.hitboxes[i];if(to)x.on=to;else delete x.on;putHit(W2,o);});};
     for(const j of[0,1])if($('ht'+j))$('ht'+j).onchange=put((x,t)=>{if(!x.t)x.t=[0.9,1.1];x.t[j]=r4(+t.value);if(x.t[0]>x.t[1])x.t.reverse();});}
 }
 
@@ -629,7 +651,7 @@ function renderClipInsp(B,d){
     h+='<div class="row"><button class="kd'+(has?' on':'')+'" id="kd'+j+'"'+dis+' title="'+(has?'This channel has a key here: click to delete it':'Key this channel at the playhead')+'" style="color:'+CH_COL[j%CH_COL.length]+'">'+(has?'◆':'◇')+'</button>'+
       '<label title="'+esc(ch[1])+'" style="color:'+CH_COL[j%CH_COL.length]+';width:74px">'+esc(ch[1])+'</label><input type="range" min="-4" max="4" step="0.01" id="cr'+j+'" value="'+v[j]+'"'+dis+'>'+num(+v[j].toFixed(4),'cn'+j).replace('<input','<input'+dis)+'</div>';}
   if(L&&n<L.ch.length)h+='<div class="row"><button id="addCh">+ '+esc(L.ch[n][1])+' channel</button></div>';
-  h+='<h3>Events</h3><p class="note">Marks the game\'s code reads: hit (the blow lands, always at 1 on a blow).</p>'+(c.events||[]).map((e,i)=>'<div class="row"><input id="evk'+i+'" value="'+esc(e.k)+'" style="width:90px">'+num(e.t,'evt'+i)+'<button class="x" data-ev="'+i+'">×</button></div>').join('')+'<div class="row"><button id="evAdd">+ Event at playhead</button></div>';
+  if(c.layout==='body')h+='<p class="note">Hitboxes belong to the weapon: its Hitboxes tab has a timeline of this blow, where each is given the stretch of it where it hurts.</p>';
   h+='<h3>Note</h3><textarea id="cnote" rows="4" style="width:100%">'+esc(c.note||'')+'</textarea>';
   B.innerHTML=h;
   $('kAdd').onclick=addKey;$('kDel').onclick=delKey;$('autoK').onchange=e=>{S.autoKey=e.target.checked;};
@@ -649,9 +671,6 @@ function renderClipInsp(B,d){
       else{if(K.length<2)return status('A channel keeps at least one key',true);edit(C=>{trackOf(C,j).splice(i,1);});S.key=null;}
       renderInsp();};}
   if($('addCh'))$('addCh').onclick=()=>edit(C=>{C.tracks[L.ch[n][0]]=[[0,0]];});
-  for(let i=0;i<(c.events||[]).length;i++){$('evk'+i).onchange=e=>edit(C=>{C.events[i].k=e.target.value;});$('evt'+i).onchange=e=>edit(C=>{C.events[i].t=r4(+e.target.value);});}
-  for(const x of B.querySelectorAll('[data-ev]'))x.onclick=()=>edit(C=>{C.events.splice(+x.dataset.ev,1);});
-  $('evAdd').onclick=()=>edit(C=>{(C.events=C.events||[]).push({t:r4(S.t),k:'hit'});});
   $('cnote').onchange=e=>edit(C=>{if(e.target.value)C.note=e.target.value;else delete C.note;});
 }
 function poseTitle(c){const k=S.key;
@@ -680,14 +699,14 @@ function copyKey(){const d=doc();if(!d)return;poseClip=clipAt(d.data,S.t);status
 function pasteKey(){const d=doc();if(!d||!poseClip||S.playing)return;edit(C=>{chNames(C).forEach((nm,j)=>{if(j>=poseClip.length)return;const i=keyCh(C,j,S.t,true);C.tracks[nm][i][1]=r4(poseClip[j]);});});S.key={all:r4(S.t)};renderInsp();}
 const CH_COL=['#e06a5a','#e0b040','#7fb24a','#4ab0c0','#6a8ae0','#b07ae0','#e07ab0'];
 // the timeline: along the top a row of every time something's keyed (drag one to move every channel's key there), then
-// a row of keys per channel, then a curve per channel over u, events as flags, the playhead
+// a row of keys per channel, then a curve per channel over u, the playhead
 const TL=$('tl'),tg=TL.getContext('2d');
 const TL_L=78,TL_R=20,TL_ROW=12,TL_TOP=18;
 const tlX=(c,u)=>TL_L+u/2*(TL.width/devicePixelRatio-TL_L-TL_R);
 const tlU=(c,x)=>Math.max(0,Math.min(2,(x-TL_L)/(TL.width/devicePixelRatio-TL_L-TL_R)*2));
 const tlRowY=j=>TL_TOP+j*TL_ROW+TL_ROW/2;
 // (playing, the pose can't be changed: the key selected is let go, and the inspector's sliders follow the playhead)
-function setPlaying(v){const d=doc();if(v&&!(d&&d.kind==='clips'))return;S.playing=v;if(v)S.key=null;renderTLBar();renderInsp();drawTL();}
+function setPlaying(v){const d=doc();if(v&&!(d&&(d.kind==='clips'||hitTL())))return;S.playing=v;if(v)S.key=null;renderTLBar();renderInsp();drawTL();}
 // the inspector's pose follows the playhead, as it plays or is dragged (without drawing it all again, which would drop a slider)
 let poseShownK=null;
 function syncPose(){
@@ -698,12 +717,16 @@ function syncPose(){
     if(kd){const has=keyIn(trackOf(c,j),S.t)>=0;kd.textContent=has?'◆':'◇';kd.classList.toggle('on',has);}}
 }
 function renderTLBar(){
+  if(hitTL()){$('tlbar').innerHTML='<button id="tlPlay">'+(S.playing?'Pause':'Play')+' (Space)</button><label><input type="checkbox" id="tlLoop"'+(S.loop?' checked':'')+'> Loop</label>'+
+      '<label>Speed <select id="tlSpd">'+[0.1,0.25,0.5,1].map(v=>'<option'+(v===S.speed?' selected':'')+'>'+v+'</option>').join('')+'</select></label><span class="note" id="tlU"></span><span class="grow"></span><span class="note">Click: playhead, or pick a hitbox by its row (Shift: more than one) · drag a bar to move when it hurts, its ends to change how long · double-click a row: live around there</span>';
+    $('tlPlay').onclick=()=>setPlaying(!S.playing);$('tlLoop').onchange=e=>S.loop=e.target.checked;$('tlSpd').onchange=e=>S.speed=+e.target.value;return;}
   $('tlbar').innerHTML='<button id="tlPlay">'+(S.playing?'Pause':'Play')+' (Space)</button><label><input type="checkbox" id="tlLoop"'+(S.loop?' checked':'')+'> Loop</label>'+
     '<label>Speed <select id="tlSpd">'+[0.1,0.25,0.5,1].map(v=>'<option'+(v===S.speed?' selected':'')+'>'+v+'</option>').join('')+'</select></label><span class="note" id="tlU"></span><span class="grow"></span><span class="note">Click: playhead · drag a diamond: move the key (the top row moves every channel\'s) · double-click a channel\'s row: key it, elsewhere: key every channel</span>';
   $('tlPlay').onclick=()=>setPlaying(!S.playing);$('tlLoop').onchange=e=>S.loop=e.target.checked;$('tlSpd').onchange=e=>S.speed=+e.target.value;
 }
 function diamond(x,y,r,col){tg.fillStyle=col;tg.beginPath();tg.moveTo(x,y-r);tg.lineTo(x+r,y);tg.lineTo(x,y+r);tg.lineTo(x-r,y);tg.fill();}
 function drawTL(){
+  if(hitTL())return drawHitTL();
   const d=doc();if(!d||d.kind!=='clips')return;const c=d.data,W=TL.clientWidth,H=TL.clientHeight;
   if(TL.width!==W*devicePixelRatio||TL.height!==H*devicePixelRatio){TL.width=W*devicePixelRatio;TL.height=H*devicePixelRatio;}
   tg.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);tg.clearRect(0,0,W,H);
@@ -725,7 +748,6 @@ function drawTL(){
   for(const t of keyTimes(c))diamond(tlX(c,t),9,6,k&&k.all!==undefined&&Math.abs(k.all-t)<KEY_EPS?'#ffd060':'#d0d4dc');
   for(let j=0;j<n;j++)trackOf(c,j).forEach((q,i)=>{const x=tlX(c,q[0]),y=tlRowY(j),on=k&&k.all===undefined&&k.j===j&&k.i===i;
     diamond(x,y,5,on?'#ffd060':CH_COL[j%CH_COL.length]);if(q[2]){tg.fillStyle='#8890a0';tg.fillText(q[2]==='i'?'in':'out',x+6,y+4);}});
-  for(const e of c.events||[]){const x=tlX(c,e.t);tg.fillStyle='#ff6a50';tg.fillRect(x-1,TL_TOP,2,bot-TL_TOP+2);tg.fillText(e.k,x+3,bot-4);}
   const x=tlX(c,S.t);tg.fillStyle='#ffd060';tg.fillRect(x-1,0,2,H);
   const u=$('tlU');if(u)u.textContent='u '+S.t.toFixed(3);
 }
@@ -736,20 +758,64 @@ function tlHit(c,x,y){
   let best=null,bd=7;trackOf(c,j).forEach((q,i)=>{const dd=Math.abs(tlX(c,q[0])-x);if(dd<bd){bd=dd;best={j,i};}});return best||{row:j};
 }
 {let drag=null;
-  TL.addEventListener('pointerdown',e=>{const d=doc();if(!d||d.kind!=='clips')return;const c=d.data,r=TL.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+  TL.addEventListener('pointerdown',e=>{const d=doc();if(!d||d.kind!=='clips')return;if(hitTL())return;const c=d.data,r=TL.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
     const h=tlHit(c,x,y);
     if(h&&h.row===undefined){S.key=h;S.t=keyT(c);drag={key:true};}
     else{S.key=null;S.t=tlU(c,x);drag={t:1};}
     TL.setPointerCapture(e.pointerId);poseAt(S.t);drawTL();renderInsp();});
-  TL.addEventListener('pointermove',e=>{if(!drag)return;const d=doc(),c=d.data,r=TL.getBoundingClientRect(),u=tlU(c,e.clientX-r.left);
+  TL.addEventListener('pointermove',e=>{if(!drag||hitTL())return;const d=doc(),c=d.data,r=TL.getBoundingClientRect(),u=tlU(c,e.clientX-r.left);
     if(drag.key){if(S.playing)return;moveKey(u,'tlk');}
     else S.t=u;
     poseAt(S.t);drawTL();syncPose();});
   TL.addEventListener('pointerup',()=>{drag=null;mergeTag=null;renderInsp();});
-  TL.addEventListener('dblclick',e=>{const d=doc();if(!d||S.playing)return;const c=d.data,r=TL.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,h=tlHit(c,x,y);
+  TL.addEventListener('dblclick',e=>{const d=doc();if(!d||S.playing||hitTL())return;const c=d.data,r=TL.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,h=tlHit(c,x,y);
     S.t=r4(tlU(c,x));
     if(h&&(h.row!==undefined||h.j!==undefined)){const j=h.row!==undefined?h.row:h.j;edit(C=>{S.key={j,i:keyCh(C,j,S.t,true)};});renderInsp();}
     else addKey();});}
+
+// ---- the hitboxes' timeline: the blow's channels faintly behind, a row per hitbox with a bar where it's live (or a
+// mark at 1 for one that hurts only as the blow lands), the playhead ----
+const HT_ROW=18;
+const htRowY=i=>TL_TOP+i*HT_ROW;
+function drawHitTL(){
+  const d=doc(),W=d.data,c=hitBlow(W),H=(W.hit&&W.hit.hitboxes)||[],Wd=TL.clientWidth,Ht=TL.clientHeight;
+  if(TL.width!==Wd*devicePixelRatio||TL.height!==Ht*devicePixelRatio){TL.width=Wd*devicePixelRatio;TL.height=Ht*devicePixelRatio;}
+  tg.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);tg.clearRect(0,0,Wd,Ht);tg.font='11px system-ui';
+  const bot=Ht-14,sl=selList();
+  tg.fillStyle='#8890a0';tg.fillText(c?'blow: '+hitBlowName(W):'no blow ('+hitBlowName(W)+' is not a body animation)',6,11);
+  for(let u=0;u<=2+1e-6;u+=0.25){const x=tlX(null,u);tg.fillStyle=u%1===0?'#3a404c':'#262a32';tg.fillRect(x,TL_TOP,1,bot-TL_TOP+2);tg.fillStyle='#8890a0';tg.fillText(u.toFixed(2),x-10,Ht-2);}
+  // (the blow's own channels, faint, so you can see where it swings)
+  if(c){const n=chNames(c).length;let lo=1e9,hi=-1e9;for(const nm of chNames(c))for(const q of c.tracks[nm]){lo=Math.min(lo,q[1]);hi=Math.max(hi,q[1]);}if(hi-lo<0.5){hi+=0.25;lo-=0.25;}
+    const Y=v=>bot-(v-lo)/(hi-lo)*(bot-TL_TOP-6);tg.globalAlpha=0.28;
+    for(let j=0;j<n;j++){tg.strokeStyle=CH_COL[j%CH_COL.length];tg.lineWidth=1;tg.beginPath();for(let x=TL_L;x<=Wd-TL_R;x+=3){const v=clipAt(c,tlU(null,x))[j];x===TL_L?tg.moveTo(x,Y(v)):tg.lineTo(x,Y(v));}tg.stroke();}
+    tg.globalAlpha=1;}
+  {const x=tlX(null,1);tg.fillStyle='#ff6a50';tg.fillRect(x,TL_TOP,1,bot-TL_TOP+2);tg.fillText('lands',x+3,TL_TOP-4);}
+  H.forEach((s,i)=>{const y=htRowY(i),on=sl.includes(i);tg.fillStyle=i%2?'#1c1f24':'#20232a';tg.fillRect(TL_L,y,Wd-TL_L-TL_R,HT_ROW-2);
+    tg.fillStyle=on?'#ffd060':'#d0d4dc';tg.fillText((i+1)+' '+s.k+(s.on==='hand'?' (hand)':''),6,y+12);
+    if(s.t){const a=tlX(null,s.t[0]),b=tlX(null,s.t[1]);tg.fillStyle=on?'#ffd060':'#ff5040';tg.globalAlpha=on?0.85:0.6;tg.fillRect(a,y+2,Math.max(2,b-a),HT_ROW-6);tg.globalAlpha=1;
+      tg.fillStyle='#fff';tg.fillRect(a,y+2,2,HT_ROW-6);tg.fillRect(Math.max(a,b-2),y+2,2,HT_ROW-6);}
+    else{const x=tlX(null,1);diamond(x,y+HT_ROW/2-1,5,on?'#ffd060':'#ff5040');tg.fillStyle='#8890a0';tg.fillText('as it lands',x+8,y+12);}});
+  if(!H.length){tg.fillStyle='#8890a0';tg.fillText('No hitboxes: add one in the inspector (the game uses the built-in hit until then)',TL_L+6,TL_TOP+12);}
+  const x=tlX(null,S.t);tg.fillStyle='#ffd060';tg.fillRect(x-1,0,2,Ht);
+  const u=$('tlU');if(u)u.textContent='u '+S.t.toFixed(3);
+}
+{let drag=null;
+  // (what's under a point: a hitbox's row, and on its bar which part: the start 0, the end 1 or the middle 2)
+  const at=(x,y)=>{const d=doc(),H=(d.data.hit&&d.data.hit.hitboxes)||[],i=Math.floor((y-TL_TOP)/HT_ROW);if(y<TL_TOP||i<0||i>=H.length)return null;
+    const s=H[i];if(!s.t)return{i,part:null};const a=tlX(null,s.t[0]),b=tlX(null,s.t[1]);
+    return{i,part:Math.abs(x-a)<5?0:Math.abs(x-b)<5?1:x>a&&x<b?2:null};};
+  TL.addEventListener('pointerdown',e=>{if(!hitTL())return;const r=TL.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,h=at(x,y),u=tlU(null,x);drag=null;
+    if(h){pickSel(h.i,e.shiftKey);if(h.part!=null&&!S.playing){const s=doc().data.hit.hitboxes[h.i];drag={i:h.i,part:h.part,u0:u,t0:s.t.slice()};}}
+    if(!drag){S.t=u;drag={t:1};}
+    TL.setPointerCapture(e.pointerId);rebuild();renderInsp();drawTL();});
+  TL.addEventListener('pointermove',e=>{if(!drag||!hitTL())return;const r=TL.getBoundingClientRect(),u=tlU(null,e.clientX-r.left);
+    if(drag.t){S.t=u;poseAt(u);drawTL();return;}
+    const D=drag;edit(W=>{const s=W.hit.hitboxes[D.i],t=D.t0.slice();
+      if(D.part===2){const du=Math.max(-t[0],Math.min(2-t[1],u-D.u0));t[0]+=du;t[1]+=du;}else{t[D.part]=Math.max(0,Math.min(2,u));if(t[0]>t[1])t.reverse();}
+      s.t=t.map(r4);},'tlh',true);drawTL();hitLive(S.t);});
+  TL.addEventListener('pointerup',()=>{if(!hitTL())return;const was=drag;drag=null;mergeTag=null;if(was&&!was.t){rebuild();renderInsp();}});
+  TL.addEventListener('dblclick',e=>{if(!hitTL()||S.playing)return;const r=TL.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,h=at(x,y);if(!h)return;
+    const u=tlU(null,x);edit(W=>{W.hit.hitboxes[h.i].t=[r4(Math.max(0,u-0.1)),r4(Math.min(2,u+0.1))];});drawTL();});}
 
 // ---- keys ----
 addEventListener('keydown',e=>{
@@ -767,7 +833,7 @@ addEventListener('keydown',e=>{
   else if(k==='m')mirror();else if(k==='delete'||k==='backspace')del();else if(k==='f')frameView();
   else if(k===' '){e.preventDefault();setPlaying(!S.playing);}
   else if(k==='k'&&doc()&&doc().kind==='clips')addKey();
-  else if((k===','||k==='.')&&doc()&&doc().kind==='clips'){const C=doc().data;S.t=Math.max(0,Math.min(2,S.t+(k===','?-1:1)*0.01));S.key=null;poseAt(S.t);drawTL();renderInsp();}
+  else if((k===','||k==='.')&&doc()&&(doc().kind==='clips'||hitTL())){S.t=Math.max(0,Math.min(2,S.t+(k===','?-1:1)*0.01));S.key=null;poseAt(S.t);drawTL();renderInsp();}
   else if(k==='?'||k==='/')$('help').classList.toggle('show');
   else if(k==='escape'){$('help').classList.remove('show');closeDlg();}
 });
@@ -792,7 +858,7 @@ let last=performance.now();
 function loop(now){
   const dt=Math.min(0.1,(now-last)/1000);last=now;
   const d=doc();
-  if(S.playing&&d&&d.kind==='clips'){const a=0,b=2;S.t+=dt*S.speed*(b-a)/1.0;   // (every clip runs u 0 to 2)
+  if(S.playing&&d&&(d.kind==='clips'||hitTL())){const a=0,b=2;S.t+=dt*S.speed*(b-a)/1.0;   // (every clip runs u 0 to 2)
     if(S.t>b){if(S.loop)S.t=a+(S.t-b)%((b-a)||1);else{S.t=b;setPlaying(false);}}poseAt(S.t);drawTL();syncPose();}
   orbit.update();
   const r=$('viewWrap').getBoundingClientRect();
