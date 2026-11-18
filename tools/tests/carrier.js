@@ -266,23 +266,25 @@ for(const pl of S.jetV.pl)pl.rest=0;
  // (Gnash beside it on the deck, F)
  let d=null;for(let r=3;r<8&&!d;r+=0.5){put(p0.x+r,G0+17.05,p0.z-2);run(0.3);d=T.drvFind(P);}
  console.log('beside jet 4: F finds',d&&d.k,d&&d.o===pl);if(!d||d.o!==pl){process.exit(0);}
- T.drvEnter(P,d);run(0.5);console.log('  in:',P.drv&&P.drv.k,'| Gnash',aboard(P)?'aboard':'in the world');
+ P.planeCtl='direct';T.drvEnter(P,d);run(0.5);console.log('  in:',P.drv&&P.drv.k,'| Gnash',aboard(P)?'aboard':'in the world');
  // (put on the bow's port catapult, a few blocks back from its start, and the throttle opened)
  pl.g.position.set(S.ox+5+0.5,G0+17,S.oz+36+0.5);pl.g.rotation.set(0,0,0);pl.free.v=0;pl.free.thr=0;run(0.3);
- console.log('  stopped on the bow catapult: hooked on',!!pl.cat,pl.cat&&pl.cat.ph);let t=0;T.keys.add('Space');while(t<3&&pl.cat&&pl.cat.ph==='wait')run(0.05),t+=0.05;console.log('  Space held (throttle up): held for launch after',f1(t),'s |',pl.cat?pl.cat.ph:'not hooked','| throttle',f1(pl.free.thr),'| speed',f1(pl.free.v));
- t=0;let t1=-1,v1=0;while(t<5){run(1/30);t+=1/30;if(t1<0&&!pl.cat){t1=t;v1=pl.free.v;}}T.keys.delete('Space');
+ console.log('  stopped on the bow catapult: hooked on',!!pl.cat,pl.cat&&pl.cat.ph);let t=0;T.keys.add('ShiftLeft');while(t<3&&pl.cat&&pl.cat.ph==='wait')run(0.05),t+=0.05;console.log('  Shift held (throttle up): held for launch after',f1(t),'s |',pl.cat?pl.cat.ph:'not hooked','| throttle',f1(pl.free.thr),'| speed',f1(pl.free.v));
+ t=0;let t1=-1,v1=0;while(t<5){run(1/30);t+=1/30;if(t1<0&&!pl.cat){t1=t;v1=pl.free.v;}}T.keys.delete('ShiftLeft');
  console.log('  let go of it after',f1(t1),'s at',f1(v1),'| 5 s on:',sw(pl),'speed',f1(pl.free.v),'flying',pl.free.air,'| model hung off',pl.g.parent===S.pg?'the ship':'the scene','| Gnash',aboard(P)?'aboard':'in the world');
  // (round again, and back in over the stern, low, along the angled strip, hook down: placed there in the pocket)
  run(2);T.drvExit(P);run(0.2);
  // (fresh: jet 5, set flying down the angled deck's line toward the wires)
  const q=J[4];{let d2=null;for(let r=3;r<8&&!d2;r+=0.5){put(q.g.position.x+r,G0+17.05,q.g.position.z-2);run(0.3);d2=T.drvFind(P);}T.drvEnter(P,d2);run(0.3);}
  const h=Math.atan(0.16),w0=-88,s0=-3-(w0+89)*0.16;q.g.position.set(S.ox-s0+0.5,G0+19.5,S.oz+w0+0.5);q.g.rotation.set(0,h,0);Object.assign(q.free,{v:40,thr:0,gm:-0.06,pt:0.05,rl:0,vy:-2.4,air:true});
- T.keys.add('KeyR');run(0.05);T.keys.delete('KeyR');T.keys.add('KeyW');console.log('  jet 5 coming in over the stern on the angled strip at 40, R: hook',q.hook?'down':'up');
- const z0=q.g.position.z;t=0;let trapped=null;while(t<6&&!(q.free&&q.free.v<0.5&&!q.free.air)&&!q.dead){run(1/30);t+=1/30;if(process.env.DBG&&Math.round(t*30)%3===0)console.log('    t',f1(t),sw(q),'v',f1(q.free.v),'vy',f1(q.free.vy),'air',q.free.air,'pt',q.free.pt.toFixed(2),'trap',!!q.trap);if(!q.free.air)T.keys.delete('KeyW');if(q.trap&&!trapped)trapped={n:q.trap.n,t};}T.keys.delete('KeyW');
+ T.keys.add('KeyR');run(0.05);T.keys.delete('KeyR');console.log('  jet 5 coming in over the stern on the angled strip at 40, R: hook',q.hook?'down':'up');
+ // (flown down on to the deck: a touch of W while it's still sinking slower than 3 a second)
+ const fly=()=>{if(q.free.air&&q.free.vy>-3)T.keys.add('KeyW');else T.keys.delete('KeyW');};
+ const z0=q.g.position.z;t=0;let trapped=null;while(t<6&&!(q.free&&q.free.v<0.5&&!q.free.air)&&!q.dead){fly();run(1/30);t+=1/30;if(process.env.DBG&&Math.round(t*30)%3===0)console.log('    t',f1(t),sw(q),'v',f1(q.free.v),'vy',f1(q.free.vy),'air',q.free.air,'pt',q.free.pt.toFixed(2),'trap',!!q.trap);if(!q.free.air)T.keys.delete('KeyW');if(q.trap&&!trapped)trapped={n:q.trap.n,t};}T.keys.delete('KeyW');
  console.log('  after',f1(t),'s:',q.dead?'WRECKED':sw(q),'| caught wire',trapped?trapped.n:'none','| rolled',f1(q.g.position.z-z0),'blocks along w | hook now',q.hook?'down':'up');
  // (no hook: the same approach rolls on and brakes)
  Object.assign(q.free,{v:40,thr:0,gm:-0.06,pt:0.05,rl:0,vy:-2.4,air:true});q.g.position.set(S.ox-s0+0.5,G0+19.5,S.oz+w0+0.5);q.g.rotation.set(0,h,0);
- if(q.hook)T.keys.add('KeyR'),run(0.05),T.keys.delete('KeyR');t=0;T.keys.add('KeyW');while(t<8&&!(q.free.v<0.5&&!q.free.air)&&!q.dead){run(1/30);t+=1/30;if(!q.free.air)T.keys.delete('KeyW');}T.keys.delete('KeyW');
+ if(q.hook)T.keys.add('KeyR'),run(0.05),T.keys.delete('KeyR');t=0;while(t<8&&!(q.free.v<0.5&&!q.free.air)&&!q.dead){fly();run(1/30);t+=1/30;}T.keys.delete('KeyW');
  console.log('  hook up, the same approach: after',f1(t),'s',q.dead?'WRECKED':sw(q),'| speed',f1(q.free.v));
  T.drvExit(P);run(0.3);
 }

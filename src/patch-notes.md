@@ -155,6 +155,12 @@
 - In the air, A and D still turn a car and W and S tip its nose, so you can straighten it up before you land.
 - Crash a motorcycle into a wall fast enough and you go flying off it.
 - The plane's throttle and the ship's engine order and rudder are now shown on their instruments rather than in the list of controls.
+- Planes fly properly in three dimensions now: roll right round, loop, fly upside down and knife-edge. Pull too hard when slow and the wing stalls, the nose drops and a wing goes down with it.
+- Two ways to fly, picked in Options under Plane controls: Mouse-aim (point the camera where you want to go and the plane rolls and pulls itself there, keeping out of stalls and off the ground; W and S are the throttle, A and D roll by hand, hold X to look round without turning) and Direct (W and S pitch, A and D roll, Left Shift and C the throttle, Q and E the rudder; on a controller the left stick, RT and LT the throttle, LB and RB the rudder). Auto picks Mouse-aim on a mouse and Direct on a controller. Let go of the stick in Direct and the wings come level and the plane holds its height.
+- Space is the wheel brakes on the ground and the airbrake in the air. R raises and lowers the undercarriage (the jet's R is still its hook). Land with the gear up and you slide in on the belly: you'll walk away, but that plane won't fly again.
+- The two-seater rolls quickly and loops easily, and right click turns on a smoke trail for skywriting.
+- The airliner is heavy and turns wide. Right click switches on the autopilot, which holds your height and heading (with a chime); touch the stick and it lets go. Pull it too hard and the wings creak, then start to give.
+- The fighter jet rolls fast and holds its speed through turns. Hold Left Shift at full throttle for the afterburner, until it overheats; tap A or D twice for a barrel roll; pull hard and the edges of the view grey out.
 
 ### Map markers
 

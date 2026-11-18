@@ -118,9 +118,6 @@ function drvHow(p,D,armed){const A=id=>actMark(p,id),G=armed?D.k==='heli'?A('bit
   if(D.seat==='gun')return G;
   const K=VEHICLE_KINDS[D.k];return K?K.how(p,D,armed,G):G;}
 // a plane's (a jet's arresting hook too, for landing on a carrier: carrier-jets.js)
-function planeHow(p,D,armed,G){const A=id=>actMark(p,id),hk=D.o.jet?A('weapon')+(D.o.hook?' hook up':' hook down')+'  ·  ':'';
-  return p.pad?'Stick up/down throttle  ·  Stick left/right bank  ·  '+A('jump')+' pull up  ·  '+A('climb')+' push down  ·  '+G+hk
-    :A('fwd')+'/'+A('back')+' nose down/up  ·  '+A('left')+'/'+A('right')+' bank  ·  '+A('jump')+'/'+A('climb')+' throttle up/down  ·  '+G+hk;}
 // on his way down a ramp he stays on it, instead of falling a little and landing every few steps
 function stickToRamp(p,g){
   if(!p.grounded||p.state!=='walk'||p.standCar||p.dodge||p.pos.y-g>=0.4)return false;

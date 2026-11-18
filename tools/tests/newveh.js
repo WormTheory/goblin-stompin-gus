@@ -93,12 +93,12 @@ drag('car',6);drag('super',8);drag('forklift',4);drag('tractor',4);
   tap();run(2);console.log('  got out over the water: hovercraft still at',f1(c.pos.y-GG),'over sea level, alive',c.alive);}
 }
 // ---- the fighter jet against the airliner: take-off run, speed after a while at full throttle, a bank's roll rate
-const fly=jet=>{clear();P.cam.yaw=Math.PI;T.tenvSpawnOne(jet?'jet':'plane');run(0.3);const V=T.venues.get('tenvPlanes'),pl=V&&V.pl[V.pl.length-1];if(!pl){console.log('no plane');return null;}
+const fly=jet=>{clear();P.planeCtl='direct';P.cam.yaw=Math.PI;T.tenvSpawnOne(jet?'jet':'plane');run(0.3);const V=T.venues.get('tenvPlanes'),pl=V&&V.pl[V.pl.length-1];if(!pl){console.log('no plane');return null;}
   const g=pl.g;beside(g.position.x,g.position.y+0.3,g.position.z,g.rotation.y,1.25);run(0.05);tap();if(!P.drv){console.log('could not get in');return null;}
   const y0=g.position.y;let tOff=null,t=0;
   // (throttle up, then pull up once fast enough)
   for(let i=0;i<300&&tOff===null;i++){hold(['ShiftLeft'].concat(pl.free&&pl.free.v>30?['KeyS']:[]),0.1);t+=0.1;if(g.position.y>y0+2)tOff=t;}
-  for(let i=0;i<30;i++)hold(['ShiftLeft','KeyS'],0.1);
+  for(let i=0;i<10;i++)hold(['ShiftLeft','KeyS'],0.1);
   for(let i=0;i<120;i++)hold(['ShiftLeft'],0.1);
   const F=pl.free,v12=F.v;hold(['KeyA'],0.5);const r1=F.rl;run(0.1);
   console.log((jet?'fighter jet':'airliner')+': off the ground after',tOff===null?'never':f1(tOff)+' s',' speed after 12 s more at full throttle',f1(v12),' height',f1(g.position.y-y0),' bank after half a second of A',f2(r1),' dead',pl.dead);

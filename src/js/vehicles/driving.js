@@ -110,7 +110,7 @@ function drvTick(p,dt){
   const use=p.in.use&&!p.useHeld;p.useHeld=p.in.use;
   if(p.drv&&p.drv.jack&&p.state!=='dead'){jackTick(p,dt);return true;}   // (still hauling the driver out)
   const wp=!!p.in.weapon&&!p.drvWpnHeld;p.drvWpnHeld=!!p.in.weapon;
-  if(p.drv){if((p.drv.k==='mech'?p.drv.o.outT>=MG.outHold:use)||p.state==='dead')drvExit(p);else{if(wp&&drvSwapTo(p))drvSwap(p);else if(wp&&p.drv.k==='ship')shipViewSwap(p);else if(wp&&p.drv.k==='plane'&&p.drv.o.jet)jetHookSwap(p.drv.o,p);if(p.drv.k==='mount')shipOutside(()=>drvLock(p,dt));else drvLock(p,dt);return true;}return false;}
+  if(p.drv){if((p.drv.k==='mech'?p.drv.o.outT>=MG.outHold:use)||p.state==='dead')drvExit(p);else{if(wp&&drvSwapTo(p))drvSwap(p);else if(wp&&p.drv.k==='ship')shipViewSwap(p);else if(wp&&p.drv.k==='plane'&&p.drv.o.jet)jetHookSwap(p.drv.o,p);else if(wp&&p.drv.k==='plane')planeGear(p.drv.o,p);if(p.drv.k==='mount')shipOutside(()=>drvLock(p,dt));else drvLock(p,dt);return true;}return false;}
   if(p.state==='dead'||p.state!=='walk'&&p.state!=='climb')return false;
   if(use){const D=drvFind(p);if(D){drvEnter(p,D);return true;}}
   // (a vehicle in reach: say so, once for each one you come up to)
@@ -208,7 +208,7 @@ function drvCamera(p){
   const D=p.drv,S=drvPose(D);
   if(p.drvYaw!==undefined&&Math.abs(angDiff(p.drvYaw,p.cam.yaw))>1e-5)p.drvLook=camClock;
   // (not a helicopter, which faces where you look anyway, nor a train, where the way you look is the way it goes)
-  if(D.k!=='heli'&&D.k!=='train'&&D.k!=='subway'&&D.k!=='balloon'&&D.seat!=='gun'&&camClock-(p.drvLook??-9)>1.2&&Math.abs(S.v)>1.5)p.cam.yaw+=angDiff(p.cam.yaw,S.h+Math.PI)*0.035;
+  if(D.k!=='heli'&&D.k!=='train'&&D.k!=='subway'&&D.k!=='balloon'&&D.seat!=='gun'&&!(D.k==='plane'&&planeMode(p)==='aim')&&camClock-(p.drvLook??-9)>1.2&&Math.abs(S.v)>1.5)p.cam.yaw+=angDiff(p.cam.yaw,S.h+Math.PI)*0.035;
   p.drvYaw=p.cam.yaw;
   // (C held in a road vehicle: looking back past it, from in front)
   const yaw=D.k==='car'&&drvIn(p).rdBehind&&drvCtx(D)==='road'?S.h:p.cam.yaw;
@@ -220,6 +220,7 @@ function drvCamera(p){
   let cx=tx-fx*dist,cy=ty-fy*dist,cz=tz-fz*dist;const gy=supportAt(cx,cz,cy);if(gy!==null&&cy<gy+0.4)cy=gy+0.4;
   if(fy>0.2&&cy<S.y+S.hy*0.8)cy=S.y+S.hy*0.8;   // (looking up: not from down inside the vehicle)
   p.drvCamD=dist;p.camera.position.set(cx,cy,cz);p.camera.rotation.set(p.cam.pitch,yaw,0);
+  planeVignette(p);   // (a jet pulled hard: the view's edges grey)
   if(p.shake>0.002&&gameSpeed()>0){const c=p.camera.position;c.x+=(Math.random()-.5)*p.shake;c.y+=(Math.random()-.5)*p.shake;c.z+=(Math.random()-.5)*p.shake;}
 }
 // driving a car: much as a hunting car drives itself (updateCars does the rest: the ground, walls, what it runs into)
@@ -481,72 +482,71 @@ function vehHurt(o,n){if(o.isMil)milHit(o,n);else damageCar(o,n,undefined,'acc')
 // pitch, rl the bank (positive turning left), gm the flight path's climb angle, vy its climb rate
 const PLANE_LIFT=34,PLANE_G=14,PLANE_KL=0.07,PLANE_AOA=0.32,PLANE_THRUST=20,PLANE_DRAG=0.003;
 // is the wing stalled? too slow, or pulled up too steeply for the air going past it
-const planeStalled=(F,pl)=>F.air&&(F.v<(pl&&pl.light?LIGHT_FLY.stall:20)||F.pt-F.gm>PLANE_AOA);
+const planeStalled=(F,pl)=>F.air&&(F.v<(pl&&pl.light?LIGHT_FLY.stall:20)||(F.aoa!==undefined?F.aoa:F.pt-F.gm)>PLANE_AOA);
 // (a two-seater: lighter on the controls, a far smaller engine, and a wing that carries it at much lower speeds)
 const LIGHT_FLY={kl:0.17,lift:16,stall:11,roll:1.6,rl:1.1,pitch:0.8,thr:10,vmax:46};
 function drvPlane(pl,dt){
   if(pl.ai&&jetAI(pl,dt))return;   // (a carrier's pilot flying it: carrier-jets.js)
-  const F=pl.free,g=pl.g,P=g.position,p=pl.drv,i=p?drvIn(p):null,fly=p||pl.ai;
+  const F=pl.free,g=pl.g,P=g.position,p=pl.drv,i=p?drvIn(p):null,fly=p||pl.ai,mode=p?planeMode(p):null;
   if(F.thr===undefined){F.thr=Math.min(1,(F.v||0)/60);F.gm=Math.atan2(F.vy||0,Math.max(8,F.v||0));F.pt=Math.max(0,F.gm);F.rl=0;}
-  const btn=i?(i.jump?1:0)-(i.climb||i.charge?1:0):0,kb=i&&i.kbd;   // (the keyboard swaps the stick's up/down and the buttons over)
-  const tin=i?(kb?btn:-i.z):0,bank=i?-i.x:0,up=i?(kb?i.z:btn):0;
   // (a fighter jet: rolls and pulls far harder, and has the engines to go about twice as fast)
-  const J=pl.jet,LT=pl.light?LIGHT_FLY:null,ROLL=J?2.8:LT?LT.roll:1.0,RL=J?1.4:LT?LT.rl:1.05,PITCH=J?1.2:LT?LT.pitch:0.5,THR=J?PLANE_THRUST*4.2:LT?LT.thr:PLANE_THRUST,VMAX=J?185:LT?LT.vmax:90,KL=LT?LT.kl:PLANE_KL,LIFT=LT?LT.lift:PLANE_LIFT;
+  const J=pl.jet,LT=pl.light?LIGHT_FLY:null,THR=J?PLANE_THRUST*4.2:LT?LT.thr:PLANE_THRUST,VMAX=J?185:LT?LT.vmax:90,KL=LT?LT.kl:PLANE_KL,LIFT=LT?LT.lift:PLANE_LIFT;
+  // (on the ground: the throttle (Mouse-aim W/S; Direct Shift/C, or a controller's triggers), the nose wheel with A/D, and
+  // the nose lifted with S in Direct or by looking up in Mouse-aim)
+  const ana=i?(i.rt||0)-(i.lt||0):0,tin=!i?0:mode==='aim'?-i.z:Math.abs(ana)>0.05?ana:(i.jump?1:0)-(i.climb?1:0),bank=i?-i.x:0;
+  const up=!i?0:mode==='aim'?(Math.sin(p.cam.pitch)>Math.sin(F.pt||0)+0.06?1:0):i.z;
   // (the sea's surface counts as ground; so does sea level, out where nothing's been built yet)
   const wetAt=(x,z)=>!chunks.has(ckey(Math.floor(x/CS),Math.floor(z/CS)))||get(x,G,z)===WATER?G+1:0,gnd=(x,z,y)=>Math.max(groundAt(x,z,y),wetAt(x,z));
-  const air=P.y>gnd(P.x,P.z,P.y+1)+0.05;F.air=air;
+  const was=F.air,air=P.y>gnd(P.x,P.z,P.y+1)+0.05;F.air=air;
   if(!air&&F.vy<-0.5&&(F.vy<-14||!fly&&F.v>20)){planeCrash(pl,P.x,P.y,P.z,true);return;}   // (touched down too hard, or with nobody flying it)
-  // the throttle: up and down with W and S, and shut when nobody's flying it
-  if(p)F.thr=Math.max(0,Math.min(1,F.thr+tin*0.6*dt));else F.thr=Math.max(0,F.thr-dt*0.5);
+  // the throttle on the ground (in the air it's pfAir's), shut when nobody's flying it
+  if(!air){if(p)F.thr=Math.max(0,Math.min(1,F.thr+tin*pfKind(pl).thr*dt));else F.thr=Math.max(0,F.thr-dt*0.5);}
   // (a jet on a carrier's catapult is held, then flung down it, not flown: see carrier-jets.js)
   if(pl.cat&&jetCatTick(pl,dt)){g.visible=true;return;}
-  const v=Math.max(0.5,F.v);let h=g.rotation.y;
+  if(p&&!J)planeSpecial(pl,p,i);   // (right click: the two-seater's smoke, the airliner's autopilot)
+  let h=g.rotation.y,dx,dy,dz;
   if(air){
-    // bank: rolled with A/D, easing back level when let go
-    if(bank)F.rl+=bank*ROLL*dt;else F.rl-=F.rl*Math.min(1,dt*(J?1.6:0.7));F.rl=Math.max(-RL,Math.min(RL,F.rl));
-    // the nose: pulled up or pushed down, or (let go) eased to the angle that flies it level, through a turn too
-    const trim=Math.min(PLANE_AOA*0.9,PLANE_G/(KL*v*v*Math.max(0.35,Math.cos(F.rl))));
-    if(!p)F.pt+=(F.gm-0.25-F.pt)*Math.min(1,dt*0.8);   // (nobody flying it: the nose sags and down it comes)
-    else if(up)F.pt+=up*PITCH*dt;else F.pt+=(trim-F.pt)*Math.min(1,dt*0.6);
-    const stall=planeStalled(F,pl);if(stall)F.pt-=(LT?1.4:0.9)*dt;   // (a stalled wing: the nose falls through)
-    F.pt=Math.max(-0.6,Math.min(0.7,F.pt));
-    // lift, square on to the wing, from the speed and its angle to the air; beyond the stall it falls away
-    const aoa=F.pt-F.gm,cl=stall?Math.max(0,Math.min(aoa,PLANE_AOA))*0.45:Math.max(-0.3,Math.min(aoa,PLANE_AOA)),L=KL*v*v*cl;
-    F.gm+=(L*Math.cos(F.rl)-PLANE_G*Math.cos(F.gm))/v*dt;F.gm=Math.max(-1.3,Math.min(1.1,F.gm));
-    h+=L*Math.sin(F.rl)/(v*Math.max(0.3,Math.cos(F.gm)))*dt;
-    // speed: thrust against drag (more of it the harder the wing's working) and gravity along the way it's going
-    F.v+=(F.thr*THR-PLANE_DRAG*v*v-0.25*Math.abs(L*cl)-PLANE_G*Math.sin(F.gm))*dt;
-    if(stall&&p){F.stT=(F.stT||0)-dt;if(F.stT<=0){F.stT=0.5;if(audio)sfx('Stall warning',()=>tone('square',880,880,0.18,0.03));}}
+    // in the air: the whole attitude, any way up (plane-flight.js)
+    pfSync(F,g);pfAir(pl,dt,{KL,THR,VMAX,STALL:LT?LT.stall:20});if(pl.dead)return;
+    h=Math.atan2(F.f[0],F.f[2]);dx=F.vel.x*dt;dy=F.vel.y*dt;dz=F.vel.z*dt;
   } else {
-    // on the ground: wings level, the nose wheel steers, S with the throttle shut brakes; past rotation speed Jump
-    // lifts the nose, and once the wings carry it, it's off
+    const v=Math.max(0.5,F.v);
+    // on the ground: wings level, the nose wheel steers, Space (or S with the throttle shut) brakes; past rotation speed
+    // the nose lifts, and once the wings carry it, it's off. Landed with the gear up, it grinds along on its belly
+    if(was){pfBelly(pl,p);if(pl.dead)return;}   // (just touched down)
     F.rl-=F.rl*Math.min(1,dt*6);h+=bank*dt*Math.min(0.9,0.25+F.v*0.05);
-    const brake=p&&tin<-0.1&&F.thr<0.05?22:1.5+(p?0:3);
-    F.v+=(F.thr*THR-PLANE_DRAG*v*v)*dt;F.v-=Math.min(F.v,brake*dt);
-    if(up>0&&F.v>=LIFT*0.8)F.pt=Math.min(0.25,F.pt+0.5*dt);else F.pt+=(0-F.pt)*Math.min(1,dt*3);
+    const brake=F.belly?12:p&&(i.arBrake||tin<-0.1&&F.thr<0.05)?22:1.5+(p?0:3);
+    F.v+=(F.thr*THR*(F.belly?0:1)-PLANE_DRAG*v*v)*dt;F.v-=Math.min(F.v,brake*dt);
+    if(F.belly&&F.v>2&&Math.random()<dt*30)puff(P.x,P.y+0.3,P.z,1,0x9a948a,1.2);
+    if(up>0&&F.v>=LIFT*0.8&&!F.belly)F.pt=Math.min(0.25,F.pt+0.5*dt);else F.pt+=(0-F.pt)*Math.min(1,dt*3);
     const L=KL*v*v*Math.max(0,Math.min(F.pt,PLANE_AOA));
     F.gm=L>PLANE_G?Math.min(0.2,(L-PLANE_G)/v):0;
     if(pl.jet){jetTrapCheck(pl,p);if(pl.trap)jetTrapTick(pl,dt);else if(p)jetCatCheck(pl,p);}   // (a carrier's wires and catapults: carrier-jets.js)
+    F.v=Math.max(0,Math.min(VMAX,F.v));F.vy=F.v*Math.sin(F.gm);
+    const vh=F.v*Math.cos(F.gm);dx=Math.sin(h)*vh*dt;dz=Math.cos(h)*vh*dt;dy=F.vy*dt;
   }
-  F.v=Math.max(0,Math.min(VMAX,F.v));F.vy=F.v*Math.sin(F.gm);
-  const vh=F.v*Math.cos(F.gm);
-  const tx=Math.sin(h),tz=Math.cos(h),nx=P.x+tx*vh*dt,nz=P.z+tz*vh*dt,ny=P.y+F.vy*dt;
+  const stop=()=>{F.v=0;F.vy=0;if(F.vel)F.vel.x=F.vel.y=F.vel.z=0;};
+  const tx=Math.sin(h),tz=Math.cos(h),nx=P.x+dx,nz=P.z+dz,ny=P.y+dy;
   // something in the way: a fence or a car's height, on the ground, it ploughs through (and takes some damage); anything
   // bigger, at any speed, wrecks it; at a crawl it just stops
   const Q=planeDim(pl),ax=nx+tx*Q.nose,az=nz+tz*Q.nose,over=gnd(ax,az,ny+Q.hy-0.15)-ny;
   const hitV=vehIn(nx,nz,h,Q.hx,Q.hz,ny,ny+Q.hy,pl);
-  if(hitV&&!vehIn(P.x,P.z,h,Q.hx,Q.hz,P.y,P.y+Q.hy,pl)){if(F.v>12){vehHurt(hitV,F.v*3);planeCrash(pl,ax,ny+2,az,!air);return;}if(F.v>3)vehHurt(hitV,F.v);F.v=0;}   // (another vehicle in the way)
+  if(hitV&&!vehIn(P.x,P.z,h,Q.hx,Q.hz,P.y,P.y+Q.hy,pl)){if(F.v>12){vehHurt(hitV,F.v*3);planeCrash(pl,ax,ny+2,az,!air);return;}if(F.v>3)vehHurt(hitV,F.v);stop();}   // (another vehicle in the way)
   else if(over>(air?0.6:1.05)){   // (taxiing, it rolls up a one-block step)
     if(!air&&over<=2.6&&F.v>0.5){crushBall(ax,ny+1,az,1.8);F.v*=0.6;planeHit(pl,15);if(pl.dead)return;}
     else if(F.v>12){planeCrash(pl,ax,ny+2,az,!air);return;}
-    else F.v=0;}
+    else stop();}
   else{P.x=nx;P.z=nz;}
-  const g2=gnd(P.x,P.z,ny+1.5);
-  // (touching down: too fast a sink, nobody flying it at speed, or a wing down, and it's wrecked; otherwise it lands)
-  if(ny<=g2){if(air&&(F.vy<-14||!fly&&F.v>20||Math.abs(F.rl)>0.6&&F.v>15)){P.y=g2;planeCrash(pl,P.x,P.y,P.z,true);return;}P.y=g2;if(air){F.gm=0;F.vy=0;F.pt=Math.max(0,Math.min(0.2,F.pt));}}
+  const g2=gnd(P.x,P.z,ny+1.5);let down=false;
+  // (touching down: too fast a sink, nobody flying it at speed, a wing down, the nose dug in or upside down, and it's
+  // wrecked; otherwise it lands, on its wheels, or with the gear up on its belly, which it survives but not the plane)
+  if(ny<=g2){
+    if(air&&(F.vy<-14||!fly&&F.v>20||Math.abs(F.rl)>0.6&&F.v>15||F.pt<-0.35&&F.v>15||F.u&&F.u[1]<0.5)){P.y=g2;planeCrash(pl,P.x,P.y,P.z,true);return;}
+    P.y=g2;if(air){down=true;F.gm=0;F.vy=0;F.pt=Math.max(0,Math.min(0.2,F.pt));F.w={p:0,q:0,r:0};
+      pfBelly(pl,p);if(pl.dead)return;}}
   else P.y=Math.min(ny,H+80);
-  if(P.y>=H+80&&F.gm>0){F.gm=0;F.vy=0;}   // (the ceiling)
-  g.rotation.set(-F.pt,h,-F.rl,'YXZ');
+  if(P.y>=H+80&&F.vy>0){F.gm=0;F.vy=0;if(F.vel)F.vel.y=0;}   // (the ceiling)
+  if(air&&!down){pfDerive(F);pfPose(F,g);}else g.rotation.set(-F.pt,h,-F.rl,'YXZ');
   pl.v=F.v;g.visible=true;
   if(J&&p)jetGuns(pl,p,i,dt);
 }
@@ -556,8 +556,8 @@ function jetGuns(pl,p,i,dt){const g=pl.g,h=g.rotation.y,tx=Math.sin(h),tz=Math.c
   wpnTick(pl,dt);if(i.bite&&wpnFire(pl,'gun'))gunRound(pl,p,P.x+tx*6.8,P.y+1.2,P.z+tz*6.8,3,0.008,'Gunned down by a fighter jet','Jet cannon',drvAim(p,v+200));
   const rp=i.stomp&&!pl.rkHeld;pl.rkHeld=i.stomp;
   if(rp&&wpnFire(pl,'rkt')){const T=p.lockT&&lockAlive(p.lockT)?p.lockT:null,A=T?null:drvAim(p,v+70),sd=(pl.rkN=(pl.rkN||0)+1)%2?1:-1,
-      mx=P.x+tx*0.6-tz*sd*1.8,my=P.y+0.9,mz=P.z+tz*0.6+tx*sd*1.8,sp=v+60,F=pl.free;
-    shot({kind:'missile',x:mx,y:my,z:mz,vx:tx*Math.cos(F.gm||0)*sp,vy:Math.sin(F.gm||0)*sp,vz:tz*Math.cos(F.gm||0)*sp,grav:0,fuse:6,R:3.2,dmg:5,crush:1.8,vd:60,own:pl,
+      mx=P.x+tx*0.6-tz*sd*1.8,my=P.y+0.9,mz=P.z+tz*0.6+tx*sd*1.8,sp=v+60,F=pl.free,fw=F.f||[tx*Math.cos(F.gm||0),Math.sin(F.gm||0),tz*Math.cos(F.gm||0)];   // (off the rails along the nose)
+    shot({kind:'missile',x:mx,y:my,z:mz,vx:fw[0]*sp,vy:fw[1]*sp,vz:fw[2]*sp,grav:0,fuse:6,R:3.2,dmg:5,crush:1.8,vd:60,own:pl,
       cause:"Blown up by a fighter jet's missile",by:pvpBy(p),tgt:T,at:A,sp:v+90,turn:4});
     if(audio)sfx('Jet missile',()=>noise(0.4,0.2,1100,'bandpass'));}
 }

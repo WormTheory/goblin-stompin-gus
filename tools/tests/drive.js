@@ -201,14 +201,15 @@ const B=spawnK('base');run(3);const V=[...T.venues.values()].find(v=>v.kind==='a
 // ---- the airport (Testing Environment)
 {const B=spawnK('airport');run(3);const V=[...T.venues.values()].find(v=>v.kind==='airport');
  if(!V||!V.pl)console.log('no airport',!!V);else{
-  // (flown twice through the same course: on the keyboard, WASD-style, and on a controller, the stick being the throttle)
+  // (flown twice through the same course in Direct mode: on the keyboard, WASD-style, and on a controller, the left stick
+  // pitching and rolling, the triggers the throttle)
   const PAD=pads;const KB={'thr+':'ShiftLeft','thr-':'KeyC',up:'KeyS',down:'KeyW',right:'KeyD'};
-  const fly=(pl,pad,V)=>{const g=pl.g,F=()=>pl.free,ht=()=>f1(g.position.y-G0-1);let gp=null;
+  const fly=(pl,pad,V)=>{const g=pl.g,F=()=>pl.free,ht=()=>f1(g.position.y-G0-1);let gp=null;P.planeCtl='direct';
    if(pad){gp=mk(0);PAD.push(gp);}
    const set=(c,on)=>{if(!pad){if(on)T.keys.add(KB[c]);else T.keys.delete(KB[c]);return;}
-     const v=on?1:0;if(c==='thr+')gp.axes[1]=-v;else if(c==='thr-')gp.axes[1]=v;else if(c==='right')gp.axes[0]=v;else gp.buttons[c==='up'?7:6]={pressed:!!on,value:v};};
+     const v=on?1:0;if(c==='up')gp.axes[1]=v;else if(c==='down')gp.axes[1]=-v;else if(c==='right')gp.axes[0]=v;else gp.buttons[c==='thr+'?7:6]={pressed:!!on,value:v};};
    const ctl=(cs,s)=>{for(const c of cs)set(c,true);run(s);for(const c of cs)set(c,false);};
-   const N=pad?{'thr+':'stick up','thr-':'stick down',up:'RT',down:'LT',right:'stick right'}:{'thr+':'Shift','thr-':'C',up:'S',down:'W',right:'D'};
+   const N=pad?{'thr+':'RT','thr-':'LT',up:'stick back',down:'stick forward',right:'stick right'}:{'thr+':'Shift','thr-':'C',up:'S',down:'W',right:'D'};
    console.log((pl.light?'two-seater':'airliner')+' on '+(pad?'a controller':'the keyboard')+': ('+Object.entries(N).map(e=>e[0]+' '+e[1]).join(', ')+')');
    beside(g.position.x,g.position.y+0.2,g.position.z,g.rotation.y,pl.light?0.8:1.25);run(0.05);tap();
    console.log('  in',st(),' this one',P.drv&&P.drv.o===pl);
@@ -219,10 +220,10 @@ const B=spawnK('base');run(3);const V=[...T.venues.values()].find(v=>v.kind==='a
    ctl(['thr+'],1);{let t=0,v0=0;set('up',true);while(t<8&&!F().air){run(0.1);t+=0.1;}v0=F().v;const run0=Math.hypot(g.position.x-x0,g.position.z-z0);run(2);set('up',false);
     console.log('  full throttle, '+N.up+': off the ground at',f1(v0),' after a run of',f1(run0),' 2 s on: height',ht(),' speed',f1(F().v),' wrecked',pl.dead);}
    run(3);{const y=g.position.y;run(2);console.log('  let go: settles level, climb rate',f1(F().vy),' height change over 2 s',f1(g.position.y-y),' speed',f1(F().v));}
-   {const h0=g.rotation.y,y=g.position.y;ctl(['right'],1.2);const b=F().rl;run(2);console.log('  '+N.right+' 1.2 s: banked',f1(b),'(right is negative), heading turned',f1(g.rotation.y-h0),' height held to',f1(g.position.y-y));run(2);console.log('  let go 2 s: bank',f1(F().rl));}
-   {const y1=g.position.y,v1=F().v;ctl(['down'],1.5);run(1);console.log('  '+N.down+' (nose down) 1.5 s: nose',f1(F().pt),' came down',f1(y1-g.position.y),' speed',f1(v1),'->',f1(F().v));}
-   {ctl(['thr-'],2);set('up',true);let t=0,st0=false;while(t<6&&!st0){run(0.1);t+=0.1;st0=T.planeStalled(F());}const pt=F().pt;run(1);set('up',false);
-    console.log('  throttle shut ('+N['thr-']+'), '+N.up+' held: throttle',Math.round(F().thr*100)+'%, stalls',st0,'after',f1(t),'s at',f1(F().v),' display says',hudT(P.ui.drvHud.txt.w).includes('STALL'),' nose drops',f1(pt),'->',f1(F().pt));}
+   {const h0=g.rotation.y,y=g.position.y;ctl(['right'],0.5);const b=F().rl;run(2);console.log('  '+N.right+' 0.5 s: banked',f1(b),'(right is negative), heading turned',f1(g.rotation.y-h0),' height held to',f1(g.position.y-y));run(2);console.log('  let go 2 s: bank',f1(F().rl));}
+   {const y1=g.position.y,v1=F().v;ctl(['down'],0.6);run(1);console.log('  '+N.down+' (nose down) 0.6 s: nose',f1(F().pt),' came down',f1(y1-g.position.y),' speed',f1(v1),'->',f1(F().v));}
+   {ctl(['thr-'],2);set('up',true);let t=0,st0=false;let hs=false;while(t<6&&!st0){run(0.1);t+=0.1;st0=T.planeStalled(F());if(st0)hs=hudT(P.ui.drvHud.txt.w).includes('STALL');}const pt=F().pt;run(1);set('up',false);
+    console.log('  throttle shut ('+N['thr-']+'), '+N.up+' held: throttle',Math.round(F().thr*100)+'%, stalls',st0,'after',f1(t),'s at',f1(F().v),' display says',hs,' nose drops',f1(pt),'->',f1(F().pt));}
    ctl(['thr+'],2);run(3);console.log('  throttle up, let go: speed',f1(F().v),' climb rate',f1(F().vy),' wrecked',pl.dead);
    tap();run(0.2);console.log('  F again:',st(),' falling',!P.grounded);const eP=T.nEdits;
    let t=0;while(t<40&&!pl.dead&&(t<1||pl.free.vy<0)){run(0.5);t+=0.5;}
