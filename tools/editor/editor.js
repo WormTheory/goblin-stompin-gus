@@ -7,7 +7,7 @@
 // the live game.
 'use strict';
 const $=id=>document.getElementById(id);
-const S={grip:true,tab:'models',kind:null,name:null,wl:'held',sel:-1,ctx:true,insp:'box',hsel:-1,t:0,playing:false,speed:1,loop:true,key:null,autoKey:true,
+const S={grip:true,tab:'models',kind:null,name:null,wl:'held',sel:-1,ctx:true,insp:'box',hsel:-1,msel:[],hmsel:[],t:0,playing:false,speed:1,loop:true,key:null,autoKey:true,
   snap:0.01,mode:'translate',game:null,gameOk:false,list:{weapons:[],clips:[],bodies:[],grips:[]},search:'',previewW:null,fp:true};
 const DOCS=new Map();
 const key=(k,n)=>k+'/'+n;
@@ -223,6 +223,25 @@ function fpRig(W){
   return {vm,arm,tags,meshes,pgs};
 }
 let pickable=[],posed=null,fpView=null,hitMeshes=[],curPgs=[];
+// ---- selecting more than one: S.sel / S.hsel is the one last picked (its numbers are what the inspector shows), and
+// S.msel / S.hmsel every one picked, once more than one is (a plain click or anything else setting S.sel goes back to one,
+// since the list then no longer has it in) ----
+const selK=()=>S.insp==='hit'?'hsel':'sel',mselK=()=>S.insp==='hit'?'hmsel':'msel';
+function selList(){const i=S[selK()],M=S[mselK()];return i<0?[]:M.includes(i)?M.slice():[i];}
+// (add: Shift held, so i joins the selection, or leaves it if it was in)
+function pickSel(i,add){const k=selK();if(!add||S[k]<0){S[k]=i;S[mselK()]=[];return;}if(i<0)return;
+  const L=selList(),j=L.indexOf(i);if(j>=0){L.splice(j,1);S[k]=L.length?L[L.length-1]:-1;}else{L.push(i);S[k]=i;}S[mselK()]=L.length>1?L:[];}
+// (more than one picked: the handles go on a pivot at their middle, holding them, and each is put back into the file from
+// where it ends up in its own parent's frame)
+let pivot=null;
+function attachSel(){pivot=null;const ms=selList().map(i=>pickable[i]).filter(Boolean);if(!ms.length)return;
+  if(ms.length===1)return gizmo.attach(ms[0]);
+  content.updateMatrixWorld(true);const c=new THREE.Vector3(),v=new THREE.Vector3();for(const m of ms)c.add(m.getWorldPosition(v));c.divideScalar(ms.length);
+  pivot=new THREE.Group();pivot.position.copy(c);content.add(pivot);pivot.updateMatrixWorld(true);
+  pivot.userData.items=ms.map(m=>({m,par:m.parent}));for(const m of ms)pivot.attach(m);gizmo.attach(pivot);}
+// (where a picked mesh is in its own parent's frame, as a stand-in with position, rotation and scale)
+function inParent(it){const M=new THREE.Matrix4().copy(it.par.matrixWorld).invert().multiply(it.m.matrixWorld),o={position:new THREE.Vector3(),quaternion:new THREE.Quaternion(),scale:new THREE.Vector3(),userData:it.m.userData};
+  M.decompose(o.position,o.quaternion,o.scale);o.rotation=new THREE.Euler().setFromQuaternion(o.quaternion,it.m.rotation.order);return o;}
 // make the view again from the open file
 function rebuild(){
   gizmo.detach();scene.remove(content);content=new THREE.Group();scene.add(content);pickable=[];posed=null;fpView=null;hitMeshes=[];curPgs=[];
@@ -241,7 +260,7 @@ function rebuild(){
       editList(W,S.wl).forEach((b,i)=>{const m=boxMesh(b);m.userData.i=i;to.add(m);pickable.push(m);});}
     // (S.sel -2: the whole shared model, placed for this view)
     if(S.sel===-2&&curPgs[0]){const g=curPgs[0];g.userData.place=true;g.userData.k=g.scale.x;gizmo.attach(g);}
-    else if(S.sel>=0&&pickable[S.sel]){gizmo.attach(pickable[S.sel]);outline(pickable[S.sel]);}
+    else if(S.sel>=0){for(const i of selList())if(pickable[i])outline(pickable[i]);attachSel();}
     budget(viewList(W,S.wl),mode);
   }else{
     const c=d.data,W=WDATA[S.previewW];
@@ -334,20 +353,19 @@ function buildHit(W){
     const T=goblin(true),z=(W.reach||1)+0.3;T.root.position.z=z;T.root.rotation.y=Math.PI;content.add(T.root);
     const tg=new THREE.Group();tg.position.z=z;tg.rotation.y=Math.PI;content.add(tg);for(const s of goblinHurt())tg.add(hitMesh(s,0x50c0ff,true));}
   const H=(W.hit&&W.hit[set])||[];
-  H.forEach((s,i)=>{const m=hitMesh(s,i===S.hsel?0xffd060:col,false);m.userData.i=i;content.add(m);pickable.push(m);m.add(new THREE.Mesh(m.geometry,new THREE.MeshBasicMaterial({color:col,wireframe:true})));});
+  H.forEach((s,i)=>{const m=hitMesh(s,selList().includes(i)?0xffd060:col,false);m.userData.i=i;content.add(m);pickable.push(m);m.add(new THREE.Mesh(m.geometry,new THREE.MeshBasicMaterial({color:col,wireframe:true})));});
   hitMeshes=pickable;
-  if(S.hsel>=0&&pickable[S.hsel])gizmo.attach(pickable[S.hsel]);
+  if(S.hsel>=0)attachSel();
   hud(body?H.length+' hurtbox'+(H.length===1?'':'es')+'\nwhere a goblin can be hurt, from its feet (+z the way it faces)\nonly weapons with hitboxes of their own test against these':
     H.length+' hitbox'+(H.length===1?'':'es')+(H.length?'':' (the game uses the built-in hit, in blue)')+'\nin the goblin\'s own frame: +z is the way it faces\nthe goblin ahead shows its hurtboxes (Bodies: goblin)');
 }
 
 // gizmo -> the file
 gizmo.addEventListener('objectChange',()=>{
-  const o=gizmo.object;if(!o)return;const i=o.userData.i;
-  if(S.insp==='hit'){edit(W=>{const s=W.hit[hitSet()][i];s.p=[r4(o.position.x),r4(o.position.y),r4(o.position.z)];
-      if(s.k==='box')s.s=[o.scale.x,o.scale.y,o.scale.z].map(v=>r4(Math.max(0.005,Math.abs(v))));
-      else if(s.k==='sphere')s.r=r4(Math.max(0.01,Math.abs(o.scale.x)));else{s.r=r4(Math.max(0.01,Math.abs(o.scale.x)));s.h=r4(Math.max(0,Math.abs(o.scale.y)));}
-      const rr=[o.rotation.x,o.rotation.y,o.rotation.z].map(r4);if(rr.some(v=>v))s.rot=rr;else delete s.rot;},'giz',true);return;}
+  const o=gizmo.object;if(!o)return;
+  if(o.userData.items){o.updateMatrixWorld(true);const os=o.userData.items.map(inParent);
+    edit(W=>{for(const x of os)(S.insp==='hit'?putHit:putBox)(W,x);},'giz',true);return;}
+  if(S.insp==='hit'){edit(W=>putHit(W,o),'giz',true);return;}
   if(o.userData.place){
     // (the whole shared model: one size, so the handle pulled furthest sets it)
     const k0=o.userData.k,sc=[o.scale.x,o.scale.y,o.scale.z];let k=sc.reduce((a,v)=>Math.abs(v-k0)>Math.abs(a-k0)?v:a,k0);k=r4(Math.max(0.01,Math.abs(k)));
@@ -355,17 +373,23 @@ gizmo.addEventListener('objectChange',()=>{
     for(const g of curPgs)if(g!==o){g.position.copy(o.position);g.rotation.copy(o.rotation);g.scale.copy(o.scale);}
     edit(W=>{const v=W.model[S.wl],at={p:[o.position.x,o.position.y,o.position.z].map(r4)};const rr=[o.rotation.x,o.rotation.y,o.rotation.z].map(r4);
       if(rr.some(x=>x))at.r=rr;if(k!==1)at.k=k;v.at=at;},'giz',true);return;}
-  edit(W=>{const b=editList(W,S.wl)[i];b.p=[r4(o.position.x),r4(o.position.y),r4(o.position.z)];
-    b.s=[o.scale.x,o.scale.y,o.scale.z].map(v=>r4(Math.max(0.005,Math.abs(v))));
-    const rr=[o.rotation.x,o.rotation.y,o.rotation.z].map(r4);if(rr.some(v=>v))b.r=rr;else delete b.r;},'giz',true);
+  edit(W=>putBox(W,o),'giz',true);
 });
+// (a moved box or hit shape back into the file, from its mesh (or a stand-in) in its parent's frame)
+function putBox(W,o){const b=editList(W,S.wl)[o.userData.i];b.p=[r4(o.position.x),r4(o.position.y),r4(o.position.z)];
+  b.s=[o.scale.x,o.scale.y,o.scale.z].map(v=>r4(Math.max(0.005,Math.abs(v))));
+  const rr=[o.rotation.x,o.rotation.y,o.rotation.z].map(r4);if(rr.some(v=>v))b.r=rr;else delete b.r;}
+function putHit(W,o){const s=W.hit[hitSet()][o.userData.i];s.p=[r4(o.position.x),r4(o.position.y),r4(o.position.z)];
+  if(s.k==='box')s.s=[o.scale.x,o.scale.y,o.scale.z].map(v=>r4(Math.max(0.005,Math.abs(v))));
+  else if(s.k==='sphere')s.r=r4(Math.max(0.01,Math.abs(o.scale.x)));else{s.r=r4(Math.max(0.01,Math.abs(o.scale.x)));s.h=r4(Math.max(0,Math.abs(o.scale.y)));}
+  const rr=[o.rotation.x,o.rotation.y,o.rotation.z].map(r4);if(rr.some(v=>v))s.rot=rr;else delete s.rot;}
 // picking: a click (not a drag) on a box selects it
 {let down=null;
   R.domElement.addEventListener('pointerdown',e=>{down=[e.clientX,e.clientY];});
   R.domElement.addEventListener('pointerup',e=>{if(!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>4||gizmo.dragging)return;down=null;
     const r=R.domElement.getBoundingClientRect(),m=new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),ray=new THREE.Raycaster();ray.setFromCamera(m,cam);
     const hit=ray.intersectObjects(pickable,false)[0];const i=hit?hit.object.userData.i:-1;
-    if(S.insp==='hit')S.hsel=i;else S.sel=i;rebuild();renderInsp();});}
+    pickSel(i,e.shiftKey);rebuild();renderInsp();});}
 function frameView(){
   const d=doc();if(!d)return;
   if(d.kind==='grips'){orbit.target.set(2.2,0.7,0);cam.position.set(-1.4,1.9,4.4);}   // (from in front and to the side: an aimed gun points at a viewer straight ahead)
@@ -436,7 +460,7 @@ function refreshInsp(){
   renderInsp();
 }
 function renderBoxInsp(B,d){
-  const W=d.data,j=S.wl,mode=viewMode(W,j),L=editList(W,j),b=L[S.sel];
+  const W=d.data,j=S.wl,mode=viewMode(W,j),L=editList(W,j),b=L[S.sel],sl=selList();
   const VN={held:'held',view:'first-person',drop:'dropped',stow:'put away'}[j],deg=r=>(r||[0,0,0]).map(v=>+(v*180/Math.PI).toFixed(2));
   const sharing=ASSET_LISTS.filter(k=>viewMode(W,k)==='shared').map(k=>({held:'held',view:'first person',drop:'dropped',stow:'put away'}[k]));
   let h='<h3>This view</h3>';
@@ -448,20 +472,20 @@ function renderBoxInsp(B,d){
   else h+='<p class="note">This weapon has no '+VN+' model.</p><div class="row"><button id="addView">Add one (the shared model)</button></div>';
   if(mode!=='none')h+='<h3>'+(mode==='shared'?'Shared model\'s boxes':'Its own boxes')+'</h3>';
   if(mode!=='none')h+='<div class="row"><button id="addBox">+ Box</button><button id="dupBox"'+(b?'':' disabled')+'>Duplicate</button><button id="mirBox"'+(b?'':' disabled')+' title="A copy on the other side (x flipped)">Mirror</button><button id="delBox"'+(b?'':' disabled')+'>Delete</button></div>';
-  if(mode!=='none')h+='<div class="list" id="boxList">'+L.map((x,i)=>'<div class="item'+(i===S.sel?' on':'')+'" data-i="'+i+'"><span style="color:'+(x.c==='@club'?'#7a5530':x.c)+'">■</span> '+esc(x.role||x.tag||(x.sh&&x.sh!=='box'?x.sh:'box'))+' <small>'+x.s.map(v=>+v.toFixed(3)).join(' × ')+'</small></div>').join('')+'</div>';
+  if(mode!=='none')h+='<div class="list" id="boxList">'+L.map((x,i)=>'<div class="item'+(sl.includes(i)?' on':'')+'" data-i="'+i+'"><span style="color:'+(x.c==='@club'?'#7a5530':x.c)+'">■</span> '+esc(x.role||x.tag||(x.sh&&x.sh!=='box'?x.sh:'box'))+' <small>'+x.s.map(v=>+v.toFixed(3)).join(' × ')+'</small></div>').join('')+'</div>';
   if(b){
-    h+='<h3>Box '+(S.sel+1)+'</h3>';
+    h+=sl.length>1?'<p class="note">'+sl.length+' boxes picked: the handles move, turn and size them together. The numbers below are for box '+(S.sel+1)+', the last picked.</p>':'';h+='<h3>Box '+(S.sel+1)+'</h3>';
     h+='<div class="row"><label>Size</label>'+v3(b.s,'bs')+'</div><div class="row"><label>Place</label>'+v3(b.p,'bp')+'</div><div class="row"><label>Tilt (degrees)</label>'+v3((b.r||[0,0,0]).map(v=>+(v*180/Math.PI).toFixed(2)),'br')+'</div>';
     h+='<div class="row"><label>Shape</label><select id="bsh">'+ASSET_SHAPES.map(s=>'<option'+((b.sh||'box')===s?' selected':'')+'>'+s+'</option>').join('')+'</select></div>';
     const isRole=b.c[0]==='@';
     h+='<div class="row"><label>Colour</label><input type="color" id="bc" value="'+(isRole?'#7a5530':b.c)+'"'+(isRole?' disabled':'')+'><label style="width:auto"><input type="checkbox" id="brole"'+(isRole?' checked':'')+'> club colour</label></div>';
     if(S.wl==='held'||S.wl==='stow')h+='<div class="row"><label>Part name</label><input id="brl" value="'+esc(b.role||'')+'" placeholder="e.g. blade"></div>';
     if(S.wl==='view')h+='<div class="row"><label>Draw order</label>'+num(b.o,'bo',1)+'</div><div class="row"><label>Moves as</label><select id="btag">'+['','mag','load','bolt','pump','slide'].map(t=>'<option value="'+t+'"'+((b.tag||'')===t?' selected':'')+'>'+(t||'(fixed)')+'</option>').join('')+'</select></div>';
-  }else if(mode!=='none')h+='<p class="note">Click a box in the view or the list to edit it.'+(mode==='shared'?' (A box\'s numbers are in the shared model\'s own frame.)':'')+'</p>';
+  }else if(mode!=='none')h+='<p class="note">Click a box in the view or the list to edit it (Shift+click picks more than one).'+(mode==='shared'?' (A box\'s numbers are in the shared model\'s own frame.)':'')+'</p>';
   if(S.wl==='view'){const F=W.model.fore;h+='<h3>Other forearm</h3>'+(F?'<div class="row"><label>Hand at</label>'+v3(F.p,'fp')+'</div><div class="row"><label>From</label>'+v3(F.r,'fr')+'</div><div class="row"><button id="foreDel">Remove</button></div>':'<div class="row"><button id="foreAdd">+ Other hand on it</button></div>');}
   if(W.note!==undefined||true)h+='<h3>Note</h3><textarea id="wnote" rows="3" style="width:100%" placeholder="What this weapon is, for whoever edits it next">'+esc(W.note||'')+'</textarea>';
   B.innerHTML=h;
-  for(const e of B.querySelectorAll('#boxList .item'))e.onclick=()=>{S.sel=+e.dataset.i;rebuild();renderInsp();};
+  for(const e of B.querySelectorAll('#boxList .item'))e.onclick=ev=>{pickSel(+e.dataset.i,ev.shiftKey);rebuild();renderInsp();};
   if(mode==='shared'){
     const pa=f=>e=>edit(W2=>{const at=W2.model[j].at=W2.model[j].at||{p:[0,0,0]};f(at,+e.target.value);if(at.r&&!at.r.some(v=>v))delete at.r;if(at.k===1)delete at.k;});
     for(const q of[0,1,2]){$('ap'+q).onchange=pa((at,v)=>{at.p=at.p||[0,0,0];at.p[q]=r4(v);});$('ar'+q).onchange=pa((at,v)=>{at.r=at.r||[0,0,0];at.r[q]=r4(v*Math.PI/180);});}
@@ -490,14 +514,18 @@ function renderBoxInsp(B,d){
 }
 function dup(){const d=doc();if(!d)return;
   if(d.kind==='clips')return copyKey();
-  if(S.insp==='hit'){if(S.hsel<0)return;edit(W=>{const H=W.hit[hitSet()],c=clone(H[S.hsel]);c.p[0]+=0.1;H.push(c);S.hsel=H.length-1;});return;}
-  if(S.sel<0)return;edit(W=>{const L=editList(W,S.wl),c=clone(L[S.sel]);c.p[0]=r4(c.p[0]+0.05);L.push(c);S.sel=L.length-1;});}
+  const P=selList();if(!P.length)return;
+  if(S.insp==='hit'){edit(W=>{const H=W.hit[hitSet()];addSel(H,P.map(i=>{const c=clone(H[i]);c.p[0]=r4(c.p[0]+0.1);return c;}));});return;}
+  edit(W=>{const L=editList(W,S.wl);addSel(L,P.map(i=>{const c=clone(L[i]);c.p[0]=r4(c.p[0]+0.05);return c;}));});}
+// (new copies onto the end of a list, and they become the selection)
+function addSel(L,cs){const n=L.length;L.push(...cs);const I=cs.map((c,i)=>n+i);S[selK()]=I[I.length-1];S[mselK()]=I.length>1?I:[];}
 function mirror(){const d=doc();if(!d||d.kind!=='weapons'||S.sel<0||S.insp!=='box')return;
-  edit(W=>{const L=editList(W,S.wl),c=clone(L[S.sel]);c.p[0]=r4(-c.p[0]);if(c.r){c.r[1]=-c.r[1];c.r[2]=-c.r[2];}L.push(c);S.sel=L.length-1;});}
+  const P=selList();edit(W=>{const L=editList(W,S.wl);addSel(L,P.map(i=>{const c=clone(L[i]);c.p[0]=r4(-c.p[0]);if(c.r){c.r[1]=-c.r[1];c.r[2]=-c.r[2];}return c;}));});}
 function del(){const d=doc();if(!d)return;
   if(d.kind==='clips')return delKey();
-  if(S.insp==='hit'){if(S.hsel<0)return;const set=hitSet();edit(W=>{W.hit[set].splice(S.hsel,1);S.hsel=-1;if(!W.hit[set].length)delete W.hit[set];if(!Object.keys(W.hit).length)delete W.hit;});return;}
-  if(S.sel<0)return;edit(W=>{editList(W,S.wl).splice(S.sel,1);S.sel=-1;});}
+  const P=selList().sort((a,b)=>b-a);if(!P.length)return;
+  if(S.insp==='hit'){const set=hitSet();edit(W=>{for(const i of P)W.hit[set].splice(i,1);S.hsel=-1;S.hmsel=[];if(!W.hit[set].length)delete W.hit[set];if(!Object.keys(W.hit).length)delete W.hit;});return;}
+  edit(W=>{const L=editList(W,S.wl);for(const i of P)L.splice(i,1);S.sel=-1;S.msel=[];});}
 
 // the weapon's numbers: every field in its file but the model, the hit shapes and the note, as a table
 const FIELD_HELP={name:'Its name in the game',about:'The line on the Character tab',kind:'melee, gun, spell, throw or mine',drop:'Left behind by a killed enemy for Gnash',stack:'Carried as a pile (grenades, mines)',
@@ -546,14 +574,14 @@ function renderHitInsp(B,d){
     '<p class="note">Where a blow with this weapon hurts, in the goblin\'s own frame (+z ahead). With none, the game uses the built-in hit in blue: everything within r of a point reach ahead. With hitboxes, it hits a goblin when one touches its hurtboxes (Bodies: goblin).</p>';
   h+='<div class="row"><button data-add="sphere">+ Sphere</button><button data-add="capsule">+ Capsule</button><button data-add="box">+ Box</button></div>';
   h+='<div class="row">'+(body?'':'<button id="hbCopy"'+(W.r&&W.reach?'':' disabled')+'>Copy the built-in hit</button>')+(s?'<button id="hbDel">Delete</button>':'')+'</div>';
-  h+='<div class="list">'+H.map((x,i)=>'<div class="item'+(i===S.hsel?' on':'')+'" data-i="'+i+'">'+x.k+' <small>'+(body?'':x.t?'live '+x.t.join('–'):'always')+'</small></div>').join('')+'</div>';
+  h+='<div class="list">'+H.map((x,i)=>'<div class="item'+(selList().includes(i)?' on':'')+'" data-i="'+i+'">'+x.k+' <small>'+(body?'':x.t?'live '+x.t.join('–'):'always')+'</small></div>').join('')+'</div>';
   if(s){h+='<h3>'+s.k+'</h3><div class="row"><label>Place</label>'+v3(s.p,'hp')+'</div>';
     if(s.k==='box')h+='<div class="row"><label>Size</label>'+v3(s.s,'hs')+'</div>';else h+='<div class="row"><label>Radius</label>'+num(s.r,'hr')+'</div>';
     if(s.k==='capsule')h+='<div class="row"><label>Length</label>'+num(s.h,'hh')+'</div>';
     h+='<div class="row"><label>Tilt (degrees)</label>'+v3((s.rot||[0,0,0]).map(v=>+(v*180/Math.PI).toFixed(2)),'hro')+'</div>';
     if(!body)h+='<div class="row"><label>Live on its blow</label><input type="checkbox" id="hlv"'+(s.t?' checked':'')+'> from '+num(s.t?s.t[0]:0.9,'ht0')+' to '+num(s.t?s.t[1]:1.1,'ht1')+'</div><p class="note">On the blow\'s timeline: 1 is where it lands. (Gnash\'s blows land in one go for now, so the game counts every hitbox at the moment of the blow.)</p>';}
   B.innerHTML=h;
-  for(const e of B.querySelectorAll('.list .item'))e.onclick=()=>{S.hsel=+e.dataset.i;rebuild();renderInsp();};
+  for(const e of B.querySelectorAll('.list .item'))e.onclick=ev=>{pickSel(+e.dataset.i,ev.shiftKey);rebuild();renderInsp();};
   const add=sh=>edit(W2=>{W2.hit=W2.hit||{};const L=W2.hit[set]=W2.hit[set]||[];const R0=body?0.25:W2.r||1,F=body?0:W2.reach||1;
     L.push(sh==='box'?{k:'box',p:[0,0.6,F],s:[R0*2,1.2,R0*2]}:sh==='sphere'?{k:'sphere',p:[0,0.6,F],r:R0}:{k:'capsule',p:[0,0.6,F],r:R0,h:1});S.hsel=L.length-1;});
   for(const b of B.querySelectorAll('[data-add]'))b.onclick=()=>add(b.dataset.add);
