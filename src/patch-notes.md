@@ -182,6 +182,10 @@
 - The reverser (R) sets forward, neutral or reverse, but only once the train has stopped.
 - Every bend has a safe speed, and the instrument shows the next one coming up. Take it too fast and the wheels squeal; far too fast and the train comes off the rails.
 - Left click sounds the horn (hold it for a long blast) and right click rings the bell. Subway trains use the same lever.
+- The hot-air balloon is steered by the wind now. There are four layers of it, by height (surface, low, middle and high), each blowing its own way and harder the higher you go: climb or sink into the one going where you want. Its instrument shows each layer's direction and which one you're in. The movement keys only trim the drift a little.
+- The burner warms the envelope a moment behind, so start a climb early.
+- Right click drops a sandbag: the balloon lifts a little, and the bag flattens any goblin it lands on. You have six.
+- Left click lets down a rope. Hostile goblins grab it and climb up (three at most), weighing the balloon down, and any that reach the basket tear at it. Pull the rope up to shake off the ones still climbing. Another player can climb the rope too, holding climb.
 
 ### Map markers
 

@@ -143,7 +143,6 @@ function inBalloon(p,D){const B=D.o,vs=inCl(B.vy||0,-5,5),alt=Math.round(Math.ma
   s+=`<g transform="translate(128,0)"><rect x="0" y="0" width="92" height="112" rx="6" fill="rgba(18,22,28,.8)"/>${inT(46,13,9,'WIND','mono','middle',0,'#d9cfc2')}`;
   L.list.forEach((W,i)=>{const y=20+i*22,c=i===cur,rot=angDiff(p.cam.yaw+Math.PI,W.dir)/IN_R;s+=`<rect x="4" y="${y}" width="84" height="19" rx="3" fill="${c?'rgba(255,212,71,.2)':'transparent'}" stroke="${c?IN_YOLK:'rgba(238,240,230,.15)'}" stroke-width="1.5"/>`+inT(8,y+13,8,W.lab,'mono','start',0,c?IN_YOLK:'#d9cfc2')+`<g transform="translate(62,${y+9.5}) rotate(${inF(-rot)})"><path d="M0,-7 L4,3 L0,1 L-4,3 Z" fill="${c?IN_YOLK:IN_PAPER}"/></g>`+inT(84,y+13,8,Math.round(W.sp),'mono','end',0,c?IN_YOLK:'#d9cfc2');});
   return s+`</g>`+inT(176,126,18,alt+' m','px ink-t','middle',3);}
-// (until the balloon's winds come in, one calm layer: see balloon.js's balWinds)
 // ---- the fighter jet's head-up display: over the middle of the view, clear of the controls on the left ----
 function inJet(p,D){const pl=D.o,F=pl.free||{},A=inAtt(pl),spd=Math.round((F.v||0)*BPS_KN),alt=Math.round(Math.max(0,pl.g.position.y-G)),hdg=inBear(A.hd),Gc='#8dff9a',S='stroke="'+Gc+'" stroke-width="3" fill="none"';
   const roll=A.roll/IN_R,pitch=A.pitch/IN_R;
