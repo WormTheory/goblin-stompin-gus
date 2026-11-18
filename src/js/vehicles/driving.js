@@ -205,6 +205,7 @@ function drvCamera(p){
   if(p.drv.k==='mech'){mechCamera(p);return;}
   if(p.drv.k==='ship'&&p.shipBridge){shipBridgeCam(p,p.drv.o);return;}   // (the view from the bridge: see ships.js)
   if(p.drv.k==='mount'){mountCam(p,p.drv.o);return;}   // (at a carrier's deck weapon: see carrier-crew.js)
+  if(tankSight(p))return;   // (a tank's gunsight, held: from the turret, zoomed in. See tank-handling.js)
   const D=p.drv,S=drvPose(D);
   if(p.drvYaw!==undefined&&Math.abs(angDiff(p.drvYaw,p.cam.yaw))>1e-5)p.drvLook=camClock;
   // (not a helicopter, which faces where you look anyway, nor a train, where the way you look is the way it goes)
@@ -367,10 +368,9 @@ function tankRam(M,d,depth){
   if(broken.length){const o={force:1.2,dx:fx,dz:fz,up:1};rebuildSet(ch);save();destroyFX(broken.slice(0,120),o);settle(broken,o);pumpsHit(broken);}
   return broken.length;}
 function drvTank(M,dt){
-  const p=M.drv,i=drvIn(p),thr=-i.z,st=-i.x;
-  M.sv+=(thr*7-M.sv)*Math.min(1,dt*1.5);
-  {const nh=M.h+st*0.9*dt;if(!milBlocked(M,M.x,M.z,nh,M.y)||milBlocked(M,M.x,M.z,M.h,M.y))M.h=nh;}
-  tankGun(M,M.gnr||p,dt);   // (the turret and the gun: the gunner's, if there's another player in that seat)
+  const p=M.drv,i=drvIn(p),turn=tankDrive(M,p,i,dt);   // (its tracks, with weight, and the cruise steps: tank-handling.js)
+  {const nh=M.h+turn*dt;if(!milBlocked(M,M.x,M.z,nh,M.y)||milBlocked(M,M.x,M.z,M.h,M.y))M.h=nh;}
+  tankGun(M,M.gnr||p,dt,turn);   // (the turret and the gun: the gunner's, if there's another player in that seat)
   // (anything more than a block up, below the top of the tank, stops it -- what's overhead it passes under; leaning on
   // it a moment, or hitting it at speed, it smashes through)
   if(Math.abs(M.sv)>0.05){const d=M.sv<0?-1:1,fx=Math.sin(M.h)*d,fz=Math.cos(M.h)*d,ax=M.x+fx*3,az=M.z+fz*3;
@@ -380,15 +380,17 @@ function drvTank(M,dt){
       if(milBlocked(M,nx,nz,M.h,M.y)&&!milBlocked(M,M.x,M.z,M.h,M.y))M.sv=0;else{M.stuck=0;M.x=nx;M.z=nz;}}}
   M.v=Math.max(0,M.sv);
   {const gy=groundAt(M.x,M.z,M.y+1.5);if(gy<M.y){M.vy-=20*dt;M.y=Math.max(gy,M.y+M.vy*dt);}else{M.vy=0;M.y+=(gy-M.y)*Math.min(1,dt*8);}}
-  milPlace(M);milBoxes(M,M.v);milShove(M);
+  tankTilt(M,dt);milPlace(M);milBoxes(M,M.v);milShove(M);
 }
 // a driven tank's turret and gun, worked by g (its driver, or another player as its gunner): the turret follows where g
 // looks, and bite fires a shell there
-function tankGun(M,g,dt){const i=drvIn(g);
-  const A=drvAim(g,45);M.aim=A;M.tu=angTo(M.tu,Math.atan2(A.x-M.x,A.z-M.z)-M.h,1.4*dt);
+// (held straight ahead by hull lock; its aim blooming as it moves and swings, and HE or AP: tank-handling.js)
+function tankGun(M,g,dt,turn=0){const i=drvIn(g);tankSwitches(M,g,i);
+  const A=drvAim(g,45),tu0=M.tu;M.aim=A;if(!M.hullLock)M.tu=angTo(M.tu,Math.atan2(A.x-M.x,A.z-M.z)-M.h,1.4*dt);
+  tankBloom(M,turn,angDiff(tu0,M.tu)/Math.max(dt,1e-3),dt);
   const F=tankShell(M,A);M.pred=shotPath(F,2,4,M,A);
   wpnTick(M,dt);if(i.bitePress&&wpnFire(M,'shell')){const mx=F.x,my=F.y,mz=F.z;
-    shot({kind:'shell',x:mx,y:my,z:mz,vx:F.vx,vy:F.vy,vz:F.vz,grav:2,fuse:4,R:4.5,dmg:4,cause:'Blown up by a goblin in a tank',by:pvpBy(g),crush:3.2,vd:60,own:M});
+    tankFire(M,tankSpread(M,{...F}),g);
     smoke(mx,my,mz,4,0x8a8a80);puff(mx,my,mz,4,0xffc040,0.3);if(audio)sfx('Tank fires',()=>{noise(0.6,0.6,350,'lowpass');tone('sawtooth',70,30,0.5,0.15);});addShake(0.3,M.x,M.z,30);}
 }
 // flying a helicopter: it goes the way you push, relative to where you look, and turns to face that way; jump climbs,

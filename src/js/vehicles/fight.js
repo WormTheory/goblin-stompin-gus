@@ -48,6 +48,7 @@ function drvHP(D){if(D.netHP)return D.netHP;return vehHealth(D);}   // (D.netHP:
 const _dhv=new THREE.Vector3();
 function drvHud(p){
   let H=p.ui.drvHud;
+  if(p.fov0&&(!p.drv||p.drv.k!=='tank'))tankSight(p);   // (out of a tank with its gunsight up: the view put back)
   if(!p.drv||!p.gob||p.drv.jack){if(H&&!H.el.hidden){H.el.hidden=true;H.dv.hidden=true;if(H.mg)H.mg.el.hidden=true;}return;}
   // (after the camera's been placed for this step, and its matrices brought up to date, so markers put on things in the
   // view (the Mobile Gear's lock box, the gun marker) sit on them now, not where they were a frame ago)
@@ -74,7 +75,7 @@ function drvHud(p){
   set('w',H.wpn,how+(D.k==='plane'&&armed&&ph?ph+'  ·  ':'')+(armed?(LT?'Locked on '+(isMilT(LT)?MIL[LT.kind].name.toLowerCase():isCarT(LT)?'a '+(LT.veh||'car'):'a goblin')+' ('+lk+' let go)':lk+' lock on')+'  ·  '+out+' get out'
     :D.k==='car'&&o.veh==='fire'?bl('bite')+' spray water  ·  '+out+' get out'
     :D.k==='plane'?(ph?ph+'  ·  ':'')+out+' get out':D.k==='mech'?mechHint(p):out+' get out')+sw);
-  const hose=D.k==='car'&&o.veh==='fire';H.xh.hidden=!armed&&!hose&&D.k!=='mech';mechHud(p,H);if(hose){H.xh.classList.remove('cool','lock');H.xh.classList.toggle('water',!!o.hose);}if(armed){H.xh.classList.toggle('cool',!ready);H.xh.classList.toggle('lock',!!LT);}
+  const hose=D.k==='car'&&o.veh==='fire';H.xh.hidden=!armed&&!hose&&D.k!=='mech';mechHud(p,H);tankHud(p,H);if(hose){H.xh.classList.remove('cool','lock');H.xh.classList.toggle('water',!!o.hose);}if(armed){H.xh.classList.toggle('cool',!ready);H.xh.classList.toggle('lock',!!LT);}
   // (the ammo by the crosshair: each weapon, its button, a pip for each round left -- or a bar, for a machine gun's
   // belt -- and while it reloads, a bar filling and the seconds to go)
   H.ammo.hidden=!W.length;

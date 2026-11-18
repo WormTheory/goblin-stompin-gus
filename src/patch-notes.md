@@ -161,6 +161,12 @@
 - The two-seater rolls quickly and loops easily, and right click turns on a smoke trail for skywriting.
 - The airliner is heavy and turns wide. Right click switches on the autopilot, which holds your height and heading (with a chime); touch the stick and it lets go. Pull it too hard and the wings creak, then start to give.
 - The fighter jet rolls fast and holds its speed through turns. Hold Left Shift at full throttle for the afterburner, until it overheats; tap A or D twice for a barrel roll; pull hard and the edges of the view grey out.
+- Tanks are heavy now: they take a moment to get going and to stop. A and D turn them on their tracks, spinning on the spot when standing still, with the turns widening as they pick up speed.
+- Left Shift (controller left stick click) steps the tank's cruise through slow, half and full, and it keeps going at that speed with nothing pressed. S knocks it off.
+- The tank's aim spreads while it moves or the turret swings, shown by the crosshair growing, and settles about a second after it stops. A ring round the crosshair fills as the gun reloads.
+- R (D-pad right) swaps the tank's shells: HE blows a wide crater, AP punches a narrow tunnel deep through walls and does twice the damage to vehicles.
+- Hold right click (LT) for the tank's gunsight: the view from the turret, zoomed in, with range marks. C (LB) is hull lock, holding the turret straight ahead so you can look round without it swinging.
+- A tank's hull tilts with the ground it's on, over ramps and rubble.
 
 ### Map markers
 
