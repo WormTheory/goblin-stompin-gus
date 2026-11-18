@@ -19,9 +19,13 @@ function cmp(a,b,at){
   if(a!==b)diffs.push(at+': '+a+' vs '+b);
 }
 const F=A.readAll(),W=A.assetWeaponsAll(F),S=A.assetClipsAll(F);
-cmp(W,lit(wf,'WEAPONS'),'WEAPONS');cmp(S,lit(sf,'STRIKES'),'STRIKES');
+// (models made since the move, where the old table had none, are new rather than different: the club's dropped model)
+const OLD=lit(wf,'WEAPONS'),added=[];
+for(const k in W){const m=W[k].model,o=OLD[k]&&OLD[k].model;if(!m||!o)continue;
+  for(const j of A.ASSET_LISTS)if(m[j]&&!o[j]){added.push(k+'.'+j);const c=Object.assign({},m);delete c[j];W[k]=Object.assign({},W[k],{model:c});}}
+cmp(W,OLD,'WEAPONS');cmp(S,lit(sf,'STRIKES'),'STRIKES');
 // (and every file passes its own check, and writes back to the same text)
 for(const dir of ['weapons','clips'])for(const k in F[dir]){for(const e of A.assetCheck(dir,k,F[dir][k]))diffs.push(dir+'/'+k+': '+e);
   const txt=fs.readFileSync(path.join(A.ROOT,'src/assets',dir,k+'.json'),'utf8').replace(/\r\n/g,'\n');if(A.fmt(F[dir][k])!==txt)diffs.push(dir+'/'+k+': not in the standard format');}
-console.log(diffs.length?diffs.join('\n'):'golden: weapons and clips identical ('+Object.keys(W).length+' weapons, '+Object.keys(S).length+' clips)');
+console.log(diffs.length?diffs.join('\n'):'golden: weapons and clips identical ('+Object.keys(W).length+' weapons, '+Object.keys(S).length+' clips)'+(added.length?'; new since: '+added.join(', '):''));
 process.exit(diffs.length?1:0);

@@ -1,7 +1,7 @@
 let __s=+(process.env.SEED||1);Math.random=()=>{__s=(__s*16807)%2147483647;return (__s-1)/2147483646;};
 const fs=require('fs');
 let src0=fs.readFileSync('g.js','utf8');
-let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={players,cars,goblins,frame,setGob,WEAPONS,GOB_WPN,STRIKES,ASSETS,assetCheck,assetFmt,assetWeapon,assetWeaponOf,assetClip,assetClipOf,wpnHitShapes,hitWorld,hitTouch,liveWeapon,liveClip,PICKUPS,hitGoblins};\n})();');
+let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={players,cars,goblins,frame,setGob,WEAPONS,GOB_WPN,STRIKES,ASSETS,assetCheck,assetFmt,assetWeapon,assetWeaponOf,assetClip,assetClipOf,wpnHitShapes,hitWorld,hitTouch,liveWeapon,liveClip,PICKUPS,hitGoblins,assetList,assetPlace,ASSET_LISTS};\n})();');
 const deep=()=>new Proxy(function(){}, {get:(t,p)=>p===Symbol.toPrimitive?()=>0:(p==='length'?0:deep()),apply:()=>deep(),construct:()=>deep()});
 class Q{constructor(){this.x=0;this.y=0;this.z=0;this.w=1}set(x,y,z,w){this.x=x;this.y=y;this.z=z;this.w=w;return this}setFromAxisAngle(a,t){const s=Math.sin(t/2);this.x=a.x*s;this.y=a.y*s;this.z=a.z*s;this.w=Math.cos(t/2);return this}copy(q){this.x=q.x;this.y=q.y;this.z=q.z;this.w=q.w;return this}}
 class V3{project(){return this}fromBufferAttribute(a,i){const A=a.array||a.a;this.x=A[i*3];this.y=A[i*3+1];this.z=A[i*3+2];return this}applyMatrix4(m){const e=m.elements,x=this.x,y=this.y,z=this.z;this.x=e[0]*x+e[4]*y+e[8]*z+e[12];this.y=e[1]*x+e[5]*y+e[9]*z+e[13];this.z=e[2]*x+e[6]*y+e[10]*z+e[14];return this}setFromMatrixPosition(o){this.x=o.position.x;this.y=o.position.y;this.z=o.position.z;return this}normalize(){const l=Math.hypot(this.x,this.y,this.z)||1;this.x/=l;this.y/=l;this.z/=l;return this}add(v){this.x+=v.x;this.y+=v.y;this.z+=v.z;return this}applyQuaternion(q){const x=this.x,y=this.y,z=this.z,qx=q.x,qy=q.y,qz=q.z,qw=q.w;const ix=qw*x+qy*z-qz*y,iy=qw*y+qz*x-qx*z,iz=qw*z+qx*y-qy*x,iw=-qx*x-qy*y-qz*z;this.x=ix*qw+iw*-qx+iy*-qz-iz*-qy;this.y=iy*qw+iw*-qy+iz*-qx-ix*-qz;this.z=iz*qw+iw*-qz+ix*-qy-iy*-qx;return this}constructor(x=0,y=0,z=0){this.x=x;this.y=y;this.z=z}set(x,y,z){this.x=x;this.y=y;this.z=z;return this}copy(v){this.x=v.x;this.y=v.y;this.z=v.z;return this}clone(){return new V3(this.x,this.y,this.z)}addScaledVector(v,s){this.x+=v.x*s;this.y+=v.y*s;this.z+=v.z*s;return this}multiplyScalar(s){this.x*=s;this.y*=s;this.z*=s;return this}setScalar(s){return this.set(s,s,s)}}
@@ -52,6 +52,16 @@ for(const kind of ['weapons','clips','bodies','grips']){
     if(JSON.stringify(T.WEAPONS[k].model.held)!==JSON.stringify(T.assetWeapon(f).model.held))wd.push(k+'(held)');}
   for(const k in T.ASSETS.clips)if(JSON.stringify(T.STRIKES[k])!==JSON.stringify(T.assetClip(T.ASSETS.clips[k])))cd.push(k);
   console.log('game tables from the files: weapons',wd.length?'differ '+wd.join(','):'same','| clips',cd.length?'differ '+cd.join(','):'same');}
+// (shared models: each view that shares the weapon's one model is it placed, and placing then taking the placing off
+// gives the model back; a view with its own version is just that)
+{let sh=0,own=0,bad=[];
+  for(const k in T.ASSETS.weapons){const M=T.ASSETS.weapons[k].model;if(!M)continue;
+    for(const j of T.ASSET_LISTS){const v=M[j];if(!v)continue;
+      if(Array.isArray(v)||v.own){own++;continue;}sh++;
+      const L=T.assetList(M,j);if(L.length!==M.boxes.length){bad.push(k+'.'+j+' count');continue;}
+      L.forEach((b,i)=>{const u=T.assetPlace(b,v.at,true),o=M.boxes[i];
+        if(u.p.some((x,q)=>Math.abs(x-o.p[q])>1e-4)||u.s.some((x,q)=>Math.abs(x-o.s[q])>1e-4))bad.push(k+'.'+j+'['+i+']');});}}
+  console.log('shared models: views sharing',sh,'| with their own',own,'| round trip',bad.length?'off '+bad.join(','):'exact','| club dropped',!!T.WEAPONS.club.model.drop&&T.WEAPONS.club.model.drop.length);}
 // ---- hit shapes ----
 T.setGob(true);S(20);
 for(const c of T.cars){c.alive=false;c.respawnT=1e9;}for(const g of T.goblins){g.state='wait';g.t=-1e9;g.hp=0;}
@@ -73,7 +83,7 @@ console.log('a sweep across, tilted on its side: at its left end',hitAt(tilt,-0.
 console.log('above his head: a goblin on a ledge 1.5 up',hitAt({hit:{hitboxes:[{k:'sphere',p:[0,2,0.8],r:0.4}]}},0,0.8,1.5),'| on the ground under it',hitAt({hit:{hitboxes:[{k:'sphere',p:[0,2,0.8],r:0.4}]}},0,0.8,0));
 // ---- the live preview ----
 {const f=JSON.parse(fs.readFileSync(path.join(AS,'weapons','dagger.json'),'utf8'));const same=T.WEAPONS.dagger,gw=T.GOB_WPN.dagger,dmg0=same.dmg;
-  f.model.held[0].s=[0.5,0.5,0.5];f.dmg=dmg0+7;
+  f.model.boxes[0].s=[0.5,0.5,0.5];f.dmg=dmg0+7;   // (the shared model, which held uses)
   console.log('live weapon:',T.liveWeapon('dagger',f),'| same entry kept',T.WEAPONS.dagger===same,'| new shape',T.WEAPONS.dagger.model.held[0][0]===0.5,'| new damage reaches Gnash',T.GOB_WPN.dagger===gw&&T.GOB_WPN.dagger.dmg===dmg0+7,'| unknown weapon:',T.liveWeapon('nope',f));
   const back=JSON.parse(fs.readFileSync(path.join(AS,'weapons','dagger.json'),'utf8'));T.liveWeapon('dagger',back);console.log('put back: damage',T.GOB_WPN.dagger.dmg===dmg0);
   const c=JSON.parse(fs.readFileSync(path.join(AS,'clips','club.json'),'utf8'));c.keys[1].v[0]=-2;console.log('live clip:',T.liveClip('club',c),'| in the table',T.STRIKES.club[1][1]===-2);}

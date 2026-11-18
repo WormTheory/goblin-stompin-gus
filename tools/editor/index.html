@@ -20,8 +20,8 @@ button:disabled{opacity:.45;cursor:default}
 input,select,textarea{background:#14161a;border:1px solid var(--line);border-radius:3px;padding:2px 5px}
 input[type=number]{width:64px}
 input[type=color]{width:34px;height:22px;padding:0 2px}
-#app{display:grid;height:100%;grid-template-rows:38px 1fr;grid-template-columns:230px 1fr 320px}
-header{grid-column:1/4;display:flex;align-items:center;gap:10px;padding:0 10px;background:var(--panel);border-bottom:1px solid var(--line)}
+#app{display:grid;height:100%;grid-template-rows:38px minmax(0,1fr);grid-template-columns:var(--lw,230px) 5px minmax(200px,1fr) 5px var(--rw,320px)}
+header{grid-column:1/6;display:flex;align-items:center;gap:10px;padding:0 10px;background:var(--panel);border-bottom:1px solid var(--line)}
 header h1{font-size:14px;margin:0 8px 0 0;font-weight:600}
 .tabs{display:flex;gap:2px;height:100%;align-items:flex-end}
 .tabs button{border-radius:5px 5px 0 0;border-bottom:none;padding:6px 14px}
@@ -41,6 +41,18 @@ aside{background:var(--panel);overflow:auto;min-height:0}
 .item.on{background:var(--sel)}
 .item .dirty{color:var(--acc2)}
 .item small{color:var(--dim);margin-left:auto}
+.item .tw{width:16px;flex:none;border:none;background:none;padding:0;color:var(--dim);text-align:center}
+.item .tw:hover{color:var(--text)}
+.item.sub{padding-left:28px;font-size:12px}
+/* (the bars between the panes: drag to resize, double-click for the first size) */
+.split{background:var(--line);cursor:col-resize;min-height:0}
+.split:hover,.split.on{background:#5a7ab0}
+.hsplit{height:5px;background:var(--line);cursor:row-resize}
+.hsplit:hover,.hsplit.on{background:#5a7ab0}
+#toolbar button.none{opacity:.55}
+#toolbar button small{color:var(--acc2);font-size:10px}
+.refsel{display:flex;gap:2px}
+.refsel select{flex:1;min-width:0}
 #center{display:grid;grid-template-rows:auto 1fr auto;min-width:0;min-height:0}
 #toolbar{display:flex;gap:6px;align-items:center;padding:5px 8px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
 #toolbar .sep{width:1px;height:20px;background:var(--line)}
@@ -50,10 +62,10 @@ aside{background:var(--panel);overflow:auto;min-height:0}
 #inset b{position:absolute;left:6px;top:4px;font-size:11px;color:var(--dim);font-weight:400}
 #hud{position:absolute;left:10px;top:8px;color:var(--dim);font-size:12px;pointer-events:none;white-space:pre}
 #empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--dim);text-align:center;padding:30px}
-#timeline{background:var(--panel);border-top:1px solid var(--line);height:210px;display:none;grid-template-rows:30px 1fr}
+#timeline{background:var(--panel);height:var(--th,230px);display:none;grid-template-rows:auto auto minmax(0,1fr)}
 #timeline.show{display:grid}
-#tlbar{display:flex;gap:6px;align-items:center;padding:3px 8px}
-#tl{width:100%;height:100%;display:block;cursor:crosshair}
+#tlbar{display:flex;gap:6px;align-items:center;padding:3px 8px;flex-wrap:wrap}
+#tl{width:100%;height:100%;display:block;cursor:crosshair;min-height:0}
 #insp{border-left:1px solid var(--line);display:flex;flex-direction:column}
 #inspTabs{display:flex;gap:2px;padding:6px 8px 0;border-bottom:1px solid var(--line)}
 #inspTabs button{border-radius:4px 4px 0 0;border-bottom:none}
@@ -98,11 +110,13 @@ kbd{background:#2c3038;border:1px solid #444;border-radius:3px;padding:0 4px;fon
     <input id="search" placeholder="Search" aria-label="Search the assets">
     <div id="assetList"></div>
   </aside>
+  <div class="split" data-split="lw" title="Drag to resize (double-click: back to the first size)"></div>
   <section id="center">
     <div id="toolbar"></div>
     <div id="viewWrap"><canvas id="view"></canvas><div id="inset"><b>In game, first person</b></div><div id="hud"></div><div id="empty">Pick a weapon or an animation on the left.</div></div>
-    <div id="timeline"><div id="tlbar"></div><canvas id="tl"></canvas></div>
+    <div id="timeline"><div class="hsplit" data-split="th" title="Drag to resize (double-click: back to the first size)"></div><div id="tlbar"></div><canvas id="tl"></canvas></div>
   </section>
+  <div class="split" data-split="rw" title="Drag to resize (double-click: back to the first size)"></div>
   <aside id="insp"><div id="inspTabs"></div><div id="inspBody"></div></aside>
 </div>
 <div id="help"><div>
@@ -116,7 +130,10 @@ kbd{background:#2c3038;border:1px solid #444;border-radius:3px;padding:0 4px;fon
   <h3>Animations</h3>
   <p>A timeline runs 0 to 2: the wind-up up to 1, where the blow lands, then the follow-through. Each key holds the whole pose; its ease (smooth, in or out) is how it's reached from the key before. Click on the timeline to move the playhead, drag a key to move it, double-click to add one. Moving a slider with Auto-key on keys the pose at the playhead.</p>
   <h3>Limits</h3>
-  <p>The two-handed grip on guns, walking legs and the game's recoil are worked out by the game and aren't shown here: use Open game to see them. Enemies already in a game keep their old weapon models till it's reloaded.</p>
+  <h3>Models</h3>
+  <p>Each weapon has one shared model. Each view (held, first person, dropped, put away) either uses it, placed for that view (Move the whole model, or the place, tilt and size in the inspector), or has a version of its own (Make unique; Use the shared model goes back). Editing a box of the shared model changes every view that uses it.</p>
+  <h3>Limits</h3>
+  <p>Walking legs and the game's recoil are worked out by the game and aren't shown here: use Open game to see them. Enemies already in a game keep their old weapon models till it's reloaded. The panes' edges drag to resize them.</p>
   <p style="text-align:right"><button onclick="document.getElementById('help').classList.remove('show')">Close</button></p>
 </div></div>
 <div id="dialog"><div id="dlgBody"></div></div>

@@ -7,7 +7,7 @@ const fs=require('fs'),path=require('path'),vm=require('vm');
 const ROOT=path.join(__dirname,'..','..');
 const ctx={THREE:{},JSON,Math,Object,Array,parseInt,isFinite,Set};vm.createContext(ctx);
 vm.runInContext(fs.readFileSync(path.join(ROOT,'src/js/core/assets.js'),'utf8')+
-  '\n;this.X={ASSET_LAYOUTS,assetBox,assetBoxOf,assetWeapon,assetWeaponOf,assetClip,assetClipOf,assetWeaponsAll,assetClipsAll,assetFmt,assetCheck};',ctx);
+  '\n;this.X={ASSET_LAYOUTS,assetBox,assetBoxOf,assetWeapon,assetWeaponOf,assetClip,assetClipOf,assetWeaponsAll,assetClipsAll,assetFmt,assetCheck,assetPlace,assetList,ASSET_LISTS};',ctx);
 const X=ctx.X;
 function readAll(){
   const o={};for(const dir of ['weapons','clips','bodies','grips']){const D=path.join(ROOT,'src/assets',dir);

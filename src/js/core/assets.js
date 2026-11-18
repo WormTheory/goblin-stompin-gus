@@ -39,13 +39,46 @@ function assetBoxOf(a){
   return b;
 }
 const ASSET_LISTS=['held','view','drop','stow'];
+// A weapon's model: its shape once, model.boxes, and each way it's seen (held, view, drop, stow) either that shape placed
+// ({at:{p,r,k}}: moved by p, turned by r (radians, XYZ), scaled by k) or a version of its own ({at, own:[boxes]}: at kept
+// for going back to the shared shape). A plain list is a version of its own too (the old form). View boxes with no render
+// order get ASSET_VIEW_O.
+const ASSET_VIEW_O=62;
+// (3 x 3 rotation matrices by rows, for an XYZ Euler as three.js has it, and back)
+const aMat=(x,y,z)=>{const a=Math.cos(x),b=Math.sin(x),c=Math.cos(y),d=Math.sin(y),e=Math.cos(z),f=Math.sin(z);
+  return [c*e,-c*f,d,a*f+b*e*d,a*e-b*f*d,-b*c,b*f-a*e*d,b*e+a*f*d,a*c];};
+const aMul=(A,B)=>{const o=new Array(9);for(let r=0;r<3;r++)for(let c=0;c<3;c++)o[r*3+c]=A[r*3]*B[c]+A[r*3+1]*B[3+c]+A[r*3+2]*B[6+c];return o;};
+const aTr=A=>[A[0],A[3],A[6],A[1],A[4],A[7],A[2],A[5],A[8]];
+const aApply=(M,v)=>[M[0]*v[0]+M[1]*v[1]+M[2]*v[2],M[3]*v[0]+M[4]*v[1]+M[5]*v[2],M[6]*v[0]+M[7]*v[1]+M[8]*v[2]];
+function aEul(M){const y=Math.asin(Math.max(-1,Math.min(1,M[2])));
+  return Math.abs(M[2])<0.9999999?[Math.atan2(-M[5],M[8]),y,Math.atan2(-M[1],M[0])]:[Math.atan2(M[7],M[4]),y,0];}
+const aR=v=>Math.round(v*1e6)/1e6||0;
+const assetAtId=at=>!at||(!(at.p&&(at.p[0]||at.p[1]||at.p[2]))&&!(at.r&&(at.r[0]||at.r[1]||at.r[2]))&&(at.k===undefined||at.k===1));
+// a box of the shared shape, placed (or, unplace, a placed box back into the shape's own frame)
+function assetPlace(b,at,unplace){
+  if(assetAtId(at))return JSON.parse(JSON.stringify(b));
+  const P=at.p||[0,0,0],k=at.k||1,R=aMat(...(at.r||[0,0,0])),o=JSON.parse(JSON.stringify(b)),Rb=aMat(...(b.r||[0,0,0]));
+  let p,M;
+  if(!unplace){p=aApply(R,b.p).map((v,i)=>v*k+P[i]);M=aMul(R,Rb);o.s=b.s.map(v=>aR(v*k));}
+  else{p=aApply(aTr(R),[b.p[0]-P[0],b.p[1]-P[1],b.p[2]-P[2]]).map(v=>v/k);M=aMul(aTr(R),Rb);o.s=b.s.map(v=>aR(v/k));}
+  o.p=p.map(aR);const e=aEul(M).map(aR);if(e[0]||e[1]||e[2])o.r=e;else delete o.r;
+  return o;
+}
+// the boxes of one way a weapon's seen (null if it hasn't one), as files have boxes
+function assetList(M,j){
+  const v=M[j];if(v===undefined||v===null)return null;if(Array.isArray(v))return v;
+  if(v.own)return v.own;
+  const L=(M.boxes||[]).map(b=>assetPlace(b,v.at));
+  for(const b of L)if(j==='view'){delete b.role;if(b.o===undefined)b.o=ASSET_VIEW_O;}else delete b.o;
+  return L;
+}
 // a weapon's file -> its entry in WEAPONS (every field in the same order, the boxes made lists, the note left off)
 function assetWeapon(e){
   const o={};
   for(const k in e){if(k==='note')continue;
     if(k!=='model'){o[k]=JSON.parse(JSON.stringify(e[k]));continue;}
-    const m={};for(const j in e.model){const v=e.model[j];
-      m[j]=ASSET_LISTS.includes(j)?v.map(assetBox):j==='fore'?[v.p.slice(),v.r.slice()]:JSON.parse(JSON.stringify(v));}
+    const m={};for(const j in e.model){const v=e.model[j];if(j==='boxes')continue;
+      m[j]=ASSET_LISTS.includes(j)?assetList(e.model,j).map(assetBox):j==='fore'?[v.p.slice(),v.r.slice()]:JSON.parse(JSON.stringify(v));}
     o.model=m;}
   return o;
 }
@@ -120,7 +153,13 @@ function assetCheck(kind,name,a){
     if(typeof a.name!=='string')E.push('name missing');
     if(!['melee','gun','spell','throw','mine'].includes(a.kind))E.push('kind must be melee, gun, spell, throw or mine');
     const M=a.model;if(!M||typeof M!=='object')E.push('model missing');
-    else for(const j of ASSET_LISTS)if(M[j]!==undefined){if(!Array.isArray(M[j]))E.push('model.'+j+' must be a list');else{M[j].forEach((b,i)=>box(b,'model.'+j+'['+i+']'));}}   // (boxes sharing a tag move together: the bazooka's rocket)
+    else{if(M.boxes!==undefined){if(!Array.isArray(M.boxes))E.push('model.boxes must be a list');else M.boxes.forEach((b,i)=>box(b,'model.boxes['+i+']'));}
+      for(const j of ASSET_LISTS){const v=M[j];if(v===undefined)continue;
+        if(Array.isArray(v)){v.forEach((b,i)=>box(b,'model.'+j+'['+i+']'));continue;}
+        if(!v||typeof v!=='object'){E.push('model.'+j+' must be a list or {at, own}');continue;}
+        const at=v.at;if(!at||!v3(at.p)||at.r!==undefined&&!v3(at.r)||at.k!==undefined&&!(n(at.k)&&at.k>0))E.push('model.'+j+'.at needs p, and r and k (above 0) if given');
+        if(v.own!==undefined){if(!Array.isArray(v.own))E.push('model.'+j+'.own must be a list');else v.own.forEach((b,i)=>box(b,'model.'+j+'.own['+i+']'));}
+        else if(!Array.isArray(M.boxes))E.push('model.'+j+' uses the shared shape, but model.boxes is missing');}}   // (boxes sharing a tag move together: the bazooka's rocket)
     if(M&&M.fore&&!(v3(M.fore.p)&&v3(M.fore.r)))E.push('model.fore needs p and r');
     for(const s of ['dmg','every','range','r','reach','R','mag','reload'])if(a[s]!==undefined&&!(n(a[s])&&a[s]>=0))E.push(s+' must be a number, 0 or more');
     if(a.hit)assetCheckHit(a.hit,'hit',E);
