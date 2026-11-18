@@ -26,6 +26,11 @@ function updateMines(dt){
     let hit=false;
     // (cars of any kind, traffic too: whoever's side it is)
     for(const c of cars){if(c.alive&&on(c.pos.x,c.pos.y,c.pos.z,1.4,1.6)){hit=true;break;}}
+    // (and the big ones: a tank, a helicopter on the ground, the Mobile Gear, a train or plane, whose underside is down at
+    // the mine and over it; last frame's boxes too, as this frame's only hold what's moved so far. Soft boxes, a zoo animal
+    // or a wheel's rim, don't count, nor anything whose bottom is well above or below, a ship's hull round a mine on its deck)
+    if(!hit)for(const L of [TRAIN_BOXES,PREV_BOXES]){for(const B of L){if(B.soft||B.proxy&&B.proxy.alive===false||B.y0<M.y-0.8||B.y0>M.y+1.2)continue;
+      const dx=M.x-B.x,dz=M.z-B.z;if(Math.abs(dx*B.tz-dz*B.tx)<B.hx+0.3&&Math.abs(dx*B.tx+dz*B.tz)<B.hz+0.3){hit=true;break;}}if(hit)break;}
     if(!hit&&M.side==='p')for(const g of goblins){if(g.state==='chase'&&g.hp>0&&g.root.visible&&on(g.pos.x,g.pos.y,g.pos.z,0.75,1.2)){hit=true;break;}}
     if(!hit)for(const q of players){if(!q.active||q.state==='dead'||q.drv)continue;if(M.side==='p'&&(q===M.owner||!pvpOn()))continue;
       if(on(q.pos.x,q.pos.y,q.pos.z,q.gob?0.75:1.1,1.2)){hit=true;break;}}

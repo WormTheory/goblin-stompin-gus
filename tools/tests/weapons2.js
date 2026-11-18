@@ -109,6 +109,45 @@ for(const k of GUNS){home();arm();A.wpn=k;S(20);const w=W[k];let shots=0,t=0;
  A.wpn='sniper';A.biteCD=0;S(20);press(2);let bz=0;for(let i=0;i<70;i++){S(1);bz=Math.max(bz,A.gb.tags.sniper.bolt.position.z);}console.log('sniper bolt drawn back',f(bz),'after a shot');
  A.wpn='handgun';A.biteCD=0;S(20);T.mHeld.add('Mouse0');let sl=0;for(let i=0;i<10;i++){S(1);sl=Math.max(sl,A.gb.tags.handgun.slide.position.z);}T.mHeld.delete('Mouse0');console.log('handgun slide back',f(sl),'as it fires');}
 killAll();
+// ==== the sniper's scope, and what the code review found (Nov 2026) ====
+console.log('== SCOPE AND FIXES');
+home();killAll();
+E("window.__dirs=[];window.__sw=0;(()=>{const f0=fireRound;fireRound=function(o){window.__dirs.push(o.dir);return f0.apply(this,arguments);};const s0=shockwave;shockwave=function(){window.__sw++;return s0.apply(this,arguments);};})()");
+const armS=(L,k)=>{A.wpns=L;A.wpn=k;A.ammo={};A.relT=0;A.biteCD=0;A.biteT=0;A.gren=3;A.mines=2;};
+const viewDir=()=>{const cp=Math.cos(A.cam.pitch);return{x:-Math.sin(A.cam.yaw)*cp,y:Math.sin(A.cam.pitch),z:-Math.cos(A.cam.yaw)*cp};};
+const offV=d=>{const v=vw||viewDir();return Math.acos(Math.max(-1,Math.min(1,d.x*v.x+d.y*v.y+d.z*v.z)));};
+let vw=null;const fire=()=>{S(110);A.biteCD=0;A.ammo.sniper=5;E('window.__dirs.length=0');vw=viewDir();press(2);S(3);return E('window.__dirs').slice();};   // (waiting out the bolt first; the view as it was before the kick)   // (waiting out the bolt first)
+// (the scope: right click held with the sniper in hand looks down it; no grenade thrown; the look slowed to match)
+{armS(['sniper','shotgun'],'sniper');S(5);const g0=A.gren,y0=A.cam.yaw;E('look')(A,100,0,0.0024);const yawFree=Math.abs(A.cam.yaw-y0);A.cam.yaw=y0;
+ T.mHeld.add('Mouse2');S(30);const sc=A.scope,fov=A.scFov,y1=A.cam.yaw;E('look')(A,100,0,0.0024);const yawSc=Math.abs(A.cam.yaw-y1);A.cam.yaw=y1;
+ console.log('sniper, right click held: scope up',f(sc),'view',f(fov,0),'degrees (from 72)  grenades',g0,'->',A.gren,' the look',f(yawSc/yawFree),'as fast');
+ const on=[0,1,2].map(()=>offV(fire()[0]));T.mHeld.delete('Mouse2');S(20);
+ const offs=[0,1,2,3,4,5].map(()=>offV(fire()[0]));
+ console.log('  through the scope, off the middle',on.map(v=>f(v,4)).join(' '),' | off it',offs.map(v=>f(v,3)).join(' '),'(most',W.sniper.player.hip+')');
+ E('look')(A,0,0,0);console.log('  let go: scope',f(A.scope),' view',A.scFov?f(A.scFov,0):'normal',' stomp with the shotgun in hand throws again:');
+ A.wpn='shotgun';S(3);const g1=A.gren;press(3,'Mouse2');S(10);console.log('    grenades',g1,'->',A.gren);killAll();}
+// (the shotgun's pattern aimed steeply up: as tall as it's wide, round the view's own up rather than flattened)
+{home();armS(['shotgun'],'shotgun');A.cam.pitch=1.2;S(3);E('window.__dirs.length=0');A.biteCD=0;press(2);S(3);const D=E('window.__dirs').slice(),v=viewDir(),rx=Math.cos(A.cam.yaw),rz=-Math.sin(A.cam.yaw),ux=-rz*v.y,uy=rz*v.x-rx*v.z,uz=rx*v.y;
+ let sr=0,su=0;for(const d of D){sr+=Math.abs(d.x*rx+d.z*rz);su+=Math.abs(d.x*ux+d.y*uy+d.z*uz);}
+ console.log('shotgun aimed 69 degrees up: pellets',D.length,' spread across',f(sr/D.length,3),' up and down',f(su/D.length,3));A.cam.pitch=0;killAll();}
+// (the Large Club's slam and landmines only on the ground; in the air a plain swing, and no mine)
+{home();armS(['bigclub','landmine'],'bigclub');S(5);E('window.__sw=0');A.biteCD=0;press(2);S(40);const swG=E('window.__sw');
+ home();A.biteCD=0;S(5);A.pos.y=F+4;A.vy=0;A.grounded=false;E('window.__sw=0');press(2);S(3);const swA=E('window.__sw');S(60);
+ home();A.wpn='landmine';A.biteCD=0;S(5);A.pos.y=F+4;A.vy=0;A.grounded=false;const m0=A.mines;press(2);S(3);const inAir=A.mines;S(60);A.biteCD=0;S(5);press(2);S(40);
+ console.log('large club: shockwaves on the ground',swG,' in the air',swA,'| landmines',m0,'-> jumping',inAir,'-> on the ground',A.mines);killAll();}
+// (a mine under the big vehicles: a tank's box over it sets it off; a soft box, a wreck or a helicopter overhead don't)
+{const tryBox=(b)=>{E('minesClear()');const M=E('mineLay')(X0+30.5,F,Z0+.5,{side:'g',cause:'test',k:'landmine'});M.t=99;E('updateMines')(0.02);
+   M.y=F;const B=Object.assign({x:M.x,z:M.z,tx:0,tz:1,y0:F,top:F+2.5,hx:1.6,hz:2.6,proxy:{alive:true}},b);E('TRAIN_BOXES').push(B);E('updateMines')(0.02);E('TRAIN_BOXES').pop();const went=!M.live;E('minesClear()');floor();return went;};
+ console.log('landmine under a tank',tryBox({}),' a soft box',tryBox({soft:true}),' a wreck',tryBox({proxy:{alive:false}}),' a helicopter 10 up',tryBox({y0:F+10,top:F+12}),' beside it',tryBox({x:X0+36.5}));}
+// (changing the loadout keeps what's in each magazine and the gun in hand)
+{home();const L=E('GOB_LOAD'),was=JSON.stringify(L);L.w.rifle=true;E('gobRearm')(A);A.wpn='rifle';A.ammo.rifle=2;L.w.katana=!L.w.katana;E('gobRearm')(A);
+ console.log('loadout changed with 2 rounds in the rifle: in hand',A.wpn,' rounds',E('gobAmmo')(A,'rifle'));Object.assign(L,JSON.parse(was));E('gobRearm')(A);}
+// (a new action's default key left off a key the player already gave another move: Reload's X here, saved on Jump)
+{const B0=JSON.parse(JSON.stringify(E('BINDS'))),sv=JSON.parse(JSON.stringify(E('defaultBinds()')));delete sv.reload;sv.jump.kb=['Space','KeyX'];
+ const gi=localStorage.getItem;localStorage.getItem=k=>k==='goblin-binds-v1'?JSON.stringify(sv):null;E('loadBinds()');localStorage.getItem=gi;const R=E('BINDS').reload;
+ console.log('an old save with X on Jump: Reload keys',JSON.stringify(R.kb),' pad',JSON.stringify(R.pad),' Jump keeps',JSON.stringify(E('BINDS').jump.kb));
+ E('loadBinds()');console.log('  with no save: Reload keys',JSON.stringify(E('BINDS').reload.kb));}
+killAll();
 // ==== enemies, a made-up kind for each new weapon ====
 console.log('== ENEMIES');
 const kindOf=w=>{const K=W[w].kind;return K==='gun'?{weapons:['dagger',w],gun:{near:6,aim:0.6,cause:'Shot'},hitBy:'Stabbed'}:K==='mine'?{weapons:['club',w],hitBy:'Clubbed'}:{weapons:[w],hitBy:'Hit'};};

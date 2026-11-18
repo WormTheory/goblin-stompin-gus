@@ -226,7 +226,7 @@ function netVehList(V){const ks=VEH_BY_VENUE[V.kind];if(!ks||ks[0].perCar)return
   const L=[];for(const K of ks)if(K.net&&!K.netOwn)L.push(...K.list(V));return L.length?L:null;}
 function netVenueHP(N){
   const sent=N.vhsent||(N.vhsent=new Map()),out=[];
-  for(const [vk,V] of venues){let a=null;const L=netVehList(V);
+  for(const [vk,V] of venues){let a=null;const L=netVehList(V)||rideHpList(V);   // (rides and zoo animals too)
     if(L)a=L.map(o=>[r3(o.hp),o.dead?1:0]);
     else if((V.kind==='rtrain'||V.kind==='sub')&&V.T)a=[[V.T.dead?1:0],(V.T.carHP||[]).map(r3),(V.T.carDead||[]).map(x=>x?1:0)];
     if(!a)continue;const k=JSON.stringify(a);if(sent.get(vk)===k)continue;sent.set(vk,k);out.push([vk,a]);}
@@ -235,7 +235,7 @@ function netVenueHP(N){
 function netVenueHPSet(L){
   for(const [vk,a] of L){const V=venues.get(vk);if(!V)continue;
     const each=(list)=>{if(list)list.forEach((o,i)=>{if(o&&a[i]){o.netHp=a[i][0];o.netDead=!!a[i][1];}});};
-    const VL=netVehList(V);if(VL)each(VL);
+    const VL=netVehList(V)||rideHpList(V);if(VL)each(VL);
     else if((V.kind==='rtrain'||V.kind==='sub')&&V.T){V.T.netDead=!!a[0][0];V.T.netHP=a[1];V.T.netCarDead=a[2];}}
 }
 // (what the health bars read: on a guest the host's figures, wherever they've come)
@@ -590,7 +590,7 @@ function netGuestFrame(dt){
     g.root.position.set(fo?e[1]+(fo[1]-e[1])*kq:e[1],fo?e[2]+(fo[2]-e[2])*kq:e[2],fo?e[3]+(fo[3]-e[3])*kq:e[3]);g.root.rotation.set(w(4),fo?lerpA(e[5],fo[5],kq):e[5],w(6));g.root.scale.set(v(7),v(8),v(7));g.pos.copy(g.root.position);g.heading=g.root.rotation.y;
     g.legs[0].rotation.x=w(9);g.legs[1].rotation.x=w(10);g.arm.rotation.x=w(11);g.armL.rotation.x=w(12);g.head.rotation.z=w(13);
     if(e[18]!==undefined){g.arm.rotation.z=w(18);if(g.arm.hand)g.arm.hand.rotation.x=f&&f[19]!==undefined?e[19]+(f[19]-e[19])*k:e[19];}   // (the wrist turns past half a turn: straight between, not the short way round)
-    if(g.wkit)wkitShow(g.wkit,e[20]||0);g.relT=e[21]?1:0;}   // (reloading: its gun held as the pose has it, not gripped, strikes.js)   // (a blade or club in hand, or the gun drawn, and the gun put away: foes.js)
+    if(g.wkit)wkitShow(g.wkit,e[20]||0);g.relT=e[21]?1:0;}   // (a blade or club in hand, the gun drawn or put away, foes.js; reloading, its gun held as the pose has it, not gripped, strikes.js)
   netVenuePose(rt);netMechPlace(a,o,kp,ms);netShipPlace(a,o,kp);netFallPose(a,b,k);
   for(const e of a.c){const c=NETM.c.get(e[0]);if(!c)continue;const fo=bc.get(e[0]),f=b?fo:null,kq=netKP(e,fo,1,kp,ms),w=n=>f?lerpA(e[n],f[n],k):e[n],x=n=>fo?e[n]+(fo[n]-e[n])*kq:e[n],y=n=>fo?lerpA(e[n],fo[n],kq):e[n];
     c.g.position.set(x(1),x(2),x(3));c.g.rotation.set(w(4),y(5),w(6));c.pos.copy(c.g.position);c.heading=c.g.rotation.y;

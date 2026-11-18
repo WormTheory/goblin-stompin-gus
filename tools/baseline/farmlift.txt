@@ -18,6 +18,7 @@ forklift: in true  instrument fork  controls: [KEY:Space]/[KEY:C] forks up/down 
   forks up at 1.10 driven at a goblin: hurt true  speed 8.00
   forks up, standing: tip risk 0.18  hard turn at speed: tipped true ( 1.57 )  driver thrown out true  risk 0.18
   got back in true  righted true
+  a car on the forks (1.20 up, lifted true), forklift wrecked: let go true  car down to 0.00
 tractor: in true  instrument tractor  controls: [KEY:R]/[KEY:Left Shift] hand throttle  ·  [KEY:Space] lower the plough  ·  [RMB] swap implement  ·  [KEY:F] get out
   R R, nothing held 3 s: cruise step 2  speed 6.42  R:  9.89  Shift x3: step 0  speed 0.48
   plough lowered: hitch on the model 0.28  speed 9.95 -> 6.45  dirt blocks 12 -> 72 over 19.28 blocks

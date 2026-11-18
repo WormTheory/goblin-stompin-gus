@@ -17,7 +17,7 @@ const GOB_STACKS=WEAPON_ORDER.filter(k=>WEAPONS[k].stack&&WEAPONS[k].player&&WEA
 const stkField=k=>WEAPONS[k].player.field,stkMax=k=>WEAPONS[k].player.max;
 // (the ways a player goblin kills: a kill by any of them drops the victim's gear)
 const GOB_CAUSES=new Set(WEAPON_ORDER.map(k=>WEAPONS[k].player&&WEAPONS[k].player.cause).filter(Boolean));
-function gobArms(p){if(!p.wpns)gobLoadArm(p);return p;}   // (what he starts with is his seat's choice on the Character screen: gob-loadout.js)
+function gobArms(p){if(!p.wpns)gobLoadArm(p);else if(!p.wpns.includes(p.wpn))p.wpn=p.wpns[0];return p;}   // (what he starts with is his seat's choice on the Character screen: gob-loadout.js; online, another player's list can come before what's in their hand)
 const gobW=p=>GOB_WPN[gobArms(p).wpn]||GOB_WPN.club;
 const gobGun=k=>!!WEAPONS[k]&&WEAPONS[k].kind==='gun';   // (the ones that shoot down the view: gobShoot)
 // what an enemy carries that can be taken off them
@@ -56,9 +56,12 @@ function gobShoot(p){
       R:W.R,dmg:W.dmg,cause:W.cause,by:pvpBy(p),crush:W.crush,vd:W.vd,skipP:p,gobs:true});
     wpnCrack(wk);smoke(c.x-dx*0.9+rx*0.22,c.y-0.1,c.z-dz*0.9+rz*0.22,3,0xbababa);}   // (and its backblast)
   else{
-    // (a shotgun's pellets each a round of their own, scattered round the middle of the view)
-    const n=W.pellets||1;for(let i=0;i<n;i++){let ex=dx,ey=dy,ez=dz;
-      if(n>1){const a=Math.random()*6.283,r=W.spread*Math.sqrt(Math.random()),ux=rx*Math.cos(a)*r,uy=Math.sin(a)*r;ex+=ux;ey+=uy;ez+=rz*Math.cos(a)*r;const L=Math.hypot(ex,ey,ez);ex/=L;ey/=L;ez/=L;}
+    // (a shotgun's pellets each a round of their own, scattered round the middle of the view: across along the view's right,
+    // up and down along the view's own up (right x forward), so the pattern stays round aiming steeply up or down too)
+    const n=W.pellets||1,ux=-rz*dy,uy=rz*dx-rx*dz,uz=rx*dy,hip=W.hip&&!(p.scope>0.9)?W.hip:0;for(let i=0;i<n;i++){let ex=dx,ey=dy,ez=dz;
+      // (a scoped gun fired off the scope: a little way off the middle, the same way the pellets scatter)
+      if(hip){const a=Math.random()*6.283,r=hip*Math.sqrt(Math.random()),ca=Math.cos(a)*r,sa=Math.sin(a)*r;ex+=rx*ca+ux*sa;ey+=uy*sa;ez+=rz*ca+uz*sa;const L=Math.hypot(ex,ey,ez);ex/=L;ey/=L;ez/=L;}
+      if(n>1){const a=Math.random()*6.283,r=W.spread*Math.sqrt(Math.random()),ca=Math.cos(a)*r,sa=Math.sin(a)*r;ex+=rx*ca+ux*sa;ey+=uy*sa;ez+=rz*ca+uz*sa;const L=Math.hypot(ex,ey,ez);ex/=L;ey/=L;ez/=L;}
       fireRound({x:c.x,y:c.y,z:c.z,dir:{x:ex,y:ey,z:ez},range:W.range,step:0.2,by:p,tr:{x:c.x+fx*0.5+rx*0.18,y:c.y-0.18,z:c.z+fz*0.5+rz*0.18},
         gobs:true,gb:[0.45,0,1.5],dmg:W.dmg,cause:W.cause,pvp:{n:W.dmg,cause:'Shot',opt:{cd:0}},vehs:true,vd:W.dmg*VEH_SHOT_K,breaks:W.breaks,ship:true,
         snd:i?null:()=>wpnCrack(wk)});}}   // (the handgun cracks higher and shorter, as the police's does)
@@ -93,7 +96,7 @@ function gobReloadTick(p,dt){const k=p.wpn,W=WEAPONS[k];
 // (whether the attack button can start what's in hand: not mid-reload; a gun with nothing in it reloads instead, with
 // a dry click; a landmine needs one to plant, and the ground to plant it in)
 function gobReady(p){gobArms(p);const k=p.wpn,W=WEAPONS[k];if(p.relT>0)return false;
-  if(W&&W.kind==='mine')return p.mines>0&&p.state!=='climb';
+  if(W&&W.kind==='mine')return p.mines>0&&p.state!=='climb'&&!!p.grounded;   // (pressed into the ground at his feet: not mid-jump)
   if(W&&W.mag&&gobAmmoShown(p,k)<=0){sfx('Dry fire',()=>{tone('square',1800,1600,0.02,0.03);});gobReload(p);return false;}
   return true;}
 // what's shown loaded: a guest's own count is the host's
@@ -117,7 +120,8 @@ function gobNextWpn(p){gobArms(p);const L=GOB_WPN_ORDER.filter(k=>p.wpns.include
 // once a frame per player goblin, before the move: the throw and the weapon buttons, and the cooldown
 function gobArmsTick(p,dt){gobArms(p);p.grenCD=Math.max(0,p.grenCD-dt);p.thrS=(p.thrS??9)+dt;   // (since his last throw: the arm coming through, gobBodyPose)
   const st=!!p.in.stomp,wp=!!p.in.weapon,rl=!!p.in.reload;
-  if(st&&!p.gStompWas&&playing)gobThrow(p);if(wp&&!p.gWpnWas&&playing)gobNextWpn(p);if(rl&&!p.gRelWas&&playing)gobReload(p);p.gStompWas=st;p.gWpnWas=wp;p.gRelWas=rl;
+  // (with a scoped gun in hand stomp looks down the scope instead: gobScope)
+  if(st&&!p.gStompWas&&playing&&!gobW(p).scope)gobThrow(p);if(wp&&!p.gWpnWas&&playing)gobNextWpn(p);if(rl&&!p.gRelWas&&playing)gobReload(p);p.gStompWas=st;p.gWpnWas=wp;p.gRelWas=rl;
   if(playing)gobReloadTick(p,dt);
   if(!netGuest()){const W=WEAPONS[p.wpn];p.ammoN=W&&W.mag?gobAmmo(p,p.wpn):-1;}}   // (for the display, here and on a guest)
 // ---- what's dropped: a little model on the ground, turning, until someone picks it up (or a minute and a half) ----
@@ -148,16 +152,33 @@ function gobPickups(dt){
 }
 function gobPickupsClear(){for(const P of PICKUPS){P.live=false;P.m.visible=false;}}
 // ---- on the HUD, just above the hearts: what's in hand, what else you've got, and the grenades ----
+// the sniper's scope: stomp held (right click, RT) with a gun that has one in hand (its player block's scope) looks down
+// it: the view zoomed to its fov (minimap.js draws it at p.scFov), the sight drawn over the view and the gun out of sight
+// (gobArmsHud, the view model in pivots.js), the look slowed to match (scopeK, input.js). Worked out where the view's
+// drawn, from that player's own controls, so an online guest's comes at once. Not while reloading, climbing or driving
+function gobScope(p){const t=camClock,dt=Math.min(0.1,Math.max(0,t-(p.scT??t)));p.scT=t;
+  const sc=gobW(p).scope,want=!!(sc&&p.in&&p.in.stomp&&!(p.relT>0)&&!p.drv&&p.state!=='dead'&&p.state!=='climb'&&!p.paused);
+  p.scope=Math.max(0,Math.min(1,(p.scope||0)+(want?1:-1)*dt/((sc&&sc.in)||0.15)));
+  const e=p.scope*p.scope*(3-2*p.scope);p.scFov=p.scope>0&&sc?72+(sc.fov-72)*e:0;}
+// (how much the look's slowed: the zoomed field of view against the usual)
+const scopeK=p=>p.gob&&!p.drv&&p.scFov?p.scFov/72:1;
 function gobArmsHud(p){
   let H=p.ui.gw;const show=p.gob&&p.active&&!p.drv&&p.state!=='dead';
   if(!H){if(!show)return;const el=document.createElement('div');el.className='gwpn';const xh=document.createElement('div');xh.className='gxh';xh.hidden=true;p.ui.view.append(xh);
     const bar=p.ui.view.querySelector('.bar'),who=bar&&bar.querySelector('.who');if(who)bar.insertBefore(el,who);else p.ui.view.append(el);H=p.ui.gw={el,xh,s:''};}
-  H.el.hidden=!show;H.xh.hidden=!show||!gobAims(gobArms(p).wpn);if(!show)return;
+  // (the scope's sight: a ring of black round a circle of view, cross hairs with marks down them for holding over)
+  if(!H.sc){const s=document.createElement('div');s.className='gscope';s.hidden=true;
+    s.style.cssText='position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at center,transparent 0,transparent 37%,rgba(0,0,0,.55) 38%,#050505 39.5%)';
+    const ln='position:absolute;background:rgba(0,0,0,.85);';let h='<div style="'+ln+'left:12%;right:12%;top:50%;height:2px;margin-top:-1px"></div><div style="'+ln+'top:12%;bottom:12%;left:50%;width:2px;margin-left:-1px"></div>';
+    for(let k=1;k<=4;k++)h+='<div style="'+ln+'left:50%;top:calc(50% + '+(k*3.2)+'%);width:'+(k%2?10:16)+'px;height:2px;margin-left:-'+(k%2?5:8)+'px"></div>';
+    s.innerHTML=h;p.ui.view.insertBefore(s,p.ui.view.firstChild||null);H.sc=s;}
+  const scoped=show&&(p.scope||0)>0.5;H.sc.hidden=!scoped;
+  H.el.hidden=!show;H.xh.hidden=!show||scoped||!gobAims(gobArms(p).wpn);if(!show)return;
   const bl=id=>actMark(p,id),L=GOB_WPN_ORDER.filter(k=>p.wpns.includes(k)),W=WEAPONS[p.wpn];
   // (what's in hand in bold: a gun with what's left in its magazine, reloading, or a reload asked for when it's empty;
   // landmines with how many)
   const nm=k=>GOB_WPN[k].name+(k==='landmine'?' ×'+(p.mines||0):''),n=W&&W.mag?gobAmmoShown(p,p.wpn):0;
   const cur=nm(p.wpn)+(W&&W.mag?(p.relT>0?'  reloading…':'  '+n+' / '+W.mag):''),rq=W&&W.mag&&!(p.relT>0)&&n<W.mag?'  '+bl('reload')+(n?' reload':' RELOAD'):'';
-  const s=L.map(k=>k===p.wpn?'<b>'+cur+'</b>':nm(k)).join(' · ')+rq+(L.length>1?'  '+bl('weapon')+' next':'')+'  |  Grenades '+p.gren+(p.gren?'  '+bl('stomp')+' throw':'');
+  const s=L.map(k=>k===p.wpn?'<b>'+cur+'</b>':nm(k)).join(' · ')+rq+(L.length>1?'  '+bl('weapon')+' next':'')+'  |  Grenades '+p.gren+(gobW(p).scope?'  '+bl('stomp')+' scope (hold)':p.gren?'  '+bl('stomp')+' throw':'');
   if(H.s!==s){H.s=s;H.el.innerHTML=s.split(/(<b>[^<]*<\/b>)/).map(t=>t.startsWith('<b>')?'<b>'+glEsc(t.slice(3,-4))+'</b>':hudHTML(t)).join('');}
 }

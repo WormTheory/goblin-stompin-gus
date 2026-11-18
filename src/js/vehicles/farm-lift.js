@@ -138,7 +138,9 @@ function farmPost(c,dt){const F=c.farm;if(!F)return;
       g.kv.x+=fz*sd*7;g.kv.z+=-fx*sd*7;g.vy=Math.max(g.vy||0,5);g.stun=Math.max(g.stun||0,0.7);}
     else{damageGoblin(g,99,pt,new V3(-fx,0.6,-fz),'Mown down',by);blood(pt.x,pt.y,pt.z,20,new V3(-fx*2,1,-fz*2));}}}
 // once everything's moved: every forklift and tractor about, their loads and implements, and their models to match
-function farmLiftPost(dt){for(const c of cars){if(!c.alive||!c.g.visible)continue;const V=c.veh;
+function farmLiftPost(dt){for(const c of cars){
+  // (a forklift wrecked or gone with something on its forks lets go of it, or a car up there would hang in the air)
+  if(!c.alive||!c.g.visible){if(c.fork&&c.fork.load)forkDrop(c,false);continue;}const V=c.veh;
   if(V!=='forklift'&&V!=='tractor'){if(c.tipR){c.tipR=0;c.tipV=0;}continue;}
   if(V==='forklift'){forkPost(c,dt);tipPost(c,dt);const F=c.fork,P=flParts(c);if(F&&P&&P.carr){const k=1/ES;P.carr.position.y=F.h*k;P.inner.position.y=F.h*k*0.5;P.mast.rotation.x=-F.tilt*Math.PI/180;P.crate.visible=!!(F.load&&F.load.k==='crate');}}
   else{farmPost(c,dt);const F=c.farm,P=flParts(c);if(F&&P&&P.imp){const K=0.8,want=F.down?0.35*K:0.75*K;P.imp.position.y+=(want-P.imp.position.y)*Math.min(1,dt*6);P.plough.visible=F.imp==='plough';P.mower.visible=F.imp==='mower';}}}}

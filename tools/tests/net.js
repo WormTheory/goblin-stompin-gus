@@ -239,6 +239,22 @@ const lag=[];
  console.log('guest threw a grenade:',ok(thrown),'blocks it broke on the host',n,ok(n>0),'the same on the guest',same,'different',diff,ok(diff===0));
  HT.setGobP(HT.P2,false);for(let i=0;i<20;i++){H.step(1);G.step(1);}}
 
+// ---- the guest's goblin with a sniper rifle: a shot kicks its own view up and works the bolt in it, and holding stomp
+// looks down the scope (zoomed in, slower to aim) without throwing a grenade on the host ----
+{HT.setGobP(HT.P2,true);for(let i=0;i<20;i++){H.step(1);G.step(1);}
+ const pads=G.ctx.navigator.getGamepads(),arm=q=>{q.wpns=['sniper'];q.wpn='sniper';q.ammo={};q.relT=0;q.gren=2;};arm(HT.P2);arm(GT.P1);
+ for(let i=0;i<10;i++){H.step(1);G.step(1);}
+ const sh0=GT.P1.shotN||0,pt0=GT.P1.cam.pitch,B=GT.P1.gb&&GT.P1.gb.tags.sniper.bolt;let boltMv=0;const b0=B?B.position.clone():null;
+ pads[0].buttons[2].pressed=true;pads[0].buttons[2].value=1;for(let i=0;i<4;i++){G.step(1);H.step(1);}pads[0].buttons[2].pressed=false;pads[0].buttons[2].value=0;
+ const shot=(GT.P1.shotN||0)>sh0,kick=GT.P1.cam.pitch-pt0;
+ for(let i=0;i<70;i++){G.step(1);H.step(1);if(B)boltMv=Math.max(boltMv,Math.hypot(B.position.x-b0.x,B.position.y-b0.y,B.position.z-b0.z)+Math.abs(B.rotation.z));}
+ const ammoH=HT.P2.ammo&&HT.P2.ammo.sniper;
+ console.log('guest sniper shot: shown in its own view',ok(shot),'view kicked up',kick.toFixed(3),ok(kick>0.02),'bolt worked',boltMv.toFixed(3),ok(boltMv>0.01),'fired on the host (magazine',ammoH+')',ok(ammoH===4));
+ const g0=HT.P2.gren,fov0=GT.P1.camera.fov;pads[0].buttons[7].pressed=true;pads[0].buttons[7].value=1;let fovIn=99;for(let i=0;i<30;i++){G.step(1);H.step(1);fovIn=Math.min(fovIn,GT.P1.camera.fov);}
+ const sc=GT.P1.scope;pads[0].buttons[7].pressed=false;pads[0].buttons[7].value=0;for(let i=0;i<30;i++){G.step(1);H.step(1);}
+ console.log('guest scope held: up',sc.toFixed(2),ok(sc>0.99),'view',fov0.toFixed(0),'->',fovIn.toFixed(0),ok(fovIn<25),'back after',GT.P1.camera.fov.toFixed(0),ok(GT.P1.camera.fov>60),'no grenade thrown',ok(HT.P2.gren===g0));
+ HT.setGobP(HT.P2,false);for(let i=0;i<20;i++){H.step(1);G.step(1);}}
+
 // ---- a slow network: a tenth of a second each way. The guest's own hippo still moves at once, and ends up where the host has it ----
 {hub.lat=6;for(let i=0;i<30;i++){G.step(1);H.step(1);}
  if(process.env.DBG)console.log('dbg pred',GT.NETP.on,GT.NETP.snap,GT.P1.state,GT.P1.gob,HT.P2.state,!!HT.P2.drv,!!HT.P2.standCar,!!HT.P2.rideC);

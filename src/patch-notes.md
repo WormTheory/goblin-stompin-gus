@@ -132,7 +132,7 @@
   - Large Club: heaved up over the shoulder, held at the top for a beat, then slammed into the ground in front of you. Slow, but it hits hard, dents cars badly and shakes the ground.
   - Shotgun: eight pellets a shot, brutal close up and little use far off. The pump racks back and forward after every shot.
   - Assault Rifle: hold the button and it keeps firing. The view climbs a little with each shot, so pull it back down.
-  - Sniper Rifle: one heavy round at a time, from much further than anything else, with the bolt worked between shots.
+  - Sniper Rifle: one heavy round at a time, from much further than anything else, with the bolt worked between shots. Hold right click (controller RT) to look down its scope: the view narrows right in, aiming slows to match, and the round goes exactly where the crosshair is. Fired without the scope, it strays a little off the middle. With the sniper in hand, right click is the scope rather than a grenade.
   - Bazooka: a rocket off the shoulder that bursts on whatever it meets, goblins, vehicles or walls, knocking out a crater. One shot, then a slow reload.
   - Landmines: carried as a pile, like grenades (pick how many in the Loadout, up to 6). Hold them in hand and attack to crouch and press one into the ground just ahead. It arms after a second, blinking red, then goes off under the first enemy or vehicle over it, never under you.
 - Guns now have magazines and reload. The handgun holds 8, the rifle 5, the shotgun 6, the assault rifle 30, the sniper rifle 5 and the bazooka 1. X (controller D-pad down) reloads; firing the last round, or attacking with it empty, reloads by itself. Switching weapons stops a reload, and each gun keeps what's left in it. The weapon bar shows the rounds left and when it's reloading.
@@ -276,6 +276,15 @@
 - Every weapon now works the same whoever carries it, you or the enemy. Rifles hit for a full heart, reach 48 blocks and fire once a second; handguns hit for three quarters of a heart, reach 30 and fire every half second; both chip away at the wall they hit, the enemies' rounds too, so cover doesn't last for ever. Daggers stab for a full heart every half second, clubs hit for half a heart every 1.2 s, and grenades are the same for everyone. Enemy rifles and police handguns hit harder and fire faster than before, while Gnash and Grizzle fire and swing a little slower. Enemies still take a moment to aim and miss more from far off.
 - The pause menu's This rampage card counts "Vehicles destroyed" instead of "Cars totaled": every vehicle you wreck now counts, not just cars. Tanks, helicopters, planes, boats, hot-air balloons, Mobile Gears, the carrier's deck weapons, each car of a train you wreck, and a ship you sink.
 - Grenades, shells and rockets now hurt zoo animals, the Ferris wheel's rim and the carousel, as stomps already did, and a shell or rocket goes off when it hits an animal.
+- Online, a guest playing as Gnash or Grizzle now sees their own gun kick and the bolt, pump or slide worked after each shot, as the host does. An error on the guest's side could stop their weapons working at all.
+- A forklift wrecked or cleared away with something on its forks lets go of it: a car lifted on them falls to the ground, rather than hanging in the air.
+- Landmines now go off under tanks, helicopters on the ground, Mobile Gears, trains and planes, not just cars.
+- The Large Club only slams the ground with its shockwave when you're on the ground; swung in mid-air it's an ordinary blow. Landmines can only be planted standing on the ground.
+- The shotgun's pellets spread evenly when you aim steeply up or down, rather than squashing into a flat line.
+- Changing the Loadout no longer refills or empties your guns or swaps the weapon in your hand: each gun keeps what's left in its magazine.
+- If you'd moved X (or D-pad down) on to another control, the new Reload action no longer takes it as well: it's left unbound for you to set.
+- Theme park rides' and zoo animals' health now shows correctly to guests online.
+- Big worlds saved into the browser's database could be saved over by an older save finishing late, or not loaded back at all after a save that didn't finish; saves now go one at a time, and loading finds the blocks either way.
 
 ## Version 0.4.1
 

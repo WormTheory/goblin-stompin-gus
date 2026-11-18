@@ -122,7 +122,12 @@ function loadBinds(){BINDS=defaultBinds();
     if(Array.isArray(b.kb))BINDS[a.id].kb=[...new Set(b.kb.filter(c=>typeof c==='string'&&c.length<40&&!KB_RESERVED.has(c)))].slice(0,2);
     if(Array.isArray(b.pad))BINDS[a.id].pad=[...new Set(b.pad.filter(i=>Number.isInteger(i)&&i>=0&&i<24&&!PAD_RESERVED.has(i)))].slice(0,2);
     // (the Mobile Gear's weapons moved buttons on the controller: saved controls still on the old ones take the new)
-    if(MG_PAD_WAS[a.id]!==undefined&&BINDS[a.id].pad.length===1&&BINDS[a.id].pad[0]===MG_PAD_WAS[a.id])BINDS[a.id].pad=a.pad.slice();}}catch(e){}}
+    if(MG_PAD_WAS[a.id]!==undefined&&BINDS[a.id].pad.length===1&&BINDS[a.id].pad[0]===MG_PAD_WAS[a.id])BINDS[a.id].pad=a.pad.slice();}
+    // (an action added since these were saved starts on its defaults, but not on a key or button the player has already
+    // given something else in the same context: Reload's X or D-pad down, say, moved on to another move by hand, would
+    // otherwise do both. It's left unbound there, for the player to set)
+    if(v&&typeof v==='object')for(const a of ACTS){if(v[a.id])continue;const cx=a.ctx||'';
+      for(const dev of ['kb','pad'])BINDS[a.id][dev]=BINDS[a.id][dev].filter(c=>!ACTS.some(o=>o!==a&&v[o.id]&&(o.ctx||'')===cx&&BINDS[o.id][dev].includes(c)));}}catch(e){}}
 const MG_PAD_WAS={mgArmL:6,mgArmR:7,mgShL:4,mgShR:5};
 function saveBinds(){try{localStorage.setItem(BIND_KEY,JSON.stringify(BINDS));}catch(e){}}
 loadBinds();
@@ -162,7 +167,7 @@ function gobHint(L,p){const w=p&&p.wpns?p.wpn:'club',out=[];
   // (each weapon says what its attack is, WEAPONS' player.verb; a gun with a magazine can be reloaded)
   const W=WEAPONS[w];if(L('bite'))out.push(L('bite')+' '+(W&&W.player&&W.player.verb||'swing the club'));
   if(L('reload')&&W&&W.mag)out.push(L('reload')+' reload');
-  if(L('stomp'))out.push(L('stomp')+' throw a grenade');if(L('jump'))out.push(L('jump')+' jump');
+  if(L('stomp'))out.push(L('stomp')+(W&&W.player&&W.player.scope?' look down the scope (hold)':' throw a grenade'));if(L('jump'))out.push(L('jump')+' jump');
   if(L('dashSprint'))out.push('tap '+L('dashSprint')+' dash, hold to sprint');else{if(L('dash'))out.push(L('dash')+' dash');}
   if(L('sprint'))out.push('hold '+L('sprint')+' to sprint');
   if(L('climb'))out.push('hold '+L('climb')+' climb');if(L('weapon'))out.push(L('weapon')+' next weapon');if(L('use'))out.push(L('use')+' get in');

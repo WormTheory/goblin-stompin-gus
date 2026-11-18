@@ -74,6 +74,10 @@ const inst=()=>P.ui.inst?P.ui.inst.innerHTML:'';
   hold(['Space'],3.5);const r0=F().risk;hold(['KeyW'],1.6);hold(['KeyW','KeyD'],2.5);run(1.5);
   console.log('  forks up, standing: tip risk',f2(r0),' hard turn at speed: tipped',Math.abs(c.tipR||0)>1.4,'(',f2(c.tipR||0),')  driver thrown out',!P.drv,' risk',f2(F().risk));
   put(c.pos.x+Math.cos(c.heading)*2.2,c.pos.y+0.3,c.pos.z-Math.sin(c.heading)*2.2);run(0.2);tap('KeyF');run(1.5);console.log('  got back in',!!P.drv,' righted',Math.abs(c.tipR||0)<0.01);
+  // (a car up on the forks when the forklift's wrecked: it's let go and drops, rather than hanging in the air)
+  {hold(['KeyC'],3);T.tenvSpawnOne('car');run(0.5);const hx=Math.sin(c.heading),hz=Math.cos(c.heading),o=T.cars.filter(q=>q.alive&&q.veh==='car'&&q!==c).sort((a,b)=>Math.hypot(a.pos.x-c.pos.x,a.pos.z-c.pos.z)-Math.hypot(b.pos.x-c.pos.x,b.pos.z-c.pos.z))[0];
+    if(o){const al=c.hz+0.05+o.hz;o.pos.set(c.pos.x+hx*al,c.pos.y,c.pos.z+hz*al);o.heading=c.heading;o.speed=0;run(0.3);hold(['Space'],1.5);const up=!!o.forkOn,h=o.pos.y-c.pos.y;
+      c.alive=false;c.g.visible=false;run(3);console.log('  a car on the forks ('+f2(h)+' up, lifted',up+'), forklift wrecked: let go',!o.forkOn,' car down to',f2(o.pos.y-c.pos.y));c.alive=true;c.g.visible=true;run(0.3);}}
   // (reversing beeps: the sound list)
   if(P.drv)tap('KeyF');run(0.5);}}
 // ---- the tractor

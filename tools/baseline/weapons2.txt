@@ -12,7 +12,7 @@ attack with it empty: reloading true , rounds 0
 reload button with it full: reloading false
 large club on a thief (9 hp): 4 damage, it is 4
 katana on two thieves side by side (9 hp): 3 and 3 damage, it is 3
-shotgun: a thief 4 ahead took 7.5 , one 16 ahead 0 (8 pellets of 0.75)
+shotgun: a thief 4 ahead took 8.25 , one 16 ahead 0 (8 pellets of 0.75)
 assault rifle held a second: fired 9 , a thief 10 ahead took 9 , the view climbed 0.054 rad
 sniper at a thief 28 ahead (9 hp): 7 damage, dead false
 bazooka at a thief 12 ahead: rocket true , thief hp 9 -> 4 , one beside it -> 4 , my hp 20 , loaded 0 , reloading true
@@ -22,7 +22,7 @@ walk on to my own: still there true , my hp 20
 a thief steps on it: gone off true , thief hp 4
 plant the last one: mines 0 , carrying it still false , in hand club
 a thief chasing me over a fresh one: in the ground true armed true
-a landmine carrier killed: drops landmine x2 | picked up: mines 2 , weapons club+landmine
+a landmine carrier killed: drops landmine x1 | picked up: mines 1 , weapons club+landmine
 a katana and shotgun carrier killed: drops katana
   picked up: club+katana , shotgun loaded 6
 loadout with a katana, sniper, 3 mines, 2 grenades: club+katana+sniper+landmine | mines 3 grenades 2 | mended from junk: {"w":{"club":true,"bigclub":false,"katana":false,"dagger":false,"handgun":false,"shotgun":false,"rifle":false,"arifle":false,"sniper":false,"bazooka":false,"spellbook":false},"mines":6,"gren":0}
@@ -31,12 +31,23 @@ bazooka rocket shown: loaded true , fired false , reloaded true
 shotgun pump racked back 0.13 after a shot
 sniper bolt drawn back 0.12 after a shot
 handgun slide back 0.04 as it fires
+== SCOPE AND FIXES
+sniper, right click held: scope up 1.00 view 15 degrees (from 72)  grenades 3 -> 3  the look 0.21 as fast
+  through the scope, off the middle 0.0000 0.0000 0.0000  | off it 0.007 0.005 0.026 0.009 0.026 0.024 (most 0.035)
+  let go: scope 0.00  view normal  stomp with the shotgun in hand throws again:
+    grenades 3 -> 2
+shotgun aimed 69 degrees up: pellets 8  spread across 0.050  up and down 0.042
+large club: shockwaves on the ground 1  in the air 0 | landmines 2 -> jumping 2 -> on the ground 1
+landmine under a tank true  a soft box false  a wreck false  a helicopter 10 up false  beside it false
+loadout changed with 2 rounds in the rifle: in hand rifle  rounds 2
+an old save with X on Jump: Reload keys []  pad [13]  Jump keeps ["Space","KeyX"]
+  with no save: Reload keys ["KeyX"]
 == ENEMIES
 made-up bigclub   12 s at 1.4 blocks: hit me 6 times for 24 | a blow is 4
 made-up katana    12 s at 1.4 blocks: hit me 15 times for 45 | a blow is 3
-made-up shotgun   12 s at 14 blocks: hit me 6 times for 5.25 | shots 7, reloads 1
+made-up shotgun   12 s at 14 blocks: hit me 3 times for 3 | shots 8, reloads 1
 made-up arifle    12 s at 14 blocks: hit me 29 times for 29 | shots 36, reloads 1, bursts 10
-made-up sniper    12 s at 14 blocks: hit me 4 times for 27 | shots 4, reloads 1
+made-up sniper    12 s at 14 blocks: hit me 6 times for 41 | shots 5, reloads 1
 made-up bazooka   12 s at 14 blocks: hit me 3 times for 12 | shots 2, reloads 3, rockets 3
 made-up landmine  12 s at 14 blocks: hit me 1 times for 4 | mines planted 1, gone off under me 1
 Dev tab:

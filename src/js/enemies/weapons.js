@@ -125,7 +125,10 @@ const WEAPONS={
       drop:[[0.1,0.14,0.32,0x3a4a2a,0,0,-0.4],[0.08,0.1,0.3,0x22262c,0,0.01,-0.1],[0.05,0.05,0.62,0x22262c,0,0.02,0.36],[0.07,0.07,0.32,0x111114,0,0.1,-0.1]],
       stow:[[0.1,0.32,0.14,0x3a4a2a,0.12,0.3,-0.25,'stock'],[0.07,0.8,0.07,0x22262c,0.12,0.84,-0.25,'gun']]},
     npc:{strike:'butt',aim:'rifle',pose:'snipe',rl:'rlMag',fall:400},   // (it hardly misses, however far)
-    player:{dur:0.3,lunge:0.01,cause:"Picked off by a goblin's sniper rifle",pvp:'Picked off',shake:0.06,rumble:0.35,climb:0.05,verb:'shoot',rl:'vrMag',vm:{x:0.32,y:-0.45,z:-0.48,kick:0.4,back:0.18},cycle:'bolt'},
+    player:{dur:0.3,lunge:0.01,cause:"Picked off by a goblin's sniper rifle",pvp:'Picked off',shake:0.06,rumble:0.35,climb:0.05,verb:'shoot',rl:'vrMag',vm:{x:0.32,y:-0.45,z:-0.48,kick:0.4,back:0.18},cycle:'bolt',
+      // (held stomp looks down the scope, fov the view's field of view through it, in seconds to raise it; off the scope
+      // a round goes up to hip radians off the middle, through it dead on: gobScope, gobShoot)
+      scope:{fov:15,in:0.2},hip:0.035},
     crack:[[0.16,0.2,1900],[120,40,0.18,0.07]]},
   // a bazooka: a rocket from a tube on the shoulder, one at a time, slid in by hand
   bazooka:{name:'Bazooka',about:'A rocket that bursts on whatever it hits: one shot, then a slow reload',kind:'gun',drop:true,

@@ -147,7 +147,7 @@ const camPitch=(v,p)=>p&&p.gob?Math.max(-1.5,Math.min(1.5,v)):Math.max(-1.1,Math
 // Goblin mode is each player's own (p.gob): in co-op one can be a hippo and the other a goblin. DT.gob says whether
 // anyone is (the dropped weapons stay about only while someone can pick them up). Their body sizes go with it (bodyOf, ptsOf).
 function setGobP(p,on){
-  on=!!on;if(p.gob===on)return;if(!on&&p.drv)drvExit(p);p.gob=on;p.wpns=null;   // (a fresh goblin has just his club)
+  on=!!on;if(p.gob===on)return;if(!on&&p.drv)drvExit(p);p.gob=on;p.wpns=null;p.wpn=null;p.ammo=null;p.relT=0;   // (a fresh goblin: his seat's loadout, every magazine full)
   p.rig.visible=!on;p.cam.pitch=camPitch(p.cam.pitch,p);if(p.lockT)setLock(p,null);
   if(p.active&&p.state!=='dead'){
     // (whatever the hippo was halfway through stops here)
@@ -292,6 +292,7 @@ function gobCamera(p){
   const ex=c.x,ez=c.z;eyeRoom(c);
   // (a vehicle isn't blocks, so eyeRoom can't see it: clinging to one's side, the eye is put GOB_EYE_R out from its face)
   if(p.vcl&&p.state==='climb'&&p.climbD){const d=p.climbD,k=GOB_EYE_R-0.06;c.x-=d[0]*k;c.z-=d[1]*k;}
+  gobScope(p);   // (the sniper's scope: before the view's drawn, gob-weapons.js)
   const sw=p.biteT>0?1-p.biteT/(p.biteDur||0.38):0;
   const wk=gobArms(p).wpn;for(const k in K.held)K.held[k].visible=k===wk;for(const k in K.tp)K.tp[k].visible=k===wk;
   gobBodyPose(K.m,p);
@@ -334,6 +335,6 @@ function gobViewGun(p,K,wk,sw,up,bob){
 function gobView(v){
   for(const q of players){if(!q.gb)continue;
     const me=q===v&&!(DT.freecam&&v===P1);
-    q.gb.root.visible=q.gob&&q.active&&(q.drv?rideShown(q):!me);q.gb.vm.visible=q.gob&&q.active&&me&&q.state!=='dead'&&!q.drv;   // (in a vehicle you're out of sight, unless it's a motorcycle)
+    q.gb.root.visible=q.gob&&q.active&&(q.drv?rideShown(q):!me);q.gb.vm.visible=q.gob&&q.active&&me&&q.state!=='dead'&&!q.drv&&!(q.scope>0.5);   // (in a vehicle you're out of sight, unless it's a motorcycle)
     if(q.gb.vm.visible){q.gb.vm.position.copy(v.camera.position);q.gb.vm.rotation.set(v.camera.rotation.x,v.camera.rotation.y,v.camera.rotation.z);}}
 }

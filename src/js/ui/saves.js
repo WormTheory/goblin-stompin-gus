@@ -37,7 +37,12 @@ const svKv=(k,v)=>v===undefined?svIdb('kv','readonly',s=>s.get(k)):svIdb('kv','r
 // (ed2db). load() sees the note and the blocks are read back in just after the page loads (worldLoadBig), with saving held
 // off until they are. ----
 const WB_ID=()=>'world:'+SAVE_KEY;
-async function worldPut(o){
+// (one at a time: two saves overlapping, the debounced one, Save now and a carrier's, could finish out of order and leave
+// localStorage naming a copy of the blocks that IndexedDB no longer had. The first starts at once, as before, so a save as
+// the page closes still reaches localStorage; any made while one's still going wait their turn.)
+let WB_Q=Promise.resolve(),WB_N=0;
+function worldPut(o){WB_N++;const run=()=>worldPut0(o),p=WB_N===1?run():WB_Q.then(run,run),done=()=>{WB_N--;};WB_Q=p.then(done,done);return p;}
+async function worldPut0(o){
   if(!WB.on||!o.ed2){try{localStorage.setItem(SAVE_KEY,JSON.stringify(o));return;}catch(e){if(!window.indexedDB||!o.ed2)throw e;WB.on=true;}}
   const t=Date.now()+'-'+Math.random().toString(36).slice(2,8);
   await svKv(WB_ID(),{t,ed2:o.ed2});
@@ -46,9 +51,11 @@ async function worldPut(o){
 }
 async function worldLoadBig(){
   const want=WB.pending;if(!want)return;let r=null;try{r=await svKv(WB_ID());}catch(e){}
-  if(r&&r.t===want&&r.ed2&&typeof r.ed2==='object'){editsUnpack(r.ed2);worldRefresh();}
+  // (a copy other than the one named is the newest one written, so it's taken rather than thrown away; with none at all,
+  // nothing's saved straight away, so the save isn't overwritten with no smashed blocks)
+  const got=!!(r&&r.ed2&&typeof r.ed2==='object');if(got){editsUnpack(r.ed2);worldRefresh();}
   else try{flashLabel("Couldn't find all of this world's smashed blocks");}catch(e){}
-  WB.pending=null;save();
+  WB.pending=null;if(got)save();
 }
 // (the chunks already built while the smashed blocks were being read, and their neighbours, built again with them)
 function worldRefresh(){

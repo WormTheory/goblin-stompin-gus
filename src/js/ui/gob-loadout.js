@@ -25,7 +25,10 @@ const gobLoadOf=p=>p.gload||(players.includes(p)?GOB_LOADS[p.idx===1?1:0]:GLOAD_
 // arm a player goblin from their choice (gobArms calls it for a goblin with no weapons yet)
 // (a pile that's also held in hand, landmines, is carried as a weapon while there are any; every gun's magazine full)
 function gobLoadArm(p){const L=gobLoadOf(p);p.wpns=GOB_WPN_ORDER.filter(k=>L.w[k]||WEAPONS[k].stack&&(L[stkField(k)]||0)>0);if(!p.wpns.length)p.wpns=['club'];
-  p.wpn=p.wpns[0];for(const k of GOB_STACKS)p[stkField(k)]=L[stkField(k)]||0;p.grenCD=0;p.ammo={};p.relT=0;}
+  // (a weapon he still carries keeps what's in its magazine, and stays in hand if it was; only a gun he's put down loses
+  // its count, and a reload goes on if its gun's still the one in hand)
+  const was=p.wpn,old=p.ammo||{};p.wpn=p.wpns.includes(was)?was:p.wpns[0];for(const k of GOB_STACKS)p[stkField(k)]=L[stkField(k)]||0;p.grenCD=0;
+  p.ammo={};for(const k of p.wpns)if(old[k]!==undefined)p.ammo[k]=old[k];if(!(p.relT>0&&p.relW===p.wpn))p.relT=0;}
 // a change in the menu takes effect at once (anything picked up since is put down: the new choice is what he carries)
 function gobRearm(p){if(!p||!p.gob)return;p.wpns=null;gobArms(p);p.wpnT=camClock;}
 function gloadSave(seat){try{localStorage.setItem(GLOAD_KEYS[seat],JSON.stringify(GOB_LOADS[seat]));}catch(e){}
