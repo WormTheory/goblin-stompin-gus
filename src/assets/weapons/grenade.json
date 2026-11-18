@@ -1,0 +1,17 @@
+{
+  "name": "Grenades",
+  "about": "Thrown with Stomp: how many he starts with",
+  "kind": "throw",
+  "drop": true,
+  "stack": true,
+  "dmg": 3,
+  "R": 3.3,
+  "fuse": 2.2,
+  "model": {
+    "drop": [
+      {"s":[0.22,0.24,0.22],"p":[0,0,0],"c":"#3a4a22"},
+      {"s":[0.08,0.08,0.08],"p":[0,0.15,0],"c":"#8a8a90"}
+    ]
+  },
+  "player": {"cause":"Blown up by a goblin's grenade","max":9,"cd":0.6,"v":15,"field":"gren"}
+}

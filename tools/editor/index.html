@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gus Editor</title>
+<!-- The model and animation editor. Run python tools/editor/serve.py and open http://localhost:8737/tools/editor/
+     (it needs the server: it reads and saves src/assets/ through it). -->
+<style>
+:root{--bg:#16181c;--panel:#1e2126;--panel2:#252930;--line:#343943;--text:#e4e6ea;--dim:#9aa1ad;--acc:#7fb24a;--acc2:#e0b040;--bad:#e06a5a;--sel:#3a5a8a;
+  font:13px/1.35 system-ui,-apple-system,"Segoe UI",sans-serif;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);overflow:hidden}
+button,select,input,textarea{font:inherit;color:inherit}
+button{background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:3px 9px;cursor:pointer}
+button:hover{border-color:#566}
+button.on{background:var(--sel);border-color:#5a7ab0}
+button.pri{background:#3d5a26;border-color:#5a8a38}
+button:disabled{opacity:.45;cursor:default}
+input,select,textarea{background:#14161a;border:1px solid var(--line);border-radius:3px;padding:2px 5px}
+input[type=number]{width:64px}
+input[type=color]{width:34px;height:22px;padding:0 2px}
+#app{display:grid;height:100%;grid-template-rows:38px 1fr;grid-template-columns:230px 1fr 320px}
+header{grid-column:1/4;display:flex;align-items:center;gap:10px;padding:0 10px;background:var(--panel);border-bottom:1px solid var(--line)}
+header h1{font-size:14px;margin:0 8px 0 0;font-weight:600}
+.tabs{display:flex;gap:2px;height:100%;align-items:flex-end}
+.tabs button{border-radius:5px 5px 0 0;border-bottom:none;padding:6px 14px}
+.tabs button.on{background:var(--bg)}
+.grow{flex:1}
+#status{color:var(--dim);max-width:420px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#status.bad{color:var(--bad)}
+#gameDot{width:9px;height:9px;border-radius:50%;background:#555;display:inline-block;margin-right:4px}
+#gameDot.on{background:var(--acc)}
+aside{background:var(--panel);overflow:auto;min-height:0}
+#browser{border-right:1px solid var(--line);padding:8px}
+#browser input{width:100%;margin-bottom:6px}
+.grp{margin:8px 0 2px;color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center}
+.grp span{flex:1}
+.item{padding:3px 6px;border-radius:3px;cursor:pointer;display:flex;gap:6px}
+.item:hover{background:var(--panel2)}
+.item.on{background:var(--sel)}
+.item .dirty{color:var(--acc2)}
+.item small{color:var(--dim);margin-left:auto}
+#center{display:grid;grid-template-rows:auto 1fr auto;min-width:0;min-height:0}
+#toolbar{display:flex;gap:6px;align-items:center;padding:5px 8px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+#toolbar .sep{width:1px;height:20px;background:var(--line)}
+#viewWrap{position:relative;min-height:0}
+#view{position:absolute;inset:0;width:100%;height:100%;display:block}
+#inset{position:absolute;right:10px;bottom:10px;width:300px;height:190px;border:1px solid var(--line);border-radius:4px;pointer-events:none}
+#inset b{position:absolute;left:6px;top:4px;font-size:11px;color:var(--dim);font-weight:400}
+#hud{position:absolute;left:10px;top:8px;color:var(--dim);font-size:12px;pointer-events:none;white-space:pre}
+#empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--dim);text-align:center;padding:30px}
+#timeline{background:var(--panel);border-top:1px solid var(--line);height:210px;display:none;grid-template-rows:30px 1fr}
+#timeline.show{display:grid}
+#tlbar{display:flex;gap:6px;align-items:center;padding:3px 8px}
+#tl{width:100%;height:100%;display:block;cursor:crosshair}
+#insp{border-left:1px solid var(--line);display:flex;flex-direction:column}
+#inspTabs{display:flex;gap:2px;padding:6px 8px 0;border-bottom:1px solid var(--line)}
+#inspTabs button{border-radius:4px 4px 0 0;border-bottom:none}
+#inspBody{padding:8px;overflow:auto;flex:1}
+.row{display:flex;gap:6px;align-items:center;margin:3px 0}
+.row>label{width:92px;color:var(--dim);flex:none}
+.row .v3{display:flex;gap:3px}
+.row .v3 input{width:62px}
+h3{font-size:12px;margin:12px 0 4px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.list{border:1px solid var(--line);border-radius:4px;max-height:220px;overflow:auto}
+.list .item{border-radius:0}
+.note{color:var(--dim);font-size:12px;margin:4px 0}
+.err{color:var(--bad);font-size:12px;white-space:pre-wrap}
+table.stats{width:100%;border-collapse:collapse}
+table.stats td{border-bottom:1px solid var(--line);padding:2px 3px;vertical-align:middle}
+table.stats td:first-child{color:var(--dim);width:42%;word-break:break-all}
+table.stats input[type=text],table.stats input[type=number]{width:100%}
+table.stats tr.sec td{color:var(--text);font-weight:600;padding-top:8px}
+.x{border:none;background:none;color:var(--dim);padding:0 4px}
+.x:hover{color:var(--bad)}
+input[type=range]{width:110px}
+#help,#dialog{position:fixed;inset:0;background:#0009;display:none;align-items:center;justify-content:center;z-index:5}
+#help.show,#dialog.show{display:flex}
+#help>div,#dialog>div{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px 20px;max-width:640px;max-height:80vh;overflow:auto}
+kbd{background:#2c3038;border:1px solid #444;border-radius:3px;padding:0 4px;font-size:12px}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>Gus Editor</h1>
+    <div class="tabs" id="tabs"><button class="on" data-tab="models">Models and animation</button></div>
+    <span class="grow"></span>
+    <span id="status">Loading…</span>
+    <button id="saveBtn" title="Save this file (Ctrl+S)">Save</button>
+    <button id="saveAllBtn" title="Save every changed file">Save all</button>
+    <button id="buildBtn" title="Build game/index.html from src/ (tools/build.py)">Build</button>
+    <button id="gameBtn" title="Open the game with live preview: your edits reach it as you make them"><i id="gameDot"></i>Open game</button>
+    <button id="helpBtn" title="Keys and how it works (?)">?</button>
+  </header>
+  <aside id="browser">
+    <input id="search" placeholder="Search" aria-label="Search the assets">
+    <div id="assetList"></div>
+  </aside>
+  <section id="center">
+    <div id="toolbar"></div>
+    <div id="viewWrap"><canvas id="view"></canvas><div id="inset"><b>In game, first person</b></div><div id="hud"></div><div id="empty">Pick a weapon or an animation on the left.</div></div>
+    <div id="timeline"><div id="tlbar"></div><canvas id="tl"></canvas></div>
+  </section>
+  <aside id="insp"><div id="inspTabs"></div><div id="inspBody"></div></aside>
+</div>
+<div id="help"><div>
+  <h2 style="margin-top:0">Gus Editor</h2>
+  <p>Everything here is saved as JSON in <code>src/assets/</code>. Save writes the file; Build makes <code>game/index.html</code> from it; Open game shows your edits live in a game, before you save.</p>
+  <h3>Keys</h3>
+  <p><kbd>G</kbd> move, <kbd>R</kbd> tilt, <kbd>S</kbd> size (on a selected box or hit shape) · <kbd>Ctrl</kbd>+<kbd>D</kbd> duplicate · <kbd>M</kbd> mirror across x · <kbd>Del</kbd> delete the selected box, shape or key · <kbd>F</kbd> frame the view on it<br>
+  <kbd>Space</kbd> play or pause · <kbd>K</kbd> key at the playhead · <kbd>,</kbd> and <kbd>.</kbd> step the playhead · <kbd>Ctrl</kbd>+<kbd>Z</kbd> undo, <kbd>Ctrl</kbd>+<kbd>Y</kbd> redo · <kbd>Ctrl</kbd>+<kbd>S</kbd> save · <kbd>?</kbd> this help</p>
+  <h3>Moving around</h3>
+  <p>Left drag turns the view, right drag pans, the wheel zooms. Click a box to select it, then drag its arrows. Hold <kbd>Shift</kbd> while dragging for finer snapping.</p>
+  <h3>Animations</h3>
+  <p>A timeline runs 0 to 2: the wind-up up to 1, where the blow lands, then the follow-through. Each key holds the whole pose; its ease (smooth, in or out) is how it's reached from the key before. Click on the timeline to move the playhead, drag a key to move it, double-click to add one. Moving a slider with Auto-key on keys the pose at the playhead.</p>
+  <h3>Limits</h3>
+  <p>The two-handed grip on guns, walking legs and the game's recoil are worked out by the game and aren't shown here: use Open game to see them. Enemies already in a game keep their old weapon models till it's reloaded.</p>
+  <p style="text-align:right"><button onclick="document.getElementById('help').classList.remove('show')">Close</button></p>
+</div></div>
+<div id="dialog"><div id="dlgBody"></div></div>
+<script src="/node_modules/three/build/three.min.js"></script>
+<script>window.THREE||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>')</script>
+<script src="/node_modules/three/examples/js/controls/OrbitControls.js"></script>
+<script src="/node_modules/three/examples/js/controls/TransformControls.js"></script>
+<script src="/src/js/core/assets.js"></script>
+<script src="ref.js"></script>
+<script src="editor.js"></script>
+</body>
+</html>

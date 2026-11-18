@@ -112,7 +112,7 @@ function goblinModel(parent,o={}){
   // (whatever's in that hand hangs off a wrist, so a blow can turn it: a club chopped down, a dagger kept point first, a
   // rifle swung round stock first. See strikes.js)
   const hand=new THREE.Group();hand.position.set(0,-0.4,0);arm.add(hand);arm.hand=hand;
-  const wb=(k,to)=>{const L=[];wpnBoxes(WEAPONS[k].model.held,(w,h,d,c,x,y,z,r)=>L.push(box(w,h,d,r,c,x,y,z,to)));return L;};   // (a weapon's own shapes, from its entry in WEAPONS)
+  const wb=(k,to)=>{const L=[];wpnBoxes(WEAPONS[k].model.held,(w,h,d,c,x,y,z,r)=>{const m=box(w,h,d,r,c,x,y,z,to);L.push(m);return m;});return L;};   // (a weapon's own shapes, from its entry in WEAPONS)
   // what's in its hands is its kind's weapons list (o.weapons, keys in WEAPONS: see GOB_FOES); a model made without one
   // (a player goblin's, the title screen's) has the club, unless club is false. A blade or club in the hand; a gun on
   // its own in the hand too (pointing on down past it, so it's level when the arm is raised to aim, held in its own pose:
@@ -121,7 +121,7 @@ function goblinModel(parent,o={}){
   // shows only once it's armed with it (wkit: what's in hand, foes.js)
   const WL=o.weapons||(o.club!==false?['club']:[]),mk=wpnOfKind(WL,'melee'),gk=wpnRanged(WL);   // (a gun, or a spellbook: in the hand the same way)
   const club=mk?wb(mk,hand):[];
-  if(gk&&mk){const gun=wb(gk,hand),stow=[];wpnBoxes(WEAPONS[gk].model.stow,(w,h,d,c,x,y,z,r)=>stow.push(box(w,h,d,r,c,x,y,z,parent)));
+  if(gk&&mk){const gun=wb(gk,hand),stow=[];wpnBoxes(WEAPONS[gk].model.stow,(w,h,d,c,x,y,z,r)=>{const m=box(w,h,d,r,c,x,y,z,parent);stow.push(m);return m;});
     for(const m of gun.concat(stow))m.visible=false;out.wkit={melee:club,gun,stow,shown:0,k:gk};}
   else if(gk){if(WEAPONS[gk].npc&&WEAPONS[gk].npc.aim)parent.gunK=WEAPONS[gk].npc.aim;wb(gk,hand);}
   if(o.cult){

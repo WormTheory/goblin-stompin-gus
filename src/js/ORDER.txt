@@ -1,3 +1,4 @@
+core/assets.js
 core/setup.js
 core/blocks.js
 core/atlas.js
@@ -68,6 +69,7 @@ enemies/cultists.js
 enemies/shots.js
 enemies/mines.js
 player/gob-weapons.js
+player/hit-shapes.js
 ui/gob-loadout.js
 enemies/routes.js
 vehicles/cars.js
@@ -118,4 +120,5 @@ ui/title-pop.js
 ui/saves.js
 ui/update-check.js
 core/new-city.js
+ui/editor-live.js
 core/testing-env.js

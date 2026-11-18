@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:586019ef09c998d80efedf454d4ac0e34f541b02350a5d5ff85716dfe841670c -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:c1b5f267fe8daf91cb3ac8ea49bb77b379f74ce2c1322a7fd042b63d139a8ef1 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1887,6 +1887,165 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 (() => {
+const ASSETS={"weapons":{"club":{"name":"Club","about":"A heavy swing that knocks goblins flat and dents cars","kind":"melee","drop":false,"dmg":1,"every":1.2,"r":1,"reach":1.1,"model":{"held":[{"s":[0.11,0.11,0.55],"p":[0,0.02,0.22],"c":"@club","role":"club"},{"s":[0.19,0.19,0.19],"p":[0,0.02,0.5],"c":"@club","role":"club"}],"view":[{"s":[0.07,0.42,0.07],"p":[0,0.17,-0.42],"c":"@club","o":61},{"s":[0.15,0.17,0.15],"p":[0,0.42,-0.42],"c":"@club","o":62}]},"npc":{"strike":"club"},"player":{"dur":0.38,"lunge":0.16,"cause":"Clubbed by another goblin","pvp":"Clubbed","verb":"swing the club","swing":"vmClub"}},"bigclub":{"name":"Large Club","about":"Lifted high in both hands and slammed down: slow, but it flattens anything","kind":"melee","drop":true,"dmg":4,"every":1.9,"r":1.5,"reach":1.4,"carDmg":3,"model":{"held":[{"s":[0.13,0.13,0.72],"p":[0,0.02,0.28],"c":"@club","role":"club"},{"s":[0.3,0.3,0.36],"p":[0,0.02,0.74],"c":"@club","role":"club"},{"s":[0.38,0.07,0.07],"p":[0,0.02,0.66],"c":"#8a8a90","role":"studs"},{"s":[0.07,0.38,0.07],"p":[0,0.02,0.8],"c":"#8a8a90","role":"studs"},{"s":[0.07,0.07,0.07],"p":[0,0.02,0.94],"c":"#8a8a90","role":"studs"}],"view":[{"s":[0.09,0.66,0.09],"p":[0,0.22,-0.42],"c":"@club","o":61},{"s":[0.27,0.32,0.27],"p":[0,0.66,-0.42],"c":"@club","o":62},{"s":[0.33,0.06,0.06],"p":[0,0.6,-0.28],"c":"#8a8a90","o":62},{"s":[0.06,0.06,0.33],"p":[0.14,0.72,-0.42],"c":"#8a8a90","o":62}],"fore":{"p":[-0.02,-0.06,-0.4],"r":[-0.62,-0.5,0.05]},"drop":[{"s":[0.11,0.11,0.62],"p":[0,0,-0.2],"c":"@club"},{"s":[0.26,0.26,0.32],"p":[0,0,0.25],"c":"@club"},{"s":[0.06,0.32,0.06],"p":[0,0,0.25],"c":"#8a8a90"}]},"npc":{"strike":"bigclub","wind":0.75,"ft":0.6},"player":{"dur":0.95,"lunge":0.55,"cause":"Flattened by a goblin with a great club","pvp":"Flattened","verb":"smash","slam":true,"swing":"vmBigClub"}},"katana":{"name":"Katana","about":"A wide, fast sweep that cuts down everything in front of you","kind":"melee","drop":true,"dmg":3,"every":0.75,"r":1.25,"reach":1.35,"model":{"held":[{"s":[0.07,0.07,0.22],"p":[0,0,0.04],"c":"#1a1a22","role":"hilt"},{"s":[0.15,0.15,0.03],"p":[0,0,0.16],"c":"#b08a30","role":"tsuba"},{"s":[0.03,0.07,0.66],"p":[0,0.01,0.5],"c":"#e4e8ee","role":"blade"},{"s":[0.03,0.06,0.14],"p":[0,0.035,0.88],"c":"#e4e8ee","role":"blade"}],"view":[{"s":[0.07,0.24,0.07],"p":[0,0.04,-0.42],"c":"#1a1a22","o":61},{"s":[0.16,0.03,0.16],"p":[0,0.17,-0.42],"c":"#b08a30","o":62},{"s":[0.025,0.66,0.07],"p":[0,0.51,-0.42],"c":"#e4e8ee","o":62},{"s":[0.025,0.12,0.06],"p":[0,0.89,-0.4],"c":"#e4e8ee","o":62}],"fore":{"p":[-0.03,-0.1,-0.42],"r":[-0.6,-0.48,0.05]},"drop":[{"s":[0.07,0.07,0.24],"p":[0,0,-0.4],"c":"#1a1a22"},{"s":[0.15,0.04,0.15],"p":[0,0,-0.27],"c":"#b08a30"},{"s":[0.03,0.07,0.7],"p":[0,0,0.1],"c":"#e4e8ee"}]},"npc":{"strike":"katana"},"player":{"dur":0.42,"lunge":0.2,"cause":"Cut down by a goblin with a katana","pvp":"Cut down","verb":"slash","swing":"vmKatana"}},"dagger":{"name":"Dagger","about":"Quick stabs at whatever is right in front of you","kind":"melee","drop":true,"dmg":2,"every":0.5,"r":0.95,"reach":1,"model":{"held":[{"s":[0.08,0.08,0.12],"p":[0,-0.02,0.06],"c":"#2a1a10","role":"hilt"},{"s":[0.05,0.03,0.34],"p":[0,-0.02,0.29],"c":"#d0d4dc","role":"blade"}],"view":[{"s":[0.09,0.09,0.13],"p":[0,0.02,-0.44],"c":"#2a1a10","o":61},{"s":[0.14,0.04,0.04],"p":[0,0.02,-0.52],"c":"#6a5a3a","o":61},{"s":[0.025,0.05,0.34],"p":[0,0.02,-0.71],"c":"#d0d4dc","o":62}],"drop":[{"s":[0.08,0.08,0.14],"p":[0,0,-0.14],"c":"#2a1a10"},{"s":[0.05,0.03,0.36],"p":[0,0,0.1],"c":"#d0d4dc"}]},"npc":{"strike":"dagger"},"player":{"dur":0.26,"lunge":0.1,"cause":"Stabbed by a goblin","pvp":"Stabbed","verb":"stab","swing":"vmDagger"}},"handgun":{"name":"Handgun","about":"A police pistol: quick to fire again, but a shorter reach","kind":"gun","drop":true,"dmg":1.5,"range":30,"every":0.5,"breaks":true,"mag":8,"reload":1.3,"model":{"held":[{"s":[0.07,0.27,0.09],"p":[0,-0.1,0.06],"c":"#22262c","role":"gun"},{"s":[0.06,0.08,0.15],"p":[0,0.01,-0.03],"c":"#22262c","role":"gun"}],"view":[{"s":[0.07,0.13,0.1],"p":[0,-0.03,-0.4],"c":"#22262c","o":61},{"s":[0.06,0.07,0.3],"p":[0,0.06,-0.5],"c":"#22262c","o":62,"tag":"slide"},{"s":[0.055,0.07,0.08],"p":[0,-0.12,-0.4],"c":"#16181c","o":61,"tag":"mag"}],"fore":{"p":[-0.07,-0.06,-0.42],"r":[-0.5,-0.42,0]},"drop":[{"s":[0.06,0.09,0.22],"p":[0,0.03,0],"c":"#22262c"},{"s":[0.06,0.14,0.07],"p":[0,-0.06,-0.07],"c":"#22262c"}],"stow":[{"s":[0.09,0.2,0.15],"p":[0.29,0.4,0.03],"c":"#14110e","role":"holster"}]},"npc":{"aim":"pistol","pose":"pistol","rl":"rlPistol"},"player":{"dur":0.16,"lunge":0.01,"cause":"Shot by a goblin","shake":0.02,"rumble":0.14,"verb":"shoot","rl":"vrPistol","vm":{"x":0.26,"y":-0.4,"z":-0.5,"kick":0.32,"back":0.08},"cycle":"slide"},"crack":[[0.06,0.12,3400],[330,140,0.045,0.035]]},"shotgun":{"name":"Shotgun","about":"A spray of pellets: brutal close up, little use far off","kind":"gun","drop":true,"dmg":0.75,"pellets":8,"spread":0.075,"range":20,"every":0.95,"breaks":true,"mag":6,"reload":2.6,"model":{"held":[{"s":[0.1,0.28,0.13],"p":[0,0.04,0.05],"c":"#5a3a20","role":"stock"},{"s":[0.09,0.2,0.12],"p":[0,-0.16,0.06],"c":"#22262c","role":"gun"},{"s":[0.06,0.5,0.06],"p":[0,-0.5,0.09],"c":"#22262c","role":"gun"},{"s":[0.05,0.4,0.05],"p":[0,-0.44,0.025],"c":"#22262c","role":"gun"},{"s":[0.09,0.16,0.09],"p":[0,-0.42,0.025],"c":"#5a3a20","role":"stock"}],"view":[{"s":[0.1,0.12,0.32],"p":[0,0,-0.34],"c":"#5a3a20","o":61},{"s":[0.09,0.11,0.2],"p":[0,0.04,-0.58],"c":"#22262c","o":62},{"s":[0.06,0.06,0.62],"p":[0,0.08,-0.98],"c":"#22262c","o":62},{"s":[0.05,0.05,0.5],"p":[0,0.02,-0.9],"c":"#22262c","o":62},{"s":[0.1,0.09,0.2],"p":[0,0.015,-0.86],"c":"#5a3a20","o":62,"tag":"pump"},{"s":[0.05,0.05,0.09],"p":[0,-0.04,-0.6],"c":"#b02a1a","o":62,"tag":"mag"}],"fore":{"p":[0,-0.03,-0.86],"r":[-0.62,-0.42,-0.1]},"foreTag":"pump","drop":[{"s":[0.1,0.13,0.28],"p":[0,0,-0.4],"c":"#5a3a20"},{"s":[0.08,0.1,0.22],"p":[0,0,-0.15],"c":"#22262c"},{"s":[0.06,0.06,0.5],"p":[0,0.02,0.2],"c":"#22262c"},{"s":[0.09,0.08,0.15],"p":[0,-0.04,0.18],"c":"#5a3a20"}],"stow":[{"s":[0.1,0.28,0.13],"p":[0.12,0.3,-0.25],"c":"#5a3a20","role":"stock"},{"s":[0.06,0.66,0.06],"p":[0.12,0.75,-0.25],"c":"#22262c","role":"gun"}]},"npc":{"aim":"rifle","pose":"pump","rl":"rlShells","fall":14},"player":{"dur":0.25,"lunge":0.01,"cause":"Blasted by a goblin with a shotgun","pvp":"Blasted","shake":0.05,"rumble":0.3,"climb":0.04,"verb":"shoot","rl":"vrShells","vm":{"x":0.32,"y":-0.46,"z":-0.48,"kick":0.36,"back":0.16},"cycle":"pump"},"crack":[[0.14,0.22,1300],[150,55,0.12,0.06]]},"rifle":{"name":"Rifle","about":"Hits hard and far, down the middle of your view","kind":"gun","drop":true,"dmg":2,"range":48,"every":1,"breaks":true,"mag":5,"reload":2,"butt":{"dmg":1,"every":1.3},"model":{"held":[{"s":[0.1,0.3,0.14],"p":[0,0.04,0.06],"c":"#4a3420","role":"stock"},{"s":[0.07,0.62,0.07],"p":[0,-0.38,0.06],"c":"#22262c","role":"gun"},{"s":[0.05,0.12,0.05],"p":[0,-0.12,0.13],"c":"#22262c","role":"gun"}],"view":[{"s":[0.1,0.12,0.34],"p":[0,0.02,-0.36],"c":"#4a3420","o":61},{"s":[0.07,0.07,0.78],"p":[0,0.07,-0.86],"c":"#22262c","o":62},{"s":[0.05,0.12,0.05],"p":[0,-0.04,-0.6],"c":"#22262c","o":62,"tag":"mag"}],"fore":{"p":[0,-0.01,-0.92],"r":[-0.62,-0.42,-0.1]},"drop":[{"s":[0.1,0.14,0.3],"p":[0,0,-0.36],"c":"#4a3420"},{"s":[0.07,0.07,0.7],"p":[0,0.02,0.12],"c":"#22262c"},{"s":[0.05,0.12,0.05],"p":[0,-0.07,-0.12],"c":"#22262c"}],"stow":[{"s":[0.1,0.3,0.14],"p":[0.12,0.3,-0.25],"c":"#4a3420","role":"stock"},{"s":[0.07,0.62,0.07],"p":[0.12,0.74,-0.25],"c":"#22262c","role":"gun"}]},"npc":{"strike":"butt","aim":"rifle","pose":"aim","rl":"rlMag"},"player":{"dur":0.2,"lunge":0.01,"cause":"Shot by a goblin","shake":0.03,"rumble":0.2,"verb":"shoot","rl":"vrMag","vm":{"x":0.34,"y":-0.46,"z":-0.5,"kick":0.22,"back":0.12}},"crack":[[0.09,0.14,2600],[220,90,0.06,0.04]]},"arifle":{"name":"Assault Rifle","about":"Fires for as long as you hold the button; the view climbs as it goes","kind":"gun","drop":true,"dmg":1,"range":40,"every":0.11,"breaks":true,"mag":30,"reload":2.1,"butt":{"dmg":1,"every":1.3},"model":{"held":[{"s":[0.09,0.24,0.12],"p":[0,0.06,0.04],"c":"#1e1e20","role":"stock"},{"s":[0.09,0.3,0.13],"p":[0,-0.18,0.05],"c":"#22262c","role":"gun"},{"s":[0.05,0.32,0.05],"p":[0,-0.48,0.07],"c":"#22262c","role":"gun"},{"s":[0.06,0.09,0.17],"p":[0,-0.2,-0.08],"c":"#2a2a2c","role":"gun"},{"s":[0.04,0.14,0.05],"p":[0,-0.14,0.14],"c":"#22262c","role":"gun"},{"s":[0.08,0.16,0.1],"p":[0,-0.38,0.03],"c":"#1e1e20","role":"stock"}],"view":[{"s":[0.09,0.11,0.3],"p":[0,0.01,-0.34],"c":"#1e1e20","o":61},{"s":[0.09,0.12,0.3],"p":[0,0.05,-0.62],"c":"#22262c","o":62},{"s":[0.05,0.05,0.4],"p":[0,0.08,-0.96],"c":"#22262c","o":62},{"s":[0.05,0.07,0.06],"p":[0,0.15,-0.6],"c":"#22262c","o":62},{"s":[0.09,0.09,0.22],"p":[0,0.04,-0.88],"c":"#1e1e20","o":62},{"s":[0.055,0.17,0.09],"p":[0,-0.08,-0.66],"c":"#2a2a2c","o":62,"tag":"mag"}],"fore":{"p":[0,0,-0.88],"r":[-0.62,-0.42,-0.1]},"drop":[{"s":[0.09,0.12,0.24],"p":[0,0,-0.36],"c":"#1e1e20"},{"s":[0.09,0.12,0.3],"p":[0,0.01,-0.1],"c":"#22262c"},{"s":[0.05,0.05,0.32],"p":[0,0.02,0.2],"c":"#22262c"},{"s":[0.06,0.15,0.08],"p":[0,-0.1,-0.08],"c":"#2a2a2c"}],"stow":[{"s":[0.09,0.24,0.12],"p":[0.12,0.32,-0.25],"c":"#1e1e20","role":"stock"},{"s":[0.08,0.56,0.08],"p":[0.12,0.7,-0.25],"c":"#22262c","role":"gun"}]},"npc":{"strike":"butt","aim":"rifle","pose":"auto","burst":4,"rl":"rlMag"},"player":{"dur":0.09,"lunge":0.01,"cause":"Gunned down by a goblin","pvp":"Gunned down","shake":0.015,"rumble":0.08,"climb":0.006,"auto":true,"verb":"shoot (hold)","rl":"vrMag","vm":{"x":0.33,"y":-0.46,"z":-0.5,"kick":0.12,"back":0.06}},"crack":[[0.05,0.1,2900],[260,110,0.04,0.03]]},"sniper":{"name":"Sniper Rifle","about":"One heavy round at a time, from much further than anything else","kind":"gun","drop":true,"dmg":7,"range":110,"every":1.7,"breaks":true,"mag":5,"reload":2.8,"butt":{"dmg":1,"every":1.3},"model":{"held":[{"s":[0.1,0.32,0.14],"p":[0,0.04,0.05],"c":"#3a4a2a","role":"stock"},{"s":[0.08,0.3,0.11],"p":[0,-0.22,0.06],"c":"#22262c","role":"gun"},{"s":[0.05,0.62,0.05],"p":[0,-0.66,0.07],"c":"#22262c","role":"gun"},{"s":[0.07,0.34,0.07],"p":[0,-0.2,0.17],"c":"#111114","role":"scope"},{"s":[0.09,0.03,0.03],"p":[0.07,-0.1,0.08],"c":"#8a8a90","role":"gun"}],"view":[{"s":[0.1,0.12,0.36],"p":[0,0.01,-0.34],"c":"#3a4a2a","o":61},{"s":[0.08,0.1,0.3],"p":[0,0.05,-0.64],"c":"#22262c","o":62},{"s":[0.05,0.05,0.8],"p":[0,0.08,-1.18],"c":"#22262c","o":62},{"s":[0.07,0.07,0.36],"p":[0,0.16,-0.6],"c":"#111114","o":62},{"s":[0.1,0.1,0.04],"p":[0,0.16,-0.42],"c":"#111114","o":62},{"s":[0.1,0.1,0.04],"p":[0,0.16,-0.78],"c":"#111114","o":62},{"s":[0.08,0.03,0.03],"p":[0.07,0.06,-0.5],"c":"#8a8a90","o":62,"tag":"bolt"},{"s":[0.05,0.09,0.08],"p":[0,-0.02,-0.62],"c":"#22262c","o":62,"tag":"mag"}],"fore":{"p":[0,0,-0.96],"r":[-0.62,-0.42,-0.1]},"drop":[{"s":[0.1,0.14,0.32],"p":[0,0,-0.4],"c":"#3a4a2a"},{"s":[0.08,0.1,0.3],"p":[0,0.01,-0.1],"c":"#22262c"},{"s":[0.05,0.05,0.62],"p":[0,0.02,0.36],"c":"#22262c"},{"s":[0.07,0.07,0.32],"p":[0,0.1,-0.1],"c":"#111114"}],"stow":[{"s":[0.1,0.32,0.14],"p":[0.12,0.3,-0.25],"c":"#3a4a2a","role":"stock"},{"s":[0.07,0.8,0.07],"p":[0.12,0.84,-0.25],"c":"#22262c","role":"gun"}]},"npc":{"strike":"butt","aim":"rifle","pose":"snipe","rl":"rlMag","fall":400},"player":{"dur":0.3,"lunge":0.01,"cause":"Picked off by a goblin's sniper rifle","pvp":"Picked off","shake":0.06,"rumble":0.35,"climb":0.05,"verb":"shoot","rl":"vrMag","vm":{"x":0.32,"y":-0.45,"z":-0.48,"kick":0.4,"back":0.18},"cycle":"bolt","scope":{"fov":15,"in":0.2},"hip":0.035},"crack":[[0.16,0.2,1900],[120,40,0.18,0.07]]},"bazooka":{"name":"Bazooka","about":"A rocket that bursts on whatever it hits: one shot, then a slow reload","kind":"gun","drop":true,"dmg":5,"range":70,"every":0.6,"mag":1,"reload":2.8,"proj":"rocket","speed":28,"R":3.4,"crush":2.6,"vd":50,"breaks":true,"model":{"held":[{"s":[0.18,1.1,0.18],"p":[0,-0.25,0.16],"c":"#4a5a2a","role":"tube"},{"s":[0.22,0.06,0.22],"p":[0,-0.78,0.16],"c":"#2a3018","role":"tube2"},{"s":[0.24,0.08,0.24],"p":[0,0.3,0.16],"c":"#2a3018","role":"tube2"},{"s":[0.06,0.06,0.14],"p":[0,-0.02,0.06],"c":"#1e1e20","role":"gun"},{"s":[0.03,0.08,0.1],"p":[-0.12,-0.3,0.2],"c":"#1e1e20","role":"gun"},{"s":[0.12,0.14,0.12],"p":[0,-0.86,0.16],"c":"#8a9a5a","role":"warhead"}],"view":[{"s":[0.2,0.2,1.3],"p":[0,0.14,-0.62],"c":"#4a5a2a","o":61},{"s":[0.24,0.24,0.06],"p":[0,0.14,-1.26],"c":"#2a3018","o":62},{"s":[0.25,0.25,0.08],"p":[0,0.14,0.05],"c":"#2a3018","o":61},{"s":[0.07,0.16,0.08],"p":[0,-0.04,-0.4],"c":"#1e1e20","o":61},{"s":[0.04,0.1,0.06],"p":[-0.14,0.22,-0.66],"c":"#1e1e20","o":62},{"s":[0.14,0.14,0.22],"p":[0,0.14,-1.36],"c":"#8a9a5a","o":62,"tag":"load"},{"s":[0.08,0.08,0.1],"p":[0,0.14,-1.51],"c":"#b0b8a0","o":62,"tag":"load"}],"fore":{"p":[0,-0.04,-0.84],"r":[-0.62,-0.46,-0.1]},"drop":[{"s":[0.16,0.16,1],"p":[0,0,0],"c":"#4a5a2a"},{"s":[0.2,0.2,0.06],"p":[0,0,-0.48],"c":"#2a3018"},{"s":[0.06,0.12,0.06],"p":[0,-0.1,0.05],"c":"#1e1e20"}],"stow":[{"s":[0.18,1,0.18],"p":[-0.1,0.6,-0.28],"c":"#4a5a2a","role":"tube"},{"s":[0.22,0.06,0.22],"p":[-0.1,1.08,-0.28],"c":"#2a3018","role":"tube2"}]},"npc":{"aim":"tube","pose":"shoulder","rl":"rlTube"},"player":{"dur":0.35,"lunge":0.01,"cause":"Blown up by a goblin's bazooka","pvp":"Blown up","shake":0.08,"rumble":0.4,"climb":0.03,"verb":"fire a rocket","rl":"vrTube","vm":{"x":0.36,"y":-0.36,"z":-0.42,"kick":0.2,"back":0.22}},"crack":[[0.4,0.3,700],[90,30,0.3,0.08]]},"spellbook":{"name":"Fireball Spellbook","about":"Conjures a fireball that bends after the nearest enemy; slow to come again","kind":"spell","drop":true,"dmg":2,"range":30,"near":4.5,"cast":0.7,"every":3.1,"ball":{"speed":15,"bend":0.6,"seek":40,"life":3.5,"r":1.4,"rg":0.9,"dy":14},"model":{"held":[{"s":[0.36,0.04,0.26],"p":[0,-0.04,0.16],"c":"#6a1a14","role":"book"},{"s":[0.32,0.05,0.22],"p":[0,-0.01,0.16],"c":"#e8dcb0","role":"page"},{"s":[0.03,0.07,0.24],"p":[0,-0.01,0.16],"c":"#3a0e0a","role":"book"}],"view":[{"s":[0.4,0.03,0.28],"p":[-0.04,0.06,-0.5],"c":"#6a1a14","o":61},{"s":[0.36,0.04,0.24],"p":[-0.04,0.08,-0.5],"c":"#e8dcb0","o":62},{"s":[0.02,0.06,0.26],"p":[-0.04,0.09,-0.5],"c":"#3a0e0a","o":62}],"fore":{"p":[-0.34,-0.02,-0.66],"r":[-0.66,-0.46,0]},"drop":[{"s":[0.3,0.08,0.22],"p":[0,0,0],"c":"#6a1a14"},{"s":[0.26,0.06,0.2],"p":[0.03,0,0],"c":"#e8dcb0"},{"s":[0.04,0.1,0.06],"p":[-0.15,0,0],"c":"#d0a030"}],"stow":[{"s":[0.07,0.26,0.2],"p":[-0.29,0.36,0.02],"c":"#6a1a14","role":"book"}]},"npc":{"pose":"cast","jit":1.6,"dy":14},"player":{"dur":1.05,"cause":"Burned up by a goblin's fireball","pvp":"Burned","verb":"cast a fireball"},"cue":["triangle",180,420,0.04]},"landmine":{"name":"Landmines","about":"Planted where you stand; the first enemy to step on one sets it off","kind":"mine","drop":true,"stack":true,"dmg":5,"R":3,"arm":1.2,"crush":1.8,"vd":40,"every":0.9,"model":{"held":[{"s":[0.28,0.07,0.28],"p":[0,-0.06,0.08],"c":"#3a4a22","role":"mine"},{"s":[0.15,0.05,0.15],"p":[0,-0.02,0.08],"c":"#2a3018","role":"mine2"}],"view":[{"s":[0.3,0.08,0.3],"p":[0,0.04,-0.46],"c":"#3a4a22","o":61},{"s":[0.17,0.05,0.17],"p":[0,0.1,-0.46],"c":"#2a3018","o":62},{"s":[0.05,0.03,0.05],"p":[0,0.13,-0.46],"c":"#d03020","o":62}],"drop":[{"s":[0.4,0.08,0.4],"p":[0,0,0],"c":"#3a4a22"},{"s":[0.24,0.06,0.24],"p":[0,0.06,0],"c":"#2a3018"},{"s":[0.05,0.05,0.05],"p":[0,0.1,0],"c":"#d03020"}]},"npc":{"pose":"plant"},"player":{"dur":0.75,"lunge":0.45,"cause":"Blown up by a goblin's landmine","pvp":"Blown up","verb":"plant a mine","max":6,"field":"mines","swing":"vmPlant","body":"plantR"}},"grenade":{"name":"Grenades","about":"Thrown with Stomp: how many he starts with","kind":"throw","drop":true,"stack":true,"dmg":3,"R":3.3,"fuse":2.2,"model":{"drop":[{"s":[0.22,0.24,0.22],"p":[0,0,0],"c":"#3a4a22"},{"s":[0.08,0.08,0.08],"p":[0,0.15,0],"c":"#8a8a90"}]},"player":{"cause":"Blown up by a goblin's grenade","max":9,"cd":0.6,"v":15,"field":"gren"}}},"clips":{"club":{"layout":"body","keys":[{"t":0,"v":[-0.5,0,0,0,0,0,0]},{"t":0.45,"v":[-2.5,0.2,-0.3,-0.6,0.22,-0.05,0],"e":"o"},{"t":0.8,"v":[-3.55,0.3,-0.7,-0.9,0.4,-0.12,-0.05]},{"t":0.86,"v":[-3.65,0.3,-0.75,-0.95,0.42,-0.13,-0.06]},{"t":1,"v":[-1,0.05,1.3,0.35,-0.3,0.18,0.15],"e":"i"},{"t":1.25,"v":[-0.3,0,1,0.4,-0.35,0.2,0.15],"e":"o"},{"t":2,"v":[-0.5,0,0,0,0,0,0]}],"events":[{"t":1,"k":"hit"}]},"dagger":{"layout":"body","keys":[{"t":0,"v":[-0.5,0,0,0,0,0,0]},{"t":0.65,"v":[0.55,0.15,-0.55,-1,0.45,-0.05,-0.08],"e":"o"},{"t":0.84,"v":[0.6,0.15,-0.6,-1.05,0.48,-0.06,-0.1]},{"t":1,"v":[-1.45,-0.12,1.45,0.25,-0.35,0.16,0.2],"e":"i"},{"t":1.3,"v":[-1.4,-0.12,1.4,0.2,-0.3,0.14,0.18]},{"t":2,"v":[-0.5,0,0,0,0,0,0]}],"events":[{"t":1,"k":"hit"}]},"butt":{"layout":"body","keys":[{"t":0,"v":[-0.5,0,0,0,0,0,0]},{"t":0.4,"v":[-1,0.2,-2,-0.9,0.2,0,0],"e":"o"},{"t":0.8,"v":[-0.45,0.35,-4.26,-0.7,0.5,-0.08,-0.08]},{"t":0.86,"v":[-0.42,0.35,-4.3,-0.7,0.52,-0.09,-0.1]},{"t":1,"v":[-1.45,0.3,-3.26,-1.3,-0.3,0.2,0.2],"e":"i"},{"t":1.3,"v":[-1.35,0.3,-3.36,-1.2,-0.25,0.16,0.18]},{"t":2,"v":[-0.5,0,0,0,0,0,0]}],"events":[{"t":1,"k":"hit"}]},"aim":{"layout":"body","keys":[{"t":0,"v":[-0.5,0,0,0,0,0,0]},{"t":0.35,"v":[-1.5,0,0,-1.35,0.15,0.04,0],"e":"o"},{"t":1,"v":[-1.5,0,0,-1.35,0.15,0.04,0]},{"t":1.06,"v":[-1.85,0,0,-1.55,0.15,-0.08,-0.06],"e":"o"},{"t":1.4,"v":[-1.5,0,0,-1.35,0.15,0.02,0]},{"t":2,"v":[-0.5,0,0,0,0,0,0]}],"events":[{"t":1,"k":"hit"}]},"pistol":{"layout":"body","keys":[{"t":0,"v":[-0.5,0,0,0,0,0,0]},{"t":0.35,"v":[-1.57,-0.1,0,-1.47,0.12,0.03,0],"e":"o"},{"t":1,"v":[-1.57,-0.1,0,-1.47,0.12,0.03,0]},{"t":1.06,"v":[-1.85,-0.1,-0.45,-1.7,0.12,-0.05,-0.04],"e":"o"},{"t":1.4,"v":[-1.57,-0.1,0,-1.47,0.12,0.02,0]},{"t":2,"v":[-0.5,0,0,0,0,0,0]}],"events":[{"t":1,"k":"hit"}]},"throw":{"layout":"body","keys":[{"t":0,"v":[-0.5,0,0,0,0,0,0]},{"t":0.35,"v":[-0.9,0,0,-2.3,-0.15,-0.03,0],"e":"o"},{"t":0.78,"v":[-1.2,0,0,-3.7,-0.45,-0.12,-0.05]},{"t":0.86,"v":[-1.2,0,0,-3.75,-0.47,-0.13,-0.06]},{"t":1,"v":[-0.4,0,0,-1.5,0.35,0.15,0.12],"e":"i"},{"t":1.3,"v":[-0.3,0,0,-0.7,0.4,0.18,0.12],"e":"o"},{"t":2,"v":[-0.5,0,0,0,0,0,0]}],"events":[{"t":1,"k":"hit"}]},"cast":{"layout":"body","keys":[{"t":0,"v":[-0.5,0,0,0,0,0,0]},{"t":0.4,"v":[-1.9,0.1,0.3,-2.6,-0.1,-0.03,0],"e":"o"},{"t":0.8,"v":[-2.05,0.12,0.35,-3.4,-0.35,-0.1,-0.04]},{"t":0.88,"v":[-2.05,0.12,0.35,-3.5,-0.38,-0.11,-0.05]},{"t":1,"v":[-1.75,0.1,0.3,-1.6,0.35,0.15,0.12],"e":"i"},{"t":1.3,"v":[-1.65,0.1,0.3,-1.45,0.35,0.15,0.1],"e":"o"},{"t":2,"v":[-0.5,0,0,0,0,0,0]}],"events":[{"t":1,"k":"hit"}]},"katana":{"layout":"body","keys":[{"t":0,"v":[-0.5,0,0,0,0,0,0]},{"t":0.4,"v":[-1.9,0.6,-0.4,-1.6,0.35,-0.04,-0.03],"e":"o"},{"t":0.78,"v":[-2.6,1,-0.9,-2.2,0.6,-0.1,-0.07]},{"t":0.86,"v":[-2.65,1.05,-0.95,-2.25,0.62,-0.11,-0.08]},{"t":1,"v":[-1.35,-0.55,0.75,-1.3,-0.45,0.18,0.2],"e":"i"},{"t":1.25,"v":[-0.9,-0.95,1.15,-0.8,-0.7,0.2,0.22],"e":"o"},{"t":1.55,"v":[-1.1,-0.4,-0.2,-0.4,-0.35,0.08,0.12]},{"t":1.62,"v":[-1.05,-0.35,0.35,-0.35,-0.3,0.07,0.1],"e":"i"},{"t":2,"v":[-0.5,0,0,0,0,0,0]}],"events":[{"t":1,"k":"hit"}]},"bigclub":{"layout":"body","keys":[{"t":0,"v":[-0.5,0,0,0,0,0,0]},{"t":0.3,"v":[-1.6,0.1,-0.3,-1.5,0.1,-0.06,0],"e":"o"},{"t":0.7,"v":[-3.4,0.15,-0.9,-3.3,0.2,-0.2,-0.1]},{"t":0.9,"v":[-3.5,0.15,-1,-3.4,0.22,-0.22,-0.11]},{"t":1,"v":[-0.7,0,1,-0.8,-0.08,0.38,0.24],"e":"i"},{"t":1.4,"v":[-0.6,0,1.1,-0.7,-0.08,0.36,0.24]},{"t":1.75,"v":[-1,0.05,0.5,-0.7,0.05,0.12,0.1],"e":"o"},{"t":2,"v":[-0.5,0,0,0,0,0,0]}],"events":[{"t":1,"k":"hit"}]},"auto":{"layout":"body","keys":[{"t":0,"v":[-0.5,0,0,0,0,0,0]},{"t":0.35,"v":[-1.5,0,0,-1.35,0.15,0.04,0],"e":"o"},{"t":1,"v":[-1.5,0,0,-1.35,0.15,0.04,0]},{"t":1.04,"v":[-1.62,0,0,-1.42,0.15,-0.02,-0.02],"e":"o"},{"t":1.2,"v":[-1.5,0,0,-1.35,0.15,0.03,0]},{"t":2,"v":[-0.5,0,0,0,0,0,0]}],"events":[{"t":1,"k":"hit"}]},"snipe":{"layout":"body","keys":[{"t":0,"v":[-0.5,0,0,0,0,0,0]},{"t":0.4,"v":[-1.45,0,0,-1.3,0.2,0.06,0.02],"e":"o"},{"t":0.75,"v":[-1.52,0,0,-1.36,0.18,0.08,0.03]},{"t":1,"v":[-1.5,0,0,-1.35,0.18,0.08,0.03]},{"t":1.05,"v":[-2.05,0,0,-1.75,0.22,-0.14,-0.1],"e":"o"},{"t":1.3,"v":[-1.6,0,0,-0.9,0.3,0,-0.04]},{"t":1.55,"v":[-1.52,0,0,-1.35,0.2,0.05,0]},{"t":2,"v":[-0.5,0,0,0,0,0,0]}],"events":[{"t":1,"k":"hit"}]},"pump":{"layout":"body","keys":[{"t":0,"v":[-0.5,0,0,0,0,0,0]},{"t":0.3,"v":[-1.45,0,0,-1.3,0.12,0.05,0],"e":"o"},{"t":1,"v":[-1.48,0,0,-1.32,0.12,0.06,0]},{"t":1.06,"v":[-2,0,0,-1.7,0.15,-0.16,-0.12],"e":"o"},{"t":1.35,"v":[-1.55,0,0,-1,0.12,0.06,0.02]},{"t":1.55,"v":[-1.5,0,0,-1.4,0.12,0.06,0.02]},{"t":2,"v":[-0.5,0,0,0,0,0,0]}],"events":[{"t":1,"k":"hit"}]},"shoulder":{"layout":"body","keys":[{"t":0,"v":[-0.5,0,0,0,0,0,0]},{"t":0.45,"v":[-1.5,0,0,-1.4,0.3,0,-0.02],"e":"o"},{"t":1,"v":[-1.55,0,0,-1.42,0.3,0.02,-0.02]},{"t":1.05,"v":[-1.85,0,0,-1.5,0.36,-0.2,-0.18],"e":"o"},{"t":1.4,"v":[-1.55,0,0,-1.4,0.3,0,-0.06]},{"t":2,"v":[-0.5,0,0,0,0,0,0]}],"events":[{"t":1,"k":"hit"}]},"plant":{"layout":"body","keys":[{"t":0,"v":[-0.5,0,0,0,0,0,0]},{"t":0.35,"v":[-0.3,0.15,0,-0.5,0.15,0.3,0.06],"e":"o"},{"t":0.75,"v":[-0.25,0.2,0,-0.95,0.2,0.62,0.14]},{"t":0.88,"v":[-0.25,0.2,0,-1,0.2,0.66,0.15]},{"t":1,"v":[-0.25,0.2,0,-1.1,0.18,0.7,0.16],"e":"i"},{"t":1.35,"v":[-0.3,0.2,0,-0.9,0.15,0.62,0.14]},{"t":1.45,"v":[-0.3,0.2,0,-1.1,0.15,0.66,0.15],"e":"i"},{"t":2,"v":[-0.5,0,0,0,0,0,0]}],"events":[{"t":1,"k":"hit"}]},"plantR":{"layout":"body","keys":[{"t":0,"v":[-0.5,0,0,0,0,0,0]},{"t":0.35,"v":[-0.6,0,0.3,-0.3,-0.15,0.3,0.06],"e":"o"},{"t":0.75,"v":[-1,0,0.7,-0.25,-0.2,0.62,0.14]},{"t":0.88,"v":[-1.05,0,0.75,-0.25,-0.2,0.66,0.15]},{"t":1,"v":[-1.15,0,0.85,-0.2,-0.18,0.7,0.16],"e":"i"},{"t":1.35,"v":[-0.95,0,0.7,-0.25,-0.15,0.62,0.14]},{"t":1.45,"v":[-1.15,0,0.85,-0.25,-0.15,0.66,0.15],"e":"i"},{"t":2,"v":[-0.5,0,0,0,0,0,0]}],"events":[{"t":1,"k":"hit"}]},"rlMag":{"layout":"body","keys":[{"t":0,"v":[-1.2,0,0,-1.1,0.15,0.04,0]},{"t":0.2,"v":[-0.9,-0.25,0.5,-0.4,0.25,0.06,0],"e":"o"},{"t":0.45,"v":[-0.9,-0.25,0.5,0.45,0.3,0.08,0]},{"t":0.75,"v":[-0.95,-0.25,0.5,-0.7,0.25,0.06,0]},{"t":0.92,"v":[-0.95,-0.25,0.5,-0.85,0.22,0.06,0]},{"t":1,"v":[-1.05,-0.25,0.45,-1.05,0.2,0.1,0.02],"e":"i"},{"t":1.3,"v":[-1,-0.15,0.3,-0.85,0.2,0.06,0]},{"t":1.45,"v":[-1.05,-0.1,0.25,-1.2,0.18,0.05,0],"e":"i"},{"t":2,"v":[-0.5,0,0,0,0,0,0]}],"events":[]},"rlPistol":{"layout":"body","keys":[{"t":0,"v":[-1.3,0,0,-1.2,0.1,0.03,0]},{"t":0.2,"v":[-1,-0.3,0.4,-0.3,0.12,0.05,0],"e":"o"},{"t":0.45,"v":[-1,-0.3,0.4,0.35,0.15,0.05,0]},{"t":0.8,"v":[-1.05,-0.3,0.4,-0.8,0.12,0.05,0]},{"t":1,"v":[-1.1,-0.3,0.35,-1.05,0.1,0.07,0.01],"e":"i"},{"t":1.3,"v":[-1.15,-0.25,0.3,-1.25,0.1,0.05,0]},{"t":1.4,"v":[-1.2,-0.2,0.2,-1,0.1,0.05,0],"e":"i"},{"t":2,"v":[-0.5,0,0,0,0,0,0]}],"events":[]},"rlShells":{"layout":"body","keys":[{"t":0,"v":[-1.2,0,0,-1.1,0.12,0.04,0]},{"t":0.2,"v":[-0.85,-0.35,0.7,-0.3,0.25,0.06,0],"e":"o"},{"t":0.35,"v":[-0.85,-0.35,0.7,0.35,0.25,0.06,0]},{"t":0.55,"v":[-0.85,-0.35,0.7,-0.75,0.25,0.07,0]},{"t":0.7,"v":[-0.85,-0.35,0.7,0.35,0.25,0.06,0]},{"t":0.9,"v":[-0.85,-0.35,0.7,-0.75,0.25,0.07,0]},{"t":1,"v":[-0.85,-0.35,0.7,0.3,0.25,0.06,0]},{"t":1.2,"v":[-0.85,-0.35,0.7,-0.75,0.25,0.07,0]},{"t":1.35,"v":[-0.85,-0.35,0.7,0.35,0.25,0.06,0]},{"t":1.55,"v":[-0.85,-0.35,0.7,-0.75,0.25,0.07,0]},{"t":1.75,"v":[-1.1,-0.15,0.3,-1.25,0.15,0.05,0],"e":"i"},{"t":2,"v":[-0.5,0,0,0,0,0,0]}],"events":[]},"rlTube":{"layout":"body","keys":[{"t":0,"v":[-1.5,0,0,-1.4,0.3,0,0]},{"t":0.25,"v":[-1,0.15,-0.5,-0.3,0.45,0.05,0],"e":"o"},{"t":0.5,"v":[-1,0.15,-0.5,0.7,0.5,0.05,0]},{"t":0.8,"v":[-1,0.15,-0.5,-0.2,0.5,0.05,0]},{"t":1,"v":[-1.05,0.15,-0.5,-0.55,0.45,0.08,0],"e":"i"},{"t":1.3,"v":[-1.05,0.15,-0.5,-0.4,0.4,0.06,0]},{"t":1.6,"v":[-1.4,0,0,-1.3,0.3,0.02,0],"e":"o"},{"t":2,"v":[-0.5,0,0,0,0,0,0]}],"events":[]},"vmClub":{"layout":"vm","keys":[{"t":0,"v":[0.08,0.52,-0.62,-0.72]},{"t":0.7,"v":[0.8,0.62,-0.5,-0.7],"e":"o"},{"t":0.8,"v":[0.85,0.62,-0.49,-0.69]},{"t":1,"v":[-0.55,0.36,-0.7,-0.82],"e":"i"},{"t":1.3,"v":[-0.75,0.34,-0.76,-0.8]},{"t":2,"v":[0.08,0.52,-0.62,-0.72]}],"events":[]},"vmDagger":{"layout":"vm","keys":[{"t":0,"v":[0.3,0.46,-0.6,-0.66]},{"t":0.65,"v":[0.42,0.5,-0.56,-0.5],"e":"o"},{"t":0.75,"v":[0.44,0.5,-0.56,-0.48]},{"t":1,"v":[0.02,0.34,-0.6,-1.1],"e":"i"},{"t":1.35,"v":[0.04,0.34,-0.6,-1.06]},{"t":2,"v":[0.3,0.46,-0.6,-0.66]}],"events":[]},"vmKatana":{"layout":"vm","keys":[{"t":0,"v":[0.25,0.5,-0.62,-0.7,0.15]},{"t":0.65,"v":[0.75,0.72,-0.42,-0.62,-0.55],"e":"o"},{"t":0.8,"v":[0.8,0.74,-0.4,-0.6,-0.6]},{"t":1,"v":[-0.9,-0.05,-0.78,-0.86,1.05],"e":"i"},{"t":1.3,"v":[-1.1,-0.2,-0.85,-0.8,1.25],"e":"o"},{"t":1.6,"v":[-0.3,0.25,-0.75,-0.75,-0.3]},{"t":1.68,"v":[-0.45,0.3,-0.76,-0.76,-0.15],"e":"i"},{"t":2,"v":[0.25,0.5,-0.62,-0.7,0.15]}],"events":[]},"vmBigClub":{"layout":"vm","keys":[{"t":0,"v":[0.12,0.42,-0.7,-0.74,0.12]},{"t":0.4,"v":[0.6,0.46,-0.5,-0.7,0.1],"e":"o"},{"t":0.75,"v":[1,0.36,-0.42,-0.64,0.05]},{"t":0.9,"v":[1.05,0.35,-0.41,-0.63,0.05]},{"t":1,"v":[-1.05,0.22,-0.98,-0.92,0],"e":"i"},{"t":1.4,"v":[-1,0.22,-0.96,-0.92,0]},{"t":1.75,"v":[-0.2,0.36,-0.8,-0.8,0.08],"e":"o"},{"t":2,"v":[0.12,0.42,-0.7,-0.74,0.12]}],"events":[]},"vmPlant":{"layout":"vm","keys":[{"t":0,"v":[0.15,0.4,-0.6,-0.66,0]},{"t":0.5,"v":[0.3,0.32,-0.95,-0.62,0],"e":"o"},{"t":0.85,"v":[0.35,0.3,-1.15,-0.7,0]},{"t":1,"v":[0.35,0.3,-1.25,-0.74,0],"e":"i"},{"t":1.3,"v":[0.3,0.3,-1.2,-0.72,0]},{"t":2,"v":[0.15,0.4,-0.6,-0.66,0]}],"events":[]},"vrMag":{"layout":"vr","keys":[{"t":0,"v":[0,0,0,0,0,0]},{"t":0.25,"v":[0.25,-0.55,-0.08,0.05,0.04,0],"e":"o"},{"t":0.45,"v":[0.3,-0.6,-0.08,0.06,0.04,1]},{"t":0.75,"v":[0.3,-0.6,-0.08,0.04,0.04,1]},{"t":0.92,"v":[0.3,-0.58,-0.08,0.05,0.04,0.3]},{"t":1,"v":[0.22,-0.55,-0.07,0.09,0.03,0],"e":"i"},{"t":1.3,"v":[0.15,-0.4,-0.05,0.05,0.02,0]},{"t":1.45,"v":[0.1,-0.3,-0.04,0.02,0.06,0],"e":"i"},{"t":2,"v":[0,0,0,0,0,0]}],"events":[]},"vrPistol":{"layout":"vr","keys":[{"t":0,"v":[0,0,0,0,0,0]},{"t":0.2,"v":[0.35,0.3,-0.06,0.02,0.05,0],"e":"o"},{"t":0.4,"v":[0.4,0.32,-0.06,0.02,0.05,1]},{"t":0.8,"v":[0.4,0.32,-0.06,0,0.05,1]},{"t":0.95,"v":[0.38,0.3,-0.06,0.01,0.05,0.3]},{"t":1,"v":[0.3,0.28,-0.05,0.05,0.04,0],"e":"i"},{"t":1.3,"v":[0.1,0.15,-0.03,0.02,0.04,0]},{"t":1.4,"v":[0.05,0.1,-0.02,0,0.08,0],"e":"i"},{"t":2,"v":[0,0,0,0,0,0]}],"events":[]},"vrShells":{"layout":"vr","keys":[{"t":0,"v":[0,0,0,0,0,0]},{"t":0.2,"v":[0.2,-0.85,-0.06,0.06,0.02,1],"e":"o"},{"t":0.4,"v":[0.2,-0.85,-0.06,0.08,0.02,0],"e":"i"},{"t":0.5,"v":[0.2,-0.85,-0.06,0.06,0.02,1]},{"t":0.7,"v":[0.2,-0.85,-0.06,0.08,0.02,0],"e":"i"},{"t":0.8,"v":[0.2,-0.85,-0.06,0.06,0.02,1]},{"t":1,"v":[0.2,-0.85,-0.06,0.08,0.02,0],"e":"i"},{"t":1.1,"v":[0.2,-0.85,-0.06,0.06,0.02,1]},{"t":1.3,"v":[0.2,-0.85,-0.06,0.08,0.02,0],"e":"i"},{"t":1.55,"v":[0.1,-0.4,-0.04,0.03,0.02,0],"e":"o"},{"t":1.7,"v":[0.05,-0.1,0,0,0.08,0]},{"t":2,"v":[0,0,0,0,0,0]}],"events":[]},"vrTube":{"layout":"vr","keys":[{"t":0,"v":[0,0,0,0,0,0]},{"t":0.25,"v":[-0.35,0.2,-0.05,-0.12,0.08,1],"e":"o"},{"t":0.5,"v":[-0.4,0.2,-0.05,-0.14,0.08,1]},{"t":0.8,"v":[-0.4,0.2,-0.05,-0.14,0.08,0.5]},{"t":1,"v":[-0.38,0.2,-0.05,-0.12,0.06,0],"e":"i"},{"t":1.3,"v":[-0.3,0.15,-0.04,-0.1,0.06,0]},{"t":1.7,"v":[0,0,0,0,0,0],"e":"o"},{"t":2,"v":[0,0,0,0,0,0]}],"events":[]}},"bodies":{"goblin":{"name":"Goblin","hit":{"hurtboxes":[{"k":"capsule","p":[0,0.5,0],"r":0.26,"h":0.45},{"k":"sphere","p":[0,1,0.02],"r":0.22}]}}}};
+// ---- Assets: the models and animations the editor (tools/editor/) makes, as data ----
+// They live as JSON files in src/assets/, one per weapon (src/assets/weapons/) and one per animation (src/assets/clips/),
+// and tools/build.py writes them all into the game as ASSETS, ahead of every script. This file turns them back into the
+// tables the game has always read (WEAPONS' box lists, STRIKES' timelines) once, as the page loads, so nothing per frame
+// changes. The editor and the tools load this same file on its own (it uses nothing from the rest of the game until a
+// model is built), so they read and write the files exactly as the game does.
+//
+// A box: {s:[w,h,d], p:[x,y,z], c:'#rrggbb' or '@club' (the goblins' club brown), and as needed role (its name on a goblin,
+//   for the held and stowed boxes), o (render order, first-person boxes), tag (a part the game moves on its own: mag, load,
+//   bolt, pump, slide), r:[x,y,z] (tilted, radians), sh (a shape other than a box: 'cyl', 'cone', 'wedge', 'sphere', each
+//   filling the box's size)}.
+// A clip: {layout, keys:[{t, v:[...the layout's channels], e:'i' (gathering speed) or 'o' (slowing), or none (smooth)}],
+//   events:[{t,k}]}: its layout names what each number in v is (ASSET_LAYOUTS).
+const ASSET_LAYOUTS={
+  // a goblin's blow, shot, throw or reload as anyone sees it, u 0 to 2, the blow landing at 1 (strikes.js)
+  body:{about:'A goblin, as everyone sees it',ch:[['arm',"Arm's swing"],['armOut','Arm out to the side'],['wrist','Wrist'],['free',"Free arm's swing"],
+    ['twist','Twist at the waist'],['lean','Lean forward'],['step','Half-step forward']],min:7},
+  // Gnash's and Grizzle's own arm in first person (the roll is left off a clip that never rolls)
+  vm:{about:'First person: the weapon arm',ch:[['tilt','Tilt'],['across','Across'],['up','Up'],['fwd','Forward'],['roll','Roll']],min:4},
+  // a reload in first person, added to where the gun's held
+  vr:{about:'First person: a reload',ch:[['tilt','Tilt'],['roll','Roll'],['across','Across'],['up','Up'],['fwd','Forward'],['mag','Magazine out (0 home, 1 gone)']],min:6}};
+const ASSET_SHAPES=['box','cyl','cone','wedge','sphere'];
+const ASSET_ROLES={club:null};   // ('@club' is null in a weapon's list: wpnBoxes paints it the goblins' club colour, GC.club)
+const assetLayoutOf=name=>/^vm/.test(name)?'vm':/^vr/.test(name)?'vr':'body';
+// a box -> the list the game reads, [w,h,d,colour,x,y,z(,role or render order(,tag))], with r and sh hung on the list itself
+function assetBox(b){
+  const c=typeof b.c==='string'&&b.c[0]==='@'?(ASSET_ROLES[b.c.slice(1)]??null):typeof b.c==='string'?parseInt(b.c.slice(1),16):b.c;
+  const a=[b.s[0],b.s[1],b.s[2],c,b.p[0],b.p[1],b.p[2]];
+  const last=b.role!==undefined?b.role:b.o;
+  if(last!==undefined||b.tag!==undefined)a.push(last);if(b.tag!==undefined)a.push(b.tag);
+  if(b.r&&(b.r[0]||b.r[1]||b.r[2]))a.r=b.r;if(b.sh&&b.sh!=='box')a.sh=b.sh;
+  return a;
+}
+// and back (the extractor, and the editor reading a table)
+function assetBoxOf(a){
+  const b={s:[a[0],a[1],a[2]],p:[a[4],a[5],a[6]],c:a[3]==null?'@club':'#'+(a[3]>>>0).toString(16).padStart(6,'0')};
+  if(typeof a[7]==='string')b.role=a[7];else if(typeof a[7]==='number')b.o=a[7];
+  if(a.length>8&&a[8]!==undefined)b.tag=a[8];if(a.r)b.r=a.r;if(a.sh)b.sh=a.sh;
+  return b;
+}
+const ASSET_LISTS=['held','view','drop','stow'];
+// a weapon's file -> its entry in WEAPONS (every field in the same order, the boxes made lists, the note left off)
+function assetWeapon(e){
+  const o={};
+  for(const k in e){if(k==='note')continue;
+    if(k!=='model'){o[k]=JSON.parse(JSON.stringify(e[k]));continue;}
+    const m={};for(const j in e.model){const v=e.model[j];
+      m[j]=ASSET_LISTS.includes(j)?v.map(assetBox):j==='fore'?[v.p.slice(),v.r.slice()]:JSON.parse(JSON.stringify(v));}
+    o.model=m;}
+  return o;
+}
+function assetWeaponOf(W){
+  const o={};
+  for(const k in W){if(k!=='model'){o[k]=JSON.parse(JSON.stringify(W[k]));continue;}
+    const m={};for(const j in W.model){const v=W.model[j];
+      m[j]=ASSET_LISTS.includes(j)?v.map(assetBoxOf):j==='fore'?{p:v[0].slice(),r:v[1].slice()}:JSON.parse(JSON.stringify(v));}
+    o.model=m;}
+  return o;
+}
+// a clip's file -> the timeline STRIKES holds: [[u, ...values, ease?], ...]
+function assetClip(c){return c.keys.map(k=>{const a=[k.t,...k.v];if(k.e)a.push(k.e);return a;});}
+function assetClipOf(name,K){
+  return {layout:assetLayoutOf(name),keys:K.map(a=>{const e=typeof a[a.length-1]==='string'?a[a.length-1]:null,v=a.slice(1,e?-1:undefined),k={t:a[0],v};if(e)k.e=e;return k;}),
+    events:assetLayoutOf(name)==='body'&&!/^rl/.test(name)?[{t:1,k:'hit'}]:[]};
+}
+// the tables, from ASSETS (files in the order their _order.json gives)
+function assetWeaponsAll(A){const o={};for(const k in A.weapons)o[k]=assetWeapon(A.weapons[k]);return o;}
+function assetClipsAll(A){const o={};for(const k in A.clips)o[k]=assetClip(A.clips[k]);return o;}
+
+// ---- shapes other than boxes, and tilted boxes, for anything built from a weapon's list ----
+// Every shape is made once at unit size and stretched to the box's (o.scale), so it batches like a box does (batDraw: one
+// batch per shape and material kind, however many there are)
+const ASSET_GEO={};
+function assetGeo(sh){
+  if(ASSET_GEO[sh])return ASSET_GEO[sh];let g;
+  if(sh==='cyl')g=new THREE.CylinderGeometry(0.5,0.5,1,10);
+  else if(sh==='cone')g=new THREE.ConeGeometry(0.5,1,10);
+  else if(sh==='sphere')g=new THREE.SphereGeometry(0.5,10,6);
+  else if(sh==='wedge'){
+    // (a ramp: the full box at the back, sloping down to nothing at the front edge, +z)
+    const P=[[-.5,-.5,-.5],[.5,-.5,-.5],[.5,-.5,.5],[-.5,-.5,.5],[-.5,.5,-.5],[.5,.5,-.5]],T=[[0,2,1],[0,3,2],[0,1,5],[0,5,4],[0,4,3],[1,2,5],[3,4,5],[3,5,2]];
+    const v=new Float32Array(T.length*9);T.forEach((t,i)=>t.forEach((j,n)=>{v[i*9+n*3]=P[j][0];v[i*9+n*3+1]=P[j][1];v[i*9+n*3+2]=P[j][2];}));
+    g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(v,3));if(g.computeVertexNormals)g.computeVertexNormals();}
+  return ASSET_GEO[sh]=g;
+}
+// o a mesh made for box b (a list from assetBox), w,h,d its size: put its shape and tilt on it
+function assetShape(o,b){
+  if(!o||!o.isObject3D&&!o.position||!b)return;
+  if(b.sh){o.geometry=assetGeo(b.sh);o.scale.set(b[0],b[1],b[2]);}
+  if(b.r)o.rotation.set(b.r[0],b.r[1],b.r[2]);
+}
+
+// ---- writing a file: the same text for the same data every time, one box or one key a line, so a change shows in
+// git diff as just the lines that changed ----
+function assetFmt(v){
+  const num=x=>{if(typeof x!=='number')return JSON.stringify(x);if(Object.is(x,-0))return '0';const r=Math.round(x*1e6)/1e6;return JSON.stringify(r);};
+  const inl=x=>Array.isArray(x)?'['+x.map(inl).join(',')+']':x&&typeof x==='object'?'{'+Object.keys(x).filter(k=>x[k]!==undefined).map(k=>JSON.stringify(k)+':'+inl(x[k])).join(',')+'}':num(x);
+  const go=(x,ind)=>{
+    const s=inl(x);if(s.length<=100||!x||typeof x!=='object')return s;
+    // (a box or a key is always one line, however long)
+    if(!Array.isArray(x)&&(x.s&&x.p||'t' in x&&'v' in x))return s;
+    const i2=ind+'  ';
+    if(Array.isArray(x))return '[\n'+x.map(e=>i2+go(e,i2)).join(',\n')+'\n'+ind+']';
+    return '{\n'+Object.keys(x).filter(k=>x[k]!==undefined).map(k=>i2+JSON.stringify(k)+': '+go(x[k],i2)).join(',\n')+'\n'+ind+'}';
+  };
+  return go(v,'')+'\n';
+}
+
+// ---- checking a file before it's saved or built: a list of what's wrong, empty if nothing ----
+function assetCheck(kind,name,a){
+  const E=[],n=v=>typeof v==='number'&&isFinite(v),v3=v=>Array.isArray(v)&&v.length===3&&v.every(n);
+  const box=(b,at)=>{if(!b||typeof b!=='object')return E.push(at+': not a box');
+    if(!v3(b.s)||b.s.some(x=>x<=0))E.push(at+': size s must be three numbers above 0');
+    if(!v3(b.p))E.push(at+': place p must be three numbers');
+    if(typeof b.c!=='string'||!(/^#[0-9a-f]{6}$/i.test(b.c)||b.c[0]==='@'&&b.c.slice(1) in ASSET_ROLES))E.push(at+': colour c must be #rrggbb or a role such as @club');
+    if(b.r!==undefined&&!v3(b.r))E.push(at+': tilt r must be three numbers');
+    if(b.sh!==undefined&&!ASSET_SHAPES.includes(b.sh))E.push(at+': shape sh must be one of '+ASSET_SHAPES.join(', '));
+    if(b.o!==undefined&&!n(b.o))E.push(at+': render order o must be a number');};
+  if(kind==='weapons'){
+    if(typeof a.name!=='string')E.push('name missing');
+    if(!['melee','gun','spell','throw','mine'].includes(a.kind))E.push('kind must be melee, gun, spell, throw or mine');
+    const M=a.model;if(!M||typeof M!=='object')E.push('model missing');
+    else for(const j of ASSET_LISTS)if(M[j]!==undefined){if(!Array.isArray(M[j]))E.push('model.'+j+' must be a list');else{M[j].forEach((b,i)=>box(b,'model.'+j+'['+i+']'));}}   // (boxes sharing a tag move together: the bazooka's rocket)
+    if(M&&M.fore&&!(v3(M.fore.p)&&v3(M.fore.r)))E.push('model.fore needs p and r');
+    for(const s of ['dmg','every','range','r','reach','R','mag','reload'])if(a[s]!==undefined&&!(n(a[s])&&a[s]>=0))E.push(s+' must be a number, 0 or more');
+    if(a.hit)assetCheckHit(a.hit,'hit',E);
+  }else if(kind==='clips'){
+    const L=ASSET_LAYOUTS[a.layout];if(!L)E.push('layout must be one of '+Object.keys(ASSET_LAYOUTS).join(', '));
+    if(!Array.isArray(a.keys)||a.keys.length<2)E.push('a clip needs at least two keys');
+    else{let t0=-1,len=null;a.keys.forEach((k,i)=>{
+      if(!n(k.t))E.push('key '+i+': time t must be a number');else{if(k.t<t0)E.push('key '+i+': keys must be in time order');t0=k.t;}
+      if(!Array.isArray(k.v)||!k.v.every(n))E.push('key '+i+': values v must be numbers');
+      else if(L){if(k.v.length<L.min||k.v.length>L.ch.length)E.push('key '+i+': '+L.min+' to '+L.ch.length+' values for layout '+a.layout);
+        if(len!==null&&k.v.length!==len)E.push('key '+i+': every key needs the same number of values');len=k.v.length;}
+      if(k.e!==undefined&&k.e!=='i'&&k.e!=='o')E.push("key "+i+": ease e must be 'i', 'o' or left out");});
+      const t1=a.keys[a.keys.length-1].t;
+      for(const ev of a.events||[])if(!n(ev.t)||ev.t<a.keys[0].t||ev.t>t1)E.push('event '+ev.k+' is outside the clip');}
+  }else if(kind==='bodies'){
+    if(typeof a.name!=='string')E.push('name missing');
+    if(a.hit)assetCheckHit(a.hit,'hit',E);
+  }
+  return E;
+}
+// hit shapes: {hitboxes:[...], hurtboxes:[...], collision:[...]}, each {k:'box'|'sphere'|'capsule', on:pivot name, p, s (box
+// size), r (radius), h (capsule length), rot, t:[from,to] (a hitbox's live span on its clip, u)}
+const HIT_KINDS=['box','sphere','capsule'],HIT_SETS=['hitboxes','hurtboxes','collision'];
+function assetCheckHit(H,at,E){
+  const n=v=>typeof v==='number'&&isFinite(v),v3=v=>Array.isArray(v)&&v.length===3&&v.every(n);
+  for(const set in H){if(!HIT_SETS.includes(set)){E.push(at+'.'+set+': not one of '+HIT_SETS.join(', '));continue;}
+    (H[set]||[]).forEach((s,i)=>{const w=at+'.'+set+'['+i+']';
+      if(!HIT_KINDS.includes(s.k))E.push(w+': k must be box, sphere or capsule');
+      if(!v3(s.p))E.push(w+': place p must be three numbers');
+      if(s.k==='box'&&!(v3(s.s)&&s.s.every(x=>x>0)))E.push(w+': a box needs a size s above 0');
+      if(s.k!=='box'&&!(n(s.r)&&s.r>0))E.push(w+': needs a radius r above 0');
+      if(s.k==='capsule'&&!(n(s.h)&&s.h>=0))E.push(w+': a capsule needs a length h');
+      if(s.rot!==undefined&&!v3(s.rot))E.push(w+': tilt rot must be three numbers');
+      if(s.t!==undefined&&!(Array.isArray(s.t)&&s.t.length===2&&s.t.every(n)&&s.t[0]<=s.t[1]))E.push(w+': live span t must be [from, to]');});}
+}
 // ---- world curve (a debug toy): every vertex drops (or rises) by k times the square of its distance from the camera,
 // across the ground, so the world bends away over the horizon like a little planet (or curls up like a bowl). Done in
 // three.js's own projection step, so it applies to every material; each material gets the shared uniform on compile.
@@ -1925,7 +2084,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='008021f69a39';
+const GAME_VER='0.5',GAME_BUILD='09799a3595f8';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -11625,7 +11784,7 @@ function gobMove(p,dt){
 // the attack button swings the club: one goblin's blow, in front of you
 function gobClub(p){
   const W=WEAPONS.club,hx=Math.sin(p.heading),hz=Math.cos(p.heading),fx=p.pos.x+hx*W.reach,fz=p.pos.z+hz*W.reach;
-  hitGoblins(fx,fz,W.r,W.dmg,'Clubbed by another goblin',p.pos.y);pvpArea(p,fx,fz,W.r,W.dmg,'Clubbed',p.pos.y);
+  if(!wpnHitShapes(p,W,W.dmg,'Clubbed by another goblin','Clubbed')){hitGoblins(fx,fz,W.r,W.dmg,'Clubbed by another goblin',p.pos.y);pvpArea(p,fx,fz,W.r,W.dmg,'Clubbed',p.pos.y);}
   for(const c of carsNear(fx,fz,W.r,p.pos.y)){damageCar(c,1,new V3(hx,0,hz));clang();}
 }
 // a goblin for others to see (the other player, or you from the free cam), and your own arm and club for you
@@ -11634,14 +11793,14 @@ function gobKit(p){
   const root=new THREE.Group();root.rotation.order='YXZ';root.visible=false;root.scale.setScalar(ES);scene.add(root);
   const m=goblinModel(root,{club:false,tunic:GOB_TUNIC[p.who?1:0]});
   // (and what's in his hand, for the others to see: the weapon he's holding, the same shapes the enemies carry)
-  const tp={},tm=c=>new THREE.MeshLambertMaterial({color:c}),tb=(w,h,d,c,x,y,z,g)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),tm(c));o.position.set(x,y,z);g.add(o);};
+  const tp={},tm=c=>new THREE.MeshLambertMaterial({color:c}),tb=(w,h,d,c,x,y,z,g)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),tm(c));o.position.set(x,y,z);g.add(o);return o;};
   for(const k of GOB_WPN_ORDER){tp[k]=new THREE.Group();m.arm.hand.add(tp[k]);tp[k].visible=k==='club';}   // (in the wrist, as the enemies hold theirs)
   for(const k of GOB_WPN_ORDER)wpnBoxes(WEAPONS[k].model.held,(w,h,d,c,x,y,z)=>tb(w,h,d,c,x,y,z,tp[k]));   // (WEAPONS: as the enemies hold them)
   // (drawn last and over everything, so it never pokes through a wall you're stood against)
   const vm=new THREE.Group();vm.rotation.order='YXZ';vm.visible=false;vm.scale.setScalar(0.5);scene.add(vm);
   const arm=new THREE.Group();arm.position.set(0.52,-0.62,-0.72);vm.add(arm);
   const mat=c=>new THREE.MeshLambertMaterial({color:c,transparent:true,depthTest:false,depthWrite:false});
-  const box=(w,h,d,c,x,y,z,o,to=arm)=>{const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c));b.position.set(x,y,z);b.renderOrder=o;b.frustumCulled=false;to.add(b);};
+  const box=(w,h,d,c,x,y,z,o,to=arm)=>{const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c));b.position.set(x,y,z);b.renderOrder=o;b.frustumCulled=false;to.add(b);return b;};
   box(0.11,0.11,0.42,GC.skin,0,0,-0.2,60);
   // (one of these in the hand at a time: see gob-weapons.js)
   // (a box with a tag, a magazine, a rocket, a bolt, a pump or a slide, goes in a group of its own for that tag, so it can
@@ -15250,7 +15409,8 @@ function movePlayer(p,dt){
 // One entry per weapon, in the order the weapon button goes through them (WEAPON_ORDER). Each has:
 //   name, about (a line for the Character tab's loadout), kind ('melee', 'gun', 'spell' or 'throw': a gun's rounds are
 //     hitscan, a spell's fireball a real thing that flies, updateFireballs in shots.js; both are what a goblin uses at range);
-//   model: the boxes it's made of, [w,h,d,colour,x,y,z,role] (a colour of null is the goblins' club brown, GC.club):
+//   model: the boxes it's made of, [w,h,d,colour,x,y,z,role] (a colour of null is the goblins' club brown, GC.club; in
+//     its file each is {s,p,c,...}, and may be tilted, r, or another shape, sh: assetBox, core/assets.js):
 //     held in the hand, in the hand's own frame (an enemy's, and a player goblin as the others see him: goblinModel, gobKit),
 //     view in your own first-person view ([...,renderOrder], with fore: where the other forearm reaches in to hold it),
 //     drop lying on the ground to be picked up (puModel); stow, for a gun, where an enemy carrying it beside a blade or
@@ -15279,152 +15439,19 @@ function movePlayer(p,dt){
 //   A landmine (kind 'mine', stack) is planted where you stand and goes off on the first enemy over it once it's armed
 //   (arm seconds): mines.js. A view box can carry a tag after its render order: 'mag' (dropped out in a reload), 'load'
 //   (a rocket: shown only while loaded), 'bolt', 'pump' or 'slide' (worked after each shot).
-// To add a weapon: an entry here, and its key in the weapons list of whichever kinds of goblin carry it (FOES in foes.js,
+// To add a weapon: a file in src/assets/weapons/ (the editor's New weapon, or a copy of another) named in its
+// _order.json, and its key in the weapons list of whichever kinds of goblin carry it (FOES in foes.js,
 // GOB_FOES below). The Character tab's goblin loadout, the drops, the HUD and the weapon button all pick it up from here.
-const WEAPONS={
-  club:{name:'Club',about:'A heavy swing that knocks goblins flat and dents cars',kind:'melee',drop:false,
-    dmg:1,every:1.2,r:1,reach:1.1,
-    model:{held:[[0.11,0.11,0.55,null,0,0.02,0.22,'club'],[0.19,0.19,0.19,null,0,0.02,0.5,'club']],
-      view:[[0.07,0.42,0.07,null,0,0.17,-0.42,61],[0.15,0.17,0.15,null,0,0.42,-0.42,62]]},
-    npc:{strike:'club'},
-    player:{dur:0.38,lunge:0.16,cause:'Clubbed by another goblin',pvp:'Clubbed',verb:'swing the club',swing:'vmClub'}},
-  // a great studded club swung in both hands: slow to lift, a beat at the top, then slammed into the ground, the shock
-  // of it shaking everything round; heaved up again after
-  bigclub:{name:'Large Club',about:'Lifted high in both hands and slammed down: slow, but it flattens anything',kind:'melee',drop:true,
-    dmg:4,every:1.9,r:1.5,reach:1.4,carDmg:3,
-    model:{held:[[0.13,0.13,0.72,null,0,0.02,0.28,'club'],[0.3,0.3,0.36,null,0,0.02,0.74,'club'],[0.38,0.07,0.07,0x8a8a90,0,0.02,0.66,'studs'],[0.07,0.38,0.07,0x8a8a90,0,0.02,0.8,'studs'],[0.07,0.07,0.07,0x8a8a90,0,0.02,0.94,'studs']],
-      view:[[0.09,0.66,0.09,null,0,0.22,-0.42,61],[0.27,0.32,0.27,null,0,0.66,-0.42,62],[0.33,0.06,0.06,0x8a8a90,0,0.6,-0.28,62],[0.06,0.06,0.33,0x8a8a90,0.14,0.72,-0.42,62]],
-      fore:[[-0.02,-0.06,-0.4],[-0.62,-0.5,0.05]],   // (the other hand low on the handle: it's swung in both)
-      drop:[[0.11,0.11,0.62,null,0,0,-0.2],[0.26,0.26,0.32,null,0,0,0.25],[0.06,0.32,0.06,0x8a8a90,0,0,0.25]]},
-    npc:{strike:'bigclub',wind:0.75,ft:0.6},   // (its wind-up and follow-through are longer than the others': gobMeleePose)
-    player:{dur:0.95,lunge:0.55,cause:'Flattened by a goblin with a great club',pvp:'Flattened',verb:'smash',slam:true,swing:'vmBigClub'}},
-  // a long curved blade in both hands: drawn up and back over the shoulder, swept across in one cut, and a flick of the
-  // blade after (shaking it clean) before it comes back to guard
-  katana:{name:'Katana',about:'A wide, fast sweep that cuts down everything in front of you',kind:'melee',drop:true,
-    dmg:3,every:0.75,r:1.25,reach:1.35,
-    model:{held:[[0.07,0.07,0.22,0x1a1a22,0,0,0.04,'hilt'],[0.15,0.15,0.03,0xb08a30,0,0,0.16,'tsuba'],[0.03,0.07,0.66,0xe4e8ee,0,0.01,0.5,'blade'],[0.03,0.06,0.14,0xe4e8ee,0,0.035,0.88,'blade']],
-      view:[[0.07,0.24,0.07,0x1a1a22,0,0.04,-0.42,61],[0.16,0.03,0.16,0xb08a30,0,0.17,-0.42,62],[0.025,0.66,0.07,0xe4e8ee,0,0.51,-0.42,62],[0.025,0.12,0.06,0xe4e8ee,0,0.89,-0.4,62]],
-      fore:[[-0.03,-0.1,-0.42],[-0.6,-0.48,0.05]],   // (both hands on the hilt)
-      drop:[[0.07,0.07,0.24,0x1a1a22,0,0,-0.4],[0.15,0.04,0.15,0xb08a30,0,0,-0.27],[0.03,0.07,0.7,0xe4e8ee,0,0,0.1]]},
-    npc:{strike:'katana'},
-    player:{dur:0.42,lunge:0.2,cause:'Cut down by a goblin with a katana',pvp:'Cut down',verb:'slash',swing:'vmKatana'}},
-  dagger:{name:'Dagger',about:'Quick stabs at whatever is right in front of you',kind:'melee',drop:true,
-    dmg:2,every:0.5,r:0.95,reach:1.0,
-    model:{held:[[0.08,0.08,0.12,0x2a1a10,0,-0.02,0.06,'hilt'],[0.05,0.03,0.34,0xd0d4dc,0,-0.02,0.29,'blade']],
-      view:[[0.09,0.09,0.13,0x2a1a10,0,0.02,-0.44,61],[0.14,0.04,0.04,0x6a5a3a,0,0.02,-0.52,61],[0.025,0.05,0.34,0xd0d4dc,0,0.02,-0.71,62]],   // (pointing forward, for stabbing)
-      drop:[[0.08,0.08,0.14,0x2a1a10,0,0,-0.14],[0.05,0.03,0.36,0xd0d4dc,0,0,0.1]]},
-    npc:{strike:'dagger'},
-    player:{dur:0.26,lunge:0.1,cause:'Stabbed by a goblin',pvp:'Stabbed',verb:'stab',swing:'vmDagger'}},
-  handgun:{name:'Handgun',about:'A police pistol: quick to fire again, but a shorter reach',kind:'gun',drop:true,
-    dmg:1.5,range:30,every:0.5,breaks:true,mag:8,reload:1.3,
-    // (as the police hold theirs: its barrel on down past the fist like the rifle's, so it points straight out when the
-    // arm's raised to aim)
-    model:{held:[[0.07,0.27,0.09,0x22262c,0,-0.1,0.06,'gun'],[0.06,0.08,0.15,0x22262c,0,0.01,-0.03,'gun']],
-      view:[[0.07,0.13,0.1,0x22262c,0,-0.03,-0.4,61],[0.06,0.07,0.3,0x22262c,0,0.06,-0.5,62,'slide'],[0.055,0.07,0.08,0x16181c,0,-0.12,-0.4,61,'mag']],fore:[[-0.07,-0.06,-0.42],[-0.5,-0.42,0]],   // (the grip, and the slide pointing on along the view)
-      drop:[[0.06,0.09,0.22,0x22262c,0,0.03,0],[0.06,0.14,0.07,0x22262c,0,-0.06,-0.07]],
-      stow:[[0.09,0.2,0.15,0x14110e,0.29,0.4,0.03,'holster']]},   // (in its holster on the right hip)
-    npc:{aim:'pistol',pose:'pistol',rl:'rlPistol'},   // (raised in both hands; up close an officer uses the club it also carries)
-    player:{dur:0.16,lunge:0.01,cause:'Shot by a goblin',shake:0.02,rumble:0.14,verb:'shoot',rl:'vrPistol',vm:{x:0.26,y:-0.4,z:-0.5,kick:0.32,back:0.08},cycle:'slide'},
-    crack:[[0.06,0.12,3400],[330,140,0.045,0.035]]},   // (sharper and shorter than a rifle's)
-  // a pump-action shotgun: a spread of pellets that tears up whatever's close, each pump racked after a shot, the shells
-  // pushed in one at a time to reload
-  shotgun:{name:'Shotgun',about:'A spray of pellets: brutal close up, little use far off',kind:'gun',drop:true,
-    dmg:0.75,pellets:8,spread:0.075,range:20,every:0.95,breaks:true,mag:6,reload:2.6,
-    model:{held:[[0.1,0.28,0.13,0x5a3a20,0,0.04,0.05,'stock'],[0.09,0.2,0.12,0x22262c,0,-0.16,0.06,'gun'],[0.06,0.5,0.06,0x22262c,0,-0.5,0.09,'gun'],[0.05,0.4,0.05,0x22262c,0,-0.44,0.025,'gun'],[0.09,0.16,0.09,0x5a3a20,0,-0.42,0.025,'stock']],
-      view:[[0.1,0.12,0.32,0x5a3a20,0,0.0,-0.34,61],[0.09,0.11,0.2,0x22262c,0,0.04,-0.58,62],[0.06,0.06,0.62,0x22262c,0,0.08,-0.98,62],[0.05,0.05,0.5,0x22262c,0,0.02,-0.9,62],
-        [0.1,0.09,0.2,0x5a3a20,0,0.015,-0.86,62,'pump'],[0.05,0.05,0.09,0xb02a1a,0,-0.04,-0.6,62,'mag']],
-      fore:[[0,-0.03,-0.86],[-0.62,-0.42,-0.1]],foreTag:'pump',   // (the other hand on the pump, racking it with it)
-      drop:[[0.1,0.13,0.28,0x5a3a20,0,0,-0.4],[0.08,0.1,0.22,0x22262c,0,0,-0.15],[0.06,0.06,0.5,0x22262c,0,0.02,0.2],[0.09,0.08,0.15,0x5a3a20,0,-0.04,0.18]],
-      stow:[[0.1,0.28,0.13,0x5a3a20,0.12,0.3,-0.25,'stock'],[0.06,0.66,0.06,0x22262c,0.12,0.75,-0.25,'gun']]},
-    npc:{aim:'rifle',pose:'pump',rl:'rlShells',fall:14},   // (each pellet less likely to find its mark the further off: fall)
-    player:{dur:0.25,lunge:0.01,cause:'Blasted by a goblin with a shotgun',pvp:'Blasted',shake:0.05,rumble:0.3,climb:0.04,verb:'shoot',rl:'vrShells',vm:{x:0.32,y:-0.46,z:-0.48,kick:0.36,back:0.16},cycle:'pump'},
-    crack:[[0.14,0.22,1300],[150,55,0.12,0.06]]},   // (a deep boom)
-  rifle:{name:'Rifle',about:'Hits hard and far, down the middle of your view',kind:'gun',drop:true,
-    dmg:2,range:48,every:1.0,breaks:true,mag:5,reload:2.0,butt:{dmg:1,every:1.3},
-    // (pointing on down past the hand, so it's level when the arm is raised to aim)
-    model:{held:[[0.1,0.3,0.14,0x4a3420,0,0.04,0.06,'stock'],[0.07,0.62,0.07,0x22262c,0,-0.38,0.06,'gun'],[0.05,0.12,0.05,0x22262c,0,-0.12,0.13,'gun']],
-      view:[[0.1,0.12,0.34,0x4a3420,0,0.02,-0.36,61],[0.07,0.07,0.78,0x22262c,0,0.07,-0.86,62],[0.05,0.12,0.05,0x22262c,0,-0.04,-0.6,62,'mag']],fore:[[0,-0.01,-0.92],[-0.62,-0.42,-0.1]],
-      drop:[[0.1,0.14,0.3,0x4a3420,0,0,-0.36],[0.07,0.07,0.7,0x22262c,0,0.02,0.12],[0.05,0.12,0.05,0x22262c,0,-0.07,-0.12]],
-      stow:[[0.1,0.3,0.14,0x4a3420,0.12,0.3,-0.25,'stock'],[0.07,0.62,0.07,0x22262c,0.12,0.74,-0.25,'gun']]},   // (slung upright on the back, the barrel up past the shoulder)
-    npc:{strike:'butt',aim:'rifle',pose:'aim',rl:'rlMag'},   // (up close, its butt: a rifle's the blow of whoever carries no blade or club)
-    player:{dur:0.2,lunge:0.01,cause:'Shot by a goblin',shake:0.03,rumble:0.2,verb:'shoot',rl:'vrMag',vm:{x:0.34,y:-0.46,z:-0.5,kick:0.22,back:0.12}},
-    crack:[[0.09,0.14,2600],[220,90,0.06,0.04]]},
-  // an assault rifle: light rounds, as fast as you hold the trigger, a long magazine; it climbs as it fires
-  arifle:{name:'Assault Rifle',about:'Fires for as long as you hold the button; the view climbs as it goes',kind:'gun',drop:true,
-    dmg:1,range:40,every:0.11,breaks:true,mag:30,reload:2.1,butt:{dmg:1,every:1.3},
-    model:{held:[[0.09,0.24,0.12,0x1e1e20,0,0.06,0.04,'stock'],[0.09,0.3,0.13,0x22262c,0,-0.18,0.05,'gun'],[0.05,0.32,0.05,0x22262c,0,-0.48,0.07,'gun'],[0.06,0.09,0.17,0x2a2a2c,0,-0.2,-0.08,'gun'],
-        [0.04,0.14,0.05,0x22262c,0,-0.14,0.14,'gun'],[0.08,0.16,0.1,0x1e1e20,0,-0.38,0.03,'stock']],
-      view:[[0.09,0.11,0.3,0x1e1e20,0,0.01,-0.34,61],[0.09,0.12,0.3,0x22262c,0,0.05,-0.62,62],[0.05,0.05,0.4,0x22262c,0,0.08,-0.96,62],[0.05,0.07,0.06,0x22262c,0,0.15,-0.6,62],
-        [0.09,0.09,0.22,0x1e1e20,0,0.04,-0.88,62],[0.055,0.17,0.09,0x2a2a2c,0,-0.08,-0.66,62,'mag']],
-      fore:[[0,-0.0,-0.88],[-0.62,-0.42,-0.1]],
-      drop:[[0.09,0.12,0.24,0x1e1e20,0,0,-0.36],[0.09,0.12,0.3,0x22262c,0,0.01,-0.1],[0.05,0.05,0.32,0x22262c,0,0.02,0.2],[0.06,0.15,0.08,0x2a2a2c,0,-0.1,-0.08]],
-      stow:[[0.09,0.24,0.12,0x1e1e20,0.12,0.32,-0.25,'stock'],[0.08,0.56,0.08,0x22262c,0.12,0.7,-0.25,'gun']]},
-    npc:{strike:'butt',aim:'rifle',pose:'auto',burst:4,rl:'rlMag'},   // (a burst at a time: burst rounds, every apart)
-    player:{dur:0.09,lunge:0.01,cause:'Gunned down by a goblin',pvp:'Gunned down',shake:0.015,rumble:0.08,climb:0.006,auto:true,verb:'shoot (hold)',rl:'vrMag',vm:{x:0.33,y:-0.46,z:-0.5,kick:0.12,back:0.06}},
-    crack:[[0.05,0.1,2900],[260,110,0.04,0.03]]},
-  // a bolt-action sniper rifle with a scope: one deadly round at a time from far off, the bolt worked between them
-  sniper:{name:'Sniper Rifle',about:'One heavy round at a time, from much further than anything else',kind:'gun',drop:true,
-    dmg:7,range:110,every:1.7,breaks:true,mag:5,reload:2.8,butt:{dmg:1,every:1.3},
-    model:{held:[[0.1,0.32,0.14,0x3a4a2a,0,0.04,0.05,'stock'],[0.08,0.3,0.11,0x22262c,0,-0.22,0.06,'gun'],[0.05,0.62,0.05,0x22262c,0,-0.66,0.07,'gun'],[0.07,0.34,0.07,0x111114,0,-0.2,0.17,'scope'],
-        [0.09,0.03,0.03,0x8a8a90,0.07,-0.1,0.08,'gun']],
-      view:[[0.1,0.12,0.36,0x3a4a2a,0,0.01,-0.34,61],[0.08,0.1,0.3,0x22262c,0,0.05,-0.64,62],[0.05,0.05,0.8,0x22262c,0,0.08,-1.18,62],[0.07,0.07,0.36,0x111114,0,0.16,-0.6,62],
-        [0.1,0.1,0.04,0x111114,0,0.16,-0.42,62],[0.1,0.1,0.04,0x111114,0,0.16,-0.78,62],[0.08,0.03,0.03,0x8a8a90,0.07,0.06,-0.5,62,'bolt'],[0.05,0.09,0.08,0x22262c,0,-0.02,-0.62,62,'mag']],
-      fore:[[0,-0.0,-0.96],[-0.62,-0.42,-0.1]],
-      drop:[[0.1,0.14,0.32,0x3a4a2a,0,0,-0.4],[0.08,0.1,0.3,0x22262c,0,0.01,-0.1],[0.05,0.05,0.62,0x22262c,0,0.02,0.36],[0.07,0.07,0.32,0x111114,0,0.1,-0.1]],
-      stow:[[0.1,0.32,0.14,0x3a4a2a,0.12,0.3,-0.25,'stock'],[0.07,0.8,0.07,0x22262c,0.12,0.84,-0.25,'gun']]},
-    npc:{strike:'butt',aim:'rifle',pose:'snipe',rl:'rlMag',fall:400},   // (it hardly misses, however far)
-    player:{dur:0.3,lunge:0.01,cause:"Picked off by a goblin's sniper rifle",pvp:'Picked off',shake:0.06,rumble:0.35,climb:0.05,verb:'shoot',rl:'vrMag',vm:{x:0.32,y:-0.45,z:-0.48,kick:0.4,back:0.18},cycle:'bolt',
-      // (held stomp looks down the scope, fov the view's field of view through it, in seconds to raise it; off the scope
-      // a round goes up to hip radians off the middle, through it dead on: gobScope, gobShoot)
-      scope:{fov:15,in:0.2},hip:0.035},
-    crack:[[0.16,0.2,1900],[120,40,0.18,0.07]]},
-  // a bazooka: a rocket from a tube on the shoulder, one at a time, slid in by hand
-  bazooka:{name:'Bazooka',about:'A rocket that bursts on whatever it hits: one shot, then a slow reload',kind:'gun',drop:true,
-    dmg:5,range:70,every:0.6,mag:1,reload:2.8,proj:'rocket',speed:28,R:3.4,crush:2.6,vd:50,breaks:true,
-    model:{held:[[0.18,1.1,0.18,0x4a5a2a,0,-0.25,0.16,'tube'],[0.22,0.06,0.22,0x2a3018,0,-0.78,0.16,'tube2'],[0.24,0.08,0.24,0x2a3018,0,0.3,0.16,'tube2'],[0.06,0.06,0.14,0x1e1e20,0,-0.02,0.06,'gun'],
-        [0.03,0.08,0.1,0x1e1e20,-0.12,-0.3,0.2,'gun'],[0.12,0.14,0.12,0x8a9a5a,0,-0.86,0.16,'warhead']],
-      view:[[0.2,0.2,1.3,0x4a5a2a,0,0.14,-0.62,61],[0.24,0.24,0.06,0x2a3018,0,0.14,-1.26,62],[0.25,0.25,0.08,0x2a3018,0,0.14,0.05,61],[0.07,0.16,0.08,0x1e1e20,0,-0.04,-0.4,61],
-        [0.04,0.1,0.06,0x1e1e20,-0.14,0.22,-0.66,62],[0.14,0.14,0.22,0x8a9a5a,0,0.14,-1.36,62,'load'],[0.08,0.08,0.1,0xb0b8a0,0,0.14,-1.51,62,'load']],
-      fore:[[0,-0.04,-0.84],[-0.62,-0.46,-0.1]],
-      drop:[[0.16,0.16,1.0,0x4a5a2a,0,0,0],[0.2,0.2,0.06,0x2a3018,0,0,-0.48],[0.06,0.12,0.06,0x1e1e20,0,-0.1,0.05]],
-      stow:[[0.18,1.0,0.18,0x4a5a2a,-0.1,0.6,-0.28,'tube'],[0.22,0.06,0.22,0x2a3018,-0.1,1.08,-0.28,'tube2']]},
-    npc:{aim:'tube',pose:'shoulder',rl:'rlTube'},
-    player:{dur:0.35,lunge:0.01,cause:"Blown up by a goblin's bazooka",pvp:'Blown up',shake:0.08,rumble:0.4,climb:0.03,verb:'fire a rocket',rl:'vrTube',vm:{x:0.36,y:-0.36,z:-0.42,kick:0.2,back:0.22}},
-    crack:[[0.4,0.3,700],[90,30,0.3,0.08]]},   // (the whoosh of it going)
-  // the cultists' book of fireballs: held open in one hand while the other conjures a ball of fire and hurls it. The ball
-  // flies (it isn't hitscan: you can dodge it) and bends a little after whoever's nearest, a cultist's after a player, a
-  // player goblin's after an enemy goblin (or another player, with PvP on)
-  spellbook:{name:'Fireball Spellbook',about:'Conjures a fireball that bends after the nearest enemy; slow to come again',kind:'spell',drop:true,
-    dmg:2,range:30,near:4.5,cast:0.7,every:3.1,
-    ball:{speed:15,bend:0.6,seek:40,life:3.5,r:1.4,rg:0.9,dy:14},
-    // (a red leather cover, cream pages, open across the hand, its spine along the forearm)
-    model:{held:[[0.36,0.04,0.26,0x6a1a14,0,-0.04,0.16,'book'],[0.32,0.05,0.22,0xe8dcb0,0,-0.01,0.16,'page'],[0.03,0.07,0.24,0x3a0e0a,0,-0.01,0.16,'book']],
-      view:[[0.4,0.03,0.28,0x6a1a14,-0.04,0.06,-0.5,61],[0.36,0.04,0.24,0xe8dcb0,-0.04,0.08,-0.5,62],[0.02,0.06,0.26,0x3a0e0a,-0.04,0.09,-0.5,62]],
-      fore:[[-0.34,-0.02,-0.66],[-0.66,-0.46,0]],   // (the other hand out in front to the left, where the fireball comes from)
-      drop:[[0.3,0.08,0.22,0x6a1a14,0,0,0],[0.26,0.06,0.2,0xe8dcb0,0.03,0,0],[0.04,0.1,0.06,0xd0a030,-0.15,0,0]],
-      stow:[[0.07,0.26,0.2,0x6a1a14,-0.29,0.36,0.02,'book']]},   // (shut, hung at the left hip)
-    npc:{pose:'cast',jit:1.6,dy:14},
-    player:{dur:1.05,cause:"Burned up by a goblin's fireball",pvp:'Burned',verb:'cast a fireball'},
-    cue:['triangle',180,420,0.04]},   // (the rising note while it's conjured: wpnCue)
-  // landmines: knelt down and pressed into the ground, a light blinking once it's armed; the first enemy (or vehicle) over
-  // one sets it off. Carried in a stack like grenades, in the hand like a weapon (mines.js)
-  landmine:{name:'Landmines',about:'Planted where you stand; the first enemy to step on one sets it off',kind:'mine',drop:true,stack:true,
-    dmg:5,R:3,arm:1.2,crush:1.8,vd:40,every:0.9,
-    model:{held:[[0.28,0.07,0.28,0x3a4a22,0,-0.06,0.08,'mine'],[0.15,0.05,0.15,0x2a3018,0,-0.02,0.08,'mine2']],
-      view:[[0.3,0.08,0.3,0x3a4a22,0,0.04,-0.46,61],[0.17,0.05,0.17,0x2a3018,0,0.1,-0.46,62],[0.05,0.03,0.05,0xd03020,0,0.13,-0.46,62]],
-      drop:[[0.4,0.08,0.4,0x3a4a22,0,0,0],[0.24,0.06,0.24,0x2a3018,0,0.06,0],[0.05,0.05,0.05,0xd03020,0,0.1,0]]},
-    npc:{pose:'plant'},   // (knelt, set down with the free hand: how often, and why it's dangerous, is the kind's own mine in FOES, or mines.js's)
-    player:{dur:0.75,lunge:0.45,cause:"Blown up by a goblin's landmine",pvp:'Blown up',verb:'plant a mine',max:6,field:'mines',swing:'vmPlant',body:'plantR'}},
-  grenade:{name:'Grenades',about:'Thrown with Stomp: how many he starts with',kind:'throw',drop:true,stack:true,
-    dmg:3,R:3.3,fuse:2.2,   // (how often one's thrown is the thrower's: Gnash's cd below, each enemy's in FOES)
-    // (an enemy holds its own, in its own colours, while winding up to throw: FOES' held)
-    model:{drop:[[0.22,0.24,0.22,0x3a4a22,0,0,0],[0.08,0.08,0.08,0x8a8a90,0,0.15,0]]},
-    player:{cause:"Blown up by a goblin's grenade",max:9,cd:0.6,v:15,field:'gren'}}};
+// (the table itself is in src/assets/weapons/, one file per weapon in the order of its _order.json, edited with the
+// editor in tools/editor/: core/assets.js builds it from them as the page loads)
+const WEAPONS=assetWeaponsAll(ASSETS);
 const WEAPON_ORDER=Object.keys(WEAPONS);
-for(const k of WEAPON_ORDER){const W=WEAPONS[k];W.k=k;if(!W.player)continue;W.player.name=W.name;
+// (what's worked out from an entry as it's loaded: also run on a weapon the editor sends a running game, editor-live.js)
+function wpnDerive(k,W){W.k=k;if(!W.player)return;W.player.name=W.name;
   // (Gnash's block takes the weapon's own numbers, so they're only ever set in the one place)
   for(const s of ['dmg','range','breaks','r','reach','R','fuse','mag','reload','pellets','spread','proj','speed','crush','vd','carDmg','arm'])if(W[s]!==undefined)W.player[s]=W[s];if(W.every!==undefined)W.player.cd=W.every;
   if(W.cast!==undefined)W.player.lunge=W.cast;}   // (a spell's conjuring is the wind-up before it goes: doBite comes after it)
+for(const k of WEAPON_ORDER)wpnDerive(k,WEAPONS[k]);
 // ---- what each kind of goblin carries: weapons, a list of keys in WEAPONS, on its own entry. The compounds', the
 // carrier's and the bases' people are in FOES (foes.js); the street's are here: an ordinary hostile goblin, a police
 // officer (any street goblin in police blue, armed as one by foeArm: foes.js), the townsfolk, who carry nothing and run,
@@ -15469,7 +15496,8 @@ function wpnClack(k,n){if(!audio)return;const W=WEAPONS[k];if(!W||!W.mag)return;
     if(n===0){noise(0.05,0.06,1800,'bandpass');tone('square',520,320,0.05,0.025);}
     else if(n===1){noise(0.04,0.08,2600,'highpass');tone('square',260,200,0.04,0.035);}
     else{noise(0.06,0.06,3200,'highpass');tone('square',900,600,0.035,0.03,0.06);}});}
-function wpnBoxes(list,make){for(const b of list||[])make(b[0],b[1],b[2],b[3]??GC.club,b[4],b[5],b[6],b[7],b[8]);}
+// (make returns the mesh it made, so a box drawn tilted or as another shape in the editor gets that: assetShape)
+function wpnBoxes(list,make){for(const b of list||[])assetShape(make(b[0],b[1],b[2],b[3]??GC.club,b[4],b[5],b[6],b[7],b[8]),b);}
 // ---------- Goblins ----------
 const goblins=[];
 const GC={skin:0x6f9a3a,dark:0x4f7426,tunic:0x5a3d22,eye:0xffd23a,club:0x7a5530,belt:0x2b1d10,mouth:0x2a1a10};
@@ -15584,7 +15612,7 @@ function goblinModel(parent,o={}){
   // (whatever's in that hand hangs off a wrist, so a blow can turn it: a club chopped down, a dagger kept point first, a
   // rifle swung round stock first. See strikes.js)
   const hand=new THREE.Group();hand.position.set(0,-0.4,0);arm.add(hand);arm.hand=hand;
-  const wb=(k,to)=>{const L=[];wpnBoxes(WEAPONS[k].model.held,(w,h,d,c,x,y,z,r)=>L.push(box(w,h,d,r,c,x,y,z,to)));return L;};   // (a weapon's own shapes, from its entry in WEAPONS)
+  const wb=(k,to)=>{const L=[];wpnBoxes(WEAPONS[k].model.held,(w,h,d,c,x,y,z,r)=>{const m=box(w,h,d,r,c,x,y,z,to);L.push(m);return m;});return L;};   // (a weapon's own shapes, from its entry in WEAPONS)
   // what's in its hands is its kind's weapons list (o.weapons, keys in WEAPONS: see GOB_FOES); a model made without one
   // (a player goblin's, the title screen's) has the club, unless club is false. A blade or club in the hand; a gun on
   // its own in the hand too (pointing on down past it, so it's level when the arm is raised to aim, held in its own pose:
@@ -15593,7 +15621,7 @@ function goblinModel(parent,o={}){
   // shows only once it's armed with it (wkit: what's in hand, foes.js)
   const WL=o.weapons||(o.club!==false?['club']:[]),mk=wpnOfKind(WL,'melee'),gk=wpnRanged(WL);   // (a gun, or a spellbook: in the hand the same way)
   const club=mk?wb(mk,hand):[];
-  if(gk&&mk){const gun=wb(gk,hand),stow=[];wpnBoxes(WEAPONS[gk].model.stow,(w,h,d,c,x,y,z,r)=>stow.push(box(w,h,d,r,c,x,y,z,parent)));
+  if(gk&&mk){const gun=wb(gk,hand),stow=[];wpnBoxes(WEAPONS[gk].model.stow,(w,h,d,c,x,y,z,r)=>{const m=box(w,h,d,r,c,x,y,z,parent);stow.push(m);return m;});
     for(const m of gun.concat(stow))m.visible=false;out.wkit={melee:club,gun,stow,shown:0,k:gk};}
   else if(gk){if(WEAPONS[gk].npc&&WEAPONS[gk].npc.aim)parent.gunK=WEAPONS[gk].npc.aim;wb(gk,hand);}
   if(o.cult){
@@ -15688,103 +15716,11 @@ function makeIdentity(g,look){
 // weapon's in the wrist: a club or a dagger points along the forearm's front, so it's level when the arm and wrist add up
 // to 0; a rifle hangs on down past the hand.)
 const STRIKE_FT=0.35;   // (seconds of follow-through after a blow, a throw or a shot)
-const STRIKES={
-  // a club: lifted up and cocked behind the head, a beat at the top, then chopped down through the target with a snap of
-  // the wrist, the body turning into it
-  club:[[0,-0.5,0,0,0,0,0,0],[0.45,-2.5,0.2,-0.3,-0.6,0.22,-0.05,0,'o'],[0.8,-3.55,0.3,-0.7,-0.9,0.4,-0.12,-0.05],
-    [0.86,-3.65,0.3,-0.75,-0.95,0.42,-0.13,-0.06],[1,-1.0,0.05,1.3,0.35,-0.3,0.18,0.15,'i'],[1.25,-0.3,0,1.0,0.4,-0.35,0.2,0.15,'o'],[2,-0.5,0,0,0,0,0,0]],
-  // a dagger: drawn back to the hip, point first, the free hand out in front; then driven straight in at arm's length
-  dagger:[[0,-0.5,0,0,0,0,0,0],[0.65,0.55,0.15,-0.55,-1.0,0.45,-0.05,-0.08,'o'],[0.84,0.6,0.15,-0.6,-1.05,0.48,-0.06,-0.1],
-    [1,-1.45,-0.12,1.45,0.25,-0.35,0.16,0.2,'i'],[1.3,-1.4,-0.12,1.4,0.2,-0.3,0.14,0.18],[2,-0.5,0,0,0,0,0,0]],
-  // a rifle butt: the rifle swung up and over till the barrel points back and the stock forward, pulled back to the hip,
-  // then the stock shoved into the target with both hands, and swung back over the top to carry it again
-  butt:[[0,-0.5,0,0,0,0,0,0],[0.4,-1.0,0.2,-2.0,-0.9,0.2,0,0,'o'],[0.8,-0.45,0.35,-4.26,-0.7,0.5,-0.08,-0.08],
-    [0.86,-0.42,0.35,-4.3,-0.7,0.52,-0.09,-0.1],[1,-1.45,0.3,-3.26,-1.3,-0.3,0.2,0.2,'i'],[1.3,-1.35,0.3,-3.36,-1.2,-0.25,0.16,0.18],[2,-0.5,0,0,0,0,0,0]],
-  // a rifle shot: shouldered and held on the target, then the kick, and back down
-  aim:[[0,-0.5,0,0,0,0,0,0],[0.35,-1.5,0,0,-1.35,0.15,0.04,0,'o'],[1,-1.5,0,0,-1.35,0.15,0.04,0],
-    [1.06,-1.85,0,0,-1.55,0.15,-0.08,-0.06,'o'],[1.4,-1.5,0,0,-1.35,0.15,0.02,0],[2,-0.5,0,0,0,0,0,0]],
-  // a handgun shot (police): the rifle's, but held out at arm's length in both hands, a little in to the middle, and the
-  // kick snapping the wrist and the muzzle up rather than shoving the shoulder back
-  pistol:[[0,-0.5,0,0,0,0,0,0],[0.35,-1.57,-0.1,0,-1.47,0.12,0.03,0,'o'],[1,-1.57,-0.1,0,-1.47,0.12,0.03,0],
-    [1.06,-1.85,-0.1,-0.45,-1.7,0.12,-0.05,-0.04,'o'],[1.4,-1.57,-0.1,0,-1.47,0.12,0.02,0],[2,-0.5,0,0,0,0,0,0]],
-  // a grenade: the free hand drawn back behind the head, the other arm out at the target, then thrown overarm
-  throw:[[0,-0.5,0,0,0,0,0,0],[0.35,-0.9,0,0,-2.3,-0.15,-0.03,0,'o'],[0.78,-1.2,0,0,-3.7,-0.45,-0.12,-0.05],
-    [0.86,-1.2,0,0,-3.75,-0.47,-0.13,-0.06],[1,-0.4,0,0,-1.5,0.35,0.15,0.12,'i'],[1.3,-0.3,0,0,-0.7,0.4,0.18,0.12,'o'],[2,-0.5,0,0,0,0,0,0]],
-  // a spellbook's fireball: the book raised open in front in one hand, the ball growing high in the free hand, drawn
-  // back, then hurled, the hand thrown out straight at the target
-  cast:[[0,-0.5,0,0,0,0,0,0],[0.4,-1.9,0.1,0.3,-2.6,-0.1,-0.03,0,'o'],[0.8,-2.05,0.12,0.35,-3.4,-0.35,-0.1,-0.04],
-    [0.88,-2.05,0.12,0.35,-3.5,-0.38,-0.11,-0.05],[1,-1.75,0.1,0.3,-1.6,0.35,0.15,0.12,'i'],[1.3,-1.65,0.1,0.3,-1.45,0.35,0.15,0.1,'o'],[2,-0.5,0,0,0,0,0,0]],
-  // a katana, in both hands: raised up and back over the weapon shoulder, the body turned away from the target, a beat
-  // with it cocked; then one cut swept across and down through the target, the body unwinding into it, carried on low
-  // to the other side; then a flick of the wrist (shaking the blade clean) before it comes back to guard
-  katana:[[0,-0.5,0,0,0,0,0,0],[0.4,-1.9,0.6,-0.4,-1.6,0.35,-0.04,-0.03,'o'],[0.78,-2.6,1.0,-0.9,-2.2,0.6,-0.1,-0.07],
-    [0.86,-2.65,1.05,-0.95,-2.25,0.62,-0.11,-0.08],[1,-1.35,-0.55,0.75,-1.3,-0.45,0.18,0.2,'i'],[1.25,-0.9,-0.95,1.15,-0.8,-0.7,0.2,0.22,'o'],
-    [1.55,-1.1,-0.4,-0.2,-0.4,-0.35,0.08,0.12],[1.62,-1.05,-0.35,0.35,-0.35,-0.3,0.07,0.1,'i'],[2,-0.5,0,0,0,0,0,0]],
-  // a large club: heaved up in both hands, lifted right over the head leaning back with the weight of it, a long beat at
-  // the top, then slammed down into the ground in front, held there as the shock goes through it, and heaved up again
-  bigclub:[[0,-0.5,0,0,0,0,0,0],[0.3,-1.6,0.1,-0.3,-1.5,0.1,-0.06,0,'o'],[0.7,-3.4,0.15,-0.9,-3.3,0.2,-0.2,-0.1],
-    [0.9,-3.5,0.15,-1.0,-3.4,0.22,-0.22,-0.11],[1,-0.7,0,1.0,-0.8,-0.08,0.38,0.24,'i'],[1.4,-0.6,0,1.1,-0.7,-0.08,0.36,0.24],
-    [1.75,-1.0,0.05,0.5,-0.7,0.05,0.12,0.1,'o'],[2,-0.5,0,0,0,0,0,0]],
-  // an assault rifle: shouldered like the rifle, and each round of a burst a small kick (foeRanged plays 1 to 1.2 of
-  // it for each)
-  auto:[[0,-0.5,0,0,0,0,0,0],[0.35,-1.5,0,0,-1.35,0.15,0.04,0,'o'],[1,-1.5,0,0,-1.35,0.15,0.04,0],
-    [1.04,-1.62,0,0,-1.42,0.15,-0.02,-0.02,'o'],[1.2,-1.5,0,0,-1.35,0.15,0.03,0],[2,-0.5,0,0,0,0,0,0]],
-  // a sniper rifle: shouldered and settled (a held breath), then a heavy kick that rocks the whole body back, and the
-  // bolt worked before it comes down
-  snipe:[[0,-0.5,0,0,0,0,0,0],[0.4,-1.45,0,0,-1.3,0.2,0.06,0.02,'o'],[0.75,-1.52,0,0,-1.36,0.18,0.08,0.03],[1,-1.5,0,0,-1.35,0.18,0.08,0.03],
-    [1.05,-2.05,0,0,-1.75,0.22,-0.14,-0.1,'o'],[1.3,-1.6,0,0,-0.9,0.3,0,-0.04],[1.55,-1.52,0,0,-1.35,0.2,0.05,0],[2,-0.5,0,0,0,0,0,0]],
-  // a shotgun: brought up quickly, a big kick, then the pump racked back and forward
-  pump:[[0,-0.5,0,0,0,0,0,0],[0.3,-1.45,0,0,-1.3,0.12,0.05,0,'o'],[1,-1.48,0,0,-1.32,0.12,0.06,0],[1.06,-2.0,0,0,-1.7,0.15,-0.16,-0.12,'o'],
-    [1.35,-1.55,0,0,-1.0,0.12,0.06,0.02],[1.55,-1.5,0,0,-1.4,0.12,0.06,0.02],[2,-0.5,0,0,0,0,0,0]],
-  // a bazooka: heaved up on to the shoulder, the body turned side-on behind it, then the backblast shoves it back a step
-  shoulder:[[0,-0.5,0,0,0,0,0,0],[0.45,-1.5,0,0,-1.4,0.3,0,-0.02,'o'],[1,-1.55,0,0,-1.42,0.3,0.02,-0.02],
-    [1.05,-1.85,0,0,-1.5,0.36,-0.2,-0.18,'o'],[1.4,-1.55,0,0,-1.4,0.3,0,-0.06],[2,-0.5,0,0,0,0,0,0]],
-  // a landmine, set down with the free hand (an enemy's: its weapon stays in the other): crouched low, reached down,
-  // pressed into the ground, a pat to settle it, and up again. plantR is Gnash's, with the mine in his weapon hand
-  plant:[[0,-0.5,0,0,0,0,0,0],[0.35,-0.3,0.15,0,-0.5,0.15,0.3,0.06,'o'],[0.75,-0.25,0.2,0,-0.95,0.2,0.62,0.14],[0.88,-0.25,0.2,0,-1.0,0.2,0.66,0.15],
-    [1,-0.25,0.2,0,-1.1,0.18,0.7,0.16,'i'],[1.35,-0.3,0.2,0,-0.9,0.15,0.62,0.14],[1.45,-0.3,0.2,0,-1.1,0.15,0.66,0.15,'i'],[2,-0.5,0,0,0,0,0,0]],
-  plantR:[[0,-0.5,0,0,0,0,0,0],[0.35,-0.6,0,0.3,-0.3,-0.15,0.3,0.06,'o'],[0.75,-1.0,0,0.7,-0.25,-0.2,0.62,0.14],[0.88,-1.05,0,0.75,-0.25,-0.2,0.66,0.15],
-    [1,-1.15,0,0.85,-0.2,-0.18,0.7,0.16,'i'],[1.35,-0.95,0,0.7,-0.25,-0.15,0.62,0.14],[1.45,-1.15,0,0.85,-0.25,-0.15,0.66,0.15,'i'],[2,-0.5,0,0,0,0,0,0]],
-  // reloads, u 0 to 2 over the whole reload (the gun held in one hand as posed, not gripped: gunHeld): a magazine
-  // (rifles): lowered and canted, the free hand to the pouch on the belt and back up with a full one, slapped home, the
-  // charging handle pulled
-  rlMag:[[0,-1.2,0,0,-1.1,0.15,0.04,0],[0.2,-0.9,-0.25,0.5,-0.4,0.25,0.06,0,'o'],[0.45,-0.9,-0.25,0.5,0.45,0.3,0.08,0],[0.75,-0.95,-0.25,0.5,-0.7,0.25,0.06,0],
-    [0.92,-0.95,-0.25,0.5,-0.85,0.22,0.06,0],[1,-1.05,-0.25,0.45,-1.05,0.2,0.1,0.02,'i'],[1.3,-1.0,-0.15,0.3,-0.85,0.2,0.06,0],[1.45,-1.05,-0.1,0.25,-1.2,0.18,0.05,0,'i'],[2,-0.5,0,0,0,0,0,0]],
-  // a handgun: tipped, the magazine dropped, a new one from the belt, pushed in, the slide racked
-  rlPistol:[[0,-1.3,0,0,-1.2,0.1,0.03,0],[0.2,-1.0,-0.3,0.4,-0.3,0.12,0.05,0,'o'],[0.45,-1.0,-0.3,0.4,0.35,0.15,0.05,0],[0.8,-1.05,-0.3,0.4,-0.8,0.12,0.05,0],
-    [1,-1.1,-0.3,0.35,-1.05,0.1,0.07,0.01,'i'],[1.3,-1.15,-0.25,0.3,-1.25,0.1,0.05,0],[1.4,-1.2,-0.2,0.2,-1.0,0.1,0.05,0,'i'],[2,-0.5,0,0,0,0,0,0]],
-  // a shotgun: rolled to show its loading port, four shells from the belt one after another, then the pump
-  rlShells:[[0,-1.2,0,0,-1.1,0.12,0.04,0],[0.2,-0.85,-0.35,0.7,-0.3,0.25,0.06,0,'o'],[0.35,-0.85,-0.35,0.7,0.35,0.25,0.06,0],[0.55,-0.85,-0.35,0.7,-0.75,0.25,0.07,0],
-    [0.7,-0.85,-0.35,0.7,0.35,0.25,0.06,0],[0.9,-0.85,-0.35,0.7,-0.75,0.25,0.07,0],[1,-0.85,-0.35,0.7,0.3,0.25,0.06,0],[1.2,-0.85,-0.35,0.7,-0.75,0.25,0.07,0],
-    [1.35,-0.85,-0.35,0.7,0.35,0.25,0.06,0],[1.55,-0.85,-0.35,0.7,-0.75,0.25,0.07,0],[1.75,-1.1,-0.15,0.3,-1.25,0.15,0.05,0,'i'],[2,-0.5,0,0,0,0,0,0]],
-  // a bazooka: down off the shoulder, the free hand back for a rocket, slid in and seated with a slap, back up
-  rlTube:[[0,-1.5,0,0,-1.4,0.3,0,0],[0.25,-1.0,0.15,-0.5,-0.3,0.45,0.05,0,'o'],[0.5,-1.0,0.15,-0.5,0.7,0.5,0.05,0],[0.8,-1.0,0.15,-0.5,-0.2,0.5,0.05,0],
-    [1,-1.05,0.15,-0.5,-0.55,0.45,0.08,0,'i'],[1.3,-1.05,0.15,-0.5,-0.4,0.4,0.06,0],[1.6,-1.4,0,0,-1.3,0.3,0.02,0,'o'],[2,-0.5,0,0,0,0,0,0]],
-  // Gnash's and Grizzle's own arm in first person: [u, its tilt, across, up, forward]
-  // (the club held back, not right up: any higher and it's out of the top of the picture, and you'd never see the wind-up)
-  vmClub:[[0,0.08,0.52,-0.62,-0.72],[0.7,0.8,0.62,-0.5,-0.7,'o'],[0.8,0.85,0.62,-0.49,-0.69],[1,-0.55,0.36,-0.7,-0.82,'i'],[1.3,-0.75,0.34,-0.76,-0.8],[2,0.08,0.52,-0.62,-0.72]],
-  vmDagger:[[0,0.3,0.46,-0.6,-0.66],[0.65,0.42,0.5,-0.56,-0.5,'o'],[0.75,0.44,0.5,-0.56,-0.48],[1,0.02,0.34,-0.6,-1.1,'i'],[1.35,0.04,0.34,-0.6,-1.06],[2,0.3,0.46,-0.6,-0.66]],
-  // (these have a sixth, its roll: + tips the top to the left)
-  // the katana: up to the right with the blade laid back, a beat, then cut down and across to the lower left, a flick
-  vmKatana:[[0,0.25,0.5,-0.62,-0.7,0.15],[0.65,0.75,0.72,-0.42,-0.62,-0.55,'o'],[0.8,0.8,0.74,-0.4,-0.6,-0.6],[1,-0.9,-0.05,-0.78,-0.86,1.05,'i'],
-    [1.3,-1.1,-0.2,-0.85,-0.8,1.25,'o'],[1.6,-0.3,0.25,-0.75,-0.75,-0.3],[1.68,-0.45,0.3,-0.76,-0.76,-0.15,'i'],[2,0.25,0.5,-0.62,-0.7,0.15]],
-  // the large club: up and back (the head just in the picture), a long beat, slammed into the ground in front and held
-  // there, heaved up again
-  vmBigClub:[[0,0.12,0.42,-0.7,-0.74,0.12],[0.4,0.6,0.46,-0.5,-0.7,0.1,'o'],[0.75,1.0,0.36,-0.42,-0.64,0.05],[0.9,1.05,0.35,-0.41,-0.63,0.05],
-    [1,-1.05,0.22,-0.98,-0.92,0,'i'],[1.4,-1.0,0.22,-0.96,-0.92,0],[1.75,-0.2,0.36,-0.8,-0.8,0.08,'o'],[2,0.12,0.42,-0.7,-0.74,0.12]],
-  // a landmine: down out of the bottom of the picture to set it in the ground, and back up with the next
-  vmPlant:[[0,0.15,0.4,-0.6,-0.66,0],[0.5,0.3,0.32,-0.95,-0.62,0,'o'],[0.85,0.35,0.3,-1.15,-0.7,0],[1,0.35,0.3,-1.25,-0.74,0,'i'],[1.3,0.3,0.3,-1.2,-0.72,0],[2,0.15,0.4,-0.6,-0.66,0]],
-  // reloads in first person, added to where the gun's held, u 0 to 2 over the reload: [u, tilt, roll, across, up,
-  // forward, how far out the magazine (or the shell, or the rocket) is: 0 home, 1 gone]
-  vrMag:[[0,0,0,0,0,0,0],[0.25,0.25,-0.55,-0.08,0.05,0.04,0,'o'],[0.45,0.3,-0.6,-0.08,0.06,0.04,1],[0.75,0.3,-0.6,-0.08,0.04,0.04,1],[0.92,0.3,-0.58,-0.08,0.05,0.04,0.3],
-    [1,0.22,-0.55,-0.07,0.09,0.03,0,'i'],[1.3,0.15,-0.4,-0.05,0.05,0.02,0],[1.45,0.1,-0.3,-0.04,0.02,0.06,0,'i'],[2,0,0,0,0,0,0]],
-  vrPistol:[[0,0,0,0,0,0,0],[0.2,0.35,0.3,-0.06,0.02,0.05,0,'o'],[0.4,0.4,0.32,-0.06,0.02,0.05,1],[0.8,0.4,0.32,-0.06,0,0.05,1],[0.95,0.38,0.3,-0.06,0.01,0.05,0.3],
-    [1,0.3,0.28,-0.05,0.05,0.04,0,'i'],[1.3,0.1,0.15,-0.03,0.02,0.04,0],[1.4,0.05,0.1,-0.02,0,0.08,0,'i'],[2,0,0,0,0,0,0]],
-  vrShells:[[0,0,0,0,0,0,0],[0.2,0.2,-0.85,-0.06,0.06,0.02,1,'o'],[0.4,0.2,-0.85,-0.06,0.08,0.02,0,'i'],[0.5,0.2,-0.85,-0.06,0.06,0.02,1],[0.7,0.2,-0.85,-0.06,0.08,0.02,0,'i'],
-    [0.8,0.2,-0.85,-0.06,0.06,0.02,1],[1,0.2,-0.85,-0.06,0.08,0.02,0,'i'],[1.1,0.2,-0.85,-0.06,0.06,0.02,1],[1.3,0.2,-0.85,-0.06,0.08,0.02,0,'i'],
-    [1.55,0.1,-0.4,-0.04,0.03,0.02,0,'o'],[1.7,0.05,-0.1,0,0,0.08,0],[2,0,0,0,0,0,0]],
-  vrTube:[[0,0,0,0,0,0,0],[0.25,-0.35,0.2,-0.05,-0.12,0.08,1,'o'],[0.5,-0.4,0.2,-0.05,-0.14,0.08,1],[0.8,-0.4,0.2,-0.05,-0.14,0.08,0.5],
-    [1,-0.38,0.2,-0.05,-0.12,0.06,0,'i'],[1.3,-0.3,0.15,-0.04,-0.1,0.06,0],[1.7,0,0,0,0,0,0,'o'],[2,0,0,0,0,0,0]]};
+// (the timelines themselves are in src/assets/clips/, one file per clip, edited with the editor in tools/editor/:
+// core/assets.js builds this table from them as the page loads. A clip's layout says what its numbers are: body for the
+// keys described above; vm, Gnash's own arm in first person, [tilt, across, up, forward, roll]; vr, a first-person
+// reload added to where the gun's held, [tilt, roll, across, up, forward, how far out the magazine is])
+const STRIKES=assetClipsAll(ASSETS);
 const _SP=new Float32Array(8);
 // (a blow's own wind-up and follow-through, in seconds: a heavy weapon's are longer, its npc's wind and ft)
 const strikeWind=k=>WEAPONS[k]&&WEAPONS[k].npc&&WEAPONS[k].npc.wind||0.45,strikeFt=k=>WEAPONS[k]&&WEAPONS[k].npc&&WEAPONS[k].npc.ft||STRIKE_FT;
@@ -18248,7 +18184,7 @@ const MINEV=[],MINE_MAT={},MINE_LED=[new THREE.MeshBasicMaterial({color:0x3a1008
 function mineShow(i,x,y,z,on){
   let V=MINEV[i];
   if(!V){if(!on)return;const g=new THREE.Group(),m=c=>MINE_MAT[c]||(MINE_MAT[c]=new THREE.MeshLambertMaterial({color:c}));let led=null;
-    wpnBoxes(WEAPONS.landmine.model.drop,(w,h,d,c,bx,by,bz)=>{const o=new THREE.Mesh(FB_GEO,c===0xd03020?MINE_LED[0]:m(c));o.scale.set(w,h,d);o.position.set(bx,by-0.02,bz);g.add(o);if(c===0xd03020)led=o;});
+    wpnBoxes(WEAPONS.landmine.model.drop,(w,h,d,c,bx,by,bz)=>{const o=new THREE.Mesh(FB_GEO,c===0xd03020?MINE_LED[0]:m(c));o.scale.set(w,h,d);o.position.set(bx,by-0.02,bz);g.add(o);if(c===0xd03020)led=o;return o;});
     // (the light blinks once a second, every armed mine together)
     if(led)led.onBeforeRender=()=>{led.material=V.on===2&&(performance.now()%1000)<180?MINE_LED[1]:MINE_LED[0];};
     g.visible=false;scene.add(g);V=MINEV[i]={g,on:0};}
@@ -18290,7 +18226,7 @@ function gobAttack(p){const k=gobArms(p).wpn,K=WEAPONS[k];
   if(K&&K.kind==='gun'){gobShoot(p);return;}
   if(K&&K.kind==='spell'){gobCast(p);return;}
   if(K&&K.kind==='mine'){gobPlant(p);return;}
-  if(K&&K.kind==='melee'&&K.player.reach){const W=K.player,hx=Math.sin(p.heading),hz=Math.cos(p.heading),fx=p.pos.x+hx*W.reach,fz=p.pos.z+hz*W.reach;hitGoblins(fx,fz,W.r,W.dmg,W.cause,p.pos.y);pvpArea(p,fx,fz,W.r,W.dmg,W.pvp,p.pos.y);
+  if(K&&K.kind==='melee'&&K.player.reach){const W=K.player,hx=Math.sin(p.heading),hz=Math.cos(p.heading),fx=p.pos.x+hx*W.reach,fz=p.pos.z+hz*W.reach;if(!wpnHitShapes(p,K,W.dmg,W.cause,W.pvp)){hitGoblins(fx,fz,W.r,W.dmg,W.cause,p.pos.y);pvpArea(p,fx,fz,W.r,W.dmg,W.pvp,p.pos.y);}
     for(const c of carsNear(fx,fz,W.r,p.pos.y)){damageCar(c,W.carDmg||1,new V3(hx,0,hz));clang();}
     // (the large club slammed into the ground: the shock of it, dust, the ground shaking)
     if(W.slam){shockwave(fx,p.pos.y+0.1,fz,W.r+0.6,undefined,0.3);puff(fx,p.pos.y+0.2,fz,6,0x8a7a62,0.35);addShake(0.25,fx,fz,10);thud(0.6);p.shake=Math.max(p.shake||0,0.08);rumble(p,0.5,140);}
@@ -18384,7 +18320,7 @@ function gobArmsTick(p,dt){gobArms(p);p.grenCD=Math.max(0,p.grenCD-dt);p.thrS=(p
 // ---- what's dropped: a little model on the ground, turning, until someone picks it up (or a minute and a half) ----
 const PICKUPS=[],PU_MAT={};
 function puModel(k){const g=new THREE.Group(),m=c=>PU_MAT[c]||(PU_MAT[c]=new THREE.MeshLambertMaterial({color:c}));
-  wpnBoxes(WEAPONS[k].model.drop,(w,h,d,c,x,y,z)=>{const o=new THREE.Mesh(FB_GEO,m(c));o.scale.set(w,h,d);o.position.set(x,y,z);g.add(o);});   // (its shape lying on the ground: WEAPONS)
+  wpnBoxes(WEAPONS[k].model.drop,(w,h,d,c,x,y,z)=>{const o=new THREE.Mesh(FB_GEO,m(c));o.scale.set(w,h,d);o.position.set(x,y,z);g.add(o);return o;});   // (its shape lying on the ground: WEAPONS)
   g.visible=false;scene.add(g);return g;}
 function gobDrop(g){const G2=gobGear(g),at=(k,n,o)=>{let P=PICKUPS.find(q=>!q.live&&q.k===k);if(!P){if(PICKUPS.length>=32){P=PICKUPS.find(q=>q.k===k);if(!P)return;}else{P={k,m:puModel(k),pos:new V3()};PICKUPS.push(P);}}
     const y=supportAt(g.pos.x+o,g.pos.z,g.pos.y+1.5);P.pos.set(g.pos.x+o,(y??g.pos.y)+0.3,g.pos.z);P.n=n;P.t=0;P.live=true;P.m.visible=true;P.m.position.copy(P.pos);
@@ -18438,6 +18374,63 @@ function gobArmsHud(p){
   const cur=nm(p.wpn)+(W&&W.mag?(p.relT>0?'  reloading…':'  '+n+' / '+W.mag):''),rq=W&&W.mag&&!(p.relT>0)&&n<W.mag?'  '+bl('reload')+(n?' reload':' RELOAD'):'';
   const s=L.map(k=>k===p.wpn?'<b>'+cur+'</b>':nm(k)).join(' · ')+rq+(L.length>1?'  '+bl('weapon')+' next':'')+'  |  Grenades '+p.gren+(gobW(p).scope?'  '+bl('stomp')+' scope (hold)':p.gren?'  '+bl('stomp')+' throw':'');
   if(H.s!==s){H.s=s;H.el.innerHTML=s.split(/(<b>[^<]*<\/b>)/).map(t=>t.startsWith('<b>')?'<b>'+glEsc(t.slice(3,-4))+'</b>':hudHTML(t)).join('');}
+}
+// ---- hit shapes from the editor (tools/editor/): a weapon's hitboxes against goblins' hurtboxes ----
+// A weapon file can carry hit.hitboxes (spheres, capsules and boxes in the attacker's own frame: from its feet, +z the
+// way it faces), and src/assets/bodies/goblin.json the goblin's hurtboxes in the same kind of frame. A melee weapon with
+// hitboxes hits every goblin one of its shapes touches; one without keeps the old hit, a circle reach ahead (hitGoblins).
+// The shapes all count at the moment of the blow: Gnash's swing lands in one go, so a shape's live span (t) is for the
+// editor's picture and for later, when blows are swept over their clip.
+// Every shape becomes a 'round' (a segment with a radius: a sphere is one with no length, a capsule's runs along its own
+// y) or a box; two rounds touch when their segments come closer than their radii, a round and a box when the segment
+// comes closer to the box than its radius. Two boxes are tested as a round through the second box's long axis (near
+// enough for weapons and bodies, which are never flat sheets).
+const HIT_GOB=()=>(ASSETS.bodies&&ASSETS.bodies.goblin&&ASSETS.bodies.goblin.hit&&ASSETS.bodies.goblin.hit.hurtboxes)||[];
+// a shape put into the world: x,y,z the frame's origin (feet), h its heading
+function hitWorld(s,x,y,z,h){
+  const c=Math.cos(h),sn=Math.sin(h),toW=(a,b,d)=>[x+a*c+d*sn,y+b,z-a*sn+d*c];
+  // (its own axes: a tilt then the heading, three.js's XYZ order)
+  const R=s.rot||[0,0,0],rx=(v,t)=>[v[0],v[1]*Math.cos(t)-v[2]*Math.sin(t),v[1]*Math.sin(t)+v[2]*Math.cos(t)],
+    ry=(v,t)=>[v[0]*Math.cos(t)+v[2]*Math.sin(t),v[1],-v[0]*Math.sin(t)+v[2]*Math.cos(t)],rz=(v,t)=>[v[0]*Math.cos(t)-v[1]*Math.sin(t),v[0]*Math.sin(t)+v[1]*Math.cos(t),v[2]];
+  const ax=v=>{const w=rx(ry(rz(v,R[2]),R[1]),R[0]);return [w[0]*c+w[2]*sn,w[1],-w[0]*sn+w[2]*c];};
+  const P=toW(s.p[0],s.p[1],s.p[2]);
+  if(s.k==='box')return {box:true,c:P,u:[ax([1,0,0]),ax([0,1,0]),ax([0,0,1])],e:[s.s[0]/2,s.s[1]/2,s.s[2]/2]};
+  const half=s.k==='capsule'?(s.h||0)/2:0,d=ax([0,1,0]);
+  return {a:[P[0]-d[0]*half,P[1]-d[1]*half,P[2]-d[2]*half],b:[P[0]+d[0]*half,P[1]+d[1]*half,P[2]+d[2]*half],r:s.r};
+}
+const hv=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]],hdot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+// the closest point on a box to p
+function hitBoxNear(B,p){const d=hv(p,B.c),o=B.c.slice();
+  for(let i=0;i<3;i++){const t=Math.max(-B.e[i],Math.min(B.e[i],hdot(d,B.u[i])));o[0]+=B.u[i][0]*t;o[1]+=B.u[i][1]*t;o[2]+=B.u[i][2]*t;}return o;}
+const hitLerp=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t];
+function hitSegNear(a,b,p){const d=hv(b,a),L=hdot(d,d);return hitLerp(a,b,L>1e-9?Math.max(0,Math.min(1,hdot(hv(p,a),d)/L)):0);}
+const hitDist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
+// (a box as a round: through its longest axis, its radius the larger of the other two half-sizes)
+function hitBoxRound(B){let i=0;for(let j=1;j<3;j++)if(B.e[j]>B.e[i])i=j;const u=B.u[i],e=B.e[i],o=[0,1,2].filter(j=>j!==i);
+  return {a:[B.c[0]-u[0]*e,B.c[1]-u[1]*e,B.c[2]-u[2]*e],b:[B.c[0]+u[0]*e,B.c[1]+u[1]*e,B.c[2]+u[2]*e],r:Math.max(B.e[o[0]],B.e[o[1]])};}
+// do two shapes (as hitWorld gives them) touch? (segments are walked in 9 steps: shapes are a few blocks long at most)
+function hitTouch(A,B){
+  if(A.box&&B.box)B=hitBoxRound(B);
+  if(B.box){const t=A;A=B;B=t;}
+  for(let i=0;i<=8;i++){const p=hitLerp(B.a,B.b,i/8);
+    if(A.box){if(hitDist(p,hitBoxNear(A,p))<B.r)return true;}
+    else if(hitDist(p,hitSegNear(A.a,A.b,p))<A.r+B.r)return true;}
+  return false;
+}
+// a melee blow with hitboxes: every chasing goblin touched takes the blow (once), and so does any player PvP allows.
+// Returns false (and does nothing) for a weapon with none, so the caller falls back to its old hit
+function wpnHitShapes(p,K,dmg,cause,pvpCause){
+  const H=K&&K.hit&&K.hit.hitboxes;if(!H||!H.length)return false;
+  const h=p.heading,mine=H.map(s=>hitWorld(s,p.pos.x,p.pos.y,p.pos.z,h)),hurt=HIT_GOB(),fx=Math.sin(h),fz=Math.cos(h);
+  for(const g of goblins){if(g.state!=='chase')continue;
+    if(Math.hypot(g.pos.x-p.pos.x,g.pos.z-p.pos.z)>12)continue;   // (no weapon reaches further than this)
+    const theirs=hurt.length?hurt.map(s=>hitWorld(s,g.pos.x,g.pos.y,g.pos.z,g.heading||0)):[{a:[g.pos.x,g.pos.y,g.pos.z],b:[g.pos.x,g.pos.y+1,g.pos.z],r:0.3}];
+    if(mine.some(A=>theirs.some(B=>hitTouch(A,B)))){const dx=g.pos.x-p.pos.x,dz=g.pos.z-p.pos.z,d=Math.hypot(dx,dz)||1;
+      damageGoblin(g,dmg,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(dx/d,0.6,dz/d),cause);}}
+  // (other players: the same shapes against a goblin's hurtboxes, or a hippo's middle)
+  for(const q of pvpFoes(p)){const theirs=hurt.length&&q.gob?hurt.map(s=>hitWorld(s,q.pos.x,q.pos.y,q.pos.z,q.heading||0)):[{a:[q.pos.x,q.pos.y,q.pos.z],b:[q.pos.x,q.pos.y+1.2,q.pos.z],r:q.gob?0.3:0.9}];
+    if(mine.some(A=>theirs.some(B=>hitTouch(A,B))))pvpHurt(p,q,dmg,new V3(q.pos.x,q.pos.y+0.8,q.pos.z),new V3(fx,0.4,fz),pvpCause||cause);}
+  return true;
 }
 // ---- A goblin's loadout, on the Character tab (in place of the hippos' ability switches) ----
 // Each seat picks what its goblin starts with: which of the weapons in WEAPONS he carries (a switch each, made from the
@@ -30109,6 +30102,39 @@ const TEST_GROUPS=[
   ['Railways',[['rail','Railways'],['station','Train stations']]],
   ['Coast',[['sea','The ocean'],['beach','Beaches'],['harbor','Docks'],['yard','Shipping ports (coastal cities)'],['navy','Naval bases'],['lighthouse','Lighthouses'],['rig','Oil rigs'],['wreck','Shipwrecks']]],
   ['Underground',[['sewers','Sewers'],['subway','Subway'],['caves','Caves']]]];
+// ---- the editor's live preview (tools/editor/): the game opened with ?editor takes edited weapons and animations from
+// the editor's window as they're made, before anything's saved or built. Nothing here runs without ?editor ----
+// The editor opens this page itself (its Open game button), so the two share an origin; a message from anywhere else is
+// ignored. An animation is swapped into STRIKES at once (everything reads it afresh each frame). A weapon's numbers are
+// put into its entry in place (GOB_WPN and everything else keep the same objects), and its looks reach Gnash's and
+// Grizzle's own models, rebuilt on the next frame, and new pickups; goblins already out keep the models they were made
+// with until the page is reloaded.
+const EDITOR_LIVE=typeof location!=='undefined'&&/[?&]editor\b/.test(location.search||'');
+// (put src's fields into dst, keeping dst and any plain object in it the same object, dropping what src hasn't got)
+function liveInPlace(dst,src){
+  for(const k of Object.keys(dst))if(!(k in src))delete dst[k];
+  for(const k in src){const a=dst[k],b=src[k];
+    if(a&&b&&typeof a==='object'&&typeof b==='object'&&!Array.isArray(a)&&!Array.isArray(b))liveInPlace(a,b);else dst[k]=b;}
+}
+function liveWeapon(k,file){
+  if(!WEAPONS[k])return 'no weapon '+k+' in this build: save it and press Build';
+  const W=assetWeapon(file);wpnDerive(k,W);liveInPlace(WEAPONS[k],W);
+  for(const p of players)if(p.gb){scene.remove(p.gb.root);scene.remove(p.gb.vm);p.gb=null;}   // (gobKit makes them again, with the new shapes)
+  for(let i=PICKUPS.length-1;i>=0;i--){const P=PICKUPS[i];if(P.k===k&&!P.live){scene.remove(P.m);PICKUPS.splice(i,1);}}
+  return 'ok';
+}
+function liveClip(name,file){STRIKES[name]=assetClip(file);return 'ok';}
+// (a body's hurtboxes are read from ASSETS each time a blow is tested: hit-shapes.js)
+function liveBody(name,file){ASSETS.bodies=ASSETS.bodies||{};const f=Object.assign({},file);delete f.note;ASSETS.bodies[name]=f;return 'ok';}
+if(EDITOR_LIVE){
+  addEventListener('message',e=>{
+    if(e.origin!==location.origin)return;const d=e.data;if(!d||d.type!=='gsg-asset')return;
+    let r;try{r=d.kind==='weapons'?liveWeapon(d.name,d.file):d.kind==='clips'?liveClip(d.name,d.file):d.kind==='bodies'?liveBody(d.name,d.file):'unknown kind';}catch(err){r=String(err&&err.message||err);}
+    try{e.source&&e.source.postMessage({type:'gsg-asset-done',kind:d.kind,name:d.name,result:r},location.origin);}catch(err){}
+  });
+  // (tell the editor this window is ready for its edits)
+  try{if(window.opener)window.opener.postMessage({type:'gsg-ready'},location.origin);}catch(e){}
+}
 // ---- the Testing Environment: an empty, flat world to try things out in. Any kind of structure can be spawned into it
 // (the nearest one in this world's plan, dressed by the world's own code, built on the nearest clear ground in front of Gus),
 // and goblins, police and cars a few steps ahead of where Gus is looking. Your own city is put aside meanwhile ----

@@ -1,0 +1,13 @@
+{
+  "note": "an assault rifle: shouldered like the rifle, and each round of a burst a small kick (foeRanged plays 1 to 1.2 of it for each)",
+  "layout": "body",
+  "keys": [
+    {"t":0,"v":[-0.5,0,0,0,0,0,0]},
+    {"t":0.35,"v":[-1.5,0,0,-1.35,0.15,0.04,0],"e":"o"},
+    {"t":1,"v":[-1.5,0,0,-1.35,0.15,0.04,0]},
+    {"t":1.04,"v":[-1.62,0,0,-1.42,0.15,-0.02,-0.02],"e":"o"},
+    {"t":1.2,"v":[-1.5,0,0,-1.35,0.15,0.03,0]},
+    {"t":2,"v":[-0.5,0,0,0,0,0,0]}
+  ],
+  "events": [{"t":1,"k":"hit"}]
+}

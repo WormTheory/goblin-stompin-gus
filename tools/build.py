@@ -87,6 +87,30 @@ def one(html,mark,what,name):
   if html.count(mark)!=1:sys.exit('build: '+name+' must have the marker '+mark+' exactly once')
   return html.replace(mark,what)
 
+# ---- assets: src/assets/<kind>/*.json, the models and animations the editor (tools/editor/) makes ----
+# Each kind's _order.json lists its files in order (like ORDER.txt: a file left off it, or listed but missing, stops the
+# build). They're written into the game as one line, const ASSETS={kind:{name:{...}}}, ahead of every script, and
+# src/js/core/assets.js turns them into the tables the game reads. A file's note is for whoever edits it, so it's left out.
+import json
+ASSET_KINDS=('weapons','clips','bodies')
+def assets():
+  out={}
+  for kind in ASSET_KINDS:
+    d=os.path.join(SRC,'assets',kind)
+    try:names=json.loads(rd(os.path.join(d,'_order.json')))['order']
+    except Exception as e:sys.exit('build: src/assets/'+kind+'/_order.json: '+str(e))
+    have={f[:-5] for f in os.listdir(d) if f.endswith('.json') and f!='_order.json'}
+    for why,bad in (('in src/assets/'+kind+' but not in its _order.json',have-set(names)),('in src/assets/'+kind+'/_order.json but has no file',set(names)-have)):
+      if bad:sys.exit('build: '+why+': '+', '.join(sorted(bad)))
+    if len(set(names))!=len(names):sys.exit('build: a name is listed twice in src/assets/'+kind+'/_order.json')
+    out[kind]={}
+    for n in names:
+      try:v=json.loads(rd(os.path.join(d,n+'.json')))
+      except Exception as e:sys.exit('build: src/assets/'+kind+'/'+n+'.json: '+str(e))
+      if not isinstance(v,dict):sys.exit('build: src/assets/'+kind+'/'+n+'.json: not an object')
+      v.pop('note',None);out[kind][n]=v
+  return 'const ASSETS='+json.dumps(out,separators=(',',':'),ensure_ascii=False).replace('</','<\\/')+';\n'   # (no </script> inside a string can end the page's script)
+
 def page():
   html=rd(os.path.join(SRC,'page.html'))
   if html.count(MARK_CSS)!=1 or html.count(MARK_JS)!=1:sys.exit('build: page.html must have each build marker exactly once')
@@ -94,7 +118,7 @@ def page():
   html=one(html,MARK_NOTES,body,'page.html')
   html=one(html,MARK_LATEST,inline(ups[0][1]),'page.html')
   html=html.replace(MARK_CSS,rd(os.path.join(SRC,'style.css')))
-  html=html.replace(MARK_JS,''.join(rd(os.path.join(SRC,'js',n)) for n in order()))
+  html=html.replace(MARK_JS,assets()+''.join(rd(os.path.join(SRC,'js',n)) for n in order()))
   # (the game's version and this build's id, which the running game compares with game/version.json to offer an update)
   ver,bid=version_info(ups,html)
   for mark,val in ((MARK_VER,ver),(MARK_BUILD,bid)):html=one(html,mark,val,'src/js')

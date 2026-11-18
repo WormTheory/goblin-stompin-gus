@@ -1,0 +1,7 @@
+{
+  "name": "Goblin",
+  "note": "Where a goblin can be hurt, from its feet, facing +z: a body and a head. Only weapons with hitboxes of their own test against these so far (player/hit-shapes.js); everything else still hits a goblin by its feet.",
+  "hit": {
+    "hurtboxes": [{"k":"capsule","p":[0,0.5,0],"r":0.26,"h":0.45},{"k":"sphere","p":[0,1,0.02],"r":0.22}]
+  }
+}

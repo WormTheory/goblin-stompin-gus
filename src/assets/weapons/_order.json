@@ -1,0 +1,17 @@
+{
+  "order": [
+    "club",
+    "bigclub",
+    "katana",
+    "dagger",
+    "handgun",
+    "shotgun",
+    "rifle",
+    "arifle",
+    "sniper",
+    "bazooka",
+    "spellbook",
+    "landmine",
+    "grenade"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "note": "a handgun shot (police): the rifle's, but held out at arm's length in both hands, a little in to the middle, and the kick snapping the wrist and the muzzle up rather than shoving the shoulder back",
+  "layout": "body",
+  "keys": [
+    {"t":0,"v":[-0.5,0,0,0,0,0,0]},
+    {"t":0.35,"v":[-1.57,-0.1,0,-1.47,0.12,0.03,0],"e":"o"},
+    {"t":1,"v":[-1.57,-0.1,0,-1.47,0.12,0.03,0]},
+    {"t":1.06,"v":[-1.85,-0.1,-0.45,-1.7,0.12,-0.05,-0.04],"e":"o"},
+    {"t":1.4,"v":[-1.57,-0.1,0,-1.47,0.12,0.02,0]},
+    {"t":2,"v":[-0.5,0,0,0,0,0,0]}
+  ],
+  "events": [{"t":1,"k":"hit"}]
+}

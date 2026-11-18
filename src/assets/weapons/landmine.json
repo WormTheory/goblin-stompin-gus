@@ -1,0 +1,42 @@
+{
+  "note": "landmines: knelt down and pressed into the ground, a light blinking once it's armed; the first enemy (or vehicle) over one sets it off. Carried in a stack like grenades, in the hand like a weapon (mines.js)",
+  "name": "Landmines",
+  "about": "Planted where you stand; the first enemy to step on one sets it off",
+  "kind": "mine",
+  "drop": true,
+  "stack": true,
+  "dmg": 5,
+  "R": 3,
+  "arm": 1.2,
+  "crush": 1.8,
+  "vd": 40,
+  "every": 0.9,
+  "model": {
+    "held": [
+      {"s":[0.28,0.07,0.28],"p":[0,-0.06,0.08],"c":"#3a4a22","role":"mine"},
+      {"s":[0.15,0.05,0.15],"p":[0,-0.02,0.08],"c":"#2a3018","role":"mine2"}
+    ],
+    "view": [
+      {"s":[0.3,0.08,0.3],"p":[0,0.04,-0.46],"c":"#3a4a22","o":61},
+      {"s":[0.17,0.05,0.17],"p":[0,0.1,-0.46],"c":"#2a3018","o":62},
+      {"s":[0.05,0.03,0.05],"p":[0,0.13,-0.46],"c":"#d03020","o":62}
+    ],
+    "drop": [
+      {"s":[0.4,0.08,0.4],"p":[0,0,0],"c":"#3a4a22"},
+      {"s":[0.24,0.06,0.24],"p":[0,0.06,0],"c":"#2a3018"},
+      {"s":[0.05,0.05,0.05],"p":[0,0.1,0],"c":"#d03020"}
+    ]
+  },
+  "npc": {"pose":"plant"},
+  "player": {
+    "dur": 0.75,
+    "lunge": 0.45,
+    "cause": "Blown up by a goblin's landmine",
+    "pvp": "Blown up",
+    "verb": "plant a mine",
+    "max": 6,
+    "field": "mines",
+    "swing": "vmPlant",
+    "body": "plantR"
+  }
+}

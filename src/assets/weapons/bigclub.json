@@ -1,0 +1,43 @@
+{
+  "note": "a great studded club swung in both hands: slow to lift, a beat at the top, then slammed into the ground, the shock of it shaking everything round; heaved up again after",
+  "name": "Large Club",
+  "about": "Lifted high in both hands and slammed down: slow, but it flattens anything",
+  "kind": "melee",
+  "drop": true,
+  "dmg": 4,
+  "every": 1.9,
+  "r": 1.5,
+  "reach": 1.4,
+  "carDmg": 3,
+  "model": {
+    "held": [
+      {"s":[0.13,0.13,0.72],"p":[0,0.02,0.28],"c":"@club","role":"club"},
+      {"s":[0.3,0.3,0.36],"p":[0,0.02,0.74],"c":"@club","role":"club"},
+      {"s":[0.38,0.07,0.07],"p":[0,0.02,0.66],"c":"#8a8a90","role":"studs"},
+      {"s":[0.07,0.38,0.07],"p":[0,0.02,0.8],"c":"#8a8a90","role":"studs"},
+      {"s":[0.07,0.07,0.07],"p":[0,0.02,0.94],"c":"#8a8a90","role":"studs"}
+    ],
+    "view": [
+      {"s":[0.09,0.66,0.09],"p":[0,0.22,-0.42],"c":"@club","o":61},
+      {"s":[0.27,0.32,0.27],"p":[0,0.66,-0.42],"c":"@club","o":62},
+      {"s":[0.33,0.06,0.06],"p":[0,0.6,-0.28],"c":"#8a8a90","o":62},
+      {"s":[0.06,0.06,0.33],"p":[0.14,0.72,-0.42],"c":"#8a8a90","o":62}
+    ],
+    "fore": {"p":[-0.02,-0.06,-0.4],"r":[-0.62,-0.5,0.05]},
+    "drop": [
+      {"s":[0.11,0.11,0.62],"p":[0,0,-0.2],"c":"@club"},
+      {"s":[0.26,0.26,0.32],"p":[0,0,0.25],"c":"@club"},
+      {"s":[0.06,0.32,0.06],"p":[0,0,0.25],"c":"#8a8a90"}
+    ]
+  },
+  "npc": {"strike":"bigclub","wind":0.75,"ft":0.6},
+  "player": {
+    "dur": 0.95,
+    "lunge": 0.55,
+    "cause": "Flattened by a goblin with a great club",
+    "pvp": "Flattened",
+    "verb": "smash",
+    "slam": true,
+    "swing": "vmBigClub"
+  }
+}

@@ -43,7 +43,7 @@ const MINEV=[],MINE_MAT={},MINE_LED=[new THREE.MeshBasicMaterial({color:0x3a1008
 function mineShow(i,x,y,z,on){
   let V=MINEV[i];
   if(!V){if(!on)return;const g=new THREE.Group(),m=c=>MINE_MAT[c]||(MINE_MAT[c]=new THREE.MeshLambertMaterial({color:c}));let led=null;
-    wpnBoxes(WEAPONS.landmine.model.drop,(w,h,d,c,bx,by,bz)=>{const o=new THREE.Mesh(FB_GEO,c===0xd03020?MINE_LED[0]:m(c));o.scale.set(w,h,d);o.position.set(bx,by-0.02,bz);g.add(o);if(c===0xd03020)led=o;});
+    wpnBoxes(WEAPONS.landmine.model.drop,(w,h,d,c,bx,by,bz)=>{const o=new THREE.Mesh(FB_GEO,c===0xd03020?MINE_LED[0]:m(c));o.scale.set(w,h,d);o.position.set(bx,by-0.02,bz);g.add(o);if(c===0xd03020)led=o;return o;});
     // (the light blinks once a second, every armed mine together)
     if(led)led.onBeforeRender=()=>{led.material=V.on===2&&(performance.now()%1000)<180?MINE_LED[1]:MINE_LED[0];};
     g.visible=false;scene.add(g);V=MINEV[i]={g,on:0};}

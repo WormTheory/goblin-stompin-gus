@@ -33,7 +33,7 @@ function gobAttack(p){const k=gobArms(p).wpn,K=WEAPONS[k];
   if(K&&K.kind==='gun'){gobShoot(p);return;}
   if(K&&K.kind==='spell'){gobCast(p);return;}
   if(K&&K.kind==='mine'){gobPlant(p);return;}
-  if(K&&K.kind==='melee'&&K.player.reach){const W=K.player,hx=Math.sin(p.heading),hz=Math.cos(p.heading),fx=p.pos.x+hx*W.reach,fz=p.pos.z+hz*W.reach;hitGoblins(fx,fz,W.r,W.dmg,W.cause,p.pos.y);pvpArea(p,fx,fz,W.r,W.dmg,W.pvp,p.pos.y);
+  if(K&&K.kind==='melee'&&K.player.reach){const W=K.player,hx=Math.sin(p.heading),hz=Math.cos(p.heading),fx=p.pos.x+hx*W.reach,fz=p.pos.z+hz*W.reach;if(!wpnHitShapes(p,K,W.dmg,W.cause,W.pvp)){hitGoblins(fx,fz,W.r,W.dmg,W.cause,p.pos.y);pvpArea(p,fx,fz,W.r,W.dmg,W.pvp,p.pos.y);}
     for(const c of carsNear(fx,fz,W.r,p.pos.y)){damageCar(c,W.carDmg||1,new V3(hx,0,hz));clang();}
     // (the large club slammed into the ground: the shock of it, dust, the ground shaking)
     if(W.slam){shockwave(fx,p.pos.y+0.1,fz,W.r+0.6,undefined,0.3);puff(fx,p.pos.y+0.2,fz,6,0x8a7a62,0.35);addShake(0.25,fx,fz,10);thud(0.6);p.shake=Math.max(p.shake||0,0.08);rumble(p,0.5,140);}
@@ -127,7 +127,7 @@ function gobArmsTick(p,dt){gobArms(p);p.grenCD=Math.max(0,p.grenCD-dt);p.thrS=(p
 // ---- what's dropped: a little model on the ground, turning, until someone picks it up (or a minute and a half) ----
 const PICKUPS=[],PU_MAT={};
 function puModel(k){const g=new THREE.Group(),m=c=>PU_MAT[c]||(PU_MAT[c]=new THREE.MeshLambertMaterial({color:c}));
-  wpnBoxes(WEAPONS[k].model.drop,(w,h,d,c,x,y,z)=>{const o=new THREE.Mesh(FB_GEO,m(c));o.scale.set(w,h,d);o.position.set(x,y,z);g.add(o);});   // (its shape lying on the ground: WEAPONS)
+  wpnBoxes(WEAPONS[k].model.drop,(w,h,d,c,x,y,z)=>{const o=new THREE.Mesh(FB_GEO,m(c));o.scale.set(w,h,d);o.position.set(x,y,z);g.add(o);return o;});   // (its shape lying on the ground: WEAPONS)
   g.visible=false;scene.add(g);return g;}
 function gobDrop(g){const G2=gobGear(g),at=(k,n,o)=>{let P=PICKUPS.find(q=>!q.live&&q.k===k);if(!P){if(PICKUPS.length>=32){P=PICKUPS.find(q=>q.k===k);if(!P)return;}else{P={k,m:puModel(k),pos:new V3()};PICKUPS.push(P);}}
     const y=supportAt(g.pos.x+o,g.pos.z,g.pos.y+1.5);P.pos.set(g.pos.x+o,(y??g.pos.y)+0.3,g.pos.z);P.n=n;P.t=0;P.live=true;P.m.visible=true;P.m.position.copy(P.pos);

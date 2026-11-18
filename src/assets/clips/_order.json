@@ -1,0 +1,32 @@
+{
+  "order": [
+    "club",
+    "dagger",
+    "butt",
+    "aim",
+    "pistol",
+    "throw",
+    "cast",
+    "katana",
+    "bigclub",
+    "auto",
+    "snipe",
+    "pump",
+    "shoulder",
+    "plant",
+    "plantR",
+    "rlMag",
+    "rlPistol",
+    "rlShells",
+    "rlTube",
+    "vmClub",
+    "vmDagger",
+    "vmKatana",
+    "vmBigClub",
+    "vmPlant",
+    "vrMag",
+    "vrPistol",
+    "vrShells",
+    "vrTube"
+  ]
+}

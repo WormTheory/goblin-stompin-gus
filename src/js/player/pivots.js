@@ -182,7 +182,7 @@ function gobMove(p,dt){
 // the attack button swings the club: one goblin's blow, in front of you
 function gobClub(p){
   const W=WEAPONS.club,hx=Math.sin(p.heading),hz=Math.cos(p.heading),fx=p.pos.x+hx*W.reach,fz=p.pos.z+hz*W.reach;
-  hitGoblins(fx,fz,W.r,W.dmg,'Clubbed by another goblin',p.pos.y);pvpArea(p,fx,fz,W.r,W.dmg,'Clubbed',p.pos.y);
+  if(!wpnHitShapes(p,W,W.dmg,'Clubbed by another goblin','Clubbed')){hitGoblins(fx,fz,W.r,W.dmg,'Clubbed by another goblin',p.pos.y);pvpArea(p,fx,fz,W.r,W.dmg,'Clubbed',p.pos.y);}
   for(const c of carsNear(fx,fz,W.r,p.pos.y)){damageCar(c,1,new V3(hx,0,hz));clang();}
 }
 // a goblin for others to see (the other player, or you from the free cam), and your own arm and club for you
@@ -191,14 +191,14 @@ function gobKit(p){
   const root=new THREE.Group();root.rotation.order='YXZ';root.visible=false;root.scale.setScalar(ES);scene.add(root);
   const m=goblinModel(root,{club:false,tunic:GOB_TUNIC[p.who?1:0]});
   // (and what's in his hand, for the others to see: the weapon he's holding, the same shapes the enemies carry)
-  const tp={},tm=c=>new THREE.MeshLambertMaterial({color:c}),tb=(w,h,d,c,x,y,z,g)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),tm(c));o.position.set(x,y,z);g.add(o);};
+  const tp={},tm=c=>new THREE.MeshLambertMaterial({color:c}),tb=(w,h,d,c,x,y,z,g)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),tm(c));o.position.set(x,y,z);g.add(o);return o;};
   for(const k of GOB_WPN_ORDER){tp[k]=new THREE.Group();m.arm.hand.add(tp[k]);tp[k].visible=k==='club';}   // (in the wrist, as the enemies hold theirs)
   for(const k of GOB_WPN_ORDER)wpnBoxes(WEAPONS[k].model.held,(w,h,d,c,x,y,z)=>tb(w,h,d,c,x,y,z,tp[k]));   // (WEAPONS: as the enemies hold them)
   // (drawn last and over everything, so it never pokes through a wall you're stood against)
   const vm=new THREE.Group();vm.rotation.order='YXZ';vm.visible=false;vm.scale.setScalar(0.5);scene.add(vm);
   const arm=new THREE.Group();arm.position.set(0.52,-0.62,-0.72);vm.add(arm);
   const mat=c=>new THREE.MeshLambertMaterial({color:c,transparent:true,depthTest:false,depthWrite:false});
-  const box=(w,h,d,c,x,y,z,o,to=arm)=>{const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c));b.position.set(x,y,z);b.renderOrder=o;b.frustumCulled=false;to.add(b);};
+  const box=(w,h,d,c,x,y,z,o,to=arm)=>{const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c));b.position.set(x,y,z);b.renderOrder=o;b.frustumCulled=false;to.add(b);return b;};
   box(0.11,0.11,0.42,GC.skin,0,0,-0.2,60);
   // (one of these in the hand at a time: see gob-weapons.js)
   // (a box with a tag, a magazine, a rocket, a bolt, a pump or a slide, goes in a group of its own for that tag, so it can
