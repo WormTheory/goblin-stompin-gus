@@ -57,7 +57,7 @@ const VEHICLE_KINDS={
     pos:bo=>bo.g.position,top:bo=>bo.K.fb+2,mid:bo=>bo.K.fb,max:bo=>bo.max,shown:bo=>bo.g.visible,hit:(bo,n)=>boatHit(bo,n)},
   balloon:{name:'Hot-air balloon',venue:'balloon',ctx:()=>'balloon',inst:()=>'balloon',how:balHow,list:V=>V.bl||[],pts:()=>400,label:()=>'Hot-air balloon brought down',
     pos:B=>vkAt(B.x,B.y,B.z),top:()=>BAL.e1+0.8,mid:()=>BAL.e0+2,max:()=>BAL.hp,hit:(B,n)=>balloonHit(B,n)},
-  mech:{name:'Mobile Gear',venue:'mech',ctx:()=>'mg',inst:()=>'dial',list:V=>V.mechs||[],impact:true,netOwn:true,pts:()=>2000,label:()=>'Mobile Gear destroyed',   // (its health goes in its own snapshot: netMechs)
+  mech:{name:'Mobile Gear',venue:'mech',ctx:()=>'mg',inst:()=>'mgring',list:V=>V.mechs||[],impact:true,netOwn:true,pts:()=>2000,label:()=>'Mobile Gear destroyed',   // (its health goes in its own snapshot: netMechs)
     pos:M=>vkAt(M.x,M.y,M.z),top:()=>MG.hy+0.8,mid:()=>5,max:()=>MG.hp,hit:(M,n)=>mechHit(M,n)},
   // (a ship's health, and its deck weapons', go in its own snapshot, netShips. See docs/multiplayer.md)
   ship:{name:'Ship',venue:'ship',ctx:()=>'sea',inst:()=>'ship',how:(p,D)=>shipHow(p,D.o),list:V=>V.ships||[],snow:'blocks',smoke:0,netOwn:true,

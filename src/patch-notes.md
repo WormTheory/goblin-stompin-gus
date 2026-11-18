@@ -186,6 +186,7 @@
 - The burner warms the envelope a moment behind, so start a climb early.
 - Right click drops a sandbag: the balloon lifts a little, and the bag flattens any goblin it lands on. You have six.
 - Left click lets down a rope. Hostile goblins grab it and climb up (three at most), weighing the balloon down, and any that reach the basket tear at it. Pull the rope up to shake off the ones still climbing. Another player can climb the rope too, holding climb.
+- The Mobile Gear has its own instrument: a futuristic speed ring, its segments filling with speed, with a tag for what it's doing (walking, skating, in the air, assault boosting, or redlined with its energy gone), its climb rate, its height and a pip for each quick boost its energy will pay for.
 
 ### Map markers
 

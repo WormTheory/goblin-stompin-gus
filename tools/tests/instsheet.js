@@ -20,6 +20,7 @@ const S=[
  ['boat',{k:'boat',o:{k:'speed',K:T.BOATS.speed,g:g(0,0.8),sp:12,notch:3}}],['row',{k:'boat',o:{k:'row',K:T.BOATS.row,g:g(0,0.8),sp:1.5,row:{l:0.6,r:0.1,ok:0.8}}}],
  ['ship',{k:'ship',o:{ord:3,sp:3,K:{top:6},rud:-0.4}}],['train',{k:'train',o:{v:22,dir:1,rail:{n:2,rev:1,bp:0.3,lim:95}}}],
  ['balloon',{k:'balloon',o:{x:0,y:G+40,z:0,vy:1.5,heat:0.7}}],
+ ['mgring',{k:'mech',o:{x:0,y:G+20,z:0,vx:6,vz:7,vy:2.4,grounded:false,boostOn:true,en:55}}],['mgring',{k:'mech',o:{x:0,y:G+1,z:0,vx:3,vz:0,vy:0,grounded:true,en:0,red:1}}],
 ];
 let html='<!doctype html><meta charset=utf-8><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jersey+10&family=Atkinson+Hyperlegible+Next:wght@400;600;700;800&family=Atkinson+Hyperlegible+Mono:wght@400;600;700&family=Chakra+Petch:wght@400;600;700&display=swap"><style>'+fs.readFileSync('../../src/style.css','utf8')+'body{background:linear-gradient(#9fd2f2,#5e8d3a);display:flex;flex-wrap:wrap;gap:24px;padding:20px}.cell{position:relative;width:330px;height:270px;border:2px solid #2b1b2e}.cell b{position:absolute;left:4px;top:2px;font:12px monospace}</style>';
 for(const [k,D] of S){const I=T.INSTRUMENTS[k];let h;try{h=I.draw(P,D,0.05);}catch(e){h='<text>'+e.message+'</text>';}

@@ -162,6 +162,28 @@ function inJet(p,D){const pl=D.o,F=pl.free||{},A=inAtt(pl),spd=Math.round((F.v||
   if(planeStalled(F,pl))s+=inT(800,560,30,'STALL','mono','middle',0,'#ff6a5a');
   return s;}
 
+// the Mobile Gear's speed ring: a segmented arc of its own speed (cyan, hotter near the top), the number in the middle, a
+// tag for what it's doing (WALK, SKATE, AIR, ASSAULT, or REDLINE while its energy's run out), its vertical speed and height
+// over the ground, and a pip for each quick boost its energy would pay for (three at most). In Chakra Petch (.mk)
+const MG_RING_MODES={WALK:'#cfeeff',SKATE:'#7cd4ff',AIR:'#b59bff',ASSAULT:'#ffb04a',REDLINE:'#ff4a3a'},MG_RING_TOP=240;
+function inMech(p,D){const M=D.o,sp=Math.hypot(M.vx||0,M.vz||0)*BPS_KMH,k=inCl(sp/MG_RING_TOP,0,1);
+  const mode=M.red>0?'REDLINE':M.ab?'ASSAULT':!M.grounded?'AIR':M.boostOn?'SKATE':'WALK',col=MG_RING_MODES[mode],red=mode==='REDLINE';
+  const vs=M.vy||0,alt=Math.max(0,Math.round(M.y-groundAt(M.x,M.z,M.y+0.5))),qb=Math.max(0,Math.min(3,Math.floor((M.en||0)/MG.qbEN))),id='mgg'+p.idx;
+  const ln=(a,r1,r2,st)=>{const[x1,y1]=inPt(a,r1),[x2,y2]=inPt(a,r2);return`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" ${st}/>`;},
+    t=(x,y,s,txt,fill,ls)=>`<text x="${x}" y="${y}" text-anchor="middle" class="mk" font-size="${s}" fill="${fill}"${ls?` style="letter-spacing:${ls}px"`:''}>${txt}</text>`;
+  const N=40;let s=`<defs><radialGradient id="${id}"><stop offset="0" stop-color="rgba(10,16,24,.82)"/><stop offset="1" stop-color="rgba(10,16,24,.55)"/></radialGradient></defs><circle r="58" fill="url(#${id})"/>`;
+  s+=`<circle r="57" fill="none" stroke="rgba(232,246,255,.25)" stroke-width="1" stroke-dasharray="2 4"/>`;
+  for(let i=0;i<N;i++){const a0=-135+270*i/N+1.2,a1=-135+270*(i+1)/N-1.2,on=i/N<k,hot=i/N>.82,c=on?(hot&&!red?'#ff6a4a':col):'rgba(232,246,255,.12)';
+    s+=`<path d="${inArc(48,a0,a1)}" fill="none" stroke="${c}" stroke-width="7"/>`;}
+  for(let i=1;i<6;i++)s+=ln(-135+45*i,40,37,'stroke="rgba(232,246,255,.6)" stroke-width="1"');
+  s+=t(0,6,25,sp.toFixed(1).padStart(5,'0'),red?col:'#e8f6ff',1)+t(0,17,7,'KM/H','rgba(232,246,255,.7)',2);
+  s+=`<g transform="translate(0,-26)"><path d="M-24,-7 H24 L28,0 L24,7 H-24 L-28,0 Z" fill="rgba(10,16,24,.9)" stroke="${col}" stroke-width="1.5"/>${t(0,3,8,mode,col,1.5)}</g>`;
+  s+=t(-23,32,6.5,'VS','rgba(232,246,255,.65)')+t(-23,40,8,(vs>=0?'+':'−')+Math.abs(vs).toFixed(1),'#e8f6ff')+t(23,32,6.5,'ALT','rgba(232,246,255,.65)')+t(23,40,8,String(alt).padStart(3,'0'),'#e8f6ff');
+  for(let i=0;i<3;i++)s+=`<path d="M${-10.5+i*9},52 l3,-4 h3 l-3,4 z" fill="${i<qb?'#7cd4ff':'rgba(232,246,255,.15)'}"/>`;
+  s+=t(0,62,5.5,'QUICK BOOST','rgba(232,246,255,.55)',1.5);
+  for(const [x,y,a,b] of [[-62,-62,1,1],[62,-62,-1,1],[-62,62,1,-1],[62,62,-1,-1]])s+=`<path d="M${x},${y+b*10} V${y} H${x+a*10}" fill="none" stroke="rgba(232,246,255,.45)" stroke-width="1.2"/>`;
+  return s;}
+
 // the renderers by key: draw, the box it's drawn in (vb), and how wide (w, pixels); over, laid over the view
 const INSTRUMENTS={
   dial:{units:'km/h',dial:true},   // (today's dial, in the slot's own markup: players.js)
@@ -181,6 +203,7 @@ const INSTRUMENTS={
   ship:{vb:'0 -14 210 118',w:240,draw:inShip},
   train:{vb:'0 -12 200 126',w:240,draw:inTrain},
   balloon:{vb:'0 0 222 134',w:250,draw:inBalloon},
+  mgring:{vb:'-66 -66 132 134',w:170,draw:inMech,flat:true},
 };
 // which one a car has, by its body
 const CAR_INST={bike:'bike',truck:'truck',semi:'truck',bus:'truck',fire:'truck',hover:'hover',forklift:'fork',tractor:'tractor'};
