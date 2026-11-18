@@ -58,7 +58,6 @@ aside{background:var(--panel);overflow:auto;min-height:0}
 .chrow{margin-bottom:0}
 .chrow input[type=range]{flex:1;min-width:60px}
 .chrow .unit{color:var(--dim);width:34px}
-.chhint{color:var(--dim);font-size:11px;margin:0 0 5px 42px}
 #center{display:grid;grid-template-rows:auto 1fr auto;min-width:0;min-height:0}
 #toolbar{display:flex;gap:6px;align-items:center;padding:5px 8px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
 #toolbar .sep{width:1px;height:20px;background:var(--line)}
@@ -132,18 +131,17 @@ kbd{background:#2c3038;border:1px solid #444;border-radius:3px;padding:0 4px;fon
   <p><kbd>G</kbd> move, <kbd>R</kbd> tilt, <kbd>S</kbd> size (on a selected box or hit shape) · <kbd>Ctrl</kbd>+<kbd>D</kbd> duplicate · <kbd>M</kbd> mirror across x · <kbd>Del</kbd> delete the selected box, shape or key · <kbd>F</kbd> frame the view on it<br>
   <kbd>Space</kbd> play or pause · <kbd>K</kbd> key at the playhead · <kbd>,</kbd> and <kbd>.</kbd> step the playhead · <kbd>Ctrl</kbd>+<kbd>Z</kbd> undo, <kbd>Ctrl</kbd>+<kbd>Y</kbd> redo · <kbd>Ctrl</kbd>+<kbd>S</kbd> save · <kbd>?</kbd> this help</p>
   <h3>Moving around</h3>
-  <p>Left drag turns the view, right drag pans, the wheel zooms. Click a box to select it, then drag its arrows. <kbd>Shift</kbd>+click picks more than one (in the view or the list), and the handles then move, turn and size them all together; Duplicate, Mirror and Delete take them all. Hold <kbd>Shift</kbd> while dragging for finer snapping.</p>
+  <p>Left drag turns, right drag pans, the wheel zooms. Click a box, then drag its arrows. <kbd>Shift</kbd>+click picks more than one. <kbd>Shift</kbd> while dragging snaps finer.</p>
   <h3>Animations</h3>
-  <p>A timeline runs 0 to 2: the wind-up up to 1, where the blow lands, then the follow-through. Each channel (arm swing, wrist, lean...) has keys of its own, a row each on the timeline; the top row shows every time anything's keyed, and dragging a diamond there moves every channel's key at that time. A key's ease (smooth, in or out) is how its channel reaches it from its key before. Click on the timeline to move the playhead, drag a key to move it, double-click a channel's row to key that channel (anywhere else: every channel). Moving a slider with Auto-key on keys just that channel at the playhead; the diamond beside it keys or unkeys it. <kbd>K</kbd> keys every channel.</p>
+  <p>0 to 2: wind-up, the blow lands at 1, follow-through. One row of keys per channel; the top row moves every channel's key at that time. Click: playhead. Drag a key to move it. Double-click a row: key that channel (elsewhere: every channel). The diamond by a slider keys or unkeys it.</p>
   <h3>Posing by dragging</h3>
-  <p>In an animation, drag a part of the goblin (or the first-person arm and weapon) in the view and the editor works out the channels that put it under the mouse, at the playhead. Body: the arm swings it (the hand follows the mouse), the weapon turns the wrist (Shift: the whole arm), the other arm swings it, the body twists and leans (Shift: steps). First person: across and up (Shift: tilt and roll, Alt: forward). Each channel stays inside its limits, and with Auto-key off only channels already keyed there move. Ctrl+Z undoes a whole drag.</p>
-  <p>The channels are named in plain words, in degrees or blocks, with a line under each saying which way is which.</p>
+  <p>Drag a part of the figure to pose it at the playhead. Body: arm, weapon (wrist; Shift: whole arm), other arm, body (twist and lean; Shift: step). First person: across and up (Shift: tilt and roll; Alt: forward). Hover a channel's name for which way is which.</p>
   <h3>Hitboxes</h3>
-  <p>A weapon's Hitboxes tab plays its blow (the one others see Gnash swing) on the timeline, with a row per hitbox: drag its bar to set when it hurts (it counts on every frame inside), its ends to make that longer or shorter; one without a bar hurts only as the blow lands. Each hitbox is placed from the goblin's feet or follows the hand through the swing (Follows, in the inspector). A goblin is hit once a swing.</p>
+  <p>The timeline is the weapon's blow, a row per hitbox. A bar is when it hurts: drag it, or its ends. No bar: it hurts on impact. A goblin is hit once a swing.</p>
   <h3>Models</h3>
-  <p>Each weapon has one shared model. Each view (held, first person, dropped, put away) either uses it, placed for that view (Move the whole model, or the place, tilt and size in the inspector), or has a version of its own (Make unique; Use the shared model goes back). Editing a box of the shared model changes every view that uses it.</p>
+  <p>Each view uses the shared model, placed for that view, or a version of its own (Make unique). Editing the shared model changes every view using it.</p>
   <h3>Limits</h3>
-  <p>Walking legs and the game's recoil are worked out by the game and aren't shown here: use Open game to see them. Enemies already in a game keep their old weapon models till it's reloaded. The panes' edges drag to resize them.</p>
+  <p>Walking legs and recoil only show in the game (Open game). Panes resize from their edges.</p>
   <p style="text-align:right"><button onclick="document.getElementById('help').classList.remove('show')">Close</button></p>
 </div></div>
 <div id="dialog"><div id="dlgBody"></div></div>

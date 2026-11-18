@@ -81,7 +81,7 @@ function renderList(){
   for(const n of S.list.bodies||[])if(hit(n))h+=it('bodies',n,(DOCS.get(key('bodies',n))||{data:{}}).data.name||n);
   h+='<div class="grp"><span>Other animations</span><button class="x" id="newC" title="New animation (a copy of the one open). A weapon uses it once it\'s picked in the weapon\'s Stats">+ new</button></div>';
   let none=true;for(const n of S.list.clips)if(!used.has(n)&&hit(n)){h+=it('clips',n,n,LAYOUT_NAME[clipLayout(n)]||'');none=false;}
-  if(none)h+='<div class="note" style="padding:0 6px">'+(q?'None match':'None: every animation belongs to a weapon (open a weapon\'s ▸)')+'</div>';
+  if(none)h+='<div class="note" style="padding:0 6px">'+(q?'None match':'None')+'</div>';
   $('assetList').innerHTML=h;
   for(const e of $('assetList').querySelectorAll('.item'))e.onclick=()=>open(e.dataset.k,e.dataset.n,e.dataset.w);
   for(const b of $('assetList').querySelectorAll('button[data-tw]'))b.onclick=ev=>{ev.stopPropagation();const n=b.dataset.tw;if(OPEN.has(n))OPEN.delete(n);else OPEN.add(n);renderList();};
@@ -113,7 +113,7 @@ async function newAsset(kind){
   const src=await loadDoc(kind,base),data=clone(src.data);if(kind==='weapons')data.name=name;
   DOCS.set(key(kind,name),{kind,name,data,saved:'',stamp:'',undo:[],redo:[],isNew:true});
   S.list[kind].push(name);if(kind==='weapons')WDATA[name]=data;
-  await open(kind,name);status('New '+(kind==='weapons'?'weapon':'animation')+' '+name+': not saved yet. A new weapon needs a Build before Open game knows it');
+  await open(kind,name);status('New '+(kind==='weapons'?'weapon':'animation')+' '+name+(kind==='weapons'?' (Build before Open game)':''));
 }
 
 // ---- saving ----
@@ -144,11 +144,11 @@ window.closeDlg=closeDlg;
 
 // ---- the live game: Open game opens the built game with ?editor, and each edit is sent to it ----
 function openGame(){
-  S.game=window.open('/game/index.html?editor','gsg-editor-game');S.gameOk=false;$('gameDot').className='';status('Opening the game… (it uses the last Build)');
+  S.game=window.open('/game/index.html?editor','gsg-editor-game');S.gameOk=false;$('gameDot').className='';status('Opening the game…');
 }
 addEventListener('message',e=>{
   if(e.origin!==location.origin||!e.data)return;
-  if(e.data.type==='gsg-ready'){S.gameOk=true;$('gameDot').className='on';status('Game connected: edits show in it as you make them');for(const d of DOCS.values())if(dirty(d))sendLive(d);}
+  if(e.data.type==='gsg-ready'){S.gameOk=true;$('gameDot').className='on';status('Game connected');for(const d of DOCS.values())if(dirty(d))sendLive(d);}
   if(e.data.type==='gsg-asset-done'&&e.data.result!=='ok')status('The game couldn\'t take '+e.data.name+': '+e.data.result,true);
 });
 function sendLive(d){
@@ -273,16 +273,15 @@ function rebuild(){
       if(W&&W.hit)drawHits(W.hit,J.root,true);
       posed={k:'body',J};}
     else{const F=fpRig(W);content.add(F.vm);F.vm.scale.setScalar(1);fpView=fpRig(W);posed={k:c.layout,F,W};}
-    poseAt(S.t);hud(S.playing?'':POSE_HINT[c.layout==='body'?'body':'fp']);
+    poseAt(S.t);hud('');
   }
 }
 function outline(m){const e=new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry),new THREE.LineBasicMaterial({color:0xffd060,depthTest:false}));e.renderOrder=9;m.add(e);}
 function budget(L,mode){
   const tri={box:12,cyl:40,cone:20,sphere:100,wedge:8},sh=new Set(L.map(b=>b.sh||'box'));
   const t=L.reduce((a,b)=>a+(tri[b.sh||'box']||12),0);
-  if(mode==='none')return hud('This weapon has no model for this view: the inspector can add one');
-  hud(L.length+' boxes · '+t+' triangles · '+sh.size+' shape'+(sh.size>1?'s':'')+' · '+(mode==='shared'?'the shared model':'a version of its own')+(sh.has('sphere')?'\nspheres cost the most triangles: keep them off goblins':'')+
-    (S.wl==='held'?'\nheld in the hand, in the hand\'s own frame':S.wl==='view'?'\nyour own first-person view (inset: as the game frames it)':S.wl==='stow'?'\nput away on the body (a holster, slung on the back)':'\nlying on the ground to be picked up'));
+  if(mode==='none')return hud('No model');
+  hud(L.length+' boxes · '+t+' triangles · '+sh.size+' shape'+(sh.size>1?'s':'')+' · '+(mode==='shared'?'the shared model':'a version of its own')+(sh.has('sphere')?'\nspheres cost the most triangles':''));
 }
 function hud(t){$('hud').textContent=t;}
 
@@ -318,19 +317,17 @@ function poseBody(J,c,u,W,reload){
   if(S.grip&&k&&!reload&&GUN_GRIP[k]){J.arm.hand=J.hand;gunGrip(J,J.root,k);}
 }
 // the toggle: both hands on the gun as the game puts them, or the pose as the animation alone has it
-const gripChk=()=>'<label title="The game puts both hands on a gun just before drawing it (gunGrip); off, the pose as the animation alone has it"><input type="checkbox" id="gripChk"'+(S.grip?' checked':'')+'> Two hands on the gun (as in game)</label>';
+const gripChk=()=>'<label title="The game puts both hands on a gun just before drawing it (gunGrip); off, the pose as the animation alone has it"><input type="checkbox" id="gripChk"'+(S.grip?' checked':'')+'> Two hands on the gun</label>';
 // a grip on show: a goblin with each gun that uses it, aiming (its pose at the blow) and carried (the pose's start)
 function buildGrip(k){
   const ws=S.list.weapons.filter(n=>WDATA[n]&&WDATA[n].npc&&WDATA[n].npc.aim===k);let x=0;
   for(const n of ws.length?ws:[]){const W=WDATA[n],ac=aimClip(W);if(!ac)continue;
     for(const u of [0,1]){const J=goblin(false);J.root.position.x=0;for(const b of viewList(W,'held'))J.hand.add(boxMesh(b));
       const g=new THREE.Group();g.position.x=x;g.add(J.root);content.add(g);poseBody(J,ac,u,W);x+=1.1;}}
-  if(S.grip)gripStatus(k,ws);else hud('Two hands on the gun is off: the poses as their animations have them');
-  if(!ws.length)hud('No weapon uses this grip yet (a weapon names its grip in npc.aim)');
+  if(S.grip)gripStatus(k,ws);else hud('');
+  if(!ws.length)hud('No weapon uses this grip');
 }
-function gripStatus(k,ws){hud('Grip '+k+': '+ws.map(n=>WDATA[n].name).join(', ')+'\neach gun twice: carried (its pose at the start), then aimed (at the blow)'+
-  '\nnumbers: sh the weapon hand, out how far along the gun, fore [aimed, carried] the free hand along the gun,'+
-  '\ntw [aimed, carried] the turn side-on, low a carried gun\'s droop, reach how far a shoulder may give');}
+function gripStatus(k,ws){hud(ws.map(n=>WDATA[n].name).join(', ')+'\neach gun carried, then aimed');}
 // a weapon's aiming pose (its npc.pose clip), for showing it held
 const aimClip=W=>{const n=W&&W.npc&&W.npc.pose,d=n&&DOCS.get(key('clips',n));return d?d.data:null;};
 
@@ -365,8 +362,8 @@ function buildHit(W){
   hitMeshes=pickable;
   if(bc){hitPose={J,c:bc,W};hitLive(S.t);}
   if(S.hsel>=0)attachSel();
-  hud(body?H.length+' hurtbox'+(H.length===1?'':'es')+'\nwhere a goblin can be hurt, from its feet (+z the way it faces)\nonly weapons with hitboxes of their own test against these':
-    H.length+' hitbox'+(H.length===1?'':'es')+(H.length?'':' (the game uses the built-in hit, in blue)')+'\nposed on its blow, '+hitBlowName(W)+', at the playhead: solid where it hurts then\nfrom the feet (+z the way it faces), or following the hand\nthe goblin ahead shows its hurtboxes (Bodies: goblin)');
+  hud(body?H.length+' hurtbox'+(H.length===1?'':'es'):
+    H.length+' hitbox'+(H.length===1?'':'es')+(H.length?'':' (built-in hit in blue)'));
 }
 // ---- a weapon's hitboxes on the timeline of its blow (the one Gnash's third person swings: gobBodyPose) ----
 const hitBlowName=W=>W&&(W.player&&W.player.body||W.npc&&W.npc.strike)||'club';
@@ -443,7 +440,6 @@ function renderToolbar(){
   }else{
     if(d.data.layout==='body')h+=gripChk();
     h+='<label>Shown with <select id="pwSel">'+S.list.weapons.map(n=>'<option value="'+n+'"'+(n===S.previewW?' selected':'')+'>'+esc(WDATA[n]?WDATA[n].name:n)+'</option>').join('')+'</select></label>';
-    h+='<span class="note">'+esc(ASSET_LAYOUTS[d.data.layout]?ASSET_LAYOUTS[d.data.layout].about:'')+'</span>';
   }
   h+='<span class="grow"></span><button id="frameBtn" title="Frame the view (F)">Frame</button>';
   $('toolbar').innerHTML=h;
@@ -486,23 +482,23 @@ function renderBoxInsp(B,d){
   const sharing=ASSET_LISTS.filter(k=>viewMode(W,k)==='shared').map(k=>({held:'held',view:'first person',drop:'dropped',stow:'put away'}[k]));
   let h='<h3>This view</h3>';
   if(mode==='shared'){const at=W.model[j].at||{};
-    h+='<p class="note">The shared model (used by: '+esc(sharing.join(', '))+'), placed for this view. Editing a box changes it in every view that shares it; the place, tilt and size here are this view\'s alone.</p>'+
+    h+='<p class="note">Shared with: '+esc(sharing.join(', '))+'</p>'+
       '<div class="row"><label>Place</label>'+v3(at.p||[0,0,0],'ap')+'</div><div class="row"><label>Tilt (degrees)</label>'+v3(deg(at.r),'ar')+'</div><div class="row"><label>Size</label>'+num(at.k??1,'ak')+'</div>'+
       '<div class="row"><button id="plSel" class="'+(S.sel===-2?'on':'')+'" title="Drag the whole model with the handles">Move the whole model</button><button id="mkOwn" title="Give this view a version of its own, starting from the shared model as placed here">Make unique</button></div>';}
-  else if(mode==='own')h+='<p class="note">A version of its own: edits here change only the '+VN+' model.</p><div class="row"><button id="useShared"'+(W.model.boxes&&W.model.boxes.length?'':' disabled')+' title="Drop this version and use the shared model again, placed as it was last">Use the shared model</button></div>';
-  else h+='<p class="note">This weapon has no '+VN+' model.</p><div class="row"><button id="addView">Add one (the shared model)</button></div>';
+  else if(mode==='own')h+='<div class="row"><button id="useShared"'+(W.model.boxes&&W.model.boxes.length?'':' disabled')+' title="Drop this version and use the shared model again, placed as it was last">Use the shared model</button></div>';
+  else h+='<div class="row"><button id="addView">Add model</button></div>';
   if(mode!=='none')h+='<h3>'+(mode==='shared'?'Shared model\'s boxes':'Its own boxes')+'</h3>';
   if(mode!=='none')h+='<div class="row"><button id="addBox">+ Box</button><button id="dupBox"'+(b?'':' disabled')+'>Duplicate</button><button id="mirBox"'+(b?'':' disabled')+' title="A copy on the other side (x flipped)">Mirror</button><button id="delBox"'+(b?'':' disabled')+'>Delete</button></div>';
   if(mode!=='none')h+='<div class="list" id="boxList">'+L.map((x,i)=>'<div class="item'+(sl.includes(i)?' on':'')+'" data-i="'+i+'"><span style="color:'+(x.c==='@club'?'#7a5530':x.c)+'">■</span> '+esc(x.role||x.tag||(x.sh&&x.sh!=='box'?x.sh:'box'))+' <small>'+x.s.map(v=>+v.toFixed(3)).join(' × ')+'</small></div>').join('')+'</div>';
   if(b){
-    h+=sl.length>1?'<p class="note">'+sl.length+' boxes picked: the handles move, turn and size them together. The numbers below are for box '+(S.sel+1)+', the last picked.</p>':'';h+='<h3>Box '+(S.sel+1)+'</h3>';
+    h+=sl.length>1?'<p class="note">'+sl.length+' picked</p>':'';h+='<h3>Box '+(S.sel+1)+'</h3>';
     h+='<div class="row"><label>Size</label>'+v3(b.s,'bs')+'</div><div class="row"><label>Place</label>'+v3(b.p,'bp')+'</div><div class="row"><label>Tilt (degrees)</label>'+v3((b.r||[0,0,0]).map(v=>+(v*180/Math.PI).toFixed(2)),'br')+'</div>';
     h+='<div class="row"><label>Shape</label><select id="bsh">'+ASSET_SHAPES.map(s=>'<option'+((b.sh||'box')===s?' selected':'')+'>'+s+'</option>').join('')+'</select></div>';
     const isRole=b.c[0]==='@';
     h+='<div class="row"><label>Colour</label><input type="color" id="bc" value="'+(isRole?'#7a5530':b.c)+'"'+(isRole?' disabled':'')+'><label style="width:auto"><input type="checkbox" id="brole"'+(isRole?' checked':'')+'> club colour</label></div>';
     if(S.wl==='held'||S.wl==='stow')h+='<div class="row"><label>Part name</label><input id="brl" value="'+esc(b.role||'')+'" placeholder="e.g. blade"></div>';
     if(S.wl==='view')h+='<div class="row"><label>Draw order</label>'+num(b.o,'bo',1)+'</div><div class="row"><label>Moves as</label><select id="btag">'+['','mag','load','bolt','pump','slide'].map(t=>'<option value="'+t+'"'+((b.tag||'')===t?' selected':'')+'>'+(t||'(fixed)')+'</option>').join('')+'</select></div>';
-  }else if(mode!=='none')h+='<p class="note">Click a box in the view or the list to edit it (Shift+click picks more than one).'+(mode==='shared'?' (A box\'s numbers are in the shared model\'s own frame.)':'')+'</p>';
+  }
   if(S.wl==='view'){const F=W.model.fore;h+='<h3>Other forearm</h3>'+(F?'<div class="row"><label>Hand at</label>'+v3(F.p,'fp')+'</div><div class="row"><label>From</label>'+v3(F.r,'fr')+'</div><div class="row"><button id="foreDel">Remove</button></div>':'<div class="row"><button id="foreAdd">+ Other hand on it</button></div>');}
   if(W.note!==undefined||true)h+='<h3>Note</h3><textarea id="wnote" rows="3" style="width:100%" placeholder="What this weapon is, for whoever edits it next">'+esc(W.note||'')+'</textarea>';
   B.innerHTML=h;
@@ -513,9 +509,9 @@ function renderBoxInsp(B,d){
     $('ak').onchange=pa((at,v)=>{at.k=r4(Math.max(0.01,v));});
     $('plSel').onclick=()=>{S.sel=S.sel===-2?-1:-2;rebuild();renderInsp();};
     $('mkOwn').onclick=()=>{edit(W2=>{const own=assetList(W2.model,j).map(x=>{x.p=x.p.map(r4);x.s=x.s.map(r4);if(x.r)x.r=x.r.map(r4);return x;});W2.model[j]={at:W2.model[j].at,own};});
-      if(S.sel===-2)S.sel=-1;renderToolbar();renderInsp();rebuild();status('The '+VN+' model is now a version of its own');};}
+      if(S.sel===-2)S.sel=-1;renderToolbar();renderInsp();rebuild();status('Made unique');};}
   if($('useShared'))$('useShared').onclick=()=>{edit(W2=>{const v=W2.model[j];if(Array.isArray(v)||!v.at)W2.model[j]={at:{p:[0,0,0]}};else delete v.own;});
-    S.sel=-1;renderToolbar();renderInsp();rebuild();frameView();status('The '+VN+' model is the shared one again (Ctrl+Z brings its own version back)');};
+    S.sel=-1;renderToolbar();renderInsp();rebuild();frameView();status('Using the shared model');};
   if($('addView'))$('addView').onclick=()=>{edit(W2=>{editList(W2,j,true);});S.sel=-1;renderToolbar();renderInsp();rebuild();frameView();};
   if(mode!=='none'){
   $('addBox').onclick=()=>edit(W2=>{const L=editList(W2,j,true),o=b?b.p:[0,0,0];L.push({s:[0.1,0.1,0.1],p:[o[0],o[1],o[2]+0.1],c:b?b.c:'#888888'});if(mode==='own'&&j==='view')L[L.length-1].o=62;S.sel=L.length-1;});
@@ -558,7 +554,7 @@ const FIELD_HELP={name:'Its name in the game',about:'The line on the Character t
   'player.dur':'Seconds the swing or shot takes','player.lunge':'Seconds till it lands','player.cause':'What it\'s called when it kills you','player.swing':'First-person swing (an animation)',
   'player.rl':'First-person reload (an animation)','player.body':'The blow others see him strike (an animation)','player.auto':'Fires for as long as the button\'s held','player.cycle':'bolt, pump or slide worked after a shot'};
 function renderStats(B,d){
-  const W=d.data;let h='<p class="note">'+(d.kind==='grips'?'How both hands go on a gun that names this grip (npc.aim), for everyone holding one. See the view for what each number does.':'Every number here is the same whoever carries it: Gnash, Grizzle or any enemy.')+'</p><table class="stats">';
+  const W=d.data;let h='<table class="stats">';
   // (a field naming an animation or a grip: a choice of the ones there are, of the kind that fits)
   const REF={};if(d.kind==='weapons'){for(const [a,f,,L] of WCLIPS)REF[a+'.'+f]=S.list.clips.filter(c=>clipLayout(c)===L);REF['npc.aim']=S.list.grips||[];}
   const row=(path,v)=>{const id='st_'+path;let inp;
@@ -575,7 +571,6 @@ function renderStats(B,d){
     if(v&&typeof v==='object'&&!Array.isArray(v)){h+='<tr class="sec"><td colspan="3">'+esc(k)+'</td></tr>';for(const j in v)h+=row(k+'.'+j,v[j]);}
     else h+=row(k,v);}
   h+='</table><h3>Add a field</h3><div class="row"><input id="nf" placeholder="name, or npc.name / player.name" style="flex:1"><select id="nft"><option>number</option><option>text</option><option>yes/no</option></select><button id="nfb">Add</button></div>';
-  h+='<p class="note">Hover a field for what it does.</p>';
   B.innerHTML=h;
   const at=(o,p)=>{const s=p.split('.');for(let i=0;i<s.length-1;i++)o=o[s[i]]=o[s[i]]||{};return [o,s[s.length-1]];};
   for(const inp of B.querySelectorAll('input[id^=st_]')){const path=inp.id.slice(3);
@@ -591,8 +586,8 @@ function renderStats(B,d){
 }
 function renderHitInsp(B,d){
   const set=hitSet(),body=set==='hurtboxes',W=d.data,H=(W.hit&&W.hit[set])||[],s=H[S.hsel];
-  let h=body?'<div class="row"><label>Name</label><input id="bname" value="'+esc(W.name||'')+'"></div><p class="note">Where this body can be hurt, from its feet (+z the way it faces). A weapon with hitboxes of its own hits it when one of them touches one of these.</p>':
-    '<p class="note">Where and when a blow with this weapon hurts. Each hitbox is placed from the goblin\'s feet (+z ahead) or follows its hand, and hurts for a stretch of the blow (the timeline below). It hits a goblin when it touches one of its hurtboxes (Bodies: goblin). With none, the game uses the built-in hit in blue: everything within r of a point reach ahead, as the blow lands. (Gnash and Grizzle use them; enemies keep the built-in hit for now.)</p>';
+  let h=body?'<div class="row"><label>Name</label><input id="bname" value="'+esc(W.name||'')+'"></div>':
+    '';
   h+='<div class="row"><button data-add="sphere">+ Sphere</button><button data-add="capsule">+ Capsule</button><button data-add="box">+ Box</button></div>';
   h+='<div class="row">'+(body?'':'<button id="hbCopy"'+(W.r&&W.reach?'':' disabled')+'>Copy the built-in hit</button>')+(s?'<button id="hbDel">Delete</button>':'')+'</div>';
   h+='<div class="list">'+H.map((x,i)=>'<div class="item'+(selList().includes(i)?' on':'')+'" data-i="'+i+'">'+x.k+' <small>'+(body?'':x.t?'live '+x.t.join('–'):'always')+'</small></div>').join('')+'</div>';
@@ -600,9 +595,8 @@ function renderHitInsp(B,d){
     if(s.k==='box')h+='<div class="row"><label>Size</label>'+v3(s.s,'hs')+'</div>';else h+='<div class="row"><label>Radius</label>'+num(s.r,'hr')+'</div>';
     if(s.k==='capsule')h+='<div class="row"><label>Length</label>'+num(s.h,'hh')+'</div>';
     h+='<div class="row"><label>Tilt (degrees)</label>'+v3((s.rot||[0,0,0]).map(v=>+(v*180/Math.PI).toFixed(2)),'hro')+'</div>';
-    if(!body)h+='<div class="row"><label>Follows</label><select id="hon"><option value="">the feet (where it stands)</option><option value="hand"'+(s.on==='hand'?' selected':'')+'>the hand (swings with the blow)</option></select></div>'+
-      '<div class="row"><label>Hurts</label><select id="hlv"><option value="">only as the blow lands (1)</option><option value="1"'+(s.t?' selected':'')+'>from … to …</option></select></div>'+(s.t?'<div class="row"><label>From, to</label>'+num(s.t[0],'ht0')+num(s.t[1],'ht1')+'</div>':'')+
-      '<p class="note">On the timeline below, 0 to 2: the wind-up, the blow landing at 1, the follow-through. A goblin is hit once a swing, by the first hitbox to touch it.'+(s.on==='hand'?' Its numbers are in the hand\'s own frame.':'')+'</p>';}
+    if(!body)h+='<div class="row"><label>Follows</label><select id="hon"><option value="">Feet</option><option value="hand"'+(s.on==='hand'?' selected':'')+'>Hand</option></select></div>'+
+      '<div class="row"><label>Hurts</label><select id="hlv"><option value="">On impact</option><option value="1"'+(s.t?' selected':'')+'>From … to …</option></select></div>'+(s.t?'<div class="row"><label>From, to</label>'+num(s.t[0],'ht0')+num(s.t[1],'ht1')+'</div>':'');}
   B.innerHTML=h;
   for(const e of B.querySelectorAll('.list .item'))e.onclick=ev=>{pickSel(+e.dataset.i,ev.shiftKey);rebuild();renderInsp();};
   const add=sh=>edit(W2=>{W2.hit=W2.hit||{};const L=W2.hit[set]=W2.hit[set]||[];const R0=body?0.25:W2.r||1,F=body?0:W2.reach||1;
@@ -656,20 +650,18 @@ const toUI=(U,v)=>U.u==='deg'?+(v*180/Math.PI).toFixed(2):+(+v).toFixed(4),fromU
 const UNIT_TXT={deg:'°',blk:'blocks'};
 function renderClipInsp(B,d){
   const c=d.data,L=ASSET_LAYOUTS[c.layout],names=chNames(c),n=names.length,v=clipAt(c,S.t),k=S.key,dis=S.playing?' disabled':'';
-  let h='<div class="row"><label>Layout</label><b>'+esc(c.layout)+'</b></div><p class="note">'+esc(L?L.about:'')+'. Users: '+esc(users(S.name).join(', ')||'none yet')+'</p>';
+  let h='<div class="row"><label>Layout</label><b>'+esc(c.layout)+'</b></div><p class="note">Used by: '+esc(users(S.name).join(', ')||'nothing')+'</p>';
   h+='<div class="row"><button id="kAdd" title="A key on every channel at the playhead (K)">+ Key every channel</button><button id="kDel"'+(k?'':' disabled')+'>Delete key'+(k&&k.all!==undefined?'s':'')+'</button></div>';
-  h+='<div class="row"><label style="width:auto"><input type="checkbox" id="autoK"'+(S.autoKey?' checked':'')+'> Auto-key: moving a channel keys just that channel at the playhead</label></div>';
+  h+='<div class="row"><label style="width:auto"><input type="checkbox" id="autoK"'+(S.autoKey?' checked':'')+'> Auto-key</label></div>';
   h+='<h3 id="poseH">'+poseTitle(c)+'</h3>';poseShownK=JSON.stringify(k);
-  if(S.playing)h+='<p class="note">Playing: pause (Space) to change the pose.</p>';
   if(k&&k.all===undefined){const q=trackOf(c,k.j)[k.i];if(q)h+='<div class="row"><label>Time</label>'+num(q[0],'kt',0.01)+'</div><div class="row"><label>Ease into it</label>'+easeSel('ke',q[2])+'</div>';}
   else if(k){const es=names.map(nm=>{const K=c.tracks[nm],i=keyIn(K,k.all);return i<0?null:(K[i][2]||'');}).filter(e=>e!==null);
     h+='<div class="row"><label>Time</label>'+num(k.all,'kt',0.01)+'</div><div class="row"><label>Ease into them</label>'+easeSel('ke',es[0],es.some(e=>e!==es[0]))+'</div>';}
   for(let j=0;j<n;j++){const U=chUI(c,j),has=keyIn(trackOf(c,j),S.t)>=0,st=U.u==='deg'?0.5:0.005,val=toUI(U,v[j]);
     h+='<div class="row chrow"><button class="kd'+(has?' on':'')+'" id="kd'+j+'"'+dis+' title="'+(has?'This channel has a key here: click to delete it':'Key this channel at the playhead')+'" style="color:'+CH_COL[j%CH_COL.length]+'">'+(has?'◆':'◇')+'</button>'+
       '<label title="'+esc(U.h)+'" style="color:'+CH_COL[j%CH_COL.length]+';width:118px">'+esc(U.n)+'</label><input type="range" min="'+Math.min(U.lo,val)+'" max="'+Math.max(U.hi,val)+'" step="'+st+'" id="cr'+j+'" value="'+val+'"'+dis+'>'+
-      num(val,'cn'+j,st).replace('<input','<input'+dis)+'<small class="unit">'+(UNIT_TXT[U.u]||'')+'</small></div>'+(U.h?'<div class="chhint">'+esc(U.h)+'</div>':'');}
+      num(val,'cn'+j,st).replace('<input','<input'+dis)+'<small class="unit">'+(UNIT_TXT[U.u]||'')+'</small></div>';}
   if(L&&n<L.ch.length)h+='<div class="row"><button id="addCh">+ '+esc(L.ch[n][1])+' channel</button></div>';
-  if(c.layout==='body')h+='<p class="note">Hitboxes belong to the weapon: its Hitboxes tab has a timeline of this blow, where each is given the stretch of it where it hurts.</p>';
   h+='<h3>Note</h3><textarea id="cnote" rows="4" style="width:100%">'+esc(c.note||'')+'</textarea>';
   B.innerHTML=h;
   $('kAdd').onclick=addKey;$('kDel').onclick=delKey;$('autoK').onchange=e=>{S.autoKey=e.target.checked;};
@@ -679,7 +671,7 @@ function renderClipInsp(B,d){
     if(k.all===undefined)set(trackOf(C,k.j)[k.i]);else for(const nm of chNames(C)){const K=C.tracks[nm],i=keyIn(K,k.all);if(i>=0)set(K[i]);}});};
   for(let j=0;j<n;j++){
     // (soft while dragging a slider: the goblin is posed again, nothing else made again; letting go draws the inspector again)
-    const U=chUI(c,j),put=(val,tag,soft)=>{if(S.playing)return;const C0=doc().data;if(keyIn(trackOf(C0,j),S.t)<0&&!S.autoKey)return status('Switch Auto-key on, or key the channel (◇), to change it here',true);
+    const U=chUI(c,j),put=(val,tag,soft)=>{if(S.playing)return;const C0=doc().data;if(keyIn(trackOf(C0,j),S.t)<0&&!S.autoKey)return status('Auto-key is off: key the channel first',true);
       val=fromUI(U,val);edit(C=>{const i=keyCh(C,j,S.t,true);trackOf(C,j)[i][1]=r4(val);},tag,soft);};
     $('cr'+j).oninput=e=>{$('cn'+j).value=e.target.value;put(+e.target.value,'cr'+j,true);};
     $('cr'+j).onchange=()=>{mergeTag=null;rebuild();renderInsp();};
@@ -713,7 +705,7 @@ function moveKey(u,merge){const d=doc();if(!d||!S.key)return;const k=S.key,c=d.d
   const dt=Math.max(dlo,Math.min(dhi,u-k.all)),t0=k.all,t=r4(t0+dt);if(Math.abs(t-t0)<KEY_EPS/2)return;
   edit(C=>{for(const nm of chNames(C)){const K=C.tracks[nm],i=keyIn(K,t0);if(i>=0)K[i][0]=t;}},merge);S.key={all:t};S.t=t;}
 let poseClip=null;
-function copyKey(){const d=doc();if(!d)return;poseClip=clipAt(d.data,S.t);status('Pose copied: move the playhead and press Ctrl+V to key every channel there');}
+function copyKey(){const d=doc();if(!d)return;poseClip=clipAt(d.data,S.t);status('Pose copied');}
 function pasteKey(){const d=doc();if(!d||!poseClip||S.playing)return;edit(C=>{chNames(C).forEach((nm,j)=>{if(j>=poseClip.length)return;const i=keyCh(C,j,S.t,true);C.tracks[nm][i][1]=r4(poseClip[j]);});});S.key={all:r4(S.t)};renderInsp();}
 const CH_COL=['#e06a5a','#e0b040','#7fb24a','#4ab0c0','#6a8ae0','#b07ae0','#e07ab0'];
 // the timeline: along the top a row of every time something's keyed (drag one to move every channel's key there), then
@@ -736,10 +728,10 @@ function syncPose(){
 }
 function renderTLBar(){
   if(hitTL()){$('tlbar').innerHTML='<button id="tlPlay">'+(S.playing?'Pause':'Play')+' (Space)</button><label><input type="checkbox" id="tlLoop"'+(S.loop?' checked':'')+'> Loop</label>'+
-      '<label>Speed <select id="tlSpd">'+[0.1,0.25,0.5,1].map(v=>'<option'+(v===S.speed?' selected':'')+'>'+v+'</option>').join('')+'</select></label><span class="note" id="tlU"></span><span class="grow"></span><span class="note">Click: playhead, or pick a hitbox by its row (Shift: more than one) · drag a bar to move when it hurts, its ends to change how long · double-click a row: live around there</span>';
+      '<label>Speed <select id="tlSpd">'+[0.1,0.25,0.5,1].map(v=>'<option'+(v===S.speed?' selected':'')+'>'+v+'</option>').join('')+'</select></label><span class="note" id="tlU"></span><span class="grow"></span>';
     $('tlPlay').onclick=()=>setPlaying(!S.playing);$('tlLoop').onchange=e=>S.loop=e.target.checked;$('tlSpd').onchange=e=>S.speed=+e.target.value;return;}
   $('tlbar').innerHTML='<button id="tlPlay">'+(S.playing?'Pause':'Play')+' (Space)</button><label><input type="checkbox" id="tlLoop"'+(S.loop?' checked':'')+'> Loop</label>'+
-    '<label>Speed <select id="tlSpd">'+[0.1,0.25,0.5,1].map(v=>'<option'+(v===S.speed?' selected':'')+'>'+v+'</option>').join('')+'</select></label><span class="note" id="tlU"></span><span class="grow"></span><span class="note">Click: playhead · drag a diamond: move the key (the top row moves every channel\'s) · double-click a channel\'s row: key it, elsewhere: key every channel</span>';
+    '<label>Speed <select id="tlSpd">'+[0.1,0.25,0.5,1].map(v=>'<option'+(v===S.speed?' selected':'')+'>'+v+'</option>').join('')+'</select></label><span class="note" id="tlU"></span><span class="grow"></span>';
   $('tlPlay').onclick=()=>setPlaying(!S.playing);$('tlLoop').onchange=e=>S.loop=e.target.checked;$('tlSpd').onchange=e=>S.speed=+e.target.value;
 }
 function diamond(x,y,r,col){tg.fillStyle=col;tg.beginPath();tg.moveTo(x,y-r);tg.lineTo(x+r,y);tg.lineTo(x,y+r);tg.lineTo(x-r,y);tg.fill();}
@@ -795,8 +787,6 @@ function tlHit(c,x,y){
 // the channels it moves (keyed at the playhead, as a slider would: Auto-key, or a key already there). Each step tries
 // each channel a little either way, sees where the grabbed point goes on the screen, and moves the channels by as much
 // as brings the point to the mouse (least squares, damped so it never jumps) ----
-const POSE_HINT={body:'drag a part to pose it at the playhead: the arm swings it (the hand follows the mouse), the weapon turns the wrist\n(Shift: the whole arm), the other arm swings it, the body twists and leans it (Shift: steps)',
-  fp:'drag the arm or the weapon to pose it at the playhead: it moves across and up (Shift: tilts and rolls, Alt: nearer or further)'};
 // (what a press on the figure grabs: the channels it moves and the point that follows the mouse, a function giving it
 // in the world)
 function poseGrab(hit,e,c){
@@ -833,7 +823,7 @@ function poseStep(G,c,mx,my){
   // (in the capture phase, so it's ahead of the view's own turning)
   $('viewWrap').addEventListener('pointerdown',e=>{if(e.button!==0)return;const h=hitFig(e);if(!h)return;const d=doc(),c=d.data,g=poseGrab(h,e,c);
     const nm=chNames(c),miss=g.ch.filter(j=>j<0).length;if(miss===g.ch.length)return status('This animation has no channel for that part',true);
-    if(!S.autoKey&&g.ch.some(j=>j>=0&&keyIn(trackOf(c,j),S.t)<0))return status('Switch Auto-key on, or key the channels (◇), to pose it here',true);
+    if(!S.autoKey&&g.ch.some(j=>j>=0&&keyIn(trackOf(c,j),S.t)<0))return status('Auto-key is off: key the channels first',true);
     G=g;orbit.enabled=false;e.stopPropagation();R.domElement.setPointerCapture(e.pointerId);R.domElement.style.cursor='grabbing';},true);
   R.domElement.addEventListener('pointermove',e=>{const r=R.domElement.getBoundingClientRect();
     if(G){poseStep(G,doc().data,e.clientX-r.left,e.clientY-r.top);return;}
@@ -943,7 +933,7 @@ async function start(){
   try{S.list=await api('/api/list');}catch(e){status('No server: run python tools/editor/serve.py and open http://localhost:8737/tools/editor/',true);return;}
   await Promise.all(S.list.weapons.map(async n=>{const d=await loadDoc('weapons',n);WDATA[n]=d.data;}));
   await Promise.all([...S.list.clips.map(n=>loadDoc('clips',n)),...(S.list.bodies||[]).map(n=>loadDoc('bodies',n)),...(S.list.grips||[]).map(async n=>{const d=await loadDoc('grips',n);GUN_GRIP[n]=d.data;})]);
-  renderList();renderTLBar();resize();applySnap();status('Ready: '+S.list.weapons.length+' weapons, '+S.list.clips.length+' animations');
+  renderList();renderTLBar();resize();applySnap();status('Ready');
   $('search').oninput=e=>{S.search=e.target.value;renderList();};
   $('saveBtn').onclick=()=>save();$('saveAllBtn').onclick=saveAll;$('buildBtn').onclick=build;$('gameBtn').onclick=openGame;
   $('helpBtn').onclick=()=>$('help').classList.toggle('show');
