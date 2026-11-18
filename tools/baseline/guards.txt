@@ -42,4 +42,4 @@ weapons lists (goblin: club; police: club+handgun; civilian: ; cultist: dagger; 
 weapon stats only in WEAPONS (club, dagger, handgun, rifle, grenade; FOES, GOB_FOES) ok
 the same weapon in the hands of an enemy as of a player ok
 errors 0 
-GUARDS: no new gaps | expected gaps 4 | fixed 0
+GUARDS: no new gaps | expected gaps 3 | fixed 0

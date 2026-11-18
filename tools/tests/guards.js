@@ -16,8 +16,6 @@ const P=T.players[0];for(const f of els.play.L.click)f();pads.length=0;run(2);
 const DT=E('DT'),G0=44;
 // ---- known gaps today (family/kind: check). Delete a line when it's fixed ----
 const EXPECTED=new Set([
-  // (a carrier's deck weapons aren't online yet: a guest's carrier has them, but not their health. See the registry's note)
-  'mount: net',
   // (the carrier loses health only from its blocks, by design: shipHit leaves it alone)
   'carrier: damage','carrier: points','carrier: rampage',
 ]);
@@ -100,7 +98,10 @@ let kx=-600;for(const t of kinds){
   const h0=Mt.hp,w=P.drv;P.drv=D;DT.invuln=true;shoot(P,1,null,new V3(1,0,0),'test','t');const h1=Mt.hp;DT.invuln=false;shoot(P,1,null,new V3(1,0,0),'test','t');const h2=Mt.hp;P.drv=w;
   check('mount','invuln',h1===h0,h0+' -> '+h1);check('mount','damage',h2<h1,h1+' -> '+h2+' (its own health)');
   const s0=E('score'),r0=E('RAMP').cars;E('trainHit')(Mt,1e5);check('mount','points',E('score')>s0);check('mount','rampage',E('RAMP').cars===r0+1,r0+' -> '+E('RAMP').cars);
-  check('mount','net',false);}
+  // (its health, and that it's wrecked, go in its ship's own snapshot, netShips; the ship put back in its slot for the
+  // moment if it's been cleared since)
+  {const SH=E('SHIPS'),was=SH[S.slot];SH[S.slot]=S;let e;try{e=E('netShips')().find(e=>e[1]===S.n);}finally{SH[S.slot]=was;}
+   const m=e&&e[13]&&e[13][S.mounts.indexOf(Mt)];check('mount','net',!!m&&Math.abs(m[2]-Mt.hp)<0.01&&!!m[3]===!!Mt.dead,m?JSON.stringify(m):'not sent');}}
  flush('vehicle carrier deck weapon');}
 // a train being driven, with Invulnerability on (a stand-in train: there are no railways here)
 {const g={position:new V3(),rotation:{},traverse(){}},Tr={cars:[g,g],C:{}},w=P.drv;P.drv={k:'train',o:Tr,ci:0};DT.invuln=true;E('trainHit')(Tr,10,undefined,0);DT.invuln=false;P.drv=w;

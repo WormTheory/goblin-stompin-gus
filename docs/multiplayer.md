@@ -47,6 +47,17 @@ none of the goblins, traffic, damage or smashing itself, so nothing can disagree
   stepping aboard never swings a guest's view round. A guest guessing its own moves crosses on and off a ship itself
   (`shipCross` in `netPredStep`). A guest making a ship it already had in the save it built from leaves what's smashed
   there alone (`NET_SHIP0`); one spawned later starts whole, as the host's did.
+  The carrier's extras go the same way: each deck weapon's aim, health, whether it's wrecked (`mountWreck` run on the
+  guest's copy, muted, as the host's blast comes as its own effects) and its rounds ride in the ship's entry, blended
+  like the ship and posed by `mountPose`; a guest manning one has the weapon's number at the end of `dv`, so its camera
+  and display are its own copy's. The jets are an airport venue under `'shipJets:'+n`, which matches because the guest's
+  copy has the host's number. A ship breaking in two is kept as `S.brks` (where it broke, and the slot and number of the
+  wreck it made), and a guest's copy breaks the same way, in order, from the same blocks (`netShipBreaks`, run once the
+  snapshot's blocks are in), so the wreck lands in the host's slot; the wreck's tilt is sent and posed by
+  `shipWreckPlace`. Furniture knocked over aboard is an event, `sk`, as it starts to go (`shipKnock` is wrapped), so the
+  guest sees it fall, and once a second the world bits list what's lying down aboard each ship (`sprop`) for anyone
+  who missed it. At the helm, the bridge view or chase camera is the host's to say (`dv`'s last entry), and a guest's
+  own camera is turned to match when it changes.
 - **Events**: everything the host's game does once. Block changes are caught where they're all made, `addEdit`, and
   sent as flat lists. Effects are caught by wrapping the functions that make them (`netFx`: `puff`, `smoke`, `blood`,
   `splat`, `destroyFX`, `shockwave`, `shockCone`, `blastFx`, `tone`, `noise`, `woosh`, and `flashLabel` to the player it
@@ -159,8 +170,9 @@ Events in `e`: `['e', [x,y,z,b, ...]]` blocks, `['f', name, args]` an effect, `[
 `['b', id, blocks, clipY]` a collapse sinking, `['c', key, floor]` a building coming down from that floor,
 `['k', key, angle, prop, x, z, y]` a fixture or prop knocked over.
 A goblin in `g` ends with its `state`, `hp` and `hpMax`; a vehicle in `c` with its `hp` and `hpMax`. `vh` holds the venues'
-vehicles' health as `[venue, list]`. A ship in `sh`: `[slot, n, kind, x, z, yaw, speed, sunk by, hp, dead, order, rudder]`;
-a player at a ship's helm has the ship's `n` at the end of `dv`.
+vehicles' health as `[venue, list]`. A ship in `sh`: `[slot, n, kind, x, z, yaw, speed, sunk by, hp, dead, order, rudder, breaks, deck weapons, tilt]`,
+breaks as `[[where, slot, n], ...]` and each deck weapon as `[yaw, pitch, hp, dead, rounds, reloading]`; a player at a
+ship's helm or one of its deck weapons has the ship's `n`, the deck weapon's number (or -1) and the bridge view at the end of `dv`.
 
 ## Chat and voice
 
@@ -215,8 +227,8 @@ tabs (`netLoopback`, no `av`) there's no voice. Suite `chat` checks all of it wi
   heard as the host's game made it, wherever the guest is.
 - Prediction runs the player code on the guest's own copy of the world, whose goblins and vehicles are where the guest
   sees them; a guest standing on a moving vehicle, climbing one, or driving isn't guessed.
-- Ships: a carrier's deck weapons, its jets' pilots, furniture knocked over aboard, and a ship breaking in two aren't
-  sent yet (the guest's carrier has its deck weapons and jets, standing still; a broken-off end isn't there).
+- Ships: shells and rockets from the world don't reach into a ship's pocket on either end (their blast is copied in);
+  the carrier is still Testing Environment only.
 - The obituary and the explored map are each browser's own.
 - The Testing Environment's Reset world reloads the host's page, which ends the session (guests go home after trying
   to reconnect).

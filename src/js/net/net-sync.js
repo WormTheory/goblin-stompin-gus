@@ -37,7 +37,7 @@ function netPlayerState(p,seat,N){
     rd:!!(p.drv||p.rideC||p.standCar||p.vcl&&p.state==='climb')};
   // (in a vehicle: what it is and where, for the guest's chase camera)
   if(p.drv&&!p.drv.jack){try{const D=p.drv,S=drvPose(D),H=drvHP(D),o=D.o,W={};for(const k in o.wpn||{}){const s=o.wpn[k];W[k]=[s.n,Math.round(s.rl*10)/10];}
-    e.dv=[D.k,r3(S.x),r3(S.y),r3(S.z),r3(S.h),r3(S.hx),r3(S.hz),r3(S.hy),r3(S.v||0),drvName(D),Math.round(H.hp*10)/10,H.max,W,o.veh||'',!!o.hose,D.seat||'',!!o.gnr,D.k==='mech'?o.key:0,D.k==='ship'?o.n:0];}catch(er){}}   // (and its name, health and guns, for the guest's own display)   // (driving, riding or clinging to something that moves: the guest can't guess that, so it doesn't try)
+    e.dv=[D.k,r3(S.x),r3(S.y),r3(S.z),r3(S.h),r3(S.hx),r3(S.hz),r3(S.hy),r3(S.v||0),drvName(D),Math.round(H.hp*10)/10,H.max,W,o.veh||'',!!o.hose,D.seat||'',!!o.gnr,D.k==='mech'?o.key:0,D.k==='ship'?o.n:D.k==='mount'?o.S.n:0,D.k==='mount'?o.i:-1,p.shipBridge?1:0];}catch(er){}}   // (and its name, health and guns, for the guest's own display)   // (driving, riding or clinging to something that moves: the guest can't guess that, so it doesn't try)
   // (the guest's own seat: the last of its controls this took in, and how long ago, so it can tell how far its own guess has drifted)
   if(p.net&&p.net.seat===seat){e.ack=N.inN||0;e.adt=Math.round(NET.now-(N.inAt||NET.now));}
   return e;
@@ -128,8 +128,10 @@ function netMechStep(V,dt){
 // everything aboard is placed in it, so a guest only needs its own copy of each ship in the host's slot, under the host's
 // number, and then the host's places for anything aboard come out right by themselves (as do the blocks smashed there,
 // goblins aboard and a sinking ship washing people off). Each snapshot carries each ship: slot, number, kind, where it
-// is, its heading, speed, how far it's sunk, health, sunk or not, and the engine order and rudder for the helm's display.
-// (A wreck broken off one isn't sent yet) ----
+// is, its heading, speed, how far it's sunk, health, sunk or not, and the engine order and rudder for the helm's display;
+// where it's broken in two so far (each break with the slot and number of the wreck it made, so a guest breaks its own
+// copy the same way, from the same blocks), its deck weapons' aim, health and rounds, and a wreck's tilt. Furniture
+// knocked over aboard is an event ('sk') as it starts falling, and once a second all that's lying down (netWorldBits) ----
 const _nw={x:0,z:0};
 function netWorldXZ(x,z){_nw.x=x;_nw.z=z;if(x>=SHIP_X0){const S=shipOfPos(x,z);if(S){shipToWorld(S,x,z,_nw);}}return _nw;}
 // (is something at P within R of px,pz, both out in the world?)
@@ -137,27 +139,56 @@ const netNear=(P,px,pz,R)=>{const w=netWorldXZ(P.x,P.z);return Math.abs(w.x-px)<
 // (the yaw of the frame a player is in: a ship's, aboard one, or the world's)
 const netFrameYaw=p=>{const S=shipOf(p);return S?S.yaw:0;};
 function netShips(){const out=[];
-  for(const S of SHIPS)if(S&&S.V&&S.kind!=='wreck')out.push([S.slot,S.n,S.kind,r3(S.x),r3(S.z),r3(S.yaw),r3(S.sp),r3(S.sk),r3(S.hp),S.dead?1:0,S.ord,r3(S.rud)]);
+  for(const S of SHIPS)if(S&&S.V)out.push([S.slot,S.n,S.kind,r3(S.x),r3(S.z),r3(S.yaw),r3(S.sp),r3(S.sk),r3(S.hp),S.dead?1:0,S.ord,r3(S.rud),S.brks||0,
+    S.mounts?S.mounts.map(Mt=>{const w=Mt.wpn&&(Mt.wpn.rkt||Mt.wpn.gun);return[r3(Mt.yaw),r3(Mt.pitch),r3(Mt.hp),Mt.dead?1:0,w?w.n:0,w&&w.rl>0?1:0];}):0,S.brk?r3(S.brk.tilt):0]);
   return out;}
-let NET_SHIP0=false;   // (guest: had its first word of the host's ships. Those it already had are in the save it built from, smashed as they were)
+let NET_SHIP0=false,NET_SHIPF=false;   // (guest: had its first word of the host's ships. Those it already had are in the save it built from, smashed as they were)
 const netShipBy=n=>SHIPS.find(S=>S&&S.n===n)||null;
 function netShipGone(S){const V=S.V;if(V){const i=V.ships.indexOf(S);if(i>=0)V.ships.splice(i,1);if(!V.ships.length&&venues.get('tenvShips')===V)venues.delete('tenvShips');}shipDrop(S);}
 // (guest: made or dropped to match the host's; their places are blended in netShipPlace)
 function netShipSet(L){
-  const keep=new Set();let made=false;
-  for(const e of L){const [slot,n,kind,x,z,yaw,sp,sk,hp,dead,ord,rud]=e;if(!SHIP_KINDS[kind])continue;keep.add(n);
+  const keep=new Set();let made=false;NET_SHIPF=!NET_SHIP0;
+  for(const e of L){const [slot,n,kind,x,z,yaw,sp,sk,hp,dead,ord,rud]=e;keep.add(n);
     let S=SHIPS[slot];if(S&&S.n!==n){netShipGone(S);S=null;}
+    if(!S&&!SHIP_KINDS[kind])continue;   // (a wreck: made as its ship breaks, netShipBreaks)
     if(!S){S=makeShip(kind,x,z,yaw,null,{slot,n,keep:!NET_SHIP0});S.sk=sk;
       let V=venues.get('tenvShips');if(!V){V={kind:'ship',ships:[]};venues.set('tenvShips',V);}S.V=V;V.ships.push(S);made=true;netShipPose(S);}
-    S.sp=sp;S.hp=hp;S.dead=!!dead;S.ord=ord|0;S.rud=rud||0;}
+    S.sp=sp;S.hp=hp;S.dead=!!dead;S.ord=ord|0;S.rud=rud||0;
+    if(e[13]&&S.mounts)e[13].forEach((m,i)=>{const Mt=S.mounts[i];if(!Mt)return;Mt.hp=m[2];
+      if(m[3]&&!Mt.dead){NET_MUTE=true;try{mountWreck(Mt);}finally{NET_MUTE=false;}}   // (blackened, as the host's: its blast came from the host)
+      const w=Mt.wpn&&(Mt.wpn.rkt||Mt.wpn.gun);if(w){w.n=m[4];w.rl=m[5]?1:0;}});
+    if(S.brk)S.brk.tilt=e[14]||0;}
   for(const S of SHIPS)if(S&&S.net&&!keep.has(S.n))netShipGone(S);
   NET_SHIP0=true;if(made)shipChunks(true);
 }
-function netShipPose(S){S.grp.position.set(S.x,-S.sk,S.z);S.grp.rotation.y=S.yaw;S.grp.updateMatrixWorld(true);if(!S.dead||S.sk<S.K.sink)shipBoxes(S);}
+function netShipPose(S){
+  if(S.brk&&S.brk.tilt)shipWreckPlace(S);else{S.grp.position.set(S.x,-S.sk,S.z);S.grp.rotation.set(0,S.yaw,0);S.grp.updateMatrixWorld(true);}
+  if(!S.dead||S.sk<S.K.sink)shipBoxes(S);}
+// (guest, after the snapshot's blocks are in: each break the host's had that this copy hasn't, in order, from the same
+// blocks, the wreck in the host's slot under its number; one that's gone from the host's already is dropped at once)
+function netShipBreaks(L){
+  const live=new Set(L.map(e=>e[1]));
+  for(const e of L){const S=netShipBy(e[1]),bk=e[12];if(!S||!bk)continue;S.netBrk=S.netBrk||0;
+    while(S.netBrk<bk.length){const [i,slot,n]=bk[S.netBrk++];const O=SHIPS[slot];if(O&&O.n!==n)netShipGone(O);if(SHIPS[slot])continue;
+      let W=null;NET_MUTE=true;try{W=shipBreak(S,i,{slot,n,keep:NET_SHIPF});}finally{NET_MUTE=false;}
+      if(W){W.dead=true;if(!live.has(n))netShipGone(W);}}}
+}
+// (furniture knocked over aboard: the host's as it starts to go, so the guest sees it fall)
+{const sk=shipKnock;shipKnock=function shipKnock(f,dx,dz){const r=sk(f,dx,dz);
+  if(r&&NET.mode===1&&NET.guests.size&&f.S&&f.S.props)netEmit(['sk',f.S.n,f.S.props.indexOf(f),+f.fall.ang.toFixed(4)]);return r;};}
+function netShipKnock(e){const S=netShipBy(e[1]),f=S&&S.props&&S.props[e[2]];if(!f||f.gone||f.fall||f.down!==undefined)return;
+  f.fall={t:0,ang:e[3]};S.propsFall=(S.propsFall||0)+1;for(const c of f.cells)propCells.delete(propCK(c[0],f.y0,c[1]));}
+// (once a second: what's lying down aboard each ship, for a guest that missed one going over, or joined since)
+const netShipProps=()=>SHIPS.filter(S=>S&&S.props).map(S=>[S.n,S.props.map((f,i)=>f.down!==undefined?[i,+f.down.toFixed(4)]:null).filter(Boolean)]);
+function netShipPropsSet(L){for(const [n,a] of L){const S=netShipBy(n);if(!S||!S.props)continue;let ch=false;
+  for(const [i,ang] of a){const f=S.props[i];if(f&&!f.fall&&f.down===undefined){f.down=ang;ch=true;for(const c of f.cells)propCells.delete(propCK(c[0],f.y0,c[1]));}}
+  if(ch)shipPropsDraw(S);}}
 // (guest, each frame: each one's place, heading and sinking, blended between snapshots)
 function netShipPlace(a,o,kp){if(!a.sh)return;const by=new Map();if(o&&o.sh)for(const e of o.sh)by.set(e[1],e);
   for(const e of a.sh){const S=netShipBy(e[1]);if(!S)continue;const f=by.get(e[1]),k=f?kp:0;
-    S.x=f?e[3]+(f[3]-e[3])*k:e[3];S.z=f?e[4]+(f[4]-e[4])*k:e[4];S.yaw=f?lerpA(e[5],f[5],k):e[5];S.sk=f?e[7]+(f[7]-e[7])*k:e[7];netShipPose(S);}}
+    S.x=f?e[3]+(f[3]-e[3])*k:e[3];S.z=f?e[4]+(f[4]-e[4])*k:e[4];S.yaw=f?lerpA(e[5],f[5],k):e[5];S.sk=f?e[7]+(f[7]-e[7])*k:e[7];
+    if(S.brk)S.brk.tilt=f?e[14]+(f[14]-e[14])*k:e[14];netShipPose(S);
+    if(e[13]&&S.mounts)e[13].forEach((m,i)=>{const Mt=S.mounts[i],q=f&&f[13]&&f[13][i];if(!Mt||Mt.dead)return;Mt.yaw=q?lerpA(m[0],q[0],k):m[0];Mt.pitch=q?m[1]+(q[1]-m[1])*k:m[1];mountPose(Mt);});}}
 // (guest, each frame: the models of anyone and anything aboard hung off the ship's picture, the rest off the scene; and
 // its own player's camera turned with it when it goes aboard or off, as the host turned it)
 function netShipFrames(){
@@ -357,7 +388,7 @@ function netSetBlock(x,y,z,b,ch){
 // ---- the world's other saved state, the clock and the weather: sent when changed, checked once a second ----
 function netWorldBits(N){
   const out={},J=(k,v)=>{const s=JSON.stringify(v);if(N.wsent[k]!==s){N.wsent[k]=s;out[k]=v;}};
-  if(TENV){J('tenv',TENV.boxes);J('sea',TENV.sea||null);}   // (and its sea, laid out for the first ship)   // (the Testing Environment's structures, as they're spawned and removed)
+  if(TENV){J('tenv',TENV.boxes);J('sea',TENV.sea||null);if(shipN)J('sprop',netShipProps());}   // (and its sea, laid out for the first ship, and the furniture knocked over aboard ships)   // (the Testing Environment's structures, as they're spawned and removed)
   J('coll',collapses);J('wreck',wrecked);J('down',[...downFix]);J('dest',destroyed);
   J('fire',fires.map(F=>[r3(F.x),r3(F.y),r3(F.z),r3(F.r),Math.round(F.t*10)/10,Math.round(F.life*10)/10,F.flames?1:0,r3(F.sm),r3(F.rise),F.douse?1:0]));
   return out;
@@ -479,9 +510,12 @@ function netCommit(m){
     const own=q===P1&&NETP.on&&!NETP.snap;
     for(const k in e.f){if(own&&!NET_AUTH.includes(k))continue;const v=e.f[k];if(Array.isArray(v)){if(q[k] instanceof V3)q[k].set(v[0],v[1],v[2]);else q[k]=new V3(v[0],v[1],v[2]);}else if(v&&v.l)q[k]=v.l.slice();else q[k]=netDec(v);}
     if(!(q===P1&&NETP.on))q.lockT=netDeref(e.lk);
-    if(e.dv){if(!q.drv||!q.drv.netS)q.drv={k:e.dv[0],o:{},netS:{x:0,y:0,z:0,h:0,hx:1,hz:1,hy:1,v:0}};const D=q.drv,S=D.netS;D.k=e.dv[0];if(e.dv[17]){const M=netMechByKey(e.dv[17]);if(M)D.o=M;}if(e.dv[18]){const S=netShipBy(e.dv[18]);if(S)D.o=S;}   // (a Mobile Gear: its copy here, for the view and the display)
+    if(e.dv){if(!q.drv||!q.drv.netS)q.drv={k:e.dv[0],o:{},netS:{x:0,y:0,z:0,h:0,hx:1,hz:1,hy:1,v:0}};const D=q.drv,S=D.netS;D.k=e.dv[0];if(e.dv[17]){const M=netMechByKey(e.dv[17]);if(M)D.o=M;}if(e.dv[18]){const S=netShipBy(e.dv[18]);if(S)D.o=e.dv[19]!==undefined&&e.dv[19]>=0?(S.mounts&&S.mounts[e.dv[19]])||D.o:S;}   // (a ship, or one of its deck weapons)   // (a Mobile Gear: its copy here, for the view and the display)
       S.hx=e.dv[5];S.hz=e.dv[6];S.hy=e.dv[7];S.v=e.dv[8];
       D.netN=e.dv[9];D.netHP={hp:e.dv[10],max:e.dv[11]};D.o.veh=e.dv[13]||undefined;D.o.hose=!!e.dv[14];D.seat=e.dv[15]||undefined;D.o.gnr=e.dv[16]?q:null;
+      // (at a ship's helm, the bridge view or the chase camera, as the weapon button left it on the host; a guest's own camera
+      // is its own, so it's turned as shipViewSwap turns it there)
+      {const sb=!!e.dv[20],was=q.netSB;q.netSB=sb;q.shipBridge=sb;if(was!==undefined&&was!==sb&&q===P1){q.drvLook=camClock;q.cam.yaw=Math.PI;q.cam.pitch=sb?-0.08:-0.25;}}   // (netSB: what the host last said, as the plain field may have come first)
       const W=e.dv[12]||{};if(Object.keys(W).length){if(!D.o.wpn)wpnInit(D.o,drvGunK(D));for(const k in W)if(D.o.wpn[k]){D.o.wpn[k].n=W[k][0];D.o.wpn[k].rl=W[k][1];}}}
     else if(q.drv&&q.drv.netS)q.drv=null;
     if(q===P1&&NETP.snap){NETP.snap=false;NETP.corr.set(0,0,0);NETP.hist.length=0;q.pos.set(e.pos[0],e.pos[1],e.pos[2]);q.heading=e.h;}
@@ -501,6 +535,7 @@ function netCommit(m){
     else if(e[0]==='t'||e[0]==='b'){try{netFallMake(e);}catch(er){}}
     else if(e[0]==='c'){try{netCollapse(e[1],e[2],ch);}catch(er){}}
     else if(e[0]==='k'){try{netKnock(e);}catch(er){}}
+    else if(e[0]==='sk'){try{netShipKnock(e);}catch(er){}}
     else if(e[0]==='f'){const f=NET_FX[e[1]];if(!f)continue;if(ch.size){rebuildSet(ch);ch.clear();}
       if(e[1]==='flashLabel'){const who=e[2][1]?netUnsan(e[2][1]):null;f(e[2][0],who);continue;}
       const a=e[2].map(netUnsan);
@@ -508,6 +543,7 @@ function netCommit(m){
       if(e[3]&&NET_SND[e[1]]!==undefined){const d=Math.hypot(e[3][0]-pwx(P1),e[3][1]-pwz(P1)),k=d<14?1:Math.max(0,1-(d-14)/70);if(k<0.04)continue;a[NET_SND[e[1]]]*=k;}
       try{f(...a);}catch(er){}}}
   if(ch.size)rebuildSet(ch);
+  if(m.sh)netShipBreaks(m.sh);
   netFallCommit(m);
   if(m.mg)netMechSet(m.mg);
   if(m.v)netVenueCommit(m.v,NET.rt!==null?NET.rt:NET.now-NET.off-NET.dly);
@@ -522,6 +558,7 @@ function netWorld(w){
     for(let i=TENV.boxes.length-1;i>=0;i--)if(!want.has(key(TENV.boxes[i])))tenvRemove(i);
     const have=new Set(TENV.boxes.map(key));for(const B of w.tenv)if(!have.has(key(B))){const C=Object.assign({},B);TENV.boxes.push(C);tenvIndex();linkNearC.clear();tenvRebuild(C);}}
   if(w.sea!==undefined&&TENV&&JSON.stringify(w.sea)!==JSON.stringify(TENV.sea||null)){TENV.sea=w.sea;if(w.sea)seaRebuild();}
+  if(w.sprop)netShipPropsSet(w.sprop);
   if(w.coll){const ch=new Set();for(const k in w.coll)if(!(NET_COLL.get(k)<=w.coll[k]))netCollapse(k,w.coll[k],ch);collapses=w.coll;if(ch.size)rebuildSet(ch);}   // (one whose word went missing, or came while away)if(w.wreck)wrecked=w.wreck;if(w.dest){destroyed=w.dest;destroyVer++;}
   if(w.down){downFix.clear();for(const [k,v] of w.down)if(!falling.has(k))downFix.set(k,v);netDressT=0;}   // (one still falling here lands in its own time)   // (the street's fixtures drawn again, knocked-down ones lying down)
   if(w.fire){fires.length=0;for(const f of w.fire)fires.push({x:f[0],y:f[1],z:f[2],r:f[3],t:f[4],life:f[5],base:f[5],born:playTime,flames:!!f[6],acc:0,sacc:0,hurt:9,sm:f[7],rise:f[8],douse:!!f[9],blame:null});}

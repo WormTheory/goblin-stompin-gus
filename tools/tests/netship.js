@@ -6,7 +6,7 @@ const fs=require('fs'),vm=require('vm');
 const src0=fs.readFileSync('g.js','utf8');
 const d6=fs.readFileSync('dead6.js','utf8');
 const stubs=d6.slice(d6.indexOf('const deep='),d6.indexOf('\neval(src);'));
-const src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={tenvVeh,tenvFoe,tenvClear,get TENV(){return TENV},get TS(){return TS},set menuOpen(v){menuOpen=v},SHIPS,SHIP_X0,shipToWorld,shipOf,pwx,pwz,netFrameYaw,meshes,frame,players,P1,P2,NET,NETM,netHostWith,netJoinWith,netEnd,crush,get,goblins,setGobP,DT,venues,get seed(){return seed},get edits(){return edits},G};})();');
+const src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={mountWreck,shipKnock,shipBreak,tenvVeh,tenvFoe,tenvClear,get TENV(){return TENV},get TS(){return TS},set menuOpen(v){menuOpen=v},SHIPS,SHIP_X0,shipToWorld,shipOf,pwx,pwz,netFrameYaw,meshes,frame,players,P1,P2,NET,NETM,netHostWith,netJoinWith,netEnd,crush,get,goblins,setGobP,DT,venues,get seed(){return seed},get edits(){return edits},G};})();');
 if(src===src0)throw new Error('closing line not found');
 const store=init=>{const m=new Map(Object.entries(init||{}));return{getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,String(v)),removeItem:k=>m.delete(k),get _m(){return m}};};
 // one game: seed for its Math.random, its localStorage and sessionStorage contents
@@ -94,6 +94,11 @@ HT.setGobP(HT.P2,true);both(20);
  console.log('  guest still at the helm on its own screen',f2(dw(wpos(GT,GT.P1),wpos(HT,HT.P2))),ok(dw(wpos(GT,GT.P1),wpos(HT,HT.P2))<1.5),
    '| guest camera from the ship',f2(Math.hypot(GT.P1.camera.position.x-Sg.x,GT.P1.camera.position.z-Sg.z)),ok(Math.hypot(GT.P1.camera.position.x-Sg.x,GT.P1.camera.position.z-Sg.z)<60),
    '| the host still aboard on the guest',f2(dw(wpos(GT,GT.P2),wpos(HT,HT.P1))),ok(dw(wpos(GT,GT.P2),wpos(HT,HT.P1))<1.5));
+ // (the weapon button: the bridge view on the guest's own screen, and back to the chase camera)
+ btn(15,true);G.step(1);H.step(1);btn(15,false);both(20);const bc=GT.P1.camera.position.y;
+ console.log('  guest pressed weapon: bridge view on the host',ok(!!HT.P2.shipBridge),'and on the guest',ok(!!GT.P1.shipBridge),'| guest camera looking ahead from the bridge',f2(GT.P1.cam.pitch),ok(Math.abs(GT.P1.cam.pitch+0.08)<0.05));
+ btn(15,true);G.step(1);H.step(1);btn(15,false);both(20);
+ console.log('  and again: the chase camera',ok(!HT.P2.shipBridge&&!GT.P1.shipBridge),'| camera height',f2(bc),'then',f2(GT.P1.camera.position.y),ok(Math.abs(GT.P1.camera.position.y-bc)>0.5));
  btn(3,true);G.step(1);H.step(1);btn(3,false);both(40);console.log('  pressed use again: away from the helm',ok(!HT.P2.drv&&!GT.P1.drv));}
 HT.setGobP(HT.P2,false);both(20);
 
@@ -139,6 +144,57 @@ HT.setGobP(HT.P2,false);both(20);
   console.log('  guest walked off the side: was aboard',ok(on),'| off it on the host',ok(!HT.shipOf(HT.P2)),'and on the guest',ok(!GT.shipOf(GT.P1)),'| drawn off the scene',ok(!GT.P1.root.parent.shipPg),
     '| biggest step in a frame',f2(jump),ok(jump<0.8),'| apart',f2(dw(wpos(GT,GT.P1),wpos(HT,HT.P2))),ok(dw(wpos(GT,GT.P1),wpos(HT,HT.P2))<1),'| camera turned in the world by',f2(Math.abs(y1-y0)),ok(Math.abs(y1-y0)<0.02));}}
 
+// ---- the aircraft carrier: its deck weapons (a guest manning one, one wrecked), its jets, furniture knocked over
+// aboard, and breaking in two (the wreck on the guest too, from the same blocks, tipping as the host's does; a player
+// joining late gets both pieces) ----
+{HT.tenvClear();both(40);HT.P1.pos.set(HT.TENV.sea.x0-6,HT.G+1,(HT.TENV.sea.z0+HT.TENV.sea.z1)/2);HT.P1.cam.yaw=-Math.PI/2;HT.P1.vy=0;both(20);
+ HT.menuOpen=true;HT.tenvVeh('carrier');HT.menuOpen=false;both(150);
+ const C=HT.SHIPS.find(s=>s&&s.kind==='carrier'),Cg=C&&GT.SHIPS[C.slot];
+ if(!C)console.log('no carrier spawned');else{
+  const host0=HT.DT.host;HT.DT.host=2;both(2);   // (Peaceful: the crew leave everyone be, so nobody sounds general quarters and mans everything)
+  const nm=C.mounts?C.mounts.length:0;
+  console.log('a carrier on the host: on the guest',ok(!!Cg&&Cg.n===C.n),'| deck weapons',Cg&&Cg.mounts?Cg.mounts.length:0,'of',nm,ok(Cg&&Cg.mounts&&Cg.mounts.length===nm&&nm>0),'| its jets',ok(GT.venues.has('shipJets:'+C.n)));
+  // (the guest, as a goblin, mans the first deck weapon and turns its view: the host's turns, and so does the guest's copy)
+  HT.setGobP(HT.P2,true);both(20);
+  const Mt=C.mounts[0];HT.P2.pos.set(Mt.x+1.2,Mt.y,Mt.z);HT.P2.vy=0;HT.P2.mvx=HT.P2.mvz=0;both(30);
+  const pads=G.ctx.navigator.getGamepads(),btn=(b,on)=>{pads[0].buttons[b].pressed=on;pads[0].buttons[b].value=on?1:0;};
+  btn(3,true);G.step(1);H.step(1);btn(3,false);both(30);
+  const at=HT.P2.drv&&HT.P2.drv.k==='mount';
+  console.log('guest pressed use at a',Mt.K.name+': host has it there',ok(at),'| guest\'s copy is the one it\'s at',ok(GT.P1.drv&&GT.P1.drv.o===Cg.mounts[0]));
+  const y0=Mt.yaw;pads[0].axes[2]=1;both(60);pads[0].axes[2]=0;both(30);const gm=Cg.mounts[0];
+  console.log('  turned the view: the host\'s turned',f2(Math.abs(Mt.yaw-y0)),ok(Math.abs(Mt.yaw-y0)>0.2),'| the guest\'s copy off by',f2(Math.abs(gm.yaw-Mt.yaw)),ok(Math.abs(gm.yaw-Mt.yaw)<0.05),
+    '| its head turned to match',ok(Math.abs(gm.head.rotation.y-(gm.yaw-gm.h))<0.001));
+  btn(3,true);G.step(1);H.step(1);btn(3,false);both(40);console.log('  pressed use again: off it',ok(!HT.P2.drv&&!GT.P1.drv));
+  HT.setGobP(HT.P2,false);both(20);
+  // (one wrecked on the host: blackened on the guest, and its health there)
+  const j=nm-1;HT.mountWreck(C.mounts[j]);both(30);
+  console.log('a deck weapon wrecked on the host: on the guest',ok(Cg.mounts[j].dead&&Cg.mounts[j].hp===0),'| the others not',ok(!Cg.mounts[0].dead));
+  // (a jet nudged along the deck and hurt on the host)
+  const pl=C.jetV.pl[0],GV=GT.venues.get('shipJets:'+C.n),gpl=GV&&GV.pl[0];pl.g.position.x-=3;pl.hp-=5;both(40);
+  console.log('a jet moved and hurt on the host: the guest\'s apart',gpl?f2(d3(gpl.g.position,pl.g.position)):'-',ok(gpl&&d3(gpl.g.position,pl.g.position)<0.05),'| its health',gpl?gpl.netHp:'-',ok(gpl&&Math.abs(gpl.netHp-pl.hp)<0.01));
+  // (furniture knocked over aboard: the guest sees it go over, and lying the same way)
+  const fi=C.props?C.props.findIndex(f=>!f.gone&&!f.fall&&f.down===undefined):-1;
+  if(fi<0)console.log('no furniture aboard');else{const f=C.props[fi],fg=Cg.props&&Cg.props[fi];HT.shipKnock(f,1,0);let fell=0;
+   for(let i=0;i<60;i++){H.step(1);G.step(1);if(fg&&fg.fall)fell++;}
+   console.log('a',f.type,'knocked over aboard: the guest showed it falling for',fell,'frames',ok(fell>=10),'| lying the same way',ok(fg&&fg.down!==undefined&&Math.abs(fg.down-f.down)<0.01));}
+  // (broken in two near the stern: the wreck on the guest too, in the same slot, from the same blocks)
+  const Hl=C.hull;let bi=-1;for(let i=0;i<Hl.n.length;i++)if(Hl.n0[i]>=20){bi=i+12;break;}
+  const W=HT.shipBreak(C,bi);both(40);const Wg=W&&GT.SHIPS[W.slot];
+  const same=(A,B,S,K)=>{let s=0,d=0;for(let u=K.u0;u<=K.u1;u+=2)for(let w=K.w0;w<=K.w1;w+=2)for(let y=HT.G-6;y<HT.G+20;y+=2){const a=A.get(S.ox+u,y,S.oz+w),b=B.get(S.ox+u,y,S.oz+w);if(a===b)s++;else d++;}return[s,d];};
+  const [s1,d1]=same(HT,GT,C,C.K),[s2,d2]=W?same(HT,GT,W,W.K):[0,1];
+  console.log('broken in two on the host: the guest\'s carrier broken at the same place',ok(Cg.K.w0===C.K.w0&&Cg.K.w1===C.K.w1),'| its wreck in slot',W?W.slot:'-',ok(!!Wg&&Wg.n===W.n),
+    '| blocks that differ: the rest',d1,'of',s1+d1,ok(d1===0),'the wreck',d2,'of',s2+d2,ok(d2===0));
+  // (a third player joins now: both pieces, as they are)
+  {const J2=game('late2',SEED+31,{});J2.T.netJoinWith(hub.make(),'SHIPA','mem');for(let i=0;i<20&&!J2.reloads;i++){J2.step(1);H.step(1);G.step(1);}
+   const L=game('late3',SEED+31,{},Object.fromEntries(J2.SS._m));for(let i=0;i<80&&!L.T.NET.joined;i++){L.step(1);H.step(1);G.step(1);await yieldNow();}
+   for(let i=0;i<60;i++){H.step(1);G.step(1);L.step(1);}
+   const Cl=L.T.SHIPS[C.slot],Wl=W&&L.T.SHIPS[W.slot],[s3,d3b]=Cl?same(HT,L.T,C,C.K):[0,1];
+   console.log('  a third player joins: the carrier broken',ok(Cl&&Cl.K.w0===C.K.w0&&Cl.K.w1===C.K.w1),'| the wreck',ok(!!Wl&&Wl.n===W.n),'| blocks that differ',d3b,ok(d3b===0));
+   L.T.netEnd();for(let i=0;i<20;i++){H.step(1);G.step(1);L.step(1);}}
+  // (left alone, the wreck drifts off and tips its far end under, on both)
+  let most=0;for(let i=0;i<60*16;i++){H.step(1);G.step(1);if(W.brk&&Wg&&Wg.brk)most=Math.max(most,Math.abs(W.grp.rotation.x-Wg.grp.rotation.x));if(!HT.SHIPS[W.slot])break;}
+  console.log('  the wreck tips under: host',W.brk?f2(W.brk.tilt):'-','guest',Wg&&Wg.brk?f2(Wg.brk.tilt):'-',ok(W.brk&&W.brk.tilt>0.05&&Math.abs(W.brk.tilt-Wg.brk.tilt)<0.05),'| most its tip was off by',f2(most),ok(most<0.05),
+    '| apart',Wg?f2(Math.hypot(Wg.x-W.x,Wg.z-W.z)):'-',ok(Wg&&Math.hypot(Wg.x-W.x,Wg.z-W.z)<0.5));HT.DT.host=host0;}}
 // ---- cleared on the host: gone on the guest ----
 HT.tenvClear();both(80);
 console.log('cleared on the host: no ships on the guest',ok(!GT.SHIPS.some(s=>s)),'no ship venue',ok(!GT.venues.has('tenvShips')));

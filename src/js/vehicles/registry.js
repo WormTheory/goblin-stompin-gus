@@ -35,11 +35,11 @@ const VEHICLE_KINDS={
     pos:B=>vkAt(B.x,B.y,B.z),top:()=>BAL.e1+0.8,mid:()=>BAL.e0+2,max:()=>BAL.hp,hit:(B,n)=>balloonHit(B,n)},
   mech:{name:'Mobile Gear',venue:'mech',list:V=>V.mechs||[],impact:true,netOwn:true,pts:()=>2000,label:()=>'Mobile Gear destroyed',   // (its health goes in its own snapshot: netMechs)
     pos:M=>vkAt(M.x,M.y,M.z),top:()=>MG.hy+0.8,mid:()=>5,max:()=>MG.hp,hit:(M,n)=>mechHit(M,n)},
-  // (a ship's health goes in its own snapshot, netShips; its deck weapons aren't online yet. See docs/multiplayer.md)
+  // (a ship's health, and its deck weapons', go in its own snapshot, netShips. See docs/multiplayer.md)
   ship:{name:'Ship',venue:'ship',list:V=>V.ships||[],snow:'blocks',smoke:0,netOwn:true,
     pos:S=>{const P=shipPose(S);return vkAt(P.x,P.y,P.z);},top:S=>shipPose(S).hy+2,mid:S=>S.K.hy||2,max:S=>S.K.hp,hit:(S,n,dir,i)=>shipHit(S,n,i)},
   // (where it is, x,y,z, is in its ship's pocket, which is right for snow: what's over it there is the ship's own blocks)
-  mount:{name:'Deck weapon',venue:'ship',list:V=>(V.ships||[]).flatMap(S=>S.dead?[]:S.mounts||[]),net:false,pts:()=>300,label:Mt=>Mt.K.name+' destroyed',groups:Mt=>[Mt.g],
+  mount:{name:'Deck weapon',venue:'ship',list:V=>(V.ships||[]).flatMap(S=>S.dead?[]:S.mounts||[]),netOwn:true,pts:()=>300,label:Mt=>Mt.K.name+' destroyed',groups:Mt=>[Mt.g],
     pos:Mt=>vkAt(Mt.x,Mt.y,Mt.z),top:()=>2.4,mid:()=>1.5,max:Mt=>Mt.K.hp,dead:Mt=>Mt.dead||Mt.S.dead,hit:(Mt,n)=>mountHit(Mt,n)},
 };
 // (filled in: the base's switches under each kind's own, and the usual ways of reading health)

@@ -27,11 +27,12 @@ function shipBreakCheck(S){
   for(let i=0;i<Hl.n.length;i++){if(Hl.n0[i]<SHIP_SL_MIN)continue;const k=Hl.n[i]/Hl.n0[i];if(k<wk){wk=k;wi=i;}}
   if(wi<0)return false;shipBreak(S,wi);return S.dead;
 }
-function shipBreak(S,i){
+// (o: an online guest's copy breaking as the host's did, net-sync.js: the wreck in the host's slot under its number)
+function shipBreak(S,i,o){
   const Hl=S.hull,K0=S.K,base=K0.base||K0,ws=Hl.w0+i*SHIP_SL,we=Math.min(ws+SHIP_SL-1,Hl.b);
   // (the shorter end goes, with the broken slice: fore, the bow end; else the stern end)
   const fore=Hl.b-we<ws-Hl.a,pa=fore?ws:Hl.a,pb=fore?Hl.b:we,na=fore?Hl.a:we+1,nb=fore?ws-1:Hl.b,side=w=>fore?w>=pa:w<=pb;
-  for(const p of players)if(p.drv&&p.drv.o===S&&side(base.helm[2]))drvExit(p);   // (the helm's on the end that's going)
+  if(!S.net)for(const p of players)if(p.drv&&p.drv.o===S&&side(base.helm[2]))drvExit(p);   // (the helm's on the end that's going)
   // (its blocks as they are now, holes and all, copied out for the wreck)
   const u0=base.u0,u1=base.u1,y0=base.y0??0,y1=base.y1??H-1,nu=u1-u0+1,ny=y1-y0+1,grid=new Uint8Array(nu*ny*(pb-pa+1));
   for(let w=pa;w<=pb;w++)for(let y=y0;y<=y1;y++)for(let u=u0;u<=u1;u++){const b=rawGet(S.ox+u,y,S.oz+w);if(b&&b!==WATER)grid[((w-pa)*ny+(y-y0))*nu+(u-u0)]=b;}
@@ -40,7 +41,7 @@ function shipBreak(S,i){
     block:(u,y,w)=>u<u0||u>u1||w<pa||w>pb||y<y0||y>y1?0:grid[((w-pa)*ny+(y-y0))*nu+(u-u0)],
     props:base.props?()=>base.props().filter(q=>q[3]>=pa&&q[3]<=pb+1):undefined,
     doors:base.doors?()=>base.doors().filter(d=>d.ax==='w'?d.a0>=pa&&d.a1<=pb:d.c>=pa&&d.c<=pb):undefined});
-  const W=makeShip('wreck',S.x,S.z,S.yaw,PK),dz=W.oz-S.oz;
+  const W=makeShip('wreck',S.x,S.z,S.yaw,PK,o),dz=W.oz-S.oz;(S.brks||(S.brks=[])).push([i,W.slot,W.n]);   // (brks: where it's broken, in order, for guests online)
   W.dead=true;W.deadT=0;W.sk=S.sk;W.V=S.V;if(S.V)S.V.ships.push(W);W.brk={dir:fore?1:-1,wc:(pa+pb+1)/2,tilt:0,v:fore?1.5:-1.5};   // (dir: its far end goes down first; v: it drifts off that way)
   // (its deck weapons on that end: gone with it, nobody to man them; their models carried on the wreck)
   for(const Mt of S.mounts||[]){if(!side(Mt.z-0.5-S.oz))continue;if(Mt.drv)drvExit(Mt.drv);
@@ -85,6 +86,10 @@ function shipWreckTilt(S,dt){
   if(!on)shipVehEach((o,P)=>{if(P.x>=SHIP_X0&&shipOfPos(P.x,P.z)===S)on=true;});
   if(!on&&S.deadT>10){if(!B.tilt)for(const g of goblins)if(g.state!=='wait'&&shipOf(g)===S){g.state='wait';g.t=0;g.root.visible=false;}   // (nobody to see them go)
     B.tilt=Math.min(0.45,B.tilt+dt*0.03);}
+  shipWreckPlace(S);
+}
+// (its picture, tipped by B.tilt: also an online guest's copy, posed from the host's tilt)
+function shipWreckPlace(S){const B=S.brk;
   if(!B.tilt)return;
   const a=B.dir*B.tilt,c=Math.cos(a),s=Math.sin(a),oy=G-(G*c-B.wc*s),oz=B.wc-(G*s+B.wc*c);
   S.grp.rotation.set(a,S.yaw,0,'YXZ');S.grp.position.set(S.x+oz*Math.sin(S.yaw),oy-S.sk,S.z+oz*Math.cos(S.yaw));S.grp.updateMatrixWorld(true);

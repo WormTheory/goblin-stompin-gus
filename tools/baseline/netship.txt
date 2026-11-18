@@ -1,0 +1,30 @@
+guest joined the Testing Environment ok
+barge on the host: slot 0 | on the guest ok | sea the same ok | apart 0.00 heading off by 0.00 ok
+  its blocks: the same 660 different 0 ok | its chunks drawn on the guest 8 ok | water by it on the guest ok
+both aboard on the host: ok | on the guest: its own ok the host's ok | drawn off the ship: its own ok the host's ok | guest P1 vs host P2 0.00 guest P2 vs host P1 0.00 ok
+  guest camera yaw, out in the world: guest 3.14 host 3.14 ok
+  guest walked on the deck: host has it 2.99 along ok | apart on the two 0.00 ok
+guest pressed use at the helm: host has it at the helm ok | guest's display shows its ship ok
+  8 s ahead, then rudder over: sailed 67.96 ok order 4 guest shows 4 ok | guest copy behind the host by at most 0.82 ok heading off by 0.03 ok
+  guest still at the helm on its own screen 0.75 ok | guest camera from the ship 26.58 ok | the host still aboard on the guest 0.73 ok
+  guest pressed weapon: bridge view on the host ok and on the guest ok | guest camera looking ahead from the bridge -0.08 ok
+  and again: the chase camera ok | camera height 46.45 then 60.33 ok
+  pressed use again: away from the helm ok
+a goblin aboard on the host: on the guest ok | in its ship ok | apart 0.30 ok
+a hole smashed in the deck: blocks changed aboard on the host 52 ok | the same on the guest 486 different 0 ok | health host 97.50 guest 97.62 ok (it leaks, so a moment behind)
+a third player joins with the barge holed: has it ok | its blocks the same 1920 different 0 ok
+sunk on the host: going down on the guest ok | gone from both ok | both players back in the world on the guest ok drawn off the scene ok
+another barge in slot 0 | on the guest ok | blocks that differ 0 of 1920 ok
+  guest walked off the side: was aboard ok | off it on the host ok and on the guest ok | drawn off the scene ok | biggest step in a frame 0.16 ok | apart 0.00 ok | camera turned in the world by 0.00 ok
+a carrier on the host: on the guest ok | deck weapons 6 of 6 ok | its jets ok
+guest pressed use at a CIWS (Phalanx): host has it there ok | guest's copy is the one it's at ok
+  turned the view: the host's turned 2.81 ok | the guest's copy off by 0.00 ok | its head turned to match ok
+  pressed use again: off it ok
+a deck weapon wrecked on the host: on the guest ok | the others not ok
+a jet moved and hurt on the host: the guest's apart 0.00 ok | its health 295 ok
+a toolrack knocked over aboard: the guest showed it falling for 42 frames ok | lying the same way ok
+broken in two on the host: the guest's carrier broken at the same place ok | its wreck in slot 1 ok | blocks that differ: the rest 0 of 21320 ok the wreck 0 of 1820 ok
+  a third player joins: the carrier broken ok | the wreck ok | blocks that differ 0 ok
+  the wreck tips under: host 0.24 guest 0.24 ok | most its tip was off by 0.00 ok | apart 0.06 ok
+cleared on the host: no ships on the guest ok no ship venue ok
+done
