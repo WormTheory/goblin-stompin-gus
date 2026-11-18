@@ -273,7 +273,7 @@ function rebuild(){
       if(W&&W.hit)drawHits(W.hit,J.root,true);
       posed={k:'body',J};}
     else{const F=fpRig(W);content.add(F.vm);F.vm.scale.setScalar(1);fpView=fpRig(W);posed={k:c.layout,F,W};}
-    poseAt(S.t);hud('');
+    poseAt(S.t);hud(S.playing?'':POSE_HINT[c.layout==='body'?'body':'fp']);
   }
 }
 function outline(m){const e=new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry),new THREE.LineBasicMaterial({color:0xffd060,depthTest:false}));e.renderOrder=9;m.add(e);}
@@ -287,7 +287,8 @@ function budget(L,mode){
 function hud(t){$('hud').textContent=t;}
 
 // ---- poses: the same sums the game does (strikeAt in strikes.js; gobCamera and gobViewGun in pivots.js) ----
-const clipAt=(c,u)=>assetPoseAt(c,u);   // (each channel from its own keys: core/assets.js)
+let POSE_OVR=null;   // (posing by dragging tries values out: {c, v} poses clip c with v in place of its keys)
+const clipAt=(c,u)=>POSE_OVR&&POSE_OVR.c===c?POSE_OVR.v.slice():assetPoseAt(c,u);   // (each channel from its own keys: core/assets.js)
 function fpPose(F,W,c,u){
   F.arm.rotation.set(0,0,0);
   const gun=W&&(W.kind==='gun');
@@ -637,6 +638,22 @@ function keyCh(C,j,t,make){const K=trackOf(C,j);let i=keyIn(K,t);if(i>=0||!make)
 // the selected key's time (or the playhead's, with none)
 const keyT=c=>{const k=S.key;if(!k)return S.t;if(k.all!==undefined)return k.all;const q=trackOf(c,k.j)[k.i];return q?q[0]:S.t;};
 const easeSel=(id,e,mixed)=>'<select id="'+id+'">'+(mixed?'<option value="-" selected>(mixed)</option>':'')+'<option value=""'+(!mixed&&!e?' selected':'')+'>smooth</option><option value="i"'+(!mixed&&e==='i'?' selected':'')+'>gathering speed (in)</option><option value="o"'+(!mixed&&e==='o'?' selected':'')+'>slowing (out)</option></select>';
+// how each channel reads in the inspector: a plain name, which way is which, its unit (turns in degrees, places in
+// blocks, the magazine from 0 to 1) and the slider's range (wide enough for every clip there is). The files keep radians
+// and the game's numbers: only the inspector shows them this way
+const CH_UI={
+  body:{arm:['Arm swing','minus raises it forward and up, plus swings it back','deg',-270,60],armOut:['Arm out to the side','plus lifts it away from the body','deg',-90,90],
+    wrist:['Wrist','plus tips the weapon down, minus up and back','deg',-270,120],free:['Free arm swing','minus raises it forward and up, plus swings it back','deg',-270,60],
+    twist:['Twist at the waist','plus turns the chest toward the weapon arm','deg',-60,60],lean:['Lean','plus forward, minus back','deg',-30,60],step:['Step','plus a half-step forward, in blocks','blk',-0.5,0.5]},
+  vm:{tilt:['Tilt','plus points it up, minus down','deg',-90,90],across:['Across','plus to the right','blk',-1,1],up:['Height','plus higher on the screen','blk',-1.5,0.5],
+    fwd:['Distance','minus further out in front, plus closer','blk',-1.5,0.5],roll:['Roll','plus turns it anticlockwise','deg',-90,90]},
+  vr:{tilt:['Tilt','plus points it up, minus down (added to how it\'s held)','deg',-60,60],roll:['Roll','plus turns it anticlockwise','deg',-90,90],
+    across:['Across','plus to the right (added to where it\'s held)','blk',-0.3,0.3],up:['Height','plus higher','blk',-0.3,0.3],fwd:['Distance','plus closer','blk',-0.3,0.3],
+    mag:['Magazine out','0 in place, 1 gone (it drops away, then a new one comes up)','',0,1]}};
+const chUI=(c,j)=>{const nm=chNames(c)[j]||ASSET_LAYOUTS[c.layout].ch[j][0],u=CH_UI[c.layout]&&CH_UI[c.layout][nm];
+  return u?{n:u[0],h:u[1],u:u[2],lo:u[3],hi:u[4]}:{n:ASSET_LAYOUTS[c.layout].ch[j][1],h:'',u:'',lo:-4,hi:4};};
+const toUI=(U,v)=>U.u==='deg'?+(v*180/Math.PI).toFixed(2):+(+v).toFixed(4),fromUI=(U,v)=>U.u==='deg'?v*Math.PI/180:v;
+const UNIT_TXT={deg:'°',blk:'blocks'};
 function renderClipInsp(B,d){
   const c=d.data,L=ASSET_LAYOUTS[c.layout],names=chNames(c),n=names.length,v=clipAt(c,S.t),k=S.key,dis=S.playing?' disabled':'';
   let h='<div class="row"><label>Layout</label><b>'+esc(c.layout)+'</b></div><p class="note">'+esc(L?L.about:'')+'. Users: '+esc(users(S.name).join(', ')||'none yet')+'</p>';
@@ -647,9 +664,10 @@ function renderClipInsp(B,d){
   if(k&&k.all===undefined){const q=trackOf(c,k.j)[k.i];if(q)h+='<div class="row"><label>Time</label>'+num(q[0],'kt',0.01)+'</div><div class="row"><label>Ease into it</label>'+easeSel('ke',q[2])+'</div>';}
   else if(k){const es=names.map(nm=>{const K=c.tracks[nm],i=keyIn(K,k.all);return i<0?null:(K[i][2]||'');}).filter(e=>e!==null);
     h+='<div class="row"><label>Time</label>'+num(k.all,'kt',0.01)+'</div><div class="row"><label>Ease into them</label>'+easeSel('ke',es[0],es.some(e=>e!==es[0]))+'</div>';}
-  for(let j=0;j<n;j++){const ch=L.ch[j],has=keyIn(trackOf(c,j),S.t)>=0;
-    h+='<div class="row"><button class="kd'+(has?' on':'')+'" id="kd'+j+'"'+dis+' title="'+(has?'This channel has a key here: click to delete it':'Key this channel at the playhead')+'" style="color:'+CH_COL[j%CH_COL.length]+'">'+(has?'◆':'◇')+'</button>'+
-      '<label title="'+esc(ch[1])+'" style="color:'+CH_COL[j%CH_COL.length]+';width:74px">'+esc(ch[1])+'</label><input type="range" min="-4" max="4" step="0.01" id="cr'+j+'" value="'+v[j]+'"'+dis+'>'+num(+v[j].toFixed(4),'cn'+j).replace('<input','<input'+dis)+'</div>';}
+  for(let j=0;j<n;j++){const U=chUI(c,j),has=keyIn(trackOf(c,j),S.t)>=0,st=U.u==='deg'?0.5:0.005,val=toUI(U,v[j]);
+    h+='<div class="row chrow"><button class="kd'+(has?' on':'')+'" id="kd'+j+'"'+dis+' title="'+(has?'This channel has a key here: click to delete it':'Key this channel at the playhead')+'" style="color:'+CH_COL[j%CH_COL.length]+'">'+(has?'◆':'◇')+'</button>'+
+      '<label title="'+esc(U.h)+'" style="color:'+CH_COL[j%CH_COL.length]+';width:118px">'+esc(U.n)+'</label><input type="range" min="'+Math.min(U.lo,val)+'" max="'+Math.max(U.hi,val)+'" step="'+st+'" id="cr'+j+'" value="'+val+'"'+dis+'>'+
+      num(val,'cn'+j,st).replace('<input','<input'+dis)+'<small class="unit">'+(UNIT_TXT[U.u]||'')+'</small></div>'+(U.h?'<div class="chhint">'+esc(U.h)+'</div>':'');}
   if(L&&n<L.ch.length)h+='<div class="row"><button id="addCh">+ '+esc(L.ch[n][1])+' channel</button></div>';
   if(c.layout==='body')h+='<p class="note">Hitboxes belong to the weapon: its Hitboxes tab has a timeline of this blow, where each is given the stretch of it where it hurts.</p>';
   h+='<h3>Note</h3><textarea id="cnote" rows="4" style="width:100%">'+esc(c.note||'')+'</textarea>';
@@ -661,8 +679,8 @@ function renderClipInsp(B,d){
     if(k.all===undefined)set(trackOf(C,k.j)[k.i]);else for(const nm of chNames(C)){const K=C.tracks[nm],i=keyIn(K,k.all);if(i>=0)set(K[i]);}});};
   for(let j=0;j<n;j++){
     // (soft while dragging a slider: the goblin is posed again, nothing else made again; letting go draws the inspector again)
-    const put=(val,tag,soft)=>{if(S.playing)return;const C0=doc().data;if(keyIn(trackOf(C0,j),S.t)<0&&!S.autoKey)return status('Switch Auto-key on, or key the channel (◇), to change it here',true);
-      edit(C=>{const i=keyCh(C,j,S.t,true);trackOf(C,j)[i][1]=r4(val);},tag,soft);};
+    const U=chUI(c,j),put=(val,tag,soft)=>{if(S.playing)return;const C0=doc().data;if(keyIn(trackOf(C0,j),S.t)<0&&!S.autoKey)return status('Switch Auto-key on, or key the channel (◇), to change it here',true);
+      val=fromUI(U,val);edit(C=>{const i=keyCh(C,j,S.t,true);trackOf(C,j)[i][1]=r4(val);},tag,soft);};
     $('cr'+j).oninput=e=>{$('cn'+j).value=e.target.value;put(+e.target.value,'cr'+j,true);};
     $('cr'+j).onchange=()=>{mergeTag=null;rebuild();renderInsp();};
     $('cn'+j).onchange=e=>put(+e.target.value,'cn'+j);
@@ -713,7 +731,7 @@ function syncPose(){
   const d=doc();if(!d||d.kind!=='clips'||S.insp!=='clip'||!$('poseH'))return;
   const c=d.data;if(JSON.stringify(S.key)!==poseShownK)return renderInsp();
   const v=clipAt(c,S.t),a=document.activeElement;$('poseH').innerHTML=poseTitle(c);
-  for(let j=0;j<v.length;j++){const r=$('cr'+j),n=$('cn'+j),kd=$('kd'+j);if(!r)continue;if(a!==r)r.value=v[j];if(a!==n)n.value=+v[j].toFixed(4);
+  for(let j=0;j<v.length;j++){const r=$('cr'+j),n=$('cn'+j),kd=$('kd'+j);if(!r)continue;const U=chUI(c,j),val=toUI(U,v[j]);if(a!==r)r.value=val;if(a!==n)n.value=val;
     if(kd){const has=keyIn(trackOf(c,j),S.t)>=0;kd.textContent=has?'◆':'◇';kd.classList.toggle('on',has);}}
 }
 function renderTLBar(){
@@ -772,6 +790,55 @@ function tlHit(c,x,y){
     S.t=r4(tlU(c,x));
     if(h&&(h.row!==undefined||h.j!==undefined)){const j=h.row!==undefined?h.row:h.j;edit(C=>{S.key={j,i:keyCh(C,j,S.t,true)};});renderInsp();}
     else addKey();});}
+
+// ---- posing by dragging: grab a part of the posed figure in the view and it follows the mouse, the editor working out
+// the channels it moves (keyed at the playhead, as a slider would: Auto-key, or a key already there). Each step tries
+// each channel a little either way, sees where the grabbed point goes on the screen, and moves the channels by as much
+// as brings the point to the mouse (least squares, damped so it never jumps) ----
+const POSE_HINT={body:'drag a part to pose it at the playhead: the arm swings it (the hand follows the mouse), the weapon turns the wrist\n(Shift: the whole arm), the other arm swings it, the body twists and leans it (Shift: steps)',
+  fp:'drag the arm or the weapon to pose it at the playhead: it moves across and up (Shift: tilts and rolls, Alt: nearer or further)'};
+// (what a press on the figure grabs: the channels it moves and the point that follows the mouse, a function giving it
+// in the world)
+function poseGrab(hit,e,c){
+  const o=hit.object,under=g=>{for(let q=o;q;q=q.parent)if(q===g)return true;return false;},nm=chNames(c),J=nm.indexOf.bind(nm);
+  const fixed=(g,l)=>()=>g.localToWorld(l.clone());
+  if(posed.k==='body'){const P=posed.J;
+    if(under(P.hand))return e.shiftKey?{ch:[J('arm'),J('armOut')],pt:fixed(P.hand,P.hand.worldToLocal(hit.point.clone()))}:{ch:[J('wrist')],pt:fixed(P.hand,P.hand.worldToLocal(hit.point.clone()))};
+    if(under(P.arm))return{ch:[J('arm'),J('armOut')],pt:fixed(P.arm,new THREE.Vector3(0,-0.4,0))};
+    if(under(P.armL))return{ch:[J('free')],pt:fixed(P.armL,new THREE.Vector3(0,-0.4,0))};
+    return e.shiftKey?{ch:[J('step')],pt:fixed(P.head,new THREE.Vector3(0,0.3,0))}:{ch:[J('twist'),J('lean')],pt:fixed(P.head,new THREE.Vector3(0,0.3,0))};}
+  const A=posed.F.arm,l=A.worldToLocal(hit.point.clone());
+  return{ch:e.altKey?[J('fwd')]:e.shiftKey?[J('tilt'),J('roll')]:[J('across'),J('up')],pt:fixed(A,l)};
+}
+function poseScreen(v3){const r=R.domElement.getBoundingClientRect(),q=v3.clone().project(cam);return [(q.x+1)/2*r.width,(1-q.y)/2*r.height];}
+// (where the grabbed point is on the screen with these values)
+function poseTry(G,c,v){POSE_OVR={c,v};poseAt(S.t);content.updateMatrixWorld(true);const p=poseScreen(G.pt());POSE_OVR=null;return p;}
+function poseStep(G,c,mx,my){
+  const v=clipAt(c,S.t),ch=G.ch.filter(j=>j>=0&&j<v.length);if(!ch.length)return;
+  const P0=poseTry(G,c,v),m=[mx-P0[0],my-P0[1]];if(Math.hypot(m[0],m[1])<0.5){poseAt(S.t);return;}
+  const cols=ch.map(j=>{const U=chUI(c,j),eps=U.u==='deg'?0.01:0.004,w=v.slice();w[j]+=eps;const P=poseTry(G,c,w);return [(P[0]-P0[0])/eps,(P[1]-P0[1])/eps];});
+  // (damped least squares: (JtJ + l I) d = Jt m, for one or two channels)
+  const n=ch.length,A=[],b=[];let big=0;for(const q of cols)big=Math.max(big,q[0]*q[0]+q[1]*q[1]);const lam=big*0.02+1e-6;
+  for(let i=0;i<n;i++){A.push([]);for(let k=0;k<n;k++)A[i].push(cols[i][0]*cols[k][0]+cols[i][1]*cols[k][1]+(i===k?lam:0));b.push(cols[i][0]*m[0]+cols[i][1]*m[1]);}
+  let d;if(n===1)d=[b[0]/A[0][0]];else{const det=A[0][0]*A[1][1]-A[0][1]*A[1][0];d=[(b[0]*A[1][1]-b[1]*A[0][1])/det,(A[0][0]*b[1]-A[1][0]*b[0])/det];}
+  // (no more than a tenth of a turn, or a tenth of a block, in one step)
+  d=d.map((x,i)=>{const U=chUI(c,ch[i]),lim=U.u==='deg'?0.6:0.1;return Math.max(-lim,Math.min(lim,x));});
+  edit(C=>{ch.forEach((j,i)=>{const U=chUI(C,j),k=keyCh(C,j,S.t,true),val=v[j]+d[i],lo=fromUI(U,U.lo),hi=fromUI(U,U.hi);trackOf(C,j)[k][1]=r4(Math.max(Math.min(lo,v[j]),Math.min(Math.max(hi,v[j]),val)));});},'pdrag',true);
+  poseAt(S.t);drawTL();syncPose();
+}
+{let G=null;
+  const hitFig=e=>{const d=doc();if(!d||d.kind!=='clips'||!posed||S.playing)return null;const root=posed.k==='body'?posed.J.root:posed.F.vm;
+    const r=R.domElement.getBoundingClientRect(),ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),cam);
+    return ray.intersectObject(root,true)[0]||null;};
+  // (in the capture phase, so it's ahead of the view's own turning)
+  $('viewWrap').addEventListener('pointerdown',e=>{if(e.button!==0)return;const h=hitFig(e);if(!h)return;const d=doc(),c=d.data,g=poseGrab(h,e,c);
+    const nm=chNames(c),miss=g.ch.filter(j=>j<0).length;if(miss===g.ch.length)return status('This animation has no channel for that part',true);
+    if(!S.autoKey&&g.ch.some(j=>j>=0&&keyIn(trackOf(c,j),S.t)<0))return status('Switch Auto-key on, or key the channels (◇), to pose it here',true);
+    G=g;orbit.enabled=false;e.stopPropagation();R.domElement.setPointerCapture(e.pointerId);R.domElement.style.cursor='grabbing';},true);
+  R.domElement.addEventListener('pointermove',e=>{const r=R.domElement.getBoundingClientRect();
+    if(G){poseStep(G,doc().data,e.clientX-r.left,e.clientY-r.top);return;}
+    if(e.buttons===0)R.domElement.style.cursor=hitFig(e)?'grab':'';});
+  addEventListener('pointerup',()=>{if(!G)return;G=null;orbit.enabled=true;mergeTag=null;R.domElement.style.cursor='';rebuild();renderInsp();drawTL();});}
 
 // ---- the hitboxes' timeline: the blow's channels faintly behind, a row per hitbox with a bar where it's live (or a
 // mark at 1 for one that hurts only as the blow lands), the playhead ----
