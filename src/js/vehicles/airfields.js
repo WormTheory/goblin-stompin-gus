@@ -79,7 +79,7 @@ function airportInit(V){
 function updateAirport(V,dt){
   const B=V.B,X0=B.ax*CELL,Z0=B.az*CELL;
   if(!V.pl)airportInit(V);
-  for(const pl of V.pl)if(!pl.dead&&pl.g.visible)vDamaged(pl.g.position.x,pl.g.position.y+3,pl.g.position.z,pl.hp/planeMax(pl),dt);
+  for(const pl of V.pl)if(!pl.dead&&pl.g.visible)vehSmoke('plane',pl,pl.g.position.x,pl.g.position.y+3,pl.g.position.z,dt);
   // (one that a goblin's flown, or is flying, goes its own way: see drvPlane)
   for(const pl of V.pl){const g=pl.g;planeCrewShow(pl,dt);
     if(pl.dead){planeWreck(pl,V,dt);planeBoxes(pl,0);continue;}

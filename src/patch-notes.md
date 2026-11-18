@@ -192,6 +192,7 @@
 - Enemy gunfire now hits whatever you're driving. Before, rifles, the militia's machine guns, the helicopters' guns and the cultists' fireballs did nothing at all to a goblin behind the wheel; now the vehicle takes the hit instead.
 - Rounds from the fighter jets' cannons, the carrier's CIWS, the militia's machine guns and the helicopters' guns are stopped by walls, one round at a time. Before, some went straight through buildings, and a burst kept coming even after you ducked behind something.
 - Invulnerability now covers a train or subway train you're driving, as it does every other vehicle.
+- Every vehicle now plays by the same rules. Boats, trains and hot-air balloons gather snow like the rest; bringing down a hot-air balloon (400), a Mobile Gear (2,000) or one of the carrier's deck weapons (300) scores points; a balloon's health shows correctly to everyone playing online; and the smoke and flames off a badly hurt vehicle show for players online too.
 - Grenades, shells and rockets now hurt zoo animals, the Ferris wheel's rim and the carousel, as stomps already did, and a shell or rocket goes off when it hits an animal.
 
 ## Version 0.4.1

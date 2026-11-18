@@ -102,14 +102,13 @@ const BOAT_GONE=new Map();
 // hitting a boat: it shudders and starts to burn and list; holed for good, it goes up (or, with no engine to speak of, just
 // breaks up) and goes down. Up in a dry dock or on the sand it stays where it is, burnt out
 function boatHit(bo,n){
-  if(bo.dead||drvSafe(bo))return;const g=bo.g,p=g.position,K=bo.K;dmgPop(p.x,p.y+K.fb+2,p.z,Math.round(n),'#ffb04a');bo.hp-=n;bo.shake=.25;vHitFx(p.x,p.y+K.fb,p.z,n);if(bo.hp>0)return;
-  bo.dead=true;bo.deadT=0;bo.y0=p.y;BOAT_GONE.set(bo.key,playTime);const s=K.boom||0,sz=Math.max(1,Math.min(3,bo.L/10));
+  const r=vehDamage('boat',bo,n);if(!r)return;bo.shake=.25;if(r<2)return;   // (the steps every vehicle shares: registry.js)
+  const g=bo.g,p=g.position,K=bo.K;bo.y0=p.y;BOAT_GONE.set(bo.key,playTime);const s=K.boom||0,sz=Math.max(1,Math.min(3,bo.L/10));
   if(s){blastFx(p.x,p.y+K.fb+1,p.z,.5+s*.15,1+s*.6);smoke(p.x,p.y+K.fb+1,p.z,Math.round(10+s*8),0x262626);
     noise(.6+s*.3,1,600,'lowpass');tone('sawtooth',70,16,.6+s*.3,.3);addShake(.3+s*.3,p.x,p.z,20+s*15);hitGoblins(p.x,p.z,3+s*4,4+s*3,'Blown up with a boat',p.y+1);}
   else{puff(p.x,p.y+.6,p.z,14,0x8a5a32,1.2);noise(.3,.5,1400,'bandpass');}
   for(let k=0,N=Math.round(3+sz*3);k<N;k++){const D=debris[(debrisIdx++)%debris.length];D.m.position.set(p.x+(Math.random()-.5)*K.W,p.y+1+Math.random()*2,p.z+(Math.random()-.5)*bo.L*.6);D.v.set((Math.random()-.5)*16,6+Math.random()*10,(Math.random()-.5)*16);D.spin.set((Math.random()-.5)*12,(Math.random()-.5)*12,(Math.random()-.5)*12);D.life=25;D.m.visible=true;}
   if(s)g.traverse(o=>{if(o.isMesh){o.userData.mat=o.userData.mat||o.material;o.material=TRM.dark;}});
-  award(K.sc,K.name+' sunk',p.x,p.y+K.fb+2,p.z);
 }
 function boatWreck(V,dt){
   const bo=V.bo,g=V.boat,p=g.position,K=bo.K;bo.deadT+=dt;

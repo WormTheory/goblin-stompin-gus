@@ -189,13 +189,11 @@ function planeStrike(pl,v){
     if(d){g2.trainT=1;damageGoblin(g2,Math.round(4+12*k),g2.pos.clone(),d.clone().multiplyScalar(1+k),'Hit by a plane',ACCIDENT);g2.vy=Math.max(g2.vy||0,12+16*k);g2.kv.x+=d.x*(14+26*k);g2.kv.z+=d.z*(14+26*k);}}
 }
 function planeHit(pl,n){
-  if(pl.dead||drvSafe(pl))return;const g=pl.g,p=g.position;dmgPop(p.x,p.y+5,p.z,Math.round(n),'#ffb04a');pl.hp-=n;vHitFx(p.x,p.y+2.5,p.z,n);if(pl.hp>0)return;
-  pl.dead=true;pl.deadT=0;
+  if(vehDamage('plane',pl,n)<2)return;const g=pl.g,p=g.position;   // (the steps every vehicle shares: registry.js)
   blastFx(p.x,p.y+3,p.z,0.8,2.4);smoke(p.x,p.y+3,p.z,26,0x262626);
   for(let k=0;k<10;k++){const d=debris[(debrisIdx++)%debris.length];d.m.position.set(p.x+(Math.random()-.5)*8,p.y+2+Math.random()*2,p.z+(Math.random()-.5)*12);d.v.set((Math.random()-.5)*20,8+Math.random()*12,(Math.random()-.5)*20);d.spin.set((Math.random()-.5)*12,(Math.random()-.5)*12,(Math.random()-.5)*12);d.life=25;d.m.visible=true;}
   g.traverse(o=>{if(o.isMesh){o.userData.mat=o.userData.mat||o.material;o.material=TRM.dark;}});
   noise(1.2,1,500,'lowpass');tone('sawtooth',70,16,1.4,0.32);addShake(1,p.x,p.z,50);hitGoblins(p.x,p.z,12,10,'Blown up with a plane',p.y+1);
-  award(1000,'Airplane destroyed',p.x,p.y+4,p.z);
   if(p.y>G+3){pl.fall=true;pl.vy=-2;pl.fv=pl.v||40;}else g.rotation.z=(Math.random()<.5?1:-1)*(0.12+Math.random()*0.14);
 }
 function planeWreck(pl,V,dt){

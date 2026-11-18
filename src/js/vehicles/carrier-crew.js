@@ -143,8 +143,7 @@ function mountBoxes(S){if(!S.mounts)return;const tx=Math.sin(S.yaw),tz=Math.cos(
     TRAIN_BOXES.push({x:Mt.x,z:Mt.z,tx:0,tz:1,y0:Mt.y,top:Mt.y+hy,v:0,hx:h,hz:h,proxy:pr});}}
 // hit (trainHit, from shots, blasts and rams): the number where it struck, and at none it's wrecked
 function mountHit(Mt,n){
-  if(Mt.dead||Mt.S.dead||drvSafe(Mt))return;const P=Mt.lk.pos;dmgPop(P.x,P.y+3.6,P.z,Math.round(n),'#ffb04a');Mt.hp-=n;vHitFx(P.x,P.y+1.5,P.z,n);
-  if(Mt.hp<=0)mountWreck(Mt);}
+  if(vehDamage('mount',Mt,n)===2)mountWreck(Mt);}   // (the steps every vehicle shares: registry.js)
 // wrecked: whoever's at it thrown off, a blast and smoke, and what's left blackened, its head knocked askew. It does
 // nothing more, and nobody can man it
 function mountWreck(Mt){

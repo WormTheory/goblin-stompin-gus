@@ -2,10 +2,11 @@
 // come down hard ----
 // a vehicle struck: sparks and a puff of smoke where it's hit (and a clang, for a real blow)
 function vHitFx(x,y,z,n){puff(x,y,z,Math.min(8,2+Math.round(n/8)),0xffb040,0.5);puff(x,y,z,2,0x5a5a5a,0.6);if(audio&&n>=2)clang();}
-// badly hurt (f: what's left of its health): smoke pouring off it, and under a quarter, flames too
-function vDamaged(x,y,z,f,dt){
-  if(f<0.5&&Math.random()<dt*(f<0.25?12:4))smoke(x+(Math.random()-.5),y,z+(Math.random()-.5),1,f<0.25?0x1a1a1a:0x6a6a6a);
-  if(f<0.25&&Math.random()<dt*6)puff(x,y,z,1,Math.random()<.5?0xff8a2a:0xffc040,0.3);
+// badly hurt (f: what's left of its health): under s (its kind's smoke, VEHICLE_KINDS) smoke pouring off it, and under
+// half that, flames too
+function vDamaged(x,y,z,f,dt,s=0.5){
+  if(f<s&&Math.random()<dt*(f<s/2?12:4))smoke(x+(Math.random()-.5),y,z+(Math.random()-.5),1,f<s/2?0x1a1a1a:0x6a6a6a);
+  if(f<s/2&&Math.random()<dt*6)puff(x,y,z,1,Math.random()<.5?0xff8a2a:0xffc040,0.3);
 }
 // does a shell or rocket at S.pos meet a vehicle (other than the one that fired it)? (Of the soft boxes, only a zoo
 // animal's stops it: a Ferris wheel's rim or a carousel's box is mostly air, so a shot goes on through to its frame)
@@ -41,18 +42,7 @@ function airCrash(x,y,z,R,cause){
 // a plane wrecked by flying into something or landing too hard: it goes up where it hits
 function planeCrash(pl,x,y,z,ground){planeHit(pl,PLANE_HP);if(ground)pl.fall=false;airCrash(x,y,z,7,'Killed when a plane crashed');}
 // how hurt the vehicle you're driving is
-function drvHP(D){if(D.netHP)return D.netHP;const o=D.o;   // (D.netHP: a guest online, told by the host)
-
-  if(D.k==='car'){if(!(o.hpMax>=o.hp))o.hpMax=Math.max(o.hp,o.svcPool?45:30);return{hp:o.hp,max:o.hpMax};}
-  if(D.k==='tank'||D.k==='heli')return{hp:o.hp,max:MIL[D.k].hp};
-  if(D.k==='mech')return{hp:o.hp,max:MG.hp};
-  if(D.k==='boat')return{hp:o.hp,max:o.max};
-  if(D.k==='ship')return{hp:o.hp,max:o.K.hp};
-  if(D.k==='mount')return{hp:o.S.hp,max:o.S.K.hp};   // (a carrier's deck weapon: the ship's own health)
-  if(D.k==='plane')return{hp:o.hp,max:planeMax(o)};
-  if(D.k==='balloon')return{hp:o.hp,max:BAL.hp};
-  return{hp:o.carHP?o.carHP[D.ci]:CAR_HP,max:CAR_HP};
-}
+function drvHP(D){if(D.netHP)return D.netHP;return vehHealth(D);}   // (D.netHP: a guest online, told by the host; the rest from each kind's entry, VEHICLE_KINDS)
 // the driving display: what you're in and its health along the top; for a tank or a helicopter a crosshair in the middle
 // (where drvAim finds, so where a shot goes), dim while it reloads, and for a tank a marker where its gun points now
 const _dhv=new THREE.Vector3();

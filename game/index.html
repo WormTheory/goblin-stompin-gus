@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:0eeb94f8070ff19a7e5aab4e6e45efdf1462156bbc932de8b845273277289206 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:5d1c81773aadd2a1f8baa6b0a733a9f0972815fa1050c246422f219534274c14 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1599,7 +1599,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Health bars</h3>
 <ul><li>With Options' Health bars on, Mobile Gears, hot-air balloons, the barge, the aircraft carrier and its deck weapons, and subway trains now show health bars like every other vehicle; they never had one.</li><li>Anything aboard a ship (goblins, cars, tanks, helicopters, the carrier's jets) now has its health bar over it, rather than out of sight far away.</li></ul>
 <h3>Fixes</h3>
-<ul><li>Gnash's rifle and handgun now damage every vehicle they hit, the same way: cars, tanks, helicopters, trains, planes, boats, balloons, Mobile Gears and the carrier's deck weapons all take three times what a goblin would. Before, they went straight through most vehicles, did a single point to cars, and only the deck weapons took real harm.</li><li>The minimap no longer draws the grey of the surrounding blocks over big sites that take up several blocks, such as theme parks, which hid most of their buildings.</li><li>Enemy gunfire now hits whatever you're driving. Before, rifles, the militia's machine guns, the helicopters' guns and the cultists' fireballs did nothing at all to a goblin behind the wheel; now the vehicle takes the hit instead.</li><li>Rounds from the fighter jets' cannons, the carrier's CIWS, the militia's machine guns and the helicopters' guns are stopped by walls, one round at a time. Before, some went straight through buildings, and a burst kept coming even after you ducked behind something.</li><li>Invulnerability now covers a train or subway train you're driving, as it does every other vehicle.</li><li>Grenades, shells and rockets now hurt zoo animals, the Ferris wheel's rim and the carousel, as stomps already did, and a shell or rocket goes off when it hits an animal.</li></ul>
+<ul><li>Gnash's rifle and handgun now damage every vehicle they hit, the same way: cars, tanks, helicopters, trains, planes, boats, balloons, Mobile Gears and the carrier's deck weapons all take three times what a goblin would. Before, they went straight through most vehicles, did a single point to cars, and only the deck weapons took real harm.</li><li>The minimap no longer draws the grey of the surrounding blocks over big sites that take up several blocks, such as theme parks, which hid most of their buildings.</li><li>Enemy gunfire now hits whatever you're driving. Before, rifles, the militia's machine guns, the helicopters' guns and the cultists' fireballs did nothing at all to a goblin behind the wheel; now the vehicle takes the hit instead.</li><li>Rounds from the fighter jets' cannons, the carrier's CIWS, the militia's machine guns and the helicopters' guns are stopped by walls, one round at a time. Before, some went straight through buildings, and a burst kept coming even after you ducked behind something.</li><li>Invulnerability now covers a train or subway train you're driving, as it does every other vehicle.</li><li>Every vehicle now plays by the same rules. Boats, trains and hot-air balloons gather snow like the rest; bringing down a hot-air balloon (400), a Mobile Gear (2,000) or one of the carrier's deck weapons (300) scores points; a balloon's health shows correctly to everyone playing online; and the smoke and flames off a badly hurt vehicle show for players online too.</li><li>Grenades, shells and rockets now hurt zoo animals, the Ferris wheel's rim and the carousel, as stomps already did, and a shell or rocket goes off when it hits an animal.</li></ul>
 </details>
 <p class="pn-earlier">Earlier updates</p>
 <details class="pn-up pn-fold" id="version-0-4-1"><summary tabindex="0"><h2>Version 0.4.1</h2><a class="pn-play" data-ver="0.4.1" href="v/0.4.1/" tabindex="0">Play 0.4.1</a><span class="pn-tog" aria-hidden="true"></span></summary>
@@ -1911,7 +1911,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='98ff8a2f826a';
+const GAME_VER='0.5',GAME_BUILD='5993136fa85a';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -3142,7 +3142,7 @@ function updateRailVenue(V,dt,t){
   // (numbered from the end furthest along the line, whichever way it's going: it has an engine at each end, and just drives
   // off the other way at the end of the line. Each car lies along the track between its two ends, so it swings round bends.)
   const hi=T.dir>0?T.s:T.s+TRAIN_LEN,cs=[];V.cars.forEach((g,i)=>{const c=hi-5.3-i*10.6,P=railPt(C,c),Fa=railPt(C,c+4),Ba=railPt(C,c-4);if(T.carDead&&T.carDead[i]){cs.push(P);return;}g.position.set((Fa.x+Ba.x)/2,G+1.2,(Fa.z+Ba.z)/2);g.rotation.y=Math.atan2(Fa.x-Ba.x,Fa.z-Ba.z);cs.push(P);});
-  if(T.carHP)V.cars.forEach((g,i)=>{if(!(T.carDead&&T.carDead[i]))vDamaged(g.position.x,g.position.y+3.6,g.position.z,T.carHP[i]/CAR_HP,dt);});
+  if(T.carHP)V.cars.forEach((g,i)=>{if(!(T.carDead&&T.carDead[i]))vehSmoke('train',T,g.position.x,g.position.y+3.6,g.position.z,dt,i);});
   // the horn, now and then, when it's near you and moving
   V.hornT-=dt;
   if(me&&!T.dead&&T.v>8&&V.hornT<=0&&audio&&playing){const d=Math.hypot(cs[0].x-me.pos.x,cs[0].z-me.pos.z);if(d<120){V.hornT=9;tone('sawtooth',311,300,0.9,0.05*(1-d/120));tone('sawtooth',370,360,0.9,0.04*(1-d/120));}}
@@ -3667,7 +3667,7 @@ function updateArmy(V,dt){
   let rolling=0;for(const M of V.mil)if(M.kind==='tank'&&!M.dead&&(M.state==='hunt'||M.state==='man'))rolling++;
   for(const M of V.mil){
     if(M.dead){milWreck(M,dt);milBoxes(M,0);milShove(M);continue;}
-    M.hurt-=dt;M.jolt=(M.jolt||0)-dt;vDamaged(M.x,M.y+MIL[M.kind].hy,M.z,M.hp/MIL[M.kind].hp,dt);M.callT=(M.callT||0)-dt;
+    M.hurt-=dt;M.jolt=(M.jolt||0)-dt;vehSmoke(M.kind,M,M.x,M.y+MIL[M.kind].hy,M.z,dt);M.callT=(M.callT||0)-dt;
     // (its crew on the way: once he's in, it goes; back in its place with the base stood down, he climbs out)
     if(M.state==='man'&&milManning(V,M,dt)){M.state='hunt';M.cd=M.kind==='tank'?1.5+Math.random():4;M.rcd=7+Math.random()*3;}
     if(M.state==='park'&&M.crew&&!V.alert&&!M.drv)milDismount(V,M);
@@ -3783,17 +3783,16 @@ function updateHeli(M,V,dt){
   if(M.spin>0.3&&audio&&playing&&n&&n.d<90){M.thT=(M.thT||0)-dt;if(M.thT<=0){M.thT=0.11;sfx('Helicopter rotor',()=>noise(0.08,0.05*M.spin*(1-n.d/90),180,'lowpass'));}}   // (the thud of its rotor)
 }
 function milHit(M,n,dir){
-  if(M.dead||drvSafe(M))return;const I=MIL[M.kind];n=impHit(M,n);dmgPop(M.x,M.y+I.hy+0.8,M.z,Math.round(n),'#ffb04a');M.hp-=n;M.hurt=0.2;M.jolt=0.3;vHitFx(M.x,M.y+I.hy*0.6,M.z,n);
+  const r=vehDamage(M.kind,M,n);if(!r)return;const I=MIL[M.kind];M.hurt=0.2;M.jolt=0.3;   // (the steps every vehicle shares, the impact too: registry.js)
   if(!M.V.alert&&!calmNow())milAlert(M.V,(nearestPlayer(M.x,M.z)||{}).p);   // (shot at, the whole base wakes up)
-  if(M.hp>0)return;
-  M.dead=true;M.deadT=0;M.fall=M.kind==='heli'&&M.y>G+2;M.vy=0;wrecked[M.key]=1;save();
+  if(r<2)return;
+  M.fall=M.kind==='heli'&&M.y>G+2;M.vy=0;wrecked[M.key]=1;save();
   if(M.crew&&M.crew!==MIL_CREW[M.kind]){const o=crewAt(M.x,M.z,M.h,I.hx+1.2,0);crewCorpse('soldier',M.crew,o.x,M.y+1,o.z,'Killed in their '+I.name.toLowerCase());}M.crew=null;   // (whoever was in it)
   blastFx(M.x,M.y+1.5,M.z,0.8,2.2);smoke(M.x,M.y+2,M.z,22,0x262626);
   for(let k=0;k<8;k++){const d=debris[(debrisIdx++)%debris.length];d.m.position.set(M.x+(Math.random()-.5)*3,M.y+1.5+Math.random(),M.z+(Math.random()-.5)*4);d.v.set((Math.random()-.5)*18,8+Math.random()*10,(Math.random()-.5)*18);d.spin.set((Math.random()-.5)*12,(Math.random()-.5)*12,(Math.random()-.5)*12);d.life=25;d.m.visible=true;}
   milDark(M);if(M.kind==='tank')M.tur.rotation.z=0.25;
   if(M.kind==='heli'&&!M.fall)airCrash(M.x,M.y+1,M.z,3.5,'Blown up with a helicopter');   // (shot down where it sits, or just above: it goes up there)
   sfx(I.name+' destroyed',()=>{noise(1.1,1,500,'lowpass');tone('sawtooth',70,16,1.3,0.3);});addShake(0.9,M.x,M.z,45);hitGoblins(M.x,M.z,8,8,'Blown up with a '+I.name.toLowerCase(),M.y+1);
-  if(BLAME!=='acc')award(I.pts,I.name+' destroyed',M.x,M.y+2,M.z);
 }
 // a wreck: a helicopter shot down drops, spinning, and goes up where it lands; then it all lies there smouldering
 function milWreck(M,dt){
@@ -9226,28 +9225,25 @@ function snowGather(o,dt,moving){
   else u.value=Math.max(0,u.value-dt/(WX.k.snow>0.08?240:45));
 }
 function shakeSnow(o,y){if(o.snowU&&o.snowU.value>0.08){puff(o.pos.x,o.pos.y+y,o.pos.z,10,0xf0f4fa,0.45);o.snowU.value=0;}}
-// snow on the big vehicles (tanks, helicopters, planes and Mobile Gears), as on cars. Their paints are shared by every
-// one of a kind, so each gets copies of its own with the cars' snow (snowCar) the first time any snow is lying, and the
+// snow on every vehicle whose kind says so (VEHICLE_KINDS: tanks, helicopters, planes, boats, trains, balloons and
+// Mobile Gears), as on cars. Their paints are shared by every one of a kind, so each gets copies of its own with the cars' snow (snowCar) the first time any snow is lying, and the
 // batched drawing reads each box's snow from those (batPut). It settles as deep as the snow on the ground while the
 // vehicle stands out under the sky, and blows off one that's going fast (a plane in the air, a helicopter at speed)
-function vehSnowKit(o){
+function vehSnowKit(o,gs){
   o.snowU={value:0};const own=new Map();
-  o.g.traverse(m=>{const t=m.isMesh&&m.material;if(!t||t.type!=='MeshLambertMaterial'||t.transparent||t.snowU||t._obc)return;
+  for(const g of gs||[o.g])g.traverse(m=>{const t=m.isMesh&&m.material;if(!t||t.type!=='MeshLambertMaterial'||t.transparent||t.snowU||t._obc)return;
     let c=own.get(t);if(!c){c=snowCar(t.clone(),o);own.set(t,c);}m.material=c;
     if(m.userData.mat===t)m.userData.mat=c;});   // (a plane put back after it was wrecked gets its snowy paint back: see planeWreck)
 }
-function vehSnow(o,x,y,z,gone,dt){
+function vehSnow(o,x,y,z,gone,dt,gs){
   if(gone)return;
-  if(!o.snowU){if(WX.snowCover<0.01)return;vehSnowKit(o);}
+  if(!o.snowU){if(WX.snowCover<0.01)return;vehSnowKit(o,gs);}
   const P=o.snowP||(o.snowP={x,z}),sp=Math.hypot(x-P.x,z-P.z)/Math.max(dt,1e-3);P.x=x;P.z=z;
   o.skyT=(o.skyT||0)-dt;if(o.skyT<=0){o.skyT=0.6+Math.random()*0.4;o.skyOpen=openSky(x,y,z);}
   const fast=sp>20,u=o.snowU;u.value+=((o.skyOpen&&!fast?WX.snowCover:0)-u.value)*Math.min(1,dt*(fast?1.5:0.4));
 }
 function updateVehSnow(dt){
-  for(const V of venues.values()){
-    if(V.kind==='army'&&V.mil)for(const M of V.mil)vehSnow(M,M.x,M.y,M.z,M.dead,dt);
-    else if(V.kind==='airport'&&V.pl)for(const pl of V.pl){const p=pl.g.position;vehSnow(pl,p.x,p.y,p.z,pl.dead||!pl.g.visible,dt);}
-    else if(V.kind==='mech'&&V.mechs)for(const M of V.mechs)vehSnow(M,M.x,M.y,M.z,M.dead,dt);}
+  vehEach((K,o)=>{if(!K.snow)return;const P=K.pos(o);vehSnow(o,P.x,P.y,P.z,K.dead(o)||!K.shown(o),dt,K.groups(o));});
 }
 // how far the weather lets you see, in blocks: the same at any view distance (it once scaled with the FAR VIEW setting,
 // so turned up far the fog all but vanished). Clear skies don't limit it; thick fog or a blizzard closes in to about 30
@@ -12179,7 +12175,7 @@ function drvSafe(o){if(!DT.invuln||!o)return false;for(const p of players)if(p.a
 // a round or a fireball reaching a player: on foot they're hurt; driving, flying or manning something, it's the vehicle
 // that takes it (damagePlayer leaves a driver alone), VEH_SHOT_K times over: a rifle round's heart is 3 off a car
 const VEH_SHOT_K=3;
-function hurtDriven(p,v,dir){const D=p.drv;if(!D||!D.o)return;if(D.k==='car')damageCar(D.o,v,dir);else trainHit(D.o,v,dir,D.ci);}
+function hurtDriven(p,v,dir){const D=p.drv,K=D&&VEHICLE_KINDS[D.k];if(!K||!D.o)return;K.hit(D.o,v,dir,D.ci);}
 // (vd: what the vehicle takes, if not n times VEH_SHOT_K)
 function shotPlayer(p,n,pt,dir,cause,killer,vd){if(p.drv)hurtDriven(p,vd??n*VEH_SHOT_K,dir);else damagePlayer(p,n,pt,dir,cause,killer);}
 // a vehicle run into by another (vehIn's answer), hurt by n
@@ -12336,10 +12332,11 @@ function gunPose(p,c){const K=gobKit(p),R=K.root,tech=c.veh==='technical',a=c.he
 // come down hard ----
 // a vehicle struck: sparks and a puff of smoke where it's hit (and a clang, for a real blow)
 function vHitFx(x,y,z,n){puff(x,y,z,Math.min(8,2+Math.round(n/8)),0xffb040,0.5);puff(x,y,z,2,0x5a5a5a,0.6);if(audio&&n>=2)clang();}
-// badly hurt (f: what's left of its health): smoke pouring off it, and under a quarter, flames too
-function vDamaged(x,y,z,f,dt){
-  if(f<0.5&&Math.random()<dt*(f<0.25?12:4))smoke(x+(Math.random()-.5),y,z+(Math.random()-.5),1,f<0.25?0x1a1a1a:0x6a6a6a);
-  if(f<0.25&&Math.random()<dt*6)puff(x,y,z,1,Math.random()<.5?0xff8a2a:0xffc040,0.3);
+// badly hurt (f: what's left of its health): under s (its kind's smoke, VEHICLE_KINDS) smoke pouring off it, and under
+// half that, flames too
+function vDamaged(x,y,z,f,dt,s=0.5){
+  if(f<s&&Math.random()<dt*(f<s/2?12:4))smoke(x+(Math.random()-.5),y,z+(Math.random()-.5),1,f<s/2?0x1a1a1a:0x6a6a6a);
+  if(f<s/2&&Math.random()<dt*6)puff(x,y,z,1,Math.random()<.5?0xff8a2a:0xffc040,0.3);
 }
 // does a shell or rocket at S.pos meet a vehicle (other than the one that fired it)? (Of the soft boxes, only a zoo
 // animal's stops it: a Ferris wheel's rim or a carousel's box is mostly air, so a shot goes on through to its frame)
@@ -12375,18 +12372,7 @@ function airCrash(x,y,z,R,cause){
 // a plane wrecked by flying into something or landing too hard: it goes up where it hits
 function planeCrash(pl,x,y,z,ground){planeHit(pl,PLANE_HP);if(ground)pl.fall=false;airCrash(x,y,z,7,'Killed when a plane crashed');}
 // how hurt the vehicle you're driving is
-function drvHP(D){if(D.netHP)return D.netHP;const o=D.o;   // (D.netHP: a guest online, told by the host)
-
-  if(D.k==='car'){if(!(o.hpMax>=o.hp))o.hpMax=Math.max(o.hp,o.svcPool?45:30);return{hp:o.hp,max:o.hpMax};}
-  if(D.k==='tank'||D.k==='heli')return{hp:o.hp,max:MIL[D.k].hp};
-  if(D.k==='mech')return{hp:o.hp,max:MG.hp};
-  if(D.k==='boat')return{hp:o.hp,max:o.max};
-  if(D.k==='ship')return{hp:o.hp,max:o.K.hp};
-  if(D.k==='mount')return{hp:o.S.hp,max:o.S.K.hp};   // (a carrier's deck weapon: the ship's own health)
-  if(D.k==='plane')return{hp:o.hp,max:planeMax(o)};
-  if(D.k==='balloon')return{hp:o.hp,max:BAL.hp};
-  return{hp:o.carHP?o.carHP[D.ci]:CAR_HP,max:CAR_HP};
-}
+function drvHP(D){if(D.netHP)return D.netHP;return vehHealth(D);}   // (D.netHP: a guest online, told by the host; the rest from each kind's entry, VEHICLE_KINDS)
 // the driving display: what you're in and its health along the top; for a tank or a helicopter a crosshair in the middle
 // (where drvAim finds, so where a shot goes), dim while it reloads, and for a tank a marker where its gun points now
 const _dhv=new THREE.Vector3();
@@ -12474,6 +12460,70 @@ function stickToRamp(p,g){
   for(const [a,b] of ptsOf(p))if(rampUnder(p.pos.x+a*c+b*s,p.pos.z-a*s+b*c,p.pos.y))return true;
   return false;
 }
+// ---- every kind of vehicle in one table ----
+// What every vehicle does alike, in VEHICLE_BASE, and what each kind says for itself, in VEHICLE_KINDS (keyed as drvFind
+// names them, p.drv.k). Snow (updateVehSnow), smoke (vehSmoke), points (vehDamage), the driving display's health
+// (drvHP), the floating health bars (drawDbgOverlay), the health sent online (netVenueHP) and the guard tests all read
+// it, so a new kind of vehicle wants an entry here.
+// The switches: snow, gathers snow on top; smoke, smokes once its health is under that share of the whole (and burns
+// under half of it); pts, points for destroying it (and label, what the award says); rampage, counted among the
+// cars totaled in This rampage; invuln, Invulnerability covers it while someone drives it (drvSafe); net, its health
+// sent to guests by its venue (netOwn: in a snapshot of its own); bullets and blasts, what can hurt it.
+const VEHICLE_BASE={snow:true,smoke:0.5,pts:0,label:null,rampage:false,invuln:true,net:true,netOwn:false,bullets:true,blasts:true,impact:false};
+// Each kind: venue, the kind of venue its vehicles are kept in, and list(V) those in one (a car has none: they're the
+// traffic, cars); pos(o) where it stands; top(o) how far above that its health bar goes (a hit's number a little
+// higher); mid(o) where a hit's sparks fly; hp(o,i) and max(o) its health (i: a train's car); dead(o); shown(o), whether
+// it's in sight to show a bar; groups(o) its models, for snow; hit(o,n,dir,i) its damage entry.
+// (All functions, so nothing here is read before the files defining MIL, MG, BAL and the rest have loaded.)
+const _vkp={x:0,y:0,z:0},vkAt=(x,y,z)=>{_vkp.x=x;_vkp.y=y;_vkp.z=z;return _vkp;};
+const VEHICLE_KINDS={
+  car:{name:'Car',rampage:true,snow:false,smoke:0,   // (their own snow and smoke: snowCar, updateCars)
+    pos:c=>c.pos,top:c=>(c.hy||1.4)+0.5,mid:c=>(c.hy||1.4)*0.6,max:c=>{if(!(c.hpMax>=c.hp))c.hpMax=Math.max(c.hp,c.svcPool?45:30);return c.hpMax;},
+    dead:c=>!c.alive,shown:c=>c.g.visible,hit:(c,n,dir)=>damageCar(c,n,dir)},
+  train:{name:'Train',venue:'rtrain',list:V=>V.T&&V.cars?[V.T]:[],perCar:true,carTop:()=>4.2,top:()=>4.2,mid:()=>2.5,groups:T=>T.cars||[],
+    pos:T=>T.cars[0].position,hp:(T,i)=>T.carHP?T.carHP[i||0]:CAR_HP,max:()=>CAR_HP,hit:(T,n,dir,i)=>trainHit(T,n,dir,i)},
+  subway:{name:'Subway train',venue:'sub',list:V=>V.T&&V.cars?[V.T]:[],perCar:true,carTop:()=>TRAIN_H+0.7,top:()=>TRAIN_H+0.7,mid:()=>2.5,groups:T=>T.cars||[],
+    pos:T=>T.cars[0].position,hp:(T,i)=>T.carHP?T.carHP[i||0]:CAR_HP,max:()=>CAR_HP,hit:(T,n,dir,i)=>trainHit(T,n,dir,i)},
+  tank:{name:'Tank',venue:'army',list:V=>V.mil.filter(M=>M.kind==='tank'),impact:true,pts:()=>MIL.tank.pts,label:()=>'Tank destroyed',
+    pos:M=>vkAt(M.x,M.y,M.z),top:M=>MIL[M.kind].hy+0.6,mid:M=>MIL[M.kind].hy*0.6,max:M=>MIL[M.kind].hp,hit:(M,n,dir)=>milHit(M,n,dir)},
+  heli:{name:'Helicopter',venue:'army',list:V=>V.mil.filter(M=>M.kind==='heli'),impact:true,pts:()=>MIL.heli.pts,label:()=>'Helicopter destroyed',
+    pos:M=>vkAt(M.x,M.y,M.z),top:M=>MIL[M.kind].hy+0.6,mid:M=>MIL[M.kind].hy*0.6,max:M=>MIL[M.kind].hp,hit:(M,n,dir)=>milHit(M,n,dir)},
+  plane:{name:'Plane',venue:'airport',list:V=>V.pl||[],pts:()=>1000,label:()=>'Airplane destroyed',
+    pos:pl=>pl.g.position,top:pl=>planeDim(pl).hy+0.8,mid:()=>2.5,max:pl=>planeMax(pl),shown:pl=>pl.g.visible,hit:(pl,n)=>planeHit(pl,n)},
+  boat:{name:'Boat',venue:'boat',list:V=>V.bo?[V.bo]:[],pts:bo=>bo.K.sc,label:bo=>bo.K.name+' sunk',
+    pos:bo=>bo.g.position,top:bo=>bo.K.fb+2,mid:bo=>bo.K.fb,max:bo=>bo.max,shown:bo=>bo.g.visible,hit:(bo,n)=>boatHit(bo,n)},
+  balloon:{name:'Hot-air balloon',venue:'balloon',list:V=>V.bl||[],pts:()=>400,label:()=>'Hot-air balloon brought down',
+    pos:B=>vkAt(B.x,B.y,B.z),top:()=>BAL.e1+0.8,mid:()=>BAL.e0+2,max:()=>BAL.hp,hit:(B,n)=>balloonHit(B,n)},
+  mech:{name:'Mobile Gear',venue:'mech',list:V=>V.mechs||[],impact:true,netOwn:true,pts:()=>2000,label:()=>'Mobile Gear destroyed',   // (its health goes in its own snapshot: netMechs)
+    pos:M=>vkAt(M.x,M.y,M.z),top:()=>MG.hy+0.8,mid:()=>5,max:()=>MG.hp,hit:(M,n)=>mechHit(M,n)},
+  // (ships and their deck weapons: phase 6 puts them on the registry's snow and online health)
+  ship:{name:'Ship',venue:'ship',list:V=>V.ships||[],snow:false,smoke:0,net:false,
+    pos:S=>{const P=shipPose(S);return vkAt(P.x,P.y,P.z);},top:S=>shipPose(S).hy+2,mid:S=>S.K.hy||2,max:S=>S.K.hp,hit:(S,n,dir,i)=>shipHit(S,n,i)},
+  mount:{name:'Deck weapon',venue:'ship',list:V=>(V.ships||[]).flatMap(S=>S.dead?[]:S.mounts||[]),snow:false,net:false,pts:()=>300,label:Mt=>Mt.K.name+' destroyed',
+    pos:Mt=>vkAt(Mt.x,Mt.y,Mt.z),top:()=>2.4,mid:()=>1.5,max:Mt=>Mt.K.hp,dead:Mt=>Mt.dead||Mt.S.dead,hit:(Mt,n)=>mountHit(Mt,n)},
+};
+// (filled in: the base's switches under each kind's own, and the usual ways of reading health)
+for(const k in VEHICLE_KINDS){const K=VEHICLE_KINDS[k];K.k=k;for(const s in VEHICLE_BASE)if(!(s in K))K[s]=VEHICLE_BASE[s];
+  if(!K.hp)K.hp=o=>o.hp;if(!K.dead)K.dead=o=>!!o.dead;if(!K.shown)K.shown=()=>true;if(!K.groups)K.groups=o=>o.g?[o.g]:[];
+  if(typeof K.pts!=='function'){const v=K.pts;K.pts=()=>v;}if(!K.label)K.label=()=>K.name+' destroyed';}
+// the kinds kept in each kind of venue
+const VEH_BY_VENUE={};for(const k in VEHICLE_KINDS){const v=VEHICLE_KINDS[k].venue;if(v)(VEH_BY_VENUE[v]=VEH_BY_VENUE[v]||[]).push(VEHICLE_KINDS[k]);}
+// every vehicle kept in a venue, kind by kind: fn(K, the vehicle, its venue)
+function vehEach(fn){for(const V of venues.values()){const ks=VEH_BY_VENUE[V.kind];if(!ks)continue;for(const K of ks)for(const o of K.list(V))fn(K,o,V);}}
+// The steps every vehicle's damage entry shares: nothing if it's already wrecked or Invulnerability covers it; a blow
+// heavy enough can stagger it (impHit); the number of the hit, the health off it, sparks; and at none, wrecked, with
+// points for it (not for an accident). Returns 0 if it took nothing, 1 if hurt, 2 if that destroyed it: each kind's
+// own entry (milHit, planeHit, boatHit, balloonHit, mechHit, mountHit) adds what's its own
+function vehDamage(k,o,n){const K=VEHICLE_KINDS[k];if(K.dead(o)||K.invuln&&drvSafe(o))return 0;if(K.impact)n=impHit(o,n);
+  const P=K.pos(o),x=P.x,y=P.y,z=P.z;dmgPop(x,y+K.top(o),z,Math.round(n),'#ffb04a');o.hp-=n;vHitFx(x,y+K.mid(o),z,n);
+  if(o.hp>0)return 1;
+  o.dead=true;o.deadT=0;const pts=K.pts(o);if(pts&&BLAME!=='acc'){award(pts,K.label(o),x,y+K.top(o)+1,z);if(K.rampage)RAMP.cars++;}
+  return 2;}
+// smoke off a badly hurt vehicle, from where it is (x,y,z), by its health as its kind reads it (a guest: the host's)
+function vehSmoke(k,o,x,y,z,dt,i){const K=VEHICLE_KINDS[k];if(!(K.smoke>0))return;vDamaged(x,y,z,netHp(o,K.hp(o,i))/K.max(o),dt,K.smoke);}
+// the health of what's being driven, by its kind (a carrier's deck weapon shows its ship's)
+function vehHealth(D){const K=VEHICLE_KINDS[D.k],o=D.o;if(!K)return{hp:CAR_HP,max:CAR_HP};
+  if(D.k==='mount')return{hp:o.S.hp,max:o.S.K.hp};return{hp:K.hp(o,D.ci),max:K.max(o)};}
 // ---- Play as a goblin: stealing a vehicle with someone in it. Getting into one that has a driver plays out a carjacking
 // first: you go to the door (or climb up to the hatch), get it open, haul the driver out and throw them clear, and climb
 // in. Each vehicle does it its own way: a car's door swings open, a motorcycle's rider is shoved off the side, a tank's
@@ -12991,9 +13041,8 @@ function mechBoxes(M,v){
 }
 // hurt: by shells, rockets, bullets and blasts (through trainHit). At nothing it blows up and throws its pilot clear
 function mechHit(M,n){
-  if(M.dead||drvSafe(M))return;n=impHit(M,n);dmgPop(M.x,M.y+MG.hy+0.8,M.z,Math.round(n),'#ffb04a');M.hp-=n;M.hurt=0.2;vHitFx(M.x,M.y+5,M.z,n);
-  if(M.hp>0)return;
-  M.dead=true;M.deadT=0;M.boostOn=false;
+  const r=vehDamage('mech',M,n);if(!r)return;M.hurt=0.2;if(r<2)return;   // (the steps every vehicle shares, the impact too: registry.js)
+  M.boostOn=false;
   blastFx(M.x,M.y+4,M.z,0.9,2.6);smoke(M.x,M.y+5,M.z,26,0x262626);
   M.g.traverse(o=>{if(o.isMesh)o.material=o.material===MGM.flame?o.material:TRM.dark;});for(const F of M.J.flames)F.m.visible=F.t.visible=false;
   if(audio)sfx('Mobile Gear destroyed',()=>{noise(1.2,1,450,'lowpass');tone('sawtooth',60,14,1.4,0.3);});addShake(1,M.x,M.z,50);hitGoblins(M.x,M.z,8,8,'Blown up with a Mobile Gear',M.y+2);
@@ -13142,7 +13191,7 @@ function updateMechs(V,dt){
     if(M.dead){M.deadT+=dt;if(M.deadT<60&&Math.random()<dt*3)smoke(M.x,M.y+5,M.z,1,0x262626);M.vx=M.vz=0;
       {const gy=mgGround(M.x,M.z,M.y+0.3,M);if(M.y>gy+0.02){M.vy-=MG.grav*dt;M.y=Math.max(gy,M.y+M.vy*dt);}else M.vy=0;}}
     else if(M.drv)drvMech(M,dt);else mechIdle(M,dt);
-    M.hurt=(M.hurt||0)-dt;if(!M.dead)impTick(M,dt);if(!M.dead)vDamaged(M.x,M.y+MG.hy,M.z,M.hp/MG.hp,dt);
+    M.hurt=(M.hurt||0)-dt;if(!M.dead)impTick(M,dt);if(!M.dead)vehSmoke('mech',M,M.x,M.y+MG.hy,M.z,dt);
     mechPose(M,dt);mechBoxes(M,Math.hypot(M.vx,M.vz));mechShove(M);}
 }
 // a new one, standing at x,z facing h, in venue V
@@ -21746,14 +21795,13 @@ const BOAT_GONE=new Map();
 // hitting a boat: it shudders and starts to burn and list; holed for good, it goes up (or, with no engine to speak of, just
 // breaks up) and goes down. Up in a dry dock or on the sand it stays where it is, burnt out
 function boatHit(bo,n){
-  if(bo.dead||drvSafe(bo))return;const g=bo.g,p=g.position,K=bo.K;dmgPop(p.x,p.y+K.fb+2,p.z,Math.round(n),'#ffb04a');bo.hp-=n;bo.shake=.25;vHitFx(p.x,p.y+K.fb,p.z,n);if(bo.hp>0)return;
-  bo.dead=true;bo.deadT=0;bo.y0=p.y;BOAT_GONE.set(bo.key,playTime);const s=K.boom||0,sz=Math.max(1,Math.min(3,bo.L/10));
+  const r=vehDamage('boat',bo,n);if(!r)return;bo.shake=.25;if(r<2)return;   // (the steps every vehicle shares: registry.js)
+  const g=bo.g,p=g.position,K=bo.K;bo.y0=p.y;BOAT_GONE.set(bo.key,playTime);const s=K.boom||0,sz=Math.max(1,Math.min(3,bo.L/10));
   if(s){blastFx(p.x,p.y+K.fb+1,p.z,.5+s*.15,1+s*.6);smoke(p.x,p.y+K.fb+1,p.z,Math.round(10+s*8),0x262626);
     noise(.6+s*.3,1,600,'lowpass');tone('sawtooth',70,16,.6+s*.3,.3);addShake(.3+s*.3,p.x,p.z,20+s*15);hitGoblins(p.x,p.z,3+s*4,4+s*3,'Blown up with a boat',p.y+1);}
   else{puff(p.x,p.y+.6,p.z,14,0x8a5a32,1.2);noise(.3,.5,1400,'bandpass');}
   for(let k=0,N=Math.round(3+sz*3);k<N;k++){const D=debris[(debrisIdx++)%debris.length];D.m.position.set(p.x+(Math.random()-.5)*K.W,p.y+1+Math.random()*2,p.z+(Math.random()-.5)*bo.L*.6);D.v.set((Math.random()-.5)*16,6+Math.random()*10,(Math.random()-.5)*16);D.spin.set((Math.random()-.5)*12,(Math.random()-.5)*12,(Math.random()-.5)*12);D.life=25;D.m.visible=true;}
   if(s)g.traverse(o=>{if(o.isMesh){o.userData.mat=o.userData.mat||o.material;o.material=TRM.dark;}});
-  award(K.sc,K.name+' sunk',p.x,p.y+K.fb+2,p.z);
 }
 function boatWreck(V,dt){
   const bo=V.bo,g=V.boat,p=g.position,K=bo.K;bo.deadT+=dt;
@@ -22160,13 +22208,11 @@ function planeStrike(pl,v){
     if(d){g2.trainT=1;damageGoblin(g2,Math.round(4+12*k),g2.pos.clone(),d.clone().multiplyScalar(1+k),'Hit by a plane',ACCIDENT);g2.vy=Math.max(g2.vy||0,12+16*k);g2.kv.x+=d.x*(14+26*k);g2.kv.z+=d.z*(14+26*k);}}
 }
 function planeHit(pl,n){
-  if(pl.dead||drvSafe(pl))return;const g=pl.g,p=g.position;dmgPop(p.x,p.y+5,p.z,Math.round(n),'#ffb04a');pl.hp-=n;vHitFx(p.x,p.y+2.5,p.z,n);if(pl.hp>0)return;
-  pl.dead=true;pl.deadT=0;
+  if(vehDamage('plane',pl,n)<2)return;const g=pl.g,p=g.position;   // (the steps every vehicle shares: registry.js)
   blastFx(p.x,p.y+3,p.z,0.8,2.4);smoke(p.x,p.y+3,p.z,26,0x262626);
   for(let k=0;k<10;k++){const d=debris[(debrisIdx++)%debris.length];d.m.position.set(p.x+(Math.random()-.5)*8,p.y+2+Math.random()*2,p.z+(Math.random()-.5)*12);d.v.set((Math.random()-.5)*20,8+Math.random()*12,(Math.random()-.5)*20);d.spin.set((Math.random()-.5)*12,(Math.random()-.5)*12,(Math.random()-.5)*12);d.life=25;d.m.visible=true;}
   g.traverse(o=>{if(o.isMesh){o.userData.mat=o.userData.mat||o.material;o.material=TRM.dark;}});
   noise(1.2,1,500,'lowpass');tone('sawtooth',70,16,1.4,0.32);addShake(1,p.x,p.z,50);hitGoblins(p.x,p.z,12,10,'Blown up with a plane',p.y+1);
-  award(1000,'Airplane destroyed',p.x,p.y+4,p.z);
   if(p.y>G+3){pl.fall=true;pl.vy=-2;pl.fv=pl.v||40;}else g.rotation.z=(Math.random()<.5?1:-1)*(0.12+Math.random()*0.14);
 }
 function planeWreck(pl,V,dt){
@@ -22283,7 +22329,7 @@ function airportInit(V){
 function updateAirport(V,dt){
   const B=V.B,X0=B.ax*CELL,Z0=B.az*CELL;
   if(!V.pl)airportInit(V);
-  for(const pl of V.pl)if(!pl.dead&&pl.g.visible)vDamaged(pl.g.position.x,pl.g.position.y+3,pl.g.position.z,pl.hp/planeMax(pl),dt);
+  for(const pl of V.pl)if(!pl.dead&&pl.g.visible)vehSmoke('plane',pl,pl.g.position.x,pl.g.position.y+3,pl.g.position.z,dt);
   // (one that a goblin's flown, or is flying, goes its own way: see drvPlane)
   for(const pl of V.pl){const g=pl.g;planeCrewShow(pl,dt);
     if(pl.dead){planeWreck(pl,V,dt);planeBoxes(pl,0);continue;}
@@ -22392,7 +22438,7 @@ function updateBalloons(V,dt){
     {let ny=B.y+B.vy*dt;const g2=balGround(B.x,B.z,B.y);if(ny<=g2){ny=g2;if(B.vy<-6)thud(0.3);B.vy=Math.max(0,B.vy);}
      if(B.vy>0&&(!balClear(B.x,ny,B.z)||balHits(B,B.x,B.z,ny))){ny=B.y;B.vy=0;}   // (up against something overhead)
      B.y=Math.min(ny,H+BAL.ceil);}
-    if(B.hp<BAL.hp*0.5)vDamaged(B.x,B.y+BAL.e0,B.z,B.hp/BAL.hp,dt);
+    vehSmoke('balloon',B,B.x,B.y+BAL.e0,B.z,dt);
     balPlace(B);balloonBoxes(B);}
   V.bl=V.bl.filter(B=>{if(B.dead&&B.deadT>20&&!players.some(q=>q.drv&&q.drv.o===B)){scene.remove(B.g);return false;}return true;});
 }
@@ -22408,9 +22454,8 @@ function balloonBoxes(B){
 }
 // hurt: the envelope tears and goes, and the basket (and anyone in it) comes down
 function balloonHit(B,n){
-  if(B.dead||drvSafe(B))return;B.hp-=n;dmgPop(B.x,B.y+BAL.e1,B.z,Math.round(n),'#ffb04a');vHitFx(B.x,B.y+BAL.e0+2,B.z,n);
-  if(B.hp>0)return;
-  B.dead=true;B.deadT=0;B.env.visible=false;B.flame.visible=false;
+  if(vehDamage('balloon',B,n)<2)return;   // (the steps every vehicle shares: registry.js)
+  B.env.visible=false;B.flame.visible=false;
   for(let k=0;k<3;k++)puff(B.x,B.y+BAL.e0+k*3,B.z,10,BAL_COL[(B.ck+k)%4],2.2);
   if(audio)sfx('Balloon torn',()=>{noise(0.6,0.5,700,'bandpass');thud(0.4);});
 }
@@ -23475,8 +23520,7 @@ function mountBoxes(S){if(!S.mounts)return;const tx=Math.sin(S.yaw),tz=Math.cos(
     TRAIN_BOXES.push({x:Mt.x,z:Mt.z,tx:0,tz:1,y0:Mt.y,top:Mt.y+hy,v:0,hx:h,hz:h,proxy:pr});}}
 // hit (trainHit, from shots, blasts and rams): the number where it struck, and at none it's wrecked
 function mountHit(Mt,n){
-  if(Mt.dead||Mt.S.dead||drvSafe(Mt))return;const P=Mt.lk.pos;dmgPop(P.x,P.y+3.6,P.z,Math.round(n),'#ffb04a');Mt.hp-=n;vHitFx(P.x,P.y+1.5,P.z,n);
-  if(Mt.hp<=0)mountWreck(Mt);}
+  if(vehDamage('mount',Mt,n)===2)mountWreck(Mt);}   // (the steps every vehicle shares: registry.js)
 // wrecked: whoever's at it thrown off, a blast and smoke, and what's left blackened, its head knocked askew. It does
 // nothing more, and nobody can man it
 function mountWreck(Mt){
@@ -25836,22 +25880,13 @@ function drawDbgOverlay(dt,views){
         x.fillStyle='rgba(10,12,16,.75)';x.fillRect(s[0]-bw/2-1,s[1]-bh-1,bw+2,bh+2);x.fillStyle=f>0.6?col:f>0.3?'#e8c14a':'#ff4a3a';x.fillRect(s[0]-bw/2,s[1]-bh,bw*f,bh);
         if(s[2]<28){x.font='600 10px ui-monospace,Menlo,monospace';x.fillStyle='#e8ece4';x.textAlign='center';x.fillText(Math.max(0,Math.ceil(hp))+'/'+Math.round(max),s[0],s[1]-bh-3);}};
       for(const g of goblins){if(!g.root.visible||g.state==='wait'||g.state==='dead'||!(g.hp>0))continue;if(!(g.hpMax>=g.hp))g.hpMax=g.hp;bar(g.pos.x,g.pos.y+2.1,g.pos.z,g.hp,g.hpMax,g.civ?'#9ad0ff':'#7fd04a');}
-      for(const c of cars){if(!c.alive||!c.g.visible)continue;if(!(c.hpMax>=c.hp))c.hpMax=Math.max(c.hp,c.svcPool?45:30);bar(c.pos.x,c.pos.y+(c.hy||1.4)+0.5,c.pos.z,c.hp,c.hpMax,'#5ab4ff');}
-      for(const V of venues.values()){
-        // (online, a guest reads the host's figures: netHp, netDead)
-        if(V.kind==='army')for(const M of V.mil){if(!netDead(M,M.dead))bar(M.x,M.y+MIL[M.kind].hy+0.6,M.z,netHp(M,M.hp),MIL[M.kind].hp,'#5ab4ff');}
-        else if(V.kind==='airport'&&V.pl)for(const pl of V.pl){if(!netDead(pl,pl.dead)&&pl.g.visible)bar(pl.g.position.x,pl.g.position.y+planeDim(pl).hy+0.8,pl.g.position.z,netHp(pl,pl.hp),planeMax(pl),'#5ab4ff');}
-        else if(V.kind==='boat'&&V.bo&&!netDead(V.bo,V.bo.dead)&&V.boat.visible){const g=V.boat;bar(g.position.x,g.position.y+V.bo.K.fb+2,g.position.z,netHp(V.bo,V.bo.hp),V.bo.max,'#5ab4ff');}
-        else if(V.kind==='rtrain'&&V.T&&V.cars){const T=V.T,gst=netGuest()&&T.netHP,hp=gst?T.netHP:T.carHP,cd=gst?T.netCarDead:T.carDead;
-          if(!(gst?T.netDead:T.dead))V.cars.forEach((g,i)=>{if(!(cd&&cd[i]))bar(g.position.x,g.position.y+4.2,g.position.z,hp&&hp[i]!==undefined?hp[i]:CAR_HP,CAR_HP,'#5ab4ff');});}
-        // (the subway's trains, Mobile Gears, hot-air balloons, ships and a carrier's deck weapons had none: each is hurt
-        // through trainHit like the rest, so each gets its bar, from the same figures the driving display shows, drvHP)
-        else if(V.kind==='sub'&&V.T&&V.cars){const T=V.T,gst=netGuest()&&T.netHP,hp=gst?T.netHP:T.carHP,cd=gst?T.netCarDead:T.carDead;
-          if(!(gst?T.netDead:T.dead))V.cars.forEach((g,i)=>{if(!(cd&&cd[i]))bar(g.position.x,g.position.y+TRAIN_H+0.7,g.position.z,hp&&hp[i]!==undefined?hp[i]:CAR_HP,CAR_HP,'#5ab4ff');});}
-        else if(V.kind==='mech'&&V.mechs)for(const M of V.mechs){if(!netDead(M,M.dead))bar(M.x,M.y+MG.hy+0.8,M.z,netHp(M,M.hp),MG.hp,'#5ab4ff');}
-        else if(V.kind==='balloon'&&V.bl)for(const B of V.bl){if(!netDead(B,B.dead))bar(B.x,B.y+BAL.e1+0.8,B.z,netHp(B,B.hp),BAL.hp,'#5ab4ff');}
-        else if(V.kind==='ship'&&V.ships)for(const S of V.ships){if(S.dead)continue;const P=shipPose(S);bar(P.x,P.y+P.hy+2,P.z,S.hp,S.K.hp,'#5ab4ff');
-          if(S.mounts)for(const Mt of S.mounts)if(!Mt.dead)bar(Mt.x,Mt.y+2.4,Mt.z,Mt.hp,Mt.K.hp,'#5ab4ff');}}
+      {const K=VEHICLE_KINDS.car;for(const c of cars){if(K.dead(c)||!K.shown(c))continue;bar(c.pos.x,c.pos.y+K.top(c),c.pos.z,c.hp,K.max(c),'#5ab4ff');}}
+      // (every other vehicle, kind by kind as VEHICLE_KINDS finds them; online, a guest reads the host's figures: netHp,
+      // netDead. A train's cars each have their own)
+      vehEach((K,o,V)=>{
+        if(K.perCar){const T=o,gst=netGuest()&&T.netHP,hp=gst?T.netHP:T.carHP,cd=gst?T.netCarDead:T.carDead;if(gst?T.netDead:T.dead)return;
+          V.cars.forEach((g,i)=>{if(!(cd&&cd[i]))bar(g.position.x,g.position.y+K.carTop(),g.position.z,hp&&hp[i]!==undefined?hp[i]:CAR_HP,CAR_HP,'#5ab4ff');});return;}
+        if(netDead(o,K.dead(o))||!K.shown(o))return;const P=K.pos(o);bar(P.x,P.y+K.top(o),P.z,netHp(o,K.hp(o)),K.max(o),'#5ab4ff');});
       for(const q of players){if(!q.active||q.state==='dead'||q===p)continue;bar(q.pos.x,q.pos.y+2.5,q.pos.z,q.hp,20,'#7fd04a');}
     }
     for(const d of DMG_POPS){const s=proj(d.x,d.y+d.t*1.6,d.z);if(!s||s[2]>90)continue;const a=d.t<0.7?1:Math.max(0,1-(d.t-0.7)/0.4),sz=Math.round(16+Math.min(14,d.n*0.5)-s[2]*0.08);
@@ -26823,12 +26858,14 @@ function netVenuePose(rt){
 // (the health of what's in the venues -- base vehicles, planes, boats, train cars -- for the health bars. A guest keeps it
 // beside its own models, as netHp and netDead, rather than in their own hp and dead: its venues run quietly, and a
 // vehicle there that thought itself dead would start wrecking itself)
+// the vehicles in a venue whose health is sent by the venue (VEHICLE_KINDS' net, not netOwn), in a set order (a base's
+// in the order it keeps them, as older guests expect); null for a venue with none, or a train's (sent car by car)
+function netVehList(V){const ks=VEH_BY_VENUE[V.kind];if(!ks||ks[0].perCar)return null;if(V.kind==='army')return V.mil||null;
+  const L=[];for(const K of ks)if(K.net&&!K.netOwn)L.push(...K.list(V));return L.length?L:null;}
 function netVenueHP(N){
   const sent=N.vhsent||(N.vhsent=new Map()),out=[];
-  for(const [vk,V] of venues){let a=null;
-    if(V.kind==='army'&&V.mil)a=V.mil.map(M=>[r3(M.hp),M.dead?1:0]);
-    else if(V.kind==='airport'&&V.pl)a=V.pl.map(q=>[r3(q.hp),q.dead?1:0]);
-    else if(V.kind==='boat'&&V.bo)a=[[r3(V.bo.hp),V.bo.dead?1:0]];
+  for(const [vk,V] of venues){let a=null;const L=netVehList(V);
+    if(L)a=L.map(o=>[r3(o.hp),o.dead?1:0]);
     else if((V.kind==='rtrain'||V.kind==='sub')&&V.T)a=[[V.T.dead?1:0],(V.T.carHP||[]).map(r3),(V.T.carDead||[]).map(x=>x?1:0)];
     if(!a)continue;const k=JSON.stringify(a);if(sent.get(vk)===k)continue;sent.set(vk,k);out.push([vk,a]);}
   return out;
@@ -26836,7 +26873,7 @@ function netVenueHP(N){
 function netVenueHPSet(L){
   for(const [vk,a] of L){const V=venues.get(vk);if(!V)continue;
     const each=(list)=>{if(list)list.forEach((o,i)=>{if(o&&a[i]){o.netHp=a[i][0];o.netDead=!!a[i][1];}});};
-    if(V.kind==='army')each(V.mil);else if(V.kind==='airport')each(V.pl);else if(V.kind==='boat')each(V.bo?[V.bo]:null);
+    const VL=netVehList(V);if(VL)each(VL);
     else if((V.kind==='rtrain'||V.kind==='sub')&&V.T){V.T.netDead=!!a[0][0];V.T.netHP=a[1];V.T.netCarDead=a[2];}}
 }
 // (what the health bars read: on a guest the host's figures, wherever they've come)
@@ -28435,7 +28472,7 @@ function tenvMech(){
 }
 function updateTenvPlanes(V,dt){
   for(const pl of V.pl){
-    if(!pl.dead&&pl.g.visible)vDamaged(pl.g.position.x,pl.g.position.y+3,pl.g.position.z,pl.hp/planeMax(pl),dt);
+    if(!pl.dead&&pl.g.visible)vehSmoke('plane',pl,pl.g.position.x,pl.g.position.y+3,pl.g.position.z,dt);
     if(pl.dead){planeWreck(pl,V,dt);planeBoxes(pl,0);}
     else if(pl.free){drvPlane(pl,dt);if(!pl.dead){planeBoxes(pl,pl.free.v);if(pl.free.v>=2)planeStrike(pl,pl.free.v);}}
     else planeBoxes(pl,0);}

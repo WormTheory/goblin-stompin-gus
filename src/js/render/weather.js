@@ -109,28 +109,25 @@ function snowGather(o,dt,moving){
   else u.value=Math.max(0,u.value-dt/(WX.k.snow>0.08?240:45));
 }
 function shakeSnow(o,y){if(o.snowU&&o.snowU.value>0.08){puff(o.pos.x,o.pos.y+y,o.pos.z,10,0xf0f4fa,0.45);o.snowU.value=0;}}
-// snow on the big vehicles (tanks, helicopters, planes and Mobile Gears), as on cars. Their paints are shared by every
-// one of a kind, so each gets copies of its own with the cars' snow (snowCar) the first time any snow is lying, and the
+// snow on every vehicle whose kind says so (VEHICLE_KINDS: tanks, helicopters, planes, boats, trains, balloons and
+// Mobile Gears), as on cars. Their paints are shared by every one of a kind, so each gets copies of its own with the cars' snow (snowCar) the first time any snow is lying, and the
 // batched drawing reads each box's snow from those (batPut). It settles as deep as the snow on the ground while the
 // vehicle stands out under the sky, and blows off one that's going fast (a plane in the air, a helicopter at speed)
-function vehSnowKit(o){
+function vehSnowKit(o,gs){
   o.snowU={value:0};const own=new Map();
-  o.g.traverse(m=>{const t=m.isMesh&&m.material;if(!t||t.type!=='MeshLambertMaterial'||t.transparent||t.snowU||t._obc)return;
+  for(const g of gs||[o.g])g.traverse(m=>{const t=m.isMesh&&m.material;if(!t||t.type!=='MeshLambertMaterial'||t.transparent||t.snowU||t._obc)return;
     let c=own.get(t);if(!c){c=snowCar(t.clone(),o);own.set(t,c);}m.material=c;
     if(m.userData.mat===t)m.userData.mat=c;});   // (a plane put back after it was wrecked gets its snowy paint back: see planeWreck)
 }
-function vehSnow(o,x,y,z,gone,dt){
+function vehSnow(o,x,y,z,gone,dt,gs){
   if(gone)return;
-  if(!o.snowU){if(WX.snowCover<0.01)return;vehSnowKit(o);}
+  if(!o.snowU){if(WX.snowCover<0.01)return;vehSnowKit(o,gs);}
   const P=o.snowP||(o.snowP={x,z}),sp=Math.hypot(x-P.x,z-P.z)/Math.max(dt,1e-3);P.x=x;P.z=z;
   o.skyT=(o.skyT||0)-dt;if(o.skyT<=0){o.skyT=0.6+Math.random()*0.4;o.skyOpen=openSky(x,y,z);}
   const fast=sp>20,u=o.snowU;u.value+=((o.skyOpen&&!fast?WX.snowCover:0)-u.value)*Math.min(1,dt*(fast?1.5:0.4));
 }
 function updateVehSnow(dt){
-  for(const V of venues.values()){
-    if(V.kind==='army'&&V.mil)for(const M of V.mil)vehSnow(M,M.x,M.y,M.z,M.dead,dt);
-    else if(V.kind==='airport'&&V.pl)for(const pl of V.pl){const p=pl.g.position;vehSnow(pl,p.x,p.y,p.z,pl.dead||!pl.g.visible,dt);}
-    else if(V.kind==='mech'&&V.mechs)for(const M of V.mechs)vehSnow(M,M.x,M.y,M.z,M.dead,dt);}
+  vehEach((K,o)=>{if(!K.snow)return;const P=K.pos(o);vehSnow(o,P.x,P.y,P.z,K.dead(o)||!K.shown(o),dt,K.groups(o));});
 }
 // how far the weather lets you see, in blocks: the same at any view distance (it once scaled with the FAR VIEW setting,
 // so turned up far the fog all but vanished). Clear skies don't limit it; thick fog or a blizzard closes in to about 30

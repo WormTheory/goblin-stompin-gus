@@ -294,7 +294,7 @@ function updateRailVenue(V,dt,t){
   // (numbered from the end furthest along the line, whichever way it's going: it has an engine at each end, and just drives
   // off the other way at the end of the line. Each car lies along the track between its two ends, so it swings round bends.)
   const hi=T.dir>0?T.s:T.s+TRAIN_LEN,cs=[];V.cars.forEach((g,i)=>{const c=hi-5.3-i*10.6,P=railPt(C,c),Fa=railPt(C,c+4),Ba=railPt(C,c-4);if(T.carDead&&T.carDead[i]){cs.push(P);return;}g.position.set((Fa.x+Ba.x)/2,G+1.2,(Fa.z+Ba.z)/2);g.rotation.y=Math.atan2(Fa.x-Ba.x,Fa.z-Ba.z);cs.push(P);});
-  if(T.carHP)V.cars.forEach((g,i)=>{if(!(T.carDead&&T.carDead[i]))vDamaged(g.position.x,g.position.y+3.6,g.position.z,T.carHP[i]/CAR_HP,dt);});
+  if(T.carHP)V.cars.forEach((g,i)=>{if(!(T.carDead&&T.carDead[i]))vehSmoke('train',T,g.position.x,g.position.y+3.6,g.position.z,dt,i);});
   // the horn, now and then, when it's near you and moving
   V.hornT-=dt;
   if(me&&!T.dead&&T.v>8&&V.hornT<=0&&audio&&playing){const d=Math.hypot(cs[0].x-me.pos.x,cs[0].z-me.pos.z);if(d<120){V.hornT=9;tone('sawtooth',311,300,0.9,0.05*(1-d/120));tone('sawtooth',370,360,0.9,0.04*(1-d/120));}}

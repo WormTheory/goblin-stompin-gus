@@ -16,12 +16,9 @@ const P=T.players[0];for(const f of els.play.L.click)f();pads.length=0;run(2);
 const DT=E('DT'),G0=44;
 // ---- known gaps today (family/kind: check). Delete a line when it's fixed ----
 const EXPECTED=new Set([
-  // (the vehicle registry, phase 3: snow only on cars, base armour, planes and Mobile Gears)
-  'balloon: snow','barge: snow','carrier: snow','mount: snow',
-  // (points: no award when these are destroyed)
-  'balloon: points','mech: points','mount: points',
-  // (online health sync: not sent)
-  'balloon: net','barge: net','carrier: net','mount: net',
+  // (ships and their deck weapons aren't on the registry's snow or online health yet: phase 6)
+  'barge: snow','carrier: snow','mount: snow',
+  'barge: net','carrier: net','mount: net',
   // (the carrier loses health only from its blocks, by design: shipHit leaves it alone)
   'carrier: damage','carrier: points',
   // (the soldiers who crew the base's armour have no entry in the Dev tab's enemy list)
@@ -58,7 +55,7 @@ let kx=-600;for(const t of kinds){
   const bc=new Set(T.cars.filter(c=>c.alive)),bt=new Set(E('TRAIN_BOXES').map(B=>B.proxy.T).filter(Boolean)),bs=new Set(E('SHIPS').filter(Boolean));
   E('menuOpen=true');E('TS').n=1;E('TS').vm='park';E('tenvVeh')(t);E('menuOpen=false');run(0.3);
   const D=findNew(t,bc,bt,bs);if(!D){check(t,'spawned',false);continue;}
-  const fam=famOf(t,D);did[fam]=(did[fam]||0)+1;
+  const fam=famOf(t,D);did[fam]=(did[fam]||0)+1;check(fam==='car'?t:fam,'registry',!!E('VEHICLE_KINDS')[D.k],'no VEHICLE_KINDS.'+D.k);
   // snow: a blizzard over it for a few seconds
   {const W=E('WX'),sc=W.snowCover;W.snowCover=1;for(let i=0;i<8;i++)E('updateVehSnow')(0.5);W.snowCover=sc;
    const o=D.o;check(fam==='car'?t:fam,'snow',!!(o.snowU),'no snowU');}
@@ -98,6 +95,12 @@ let kx=-600;for(const t of kinds){
 {const g={position:new V3(),rotation:{},traverse(){}},Tr={cars:[g,g],C:{}},w=P.drv;P.drv={k:'train',o:Tr,ci:0};DT.invuln=true;E('trainHit')(Tr,10,undefined,0);DT.invuln=false;P.drv=w;
  {const h=Tr.carHP?Tr.carHP[0]:E('CAR_HP');check('train','invuln',h===E('CAR_HP'),'car hp '+h);}flush('vehicle train (stand-in)');}
 console.log('families covered:',Object.entries(did).map(([k,n])=>k+(n>1?' x'+n:'')).join(', '),'| not spawnable here: boats, trains, subways, two-seater planes');
+
+// ==== the registry itself: every kind has what the shared code reads ====
+{const VK=E('VEHICLE_KINDS');for(const k in VK){const K=VK[k],bad=[];for(const f of ['pos','top','mid','hp','max','dead','shown','groups','pts','label','hit'])if(typeof K[f]!=='function'&&!(k==='car'&&f==='groups'))bad.push(f);
+   for(const f of ['snow','smoke','rampage','invuln','net','bullets','blasts'])if(K[f]===undefined)bad.push(f);if(k!=='car'&&!K.venue)bad.push('venue');if(k!=='car'&&typeof K.list!=='function')bad.push('list');
+   check('registry '+k,'fields',!bad.length,bad.join(','));}
+ flush('vehicle registry ('+Object.keys(VK).join(', ')+')');}
 
 // ==== every enemy gun: rounds stop at walls, and a player driving has the vehicle hurt ====
 // (Math.random pinned low, so every round that can hit does; the target alone on open ground, then shut in a stone box)

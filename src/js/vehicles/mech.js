@@ -316,9 +316,8 @@ function mechBoxes(M,v){
 }
 // hurt: by shells, rockets, bullets and blasts (through trainHit). At nothing it blows up and throws its pilot clear
 function mechHit(M,n){
-  if(M.dead||drvSafe(M))return;n=impHit(M,n);dmgPop(M.x,M.y+MG.hy+0.8,M.z,Math.round(n),'#ffb04a');M.hp-=n;M.hurt=0.2;vHitFx(M.x,M.y+5,M.z,n);
-  if(M.hp>0)return;
-  M.dead=true;M.deadT=0;M.boostOn=false;
+  const r=vehDamage('mech',M,n);if(!r)return;M.hurt=0.2;if(r<2)return;   // (the steps every vehicle shares, the impact too: registry.js)
+  M.boostOn=false;
   blastFx(M.x,M.y+4,M.z,0.9,2.6);smoke(M.x,M.y+5,M.z,26,0x262626);
   M.g.traverse(o=>{if(o.isMesh)o.material=o.material===MGM.flame?o.material:TRM.dark;});for(const F of M.J.flames)F.m.visible=F.t.visible=false;
   if(audio)sfx('Mobile Gear destroyed',()=>{noise(1.2,1,450,'lowpass');tone('sawtooth',60,14,1.4,0.3);});addShake(1,M.x,M.z,50);hitGoblins(M.x,M.z,8,8,'Blown up with a Mobile Gear',M.y+2);
@@ -467,7 +466,7 @@ function updateMechs(V,dt){
     if(M.dead){M.deadT+=dt;if(M.deadT<60&&Math.random()<dt*3)smoke(M.x,M.y+5,M.z,1,0x262626);M.vx=M.vz=0;
       {const gy=mgGround(M.x,M.z,M.y+0.3,M);if(M.y>gy+0.02){M.vy-=MG.grav*dt;M.y=Math.max(gy,M.y+M.vy*dt);}else M.vy=0;}}
     else if(M.drv)drvMech(M,dt);else mechIdle(M,dt);
-    M.hurt=(M.hurt||0)-dt;if(!M.dead)impTick(M,dt);if(!M.dead)vDamaged(M.x,M.y+MG.hy,M.z,M.hp/MG.hp,dt);
+    M.hurt=(M.hurt||0)-dt;if(!M.dead)impTick(M,dt);if(!M.dead)vehSmoke('mech',M,M.x,M.y+MG.hy,M.z,dt);
     mechPose(M,dt);mechBoxes(M,Math.hypot(M.vx,M.vz));mechShove(M);}
 }
 // a new one, standing at x,z facing h, in venue V

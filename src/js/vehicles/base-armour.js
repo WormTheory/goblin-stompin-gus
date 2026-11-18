@@ -64,7 +64,7 @@ function updateArmy(V,dt){
   let rolling=0;for(const M of V.mil)if(M.kind==='tank'&&!M.dead&&(M.state==='hunt'||M.state==='man'))rolling++;
   for(const M of V.mil){
     if(M.dead){milWreck(M,dt);milBoxes(M,0);milShove(M);continue;}
-    M.hurt-=dt;M.jolt=(M.jolt||0)-dt;vDamaged(M.x,M.y+MIL[M.kind].hy,M.z,M.hp/MIL[M.kind].hp,dt);M.callT=(M.callT||0)-dt;
+    M.hurt-=dt;M.jolt=(M.jolt||0)-dt;vehSmoke(M.kind,M,M.x,M.y+MIL[M.kind].hy,M.z,dt);M.callT=(M.callT||0)-dt;
     // (its crew on the way: once he's in, it goes; back in its place with the base stood down, he climbs out)
     if(M.state==='man'&&milManning(V,M,dt)){M.state='hunt';M.cd=M.kind==='tank'?1.5+Math.random():4;M.rcd=7+Math.random()*3;}
     if(M.state==='park'&&M.crew&&!V.alert&&!M.drv)milDismount(V,M);
@@ -180,17 +180,16 @@ function updateHeli(M,V,dt){
   if(M.spin>0.3&&audio&&playing&&n&&n.d<90){M.thT=(M.thT||0)-dt;if(M.thT<=0){M.thT=0.11;sfx('Helicopter rotor',()=>noise(0.08,0.05*M.spin*(1-n.d/90),180,'lowpass'));}}   // (the thud of its rotor)
 }
 function milHit(M,n,dir){
-  if(M.dead||drvSafe(M))return;const I=MIL[M.kind];n=impHit(M,n);dmgPop(M.x,M.y+I.hy+0.8,M.z,Math.round(n),'#ffb04a');M.hp-=n;M.hurt=0.2;M.jolt=0.3;vHitFx(M.x,M.y+I.hy*0.6,M.z,n);
+  const r=vehDamage(M.kind,M,n);if(!r)return;const I=MIL[M.kind];M.hurt=0.2;M.jolt=0.3;   // (the steps every vehicle shares, the impact too: registry.js)
   if(!M.V.alert&&!calmNow())milAlert(M.V,(nearestPlayer(M.x,M.z)||{}).p);   // (shot at, the whole base wakes up)
-  if(M.hp>0)return;
-  M.dead=true;M.deadT=0;M.fall=M.kind==='heli'&&M.y>G+2;M.vy=0;wrecked[M.key]=1;save();
+  if(r<2)return;
+  M.fall=M.kind==='heli'&&M.y>G+2;M.vy=0;wrecked[M.key]=1;save();
   if(M.crew&&M.crew!==MIL_CREW[M.kind]){const o=crewAt(M.x,M.z,M.h,I.hx+1.2,0);crewCorpse('soldier',M.crew,o.x,M.y+1,o.z,'Killed in their '+I.name.toLowerCase());}M.crew=null;   // (whoever was in it)
   blastFx(M.x,M.y+1.5,M.z,0.8,2.2);smoke(M.x,M.y+2,M.z,22,0x262626);
   for(let k=0;k<8;k++){const d=debris[(debrisIdx++)%debris.length];d.m.position.set(M.x+(Math.random()-.5)*3,M.y+1.5+Math.random(),M.z+(Math.random()-.5)*4);d.v.set((Math.random()-.5)*18,8+Math.random()*10,(Math.random()-.5)*18);d.spin.set((Math.random()-.5)*12,(Math.random()-.5)*12,(Math.random()-.5)*12);d.life=25;d.m.visible=true;}
   milDark(M);if(M.kind==='tank')M.tur.rotation.z=0.25;
   if(M.kind==='heli'&&!M.fall)airCrash(M.x,M.y+1,M.z,3.5,'Blown up with a helicopter');   // (shot down where it sits, or just above: it goes up there)
   sfx(I.name+' destroyed',()=>{noise(1.1,1,500,'lowpass');tone('sawtooth',70,16,1.3,0.3);});addShake(0.9,M.x,M.z,45);hitGoblins(M.x,M.z,8,8,'Blown up with a '+I.name.toLowerCase(),M.y+1);
-  if(BLAME!=='acc')award(I.pts,I.name+' destroyed',M.x,M.y+2,M.z);
 }
 // a wreck: a helicopter shot down drops, spinning, and goes up where it lands; then it all lies there smouldering
 function milWreck(M,dt){

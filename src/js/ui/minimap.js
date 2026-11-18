@@ -154,22 +154,13 @@ function drawDbgOverlay(dt,views){
         x.fillStyle='rgba(10,12,16,.75)';x.fillRect(s[0]-bw/2-1,s[1]-bh-1,bw+2,bh+2);x.fillStyle=f>0.6?col:f>0.3?'#e8c14a':'#ff4a3a';x.fillRect(s[0]-bw/2,s[1]-bh,bw*f,bh);
         if(s[2]<28){x.font='600 10px ui-monospace,Menlo,monospace';x.fillStyle='#e8ece4';x.textAlign='center';x.fillText(Math.max(0,Math.ceil(hp))+'/'+Math.round(max),s[0],s[1]-bh-3);}};
       for(const g of goblins){if(!g.root.visible||g.state==='wait'||g.state==='dead'||!(g.hp>0))continue;if(!(g.hpMax>=g.hp))g.hpMax=g.hp;bar(g.pos.x,g.pos.y+2.1,g.pos.z,g.hp,g.hpMax,g.civ?'#9ad0ff':'#7fd04a');}
-      for(const c of cars){if(!c.alive||!c.g.visible)continue;if(!(c.hpMax>=c.hp))c.hpMax=Math.max(c.hp,c.svcPool?45:30);bar(c.pos.x,c.pos.y+(c.hy||1.4)+0.5,c.pos.z,c.hp,c.hpMax,'#5ab4ff');}
-      for(const V of venues.values()){
-        // (online, a guest reads the host's figures: netHp, netDead)
-        if(V.kind==='army')for(const M of V.mil){if(!netDead(M,M.dead))bar(M.x,M.y+MIL[M.kind].hy+0.6,M.z,netHp(M,M.hp),MIL[M.kind].hp,'#5ab4ff');}
-        else if(V.kind==='airport'&&V.pl)for(const pl of V.pl){if(!netDead(pl,pl.dead)&&pl.g.visible)bar(pl.g.position.x,pl.g.position.y+planeDim(pl).hy+0.8,pl.g.position.z,netHp(pl,pl.hp),planeMax(pl),'#5ab4ff');}
-        else if(V.kind==='boat'&&V.bo&&!netDead(V.bo,V.bo.dead)&&V.boat.visible){const g=V.boat;bar(g.position.x,g.position.y+V.bo.K.fb+2,g.position.z,netHp(V.bo,V.bo.hp),V.bo.max,'#5ab4ff');}
-        else if(V.kind==='rtrain'&&V.T&&V.cars){const T=V.T,gst=netGuest()&&T.netHP,hp=gst?T.netHP:T.carHP,cd=gst?T.netCarDead:T.carDead;
-          if(!(gst?T.netDead:T.dead))V.cars.forEach((g,i)=>{if(!(cd&&cd[i]))bar(g.position.x,g.position.y+4.2,g.position.z,hp&&hp[i]!==undefined?hp[i]:CAR_HP,CAR_HP,'#5ab4ff');});}
-        // (the subway's trains, Mobile Gears, hot-air balloons, ships and a carrier's deck weapons had none: each is hurt
-        // through trainHit like the rest, so each gets its bar, from the same figures the driving display shows, drvHP)
-        else if(V.kind==='sub'&&V.T&&V.cars){const T=V.T,gst=netGuest()&&T.netHP,hp=gst?T.netHP:T.carHP,cd=gst?T.netCarDead:T.carDead;
-          if(!(gst?T.netDead:T.dead))V.cars.forEach((g,i)=>{if(!(cd&&cd[i]))bar(g.position.x,g.position.y+TRAIN_H+0.7,g.position.z,hp&&hp[i]!==undefined?hp[i]:CAR_HP,CAR_HP,'#5ab4ff');});}
-        else if(V.kind==='mech'&&V.mechs)for(const M of V.mechs){if(!netDead(M,M.dead))bar(M.x,M.y+MG.hy+0.8,M.z,netHp(M,M.hp),MG.hp,'#5ab4ff');}
-        else if(V.kind==='balloon'&&V.bl)for(const B of V.bl){if(!netDead(B,B.dead))bar(B.x,B.y+BAL.e1+0.8,B.z,netHp(B,B.hp),BAL.hp,'#5ab4ff');}
-        else if(V.kind==='ship'&&V.ships)for(const S of V.ships){if(S.dead)continue;const P=shipPose(S);bar(P.x,P.y+P.hy+2,P.z,S.hp,S.K.hp,'#5ab4ff');
-          if(S.mounts)for(const Mt of S.mounts)if(!Mt.dead)bar(Mt.x,Mt.y+2.4,Mt.z,Mt.hp,Mt.K.hp,'#5ab4ff');}}
+      {const K=VEHICLE_KINDS.car;for(const c of cars){if(K.dead(c)||!K.shown(c))continue;bar(c.pos.x,c.pos.y+K.top(c),c.pos.z,c.hp,K.max(c),'#5ab4ff');}}
+      // (every other vehicle, kind by kind as VEHICLE_KINDS finds them; online, a guest reads the host's figures: netHp,
+      // netDead. A train's cars each have their own)
+      vehEach((K,o,V)=>{
+        if(K.perCar){const T=o,gst=netGuest()&&T.netHP,hp=gst?T.netHP:T.carHP,cd=gst?T.netCarDead:T.carDead;if(gst?T.netDead:T.dead)return;
+          V.cars.forEach((g,i)=>{if(!(cd&&cd[i]))bar(g.position.x,g.position.y+K.carTop(),g.position.z,hp&&hp[i]!==undefined?hp[i]:CAR_HP,CAR_HP,'#5ab4ff');});return;}
+        if(netDead(o,K.dead(o))||!K.shown(o))return;const P=K.pos(o);bar(P.x,P.y+K.top(o),P.z,netHp(o,K.hp(o)),K.max(o),'#5ab4ff');});
       for(const q of players){if(!q.active||q.state==='dead'||q===p)continue;bar(q.pos.x,q.pos.y+2.5,q.pos.z,q.hp,20,'#7fd04a');}
     }
     for(const d of DMG_POPS){const s=proj(d.x,d.y+d.t*1.6,d.z);if(!s||s[2]>90)continue;const a=d.t<0.7?1:Math.max(0,1-(d.t-0.7)/0.4),sz=Math.round(16+Math.min(14,d.n*0.5)-s[2]*0.08);

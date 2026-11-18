@@ -65,7 +65,7 @@ function updateBalloons(V,dt){
     {let ny=B.y+B.vy*dt;const g2=balGround(B.x,B.z,B.y);if(ny<=g2){ny=g2;if(B.vy<-6)thud(0.3);B.vy=Math.max(0,B.vy);}
      if(B.vy>0&&(!balClear(B.x,ny,B.z)||balHits(B,B.x,B.z,ny))){ny=B.y;B.vy=0;}   // (up against something overhead)
      B.y=Math.min(ny,H+BAL.ceil);}
-    if(B.hp<BAL.hp*0.5)vDamaged(B.x,B.y+BAL.e0,B.z,B.hp/BAL.hp,dt);
+    vehSmoke('balloon',B,B.x,B.y+BAL.e0,B.z,dt);
     balPlace(B);balloonBoxes(B);}
   V.bl=V.bl.filter(B=>{if(B.dead&&B.deadT>20&&!players.some(q=>q.drv&&q.drv.o===B)){scene.remove(B.g);return false;}return true;});
 }
@@ -81,9 +81,8 @@ function balloonBoxes(B){
 }
 // hurt: the envelope tears and goes, and the basket (and anyone in it) comes down
 function balloonHit(B,n){
-  if(B.dead||drvSafe(B))return;B.hp-=n;dmgPop(B.x,B.y+BAL.e1,B.z,Math.round(n),'#ffb04a');vHitFx(B.x,B.y+BAL.e0+2,B.z,n);
-  if(B.hp>0)return;
-  B.dead=true;B.deadT=0;B.env.visible=false;B.flame.visible=false;
+  if(vehDamage('balloon',B,n)<2)return;   // (the steps every vehicle shares: registry.js)
+  B.env.visible=false;B.flame.visible=false;
   for(let k=0;k<3;k++)puff(B.x,B.y+BAL.e0+k*3,B.z,10,BAL_COL[(B.ck+k)%4],2.2);
   if(audio)sfx('Balloon torn',()=>{noise(0.6,0.5,700,'bandpass');thud(0.4);});
 }

@@ -447,7 +447,7 @@ function drvSafe(o){if(!DT.invuln||!o)return false;for(const p of players)if(p.a
 // a round or a fireball reaching a player: on foot they're hurt; driving, flying or manning something, it's the vehicle
 // that takes it (damagePlayer leaves a driver alone), VEH_SHOT_K times over: a rifle round's heart is 3 off a car
 const VEH_SHOT_K=3;
-function hurtDriven(p,v,dir){const D=p.drv;if(!D||!D.o)return;if(D.k==='car')damageCar(D.o,v,dir);else trainHit(D.o,v,dir,D.ci);}
+function hurtDriven(p,v,dir){const D=p.drv,K=D&&VEHICLE_KINDS[D.k];if(!K||!D.o)return;K.hit(D.o,v,dir,D.ci);}
 // (vd: what the vehicle takes, if not n times VEH_SHOT_K)
 function shotPlayer(p,n,pt,dir,cause,killer,vd){if(p.drv)hurtDriven(p,vd??n*VEH_SHOT_K,dir);else damagePlayer(p,n,pt,dir,cause,killer);}
 // a vehicle run into by another (vehIn's answer), hurt by n

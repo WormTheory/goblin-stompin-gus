@@ -27,6 +27,7 @@ vehicle carrier (ship) ok
 vehicle carrier deck weapon ok
 vehicle train (stand-in) ok
 families covered: car x18, tank, heli, plane x2, balloon, mech, barge, carrier | not spawnable here: boats, trains, subways, two-seater planes
+vehicle registry (car, train, subway, tank, heli, plane, boat, balloon, mech, ship, mount) ok
 gun foeShoot (rifles, handguns) | on foot -6 hp, driving: tank -18, boxed in 0 ok
 gun crewGun (technical) | on foot -5 hp, driving: tank -15, boxed in 0 ok
 gun helicopter gun (AI) | on foot -6 hp, driving: tank -18, boxed in 0 ok
@@ -37,4 +38,4 @@ gun gunRound | goblin hurt 10 in the open, 0 through a wall ok
 blasts and shells vs every kind of vehicle box ok
 enemy kinds (thief, prepper, militia, security, deckhand, sailor, marine, soldier) ok
 errors 0 
-GUARDS: no new gaps | expected gaps 14 | fixed 0
+GUARDS: no new gaps | expected gaps 9 | fixed 0
