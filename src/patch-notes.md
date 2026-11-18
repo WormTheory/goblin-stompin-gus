@@ -139,6 +139,9 @@
 - Planes: on the keyboard the throttle is now Left Shift and C (Space is the brakes); on a controller RT and LT. Lock on in a plane is the middle mouse button (R3), so Q and E are free for the rudder.
 - Tanks fire with RT on a controller, helicopters fire their gun with RT and rockets with LT, and LB and RB descend and climb.
 - Options: the Speedometer switch is now Vehicle instruments.
+- Every vehicle has instruments of its own in the bottom-right corner in place of the one speedometer: a dashboard with a rev counter for cars, a digital display that shows the lean on motorcycles, a truck dial with an air-pressure gauge, a fan and slip gauge on the hovercraft, the mast height, tilt and tip risk on the forklift, the gear range and implement on the tractor, a turret and hull compass on the tank, an artificial horizon with height and airspeed on the helicopter, round dials in the two-seater, a glass cockpit display in the airliner, an engine telegraph and rudder on boats and ships, oars on the rowing boat, a brake and power lever on trains and the wind at each height in the balloon. The fighter jet's display is drawn over the whole view, like a real head-up display.
+- Speeds are in km/h on land and knots on the water and in the air.
+- The plane's throttle and the ship's engine order and rudder are now shown on their instruments rather than in the list of controls.
 
 ### Map markers
 

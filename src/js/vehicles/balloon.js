@@ -5,6 +5,9 @@
 // balloon's never quick to answer. The basket and the envelope are boxes in TRAIN_BOXES like any vehicle's, so it's
 // stood on, bumped into and shot through the same code (trainHit passes it to balloonHit). Shot down, the envelope
 // goes and the basket falls ----
+// the wind at each height the balloon could be at, and which it's in now ({list:[{lab,dir,sp}],cur}): one calm layer
+// for now
+function balWinds(B){return{list:[{lab:'ALL HEIGHTS',dir:0,sp:0}],cur:0};}
 const BAL={hp:60,rise:5.5,sink:4.5,drift:5,bh:1.3,bw:1.1,e0:4.2,e1:13.6,er:3.7,ceil:60};
 const BALM={wick:new THREE.MeshLambertMaterial({color:0x9a6a34}),rim:new THREE.MeshLambertMaterial({color:0x5a3a1c}),rope:new THREE.MeshLambertMaterial({color:0x3a3028}),
   burner:new THREE.MeshLambertMaterial({color:0x6a6e74}),flame:new THREE.MeshBasicMaterial({color:0xffa83a}),

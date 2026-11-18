@@ -1195,7 +1195,17 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
 .label{font:400 22px/1.1 var(--f-px);letter-spacing:.5px;color:var(--paper);text-shadow:2px 0 var(--ink),-2px 0 var(--ink),0 2px var(--ink),0 -2px var(--ink),0 4px var(--ink)}
 /* the speedometer: an ink gauge, the needle in yolk, the number in pixel type */
 .speedo{filter:none;right:max(18px,env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px))}
-.speedo svg>path:first-child{stroke:rgba(43,27,46,.55)}
+.speedo>svg>path:first-child{stroke:rgba(43,27,46,.55)}
+/* the other vehicles' instruments in the same corner (ui/instruments.js): drawn in the mock-ups' style, ink stickers
+   with pixel numbers; a flat one (the forklift's panel) has no drop shadow. A head-up display (the jet's) lies over the view */
+.speedo .inst-body svg{display:block;width:100%;height:auto;overflow:visible}
+.speedo.flat svg{filter:none}
+.speedo .px,.inst-over .px{font-family:var(--f-px)}
+.speedo .mono,.inst-over .mono{font-family:var(--f-mono);font-weight:700}
+.speedo .mk{font-family:"Chakra Petch",var(--f-mono);font-weight:600}
+.speedo .ink-t,.inst-over .ink-t{fill:var(--paper);paint-order:stroke;stroke:var(--ink);stroke-linejoin:round}
+.inst-over{position:absolute;inset:0;pointer-events:none;z-index:1}
+.inst-over svg{display:block;width:100%;height:100%;filter:drop-shadow(0 0 2px rgba(0,0,0,.6))}
 .speedo .sp-fill{stroke:var(--gus)}
 .speedo .sp-needle{stroke:var(--yolk)}
 .speedo svg{overflow:visible;filter:drop-shadow(3px 3px 0 var(--ink))}

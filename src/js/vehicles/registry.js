@@ -15,7 +15,7 @@
 // down the left (drvHud; G the weapons' lines, if it's armed), each ending in '  ·  '.
 // All of it lives on the vehicle, never on who's driving, so every character drives each one alike.
 const VEHICLE_BASE={snow:true,smoke:0.5,pts:0,label:null,rampage:true,invuln:true,net:true,netOwn:false,bullets:true,blasts:true,impact:false,
-  ctx:()=>null,handling:D=>handOf(D.k),inst:()=>'dial',how:(p,D,armed,G)=>G};
+  ctx:()=>null,handling:D=>handOf(D.k),inst:()=>null,how:(p,D,armed,G)=>G};
 // ---- each vehicle's handling: one profile per kind (a car's by its body, c.veh), over the defaults in HANDLING._ ----
 // top speed and acc (blocks a second, and a second squared), brk braking, rev the most it goes backwards, steer how fast
 // it turns at full lock (radians a second), fall the speed at which that's eased right off (1 - speed/fall, never under 45%; 0: it doesn't), coast how fast
@@ -36,27 +36,27 @@ function handOf(k){if(_hand[k])return _hand[k];const H=Object.assign({},HANDLING
 const _vkp={x:0,y:0,z:0},vkAt=(x,y,z)=>{_vkp.x=x;_vkp.y=y;_vkp.z=z;return _vkp;};
 const VEHICLE_KINDS={
   car:{name:'Car',rampage:true,snow:false,smoke:0,   // (their own snow and smoke: snowCar, updateCars)
-    ctx:D=>D.seat==='gun'?null:D.o.veh==='forklift'?'lift':D.o.veh==='tractor'?'farm':'road',handling:D=>handOf(D.o.veh||'car'),
+    ctx:D=>D.seat==='gun'?null:D.o.veh==='forklift'?'lift':D.o.veh==='tractor'?'farm':'road',handling:D=>handOf(D.o.veh||'car'),inst:D=>CAR_INST[D.o.veh]||'car',
     pos:c=>c.pos,top:c=>(c.hy||1.4)+0.5,mid:c=>(c.hy||1.4)*0.6,max:c=>c.hpMax>=c.hp?c.hpMax:Math.max(c.hp,carHP(c)),
     dead:c=>!c.alive,shown:c=>c.g.visible,hit:(c,n,dir)=>damageCar(c,n,dir)},
-  train:{name:'Train',venue:'rtrain',ctx:()=>'rail',list:V=>V.T&&V.cars?[V.T]:[],perCar:true,carTop:()=>4.2,top:()=>4.2,mid:()=>2.5,groups:T=>T.cars||[],
+  train:{name:'Train',venue:'rtrain',ctx:()=>'rail',inst:()=>'train',list:V=>V.T&&V.cars?[V.T]:[],perCar:true,carTop:()=>4.2,top:()=>4.2,mid:()=>2.5,groups:T=>T.cars||[],
     pos:T=>T.cars[0].position,hp:(T,i)=>T.carHP?T.carHP[i||0]:CAR_HP,max:()=>CAR_HP,hit:(T,n,dir,i)=>trainHit(T,n,dir,i)},
-  subway:{name:'Subway train',venue:'sub',ctx:()=>'rail',list:V=>V.T&&V.cars?[V.T]:[],perCar:true,carTop:()=>TRAIN_H+0.7,top:()=>TRAIN_H+0.7,mid:()=>2.5,groups:T=>T.cars||[],
+  subway:{name:'Subway train',venue:'sub',ctx:()=>'rail',inst:()=>'train',list:V=>V.T&&V.cars?[V.T]:[],perCar:true,carTop:()=>TRAIN_H+0.7,top:()=>TRAIN_H+0.7,mid:()=>2.5,groups:T=>T.cars||[],
     pos:T=>T.cars[0].position,hp:(T,i)=>T.carHP?T.carHP[i||0]:CAR_HP,max:()=>CAR_HP,hit:(T,n,dir,i)=>trainHit(T,n,dir,i)},
-  tank:{name:'Tank',venue:'army',ctx:()=>'tank',list:V=>V.mil.filter(M=>M.kind==='tank'),impact:true,pts:()=>MIL.tank.pts,label:()=>'Tank destroyed',
+  tank:{name:'Tank',venue:'army',ctx:()=>'tank',inst:()=>'tank',list:V=>V.mil.filter(M=>M.kind==='tank'),impact:true,pts:()=>MIL.tank.pts,label:()=>'Tank destroyed',
     pos:M=>vkAt(M.x,M.y,M.z),top:M=>MIL[M.kind].hy+0.6,mid:M=>MIL[M.kind].hy*0.6,max:M=>MIL[M.kind].hp,hit:(M,n,dir)=>milHit(M,n,dir)},
-  heli:{name:'Helicopter',venue:'army',ctx:()=>'heli',how:(p,D,armed,G)=>actMark(p,'jump')+' climb  ·  '+actMark(p,'climb')+' drop  ·  '+G,list:V=>V.mil.filter(M=>M.kind==='heli'),impact:true,pts:()=>MIL.heli.pts,label:()=>'Helicopter destroyed',
+  heli:{name:'Helicopter',venue:'army',ctx:()=>'heli',inst:()=>'heli',how:(p,D,armed,G)=>actMark(p,'jump')+' climb  ·  '+actMark(p,'climb')+' drop  ·  '+G,list:V=>V.mil.filter(M=>M.kind==='heli'),impact:true,pts:()=>MIL.heli.pts,label:()=>'Helicopter destroyed',
     pos:M=>vkAt(M.x,M.y,M.z),top:M=>MIL[M.kind].hy+0.6,mid:M=>MIL[M.kind].hy*0.6,max:M=>MIL[M.kind].hp,hit:(M,n,dir)=>milHit(M,n,dir)},
-  plane:{name:'Plane',venue:'airport',ctx:()=>'air',how:planeHow,list:V=>V.pl||[],pts:()=>1000,label:()=>'Airplane destroyed',
+  plane:{name:'Plane',venue:'airport',ctx:()=>'air',inst:D=>D.o.jet?'jet':D.o.light?'steam':'pfd',how:planeHow,list:V=>V.pl||[],pts:()=>1000,label:()=>'Airplane destroyed',
     pos:pl=>pl.g.position,top:pl=>planeDim(pl).hy+0.8,mid:()=>2.5,max:pl=>planeMax(pl),shown:pl=>pl.g.visible,hit:(pl,n)=>planeHit(pl,n)},
-  boat:{name:'Boat',venue:'boat',ctx:()=>'sea',list:V=>V.bo?[V.bo]:[],pts:bo=>bo.K.sc,label:bo=>bo.K.name+' sunk',
+  boat:{name:'Boat',venue:'boat',ctx:()=>'sea',inst:D=>D.o.k==='row'||D.o.k==='pedalo'?'row':'boat',list:V=>V.bo?[V.bo]:[],pts:bo=>bo.K.sc,label:bo=>bo.K.name+' sunk',
     pos:bo=>bo.g.position,top:bo=>bo.K.fb+2,mid:bo=>bo.K.fb,max:bo=>bo.max,shown:bo=>bo.g.visible,hit:(bo,n)=>boatHit(bo,n)},
-  balloon:{name:'Hot-air balloon',venue:'balloon',ctx:()=>'balloon',how:(p,D)=>actMark(p,'jump')+' burner (rise)  ·  '+actMark(p,'climb')+' vent (sink)  ·  Move to drift  ·  ',list:V=>V.bl||[],pts:()=>400,label:()=>'Hot-air balloon brought down',
+  balloon:{name:'Hot-air balloon',venue:'balloon',ctx:()=>'balloon',inst:()=>'balloon',how:(p,D)=>actMark(p,'jump')+' burner (rise)  ·  '+actMark(p,'climb')+' vent (sink)  ·  Move to drift  ·  ',list:V=>V.bl||[],pts:()=>400,label:()=>'Hot-air balloon brought down',
     pos:B=>vkAt(B.x,B.y,B.z),top:()=>BAL.e1+0.8,mid:()=>BAL.e0+2,max:()=>BAL.hp,hit:(B,n)=>balloonHit(B,n)},
-  mech:{name:'Mobile Gear',venue:'mech',ctx:()=>'mg',list:V=>V.mechs||[],impact:true,netOwn:true,pts:()=>2000,label:()=>'Mobile Gear destroyed',   // (its health goes in its own snapshot: netMechs)
+  mech:{name:'Mobile Gear',venue:'mech',ctx:()=>'mg',inst:()=>'dial',list:V=>V.mechs||[],impact:true,netOwn:true,pts:()=>2000,label:()=>'Mobile Gear destroyed',   // (its health goes in its own snapshot: netMechs)
     pos:M=>vkAt(M.x,M.y,M.z),top:()=>MG.hy+0.8,mid:()=>5,max:()=>MG.hp,hit:(M,n)=>mechHit(M,n)},
   // (a ship's health, and its deck weapons', go in its own snapshot, netShips. See docs/multiplayer.md)
-  ship:{name:'Ship',venue:'ship',ctx:()=>'sea',how:(p,D)=>shipHow(p,D.o),list:V=>V.ships||[],snow:'blocks',smoke:0,netOwn:true,
+  ship:{name:'Ship',venue:'ship',ctx:()=>'sea',inst:()=>'ship',how:(p,D)=>shipHow(p,D.o),list:V=>V.ships||[],snow:'blocks',smoke:0,netOwn:true,
     pos:S=>{const P=shipPose(S);return vkAt(P.x,P.y,P.z);},top:S=>shipPose(S).hy+2,mid:S=>S.K.hy||2,max:S=>S.K.hp,hit:(S,n,dir,i)=>shipHit(S,n,i)},
   // (where it is, x,y,z, is in its ship's pocket, which is right for snow: what's over it there is the ship's own blocks)
   mount:{name:'Deck weapon',venue:'ship',how:(p,D)=>D.o.kind==='ciws'?actMark(p,'bite')+' fire (hold)  ·  ':actMark(p,'bite')+' launch'+(D.o.kind==='sparrow'?' (lock on first)':'')+'  ·  ',list:V=>(V.ships||[]).flatMap(S=>S.dead?[]:S.mounts||[]),netOwn:true,pts:()=>300,label:Mt=>Mt.K.name+' destroyed',groups:Mt=>[Mt.g],

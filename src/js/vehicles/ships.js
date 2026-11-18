@@ -175,11 +175,10 @@ function shipAground(S){
   const sh=Math.min(1.2,v*0.15);addShake(sh,c.x,c.z,K.hp>=1000?260:60);for(const p of players)if(p.active&&(shipOf(p)===S||p.drv&&p.drv.o===S))p.shake=Math.max(p.shake,sh);   // (everyone aboard feels it)
   if(S.drv)flashLabel('Run aground! Ring astern ('+actMark(S.drv,'back')+') to back off',S.drv);
 }
-// what the helm's display says: the order rung, the speed, where the rudder is, then the controls
+// the helm's controls (the order rung, the speed and the rudder are on its instrument: inShip)
 function shipHow(p,S){
-  const A=id=>actMark(p,id),r=Math.round(S.rud*35),kn=Math.round(Math.abs(S.sp)*SHIP_KN);
-  return shipOrder(S)[0]+'  ·  '+kn+' knots'+(S.sp<-0.05?' astern':'')+'  ·  Rudder '+(r?Math.abs(r)+'° '+(r>0?'port':'starboard'):'amidships')+'  ·  '
-    +A('fwd')+'/'+A('back')+' engine orders  ·  '+A('left')+'/'+A('right')+' rudder  ·  '+A('climb')+' rudder amidships  ·  '+A('weapon')+(p.shipBridge?' chase view':' bridge view')+'  ·  '+A('bite')+' horn  ·  ';
+  const A=id=>actMark(p,id);
+  return A('fwd')+'/'+A('back')+' engine orders  ·  '+A('left')+'/'+A('right')+' rudder  ·  '+A('climb')+' rudder amidships  ·  '+A('weapon')+(p.shipBridge?' chase view':' bridge view')+'  ·  '+A('bite')+' horn  ·  ';
 }
 // the view from the bridge (the weapon button, while at the helm): from the helmsman's eyes, looking about with the
 // mouse or stick as usual, in the ship's own frame (shipCam turns it with the ship)
