@@ -31,12 +31,12 @@ function gobAttack(p){const k=gobArms(p).wpn,K=WEAPONS[k];
 // a rifle or handgun shot straight down the middle of the view: the first goblin, vehicle or block it meets (fireRound).
 // Followed across a ship's side too, from the shore or the sea at its blocks and the goblins aboard, or from aboard out
 // into the world. A vehicle takes VEH_SHOT_K times a goblin's damage, as from the enemies' rounds; half the time the
-// block it hits breaks (bulletBreak)
+// block it hits breaks (bulletBreak), as an enemy's round does: the damage, range and breaking are the weapon's
 function gobShoot(p){
   const wk=gobGun(gobArms(p).wpn)?p.wpn:'rifle',W=GOB_WPN[wk],c=shipEye(p),cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp,
     fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw);
   fireRound({x:c.x,y:c.y,z:c.z,dir:{x:dx,y:dy,z:dz},range:W.range,step:0.2,by:p,tr:{x:c.x+fx*0.5+Math.cos(p.cam.yaw)*0.18,y:c.y-0.18,z:c.z+fz*0.5-Math.sin(p.cam.yaw)*0.18},
-    gobs:true,gb:[0.45,0,1.5],dmg:W.dmg,cause:W.cause,pvp:{n:W.dmg,cause:'Shot',opt:{cd:0}},vehs:true,vd:W.dmg*VEH_SHOT_K,breaks:true,ship:true,
+    gobs:true,gb:[0.45,0,1.5],dmg:W.dmg,cause:W.cause,pvp:{n:W.dmg,cause:'Shot',opt:{cd:0}},vehs:true,vd:W.dmg*VEH_SHOT_K,breaks:W.breaks,ship:true,
     snd:()=>wpnCrack(wk)});   // (the handgun cracks higher and shorter, as the police's does)
   p.shake=Math.max(p.shake||0,W.shake);rumble(p,W.rumble,50);
 }

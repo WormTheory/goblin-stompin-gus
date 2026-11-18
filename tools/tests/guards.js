@@ -119,9 +119,10 @@ console.log('families covered:',Object.entries(did).map(([k,n])=>k+(n>1?' x'+n:'
  flush('car spawns ('+Object.keys(VEH).length+' kinds and a police car)');}
 
 // ==== every enemy gun: rounds stop at walls, and a player driving has the vehicle hurt ====
-// (Math.random pinned low, so every round that can hit does; the target alone on open ground, then shut in a stone box)
+// (Math.random pinned low, so every round that can hit does; the target alone on open ground, then shut in a stone box
+// with thick walls, since rounds that break blocks chew a block out each time with the random number pinned)
 const box=(on)=>{const x=Math.floor(P.pos.x),y=Math.floor(P.pos.y),z=Math.floor(P.pos.z);
-  for(let a=-2;a<=2;a++)for(let b=-1;b<=4;b++)for(let c=-2;c<=2;c++){const edge=Math.abs(a)===2||Math.abs(c)===2||b===-1||b===4;if(edge)E('setRaw')(x+a,y+b,z+c,on?3:0);}};
+  for(let a=-9;a<=9;a++)for(let b=-1;b<=4;b++)for(let c=-9;c<=9;c++){const edge=Math.abs(a)>=2||Math.abs(c)>=2||b===-1||b===4;if(edge)E('setRaw')(x+a,y+b,z+c,on?3:0);}};
 const R0=Math.random;const pin=()=>{Math.random=()=>0.001;},unpin=()=>{Math.random=R0;};
 let tank=null;{E('tenvClear()');quiet();put(0,0);run(0.2);E('menuOpen=true');E('TS').n=1;E('TS').vm='park';E('tenvVeh')('tank');E('menuOpen=false');run(0.3);
  for(const V of T.venues.values())if(V.mil)for(const M of V.mil)if(M.kind==='tank'&&!M.dead)tank=M;}
@@ -130,7 +131,7 @@ let heli=null;{E('menuOpen=true');E('TS').n=1;E('TS').vm='park';E('tenvVeh')('he
 // each gun: fire(target place) fires a few rounds from about 20 off at P
 const X0=60,Z0=60,GY=G0+1;
 const guns={
-  'foeShoot (rifles, handguns)':()=>{const g={pos:new V3(X0-20,GY,Z0),heading:Math.PI/2,id:'t'};for(let i=0;i<6;i++)E('foeShoot')(g,P,E('FOES').militia.gun);},
+  'foeShoot (rifles, handguns)':()=>{const g={pos:new V3(X0-20,GY,Z0),heading:Math.PI/2,id:'t'};for(let i=0;i<6;i++)E('foeShoot')(g,P,E('FOES').militia);},
   'crewGun (technical)':()=>{const c={veh:'technical',pos:new V3(X0-20,GY,Z0),heading:Math.PI/2,vehG:{technical:{}},crew:{gun:'t',go:true,yaw:0,cd:0,burst:5,bt:0}};
     const F=E('CREW_GUN').technical;for(let i=0;i<5;i++)E('crewGun')(c,F.bt+0.01);},
   'helicopter gun (AI)':()=>{const M=heli;if(!M)return;M.state='hunt';M.spin=1;M.drv=null;M.gnr=null;
@@ -182,11 +183,52 @@ for(const [name,fire] of Object.entries(guns)){
 // ==== every enemy kind: the fields the AI reads, and a place in the Dev tab's enemy list ====
 {const F=E('FOES'),dev=new Set(E('DEV_FOE_KINDS').map(d=>d.k)),W=E('WEAPONS');
  for(const k in F){const f=F[k],bad=[];for(const n of ['name','label','tunic','pants','hat','hatc','hp','spd','jobs'])if(f[n]===undefined)bad.push(n);
-   if(!Array.isArray(f.melee)||f.melee.length<3)bad.push('melee');if(f.gear!=null&&!W[f.gear])bad.push('gear '+f.gear);
-   if(f.gun&&f.gun.length<6)bad.push('gun');if(f.bomb&&f.bomb.length<7)bad.push('bomb');
+   if(f.gear!=null&&!W[f.gear])bad.push('gear '+f.gear);
+   // (up close: the unarmed have their fists, the armed strike with their weapon and only name it)
+   if(f.gear==null&&!(f.melee&&f.melee.dmg>0&&f.melee.every>0&&f.melee.cause))bad.push('melee (fists)');
+   if(f.gear!=null&&!f.hitBy)bad.push('hitBy');
+   if(f.gun&&!(f.gun.aim>0&&f.gun.near>=0&&f.gun.cause))bad.push('gun');if(f.bomb&&!(f.bomb.far>f.bomb.near&&f.bomb.every&&f.bomb.cause))bad.push('bomb');
    check(k,'fields',!bad.length,bad.join(','));check(k,'dev',dev.has(k));}
  flush('enemy kinds ('+Object.keys(F).join(', ')+')');}
 
+// ==== one weapon, one set of numbers: nothing about a weapon set anywhere but WEAPONS, and the same in either hand ====
+{const F=E('FOES'),W=E('WEAPONS'),COP=E('COP_FOE'),STAT=['dmg','range','every','cd','breaks','r','reach','R','fuse','refire','hp'];
+ // (what a shooter may say for itself: how it uses the weapon, never how hard it hits, how far, how often or what it breaks)
+ const OWN={gun:['near','aim','cause'],bomb:['near','far','every','cause']};
+ const own=(who,f)=>{for(const n of ['gun','bomb']){const o=f[n];if(!o)continue;const extra=Object.keys(o).filter(x=>!OWN[n].includes(x));
+     check(who,'no '+n+' stats of its own',!extra.length&&!Array.isArray(o),Array.isArray(o)?'an array of numbers':extra.join(','));}
+   if(f.gear!=null)check(who,'no melee stats of its own',!f.melee,'melee '+JSON.stringify(f.melee));};
+ for(const k in F)own(k,F[k]);own('police',COP);
+ for(const k in W){const w=W[k],bad=[];if(w.npc)for(const n of Object.keys(w.npc))if(STAT.includes(n)||n==='gun')bad.push('npc.'+n);
+   if(w.player)for(const n of STAT)if(w.player[n]!==undefined&&w.player[n]!==(n==='cd'?w.every??w.player.cd:w[n]))bad.push('player.'+n+' '+w.player[n]+' vs '+w[n]);
+   check('weapon '+k,'one set of numbers',!bad.length,bad.join(', '));}
+ flush('weapon stats only in WEAPONS ('+Object.keys(W).join(', ')+'; FOES, police)');
+ // the same gun in an enemy's hands: a round that lands does the weapon's damage, it starts shooting inside the weapon's
+ // range and not past it, and a round into a wall breaks it as Gnash's do (Math.random pinned low: every chance comes off)
+ for(const [who,f] of [['militia (rifle)',F.militia],['police (handgun)',COP]]){const w=W[f.gear];
+   E('tenvClear()');quiet();put(X0,Z0);for(let a=-60;a<=6;a++)for(let b=-6;b<=6;b++)for(let y=0;y<8;y++)E('setRaw')(X0+a,G0+1+y,Z0+b,0);P.hp=20;
+   const g={pos:new V3(X0-20,GY,Z0),heading:Math.PI/2,id:'t'};pin();E('foeShoot')(g,P,f);unpin();
+   check(who,'damage as the weapon',20-P.hp===w.dmg,'took '+(20-P.hp)+', the weapon does '+w.dmg);P.hp=20;
+   const q=E('freeFoe')('militia',24);E('foeSpawn')(q,'militia',null,0);q.vy=0;q.stun=0;q.act=null;q.wet=false;
+   const tries=d=>{q.pos.set(P.pos.x-d,P.pos.y,P.pos.z);q.heading=Math.PI/2;q.aim=0;q.aimK=null;q.gunCD=0;q.bombCD=99;E('foeRanged')(q,P,d,0,0.01,Object.assign({},f,{bomb:null}));return q.aimK==='gun';};
+   const inR=tries(w.range-2),outR=tries(w.range+2);q.state='wait';q.root.visible=false;q.aim=0;
+   check(who,'range as the weapon',inR&&!outR,'aims at '+(w.range-2)+': '+inR+', at '+(w.range+2)+': '+outR);
+   const bx=X0-8;for(let b=-2;b<=2;b++)for(let y=0;y<4;y++)E('setRaw')(bx,G0+1+y,Z0+b,3);
+   let gone=0;pin();E('foeShoot')(g,P,f);unpin();run(0.1);for(let b=-2;b<=2;b++)for(let y=0;y<4;y++)if(!E('solidAt')(bx,G0+1+y,Z0+b))gone++;
+   check(who,'breaks blocks as the weapon',(gone>0)===!!w.breaks,'blocks broken '+gone+', the weapon breaks: '+!!w.breaks);
+   for(let b=-2;b<=2;b++)for(let y=0;y<4;y++)E('setRaw')(bx,G0+1+y,Z0+b,0);P.hp=20;}
+ // up close: each strikes with what it carries, at that weapon's damage and rate (a rifle by its butt)
+ {const so=E('strikeOf'),c=so(null,false),d=so(null,true),t=so(F.thief),m=so(F.militia);
+  check('street goblin','club as the weapon',c.dmg===W.club.dmg&&c.every===W.club.every,JSON.stringify(c));
+  check('cultist','dagger as the weapon',d.dmg===W.dagger.dmg&&d.every===W.dagger.every,JSON.stringify(d));
+  check('thief','dagger as the weapon',t.dmg===W.dagger.dmg&&t.every===W.dagger.every,JSON.stringify(t));
+  check('militia','rifle butt as the weapon',m.dmg===W.rifle.butt.dmg&&m.every===W.rifle.butt.every,JSON.stringify(m));}
+ // the grenade: an enemy's carries the weapon's fuse, blast and damage
+ {E('tenvClear()');quiet();put(X0,Z0);const n0=E('SHOTS').length;const g={pos:new V3(X0-12,GY,Z0),heading:Math.PI/2,id:'t'};E('foeThrow')(g,P,F.prepper.bomb);
+  const S=E('SHOTS')[E('SHOTS').length-1],G2=W.grenade;check('prepper','grenade as the weapon',!!S&&S.fuse===G2.fuse&&S.R===G2.R&&S.dmg===G2.dmg,S?('fuse '+S.fuse+' R '+S.R+' dmg '+S.dmg):'none thrown');if(S)S.live=false;}
+ flush('the same weapon in the hands of an enemy as of a player');}
+
+// (the street left as it was)
 for(const k of EXPECTED)if(!seen.has(k)){console.log('  (expected gap not checked any more: '+k+')');}
 console.log('errors',errs.length,errs.slice(0,3).join(' | '));
 console.log(newGaps?'GUARDS: '+newGaps+' NEW GAP(S)':'GUARDS: no new gaps','| expected gaps',EXPECTED.size-fixed,'| fixed',fixed);

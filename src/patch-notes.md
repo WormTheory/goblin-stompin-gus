@@ -196,6 +196,7 @@
 - Every vehicle now has the same health wherever it turns up: buses, articulated lorries, fire engines and ambulances take 45, motorhomes 40, police cars 40 and everything else 30. Before, an articulated lorry on the motorway or a police car in the traffic went down as easily as a family car, and the Testing Environment's ambulances and motorhomes did too.
 - The Dev tab's Enemies section now has the soldiers who crew the military bases' tanks and helicopters, with every animation the other armed enemies have.
 - The aircraft carrier's deck weapons gather snow in a blizzard like every other vehicle (its decks already did).
+- Every weapon now works the same whoever carries it, you or the enemy. Rifles hit for a full heart, reach 48 blocks and fire once a second; handguns hit for three quarters of a heart, reach 30 and fire every half second; both chip away at the wall they hit, the enemies' rounds too, so cover doesn't last for ever. Daggers stab for a full heart every half second, clubs hit for half a heart every 0.8 s, and grenades are the same for everyone. Enemy rifles and police handguns hit harder and fire faster than before, while Gnash and Grizzle fire and swing a little slower. Enemies still take a moment to aim and miss more from far off.
 - Grenades, shells and rockets now hurt zoo animals, the Ferris wheel's rim and the carousel, as stomps already did, and a shell or rocket goes off when it hits an animal.
 
 ## Version 0.4.1

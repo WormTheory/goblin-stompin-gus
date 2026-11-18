@@ -2,7 +2,7 @@
 const readout=document.getElementById('readout'),divider=document.getElementById('divider');
 // (the hearts are pixel sprites: whole, half or empty; a little smaller in split screen)
 function renderHearts(p){const px=split==='none'?3:2,k=p.hp+':'+px;if(k===p.lastHp)return;p.lastHp=k;const h=p.ui.hearts;h.textContent='';
-  for(let i=0;i<10;i++){const s=document.createElement('span'),v=p.hp-i*2;s.className='hrt'+(v>=2?'':v===1?' half':' empty')+' '+sprCls(v>=2?'heart':v===1?'hearth':'hearte',px);h.append(s);}
+  for(let i=0;i<10;i++){const s=document.createElement('span'),v=p.hp-i*2;s.className='hrt'+(v>=2?'':v>0?' half':' empty')+' '+sprCls(v>=2?'heart':v>0?'hearth':'hearte',px);h.append(s);}
   try{h.setAttribute('aria-label',charName(p)+' health: '+(p.hp/2)+' of 10 hearts');}catch(e){}}
 function updateHealth(p,dt){
   if(!p.active)return;

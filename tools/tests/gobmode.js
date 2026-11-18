@@ -45,7 +45,7 @@ A.hp=20;S(30);
 const X0=Math.floor(A.pos.x),Z0=Math.floor(A.pos.z),F=70;
 for(let x=X0-24;x<=X0+24;x++)for(let z=Z0-24;z<=Z0+24;z++){T.setRaw(x,F-1,z,STONE);for(let y=F;y<F+24;y++)if(T.get(x,y,z))T.setRaw(x,y,z,0);}
 let built=[];const put=(x,y,z)=>{T.setRaw(X0+x,F+y,Z0+z,STONE);built.push([X0+x,F+y,Z0+z]);},clear=()=>{for(const q of built)T.setRaw(q[0],q[1],q[2],0);built=[];};
-const home=(yaw=Math.PI)=>{A.pos.set(X0+.5,F,Z0+.5);A.vy=0;A.state='walk';A.cam.yaw=yaw;A.cam.pitch=0;A.heading=yaw+Math.PI;A.hp=20;A.mvx=A.mvz=0;};
+const home=(yaw=Math.PI)=>{A.pos.set(X0+.5,F,Z0+.5);A.vy=0;A.state='walk';A.deadT=0;A.cam.yaw=yaw;A.cam.pitch=0;A.heading=yaw+Math.PI;A.hp=20;A.mvx=A.mvz=0;};   // (deadT: up again at once if the last check killed him)
 const hold=(ks,n)=>{for(const k of ks)T.keys.add(k);S(n);for(const k of ks)T.keys.delete(k);};
 const press=n=>{T.mHeld.add('Mouse0');S(n);T.mHeld.delete('Mouse0');};
 const f=(v,n=2)=>v.toFixed(n);

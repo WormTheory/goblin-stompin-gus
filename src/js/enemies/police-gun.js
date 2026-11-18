@@ -1,8 +1,8 @@
 // ---- the police's handgun: drawn and fired at range, holstered for the club up close ----
 // (as FOES' guns: shortest and longest range, seconds to aim, cooldown range, damage, cause. Shorter reach and quicker on
 // the draw than a rifle; inside 4 blocks they put it away and use the club)
-const COP_GUN=WEAPONS.handgun.npc.gun;   // (the handgun's police stats: weapons.js)
-const COP_FOE={gun:COP_GUN,pistol:true};   // (what foeRanged reads for an officer: a handgun, no grenades)
+// (what foeRanged reads for an officer: a handgun, as WEAPONS has it, aimed for a moment from 4 blocks out; no grenades)
+const COP_FOE={gear:'handgun',gun:{near:4,aim:0.45,cause:'Shot by the police'},pistol:true};
 // an officer of any kind (out of a police car, carjacked out of one, or the Testing Environment's): armed and ready
 function copArm(g){if(!g.pkit)return;g.gun=COP_FOE;g.aim=0;g.aimK=null;g.gunCD=0.4+Math.random()*0.8;g.bombCD=99;g.relK=null;}
 // which is in hand: the handgun while it's aimed and just after the shot, the club the rest of the time; an officer's

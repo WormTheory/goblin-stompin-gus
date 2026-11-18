@@ -181,9 +181,9 @@ function gobMove(p,dt){
 }
 // the attack button swings the club: one goblin's blow, in front of you
 function gobClub(p){
-  const hx=Math.sin(p.heading),hz=Math.cos(p.heading),fx=p.pos.x+hx*1.1,fz=p.pos.z+hz*1.1;
-  hitGoblins(fx,fz,1,1,'Clubbed by another goblin',p.pos.y);pvpArea(p,fx,fz,1,1,'Clubbed',p.pos.y);
-  for(const c of carsNear(fx,fz,1,p.pos.y)){damageCar(c,1,new V3(hx,0,hz));clang();}
+  const W=WEAPONS.club,hx=Math.sin(p.heading),hz=Math.cos(p.heading),fx=p.pos.x+hx*W.reach,fz=p.pos.z+hz*W.reach;
+  hitGoblins(fx,fz,W.r,W.dmg,'Clubbed by another goblin',p.pos.y);pvpArea(p,fx,fz,W.r,W.dmg,'Clubbed',p.pos.y);
+  for(const c of carsNear(fx,fz,W.r,p.pos.y)){damageCar(c,1,new V3(hx,0,hz));clang();}
 }
 // a goblin for others to see (the other player, or you from the free cam), and your own arm and club for you
 function gobKit(p){
