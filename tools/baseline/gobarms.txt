@@ -30,4 +30,8 @@ walk over it: club+rifle+dagger+handgun+spellbook in hand spellbook, grenades 8
 cast straight ahead (a still thief 14 ahead, 0.6 right of the aim): ball out after 0.70s (cast 0.7s), bent 0.05 toward it, thief hp 5 -> 3
 pressed again at once: new balls 0 (comes again every 3.1s)
 one 24 ahead: hp 5 -> 3
+book, no dagger: a cultist drops dagger
+book and dagger: a cultist drops none
+dagger, no book: a cultist drops spellbook
+with the handgun already: an officer drops none (the club never drops)
 prepper throws: grenade (Blown up by a grenade)

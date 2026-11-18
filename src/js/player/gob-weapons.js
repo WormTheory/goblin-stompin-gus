@@ -19,8 +19,10 @@ const gobGun=k=>!!WEAPONS[k]&&WEAPONS[k].kind==='gun';   // (the ones that shoot
 // what an enemy carries that can be taken off them
 // (read off its kind's weapons list (weapons.js: foeOf): the first that's dropped and a goblin can wield, and grenades:
 // one or two if it throws them, one if it only carries one in its pack. So a new kind drops its weapons with nothing added here)
-function gobGear(g){const F=foeOf(g),L=F.weapons||[],pk=F.pack||[];
-  const wpn=L.find(k=>WEAPONS[k]&&WEAPONS[k].drop&&!WEAPONS[k].stack&&GOB_WPN[k])||null;
+// (the first weapon on its list that can be dropped and that some player goblin hasn't got yet: a cultist's spellbook,
+// then once everyone has that its dagger; none if they've all got everything it carries)
+function gobGear(g){const F=foeOf(g),L=F.weapons||[],pk=F.pack||[],own=players.filter(q=>q.active&&q.gob&&q.wpns);
+  const wpn=L.find(k=>WEAPONS[k]&&WEAPONS[k].drop&&!WEAPONS[k].stack&&GOB_WPN[k]&&!(own.length&&own.every(q=>q.wpns.includes(k))))||null;
   return{wpn,gren:L.includes('grenade')?1+(Math.random()<0.5?1:0):pk.includes('grenade')?1:0};}
 // the attack button's hit, for whatever's in hand (the club's is gobClub)
 function gobAttack(p){const k=gobArms(p).wpn,K=WEAPONS[k];
@@ -75,9 +77,8 @@ function puModel(k){const g=new THREE.Group(),m=c=>PU_MAT[c]||(PU_MAT[c]=new THR
 function gobDrop(g){const G2=gobGear(g),at=(k,n,o)=>{let P=PICKUPS.find(q=>!q.live&&q.k===k);if(!P){if(PICKUPS.length>=32){P=PICKUPS.find(q=>q.k===k);if(!P)return;}else{P={k,m:puModel(k),pos:new V3()};PICKUPS.push(P);}}
     const y=supportAt(g.pos.x+o,g.pos.z,g.pos.y+1.5);P.pos.set(g.pos.x+o,(y??g.pos.y)+0.3,g.pos.z);P.n=n;P.t=0;P.live=true;P.m.visible=true;P.m.position.copy(P.pos);
     const par=shipPar(P.pos.x,P.pos.z);if(P.m.parent!==par)par.add(P.m);};   // (aboard a ship it's in the ship's pocket: hung off the ship's picture so it shows where the ship really is, see ships.js)
-  const own=players.filter(q=>q.active&&q.gob&&q.wpns);
-  // (dropped only if a player goblin hasn't got one already; grenades always, as they stack)
-  if(G2.wpn&&!(own.length&&own.every(q=>q.wpns.includes(G2.wpn))))at(G2.wpn,1,-0.3);
+  // (the weapon only if a player goblin hasn't got one already, gobGear; grenades always, as they stack)
+  if(G2.wpn)at(G2.wpn,1,-0.3);
   if(G2.gren)at('grenade',G2.gren,0.3);
 }
 function gobPickups(dt){

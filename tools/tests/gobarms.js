@@ -102,7 +102,16 @@ for(const gob of [false,true]){
    let casts=0;const seen=new Set(T.FIREB.filter(f=>f.live));T.mHeld.add('Mouse0');S(4);T.mHeld.delete('Mouse0');for(let i=0;i<60;i++){S(1);for(const f of T.FIREB)if(f.live&&!seen.has(f)){seen.add(f);casts++;}}
    console.log('pressed again at once: new balls',casts,'(comes again every',W.every+'s)');
    killAll();home();S(200);const g2=foe('thief',24,5);g2.pos.x=A.pos.x;freeze();S(10);const h2=g2.hp;press(4);S(150);console.log('one 24 ahead: hp',h2,'->',g2.hp);
-   killAll();}
+   killAll();
+   // (a kill drops the first weapon on its list he hasn't got: with the book, a cultist's dagger; an officer's club never drops)
+   const kc=()=>{home();const c=T.freeCultist(8);T.cultSpawn(c,null,0);c.pos.set(A.pos.x,F,A.pos.z+1.1);c.state='chase';c.gunCD=1e9;c.stun=0;c.kv.set(0,0,0);
+     T.damageGoblin(c,9,c.pos.clone(),null,'Clubbed by another goblin');S(2);const d=drops();killAll();return d;};
+   const wp=A.wpns.slice();A.wpns=wp.filter(k=>k!=='dagger');A.wpn=A.wpns[0];console.log('book, no dagger: a cultist drops',kc());
+   A.wpns=wp.slice();console.log('book and dagger: a cultist drops',kc());
+   A.wpns=wp.filter(k=>k!=='spellbook');A.wpn=A.wpns[0];console.log('dagger, no book: a cultist drops',kc());
+   A.wpns=wp.slice();A.wpn=wp[0];
+   {home();const g=T.goblins.find(q=>q.wkit&&q.state==='wait'&&!q.special&&!q.cultist);g.state='chase';g.root.visible=true;g.civ=false;g.foeKind=null;g.hp=4;g.stun=0;g.kv.set(0,0,0);g.pos.set(A.pos.x,F,A.pos.z+1.1);T.foeArm(g,T.GOB_FOES.police);g.gunCD=1e9;
+    T.damageGoblin(g,9,g.pos.clone(),null,'Clubbed by another goblin');S(2);console.log('with the handgun already: an officer drops',drops(),'(the club never drops)');killAll();}}
   // a prepper's bomb is a grenade now
   {home();const g=foe('prepper',8,5);T.foeThrow(g,A,T.FOES.prepper.bomb);const Q=T.SHOTS.filter(Q=>Q.live);console.log("prepper throws:",Q.map(q=>q.kind+' ('+q.cause+')').join(', '));killAll();}
 }

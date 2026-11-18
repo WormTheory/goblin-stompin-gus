@@ -118,7 +118,8 @@
 - At first it's as before: just the club and no grenades. He always keeps at least one weapon, and anything else you can still take off the enemies you kill.
 - Each player has their own loadout, kept between visits, and in split screen player two picks theirs from their own pause menu. Gnash and Grizzle share it, as they share everything else.
 - Changing it while playing re-arms your goblin at once.
-- New weapon: the Fireball Spellbook. Cultists carry it now, an open book in one hand, and conjure their fireballs out of the other. Kill one as Gnash or Grizzle and it drops the book; pick it up, or choose it in the Loadout. Left click (controller RB) conjures a fireball in your free hand for a moment, then hurls it where you're aiming, bending gently after the nearest enemy (or another player, with PvP on). It's slow to come again, about three seconds, and does the same damage as a cultist's.
+- New weapon: the Fireball Spellbook. Cultists carry it now, an open book in one hand, and conjure their fireballs out of the other. Kill one as Gnash or Grizzle and it drops the book; pick it up, or choose it in the Loadout. Once you have the book, cultists drop their ritual dagger instead. Left click (controller RB) conjures a fireball in your free hand for a moment, then hurls it where you're aiming, bending gently after the nearest enemy (or another player, with PvP on). It's slow to come again, about three seconds, and does the same damage as a cultist's.
+- An enemy you kill now drops the first weapon it carries that you haven't got yet, rather than nothing once you have its first one.
 - Fireballs now burst on a vehicle in their way and damage it, as bullets do, instead of flying straight through.
 
 ### PvP
