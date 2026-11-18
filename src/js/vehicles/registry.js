@@ -24,7 +24,7 @@ const HANDLING={_:{top:20,acc:10,brk:26,rev:8,steer:1.7,fall:0,coast:0.9,accFall
   car:{top:24},bike:{top:28,mass:0.4},quad:{top:22,mass:0.6},technical:{},van:{mass:1.4},pickup:{mass:1.3},news:{mass:1.4},rv:{mass:2},
   amb:{mass:1.6},fire:{mass:3},truck:{mass:2.5},semi:{top:17,mass:4},bus:{top:17,mass:4},
   super:{top:62,acc:24,fall:110,accFall:90},   // (its pull and its steering ease off with speed, to no less than 45%)
-  forklift:{top:8,acc:5,rev:6,mass:1.5},tractor:{top:11,acc:7,rev:6,mass:2},hover:{top:27,acc:8,brk:7,coast:0.35,mass:1.2},
+  forklift:{top:8,acc:5,rev:6,steer:2.6,mass:1.5},tractor:{top:11,acc:7,rev:6,mass:2},hover:{top:27,acc:8,brk:7,coast:0.35,mass:1.2},
   tank:{top:7,mass:8},heli:{top:16,mass:4},plane:{mass:6},boat:{mass:3},train:{top:30,mass:20},subway:{top:25,mass:15},balloon:{mass:1},ship:{mass:50},mech:{mass:10}};
 const _hand={};
 function handOf(k){if(_hand[k])return _hand[k];const H=Object.assign({},HANDLING._,HANDLING[k]||{});H.k=k;return _hand[k]=H;}
@@ -36,7 +36,7 @@ function handOf(k){if(_hand[k])return _hand[k];const H=Object.assign({},HANDLING
 const _vkp={x:0,y:0,z:0},vkAt=(x,y,z)=>{_vkp.x=x;_vkp.y=y;_vkp.z=z;return _vkp;};
 const VEHICLE_KINDS={
   car:{name:'Car',rampage:true,snow:false,smoke:0,   // (their own snow and smoke: snowCar, updateCars)
-    ctx:D=>D.seat==='gun'?null:D.o.veh==='forklift'?'lift':D.o.veh==='tractor'?'farm':'road',handling:D=>handOf(D.o.veh||'car'),inst:D=>CAR_INST[D.o.veh]||'car',
+    ctx:D=>D.seat==='gun'?null:D.o.veh==='forklift'?'lift':D.o.veh==='tractor'?'farm':'road',handling:D=>handOf(D.o.veh||'car'),inst:D=>CAR_INST[D.o.veh]||'car',how:carHow,
     pos:c=>c.pos,top:c=>(c.hy||1.4)+0.5,mid:c=>(c.hy||1.4)*0.6,max:c=>c.hpMax>=c.hp?c.hpMax:Math.max(c.hp,carHP(c)),
     dead:c=>!c.alive,shown:c=>c.g.visible,hit:(c,n,dir)=>damageCar(c,n,dir)},
   train:{name:'Train',venue:'rtrain',ctx:()=>'rail',inst:()=>'train',list:V=>V.T&&V.cars?[V.T]:[],perCar:true,carTop:()=>4.2,top:()=>4.2,mid:()=>2.5,groups:T=>T.cars||[],

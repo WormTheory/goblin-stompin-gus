@@ -91,6 +91,7 @@ function carSpawn(c,o){
   if(o.x!==undefined){c.pos.set(o.x,o.y,o.z);c.heading=o.h||0;}
   c.speed=o.speed||0;c.kv.set(0,0,0);c.hp=c.hpMax=o.hp||carHP(c);c.alive=true;c.hunter=!!o.hunter;if(o.parked!==undefined)c.parked=o.parked;c.vy=0;
   c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.paint.emissive.setHex(0);c.g.visible=true;
+  if(c.fork||c.farm||c.tipR)farmReset(c);   // (a forklift's forks down and empty, a tractor's hitch up: farm-lift.js)
   if(o.place){c.g.position.copy(c.pos);c.g.rotation.set(0,c.heading,0);}
 }
 function buildVeh(c,t){
@@ -249,10 +250,16 @@ function buildVeh(c,t){
     b(1.3,0.75,1.8,yel,0,0.75,-0.3);b(1.32,0.85,0.5,dark,0,0.8,-1.3);b(0.6,0.14,0.55,dark,0,1.2,-0.45);b(0.5,0.5,0.1,dark,0,1.5,-0.72);
     for(const [x,z] of [[-1,0.4],[1,0.4],[-1,-1.0],[1,-1.0]])b(0.08,1.35,0.08,dark,x*0.6,1.85,z);b(1.3,0.08,1.55,dark,0,2.52,-0.3);
     b(0.08,0.08,0.4,dark,0,1.4,0.15);b(0.4,0.06,0.06,dark,0,1.6,0.3);   // (the steering wheel)
-    for(const s2 of[-1,1])b(0.12,2.5,0.14,dark,s2*0.45,1.3,0.72);b(1.0,0.12,0.14,dark,0,2.5,0.72);b(1.0,0.5,0.08,dark,0,0.5,0.85);
-    for(const s2 of[-1,1])b(0.14,0.07,1.15,chrome,s2*0.3,0.22,1.45);
+    // (the mast tilts about its foot; inside it a second stage rises half as far as the carriage, which carries the
+    // forks and, once one's picked up, a crate: see farm-lift.js)
+    const mast=new THREE.Group();mast.position.set(0,0.05,0.72);g.add(mast);const inner=new THREE.Group();mast.add(inner);const carr=new THREE.Group();mast.add(carr);
+    for(const s2 of[-1,1])b(0.12,2.5,0.14,dark,s2*0.45,1.25,0,mast);b(1.0,0.12,0.14,dark,0,2.45,0,mast);
+    for(const s2 of[-1,1])b(0.08,2.3,0.08,chrome,s2*0.36,1.2,0.05,inner);b(0.8,0.1,0.08,chrome,0,2.3,0.05,inner);
+    b(1.0,0.5,0.08,dark,0,0.45,0.13,carr);for(const s2 of[-1,1])b(0.14,0.07,1.15,chrome,s2*0.3,0.17,0.73,carr);
+    const crate=b(0.95,0.8,1.0,smat(0xb9874a),0,0.61,0.78,carr);crate.visible=false;
     b(0.2,0.14,0.06,smat(CARC.head),0.5,1.05,0.62);b(0.2,0.14,0.06,smat(CARC.head),-0.5,1.05,0.62);b(0.2,0.12,0.06,smat(CARC.tail),0,1.1,-1.56);
     for(const [x,z,st] of [[-1,0.3,0],[1,0.3,0],[-1,-1.05,1],[1,-1.05,1]])wheel(x*0.55,z,st);
+    return{g,wheels,front,rider,gun,gunner,mast,inner,carr,crate};
   } else if(t==='hover'){
     // a hovercraft: a rubber skirt all round, a deck and a cabin, a big fan in a duct at the back (spun by updateCars)
     // and a pair of rudders behind it
@@ -288,6 +295,15 @@ function buildVeh(c,t){
     bk(1.16,0.8,0.05,tg,0,2.3,-0.25);bk(1.16,0.8,0.05,tg,0,2.3,-1.6);for(const s2 of[-1,1])bk(0.05,0.62,1.2,tg,s2*0.63,2.4,-0.92);
     bk(0.3,0.16,0.3,blk,0,0.75,-1.85);   // (the hitch)
     for(const s2 of[-1,1]){twheel(s2*0.98*K,-0.95*K,1.7*K,0.55*K,false);twheel(s2*0.72*K,1.35*K,0.85*K,0.3*K,true);}
+    // (the three-point hitch's arms, and on them a plough or a mower, raised or lowered: see farm-lift.js)
+    const imp=new THREE.Group();imp.position.set(0,0.75*K,-1.9*K);g.add(imp);for(const s2 of[-1,1])b(0.08*K,0.08*K,0.6*K,blk,s2*0.35*K,0,-0.25*K,imp);
+    const plough=new THREE.Group();imp.add(plough);const red=smat(0x9a2a1c),steel=smat(0x8a9096);
+    b(1.9*K,0.14*K,0.14*K,red,0,0,-0.55*K,plough);b(0.14*K,0.14*K,1.4*K,red,0,0,-1.1*K,plough);
+    for(let k=-1;k<=1;k++){b(0.1*K,0.7*K,0.12*K,red,k*0.7*K,-0.35*K,-0.55*K+k*0.35*K,plough);const sh=b(0.08*K,0.32*K,0.55*K,steel,k*0.7*K+0.1*K,-0.72*K,-0.6*K+k*0.35*K,plough);sh.rotation.y=0.45;}
+    const mower=new THREE.Group();imp.add(mower);const grn=smat(0x3d7a35);
+    b(2.6*K,0.12*K,1.3*K,grn,0,-0.45*K,-1.0*K,mower);for(const s2 of[-1,1])b(0.08*K,0.4*K,1.3*K,grn,s2*1.3*K,-0.62*K,-1.0*K,mower);b(2.6*K,0.4*K,0.08*K,grn,0,-0.62*K,-1.65*K,mower);
+    b(0.12*K,0.5*K,0.12*K,blk,0,-0.2*K,-0.55*K,mower);mower.visible=false;
+    return{g,wheels,front,rider,gun,gunner,imp,plough,mower};
   }
   return{g,wheels,front,rider,gun,gunner};
 }

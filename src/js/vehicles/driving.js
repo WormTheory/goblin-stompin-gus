@@ -72,7 +72,7 @@ function drvEnter(p,D){
 }
 // taking the controls: whatever the vehicle was doing on its own, it stops doing
 function drvTake(p,D){const o=D.o;o.drv=p;
-  if(D.k==='car'){o.hunter=false;o.path=null;o.rt=null;o.hw=null;o.parked=false;o.left=false;o.reverseT=0;o.makeWay=0;o.leaving=false;o.yieldSv=false;o.hazard=false;if(o.hazG)o.hazG.visible=false;}
+  if(D.k==='car'){if(o.tipR)o.tipFall=false;if(o.forkOn)forkDrop(o.forkOn,false);o.hunter=false;o.path=null;o.rt=null;o.hw=null;o.parked=false;o.left=false;o.reverseT=0;o.makeWay=0;o.leaving=false;o.yieldSv=false;o.hazard=false;if(o.hazG)o.hazG.visible=false;}
   else if(D.k==='tank'||D.k==='heli'){o.state='drive';o.sv=0;o.hv={x:0,z:0};o.vy=0;o.cd=0;o.detour=0;wpnInit(o,D.k);o.rkHeld=true;}
   else if(D.k==='boat'){drvLaunch(D);const g=o.g;D.V.lane=null;D.V.x=g.position.x;D.V.z=g.position.z;D.V.yaw=g.rotation.y;o.sp=0;}
   else if(D.k==='plane'){if(!o.free)o.free={v:o.v||0,vy:0};o.g.visible=true;if(o.jet){wpnInit(o,'jet');o.rkHeld=true;}}
@@ -222,14 +222,20 @@ function drvCamera(p){
 }
 // driving a car: much as a hunting car drives itself (updateCars does the rest: the ground, walls, what it runs into)
 function drvCar(c,dt){
-  const i=drvIn(c.drv),thr=drvThr(i),st=-i.x,V=c.veh,Hd=handOf(V||'car'),top=Hd.top;
+  const i=drvIn(c.drv),st=-i.x,V=c.veh,Hd=handOf(V||'car');let thr=drvThr(i),top=Hd.top;
   // (its numbers are its handling profile, HANDLING: a supercar pulls hard, a forklift barely, a tractor steadily up to a
   // crawl; a hovercraft has no wheels to brake with)
-  const acc=Hd.acc,brk=Hd.brk;
+  let acc=Hd.acc;const brk=Hd.brk;
+  // (on its side, a forklift goes nowhere; the forks and the tractor's hand throttle and hitch: farm-lift.js)
+  if(c.tipR&&Math.abs(c.tipR)>0.05){c.speed*=Math.exp(-dt*4);return;}
+  if(V==='forklift')forkDrive(c,i,dt);
+  else if(V==='tractor'){thr=farmDrive(c,i,thr,top);if(farmWorking(c)){top*=FARM.slow;acc*=FARM.slow;}}
   if(c.grounded||rampUnder(c.pos.x,c.pos.z,c.pos.y+0.5)){
     if(thr>0.1)c.speed+=(c.speed<0?brk:acc*(Hd.accFall?Math.max(0.45,1-c.speed/Hd.accFall):1))*thr*dt;else if(thr<-0.1)c.speed-=(c.speed>0?brk:Math.min(acc,8))*-thr*dt;else c.speed*=Math.exp(-dt*Hd.coast);}
   c.speed=Math.max(-Hd.rev,Math.min(top,c.speed));
-  c.steer+=(st-c.steer)*Math.min(1,dt*8);c.heading+=c.steer*dt*Math.max(-1,Math.min(1,c.speed/5))*Hd.steer*(Hd.fall?Math.max(0.45,1-Math.abs(c.speed)/Hd.fall):1);
+  // (a forklift steers with its back wheels: it turns hard even creeping along, about its front axle, the tail swinging wide)
+  c.steer+=(st-c.steer)*Math.min(1,dt*8);const dh=c.steer*dt*Math.max(-1,Math.min(1,c.speed/(V==='forklift'?2:5)))*Hd.steer*(Hd.fall?Math.max(0.45,1-Math.abs(c.speed)/Hd.fall):1);
+  c.heading+=dh;if(V==='forklift')forkPivot(c,dh);
   if(V==='hover')hovDrift(c,dt);
   if(c.veh==='fire'){drvHose(c,i,dt);const hp=i.stomp&&!c.stHeld;c.stHeld=i.stomp;if(hp&&c.honkT<=0){horn(0.12);c.honkT=0.4;}}   // (a fire engine: bite sprays water, stomp sounds the horn. See hose.js)
   else if(i.bitePress&&c.honkT<=0){horn(0.12);c.honkT=0.4;}   // (bite sounds the horn)

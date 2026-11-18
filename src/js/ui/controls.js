@@ -63,7 +63,8 @@ const ACTS=[
   {id:'lfDown',n:'Lower the forks (hold)',c:'#9a7ae0',kb:['KeyC'],pad:[4],ctx:'lift'},
   {id:'lfTilt',n:'Tilt the mast (hold, with raise / lower)',c:CC.charge,kb:['ShiftLeft'],pad:[2],ctx:'lift'},
   {id:'lfHorn',n:'Horn',c:CC.bite,kb:['Mouse0'],pad:[1],ctx:'lift',as:'bite'},
-  {id:'fmCruise',n:'Hand throttle: next cruise step',c:CC.charge,kb:['KeyR'],pad:[15],ctx:'farm'},
+  {id:'fmCruise',n:'Hand throttle: up a cruise step',c:CC.charge,kb:['KeyR'],pad:[15],ctx:'farm'},
+  {id:'fmCruiseDn',n:'Hand throttle: down a cruise step',c:CC.charge,kb:['ShiftLeft'],pad:[13],ctx:'farm'},   // (D-pad down: up is the online quick chat, left push to talk)
   {id:'fmImp',n:'Raise / lower the implement',c:CC.jump,kb:['Space'],pad:[5],ctx:'farm'},
   {id:'fmSwap',n:'Swap implement (plough, mower, none)',c:CC.stomp,kb:['Mouse2'],pad:[4],ctx:'farm'},
   {id:'fmHorn',n:'Horn',c:CC.bite,kb:['Mouse0'],pad:[2],ctx:'farm',as:'bite'},

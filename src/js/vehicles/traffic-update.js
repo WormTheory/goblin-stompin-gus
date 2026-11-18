@@ -303,11 +303,11 @@ function updateCars(dt){
       if(c.grounded||rampUnder(c.pos.x,c.pos.z,c.pos.y+0.5)){if(target<c.speed)c.speed=Math.max(target,c.speed-10*dt);else c.speed+=(target-c.speed)*Math.min(1,dt*1.5);}
     }
     if(c.speed>0.3&&!c.drv){const lim=xingLimit(c);if(lim<c.speed)c.speed=Math.max(lim,c.speed-14*dt);}   // (the barriers are down at a level crossing ahead)
-    const fx=Math.sin(c.heading),fz=Math.cos(c.heading),dir=c.speed<0?-1:1;
+    const fx=Math.sin(c.heading),fz=Math.cos(c.heading),dir=c.speed<0?-1:1,pa=c.veh==='forklift'&&dir>0?1.45:2.1;   // (how far ahead it feels for a wall: a forklift's forks go up to one, over a ledge)
     if(Math.abs(c.speed)>0.05){
-      const ahead=groundAt(c.pos.x+fx*2.1*dir,c.pos.z+fz*2.1*dir,c.pos.y);
+      const ahead=groundAt(c.pos.x+fx*pa*dir,c.pos.z+fz*pa*dir,c.pos.y);
       // cars can't climb anything, and ordinary traffic won't drive into a hole either
-      const rampLim=rampUnder(c.pos.x,c.pos.z,c.pos.y+0.5)||rampUnder(c.pos.x+fx*1.2*dir,c.pos.z+fz*1.2*dir,c.pos.y+0.5)||rampUnder(c.pos.x+fx*2.1*dir,c.pos.z+fz*2.1*dir,c.pos.y+0.5)?1.6:0.3;
+      const rampLim=rampUnder(c.pos.x,c.pos.z,c.pos.y+0.5)||rampUnder(c.pos.x+fx*1.2*dir,c.pos.z+fz*1.2*dir,c.pos.y+0.5)||rampUnder(c.pos.x+fx*pa*dir,c.pos.z+fz*pa*dir,c.pos.y+0.5)?1.6:0.3;
       // dropped into a pothole (or a dip in the road): an ordinary car can bump its way back up one block onto the road
       const outOfHole=!c.hunter&&!c.drv&&!c.crew&&c.pos.y<G+0.95&&c.pos.y>G-1.5&&ahead-c.pos.y<=1.1&&ahead>=G+0.95;
       if(!outOfHole&&c.pos.y>=G+0.95){c.holeT=0;c.holeNeed=0;}
@@ -327,7 +327,7 @@ function updateCars(dt){
           {const np=nearestPlayer(c.pos.x,c.pos.z,false);if(np&&np.d<36)sfx('Vehicle lurches free',()=>{thud(0.15*(1-np.d/36));});}
         }
       }
-      else if((c.drv||c.hunter||c.crew)&&c.grounded&&ahead-c.pos.y>rampLim&&ahead-c.pos.y<=1.05&&Math.abs(c.speed)>1&&!solidAt(c.pos.x+fx*2.1*dir,Math.floor(ahead)+1,c.pos.z+fz*2.1*dir)&&!solidAt(c.pos.x+fx*2.1*dir,Math.floor(ahead)+2,c.pos.z+fz*2.1*dir)){
+      else if((c.drv||c.hunter||c.crew)&&c.grounded&&ahead-c.pos.y>rampLim&&ahead-c.pos.y<=1.05&&Math.abs(c.speed)>1&&!solidAt(c.pos.x+fx*pa*dir,Math.floor(ahead)+1,c.pos.z+fz*pa*dir)&&!solidAt(c.pos.x+fx*pa*dir,Math.floor(ahead)+2,c.pos.z+fz*pa*dir)){
         c.pos.y=ahead+0.02;c.vy=0;c.stepT=Math.min(3,(c.hz*2+1)/Math.max(1,Math.abs(c.speed))+0.2);c.speed*=0.85;c.pos.x+=fx*c.speed*dt;c.pos.z+=fz*c.speed*dt;c.spinP=-0.8*dir;   // (up a kerb or a step, as a goblin steps up one: a jolt up onto it, and carPhysics settles it)
         {const np=nearestPlayer(c.pos.x,c.pos.z,false);if(np&&np.d<36)sfx('Vehicle bumps up a kerb',()=>{thud(0.12*(1-np.d/36));});}
       }
@@ -371,7 +371,7 @@ function updateCars(dt){
     if(c.hp<15){c.smokeT-=dt;if(c.smokeT<=0){c.smokeT=c.hp<8?0.06:0.15;const hx=c.pos.x+fx*1.5,hz=c.pos.z+fz*1.5;smoke(hx,c.pos.y+1.1,hz,1,c.hp<8?0x1a1a1a:0x666666);if(c.hp<8)puff(hx,c.pos.y+0.9,hz,1,Math.random()<.5?0xff8a2a:0xffc040,0.25);}}
     carPhysics(c,dt);if(!c.alive)continue;
     if(Math.abs(c.kv.x)+Math.abs(c.kv.z)>0.05){nudgeFlat(c,c.kv.x*dt,c.kv.z*dt);const k=Math.exp(-dt*3.5);c.kv.x*=k;c.kv.z*=k;}
-    c.g.position.copy(c.pos);c.g.rotation.set(c.pitch,c.heading,c.roll+(c.veh==='bike'?-c.steer*Math.min(1,Math.abs(c.speed)/8)*0.4:0));   // (a motorcycle leans into its turns)
+    c.g.position.copy(c.pos);c.g.rotation.set(c.pitch,c.heading,c.roll+(c.tipR||0)+(c.veh==='bike'?-c.steer*Math.min(1,Math.abs(c.speed)/8)*0.4:0));   // (a motorcycle leans into its turns)
     for(const w of c.wheels)w.rotation.x+=c.speed*dt/0.36;
     for(const f of c.front)f.rotation.y=c.steer*(c.veh==='forklift'?-0.6:0.45);   // (a forklift steers with its back wheels)
     if(c.fan&&c.drv)c.fan.rotation.z+=dt*(14+Math.abs(c.speed)*0.8);   // (a hovercraft's fan, while someone's at the controls)
