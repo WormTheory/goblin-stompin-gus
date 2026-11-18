@@ -168,6 +168,10 @@ const grid1=new THREE.GridHelper(4,4,0x6a7080,0x6a7080);grid1.position.y=0.001;s
 const axes=new THREE.AxesHelper(0.25);scene.add(axes);
 const orbit=new THREE.OrbitControls(cam,R.domElement);orbit.target.set(0,0.4,0);orbit.enableDamping=false;   // (no drift after letting go)
 const gizmo=new THREE.TransformControls(cam,R.domElement);gizmo.setSize(0.8);scene.add(gizmo);
+// (in its own frame: this TransformControls draws the move and tilt handles along the thing's own axes whatever the space, but
+// in 'world' it moved it along the world's, so a tilted model went off sideways from the arrow dragged; snapping then
+// also rounds the numbers the file keeps)
+gizmo.setSpace('local');
 // (while dragging, the dragged thing moves itself and only the file follows; letting go makes everything again from the file)
 gizmo.addEventListener('dragging-changed',e=>{orbit.enabled=!e.value;if(!e.value){mergeTag=null;rebuild();renderInsp();}});
 let content=new THREE.Group();scene.add(content);
