@@ -21,11 +21,13 @@ function liveWeapon(k,file){
 }
 function liveClip(name,file){STRIKES[name]=assetClip(file);return 'ok';}
 // (a body's hurtboxes are read from ASSETS each time a blow is tested: hit-shapes.js)
+// (a grip is read by gunGrip each time a goblin with a gun is drawn: grip.js)
+function liveGrip(name,file){const f=Object.assign({},file);delete f.note;GUN_GRIP[name]=f;return 'ok';}
 function liveBody(name,file){ASSETS.bodies=ASSETS.bodies||{};const f=Object.assign({},file);delete f.note;ASSETS.bodies[name]=f;return 'ok';}
 if(EDITOR_LIVE){
   addEventListener('message',e=>{
     if(e.origin!==location.origin)return;const d=e.data;if(!d||d.type!=='gsg-asset')return;
-    let r;try{r=d.kind==='weapons'?liveWeapon(d.name,d.file):d.kind==='clips'?liveClip(d.name,d.file):d.kind==='bodies'?liveBody(d.name,d.file):'unknown kind';}catch(err){r=String(err&&err.message||err);}
+    let r;try{r=d.kind==='weapons'?liveWeapon(d.name,d.file):d.kind==='clips'?liveClip(d.name,d.file):d.kind==='bodies'?liveBody(d.name,d.file):d.kind==='grips'?liveGrip(d.name,d.file):'unknown kind';}catch(err){r=String(err&&err.message||err);}
     try{e.source&&e.source.postMessage({type:'gsg-asset-done',kind:d.kind,name:d.name,result:r},location.origin);}catch(err){}
   });
   // (tell the editor this window is ready for its edits)

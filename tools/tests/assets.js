@@ -40,7 +40,7 @@ const [A]=T.players;const S=n=>{for(let i=0;i<n;i++){now+=16.7;T.frame(now);}};f
 // keeps its exact layout through a load and save; what the game built from them matches the files; weapon hitboxes
 // against goblin hurtboxes (player/hit-shapes.js); the live preview's entries (ui/editor-live.js).
 const path=require('path'),AS=path.join(__dirname,'..','..','src','assets');
-for(const kind of ['weapons','clips','bodies']){
+for(const kind of ['weapons','clips','bodies','grips']){
   const names=JSON.parse(fs.readFileSync(path.join(AS,kind,'_order.json'),'utf8')).order;let bad=[],moved=[];
   for(const n of names){const text=fs.readFileSync(path.join(AS,kind,n+'.json'),'utf8').replace(/\r\n/g,'\n'),a=JSON.parse(text);
     const E=T.assetCheck(kind,n,a);if(E.length)bad.push(n+': '+E.join('; '));if(T.assetFmt(a)!==text)moved.push(n);}

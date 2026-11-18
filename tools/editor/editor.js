@@ -7,8 +7,8 @@
 // the live game.
 'use strict';
 const $=id=>document.getElementById(id);
-const S={tab:'models',kind:null,name:null,wl:'held',sel:-1,ctx:true,insp:'box',hsel:-1,t:0,playing:false,speed:1,loop:true,kSel:-1,autoKey:true,
-  snap:0.01,mode:'translate',game:null,gameOk:false,list:{weapons:[],clips:[],bodies:[]},search:'',previewW:null,fp:true};
+const S={grip:true,tab:'models',kind:null,name:null,wl:'held',sel:-1,ctx:true,insp:'box',hsel:-1,t:0,playing:false,speed:1,loop:true,kSel:-1,autoKey:true,
+  snap:0.01,mode:'translate',game:null,gameOk:false,list:{weapons:[],clips:[],bodies:[],grips:[]},search:'',previewW:null,fp:true};
 const DOCS=new Map();
 const key=(k,n)=>k+'/'+n;
 const doc=()=>S.kind?DOCS.get(key(S.kind,S.name)):null;
@@ -45,6 +45,7 @@ let liveT=0;
 function changed(full){
   const d=doc();
   if(d&&d.kind==='weapons')WDATA[d.name]=d.data;
+  if(d&&d.kind==='grips')GUN_GRIP[d.name]=d.data;   // (what gunGrip reads: the edit shows at once)
   renderList();rebuild();if(full)renderInsp();else refreshInsp();drawTL();
   clearTimeout(liveT);liveT=setTimeout(()=>sendLive(d),120);
 }
@@ -59,6 +60,8 @@ function renderList(){
     return '<div class="item'+(S.kind===kind&&S.name===n?' on':'')+'" data-k="'+kind+'" data-n="'+esc(n)+'">'+esc(label)+(dt?' <span class="dirty" title="Not saved">●</span>':'')+'<small>'+esc(label===n?'':n)+'</small></div>';};
   let h='<div class="grp"><span>Weapons</span><button class="x" id="newW" title="New weapon (a copy of the one open, or the club)">+ new</button></div>';
   for(const n of S.list.weapons)if(m(n))h+=it('weapons',n,WDATA[n]?WDATA[n].name:n);
+  h+='<div class="grp"><span>Gun grips (two hands)</span></div>';
+  for(const n of S.list.grips||[])if(m(n))h+=it('grips',n,n);
   h+='<div class="grp"><span>Bodies (hurtboxes)</span></div>';
   for(const n of S.list.bodies||[])if(m(n))h+=it('bodies',n,(DOCS.get(key('bodies',n))||{data:{}}).data.name||n);
   for(const [L,title] of CLIP_GROUPS){h+='<div class="grp"><span>'+title+'</span>'+(L==='body'?'<button class="x" id="newC" title="New animation (a copy of the one open)">+ new</button>':'')+'</div>';
@@ -72,6 +75,7 @@ async function open(kind,name){
   S.kind=kind;S.name=name;S.sel=-1;S.hsel=-1;S.kSel=-1;mergeTag=null;
   if(kind==='clips'){S.t=1;S.previewW=weaponFor(name);S.insp='clip';}
   else if(kind==='bodies')S.insp='hit';
+  else if(kind==='grips')S.insp='stats';
   else if(!['box','stats','hit'].includes(S.insp))S.insp='box';
   $('empty').style.display='none';
   renderList();renderToolbar();renderInsp();rebuild();frameView();
@@ -184,12 +188,13 @@ function rebuild(){
   gizmo.detach();scene.remove(content);content=new THREE.Group();scene.add(content);pickable=[];posed=null;fpView=null;hitMeshes=[];
   const d=doc();if(!d){hud('');return;}
   if(d.kind==='bodies'){buildHit(d.data);return;}
+  if(d.kind==='grips'){buildGrip(d.name);return;}
   if(d.kind==='weapons'){
     const W=d.data;
     if(S.insp==='hit'){buildHit(W);return;}
     const L=(W.model&&W.model[S.wl])||[];
     let par=content;
-    if(S.wl==='held'){if(S.ctx){const J=goblin(true);content.add(J.root);J.arm.rotation.x=-1.2;par=J.hand;}}
+    if(S.wl==='held'){if(S.ctx){const J=goblin(true);content.add(J.root);const ac=aimClip(W);if(ac)poseBody(J,ac,1,W);else J.arm.rotation.x=-1.2;par=J.hand;}}
     else if(S.wl==='stow'){if(S.ctx){const J=goblin(true);content.add(J.root);par=J.root;}}
     if(S.wl==='view'){const F=fpRig(W);content.add(F.vm);F.vm.scale.setScalar(1);fpPose(F,W,null,0);pickable=F.meshes;fpView=fpRig(W);fpPose(fpView,W,null,0);}
     else L.forEach((b,i)=>{const m=boxMesh(b);m.userData.i=i;par.add(m);pickable.push(m);});
@@ -234,10 +239,35 @@ function fpPose(F,W,c,u){
 }
 function poseAt(u){
   const d=doc();if(!posed||!d||d.kind!=='clips')return;const c=d.data;
-  if(posed.k==='body'){const J=posed.J,v=clipAt(c,u);
-    J.arm.rotation.set(v[0],0,v[1]);J.hand.rotation.x=v[2];J.armL.rotation.x=v[3];J.root.rotation.set(v[5],v[4],0);J.root.position.set(0,0,v[6]);}
+  if(posed.k==='body')poseBody(posed.J,c,u,WDATA[S.previewW],/^rl/.test(d.name));
   else{fpPose(posed.F,posed.W,c,u);fpPose(fpView,posed.W,c,u);}
 }
+// a goblin posed by a body clip at u, as gobStrike does, then (with the toggle on, for a gun) both hands put on the gun
+// as the game does just before drawing it (gunGrip, src/js/enemies/grip.js, loaded as it is). Not while reloading (rl):
+// the game lets go of the grip for a reload
+function poseBody(J,c,u,W,reload){
+  const v=clipAt(c,u);
+  J.arm.position.set(0.32,0.92,0);J.armL.position.set(-0.32,0.92,0);J.head.rotation.set(0,0,0);J.hand.rotation.set(v[2],0,0);J.armL.rotation.set(v[3],0,0);
+  J.arm.rotation.set(v[0],0,v[1]);J.root.rotation.set(v[5],v[4],0);J.root.position.set(0,0,v[6]||0);
+  const k=W&&W.npc&&W.npc.aim;
+  if(S.grip&&k&&!reload&&GUN_GRIP[k]){J.arm.hand=J.hand;gunGrip(J,J.root,k);}
+}
+// the toggle: both hands on the gun as the game puts them, or the pose as the animation alone has it
+const gripChk=()=>'<label title="The game puts both hands on a gun just before drawing it (gunGrip); off, the pose as the animation alone has it"><input type="checkbox" id="gripChk"'+(S.grip?' checked':'')+'> Two hands on the gun (as in game)</label>';
+// a grip on show: a goblin with each gun that uses it, aiming (its pose at the blow) and carried (the pose's start)
+function buildGrip(k){
+  const ws=S.list.weapons.filter(n=>WDATA[n]&&WDATA[n].npc&&WDATA[n].npc.aim===k);let x=0;
+  for(const n of ws.length?ws:[]){const W=WDATA[n],ac=aimClip(W);if(!ac)continue;
+    for(const u of [ac.keys[0].t,1]){const J=goblin(false);J.root.position.x=0;for(const b of (W.model&&W.model.held)||[])J.hand.add(boxMesh(b));
+      const g=new THREE.Group();g.position.x=x;g.add(J.root);content.add(g);poseBody(J,ac,u,W);x+=1.1;}}
+  if(S.grip)gripStatus(k,ws);else hud('Two hands on the gun is off: the poses as their animations have them');
+  if(!ws.length)hud('No weapon uses this grip yet (a weapon names its grip in npc.aim)');
+}
+function gripStatus(k,ws){hud('Grip '+k+': '+ws.map(n=>WDATA[n].name).join(', ')+'\neach gun twice: carried (its pose at the start), then aimed (at the blow)'+
+  '\nnumbers: sh the weapon hand, out how far along the gun, fore [aimed, carried] the free hand along the gun,'+
+  '\ntw [aimed, carried] the turn side-on, low a carried gun\'s droop, reach how far a shoulder may give');}
+// a weapon's aiming pose (its npc.pose clip), for showing it held
+const aimClip=W=>{const n=W&&W.npc&&W.npc.pose,d=n&&DOCS.get(key('clips',n));return d?d.data:null;};
 
 // ---- hit shapes: a weapon's hitboxes, in the body's own frame (the goblin's feet, facing +z) ----
 function hitMesh(s,col,wire){
@@ -291,7 +321,8 @@ gizmo.addEventListener('objectChange',()=>{
     if(S.insp==='hit')S.hsel=i;else S.sel=i;rebuild();renderInsp();});}
 function frameView(){
   const d=doc();if(!d)return;
-  if(S.insp==='hit'){orbit.target.set(0,0.6,0.8);cam.position.set(4.2,3,-1.6);}
+  if(d.kind==='grips'){orbit.target.set(2.2,0.7,0);cam.position.set(-1.4,1.9,4.4);}   // (from in front and to the side: an aimed gun points at a viewer straight ahead)
+  else if(S.insp==='hit'){orbit.target.set(0,0.6,0.8);cam.position.set(4.2,3,-1.6);}
   else if(d.kind==='clips'&&d.data.layout==='body'||S.ctx&&(S.wl==='held'||S.wl==='stow')){orbit.target.set(0,0.65,0.2);cam.position.set(2.2,1.4,2.4);}
   else if(d.kind==='clips'||S.wl==='view'){orbit.target.set(0.3,-0.4,-0.6);cam.position.set(1.6,0.4,0.6);}
   else{const L=(d.data.model&&d.data.model[S.wl])||[];const bb=new THREE.Box3();for(const b of L)bb.expandByPoint(new THREE.Vector3(...b.p));
@@ -311,9 +342,13 @@ function renderToolbar(){
     h+=[['translate','Move (G)'],['rotate','Tilt (R)'],['scale','Size (S)']].map(([k,t])=>'<button data-mode="'+k+'" class="'+(S.mode===k?'on':'')+'">'+t+'</button>').join('');
     h+='<label>Snap <select id="snapSel">'+[['0','off'],['0.005','0.005'],['0.01','0.01'],['0.0625','1/16'],['0.1','0.1']].map(([v,t])=>'<option value="'+v+'"'+(+v===S.snap?' selected':'')+'>'+t+'</option>').join('')+'</select></label>';
     if(S.wl==='held'||S.wl==='stow')h+='<label><input type="checkbox" id="ctxChk"'+(S.ctx?' checked':'')+'> On a goblin</label>';
+    if(S.wl==='held'&&d.data.npc&&d.data.npc.aim)h+=gripChk();
+  }else if(d.kind==='grips'){
+    h+=gripChk();
   }else if(d.kind!=='clips'){
     h+=[['translate','Move (G)'],['rotate','Tilt (R)'],['scale','Size (S)']].map(([k,t])=>'<button data-mode="'+k+'" class="'+(S.mode===k?'on':'')+'">'+t+'</button>').join('');
   }else{
+    if(d.data.layout==='body')h+=gripChk();
     h+='<label>Shown with <select id="pwSel">'+S.list.weapons.map(n=>'<option value="'+n+'"'+(n===S.previewW?' selected':'')+'>'+esc(WDATA[n]?WDATA[n].name:n)+'</option>').join('')+'</select></label>';
     h+='<span class="note">'+esc(ASSET_LAYOUTS[d.data.layout]?ASSET_LAYOUTS[d.data.layout].about:'')+'</span>';
   }
@@ -322,6 +357,7 @@ function renderToolbar(){
   for(const b of $('toolbar').querySelectorAll('[data-wl]'))b.onclick=()=>{S.wl=b.dataset.wl;S.sel=-1;renderToolbar();renderInsp();rebuild();frameView();};
   for(const b of $('toolbar').querySelectorAll('[data-mode]'))b.onclick=()=>setMode(b.dataset.mode);
   if($('snapSel'))$('snapSel').onchange=e=>{S.snap=+e.target.value;applySnap();};
+  if($('gripChk'))$('gripChk').onchange=e=>{S.grip=e.target.checked;rebuild();};
   if($('ctxChk'))$('ctxChk').onchange=e=>{S.ctx=e.target.checked;S.sel=-1;rebuild();frameView();};
   if($('pwSel'))$('pwSel').onchange=e=>{S.previewW=e.target.value;rebuild();};
   $('frameBtn').onclick=frameView;
@@ -335,7 +371,7 @@ const num=(v,id,step=0.01)=>'<input type="number" step="'+step+'" id="'+id+'" va
 const v3=(v,id)=>'<span class="v3">'+[0,1,2].map(j=>num(v?v[j]:0,id+j)).join('')+'</span>';
 function renderInsp(){
   const d=doc();
-  const tabs=!d?[]:d.kind==='weapons'?[['box','Boxes'],['stats','Stats'],['hit','Hitboxes']]:d.kind==='bodies'?[['hit','Hurtboxes']]:[['clip','Animation']];
+  const tabs=!d?[]:d.kind==='weapons'?[['box','Boxes'],['stats','Stats'],['hit','Hitboxes']]:d.kind==='bodies'?[['hit','Hurtboxes']]:d.kind==='grips'?[['stats','Numbers']]:[['clip','Animation']];
   $('inspTabs').innerHTML=tabs.map(([k,t])=>'<button class="'+(S.insp===k?'on':'')+'" data-t="'+k+'">'+t+'</button>').join('');
   for(const b of $('inspTabs').querySelectorAll('button'))b.onclick=()=>{S.insp=b.dataset.t;S.sel=-1;S.hsel=-1;renderToolbar();renderInsp();rebuild();frameView();};
   const B=$('inspBody');if(!d){B.innerHTML='';return;}
@@ -404,7 +440,7 @@ const FIELD_HELP={name:'Its name in the game',about:'The line on the Character t
   'player.dur':'Seconds the swing or shot takes','player.lunge':'Seconds till it lands','player.cause':'What it\'s called when it kills you','player.swing':'First-person swing (an animation)',
   'player.rl':'First-person reload (an animation)','player.body':'The blow others see him strike (an animation)','player.auto':'Fires for as long as the button\'s held','player.cycle':'bolt, pump or slide worked after a shot'};
 function renderStats(B,d){
-  const W=d.data;let h='<p class="note">Every number here is the same whoever carries it: Gnash, Grizzle or any enemy.</p><table class="stats">';
+  const W=d.data;let h='<p class="note">'+(d.kind==='grips'?'How both hands go on a gun that names this grip (npc.aim), for everyone holding one. See the view for what each number does.':'Every number here is the same whoever carries it: Gnash, Grizzle or any enemy.')+'</p><table class="stats">';
   const row=(path,v)=>{const id='st_'+path;let inp;
     if(typeof v==='boolean')inp='<input type="checkbox" id="'+id+'"'+(v?' checked':'')+'>';
     else if(typeof v==='number')inp='<input type="number" step="any" id="'+id+'" value="'+v+'">';
@@ -583,7 +619,7 @@ function loop(now){
 async function start(){
   try{S.list=await api('/api/list');}catch(e){status('No server: run python tools/editor/serve.py and open http://localhost:8737/tools/editor/',true);return;}
   await Promise.all(S.list.weapons.map(async n=>{const d=await loadDoc('weapons',n);WDATA[n]=d.data;}));
-  await Promise.all([...S.list.clips.map(n=>loadDoc('clips',n)),...(S.list.bodies||[]).map(n=>loadDoc('bodies',n))]);
+  await Promise.all([...S.list.clips.map(n=>loadDoc('clips',n)),...(S.list.bodies||[]).map(n=>loadDoc('bodies',n)),...(S.list.grips||[]).map(async n=>{const d=await loadDoc('grips',n);GUN_GRIP[n]=d.data;})]);
   renderList();renderTLBar();resize();applySnap();status('Ready: '+S.list.weapons.length+' weapons, '+S.list.clips.length+' animations');
   $('search').oninput=e=>{S.search=e.target.value;renderList();};
   $('saveBtn').onclick=()=>save();$('saveAllBtn').onclick=saveAll;$('buildBtn').onclick=build;$('gameBtn').onclick=openGame;

@@ -135,6 +135,13 @@ function assetCheck(kind,name,a){
       if(k.e!==undefined&&k.e!=='i'&&k.e!=='o')E.push("key "+i+": ease e must be 'i', 'o' or left out");});
       const t1=a.keys[a.keys.length-1].t;
       for(const ev of a.events||[])if(!n(ev.t)||ev.t<a.keys[0].t||ev.t>t1)E.push('event '+ev.k+' is outside the clip');}
+  }else if(kind==='grips'){
+    // (enemies/grip.js: sh the weapon hand's spot, out how far along the gun from it, fore [aimed, carried] how far along
+    // for the free hand, tw [aimed, carried] the turn side-on, low a carried gun's droop, reach the shoulder's give)
+    if(!v3(a.sh))E.push('sh must be three numbers');
+    for(const s of ['out','reach'])if(!n(a[s]))E.push(s+' must be a number');
+    for(const s of ['fore','tw'])if(!(Array.isArray(a[s])&&a[s].length===2&&a[s].every(n)))E.push(s+' must be two numbers [aimed, carried]');
+    if(a.low!==undefined&&!n(a.low))E.push('low must be a number, or left out');
   }else if(kind==='bodies'){
     if(typeof a.name!=='string')E.push('name missing');
     if(a.hit)assetCheckHit(a.hit,'hit',E);

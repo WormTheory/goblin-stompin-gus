@@ -57,6 +57,7 @@ player/move.js
 enemies/weapons.js
 enemies/goblins.js
 enemies/strikes.js
+enemies/grip.js
 ui/obituary.js
 ui/pause-map.js
 ui/dev-tab.js
