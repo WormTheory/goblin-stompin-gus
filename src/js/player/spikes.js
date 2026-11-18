@@ -148,7 +148,7 @@ const BITE_SOLO_CD=0.85;   // seconds from one bite to the next with the combo s
 // one cooldown shared by every bite, on the ground or in the air: biting in either puts the other on hold too
 function gusBite(p){
   if(p.biteT>0||p.state!=='walk'||!playing||!p.active||(p.biteCD||0)>0)return;
-  if(p.gob){const W=gobW(p);p.biteStep=-1;p.comboWin=0;p.biteDur=W.dur;p.biteT=W.dur;p.lungeT=W.lunge;p.biteHit=true;p.biteCD=W.cd;gobPressSnd(p);return;}
+  if(p.gob){if(!gobReady(p))return;const W=gobW(p);p.biteStep=-1;p.comboWin=0;p.biteDur=W.dur;p.biteT=W.dur;p.lungeT=W.lunge;p.biteHit=true;p.biteCD=W.cd;gobPressSnd(p);return;}
   // no aim assist: the bite goes exactly where he's facing (lock-on is how to aim at someone)
   // in the air: a single snap, no combo
   if(!p.grounded){if((p.airBiteCD||0)>0)return;hbStart(p,'airBite');p.airBiteCD=1.0;p.biteCD=BITE_SOLO_CD;p.biteStep=-1;p.comboWin=0;p.biteDur=0.3;p.biteT=0.3;p.lungeT=0.16;p.lurch={t:0,dur:Math.max(0.05,AB.airBite.dist/Math.max(0.1,AB.airBite.speed)),dist:AB.airBite.dist};p.biteHit=true;sfx('Air bite',()=>{tone('triangle',150,260,0.1,0.06);woosh(0.12,0.2,600,1900);});return;}

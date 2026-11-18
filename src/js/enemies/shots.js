@@ -50,7 +50,7 @@ function updateFireballs(dt){
     F.trail-=dt;if(F.trail<=0){F.trail=0.04;puff(F.pos.x,F.pos.y-0.15,F.pos.z,1,Math.random()<0.5?0xff7a1a:0xffc040,0.12);}
   }
 }
-function fbClear(){gobPickupsClear();for(const F of FIREB){F.live=false;F.g.visible=false;}for(const S of SHOTS){S.live=false;S.g.visible=false;}for(const T of TRACERS)T.m.visible=false;}
+function fbClear(){gobPickupsClear();minesClear();for(const F of FIREB){F.live=false;F.g.visible=false;}for(const S of SHOTS){S.live=false;S.g.visible=false;}for(const T of TRACERS)T.m.visible=false;}
 // ---- bullets' tracers: a thin streak of light from the muzzle, gone in a moment ----
 const TRACERS=[],TR_MAT=new THREE.MeshBasicMaterial({color:0xfff0a0});
 function tracer(x0,y0,z0,x1,y1,z1){
@@ -68,7 +68,7 @@ const SHOTS=[],SHOT_LOOK={grenade:[[0.24,0.24,0.24],0x3a4a22],shell:[[0.28,0.28,
 function shot(o){
   let S=SHOTS.find(q=>!q.live&&q.kind===o.kind);
   if(!S){const L=SHOT_LOOK[o.kind],m=new THREE.Mesh(FB_GEO,SHOT_M[o.kind]||(SHOT_M[o.kind]=new THREE.MeshLambertMaterial({color:L[1]})));m.scale.set(...L[0]);m.visible=false;scene.add(m);S={kind:o.kind,g:m,pos:new V3(),v:new V3(),live:false};SHOTS.push(S);}
-  Object.assign(S,{grav:o.grav,fuse:o.fuse??9,R:o.R,dmg:o.dmg,cause:o.cause,by:o.by||null,bounce:!!o.bounce,t:0,live:true,trail:0,crush:o.crush||0,vd:o.vd,own:o.own||null,ap:!!o.ap,hitB:false,tgt:o.tgt||null,chase:o.chase||null,at:o.at||null,sp:o.sp||0,turn:o.turn||0});
+  Object.assign(S,{grav:o.grav,fuse:o.fuse??9,R:o.R,dmg:o.dmg,cause:o.cause,by:o.by||null,bounce:!!o.bounce,t:0,live:true,trail:0,crush:o.crush||0,vd:o.vd,own:o.own||null,ap:!!o.ap,hitB:false,tgt:o.tgt||null,chase:o.chase||null,at:o.at||null,sp:o.sp||0,turn:o.turn||0,skipP:o.skipP||null,gobs:!!o.gobs});   // (skipP: the player who fired it, not hit by it as it leaves; gobs: it goes off on a goblin it reaches, a bazooka's)
   S.pos.set(o.x,o.y,o.z);S.v.set(o.vx,o.vy,o.vz);S.g.position.copy(S.pos);S.g.visible=true;return S;
 }
 // a blast: the flash, smoke and noise, everyone near it hurt (less at the edge) and thrown, goblins too, maybe a crater
@@ -97,7 +97,8 @@ function updateShots(dt){
         else{S.v.x*=-0.4;S.v.z*=-0.4;}continue;}
       S.pos.set(nx,ny,nz);
       // (a shell or a rocket goes off on whoever it reaches, too)
-      if(!S.bounce)for(const q of players){if(!q.active||q.state==='dead'||q.drv&&q.drv.o===S.own)continue;const hx=S.pos.x-q.pos.x,hz=S.pos.z-q.pos.z,hy=S.pos.y-q.pos.y;if(hx*hx+hz*hz<1.6*1.6&&hy>-0.3&&hy<2.4){boom=true;break;}}
+      if(!S.bounce)for(const q of players){if(!q.active||q.state==='dead'||q.drv&&q.drv.o===S.own||q===S.skipP&&S.t<0.6)continue;const hx=S.pos.x-q.pos.x,hz=S.pos.z-q.pos.z,hy=S.pos.y-q.pos.y;if(hx*hx+hz*hz<1.6*1.6&&hy>-0.3&&hy<2.4){boom=true;break;}}
+      if(!S.bounce&&!boom&&S.gobs)for(const g of goblins){if(g.state!=='chase'||!g.root.visible)continue;const hx=S.pos.x-g.pos.x,hz=S.pos.z-g.pos.z,hy=S.pos.y-g.pos.y;if(hx*hx+hz*hz<0.7*0.7&&hy>-0.2&&hy<1.6){boom=true;break;}}
       if(!S.bounce&&!boom&&shotHitsVeh(S))boom=true;}
     if(boom||S.t>12){S.live=false;S.g.visible=false;if(S.ap&&S.hitB)apTunnel(S);impX=S.imp||1;   // (an AP shell into a wall bores on: tank-handling.js)
      foeBoom(S.pos.x,S.pos.y,S.pos.z,S.R,S.dmg,S.cause,S.by,S.crush,S.vd,S.own);impX=1;continue;}   // (imp: how much a heavy shell fills an impact meter: see impHit)

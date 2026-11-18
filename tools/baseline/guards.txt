@@ -38,9 +38,9 @@ gun fireball (cultists) | on foot -2 hp, driving: tank -8.460000000000008, boxed
 gun gunRound | goblin hurt 10 in the open, 0 through a wall ok
 blasts and shells vs every kind of vehicle box ok
 enemy kinds (thief, prepper, militia, security, deckhand, sailor, marine, soldier) ok
-weapons lists (goblin: club; police: club+handgun; civilian: ; cultist: spellbook+dagger; thief: dagger; prepper: rifle+grenade; militia: rifle+grenade; security: ; deckhand: ; sailor: rifle; marine: rifle+grenade; soldier: rifle) ok
+weapons lists (goblin: club; police: club+handgun; civilian: ; cultist: spellbook+dagger; thief: dagger; prepper: rifle+grenade; militia: rifle+grenade; security: ; deckhand: ; sailor: rifle; marine: rifle+grenade; soldier: rifle; made-up bigclub: bigclub; made-up katana: katana; made-up shotgun: dagger+shotgun; made-up arifle: dagger+arifle; made-up sniper: dagger+sniper; made-up bazooka: dagger+bazooka; made-up landmine: club+landmine) ok
 a gun at range, a blade or club up close (any kind) ok
-weapon stats only in WEAPONS (club, dagger, handgun, rifle, spellbook, grenade; FOES, GOB_FOES) ok
+weapon stats only in WEAPONS (club, bigclub, katana, dagger, handgun, shotgun, rifle, arifle, sniper, bazooka, spellbook, landmine, grenade; FOES, GOB_FOES) ok
 the same weapon in the hands of an enemy as of a player ok
 errors 0 
 GUARDS: no new gaps | expected gaps 3 | fixed 0

@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:7c974cb09c2fbe7b4db05eb2d4a79382c06fa67ca04bb58d7056dc4b72fe7b1c -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:5351d4b9f9c0468b8185099f8957258d50ec56f5cab4206896b231bef48047d6 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1543,7 +1543,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <button type="button" class="tog" role="checkbox" id="scorePopTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Score numbers<small>Points float up from whatever you flatten or smash</small></span></button>
         <button type="button" class="tog" role="checkbox" id="dmgPopTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Damage numbers<small>Numbers pop off goblins, vehicles and anything else as it takes a hit</small></span></button>
         <button type="button" class="tog" role="checkbox" id="shoutTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Shouts<small>SPLAT!, CHOMP! or KABOOM! when a goblin goes down, combo milestones, and FULL CHARGE! on a charged stomp</small></span></button>
-        <button type="button" class="tog" role="checkbox" id="hpBarTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Health bars<small>Over goblins, vehicles and other players nearby</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="hpBarTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Health bars<small>Over goblins, vehicles, rides, zoo animals and other players nearby</small></span></button>
         <button type="button" class="tog" role="checkbox" id="bloodTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Hide blood<small>No blood sprays, splats on the ground or pools, from goblins, hippos or anyone else</small></span></button>
         <button type="button" class="tog" role="checkbox" id="calmTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Reduced motion<small>Stops the wobbling, bobbing and popping of the menus and display, and Gus on the title screen. On by itself if your system asks for less motion</small></span></button>
       </div>
@@ -1588,10 +1588,12 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <ul><li>A new vehicle to try out in the Testing Environment: the Mobile Gear, an armoured walker eight blocks tall. Pick it from the vehicle buttons in the Testing Environment tab and it's set down in front of you. Only Gnash and Grizzle can pilot it for now.</li><li>Walk up and press F (controller Y) to climb in. Hold F for half a second to climb out, so a stray tap won't throw you out mid-fight.</li><li>It moves where the camera points, with the view from behind and above it so the crosshair sits in the middle of the screen and you can see over its head. On foot it sets off slowly and builds up into a jog, its strides lengthening and its arms swinging, stepping whichever way you're going, backwards and sideways included. Standing still, its legs stay planted as you look around until its body has turned too far on them, then they step round to catch up. Press C (controller B) to switch boost on and it drops into a wide, braced crouch and skates along the ground three times as fast, at no cost. Everything is about a fifth faster than it was.</li><li>Shift (controller X) is a quick boost: a sharp burst in the direction you're holding, or straight back with nothing held, taken in the same braced skating crouch as boosting, then easing off smoothly rather than stopping dead. Each one costs energy.</li><li>Space (controller A) jumps: it dips into a quick crouch, pushes off, tucks its legs up and swings them out beneath it. Holding it flies upward on the thrusters. In the air it leans well into the way it's flying, its legs hang nearly straight, swept back behind it the faster it goes, and its back and calf thrusters tip down to hold it up. With boost on in the air it glides instead of dropping.</li><li>Thrusters run on the energy gauge, a thin bar right across the bottom of the lock box round the crosshair. Empty it and it redlines: the bar flashes red and you can't boost or fly until it recovers. Energy comes back quickly once you stop drawing on it, and faster on the ground.</li><li>It leans into the way it's going, and its thrusters fire from whichever side pushes it there: the back ones going forward, the side ones strafing, the chest ones going backwards. Its legs fold up smoothly as it leaves the ground and its feet stay planted flat, up and down steps too. Skating over a pit, its feet ease over the gap rather than dropping to the bottom. Its thruster flames taper to a point.</li><li>It steps up one-block ledges on foot and two-block ledges while boosting. Run into a wall or a building while boosting and it smashes a hole and carries on; at full boost it ploughs straight through with barely a stumble. Walking into one just stops it. Anything small in its way gets trampled, and a hard landing knocks goblins over.</li><li>It's armed, with a weapon on each trigger. Each has its own load and reloads by itself once it's empty. Above the speedometer, in the bottom corner, each weapon's button, what it has loaded and its name are laid out as they're carried (shoulders above, arms below), in a panel that keeps the same size whatever it says, and up either side of the lock box round the crosshair a tall gauge for each weapon shows how full it is, or how far along its reload is. The gauges and the energy bar are see-through, so they don't hide what you're aiming at: - Right click (controller RB): the Rivet Rifle in its right hand. Hold it for a steady stream of rounds. Its rounds chip at walls: about half the time a round breaks the block it hits. - Left click (controller LB): the Heat Cleaver on its left arm. It lunges forward (at a locked target if one's close, ending with it in reach), easing smoothly off rather than halting, then swings. The lunge adds to however you're already moving, so walking or boosting you keep going through the attack. It reaches across to its right side, its whole upper body turning with it and its right arm lifting out of the way, the blade ignites from its left hand, a flat blade held level, and it whips the blade from right to left in a wide, level arc round in front of it that cuts down goblins, tears into vehicles and slices clean through walls. The swing follows your aim: locked on to something low, or looking down, it bends forward at the hips and slices downward, so it can reach goblins below it and cut into the ground; aimed high it leans back and slices upward. The blade retracts into its hand as it settles back. It needs a moment to cool between swings. - Q (controller LT): the Swarm Pod on its left shoulder. Hold it and the pod locks on to whatever's in the lock box, up to four locks, then let go and a homing missile flies at each. With nothing locked, a tap fires one where you're aiming. - E (controller RT): the Breaker Cannon on its right shoulder. On the ground it stops, braces and swings the cannon over its shoulder before firing a heavy shell that blasts a crater. In the air it fires at once and the kick shoves it backwards. It sits up on a post, so firing low it clears the Gear's own chest.</li><li>Lock-on: anything in the box round the crosshair is picked out by itself, and the rifle and blade aim at it, leading a moving target. Middle click (controller R3) holds on to it with a hard lock, and the camera turns to keep it in view while you move round it. Press it again to let go.</li><li>It has 600 health. Wreck it and you're thrown out.</li><li>X (controller L3) is the assault boost. It crouches and glows for a moment with a rising whine, then dashes off fast straight where you're aiming, up or down too, turning only slowly after your aim. Its weapons still fire on the way. It costs a chunk of energy to start and keeps drawing on it, and it smashes straight through walls. Press it again, or pull back, to stop.</li><li>Press it again near the target you're locked on to and it flies at it with a kick instead: not much damage, but it'll nearly always stagger what it hits.</li><li>Staggering: every hit fills a target's impact meter, which drains again once the hits stop. A full meter staggers it for 2 seconds: it can't move or shoot, and takes half again as much damage. Heavy blows (the kick, the Breaker Cannon, the Heat Cleaver) fill it faster. Tanks, helicopters and the Mobile Gear itself can all be staggered.</li><li>Your own impact meter is the thinner bar under the energy bar, with STAGGERED flashing under it while you are. A locked tank or helicopter shows its health and its impact meter under its bracket.</li><li>R (controller D-pad down) uses a repair kit, putting back 35% of its health over a second. Each Mobile Gear carries three, and the controls list on the left says how many are left.</li><li>Co-op: each player can climb into a Mobile Gear of their own, and two of them bump into each other rather than walking through.</li><li>Online: a guest sees the host's Mobile Gears move, stride, fire their thrusters and swing their weapons, and can climb in and pilot one, with its own display.</li><li>Redlined, its thrusters cough and sputter until the energy comes back.</li><li>Its thrusters make a steady roar while they burn, instead of a string of clicks. It's quiet, and swells and dies away with the flames.</li><li>It gets going quicker from a standstill, and no longer gets stuck walking slowly into a step or a ledge (it used to end up wedged in it, and only a jump or a quick boost got it free).</li><li>Its lock-on picks out tanks, helicopters, an aircraft carrier's deck weapons and its jets in the air twice as far off as goblins, and holds a lock on them that far too.</li><li>Pick its loadout in the Testing Environment tab, under "Mobile Gear loadout": each of its four weapon slots has a second choice. The left arm can carry a second Rivet Rifle instead of the Heat Cleaver; the right arm a Scrap Shotgun (a spread of pellets, short-ranged and hard-hitting); the left shoulder a Rocket Volley (a stream of unguided rockets, no locking needed); and the right shoulder a Clod Lobber (shells lobbed high on to whatever you aim at, more of them than the cannon and no bracing). Your choice is remembered, and only Mobile Gears spawned after it carry it.</li><li>Its controls can be rebound in Options, in their own "Piloting a Mobile Gear" section. The weapon buttons are now named by slot (left arm, right shoulder and so on), since the loadout decides what's in each.</li><li>Mobile Gears aren't kept when you leave the Testing Environment.</li><li>While you're piloting, the controls line for on foot is hidden.</li><li>Getting into any vehicle or gun seat no longer pops up a card of its controls on the right: they're all in the list down the left, including a helicopter's climb and drop, flying a plane, and the fire buttons.</li><li>The Mobile Gear is now solid against boats (it used to walk straight through them) and every other vehicle, and can stand on any of them: a boat, a train, a plane, a tank, another Mobile Gear. Stood on something that moves, it's carried along.</li><li>Its guns now fire from the ends of their barrels wherever the arms happen to be pointing, and the arms swing round smoothly on to what they're aiming at instead of snapping between positions.</li><li>A small diamond on the screen shows where each gun arm is pointing right now, as a tank's does for its cannon, so you can see the arm come on to the crosshair or the lock.</li><li>Its thrusters are a little louder.</li><li>Every vehicle can now be driven. Subway trains: climb in at a station and drive one round its loop, forwards or back. A rowboat pulled up on the beach, or a ship in a dry dock, is pushed off into the nearest open water as you climb in.</li></ul>
 <h3>Goblin loadout</h3>
 <ul><li>Playing as Gnash or Grizzle, the Character tab now shows a Loadout in place of the hippos' abilities: pick which weapons he starts with (club, dagger, handgun, rifle) and how many grenades, from none to 9.</li><li>At first it's as before: just the club and no grenades. He always keeps at least one weapon, and anything else you can still take off the enemies you kill.</li><li>Each player has their own loadout, kept between visits, and in split screen player two picks theirs from their own pause menu. Gnash and Grizzle share it, as they share everything else.</li><li>Changing it while playing re-arms your goblin at once.</li><li>New weapon: the Fireball Spellbook. Cultists carry it now, an open book in one hand, and conjure their fireballs out of the other. Kill one as Gnash or Grizzle and it drops the book; pick it up, or choose it in the Loadout. Once you have the book, cultists drop their ritual dagger instead. Left click (controller RB) conjures a fireball in your free hand for a moment, then hurls it where you're aiming, bending gently after the nearest enemy (or another player, with PvP on). It's slow to come again, about three seconds, and does the same damage as a cultist's.</li><li>An enemy you kill now drops the first weapon it carries that you haven't got yet, rather than nothing once you have its first one.</li><li>Fireballs now burst on a vehicle in their way and damage it, as bullets do, instead of flying straight through.</li></ul>
+<h3>New weapons and reloading</h3>
+<ul><li>Seven new weapons for Gnash and Grizzle, each in the Loadout and dropped by any enemy that carries one: - Katana: a quick, wide cut from high on the right down across to the left, wide enough to catch two goblins side by side. - Large Club: heaved up over the shoulder, held at the top for a beat, then slammed into the ground in front of you. Slow, but it hits hard, dents cars badly and shakes the ground. - Shotgun: eight pellets a shot, brutal close up and little use far off. The pump racks back and forward after every shot. - Assault Rifle: hold the button and it keeps firing. The view climbs a little with each shot, so pull it back down. - Sniper Rifle: one heavy round at a time, from much further than anything else, with the bolt worked between shots. - Bazooka: a rocket off the shoulder that bursts on whatever it meets, goblins, vehicles or walls, knocking out a crater. One shot, then a slow reload. - Landmines: carried as a pile, like grenades (pick how many in the Loadout, up to 6). Hold them in hand and attack to crouch and press one into the ground just ahead. It arms after a second, blinking red, then goes off under the first enemy or vehicle over it, never under you.</li><li>Guns now have magazines and reload. The handgun holds 8, the rifle 5, the shotgun 6, the assault rifle 30, the sniper rifle 5 and the bazooka 1. X (controller D-pad down) reloads; firing the last round, or attacking with it empty, reloads by itself. Switching weapons stops a reload, and each gun keeps what's left in it. The weapon bar shows the rounds left and when it's reloading.</li><li>Reloads are animated in your own view (the magazine dropped out and a new one slapped in, shells pushed in one by one, the rocket slid into the tube) and on your goblin as the others see him.</li><li>Enemies reload too: police officers, militia, preppers, soldiers, sailors and marines stop to change magazines once they've emptied their guns. One that also carries a blade or club drops the reload to fight you if you come close.</li><li>None of the enemies carry the new weapons yet, but any of them can: an assault rifle is fired in bursts of four, a shotgun's pellets and a bazooka's rockets come at you as they do from yours, and one carrying landmines kneels to plant them in your path.</li><li>Melee weapons now each have their own wind-up and follow-through on the enemies who swing them, so a heavy weapon's blow is slower to come and slower to recover from.</li></ul>
 <h3>PvP</h3>
 <ul><li>A new PvP switch in Options, off unless you turn it on. With it on, players can fight each other, in split screen or online, whoever they're playing as.</li><li>Lock on to another player as you would a goblin, on foot, from a tank or helicopter, or with a Mobile Gear's lock box, and its missiles home in on them. A player in a vehicle is locked on as the vehicle.</li><li>Every attack lands on other players: bites and uppercuts, stomps, ground pounds, ground spikes, trampling, rolls, dashes, blast dashes and blast long jumps, and Gnash's club, dagger, guns and grenades. A hippo's blows hit another player for about a third of what they do to a goblin, so a fight lasts a while.</li><li>Vehicles too: run another player down in a car or a tank, shoot them with a tank's or helicopter's guns, shells and rockets, or with a Mobile Gear's rifle, blade, missiles and cannon (it tramples them as well).</li><li>A player killed by another is told who did it, the winner scores 500 points, and the obituaries name the killer. You get up again as usual.</li><li>Online, the host's switch decides for everyone. A guest's PvP switch shows the host's choice and can't be changed.</li></ul>
 <h3>Vehicle controls</h3>
-<ul><li>In every vehicle, its controls are listed down the left side of the screen, one to a line, instead of along the bottom. The controls line for on foot is hidden while you drive.</li><li>Every kind of vehicle has its own set of controls, each with its own section in Controls to rebind: cars and trucks, the forklift, the tractor, the tank, the helicopter, planes, boats and ships, trains and the hot-air balloon, as the Mobile Gear already had. Keys only clash within the same set, so the same key can do different things in different vehicles. Steering and the throttle are still the walking keys and the left stick; Get in / out, Lock on and the online chat keys work everywhere.</li><li>On a controller, the triggers are now an analog throttle and brake in cars: squeeze RT to go, LT to brake and reverse.</li><li>Planes: on the keyboard the throttle is now Left Shift and C (Space is the brakes); on a controller RT and LT. Lock on in a plane is the middle mouse button (R3), so Q and E are free for the rudder.</li><li>Tanks fire with RT on a controller, helicopters fire their gun with RT and rockets with LT, and LB and RB descend and climb.</li><li>Options: the Speedometer switch is now Vehicle instruments.</li><li>Every vehicle has instruments of its own in the bottom-right corner in place of the one speedometer: a dashboard with a rev counter for cars, a digital display that shows the lean on motorcycles, a truck dial with an air-pressure gauge, a fan and slip gauge on the hovercraft, the mast height, tilt and tip risk on the forklift, the gear range and implement on the tractor, a turret and hull compass on the tank, an artificial horizon with height and airspeed on the helicopter, round dials in the two-seater, a glass cockpit display in the airliner, an engine telegraph and rudder on boats and ships, oars on the rowing boat, a brake and power lever on trains and the wind at each height in the balloon. The fighter jet's display is drawn over the whole view, like a real head-up display.</li><li>Speeds are in km/h on land and knots on the water and in the air.</li><li>The forklift's forks work. Hold Space to raise them and C to lower them (RB and LB on a controller), and hold Left Shift (X) with either to tilt the mast. Raise them under a crate, a goblin or a light car and it comes up with you. Lower it on to anything, a ledge, a roof or the ground, and it's set down there. Drive at a goblin with the forks up and they spear it. The forklift steers with its back wheels, so it turns almost on the spot with its tail swinging wide, and it beeps when it reverses. Take a sharp turn with a load held high and it tips over on its side, throwing you out; get back in to rock it back on to its wheels.</li><li>The tractor has a hand throttle: R steps it up through low, middle and high, Left Shift steps it down (D-pad right and down on a controller), and it holds that speed with nothing pressed. Braking knocks it off.</li><li>The tractor carries a plough or a mower on its hitch (right click, or LB, swaps them). Lower it with Space (RB). The plough turns grass to dirt behind you and flings goblins aside; the mower makes short work of any goblin it catches. Both cut down flowers and slow the tractor while they work. An empty hitch lowered on a road scrapes and throws sparks.</li><li>Cars, vans, trucks and motorcycles now slide: where you're going only comes round to where you point as fast as the tyres grip, and they grip less on grass, sand, snow and ice. Steering eases off at speed, so changing lanes on the motorway is steadier. On the keyboard the throttle comes on over a moment rather than all at once.</li><li>Space (RB) is the handbrake. Hold it through a turn above about 25 km/h to drift: sparks fly off the back tyres as a charge builds in three stages, yellow, orange and red, shown round the speedometer. Let go for a boost of half a second, a second and a bit, or two seconds. Lorries, buses, trucks and fire engines are too heavy to drift: they just slide and slow down.</li><li>Right click (LB) is each vehicle's own special: a car flashes its headlights, dazzling goblins in front for a moment; a supercar burns nitro, which drifting fills back up; a motorcycle pulls a wheelie (with the throttle) or a stoppie; a four-wheeler or technical hops when you let go; a van, pickup, news van or motorhome puts its hazard lights on; a truck, lorry or bus works its air brakes; and a police car, ambulance or fire engine turns its siren on, and the traffic pulls over to let you by.</li><li>Supercar launch control: hold the handbrake and the throttle at a standstill, then let the handbrake go for a perfect start.</li><li>Hold C (click the right stick) to look behind you.</li><li>In the air, A and D still turn a car and W and S tip its nose, so you can straighten it up before you land.</li><li>Crash a motorcycle into a wall fast enough and you go flying off it.</li><li>The plane's throttle and the ship's engine order and rudder are now shown on their instruments rather than in the list of controls.</li><li>Planes fly properly in three dimensions now: roll right round, loop, fly upside down and knife-edge. Pull too hard when slow and the wing stalls, the nose drops and a wing goes down with it.</li><li>Two ways to fly, picked in Options under Plane controls: Mouse-aim (point the camera where you want to go and the plane rolls and pulls itself there, keeping out of stalls and off the ground; W and S are the throttle, A and D roll by hand, hold X to look round without turning) and Direct (W and S pitch, A and D roll, Left Shift and C the throttle, Q and E the rudder; on a controller the left stick, RT and LT the throttle, LB and RB the rudder). Auto picks Mouse-aim on a mouse and Direct on a controller. Let go of the stick in Direct and the wings come level and the plane holds its height.</li><li>Space is the wheel brakes on the ground and the airbrake in the air. R raises and lowers the undercarriage (the jet's R is still its hook). Land with the gear up and you slide in on the belly: you'll walk away, but that plane won't fly again.</li><li>The two-seater rolls quickly and loops easily, and right click turns on a smoke trail for skywriting.</li><li>The airliner is heavy and turns wide. Right click switches on the autopilot, which holds your height and heading (with a chime); touch the stick and it lets go. Pull it too hard and the wings creak, then start to give.</li><li>The fighter jet rolls fast and holds its speed through turns. Hold Left Shift at full throttle for the afterburner, until it overheats; tap A or D twice for a barrel roll; pull hard and the edges of the view grey out.</li><li>Tanks are heavy now: they take a moment to get going and to stop. A and D turn them on their tracks, spinning on the spot when standing still, with the turns widening as they pick up speed.</li><li>Left Shift (controller left stick click) steps the tank's cruise through slow, half and full, and it keeps going at that speed with nothing pressed. S knocks it off.</li><li>The tank's aim spreads while it moves or the turret swings, shown by the crosshair growing, and settles about a second after it stops. A ring round the crosshair fills as the gun reloads.</li><li>R (D-pad right) swaps the tank's shells: HE blows a wide crater, AP punches a narrow tunnel deep through walls and does twice the damage to vehicles.</li><li>Hold right click (LT) for the tank's gunsight: the view from the turret, zoomed in, with range marks. C (LB) is hull lock, holding the turret straight ahead so you can look round without it swinging.</li><li>A tank's hull tilts with the ground it's on, over ramps and rubble.</li><li>Helicopters have weight: they tip into a move before the speed builds, and let go they flare nose-up and settle into a hover.</li><li>R (D-pad right) switches a helicopter to Agile flying: W and S are the collective (climb and sink), A and D the pedals (it turns on the spot, the camera turning with it), and pointing the camera tilts it, so you can strafe sideways and pull pedal turns. R again goes back to Simple.</li><li>Starting a helicopter, the rotor spools up with a rising whine before it'll lift off.</li><li>Brought down to a quarter of its health, a helicopter's engine fails and it autorotates: it sinks, turning slowly, but you can still steer it, and holding Space near the ground flares it into a rough landing you'll survive if you aren't coming down too fast. The instrument shows ENGINE OUT.</li><li>The main rotor is a weapon: brush it against goblins on a roof and it minces them. Clip a wall and it chips blocks out, but it hurts the helicopter too.</li><li>A boat's throttle has notches now: tap W or S to step between astern, stop, slow, half and full (or hold to sweep through them), and it stays where you leave it while you look round. The triggers step it on a controller.</li><li>Boats ride waves that grow with the wind, and lean into their turns. Speedboats and launches plane at speed: the bow lifts, they go faster, and cresting a wave throws them into the air.</li><li>Space drops the anchor: under way, the boat stops hard and swings round on it. The aircraft carrier and the barge have an anchor too.</li><li>The rowboat is rowed: left and right click pull each oar. Both together go straight, one alone turns it, and a steady rhythm goes faster. The pedalo is pedalled with W (faster tapped in rhythm) and steered with A and D.</li><li>Right click is each boat's own special: a speedboat's boost, a launch's or ferry's horn blast that scatters goblins, the sailboat's boom swinging across to knock goblins overboard, the trawler's net hauling in swimming goblins, the tug's push mode for shoving moored boats about, the patrol boat's deck gun and the pedalo's bell.</li><li>There's a wind now, slowly wandering round and stronger in storms. The sailboat goes fastest across it.</li><li>Trains are driven with one lever: tap W for more power and S for more brake (five notches each way, or hold to sweep through them), and it stays where you leave it, so you can look round freely. A train carries its weight: it gathers speed slowly and takes real distance to stop. Space throws the emergency brake.</li><li>The reverser (R) sets forward, neutral or reverse, but only once the train has stopped.</li><li>Every bend has a safe speed, and the instrument shows the next one coming up. Take it too fast and the wheels squeal; far too fast and the train comes off the rails.</li><li>Left click sounds the horn (hold it for a long blast) and right click rings the bell. Subway trains use the same lever.</li><li>The hot-air balloon is steered by the wind now. There are four layers of it, by height (surface, low, middle and high), each blowing its own way and harder the higher you go: climb or sink into the one going where you want. Its instrument shows each layer's direction and which one you're in. The movement keys only trim the drift a little.</li><li>The burner warms the envelope a moment behind, so start a climb early.</li><li>Right click drops a sandbag: the balloon lifts a little, and the bag flattens any goblin it lands on. You have six.</li><li>Left click lets down a rope. Hostile goblins grab it and climb up (three at most), weighing the balloon down, and any that reach the basket tear at it. Pull the rope up to shake off the ones still climbing. Another player can climb the rope too, holding climb.</li><li>The Mobile Gear has its own instrument: a futuristic speed ring, its segments filling with speed, with a tag for what it's doing (walking, skating, in the air, assault boosting, or redlined with its energy gone), its climb rate, its height and a pip for each quick boost its energy will pay for.</li></ul>
+<ul><li>In every vehicle, its controls are listed down the left side of the screen, one to a line, instead of along the bottom. The controls line for on foot is hidden while you drive.</li><li>Every kind of vehicle has its own set of controls, each with its own section in Controls to rebind: cars and trucks, the forklift, the tractor, the tank, the helicopter, planes, boats and ships, trains and the hot-air balloon, as the Mobile Gear already had. Keys only clash within the same set, so the same key can do different things in different vehicles. Steering and the throttle are still the walking keys and the left stick; Get in / out, Lock on and the online chat keys work everywhere.</li><li>On a controller, the triggers are now an analog throttle and brake in cars: squeeze RT to go, LT to brake and reverse.</li><li>Planes: on the keyboard the throttle is now Left Shift and C (Space is the brakes); on a controller RT and LT. Lock on in a plane is the middle mouse button (R3), so Q and E are free for the rudder.</li><li>Tanks fire with RT on a controller, helicopters fire their gun with RT and rockets with LT, and LB and RB descend and climb.</li><li>Options: the Speedometer switch is now Vehicle instruments.</li><li>Every vehicle has instruments of its own in the bottom-right corner in place of the one speedometer: a dashboard with a rev counter for cars, a digital display that shows the lean on motorcycles, a truck dial with an air-pressure gauge, a fan and slip gauge on the hovercraft, the mast height, tilt and tip risk on the forklift, the gear range and implement on the tractor, a turret and hull compass on the tank, an artificial horizon with height and airspeed on the helicopter, round dials in the two-seater, a glass cockpit display in the airliner, an engine telegraph and rudder on boats and ships, oars on the rowing boat, a brake and power lever on trains and the wind at each height in the balloon. The fighter jet's display is drawn over the whole view, like a real head-up display.</li><li>Speeds are in km/h on land and knots on the water and in the air.</li><li>The forklift's forks work. Hold Space to raise them and C to lower them (RB and LB on a controller), and hold Left Shift (X) with either to tilt the mast. Raise them under a crate, a goblin or a light car and it comes up with you. Lower it on to anything, a ledge, a roof or the ground, and it's set down there. Drive at a goblin with the forks up and they spear it. The forklift steers with its back wheels, so it turns almost on the spot with its tail swinging wide, and it beeps when it reverses. Take a sharp turn with a load held high and it tips over on its side, throwing you out; get back in to rock it back on to its wheels.</li><li>Lifting a car on the forklift no longer sends it sliding backwards: the car and the forklift were shoving each other apart every moment. A car on the forks now stays put and the forklift drives off with it.</li><li>The forklift can lift players too. Stand on the forks, as Gus, Gertie, Gnash or Grizzle, while someone raises them and up you go, carried along as it drives. The instruments show who's on board (a hippo weighs more than a car, so mind the tip risk). Step or jump off whenever you like.</li><li>Theme park rides and zoo animals have health bars (Options' Health bars), like every other vehicle: each coaster car, the Ferris wheel and each of its gondolas, the carousel, and every animal.</li><li>The tractor has a hand throttle: R steps it up through low, middle and high, Left Shift steps it down (D-pad right and down on a controller), and it holds that speed with nothing pressed. Braking knocks it off.</li><li>The tractor carries a plough or a mower on its hitch (right click, or LB, swaps them). Lower it with Space (RB). The plough turns grass to dirt behind you and flings goblins aside; the mower makes short work of any goblin it catches. Both cut down flowers and slow the tractor while they work. An empty hitch lowered on a road scrapes and throws sparks.</li><li>Cars, vans, trucks and motorcycles now slide: where you're going only comes round to where you point as fast as the tyres grip, and they grip less on grass, sand, snow and ice. Steering eases off at speed, so changing lanes on the motorway is steadier. On the keyboard the throttle comes on over a moment rather than all at once.</li><li>Space (RB) is the handbrake. Hold it through a turn above about 25 km/h to drift: sparks fly off the back tyres as a charge builds in three stages, yellow, orange and red, shown round the speedometer. Let go for a boost of half a second, a second and a bit, or two seconds. Lorries, buses, trucks and fire engines are too heavy to drift: they just slide and slow down.</li><li>Right click (LB) is each vehicle's own special: a car flashes its headlights, dazzling goblins in front for a moment; a supercar burns nitro, which drifting fills back up; a motorcycle pulls a wheelie (with the throttle) or a stoppie; a four-wheeler or technical hops when you let go; a van, pickup, news van or motorhome puts its hazard lights on; a truck, lorry or bus works its air brakes; and a police car, ambulance or fire engine turns its siren on, and the traffic pulls over to let you by.</li><li>Supercar launch control: hold the handbrake and the throttle at a standstill, then let the handbrake go for a perfect start.</li><li>Hold C (click the right stick) to look behind you.</li><li>In the air, A and D still turn a car and W and S tip its nose, so you can straighten it up before you land.</li><li>Crash a motorcycle into a wall fast enough and you go flying off it.</li><li>The plane's throttle and the ship's engine order and rudder are now shown on their instruments rather than in the list of controls.</li><li>Planes fly properly in three dimensions now: roll right round, loop, fly upside down and knife-edge. Pull too hard when slow and the wing stalls, the nose drops and a wing goes down with it.</li><li>Two ways to fly, picked in Options under Plane controls: Mouse-aim (point the camera where you want to go and the plane rolls and pulls itself there, keeping out of stalls and off the ground; W and S are the throttle, A and D roll by hand, hold X to look round without turning) and Direct (W and S pitch, A and D roll, Left Shift and C the throttle, Q and E the rudder; on a controller the left stick, RT and LT the throttle, LB and RB the rudder). Auto picks Mouse-aim on a mouse and Direct on a controller. Let go of the stick in Direct and the wings come level and the plane holds its height.</li><li>Space is the wheel brakes on the ground and the airbrake in the air. R raises and lowers the undercarriage (the jet's R is still its hook). Land with the gear up and you slide in on the belly: you'll walk away, but that plane won't fly again.</li><li>The two-seater rolls quickly and loops easily, and right click turns on a smoke trail for skywriting.</li><li>The airliner is heavy and turns wide. Right click switches on the autopilot, which holds your height and heading (with a chime); touch the stick and it lets go. Pull it too hard and the wings creak, then start to give.</li><li>The fighter jet rolls fast and holds its speed through turns. Hold Left Shift at full throttle for the afterburner, until it overheats; tap A or D twice for a barrel roll; pull hard and the edges of the view grey out.</li><li>Tanks are heavy now: they take a moment to get going and to stop. A and D turn them on their tracks, spinning on the spot when standing still, with the turns widening as they pick up speed.</li><li>Left Shift (controller left stick click) steps the tank's cruise through slow, half and full, and it keeps going at that speed with nothing pressed. S knocks it off.</li><li>The tank's aim spreads while it moves or the turret swings, shown by the crosshair growing, and settles about a second after it stops. A ring round the crosshair fills as the gun reloads.</li><li>R (D-pad right) swaps the tank's shells: HE blows a wide crater, AP punches a narrow tunnel deep through walls and does twice the damage to vehicles.</li><li>Hold right click (LT) for the tank's gunsight: the view from the turret, zoomed in, with range marks. C (LB) is hull lock, holding the turret straight ahead so you can look round without it swinging.</li><li>A tank's hull tilts with the ground it's on, over ramps and rubble.</li><li>Helicopters have weight: they tip into a move before the speed builds, and let go they flare nose-up and settle into a hover.</li><li>R (D-pad right) switches a helicopter to Agile flying: W and S are the collective (climb and sink), A and D the pedals (it turns on the spot, the camera turning with it), and pointing the camera tilts it, so you can strafe sideways and pull pedal turns. R again goes back to Simple.</li><li>Starting a helicopter, the rotor spools up with a rising whine before it'll lift off.</li><li>Brought down to a quarter of its health, a helicopter's engine fails and it autorotates: it sinks, turning slowly, but you can still steer it, and holding Space near the ground flares it into a rough landing you'll survive if you aren't coming down too fast. The instrument shows ENGINE OUT.</li><li>The main rotor is a weapon: brush it against goblins on a roof and it minces them. Clip a wall and it chips blocks out, but it hurts the helicopter too.</li><li>A boat's throttle has notches now: tap W or S to step between astern, stop, slow, half and full (or hold to sweep through them), and it stays where you leave it while you look round. The triggers step it on a controller.</li><li>Boats ride waves that grow with the wind, and lean into their turns. Speedboats and launches plane at speed: the bow lifts, they go faster, and cresting a wave throws them into the air.</li><li>Space drops the anchor: under way, the boat stops hard and swings round on it. The aircraft carrier and the barge have an anchor too.</li><li>The rowboat is rowed: left and right click pull each oar. Both together go straight, one alone turns it, and a steady rhythm goes faster. The pedalo is pedalled with W (faster tapped in rhythm) and steered with A and D.</li><li>Right click is each boat's own special: a speedboat's boost, a launch's or ferry's horn blast that scatters goblins, the sailboat's boom swinging across to knock goblins overboard, the trawler's net hauling in swimming goblins, the tug's push mode for shoving moored boats about, the patrol boat's deck gun and the pedalo's bell.</li><li>There's a wind now, slowly wandering round and stronger in storms. The sailboat goes fastest across it.</li><li>Trains are driven with one lever: tap W for more power and S for more brake (five notches each way, or hold to sweep through them), and it stays where you leave it, so you can look round freely. A train carries its weight: it gathers speed slowly and takes real distance to stop. Space throws the emergency brake.</li><li>The reverser (R) sets forward, neutral or reverse, but only once the train has stopped.</li><li>Every bend has a safe speed, and the instrument shows the next one coming up. Take it too fast and the wheels squeal; far too fast and the train comes off the rails.</li><li>Left click sounds the horn (hold it for a long blast) and right click rings the bell. Subway trains use the same lever.</li><li>The hot-air balloon is steered by the wind now. There are four layers of it, by height (surface, low, middle and high), each blowing its own way and harder the higher you go: climb or sink into the one going where you want. Its instrument shows each layer's direction and which one you're in. The movement keys only trim the drift a little.</li><li>The burner warms the envelope a moment behind, so start a climb early.</li><li>Right click drops a sandbag: the balloon lifts a little, and the bag flattens any goblin it lands on. You have six.</li><li>Left click lets down a rope. Hostile goblins grab it and climb up (three at most), weighing the balloon down, and any that reach the basket tear at it. Pull the rope up to shake off the ones still climbing. Another player can climb the rope too, holding climb.</li><li>The Mobile Gear has its own instrument: a futuristic speed ring, its segments filling with speed, with a tag for what it's doing (walking, skating, in the air, assault boosting, or redlined with its energy gone), its climb rate, its height and a pip for each quick boost its energy will pay for.</li></ul>
 <h3>Map markers</h3>
 <ul><li>Mark a spot on the map: click it on the pause menu's Map tab (tap it on a touch screen; on a controller, pan the crosshair over it and press Y). A pin goes there and shows on your minimap too, or, while it's off the minimap's edge, an arrow on the rim points the way with how far it is. Click the pin again to take it away, or somewhere else to move it.</li><li>In split screen each player has a marker of their own, set from their own pause menu and shown on their own minimap, in their own colour. Markers are kept for each world.</li></ul>
 <h3>Enemy hostility: Pacifist</h3>
@@ -1923,7 +1925,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='4d77a22675b6';
+const GAME_VER='0.5',GAME_BUILD='81fee6771979';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -10511,8 +10513,9 @@ function carTop(p){
     const cs=Math.sin(c.heading),ck=Math.cos(c.heading);
     for(const [a,b] of ptsOf(p)){
       const dx=p.pos.x+a*k+b*s-c.pos.x,dz=p.pos.z-a*s+b*k-c.pos.z,la=dx*ck-dz*cs,lb=dx*cs+dz*ck;
-      if(Math.abs(la)>c.hx*1.05||Math.abs(lb)>c.hz*1.03)continue;
-      const top=c.pos.y+VEH[c.veh].roof(lb/ES)*ES;
+      // (a forklift's forks reach out past its front, and stand as high as they've been raised)
+      const fk=c.veh==='forklift'&&lb>0.6*ES;if(Math.abs(la)>c.hx*1.05||Math.abs(lb)>(fk?FORK.f1+0.1:c.hz*1.03))continue;
+      const top=fk?Math.max(c.pos.y+0.4*ES,forkTop(c)):c.pos.y+VEH[c.veh].roof(lb/ES)*ES;
       if(top<=p.pos.y+(p.vy<0&&!p.grounded?1.1:0.35)&&(best===null||top>best)){best=top;bc=c;}
     }
   }
@@ -10937,7 +10940,7 @@ const BITE_SOLO_CD=0.85;   // seconds from one bite to the next with the combo s
 // one cooldown shared by every bite, on the ground or in the air: biting in either puts the other on hold too
 function gusBite(p){
   if(p.biteT>0||p.state!=='walk'||!playing||!p.active||(p.biteCD||0)>0)return;
-  if(p.gob){const W=gobW(p);p.biteStep=-1;p.comboWin=0;p.biteDur=W.dur;p.biteT=W.dur;p.lungeT=W.lunge;p.biteHit=true;p.biteCD=W.cd;gobPressSnd(p);return;}
+  if(p.gob){if(!gobReady(p))return;const W=gobW(p);p.biteStep=-1;p.comboWin=0;p.biteDur=W.dur;p.biteT=W.dur;p.lungeT=W.lunge;p.biteHit=true;p.biteCD=W.cd;gobPressSnd(p);return;}
   // no aim assist: the bite goes exactly where he's facing (lock-on is how to aim at someone)
   // in the air: a single snap, no combo
   if(!p.grounded){if((p.airBiteCD||0)>0)return;hbStart(p,'airBite');p.airBiteCD=1.0;p.biteCD=BITE_SOLO_CD;p.biteStep=-1;p.comboWin=0;p.biteDur=0.3;p.biteT=0.3;p.lungeT=0.16;p.lurch={t:0,dur:Math.max(0.05,AB.airBite.dist/Math.max(0.1,AB.airBite.speed)),dist:AB.airBite.dist};p.biteHit=true;sfx('Air bite',()=>{tone('triangle',150,260,0.1,0.06);woosh(0.12,0.2,600,1900);});return;}
@@ -11445,7 +11448,7 @@ function wallFrame(p){const d=p.climbD,r=p.climbRoll||0,s=Math.sin(r);return{d,c
 function wallBite(p){
   if(p.biteT>0||(p.biteCD||0)>0)return;
   // (Gnash: whatever's in his hand, with its own timing)
-  if(p.gob){const W=gobW(p);p.biteStep=-1;p.comboWin=0;p.biteDur=W.dur;p.biteT=W.dur;p.lungeT=W.lunge;p.biteHit=true;p.biteCD=W.cd;p.wallBite=true;gobPressSnd(p);return;}
+  if(p.gob){if(!gobReady(p))return;const W=gobW(p);p.biteStep=-1;p.comboWin=0;p.biteDur=W.dur;p.biteT=W.dur;p.lungeT=W.lunge;p.biteHit=true;p.biteCD=W.cd;p.wallBite=true;gobPressSnd(p);return;}
   p.biteStep=-1;p.comboWin=0;p.biteDur=0.38;p.biteT=0.38;p.lungeT=0.26;p.biteHit=true;p.biteCD=BITE_SOLO_CD;p.wallBite=true;
   sfx('Bite',()=>{woosh(0.13,0.22,520,1700,0.1);tone('triangle',150,260,0.08,0.06,0.28);});
 }
@@ -11641,19 +11644,22 @@ function gobKit(p){
   const box=(w,h,d,c,x,y,z,o,to=arm)=>{const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c));b.position.set(x,y,z);b.renderOrder=o;b.frustumCulled=false;to.add(b);};
   box(0.11,0.11,0.42,GC.skin,0,0,-0.2,60);
   // (one of these in the hand at a time: see gob-weapons.js)
-  const held={};for(const k of GOB_WPN_ORDER){held[k]=new THREE.Group();arm.add(held[k]);held[k].visible=k==='club';}
-  for(const k of GOB_WPN_ORDER)wpnBoxes(WEAPONS[k].model.view,(w,h,d,c,x,y,z,o)=>box(w,h,d,c,x,y,z,o,held[k]));   // (each in your own view: WEAPONS)
+  // (a box with a tag, a magazine, a rocket, a bolt, a pump or a slide, goes in a group of its own for that tag, so it can
+  // be moved on its own in a reload or between shots: tags[weapon][tag])
+  const held={},tags={};for(const k of GOB_WPN_ORDER){held[k]=new THREE.Group();arm.add(held[k]);held[k].visible=k==='club';tags[k]={};}
+  const tagG=(k,t)=>{if(!t)return held[k];if(!tags[k][t]){const g=new THREE.Group();held[k].add(g);tags[k][t]=g;}return tags[k][t];};
+  for(const k of GOB_WPN_ORDER)wpnBoxes(WEAPONS[k].model.view,(w,h,d,c,x,y,z,o,t)=>box(w,h,d,c,x,y,z,o,tagG(k,t)));   // (each in your own view: WEAPONS)
   // (and the other arm coming in from the bottom left, its hand under the rifle's barrel or wrapped round the handgun's
   // grip, as the others see him hold them: a forearm from S, off the edge of the picture, to the hand at P)
   const fore=(P,S,to)=>{const d=[S[0]-P[0],S[1]-P[1],S[2]-P[2]],L=Math.hypot(...d),b=new THREE.Mesh(new THREE.BoxGeometry(0.11,0.11,L),mat(GC.skin));
     b.position.set((P[0]+S[0])/2,(P[1]+S[1])/2,(P[2]+S[2])/2);b.rotation.order='YXZ';b.rotation.set(-Math.asin(d[1]/L),Math.atan2(d[0],d[2]),0);b.renderOrder=60;b.frustumCulled=false;to.add(b);};
-  for(const k of GOB_WPN_ORDER){const F=WEAPONS[k].model.fore;if(F)fore(F[0],F[1],held[k]);}
+  for(const k of GOB_WPN_ORDER){const F=WEAPONS[k].model.fore;if(F)fore(F[0],F[1],tagG(k,WEAPONS[k].model.foreTag));}   // (on the pump, it racks with it)
   // (a spell's fireball, growing in the free hand while it's conjured: in his own view at the other hand, and in the
   // left hand of the goblin the others see)
   const orbM=new THREE.MeshBasicMaterial({color:0xff8a20,transparent:true,depthTest:false,depthWrite:false}),orb=new THREE.Mesh(new THREE.BoxGeometry(0.2,0.2,0.2),orbM);orb.renderOrder=63;orb.frustumCulled=false;orb.visible=false;
   {const sk=GOB_WPN_ORDER.find(k=>WEAPONS[k].kind==='spell'),F=sk&&WEAPONS[sk].model.fore;if(F){orb.position.set(F[0][0],F[0][1]+0.1,F[0][2]);held[sk].add(orb);}}
   const torb=new THREE.Mesh(new THREE.BoxGeometry(0.24,0.24,0.24),new THREE.MeshBasicMaterial({color:0xff7a1a}));torb.position.set(0,-0.46,0.04);torb.visible=false;m.armL.add(torb);
-  return p.gb={root,m,vm,arm,held,tp,orb,torb};
+  return p.gb={root,m,vm,arm,held,tags,tp,orb,torb};
 }
 // the first-person view, and the body that goes with it
 // Clinging to a wall he's 0.06 off its face (where a hippo's belly goes), well inside the near plane, so the view went
@@ -11705,14 +11711,17 @@ function gobBodyPose(m,p){
   m.legs[0].rotation.x=walking?sn*0.7:0;m.legs[1].rotation.x=walking?-sn*0.7:0;
   const X=m.atkX||(m.atkX={tw:0,ln:0,lu:0});X.tw=X.ln=X.lu=0;m.arm.rotation.z=0;m.arm.hand.rotation.x=0;m.armL.rotation.x=0;
   if((p.thrS??9)<STRIKE_FT)gobStrike(m,'throw',1+p.thrS/STRIKE_FT,'L');   // (the throw's the instant you press: only its follow-through shows)
-  if(gobGun(wk))m.arm.rotation.x=-Math.PI/2-p.cam.pitch+(p.biteT>0?0.25*Math.max(0,1-sw*4):0);
-  else if(p.biteT>0&&WEAPONS[wk]&&WEAPONS[wk].kind==='spell')gobStrike(m,'cast',gobSwingU(p));   // (the book raised, the ball conjured and hurled, as a cultist's)
-  else if(p.biteT>0)gobStrike(m,wk==='dagger'?'dagger':'club',gobSwingU(p));
+  const W=WEAPONS[wk];
+  // (reloading: the gun lowered and the magazine changed as an enemy does it, its npc.rl)
+  if(gobGun(wk)&&p.relT>0&&p.relW===wk)gobStrike(m,W.npc.rl||'rlMag',2*(1-p.relT/(p.relDur||1)));
+  else if(gobGun(wk))m.arm.rotation.x=-Math.PI/2-p.cam.pitch+(p.biteT>0?0.25*Math.max(0,1-sw*4):0);
+  else if(p.biteT>0&&W&&W.kind==='spell')gobStrike(m,'cast',gobSwingU(p));   // (the book raised, the ball conjured and hurled, as a cultist's)
+  else if(p.biteT>0)gobStrike(m,W&&(W.player.body||W.npc&&W.npc.strike)||'club',gobSwingU(p));   // (each blade or club's own blow, as the enemies strike it; a landmine set down)
   else m.arm.rotation.x=-0.5;
 }
 // a rifle or handgun in his hand: held in both, as the enemies hold theirs (strikes.js), once his root's placed; not while
 // his free arm's coming through after a grenade, dead, or in a vehicle
-function gobGunGrip(m,root,p){const wk=gobArms(p).wpn;if(gobGun(wk)&&p.state!=='dead'&&!p.drv&&!((p.thrS??9)<STRIKE_FT))gunGrip(m,root,wk==='rifle'?'rifle':'pistol');}
+function gobGunGrip(m,root,p){const wk=gobArms(p).wpn;if(gobGun(wk)&&p.state!=='dead'&&!p.drv&&!(p.relT>0)&&!((p.thrS??9)<STRIKE_FT))gunGrip(m,root,WEAPONS[wk].npc.aim||'rifle');}   // (not while reloading: the free hand's busy)
 function gobCamera(p){
   const K=gobKit(p),lie=p.state==='dead'?Math.min(1,p.t*3):0,walking=p.state==='walk'&&p.grounded&&p.lastSp>0.2,sn=Math.sin(p.phase),v=p.visOff;
   p.camHang=(p.camHang||0)+((p.state==='ceil'||(p.state==='piv'&&p.piv&&p.piv.next==='ceil')?1:0)-(p.camHang||0))*0.12;
@@ -11738,9 +11747,31 @@ function gobCamera(p){
   // (a spell: the book held open low in front, the fireball growing at the other hand while it's conjured, gone once hurled)
   {const sp=WEAPONS[wk]&&WEAPONS[wk].kind==='spell',u=sp&&p.biteT>0?gobSwingU(p):0,on=sp&&u>0&&u<1;
     K.orb.visible=on;K.torb.visible=on;if(on){K.orb.scale.setScalar(0.4+u*0.9);K.torb.scale.setScalar(0.4+u*0.9);}}
-  if(WEAPONS[wk]&&WEAPONS[wk].kind==='spell'){const u=p.biteT>0?gobSwingU(p):0,th=u>=1&&u<1.4?Math.max(0,1-(u-1)*2.5):0;K.arm.rotation.x=0.18-0.1*th;K.arm.position.set(0.3,-0.5-up*0.5+bob,-0.56-0.08*th);}
-  else if(gobGun(wk)){const kick=p.biteT>0?Math.max(0,1-sw*4):0,hg=wk==='handgun';K.arm.rotation.x=0.04+(hg?0.32:0.22)*kick;K.arm.position.set(hg?0.26:0.34,(hg?-0.4:-0.46)-up*0.5+bob,-0.5+(hg?0.08:0.12)*kick);}
-  else{const v=strikeAt(wk==='dagger'?'vmDagger':'vmClub',gobSwingU(p));K.arm.rotation.x=v[0]+(walking?sn*0.03:0);K.arm.position.set(v[1],v[2]-up*0.5+bob,v[3]);}
+  if(WEAPONS[wk]&&WEAPONS[wk].kind==='spell'){const u=p.biteT>0?gobSwingU(p):0,th=u>=1&&u<1.4?Math.max(0,1-(u-1)*2.5):0;K.arm.rotation.x=0.18-0.1*th;K.arm.rotation.z=0;K.arm.position.set(0.3,-0.5-up*0.5+bob,-0.56-0.08*th);}
+  else if(gobGun(wk))gobViewGun(p,K,wk,sw,up,bob);
+  else{const sk=WEAPONS[wk]&&WEAPONS[wk].player.swing||'vmClub',u=gobSwingU(p),v=strikeAt(sk,u);K.arm.rotation.x=v[0]+(walking?sn*0.03:0);K.arm.rotation.z=STRIKES[sk][0].length>5?v[4]:0;K.arm.position.set(v[1],v[2]-up*0.5+bob,v[3]);
+    // (a landmine's gone from the hand once it's set down, till the arm's back up with the next)
+    if(WEAPONS[wk]&&WEAPONS[wk].kind==='mine')K.held[wk].visible=!(u>1&&u<1.6)&&p.mines>0;}
+}
+// a gun in your own view (each gun's player.vm: where it's held, how much it kicks up and back): kicking when it fires;
+// its bolt, pump or slide worked after a shot (player.cycle); reloaded (player.rl, a timeline in strikes.js added to where
+// it's held, its magazine or rocket out and back in); a rocket on the bazooka only while it's loaded
+const GOB_VM={x:0.34,y:-0.46,z:-0.5,kick:0.22,back:0.12};
+function gobViewGun(p,K,wk,sw,up,bob){
+  const W=WEAPONS[wk],P=W.player,M=P.vm||GOB_VM,kick=p.biteT>0?Math.max(0,1-sw*4):0,T=K.tags[wk]||{};
+  let rx=0.04+M.kick*kick,rz=0,ax=M.x,ay=M.y,az=M.z+M.back*kick,mg=0;
+  if(p.relT>0&&p.relW===wk&&P.rl){const r=strikeAt(P.rl,2*(1-p.relT/(p.relDur||1)));rx+=r[0];rz=r[1];ax+=r[2];ay+=r[3];az+=r[4];mg=r[5];}
+  // (worked after a shot, from when it fired: the slide snapping back with the kick; the pump racked back and forward;
+  // the bolt lifted, drawn back and pushed home, the gun canted over to do it)
+  const ts=camClock-(p.shotT??-9),bump=(a,b,c)=>ts<a||ts>c?0:ts<b?(ts-a)/(b-a):1-(ts-b)/(c-b);let cyc=0;
+  if(P.cycle==='slide')cyc=kick;else if(P.cycle==='pump')cyc=bump(0.22,0.38,0.55);else if(P.cycle==='bolt'){cyc=bump(0.4,0.65,0.95);rz+=0.35*cyc;ay+=0.03*cyc;}
+  if(p.relT>0)cyc=0;
+  K.arm.rotation.x=rx;K.arm.rotation.z=rz;K.arm.position.set(ax,ay-up*0.5+bob,az);
+  if(T.slide)T.slide.position.z=0.07*cyc;if(T.pump)T.pump.position.z=0.13*cyc;if(T.bolt){T.bolt.position.z=0.12*cyc;T.bolt.position.y=0.02*Math.min(1,cyc*3);}
+  // (the magazine dropped out and the new one pushed up into place; a shotgun's shell pushed in under it)
+  if(T.mag){T.mag.position.y=-0.3*mg;T.mag.visible=mg<0.95;}
+  // (the rocket: gone once fired, slid back into the front of the tube in a reload)
+  if(T.load){const n=gobAmmoShown(p,wk);T.load.visible=p.relT>0&&p.relW===wk?mg<0.9:n>0;T.load.position.z=-0.45*mg;}
 }
 // who's seen from this view: everyone's goblin but your own, unless the free cam has left it
 function gobView(v){
@@ -12819,6 +12850,10 @@ function forkDrive(c,i,dt){const F=forkState(c),up=!!i.lfUp,dn=!!i.lfDown;
 // (the forks' height in the world when they're at their lowest, and the middle of them)
 function forkBase(c){return c.pos.y+0.17*ES;}
 function forkMid(c){const fx=Math.sin(c.heading),fz=Math.cos(c.heading),a=(FORK.f0+FORK.f1)/2;return{x:c.pos.x+fx*a,y:forkBase(c)+(c.fork?c.fork.h:0),z:c.pos.z+fz*a,fx,fz};}
+// (the top of the forks, where a load or someone stood on them sits, and whether a spot is over them, pad blocks to spare)
+function forkTop(c){return forkBase(c)+(c.fork?c.fork.h:0)+0.07;}
+function forkOver(c,x,z,pad){const fx=Math.sin(c.heading),fz=Math.cos(c.heading),ox=x-c.pos.x,oz=z-c.pos.z,al=ox*fx+oz*fz,lat=ox*fz-oz*fx;
+  return al>FORK.f0-0.1-pad&&al<FORK.f1+0.1+pad&&Math.abs(lat)<FORK.hw+0.1+pad;}
 // the highest thing under the forks' tips: lowering stops on it
 function forkFloor(c){const M=forkMid(c);let top=-1e9;
   for(const a of [FORK.f0+0.2,FORK.f1-0.1])for(const s of [-FORK.hw*0.6,FORK.hw*0.6]){const x=c.pos.x+M.fx*a+M.fz*s,z=c.pos.z+M.fz*a-M.fx*s;
@@ -12833,6 +12868,10 @@ function forkPick(c){const F=forkState(c),M=forkMid(c);
   for(const g of goblins){if(g.state!=='chase'||!g.root.visible)continue;const ox=g.pos.x-c.pos.x,oz=g.pos.z-c.pos.z,al=ox*M.fx+oz*M.fz,lat=Math.abs(ox*M.fz-oz*M.fx);
     if(al>FORK.f0-0.1&&al<FORK.f1+0.3&&lat<FORK.hw+0.35&&Math.abs(g.pos.y-M.y)<0.7){F.load={k:'gob',g,name:'GOBLIN',kg:40,al:Math.min(al,FORK.f1-0.3),lat:ox*M.fz-oz*M.fx};g.forkOn=c;
       if(audio)sfx('Goblin picked up on the forks',()=>tone('triangle',700,1100,0.15,0.04));return;}}
+  // (a player stood on them, hippo or goblin: Gus and Gertie, Gnash and Grizzle alike; a hippo's middle is well out past the tips, its feet on them)
+  for(const q of players){if(!q.active||q.state==='dead'||q.drv||q.vcl||!forkOver(c,q.pos.x,q.pos.z,q.gob?0.15:0.9)||Math.abs(q.pos.y-forkTop(c))>0.7)continue;
+    F.load={k:'pl',p:q,name:charName(q).toUpperCase(),kg:q.gob?45:1500};
+    if(audio)sfx(q.gob?'Goblin picked up on the forks':'Hippo picked up on the forks',()=>tone('triangle',q.gob?700:220,q.gob?1100:330,0.15,0.04));return;}
   // (a light car whose near end is over the forks)
   for(const o of cars){if(o===c||!o.alive||!o.g.visible||o.drv||o.gnr||!FORK_CARS[o.veh]||o.forkOn)continue;const ox=o.pos.x-c.pos.x,oz=o.pos.z-c.pos.z,al=ox*M.fx+oz*M.fz,lat=ox*M.fz-oz*M.fx;
     if(Math.abs(o.pos.y-c.pos.y)>0.8)continue;const rel=o.heading-c.heading,ext=Math.abs(Math.cos(rel))*o.hz+Math.abs(Math.sin(rel))*o.hx,near=al-ext;
@@ -12846,6 +12885,7 @@ function forkDrop(c,put){const F=c.fork,L=F&&F.load;if(!L)return;F.load=null;con
     else puff(c.pos.x+M.fx*1.2,M.y+0.4,c.pos.z+M.fz*1.2,6,0xb9874a,0.6);}   // (thrown: it breaks)
   else if(L.k==='gob'){const g=L.g;g.forkOn=null;if(!put){g.kv.x+=M.fx*4;g.kv.z+=M.fz*4;g.vy=4;g.stun=0.6;}}
   else if(L.k==='car'){const o=L.o;o.forkOn=null;o.vy=0;o.grounded=false;}
+  else if(L.k==='pl'&&!put){const q=L.p;q.vy=Math.max(q.vy||0,5);q.grounded=false;shove(q,M.fx*1.2,M.fz*1.2);}   // (thrown off: up and forward)
   if(put&&audio)thud(0.2);}
 // the forklift each step, driven or not: its load carried with it, lancing at speed, how tippy it is, and tipping
 function forkPost(c,dt){const F=c.fork;if(!F)return;const M=forkMid(c),L=F.load;
@@ -12854,7 +12894,12 @@ function forkPost(c,dt){const F=c.fork;if(!F)return;const M=forkMid(c),L=F.load;
         if(g.arm)g.arm.rotation.x=-1.6+Math.sin(playTime*18+g.pos.x)*0.9;}}   // (flailing)
     else if(L.k==='car'){const o=L.o;if(!o.alive||o.forkOn!==c||o.drv){if(o.forkOn===c)o.forkOn=null;F.load=null;}
       else{o.heading=c.heading+L.rel;o.pos.set(c.pos.x+M.fx*L.al+M.fz*L.lat,M.y+0.07,c.pos.z+M.fz*L.al-M.fx*L.lat);o.speed=0;o.vy=0;o.grounded=true;o.kv.set(0,0,0);
-        o.g.position.copy(o.pos);o.g.rotation.set(-F.tilt*0.017,o.heading,0);}}}
+        o.g.position.copy(o.pos);o.g.rotation.set(-F.tilt*0.017,o.heading,0);}}
+    // (a player: carried along as on any car's roof, carTop, standing on the forks' top; stepped or jumped off, they're no longer the load)
+    else if(L.k==='pl'){const q=L.p,top=forkTop(c);
+      if(!q.active||q.state==='dead'||q.drv||q.vcl||!forkOver(c,q.pos.x,q.pos.z,q.gob?0.3:1.1)||q.pos.y>top+1.2||q.pos.y<top-0.8)F.load=null;
+      else if(q.vy<=0.01&&q.pos.y<top){const dy=top-q.pos.y;q.pos.y=top;q.vy=0;q.grounded=true;q.peakY=top;   // (the forks went up under them since they moved: up they come, model and all)
+        q.root.position.y+=dy;if(q.rootP)q.rootP[1]+=dy;}}}
   // (the forks up and going forward at a fair speed: a lance at that height)
   F.lanceT-=dt;if(F.h>0.6&&c.speed>FORK.lance&&F.lanceT<=0){F.lanceT=0.15;const tx=c.pos.x+M.fx*(FORK.f1+0.1),tz=c.pos.z+M.fz*(FORK.f1+0.1);
     for(const g of goblins){if(g.state!=='chase'||!g.root.visible||g.forkOn)continue;const dx=g.pos.x-tx,dz=g.pos.z-tz;
@@ -14415,8 +14460,10 @@ function movePlayer(p,dt){
   if(!p.grounded&&p.vy>0.5)p.coyote=0;   // already on the way up (jumped, kicked off, launched): no second ground jump
   if(stompPress&&busy)p.qStomp=0.35;
   let wantJump=false,wantStomp=false;
-  if(p.qBite>0&&!busy&&!(p.biteCD>0)){p.qBite=0;gusBite(p);p.biteRepeat=0.35;}
-  else if(inp.bite&&p.biteRepeat<=0&&!busy){gusBite(p);p.biteRepeat=0.35;}
+  // (held, the bite goes again every so often; an automatic gun of Gnash's as fast as it fires)
+  const rpt=p.gob&&gobW(p).auto?0:0.35;
+  if(p.qBite>0&&!busy&&!(p.biteCD>0)){p.qBite=0;gusBite(p);p.biteRepeat=rpt;}
+  else if(inp.bite&&p.biteRepeat<=0&&!busy){gusBite(p);p.biteRepeat=rpt;}
   // mid-combo on the ground (during a hit, or in the gap before the next): rooted, no walking or jumping
   const comboLock=p.grounded&&p.state==='walk'&&((p.biteT>0&&(p.biteStep??-1)>=0)||p.comboLockT>0||p.lungeT>0&&(p.biteStep??-1)>=0);
   // coming out of the root, walking speed builds back up instead of snapping straight to full
@@ -15220,6 +15267,15 @@ function movePlayer(p,dt){
 //     (cause), and for a gun its kick (shake, rumble). The numbers above are copied into it (cd is every);
 //   crack: a gun's sound, the same from either side ([noise], [tone]: wpnCrack);
 //   drop: whether a killed enemy leaves it for Gnash to pick up, and stack: whether you carry a pile of them.
+//   A gun's magazine: mag, the rounds it holds, and reload, the seconds it takes to fill it again (anyone's: Gnash's,
+//   gob-weapons.js, and an enemy's, which stops to reload once it's fired them all). npc.rl and player.rl, how it looks, are
+//   timelines in strikes.js. A gun can also be auto (Gnash fires for as long as the button's held; an enemy fires npc.burst
+//   at a time), fire pellets (a shotgun: that many rounds, each dmg, scattered by spread), or a rocket (proj: it flies at
+//   speed and bursts, radius R, crush the crater, vd its harm to vehicles). Each shot after the first can kick the view up
+//   (player.climb), and a bolt or pump is worked between shots (player.cycle, the part tagged so in model.view).
+//   A landmine (kind 'mine', stack) is planted where you stand and goes off on the first enemy over it once it's armed
+//   (arm seconds): mines.js. A view box can carry a tag after its render order: 'mag' (dropped out in a reload), 'load'
+//   (a rocket: shown only while loaded), 'bolt', 'pump' or 'slide' (worked after each shot).
 // To add a weapon: an entry here, and its key in the weapons list of whichever kinds of goblin carry it (FOES in foes.js,
 // GOB_FOES below). The Character tab's goblin loadout, the drops, the HUD and the weapon button all pick it up from here.
 const WEAPONS={
@@ -15228,35 +15284,107 @@ const WEAPONS={
     model:{held:[[0.11,0.11,0.55,null,0,0.02,0.22,'club'],[0.19,0.19,0.19,null,0,0.02,0.5,'club']],
       view:[[0.07,0.42,0.07,null,0,0.17,-0.42,61],[0.15,0.17,0.15,null,0,0.42,-0.42,62]]},
     npc:{strike:'club'},
-    player:{dur:0.38,lunge:0.16,cause:'Clubbed by another goblin',pvp:'Clubbed'}},
+    player:{dur:0.38,lunge:0.16,cause:'Clubbed by another goblin',pvp:'Clubbed',verb:'swing the club',swing:'vmClub'}},
+  // a great studded club swung in both hands: slow to lift, a beat at the top, then slammed into the ground, the shock
+  // of it shaking everything round; heaved up again after
+  bigclub:{name:'Large Club',about:'Lifted high in both hands and slammed down: slow, but it flattens anything',kind:'melee',drop:true,
+    dmg:4,every:1.9,r:1.5,reach:1.4,carDmg:3,
+    model:{held:[[0.13,0.13,0.72,null,0,0.02,0.28,'club'],[0.3,0.3,0.36,null,0,0.02,0.74,'club'],[0.38,0.07,0.07,0x8a8a90,0,0.02,0.66,'studs'],[0.07,0.38,0.07,0x8a8a90,0,0.02,0.8,'studs'],[0.07,0.07,0.07,0x8a8a90,0,0.02,0.94,'studs']],
+      view:[[0.09,0.66,0.09,null,0,0.22,-0.42,61],[0.27,0.32,0.27,null,0,0.66,-0.42,62],[0.33,0.06,0.06,0x8a8a90,0,0.6,-0.28,62],[0.06,0.06,0.33,0x8a8a90,0.14,0.72,-0.42,62]],
+      fore:[[-0.02,-0.06,-0.4],[-0.62,-0.5,0.05]],   // (the other hand low on the handle: it's swung in both)
+      drop:[[0.11,0.11,0.62,null,0,0,-0.2],[0.26,0.26,0.32,null,0,0,0.25],[0.06,0.32,0.06,0x8a8a90,0,0,0.25]]},
+    npc:{strike:'bigclub',wind:0.75,ft:0.6},   // (its wind-up and follow-through are longer than the others': gobMeleePose)
+    player:{dur:0.95,lunge:0.55,cause:'Flattened by a goblin with a great club',pvp:'Flattened',verb:'smash',slam:true,swing:'vmBigClub'}},
+  // a long curved blade in both hands: drawn up and back over the shoulder, swept across in one cut, and a flick of the
+  // blade after (shaking it clean) before it comes back to guard
+  katana:{name:'Katana',about:'A wide, fast sweep that cuts down everything in front of you',kind:'melee',drop:true,
+    dmg:3,every:0.75,r:1.25,reach:1.35,
+    model:{held:[[0.07,0.07,0.22,0x1a1a22,0,0,0.04,'hilt'],[0.15,0.15,0.03,0xb08a30,0,0,0.16,'tsuba'],[0.03,0.07,0.66,0xe4e8ee,0,0.01,0.5,'blade'],[0.03,0.06,0.14,0xe4e8ee,0,0.035,0.88,'blade']],
+      view:[[0.07,0.24,0.07,0x1a1a22,0,0.04,-0.42,61],[0.16,0.03,0.16,0xb08a30,0,0.17,-0.42,62],[0.025,0.66,0.07,0xe4e8ee,0,0.51,-0.42,62],[0.025,0.12,0.06,0xe4e8ee,0,0.89,-0.4,62]],
+      fore:[[-0.03,-0.1,-0.42],[-0.6,-0.48,0.05]],   // (both hands on the hilt)
+      drop:[[0.07,0.07,0.24,0x1a1a22,0,0,-0.4],[0.15,0.04,0.15,0xb08a30,0,0,-0.27],[0.03,0.07,0.7,0xe4e8ee,0,0,0.1]]},
+    npc:{strike:'katana'},
+    player:{dur:0.42,lunge:0.2,cause:'Cut down by a goblin with a katana',pvp:'Cut down',verb:'slash',swing:'vmKatana'}},
   dagger:{name:'Dagger',about:'Quick stabs at whatever is right in front of you',kind:'melee',drop:true,
     dmg:2,every:0.5,r:0.95,reach:1.0,
     model:{held:[[0.08,0.08,0.12,0x2a1a10,0,-0.02,0.06,'hilt'],[0.05,0.03,0.34,0xd0d4dc,0,-0.02,0.29,'blade']],
       view:[[0.09,0.09,0.13,0x2a1a10,0,0.02,-0.44,61],[0.14,0.04,0.04,0x6a5a3a,0,0.02,-0.52,61],[0.025,0.05,0.34,0xd0d4dc,0,0.02,-0.71,62]],   // (pointing forward, for stabbing)
       drop:[[0.08,0.08,0.14,0x2a1a10,0,0,-0.14],[0.05,0.03,0.36,0xd0d4dc,0,0,0.1]]},
     npc:{strike:'dagger'},
-    player:{dur:0.26,lunge:0.1,cause:'Stabbed by a goblin',pvp:'Stabbed'}},
+    player:{dur:0.26,lunge:0.1,cause:'Stabbed by a goblin',pvp:'Stabbed',verb:'stab',swing:'vmDagger'}},
   handgun:{name:'Handgun',about:'A police pistol: quick to fire again, but a shorter reach',kind:'gun',drop:true,
-    dmg:1.5,range:30,every:0.5,breaks:true,
+    dmg:1.5,range:30,every:0.5,breaks:true,mag:8,reload:1.3,
     // (as the police hold theirs: its barrel on down past the fist like the rifle's, so it points straight out when the
     // arm's raised to aim)
     model:{held:[[0.07,0.27,0.09,0x22262c,0,-0.1,0.06,'gun'],[0.06,0.08,0.15,0x22262c,0,0.01,-0.03,'gun']],
-      view:[[0.07,0.13,0.1,0x22262c,0,-0.03,-0.4,61],[0.06,0.07,0.3,0x22262c,0,0.06,-0.5,62]],fore:[[-0.07,-0.06,-0.42],[-0.5,-0.42,0]],   // (the grip, and the slide pointing on along the view)
+      view:[[0.07,0.13,0.1,0x22262c,0,-0.03,-0.4,61],[0.06,0.07,0.3,0x22262c,0,0.06,-0.5,62,'slide'],[0.055,0.07,0.08,0x16181c,0,-0.12,-0.4,61,'mag']],fore:[[-0.07,-0.06,-0.42],[-0.5,-0.42,0]],   // (the grip, and the slide pointing on along the view)
       drop:[[0.06,0.09,0.22,0x22262c,0,0.03,0],[0.06,0.14,0.07,0x22262c,0,-0.06,-0.07]],
       stow:[[0.09,0.2,0.15,0x14110e,0.29,0.4,0.03,'holster']]},   // (in its holster on the right hip)
-    npc:{aim:'pistol',pose:'pistol'},   // (raised in both hands; up close an officer uses the club it also carries)
-    player:{dur:0.16,lunge:0.01,cause:'Shot by a goblin',shake:0.02,rumble:0.14},
+    npc:{aim:'pistol',pose:'pistol',rl:'rlPistol'},   // (raised in both hands; up close an officer uses the club it also carries)
+    player:{dur:0.16,lunge:0.01,cause:'Shot by a goblin',shake:0.02,rumble:0.14,verb:'shoot',rl:'vrPistol',vm:{x:0.26,y:-0.4,z:-0.5,kick:0.32,back:0.08},cycle:'slide'},
     crack:[[0.06,0.12,3400],[330,140,0.045,0.035]]},   // (sharper and shorter than a rifle's)
+  // a pump-action shotgun: a spread of pellets that tears up whatever's close, each pump racked after a shot, the shells
+  // pushed in one at a time to reload
+  shotgun:{name:'Shotgun',about:'A spray of pellets: brutal close up, little use far off',kind:'gun',drop:true,
+    dmg:0.75,pellets:8,spread:0.075,range:20,every:0.95,breaks:true,mag:6,reload:2.6,
+    model:{held:[[0.1,0.28,0.13,0x5a3a20,0,0.04,0.05,'stock'],[0.09,0.2,0.12,0x22262c,0,-0.16,0.06,'gun'],[0.06,0.5,0.06,0x22262c,0,-0.5,0.09,'gun'],[0.05,0.4,0.05,0x22262c,0,-0.44,0.025,'gun'],[0.09,0.16,0.09,0x5a3a20,0,-0.42,0.025,'stock']],
+      view:[[0.1,0.12,0.32,0x5a3a20,0,0.0,-0.34,61],[0.09,0.11,0.2,0x22262c,0,0.04,-0.58,62],[0.06,0.06,0.62,0x22262c,0,0.08,-0.98,62],[0.05,0.05,0.5,0x22262c,0,0.02,-0.9,62],
+        [0.1,0.09,0.2,0x5a3a20,0,0.015,-0.86,62,'pump'],[0.05,0.05,0.09,0xb02a1a,0,-0.04,-0.6,62,'mag']],
+      fore:[[0,-0.03,-0.86],[-0.62,-0.42,-0.1]],foreTag:'pump',   // (the other hand on the pump, racking it with it)
+      drop:[[0.1,0.13,0.28,0x5a3a20,0,0,-0.4],[0.08,0.1,0.22,0x22262c,0,0,-0.15],[0.06,0.06,0.5,0x22262c,0,0.02,0.2],[0.09,0.08,0.15,0x5a3a20,0,-0.04,0.18]],
+      stow:[[0.1,0.28,0.13,0x5a3a20,0.12,0.3,-0.25,'stock'],[0.06,0.66,0.06,0x22262c,0.12,0.75,-0.25,'gun']]},
+    npc:{aim:'rifle',pose:'pump',rl:'rlShells',fall:14},   // (each pellet less likely to find its mark the further off: fall)
+    player:{dur:0.25,lunge:0.01,cause:'Blasted by a goblin with a shotgun',pvp:'Blasted',shake:0.05,rumble:0.3,climb:0.04,verb:'shoot',rl:'vrShells',vm:{x:0.32,y:-0.46,z:-0.48,kick:0.36,back:0.16},cycle:'pump'},
+    crack:[[0.14,0.22,1300],[150,55,0.12,0.06]]},   // (a deep boom)
   rifle:{name:'Rifle',about:'Hits hard and far, down the middle of your view',kind:'gun',drop:true,
-    dmg:2,range:48,every:1.0,breaks:true,butt:{dmg:1,every:1.3},
+    dmg:2,range:48,every:1.0,breaks:true,mag:5,reload:2.0,butt:{dmg:1,every:1.3},
     // (pointing on down past the hand, so it's level when the arm is raised to aim)
     model:{held:[[0.1,0.3,0.14,0x4a3420,0,0.04,0.06,'stock'],[0.07,0.62,0.07,0x22262c,0,-0.38,0.06,'gun'],[0.05,0.12,0.05,0x22262c,0,-0.12,0.13,'gun']],
-      view:[[0.1,0.12,0.34,0x4a3420,0,0.02,-0.36,61],[0.07,0.07,0.78,0x22262c,0,0.07,-0.86,62],[0.05,0.12,0.05,0x22262c,0,-0.04,-0.6,62]],fore:[[0,-0.01,-0.92],[-0.62,-0.42,-0.1]],
+      view:[[0.1,0.12,0.34,0x4a3420,0,0.02,-0.36,61],[0.07,0.07,0.78,0x22262c,0,0.07,-0.86,62],[0.05,0.12,0.05,0x22262c,0,-0.04,-0.6,62,'mag']],fore:[[0,-0.01,-0.92],[-0.62,-0.42,-0.1]],
       drop:[[0.1,0.14,0.3,0x4a3420,0,0,-0.36],[0.07,0.07,0.7,0x22262c,0,0.02,0.12],[0.05,0.12,0.05,0x22262c,0,-0.07,-0.12]],
       stow:[[0.1,0.3,0.14,0x4a3420,0.12,0.3,-0.25,'stock'],[0.07,0.62,0.07,0x22262c,0.12,0.74,-0.25,'gun']]},   // (slung upright on the back, the barrel up past the shoulder)
-    npc:{strike:'butt',aim:'rifle',pose:'aim'},   // (up close, its butt: a rifle's the blow of whoever carries no blade or club)
-    player:{dur:0.2,lunge:0.01,cause:'Shot by a goblin',shake:0.03,rumble:0.2},
+    npc:{strike:'butt',aim:'rifle',pose:'aim',rl:'rlMag'},   // (up close, its butt: a rifle's the blow of whoever carries no blade or club)
+    player:{dur:0.2,lunge:0.01,cause:'Shot by a goblin',shake:0.03,rumble:0.2,verb:'shoot',rl:'vrMag',vm:{x:0.34,y:-0.46,z:-0.5,kick:0.22,back:0.12}},
     crack:[[0.09,0.14,2600],[220,90,0.06,0.04]]},
+  // an assault rifle: light rounds, as fast as you hold the trigger, a long magazine; it climbs as it fires
+  arifle:{name:'Assault Rifle',about:'Fires for as long as you hold the button; the view climbs as it goes',kind:'gun',drop:true,
+    dmg:1,range:40,every:0.11,breaks:true,mag:30,reload:2.1,butt:{dmg:1,every:1.3},
+    model:{held:[[0.09,0.24,0.12,0x1e1e20,0,0.06,0.04,'stock'],[0.09,0.3,0.13,0x22262c,0,-0.18,0.05,'gun'],[0.05,0.32,0.05,0x22262c,0,-0.48,0.07,'gun'],[0.06,0.09,0.17,0x2a2a2c,0,-0.2,-0.08,'gun'],
+        [0.04,0.14,0.05,0x22262c,0,-0.14,0.14,'gun'],[0.08,0.16,0.1,0x1e1e20,0,-0.38,0.03,'stock']],
+      view:[[0.09,0.11,0.3,0x1e1e20,0,0.01,-0.34,61],[0.09,0.12,0.3,0x22262c,0,0.05,-0.62,62],[0.05,0.05,0.4,0x22262c,0,0.08,-0.96,62],[0.05,0.07,0.06,0x22262c,0,0.15,-0.6,62],
+        [0.09,0.09,0.22,0x1e1e20,0,0.04,-0.88,62],[0.055,0.17,0.09,0x2a2a2c,0,-0.08,-0.66,62,'mag']],
+      fore:[[0,-0.0,-0.88],[-0.62,-0.42,-0.1]],
+      drop:[[0.09,0.12,0.24,0x1e1e20,0,0,-0.36],[0.09,0.12,0.3,0x22262c,0,0.01,-0.1],[0.05,0.05,0.32,0x22262c,0,0.02,0.2],[0.06,0.15,0.08,0x2a2a2c,0,-0.1,-0.08]],
+      stow:[[0.09,0.24,0.12,0x1e1e20,0.12,0.32,-0.25,'stock'],[0.08,0.56,0.08,0x22262c,0.12,0.7,-0.25,'gun']]},
+    npc:{strike:'butt',aim:'rifle',pose:'auto',burst:4,rl:'rlMag'},   // (a burst at a time: burst rounds, every apart)
+    player:{dur:0.09,lunge:0.01,cause:'Gunned down by a goblin',pvp:'Gunned down',shake:0.015,rumble:0.08,climb:0.006,auto:true,verb:'shoot (hold)',rl:'vrMag',vm:{x:0.33,y:-0.46,z:-0.5,kick:0.12,back:0.06}},
+    crack:[[0.05,0.1,2900],[260,110,0.04,0.03]]},
+  // a bolt-action sniper rifle with a scope: one deadly round at a time from far off, the bolt worked between them
+  sniper:{name:'Sniper Rifle',about:'One heavy round at a time, from much further than anything else',kind:'gun',drop:true,
+    dmg:7,range:110,every:1.7,breaks:true,mag:5,reload:2.8,butt:{dmg:1,every:1.3},
+    model:{held:[[0.1,0.32,0.14,0x3a4a2a,0,0.04,0.05,'stock'],[0.08,0.3,0.11,0x22262c,0,-0.22,0.06,'gun'],[0.05,0.62,0.05,0x22262c,0,-0.66,0.07,'gun'],[0.07,0.34,0.07,0x111114,0,-0.2,0.17,'scope'],
+        [0.09,0.03,0.03,0x8a8a90,0.07,-0.1,0.08,'gun']],
+      view:[[0.1,0.12,0.36,0x3a4a2a,0,0.01,-0.34,61],[0.08,0.1,0.3,0x22262c,0,0.05,-0.64,62],[0.05,0.05,0.8,0x22262c,0,0.08,-1.18,62],[0.07,0.07,0.36,0x111114,0,0.16,-0.6,62],
+        [0.1,0.1,0.04,0x111114,0,0.16,-0.42,62],[0.1,0.1,0.04,0x111114,0,0.16,-0.78,62],[0.08,0.03,0.03,0x8a8a90,0.07,0.06,-0.5,62,'bolt'],[0.05,0.09,0.08,0x22262c,0,-0.02,-0.62,62,'mag']],
+      fore:[[0,-0.0,-0.96],[-0.62,-0.42,-0.1]],
+      drop:[[0.1,0.14,0.32,0x3a4a2a,0,0,-0.4],[0.08,0.1,0.3,0x22262c,0,0.01,-0.1],[0.05,0.05,0.62,0x22262c,0,0.02,0.36],[0.07,0.07,0.32,0x111114,0,0.1,-0.1]],
+      stow:[[0.1,0.32,0.14,0x3a4a2a,0.12,0.3,-0.25,'stock'],[0.07,0.8,0.07,0x22262c,0.12,0.84,-0.25,'gun']]},
+    npc:{strike:'butt',aim:'rifle',pose:'snipe',rl:'rlMag',fall:400},   // (it hardly misses, however far)
+    player:{dur:0.3,lunge:0.01,cause:"Picked off by a goblin's sniper rifle",pvp:'Picked off',shake:0.06,rumble:0.35,climb:0.05,verb:'shoot',rl:'vrMag',vm:{x:0.32,y:-0.45,z:-0.48,kick:0.4,back:0.18},cycle:'bolt'},
+    crack:[[0.16,0.2,1900],[120,40,0.18,0.07]]},
+  // a bazooka: a rocket from a tube on the shoulder, one at a time, slid in by hand
+  bazooka:{name:'Bazooka',about:'A rocket that bursts on whatever it hits: one shot, then a slow reload',kind:'gun',drop:true,
+    dmg:5,range:70,every:0.6,mag:1,reload:2.8,proj:'rocket',speed:28,R:3.4,crush:2.6,vd:50,breaks:true,
+    model:{held:[[0.18,1.1,0.18,0x4a5a2a,0,-0.25,0.16,'tube'],[0.22,0.06,0.22,0x2a3018,0,-0.78,0.16,'tube2'],[0.24,0.08,0.24,0x2a3018,0,0.3,0.16,'tube2'],[0.06,0.06,0.14,0x1e1e20,0,-0.02,0.06,'gun'],
+        [0.03,0.08,0.1,0x1e1e20,-0.12,-0.3,0.2,'gun'],[0.12,0.14,0.12,0x8a9a5a,0,-0.86,0.16,'warhead']],
+      view:[[0.2,0.2,1.3,0x4a5a2a,0,0.14,-0.62,61],[0.24,0.24,0.06,0x2a3018,0,0.14,-1.26,62],[0.25,0.25,0.08,0x2a3018,0,0.14,0.05,61],[0.07,0.16,0.08,0x1e1e20,0,-0.04,-0.4,61],
+        [0.04,0.1,0.06,0x1e1e20,-0.14,0.22,-0.66,62],[0.14,0.14,0.22,0x8a9a5a,0,0.14,-1.36,62,'load'],[0.08,0.08,0.1,0xb0b8a0,0,0.14,-1.51,62,'load']],
+      fore:[[0,-0.04,-0.84],[-0.62,-0.46,-0.1]],
+      drop:[[0.16,0.16,1.0,0x4a5a2a,0,0,0],[0.2,0.2,0.06,0x2a3018,0,0,-0.48],[0.06,0.12,0.06,0x1e1e20,0,-0.1,0.05]],
+      stow:[[0.18,1.0,0.18,0x4a5a2a,-0.1,0.6,-0.28,'tube'],[0.22,0.06,0.22,0x2a3018,-0.1,1.08,-0.28,'tube2']]},
+    npc:{aim:'tube',pose:'shoulder',rl:'rlTube'},
+    player:{dur:0.35,lunge:0.01,cause:"Blown up by a goblin's bazooka",pvp:'Blown up',shake:0.08,rumble:0.4,climb:0.03,verb:'fire a rocket',rl:'vrTube',vm:{x:0.36,y:-0.36,z:-0.42,kick:0.2,back:0.22}},
+    crack:[[0.4,0.3,700],[90,30,0.3,0.08]]},   // (the whoosh of it going)
   // the cultists' book of fireballs: held open in one hand while the other conjures a ball of fire and hurls it. The ball
   // flies (it isn't hitscan: you can dodge it) and bends a little after whoever's nearest, a cultist's after a player, a
   // player goblin's after an enemy goblin (or another player, with PvP on)
@@ -15270,17 +15398,26 @@ const WEAPONS={
       drop:[[0.3,0.08,0.22,0x6a1a14,0,0,0],[0.26,0.06,0.2,0xe8dcb0,0.03,0,0],[0.04,0.1,0.06,0xd0a030,-0.15,0,0]],
       stow:[[0.07,0.26,0.2,0x6a1a14,-0.29,0.36,0.02,'book']]},   // (shut, hung at the left hip)
     npc:{pose:'cast',jit:1.6,dy:14},
-    player:{dur:1.05,cause:"Burned up by a goblin's fireball",pvp:'Burned'},
+    player:{dur:1.05,cause:"Burned up by a goblin's fireball",pvp:'Burned',verb:'cast a fireball'},
     cue:['triangle',180,420,0.04]},   // (the rising note while it's conjured: wpnCue)
+  // landmines: knelt down and pressed into the ground, a light blinking once it's armed; the first enemy (or vehicle) over
+  // one sets it off. Carried in a stack like grenades, in the hand like a weapon (mines.js)
+  landmine:{name:'Landmines',about:'Planted where you stand; the first enemy to step on one sets it off',kind:'mine',drop:true,stack:true,
+    dmg:5,R:3,arm:1.2,crush:1.8,vd:40,every:0.9,
+    model:{held:[[0.28,0.07,0.28,0x3a4a22,0,-0.06,0.08,'mine'],[0.15,0.05,0.15,0x2a3018,0,-0.02,0.08,'mine2']],
+      view:[[0.3,0.08,0.3,0x3a4a22,0,0.04,-0.46,61],[0.17,0.05,0.17,0x2a3018,0,0.1,-0.46,62],[0.05,0.03,0.05,0xd03020,0,0.13,-0.46,62]],
+      drop:[[0.4,0.08,0.4,0x3a4a22,0,0,0],[0.24,0.06,0.24,0x2a3018,0,0.06,0],[0.05,0.05,0.05,0xd03020,0,0.1,0]]},
+    npc:{pose:'plant'},   // (knelt, set down with the free hand: how often, and why it's dangerous, is the kind's own mine in FOES, or mines.js's)
+    player:{dur:0.75,lunge:0.45,cause:"Blown up by a goblin's landmine",pvp:'Blown up',verb:'plant a mine',max:6,field:'mines',swing:'vmPlant',body:'plantR'}},
   grenade:{name:'Grenades',about:'Thrown with Stomp: how many he starts with',kind:'throw',drop:true,stack:true,
     dmg:3,R:3.3,fuse:2.2,   // (how often one's thrown is the thrower's: Gnash's cd below, each enemy's in FOES)
     // (an enemy holds its own, in its own colours, while winding up to throw: FOES' held)
     model:{drop:[[0.22,0.24,0.22,0x3a4a22,0,0,0],[0.08,0.08,0.08,0x8a8a90,0,0.15,0]]},
-    player:{cause:"Blown up by a goblin's grenade",max:9,cd:0.6,v:15}}};
+    player:{cause:"Blown up by a goblin's grenade",max:9,cd:0.6,v:15,field:'gren'}}};
 const WEAPON_ORDER=Object.keys(WEAPONS);
 for(const k of WEAPON_ORDER){const W=WEAPONS[k];W.k=k;if(!W.player)continue;W.player.name=W.name;
   // (Gnash's block takes the weapon's own numbers, so they're only ever set in the one place)
-  for(const s of ['dmg','range','breaks','r','reach','R','fuse'])if(W[s]!==undefined)W.player[s]=W[s];if(W.every!==undefined)W.player.cd=W.every;
+  for(const s of ['dmg','range','breaks','r','reach','R','fuse','mag','reload','pellets','spread','proj','speed','crush','vd','carDmg','arm'])if(W[s]!==undefined)W.player[s]=W[s];if(W.every!==undefined)W.player.cd=W.every;
   if(W.cast!==undefined)W.player.lunge=W.cast;}   // (a spell's conjuring is the wind-up before it goes: doBite comes after it)
 // ---- what each kind of goblin carries: weapons, a list of keys in WEAPONS, on its own entry. The compounds', the
 // carrier's and the bases' people are in FOES (foes.js); the street's are here: an ordinary hostile goblin, a police
@@ -15302,6 +15439,7 @@ const wpnOfKind=(L,kind)=>(L||[]).find(k=>WEAPONS[k]&&WEAPONS[k].kind===kind)||n
 // (what it uses at range: a gun or a spell)
 const wpnRanged=L=>(L||[]).find(k=>WEAPONS[k]&&(WEAPONS[k].kind==='gun'||WEAPONS[k].kind==='spell'))||null;
 const foeGunK=F=>wpnRanged(F&&F.weapons),foeThrowK=F=>wpnOfKind(F&&F.weapons,'throw');
+const foeMineK=F=>wpnOfKind(F&&F.weapons,'mine');   // (landmines, planted in its path: mines.js)
 const foeMeleeK=F=>wpnOfKind(F&&F.weapons,'melee')||(F&&F.weapons||[]).find(k=>WEAPONS[k]&&WEAPONS[k].butt)||null;
 // (which kind a goblin is: one out of FOES, a cultist, one of the townsfolk, an officer (g.arms, set by foeArm) or else
 // an ordinary hostile goblin)
@@ -15317,7 +15455,15 @@ function wpnCrack(k){const C=WEAPONS[k]&&WEAPONS[k].crack;if(!C||!audio)return;n
 // a weapon's boxes, each handed to make(w,h,d,colour,x,y,z,last) (the role or render order)
 // the sound as one starts to aim or conjure (k a weapon; t how long it takes): a spell's rising note (its cue), a gun's click
 function wpnCue(k,t){const c=WEAPONS[k]&&WEAPONS[k].cue;if(c)sfx('Fireball conjured',()=>{tone(c[0],c[1],c[2],t,c[3]);});else tone('square',1400,1200,0.04,0.03);}
-function wpnBoxes(list,make){for(const b of list||[])make(b[0],b[1],b[2],b[3]??GC.club,b[4],b[5],b[6],b[7]);}
+// (and its tag, for a part of the view that moves on its own: a magazine, a bolt...)
+// the sounds of a reload, the same from either side: 0 the magazine out (or the gun opened), 1 the new one in, 2 ready
+// (the slide, bolt or pump racked; a rocket seated)
+function wpnClack(k,n){if(!audio)return;const W=WEAPONS[k];if(!W||!W.mag)return;
+  sfx(n===0?'Magazine out':n===1?'Magazine in':'Reloaded',()=>{
+    if(n===0){noise(0.05,0.06,1800,'bandpass');tone('square',520,320,0.05,0.025);}
+    else if(n===1){noise(0.04,0.08,2600,'highpass');tone('square',260,200,0.04,0.035);}
+    else{noise(0.06,0.06,3200,'highpass');tone('square',900,600,0.035,0.03,0.06);}});}
+function wpnBoxes(list,make){for(const b of list||[])make(b[0],b[1],b[2],b[3]??GC.club,b[4],b[5],b[6],b[7],b[8]);}
 // ---------- Goblins ----------
 const goblins=[];
 const GC={skin:0x6f9a3a,dark:0x4f7426,tunic:0x5a3d22,eye:0xffd23a,club:0x7a5530,belt:0x2b1d10,mouth:0x2a1a10};
@@ -15406,7 +15552,7 @@ const UNIT_BOX=new THREE.BoxGeometry(1,1,1);
 function makeGoblin(o,x){
   const root=new THREE.Group();root.rotation.order='YXZ';
   const m=goblinModel(root,Object.assign({shareGeo:true},o));
-  const g=Object.assign({snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,wkit:m.wkit||null,orb:m.orb||null,
+  const g=Object.assign({snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,wkit:m.wkit||null,orb:m.orb||null,mineB:m.mineB||null,
     pos:new V3(),kv:new V3(),stun:0,heading:0,vy:0,hp:4,state:'wait',t:0,phase:0,atk:1,hurt:0,sink:0,detour:0,detourH:0,stuck:0,civ:false},x);
   root.visible=false;root.scale.setScalar(ES);goblins.push(g);return g;
 }
@@ -15453,6 +15599,8 @@ function goblinModel(parent,o={}){
   // colour) while winding up to throw it
   if(gk&&WEAPONS[gk].kind==='spell'){out.orb=box(0.24,0.24,0.24,'orb',0xff7a1a,0,-0.46,0.04,armL);out.orb.visible=false;}
   else if(wpnOfKind(WL,'throw')){const [w,h,d,c]=o.held||[0.22,0.22,0.22,0x3a4a22];out.orb=box(w,h,d,'orb',c,0,-0.46,0.04,armL);out.orb.visible=false;}
+  // (and a landmine, in the free hand while it's being set down: foeRanged)
+  if(wpnOfKind(WL,'mine')){const M=WEAPONS[wpnOfKind(WL,'mine')].model.held[0];out.mineB=box(M[0],M[1],M[2],'mineh',M[3],0,-0.46,0.04,armL);out.mineB.visible=false;}
   // hats
   acc('cap',[box(0.52,0.12,0.48,'hat',0x2a2a2a,0,0.47,0.02,head),box(0.34,0.04,0.2,'hat',0x2a2a2a,0,0.425,0.31,head)]);
   acc('top',[box(0.34,0.36,0.34,'hatdark',0x1a1a1e,0,0.625,0.02,head),box(0.54,0.04,0.52,'hatdark',0x1a1a1e,0,0.445,0.02,head),box(0.38,0.06,0.38,'hat',0x8a2a2a,0,0.5,0.02,head)]);
@@ -15560,11 +15708,80 @@ const STRIKES={
   // back, then hurled, the hand thrown out straight at the target
   cast:[[0,-0.5,0,0,0,0,0,0],[0.4,-1.9,0.1,0.3,-2.6,-0.1,-0.03,0,'o'],[0.8,-2.05,0.12,0.35,-3.4,-0.35,-0.1,-0.04],
     [0.88,-2.05,0.12,0.35,-3.5,-0.38,-0.11,-0.05],[1,-1.75,0.1,0.3,-1.6,0.35,0.15,0.12,'i'],[1.3,-1.65,0.1,0.3,-1.45,0.35,0.15,0.1,'o'],[2,-0.5,0,0,0,0,0,0]],
+  // a katana, in both hands: raised up and back over the weapon shoulder, the body turned away from the target, a beat
+  // with it cocked; then one cut swept across and down through the target, the body unwinding into it, carried on low
+  // to the other side; then a flick of the wrist (shaking the blade clean) before it comes back to guard
+  katana:[[0,-0.5,0,0,0,0,0,0],[0.4,-1.9,0.6,-0.4,-1.6,0.35,-0.04,-0.03,'o'],[0.78,-2.6,1.0,-0.9,-2.2,0.6,-0.1,-0.07],
+    [0.86,-2.65,1.05,-0.95,-2.25,0.62,-0.11,-0.08],[1,-1.35,-0.55,0.75,-1.3,-0.45,0.18,0.2,'i'],[1.25,-0.9,-0.95,1.15,-0.8,-0.7,0.2,0.22,'o'],
+    [1.55,-1.1,-0.4,-0.2,-0.4,-0.35,0.08,0.12],[1.62,-1.05,-0.35,0.35,-0.35,-0.3,0.07,0.1,'i'],[2,-0.5,0,0,0,0,0,0]],
+  // a large club: heaved up in both hands, lifted right over the head leaning back with the weight of it, a long beat at
+  // the top, then slammed down into the ground in front, held there as the shock goes through it, and heaved up again
+  bigclub:[[0,-0.5,0,0,0,0,0,0],[0.3,-1.6,0.1,-0.3,-1.5,0.1,-0.06,0,'o'],[0.7,-3.4,0.15,-0.9,-3.3,0.2,-0.2,-0.1],
+    [0.9,-3.5,0.15,-1.0,-3.4,0.22,-0.22,-0.11],[1,-0.7,0,1.0,-0.8,-0.08,0.38,0.24,'i'],[1.4,-0.6,0,1.1,-0.7,-0.08,0.36,0.24],
+    [1.75,-1.0,0.05,0.5,-0.7,0.05,0.12,0.1,'o'],[2,-0.5,0,0,0,0,0,0]],
+  // an assault rifle: shouldered like the rifle, and each round of a burst a small kick (foeRanged plays 1 to 1.2 of
+  // it for each)
+  auto:[[0,-0.5,0,0,0,0,0,0],[0.35,-1.5,0,0,-1.35,0.15,0.04,0,'o'],[1,-1.5,0,0,-1.35,0.15,0.04,0],
+    [1.04,-1.62,0,0,-1.42,0.15,-0.02,-0.02,'o'],[1.2,-1.5,0,0,-1.35,0.15,0.03,0],[2,-0.5,0,0,0,0,0,0]],
+  // a sniper rifle: shouldered and settled (a held breath), then a heavy kick that rocks the whole body back, and the
+  // bolt worked before it comes down
+  snipe:[[0,-0.5,0,0,0,0,0,0],[0.4,-1.45,0,0,-1.3,0.2,0.06,0.02,'o'],[0.75,-1.52,0,0,-1.36,0.18,0.08,0.03],[1,-1.5,0,0,-1.35,0.18,0.08,0.03],
+    [1.05,-2.05,0,0,-1.75,0.22,-0.14,-0.1,'o'],[1.3,-1.6,0,0,-0.9,0.3,0,-0.04],[1.55,-1.52,0,0,-1.35,0.2,0.05,0],[2,-0.5,0,0,0,0,0,0]],
+  // a shotgun: brought up quickly, a big kick, then the pump racked back and forward
+  pump:[[0,-0.5,0,0,0,0,0,0],[0.3,-1.45,0,0,-1.3,0.12,0.05,0,'o'],[1,-1.48,0,0,-1.32,0.12,0.06,0],[1.06,-2.0,0,0,-1.7,0.15,-0.16,-0.12,'o'],
+    [1.35,-1.55,0,0,-1.0,0.12,0.06,0.02],[1.55,-1.5,0,0,-1.4,0.12,0.06,0.02],[2,-0.5,0,0,0,0,0,0]],
+  // a bazooka: heaved up on to the shoulder, the body turned side-on behind it, then the backblast shoves it back a step
+  shoulder:[[0,-0.5,0,0,0,0,0,0],[0.45,-1.5,0,0,-1.4,0.3,0,-0.02,'o'],[1,-1.55,0,0,-1.42,0.3,0.02,-0.02],
+    [1.05,-1.85,0,0,-1.5,0.36,-0.2,-0.18,'o'],[1.4,-1.55,0,0,-1.4,0.3,0,-0.06],[2,-0.5,0,0,0,0,0,0]],
+  // a landmine, set down with the free hand (an enemy's: its weapon stays in the other): crouched low, reached down,
+  // pressed into the ground, a pat to settle it, and up again. plantR is Gnash's, with the mine in his weapon hand
+  plant:[[0,-0.5,0,0,0,0,0,0],[0.35,-0.3,0.15,0,-0.5,0.15,0.3,0.06,'o'],[0.75,-0.25,0.2,0,-0.95,0.2,0.62,0.14],[0.88,-0.25,0.2,0,-1.0,0.2,0.66,0.15],
+    [1,-0.25,0.2,0,-1.1,0.18,0.7,0.16,'i'],[1.35,-0.3,0.2,0,-0.9,0.15,0.62,0.14],[1.45,-0.3,0.2,0,-1.1,0.15,0.66,0.15,'i'],[2,-0.5,0,0,0,0,0,0]],
+  plantR:[[0,-0.5,0,0,0,0,0,0],[0.35,-0.6,0,0.3,-0.3,-0.15,0.3,0.06,'o'],[0.75,-1.0,0,0.7,-0.25,-0.2,0.62,0.14],[0.88,-1.05,0,0.75,-0.25,-0.2,0.66,0.15],
+    [1,-1.15,0,0.85,-0.2,-0.18,0.7,0.16,'i'],[1.35,-0.95,0,0.7,-0.25,-0.15,0.62,0.14],[1.45,-1.15,0,0.85,-0.25,-0.15,0.66,0.15,'i'],[2,-0.5,0,0,0,0,0,0]],
+  // reloads, u 0 to 2 over the whole reload (the gun held in one hand as posed, not gripped: gunHeld): a magazine
+  // (rifles): lowered and canted, the free hand to the pouch on the belt and back up with a full one, slapped home, the
+  // charging handle pulled
+  rlMag:[[0,-1.2,0,0,-1.1,0.15,0.04,0],[0.2,-0.9,-0.25,0.5,-0.4,0.25,0.06,0,'o'],[0.45,-0.9,-0.25,0.5,0.45,0.3,0.08,0],[0.75,-0.95,-0.25,0.5,-0.7,0.25,0.06,0],
+    [0.92,-0.95,-0.25,0.5,-0.85,0.22,0.06,0],[1,-1.05,-0.25,0.45,-1.05,0.2,0.1,0.02,'i'],[1.3,-1.0,-0.15,0.3,-0.85,0.2,0.06,0],[1.45,-1.05,-0.1,0.25,-1.2,0.18,0.05,0,'i'],[2,-0.5,0,0,0,0,0,0]],
+  // a handgun: tipped, the magazine dropped, a new one from the belt, pushed in, the slide racked
+  rlPistol:[[0,-1.3,0,0,-1.2,0.1,0.03,0],[0.2,-1.0,-0.3,0.4,-0.3,0.12,0.05,0,'o'],[0.45,-1.0,-0.3,0.4,0.35,0.15,0.05,0],[0.8,-1.05,-0.3,0.4,-0.8,0.12,0.05,0],
+    [1,-1.1,-0.3,0.35,-1.05,0.1,0.07,0.01,'i'],[1.3,-1.15,-0.25,0.3,-1.25,0.1,0.05,0],[1.4,-1.2,-0.2,0.2,-1.0,0.1,0.05,0,'i'],[2,-0.5,0,0,0,0,0,0]],
+  // a shotgun: rolled to show its loading port, four shells from the belt one after another, then the pump
+  rlShells:[[0,-1.2,0,0,-1.1,0.12,0.04,0],[0.2,-0.85,-0.35,0.7,-0.3,0.25,0.06,0,'o'],[0.35,-0.85,-0.35,0.7,0.35,0.25,0.06,0],[0.55,-0.85,-0.35,0.7,-0.75,0.25,0.07,0],
+    [0.7,-0.85,-0.35,0.7,0.35,0.25,0.06,0],[0.9,-0.85,-0.35,0.7,-0.75,0.25,0.07,0],[1,-0.85,-0.35,0.7,0.3,0.25,0.06,0],[1.2,-0.85,-0.35,0.7,-0.75,0.25,0.07,0],
+    [1.35,-0.85,-0.35,0.7,0.35,0.25,0.06,0],[1.55,-0.85,-0.35,0.7,-0.75,0.25,0.07,0],[1.75,-1.1,-0.15,0.3,-1.25,0.15,0.05,0,'i'],[2,-0.5,0,0,0,0,0,0]],
+  // a bazooka: down off the shoulder, the free hand back for a rocket, slid in and seated with a slap, back up
+  rlTube:[[0,-1.5,0,0,-1.4,0.3,0,0],[0.25,-1.0,0.15,-0.5,-0.3,0.45,0.05,0,'o'],[0.5,-1.0,0.15,-0.5,0.7,0.5,0.05,0],[0.8,-1.0,0.15,-0.5,-0.2,0.5,0.05,0],
+    [1,-1.05,0.15,-0.5,-0.55,0.45,0.08,0,'i'],[1.3,-1.05,0.15,-0.5,-0.4,0.4,0.06,0],[1.6,-1.4,0,0,-1.3,0.3,0.02,0,'o'],[2,-0.5,0,0,0,0,0,0]],
   // Gnash's and Grizzle's own arm in first person: [u, its tilt, across, up, forward]
   // (the club held back, not right up: any higher and it's out of the top of the picture, and you'd never see the wind-up)
   vmClub:[[0,0.08,0.52,-0.62,-0.72],[0.7,0.8,0.62,-0.5,-0.7,'o'],[0.8,0.85,0.62,-0.49,-0.69],[1,-0.55,0.36,-0.7,-0.82,'i'],[1.3,-0.75,0.34,-0.76,-0.8],[2,0.08,0.52,-0.62,-0.72]],
-  vmDagger:[[0,0.3,0.46,-0.6,-0.66],[0.65,0.42,0.5,-0.56,-0.5,'o'],[0.75,0.44,0.5,-0.56,-0.48],[1,0.02,0.34,-0.6,-1.1,'i'],[1.35,0.04,0.34,-0.6,-1.06],[2,0.3,0.46,-0.6,-0.66]]};
+  vmDagger:[[0,0.3,0.46,-0.6,-0.66],[0.65,0.42,0.5,-0.56,-0.5,'o'],[0.75,0.44,0.5,-0.56,-0.48],[1,0.02,0.34,-0.6,-1.1,'i'],[1.35,0.04,0.34,-0.6,-1.06],[2,0.3,0.46,-0.6,-0.66]],
+  // (these have a sixth, its roll: + tips the top to the left)
+  // the katana: up to the right with the blade laid back, a beat, then cut down and across to the lower left, a flick
+  vmKatana:[[0,0.25,0.5,-0.62,-0.7,0.15],[0.65,0.75,0.72,-0.42,-0.62,-0.55,'o'],[0.8,0.8,0.74,-0.4,-0.6,-0.6],[1,-0.9,-0.05,-0.78,-0.86,1.05,'i'],
+    [1.3,-1.1,-0.2,-0.85,-0.8,1.25,'o'],[1.6,-0.3,0.25,-0.75,-0.75,-0.3],[1.68,-0.45,0.3,-0.76,-0.76,-0.15,'i'],[2,0.25,0.5,-0.62,-0.7,0.15]],
+  // the large club: up and back (the head just in the picture), a long beat, slammed into the ground in front and held
+  // there, heaved up again
+  vmBigClub:[[0,0.12,0.42,-0.7,-0.74,0.12],[0.4,0.6,0.46,-0.5,-0.7,0.1,'o'],[0.75,1.0,0.36,-0.42,-0.64,0.05],[0.9,1.05,0.35,-0.41,-0.63,0.05],
+    [1,-1.05,0.22,-0.98,-0.92,0,'i'],[1.4,-1.0,0.22,-0.96,-0.92,0],[1.75,-0.2,0.36,-0.8,-0.8,0.08,'o'],[2,0.12,0.42,-0.7,-0.74,0.12]],
+  // a landmine: down out of the bottom of the picture to set it in the ground, and back up with the next
+  vmPlant:[[0,0.15,0.4,-0.6,-0.66,0],[0.5,0.3,0.32,-0.95,-0.62,0,'o'],[0.85,0.35,0.3,-1.15,-0.7,0],[1,0.35,0.3,-1.25,-0.74,0,'i'],[1.3,0.3,0.3,-1.2,-0.72,0],[2,0.15,0.4,-0.6,-0.66,0]],
+  // reloads in first person, added to where the gun's held, u 0 to 2 over the reload: [u, tilt, roll, across, up,
+  // forward, how far out the magazine (or the shell, or the rocket) is: 0 home, 1 gone]
+  vrMag:[[0,0,0,0,0,0,0],[0.25,0.25,-0.55,-0.08,0.05,0.04,0,'o'],[0.45,0.3,-0.6,-0.08,0.06,0.04,1],[0.75,0.3,-0.6,-0.08,0.04,0.04,1],[0.92,0.3,-0.58,-0.08,0.05,0.04,0.3],
+    [1,0.22,-0.55,-0.07,0.09,0.03,0,'i'],[1.3,0.15,-0.4,-0.05,0.05,0.02,0],[1.45,0.1,-0.3,-0.04,0.02,0.06,0,'i'],[2,0,0,0,0,0,0]],
+  vrPistol:[[0,0,0,0,0,0,0],[0.2,0.35,0.3,-0.06,0.02,0.05,0,'o'],[0.4,0.4,0.32,-0.06,0.02,0.05,1],[0.8,0.4,0.32,-0.06,0,0.05,1],[0.95,0.38,0.3,-0.06,0.01,0.05,0.3],
+    [1,0.3,0.28,-0.05,0.05,0.04,0,'i'],[1.3,0.1,0.15,-0.03,0.02,0.04,0],[1.4,0.05,0.1,-0.02,0,0.08,0,'i'],[2,0,0,0,0,0,0]],
+  vrShells:[[0,0,0,0,0,0,0],[0.2,0.2,-0.85,-0.06,0.06,0.02,1,'o'],[0.4,0.2,-0.85,-0.06,0.08,0.02,0,'i'],[0.5,0.2,-0.85,-0.06,0.06,0.02,1],[0.7,0.2,-0.85,-0.06,0.08,0.02,0,'i'],
+    [0.8,0.2,-0.85,-0.06,0.06,0.02,1],[1,0.2,-0.85,-0.06,0.08,0.02,0,'i'],[1.1,0.2,-0.85,-0.06,0.06,0.02,1],[1.3,0.2,-0.85,-0.06,0.08,0.02,0,'i'],
+    [1.55,0.1,-0.4,-0.04,0.03,0.02,0,'o'],[1.7,0.05,-0.1,0,0,0.08,0],[2,0,0,0,0,0,0]],
+  vrTube:[[0,0,0,0,0,0,0],[0.25,-0.35,0.2,-0.05,-0.12,0.08,1,'o'],[0.5,-0.4,0.2,-0.05,-0.14,0.08,1],[0.8,-0.4,0.2,-0.05,-0.14,0.08,0.5],
+    [1,-0.38,0.2,-0.05,-0.12,0.06,0,'i'],[1.3,-0.3,0.15,-0.04,-0.1,0.06,0],[1.7,0,0,0,0,0,0,'o'],[2,0,0,0,0,0,0]]};
 const _SP=new Float32Array(8);
+// (a blow's own wind-up and follow-through, in seconds: a heavy weapon's are longer, its npc's wind and ft)
+const strikeWind=k=>WEAPONS[k]&&WEAPONS[k].npc&&WEAPONS[k].npc.wind||0.45,strikeFt=k=>WEAPONS[k]&&WEAPONS[k].npc&&WEAPONS[k].npc.ft||STRIKE_FT;
 function strikeAt(w,u){
   const K=STRIKES[w];u=Math.max(0,Math.min(2,u));let i=1;while(i<K.length-1&&K[i][0]<u)i++;
   const a=K[i-1],b=K[i],s=Math.max(0,Math.min(1,(u-a[0])/(b[0]-a[0]))),e=b[b.length-1],k=e==='i'?s*s:e==='o'?1-(1-s)*(1-s):s*s*(3-2*s);
@@ -15590,8 +15807,9 @@ function gobStrikeEase(m,dt){
 // a melee goblin's arm this frame: winding up (atk, the seconds till its blow, under 0.45 and in reach), following through
 // (atkS, the seconds since its last blow), or neither (false: its own code puts the arm back at the rest)
 function gobMeleePose(g,winding){
-  if(winding&&g.atk<0.45){gobStrike(g,gobWk(g),1-Math.max(0,g.atk)/0.45);return true;}
-  if((g.atkS??9)<STRIKE_FT){gobStrike(g,gobWk(g),1+g.atkS/STRIKE_FT);return true;}
+  const mk=foeMeleeK(foeOf(g)),wd=strikeWind(mk),ft=strikeFt(mk);
+  if(winding&&g.atk<wd){gobStrike(g,gobWk(g),1-Math.max(0,g.atk)/wd);return true;}
+  if((g.atkS??9)<ft){gobStrike(g,gobWk(g),1+g.atkS/ft);return true;}
   return false;
 }
 // where a model's root goes, with the blow's twist, lean and step added (h its heading, x0 any lean of its own)
@@ -15621,7 +15839,10 @@ const ggX=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
 // turns, and how far a shoulder may reach to get its hand there
 const GUN_GRIP={
   rifle:{sh:[0.1,0.84,0.12],out:0.16,fore:[0.12,0.22],tw:[0.75,0.75],low:-0.5,reach:0.1},
-  pistol:{sh:[0.04,0.92,0],out:0.29,fore:[0,0],tw:[0,0],reach:0.08}};
+  pistol:{sh:[0.04,0.92,0],out:0.29,fore:[0,0],tw:[0,0],reach:0.08},
+  // (a bazooka: the hand on its grip just in front of the shoulder, so the tube lies along the top of it; the free hand on
+  // the front grip, the body a little side-on)
+  tube:{sh:[0.2,0.98,0.02],out:0.12,fore:[0.32,0.3],tw:[0.25,0.3],low:-0.35,reach:0.12}};
 // turn an arm (a straight 0.4 from its pivot) to put its end at T, the shoulder giving a little (up to r) if it's too far
 // or too near; [shoulder x,y,z] is where it starts
 function ggArm(arm,P0,T,r){
@@ -15640,7 +15861,7 @@ function gunGrip(m,root,k){
   let g=[-Mi[1],-Mi[4],-Mi[7]],up=[Mi[2],Mi[5],Mi[8]];
   // (a rifle that isn't up at the shoulder is carried low, pointing ahead and down)
   let s=1;
-  if(k==='rifle'){s=Math.max(0,Math.min(1,(-0.9-A.rotation.x)/0.5));s=s*s*(3-2*s);
+  if(C.low!==undefined){s=Math.max(0,Math.min(1,(-0.9-A.rotation.x)/0.5));s=s*s*(3-2*s);
     if(s<1){const h=Math.atan2(g[0],g[2]),e=C.low,c=[Math.sin(h)*Math.cos(e),Math.sin(e),Math.cos(h)*Math.cos(e)];
       g=ggNorm([c[0]+(g[0]-c[0])*s,c[1]+(g[1]-c[1])*s,c[2]+(g[2]-c[2])*s]);up=[up[0]*s,up[1]*s+(1-s),up[2]*s];}}
   // turned side-on: the body round by tw, and the gun (and the head) back by as much, so it points where it did
@@ -15653,7 +15874,7 @@ function gunGrip(m,root,k){
   const Mh=ggMul(ggT(Ma),Mg),y=Math.asin(Math.max(-1,Math.min(1,Mh[2])));
   if(Math.abs(Mh[2])<0.9999999)H.rotation.set(Math.atan2(-Mh[5],Mh[8]),y,Math.atan2(-Mh[1],Mh[0]));else H.rotation.set(Math.atan2(Mh[7],Mh[4]),y,0);
   // the free hand: under the rifle's barrel, or wrapped round the handgun's grip from the other side
-  const sd=ggX(g,up),f=C.fore[0]+(C.fore[1]-C.fore[0])*s,T=k==='rifle'?[Hd[0]+g[0]*f-up[0]*0.05,Hd[1]+g[1]*f-up[1]*0.05,Hd[2]+g[2]*f-up[2]*0.05]
+  const sd=ggX(g,up),f=C.fore[0]+(C.fore[1]-C.fore[0])*s,T=k!=='pistol'?[Hd[0]+g[0]*f-up[0]*0.05,Hd[1]+g[1]*f-up[1]*0.05,Hd[2]+g[2]*f-up[2]*0.05]
     :[Hd[0]+sd[0]*0.08-up[0]*0.05+g[0]*0.02,Hd[1]+sd[1]*0.08-up[1]*0.05+g[1]*0.02,Hd[2]+sd[2]*0.08-up[2]*0.05+g[2]*0.02];
   ggArm(Lm,[-0.32,0.92,0],T,C.reach);
 }
@@ -15665,7 +15886,7 @@ function gunGripUndo(m,root=m.arm.parent){const v=m._gg;if(!v)return;m._gg=null;
 // thrown up in a panic)
 function gunHeld(g){
   const k=g.wkit&&g.wkit.shown===2?WEAPONS[g.wkit.k].npc.aim:g.root.gunK;if(!k)return null;
-  if(g.state==='dead'||g.dead||g.hp<=0||g.act||g.wet||g.orb&&g.orb.visible||g.armL.rotation.x<-1.9||g.arm.rotation.x<-2.3)return null;
+  if(g.state==='dead'||g.dead||g.hp<=0||g.act||g.wet||g.relT>0||g.orb&&g.orb.visible||g.mineB&&g.mineB.visible||g.armL.rotation.x<-1.9||g.arm.rotation.x<-2.3)return null;
   return k;
 }
 // ---- the obituary: every goblin that dies, newest first (kept per city) ----
@@ -17072,6 +17293,7 @@ const ACTS=[
   {id:'climb',n:'Spider Climb (hold)',c:'#9a7ae0',kb:['KeyC'],pad:[4]},
   {id:'use',n:'Get in / out (as Gnash)',c:'#6ab0d8',kb:['KeyF'],pad:[3]},
   {id:'weapon',n:'Next weapon (as Gnash)',c:'#b0b8c0',kb:['KeyR'],pad:[15]},
+  {id:'reload',n:'Reload (as Gnash)',c:'#d0b070',kb:['KeyX'],pad:[13]},   // (D-pad down: a gun's next magazine)
   {id:'talk',n:'Push to talk (online voice chat)',c:'#7fc8a0',kb:['KeyT'],pad:[14]},
   {id:'quickChat',n:'Quick chat message (online)',c:'#8fb8e0',kb:[],pad:[12]},
   // (piloting a Mobile Gear: its own set, which only counts while you're in one, so these can share keys and buttons
@@ -17152,7 +17374,7 @@ const CTX_NAMES={road:'Driving cars, bikes and trucks',lift:'Driving a forklift'
   air:'Flying a plane',sea:'Boats and ships',rail:'Driving a train',balloon:'Flying a hot-air balloon',mg:'Piloting a Mobile Gear (Testing Environment)'};
 // (the controls on foot that a vehicle's own set takes over while you're in it: everything but Get in / out, Lock on and
 // the online chat keys, which work everywhere)
-const CTX_TAKES=['bite','stomp','jump','climb','charge','dash','sprint','weapon'];
+const CTX_TAKES=['bite','stomp','jump','climb','charge','dash','sprint','weapon','reload'];
 const KB_RESERVED=new Set(['Escape','Backquote','KeyP','KeyV','Period','BracketLeft','BracketRight','Backspace','Delete','Enter','NumpadEnter']),PAD_RESERVED=new Set([8,9]);
 let BINDS={};
 function defaultBinds(){const o={};for(const a of ACTS)o[a.id]={kb:a.kb.slice(),pad:a.pad.slice()};return o;}
@@ -17198,7 +17420,9 @@ function bindHint(pad,p){
 }
 // playing as Gnash: his own moves (the hippo's stomps and trample aren't his), with whatever's in his hand
 function gobHint(L,p){const w=p&&p.wpns?p.wpn:'club',out=[];
-  if(L('bite'))out.push(L('bite')+' '+(w==='rifle'||w==='handgun'?'shoot':w==='dagger'?'stab':'swing the club'));
+  // (each weapon says what its attack is, WEAPONS' player.verb; a gun with a magazine can be reloaded)
+  const W=WEAPONS[w];if(L('bite'))out.push(L('bite')+' '+(W&&W.player&&W.player.verb||'swing the club'));
+  if(L('reload')&&W&&W.mag)out.push(L('reload')+' reload');
   if(L('stomp'))out.push(L('stomp')+' throw a grenade');if(L('jump'))out.push(L('jump')+' jump');
   if(L('dashSprint'))out.push('tap '+L('dashSprint')+' dash, hold to sprint');else{if(L('dash'))out.push(L('dash')+' dash');}
   if(L('sprint'))out.push('hold '+L('sprint')+' to sprint');
@@ -17664,7 +17888,7 @@ function addFoe(k){foeMade[k]=(foeMade[k]||0)+1;const F=FOES[k];
 function foeSpawn(g,k,V,i,look){
   const F=FOES[k],P=V&&V.posts[i];g.homeV=V;g.slot=i;g.post=P||null;g.hold=!!P&&P.y>G+3;   // (posted up a tower: it stays up there)
   g.hp=g.hpMax=F.hp;g.spd=F.spd;g.state='chase';g.t=0;g.sink=0;g.hurt=0;g.vy=0;g.atk=1;g.detour=0;g.stuck=0;g.kv.set(0,0,0);g.stun=0;g.act=null;g.wt=null;g.indoor=false;g.alert=false;
-  g.cop=null;g.inv=false;g.ff=null;g.medic=null;g.news=null;g.vendor=null;g.employer=null;g.claim=null;g.trip=null;g.stUp=undefined;g.aim=0;g.gunCD=0.5+Math.random();g.bombCD=3+Math.random()*3;
+  g.cop=null;g.inv=false;g.ff=null;g.medic=null;g.news=null;g.vendor=null;g.employer=null;g.claim=null;g.trip=null;g.stUp=undefined;g.aim=0;g.gunCD=0.5+Math.random();g.bombCD=3+Math.random()*3;foeFresh(g);
   g.root.visible=true;g.root.rotation.set(0,0,0);g.arm.rotation.x=-0.5;g.armL.rotation.x=0;if(g.orb)g.orb.visible=false;
   const L={skin:pick(GPAL.skin),tunic:F.tunic,pants:F.pants,hat:F.hatc,acc:F.pants,acc2:0x111111,hair:0x1b1b1b,show:[F.hat],foe:k,hatType:F.hat,hatShown:F.hatc,h:0.9+Math.random()*0.25,w:0.92+Math.random()*0.16,hs:0.94+Math.random()*0.12};
   if(look)Object.assign(L,look);   // (a carrier's deck crew: their jerseys)
@@ -17684,32 +17908,59 @@ function guardCalm(g,dt){
 // hunting: aim and fire, or wind up and throw, when there's a shot; true while busy at it (or posted up a tower), so it
 // stays where it is
 // (F: its kind's entry, what it carries and how it uses its gun and grenades: FOES, or GOB_FOES.police for an officer)
+// (a goblin armed afresh: a full magazine, nothing half done)
+function foeFresh(g){g.mag=undefined;g.relT=0;g.burstN=0;g.mineCD=4+Math.random()*5;if(g.mineB)g.mineB.visible=false;}
+// (its rounds left: a full magazine till it's fired any)
+const foeMag=(g,W)=>g.mag===undefined?W.mag:g.mag;
 function foeRanged(g,p,d,ddy,dt,F=foeOf(g)){
-  g.gunCD-=dt;g.bombCD-=dt;const gk=foeGunK(F),GW=gk&&F.gun&&WEAPONS[gk],aimW=GW&&GW.npc.pose,bomb=foeThrowK(F)&&F.bomb;
+  g.gunCD-=dt;g.bombCD-=dt;g.mineCD=(g.mineCD??6)-dt;const gk=foeGunK(F),GW=gk&&F.gun&&WEAPONS[gk],aimW=GW&&GW.npc.pose,bomb=foeThrowK(F)&&F.bomb,mineK=foeMineK(F);
   // (how long it aims and the closest it'll fire at: its kind's own, or for a spell the spellbook's: conjuring time and
   // range are the weapon's, the same for a player goblin. spell: a fireball grows in the free hand as it's conjured)
-  const aimT=GW&&(F.gun.aim??GW.cast),near=GW&&(F.gun.near??GW.near),spell=GW&&GW.kind==='spell';
+  const aimT=GW&&(F.gun.aim??GW.cast),near=GW&&(F.gun.near??GW.near),spell=GW&&GW.kind==='spell',side=!!wpnOfKind(F.weapons,'melee');
   const face=r=>{let df=Math.atan2(p.pos.x-g.pos.x,p.pos.z-g.pos.z)-g.heading;while(df>Math.PI)df-=Math.PI*2;while(df<-Math.PI)df+=Math.PI*2;g.heading+=Math.max(-r*dt,Math.min(r*dt,df));};
+  // reloading: stood still, the magazine changed (its look: the gun's npc.rl, strikes.js); given up if it's knocked about,
+  // or for its blade or club if he's come in close (it'll finish another time)
+  if(g.relT>0){
+    if(!GW||g.stun>0||!playing||g.wet||side&&d<near){g.relT=0;return false;}
+    g.relT-=dt;face(4);gobStrike(g,GW.npc.rl||'rlMag',2*(1-Math.max(0,g.relT)/g.relD));
+    if(g.relT<=g.relD*0.5&&!g.relH){g.relH=true;wpnClack(gk,1);}
+    if(g.relT<=0){g.relT=0;g.mag=GW.mag;g.gunCD=0.15;wpnClack(gk,2);}
+    return true;}
+  // the rest of a burst (an assault rifle's): held on him, a round every so often, each with its own small kick
+  if(g.burstN>0){
+    if(g.stun>0||!playing||g.wet){g.burstN=0;return false;}
+    g.burstT-=dt;face(8);gobStrike(g,aimW,1+0.2*Math.min(1,1-Math.max(0,g.burstT)/GW.every));
+    if(g.burstT<=0){foeShoot(g,p,F);g.mag=foeMag(g,GW)-1;g.burstN=g.mag>0?g.burstN-1:0;g.burstT=GW.every;
+      if(!g.burstN){g.relS=0;g.relK=aimW;}}
+    return true;}
   if(g.aim>0){
-    if(g.stun>0||!playing||g.wet){g.aim=0;if(g.orb)g.orb.visible=false;return false;}
+    if(g.stun>0||!playing||g.wet){g.aim=0;if(g.orb)g.orb.visible=false;if(g.mineB)g.mineB.visible=false;return false;}
     g.aim-=dt;face(8);
     // (shouldering the rifle, or raising the handgun in both hands, and holding it on him; or drawing the grenade back
     // behind the head: see strikes.js)
     if(g.aimK==='gun'){const k=1-Math.max(0,g.aim)/aimT;gobStrike(g,aimW,k);
       if(spell&&g.orb){g.orb.visible=true;g.orb.scale.setScalar(0.4+k*0.9);g.roles.orb.emissive.setHex(0xff5a00);}}   // (raised high as it grows, drawn back, hurled: strikes.js)
+    else if(g.aimK==='mine'){const u=1-Math.max(0,g.aim)/FOE_PLANT;gobStrike(g,WEAPONS[mineK].npc.pose,u);if(g.mineB)g.mineB.visible=true;}   // (crouched, the mine set down with the free hand: strikes.js)
     else{g.orb.visible=true;gobStrike(g,'throw',1-Math.max(0,g.aim)/0.6);}
-    if(g.aim<=0){g.relS=0;g.relK=g.aimK==='gun'?aimW:'throw';
+    if(g.aim<=0){g.relS=0;g.relK=g.aimK==='gun'?aimW:g.aimK==='mine'?WEAPONS[mineK].npc.pose:'throw';
       // (again once the weapon's ready, give or take: its every, less the next aim, which comes off it)
-      if(g.aimK==='gun'){foeShoot(g,p,F);if(spell&&g.orb)g.orb.visible=false;g.gunCD=Math.max(0,GW.every-aimT)+Math.random()*(GW.npc.jit??FOE_JIT);}
+      if(g.aimK==='gun'){foeShoot(g,p,F);if(spell&&g.orb)g.orb.visible=false;g.gunCD=Math.max(0,GW.every-aimT)+Math.random()*(GW.npc.jit??FOE_JIT);
+        // (a magazine runs down; an automatic carries on into a burst)
+        if(GW.mag){g.mag=foeMag(g,GW)-1;const b=GW.npc.burst||1;if(b>1&&g.mag>0){g.burstN=Math.min(b,g.mag+1)-1;g.burstT=GW.every;}}}
+      else if(g.aimK==='mine'){foeMine(g,F,mineK);if(g.mineB)g.mineB.visible=false;}
       else{foeThrow(g,p,bomb);const E2=bomb.every;g.bombCD=E2[0]+Math.random()*(E2[1]-E2[0]);g.orb.visible=false;}}
     return true;}
   // (just fired or thrown: the kick, or the arm coming through, and back down)
   const fol=(g.relS??9)<STRIKE_FT&&g.relK;if(fol)gobStrike(g,g.relK,1+g.relS/STRIKE_FT);
   const ready=playing&&g.stun<=0&&g.vy===0&&!g.wet&&!g.act;
+  // (its magazine's empty: it reloads once the shot's follow-through is done, unless he's close enough for its blade or club)
+  if(ready&&GW&&GW.mag&&g.mag<=0&&!(side&&d<near)){if(fol)return true;g.relT=g.relD=GW.reload;g.relH=false;wpnClack(gk,0);return true;}
+  // (a landmine in his path, now and then: knelt and set down where it stands, for him to run on to)
+  if(ready&&mineK&&g.mineCD<=0){if(d>4&&d<20&&Math.abs(ddy)<3){g.aim=FOE_PLANT;g.aimK='mine';return true;}g.mineCD=0.8;}
   if(ready&&bomb&&g.bombCD<=0){
     // (a bomb can go over a wall: they'll lob one without a clear view, if you're near enough)
     if(d>bomb.near&&d<bomb.far&&Math.abs(ddy)<10&&(cultSees(g,p)||d<bomb.far*0.7)){g.aim=0.6;g.aimK='bomb';return true;}g.bombCD=0.5;}
-  if(ready&&GW&&g.gunCD<=0){
+  if(ready&&GW&&g.gunCD<=0&&!(GW.mag&&foeMag(g,GW)<=0)){   // (never with nothing in it: see above)
     if(d>near&&d<GW.range&&Math.abs(ddy)<(GW.npc.dy??24)&&cultSees(g,p)){g.aim=aimT;g.aimK='gun';if(audio)wpnCue(gk,aimT);return true;}g.gunCD=0.3;}
   if(!fol)g.armL.rotation.x+=(0-g.armL.rotation.x)*Math.min(1,dt*6);
   if(g.hold){face(3);if(!fol)g.arm.rotation.x=-0.5;return true;}
@@ -17723,9 +17974,19 @@ function foeShoot(g,p,F){const gk=foeGunK(F),W=WEAPONS[gk];
     fireball(g.pos.x+fx*0.5,g.pos.y+1.6,g.pos.z+fz*0.5,p.pos.x,p.pos.y+1.5,p.pos.z,{W,by:g.id,cause:F.gun.cause});return;}
   const fx=Math.sin(g.heading),fz=Math.cos(g.heading),x0=g.pos.x+fx*0.8,y0=g.pos.y+1.05,z0=g.pos.z+fz*0.8;
   const d=Math.hypot(p.pos.x-x0,p.pos.z-z0);
+  // (a bazooka: a rocket off the shoulder that flies at him, aimed off a little more the further he is, and bursts on
+  // whatever it meets, him included; all its numbers the weapon's)
+  if(W.proj){const y1=g.pos.y+1.25,e=Math.min(2.5,d/25),a=Math.random()*6.283,tx=p.pos.x+Math.cos(a)*e*Math.random(),ty=p.pos.y+1+(Math.random()-0.5)*e,tz=p.pos.z+Math.sin(a)*e*Math.random(),
+      L=Math.hypot(tx-x0,ty-y1,tz-z0)||1;
+    shot({kind:W.proj,x:x0,y:y1,z:z0,vx:(tx-x0)/L*W.speed,vy:(ty-y1)/L*W.speed,vz:(tz-z0)/L*W.speed,grav:0,fuse:W.range/W.speed+0.5,R:W.R,dmg:W.dmg,cause:F.gun.cause,by:g.id,crush:W.crush,vd:W.vd});
+    wpnCrack(gk);smoke(g.pos.x-fx*0.9,y1,g.pos.z-fz*0.9,3,0xbababa);return;}   // (and its backblast)
+  // (a shotgun: its pellets, each its own round, each less likely to land the further he is)
+  if(W.pellets){for(let i=0;i<W.pellets;i++)fireRound({x:x0,y:y0,z:z0,at:{x:p.pos.x,y:p.pos.y+1.2,z:p.pos.z},tgt:p,hit:Math.max(0.05,0.95-d/(W.npc.fall||14)),miss:[1.6,3.1,-0.45,1.5,1.6],step:0.4,
+      pdmg:W.dmg,cause:F.gun.cause,id:g.id,breaks:W.breaks,snd:i?null:()=>wpnCrack(gk)});
+    puff(x0,y0-0.1,z0,2,0xffe070,0.14);return;}
   // (a block in the way stops the round there: they may have taken aim before he ducked behind something. A handgun's
   // crack is sharper and shorter: WEAPONS)
-  fireRound({x:x0,y:y0,z:z0,at:{x:p.pos.x,y:p.pos.y+1.2,z:p.pos.z},tgt:p,hit:Math.max(0.3,0.92-d/60),miss:[1.6,3.1,-0.45,1.5,1.6],step:0.4,
+  fireRound({x:x0,y:y0,z:z0,at:{x:p.pos.x,y:p.pos.y+1.2,z:p.pos.z},tgt:p,hit:Math.max(0.3,0.92-d/(W.npc.fall||60)),miss:[1.6,3.1,-0.45,1.5,1.6],step:0.4,
     pdmg:W.dmg,cause:F.gun.cause,id:g.id,breaks:W.breaks,snd:()=>wpnCrack(gk)});
   puff(x0,y0-0.1,z0,1,0xffe070,0.1);
 }
@@ -17737,18 +17998,25 @@ function foeThrow(g,p,B6){const GR=WEAPONS.grenade;   // (its fuse, blast and da
   if(audio)noise(0.2,0.04,500,'lowpass');
 }
 
+// a landmine set down where it stands (foeRanged's crouch), for a player to step on: the weapon's numbers, the cause
+// its kind's (mine, in FOES) if it says, and it's a while before the next (its every, if it says)
+const FOE_PLANT=0.9;   // (seconds crouching to set it down)
+function foeMine(g,F,k){const M=F.mine||{},E2=M.every||[9,15],fx=Math.sin(g.heading),fz=Math.cos(g.heading);
+  mineLay(g.pos.x+fx*0.55,g.pos.y,g.pos.z+fz*0.55,{side:'g',by:g.id,cause:M.cause||'Blown up by a landmine',k});
+  g.mineCD=E2[0]+Math.random()*(E2[1]-E2[0]);}
+
 // ---- a gun and a blade or club: any enemy whose weapons list has both (a police officer's club and handgun) draws the gun
 // to aim and fire at range and puts it away (its model's stow: holstered, slung) for the blade or club up close. Which it
 // does is foeRanged's: inside its kind's gun.near it won't shoot, so the chase closes in and strikes ----
 // armed as kind F (an officer out of a police car, carjacked out of one, or the Testing Environment's: GOB_FOES.police),
 // if its model carries F's gun (only a street goblin's does: goblinModel)
 function foeArm(g,F){const gk=foeGunK(F);if(gk&&!(g.wkit&&g.wkit.k===gk))return;
-  g.arms=F;g.aim=0;g.aimK=null;g.gunCD=0.4+Math.random()*0.8;g.bombCD=foeThrowK(F)?3+Math.random()*3:99;g.relK=null;}
+  g.arms=F;g.aim=0;g.aimK=null;g.gunCD=0.4+Math.random()*0.8;g.bombCD=foeThrowK(F)?3+Math.random()*3:99;g.relK=null;foeFresh(g);}
 // which is in hand: the gun while it's aimed and just after the shot, the blade or club the rest of the time, the gun put
 // away whenever it isn't out. 0 the blade or club alone (its kind carries no gun), 1 blade or club with the gun put away,
 // 2 the gun out (online guests are sent this: net-sync.js)
 const wkitState=g=>{const k=foeGunK(foeOf(g));if(!k||!g.wkit||g.wkit.k!==k)return 0;
-  return g.aim>0&&g.aimK==='gun'||(g.relS??9)<STRIKE_FT&&g.relK===WEAPONS[k].npc.pose?2:1;};
+  return g.aim>0&&g.aimK==='gun'||g.relT>0||g.burstN>0||(g.relS??9)<STRIKE_FT&&g.relK===WEAPONS[k].npc.pose?2:1;};   // (and while it's reloading or firing a burst)
 function wkitShow(K,n){
   if(K.shown===n)return;K.shown=n;   // (only when it changes: batDraw picks the change up)
   for(const m of K.melee)m.visible=n!==2;for(const m of K.gun)m.visible=n===2;for(const m of K.stow)m.visible=n===1;
@@ -17835,7 +18103,7 @@ function updateFireballs(dt){
     F.trail-=dt;if(F.trail<=0){F.trail=0.04;puff(F.pos.x,F.pos.y-0.15,F.pos.z,1,Math.random()<0.5?0xff7a1a:0xffc040,0.12);}
   }
 }
-function fbClear(){gobPickupsClear();for(const F of FIREB){F.live=false;F.g.visible=false;}for(const S of SHOTS){S.live=false;S.g.visible=false;}for(const T of TRACERS)T.m.visible=false;}
+function fbClear(){gobPickupsClear();minesClear();for(const F of FIREB){F.live=false;F.g.visible=false;}for(const S of SHOTS){S.live=false;S.g.visible=false;}for(const T of TRACERS)T.m.visible=false;}
 // ---- bullets' tracers: a thin streak of light from the muzzle, gone in a moment ----
 const TRACERS=[],TR_MAT=new THREE.MeshBasicMaterial({color:0xfff0a0});
 function tracer(x0,y0,z0,x1,y1,z1){
@@ -17853,7 +18121,7 @@ const SHOTS=[],SHOT_LOOK={grenade:[[0.24,0.24,0.24],0x3a4a22],shell:[[0.28,0.28,
 function shot(o){
   let S=SHOTS.find(q=>!q.live&&q.kind===o.kind);
   if(!S){const L=SHOT_LOOK[o.kind],m=new THREE.Mesh(FB_GEO,SHOT_M[o.kind]||(SHOT_M[o.kind]=new THREE.MeshLambertMaterial({color:L[1]})));m.scale.set(...L[0]);m.visible=false;scene.add(m);S={kind:o.kind,g:m,pos:new V3(),v:new V3(),live:false};SHOTS.push(S);}
-  Object.assign(S,{grav:o.grav,fuse:o.fuse??9,R:o.R,dmg:o.dmg,cause:o.cause,by:o.by||null,bounce:!!o.bounce,t:0,live:true,trail:0,crush:o.crush||0,vd:o.vd,own:o.own||null,ap:!!o.ap,hitB:false,tgt:o.tgt||null,chase:o.chase||null,at:o.at||null,sp:o.sp||0,turn:o.turn||0});
+  Object.assign(S,{grav:o.grav,fuse:o.fuse??9,R:o.R,dmg:o.dmg,cause:o.cause,by:o.by||null,bounce:!!o.bounce,t:0,live:true,trail:0,crush:o.crush||0,vd:o.vd,own:o.own||null,ap:!!o.ap,hitB:false,tgt:o.tgt||null,chase:o.chase||null,at:o.at||null,sp:o.sp||0,turn:o.turn||0,skipP:o.skipP||null,gobs:!!o.gobs});   // (skipP: the player who fired it, not hit by it as it leaves; gobs: it goes off on a goblin it reaches, a bazooka's)
   S.pos.set(o.x,o.y,o.z);S.v.set(o.vx,o.vy,o.vz);S.g.position.copy(S.pos);S.g.visible=true;return S;
 }
 // a blast: the flash, smoke and noise, everyone near it hurt (less at the edge) and thrown, goblins too, maybe a crater
@@ -17882,7 +18150,8 @@ function updateShots(dt){
         else{S.v.x*=-0.4;S.v.z*=-0.4;}continue;}
       S.pos.set(nx,ny,nz);
       // (a shell or a rocket goes off on whoever it reaches, too)
-      if(!S.bounce)for(const q of players){if(!q.active||q.state==='dead'||q.drv&&q.drv.o===S.own)continue;const hx=S.pos.x-q.pos.x,hz=S.pos.z-q.pos.z,hy=S.pos.y-q.pos.y;if(hx*hx+hz*hz<1.6*1.6&&hy>-0.3&&hy<2.4){boom=true;break;}}
+      if(!S.bounce)for(const q of players){if(!q.active||q.state==='dead'||q.drv&&q.drv.o===S.own||q===S.skipP&&S.t<0.6)continue;const hx=S.pos.x-q.pos.x,hz=S.pos.z-q.pos.z,hy=S.pos.y-q.pos.y;if(hx*hx+hz*hz<1.6*1.6&&hy>-0.3&&hy<2.4){boom=true;break;}}
+      if(!S.bounce&&!boom&&S.gobs)for(const g of goblins){if(g.state!=='chase'||!g.root.visible)continue;const hx=S.pos.x-g.pos.x,hz=S.pos.z-g.pos.z,hy=S.pos.y-g.pos.y;if(hx*hx+hz*hz<0.7*0.7&&hy>-0.2&&hy<1.6){boom=true;break;}}
       if(!S.bounce&&!boom&&shotHitsVeh(S))boom=true;}
     if(boom||S.t>12){S.live=false;S.g.visible=false;if(S.ap&&S.hitB)apTunnel(S);impX=S.imp||1;   // (an AP shell into a wall bores on: tank-handling.js)
      foeBoom(S.pos.x,S.pos.y,S.pos.z,S.R,S.dmg,S.cause,S.by,S.crush,S.vd,S.own);impX=1;continue;}   // (imp: how much a heavy shell fills an impact meter: see impHit)
@@ -17923,6 +18192,53 @@ function dropGoblinCorpse(x,y,z,driver){
   g.id=makeIdentity(g,dressGoblin(g));Object.assign(g.id,{name:D.name,age:D.age,occ:D.occ,hobby:D.hobby,quirk:D.quirk,civ:D.civ});
   damageGoblin(g,99,new V3(x,y+1,z),new V3(0,1,0),'Killed when their car exploded');
 }
+// ---- landmines (WEAPONS.landmine, whose numbers they all are): pressed into the ground by a player goblin (gobPlant,
+// gob-weapons.js) or by an enemy that carries them (foeMine, foes.js). Each sits a moment while it arms (the weapon's arm),
+// then the first of the other side over it sets it off: a player's goes off under an enemy goblin or a vehicle (or, with
+// PvP on, another player), an enemy's under a player or a vehicle. Never under whoever's side planted it. The blast is
+// foeBoom's, like a grenade's: the weapon's damage, radius, crater and harm to vehicles ----
+const MINES=[],MINE_MAX=24;   // (the most in the ground at once: past that, the oldest goes)
+// (o: side 'p' a player's or 'g' an enemy's, by who's to blame (pvpBy for a player, an enemy's id), owner the player who
+// set it, cause, k the weapon)
+function mineLay(x,y,z,o){
+  const W=WEAPONS[o.k||'landmine'],sy=supportAt(x,z,y+1.2);
+  let M=MINES.find(m=>!m.live);
+  if(!M){if(MINES.length<MINE_MAX){M={i:MINES.length};MINES.push(M);}else{M=MINES.reduce((a,b)=>b.n<a.n?b:a);mineShow(M.i,0,0,0,0);}}
+  Object.assign(M,{live:true,x,y:sy??y,z,t:0,armed:false,side:o.side,by:o.by||null,owner:o.owner||null,cause:o.cause,W,n:(mineLay.n=(mineLay.n||0)+1)});
+  mineShow(M.i,M.x,M.y,M.z,1);
+  sfx('Landmine set',()=>{noise(0.08,0.06,700,'lowpass');tone('square',300,240,0.05,0.025);});
+  return M;
+}
+function mineBoom(M){M.live=false;mineShow(M.i,0,0,0,0);const W=M.W;
+  sfx('Landmine',()=>{tone('square',1200,1200,0.06,0.04);});
+  foeBoom(M.x,M.y+0.2,M.z,W.R,W.dmg,M.cause,M.by,W.crush,W.vd);}
+function updateMines(dt){
+  if(!playing)return;
+  for(const M of MINES){if(!M.live)continue;M.t+=dt;
+    if(!M.armed){if(M.t<M.W.arm)continue;M.armed=true;mineShow(M.i,M.x,M.y,M.z,2);sfx('Landmine armed',()=>{tone('square',1500,1500,0.03,0.02);});}
+    const on=(x,y,z,r,h)=>Math.abs(x-M.x)<r&&Math.abs(z-M.z)<r&&y>M.y-0.6&&y<M.y+h;
+    let hit=false;
+    // (cars of any kind, traffic too: whoever's side it is)
+    for(const c of cars){if(c.alive&&on(c.pos.x,c.pos.y,c.pos.z,1.4,1.6)){hit=true;break;}}
+    if(!hit&&M.side==='p')for(const g of goblins){if(g.state==='chase'&&g.hp>0&&g.root.visible&&on(g.pos.x,g.pos.y,g.pos.z,0.75,1.2)){hit=true;break;}}
+    if(!hit)for(const q of players){if(!q.active||q.state==='dead'||q.drv)continue;if(M.side==='p'&&(q===M.owner||!pvpOn()))continue;
+      if(on(q.pos.x,q.pos.y,q.pos.z,q.gob?0.75:1.1,1.2)){hit=true;break;}}
+    if(hit)mineBoom(M);}
+}
+function minesClear(){for(const M of MINES)if(M.live){M.live=false;mineShow(M.i,0,0,0,0);}}
+// ---- how they look (on an online guest too: the host's calls come across, net-sync.js): the weapon's shape lying in the
+// ground, its light dark while it arms and blinking red once it's live. on: 0 gone, 1 arming, 2 armed ----
+const MINEV=[],MINE_MAT={},MINE_LED=[new THREE.MeshBasicMaterial({color:0x3a1008}),new THREE.MeshBasicMaterial({color:0xff2a10})];
+function mineShow(i,x,y,z,on){
+  let V=MINEV[i];
+  if(!V){if(!on)return;const g=new THREE.Group(),m=c=>MINE_MAT[c]||(MINE_MAT[c]=new THREE.MeshLambertMaterial({color:c}));let led=null;
+    wpnBoxes(WEAPONS.landmine.model.drop,(w,h,d,c,bx,by,bz)=>{const o=new THREE.Mesh(FB_GEO,c===0xd03020?MINE_LED[0]:m(c));o.scale.set(w,h,d);o.position.set(bx,by-0.02,bz);g.add(o);if(c===0xd03020)led=o;});
+    // (the light blinks once a second, every armed mine together)
+    if(led)led.onBeforeRender=()=>{led.material=V.on===2&&(performance.now()%1000)<180?MINE_LED[1]:MINE_LED[0];};
+    g.visible=false;scene.add(g);V=MINEV[i]={g,on:0};}
+  V.on=on;V.g.visible=!!on;if(!on)return;
+  V.g.position.set(x,y+0.04,z);const par=shipPar(x,z);if(V.g.parent!==par)par.add(V.g);   // (aboard a ship: hung off it, as a dropped weapon is)
+}
 // ---- Gnash's weapons: what he starts with (his seat's loadout, gob-loadout.js), and what he takes off the enemies he kills ----
 // (each weapon's numbers, shapes and sounds are its entry in WEAPONS, weapons.js)
 // Each player goblin carries a list (p.wpns, the one in hand p.wpn) and a stack of grenades (p.gren). The attack button
@@ -17936,6 +18252,10 @@ function dropGoblinCorpse(x,y,z,driver){
 const GOB_WPN={},GOB_WPN_ORDER=WEAPON_ORDER.filter(k=>WEAPONS[k].player&&WEAPONS[k].kind!=='throw');
 for(const k of GOB_WPN_ORDER)GOB_WPN[k]=WEAPONS[k].player;
 const GREN=WEAPONS.grenade.player,GREN_MAX=GREN.max,GREN_CAUSE=GREN.cause;
+// (what comes in a pile, carried as a count on the player, its player block's field: grenades as p.gren, landmines as
+// p.mines; and the weapons that are a switch each on the loadout, all the others)
+const GOB_STACKS=WEAPON_ORDER.filter(k=>WEAPONS[k].stack&&WEAPONS[k].player&&WEAPONS[k].player.field),GOB_PICK=GOB_WPN_ORDER.filter(k=>!WEAPONS[k].stack);
+const stkField=k=>WEAPONS[k].player.field,stkMax=k=>WEAPONS[k].player.max;
 // (the ways a player goblin kills: a kill by any of them drops the victim's gear)
 const GOB_CAUSES=new Set(WEAPON_ORDER.map(k=>WEAPONS[k].player&&WEAPONS[k].player.cause).filter(Boolean));
 function gobArms(p){if(!p.wpns)gobLoadArm(p);return p;}   // (what he starts with is his seat's choice on the Character screen: gob-loadout.js)
@@ -17948,13 +18268,17 @@ const gobGun=k=>!!WEAPONS[k]&&WEAPONS[k].kind==='gun';   // (the ones that shoot
 // then once everyone has that its dagger; none if they've all got everything it carries)
 function gobGear(g){const F=foeOf(g),L=F.weapons||[],pk=F.pack||[],own=players.filter(q=>q.active&&q.gob&&q.wpns);
   const wpn=L.find(k=>WEAPONS[k]&&WEAPONS[k].drop&&!WEAPONS[k].stack&&GOB_WPN[k]&&!(own.length&&own.every(q=>q.wpns.includes(k))))||null;
-  return{wpn,gren:L.includes('grenade')?1+(Math.random()<0.5?1:0):pk.includes('grenade')?1:0};}
+  return{wpn,gren:L.includes('grenade')?1+(Math.random()<0.5?1:0):pk.includes('grenade')?1:0,mines:L.includes('landmine')?1+(Math.random()<0.5?1:0):pk.includes('landmine')?1:0};}
 // the attack button's hit, for whatever's in hand (the club's is gobClub)
 function gobAttack(p){const k=gobArms(p).wpn,K=WEAPONS[k];
   if(K&&K.kind==='gun'){gobShoot(p);return;}
   if(K&&K.kind==='spell'){gobCast(p);return;}
-  if(K&&K.kind==='melee'&&K.player.reach){const W=K.player,hx=Math.sin(p.heading),hz=Math.cos(p.heading);hitGoblins(p.pos.x+hx*W.reach,p.pos.z+hz*W.reach,W.r,W.dmg,W.cause,p.pos.y);pvpArea(p,p.pos.x+hx*W.reach,p.pos.z+hz*W.reach,W.r,W.dmg,W.pvp,p.pos.y);
-    for(const c of carsNear(p.pos.x+hx*W.reach,p.pos.z+hz*W.reach,W.r,p.pos.y)){damageCar(c,1,new V3(hx,0,hz));clang();}return;}
+  if(K&&K.kind==='mine'){gobPlant(p);return;}
+  if(K&&K.kind==='melee'&&K.player.reach){const W=K.player,hx=Math.sin(p.heading),hz=Math.cos(p.heading),fx=p.pos.x+hx*W.reach,fz=p.pos.z+hz*W.reach;hitGoblins(fx,fz,W.r,W.dmg,W.cause,p.pos.y);pvpArea(p,fx,fz,W.r,W.dmg,W.pvp,p.pos.y);
+    for(const c of carsNear(fx,fz,W.r,p.pos.y)){damageCar(c,W.carDmg||1,new V3(hx,0,hz));clang();}
+    // (the large club slammed into the ground: the shock of it, dust, the ground shaking)
+    if(W.slam){shockwave(fx,p.pos.y+0.1,fz,W.r+0.6,undefined,0.3);puff(fx,p.pos.y+0.2,fz,6,0x8a7a62,0.35);addShake(0.25,fx,fz,10);thud(0.6);p.shake=Math.max(p.shake||0,0.08);rumble(p,0.5,140);}
+    return;}
   gobClub(p);   // (the club: pivots.js)
 }
 // a rifle or handgun shot straight down the middle of the view: the first goblin, vehicle or block it meets (fireRound).
@@ -17963,11 +18287,25 @@ function gobAttack(p){const k=gobArms(p).wpn,K=WEAPONS[k];
 // block it hits breaks (bulletBreak), as an enemy's round does: the damage, range and breaking are the weapon's
 function gobShoot(p){
   const wk=gobGun(gobArms(p).wpn)?p.wpn:'rifle',W=GOB_WPN[wk],c=shipEye(p),cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp,
-    fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw);
-  fireRound({x:c.x,y:c.y,z:c.z,dir:{x:dx,y:dy,z:dz},range:W.range,step:0.2,by:p,tr:{x:c.x+fx*0.5+Math.cos(p.cam.yaw)*0.18,y:c.y-0.18,z:c.z+fz*0.5-Math.sin(p.cam.yaw)*0.18},
-    gobs:true,gb:[0.45,0,1.5],dmg:W.dmg,cause:W.cause,pvp:{n:W.dmg,cause:'Shot',opt:{cd:0}},vehs:true,vd:W.dmg*VEH_SHOT_K,breaks:W.breaks,ship:true,
-    snd:()=>wpnCrack(wk)});   // (the handgun cracks higher and shorter, as the police's does)
+    fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw),rx=Math.cos(p.cam.yaw),rz=-Math.sin(p.cam.yaw);
+  // (a round out of the magazine: its count, kept per weapon (gobAmmo))
+  if(W.mag){const n=gobAmmo(p,wk);if(n<=0)return;p.ammo[wk]=n-1;}
+  p.shotT=camClock;p.shotN=(p.shotN||0)+1;
+  // a bazooka's rocket: off the shoulder, along the view, bursting on whatever it meets (shots.js); it can't go off on
+  // you as it leaves (skipP)
+  if(W.proj){shot({kind:W.proj,x:c.x+dx*1.1+rx*0.22,y:c.y-0.08+dy*1.1,z:c.z+dz*1.1+rz*0.22,vx:dx*W.speed,vy:dy*W.speed,vz:dz*W.speed,grav:0,fuse:W.range/W.speed+0.5,
+      R:W.R,dmg:W.dmg,cause:W.cause,by:pvpBy(p),crush:W.crush,vd:W.vd,skipP:p,gobs:true});
+    wpnCrack(wk);smoke(c.x-dx*0.9+rx*0.22,c.y-0.1,c.z-dz*0.9+rz*0.22,3,0xbababa);}   // (and its backblast)
+  else{
+    // (a shotgun's pellets each a round of their own, scattered round the middle of the view)
+    const n=W.pellets||1;for(let i=0;i<n;i++){let ex=dx,ey=dy,ez=dz;
+      if(n>1){const a=Math.random()*6.283,r=W.spread*Math.sqrt(Math.random()),ux=rx*Math.cos(a)*r,uy=Math.sin(a)*r;ex+=ux;ey+=uy;ez+=rz*Math.cos(a)*r;const L=Math.hypot(ex,ey,ez);ex/=L;ey/=L;ez/=L;}
+      fireRound({x:c.x,y:c.y,z:c.z,dir:{x:ex,y:ey,z:ez},range:W.range,step:0.2,by:p,tr:{x:c.x+fx*0.5+rx*0.18,y:c.y-0.18,z:c.z+fz*0.5+rz*0.18},
+        gobs:true,gb:[0.45,0,1.5],dmg:W.dmg,cause:W.cause,pvp:{n:W.dmg,cause:'Shot',opt:{cd:0}},vehs:true,vd:W.dmg*VEH_SHOT_K,breaks:W.breaks,ship:true,
+        snd:i?null:()=>wpnCrack(wk)});}}   // (the handgun cracks higher and shorter, as the police's does)
   p.shake=Math.max(p.shake||0,W.shake);rumble(p,W.rumble,50);
+  // (the view kicked up a little, and a hair to one side then the other, so a held trigger climbs: the same every time)
+  if(W.climb){p.cam.pitch=camPitch(p.cam.pitch+W.climb,p);p.cam.yaw+=W.climb*0.2*(p.shotN%2?1:-1);}
 }
 // a spellbook's fireball, once it's conjured (the attack's wind-up is the conjuring: its player block's lunge is the
 // weapon's cast): out of the free hand, a little below and left of the eye, at whatever's under the crosshair. It flies
@@ -17978,7 +18316,33 @@ function gobCast(p){const W=WEAPONS[gobArms(p).wpn];if(!W||W.kind!=='spell')retu
   rumble(p,0.12,60);}
 // the attack button's sound as it starts: the club's or dagger's swing, a spell's rising note while it's conjured (a gun's
 // is its crack, when it fires)
-function gobPressSnd(p){const W=WEAPONS[p.wpn];if(W&&W.kind==='spell')wpnCue(p.wpn,W.cast);else if(!gobGun(p.wpn))sfx('Club swing',()=>{woosh(0.13,0.22,520,1700,0.1);});}
+function gobPressSnd(p){const W=WEAPONS[p.wpn];if(W&&W.kind==='spell')wpnCue(p.wpn,W.cast);else if(W&&W.kind==='mine')return;
+  else if(p.wpn==='bigclub')sfx('Large club heaved',()=>{woosh(0.5,0.18,240,700,0.3);});else if(p.wpn==='katana')sfx('Katana swing',()=>{woosh(0.12,0.24,900,3200,0.14);});
+  else if(!gobGun(p.wpn))sfx('Club swing',()=>{woosh(0.13,0.22,520,1700,0.1);});}
+// ---- reloading: each gun's magazine (its mag) is counted per weapon (p.ammo), so switching away and back keeps what's
+// left. The reload button (or firing with it empty, or the last round going) fills it in the weapon's reload seconds;
+// switching weapons stops it. On an online guest, the host's count is the one shown (p.ammoN) ----
+function gobAmmo(p,k){const A=p.ammo||(p.ammo={});if(A[k]===undefined)A[k]=WEAPONS[k].mag||0;return A[k];}
+function gobReload(p,k=p.wpn){const W=WEAPONS[k];if(!W||!W.mag||p.relT>0||gobAmmoShown(p,k)>=W.mag||p.state==='dead'||p.drv)return false;
+  p.relT=p.relDur=W.reload;p.relW=k;p.relH=false;wpnClack(k,0);return true;}
+function gobReloadTick(p,dt){const k=p.wpn,W=WEAPONS[k];
+  if(p.relT>0){if(p.relW!==k||p.state==='dead'||p.drv){p.relT=0;return;}
+    p.relT-=dt;if(!p.relH&&p.relT<=p.relDur*0.5){p.relH=true;wpnClack(k,1);}
+    if(p.relT<=0){p.relT=0;p.ammo[k]=W.mag;wpnClack(k,2);}}
+  else if(W&&W.mag&&gobAmmoShown(p,k)<=0&&!(p.biteT>0))gobReload(p);   // (the last one's gone: straight on to the next magazine)
+}
+// (whether the attack button can start what's in hand: not mid-reload; a gun with nothing in it reloads instead, with
+// a dry click; a landmine needs one to plant, and the ground to plant it in)
+function gobReady(p){gobArms(p);const k=p.wpn,W=WEAPONS[k];if(p.relT>0)return false;
+  if(W&&W.kind==='mine')return p.mines>0&&p.state!=='climb';
+  if(W&&W.mag&&gobAmmoShown(p,k)<=0){sfx('Dry fire',()=>{tone('square',1800,1600,0.02,0.03);});gobReload(p);return false;}
+  return true;}
+// what's shown loaded: a guest's own count is the host's
+const gobAmmoShown=(p,k)=>netGuest()&&p.ammoN!==undefined?p.ammoN:gobAmmo(p,k);
+// a landmine set down just in front of him (the attack's crouch, gobBodyPose); once the last's gone, the next weapon
+function gobPlant(p){const W=GOB_WPN.landmine;if(!(p.mines>0))return;p.mines--;
+  const hx=Math.sin(p.heading),hz=Math.cos(p.heading);mineLay(p.pos.x+hx*0.6,p.pos.y,p.pos.z+hz*0.6,{side:'p',by:pvpBy(p),owner:p,cause:W.cause,k:'landmine'});
+  if(p.mines<=0){p.wpns=p.wpns.filter(k=>k!=='landmine');if(!p.wpns.length)p.wpns=['club'];p.wpn=p.wpns[0];p.wpnT=camClock;}}
 // what aims down the view, with a crosshair: a gun, or a spell
 const gobAims=k=>gobGun(k)||!!WEAPONS[k]&&WEAPONS[k].kind==='spell';
 // the stomp button: lob a grenade the way you're looking
@@ -17989,11 +18353,14 @@ function gobThrow(p){
   sfx('Goblin throws a grenade',()=>{woosh(0.15,0.2,400,1200,0.08);});
 }
 function gobNextWpn(p){gobArms(p);const L=GOB_WPN_ORDER.filter(k=>p.wpns.includes(k));if(L.length<2)return;
-  p.wpn=L[(L.indexOf(p.wpn)+1)%L.length];p.wpnT=camClock;sfx('Goblin switches weapon',()=>{tone('square',700,900,0.04,0.03);});}
+  p.wpn=L[(L.indexOf(p.wpn)+1)%L.length];p.wpnT=camClock;p.relT=0;   // (a reload's dropped: it starts again next time)
+  sfx('Goblin switches weapon',()=>{tone('square',700,900,0.04,0.03);});}
 // once a frame per player goblin, before the move: the throw and the weapon buttons, and the cooldown
 function gobArmsTick(p,dt){gobArms(p);p.grenCD=Math.max(0,p.grenCD-dt);p.thrS=(p.thrS??9)+dt;   // (since his last throw: the arm coming through, gobBodyPose)
-  const st=!!p.in.stomp,wp=!!p.in.weapon;
-  if(st&&!p.gStompWas&&playing)gobThrow(p);if(wp&&!p.gWpnWas&&playing)gobNextWpn(p);p.gStompWas=st;p.gWpnWas=wp;}
+  const st=!!p.in.stomp,wp=!!p.in.weapon,rl=!!p.in.reload;
+  if(st&&!p.gStompWas&&playing)gobThrow(p);if(wp&&!p.gWpnWas&&playing)gobNextWpn(p);if(rl&&!p.gRelWas&&playing)gobReload(p);p.gStompWas=st;p.gWpnWas=wp;p.gRelWas=rl;
+  if(playing)gobReloadTick(p,dt);
+  if(!netGuest()){const W=WEAPONS[p.wpn];p.ammoN=W&&W.mag?gobAmmo(p,p.wpn):-1;}}   // (for the display, here and on a guest)
 // ---- what's dropped: a little model on the ground, turning, until someone picks it up (or a minute and a half) ----
 const PICKUPS=[],PU_MAT={};
 function puModel(k){const g=new THREE.Group(),m=c=>PU_MAT[c]||(PU_MAT[c]=new THREE.MeshLambertMaterial({color:c}));
@@ -18005,6 +18372,7 @@ function gobDrop(g){const G2=gobGear(g),at=(k,n,o)=>{let P=PICKUPS.find(q=>!q.li
   // (the weapon only if a player goblin hasn't got one already, gobGear; grenades always, as they stack)
   if(G2.wpn)at(G2.wpn,1,-0.3);
   if(G2.gren)at('grenade',G2.gren,0.3);
+  if(G2.mines)at('landmine',G2.mines,0);
 }
 function gobPickups(dt){
   for(const P of PICKUPS){if(!P.live)continue;P.t+=dt;
@@ -18012,8 +18380,11 @@ function gobPickups(dt){
     P.m.rotation.y+=dt*1.6;P.m.position.y=P.pos.y+0.08*Math.sin(P.t*3);
     for(const p of players){if(!p.gob||!p.active||p.state==='dead'||p.drv)continue;if(Math.hypot(p.pos.x-P.pos.x,p.pos.z-P.pos.z)>1.1||Math.abs(p.pos.y+0.3-P.pos.y)>1.6)continue;
       gobArms(p);
-      if(WEAPONS[P.k].stack){if(p.gren>=GREN_MAX)continue;const n=Math.min(P.n,GREN_MAX-p.gren);p.gren+=n;P.n-=n;flashLabel('Grenade'+(n>1?'s':'')+' +'+n+'  ·  '+p.gren+' in all',p);if(P.n>0)continue;}
-      else{if(p.wpns.includes(P.k))continue;p.wpns.push(P.k);p.wpn=P.k;p.wpnT=camClock;flashLabel('Picked up a '+GOB_WPN[P.k].name.toLowerCase(),p);}
+      // (a pile, grenades or landmines, up to the most he can carry; landmines go in his hand as well, if they weren't)
+      if(WEAPONS[P.k].stack){const f=stkField(P.k),mx=stkMax(P.k);if((p[f]||0)>=mx)continue;const n=Math.min(P.n,mx-(p[f]||0));p[f]=(p[f]||0)+n;P.n-=n;
+        if(GOB_WPN[P.k]&&!p.wpns.includes(P.k))p.wpns.push(P.k);
+        const nm=WEAPONS[P.k].name.replace(/s$/,'');flashLabel(nm+(n>1?'s':'')+' +'+n+'  ·  '+p[f]+' in all',p);if(P.n>0)continue;}
+      else{if(p.wpns.includes(P.k))continue;p.wpns.push(P.k);p.wpn=P.k;p.wpnT=camClock;p.relT=0;if(p.ammo)p.ammo[P.k]=undefined;flashLabel('Picked up a '+GOB_WPN[P.k].name.toLowerCase(),p);}   // (a gun comes with a full magazine)
       sfx('Pick up',()=>{tone('triangle',660,990,0.08,0.06);});P.live=false;P.m.visible=false;break;}}
 }
 function gobPickupsClear(){for(const P of PICKUPS){P.live=false;P.m.visible=false;}}
@@ -18023,24 +18394,29 @@ function gobArmsHud(p){
   if(!H){if(!show)return;const el=document.createElement('div');el.className='gwpn';const xh=document.createElement('div');xh.className='gxh';xh.hidden=true;p.ui.view.append(xh);
     const bar=p.ui.view.querySelector('.bar'),who=bar&&bar.querySelector('.who');if(who)bar.insertBefore(el,who);else p.ui.view.append(el);H=p.ui.gw={el,xh,s:''};}
   H.el.hidden=!show;H.xh.hidden=!show||!gobAims(gobArms(p).wpn);if(!show)return;
-  const bl=id=>actMark(p,id),L=GOB_WPN_ORDER.filter(k=>p.wpns.includes(k));
-  const s=L.map(k=>k===p.wpn?'<b>'+GOB_WPN[k].name+'</b>':GOB_WPN[k].name).join(' · ')+(L.length>1?'  '+bl('weapon')+' next':'')+'  |  Grenades '+p.gren+(p.gren?'  '+bl('stomp')+' throw':'');
+  const bl=id=>actMark(p,id),L=GOB_WPN_ORDER.filter(k=>p.wpns.includes(k)),W=WEAPONS[p.wpn];
+  // (what's in hand in bold: a gun with what's left in its magazine, reloading, or a reload asked for when it's empty;
+  // landmines with how many)
+  const nm=k=>GOB_WPN[k].name+(k==='landmine'?' ×'+(p.mines||0):''),n=W&&W.mag?gobAmmoShown(p,p.wpn):0;
+  const cur=nm(p.wpn)+(W&&W.mag?(p.relT>0?'  reloading…':'  '+n+' / '+W.mag):''),rq=W&&W.mag&&!(p.relT>0)&&n<W.mag?'  '+bl('reload')+(n?' reload':' RELOAD'):'';
+  const s=L.map(k=>k===p.wpn?'<b>'+cur+'</b>':nm(k)).join(' · ')+rq+(L.length>1?'  '+bl('weapon')+' next':'')+'  |  Grenades '+p.gren+(p.gren?'  '+bl('stomp')+' throw':'');
   if(H.s!==s){H.s=s;H.el.innerHTML=s.split(/(<b>[^<]*<\/b>)/).map(t=>t.startsWith('<b>')?'<b>'+glEsc(t.slice(3,-4))+'</b>':hudHTML(t)).join('');}
 }
 // ---- A goblin's loadout, on the Character tab (in place of the hippos' ability switches) ----
 // Each seat picks what its goblin starts with: which of the weapons in WEAPONS he carries (a switch each, made from the
-// table, so a new weapon shows up here by itself) and how many grenades, 0 to GREN_MAX. Kept per seat like the
+// table, so a new weapon shows up here by itself) and how many of each thing that comes in a pile (GOB_STACKS: grenades,
+// 0 to GREN_MAX, and landmines, each kept under its player block's field, L.gren and L.mines). Kept per seat like the
 // abilities (GOB_LOAD for player one, GOB_LOAD2 for player two, first copied from player one's); an online guest's come
 // as p.gload. They're the seat's, not the character's, so Gnash and Grizzle stay the same (suite twins). gobArms reads
 // them whenever a goblin is armed afresh, and a change in the menu re-arms that seat's goblin at once (gobRearm).
 const GLOAD_KEY='goblin-stompin-gus-gob-loadout',GLOAD2_KEY='goblin-stompin-gus-gob-loadout2';
 // (as a goblin was before there was a choice: just his club, no grenades)
-const gloadDef=()=>{const w={};for(const k of GOB_WPN_ORDER)w[k]=k==='club';return{w,gren:0};};
+const gloadDef=()=>{const w={},L={w};for(const k of GOB_PICK)w[k]=k==='club';for(const k of GOB_STACKS)L[stkField(k)]=0;return L;};
 // (mended: only weapons we know, a whole number of grenades in range, and never nothing in hand: the club, then)
 function gloadFix(L){const D=gloadDef();if(!L||typeof L!=='object')return D;
-  const w=L.w&&typeof L.w==='object'?L.w:{};for(const k of GOB_WPN_ORDER)D.w[k]=typeof w[k]==='boolean'?w[k]:D.w[k];
-  if(!GOB_WPN_ORDER.some(k=>D.w[k]))D.w.club=true;
-  D.gren=Math.max(0,Math.min(GREN_MAX,Math.round(+L.gren)||0));return D;}
+  const w=L.w&&typeof L.w==='object'?L.w:{};for(const k of GOB_PICK)D.w[k]=typeof w[k]==='boolean'?w[k]:D.w[k];
+  if(!GOB_PICK.some(k=>D.w[k]))D.w.club=true;
+  for(const k of GOB_STACKS){const f=stkField(k);D[f]=Math.max(0,Math.min(stkMax(k),Math.round(+L[f])||0));}return D;}
 function gloadRead(key){try{const s=localStorage.getItem(key);return s?gloadFix(JSON.parse(s)):null;}catch(e){return null;}}
 const GOB_LOAD=gloadRead(GLOAD_KEY)||gloadDef();
 let GOB_LOAD2=gloadRead(GLOAD2_KEY);
@@ -18051,44 +18427,45 @@ const GOB_LOADS=[GOB_LOAD,GOB_LOAD2],GLOAD_KEYS=[GLOAD_KEY,GLOAD2_KEY];
 const GLOAD_PLAIN=gloadDef();
 const gobLoadOf=p=>p.gload||(players.includes(p)?GOB_LOADS[p.idx===1?1:0]:GLOAD_PLAIN);
 // arm a player goblin from their choice (gobArms calls it for a goblin with no weapons yet)
-function gobLoadArm(p){const L=gobLoadOf(p);p.wpns=GOB_WPN_ORDER.filter(k=>L.w[k]);if(!p.wpns.length)p.wpns=['club'];
-  p.wpn=p.wpns[0];p.gren=L.gren;p.grenCD=0;}
+// (a pile that's also held in hand, landmines, is carried as a weapon while there are any; every gun's magazine full)
+function gobLoadArm(p){const L=gobLoadOf(p);p.wpns=GOB_WPN_ORDER.filter(k=>L.w[k]||WEAPONS[k].stack&&(L[stkField(k)]||0)>0);if(!p.wpns.length)p.wpns=['club'];
+  p.wpn=p.wpns[0];for(const k of GOB_STACKS)p[stkField(k)]=L[stkField(k)]||0;p.grenCD=0;p.ammo={};p.relT=0;}
 // a change in the menu takes effect at once (anything picked up since is put down: the new choice is what he carries)
 function gobRearm(p){if(!p||!p.gob)return;p.wpns=null;gobArms(p);p.wpnT=camClock;}
 function gloadSave(seat){try{localStorage.setItem(GLOAD_KEYS[seat],JSON.stringify(GOB_LOADS[seat]));}catch(e){}
   for(const p of players)if(!p.net&&p.idx===seat)gobRearm(p);}
-// The switches: built once from WEAPONS, two cards a row, then the grenade count
+// The switches: built once from WEAPONS, two cards a row, then a count for each pile (grenades, landmines)
 function gwpnBuild(){
   const list=document.getElementById('gwpnList');if(!list||list.firstChild)return list;
   const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const card=k=>'<button type="button" class="tog ab-base" role="switch" data-k="'+k+'"><span class="tl"><b class="nm">'+esc(WEAPONS[k].name)+'</b><small>'+esc(WEAPONS[k].about||'')+'</small></span><span class="st" aria-hidden="true"></span></button>';
   let h='<div class="ab-h" aria-hidden="true"><span class="px">Weapons</span></div>';
-  for(let i=0;i<GOB_WPN_ORDER.length;i+=2)h+='<div class="ab-row" role="group" aria-label="Weapons">'+GOB_WPN_ORDER.slice(i,i+2).map(card).join('')+'</div>';
-  const G=WEAPONS.grenade;
-  h+='<div class="ab-h" aria-hidden="true"><span class="px">'+esc(G.name)+'</span></div><div class="ab-row" role="group" aria-label="'+esc(G.name)+'"><div class="tog ab-base gl-cnt"><span class="tl"><b class="nm">'+esc(G.name)+'</b><small>'+esc(G.about||'')+'</small></span>'
-    +'<button type="button" class="gl-b" data-d="-1" aria-label="Fewer grenades">&minus;</button><span class="gl-n" aria-live="polite">0</span><button type="button" class="gl-b" data-d="1" aria-label="More grenades">+</button></div></div>';
+  for(let i=0;i<GOB_PICK.length;i+=2)h+='<div class="ab-row" role="group" aria-label="Weapons">'+GOB_PICK.slice(i,i+2).map(card).join('')+'</div>';
+  for(const k of GOB_STACKS){const G=WEAPONS[k],lo=esc(G.name.toLowerCase());
+    h+='<div class="ab-h" aria-hidden="true"><span class="px">'+esc(G.name)+'</span></div><div class="ab-row" role="group" aria-label="'+esc(G.name)+'"><div class="tog ab-base gl-cnt" data-s="'+k+'"><span class="tl"><b class="nm">'+esc(G.name)+'</b><small>'+esc(G.about||'')+'</small></span>'
+      +'<button type="button" class="gl-b" data-d="-1" aria-label="Fewer '+lo+'">&minus;</button><span class="gl-n" aria-live="polite">0</span><button type="button" class="gl-b" data-d="1" aria-label="More '+lo+'">+</button></div></div>';}
   list.innerHTML=h;
   for(const b of list.querySelectorAll('.tog[data-k]'))b.addEventListener('click',()=>{
     const seat=abilSeat(),L=GOB_LOADS[seat],k=b.dataset.k;
     // (the last weapon carried stays: there's always something in hand)
-    if(L.w[k]&&GOB_WPN_ORDER.filter(q=>L.w[q]).length<2){tone('square',180,0,0.06,0.03);return;}
+    if(L.w[k]&&GOB_PICK.filter(q=>L.w[q]).length<2){tone('square',180,0,0.06,0.03);return;}
     L.w[k]=!L.w[k];gloadSave(seat);renderGwpn();tone('triangle',L.w[k]?660:440,0,0.05,0.03);try{renderChar();}catch(e){}});
   for(const b of list.querySelectorAll('.gl-b'))b.addEventListener('click',()=>{
-    const seat=abilSeat(),L=GOB_LOADS[seat],n=Math.max(0,Math.min(GREN_MAX,L.gren+(+b.dataset.d)));
-    if(n===L.gren){tone('square',180,0,0.06,0.03);return;}
-    L.gren=n;gloadSave(seat);renderGwpn();tone('triangle',440+n*30,0,0.05,0.03);try{renderChar();}catch(e){}});
+    const seat=abilSeat(),L=GOB_LOADS[seat],sk=b.closest('.gl-cnt').dataset.s,f=stkField(sk),n=Math.max(0,Math.min(stkMax(sk),(L[f]||0)+(+b.dataset.d)));
+    if(n===L[f]){tone('square',180,0,0.06,0.03);return;}
+    L[f]=n;gloadSave(seat);renderGwpn();tone('triangle',440+n*30,0,0.05,0.03);try{renderChar();}catch(e){}});
   return list;
 }
 // The switches shown are those of whoever's menu it is, like the abilities (abilSeat)
 function renderGwpn(){
   const seat=abilSeat(),L=GOB_LOADS[seat],list=gwpnBuild();if(!list)return;list.dataset.seat=String(seat);
-  const n=GOB_WPN_ORDER.filter(k=>L.w[k]).length;
+  const n=GOB_PICK.filter(k=>L.w[k]).length;
   for(const b of list.querySelectorAll('.tog[data-k]')){const k=b.dataset.k,on=!!L.w[k];b.setAttribute('aria-checked',String(on));
     const t=b.querySelector('.st');if(t)t.textContent=on&&n===1?'Last one':on?'On':'Off';}
-  const c=list.querySelector('.gl-cnt');if(c){c.setAttribute('aria-checked',String(L.gren>0));const nm=c.querySelector('.gl-n');if(nm)nm.textContent=L.gren+' / '+GREN_MAX;
-    const B=[...c.querySelectorAll('.gl-b')];if(B.length===2){B[0].setAttribute('aria-disabled',String(L.gren<=0));B[1].setAttribute('aria-disabled',String(L.gren>=GREN_MAX));}}   // (not disabled: the controller's focus stays on it)
+  for(const c of list.querySelectorAll('.gl-cnt')){const sk=c.dataset.s,v=L[stkField(sk)]||0,mx=stkMax(sk);c.setAttribute('aria-checked',String(v>0));const nm=c.querySelector('.gl-n');if(nm)nm.textContent=v+' / '+mx;
+    const B=[...c.querySelectorAll('.gl-b')];if(B.length===2){B[0].setAttribute('aria-disabled',String(v<=0));B[1].setAttribute('aria-disabled',String(v>=mx));}}   // (not disabled: the controller's focus stays on it)
   const no=document.getElementById('gwpnNote');
-  if(no){let co=false;try{co=inCoop()&&!P2.net;}catch(e){}no.textContent=(co?(seat?"Player two's":"Player one's")+' loadout: it goes with you whichever goblin you pick. ':'')+'What he starts with. Tap a weapon to carry it or leave it behind (he always keeps one), and pick how many grenades. Anything else you take off the enemies you kill.';}
+  if(no){let co=false;try{co=inCoop()&&!P2.net;}catch(e){}no.textContent=(co?(seat?"Player two's":"Player one's")+' loadout: it goes with you whichever goblin you pick. ':'')+'What he starts with. Tap a weapon to carry it or leave it behind (he always keeps one), and pick how many grenades and landmines. Anything else you take off the enemies you kill.';}
 }
 // which section the Character tab shows: the loadout for a goblin, the hippos' abilities for a hippo (the character
 // the menu's seat has picked)
@@ -18438,7 +18815,7 @@ function updateGoblins(dt){
       // (and anyone with a gun or spellbook beside a blade or club, police once they've seen him, draws it at range: foeArm, foes.js)
       // (what it does at range is read off its kind's weapons: a gun, a spell or grenades. weapons.js)
       const FK=foeOf(g);
-      if((foeGunK(FK)||foeThrowK(FK))&&!(g.cop&&g.inv)&&foeRanged(g,tgt.p,d,ddy,dt,FK)){g.legs[0].rotation.x=g.legs[1].rotation.x=0;gobRootPose(g,g.pos.y,dt);return;}
+      if((foeGunK(FK)||foeThrowK(FK)||foeMineK(FK))&&!(g.cop&&g.inv)&&foeRanged(g,tgt.p,d,ddy,dt,FK)){g.legs[0].rotation.x=g.legs[1].rotation.x=0;gobRootPose(g,g.pos.y,dt);return;}
       // goblins holed up indoors stay put, pottering about, until a hippo is close and on their floor
       if(g.indoor&&!bldgAt(Math.floor(g.pos.x),Math.floor(g.pos.z)))g.indoor=false;
       if(g.cop&&g.inv&&d<22&&Math.abs(ddy)<4){g.inv=false;flashLabel('Police!',tgt.p);tone('square',880,660,0.25,0.05);}   // spotted!
@@ -18498,8 +18875,8 @@ function updateGoblins(dt){
               g.stuck=0;
             }
           } else {const sp=g.wet?2:(g.spd||2.8);g.pos.x+=fx*sp*dt;g.pos.z+=fz*sp*dt;moving=true;g.phase+=dt*sp*4.5;g.stuck=0;}
-          if(g.vy===0)g.atk=Math.max(g.atk,0.5);
-        } else if(!canHit){if(g.vy===0)g.atk=Math.max(g.atk,0.5);
+          if(g.vy===0)g.atk=Math.max(g.atk,Math.max(0.5,strikeWind(foeMeleeK(FK))));
+        } else if(!canHit){if(g.vy===0)g.atk=Math.max(g.atk,Math.max(0.5,strikeWind(foeMeleeK(FK))));
           // (a hippo stood on something just out of reach, a car roof, say: up at it, club first)
           g.leapT=(g.leapT||0)-dt;if(!simple&&ddy>=1.5&&ddy<4&&g.leapT<=0&&!g.wet&&g.vy===0){g.vy=Math.sqrt(50*(ddy-0.2));g.leapT=1.4;g.atk=0.1;}}
         else {
@@ -20107,7 +20484,7 @@ const csSeat=()=>{let two=false;try{two=menuP2();}catch(e){}return two?1:0;};
 // what each character can do, for the strip under the cards (a hippo's from the ability switches as they are now)
 function csMoves(c){
   if(charGob(c)){const L=GOB_LOADS[csSeat()];   // (a goblin's: the weapons chosen for him, then what every goblin can do)
-    return[...GOB_WPN_ORDER.filter(k=>L.w[k]).map(k=>WEAPONS[k].name),...(L.gren?[L.gren+' '+WEAPONS.grenade.name.toLowerCase()]:[]),'Dash','Drive anything'];}
+    return[...GOB_PICK.filter(k=>L.w[k]).map(k=>WEAPONS[k].name),...GOB_STACKS.filter(k=>L[stkField(k)]).map(k=>L[stkField(k)]+' '+WEAPONS[k].name.toLowerCase()),'Dash','Drive anything'];}
   const A=ABILS[csSeat()],L=[];   // (the switches of whoever's menu it is)
   if(A.bite)L.push(A.biteCombo?'Bite combo':'Bite');
   if(A.stomp)L.push(A.fullStomp?'Full charge stomp':A.chargeStomp?'Charge stomp':'Stomp');
@@ -20174,10 +20551,11 @@ setChar(CHAR,true);
 const dfHearts=n=>{const h=n/2;return h+(h===1?' heart':' hearts');};
 // (a kind's entry here from its weapons: arms, its entry in GOB_FOES or FOES; melee, its blow up close; gun and gunW, how
 // it uses its gun and the gun; side, a blade or club carried beside the gun, so the gun's drawn from a holster; and the
-// animations its weapons give it: shoot for a gun, throw for grenades, cast for a spell)
+// animations its weapons give it: shoot for a gun, and reload for one with a magazine, throw for grenades, cast for a
+// spell, plant for landmines)
 function devFoArms(K,arms,first,last){const gk=foeGunK(arms),RW=gk&&arms.gun?WEAPONS[gk]:null,GW=RW&&RW.kind==='gun'?RW:null,SW=RW&&RW.kind==='spell'?RW:null;
   return Object.assign(K,{arms,melee:K.civ?null:strikeOf(arms),gun:GW?arms.gun:null,gunW:GW,spell:SW,side:GW?wpnOfKind(arms.weapons,'melee'):null,
-    anims:[...first,...(SW?['cast']:[]),...(GW?['shoot']:[]),...(foeThrowK(arms)&&arms.bomb?['throw']:[]),...last]});}
+    anims:[...first,...(SW?['cast']:[]),...(GW?['shoot']:[]),...(GW&&GW.mag?['reload']:[]),...(foeThrowK(arms)&&arms.bomb?['throw']:[]),...(foeMineK(arms)?['plant']:[]),...last]});}
 const DEV_FOE_KINDS=[
   devFoArms({k:'goblin',n:'Goblin',hp:4,spd:2.8,look:{tunic:GC.tunic,pants:0x3a3328,hat:0x2a2a2a,show:['bandana','pouch']}},GOB_FOES.goblin,['idle','walk','attack'],['jump','climb','swim','death']),
   devFoArms({k:'cop',n:'Police officer',hp:4,spd:2.8,look:{tunic:0x1c2a5a,pants:0x1c2a5a,hat:0x1c2a5a,show:['cap']}},GOB_FOES.police,['idle','walk','attack'],['jump','climb','swim','death']),   // (the handgun, drawn at range: foeArm, foes.js)
@@ -20187,14 +20565,17 @@ const DEV_FOE_KINDS=[
   ...Object.keys(FOES).map(k=>{const F=FOES[k];return devFoArms({k,n:F.name,hp:F.hp,spd:F.spd,foe:F,
     look:{tunic:F.tunic,pants:F.pants,hat:F.hatc,acc:F.pants,show:k==='deckhand'||k==='sailor'||k==='security'?[F.hat]:[F.hat,k==='thief'?'eyepatch':'pouch']}},F,['guard','walk','attack'],['jump','climb','swim','death']);})];
 const DEV_FOE_ANIM_N={idle:'Stand',walk:'Walk (chasing)',attack:'Attack',jump:'Jump up a step',climb:'Climb a wall',swim:'Swim',death:'Die',
-  flee:'Run away screaming',stall:'Serve at a stall',chant:'Chant at the altar',cast:'Conjure a fireball',guard:'On guard',shoot:'Aim and fire',throw:'Throw a grenade'};
+  flee:'Run away screaming',stall:'Serve at a stall',chant:'Chant at the altar',cast:'Conjure a fireball',guard:'On guard',shoot:'Aim and fire',throw:'Throw a grenade',reload:'Reload',plant:'Plant a landmine'};
 const DEV_TARGET=10;   // (how far off Gus stands for a shot, a throw or a fireball)
 const DEVF={kind:'goblin',anim:'walk',rec:null,f:0,play:true,speed:1,loop:true,yaw:0.75,pitch:0.3,zoom:1,r:null,scene:null,cam:null,figs:{},pool:{},lb:null,sk:null,set:null};
 const DEV_FOE_KEY='goblin-stompin-gus-devfoe',DEVF_O={x:0,z:0};
 try{const s=JSON.parse(localStorage.getItem(DEV_FOE_KEY)||'null');if(s&&DEV_FOE_KINDS.some(K=>K.k===s.k)){DEVF.kind=s.k;if(DEV_FOE_KINDS.find(K=>K.k===s.k).anims.includes(s.a))DEVF.anim=s.a;}}catch(e){}
 const devFoKind=k=>DEV_FOE_KINDS.find(K=>K.k===k)||DEV_FOE_KINDS[0];
 const devFoWk=K=>gobWk({arms:K.arms});   // (which blow it strikes with: strikes.js)
-const devFoAnimName=(K,a)=>a==='shoot'&&K.side?'Draw and fire the '+K.gunW.name.toLowerCase():a==='attack'&&K.melee?K.melee.w==='Club'?'Club swing':K.melee.w==='Rifle butt'?'Rifle butt':'Dagger stab':DEV_FOE_ANIM_N[a];
+const DEV_BLOW_N={Club:'Club swing','Rifle butt':'Rifle butt',Dagger:'Dagger stab',Katana:'Katana cut','Large Club':'Large club slam',Fists:'Punch'};
+const devFoAnimName=(K,a)=>a==='shoot'&&K.side?'Draw and fire the '+K.gunW.name.toLowerCase():a==='reload'&&K.gunW?'Reload the '+K.gunW.name.toLowerCase():a==='attack'&&K.melee?DEV_BLOW_N[K.melee.w]||K.melee.w+' strike':DEV_FOE_ANIM_N[a];
+// (its blow's own wind-up and follow-through, in frames: a heavy weapon's are longer, strikes.js)
+const devFoWind=K=>Math.round(strikeWind(foeMeleeK(K.arms))*60),devFoFt=K=>Math.round(strikeFt(foeMeleeK(K.arms))*60);
 // its model: the game's own, dressed in a fixed look for its kind, with names on its joints for the skeleton
 function devFoFig(K){
   if(DEVF.figs[K.k])return DEVF.figs[K.k];
@@ -20245,17 +20626,17 @@ const DEV_FOE_ANIM={
     data:K=>[['Chant','arms sway every '+dfFrames(Math.PI*2/1.6)],['Roused by','Gus within 15 of the altar, or hurting one']]},
   guard:{dur:()=>6,step(g,K,dt){g.heading=Math.sin(g.t*0.3)*1.2;g.arm.rotation.x=-0.5;g.armL.rotation.x*=0.9;dfEnd(g,false);},
     data:K=>[['Looks round','±1.2 rad, every '+(Math.PI*2/0.3).toFixed(1)+' s']]},
-  // a blow every so often, Gus in reach: wound up over the last 0.45 s (the strike itself the last few frames of that),
+  // a blow every so often, Gus in reach: wound up over its weapon's wind-up (the strike itself the last few frames of that),
   // then the hit (from the frame after one), and the follow-through (gobMeleePose)
   attack:{dur:K=>K.melee.every*2,init(g,K,C){g.atk=K.melee.every;g.atkS=0;C.target(2);C.hit(0,'dmg','cyl',{x:g.pos.x,y:g.pos.y-1.5,z:g.pos.z,r:2.3,h:2.8},K.melee.dmg);},
     step(g,K,dt,C){if(C.f){g.atk-=dt;g.atkS+=dt;}   // (frame 0 is the blow that's just landed)
       if(g.atk<=0){C.hit(C.f,'dmg','cyl',{x:g.pos.x,y:g.pos.y-1.5,z:g.pos.z,r:2.3,h:2.8},K.melee.dmg);g.atk=K.melee.every;g.atkS=0;}
       if(!gobMeleePose(g,true))dfArm(g,false,dt);dfEnd(g,false);},
-    marks:(K,N,R)=>{const w=devFoWk(K),sw=Math.round(strikeSwing(w)*27),ft=Math.round(STRIKE_FT*60);
-      return[...R.hits.filter(h=>h.f>0),{f:N}].flatMap(h=>[{row:'Wind-up',a:h.f-27,b:h.f-sw-1,c:'wind'},{row:'Strike',a:h.f-sw,b:h.f-1,c:'wind'}])   // (the last: for the blow at the start of the next loop)
+    marks:(K,N,R)=>{const w=devFoWk(K),wd=devFoWind(K),sw=Math.round(strikeSwing(w)*wd),ft=devFoFt(K);
+      return[...R.hits.filter(h=>h.f>0),{f:N}].flatMap(h=>[{row:'Wind-up',a:h.f-wd,b:h.f-sw-1,c:'wind'},{row:'Strike',a:h.f-sw,b:h.f-1,c:'wind'}])   // (the last: for the blow at the start of the next loop)
         .concat(R.hits.map(h=>({row:'Follow-through',a:h.f,b:Math.min(N-1,h.f+ft-1),c:'wind'})));},
-    data:K=>{const sw=Math.round(strikeSwing(devFoWk(K))*27);return[['Weapon',K.melee.w],['Damage',dfHearts(K.melee.dmg)],['Again every',dfFrames(K.melee.every)],
-      ['Wind-up',dfFrames(0.45)+' before the hit'],['Strike','the last '+sw+' f of it'],['Follow-through',dfFrames(STRIKE_FT)+' after'],
+    data:K=>{const wd=devFoWind(K),sw=Math.round(strikeSwing(devFoWk(K))*wd);return[['Weapon',K.melee.w],['Damage',dfHearts(K.melee.dmg)],['Again every',dfFrames(K.melee.every)],
+      ['Wind-up',dfFrames(wd/60)+' before the hit'],['Strike','the last '+sw+' f of it'],['Follow-through',dfFrames(devFoFt(K)/60)+' after'],
       ['Reach','2.3 blocks, from 1.3 below to 1.5 above'],['Hit volume','cylinder r 2.3, h 2.8']];}},
   jump:{dur:()=>1.6,init(g,K,C){C.box(-1,G+1,2,1,G+1,3);},step(g,K,dt,C){
       if(!g.act&&!g.done&&g.t>0.4){g.done=true;const tx=0.5,tz=2.5,L=Math.hypot(tx-g.pos.x,tz-g.pos.z);g.act={k:'jump',t:0,T:Math.max(0.45,L/6.5),x0:g.pos.x,y0:g.pos.y,z0:g.pos.z,x1:tx,y1:G+2,z1:tz,h:0.7+L*0.18};C.mark('Jump',C.f,C.f+Math.round(g.act.T*60)-1,'wind');}
@@ -20294,7 +20675,25 @@ const DEV_FOE_ANIM={
         g.legs[0].rotation.x=g.legs[1].rotation.x=0;gobRootPose(g,g.pos.y,dt);return;}
       g.relS+=dt;if(!dfFollow(g)){g.armL.rotation.x+=(0-g.armL.rotation.x)*Math.min(1,dt*6);dfArm(g,false,dt);}dfEnd(g,false);},
     data:K=>{const G6=K.gun,W=K.gunW,a=Math.max(W.every,G6.aim);return[['Weapon',W.name+(K.side?' (the '+WEAPONS[K.side].name.toLowerCase()+' inside '+G6.near+' blocks)':'')],['Aims for',dfFrames(G6.aim)],['Range',G6.near+' to '+W.range+' blocks, when it can see you'],['Damage',dfHearts(W.dmg)],
-      ['Hits','92% close up, less 1.7% a block, at least 30% (at '+DEV_TARGET+': '+Math.round(Math.max(0.3,0.92-DEV_TARGET/60)*100)+'%)'],['Again after',a+'–'+(Math.round((a+FOE_JIT)*100)/100)+' s'],['Breaks blocks',W.breaks?'half the time':'no']];}},
+      ['Hits','92% close up, less 1.7% a block, at least 30% (at '+DEV_TARGET+': '+Math.round(Math.max(0.3,0.92-DEV_TARGET/60)*100)+'%)'],['Again after',a+'–'+(Math.round((a+FOE_JIT)*100)/100)+' s'],['Breaks blocks',W.breaks?'half the time':'no'],
+      ...(W.mag?[['Magazine',W.mag+(W.mag>1?' rounds':' round')+(W.npc.burst?', fired '+W.npc.burst+' at a time':'')+', '+W.reload+' s to reload']]:[]),...(W.pellets?[['Pellets',W.pellets+' a shot, each '+dfHearts(W.dmg)]]:[]),
+      ...(W.proj?[['Rocket',W.speed+' blocks/s, bursting radius '+W.R]]:[])];}},
+  // a reload, its magazine run out: stood still, the gun lowered, the magazine changed (the gun's npc.rl, strikes.js; foeRanged)
+  reload:{dur:K=>0.3+K.gunW.reload+0.4,init(g,K,C){C.target(DEV_TARGET);g.rlT=0.3;},step(g,K,dt,C){const W=K.gunW;
+      if(g.rlT>0&&(g.rlT-=dt)<=0){g.relT=g.relD=W.reload;g.relH=false;C.mark('Reload',C.f,C.f+Math.round(W.reload*60)-1,'wind');}
+      if(g.relT>0){g.relT-=dt;gobStrike(g,W.npc.rl||'rlMag',2*(1-Math.max(0,g.relT)/g.relD));if(!g.relH&&g.relT<=g.relD*0.5){g.relH=true;C.mark('Magazine in',C.f,C.f+3,'wind');}
+        g.legs[0].rotation.x=g.legs[1].rotation.x=0;gobRootPose(g,g.pos.y,dt);return;}
+      dfArm(g,false,dt);dfEnd(g,false);},
+    data:K=>{const W=K.gunW;return[['Weapon',W.name],['Magazine',W.mag+(W.mag>1?' rounds':' round')],['Reload',dfFrames(W.reload)],['Stops for',K.side?'its '+WEAPONS[K.side].name.toLowerCase()+' if you come within '+K.gun.near+' blocks':'nothing but a blow or the water']];}},
+  // a landmine: knelt, set down in front of it with the free hand, patted down, up again (foeRanged, foeMine)
+  plant:{dur:()=>0.3+FOE_PLANT+0.8,init(g,K,C){g.plT=0.3;},step(g,K,dt,C){const W=WEAPONS[foeMineK(K.arms)];
+      if(g.plT>0&&(g.plT-=dt)<=0){g.aim=FOE_PLANT;C.mark('Plant',C.f,C.f+Math.round(FOE_PLANT*60)-1,'wind');}
+      if(g.aim>0){g.aim-=dt;gobStrike(g,W.npc.pose,1-Math.max(0,g.aim)/FOE_PLANT);if(g.mineB)g.mineB.visible=true;
+        if(g.aim<=0){if(g.mineB)g.mineB.visible=false;g.relS=0;g.relK=W.npc.pose;C.mark('Follow-through',C.f+1,C.f+Math.round(STRIKE_FT*60),'wind');}
+        g.legs[0].rotation.x=g.legs[1].rotation.x=0;gobRootPose(g,g.pos.y,dt);return;}
+      g.relS+=dt;if(!dfFollow(g)){g.armL.rotation.x+=(0-g.armL.rotation.x)*Math.min(1,dt*6);dfArm(g,false,dt);}dfEnd(g,false);},
+    data:K=>{const W=WEAPONS[foeMineK(K.arms)],M=K.arms.mine||{},E=M.every||[9,15];return[['Kneels for',dfFrames(FOE_PLANT)],['Arms after',W.arm+' s'],['Blast','radius '+W.R+', '+dfHearts(W.dmg)],
+      ['When','you are 4 to 20 blocks off'],['Again after',E[0]+'–'+E[1]+' s']];}},
   // a grenade: wound up in the left hand, lobbed in an arc at Gus, bursting when its fuse runs out
   throw:{dur:K=>0.3+0.6+WEAPONS.grenade.fuse+0.5,init(g,K,C){C.target(DEV_TARGET);g.aimT=0.3;},step(g,K,dt,C){const GR=WEAPONS.grenade;
       if(g.aimT>0&&(g.aimT-=dt)<=0){g.aim=0.6;C.mark('Wind-up',C.f,C.f+35,'wind');}
@@ -20310,7 +20709,7 @@ const DEV_FOE_ANIM={
 function devFoSim(kind,anim){
   const K=devFoKind(kind),A=DEV_FOE_ANIM[anim],fig=devFoFig(K),m=fig.m,nodes=fig.nodes,M=nodes.length,FL=11,N=Math.max(2,Math.round(A.dur(K)*60)),dt=1/60;
   const rec={kind,anim,N,M,fig:K.k,tr:new Float32Array(N*M*FL),pos:new Float32Array(N*4),hits:[],shots:[],boxes:[],marks:[],target:null,water:null};
-  const g={pos:new V3(0.5,G+1,0.5),heading:0,phase:0,t:0,atk:1,atkS:9,relS:9,relK:null,cultist:!!K.cult,foeKind:K.foe?K.k:null,arms:K.arms,aim:0,aimK:null,wkit:m.wkit||null,legs:m.legs,arm:m.arm,armL:m.armL,head:m.head,root:m.root,orb:m.orb||null,act:null,wet:false};
+  const g={pos:new V3(0.5,G+1,0.5),heading:0,phase:0,t:0,atk:1,atkS:9,relS:9,relK:null,cultist:!!K.cult,foeKind:K.foe?K.k:null,arms:K.arms,aim:0,aimK:null,wkit:m.wkit||null,legs:m.legs,arm:m.arm,armL:m.armL,head:m.head,root:m.root,orb:m.orb||null,mineB:m.mineB||null,act:null,wet:false};
   m.root.rotation.set(0,0,0);m.arm.rotation.set(K.civ?0:-0.5,0,0);m.arm.hand.rotation.x=0;m.armL.rotation.x=0;for(const l of m.legs)l.rotation.x=0;m.head.rotation.z=0;if(m.orb){m.orb.visible=false;m.orb.scale.setScalar(1);}
   if(m.wkit)m.wkit.shown=-1;   // (playing a recording back sets what's shown behind its back)
   const C={f:0,
@@ -23021,6 +23420,16 @@ function rideHit(T,n,ci){
     dmgPop(T.hub.x,T.hub.y,T.hub.z,Math.round(n),'#ffb04a');T.hp-=n;if(T.hp<=0)wheelFall(T);return;}
   if(T.kind==='carousel'){if(T.dead)return;dmgPop(T.x,G+8,T.z,Math.round(n),'#ffb04a');T.hp-=n;if(T.hp<=0)carouselBlow(T);}
 }
+// every ride part and zoo animal still standing, for the health bars over the view (Options' Health bars, drawDbgOverlay):
+// fn(x, y, z, health, its most) at the spot over each, as other vehicles' bars are. (Online a guest's rides and animals
+// aren't sent their health: netHp falls back to what this copy has, as it does for anything else not sent.)
+function rideBarsEach(fn){for(const V of venues.values()){
+  if(V.kind==='theme'&&V.ride&&V.ride.visible&&!V.survey){const K=V.K,W=V.W,Cs=V.Cs;
+    if(K&&!K.off)for(const c of K.cars)if(!c.dead&&!c.fly)fn(c.pr.pos.x,c.pr.pos.y+1.6,c.pr.pos.z,netHp(c,c.hp),RIDE_HP.car);
+    if(W&&!W.dead&&!W.fall){fn(W.hub.x,W.hub.y+W.R+1.2,W.hub.z,netHp(W,W.hp),RIDE_HP.wheel);   // (the wheel itself, over its top; each gondola its own)
+      for(const q of W.gonds)if(!q.dead)fn(q.pr.pos.x,q.pr.top+0.6,q.pr.pos.z,netHp(q,q.hp),RIDE_HP.gond);}
+    if(Cs&&!Cs.dead)fn(Cs.x,Cs.pr.top+0.6,Cs.z,netHp(Cs,Cs.hp),RIDE_HP.carousel);}
+  else if(V.kind==='zoo'&&V.animals)for(const A of V.animals){if(A.dead||!A.pr)continue;const I=ANIMALS[A.sp];fn(A.x,A.g.position.y+I.hy+0.4,A.z,netHp(A,A.hp),I.hp);}}}
 function carouselBlow(Cs){
   carouselWreck(Cs);wrecked[Cs.k]=1;save();rideBang(Cs.x,G+3,Cs.z,1.4,Cs,7,8,'Blown up with a carousel');
   award(300,'Carousel destroyed',Cs.x,G+5,Cs.z);
@@ -26130,7 +26539,7 @@ function updateCars(dt){
         damageGoblin(gb,Math.round(2+8*k),new V3(gb.pos.x,gb.pos.y+0.8,gb.pos.z),D,'Run over',c.driver||ACCIDENT);gb.vy=Math.max(gb.vy||0,5+8*k);gb.kv.x+=D.x*(6+14*k);gb.kv.z+=D.z*(6+14*k);
         c.speed*=0.6;sfx('Vehicle runs a goblin over',()=>{thud(0.3);});}}
     if(c.hp<15){c.smokeT-=dt;if(c.smokeT<=0){c.smokeT=c.hp<8?0.06:0.15;const hx=c.pos.x+fx*1.5,hz=c.pos.z+fz*1.5;smoke(hx,c.pos.y+1.1,hz,1,c.hp<8?0x1a1a1a:0x666666);if(c.hp<8)puff(hx,c.pos.y+0.9,hz,1,Math.random()<.5?0xff8a2a:0xffc040,0.25);}}
-    carPhysics(c,dt);if(!c.alive)continue;
+    if(c.forkOn){c.vy=0;c.grounded=true;}else carPhysics(c,dt);if(!c.alive)continue;   // (up on a forklift's forks: forkPost holds it there, it doesn't fall or settle on the ground under it)
     if(Math.abs(c.kv.x)+Math.abs(c.kv.z)>0.05){nudgeFlat(c,c.kv.x*dt,c.kv.z*dt);const k=Math.exp(-dt*3.5);c.kv.x*=k;c.kv.z*=k;}
     c.g.position.copy(c.pos);c.g.rotation.set(c.pitch+(c.wly||0),c.heading,c.roll+(c.tipR||0)+(c.veh==='bike'?-c.steer*Math.min(1,Math.abs(c.speed)/8)*0.4:0));   // (a motorcycle leans into its turns)
     for(const w of c.wheels)w.rotation.x+=c.speed*dt/0.36;
@@ -26139,8 +26548,11 @@ function updateCars(dt){
   }
   // fender benders
   for(let i=0;i<cars.length;i++){const a=cars[i];if(!a.alive)continue;for(let j=i+1;j<cars.length;j++){const b=cars[j];if(!b.alive)continue;
+    if(a.forkOn===b||b.forkOn===a)continue;   // (a car up on a forklift's forks sits over its front: they don't bump each other apart, or the forklift's shoved backwards every step)
     const dx=b.pos.x-a.pos.x,dz=b.pos.z-a.pos.z,d=Math.hypot(dx,dz);
-    if(d<a.hz+b.hz+0.5&&d>0.001&&Math.abs(b.pos.y-a.pos.y)<1.6&&boxesTouch(a.pos.x,a.pos.z,a.heading,a.hx+0.15,a.hz+0.15,b.pos.x,b.pos.z,b.heading,b.hx+0.15,b.hz+0.15)){const push=0.25,ux=dx/d,uz=dz/d;nudgeFlat(a,-ux*push,-uz*push);nudgeFlat(b,ux*push,uz*push);
+    if(d<a.hz+b.hz+0.5&&d>0.001&&Math.abs(b.pos.y-a.pos.y)<1.6&&boxesTouch(a.pos.x,a.pos.z,a.heading,a.hx+0.15,a.hz+0.15,b.pos.x,b.pos.z,b.heading,b.hx+0.15,b.hz+0.15)){const push=0.25,ux=dx/d,uz=dz/d;
+      // (a car held on the forks doesn't give: the other one's pushed the whole way)
+      const pa=a.forkOn?0:b.forkOn?2*push:push,pb=b.forkOn?0:a.forkOn?2*push:push;nudgeFlat(a,-ux*pa,-uz*pa);nudgeFlat(b,ux*pb,uz*pb);
       const rel=Math.abs(a.speed-b.speed*(Math.cos(a.heading-b.heading)));
       // (a news van's on the road the longest, nobody gives way to it, and a bump's no story: it takes these lightly)
       if(rel>5){if(a.svcPool!=='news'&&b.svcPool!=='news')reportNews(a.pos.x,a.pos.z,'car crash');damageCar(a,a.svcPool==='news'?1:4,undefined,'acc');damageCar(b,b.svcPool==='news'?1:4,undefined,'acc');sfx('Vehicles collide',()=>{clang();thud(0.4);});addShake(0.2,a.pos.x,a.pos.z,15);}
@@ -26572,7 +26984,7 @@ function readInputs(dt){
   else{s1=st[0]||null;s2=st[1]||null;}
   if(s1)P1.pad=s1.p;if(s2&&P2.active&&!P2.net)P2.pad=s2.p;
   P2.ui.join.hidden=!(P2.active&&!P2.pad);
-  for(const p of players){const i=p.in;i.x=0;i.z=0;i.charge=false;i.chargePress=false;i.stomp=false;i.bite=false;i.bitePress=false;i.jumpPress=false;i.jump=false;i.lockPress=false;i.dash=false;i.dashPress=false;i.sprint=false;i.sprintPress=false;i.lookX=0;i.lookY=0;i.climb=false;i.use=false;i.weapon=false;i.talk=false;i.kbd=false;i.rt=i.lt=0;for(const k of CTX_IDS)i[k]=i[k+'P']=false;}
+  for(const p of players){const i=p.in;i.x=0;i.z=0;i.charge=false;i.chargePress=false;i.stomp=false;i.bite=false;i.bitePress=false;i.jumpPress=false;i.jump=false;i.lockPress=false;i.dash=false;i.dashPress=false;i.sprint=false;i.sprintPress=false;i.lookX=0;i.lookY=0;i.climb=false;i.use=false;i.weapon=false;i.reload=false;i.talk=false;i.kbd=false;i.rt=i.lt=0;for(const k of CTX_IDS)i[k]=i[k+'P']=false;}
   // (rebinding a control in the menu: the next button pressed on any controller is the one)
   if(menuOpen&&BIND_CAP){if(performance.now()-BIND_CAP.t>200)for(const s of st){const i=s.pr.findIndex(Boolean);if(i<0)continue;
       if(BIND_CAP.dev==='pad'){if(PAD_RESERVED.has(i))bindCancel();else setBind(BIND_CAP.id,'pad',BIND_CAP.i,i);}else if(i===1||i===9)bindCancel();break;}
@@ -26618,7 +27030,7 @@ function readInputs(dt){
     I.z+=(A.back?1:0)-(A.fwd?1:0);I.x+=(A.right?1:0)-(A.left?1:0);
     I.kbd=!P1.pad;   // (flying on the keyboard: a plane is flown WASD-style, see drvPlane; the same rule as the hints' p.pad)
     I.charge=A.dashSprint;I.chargePress=A.dashSprintP;I.dash=A.dash;I.dashPress=A.dashP;I.sprint=A.sprint;I.sprintPress=A.sprintP;
-    I.stomp=A.stomp;I.jumpPress=A.jumpP;I.jump=A.jump;I.lockPress=A.lockP;I.climb=A.climb;I.bite=A.bite;I.bitePress=A.biteP;I.use=A.use;I.weapon=A.weapon;I.talk=A.talk;
+    I.stomp=A.stomp;I.jumpPress=A.jumpP;I.jump=A.jump;I.lockPress=A.lockP;I.climb=A.climb;I.bite=A.bite;I.bitePress=A.biteP;I.use=A.use;I.weapon=A.weapon;I.reload=A.reload;I.talk=A.talk;
     for(const k of CTX_IDS){I[k]=A[k];I[k+'P']=A[k+'P'];}
   }else for(const a of ACTS)kbPrevA[a.id]=false;
   mTap.clear();
@@ -26637,7 +27049,7 @@ function readInputs(dt){
     i.charge=i.charge||pb('dashSprint');i.chargePress=i.chargePress||pp('dashSprint');
     i.dash=i.dash||pb('dash');i.dashPress=i.dashPress||pp('dash');
     i.sprint=i.sprint||pb('sprint');i.sprintPress=i.sprintPress||pp('sprint');
-    i.stomp=i.stomp||pb('stomp');i.use=i.use||pb('use');i.weapon=i.weapon||pb('weapon');
+    i.stomp=i.stomp||pb('stomp');i.use=i.use||pb('use');i.weapon=i.weapon||pb('weapon');i.reload=i.reload||pb('reload');
     i.jumpPress=i.jumpPress||pp('jump');i.jump=i.jump||pb('jump');
     i.bite=i.bite||pb('bite');
     i.bitePress=i.bitePress||pp('bite');
@@ -26800,7 +27212,7 @@ const CALM_KEY='goblin-stompin-gus-calm';
  const t=document.getElementById('calmTog'),set=v=>{on=v;try{document.body.classList.toggle('calm',v);}catch(e){}if(t)t.setAttribute('aria-checked',String(v));};
  set(on);if(t)t.addEventListener('click',()=>{set(!on);try{localStorage.setItem(CALM_KEY,on?'1':'0');}catch(e){}});}
 // (Options: the score numbers, damage numbers, shouts and health bars switches, each its own. The health bars are the ones over
-// goblins, vehicles and the other players, DT.hpBars)
+// goblins, vehicles, rides, zoo animals and the other players, DT.hpBars)
 function popsMigrate(){
   if(!POPS_OLD_OFF)return;POPS_OLD_OFF=false;DT.hpBars=false;saveDT();
   try{localStorage.setItem(DMGPOP_KEY,DMGPOP_ON?'1':'0');localStorage.setItem(SHOUT_KEY,SHOUT_ON?'1':'0');localStorage.setItem('goblin-stompin-gus-hpBars','0');localStorage.removeItem(POPS_KEY);}catch(e){}
@@ -27039,6 +27451,7 @@ function drawDbgOverlay(dt,views){
         if(K.perCar){const T=o,gst=netGuest()&&T.netHP,hp=gst?T.netHP:T.carHP,cd=gst?T.netCarDead:T.carDead;if(gst?T.netDead:T.dead)return;
           V.cars.forEach((g,i)=>{if(!(cd&&cd[i]))bar(g.position.x,g.position.y+K.carTop(),g.position.z,hp&&hp[i]!==undefined?hp[i]:CAR_HP,CAR_HP,'#5ab4ff');});return;}
         if(netDead(o,K.dead(o))||!K.shown(o))return;const P=K.pos(o);bar(P.x,P.y+K.top(o),P.z,netHp(o,K.hp(o)),K.max(o),'#5ab4ff');});
+      rideBarsEach((bx,by,bz,hp,max)=>bar(bx,by,bz,hp,max,'#5ab4ff'));   // (the theme park's rides and the zoo's animals, rides.js)
       for(const q of players){if(!q.active||q.state==='dead'||q===p)continue;bar(q.pos.x,q.pos.y+2.5,q.pos.z,q.hp,20,'#7fd04a');}
     }
     for(const d of DMG_POPS){const s=proj(d.x,d.y+d.t*1.6,d.z);if(!s||s[2]>90)continue;const a=d.t<0.7?1:Math.max(0,1-(d.t-0.7)/0.4),sz=Math.round(16+Math.min(14,d.n*0.5)-s[2]*0.08);
@@ -27756,7 +28169,7 @@ function frame(now,bg){   // (bg: a tab in the background while online, kept goi
     if(netG){netGuestStep(sdt,sI===0);continue;}   // (a guest online: the host's game does the playing, see net/net-sync.js)
     if(sI>0)for(const p of players){const I=p.in;I.jumpPress=I.bitePress=I.lockPress=I.chargePress=I.dashPress=I.sprintPress=false;for(const k of CTX_PRESS)I[k]=false;}
     for(const p of players){DBG_WHO='p';safe('player',()=>updatePlayer(p,sdt));DBG_WHO='n';}
-    safe('goblins',()=>updateGoblins(sdt));safe('fireballs',()=>{updateFireballs(sdt);updateShots(sdt);gobPickups(sdt);});safe('cars',()=>updateCars(sdt));safe('stations',()=>updateStations(sdt));safe('services',()=>updateServices(sdt));
+    safe('goblins',()=>updateGoblins(sdt));safe('fireballs',()=>{updateFireballs(sdt);updateShots(sdt);updateMines(sdt);gobPickups(sdt);});safe('cars',()=>updateCars(sdt));safe('stations',()=>updateStations(sdt));safe('services',()=>updateServices(sdt));
     safe('traffic',()=>updateTraffic(sdt));safe('farmlift',()=>farmLiftPost(sdt));safe('ships',shipCrossAll);for(const p of players)if(p.drv)safe('drive',()=>drvSeat(p));for(const p of players)if(p.vcl&&p.state==='climb')safe('vpin',()=>vRepin(p));safe('spikes',()=>updateSpikes(sdt));safe('weather',()=>updateWeather(sdt));safe('sky',()=>updateSky(sdt));
     for(const p of players)safe('health',()=>updateHealth(p,sdt));
     safe('parts',()=>updateParts(sdt));safe('rubble',()=>updateRubble(sdt));safe('shocks',()=>{updateShocks(sdt);updateCones(sdt);});safe('bodies',()=>updateBodies(sdt));safe('topples',()=>updateTopples(sdt));
@@ -27950,7 +28363,7 @@ function netHostLeft(peer){
 }
 // a guest's controls: what's held now replaces what was held; a press counts once, on the host's next frame, however many
 // of the guest's frames it was spread over (and none is lost between two of them)
-const NET_HELD=['charge','stomp','bite','jump','dash','sprint','climb','use','weapon','kbd',...CTX_IDS],NET_PRESS=['chargePress','bitePress','jumpPress','lockPress','dashPress','sprintPress',...CTX_PRESS];
+const NET_HELD=['charge','stomp','bite','jump','dash','sprint','climb','use','weapon','reload','kbd',...CTX_IDS],NET_PRESS=['chargePress','bitePress','jumpPress','lockPress','dashPress','sprintPress',...CTX_PRESS];
 function netGotInput(p,m){
   const N=p.net;if(typeof m.n==='number'&&m.n<=(N.inN||0))return;N.inN=m.n;N.inAt=NET.now;
   N.inb=m;if(Number.isFinite(m.vt))N.vt=m.vt;if(m.pr&&(m.pr.bitePress||m.pr.chargePress)||m.h&&(m.h.bite||m.h.stomp))N.atkAt=NET.now;
@@ -28119,7 +28532,7 @@ let NET_FXD=0,NET_APPLY=false,NET_MUTE=false,NET_SPOS=null;   // (NET_SPOS: the 
 
 // ---- players ----
 // (plain values a guest has no use for, or keeps for itself: its seat, the menus, effects worked out from where he is)
-const NET_PSKIP=new Set(['idx','active','paused','lastHp','speedFx','windZoom','bsK','bsx','bsz','bvx','bvz','flickAcc','flickAccY','flickReq','flickReqY','camHang','who','gob','name','pos','spawnSnap']);
+const NET_PSKIP=new Set(['idx','active','paused','lastHp','speedFx','windZoom','bsK','bsx','bsz','bvx','bvz','flickAcc','flickAccY','flickReq','flickReqY','camHang','who','gob','name','pos','spawnSnap','shotT','shotN']);
 const netEnc=v=>typeof v==='number'?(Number.isFinite(v)?r3(v):String(v)):v;
 const netDec=v=>v==='Infinity'?Infinity:v==='-Infinity'?-Infinity:v==='NaN'?NaN:v;
 // a player's joints, in a fixed order: the same list on both ends
@@ -28167,7 +28580,7 @@ function netGoblins(p,N,out,looks){
   const R=170,px=pwx(p),pz=pwz(p);
   for(let i=0;i<goblins.length;i++){const g=goblins[i],r=g.root;if(!r.visible||!netNear(r.position,px,pz,R))continue;
     const P=r.position,Q=r.rotation;
-    out.push([i,r3(P.x),r3(P.y),r3(P.z),r3(Q.x),r3(Q.y),r3(Q.z),r3(r.scale.x),r3(r.scale.y),r3(g.legs[0].rotation.x),r3(g.legs[1].rotation.x),r3(g.arm.rotation.x),r3(g.armL.rotation.x),r3(g.head.rotation.z),g.orb&&g.orb.visible?1:0,g.state,r3(g.hp),g.hpMax>=g.hp?g.hpMax:r3(g.hp),r3(g.arm.rotation.z),r3(g.arm.hand?g.arm.hand.rotation.x:0),g.wkit?g.wkit.shown:0]);   // (and its health, for the health bars; then the rest of a blow's pose, strikes.js; then an officer's club, handgun or holster, police-gun.js)
+    out.push([i,r3(P.x),r3(P.y),r3(P.z),r3(Q.x),r3(Q.y),r3(Q.z),r3(r.scale.x),r3(r.scale.y),r3(g.legs[0].rotation.x),r3(g.legs[1].rotation.x),r3(g.arm.rotation.x),r3(g.armL.rotation.x),r3(g.head.rotation.z),g.orb&&g.orb.visible?1:0,g.state,r3(g.hp),g.hpMax>=g.hp?g.hpMax:r3(g.hp),r3(g.arm.rotation.z),r3(g.arm.hand?g.arm.hand.rotation.x:0),g.wkit?g.wkit.shown:0,g.relT>0?1:0]);   // (and its health, for the health bars; then the rest of a blow's pose, strikes.js; then an officer's club, handgun or holster, police-gun.js)
     const L=g.id&&g.id.look;if(!L)continue;let v=netLookOf.get(g.id);if(!v){v=++netLookN;netLookOf.set(g.id,v);}
     if(N.looks.get(i)!==v){N.looks.set(i,v);looks[i]={o:r.netOpt||(g.civ?{club:false}:{}),civ:!!g.civ,L,id:{name:g.id.name,occ:g.id.occ,age:g.id.age}};}}
 }
@@ -28404,6 +28817,7 @@ function netFx(name,f){
 puff=netFx('puff',puff);smoke=netFx('smoke',smoke);blood=netFx('blood',blood);splat=netFx('splat',splat);
 destroyFX=netFx('destroyFX',destroyFX);shockwave=netFx('shockwave',shockwave);shockCone=netFx('shockCone',shockCone);blastFx=netFx('blastFx',blastFx);
 tone=netFx('tone',tone);noise=netFx('noise',noise);dmgPop=netFx('dmgPop',dmgPop);woosh=netFx('woosh',woosh);tracer=netFx('tracer',tracer);
+mineShow=netFx('mineShow',mineShow);   // (landmines in the ground, and their lights: mines.js)
 // (a message for one player goes to that player only; one for everyone, to everyone)
 {const fl=flashLabel;NET_FX.flashLabel=fl;flashLabel=function flashLabel(s,who){
   if(NET_MUTE)return;
@@ -28524,7 +28938,7 @@ function netSendSnap(p){   // (and the goblins' places are kept each frame, belo
 // has drifted, and he's eased back by that much over the next few frames, so a correction is a nudge, never a jump.
 // Anything the guest can't guess (riding or driving something, dying, a big knock) and it shows the host's own.
 const NET_PREDICT=true;
-const NET_AUTH=['wpns','gren','hp','deadT','hurtFx','regenT','hurt','stam','exhausted','lastHit','killer','score','cbN','cbT'];   // (what's always the host's to say, guessing or not. The combo too: only the host's kills build one, and the guest's own clock runs it down between snapshots, so without it the bar sat still)
+const NET_AUTH=['wpns','gren','mines','ammoN','relT','hp','deadT','hurtFx','regenT','hurt','stam','exhausted','lastHit','killer','score','cbN','cbT'];   // (what's always the host's to say, guessing or not. The combo too: only the host's kills build one, and the guest's own clock runs it down between snapshots, so without it the bar sat still)
 const NETP={on:false,hist:[],sent:new Map(),corr:new V3(),snap:false,fr:null};   // (fr: the ship whose frame this guest's own player is in, or null out in the world)
 // (the guest's controls going out: when each went, so its history can be matched up)
 function netPredSent(n){if(NETP.sent.size>200)NETP.sent.clear();NETP.sent.set(n,NET.now);}
@@ -28695,7 +29109,7 @@ function netGuestFrame(dt){
     g.root.position.set(fo?e[1]+(fo[1]-e[1])*kq:e[1],fo?e[2]+(fo[2]-e[2])*kq:e[2],fo?e[3]+(fo[3]-e[3])*kq:e[3]);g.root.rotation.set(w(4),fo?lerpA(e[5],fo[5],kq):e[5],w(6));g.root.scale.set(v(7),v(8),v(7));g.pos.copy(g.root.position);g.heading=g.root.rotation.y;
     g.legs[0].rotation.x=w(9);g.legs[1].rotation.x=w(10);g.arm.rotation.x=w(11);g.armL.rotation.x=w(12);g.head.rotation.z=w(13);
     if(e[18]!==undefined){g.arm.rotation.z=w(18);if(g.arm.hand)g.arm.hand.rotation.x=f&&f[19]!==undefined?e[19]+(f[19]-e[19])*k:e[19];}   // (the wrist turns past half a turn: straight between, not the short way round)
-    if(g.wkit)wkitShow(g.wkit,e[20]||0);}   // (a blade or club in hand, or the gun drawn, and the gun put away: foes.js)
+    if(g.wkit)wkitShow(g.wkit,e[20]||0);g.relT=e[21]?1:0;}   // (reloading: its gun held as the pose has it, not gripped, strikes.js)   // (a blade or club in hand, or the gun drawn, and the gun put away: foes.js)
   netVenuePose(rt);netMechPlace(a,o,kp,ms);netShipPlace(a,o,kp);netFallPose(a,b,k);
   for(const e of a.c){const c=NETM.c.get(e[0]);if(!c)continue;const fo=bc.get(e[0]),f=b?fo:null,kq=netKP(e,fo,1,kp,ms),w=n=>f?lerpA(e[n],f[n],k):e[n],x=n=>fo?e[n]+(fo[n]-e[n])*kq:e[n],y=n=>fo?lerpA(e[n],fo[n],kq):e[n];
     c.g.position.set(x(1),x(2),x(3));c.g.rotation.set(w(4),y(5),w(6));c.pos.copy(c.g.position);c.heading=c.g.rotation.y;

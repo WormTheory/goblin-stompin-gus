@@ -86,7 +86,7 @@ const UNIT_BOX=new THREE.BoxGeometry(1,1,1);
 function makeGoblin(o,x){
   const root=new THREE.Group();root.rotation.order='YXZ';
   const m=goblinModel(root,Object.assign({shareGeo:true},o));
-  const g=Object.assign({snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,wkit:m.wkit||null,orb:m.orb||null,
+  const g=Object.assign({snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,wkit:m.wkit||null,orb:m.orb||null,mineB:m.mineB||null,
     pos:new V3(),kv:new V3(),stun:0,heading:0,vy:0,hp:4,state:'wait',t:0,phase:0,atk:1,hurt:0,sink:0,detour:0,detourH:0,stuck:0,civ:false},x);
   root.visible=false;root.scale.setScalar(ES);goblins.push(g);return g;
 }
@@ -133,6 +133,8 @@ function goblinModel(parent,o={}){
   // colour) while winding up to throw it
   if(gk&&WEAPONS[gk].kind==='spell'){out.orb=box(0.24,0.24,0.24,'orb',0xff7a1a,0,-0.46,0.04,armL);out.orb.visible=false;}
   else if(wpnOfKind(WL,'throw')){const [w,h,d,c]=o.held||[0.22,0.22,0.22,0x3a4a22];out.orb=box(w,h,d,'orb',c,0,-0.46,0.04,armL);out.orb.visible=false;}
+  // (and a landmine, in the free hand while it's being set down: foeRanged)
+  if(wpnOfKind(WL,'mine')){const M=WEAPONS[wpnOfKind(WL,'mine')].model.held[0];out.mineB=box(M[0],M[1],M[2],'mineh',M[3],0,-0.46,0.04,armL);out.mineB.visible=false;}
   // hats
   acc('cap',[box(0.52,0.12,0.48,'hat',0x2a2a2a,0,0.47,0.02,head),box(0.34,0.04,0.2,'hat',0x2a2a2a,0,0.425,0.31,head)]);
   acc('top',[box(0.34,0.36,0.34,'hatdark',0x1a1a1e,0,0.625,0.02,head),box(0.54,0.04,0.52,'hatdark',0x1a1a1e,0,0.445,0.02,head),box(0.38,0.06,0.38,'hat',0x8a2a2a,0,0.5,0.02,head)]);

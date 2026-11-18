@@ -32,6 +32,7 @@ const ACTS=[
   {id:'climb',n:'Spider Climb (hold)',c:'#9a7ae0',kb:['KeyC'],pad:[4]},
   {id:'use',n:'Get in / out (as Gnash)',c:'#6ab0d8',kb:['KeyF'],pad:[3]},
   {id:'weapon',n:'Next weapon (as Gnash)',c:'#b0b8c0',kb:['KeyR'],pad:[15]},
+  {id:'reload',n:'Reload (as Gnash)',c:'#d0b070',kb:['KeyX'],pad:[13]},   // (D-pad down: a gun's next magazine)
   {id:'talk',n:'Push to talk (online voice chat)',c:'#7fc8a0',kb:['KeyT'],pad:[14]},
   {id:'quickChat',n:'Quick chat message (online)',c:'#8fb8e0',kb:[],pad:[12]},
   // (piloting a Mobile Gear: its own set, which only counts while you're in one, so these can share keys and buttons
@@ -112,7 +113,7 @@ const CTX_NAMES={road:'Driving cars, bikes and trucks',lift:'Driving a forklift'
   air:'Flying a plane',sea:'Boats and ships',rail:'Driving a train',balloon:'Flying a hot-air balloon',mg:'Piloting a Mobile Gear (Testing Environment)'};
 // (the controls on foot that a vehicle's own set takes over while you're in it: everything but Get in / out, Lock on and
 // the online chat keys, which work everywhere)
-const CTX_TAKES=['bite','stomp','jump','climb','charge','dash','sprint','weapon'];
+const CTX_TAKES=['bite','stomp','jump','climb','charge','dash','sprint','weapon','reload'];
 const KB_RESERVED=new Set(['Escape','Backquote','KeyP','KeyV','Period','BracketLeft','BracketRight','Backspace','Delete','Enter','NumpadEnter']),PAD_RESERVED=new Set([8,9]);
 let BINDS={};
 function defaultBinds(){const o={};for(const a of ACTS)o[a.id]={kb:a.kb.slice(),pad:a.pad.slice()};return o;}
@@ -158,7 +159,9 @@ function bindHint(pad,p){
 }
 // playing as Gnash: his own moves (the hippo's stomps and trample aren't his), with whatever's in his hand
 function gobHint(L,p){const w=p&&p.wpns?p.wpn:'club',out=[];
-  if(L('bite'))out.push(L('bite')+' '+(w==='rifle'||w==='handgun'?'shoot':w==='dagger'?'stab':'swing the club'));
+  // (each weapon says what its attack is, WEAPONS' player.verb; a gun with a magazine can be reloaded)
+  const W=WEAPONS[w];if(L('bite'))out.push(L('bite')+' '+(W&&W.player&&W.player.verb||'swing the club'));
+  if(L('reload')&&W&&W.mag)out.push(L('reload')+' reload');
   if(L('stomp'))out.push(L('stomp')+' throw a grenade');if(L('jump'))out.push(L('jump')+' jump');
   if(L('dashSprint'))out.push('tap '+L('dashSprint')+' dash, hold to sprint');else{if(L('dash'))out.push(L('dash')+' dash');}
   if(L('sprint'))out.push('hold '+L('sprint')+' to sprint');

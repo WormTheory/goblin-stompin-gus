@@ -5,7 +5,7 @@ function wallFrame(p){const d=p.climbD,r=p.climbRoll||0,s=Math.sin(r);return{d,c
 function wallBite(p){
   if(p.biteT>0||(p.biteCD||0)>0)return;
   // (Gnash: whatever's in his hand, with its own timing)
-  if(p.gob){const W=gobW(p);p.biteStep=-1;p.comboWin=0;p.biteDur=W.dur;p.biteT=W.dur;p.lungeT=W.lunge;p.biteHit=true;p.biteCD=W.cd;p.wallBite=true;gobPressSnd(p);return;}
+  if(p.gob){if(!gobReady(p))return;const W=gobW(p);p.biteStep=-1;p.comboWin=0;p.biteDur=W.dur;p.biteT=W.dur;p.lungeT=W.lunge;p.biteHit=true;p.biteCD=W.cd;p.wallBite=true;gobPressSnd(p);return;}
   p.biteStep=-1;p.comboWin=0;p.biteDur=0.38;p.biteT=0.38;p.lungeT=0.26;p.biteHit=true;p.biteCD=BITE_SOLO_CD;p.wallBite=true;
   sfx('Bite',()=>{woosh(0.13,0.22,520,1700,0.1);tone('triangle',150,260,0.08,0.06,0.28);});
 }
@@ -201,19 +201,22 @@ function gobKit(p){
   const box=(w,h,d,c,x,y,z,o,to=arm)=>{const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c));b.position.set(x,y,z);b.renderOrder=o;b.frustumCulled=false;to.add(b);};
   box(0.11,0.11,0.42,GC.skin,0,0,-0.2,60);
   // (one of these in the hand at a time: see gob-weapons.js)
-  const held={};for(const k of GOB_WPN_ORDER){held[k]=new THREE.Group();arm.add(held[k]);held[k].visible=k==='club';}
-  for(const k of GOB_WPN_ORDER)wpnBoxes(WEAPONS[k].model.view,(w,h,d,c,x,y,z,o)=>box(w,h,d,c,x,y,z,o,held[k]));   // (each in your own view: WEAPONS)
+  // (a box with a tag, a magazine, a rocket, a bolt, a pump or a slide, goes in a group of its own for that tag, so it can
+  // be moved on its own in a reload or between shots: tags[weapon][tag])
+  const held={},tags={};for(const k of GOB_WPN_ORDER){held[k]=new THREE.Group();arm.add(held[k]);held[k].visible=k==='club';tags[k]={};}
+  const tagG=(k,t)=>{if(!t)return held[k];if(!tags[k][t]){const g=new THREE.Group();held[k].add(g);tags[k][t]=g;}return tags[k][t];};
+  for(const k of GOB_WPN_ORDER)wpnBoxes(WEAPONS[k].model.view,(w,h,d,c,x,y,z,o,t)=>box(w,h,d,c,x,y,z,o,tagG(k,t)));   // (each in your own view: WEAPONS)
   // (and the other arm coming in from the bottom left, its hand under the rifle's barrel or wrapped round the handgun's
   // grip, as the others see him hold them: a forearm from S, off the edge of the picture, to the hand at P)
   const fore=(P,S,to)=>{const d=[S[0]-P[0],S[1]-P[1],S[2]-P[2]],L=Math.hypot(...d),b=new THREE.Mesh(new THREE.BoxGeometry(0.11,0.11,L),mat(GC.skin));
     b.position.set((P[0]+S[0])/2,(P[1]+S[1])/2,(P[2]+S[2])/2);b.rotation.order='YXZ';b.rotation.set(-Math.asin(d[1]/L),Math.atan2(d[0],d[2]),0);b.renderOrder=60;b.frustumCulled=false;to.add(b);};
-  for(const k of GOB_WPN_ORDER){const F=WEAPONS[k].model.fore;if(F)fore(F[0],F[1],held[k]);}
+  for(const k of GOB_WPN_ORDER){const F=WEAPONS[k].model.fore;if(F)fore(F[0],F[1],tagG(k,WEAPONS[k].model.foreTag));}   // (on the pump, it racks with it)
   // (a spell's fireball, growing in the free hand while it's conjured: in his own view at the other hand, and in the
   // left hand of the goblin the others see)
   const orbM=new THREE.MeshBasicMaterial({color:0xff8a20,transparent:true,depthTest:false,depthWrite:false}),orb=new THREE.Mesh(new THREE.BoxGeometry(0.2,0.2,0.2),orbM);orb.renderOrder=63;orb.frustumCulled=false;orb.visible=false;
   {const sk=GOB_WPN_ORDER.find(k=>WEAPONS[k].kind==='spell'),F=sk&&WEAPONS[sk].model.fore;if(F){orb.position.set(F[0][0],F[0][1]+0.1,F[0][2]);held[sk].add(orb);}}
   const torb=new THREE.Mesh(new THREE.BoxGeometry(0.24,0.24,0.24),new THREE.MeshBasicMaterial({color:0xff7a1a}));torb.position.set(0,-0.46,0.04);torb.visible=false;m.armL.add(torb);
-  return p.gb={root,m,vm,arm,held,tp,orb,torb};
+  return p.gb={root,m,vm,arm,held,tags,tp,orb,torb};
 }
 // the first-person view, and the body that goes with it
 // Clinging to a wall he's 0.06 off its face (where a hippo's belly goes), well inside the near plane, so the view went
@@ -265,14 +268,17 @@ function gobBodyPose(m,p){
   m.legs[0].rotation.x=walking?sn*0.7:0;m.legs[1].rotation.x=walking?-sn*0.7:0;
   const X=m.atkX||(m.atkX={tw:0,ln:0,lu:0});X.tw=X.ln=X.lu=0;m.arm.rotation.z=0;m.arm.hand.rotation.x=0;m.armL.rotation.x=0;
   if((p.thrS??9)<STRIKE_FT)gobStrike(m,'throw',1+p.thrS/STRIKE_FT,'L');   // (the throw's the instant you press: only its follow-through shows)
-  if(gobGun(wk))m.arm.rotation.x=-Math.PI/2-p.cam.pitch+(p.biteT>0?0.25*Math.max(0,1-sw*4):0);
-  else if(p.biteT>0&&WEAPONS[wk]&&WEAPONS[wk].kind==='spell')gobStrike(m,'cast',gobSwingU(p));   // (the book raised, the ball conjured and hurled, as a cultist's)
-  else if(p.biteT>0)gobStrike(m,wk==='dagger'?'dagger':'club',gobSwingU(p));
+  const W=WEAPONS[wk];
+  // (reloading: the gun lowered and the magazine changed as an enemy does it, its npc.rl)
+  if(gobGun(wk)&&p.relT>0&&p.relW===wk)gobStrike(m,W.npc.rl||'rlMag',2*(1-p.relT/(p.relDur||1)));
+  else if(gobGun(wk))m.arm.rotation.x=-Math.PI/2-p.cam.pitch+(p.biteT>0?0.25*Math.max(0,1-sw*4):0);
+  else if(p.biteT>0&&W&&W.kind==='spell')gobStrike(m,'cast',gobSwingU(p));   // (the book raised, the ball conjured and hurled, as a cultist's)
+  else if(p.biteT>0)gobStrike(m,W&&(W.player.body||W.npc&&W.npc.strike)||'club',gobSwingU(p));   // (each blade or club's own blow, as the enemies strike it; a landmine set down)
   else m.arm.rotation.x=-0.5;
 }
 // a rifle or handgun in his hand: held in both, as the enemies hold theirs (strikes.js), once his root's placed; not while
 // his free arm's coming through after a grenade, dead, or in a vehicle
-function gobGunGrip(m,root,p){const wk=gobArms(p).wpn;if(gobGun(wk)&&p.state!=='dead'&&!p.drv&&!((p.thrS??9)<STRIKE_FT))gunGrip(m,root,wk==='rifle'?'rifle':'pistol');}
+function gobGunGrip(m,root,p){const wk=gobArms(p).wpn;if(gobGun(wk)&&p.state!=='dead'&&!p.drv&&!(p.relT>0)&&!((p.thrS??9)<STRIKE_FT))gunGrip(m,root,WEAPONS[wk].npc.aim||'rifle');}   // (not while reloading: the free hand's busy)
 function gobCamera(p){
   const K=gobKit(p),lie=p.state==='dead'?Math.min(1,p.t*3):0,walking=p.state==='walk'&&p.grounded&&p.lastSp>0.2,sn=Math.sin(p.phase),v=p.visOff;
   p.camHang=(p.camHang||0)+((p.state==='ceil'||(p.state==='piv'&&p.piv&&p.piv.next==='ceil')?1:0)-(p.camHang||0))*0.12;
@@ -298,9 +304,31 @@ function gobCamera(p){
   // (a spell: the book held open low in front, the fireball growing at the other hand while it's conjured, gone once hurled)
   {const sp=WEAPONS[wk]&&WEAPONS[wk].kind==='spell',u=sp&&p.biteT>0?gobSwingU(p):0,on=sp&&u>0&&u<1;
     K.orb.visible=on;K.torb.visible=on;if(on){K.orb.scale.setScalar(0.4+u*0.9);K.torb.scale.setScalar(0.4+u*0.9);}}
-  if(WEAPONS[wk]&&WEAPONS[wk].kind==='spell'){const u=p.biteT>0?gobSwingU(p):0,th=u>=1&&u<1.4?Math.max(0,1-(u-1)*2.5):0;K.arm.rotation.x=0.18-0.1*th;K.arm.position.set(0.3,-0.5-up*0.5+bob,-0.56-0.08*th);}
-  else if(gobGun(wk)){const kick=p.biteT>0?Math.max(0,1-sw*4):0,hg=wk==='handgun';K.arm.rotation.x=0.04+(hg?0.32:0.22)*kick;K.arm.position.set(hg?0.26:0.34,(hg?-0.4:-0.46)-up*0.5+bob,-0.5+(hg?0.08:0.12)*kick);}
-  else{const v=strikeAt(wk==='dagger'?'vmDagger':'vmClub',gobSwingU(p));K.arm.rotation.x=v[0]+(walking?sn*0.03:0);K.arm.position.set(v[1],v[2]-up*0.5+bob,v[3]);}
+  if(WEAPONS[wk]&&WEAPONS[wk].kind==='spell'){const u=p.biteT>0?gobSwingU(p):0,th=u>=1&&u<1.4?Math.max(0,1-(u-1)*2.5):0;K.arm.rotation.x=0.18-0.1*th;K.arm.rotation.z=0;K.arm.position.set(0.3,-0.5-up*0.5+bob,-0.56-0.08*th);}
+  else if(gobGun(wk))gobViewGun(p,K,wk,sw,up,bob);
+  else{const sk=WEAPONS[wk]&&WEAPONS[wk].player.swing||'vmClub',u=gobSwingU(p),v=strikeAt(sk,u);K.arm.rotation.x=v[0]+(walking?sn*0.03:0);K.arm.rotation.z=STRIKES[sk][0].length>5?v[4]:0;K.arm.position.set(v[1],v[2]-up*0.5+bob,v[3]);
+    // (a landmine's gone from the hand once it's set down, till the arm's back up with the next)
+    if(WEAPONS[wk]&&WEAPONS[wk].kind==='mine')K.held[wk].visible=!(u>1&&u<1.6)&&p.mines>0;}
+}
+// a gun in your own view (each gun's player.vm: where it's held, how much it kicks up and back): kicking when it fires;
+// its bolt, pump or slide worked after a shot (player.cycle); reloaded (player.rl, a timeline in strikes.js added to where
+// it's held, its magazine or rocket out and back in); a rocket on the bazooka only while it's loaded
+const GOB_VM={x:0.34,y:-0.46,z:-0.5,kick:0.22,back:0.12};
+function gobViewGun(p,K,wk,sw,up,bob){
+  const W=WEAPONS[wk],P=W.player,M=P.vm||GOB_VM,kick=p.biteT>0?Math.max(0,1-sw*4):0,T=K.tags[wk]||{};
+  let rx=0.04+M.kick*kick,rz=0,ax=M.x,ay=M.y,az=M.z+M.back*kick,mg=0;
+  if(p.relT>0&&p.relW===wk&&P.rl){const r=strikeAt(P.rl,2*(1-p.relT/(p.relDur||1)));rx+=r[0];rz=r[1];ax+=r[2];ay+=r[3];az+=r[4];mg=r[5];}
+  // (worked after a shot, from when it fired: the slide snapping back with the kick; the pump racked back and forward;
+  // the bolt lifted, drawn back and pushed home, the gun canted over to do it)
+  const ts=camClock-(p.shotT??-9),bump=(a,b,c)=>ts<a||ts>c?0:ts<b?(ts-a)/(b-a):1-(ts-b)/(c-b);let cyc=0;
+  if(P.cycle==='slide')cyc=kick;else if(P.cycle==='pump')cyc=bump(0.22,0.38,0.55);else if(P.cycle==='bolt'){cyc=bump(0.4,0.65,0.95);rz+=0.35*cyc;ay+=0.03*cyc;}
+  if(p.relT>0)cyc=0;
+  K.arm.rotation.x=rx;K.arm.rotation.z=rz;K.arm.position.set(ax,ay-up*0.5+bob,az);
+  if(T.slide)T.slide.position.z=0.07*cyc;if(T.pump)T.pump.position.z=0.13*cyc;if(T.bolt){T.bolt.position.z=0.12*cyc;T.bolt.position.y=0.02*Math.min(1,cyc*3);}
+  // (the magazine dropped out and the new one pushed up into place; a shotgun's shell pushed in under it)
+  if(T.mag){T.mag.position.y=-0.3*mg;T.mag.visible=mg<0.95;}
+  // (the rocket: gone once fired, slid back into the front of the tube in a reload)
+  if(T.load){const n=gobAmmoShown(p,wk);T.load.visible=p.relT>0&&p.relW===wk?mg<0.9:n>0;T.load.position.z=-0.45*mg;}
 }
 // who's seen from this view: everyone's goblin but your own, unless the free cam has left it
 function gobView(v){

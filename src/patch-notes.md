@@ -125,6 +125,22 @@
 - An enemy you kill now drops the first weapon it carries that you haven't got yet, rather than nothing once you have its first one.
 - Fireballs now burst on a vehicle in their way and damage it, as bullets do, instead of flying straight through.
 
+### New weapons and reloading
+
+- Seven new weapons for Gnash and Grizzle, each in the Loadout and dropped by any enemy that carries one:
+  - Katana: a quick, wide cut from high on the right down across to the left, wide enough to catch two goblins side by side.
+  - Large Club: heaved up over the shoulder, held at the top for a beat, then slammed into the ground in front of you. Slow, but it hits hard, dents cars badly and shakes the ground.
+  - Shotgun: eight pellets a shot, brutal close up and little use far off. The pump racks back and forward after every shot.
+  - Assault Rifle: hold the button and it keeps firing. The view climbs a little with each shot, so pull it back down.
+  - Sniper Rifle: one heavy round at a time, from much further than anything else, with the bolt worked between shots.
+  - Bazooka: a rocket off the shoulder that bursts on whatever it meets, goblins, vehicles or walls, knocking out a crater. One shot, then a slow reload.
+  - Landmines: carried as a pile, like grenades (pick how many in the Loadout, up to 6). Hold them in hand and attack to crouch and press one into the ground just ahead. It arms after a second, blinking red, then goes off under the first enemy or vehicle over it, never under you.
+- Guns now have magazines and reload. The handgun holds 8, the rifle 5, the shotgun 6, the assault rifle 30, the sniper rifle 5 and the bazooka 1. X (controller D-pad down) reloads; firing the last round, or attacking with it empty, reloads by itself. Switching weapons stops a reload, and each gun keeps what's left in it. The weapon bar shows the rounds left and when it's reloading.
+- Reloads are animated in your own view (the magazine dropped out and a new one slapped in, shells pushed in one by one, the rocket slid into the tube) and on your goblin as the others see him.
+- Enemies reload too: police officers, militia, preppers, soldiers, sailors and marines stop to change magazines once they've emptied their guns. One that also carries a blade or club drops the reload to fight you if you come close.
+- None of the enemies carry the new weapons yet, but any of them can: an assault rifle is fired in bursts of four, a shotgun's pellets and a bazooka's rockets come at you as they do from yours, and one carrying landmines kneels to plant them in your path.
+- Melee weapons now each have their own wind-up and follow-through on the enemies who swing them, so a heavy weapon's blow is slower to come and slower to recover from.
+
 ### PvP
 
 - A new PvP switch in Options, off unless you turn it on. With it on, players can fight each other, in split screen or online, whoever they're playing as.

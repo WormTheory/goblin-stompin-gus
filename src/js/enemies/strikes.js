@@ -35,11 +35,80 @@ const STRIKES={
   // back, then hurled, the hand thrown out straight at the target
   cast:[[0,-0.5,0,0,0,0,0,0],[0.4,-1.9,0.1,0.3,-2.6,-0.1,-0.03,0,'o'],[0.8,-2.05,0.12,0.35,-3.4,-0.35,-0.1,-0.04],
     [0.88,-2.05,0.12,0.35,-3.5,-0.38,-0.11,-0.05],[1,-1.75,0.1,0.3,-1.6,0.35,0.15,0.12,'i'],[1.3,-1.65,0.1,0.3,-1.45,0.35,0.15,0.1,'o'],[2,-0.5,0,0,0,0,0,0]],
+  // a katana, in both hands: raised up and back over the weapon shoulder, the body turned away from the target, a beat
+  // with it cocked; then one cut swept across and down through the target, the body unwinding into it, carried on low
+  // to the other side; then a flick of the wrist (shaking the blade clean) before it comes back to guard
+  katana:[[0,-0.5,0,0,0,0,0,0],[0.4,-1.9,0.6,-0.4,-1.6,0.35,-0.04,-0.03,'o'],[0.78,-2.6,1.0,-0.9,-2.2,0.6,-0.1,-0.07],
+    [0.86,-2.65,1.05,-0.95,-2.25,0.62,-0.11,-0.08],[1,-1.35,-0.55,0.75,-1.3,-0.45,0.18,0.2,'i'],[1.25,-0.9,-0.95,1.15,-0.8,-0.7,0.2,0.22,'o'],
+    [1.55,-1.1,-0.4,-0.2,-0.4,-0.35,0.08,0.12],[1.62,-1.05,-0.35,0.35,-0.35,-0.3,0.07,0.1,'i'],[2,-0.5,0,0,0,0,0,0]],
+  // a large club: heaved up in both hands, lifted right over the head leaning back with the weight of it, a long beat at
+  // the top, then slammed down into the ground in front, held there as the shock goes through it, and heaved up again
+  bigclub:[[0,-0.5,0,0,0,0,0,0],[0.3,-1.6,0.1,-0.3,-1.5,0.1,-0.06,0,'o'],[0.7,-3.4,0.15,-0.9,-3.3,0.2,-0.2,-0.1],
+    [0.9,-3.5,0.15,-1.0,-3.4,0.22,-0.22,-0.11],[1,-0.7,0,1.0,-0.8,-0.08,0.38,0.24,'i'],[1.4,-0.6,0,1.1,-0.7,-0.08,0.36,0.24],
+    [1.75,-1.0,0.05,0.5,-0.7,0.05,0.12,0.1,'o'],[2,-0.5,0,0,0,0,0,0]],
+  // an assault rifle: shouldered like the rifle, and each round of a burst a small kick (foeRanged plays 1 to 1.2 of
+  // it for each)
+  auto:[[0,-0.5,0,0,0,0,0,0],[0.35,-1.5,0,0,-1.35,0.15,0.04,0,'o'],[1,-1.5,0,0,-1.35,0.15,0.04,0],
+    [1.04,-1.62,0,0,-1.42,0.15,-0.02,-0.02,'o'],[1.2,-1.5,0,0,-1.35,0.15,0.03,0],[2,-0.5,0,0,0,0,0,0]],
+  // a sniper rifle: shouldered and settled (a held breath), then a heavy kick that rocks the whole body back, and the
+  // bolt worked before it comes down
+  snipe:[[0,-0.5,0,0,0,0,0,0],[0.4,-1.45,0,0,-1.3,0.2,0.06,0.02,'o'],[0.75,-1.52,0,0,-1.36,0.18,0.08,0.03],[1,-1.5,0,0,-1.35,0.18,0.08,0.03],
+    [1.05,-2.05,0,0,-1.75,0.22,-0.14,-0.1,'o'],[1.3,-1.6,0,0,-0.9,0.3,0,-0.04],[1.55,-1.52,0,0,-1.35,0.2,0.05,0],[2,-0.5,0,0,0,0,0,0]],
+  // a shotgun: brought up quickly, a big kick, then the pump racked back and forward
+  pump:[[0,-0.5,0,0,0,0,0,0],[0.3,-1.45,0,0,-1.3,0.12,0.05,0,'o'],[1,-1.48,0,0,-1.32,0.12,0.06,0],[1.06,-2.0,0,0,-1.7,0.15,-0.16,-0.12,'o'],
+    [1.35,-1.55,0,0,-1.0,0.12,0.06,0.02],[1.55,-1.5,0,0,-1.4,0.12,0.06,0.02],[2,-0.5,0,0,0,0,0,0]],
+  // a bazooka: heaved up on to the shoulder, the body turned side-on behind it, then the backblast shoves it back a step
+  shoulder:[[0,-0.5,0,0,0,0,0,0],[0.45,-1.5,0,0,-1.4,0.3,0,-0.02,'o'],[1,-1.55,0,0,-1.42,0.3,0.02,-0.02],
+    [1.05,-1.85,0,0,-1.5,0.36,-0.2,-0.18,'o'],[1.4,-1.55,0,0,-1.4,0.3,0,-0.06],[2,-0.5,0,0,0,0,0,0]],
+  // a landmine, set down with the free hand (an enemy's: its weapon stays in the other): crouched low, reached down,
+  // pressed into the ground, a pat to settle it, and up again. plantR is Gnash's, with the mine in his weapon hand
+  plant:[[0,-0.5,0,0,0,0,0,0],[0.35,-0.3,0.15,0,-0.5,0.15,0.3,0.06,'o'],[0.75,-0.25,0.2,0,-0.95,0.2,0.62,0.14],[0.88,-0.25,0.2,0,-1.0,0.2,0.66,0.15],
+    [1,-0.25,0.2,0,-1.1,0.18,0.7,0.16,'i'],[1.35,-0.3,0.2,0,-0.9,0.15,0.62,0.14],[1.45,-0.3,0.2,0,-1.1,0.15,0.66,0.15,'i'],[2,-0.5,0,0,0,0,0,0]],
+  plantR:[[0,-0.5,0,0,0,0,0,0],[0.35,-0.6,0,0.3,-0.3,-0.15,0.3,0.06,'o'],[0.75,-1.0,0,0.7,-0.25,-0.2,0.62,0.14],[0.88,-1.05,0,0.75,-0.25,-0.2,0.66,0.15],
+    [1,-1.15,0,0.85,-0.2,-0.18,0.7,0.16,'i'],[1.35,-0.95,0,0.7,-0.25,-0.15,0.62,0.14],[1.45,-1.15,0,0.85,-0.25,-0.15,0.66,0.15,'i'],[2,-0.5,0,0,0,0,0,0]],
+  // reloads, u 0 to 2 over the whole reload (the gun held in one hand as posed, not gripped: gunHeld): a magazine
+  // (rifles): lowered and canted, the free hand to the pouch on the belt and back up with a full one, slapped home, the
+  // charging handle pulled
+  rlMag:[[0,-1.2,0,0,-1.1,0.15,0.04,0],[0.2,-0.9,-0.25,0.5,-0.4,0.25,0.06,0,'o'],[0.45,-0.9,-0.25,0.5,0.45,0.3,0.08,0],[0.75,-0.95,-0.25,0.5,-0.7,0.25,0.06,0],
+    [0.92,-0.95,-0.25,0.5,-0.85,0.22,0.06,0],[1,-1.05,-0.25,0.45,-1.05,0.2,0.1,0.02,'i'],[1.3,-1.0,-0.15,0.3,-0.85,0.2,0.06,0],[1.45,-1.05,-0.1,0.25,-1.2,0.18,0.05,0,'i'],[2,-0.5,0,0,0,0,0,0]],
+  // a handgun: tipped, the magazine dropped, a new one from the belt, pushed in, the slide racked
+  rlPistol:[[0,-1.3,0,0,-1.2,0.1,0.03,0],[0.2,-1.0,-0.3,0.4,-0.3,0.12,0.05,0,'o'],[0.45,-1.0,-0.3,0.4,0.35,0.15,0.05,0],[0.8,-1.05,-0.3,0.4,-0.8,0.12,0.05,0],
+    [1,-1.1,-0.3,0.35,-1.05,0.1,0.07,0.01,'i'],[1.3,-1.15,-0.25,0.3,-1.25,0.1,0.05,0],[1.4,-1.2,-0.2,0.2,-1.0,0.1,0.05,0,'i'],[2,-0.5,0,0,0,0,0,0]],
+  // a shotgun: rolled to show its loading port, four shells from the belt one after another, then the pump
+  rlShells:[[0,-1.2,0,0,-1.1,0.12,0.04,0],[0.2,-0.85,-0.35,0.7,-0.3,0.25,0.06,0,'o'],[0.35,-0.85,-0.35,0.7,0.35,0.25,0.06,0],[0.55,-0.85,-0.35,0.7,-0.75,0.25,0.07,0],
+    [0.7,-0.85,-0.35,0.7,0.35,0.25,0.06,0],[0.9,-0.85,-0.35,0.7,-0.75,0.25,0.07,0],[1,-0.85,-0.35,0.7,0.3,0.25,0.06,0],[1.2,-0.85,-0.35,0.7,-0.75,0.25,0.07,0],
+    [1.35,-0.85,-0.35,0.7,0.35,0.25,0.06,0],[1.55,-0.85,-0.35,0.7,-0.75,0.25,0.07,0],[1.75,-1.1,-0.15,0.3,-1.25,0.15,0.05,0,'i'],[2,-0.5,0,0,0,0,0,0]],
+  // a bazooka: down off the shoulder, the free hand back for a rocket, slid in and seated with a slap, back up
+  rlTube:[[0,-1.5,0,0,-1.4,0.3,0,0],[0.25,-1.0,0.15,-0.5,-0.3,0.45,0.05,0,'o'],[0.5,-1.0,0.15,-0.5,0.7,0.5,0.05,0],[0.8,-1.0,0.15,-0.5,-0.2,0.5,0.05,0],
+    [1,-1.05,0.15,-0.5,-0.55,0.45,0.08,0,'i'],[1.3,-1.05,0.15,-0.5,-0.4,0.4,0.06,0],[1.6,-1.4,0,0,-1.3,0.3,0.02,0,'o'],[2,-0.5,0,0,0,0,0,0]],
   // Gnash's and Grizzle's own arm in first person: [u, its tilt, across, up, forward]
   // (the club held back, not right up: any higher and it's out of the top of the picture, and you'd never see the wind-up)
   vmClub:[[0,0.08,0.52,-0.62,-0.72],[0.7,0.8,0.62,-0.5,-0.7,'o'],[0.8,0.85,0.62,-0.49,-0.69],[1,-0.55,0.36,-0.7,-0.82,'i'],[1.3,-0.75,0.34,-0.76,-0.8],[2,0.08,0.52,-0.62,-0.72]],
-  vmDagger:[[0,0.3,0.46,-0.6,-0.66],[0.65,0.42,0.5,-0.56,-0.5,'o'],[0.75,0.44,0.5,-0.56,-0.48],[1,0.02,0.34,-0.6,-1.1,'i'],[1.35,0.04,0.34,-0.6,-1.06],[2,0.3,0.46,-0.6,-0.66]]};
+  vmDagger:[[0,0.3,0.46,-0.6,-0.66],[0.65,0.42,0.5,-0.56,-0.5,'o'],[0.75,0.44,0.5,-0.56,-0.48],[1,0.02,0.34,-0.6,-1.1,'i'],[1.35,0.04,0.34,-0.6,-1.06],[2,0.3,0.46,-0.6,-0.66]],
+  // (these have a sixth, its roll: + tips the top to the left)
+  // the katana: up to the right with the blade laid back, a beat, then cut down and across to the lower left, a flick
+  vmKatana:[[0,0.25,0.5,-0.62,-0.7,0.15],[0.65,0.75,0.72,-0.42,-0.62,-0.55,'o'],[0.8,0.8,0.74,-0.4,-0.6,-0.6],[1,-0.9,-0.05,-0.78,-0.86,1.05,'i'],
+    [1.3,-1.1,-0.2,-0.85,-0.8,1.25,'o'],[1.6,-0.3,0.25,-0.75,-0.75,-0.3],[1.68,-0.45,0.3,-0.76,-0.76,-0.15,'i'],[2,0.25,0.5,-0.62,-0.7,0.15]],
+  // the large club: up and back (the head just in the picture), a long beat, slammed into the ground in front and held
+  // there, heaved up again
+  vmBigClub:[[0,0.12,0.42,-0.7,-0.74,0.12],[0.4,0.6,0.46,-0.5,-0.7,0.1,'o'],[0.75,1.0,0.36,-0.42,-0.64,0.05],[0.9,1.05,0.35,-0.41,-0.63,0.05],
+    [1,-1.05,0.22,-0.98,-0.92,0,'i'],[1.4,-1.0,0.22,-0.96,-0.92,0],[1.75,-0.2,0.36,-0.8,-0.8,0.08,'o'],[2,0.12,0.42,-0.7,-0.74,0.12]],
+  // a landmine: down out of the bottom of the picture to set it in the ground, and back up with the next
+  vmPlant:[[0,0.15,0.4,-0.6,-0.66,0],[0.5,0.3,0.32,-0.95,-0.62,0,'o'],[0.85,0.35,0.3,-1.15,-0.7,0],[1,0.35,0.3,-1.25,-0.74,0,'i'],[1.3,0.3,0.3,-1.2,-0.72,0],[2,0.15,0.4,-0.6,-0.66,0]],
+  // reloads in first person, added to where the gun's held, u 0 to 2 over the reload: [u, tilt, roll, across, up,
+  // forward, how far out the magazine (or the shell, or the rocket) is: 0 home, 1 gone]
+  vrMag:[[0,0,0,0,0,0,0],[0.25,0.25,-0.55,-0.08,0.05,0.04,0,'o'],[0.45,0.3,-0.6,-0.08,0.06,0.04,1],[0.75,0.3,-0.6,-0.08,0.04,0.04,1],[0.92,0.3,-0.58,-0.08,0.05,0.04,0.3],
+    [1,0.22,-0.55,-0.07,0.09,0.03,0,'i'],[1.3,0.15,-0.4,-0.05,0.05,0.02,0],[1.45,0.1,-0.3,-0.04,0.02,0.06,0,'i'],[2,0,0,0,0,0,0]],
+  vrPistol:[[0,0,0,0,0,0,0],[0.2,0.35,0.3,-0.06,0.02,0.05,0,'o'],[0.4,0.4,0.32,-0.06,0.02,0.05,1],[0.8,0.4,0.32,-0.06,0,0.05,1],[0.95,0.38,0.3,-0.06,0.01,0.05,0.3],
+    [1,0.3,0.28,-0.05,0.05,0.04,0,'i'],[1.3,0.1,0.15,-0.03,0.02,0.04,0],[1.4,0.05,0.1,-0.02,0,0.08,0,'i'],[2,0,0,0,0,0,0]],
+  vrShells:[[0,0,0,0,0,0,0],[0.2,0.2,-0.85,-0.06,0.06,0.02,1,'o'],[0.4,0.2,-0.85,-0.06,0.08,0.02,0,'i'],[0.5,0.2,-0.85,-0.06,0.06,0.02,1],[0.7,0.2,-0.85,-0.06,0.08,0.02,0,'i'],
+    [0.8,0.2,-0.85,-0.06,0.06,0.02,1],[1,0.2,-0.85,-0.06,0.08,0.02,0,'i'],[1.1,0.2,-0.85,-0.06,0.06,0.02,1],[1.3,0.2,-0.85,-0.06,0.08,0.02,0,'i'],
+    [1.55,0.1,-0.4,-0.04,0.03,0.02,0,'o'],[1.7,0.05,-0.1,0,0,0.08,0],[2,0,0,0,0,0,0]],
+  vrTube:[[0,0,0,0,0,0,0],[0.25,-0.35,0.2,-0.05,-0.12,0.08,1,'o'],[0.5,-0.4,0.2,-0.05,-0.14,0.08,1],[0.8,-0.4,0.2,-0.05,-0.14,0.08,0.5],
+    [1,-0.38,0.2,-0.05,-0.12,0.06,0,'i'],[1.3,-0.3,0.15,-0.04,-0.1,0.06,0],[1.7,0,0,0,0,0,0,'o'],[2,0,0,0,0,0,0]]};
 const _SP=new Float32Array(8);
+// (a blow's own wind-up and follow-through, in seconds: a heavy weapon's are longer, its npc's wind and ft)
+const strikeWind=k=>WEAPONS[k]&&WEAPONS[k].npc&&WEAPONS[k].npc.wind||0.45,strikeFt=k=>WEAPONS[k]&&WEAPONS[k].npc&&WEAPONS[k].npc.ft||STRIKE_FT;
 function strikeAt(w,u){
   const K=STRIKES[w];u=Math.max(0,Math.min(2,u));let i=1;while(i<K.length-1&&K[i][0]<u)i++;
   const a=K[i-1],b=K[i],s=Math.max(0,Math.min(1,(u-a[0])/(b[0]-a[0]))),e=b[b.length-1],k=e==='i'?s*s:e==='o'?1-(1-s)*(1-s):s*s*(3-2*s);
@@ -65,8 +134,9 @@ function gobStrikeEase(m,dt){
 // a melee goblin's arm this frame: winding up (atk, the seconds till its blow, under 0.45 and in reach), following through
 // (atkS, the seconds since its last blow), or neither (false: its own code puts the arm back at the rest)
 function gobMeleePose(g,winding){
-  if(winding&&g.atk<0.45){gobStrike(g,gobWk(g),1-Math.max(0,g.atk)/0.45);return true;}
-  if((g.atkS??9)<STRIKE_FT){gobStrike(g,gobWk(g),1+g.atkS/STRIKE_FT);return true;}
+  const mk=foeMeleeK(foeOf(g)),wd=strikeWind(mk),ft=strikeFt(mk);
+  if(winding&&g.atk<wd){gobStrike(g,gobWk(g),1-Math.max(0,g.atk)/wd);return true;}
+  if((g.atkS??9)<ft){gobStrike(g,gobWk(g),1+g.atkS/ft);return true;}
   return false;
 }
 // where a model's root goes, with the blow's twist, lean and step added (h its heading, x0 any lean of its own)
@@ -96,7 +166,10 @@ const ggX=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
 // turns, and how far a shoulder may reach to get its hand there
 const GUN_GRIP={
   rifle:{sh:[0.1,0.84,0.12],out:0.16,fore:[0.12,0.22],tw:[0.75,0.75],low:-0.5,reach:0.1},
-  pistol:{sh:[0.04,0.92,0],out:0.29,fore:[0,0],tw:[0,0],reach:0.08}};
+  pistol:{sh:[0.04,0.92,0],out:0.29,fore:[0,0],tw:[0,0],reach:0.08},
+  // (a bazooka: the hand on its grip just in front of the shoulder, so the tube lies along the top of it; the free hand on
+  // the front grip, the body a little side-on)
+  tube:{sh:[0.2,0.98,0.02],out:0.12,fore:[0.32,0.3],tw:[0.25,0.3],low:-0.35,reach:0.12}};
 // turn an arm (a straight 0.4 from its pivot) to put its end at T, the shoulder giving a little (up to r) if it's too far
 // or too near; [shoulder x,y,z] is where it starts
 function ggArm(arm,P0,T,r){
@@ -115,7 +188,7 @@ function gunGrip(m,root,k){
   let g=[-Mi[1],-Mi[4],-Mi[7]],up=[Mi[2],Mi[5],Mi[8]];
   // (a rifle that isn't up at the shoulder is carried low, pointing ahead and down)
   let s=1;
-  if(k==='rifle'){s=Math.max(0,Math.min(1,(-0.9-A.rotation.x)/0.5));s=s*s*(3-2*s);
+  if(C.low!==undefined){s=Math.max(0,Math.min(1,(-0.9-A.rotation.x)/0.5));s=s*s*(3-2*s);
     if(s<1){const h=Math.atan2(g[0],g[2]),e=C.low,c=[Math.sin(h)*Math.cos(e),Math.sin(e),Math.cos(h)*Math.cos(e)];
       g=ggNorm([c[0]+(g[0]-c[0])*s,c[1]+(g[1]-c[1])*s,c[2]+(g[2]-c[2])*s]);up=[up[0]*s,up[1]*s+(1-s),up[2]*s];}}
   // turned side-on: the body round by tw, and the gun (and the head) back by as much, so it points where it did
@@ -128,7 +201,7 @@ function gunGrip(m,root,k){
   const Mh=ggMul(ggT(Ma),Mg),y=Math.asin(Math.max(-1,Math.min(1,Mh[2])));
   if(Math.abs(Mh[2])<0.9999999)H.rotation.set(Math.atan2(-Mh[5],Mh[8]),y,Math.atan2(-Mh[1],Mh[0]));else H.rotation.set(Math.atan2(Mh[7],Mh[4]),y,0);
   // the free hand: under the rifle's barrel, or wrapped round the handgun's grip from the other side
-  const sd=ggX(g,up),f=C.fore[0]+(C.fore[1]-C.fore[0])*s,T=k==='rifle'?[Hd[0]+g[0]*f-up[0]*0.05,Hd[1]+g[1]*f-up[1]*0.05,Hd[2]+g[2]*f-up[2]*0.05]
+  const sd=ggX(g,up),f=C.fore[0]+(C.fore[1]-C.fore[0])*s,T=k!=='pistol'?[Hd[0]+g[0]*f-up[0]*0.05,Hd[1]+g[1]*f-up[1]*0.05,Hd[2]+g[2]*f-up[2]*0.05]
     :[Hd[0]+sd[0]*0.08-up[0]*0.05+g[0]*0.02,Hd[1]+sd[1]*0.08-up[1]*0.05+g[1]*0.02,Hd[2]+sd[2]*0.08-up[2]*0.05+g[2]*0.02];
   ggArm(Lm,[-0.32,0.92,0],T,C.reach);
 }
@@ -140,6 +213,6 @@ function gunGripUndo(m,root=m.arm.parent){const v=m._gg;if(!v)return;m._gg=null;
 // thrown up in a panic)
 function gunHeld(g){
   const k=g.wkit&&g.wkit.shown===2?WEAPONS[g.wkit.k].npc.aim:g.root.gunK;if(!k)return null;
-  if(g.state==='dead'||g.dead||g.hp<=0||g.act||g.wet||g.orb&&g.orb.visible||g.armL.rotation.x<-1.9||g.arm.rotation.x<-2.3)return null;
+  if(g.state==='dead'||g.dead||g.hp<=0||g.act||g.wet||g.relT>0||g.orb&&g.orb.visible||g.mineB&&g.mineB.visible||g.armL.rotation.x<-1.9||g.arm.rotation.x<-2.3)return null;
   return k;
 }

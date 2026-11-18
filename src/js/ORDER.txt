@@ -66,6 +66,7 @@ enemies/crowds.js
 enemies/foes.js
 enemies/cultists.js
 enemies/shots.js
+enemies/mines.js
 player/gob-weapons.js
 ui/gob-loadout.js
 enemies/routes.js

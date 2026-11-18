@@ -24,7 +24,7 @@ const csSeat=()=>{let two=false;try{two=menuP2();}catch(e){}return two?1:0;};
 // what each character can do, for the strip under the cards (a hippo's from the ability switches as they are now)
 function csMoves(c){
   if(charGob(c)){const L=GOB_LOADS[csSeat()];   // (a goblin's: the weapons chosen for him, then what every goblin can do)
-    return[...GOB_WPN_ORDER.filter(k=>L.w[k]).map(k=>WEAPONS[k].name),...(L.gren?[L.gren+' '+WEAPONS.grenade.name.toLowerCase()]:[]),'Dash','Drive anything'];}
+    return[...GOB_PICK.filter(k=>L.w[k]).map(k=>WEAPONS[k].name),...GOB_STACKS.filter(k=>L[stkField(k)]).map(k=>L[stkField(k)]+' '+WEAPONS[k].name.toLowerCase()),'Dash','Drive anything'];}
   const A=ABILS[csSeat()],L=[];   // (the switches of whoever's menu it is)
   if(A.bite)L.push(A.biteCombo?'Bite combo':'Bite');
   if(A.stomp)L.push(A.fullStomp?'Full charge stomp':A.chargeStomp?'Charge stomp':'Stomp');

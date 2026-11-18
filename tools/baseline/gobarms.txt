@@ -15,14 +15,14 @@ walk over the dagger: club+rifle+dagger in hand dagger, grenades 1  new weapons 
 shoot a militiaman with a rifle already: drops grenade x1
 weapon button: rifle > club > dagger > rifle
 stab a prepper: hp 5 -> 3
-six militiamen down: drops grenade x1, grenade x1, grenade x2, grenade x2, grenade x2, grenade x2
-picked up: grenades 9  left lying grenade x1
+six militiamen down: drops grenade x1, grenade x1, grenade x1, grenade x2, grenade x2, grenade x2
+picked up: grenades 9  left lying none
 right click, twice quickly: grenades 9 -> 8  in the air 1
   the thief 8 ahead, where it lands: hp 3 -> 0  dead true  my hp 20
 officer armed: true
 club an officer: drops handgun
 walk over it: club+rifle+dagger+handgun in hand handgun, grenades 8  new weapons 1
-handgun at a thief 12 ahead, twice: hp 5 -> 2
+handgun at a thief 12 ahead, twice: hp 5 -> 3.5
 and one 34 ahead, past its reach: hp 5 -> 5
 weapon button: handgun > rifle > club > dagger > handgun
 kill a cultist: drops spellbook

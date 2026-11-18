@@ -74,8 +74,10 @@ function movePlayer(p,dt){
   if(!p.grounded&&p.vy>0.5)p.coyote=0;   // already on the way up (jumped, kicked off, launched): no second ground jump
   if(stompPress&&busy)p.qStomp=0.35;
   let wantJump=false,wantStomp=false;
-  if(p.qBite>0&&!busy&&!(p.biteCD>0)){p.qBite=0;gusBite(p);p.biteRepeat=0.35;}
-  else if(inp.bite&&p.biteRepeat<=0&&!busy){gusBite(p);p.biteRepeat=0.35;}
+  // (held, the bite goes again every so often; an automatic gun of Gnash's as fast as it fires)
+  const rpt=p.gob&&gobW(p).auto?0:0.35;
+  if(p.qBite>0&&!busy&&!(p.biteCD>0)){p.qBite=0;gusBite(p);p.biteRepeat=rpt;}
+  else if(inp.bite&&p.biteRepeat<=0&&!busy){gusBite(p);p.biteRepeat=rpt;}
   // mid-combo on the ground (during a hit, or in the gap before the next): rooted, no walking or jumping
   const comboLock=p.grounded&&p.state==='walk'&&((p.biteT>0&&(p.biteStep??-1)>=0)||p.comboLockT>0||p.lungeT>0&&(p.biteStep??-1)>=0);
   // coming out of the root, walking speed builds back up instead of snapping straight to full

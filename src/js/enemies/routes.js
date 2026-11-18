@@ -341,7 +341,7 @@ function updateGoblins(dt){
       // (and anyone with a gun or spellbook beside a blade or club, police once they've seen him, draws it at range: foeArm, foes.js)
       // (what it does at range is read off its kind's weapons: a gun, a spell or grenades. weapons.js)
       const FK=foeOf(g);
-      if((foeGunK(FK)||foeThrowK(FK))&&!(g.cop&&g.inv)&&foeRanged(g,tgt.p,d,ddy,dt,FK)){g.legs[0].rotation.x=g.legs[1].rotation.x=0;gobRootPose(g,g.pos.y,dt);return;}
+      if((foeGunK(FK)||foeThrowK(FK)||foeMineK(FK))&&!(g.cop&&g.inv)&&foeRanged(g,tgt.p,d,ddy,dt,FK)){g.legs[0].rotation.x=g.legs[1].rotation.x=0;gobRootPose(g,g.pos.y,dt);return;}
       // goblins holed up indoors stay put, pottering about, until a hippo is close and on their floor
       if(g.indoor&&!bldgAt(Math.floor(g.pos.x),Math.floor(g.pos.z)))g.indoor=false;
       if(g.cop&&g.inv&&d<22&&Math.abs(ddy)<4){g.inv=false;flashLabel('Police!',tgt.p);tone('square',880,660,0.25,0.05);}   // spotted!
@@ -401,8 +401,8 @@ function updateGoblins(dt){
               g.stuck=0;
             }
           } else {const sp=g.wet?2:(g.spd||2.8);g.pos.x+=fx*sp*dt;g.pos.z+=fz*sp*dt;moving=true;g.phase+=dt*sp*4.5;g.stuck=0;}
-          if(g.vy===0)g.atk=Math.max(g.atk,0.5);
-        } else if(!canHit){if(g.vy===0)g.atk=Math.max(g.atk,0.5);
+          if(g.vy===0)g.atk=Math.max(g.atk,Math.max(0.5,strikeWind(foeMeleeK(FK))));
+        } else if(!canHit){if(g.vy===0)g.atk=Math.max(g.atk,Math.max(0.5,strikeWind(foeMeleeK(FK))));
           // (a hippo stood on something just out of reach, a car roof, say: up at it, club first)
           g.leapT=(g.leapT||0)-dt;if(!simple&&ddy>=1.5&&ddy<4&&g.leapT<=0&&!g.wet&&g.vy===0){g.vy=Math.sqrt(50*(ddy-0.2));g.leapT=1.4;g.atk=0.1;}}
         else {

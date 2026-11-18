@@ -197,18 +197,23 @@ for(const [name,fire] of Object.entries(guns)){
 // ==== every kind of goblin's weapons list (FOES and GOB_FOES): each entry a weapon in WEAPONS, built into its model, used
 // by its AI (a gun at range, grenades thrown, its blow up close) and dropped when a player goblin kills it ====
 {const F=E('FOES'),GF=E('GOB_FOES'),W=E('WEAPONS'),R0=Math.random,gm=E('goblinModel'),fo=E('foeModelOpt'),so=E('strikeOf'),gg=E('gobGear');
- const kinds=[...Object.keys(GF).map(k=>[k,GF[k]]),...Object.keys(F).map(k=>[k,F[k]])],devK=new Map(E('DEV_FOE_KINDS').map(d=>[d.arms,d]));
+ // (and made-up kinds carrying each weapon no real kind carries yet, so a weapon added to the table is shown to work in
+ // anyone's hands before it's given to one: a gun beside a dagger, a blade or club alone, landmines beside a club)
+ const used=new Set([...Object.values(GF),...Object.values(F)].flatMap(f=>(f.weapons||[]).concat(f.pack||[]))),made=[];
+ for(const w in W){if(used.has(w)||W[w].kind==='throw')continue;const K=W[w].kind;
+   made.push(['made-up '+w,K==='gun'||K==='spell'?{weapons:['dagger',w],gun:{near:6,aim:0.6,cause:'Shot'},hitBy:'Stabbed'}:K==='mine'?{weapons:['club',w],hitBy:'Clubbed'}:{weapons:[w],hitBy:'Hit'}]);}
+ const kinds=[...Object.keys(GF).map(k=>[k,GF[k]]),...Object.keys(F).map(k=>[k,F[k]]),...made],devK=new Map(E('DEV_FOE_KINDS').map(d=>[d.arms,d]));
  const nodes=o=>{const r=E('new THREE.Group()');gm(r,o);let n=0;r.traverse(()=>n++);return n;},bare=nodes({weapons:[]});
  const nBox=k=>{let n=0;E('wpnBoxes')(W[k].model.held,()=>n++);return n;};
  for(const [k,f] of kinds){const L=f.weapons,bad=[];
    if(!Array.isArray(L)){check(k,'weapons list',false,'none');continue;}
    for(const w of L.concat(f.pack||[]))if(!W[w])bad.push(w+' not in WEAPONS');
    check(k,'weapons list',!bad.length,bad.join(', '));if(bad.length)continue;
-   const kOf=t=>L.filter(w=>W[w].kind===t),mk=kOf('melee'),gk=kOf('gun').concat(kOf('spell')),tk=kOf('throw'),sk=kOf('spell');
+   const kOf=t=>L.filter(w=>W[w].kind===t),mk=kOf('melee'),gk=kOf('gun').concat(kOf('spell')),tk=kOf('throw'),sk=kOf('spell'),nk=kOf('mine');
    check(k,'no more than one of each kind',mk.length<2&&gk.length<2&&tk.length<2,L.join(','));
    // (the model: a blade or club and a gun each as the weapon's boxes, a gun beside a blade or club with its stow too; an orb in
-   // the left hand for grenades or a spell)
-   const want=bare+mk.concat(gk).reduce((s,w)=>s+nBox(w),0)+(mk.length&&gk.length?(W[gk[0]].model.stow||[]).length:0)+(tk.length||sk.length?1:0),got=nodes(fo(f));
+   // the left hand for grenades or a spell; a landmine in the left hand for one that plants them)
+   const want=bare+mk.concat(gk).reduce((s,w)=>s+nBox(w),0)+(mk.length&&gk.length?(W[gk[0]].model.stow||[]).length:0)+(tk.length||sk.length?1:0)+(nk.length?1:0),got=nodes(fo(f));
    check(k,'model carries its weapons',got===want,'parts '+(got-bare)+' over a bare goblin, its weapons make '+(want-bare));
    // (the AI: each gun has how it's used (gun) and is aimed inside its range; grenades have bomb and are thrown; up close
    // it strikes with its blade or club, or a rifle by its butt, at the weapon's numbers, else with fists of its own)
@@ -222,12 +227,17 @@ for(const [name,fire] of Object.entries(guns)){
        const d=(f.bomb.near+f.bomb.far)/2;q.pos.set(P.pos.x-d,P.pos.y,P.pos.z);q.heading=Math.PI/2;q.aim=0;q.aimK=null;q.gunCD=99;q.bombCD=0;
        E('foeRanged')(q,P,d,0,0.01,Object.assign({},f,{gun:null}));thrown=q.aimK==='bomb';q.state='wait';q.root.visible=false;q.aim=0;}
      check(k,'AI throws its '+tk[0],!!f.bomb&&thrown,f.bomb?'never wound up':'no bomb entry: how it throws');}
+   if(nk.length){E('tenvClear()');quiet();put(X0,Z0);const q=E('freeFoe')('militia',24);E('foeSpawn')(q,'militia',null,0);q.vy=0;q.stun=0;q.act=null;
+     const d=10;q.pos.set(P.pos.x-d,P.pos.y,P.pos.z);q.heading=Math.PI/2;q.aim=0;q.aimK=null;q.gunCD=99;q.bombCD=99;q.mineCD=0;
+     E('foeRanged')(q,P,d,0,0.01,f);const knelt=q.aimK==='mine';q.state='wait';q.root.visible=false;q.aim=0;
+     check(k,'AI plants its '+nk[0],knelt,'never knelt');}
    if(k!=='civilian'){const s=so(f),m=mk[0]||L.find(w=>W[w].butt),sw=m&&(W[m].kind==='melee'?W[m]:W[m].butt);
      check(k,'strikes up close with '+(m||'fists'),m?s.dmg===sw.dmg&&s.every===sw.every&&!!f.hitBy&&s.cause===f.hitBy:!!(f.melee&&f.melee.dmg>0&&f.melee.every>0&&f.melee.cause)&&s===f.melee,JSON.stringify(s));}
    // (what it drops: the first weapon a goblin can wield that's dropped, and grenades if it carries any)
    {Math.random=()=>0.9;const d=gg({arms:f});Math.random=R0;const wd=L.find(w=>W[w].drop&&!W[w].stack&&E('GOB_WPN')[w])||null;
-    check(k,'drops its weapons',d.wpn===wd&&(d.gren>0)===(L.concat(f.pack||[]).includes('grenade')),'drops '+d.wpn+' and '+d.gren+' grenades');}
+    check(k,'drops its weapons',d.wpn===wd&&(d.gren>0)===(L.concat(f.pack||[]).includes('grenade'))&&(d.mines>0)===(L.concat(f.pack||[]).includes('landmine')),'drops '+d.wpn+', '+d.gren+' grenades and '+d.mines+' landmines');}
    // (and the Dev tab plays each: a shoot for a gun, a throw for grenades, an attack up close)
+   if(!k.startsWith('made-up '))   // (a made-up kind isn't in the Dev tab: its animations are checked by suite weapons2)
    {const D=devK.get(f),a=D?D.anims:[];check(k,'Dev tab plays its weapons',!!D&&(!gk.length||a.includes(sk.length?'cast':'shoot'))&&(!tk.length||a.includes('throw'))&&(k==='civilian'||a.includes('attack')),D?a.join(','):'not listed');}}
  flush('weapons lists ('+kinds.map(([k,f])=>k+': '+(f.weapons||[]).join('+')).join('; ')+')');}
 

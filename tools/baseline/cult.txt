@@ -14,5 +14,5 @@ roused from 40 off, 4 s | fireballs thrown 3 | hits on gus 0 lowest hp 20 | cult
 foe cultist Spawned 3 cultists ahead of Gus.
 spawned cultists 3 no altar true
 button cultists, 5 s | fireballs thrown 3 | hits on gus 3 lowest hp 14 | cultists 3 at 7.6 9.4 9.7
-one cultist beside gus, 3 s (dagger every 0.85 s) | fireballs thrown 0 | hits on gus 3 lowest hp 17 | cultists 1 at 2.3
+one cultist beside gus, 3 s (dagger every 0.85 s) | fireballs thrown 0 | hits on gus 2 lowest hp 16 | cultists 1 at 3.7
 errors 0 []
