@@ -5,7 +5,7 @@ function wallFrame(p){const d=p.climbD,r=p.climbRoll||0,s=Math.sin(r);return{d,c
 function wallBite(p){
   if(p.biteT>0||(p.biteCD||0)>0)return;
   // (Gnash: whatever's in his hand, with its own timing)
-  if(p.gob){const W=gobW(p);p.biteStep=-1;p.comboWin=0;p.biteDur=W.dur;p.biteT=W.dur;p.lungeT=W.lunge;p.biteHit=true;p.biteCD=W.cd;p.wallBite=true;if(!gobGun(p.wpn))sfx('Club swing',()=>{woosh(0.13,0.22,520,1700,0.1);});return;}
+  if(p.gob){const W=gobW(p);p.biteStep=-1;p.comboWin=0;p.biteDur=W.dur;p.biteT=W.dur;p.lungeT=W.lunge;p.biteHit=true;p.biteCD=W.cd;p.wallBite=true;gobPressSnd(p);return;}
   p.biteStep=-1;p.comboWin=0;p.biteDur=0.38;p.biteT=0.38;p.lungeT=0.26;p.biteHit=true;p.biteCD=BITE_SOLO_CD;p.wallBite=true;
   sfx('Bite',()=>{woosh(0.13,0.22,520,1700,0.1);tone('triangle',150,260,0.08,0.06,0.28);});
 }
@@ -13,7 +13,7 @@ function wallBite(p){
 function wallBiteHit(p){
   // (Gnash is a goblin, far smaller than a hippo: his club or dagger reaches about a block past his head. His rifle or
   // handgun shoots where he's looking, as anywhere)
-  const gk=p.gob?gobW(p):null;if(gk&&gk.range){gobShoot(p);return;}
+  const gk=p.gob?gobW(p):null;if(gk&&gk.range){gobAttack(p);return;}   // (a gun's shot, or a spell's fireball)
   let {d,c,u}=wallFrame(p);if(gk)c=[p.pos.x-d[0]*0.4,p.pos.y+0.7,p.pos.z-d[1]*0.4];
   const A=gk?{hitR:gk.r||1,dmg:gk.dmg||1}:AB.bite,J0=gk?0.3:1.0,J1=gk?1.4:3.2,a=[c[0]+u[0]*J0,c[1]+u[1]*J0,c[2]+u[2]*J0],cause=gk?gk.cause||'Clubbed by another goblin':'Bitten';
   dbgHit('dmg','sph',{x:c[0]+u[0]*(J0+J1)/2,y:c[1]+u[1]*(J0+J1)/2,z:c[2]+u[2]*(J0+J1)/2,r:A.hitR});
@@ -208,7 +208,12 @@ function gobKit(p){
   const fore=(P,S,to)=>{const d=[S[0]-P[0],S[1]-P[1],S[2]-P[2]],L=Math.hypot(...d),b=new THREE.Mesh(new THREE.BoxGeometry(0.11,0.11,L),mat(GC.skin));
     b.position.set((P[0]+S[0])/2,(P[1]+S[1])/2,(P[2]+S[2])/2);b.rotation.order='YXZ';b.rotation.set(-Math.asin(d[1]/L),Math.atan2(d[0],d[2]),0);b.renderOrder=60;b.frustumCulled=false;to.add(b);};
   for(const k of GOB_WPN_ORDER){const F=WEAPONS[k].model.fore;if(F)fore(F[0],F[1],held[k]);}
-  return p.gb={root,m,vm,arm,held,tp};
+  // (a spell's fireball, growing in the free hand while it's conjured: in his own view at the other hand, and in the
+  // left hand of the goblin the others see)
+  const orbM=new THREE.MeshBasicMaterial({color:0xff8a20,transparent:true,depthTest:false,depthWrite:false}),orb=new THREE.Mesh(new THREE.BoxGeometry(0.2,0.2,0.2),orbM);orb.renderOrder=63;orb.frustumCulled=false;orb.visible=false;
+  {const sk=GOB_WPN_ORDER.find(k=>WEAPONS[k].kind==='spell'),F=sk&&WEAPONS[sk].model.fore;if(F){orb.position.set(F[0][0],F[0][1]+0.1,F[0][2]);held[sk].add(orb);}}
+  const torb=new THREE.Mesh(new THREE.BoxGeometry(0.24,0.24,0.24),new THREE.MeshBasicMaterial({color:0xff7a1a}));torb.position.set(0,-0.46,0.04);torb.visible=false;m.armL.add(torb);
+  return p.gb={root,m,vm,arm,held,tp,orb,torb};
 }
 // the first-person view, and the body that goes with it
 // Clinging to a wall he's 0.06 off its face (where a hippo's belly goes), well inside the near plane, so the view went
@@ -261,6 +266,7 @@ function gobBodyPose(m,p){
   const X=m.atkX||(m.atkX={tw:0,ln:0,lu:0});X.tw=X.ln=X.lu=0;m.arm.rotation.z=0;m.arm.hand.rotation.x=0;m.armL.rotation.x=0;
   if((p.thrS??9)<STRIKE_FT)gobStrike(m,'throw',1+p.thrS/STRIKE_FT,'L');   // (the throw's the instant you press: only its follow-through shows)
   if(gobGun(wk))m.arm.rotation.x=-Math.PI/2-p.cam.pitch+(p.biteT>0?0.25*Math.max(0,1-sw*4):0);
+  else if(p.biteT>0&&WEAPONS[wk]&&WEAPONS[wk].kind==='spell')gobStrike(m,'cast',gobSwingU(p));   // (the book raised, the ball conjured and hurled, as a cultist's)
   else if(p.biteT>0)gobStrike(m,wk==='dagger'?'dagger':'club',gobSwingU(p));
   else m.arm.rotation.x=-0.5;
 }
@@ -289,7 +295,11 @@ function gobCamera(p){
   // goes up and back, a beat at the top, and chops down across the view as the blow lands; the dagger's drawn back and
   // thrust straight in, at full stretch as it lands: strikes.js, with the attack's own timing)
   const up=Math.max(0,1-(camClock-(p.wpnT??-9))/0.25),bob=walking?Math.abs(sn)*0.012:0;
-  if(gobGun(wk)){const kick=p.biteT>0?Math.max(0,1-sw*4):0,hg=wk==='handgun';K.arm.rotation.x=0.04+(hg?0.32:0.22)*kick;K.arm.position.set(hg?0.26:0.34,(hg?-0.4:-0.46)-up*0.5+bob,-0.5+(hg?0.08:0.12)*kick);}
+  // (a spell: the book held open low in front, the fireball growing at the other hand while it's conjured, gone once hurled)
+  {const sp=WEAPONS[wk]&&WEAPONS[wk].kind==='spell',u=sp&&p.biteT>0?gobSwingU(p):0,on=sp&&u>0&&u<1;
+    K.orb.visible=on;K.torb.visible=on;if(on){K.orb.scale.setScalar(0.4+u*0.9);K.torb.scale.setScalar(0.4+u*0.9);}}
+  if(WEAPONS[wk]&&WEAPONS[wk].kind==='spell'){const u=p.biteT>0?gobSwingU(p):0,th=u>=1&&u<1.4?Math.max(0,1-(u-1)*2.5):0;K.arm.rotation.x=0.18-0.1*th;K.arm.position.set(0.3,-0.5-up*0.5+bob,-0.56-0.08*th);}
+  else if(gobGun(wk)){const kick=p.biteT>0?Math.max(0,1-sw*4):0,hg=wk==='handgun';K.arm.rotation.x=0.04+(hg?0.32:0.22)*kick;K.arm.position.set(hg?0.26:0.34,(hg?-0.4:-0.46)-up*0.5+bob,-0.5+(hg?0.08:0.12)*kick);}
   else{const v=strikeAt(wk==='dagger'?'vmDagger':'vmClub',gobSwingU(p));K.arm.rotation.x=v[0]+(walking?sn*0.03:0);K.arm.position.set(v[1],v[2]-up*0.5+bob,v[3]);}
 }
 // who's seen from this view: everyone's goblin but your own, unless the free cam has left it

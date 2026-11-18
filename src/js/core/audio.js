@@ -24,7 +24,7 @@ const SND_FN={hudPop:'Points',squeal:'Civilian screams',stompGrunt:'Stomp grunt'
   dbgMenuNav:'Menu',dbgMenuToggle:'Menu',renderTime:'Menu',renderDbg:'Menu',renderAbil:'Menu',ddChoose:'Menu',resumePlayer:'Menu',
   airCrash:'Aircraft crashes',animalHit:'Animal hit',bellStrike:'Bell',bigCrashes:'Big crash',blastOff:'Blast off',boatHit:'Boat hit',carPhysics:'Vehicle lands',
   civAI:'Civilian',climbDismount:'Climb down',climbOverEdge:'Climb over an edge',climbToCeil:'Climb onto the ceiling',collapseBuilding:'Building collapses',
-  crashTopple:'Building crashes down',cultCast:'Cult spell',cultRouse:'Cult wakes',damageGoblin:'Goblin hit',damagePlayer:'Hippo hurt',doBite:'Bite lands',
+  crashTopple:'Building crashes down',cultRouse:'Cult wakes',damageGoblin:'Goblin hit',damagePlayer:'Hippo hurt',doBite:'Bite lands',
   dropFloating:'Loose blocks drop',drvBoat:'Boat',drvCar:'Driving',drvEnter:'Get in or out',drvHeli:'Helicopter',drvLock:'Lock-on',drvTank:'Tank',drvTrain:'Train',
   explodeCar0:'Vehicle explodes',fallImpact:'Hard fall',fbBurst:'Fireball bursts',fireball:'Fireball',foeBoom:'Explosion',foeRanged:'Enemy fires',foeShoot:'Enemy shoots',
   foeThrow:'Enemy throws',gasBoom0:'Gas explosion',gobClub:'Goblin club',gobLand:'Goblin lands',grabCeil:'Grab the ceiling',gusBite:'Bite',hbApply:'Hit',heliGun:'Helicopter gun',

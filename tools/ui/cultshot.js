@@ -27,7 +27,7 @@ await p.waitForTimeout(2500);await p.screenshot({path:out+'/cult-3-close.png'});
 await p.evaluate(()=>{const G=window.__G;clearInterval(window.__hold);G.tenvClear();});
 await hold(40,14,-0.05,0.55);await p.waitForTimeout(800);
 await p.evaluate(()=>{const G=window.__G;G.TS.n=1;G.tenvFoe('cultist');const g=G.goblins.find(o=>o.cultist&&o.state==='chase'&&!o.cultV),P=G.players[0];
-  const yaw=P.cam.yaw+0.42;window.__one=g;g.pos.set(P.pos.x-Math.sin(yaw)*7,P.pos.y,P.pos.z-Math.cos(yaw)*7);g.castCD=0.6;});
-for(let i=0;i<8;i++){await p.waitForTimeout(250);const c=await p.evaluate(()=>{const g=window.__one;return {cast:+g.cast.toFixed(2),orb:g.orb.visible,fb:window.__G.FIREB.filter(f=>f.live).length};});
+  const yaw=P.cam.yaw+0.42;window.__one=g;g.pos.set(P.pos.x-Math.sin(yaw)*7,P.pos.y,P.pos.z-Math.cos(yaw)*7);g.gunCD=0.6;});
+for(let i=0;i<8;i++){await p.waitForTimeout(250);const c=await p.evaluate(()=>{const g=window.__one;return {cast:+g.aim.toFixed(2),orb:g.orb.visible,fb:window.__G.FIREB.filter(f=>f.live).length};});
   await p.screenshot({path:out+'/cult-4-cast-'+i+'.png'});console.log('cast',i,JSON.stringify(c));}
 console.log(errs.join('\n')||'no errors');await b.close();})();

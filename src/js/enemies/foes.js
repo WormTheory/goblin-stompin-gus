@@ -61,17 +61,21 @@ function guardCalm(g,dt){
 // (F: its kind's entry, what it carries and how it uses its gun and grenades: FOES, or GOB_FOES.police for an officer)
 function foeRanged(g,p,d,ddy,dt,F=foeOf(g)){
   g.gunCD-=dt;g.bombCD-=dt;const gk=foeGunK(F),GW=gk&&F.gun&&WEAPONS[gk],aimW=GW&&GW.npc.pose,bomb=foeThrowK(F)&&F.bomb;
+  // (how long it aims and the closest it'll fire at: its kind's own, or for a spell the spellbook's: conjuring time and
+  // range are the weapon's, the same for a player goblin. spell: a fireball grows in the free hand as it's conjured)
+  const aimT=GW&&(F.gun.aim??GW.cast),near=GW&&(F.gun.near??GW.near),spell=GW&&GW.kind==='spell';
   const face=r=>{let df=Math.atan2(p.pos.x-g.pos.x,p.pos.z-g.pos.z)-g.heading;while(df>Math.PI)df-=Math.PI*2;while(df<-Math.PI)df+=Math.PI*2;g.heading+=Math.max(-r*dt,Math.min(r*dt,df));};
   if(g.aim>0){
     if(g.stun>0||!playing||g.wet){g.aim=0;if(g.orb)g.orb.visible=false;return false;}
     g.aim-=dt;face(8);
     // (shouldering the rifle, or raising the handgun in both hands, and holding it on him; or drawing the grenade back
     // behind the head: see strikes.js)
-    if(g.aimK==='gun')gobStrike(g,aimW,1-Math.max(0,g.aim)/F.gun.aim);
+    if(g.aimK==='gun'){const k=1-Math.max(0,g.aim)/aimT;gobStrike(g,aimW,k);
+      if(spell&&g.orb){g.orb.visible=true;g.orb.scale.setScalar(0.4+k*0.9);g.roles.orb.emissive.setHex(0xff5a00);}}   // (raised high as it grows, drawn back, hurled: strikes.js)
     else{g.orb.visible=true;gobStrike(g,'throw',1-Math.max(0,g.aim)/0.6);}
     if(g.aim<=0){g.relS=0;g.relK=g.aimK==='gun'?aimW:'throw';
       // (again once the weapon's ready, give or take: its every, less the next aim, which comes off it)
-      if(g.aimK==='gun'){foeShoot(g,p,F);g.gunCD=Math.max(0,GW.every-F.gun.aim)+Math.random()*FOE_JIT;}
+      if(g.aimK==='gun'){foeShoot(g,p,F);if(spell&&g.orb)g.orb.visible=false;g.gunCD=Math.max(0,GW.every-aimT)+Math.random()*(GW.npc.jit??FOE_JIT);}
       else{foeThrow(g,p,bomb);const E2=bomb.every;g.bombCD=E2[0]+Math.random()*(E2[1]-E2[0]);g.orb.visible=false;}}
     return true;}
   // (just fired or thrown: the kick, or the arm coming through, and back down)
@@ -81,14 +85,17 @@ function foeRanged(g,p,d,ddy,dt,F=foeOf(g)){
     // (a bomb can go over a wall: they'll lob one without a clear view, if you're near enough)
     if(d>bomb.near&&d<bomb.far&&Math.abs(ddy)<10&&(cultSees(g,p)||d<bomb.far*0.7)){g.aim=0.6;g.aimK='bomb';return true;}g.bombCD=0.5;}
   if(ready&&GW&&g.gunCD<=0){
-    if(d>F.gun.near&&d<GW.range&&Math.abs(ddy)<24&&cultSees(g,p)){g.aim=F.gun.aim;g.aimK='gun';if(audio)tone('square',1400,1200,0.04,0.03);return true;}g.gunCD=0.3;}
+    if(d>near&&d<GW.range&&Math.abs(ddy)<(GW.npc.dy??24)&&cultSees(g,p)){g.aim=aimT;g.aimK='gun';if(audio)wpnCue(gk,aimT);return true;}g.gunCD=0.3;}
   if(!fol)g.armL.rotation.x+=(0-g.armL.rotation.x)*Math.min(1,dt*6);
   if(g.hold){face(3);if(!fol)g.arm.rotation.x=-0.5;return true;}
   return false;
 }
-// a shot from the gun it carries (a rifle or a handgun, from its weapons list): there and back in the instant, a tracer
+// a shot from the gun it carries (a rifle or a handgun, from its weapons list; or a fireball from a spellbook): there and back in the instant, a tracer
 // to show it; more likely to miss the further off he is. The damage, and whether it breaks the block it hits, are the weapon's
 function foeShoot(g,p,F){const gk=foeGunK(F),W=WEAPONS[gk];
+  // (a spell: a fireball hurled overarm from just over its head at his chest, flat enough to clear a knee-high wall)
+  if(W.kind==='spell'){const fx=Math.sin(g.heading),fz=Math.cos(g.heading);
+    fireball(g.pos.x+fx*0.5,g.pos.y+1.6,g.pos.z+fz*0.5,p.pos.x,p.pos.y+1.5,p.pos.z,{W,by:g.id,cause:F.gun.cause});return;}
   const fx=Math.sin(g.heading),fz=Math.cos(g.heading),x0=g.pos.x+fx*0.8,y0=g.pos.y+1.05,z0=g.pos.z+fz*0.8;
   const d=Math.hypot(p.pos.x-x0,p.pos.z-z0);
   // (a block in the way stops the round there: they may have taken aim before he ducked behind something. A handgun's

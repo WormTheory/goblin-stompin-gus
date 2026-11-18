@@ -77,7 +77,7 @@ run(0.1);const fc=cults().filter(g=>!g.homeV);console.log('spawned cultists',fc.
 P.hp=20;watch(5,'button cultists, 5 s');
 // phase 6: one cultist right beside Gus: daggers, no fireballs (too close to bother)
 T.tenvClear();run(0.5);T.menuOpen=true;T.TS.n=1;T.tenvFoe('cultist');T.menuOpen=false;
-{const g=cults()[0];g.pos.set(P.pos.x+1.6,P.pos.y,P.pos.z);g.castCD=0;}
+{const g=cults()[0];g.pos.set(P.pos.x+1.6,P.pos.y,P.pos.z);g.gunCD=0;}
 P.hp=20;watch(3,'one cultist beside gus, 3 s (dagger every 0.85 s)');
 console.log('errors',errs.length,errs.slice(0,3));
 process.exit(0);

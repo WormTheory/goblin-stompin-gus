@@ -1,7 +1,7 @@
 let __s=+(process.env.SEED||1);Math.random=()=>{__s=(__s*16807)%2147483647;return (__s-1)/2147483646;};
 const fs=require('fs');
 let src0=fs.readFileSync('g.js','utf8');
-let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={players,cars,goblins,keys,frame,setRaw,get,solidAt,groundAt,ABIL,AB,DT,setGob,mHeld,freeFoe,foeSpawn,PICKUPS,SHOTS,bindHint,FOES,foeThrow,damageGoblin,gobDrop,foeArm,GOB_FOES};\n})();');
+let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={players,cars,goblins,keys,frame,setRaw,get,solidAt,groundAt,ABIL,AB,DT,setGob,mHeld,freeFoe,foeSpawn,PICKUPS,SHOTS,bindHint,FOES,foeThrow,damageGoblin,gobDrop,foeArm,GOB_FOES,FIREB,freeCultist,cultSpawn,WEAPONS};\n})();');
 const deep=()=>new Proxy(function(){}, {get:(t,p)=>p===Symbol.toPrimitive?()=>0:(p==='length'?0:deep()),apply:()=>deep(),construct:()=>deep()});
 class Q{constructor(){this.x=0;this.y=0;this.z=0;this.w=1}set(x,y,z,w){this.x=x;this.y=y;this.z=z;this.w=w;return this}setFromAxisAngle(a,t){const s=Math.sin(t/2);this.x=a.x*s;this.y=a.y*s;this.z=a.z*s;this.w=Math.cos(t/2);return this}copy(q){this.x=q.x;this.y=q.y;this.z=q.z;this.w=q.w;return this}}
 class V3{project(){return this}fromBufferAttribute(a,i){const A=a.array||a.a;this.x=A[i*3];this.y=A[i*3+1];this.z=A[i*3+2];return this}applyMatrix4(m){const e=m.elements,x=this.x,y=this.y,z=this.z;this.x=e[0]*x+e[4]*y+e[8]*z+e[12];this.y=e[1]*x+e[5]*y+e[9]*z+e[13];this.z=e[2]*x+e[6]*y+e[10]*z+e[14];return this}setFromMatrixPosition(o){this.x=o.position.x;this.y=o.position.y;this.z=o.position.z;return this}normalize(){const l=Math.hypot(this.x,this.y,this.z)||1;this.x/=l;this.y/=l;this.z/=l;return this}add(v){this.x+=v.x;this.y+=v.y;this.z+=v.z;return this}applyQuaternion(q){const x=this.x,y=this.y,z=this.z,qx=q.x,qy=q.y,qz=q.z,qw=q.w;const ix=qw*x+qy*z-qz*y,iy=qw*y+qz*x-qx*z,iz=qw*z+qx*y-qy*x,iw=-qx*x-qy*y-qz*z;this.x=ix*qw+iw*-qx+iy*-qz-iz*-qy;this.y=iy*qw+iw*-qy+iz*-qx-ix*-qz;this.z=iz*qw+iw*-qz+ix*-qy-iy*-qx;return this}constructor(x=0,y=0,z=0){this.x=x;this.y=y;this.z=z}set(x,y,z){this.x=x;this.y=y;this.z=z;return this}copy(v){this.x=v.x;this.y=v.y;this.z=v.z;return this}clone(){return new V3(this.x,this.y,this.z)}addScaledVector(v,s){this.x+=v.x*s;this.y+=v.y*s;this.z+=v.z*s;return this}multiplyScalar(s){this.x*=s;this.y*=s;this.z*=s;return this}setScalar(s){return this.set(s,s,s)}}
@@ -91,6 +91,18 @@ for(const gob of [false,true]){
    const g2=foe('thief',12,5);freeze();S(30);const h=g2.hp;press(4);S(25);press(4);S(20);console.log('handgun at a thief 12 ahead, twice: hp',h,'->',g2.hp);
    const g3=foe('thief',34,5);g3.pos.x=A.pos.x;freeze();S(30);const h3=g3.hp;press(4);S(20);console.log('and one 34 ahead, past its reach: hp',h3,'->',g3.hp);
    const seq=[A.wpn];for(let i=0;i<4;i++){tap('KeyR',3);S(3);seq.push(A.wpn);}console.log('weapon button:',seq.join(' > '));killAll();}
+  // the Fireball Spellbook: a cultist drops it, and it's conjured (the weapon's cast) then flies and bends after the nearest enemy
+  {home();const W=T.WEAPONS.spellbook;const c=T.freeCultist(8);T.cultSpawn(c,null,0);c.pos.set(A.pos.x,F,A.pos.z+1.1);c.state='chase';c.gunCD=1e9;c.stun=0;c.kv.set(0,0,0);
+   T.damageGoblin(c,9,c.pos.clone(),null,'Clubbed by another goblin');S(2);console.log('kill a cultist: drops',drops());
+   hold([KF],60);S(5);console.log('walk over it:',kit());
+   while(A.wpn!=='spellbook'){tap('KeyR',3);S(3);}
+   const g=foe('thief',14,5);g.pos.x=A.pos.x+0.6;freeze();S(30);g.pos.set(A.pos.x+0.6,F,A.pos.z+14);g.stun=9;const h=g.hp;let live=-1,t=0,x0=null,x1=null,B=null;T.mHeld.add('Mouse0');
+   for(let i=0;i<200;i++){S(1);t+=16.7;const f=T.FIREB.find(f=>f.live);if(f){if(live<0){live=t;B=f;x0=f.pos.x;}x1=f.pos.x;}if(i===3)T.mHeld.delete('Mouse0');if(g.hp<h||live>0&&!B.live)break;}
+   console.log('cast straight ahead (a still thief 14 ahead, 0.6 right of the aim): ball out after',live<0?'never':(live/1000).toFixed(2)+'s','(cast',W.cast+'s), bent',x1==null?'-':(x1-x0).toFixed(2),'toward it, thief hp',h,'->',g.hp);
+   let casts=0;const seen=new Set(T.FIREB.filter(f=>f.live));T.mHeld.add('Mouse0');S(4);T.mHeld.delete('Mouse0');for(let i=0;i<60;i++){S(1);for(const f of T.FIREB)if(f.live&&!seen.has(f)){seen.add(f);casts++;}}
+   console.log('pressed again at once: new balls',casts,'(comes again every',W.every+'s)');
+   killAll();home();S(200);const g2=foe('thief',24,5);g2.pos.x=A.pos.x;freeze();S(10);const h2=g2.hp;press(4);S(150);console.log('one 24 ahead: hp',h2,'->',g2.hp);
+   killAll();}
   // a prepper's bomb is a grenade now
   {home();const g=foe('prepper',8,5);T.foeThrow(g,A,T.FOES.prepper.bomb);const Q=T.SHOTS.filter(Q=>Q.live);console.log("prepper throws:",Q.map(q=>q.kind+' ('+q.cause+')').join(', '));killAll();}
 }

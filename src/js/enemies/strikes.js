@@ -31,9 +31,10 @@ const STRIKES={
   // a grenade: the free hand drawn back behind the head, the other arm out at the target, then thrown overarm
   throw:[[0,-0.5,0,0,0,0,0,0],[0.35,-0.9,0,0,-2.3,-0.15,-0.03,0,'o'],[0.78,-1.2,0,0,-3.7,-0.45,-0.12,-0.05],
     [0.86,-1.2,0,0,-3.75,-0.47,-0.13,-0.06],[1,-0.4,0,0,-1.5,0.35,0.15,0.12,'i'],[1.3,-0.3,0,0,-0.7,0.4,0.18,0.12,'o'],[2,-0.5,0,0,0,0,0,0]],
-  // a cultist's fireball: raised high in the free hand as it grows, drawn back, then hurled
-  cast:[[0,-0.5,0,0,0,0,0,0],[0.4,-0.6,0,0,-2.6,-0.1,-0.03,0,'o'],[0.8,-0.7,0,0,-3.4,-0.35,-0.1,-0.04],
-    [0.88,-0.7,0,0,-3.5,-0.38,-0.11,-0.05],[1,-0.4,0,0,-1.3,0.35,0.15,0.12,'i'],[1.3,-0.35,0,0,-0.8,0.35,0.15,0.1,'o'],[2,-0.5,0,0,0,0,0,0]],
+  // a spellbook's fireball: the book raised open in front in one hand, the ball growing high in the free hand, drawn
+  // back, then hurled, the hand thrown out straight at the target
+  cast:[[0,-0.5,0,0,0,0,0,0],[0.4,-1.9,0.1,0.3,-2.6,-0.1,-0.03,0,'o'],[0.8,-2.05,0.12,0.35,-3.4,-0.35,-0.1,-0.04],
+    [0.88,-2.05,0.12,0.35,-3.5,-0.38,-0.11,-0.05],[1,-1.75,0.1,0.3,-1.6,0.35,0.15,0.12,'i'],[1.3,-1.65,0.1,0.3,-1.45,0.35,0.15,0.1,'o'],[2,-0.5,0,0,0,0,0,0]],
   // Gnash's and Grizzle's own arm in first person: [u, its tilt, across, up, forward]
   // (the club held back, not right up: any higher and it's out of the top of the picture, and you'd never see the wind-up)
   vmClub:[[0,0.08,0.52,-0.62,-0.72],[0.7,0.8,0.62,-0.5,-0.7,'o'],[0.8,0.85,0.62,-0.49,-0.69],[1,-0.55,0.36,-0.7,-0.82,'i'],[1.3,-0.75,0.34,-0.76,-0.8],[2,0.08,0.52,-0.62,-0.72]],

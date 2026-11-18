@@ -148,7 +148,7 @@ const guns={
     window.__mt=()=>({x:P.pos.x,y:P.pos.y+1,z:P.pos.z,o:P.drv?{p:P,veh:true}:{p:P}});window.__mm=()=>({x:X0-20,y:GY+2,z:Z0});
     E('mountThreat=()=>window.__mt();mountAimAt=()=>{};mountMuzzle=()=>window.__mm()');
     try{for(let i=0;i<3;i++)E('mountAI')(Mt,0.1);}finally{E('mountThreat')!==mt&&(window.__r=[mt,ma,mm],E('mountThreat=window.__r[0];mountAimAt=window.__r[1];mountMuzzle=window.__r[2]'));}},
-  'fireball (cultists)':()=>{const F=E('fireball')(X0-20,GY+1.5,Z0,P.pos.x,P.pos.y+1.5,P.pos.z,'t');for(let i=0;i<60*3&&F&&F.live;i++)E('updateFireballs')(1/60);},
+  'fireball (cultists)':()=>{const F=E('fireball')(X0-20,GY+1.5,Z0,P.pos.x,P.pos.y+1.5,P.pos.z,{by:'t'});for(let i=0;i<60*3&&F&&F.live;i++)E('updateFireballs')(1/60);},
 };
 for(const [name,fire] of Object.entries(guns)){
   const res={};
@@ -156,6 +156,9 @@ for(const [name,fire] of Object.entries(guns)){
     for(let a=-30;a<=6;a++)for(let b=-6;b<=6;b++)for(let y=0;y<8;y++)E('setRaw')(X0+a,G0+1+y,Z0+b,0);   // (a clear field, whatever the last check left)
     if(sc==='walled')box(true);
     const D=sc==='driving'&&tank?{k:'tank',o:tank,V:tank.V}:null;if(D){tank.dead=false;tank.hp=E('MIL').tank.hp;tank.x=X0;tank.z=Z0;tank.y=G0+1;E('milPlace')(tank);E('milBoxes')(tank,0);}   // (the tank where P is, its box in TRAIN_BOXES for the guns that trace a line)
+    // (on foot, no tank box left where P stands from the last check's driving: TRAIN_BOXES is only made afresh by a frame,
+    // and a fireball, which meets vehicles in its way, would stop at it)
+    if(!D&&tank){const TB=E('TRAIN_BOXES');for(let i=TB.length-1;i>=0;i--)if(TB[i].proxy&&TB[i].proxy.T===tank)TB.splice(i,1);}
     const w=P.drv;P.drv=D;const h0=P.hp,v0=D?tank.hp:0;pin();try{fire();}catch(e){res[sc]='threw '+e.message;}unpin();P.drv=w;
     res[sc]=res[sc]||{hp:P.hp-h0,veh:D?tank.hp-v0:0};if(sc==='walled')box(false);P.hp=20;}
   const r=res;check(name,'hurts on foot',r.open.hp<0,JSON.stringify(r.open));
@@ -201,17 +204,17 @@ for(const [name,fire] of Object.entries(guns)){
    if(!Array.isArray(L)){check(k,'weapons list',false,'none');continue;}
    for(const w of L.concat(f.pack||[]))if(!W[w])bad.push(w+' not in WEAPONS');
    check(k,'weapons list',!bad.length,bad.join(', '));if(bad.length)continue;
-   const kOf=t=>L.filter(w=>W[w].kind===t),mk=kOf('melee'),gk=kOf('gun'),tk=kOf('throw');
+   const kOf=t=>L.filter(w=>W[w].kind===t),mk=kOf('melee'),gk=kOf('gun').concat(kOf('spell')),tk=kOf('throw'),sk=kOf('spell');
    check(k,'no more than one of each kind',mk.length<2&&gk.length<2&&tk.length<2,L.join(','));
    // (the model: a blade or club and a gun each as the weapon's boxes, a gun beside a blade or club with its stow too; an orb in
    // the left hand for grenades or a spell)
-   const want=bare+mk.concat(gk).reduce((s,w)=>s+nBox(w),0)+(mk.length&&gk.length?(W[gk[0]].model.stow||[]).length:0)+(tk.length||f.spell?1:0),got=nodes(fo(f));
+   const want=bare+mk.concat(gk).reduce((s,w)=>s+nBox(w),0)+(mk.length&&gk.length?(W[gk[0]].model.stow||[]).length:0)+(tk.length||sk.length?1:0),got=nodes(fo(f));
    check(k,'model carries its weapons',got===want,'parts '+(got-bare)+' over a bare goblin, its weapons make '+(want-bare));
    // (the AI: each gun has how it's used (gun) and is aimed inside its range; grenades have bomb and are thrown; up close
    // it strikes with its blade or club, or a rifle by its butt, at the weapon's numbers, else with fists of its own)
    if(gk.length){const w=W[gk[0]];let aims=false;
      if(f.gun){E('tenvClear()');quiet();put(X0,Z0);for(let a=-60;a<=6;a++)for(let b=-6;b<=6;b++)for(let y=0;y<8;y++)E('setRaw')(X0+a,G0+1+y,Z0+b,0);const q=E('freeFoe')('militia',24);E('foeSpawn')(q,'militia',null,0);q.vy=0;q.stun=0;q.act=null;
-       const d=Math.min(w.range-2,Math.max(f.gun.near+2,10));q.pos.set(P.pos.x-d,P.pos.y,P.pos.z);q.heading=Math.PI/2;q.aim=0;q.aimK=null;q.gunCD=0;q.bombCD=99;
+       const d=Math.min(w.range-2,Math.max((f.gun.near??w.near)+2,10));q.pos.set(P.pos.x-d,P.pos.y,P.pos.z);q.heading=Math.PI/2;q.aim=0;q.aimK=null;q.gunCD=0;q.bombCD=99;
        E('foeRanged')(q,P,d,0,0.01,Object.assign({},f,{bomb:null}));aims=q.aimK==='gun';q.state='wait';q.root.visible=false;q.aim=0;}
      check(k,'AI fires its '+gk[0],!!f.gun&&aims,f.gun?'never aimed':'no gun entry: how it uses it');}
    if(tk.length){let thrown=false;
@@ -225,13 +228,13 @@ for(const [name,fire] of Object.entries(guns)){
    {Math.random=()=>0.9;const d=gg({arms:f});Math.random=R0;const wd=L.find(w=>W[w].drop&&!W[w].stack&&E('GOB_WPN')[w])||null;
     check(k,'drops its weapons',d.wpn===wd&&(d.gren>0)===(L.concat(f.pack||[]).includes('grenade')),'drops '+d.wpn+' and '+d.gren+' grenades');}
    // (and the Dev tab plays each: a shoot for a gun, a throw for grenades, an attack up close)
-   {const D=devK.get(f),a=D?D.anims:[];check(k,'Dev tab plays its weapons',!!D&&(!gk.length||a.includes('shoot'))&&(!tk.length||a.includes('throw'))&&(k==='civilian'||a.includes('attack')),D?a.join(','):'not listed');}}
+   {const D=devK.get(f),a=D?D.anims:[];check(k,'Dev tab plays its weapons',!!D&&(!gk.length||a.includes(sk.length?'cast':'shoot'))&&(!tk.length||a.includes('throw'))&&(k==='civilian'||a.includes('attack')),D?a.join(','):'not listed');}}
  flush('weapons lists ('+kinds.map(([k,f])=>k+': '+(f.weapons||[]).join('+')).join('; ')+')');}
 
 // ==== a gun at range, a blade or club up close, for any kind whose list has both: a made-up kind carrying a dagger and a
 // rifle draws the rifle to fire at range and slings it for the dagger close in ====
 {const F=E('FOES'),W=E('WEAPONS'),fk=E('foeGunK');
- for(const k in W)if(W[k].kind==='gun')check('weapon '+k,'can be put away (model.stow)',!!(W[k].model.stow&&W[k].model.stow.length));
+ for(const k in W)if(W[k].kind==='gun'||W[k].kind==='spell')check('weapon '+k,'can be put away (model.stow)',!!(W[k].model.stow&&W[k].model.stow.length));
  F.testpair=Object.assign({},F.thief,{name:'Test pair',weapons:['dagger','rifle'],gun:F.militia.gun,hitBy:'Stabbed in a test'});
  try{E('tenvClear()');quiet();put(X0,Z0);for(let a=-60;a<=6;a++)for(let b=-6;b<=6;b++)for(let y=0;y<8;y++)E('setRaw')(X0+a,G0+1+y,Z0+b,0);
   const q=E('freeFoe')('testpair',2);E('foeSpawn')(q,'testpair',null,0);q.vy=0;q.stun=0;q.act=null;q.state='chase';
@@ -285,6 +288,13 @@ for(const [name,fire] of Object.entries(guns)){
  // the grenade: an enemy's carries the weapon's fuse, blast and damage
  {E('tenvClear()');quiet();put(X0,Z0);const n0=E('SHOTS').length;const g={pos:new V3(X0-12,GY,Z0),heading:Math.PI/2,id:'t'};E('foeThrow')(g,P,F.prepper.bomb);
   const S=E('SHOTS')[E('SHOTS').length-1],G2=W.grenade;check('prepper','grenade as the weapon',!!S&&S.fuse===G2.fuse&&S.R===G2.R&&S.dmg===G2.dmg,S?('fuse '+S.fuse+' R '+S.R+' dmg '+S.dmg):'none thrown');if(S)S.live=false;}
+ // the fireball: a cultist's flies at the spellbook's speed and, landing, does its damage; the fireball's numbers and the
+ // conjuring time live nowhere but the spellbook (no FB_SPEED, CULT_CAST); a player goblin's is the same ball
+ {const SB=W.spellbook,GF=E('GOB_FOES');check('fireball','numbers only in WEAPONS',E('typeof FB_SPEED')==='undefined'&&E('typeof CULT_CAST')==='undefined'&&E('typeof cultCast')==='undefined');
+  E('tenvClear()');quiet();put(X0,Z0);for(let a=-30;a<=6;a++)for(let b=-6;b<=6;b++)for(let y=0;y<8;y++)E('setRaw')(X0+a,G0+1+y,Z0+b,0);P.hp=20;
+  const FB=E('FIREB'),g={pos:new V3(X0-12,GY,Z0),heading:Math.PI/2,id:'t'};E('foeShoot')(g,P,GF.cultist);const F=FB.find(f=>f.live);
+  const v=F?Math.hypot(F.v.x,F.v.y,F.v.z):0;let t=0;while(F&&F.live&&t<5){run(1/60);t+=1/60;}
+  check('cultist','fireball as the weapon',!!F&&Math.abs(v-SB.ball.speed)<1e-6&&F.W===SB&&20-P.hp===SB.dmg,F?('speed '+v.toFixed(2)+' hp lost '+(20-P.hp)+' after '+t.toFixed(2)+' s'):'none cast');P.hp=20;}
  flush('the same weapon in the hands of an enemy as of a player');}
 
 // (the street left as it was)

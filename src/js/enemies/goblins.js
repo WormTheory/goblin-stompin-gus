@@ -119,7 +119,7 @@ function goblinModel(parent,o={}){
   // gunGrip); a gun beside a blade or club (a street goblin's handgun, for when it's in police blue) in the same hand but
   // hidden till it's drawn, and put away (its model's stow: a holster, a rifle slung on the back) while it isn't, which
   // shows only once it's armed with it (wkit: what's in hand, foes.js)
-  const WL=o.weapons||(o.club!==false?['club']:[]),mk=wpnOfKind(WL,'melee'),gk=wpnOfKind(WL,'gun');
+  const WL=o.weapons||(o.club!==false?['club']:[]),mk=wpnOfKind(WL,'melee'),gk=wpnRanged(WL);   // (a gun, or a spellbook: in the hand the same way)
   const club=mk?wb(mk,hand):[];
   if(gk&&mk){const gun=wb(gk,hand),stow=[];wpnBoxes(WEAPONS[gk].model.stow,(w,h,d,c,x,y,z,r)=>stow.push(box(w,h,d,r,c,x,y,z,parent)));
     for(const m of gun.concat(stow))m.visible=false;out.wkit={melee:club,gun,stow,shown:0,k:gk};}
@@ -129,9 +129,9 @@ function goblinModel(parent,o={}){
     box(0.54,0.4,0.36,'tunic',o.tunic||GC.tunic,0,0.25,0,parent);
     box(0.58,0.1,0.52,'hood',0x2a0408,0,0.47,0,head);box(0.58,0.5,0.08,'hood',0x2a0408,0,0.22,-0.24,head);for(const s of[-1,1])box(0.07,0.44,0.5,'hood',0x2a0408,s*0.28,0.24,0,head);box(0.22,0.14,0.22,'hood',0x2a0408,0,0.58,-0.08,head);
   }
-  // in the left hand, shown only while it's coming: a fireball being conjured (a cultist's spell), or a grenade (held, its
+  // in the left hand, shown only while it's coming: a fireball being conjured (a spellbook's), or a grenade (held, its
   // colour) while winding up to throw it
-  if(o.spell==='fireball'){out.orb=box(0.24,0.24,0.24,'orb',0xff7a1a,0,-0.46,0.04,armL);out.orb.visible=false;}
+  if(gk&&WEAPONS[gk].kind==='spell'){out.orb=box(0.24,0.24,0.24,'orb',0xff7a1a,0,-0.46,0.04,armL);out.orb.visible=false;}
   else if(wpnOfKind(WL,'throw')){const [w,h,d,c]=o.held||[0.22,0.22,0.22,0x3a4a22];out.orb=box(w,h,d,'orb',c,0,-0.46,0.04,armL);out.orb.visible=false;}
   // hats
   acc('cap',[box(0.52,0.12,0.48,'hat',0x2a2a2a,0,0.47,0.02,head),box(0.34,0.04,0.2,'hat',0x2a2a2a,0,0.425,0.31,head)]);

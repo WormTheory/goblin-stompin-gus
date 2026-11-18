@@ -3,7 +3,7 @@
 // Each player goblin carries a list (p.wpns, the one in hand p.wpn) and a stack of grenades (p.gren). The attack button
 // uses the one in hand (gobAttack, from doBite), the stomp button throws a grenade (gobThrow), and the weapon button goes
 // on to the next (gobNextWpn). Kill an enemy whose weapon you haven't got and it's dropped where they fell (gobDrop: a
-// police officer's handgun, a thief's or cultist's dagger, a rifle off the compounds, the army and the carrier's crew,
+// police officer's handgun, a thief's dagger, a cultist's spellbook, a rifle off the compounds, the army and the carrier's crew,
 // whatever FOES says they carry); a soldier of any kind drops grenades as well, every time, since they stack. Walk over a drop to pick it up (gobPickups).
 // (Pipe bombs are gone: the preppers throw grenades too.) Hippos never see any of this.
 // (Gnash's side of each weapon in WEAPONS (weapons.js): GOB_WPN[k] is its player block, GOB_WPN_ORDER the ones he can hold,
@@ -25,6 +25,7 @@ function gobGear(g){const F=foeOf(g),L=F.weapons||[],pk=F.pack||[];
 // the attack button's hit, for whatever's in hand (the club's is gobClub)
 function gobAttack(p){const k=gobArms(p).wpn,K=WEAPONS[k];
   if(K&&K.kind==='gun'){gobShoot(p);return;}
+  if(K&&K.kind==='spell'){gobCast(p);return;}
   if(K&&K.kind==='melee'&&K.player.reach){const W=K.player,hx=Math.sin(p.heading),hz=Math.cos(p.heading);hitGoblins(p.pos.x+hx*W.reach,p.pos.z+hz*W.reach,W.r,W.dmg,W.cause,p.pos.y);pvpArea(p,p.pos.x+hx*W.reach,p.pos.z+hz*W.reach,W.r,W.dmg,W.pvp,p.pos.y);
     for(const c of carsNear(p.pos.x+hx*W.reach,p.pos.z+hz*W.reach,W.r,p.pos.y)){damageCar(c,1,new V3(hx,0,hz));clang();}return;}
   gobClub(p);   // (the club: pivots.js)
@@ -41,6 +42,18 @@ function gobShoot(p){
     snd:()=>wpnCrack(wk)});   // (the handgun cracks higher and shorter, as the police's does)
   p.shake=Math.max(p.shake||0,W.shake);rumble(p,W.rumble,50);
 }
+// a spellbook's fireball, once it's conjured (the attack's wind-up is the conjuring: its player block's lunge is the
+// weapon's cast): out of the free hand, a little below and left of the eye, at whatever's under the crosshair. It flies
+// and bends after the nearest enemy goblin ahead of it (fbTarget, shots.js), the weapon's numbers as a cultist's
+function gobCast(p){const W=WEAPONS[gobArms(p).wpn];if(!W||W.kind!=='spell')return;
+  const c=shipEye(p),cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp,rx=Math.cos(p.cam.yaw),rz=-Math.sin(p.cam.yaw);
+  fireball(c.x+dx*0.5-rx*0.25,c.y-0.2+dy*0.5,c.z+dz*0.5-rz*0.25,c.x+dx*W.range,c.y+dy*W.range,c.z+dz*W.range,{W,pl:p,by:pvpBy(p),cause:W.player.cause});
+  rumble(p,0.12,60);}
+// the attack button's sound as it starts: the club's or dagger's swing, a spell's rising note while it's conjured (a gun's
+// is its crack, when it fires)
+function gobPressSnd(p){const W=WEAPONS[p.wpn];if(W&&W.kind==='spell')wpnCue(p.wpn,W.cast);else if(!gobGun(p.wpn))sfx('Club swing',()=>{woosh(0.13,0.22,520,1700,0.1);});}
+// what aims down the view, with a crosshair: a gun, or a spell
+const gobAims=k=>gobGun(k)||!!WEAPONS[k]&&WEAPONS[k].kind==='spell';
 // the stomp button: lob a grenade the way you're looking
 function gobThrow(p){
   gobArms(p);if(p.gren<=0||p.grenCD>0||p.state==='dead'||p.drv)return;
@@ -83,7 +96,7 @@ function gobArmsHud(p){
   let H=p.ui.gw;const show=p.gob&&p.active&&!p.drv&&p.state!=='dead';
   if(!H){if(!show)return;const el=document.createElement('div');el.className='gwpn';const xh=document.createElement('div');xh.className='gxh';xh.hidden=true;p.ui.view.append(xh);
     const bar=p.ui.view.querySelector('.bar'),who=bar&&bar.querySelector('.who');if(who)bar.insertBefore(el,who);else p.ui.view.append(el);H=p.ui.gw={el,xh,s:''};}
-  H.el.hidden=!show;H.xh.hidden=!show||!gobGun(gobArms(p).wpn);if(!show)return;
+  H.el.hidden=!show;H.xh.hidden=!show||!gobAims(gobArms(p).wpn);if(!show)return;
   const bl=id=>actMark(p,id),L=GOB_WPN_ORDER.filter(k=>p.wpns.includes(k));
   const s=L.map(k=>k===p.wpn?'<b>'+GOB_WPN[k].name+'</b>':GOB_WPN[k].name).join(' · ')+(L.length>1?'  '+bl('weapon')+' next':'')+'  |  Grenades '+p.gren+(p.gren?'  '+bl('stomp')+' throw':'');
   if(H.s!==s){H.s=s;H.el.innerHTML=s.split(/(<b>[^<]*<\/b>)/).map(t=>t.startsWith('<b>')?'<b>'+glEsc(t.slice(3,-4))+'</b>':hudHTML(t)).join('');}

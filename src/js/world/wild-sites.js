@@ -224,7 +224,7 @@ function abandonedSpots(px,pz){
 const RUST_PAINTS=[0x6a3a22,0x7a4a2a,0x5a4a3a,0x7a6a5a,0x4a3a2a,0x8a5a3a];
 // ---- the cultists: robed goblins circling the altar, arms up, chanting. They're real goblins the whole time (out of
 // their own pool: see addCultist), so they can be stomped mid-rite; come too close, or hurt one, and the whole circle
-// turns on you, throwing fireballs from range and stabbing with their ritual daggers up close (cultCast) ----
+// turns on you, throwing fireballs from range and stabbing with their ritual daggers up close (their spellbooks: foeRanged) ----
 const CULTM={glow:new THREE.MeshBasicMaterial({color:0xff2a1a,transparent:true,opacity:0.5,depthWrite:false})};
 const CULT_RING=5.6;   // (how far from the altar they walk: clear of the fire's ring of stones, inside the standing stones)
 function refreshCultVenues(p,want){
@@ -257,7 +257,7 @@ function updateCultVenue(V,dt,t){
 function cultRouse(V){
   if(V.roused)return;V.roused=true;V.awayT=0;const n=nearestPlayer(V.cx,V.cz),me=n&&n.p;
   // (they don't all let fly at once: a ragged volley, a few starting for you with their daggers out)
-  V.slots.forEach((g,i)=>{if(!g||g.state!=='chase')return;g.castCD=0.5+i*0.45+Math.random()*0.4;if(me)g.heading=Math.atan2(me.pos.x-g.pos.x,me.pos.z-g.pos.z);});
+  V.slots.forEach((g,i)=>{if(!g||g.state!=='chase')return;g.gunCD=0.5+i*0.45+Math.random()*0.4;if(me)g.heading=Math.atan2(me.pos.x-g.pos.x,me.pos.z-g.pos.z);});
   if(audio)tone('sawtooth',220,110,0.9,0.08);if(me)flashLabel('The cult turns on you!',me);
 }
 // the circle's gone out of range: those still at their rite go home with it (any already out hunting you carry on)

@@ -1,12 +1,15 @@
-// ---- cultists' fireballs: a glowing ball flying at the hippo, bending a little after him; two hearts if it hits, a burst
-// of flame against anything solid ----
-const FIREB=[],FB_SPEED=15,FB_GEO=new THREE.BoxGeometry(1,1,1),FB_CORE=new THREE.MeshBasicMaterial({color:0xffe070}),FB_HALO=new THREE.MeshBasicMaterial({color:0xff4a10,transparent:true,opacity:0.55,depthWrite:false});
-function fireball(x,y,z,tx,ty,tz,by){
+// ---- fireballs, from a spellbook (WEAPONS.spellbook, whose numbers they all are): a glowing ball flying at its target,
+// bending a little after it; a burst of flame against anything solid. A cultist's hurts players (and a vehicle in its way);
+// a player goblin's hurts goblins (and players, with PvP on), and vehicles ----
+const FIREB=[],FB_GEO=new THREE.BoxGeometry(1,1,1),FB_CORE=new THREE.MeshBasicMaterial({color:0xffe070}),FB_HALO=new THREE.MeshBasicMaterial({color:0xff4a10,transparent:true,opacity:0.55,depthWrite:false});
+// (o: W the weapon, by who's to blame, cause, and pl the player goblin who cast it, if one did)
+function fireball(x,y,z,tx,ty,tz,o){
   let F=FIREB.find(f=>!f.live);
   if(!F){if(FIREB.length>=24)return null;const g=new THREE.Group(),c=new THREE.Mesh(FB_GEO,FB_CORE),h=new THREE.Mesh(FB_GEO,FB_HALO);c.scale.setScalar(0.32);h.scale.setScalar(0.6);g.add(c);g.add(h);g.visible=false;scene.add(g);
     F={g,halo:h,pos:new V3(),v:new V3(),t:0,live:false,by:null,trail:0};FIREB.push(F);}
-  F.pos.set(x,y,z);{const ex=tx-x,ey=ty-y,ez=tz-z,L=Math.hypot(ex,ey,ez);if(L<1e-3)F.v.set(0,0,FB_SPEED);else F.v.set(ex/L*FB_SPEED,ey/L*FB_SPEED,ez/L*FB_SPEED);}
-  F.t=0;F.live=true;F.by=by||null;F.trail=0;F.g.position.copy(F.pos);F.g.visible=true;
+  o=o||{};const W=o.W||WEAPONS.spellbook,sp=W.ball.speed;F.W=W;F.pl=o.pl||null;F.cause=o.cause||W.player.cause;
+  F.pos.set(x,y,z);{const ex=tx-x,ey=ty-y,ez=tz-z,L=Math.hypot(ex,ey,ez);if(L<1e-3)F.v.set(0,0,sp);else F.v.set(ex/L*sp,ey/L*sp,ez/L*sp);}
+  F.t=0;F.live=true;F.by=o.by||null;F.trail=0;F.g.position.copy(F.pos);F.g.visible=true;
   if(audio)noise(0.35,0.05,900,'bandpass');
   return F;
 }
@@ -15,20 +18,34 @@ function fbBurst(F){
   puff(F.pos.x,F.pos.y-0.15,F.pos.z,9,0xff6a10,0.45);puff(F.pos.x,F.pos.y-0.15,F.pos.z,5,0xffd040,0.3);
   if(audio)tone('sawtooth',170,45,0.35,0.06);
 }
+// what it bends after, within the spellbook's seek: a cultist's, the nearest player; a player goblin's, the nearest enemy
+// goblin (not the townsfolk) or, with PvP on, another player, so long as it's ahead of the ball
+function fbTarget(F){const R=F.W.ball.seek,pl=F.pl;
+  if(!pl){const n=nearestPlayer(F.pos.x,F.pos.z);return n&&n.d<R?{x:n.p.pos.x,y:n.p.pos.y+1.5,z:n.p.pos.z}:null;}
+  let best=null,bd=R;const see=(x,y,z)=>{const dx=x-F.pos.x,dz=z-F.pos.z,d=Math.hypot(dx,dz);if(d<bd&&dx*F.v.x+dz*F.v.z>0){bd=d;best={x,y,z};}};
+  for(const g of goblins)if(g.state==='chase'&&!g.civ&&g.root.visible&&g.hp>0)see(g.pos.x,g.pos.y+0.8,g.pos.z);
+  for(const q of pvpFoes(pl))see(q.pos.x,q.pos.y+(q.gob?0.8:1.5),q.pos.z);
+  return best;}
 function updateFireballs(dt){
   if(!playing)return;
-  for(const F of FIREB){if(!F.live)continue;F.t+=dt;
-    // (a little magic in it: it bends gently toward the nearest hippo, enough to follow a slow one, not a dodge)
-    const n=nearestPlayer(F.pos.x,F.pos.z);
-    if(n&&n.d<40){const ex=n.p.pos.x-F.pos.x,ey=n.p.pos.y+1.5-F.pos.y,ez=n.p.pos.z-F.pos.z,L=Math.hypot(ex,ey,ez)||1,k=Math.min(1,dt*0.6);
-      const vx=F.v.x+(ex/L*FB_SPEED-F.v.x)*k,vy=F.v.y+(ey/L*FB_SPEED-F.v.y)*k,vz=F.v.z+(ez/L*FB_SPEED-F.v.z)*k,M=Math.hypot(vx,vy,vz)||1;F.v.set(vx/M*FB_SPEED,vy/M*FB_SPEED,vz/M*FB_SPEED);}
-    let done=false;const ns=Math.max(1,Math.ceil(FB_SPEED*dt/0.3));
+  for(const F of FIREB){if(!F.live)continue;F.t+=dt;const W=F.W,B=W.ball,sp=B.speed,pl=F.pl;
+    // (a little magic in it: it bends gently toward its target, enough to follow a slow one, not a dodge)
+    const n=fbTarget(F);
+    if(n){const ex=n.x-F.pos.x,ey=n.y-F.pos.y,ez=n.z-F.pos.z,L=Math.hypot(ex,ey,ez)||1,k=Math.min(1,dt*B.bend);
+      const vx=F.v.x+(ex/L*sp-F.v.x)*k,vy=F.v.y+(ey/L*sp-F.v.y)*k,vz=F.v.z+(ez/L*sp-F.v.z)*k,M=Math.hypot(vx,vy,vz)||1;F.v.set(vx/M*sp,vy/M*sp,vz/M*sp);}
+    let done=false;const ns=Math.max(1,Math.ceil(sp*dt/0.3)),h=()=>{const m=Math.hypot(F.v.x,F.v.z)||1;return new V3(F.v.x/m,0.3,F.v.z/m);};
     for(let k=0;k<ns&&!done;k++){F.pos.addScaledVector(F.v,dt/ns);
-      for(const p of players){if(!p.active||p.state==='dead')continue;if(p.dodge&&p.dodge.t<p.dodge.dur*0.85)continue;   // (mid-dodge: it flies on by)
+      if(!pl){for(const p of players){if(!p.active||p.state==='dead')continue;if(p.dodge&&p.dodge.t<p.dodge.dur*0.85)continue;   // (mid-dodge: it flies on by)
         const hx=F.pos.x-p.pos.x,hz=F.pos.z-p.pos.z,hy=F.pos.y-p.pos.y;
-        if(hx*hx+hz*hz<1.4*1.4&&hy>-0.3&&hy<2.4){const h=Math.hypot(F.v.x,F.v.z)||1;shotPlayer(p,2,F.pos.clone(),new V3(F.v.x/h,0.3,F.v.z/h),"Burned up by a cultist's fireball",F.by);done=true;break;}}
+        if(hx*hx+hz*hz<B.r*B.r&&hy>-0.3&&hy<2.4){shotPlayer(p,W.dmg,F.pos.clone(),h(),F.cause,F.by);done=true;break;}}}
+      else{for(const g of goblins){if(g.state!=='chase'||!g.root.visible||!(g.hp>0))continue;const hx=F.pos.x-g.pos.x,hz=F.pos.z-g.pos.z,hy=F.pos.y-g.pos.y;
+          if(hx*hx+hz*hz<B.rg*B.rg&&hy>-0.3&&hy<1.6){damageGoblin(g,W.dmg,F.pos.clone(),h(),F.cause);done=true;break;}}
+        if(!done)for(const q of pvpFoes(pl)){const r=q.gob?B.rg:B.r,hx=F.pos.x-q.pos.x,hz=F.pos.z-q.pos.z,hy=F.pos.y-q.pos.y;
+          if(hx*hx+hz*hz<r*r&&hy>-0.3&&hy<(q.gob?1.6:2.4)){pvpHurt(pl,q,W.dmg,F.pos.clone(),h(),W.player.pvp,{cd:0});done=true;break;}}}
+      // (a vehicle in its way takes it as a round's worth: VEH_SHOT_K times the damage, through the blast's harm)
+      if(!done&&shotHitsVeh({pos:F.pos,own:null})){vehBlast(F.pos.x,F.pos.y,F.pos.z,1.5,W.dmg*VEH_SHOT_K,null);done=true;}
       if(!done&&(solidAt(F.pos.x,Math.floor(F.pos.y),F.pos.z)||F.pos.y<0))done=true;}
-    if(done||F.t>3.5){fbBurst(F);continue;}
+    if(done||F.t>B.life){fbBurst(F);continue;}
     F.g.position.copy(F.pos);F.g.rotation.x+=dt*7;F.g.rotation.y+=dt*5;F.halo.scale.setScalar(0.55+0.12*Math.sin(F.t*30));
     F.trail-=dt;if(F.trail<=0){F.trail=0.04;puff(F.pos.x,F.pos.y-0.15,F.pos.z,1,Math.random()<0.5?0xff7a1a:0xffc040,0.12);}
   }

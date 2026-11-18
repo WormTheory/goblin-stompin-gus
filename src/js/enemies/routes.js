@@ -337,11 +337,11 @@ function updateGoblins(dt){
       dx=tgt.p.pos.x-g.pos.x;dz=tgt.p.pos.z-g.pos.z;d=Math.hypot(dx,dz);
       // they can only club you if you're roughly level with them
       const reach=2.3,ddy=tgt.p.pos.y-g.pos.y,canHit=ddy>-1.3&&ddy<1.5;
-      // a cultist conjuring a fireball stands its ground till it's thrown
-      // (and anyone with a gun beside a blade or club, police once they've seen him, draws it at range: foeArm, foes.js)
-      // (what it does at range is read off its kind's weapons: a spell, a gun or grenades. weapons.js)
+      // one aiming, conjuring a fireball or winding up a throw stands its ground till it's gone
+      // (and anyone with a gun or spellbook beside a blade or club, police once they've seen him, draws it at range: foeArm, foes.js)
+      // (what it does at range is read off its kind's weapons: a gun, a spell or grenades. weapons.js)
       const FK=foeOf(g);
-      if(FK.spell==='fireball'&&cultCast(g,tgt.p,d,ddy,dt)||(foeGunK(FK)||foeThrowK(FK))&&!(g.cop&&g.inv)&&foeRanged(g,tgt.p,d,ddy,dt,FK)){g.legs[0].rotation.x=g.legs[1].rotation.x=0;gobRootPose(g,g.pos.y,dt);return;}
+      if((foeGunK(FK)||foeThrowK(FK))&&!(g.cop&&g.inv)&&foeRanged(g,tgt.p,d,ddy,dt,FK)){g.legs[0].rotation.x=g.legs[1].rotation.x=0;gobRootPose(g,g.pos.y,dt);return;}
       // goblins holed up indoors stay put, pottering about, until a hippo is close and on their floor
       if(g.indoor&&!bldgAt(Math.floor(g.pos.x),Math.floor(g.pos.z)))g.indoor=false;
       if(g.cop&&g.inv&&d<22&&Math.abs(ddy)<4){g.inv=false;flashLabel('Police!',tgt.p);tone('square',880,660,0.25,0.05);}   // spotted!

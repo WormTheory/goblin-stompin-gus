@@ -25,4 +25,9 @@ walk over it: club+rifle+dagger+handgun in hand handgun, grenades 8  new weapons
 handgun at a thief 12 ahead, twice: hp 5 -> 2
 and one 34 ahead, past its reach: hp 5 -> 5
 weapon button: handgun > rifle > club > dagger > handgun
+kill a cultist: drops spellbook
+walk over it: club+rifle+dagger+handgun+spellbook in hand spellbook, grenades 8
+cast straight ahead (a still thief 14 ahead, 0.6 right of the aim): ball out after 0.70s (cast 0.7s), bent 0.05 toward it, thief hp 5 -> 3
+pressed again at once: new balls 0 (comes again every 3.1s)
+one 24 ahead: hp 5 -> 3
 prepper throws: grenade (Blown up by a grenade)
