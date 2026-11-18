@@ -35,7 +35,18 @@ none of the goblins, traffic, damage or smashing itself, so nothing can disagree
   guest; the venues' moving models (`netVenues`: trains, planes, boats, rides, animals, base vehicles; each joint sent
   only when it's moved); falling pieces of buildings; score and kills; the events since the last; and once a second the
   world's saved state, the fires, the clock, the weather, the hostility setting, and in the Testing Environment the
-  structures spawned there (a guest builds or removes each as the host does).
+  structures spawned there (a guest builds or removes each as the host does) and its sea.
+- **Ships** (the Testing Environment's barge and carrier, `netShips`): a ship's blocks live in its own pocket of the
+  world and everything aboard is placed in that pocket, so a guest makes its own copy of each of the host's ships in
+  the same slot under the same number (`netShipSet`, `makeShip`'s last argument; such a copy is `S.net`, which
+  `updateShips` only keeps its props up to date on) and the host's places for players, goblins, vehicles and blocks
+  aboard then come out right by themselves. Each snapshot carries each ship's place, heading, speed, how far it's sunk,
+  health, whether it's sunk, and the engine order and rudder; `netShipPlace` blends its place and `netShipFrames` hangs
+  the models of anyone and anything aboard off the ship's picture. What's near a guest is measured out in the world
+  (`netNear`, `netWorldXZ`), and the camera's yaw goes over the network as it is out in the world (`netFrameYaw`), so
+  stepping aboard never swings a guest's view round. A guest guessing its own moves crosses on and off a ship itself
+  (`shipCross` in `netPredStep`). A guest making a ship it already had in the save it built from leaves what's smashed
+  there alone (`NET_SHIP0`); one spawned later starts whole, as the host's did.
 - **Events**: everything the host's game does once. Block changes are caught where they're all made, `addEdit`, and
   sent as flat lists. Effects are caught by wrapping the functions that make them (`netFx`: `puff`, `smoke`, `blood`,
   `splat`, `destroyFX`, `shockwave`, `shockCone`, `blastFx`, `tone`, `noise`, `woosh`, and `flashLabel` to the player it
@@ -133,7 +144,7 @@ Every message is a JSON object with a type `t`, so a headless Node server could 
 | host | `welcome` | `v`, `seat` (1 to 3), `code`, `save` (`saveText()` JSON), `host: {who, gob}`, `clock` |
 | host | `deny` | `why` (wrong version, game full) |
 | guest | `in` | `n` (sequence), `x`, `z`, `lx`, `ly`, `h` (held buttons), `pr` (presses), `yaw`, `pitch`, `fl` (lock-on flicks), `vt` (host time it's showing) |
-| host | `s` | `n`, `tt` (host time), `p` (players), `g`/`gl` (goblins and their looks), `c`/`cl` (vehicles and their kinds), `v` (venue joints), `fa` (falling pieces), `e` (events), `sc` (score, kills), `w` (world state, once a second), `k` (clock, weather, hostility, once a second) |
+| host | `s` | `n`, `tt` (host time), `p` (players), `g`/`gl` (goblins and their looks), `c`/`cl` (vehicles and their kinds), `v` (venue joints), `mg` (Mobile Gears), `sh` (ships), `fa` (falling pieces), `e` (events), `sc` (score, kills), `w` (world state, once a second), `k` (clock, weather, hostility, once a second) |
 | either | `ping` / `pong` | `a` (sender's time), `b` |
 | either | `bye` | |
 | guest | `chat` | `x` (the line typed) |
@@ -148,7 +159,8 @@ Events in `e`: `['e', [x,y,z,b, ...]]` blocks, `['f', name, args]` an effect, `[
 `['b', id, blocks, clipY]` a collapse sinking, `['c', key, floor]` a building coming down from that floor,
 `['k', key, angle, prop, x, z, y]` a fixture or prop knocked over.
 A goblin in `g` ends with its `state`, `hp` and `hpMax`; a vehicle in `c` with its `hp` and `hpMax`. `vh` holds the venues'
-vehicles' health as `[venue, list]`.
+vehicles' health as `[venue, list]`. A ship in `sh`: `[slot, n, kind, x, z, yaw, speed, sunk by, hp, dead, order, rudder]`;
+a player at a ship's helm has the ship's `n` at the end of `dv`.
 
 ## Chat and voice
 
@@ -203,6 +215,8 @@ tabs (`netLoopback`, no `av`) there's no voice. Suite `chat` checks all of it wi
   heard as the host's game made it, wherever the guest is.
 - Prediction runs the player code on the guest's own copy of the world, whose goblins and vehicles are where the guest
   sees them; a guest standing on a moving vehicle, climbing one, or driving isn't guessed.
+- Ships: a carrier's deck weapons, its jets' pilots, furniture knocked over aboard, and a ship breaking in two aren't
+  sent yet (the guest's carrier has its deck weapons and jets, standing still; a broken-off end isn't there).
 - The obituary and the explored map are each browser's own.
 - The Testing Environment's Reset world reloads the host's page, which ends the session (guests go home after trying
   to reconnect).

@@ -71,6 +71,7 @@
 - Swim out and climb aboard up the steps of the swim platform at the stern, or jump down on to the deck from above. Swim away from it and you're back in the open sea.
 - As Gnash or Grizzle, stand at the helm inside the wheelhouse's front window and press F (controller Y) to take the controls: it's driven the same way as the aircraft carrier, with the engine telegraph and the rudder, but it's much quicker to speed up, slow down and turn.
 - Goblins aboard chase you round the deck as anywhere else, and goblins in the sea swim out to it and climb aboard after you.
+- Online co-op: everyone in the game sees the barge (and the aircraft carrier) where the host has it, and can climb aboard, walk about on it, stand at the helm and sail it, smash holes in it and go down with it. Its deck weapons, its jets' pilots and breaking in two aren't online yet.
 
 ### Mobile Gear (Testing Environment)
 

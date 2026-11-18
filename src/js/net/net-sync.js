@@ -37,7 +37,7 @@ function netPlayerState(p,seat,N){
     rd:!!(p.drv||p.rideC||p.standCar||p.vcl&&p.state==='climb')};
   // (in a vehicle: what it is and where, for the guest's chase camera)
   if(p.drv&&!p.drv.jack){try{const D=p.drv,S=drvPose(D),H=drvHP(D),o=D.o,W={};for(const k in o.wpn||{}){const s=o.wpn[k];W[k]=[s.n,Math.round(s.rl*10)/10];}
-    e.dv=[D.k,r3(S.x),r3(S.y),r3(S.z),r3(S.h),r3(S.hx),r3(S.hz),r3(S.hy),r3(S.v||0),drvName(D),Math.round(H.hp*10)/10,H.max,W,o.veh||'',!!o.hose,D.seat||'',!!o.gnr,D.k==='mech'?o.key:0];}catch(er){}}   // (and its name, health and guns, for the guest's own display)   // (driving, riding or clinging to something that moves: the guest can't guess that, so it doesn't try)
+    e.dv=[D.k,r3(S.x),r3(S.y),r3(S.z),r3(S.h),r3(S.hx),r3(S.hz),r3(S.hy),r3(S.v||0),drvName(D),Math.round(H.hp*10)/10,H.max,W,o.veh||'',!!o.hose,D.seat||'',!!o.gnr,D.k==='mech'?o.key:0,D.k==='ship'?o.n:0];}catch(er){}}   // (and its name, health and guns, for the guest's own display)   // (driving, riding or clinging to something that moves: the guest can't guess that, so it doesn't try)
   // (the guest's own seat: the last of its controls this took in, and how long ago, so it can tell how far its own guess has drifted)
   if(p.net&&p.net.seat===seat){e.ack=N.inN||0;e.adt=Math.round(NET.now-(N.inAt||NET.now));}
   return e;
@@ -58,16 +58,16 @@ function netSeatP(s,make){if(s===NET.seat)return P1;if(s===0)return P2;
 const netLookOf=new WeakMap();let netLookN=0;
 const netCol=c=>((Math.round(c.r*255)&255)<<16)|((Math.round(c.g*255)&255)<<8)|(Math.round(c.b*255)&255);
 function netGoblins(p,N,out,looks){
-  const R=170,px=p.pos.x,pz=p.pos.z;
-  for(let i=0;i<goblins.length;i++){const g=goblins[i],r=g.root;if(!r.visible||Math.abs(r.position.x-px)>R||Math.abs(r.position.z-pz)>R)continue;
+  const R=170,px=pwx(p),pz=pwz(p);
+  for(let i=0;i<goblins.length;i++){const g=goblins[i],r=g.root;if(!r.visible||!netNear(r.position,px,pz,R))continue;
     const P=r.position,Q=r.rotation;
     out.push([i,r3(P.x),r3(P.y),r3(P.z),r3(Q.x),r3(Q.y),r3(Q.z),r3(r.scale.x),r3(r.scale.y),r3(g.legs[0].rotation.x),r3(g.legs[1].rotation.x),r3(g.arm.rotation.x),r3(g.armL.rotation.x),r3(g.head.rotation.z),g.orb&&g.orb.visible?1:0,g.state,r3(g.hp),g.hpMax>=g.hp?g.hpMax:r3(g.hp),r3(g.arm.rotation.z),r3(g.arm.hand?g.arm.hand.rotation.x:0),g.pkit?g.pkit.shown:0]);   // (and its health, for the health bars; then the rest of a blow's pose, strikes.js; then an officer's club, handgun or holster, police-gun.js)
     const L=g.id&&g.id.look;if(!L)continue;let v=netLookOf.get(g.id);if(!v){v=++netLookN;netLookOf.set(g.id,v);}
     if(N.looks.get(i)!==v){N.looks.set(i,v);looks[i]={o:r.netOpt||(g.civ?{club:false}:{}),civ:!!g.civ,L,id:{name:g.id.name,occ:g.id.occ,age:g.id.age}};}}
 }
 function netCars(p,N,out,cfg){
-  const R=220,px=p.pos.x,pz=p.pos.z;
-  for(let i=0;i<cars.length;i++){const c=cars[i],G=c.g;if(!G.visible||Math.abs(G.position.x-px)>R||Math.abs(G.position.z-pz)>R)continue;
+  const R=220,px=pwx(p),pz=pwz(p);
+  for(let i=0;i<cars.length;i++){const c=cars[i],G=c.g;if(!G.visible||!netNear(G.position,px,pz,R))continue;
     const P=G.position,Q=G.rotation,w=[],f=[];for(const s of c.wheels)w.push(r3(s.rotation.x));for(const s of c.front)f.push(r3(s.rotation.y));
     out.push([i,r3(P.x),r3(P.y),r3(P.z),r3(Q.x),r3(Q.y),r3(Q.z),w,f,c.dh&&c.dh.visible?1:0,c.hazG&&c.hazG.visible?1:0,c.alive?1:0,
       (c.police&&(c.hunter||c.pullLit||c.svcPool&&c.svc&&c.svc.st!=='parked'&&c.svc.st!=='leave')?1:0)|(c.hazard?2:0)|(c.flash&&c.svc&&c.svc.st!=='parked'?4:0),r3(c.hp),c.hpMax>=c.hp?c.hpMax:Math.max(r3(c.hp),carHP(c))]);   // (lights flashing: a police car's, hazards, an ambulance's or fire engine's)
@@ -124,9 +124,51 @@ function netMechStep(V,dt){
   for(const M of V.mechs){
     if(P1.drv&&P1.drv.o===M&&P1.in&&P1.in.mgQBP&&!M.dead){M.qbFlash=Math.max(M.qbFlash||0,0.25);P1.shake=Math.max(P1.shake||0,0.25);}
     mechPose(M,dt);mechBoxes(M,Math.hypot(M.vx,M.vz));}}
+// ---- ships (the Testing Environment's barge and carrier): a ship's blocks are in its own pocket of the world, and
+// everything aboard is placed in it, so a guest only needs its own copy of each ship in the host's slot, under the host's
+// number, and then the host's places for anything aboard come out right by themselves (as do the blocks smashed there,
+// goblins aboard and a sinking ship washing people off). Each snapshot carries each ship: slot, number, kind, where it
+// is, its heading, speed, how far it's sunk, health, sunk or not, and the engine order and rudder for the helm's display.
+// (A wreck broken off one isn't sent yet) ----
+const _nw={x:0,z:0};
+function netWorldXZ(x,z){_nw.x=x;_nw.z=z;if(x>=SHIP_X0){const S=shipOfPos(x,z);if(S){shipToWorld(S,x,z,_nw);}}return _nw;}
+// (is something at P within R of px,pz, both out in the world?)
+const netNear=(P,px,pz,R)=>{const w=netWorldXZ(P.x,P.z);return Math.abs(w.x-px)<=R&&Math.abs(w.z-pz)<=R;};
+// (the yaw of the frame a player is in: a ship's, aboard one, or the world's)
+const netFrameYaw=p=>{const S=shipOf(p);return S?S.yaw:0;};
+function netShips(){const out=[];
+  for(const S of SHIPS)if(S&&S.V&&S.kind!=='wreck')out.push([S.slot,S.n,S.kind,r3(S.x),r3(S.z),r3(S.yaw),r3(S.sp),r3(S.sk),r3(S.hp),S.dead?1:0,S.ord,r3(S.rud)]);
+  return out;}
+let NET_SHIP0=false;   // (guest: had its first word of the host's ships. Those it already had are in the save it built from, smashed as they were)
+const netShipBy=n=>SHIPS.find(S=>S&&S.n===n)||null;
+function netShipGone(S){const V=S.V;if(V){const i=V.ships.indexOf(S);if(i>=0)V.ships.splice(i,1);if(!V.ships.length&&venues.get('tenvShips')===V)venues.delete('tenvShips');}shipDrop(S);}
+// (guest: made or dropped to match the host's; their places are blended in netShipPlace)
+function netShipSet(L){
+  const keep=new Set();let made=false;
+  for(const e of L){const [slot,n,kind,x,z,yaw,sp,sk,hp,dead,ord,rud]=e;if(!SHIP_KINDS[kind])continue;keep.add(n);
+    let S=SHIPS[slot];if(S&&S.n!==n){netShipGone(S);S=null;}
+    if(!S){S=makeShip(kind,x,z,yaw,null,{slot,n,keep:!NET_SHIP0});S.sk=sk;
+      let V=venues.get('tenvShips');if(!V){V={kind:'ship',ships:[]};venues.set('tenvShips',V);}S.V=V;V.ships.push(S);made=true;netShipPose(S);}
+    S.sp=sp;S.hp=hp;S.dead=!!dead;S.ord=ord|0;S.rud=rud||0;}
+  for(const S of SHIPS)if(S&&S.net&&!keep.has(S.n))netShipGone(S);
+  NET_SHIP0=true;if(made)shipChunks(true);
+}
+function netShipPose(S){S.grp.position.set(S.x,-S.sk,S.z);S.grp.rotation.y=S.yaw;S.grp.updateMatrixWorld(true);if(!S.dead||S.sk<S.K.sink)shipBoxes(S);}
+// (guest, each frame: each one's place, heading and sinking, blended between snapshots)
+function netShipPlace(a,o,kp){if(!a.sh)return;const by=new Map();if(o&&o.sh)for(const e of o.sh)by.set(e[1],e);
+  for(const e of a.sh){const S=netShipBy(e[1]);if(!S)continue;const f=by.get(e[1]),k=f?kp:0;
+    S.x=f?e[3]+(f[3]-e[3])*k:e[3];S.z=f?e[4]+(f[4]-e[4])*k:e[4];S.yaw=f?lerpA(e[5],f[5],k):e[5];S.sk=f?e[7]+(f[7]-e[7])*k:e[7];netShipPose(S);}}
+// (guest, each frame: the models of anyone and anything aboard hung off the ship's picture, the rest off the scene; and
+// its own player's camera turned with it when it goes aboard or off, as the host turned it)
+function netShipFrames(){
+  for(const q of players)if(q.active)shipParent(q,shipOf(q));
+  for(const c of cars)if(c.net){const par=shipPar(c.g.position.x,c.g.position.z);if(c.g.parent!==par)par.add(c.g);}
+  netVenueModels((key,o)=>{if(o.parent!==scene&&!(o.parent&&o.parent.shipPg))return;const par=shipPar(o.position.x,o.position.z);if(o.parent!==par)par.add(o);});
+  const S=shipOf(P1);if(S!==NETP.fr){const a=(NETP.fr&&NETP.fr.isShip?NETP.fr.yaw:0)-(S?S.yaw:0);P1.cam.yaw+=a;shipRot(P1,'mvx','mvz',a);NETP.fr=S;}
+}
 function netVenues(p,N,out){
-  const R=330,px=p.pos.x,pz=p.pos.z,sent=N.vsent||(N.vsent=new Map());
-  netVenueModels((key,o)=>{const P=o.position;if(Math.abs(P.x-px)>R||Math.abs(P.z-pz)>R)return;
+  const R=330,px=pwx(p),pz=pwz(p),sent=N.vsent||(N.vsent=new Map());
+  netVenueModels((key,o)=>{if(!netNear(o.position,px,pz,R))return;
     netNodes(o,[]).forEach((n,j)=>{const Q=n.position,E=n.rotation,v=[r3(Q.x),r3(Q.y),r3(Q.z),r3(E.x),r3(E.y),r3(E.z),n.visible?1:0],k=key+'|'+j,o2=sent.get(k);
       if(o2&&o2.every((x,i)=>x===v[i]))return;sent.set(k,v);out.push([k,...v]);});});
 }
@@ -217,7 +259,7 @@ function netFx(name,f){
   // (named as the one it wraps: the debug Sound list reads names off the stack to say what made a sound)
   return {[name](...a){
     if(NET_MUTE)return;
-    if(NET.mode===1&&NET_FXD===0&&NET.guests.size){try{const e=['f',name,a.map(x=>netSan(x,0))];if(NET_SPOS&&NET_SND[name]!==undefined)e.push([r3(NET_SPOS.x),r3(NET_SPOS.z)]);netEmit(e);}catch(e){}}
+    if(NET.mode===1&&NET_FXD===0&&NET.guests.size){try{const e=['f',name,a.map(x=>netSan(x,0))];if(NET_SPOS&&NET_SND[name]!==undefined){const w=netWorldXZ(NET_SPOS.x,NET_SPOS.z);e.push([r3(w.x),r3(w.z)]);}netEmit(e);}catch(e){}}
     NET_FXD++;try{return f.apply(this,a);}finally{NET_FXD--;}
   }}[name];
 }
@@ -315,7 +357,7 @@ function netSetBlock(x,y,z,b,ch){
 // ---- the world's other saved state, the clock and the weather: sent when changed, checked once a second ----
 function netWorldBits(N){
   const out={},J=(k,v)=>{const s=JSON.stringify(v);if(N.wsent[k]!==s){N.wsent[k]=s;out[k]=v;}};
-  if(TENV)J('tenv',TENV.boxes);   // (the Testing Environment's structures, as they're spawned and removed)
+  if(TENV){J('tenv',TENV.boxes);J('sea',TENV.sea||null);}   // (and its sea, laid out for the first ship)   // (the Testing Environment's structures, as they're spawned and removed)
   J('coll',collapses);J('wreck',wrecked);J('down',[...downFix]);J('dest',destroyed);
   J('fire',fires.map(F=>[r3(F.x),r3(F.y),r3(F.z),r3(F.r),Math.round(F.t*10)/10,Math.round(F.life*10)/10,F.flames?1:0,r3(F.sm),r3(F.rise),F.douse?1:0]));
   return out;
@@ -331,7 +373,7 @@ function netSendSnap(p){   // (and the goblins' places are kept each frame, belo
   const N=p.net;if(!N.wsent)N.wsent={};
   const m={t:'s',n:++N.seq,tt:NET.now,p:[],g:[],gl:{},c:[],cl:{},e:N.out};N.out=[];
   for(let s=0;s<players.length;s++){const q=players[s];if(q.active)m.p.push(netPlayerState(q,s,N));}
-  netGoblins(p,N,m.g,m.gl);netCars(p,N,m.c,m.cl);m.v=[];netVenues(p,N,m.v);m.mg=netMechs();m.vh=netVenueHP(N);m.fa=netFalls();m.sc=[score,kills,RAMP.cars,RAMP.best,RAMP.nB,RAMP.nR];
+  netGoblins(p,N,m.g,m.gl);netCars(p,N,m.c,m.cl);m.v=[];netVenues(p,N,m.v);m.mg=netMechs();m.sh=netShips();m.vh=netVenueHP(N);m.fa=netFalls();m.sc=[score,kills,RAMP.cars,RAMP.best,RAMP.nB,RAMP.nR];
   N.wT=(N.wT||0)-1;if(N.wT<=0){N.wT=NET_SNAP_HZ;m.w=netWorldBits(N);m.k=netClock();N.vhsent=null;}   // (and the venues' health all again next time, for a venue the guest has only just made)
   try{NET.tr.send(m,N.peer);}catch(e){}
 }
@@ -345,7 +387,7 @@ function netSendSnap(p){   // (and the goblins' places are kept each frame, belo
 // Anything the guest can't guess (riding or driving something, dying, a big knock) and it shows the host's own.
 const NET_PREDICT=true;
 const NET_AUTH=['wpns','gren','hp','deadT','hurtFx','regenT','hurt','stam','exhausted','lastHit','killer','score','cbN','cbT'];   // (what's always the host's to say, guessing or not. The combo too: only the host's kills build one, and the guest's own clock runs it down between snapshots, so without it the bar sat still)
-const NETP={on:false,hist:[],sent:new Map(),corr:new V3(),snap:false};
+const NETP={on:false,hist:[],sent:new Map(),corr:new V3(),snap:false,fr:null};   // (fr: the ship whose frame this guest's own player is in, or null out in the world)
 // (the guest's controls going out: when each went, so its history can be matched up)
 function netPredSent(n){if(NETP.sent.size>200)NETP.sent.clear();NETP.sent.set(n,NET.now);}
 function netPredRecord(){const H=NETP.hist;H.push({t:NET.now,x:P1.pos.x,y:P1.pos.y,z:P1.pos.z});while(H.length>240||H.length&&NET.now-H[0].t>3000)H.shift();}
@@ -367,7 +409,7 @@ function netPredCheck(m){
 function netPredStep(sdt,first){
   if(!NETP.on||NETP.snap)return;
   if(!first){const I=P1.in;I.jumpPress=I.bitePress=I.lockPress=I.chargePress=I.dashPress=I.sprintPress=false;}
-  NET_MUTE=true;try{updatePlayer(P1,sdt);}catch(e){}finally{NET_MUTE=false;}
+  NET_MUTE=true;try{updatePlayer(P1,sdt);if(shipN&&!P1.drv){shipCross(P1,true);NETP.fr=shipOf(P1);}}catch(e){}finally{NET_MUTE=false;}
 }
 // each frame: ease off whatever's left of a correction
 function netPredEase(dt){
@@ -437,7 +479,7 @@ function netCommit(m){
     const own=q===P1&&NETP.on&&!NETP.snap;
     for(const k in e.f){if(own&&!NET_AUTH.includes(k))continue;const v=e.f[k];if(Array.isArray(v)){if(q[k] instanceof V3)q[k].set(v[0],v[1],v[2]);else q[k]=new V3(v[0],v[1],v[2]);}else if(v&&v.l)q[k]=v.l.slice();else q[k]=netDec(v);}
     if(!(q===P1&&NETP.on))q.lockT=netDeref(e.lk);
-    if(e.dv){if(!q.drv||!q.drv.netS)q.drv={k:e.dv[0],o:{},netS:{x:0,y:0,z:0,h:0,hx:1,hz:1,hy:1,v:0}};const D=q.drv,S=D.netS;D.k=e.dv[0];if(e.dv[17]){const M=netMechByKey(e.dv[17]);if(M)D.o=M;}   // (a Mobile Gear: its copy here, for the view and the display)
+    if(e.dv){if(!q.drv||!q.drv.netS)q.drv={k:e.dv[0],o:{},netS:{x:0,y:0,z:0,h:0,hx:1,hz:1,hy:1,v:0}};const D=q.drv,S=D.netS;D.k=e.dv[0];if(e.dv[17]){const M=netMechByKey(e.dv[17]);if(M)D.o=M;}if(e.dv[18]){const S=netShipBy(e.dv[18]);if(S)D.o=S;}   // (a Mobile Gear: its copy here, for the view and the display)
       S.hx=e.dv[5];S.hz=e.dv[6];S.hy=e.dv[7];S.v=e.dv[8];
       D.netN=e.dv[9];D.netHP={hp:e.dv[10],max:e.dv[11]};D.o.veh=e.dv[13]||undefined;D.o.hose=!!e.dv[14];D.seat=e.dv[15]||undefined;D.o.gnr=e.dv[16]?q:null;
       const W=e.dv[12]||{};if(Object.keys(W).length){if(!D.o.wpn)wpnInit(D.o,drvGunK(D));for(const k in W)if(D.o.wpn[k]){D.o.wpn[k].n=W[k][0];D.o.wpn[k].rl=W[k][1];}}}
@@ -451,6 +493,7 @@ function netCommit(m){
   for(const [,g] of NETM.g)if(!seenG.has(g)){g.root.visible=false;g.state='net';}
   for(const e of m.c){const c=NETM.c.get(e[0]);if(!c)continue;seenC.add(c);c.g.visible=true;c.alive=!!e[11];if(e[13]!==undefined){c.hp=e[13];c.hpMax=e[14];}if(c.dh)c.dh.visible=!!e[9];if(c.hazG)c.hazG.visible=!!e[10];}
   for(const [,c] of NETM.c)if(!seenC.has(c)){c.g.visible=false;c.alive=false;}
+  if(m.sh)netShipSet(m.sh);
   // the events, in the order they happened
   const ch=new Set();
   for(const e of m.e){
@@ -462,7 +505,7 @@ function netCommit(m){
       if(e[1]==='flashLabel'){const who=e[2][1]?netUnsan(e[2][1]):null;f(e[2][0],who);continue;}
       const a=e[2].map(netUnsan);
       // (a sound one of the players made: quieter the further that player is from this one)
-      if(e[3]&&NET_SND[e[1]]!==undefined){const d=Math.hypot(e[3][0]-P1.pos.x,e[3][1]-P1.pos.z),k=d<14?1:Math.max(0,1-(d-14)/70);if(k<0.04)continue;a[NET_SND[e[1]]]*=k;}
+      if(e[3]&&NET_SND[e[1]]!==undefined){const d=Math.hypot(e[3][0]-pwx(P1),e[3][1]-pwz(P1)),k=d<14?1:Math.max(0,1-(d-14)/70);if(k<0.04)continue;a[NET_SND[e[1]]]*=k;}
       try{f(...a);}catch(er){}}}
   if(ch.size)rebuildSet(ch);
   netFallCommit(m);
@@ -478,6 +521,7 @@ function netWorld(w){
   if(w.tenv&&TENV){const key=B=>[B.k,B.ax,B.az,B.w,B.h].join(),want=new Set(w.tenv.map(key));
     for(let i=TENV.boxes.length-1;i>=0;i--)if(!want.has(key(TENV.boxes[i])))tenvRemove(i);
     const have=new Set(TENV.boxes.map(key));for(const B of w.tenv)if(!have.has(key(B))){const C=Object.assign({},B);TENV.boxes.push(C);tenvIndex();linkNearC.clear();tenvRebuild(C);}}
+  if(w.sea!==undefined&&TENV&&JSON.stringify(w.sea)!==JSON.stringify(TENV.sea||null)){TENV.sea=w.sea;if(w.sea)seaRebuild();}
   if(w.coll){const ch=new Set();for(const k in w.coll)if(!(NET_COLL.get(k)<=w.coll[k]))netCollapse(k,w.coll[k],ch);collapses=w.coll;if(ch.size)rebuildSet(ch);}   // (one whose word went missing, or came while away)if(w.wreck)wrecked=w.wreck;if(w.dest){destroyed=w.dest;destroyVer++;}
   if(w.down){downFix.clear();for(const [k,v] of w.down)if(!falling.has(k))downFix.set(k,v);netDressT=0;}   // (one still falling here lands in its own time)   // (the street's fixtures drawn again, knocked-down ones lying down)
   if(w.fire){fires.length=0;for(const f of w.fire)fires.push({x:f[0],y:f[1],z:f[2],r:f[3],t:f[4],life:f[5],base:f[5],born:playTime,flames:!!f[6],acc:0,sacc:0,hurt:9,sm:f[7],rise:f[8],douse:!!f[9],blame:null});}
@@ -508,7 +552,7 @@ function netGuestFrame(dt){
     g.legs[0].rotation.x=w(9);g.legs[1].rotation.x=w(10);g.arm.rotation.x=w(11);g.armL.rotation.x=w(12);g.head.rotation.z=w(13);
     if(e[18]!==undefined){g.arm.rotation.z=w(18);if(g.arm.hand)g.arm.hand.rotation.x=f&&f[19]!==undefined?e[19]+(f[19]-e[19])*k:e[19];}   // (the wrist turns past half a turn: straight between, not the short way round)
     if(g.pkit)copKitShow(g.pkit,e[20]||0);}   // (an officer's club, or handgun drawn, and holster)
-  netVenuePose(rt);netMechPlace(a,o,kp,ms);netFallPose(a,b,k);
+  netVenuePose(rt);netMechPlace(a,o,kp,ms);netShipPlace(a,o,kp);netFallPose(a,b,k);
   for(const e of a.c){const c=NETM.c.get(e[0]);if(!c)continue;const fo=bc.get(e[0]),f=b?fo:null,kq=netKP(e,fo,1,kp,ms),w=n=>f?lerpA(e[n],f[n],k):e[n],x=n=>fo?e[n]+(fo[n]-e[n])*kq:e[n],y=n=>fo?lerpA(e[n],fo[n],kq):e[n];
     c.g.position.set(x(1),x(2),x(3));c.g.rotation.set(w(4),y(5),w(6));c.pos.copy(c.g.position);c.heading=c.g.rotation.y;
     e[7].forEach((r,i)=>{if(c.wheels[i])c.wheels[i].rotation.x=f&&f[7][i]!==undefined?lerpA(r,f[7][i],k):r;});
@@ -518,6 +562,7 @@ function netGuestFrame(dt){
     if(c.police&&c.lightR){const on=Math.floor(t*6.5)%2===0,lit=L&1;c.lightR.color.setHex(lit?(on?0xff2a2a:0x501010):0x401010);c.lightB.color.setHex(lit?(on?0x101a50:0x3a7aff):0x101a40);}
     if(c.hazM&&L&2)c.hazM.color.setHex(Math.floor(t*1.7)%2===0?0xffa024:0x3a2408);
     if(c.flash){const on=L&4&&Math.floor(t*5.5)%2===0;c.flash[0].color.setHex(on?0xff2a2a:0x501010);c.flash[1].color.setHex(on?0x303030:(c.veh==='amb'?0xffffff:0x3a7aff));}}
+  netShipFrames();
 }
 // (guest, each step: only what's for show. The host's snapshots do everything else)
 function netGuestStep(sdt,first){

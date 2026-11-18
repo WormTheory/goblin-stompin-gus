@@ -16,8 +16,8 @@ const P=T.players[0];for(const f of els.play.L.click)f();pads.length=0;run(2);
 const DT=E('DT'),G0=44;
 // ---- known gaps today (family/kind: check). Delete a line when it's fixed ----
 const EXPECTED=new Set([
-  // (ships and their deck weapons aren't online at all yet: a guest has no ship. See the registry's note)
-  'barge: net','carrier: net','mount: net',
+  // (a carrier's deck weapons aren't online yet: a guest's carrier has them, but not their health. See the registry's note)
+  'mount: net',
   // (the carrier loses health only from its blocks, by design: shipHit leaves it alone)
   'carrier: damage','carrier: points','carrier: rampage',
 ]);
@@ -80,6 +80,7 @@ let kx=-600;for(const t of kinds){
    check(fam==='car'?t:fam,'rampage',E('RAMP').cars===r0+1,'vehicles destroyed '+r0+' -> '+E('RAMP').cars);}
   // online: is its health sent to guests? (cars in the car snapshot, a Mobile Gear in its own, the rest by venue)
   {let ok=false;if(D.k==='car')ok=true;else if(D.k==='mech')ok=E('NET_MGK').includes('hp');
+   else if(D.k==='ship')ok=E('netShips')().some(e=>e[1]===D.o.n&&Math.abs(e[8]-D.o.hp)<0.01);   // (a ship's in its own snapshot, netShips)
    else{const L=E('netVenueHP')({});ok=L.some(([vk])=>{const V=T.venues.get(vk);return V&&(V===D.V||V.mil&&V.mil.includes(D.o)||V.pl&&V.pl.includes(D.o)||V.bo===D.o||V.T===D.o);});}
    check(fam==='car'?t:fam,'net',ok);}
   if(t==='carrier'){const S=D.o;spare.carrier=S;}

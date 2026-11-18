@@ -78,20 +78,22 @@ function shipChunks(all){
     for(let cx=a;cx<=b;cx++)for(let cz=c;cz<=d;cz++)if(!meshes.has(ckey(cx,cz))){buildChunk(cx,cz);if(!all&&performance.now()-t0>8)return;}}
 }
 // a slot's blocks forgotten: its chunks, their meshes, and anything smashed there (a new ship there starts whole)
-function shipForget(slot){
+function shipForget(slot,keepEdits){
   const z0=slot*SHIP_SLOT,z1=z0+SHIP_SLOT,c0=Math.floor(z0/CS),c1=Math.floor((z1-1)/CS);
   for(const [k,e] of meshes)if(e.cx>=SHIP_CX0&&e.cz>=c0&&e.cz<=c1){for(const m of e.m){if(m.parent)m.parent.remove(m);m.geometry.dispose();}meshes.delete(k);rebuildQ.delete(k);}
   for(const k of [...chunks.keys()]){const cx=Math.floor(k/65536)-32768,cz=(k%65536)-32768;if(cx>=SHIP_CX0&&cz>=c0&&cz<=c1)chunks.delete(k);}
+  if(keepEdits){lastK=-1;return;}
   for(const k of [...chunkEdits.keys()]){const cx=Math.floor(k/65536)-32768,cz=(k%65536)-32768;if(cx>=SHIP_CX0&&cz>=c0&&cz<=c1)chunkEdits.delete(k);}
   for(const k in edits){const i=k.indexOf(','),j=k.lastIndexOf(','),x=+k.slice(0,i),z=+k.slice(j+1);if(x>=SHIP_X0&&z>=z0&&z<z1)delete edits[k];}
   lastK=-1;
 }
-// a new ship, at x,z in the world facing yaw, in the first free slot of the pocket
-function makeShip(kind,x,z,yaw,Kw){
-  let slot=0;while(SHIPS[slot])slot++;
+// a new ship, at x,z in the world facing yaw, in the first free slot of the pocket (o: an online guest's copy of one of
+// the host's, {slot,n,keep}: in the host's slot under the host's number, keep leaving what's smashed there alone, net-sync.js)
+function makeShip(kind,x,z,yaw,Kw,o){
+  let slot=0;while(SHIPS[slot])slot++;if(o)slot=o.slot;
   const K=Kw||SHIP_KINDS[kind],grp=new THREE.Group(),pg=new THREE.Group();   // (Kw: a kind of its own, a wreck broken off one: ship-break.js)
-  shipForget(slot);
-  const S={isShip:true,n:++shipSerial,kind,K,slot,ox:SHIP_X0+SHIP_SLOT/2,oz:slot*SHIP_SLOT+SHIP_SLOT/2,x,z,yaw,sp:0,ord:0,rud:0,yr:0,telD:0,telT:0,groundT:0,hp:K.hp,dead:false,deadT:0,sk:0,leak:0,drv:null,grp,pg,V:null,bx:null};
+  shipForget(slot,o&&o.keep);
+  const S={isShip:true,n:o?o.n:++shipSerial,net:!!o,kind,K,slot,ox:SHIP_X0+SHIP_SLOT/2,oz:slot*SHIP_SLOT+SHIP_SLOT/2,x,z,yaw,sp:0,ord:0,rud:0,yr:0,telD:0,telT:0,groundT:0,hp:K.hp,dead:false,deadT:0,sk:0,leak:0,drv:null,grp,pg,V:null,bx:null};
   pg.position.set(-S.ox,0,-S.oz);pg.shipPg=true;grp.add(pg);grp.position.set(x,0,z);grp.rotation.y=yaw;scene.add(grp);grp.updateMatrixWorld(true);
   SHIPS[slot]=S;shipN++;shipHullInit(S);shipPropsDraw(S);shipCrewInit(S);shipJetsInit(S);
   return S;
@@ -118,6 +120,8 @@ function shipFits(S,x,z,yaw){
 // each ship's step (from updateVenues): driven from the helm (shipHelmIn, shipDrive)
 function updateShips(V,dt){
   for(const S of [...V.ships]){
+    // (an online guest's copy: the host's snapshots place it, sink it and drop it, net-sync.js; here only its props)
+    if(S.net){if(S.propsT>0&&(S.propsT-=dt)<=0)shipPropsDraw(S);shipPropsFall(S,dt);continue;}
     if(S.dead){shipSinking(S,V,dt);continue;}
     if(S.leak&&!S.hull&&!drvSafe(S))S.hp-=S.leak*SHIP_LEAK*dt;   // (one that breaks up only floods where it's holed: ship-break.js)
     if(S.hp<=0){shipSink(S);continue;}

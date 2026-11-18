@@ -5,7 +5,7 @@
 // sounds. It runs none of the game's own goblins, traffic or damage itself (so nothing can disagree with the host).
 // Every message is a plain JSON object with a type `t`, so a headless server in Node could one day send the very same
 // ones. docs/multiplayer.md has the whole protocol.
-const NET_PROTO=1;
+const NET_PROTO=2;   // (2: ships online)
 // (Trystero finds the other player through public Nostr relays and then talks to them directly over WebRTC. It's only
 // fetched once someone picks online play, so the game still opens and plays with no network at all.)
 const NET_TRYSTERO='https://cdn.jsdelivr.net/npm/trystero@0.26.0/+esm';
@@ -149,7 +149,7 @@ function netGotInput(p,m){
   N.inb=m;if(Number.isFinite(m.vt))N.vt=m.vt;if(m.pr&&(m.pr.bitePress||m.pr.chargePress)||m.h&&(m.h.bite||m.h.stomp))N.atkAt=NET.now;
   for(const k of NET_PRESS)if(m.pr&&m.pr[k])N.pr[k]=true;
   if(m.fl){p.flickReq=m.fl[0]||p.flickReq;p.flickReqY=m.fl[1]||p.flickReqY;}
-  if(Number.isFinite(m.yaw))p.cam.yaw=m.yaw;if(Number.isFinite(m.pitch))p.cam.pitch=camPitch(m.pitch,p);
+  if(Number.isFinite(m.yaw))p.cam.yaw=m.yaw-netFrameYaw(p);   // (sent as out in the world: each end turns it into the frame its own copy of that player is in, a ship's or the world's)if(Number.isFinite(m.pitch))p.cam.pitch=camPitch(m.pitch,p);
 }
 // (host, every frame after the local controls have been read: a guest's seat gets its controls from the network)
 function netHostInputs(){
@@ -292,7 +292,7 @@ function netSendInput(dt){
   NET.inT-=dt*1000;if(NET.inT>0)return;NET.inT+=1000/NET_IN_HZ;if(NET.inT<0)NET.inT=0;
   const h={};for(const k of NET_HELD)if(I[k]||NET_IN.hh[k])h[k]=1;NET_IN.hh={};
   const pr={};for(const k in NET_IN.pr)pr[k]=1;
-  const m={t:'in',n:++NET.seq,vt:NET.off===null?null:Math.round(NET.rt!==null?NET.rt:NET.now-NET.off-NET.dly),x:+(I.x||0).toFixed(3),z:+(I.z||0).toFixed(3),lx:+(I.lookX||0).toFixed(2),ly:+(I.lookY||0).toFixed(2),h,pr,yaw:+P1.cam.yaw.toFixed(4),pitch:+P1.cam.pitch.toFixed(4)};
+  const m={t:'in',n:++NET.seq,vt:NET.off===null?null:Math.round(NET.rt!==null?NET.rt:NET.now-NET.off-NET.dly),x:+(I.x||0).toFixed(3),z:+(I.z||0).toFixed(3),lx:+(I.lookX||0).toFixed(2),ly:+(I.lookY||0).toFixed(2),h,pr,yaw:+(P1.cam.yaw+netFrameYaw(P1)).toFixed(4),pitch:+P1.cam.pitch.toFixed(4)};
   if(NET_IN.fl[0]||NET_IN.fl[1])m.fl=NET_IN.fl.slice();
   NET_IN.pr={};NET_IN.fl[0]=NET_IN.fl[1]=0;
   netPredSent(m.n);NET.tr.send(m,NET.host);
