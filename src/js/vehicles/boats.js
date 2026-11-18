@@ -169,8 +169,9 @@ function updateBoat(V,dt,t){
     const sp=K.sp*(bo.hp<bo.max*.5?.5:1);V.s+=sp*V.dir*dt;v=sp;const q=lanePt(V.lane,V.s);g.position.x=q.x;g.position.z=q.z;g.rotation.y=V.dir>0?q.yaw:q.yaw+Math.PI;}
   // afloat: it rides the swell, the smaller the more; hurt, it's on fire and has a list
   const sw=V.dry||V.ground?0:Math.min(1,6/bo.L),hurt=bo.hp<bo.max*.5,shake=bo.shake>0?(bo.shake-=dt,Math.sin(t*50)*bo.shake*.1):0;
-  g.position.y=V.y0+Math.sin(t*1.3+V.ph)*.09*(sw+.2)*(sw?1:0)-(hurt&&!V.dry&&!V.ground?K.fb*.15:0);
-  g.rotation.set(Math.sin(t*1.1+V.ph*2)*.012*sw*3+(v?.01:0),g.rotation.y,Math.sin(t*.9+V.ph)*.03*sw+shake+(hurt?(V.ph>3?.07:-.07):0),'YXZ');
+  const dr=bo.drv&&sw?bo:null;   // (driven: the waves, lean, planing and air boat-handling.js works out, on top)
+  g.position.y=V.y0+Math.sin(t*1.3+V.ph)*.09*(sw+.2)*(sw?1:0)-(hurt&&!V.dry&&!V.ground?K.fb*.15:0)+(dr?dr.dy||0:0);
+  g.rotation.set(Math.sin(t*1.1+V.ph*2)*.012*sw*3+(v?.01:0)+(dr?dr.lp||0:0),g.rotation.y,Math.sin(t*.9+V.ph)*.03*sw+shake+(hurt?(V.ph>3?.07:-.07):0)+(dr?dr.lr||0:0),'YXZ');
   const me=players.find(q=>q.active&&Math.hypot(q.pos.x-g.position.x,q.pos.z-g.position.z)<bo.L+80);
   if(hurt&&K.boom&&me&&Math.random()<dt*5)smoke(g.position.x+(Math.random()-.5)*K.W*.5,g.position.y+K.fb+1,g.position.z+(Math.random()-.5)*bo.L*.3,1,0x2a2a2a);
   if(!me)return;

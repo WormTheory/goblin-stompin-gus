@@ -148,13 +148,15 @@ function shipHelmIn(S,dt){
   if(Math.abs(st)>0.2)S.rud=Math.max(-1,Math.min(1,S.rud+st*dt*0.55));
   if(i.climb&&S.rud)S.rud-=Math.sign(S.rud)*Math.min(Math.abs(S.rud),dt*1.2);
   if(i.bitePress&&!(S.hornT>0)){horn(0.1);S.hornT=0.6;}
+  if(i.seAnchorP){S.anchor=!S.anchor;if(audio)sfx('Anchor',()=>{noise(1.6,0.2,200,'lowpass');clang();});flashLabel(S.anchor?'Anchor down: the engines are held':'Anchor up',S.drv);if(S.anchor)S.anT=(S.rud||(Math.random()<0.5?-1:1))>0?1:-1;}
 }
 // the telegraph's bell, rung on the bridge for each new order (lower for one astern)
 function shipBell(S){sfx('Ship telegraph',()=>{const f=S.ord<0?990:1320;tone('triangle',f,f-20,0.35,0.05);tone('sine',f*1.5,f*1.5-30,0.25,0.02);});}
 function shipDrive(S,dt){
-  const K=S.K,want=shipOrder(S)[1]*K.top,a=K.acc*(Math.abs(want)<Math.abs(S.sp)||want*S.sp<0?1.3:1)*dt;   // (it loses way a little quicker than it gathers it)
+  const K=S.K,want=S.anchor?0:shipOrder(S)[1]*K.top,a=K.acc*(Math.abs(want)<Math.abs(S.sp)||want*S.sp<0?1.3:1)*dt;   // (it loses way a little quicker than it gathers it)
   S.sp+=Math.max(-a,Math.min(a,want-S.sp));if(!want&&Math.abs(S.sp)<0.02)S.sp=0;
-  const bite=Math.max(-1,Math.min(1,S.sp/(K.top*0.35)));S.yr+=(S.rud*K.turn*bite-S.yr)*Math.min(1,dt*K.yrk);
+  if(S.anchor)S.sp*=Math.exp(-dt*0.35);   // (the anchor dragging: it stops far sooner than it would)
+  const bite=Math.max(-1,Math.min(1,S.sp/(K.top*0.35))),rud=S.anchor?S.anT*Math.min(1,Math.abs(S.sp)/(K.top*0.15)):S.rud;S.yr+=(rud*K.turn*bite-S.yr)*Math.min(1,dt*K.yrk);
   S.hornT=(S.hornT||0)-dt;if(S.groundT>0)S.groundT-=dt;
   if(Math.abs(S.sp)<0.005&&Math.abs(S.yr)<1e-5)return;
   const ny=S.yaw+S.yr*dt,nx=S.x+Math.sin(ny)*S.sp*dt,nz=S.z+Math.cos(ny)*S.sp*dt;
@@ -178,7 +180,7 @@ function shipAground(S){
 // the helm's controls (the order rung, the speed and the rudder are on its instrument: inShip)
 function shipHow(p,S){
   const A=id=>actMark(p,id);
-  return A('fwd')+'/'+A('back')+' engine orders  ·  '+A('left')+'/'+A('right')+' rudder  ·  '+A('climb')+' rudder amidships  ·  '+A('weapon')+(p.shipBridge?' chase view':' bridge view')+'  ·  '+A('bite')+' horn  ·  ';
+  return A('fwd')+'/'+A('back')+' engine orders  ·  '+A('left')+'/'+A('right')+' rudder  ·  '+A('climb')+' rudder amidships  ·  '+A('seAnchor')+(S.anchor?' raise the anchor':' drop the anchor')+'  ·  '+A('weapon')+(p.shipBridge?' chase view':' bridge view')+'  ·  '+A('bite')+' horn  ·  ';
 }
 // the view from the bridge (the weapon button, while at the helm): from the helmsman's eyes, looking about with the
 // mouse or stick as usual, in the ship's own frame (shipCam turns it with the ship)

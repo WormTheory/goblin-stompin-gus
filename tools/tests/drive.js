@@ -135,7 +135,7 @@ console.log('  turned round, W 3 s: speed',f1(TQ.v*TQ.dir),'(the other way now)'
  const V=find(V=>V.kind==='boat'&&V.ground);if(!V)console.log('no beached boat');else{const g=V.boat;put(V.x+3,G0+30,V.z);run(1.5);put(g.position.x+2.5,g.position.y+1.5,g.position.z);run(0.3);
   const D=T.drvFind(P),x0=g.position.x,z0=g.position.z;tap();run(0.5);
   console.log('beached '+V.bo.K.name.toLowerCase()+': F finds',D&&D.k,' in',st(),' pushed off',f1(Math.hypot(g.position.x-x0,g.position.z-z0)),'into the water',!V.ground);
-  const p0={x:g.position.x,z:g.position.z};hold(['KeyW'],3);console.log('  W 3 s: moved',f1(Math.hypot(g.position.x-p0.x,g.position.z-p0.z)));tap();run(0.5);console.log('  F again:',st());}
+  const p0={x:g.position.x,z:g.position.z};if(V.bo.k==='row')for(let k=0;k<4;k++){T.mHeld.add('Mouse0');T.mHeld.add('Mouse2');run(0.05);T.mHeld.delete('Mouse0');T.mHeld.delete('Mouse2');run(0.7);}else hold(['KeyW'],3);console.log(V.bo.k==='row'?'  both oars 4 strokes: moved':'  W 3 s: moved',f1(Math.hypot(g.position.x-p0.x,g.position.z-p0.z)));tap();run(0.5);console.log('  F again:',st());}
  const S=find(V=>V.kind==='sub'&&V.cars&&V.cars[1]);if(!S)console.log('no subway');else{let n=0;while(n<600&&!(S.wait>1)){run(0.1);n++;}const c=S.cars[1].position,h=S.cars[1].rotation.y;
   put(c.x+Math.cos(h)*2,c.y-0.2,c.z-Math.sin(h)*2);run(0.2);const D=T.drvFind(P);tap();run(0.3);console.log('subway train at a station: F finds',D&&D.k,' in',st());
   const s0=S.s;P.cam.yaw=S.cars[0].rotation.y+Math.PI;hold(['KeyW'],3);console.log('  W 3 s: went',f1(S.s-s0),' speed',f1(S.v));tap();run(0.5);console.log('  F again:',st(),' it goes back to its rounds',!S.T.drv);}T.setTenv(was);put(home.x,home.y,home.z);run(2);}

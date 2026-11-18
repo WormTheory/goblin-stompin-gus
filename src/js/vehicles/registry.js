@@ -53,7 +53,7 @@ const VEHICLE_KINDS={
     pos:M=>vkAt(M.x,M.y,M.z),top:M=>MIL[M.kind].hy+0.6,mid:M=>MIL[M.kind].hy*0.6,max:M=>MIL[M.kind].hp,hit:(M,n,dir)=>milHit(M,n,dir)},
   plane:{name:'Plane',venue:'airport',ctx:()=>'air',inst:D=>D.o.jet?'jet':D.o.light?'steam':'pfd',how:planeHow,list:V=>V.pl||[],pts:()=>1000,label:()=>'Airplane destroyed',
     pos:pl=>pl.g.position,top:pl=>planeDim(pl).hy+0.8,mid:()=>2.5,max:pl=>planeMax(pl),shown:pl=>pl.g.visible,hit:(pl,n)=>planeHit(pl,n)},
-  boat:{name:'Boat',venue:'boat',ctx:()=>'sea',inst:D=>D.o.k==='row'||D.o.k==='pedalo'?'row':'boat',list:V=>V.bo?[V.bo]:[],pts:bo=>bo.K.sc,label:bo=>bo.K.name+' sunk',
+  boat:{name:'Boat',venue:'boat',ctx:()=>'sea',inst:D=>D.o.k==='row'||D.o.k==='pedalo'?'row':'boat',how:boatHow,list:V=>V.bo?[V.bo]:[],pts:bo=>bo.K.sc,label:bo=>bo.K.name+' sunk',
     pos:bo=>bo.g.position,top:bo=>bo.K.fb+2,mid:bo=>bo.K.fb,max:bo=>bo.max,shown:bo=>bo.g.visible,hit:(bo,n)=>boatHit(bo,n)},
   balloon:{name:'Hot-air balloon',venue:'balloon',ctx:()=>'balloon',inst:()=>'balloon',how:(p,D)=>actMark(p,'jump')+' burner (rise)  ·  '+actMark(p,'climb')+' vent (sink)  ·  Move to drift  ·  ',list:V=>V.bl||[],pts:()=>400,label:()=>'Hot-air balloon brought down',
     pos:B=>vkAt(B.x,B.y,B.z),top:()=>BAL.e1+0.8,mid:()=>BAL.e0+2,max:()=>BAL.hp,hit:(B,n)=>balloonHit(B,n)},

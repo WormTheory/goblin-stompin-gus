@@ -172,6 +172,12 @@
 - Starting a helicopter, the rotor spools up with a rising whine before it'll lift off.
 - Brought down to a quarter of its health, a helicopter's engine fails and it autorotates: it sinks, turning slowly, but you can still steer it, and holding Space near the ground flares it into a rough landing you'll survive if you aren't coming down too fast. The instrument shows ENGINE OUT.
 - The main rotor is a weapon: brush it against goblins on a roof and it minces them. Clip a wall and it chips blocks out, but it hurts the helicopter too.
+- A boat's throttle has notches now: tap W or S to step between astern, stop, slow, half and full (or hold to sweep through them), and it stays where you leave it while you look round. The triggers step it on a controller.
+- Boats ride waves that grow with the wind, and lean into their turns. Speedboats and launches plane at speed: the bow lifts, they go faster, and cresting a wave throws them into the air.
+- Space drops the anchor: under way, the boat stops hard and swings round on it. The aircraft carrier and the barge have an anchor too.
+- The rowboat is rowed: left and right click pull each oar. Both together go straight, one alone turns it, and a steady rhythm goes faster. The pedalo is pedalled with W (faster tapped in rhythm) and steered with A and D.
+- Right click is each boat's own special: a speedboat's boost, a launch's or ferry's horn blast that scatters goblins, the sailboat's boom swinging across to knock goblins overboard, the trawler's net hauling in swimming goblins, the tug's push mode for shoving moored boats about, the patrol boat's deck gun and the pedalo's bell.
+- There's a wind now, slowly wandering round and stronger in storms. The sailboat goes fastest across it.
 
 ### Map markers
 

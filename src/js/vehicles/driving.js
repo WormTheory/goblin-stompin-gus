@@ -421,15 +421,16 @@ function heliGuns(M,g,lift,dt){const i=drvIn(g);
 // steering a boat: only where there's open water ahead of it (run it aground and it stops; hard, and it's holed a bit);
 // the bigger it is, the slower it answers. Returns its speed
 function drvBoat(V,dt){
-  const bo=V.bo,g=V.boat,K=bo.K,i=bo.drv.in,thr=-i.z,st=-i.x,top=Math.max(6,K.sp*1.6);
-  bo.sp=(bo.sp||0)+((thr>0.1?top*thr:thr<-0.1?-top*0.35*-thr:0)-(bo.sp||0))*Math.min(1,dt*(0.3+3/bo.L));
-  g.rotation.y+=st*dt*Math.min(1.2,10/bo.L+0.15)*Math.max(-1,Math.min(1,bo.sp/3));
+  const bo=V.bo,g=V.boat,K=bo.K,p=bo.drv,i=drvIn(p);
+  boatDrive(V,bo,p,i,dt);   // (the throttle's notches, the oars, planing, waves, the anchor and the specials: boat-handling.js)
   const h=g.rotation.y,tx=Math.sin(h),tz=Math.cos(h),d=bo.sp<0?-1:1,nx=g.position.x+tx*bo.sp*dt,nz=g.position.z+tz*bo.sp*dt;
-  const wet=(x,z)=>get(x,G,z)===WATER&&!solidAt(x,G+1,z),fx=nx+tx*bo.L/2*d,fz=nz+tz*bo.L/2*d,w=K.W/2;
-  if(wet(fx,fz)&&wet(fx+tz*w,fz-tx*w)&&wet(fx-tz*w,fz+tx*w)&&!(vehIn(nx,nz,h,w,bo.L/2,g.position.y-1,g.position.y+K.fb+1,bo)&&!vehIn(g.position.x,g.position.z,h,w,bo.L/2,g.position.y-1,g.position.y+K.fb+1,bo))){g.position.x=nx;g.position.z=nz;}
+  const wet=(x,z)=>get(x,G,z)===WATER&&!solidAt(x,G+1,z),fx=nx+tx*bo.L/2*d,fz=nz+tz*bo.L/2*d,w=K.W/2,y0=g.position.y-1,y1=g.position.y+K.fb+1;
+  const hitV=vehIn(nx,nz,h,w,bo.L/2,y0,y1,bo),inV=hitV&&vehIn(g.position.x,g.position.z,h,w,bo.L/2,y0,y1,bo);
+  // (another boat in the way: a tug in push mode shoves it along, anything else stops it)
+  if(wet(fx,fz)&&wet(fx+tz*w,fz-tx*w)&&wet(fx-tz*w,fz+tx*w)&&(!hitV||inV||bo.push&&boatPush(bo,hitV,nx-g.position.x,nz-g.position.z))){g.position.x=nx;g.position.z=nz;}
   else{if(Math.abs(bo.sp)>4){boatHit(bo,Math.abs(bo.sp)*0.5);thud(0.4);}bo.sp*=-0.2;}
   V.x=g.position.x;V.z=g.position.z;V.yaw=g.rotation.y;
-  bo.hornT=(bo.hornT||0)-dt;if(i.bitePress&&bo.hornT<=0){horn(0.1);bo.hornT=0.5;}
+  bo.hornT=(bo.hornT||0)-dt;if(i.bitePress&&bo.k!=='row'&&bo.hornT<=0){horn(0.1);bo.hornT=0.5;}   // (the rowboat's left click is its left oar)
   return Math.abs(bo.sp);
 }
 // a boat pulled up on the sand, or in a dry dock, is pushed off into the nearest open water as you get in (big enough
