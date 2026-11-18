@@ -20,7 +20,7 @@
 // goblin loadout, the drops, the HUD and the weapon button all pick it up from here.
 const WEAPONS={
   club:{name:'Club',about:'A heavy swing that knocks goblins flat and dents cars',kind:'melee',drop:false,
-    dmg:1,every:0.8,r:1,reach:1.1,
+    dmg:1,every:1.2,r:1,reach:1.1,
     model:{held:[[0.11,0.11,0.55,null,0,0.02,0.22,'club'],[0.19,0.19,0.19,null,0,0.02,0.5,'club']],
       view:[[0.07,0.42,0.07,null,0,0.17,-0.42,61],[0.15,0.17,0.15,null,0,0.42,-0.42,62]]},
     npc:{strike:'club'},
