@@ -72,7 +72,7 @@ function drvEnter(p,D){
 }
 // taking the controls: whatever the vehicle was doing on its own, it stops doing
 function drvTake(p,D){const o=D.o;o.drv=p;
-  if(D.k==='car'){if(o.tipR)o.tipFall=false;if(o.forkOn)forkDrop(o.forkOn,false);o.hunter=false;o.path=null;o.rt=null;o.hw=null;o.parked=false;o.left=false;o.reverseT=0;o.makeWay=0;o.leaving=false;o.yieldSv=false;o.hazard=false;if(o.hazG)o.hazG.visible=false;}
+  if(D.k==='car'){o.hvel=null;o.slipH=undefined;o.kThr=0;o.drift=null;o.boostT=0;if(o.tipR)o.tipFall=false;if(o.forkOn)forkDrop(o.forkOn,false);o.hunter=false;o.path=null;o.rt=null;o.hw=null;o.parked=false;o.left=false;o.reverseT=0;o.makeWay=0;o.leaving=false;o.yieldSv=false;o.hazard=false;if(o.hazG)o.hazG.visible=false;}
   else if(D.k==='tank'||D.k==='heli'){o.state='drive';o.sv=0;o.hv={x:0,z:0};o.vy=0;o.cd=0;o.detour=0;wpnInit(o,D.k);o.rkHeld=true;}
   else if(D.k==='boat'){drvLaunch(D);const g=o.g;D.V.lane=null;D.V.x=g.position.x;D.V.z=g.position.z;D.V.yaw=g.rotation.y;o.sp=0;}
   else if(D.k==='plane'){if(!o.free)o.free={v:o.v||0,vy:0};o.g.visible=true;if(o.jet){wpnInit(o,'jet');o.rkHeld=true;}}
@@ -83,7 +83,7 @@ function drvTake(p,D){const o=D.o;o.drv=p;
 }
 // letting go of the controls: what the vehicle does with nobody driving it
 function drvLetGo(p,D){const o=D.o;if(o.drv===p)o.drv=null;
-  if(D.k==='car'){o.hose=null;o.left=true;}   // (left where it stopped: see updateCars)
+  if(D.k==='car'){o.hose=null;o.left=true;o.siren=false;o.nitroOn=false;o.airBrake=false;o.wly=0;o.hand=false;}   // (left where it stopped: see updateCars)
   else if(D.k==='tank'||D.k==='heli'){if(!o.dead)o.state='idle';o.v=0;o.sv=0;}
   else if(D.k==='train'){if(o.v<0){o.v=0;o.wait=4;}else o.wait=0;}
   else if(D.k==='subway'){if(D.V.v<0)D.V.v=0;D.V.wait=0;}   // (it goes back to its rounds)   // (going its own way, it carries on to the next station)   // (a plane's left as it is: it carries on and comes down by itself)
@@ -210,14 +210,16 @@ function drvCamera(p){
   // (not a helicopter, which faces where you look anyway, nor a train, where the way you look is the way it goes)
   if(D.k!=='heli'&&D.k!=='train'&&D.k!=='subway'&&D.k!=='balloon'&&D.seat!=='gun'&&camClock-(p.drvLook??-9)>1.2&&Math.abs(S.v)>1.5)p.cam.yaw+=angDiff(p.cam.yaw,S.h+Math.PI)*0.035;
   p.drvYaw=p.cam.yaw;
-  const cp=Math.cos(p.cam.pitch),fx=-Math.sin(p.cam.yaw)*cp,fy=Math.sin(p.cam.pitch),fz=-Math.cos(p.cam.yaw)*cp;
+  // (C held in a road vehicle: looking back past it, from in front)
+  const yaw=D.k==='car'&&drvIn(p).rdBehind&&drvCtx(D)==='road'?S.h:p.cam.yaw;
+  const cp=Math.cos(p.cam.pitch),fx=-Math.sin(yaw)*cp,fy=Math.sin(p.cam.pitch),fz=-Math.cos(yaw)*cp;
   // (a tank or a helicopter: up higher and further back, so you see over it to what you're aiming at)
   // (a balloon: well back and up level with its envelope, so you see it and round it)
   const gun=D.k==='tank'||D.k==='heli',bal=D.k==='balloon',tx=S.x,ty=S.y+S.hy+(bal?4.5:gun?2.6:0.8),tz=S.z,base=bal?17:4+Math.max(S.hz,S.hx)*1.4+(gun?2:0);let dist=base;
   for(let t=0.6;t<=base;t+=0.3){if(solidAt(Math.floor(tx-fx*t),Math.floor(ty-fy*t),Math.floor(tz-fz*t))){dist=Math.max(0.8,t-0.5);break;}}
   let cx=tx-fx*dist,cy=ty-fy*dist,cz=tz-fz*dist;const gy=supportAt(cx,cz,cy);if(gy!==null&&cy<gy+0.4)cy=gy+0.4;
   if(fy>0.2&&cy<S.y+S.hy*0.8)cy=S.y+S.hy*0.8;   // (looking up: not from down inside the vehicle)
-  p.drvCamD=dist;p.camera.position.set(cx,cy,cz);p.camera.rotation.set(p.cam.pitch,p.cam.yaw,0);
+  p.drvCamD=dist;p.camera.position.set(cx,cy,cz);p.camera.rotation.set(p.cam.pitch,yaw,0);
   if(p.shake>0.002&&gameSpeed()>0){const c=p.camera.position;c.x+=(Math.random()-.5)*p.shake;c.y+=(Math.random()-.5)*p.shake;c.z+=(Math.random()-.5)*p.shake;}
 }
 // driving a car: much as a hunting car drives itself (updateCars does the rest: the ground, walls, what it runs into)
@@ -230,14 +232,19 @@ function drvCar(c,dt){
   if(c.tipR&&Math.abs(c.tipR)>0.05){c.speed*=Math.exp(-dt*4);return;}
   if(V==='forklift')forkDrive(c,i,dt);
   else if(V==='tractor'){thr=farmDrive(c,i,thr,top);if(farmWorking(c)){top*=FARM.slow;acc*=FARM.slow;}}
+  // (a road vehicle: the handbrake and drifting, boosts, its special, the keyboard's throttle easing on: road-handling.js)
+  const road=V!=='forklift'&&V!=='tractor'&&V!=='hover',R=road?roadDrive(c,i,thr,dt,Hd,top,acc):null;if(R){thr=R.thr;top=R.top;acc=R.acc;}
   if(c.grounded||rampUnder(c.pos.x,c.pos.z,c.pos.y+0.5)){
     if(thr>0.1)c.speed+=(c.speed<0?brk:acc*(Hd.accFall?Math.max(0.45,1-c.speed/Hd.accFall):1))*thr*dt;else if(thr<-0.1)c.speed-=(c.speed>0?brk:Math.min(acc,8))*-thr*dt;else c.speed*=Math.exp(-dt*Hd.coast);}
   c.speed=Math.max(-Hd.rev,Math.min(top,c.speed));
   // (a forklift steers with its back wheels: it turns hard even creeping along, about its front axle, the tail swinging wide)
-  c.steer+=(st-c.steer)*Math.min(1,dt*8);const dh=c.steer*dt*Math.max(-1,Math.min(1,c.speed/(V==='forklift'?2:5)))*Hd.steer*(Hd.fall?Math.max(0.45,1-Math.abs(c.speed)/Hd.fall):1);
+  // (and a road vehicle's steering eases off with speed, so a lane change at speed isn't twitchy; its own grip then
+  // brings where it's going round to where it points: roadSlip)
+  const fall=Hd.fall||(road?Hd.top*3:0);
+  c.steer+=(st-c.steer)*Math.min(1,dt*8);const dh=c.steer*dt*Math.max(-1,Math.min(1,c.speed/(V==='forklift'?2:5)))*Hd.steer*(fall?Math.max(0.45,1-Math.abs(c.speed)/fall):1)*(R?R.yaw:1);
   c.heading+=dh;if(V==='forklift')forkPivot(c,dh);
-  if(V==='hover')hovDrift(c,dt);
-  if(c.veh==='fire'){drvHose(c,i,dt);const hp=i.stomp&&!c.stHeld;c.stHeld=i.stomp;if(hp&&c.honkT<=0){horn(0.12);c.honkT=0.4;}}   // (a fire engine: bite sprays water, stomp sounds the horn. See hose.js)
+  if(V==='hover')hovDrift(c,dt);else if(R)roadSlip(c,dt,Hd,R.grip);
+  if(c.veh==='fire')drvHose(c,i,dt);   // (a fire engine: bite sprays water, its special is the siren. See hose.js)
   else if(i.bitePress&&c.honkT<=0){horn(0.12);c.honkT=0.4;}   // (bite sounds the horn)
 }
 // the throttle from the controls, -1 (full brake or reverse) to 1: on a controller the triggers, as far as they're

@@ -133,4 +133,5 @@ function carHow(p,D,armed,G){const A=id=>actMark(p,id),V=D.o.veh;
   if(V==='forklift')return A('lfUp')+'/'+A('lfDown')+' forks up/down  ·  '+A('lfTilt')+' + up/down tilt the mast  ·  '+G;
   if(V==='tractor'){const F=D.o.farm||{imp:'plough',down:false},w=F.imp==='none'?'hitch':F.imp;
     return A('fmCruise')+'/'+A('fmCruiseDn')+' hand throttle  ·  '+A('fmImp')+(F.down?' raise the ':' lower the ')+w+'  ·  '+A('fmSwap')+' swap implement  ·  '+G;}
-  return G;}
+  if(D.seat==='gun'||V==='hover')return G;
+  return roadHow(p,D,G);}

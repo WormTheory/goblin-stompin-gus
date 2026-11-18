@@ -19,11 +19,15 @@ const VEHICLE_BASE={snow:true,smoke:0.5,pts:0,label:null,rampage:true,invuln:tru
 // ---- each vehicle's handling: one profile per kind (a car's by its body, c.veh), over the defaults in HANDLING._ ----
 // top speed and acc (blocks a second, and a second squared), brk braking, rev the most it goes backwards, steer how fast
 // it turns at full lock (radians a second), fall the speed at which that's eased right off (1 - speed/fall, never under 45%; 0: it doesn't), coast how fast
-// it slows with nothing pressed, accFall (a supercar) the speed by which its pull has gone, mass for crashes
-const HANDLING={_:{top:20,acc:10,brk:26,rev:8,steer:1.7,fall:0,coast:0.9,accFall:0,mass:1},
-  car:{top:24},bike:{top:28,mass:0.4},quad:{top:22,mass:0.6},technical:{},van:{mass:1.4},pickup:{mass:1.3},news:{mass:1.4},rv:{mass:2},
-  amb:{mass:1.6},fire:{mass:3},truck:{mass:2.5},semi:{top:17,mass:4},bus:{top:17,mass:4},
-  super:{top:62,acc:24,fall:110,accFall:90},   // (its pull and its steering ease off with speed, to no less than 45%)
+// it slows with nothing pressed, accFall (a supercar) the speed by which its pull has gone, mass for crashes; a road
+// vehicle's grip how fast its slide comes round to where it points (a second), off that share of it on grass, dirt and
+// sand, drift false for one too heavy to drift (it only slides) and dchg how fast a drift charges (road-handling.js).
+// A road vehicle's steering eases off with speed, to 45% by three times its top speed if it has no fall of its own
+const HANDLING={_:{top:20,acc:10,brk:26,rev:8,steer:1.7,fall:0,coast:0.9,accFall:0,mass:1,grip:9,off:0.6,dchg:1},
+  car:{top:24},bike:{top:28,mass:0.4,steer:2.1,grip:10,dchg:1.2},quad:{top:22,mass:0.6,grip:7,off:1},technical:{grip:7,off:1},
+  van:{mass:1.4,steer:1.45,grip:7,dchg:0.7},pickup:{mass:1.3,steer:1.5,grip:7,off:0.8,dchg:0.8},news:{mass:1.4,steer:1.45,grip:7,dchg:0.7},rv:{mass:2,steer:1.3,grip:6,dchg:0.5},
+  amb:{top:25,mass:1.6,grip:8},fire:{mass:3,steer:1.25,grip:5,drift:false},truck:{mass:2.5,steer:1.25,grip:5,drift:false},semi:{top:17,mass:4,steer:1.1,grip:4,drift:false},bus:{top:17,mass:4,steer:1.15,grip:4,drift:false},
+  super:{top:62,acc:24,fall:110,accFall:90,grip:12},   // (its pull and its steering ease off with speed, to no less than 45%)
   forklift:{top:8,acc:5,rev:6,steer:2.6,mass:1.5},tractor:{top:11,acc:7,rev:6,mass:2},hover:{top:27,acc:8,brk:7,coast:0.35,mass:1.2},
   tank:{top:7,mass:8},heli:{top:16,mass:4},plane:{mass:6},boat:{mass:3},train:{top:30,mass:20},subway:{top:25,mass:15},balloon:{mass:1},ship:{mass:50},mech:{mass:10}};
 const _hand={};

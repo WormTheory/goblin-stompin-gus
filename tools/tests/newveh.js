@@ -79,11 +79,11 @@ drag('car',6);drag('super',8);drag('forklift',4);drag('tractor',4);
 // ---- the hovercraft: a pool dug ahead, driven across it; a car driven into it sinks
 {const GG=T.G;console.log('flat floor: ground at',f1(T.groundAt(0,0,GG+20)),' sea level block',GG);
  const pool=(x0,z0)=>{for(let x=x0-12;x<=x0+12;x++)for(let z=z0;z<=z0+60;z++){for(let y=GG-4;y<=GG;y++)T.setRaw(x,y,z,T.WATER);}};
- const go=k=>{clear();P.cam.yaw=Math.PI;T.tenvSpawnOne(k);run(0.3);const c=T.cars.find(c=>c.alive&&c.veh===k);beside(c.pos.x,c.pos.y+0.2,c.pos.z,c.heading,c.hx);run(0.05);tap();
-   const X=Math.floor(c.pos.x),Z=Math.floor(c.pos.z)+8;pool(X,Z);run(0.2);c.heading=0;c.speed=0;const y0=c.pos.y;let lo=1e9,ov=0,on=0;
+ const go=(k,dx)=>{clear();if(dx){P.pos.x+=dx;run(0.2);}P.cam.yaw=Math.PI;T.tenvSpawnOne(k);run(0.3);const c=T.cars.find(c=>c.alive&&c.veh===k);beside(c.pos.x,c.pos.y+0.2,c.pos.z,c.heading,c.hx);run(0.05);tap();
+   const X=Math.floor(c.pos.x),Z=Math.floor(c.pos.z)+8;pool(X,Z);run(0.2);c.heading=0;c.speed=0;c.hvel=null;const y0=c.pos.y;let lo=1e9,ov=0,on=0;
    for(let i=0;i<40;i++){hold(['KeyW'],0.1);if(T.get(Math.floor(c.pos.x),GG,Math.floor(c.pos.z))===T.WATER){ov++;lo=Math.min(lo,c.pos.y);}}
    console.log(T.tenvVehName(k)+': driven 4 s into a pool, frames over the water',ov,' lowest there',lo<1e8?f1(lo-y0):'-',' (start 0), now',f1(c.pos.y-y0),' speed',f1(c.speed),' went',f1(c.pos.z-Z+8));return c;};
- go('car');const c=go('hover');
+ go('car');const c=go('hover',50);   // (well to the side of the car's pool, so it starts on dry land)
  if(c){c.speed=0;c.hvel=null;run(0.5);
   // (full speed out on the water, then hard left: how far the way it goes lags behind the way it points)
   c.heading=0;for(let i=0;i<15;i++)hold(['KeyW'],0.1);let x=c.pos.x,z=c.pos.z,slip=0;

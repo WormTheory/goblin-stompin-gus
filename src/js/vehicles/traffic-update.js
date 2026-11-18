@@ -68,9 +68,9 @@ function updateCars(dt){
     const tgt=nearestPlayer(c.pos.x,c.pos.z,true);
     if(calmNow()&&c.hunter){c.hunter=false;if(c.police)c.parked=true;}
     if(c.police&&c.parked&&!c.svcPool&&!c.pullPool&&playing&&tgt&&tgt.d<30&&!calmNow()){c.parked=false;c.hunter=true;flashLabel('Police!',tgt.p);}
-    if(c.police){const on=Math.floor(clock*6.5)%2===0,lit=c.hunter||c.pullLit||(c.svcPool&&c.svc&&c.svc.st!=='parked'&&c.svc.st!=='leave');c.lightR.color.setHex(lit?(on?0xff2a2a:0x501010):0x401010);c.lightB.color.setHex(lit?(on?0x101a50:0x3a7aff):0x101a40);}
+    if(c.police){const on=Math.floor(clock*6.5)%2===0,lit=c.hunter||c.pullLit||c.siren||(c.svcPool&&c.svc&&c.svc.st!=='parked'&&c.svc.st!=='leave');c.lightR.color.setHex(lit?(on?0xff2a2a:0x501010):0x401010);c.lightB.color.setHex(lit?(on?0x101a50:0x3a7aff):0x101a40);}
     if(c.hazard){const on=Math.floor(clock*1.7)%2===0;c.hazM.color.setHex(on?0xffa024:0x3a2408);}
-    if(c.flash&&c.svcPool){const on=Math.floor(clock*5.5)%2===0&&c.svc&&c.svc.st!=='parked';c.flash[0].color.setHex(on?0xff2a2a:0x501010);c.flash[1].color.setHex(on?0x303030:(c.svcPool==='amb'?0xffffff:0x3a7aff));}
+    if(c.flash&&(c.svcPool||c.siren!==undefined)){const on=Math.floor(clock*5.5)%2===0&&(c.siren||c.svc&&c.svc.st!=='parked');c.flash[0].color.setHex(on?0xff2a2a:0x501010);c.flash[1].color.setHex(on?0x303030:(c.svcPool==='amb'?0xffffff:0x3a7aff));}
     if(!c.police&&!c.parkPool&&!c.hwPool&&!c.crew&&!c.hunter&&!c.hw&&!c.rt&&!c.path&&!calmNow()&&playing&&tgt&&tgt.d<22&&hunters<2&&Math.random()<dt*0.07){c.hunter=true;hunters++;flashLabel('A car is coming for you',tgt.p);sfx('A car comes for you (horn)',()=>{horn(0.08);});}
     if(c.hunter&&!tgt)c.hunter=false;
     // a highway car that's come down into town drives the streets for a while, then slips away once nobody's looking
@@ -243,6 +243,7 @@ function updateCars(dt){
       for(const sv of SVC){if(!sv.alive||!sv.svc||sv.svc.st!=='go')continue;const ox=sv.pos.x-c.pos.x,oz=sv.pos.z-c.pos.z;if(Math.abs(ox)+Math.abs(oz)>40)continue;
         const vs=Math.sin(sv.heading),vc=Math.cos(sv.heading),along=-(ox*vs+oz*vc),lat=Math.abs(ox*vc-oz*vs);
         if(along>0&&along<30&&lat<4.5){c.yieldSv=true;break;}}
+      if(!c.yieldSv&&sirenYield(c))c.yieldSv=true;   // (or a player's siren: road-handling.js)
       const rx=mod(c.pos.x,CELL),rz=mod(c.pos.z,CELL);
       {const bx=Math.floor(c.pos.x/CELL),bz=Math.floor(c.pos.z/CELL);
        // driving out of town along a main street, past the last of its blocks: onto the country highway from there
@@ -337,7 +338,7 @@ function updateCars(dt){
         if((c.hunter||c.drv)&&Math.abs(c.speed)>13){const sp=Math.abs(c.speed),k=Math.min(1,(sp-13)/15),big=c.hz>3*ES?1.35:c.veh==='bike'?0.7:1,R=(1.5+k*1.4)*big,
             ix=c.pos.x+fx*2.7*dir,iz=c.pos.z+fz*2.7*dir,iy=c.pos.y+Math.min(R*0.9,(c.hy||1.4)*0.6)+0.1;
           crushBall(ix,iy,iz,R,{force:0.8+k});damageCar(c,4+sp*0.4,undefined,'acc');sfx('Vehicle crashes into a wall',()=>{thud(0.7);clang();});addShake(0.4+k*0.5,ix,iz,25);smoke(ix,iy,iz,6,0x9a948a);
-          c.speed*=0.35;}
+          c.speed*=0.35;if(c.veh==='bike'&&c.drv)drvExit(c.drv,true);}   // (off a motorcycle you go)
         else if(c.hunter||c.drv||c.crew){if(Math.abs(c.speed)>6){damageCar(c,1,undefined,'acc');sfx('Vehicle bumps a wall',()=>{thud(0.25);});}c.speed*=-0.25;if(c.reverseT<=0)c.reverseT=0.8;}
         else if(c.path){const W=c.path[0],d=Math.hypot(W.x-c.pos.x,W.z-c.pos.z)||1;c.speed=Math.min(c.speed,1);nudgeFlat(c,(W.x-c.pos.x)/d*2*dt,(W.z-c.pos.z)/d*2*dt);
           // wedged against a barrier just after peeling off the motorway: give up on the exit and carry on along the motorway
@@ -371,7 +372,7 @@ function updateCars(dt){
     if(c.hp<15){c.smokeT-=dt;if(c.smokeT<=0){c.smokeT=c.hp<8?0.06:0.15;const hx=c.pos.x+fx*1.5,hz=c.pos.z+fz*1.5;smoke(hx,c.pos.y+1.1,hz,1,c.hp<8?0x1a1a1a:0x666666);if(c.hp<8)puff(hx,c.pos.y+0.9,hz,1,Math.random()<.5?0xff8a2a:0xffc040,0.25);}}
     carPhysics(c,dt);if(!c.alive)continue;
     if(Math.abs(c.kv.x)+Math.abs(c.kv.z)>0.05){nudgeFlat(c,c.kv.x*dt,c.kv.z*dt);const k=Math.exp(-dt*3.5);c.kv.x*=k;c.kv.z*=k;}
-    c.g.position.copy(c.pos);c.g.rotation.set(c.pitch,c.heading,c.roll+(c.tipR||0)+(c.veh==='bike'?-c.steer*Math.min(1,Math.abs(c.speed)/8)*0.4:0));   // (a motorcycle leans into its turns)
+    c.g.position.copy(c.pos);c.g.rotation.set(c.pitch+(c.wly||0),c.heading,c.roll+(c.tipR||0)+(c.veh==='bike'?-c.steer*Math.min(1,Math.abs(c.speed)/8)*0.4:0));   // (a motorcycle leans into its turns)
     for(const w of c.wheels)w.rotation.x+=c.speed*dt/0.36;
     for(const f of c.front)f.rotation.y=c.steer*(c.veh==='forklift'?-0.6:0.45);   // (a forklift steers with its back wheels)
     if(c.fan&&c.drv)c.fan.rotation.z+=dt*(14+Math.abs(c.speed)*0.8);   // (a hovercraft's fan, while someone's at the controls)

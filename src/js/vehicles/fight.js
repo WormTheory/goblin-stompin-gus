@@ -72,7 +72,7 @@ function drvHud(p){
   const how=drvHow(p,D,armed);
   const ph=D.k==='plane'?planeHud(o.free,o):'';
   set('w',H.wpn,how+(D.k==='plane'&&armed&&ph?ph+'  ·  ':'')+(armed?(LT?'Locked on '+(isMilT(LT)?MIL[LT.kind].name.toLowerCase():isCarT(LT)?'a '+(LT.veh||'car'):'a goblin')+' ('+lk+' let go)':lk+' lock on')+'  ·  '+out+' get out'
-    :D.k==='car'&&o.veh==='fire'?bl('bite')+' spray water  ·  '+bl('stomp')+' horn  ·  '+out+' get out'
+    :D.k==='car'&&o.veh==='fire'?bl('bite')+' spray water  ·  '+out+' get out'
     :D.k==='plane'?(ph?ph+'  ·  ':'')+out+' get out':D.k==='mech'?mechHint(p):out+' get out')+sw);
   const hose=D.k==='car'&&o.veh==='fire';H.xh.hidden=!armed&&!hose&&D.k!=='mech';mechHud(p,H);if(hose){H.xh.classList.remove('cool','lock');H.xh.classList.toggle('water',!!o.hose);}if(armed){H.xh.classList.toggle('cool',!ready);H.xh.classList.toggle('lock',!!LT);}
   // (the ammo by the crosshair: each weapon, its button, a pip for each round left -- or a bar, for a machine gun's

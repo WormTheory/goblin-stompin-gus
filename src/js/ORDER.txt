@@ -43,6 +43,7 @@ vehicles/registry.js
 vehicles/carjack.js
 vehicles/hose.js
 vehicles/farm-lift.js
+vehicles/road-handling.js
 vehicles/mech.js
 vehicles/mech-weapons.js
 ui/mech-hud.js
