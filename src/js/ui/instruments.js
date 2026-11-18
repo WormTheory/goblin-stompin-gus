@@ -83,6 +83,7 @@ function inHeli(p,D){const M=D.o,agl=Math.max(0,Math.round(M.y-groundAt(M.x,M.z,
   s+=inT(102,30,11,'HEIGHT','mono','start',0,'#d9cfc2')+inT(102,54,28,agl+' m','px ink-t','start',3.5);
   s+=inT(102,74,11,'AIRSPEED','mono','start',0,'#d9cfc2')+inT(102,92,20,kt+' kt','px ink-t','start',3);
   s+=inT(176,74,11,'ROTOR','mono','start',0,'#d9cfc2')+`<rect x="176" y="80" width="44" height="9" rx="3" fill="rgba(238,240,230,.18)"/><rect x="176" y="80" width="${inF(44*rpm)}" height="9" rx="3" fill="${rpm>0.95?IN_GUS:IN_ORA}"/>`;
+  if(M.auto)s+=inT(176,52,11,'ENGINE OUT','mono','start',0,IN_ORA);   // (autorotating: heli-handling.js)
   return s+inT(222,22,10,M.agile?'AGILE':'SIMPLE','mono','end',0,M.agile?IN_YOLK:'#9aa3ad');}
 // (a plane's attitude, read off its model: pitch up, roll right positive)
 function inAtt(pl){const F=pl.free||{};if(F.q){const A=planeAtt(pl);return A;}return{roll:-(F.rl||0),pitch:F.pt||0,hd:pl.g.rotation.y};}

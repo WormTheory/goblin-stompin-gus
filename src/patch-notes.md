@@ -167,6 +167,11 @@
 - R (D-pad right) swaps the tank's shells: HE blows a wide crater, AP punches a narrow tunnel deep through walls and does twice the damage to vehicles.
 - Hold right click (LT) for the tank's gunsight: the view from the turret, zoomed in, with range marks. C (LB) is hull lock, holding the turret straight ahead so you can look round without it swinging.
 - A tank's hull tilts with the ground it's on, over ramps and rubble.
+- Helicopters have weight: they tip into a move before the speed builds, and let go they flare nose-up and settle into a hover.
+- R (D-pad right) switches a helicopter to Agile flying: W and S are the collective (climb and sink), A and D the pedals (it turns on the spot, the camera turning with it), and pointing the camera tilts it, so you can strafe sideways and pull pedal turns. R again goes back to Simple.
+- Starting a helicopter, the rotor spools up with a rising whine before it'll lift off.
+- Brought down to a quarter of its health, a helicopter's engine fails and it autorotates: it sinks, turning slowly, but you can still steer it, and holding Space near the ground flares it into a rough landing you'll survive if you aren't coming down too fast. The instrument shows ENGINE OUT.
+- The main rotor is a weapon: brush it against goblins on a roof and it minces them. Clip a wall and it chips blocks out, but it hurts the helicopter too.
 
 ### Map markers
 

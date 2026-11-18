@@ -49,7 +49,7 @@ const VEHICLE_KINDS={
     pos:T=>T.cars[0].position,hp:(T,i)=>T.carHP?T.carHP[i||0]:CAR_HP,max:()=>CAR_HP,hit:(T,n,dir,i)=>trainHit(T,n,dir,i)},
   tank:{name:'Tank',venue:'army',ctx:()=>'tank',inst:()=>'tank',how:tankHow,list:V=>V.mil.filter(M=>M.kind==='tank'),impact:true,pts:()=>MIL.tank.pts,label:()=>'Tank destroyed',
     pos:M=>vkAt(M.x,M.y,M.z),top:M=>MIL[M.kind].hy+0.6,mid:M=>MIL[M.kind].hy*0.6,max:M=>MIL[M.kind].hp,hit:(M,n,dir)=>milHit(M,n,dir)},
-  heli:{name:'Helicopter',venue:'army',ctx:()=>'heli',inst:()=>'heli',how:(p,D,armed,G)=>actMark(p,'jump')+' climb  ·  '+actMark(p,'climb')+' drop  ·  '+G,list:V=>V.mil.filter(M=>M.kind==='heli'),impact:true,pts:()=>MIL.heli.pts,label:()=>'Helicopter destroyed',
+  heli:{name:'Helicopter',venue:'army',ctx:()=>'heli',inst:()=>'heli',how:heliHow,list:V=>V.mil.filter(M=>M.kind==='heli'),impact:true,pts:()=>MIL.heli.pts,label:()=>'Helicopter destroyed',
     pos:M=>vkAt(M.x,M.y,M.z),top:M=>MIL[M.kind].hy+0.6,mid:M=>MIL[M.kind].hy*0.6,max:M=>MIL[M.kind].hp,hit:(M,n,dir)=>milHit(M,n,dir)},
   plane:{name:'Plane',venue:'airport',ctx:()=>'air',inst:D=>D.o.jet?'jet':D.o.light?'steam':'pfd',how:planeHow,list:V=>V.pl||[],pts:()=>1000,label:()=>'Airplane destroyed',
     pos:pl=>pl.g.position,top:pl=>planeDim(pl).hy+0.8,mid:()=>2.5,max:pl=>planeMax(pl),shown:pl=>pl.g.visible,hit:(pl,n)=>planeHit(pl,n)},

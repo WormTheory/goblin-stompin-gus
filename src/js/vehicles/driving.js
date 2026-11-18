@@ -396,20 +396,14 @@ function tankGun(M,g,dt,turn=0){const i=drvIn(g);tankSwitches(M,g,i);
 // flying a helicopter: it goes the way you push, relative to where you look, and turns to face that way; jump climbs,
 // climb (or dash) drops; bite fires a rocket where you're looking
 function drvHeli(M,dt){
-  const p=M.drv,i=drvIn(p);M.spin+=(1-M.spin)*Math.min(1,dt*0.8);
-  const yaw=p.cam.yaw+Math.PI,fx=Math.sin(yaw),fz=Math.cos(yaw),f=-i.z,r=i.x;
-  let wx=fx*f-Math.cos(yaw)*r,wz=fz*f+Math.sin(yaw)*r;const wm=Math.hypot(wx,wz);if(wm>1){wx/=wm;wz/=wm;}
-  const up=(i.jump?1:0)-(i.climb||i.charge?1:0),lift=M.spin>0.8,k=Math.min(1,dt*1.5);
-  M.hv.x+=((lift?wx*16:0)-M.hv.x)*k;M.hv.z+=((lift?wz*16:0)-M.hv.z)*k;M.vy+=((lift?up*8:Math.min(0,up)*8)-M.vy)*Math.min(1,dt*2);
-  const gy=groundAt(M.x,M.z,M.y+1),flying=M.y>gy+0.05;
-  if(!flying&&M.vy<=0){M.hv.x*=Math.exp(-dt*4);M.hv.z*=Math.exp(-dt*4);}   // (sat on the ground it doesn't slide about)
+  const p=M.drv,i=drvIn(p);heliMode(M,p,i);
+  const lift=heliFly(M,p,i,dt);   // (Simple or Agile, the spool-up and autorotation: heli-handling.js)
   {const nx=M.x+M.hv.x*dt,nz=M.z+M.hv.z*dt,clear=y=>!solidAt(nx,Math.floor(y),nz)&&!solidAt(nx+Math.sin(M.h)*2.6,Math.floor(y),nz+Math.cos(M.h)*2.6);
    if(clear(M.y+0.4)&&clear(M.y+1.6)&&clear(M.y+2.6)&&(!milBlocked(M,nx,nz,M.h,M.y)||milBlocked(M,M.x,M.z,M.h,M.y))){M.x=nx;M.z=nz;}
    else if(Math.hypot(M.hv.x,M.hv.z)>9){airCrash(M.x+Math.sin(M.h)*2.6,M.y+1.2,M.z+Math.cos(M.h)*2.6,4,'Killed when a helicopter crashed');milHit(M,MIL.heli.hp*99);return;}   // (into something at speed: it goes up)
    else{M.hv.x*=-0.3;M.hv.z*=-0.3;}}
-  {let ny=M.y+M.vy*dt;const g2=groundAt(M.x,M.z,M.y+1);if(ny<g2){ny=g2;M.vy=0;}if(M.vy>0&&solidAt(M.x,Math.floor(ny+3),M.z)){ny=M.y;M.vy=0;}M.y=Math.min(ny,H+60);}
-  M.h=angTo(M.h,yaw,1.6*dt);
-  const sp=Math.hypot(M.hv.x,M.hv.z),va=Math.atan2(M.hv.x,M.hv.z)-M.h;M.pitch=Math.min(0.25,sp*0.02)*Math.cos(va);M.roll=-Math.min(0.25,sp*0.02)*Math.sin(va);
+  {let ny=M.y+M.vy*dt;const g2=groundAt(M.x,M.z,M.y+1);if(ny<g2){if(M.auto)heliTouch(M,p,M.vy);ny=g2;M.vy=0;}if(M.dead)return;if(M.vy>0&&solidAt(M.x,Math.floor(ny+3),M.z)){ny=M.y;M.vy=0;}M.y=Math.min(ny,H+60);}
+  heliRotor(M,p,dt);if(M.dead)return;   // (the main rotor against goblins and walls)
   M.rot.rotation.y+=dt*M.spin*28;M.trot.rotation.x+=dt*M.spin*40;
   heliGuns(M,M.gnr||p,lift,dt);   // (its gun and rockets: the gunner's, if there's another player in that seat)
   milPlace(M);milBoxes(M,Math.hypot(M.hv.x,M.hv.z));milShove(M);
