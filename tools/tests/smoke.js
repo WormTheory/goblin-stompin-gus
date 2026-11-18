@@ -63,10 +63,10 @@ T.ensureRoutes(0,0);console.log('routes built',T.ROUTES.length,T.ROUTES.slice(0,
 const R=T.ROUTES.find(R=>R.kind==='country'&&R.L>800);const mid=R.pts[Math.floor(R.pts.length/2)];
 A.pos.set(mid[0],80,mid[1]);t0=Date.now();S(60);A.pos.y=T.groundAt(mid[0],mid[1],120);S(120);console.log('on a country route mid, ms',Date.now()-t0,'ground',A.pos.y,'surface',T.get(Math.floor(mid[0]),44,Math.floor(mid[1])));
 t0=Date.now();for(let i=0;i<40;i++)T.genChunk(Math.floor(mid[0]/16)+i%7,Math.floor(mid[1]/16)+Math.floor(i/7));console.log('genChunk ms per chunk near route',(Date.now()-t0)/40);
-// (the weapon table: every foe's gear is a weapon in it, and every weapon has Gnash's numbers and a model)
-{const bad=[];for(const k in T.FOES){const g=T.FOES[k].gear;if(g!=null&&!T.WEAPONS[g])bad.push(k+' carries '+g+', not in WEAPONS');}
+// (the weapon table: every foe's weapons are in it, and every weapon has Gnash's numbers and a model)
+{const bad=[];for(const k in T.FOES)for(const g of T.FOES[k].weapons||[])if(!T.WEAPONS[g])bad.push(k+' carries '+g+', not in WEAPONS');
  for(const k in T.WEAPONS){const W=T.WEAPONS[k];if(!W.player)bad.push(k+' has no player stats');if(!W.model||!(W.model.held||W.model.drop))bad.push(k+' has no model');
    if(W.drop&&!(W.model&&W.model.drop))bad.push(k+' drops but has no model on the ground');}
- console.log('weapons table',Object.keys(T.WEAPONS).join(','),'| foes with gear',Object.keys(T.FOES).filter(k=>T.FOES[k].gear).length,bad.length?'BAD '+bad.join('; '):'ok');
+ console.log('weapons table',Object.keys(T.WEAPONS).join(','),'| foes with gear',Object.keys(T.FOES).filter(k=>(T.FOES[k].weapons||[]).length).length,bad.length?'BAD '+bad.join('; '):'ok');
  if(bad.length)errs.push('weapons table: '+bad.join('; '));}
 console.log('errors',errs.length,errs.slice(0,6));process.exit(0);

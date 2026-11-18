@@ -187,29 +187,61 @@ for(const [name,fire] of Object.entries(guns)){
 // ==== every enemy kind: the fields the AI reads, and a place in the Dev tab's enemy list ====
 {const F=E('FOES'),dev=new Set(E('DEV_FOE_KINDS').map(d=>d.k)),W=E('WEAPONS');
  for(const k in F){const f=F[k],bad=[];for(const n of ['name','label','tunic','pants','hat','hatc','hp','spd','jobs'])if(f[n]===undefined)bad.push(n);
-   if(f.gear!=null&&!W[f.gear])bad.push('gear '+f.gear);
-   // (up close: the unarmed have their fists, the armed strike with their weapon and only name it)
-   if(f.gear==null&&!(f.melee&&f.melee.dmg>0&&f.melee.every>0&&f.melee.cause))bad.push('melee (fists)');
-   if(f.gear!=null&&!f.hitBy)bad.push('hitBy');
-   if(f.gun&&!(f.gun.aim>0&&f.gun.near>=0&&f.gun.cause))bad.push('gun');if(f.bomb&&!(f.bomb.far>f.bomb.near&&f.bomb.every&&f.bomb.cause))bad.push('bomb');
    check(k,'fields',!bad.length,bad.join(','));check(k,'dev',dev.has(k));}
  flush('enemy kinds ('+Object.keys(F).join(', ')+')');}
 
+// ==== every kind of goblin's weapons list (FOES and GOB_FOES): each entry a weapon in WEAPONS, built into its model, used
+// by its AI (a gun at range, grenades thrown, its blow up close) and dropped when a player goblin kills it ====
+{const F=E('FOES'),GF=E('GOB_FOES'),W=E('WEAPONS'),R0=Math.random,gm=E('goblinModel'),fo=E('foeModelOpt'),so=E('strikeOf'),gg=E('gobGear');
+ const kinds=[...Object.keys(GF).map(k=>[k,GF[k]]),...Object.keys(F).map(k=>[k,F[k]])],devK=new Map(E('DEV_FOE_KINDS').map(d=>[d.arms,d]));
+ const nodes=o=>{const r=E('new THREE.Group()');gm(r,o);let n=0;r.traverse(()=>n++);return n;},bare=nodes({weapons:[]});
+ const nBox=k=>{let n=0;E('wpnBoxes')(W[k].model.held,()=>n++);return n;};
+ for(const [k,f] of kinds){const L=f.weapons,bad=[];
+   if(!Array.isArray(L)){check(k,'weapons list',false,'none');continue;}
+   for(const w of L.concat(f.pack||[]))if(!W[w])bad.push(w+' not in WEAPONS');
+   check(k,'weapons list',!bad.length,bad.join(', '));if(bad.length)continue;
+   const kOf=t=>L.filter(w=>W[w].kind===t),mk=kOf('melee'),gk=kOf('gun'),tk=kOf('throw');
+   check(k,'no more than one of each kind',mk.length<2&&gk.length<2&&tk.length<2,L.join(','));
+   // (the model: a blade or club and a gun each as the weapon's boxes, a gun beside a blade or club with a holster; an orb in
+   // the left hand for grenades or a spell)
+   const want=bare+mk.concat(gk).reduce((s,w)=>s+nBox(w),0)+(mk.length&&gk.length?1:0)+(tk.length||f.spell?1:0),got=nodes(fo(f));
+   check(k,'model carries its weapons',got===want,'parts '+(got-bare)+' over a bare goblin, its weapons make '+(want-bare));
+   // (the AI: each gun has how it's used (gun) and is aimed inside its range; grenades have bomb and are thrown; up close
+   // it strikes with its blade or club, or a rifle by its butt, at the weapon's numbers, else with fists of its own)
+   if(gk.length){const w=W[gk[0]];let aims=false;
+     if(f.gun){E('tenvClear()');quiet();put(X0,Z0);for(let a=-60;a<=6;a++)for(let b=-6;b<=6;b++)for(let y=0;y<8;y++)E('setRaw')(X0+a,G0+1+y,Z0+b,0);const q=E('freeFoe')('militia',24);E('foeSpawn')(q,'militia',null,0);q.vy=0;q.stun=0;q.act=null;
+       const d=Math.min(w.range-2,Math.max(f.gun.near+2,10));q.pos.set(P.pos.x-d,P.pos.y,P.pos.z);q.heading=Math.PI/2;q.aim=0;q.aimK=null;q.gunCD=0;q.bombCD=99;
+       E('foeRanged')(q,P,d,0,0.01,Object.assign({},f,{bomb:null}));aims=q.aimK==='gun';q.state='wait';q.root.visible=false;q.aim=0;}
+     check(k,'AI fires its '+gk[0],!!f.gun&&aims,f.gun?'never aimed':'no gun entry: how it uses it');}
+   if(tk.length){let thrown=false;
+     if(f.bomb){E('tenvClear()');quiet();put(X0,Z0);const q=E('freeFoe')('militia',24);E('foeSpawn')(q,'militia',null,0);q.vy=0;q.stun=0;q.act=null;
+       const d=(f.bomb.near+f.bomb.far)/2;q.pos.set(P.pos.x-d,P.pos.y,P.pos.z);q.heading=Math.PI/2;q.aim=0;q.aimK=null;q.gunCD=99;q.bombCD=0;
+       E('foeRanged')(q,P,d,0,0.01,Object.assign({},f,{gun:null}));thrown=q.aimK==='bomb';q.state='wait';q.root.visible=false;q.aim=0;}
+     check(k,'AI throws its '+tk[0],!!f.bomb&&thrown,f.bomb?'never wound up':'no bomb entry: how it throws');}
+   if(k!=='civilian'){const s=so(f),m=mk[0]||L.find(w=>W[w].butt),sw=m&&(W[m].kind==='melee'?W[m]:W[m].butt);
+     check(k,'strikes up close with '+(m||'fists'),m?s.dmg===sw.dmg&&s.every===sw.every&&!!f.hitBy&&s.cause===f.hitBy:!!(f.melee&&f.melee.dmg>0&&f.melee.every>0&&f.melee.cause)&&s===f.melee,JSON.stringify(s));}
+   // (what it drops: the first weapon a goblin can wield that's dropped, and grenades if it carries any)
+   {Math.random=()=>0.9;const d=gg({arms:f});Math.random=R0;const wd=L.find(w=>W[w].drop&&!W[w].stack&&E('GOB_WPN')[w])||null;
+    check(k,'drops its weapons',d.wpn===wd&&(d.gren>0)===(L.concat(f.pack||[]).includes('grenade')),'drops '+d.wpn+' and '+d.gren+' grenades');}
+   // (and the Dev tab plays each: a shoot for a gun, a throw for grenades, an attack up close)
+   {const D=devK.get(f),a=D?D.anims:[];check(k,'Dev tab plays its weapons',!!D&&(!gk.length||a.includes('shoot'))&&(!tk.length||a.includes('throw'))&&(k==='civilian'||a.includes('attack')),D?a.join(','):'not listed');}}
+ flush('weapons lists ('+kinds.map(([k,f])=>k+': '+(f.weapons||[]).join('+')).join('; ')+')');}
+
 // ==== one weapon, one set of numbers: nothing about a weapon set anywhere but WEAPONS, and the same in either hand ====
-{const F=E('FOES'),W=E('WEAPONS'),COP=E('COP_FOE'),STAT=['dmg','range','every','cd','breaks','r','reach','R','fuse','refire','hp'];
+{const F=E('FOES'),W=E('WEAPONS'),GF=E('GOB_FOES'),COP=GF.police,STAT=['dmg','range','every','cd','breaks','r','reach','R','fuse','refire','hp'];
  // (what a shooter may say for itself: how it uses the weapon, never how hard it hits, how far, how often or what it breaks)
  const OWN={gun:['near','aim','cause'],bomb:['near','far','every','cause']};
  const own=(who,f)=>{for(const n of ['gun','bomb']){const o=f[n];if(!o)continue;const extra=Object.keys(o).filter(x=>!OWN[n].includes(x));
      check(who,'no '+n+' stats of its own',!extra.length&&!Array.isArray(o),Array.isArray(o)?'an array of numbers':extra.join(','));}
-   if(f.gear!=null)check(who,'no melee stats of its own',!f.melee,'melee '+JSON.stringify(f.melee));};
- for(const k in F)own(k,F[k]);own('police',COP);
+   if(E('foeMeleeK')(f))check(who,'no melee stats of its own',!f.melee,'melee '+JSON.stringify(f.melee));};
+ for(const k in F)own(k,F[k]);for(const k in GF)own(k,GF[k]);
  for(const k in W){const w=W[k],bad=[];if(w.npc)for(const n of Object.keys(w.npc))if(STAT.includes(n)||n==='gun')bad.push('npc.'+n);
    if(w.player)for(const n of STAT)if(w.player[n]!==undefined&&w.player[n]!==(n==='cd'?w.every??w.player.cd:w[n]))bad.push('player.'+n+' '+w.player[n]+' vs '+w[n]);
    check('weapon '+k,'one set of numbers',!bad.length,bad.join(', '));}
- flush('weapon stats only in WEAPONS ('+Object.keys(W).join(', ')+'; FOES, police)');
+ flush('weapon stats only in WEAPONS ('+Object.keys(W).join(', ')+'; FOES, GOB_FOES)');
  // the same gun in an enemy's hands: a round that lands does the weapon's damage, it starts shooting inside the weapon's
  // range and not past it, and a round into a wall breaks it as Gnash's do (Math.random pinned low: every chance comes off)
- for(const [who,f] of [['militia (rifle)',F.militia],['police (handgun)',COP]]){const w=W[f.gear];
+ for(const [who,f] of [['militia (rifle)',F.militia],['police (handgun)',COP]]){const w=W[E('foeGunK')(f)];
    E('tenvClear()');quiet();put(X0,Z0);for(let a=-60;a<=6;a++)for(let b=-6;b<=6;b++)for(let y=0;y<8;y++)E('setRaw')(X0+a,G0+1+y,Z0+b,0);P.hp=20;
    const g={pos:new V3(X0-20,GY,Z0),heading:Math.PI/2,id:'t'};pin();E('foeShoot')(g,P,f);unpin();
    check(who,'damage as the weapon',20-P.hp===w.dmg,'took '+(20-P.hp)+', the weapon does '+w.dmg);P.hp=20;
@@ -222,7 +254,7 @@ for(const [name,fire] of Object.entries(guns)){
    check(who,'breaks blocks as the weapon',(gone>0)===!!w.breaks,'blocks broken '+gone+', the weapon breaks: '+!!w.breaks);
    for(let b=-2;b<=2;b++)for(let y=0;y<4;y++)E('setRaw')(bx,G0+1+y,Z0+b,0);P.hp=20;}
  // up close: each strikes with what it carries, at that weapon's damage and rate (a rifle by its butt)
- {const so=E('strikeOf'),c=so(null,false),d=so(null,true),t=so(F.thief),m=so(F.militia);
+ {const so=E('strikeOf'),c=so(GF.goblin),d=so(GF.cultist),t=so(F.thief),m=so(F.militia);
   check('street goblin','club as the weapon',c.dmg===W.club.dmg&&c.every===W.club.every,JSON.stringify(c));
   check('cultist','dagger as the weapon',d.dmg===W.dagger.dmg&&d.every===W.dagger.every,JSON.stringify(d));
   check('thief','dagger as the weapon',t.dmg===W.dagger.dmg&&t.every===W.dagger.every,JSON.stringify(t));

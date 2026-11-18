@@ -197,7 +197,7 @@ const lag=[];
   const A=HT.P1.pos,B=HT.P2.pos,ux=A.x-B.x,uz=A.z-B.z,ul=Math.hypot(ux,uz)||1,hold=()=>{g.pos.x=A.x+ux/ul*10;g.pos.z=A.z+uz/ul*10;g.pos.y=A.y;g.vy=0;};
   let drawn=false,tr=false,club=false;for(let n=0;n<240;n++){if(!(g.aim>0))g.gunCD=n<40?9:0;hold();H.step(1);G.step(1);const m=GT.NETM.g.get(i);if(m&&m.pkit){if(m.pkit.shown===2&&m.pkit.pis.every(o=>o.visible)&&m.pkit.club.every(o=>!o.visible))drawn=true;if(m.pkit.shown===1&&m.pkit.hol.every(o=>o.visible))club=true;}if(GT.TRACERS.some(t=>t.t>0))tr=true;}
   console.log('police handgun on the guest: holster and club',ok(club),'| gun drawn',ok(drawn),'| a tracer',ok(tr));
-  g.gun=null;g.state='wait';g.root.visible=false;for(let n=0;n<5;n++){H.step(1);G.step(1);}}}   // (gone again, so nothing after this is shot at)
+  g.arms=null;g.state='wait';g.root.visible=false;for(let n=0;n<5;n++){H.step(1);G.step(1);}}}   // (gone again, so nothing after this is shot at)
 
 // ---- the host's tab in the background: no animation frames at all, so a worker's timer runs it (frame(now,true)), undrawn ----
 {const D=H.ctx.document;D.hidden=true;HT.netBgClock();const on=HT.NET_BG.on;const n0=GT.NET.cur?GT.NET.cur.n:0,b0=HT.P2.pos.clone();

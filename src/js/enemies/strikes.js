@@ -46,9 +46,9 @@ function strikeAt(w,u){
 }
 // how long the strike itself takes: from the last key before the blow lands to the blow (the Dev tab's frame data)
 const strikeSwing=w=>{const K=STRIKES[w];let u=0;for(const k of K)if(k[0]<1)u=k[0];return 1-u;};
-// which blow a goblin strikes with: a dagger (cultists, thieves), a rifle butt (whoever carries a rifle), or a club (the
-// street's goblins and police, and anyone bare-handed, whose blow is the same overarm swing)
-const gobWk=g=>{if(g.cultist)return'dagger';const F=g.foeKind&&FOES[g.foeKind],W=F&&WEAPONS[F.gear];return W&&W.npc&&W.npc.strike||'club';};   // (the blow its weapon strikes: WEAPONS)
+// which blow a goblin strikes with: what it strikes with up close (foeMeleeK: a dagger, a club, a rifle by its butt), or
+// with nothing, its fists, whose blow is the club's overarm swing
+const gobWk=g=>{const k=foeMeleeK(foeOf(g)),W=k&&WEAPONS[k];return W&&W.npc&&W.npc.strike||'club';};   // (the blow its weapon strikes: WEAPONS)
 // pose a goblin model's arms at u along a blow (only:'L' just the free arm), and keep the twist, lean and step on m.atkX
 // for whoever places its root
 function gobStrike(m,w,u,only){
@@ -138,7 +138,7 @@ function gunGripUndo(m,root=m.arm.parent){const v=m._gg;if(!v)return;m._gg=null;
 // drawn, a rifle always, unless the goblin is dead, climbing, swimming, or has the free hand busy (a grenade, a fireball,
 // thrown up in a panic)
 function gunHeld(g){
-  const k=g.pkit&&g.pkit.shown===2?WEAPONS.handgun.npc.aim:g.root.gunK;if(!k)return null;
+  const k=g.pkit&&g.pkit.shown===2?WEAPONS[g.pkit.k].npc.aim:g.root.gunK;if(!k)return null;
   if(g.state==='dead'||g.dead||g.hp<=0||g.act||g.wet||g.orb&&g.orb.visible||g.armL.rotation.x<-1.9||g.arm.rotation.x<-2.3)return null;
   return k;
 }

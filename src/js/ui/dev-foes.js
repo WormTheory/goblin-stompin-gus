@@ -3,22 +3,24 @@
 // The poses are worked out with the same sums as the enemies' own code (the chase in enemies/routes.js, civAI in crowds.js,
 // cultCalm and cultCast in cultists.js, guardCalm and foeRanged in foes.js), and the numbers come from the same tables, so
 // a change to a table shows up here; a change to one of those sums wants making here too. Nothing here touches the world. ----
-// (what each strikes with up close, and every gun and grenade's numbers, are the weapon's in WEAPONS: strikeOf)
+// (what each carries is its kind's weapons list, GOB_FOES or FOES (weapons.js), and what it strikes with up close, and
+// every gun and grenade's numbers, are the weapon's in WEAPONS: strikeOf. So a weapon added to a kind's list shows up here)
 // (damage is in points, two to a heart)
 const dfHearts=n=>{const h=n/2;return h+(h===1?' heart':' hearts');};
+// (a kind's entry here from its weapons: arms, its entry in GOB_FOES or FOES; melee, its blow up close; gun and gunW, how
+// it uses its gun and the gun; side, a blade or club carried beside the gun, so the gun's drawn from a holster; and the
+// animations its weapons give it: shoot for a gun, throw for grenades, cast for a spell)
+function devFoArms(K,arms,first,last){const gk=foeGunK(arms),GW=gk&&arms.gun?WEAPONS[gk]:null;
+  return Object.assign(K,{arms,melee:K.civ?null:strikeOf(arms),gun:GW?arms.gun:null,gunW:GW,side:GW?wpnOfKind(arms.weapons,'melee'):null,
+    anims:[...first,...(arms.spell?['cast']:[]),...(GW?['shoot']:[]),...(foeThrowK(arms)&&arms.bomb?['throw']:[]),...last]});}
 const DEV_FOE_KINDS=[
-  {k:'goblin',n:'Goblin',hp:4,spd:2.8,melee:strikeOf(null,false),look:{tunic:GC.tunic,pants:0x3a3328,hat:0x2a2a2a,show:['bandana','pouch']},
-    anims:['idle','walk','attack','jump','climb','swim','death']},
-  {k:'cop',n:'Police officer',hp:4,spd:2.8,melee:strikeOf(null,false),gun:COP_FOE.gun,gunW:WEAPONS.handgun,pistol:true,look:{tunic:0x1c2a5a,pants:0x1c2a5a,hat:0x1c2a5a,show:['cap']},
-    anims:['idle','walk','attack','shoot','jump','climb','swim','death']},   // (the handgun: police-gun.js)
-  {k:'civ',n:'Civilian',hp:3,spd:1.5,civ:true,look:{skin:0x7aa848,tunic:0x2a7a5a,pants:0x2b2f38,hat:0xc9a02a,show:['cap','glasses']},
-    anims:['idle','walk','flee','stall','swim','death']},
-  {k:'cultist',n:'Cultist',hp:4,spd:2.8,cult:true,melee:strikeOf(null,true),look:{tunic:CULT_ROBE,pants:0x1a0a0c,hat:CULT_HOOD,acc:0x2a0408,acc2:0x2a0408,show:[]},
-    anims:['chant','walk','attack','cast','jump','climb','swim','death']},
+  devFoArms({k:'goblin',n:'Goblin',hp:4,spd:2.8,look:{tunic:GC.tunic,pants:0x3a3328,hat:0x2a2a2a,show:['bandana','pouch']}},GOB_FOES.goblin,['idle','walk','attack'],['jump','climb','swim','death']),
+  devFoArms({k:'cop',n:'Police officer',hp:4,spd:2.8,look:{tunic:0x1c2a5a,pants:0x1c2a5a,hat:0x1c2a5a,show:['cap']}},GOB_FOES.police,['idle','walk','attack'],['jump','climb','swim','death']),   // (the handgun: police-gun.js)
+  devFoArms({k:'civ',n:'Civilian',hp:3,spd:1.5,civ:true,look:{skin:0x7aa848,tunic:0x2a7a5a,pants:0x2b2f38,hat:0xc9a02a,show:['cap','glasses']}},GOB_FOES.civilian,['idle','walk','flee','stall'],['swim','death']),
+  devFoArms({k:'cultist',n:'Cultist',hp:4,spd:2.8,cult:true,look:{tunic:CULT_ROBE,pants:0x1a0a0c,hat:CULT_HOOD,acc:0x2a0408,acc2:0x2a0408,show:[]}},GOB_FOES.cultist,['chant','walk','attack'],['jump','climb','swim','death']),
   // (every kind in the FOES table, so a new one is listed by itself)
-  ...Object.keys(FOES).map(k=>{const F=FOES[k];return{k,n:F.name,hp:F.hp,spd:F.spd,foe:F,melee:strikeOf(F,false),
-    look:{tunic:F.tunic,pants:F.pants,hat:F.hatc,acc:F.pants,show:k==='deckhand'||k==='sailor'||k==='security'?[F.hat]:[F.hat,k==='thief'?'eyepatch':'pouch']},
-    gun:F.gun,gunW:F.gun&&WEAPONS[F.gear],anims:['guard','walk','attack',...(F.gun?['shoot']:[]),...(F.bomb?['throw']:[]),'jump','climb','swim','death']};})];
+  ...Object.keys(FOES).map(k=>{const F=FOES[k];return devFoArms({k,n:F.name,hp:F.hp,spd:F.spd,foe:F,
+    look:{tunic:F.tunic,pants:F.pants,hat:F.hatc,acc:F.pants,show:k==='deckhand'||k==='sailor'||k==='security'?[F.hat]:[F.hat,k==='thief'?'eyepatch':'pouch']}},F,['guard','walk','attack'],['jump','climb','swim','death']);})];
 const DEV_FOE_ANIM_N={idle:'Stand',walk:'Walk (chasing)',attack:'Attack',jump:'Jump up a step',climb:'Climb a wall',swim:'Swim',death:'Die',
   flee:'Run away screaming',stall:'Serve at a stall',chant:'Chant at the altar',cast:'Conjure a fireball',guard:'On guard',shoot:'Aim and fire',throw:'Throw a grenade'};
 const DEV_TARGET=10;   // (how far off Gus stands for a shot, a throw or a fireball)
@@ -26,13 +28,13 @@ const DEVF={kind:'goblin',anim:'walk',rec:null,f:0,play:true,speed:1,loop:true,y
 const DEV_FOE_KEY='goblin-stompin-gus-devfoe',DEVF_O={x:0,z:0};
 try{const s=JSON.parse(localStorage.getItem(DEV_FOE_KEY)||'null');if(s&&DEV_FOE_KINDS.some(K=>K.k===s.k)){DEVF.kind=s.k;if(DEV_FOE_KINDS.find(K=>K.k===s.k).anims.includes(s.a))DEVF.anim=s.a;}}catch(e){}
 const devFoKind=k=>DEV_FOE_KINDS.find(K=>K.k===k)||DEV_FOE_KINDS[0];
-const devFoWk=K=>gobWk({cultist:!!K.cult,foeKind:K.foe?K.k:null});   // (which blow it strikes with: strikes.js)
-const devFoAnimName=(K,a)=>a==='shoot'&&K.pistol?'Draw and fire the handgun':a==='attack'&&K.melee?K.melee.w==='Club'?'Club swing':K.melee.w==='Rifle butt'?'Rifle butt':'Dagger stab':DEV_FOE_ANIM_N[a];
+const devFoWk=K=>gobWk({arms:K.arms});   // (which blow it strikes with: strikes.js)
+const devFoAnimName=(K,a)=>a==='shoot'&&K.side?'Draw and fire the '+K.gunW.name.toLowerCase():a==='attack'&&K.melee?K.melee.w==='Club'?'Club swing':K.melee.w==='Rifle butt'?'Rifle butt':'Dagger stab':DEV_FOE_ANIM_N[a];
 // its model: the game's own, dressed in a fixed look for its kind, with names on its joints for the skeleton
 function devFoFig(K){
   if(DEVF.figs[K.k])return DEVF.figs[K.k];
   const root=new THREE.Group();root.name='root';root.rotation.order='YXZ';root.visible=false;
-  const F=K.foe,m=goblinModel(root,K.cult?{club:false,cult:true,tunic:CULT_ROBE}:F?{club:false,gear:F.gear,held:F.held,tunic:F.tunic}:K.civ?{club:false,tunic:K.look.tunic}:{pistol:!!K.pistol});
+  const F=K.foe,m=goblinModel(root,Object.assign(foeModelOpt(K.arms),{cult:!!K.cult,tunic:K.cult?CULT_ROBE:F?F.tunic:K.civ?K.look.tunic:undefined}));   // (its weapons in its hands: goblinModel)
   m.root=root;m.head.name='head';m.arm.name='arm.R';m.armL.name='arm.L';m.legs[0].name='leg.L';m.legs[1].name='leg.R';
   applyLook(m,Object.assign({skin:GC.skin,hat:0x2a2a2a,acc:0x884422,acc2:0x111111,hair:0x1b1b1b,h:1,w:1,hs:1},K.look),ES);
   if(m.orb&&K.cult)m.roles.orb.emissive.setHex(0xff5a00);   // (a fireball glows: cultCast lights it)
@@ -114,15 +116,16 @@ const DEV_FOE_ANIM={
       g.relS+=dt;if(!dfFollow(g)){g.armL.rotation.x+=(0-g.armL.rotation.x)*Math.min(1,dt*6);dfArm(g,false,dt);}dfEnd(g,false);},
     data:K=>[['Conjures for',dfFrames(CULT_CAST)+' (the warning you get)'],['Range','4.5 to 30 blocks, when it can see you'],['Fireball','flies at '+FB_SPEED+' blocks/s, bending a little after you'],['Damage','2 hearts'],['Again after','2.4–4 s']]},
   // a rifle shot: raised and aimed for a moment, then hitscan with a tracer
-  // (or, for police, the handgun held out in both hands, drawn from the holster as the aim starts: police-gun.js)
-  shoot:{dur:K=>0.3+K.gun.aim+0.8,init(g,K,C){C.target(DEV_TARGET);g.aimT=0.3;},step(g,K,dt,C){const F=K,w=K.pistol?'pistol':'aim';
+  // (or, for a gun carried beside a club, like a police officer's handgun, drawn from the holster as the aim starts: police-gun.js;
+  // its pose is the gun's, in WEAPONS)
+  shoot:{dur:K=>0.3+K.gun.aim+0.8,init(g,K,C){C.target(DEV_TARGET);g.aimT=0.3;},step(g,K,dt,C){const F=K,w=K.gunW.npc.pose;
       if(g.aimT>0&&(g.aimT-=dt)<=0){g.aim=F.gun.aim;g.aimK='gun';C.mark('Aim',C.f,C.f+Math.round(F.gun.aim*60)-1,'wind');}
       if(g.aim>0){g.aim-=dt;gobStrike(g,w,1-Math.max(0,g.aim)/F.gun.aim);
         if(g.aim<=0){const fx=Math.sin(g.heading),fz=Math.cos(g.heading);C.tracer(C.f,[g.pos.x+fx*0.8,g.pos.y+1.05,g.pos.z+fz*0.8],[0,G+1+1.2,DEV_TARGET],K.gunW.dmg);
           g.relS=0;g.relK=w;C.mark('Follow-through',C.f+1,C.f+Math.round(STRIKE_FT*60),'wind');}
         g.legs[0].rotation.x=g.legs[1].rotation.x=0;gobRootPose(g,g.pos.y,dt);return;}
       g.relS+=dt;if(!dfFollow(g)){g.armL.rotation.x+=(0-g.armL.rotation.x)*Math.min(1,dt*6);dfArm(g,false,dt);}dfEnd(g,false);},
-    data:K=>{const G6=K.gun,W=K.gunW,a=Math.max(W.every,G6.aim);return[['Weapon',W.name+(K.pistol?' (the club inside '+G6.near+' blocks)':'')],['Aims for',dfFrames(G6.aim)],['Range',G6.near+' to '+W.range+' blocks, when it can see you'],['Damage',dfHearts(W.dmg)],
+    data:K=>{const G6=K.gun,W=K.gunW,a=Math.max(W.every,G6.aim);return[['Weapon',W.name+(K.side?' (the '+WEAPONS[K.side].name.toLowerCase()+' inside '+G6.near+' blocks)':'')],['Aims for',dfFrames(G6.aim)],['Range',G6.near+' to '+W.range+' blocks, when it can see you'],['Damage',dfHearts(W.dmg)],
       ['Hits','92% close up, less 1.7% a block, at least 30% (at '+DEV_TARGET+': '+Math.round(Math.max(0.3,0.92-DEV_TARGET/60)*100)+'%)'],['Again after',a+'–'+(Math.round((a+FOE_JIT)*100)/100)+' s'],['Breaks blocks',W.breaks?'half the time':'no']];}},
   // a grenade: wound up in the left hand, lobbed in an arc at Gus, bursting when its fuse runs out
   throw:{dur:K=>0.3+0.6+WEAPONS.grenade.fuse+0.5,init(g,K,C){C.target(DEV_TARGET);g.aimT=0.3;},step(g,K,dt,C){const GR=WEAPONS.grenade;
@@ -132,14 +135,14 @@ const DEV_FOE_ANIM={
           C.ball(C.f,[x0,y0,z0],[0,ty,DEV_TARGET],D/T,20,0xb8d070,{r:GR.R,dmg:GR.dmg,fuse:GR.fuse});g.orb.visible=false;g.relS=0;g.relK='throw';C.mark('Follow-through',C.f+1,C.f+Math.round(STRIKE_FT*60),'wind');}
         g.legs[0].rotation.x=g.legs[1].rotation.x=0;gobRootPose(g,g.pos.y,dt);return;}
       g.relS+=dt;if(!dfFollow(g)){g.armL.rotation.x+=(0-g.armL.rotation.x)*Math.min(1,dt*6);dfArm(g,false,dt);}dfEnd(g,false);},
-    data:K=>{const B=K.foe.bomb,GR=WEAPONS.grenade;return[['Wind-up',dfFrames(0.6)],['Range',B.near+' to '+B.far+' blocks (over a wall, if near enough)'],['Flight','0.55 s + 1 s per 16 blocks'],
+    data:K=>{const B=K.arms.bomb,GR=WEAPONS.grenade;return[['Wind-up',dfFrames(0.6)],['Range',B.near+' to '+B.far+' blocks (over a wall, if near enough)'],['Flight','0.55 s + 1 s per 16 blocks'],
       ['Fuse',GR.fuse+' s from the hand'],['Blast','radius '+GR.R+', '+dfHearts(GR.dmg)],['Again after',B.every[0]+'–'+B.every[1]+' s']];}},
 };
 // act it out and record it
 function devFoSim(kind,anim){
   const K=devFoKind(kind),A=DEV_FOE_ANIM[anim],fig=devFoFig(K),m=fig.m,nodes=fig.nodes,M=nodes.length,FL=11,N=Math.max(2,Math.round(A.dur(K)*60)),dt=1/60;
   const rec={kind,anim,N,M,fig:K.k,tr:new Float32Array(N*M*FL),pos:new Float32Array(N*4),hits:[],shots:[],boxes:[],marks:[],target:null,water:null};
-  const g={pos:new V3(0.5,G+1,0.5),heading:0,phase:0,t:0,atk:1,atkS:9,relS:9,relK:null,cultist:!!K.cult,foeKind:K.foe?K.k:null,gun:K.pistol?COP_FOE:null,aim:0,aimK:null,pkit:m.pkit||null,legs:m.legs,arm:m.arm,armL:m.armL,head:m.head,root:m.root,orb:m.orb||null,act:null,wet:false};
+  const g={pos:new V3(0.5,G+1,0.5),heading:0,phase:0,t:0,atk:1,atkS:9,relS:9,relK:null,cultist:!!K.cult,foeKind:K.foe?K.k:null,arms:K.arms,aim:0,aimK:null,pkit:m.pkit||null,legs:m.legs,arm:m.arm,armL:m.armL,head:m.head,root:m.root,orb:m.orb||null,act:null,wet:false};
   m.root.rotation.set(0,0,0);m.arm.rotation.set(K.civ?0:-0.5,0,0);m.arm.hand.rotation.x=0;m.armL.rotation.x=0;for(const l of m.legs)l.rotation.x=0;m.head.rotation.z=0;if(m.orb){m.orb.visible=false;m.orb.scale.setScalar(1);}
   if(m.pkit)m.pkit.shown=-1;   // (playing a recording back sets what's shown behind its back)
   const C={f:0,

@@ -1,14 +1,12 @@
 // ---- the police's handgun: drawn and fired at range, holstered for the club up close ----
-// (as FOES' guns: shortest and longest range, seconds to aim, cooldown range, damage, cause. Shorter reach and quicker on
-// the draw than a rifle; inside 4 blocks they put it away and use the club)
-// (what foeRanged reads for an officer: a handgun, as WEAPONS has it, aimed for a moment from 4 blocks out; no grenades)
-const COP_FOE={gear:'handgun',gun:{near:4,aim:0.45,cause:'Shot by the police'},pistol:true};
+// (an officer is GOB_FOES.police, weapons.js: a club and a handgun, as WEAPONS has them, the handgun aimed for a moment
+// from 4 blocks out; inside that they put it away and use the club)
 // an officer of any kind (out of a police car, carjacked out of one, or the Testing Environment's): armed and ready
-function copArm(g){if(!g.pkit)return;g.gun=COP_FOE;g.aim=0;g.aimK=null;g.gunCD=0.4+Math.random()*0.8;g.bombCD=99;g.relK=null;}
-// which is in hand: the handgun while it's aimed and just after the shot, the club the rest of the time; an officer's
-// holster shows on the belt whenever the gun isn't out. 0 nothing (not police), 1 club and holster, 2 the gun out (online
-// guests are sent this: net-sync.js)
-const copKitState=g=>!g.gun?0:g.aim>0&&g.aimK==='gun'||(g.relS??9)<STRIKE_FT&&g.relK==='pistol'?2:1;
+function copArm(g){if(!g.pkit)return;g.arms=GOB_FOES.police;g.aim=0;g.aimK=null;g.gunCD=0.4+Math.random()*0.8;g.bombCD=99;g.relK=null;}
+// which is in hand, for one whose model carries a gun beside its blade or club (a street goblin's: goblinModel): the gun
+// while it's aimed and just after the shot, the club the rest of the time, the holster on the belt whenever the gun isn't
+// out. 0 the club alone (its kind carries no gun), 1 club and holster, 2 the gun out (online guests are sent this: net-sync.js)
+const copKitState=g=>{const k=foeGunK(foeOf(g));if(!k)return 0;return g.aim>0&&g.aimK==='gun'||(g.relS??9)<STRIKE_FT&&g.relK===WEAPONS[k].npc.pose?2:1;};
 function copKitShow(K,n){
   if(K.shown===n)return;K.shown=n;   // (only when it changes: batDraw picks the change up)
   for(const m of K.club)m.visible=n!==2;for(const m of K.pis)m.visible=n===2;for(const m of K.hol)m.visible=n===1;

@@ -81,7 +81,7 @@ function obitShow(o){
     try{const bb=new THREE.Box3().setFromObject(c),sz=bb.getSize(new V3()),k=1.9/Math.max(sz.x,sz.y,sz.z,0.01);c.scale.multiplyScalar(k);c.position.y=-bb.min.y*k;}catch(e){}
     OBP.root=root;OBP.scene.add(root);OBP.spin=-0.6;return;
   }
-  const cu=!!(o.look&&o.look.cult),fk=o.look&&o.look.foe&&FOES[o.look.foe],root=new THREE.Group(),m=goblinModel(root,{club:o.gob||!o.civ&&!cu&&!fk,cult:cu,gear:fk?fk.gear:undefined,tunic:o.gob?(o.idx?0xa83232:0x3a5f8a):cu||fk?o.look.tunic:undefined});   // (Gnash and Grizzle in the tunics they play in)
+  const cu=!!(o.look&&o.look.cult),fk=o.look&&o.look.foe&&FOES[o.look.foe],root=new THREE.Group(),m=goblinModel(root,{weapons:o.gob?['club']:cu?GOB_FOES.cultist.weapons:fk?fk.weapons:o.civ?[]:['club'],cult:cu,tunic:o.gob?(o.idx?0xa83232:0x3a5f8a):cu||fk?o.look.tunic:undefined});   // (Gnash and Grizzle in the tunics they play in)
   const hx=s=>parseInt(String(s||'#6f9a3a').slice(1),16);
   const L=o.look||{skin:hx(o.sk),tunic:hx(o.tu),pants:0x3a3328,hat:hx(o.ht),acc:0x884422,acc2:0x111111,hair:0x1b1b1b,show:[],h:1,w:1,hs:1};
   if(!o.gob)applyLook({roles:m.roles,acc:m.acc,root,head:m.head},L,1);   // (a goblin player's as plain as gobKit draws him)

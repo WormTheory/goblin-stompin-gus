@@ -228,7 +228,7 @@ function renderControls(){
 }
 renderControls();
 function addHostile(){
-  const g=makeGoblin({pistol:true});g.t=Math.random()*6;   // (any of them may be sent out as police: police-gun.js)
+  const g=makeGoblin({weapons:GOB_FOES.police.weapons});g.t=Math.random()*6;   // (any of them may be sent out as police, so all carry an officer's weapons, the handgun hidden till then: police-gun.js)
 }
 for(let i=0;i<16;i++)addHostile();
 // civilians: shoppers, commuters and stall vendors who never fight back
@@ -237,7 +237,7 @@ let civMade=0;
 function addCiv(){
   const i=civMade++;
   const look=CIV_LOOKS[i%CIV_LOOKS.length];
-  const g=makeGoblin({club:false,tunic:look.tunic,hat:look.hat,hatc:look.hatc,skin:[0x7aa848,0x5f8a34,GC.skin][i%3]},{hp:3,civ:true,vendor:null,wt:null,wtT:0,idle:0,screamCD:0,fleeing:false});
+  const g=makeGoblin({weapons:GOB_FOES.civilian.weapons,tunic:look.tunic,hat:look.hat,hatc:look.hatc,skin:[0x7aa848,0x5f8a34,GC.skin][i%3]},{hp:3,civ:true,vendor:null,wt:null,wtT:0,idle:0,screamCD:0,fleeing:false});
   g.t=Math.random()*3;
 }
 for(let i=0;i<14;i++)addCiv();
@@ -248,7 +248,7 @@ for(let i=0;i<24;i++){addCiv();goblins[goblins.length-1].staff=true;}
 const CULT_ROBE=0x4a0a12,CULT_HOOD=0x2a0408;let cultMade=0;
 function freeCultist(cap=8){let g=goblins.find(o=>o.cultist&&o.state==='wait');if(!g&&cultMade<cap){addCultist();g=goblins[goblins.length-1];}return g||null;}
 function addCultist(){cultMade++;
-  makeGoblin({club:false,cult:true,tunic:CULT_ROBE},{cultist:true,special:true,homeV:null,ring:0,slot:0,cast:0,castCD:0});
+  makeGoblin(Object.assign(foeModelOpt(GOB_FOES.cultist),{cult:true,tunic:CULT_ROBE}),{cultist:true,special:true,homeV:null,ring:0,slot:0,cast:0,castCD:0});
 }
 const STAFF_CAP={courthouse:3,base:4,airport:4,airfield:2,nasa:4,nuclear:3,campus:4,prison:4,jail:2,water:2,power:4,zoo:2,lab:3,ikea:6,museum:3,aquarium:3,casino:6,school:5,factory:5,datacenter:1,electric:2,dealer:3,armory:2,theater:3,stocks:4,nursery:2,library:2,cinema:3,radio:2,news:4,bank:3,disco:3,club:3,books:1,dentist:2,dispo:1,guns:1,bar:2,soup:3,bigbox:8,market:5,drug:3,grocery:3,hospital:5,police:3,fire:3,sitdown:4,fastfood:3,kiosk:2,diner:2,pizza:2,cafe:2,shop:2};
 const STAFF_JOBS={bigbox:['Cashier','Greeter','Stocker','Shift manager','Electronics associate','Cart wrangler'],grocery:['Cashier','Stocker','Deli clerk','Bagger','Produce clerk'],market:['Cashier','Stocker','Deli clerk','Bagger','Produce clerk','Butcher'],drug:['Pharmacist','Pharmacy tech','Cashier','Stocker'],

@@ -339,7 +339,9 @@ function updateGoblins(dt){
       const reach=2.3,ddy=tgt.p.pos.y-g.pos.y,canHit=ddy>-1.3&&ddy<1.5;
       // a cultist conjuring a fireball stands its ground till it's thrown
       // (and police, once they've seen him, draw their handguns at range: police-gun.js)
-      if(g.cultist&&cultCast(g,tgt.p,d,ddy,dt)||g.foeKind&&FOES[g.foeKind].gun&&foeRanged(g,tgt.p,d,ddy,dt)||g.gun&&!(g.cop&&g.inv)&&foeRanged(g,tgt.p,d,ddy,dt,g.gun)){g.legs[0].rotation.x=g.legs[1].rotation.x=0;gobRootPose(g,g.pos.y,dt);return;}
+      // (what it does at range is read off its kind's weapons: a spell, a gun or grenades. weapons.js)
+      const FK=foeOf(g);
+      if(FK.spell==='fireball'&&cultCast(g,tgt.p,d,ddy,dt)||(foeGunK(FK)||foeThrowK(FK))&&!(g.cop&&g.inv)&&foeRanged(g,tgt.p,d,ddy,dt,FK)){g.legs[0].rotation.x=g.legs[1].rotation.x=0;gobRootPose(g,g.pos.y,dt);return;}
       // goblins holed up indoors stay put, pottering about, until a hippo is close and on their floor
       if(g.indoor&&!bldgAt(Math.floor(g.pos.x),Math.floor(g.pos.z)))g.indoor=false;
       if(g.cop&&g.inv&&d<22&&Math.abs(ddy)<4){g.inv=false;flashLabel('Police!',tgt.p);tone('square',880,660,0.25,0.05);}   // spotted!
@@ -405,7 +407,7 @@ function updateGoblins(dt){
           g.leapT=(g.leapT||0)-dt;if(!simple&&ddy>=1.5&&ddy<4&&g.leapT<=0&&!g.wet&&g.vy===0){g.vy=Math.sqrt(50*(ddy-0.2));g.leapT=1.4;g.atk=0.1;}}
         else {
           g.atk-=dt;
-          if(g.atk<=0){dbgHit('dmg','cyl',{x:g.pos.x,y:g.pos.y-1.5,z:g.pos.z,r:2.3,h:2.8},'n');const S=strikeOf(g.foeKind&&FOES[g.foeKind],g.cultist);g.atk=S.every;g.atkS=0;const q=tgt.p,ux=-dx/(d||1),uz=-dz/(d||1);damagePlayer(q,S.dmg,new V3(q.pos.x+ux*1.2,q.pos.y+1.1,q.pos.z+uz*1.2),new V3(-ux,0.3,-uz),S.cause,g.id);}   // (a dagger's quicker than a club)
+          if(g.atk<=0){dbgHit('dmg','cyl',{x:g.pos.x,y:g.pos.y-1.5,z:g.pos.z,r:2.3,h:2.8},'n');const S=strikeOf(foeOf(g));g.atk=S.every;g.atkS=0;const q=tgt.p,ux=-dx/(d||1),uz=-dz/(d||1);damagePlayer(q,S.dmg,new V3(q.pos.x+ux*1.2,q.pos.y+1.1,q.pos.z+uz*1.2),new V3(-ux,0.3,-uz),S.cause,g.id);}   // (a dagger's quicker than a club)
         }
       }
       // (its blow: wound up over the last 0.45 s before it lands, then the follow-through; see strikes.js. Just after a

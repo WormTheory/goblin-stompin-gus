@@ -17,10 +17,11 @@ function gobArms(p){if(!p.wpns)gobLoadArm(p);return p;}   // (what he starts wit
 const gobW=p=>GOB_WPN[gobArms(p).wpn]||GOB_WPN.club;
 const gobGun=k=>!!WEAPONS[k]&&WEAPONS[k].kind==='gun';   // (the ones that shoot down the view: gobShoot)
 // what an enemy carries that can be taken off them
-// (read off the foe's own entry in FOES: whatever it holds (gear) that a goblin can wield, and grenades if it throws them,
-// so a new kind of foe drops its gear with nothing added here. Police carry theirs on g.gun; cultists aren't in FOES)
-function gobGear(g){const k=g.foeKind,F=k&&FOES[k];
-  return{wpn:g.gun===COP_FOE?'handgun':g.cultist?'dagger':F&&GOB_WPN[F.gear]&&WEAPONS[F.gear].drop?F.gear:null,gren:F&&F.bomb?1+(Math.random()<0.5?1:0):k==='soldier'?1:0};}
+// (read off its kind's weapons list (weapons.js: foeOf): the first that's dropped and a goblin can wield, and grenades:
+// one or two if it throws them, one if it only carries one in its pack. So a new kind drops its weapons with nothing added here)
+function gobGear(g){const F=foeOf(g),L=F.weapons||[],pk=F.pack||[];
+  const wpn=L.find(k=>WEAPONS[k]&&WEAPONS[k].drop&&!WEAPONS[k].stack&&GOB_WPN[k])||null;
+  return{wpn,gren:L.includes('grenade')?1+(Math.random()<0.5?1:0):pk.includes('grenade')?1:0};}
 // the attack button's hit, for whatever's in hand (the club's is gobClub)
 function gobAttack(p){const k=gobArms(p).wpn,K=WEAPONS[k];
   if(K&&K.kind==='gun'){gobShoot(p);return;}

@@ -39,7 +39,7 @@ await cam('cop',-1,2.4,0.5);await burst('cop-front',3,600);
 // calm (Peaceful): the rifle carried low in both hands
 await p.evaluate(()=>{window.__G.DT.host=1;});await p.waitForTimeout(1500);
 await cam('militia',1,2.6,1.3);await burst('militia-calm',2,800);
-console.log('poses',await p.evaluate(()=>window.__G.goblins.filter(g=>g.root.visible&&(g.foeKind||g.gun)).map(g=>(g.foeKind||'cop')+' arm '+g.arm.rotation.x.toFixed(2)+' armL '+g.armL.rotation.x.toFixed(2)).join(' | ')));
+console.log('poses',await p.evaluate(()=>window.__G.goblins.filter(g=>g.root.visible&&(g.foeKind||g.arms)).map(g=>(g.foeKind||'cop')+' arm '+g.arm.rotation.x.toFixed(2)+' armL '+g.armL.rotation.x.toFixed(2)).join(' | ')));
 // Gnash: first person, then seen from beside him
 await p.evaluate(()=>{const G=window.__G;clearInterval(window.__fc);if(G.DT.freecam)dispatchEvent(new KeyboardEvent('keydown',{code:'KeyV'}));G.setChar('goblin');});
 await p.waitForTimeout(1500);

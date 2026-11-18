@@ -28,14 +28,18 @@ vehicle carrier deck weapon ok
 vehicle train (stand-in) ok
 families covered: car x18, tank, heli, plane x2, balloon, mech, barge, carrier | not spawnable here: boats, trains, subways, two-seater planes
 vehicle registry (car, train, subway, tank, heli, plane, boat, balloon, mech, ship, mount) ok
-gun foeShoot (rifles, handguns) | on foot -6 hp, driving: tank -18, boxed in 0 ok
+car spawns (17 kinds and a police car) ok
+gun foeShoot (rifles, handguns) | on foot -12 hp, driving: tank -36, boxed in 0 ok
 gun crewGun (technical) | on foot -5 hp, driving: tank -15, boxed in 0 ok
 gun helicopter gun (AI) | on foot -6 hp, driving: tank -18, boxed in 0 ok
 gun jetAIGun (fighter jet) | on foot -9 hp, driving: tank -35.53035636583202, boxed in 0 ok
-gun mountAI (CIWS) | on foot -6 hp, driving: tank -24, boxed in 0 ok
-gun fireball (cultists) | on foot -2 hp, driving: tank -6, boxed in 0 ok
+gun mountAI (CIWS) | on foot -6 hp, driving: tank -28, boxed in 0 ok
+gun fireball (cultists) | on foot -2 hp, driving: tank -9, boxed in 0 ok
 gun gunRound | goblin hurt 10 in the open, 0 through a wall ok
 blasts and shells vs every kind of vehicle box ok
 enemy kinds (thief, prepper, militia, security, deckhand, sailor, marine, soldier) ok
+weapons lists (goblin: club; police: club+handgun; civilian: ; cultist: dagger; thief: dagger; prepper: rifle+grenade; militia: rifle+grenade; security: ; deckhand: ; sailor: rifle; marine: rifle+grenade; soldier: rifle) ok
+weapon stats only in WEAPONS (club, dagger, handgun, rifle, grenade; FOES, GOB_FOES) ok
+the same weapon in the hands of an enemy as of a player ok
 errors 0 
-GUARDS: no new gaps | expected gaps 9 | fixed 0
+GUARDS: no new gaps | expected gaps 4 | fixed 0

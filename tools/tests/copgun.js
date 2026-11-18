@@ -1,7 +1,7 @@
 let __s=+(process.env.SEED||1);Math.random=()=>{__s=(__s*16807)%2147483647;return (__s-1)/2147483646;};
 const fs=require('fs');
 let src0=fs.readFileSync('g.js','utf8');
-let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={FOES,SHOTS,TRACERS,trainHit,damageGoblin,DT,nearestPlayer,get wrecked(){return wrecked},TRAIN_BOXES,get TENV(){return TENV},get TS(){return TS},tenvShow,tenvSpawn,tenvTick,tenvFoe,tenvClear,boxesTouch,MIL,tenvRemove,tenvGo,stMatch,frame,players,goblins,cars,get,groundAt,chunks,meshes,venues,activeFix,activeProps,doorsOn,lmOn,bsigns,get nBS(){return nBS},refreshFixtures,refreshDoors,refreshVenues,plotType,superOf,get menuOpen(){return menuOpen},set menuOpen(v){menuOpen=v},get playing(){return playing},V3,get seed(){return seed},explored:()=>explored,SAVE_KEY,COP_FOE,WEAPONS,STRIKES,calmNow};\n})();');
+let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={FOES,SHOTS,TRACERS,trainHit,damageGoblin,DT,nearestPlayer,get wrecked(){return wrecked},TRAIN_BOXES,get TENV(){return TENV},get TS(){return TS},tenvShow,tenvSpawn,tenvTick,tenvFoe,tenvClear,boxesTouch,MIL,tenvRemove,tenvGo,stMatch,frame,players,goblins,cars,get,groundAt,chunks,meshes,venues,activeFix,activeProps,doorsOn,lmOn,bsigns,get nBS(){return nBS},refreshFixtures,refreshDoors,refreshVenues,plotType,superOf,get menuOpen(){return menuOpen},set menuOpen(v){menuOpen=v},get playing(){return playing},V3,get seed(){return seed},explored:()=>explored,SAVE_KEY,WEAPONS,STRIKES,calmNow};\n})();');
 const deep=()=>new Proxy(function(){}, {get:(t,p)=>p===Symbol.toPrimitive?()=>0:(p==='length'?0:deep()),apply:()=>deep(),construct:()=>deep()});
 class Q{constructor(){this.x=0;this.y=0;this.z=0;this.w=1}set(x,y,z,w){this.x=x;this.y=y;this.z=z;this.w=w;return this}setFromAxisAngle(a,t){const s=Math.sin(t/2);this.x=a.x*s;this.y=a.y*s;this.z=a.z*s;this.w=Math.cos(t/2);return this}copy(q){this.x=q.x;this.y=q.y;this.z=q.z;this.w=q.w;return this}}
 class V3{project(){return this}fromBufferAttribute(a,i){const A=a.array||a.a;this.x=A[i*3];this.y=A[i*3+1];this.z=A[i*3+2];return this}applyMatrix4(m){const e=m.elements,x=this.x,y=this.y,z=this.z;this.x=e[0]*x+e[4]*y+e[8]*z+e[12];this.y=e[1]*x+e[5]*y+e[9]*z+e[13];this.z=e[2]*x+e[6]*y+e[10]*z+e[14];return this}setFromMatrixPosition(o){this.x=o.position.x;this.y=o.position.y;this.z=o.position.z;return this}normalize(){const l=Math.hypot(this.x,this.y,this.z)||1;this.x/=l;this.y/=l;this.z/=l;return this}add(v){this.x+=v.x;this.y+=v.y;this.z+=v.z;return this}applyQuaternion(q){const x=this.x,y=this.y,z=this.z,qx=q.x,qy=q.y,qz=q.z,qw=q.w;const ix=qw*x+qy*z-qz*y,iy=qw*y+qz*x-qx*z,iz=qw*z+qx*y-qy*x,iw=-qx*x-qy*y-qz*z;this.x=ix*qw+iw*-qx+iy*-qz-iz*-qy;this.y=iy*qw+iw*-qy+iz*-qx-ix*-qz;this.z=iz*qw+iw*-qz+ix*-qy-iy*-qx;return this}constructor(x=0,y=0,z=0){this.x=x;this.y=y;this.z=z}set(x,y,z){this.x=x;this.y=y;this.z=z;return this}copy(v){this.x=v.x;this.y=v.y;this.z=v.z;return this}clone(){return new V3(this.x,this.y,this.z)}addScaledVector(v,s){this.x+=v.x*s;this.y+=v.y*s;this.z+=v.z*s;return this}multiplyScalar(s){this.x*=s;this.y*=s;this.z*=s;return this}setScalar(s){return this.set(s,s,s)}}
@@ -39,11 +39,11 @@ const errs=[];const ce=console.error;console.error=(...a)=>{errs.push(a.join(" "
 const P=T.players[0];for(const f of els.play.L.click)f();pads.length=0;
 run(2);const G0=44;
 const place=(x,z)=>{P.pos.set(x,0,z);P.pos.y=Math.max(G0+1,T.groundAt(x,z,80));P.vy=0;P.mvx=P.mvz=0;};
-const cops=()=>T.goblins.filter(g=>g.gun&&g.state==='chase');
+const cops=()=>T.goblins.filter(g=>g.arms&&g.state==='chase');
 const causes={};const dp=[];
 console.log('tenv',!!T.TENV,'host',T.DT.host);
 for(const [label,dist] of [['far',14],['close',1.5]]){
-  for(const g of cops()){g.state='wait';g.root.visible=false;g.gun=null;}
+  for(const g of cops()){g.state='wait';g.root.visible=false;g.arms=null;}
   place(P.pos.x,P.pos.z);P.heading=0;P.hp=20;
   T.tenvFoe('cop');const C=cops();
   for(const g of C){const a=Math.random()*6.28;g.pos.set(P.pos.x+Math.sin(a)*dist,P.pos.y,P.pos.z+Math.cos(a)*dist);g.inv=false;}
@@ -58,11 +58,11 @@ for(const [label,dist] of [['far',14],['close',1.5]]){
   console.log(label.padEnd(5),'cops',C.length,'| bullets',shots,'| hits on gus',hits,'| frames club+holster',frames[1],'gun out',frames[2],'none',frames[0],'| recoil frames',kicks,'| closest',minD.toFixed(1));
 }
 // calm: no shooting, gun put away
-T.DT.host=2;for(const g of cops()){g.state='wait';g.root.visible=false;g.gun=null;}
+T.DT.host=2;for(const g of cops()){g.state='wait';g.root.visible=false;g.arms=null;}
 T.tenvFoe('cop');const C2=cops();for(const g of C2){g.pos.set(P.pos.x+12,P.pos.y,P.pos.z);g.inv=false;}
 let sh=0;const sT=new Map();for(let i=0;i<5*60;i++){now+=16.7;T.frame(now);for(const t of T.TRACERS){if(t.t>(sT.get(t)??0)+0.001)sh++;sT.set(t,t.t);}}
 console.log('peaceful: cops',C2.length,'calm',T.calmNow(),'bullets',sh,'gun out',C2.filter(g=>g.pkit.shown===2).length);
 // an ordinary goblin out of the same pool: no gun, no holster
 T.DT.host=3;
-const plain=T.goblins.find(g=>g.pkit&&!g.gun&&g.state==='chase');console.log('ordinary goblin with the kit:',plain?('shown '+plain.pkit.shown+' pistol visible '+plain.pkit.pis.some(m=>m.visible)+' holster visible '+plain.pkit.hol.some(m=>m.visible)):'none about');
+const plain=T.goblins.find(g=>g.pkit&&!g.arms&&g.state==='chase');console.log('ordinary goblin with the kit:',plain?('shown '+plain.pkit.shown+' pistol visible '+plain.pkit.pis.some(m=>m.visible)+' holster visible '+plain.pkit.hol.some(m=>m.visible)):'none about');
 console.log('pistol pose keys',T.STRIKES.pistol.length,'| errors',errs.length,errs.slice(0,3));
