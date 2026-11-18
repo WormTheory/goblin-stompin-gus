@@ -80,6 +80,16 @@ function batDraw(){
 const GOB_GEO=new Map();   // (box shapes shared by street goblins and vehicles, by size, so their boxes batch together: never dispose one)
 const boxGeo=(w,h,d)=>{const k=w+','+h+','+d;let g=GOB_GEO.get(k);if(!g){g=new THREE.BoxGeometry(w,h,d);g.ub=[w,h,d];GOB_GEO.set(k,g);}return g;};
 const UNIT_BOX=new THREE.BoxGeometry(1,1,1);
+// a new goblin for one of the pools (street hostiles, civilians and staff, cultists, compound foes, an online guest's
+// mirrors): its model (o: goblinModel's options, sharing shapes so it batches) and every field the AI and the drawing
+// read, with x the pool's own fields on top. Pushed on to goblins, hidden until it's sent out (batDraw draws it)
+function makeGoblin(o,x){
+  const root=new THREE.Group();root.rotation.order='YXZ';
+  const m=goblinModel(root,Object.assign({shareGeo:true},o));
+  const g=Object.assign({snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,pkit:m.pkit||null,orb:m.orb||null,
+    pos:new V3(),kv:new V3(),stun:0,heading:0,vy:0,hp:4,state:'wait',t:0,phase:0,atk:1,hurt:0,sink:0,detour:0,detourH:0,stuck:0,civ:false},x);
+  root.visible=false;root.scale.setScalar(ES);goblins.push(g);return g;
+}
 function goblinModel(parent,o={}){
   parent.netOpt=o;   // (how it was made, so a guest online can make the same)
   const out={legs:[],acc:{},snowU:{value:0}},roles={},matList=[];

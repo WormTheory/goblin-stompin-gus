@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:083266b462dca95486da9d6a50b87fcdf534be7bfe6e7ef2081487bea8ac71a6 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:b28ad82fbfd3a86497e53af0b9e21b6d52cf52b221561817edd5d306ebebebaa -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1599,7 +1599,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Health bars</h3>
 <ul><li>With Options' Health bars on, Mobile Gears, hot-air balloons, the barge, the aircraft carrier and its deck weapons, and subway trains now show health bars like every other vehicle; they never had one.</li><li>Anything aboard a ship (goblins, cars, tanks, helicopters, the carrier's jets) now has its health bar over it, rather than out of sight far away.</li></ul>
 <h3>Fixes</h3>
-<ul><li>Gnash's rifle and handgun now damage every vehicle they hit, the same way: cars, tanks, helicopters, trains, planes, boats, balloons, Mobile Gears and the carrier's deck weapons all take three times what a goblin would. Before, they went straight through most vehicles, did a single point to cars, and only the deck weapons took real harm.</li><li>The minimap no longer draws the grey of the surrounding blocks over big sites that take up several blocks, such as theme parks, which hid most of their buildings.</li><li>Enemy gunfire now hits whatever you're driving. Before, rifles, the militia's machine guns, the helicopters' guns and the cultists' fireballs did nothing at all to a goblin behind the wheel; now the vehicle takes the hit instead.</li><li>Rounds from the fighter jets' cannons, the carrier's CIWS, the militia's machine guns and the helicopters' guns are stopped by walls, one round at a time. Before, some went straight through buildings, and a burst kept coming even after you ducked behind something.</li><li>Invulnerability now covers a train or subway train you're driving, as it does every other vehicle.</li><li>Every vehicle now plays by the same rules. Boats, trains and hot-air balloons gather snow like the rest; bringing down a hot-air balloon (400), a Mobile Gear (2,000) or one of the carrier's deck weapons (300) scores points; a balloon's health shows correctly to everyone playing online; and the smoke and flames off a badly hurt vehicle show for players online too.</li><li>Every vehicle now has the same health wherever it turns up: buses, articulated lorries, fire engines and ambulances take 45, motorhomes 40, police cars 40 and everything else 30. Before, an articulated lorry on the motorway or a police car in the traffic went down as easily as a family car, and the Testing Environment's ambulances and motorhomes did too.</li><li>Grenades, shells and rockets now hurt zoo animals, the Ferris wheel's rim and the carousel, as stomps already did, and a shell or rocket goes off when it hits an animal.</li></ul>
+<ul><li>Gnash's rifle and handgun now damage every vehicle they hit, the same way: cars, tanks, helicopters, trains, planes, boats, balloons, Mobile Gears and the carrier's deck weapons all take three times what a goblin would. Before, they went straight through most vehicles, did a single point to cars, and only the deck weapons took real harm.</li><li>The minimap no longer draws the grey of the surrounding blocks over big sites that take up several blocks, such as theme parks, which hid most of their buildings.</li><li>Enemy gunfire now hits whatever you're driving. Before, rifles, the militia's machine guns, the helicopters' guns and the cultists' fireballs did nothing at all to a goblin behind the wheel; now the vehicle takes the hit instead.</li><li>Rounds from the fighter jets' cannons, the carrier's CIWS, the militia's machine guns and the helicopters' guns are stopped by walls, one round at a time. Before, some went straight through buildings, and a burst kept coming even after you ducked behind something.</li><li>Invulnerability now covers a train or subway train you're driving, as it does every other vehicle.</li><li>Every vehicle now plays by the same rules. Boats, trains and hot-air balloons gather snow like the rest; bringing down a hot-air balloon (400), a Mobile Gear (2,000) or one of the carrier's deck weapons (300) scores points; a balloon's health shows correctly to everyone playing online; and the smoke and flames off a badly hurt vehicle show for players online too.</li><li>Every vehicle now has the same health wherever it turns up: buses, articulated lorries, fire engines and ambulances take 45, motorhomes 40, police cars 40 and everything else 30. Before, an articulated lorry on the motorway or a police car in the traffic went down as easily as a family car, and the Testing Environment's ambulances and motorhomes did too.</li><li>The Dev tab's Enemies section now has the soldiers who crew the military bases' tanks and helicopters, with every animation the other armed enemies have.</li><li>Grenades, shells and rockets now hurt zoo animals, the Ferris wheel's rim and the carousel, as stomps already did, and a shell or rocket goes off when it hits an animal.</li></ul>
 </details>
 <p class="pn-earlier">Earlier updates</p>
 <details class="pn-up pn-fold" id="version-0-4-1"><summary tabindex="0"><h2>Version 0.4.1</h2><a class="pn-play" data-ver="0.4.1" href="v/0.4.1/" tabindex="0">Play 0.4.1</a><span class="pn-tog" aria-hidden="true"></span></summary>
@@ -1911,7 +1911,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='bbcb2a8e2c3e';
+const GAME_VER='0.5',GAME_BUILD='d95da00d5b04';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -12540,9 +12540,6 @@ function jackable(D){const o=D.o;
   if(D.k==='tank'||D.k==='heli')return!o.dead&&o.state!=='idle'&&!!o.crew;   // (left standing by a goblin who drove it, or never yet crewed: empty)
   return false;
 }
-// the soldiers that crew the bases' tanks and helicopters, once they're out on foot (added to the compounds' kinds of foe)
-function jackKinds(){if(!FOES.soldier)FOES.soldier={name:'Soldier',label:'Soldier killed',tunic:0x4a5a2a,pants:0x2a3018,hat:'hardhat',hatc:0x3a4a22,gear:'rifle',held:[0.22,0.22,0.22,0x3a4a22],hp:5,spd:3.0,
-  melee:[1,1.2,'Clubbed with a rifle butt'],gun:[3,50,0.5,[1.1,1.9],1,'Shot by a soldier'],jobs:['Tank crewman','Gunner','Driver','Corporal','Private first class','Helicopter pilot']};}
 // the goblin you are, as everyone sees you while you do it (in a vehicle your own body's out of sight: see gobView)
 function jackActor(p){
   if(p.jackA)return p.jackA;
@@ -12572,7 +12569,7 @@ function jackVictim(D,J){
   // (nobody spare in the pool: the furthest one about, out of sight, is taken for it)
   const take=f=>free(f)||goblins.filter(q=>q.state==='chase'&&f(q)&&!q.medic&&!q.ff&&!q.news&&!q.cop).sort((a,b)=>Math.hypot(b.pos.x-o.pos.x,b.pos.z-o.pos.z)-Math.hypot(a.pos.x-o.pos.x,a.pos.z-o.pos.z))[0]||null;
   const hostile=q=>!q.civ&&!q.special&&!q.staff,civ=q=>q.civ&&!q.staff;
-  if(D.k==='tank'||D.k==='heli'){jackKinds();g=freeFoe('soldier',8);if(g){foeSpawn(g,'soldier',null,0);g.id.occ=D.k==='heli'?'Helicopter pilot':pick(['Tank crewman','Tank commander','Gunner','Tank driver']);if(o.crew&&o.crew!==MIL_CREW[D.k])g.id=o.crew;how='fight';}o.crew=null;}
+  if(D.k==='tank'||D.k==='heli'){g=freeFoe('soldier',8);if(g){foeSpawn(g,'soldier',null,0);g.id.occ=D.k==='heli'?'Helicopter pilot':pick(['Tank crewman','Tank commander','Gunner','Tank driver']);if(o.crew&&o.crew!==MIL_CREW[D.k])g.id=o.crew;how='fight';}o.crew=null;}
   // (a militia vehicle: its own driver, a militiaman, comes out fighting, and its gunner jumps off the back: see crews.js)
   else if(o.crew){const k=o.crew.k;g=freeFoe(k,24);if(g){foeSpawn(g,k,null,0);if(o.crew.drv)g.id=o.crew.drv;how='fight';}crewBail(o);}
   else{const dr=o.driver||{};name=dr.name;occ=dr.occ;
@@ -14600,6 +14597,16 @@ function batDraw(){
 const GOB_GEO=new Map();   // (box shapes shared by street goblins and vehicles, by size, so their boxes batch together: never dispose one)
 const boxGeo=(w,h,d)=>{const k=w+','+h+','+d;let g=GOB_GEO.get(k);if(!g){g=new THREE.BoxGeometry(w,h,d);g.ub=[w,h,d];GOB_GEO.set(k,g);}return g;};
 const UNIT_BOX=new THREE.BoxGeometry(1,1,1);
+// a new goblin for one of the pools (street hostiles, civilians and staff, cultists, compound foes, an online guest's
+// mirrors): its model (o: goblinModel's options, sharing shapes so it batches) and every field the AI and the drawing
+// read, with x the pool's own fields on top. Pushed on to goblins, hidden until it's sent out (batDraw draws it)
+function makeGoblin(o,x){
+  const root=new THREE.Group();root.rotation.order='YXZ';
+  const m=goblinModel(root,Object.assign({shareGeo:true},o));
+  const g=Object.assign({snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,pkit:m.pkit||null,orb:m.orb||null,
+    pos:new V3(),kv:new V3(),stun:0,heading:0,vy:0,hp:4,state:'wait',t:0,phase:0,atk:1,hurt:0,sink:0,detour:0,detourH:0,stuck:0,civ:false},x);
+  root.visible=false;root.scale.setScalar(ES);goblins.push(g);return g;
+}
 function goblinModel(parent,o={}){
   parent.netOpt=o;   // (how it was made, so a guest online can make the same)
   const out={legs:[],acc:{},snowU:{value:0}},roles={},matList=[];
@@ -16455,10 +16462,7 @@ function renderControls(){
 }
 renderControls();
 function addHostile(){
-  const root=new THREE.Group();root.rotation.order='YXZ';
-  const m=goblinModel(root,{shareGeo:true,pistol:true});   // (any of them may be sent out as police: police-gun.js)
-  goblins.push({snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,pkit:m.pkit,pos:new V3(),kv:new V3(),stun:0,heading:0,vy:0,hp:4,state:'wait',t:Math.random()*6,phase:0,atk:1,hurt:0,sink:0,detour:0,detourH:0,stuck:0,civ:false});
-  root.visible=false;root.scale.setScalar(ES);   // (not added to the scene: batDraw draws it)
+  const g=makeGoblin({pistol:true});g.t=Math.random()*6;   // (any of them may be sent out as police: police-gun.js)
 }
 for(let i=0;i<16;i++)addHostile();
 // civilians: shoppers, commuters and stall vendors who never fight back
@@ -16466,11 +16470,9 @@ const CIV_LOOKS=[{tunic:0x3a5f8a,hat:'cap',hatc:0xc9a02a},{tunic:0x8a3a5f},{tuni
 let civMade=0;
 function addCiv(){
   const i=civMade++;
-  const root=new THREE.Group();root.rotation.order='YXZ';
   const look=CIV_LOOKS[i%CIV_LOOKS.length];
-  const m=goblinModel(root,{club:false,tunic:look.tunic,hat:look.hat,hatc:look.hatc,skin:[0x7aa848,0x5f8a34,GC.skin][i%3],shareGeo:true});
-  goblins.push({snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,pos:new V3(),kv:new V3(),stun:0,heading:0,vy:0,hp:3,state:'wait',t:Math.random()*3,phase:0,atk:1,hurt:0,sink:0,detour:0,detourH:0,stuck:0,civ:true,vendor:null,wt:null,wtT:0,idle:0,screamCD:0,fleeing:false});
-  root.visible=false;root.scale.setScalar(ES);   // (not added to the scene: batDraw draws it)
+  const g=makeGoblin({club:false,tunic:look.tunic,hat:look.hat,hatc:look.hatc,skin:[0x7aa848,0x5f8a34,GC.skin][i%3]},{hp:3,civ:true,vendor:null,wt:null,wtT:0,idle:0,screamCD:0,fleeing:false});
+  g.t=Math.random()*3;
 }
 for(let i=0;i<14;i++)addCiv();
 // staff: a separate few townsfolk who work in the shops, restaurants, hospitals and stations near you, in uniform
@@ -16480,10 +16482,7 @@ for(let i=0;i<24;i++){addCiv();goblins[goblins.length-1].staff=true;}
 const CULT_ROBE=0x4a0a12,CULT_HOOD=0x2a0408;let cultMade=0;
 function freeCultist(cap=8){let g=goblins.find(o=>o.cultist&&o.state==='wait');if(!g&&cultMade<cap){addCultist();g=goblins[goblins.length-1];}return g||null;}
 function addCultist(){cultMade++;
-  const root=new THREE.Group();root.rotation.order='YXZ';
-  const m=goblinModel(root,{club:false,cult:true,tunic:CULT_ROBE,shareGeo:true});
-  goblins.push({snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,orb:m.orb,pos:new V3(),kv:new V3(),stun:0,heading:0,vy:0,hp:4,state:'wait',t:0,phase:0,atk:1,hurt:0,sink:0,detour:0,detourH:0,stuck:0,civ:false,cultist:true,special:true,homeV:null,ring:0,slot:0,cast:0,castCD:0});
-  root.visible=false;root.scale.setScalar(ES);   // (not added to the scene: batDraw draws it)
+  makeGoblin({club:false,cult:true,tunic:CULT_ROBE},{cultist:true,special:true,homeV:null,ring:0,slot:0,cast:0,castCD:0});
 }
 const STAFF_CAP={courthouse:3,base:4,airport:4,airfield:2,nasa:4,nuclear:3,campus:4,prison:4,jail:2,water:2,power:4,zoo:2,lab:3,ikea:6,museum:3,aquarium:3,casino:6,school:5,factory:5,datacenter:1,electric:2,dealer:3,armory:2,theater:3,stocks:4,nursery:2,library:2,cinema:3,radio:2,news:4,bank:3,disco:3,club:3,books:1,dentist:2,dispo:1,guns:1,bar:2,soup:3,bigbox:8,market:5,drug:3,grocery:3,hospital:5,police:3,fire:3,sitdown:4,fastfood:3,kiosk:2,diner:2,pizza:2,cafe:2,shop:2};
 const STAFF_JOBS={bigbox:['Cashier','Greeter','Stocker','Shift manager','Electronics associate','Cart wrangler'],grocery:['Cashier','Stocker','Deli clerk','Bagger','Produce clerk'],market:['Cashier','Stocker','Deli clerk','Bagger','Produce clerk','Butcher'],drug:['Pharmacist','Pharmacy tech','Cashier','Stocker'],
@@ -16773,14 +16772,14 @@ const FOES={
   sailor:{name:'Sailor',label:'Sailor killed',tunic:0x3a5a8a,pants:0x22324a,hat:'cap',hatc:0xeef0f2,gear:'rifle',held:[0.22,0.22,0.22,0x2a2a2a],hp:4,spd:3.0,melee:[1,1.2,'Clubbed with a rifle butt'],
     gun:[3,40,0.7,[1.6,2.6],1,'Shot by a sailor'],jobs:['Seaman','Boatswain\'s mate','Machinist\'s mate','Cook','Radioman','Fire controlman','Gunner\'s mate','Yeoman']},
   marine:{name:'Marine',label:'Marine killed',tunic:0x5a6a3a,pants:0x3a4428,hat:'hardhat',hatc:0x4a5630,gear:'rifle',held:[0.22,0.22,0.22,0x2a2a2a],hp:6,spd:3.2,melee:[1,1.4,'Clubbed with a rifle butt'],
-    gun:[3,50,0.5,[1.2,2.0],1,'Shot by a marine'],bomb:[6,20,[8,12],2.0,3.2,3,'Blown up by a marine\'s grenade'],jobs:['Marine','Lance corporal','Sergeant of the guard','Sentry','Rifleman','Ship\'s guard']}};
+    gun:[3,50,0.5,[1.2,2.0],1,'Shot by a marine'],bomb:[6,20,[8,12],2.0,3.2,3,'Blown up by a marine\'s grenade'],jobs:['Marine','Lance corporal','Sergeant of the guard','Sentry','Rifleman','Ship\'s guard']},
+  // (the bases' soldiers, who crew the tanks and helicopters and come out of them on foot: see crews.js and carjack.js)
+  soldier:{name:'Soldier',label:'Soldier killed',tunic:0x4a5a2a,pants:0x2a3018,hat:'hardhat',hatc:0x3a4a22,gear:'rifle',held:[0.22,0.22,0.22,0x3a4a22],hp:5,spd:3.0,
+    melee:[1,1.2,'Clubbed with a rifle butt'],gun:[3,50,0.5,[1.1,1.9],1,'Shot by a soldier'],jobs:['Tank crewman','Gunner','Driver','Corporal','Private first class','Helicopter pilot']}};
 const foeMade={};
 function freeFoe(k,cap=12){let g=goblins.find(o=>o.foeKind===k&&o.state==='wait');if(!g&&(foeMade[k]||0)<cap){addFoe(k);g=goblins[goblins.length-1];}return g||null;}
 function addFoe(k){foeMade[k]=(foeMade[k]||0)+1;const F=FOES[k];
-  const root=new THREE.Group();root.rotation.order='YXZ';
-  const m=goblinModel(root,{club:false,gear:F.gear,held:F.held,tunic:F.tunic,shareGeo:true});
-  goblins.push({snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,orb:m.orb||null,pos:new V3(),kv:new V3(),stun:0,heading:0,vy:0,hp:4,state:'wait',t:0,phase:0,atk:1,hurt:0,sink:0,detour:0,detourH:0,stuck:0,civ:false,special:true,foeKind:k,homeV:null,aim:0,aimK:null,gunCD:0,bombCD:0,hold:false});
-  root.visible=false;root.scale.setScalar(ES);   // (not added to the scene: batDraw draws it)
+  makeGoblin({club:false,gear:F.gear,held:F.held,tunic:F.tunic},{special:true,foeKind:k,homeV:null,aim:0,aimK:null,gunCD:0,bombCD:0,hold:false});
 }
 // one of them out of the pool, dressed and alive; V is its compound (null for one spawned to fight straight away), i its post
 function foeSpawn(g,k,V,i,look){
@@ -18385,7 +18384,7 @@ function crewWanted(m){const o=m.o;if(m.home)return true;
   return o.alive&&!!o.crew&&!o.crew[m.seat]&&!o.drv&&!o.gnr;}
 // one of the camp's kind (k), out of the pools at x,z, running for o's seat
 function crewSend(k,x,z,o,seat){
-  if(k==='soldier')jackKinds();const g=freeFoe(k,24);if(!g)return null;
+  const g=freeFoe(k,24);if(!g)return null;
   foeSpawn(g,k,null,0);g.pos.set(x,groundAt(x,z,G+6),z);g.mount={o,seat};g.mt=0;
   const at=o.isMil||o.cvJet?{x:o.x,z:o.z}:o.pos;g.heading=Math.atan2(at.x-x,at.z-z);g.root.position.copy(g.pos);
   if(k==='soldier')g.id.occ=o.kind==='heli'?'Helicopter pilot':pick(['Tank crewman','Tank commander','Tank driver']);
@@ -18469,7 +18468,7 @@ function crewWreck(c,p){const C=c.crew;if(!C)return;
   for(const s of ['drv','gun'])if(C[s]){const o=crewAt(p.x,p.z,c.heading,(s==='drv'?1.4:-1.4),s==='drv'?0.6:-1.2);crewCorpse(C.k,C[s],o.x,p.y+0.6,o.z,'Killed when their '+CREW_NAME[c.veh].toLowerCase()+' blew up');}
   C.drv=C.gun=null;}
 function crewCorpse(k,id,x,y,z,cause){
-  if(k==='soldier')jackKinds();const g=freeFoe(k,24);if(!g)return;foeSpawn(g,k,null,0);g.pos.set(x,y,z);g.root.position.copy(g.pos);if(id)g.id=id;
+  const g=freeFoe(k,24);if(!g)return;foeSpawn(g,k,null,0);g.pos.set(x,y,z);g.root.position.copy(g.pos);if(id)g.id=id;
   damageGoblin(g,99,new V3(x,y+1,z),new V3(Math.random()-0.5,1,Math.random()-0.5),cause);}
 // the gunner of one you've carjacked jumps off and comes at you
 function crewBail(c){const C=c.crew;if(!C)return;
@@ -19259,7 +19258,8 @@ const DEV_FOE_KINDS=[
     anims:['idle','walk','flee','stall','swim','death']},
   {k:'cultist',n:'Cultist',hp:4,spd:2.8,cult:true,melee:{dmg:1,every:0.85,w:'Ritual dagger'},look:{tunic:CULT_ROBE,pants:0x1a0a0c,hat:CULT_HOOD,acc:0x2a0408,acc2:0x2a0408,show:[]},
     anims:['chant','walk','attack','cast','jump','climb','swim','death']},
-  ...['thief','prepper','militia','sailor','marine','deckhand','security'].map(k=>{const F=FOES[k];return{k,n:F.name,hp:F.hp,spd:F.spd,foe:F,melee:{dmg:F.melee[0],every:F.melee[1],w:F.gear==='dagger'?'Dagger':F.gear?'Rifle butt':'Fists'},
+  // (every kind in the FOES table, so a new one is listed by itself)
+  ...Object.keys(FOES).map(k=>{const F=FOES[k];return{k,n:F.name,hp:F.hp,spd:F.spd,foe:F,melee:{dmg:F.melee[0],every:F.melee[1],w:F.gear==='dagger'?'Dagger':F.gear?'Rifle butt':'Fists'},
     look:{tunic:F.tunic,pants:F.pants,hat:F.hatc,acc:F.pants,show:k==='deckhand'||k==='sailor'||k==='security'?[F.hat]:[F.hat,k==='thief'?'eyepatch':'pouch']},
     gun:F.gun,anims:['guard','walk','attack',...(F.gun?['shoot']:[]),...(F.bomb?['throw']:[]),'jump','climb','swim','death']};})];
 const DEV_FOE_ANIM_N={idle:'Stand',walk:'Walk (chasing)',attack:'Attack',jump:'Jump up a step',climb:'Climb a wall',swim:'Swim',death:'Die',
@@ -27135,10 +27135,7 @@ function netGuestBegin(h){
 }
 function netGob(id,o){
   let g=NETM.g.get(id);if(g)return g;
-  const root=new THREE.Group();root.rotation.order='YXZ';
-  const m=goblinModel(root,Object.assign({},o,{shareGeo:true}));
-  g={snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,pkit:m.pkit||null,orb:m.orb||null,pos:new V3(),kv:new V3(),stun:0,heading:0,vy:0,hp:4,state:'net',t:0,phase:0,atk:1,hurt:0,sink:0,detour:0,detourH:0,stuck:0,civ:false,net:true,id:null};
-  root.visible=false;root.scale.setScalar(ES);goblins.push(g);NETM.g.set(id,g);return g;
+  g=makeGoblin(Object.assign({},o,{shareGeo:true}),{state:'net',net:true,id:null});NETM.g.set(id,g);return g;
 }
 function netCar(id,k){
   let c=NETM.c.get(id);

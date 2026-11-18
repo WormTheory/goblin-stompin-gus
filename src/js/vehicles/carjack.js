@@ -14,9 +14,6 @@ function jackable(D){const o=D.o;
   if(D.k==='tank'||D.k==='heli')return!o.dead&&o.state!=='idle'&&!!o.crew;   // (left standing by a goblin who drove it, or never yet crewed: empty)
   return false;
 }
-// the soldiers that crew the bases' tanks and helicopters, once they're out on foot (added to the compounds' kinds of foe)
-function jackKinds(){if(!FOES.soldier)FOES.soldier={name:'Soldier',label:'Soldier killed',tunic:0x4a5a2a,pants:0x2a3018,hat:'hardhat',hatc:0x3a4a22,gear:'rifle',held:[0.22,0.22,0.22,0x3a4a22],hp:5,spd:3.0,
-  melee:[1,1.2,'Clubbed with a rifle butt'],gun:[3,50,0.5,[1.1,1.9],1,'Shot by a soldier'],jobs:['Tank crewman','Gunner','Driver','Corporal','Private first class','Helicopter pilot']};}
 // the goblin you are, as everyone sees you while you do it (in a vehicle your own body's out of sight: see gobView)
 function jackActor(p){
   if(p.jackA)return p.jackA;
@@ -46,7 +43,7 @@ function jackVictim(D,J){
   // (nobody spare in the pool: the furthest one about, out of sight, is taken for it)
   const take=f=>free(f)||goblins.filter(q=>q.state==='chase'&&f(q)&&!q.medic&&!q.ff&&!q.news&&!q.cop).sort((a,b)=>Math.hypot(b.pos.x-o.pos.x,b.pos.z-o.pos.z)-Math.hypot(a.pos.x-o.pos.x,a.pos.z-o.pos.z))[0]||null;
   const hostile=q=>!q.civ&&!q.special&&!q.staff,civ=q=>q.civ&&!q.staff;
-  if(D.k==='tank'||D.k==='heli'){jackKinds();g=freeFoe('soldier',8);if(g){foeSpawn(g,'soldier',null,0);g.id.occ=D.k==='heli'?'Helicopter pilot':pick(['Tank crewman','Tank commander','Gunner','Tank driver']);if(o.crew&&o.crew!==MIL_CREW[D.k])g.id=o.crew;how='fight';}o.crew=null;}
+  if(D.k==='tank'||D.k==='heli'){g=freeFoe('soldier',8);if(g){foeSpawn(g,'soldier',null,0);g.id.occ=D.k==='heli'?'Helicopter pilot':pick(['Tank crewman','Tank commander','Gunner','Tank driver']);if(o.crew&&o.crew!==MIL_CREW[D.k])g.id=o.crew;how='fight';}o.crew=null;}
   // (a militia vehicle: its own driver, a militiaman, comes out fighting, and its gunner jumps off the back: see crews.js)
   else if(o.crew){const k=o.crew.k;g=freeFoe(k,24);if(g){foeSpawn(g,k,null,0);if(o.crew.drv)g.id=o.crew.drv;how='fight';}crewBail(o);}
   else{const dr=o.driver||{};name=dr.name;occ=dr.occ;

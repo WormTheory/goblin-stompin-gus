@@ -21,8 +21,6 @@ const EXPECTED=new Set([
   'barge: net','carrier: net','mount: net',
   // (the carrier loses health only from its blocks, by design: shipHit leaves it alone)
   'carrier: damage','carrier: points',
-  // (the soldiers who crew the base's armour have no entry in the Dev tab's enemy list)
-  'soldier: dev',
 ]);
 const seen=new Set(),out=[];let newGaps=0,fixed=0;
 const check=(who,what,ok,info)=>{const k=who+': '+what;seen.add(k);const exp=EXPECTED.has(k);
@@ -171,7 +169,7 @@ for(const [name,fire] of Object.entries(guns)){
  flush('blasts and shells vs every kind of vehicle box');}
 
 // ==== every enemy kind: the fields the AI reads, and a place in the Dev tab's enemy list ====
-{E('jackKinds()');const F=E('FOES'),dev=new Set(E('DEV_FOE_KINDS').map(d=>d.k)),W=E('WEAPONS');
+{const F=E('FOES'),dev=new Set(E('DEV_FOE_KINDS').map(d=>d.k)),W=E('WEAPONS');
  for(const k in F){const f=F[k],bad=[];for(const n of ['name','label','tunic','pants','hat','hatc','hp','spd','jobs'])if(f[n]===undefined)bad.push(n);
    if(!Array.isArray(f.melee)||f.melee.length<3)bad.push('melee');if(f.gear!=null&&!W[f.gear])bad.push('gear '+f.gear);
    if(f.gun&&f.gun.length<6)bad.push('gun');if(f.bomb&&f.bomb.length<7)bad.push('bomb');

@@ -419,10 +419,7 @@ function netGuestBegin(h){
 }
 function netGob(id,o){
   let g=NETM.g.get(id);if(g)return g;
-  const root=new THREE.Group();root.rotation.order='YXZ';
-  const m=goblinModel(root,Object.assign({},o,{shareGeo:true}));
-  g={snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,pkit:m.pkit||null,orb:m.orb||null,pos:new V3(),kv:new V3(),stun:0,heading:0,vy:0,hp:4,state:'net',t:0,phase:0,atk:1,hurt:0,sink:0,detour:0,detourH:0,stuck:0,civ:false,net:true,id:null};
-  root.visible=false;root.scale.setScalar(ES);goblins.push(g);NETM.g.set(id,g);return g;
+  g=makeGoblin(Object.assign({},o,{shareGeo:true}),{state:'net',net:true,id:null});NETM.g.set(id,g);return g;
 }
 function netCar(id,k){
   let c=NETM.c.get(id);

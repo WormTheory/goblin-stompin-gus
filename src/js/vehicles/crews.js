@@ -44,7 +44,7 @@ function crewWanted(m){const o=m.o;if(m.home)return true;
   return o.alive&&!!o.crew&&!o.crew[m.seat]&&!o.drv&&!o.gnr;}
 // one of the camp's kind (k), out of the pools at x,z, running for o's seat
 function crewSend(k,x,z,o,seat){
-  if(k==='soldier')jackKinds();const g=freeFoe(k,24);if(!g)return null;
+  const g=freeFoe(k,24);if(!g)return null;
   foeSpawn(g,k,null,0);g.pos.set(x,groundAt(x,z,G+6),z);g.mount={o,seat};g.mt=0;
   const at=o.isMil||o.cvJet?{x:o.x,z:o.z}:o.pos;g.heading=Math.atan2(at.x-x,at.z-z);g.root.position.copy(g.pos);
   if(k==='soldier')g.id.occ=o.kind==='heli'?'Helicopter pilot':pick(['Tank crewman','Tank commander','Tank driver']);
@@ -128,7 +128,7 @@ function crewWreck(c,p){const C=c.crew;if(!C)return;
   for(const s of ['drv','gun'])if(C[s]){const o=crewAt(p.x,p.z,c.heading,(s==='drv'?1.4:-1.4),s==='drv'?0.6:-1.2);crewCorpse(C.k,C[s],o.x,p.y+0.6,o.z,'Killed when their '+CREW_NAME[c.veh].toLowerCase()+' blew up');}
   C.drv=C.gun=null;}
 function crewCorpse(k,id,x,y,z,cause){
-  if(k==='soldier')jackKinds();const g=freeFoe(k,24);if(!g)return;foeSpawn(g,k,null,0);g.pos.set(x,y,z);g.root.position.copy(g.pos);if(id)g.id=id;
+  const g=freeFoe(k,24);if(!g)return;foeSpawn(g,k,null,0);g.pos.set(x,y,z);g.root.position.copy(g.pos);if(id)g.id=id;
   damageGoblin(g,99,new V3(x,y+1,z),new V3(Math.random()-0.5,1,Math.random()-0.5),cause);}
 // the gunner of one you've carjacked jumps off and comes at you
 function crewBail(c){const C=c.crew;if(!C)return;

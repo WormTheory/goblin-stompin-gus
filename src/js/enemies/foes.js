@@ -19,14 +19,14 @@ const FOES={
   sailor:{name:'Sailor',label:'Sailor killed',tunic:0x3a5a8a,pants:0x22324a,hat:'cap',hatc:0xeef0f2,gear:'rifle',held:[0.22,0.22,0.22,0x2a2a2a],hp:4,spd:3.0,melee:[1,1.2,'Clubbed with a rifle butt'],
     gun:[3,40,0.7,[1.6,2.6],1,'Shot by a sailor'],jobs:['Seaman','Boatswain\'s mate','Machinist\'s mate','Cook','Radioman','Fire controlman','Gunner\'s mate','Yeoman']},
   marine:{name:'Marine',label:'Marine killed',tunic:0x5a6a3a,pants:0x3a4428,hat:'hardhat',hatc:0x4a5630,gear:'rifle',held:[0.22,0.22,0.22,0x2a2a2a],hp:6,spd:3.2,melee:[1,1.4,'Clubbed with a rifle butt'],
-    gun:[3,50,0.5,[1.2,2.0],1,'Shot by a marine'],bomb:[6,20,[8,12],2.0,3.2,3,'Blown up by a marine\'s grenade'],jobs:['Marine','Lance corporal','Sergeant of the guard','Sentry','Rifleman','Ship\'s guard']}};
+    gun:[3,50,0.5,[1.2,2.0],1,'Shot by a marine'],bomb:[6,20,[8,12],2.0,3.2,3,'Blown up by a marine\'s grenade'],jobs:['Marine','Lance corporal','Sergeant of the guard','Sentry','Rifleman','Ship\'s guard']},
+  // (the bases' soldiers, who crew the tanks and helicopters and come out of them on foot: see crews.js and carjack.js)
+  soldier:{name:'Soldier',label:'Soldier killed',tunic:0x4a5a2a,pants:0x2a3018,hat:'hardhat',hatc:0x3a4a22,gear:'rifle',held:[0.22,0.22,0.22,0x3a4a22],hp:5,spd:3.0,
+    melee:[1,1.2,'Clubbed with a rifle butt'],gun:[3,50,0.5,[1.1,1.9],1,'Shot by a soldier'],jobs:['Tank crewman','Gunner','Driver','Corporal','Private first class','Helicopter pilot']}};
 const foeMade={};
 function freeFoe(k,cap=12){let g=goblins.find(o=>o.foeKind===k&&o.state==='wait');if(!g&&(foeMade[k]||0)<cap){addFoe(k);g=goblins[goblins.length-1];}return g||null;}
 function addFoe(k){foeMade[k]=(foeMade[k]||0)+1;const F=FOES[k];
-  const root=new THREE.Group();root.rotation.order='YXZ';
-  const m=goblinModel(root,{club:false,gear:F.gear,held:F.held,tunic:F.tunic,shareGeo:true});
-  goblins.push({snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,orb:m.orb||null,pos:new V3(),kv:new V3(),stun:0,heading:0,vy:0,hp:4,state:'wait',t:0,phase:0,atk:1,hurt:0,sink:0,detour:0,detourH:0,stuck:0,civ:false,special:true,foeKind:k,homeV:null,aim:0,aimK:null,gunCD:0,bombCD:0,hold:false});
-  root.visible=false;root.scale.setScalar(ES);   // (not added to the scene: batDraw draws it)
+  makeGoblin({club:false,gear:F.gear,held:F.held,tunic:F.tunic},{special:true,foeKind:k,homeV:null,aim:0,aimK:null,gunCD:0,bombCD:0,hold:false});
 }
 // one of them out of the pool, dressed and alive; V is its compound (null for one spawned to fight straight away), i its post
 function foeSpawn(g,k,V,i,look){

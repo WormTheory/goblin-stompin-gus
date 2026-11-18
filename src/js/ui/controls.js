@@ -228,10 +228,7 @@ function renderControls(){
 }
 renderControls();
 function addHostile(){
-  const root=new THREE.Group();root.rotation.order='YXZ';
-  const m=goblinModel(root,{shareGeo:true,pistol:true});   // (any of them may be sent out as police: police-gun.js)
-  goblins.push({snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,pkit:m.pkit,pos:new V3(),kv:new V3(),stun:0,heading:0,vy:0,hp:4,state:'wait',t:Math.random()*6,phase:0,atk:1,hurt:0,sink:0,detour:0,detourH:0,stuck:0,civ:false});
-  root.visible=false;root.scale.setScalar(ES);   // (not added to the scene: batDraw draws it)
+  const g=makeGoblin({pistol:true});g.t=Math.random()*6;   // (any of them may be sent out as police: police-gun.js)
 }
 for(let i=0;i<16;i++)addHostile();
 // civilians: shoppers, commuters and stall vendors who never fight back
@@ -239,11 +236,9 @@ const CIV_LOOKS=[{tunic:0x3a5f8a,hat:'cap',hatc:0xc9a02a},{tunic:0x8a3a5f},{tuni
 let civMade=0;
 function addCiv(){
   const i=civMade++;
-  const root=new THREE.Group();root.rotation.order='YXZ';
   const look=CIV_LOOKS[i%CIV_LOOKS.length];
-  const m=goblinModel(root,{club:false,tunic:look.tunic,hat:look.hat,hatc:look.hatc,skin:[0x7aa848,0x5f8a34,GC.skin][i%3],shareGeo:true});
-  goblins.push({snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,pos:new V3(),kv:new V3(),stun:0,heading:0,vy:0,hp:3,state:'wait',t:Math.random()*3,phase:0,atk:1,hurt:0,sink:0,detour:0,detourH:0,stuck:0,civ:true,vendor:null,wt:null,wtT:0,idle:0,screamCD:0,fleeing:false});
-  root.visible=false;root.scale.setScalar(ES);   // (not added to the scene: batDraw draws it)
+  const g=makeGoblin({club:false,tunic:look.tunic,hat:look.hat,hatc:look.hatc,skin:[0x7aa848,0x5f8a34,GC.skin][i%3]},{hp:3,civ:true,vendor:null,wt:null,wtT:0,idle:0,screamCD:0,fleeing:false});
+  g.t=Math.random()*3;
 }
 for(let i=0;i<14;i++)addCiv();
 // staff: a separate few townsfolk who work in the shops, restaurants, hospitals and stations near you, in uniform
@@ -253,10 +248,7 @@ for(let i=0;i<24;i++){addCiv();goblins[goblins.length-1].staff=true;}
 const CULT_ROBE=0x4a0a12,CULT_HOOD=0x2a0408;let cultMade=0;
 function freeCultist(cap=8){let g=goblins.find(o=>o.cultist&&o.state==='wait');if(!g&&cultMade<cap){addCultist();g=goblins[goblins.length-1];}return g||null;}
 function addCultist(){cultMade++;
-  const root=new THREE.Group();root.rotation.order='YXZ';
-  const m=goblinModel(root,{club:false,cult:true,tunic:CULT_ROBE,shareGeo:true});
-  goblins.push({snowU:m.snowU,root,legs:m.legs,head:m.head,arm:m.arm,armL:m.armL,mats:m.mats,roles:m.roles,acc:m.acc,orb:m.orb,pos:new V3(),kv:new V3(),stun:0,heading:0,vy:0,hp:4,state:'wait',t:0,phase:0,atk:1,hurt:0,sink:0,detour:0,detourH:0,stuck:0,civ:false,cultist:true,special:true,homeV:null,ring:0,slot:0,cast:0,castCD:0});
-  root.visible=false;root.scale.setScalar(ES);   // (not added to the scene: batDraw draws it)
+  makeGoblin({club:false,cult:true,tunic:CULT_ROBE},{cultist:true,special:true,homeV:null,ring:0,slot:0,cast:0,castCD:0});
 }
 const STAFF_CAP={courthouse:3,base:4,airport:4,airfield:2,nasa:4,nuclear:3,campus:4,prison:4,jail:2,water:2,power:4,zoo:2,lab:3,ikea:6,museum:3,aquarium:3,casino:6,school:5,factory:5,datacenter:1,electric:2,dealer:3,armory:2,theater:3,stocks:4,nursery:2,library:2,cinema:3,radio:2,news:4,bank:3,disco:3,club:3,books:1,dentist:2,dispo:1,guns:1,bar:2,soup:3,bigbox:8,market:5,drug:3,grocery:3,hospital:5,police:3,fire:3,sitdown:4,fastfood:3,kiosk:2,diner:2,pizza:2,cafe:2,shop:2};
 const STAFF_JOBS={bigbox:['Cashier','Greeter','Stocker','Shift manager','Electronics associate','Cart wrangler'],grocery:['Cashier','Stocker','Deli clerk','Bagger','Produce clerk'],market:['Cashier','Stocker','Deli clerk','Bagger','Produce clerk','Butcher'],drug:['Pharmacist','Pharmacy tech','Cashier','Stocker'],
