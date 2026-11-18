@@ -107,11 +107,9 @@ function spawnTraffic(c){
     if(cars.some(o=>o!==c&&o.alive&&Math.hypot(o.pos.x-px,o.pos.z-pz)<7))continue;
     if(players.some(q=>q.active&&Math.hypot(q.pos.x-px,q.pos.z-pz)<20))continue;
     if(playTime>=2&&Math.hypot(px-p.pos.x,pz-p.pos.z)<hazeMin&&visibleToAny(px,G+2,pz))continue;
-    if(!c.police)setVeh(c,pickVeh('street'));
+    carSpawn(c,{veh:c.police?null:pickVeh('street'),x:px,y:G+1,z:pz,h:DIRH[c.dir],speed:6});
     c.driver=makeDriver(false);
-    c.path=null;c.hw=null;c.rt=null;c.leaving=false;c.rampKey=null;
-    c.pos.set(px,G+1,pz);c.kv.set(0,0,0);c.heading=DIRH[c.dir];c.speed=6;c.hp=30;c.alive=true;c.hunter=false;c.lastInter=-1;c.hurt=0;c.vy=0;c.reverseT=0;c.stuckT=0;c.pitch=0;c.roll=0;c.spinP=0;c.spinR=0;c.grounded=true;
-    c.paint.emissive.setHex(0);c.g.visible=true;return true;
+    c.path=null;c.hw=null;c.rt=null;c.leaving=false;c.rampKey=null;c.lastInter=-1;return true;
   }
   return false;
 }

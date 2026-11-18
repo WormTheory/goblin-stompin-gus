@@ -5,7 +5,7 @@
 // the militia's vehicles: where they're parked in the compound (site coordinates, and the way they face: the cab
 // toward the HQ end), what they're made of, and the gun each one's gunner works
 const CREW_SPOTS=[{t:'technical',u:42.5,v:29.5,h:-Math.PI/2},{t:'technical',u:50.5,v:29.5,h:-Math.PI/2},{t:'quad',u:40.5,v:34.5,h:-Math.PI/2},{t:'quad',u:45.5,v:34.5,h:-Math.PI/2}];
-const CREW_HP={technical:45,quad:24},CREW_NAME={technical:'Technical',quad:'Four-wheeler'};
+const CREW_NAME={technical:'Technical',quad:'Four-wheeler'};
 // turn: how fast the gun swings round (a second); range; burst: rounds a burst, bt: seconds between them; cd: the pause
 // after one; hit: the chance a round finds him, close in (falling off with range)
 const CREW_GUN={technical:{turn:2.2,range:60,burst:5,bt:0.09,cd:[1.8,2.8],hit:0.25,dmg:1,cause:'Gunned down from a technical'},
@@ -17,9 +17,8 @@ function crewCar(){let c=CREWCARS.find(o=>!o.alive);
   return c||null;}
 // one put down at x,z, empty, as the given kind (k: who crews it)
 function crewPut(c,t,x,z,h,key,k){
-  setVeh(c,t);c.paint.color.setHex(c.color);c.rusted=false;c.spot=key;c.pos.set(x,groundAt(x,z,G+6),z);c.heading=h;c.speed=0;c.kv.set(0,0,0);c.hp=CREW_HP[t];c.alive=true;c.hunter=false;c.parked=true;c.vy=0;c.driver=null;
-  c.rt=null;c.hw=null;c.path=null;c.svc=null;c.leaving=false;c.left=false;c.makeWay=0;c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.steer=0;c.paint.emissive.setHex(0);c.wpn=null;c.gunYaw=0;
-  c.g.visible=true;c.g.position.copy(c.pos);c.g.rotation.set(0,h,0);
+  carSpawn(c,{veh:t,x,y:groundAt(x,z,G+6),z,h,parked:true,place:true});c.paint.color.setHex(c.color);c.rusted=false;c.spot=key;c.driver=null;
+  c.rt=null;c.hw=null;c.path=null;c.svc=null;c.leaving=false;c.left=false;c.makeWay=0;c.steer=0;c.wpn=null;c.gunYaw=0;
   c.crew={k,drv:null,gun:null,go:false,run:{},yaw:0,cd:1,burst:0,bt:0,side:Math.random()<0.5?1:-1};crewShow(c);
 }
 // who's showing aboard: the driver's head (and on a four-wheeler, the rest of him), the gunner at his gun

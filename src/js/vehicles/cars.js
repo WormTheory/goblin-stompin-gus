@@ -42,21 +42,22 @@ function makeCar(i,police){
   c.g.visible=false;scene.add(c.g);return c;
 }
 // ---- vehicle types: sizes (before the world scale ES) and roof heights along their length (for standing on them)
-const VEH={bus:{hx:1.25,hz:5.2,hy:3.3,head:[0.5,2.7,4.3],roof:l=>3.3},
+// (hp: a kind's full health, 30 if not given; a police car has 40 whatever its body. See carHP)
+const VEH={bus:{hx:1.25,hz:5.2,hy:3.3,hp:45,head:[0.5,2.7,4.3],roof:l=>3.3},
   car:{hx:1.0,hz:1.9,hy:1.6,head:[0.35,1.4,-0.1],roof:l=>l>-1.2&&l<0.7?1.68:1.1},
   van:{hx:1.05,hz:2.4,hy:2.3,head:[0.4,2.15,0.6],roof:l=>2.25},
   pickup:{hx:1.0,hz:2.6,hy:1.9,head:[0.35,1.9,0.5],roof:l=>l>-0.4&&l<1.4?1.95:1.0},
   truck:{hx:1.2,hz:3.5,hy:3.3,head:[0.45,2.05,2.4],roof:l=>l>1.6?2.1:3.2},
-  semi:{hx:1.25,hz:6.6,hy:3.9,head:[0.5,3.1,4.2],roof:l=>l>2.4?(l>5.0?1.75:3.1):3.85},
-  fire:{hx:1.2,hz:3.7,hy:3.0,head:[0.45,2.6,2.3],roof:l=>l>1.6?2.5:3.0},
-  amb:{hx:1.15,hz:3.0,hy:2.8,head:[0.4,2.2,1.9],roof:l=>l>1.2?2.0:2.8},
+  semi:{hx:1.25,hz:6.6,hy:3.9,hp:45,head:[0.5,3.1,4.2],roof:l=>l>2.4?(l>5.0?1.75:3.1):3.85},
+  fire:{hx:1.2,hz:3.7,hy:3.0,hp:45,head:[0.45,2.6,2.3],roof:l=>l>1.6?2.5:3.0},
+  amb:{hx:1.15,hz:3.0,hy:2.8,hp:45,head:[0.4,2.2,1.9],roof:l=>l>1.2?2.0:2.8},
   news:{hx:1.05,hz:2.4,hy:2.3,head:[0.4,2.15,0.6],roof:l=>2.25},
   bike:{hx:0.45,hz:1.15,hy:1.7,head:[0,1.32,-0.22],roof:l=>l>-0.7&&l<0.3?1.2:0.95},
-  rv:{hx:1.17,hz:3.8,hy:3.15,head:[0.45,1.25,2.9],roof:l=>l>3.45?2.1:3.15},
+  rv:{hx:1.17,hz:3.8,hy:3.15,hp:40,head:[0.45,1.25,2.9],roof:l=>l>3.45?2.1:3.15},
   // (the militia's: a pickup with a machine gun on a post in its bed and a gunner stood at it, and a four-wheeler with a
   // rider and a rifleman sat behind him. See crews.js. Never in the traffic: VEH_MIX leaves them out)
-  technical:{hx:1.0,hz:2.6,hy:2.7,head:[0.35,1.9,0.5],roof:l=>l>-0.4&&l<1.4?1.95:1.0},
-  quad:{hx:0.75,hz:1.15,hy:1.6,head:[0,1.32,0.05],roof:l=>l>-0.9&&l<0.4?1.0:0.85},
+  technical:{hx:1.0,hz:2.6,hy:2.7,hp:45,head:[0.35,1.9,0.5],roof:l=>l>-0.4&&l<1.4?1.95:1.0},
+  quad:{hx:0.75,hz:1.15,hy:1.6,hp:24,head:[0,1.32,0.05],roof:l=>l>-0.9&&l<0.4?1.0:0.85},
   // (a supercar: low and wide, now and then in the traffic, and very fast. See drvCar)
   super:{hx:1.0,hz:2.2,hy:1.2,head:[0.35,0.95,-0.35],roof:l=>l>-1.1&&l<0.5?1.2:0.8},
   // (a forklift: out in a factory's yard by the loading docks, never in the traffic; slow)
@@ -79,6 +80,18 @@ function setVeh(c,t){
   c.dh.position.set(...V.head);
   if(G2.gunner)G2.gunner.visible=!!(c.crew&&c.crew.gun);   // (a technical's or a four-wheeler's gunner: only with someone in that seat)
   if(c.hazG)c.hazG.children.forEach((m,k)=>m.position.set((k&1?1:-1)*(V.hx-0.12),t==='semi'||t==='truck'?1.05:0.86,(k&2?1:-1)*(V.hz+0.03)));
+}
+// a car's full health: its kind's, or a police car's
+const carHP=c=>c.police?40:(VEH[c.veh]&&VEH[c.veh].hp)||30;
+// put a car from a pool back into the world, whole and still, as kind o.veh (if given) at o.x,o.y,o.z facing o.h
+// (every place that brings a car back uses this, so a new field to reset goes here once; each keeps its own extras.
+// o.hp overrides the kind's health; o.parked is left alone if not given; o.place moves its picture there now)
+function carSpawn(c,o){
+  if(o.veh)setVeh(c,o.veh);
+  if(o.x!==undefined){c.pos.set(o.x,o.y,o.z);c.heading=o.h||0;}
+  c.speed=o.speed||0;c.kv.set(0,0,0);c.hp=c.hpMax=o.hp||carHP(c);c.alive=true;c.hunter=!!o.hunter;if(o.parked!==undefined)c.parked=o.parked;c.vy=0;
+  c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.paint.emissive.setHex(0);c.g.visible=true;
+  if(o.place){c.g.position.copy(c.pos);c.g.rotation.set(0,c.heading,0);}
 }
 function buildVeh(c,t){
   const g=new THREE.Group();c.g.add(g);const wheels=[],front=[];let rider=null;
@@ -323,9 +336,8 @@ const pullToday=o=>{const h=hash2(o.R.pts[0][0]*3+o.k*17+dayN*131,o.R.pts[0][1]*
 let pullT=0;
 function pullCarAt(c,o,s,veh){
   const R=o.R,P=rtPoint(R,s),tx=P.tx*o.dir,tz=P.tz*o.dir,x=P.x-tz*PULL_OFF,z=P.z+tx*PULL_OFF;
-  setVeh(c,veh);c.pos.set(x,G+1,z);c.heading=Math.atan2(tx,tz);c.speed=0;c.kv.set(0,0,0);c.hp=30;c.alive=true;c.hunter=false;c.parked=true;c.vy=0;
-  c.rt=null;c.hw=null;c.path=null;c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.paint.emissive.setHex(0);c.g.visible=true;
-  c.g.position.copy(c.pos);c.g.rotation.set(0,c.heading,0);
+  carSpawn(c,{veh,x,y:G+1,z,h:Math.atan2(tx,tz),parked:true,place:true});
+  c.rt=null;c.hw=null;c.path=null;
 }
 function managePull(){
   const act=players.filter(p=>p.active);if(!act.length)return;
@@ -367,8 +379,8 @@ function manageRVs(){
       if(cars.some(c=>c.alive&&Math.hypot(c.pos.x-x,c.pos.z-z)<6)||players.some(o=>o.active&&Math.hypot(o.pos.x-x,o.pos.z-z)<7))continue;
       if(d<far*0.8&&visibleToAny(x,G+2,z))continue;
       const c=RVS.find(o=>!o.alive);if(!c)return;
-      setVeh(c,'rv');c.paint.color.setHex(c.color);c.rusted=false;c.spot=key;c.pos.set(x,G+1,z);c.heading=Math.PI/2;c.speed=0;c.kv.set(0,0,0);c.hp=40;c.alive=true;c.hunter=false;c.parked=true;c.vy=0;c.driver=null;c.dh.visible=false;
-      c.rt=null;c.hw=null;c.path=null;c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.paint.emissive.setHex(0);c.g.visible=true;c.g.position.copy(c.pos);c.g.rotation.set(0,c.heading,0);}}
+      carSpawn(c,{veh:'rv',x,y:G+1,z,h:Math.PI/2,parked:true,place:true});c.paint.color.setHex(c.color);c.rusted=false;c.spot=key;c.driver=null;c.dh.visible=false;
+      c.rt=null;c.hw=null;c.path=null;}}
 }
 // police cars park at the stations near you and come after you when you get close
 const policeDown={};
@@ -423,8 +435,7 @@ function spawnParked(c){
     if(solidAt(Math.floor(o.x),o.y,Math.floor(o.z))||solidAt(Math.floor(o.x),o.y+1,Math.floor(o.z)))continue;
     if(players.some(q=>q.active&&Math.hypot(q.pos.x-o.x,q.pos.z-o.z)<6))continue;
     if(visibleToAny(o.x,o.y+1,o.z))continue;   // (never pops into a bay in plain view)
-    setVeh(c,o.veh||pickVeh('park'));if(o.tint&&c.tracM)c.tracM.color.setHex(o.tint);c.paint.color.setHex(o.rust?RUST_PAINTS[Math.floor(hash2(Math.floor(o.x),Math.floor(o.z))*RUST_PAINTS.length)]:c.color);c.rusted=!!o.rust;c.spot=o.key;c.pos.set(o.x,o.y,o.z);c.heading=o.h;c.speed=0;c.kv.set(0,0,0);c.hp=30;c.alive=true;c.hunter=false;c.parked=true;c.vy=0;c.driver=null;c.dh.visible=false;
-    c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.paint.emissive.setHex(0);c.g.visible=true;
+    carSpawn(c,{veh:o.veh||pickVeh('park'),x:o.x,y:o.y,z:o.z,h:o.h,parked:true});if(o.tint&&c.tracM)c.tracM.color.setHex(o.tint);c.paint.color.setHex(o.rust?RUST_PAINTS[Math.floor(hash2(Math.floor(o.x),Math.floor(o.z))*RUST_PAINTS.length)]:c.color);c.rusted=!!o.rust;c.spot=o.key;c.driver=null;c.dh.visible=false;
     return true;
   }
   return false;
@@ -492,8 +503,7 @@ function spawnHw(c){
       setVeh(c,(()=>{let t;do t=pickVeh('hw');while(t==='semi');return t;})());
       c.path=R.on.slice(1);c.pathEnd='join';c.join={ax:o.H.ax,dir:R.d,lane:R.outer,y:R.HY+1};c.hw=null;
       c.driver=makeDriver(false);c.dh.visible=true;c.spot=null;c.parked=false;
-      c.pos.set(s0.x,y,s0.z);c.heading=Math.atan2(nx.x-s0.x,nx.z-s0.z);c.speed=4;c.kv.set(0,0,0);c.hp=30;c.alive=true;c.hunter=false;c.vy=0;
-      c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.paint.emissive.setHex(0);c.g.visible=true;
+      carSpawn(c,{x:s0.x,y,z:s0.z,h:Math.atan2(nx.x-s0.x,nx.z-s0.z),speed:4});
       return true;
     }
   }
@@ -505,9 +515,7 @@ function spawnHw(c){
     if(cars.some(o=>o!==c&&o.alive&&Math.abs(o.pos.y-y)<2&&Math.hypot(o.pos.x-x,o.pos.z-z)<14+o.hz))return false;
     if(Math.hypot(x-p.pos.x,z-p.pos.z)<70&&visibleToAny(x,y+1,z))return false;
     return true;};
-  const go=(x,y,z)=>{setVeh(c,pickVeh('hw'));c.driver=makeDriver(false);c.dh.visible=true;c.spot=null;c.parked=false;
-    c.speed=16;c.kv.set(0,0,0);c.hp=30;c.alive=true;c.hunter=false;c.vy=0;
-    c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.paint.emissive.setHex(0);c.g.visible=true;};
+  const go=(x,y,z)=>{carSpawn(c,{veh:pickVeh('hw'),speed:16,parked:false});c.driver=makeDriver(false);c.dh.visible=true;c.spot=null;};
   for(let tries=0;tries<10;tries++){
     if(RL.length&&(Math.random()<0.75||!L.length)){
       const R=RL[Math.floor(Math.random()*RL.length)],me=rtProject(R,p.pos.x,p.pos.z),dir=Math.random()<0.5?1:-1,lane=RT_LANES[Math.floor(Math.random()*2)];
@@ -546,8 +554,7 @@ function spawnPolice(c){
         const x=px*CELL+bays[s].x,z=pz*CELL+bays[s].z;
         const pd=Math.hypot(x-p.pos.x,z-p.pos.z);if(pd<minD||pd>viewFar()+8)continue;
         if(supportAt(x,z,G+2)!==G+1)continue;
-        c.spot=spot;c.pos.set(x,G+1,z);c.heading=bays[s].h;c.speed=0;c.kv.set(0,0,0);c.hp=40;c.alive=true;c.hunter=false;c.parked=true;c.vy=0;c.driver=makeDriver(true);
-        c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.paint.emissive.setHex(0);c.g.visible=true;
+        carSpawn(c,{x,y:G+1,z,h:bays[s].h,parked:true});c.spot=spot;c.driver=makeDriver(true);
         return true;
       }
     }

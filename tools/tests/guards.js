@@ -102,6 +102,13 @@ console.log('families covered:',Object.entries(did).map(([k,n])=>k+(n>1?' x'+n:'
    check('registry '+k,'fields',!bad.length,bad.join(','));}
  flush('vehicle registry ('+Object.keys(VK).join(', ')+')');}
 
+// ==== every car kind: carSpawn brings it back whole, at its kind's health (VEH's hp), and the health bar's full reads that ====
+{const VEH=E('VEH'),cs=E('carSpawn'),c=E('makeCar')(990,false),cp=E('makeCar')(991,true);c.g.scale.setScalar(E('ES'));
+ for(const t in VEH){c.hp=1;c.hpMax=1;c.alive=false;cs(c,{veh:t,x:0,y:E('G')+1,z:0,h:0,parked:true});const want=VEH[t].hp||30;
+   check('car '+t,'spawn',c.alive&&c.hp===want&&c.hpMax===want&&c.veh===t&&E('VEHICLE_KINDS').car.max(c)===want,'hp '+c.hp+'/'+c.hpMax+' want '+want);}
+ cs(cp,{x:0,y:E('G')+1,z:0});check('car police','spawn',cp.hp===40&&cp.hpMax===40,'hp '+cp.hp);
+ flush('car spawns ('+Object.keys(VEH).length+' kinds and a police car)');}
+
 // ==== every enemy gun: rounds stop at walls, and a player driving has the vehicle hurt ====
 // (Math.random pinned low, so every round that can hit does; the target alone on open ground, then shut in a stone box)
 const box=(on)=>{const x=Math.floor(P.pos.x),y=Math.floor(P.pos.y),z=Math.floor(P.pos.z);

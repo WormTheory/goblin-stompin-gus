@@ -37,8 +37,8 @@ function stnState(D){let T=STN.get(D.key);if(!T){T={slots:D.bays.map(()=>({st:'h
 const stnDown=D=>collapses[D.key+',0']!==undefined;
 // put a vehicle from the pool into a bay
 function svcPark(c,D,i){
-  const y=D.bays[i];c.pos.set(y.x,G+1,y.z);c.heading=y.h;c.speed=0;c.kv.set(0,0,0);c.hp=45;c.alive=true;c.hunter=false;c.parked=false;c.vy=0;c.reverseT=0;c.stuckT=0;c.hurt=0;c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.spot=null;
-  c.paint.emissive.setHex(0);c.g.visible=true;c.driver=makeDriver(D.kind==='police');c.g.position.copy(c.pos);c.g.rotation.set(0,c.heading,0);
+  const y=D.bays[i];carSpawn(c,{x:y.x,y:G+1,z:y.z,h:y.h,hp:45,parked:false,place:true});c.spot=null;   // (a station's vehicles are all as tough as a fire engine)
+  c.driver=makeDriver(D.kind==='police');
   c.svc={kind:D.kind,st:'parked',stn:D,slot:i,B:D.B,path:[],t:0,tx:y.x,tz:y.z,home:D.node,stuck:0,rev:0};
   stnState(D).slots[i].car=c;
   if(c.newsLogo&&D.B){c.newsStripe.color.setHex(parseInt(D.B.bg.slice(1),16));for(const m of c.newsLogo)m.material=brandTex(D.B,3.7);}   // (the pool's vans are painted for whichever station they turn out for)

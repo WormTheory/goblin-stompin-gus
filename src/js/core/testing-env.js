@@ -195,10 +195,9 @@ function tenvFoe(kind){
     if(car){
       let c=cars.find(o=>!o.alive&&!o.svcPool&&!o.pullPool&&!o.parkPool&&!o.hwPool&&(kind==='police'?o.police:!o.police));
       if(!c){c=makeCar(cars.length,kind==='police');c.g.scale.setScalar(ES);c.respawnT=1e9;cars.push(c);}
-      if(kind!=='police')setVeh(c,pickVeh('street'));
+      carSpawn(c,{veh:kind==='police'?null:pickVeh('street'),x,y,z,h,hunter:true,parked:false});
       c.driver=makeDriver(kind==='police');c.path=null;c.hw=null;c.rt=null;c.svc=null;c.leaving=false;c.rampKey=null;c.spot=null;c.makeWay=0;
-      c.pos.set(x,y,z);c.heading=h;c.speed=0;c.kv.set(0,0,0);c.hp=kind==='police'?40:30;c.alive=true;c.hunter=true;c.parked=false;c.vy=0;c.lastInter=-1;
-      c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.paint.emissive.setHex(0);c.g.visible=true;made++;continue;}
+      c.lastInter=-1;made++;continue;}
     if(kind==='cultist'){const g=freeCultist(64);if(!g)continue;
       cultSpawn(g,null,0);g.pos.set(x,y,z);g.heading=h;made++;continue;}
     if(FOES[kind]){const g=freeFoe(kind,64);if(!g)continue;foeSpawn(g,kind,null,0);g.pos.set(x,y,z);g.heading=h;made++;continue;}
@@ -254,7 +253,7 @@ function tenvVeh(t){
   if(t==='balloon'){shipOutside(tenvBalloon);return;}
   if(t==='mech'){shipOutside(tenvMech);return;}
   if(SHIP_KINDS[t]){tenvShip(t);return;}
-  if(CREW_HP[t]){tenvCrew(t);return;}
+  if(t==='technical'||t==='quad'){tenvCrew(t);return;}
   if(!TENV&&!TS.dbg)return;const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active);if(!p)return;
   const park=TS.vm==='park',pol=t==='police',fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw),cx=p.pos.x+fx*20,cz=p.pos.z+fz*20;let made=0;
   for(let i=0;i<TS.n;i++){
@@ -266,11 +265,10 @@ function tenvVeh(t){
     const pk=park&&!pol;
     let c=cars.find(o=>!o.alive&&!o.svcPool&&!o.pullPool&&!o.rvPool&&!o.hwPool&&!!o.parkPool===pk&&!!o.police===pol);
     if(!c){c=makeCar(cars.length,pol);c.g.scale.setScalar(ES);c.respawnT=1e9;if(pk)c.parkPool=true;cars.push(c);}
-    if(!pol)setVeh(c,t);
+    carSpawn(c,{veh:pol?null:t,x,y,z,h,hunter:!park,parked:park});
     c.driver=pk?null:makeDriver(pol);if(c.dh)c.dh.visible=!pk;
     c.path=null;c.hw=null;c.rt=null;c.svc=null;c.leaving=false;c.rampKey=null;c.spot=null;c.makeWay=0;c.rusted=false;c.paint.color.setHex(c.color);
-    c.pos.set(x,y,z);c.heading=h;c.speed=0;c.kv.set(0,0,0);c.hp=pol?40:t==='bus'||t==='semi'||t==='fire'?45:30;c.alive=true;c.hunter=!park;c.parked=park;c.vy=0;c.lastInter=-1;
-    c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.paint.emissive.setHex(0);c.g.visible=true;made++;}
+    c.lastInter=-1;made++;}
   const nm=VEH_NAME[t]||[t,t+'s'];
   tsSet(made?('Spawned '+made+' '+(park?'parked ':'hunting ')+nm[made>1?1:0]+' ahead of Gus.'):'Couldn\'t spawn any '+nm[1]+' just now.');
 }

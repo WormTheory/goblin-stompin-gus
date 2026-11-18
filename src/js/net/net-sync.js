@@ -70,7 +70,7 @@ function netCars(p,N,out,cfg){
   for(let i=0;i<cars.length;i++){const c=cars[i],G=c.g;if(!G.visible||Math.abs(G.position.x-px)>R||Math.abs(G.position.z-pz)>R)continue;
     const P=G.position,Q=G.rotation,w=[],f=[];for(const s of c.wheels)w.push(r3(s.rotation.x));for(const s of c.front)f.push(r3(s.rotation.y));
     out.push([i,r3(P.x),r3(P.y),r3(P.z),r3(Q.x),r3(Q.y),r3(Q.z),w,f,c.dh&&c.dh.visible?1:0,c.hazG&&c.hazG.visible?1:0,c.alive?1:0,
-      (c.police&&(c.hunter||c.pullLit||c.svcPool&&c.svc&&c.svc.st!=='parked'&&c.svc.st!=='leave')?1:0)|(c.hazard?2:0)|(c.flash&&c.svc&&c.svc.st!=='parked'?4:0),r3(c.hp),c.hpMax>=c.hp?c.hpMax:Math.max(r3(c.hp),c.svcPool?45:30)]);   // (lights flashing: a police car's, hazards, an ambulance's or fire engine's)
+      (c.police&&(c.hunter||c.pullLit||c.svcPool&&c.svc&&c.svc.st!=='parked'&&c.svc.st!=='leave')?1:0)|(c.hazard?2:0)|(c.flash&&c.svc&&c.svc.st!=='parked'?4:0),r3(c.hp),c.hpMax>=c.hp?c.hpMax:Math.max(r3(c.hp),carHP(c))]);   // (lights flashing: a police car's, hazards, an ambulance's or fire engine's)
     const k=c.veh+'|'+netCol(c.paint.color)+'|'+(c.police?1:0);if(N.cars.get(i)!==k){N.cars.set(i,k);cfg[i]=[c.veh,netCol(c.paint.color),c.police?1:0,!!c.hunter];}}
 }
 

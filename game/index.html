@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:5d1c81773aadd2a1f8baa6b0a733a9f0972815fa1050c246422f219534274c14 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:083266b462dca95486da9d6a50b87fcdf534be7bfe6e7ef2081487bea8ac71a6 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1599,7 +1599,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Health bars</h3>
 <ul><li>With Options' Health bars on, Mobile Gears, hot-air balloons, the barge, the aircraft carrier and its deck weapons, and subway trains now show health bars like every other vehicle; they never had one.</li><li>Anything aboard a ship (goblins, cars, tanks, helicopters, the carrier's jets) now has its health bar over it, rather than out of sight far away.</li></ul>
 <h3>Fixes</h3>
-<ul><li>Gnash's rifle and handgun now damage every vehicle they hit, the same way: cars, tanks, helicopters, trains, planes, boats, balloons, Mobile Gears and the carrier's deck weapons all take three times what a goblin would. Before, they went straight through most vehicles, did a single point to cars, and only the deck weapons took real harm.</li><li>The minimap no longer draws the grey of the surrounding blocks over big sites that take up several blocks, such as theme parks, which hid most of their buildings.</li><li>Enemy gunfire now hits whatever you're driving. Before, rifles, the militia's machine guns, the helicopters' guns and the cultists' fireballs did nothing at all to a goblin behind the wheel; now the vehicle takes the hit instead.</li><li>Rounds from the fighter jets' cannons, the carrier's CIWS, the militia's machine guns and the helicopters' guns are stopped by walls, one round at a time. Before, some went straight through buildings, and a burst kept coming even after you ducked behind something.</li><li>Invulnerability now covers a train or subway train you're driving, as it does every other vehicle.</li><li>Every vehicle now plays by the same rules. Boats, trains and hot-air balloons gather snow like the rest; bringing down a hot-air balloon (400), a Mobile Gear (2,000) or one of the carrier's deck weapons (300) scores points; a balloon's health shows correctly to everyone playing online; and the smoke and flames off a badly hurt vehicle show for players online too.</li><li>Grenades, shells and rockets now hurt zoo animals, the Ferris wheel's rim and the carousel, as stomps already did, and a shell or rocket goes off when it hits an animal.</li></ul>
+<ul><li>Gnash's rifle and handgun now damage every vehicle they hit, the same way: cars, tanks, helicopters, trains, planes, boats, balloons, Mobile Gears and the carrier's deck weapons all take three times what a goblin would. Before, they went straight through most vehicles, did a single point to cars, and only the deck weapons took real harm.</li><li>The minimap no longer draws the grey of the surrounding blocks over big sites that take up several blocks, such as theme parks, which hid most of their buildings.</li><li>Enemy gunfire now hits whatever you're driving. Before, rifles, the militia's machine guns, the helicopters' guns and the cultists' fireballs did nothing at all to a goblin behind the wheel; now the vehicle takes the hit instead.</li><li>Rounds from the fighter jets' cannons, the carrier's CIWS, the militia's machine guns and the helicopters' guns are stopped by walls, one round at a time. Before, some went straight through buildings, and a burst kept coming even after you ducked behind something.</li><li>Invulnerability now covers a train or subway train you're driving, as it does every other vehicle.</li><li>Every vehicle now plays by the same rules. Boats, trains and hot-air balloons gather snow like the rest; bringing down a hot-air balloon (400), a Mobile Gear (2,000) or one of the carrier's deck weapons (300) scores points; a balloon's health shows correctly to everyone playing online; and the smoke and flames off a badly hurt vehicle show for players online too.</li><li>Every vehicle now has the same health wherever it turns up: buses, articulated lorries, fire engines and ambulances take 45, motorhomes 40, police cars 40 and everything else 30. Before, an articulated lorry on the motorway or a police car in the traffic went down as easily as a family car, and the Testing Environment's ambulances and motorhomes did too.</li><li>Grenades, shells and rockets now hurt zoo animals, the Ferris wheel's rim and the carousel, as stomps already did, and a shell or rocket goes off when it hits an animal.</li></ul>
 </details>
 <p class="pn-earlier">Earlier updates</p>
 <details class="pn-up pn-fold" id="version-0-4-1"><summary tabindex="0"><h2>Version 0.4.1</h2><a class="pn-play" data-ver="0.4.1" href="v/0.4.1/" tabindex="0">Play 0.4.1</a><span class="pn-tog" aria-hidden="true"></span></summary>
@@ -1911,7 +1911,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='5993136fa85a';
+const GAME_VER='0.5',GAME_BUILD='bbcb2a8e2c3e';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -12478,7 +12478,7 @@ const VEHICLE_BASE={snow:true,smoke:0.5,pts:0,label:null,rampage:false,invuln:tr
 const _vkp={x:0,y:0,z:0},vkAt=(x,y,z)=>{_vkp.x=x;_vkp.y=y;_vkp.z=z;return _vkp;};
 const VEHICLE_KINDS={
   car:{name:'Car',rampage:true,snow:false,smoke:0,   // (their own snow and smoke: snowCar, updateCars)
-    pos:c=>c.pos,top:c=>(c.hy||1.4)+0.5,mid:c=>(c.hy||1.4)*0.6,max:c=>{if(!(c.hpMax>=c.hp))c.hpMax=Math.max(c.hp,c.svcPool?45:30);return c.hpMax;},
+    pos:c=>c.pos,top:c=>(c.hy||1.4)+0.5,mid:c=>(c.hy||1.4)*0.6,max:c=>c.hpMax>=c.hp?c.hpMax:Math.max(c.hp,carHP(c)),
     dead:c=>!c.alive,shown:c=>c.g.visible,hit:(c,n,dir)=>damageCar(c,n,dir)},
   train:{name:'Train',venue:'rtrain',list:V=>V.T&&V.cars?[V.T]:[],perCar:true,carTop:()=>4.2,top:()=>4.2,mid:()=>2.5,groups:T=>T.cars||[],
     pos:T=>T.cars[0].position,hp:(T,i)=>T.carHP?T.carHP[i||0]:CAR_HP,max:()=>CAR_HP,hit:(T,n,dir,i)=>trainHit(T,n,dir,i)},
@@ -17676,21 +17676,22 @@ function makeCar(i,police){
   c.g.visible=false;scene.add(c.g);return c;
 }
 // ---- vehicle types: sizes (before the world scale ES) and roof heights along their length (for standing on them)
-const VEH={bus:{hx:1.25,hz:5.2,hy:3.3,head:[0.5,2.7,4.3],roof:l=>3.3},
+// (hp: a kind's full health, 30 if not given; a police car has 40 whatever its body. See carHP)
+const VEH={bus:{hx:1.25,hz:5.2,hy:3.3,hp:45,head:[0.5,2.7,4.3],roof:l=>3.3},
   car:{hx:1.0,hz:1.9,hy:1.6,head:[0.35,1.4,-0.1],roof:l=>l>-1.2&&l<0.7?1.68:1.1},
   van:{hx:1.05,hz:2.4,hy:2.3,head:[0.4,2.15,0.6],roof:l=>2.25},
   pickup:{hx:1.0,hz:2.6,hy:1.9,head:[0.35,1.9,0.5],roof:l=>l>-0.4&&l<1.4?1.95:1.0},
   truck:{hx:1.2,hz:3.5,hy:3.3,head:[0.45,2.05,2.4],roof:l=>l>1.6?2.1:3.2},
-  semi:{hx:1.25,hz:6.6,hy:3.9,head:[0.5,3.1,4.2],roof:l=>l>2.4?(l>5.0?1.75:3.1):3.85},
-  fire:{hx:1.2,hz:3.7,hy:3.0,head:[0.45,2.6,2.3],roof:l=>l>1.6?2.5:3.0},
-  amb:{hx:1.15,hz:3.0,hy:2.8,head:[0.4,2.2,1.9],roof:l=>l>1.2?2.0:2.8},
+  semi:{hx:1.25,hz:6.6,hy:3.9,hp:45,head:[0.5,3.1,4.2],roof:l=>l>2.4?(l>5.0?1.75:3.1):3.85},
+  fire:{hx:1.2,hz:3.7,hy:3.0,hp:45,head:[0.45,2.6,2.3],roof:l=>l>1.6?2.5:3.0},
+  amb:{hx:1.15,hz:3.0,hy:2.8,hp:45,head:[0.4,2.2,1.9],roof:l=>l>1.2?2.0:2.8},
   news:{hx:1.05,hz:2.4,hy:2.3,head:[0.4,2.15,0.6],roof:l=>2.25},
   bike:{hx:0.45,hz:1.15,hy:1.7,head:[0,1.32,-0.22],roof:l=>l>-0.7&&l<0.3?1.2:0.95},
-  rv:{hx:1.17,hz:3.8,hy:3.15,head:[0.45,1.25,2.9],roof:l=>l>3.45?2.1:3.15},
+  rv:{hx:1.17,hz:3.8,hy:3.15,hp:40,head:[0.45,1.25,2.9],roof:l=>l>3.45?2.1:3.15},
   // (the militia's: a pickup with a machine gun on a post in its bed and a gunner stood at it, and a four-wheeler with a
   // rider and a rifleman sat behind him. See crews.js. Never in the traffic: VEH_MIX leaves them out)
-  technical:{hx:1.0,hz:2.6,hy:2.7,head:[0.35,1.9,0.5],roof:l=>l>-0.4&&l<1.4?1.95:1.0},
-  quad:{hx:0.75,hz:1.15,hy:1.6,head:[0,1.32,0.05],roof:l=>l>-0.9&&l<0.4?1.0:0.85},
+  technical:{hx:1.0,hz:2.6,hy:2.7,hp:45,head:[0.35,1.9,0.5],roof:l=>l>-0.4&&l<1.4?1.95:1.0},
+  quad:{hx:0.75,hz:1.15,hy:1.6,hp:24,head:[0,1.32,0.05],roof:l=>l>-0.9&&l<0.4?1.0:0.85},
   // (a supercar: low and wide, now and then in the traffic, and very fast. See drvCar)
   super:{hx:1.0,hz:2.2,hy:1.2,head:[0.35,0.95,-0.35],roof:l=>l>-1.1&&l<0.5?1.2:0.8},
   // (a forklift: out in a factory's yard by the loading docks, never in the traffic; slow)
@@ -17713,6 +17714,18 @@ function setVeh(c,t){
   c.dh.position.set(...V.head);
   if(G2.gunner)G2.gunner.visible=!!(c.crew&&c.crew.gun);   // (a technical's or a four-wheeler's gunner: only with someone in that seat)
   if(c.hazG)c.hazG.children.forEach((m,k)=>m.position.set((k&1?1:-1)*(V.hx-0.12),t==='semi'||t==='truck'?1.05:0.86,(k&2?1:-1)*(V.hz+0.03)));
+}
+// a car's full health: its kind's, or a police car's
+const carHP=c=>c.police?40:(VEH[c.veh]&&VEH[c.veh].hp)||30;
+// put a car from a pool back into the world, whole and still, as kind o.veh (if given) at o.x,o.y,o.z facing o.h
+// (every place that brings a car back uses this, so a new field to reset goes here once; each keeps its own extras.
+// o.hp overrides the kind's health; o.parked is left alone if not given; o.place moves its picture there now)
+function carSpawn(c,o){
+  if(o.veh)setVeh(c,o.veh);
+  if(o.x!==undefined){c.pos.set(o.x,o.y,o.z);c.heading=o.h||0;}
+  c.speed=o.speed||0;c.kv.set(0,0,0);c.hp=c.hpMax=o.hp||carHP(c);c.alive=true;c.hunter=!!o.hunter;if(o.parked!==undefined)c.parked=o.parked;c.vy=0;
+  c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.paint.emissive.setHex(0);c.g.visible=true;
+  if(o.place){c.g.position.copy(c.pos);c.g.rotation.set(0,c.heading,0);}
 }
 function buildVeh(c,t){
   const g=new THREE.Group();c.g.add(g);const wheels=[],front=[];let rider=null;
@@ -17957,9 +17970,8 @@ const pullToday=o=>{const h=hash2(o.R.pts[0][0]*3+o.k*17+dayN*131,o.R.pts[0][1]*
 let pullT=0;
 function pullCarAt(c,o,s,veh){
   const R=o.R,P=rtPoint(R,s),tx=P.tx*o.dir,tz=P.tz*o.dir,x=P.x-tz*PULL_OFF,z=P.z+tx*PULL_OFF;
-  setVeh(c,veh);c.pos.set(x,G+1,z);c.heading=Math.atan2(tx,tz);c.speed=0;c.kv.set(0,0,0);c.hp=30;c.alive=true;c.hunter=false;c.parked=true;c.vy=0;
-  c.rt=null;c.hw=null;c.path=null;c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.paint.emissive.setHex(0);c.g.visible=true;
-  c.g.position.copy(c.pos);c.g.rotation.set(0,c.heading,0);
+  carSpawn(c,{veh,x,y:G+1,z,h:Math.atan2(tx,tz),parked:true,place:true});
+  c.rt=null;c.hw=null;c.path=null;
 }
 function managePull(){
   const act=players.filter(p=>p.active);if(!act.length)return;
@@ -18001,8 +18013,8 @@ function manageRVs(){
       if(cars.some(c=>c.alive&&Math.hypot(c.pos.x-x,c.pos.z-z)<6)||players.some(o=>o.active&&Math.hypot(o.pos.x-x,o.pos.z-z)<7))continue;
       if(d<far*0.8&&visibleToAny(x,G+2,z))continue;
       const c=RVS.find(o=>!o.alive);if(!c)return;
-      setVeh(c,'rv');c.paint.color.setHex(c.color);c.rusted=false;c.spot=key;c.pos.set(x,G+1,z);c.heading=Math.PI/2;c.speed=0;c.kv.set(0,0,0);c.hp=40;c.alive=true;c.hunter=false;c.parked=true;c.vy=0;c.driver=null;c.dh.visible=false;
-      c.rt=null;c.hw=null;c.path=null;c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.paint.emissive.setHex(0);c.g.visible=true;c.g.position.copy(c.pos);c.g.rotation.set(0,c.heading,0);}}
+      carSpawn(c,{veh:'rv',x,y:G+1,z,h:Math.PI/2,parked:true,place:true});c.paint.color.setHex(c.color);c.rusted=false;c.spot=key;c.driver=null;c.dh.visible=false;
+      c.rt=null;c.hw=null;c.path=null;}}
 }
 // police cars park at the stations near you and come after you when you get close
 const policeDown={};
@@ -18057,8 +18069,7 @@ function spawnParked(c){
     if(solidAt(Math.floor(o.x),o.y,Math.floor(o.z))||solidAt(Math.floor(o.x),o.y+1,Math.floor(o.z)))continue;
     if(players.some(q=>q.active&&Math.hypot(q.pos.x-o.x,q.pos.z-o.z)<6))continue;
     if(visibleToAny(o.x,o.y+1,o.z))continue;   // (never pops into a bay in plain view)
-    setVeh(c,o.veh||pickVeh('park'));if(o.tint&&c.tracM)c.tracM.color.setHex(o.tint);c.paint.color.setHex(o.rust?RUST_PAINTS[Math.floor(hash2(Math.floor(o.x),Math.floor(o.z))*RUST_PAINTS.length)]:c.color);c.rusted=!!o.rust;c.spot=o.key;c.pos.set(o.x,o.y,o.z);c.heading=o.h;c.speed=0;c.kv.set(0,0,0);c.hp=30;c.alive=true;c.hunter=false;c.parked=true;c.vy=0;c.driver=null;c.dh.visible=false;
-    c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.paint.emissive.setHex(0);c.g.visible=true;
+    carSpawn(c,{veh:o.veh||pickVeh('park'),x:o.x,y:o.y,z:o.z,h:o.h,parked:true});if(o.tint&&c.tracM)c.tracM.color.setHex(o.tint);c.paint.color.setHex(o.rust?RUST_PAINTS[Math.floor(hash2(Math.floor(o.x),Math.floor(o.z))*RUST_PAINTS.length)]:c.color);c.rusted=!!o.rust;c.spot=o.key;c.driver=null;c.dh.visible=false;
     return true;
   }
   return false;
@@ -18126,8 +18137,7 @@ function spawnHw(c){
       setVeh(c,(()=>{let t;do t=pickVeh('hw');while(t==='semi');return t;})());
       c.path=R.on.slice(1);c.pathEnd='join';c.join={ax:o.H.ax,dir:R.d,lane:R.outer,y:R.HY+1};c.hw=null;
       c.driver=makeDriver(false);c.dh.visible=true;c.spot=null;c.parked=false;
-      c.pos.set(s0.x,y,s0.z);c.heading=Math.atan2(nx.x-s0.x,nx.z-s0.z);c.speed=4;c.kv.set(0,0,0);c.hp=30;c.alive=true;c.hunter=false;c.vy=0;
-      c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.paint.emissive.setHex(0);c.g.visible=true;
+      carSpawn(c,{x:s0.x,y,z:s0.z,h:Math.atan2(nx.x-s0.x,nx.z-s0.z),speed:4});
       return true;
     }
   }
@@ -18139,9 +18149,7 @@ function spawnHw(c){
     if(cars.some(o=>o!==c&&o.alive&&Math.abs(o.pos.y-y)<2&&Math.hypot(o.pos.x-x,o.pos.z-z)<14+o.hz))return false;
     if(Math.hypot(x-p.pos.x,z-p.pos.z)<70&&visibleToAny(x,y+1,z))return false;
     return true;};
-  const go=(x,y,z)=>{setVeh(c,pickVeh('hw'));c.driver=makeDriver(false);c.dh.visible=true;c.spot=null;c.parked=false;
-    c.speed=16;c.kv.set(0,0,0);c.hp=30;c.alive=true;c.hunter=false;c.vy=0;
-    c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.paint.emissive.setHex(0);c.g.visible=true;};
+  const go=(x,y,z)=>{carSpawn(c,{veh:pickVeh('hw'),speed:16,parked:false});c.driver=makeDriver(false);c.dh.visible=true;c.spot=null;};
   for(let tries=0;tries<10;tries++){
     if(RL.length&&(Math.random()<0.75||!L.length)){
       const R=RL[Math.floor(Math.random()*RL.length)],me=rtProject(R,p.pos.x,p.pos.z),dir=Math.random()<0.5?1:-1,lane=RT_LANES[Math.floor(Math.random()*2)];
@@ -18180,8 +18188,7 @@ function spawnPolice(c){
         const x=px*CELL+bays[s].x,z=pz*CELL+bays[s].z;
         const pd=Math.hypot(x-p.pos.x,z-p.pos.z);if(pd<minD||pd>viewFar()+8)continue;
         if(supportAt(x,z,G+2)!==G+1)continue;
-        c.spot=spot;c.pos.set(x,G+1,z);c.heading=bays[s].h;c.speed=0;c.kv.set(0,0,0);c.hp=40;c.alive=true;c.hunter=false;c.parked=true;c.vy=0;c.driver=makeDriver(true);
-        c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.paint.emissive.setHex(0);c.g.visible=true;
+        carSpawn(c,{x,y:G+1,z,h:bays[s].h,parked:true});c.spot=spot;c.driver=makeDriver(true);
         return true;
       }
     }
@@ -18308,11 +18315,9 @@ function spawnTraffic(c){
     if(cars.some(o=>o!==c&&o.alive&&Math.hypot(o.pos.x-px,o.pos.z-pz)<7))continue;
     if(players.some(q=>q.active&&Math.hypot(q.pos.x-px,q.pos.z-pz)<20))continue;
     if(playTime>=2&&Math.hypot(px-p.pos.x,pz-p.pos.z)<hazeMin&&visibleToAny(px,G+2,pz))continue;
-    if(!c.police)setVeh(c,pickVeh('street'));
+    carSpawn(c,{veh:c.police?null:pickVeh('street'),x:px,y:G+1,z:pz,h:DIRH[c.dir],speed:6});
     c.driver=makeDriver(false);
-    c.path=null;c.hw=null;c.rt=null;c.leaving=false;c.rampKey=null;
-    c.pos.set(px,G+1,pz);c.kv.set(0,0,0);c.heading=DIRH[c.dir];c.speed=6;c.hp=30;c.alive=true;c.hunter=false;c.lastInter=-1;c.hurt=0;c.vy=0;c.reverseT=0;c.stuckT=0;c.pitch=0;c.roll=0;c.spinP=0;c.spinR=0;c.grounded=true;
-    c.paint.emissive.setHex(0);c.g.visible=true;return true;
+    c.path=null;c.hw=null;c.rt=null;c.leaving=false;c.rampKey=null;c.lastInter=-1;return true;
   }
   return false;
 }
@@ -18341,7 +18346,7 @@ const wrecks=[];
 // the militia's vehicles: where they're parked in the compound (site coordinates, and the way they face: the cab
 // toward the HQ end), what they're made of, and the gun each one's gunner works
 const CREW_SPOTS=[{t:'technical',u:42.5,v:29.5,h:-Math.PI/2},{t:'technical',u:50.5,v:29.5,h:-Math.PI/2},{t:'quad',u:40.5,v:34.5,h:-Math.PI/2},{t:'quad',u:45.5,v:34.5,h:-Math.PI/2}];
-const CREW_HP={technical:45,quad:24},CREW_NAME={technical:'Technical',quad:'Four-wheeler'};
+const CREW_NAME={technical:'Technical',quad:'Four-wheeler'};
 // turn: how fast the gun swings round (a second); range; burst: rounds a burst, bt: seconds between them; cd: the pause
 // after one; hit: the chance a round finds him, close in (falling off with range)
 const CREW_GUN={technical:{turn:2.2,range:60,burst:5,bt:0.09,cd:[1.8,2.8],hit:0.25,dmg:1,cause:'Gunned down from a technical'},
@@ -18353,9 +18358,8 @@ function crewCar(){let c=CREWCARS.find(o=>!o.alive);
   return c||null;}
 // one put down at x,z, empty, as the given kind (k: who crews it)
 function crewPut(c,t,x,z,h,key,k){
-  setVeh(c,t);c.paint.color.setHex(c.color);c.rusted=false;c.spot=key;c.pos.set(x,groundAt(x,z,G+6),z);c.heading=h;c.speed=0;c.kv.set(0,0,0);c.hp=CREW_HP[t];c.alive=true;c.hunter=false;c.parked=true;c.vy=0;c.driver=null;
-  c.rt=null;c.hw=null;c.path=null;c.svc=null;c.leaving=false;c.left=false;c.makeWay=0;c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.steer=0;c.paint.emissive.setHex(0);c.wpn=null;c.gunYaw=0;
-  c.g.visible=true;c.g.position.copy(c.pos);c.g.rotation.set(0,h,0);
+  carSpawn(c,{veh:t,x,y:groundAt(x,z,G+6),z,h,parked:true,place:true});c.paint.color.setHex(c.color);c.rusted=false;c.spot=key;c.driver=null;
+  c.rt=null;c.hw=null;c.path=null;c.svc=null;c.leaving=false;c.left=false;c.makeWay=0;c.steer=0;c.wpn=null;c.gunYaw=0;
   c.crew={k,drv:null,gun:null,go:false,run:{},yaw:0,cd:1,burst:0,bt:0,side:Math.random()<0.5?1:-1};crewShow(c);
 }
 // who's showing aboard: the driver's head (and on a four-wheeler, the rest of him), the gunner at his gun
@@ -24218,8 +24222,8 @@ function stnState(D){let T=STN.get(D.key);if(!T){T={slots:D.bays.map(()=>({st:'h
 const stnDown=D=>collapses[D.key+',0']!==undefined;
 // put a vehicle from the pool into a bay
 function svcPark(c,D,i){
-  const y=D.bays[i];c.pos.set(y.x,G+1,y.z);c.heading=y.h;c.speed=0;c.kv.set(0,0,0);c.hp=45;c.alive=true;c.hunter=false;c.parked=false;c.vy=0;c.reverseT=0;c.stuckT=0;c.hurt=0;c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.spot=null;
-  c.paint.emissive.setHex(0);c.g.visible=true;c.driver=makeDriver(D.kind==='police');c.g.position.copy(c.pos);c.g.rotation.set(0,c.heading,0);
+  const y=D.bays[i];carSpawn(c,{x:y.x,y:G+1,z:y.z,h:y.h,hp:45,parked:false,place:true});c.spot=null;   // (a station's vehicles are all as tough as a fire engine)
+  c.driver=makeDriver(D.kind==='police');
   c.svc={kind:D.kind,st:'parked',stn:D,slot:i,B:D.B,path:[],t:0,tx:y.x,tz:y.z,home:D.node,stuck:0,rev:0};
   stnState(D).slots[i].car=c;
   if(c.newsLogo&&D.B){c.newsStripe.color.setHex(parseInt(D.B.bg.slice(1),16));for(const m of c.newsLogo)m.material=brandTex(D.B,3.7);}   // (the pool's vans are painted for whichever station they turn out for)
@@ -26782,7 +26786,7 @@ function netCars(p,N,out,cfg){
   for(let i=0;i<cars.length;i++){const c=cars[i],G=c.g;if(!G.visible||Math.abs(G.position.x-px)>R||Math.abs(G.position.z-pz)>R)continue;
     const P=G.position,Q=G.rotation,w=[],f=[];for(const s of c.wheels)w.push(r3(s.rotation.x));for(const s of c.front)f.push(r3(s.rotation.y));
     out.push([i,r3(P.x),r3(P.y),r3(P.z),r3(Q.x),r3(Q.y),r3(Q.z),w,f,c.dh&&c.dh.visible?1:0,c.hazG&&c.hazG.visible?1:0,c.alive?1:0,
-      (c.police&&(c.hunter||c.pullLit||c.svcPool&&c.svc&&c.svc.st!=='parked'&&c.svc.st!=='leave')?1:0)|(c.hazard?2:0)|(c.flash&&c.svc&&c.svc.st!=='parked'?4:0),r3(c.hp),c.hpMax>=c.hp?c.hpMax:Math.max(r3(c.hp),c.svcPool?45:30)]);   // (lights flashing: a police car's, hazards, an ambulance's or fire engine's)
+      (c.police&&(c.hunter||c.pullLit||c.svcPool&&c.svc&&c.svc.st!=='parked'&&c.svc.st!=='leave')?1:0)|(c.hazard?2:0)|(c.flash&&c.svc&&c.svc.st!=='parked'?4:0),r3(c.hp),c.hpMax>=c.hp?c.hpMax:Math.max(r3(c.hp),carHP(c))]);   // (lights flashing: a police car's, hazards, an ambulance's or fire engine's)
     const k=c.veh+'|'+netCol(c.paint.color)+'|'+(c.police?1:0);if(N.cars.get(i)!==k){N.cars.set(i,k);cfg[i]=[c.veh,netCol(c.paint.color),c.police?1:0,!!c.hunter];}}
 }
 
@@ -28341,10 +28345,9 @@ function tenvFoe(kind){
     if(car){
       let c=cars.find(o=>!o.alive&&!o.svcPool&&!o.pullPool&&!o.parkPool&&!o.hwPool&&(kind==='police'?o.police:!o.police));
       if(!c){c=makeCar(cars.length,kind==='police');c.g.scale.setScalar(ES);c.respawnT=1e9;cars.push(c);}
-      if(kind!=='police')setVeh(c,pickVeh('street'));
+      carSpawn(c,{veh:kind==='police'?null:pickVeh('street'),x,y,z,h,hunter:true,parked:false});
       c.driver=makeDriver(kind==='police');c.path=null;c.hw=null;c.rt=null;c.svc=null;c.leaving=false;c.rampKey=null;c.spot=null;c.makeWay=0;
-      c.pos.set(x,y,z);c.heading=h;c.speed=0;c.kv.set(0,0,0);c.hp=kind==='police'?40:30;c.alive=true;c.hunter=true;c.parked=false;c.vy=0;c.lastInter=-1;
-      c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.paint.emissive.setHex(0);c.g.visible=true;made++;continue;}
+      c.lastInter=-1;made++;continue;}
     if(kind==='cultist'){const g=freeCultist(64);if(!g)continue;
       cultSpawn(g,null,0);g.pos.set(x,y,z);g.heading=h;made++;continue;}
     if(FOES[kind]){const g=freeFoe(kind,64);if(!g)continue;foeSpawn(g,kind,null,0);g.pos.set(x,y,z);g.heading=h;made++;continue;}
@@ -28400,7 +28403,7 @@ function tenvVeh(t){
   if(t==='balloon'){shipOutside(tenvBalloon);return;}
   if(t==='mech'){shipOutside(tenvMech);return;}
   if(SHIP_KINDS[t]){tenvShip(t);return;}
-  if(CREW_HP[t]){tenvCrew(t);return;}
+  if(t==='technical'||t==='quad'){tenvCrew(t);return;}
   if(!TENV&&!TS.dbg)return;const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active);if(!p)return;
   const park=TS.vm==='park',pol=t==='police',fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw),cx=p.pos.x+fx*20,cz=p.pos.z+fz*20;let made=0;
   for(let i=0;i<TS.n;i++){
@@ -28412,11 +28415,10 @@ function tenvVeh(t){
     const pk=park&&!pol;
     let c=cars.find(o=>!o.alive&&!o.svcPool&&!o.pullPool&&!o.rvPool&&!o.hwPool&&!!o.parkPool===pk&&!!o.police===pol);
     if(!c){c=makeCar(cars.length,pol);c.g.scale.setScalar(ES);c.respawnT=1e9;if(pk)c.parkPool=true;cars.push(c);}
-    if(!pol)setVeh(c,t);
+    carSpawn(c,{veh:pol?null:t,x,y,z,h,hunter:!park,parked:park});
     c.driver=pk?null:makeDriver(pol);if(c.dh)c.dh.visible=!pk;
     c.path=null;c.hw=null;c.rt=null;c.svc=null;c.leaving=false;c.rampKey=null;c.spot=null;c.makeWay=0;c.rusted=false;c.paint.color.setHex(c.color);
-    c.pos.set(x,y,z);c.heading=h;c.speed=0;c.kv.set(0,0,0);c.hp=pol?40:t==='bus'||t==='semi'||t==='fire'?45:30;c.alive=true;c.hunter=!park;c.parked=park;c.vy=0;c.lastInter=-1;
-    c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.paint.emissive.setHex(0);c.g.visible=true;made++;}
+    c.lastInter=-1;made++;}
   const nm=VEH_NAME[t]||[t,t+'s'];
   tsSet(made?('Spawned '+made+' '+(park?'parked ':'hunting ')+nm[made>1?1:0]+' ahead of Gus.'):'Couldn\'t spawn any '+nm[1]+' just now.');
 }

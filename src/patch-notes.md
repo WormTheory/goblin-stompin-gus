@@ -193,6 +193,7 @@
 - Rounds from the fighter jets' cannons, the carrier's CIWS, the militia's machine guns and the helicopters' guns are stopped by walls, one round at a time. Before, some went straight through buildings, and a burst kept coming even after you ducked behind something.
 - Invulnerability now covers a train or subway train you're driving, as it does every other vehicle.
 - Every vehicle now plays by the same rules. Boats, trains and hot-air balloons gather snow like the rest; bringing down a hot-air balloon (400), a Mobile Gear (2,000) or one of the carrier's deck weapons (300) scores points; a balloon's health shows correctly to everyone playing online; and the smoke and flames off a badly hurt vehicle show for players online too.
+- Every vehicle now has the same health wherever it turns up: buses, articulated lorries, fire engines and ambulances take 45, motorhomes 40, police cars 40 and everything else 30. Before, an articulated lorry on the motorway or a police car in the traffic went down as easily as a family car, and the Testing Environment's ambulances and motorhomes did too.
 - Grenades, shells and rockets now hurt zoo animals, the Ferris wheel's rim and the carousel, as stomps already did, and a shell or rocket goes off when it hits an animal.
 
 ## Version 0.4.1
