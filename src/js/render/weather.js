@@ -127,7 +127,7 @@ function vehSnow(o,x,y,z,gone,dt,gs){
   const fast=sp>20,u=o.snowU;u.value+=((o.skyOpen&&!fast?WX.snowCover:0)-u.value)*Math.min(1,dt*(fast?1.5:0.4));
 }
 function updateVehSnow(dt){
-  vehEach((K,o)=>{if(!K.snow)return;const P=K.pos(o);vehSnow(o,P.x,P.y,P.z,K.dead(o)||!K.shown(o),dt,K.groups(o));});
+  vehEach((K,o)=>{if(K.snow!==true)return;const P=K.pos(o);vehSnow(o,P.x,P.y,P.z,K.dead(o)||!K.shown(o),dt,K.groups(o));});
 }
 // how far the weather lets you see, in blocks: the same at any view distance (it once scaled with the FAR VIEW setting,
 // so turned up far the fog all but vanished). Clear skies don't limit it; thick fog or a blizzard closes in to about 30

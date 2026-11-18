@@ -16,8 +16,7 @@ const P=T.players[0];for(const f of els.play.L.click)f();pads.length=0;run(2);
 const DT=E('DT'),G0=44;
 // ---- known gaps today (family/kind: check). Delete a line when it's fixed ----
 const EXPECTED=new Set([
-  // (ships and their deck weapons aren't on the registry's snow or online health yet: phase 6)
-  'barge: snow','carrier: snow','mount: snow',
+  // (ships and their deck weapons aren't online at all yet: a guest has no ship. See the registry's note)
   'barge: net','carrier: net','mount: net',
   // (the carrier loses health only from its blocks, by design: shipHit leaves it alone)
   'carrier: damage','carrier: points',
@@ -49,23 +48,31 @@ function findNew(t,beforeC,beforeT,beforeS){
   return null;}
 const kinds=E('tenvVehKinds()');const did={},spare={};
 let kx=-600;for(const t of kinds){
-  E('tenvClear()');quiet();put(kx+=60,0);   // (each on fresh ground: the last one's wreck leaves a crater)P.cam.yaw=0;run(0.3);
+  E('tenvClear()');quiet();put(kx+=60,0);P.cam.yaw=0;run(0.3);   // (each on fresh ground: the last one's wreck leaves a crater)
   const bc=new Set(T.cars.filter(c=>c.alive)),bt=new Set(E('TRAIN_BOXES').map(B=>B.proxy.T).filter(Boolean)),bs=new Set(E('SHIPS').filter(Boolean));
   E('menuOpen=true');E('TS').n=1;E('TS').vm='park';E('tenvVeh')(t);E('menuOpen=false');run(0.3);
   const D=findNew(t,bc,bt,bs);if(!D){check(t,'spawned',false);continue;}
   const fam=famOf(t,D);did[fam]=(did[fam]||0)+1;check(fam==='car'?t:fam,'registry',!!E('VEHICLE_KINDS')[D.k],'no VEHICLE_KINDS.'+D.k);
   // snow: a blizzard over it for a few seconds
   {const W=E('WX'),sc=W.snowCover;W.snowCover=1;for(let i=0;i<8;i++)E('updateVehSnow')(0.5);W.snowCover=sc;
-   const o=D.o;check(fam==='car'?t:fam,'snow',!!(o.snowU),'no snowU');}
+   const o=D.o,K=E('VEHICLE_KINDS')[D.k];
+   if(K&&K.snow==='blocks'){   // (made of blocks: its chunks are drawn with open tops marked for snow)
+     let n=0;for(const [k,v] of E('meshes'))if(v.cx>=E('SHIP_CX0'))for(const m of v.m){const a=m.geometry&&m.geometry.attributes&&m.geometry.attributes.aSky;if(a&&a.array&&Array.prototype.some.call(a.array,x=>x>=0.5))n++;}
+     check(fam,'snow',n>0,'no open tops in its chunks');}
+   else check(fam==='car'?t:fam,'snow',!!(o.snowU),'no snowU');}
   // health shown while driving
   const h0=hpOf(D);check(fam==='car'?t:fam,'hp',isFinite(h0)&&E('drvHP')(D).max>0,'drvHP '+JSON.stringify(E('drvHP')(D)));
   // a rifle round while someone's driving it: the vehicle takes it (and Invulnerability covers it)
   {const w=P.drv;P.drv=D;DT.invuln=true;shoot(P,1,null,new V3(1,0,0),'test','t');const h1=hpOf(D);DT.invuln=false;
    shoot(P,1,null,new V3(1,0,0),'test','t');const h2=hpOf(D);P.drv=w;
    check(fam==='car'?t:fam,'invuln',h1===h0,h0+' -> '+h1);check(fam==='car'?t:fam,'damage',h2<h1,h1+' -> '+h2);}
-  // one of Gnash's rifle rounds at it from the side (fireRound, as gobShoot fires it): it takes the hit (not a ship: a
-  // round only knocks out the block it strikes there)
-  if(D.k!=='ship'&&E("typeof fireRound==='function'")){const c=centre(D);if(c){const h1=hpOf(D);
+  // one of Gnash's rifle rounds at it from the side (fireRound, as gobShoot fires it): it takes the hit (a ship: a few
+  // rounds at its side, each knocking out the block it strikes, which is what a ship's health is)
+  if(D.k==='ship'&&E("typeof fireRound==='function'")){const S=D.o,h1=S.hp,r0=Math.random;Math.random=()=>0.01;
+    const B=E('TRAIN_BOXES').find(B=>B.proxy.T===S);
+    if(B){const L=B.hx+B.hz+6;for(let i=0;i<4;i++)E('fireRound')({x:B.x-B.tz*L,y:B.y0+0.6+i*(B.top-B.y0-1)/4,z:B.z+B.tx*L,dir:{x:B.tz,y:0,z:-B.tx},range:L*2,step:0.2,by:P,dmg:2,cause:'test',vehs:true,vd:6,breaks:true,ship:true});run(0.2);}
+    Math.random=r0;check(fam,'bullets',S.hp<h1,h1+' -> '+S.hp);}
+  else if(E("typeof fireRound==='function'")){const c=centre(D);if(c){const h1=hpOf(D);
     E('fireRound')({x:c.x-c.r-6,y:c.y,z:c.z,dir:{x:1,y:0,z:0},range:c.r+12,step:0.2,by:P,gobs:true,gb:[0.45,0,1.5],dmg:2,cause:'test',vehs:true,vd:6,ship:true});
     check(fam==='car'?t:fam,'bullets',hpOf(D)<h1,h1+' -> '+hpOf(D));}}
   // destroyed (nobody in it): points for it
@@ -84,6 +91,10 @@ let kx=-600;for(const t of kinds){
  if(!Mt)check('mount','spawned',false);else{const D={k:'mount',o:Mt,V:S.V};
   {const W=E('WX'),sc=W.snowCover;W.snowCover=1;for(let i=0;i<8;i++)E('updateVehSnow')(0.5);W.snowCover=sc;check('mount','snow',!!Mt.snowU);}
   check('mount','hp',isFinite(hpOf(D)));
+  // a rifle round at it from out in the world (its box there, B.mw): it takes the hit
+  {E('shipBoxes')(S);const B=E('TRAIN_BOXES').find(B=>B.proxy.T===Mt&&B.mw);if(B){const h1=Mt.hp;
+    E('fireRound')({x:B.x-8,y:(B.y0+B.top)/2,z:B.z,dir:{x:1,y:0,z:0},range:14,step:0.2,by:P,dmg:2,cause:'test',vehs:true,vd:6,ship:true});
+    check('mount','bullets',Mt.hp<h1,h1+' -> '+Mt.hp);}else check('mount','bullets',false,'no box in the world');}
   const h0=Mt.hp,w=P.drv;P.drv=D;DT.invuln=true;shoot(P,1,null,new V3(1,0,0),'test','t');const h1=Mt.hp;DT.invuln=false;shoot(P,1,null,new V3(1,0,0),'test','t');const h2=Mt.hp;P.drv=w;
   check('mount','invuln',h1===h0,h0+' -> '+h1);check('mount','damage',h2<h1,h1+' -> '+h2+' (its own health)');
   const s0=E('score');E('trainHit')(Mt,1e5);check('mount','points',E('score')>s0);
