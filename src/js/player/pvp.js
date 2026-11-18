@@ -1,7 +1,7 @@
 // ---- PvP (Options, kept in this browser, off at first): players can lock on to one another, and their attacks,
 // shots and vehicles hurt one another as they hurt goblins. Off, nothing here does anything. Online it's the host's
 // that counts: it goes to guests with the clock (netClock, as NET_PVP), and a guest's switch only shows it ----
-const PVP_KEY='goblin-stompin-gus-pvp',PVP_TXT=['Players can\'t lock on to or hurt each other with their attacks (blasts still catch anyone near)','Players can lock on to each other, and every attack, shot, blast and vehicle hurts another player as it would a goblin'];
+const PVP_KEY='goblin-stompin-gus-pvp',PVP_TXT=['Blasts still hurt anyone near','Players can hurt each other'];
 DT.pvp=false;try{DT.pvp=localStorage.getItem(PVP_KEY)==='1';}catch(e){}
 let NET_PVP=false;   // (the host's, while a guest)
 const pvpGuest=()=>{try{return netGuest()&&NET.joined;}catch(e){return false;}};   // (NET isn't made yet while the page loads)

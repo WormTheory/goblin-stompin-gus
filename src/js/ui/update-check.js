@@ -8,7 +8,7 @@
 const UPD={v:null};
 function updShow(){const b=document.getElementById('updBtn');if(!b||!UPD.v)return;b.hidden=false;
   const nv=UPD.v.version&&UPD.v.version!==GAME_VER?'Update to version '+UPD.v.version:'Update available';
-  b.firstChild.textContent=nv+' ';b.title='A newer build of the game has been published. Your world is saved first, then the page reloads with it.';}
+  b.firstChild.textContent=nv+' ';b.title='Saves, then reloads';}
 function updCheck(){
   if(typeof location==='undefined'||!/^https?:$/.test(location.protocol)||!window.fetch||GAME_BUILD.indexOf('{{')===0)return;
   fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(v=>{

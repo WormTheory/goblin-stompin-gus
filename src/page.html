@@ -38,7 +38,7 @@
   <div class="pops" id="pops" aria-hidden="true"></div>
   <div class="chat" id="chat" hidden>
     <div class="chat-log" id="chatLog" aria-live="polite"></div>
-    <input type="text" class="chat-in" id="chatIn" maxlength="120" autocomplete="off" spellcheck="false" placeholder="Say something, Enter sends, Esc cancels" aria-label="Chat message" hidden>
+    <input type="text" class="chat-in" id="chatIn" maxlength="120" autocomplete="off" spellcheck="false" placeholder="Say something" aria-label="Chat message" hidden>
     <div class="chat-quick" id="chatQuick" hidden></div>
     <div class="vchud" id="vcHud" hidden></div>
   </div>
@@ -86,20 +86,20 @@
         <button type="button" class="ck co" id="playCoop">Co-op</button>
         <button type="button" class="ck on" id="onlineBtn" aria-expanded="false" aria-controls="onlinePanel">Play online</button>
         <div class="online" id="onlinePanel" hidden>
-        <div class="on-h">Play online <small>Up to four players over the internet. Host your world and it shows up under Open games for anyone to join, or make it private and share the room code. The host's browser runs the game, so the host's computer should be the quicker one.</small></div>
+        <div class="on-h">Play online <small>Up to 4 players.</small></div>
         <div class="on-list" id="netList" hidden><div class="on-lh">Open games</div><div class="on-games" id="netGames"></div><div class="note on-gnote" id="netGamesNote" role="status"></div></div>
         <div class="on-row"><button type="button" class="on-b" id="netHost">Host a game</button><span class="on-or">or</span><input type="text" id="netCode" class="on-code-in" maxlength="8" placeholder="Room code" autocomplete="off" spellcheck="false" aria-label="Room code"><button type="button" class="on-b" id="netJoin">Join</button></div>
-        <label class="on-loc"><input type="checkbox" id="netPrivate"> Private game: keep it off the Open games list, so only people you give the room code to can join</label>
+        <label class="on-loc"><input type="checkbox" id="netPrivate"> Private game</label>
         <div class="on-code" id="netCodeShow" hidden></div>
-        <label class="on-loc"><input type="checkbox" id="netLocal"> Two tabs of this browser (for trying it out on one computer)</label>
+        <label class="on-loc"><input type="checkbox" id="netLocal"> Two tabs (local test)</label>
         <div class="note on-st" id="netStatus" role="status"></div>
         <button type="button" class="on-b on-leave" id="netLeave" hidden>Leave the online game</button>
       </div>
         <div class="tm2"><button type="button" class="ck set" id="newWorld">New world</button><button type="button" class="ck set" id="optBtn">Options</button></div>
-        <button type="button" class="ck set tsave" id="saveNow" title="Your game saves by itself as you play. This saves it straight away, and says so.">Save now</button>
+        <button type="button" class="ck set tsave" id="saveNow">Save now</button>
         <div class="savesw" id="saveSw" role="radiogroup" aria-label="Where your game is saved"><button type="button" role="radio" class="sv" id="saveBrowser" aria-checked="true">Browser save</button><button type="button" role="radio" class="sv" id="saveLocal" aria-checked="false" aria-expanded="false" aria-controls="savePanel">Local save</button></div>
         <div class="online savepanel" id="savePanel" hidden>
-          <div class="on-h">Local saves <small id="saveIntro">Keep your worlds in files on this computer instead of in the browser, so clearing the browser can't lose them and you can keep as many as you like. Your browser save stays as it is: switch back to it any time.</small></div>
+          <div class="on-h">Local saves <small id="saveIntro">Saves as files on this computer.</small></div>
           <div class="sv-list" id="saveList"></div>
           <div class="sv-btns" id="saveFileBtns"><button type="button" class="on-b" id="saveNewCopy">New file: this world</button><button type="button" class="on-b" id="saveNewFresh">New file: new world</button><button type="button" class="on-b sv-open" id="saveOpen">Open a save file</button></div>
           <div class="sv-btns sv-xfer"><button type="button" class="on-b" id="saveExport">Export this world</button><button type="button" class="on-b sv-open" id="saveImport">Import a save file</button><input type="file" id="saveImportFile" accept=".json,application/json" hidden></div>
@@ -108,7 +108,7 @@
         </div>
         <button type="button" class="ck set tfull" id="fullBtn">Full screen</button>
         <div class="confirm" id="confirm" hidden>
-        <span>Start over in a brand-new world? The day, your kills, your score and the obituary all start again from scratch.</span>
+        <span>Start over in a new world? Everything resets.</span>
         <button class="yes" id="confirmYes">New world</button>
         <button id="confirmNo">Keep this one</button>
       </div>
@@ -130,7 +130,7 @@
       </section>
       <div class="gamefoot">
         <button type="button" class="pnlatest sticker px" id="pnLatest">What's new: <!-- build: patch-notes-latest --> <span aria-hidden="true">›</span></button>
-        <div class="note" id="padNote">No controllers found yet. Press a button on one to wake it up.</div>
+        <div class="note" id="padNote">No controller found</div>
         <div class="note" id="seedNote"></div>
         <div class="vertag px" id="verTag" aria-hidden="true"></div>
         <button type="button" class="updbtn sticker px" id="updBtn" hidden>Update available <span aria-hidden="true">›</span></button>
@@ -138,7 +138,7 @@
     </div>
     <div class="tabpane testpane" id="tabTest" role="tabpanel" hidden>
     <div class="testpanel" id="testPanel">
-      <div class="tp-head"><h2>Testing Environment</h2><p>An empty, flat world to try things out in. Pick a kind of structure to bring in the nearest one this world would build, furnished and dressed as it would be in a city, built on the nearest clear ground in front of Gus. Enemies turn up a few steps ahead of wherever Gus is looking.</p></div>
+      <div class="tp-head"><h2>Testing Environment</h2></div>
       <div class="tp-info" id="tpInfo" role="status"></div>
       <div class="tp-sec"><div class="tp-gh">Enemies</div>
         <div class="tp-tools" id="tpFoes"><button type="button" class="pmenu" data-foe="goblin">Goblin</button><button type="button" class="pmenu" data-foe="cop">Police officer</button><button type="button" class="pmenu" data-foe="cultist">Cultist</button><button type="button" class="pmenu" data-foe="thief">Thief</button><button type="button" class="pmenu" data-foe="prepper">Prepper</button><button type="button" class="pmenu" data-foe="militia">Militia</button><button type="button" class="pmenu" data-foe="civ">Civilian</button>
@@ -148,7 +148,7 @@
         <div class="tp-tools"><span id="tpVehs" style="display:contents"></span>
           <div class="seg" role="radiogroup" aria-label="What spawned vehicles do" id="tpVM"><button type="button" role="radio" data-vm="hunt" aria-checked="true">Hunt Gus</button><button type="button" role="radio" data-vm="park" aria-checked="false">Parked</button></div></div></div>
       <div class="tp-sec"><div class="tp-gh">Mobile Gear loadout</div>
-        <div class="tp-load" id="tpLoad"></div><p class="tp-note">Mobile Gears spawned from now on carry these. Ones already standing keep what they have.</p></div>
+        <div class="tp-load" id="tpLoad"></div><p class="tp-note">Applies to new spawns</p></div>
       <div class="tp-sec" id="tpPlacedSec" hidden><div class="tp-gh">Spawned here</div><div class="tp-placed" id="tpPlaced"></div></div>
       <div class="tp-groups" id="tpGroups"></div>
       <div class="tp-foot"><button type="button" class="big" id="tpGo">Play</button><button type="button" class="pmenu" id="tpNormal">Back to your world</button><button type="button" class="pmenu" id="tpReset">Reset world</button></div>
@@ -178,24 +178,24 @@
       </div>
       <div id="abilSec">
       <h2>ABILITIES</h2>
-      <p class="vnote" id="abilNote">Tap a move to switch it on or off.</p>
+      <p class="vnote" id="abilNote" hidden></p>
       <div class="abil2" id="abilList">
         <div class="ab-h" aria-hidden="true"><span class="px">Basic moves</span><span class="px">Upgrades</span></div>
-        <div class="ab-row" role="group" aria-label="Bite and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="bite"><span class="tl"><b class="nm">Bite</b><small>Snap at whatever is in front of you</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="biteCombo" data-base="bite"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Bite combo</b><small>Keep biting to chain three hits, ending in an uppercut (off: single bites with a longer wait between them)</small></span><span class="st" aria-hidden="true"></span></button></div></div>
-        <div class="ab-row" role="group" aria-label="Stomp and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="stomp"><span class="tl"><b class="nm">Stomp</b><small>Rear up and slam down on everything around you</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="chargeStomp" data-base="stomp"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Charge Stomp</b><small>Hold to wind up a bigger stomp: one level of charge (off: every stomp is a quick one)</small></span><span class="st" aria-hidden="true"></span></button><button type="button" class="tog ab-tok" role="switch" data-k="fullStomp" data-base="stomp" data-prev="chargeStomp"><i class="lv" aria-hidden="true">+2</i><span class="tl"><b class="nm">Full Charge Stomp</b><small>Keep holding for the biggest stomp: both levels of charge</small></span><span class="st" aria-hidden="true"></span></button><button type="button" class="tog ab-tok" role="switch" data-k="groundSpike" data-base="stomp"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Ground Spike</b><small>A spike of stone bursts up out of the ground in front of him as the stomp lands, throwing whatever's there into the air: two spikes from a charged stomp and three from a full charge, each bigger than the one before</small></span><span class="st" aria-hidden="true"></span></button></div></div>
-        <div class="ab-row" role="group" aria-label="Ground Pound and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="pound"><span class="tl"><b class="nm">Ground Pound</b><small>Stomp in mid-air to flip over and slam down rump-first</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="chargePound" data-base="pound"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Charge Ground Pound</b><small>Hold in mid-air to hover and charge: one level of charge (off: every pound drops straight away)</small></span><span class="st" aria-hidden="true"></span></button><button type="button" class="tog ab-tok" role="switch" data-k="fullPound" data-base="pound" data-prev="chargePound"><i class="lv" aria-hidden="true">+2</i><span class="tl"><b class="nm">Full Charge Ground Pound</b><small>Keep hovering for the biggest pound: both levels of charge</small></span><span class="st" aria-hidden="true"></span></button></div></div>
-        <div class="ab-row" role="group" aria-label="Dash and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="dash"><span class="tl"><b class="nm">Dash</b><small>A quick hop a few blocks whichever way you point</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="roll" data-base="dash" data-excl="blastDash"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Roll</b><small>The dash becomes a low forward hop that curls into a rolling ball, bowling over enemies and smashing through blocks</small></span><span class="st" aria-hidden="true"></span></button><span class="ab-or" aria-hidden="true">or</span><button type="button" class="tog ab-tok" role="switch" data-k="blastDash" data-base="dash" data-excl="roll"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Blast Dash</b><small>The dash goes off with an explosion out of his backside: a burst of speed much further forward, smashing through blocks and blasting enemies aside (only one of Roll and Blast Dash at a time)</small></span><span class="st" aria-hidden="true"></span></button></div></div>
-        <div class="ab-row" role="group" aria-label="Sprint and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="sprint"><span class="tl"><b class="nm">Sprint</b><small>Hold Sprint to run</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="trample" data-base="sprint"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Trample</b><small>The run becomes a charge, ploughing through goblins, cars and clutter (off: a harmless sprint)</small></span><span class="st" aria-hidden="true"></span></button></div></div>
-        <div class="ab-row" role="group" aria-label="Jump and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="jump"><span class="tl"><b class="nm">Jump</b><small>Leap up off the ground</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="double" data-base="jump"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Double jump</b><small>A second jump in mid-air</small></span><span class="st" aria-hidden="true"></span></button><button type="button" class="tog ab-tok" role="switch" data-k="triple" data-base="jump" data-prev="double"><i class="lv" aria-hidden="true">+2</i><span class="tl"><b class="nm">Triple jump</b><small>Two extra jumps in mid-air</small></span><span class="st" aria-hidden="true"></span></button><button type="button" class="tog ab-tok" role="switch" data-k="rocket" data-base="jump"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Rocket Boost</b><small>Keep holding jump: a little rocket flame fires from each foot and lifts him slowly up (uses stamina)</small></span><span class="st" aria-hidden="true"></span></button></div></div>
-        <div class="ab-row" role="group" aria-label="Long Jump and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="longJump"><span class="tl"><b class="nm">Long Jump</b><small>Jump out of a run to leap low and far (off: an ordinary jump)</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="blastJump" data-base="longJump"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Blast Long Jump</b><small>The long jump goes off with an explosion out of his backside: a huge burst of speed, much further and higher, smashing through anything in the way</small></span><span class="st" aria-hidden="true"></span></button></div></div>
-        <div class="ab-row" role="group" aria-label="Air Dash and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="airDash"><span class="tl"><b class="nm">Air Dash</b><small>A roaring burst forward in mid-air</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="blastAirDash" data-base="airDash"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Blast Air Dash</b><small>The air dash goes off with an explosion out of his backside: faster and much further, smashing through blocks and blasting enemies aside</small></span><span class="st" aria-hidden="true"></span></button></div></div>
+        <div class="ab-row" role="group" aria-label="Bite and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="bite"><span class="tl"><b class="nm">Bite</b><small>Snap at whatever is in front of you</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="biteCombo" data-base="bite"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Bite combo</b><small>Keep biting to chain three hits, ending in an uppercut</small></span><span class="st" aria-hidden="true"></span></button></div></div>
+        <div class="ab-row" role="group" aria-label="Stomp and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="stomp"><span class="tl"><b class="nm">Stomp</b><small>Rear up and slam down on everything around you</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="chargeStomp" data-base="stomp"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Charge Stomp</b><small>Hold to wind up a bigger stomp: one level of charge</small></span><span class="st" aria-hidden="true"></span></button><button type="button" class="tog ab-tok" role="switch" data-k="fullStomp" data-base="stomp" data-prev="chargeStomp"><i class="lv" aria-hidden="true">+2</i><span class="tl"><b class="nm">Full Charge Stomp</b><small>Keep holding for the biggest stomp: both levels of charge</small></span><span class="st" aria-hidden="true"></span></button><button type="button" class="tog ab-tok" role="switch" data-k="groundSpike" data-base="stomp"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Ground Spike</b><small>Stone spikes burst up as the stomp lands. More with charge.</small></span><span class="st" aria-hidden="true"></span></button></div></div>
+        <div class="ab-row" role="group" aria-label="Ground Pound and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="pound"><span class="tl"><b class="nm">Ground Pound</b><small>Stomp in mid-air to flip over and slam down rump-first</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="chargePound" data-base="pound"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Charge Ground Pound</b><small>Hold in mid-air to hover and charge: one level of charge</small></span><span class="st" aria-hidden="true"></span></button><button type="button" class="tog ab-tok" role="switch" data-k="fullPound" data-base="pound" data-prev="chargePound"><i class="lv" aria-hidden="true">+2</i><span class="tl"><b class="nm">Full Charge Ground Pound</b><small>Keep hovering for the biggest pound: both levels of charge</small></span><span class="st" aria-hidden="true"></span></button></div></div>
+        <div class="ab-row" role="group" aria-label="Dash and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="dash"><span class="tl"><b class="nm">Dash</b><small>A quick hop a few blocks whichever way you point</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="roll" data-base="dash" data-excl="blastDash"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Roll</b><small>Dash becomes a rolling ball</small></span><span class="st" aria-hidden="true"></span></button><span class="ab-or" aria-hidden="true">or</span><button type="button" class="tog ab-tok" role="switch" data-k="blastDash" data-base="dash" data-excl="roll"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Blast Dash</b><small>Explosive dash that smashes through. Replaces Roll.</small></span><span class="st" aria-hidden="true"></span></button></div></div>
+        <div class="ab-row" role="group" aria-label="Sprint and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="sprint"><span class="tl"><b class="nm">Sprint</b></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="trample" data-base="sprint"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Trample</b><small>The run becomes a charge, ploughing through goblins, cars and clutter</small></span><span class="st" aria-hidden="true"></span></button></div></div>
+        <div class="ab-row" role="group" aria-label="Jump and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="jump"><span class="tl"><b class="nm">Jump</b></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="double" data-base="jump"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Double jump</b><small>A second jump in mid-air</small></span><span class="st" aria-hidden="true"></span></button><button type="button" class="tog ab-tok" role="switch" data-k="triple" data-base="jump" data-prev="double"><i class="lv" aria-hidden="true">+2</i><span class="tl"><b class="nm">Triple jump</b><small>Two extra jumps in mid-air</small></span><span class="st" aria-hidden="true"></span></button><button type="button" class="tog ab-tok" role="switch" data-k="rocket" data-base="jump"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Rocket Boost</b><small>Hold jump to rise slowly. Uses stamina.</small></span><span class="st" aria-hidden="true"></span></button></div></div>
+        <div class="ab-row" role="group" aria-label="Long Jump and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="longJump"><span class="tl"><b class="nm">Long Jump</b><small>Jump out of a run to leap low and far</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="blastJump" data-base="longJump"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Blast Long Jump</b><small>Explosive, much further, smashes through</small></span><span class="st" aria-hidden="true"></span></button></div></div>
+        <div class="ab-row" role="group" aria-label="Air Dash and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="airDash"><span class="tl"><b class="nm">Air Dash</b><small>A roaring burst forward in mid-air</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="blastAirDash" data-base="airDash"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Blast Air Dash</b><small>Explosive, much further, smashes through</small></span><span class="st" aria-hidden="true"></span></button></div></div>
         <div class="ab-row" role="group" aria-label="Spider Climb"><button type="button" class="tog ab-base" role="switch" data-k="climb"><span class="tl"><b class="nm">Spider Climb</b><small>Cling to walls and ceilings</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"></div></div>
-        <div class="ab-row ab-any" role="group" aria-label="Upgrades for every move"><div class="ab-lbl"><b class="nm px">Landings</b><small>Every hippo lands. These change how.</small></div><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="crash"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Crash Landing</b><small>Falling five blocks or more, you slam down on whatever you land on (off: you just land)</small></span><span class="st" aria-hidden="true"></span></button><button type="button" class="tog ab-tok" role="switch" data-k="noFall"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Fall damage immunity</b><small>Long falls don't hurt (ground pounds never do)</small></span><span class="st" aria-hidden="true"></span></button></div></div>
+        <div class="ab-row ab-any" role="group" aria-label="Upgrades for every move"><div class="ab-lbl"><b class="nm px">Landings</b></div><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="crash"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Crash Landing</b><small>Falling five blocks or more, you slam down on whatever you land on</small></span><span class="st" aria-hidden="true"></span></button><button type="button" class="tog ab-tok" role="switch" data-k="noFall"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Fall damage immunity</b><small>Long falls don't hurt (ground pounds never do)</small></span><span class="st" aria-hidden="true"></span></button></div></div>
       </div>
       </div>
       <div id="gwpnSec" hidden>
       <h2>LOADOUT</h2>
-      <p class="vnote" id="gwpnNote">Tap a weapon to carry it or leave it behind.</p>
+      <p class="vnote" id="gwpnNote">Always keeps at least one.</p>
       <div class="abil2" id="gwpnList"></div>
       </div>
     </div>
@@ -216,26 +216,24 @@
     <div class="custom" id="avOpts">
       <h2>SOUND &amp; PICTURE</h2>
       <div class="crow"><label class="clab" for="sndVol">SOUND VOLUME</label><input type="range" id="sndVol" class="vrange" min="0" max="100" step="5" value="100" aria-label="Sound volume"><span class="vval" id="sndVolVal">100%</span></div>
-      <p class="vnote">How loud the game's sounds are. 0% is silent. Voice chat keeps its own volumes, under Online.</p>
+      <p class="vnote">Voice chat volume is under Online.</p>
       <div class="crow"><label class="clab" for="brightness">BRIGHTNESS</label><input type="range" id="brightness" class="vrange" min="20" max="250" step="5" value="100" aria-label="Brightness"><span class="vval" id="brightVal">100%</span></div>
-      <p class="vnote">How bright the picture is: turn it up if nights are too dark to see by. The menus and the display stay as they are. In split screen it goes for both halves.</p>
     </div>
     <div class="custom">
       <h2>RENDER DISTANCE</h2>
       <div class="crow"><label class="clab" for="detailDist">DETAIL</label><input type="range" id="detailDist" class="vrange" min="48" max="1024" step="16" value="112" aria-label="Detail distance"><span class="vval" id="detailVal">112 blocks</span></div>
-      <p class="vnote">Detail distance: how far out the full, smashable city is built, with its traffic, goblins and props. High settings are slow and memory-hungry.</p>
+      <p class="vnote">High settings are slow.</p>
       <div class="crow"><label class="clab" for="viewDist">FAR VIEW</label><input type="range" id="viewDist" class="vrange" min="48" max="8000" step="16" value="112" aria-label="Far view distance"><span class="vval" id="viewVal">112 blocks</span></div>
-      <p class="vnote">Far view (LOD) distance: how far you can see at all; past the detail distance the city is drawn as simplified blocks. It never reaches less far than the detail distance. Split screen draws about 70% of both.</p>
+      <p class="vnote">Simplified city past Detail.</p>
       <div class="crow"><label class="clab" for="propDist">PROPS</label><input type="range" id="propDist" class="vrange" min="32" max="192" step="8" value="64" aria-label="Prop distance"><span class="vval" id="propVal">64 blocks</span></div>
-      <p class="vnote">Prop distance: how far out furniture and clutter are drawn: patio tables, beach and harbour gear and the like this far, the furniture inside buildings about half as far. It never reaches past the detail distance. Higher settings cost a little more processing.</p>
     </div>
     <div class="custom">
       <div class="crow"><label class="clab" for="crowdDist">CROWD DENSITY</label><input type="range" id="crowdDist" class="vrange" min="0" max="30" step="0.25" value="1" aria-label="Goblin and civilian density"><span class="vval" id="crowdVal">100%</span></div>
-      <p class="vnote">How many hostile goblins and civilians fill the streets (and whether police turn out). 0% empties the sidewalks; 3000% is a mob of about 400 hostiles, which slower computers may struggle with.</p>
+      <p class="vnote">High values can be slow.</p>
     </div>
     <div class="custom">
       <div class="crow"><label class="clab" for="trafficDist">TRAFFIC DENSITY</label><input type="range" id="trafficDist" class="vrange" min="0" max="10" step="0.25" value="1" aria-label="Traffic density"><span class="vval" id="trafficVal">100%</span></div>
-      <p class="vnote">How many cars drive the roads. 0% clears the streets; far above 300% gets heavy.</p>
+      <p class="vnote">Above 300% can be slow.</p>
     </div>
     <div class="custom">
       <div class="crow"><label class="clab" for="daySpeed">DAY / NIGHT SPEED</label><input type="range" id="daySpeed" class="vrange" min="0" max="7" step="1" value="3" aria-label="Day and night speed"><span class="vval" id="daySpeedVal">Normal</span></div>
@@ -243,34 +241,33 @@
     </div>
     <div class="custom">
       <div class="crow"><label class="clab" for="fireDur">FIRE &amp; SMOKE DURATION</label><input type="range" id="fireDur" class="vrange" min="0" max="5" step="1" value="2" aria-label="How long fires and smoke last"><span class="vval" id="fireDurVal">Normal</span></div>
-      <p class="vnote" id="fireDurNote">How long the wreckage of explosions and collapses keeps burning and smoking.</p>
     </div>
     <div class="custom">
       <div class="crow"><label class="clab" for="fireCap">MAX FIRES &amp; SMOKE</label><input type="range" id="fireCap" class="vrange" min="0" max="9" step="1" value="5" aria-label="Most fires and smoke plumes at once"><span class="vval" id="fireCapVal">70</span></div>
-      <p class="vnote">The most fires and smoke plumes burning at once; when another starts, the oldest goes out. At the top there's no limit at all. Lower it if big disasters make the game stutter.</p>
+      <p class="vnote">Lower if big fires stutter.</p>
     </div>
     <div class="custom">
       <h2>ON SCREEN</h2>
       <div class="abil">
-        <button type="button" class="tog" role="checkbox" id="scorePopTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Score numbers<small>Points float up from whatever you flatten or smash</small></span></button>
-        <button type="button" class="tog" role="checkbox" id="dmgPopTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Damage numbers<small>Numbers pop off goblins, vehicles and anything else as it takes a hit</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="scorePopTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Score numbers</span></button>
+        <button type="button" class="tog" role="checkbox" id="dmgPopTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Damage numbers</span></button>
         <button type="button" class="tog" role="checkbox" id="shoutTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Shouts<small>SPLAT!, CHOMP! or KABOOM! when a goblin goes down, combo milestones, and FULL CHARGE! on a charged stomp</small></span></button>
-        <button type="button" class="tog" role="checkbox" id="hpBarTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Health bars<small>Over goblins, vehicles, rides, zoo animals and other players nearby</small></span></button>
-        <button type="button" class="tog" role="checkbox" id="bloodTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Hide blood<small>No blood sprays, splats on the ground or pools, from goblins, hippos or anyone else</small></span></button>
-        <button type="button" class="tog" role="checkbox" id="calmTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Reduced motion<small>Stops the wobbling, bobbing and popping of the menus and display, and Gus on the title screen. On by itself if your system asks for less motion</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="hpBarTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Health bars<small>Over enemies and players</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="bloodTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Hide blood</span></button>
+        <button type="button" class="tog" role="checkbox" id="calmTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Reduced motion<small>Follows your system setting</small></span></button>
       </div>
     </div>
     <div class="custom" id="chatOpts">
       <h2>ONLINE CHAT &amp; VOICE</h2>
       <div class="abil">
-        <button type="button" class="tog" role="checkbox" id="chatShowTog"><span class="box" aria-hidden="true"></span><span class="tl">Show chat<small>Press Enter to type a message, Esc to cancel. On a controller, <span id="chatQkKey">D-pad ↑</span> picks a quick message</small></span></button>
-        <button type="button" class="tog" role="checkbox" id="vcTog"><span class="box" aria-hidden="true"></span><span class="tl">Voice chat<small>Talk to the others in an online game over the internet</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="chatShowTog"><span class="box" aria-hidden="true"></span><span class="tl">Show chat</span></button>
+        <button type="button" class="tog" role="checkbox" id="vcTog"><span class="box" aria-hidden="true"></span><span class="tl">Voice chat</span></button>
       </div>
       <div class="vcsub" id="vcSub" hidden>
         <div class="abil"><button type="button" class="tog" role="checkbox" id="vcPttTog"><span class="box" aria-hidden="true"></span><span class="tl">Push to talk<small><span id="vcPttTxt">Hold T (D-pad ← on a controller) to talk</span></small></span></button></div>
-        <div class="vcrow"><button type="button" class="tog" role="checkbox" id="vcMicTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">My voice<small>Let the others hear you. Your browser asks for the microphone first</small></span></button>
+        <div class="vcrow"><button type="button" class="tog" role="checkbox" id="vcMicTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">My voice</span></button>
           <div class="crow"><label class="clab" for="vcMicVol">VOLUME</label><input type="range" id="vcMicVol" class="vrange" min="0" max="200" step="10" value="100" aria-label="My voice volume"><span class="vval" id="vcMicVolVal">100%</span></div></div>
-        <div class="vcrow"><button type="button" class="tog" role="checkbox" id="vcHearTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Others' voice<small>Hear the other players</small></span></button>
+        <div class="vcrow"><button type="button" class="tog" role="checkbox" id="vcHearTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Others' voice</span></button>
           <div class="crow"><label class="clab" for="vcVol">VOLUME</label><input type="range" id="vcVol" class="vrange" min="0" max="200" step="10" value="100" aria-label="Others' voice volume"><span class="vval" id="vcVolVal">100%</span></div></div>
         <div class="abil" id="vcPeers"></div>
       </div>
@@ -279,14 +276,14 @@
     <div class="custom">
       <h2>DEBUG</h2>
       <div class="abil" id="dbgMenuTog">
-        <button type="button" class="tog" role="checkbox" data-k="quick" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Debug menu<small>Press SELECT on a controller, or ~ on the keyboard, to open it. Also shows the Dev tab here</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="quick" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Debug menu<small>~ or Select to open</small></span></button>
       </div>
     </div>
     </div>
     </div>
     <div class="tabpane" id="tabNotes" role="tabpanel" hidden>
       <div class="pn">
-        <p class="pn-web">What's changed, newest first. These notes are also on <a href="patch-notes/index.html" target="_blank" rel="noopener">their own web page</a>.</p>
+        <p class="pn-web">Also on <a href="patch-notes/index.html" target="_blank" rel="noopener">their own page</a>.</p>
 <!-- build: patch-notes -->
       </div>
     </div>

@@ -74,7 +74,7 @@ function netHostWith(tr,code,kind){
 }
 // (which way a game's played, for the status line: so ticking "Two tabs of this browser" plainly changes something)
 const netVia=kind=>kind==='loop'?"between this browser's tabs":'online';
-const netWaitTxt=kind=>kind==='loop'?'open the game in another tab of this browser, tick "Two tabs of this browser" there too, and join with this code':'waiting for someone to join';
+const netWaitTxt=kind=>kind==='loop'?'waiting for the other tab':'waiting for someone to join';
 // (a page opened from a file: some browsers keep each such tab to itself, so two of them can't find each other)
 const netFromFile=()=>{try{return location.protocol==='file:';}catch(e){return false;}};
 const NET_FILE_TIP=" Opened from a file, some browsers keep tabs apart: use the game's website, or serve the folder (python -m http.server) and open it from there.";

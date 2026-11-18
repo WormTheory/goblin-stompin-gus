@@ -217,7 +217,7 @@ function ctxApply(p){const cx=p.drv&&!p.drv.jack?drvCtx(p.drv):null;if(!cx||cx==
   if(lock!==null)i.lockPress=lock;}
 function readInputs(dt){
   const pads=connectedPads();
-  if(pads.length!==padCount){padCount=pads.length;document.getElementById('padNote').textContent=padCount===0?'No controllers found yet. Press a button on one to wake it up.':padCount===1?'1 controller ready. Press A or Start to play. For co-op, plug in a second controller, or pick Co-op to play keyboard + controller.':padCount+' controllers ready. Press Start on the second one for co-op.';}
+  if(pads.length!==padCount){padCount=pads.length;document.getElementById('padNote').textContent=padCount===0?'No controller found':padCount===1?'1 controller ready':padCount+' controllers ready. Press Start on the second one for co-op.';}
   const st=pads.map(p=>{const prev=padPrev.get(p.index)||[];const b=p.buttons.map(x=>!!(x&&(x.pressed||x.value>0.5)));return{p,b,pr:b.map((v,i)=>v&&!prev[i])};});
   for(const s of st)if(s.pr.some(Boolean)||s.p.axes.some(a=>Math.abs(a)>0.5)){noteInput('pad',s.p);break;}
   for(const s of st)padPrev.set(s.p.index,s.b);

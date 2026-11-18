@@ -190,7 +190,7 @@ function svUi(){
   b.setAttribute('aria-checked',String(SV.mode!=='local'));l.setAttribute('aria-checked',String(SV.mode==='local'));
   l.title=SV.can?'Save your game in files on this computer':'Export and import save files (this browser can\'t keep saving to a file by itself)';
   b.title=SV.mode==='local'?'Switch back to the game saved in this browser':'Your game is saved in this browser';
-  svEl('saveIntro').textContent=SV.can?"Keep your worlds in files on this computer instead of in the browser, so clearing the browser can't lose them, and keep as many as you like. Your browser save stays as it is: switch back to it any time.":SV.why;
+  svEl('saveIntro').textContent=SV.can?'Saves as files on this computer.':SV.why;
   for(const id of ['saveNewCopy','saveNewFresh','saveOpen']){const e=svEl(id);e.hidden=!SV.can;e.disabled=SV.busy;}
   // (export works everywhere; import is for browsers without Local save, since Open a save file does the same there)
   svEl('saveFileBtns').hidden=!SV.can;svEl('saveExport').disabled=SV.busy;svEl('saveImport').hidden=SV.can;svEl('saveImport').disabled=SV.busy;
@@ -247,7 +247,7 @@ async function svImportPick(f){
   if(f.size>200e6)throw new Error("That file's too big to be a save.");
   const o=svParse(await f.text());if(o.empty)throw new Error("That file's empty.");
   svPending={o,name:f.name};
-  svEl('saveAskTxt').textContent='Load '+f.name+(o.t?', saved '+svWhen(+o.t):'')+'? It replaces the world in this browser, so export that first if you want to keep it.';
+  svEl('saveAskTxt').textContent='Load '+f.name+(o.t?', saved '+svWhen(+o.t):'')+'? It replaces your browser world.';
   svAskShow(true);
 }
 async function svImport(){

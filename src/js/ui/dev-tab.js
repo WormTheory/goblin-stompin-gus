@@ -373,7 +373,7 @@ function devRenderHbProps(){
   const box=document.getElementById('devHbProps'),side=document.getElementById('devHbSide'),H=hbOf(DEVP.key),B=H.boxes[DEVP.sel];
   document.getElementById('devPaneHb').hidden=!B||DEVP.mode!=='adv';document.getElementById('devPaneHbT').hidden=DEVP.mode!=='adv';
   const nm=B?'Hitbox '+(DEVP.sel+1)+' ('+(B.kind==='block'?'Smash blocks':'Damage')+')':'';document.querySelector('#devPaneHb>summary').textContent=B?nm:'Hitbox';document.querySelector('#devPaneHbT>summary').textContent=B?nm+': timing'+(B.kind==='block'?'':' & damage'):'Timing & damage';
-  if(!B){box.innerHTML='<div class="vnote">Pick a hitbox in the timeline to edit it. Frames count from the dashed line (the start of the move), 60 to a second'+(DEVP.key==='trample'?'; a charge run repeats its hitboxes for as long as it lasts':'')+'.</div>';side.innerHTML='';return;}
+  if(!B){box.innerHTML='<div class="vnote">Frames from the dashed line, 60/s'+(DEVP.key==='trample'?'; a charge run repeats them while it lasts':'')+'.</div>';side.innerHTML='';return;}
   const row=(pk,lbl,v,mn,mx,st)=>'<div class="devp" data-hp="'+pk+'"><span>'+lbl+'</span><input type="range" class="vrange" min="'+mn+'" max="'+mx+'" step="'+st+'" value="'+v+'" aria-label="'+lbl+'"><input type="number" min="'+mn+'" max="'+mx+'" step="'+st+'" value="'+v+'" aria-label="'+lbl+' value"><span></span></div>';
   const N=DEVP.rec?DEVP.rec.N:180,bone=B.bone||'root';
   // beside the preview: what it is, where it sits, how big it is

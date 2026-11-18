@@ -30,7 +30,7 @@ const vcTalkKeys=()=>{const k=BINDS.talk.kb[0],p=BINDS.talk.pad[0];return k&&p!=
 async function vcStart(){
   if(VC.on||VC.busy)return;
   if(!chatAvail()){vcNote('Voice chat works in an online game: host one or join one first.');vcOptsDraw();return;}
-  if(!NET.tr.av){vcNote("Voice chat needs a game over the internet: between two tabs of one browser there's no connection to carry it.");vcOptsDraw();return;}
+  if(!NET.tr.av){vcNote('Not available in two-tab games');vcOptsDraw();return;}
   VC.want=true;
   const md=typeof navigator!=='undefined'&&navigator.mediaDevices;
   if(!VC.talk)return vcBegin(null,VC.hear?'Voice chat is on, with your microphone off.':'Voice chat is on, with your microphone and the others both off.');
@@ -197,7 +197,7 @@ function vcOptsDraw(){
   chatEl('vcPttTxt').textContent='Hold '+vcTalkKeys()+' to talk';
   const v=chatEl('vcVol');if(document.activeElement!==v)v.value=String(Math.round(VC.vol*100));chatEl('vcVolVal').textContent=Math.round(VC.vol*100)+'%';
   const mv=chatEl('vcMicVol');if(document.activeElement!==mv)mv.value=String(Math.round(VC.micVol*100));chatEl('vcMicVolVal').textContent=Math.round(VC.micVol*100)+'%';
-  if(!VC.note)chatEl('vcNote').textContent=vcCan()||!netOn()?'':'Voice chat needs a game over the internet, not between two tabs.';
+  if(!VC.note)chatEl('vcNote').textContent=vcCan()||!netOn()?'':'Not available in two-tab games';
   // (one button per player on voice: muting them is only for you)
   const me=vcSelf(),L=VC.on&&VC.hear?VC.roster.filter(r=>r.on&&r.mic&&r.id!==me):[];
   const k=JSON.stringify([!!VC.mic,L.map(r=>[r.id,r.n,VC.mute.has(r.id),r.hr])]);if(k===VC.peersKey)return;VC.peersKey=k;

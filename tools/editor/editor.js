@@ -317,7 +317,7 @@ function poseBody(J,c,u,W,reload){
   if(S.grip&&k&&!reload&&GUN_GRIP[k]){J.arm.hand=J.hand;gunGrip(J,J.root,k);}
 }
 // the toggle: both hands on the gun as the game puts them, or the pose as the animation alone has it
-const gripChk=()=>'<label title="The game puts both hands on a gun just before drawing it (gunGrip); off, the pose as the animation alone has it"><input type="checkbox" id="gripChk"'+(S.grip?' checked':'')+'> Two hands on the gun</label>';
+const gripChk=()=>'<label title="Two-handed grip before drawing"><input type="checkbox" id="gripChk"'+(S.grip?' checked':'')+'> Two hands on the gun</label>';
 // a grip on show: a goblin with each gun that uses it, aiming (its pose at the blow) and carried (the pose's start)
 function buildGrip(k){
   const ws=S.list.weapons.filter(n=>WDATA[n]&&WDATA[n].npc&&WDATA[n].npc.aim===k);let x=0;

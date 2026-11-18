@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:fd9bff88d9be6982f73f04c9f742d5d204f9575539333f8a9487896005e8ef13 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:0233b751e46acf8fc79b956c28437051de82b20fabd9821e9fa1d612fc22ab34 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1326,7 +1326,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
   <div class="pops" id="pops" aria-hidden="true"></div>
   <div class="chat" id="chat" hidden>
     <div class="chat-log" id="chatLog" aria-live="polite"></div>
-    <input type="text" class="chat-in" id="chatIn" maxlength="120" autocomplete="off" spellcheck="false" placeholder="Say something, Enter sends, Esc cancels" aria-label="Chat message" hidden>
+    <input type="text" class="chat-in" id="chatIn" maxlength="120" autocomplete="off" spellcheck="false" placeholder="Say something" aria-label="Chat message" hidden>
     <div class="chat-quick" id="chatQuick" hidden></div>
     <div class="vchud" id="vcHud" hidden></div>
   </div>
@@ -1374,20 +1374,20 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <button type="button" class="ck co" id="playCoop">Co-op</button>
         <button type="button" class="ck on" id="onlineBtn" aria-expanded="false" aria-controls="onlinePanel">Play online</button>
         <div class="online" id="onlinePanel" hidden>
-        <div class="on-h">Play online <small>Up to four players over the internet. Host your world and it shows up under Open games for anyone to join, or make it private and share the room code. The host's browser runs the game, so the host's computer should be the quicker one.</small></div>
+        <div class="on-h">Play online <small>Up to 4 players.</small></div>
         <div class="on-list" id="netList" hidden><div class="on-lh">Open games</div><div class="on-games" id="netGames"></div><div class="note on-gnote" id="netGamesNote" role="status"></div></div>
         <div class="on-row"><button type="button" class="on-b" id="netHost">Host a game</button><span class="on-or">or</span><input type="text" id="netCode" class="on-code-in" maxlength="8" placeholder="Room code" autocomplete="off" spellcheck="false" aria-label="Room code"><button type="button" class="on-b" id="netJoin">Join</button></div>
-        <label class="on-loc"><input type="checkbox" id="netPrivate"> Private game: keep it off the Open games list, so only people you give the room code to can join</label>
+        <label class="on-loc"><input type="checkbox" id="netPrivate"> Private game</label>
         <div class="on-code" id="netCodeShow" hidden></div>
-        <label class="on-loc"><input type="checkbox" id="netLocal"> Two tabs of this browser (for trying it out on one computer)</label>
+        <label class="on-loc"><input type="checkbox" id="netLocal"> Two tabs (local test)</label>
         <div class="note on-st" id="netStatus" role="status"></div>
         <button type="button" class="on-b on-leave" id="netLeave" hidden>Leave the online game</button>
       </div>
         <div class="tm2"><button type="button" class="ck set" id="newWorld">New world</button><button type="button" class="ck set" id="optBtn">Options</button></div>
-        <button type="button" class="ck set tsave" id="saveNow" title="Your game saves by itself as you play. This saves it straight away, and says so.">Save now</button>
+        <button type="button" class="ck set tsave" id="saveNow">Save now</button>
         <div class="savesw" id="saveSw" role="radiogroup" aria-label="Where your game is saved"><button type="button" role="radio" class="sv" id="saveBrowser" aria-checked="true">Browser save</button><button type="button" role="radio" class="sv" id="saveLocal" aria-checked="false" aria-expanded="false" aria-controls="savePanel">Local save</button></div>
         <div class="online savepanel" id="savePanel" hidden>
-          <div class="on-h">Local saves <small id="saveIntro">Keep your worlds in files on this computer instead of in the browser, so clearing the browser can't lose them and you can keep as many as you like. Your browser save stays as it is: switch back to it any time.</small></div>
+          <div class="on-h">Local saves <small id="saveIntro">Saves as files on this computer.</small></div>
           <div class="sv-list" id="saveList"></div>
           <div class="sv-btns" id="saveFileBtns"><button type="button" class="on-b" id="saveNewCopy">New file: this world</button><button type="button" class="on-b" id="saveNewFresh">New file: new world</button><button type="button" class="on-b sv-open" id="saveOpen">Open a save file</button></div>
           <div class="sv-btns sv-xfer"><button type="button" class="on-b" id="saveExport">Export this world</button><button type="button" class="on-b sv-open" id="saveImport">Import a save file</button><input type="file" id="saveImportFile" accept=".json,application/json" hidden></div>
@@ -1396,7 +1396,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         </div>
         <button type="button" class="ck set tfull" id="fullBtn">Full screen</button>
         <div class="confirm" id="confirm" hidden>
-        <span>Start over in a brand-new world? The day, your kills, your score and the obituary all start again from scratch.</span>
+        <span>Start over in a new world? Everything resets.</span>
         <button class="yes" id="confirmYes">New world</button>
         <button id="confirmNo">Keep this one</button>
       </div>
@@ -1418,7 +1418,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
       </section>
       <div class="gamefoot">
         <button type="button" class="pnlatest sticker px" id="pnLatest">What's new: Version 0.5 <span aria-hidden="true">›</span></button>
-        <div class="note" id="padNote">No controllers found yet. Press a button on one to wake it up.</div>
+        <div class="note" id="padNote">No controller found</div>
         <div class="note" id="seedNote"></div>
         <div class="vertag px" id="verTag" aria-hidden="true"></div>
         <button type="button" class="updbtn sticker px" id="updBtn" hidden>Update available <span aria-hidden="true">›</span></button>
@@ -1426,7 +1426,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
     </div>
     <div class="tabpane testpane" id="tabTest" role="tabpanel" hidden>
     <div class="testpanel" id="testPanel">
-      <div class="tp-head"><h2>Testing Environment</h2><p>An empty, flat world to try things out in. Pick a kind of structure to bring in the nearest one this world would build, furnished and dressed as it would be in a city, built on the nearest clear ground in front of Gus. Enemies turn up a few steps ahead of wherever Gus is looking.</p></div>
+      <div class="tp-head"><h2>Testing Environment</h2></div>
       <div class="tp-info" id="tpInfo" role="status"></div>
       <div class="tp-sec"><div class="tp-gh">Enemies</div>
         <div class="tp-tools" id="tpFoes"><button type="button" class="pmenu" data-foe="goblin">Goblin</button><button type="button" class="pmenu" data-foe="cop">Police officer</button><button type="button" class="pmenu" data-foe="cultist">Cultist</button><button type="button" class="pmenu" data-foe="thief">Thief</button><button type="button" class="pmenu" data-foe="prepper">Prepper</button><button type="button" class="pmenu" data-foe="militia">Militia</button><button type="button" class="pmenu" data-foe="civ">Civilian</button>
@@ -1436,7 +1436,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <div class="tp-tools"><span id="tpVehs" style="display:contents"></span>
           <div class="seg" role="radiogroup" aria-label="What spawned vehicles do" id="tpVM"><button type="button" role="radio" data-vm="hunt" aria-checked="true">Hunt Gus</button><button type="button" role="radio" data-vm="park" aria-checked="false">Parked</button></div></div></div>
       <div class="tp-sec"><div class="tp-gh">Mobile Gear loadout</div>
-        <div class="tp-load" id="tpLoad"></div><p class="tp-note">Mobile Gears spawned from now on carry these. Ones already standing keep what they have.</p></div>
+        <div class="tp-load" id="tpLoad"></div><p class="tp-note">Applies to new spawns</p></div>
       <div class="tp-sec" id="tpPlacedSec" hidden><div class="tp-gh">Spawned here</div><div class="tp-placed" id="tpPlaced"></div></div>
       <div class="tp-groups" id="tpGroups"></div>
       <div class="tp-foot"><button type="button" class="big" id="tpGo">Play</button><button type="button" class="pmenu" id="tpNormal">Back to your world</button><button type="button" class="pmenu" id="tpReset">Reset world</button></div>
@@ -1466,24 +1466,24 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
       </div>
       <div id="abilSec">
       <h2>ABILITIES</h2>
-      <p class="vnote" id="abilNote">Tap a move to switch it on or off.</p>
+      <p class="vnote" id="abilNote" hidden></p>
       <div class="abil2" id="abilList">
         <div class="ab-h" aria-hidden="true"><span class="px">Basic moves</span><span class="px">Upgrades</span></div>
-        <div class="ab-row" role="group" aria-label="Bite and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="bite"><span class="tl"><b class="nm">Bite</b><small>Snap at whatever is in front of you</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="biteCombo" data-base="bite"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Bite combo</b><small>Keep biting to chain three hits, ending in an uppercut (off: single bites with a longer wait between them)</small></span><span class="st" aria-hidden="true"></span></button></div></div>
-        <div class="ab-row" role="group" aria-label="Stomp and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="stomp"><span class="tl"><b class="nm">Stomp</b><small>Rear up and slam down on everything around you</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="chargeStomp" data-base="stomp"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Charge Stomp</b><small>Hold to wind up a bigger stomp: one level of charge (off: every stomp is a quick one)</small></span><span class="st" aria-hidden="true"></span></button><button type="button" class="tog ab-tok" role="switch" data-k="fullStomp" data-base="stomp" data-prev="chargeStomp"><i class="lv" aria-hidden="true">+2</i><span class="tl"><b class="nm">Full Charge Stomp</b><small>Keep holding for the biggest stomp: both levels of charge</small></span><span class="st" aria-hidden="true"></span></button><button type="button" class="tog ab-tok" role="switch" data-k="groundSpike" data-base="stomp"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Ground Spike</b><small>A spike of stone bursts up out of the ground in front of him as the stomp lands, throwing whatever's there into the air: two spikes from a charged stomp and three from a full charge, each bigger than the one before</small></span><span class="st" aria-hidden="true"></span></button></div></div>
-        <div class="ab-row" role="group" aria-label="Ground Pound and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="pound"><span class="tl"><b class="nm">Ground Pound</b><small>Stomp in mid-air to flip over and slam down rump-first</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="chargePound" data-base="pound"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Charge Ground Pound</b><small>Hold in mid-air to hover and charge: one level of charge (off: every pound drops straight away)</small></span><span class="st" aria-hidden="true"></span></button><button type="button" class="tog ab-tok" role="switch" data-k="fullPound" data-base="pound" data-prev="chargePound"><i class="lv" aria-hidden="true">+2</i><span class="tl"><b class="nm">Full Charge Ground Pound</b><small>Keep hovering for the biggest pound: both levels of charge</small></span><span class="st" aria-hidden="true"></span></button></div></div>
-        <div class="ab-row" role="group" aria-label="Dash and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="dash"><span class="tl"><b class="nm">Dash</b><small>A quick hop a few blocks whichever way you point</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="roll" data-base="dash" data-excl="blastDash"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Roll</b><small>The dash becomes a low forward hop that curls into a rolling ball, bowling over enemies and smashing through blocks</small></span><span class="st" aria-hidden="true"></span></button><span class="ab-or" aria-hidden="true">or</span><button type="button" class="tog ab-tok" role="switch" data-k="blastDash" data-base="dash" data-excl="roll"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Blast Dash</b><small>The dash goes off with an explosion out of his backside: a burst of speed much further forward, smashing through blocks and blasting enemies aside (only one of Roll and Blast Dash at a time)</small></span><span class="st" aria-hidden="true"></span></button></div></div>
-        <div class="ab-row" role="group" aria-label="Sprint and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="sprint"><span class="tl"><b class="nm">Sprint</b><small>Hold Sprint to run</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="trample" data-base="sprint"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Trample</b><small>The run becomes a charge, ploughing through goblins, cars and clutter (off: a harmless sprint)</small></span><span class="st" aria-hidden="true"></span></button></div></div>
-        <div class="ab-row" role="group" aria-label="Jump and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="jump"><span class="tl"><b class="nm">Jump</b><small>Leap up off the ground</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="double" data-base="jump"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Double jump</b><small>A second jump in mid-air</small></span><span class="st" aria-hidden="true"></span></button><button type="button" class="tog ab-tok" role="switch" data-k="triple" data-base="jump" data-prev="double"><i class="lv" aria-hidden="true">+2</i><span class="tl"><b class="nm">Triple jump</b><small>Two extra jumps in mid-air</small></span><span class="st" aria-hidden="true"></span></button><button type="button" class="tog ab-tok" role="switch" data-k="rocket" data-base="jump"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Rocket Boost</b><small>Keep holding jump: a little rocket flame fires from each foot and lifts him slowly up (uses stamina)</small></span><span class="st" aria-hidden="true"></span></button></div></div>
-        <div class="ab-row" role="group" aria-label="Long Jump and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="longJump"><span class="tl"><b class="nm">Long Jump</b><small>Jump out of a run to leap low and far (off: an ordinary jump)</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="blastJump" data-base="longJump"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Blast Long Jump</b><small>The long jump goes off with an explosion out of his backside: a huge burst of speed, much further and higher, smashing through anything in the way</small></span><span class="st" aria-hidden="true"></span></button></div></div>
-        <div class="ab-row" role="group" aria-label="Air Dash and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="airDash"><span class="tl"><b class="nm">Air Dash</b><small>A roaring burst forward in mid-air</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="blastAirDash" data-base="airDash"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Blast Air Dash</b><small>The air dash goes off with an explosion out of his backside: faster and much further, smashing through blocks and blasting enemies aside</small></span><span class="st" aria-hidden="true"></span></button></div></div>
+        <div class="ab-row" role="group" aria-label="Bite and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="bite"><span class="tl"><b class="nm">Bite</b><small>Snap at whatever is in front of you</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="biteCombo" data-base="bite"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Bite combo</b><small>Keep biting to chain three hits, ending in an uppercut</small></span><span class="st" aria-hidden="true"></span></button></div></div>
+        <div class="ab-row" role="group" aria-label="Stomp and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="stomp"><span class="tl"><b class="nm">Stomp</b><small>Rear up and slam down on everything around you</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="chargeStomp" data-base="stomp"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Charge Stomp</b><small>Hold to wind up a bigger stomp: one level of charge</small></span><span class="st" aria-hidden="true"></span></button><button type="button" class="tog ab-tok" role="switch" data-k="fullStomp" data-base="stomp" data-prev="chargeStomp"><i class="lv" aria-hidden="true">+2</i><span class="tl"><b class="nm">Full Charge Stomp</b><small>Keep holding for the biggest stomp: both levels of charge</small></span><span class="st" aria-hidden="true"></span></button><button type="button" class="tog ab-tok" role="switch" data-k="groundSpike" data-base="stomp"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Ground Spike</b><small>Stone spikes burst up as the stomp lands. More with charge.</small></span><span class="st" aria-hidden="true"></span></button></div></div>
+        <div class="ab-row" role="group" aria-label="Ground Pound and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="pound"><span class="tl"><b class="nm">Ground Pound</b><small>Stomp in mid-air to flip over and slam down rump-first</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="chargePound" data-base="pound"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Charge Ground Pound</b><small>Hold in mid-air to hover and charge: one level of charge</small></span><span class="st" aria-hidden="true"></span></button><button type="button" class="tog ab-tok" role="switch" data-k="fullPound" data-base="pound" data-prev="chargePound"><i class="lv" aria-hidden="true">+2</i><span class="tl"><b class="nm">Full Charge Ground Pound</b><small>Keep hovering for the biggest pound: both levels of charge</small></span><span class="st" aria-hidden="true"></span></button></div></div>
+        <div class="ab-row" role="group" aria-label="Dash and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="dash"><span class="tl"><b class="nm">Dash</b><small>A quick hop a few blocks whichever way you point</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="roll" data-base="dash" data-excl="blastDash"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Roll</b><small>Dash becomes a rolling ball</small></span><span class="st" aria-hidden="true"></span></button><span class="ab-or" aria-hidden="true">or</span><button type="button" class="tog ab-tok" role="switch" data-k="blastDash" data-base="dash" data-excl="roll"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Blast Dash</b><small>Explosive dash that smashes through. Replaces Roll.</small></span><span class="st" aria-hidden="true"></span></button></div></div>
+        <div class="ab-row" role="group" aria-label="Sprint and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="sprint"><span class="tl"><b class="nm">Sprint</b></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="trample" data-base="sprint"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Trample</b><small>The run becomes a charge, ploughing through goblins, cars and clutter</small></span><span class="st" aria-hidden="true"></span></button></div></div>
+        <div class="ab-row" role="group" aria-label="Jump and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="jump"><span class="tl"><b class="nm">Jump</b></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="double" data-base="jump"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Double jump</b><small>A second jump in mid-air</small></span><span class="st" aria-hidden="true"></span></button><button type="button" class="tog ab-tok" role="switch" data-k="triple" data-base="jump" data-prev="double"><i class="lv" aria-hidden="true">+2</i><span class="tl"><b class="nm">Triple jump</b><small>Two extra jumps in mid-air</small></span><span class="st" aria-hidden="true"></span></button><button type="button" class="tog ab-tok" role="switch" data-k="rocket" data-base="jump"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Rocket Boost</b><small>Hold jump to rise slowly. Uses stamina.</small></span><span class="st" aria-hidden="true"></span></button></div></div>
+        <div class="ab-row" role="group" aria-label="Long Jump and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="longJump"><span class="tl"><b class="nm">Long Jump</b><small>Jump out of a run to leap low and far</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="blastJump" data-base="longJump"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Blast Long Jump</b><small>Explosive, much further, smashes through</small></span><span class="st" aria-hidden="true"></span></button></div></div>
+        <div class="ab-row" role="group" aria-label="Air Dash and its upgrades"><button type="button" class="tog ab-base" role="switch" data-k="airDash"><span class="tl"><b class="nm">Air Dash</b><small>A roaring burst forward in mid-air</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="blastAirDash" data-base="airDash"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Blast Air Dash</b><small>Explosive, much further, smashes through</small></span><span class="st" aria-hidden="true"></span></button></div></div>
         <div class="ab-row" role="group" aria-label="Spider Climb"><button type="button" class="tog ab-base" role="switch" data-k="climb"><span class="tl"><b class="nm">Spider Climb</b><small>Cling to walls and ceilings</small></span><span class="st" aria-hidden="true"></span></button><div class="ab-up"></div></div>
-        <div class="ab-row ab-any" role="group" aria-label="Upgrades for every move"><div class="ab-lbl"><b class="nm px">Landings</b><small>Every hippo lands. These change how.</small></div><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="crash"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Crash Landing</b><small>Falling five blocks or more, you slam down on whatever you land on (off: you just land)</small></span><span class="st" aria-hidden="true"></span></button><button type="button" class="tog ab-tok" role="switch" data-k="noFall"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Fall damage immunity</b><small>Long falls don't hurt (ground pounds never do)</small></span><span class="st" aria-hidden="true"></span></button></div></div>
+        <div class="ab-row ab-any" role="group" aria-label="Upgrades for every move"><div class="ab-lbl"><b class="nm px">Landings</b></div><div class="ab-up"><button type="button" class="tog ab-tok" role="switch" data-k="crash"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Crash Landing</b><small>Falling five blocks or more, you slam down on whatever you land on</small></span><span class="st" aria-hidden="true"></span></button><button type="button" class="tog ab-tok" role="switch" data-k="noFall"><i class="lv" aria-hidden="true">+1</i><span class="tl"><b class="nm">Fall damage immunity</b><small>Long falls don't hurt (ground pounds never do)</small></span><span class="st" aria-hidden="true"></span></button></div></div>
       </div>
       </div>
       <div id="gwpnSec" hidden>
       <h2>LOADOUT</h2>
-      <p class="vnote" id="gwpnNote">Tap a weapon to carry it or leave it behind.</p>
+      <p class="vnote" id="gwpnNote">Always keeps at least one.</p>
       <div class="abil2" id="gwpnList"></div>
       </div>
     </div>
@@ -1504,26 +1504,24 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
     <div class="custom" id="avOpts">
       <h2>SOUND &amp; PICTURE</h2>
       <div class="crow"><label class="clab" for="sndVol">SOUND VOLUME</label><input type="range" id="sndVol" class="vrange" min="0" max="100" step="5" value="100" aria-label="Sound volume"><span class="vval" id="sndVolVal">100%</span></div>
-      <p class="vnote">How loud the game's sounds are. 0% is silent. Voice chat keeps its own volumes, under Online.</p>
+      <p class="vnote">Voice chat volume is under Online.</p>
       <div class="crow"><label class="clab" for="brightness">BRIGHTNESS</label><input type="range" id="brightness" class="vrange" min="20" max="250" step="5" value="100" aria-label="Brightness"><span class="vval" id="brightVal">100%</span></div>
-      <p class="vnote">How bright the picture is: turn it up if nights are too dark to see by. The menus and the display stay as they are. In split screen it goes for both halves.</p>
     </div>
     <div class="custom">
       <h2>RENDER DISTANCE</h2>
       <div class="crow"><label class="clab" for="detailDist">DETAIL</label><input type="range" id="detailDist" class="vrange" min="48" max="1024" step="16" value="112" aria-label="Detail distance"><span class="vval" id="detailVal">112 blocks</span></div>
-      <p class="vnote">Detail distance: how far out the full, smashable city is built, with its traffic, goblins and props. High settings are slow and memory-hungry.</p>
+      <p class="vnote">High settings are slow.</p>
       <div class="crow"><label class="clab" for="viewDist">FAR VIEW</label><input type="range" id="viewDist" class="vrange" min="48" max="8000" step="16" value="112" aria-label="Far view distance"><span class="vval" id="viewVal">112 blocks</span></div>
-      <p class="vnote">Far view (LOD) distance: how far you can see at all; past the detail distance the city is drawn as simplified blocks. It never reaches less far than the detail distance. Split screen draws about 70% of both.</p>
+      <p class="vnote">Simplified city past Detail.</p>
       <div class="crow"><label class="clab" for="propDist">PROPS</label><input type="range" id="propDist" class="vrange" min="32" max="192" step="8" value="64" aria-label="Prop distance"><span class="vval" id="propVal">64 blocks</span></div>
-      <p class="vnote">Prop distance: how far out furniture and clutter are drawn: patio tables, beach and harbour gear and the like this far, the furniture inside buildings about half as far. It never reaches past the detail distance. Higher settings cost a little more processing.</p>
     </div>
     <div class="custom">
       <div class="crow"><label class="clab" for="crowdDist">CROWD DENSITY</label><input type="range" id="crowdDist" class="vrange" min="0" max="30" step="0.25" value="1" aria-label="Goblin and civilian density"><span class="vval" id="crowdVal">100%</span></div>
-      <p class="vnote">How many hostile goblins and civilians fill the streets (and whether police turn out). 0% empties the sidewalks; 3000% is a mob of about 400 hostiles, which slower computers may struggle with.</p>
+      <p class="vnote">High values can be slow.</p>
     </div>
     <div class="custom">
       <div class="crow"><label class="clab" for="trafficDist">TRAFFIC DENSITY</label><input type="range" id="trafficDist" class="vrange" min="0" max="10" step="0.25" value="1" aria-label="Traffic density"><span class="vval" id="trafficVal">100%</span></div>
-      <p class="vnote">How many cars drive the roads. 0% clears the streets; far above 300% gets heavy.</p>
+      <p class="vnote">Above 300% can be slow.</p>
     </div>
     <div class="custom">
       <div class="crow"><label class="clab" for="daySpeed">DAY / NIGHT SPEED</label><input type="range" id="daySpeed" class="vrange" min="0" max="7" step="1" value="3" aria-label="Day and night speed"><span class="vval" id="daySpeedVal">Normal</span></div>
@@ -1531,34 +1529,33 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
     </div>
     <div class="custom">
       <div class="crow"><label class="clab" for="fireDur">FIRE &amp; SMOKE DURATION</label><input type="range" id="fireDur" class="vrange" min="0" max="5" step="1" value="2" aria-label="How long fires and smoke last"><span class="vval" id="fireDurVal">Normal</span></div>
-      <p class="vnote" id="fireDurNote">How long the wreckage of explosions and collapses keeps burning and smoking.</p>
     </div>
     <div class="custom">
       <div class="crow"><label class="clab" for="fireCap">MAX FIRES &amp; SMOKE</label><input type="range" id="fireCap" class="vrange" min="0" max="9" step="1" value="5" aria-label="Most fires and smoke plumes at once"><span class="vval" id="fireCapVal">70</span></div>
-      <p class="vnote">The most fires and smoke plumes burning at once; when another starts, the oldest goes out. At the top there's no limit at all. Lower it if big disasters make the game stutter.</p>
+      <p class="vnote">Lower if big fires stutter.</p>
     </div>
     <div class="custom">
       <h2>ON SCREEN</h2>
       <div class="abil">
-        <button type="button" class="tog" role="checkbox" id="scorePopTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Score numbers<small>Points float up from whatever you flatten or smash</small></span></button>
-        <button type="button" class="tog" role="checkbox" id="dmgPopTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Damage numbers<small>Numbers pop off goblins, vehicles and anything else as it takes a hit</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="scorePopTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Score numbers</span></button>
+        <button type="button" class="tog" role="checkbox" id="dmgPopTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Damage numbers</span></button>
         <button type="button" class="tog" role="checkbox" id="shoutTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Shouts<small>SPLAT!, CHOMP! or KABOOM! when a goblin goes down, combo milestones, and FULL CHARGE! on a charged stomp</small></span></button>
-        <button type="button" class="tog" role="checkbox" id="hpBarTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Health bars<small>Over goblins, vehicles, rides, zoo animals and other players nearby</small></span></button>
-        <button type="button" class="tog" role="checkbox" id="bloodTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Hide blood<small>No blood sprays, splats on the ground or pools, from goblins, hippos or anyone else</small></span></button>
-        <button type="button" class="tog" role="checkbox" id="calmTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Reduced motion<small>Stops the wobbling, bobbing and popping of the menus and display, and Gus on the title screen. On by itself if your system asks for less motion</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="hpBarTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Health bars<small>Over enemies and players</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="bloodTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Hide blood</span></button>
+        <button type="button" class="tog" role="checkbox" id="calmTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Reduced motion<small>Follows your system setting</small></span></button>
       </div>
     </div>
     <div class="custom" id="chatOpts">
       <h2>ONLINE CHAT &amp; VOICE</h2>
       <div class="abil">
-        <button type="button" class="tog" role="checkbox" id="chatShowTog"><span class="box" aria-hidden="true"></span><span class="tl">Show chat<small>Press Enter to type a message, Esc to cancel. On a controller, <span id="chatQkKey">D-pad ↑</span> picks a quick message</small></span></button>
-        <button type="button" class="tog" role="checkbox" id="vcTog"><span class="box" aria-hidden="true"></span><span class="tl">Voice chat<small>Talk to the others in an online game over the internet</small></span></button>
+        <button type="button" class="tog" role="checkbox" id="chatShowTog"><span class="box" aria-hidden="true"></span><span class="tl">Show chat</span></button>
+        <button type="button" class="tog" role="checkbox" id="vcTog"><span class="box" aria-hidden="true"></span><span class="tl">Voice chat</span></button>
       </div>
       <div class="vcsub" id="vcSub" hidden>
         <div class="abil"><button type="button" class="tog" role="checkbox" id="vcPttTog"><span class="box" aria-hidden="true"></span><span class="tl">Push to talk<small><span id="vcPttTxt">Hold T (D-pad ← on a controller) to talk</span></small></span></button></div>
-        <div class="vcrow"><button type="button" class="tog" role="checkbox" id="vcMicTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">My voice<small>Let the others hear you. Your browser asks for the microphone first</small></span></button>
+        <div class="vcrow"><button type="button" class="tog" role="checkbox" id="vcMicTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">My voice</span></button>
           <div class="crow"><label class="clab" for="vcMicVol">VOLUME</label><input type="range" id="vcMicVol" class="vrange" min="0" max="200" step="10" value="100" aria-label="My voice volume"><span class="vval" id="vcMicVolVal">100%</span></div></div>
-        <div class="vcrow"><button type="button" class="tog" role="checkbox" id="vcHearTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Others' voice<small>Hear the other players</small></span></button>
+        <div class="vcrow"><button type="button" class="tog" role="checkbox" id="vcHearTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Others' voice</span></button>
           <div class="crow"><label class="clab" for="vcVol">VOLUME</label><input type="range" id="vcVol" class="vrange" min="0" max="200" step="10" value="100" aria-label="Others' voice volume"><span class="vval" id="vcVolVal">100%</span></div></div>
         <div class="abil" id="vcPeers"></div>
       </div>
@@ -1567,14 +1564,14 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
     <div class="custom">
       <h2>DEBUG</h2>
       <div class="abil" id="dbgMenuTog">
-        <button type="button" class="tog" role="checkbox" data-k="quick" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Debug menu<small>Press SELECT on a controller, or ~ on the keyboard, to open it. Also shows the Dev tab here</small></span></button>
+        <button type="button" class="tog" role="checkbox" data-k="quick" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Debug menu<small>~ or Select to open</small></span></button>
       </div>
     </div>
     </div>
     </div>
     <div class="tabpane" id="tabNotes" role="tabpanel" hidden>
       <div class="pn">
-        <p class="pn-web">What's changed, newest first. These notes are also on <a href="patch-notes/index.html" target="_blank" rel="noopener">their own web page</a>.</p>
+        <p class="pn-web">Also on <a href="patch-notes/index.html" target="_blank" rel="noopener">their own page</a>.</p>
 <details class="pn-up pn-fold pn-new" id="version-0-5" open><summary tabindex="0"><h2>Version 0.5</h2><span class="pn-tog" aria-hidden="true"></span></summary>
 <h3>New vehicles</h3>
 <ul><li>Supercars: low, wide and very fast. Now and then one turns up in the traffic, tearing along the motorways well over the limit. Get in and it reaches over 60 a second, more than twice a car's top speed, so mind the walls. It steers a little less sharply the faster it goes.</li><li>Forklifts: parked out in a factory's yard by the loading docks, between the lorries. Slow, steered by their back wheels.</li><li>Tractors: parked on farms, one out in front of the barn and often another on the grass by the field, red on some farms and green on others. Get in and trundle off: slow, but they pull away steadily. Also in the debug menu's vehicle list.</li><li>Hovercraft: rides over water just as it does over land, straight off the beach and out to sea, and slides round its turns. Debug menu only, for now.</li><li>Fighter jet: flies like the airliner but far harder and faster, rolling and pulling hard and topping out at nearly twice the speed. Left click (controller RB) holds the cannon, right click (controller RT) fires a missile, homing on whatever you've locked on to with Q (controller R3). Debug menu only, for now.</li><li>Hot-air balloon: Space (controller A) lights the burner and it rises, C (controller LB) vents it and it sinks, and left alone it cools and slowly settles. Moving nudges it gently the way you're looking. You can stand on top of the envelope. Shoot it and the envelope tears and the basket drops. Debug menu only, for now.</li><li>All five are in the debug menu's vehicle list, and solid against every other vehicle like the rest.</li><li>Airliners are bigger, about half as long again, to sit in proportion with the rest of the city's vehicles (about two-thirds of the real thing, as the cars, buses and tanks are). The fighter jet is in the same proportion, a little longer than a tank.</li></ul>
@@ -1612,6 +1609,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <ul><li>Get into a forklift or a tractor and your goblin is sat at the wheel where everyone can see him, the tractor's cab now having windows you can see through. In a pedal boat, a rowboat or a speedboat he sits in it, at a ship's wheel he stands there, and in a hot-air balloon he stands in the basket, looking out over its rim. Before, all of these went off empty as soon as you climbed in.</li><li>In a car, van, truck, bus, supercar, hovercraft or anything else with a roof, your goblin's head now shows at the wheel, as every other driver's does. Before, a car you were driving looked empty.</li><li>Speedboats out on their rounds have a goblin at the wheel.</li></ul>
 <h3>Health bars</h3>
 <ul><li>With Options' Health bars on, Mobile Gears, hot-air balloons, the barge, the aircraft carrier and its deck weapons, and subway trains now show health bars like every other vehicle; they never had one.</li><li>Anything aboard a ship (goblins, cars, tanks, helicopters, the carrier's jets) now has its health bar over it, rather than out of sight far away.</li></ul>
+<h3>Shorter menu text</h3>
+<ul><li>The menus, Options and abilities say less: notes that only repeated what a button or switch already says are gone, and the rest are cut down to a few words.</li></ul>
 <h3>Fixes</h3>
 <ul><li>Gnash's rifle and handgun now damage every vehicle they hit, the same way: cars, tanks, helicopters, trains, planes, boats, balloons, Mobile Gears and the carrier's deck weapons all take three times what a goblin would. Before, they went straight through most vehicles, did a single point to cars, and only the deck weapons took real harm.</li><li>The minimap no longer draws the grey of the surrounding blocks over big sites that take up several blocks, such as theme parks, which hid most of their buildings.</li><li>Enemy gunfire now hits whatever you're driving. Before, rifles, the militia's machine guns, the helicopters' guns and the cultists' fireballs did nothing at all to a goblin behind the wheel; now the vehicle takes the hit instead.</li><li>Rounds from the fighter jets' cannons, the carrier's CIWS, the militia's machine guns and the helicopters' guns are stopped by walls, one round at a time. Before, some went straight through buildings, and a burst kept coming even after you ducked behind something.</li><li>Invulnerability now covers a train or subway train you're driving, as it does every other vehicle.</li><li>Every vehicle now plays by the same rules. Boats, trains and hot-air balloons gather snow like the rest; bringing down a hot-air balloon (400), a Mobile Gear (2,000) or one of the carrier's deck weapons (300) scores points; a balloon's health shows correctly to everyone playing online; and the smoke and flames off a badly hurt vehicle show for players online too.</li><li>Every vehicle now has the same health wherever it turns up: buses, articulated lorries, fire engines and ambulances take 45, motorhomes 40, police cars 40 and everything else 30. Before, an articulated lorry on the motorway or a police car in the traffic went down as easily as a family car, and the Testing Environment's ambulances and motorhomes did too.</li><li>The Dev tab's Enemies section now has the soldiers who crew the military bases' tanks and helicopters, with every animation the other armed enemies have.</li><li>The aircraft carrier's deck weapons gather snow in a blizzard like every other vehicle (its decks already did).</li><li>Behind the scenes, every kind of enemy now has its own list of the weapons it carries (street goblins a club, police a club and a handgun, thieves and cultists a dagger, preppers, militia and marines a rifle and grenades, sailors and soldiers a rifle), and what they hold, when they shoot, throw or strike, and what they drop all come from it. Nothing changes in play; it just means an enemy can be handed a new weapon in one place. Drawing a gun at range and putting it away for a club or dagger up close, as the police do, now works for any enemy given both.</li><li>Every weapon now works the same whoever carries it, you or the enemy. Rifles hit for a full heart, reach 48 blocks and fire once a second; handguns hit for three quarters of a heart, reach 30 and fire every half second; both chip away at the wall they hit, the enemies' rounds too, so cover doesn't last for ever. Daggers stab for a full heart every half second, clubs hit for half a heart every 1.2 s, and grenades are the same for everyone. Enemy rifles and police handguns hit harder and fire faster than before, while Gnash and Grizzle fire and swing a little slower. Enemies still take a moment to aim and miss more from far off.</li><li>The pause menu's This rampage card counts "Vehicles destroyed" instead of "Cars totaled": every vehicle you wreck now counts, not just cars. Tanks, helicopters, planes, boats, hot-air balloons, Mobile Gears, the carrier's deck weapons, each car of a train you wreck, and a ship you sink.</li><li>Grenades, shells and rockets now hurt zoo animals, the Ferris wheel's rim and the carousel, as stomps already did, and a shell or rocket goes off when it hits an animal.</li><li>Online, a guest playing as Gnash or Grizzle now sees their own gun kick and the bolt, pump or slide worked after each shot, as the host does. An error on the guest's side could stop their weapons working at all.</li><li>A forklift wrecked or cleared away with something on its forks lets go of it: a car lifted on them falls to the ground, rather than hanging in the air.</li><li>Landmines now go off under tanks, helicopters on the ground, Mobile Gears, trains and planes, not just cars.</li><li>The Large Club only slams the ground with its shockwave when you're on the ground; swung in mid-air it's an ordinary blow. Landmines can only be planted standing on the ground.</li><li>The shotgun's pellets spread evenly when you aim steeply up or down, rather than squashing into a flat line.</li><li>Changing the Loadout no longer refills or empties your guns or swaps the weapon in your hand: each gun keeps what's left in its magazine.</li><li>If you'd moved X (or D-pad down) on to another control, the new Reload action no longer takes it as well: it's left unbound for you to set.</li><li>Theme park rides' and zoo animals' health now shows correctly to guests online.</li><li>Big worlds saved into the browser's database could be saved over by an older save finishing late, or not loaded back at all after a save that didn't finish; saves now go one at a time, and loading finds the blocks either way.</li><li>A badly smashed-up world no longer stutters every few seconds as it saves: the game only writes the parts of it that changed since the last save.</li></ul>
 </details>
@@ -2149,7 +2148,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='64176ca62021';
+const GAME_VER='0.5',GAME_BUILD='d412f8e2a012';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96';
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -10637,7 +10636,7 @@ function renderAbil(){
     b.setAttribute('aria-checked',String(on&&!need));b.classList.toggle('dim',!!need);
     const t=b.querySelector('.st');if(t)t.textContent=need?'Needs '+(ABIL_SHORT[need]||need):on?'On':'Off';}
   const n=document.getElementById('abilNote');
-  if(n){let co=false;try{co=inCoop()&&!P2.net;}catch(e){}n.textContent=(co?(abilSeat()?"Player two's":"Player one's")+' moves: these go with you whichever hippo you pick. ':'')+'Tap a move to switch it on or off. Upgrades only work while the basic move they improve is on.';}
+  if(n){let co=false;try{co=inCoop()&&!P2.net;}catch(e){}n.textContent=co?(abilSeat()?"Player two's":"Player one's")+' moves':'';n.hidden=!co;}
 }
 for(const b of document.querySelectorAll('#abilList .tog'))b.addEventListener('click',()=>{
   const seat=abilSeat(),A=ABILS[seat],k=b.dataset.k,base=b.dataset.base,prev=b.dataset.prev;
@@ -10701,9 +10700,8 @@ const charTint=p=>{if(!p.gob)return p.who;const o=players.find(q=>q!==p);return 
     if(m===0)dn.textContent='The sun stays where it is.';
     else{const mins=10/m;dn.textContent='One full day and night takes '+(mins>=1?(Math.round(mins*10)/10)+' minute'+(mins===1?'':'s'):Math.round(mins*60)+' seconds')+'.';}
   };showD();
-  const fs=document.getElementById('fireDur'),fl=document.getElementById('fireDurVal'),fn=document.getElementById('fireDurNote');
-  const showF=()=>{fs.value=String(fireDurI);const D=FIRE_DURS[fireDurI];fl.textContent=D.l;
-    fn.textContent=D.m===Infinity?'Fires and smoke never go out.':'How long the wreckage of explosions and collapses keeps burning and smoking ('+(D.m===4?'the usual':'×'+(D.m/4))+').';};showF();
+  const fs=document.getElementById('fireDur'),fl=document.getElementById('fireDurVal');
+  const showF=()=>{fs.value=String(fireDurI);fl.textContent=FIRE_DURS[fireDurI].l;};showF();
   fs.addEventListener('input',()=>{fireDurI=Math.max(0,Math.min(FIRE_DURS.length-1,Math.round(+fs.value)||0));showF();try{localStorage.setItem(FIREDUR_KEY,String(fireDurI));}catch(e){}if(typeof refireDur==='function')refireDur();});
   const cps=document.getElementById('fireCap'),cpl=document.getElementById('fireCapVal');
   const showCap=()=>{cps.value=String(fireCapI);cpl.textContent=FIRE_CAPS[fireCapI]===Infinity?'No limit':String(FIRE_CAPS[fireCapI]);};showCap();
@@ -13294,7 +13292,7 @@ const PLANE_STRESS=3,PLANE_AB={thr:1.45,vmax:1.15,heat:6,cool:4};   // (the jet'
 const PLANE_CTL_KEY=['goblin-stompin-gus-planectl','goblin-stompin-gus-planectl2'],PLANE_CTLS=['auto','aim','direct'];
 const PLANE_CTL=[0,1].map(k=>{try{const v=localStorage.getItem(PLANE_CTL_KEY[k]);return PLANE_CTLS.includes(v)?v:'auto';}catch(e){return'auto';}});
 const pfSeat=()=>{try{return menuP2()?1:0;}catch(e){return 0;}};   // (whose menu it is; at load, nobody's yet)
-const PLANE_CTL_TXT={auto:'Mouse-aim on a mouse and keyboard, Direct on a controller',aim:'Point the camera where you want to fly and the plane flies there; W/S throttle, A/D roll by hand',direct:'W/S pitch, A/D roll, Shift/C throttle, Q/E rudder: the stick is the stick (a controller: left stick, RT/LT throttle)'};
+const PLANE_CTL_TXT={auto:'Mouse-aim on a mouse and keyboard, Direct on a controller',aim:'The plane flies where you look',direct:'Classic stick controls'};
 // (p.planeCtl, if set, wins: the tests fly by hand that way)
 const planeMode=p=>{const m=p.planeCtl||PLANE_CTL[p.idx===1?1:0];return m==='auto'?(p.pad?'direct':'aim'):m;};
 function setPlaneCtl(v,seat){const k=seat===1?1:0;if(!PLANE_CTLS.includes(v))v='auto';PLANE_CTL[k]=v;try{localStorage.setItem(PLANE_CTL_KEY[k],v);}catch(e){}syncPlaneCtl();}
@@ -16668,7 +16666,7 @@ function devRenderHbProps(){
   const box=document.getElementById('devHbProps'),side=document.getElementById('devHbSide'),H=hbOf(DEVP.key),B=H.boxes[DEVP.sel];
   document.getElementById('devPaneHb').hidden=!B||DEVP.mode!=='adv';document.getElementById('devPaneHbT').hidden=DEVP.mode!=='adv';
   const nm=B?'Hitbox '+(DEVP.sel+1)+' ('+(B.kind==='block'?'Smash blocks':'Damage')+')':'';document.querySelector('#devPaneHb>summary').textContent=B?nm:'Hitbox';document.querySelector('#devPaneHbT>summary').textContent=B?nm+': timing'+(B.kind==='block'?'':' & damage'):'Timing & damage';
-  if(!B){box.innerHTML='<div class="vnote">Pick a hitbox in the timeline to edit it. Frames count from the dashed line (the start of the move), 60 to a second'+(DEVP.key==='trample'?'; a charge run repeats its hitboxes for as long as it lasts':'')+'.</div>';side.innerHTML='';return;}
+  if(!B){box.innerHTML='<div class="vnote">Frames from the dashed line, 60/s'+(DEVP.key==='trample'?'; a charge run repeats them while it lasts':'')+'.</div>';side.innerHTML='';return;}
   const row=(pk,lbl,v,mn,mx,st)=>'<div class="devp" data-hp="'+pk+'"><span>'+lbl+'</span><input type="range" class="vrange" min="'+mn+'" max="'+mx+'" step="'+st+'" value="'+v+'" aria-label="'+lbl+'"><input type="number" min="'+mn+'" max="'+mx+'" step="'+st+'" value="'+v+'" aria-label="'+lbl+' value"><span></span></div>';
   const N=DEVP.rec?DEVP.rec.N:180,bone=B.bone||'root';
   // beside the preview: what it is, where it sits, how big it is
@@ -18600,7 +18598,7 @@ function renderGwpn(){
   for(const c of list.querySelectorAll('.gl-cnt')){const sk=c.dataset.s,v=L[stkField(sk)]||0,mx=stkMax(sk);c.setAttribute('aria-checked',String(v>0));const nm=c.querySelector('.gl-n');if(nm)nm.textContent=v+' / '+mx;
     const B=[...c.querySelectorAll('.gl-b')];if(B.length===2){B[0].setAttribute('aria-disabled',String(v<=0));B[1].setAttribute('aria-disabled',String(v>=mx));}}   // (not disabled: the controller's focus stays on it)
   const no=document.getElementById('gwpnNote');
-  if(no){let co=false;try{co=inCoop()&&!P2.net;}catch(e){}no.textContent=(co?(seat?"Player two's":"Player one's")+' loadout: it goes with you whichever goblin you pick. ':'')+'What he starts with. Tap a weapon to carry it or leave it behind (he always keeps one), and pick how many grenades and landmines. Anything else you take off the enemies you kill.';}
+  if(no){let co=false;try{co=inCoop()&&!P2.net;}catch(e){}no.textContent=(co?(seat?"Player two's":"Player one's")+' loadout. ':'')+'Always keeps at least one.';}
 }
 // which section the Character tab shows: the loadout for a goblin, the hippos' abilities for a hippo (the character
 // the menu's seat has picked)
@@ -20170,7 +20168,7 @@ function syncHost(){for(const [i,o] of [['hostMain','hostMainVal']]){const el=do
 // jump gaps, climb walls and buildings, and come after a hippo up and down wherever it's gone); 1 Simple, the chase as it
 // was before those (straight at the hippo, along a wall that's in the way, and the stairs of a building close by: no
 // jumping, no climbing). Goblins only read it as pathSimple(); on a guest online it's the host's that counts
-const PATH_KEY='goblin-stompin-gus-pathing',PATH_TXT=['Goblins climb walls and buildings, jump gaps and swim, and find their way to you up high or down low','The old chase: goblins run straight at you, go round walls and take the stairs, but never climb or jump, so up high you\'re out of reach'];
+const PATH_KEY='goblin-stompin-gus-pathing',PATH_TXT=['Goblins climb, jump and swim to reach you','No climbing or jumping'];
 DT.path=0;try{if(localStorage.getItem(PATH_KEY)==='1')DT.path=1;}catch(e){}
 const pathSimple=()=>DT.path===1;
 function setPath(v){
@@ -20188,22 +20186,22 @@ syncPath();
 // sheet, so none of the code that updates them needs to know. Not saved, for the same reason as the Rendering switches.
 const UI_PARTS={
   uiScore:['#readout','Kills & score','Top left'],
-  uiClock:['.clock','Clock','The dial at the top right'],
-  uiStatus:['#clockTxt','Status panel','The day, the time of day and the season, beside the clock'],
+  uiClock:['.clock','Clock','Top right'],
+  uiStatus:['#clockTxt','Status panel','Beside the clock'],
   uiMini:['.mini','Minimap','Bottom left'],
-  uiSpeedo:['.speedo','Vehicle instruments','Bottom right, in a vehicle: its speedometer, or whatever it has'],
-  uiHearts:['.hearts','Hearts','Your health'],
+  uiSpeedo:['.speedo','Vehicle instruments','Bottom right, in a vehicle'],
+  uiHearts:['.hearts','Hearts',''],
   uiStam:['.stam','Stamina bar','Under the hearts'],
-  uiCharge:['.smeter','Charge meter','Winding up a stomp or a ground pound'],
-  uiMsg:['.label','Messages','"Gus has fallen", "A car is coming for you" and the like'],
-  uiHint:['.hint','Control hints','Which buttons do what, above the hearts'],
-  uiPlace:['.placeBanner','Place names','The name that fades in as you arrive somewhere'],
-  uiHurt:['.hurt','Hurt flash','The screen\'s red edges when you take a hit'],
-  uiWater:['.water-tint','Underwater tint','The blue over the screen while you\'re under'],
-  uiBadge:['#dbgBadge','Debug badge','"PAUSED" and "FREE CAM" at the top'],
+  uiCharge:['.smeter','Charge meter',''],
+  uiMsg:['.label','Messages',''],
+  uiHint:['.hint','Control hints','Above the hearts'],
+  uiPlace:['.placeBanner','Place names',''],
+  uiHurt:['.hurt','Hurt flash',''],
+  uiWater:['.water-tint','Underwater tint',''],
+  uiBadge:['#dbgBadge','Debug badge','At the top'],
   uiWho:['.who','Player names','Over the hearts in split screen'],
-  uiJoin:['.join','Join prompt','Asking player two for a controller'],
-  uiSplit:['#divider','Split-screen line','Between the two views']};
+  uiJoin:['.join','Join prompt',''],
+  uiSplit:['#divider','Split-screen line','']};
 const UI_OFF=new Set();
 function applyUi(){document.getElementById('uiOff').textContent=[...UI_OFF].map(k=>UI_PARTS[k][0]+'{display:none!important}').join('');}
 // (the first row does the lot: everything off, or if it's all off already, everything back on)
@@ -20545,7 +20543,7 @@ function explodeCar0(c){
 // ---- PvP (Options, kept in this browser, off at first): players can lock on to one another, and their attacks,
 // shots and vehicles hurt one another as they hurt goblins. Off, nothing here does anything. Online it's the host's
 // that counts: it goes to guests with the clock (netClock, as NET_PVP), and a guest's switch only shows it ----
-const PVP_KEY='goblin-stompin-gus-pvp',PVP_TXT=['Players can\'t lock on to or hurt each other with their attacks (blasts still catch anyone near)','Players can lock on to each other, and every attack, shot, blast and vehicle hurts another player as it would a goblin'];
+const PVP_KEY='goblin-stompin-gus-pvp',PVP_TXT=['Blasts still hurt anyone near','Players can hurt each other'];
 DT.pvp=false;try{DT.pvp=localStorage.getItem(PVP_KEY)==='1';}catch(e){}
 let NET_PVP=false;   // (the host's, while a guest)
 const pvpGuest=()=>{try{return netGuest()&&NET.joined;}catch(e){return false;}};   // (NET isn't made yet while the page loads)
@@ -27117,7 +27115,7 @@ function ctxApply(p){const cx=p.drv&&!p.drv.jack?drvCtx(p.drv):null;if(!cx||cx==
   if(lock!==null)i.lockPress=lock;}
 function readInputs(dt){
   const pads=connectedPads();
-  if(pads.length!==padCount){padCount=pads.length;document.getElementById('padNote').textContent=padCount===0?'No controllers found yet. Press a button on one to wake it up.':padCount===1?'1 controller ready. Press A or Start to play. For co-op, plug in a second controller, or pick Co-op to play keyboard + controller.':padCount+' controllers ready. Press Start on the second one for co-op.';}
+  if(pads.length!==padCount){padCount=pads.length;document.getElementById('padNote').textContent=padCount===0?'No controller found':padCount===1?'1 controller ready':padCount+' controllers ready. Press Start on the second one for co-op.';}
   const st=pads.map(p=>{const prev=padPrev.get(p.index)||[];const b=p.buttons.map(x=>!!(x&&(x.pressed||x.value>0.5)));return{p,b,pr:b.map((v,i)=>v&&!prev[i])};});
   for(const s of st)if(s.pr.some(Boolean)||s.p.axes.some(a=>Math.abs(a)>0.5)){noteInput('pad',s.p);break;}
   for(const s of st)padPrev.set(s.p.index,s.b);
@@ -27242,7 +27240,7 @@ function renderRampage(){
   const S=placeOf(p);let where=TENV?'Testing Environment':S?setName(S):'Out on the plains';
   try{where+=' · '+timeLabel();}catch(e){}
   $('rpWhere').textContent=where;
-  $('rpNote').textContent=TENV?'Nothing here counts toward a rampage: it\'s for trying things out.':
+  $('rpNote').textContent=TENV?'Doesn\'t count here':
     !begun?'':kills+RAMP.cars+RAMP.nB===0?'Nothing flattened yet. Off you go.':'';
 }
 // ---------- Game feel: combos, score pop-ups, damage numbers and shouts, the Settlement razed card ----------
@@ -28436,7 +28434,7 @@ function netHostWith(tr,code,kind){
 }
 // (which way a game's played, for the status line: so ticking "Two tabs of this browser" plainly changes something)
 const netVia=kind=>kind==='loop'?"between this browser's tabs":'online';
-const netWaitTxt=kind=>kind==='loop'?'open the game in another tab of this browser, tick "Two tabs of this browser" there too, and join with this code':'waiting for someone to join';
+const netWaitTxt=kind=>kind==='loop'?'waiting for the other tab':'waiting for someone to join';
 // (a page opened from a file: some browsers keep each such tab to itself, so two of them can't find each other)
 const netFromFile=()=>{try{return location.protocol==='file:';}catch(e){return false;}};
 const NET_FILE_TIP=" Opened from a file, some browsers keep tabs apart: use the game's website, or serve the folder (python -m http.server) and open it from there.";
@@ -29581,7 +29579,6 @@ function chatQuickClose(){CHAT.quick=false;const e=chatEl('chatQuick');if(e){e.h
 // ---- the Options tab: show chat ----
 function chatOptsDraw(){
   chatEl('chatShowTog').setAttribute('aria-checked',String(CHAT.show));
-  const q=BINDS.quickChat.pad[0];chatEl('chatQkKey').textContent=q==null?'the Quick chat button (Controls tab)':padLabel(q,padStyle==='ps');
 }
 chatEl('chatShowTog').addEventListener('click',()=>{CHAT.show=!CHAT.show;if(!CHAT.show){chatClose();chatQuickClose();}chatSave();chatOptsDraw();chatVis();});
 chatOptsDraw();
@@ -29617,7 +29614,7 @@ const vcTalkKeys=()=>{const k=BINDS.talk.kb[0],p=BINDS.talk.pad[0];return k&&p!=
 async function vcStart(){
   if(VC.on||VC.busy)return;
   if(!chatAvail()){vcNote('Voice chat works in an online game: host one or join one first.');vcOptsDraw();return;}
-  if(!NET.tr.av){vcNote("Voice chat needs a game over the internet: between two tabs of one browser there's no connection to carry it.");vcOptsDraw();return;}
+  if(!NET.tr.av){vcNote('Not available in two-tab games');vcOptsDraw();return;}
   VC.want=true;
   const md=typeof navigator!=='undefined'&&navigator.mediaDevices;
   if(!VC.talk)return vcBegin(null,VC.hear?'Voice chat is on, with your microphone off.':'Voice chat is on, with your microphone and the others both off.');
@@ -29784,7 +29781,7 @@ function vcOptsDraw(){
   chatEl('vcPttTxt').textContent='Hold '+vcTalkKeys()+' to talk';
   const v=chatEl('vcVol');if(document.activeElement!==v)v.value=String(Math.round(VC.vol*100));chatEl('vcVolVal').textContent=Math.round(VC.vol*100)+'%';
   const mv=chatEl('vcMicVol');if(document.activeElement!==mv)mv.value=String(Math.round(VC.micVol*100));chatEl('vcMicVolVal').textContent=Math.round(VC.micVol*100)+'%';
-  if(!VC.note)chatEl('vcNote').textContent=vcCan()||!netOn()?'':'Voice chat needs a game over the internet, not between two tabs.';
+  if(!VC.note)chatEl('vcNote').textContent=vcCan()||!netOn()?'':'Not available in two-tab games';
   // (one button per player on voice: muting them is only for you)
   const me=vcSelf(),L=VC.on&&VC.hear?VC.roster.filter(r=>r.on&&r.mic&&r.id!==me):[];
   const k=JSON.stringify([!!VC.mic,L.map(r=>[r.id,r.n,VC.mute.has(r.id),r.hr])]);if(k===VC.peersKey)return;VC.peersKey=k;
@@ -30050,7 +30047,7 @@ function svUi(){
   b.setAttribute('aria-checked',String(SV.mode!=='local'));l.setAttribute('aria-checked',String(SV.mode==='local'));
   l.title=SV.can?'Save your game in files on this computer':'Export and import save files (this browser can\'t keep saving to a file by itself)';
   b.title=SV.mode==='local'?'Switch back to the game saved in this browser':'Your game is saved in this browser';
-  svEl('saveIntro').textContent=SV.can?"Keep your worlds in files on this computer instead of in the browser, so clearing the browser can't lose them, and keep as many as you like. Your browser save stays as it is: switch back to it any time.":SV.why;
+  svEl('saveIntro').textContent=SV.can?'Saves as files on this computer.':SV.why;
   for(const id of ['saveNewCopy','saveNewFresh','saveOpen']){const e=svEl(id);e.hidden=!SV.can;e.disabled=SV.busy;}
   // (export works everywhere; import is for browsers without Local save, since Open a save file does the same there)
   svEl('saveFileBtns').hidden=!SV.can;svEl('saveExport').disabled=SV.busy;svEl('saveImport').hidden=SV.can;svEl('saveImport').disabled=SV.busy;
@@ -30107,7 +30104,7 @@ async function svImportPick(f){
   if(f.size>200e6)throw new Error("That file's too big to be a save.");
   const o=svParse(await f.text());if(o.empty)throw new Error("That file's empty.");
   svPending={o,name:f.name};
-  svEl('saveAskTxt').textContent='Load '+f.name+(o.t?', saved '+svWhen(+o.t):'')+'? It replaces the world in this browser, so export that first if you want to keep it.';
+  svEl('saveAskTxt').textContent='Load '+f.name+(o.t?', saved '+svWhen(+o.t):'')+'? It replaces your browser world.';
   svAskShow(true);
 }
 async function svImport(){
@@ -30155,7 +30152,7 @@ svUi();
 const UPD={v:null};
 function updShow(){const b=document.getElementById('updBtn');if(!b||!UPD.v)return;b.hidden=false;
   const nv=UPD.v.version&&UPD.v.version!==GAME_VER?'Update to version '+UPD.v.version:'Update available';
-  b.firstChild.textContent=nv+' ';b.title='A newer build of the game has been published. Your world is saved first, then the page reloads with it.';}
+  b.firstChild.textContent=nv+' ';b.title='Saves, then reloads';}
 function updCheck(){
   if(typeof location==='undefined'||!/^https?:$/.test(location.protocol)||!window.fetch||GAME_BUILD.indexOf('{{')===0)return;
   fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(v=>{
@@ -30355,7 +30352,7 @@ function tenvTick(){
       let m=null;TR.d++;try{m=stMatch(S.key,px,pz);}catch(e){}finally{TR.d--;}   // (the plan itself, not what's been moved)
       if(m&&!tenvTaken(m)){TS.search=null;tenvPlace(S.key,m);return;}}
     if(performance.now()-t0>12){S.r++;tsSet('Looking for '+stName(S.key).toLowerCase()+'… ('+Math.round(S.r*CELL).toLocaleString()+' blocks out)');return;}}
-  TS.search=null;tsSet('There\'s no '+stName(S.key).toLowerCase().replace(/s$/,'')+' within '+(R1*CELL).toLocaleString()+' blocks in this world\'s plan. Try another kind, or go to one spawned further off and look from there.');
+  TS.search=null;tsSet('No '+stName(S.key).toLowerCase().replace(/s$/,'')+' within '+(R1*CELL).toLocaleString()+' blocks.');
 }
 // the nearest ground in front of Gus that a w x h box fits on: clear of the other boxes (a block between them), of
 // every box's source, and of the players
@@ -30548,7 +30545,7 @@ function tenvPlane(jet){
     if(!ok)continue;
     const g=jet?makeJet():makePlane(V.planes.length);g.position.set(x,spGround(x,z),z);g.rotation.set(0,Math.atan2(fx,fz),0);scene.add(g);
     V.planes.push(g);V.pl.push({isPlane:true,jet:!!jet,g,hp:PLANE_HP,dead:false,v:0});made++;}
-  tsSet(made?'Spawned '+made+(jet?' fighter jet':' plane')+(made>1?'s':'')+' ahead of Gus, ready to fly: get in, speed up, then jump to take off.':'There\'s no clear ground for a plane just ahead. Try looking another way.');
+  tsSet(made?'Spawned '+made+(jet?' fighter jet':' plane')+(made>1?'s':'')+'.':'There\'s no clear ground for a plane just ahead. Try looking another way.');
 }
 // the Mobile Gear (see vehicles/mech.js): only here for now. Each press stands as many as the count says a little way
 // ahead of Gus, facing him, empty, to climb into. They're kept in a venue of their own, 'tenvMechs'
@@ -30561,7 +30558,7 @@ function tenvMech(){
     if(!ok)continue;const M=newMech(V,x,z,Math.atan2(p.pos.x-x,p.pos.z-z));made++;
     {const gy=mgGround(x,z,H+60,M);if(gy>M.y)M.y=gy;}}   // (over a ship: up on its deck, the top of the box that stands for it)
   if(!V.mechs.length)venues.delete('tenvMechs');
-  tsSet(made?'Spawned '+made+' Mobile Gear'+(made>1?'s':'')+' ahead of Gus. Walk up to one as Gnash or Grizzle and press '+keyLabel(BINDS.use.kb[0])+' (controller '+padLabel(BINDS.use.pad[0],padStyle==='ps')+') to climb in.':'No room for a Mobile Gear just there.');
+  tsSet(made?'Spawned '+made+' Mobile Gear'+(made>1?'s':'')+'. Goblins only.':'No room for a Mobile Gear just there.');
 }
 function updateTenvPlanes(V,dt){
   for(const pl of V.pl){

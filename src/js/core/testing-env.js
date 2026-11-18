@@ -114,7 +114,7 @@ function tenvTick(){
       let m=null;TR.d++;try{m=stMatch(S.key,px,pz);}catch(e){}finally{TR.d--;}   // (the plan itself, not what's been moved)
       if(m&&!tenvTaken(m)){TS.search=null;tenvPlace(S.key,m);return;}}
     if(performance.now()-t0>12){S.r++;tsSet('Looking for '+stName(S.key).toLowerCase()+'… ('+Math.round(S.r*CELL).toLocaleString()+' blocks out)');return;}}
-  TS.search=null;tsSet('There\'s no '+stName(S.key).toLowerCase().replace(/s$/,'')+' within '+(R1*CELL).toLocaleString()+' blocks in this world\'s plan. Try another kind, or go to one spawned further off and look from there.');
+  TS.search=null;tsSet('No '+stName(S.key).toLowerCase().replace(/s$/,'')+' within '+(R1*CELL).toLocaleString()+' blocks.');
 }
 // the nearest ground in front of Gus that a w x h box fits on: clear of the other boxes (a block between them), of
 // every box's source, and of the players
@@ -307,7 +307,7 @@ function tenvPlane(jet){
     if(!ok)continue;
     const g=jet?makeJet():makePlane(V.planes.length);g.position.set(x,spGround(x,z),z);g.rotation.set(0,Math.atan2(fx,fz),0);scene.add(g);
     V.planes.push(g);V.pl.push({isPlane:true,jet:!!jet,g,hp:PLANE_HP,dead:false,v:0});made++;}
-  tsSet(made?'Spawned '+made+(jet?' fighter jet':' plane')+(made>1?'s':'')+' ahead of Gus, ready to fly: get in, speed up, then jump to take off.':'There\'s no clear ground for a plane just ahead. Try looking another way.');
+  tsSet(made?'Spawned '+made+(jet?' fighter jet':' plane')+(made>1?'s':'')+'.':'There\'s no clear ground for a plane just ahead. Try looking another way.');
 }
 // the Mobile Gear (see vehicles/mech.js): only here for now. Each press stands as many as the count says a little way
 // ahead of Gus, facing him, empty, to climb into. They're kept in a venue of their own, 'tenvMechs'
@@ -320,7 +320,7 @@ function tenvMech(){
     if(!ok)continue;const M=newMech(V,x,z,Math.atan2(p.pos.x-x,p.pos.z-z));made++;
     {const gy=mgGround(x,z,H+60,M);if(gy>M.y)M.y=gy;}}   // (over a ship: up on its deck, the top of the box that stands for it)
   if(!V.mechs.length)venues.delete('tenvMechs');
-  tsSet(made?'Spawned '+made+' Mobile Gear'+(made>1?'s':'')+' ahead of Gus. Walk up to one as Gnash or Grizzle and press '+keyLabel(BINDS.use.kb[0])+' (controller '+padLabel(BINDS.use.pad[0],padStyle==='ps')+') to climb in.':'No room for a Mobile Gear just there.');
+  tsSet(made?'Spawned '+made+' Mobile Gear'+(made>1?'s':'')+'. Goblins only.':'No room for a Mobile Gear just there.');
 }
 function updateTenvPlanes(V,dt){
   for(const pl of V.pl){

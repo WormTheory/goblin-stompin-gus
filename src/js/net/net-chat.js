@@ -136,7 +136,6 @@ function chatQuickClose(){CHAT.quick=false;const e=chatEl('chatQuick');if(e){e.h
 // ---- the Options tab: show chat ----
 function chatOptsDraw(){
   chatEl('chatShowTog').setAttribute('aria-checked',String(CHAT.show));
-  const q=BINDS.quickChat.pad[0];chatEl('chatQkKey').textContent=q==null?'the Quick chat button (Controls tab)':padLabel(q,padStyle==='ps');
 }
 chatEl('chatShowTog').addEventListener('click',()=>{CHAT.show=!CHAT.show;if(!CHAT.show){chatClose();chatQuickClose();}chatSave();chatOptsDraw();chatVis();});
 chatOptsDraw();

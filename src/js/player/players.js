@@ -106,7 +106,7 @@ function renderAbil(){
     b.setAttribute('aria-checked',String(on&&!need));b.classList.toggle('dim',!!need);
     const t=b.querySelector('.st');if(t)t.textContent=need?'Needs '+(ABIL_SHORT[need]||need):on?'On':'Off';}
   const n=document.getElementById('abilNote');
-  if(n){let co=false;try{co=inCoop()&&!P2.net;}catch(e){}n.textContent=(co?(abilSeat()?"Player two's":"Player one's")+' moves: these go with you whichever hippo you pick. ':'')+'Tap a move to switch it on or off. Upgrades only work while the basic move they improve is on.';}
+  if(n){let co=false;try{co=inCoop()&&!P2.net;}catch(e){}n.textContent=co?(abilSeat()?"Player two's":"Player one's")+' moves':'';n.hidden=!co;}
 }
 for(const b of document.querySelectorAll('#abilList .tog'))b.addEventListener('click',()=>{
   const seat=abilSeat(),A=ABILS[seat],k=b.dataset.k,base=b.dataset.base,prev=b.dataset.prev;
@@ -170,9 +170,8 @@ const charTint=p=>{if(!p.gob)return p.who;const o=players.find(q=>q!==p);return 
     if(m===0)dn.textContent='The sun stays where it is.';
     else{const mins=10/m;dn.textContent='One full day and night takes '+(mins>=1?(Math.round(mins*10)/10)+' minute'+(mins===1?'':'s'):Math.round(mins*60)+' seconds')+'.';}
   };showD();
-  const fs=document.getElementById('fireDur'),fl=document.getElementById('fireDurVal'),fn=document.getElementById('fireDurNote');
-  const showF=()=>{fs.value=String(fireDurI);const D=FIRE_DURS[fireDurI];fl.textContent=D.l;
-    fn.textContent=D.m===Infinity?'Fires and smoke never go out.':'How long the wreckage of explosions and collapses keeps burning and smoking ('+(D.m===4?'the usual':'×'+(D.m/4))+').';};showF();
+  const fs=document.getElementById('fireDur'),fl=document.getElementById('fireDurVal');
+  const showF=()=>{fs.value=String(fireDurI);fl.textContent=FIRE_DURS[fireDurI].l;};showF();
   fs.addEventListener('input',()=>{fireDurI=Math.max(0,Math.min(FIRE_DURS.length-1,Math.round(+fs.value)||0));showF();try{localStorage.setItem(FIREDUR_KEY,String(fireDurI));}catch(e){}if(typeof refireDur==='function')refireDur();});
   const cps=document.getElementById('fireCap'),cpl=document.getElementById('fireCapVal');
   const showCap=()=>{cps.value=String(fireCapI);cpl.textContent=FIRE_CAPS[fireCapI]===Infinity?'No limit':String(FIRE_CAPS[fireCapI]);};showCap();

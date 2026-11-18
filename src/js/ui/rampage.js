@@ -28,6 +28,6 @@ function renderRampage(){
   const S=placeOf(p);let where=TENV?'Testing Environment':S?setName(S):'Out on the plains';
   try{where+=' · '+timeLabel();}catch(e){}
   $('rpWhere').textContent=where;
-  $('rpNote').textContent=TENV?'Nothing here counts toward a rampage: it\'s for trying things out.':
+  $('rpNote').textContent=TENV?'Doesn\'t count here':
     !begun?'':kills+RAMP.cars+RAMP.nB===0?'Nothing flattened yet. Off you go.':'';
 }

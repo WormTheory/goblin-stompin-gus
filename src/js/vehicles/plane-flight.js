@@ -24,7 +24,7 @@ const PLANE_STRESS=3,PLANE_AB={thr:1.45,vmax:1.15,heat:6,cool:4};   // (the jet'
 const PLANE_CTL_KEY=['goblin-stompin-gus-planectl','goblin-stompin-gus-planectl2'],PLANE_CTLS=['auto','aim','direct'];
 const PLANE_CTL=[0,1].map(k=>{try{const v=localStorage.getItem(PLANE_CTL_KEY[k]);return PLANE_CTLS.includes(v)?v:'auto';}catch(e){return'auto';}});
 const pfSeat=()=>{try{return menuP2()?1:0;}catch(e){return 0;}};   // (whose menu it is; at load, nobody's yet)
-const PLANE_CTL_TXT={auto:'Mouse-aim on a mouse and keyboard, Direct on a controller',aim:'Point the camera where you want to fly and the plane flies there; W/S throttle, A/D roll by hand',direct:'W/S pitch, A/D roll, Shift/C throttle, Q/E rudder: the stick is the stick (a controller: left stick, RT/LT throttle)'};
+const PLANE_CTL_TXT={auto:'Mouse-aim on a mouse and keyboard, Direct on a controller',aim:'The plane flies where you look',direct:'Classic stick controls'};
 // (p.planeCtl, if set, wins: the tests fly by hand that way)
 const planeMode=p=>{const m=p.planeCtl||PLANE_CTL[p.idx===1?1:0];return m==='auto'?(p.pad?'direct':'aim'):m;};
 function setPlaneCtl(v,seat){const k=seat===1?1:0;if(!PLANE_CTLS.includes(v))v='auto';PLANE_CTL[k]=v;try{localStorage.setItem(PLANE_CTL_KEY[k],v);}catch(e){}syncPlaneCtl();}

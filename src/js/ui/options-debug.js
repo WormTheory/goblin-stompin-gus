@@ -31,7 +31,7 @@ function syncHost(){for(const [i,o] of [['hostMain','hostMainVal']]){const el=do
 // jump gaps, climb walls and buildings, and come after a hippo up and down wherever it's gone); 1 Simple, the chase as it
 // was before those (straight at the hippo, along a wall that's in the way, and the stairs of a building close by: no
 // jumping, no climbing). Goblins only read it as pathSimple(); on a guest online it's the host's that counts
-const PATH_KEY='goblin-stompin-gus-pathing',PATH_TXT=['Goblins climb walls and buildings, jump gaps and swim, and find their way to you up high or down low','The old chase: goblins run straight at you, go round walls and take the stairs, but never climb or jump, so up high you\'re out of reach'];
+const PATH_KEY='goblin-stompin-gus-pathing',PATH_TXT=['Goblins climb, jump and swim to reach you','No climbing or jumping'];
 DT.path=0;try{if(localStorage.getItem(PATH_KEY)==='1')DT.path=1;}catch(e){}
 const pathSimple=()=>DT.path===1;
 function setPath(v){
@@ -49,22 +49,22 @@ syncPath();
 // sheet, so none of the code that updates them needs to know. Not saved, for the same reason as the Rendering switches.
 const UI_PARTS={
   uiScore:['#readout','Kills & score','Top left'],
-  uiClock:['.clock','Clock','The dial at the top right'],
-  uiStatus:['#clockTxt','Status panel','The day, the time of day and the season, beside the clock'],
+  uiClock:['.clock','Clock','Top right'],
+  uiStatus:['#clockTxt','Status panel','Beside the clock'],
   uiMini:['.mini','Minimap','Bottom left'],
-  uiSpeedo:['.speedo','Vehicle instruments','Bottom right, in a vehicle: its speedometer, or whatever it has'],
-  uiHearts:['.hearts','Hearts','Your health'],
+  uiSpeedo:['.speedo','Vehicle instruments','Bottom right, in a vehicle'],
+  uiHearts:['.hearts','Hearts',''],
   uiStam:['.stam','Stamina bar','Under the hearts'],
-  uiCharge:['.smeter','Charge meter','Winding up a stomp or a ground pound'],
-  uiMsg:['.label','Messages','"Gus has fallen", "A car is coming for you" and the like'],
-  uiHint:['.hint','Control hints','Which buttons do what, above the hearts'],
-  uiPlace:['.placeBanner','Place names','The name that fades in as you arrive somewhere'],
-  uiHurt:['.hurt','Hurt flash','The screen\'s red edges when you take a hit'],
-  uiWater:['.water-tint','Underwater tint','The blue over the screen while you\'re under'],
-  uiBadge:['#dbgBadge','Debug badge','"PAUSED" and "FREE CAM" at the top'],
+  uiCharge:['.smeter','Charge meter',''],
+  uiMsg:['.label','Messages',''],
+  uiHint:['.hint','Control hints','Above the hearts'],
+  uiPlace:['.placeBanner','Place names',''],
+  uiHurt:['.hurt','Hurt flash',''],
+  uiWater:['.water-tint','Underwater tint',''],
+  uiBadge:['#dbgBadge','Debug badge','At the top'],
   uiWho:['.who','Player names','Over the hearts in split screen'],
-  uiJoin:['.join','Join prompt','Asking player two for a controller'],
-  uiSplit:['#divider','Split-screen line','Between the two views']};
+  uiJoin:['.join','Join prompt',''],
+  uiSplit:['#divider','Split-screen line','']};
 const UI_OFF=new Set();
 function applyUi(){document.getElementById('uiOff').textContent=[...UI_OFF].map(k=>UI_PARTS[k][0]+'{display:none!important}').join('');}
 // (the first row does the lot: everything off, or if it's all off already, everything back on)

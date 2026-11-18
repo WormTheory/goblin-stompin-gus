@@ -64,7 +64,7 @@ function renderGwpn(){
   for(const c of list.querySelectorAll('.gl-cnt')){const sk=c.dataset.s,v=L[stkField(sk)]||0,mx=stkMax(sk);c.setAttribute('aria-checked',String(v>0));const nm=c.querySelector('.gl-n');if(nm)nm.textContent=v+' / '+mx;
     const B=[...c.querySelectorAll('.gl-b')];if(B.length===2){B[0].setAttribute('aria-disabled',String(v<=0));B[1].setAttribute('aria-disabled',String(v>=mx));}}   // (not disabled: the controller's focus stays on it)
   const no=document.getElementById('gwpnNote');
-  if(no){let co=false;try{co=inCoop()&&!P2.net;}catch(e){}no.textContent=(co?(seat?"Player two's":"Player one's")+' loadout: it goes with you whichever goblin you pick. ':'')+'What he starts with. Tap a weapon to carry it or leave it behind (he always keeps one), and pick how many grenades and landmines. Anything else you take off the enemies you kill.';}
+  if(no){let co=false;try{co=inCoop()&&!P2.net;}catch(e){}no.textContent=(co?(seat?"Player two's":"Player one's")+' loadout. ':'')+'Always keeps at least one.';}
 }
 // which section the Character tab shows: the loadout for a goblin, the hippos' abilities for a hippo (the character
 // the menu's seat has picked)
