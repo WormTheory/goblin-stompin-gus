@@ -148,6 +148,7 @@ function drawDbgOverlay(dt,views){
         if(K.perCar){const T=o,gst=netGuest()&&T.netHP,hp=gst?T.netHP:T.carHP,cd=gst?T.netCarDead:T.carDead;if(gst?T.netDead:T.dead)return;
           V.cars.forEach((g,i)=>{if(!(cd&&cd[i]))bar(g.position.x,g.position.y+K.carTop(),g.position.z,hp&&hp[i]!==undefined?hp[i]:CAR_HP,CAR_HP,'#5ab4ff');});return;}
         if(netDead(o,K.dead(o))||!K.shown(o))return;const P=K.pos(o);bar(P.x,P.y+K.top(o),P.z,netHp(o,K.hp(o)),K.max(o),'#5ab4ff');});
+      rideBarsEach((bx,by,bz,hp,max)=>bar(bx,by,bz,hp,max,'#5ab4ff'));   // (the theme park's rides and the zoo's animals, rides.js)
       for(const q of players){if(!q.active||q.state==='dead'||q===p)continue;bar(q.pos.x,q.pos.y+2.5,q.pos.z,q.hp,20,'#7fd04a');}
     }
     for(const d of DMG_POPS){const s=proj(d.x,d.y+d.t*1.6,d.z);if(!s||s[2]>90)continue;const a=d.t<0.7?1:Math.max(0,1-(d.t-0.7)/0.4),sz=Math.round(16+Math.min(14,d.n*0.5)-s[2]*0.08);

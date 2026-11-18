@@ -1,13 +1,14 @@
 zoo at -144 -114 w 5
 venue true animals 48
 species {"giraffe":9,"zebra":6,"elephant":4,"lion":5,"penguin":10,"monkey":14}
+health bars over the animals 48 (48 full, 0 hurt)
 giraffe   found by an attack true bites to kill 5 dead true box alive false
 zebra     found by an attack true bites to kill 3 dead true box alive false
 elephant  found by an attack true bites to kill 9 dead true box alive false
 lion      found by an attack true bites to kill 4 dead true box alive false
 penguin   found by an attack true bites to kill 1 dead true box alive false
 monkey    found by an attack true bites to kill 2 dead true box alive false
-score from those 425
+score from those 425  health bars left 42 (42 full, 0 hurt)
 corpses lying 6 tipped true still hit by attacks false
 real stomp beside a giraffe hp 25 -> 17 state walk
 venue dropped away true
@@ -26,6 +27,7 @@ untouched: circuit points with no track 0 of 720
 after 20s by the coaster: derailed false halted false car 0 moved 6.32
 by the wheel: falling false dead false rotation 3.46
 by the carousel: dead false turned 19.43
+health bars over the rides 14 (13 full, 1 hurt) (4 coaster cars, the wheel and its 8 gondolas, the carousel; one gondola bitten)
 gate corner smashed: rides still there true
 attack finds coaster car true
 attack finds gondola true rim at the bottom true hub true
@@ -34,6 +36,7 @@ on a gondola true still true moved up/down 6.61 gondola top 72.3 hippo 72.3
 on a coaster car: frames on it 299 of 300
 carousel gone after 8 charged stomps, score 300 on record true
 gondola gone after 6 bites, drawn false
+after the carousel and a gondola: health bars 12 (11 full, 1 hurt)
 hole in the track: there still false
 derailed true after 9.9s cars flying 4 down after 1.3s all dead true score 500
 legs cut on one side: came down true after 0.9s lying at 1.5 tipped 1.57 score 1000 hits left false

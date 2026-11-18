@@ -7,7 +7,7 @@ const fs=require('fs');
 let hdr=fs.readFileSync('site.js','utf8').split('\n');
 const n=hdr.findIndex(l=>l.startsWith('eval(src);'));
 hdr=hdr.slice(0,n).join('\n');
-hdr=hdr.replace(/window\.__t=\{/,'window.__t={setGob,keys,mHeld,tenvSpawnOne,tenvFoe,drvFind,cars,get,setRaw,solidAt,CRATE,DIRT,GRASS,ASPHALT,FLOWER,forkMid,FORK,set menuOpen(v){menuOpen=v},get TS(){return TS},');
+hdr=hdr.replace(/window\.__t=\{/,'window.__t={setGob,setGobP,activateP2,forkTop,keys,mHeld,tenvSpawnOne,tenvFoe,drvFind,cars,get,setRaw,solidAt,CRATE,DIRT,GRASS,ASPHALT,FLOWER,forkMid,FORK,set menuOpen(v){menuOpen=v},get TS(){return TS},');
 eval(hdr+`
 eval(src);const T=window.__t;let now=1000;
 const run=s=>{for(let i=0;i<s*60;i++){now+=16.7;T.frame(now);}};
@@ -53,9 +53,20 @@ const inst=()=>P.ui.inst?P.ui.inst.innerHTML:'';
   hold(['KeyS'],1);run(0.5);
   // (a parked car just ahead, nose on: forward till the forks are under it, then up)
   {T.tenvSpawnOne('car');run(0.5);const o=T.cars.filter(q=>q.alive&&q.veh==='car'&&q!==c).sort((a,b)=>Math.hypot(a.pos.x-c.pos.x,a.pos.z-c.pos.z)-Math.hypot(b.pos.x-c.pos.x,b.pos.z-c.pos.z))[0];
-    if(o){const al=c.hz+0.05+o.hz;o.pos.set(c.pos.x+fx*al,c.pos.y,c.pos.z+fz*al);o.heading=c.heading;o.speed=0;run(0.3);hold(['Space'],1.5);const L=F().load;
-      console.log('  a car ahead, Space: load',L&&L.name,' car raised',f2(o.pos.y-c.pos.y),' forklift moves with it: ');hold(['KeyW'],1);console.log('    car still on the forks after driving',!!o.forkOn&&F().load&&F().load.o===o,' lowered:');hold(['KeyC'],3);run(0.5);console.log('    car down',!o.forkOn,' height over the forklift',f2(o.pos.y-c.pos.y));}}
+    if(o){const al=c.hz+0.05+o.hz;o.pos.set(c.pos.x+fx*al,c.pos.y,c.pos.z+fz*al);o.heading=c.heading;o.speed=0;run(0.3);const lx0=c.pos.x,lz0=c.pos.z;hold(['Space'],1.5);const L=F().load,slid=Math.hypot(c.pos.x-lx0,c.pos.z-lz0);
+      console.log('  a car ahead, Space: load',L&&L.name,' car raised',f2(o.pos.y-c.pos.y),' forklift slid while lifting',f2(slid),' forklift moves with it: ');const dx0=c.pos.x,dz0=c.pos.z;hold(['KeyW'],1);
+      console.log('    W 1 s: forward',f2((c.pos.x-dx0)*fx+(c.pos.z-dz0)*fz),' car still on the forks after driving',!!o.forkOn&&F().load&&F().load.o===o,' car height',f2(o.pos.y-c.pos.y),' lowered:');hold(['KeyC'],3);run(0.5);console.log('    car down',!o.forkOn,' height over the forklift',f2(o.pos.y-c.pos.y));}}
   hold(['KeyS'],1);run(0.5);
+  // (the other player, a hippo and then a goblin, stood on the forks: lifted, carried, set down; the forklift stays put while lifting)
+  {const Q=T.players[1];T.activateP2();for(const o of T.cars)if(o!==c&&o.alive&&Math.hypot(o.pos.x-c.pos.x,o.pos.z-c.pos.z)<10){o.pos.x+=fz*30;o.pos.z-=fx*30;}run(0.3);
+    for(const gb of [false,true]){T.setGobP(Q,gb);const m=T.forkMid(c);Q.pos.set(m.x,c.pos.y+0.6,m.z);Q.vy=0;Q.mvx=Q.mvz=0;Q.standCar=null;Q.grounded=false;Q.state='walk';c.speed=0;run(0.6);
+      const sx=c.pos.x,sz=c.pos.z,y0=Q.pos.y-c.pos.y;hold(['Space'],2);const L=F().load;
+      console.log('  '+(gb?'goblin':'hippo')+' player on the forks ('+f2(y0)+' up), Space 2 s: load',L&&L.name,L&&L.kg,' raised to',f2(Q.pos.y-c.pos.y),'(forks',f2(T.forkTop(c)-c.pos.y)+')  forklift slid',f2(Math.hypot(c.pos.x-sx,c.pos.z-sz)),' instrument says',/GUS|GERTIE|GNASH|GRIZZLE/.test(inst()));
+      const ox=Q.pos.x-c.pos.x,oz=Q.pos.z-c.pos.z,ax=c.pos.x,az=c.pos.z;hold(['KeyW'],1);
+      console.log('    W 1 s: forklift went',f2(Math.hypot(c.pos.x-ax,c.pos.z-az)),' rider kept their place',f2(Math.hypot(Q.pos.x-c.pos.x-ox,Q.pos.z-c.pos.z-oz)),' still up',f2(Q.pos.y-c.pos.y),' alive',Q.state!=='dead');
+      hold(['KeyC'],3);run(0.4);console.log('    lowered: load',F().load?F().load.name:'none',' rider at',f2(Q.pos.y-c.pos.y));
+      Q.pos.x+=6;Q.standCar=null;run(0.4);hold(['KeyS'],1.6);run(0.6);}
+    T.setGobP(Q,false);Q.active=false;Q.root.visible=false;}
   // (lancing: forks at a goblin's chest, at speed)
   {hold(['Space'],1);const m=T.forkMid(c),g=gob(c.pos.x+fx*6,c.pos.y,c.pos.z+fz*6);if(g){const hp0=g.hp;hold(['KeyW'],2.5);console.log('  forks up at',f2(F().h),'driven at a goblin: hurt',g.hp<hp0||g.state!=='chase',' speed',f2(c.speed));}}
   hold(['KeyS'],1.5);run(0.5);

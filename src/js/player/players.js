@@ -206,8 +206,9 @@ function carTop(p){
     const cs=Math.sin(c.heading),ck=Math.cos(c.heading);
     for(const [a,b] of ptsOf(p)){
       const dx=p.pos.x+a*k+b*s-c.pos.x,dz=p.pos.z-a*s+b*k-c.pos.z,la=dx*ck-dz*cs,lb=dx*cs+dz*ck;
-      if(Math.abs(la)>c.hx*1.05||Math.abs(lb)>c.hz*1.03)continue;
-      const top=c.pos.y+VEH[c.veh].roof(lb/ES)*ES;
+      // (a forklift's forks reach out past its front, and stand as high as they've been raised)
+      const fk=c.veh==='forklift'&&lb>0.6*ES;if(Math.abs(la)>c.hx*1.05||Math.abs(lb)>(fk?FORK.f1+0.1:c.hz*1.03))continue;
+      const top=fk?Math.max(c.pos.y+0.4*ES,forkTop(c)):c.pos.y+VEH[c.veh].roof(lb/ES)*ES;
       if(top<=p.pos.y+(p.vy<0&&!p.grounded?1.1:0.35)&&(best===null||top>best)){best=top;bc=c;}
     }
   }

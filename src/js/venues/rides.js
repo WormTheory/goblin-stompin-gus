@@ -68,6 +68,16 @@ function rideHit(T,n,ci){
     dmgPop(T.hub.x,T.hub.y,T.hub.z,Math.round(n),'#ffb04a');T.hp-=n;if(T.hp<=0)wheelFall(T);return;}
   if(T.kind==='carousel'){if(T.dead)return;dmgPop(T.x,G+8,T.z,Math.round(n),'#ffb04a');T.hp-=n;if(T.hp<=0)carouselBlow(T);}
 }
+// every ride part and zoo animal still standing, for the health bars over the view (Options' Health bars, drawDbgOverlay):
+// fn(x, y, z, health, its most) at the spot over each, as other vehicles' bars are. (Online a guest's rides and animals
+// aren't sent their health: netHp falls back to what this copy has, as it does for anything else not sent.)
+function rideBarsEach(fn){for(const V of venues.values()){
+  if(V.kind==='theme'&&V.ride&&V.ride.visible&&!V.survey){const K=V.K,W=V.W,Cs=V.Cs;
+    if(K&&!K.off)for(const c of K.cars)if(!c.dead&&!c.fly)fn(c.pr.pos.x,c.pr.pos.y+1.6,c.pr.pos.z,netHp(c,c.hp),RIDE_HP.car);
+    if(W&&!W.dead&&!W.fall){fn(W.hub.x,W.hub.y+W.R+1.2,W.hub.z,netHp(W,W.hp),RIDE_HP.wheel);   // (the wheel itself, over its top; each gondola its own)
+      for(const q of W.gonds)if(!q.dead)fn(q.pr.pos.x,q.pr.top+0.6,q.pr.pos.z,netHp(q,q.hp),RIDE_HP.gond);}
+    if(Cs&&!Cs.dead)fn(Cs.x,Cs.pr.top+0.6,Cs.z,netHp(Cs,Cs.hp),RIDE_HP.carousel);}
+  else if(V.kind==='zoo'&&V.animals)for(const A of V.animals){if(A.dead||!A.pr)continue;const I=ANIMALS[A.sp];fn(A.x,A.g.position.y+I.hy+0.4,A.z,netHp(A,A.hp),I.hp);}}}
 function carouselBlow(Cs){
   carouselWreck(Cs);wrecked[Cs.k]=1;save();rideBang(Cs.x,G+3,Cs.z,1.4,Cs,7,8,'Blown up with a carousel');
   award(300,'Carousel destroyed',Cs.x,G+5,Cs.z);

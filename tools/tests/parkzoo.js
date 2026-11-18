@@ -1,8 +1,8 @@
-// Theme park rides and zoo animals: real attacks hurt them, what's wrecked stays wrecked, and nothing breaks by itself. node parkzoo.js
+// Theme park rides and zoo animals: they have health bars, real attacks hurt them, what's wrecked stays wrecked, and nothing breaks by itself. node parkzoo.js
 const fs=require('fs');
 let hdr=fs.readFileSync('stairs.js','utf8').split('\n');
 const n=hdr.findIndex(l=>l.startsWith('eval(src);'));
-hdr=hdr.slice(0,n).join('\n').replace(/window\.__t=\{/,'window.__t={G0:G,venues,damageCar,carsNear,TRAIN_BOXES,crush,get:get,AIR,METAL,coasterTrackAt,startStomp,get scoreNow(){return score},get wreckedNow(){return wrecked},');
+hdr=hdr.slice(0,n).join('\n').replace(/window\.__t=\{/,'window.__t={G0:G,rideBarsEach,venues,damageCar,carsNear,TRAIN_BOXES,crush,get:get,AIR,METAL,coasterTrackAt,startStomp,get scoreNow(){return score},get wreckedNow(){return wrecked},');
 eval(hdr+`
 eval(src);const T=window.__t,G0=T.G0;let now=1000;
 const [A]=T.players;for(const f of els.play.L.click)f();pads.length=0;A.hp=9999;
@@ -11,15 +11,17 @@ const step=k=>{for(let i=0;i<k;i++){if(A.state!=='dead')A.hp=9999;quiet();now+=1
 const hover=(x,y,z,k)=>{for(let i=0;i<k;i++){A.pos.set(x,y,z);A.vy=0;A.state='walk';step(1);}};
 const find=kind=>{const seen=new Set();for(let r=0;r<600;r++)for(let i=-r;i<=r;i++)for(const [x,z] of [[i,-r],[i,r],[-r,i],[r,i]]){const q=T.superOf(x,z);if(q&&q.kind===kind&&!seen.has(q.ax+','+q.az))return q;}return null;};
 const hitsAt=(x,y,z,r)=>T.carsNear(x,z,r,y);
+const bars=(x,z,r)=>{let n=0,full=0,low=0;T.rideBarsEach((bx,by,bz,hp,mx)=>{if(Math.hypot(bx-x,bz-z)>r)return;n++;if(hp>=mx)full++;else low++;});return n+' ('+full+' full, '+low+' hurt)';};
 // ---- the zoo ----
 {const S=find('zoo');if(!S)console.log('no zoo');else{const X0=S.ax*32,Z0=S.az*32;console.log('zoo at',S.ax,S.az,'w',S.w);
  hover(X0+40,G0+20,Z0+40,130);const V=T.venues.get('z'+S.ax+','+S.az);console.log('venue',!!V,'animals',V&&V.animals&&V.animals.length);
  const by={};for(const a of V.animals){by[a.sp]=(by[a.sp]||0)+1;}console.log('species',JSON.stringify(by));
+ console.log('health bars over the animals',bars(X0+40,Z0+40,200));
  const s0=T.scoreNow;
  // each kind, by the car path that every attack uses: bites of 5, a charged stomp of 15
  const seen=new Set();for(const a of V.animals){if(seen.has(a.sp))continue;seen.add(a.sp);const hits=[...new Set(hitsAt(a.x,a.g.position.y+.5,a.z,1.6))];const has=hits.includes(a.pr);let k=0;while(!a.dead&&k<40){T.damageCar(a.pr,5,new V3(1,0,0));k++;}
    hover(X0+40,G0+20,Z0+40,3);console.log(a.sp.padEnd(9),'found by an attack',has,'bites to kill',k,'dead',a.dead,'box alive',a.pr.alive);}
- console.log('score from those',T.scoreNow-s0);
+ console.log('score from those',T.scoreNow-s0,' health bars left',bars(X0+40,Z0+40,200));
  hover(X0+40,G0+20,Z0+40,200);const c0=V.animals.filter(a=>a.dead);console.log('corpses lying',c0.length,'tipped',c0.every(a=>Math.abs(Math.abs(a.g.rotation.z)-Math.PI/2)<.01),'still hit by attacks',c0.some(a=>T.carsNear(a.x,a.z,4,a.g.position.y+.5).includes(a.pr)));
  // a real stomp from the player: land next to a live one
  const a=V.animals.find(q=>!q.dead);{const hp0=a.hp;A.pos.set(a.x+1,G0+1+(a.g.position.y-G0-1),a.z);A.vy=0;A.state='walk';A.grounded=true;step(2);T.startStomp(A);step(60);console.log('real stomp beside a',a.sp,'hp',hp0,'->',a.hp,'state',A.state);}
@@ -42,6 +44,7 @@ const hitsAt=(x,y,z,r)=>T.carsNear(x,z,r,y);
  hoverAt(C.cu,C.cv,20);console.log('after 20s by the coaster: derailed',K.off,'halted',K.halted,'car 0 moved',K.th.toFixed(2));
  hoverAt(W.hub.x,W.hub.z+40,5);console.log('by the wheel: falling',!!W.fall,'dead',W.dead,'rotation',W.g.rotation.z.toFixed(2));
  hoverAt(Cs.x,Cs.z+30,3);console.log('by the carousel: dead',Cs.dead,'turned',Cs.g.rotation.y.toFixed(2));
+ {const q=W.gonds[5];T.damageCar(q.pr,5);console.log('health bars over the rides',bars(mx,mz,400),'(4 coaster cars, the wheel and its 8 gondolas, the carousel; one gondola bitten)');}
  // the gate: it used to take every ride with it
  {const g=P.b.find(b=>b.ride);T.crush(X0+g.x0,G0+4,Z0+g.z0,2,-2,2);hover(X0+g.x0,G0+40,Z0+g.z0,60);console.log('gate corner smashed: rides still there',!!T.venues.get(k)&&!!T.venues.get(k).ride&&!W.dead&&!Cs.dead);}
  // every part can be found by an attack where it stands
@@ -57,6 +60,7 @@ const hitsAt=(x,y,z,r)=>T.carsNear(x,z,r,y);
  {const s0=T.scoreNow;let h=0;while(!Cs.dead&&h<60){T.damageCar(Cs.pr,15);h++;}console.log('carousel gone after',h,'charged stomps, score',T.scoreNow-s0,'on record',!!T.wreckedNow[Cs.k]);}
  // a gondola, then the wheel by hitting it
  {let h=0;const q=W.gonds[3];while(!q.dead&&h<40){T.damageCar(q.pr,5);h++;}console.log('gondola gone after',h,'bites, drawn',q.g.visible);}
+ console.log('after the carousel and a gondola: health bars',bars(mx,mz,400));
  // the coaster: blow a hole in the track ahead of it, near the player
  {hoverAt(C.cu,C.cv,.2);const t=K.th+1.2,x=C.cu+Math.cos(t)*C.a,z=C.cv+Math.sin(t)*C.b;hover(x,G0+30,z,5);T.crush(x,G0+8,z,3,-8,8);console.log('hole in the track: there still',T.coasterTrackAt(C,t));let s=0;const s0=T.scoreNow;while(!K.off&&s<60){hover(x,G0+30,z,6);s+=.1;}
   const flew=K.cars.filter(c=>c.fly).length;let t2=0;while(K.cars.some(c=>c.fly)&&t2<10){hover(x,G0+30,z,6);t2+=.1;}console.log('derailed',K.off,'after',s.toFixed(1)+'s','cars flying',flew,'down after',t2.toFixed(1)+'s','all dead',K.cars.every(c=>c.dead),'score',T.scoreNow-s0);}

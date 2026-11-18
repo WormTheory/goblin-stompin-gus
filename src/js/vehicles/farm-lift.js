@@ -37,6 +37,10 @@ function forkDrive(c,i,dt){const F=forkState(c),up=!!i.lfUp,dn=!!i.lfDown;
 // (the forks' height in the world when they're at their lowest, and the middle of them)
 function forkBase(c){return c.pos.y+0.17*ES;}
 function forkMid(c){const fx=Math.sin(c.heading),fz=Math.cos(c.heading),a=(FORK.f0+FORK.f1)/2;return{x:c.pos.x+fx*a,y:forkBase(c)+(c.fork?c.fork.h:0),z:c.pos.z+fz*a,fx,fz};}
+// (the top of the forks, where a load or someone stood on them sits, and whether a spot is over them, pad blocks to spare)
+function forkTop(c){return forkBase(c)+(c.fork?c.fork.h:0)+0.07;}
+function forkOver(c,x,z,pad){const fx=Math.sin(c.heading),fz=Math.cos(c.heading),ox=x-c.pos.x,oz=z-c.pos.z,al=ox*fx+oz*fz,lat=ox*fz-oz*fx;
+  return al>FORK.f0-0.1-pad&&al<FORK.f1+0.1+pad&&Math.abs(lat)<FORK.hw+0.1+pad;}
 // the highest thing under the forks' tips: lowering stops on it
 function forkFloor(c){const M=forkMid(c);let top=-1e9;
   for(const a of [FORK.f0+0.2,FORK.f1-0.1])for(const s of [-FORK.hw*0.6,FORK.hw*0.6]){const x=c.pos.x+M.fx*a+M.fz*s,z=c.pos.z+M.fz*a-M.fx*s;
@@ -51,6 +55,10 @@ function forkPick(c){const F=forkState(c),M=forkMid(c);
   for(const g of goblins){if(g.state!=='chase'||!g.root.visible)continue;const ox=g.pos.x-c.pos.x,oz=g.pos.z-c.pos.z,al=ox*M.fx+oz*M.fz,lat=Math.abs(ox*M.fz-oz*M.fx);
     if(al>FORK.f0-0.1&&al<FORK.f1+0.3&&lat<FORK.hw+0.35&&Math.abs(g.pos.y-M.y)<0.7){F.load={k:'gob',g,name:'GOBLIN',kg:40,al:Math.min(al,FORK.f1-0.3),lat:ox*M.fz-oz*M.fx};g.forkOn=c;
       if(audio)sfx('Goblin picked up on the forks',()=>tone('triangle',700,1100,0.15,0.04));return;}}
+  // (a player stood on them, hippo or goblin: Gus and Gertie, Gnash and Grizzle alike; a hippo's middle is well out past the tips, its feet on them)
+  for(const q of players){if(!q.active||q.state==='dead'||q.drv||q.vcl||!forkOver(c,q.pos.x,q.pos.z,q.gob?0.15:0.9)||Math.abs(q.pos.y-forkTop(c))>0.7)continue;
+    F.load={k:'pl',p:q,name:charName(q).toUpperCase(),kg:q.gob?45:1500};
+    if(audio)sfx(q.gob?'Goblin picked up on the forks':'Hippo picked up on the forks',()=>tone('triangle',q.gob?700:220,q.gob?1100:330,0.15,0.04));return;}
   // (a light car whose near end is over the forks)
   for(const o of cars){if(o===c||!o.alive||!o.g.visible||o.drv||o.gnr||!FORK_CARS[o.veh]||o.forkOn)continue;const ox=o.pos.x-c.pos.x,oz=o.pos.z-c.pos.z,al=ox*M.fx+oz*M.fz,lat=ox*M.fz-oz*M.fx;
     if(Math.abs(o.pos.y-c.pos.y)>0.8)continue;const rel=o.heading-c.heading,ext=Math.abs(Math.cos(rel))*o.hz+Math.abs(Math.sin(rel))*o.hx,near=al-ext;
@@ -64,6 +72,7 @@ function forkDrop(c,put){const F=c.fork,L=F&&F.load;if(!L)return;F.load=null;con
     else puff(c.pos.x+M.fx*1.2,M.y+0.4,c.pos.z+M.fz*1.2,6,0xb9874a,0.6);}   // (thrown: it breaks)
   else if(L.k==='gob'){const g=L.g;g.forkOn=null;if(!put){g.kv.x+=M.fx*4;g.kv.z+=M.fz*4;g.vy=4;g.stun=0.6;}}
   else if(L.k==='car'){const o=L.o;o.forkOn=null;o.vy=0;o.grounded=false;}
+  else if(L.k==='pl'&&!put){const q=L.p;q.vy=Math.max(q.vy||0,5);q.grounded=false;shove(q,M.fx*1.2,M.fz*1.2);}   // (thrown off: up and forward)
   if(put&&audio)thud(0.2);}
 // the forklift each step, driven or not: its load carried with it, lancing at speed, how tippy it is, and tipping
 function forkPost(c,dt){const F=c.fork;if(!F)return;const M=forkMid(c),L=F.load;
@@ -72,7 +81,12 @@ function forkPost(c,dt){const F=c.fork;if(!F)return;const M=forkMid(c),L=F.load;
         if(g.arm)g.arm.rotation.x=-1.6+Math.sin(playTime*18+g.pos.x)*0.9;}}   // (flailing)
     else if(L.k==='car'){const o=L.o;if(!o.alive||o.forkOn!==c||o.drv){if(o.forkOn===c)o.forkOn=null;F.load=null;}
       else{o.heading=c.heading+L.rel;o.pos.set(c.pos.x+M.fx*L.al+M.fz*L.lat,M.y+0.07,c.pos.z+M.fz*L.al-M.fx*L.lat);o.speed=0;o.vy=0;o.grounded=true;o.kv.set(0,0,0);
-        o.g.position.copy(o.pos);o.g.rotation.set(-F.tilt*0.017,o.heading,0);}}}
+        o.g.position.copy(o.pos);o.g.rotation.set(-F.tilt*0.017,o.heading,0);}}
+    // (a player: carried along as on any car's roof, carTop, standing on the forks' top; stepped or jumped off, they're no longer the load)
+    else if(L.k==='pl'){const q=L.p,top=forkTop(c);
+      if(!q.active||q.state==='dead'||q.drv||q.vcl||!forkOver(c,q.pos.x,q.pos.z,q.gob?0.3:1.1)||q.pos.y>top+1.2||q.pos.y<top-0.8)F.load=null;
+      else if(q.vy<=0.01&&q.pos.y<top){const dy=top-q.pos.y;q.pos.y=top;q.vy=0;q.grounded=true;q.peakY=top;   // (the forks went up under them since they moved: up they come, model and all)
+        q.root.position.y+=dy;if(q.rootP)q.rootP[1]+=dy;}}}
   // (the forks up and going forward at a fair speed: a lance at that height)
   F.lanceT-=dt;if(F.h>0.6&&c.speed>FORK.lance&&F.lanceT<=0){F.lanceT=0.15;const tx=c.pos.x+M.fx*(FORK.f1+0.1),tz=c.pos.z+M.fz*(FORK.f1+0.1);
     for(const g of goblins){if(g.state!=='chase'||!g.root.visible||g.forkOn)continue;const dx=g.pos.x-tx,dz=g.pos.z-tz;

@@ -1,0 +1,30 @@
+forklift: in true  instrument fork  controls: [KEY:Space]/[KEY:C] forks up/down  ·  [KEY:Left Shift] + up/down tilt the mast  ·  [KEY:F] get out
+  Space 1.5 s: forks at 1.65  4.5 s: 3.40 (top 3.4)  their height in the world 3.54  carriage on the model 4.00
+  Shift+Space: tilted back 6.00  Shift+C: forward -6.00  mast on the model 0.10
+  C 4 s: forks down to 0.00
+  crate in front, Space: load CRATE  crate block gone true  crate on the model true  instrument says CRATE true
+  forks up, forward 1.05 then lowered: forks stop at 2.86  load none  crate set down on the ledge, 2 up
+  goblin on the forks, Space 1.5 s: load GOBLIN  goblin raised 1.20  stays put true  instrument says GOBLIN true
+  lowered: load none  goblin free true
+  a car ahead, Space: load CAR  car raised 1.20  forklift slid while lifting 0.63  forklift moves with it: 
+    W 1 s: forward 2.70  car still on the forks after driving true  car height 1.20  lowered:
+    car down true  height over the forklift 0.00
+  hippo player on the forks (0.34 up), Space 2 s: load GERTIE 1500  raised to 1.52 (forks 1.52)  forklift slid 0.00  instrument says true
+    W 1 s: forklift went 2.55  rider kept their place 0.08  still up 1.52  alive true
+    lowered: load none  rider at 0.34
+  goblin player on the forks (0.34 up), Space 2 s: load GRIZZLE 45  raised to 1.52 (forks 1.52)  forklift slid 0.00  instrument says true
+    W 1 s: forklift went 2.55  rider kept their place 0.08  still up 1.52  alive true
+    lowered: load none  rider at 0.34
+  forks up at 1.10 driven at a goblin: hurt true  speed 8.00
+  forks up, standing: tip risk 0.18  hard turn at speed: tipped true ( 1.57 )  driver thrown out true  risk 0.18
+  got back in true  righted true
+tractor: in true  instrument tractor  controls: [KEY:R]/[KEY:Left Shift] hand throttle  ·  [KEY:Space] lower the plough  ·  [RMB] swap implement  ·  [KEY:F] get out
+  R R, nothing held 3 s: cruise step 2  speed 6.42  R:  9.89  Shift x3: step 0  speed 0.48
+  plough lowered: hitch on the model 0.28  speed 9.95 -> 6.45  dirt blocks 12 -> 72 over 19.28 blocks
+  a goblin just behind, in the way of the plough: hurt true  thrown 5.65
+  right click: implement mower  mower on the model true  controls say mower true
+  mower down at 6.40 past a row of 9 flowers and a goblin beside its track: goblin dead true  flowers left 0
+  right click: implement none
+  raise and lower the bare hitch: model 0.59 -> 0.29  instrument says HITCH true
+  brake: cruise off true
+errors 0 []
