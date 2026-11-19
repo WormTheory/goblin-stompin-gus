@@ -60,9 +60,14 @@ function drvPose(D){if(D.netS)return D.netS;const o=D.o;   // (D.netS: a guest o
   const T=o,C=T.C,hi=T.dir>0?T.s:T.s+TRAIN_LEN,c=hi-5.3-D.ci*10.6,Fa=railPt(C,c+4),Ba=railPt(C,c-4);
   return{x:(Fa.x+Ba.x)/2,y:G+1.2,z:(Fa.z+Ba.z)/2,h:Math.atan2(Fa.x-Ba.x,Fa.z-Ba.z),hx:TRAIN_HX,hz:TRAIN_HZ,hy:TRAIN_H,v:T.v*T.dir};
 }
+// (getting in: the "Drive the ..." prompt for whatever you just got into, or something beside it, goes at once rather than
+// lingering on screen while you ride)
+function drvHintClear(p){p.drvHintO=null;const box=p.ui&&(p.ui.feed||p.ui.label);if(!box||!box.children)return;
+  for(const el of Array.from(box.children))if(el._s&&/  (Drive|Steal) the /.test(el._s)){clearTimeout(el._t);el.remove();}}
 function drvEnter(p,D){
   {const S=D&&shipN?shipOf(p):null;if(S&&D.k!=='ship'&&D.k!=='mount'&&!((D.o.pos?D.o.pos.x:D.o.isPlane?D.o.g.position.x:D.o.x)>=SHIP_X0))shipMove(p,S,false,true);}   // (from aboard a ship into something out in the world, the Mobile Gear on its deck: put out there with it)
   const o=D.o,gun=D.seat==='gun',jack=!gun&&jackable(D);p.drv=D;p.standCar=null;p.vcl=null;p.state='walk';p.vy=0;p.mvx=p.mvz=0;p.biteT=0;p.drvLook=-9;p.drvYaw=undefined;p.shipBridge=false;
+  drvHintClear(p);
   if(gun)o.gnr=p;else drvTake(p,D);
   if(gunSeat(D))wpnInit(o,drvGunK(D));
   // (the camera starts out behind it)

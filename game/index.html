@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:911f70571f99de35743013c2c6634d4fb4f230c6dc85cbb59e6d8db3974f5e66 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:c420963bc923c103d6f4ff8fd1b7527de405d8d23502ef754e54fea43c746853 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1573,8 +1573,10 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
       <div class="pn">
         <p class="pn-web">Also on <a href="patch-notes/index.html" target="_blank" rel="noopener">their own page</a>.</p>
 <details class="pn-up pn-fold pn-new" id="version-0-5" open><summary tabindex="0"><h2>Version 0.5</h2><span class="pn-tog" aria-hidden="true"></span></summary>
+<h3>Water</h3>
+<ul><li>Water now pours into holes. Knock out a block under water, or the wall holding it back, and the water flows in and fills the space below, up to its own level. Dig down through the sea bed or a river and the hole floods. A small pool only spills what it holds, and a big breach stops after a few hundred blocks, so the sea never drains.</li></ul>
 <h3>Crashes</h3>
-<ul><li>Vehicles now crash by their weight. A bus ploughs on through a car and shoves it aside, while a car that hits a bus mostly stops dead. Hit a car on its back corner and it spins round; traffic spun out stops steering for a moment, then sets off again.</li><li>Hit hard enough side-on, a tall vehicle such as a van tips over on its side, and is righted a little later.</li><li>Something much heavier can throw a lighter vehicle up over its bonnet. Bicycles and scooters hit at speed throw their riders off and cartwheel away.</li><li>Damage depends on how hard the hit really was, so a gentle nudge does nothing and a big one hurts, more for the lighter of the two.</li><li>Your own car spins when hit too, but you keep steering.</li><li>Walls: a glancing blow turns you off along the wall rather than stopping you, and whether you smash through depends on your weight as well as your speed, so a bus goes through where a car bounces off.</li><li>Gus and Gertie trample cars with their weight: a motorbike spins away, a bus barely moves.</li></ul>
+<ul><li>Vehicles now crash by their weight. A bus ploughs on through a car and shoves it aside, while a car that hits a bus mostly stops dead. Hit a car on its back corner and it spins round; traffic spun out stops steering for a moment, then sets off again.</li><li>Hit hard enough side-on, a tall vehicle such as a van tips over on its side, and is righted a little later.</li><li>Something much heavier can throw a lighter vehicle up over its bonnet. Bicycles and scooters hit at speed throw their riders off and cartwheel away.</li><li>Damage depends on how hard the hit really was, so a gentle nudge does nothing and a big one hurts, more for the lighter of the two.</li><li>Your own car spins when hit too, but you keep steering.</li><li>Walls: a glancing blow turns you off along the wall rather than stopping you, and whether you smash through depends on your weight as well as your speed, so a bus goes through where a car bounces off.</li><li>Gus and Gertie trample cars with their weight: a motorbike spins away, a bus barely moves.</li><li>Trains, planes, boats and ships crash by their weight too. A ship ramming a boat hardly feels it while the boat takes the lot, and a car that hits a train or a plane is knocked back and spun round by it.</li><li>A car wrecked at speed that slides into another car knocks it aside instead of stopping dead, and one spinning as it's wrecked keeps spinning as it slides.</li></ul>
 <h3>Bicycles and scooters</h3>
 <ul><li>Four light vehicles out in the streets, ridden by goblins going about their day and parked along the kerbs: a bicycle, a kick scooter, the Gobway (a self-balancing two-wheeler) and a motor scooter. Each is ridden its own way.</li><li>Bicycle: hold forward to pedal along easily, or tap right click (controller RT) in a steady rhythm to pedal hard and go much faster. Hard pedalling tires your legs, shown on the bike computer, and they come back as you ease off. Space is the back brake, left click rings the bell.</li><li>Kick scooter: tap forward to kick off, again and again to build speed, then coast. Hold it and you kick every so often. Press and let go of right click to ollie. No display: it's a kick scooter.</li><li>Gobway: lean forward to go and back to slow and reverse. It turns on the spot when standing still. Push it past its top speed and it tips you back and beeps. Its handlebar display shows the battery, your lean and a light that turns yellow when it's pushing back and red when the battery's low (then it goes at half speed).</li><li>Motor scooter: twist and go, quick off the line and easing off near the top. Right click flicks the indicators on toward the way you're steering, and again turns them off. Its round dial has a fuel gauge, and running dry leaves it spluttering along.</li><li>They're light: hit a wall fast and you go over the bars.</li></ul>
 <h3>New vehicles</h3>
@@ -1618,7 +1620,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Shorter menu text</h3>
 <ul><li>The menus, Options and abilities say less: notes that only repeated what a button or switch already says are gone, and the rest are cut down to a few words.</li></ul>
 <h3>Fixes</h3>
-<ul><li>Gnash's rifle and handgun now damage every vehicle they hit, the same way: cars, tanks, helicopters, trains, planes, boats, balloons, Mobile Gears and the carrier's deck weapons all take three times what a goblin would. Before, they went straight through most vehicles, did a single point to cars, and only the deck weapons took real harm.</li><li>The minimap no longer draws the grey of the surrounding blocks over big sites that take up several blocks, such as theme parks, which hid most of their buildings.</li><li>Enemy gunfire now hits whatever you're driving. Before, rifles, the militia's machine guns, the helicopters' guns and the cultists' fireballs did nothing at all to a goblin behind the wheel; now the vehicle takes the hit instead.</li><li>Rounds from the fighter jets' cannons, the carrier's CIWS, the militia's machine guns and the helicopters' guns are stopped by walls, one round at a time. Before, some went straight through buildings, and a burst kept coming even after you ducked behind something.</li><li>Invulnerability now covers a train or subway train you're driving, as it does every other vehicle.</li><li>Every vehicle now plays by the same rules. Boats, trains and hot-air balloons gather snow like the rest; bringing down a hot-air balloon (400), a Mobile Gear (2,000) or one of the carrier's deck weapons (300) scores points; a balloon's health shows correctly to everyone playing online; and the smoke and flames off a badly hurt vehicle show for players online too.</li><li>Every vehicle now has the same health wherever it turns up: buses, articulated lorries, fire engines and ambulances take 45, motorhomes 40, police cars 40 and everything else 30. Before, an articulated lorry on the motorway or a police car in the traffic went down as easily as a family car, and the Testing Environment's ambulances and motorhomes did too.</li><li>The Dev tab's Enemies section now has the soldiers who crew the military bases' tanks and helicopters, with every animation the other armed enemies have.</li><li>The aircraft carrier's deck weapons gather snow in a blizzard like every other vehicle (its decks already did).</li><li>Behind the scenes, every kind of enemy now has its own list of the weapons it carries (street goblins a club, police a club and a handgun, thieves and cultists a dagger, preppers, militia and marines a rifle and grenades, sailors and soldiers a rifle), and what they hold, when they shoot, throw or strike, and what they drop all come from it. Nothing changes in play; it just means an enemy can be handed a new weapon in one place. Drawing a gun at range and putting it away for a club or dagger up close, as the police do, now works for any enemy given both.</li><li>Every weapon now works the same whoever carries it, you or the enemy. Rifles hit for a full heart, reach 48 blocks and fire once a second; handguns hit for three quarters of a heart, reach 30 and fire every half second; both chip away at the wall they hit, the enemies' rounds too, so cover doesn't last for ever. Daggers stab for a full heart every half second, clubs hit for half a heart every 1.2 s, and grenades are the same for everyone. Enemy rifles and police handguns hit harder and fire faster than before, while Gnash and Grizzle fire and swing a little slower. Enemies still take a moment to aim and miss more from far off.</li><li>The pause menu's This rampage card counts "Vehicles destroyed" instead of "Cars totaled": every vehicle you wreck now counts, not just cars. Tanks, helicopters, planes, boats, hot-air balloons, Mobile Gears, the carrier's deck weapons, each car of a train you wreck, and a ship you sink.</li><li>Grenades, shells and rockets now hurt zoo animals, the Ferris wheel's rim and the carousel, as stomps already did, and a shell or rocket goes off when it hits an animal.</li><li>Online, a guest playing as Gnash or Grizzle now sees their own gun kick and the bolt, pump or slide worked after each shot, as the host does. An error on the guest's side could stop their weapons working at all.</li><li>A forklift wrecked or cleared away with something on its forks lets go of it: a car lifted on them falls to the ground, rather than hanging in the air.</li><li>Landmines now go off under tanks, helicopters on the ground, Mobile Gears, trains and planes, not just cars.</li><li>The Large Club only slams the ground with its shockwave when you're on the ground; swung in mid-air it's an ordinary blow. Landmines can only be planted standing on the ground.</li><li>The shotgun's pellets spread evenly when you aim steeply up or down, rather than squashing into a flat line.</li><li>Changing the Loadout no longer refills or empties your guns or swaps the weapon in your hand: each gun keeps what's left in its magazine.</li><li>If you'd moved X (or D-pad down) on to another control, the new Reload action no longer takes it as well: it's left unbound for you to set.</li><li>Theme park rides' and zoo animals' health now shows correctly to guests online.</li><li>Big worlds saved into the browser's database could be saved over by an older save finishing late, or not loaded back at all after a save that didn't finish; saves now go one at a time, and loading finds the blocks either way.</li><li>A badly smashed-up world no longer stutters every few seconds as it saves: the game only writes the parts of it that changed since the last save.</li></ul>
+<ul><li>The prompt to get into a vehicle no longer stays on screen once you're in.</li><li>Gnash's rifle and handgun now damage every vehicle they hit, the same way: cars, tanks, helicopters, trains, planes, boats, balloons, Mobile Gears and the carrier's deck weapons all take three times what a goblin would. Before, they went straight through most vehicles, did a single point to cars, and only the deck weapons took real harm.</li><li>The minimap no longer draws the grey of the surrounding blocks over big sites that take up several blocks, such as theme parks, which hid most of their buildings.</li><li>Enemy gunfire now hits whatever you're driving. Before, rifles, the militia's machine guns, the helicopters' guns and the cultists' fireballs did nothing at all to a goblin behind the wheel; now the vehicle takes the hit instead.</li><li>Rounds from the fighter jets' cannons, the carrier's CIWS, the militia's machine guns and the helicopters' guns are stopped by walls, one round at a time. Before, some went straight through buildings, and a burst kept coming even after you ducked behind something.</li><li>Invulnerability now covers a train or subway train you're driving, as it does every other vehicle.</li><li>Every vehicle now plays by the same rules. Boats, trains and hot-air balloons gather snow like the rest; bringing down a hot-air balloon (400), a Mobile Gear (2,000) or one of the carrier's deck weapons (300) scores points; a balloon's health shows correctly to everyone playing online; and the smoke and flames off a badly hurt vehicle show for players online too.</li><li>Every vehicle now has the same health wherever it turns up: buses, articulated lorries, fire engines and ambulances take 45, motorhomes 40, police cars 40 and everything else 30. Before, an articulated lorry on the motorway or a police car in the traffic went down as easily as a family car, and the Testing Environment's ambulances and motorhomes did too.</li><li>The Dev tab's Enemies section now has the soldiers who crew the military bases' tanks and helicopters, with every animation the other armed enemies have.</li><li>The aircraft carrier's deck weapons gather snow in a blizzard like every other vehicle (its decks already did).</li><li>Behind the scenes, every kind of enemy now has its own list of the weapons it carries (street goblins a club, police a club and a handgun, thieves and cultists a dagger, preppers, militia and marines a rifle and grenades, sailors and soldiers a rifle), and what they hold, when they shoot, throw or strike, and what they drop all come from it. Nothing changes in play; it just means an enemy can be handed a new weapon in one place. Drawing a gun at range and putting it away for a club or dagger up close, as the police do, now works for any enemy given both.</li><li>Every weapon now works the same whoever carries it, you or the enemy. Rifles hit for a full heart, reach 48 blocks and fire once a second; handguns hit for three quarters of a heart, reach 30 and fire every half second; both chip away at the wall they hit, the enemies' rounds too, so cover doesn't last for ever. Daggers stab for a full heart every half second, clubs hit for half a heart every 1.2 s, and grenades are the same for everyone. Enemy rifles and police handguns hit harder and fire faster than before, while Gnash and Grizzle fire and swing a little slower. Enemies still take a moment to aim and miss more from far off.</li><li>The pause menu's This rampage card counts "Vehicles destroyed" instead of "Cars totaled": every vehicle you wreck now counts, not just cars. Tanks, helicopters, planes, boats, hot-air balloons, Mobile Gears, the carrier's deck weapons, each car of a train you wreck, and a ship you sink.</li><li>Grenades, shells and rockets now hurt zoo animals, the Ferris wheel's rim and the carousel, as stomps already did, and a shell or rocket goes off when it hits an animal.</li><li>Online, a guest playing as Gnash or Grizzle now sees their own gun kick and the bolt, pump or slide worked after each shot, as the host does. An error on the guest's side could stop their weapons working at all.</li><li>A forklift wrecked or cleared away with something on its forks lets go of it: a car lifted on them falls to the ground, rather than hanging in the air.</li><li>Landmines now go off under tanks, helicopters on the ground, Mobile Gears, trains and planes, not just cars.</li><li>The Large Club only slams the ground with its shockwave when you're on the ground; swung in mid-air it's an ordinary blow. Landmines can only be planted standing on the ground.</li><li>The shotgun's pellets spread evenly when you aim steeply up or down, rather than squashing into a flat line.</li><li>Changing the Loadout no longer refills or empties your guns or swaps the weapon in your hand: each gun keeps what's left in its magazine.</li><li>If you'd moved X (or D-pad down) on to another control, the new Reload action no longer takes it as well: it's left unbound for you to set.</li><li>Theme park rides' and zoo animals' health now shows correctly to guests online.</li><li>Big worlds saved into the browser's database could be saved over by an older save finishing late, or not loaded back at all after a save that didn't finish; saves now go one at a time, and loading finds the blocks either way.</li><li>A badly smashed-up world no longer stutters every few seconds as it saves: the game only writes the parts of it that changed since the last save.</li></ul>
 </details>
 <p class="pn-earlier">Earlier updates</p>
 <details class="pn-up pn-fold" id="version-0-4-1"><summary tabindex="0"><h2>Version 0.4.1</h2><a class="pn-play" data-ver="0.4.1" href="v/0.4.1/" tabindex="0">Play 0.4.1</a><span class="pn-tog" aria-hidden="true"></span></summary>
@@ -2257,7 +2259,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='3e310dbf7b5b';
+const GAME_VER='0.5',GAME_BUILD='767297221504';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -8850,7 +8852,7 @@ function purgeLeaves(){
 const leafHash=(x,y,z)=>hash2(x*7+y*131,z*13+y*17);
 const leafDown=(x,y,z)=>leafFall>0&&leafHash(x,y,z)<leafFall;
 function get(x,y,z){x=Math.floor(x);y=Math.floor(y);z=Math.floor(z);if(y<0||y>=H)return AIR;const cx=Math.floor(x/CS),cz=Math.floor(z/CS);const b=chunkArr(cx,cz)[li(x-cx*CS,y,z-cz*CS)];return b===LEAVES&&leafDown(x,y,z)?AIR:b;}
-function setRaw(x,y,z,b){if(y<0||y>=H)return;if(x>=SHIP_X0&&shipN)b=shipDent(x,y,z,b);if(b===AIR&&y>G)noteRemoved(x,y,z);if(WX.snowCover>0){let open=true;for(let yy=y+1;yy<H;yy++)if(get(x,yy,z)){open=false;break;}if(open)snowBorn.set(Math.floor(x)*65536+Math.floor(z),WX.snowClock);}navCols.delete(Math.floor(x)*65536+Math.floor(z));const cx=Math.floor(x/CS),cz=Math.floor(z/CS);if(b!==LOG&&rawGet(x,y,z)===LOG)leafCheckQ.add(Math.floor(x)+','+Math.floor(y)+','+Math.floor(z));if(b===AIR&&get(x,y,z)===ICE)b=WATER;const A=chunkArr(cx,cz),lx=x-cx*CS,lz=z-cz*CS;if(b&&A.tileTops){const t=(Math.floor(lz)>>2)*4+(Math.floor(lx)>>2);if(y>A.tileTops[t])A.tileTops[t]=y;}A[li(lx,y,lz)]=b;}
+function setRaw(x,y,z,b){if(y<0||y>=H)return;if(x>=SHIP_X0&&shipN)b=shipDent(x,y,z,b);if(b===AIR&&y>G)noteRemoved(x,y,z);if(WX.snowCover>0){let open=true;for(let yy=y+1;yy<H;yy++)if(get(x,yy,z)){open=false;break;}if(open)snowBorn.set(Math.floor(x)*65536+Math.floor(z),WX.snowClock);}navCols.delete(Math.floor(x)*65536+Math.floor(z));const cx=Math.floor(x/CS),cz=Math.floor(z/CS);if(b!==LOG&&rawGet(x,y,z)===LOG)leafCheckQ.add(Math.floor(x)+','+Math.floor(y)+','+Math.floor(z));if(b===AIR&&get(x,y,z)===ICE)b=WATER;if(b===AIR)wfNoteRemoved(x,y,z);const A=chunkArr(cx,cz),lx=x-cx*CS,lz=z-cz*CS;if(b&&A.tileTops){const t=(Math.floor(lz)>>2)*4+(Math.floor(lx)>>2);if(y>A.tileTops[t])A.tileTops[t]=y;}A[li(lx,y,lz)]=b;}
 function addEdit(x,y,z,b){if(b===AIR&&get(x,y,z)===WATER)b=WATER;edits[x+','+y+','+z]=b;const k=ckey(Math.floor(x/CS),Math.floor(z/CS));let l=chunkEdits.get(k);if(!l){l=[];chunkEdits.set(k,l);}l.push([x,y,z,b]);}
 // the highest block in each 4 x 4 of a chunk's columns, kept with the chunk once something has asked. (A block knocked out can
 // leave it too high, which only means a closer look than was needed; a block put in raises it, in setRaw.)
@@ -10767,6 +10769,62 @@ function crashTopple(T){
   if(T.grp.parent)T.grp.parent.remove(T.grp);T.mesh.geometry.dispose();
 }
 
+// ---------- Water flow ----------
+// Knock out a block that water was resting on (or holding back at the side) and the water pours into the hole, then on
+// into any open space it reaches that's no higher than its own surface: a pit dug under a river fills up, a tunnel broken
+// into from the sea bed floods. The water it came from stays put (the sea and the rivers don't run dry), so a breach fills
+// at most WF_CAP blocks, and never more than the body of water it came from holds (a fountain's spout spills a few
+// blocks, not a plaza's worth). It spreads one block further every WF_STEP seconds, so it's seen pouring in.
+// Only the host's game runs it (a guest skips the step that does): each block it fills goes through addEdit, which saves
+// it and sends it to guests like any smashed block.
+const WF_CAP=300,WF_STEP=0.08,WF_PER_STEP=160,WF_LOOK=6000;
+const wfRemoved=[];   // (blocks knocked out since the last step, x,y,z each: setRaw adds them, the step looks at them)
+const wfJobs=[];   // a breach being filled: {top: the water's surface, front: the blocks to fill next (x,y,z each), left}
+const wfSeen=new Set();   // (blocks some breach already means to fill, so two breaches into one hole don't both count it)
+let wfClock=0;
+const WF_SIDES=[[1,0,0],[-1,0,0],[0,0,1],[0,0,-1]],WF_N6=[[0,-1,0],[1,0,0],[-1,0,0],[0,0,1],[0,0,-1],[0,1,0]];
+// the block there, or -1 if its chunk isn't made (looking would make it, and the water never needs to go that far)
+function wfGet(x,y,z){if(y<0||y>=H||x>=SHIP_X0)return -1;if(!chunks.has(ckey(Math.floor(x/CS),Math.floor(z/CS))))return -1;return get(x,y,z);}
+// (a long-lived list, so it's kept from growing without end: a guest's never looked at, as only the host fills)
+function wfNoteRemoved(x,y,z){if(wfRemoved.length<WF_LOOK*30)wfRemoved.push(Math.floor(x),Math.floor(y),Math.floor(z));}
+// how much water there is in the body that (x,y,z) is part of, counting no further than WF_CAP
+function wfBody(x,y,z){
+  const seen=new Set([x+','+y+','+z]),q=[x,y,z];
+  for(let i=0;i<q.length&&seen.size<WF_CAP;i+=3)for(const [dx,dy,dz] of WF_N6){
+    const nx=q[i]+dx,ny=q[i+1]+dy,nz=q[i+2]+dz,k=nx+','+ny+','+nz;
+    if(seen.has(k)||wfGet(nx,ny,nz)!==WATER)continue;seen.add(k);q.push(nx,ny,nz);}
+  return seen.size;
+}
+// a block just knocked out: if water sits on it or beside it, a breach starts filling it
+function wfBreach(x,y,z){
+  if(wfGet(x,y,z)!==AIR||wfSeen.has(x+','+y+','+z))return;
+  let top=-1,from=null;
+  const look=(nx,ny,nz)=>{if(wfGet(nx,ny,nz)!==WATER)return;let t=ny;while(wfGet(nx,t+1,nz)===WATER)t++;if(t>top){top=t;from=[nx,ny,nz];}};
+  look(x,y+1,z);for(const [dx,,dz] of WF_SIDES)look(x+dx,y,z+dz);
+  if(!from)return;
+  wfSeen.add(x+','+y+','+z);wfJobs.push({top,front:[x,y,z],left:Math.min(WF_CAP,wfBody(from[0],from[1],from[2]))});
+}
+function updateWater(dt){
+  if(!wfRemoved.length&&!wfJobs.length)return;
+  wfClock+=dt;if(wfClock<WF_STEP)return;wfClock=0;
+  for(let n=0;wfRemoved.length&&n<WF_LOOK;n++){const z=wfRemoved.pop(),y=wfRemoved.pop(),x=wfRemoved.pop();wfBreach(x,y,z);}
+  let budget=WF_PER_STEP;const ch=new Set();
+  for(const J of wfJobs){
+    const next=[];let i=0;
+    for(;i<J.front.length&&budget>0&&J.left>0;i+=3){const x=J.front[i],y=J.front[i+1],z=J.front[i+2];
+      if(wfGet(x,y,z)!==AIR)continue;
+      setRaw(x,y,z,WATER);addEdit(x,y,z,WATER);budget--;J.left--;
+      for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((x+ox)/CS),Math.floor((z+oz)/CS)));
+      // on to what's open round it, down first, and up only as far as the water's surface
+      for(const [dx,dy,dz] of WF_N6){const nx=x+dx,ny=y+dy,nz=z+dz,k=nx+','+ny+','+nz;
+        if(ny>J.top||wfSeen.has(k)||wfGet(nx,ny,nz)!==AIR)continue;wfSeen.add(k);next.push(nx,ny,nz);}}
+    // (what the budget didn't reach this step goes first next time)
+    J.front=J.left>0?J.front.slice(i).concat(next):[];
+  }
+  for(let j=wfJobs.length-1;j>=0;j--)if(!wfJobs[j].front.length)wfJobs.splice(j,1);
+  if(!wfJobs.length)wfSeen.clear();
+  if(ch.size){rebuildSet(ch);save();}
+}
 // ---------- Players (Gus and Gertie) ----------
 const SKINS=[
   {name:'GUS',skin:0x8f8399,dark:0x6c6177,belly:0xcfa3aa},
@@ -12278,9 +12336,14 @@ function drvPose(D){if(D.netS)return D.netS;const o=D.o;   // (D.netS: a guest o
   const T=o,C=T.C,hi=T.dir>0?T.s:T.s+TRAIN_LEN,c=hi-5.3-D.ci*10.6,Fa=railPt(C,c+4),Ba=railPt(C,c-4);
   return{x:(Fa.x+Ba.x)/2,y:G+1.2,z:(Fa.z+Ba.z)/2,h:Math.atan2(Fa.x-Ba.x,Fa.z-Ba.z),hx:TRAIN_HX,hz:TRAIN_HZ,hy:TRAIN_H,v:T.v*T.dir};
 }
+// (getting in: the "Drive the ..." prompt for whatever you just got into, or something beside it, goes at once rather than
+// lingering on screen while you ride)
+function drvHintClear(p){p.drvHintO=null;const box=p.ui&&(p.ui.feed||p.ui.label);if(!box||!box.children)return;
+  for(const el of Array.from(box.children))if(el._s&&/  (Drive|Steal) the /.test(el._s)){clearTimeout(el._t);el.remove();}}
 function drvEnter(p,D){
   {const S=D&&shipN?shipOf(p):null;if(S&&D.k!=='ship'&&D.k!=='mount'&&!((D.o.pos?D.o.pos.x:D.o.isPlane?D.o.g.position.x:D.o.x)>=SHIP_X0))shipMove(p,S,false,true);}   // (from aboard a ship into something out in the world, the Mobile Gear on its deck: put out there with it)
   const o=D.o,gun=D.seat==='gun',jack=!gun&&jackable(D);p.drv=D;p.standCar=null;p.vcl=null;p.state='walk';p.vy=0;p.mvx=p.mvz=0;p.biteT=0;p.drvLook=-9;p.drvYaw=undefined;p.shipBridge=false;
+  drvHintClear(p);
   if(gun)o.gnr=p;else drvTake(p,D);
   if(gunSeat(D))wpnInit(o,drvGunK(D));
   // (the camera starts out behind it)
@@ -13106,7 +13169,7 @@ function wsStart(o,P,h,hx,hz,hy,m,float){
   o.ws=W;o.wsP=null;return W;}
 // the kinds, each from what it keeps (the box it's hit by, its heading, its mass)
 function wsStartKind(k,o){
-  if(k==='car')return wsStart(o,o.pos,o.heading,o.hx,o.hz,o.hy*0.8,handOf(o.veh||'car').mass);
+  if(k==='car'){const W=wsStart(o,o.pos,o.heading,o.hx,o.hz,o.hy*0.8,carMass(o));if(W){W.car=true;W.w=o.yawV||0;}return W;}   // (a car spinning as it's wrecked spins on: collide.js)
   if(k==='tank'||k==='heli'){const I=MIL[o.kind];return wsStart(o,o,o.h,I.hx,I.hz,I.hy,handOf(o.kind).mass);}
   if(k==='plane'){const D=planeDim(o);return wsStart(o,o.g.position,o.g.rotation.y,D.hx,D.hz,D.hy,o.jet?3:o.light?2:handOf('plane').mass);}
   if(k==='mech')return wsStart(o,o,o.h,MG.r,MG.r,MG.hy,handOf('mech').mass);
@@ -13152,12 +13215,14 @@ function wsStep(W,P,dt){if(!W)return 0;let landed=0;
     else if(W.air){const k=Math.exp(-WS.air*dt);W.vx*=k;W.vz*=k;}
     else if(sp>0){const n=Math.max(0,sp-(wsDecel(W.m)+WS.drag*sp)*dt)/sp;W.vx*=n;W.vz*=n;}
     sp=Math.hypot(W.vx,W.vz);
+    if(W.w){W.h+=W.w*dt;W.w*=Math.exp(-dt*(W.air?0.2:2.5));if(Math.abs(W.w)<0.02)W.w=0;}   // (a car's wreck turning, as it was when it went, or knocked round)
     // (along the ground, a little at a time: what's ahead is hit, broken if it can be paid for, else it stops there.
     // A single block's step at its feet, with nothing above it, it rides up over instead, losing a little)
-    if(sp>0.01){let left=sp*dt;const broke=[],gone=new Set();
+    if(sp>0.01){let left=sp*dt,kn=0;const broke=[],gone=new Set();
       while(left>1e-6&&sp>0.01){const d=Math.min(WS.step,left),dx=W.vx/sp*d,dz=W.vz/sp*d;
-        // (another vehicle in the way stops it, as a driven one is stopped: unless it's already caught up in it, when it may slide clear)
-        {const yb=W.float?G+1:P.y;if(vehIn(P.x+dx,P.z+dz,W.h,W.hx,W.hz,yb+0.3,yb+W.hy,W.o)&&!vehIn(P.x,P.z,W.h,W.hx,W.hz,yb+0.3,yb+W.hy,W.o)){W.vx=W.vz=0;sp=0;break;}}
+        // (a live car in the way is knocked aside by the same impulse as two cars meeting, slowing it: collide.js's wsCars;
+        // any other vehicle in the way stops it, as a driven one is stopped, unless it's already caught up in it, when it may slide clear)
+        {const yb=W.float?G+1:P.y;if(!W.float&&kn<4&&wsCars(W,P.x+dx,P.z+dz,yb+0.3,yb+W.hy)){kn++;sp=Math.hypot(W.vx,W.vz);continue;}if(vehIn(P.x+dx,P.z+dz,W.h,W.hx,W.hz,yb+0.3,yb+W.hy,W.o)&&!vehIn(P.x,P.z,W.h,W.hx,W.hz,yb+0.3,yb+W.hy,W.o)){W.vx=W.vz=0;sp=0;break;}}
         const A=wsAhead(W,P,dx,dz,[],gone);
         if(A.length){const yb=W.float?G+1:P.y,r0=Math.floor(yb+0.3);
           if(!W.float&&A.every(B=>B.y===r0)&&!wsAhead(W,{x:P.x,y:P.y+1,z:P.z},dx,dz,[],gone).length&&wsColTop(P.x+dx,P.y+1,P.z+dz)<=P.y+1.01){P.y=r0+1;W.vx*=0.85;W.vz*=0.85;sp*=0.85;}
@@ -13189,7 +13254,7 @@ function wsCarHulk(c){const W=wsStartKind('car',c);if(!W)return;W.hulkT=12;c.g.v
 function wsCarStep(c,dt){const W=c.ws;if(!W)return false;
   const v=wsStep(W,c.pos,dt);if(v>8)thud(Math.min(1,v/25));
   if(!W.on){W.hulkT-=dt;if(W.hulkT<=0){c.ws=null;c.g.visible=false;wsCarDark(c,false);return false;}}
-  c.g.position.copy(c.pos);c.g.rotation.set(c.pitch||0,c.heading,0.12);return true;}
+  c.heading=W.h;c.g.position.copy(c.pos);c.g.rotation.set(c.pitch||0,c.heading,0.12);return true;}
 // ---- Play as a goblin: stealing a vehicle with someone in it. Getting into one that has a driver plays out a carjacking
 // first: you go to the door (or climb up to the hatch), get it open, haul the driver out and throw them clear, and climb
 // in. Each vehicle does it its own way: a car's door swings open, a motorcycle's rider is shoved off the side, a tank's
@@ -13850,13 +13915,59 @@ function carsCollide(a,b,dt){
 function coAfter(c,o,d,struck){
   if(!c.alive)return;const dv=Math.hypot(d.dx,d.dz);if(dv<CO.throwV)return;
   const fx=Math.sin(c.heading),fz=Math.cos(c.heading),side=Math.abs((d.dx*fz-d.dz*fx)/dv);   // (how much of it was from the side)
-  const light=LIGHT_RIDE[c.veh]||c.veh==='quad',mr=carMass(o)/carMass(c);
+  const light=LIGHT_RIDE[c.veh]||c.veh==='quad',mr=(typeof o==='number'?o:carMass(o))/carMass(c);   // (o: the other car, or a big vehicle's or wreck's mass)
   if(light&&c.drv){const p=c.drv;drvExit(p,true);p.vy=Math.max(p.vy||0,4+dv*0.3);p.grounded=false;}
   if(light){c.vy=Math.max(c.vy||0,2.5+dv*0.35);c.grounded=false;c.spinR=(c.spinR||0)+(Math.random()<0.5?-1:1)*(6+dv*0.4);c.spinP=(c.spinP||0)+(Math.random()-0.5)*6;return;}
   if(side>0.7&&dv>CO.tipAt&&(c.hy||1.4)/Math.max(0.3,c.hx||1)>CO.tipTall&&!c.tipR){const s=Math.sign(d.dx*fz-d.dz*fx)||1;c.tipR=-s*0.06;c.tipV=-s*0.02;c.tipFall=true;c.tipT=0;
     if(c.drv)flashLabel('Over it goes!',c.drv);sfx('Vehicle tips over',()=>{thud(0.6);clang();});return;}
   if(struck&&mr>=CO.flipK&&dv>CO.flipV){c.vy=Math.max(c.vy||0,3+dv*0.3);c.grounded=false;c.spinP=(c.spinP||0)-Math.sign(d.dx*fx+d.dz*fz||1)*(3+dv*0.4);return;}
 }
+// ---- the big vehicles (bigCrashes, carsOutOfBig, wrecks): each one's mass, from the same HANDLING numbers (a train's
+// one car's, a ship's by its length against the barge's, a boat's by its length) ----
+function bigMass(v){if(!v)return 1;
+  if(v.isShip){const K=v.K;return handOf('ship').mass*Math.max(1,(K.w1-K.w0)/31);}
+  if(v.isPlane)return v.jet?3:v.light?2:handOf('plane').mass;
+  if(v.isBoat)return handOf('boat').mass*Math.max(0.3,(v.L||12)/12);
+  if(v.isMil)return handOf(v.kind).mass;
+  if(v.isMech)return handOf('mech').mass;
+  if(v.isBalloon)return handOf('balloon').mass;
+  if(v.isMount)return 2;
+  if(v.isRide)return 3;
+  if(v.cars)return handOf(v.sub?'subway':'train').mass;
+  return 1;}
+// a TRAIN_BOXES piece as a body: it goes along its course (tx,tz at v) and isn't turned by a knock
+const bigBody=(B,m)=>({m,I:Infinity,x:B.x,z:B.z,vx:B.tx*B.v,vz:B.tz*B.v,w:0});
+// what a big vehicle's hit costs it in health, from how much the knock changed its speed (two of the same mass meeting
+// at rel take about what they always did, 6+2.5*rel; the much heavier one hardly anything)
+const bigDmg=dv=>Math.round(6*Math.min(1,dv/2)+dv*4);
+// a car up against a big vehicle's box (carsOutOfBig, once it's been put back outside by n, pointing from the box to
+// the car): the same impulse, the big one's mass, its course kept
+function carBig(c,B,pr,nx,nz){
+  const v=pr.T||pr,qc=coBody(c),qb=bigBody(B,bigMass(v)),bx=B.hx||TRAIN_HX,bz=B.hz||TRAIN_HZ;
+  const C=boxContact(c.pos.x,c.pos.z,c.heading,c.hx+0.15,c.hz+0.15,B.x,B.z,Math.atan2(B.tx,B.tz),bx,bz,qb.vx-qc.vx,qb.vz-qc.vz);
+  const px=C?C.px:c.pos.x-nx*c.hx,pz=C?C.pz:c.pos.z-nz*c.hx;
+  const J=coImpulse(qc,qb,-nx,-nz,px,pz,CO.e,CO.mu);if(!J)return;
+  coApply(c,J.a,J.j,null);
+  const inC=qc.vx*-nx+qc.vz*-nz,inB=qb.vx*nx+qb.vz*nz;coAfter(c,qb.m,J.a,inB>inC);
+  const dv=Math.hypot(J.a.dx,J.a.dz);
+  if(dv>CO.dmgV&&!(c.trainT>0)&&!coLately(c,v)){c.trainT=1;
+    damageCar(c,Math.min(CO.dmgMax*2,Math.round((dv-CO.dmgV)*CO.dmgK*(handOf(c.veh||'car').crush??1))),new V3(nx,0,nz),'acc');
+    damageCar(pr,bigDmg(Math.hypot(J.b.dx,J.b.dz)),new V3(-nx,0,-nz),'acc');clang();thud(Math.min(0.9,0.2+dv*0.04));}
+}
+// a wreck sliding on (wreck-slide.js) into a live car at x,z: the car's knocked and spun, the wreck slowed (and a car's
+// wreck turned) by the same impulse. Returns true if it changed the wreck's velocity
+function wsCars(W,x,z,y0,y1){let hit=false;const R=Math.hypot(W.hx,W.hz);
+  for(const c of cars){if(!c.alive||c===W.o||c.ws||Math.abs(c.pos.x-x)>R+c.hz||Math.abs(c.pos.z-z)>R+c.hz||c.pos.y>=y1||c.pos.y+(c.hy||1.4)<=y0)continue;
+    const qc=coBody(c),qw={m:W.m,I:W.car?W.m*(W.hx*W.hx+W.hz*W.hz)/3:Infinity,x,z,vx:W.vx,vz:W.vz,w:W.w||0};
+    const C=boxContact(x,z,W.h,W.hx,W.hz,c.pos.x,c.pos.z,c.heading,c.hx,c.hz,qc.vx-qw.vx,qc.vz-qw.vz);if(!C)continue;
+    const d=Math.min(1.5,C.d+0.02);nudgeFlat(c,C.nx*d,C.nz*d);   // (the car gives way: the wreck goes where it's going)
+    const J=coImpulse(qw,qc,C.nx,C.nz,C.px,C.pz,CO.e,CO.mu);if(!J)continue;
+    W.vx+=J.a.dx;W.vz+=J.a.dz;if(W.car)W.w=(W.w||0)+J.a.dw;hit=true;
+    coApply(c,J.b,J.j,null);coAfter(c,W.m,J.b,true);
+    const dv=Math.hypot(J.b.dx,J.b.dz);
+    if(dv>CO.dmgV&&!coLately(W.o,c)){damageCar(c,Math.min(CO.dmgMax,Math.round((dv-CO.dmgV)*CO.dmgK*(handOf(c.veh||'car').crush??1))),undefined,'acc');
+      sfx('Vehicles collide',()=>{clang();thud(Math.min(0.9,0.2+dv*0.05));});addShake(Math.min(0.6,0.1+dv*0.03),C.px,C.pz,15);}}
+  return hit;}
 // ---- each car, each frame (updateCars, before it's placed): its spin, taken out by its tyres; a car going about its
 // business lets the spin have its heading till it's over ----
 function carSpin(c,dt){
@@ -24002,12 +24113,14 @@ function bigCrashes(){
       // (a tank or helicopter can be moved: it's pushed back out of a train, plane or boat that's come through it, and stopped)
       if(va.isMil&&!vb.isMil&&!va.dead)milOut(va,a,b);else if(vb.isMil&&!va.isMil&&!vb.dead)milOut(vb,b,a);
       if(crashedLately(va,vb))continue;
-      // how hard: their speeds along the line between them
-      const dx=b.x-a.x,dz=b.z-a.z,dl=Math.hypot(dx,dz)||1,ux=dx/dl,uz=dz/dl,rel=Math.abs((a.tx*a.v-b.tx*b.v)*ux+(a.tz*a.v-b.tz*b.v)*uz)+0.3*Math.abs(Math.abs(a.v)-Math.abs(b.v));
-      // (a ship rams: whatever it hits takes the knock several times over, the ship barely a scratch of it; the bigger of
-      // two ships counts as the ship)
-      const n=Math.round(6+rel*2.5),ma=va.isShip?va.K.hp:0,mb=vb.isShip?vb.K.hp:0,sa=ma>mb,sb=mb>ma;
-      damageCar(a.proxy,sb?n*5:sa?Math.ceil(n/4):n,new V3(-ux,0,-uz),'acc');damageCar(b.proxy,sa?n*5:sb?Math.ceil(n/4):n,new V3(ux,0,uz),'acc');
+      // how hard: one impulse between them at their masses (collide.js), each one's health by how much it changed its
+      // speed, so a ship ramming a boat hardly feels it and the boat takes the lot. They keep to their courses
+      const dx=b.x-a.x,dz=b.z-a.z,dl=Math.hypot(dx,dz)||1,ux=dx/dl,uz=dz/dl,qa=bigBody(a,bigMass(va)),qb=bigBody(b,bigMass(vb));
+      const C=boxContact(a.x,a.z,Math.atan2(a.tx,a.tz),a.hx||TRAIN_HX,a.hz||TRAIN_HZ,b.x,b.z,Math.atan2(b.tx,b.tz),b.hx||TRAIN_HX,b.hz||TRAIN_HZ,qb.vx-qa.vx,qb.vz-qa.vz);
+      const nx=C?C.nx:ux,nz=C?C.nz:uz,J=coImpulse(qa,qb,nx,nz,C?C.px:(a.x+b.x)/2,C?C.pz:(a.z+b.z)/2,CO.e,0);
+      // (glancing, or one barely closing on the other: still a knock, as a scrape along the side, the lighter taking more)
+      const sc=0.3*Math.abs(Math.abs(a.v)-Math.abs(b.v)),da=J?Math.hypot(J.a.dx,J.a.dz):0,db=J?Math.hypot(J.b.dx,J.b.dz):0,ka=qb.m/(qa.m+qb.m),kb=qa.m/(qa.m+qb.m);
+      damageCar(a.proxy,bigDmg(da+sc*ka*2),new V3(-nx,0,-nz),'acc');damageCar(b.proxy,bigDmg(db+sc*kb*2),new V3(nx,0,nz),'acc');
       const mx=(a.x+b.x)/2,mz=(a.z+b.z)/2,my=Math.max(a.y0,b.y0)+1;puff(mx,my,mz,10,0x8c8a84,1.2);
       const np=nearestPlayer(mx,mz,false);if(np&&np.d<90){const k=1-np.d/90;clang();thud(0.6*k);noise(0.5,0.3*k,300,'lowpass');}
       addShake(0.4,mx,mz,30);reportNews(mx,mz,'crash');}}
@@ -24028,8 +24141,7 @@ function carsOutOfBig(){
     for(const c of cars){if(!c.alive||c.isTrain||Math.abs(c.pos.x-B.x)>R||Math.abs(c.pos.z-B.z)>R||c.pos.y>=B.top-0.3||c.pos.y+(c.hy||1.4)<=B.y0)continue;
       if(!boxesTouch(c.pos.x,c.pos.z,c.heading,c.hx,c.hz,B.x,B.z,Math.atan2(B.tx,B.tz),bx,bz))continue;
       const q=outOf(c.pos.x,c.pos.z,Math.sin(c.heading),Math.cos(c.heading),c.hx,c.hz,B);if(!q)continue;const nx=q.nx,nz=q.nz,need=Math.min(q.need,1.5);nudgeFlat(c,nx*need,nz*need);
-      const sp=Math.abs(c.speed||0);if(sp>5&&!(c.trainT>0)){c.trainT=1;const n=Math.round(sp*0.6);damageCar(c,n,new V3(nx,0,nz),'acc');damageCar(pr,n,new V3(-nx,0,-nz),'acc');clang();thud(0.4);}
-      if(sp>1)c.speed*=-0.3;}}
+      carBig(c,B,pr,nx,nz);}}   // (the knock both ways by their masses: collide.js)
 }
 // (a pair that's still touching from a moment ago is the same crash going on: only the first touch of each meeting counts)
 const bigPairs=new Map();
@@ -26674,7 +26786,9 @@ function updateCars(dt){
         const k=Math.min(1,sp/24),sg=(ex*fz-ez*fx)>=0?1:-1,D=new V3(fx*dir*0.8+fz*sg*0.5,0,fz*dir*0.8-fx*sg*0.5);gb.trainT=1;
         damageGoblin(gb,Math.round(2+8*k),new V3(gb.pos.x,gb.pos.y+0.8,gb.pos.z),D,'Run over',c.driver||ACCIDENT);const mk=Math.sqrt(carMass(c));gb.vy=Math.max(gb.vy||0,(5+8*k)*Math.min(1.6,mk));gb.kv.x+=D.x*(6+14*k)*mk;gb.kv.z+=D.z*(6+14*k)*mk;   // (the heavier it is, the further it throws them)
         c.speed*=0.6;sfx('Vehicle runs a goblin over',()=>{thud(0.3);});}}
-    if(c.hp<15){c.smokeT-=dt;if(c.smokeT<=0){c.smokeT=c.hp<8?0.06:0.15;const hx=c.pos.x+fx*1.5,hz=c.pos.z+fz*1.5;smoke(hx,c.pos.y+1.1,hz,1,c.hp<8?0x1a1a1a:0x666666);if(c.hp<8)puff(hx,c.pos.y+0.9,hz,1,Math.random()<.5?0xff8a2a:0xffc040,0.25);}}
+    // (smoking under 15, burning under 8; half and a quarter of a light vehicle's own health, or a bicycle would smoke new)
+    const sm=Math.min(15,(c.hpMax||CAR_HP)*0.5),bn=sm*8/15;
+    if(c.hp<sm){c.smokeT-=dt;if(c.smokeT<=0){c.smokeT=c.hp<bn?0.06:0.15;const hx=c.pos.x+fx*1.5,hz=c.pos.z+fz*1.5;smoke(hx,c.pos.y+1.1,hz,1,c.hp<bn?0x1a1a1a:0x666666);if(c.hp<bn)puff(hx,c.pos.y+0.9,hz,1,Math.random()<.5?0xff8a2a:0xffc040,0.25);}}
     if(c.forkOn&&!(c.forkOn.alive&&c.forkOn.g.visible))c.forkOn=null;   // (its forklift's gone: it falls)
     if(c.forkOn){c.vy=0;c.grounded=true;}else carPhysics(c,dt);if(!c.alive)continue;   // (up on a forklift's forks: forkPost holds it there, it doesn't fall or settle on the ground under it)
     if(Math.abs(c.kv.x)+Math.abs(c.kv.z)>0.05){nudgeFlat(c,c.kv.x*dt,c.kv.z*dt);const k=Math.exp(-dt*3.5);c.kv.x*=k;c.kv.z*=k;}
@@ -28307,7 +28421,7 @@ function frame(now,bg){   // (bg: a tab in the background while online, kept goi
     safe('goblins',()=>updateGoblins(sdt));safe('fireballs',()=>{updateFireballs(sdt);updateShots(sdt);updateMines(sdt);gobPickups(sdt);});safe('cars',()=>updateCars(sdt));safe('stations',()=>updateStations(sdt));safe('services',()=>updateServices(sdt));
     safe('traffic',()=>updateTraffic(sdt));safe('farmlift',()=>farmLiftPost(sdt));safe('ships',shipCrossAll);for(const p of players)if(p.drv)safe('drive',()=>drvSeat(p));for(const p of players)if(p.vcl&&p.state==='climb')safe('vpin',()=>vRepin(p));safe('spikes',()=>updateSpikes(sdt));safe('weather',()=>updateWeather(sdt));safe('sky',()=>updateSky(sdt));
     for(const p of players)safe('health',()=>updateHealth(p,sdt));
-    safe('parts',()=>updateParts(sdt));safe('rubble',()=>updateRubble(sdt));safe('shocks',()=>{updateShocks(sdt);updateCones(sdt);});safe('bodies',()=>updateBodies(sdt));safe('topples',()=>updateTopples(sdt));
+    safe('parts',()=>updateParts(sdt));safe('rubble',()=>updateRubble(sdt));safe('shocks',()=>{updateShocks(sdt);updateCones(sdt);});safe('bodies',()=>updateBodies(sdt));safe('topples',()=>updateTopples(sdt));safe('water',()=>updateWater(sdt));
     safe('booms',()=>updateBooms(sdt));safe('fires',()=>updateFires(sdt));safe('flecks',()=>updateFlecks(sdt));
   }
   safe('far',()=>shipView(()=>updateFar(dt)));safe('debug',()=>updateDebug(gdt));safe('explore',()=>shipView(()=>updateExplore(dt)));   // (aboard a ship, the world round about is round where the ship is)

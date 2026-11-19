@@ -14,12 +14,14 @@ function bigCrashes(){
       // (a tank or helicopter can be moved: it's pushed back out of a train, plane or boat that's come through it, and stopped)
       if(va.isMil&&!vb.isMil&&!va.dead)milOut(va,a,b);else if(vb.isMil&&!va.isMil&&!vb.dead)milOut(vb,b,a);
       if(crashedLately(va,vb))continue;
-      // how hard: their speeds along the line between them
-      const dx=b.x-a.x,dz=b.z-a.z,dl=Math.hypot(dx,dz)||1,ux=dx/dl,uz=dz/dl,rel=Math.abs((a.tx*a.v-b.tx*b.v)*ux+(a.tz*a.v-b.tz*b.v)*uz)+0.3*Math.abs(Math.abs(a.v)-Math.abs(b.v));
-      // (a ship rams: whatever it hits takes the knock several times over, the ship barely a scratch of it; the bigger of
-      // two ships counts as the ship)
-      const n=Math.round(6+rel*2.5),ma=va.isShip?va.K.hp:0,mb=vb.isShip?vb.K.hp:0,sa=ma>mb,sb=mb>ma;
-      damageCar(a.proxy,sb?n*5:sa?Math.ceil(n/4):n,new V3(-ux,0,-uz),'acc');damageCar(b.proxy,sa?n*5:sb?Math.ceil(n/4):n,new V3(ux,0,uz),'acc');
+      // how hard: one impulse between them at their masses (collide.js), each one's health by how much it changed its
+      // speed, so a ship ramming a boat hardly feels it and the boat takes the lot. They keep to their courses
+      const dx=b.x-a.x,dz=b.z-a.z,dl=Math.hypot(dx,dz)||1,ux=dx/dl,uz=dz/dl,qa=bigBody(a,bigMass(va)),qb=bigBody(b,bigMass(vb));
+      const C=boxContact(a.x,a.z,Math.atan2(a.tx,a.tz),a.hx||TRAIN_HX,a.hz||TRAIN_HZ,b.x,b.z,Math.atan2(b.tx,b.tz),b.hx||TRAIN_HX,b.hz||TRAIN_HZ,qb.vx-qa.vx,qb.vz-qa.vz);
+      const nx=C?C.nx:ux,nz=C?C.nz:uz,J=coImpulse(qa,qb,nx,nz,C?C.px:(a.x+b.x)/2,C?C.pz:(a.z+b.z)/2,CO.e,0);
+      // (glancing, or one barely closing on the other: still a knock, as a scrape along the side, the lighter taking more)
+      const sc=0.3*Math.abs(Math.abs(a.v)-Math.abs(b.v)),da=J?Math.hypot(J.a.dx,J.a.dz):0,db=J?Math.hypot(J.b.dx,J.b.dz):0,ka=qb.m/(qa.m+qb.m),kb=qa.m/(qa.m+qb.m);
+      damageCar(a.proxy,bigDmg(da+sc*ka*2),new V3(-nx,0,-nz),'acc');damageCar(b.proxy,bigDmg(db+sc*kb*2),new V3(nx,0,nz),'acc');
       const mx=(a.x+b.x)/2,mz=(a.z+b.z)/2,my=Math.max(a.y0,b.y0)+1;puff(mx,my,mz,10,0x8c8a84,1.2);
       const np=nearestPlayer(mx,mz,false);if(np&&np.d<90){const k=1-np.d/90;clang();thud(0.6*k);noise(0.5,0.3*k,300,'lowpass');}
       addShake(0.4,mx,mz,30);reportNews(mx,mz,'crash');}}
@@ -40,8 +42,7 @@ function carsOutOfBig(){
     for(const c of cars){if(!c.alive||c.isTrain||Math.abs(c.pos.x-B.x)>R||Math.abs(c.pos.z-B.z)>R||c.pos.y>=B.top-0.3||c.pos.y+(c.hy||1.4)<=B.y0)continue;
       if(!boxesTouch(c.pos.x,c.pos.z,c.heading,c.hx,c.hz,B.x,B.z,Math.atan2(B.tx,B.tz),bx,bz))continue;
       const q=outOf(c.pos.x,c.pos.z,Math.sin(c.heading),Math.cos(c.heading),c.hx,c.hz,B);if(!q)continue;const nx=q.nx,nz=q.nz,need=Math.min(q.need,1.5);nudgeFlat(c,nx*need,nz*need);
-      const sp=Math.abs(c.speed||0);if(sp>5&&!(c.trainT>0)){c.trainT=1;const n=Math.round(sp*0.6);damageCar(c,n,new V3(nx,0,nz),'acc');damageCar(pr,n,new V3(-nx,0,-nz),'acc');clang();thud(0.4);}
-      if(sp>1)c.speed*=-0.3;}}
+      carBig(c,B,pr,nx,nz);}}   // (the knock both ways by their masses: collide.js)
 }
 // (a pair that's still touching from a moment ago is the same crash going on: only the first touch of each meeting counts)
 const bigPairs=new Map();

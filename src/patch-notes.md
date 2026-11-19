@@ -15,6 +15,8 @@
 - Your own car spins when hit too, but you keep steering.
 - Walls: a glancing blow turns you off along the wall rather than stopping you, and whether you smash through depends on your weight as well as your speed, so a bus goes through where a car bounces off.
 - Gus and Gertie trample cars with their weight: a motorbike spins away, a bus barely moves.
+- Trains, planes, boats and ships crash by their weight too. A ship ramming a boat hardly feels it while the boat takes the lot, and a car that hits a train or a plane is knocked back and spun round by it.
+- A car wrecked at speed that slides into another car knocks it aside instead of stopping dead, and one spinning as it's wrecked keeps spinning as it slides.
 
 ### Bicycles and scooters
 
@@ -299,6 +301,7 @@
 
 ### Fixes
 
+- The prompt to get into a vehicle no longer stays on screen once you're in.
 - Gnash's rifle and handgun now damage every vehicle they hit, the same way: cars, tanks, helicopters, trains, planes, boats, balloons, Mobile Gears and the carrier's deck weapons all take three times what a goblin would. Before, they went straight through most vehicles, did a single point to cars, and only the deck weapons took real harm.
 - The minimap no longer draws the grey of the surrounding blocks over big sites that take up several blocks, such as theme parks, which hid most of their buildings.
 - Enemy gunfire now hits whatever you're driving. Before, rifles, the militia's machine guns, the helicopters' guns and the cultists' fireballs did nothing at all to a goblin behind the wheel; now the vehicle takes the hit instead.

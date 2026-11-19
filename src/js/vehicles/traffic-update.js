@@ -378,7 +378,9 @@ function updateCars(dt){
         const k=Math.min(1,sp/24),sg=(ex*fz-ez*fx)>=0?1:-1,D=new V3(fx*dir*0.8+fz*sg*0.5,0,fz*dir*0.8-fx*sg*0.5);gb.trainT=1;
         damageGoblin(gb,Math.round(2+8*k),new V3(gb.pos.x,gb.pos.y+0.8,gb.pos.z),D,'Run over',c.driver||ACCIDENT);const mk=Math.sqrt(carMass(c));gb.vy=Math.max(gb.vy||0,(5+8*k)*Math.min(1.6,mk));gb.kv.x+=D.x*(6+14*k)*mk;gb.kv.z+=D.z*(6+14*k)*mk;   // (the heavier it is, the further it throws them)
         c.speed*=0.6;sfx('Vehicle runs a goblin over',()=>{thud(0.3);});}}
-    if(c.hp<15){c.smokeT-=dt;if(c.smokeT<=0){c.smokeT=c.hp<8?0.06:0.15;const hx=c.pos.x+fx*1.5,hz=c.pos.z+fz*1.5;smoke(hx,c.pos.y+1.1,hz,1,c.hp<8?0x1a1a1a:0x666666);if(c.hp<8)puff(hx,c.pos.y+0.9,hz,1,Math.random()<.5?0xff8a2a:0xffc040,0.25);}}
+    // (smoking under 15, burning under 8; half and a quarter of a light vehicle's own health, or a bicycle would smoke new)
+    const sm=Math.min(15,(c.hpMax||CAR_HP)*0.5),bn=sm*8/15;
+    if(c.hp<sm){c.smokeT-=dt;if(c.smokeT<=0){c.smokeT=c.hp<bn?0.06:0.15;const hx=c.pos.x+fx*1.5,hz=c.pos.z+fz*1.5;smoke(hx,c.pos.y+1.1,hz,1,c.hp<bn?0x1a1a1a:0x666666);if(c.hp<bn)puff(hx,c.pos.y+0.9,hz,1,Math.random()<.5?0xff8a2a:0xffc040,0.25);}}
     if(c.forkOn&&!(c.forkOn.alive&&c.forkOn.g.visible))c.forkOn=null;   // (its forklift's gone: it falls)
     if(c.forkOn){c.vy=0;c.grounded=true;}else carPhysics(c,dt);if(!c.alive)continue;   // (up on a forklift's forks: forkPost holds it there, it doesn't fall or settle on the ground under it)
     if(Math.abs(c.kv.x)+Math.abs(c.kv.z)>0.05){nudgeFlat(c,c.kv.x*dt,c.kv.z*dt);const k=Math.exp(-dt*3.5);c.kv.x*=k;c.kv.z*=k;}

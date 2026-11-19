@@ -45,7 +45,7 @@ function wsStart(o,P,h,hx,hz,hy,m,float){
   o.ws=W;o.wsP=null;return W;}
 // the kinds, each from what it keeps (the box it's hit by, its heading, its mass)
 function wsStartKind(k,o){
-  if(k==='car')return wsStart(o,o.pos,o.heading,o.hx,o.hz,o.hy*0.8,handOf(o.veh||'car').mass);
+  if(k==='car'){const W=wsStart(o,o.pos,o.heading,o.hx,o.hz,o.hy*0.8,carMass(o));if(W){W.car=true;W.w=o.yawV||0;}return W;}   // (a car spinning as it's wrecked spins on: collide.js)
   if(k==='tank'||k==='heli'){const I=MIL[o.kind];return wsStart(o,o,o.h,I.hx,I.hz,I.hy,handOf(o.kind).mass);}
   if(k==='plane'){const D=planeDim(o);return wsStart(o,o.g.position,o.g.rotation.y,D.hx,D.hz,D.hy,o.jet?3:o.light?2:handOf('plane').mass);}
   if(k==='mech')return wsStart(o,o,o.h,MG.r,MG.r,MG.hy,handOf('mech').mass);
@@ -91,12 +91,14 @@ function wsStep(W,P,dt){if(!W)return 0;let landed=0;
     else if(W.air){const k=Math.exp(-WS.air*dt);W.vx*=k;W.vz*=k;}
     else if(sp>0){const n=Math.max(0,sp-(wsDecel(W.m)+WS.drag*sp)*dt)/sp;W.vx*=n;W.vz*=n;}
     sp=Math.hypot(W.vx,W.vz);
+    if(W.w){W.h+=W.w*dt;W.w*=Math.exp(-dt*(W.air?0.2:2.5));if(Math.abs(W.w)<0.02)W.w=0;}   // (a car's wreck turning, as it was when it went, or knocked round)
     // (along the ground, a little at a time: what's ahead is hit, broken if it can be paid for, else it stops there.
     // A single block's step at its feet, with nothing above it, it rides up over instead, losing a little)
-    if(sp>0.01){let left=sp*dt;const broke=[],gone=new Set();
+    if(sp>0.01){let left=sp*dt,kn=0;const broke=[],gone=new Set();
       while(left>1e-6&&sp>0.01){const d=Math.min(WS.step,left),dx=W.vx/sp*d,dz=W.vz/sp*d;
-        // (another vehicle in the way stops it, as a driven one is stopped: unless it's already caught up in it, when it may slide clear)
-        {const yb=W.float?G+1:P.y;if(vehIn(P.x+dx,P.z+dz,W.h,W.hx,W.hz,yb+0.3,yb+W.hy,W.o)&&!vehIn(P.x,P.z,W.h,W.hx,W.hz,yb+0.3,yb+W.hy,W.o)){W.vx=W.vz=0;sp=0;break;}}
+        // (a live car in the way is knocked aside by the same impulse as two cars meeting, slowing it: collide.js's wsCars;
+        // any other vehicle in the way stops it, as a driven one is stopped, unless it's already caught up in it, when it may slide clear)
+        {const yb=W.float?G+1:P.y;if(!W.float&&kn<4&&wsCars(W,P.x+dx,P.z+dz,yb+0.3,yb+W.hy)){kn++;sp=Math.hypot(W.vx,W.vz);continue;}if(vehIn(P.x+dx,P.z+dz,W.h,W.hx,W.hz,yb+0.3,yb+W.hy,W.o)&&!vehIn(P.x,P.z,W.h,W.hx,W.hz,yb+0.3,yb+W.hy,W.o)){W.vx=W.vz=0;sp=0;break;}}
         const A=wsAhead(W,P,dx,dz,[],gone);
         if(A.length){const yb=W.float?G+1:P.y,r0=Math.floor(yb+0.3);
           if(!W.float&&A.every(B=>B.y===r0)&&!wsAhead(W,{x:P.x,y:P.y+1,z:P.z},dx,dz,[],gone).length&&wsColTop(P.x+dx,P.y+1,P.z+dz)<=P.y+1.01){P.y=r0+1;W.vx*=0.85;W.vz*=0.85;sp*=0.85;}
@@ -128,4 +130,4 @@ function wsCarHulk(c){const W=wsStartKind('car',c);if(!W)return;W.hulkT=12;c.g.v
 function wsCarStep(c,dt){const W=c.ws;if(!W)return false;
   const v=wsStep(W,c.pos,dt);if(v>8)thud(Math.min(1,v/25));
   if(!W.on){W.hulkT-=dt;if(W.hulkT<=0){c.ws=null;c.g.visible=false;wsCarDark(c,false);return false;}}
-  c.g.position.copy(c.pos);c.g.rotation.set(c.pitch||0,c.heading,0.12);return true;}
+  c.heading=W.h;c.g.position.copy(c.pos);c.g.rotation.set(c.pitch||0,c.heading,0.12);return true;}

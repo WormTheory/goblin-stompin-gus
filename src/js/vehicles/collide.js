@@ -99,13 +99,59 @@ function carsCollide(a,b,dt){
 function coAfter(c,o,d,struck){
   if(!c.alive)return;const dv=Math.hypot(d.dx,d.dz);if(dv<CO.throwV)return;
   const fx=Math.sin(c.heading),fz=Math.cos(c.heading),side=Math.abs((d.dx*fz-d.dz*fx)/dv);   // (how much of it was from the side)
-  const light=LIGHT_RIDE[c.veh]||c.veh==='quad',mr=carMass(o)/carMass(c);
+  const light=LIGHT_RIDE[c.veh]||c.veh==='quad',mr=(typeof o==='number'?o:carMass(o))/carMass(c);   // (o: the other car, or a big vehicle's or wreck's mass)
   if(light&&c.drv){const p=c.drv;drvExit(p,true);p.vy=Math.max(p.vy||0,4+dv*0.3);p.grounded=false;}
   if(light){c.vy=Math.max(c.vy||0,2.5+dv*0.35);c.grounded=false;c.spinR=(c.spinR||0)+(Math.random()<0.5?-1:1)*(6+dv*0.4);c.spinP=(c.spinP||0)+(Math.random()-0.5)*6;return;}
   if(side>0.7&&dv>CO.tipAt&&(c.hy||1.4)/Math.max(0.3,c.hx||1)>CO.tipTall&&!c.tipR){const s=Math.sign(d.dx*fz-d.dz*fx)||1;c.tipR=-s*0.06;c.tipV=-s*0.02;c.tipFall=true;c.tipT=0;
     if(c.drv)flashLabel('Over it goes!',c.drv);sfx('Vehicle tips over',()=>{thud(0.6);clang();});return;}
   if(struck&&mr>=CO.flipK&&dv>CO.flipV){c.vy=Math.max(c.vy||0,3+dv*0.3);c.grounded=false;c.spinP=(c.spinP||0)-Math.sign(d.dx*fx+d.dz*fz||1)*(3+dv*0.4);return;}
 }
+// ---- the big vehicles (bigCrashes, carsOutOfBig, wrecks): each one's mass, from the same HANDLING numbers (a train's
+// one car's, a ship's by its length against the barge's, a boat's by its length) ----
+function bigMass(v){if(!v)return 1;
+  if(v.isShip){const K=v.K;return handOf('ship').mass*Math.max(1,(K.w1-K.w0)/31);}
+  if(v.isPlane)return v.jet?3:v.light?2:handOf('plane').mass;
+  if(v.isBoat)return handOf('boat').mass*Math.max(0.3,(v.L||12)/12);
+  if(v.isMil)return handOf(v.kind).mass;
+  if(v.isMech)return handOf('mech').mass;
+  if(v.isBalloon)return handOf('balloon').mass;
+  if(v.isMount)return 2;
+  if(v.isRide)return 3;
+  if(v.cars)return handOf(v.sub?'subway':'train').mass;
+  return 1;}
+// a TRAIN_BOXES piece as a body: it goes along its course (tx,tz at v) and isn't turned by a knock
+const bigBody=(B,m)=>({m,I:Infinity,x:B.x,z:B.z,vx:B.tx*B.v,vz:B.tz*B.v,w:0});
+// what a big vehicle's hit costs it in health, from how much the knock changed its speed (two of the same mass meeting
+// at rel take about what they always did, 6+2.5*rel; the much heavier one hardly anything)
+const bigDmg=dv=>Math.round(6*Math.min(1,dv/2)+dv*4);
+// a car up against a big vehicle's box (carsOutOfBig, once it's been put back outside by n, pointing from the box to
+// the car): the same impulse, the big one's mass, its course kept
+function carBig(c,B,pr,nx,nz){
+  const v=pr.T||pr,qc=coBody(c),qb=bigBody(B,bigMass(v)),bx=B.hx||TRAIN_HX,bz=B.hz||TRAIN_HZ;
+  const C=boxContact(c.pos.x,c.pos.z,c.heading,c.hx+0.15,c.hz+0.15,B.x,B.z,Math.atan2(B.tx,B.tz),bx,bz,qb.vx-qc.vx,qb.vz-qc.vz);
+  const px=C?C.px:c.pos.x-nx*c.hx,pz=C?C.pz:c.pos.z-nz*c.hx;
+  const J=coImpulse(qc,qb,-nx,-nz,px,pz,CO.e,CO.mu);if(!J)return;
+  coApply(c,J.a,J.j,null);
+  const inC=qc.vx*-nx+qc.vz*-nz,inB=qb.vx*nx+qb.vz*nz;coAfter(c,qb.m,J.a,inB>inC);
+  const dv=Math.hypot(J.a.dx,J.a.dz);
+  if(dv>CO.dmgV&&!(c.trainT>0)&&!coLately(c,v)){c.trainT=1;
+    damageCar(c,Math.min(CO.dmgMax*2,Math.round((dv-CO.dmgV)*CO.dmgK*(handOf(c.veh||'car').crush??1))),new V3(nx,0,nz),'acc');
+    damageCar(pr,bigDmg(Math.hypot(J.b.dx,J.b.dz)),new V3(-nx,0,-nz),'acc');clang();thud(Math.min(0.9,0.2+dv*0.04));}
+}
+// a wreck sliding on (wreck-slide.js) into a live car at x,z: the car's knocked and spun, the wreck slowed (and a car's
+// wreck turned) by the same impulse. Returns true if it changed the wreck's velocity
+function wsCars(W,x,z,y0,y1){let hit=false;const R=Math.hypot(W.hx,W.hz);
+  for(const c of cars){if(!c.alive||c===W.o||c.ws||Math.abs(c.pos.x-x)>R+c.hz||Math.abs(c.pos.z-z)>R+c.hz||c.pos.y>=y1||c.pos.y+(c.hy||1.4)<=y0)continue;
+    const qc=coBody(c),qw={m:W.m,I:W.car?W.m*(W.hx*W.hx+W.hz*W.hz)/3:Infinity,x,z,vx:W.vx,vz:W.vz,w:W.w||0};
+    const C=boxContact(x,z,W.h,W.hx,W.hz,c.pos.x,c.pos.z,c.heading,c.hx,c.hz,qc.vx-qw.vx,qc.vz-qw.vz);if(!C)continue;
+    const d=Math.min(1.5,C.d+0.02);nudgeFlat(c,C.nx*d,C.nz*d);   // (the car gives way: the wreck goes where it's going)
+    const J=coImpulse(qw,qc,C.nx,C.nz,C.px,C.pz,CO.e,CO.mu);if(!J)continue;
+    W.vx+=J.a.dx;W.vz+=J.a.dz;if(W.car)W.w=(W.w||0)+J.a.dw;hit=true;
+    coApply(c,J.b,J.j,null);coAfter(c,W.m,J.b,true);
+    const dv=Math.hypot(J.b.dx,J.b.dz);
+    if(dv>CO.dmgV&&!coLately(W.o,c)){damageCar(c,Math.min(CO.dmgMax,Math.round((dv-CO.dmgV)*CO.dmgK*(handOf(c.veh||'car').crush??1))),undefined,'acc');
+      sfx('Vehicles collide',()=>{clang();thud(Math.min(0.9,0.2+dv*0.05));});addShake(Math.min(0.6,0.1+dv*0.03),C.px,C.pz,15);}}
+  return hit;}
 // ---- each car, each frame (updateCars, before it's placed): its spin, taken out by its tyres; a car going about its
 // business lets the spin have its heading till it's over ----
 function carSpin(c,dt){
