@@ -105,6 +105,17 @@ function coasterY(C,t){const r=coasterR(t),n=Math.floor(r),f=r-n-(0.5-CST_W);
   return Math.max(2,y+(r-y)*q);}
 // how steeply the track climbs here (blocks up per block along), for pitching a car to match
 function coasterSlope(C,t){const l=Math.hypot(Math.sin(t)*C.a,Math.cos(t)*C.b)||1,d=0.6/l;return (coasterY(C,t+d)-coasterY(C,t-d))/1.2;}
+// Players move before the rides each step, so someone riding a car followed it a step behind: right with it at an even
+// frame rate, but bobbing up and down on it (up to a third of a block) when frames came unevenly. So whoever's riding a
+// car is carried along with it as it moves, the same way the riding in movePlayer carries them (round the car's middle
+// as it turns), and that then has nothing left to do.
+function coasterCarry(pr,x,z,hd,top){
+  for(const p of players){if(!p.active||p.rideC!==pr||p.standCar!==pr||!p.grounded)continue;
+    let d=hd-pr.heading;d=Math.atan2(Math.sin(d),Math.cos(d));if(Math.abs(d)>0.7)d=0;
+    const ex=p.pos.x-pr.pos.x,ez=p.pos.z-pr.pos.z,cd=Math.cos(d),sd=Math.sin(d);
+    p.pos.x=x+ex*cd+ez*sd;p.pos.z=z-ex*sd+ez*cd;p.pos.y+=top-pr.top;p.heading+=d;if(p.cam)p.cam.yaw+=d;
+    p.rideX=x;p.rideZ=z;p.rideH=hd;}
+}
 const rideNear=(x,z,r)=>players.some(p=>p.active&&Math.hypot(p.pos.x-x,p.pos.z-z)<r);
 function updateRides(V,dt){
   const K=V.K,W=V.W,Cs=V.Cs,C=K.C;
@@ -125,6 +136,7 @@ function updateRides(V,dt){
       return;}
     if(K.off||!cg.visible)return;
     const t=K.th-i*0.11,x=C.cu+Math.cos(t)*C.a,z=C.cv+Math.sin(t)*C.b,h=coasterY(C,t),tx=-Math.sin(t)*C.a,tz=Math.cos(t)*C.b,hd=Math.atan2(tx,tz),y=G+h+1,pt=-Math.atan(coasterSlope(C,t));
+    if(!c.dead)coasterCarry(c.pr,x,z,hd,y+1.1);
     cg.position.set(x,y,z);if(!c.dead)cg.rotation.set(pt,hd,0);else{cg.rotation.x=pt;cg.rotation.y=hd;}   // (nose up the climbs, down the drops: the order's YXZ)
     const pr=c.pr;pr.pos.set(x,y,z);pr.heading=hd;pr.top=y+1.1;   // (a touch over the car, so a rider's footing holds on the climbs)
     if(!c.dead)TRAIN_BOXES.push({x,z,tx:Math.sin(hd),tz:Math.cos(hd),y0:y,top:pr.top,v:0,hx:0.65,hz:1.0,proxy:pr});});
