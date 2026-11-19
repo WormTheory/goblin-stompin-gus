@@ -428,6 +428,7 @@ function movePlayer(p,dt){
             if(Math.hypot(d,dy)<R.hitR&&vReach(dy,R.hitR)){D.hitG.add(g);damageGoblin(g,R.dmg,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(D.dx*0.8+dx/d*0.4,0.7,D.dz*0.8+dz/d*0.4),D.blast?'Blasted aside by a blast-dashing hippo':'Bowled over by a rolling hippo');sfx('Roll hits a goblin',()=>{thud(0.35);});}}
           for(const q of pvpFoes(p)){const dx=q.pos.x-fx,dz=q.pos.z-fz,dy=q.pos.y-p.pos.y,d=Math.hypot(dx,dz)||0.01;   // (and with PvP on, another player)
             if(Math.hypot(d,dy)<R.hitR&&vReach(dy,R.hitR))pvpHurt(p,q,R.dmg,null,new V3(D.dx*0.8+dx/d*0.4,0.7,D.dz*0.8+dz/d*0.4),D.blast?'Blasted aside by a blast dash':'Bowled over by a roll');}
+          mineArea(fx,fz,R.hitR,p.pos.y,pvpBy(p));   // (landmines it rolls into go off)
           for(const c of carsNear(fx,fz,R.hitR,p.pos.y)){if(c.rollHitT>camClock)continue;c.rollHitT=camClock+0.5;damageCar(c,R.carDmg,new V3(D.dx,0,D.dz));if(c.alive)launchCar(c,4,new V3(D.dx,0,D.dz),3);sfx('Roll hits a vehicle',()=>{clang();thud(0.5);});}}}
       if(groundAt(p.pos.x+D.dx*1.4,p.pos.z+D.dz*1.4,p.pos.y)-p.pos.y<=1.05&&(!bodyHits(p,nx,nz,p.heading)||bodyHits(p,p.pos.x,p.pos.z,p.heading))){p.pos.x=nx;p.pos.z=nz;}
       // (blocked -- often right at the start, pressed up against a wall: smash what's directly in front of him and try
@@ -473,6 +474,7 @@ function movePlayer(p,dt){
             if(Math.hypot(d,dy)<A.hitR&&vReach(dy,A.hitR)){S.add(g);damageGoblin(g,A.dmg,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(hx*0.8+dx/d*0.4,0.7,hz*0.8+dz/d*0.4),'Blasted aside by a flying hippo');}}
           for(const q of pvpFoes(p)){const dx=q.pos.x-fx2,dz=q.pos.z-fz2,dy=q.pos.y-p.pos.y,d=Math.hypot(dx,dz)||0.01;
             if(Math.hypot(d,dy)<A.hitR&&vReach(dy,A.hitR))pvpHurt(p,q,A.dmg,null,new V3(hx*0.8+dx/d*0.4,0.7,hz*0.8+dz/d*0.4),'Blasted aside by a blast air dash');}
+          mineArea(fx2,fz2,A.hitR,p.pos.y,pvpBy(p));
           for(const c of carsNear(fx2,fz2,A.hitR,p.pos.y)){if(c.blastHitT>camClock)continue;c.blastHitT=camClock+0.6;damageCar(c,A.carDmg,new V3(hx,0,hz));if(c.alive)launchCar(c,6,new V3(hx,0,hz),4);sfx('Blast hits a vehicle',()=>{clang();});}}}}
     if(groundAt(p.pos.x+hx*1.6,p.pos.z+hz*1.6,p.pos.y)-p.pos.y<=1.05&&(!bodyHits(p,p.pos.x+hx*ds*dt,p.pos.z+hz*ds*dt,p.heading)||bodyHits(p,p.pos.x,p.pos.z,p.heading))){p.pos.x+=hx*ds*dt;p.pos.z+=hz*ds*dt;}
     else if(!p.dashBlast&&p.smashCD<=0&&!hbOn('dash')){p.smashCD=0.2;const o={force:1.3,dx:hx,dz:hz};if(blockHit(AB.dash,fx2,p.pos.y,fz2,hx,hz,o,sz=>crush(fx2,p.pos.y,fz2,Math.max(0,Math.round(sz)),0,2,o))){addShake(0.3,fx2,fz2,12);sfx('Dash smashes blocks',()=>{thud(0.7);});}}

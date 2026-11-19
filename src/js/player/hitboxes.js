@@ -73,6 +73,7 @@ function hbApply(p,B,hit,ox,oy,oz,hx,hz){
   for(const g of goblins){if(g.state!=='chase'||hit.has(g))continue;
     if(hbInside(B,ox,oy,oz,Bs,g.pos.x,g.pos.y+0.8,g.pos.z,0.45)){hit.add(g);damageGoblin(g,B.dmg,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(hx,0.5,hz),'Flattened by a hippo');}}
   for(const q of pvpFoes(p))if(hbInside(B,ox,oy,oz,Bs,q.pos.x,q.pos.y+0.8,q.pos.z,0.45))pvpHurt(p,q,B.dmg,null,new V3(hx,0.5,hz),'Flattened by a hippo');
+  for(const M of MINES)if(M.live&&hbInside(B,ox,oy,oz,Bs,M.x,M.y+0.1,M.z,0.3))mineBoom(M,pvpBy(p));   // (a landmine it reaches goes off)
   for(const c of cars){if(!c.alive||hit.has(c)||Math.hypot(c.pos.x-ox,c.pos.z-oz)>B.r*1.75+B.len+c.hz+2)continue;
     const s=Math.sin(c.heading),k=Math.cos(c.heading),y=c.pos.y+c.hy/2;
     const pts=[[0,0],[c.hx,c.hz],[-c.hx,c.hz],[c.hx,-c.hz],[-c.hx,-c.hz],[0,c.hz],[0,-c.hz]];

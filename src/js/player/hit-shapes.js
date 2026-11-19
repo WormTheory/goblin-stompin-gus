@@ -78,6 +78,8 @@ function hitShapesAt(p,K,H,u,dmg,cause,pvpCause){
   // (other players: the same shapes against a goblin's hurtboxes, or a hippo's middle)
   for(const q of pvpFoes(p)){if(done.has(q))continue;const theirs=hurt.length&&q.gob?hurt.map(s=>hitWorld(s,q.pos.x,q.pos.y,q.pos.z,q.heading||0)):[{a:[q.pos.x,q.pos.y,q.pos.z],b:[q.pos.x,q.pos.y+1.2,q.pos.z],r:q.gob?0.3:0.9}];
     if(mine.some(A=>theirs.some(B=>hitTouch(A,B)))){done.add(q);pvpHurt(p,q,dmg,new V3(q.pos.x,q.pos.y+0.8,q.pos.z),new V3(fx,0.4,fz),pvpCause||cause);}}
+  // (a landmine the shapes touch goes off: a flat disc as a short capsule)
+  for(const M of MINES){if(!M.live||Math.hypot(M.x-p.pos.x,M.z-p.pos.z)>12)continue;const B={a:[M.x,M.y,M.z],b:[M.x,M.y+0.15,M.z],r:0.3};if(mine.some(A=>hitTouch(A,B)))mineBoom(M,pvpBy(p));}
 }
 // each frame of a player goblin's swing: the shapes with a live span that the swing has passed through since the last
 // frame (so a short span isn't missed at a low frame rate), posed along the stretch of it passed through. A new swing

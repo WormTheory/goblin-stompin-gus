@@ -208,6 +208,9 @@ function mgSlashAt(M,Mo,S,f0,f1,inShip){
   // (with PvP on, another player the blade passes through, once a swing)
   for(const q of pvpFoes(M.drv)){if(S.hit.has(q))continue;const dx=q.pos.x-M.x,dz=q.pos.z-M.z,py=mgSwY(M,S,dx*S.fx+dz*S.fz);if(q.pos.y<py-6||q.pos.y>py+2)continue;const d=Math.hypot(dx,dz)||0.01,a=mgSlAng(S,dx,dz);
     if(d<=R&&(f0===0?a>=a0:a>a0)&&a<=a1){S.hit.add(q);pvpHurt(M.drv,q,MGW.bladeDmg,q.pos.clone(),new V3(dx/d,0.8,dz/d),"Cut down by a Mobile Gear's heat blade",{cd:0});}}
+  // (landmines the blade sweeps over, on the ground in its reach)
+  for(const N of MINES){if(!N.live)continue;const dx=N.x-M.x,dz=N.z-M.z,py=mgSwY(M,S,dx*S.fx+dz*S.fz);if(N.y<py-6||N.y>py+2)continue;const d=Math.hypot(dx,dz),a=mgSlAng(S,dx,dz);
+    if(d<=R&&(f0===0?a>=a0:a>a0)&&a<=a1)mineBoom(N,pvpBy(M.drv));}
   // (vehicles: a blow at three points round the arc, a third of the way along the blade's length and two thirds)
   for(const q of [1/6,1/2,5/6])if(f0<q&&f1>=q){const a=mgSweepA(q),ux=S.fx*Math.cos(a)+lx*Math.sin(a),uz=S.fz*Math.cos(a)+lz*Math.sin(a);
     for(const r of [MG.r+MGW.bladeR*0.35,MG.r+MGW.bladeR*0.75]){impX=MGW.bladeImp;vehBlast(M.x+ux*r,mgSwY(M,S,r*Math.cos(a)),M.z+uz*r,MGW.bladeR*0.22,MGW.bladeVD*0.5,Mo);impX=1;}}

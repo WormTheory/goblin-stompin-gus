@@ -48,7 +48,7 @@ function gobShoot(p){
   const wk=gobGun(gobArms(p).wpn)?p.wpn:'rifle',W=GOB_WPN[wk],c=shipEye(p),cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp,
     fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw),rx=Math.cos(p.cam.yaw),rz=-Math.sin(p.cam.yaw);
   // (a round out of the magazine: its count, kept per weapon (gobAmmo))
-  if(W.mag){const n=gobAmmo(p,wk);if(n<=0)return;p.ammo[wk]=n-1;}
+  if(W.mag){const n=gobAmmo(p,wk);if(n<=0)return;if(!DT.infAmmo)p.ammo[wk]=n-1;}   // (the debug menu's Infinite ammo: none used up)
   p.shotT=camClock;p.shotN=(p.shotN||0)+1;
   // a bazooka's rocket: off the shoulder, along the view, bursting on whatever it meets (shots.js); it can't go off on
   // you as it leaves (skipP)
@@ -102,15 +102,15 @@ function gobReady(p){gobArms(p);const k=p.wpn,W=WEAPONS[k];if(p.relT>0)return fa
 // what's shown loaded: a guest's own count is the host's
 const gobAmmoShown=(p,k)=>netGuest()&&p.ammoN!==undefined?p.ammoN:gobAmmo(p,k);
 // a landmine set down just in front of him (the attack's crouch, gobBodyPose); once the last's gone, the next weapon
-function gobPlant(p){const W=GOB_WPN.landmine;if(!(p.mines>0))return;p.mines--;
+function gobPlant(p){const W=GOB_WPN.landmine;if(!(p.mines>0))return;if(!DT.infAmmo)p.mines--;   // (Infinite ammo: the pile never goes down)
   const hx=Math.sin(p.heading),hz=Math.cos(p.heading);mineLay(p.pos.x+hx*0.6,p.pos.y,p.pos.z+hz*0.6,{side:'p',by:pvpBy(p),owner:p,cause:W.cause,k:'landmine'});
   if(p.mines<=0){p.wpns=p.wpns.filter(k=>k!=='landmine');if(!p.wpns.length)p.wpns=['club'];p.wpn=p.wpns[0];p.wpnT=camClock;}}
 // what aims down the view, with a crosshair: a gun, or a spell
 const gobAims=k=>gobGun(k)||!!WEAPONS[k]&&WEAPONS[k].kind==='spell';
 // the stomp button: lob a grenade the way you're looking
 function gobThrow(p){
-  gobArms(p);if(p.gren<=0||p.grenCD>0||p.state==='dead'||p.drv)return;
-  p.gren--;p.grenCD=GREN.cd;p.thrS=0;const c=shipEye(p),cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp,v=GREN.v;
+  gobArms(p);if(!(p.gren>0||DT.infAmmo)||p.grenCD>0||p.state==='dead'||p.drv)return;   // (Infinite ammo: thrown with none left too, and none used up)
+  if(!DT.infAmmo)p.gren--;p.grenCD=GREN.cd;p.thrS=0;const c=shipEye(p),cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp,v=GREN.v;
   shot({kind:'grenade',x:c.x+dx*0.6,y:c.y-0.1+dy*0.6,z:c.z+dz*0.6,vx:dx*v,vy:dy*v+4,vz:dz*v,grav:20,fuse:GREN.fuse,R:GREN.R,dmg:GREN.dmg,cause:GREN_CAUSE,by:pvpBy(p),bounce:true,crush:GREN_CRUSH});
   sfx('Goblin throws a grenade',()=>{woosh(0.15,0.2,400,1200,0.08);});
 }
@@ -179,6 +179,6 @@ function gobArmsHud(p){
   // landmines with how many)
   const nm=k=>GOB_WPN[k].name+(k==='landmine'?' ×'+(p.mines||0):''),n=W&&W.mag?gobAmmoShown(p,p.wpn):0;
   const cur=nm(p.wpn)+(W&&W.mag?(p.relT>0?'  reloading…':'  '+n+' / '+W.mag):''),rq=W&&W.mag&&!(p.relT>0)&&n<W.mag?'  '+bl('reload')+(n?' reload':' RELOAD'):'';
-  const s=L.map(k=>k===p.wpn?'<b>'+cur+'</b>':nm(k)).join(' · ')+rq+(L.length>1?'  '+bl('weapon')+' next':'')+'  |  Grenades '+p.gren+(gobW(p).scope?'  '+bl('stomp')+' scope (hold)':p.gren?'  '+bl('stomp')+' throw':'');
+  const s=L.map(k=>k===p.wpn?'<b>'+cur+'</b>':nm(k)).join(' · ')+rq+(L.length>1?'  '+bl('weapon')+' next':'')+'  |  Grenades '+p.gren+(gobW(p).scope?'  '+bl('stomp')+' scope (hold)':p.gren||DT.infAmmo?'  '+bl('stomp')+' throw':'');
   if(H.s!==s){H.s=s;H.el.innerHTML=s.split(/(<b>[^<]*<\/b>)/).map(t=>t.startsWith('<b>')?'<b>'+glEsc(t.slice(3,-4))+'</b>':hudHTML(t)).join('');}
 }

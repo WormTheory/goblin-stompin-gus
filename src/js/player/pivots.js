@@ -24,6 +24,8 @@ function wallBiteHit(p){
     damageGoblin(g,A.dmg,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(u[0]-d[0]*0.8,u[1]*0.6+0.3,u[2]-d[1]*0.8),cause);}
   for(const q of pvpFoes(p)){const v=[q.pos.x-a[0],q.pos.y+0.7-a[1],q.pos.z-a[2]],t=Math.max(0,Math.min(J1-J0,v[0]*u[0]+v[1]*u[1]+v[2]*u[2]));   // (and with PvP on, another player)
     if(Math.hypot(v[0]-u[0]*t,v[1]-u[1]*t,v[2]-u[2]*t)<A.hitR)pvpHurt(p,q,A.dmg,null,new V3(u[0]-d[0]*0.8,u[1]*0.6+0.3,u[2]-d[1]*0.8),cause);}
+  for(const M of MINES){if(!M.live)continue;const v=[M.x-a[0],M.y+0.1-a[1],M.z-a[2]],t=Math.max(0,Math.min(J1-J0,v[0]*u[0]+v[1]*u[1]+v[2]*u[2]));   // (a landmine in reach goes off)
+    if(Math.hypot(v[0]-u[0]*t,v[1]-u[1]*t,v[2]-u[2]*t)<A.hitR+0.3)mineBoom(M,pvpBy(p));}
   // vehicles in reach too: the one he's clinging to, or one going by
   {const near=new Set();for(let t=0;t<=J1-J0+1e-6;t+=0.5){const x=a[0]+u[0]*t,y=a[1]+u[1]*t,z=a[2]+u[2]*t;for(const v of carsInCyl(x,z,A.hitR,y-1.5,y+1.5))near.add(v);}
    for(const v of near){damageCar(v,gk?1:A.carDmg,new V3(u[0]+d[0]*0.5,0,u[2]+d[1]*0.5));clang();}}

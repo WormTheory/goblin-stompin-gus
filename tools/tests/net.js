@@ -9,7 +9,7 @@ const d6=fs.readFileSync('dead6.js','utf8');
 const stubs=d6.slice(d6.indexOf('const deep='),d6.indexOf('\neval(src);'));
 const src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={tenvPlace,tenvSpawnOne,tenvClear,MG,get TENV(){return TENV},netSendSnap,netRewind,netUnwind,NETP,makeTopple,topples,NETF,V3,BRICK,NET_VN,venues,TRAINS,netVenueModels,frame,players,P1,P2,NET,NETM,netHostWith,netJoinWith,netClose,netEnd,crush,get,goblins,cars,keys,ABIL,fires,setGobP,'+
   'collapseBuilding,bldgAt,plotInfo,CELL,FH,knockFix,activeFix,activeProps,falling,downFix,NET_BG,netBgTick,netBgClock,get collapses(){return collapses},'+
-  'foeArm,GOB_FOES,TRACERS,award,POPS,DT,setCombo,setPvp,pvpOn,doBite,obitList,get seed(){return seed},get edits(){return edits},get menuOpen(){return menuOpen},get saveBlocked(){return saveBlocked},chunks,ckey,CS,G};})();');
+  'mineLay,MINES,MINEV,minesClear,foeArm,GOB_FOES,TRACERS,award,POPS,DT,setCombo,setPvp,pvpOn,doBite,obitList,get seed(){return seed},get edits(){return edits},get menuOpen(){return menuOpen},get saveBlocked(){return saveBlocked},chunks,ckey,CS,G};})();');
 if(src===src0)throw new Error('closing line not found');
 const store=init=>{const m=new Map(Object.entries(init||{}));return{getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,String(v)),removeItem:k=>m.delete(k),get _m(){return m}};};
 // one game: seed for its Math.random, its localStorage and sessionStorage contents
@@ -238,6 +238,27 @@ const lag=[];
  const n=Object.keys(HT.edits).length-before;
  console.log('guest threw a grenade:',ok(thrown),'blocks it broke on the host',n,ok(n>0),'the same on the guest',same,'different',diff,ok(diff===0));
  HT.setGobP(HT.P2,false);for(let i=0;i<20;i++){H.step(1);G.step(1);}}
+
+// ---- landmines: only the host has them; the guest sees them, sets one off by walking on to it (one blast, the same hurt
+// both sides), plants its own through the host, and the host's Infinite ammo keeps its pile full ----
+{HT.setGobP(HT.P2,true);for(let i=0;i<20;i++){H.step(1);G.step(1);}
+ const pads=G.ctx.navigator.getGamepads(),press=(b,n)=>{pads[0].buttons[b].pressed=true;pads[0].buttons[b].value=1;for(let i=0;i<n;i++){G.step(1);H.step(1);}pads[0].buttons[b].pressed=false;pads[0].buttons[b].value=0;};
+ const inv=HT.DT.invuln;HT.DT.invuln=false;HT.P2.hp=20;
+ const M=HT.mineLay(HT.P2.pos.x,HT.P2.pos.y,HT.P2.pos.z,{side:'g',cause:'Blown up by a landmine',k:'landmine'});const hp0=HT.P2.hp;
+ for(let i=0;i<20;i++){H.step(1);G.step(1);}const shown=!!(GT.MINEV[M.i]&&GT.MINEV[M.i].g.visible);
+ for(let i=0;i<80&&M.live;i++){H.step(1);G.step(1);}for(let i=0;i<20;i++){H.step(1);G.step(1);}
+ console.log('a landmine under the guest: shown on the guest',ok(shown),'went off on the host once armed',ok(!M.live),'gone on the guest',ok(!GT.MINEV[M.i].g.visible),
+   'hurt: host',hp0,'->',HT.P2.hp,'guest',GT.P1.hp,ok(HT.P2.hp<hp0&&GT.P1.hp===HT.P2.hp),'| mines of its own on the guest',GT.MINES.length,ok(GT.MINES.length===0));
+ for(let i=0;i<900&&(HT.P2.state==='dead'||HT.P2.deadT>0);i++){H.step(1);G.step(1);}
+ for(let i=0;i<120;i++){H.step(1);G.step(1);}   // (back on its feet after the blast)
+ const arm=q=>{q.wpns=['landmine'];q.wpn='landmine';q.mines=3;q.ammo={};q.relT=0;};
+ for(const inf of [false,true]){HT.DT.infAmmo=inf;arm(HT.P2);arm(GT.P1);for(let i=0;i<10;i++){H.step(1);G.step(1);}
+  const n0=HT.MINES.filter(m=>m.live).length;press(2,4);for(let i=0;i<60;i++){H.step(1);G.step(1);}
+  const L=HT.MINES.filter(m=>m.live),m=L[L.length-1];
+  console.log('the guest plants a landmine, Infinite ammo',inf?'on: ':'off:','planted on the host',ok(L.length===n0+1),'shown on the guest',ok(!!m&&GT.MINEV[m.i]&&GT.MINEV[m.i].g.visible),
+    'mines left: host',HT.P2.mines,'guest',GT.P1.mines,ok(HT.P2.mines===(inf?3:2)&&GT.P1.mines===HT.P2.mines),'| mines of its own on the guest',GT.MINES.length,ok(GT.MINES.length===0));}
+ HT.DT.infAmmo=false;HT.minesClear();for(let i=0;i<10;i++){H.step(1);G.step(1);}
+ HT.DT.invuln=inv;HT.setGobP(HT.P2,false);for(let i=0;i<20;i++){H.step(1);G.step(1);}}
 
 // ---- the guest's goblin with a sniper rifle: a shot kicks its own view up and works the bolt in it, and holding stomp
 // looks down the scope (zoomed in, slower to aim) without throwing a grenade on the host ----

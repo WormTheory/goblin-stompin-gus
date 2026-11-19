@@ -26,33 +26,36 @@ PvP off at the host: guest told ok the same bite: lost 0 ok
 crush on the host: new edits 49 blocks the same on the guest 74 different 0 ok
 a topple on the host: guest showed 1 falling piece ok most its turn lagged 0.08 gone after ok blocks where it landed differ 0 ok
 a building brought down on the host: solid blocks above the break, host 515 -> 54 | guest 515 -> 54 | blocks that differ 0 ok | guest knows it fell ok
-knocked over a plant 3.29 away: guest showed it falling for 27 frames midway ok | lying down on both ok | same way ok
-hearts: guest shows its own 13 ok | put right after wandering 12 BAD | the host's 7 ok | hearts drawn -
+knocked over a plant 3.28 away: guest showed it falling for 27 frames midway ok | lying down on both ok | same way ok
+hearts: guest shows its own 13 ok | put right after wandering 13 ok | the host's 7 ok | hearts drawn -
 health bars on the guest: goblins hurt 6 the same 6 ok | vehicles hurt 6 the same 6 ok | a venue vehicle ok
-police handgun on the guest: holster and club ok | gun drawn ok | a tracer ok
-host tab hidden: background clock on ok snapshots the guest got meanwhile 18 ok guest walked on the host 3.57 ok | clock off again when shown ok
+police handgun on the guest: holster and club ok | gun drawn BAD | a tracer BAD
+host tab hidden: background clock on ok snapshots the guest got meanwhile 18 ok guest walked on the host 1.67 BAD | clock off again when shown ok
 host turned goblin: guest P2 is a goblin ok
 guest pressed use by a car: host has it driving ok guest knows ok car
 drove for 1.5 s: car moved 7.92 ok guest camera from the car 6.07 ok guest car mirror apart 1.20
 guest vehicle display: Car  ·  19 / 30 ok
 pressed use again: out ok
-guest threw a grenade: ok blocks it broke on the host 10 ok the same on the guest 356 different 0 ok
+guest threw a grenade: ok blocks it broke on the host 9 ok the same on the guest 338 different 0 ok
+a landmine under the guest: shown on the guest ok went off on the host once armed ok gone on the guest ok hurt: host 20 -> 11 guest 11 ok | mines of its own on the guest 0 ok
+the guest plants a landmine, Infinite ammo off: planted on the host ok shown on the guest ok mines left: host 2 guest 2 ok | mines of its own on the guest 0 ok
+the guest plants a landmine, Infinite ammo on:  planted on the host ok shown on the guest ok mines left: host 3 guest 3 ok | mines of its own on the guest 0 ok
 guest sniper shot: shown in its own view ok view kicked up 0.050 ok bolt worked 0.121 ok fired on the host (magazine 4) ok
 guest scope held: up 1.00 ok view 72 -> 15 ok back after 72 ok no grenade thrown ok
-with 0.1 s each way: frames before moving, guest 5 host 13 ok | biggest step in one frame 0.12 ok | apart once stopped 0.03 ok
-lag compensation on a guest bite: on ok | goblins where the guest sees them: as they are now, off by 0.24 on average; put back, off by 0.10 ok
+with 0.1 s each way: frames before moving, guest 5 host 12 ok | biggest step in one frame 0.07 ok | apart once stopped 0.05 ok
+lag compensation on a guest bite: on ok | goblins where the guest sees them: as they are now, off by 0.38 on average; put back, off by 0.17 ok
 dropped: host keeps the seat ok status Hosting online. Room code TESTA · waiting for Gertie to come back
-guest came back after 11.5 s ok no reload ok hippo where it was (give or take a shove) 2.72 ok guest shows itself there 0.00 ok
+guest came back after 11.5 s ok no reload ok hippo where it was (give or take a shove) 2.62 ok guest shows itself there 0.00 ok
 a third player joins: seat 2 ok host players active 3 ok | first guest shows them ok apart 0.00 | the new one sees both others ok
-third player walks: moved on the host 1.39 BAD the other guests see it there 0.00 ok
+third player walks: moved on the host 3.27 ok the other guests see it there 0.42 ok
 third player left: host ok first guest ok status: Hosting online. Room code TESTA · Gertie is here
 cost: one snapshot built on the host under N ms ok
-bumpy network: guest draws N ms behind (at least 100) ok | jerks in 3 s (stopping, then jumping to catch up): the host hippo 0 ok | vehicles in view 13 between them 0 (stopping and starting on the host itself 3) ok | messages a second 46 bytes each 2123
+bumpy network: guest draws N ms behind (at least 100) ok | jerks in 3 s (stopping, then jumping to catch up): the host hippo 0 ok | vehicles in view 25 between them 19 (stopping and starting on the host itself 14) ok | messages a second 46 bytes each 2402
 back on a smooth network for 2 s: guest draws N ms behind, easing back toward 100
 Mobile Gear spawned on the host: on the guest too ok apart 0.00
   guest pressed use beside it: host has it piloting ok guest knows ok
-  walked for 2 s: moved 16.32 ok  guest model apart 1.65  guest camera from it 12.67 ok
-  quick boost: thrusters flashed on the guest at once BAD  host fired it ok energy 100.00 -> 80.00
+  walked for 2 s: moved 14.05 ok  guest model apart 0.50  guest camera from it 11.39 ok
+  quick boost: thrusters flashed on the guest at once ok  host fired it ok energy 100.00 -> 80.00
   guest display: Mobile Gear  ·  600 / 600 ok  energy bar 80.0%  host 80.00%
   held use: out ok
   cleared on the host: gone on the guest ok

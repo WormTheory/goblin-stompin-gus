@@ -14,7 +14,7 @@ function fireball(x,y,z,tx,ty,tz,o){
   return F;
 }
 function fbBurst(F){
-  F.live=false;F.g.visible=false;
+  F.live=false;F.g.visible=false;if(F.pl)mineArea(F.pos.x,F.pos.z,1.2,F.pos.y,F.by);   // (a player's sets off a landmine it bursts on)
   puff(F.pos.x,F.pos.y-0.15,F.pos.z,9,0xff6a10,0.45);puff(F.pos.x,F.pos.y-0.15,F.pos.z,5,0xffd040,0.3);
   if(audio)tone('sawtooth',170,45,0.35,0.06);
 }
@@ -81,7 +81,7 @@ function foeBoom(x,y,z,R,dmg,cause,by,crush,vd,own){
     // (by, for a player's shot with PvP on, is that player: see pvpBy. Their own blast isn't blamed on them)
     const h=Math.hypot(dx,dz)||1,pk=by&&by.pvp,alive=q.state!=='dead';damagePlayer(q,Math.max(1,Math.round(dmg*(1-0.6*d3/R))),new V3(q.pos.x,q.pos.y+1,q.pos.z),new V3(dx/h,0.6,dz/h),cause,pk===q?undefined:by);
     if(pk&&pk!==q&&alive&&q.state==='dead')pvpKilled(pk,q);}
-  hitGoblins(x,z,R,dmg,cause,y);vehBlast(x,y,z,R*1.15,vd??dmg*6,own);
+  hitGoblins(x,z,R,dmg,cause,y);vehBlast(x,y,z,R*1.15,vd??dmg*6,own);mineArea(x,z,R,y,by);   // (and any landmine it reaches goes up too)
   if(crush)crushBall(x,y,z,crush);
 }
 function updateShots(dt){
