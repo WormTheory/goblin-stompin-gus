@@ -138,3 +138,6 @@ console.log('above his head: a goblin on a ledge 1.5 up',hitAt({hit:{hitboxes:[{
     '| hits built-in',R0.hits.length,'custom',R.hits.filter(h=>h.src===0).length,'lines',R.hits.every(h=>h.L.length>0&&h.L.length%6===0),'| near him',R.hits.every(h=>Math.abs(h.L[0])<20&&Math.abs(h.L[2])<20),'| anchors',R.anchors.join(','));
   const back=JSON.parse(fs.readFileSync(path.join(AS,'moves','stomp1.json'),'utf8'));T.liveMove('stomp1',back);console.log('put back: damage',A.dmg,'| hitboxes',!!T.HB.stomp1);}
 S(5);console.log('frames after: ok');
+// (the editor's own scripts: one that doesn't parse leaves the whole editor stuck on Loading, with no tabs)
+{const ED=path.join(__dirname,'..','editor'),bad=[];for(const f of fs.readdirSync(ED).filter(f=>f.endsWith('.js'))){try{new Function(fs.readFileSync(path.join(ED,f),'utf8'));}catch(e){bad.push(f+': '+e.message);}}
+  console.log('editor scripts parse:',bad.length?bad.join('; '):'all');}
