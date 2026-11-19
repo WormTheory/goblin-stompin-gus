@@ -52,8 +52,8 @@ function gobShoot(p){
   p.shotT=camClock;p.shotN=(p.shotN||0)+1;
   // a bazooka's rocket: off the shoulder, along the view, bursting on whatever it meets (shots.js); it can't go off on
   // you as it leaves (skipP)
-  if(W.proj){shot({kind:W.proj,x:c.x+dx*1.1+rx*0.22,y:c.y-0.08+dy*1.1,z:c.z+dz*1.1+rz*0.22,vx:dx*W.speed,vy:dy*W.speed,vz:dz*W.speed,grav:0,fuse:W.range/W.speed+0.5,
-      R:W.R,dmg:W.dmg,cause:W.cause,by:pvpBy(p),crush:W.crush,vd:W.vd,skipP:p,gobs:true});
+  if(W.proj){shot({kind:W.proj,x:c.x+dx*1.1+rx*0.22,y:c.y-0.08+dy*1.1,z:c.z+dz*1.1+rz*0.22,vx:dx*W.speed,vy:dy*W.speed+(W.lob||0),vz:dz*W.speed,grav:W.grav||0,fuse:W.range/W.speed+0.5,
+      R:W.R,dmg:W.dmg,cause:W.cause,by:pvpBy(p),crush:W.crush,vd:W.vd,skipP:p,gobs:true,bb:W.nuke});   // (a nuke launcher's drops a little and lands in a big blast)
     wpnCrack(wk);smoke(c.x-dx*0.9+rx*0.22,c.y-0.1,c.z-dz*0.9+rz*0.22,3,0xbababa);}   // (and its backblast)
   else{
     // (a shotgun's pellets each a round of their own, scattered round the middle of the view: across along the view's right,
@@ -85,12 +85,17 @@ function gobPressSnd(p){const W=WEAPONS[p.wpn];if(W&&W.kind==='spell')wpnCue(p.w
 // left. The reload button (or firing with it empty, or the last round going) fills it in the weapon's reload seconds;
 // switching weapons stops it. On an online guest, the host's count is the one shown (p.ammoN) ----
 function gobAmmo(p,k){const A=p.ammo||(p.ammo={});if(A[k]===undefined)A[k]=WEAPONS[k].mag||0;return A[k];}
+// (a gun with spare in its entry, the nuke launcher, has only that many reloads; picked up afresh, it has them all again.
+// Infinite ammo uses none of them up)
+function gobSpare(p,k){const W=WEAPONS[k];if(!W||W.spare===undefined)return -1;const A=p.spare||(p.spare={});if(A[k]===undefined)A[k]=W.spare;return A[k];}
+const gobSpareShown=(p,k)=>netGuest()&&p.spareN!==undefined?p.spareN:gobSpare(p,k);
 function gobReload(p,k=p.wpn){const W=WEAPONS[k];if(!W||!W.mag||p.relT>0||gobAmmoShown(p,k)>=W.mag||p.state==='dead'||p.drv)return false;
+  if(gobSpareShown(p,k)===0&&!DT.infAmmo)return false;   // (none left to load)
   p.relT=p.relDur=W.reload;p.relW=k;p.relH=false;wpnClack(k,0);return true;}
 function gobReloadTick(p,dt){const k=p.wpn,W=WEAPONS[k];
   if(p.relT>0){if(p.relW!==k||p.state==='dead'||p.drv){p.relT=0;return;}
     p.relT-=dt;if(!p.relH&&p.relT<=p.relDur*0.5){p.relH=true;wpnClack(k,1);}
-    if(p.relT<=0){p.relT=0;p.ammo[k]=W.mag;wpnClack(k,2);}}
+    if(p.relT<=0){p.relT=0;p.ammo[k]=W.mag;if(gobSpare(p,k)>0&&!DT.infAmmo)p.spare[k]--;wpnClack(k,2);}}
   else if(W&&W.mag&&gobAmmoShown(p,k)<=0&&!(p.biteT>0))gobReload(p);   // (the last one's gone: straight on to the next magazine)
 }
 // (whether the attack button can start what's in hand: not mid-reload; a gun with nothing in it reloads instead, with
@@ -123,7 +128,7 @@ function gobArmsTick(p,dt){gobArms(p);wpnHitSweep(p);p.grenCD=Math.max(0,p.grenC
   // (with a scoped gun in hand stomp looks down the scope instead: gobScope)
   if(st&&!p.gStompWas&&playing&&!gobW(p).scope)gobThrow(p);if(wp&&!p.gWpnWas&&playing)gobNextWpn(p);if(rl&&!p.gRelWas&&playing)gobReload(p);p.gStompWas=st;p.gWpnWas=wp;p.gRelWas=rl;
   if(playing)gobReloadTick(p,dt);
-  if(!netGuest()){const W=WEAPONS[p.wpn];p.ammoN=W&&W.mag?gobAmmo(p,p.wpn):-1;}}   // (for the display, here and on a guest)
+  if(!netGuest()){const W=WEAPONS[p.wpn];p.ammoN=W&&W.mag?gobAmmo(p,p.wpn):-1;p.spareN=W?gobSpare(p,p.wpn):-1;}}   // (for the display, here and on a guest)
 // ---- what's dropped: a little model on the ground, turning, until someone picks it up (or a minute and a half) ----
 const PICKUPS=[],PU_MAT={};
 function puModel(k){const g=new THREE.Group(),m=c=>PU_MAT[c]||(PU_MAT[c]=new THREE.MeshLambertMaterial({color:c}));
@@ -147,7 +152,7 @@ function gobPickups(dt){
       if(WEAPONS[P.k].stack){const f=stkField(P.k),mx=stkMax(P.k);if((p[f]||0)>=mx)continue;const n=Math.min(P.n,mx-(p[f]||0));p[f]=(p[f]||0)+n;P.n-=n;
         if(GOB_WPN[P.k]&&!p.wpns.includes(P.k))p.wpns.push(P.k);
         const nm=WEAPONS[P.k].name.replace(/s$/,'');flashLabel(nm+(n>1?'s':'')+' +'+n+'  ·  '+p[f]+' in all',p);if(P.n>0)continue;}
-      else{if(p.wpns.includes(P.k))continue;p.wpns.push(P.k);p.wpn=P.k;p.wpnT=camClock;p.relT=0;if(p.ammo)p.ammo[P.k]=undefined;flashLabel('Picked up a '+GOB_WPN[P.k].name.toLowerCase(),p);}   // (a gun comes with a full magazine)
+      else{if(p.wpns.includes(P.k))continue;p.wpns.push(P.k);p.wpn=P.k;p.wpnT=camClock;p.relT=0;if(p.ammo)p.ammo[P.k]=undefined;if(p.spare)p.spare[P.k]=undefined;flashLabel('Picked up a '+GOB_WPN[P.k].name.toLowerCase(),p);}   // (a gun comes with a full magazine)
       sfx('Pick up',()=>{tone('triangle',660,990,0.08,0.06);});P.live=false;P.m.visible=false;break;}}
 }
 function gobPickupsClear(){for(const P of PICKUPS){P.live=false;P.m.visible=false;}}
@@ -178,7 +183,8 @@ function gobArmsHud(p){
   // (what's in hand in bold: a gun with what's left in its magazine, reloading, or a reload asked for when it's empty;
   // landmines with how many)
   const nm=k=>GOB_WPN[k].name+(k==='landmine'?' ×'+(p.mines||0):''),n=W&&W.mag?gobAmmoShown(p,p.wpn):0;
-  const cur=nm(p.wpn)+(W&&W.mag?(p.relT>0?'  reloading…':'  '+n+' / '+W.mag):''),rq=W&&W.mag&&!(p.relT>0)&&n<W.mag?'  '+bl('reload')+(n?' reload':' RELOAD'):'';
+  const sp=W&&W.mag?gobSpareShown(p,p.wpn):-1,cur=nm(p.wpn)+(W&&W.mag?(p.relT>0?'  reloading…':'  '+n+' / '+W.mag)+(sp>=0?'  +'+sp:''):''),
+    rq=W&&W.mag&&!(p.relT>0)&&n<W.mag&&(sp!==0||DT.infAmmo)?'  '+bl('reload')+(n?' reload':' RELOAD'):'';
   const s=L.map(k=>k===p.wpn?'<b>'+cur+'</b>':nm(k)).join(' · ')+rq+(L.length>1?'  '+bl('weapon')+' next':'')+'  |  Grenades '+p.gren+(gobW(p).scope?'  '+bl('stomp')+' scope (hold)':p.gren||DT.infAmmo?'  '+bl('stomp')+' throw':'');
   if(H.s!==s){H.s=s;H.el.innerHTML=s.split(/(<b>[^<]*<\/b>)/).map(t=>t.startsWith('<b>')?'<b>'+glEsc(t.slice(3,-4))+'</b>':hudHTML(t)).join('');}
 }

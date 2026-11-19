@@ -64,11 +64,11 @@ function tracer(x0,y0,z0,x1,y1,z1){
 // in the wall it hits, and a grenade's usually lying on the ground a step or two away when its fuse runs out: the ball's
 // flattened underneath, so this takes a shallow crater and the foot of a wall within about 3 blocks)
 const GREN_CRUSH=2.8;
-const SHOTS=[],SHOT_LOOK={grenade:[[0.24,0.24,0.24],0x3a4a22],shell:[[0.28,0.28,0.7],0x2a2a24],rocket:[[0.22,0.22,0.9],0xd8d8d0],missile:[[0.2,0.2,0.75],0xe8e4d8]},SHOT_M={};
+const SHOTS=[],SHOT_LOOK={grenade:[[0.24,0.24,0.24],0x3a4a22],shell:[[0.28,0.28,0.7],0x2a2a24],rocket:[[0.22,0.22,0.9],0xd8d8d0],nuke:[[0.42,0.42,0.75],0x6f7f34],missile:[[0.2,0.2,0.75],0xe8e4d8]},SHOT_M={};
 function shot(o){
   let S=SHOTS.find(q=>!q.live&&q.kind===o.kind);
   if(!S){const L=SHOT_LOOK[o.kind],m=new THREE.Mesh(FB_GEO,SHOT_M[o.kind]||(SHOT_M[o.kind]=new THREE.MeshLambertMaterial({color:L[1]})));m.scale.set(...L[0]);m.visible=false;scene.add(m);S={kind:o.kind,g:m,pos:new V3(),v:new V3(),live:false};SHOTS.push(S);}
-  Object.assign(S,{grav:o.grav,fuse:o.fuse??9,R:o.R,dmg:o.dmg,cause:o.cause,by:o.by||null,bounce:!!o.bounce,t:0,live:true,trail:0,crush:o.crush||0,vd:o.vd,own:o.own||null,ap:!!o.ap,hitB:false,tgt:o.tgt||null,chase:o.chase||null,at:o.at||null,sp:o.sp||0,turn:o.turn||0,skipP:o.skipP||null,gobs:!!o.gobs});   // (skipP: the player who fired it, not hit by it as it leaves; gobs: it goes off on a goblin it reaches, a bazooka's)
+  Object.assign(S,{grav:o.grav,fuse:o.fuse??9,R:o.R,dmg:o.dmg,cause:o.cause,by:o.by||null,bounce:!!o.bounce,t:0,live:true,trail:0,crush:o.crush||0,vd:o.vd,own:o.own||null,ap:!!o.ap,hitB:false,tgt:o.tgt||null,chase:o.chase||null,at:o.at||null,sp:o.sp||0,turn:o.turn||0,skipP:o.skipP||null,gobs:!!o.gobs,bb:o.bb||0});   // (skipP: the player who fired it, not hit by it as it leaves; gobs: it goes off on a goblin it reaches, a bazooka's; bb: a nuke's big blast, its reach)
   S.pos.set(o.x,o.y,o.z);S.v.set(o.vx,o.vy,o.vz);S.g.position.copy(S.pos);S.g.visible=true;return S;
 }
 // a blast: the flash, smoke and noise, everyone near it hurt (less at the edge) and thrown, goblins too, maybe a crater
@@ -101,7 +101,8 @@ function updateShots(dt){
       if(!S.bounce&&!boom&&S.gobs)for(const g of goblins){if(g.state!=='chase'||!g.root.visible)continue;const hx=S.pos.x-g.pos.x,hz=S.pos.z-g.pos.z,hy=S.pos.y-g.pos.y;if(hx*hx+hz*hz<0.7*0.7&&hy>-0.2&&hy<1.6){boom=true;break;}}
       if(!S.bounce&&!boom&&shotHitsVeh(S))boom=true;}
     if(boom||S.t>12){S.live=false;S.g.visible=false;if(S.ap&&S.hitB)apTunnel(S);impX=S.imp||1;   // (an AP shell into a wall bores on: tank-handling.js)
-     foeBoom(S.pos.x,S.pos.y,S.pos.z,S.R,S.dmg,S.cause,S.by,S.crush,S.vd,S.own);impX=1;continue;}   // (imp: how much a heavy shell fills an impact meter: see impHit)
+     foeBoom(S.pos.x,S.pos.y,S.pos.z,S.R,S.dmg,S.cause,S.by,S.crush,S.vd,S.own);impX=1;
+     if(S.bb)shotNuke(S);continue;}   // (imp: how much a heavy shell fills an impact meter: see impHit)
     if(S.pos.x>=SHIP_X0)shipShotOut(S);   // (fired from aboard a ship and gone over its side: out into the world)
     S.g.position.copy(S.pos);
     if(S.bounce){S.g.rotation.x+=dt*Math.hypot(S.v.x,S.v.z)*1.5;S.trail-=dt;if(S.trail<=0){S.trail=0.08;puff(S.pos.x,S.pos.y+0.1,S.pos.z,1,0x9a9a8a,0.08);}}   // (the fuse fizzing)
@@ -109,6 +110,12 @@ function updateShots(dt){
     if(S.pos.x>=SHIP_X0){shipPt(S.g.position);S.g.rotation.y+=shipYawAt(S.pos.x,S.pos.z);}   // (still aboard: drawn where that is on the ship)
   }
 }
+// a nuke's warhead landing: a big blast (big-blast.js) at street level under it, or lower if it's come down in a
+// hole. Its goblin kills are the weapon's (so they count as the player's), and with PvP on a player it kills is blamed on
+// whoever fired it; the one who fired it is caught in it like anyone else
+function shotNuke(S){
+  const J=bigBlast(S.pos.x,Math.max(1,Math.min(Math.round(S.pos.y),G+1)),S.pos.z,S.bb);
+  if(J&&J.C){J.by=S.by;J.cause=S.cause;}}
 // a homing missile (a Mobile Gear's): for a moment it flies as launched, then speeds up to S.sp and turns, at most
 // S.turn a second, after its target (S.tgt, while it lives) or the spot it was sent at (S.at). True once it's on
 // the target, to go off

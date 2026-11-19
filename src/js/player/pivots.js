@@ -149,7 +149,7 @@ const camPitch=(v,p)=>p&&p.gob?Math.max(-1.5,Math.min(1.5,v)):Math.max(-1.1,Math
 // Goblin mode is each player's own (p.gob): in co-op one can be a hippo and the other a goblin. DT.gob says whether
 // anyone is (the dropped weapons stay about only while someone can pick them up). Their body sizes go with it (bodyOf, ptsOf).
 function setGobP(p,on){
-  on=!!on;if(p.gob===on)return;if(!on&&p.drv)drvExit(p);p.gob=on;p.wpns=null;p.wpn=null;p.ammo=null;p.relT=0;   // (a fresh goblin: his seat's loadout, every magazine full)
+  on=!!on;if(p.gob===on)return;if(!on&&p.drv)drvExit(p);p.gob=on;p.wpns=null;p.wpn=null;p.ammo=null;p.spare=null;p.relT=0;   // (a fresh goblin: his seat's loadout, every magazine full)
   p.rig.visible=!on;p.cam.pitch=camPitch(p.cam.pitch,p);if(p.lockT)setLock(p,null);
   if(p.active&&p.state!=='dead'){
     // (whatever the hippo was halfway through stops here)

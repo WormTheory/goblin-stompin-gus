@@ -27,7 +27,8 @@
 //   gob-weapons.js, and an enemy's, which stops to reload once it's fired them all). npc.rl and player.rl, how it looks, are
 //   timelines in strikes.js. A gun can also be auto (Gnash fires for as long as the button's held; an enemy fires npc.burst
 //   at a time), fire pellets (a shotgun: that many rounds, each dmg, scattered by spread), or a rocket (proj: it flies at
-//   speed and bursts, radius R, crush the crater, vd its harm to vehicles). Each shot after the first can kick the view up
+//   speed and bursts, radius R, crush the crater, vd its harm to vehicles; grav, how fast it drops, and lob, how fast it's sent up as it leaves; nuke, a big blast of
+//   that reach where it lands, bigBlast; spare, how many more it can be reloaded with before it's empty for good). Each shot after the first can kick the view up
 //   (player.climb), and a bolt or pump is worked between shots (player.cycle, the part tagged so in model.view).
 //   A landmine (kind 'mine', stack) is planted where you stand and goes off on the first enemy over it once it's armed
 //   (arm seconds): mines.js. A view box can carry a tag after its render order: 'mag' (dropped out in a reload), 'load'
@@ -42,7 +43,7 @@ const WEAPON_ORDER=Object.keys(WEAPONS);
 // (what's worked out from an entry as it's loaded: also run on a weapon the editor sends a running game, editor-live.js)
 function wpnDerive(k,W){W.k=k;if(!W.player)return;W.player.name=W.name;
   // (Gnash's block takes the weapon's own numbers, so they're only ever set in the one place)
-  for(const s of ['dmg','range','breaks','r','reach','R','fuse','mag','reload','pellets','spread','proj','speed','crush','vd','carDmg','arm'])if(W[s]!==undefined)W.player[s]=W[s];if(W.every!==undefined)W.player.cd=W.every;
+  for(const s of ['dmg','range','breaks','r','reach','R','fuse','mag','reload','pellets','spread','proj','speed','crush','vd','carDmg','arm','grav','lob','nuke','spare'])if(W[s]!==undefined)W.player[s]=W[s];if(W.every!==undefined)W.player.cd=W.every;
   if(W.cast!==undefined)W.player.lunge=W.cast;}   // (a spell's conjuring is the wind-up before it goes: doBite comes after it)
 for(const k of WEAPON_ORDER)wpnDerive(k,WEAPONS[k]);
 // ---- what each kind of goblin carries: weapons, a list of keys in WEAPONS, on its own entry. The compounds', the

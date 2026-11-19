@@ -9,6 +9,12 @@
 - The game keeps running smoothly while it happens, and the crater is saved with the world and seen the same by everyone playing online.
 - The Testing Environment has a Big blast button, with a slider for its size, to set one off ahead of you.
 
+### Nuke Launcher
+
+- A new weapon for goblins, picked in the Loadout: a launcher with a nuclear warhead on the front. It lobs the warhead slowly in a shallow arc, and wherever it lands the same blast as a meltdown goes off, smaller but still enough to flatten a few streets.
+- Fire it level and it lands far enough off for you to live through it. Fire it at a wall in front of you and you won't.
+- One warhead in the tube and two spares, with a long reload. Once the spares are gone it's empty, unless Infinite ammo is on. The weapon bar shows how many spares are left.
+
 ### Lighting
 
 - At night, lights now light up what's around them. Street lamps pool light on the pavement, neon signs throw their own colours across the street, lit windows glow on the walls and rooms beside them, and lamps, TVs and screens light the rooms they're in. Walls block the light, so it stays in the room or the street it's in. Smash a lamp or a sign and its light goes out.

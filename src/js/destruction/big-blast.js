@@ -193,11 +193,14 @@ function bbCount(J,t0){
 const BB_CAUSE='Vaporised in a nuclear blast';
 function bbHits(J){
   const C=J.C,K=J.K,r=J.ring,cx=C.x,cz=C.z,fall=d=>Math.max(0,1-(d-K.rf)/(C.R-K.rf));
+  // (J.by and J.cause: a nuke launcher's, shotNuke in shots.js. A player killed is blamed on whoever fired it, as foeBoom does)
+  const by=J.by||undefined,pk=by&&by.pvp;
   for(const q of players){if(!q.active||q.state==='dead'||J.hit.has(q))continue;const dx=pwx(q)-cx,dz=pwz(q)-cz,d=Math.hypot(dx,dz);if(d>r)continue;J.hit.add(q);
     addShake(d<C.R?1.6:0.5,q.pos.x,q.pos.z,30);rumble(q,d<C.R?1:0.5,1200);if(d>=C.R)continue;
-    const h=d||1,n=d<K.rf?999:Math.round(10*fall(d)**1.5);if(n>0)damagePlayer(q,n,new V3(q.pos.x,q.pos.y+1,q.pos.z),new V3(dx/h,0.8,dz/h),BB_CAUSE);}
+    const h=d||1,n=d<K.rf?999:Math.round(10*fall(d)**1.5);
+    if(n>0){damagePlayer(q,n,new V3(q.pos.x,q.pos.y+1,q.pos.z),new V3(dx/h,0.8,dz/h),BB_CAUSE,pk===q?undefined:by);if(pk&&pk!==q&&q.state==='dead')pvpKilled(pk,q);}}
   for(const g of goblins){if(g.state!=='chase'||J.hit.has(g))continue;const dx=g.pos.x-cx,dz=g.pos.z-cz,d=Math.hypot(dx,dz);if(d>r)continue;J.hit.add(g);if(d>=C.R)continue;
-    const h=d||1,n=d<K.rf?g.hp+1:4*fall(d)**1.5;if(n<0.2)continue;damageGoblin(g,n,new V3(g.pos.x,g.pos.y+1,g.pos.z),new V3(dx/h,0,dz/h),BB_CAUSE);
+    const h=d||1,n=d<K.rf?g.hp+1:4*fall(d)**1.5;if(n<0.2)continue;damageGoblin(g,n,new V3(g.pos.x,g.pos.y+1,g.pos.z),new V3(dx/h,0,dz/h),J.cause||BB_CAUSE);
     if(g.state==='dead'&&++J.dead>BB_CORPSES){g.t=20;g.root.visible=false;}}   // (past the first few, the rest are just gone in the flash)
   for(const c of cars){if(!c.alive||J.hit.has(c))continue;const dx=c.pos.x-cx,dz=c.pos.z-cz,d=Math.hypot(dx,dz);if(d>r)continue;J.hit.add(c);if(d>=C.R)continue;
     if(d<K.rf){BB.quiet++;try{if(!drvSafe(c))explodeCar(c);}finally{BB.quiet--;}}   // (wrecked where it stands: no blast of its own, nothing set off round it)

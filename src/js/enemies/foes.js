@@ -129,7 +129,7 @@ function foeShoot(g,p,F){const gk=foeGunK(F),W=WEAPONS[gk];
   // whatever it meets, him included; all its numbers the weapon's)
   if(W.proj){const y1=g.pos.y+1.25,e=Math.min(2.5,d/25),a=Math.random()*6.283,tx=p.pos.x+Math.cos(a)*e*Math.random(),ty=p.pos.y+1+(Math.random()-0.5)*e,tz=p.pos.z+Math.sin(a)*e*Math.random(),
       L=Math.hypot(tx-x0,ty-y1,tz-z0)||1;
-    shot({kind:W.proj,x:x0,y:y1,z:z0,vx:(tx-x0)/L*W.speed,vy:(ty-y1)/L*W.speed,vz:(tz-z0)/L*W.speed,grav:0,fuse:W.range/W.speed+0.5,R:W.R,dmg:W.dmg,cause:F.gun.cause,by:g.id,crush:W.crush,vd:W.vd});
+    shot({kind:W.proj,x:x0,y:y1,z:z0,vx:(tx-x0)/L*W.speed,vy:(ty-y1)/L*W.speed,vz:(tz-z0)/L*W.speed,grav:W.grav||0,fuse:W.range/W.speed+0.5,R:W.R,dmg:W.dmg,cause:F.gun.cause,by:g.id,crush:W.crush,vd:W.vd,bb:W.nuke});
     wpnCrack(gk);smoke(g.pos.x-fx*0.9,y1,g.pos.z-fz*0.9,3,0xbababa);return;}   // (and its backblast)
   // (a shotgun: its pellets, each its own round, each less likely to land the further he is)
   if(W.pellets){for(let i=0;i<W.pellets;i++)fireRound({x:x0,y:y0,z:z0,at:{x:p.pos.x,y:p.pos.y+1.2,z:p.pos.z},tgt:p,hit:Math.max(0.05,0.95-d/(W.npc.fall||14)),miss:[1.6,3.1,-0.45,1.5,1.6],step:0.4,

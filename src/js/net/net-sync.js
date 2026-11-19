@@ -426,7 +426,7 @@ function netSendSnap(p){   // (and the goblins' places are kept each frame, belo
 // has drifted, and he's eased back by that much over the next few frames, so a correction is a nudge, never a jump.
 // Anything the guest can't guess (riding or driving something, dying, a big knock) and it shows the host's own.
 const NET_PREDICT=true;
-const NET_AUTH=['wpns','gren','mines','ammoN','relT','hp','deadT','hurtFx','regenT','hurt','stam','exhausted','lastHit','killer','score','cbN','cbT'];   // (what's always the host's to say, guessing or not. The combo too: only the host's kills build one, and the guest's own clock runs it down between snapshots, so without it the bar sat still)
+const NET_AUTH=['wpns','gren','mines','ammoN','spareN','relT','hp','deadT','hurtFx','regenT','hurt','stam','exhausted','lastHit','killer','score','cbN','cbT'];   // (what's always the host's to say, guessing or not. The combo too: only the host's kills build one, and the guest's own clock runs it down between snapshots, so without it the bar sat still)
 const NETP={on:false,hist:[],sent:new Map(),corr:new V3(),snap:false,fr:null};   // (fr: the ship whose frame this guest's own player is in, or null out in the world)
 // (the guest's controls going out: when each went, so its history can be matched up)
 function netPredSent(n){if(NETP.sent.size>200)NETP.sent.clear();NETP.sent.set(n,NET.now);}
