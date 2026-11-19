@@ -1,0 +1,10 @@
+{
+  "layout": "rider",
+  "tracks": {
+    "legL": [[0,0],[1,-0.08],[2,0]],
+    "legR": [[0,0],[0.45,-0.4],[0.9,0.15,"o"],[1.35,0.75,"o"],[2,0]],
+    "lean": [[0,0],[0.9,0.12],[2,0]],
+    "crank": [[0,0]]
+  },
+  "note": "One kick on a kick scooter: the back foot reaches forward, pushes back along the ground and comes back on the deck."
+}

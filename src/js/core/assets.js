@@ -26,10 +26,15 @@ const ASSET_LAYOUTS={
   hippo:{about:'A hippo (Gus and Gertie)',ch:[['head','Head'],['jaw','Jaw open'],['pitch','Body pitch'],['roll','Body roll'],['lift','Body up'],
     ['sx','Wider'],['sy','Taller'],['sz','Longer'],['legFR','Front right leg'],['legFL','Front left leg'],['legBR','Back right leg'],['legBL','Back left leg'],
     ['outFR','Front right leg out'],['outFL','Front left leg out'],['outBR','Back right leg out'],['outBL','Back left leg out'],['legW','Legs taken over'],
-    ['curl','Curl (the roll)'],['spin','Somersault (the roll)']],min:19}};
+    ['curl','Curl (the roll)'],['spin','Somersault (the roll)']],min:19},
+  // a goblin riding a light vehicle (src/assets/vehicles/: a bicycle, a kick scooter, the Gobway, a motor scooter; its
+  // clip names the one it rides with). u 0 to 2 is one turn of the pedals, one kick, leaning right back to right forward
+  // (the Gobway), or nothing at all (a motor scooter: one pose). Each leg turns at the hip (0 hanging straight down,
+  // minus forward), lean tips the body forward at the waist, crank turns a bicycle's cranks (vehicles/light-vehicles.js)
+  rider:{about:'A goblin riding a light vehicle',ch:[['legL','Left leg'],['legR','Right leg'],['lean','Lean forward'],['crank','Cranks']],min:4}};
 const ASSET_SHAPES=['box','cyl','cone','wedge','sphere'];
 const ASSET_ROLES={club:null};   // ('@club' is null in a weapon's list: wpnBoxes paints it the goblins' club colour, GC.club)
-const assetLayoutOf=name=>/^vm/.test(name)?'vm':/^vr/.test(name)?'vr':/^hip/.test(name)?'hippo':'body';
+const assetLayoutOf=name=>/^vm/.test(name)?'vm':/^vr/.test(name)?'vr':/^hip/.test(name)?'hippo':/^rd/.test(name)?'rider':'body';
 // a box -> the list the game reads, [w,h,d,colour,x,y,z(,role or render order(,tag))], with r and sh hung on the list itself
 function assetBox(b){
   const c=typeof b.c==='string'&&b.c[0]==='@'?(ASSET_ROLES[b.c.slice(1)]??null):typeof b.c==='string'?parseInt(b.c.slice(1),16):b.c;
@@ -117,7 +122,9 @@ function assetPoseAt(c,u){
 }
 // the tables, from ASSETS (files in the order their _order.json gives)
 function assetWeaponsAll(A){const o={};for(const k in A.weapons)o[k]=assetWeapon(A.weapons[k]);return o;}
-function assetClipsAll(A){const o={};for(const k in A.clips)if(A.clips[k].layout!=='hippo')o[k]=assetClip(A.clips[k]);return o;}
+function assetClipsAll(A){const o={};for(const k in A.clips)if(A.clips[k].layout!=='hippo'&&A.clips[k].layout!=='rider')o[k]=assetClip(A.clips[k]);return o;}
+// (the riders' clips: RIDER_CLIPS in light-vehicles.js)
+function assetRiderAll(A){const o={};for(const k in A.clips)if(A.clips[k].layout==='rider')o[k]=assetClip(A.clips[k]);return o;}
 // (the hippos' clips: HCLIP in move.js, read by hipAt)
 function assetHipAll(A){const o={};for(const k in A.clips)if(A.clips[k].layout==='hippo')o[k]=assetClip(A.clips[k]);return o;}
 
@@ -190,6 +197,23 @@ const ASSET_POLE=-2,ASSET_LAMP=-3,FIX_SPOTS={signal:['head'],sign:['face'],board
 function assetFix(F){return {boxes:(F.boxes||[]).map(b=>[b.c==='@pole'?ASSET_POLE:b.c==='@lamp'?ASSET_LAMP:assetHex(b.c),b.p[0],b.p[1],b.p[2],b.s[0],b.s[1],b.s[2]]),spots:F.spots||{}};}
 function assetFixAll(A){const o={};for(const k in A.fixtures||{})o[k]=assetFix(A.fixtures[k]);return o;}
 
+// ---- light vehicles (src/assets/vehicles/, built by lightBuild in vehicles/light-vehicles.js) ----
+// A vehicle: {boxes:[{s,p,c,r,part}], parts:{name:{p,in}}, clip}, from the middle of its footprint on the ground, its
+// front +z, in the model's own units (scaled into the world by ES, as the other vehicles' are). A box can be tilted (r,
+// XYZ) and can belong to a part (part), a group that moves: each part turns about its own point p, inside the part
+// named by in (if any). Parts that move by name: steerF (turns with the steering), wheel* (spins: wheelF and wheelB,
+// or wheelL and wheelR side by side), crank, rider (the goblin on it, shown only while someone's riding it), legL and
+// legR (at the hip), body (at the waist). c '#rrggbb' or a role: @paint (the vehicle's own colour, picked per vehicle),
+// @tire, @hub, @head, @tail (lamps), @blinkL / @blinkR (indicators: lit while blinking), and the rider's @skin, @tunic,
+// @belt. clip: the rider's animation (a clip of layout 'rider').
+const VEH_ROLES=['paint','tire','hub','head','tail','blinkL','blinkR','skin','tunic','belt'];
+// -> the parts in an order where each comes after the one it's in, each placed in its parent's frame (lp), and the
+// boxes with their places in their own part's frame (lp)
+function assetVehParts(V){const P=V.parts||{},out=[],seen={};
+  const add=n=>{if(seen[n])return;seen[n]=1;const q=P[n],par=q.in&&P[q.in]?q.in:null;if(par)add(par);const pp=par?P[par].p:[0,0,0];out.push({n,par,p:q.p,lp:[q.p[0]-pp[0],q.p[1]-pp[1],q.p[2]-pp[2]]});};
+  for(const n in P)add(n);
+  const boxes=(V.boxes||[]).map((b,i)=>{const pp=b.part&&P[b.part]?P[b.part].p:[0,0,0];return {b,i,part:b.part&&P[b.part]?b.part:null,lp:[b.p[0]-pp[0],b.p[1]-pp[1],b.p[2]-pp[2]]};});
+  return {parts:out,boxes};}
 // ---- shapes other than boxes, and tilted boxes, for anything built from a weapon's list ----
 // Every shape is made once at unit size and stretched to the box's (o.scale), so it batches like a box does (batDraw: one
 // batch per shape and material kind, however many there are)
@@ -304,6 +328,17 @@ function assetCheck(kind,name,a){
     for(const L of ['props','people','cars'])if(a[L]!==undefined){if(!Array.isArray(a[L]))E.push(L+' must be a list');
       else a[L].forEach((q,i)=>{const at=L+'['+i+']';if(!q||!v3(q.p))E.push(at+': p must be three numbers');if(typeof (L==='props'?q.m:q.k)!=='string')E.push(at+': '+(L==='props'?'m (the model)':'k (the kind)')+' missing');
         if(q&&q.yaw!==undefined&&!n(q.yaw))E.push(at+': yaw must be a number');});}
+  }else if(kind==='vehicles'){
+    if(!Array.isArray(a.boxes)||!a.boxes.length)E.push('boxes: a list of at least one box');
+    const P=a.parts||{};if(a.parts!==undefined&&(!a.parts||typeof a.parts!=='object'||Array.isArray(a.parts)))E.push('parts must be {name:{p,in}}');
+    for(const k in P){if(!P[k]||!v3(P[k].p))E.push('parts.'+k+': p must be three numbers');if(P[k]&&P[k].in!==undefined&&!P[P[k].in])E.push('parts.'+k+': in names no part');
+      let q=P[k],n=0;while(q&&q.in&&n<20){q=P[q.in];n++;}if(n>=20)E.push('parts.'+k+': parts inside each other in a loop');}
+    (a.boxes||[]).forEach((b,i)=>{const at='boxes['+i+']';if(!b||typeof b!=='object')return E.push(at+': not a box');
+      if(!v3(b.s)||b.s.some(x=>x<=0))E.push(at+': size s must be three numbers above 0');if(!v3(b.p))E.push(at+': place p must be three numbers');
+      if(b.r!==undefined&&!v3(b.r))E.push(at+': tilt r must be three numbers');
+      if(typeof b.c!=='string'||!(/^#[0-9a-f]{6}$/i.test(b.c)||b.c[0]==='@'&&VEH_ROLES.includes(b.c.slice(1))))E.push(at+': colour c must be #rrggbb or one of '+VEH_ROLES.map(r=>'@'+r).join(' '));
+      if(b.part!==undefined&&!P[b.part])E.push(at+': part '+b.part+' is not in parts');});
+    if(a.clip!==undefined&&typeof a.clip!=='string')E.push('clip must be the name of a rider animation');
   }else if(kind==='props'||kind==='fixtures'){
     const roles=kind==='props'?['tint']:['pole','lamp'];
     if(!Array.isArray(a.boxes)||!a.boxes.length)E.push('boxes: a list of at least one box');

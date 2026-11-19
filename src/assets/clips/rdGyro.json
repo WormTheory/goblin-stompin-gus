@@ -1,0 +1,5 @@
+{
+  "layout": "rider",
+  "tracks": {"legL":[[0,0]],"legR":[[0,0]],"lean":[[0,-0.12],[1,0],[2,0.22]],"crank":[[0,0]]},
+  "note": "Riding the Gobway: u 0 leaning right back, 1 upright, 2 leaning right forward (the game picks u by how far its rider leans)."
+}

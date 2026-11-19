@@ -5,7 +5,7 @@
 const DRV_NAME={ship:'ship',tank:'tank',heli:'helicopter',train:'train',subway:'subway train',plane:'plane',balloon:'hot-air balloon'};
 function drvName(D){if(D.netN)return D.netN;const o=D.o;   // (D.netN: a guest online, told by the host)
 
-  if(D.k==='car')return o.police?'police car':{car:'car',bike:'motorcycle',van:'van',pickup:'pickup',truck:'truck',semi:'lorry',bus:'bus',fire:'fire engine',amb:'ambulance',news:'news van',rv:'motorhome',technical:'technical',quad:'four-wheeler',super:'supercar',forklift:'forklift',hover:'hovercraft',tractor:'tractor'}[o.veh]||'car';
+  if(D.k==='car')return o.police?'police car':{car:'car',bike:'motorcycle',van:'van',pickup:'pickup',truck:'truck',semi:'lorry',bus:'bus',fire:'fire engine',amb:'ambulance',news:'news van',rv:'motorhome',technical:'technical',quad:'four-wheeler',super:'supercar',forklift:'forklift',hover:'hovercraft',tractor:'tractor',bicycle:'bicycle',kick:'kick scooter',segway:'Gobway',moped:'motor scooter'}[o.veh]||'car';
   if(D.k==='boat')return o.K.name.toLowerCase();
   if(D.k==='ship')return o.K.name;
   if(D.k==='mount')return o.K.name;
@@ -127,7 +127,7 @@ function drvSeat(p){
   const S=drvPose(D);p.pos.set(S.x,S.y+(D.k==='mech'?5:Math.min(1.2,S.hy*0.5)),S.z);   // (a Mobile Gear's pilot sits up in its chest)p.heading=S.h;
   p.vy=0;p.grounded=true;p.mvx=p.mvz=0;p.standCar=null;p.vcl=null;p.peakY=p.pos.y;p.biteT=0;
   if(p.gb)gunGripUndo(p.gb.m);   // (a gun held two-handed the moment before getting in: strikes.js)
-  if(rideShown(p)){if(D.seat==='gun')gunPose(p,o);else if(rideSeatOf(D))seatPose(p,D);else ridePose(p,o);}
+  if(rideShown(p)){if(D.seat==='gun')gunPose(p,o);else if(rideSeatOf(D)){seatPose(p,D);if(D.k==='car')lightRider(p,o);}else ridePose(p,o);}
   // (in anything closed, it's your head the others see at the wheel, as they see every other driver's: cars.js's dh)
   else if(D.k==='car'&&D.seat!=='gun'&&!D.jack&&o.dh&&!o.dh.visible)o.dh.visible=true;
 }
@@ -135,7 +135,8 @@ function drvSeat(p){
 // spot under his hips (or his feet, standing), and 'sit' or 'stand'; w: in blocks rather than the model's own units
 // (the ship's helm: he's stood there already, see shipSeat)
 const RIDE_SEAT={forklift:[0,1.27,-0.48,'sit'],tractor:[0,1.25,-0.84,'sit'],pedalo:[0.3,0.8,-0.5,'sit',1],row:[0,0.63,0.2,'sit',1],
-  speed:[0.35,1.1,0.05,'sit',1],balloon:[0,0.72,0,'stand',1]};
+  speed:[0.35,1.1,0.05,'sit',1],balloon:[0,0.72,0,'stand',1],
+  bicycle:[0,0.9,-0.28,'sit'],moped:[0,0.97,-0.3,'sit'],kick:[0,0.2,-0.04,'stand'],segway:[0,0.38,0,'stand']};
 const rideKind=D=>D.k==='car'?D.o.veh:D.k==='boat'?D.o.k:D.k==='balloon'?'balloon':null;
 const rideSeatOf=D=>D.k==='ship'?SHIP_STAND:RIDE_SEAT[rideKind(D)]||null,SHIP_STAND=[0,0,0,'stand',1];
 // sat at the wheel (hands on it, knees up) or stood at the basket's rim or the ship's wheel, carried with the vehicle
@@ -235,7 +236,9 @@ function drvCar(c,dt){
   if(V==='forklift')forkDrive(c,i,dt);
   else if(V==='tractor'){thr=farmDrive(c,i,thr,top);if(farmWorking(c)){top*=FARM.slow;acc*=FARM.slow;}}
   // (a road vehicle: the handbrake and drifting, boosts, its special, the keyboard's throttle easing on: road-handling.js)
-  const road=V!=='forklift'&&V!=='tractor'&&V!=='hover',R=road?roadDrive(c,i,thr,dt,Hd,top,acc):null;if(R){thr=R.thr;top=R.top;acc=R.acc;}
+  const road=V!=='forklift'&&V!=='tractor'&&V!=='hover'&&V!=='segway',R=road?roadDrive(c,i,thr,dt,Hd,top,acc):null;if(R){thr=R.thr;top=R.top;acc=R.acc;}
+  // (a light one, ridden its own way: pedalled, kicked, leant on, twisted. See light-vehicles.js)
+  const Lt=lightOf(c)?lightDrive(c,i,thr,dt,Hd,top,acc):null;if(Lt){thr=Lt.thr;top=Lt.top;acc=Lt.acc;}
   if(c.grounded||rampUnder(c.pos.x,c.pos.z,c.pos.y+0.5)){
     if(thr>0.1)c.speed+=(c.speed<0?brk:acc*(Hd.accFall?Math.max(0.45,1-c.speed/Hd.accFall):1))*thr*dt;else if(thr<-0.1)c.speed-=(c.speed>0?brk:Math.min(acc,8))*-thr*dt;else c.speed*=Math.exp(-dt*Hd.coast);}
   c.speed=Math.max(-Hd.rev,Math.min(top,c.speed));
@@ -243,11 +246,11 @@ function drvCar(c,dt){
   // (and a road vehicle's steering eases off with speed, so a lane change at speed isn't twitchy; its own grip then
   // brings where it's going round to where it points: roadSlip)
   const fall=Hd.fall||(road?Hd.top*3:0);
-  c.steer+=(st-c.steer)*Math.min(1,dt*8);const dh=c.steer*dt*Math.max(-1,Math.min(1,c.speed/(V==='forklift'?2:5)))*Hd.steer*(fall?Math.max(0.45,1-Math.abs(c.speed)/fall):1)*(R?R.yaw:1);
+  c.steer+=(st-c.steer)*Math.min(1,dt*8);const dh=c.steer*dt*(Lt&&Lt.spot?1:Math.max(-1,Math.min(1,c.speed/(V==='forklift'?2:5))))*Hd.steer*(fall?Math.max(0.45,1-Math.abs(c.speed)/fall):1)*(R?R.yaw:1);
   c.heading+=dh;if(V==='forklift')forkPivot(c,dh);
   if(V==='hover')hovDrift(c,dt);else if(R)roadSlip(c,dt,Hd,R.grip);
   if(c.veh==='fire')drvHose(c,i,dt);   // (a fire engine: bite sprays water, its special is the siren. See hose.js)
-  else if(i.bitePress&&c.honkT<=0){horn(0.12);c.honkT=0.4;}   // (bite sounds the horn)
+  else if(i.bitePress&&c.honkT<=0){if(Lt)lightHorn(c);else horn(0.12);c.honkT=0.4;}   // (bite sounds the horn: on a light one, a bell or a beep)
 }
 // the throttle from the controls, -1 (full brake or reverse) to 1: on a controller the triggers, as far as they're
 // pulled (RT throttle, LT brake), or else the stick; on the keyboard W and S

@@ -65,9 +65,15 @@ const VEH={bus:{hx:1.25,hz:5.2,hy:3.3,hp:45,head:[0.5,2.7,4.3],roof:l=>3.3},
   // (a hovercraft: the debug menu's only, never in the traffic; it rides over water as over the road. See carPhysics)
   hover:{hx:1.3,hz:2.6,hy:2.8,head:[0,1.55,0.5],roof:l=>l>-0.4&&l<1.6?1.75:0.9},
   // (a farm tractor: parked in a farm's yard or by its field, never in the traffic; slow but strong. See drvCar)
-  tractor:{hx:0.96,hz:1.68,hy:2.35,head:[0,1.6,-0.7],roof:l=>l>-1.28&&l<-0.16?2.3:l>=-0.16?1.2:1.52}};
+  tractor:{hx:0.96,hz:1.68,hy:2.35,head:[0,1.6,-0.7],roof:l=>l>-1.28&&l<-0.16?2.3:l>=-0.16?1.2:1.52},
+  // (the light ones: a bicycle, a kick scooter, the Gobway and a motor scooter, each with its goblin on it; their models
+  // are files, src/assets/vehicles/, and how they're ridden is light-vehicles.js. hp: light, so they don't take much)
+  bicycle:{hx:0.32,hz:1.05,hy:1.7,hp:14,head:[0,1.47,-0.06],roof:l=>l>-0.5&&l<0.1?1.05:0.9},
+  kick:{hx:0.3,hz:0.55,hy:1.6,hp:10,head:[0,1.29,0.02],roof:l=>0.3},
+  segway:{hx:0.5,hz:0.38,hy:1.75,hp:16,head:[0,1.42,0.03],roof:l=>0.45},
+  moped:{hx:0.36,hz:1.0,hy:1.65,hp:20,head:[0,1.33,-0.27],roof:l=>l>-0.8&&l<0.1?1.0:0.7}};
 // which vehicles each kind of traffic is made of
-const VEH_MIX={street:[['car',0.57],['super',0.01],['bike',0.08],['van',0.12],['pickup',0.12],['truck',0.10]],hw:[['car',0.49],['super',0.01],['bike',0.05],['van',0.1],['pickup',0.1],['truck',0.12],['semi',0.13]],park:[['car',0.67],['bike',0.08],['van',0.12],['pickup',0.13]]};
+const VEH_MIX={street:[['car',0.49],['bicycle',0.03],['moped',0.03],['kick',0.01],['segway',0.01],['super',0.01],['bike',0.08],['van',0.12],['pickup',0.12],['truck',0.10]],hw:[['car',0.49],['super',0.01],['bike',0.05],['van',0.1],['pickup',0.1],['truck',0.12],['semi',0.13]],park:[['car',0.6],['bicycle',0.03],['moped',0.03],['kick',0.005],['segway',0.005],['bike',0.08],['van',0.12],['pickup',0.13]]};
 const pickVeh=mix=>{let u=Math.random();for(const [t,p] of VEH_MIX[mix]){if(u<p)return t;u-=p;}return'car';};
 // build (once) and show a vehicle body on a car object; its size, wheel footprint and roof go with it
 function setVeh(c,t){
@@ -237,6 +243,7 @@ function buildVeh(c,t){
     lights(0.85,1.05,6.55,-6.62);
     for(const [x,z,st] of [[-1,5.6,1],[1,5.6,1],[-1,3.0,0],[1,3.0,0],[-1,2.0,0],[1,2.0,0],[-1,-4.6,0],[1,-4.6,0],[-1,-5.7,0],[1,-5.7,0]])wheel(x*1.05,z,st,true);
   }
+  else if(LIGHT_RIDE[t]&&t!=='bike'){const L=lightBuild(c,t,g,b,wheels,front);return{g,wheels,front,rider:L.rider,gun,gunner,lv:L};}   // (light-vehicles.js)
   else if(t==='super'){
     // a supercar: a low wedge, the cabin set well back, intakes down the sides and a wing on the back
     b(2.0,0.5,4.4,c.paint,0,0.55,0);b(1.9,0.22,1.1,c.paint,0,0.7,1.6);b(1.6,0.42,1.9,c.paint,0,1.0,-0.35);

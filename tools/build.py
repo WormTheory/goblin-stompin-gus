@@ -92,7 +92,7 @@ def one(html,mark,what,name):
 # build). They're written into the game as one line, const ASSETS={kind:{name:{...}}}, ahead of every script, and
 # src/js/core/assets.js turns them into the tables the game reads. A file's note is for whoever edits it, so it's left out.
 import json
-ASSET_KINDS=('weapons','clips','bodies','grips','props','fixtures','moves','sites')
+ASSET_KINDS=('weapons','clips','bodies','grips','props','fixtures','moves','sites','vehicles')
 def assets():
   out={}
   for kind in ASSET_KINDS:

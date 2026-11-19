@@ -61,7 +61,7 @@ function jackVictim(D,J){
 }
 // getting in, when there's someone at the controls: it starts here, and drvTick and drvSeat play it out
 function jackStart(p,D){
-  const o=D.o,S=drvPose(D),kind=D.k==='car'?(o.veh==='bike'||o.veh==='quad'?'bike':'door'):D.k;
+  const o=D.o,S=drvPose(D),kind=D.k==='car'?(LIGHT_RIDE[o.veh]||o.veh==='quad'?'bike':'door'):D.k;
   // (the driver's side: a car's driver sits to one side, so that; a tank or a helicopter, whichever side you came up on)
   const lx=(p.pos.x-S.x)*Math.cos(S.h)-(p.pos.z-S.z)*Math.sin(S.h);
   const s=kind==='door'?(VEH[o.veh].head[0]<0?-1:1):lx<0?-1:1;

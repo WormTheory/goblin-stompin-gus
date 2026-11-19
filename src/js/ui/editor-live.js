@@ -20,7 +20,10 @@ function liveWeapon(k,file){
   for(let i=PICKUPS.length-1;i>=0;i--){const P=PICKUPS[i];if(P.k===k&&!P.live){scene.remove(P.m);PICKUPS.splice(i,1);}}
   return 'ok';
 }
-function liveClip(name,file){if(file.layout==='hippo')HCLIP[name]=assetClip(file);else STRIKES[name]=assetClip(file);return 'ok';}   // (a hippo's: move.js reads HCLIP)
+function liveClip(name,file){if(file.layout==='hippo')HCLIP[name]=assetClip(file);else if(file.layout==='rider'){const f=Object.assign({},file);delete f.note;ASSETS.clips[name]=f;}else STRIKES[name]=assetClip(file);return 'ok';}   // (a hippo's: move.js reads HCLIP; a rider's: light-vehicles.js reads it from ASSETS)
+// (a light vehicle's model: every one of that kind built again from it, there and then)
+function liveVeh(name,file){if(!VEH[name])return 'no vehicle '+name+' in this build';const f=Object.assign({},file);delete f.note;ASSETS.vehicles[name]=f;
+  for(const c of cars){const G=c.vehG[name];if(!G)continue;c.g.remove(G.g);delete c.vehG[name];if(c.veh===name)setVeh(c,name);}return 'ok';}
 // (a body's hurtboxes are read from ASSETS each time a blow is tested: hit-shapes.js)
 // (a grip is read by gunGrip each time a goblin with a gun is drawn: grip.js)
 function liveGrip(name,file){const f=Object.assign({},file);delete f.note;GUN_GRIP[name]=f;return 'ok';}
@@ -147,7 +150,7 @@ if(EDITOR_LIVE){
     if(d&&(d.type==='gsg-site-info'||d.type==='gsg-site-cap')){let r;try{r=d.type==='gsg-site-info'?liveSiteInfo():liveSiteCapture(d.kind,d.n);}catch(err){r={error:String(err&&err.message||err)};}
       try{e.source&&e.source.postMessage({type:d.type+'-done',id:d.id,res:r},location.origin);}catch(err){}return;}
     if(!d||d.type!=='gsg-asset')return;
-    let r;try{r=d.kind==='weapons'?liveWeapon(d.name,d.file):d.kind==='clips'?liveClip(d.name,d.file):d.kind==='bodies'?liveBody(d.name,d.file):d.kind==='grips'?liveGrip(d.name,d.file):d.kind==='props'?liveProp(d.name,d.file):d.kind==='fixtures'?liveFix(d.name,d.file):d.kind==='moves'?liveMove(d.name,d.file):d.kind==='sites'?liveSite(d.name,d.file):'unknown kind';}catch(err){r=String(err&&err.message||err);}
+    let r;try{r=d.kind==='weapons'?liveWeapon(d.name,d.file):d.kind==='clips'?liveClip(d.name,d.file):d.kind==='bodies'?liveBody(d.name,d.file):d.kind==='grips'?liveGrip(d.name,d.file):d.kind==='props'?liveProp(d.name,d.file):d.kind==='vehicles'?liveVeh(d.name,d.file):d.kind==='fixtures'?liveFix(d.name,d.file):d.kind==='moves'?liveMove(d.name,d.file):d.kind==='sites'?liveSite(d.name,d.file):'unknown kind';}catch(err){r=String(err&&err.message||err);}
     try{e.source&&e.source.postMessage({type:'gsg-asset-done',kind:d.kind,name:d.name,result:r},location.origin);}catch(err){}
   });
   // (tell the editor this window is ready for its edits)

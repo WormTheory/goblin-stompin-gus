@@ -12,7 +12,7 @@
 // over for (sirenYield). C (rdBehind) looks behind (drvCamera).
 const ROAD={dMin:6.9,dRate:0.4,boost:[0.5,1.2,2],boostTop:1.3,boostAcc:20,ramp:3.2,nitro:0.35,hop:7,flash:22};
 const ROAD_SIREN={amb:1,fire:1};
-function roadKind(c){const V=c.veh;return c.police?'siren':ROAD_SIREN[V]?'siren':V==='super'?'nitro':V==='bike'?'wheelie':V==='quad'||V==='technical'?'hop':
+function roadKind(c){const V=c.veh;return c.police?'siren':ROAD_SIREN[V]?'siren':V==='super'?'nitro':V==='bike'?'wheelie':V==='kick'?'none':V==='bicycle'?'none':V==='moped'?'none':V==='kick'?'none':V==='bicycle'?'none':V==='moped'?'none':V==='quad'||V==='technical'?'hop':
   V==='truck'||V==='semi'||V==='bus'?'air':V==='van'||V==='pickup'||V==='news'||V==='rv'?'hazard':'flash';}
 // each step at the wheel, before it's turned and moved: what the throttle, top speed, pull and turn come to
 function roadDrive(c,i,thr,dt,Hd,top,acc){

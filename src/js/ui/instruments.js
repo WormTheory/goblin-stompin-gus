@@ -204,9 +204,10 @@ const INSTRUMENTS={
   train:{vb:'0 -12 200 126',w:240,draw:inTrain},
   balloon:{vb:'0 0 222 134',w:250,draw:inBalloon},
   mgring:{vb:'-66 -66 132 134',w:170,draw:inMech,flat:true},
+  cycle:{vb:'0 0 150 74',w:150,draw:inCycle,flat:true},gyro:{vb:'0 0 140 84',w:140,draw:inGyro,flat:true},moped:{vb:'-80 -58 160 116',w:150,draw:inMoped},
 };
 // which one a car has, by its body
-const CAR_INST={bike:'bike',truck:'truck',semi:'truck',bus:'truck',fire:'truck',hover:'hover',forklift:'fork',tractor:'tractor'};
+const CAR_INST={bike:'bike',truck:'truck',semi:'truck',bus:'truck',fire:'truck',hover:'hover',forklift:'fork',tractor:'tractor',bicycle:'cycle',segway:'gyro',moped:'moped',kick:null};   // (a kick scooter has nothing)
 // what's in the slot for this player now: their vehicle's instrument, or nothing (on foot, or with none)
 function drvInst(p){const D=p.drv;if(!D||D.jack||D.seat==='gun')return null;   // (a gunner sees their guns' ammo, nothing more)
   const K=VEHICLE_KINDS[D.k];return K?K.inst(D):null;}

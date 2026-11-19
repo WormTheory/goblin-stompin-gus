@@ -304,6 +304,7 @@ function updateCars(dt){
       // (rolling off the foot of a ramp it's barely ever 'grounded' between the little steps: without this a long truck can only coast, at a crawl, and holds everyone up)
       if(c.grounded||rampUnder(c.pos.x,c.pos.z,c.pos.y+0.5)){if(target<c.speed)c.speed=Math.max(target,c.speed-10*dt);else c.speed+=(target-c.speed)*Math.min(1,dt*1.5);}
     }
+    if(!c.drv&&LIGHT_AI[c.veh]&&c.speed>LIGHT_AI[c.veh])c.speed=LIGHT_AI[c.veh];   // (a bicycle or a scooter going about the streets at its own pace)
     if(c.speed>0.3&&!c.drv){const lim=xingLimit(c);if(lim<c.speed)c.speed=Math.max(lim,c.speed-14*dt);}   // (the barriers are down at a level crossing ahead)
     const fx=Math.sin(c.heading),fz=Math.cos(c.heading),dir=c.speed<0?-1:1,pa=c.veh==='forklift'&&dir>0?1.45:2.1;   // (how far ahead it feels for a wall: a forklift's forks go up to one, over a ledge)
     if(Math.abs(c.speed)>0.05){
@@ -336,11 +337,12 @@ function updateCars(dt){
       else if(ahead-c.pos.y>rampLim){
         // (into a wall fast enough, and it smashes a hole in it, wrecking its own front and losing most of its speed;
         // the bigger the vehicle and the faster, the bigger the hole; slower than that, it bounces off)
-        if((c.hunter||c.drv)&&Math.abs(c.speed)>13){const sp=Math.abs(c.speed),k=Math.min(1,(sp-13)/15),big=c.hz>3*ES?1.35:c.veh==='bike'?0.7:1,R=(1.5+k*1.4)*big,
+        if((c.hunter||c.drv)&&Math.abs(c.speed)>13){const sp=Math.abs(c.speed),k=Math.min(1,(sp-13)/15),big=c.hz>3*ES?1.35:LIGHT_RIDE[c.veh]?0.7:1,R=(1.5+k*1.4)*big,
             ix=c.pos.x+fx*2.7*dir,iz=c.pos.z+fz*2.7*dir,iy=c.pos.y+Math.min(R*0.9,(c.hy||1.4)*0.6)+0.1;
           crushBall(ix,iy,iz,R,{force:0.8+k});damageCar(c,4+sp*0.4,undefined,'acc');sfx('Vehicle crashes into a wall',()=>{thud(0.7);clang();});addShake(0.4+k*0.5,ix,iz,25);smoke(ix,iy,iz,6,0x9a948a);
-          c.speed*=0.35;if(c.veh==='bike'&&c.drv)drvExit(c.drv,true);}   // (off a motorcycle you go)
-        else if(c.hunter||c.drv||c.crew){if(Math.abs(c.speed)>6){damageCar(c,1,undefined,'acc');sfx('Vehicle bumps a wall',()=>{thud(0.25);});}c.speed*=-0.25;if(c.reverseT<=0)c.reverseT=0.8;}
+          c.speed*=0.35;if(LIGHT_RIDE[c.veh]&&c.drv)drvExit(c.drv,true);}   // (off a motorcycle, or anything light, you go)
+        else if(c.hunter||c.drv||c.crew){if(lightOf(c)&&c.drv&&Math.abs(c.speed)>5.5)drvExit(c.drv,true);   // (over the bars into a wall)
+          if(Math.abs(c.speed)>6){damageCar(c,1,undefined,'acc');sfx('Vehicle bumps a wall',()=>{thud(0.25);});}c.speed*=-0.25;if(c.reverseT<=0)c.reverseT=0.8;}
         else if(c.path){const W=c.path[0],d=Math.hypot(W.x-c.pos.x,W.z-c.pos.z)||1;c.speed=Math.min(c.speed,1);nudgeFlat(c,(W.x-c.pos.x)/d*2*dt,(W.z-c.pos.z)/d*2*dt);
           // wedged against a barrier just after peeling off the motorway: give up on the exit and carry on along the motorway
           c.pathBlk=(c.pathBlk||0)+dt;if(c.pathBlk>1.5&&c.prevHw&&Math.abs(c.pos.y-c.prevHw.y)<1.2){c.hw=c.prevHw;c.prevHw=null;c.path=null;c.pathBlk=0;}}
@@ -374,7 +376,7 @@ function updateCars(dt){
     if(c.forkOn&&!(c.forkOn.alive&&c.forkOn.g.visible))c.forkOn=null;   // (its forklift's gone: it falls)
     if(c.forkOn){c.vy=0;c.grounded=true;}else carPhysics(c,dt);if(!c.alive)continue;   // (up on a forklift's forks: forkPost holds it there, it doesn't fall or settle on the ground under it)
     if(Math.abs(c.kv.x)+Math.abs(c.kv.z)>0.05){nudgeFlat(c,c.kv.x*dt,c.kv.z*dt);const k=Math.exp(-dt*3.5);c.kv.x*=k;c.kv.z*=k;}
-    c.g.position.copy(c.pos);c.g.rotation.set(c.pitch+(c.wly||0),c.heading,c.roll+(c.tipR||0)+(c.veh==='bike'?-c.steer*Math.min(1,Math.abs(c.speed)/8)*0.4:0));   // (a motorcycle leans into its turns)
+    c.g.position.copy(c.pos);c.g.rotation.set(c.pitch+(c.wly||0),c.heading,c.roll+(c.tipR||0)+(LIGHT_LEAN[c.veh]?-c.steer*Math.min(1,Math.abs(c.speed)/8)*LIGHT_LEAN[c.veh]:0));lightLook(c,dt);   // (a motorcycle, or a bicycle or scooter, leans into its turns)
     for(const w of c.wheels)w.rotation.x+=c.speed*dt/0.36;
     for(const f of c.front)f.rotation.y=c.steer*(c.veh==='forklift'?-0.6:0.45);   // (a forklift steers with its back wheels)
     if(c.fan&&c.drv)c.fan.rotation.z+=dt*(14+Math.abs(c.speed)*0.8);   // (a hovercraft's fan, while someone's at the controls)

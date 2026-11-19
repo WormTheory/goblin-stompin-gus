@@ -37,6 +37,10 @@
     "hipSpin",
     "hipKnock",
     "hipPoundLand",
-    "hipRoll"
+    "hipRoll",
+    "rdPedal",
+    "rdKick",
+    "rdGyro",
+    "rdScoot"
   ]
 }

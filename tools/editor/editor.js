@@ -8,15 +8,15 @@
 'use strict';
 const $=id=>document.getElementById(id);
 const S={grip:true,tab:'models',kind:null,name:null,wl:'held',sel:-1,ctx:true,insp:'box',hsel:-1,msel:[],hmsel:[],t:0,playing:false,speed:1,loop:true,key:null,autoKey:true,
-  snap:0.01,mode:'translate',game:null,gameOk:false,list:{weapons:[],clips:[],bodies:[],grips:[],props:[],fixtures:[],moves:[]},search:'',previewW:null,fp:true,tint:'#6b7780',groups:{}};
+  snap:0.01,mode:'translate',game:null,gameOk:false,list:{weapons:[],clips:[],bodies:[],grips:[],props:[],fixtures:[],moves:[],vehicles:[]},search:'',previewW:null,fp:true,tint:'#6b7780',groups:{}};
 const DOCS=new Map();
 const key=(k,n)=>k+'/'+n;
 const doc=()=>S.kind?DOCS.get(key(S.kind,S.name)):null;
 // ---- the editor's tabs: each shows its own kinds of file in the list, and keeps the file it had open ----
-const TABS=[['models','Weapons and goblins',['weapons','clips','bodies','grips']],['props','Props',['props','fixtures']],['hippo','Hippo',['moves']],['sites','Structures',['sites']]];
-const tabOf=(kind,name)=>kind==='clips'&&/^hip/.test(name||'')?'hippo':(TABS.find(t=>t[2].includes(kind))||TABS[0])[0];   // (a hippo's animations are in the Hippo tab)
+const TABS=[['models','Weapons and goblins',['weapons','clips','bodies','grips']],['props','Props',['props','fixtures']],['hippo','Hippo',['moves']],['sites','Structures',['sites']],['vehicles','Vehicles',['vehicles']]];
+const tabOf=(kind,name)=>kind==='clips'&&/^hip/.test(name||'')?'hippo':kind==='clips'&&/^rd/.test(name||'')?'vehicles':(TABS.find(t=>t[2].includes(kind))||TABS[0])[0];   // (a hippo's animations are in the Hippo tab)
 const TAB_OPEN={};   // (the file each tab last had open: [kind, name])
-// ---- kinds of file a module of their own edits (hippo.js, sites.js): each hook, if it has one, stands in for the
+// ---- kinds of file a module of their own edits (hippo.js, sites.js, vehicles.js): each hook, if it has one, stands in for the
 // editor's own for that kind -- open, rebuild (the view), insp and inspTabs (the inspector), toolbar, frame, tl (the
 // timeline: bar, draw, and its pointer events), tick (each frame), play (may it play), step, changed, del, dup, list,
 // start, message ----
@@ -67,7 +67,7 @@ function changed(full,soft){
 
 // ---- the asset browser ----
 const WDATA={};   // (every weapon's file, for previews: which weapon plays which clip, what's held in it)
-const LAYOUT_NAME={body:'third person',vm:'first-person swing',vr:'first-person reload',hippo:'hippo'};
+const LAYOUT_NAME={body:'third person',vm:'first-person swing',vr:'first-person reload',hippo:'hippo',rider:'rider'};
 function clipLayout(name){const d=DOCS.get(key('clips',name));return d?d.data.layout:assetLayoutOf(name);}
 // a weapon's animations, as its fields name them (shown under it in the list, and the choices in its Stats)
 const WCLIPS=[['npc','pose','Aiming pose','body'],['npc','strike','Strike up close','body'],['npc','rl','Reload','body'],['player','body','Blow (as others see it)','body'],
@@ -106,7 +106,7 @@ function renderList(){
   h+='<div class="grp"><span>Bodies (hurtboxes)</span></div>';
   for(const n of S.list.bodies||[])if(hit(n))h+=it('bodies',n,(DOCS.get(key('bodies',n))||{data:{}}).data.name||n);
   h+='<div class="grp"><span>Other animations</span><button class="x" id="newC" title="New animation (a copy of the one open). A weapon uses it once it\'s picked in the weapon\'s Stats">+ new</button></div>';
-  let none=true;for(const n of S.list.clips)if(!used.has(n)&&hit(n)&&clipLayout(n)!=='hippo'){h+=it('clips',n,n,LAYOUT_NAME[clipLayout(n)]||'');none=false;}
+  let none=true;for(const n of S.list.clips)if(!used.has(n)&&hit(n)&&clipLayout(n)!=='hippo'&&clipLayout(n)!=='rider'){h+=it('clips',n,n,LAYOUT_NAME[clipLayout(n)]||'');none=false;}
   if(none)h+='<div class="note" style="padding:0 6px">'+(q?'None match':'None')+'</div>';
   $('assetList').innerHTML=h;
   for(const e of $('assetList').querySelectorAll('.item'))e.onclick=()=>open(e.dataset.k,e.dataset.n,e.dataset.w);
@@ -114,7 +114,7 @@ function renderList(){
   $('newW').onclick=()=>newAsset('weapons');$('newC').onclick=()=>newAsset('clips');
 }
 // switching tabs: the list shows that tab's files, and the file it last had open comes back (or nothing)
-const EMPTY_TXT={models:'Pick a weapon or an animation on the left.',props:'Pick a prop or a street fixture on the left.',hippo:'Pick a move on the left.',sites:'Pick a structure on the left.'};
+const EMPTY_TXT={models:'Pick a weapon or an animation on the left.',props:'Pick a prop or a street fixture on the left.',hippo:'Pick a move on the left.',sites:'Pick a structure on the left.',vehicles:'Pick a vehicle or a rider animation on the left.'};
 function setTab(t){if(S.tab===t)return;if(S.kind)TAB_OPEN[S.tab]=[S.kind,S.name];S.tab=t;S.search='';$('search').value='';
   const o=TAB_OPEN[t];if(o)return open(o[0],o[1]);
   S.kind=null;S.name=null;S.playing=false;gizmo.detach();$('empty').style.display='';$('empty').textContent=EMPTY_TXT[t]||'';
@@ -132,7 +132,7 @@ async function open(kind,name,w){
   $('empty').style.display='none';
   renderList();renderToolbar();renderInsp();rebuild();frameView();
   tlShow();
-  status(({weapons:'Weapon ',bodies:'Body ',grips:'Grip ',props:'Prop ',fixtures:'Fixture ',moves:'Move ',sites:'Structure '}[kind]||'Animation ')+name);
+  status(({weapons:'Weapon ',bodies:'Body ',grips:'Grip ',props:'Prop ',fixtures:'Fixture ',moves:'Move ',sites:'Structure ',vehicles:'Vehicle '}[kind]||'Animation ')+name);
 }
 // (which weapon to show an animation with: the first that uses it)
 function weaponFor(c){
@@ -313,6 +313,7 @@ function rebuild(){
     budget(viewList(W,S.wl),mode);
   }else{
     const c=d.data,W=WDATA[S.previewW];
+    if(c.layout==='rider'){posed=vehRiderRig(d);if(posed)poseAt(S.t);return;}   // (vehicles.js: on the vehicle that plays it)
     if(c.layout==='hippo'){posed=hipClipRig();if(posed)poseAt(S.t);hud(posed?'':'Starting the game to get the hippo…');return;}
     if(c.layout==='body'){const J=goblin(false);content.add(J.root);
       for(const b of viewList(W,'held'))J.hand.add(boxMesh(b));
@@ -363,6 +364,7 @@ function poseAt(u){
   const d=doc();if(!posed||!d||d.kind!=='clips')return;const c=d.data;
   if(posed.k==='body')poseBody(posed.J,c,u,WDATA[S.previewW],/^rl/.test(d.name));
   else if(posed.k==='hippo')hipClipPose(posed,c,u);
+  else if(posed.k==='rider')vehRiderPose(posed,c,u);
   else{fpPose(posed.F,posed.W,c,u);fpPose(fpView,posed.W,c,u);}
 }
 // a goblin posed by a body clip at u, as gobStrike does, then (with the toggle on, for a gun) both hands put on the gun
@@ -455,7 +457,7 @@ gizmo.addEventListener('objectChange',()=>{
 // (a moved box or hit shape back into the file, from its mesh (or a stand-in) in its parent's frame)
 function putBox(W,o){const b=editList(W,S.wl)[o.userData.i];b.p=[r4(o.position.x),r4(o.position.y),r4(o.position.z)];
   b.s=[o.scale.x,o.scale.y,o.scale.z].map(v=>r4(Math.max(0.005,Math.abs(v))));
-  const rr=[o.rotation.x,o.rotation.y,o.rotation.z].map(r4);if(rr.some(v=>v)&&!Array.isArray(W.boxes))b.r=rr;else delete b.r;}
+  const rr=[o.rotation.x,o.rotation.y,o.rotation.z].map(r4);if(rr.some(v=>v)&&(!Array.isArray(W.boxes)||W.parts))b.r=rr;else delete b.r;}   // (a vehicle's boxes tilt; a prop's don't)
 function putHit(W,o){const s=W.hit[hitSet()][o.userData.i];s.p=[r4(o.position.x),r4(o.position.y),r4(o.position.z)];
   if(s.k==='box')s.s=[o.scale.x,o.scale.y,o.scale.z].map(v=>r4(Math.max(0.005,Math.abs(v))));
   else if(s.k==='sphere')s.r=r4(Math.max(0.01,Math.abs(o.scale.x)));else{s.r=r4(Math.max(0.01,Math.abs(o.scale.x)));s.h=r4(Math.max(0,Math.abs(o.scale.y)));}
@@ -472,6 +474,7 @@ function frameView(){
   {const X=ext();if(X&&X.frame){X.frame(d);orbit.update();return;}}
   if(d.kind==='grips'){orbit.target.set(2.2,0.7,0);cam.position.set(-1.4,1.9,4.4);}   // (from in front and to the side: an aimed gun points at a viewer straight ahead)
   else if(d.kind==='clips'&&d.data.layout==='hippo'){orbit.target.set(0,1.2,0.3);cam.position.set(5.2,3.2,5.6);}
+  else if(d.kind==='clips'&&d.data.layout==='rider'){orbit.target.set(0,0.75,0);cam.position.set(2.6,1.5,1.6);}
   else if(S.insp==='hit'){orbit.target.set(0,0.6,0.8);cam.position.set(4.2,3,-1.6);}
   else if(!flatKind(d.kind)&&(d.kind==='clips'&&d.data.layout==='body'||S.ctx&&(S.wl==='held'||S.wl==='stow'))){orbit.target.set(0,0.65,0.2);cam.position.set(2.2,1.4,2.4);}
   else if(!flatKind(d.kind)&&(d.kind==='clips'||S.wl==='view')){orbit.target.set(0.3,-0.4,-0.6);cam.position.set(1.6,0.4,0.6);}
@@ -504,6 +507,8 @@ function renderToolbar(){
     h+=gripChk();
   }else if(d.kind!=='clips'){
     h+=[['translate','Move (G)'],['rotate','Tilt (R)'],['scale','Size (S)']].map(([k,t])=>'<button data-mode="'+k+'" class="'+(S.mode===k?'on':'')+'">'+t+'</button>').join('');
+  }else if(d.data.layout==='rider'){
+    h+='<label>Shown on <select id="pvSel">'+(S.list.vehicles||[]).map(n=>'<option'+(n===vehFor(d.name)?' selected':'')+'>'+esc(n)+'</option>').join('')+'</select></label>';
   }else if(d.data.layout!=='hippo'){
     if(d.data.layout==='body')h+=gripChk();
     h+='<label>Shown with <select id="pwSel">'+S.list.weapons.map(n=>'<option value="'+n+'"'+(n===S.previewW?' selected':'')+'>'+esc(WDATA[n]?WDATA[n].name:n)+'</option>').join('')+'</select></label>';
@@ -517,6 +522,7 @@ function renderToolbar(){
   if($('ctxChk'))$('ctxChk').onchange=e=>{S.ctx=e.target.checked;S.sel=-1;rebuild();frameView();};
   if($('tintIn'))$('tintIn').oninput=e=>{S.tint=e.target.value;rebuild();renderInsp();};
   if($('pwSel'))$('pwSel').onchange=e=>{S.previewW=e.target.value;rebuild();};
+  if($('pvSel'))$('pvSel').onchange=e=>{S.previewV=e.target.value;rebuild();};
   $('frameBtn').onclick=frameView;
 }
 function setMode(m){if(m==='rotate'&&flatDoc())return;S.mode=m;gizmo.setMode(m);renderToolbar();}
@@ -744,7 +750,9 @@ const CH_UI={
     fwd:['Distance','minus further out in front, plus closer','blk',-1.5,0.5],roll:['Roll','plus turns it anticlockwise','deg',-90,90]},
   vr:{tilt:['Tilt','plus points it up, minus down (added to how it\'s held)','deg',-60,60],roll:['Roll','plus turns it anticlockwise','deg',-90,90],
     across:['Across','plus to the right (added to where it\'s held)','blk',-0.3,0.3],up:['Height','plus higher','blk',-0.3,0.3],fwd:['Distance','plus closer','blk',-0.3,0.3],
-    mag:['Magazine out','0 in place, 1 gone (it drops away, then a new one comes up)','',0,1]}};   // (and the hippo's: hippo.js adds them)
+    mag:['Magazine out','0 in place, 1 gone (it drops away, then a new one comes up)','',0,1]},
+  rider:{legL:['Left leg','minus swings it forward, plus back','deg',-120,90],legR:['Right leg','minus swings it forward, plus back','deg',-120,90],
+    lean:['Lean','plus forward, minus back','deg',-45,45],crank:['Cranks','one turn is 360','deg',0,360]}};   // (and the hippo's: hippo.js adds them)
 const chUI=(c,j)=>{const nm=chNames(c)[j]||ASSET_LAYOUTS[c.layout].ch[j][0],u=CH_UI[c.layout]&&CH_UI[c.layout][nm];
   return u?{n:u[0],h:u[1],u:u[2],lo:u[3],hi:u[4]}:{n:ASSET_LAYOUTS[c.layout].ch[j][1],h:'',u:'',lo:-4,hi:4};};
 const toUI=(U,v)=>U.u==='deg'?+(v*180/Math.PI).toFixed(2):+(+v).toFixed(4),fromUI=(U,v)=>U.u==='deg'?v*Math.PI/180:v;
@@ -788,7 +796,7 @@ function poseTitle(c){const k=S.key;
   if(!k)return 'Pose at '+S.t.toFixed(3);
   if(k.all!==undefined)return 'Keys at '+k.all.toFixed(3)+' (every channel keyed there)';
   return 'Key: '+esc(ASSET_LAYOUTS[c.layout].ch[k.j][1])+', '+(k.i+1)+' of '+trackOf(c,k.j).length;}
-function users(c){if(HIP_USE[c])return [HIP_USE[c]];const o=[];for(const n of S.list.weapons){const W=WDATA[n];if(!W)continue;const N=W.npc||{},P=W.player||{};
+function users(c){if(HIP_USE[c])return [HIP_USE[c]];if(clipLayout(c)==='rider')return vehUsers(c);const o=[];for(const n of S.list.weapons){const W=WDATA[n];if(!W)continue;const N=W.npc||{},P=W.player||{};
   for(const [f,v] of [['strike',N.strike],['pose',N.pose],['reload',N.rl],['first-person swing',P.swing],['first-person reload',P.rl],['as others see him',P.body]])if(v===c)o.push((W.name||n)+' ('+f+')');}return o;}
 // a key on every channel at the playhead (K)
 function addKey(){const d=doc();if(!d||d.kind!=='clips'||S.playing)return;edit(C=>{for(let j=0;j<chNames(C).length;j++)keyCh(C,j,S.t,true);});S.key={all:r4(S.t)};renderInsp();}
@@ -898,6 +906,7 @@ function poseGrab(hit,e,c){
   const o=hit.object,under=g=>{for(let q=o;q;q=q.parent)if(q===g)return true;return false;},nm=chNames(c),J=nm.indexOf.bind(nm);
   const fixed=(g,l)=>()=>g.localToWorld(l.clone());
   if(posed.k==='hippo')return hipClipGrab(o,under,J,e,hit,fixed);
+  if(posed.k==='rider')return vehRiderGrab(o,under,J,hit,fixed);
   if(posed.k==='body'){const P=posed.J;
     if(under(P.hand))return e.shiftKey?{ch:[J('arm'),J('armOut')],pt:fixed(P.hand,P.hand.worldToLocal(hit.point.clone()))}:{ch:[J('wrist')],pt:fixed(P.hand,P.hand.worldToLocal(hit.point.clone()))};
     if(under(P.arm))return{ch:[J('arm'),J('armOut')],pt:fixed(P.arm,new THREE.Vector3(0,-0.4,0))};
@@ -923,7 +932,7 @@ function poseStep(G,c,mx,my){
   poseAt(S.t);drawTL();syncPose();
 }
 {let G=null;
-  const hitFig=e=>{const d=doc();if(!d||d.kind!=='clips'||!posed||S.playing)return null;const root=posed.k==='body'?posed.J.root:posed.k==='hippo'?posed.root:posed.F.vm;
+  const hitFig=e=>{const d=doc();if(!d||d.kind!=='clips'||!posed||S.playing)return null;const root=posed.k==='body'?posed.J.root:posed.k==='hippo'||posed.k==='rider'?posed.root:posed.F.vm;
     const r=R.domElement.getBoundingClientRect(),ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),cam);
     return ray.intersectObject(root,true)[0]||null;};
   // (in the capture phase, so it's ahead of the view's own turning)

@@ -2,6 +2,15 @@
 
 ## Version 0.5
 
+### Bicycles and scooters
+
+- Four light vehicles out in the streets, ridden by goblins going about their day and parked along the kerbs: a bicycle, a kick scooter, the Gobway (a self-balancing two-wheeler) and a motor scooter. Each is ridden its own way.
+- Bicycle: hold forward to pedal along easily, or tap right click (controller RT) in a steady rhythm to pedal hard and go much faster. Hard pedalling tires your legs, shown on the bike computer, and they come back as you ease off. Space is the back brake, left click rings the bell.
+- Kick scooter: tap forward to kick off, again and again to build speed, then coast. Hold it and you kick every so often. Press and let go of right click to ollie. No display: it's a kick scooter.
+- Gobway: lean forward to go and back to slow and reverse. It turns on the spot when standing still. Push it past its top speed and it tips you back and beeps. Its handlebar display shows the battery, your lean and a light that turns yellow when it's pushing back and red when the battery's low (then it goes at half speed).
+- Motor scooter: twist and go, quick off the line and easing off near the top. Right click flicks the indicators on toward the way you're steering, and again turns them off. Its round dial has a fuel gauge, and running dry leaves it spluttering along.
+- They're light: hit a wall fast and you go over the bars.
+
 ### New vehicles
 
 - Supercars: low, wide and very fast. Now and then one turns up in the traffic, tearing along the motorways well over the limit. Get in and it reaches over 60 a second, more than twice a car's top speed, so mind the walls. It steers a little less sharply the faster it goes.

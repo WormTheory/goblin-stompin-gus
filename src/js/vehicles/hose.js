@@ -42,7 +42,7 @@ function hoseHit(c,H){
   // cars and lorries: pushed along, the smaller the further; trains, boats and tanks are too heavy to shift
   for(const o of cars){if(o===c||!o.alive||!o.g.visible)continue;if(Math.abs(o.pos.x-H.sx)>H.L+8||Math.abs(o.pos.z-H.sz)>H.L+8)continue;
     if(!near(o.pos.x,o.pos.y,o.pos.z,Math.max(o.hx,o.hz)+0.4,o.hy||1.4))continue;
-    const m=o.veh==='bike'?1.6:o.veh==='semi'||o.veh==='bus'||o.veh==='fire'?0.35:o.veh==='truck'||o.veh==='rv'?0.6:1;
+    const m=LIGHT_RIDE[o.veh]?1.6:o.veh==='semi'||o.veh==='bus'||o.veh==='fire'?0.35:o.veh==='truck'||o.veh==='rv'?0.6:1;
     if(Math.hypot(o.kv.x,o.kv.z)<9*m){o.kv.x+=ux*2.2*m;o.kv.z+=uz*2.2*m;}if(!o.drv&&o.speed)o.speed*=0.85;o.hoseT=playTime;}
   // a helicopter in the air is blown about a little
   for(const V of venues.values())for(const M of V.mil||[]){if(M.kind!=='heli'||M.dead||!M.hv)continue;if(near(M.x,M.y,M.z,2.4,MIL.heli.hy)){M.hv.x+=ux*1.2;M.hv.z+=uz*1.2;}}

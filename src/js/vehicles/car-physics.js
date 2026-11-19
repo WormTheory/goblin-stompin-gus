@@ -2,7 +2,7 @@
 // the ground under a vehicle; a hovercraft also rides on open water, at its surface (as a road is at sea level)
 function hovSup(c,x,z,y){const v=supportAt(x,z,y);if(c.veh!=='hover'||y<G+0.6||!(v===null||v<G+1))return v;return get(Math.floor(x),G,Math.floor(z))===WATER&&!solidAt(x,G+1,z)?G+1:v;}
 function carPhysics(c,dt){
-  const s=Math.sin(c.heading),k=Math.cos(c.heading),wx=c.hx*1.1,wz=c.hz-0.36;
+  const s=Math.sin(c.heading),k=Math.cos(c.heading),wx=c.hx*1.1,wz=Math.max(0.12,c.hz-0.36);   // (never under a short one's middle: the Gobway's half-length is under 0.36, and the pitch's sums went the wrong way round)
   // on a ramp the wheels ride the slope (a long truck's sit well above or below its middle); anywhere else a car won't climb a ledge
   const onRamp=rampUnder(c.pos.x,c.pos.z,c.pos.y+0.5)||rampUnder(c.pos.x+s*wz,c.pos.z+k*wz,c.pos.y+0.5)||rampUnder(c.pos.x-s*wz,c.pos.z-k*wz,c.pos.y+0.5);
   const slope=onRamp?wz*0.5+0.2:0,reach=c.pos.y+0.4+slope;

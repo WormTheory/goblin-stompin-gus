@@ -13,7 +13,7 @@
 const FORK={top:3.4,up:1.1,upLoad:0.65,tilt:6,tiltV:6,lance:2.2,tipLat:4,tipV:1.4,
   // (the forks' reach in front of its middle, along the heading, in blocks, and half their width)
   f0:0.75,f1:1.75,hw:0.55};
-const FORK_CARS={car:1200,pickup:1800,bike:200,quad:300,super:1400};   // (light enough to lift, and what each weighs)
+const FORK_CARS={car:1200,pickup:1800,bike:200,quad:300,super:1400,bicycle:15,kick:6,segway:50,moped:110};   // (light enough to lift, and what each weighs)
 const FARM={cruise:[0,0.3,0.6,0.92],slow:0.65,back:2.0,hw:{plough:0.9,mower:1.3,none:0.4}};
 function forkState(c){return c.fork||(c.fork={h:0,tilt:0,load:null,risk:0,beepT:0,lanceT:0});}
 function farmState(c){return c.farm||(c.farm={cr:0,imp:'plough',down:false,saveT:0,scrapeT:0});}
@@ -150,4 +150,5 @@ function carHow(p,D,armed,G){const A=id=>actMark(p,id),V=D.o.veh;
   if(V==='tractor'){const F=D.o.farm||{imp:'plough',down:false},w=F.imp==='none'?'hitch':F.imp;
     return A('fmCruise')+'/'+A('fmCruiseDn')+' hand throttle  ·  '+A('fmImp')+(F.down?' raise the ':' lower the ')+w+'  ·  '+A('fmSwap')+' swap implement  ·  '+G;}
   if(D.seat==='gun'||V==='hover')return G;
+  if(LIGHT_HOW[V])return lightHow(p,D,G);
   return roadHow(p,D,G);}

@@ -70,7 +70,7 @@ function netCars(p,N,out,cfg){
   for(let i=0;i<cars.length;i++){const c=cars[i],G=c.g;if(!G.visible||!netNear(G.position,px,pz,R))continue;
     const P=G.position,Q=G.rotation,w=[],f=[];for(const s of c.wheels)w.push(r3(s.rotation.x));for(const s of c.front)f.push(r3(s.rotation.y));
     out.push([i,r3(P.x),r3(P.y),r3(P.z),r3(Q.x),r3(Q.y),r3(Q.z),w,f,c.dh&&c.dh.visible?1:0,c.hazG&&c.hazG.visible?1:0,c.alive?1:0,
-      (c.police&&(c.hunter||c.pullLit||c.svcPool&&c.svc&&c.svc.st!=='parked'&&c.svc.st!=='leave')?1:0)|(c.hazard?2:0)|(c.flash&&c.svc&&c.svc.st!=='parked'?4:0),r3(c.hp),c.hpMax>=c.hp?c.hpMax:Math.max(r3(c.hp),carHP(c))]);   // (lights flashing: a police car's, hazards, an ambulance's or fire engine's)
+      (c.police&&(c.hunter||c.pullLit||c.svcPool&&c.svc&&c.svc.st!=='parked'&&c.svc.st!=='leave')?1:0)|(c.hazard?2:0)|(c.flash&&c.svc&&c.svc.st!=='parked'?4:0)|(c.blink<0?8:c.blink>0?16:0),r3(c.hp),c.hpMax>=c.hp?c.hpMax:Math.max(r3(c.hp),carHP(c))]);   // (lights flashing: a police car's, hazards, an ambulance's or fire engine's)
     const k=c.veh+'|'+netCol(c.paint.color)+'|'+(c.police?1:0);if(N.cars.get(i)!==k){N.cars.set(i,k);cfg[i]=[c.veh,netCol(c.paint.color),c.police?1:0,!!c.hunter];}}
 }
 
@@ -601,7 +601,8 @@ function netGuestFrame(dt){
     const L=e[12]|0,t=NET.now/1000;
     if(c.police&&c.lightR){const on=Math.floor(t*6.5)%2===0,lit=L&1;c.lightR.color.setHex(lit?(on?0xff2a2a:0x501010):0x401010);c.lightB.color.setHex(lit?(on?0x101a50:0x3a7aff):0x101a40);}
     if(c.hazM&&L&2)c.hazM.color.setHex(Math.floor(t*1.7)%2===0?0xffa024:0x3a2408);
-    if(c.flash){const on=L&4&&Math.floor(t*5.5)%2===0;c.flash[0].color.setHex(on?0xff2a2a:0x501010);c.flash[1].color.setHex(on?0x303030:(c.veh==='amb'?0xffffff:0x3a7aff));}}
+    if(c.flash){const on=L&4&&Math.floor(t*5.5)%2===0;c.flash[0].color.setHex(on?0xff2a2a:0x501010);c.flash[1].color.setHex(on?0x303030:(c.veh==='amb'?0xffffff:0x3a7aff));}
+    if(lightOf(c)){c.netM=true;lightLook(c,1/60,L);}}   // (a bicycle's legs, a kick, the Gobway's tilt, a scooter's indicators: light-vehicles.js)
   netShipFrames();
 }
 // (guest, each step: only what's for show. The host's snapshots do everything else)
