@@ -39,6 +39,18 @@ for(const m of [rainM,snowM]){m.frustumCulled=false;m.count=0;m.renderOrder=2;sc
 const drops=[];{const r=mulberry(4711);for(let i=0;i<PRECIP_N;i++)drops.push({x:r()*PBX*2,y:r()*PBY,z:r()*PBX*2,s:r()});}
 const _pm=new THREE.Matrix4(),_pq=new THREE.Quaternion(),_pv=new THREE.Vector3(),_ps=new THREE.Vector3(1,1,1),_pa=new THREE.Vector3();let wxClock=0;
 const wrapC=(v,c,h)=>c+((((v-c+h)%(2*h))+2*h)%(2*h))-h;
+// each view's camera velocity, smoothed: a rain streak lies along the drop's motion as that camera sees it, so moving
+// fast (running, driving, flying) tips the streaks towards you as the rain sweeps past. A jump (a teleport, a ship's
+// pocket), a long stall or a pause counts as standing still
+const PRECIP_CV=[],_pUp=new THREE.Vector3(0,1,0);
+function precipCamVel(cam,who){
+  const now=performance.now()/1000,C=PRECIP_CV[who||0]||(PRECIP_CV[who||0]={x:cam.x,y:cam.y,z:cam.z,t:now,vx:0,vy:0,vz:0}),dt=now-C.t;
+  if(dt>1e-4){const vx=(cam.x-C.x)/dt,vy=(cam.y-C.y)/dt,vz=(cam.z-C.z)/dt;
+    if(!playing||dt>0.3||vx*vx+vy*vy+vz*vz>400*400)C.vx=C.vy=C.vz=0;
+    else{const k=1-Math.exp(-dt/0.12);C.vx+=(vx-C.vx)*k;C.vy+=(vy-C.vy)*k;C.vz+=(vz-C.vz)*k;}
+    C.x=cam.x;C.y=cam.y;C.z=cam.z;C.t=now;}
+  return C;
+}
 // the cover map: for each column in a square round the camera, the height of the highest solid block (refreshed as you move)
 const mkCover=()=>({N:44,x0:0,z0:0,top:new Int16Array(44*44),t:-1,cx:1e9,cz:1e9,under:false}),COVERS=[mkCover(),mkCover()];let COVER=COVERS[0];
 function coverMap(cam,who){
@@ -56,9 +68,13 @@ function placePrecip(cam,who){
   rainM.count=nr;snowM.count=ns;
   const CM=COVER,under=(x,y,z)=>{const i=Math.floor(x)-CM.x0,j=Math.floor(z)-CM.z0;if(i<0||j<0||i>=CM.N||j>=CM.N)return false;return y<CM.top[j*CM.N+i];};
   const t=wxClock,w=WX.k.wind,wx=w*1.6,wz=w*0.7;
-  if(nr){const wl=Math.hypot(wx,wz);if(wl>0.01){_pa.set(wz/wl,0,-wx/wl);_pq.setFromAxisAngle(_pa,-Math.atan(wl/26));}else _pq.set(0,0,0,1);   // leaning with the wind
-    for(let i=0;i<nr;i++){const d=drops[i];_pv.set(wrapC(d.x+wx*t,cam.x,PBX),wrapC(d.y-(26+d.s*6)*t,cam.y+4,PBY/2),wrapC(d.z+wz*t,cam.z,PBX));if(under(_pv.x,_pv.y,_pv.z))_pv.y=-500;_pm.compose(_pv,_pq,_ps);rainM.setMatrixAt(i,_pm);}
-    rainM.instanceMatrix.needsUpdate=true;}
+  if(nr){const V=precipCamVel(cam,who);
+    // each streak lies along its drop's motion less the camera's (the wind, its own speed of fall), so it always points
+    // the way it's moving on screen; stretched a little when that's fast (motion blur)
+    for(let i=0;i<nr;i++){const d=drops[i],fall=26+d.s*6;_pv.set(wrapC(d.x+wx*t,cam.x,PBX),wrapC(d.y-fall*t,cam.y+4,PBY/2),wrapC(d.z+wz*t,cam.z,PBX));if(under(_pv.x,_pv.y,_pv.z))_pv.y=-500;
+      _pa.set(V.vx-wx,fall+V.vy,V.vz-wz);const sp=_pa.length();if(sp>1e-3){_pa.multiplyScalar(1/sp);_pq.setFromUnitVectors(_pUp,_pa);}else _pq.set(0,0,0,1);
+      _ps.y=Math.min(3,Math.max(1,sp/29));_pm.compose(_pv,_pq,_ps);rainM.setMatrixAt(i,_pm);}
+    _ps.y=1;rainM.instanceMatrix.needsUpdate=true;}
   if(ns){_pq.set(0,0,0,1);
     for(let i=0;i<ns;i++){const d=drops[PRECIP_N-1-i],sw=Math.sin(t*1.3+d.s*9)*0.5;_pv.set(wrapC(d.x+wx*t*1.8+sw,cam.x,PBX),wrapC(d.y-(1.8+d.s*1.4+w*0.6)*t,cam.y+4,PBY/2),wrapC(d.z+wz*t*1.8+Math.cos(t+d.s*7)*0.4,cam.z,PBX));if(under(_pv.x,_pv.y,_pv.z))_pv.y=-500;_pm.compose(_pv,_pq,_ps);snowM.setMatrixAt(i,_pm);}
     snowM.instanceMatrix.needsUpdate=true;}

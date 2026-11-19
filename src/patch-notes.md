@@ -280,6 +280,7 @@
 
 - Foggy weather now really closes in. The weather's fog used to shrink with the FAR VIEW setting, so with the view turned up it all but vanished; now fog, rain and snow limit how far you can see by the same number of blocks whatever the setting, with thick fog and blizzards down to about 30 blocks.
 - Windy weather is gone.
+- Rain streaks now always point the way the rain is moving. They used to lean only with the wind, so running, driving or flying through rain showed upright streaks sliding sideways; now they tip towards you as you go, and stretch out at speed.
 - Tanks, helicopters, planes and Mobile Gears now gather snow on top as cars do, as deep as the snow on the ground while they stand out in the open. It blows off a plane in the air or a helicopter going fast.
 - The main menu's "New city" button is now "New world".
 - The save screens now call a save a world rather than a city: "New file: new world", "Export this world", the world seed under the menu, and the rest.
