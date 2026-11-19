@@ -121,6 +121,42 @@ function assetClipsAll(A){const o={};for(const k in A.clips)if(A.clips[k].layout
 // (the hippos' clips: HCLIP in move.js, read by hipAt)
 function assetHipAll(A){const o={};for(const k in A.clips)if(A.clips[k].layout==='hippo')o[k]=assetClip(A.clips[k]);return o;}
 
+// ---- structures (src/assets/sites/, the editor's Structures tab): a site as it's built, block by block, and what's in
+// it. Captured from the world the game makes and edited from there. A site: {name, kind (its kind in the Structures list:
+// a TEST_GROUPS key), w, h (its size in the plan's blocks), face (the side its front's on: 0 -x, 1 +x, 2 -z, 3 +z, or -1
+// for none), on (built in the game in place of every one of its kind that size, turned to face the same way), y0 (the
+// lowest height it keeps), size [NX,NY,NZ], rows (its blocks: one string per row along z, each column bottom up as runs
+// of [count, block] bytes, in base64), props [{m (a model in PROPS), p:[x,y,z], yaw, tint?}], people [{k, p, yaw}]
+// (k: 'staff', 'civilian', 'goblin' or one of FOES), cars [{k, p, yaw}] (k: a vehicle in VEH, 'police', 'tank', 'heli'),
+// note}. x and z are blocks from its lot's corner (where the pavement ends: PL0 into its first plan block), y the world's
+// height. The blocks go in place of the generated ones from y0 up, inside the lot only, so the streets round it stay.
+const SITE_FIELDS=['name','kind','w','h','face','on','y0','size','rows','props','people','cars','note'];
+const siteB64=s=>{const b=atob(s),o=new Uint8Array(b.length);for(let i=0;i<b.length;i++)o[i]=b.charCodeAt(i);return o;};
+const siteTo64=a=>{let s='';for(let i=0;i<a.length;i+=8192)s+=String.fromCharCode.apply(null,a.subarray(i,i+8192));return btoa(s);};
+// its blocks as one array: column (u,v) from the bottom, at ((v*NX+u)*NY+y), y from y0. null if the rows don't add up
+function assetSiteDecode(f){
+  const [NX,NY,NZ]=f.size,A=new Uint8Array(NX*NY*NZ);if(!Array.isArray(f.rows)||f.rows.length!==NZ)return null;
+  for(let v=0;v<NZ;v++){let R;try{R=siteB64(f.rows[v]);}catch(e){return null;}let i=0;
+    for(let u=0;u<NX;u++){let y=0;const b0=(v*NX+u)*NY;
+      while(y<NY){if(i+1>=R.length)return null;const n=R[i],id=R[i+1];i+=2;if(!n||y+n>NY)return null;A.fill(id,b0+y,b0+y+n);y+=n;}}
+    if(i!==R.length)return null;}
+  return A;
+}
+function assetSiteRow(A,size,v){
+  const [NX,NY]=size,o=[];
+  for(let u=0;u<NX;u++){const b0=(v*NX+u)*NY;let y=0;while(y<NY){const id=A[b0+y];let n=1;while(y+n<NY&&n<255&&A[b0+y+n]===id)n++;o.push(n,id);y+=n;}}
+  return siteTo64(Uint8Array.from(o));
+}
+function assetSiteEncode(A,size){const o=[];for(let v=0;v<size[2];v++)o.push(assetSiteRow(A,size,v));return o;}
+// (the sites the game builds: their files, as they are; and what goes into the save's name, so a world made with
+// different sites is a different world: SAVE_KEY. Nothing with none switched on)
+function assetSitesOn(A){const o=[];for(const k in A.sites||{})if(A.sites[k].on)o.push(Object.assign({id:k},A.sites[k]));return o;}
+function assetSiteSig(A){
+  const L=assetSitesOn(A);if(!L.length)return '';let h=2166136261;
+  for(const s of L){const t=s.id+s.kind+s.w+','+s.h+','+s.face+','+s.y0+','+s.size+s.rows.join('');for(let i=0;i<t.length;i++){h^=t.charCodeAt(i);h=Math.imul(h,16777619);}}
+  return '-s'+(h>>>0).toString(36);
+}
+
 // ---- the hippos' moves (player/hitboxes.js): one file per move, its numbers and its own hitboxes ----
 // A move: {name, params:{key:{name, v (the value), min, max, step}}, smash:{shape, size, name} (what it does to blocks: shape
 // 'orig' the move's own hand-made shape scaled by size, or 'sphere', 'semi', 'cube', 'cone' of that radius), hitboxes:{on,
@@ -257,6 +293,17 @@ function assetCheck(kind,name,a){
         for(const f of ['r','len','fwd','up','side','a','b'])if(!n(b[f]))E.push(at+': '+f+' must be a number');
         for(const f of ['rx','ry','rz','dmg','carDmg'])if(b[f]!==undefined&&!n(b[f]))E.push(at+': '+f+' must be a number');
         if(n(b.a)&&n(b.b)&&b.b<b.a)E.push(at+': b (last frame) must not be before a');});}
+  }else if(kind==='sites'){
+    for(const f of ['name','kind'])if(typeof a[f]!=='string'||!a[f])E.push(f+' missing');
+    for(const f of ['w','h'])if(!(Number.isInteger(a[f])&&a[f]>=1))E.push(f+' must be a whole number, 1 or more');
+    if(![-1,0,1,2,3].includes(a.face))E.push('face must be -1, 0, 1, 2 or 3');
+    if(!Number.isInteger(a.y0)||a.y0<0)E.push('y0 must be a whole number, 0 or more');
+    if(!(Array.isArray(a.size)&&a.size.length===3&&a.size.every(v=>Number.isInteger(v)&&v>=1)))E.push('size must be three whole numbers [NX,NY,NZ]');
+    else if(!Array.isArray(a.rows)||a.rows.length!==a.size[2]||a.rows.some(r=>typeof r!=='string'))E.push('rows must be '+a.size[2]+' strings, one per row');
+    else if(!assetSiteDecode(a))E.push('rows: the blocks in them do not add up to the size');
+    for(const L of ['props','people','cars'])if(a[L]!==undefined){if(!Array.isArray(a[L]))E.push(L+' must be a list');
+      else a[L].forEach((q,i)=>{const at=L+'['+i+']';if(!q||!v3(q.p))E.push(at+': p must be three numbers');if(typeof (L==='props'?q.m:q.k)!=='string')E.push(at+': '+(L==='props'?'m (the model)':'k (the kind)')+' missing');
+        if(q&&q.yaw!==undefined&&!n(q.yaw))E.push(at+': yaw must be a number');});}
   }else if(kind==='props'||kind==='fixtures'){
     const roles=kind==='props'?['tint']:['pole','lamp'];
     if(!Array.isArray(a.boxes)||!a.boxes.length)E.push('boxes: a list of at least one box');

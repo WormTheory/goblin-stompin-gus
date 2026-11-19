@@ -144,7 +144,7 @@ function civAI(g,dt){
   } else {
     g.fleeing=false;
     if(g.vendor){
-      g.heading+=(-Math.PI/2-g.heading)*Math.min(1,dt*4);
+      g.heading+=((g.vendor.h??-Math.PI/2)-g.heading)*Math.min(1,dt*4);   // (a stall's vendor faces the street; a structure's townsfolk the way they were placed, world/sites.js)
       g.pos.x+=(g.vendor.x-g.pos.x)*Math.min(1,dt*3);g.pos.z+=(g.vendor.z-g.pos.z)*Math.min(1,dt*3);
       g.arm.rotation.x=-0.5+Math.sin(g.t*3)*0.3;g.armL.rotation.x=-0.3;
       return false;

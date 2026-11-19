@@ -238,6 +238,7 @@ function genChunk(cx,cz){
   }
   undergroundPass(a,x0,z0);
   railPass(a,x0,z0);
+  siteStamp(a,cx,cz);   // (a structure from the editor's Structures tab built in its place: world/sites.js)
   if(TR.raw)return a;   // (a moved box's source: what's smashed and frozen is the box's own, added by trChunk)
   const ce=chunkEdits.get(ckey(cx,cz));
   if(ce)for(const [x,y,z,b] of ce)a[li(x-x0,y,z-z0)]=b;

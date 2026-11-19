@@ -205,5 +205,5 @@ function siteRouse(V){
   if(V.roused)return;V.roused=true;V.awayT=0;const n=nearestPlayer(V.cx,V.cz),me=n&&n.p;
   V.slots.forEach((g,i)=>{if(!g||g.state!=='chase')return;g.gunCD=0.4+i*0.35+Math.random()*0.5;g.bombCD=2+Math.random()*3;if(me)g.heading=Math.atan2(me.pos.x-g.pos.x,me.pos.z-g.pos.z);});
   if(audio)tone('square',330,160,0.5,0.07);
-  if(me)flashLabel(V.style==='militia'?'The militia opens up on you!':V.style==='prepper'?'The preppers defend their compound!':"You've found the thieves' hideout!",me);
+  if(me&&V.style!=='site')flashLabel(V.style==='militia'?'The militia opens up on you!':V.style==='prepper'?'The preppers defend their compound!':"You've found the thieves' hideout!",me);
 }

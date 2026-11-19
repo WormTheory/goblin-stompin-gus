@@ -402,7 +402,7 @@ function manageRVs(){
 const policeDown={};
 const parkDown={};
 const r2=c=>c%2?'semi':'truck';
-function parkSpots(px,pz){
+function parkSpots0(px,pz){   // (the plan's: parkSpots, world/sites.js, puts a structure's own in place of these inside its lot)
   const P=plotInfo(px,pz),X0=px*CELL,Z0=pz*CELL,out=[];
   if(P.type==='plains')for(const o of abandonedSpots(px,pz))out.push(o);
   if(P.type==='thieves')for(const [u,v,h,i] of [[8,26,0.3,0],[24,25,-1.2,1],[22,4,1.6,2]])out.push({x:X0+u,z:Z0+v,y:G+1,h,key:px+','+pz+':st'+i,p:0.9});   // (the stolen cars)   // (wrecks dumped in the fields)

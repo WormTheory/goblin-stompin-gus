@@ -251,7 +251,7 @@ function updateSeaVenue(V,dt,t){
 function refreshVenues(){
   const want=new Set();
   for(const p of viewers()){
-    refreshSeaVenues(p,want);if(!TENV)refreshRailVenues(p,want);refreshCultVenues(p,want);refreshSiteVenues(p,want);
+    refreshSeaVenues(p,want);if(!TENV)refreshRailVenues(p,want);refreshCultVenues(p,want);refreshSiteVenues(p,want);refreshSitePpl(p,want);
     for(let px=Math.floor((p.pos.x-170)/CELL);px<=Math.floor((p.pos.x+170)/CELL);px++)for(let pz=Math.floor((p.pos.z-170)/CELL);pz<=Math.floor((p.pos.z+170)/CELL);pz++){
       if(!tenvShow(px,pz))continue;const S=superOf(px,pz);
       if(S&&S.kind==='theme'&&LM_TYPES.has(plotType(S.ax,S.az))){const k='t'+S.ax+','+S.az;want.add(k);if(!venues.has(k))venues.set(k,{S,kind:'theme',k,ride:null});pondBoats(S,want);}

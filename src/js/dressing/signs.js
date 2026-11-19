@@ -343,7 +343,7 @@ function refreshBrandSigns(){
         // (working out where a sign goes looks at its building, which makes its chunks: one a frame until they're there)
         if(!b._signs&&!ST.dressing&&!mayLook(px*CELL+b.x0,pz*CELL+b.z0))continue;
         const sp=brandSpots(b,px,pz);
-        for(let si=0;si<sp.length;si++){const S=sp[si],dx=S.x-p.pos.x,dz=S.z-p.pos.z;if(dx*dx+dz*dz>R*R)continue;
+        for(let si=0;si<sp.length;si++){const S=sp[si],dx=S.x-p.pos.x,dz=S.z-p.pos.z;if(dx*dx+dz*dz>R*R||siteIn(S.x,S.z))continue;
           // still held up? (count what's left of the wall behind it, in chunks that are loaded)
           let left=0,known=0;for(const a of S.anc){if(!chunks.has(ckey(Math.floor(a[0]/CS),Math.floor(a[2]/CS))))continue;known++;if(get(a[0],a[1],a[2])!==AIR)left++;}
           const key=seed+':'+px+','+pz+','+bi+','+si,up=known===0||left>=Math.ceil(known*0.55),was=bsignUp.get(key);

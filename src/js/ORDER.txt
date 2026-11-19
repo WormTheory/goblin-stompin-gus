@@ -22,6 +22,7 @@ buildings/roofs.js
 buildings/grounds.js
 buildings/landmarks.js
 world/generate.js
+world/sites.js
 render/meshing.js
 render/sky.js
 render/weather.js

@@ -50,7 +50,7 @@ function edit(f,merge,soft){
   if(!(merge&&mergeTag===merge)){d.undo.push(JSON.stringify(d.data));if(d.undo.length>300)d.undo.shift();d.redo.length=0;}
   mergeTag=merge||null;f(d.data);changed(false,soft);
 }
-function undo(redo){const d=doc();if(!d)return;const from=redo?d.redo:d.undo,to=redo?d.undo:d.redo;if(!from.length)return;
+function undo(redo){const d=doc();if(!d)return;{const X=ext();if(X&&X.undo){X.undo(d,redo);return;}}const from=redo?d.redo:d.undo,to=redo?d.undo:d.redo;if(!from.length)return;
   to.push(JSON.stringify(d.data));d.data=JSON.parse(from.pop());mergeTag=null;changed(true);}
 let liveT=0;
 function changed(full,soft){
@@ -290,7 +290,9 @@ function inParent(it){const M=new THREE.Matrix4().copy(it.par.matrixWorld).inver
 // make the view again from the open file
 function rebuild(){
   gizmo.detach();scene.remove(content);content=new THREE.Group();scene.add(content);pickable=[];posed=null;fpView=null;hitMeshes=[];curPgs=[];
-  const d=doc();grid.visible=grid1.visible=axes.visible=true;if(!d){hud('');return;}
+  const d=doc();grid.visible=grid1.visible=axes.visible=true;gizmo.showX=gizmo.showY=gizmo.showZ=true;
+  if(cam.far!==200){cam.near=0.01;cam.far=200;cam.updateProjectionMatrix();}   // (the Structures tab looks much further)
+  if(!d){hud('');return;}
   {const X=ext();grid.visible=grid1.visible=axes.visible=!(X&&X.noGrid);if(X&&X.rebuild){X.rebuild(d);return;}}
   if(d.kind==='bodies'){buildHit(d.data);return;}
   if(d.kind==='grips'){buildGrip(d.name);return;}
@@ -461,7 +463,7 @@ function putHit(W,o){const s=W.hit[hitSet()][o.userData.i];s.p=[r4(o.position.x)
 // picking: a click (not a drag) on a box selects it
 {let down=null;
   R.domElement.addEventListener('pointerdown',e=>{down=[e.clientX,e.clientY];});
-  R.domElement.addEventListener('pointerup',e=>{if(!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>4||gizmo.dragging)return;down=null;
+  R.domElement.addEventListener('pointerup',e=>{{const X=ext();if(X&&X.noPick)return;}if(!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>4||gizmo.dragging)return;down=null;
     const r=R.domElement.getBoundingClientRect(),m=new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),ray=new THREE.Raycaster();ray.setFromCamera(m,cam);
     const hit=ray.intersectObjects(pickable,false)[0];const i=hit?hit.object.userData.i:-1;
     pickSel(i,e.shiftKey);rebuild();renderInsp();});}

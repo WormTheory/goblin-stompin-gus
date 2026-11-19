@@ -219,7 +219,7 @@ function refreshProps(){
        const ck=px*100003+pz;if(seenS.has(ck))continue;seenS.add(ck);if(!tenvShow(px,pz))continue;
        // the markets, camps and yards out of doors (see siteProps), seen from as far off as the benches
        if(siteKind(px,pz))for(const f of siteProps(plotInfo(px,pz),px,pz)){if(out(f,p,RS))continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);
-         if(!chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS)))||get(fx,f.y0-1,fz)===AIR||get(fx,f.y0,fz)!==AIR||got.has(f.key))continue;
+         if(!chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS)))||get(fx,f.y0-1,fz)===AIR||get(fx,f.y0,fz)!==AIR||got.has(f.key)||siteIn(f.x,f.z))continue;
          got.add(f.key);activeProps.push(f);drawProp(f);if(!f.low&&!downFix.has(f.key)&&!falling.has(f.key))propCells.set(propCK(f.x,f.y0,f.z),f);}
        if(biomeOf(px,pz)==='plains')continue;
        for(const f of streetFurn(px,pz)){if(!f.prop)continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);if(get(fx,G,fz)!==f.on||get(fx,G+1,fz)!==AIR)continue;
@@ -233,10 +233,10 @@ function refreshProps(){
       if(COAST_PROPS.has(P.type)&&!seen.has(P)){seen.add(P);
         for(const f of coastProps(P,ax,az)){if(out(f,p,R))continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);if(!chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS))))continue;
           if(f.snap){let y=G+10;while(y>G-4&&get(fx,y,fz)===AIR)y--;if(get(fx,y,fz)===WATER||y<=G-4)continue;f.y0=y+1;f.snap=false;}
-          if(get(fx,Math.floor(f.y0)-(f.y0%1?0:1),fz)===AIR||get(fx,Math.ceil(f.y0),fz)!==AIR)continue;if(got.has(f.key))continue;got.add(f.key);activeProps.push(f);drawProp(f);if(!f.low&&!downFix.has(f.key)&&!falling.has(f.key))propCells.set(propCK(f.x,f.y0,f.z),f);}}
+          if(get(fx,Math.floor(f.y0)-(f.y0%1?0:1),fz)===AIR||get(fx,Math.ceil(f.y0),fz)!==AIR)continue;if(got.has(f.key)||siteIn(f.x,f.z))continue;got.add(f.key);activeProps.push(f);drawProp(f);if(!f.low&&!downFix.has(f.key)&&!falling.has(f.key))propCells.set(propCK(f.x,f.y0,f.z),f);}}
       if((P.patio||S&&S.kind==='stadium')&&!seen.has(P)){seen.add(P);
         for(const f of P.patio?patioProps(P,ax,az):stadiumProps(S)){if(out(f,p,R))continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);if(!chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS))))continue;
-          if(get(fx,f.y0-1,fz)===AIR||get(fx,f.y0,fz)!==AIR)continue;if(got.has(f.key))continue;got.add(f.key);activeProps.push(f);drawProp(f);if(!f.low&&!downFix.has(f.key)&&!falling.has(f.key))propCells.set(propCK(f.x,f.y0,f.z),f);}}
+          if(get(fx,f.y0-1,fz)===AIR||get(fx,f.y0,fz)!==AIR)continue;if(got.has(f.key)||siteIn(f.x,f.z))continue;got.add(f.key);activeProps.push(f);drawProp(f);if(!f.low&&!downFix.has(f.key)&&!falling.has(f.key))propCells.set(propCK(f.x,f.y0,f.z),f);}}
       if(Math.hypot(px*CELL+CELL/2-p.pos.x,pz*CELL+CELL/2-p.pos.z)>RI+CELL*0.71)continue;   // (no building on this plot is near enough to furnish)
       for(const b of P.b){const ward=b.kind==='ward';if(seen.has(b))continue;if(!ward&&!b._fp){if(b.style!=='church'&&b.style!=='cathedral'&&b.style!=='arena'&&b.style!=='capitol'&&!FURN_SEEN.has(ax+','+az+','+b.x0+','+b.z0))continue;b._fp=[ax,az];}seen.add(b);   // (a site's other blocks: they're all listed on its first plot)
         // the floors in sight: the one you're on and the ones either side (you can't see the others through the slabs)
@@ -246,10 +246,11 @@ function refreshProps(){
           for(const f of roomProps(b,ax,az,n,ward)){if(out(f,p,RF))continue;
             const fx=Math.floor(f.x),fz=Math.floor(f.z);if(!chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS))))continue;
             {const yb=f.base||y0;if(get(fx,yb-1,fz)===AIR||get(fx,yb,fz)!==AIR)continue;}   // (the floor under it gone, or rubble where it stood)
-            if(got.has(f.key))continue;got.add(f.key);activeProps.push(f);drawProp(f);if(!f.low&&!downFix.has(f.key)&&!falling.has(f.key))propCells.set(propCK(f.x,f.y0,f.z),f);}}
+            if(got.has(f.key)||siteIn(f.x,f.z))continue;got.add(f.key);activeProps.push(f);drawProp(f);if(!f.low&&!downFix.has(f.key)&&!falling.has(f.key))propCells.set(propCK(f.x,f.y0,f.z),f);}}
       }
     }
   }
+  for(const p of viewers())sitePropsAdd(p,R,got,out);   // (a structure's own, from the editor: world/sites.js)
   // the handrails: a bar sloping up from post to post beside each flight (gone where a post's been knocked out)
   fallMatrix(0,0,0,0);
   for(const p of viewers()){const seenR=new Set();

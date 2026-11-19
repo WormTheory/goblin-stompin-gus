@@ -60,13 +60,94 @@ function liveRecord(k,ch){
     cells:h.cells?Array.from(h.cells,(v,i)=>i%3===0?v-DEV_O.x:i%3===2?v-DEV_O.z:v):null}));
   return{key:k,N:R.N,M,model:liveModel(F),tr:R.tr,pos:R.pos,hits,anchors:R.anchors.filter(a=>a.k===k).map(a=>a.f),bones:RIG_NAMES,hurt:R.hurt,c:R.c,rad:R.rad,G};
 }
+// ---- the editor's Structures tab: what the game can tell it (every kind of site, the blocks and how they look), a site
+// captured from the world as the plan builds it (its blocks, furniture, people and parked vehicles), and an edited site
+// built in place at once ----
+const BLOCK_NAMES='AIR,GRASS,DIRT,STONE,LOG,LEAVES,SAND,PLANKS,GLASS,WATER,COBBLE,BRICK,ASPHALT,LINE,LINEX,SIDEWALK,CONCRETE,MOSSCON,METAL,RUST,WIN_BLUE,WIN_GREEN,WIN_WARM,ROOF,NEON_G,NEON_M,LAMP,MOSSSTONE,SHELF,BED,SOFA,SCREEN,CRATE,AWN_R,AWN_G,FLOWER,POLICE,NEON_B,NEON_R,GRAVEL,FLOORT,FRIDGE,LINE_R,LINEX_R,CROSS,CROSSX,HOSPW,HOSPX,PUMP,SHINGLE,SIDING,SIDING_Y'.split(',')
+  .concat([],'SEAT_B,SEAT_R,FIELD,FIELD_L,LANE,LANEX,CLAY,DEEPSLATE,BEDROCK,COAL,CRYSTAL,CHECKER,PAINT_BLUE,PAINT_RED,PAINT_GREEN,PAINT_ORANGE,PAINT_YELLOW,PAINT_WHITE,PAINT_NAVY,STUCCO,PAINT_DARK,NEON_Y,NEON_O,ICE'.split(','));
+// (a block's name for the palette: the plain ones from the list above, the ramps, stairs and the rest worked out)
+function liveBlockName(i){
+  const DIRS=['+x','-x','+z','-z'];
+  if(i>=RAMP0&&i<RAMP0+12)return 'Ramp '+DIRS[Math.floor((i-RAMP0)/3)]+['',' low half',' high half'][(i-RAMP0)%3];
+  if(i>=RAMPL0&&i<RAMPL0+36){const j=i-RAMPL0;return 'Road ramp '+['yellow','white edge','dashed'][Math.floor(j/12)]+' '+DIRS[Math.floor(j%12/3)]+['',' low half',' high half'][j%3];}
+  if(i>=STAIR0&&i<STAIR0+12)return ['Concrete','Steel','Wood'][Math.floor((i-STAIR0)/4)]+' stairs '+DIRS[(i-STAIR0)%4];
+  const T={[DOOR_W]:'DOOR_WOOD',[DOOR_WK]:'DOOR_WOOD_DARK',[DOOR_G]:'DOOR_GLASS',[DOOR_GB]:'DOOR_GLASS_BLUE',[DOOR_BARN]:'DOOR_BARN',[FENCE]:'FENCE',[FENCE_W]:'FENCE_WOOD',[MARBLE]:'MARBLE',[BRONZE]:'BRONZE',
+    [COURT]:'COURT',[COURT_L]:'COURT_LINE',[CHAINLINK]:'CHAINLINK',[GRAVE]:'GRAVE',[GRAVEX]:'GRAVE_CROSS',[STAINED]:'STAINED_GLASS',[GOLD]:'GOLD',[RAILPOST]:'RAIL_POST'};
+  let n=T[i]||(i<RAMP0?BLOCK_NAMES[i]:BLOCK_NAMES[i-12]);if(!n)return 'Block '+i;
+  n=n.replace(/_/g,' ').toLowerCase();return n[0].toUpperCase()+n.slice(1);
+}
+function liveSiteInfo(){
+  const blocks=[];for(let i=0;i<BLOCK.length;i++){const B=BLOCK[i];if(!B&&i)continue;
+    blocks.push(i?{i,n:liveBlockName(i),t:B.tiles,tr:!!B.transparent,lq:!!B.liquid,gl:!!B.glow,thin:B.thin||0,ramp:B.ramp?[B.ramp.dir,B.ramp.h0,B.ramp.h1]:null,stair:!!B.stair,hide:!!B.hide}:{i:0,n:'Air'});}
+  const kinds=stGroups().map(([g,items])=>[g,items.filter(([k])=>!['pylons','billboards','tolls'].includes(k))]).filter(([,items])=>items.length);
+  return {kinds,blocks,atlas:atlas.toDataURL?atlas.toDataURL():'',T,AC,AR,props:PROPS,veh:Object.keys(VEH).map(k=>[k,VEH[k].hx||1,VEH[k].hy||1.6,VEH[k].hz||2]),foes:Object.keys(FOES).map(k=>[k,FOES[k].name||k]),G,CELL,PL0,PW,seed};
+}
+// the n-th one of a kind nearest to player one (counting outward, plot by plot)
+function liveSiteFind(kind,n){
+  const P=players.find(p=>p.active)||players[0],cx=Math.floor(P.pos.x/CELL),cz=Math.floor(P.pos.z/CELL),seen=new Set(),t0=performance.now();
+  for(let r=0;r<=stR(kind);r++){
+    for(let i=-r;i<=r;i++)for(const [px,pz] of (r===0?[[cx,cz]]:Math.abs(i)===r?[[cx+i,cz-r],[cx+i,cz+r]]:[[cx+i,cz-r],[cx+i,cz+r],[cx-r,cz+i],[cx+r,cz+i]])){
+      let m=null;try{m=stMatch(kind,px,pz);}catch(e){}if(!m)continue;const k=m.ax+','+m.az;if(seen.has(k))continue;seen.add(k);if(seen.size>n)return m;}
+    if(performance.now()-t0>20000)break;}
+  return null;
+}
+// (nature's own blocks, and the ore deep down: a site keeps everything from the lowest height anything else is found at,
+// and at least a few blocks under the ground)
+const SITE_NATURAL=new Set([AIR,GRASS,DIRT,STONE,SAND,WATER,GRAVEL,CLAY,DEEPSLATE,BEDROCK,COAL,CRYSTAL,ICE]);
+function liveSiteCapture(kind,n){
+  const m=liveSiteFind(kind,n|0);if(!m)return {error:'There is none of these near enough in this world'};
+  const X0=m.ax*CELL+PL0,Z0=m.az*CELL+PL0,NX=(m.w-1)*CELL+PW,NZ=(m.h-1)*CELL+PW,C=new Map();
+  // (as the plan builds it: nothing smashed or fallen, and no site from the editor in its place)
+  const keep=new Map(SITES),real=collapses;SITES.clear();siteC.clear();siteI.clear();collapses={};TR.raw++;
+  try{for(let cx=Math.floor(X0/CS);cx<=Math.floor((X0+NX-1)/CS);cx++)for(let cz=Math.floor(Z0/CS);cz<=Math.floor((Z0+NZ-1)/CS);cz++)C.set(cx+','+cz,genChunk(cx,cz));}
+  finally{TR.raw--;collapses=real;for(const [k,v] of keep)SITES.set(k,v);siteC.clear();siteI.clear();}
+  const at=(x,y,z)=>{const cx=Math.floor(x/CS),cz=Math.floor(z/CS);return C.get(cx+','+cz)[li(x-cx*CS,y,z-cz*CS)];};
+  let lo=H,hi=0;
+  for(let u=0;u<NX;u++)for(let v=0;v<NZ;v++)for(let y=1;y<H;y++){const b=at(X0+u,y,Z0+v);if(b!==AIR&&y>hi)hi=y;if(!SITE_NATURAL.has(b)&&!(y<G-6&&(b===RUST||b===GOLD))&&y<lo)lo=y;}
+  const y0=Math.max(1,Math.min(G-3,lo-1)),NY=Math.max(1,hi-y0+1),A=new Uint8Array(NX*NY*NZ);
+  for(let v=0;v<NZ;v++)for(let u=0;u<NX;u++){const b0=(v*NX+u)*NY;for(let y=0;y<NY;y++)A[b0+y]=at(X0+u,y0+y,Z0+v);}
+  const r2=x=>Math.round(x*100)/100,inLot=(x,z)=>x>=X0&&x<X0+NX&&z>=Z0&&z<Z0+NZ,yaw=y=>r2(((y||0)%(2*Math.PI)+3*Math.PI)%(2*Math.PI)-Math.PI);
+  // its furniture: what the game would set out, every floor of every building, and outdoors
+  const props=[],pk=new Set(),addP=f=>{if(!f||!f.prop||!PROPS[f.type]||!inLot(f.x,f.z)||pk.has(f.key))return;pk.add(f.key);
+    const q={m:f.type,p:[r2(f.x-X0),r2(f.y0),r2(f.z-Z0)],yaw:yaw(f.yaw)};if(f.tint!=null&&PROPS[f.type].some(b=>b[0]===PT))q.tint=f.tint;props.push(q);};
+  const plots=new Set();
+  for(let px=m.ax;px<m.ax+m.w;px++)for(let pz=m.az;pz<m.az+m.h;pz++){const S=superOf(px,pz),ax=S?S.ax:px,az=S?S.az:pz,k=ax+','+az;if(plots.has(k))continue;plots.add(k);
+    const P=plotInfo(ax,az);
+    try{if(siteKind(px,pz))for(const f of siteProps(plotInfo(px,pz),px,pz))addP(f);}catch(e){}
+    try{if(COAST_PROPS.has(P.type))for(const f of coastProps(P,ax,az))if(!f.snap)addP(f);}catch(e){}
+    try{if(P.patio)for(const f of patioProps(P,ax,az))addP(f);if(S&&S.kind==='stadium')for(const f of stadiumProps(S))addP(f);}catch(e){}
+    for(const b of P.b){const ward=b.kind==='ward';
+      for(let n2=0;n2<40;n2++){const fy=n2===0?G+1:G+b.gf+1+FH*(n2-1);if(fy>Math.min(b.detailTop,b.top-1)-2)break;try{for(const f of roomProps(b,ax,az,n2,ward))addP(f);}catch(e){}}}}
+  // its people: a compound's at their posts
+  const people=[],B=bigPlainsAt(m.ax,m.az);
+  if(B&&FIG_STYLE[B.kind])for(const [u,v,y] of sitePeople(B)){const x=B.ax*CELL+u+0.5,z=B.az*CELL+v+0.5;if(inLot(x,z))people.push({k:FIG_STYLE[B.kind].foe,p:[r2(x-X0),y,r2(z-Z0)],yaw:0});}
+  // its parked vehicles
+  const cars=[];for(let px=m.ax;px<m.ax+m.w;px++)for(let pz=m.az;pz<m.az+m.h;pz++)for(const o of parkSpots0(px,pz))if(inLot(o.x,o.z)&&(!o.veh||VEH[o.veh]))cars.push({k:o.veh||'car',p:[r2(o.x-X0),o.y,r2(o.z-Z0)],yaw:yaw(o.h)});
+  return {file:{name:stName(kind),kind,w:m.w,h:m.h,face:siteFace(m),on:false,y0,size:[NX,NY,NZ],rows:assetSiteEncode(A,[NX,NY,NZ]),props,people,cars},
+    at:[m.ax,m.az],n:n|0};
+}
+// an edited site, built at once wherever its kind is loaded (and its people and furniture again)
+function liveSite(name,file){
+  ASSETS.sites=ASSETS.sites||{};const was=ASSETS.sites[name];
+  const f=Object.assign({},file);delete f.note;ASSETS.sites[name]=f;sitesLoad();
+  const kinds=new Set([file.kind]);if(was)kinds.add(was.kind);
+  for(const [k,V] of venues)if(V.kind==='siteppl'){for(const g of V.slots)if(g){g.state='wait';g.root.visible=false;if(g.homeV===V)g.homeV=null;g.vendor=null;}venues.delete(k);}
+  const redo=[];for(const k of chunks.keys()){const cx=Math.floor(k/65536)-32768,cz=(k%65536)-32768;if(cx>=SHIP_CX0)continue;const px=Math.floor(cx*CS/CELL),pz=Math.floor(cz*CS/CELL);
+    for(const kd of kinds){let m=null;try{m=stMatch(kd,px,pz);}catch(e){}if(m){redo.push([k,cx,cz]);break;}}}
+  for(const [k] of redo){chunks.delete(k);gfxRecC.delete(k);}lastK=-1;
+  for(const [k,cx,cz] of redo)if(meshes.has(k))buildChunk(cx,cz);
+  farDirty=true;trafficRefreshT=0;venueT=0;
+  return 'ok';
+}
 if(EDITOR_LIVE){
   addEventListener('message',e=>{
     if(e.origin!==location.origin)return;const d=e.data;
     if(d&&d.type==='gsg-rec'){let r;try{r=liveRecord(d.key,d.ch);}catch(err){r={error:String(err&&err.message||err)};}
       try{e.source&&e.source.postMessage({type:'gsg-rec-done',id:d.id,rec:r},location.origin);}catch(err){}return;}
+    if(d&&(d.type==='gsg-site-info'||d.type==='gsg-site-cap')){let r;try{r=d.type==='gsg-site-info'?liveSiteInfo():liveSiteCapture(d.kind,d.n);}catch(err){r={error:String(err&&err.message||err)};}
+      try{e.source&&e.source.postMessage({type:d.type+'-done',id:d.id,res:r},location.origin);}catch(err){}return;}
     if(!d||d.type!=='gsg-asset')return;
-    let r;try{r=d.kind==='weapons'?liveWeapon(d.name,d.file):d.kind==='clips'?liveClip(d.name,d.file):d.kind==='bodies'?liveBody(d.name,d.file):d.kind==='grips'?liveGrip(d.name,d.file):d.kind==='props'?liveProp(d.name,d.file):d.kind==='fixtures'?liveFix(d.name,d.file):d.kind==='moves'?liveMove(d.name,d.file):'unknown kind';}catch(err){r=String(err&&err.message||err);}
+    let r;try{r=d.kind==='weapons'?liveWeapon(d.name,d.file):d.kind==='clips'?liveClip(d.name,d.file):d.kind==='bodies'?liveBody(d.name,d.file):d.kind==='grips'?liveGrip(d.name,d.file):d.kind==='props'?liveProp(d.name,d.file):d.kind==='fixtures'?liveFix(d.name,d.file):d.kind==='moves'?liveMove(d.name,d.file):d.kind==='sites'?liveSite(d.name,d.file):'unknown kind';}catch(err){r=String(err&&err.message||err);}
     try{e.source&&e.source.postMessage({type:'gsg-asset-done',kind:d.kind,name:d.name,result:r},location.origin);}catch(err){}
   });
   // (tell the editor this window is ready for its edits)

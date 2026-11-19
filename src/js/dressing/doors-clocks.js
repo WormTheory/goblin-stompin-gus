@@ -89,7 +89,7 @@ function refreshDoors(){
       let px=qx,pz=qz;if(t==='super'){const S=superOf(qx,qz);if(seenS.has(S))continue;seenS.add(S);px=S.ax;pz=S.az;}
       const P=plotInfo(px,pz);
       P.b.forEach((b,bi)=>{if(collapses[px+','+pz+','+bi]!==undefined&&collapses[px+','+pz+','+bi]<=G+1+4)return;
-        for(const R of doorRects(b,px,pz))tryDoor(R,p,want);});
+        for(const R of doorRects(b,px,pz))if(!siteIn(R.x,R.z))tryDoor(R,p,want);});
       if(t==='super'&&superOf(px,pz).kind==='stadium')for(const R of stadiumDoors(superOf(px,pz)))tryDoor(R,p,want);
     }
     if(shipN)shipDoorsSeen(p,(R,q)=>tryDoor(R,q,want));}   // (the ships' doors, in their pockets)

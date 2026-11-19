@@ -58,6 +58,7 @@ function updateVenues(dt){
     if(V.kind==='rtrain'||V.kind==='xing'){updateRailVenue(V,dt,t);continue;}
     if(V.kind==='cult'){updateCultVenue(V,dt,t);continue;}
     if(V.kind==='wind'||V.kind==='guards'){updateSiteVenue(V,dt,t);continue;}
+    if(V.kind==='siteppl'){updateSitePpl(V,dt);continue;}
     if(V.kind==='army'){updateArmy(V,dt);continue;}
     if(V.kind==='mech'){updateMechs(V,dt);continue;}
     if(V.kind==='balloon'){updateBalloons(V,dt);continue;}
