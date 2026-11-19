@@ -32,7 +32,7 @@
 
 ### Water
 
-- Water now pours into holes. Knock out a block under water, or the wall holding it back, and the water flows in and fills the space below, up to its own level. Dig down through the sea bed or a river and the hole floods. A small pool only spills what it holds, and a big breach stops after a few hundred blocks, so the sea never drains.
+- Water now pours into holes. Knock out a block under water, or the wall holding it back, and the water flows in and fills the space below, up to its own level. Dig down through the sea bed or a river and the hole floods. It keeps pouring until the space is full, however far the tunnels or caves run, though a small pool only spills what it holds. The sea and rivers never drain.
 
 ### Crashes
 
