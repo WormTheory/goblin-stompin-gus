@@ -1,0 +1,8 @@
+{
+  "note": "out on the pavements and in the parks: a bench of wooden slats on two iron ends, a back rest behind; a squat green litter bin with a dark lid",
+  "boxes": [
+    {"s":[0.62,0.84,0.62],"p":[0,0.42,0],"c":"#2e5a3a"},
+    {"s":[0.7,0.08,0.7],"p":[0,0.88,0],"c":"#23272b"},
+    {"s":[0.3,0.06,0.3],"p":[0,0.94,0],"c":"#23272b"}
+  ]
+}

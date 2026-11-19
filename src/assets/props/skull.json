@@ -1,0 +1,9 @@
+{
+  "note": "the cult's things: a skull, bones, a cluster of guttering candles, the book of the rite on its stand",
+  "boxes": [
+    {"s":[0.22,0.22,0.26],"p":[0,0.12,0],"c":"#e8e4d8"},
+    {"s":[0.16,0.1,0.12],"p":[0,0.05,0.08],"c":"#e8e4d8"},
+    {"s":[0.06,0.05,0.01],"p":[-0.05,0.14,0.13],"c":"#2a2e33"},
+    {"s":[0.06,0.05,0.01],"p":[0.05,0.14,0.13],"c":"#2a2e33"}
+  ]
+}

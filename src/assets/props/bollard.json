@@ -1,0 +1,7 @@
+{
+  "note": "the quayside's and the deck's bits and pieces",
+  "boxes": [
+    {"s":[0.26,0.44,0.26],"p":[0,0.22,0],"c":"#2b2f36"},
+    {"s":[0.38,0.08,0.38],"p":[0,0.47,0],"c":"#2b2f36"}
+  ]
+}

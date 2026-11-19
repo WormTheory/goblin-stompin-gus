@@ -94,9 +94,9 @@ FIX_COL.setColorAt(0,new THREE.Color(0xffffff));
 for(const m of [FIX_BAR,FIX_GLOW,FIX_COL]){m.frustumCulled=false;m.count=0;scene.add(m);}
 let nCol=0;const _C=new THREE.Matrix4(),_fcF=new THREE.Color();
 // a box in a fixture's own frame: (lx,ly,lz) from its foot, turned by its yaw; inst: FIX_BAR / FIX_GLOW / a colour
-function pushRot(f,col,lx,ly,lz,sx,sy,sz){
+function pushRot(f,col,lx,ly,lz,sx,sy,sz,yaw=f.yaw){
   _A.makeTranslation(lx,ly,lz);_B.makeScale(sx,sy,sz);_A.multiply(_B);
-  _C.makeRotationY(f.yaw);_A.premultiply(_C);_C.makeTranslation(f.x,f.y0||G+1,f.z);_A.premultiply(_C);_A.premultiply(_F);
+  _C.makeRotationY(yaw);_A.premultiply(_C);_C.makeTranslation(f.x,f.y0||G+1,f.z);_A.premultiply(_C);_A.premultiply(_F);
   if(col===true||col===false){const inst=col?FIX_GLOW:FIX_BAR,i=col?nGlow:nBar;if(i>=(col?GLOW_MAX:BAR_MAX))return;inst.setMatrixAt(i,_A);if(col)nGlow++;else nBar++;return;}
   if(nCol>=COL_MAX)return;FIX_COL.setMatrixAt(nCol,_A);FIX_COL.setColorAt(nCol,_fcF.setHex(col));nCol++;
 }
@@ -115,11 +115,13 @@ function pushSeg(a,b,th){
   _A.makeScale(th,th,L);_B.makeRotationAxis(_AX1,-Math.atan2(dy,Math.hypot(dx,dz)));_A.premultiply(_B);_B.makeRotationY(Math.atan2(dx,dz));_A.premultiply(_B);
   _B.makeTranslation((a[0]+b[0])/2,(a[1]+b[1])/2,(a[2]+b[2])/2);_A.premultiply(_B);FIX_BAR.setMatrixAt(nBar++,_A);
 }
-function pushBox(glow,cx,cy,cz,sx,sy,sz){
-  const inst=glow?FIX_GLOW:FIX_BAR,i=glow?nGlow:nBar;if(i>=(glow?GLOW_MAX:BAR_MAX))return;
-  _A.makeTranslation(cx,cy,cz);_B.makeScale(sx,sy,sz);_A.multiply(_B);_A.premultiply(_F);
-  inst.setMatrixAt(i,_A);if(glow)nGlow++;else nBar++;
-}
+
+// the shapes of lamps, signals, sign posts, flags and billboards: files, src/assets/fixtures/*.json, edited in the editor
+// (core/assets.js reads them). fixDraw puts one's boxes, its own frame turned by yaw: its pole boxes in FIX_BAR, its lamps
+// in FIX_GLOW while it stands; fixSpot is where one of its spots is in the world (a signal's lights, a sign's face)
+const FIXM=assetFixAll(ASSETS);
+function fixDraw(f,M,yaw,lit){for(const q of M.boxes)pushRot(f,q[0]===ASSET_POLE?false:q[0]===ASSET_LAMP?lit:q[0],q[1],q[2],q[3],q[4],q[5],q[6],yaw);}
+function fixSpot(f,M,k,yaw,by){const p=M.spots[k]||[0,0,0],c=Math.cos(yaw),n=Math.sin(yaw);return [f.x+p[0]*c+p[2]*n,by+p[1],f.z-p[0]*n+p[2]*c];}
 function placeGroup(g,x,y,z,yaw){_B.makeRotationY(yaw);_B.setPosition(x,y,z);g.matrix.multiplyMatrices(_F,_B);g.matrixWorldNeedsUpdate=true;g.visible=true;}
 function drawFix(f,near){
   const dn=downFix.get(f.key),fl=falling.get(f.key);
@@ -127,35 +129,22 @@ function drawFix(f,near){
   if(dn!==undefined){theta=Math.PI/2*0.97;ang=dn;}else if(fl){const k=Math.min(1,fl.t/0.7);theta=Math.PI/2*0.97*k*k;ang=fl.ang;}
   const lit=dn===undefined&&!fl,by=f.y0||G+1;
   fallMatrix(f.x,f.z,theta,ang,by);
-  if(f.type==='lamp'){
-    const ax=f.rx,az=f.rz;
-    pushBox(false,f.x,by+0.22,f.z,0.3,0.44,0.3);
-    pushBox(false,f.x,by+2.9,f.z,0.13,5.8,0.13);
-    pushBox(false,f.x+ax*0.8,by+5.74,f.z+az*0.8,ax?1.6:0.09,0.09,az?1.6:0.09);
-    pushBox(lit,f.x+ax*1.5,by+5.62,f.z+az*1.5,ax?0.55:0.26,0.12,az?0.55:0.26);
-  } else if(f.type==='signal'){
-    const s0=f.s[0],s1=f.s[1];
-    pushBox(false,f.x,by+0.25,f.z,0.4,0.5,0.4);
-    pushBox(false,f.x,by+3.0,f.z,0.2,6.0,0.2);
-    pushBox(false,f.x+s0*1.6,by+5.9,f.z+s1*1.6,s0?3.3:0.12,0.12,s1?3.3:0.12);
-    if(near){const h=headAt(nHead++);if(h){placeGroup(h.g,f.x+3*s0,by+5.25,f.z+3*s1,f.yaw+Math.PI);h.ct=f.ct;h.axis=f.axis;h.lit=lit;}}
+  // (a lamp's and a signal's arm reach along +x in their files: turned to point the way the spot says, rx,rz or s)
+  if(f.type==='lamp')fixDraw(f,FIXM.lamp,Math.atan2(-f.rz,f.rx),lit);
+  else if(f.type==='signal'){
+    const M=FIXM.signal,yw=Math.atan2(-f.s[1],f.s[0]);fixDraw(f,M,yw,lit);
+    if(near){const h=headAt(nHead++);if(h){const q=fixSpot(f,M,'head',yw,by);placeGroup(h.g,q[0],q[1],q[2],f.yaw+Math.PI);h.ct=f.ct;h.axis=f.axis;h.lit=lit;}}
   } else if(f.type==='bunt'){
     // a string of coloured pennants sagging between two poles
     const L=f.L,cols=[0xe53935,0xffd23a,0x1e88e5,0x43a047,0xffffff];
     for(const e of [-L/2,L/2])pushRot(f,false,e,2.6,0,0.12,5.2,0.12);
     for(let i=0;i<=L*1.6;i++){const t=-L/2+i/1.6,sag=4.9-1.0*(1-((2*t/L)**2));pushRot(f,cols[i%5],t,sag-0.28,0,0.34,0.44,0.04);}
-  } else if(f.type==='flag'){
-    pushRot(f,false,0,4.5,0,0.14,9,0.14);pushRot(f,0x1e40a0,0.95,8.4,0,1.7,1.0,0.05);pushRot(f,0xffffff,0.95,8.4,0.03,1.7,0.18,0.05);
-  } else if(f.type==='board'){
-    // a billboard: two steel legs, a big framed panel up top with an ad each side, a walkway and lamps along the front
-    for(const sx of [-2.6,2.6])pushRot(f,false,sx,4.2,-0.32,0.32,8.4,0.32);
-    for(const y of [5.9,8.1])pushRot(f,false,0,y,-0.24,7.6,0.14,0.14);   // (the bracing across the back)
-    pushRot(f,0x30343a,0,7.0,0,8.0,4.0,0.28);   // the panel's frame
-    pushRot(f,0x4a4f56,0,4.92,0.55,8.0,0.08,0.9);   // the walkway
-    for(const sx of [-2.8,0,2.8]){pushRot(f,false,sx,5.1,0.95,0.07,0.4,0.07);pushRot(f,lit,sx,5.33,1.02,0.38,0.12,0.24);}
-    if(near){const B=boardAt(nBoard++);if(B){B.f.material=adMat(f.ad);B.b.visible=false;placeGroup(B.g,f.x,by+7.0,f.z,f.yaw);}}   // (one-sided: the back is just the bare frame)
+  } else if(f.type==='flag')fixDraw(f,FIXM.flag,f.yaw,lit);
+  else if(f.type==='board'){
+    const M=FIXM.board;fixDraw(f,M,f.yaw,lit);
+    if(near){const B=boardAt(nBoard++);if(B){const q=fixSpot(f,M,'ad',f.yaw,by);B.f.material=adMat(f.ad);B.b.visible=false;placeGroup(B.g,q[0],q[1],q[2],f.yaw);}}   // (one-sided: the back is just the bare frame)
   } else {
-    pushBox(false,f.x,by+1.15,f.z,0.09,2.3,0.09);
-    if(near){const s=signAt(nSign++);if(s){s.f.material=f.ct.k==='stop'?SMAT.stop:SMAT.yield;s.b.material=f.ct.k==='stop'?SMAT.stopBack:SMAT.yieldBack;placeGroup(s.g,f.x,by+2.75,f.z,f.yaw);}}
+    const M=FIXM.sign;fixDraw(f,M,f.yaw,lit);
+    if(near){const s=signAt(nSign++);if(s){const q=fixSpot(f,M,'face',f.yaw,by);s.f.material=f.ct.k==='stop'?SMAT.stop:SMAT.yield;s.b.material=f.ct.k==='stop'?SMAT.stopBack:SMAT.yieldBack;placeGroup(s.g,q[0],q[1],q[2],f.yaw);}}
   }
 }

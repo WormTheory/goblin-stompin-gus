@@ -1,0 +1,5 @@
+{
+  "note": "A stop or give-way sign: a thin post. face is where the sign itself goes (facing +z).",
+  "boxes": [{"s":[0.09,2.3,0.09],"p":[0,1.15,0],"c":"@pole"}],
+  "spots": {"face":[0,2.75,0]}
+}

@@ -1,4 +1,5 @@
-// ---- the editor's live preview (tools/editor/): the game opened with ?editor takes edited weapons and animations from
+// ---- the editor's live preview (tools/editor/): the game opened with ?editor takes edited weapons, animations, props
+// and street fixtures from
 // the editor's window as they're made, before anything's saved or built. Nothing here runs without ?editor ----
 // The editor opens this page itself (its Open game button), so the two share an origin; a message from anywhere else is
 // ignored. An animation is swapped into STRIKES at once (everything reads it afresh each frame). A weapon's numbers are
@@ -24,10 +25,14 @@ function liveClip(name,file){STRIKES[name]=assetClip(file);return 'ok';}
 // (a grip is read by gunGrip each time a goblin with a gun is drawn: grip.js)
 function liveGrip(name,file){const f=Object.assign({},file);delete f.note;GUN_GRIP[name]=f;return 'ok';}
 function liveBody(name,file){ASSETS.bodies=ASSETS.bodies||{};const f=Object.assign({},file);delete f.note;ASSETS.bodies[name]=f;return 'ok';}
+// (a prop or a fixture: its boxes swapped into the table, and the street's dressing drawn again on the next frame. A new
+// one has nothing placing it till the game's built again)
+function liveProp(name,file){if(!PROPS[name])return 'no prop '+name+' in this build: save it and press Build';const M=assetProp(file);propUnfight(M);PROPS[name]=M;trafficRefreshT=0;return 'ok';}
+function liveFix(name,file){if(!FIXM[name])return 'no fixture '+name+' in this build';FIXM[name]=assetFix(file);trafficRefreshT=0;return 'ok';}
 if(EDITOR_LIVE){
   addEventListener('message',e=>{
     if(e.origin!==location.origin)return;const d=e.data;if(!d||d.type!=='gsg-asset')return;
-    let r;try{r=d.kind==='weapons'?liveWeapon(d.name,d.file):d.kind==='clips'?liveClip(d.name,d.file):d.kind==='bodies'?liveBody(d.name,d.file):d.kind==='grips'?liveGrip(d.name,d.file):'unknown kind';}catch(err){r=String(err&&err.message||err);}
+    let r;try{r=d.kind==='weapons'?liveWeapon(d.name,d.file):d.kind==='clips'?liveClip(d.name,d.file):d.kind==='bodies'?liveBody(d.name,d.file):d.kind==='grips'?liveGrip(d.name,d.file):d.kind==='props'?liveProp(d.name,d.file):d.kind==='fixtures'?liveFix(d.name,d.file):'unknown kind';}catch(err){r=String(err&&err.message||err);}
     try{e.source&&e.source.postMessage({type:'gsg-asset-done',kind:d.kind,name:d.name,result:r},location.origin);}catch(err){}
   });
   // (tell the editor this window is ready for its edits)

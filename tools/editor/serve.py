@@ -12,7 +12,7 @@
 import http.server,json,os,re,subprocess,sys,urllib.parse
 ROOT=os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ASSETS=os.path.join(ROOT,'src','assets')
-KINDS=('weapons','clips','bodies','grips')
+KINDS=('weapons','clips','bodies','grips','props','fixtures')
 NAME=re.compile(r'^[A-Za-z0-9_-]{1,64}$')
 
 def order_path(kind):return os.path.join(ASSETS,kind,'_order.json')

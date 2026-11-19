@@ -8,7 +8,7 @@
 'use strict';
 const $=id=>document.getElementById(id);
 const S={grip:true,tab:'models',kind:null,name:null,wl:'held',sel:-1,ctx:true,insp:'box',hsel:-1,msel:[],hmsel:[],t:0,playing:false,speed:1,loop:true,key:null,autoKey:true,
-  snap:0.01,mode:'translate',game:null,gameOk:false,list:{weapons:[],clips:[],bodies:[],grips:[]},search:'',previewW:null,fp:true};
+  snap:0.01,mode:'translate',game:null,gameOk:false,list:{weapons:[],clips:[],bodies:[],grips:[],props:[],fixtures:[]},search:'',previewW:null,fp:true,tint:'#6b7780',groups:{}};
 const DOCS=new Map();
 const key=(k,n)=>k+'/'+n;
 const doc=()=>S.kind?DOCS.get(key(S.kind,S.name)):null;
@@ -79,11 +79,16 @@ function renderList(){
   for(const n of S.list.grips||[])if(hit(n))h+=it('grips',n,n);
   h+='<div class="grp"><span>Bodies (hurtboxes)</span></div>';
   for(const n of S.list.bodies||[])if(hit(n))h+=it('bodies',n,(DOCS.get(key('bodies',n))||{data:{}}).data.name||n);
+  // (props and fixtures: long lists, so their sections fold; searching opens them)
+  for(const [kind,title] of [['props','Props'],['fixtures','Street fixtures']]){const names=(S.list[kind]||[]).filter(n=>hit(n)),op=!!q||S.groups[kind]===true||S.groups[kind]!==false&&S.kind===kind;
+    h+='<div class="grp"><button class="tw" data-grp="'+kind+'">'+(op?'▾':'▸')+'</button><span>'+title+'</span><small>'+names.length+'</small></div>';
+    if(op)for(const n of names)h+=it(kind,n,n);}
   h+='<div class="grp"><span>Other animations</span><button class="x" id="newC" title="New animation (a copy of the one open). A weapon uses it once it\'s picked in the weapon\'s Stats">+ new</button></div>';
   let none=true;for(const n of S.list.clips)if(!used.has(n)&&hit(n)){h+=it('clips',n,n,LAYOUT_NAME[clipLayout(n)]||'');none=false;}
   if(none)h+='<div class="note" style="padding:0 6px">'+(q?'None match':'None')+'</div>';
   $('assetList').innerHTML=h;
   for(const e of $('assetList').querySelectorAll('.item'))e.onclick=()=>open(e.dataset.k,e.dataset.n,e.dataset.w);
+  for(const b of $('assetList').querySelectorAll('button[data-grp]'))b.onclick=()=>{const k=b.dataset.grp,was=S.groups[k]===true||S.groups[k]!==false&&S.kind===k;S.groups[k]=!was;renderList();};
   for(const b of $('assetList').querySelectorAll('button[data-tw]'))b.onclick=ev=>{ev.stopPropagation();const n=b.dataset.tw;if(OPEN.has(n))OPEN.delete(n);else OPEN.add(n);renderList();};
   $('newW').onclick=()=>newAsset('weapons');$('newC').onclick=()=>newAsset('clips');
 }
@@ -93,11 +98,12 @@ async function open(kind,name,w){
   if(kind==='clips'){S.t=1;S.previewW=w||weaponFor(name);S.insp='clip';if(w)OPEN.add(w);}
   else if(kind==='bodies')S.insp='hit';
   else if(kind==='grips')S.insp='stats';
+  else if(flatKind(kind)){S.insp='box';if(S.mode==='rotate')setMode('translate');}
   else if(!['box','stats','hit'].includes(S.insp))S.insp='box';
   $('empty').style.display='none';
   renderList();renderToolbar();renderInsp();rebuild();frameView();
   tlShow();
-  status((kind==='weapons'?'Weapon ':kind==='bodies'?'Body ':'Animation ')+name);
+  status(({weapons:'Weapon ',bodies:'Body ',grips:'Grip ',props:'Prop ',fixtures:'Fixture '}[kind]||'Animation ')+name);
 }
 // (which weapon to show an animation with: the first that uses it)
 function weaponFor(c){
@@ -177,7 +183,9 @@ gizmo.addEventListener('dragging-changed',e=>{orbit.enabled=!e.value;if(!e.value
 let content=new THREE.Group();scene.add(content);
 const MATS={};
 const matOf=(c,wire)=>{const k=c+(wire?'w':'');return MATS[k]||(MATS[k]=wire?new THREE.MeshBasicMaterial({color:c,wireframe:true,transparent:true,opacity:0.7}):new THREE.MeshLambertMaterial({color:c}));};
-const colOf=c=>c==='@club'?0x7a5530:parseInt(c.slice(1),16);
+const ROLE_COL={'@club':0x7a5530,'@pole':0x3a3f45,'@lamp':0xffe6a8};
+const colOf=c=>c==='@tint'?parseInt(S.tint.slice(1),16):c in ROLE_COL?ROLE_COL[c]:parseInt(c.slice(1),16);
+const glowOf=b=>!!b.glow||b.c==='@lamp';
 const UNIT=new THREE.BoxGeometry(1,1,1);
 const geoOf=sh=>!sh||sh==='box'?UNIT:assetGeo(sh);
 // a mesh for a box of a file ({s,p,c,r,sh}), at its size and place
@@ -195,11 +203,14 @@ function goblin(ghost){
 // ---- a weapon's model: one shared shape (model.boxes), and each view (held, view, drop, stow) either that shape placed
 // ({at}) or a version of its own ({at, own}: at kept for going back). assetList in core/assets.js is how the game reads it ----
 // how view j is drawn: 'shared', 'own' or 'none'
-function viewMode(W,j){const v=W&&W.model&&W.model[j];return !v?'none':Array.isArray(v)||v.own?'own':'shared';}
+// (a prop or a street fixture: one list of plain boxes, W.boxes, never tilted)
+const flatKind=k=>k==='props'||k==='fixtures',flatDoc=()=>{const d=doc();return !!d&&flatKind(d.kind);};
+function viewMode(W,j){if(W&&Array.isArray(W.boxes))return 'own';const v=W&&W.model&&W.model[j];return !v?'none':Array.isArray(v)||v.own?'own':'shared';}
 // the boxes view j shows, placed, as the game has them
-const viewList=(W,j)=>(W&&W.model&&assetList(W.model,j))||[];
+const viewList=(W,j)=>W&&Array.isArray(W.boxes)?W.boxes:(W&&W.model&&assetList(W.model,j))||[];
 // the boxes an edit to view j changes: the shared shape's (in its own frame) or the view's own (make: give it one first)
 function editList(W,j,make){
+  if(Array.isArray(W.boxes))return W.boxes;
   if(!W.model){if(!make)return [];W.model={};}
   const M=W.model;let v=M[j];
   // (a new first-person view starts turned as every hand-held weapon's is: a club's head up the screen, a gun's barrel
@@ -252,6 +263,7 @@ function rebuild(){
   const d=doc();if(!d){hud('');return;}
   if(d.kind==='bodies'){buildHit(d.data);return;}
   if(d.kind==='grips'){buildGrip(d.name);return;}
+  if(flatKind(d.kind)){buildFlat(d);return;}
   if(d.kind==='weapons'){
     const W=d.data,mode=viewMode(W,S.wl);
     if(S.insp==='hit'){buildHit(W);return;}
@@ -275,6 +287,18 @@ function rebuild(){
     else{const F=fpRig(W);content.add(F.vm);F.vm.scale.setScalar(1);fpView=fpRig(W);posed={k:c.layout,F,W};}
     poseAt(S.t);hud('');
   }
+}
+// a prop or fixture: its boxes (glowing ones unlit, as the game draws them), a goblin beside it for size, and a fixture's
+// spots as outlines of what goes there
+const SPOT_SHAPE={head:[0.46,1.2,0.38],face:[0.95,0.95,0.02],ad:[7.7,3.7,0.3]};
+const SPOT_MAT=new THREE.MeshBasicMaterial({color:0x8fd0ff,wireframe:true,depthTest:false,transparent:true,opacity:0.8});
+function buildFlat(d){
+  const W=d.data,L=W.boxes||[];
+  L.forEach((b,i)=>{const m=boxMesh(b);if(glowOf(b))m.material=new THREE.MeshBasicMaterial({color:colOf(b.c)});m.userData.i=i;content.add(m);pickable.push(m);});
+  for(const k in W.spots||{}){const z=SPOT_SHAPE[k]||[0.3,0.3,0.3],m=new THREE.Mesh(UNIT,SPOT_MAT);m.renderOrder=8;m.scale.set(...z);m.position.set(...W.spots[k]);content.add(m);}
+  if(S.ctx){let x0=0;for(const b of L)x0=Math.min(x0,b.p[0]-b.s[0]/2);const J=goblin(true);J.root.position.x=x0-0.6;content.add(J.root);}
+  if(S.sel>=0){for(const i of selList())if(pickable[i])outline(pickable[i]);attachSel();}
+  hud(L.length+' box'+(L.length===1?'':'es'));
 }
 function outline(m){const e=new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry),new THREE.LineBasicMaterial({color:0xffd060,depthTest:false}));e.renderOrder=9;m.add(e);}
 function budget(L,mode){
@@ -396,7 +420,7 @@ gizmo.addEventListener('objectChange',()=>{
 // (a moved box or hit shape back into the file, from its mesh (or a stand-in) in its parent's frame)
 function putBox(W,o){const b=editList(W,S.wl)[o.userData.i];b.p=[r4(o.position.x),r4(o.position.y),r4(o.position.z)];
   b.s=[o.scale.x,o.scale.y,o.scale.z].map(v=>r4(Math.max(0.005,Math.abs(v))));
-  const rr=[o.rotation.x,o.rotation.y,o.rotation.z].map(r4);if(rr.some(v=>v))b.r=rr;else delete b.r;}
+  const rr=[o.rotation.x,o.rotation.y,o.rotation.z].map(r4);if(rr.some(v=>v)&&!Array.isArray(W.boxes))b.r=rr;else delete b.r;}
 function putHit(W,o){const s=W.hit[hitSet()][o.userData.i];s.p=[r4(o.position.x),r4(o.position.y),r4(o.position.z)];
   if(s.k==='box')s.s=[o.scale.x,o.scale.y,o.scale.z].map(v=>r4(Math.max(0.005,Math.abs(v))));
   else if(s.k==='sphere')s.r=r4(Math.max(0.01,Math.abs(o.scale.x)));else{s.r=r4(Math.max(0.01,Math.abs(o.scale.x)));s.h=r4(Math.max(0,Math.abs(o.scale.y)));}
@@ -412,9 +436,9 @@ function frameView(){
   const d=doc();if(!d)return;
   if(d.kind==='grips'){orbit.target.set(2.2,0.7,0);cam.position.set(-1.4,1.9,4.4);}   // (from in front and to the side: an aimed gun points at a viewer straight ahead)
   else if(S.insp==='hit'){orbit.target.set(0,0.6,0.8);cam.position.set(4.2,3,-1.6);}
-  else if(d.kind==='clips'&&d.data.layout==='body'||S.ctx&&(S.wl==='held'||S.wl==='stow')){orbit.target.set(0,0.65,0.2);cam.position.set(2.2,1.4,2.4);}
-  else if(d.kind==='clips'||S.wl==='view'){orbit.target.set(0.3,-0.4,-0.6);cam.position.set(1.6,0.4,0.6);}
-  else{const L=viewList(d.data,S.wl);const bb=new THREE.Box3();for(const b of L)bb.expandByPoint(new THREE.Vector3(...b.p));
+  else if(!flatKind(d.kind)&&(d.kind==='clips'&&d.data.layout==='body'||S.ctx&&(S.wl==='held'||S.wl==='stow'))){orbit.target.set(0,0.65,0.2);cam.position.set(2.2,1.4,2.4);}
+  else if(!flatKind(d.kind)&&(d.kind==='clips'||S.wl==='view')){orbit.target.set(0.3,-0.4,-0.6);cam.position.set(1.6,0.4,0.6);}
+  else{const L=viewList(d.data,S.wl);const bb=new THREE.Box3();for(const b of L){bb.expandByPoint(new THREE.Vector3(b.p[0]-b.s[0]/2,b.p[1]-b.s[1]/2,b.p[2]-b.s[2]/2));bb.expandByPoint(new THREE.Vector3(b.p[0]+b.s[0]/2,b.p[1]+b.s[1]/2,b.p[2]+b.s[2]/2));}
     const c=bb.isEmpty()?new THREE.Vector3():bb.getCenter(new THREE.Vector3()),sz=Math.max(0.6,bb.getSize(new THREE.Vector3()).length());
     orbit.target.copy(c);cam.position.set(c.x+sz*1.1,c.y+sz*0.7,c.z+sz*1.3);}
   orbit.update();
@@ -433,6 +457,11 @@ function renderToolbar(){
     h+='<label>Snap <select id="snapSel">'+[['0','off'],['0.005','0.005'],['0.01','0.01'],['0.0625','1/16'],['0.1','0.1']].map(([v,t])=>'<option value="'+v+'"'+(+v===S.snap?' selected':'')+'>'+t+'</option>').join('')+'</select></label>';
     if(S.wl==='held'||S.wl==='stow')h+='<label><input type="checkbox" id="ctxChk"'+(S.ctx?' checked':'')+'> On a goblin</label>';
     if(S.wl==='held'&&d.data.npc&&d.data.npc.aim)h+=gripChk();
+  }else if(flatKind(d.kind)){
+    h+=[['translate','Move (G)'],['scale','Size (S)']].map(([k,t])=>'<button data-mode="'+k+'" class="'+(S.mode===k?'on':'')+'">'+t+'</button>').join('');
+    h+='<label>Snap <select id="snapSel">'+[['0','off'],['0.005','0.005'],['0.01','0.01'],['0.0625','1/16'],['0.1','0.1']].map(([v,t])=>'<option value="'+v+'"'+(+v===S.snap?' selected':'')+'>'+t+'</option>').join('')+'</select></label>';
+    h+='<label><input type="checkbox" id="ctxChk"'+(S.ctx?' checked':'')+'> Goblin</label>';
+    if(d.kind==='props')h+='<label title="The tint is picked where each one is placed">Tint <input type="color" id="tintIn" value="'+S.tint+'"></label>';
   }else if(d.kind==='grips'){
     h+=gripChk();
   }else if(d.kind!=='clips'){
@@ -448,10 +477,11 @@ function renderToolbar(){
   if($('snapSel'))$('snapSel').onchange=e=>{S.snap=+e.target.value;applySnap();};
   if($('gripChk'))$('gripChk').onchange=e=>{S.grip=e.target.checked;rebuild();};
   if($('ctxChk'))$('ctxChk').onchange=e=>{S.ctx=e.target.checked;S.sel=-1;rebuild();frameView();};
+  if($('tintIn'))$('tintIn').oninput=e=>{S.tint=e.target.value;rebuild();renderInsp();};
   if($('pwSel'))$('pwSel').onchange=e=>{S.previewW=e.target.value;rebuild();};
   $('frameBtn').onclick=frameView;
 }
-function setMode(m){S.mode=m;gizmo.setMode(m);renderToolbar();}
+function setMode(m){if(m==='rotate'&&flatDoc())return;S.mode=m;gizmo.setMode(m);renderToolbar();}
 function applySnap(fine){const s=S.snap*(fine?0.25:1);gizmo.setTranslationSnap(s||null);gizmo.setScaleSnap(s||null);gizmo.setRotationSnap(S.snap?Math.PI/(fine?72:24):null);}
 addEventListener('keydown',e=>{if(e.key==='Shift')applySnap(true);});addEventListener('keyup',e=>{if(e.key==='Shift')applySnap(false);});
 
@@ -460,13 +490,14 @@ const num=(v,id,step=0.01)=>'<input type="number" step="'+step+'" id="'+id+'" va
 const v3=(v,id)=>'<span class="v3">'+[0,1,2].map(j=>num(v?v[j]:0,id+j)).join('')+'</span>';
 function renderInsp(){
   const d=doc();
-  const tabs=!d?[]:d.kind==='weapons'?[['box','Boxes'],['stats','Stats'],['hit','Hitboxes']]:d.kind==='bodies'?[['hit','Hurtboxes']]:d.kind==='grips'?[['stats','Numbers']]:[['clip','Animation']];
+  const tabs=!d?[]:flatKind(d.kind)?[['box','Boxes']]:d.kind==='weapons'?[['box','Boxes'],['stats','Stats'],['hit','Hitboxes']]:d.kind==='bodies'?[['hit','Hurtboxes']]:d.kind==='grips'?[['stats','Numbers']]:[['clip','Animation']];
   $('inspTabs').innerHTML=tabs.map(([k,t])=>'<button class="'+(S.insp===k?'on':'')+'" data-t="'+k+'">'+t+'</button>').join('');
   for(const b of $('inspTabs').querySelectorAll('button'))b.onclick=()=>{S.insp=b.dataset.t;S.sel=-1;S.hsel=-1;S.playing=false;if(hitTL())S.t=1;renderToolbar();renderInsp();rebuild();frameView();tlShow();};
   const B=$('inspBody');if(!d){B.innerHTML='';return;}
   if(d.kind==='clips')return renderClipInsp(B,d);
   if(S.insp==='stats')return renderStats(B,d);
   if(S.insp==='hit')return renderHitInsp(B,d);
+  if(flatKind(d.kind))return renderFlatInsp(B,d);
   renderBoxInsp(B,d);
 }
 // (only the values: a re-render of the whole inspector would lose focus mid-typing)
@@ -529,6 +560,32 @@ function renderBoxInsp(B,d){
   if($('fp0'))for(const j of[0,1,2]){$('fp'+j).onchange=e=>edit(W2=>{W2.model.fore.p[j]=r4(+e.target.value);});$('fr'+j).onchange=e=>edit(W2=>{W2.model.fore.r[j]=r4(+e.target.value);});}
   $('wnote').onchange=e=>edit(W2=>{if(e.target.value)W2.note=e.target.value;else delete W2.note;});
 }
+// a prop's or a fixture's boxes: size, place, colour (its own, or the tint, pole steel or a lamp), glow; a fixture's spots
+function renderFlatInsp(B,d){
+  const W=d.data,L=W.boxes,b=L[S.sel],sl=selList(),fix=d.kind==='fixtures';
+  const ROLES=fix?[['@pole','Pole'],['@lamp','Lamp']]:[['@tint','Tint']],rn=c=>(ROLES.find(r=>r[0]===c)||[])[1];
+  const sw=x=>'#'+colOf(x.c).toString(16).padStart(6,'0');
+  let h='<div class="row"><button id="addBox">+ Box</button><button id="dupBox"'+(b?'':' disabled')+'>Duplicate</button><button id="mirBox"'+(b?'':' disabled')+'>Mirror</button><button id="delBox"'+(b?'':' disabled')+'>Delete</button></div>';
+  h+='<div class="list" id="boxList">'+L.map((x,i)=>'<div class="item'+(sl.includes(i)?' on':'')+'" data-i="'+i+'"><span style="color:'+sw(x)+'">■</span> '+esc(rn(x.c)||'box')+(x.glow?' (glow)':'')+' <small>'+x.s.map(v=>+v.toFixed(3)).join(' × ')+'</small></div>').join('')+'</div>';
+  if(b){h+=sl.length>1?'<p class="note">'+sl.length+' picked</p>':'';h+='<h3>Box '+(S.sel+1)+'</h3>';
+    h+='<div class="row"><label>Size</label>'+v3(b.s,'bs')+'</div><div class="row"><label>Place</label>'+v3(b.p,'bp')+'</div>';
+    const role=b.c[0]==='@';
+    h+='<div class="row"><label>Colour</label><select id="brl"><option value="">Own</option>'+ROLES.map(([c,t])=>'<option value="'+c+'"'+(b.c===c?' selected':'')+'>'+t+'</option>').join('')+'</select><input type="color" id="bc" value="'+(role?sw(b):b.c)+'"'+(role?' disabled':'')+'></div>';
+    if(!fix&&!role)h+='<div class="row"><label style="width:auto"><input type="checkbox" id="bglow"'+(b.glow?' checked':'')+'> Glows</label></div>';}
+  if(fix&&W.spots){h+='<h3>Spots</h3>';for(const k in W.spots)h+='<div class="row"><label>'+esc(k)+'</label>'+v3(W.spots[k],'sp_'+k)+'</div>';}
+  h+='<h3>Note</h3><textarea id="wnote" rows="3" style="width:100%">'+esc(W.note||'')+'</textarea>';
+  B.innerHTML=h;
+  for(const e of B.querySelectorAll('#boxList .item'))e.onclick=ev=>{pickSel(+e.dataset.i,ev.shiftKey);rebuild();renderInsp();};
+  $('addBox').onclick=()=>edit(W2=>{const o=b?b.p:[0,0.5,0];W2.boxes.push({s:[0.2,0.2,0.2],p:[o[0],o[1],o[2]+0.1],c:b?b.c:'#888888'});S.sel=W2.boxes.length-1;S.msel=[];});
+  $('dupBox').onclick=()=>dup();$('mirBox').onclick=()=>mirror();$('delBox').onclick=()=>del();
+  const set=f=>e=>edit(W2=>f(W2.boxes[S.sel],e.target),'f'+e.target.id);
+  if(b){for(const j of[0,1,2]){$('bs'+j).onchange=set((x,t)=>{x.s[j]=Math.max(0.001,r4(+t.value));});$('bp'+j).onchange=set((x,t)=>{x.p[j]=r4(+t.value);});}
+    $('brl').onchange=set((x,t)=>{x.c=t.value||sw(x);if(t.value)delete x.glow;});
+    $('bc').oninput=set((x,t)=>{x.c=t.value;});
+    if($('bglow'))$('bglow').onchange=set((x,t)=>{if(t.checked)x.glow=true;else delete x.glow;});}
+  for(const k in (fix&&W.spots)||{})for(const j of[0,1,2])$('sp_'+k+j).onchange=e=>edit(W2=>{W2.spots[k][j]=r4(+e.target.value);});
+  $('wnote').onchange=e=>edit(W2=>{if(e.target.value)W2.note=e.target.value;else delete W2.note;});
+}
 function dup(){const d=doc();if(!d)return;
   if(d.kind==='clips')return copyKey();
   const P=selList();if(!P.length)return;
@@ -536,7 +593,7 @@ function dup(){const d=doc();if(!d)return;
   edit(W=>{const L=editList(W,S.wl);addSel(L,P.map(i=>{const c=clone(L[i]);c.p[0]=r4(c.p[0]+0.05);return c;}));});}
 // (new copies onto the end of a list, and they become the selection)
 function addSel(L,cs){const n=L.length;L.push(...cs);const I=cs.map((c,i)=>n+i);S[selK()]=I[I.length-1];S[mselK()]=I.length>1?I:[];}
-function mirror(){const d=doc();if(!d||d.kind!=='weapons'||S.sel<0||S.insp!=='box')return;
+function mirror(){const d=doc();if(!d||!(d.kind==='weapons'||flatKind(d.kind))||S.sel<0||S.insp!=='box')return;
   const P=selList();edit(W=>{const L=editList(W,S.wl);addSel(L,P.map(i=>{const c=clone(L[i]);c.p[0]=r4(-c.p[0]);if(c.r){c.r[1]=-c.r[1];c.r[2]=-c.r[2];}return c;}));});}
 function del(){const d=doc();if(!d)return;
   if(d.kind==='clips')return delKey();

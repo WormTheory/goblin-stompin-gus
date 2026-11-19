@@ -111,6 +111,24 @@ function assetPoseAt(c,u){
 function assetWeaponsAll(A){const o={};for(const k in A.weapons)o[k]=assetWeapon(A.weapons[k]);return o;}
 function assetClipsAll(A){const o={};for(const k in A.clips)o[k]=assetClip(A.clips[k]);return o;}
 
+// ---- props (dressing/props.js) and street fixtures (dressing/street.js) ----
+// A prop: {boxes:[{s,p,c,glow}]}, from its foot, its back -z: c '#rrggbb' or '@tint' (the prop's own tint, picked where it's
+// placed), glow true for a part that lights up (a screen, a hob). Plain boxes, never tilted: they're drawn as instanced
+// unit boxes. The game's list (PROPS) is [colour, x, y, z, w, h, d] a box, the tint -1 (PT) and a glow 0x1000000 (PG) on top.
+const ASSET_PT=-1,ASSET_PG=0x1000000;
+const assetHex=c=>parseInt(c.slice(1),16),assetHexOf=n=>'#'+(n>>>0).toString(16).padStart(6,'0');
+function assetProp(P){return (P.boxes||[]).map(b=>[b.c==='@tint'?ASSET_PT:assetHex(b.c)+(b.glow?ASSET_PG:0),b.p[0],b.p[1],b.p[2],b.s[0],b.s[1],b.s[2]]);}
+// (and back: the extractor)
+function assetPropOf(M){return {boxes:M.map(q=>{const g=q[0]!==ASSET_PT&&q[0]>=ASSET_PG,b={s:[q[4],q[5],q[6]],p:[q[1],q[2],q[3]],c:q[0]===ASSET_PT?'@tint':assetHexOf(g?q[0]-ASSET_PG:q[0])};if(g)b.glow=true;return b;})};}
+function assetPropsAll(A){const o={};for(const k in A.props||{})o[k]=assetProp(A.props[k]);return o;}
+// A street fixture: {boxes:[{s,p,c}], spots:{name:[x,y,z]}}, from its foot: a lamp's or a signal's arm reaches along +x,
+// anything else faces +z. c '#rrggbb', '@pole' (the dark steel every fixture shares) or '@lamp' (lit while it stands, steel
+// once it's down). spots: where the parts that aren't boxes go (FIX_SPOTS: a signal's lights, a sign's face, a billboard's
+// ad). The game's (FIXM): {boxes:[[colour, or -2 pole, -3 lamp, x, y, z, w, h, d]], spots}.
+const ASSET_POLE=-2,ASSET_LAMP=-3,FIX_SPOTS={signal:['head'],sign:['face'],board:['ad']};
+function assetFix(F){return {boxes:(F.boxes||[]).map(b=>[b.c==='@pole'?ASSET_POLE:b.c==='@lamp'?ASSET_LAMP:assetHex(b.c),b.p[0],b.p[1],b.p[2],b.s[0],b.s[1],b.s[2]]),spots:F.spots||{}};}
+function assetFixAll(A){const o={};for(const k in A.fixtures||{})o[k]=assetFix(A.fixtures[k]);return o;}
+
 // ---- shapes other than boxes, and tilted boxes, for anything built from a weapon's list ----
 // Every shape is made once at unit size and stretched to the box's (o.scale), so it batches like a box does (batDraw: one
 // batch per shape and material kind, however many there are)
@@ -201,6 +219,19 @@ function assetCheck(kind,name,a){
   }else if(kind==='bodies'){
     if(typeof a.name!=='string')E.push('name missing');
     if(a.hit)assetCheckHit(a.hit,'hit',E);
+  }else if(kind==='props'||kind==='fixtures'){
+    const roles=kind==='props'?['tint']:['pole','lamp'];
+    if(!Array.isArray(a.boxes)||!a.boxes.length)E.push('boxes: a list of at least one box');
+    else a.boxes.forEach((b,i)=>{const at='boxes['+i+']';if(!b||typeof b!=='object')return E.push(at+': not a box');
+      if(!v3(b.s)||b.s.some(x=>x<=0))E.push(at+': size s must be three numbers above 0');
+      if(!v3(b.p))E.push(at+': place p must be three numbers');
+      if(typeof b.c!=='string'||!(/^#[0-9a-f]{6}$/i.test(b.c)||b.c[0]==='@'&&roles.includes(b.c.slice(1))))E.push(at+': colour c must be #rrggbb or '+roles.map(r=>'@'+r).join(' or '));
+      if(b.glow!==undefined&&(b.glow!==true||kind!=='props'||b.c==='@tint'))E.push(at+': glow is true or left out, and only on a prop box with a colour of its own');
+      for(const f of ['r','sh','role','o','tag'])if(b[f]!==undefined)E.push(at+': '+f+' isn\'t used here (plain boxes, never tilted)');});
+    if(kind==='fixtures'){const sp=a.spots;
+      if(sp!==undefined&&(!sp||typeof sp!=='object'||Array.isArray(sp)))E.push('spots must be {name:[x,y,z]}');
+      else{for(const k in sp||{})if(!v3(sp[k]))E.push('spots.'+k+' must be three numbers');
+        for(const k of FIX_SPOTS[name]||[])if(!sp||!sp[k])E.push('spots.'+k+' missing: where its '+k+' goes');}}
   }
   return E;
 }

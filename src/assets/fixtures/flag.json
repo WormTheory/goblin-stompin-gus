@@ -1,0 +1,8 @@
+{
+  "note": "A flagpole with a blue and white flag, at fire stations, schools and fairs.",
+  "boxes": [
+    {"s":[0.14,9,0.14],"p":[0,4.5,0],"c":"@pole"},
+    {"s":[1.7,1,0.05],"p":[0.95,8.4,0],"c":"#1e40a0"},
+    {"s":[1.7,0.18,0.05],"p":[0.95,8.4,0.03],"c":"#ffffff"}
+  ]
+}

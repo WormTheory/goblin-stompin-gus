@@ -1,0 +1,9 @@
+{
+  "note": "A traffic signal mast: a base, a post and an arm out over the road (+x). head is where the lights hang (they face the traffic coming).",
+  "boxes": [
+    {"s":[0.4,0.5,0.4],"p":[0,0.25,0],"c":"@pole"},
+    {"s":[0.2,6,0.2],"p":[0,3,0],"c":"@pole"},
+    {"s":[3.3,0.12,0.12],"p":[1.6,5.9,0],"c":"@pole"}
+  ],
+  "spots": {"head":[3,5.25,0]}
+}

@@ -1,0 +1,8 @@
+{
+  "note": "an old mattress, and a dumped fridge-freezer lying on its back",
+  "boxes": [
+    {"s":[1,0.2,1.9],"p":[0,0.1,0],"c":"@tint"},
+    {"s":[0.9,0.02,1.8],"p":[0,0.21,0],"c":"#d8d0c0"},
+    {"s":[0.3,0.01,0.4],"p":[0.2,0.22,0.3],"c":"#8a7a5a"}
+  ]
+}

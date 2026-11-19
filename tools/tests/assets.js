@@ -1,7 +1,7 @@
 let __s=+(process.env.SEED||1);Math.random=()=>{__s=(__s*16807)%2147483647;return (__s-1)/2147483646;};
 const fs=require('fs');
 let src0=fs.readFileSync('g.js','utf8');
-let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={players,cars,goblins,frame,setGob,WEAPONS,GOB_WPN,STRIKES,ASSETS,assetCheck,assetFmt,assetWeapon,assetWeaponOf,assetClip,assetClipOf,wpnHitShapes,hitWorld,hitTouch,liveWeapon,liveClip,PICKUPS,hitGoblins,assetList,assetPlace,ASSET_LISTS,wpnHitSweep,hitHand,gobSwingU};\n})();');
+let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={PROPS,FIXM,assetProp,assetFix,liveProp,liveFix,get trafficRefreshT(){return trafficRefreshT},players,cars,goblins,frame,setGob,WEAPONS,GOB_WPN,STRIKES,ASSETS,assetCheck,assetFmt,assetWeapon,assetWeaponOf,assetClip,assetClipOf,wpnHitShapes,hitWorld,hitTouch,liveWeapon,liveClip,PICKUPS,hitGoblins,assetList,assetPlace,ASSET_LISTS,wpnHitSweep,hitHand,gobSwingU};\n})();');
 const deep=()=>new Proxy(function(){}, {get:(t,p)=>p===Symbol.toPrimitive?()=>0:(p==='length'?0:deep()),apply:()=>deep(),construct:()=>deep()});
 class Q{constructor(){this.x=0;this.y=0;this.z=0;this.w=1}set(x,y,z,w){this.x=x;this.y=y;this.z=z;this.w=w;return this}setFromAxisAngle(a,t){const s=Math.sin(t/2);this.x=a.x*s;this.y=a.y*s;this.z=a.z*s;this.w=Math.cos(t/2);return this}copy(q){this.x=q.x;this.y=q.y;this.z=q.z;this.w=q.w;return this}}
 class V3{project(){return this}fromBufferAttribute(a,i){const A=a.array||a.a;this.x=A[i*3];this.y=A[i*3+1];this.z=A[i*3+2];return this}applyMatrix4(m){const e=m.elements,x=this.x,y=this.y,z=this.z;this.x=e[0]*x+e[4]*y+e[8]*z+e[12];this.y=e[1]*x+e[5]*y+e[9]*z+e[13];this.z=e[2]*x+e[6]*y+e[10]*z+e[14];return this}setFromMatrixPosition(o){this.x=o.position.x;this.y=o.position.y;this.z=o.position.z;return this}normalize(){const l=Math.hypot(this.x,this.y,this.z)||1;this.x/=l;this.y/=l;this.z/=l;return this}add(v){this.x+=v.x;this.y+=v.y;this.z+=v.z;return this}applyQuaternion(q){const x=this.x,y=this.y,z=this.z,qx=q.x,qy=q.y,qz=q.z,qw=q.w;const ix=qw*x+qy*z-qz*y,iy=qw*y+qz*x-qx*z,iz=qw*z+qx*y-qy*x,iw=-qx*x-qy*y-qz*z;this.x=ix*qw+iw*-qx+iy*-qz-iz*-qy;this.y=iy*qw+iw*-qy+iz*-qx-ix*-qz;this.z=iz*qw+iw*-qz+ix*-qy-iy*-qx;return this}constructor(x=0,y=0,z=0){this.x=x;this.y=y;this.z=z}set(x,y,z){this.x=x;this.y=y;this.z=z;return this}copy(v){this.x=v.x;this.y=v.y;this.z=v.z;return this}clone(){return new V3(this.x,this.y,this.z)}addScaledVector(v,s){this.x+=v.x*s;this.y+=v.y*s;this.z+=v.z*s;return this}multiplyScalar(s){this.x*=s;this.y*=s;this.z*=s;return this}setScalar(s){return this.set(s,s,s)}}
@@ -40,7 +40,7 @@ const [A]=T.players;const S=n=>{for(let i=0;i<n;i++){now+=16.7;T.frame(now);}};f
 // keeps its exact layout through a load and save; what the game built from them matches the files; weapon hitboxes
 // against goblin hurtboxes (player/hit-shapes.js); the live preview's entries (ui/editor-live.js).
 const path=require('path'),AS=path.join(__dirname,'..','..','src','assets');
-for(const kind of ['weapons','clips','bodies','grips']){
+for(const kind of ['weapons','clips','bodies','grips','props','fixtures']){
   const names=JSON.parse(fs.readFileSync(path.join(AS,kind,'_order.json'),'utf8')).order;let bad=[],moved=[];
   for(const n of names){const text=fs.readFileSync(path.join(AS,kind,n+'.json'),'utf8').replace(/\r\n/g,'\n'),a=JSON.parse(text);
     const E=T.assetCheck(kind,n,a);if(E.length)bad.push(n+': '+E.join('; '));if(T.assetFmt(a)!==text)moved.push(n);}
@@ -100,4 +100,11 @@ console.log('above his head: a goblin on a ledge 1.5 up',hitAt({hit:{hitboxes:[{
   console.log('live weapon:',T.liveWeapon('dagger',f),'| same entry kept',T.WEAPONS.dagger===same,'| new shape',T.WEAPONS.dagger.model.held[0][0]===0.5,'| new damage reaches Gnash',T.GOB_WPN.dagger===gw&&T.GOB_WPN.dagger.dmg===dmg0+7,'| unknown weapon:',T.liveWeapon('nope',f));
   const back=JSON.parse(fs.readFileSync(path.join(AS,'weapons','dagger.json'),'utf8'));T.liveWeapon('dagger',back);console.log('put back: damage',T.GOB_WPN.dagger.dmg===dmg0);
   const c=JSON.parse(fs.readFileSync(path.join(AS,'clips','club.json'),'utf8'));c.tracks.arm[1][1]=-2;console.log('live clip:',T.liveClip('club',c),'| in the table',T.STRIKES.club[0][1][1]===-2);}
+  {const f=JSON.parse(fs.readFileSync(path.join(AS,'props','bed.json'),'utf8')),n0=T.PROPS.bed.length;f.boxes.push({s:[0.2,0.2,0.2],p:[0,1,0],c:'#ff0000',glow:true});
+    const r=T.liveProp('bed',f);console.log('live prop:',r,'| a box more',T.PROPS.bed.length===n0+1,'| glows',T.PROPS.bed[n0][0]===0x1000000+0xff0000,'| dressing redrawn',T.trafficRefreshT===0,'| unknown prop',T.liveProp('nosuch',f)!=='ok');
+    const g=JSON.parse(fs.readFileSync(path.join(AS,'fixtures','lamp.json'),'utf8'));g.boxes[1].s[1]=9;console.log('live fixture:',T.liveFix('lamp',g),'| taller post',T.FIXM.lamp.boxes[1][5]===9);}
+// (the props and fixtures the game has against their files: every prop's colours and boxes, each fixture's boxes and spots)
+{const pd=[],fd=[];for(const k in T.ASSETS.props){const a=T.assetProp(T.ASSETS.props[k]);if(k!=='bed'&&(T.PROPS[k].length!==a.length||T.PROPS[k].some((q,i)=>q[0]!==a[i][0])))pd.push(k);}
+  for(const k in T.ASSETS.fixtures)if(k!=='lamp'&&JSON.stringify(T.FIXM[k])!==JSON.stringify(T.assetFix(T.ASSETS.fixtures[k])))fd.push(k);
+  console.log('props in the game',Object.keys(T.PROPS).length,'from files',Object.keys(T.ASSETS.props).length,pd.length?'differ '+pd.join(','):'same','| fixtures',Object.keys(T.FIXM).join(','),fd.length?'differ '+fd.join(','):'same');}
 S(5);console.log('frames after: ok');

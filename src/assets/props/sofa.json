@@ -1,0 +1,9 @@
+{
+  "note": "a one-seat length of sofa, in the prop's tint: run some together and it's a long one",
+  "boxes": [
+    {"s":[0.92,0.3,0.8],"p":[0,0.2,0.04],"c":"@tint"},
+    {"s":[0.92,0.5,0.14],"p":[0,0.56,-0.32],"c":"@tint"},
+    {"s":[0.1,0.2,0.8],"p":[-0.42,0.42,0.04],"c":"@tint"},
+    {"s":[0.1,0.2,0.8],"p":[0.42,0.42,0.04],"c":"@tint"}
+  ]
+}
