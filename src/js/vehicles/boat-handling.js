@@ -98,5 +98,5 @@ function boatPush(bo,hit,dx,dz){const o=hit&&hit.T;if(!o||o===bo||!o.K||!o.g)ret
 // the controls, for the column down the left
 function boatHow(p,D,armed,G){const A=id=>actMark(p,id),bo=D.o,sp=BOAT_SPEC[bo.k],an=A('seAnchor')+(bo.anchor?' raise the anchor':' drop the anchor')+'  ·  ';
   if(bo.k==='row')return A('seHorn')+' left oar  ·  '+A('seSpec')+' right oar  ·  both: straight on, in a steady stroke  ·  '+an;
-  if(bo.k==='pedalo')return A('fwd')+' pedal (tap in rhythm: faster)  ·  '+A('left')+'/'+A('right')+' tiller  ·  '+an+A('seSpec')+' bell  ·  ';
-  return A('fwd')+'/'+A('back')+' throttle, a notch a tap  ·  '+A('left')+'/'+A('right')+' rudder  ·  '+an+(sp?A('seSpec')+' '+(bo.k==='tug'&&bo.push?'push mode off':sp)+'  ·  ':'')+A('seHorn')+' horn  ·  ';}
+  if(bo.k==='pedalo')return A('fwd')+' pedal (tap in rhythm: faster)  ·  '+actPair(p,'left','right')+' tiller  ·  '+an+A('seSpec')+' bell  ·  '+A('seHorn')+' horn  ·  ';
+  return actPair(p,'fwd','back')+' throttle, a notch a tap  ·  '+actPair(p,'left','right')+' rudder  ·  '+an+(sp?A('seSpec')+' '+(bo.k==='tug'&&bo.push?'push mode off':sp)+'  ·  ':'')+A('seHorn')+' horn  ·  ';}

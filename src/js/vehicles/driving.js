@@ -205,8 +205,12 @@ function drvAim(p,sp){if(p.lockT&&p.drv&&lockAlive(p.lockT))return drvLead(p,sp|
     const ex=ox-fx*t,ey=oy-fy*t,ez=oz-fz*t;if(ex*ex+ez*ez<0.5&&Math.abs(ey)<1.1){gt=t;ga={x:q.x,y:q.y+0.8,z:q.z};}}
   for(let t=t0;t<gt;t+=0.5){const x=c.x+fx*t,y=c.y+fy*t,z=c.z+fz*t;if(y<1||solidAt(x,Math.floor(y),z)||SL&&shipLineAt(SL,t))return{x,y,z};}
   return ga||{x:c.x+fx*160,y:c.y+fy*160,z:c.z+fz*160};}
-// the view from behind the vehicle: turned with the mouse or right stick as usual, and swinging back round behind it a
-// moment after you stop looking about, once it's moving
+// the view from behind the vehicle: turned with the mouse or right stick as usual, and, with the Controls tab's Camera
+// auto-recenter on (CAM_RC, localStorage CAM_RC_KEY, off at first), swinging back round behind it a moment after you
+// stop looking about, once it's moving
+const CAM_RC_KEY='goblin-stompin-gus-cam-recenter';let CAM_RC=false;try{CAM_RC=localStorage.getItem(CAM_RC_KEY)==='1';}catch(e){}
+{const t=document.getElementById('camTog');if(t){const show=()=>t.setAttribute('aria-checked',String(CAM_RC));show();
+  t.addEventListener('click',()=>{CAM_RC=!CAM_RC;show();try{localStorage.setItem(CAM_RC_KEY,CAM_RC?'1':'0');}catch(e){}});}}
 function drvCamera(p){
   if(p.drv.k==='mech'){mechCamera(p);return;}
   if(p.drv.k==='ship'&&p.shipBridge){shipBridgeCam(p,p.drv.o);return;}   // (the view from the bridge: see ships.js)
@@ -215,7 +219,9 @@ function drvCamera(p){
   const D=p.drv,S=drvPose(D);
   if(p.drvYaw!==undefined&&Math.abs(angDiff(p.drvYaw,p.cam.yaw))>1e-5)p.drvLook=camClock;
   // (not a helicopter, which faces where you look anyway, nor a train, where the way you look is the way it goes)
-  if(D.k!=='heli'&&D.k!=='train'&&D.k!=='subway'&&D.k!=='balloon'&&D.seat!=='gun'&&!(D.k==='plane'&&planeMode(p)==='aim')&&camClock-(p.drvLook??-9)>1.2&&Math.abs(S.v)>1.5)p.cam.yaw+=angDiff(p.cam.yaw,S.h+Math.PI)*0.035;
+  // (by the real time since the last frame, so it swings round as fast at any frame rate: 3.5% a frame at 60)
+  const cdt=Math.max(0,Math.min(0.1,camClock-(p.drvCamC??camClock)));p.drvCamC=camClock;
+  if(CAM_RC&&D.k!=='heli'&&D.k!=='train'&&D.k!=='subway'&&D.k!=='balloon'&&D.seat!=='gun'&&!(D.k==='plane'&&planeMode(p)==='aim')&&camClock-(p.drvLook??-9)>1.2&&Math.abs(S.v)>1.5)p.cam.yaw+=angDiff(p.cam.yaw,S.h+Math.PI)*(1-Math.pow(1-0.035,cdt*60));
   p.drvYaw=p.cam.yaw;
   // (C held in a road vehicle: looking back past it, from in front)
   const yaw=D.k==='car'&&drvIn(p).rdBehind&&drvCtx(D)==='road'?S.h:p.cam.yaw;

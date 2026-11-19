@@ -180,7 +180,7 @@ function shipAground(S){
 // the helm's controls (the order rung, the speed and the rudder are on its instrument: inShip)
 function shipHow(p,S){
   const A=id=>actMark(p,id);
-  return A('fwd')+'/'+A('back')+' engine orders  ·  '+A('left')+'/'+A('right')+' rudder  ·  '+A('climb')+' rudder amidships  ·  '+A('seAnchor')+(S.anchor?' raise the anchor':' drop the anchor')+'  ·  '+A('weapon')+(p.shipBridge?' chase view':' bridge view')+'  ·  '+A('bite')+' horn  ·  ';
+  return actPair(p,'fwd','back')+' engine orders  ·  '+actPair(p,'left','right')+' rudder  ·  '+A('climb')+' rudder amidships  ·  '+A('seAnchor')+(S.anchor?' raise the anchor':' drop the anchor')+'  ·  '+A('weapon')+(p.shipBridge?' chase view':' bridge view')+'  ·  '+A('bite')+' horn  ·  ';
 }
 // the view from the bridge (the weapon button, while at the helm): from the helmsman's eyes, looking about with the
 // mouse or stick as usual, in the ship's own frame (shipCam turns it with the ship)

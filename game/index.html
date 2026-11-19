@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:e803e56ee194c884b3ffc832db6e425532de71a3374f739acc657923f6ae47cb -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:fef11efba3e207d324c9d809698d38e673c4686c7d388ccdba54aaacd2c7dea9 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1449,6 +1449,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
           <button type="button" role="radio" data-view="auto" aria-checked="true">Auto</button><button type="button" role="radio" data-view="kbm" aria-checked="false">Keyboard</button><button type="button" role="radio" data-view="pad" aria-checked="false">Controller</button><button type="button" role="radio" data-view="touch" aria-checked="false">Touch</button>
         </div>
       </div>
+      <div class="abil"><button type="button" class="tog" role="checkbox" id="camTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Camera auto-recenter</span></button></div>
       <div id="ctlBody"></div>
     </div>
     <div class="tabpane" id="tabCustom" role="tabpanel" hidden>
@@ -1625,7 +1626,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Shorter menu text</h3>
 <ul><li>The menus, Options and abilities say less: notes that only repeated what a button or switch already says are gone, and the rest are cut down to a few words.</li></ul>
 <h3>Fixes</h3>
-<ul><li>Goblins riding bicycles, kick scooters, Gobways and motor scooters through town no longer sometimes vanish from them, leaving the vehicle rolling along empty. Motorbike riders and the heads of goblins driving cars had the same trouble.</li><li>The rush of air from sprinting no longer keeps playing after you get into a vehicle while running.</li><li>The prompt to get into a vehicle no longer stays on screen once you're in.</li><li>Gnash's rifle and handgun now damage every vehicle they hit, the same way: cars, tanks, helicopters, trains, planes, boats, balloons, Mobile Gears and the carrier's deck weapons all take three times what a goblin would. Before, they went straight through most vehicles, did a single point to cars, and only the deck weapons took real harm.</li><li>The minimap no longer draws the grey of the surrounding blocks over big sites that take up several blocks, such as theme parks, which hid most of their buildings.</li><li>Enemy gunfire now hits whatever you're driving. Before, rifles, the militia's machine guns, the helicopters' guns and the cultists' fireballs did nothing at all to a goblin behind the wheel; now the vehicle takes the hit instead.</li><li>Rounds from the fighter jets' cannons, the carrier's CIWS, the militia's machine guns and the helicopters' guns are stopped by walls, one round at a time. Before, some went straight through buildings, and a burst kept coming even after you ducked behind something.</li><li>Invulnerability now covers a train or subway train you're driving, as it does every other vehicle.</li><li>Every vehicle now plays by the same rules. Boats, trains and hot-air balloons gather snow like the rest; bringing down a hot-air balloon (400), a Mobile Gear (2,000) or one of the carrier's deck weapons (300) scores points; a balloon's health shows correctly to everyone playing online; and the smoke and flames off a badly hurt vehicle show for players online too.</li><li>Every vehicle now has the same health wherever it turns up: buses, articulated lorries, fire engines and ambulances take 45, motorhomes 40, police cars 40 and everything else 30. Before, an articulated lorry on the motorway or a police car in the traffic went down as easily as a family car, and the Testing Environment's ambulances and motorhomes did too.</li><li>The Dev tab's Enemies section now has the soldiers who crew the military bases' tanks and helicopters, with every animation the other armed enemies have.</li><li>The aircraft carrier's deck weapons gather snow in a blizzard like every other vehicle (its decks already did).</li><li>Behind the scenes, every kind of enemy now has its own list of the weapons it carries (street goblins a club, police a club and a handgun, thieves and cultists a dagger, preppers, militia and marines a rifle and grenades, sailors and soldiers a rifle), and what they hold, when they shoot, throw or strike, and what they drop all come from it. Nothing changes in play; it just means an enemy can be handed a new weapon in one place. Drawing a gun at range and putting it away for a club or dagger up close, as the police do, now works for any enemy given both.</li><li>Every weapon now works the same whoever carries it, you or the enemy. Rifles hit for a full heart, reach 48 blocks and fire once a second; handguns hit for three quarters of a heart, reach 30 and fire every half second; both chip away at the wall they hit, the enemies' rounds too, so cover doesn't last for ever. Daggers stab for a full heart every half second, clubs hit for half a heart every 1.2 s, and grenades are the same for everyone. Enemy rifles and police handguns hit harder and fire faster than before, while Gnash and Grizzle fire and swing a little slower. Enemies still take a moment to aim and miss more from far off.</li><li>The pause menu's This rampage card counts "Vehicles destroyed" instead of "Cars totaled": every vehicle you wreck now counts, not just cars. Tanks, helicopters, planes, boats, hot-air balloons, Mobile Gears, the carrier's deck weapons, each car of a train you wreck, and a ship you sink.</li><li>Grenades, shells and rockets now hurt zoo animals, the Ferris wheel's rim and the carousel, as stomps already did, and a shell or rocket goes off when it hits an animal.</li><li>Online, a guest playing as Gnash or Grizzle now sees their own gun kick and the bolt, pump or slide worked after each shot, as the host does. An error on the guest's side could stop their weapons working at all.</li><li>A forklift wrecked or cleared away with something on its forks lets go of it: a car lifted on them falls to the ground, rather than hanging in the air.</li><li>Landmines now go off under tanks, helicopters on the ground, Mobile Gears, trains and planes, not just cars.</li><li>The Large Club only slams the ground with its shockwave when you're on the ground; swung in mid-air it's an ordinary blow. Landmines can only be planted standing on the ground.</li><li>The shotgun's pellets spread evenly when you aim steeply up or down, rather than squashing into a flat line.</li><li>Changing the Loadout no longer refills or empties your guns or swaps the weapon in your hand: each gun keeps what's left in its magazine.</li><li>If you'd moved X (or D-pad down) on to another control, the new Reload action no longer takes it as well: it's left unbound for you to set.</li><li>Theme park rides' and zoo animals' health now shows correctly to guests online.</li><li>Big worlds saved into the browser's database could be saved over by an older save finishing late, or not loaded back at all after a save that didn't finish; saves now go one at a time, and loading finds the blocks either way.</li><li>A badly smashed-up world no longer stutters every few seconds as it saves: the game only writes the parts of it that changed since the last save.</li></ul>
+<ul><li>The controls listed down the left while driving now match what each vehicle really does. On a controller, the left stick now shows for a boat's or ship's throttle and rudder (the trawler's among them), a tank's tracks, a train's lever, a helicopter in Agile mode and the Gobway, where nothing showed before, and cars list the triggers as throttle and brake. The horn now shows for cars, the forklift, the tractor, the hovercraft and the pedalo, and the kick scooter's brake too. Pressing a stick in now shows as L3 or R3, rather than looking the same as pushing the stick about.</li><li>The chase camera behind a vehicle no longer swings back round behind it on its own. Switch on Camera auto-recenter in the Controls tab to have it back; it now swings round at the same pace whatever the frame rate.</li><li>Goblins riding bicycles, kick scooters, Gobways and motor scooters through town no longer sometimes vanish from them, leaving the vehicle rolling along empty. Motorbike riders and the heads of goblins driving cars had the same trouble.</li><li>The rush of air from sprinting no longer keeps playing after you get into a vehicle while running.</li><li>The prompt to get into a vehicle no longer stays on screen once you're in.</li><li>Gnash's rifle and handgun now damage every vehicle they hit, the same way: cars, tanks, helicopters, trains, planes, boats, balloons, Mobile Gears and the carrier's deck weapons all take three times what a goblin would. Before, they went straight through most vehicles, did a single point to cars, and only the deck weapons took real harm.</li><li>The minimap no longer draws the grey of the surrounding blocks over big sites that take up several blocks, such as theme parks, which hid most of their buildings.</li><li>Enemy gunfire now hits whatever you're driving. Before, rifles, the militia's machine guns, the helicopters' guns and the cultists' fireballs did nothing at all to a goblin behind the wheel; now the vehicle takes the hit instead.</li><li>Rounds from the fighter jets' cannons, the carrier's CIWS, the militia's machine guns and the helicopters' guns are stopped by walls, one round at a time. Before, some went straight through buildings, and a burst kept coming even after you ducked behind something.</li><li>Invulnerability now covers a train or subway train you're driving, as it does every other vehicle.</li><li>Every vehicle now plays by the same rules. Boats, trains and hot-air balloons gather snow like the rest; bringing down a hot-air balloon (400), a Mobile Gear (2,000) or one of the carrier's deck weapons (300) scores points; a balloon's health shows correctly to everyone playing online; and the smoke and flames off a badly hurt vehicle show for players online too.</li><li>Every vehicle now has the same health wherever it turns up: buses, articulated lorries, fire engines and ambulances take 45, motorhomes 40, police cars 40 and everything else 30. Before, an articulated lorry on the motorway or a police car in the traffic went down as easily as a family car, and the Testing Environment's ambulances and motorhomes did too.</li><li>The Dev tab's Enemies section now has the soldiers who crew the military bases' tanks and helicopters, with every animation the other armed enemies have.</li><li>The aircraft carrier's deck weapons gather snow in a blizzard like every other vehicle (its decks already did).</li><li>Behind the scenes, every kind of enemy now has its own list of the weapons it carries (street goblins a club, police a club and a handgun, thieves and cultists a dagger, preppers, militia and marines a rifle and grenades, sailors and soldiers a rifle), and what they hold, when they shoot, throw or strike, and what they drop all come from it. Nothing changes in play; it just means an enemy can be handed a new weapon in one place. Drawing a gun at range and putting it away for a club or dagger up close, as the police do, now works for any enemy given both.</li><li>Every weapon now works the same whoever carries it, you or the enemy. Rifles hit for a full heart, reach 48 blocks and fire once a second; handguns hit for three quarters of a heart, reach 30 and fire every half second; both chip away at the wall they hit, the enemies' rounds too, so cover doesn't last for ever. Daggers stab for a full heart every half second, clubs hit for half a heart every 1.2 s, and grenades are the same for everyone. Enemy rifles and police handguns hit harder and fire faster than before, while Gnash and Grizzle fire and swing a little slower. Enemies still take a moment to aim and miss more from far off.</li><li>The pause menu's This rampage card counts "Vehicles destroyed" instead of "Cars totaled": every vehicle you wreck now counts, not just cars. Tanks, helicopters, planes, boats, hot-air balloons, Mobile Gears, the carrier's deck weapons, each car of a train you wreck, and a ship you sink.</li><li>Grenades, shells and rockets now hurt zoo animals, the Ferris wheel's rim and the carousel, as stomps already did, and a shell or rocket goes off when it hits an animal.</li><li>Online, a guest playing as Gnash or Grizzle now sees their own gun kick and the bolt, pump or slide worked after each shot, as the host does. An error on the guest's side could stop their weapons working at all.</li><li>A forklift wrecked or cleared away with something on its forks lets go of it: a car lifted on them falls to the ground, rather than hanging in the air.</li><li>Landmines now go off under tanks, helicopters on the ground, Mobile Gears, trains and planes, not just cars.</li><li>The Large Club only slams the ground with its shockwave when you're on the ground; swung in mid-air it's an ordinary blow. Landmines can only be planted standing on the ground.</li><li>The shotgun's pellets spread evenly when you aim steeply up or down, rather than squashing into a flat line.</li><li>Changing the Loadout no longer refills or empties your guns or swaps the weapon in your hand: each gun keeps what's left in its magazine.</li><li>If you'd moved X (or D-pad down) on to another control, the new Reload action no longer takes it as well: it's left unbound for you to set.</li><li>Theme park rides' and zoo animals' health now shows correctly to guests online.</li><li>Big worlds saved into the browser's database could be saved over by an older save finishing late, or not loaded back at all after a save that didn't finish; saves now go one at a time, and loading finds the blocks either way.</li><li>A badly smashed-up world no longer stutters every few seconds as it saves: the game only writes the parts of it that changed since the last save.</li></ul>
 </details>
 <p class="pn-earlier">Earlier updates</p>
 <details class="pn-up pn-fold" id="version-0-4-1"><summary tabindex="0"><h2>Version 0.4.1</h2><a class="pn-play" data-ver="0.4.1" href="v/0.4.1/" tabindex="0">Play 0.4.1</a><span class="pn-tog" aria-hidden="true"></span></summary>
@@ -2264,7 +2265,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='945eae2d1ac4';
+const GAME_VER='0.5',GAME_BUILD='a62e6497df4d';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -12692,8 +12693,12 @@ function drvAim(p,sp){if(p.lockT&&p.drv&&lockAlive(p.lockT))return drvLead(p,sp|
     const ex=ox-fx*t,ey=oy-fy*t,ez=oz-fz*t;if(ex*ex+ez*ez<0.5&&Math.abs(ey)<1.1){gt=t;ga={x:q.x,y:q.y+0.8,z:q.z};}}
   for(let t=t0;t<gt;t+=0.5){const x=c.x+fx*t,y=c.y+fy*t,z=c.z+fz*t;if(y<1||solidAt(x,Math.floor(y),z)||SL&&shipLineAt(SL,t))return{x,y,z};}
   return ga||{x:c.x+fx*160,y:c.y+fy*160,z:c.z+fz*160};}
-// the view from behind the vehicle: turned with the mouse or right stick as usual, and swinging back round behind it a
-// moment after you stop looking about, once it's moving
+// the view from behind the vehicle: turned with the mouse or right stick as usual, and, with the Controls tab's Camera
+// auto-recenter on (CAM_RC, localStorage CAM_RC_KEY, off at first), swinging back round behind it a moment after you
+// stop looking about, once it's moving
+const CAM_RC_KEY='goblin-stompin-gus-cam-recenter';let CAM_RC=false;try{CAM_RC=localStorage.getItem(CAM_RC_KEY)==='1';}catch(e){}
+{const t=document.getElementById('camTog');if(t){const show=()=>t.setAttribute('aria-checked',String(CAM_RC));show();
+  t.addEventListener('click',()=>{CAM_RC=!CAM_RC;show();try{localStorage.setItem(CAM_RC_KEY,CAM_RC?'1':'0');}catch(e){}});}}
 function drvCamera(p){
   if(p.drv.k==='mech'){mechCamera(p);return;}
   if(p.drv.k==='ship'&&p.shipBridge){shipBridgeCam(p,p.drv.o);return;}   // (the view from the bridge: see ships.js)
@@ -12702,7 +12707,9 @@ function drvCamera(p){
   const D=p.drv,S=drvPose(D);
   if(p.drvYaw!==undefined&&Math.abs(angDiff(p.drvYaw,p.cam.yaw))>1e-5)p.drvLook=camClock;
   // (not a helicopter, which faces where you look anyway, nor a train, where the way you look is the way it goes)
-  if(D.k!=='heli'&&D.k!=='train'&&D.k!=='subway'&&D.k!=='balloon'&&D.seat!=='gun'&&!(D.k==='plane'&&planeMode(p)==='aim')&&camClock-(p.drvLook??-9)>1.2&&Math.abs(S.v)>1.5)p.cam.yaw+=angDiff(p.cam.yaw,S.h+Math.PI)*0.035;
+  // (by the real time since the last frame, so it swings round as fast at any frame rate: 3.5% a frame at 60)
+  const cdt=Math.max(0,Math.min(0.1,camClock-(p.drvCamC??camClock)));p.drvCamC=camClock;
+  if(CAM_RC&&D.k!=='heli'&&D.k!=='train'&&D.k!=='subway'&&D.k!=='balloon'&&D.seat!=='gun'&&!(D.k==='plane'&&planeMode(p)==='aim')&&camClock-(p.drvLook??-9)>1.2&&Math.abs(S.v)>1.5)p.cam.yaw+=angDiff(p.cam.yaw,S.h+Math.PI)*(1-Math.pow(1-0.035,cdt*60));
   p.drvYaw=p.cam.yaw;
   // (C held in a road vehicle: looking back past it, from in front)
   const yaw=D.k==='car'&&drvIn(p).rdBehind&&drvCtx(D)==='road'?S.h:p.cam.yaw;
@@ -13810,10 +13817,11 @@ function farmLiftPost(dt){for(const c of cars){
   else{farmPost(c,dt);const F=c.farm,P=flParts(c);if(F&&P&&P.imp){const K=0.8,want=F.down?0.35*K:0.75*K;P.imp.position.y+=(want-P.imp.position.y)*Math.min(1,dt*6);P.plough.visible=F.imp==='plough';P.mower.visible=F.imp==='mower';}}}}
 // their lines in the controls column (drvHow): the forks, or the hand throttle and the hitch
 function carHow(p,D,armed,G){const A=id=>actMark(p,id),V=D.o.veh;
-  if(V==='forklift')return A('lfUp')+'/'+A('lfDown')+' forks up/down  ·  '+A('lfTilt')+' + up/down tilt the mast  ·  '+G;
+  if(V==='forklift')return A('lfUp')+'/'+A('lfDown')+' forks up/down  ·  '+A('lfTilt')+' + up/down tilt the mast  ·  '+A('bite')+' horn  ·  '+G;
   if(V==='tractor'){const F=D.o.farm||{imp:'plough',down:false},w=F.imp==='none'?'hitch':F.imp;
-    return A('fmCruise')+'/'+A('fmCruiseDn')+' hand throttle  ·  '+A('fmImp')+(F.down?' raise the ':' lower the ')+w+'  ·  '+A('fmSwap')+' swap implement  ·  '+G;}
-  if(D.seat==='gun'||V==='hover')return G;
+    return A('fmCruise')+'/'+A('fmCruiseDn')+' hand throttle  ·  '+A('fmImp')+(F.down?' raise the ':' lower the ')+w+'  ·  '+A('fmSwap')+' swap implement  ·  '+A('bite')+' horn  ·  '+G;}
+  if(D.seat==='gun')return G;
+  if(V==='hover')return A('bite')+' horn  ·  '+A('rdBehind')+' look behind  ·  '+G;
   if(LIGHT_HOW[V])return lightHow(p,D,G);
   return roadHow(p,D,G);}
 // ---- road vehicles as you drive them (the vehicle overhaul's step 4) ----
@@ -13894,7 +13902,8 @@ function sirenYield(c){for(const q of players){const D=q.drv;if(!D||D.k!=='car'|
 // the controls column's lines for a road vehicle: the handbrake and its special
 const ROAD_SPEC={flash:'flash headlights',nitro:'nitro (hold)',wheelie:'wheelie / stoppie (hold)',hop:'hop (let go)',air:'air brakes (hold)',hazard:'hazard lights'};
 function roadHow(p,D,G){const A=id=>actMark(p,id),c=D.o,k=roadKind(c),sp=k==='siren'?(c.siren?'siren off':'siren on'):ROAD_SPEC[k];
-  return A('rdHand')+(handOf(c.veh||'car').drift===false?' handbrake':' handbrake / drift')+'  ·  '+A('rdSpec')+' '+sp+'  ·  '+A('rdBehind')+' look behind  ·  '+G;}
+  // (on a controller the triggers are the throttle and brake, as far as they're pulled: drvThr)
+  return (p.pad?btnMark('RT')+'/'+btnMark('LT')+' throttle / brake  ·  ':'')+A('rdHand')+(handOf(c.veh||'car').drift===false?' handbrake':' handbrake / drift')+'  ·  '+A('rdSpec')+' '+sp+'  ·  '+A('rdBehind')+' look behind  ·  '+(c.veh==='fire'?'':A('bite')+' horn  ·  ')+G;}
 // ---- light vehicles: a bicycle, a kick scooter, a self-balancing scooter (the Gobway) and a motor scooter ----
 // They're cars as far as the traffic goes (VEH, cars.js; a body each built here by lightBuild), but each is ridden its
 // own way (lightDrive, from drvCar, before the usual throttle):
@@ -13996,9 +14005,9 @@ function lightLook(c,dt,L){const G2=c.vehG[c.veh];if(!G2||!G2.lv||dt<=0)return;c
 function lightRider(p,c){if(!lightOf(c))return;const K=gobKit(p),G2=c.vehG[c.veh],P=G2&&G2.lv&&riderAt(G2.lv.clip,riderU(c));if(!P)return;
   K.m.legs[0].rotation.set(P[0],0,0);K.m.legs[1].rotation.set(P[1],0,0);}
 // the controls column: what the special and the handbrake do on each
-const LIGHT_HOW={bicycle:['rdSpec','pedal hard (tap)','rdHand','back brake','bite','bell'],kick:['fwd','kick (tap)','rdSpec','ollie (let go)','bite','bell'],
-  segway:['fwd','lean forward','back','lean back','bite','beep'],moped:['rdSpec','indicators','rdHand','back brake','bite','horn']};
-function lightHow(p,D,G){const L=LIGHT_HOW[D.o.veh],A=id=>actMark(p,id==='fwd'||id==='back'?id:id);let s='';
+const LIGHT_HOW={bicycle:['rdSpec','pedal hard (tap)','rdHand','back brake','bite','bell'],kick:['fwd','kick (tap)','rdSpec','ollie (let go)','rdHand','brake','bite','bell'],
+  segway:['fb','lean forward / back','bite','beep'],moped:['rdSpec','indicators','rdHand','back brake','bite','horn']};
+function lightHow(p,D,G){const L=LIGHT_HOW[D.o.veh],A=id=>id==='fb'?actPair(p,'fwd','back'):actMark(p,id);let s='';
   for(let k=0;k<L.length;k+=2)s+=A(L[k])+' '+L[k+1]+'  ·  ';return s+A('rdBehind')+' look behind  ·  '+G;}
 
 // ---- their instruments (INSTRUMENTS, ui/instruments.js). The kick scooter has none ----
@@ -14389,8 +14398,8 @@ function planeHow(p,D,armed,G){const A=id=>actMark(p,id),pl=D.o,m=planeMode(p),a
   const hk=pl.jet?A('arGear')+(pl.hook?' hook up':' hook down'):A('arGear')+(pl.free&&pl.free.gearUp?' gear down':' gear up');
   const sp=pl.jet?'':pl.light?A('arMsl')+(pl.free&&pl.free.smoke?' smoke off':' smoke on')+'  ·  ':A('arMsl')+(pl.ap?' autopilot off':' autopilot on')+'  ·  ';
   const ab=pl.jet?A('arThrUp')+(aim?' afterburner':' throttle (full: afterburner)')+'  ·  ':'';
-  if(aim)return 'Mouse: fly toward  ·  '+A('fwd')+'/'+A('back')+' throttle  ·  '+A('left')+'/'+A('right')+' roll'+(pl.jet?' (twice: barrel roll)':'')+'  ·  '+ab+(p.pad?'':A('arLook')+' free look  ·  ')+A('arBrake')+' brakes  ·  '+sp+G+hk+'  ·  ';
-  return (p.pad?'Stick pitch and roll':A('fwd')+'/'+A('back')+' nose down/up  ·  '+A('left')+'/'+A('right')+' roll'+(pl.jet?' (twice: barrel roll)':''))+'  ·  '+(pl.jet?ab:A('arThrUp')+'/'+A('arThrDn')+' throttle  ·  ')+(pl.jet?A('arThrDn')+' throttle down  ·  ':'')+A('arYawL')+'/'+A('arYawR')+' rudder  ·  '+A('arBrake')+' brakes  ·  '+sp+G+hk+'  ·  ';}
+  if(aim)return (p.pad?btnMark('RS')+' fly toward':'Mouse: fly toward')+'  ·  '+actPair(p,'fwd','back')+' throttle  ·  '+actPair(p,'left','right')+' roll'+(pl.jet?' (twice: barrel roll)':'')+'  ·  '+ab+(p.pad?'':A('arLook')+' free look  ·  ')+A('arBrake')+' brakes  ·  '+sp+G+hk+'  ·  ';
+  return (p.pad?btnMark('LS')+' pitch and roll':actPair(p,'fwd','back')+' nose down/up  ·  '+actPair(p,'left','right')+' roll'+(pl.jet?' (twice: barrel roll)':''))+'  ·  '+(pl.jet?ab:A('arThrUp')+'/'+A('arThrDn')+' throttle  ·  ')+(pl.jet?A('arThrDn')+' throttle down  ·  ':'')+A('arYawL')+'/'+A('arYawR')+' rudder  ·  '+A('arBrake')+' brakes  ·  '+sp+G+hk+'  ·  ';}
 // ---- a tank as you drive it (from drvTank and tankGun, driving.js) ----
 // Its tracks: W/S drive them (a cruise step, Left Shift, holds a third, two-thirds or all of its speed with nothing
 // pressed; S knocks it off), and it has weight, building speed slowly and taking a moment to stop. A/D turn it on its
@@ -14450,7 +14459,7 @@ function tankHud(p,H){const D=p.drv,M=D&&D.k==='tank'&&drvArmed(p)?D.o:null;
   if(H.xh.style.background!==bg)H.xh.style.background=bg;}
 // the controls, for the column down the left
 function tankHow(p,D,armed,G){const A=id=>actMark(p,id),M=D.o;if(D.seat==='gun')return G+A('tkZoom')+' gunsight (hold)  ·  '+A('tkShell')+(M.shell==='ap'?' HE shells':' AP shells')+'  ·  ';
-  return A('fwd')+'/'+A('back')+' tracks  ·  '+A('left')+'/'+A('right')+' turn (pivots when still)  ·  '+A('tkCruise')+' cruise '+(M.cruise?['','slow','half','full'][M.cruise]:'off')+'  ·  '+(armed?G+A('tkZoom')+' gunsight (hold)  ·  '+A('tkShell')+(M.shell==='ap'?' HE shells':' AP shells')+'  ·  '+A('tkHull')+(M.hullLock?' hull lock off':' hull lock')+'  ·  ':'');}
+  return actPair(p,'fwd','back')+' tracks  ·  '+actPair(p,'left','right')+' turn (pivots when still)  ·  '+A('tkCruise')+' cruise '+(M.cruise?['','slow','half','full'][M.cruise]:'off')+'  ·  '+(armed?G+A('tkZoom')+' gunsight (hold)  ·  '+A('tkShell')+(M.shell==='ap'?' HE shells':' AP shells')+'  ·  '+A('tkHull')+(M.hullLock?' hull lock off':' hull lock')+'  ·  ':'');}
 // ---- a helicopter as you fly it (from drvHeli, driving.js) ----
 // Two ways to fly it, swapped with R (D-pad right), kept on the helicopter (M.agile). Simple: it goes the way you push,
 // relative to where you look, but with weight: it tilts into the move first and the speed builds, and let go it flares
@@ -14530,7 +14539,7 @@ function heliRotor(M,p,dt){if(M.spin<0.5||M.dead)return;const fx=Math.sin(M.h),f
 // the controls, for the column down the left
 function heliHow(p,D,armed,G){const A=id=>actMark(p,id),M=D.o;if(D.seat==='gun')return G;
   const md=A('hcMode')+(M.agile?' Simple mode':' Agile mode')+'  ·  ';
-  if(M.agile)return A('fwd')+'/'+A('back')+' collective  ·  '+A('left')+'/'+A('right')+' pedals  ·  camera tilts it  ·  '+md+G;
+  if(M.agile)return actPair(p,'fwd','back')+' collective  ·  '+actPair(p,'left','right')+' pedals  ·  camera tilts it  ·  '+md+G;
   return A('hcUp')+' climb  ·  '+A('hcDown')+' drop  ·  '+md+G;}
 // ---- a boat as you drive it (from drvBoat, driving.js) ----
 // The throttle has notches that stay where they're left (bo.notch: -1 astern, 0 stop, 1 slow, 2 half, 3 full): W and S
@@ -14632,8 +14641,8 @@ function boatPush(bo,hit,dx,dz){const o=hit&&hit.T;if(!o||o===bo||!o.K||!o.g)ret
 // the controls, for the column down the left
 function boatHow(p,D,armed,G){const A=id=>actMark(p,id),bo=D.o,sp=BOAT_SPEC[bo.k],an=A('seAnchor')+(bo.anchor?' raise the anchor':' drop the anchor')+'  ·  ';
   if(bo.k==='row')return A('seHorn')+' left oar  ·  '+A('seSpec')+' right oar  ·  both: straight on, in a steady stroke  ·  '+an;
-  if(bo.k==='pedalo')return A('fwd')+' pedal (tap in rhythm: faster)  ·  '+A('left')+'/'+A('right')+' tiller  ·  '+an+A('seSpec')+' bell  ·  ';
-  return A('fwd')+'/'+A('back')+' throttle, a notch a tap  ·  '+A('left')+'/'+A('right')+' rudder  ·  '+an+(sp?A('seSpec')+' '+(bo.k==='tug'&&bo.push?'push mode off':sp)+'  ·  ':'')+A('seHorn')+' horn  ·  ';}
+  if(bo.k==='pedalo')return A('fwd')+' pedal (tap in rhythm: faster)  ·  '+actPair(p,'left','right')+' tiller  ·  '+an+A('seSpec')+' bell  ·  '+A('seHorn')+' horn  ·  ';
+  return actPair(p,'fwd','back')+' throttle, a notch a tap  ·  '+actPair(p,'left','right')+' rudder  ·  '+an+(sp?A('seSpec')+' '+(bo.k==='tug'&&bo.push?'push mode off':sp)+'  ·  ':'')+A('seHorn')+' horn  ·  ';}
 // ---- a train as you drive it (from drvTrain and drvSub, driving.js) ----
 // One lever (T.rail.n) from five brake notches through neutral to five power notches, stepped by W and S (held, it sweeps)
 // or a controller's triggers; it stays where it's left. The reverser (R, only when stopped) says which way power drives it,
@@ -14677,7 +14686,7 @@ function trainBends(T,p,R,v,lead,dir,dt){const C=T.C;let lim=Infinity;
   if(p)flashLabel('Derailed!',p);return true;}
 // the controls, for the column down the left
 function trainHow(p,D){const A=id=>actMark(p,id),R=D.o.rail||{rev:1};
-  return A('fwd')+'/'+A('back')+' lever: power / brake, a notch a tap  ·  '+A('rlRev')+' reverser ('+(R.rev>0?'forward':R.rev<0?'reverse':'neutral')+')  ·  '+A('rlEmerg')+' emergency brake  ·  '+A('rlHorn')+' horn (hold: long)  ·  '+A('rlBell')+(D.k==='subway'?' bell':' bell')+'  ·  ';}
+  return actPair(p,'fwd','back')+' lever: power / brake, a notch a tap  ·  '+A('rlRev')+' reverser ('+(R.rev>0?'forward':R.rev<0?'reverse':'neutral')+')  ·  '+A('rlEmerg')+' emergency brake  ·  '+A('rlHorn')+' horn (hold: long)  ·  '+A('rlBell')+' bell'+'  ·  ';}
 // ---- The Mobile Gear: a walking mech eight blocks tall, only in the Testing Environment for now (its button is with the
 // vehicles there, tenvMech). A goblin gets in with the use button, as with anything else (drvFind), and drvMech moves it
 // on the pilot's controls, which are its own set (the 'mg' actions in ACTS): walking, boost skating (a switch, free on
@@ -18029,7 +18038,7 @@ const ACTS=[
   {id:'rlRev',n:'Reverser: forward, neutral, reverse',c:CC.charge,kb:['KeyR'],pad:[15],ctx:'rail'},
   {id:'rlEmerg',n:'Emergency brake',c:CC.jump,kb:['Space'],pad:[0],ctx:'rail'},
   {id:'rlHorn',n:'Horn (hold for a long blast)',c:CC.bite,kb:['Mouse0'],pad:[2],ctx:'rail',as:'bite'},
-  {id:'rlBell',n:'Bell (subway: doors)',c:CC.stomp,kb:['Mouse2'],pad:[4],ctx:'rail'},
+  {id:'rlBell',n:'Bell',c:CC.stomp,kb:['Mouse2'],pad:[4],ctx:'rail'},
   {id:'blBurn',n:'Burner (hold)',c:CC.jump,kb:['Space'],pad:[0,7],ctx:'balloon',as:'jump'},
   {id:'blVent',n:'Vent',c:'#9a7ae0',kb:['KeyC'],pad:[1,6],ctx:'balloon',as:'climb'},
   {id:'blBag',n:'Drop a sandbag',c:CC.stomp,kb:['Mouse2'],pad:[5],ctx:'balloon'},
@@ -18074,14 +18083,19 @@ const mHeld=new Set(),mTap=new Set(),touchHeld=new Set(),kbPrevA={};
 function kbAct(id){const B=BINDS[id];if(B)for(const c of B.kb)if(c.startsWith('Mouse')?(mHeld.has(c)||mTap.has(c)):keys.has(c))return true;return touchHeld.has(id);}
 // a button in the HUD, drawn as the menus draw it (glyph): a line of HUD text carries ⟦glyph id⟧ where one goes, and hudHTML
 // turns that line into the page's markup
-const PAD_GLYPH=['A','B','X','Y','LB','RB','LT','RT','SELECT','START','LS','RS','DPAD:v','DPAD:v','DPAD:h','DPAD:h'];
+// (the sticks pressed in are named L3 and R3: LS and RS are the sticks themselves, pushed about)
+const PAD_GLYPH=['A','B','X','Y','LB','RB','LT','RT','SELECT','START','KEY:L3','KEY:R3','DPAD:v','DPAD:v','DPAD:h','DPAD:h'];
 function bindGlyph(dev,v){if(v==null)return null;if(dev==='pad')return PAD_GLYPH[v]||'KEY:'+padLabel(v,padStyle==='ps');return v==='Mouse0'?'LMB':v==='Mouse2'?'RMB':v==='Mouse1'?'WHEEL':'KEY:'+keyLabel(v);}
 const btnMark=g=>g?'⟦'+g+'⟧':'';
 // (the first button bound to an action, on a player's controller or else the keyboard and mouse)
 // (in a vehicle, a control on foot that its own set takes over is named by what's bound there: a car's horn, not bite)
 const CTX_AS={};for(const a of ACTS)if(a.ctx&&a.as)(CTX_AS[a.ctx]=CTX_AS[a.ctx]||{})[a.as]=a.id;
 const ctxId=(p,id)=>{if(!p||!p.drv||p.drv.jack)return id;const cx=drvCtx(p.drv),m=cx&&cx!=='mg'&&CTX_AS[cx];return m&&m[id]||id;};
-const actMark=(p,id)=>{id=ctxId(p,id);const B=BINDS[id];return btnMark(p&&p.pad?bindGlyph('pad',B.pad[0]):bindGlyph('kb',B.kb[0]));};
+// (the walking actions have no controller buttons: they're the left stick, so that's what's shown for them)
+const STICK_ID={fwd:'LS:v',back:'LS:v',left:'LS:h',right:'LS:h'};
+const actMark=(p,id)=>{id=ctxId(p,id);const B=BINDS[id];return btnMark(p&&p.pad?bindGlyph('pad',B.pad[0])??STICK_ID[id]:bindGlyph('kb',B.kb[0]));};
+// a pair of actions (W/S, A/D) as one control: the stick shown once on a controller
+const actPair=(p,a,b)=>{const x=actMark(p,a),y=actMark(p,b);return x===y?x:x+'/'+y;};
 function hudHTML(s){return String(s).split(/⟦([^⟧]*)⟧/).map((t,i)=>i%2?glyph(t):glEsc(t)).join('');}
 // the bottom-of-screen hint, from the bindings
 function bindHint(pad,p){
@@ -24616,7 +24630,7 @@ function shipAground(S){
 // the helm's controls (the order rung, the speed and the rudder are on its instrument: inShip)
 function shipHow(p,S){
   const A=id=>actMark(p,id);
-  return A('fwd')+'/'+A('back')+' engine orders  ·  '+A('left')+'/'+A('right')+' rudder  ·  '+A('climb')+' rudder amidships  ·  '+A('seAnchor')+(S.anchor?' raise the anchor':' drop the anchor')+'  ·  '+A('weapon')+(p.shipBridge?' chase view':' bridge view')+'  ·  '+A('bite')+' horn  ·  ';
+  return actPair(p,'fwd','back')+' engine orders  ·  '+actPair(p,'left','right')+' rudder  ·  '+A('climb')+' rudder amidships  ·  '+A('seAnchor')+(S.anchor?' raise the anchor':' drop the anchor')+'  ·  '+A('weapon')+(p.shipBridge?' chase view':' bridge view')+'  ·  '+A('bite')+' horn  ·  ';
 }
 // the view from the bridge (the weapon button, while at the helm): from the helmsman's eyes, looking about with the
 // mouse or stick as usual, in the ship's own frame (shipCam turns it with the ship)

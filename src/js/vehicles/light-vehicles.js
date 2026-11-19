@@ -99,9 +99,9 @@ function lightLook(c,dt,L){const G2=c.vehG[c.veh];if(!G2||!G2.lv||dt<=0)return;c
 function lightRider(p,c){if(!lightOf(c))return;const K=gobKit(p),G2=c.vehG[c.veh],P=G2&&G2.lv&&riderAt(G2.lv.clip,riderU(c));if(!P)return;
   K.m.legs[0].rotation.set(P[0],0,0);K.m.legs[1].rotation.set(P[1],0,0);}
 // the controls column: what the special and the handbrake do on each
-const LIGHT_HOW={bicycle:['rdSpec','pedal hard (tap)','rdHand','back brake','bite','bell'],kick:['fwd','kick (tap)','rdSpec','ollie (let go)','bite','bell'],
-  segway:['fwd','lean forward','back','lean back','bite','beep'],moped:['rdSpec','indicators','rdHand','back brake','bite','horn']};
-function lightHow(p,D,G){const L=LIGHT_HOW[D.o.veh],A=id=>actMark(p,id==='fwd'||id==='back'?id:id);let s='';
+const LIGHT_HOW={bicycle:['rdSpec','pedal hard (tap)','rdHand','back brake','bite','bell'],kick:['fwd','kick (tap)','rdSpec','ollie (let go)','rdHand','brake','bite','bell'],
+  segway:['fb','lean forward / back','bite','beep'],moped:['rdSpec','indicators','rdHand','back brake','bite','horn']};
+function lightHow(p,D,G){const L=LIGHT_HOW[D.o.veh],A=id=>id==='fb'?actPair(p,'fwd','back'):actMark(p,id);let s='';
   for(let k=0;k<L.length;k+=2)s+=A(L[k])+' '+L[k+1]+'  ·  ';return s+A('rdBehind')+' look behind  ·  '+G;}
 
 // ---- their instruments (INSTRUMENTS, ui/instruments.js). The kick scooter has none ----

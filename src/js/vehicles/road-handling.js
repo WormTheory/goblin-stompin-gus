@@ -76,4 +76,5 @@ function sirenYield(c){for(const q of players){const D=q.drv;if(!D||D.k!=='car'|
 // the controls column's lines for a road vehicle: the handbrake and its special
 const ROAD_SPEC={flash:'flash headlights',nitro:'nitro (hold)',wheelie:'wheelie / stoppie (hold)',hop:'hop (let go)',air:'air brakes (hold)',hazard:'hazard lights'};
 function roadHow(p,D,G){const A=id=>actMark(p,id),c=D.o,k=roadKind(c),sp=k==='siren'?(c.siren?'siren off':'siren on'):ROAD_SPEC[k];
-  return A('rdHand')+(handOf(c.veh||'car').drift===false?' handbrake':' handbrake / drift')+'  ·  '+A('rdSpec')+' '+sp+'  ·  '+A('rdBehind')+' look behind  ·  '+G;}
+  // (on a controller the triggers are the throttle and brake, as far as they're pulled: drvThr)
+  return (p.pad?btnMark('RT')+'/'+btnMark('LT')+' throttle / brake  ·  ':'')+A('rdHand')+(handOf(c.veh||'car').drift===false?' handbrake':' handbrake / drift')+'  ·  '+A('rdSpec')+' '+sp+'  ·  '+A('rdBehind')+' look behind  ·  '+(c.veh==='fire'?'':A('bite')+' horn  ·  ')+G;}

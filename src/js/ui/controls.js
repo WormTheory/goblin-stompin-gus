@@ -99,7 +99,7 @@ const ACTS=[
   {id:'rlRev',n:'Reverser: forward, neutral, reverse',c:CC.charge,kb:['KeyR'],pad:[15],ctx:'rail'},
   {id:'rlEmerg',n:'Emergency brake',c:CC.jump,kb:['Space'],pad:[0],ctx:'rail'},
   {id:'rlHorn',n:'Horn (hold for a long blast)',c:CC.bite,kb:['Mouse0'],pad:[2],ctx:'rail',as:'bite'},
-  {id:'rlBell',n:'Bell (subway: doors)',c:CC.stomp,kb:['Mouse2'],pad:[4],ctx:'rail'},
+  {id:'rlBell',n:'Bell',c:CC.stomp,kb:['Mouse2'],pad:[4],ctx:'rail'},
   {id:'blBurn',n:'Burner (hold)',c:CC.jump,kb:['Space'],pad:[0,7],ctx:'balloon',as:'jump'},
   {id:'blVent',n:'Vent',c:'#9a7ae0',kb:['KeyC'],pad:[1,6],ctx:'balloon',as:'climb'},
   {id:'blBag',n:'Drop a sandbag',c:CC.stomp,kb:['Mouse2'],pad:[5],ctx:'balloon'},
@@ -144,14 +144,19 @@ const mHeld=new Set(),mTap=new Set(),touchHeld=new Set(),kbPrevA={};
 function kbAct(id){const B=BINDS[id];if(B)for(const c of B.kb)if(c.startsWith('Mouse')?(mHeld.has(c)||mTap.has(c)):keys.has(c))return true;return touchHeld.has(id);}
 // a button in the HUD, drawn as the menus draw it (glyph): a line of HUD text carries ⟦glyph id⟧ where one goes, and hudHTML
 // turns that line into the page's markup
-const PAD_GLYPH=['A','B','X','Y','LB','RB','LT','RT','SELECT','START','LS','RS','DPAD:v','DPAD:v','DPAD:h','DPAD:h'];
+// (the sticks pressed in are named L3 and R3: LS and RS are the sticks themselves, pushed about)
+const PAD_GLYPH=['A','B','X','Y','LB','RB','LT','RT','SELECT','START','KEY:L3','KEY:R3','DPAD:v','DPAD:v','DPAD:h','DPAD:h'];
 function bindGlyph(dev,v){if(v==null)return null;if(dev==='pad')return PAD_GLYPH[v]||'KEY:'+padLabel(v,padStyle==='ps');return v==='Mouse0'?'LMB':v==='Mouse2'?'RMB':v==='Mouse1'?'WHEEL':'KEY:'+keyLabel(v);}
 const btnMark=g=>g?'⟦'+g+'⟧':'';
 // (the first button bound to an action, on a player's controller or else the keyboard and mouse)
 // (in a vehicle, a control on foot that its own set takes over is named by what's bound there: a car's horn, not bite)
 const CTX_AS={};for(const a of ACTS)if(a.ctx&&a.as)(CTX_AS[a.ctx]=CTX_AS[a.ctx]||{})[a.as]=a.id;
 const ctxId=(p,id)=>{if(!p||!p.drv||p.drv.jack)return id;const cx=drvCtx(p.drv),m=cx&&cx!=='mg'&&CTX_AS[cx];return m&&m[id]||id;};
-const actMark=(p,id)=>{id=ctxId(p,id);const B=BINDS[id];return btnMark(p&&p.pad?bindGlyph('pad',B.pad[0]):bindGlyph('kb',B.kb[0]));};
+// (the walking actions have no controller buttons: they're the left stick, so that's what's shown for them)
+const STICK_ID={fwd:'LS:v',back:'LS:v',left:'LS:h',right:'LS:h'};
+const actMark=(p,id)=>{id=ctxId(p,id);const B=BINDS[id];return btnMark(p&&p.pad?bindGlyph('pad',B.pad[0])??STICK_ID[id]:bindGlyph('kb',B.kb[0]));};
+// a pair of actions (W/S, A/D) as one control: the stick shown once on a controller
+const actPair=(p,a,b)=>{const x=actMark(p,a),y=actMark(p,b);return x===y?x:x+'/'+y;};
 function hudHTML(s){return String(s).split(/⟦([^⟧]*)⟧/).map((t,i)=>i%2?glyph(t):glEsc(t)).join('');}
 // the bottom-of-screen hint, from the bindings
 function bindHint(pad,p){

@@ -146,9 +146,10 @@ function farmLiftPost(dt){for(const c of cars){
   else{farmPost(c,dt);const F=c.farm,P=flParts(c);if(F&&P&&P.imp){const K=0.8,want=F.down?0.35*K:0.75*K;P.imp.position.y+=(want-P.imp.position.y)*Math.min(1,dt*6);P.plough.visible=F.imp==='plough';P.mower.visible=F.imp==='mower';}}}}
 // their lines in the controls column (drvHow): the forks, or the hand throttle and the hitch
 function carHow(p,D,armed,G){const A=id=>actMark(p,id),V=D.o.veh;
-  if(V==='forklift')return A('lfUp')+'/'+A('lfDown')+' forks up/down  ·  '+A('lfTilt')+' + up/down tilt the mast  ·  '+G;
+  if(V==='forklift')return A('lfUp')+'/'+A('lfDown')+' forks up/down  ·  '+A('lfTilt')+' + up/down tilt the mast  ·  '+A('bite')+' horn  ·  '+G;
   if(V==='tractor'){const F=D.o.farm||{imp:'plough',down:false},w=F.imp==='none'?'hitch':F.imp;
-    return A('fmCruise')+'/'+A('fmCruiseDn')+' hand throttle  ·  '+A('fmImp')+(F.down?' raise the ':' lower the ')+w+'  ·  '+A('fmSwap')+' swap implement  ·  '+G;}
-  if(D.seat==='gun'||V==='hover')return G;
+    return A('fmCruise')+'/'+A('fmCruiseDn')+' hand throttle  ·  '+A('fmImp')+(F.down?' raise the ':' lower the ')+w+'  ·  '+A('fmSwap')+' swap implement  ·  '+A('bite')+' horn  ·  '+G;}
+  if(D.seat==='gun')return G;
+  if(V==='hover')return A('bite')+' horn  ·  '+A('rdBehind')+' look behind  ·  '+G;
   if(LIGHT_HOW[V])return lightHow(p,D,G);
   return roadHow(p,D,G);}

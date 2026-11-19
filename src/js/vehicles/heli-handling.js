@@ -77,5 +77,5 @@ function heliRotor(M,p,dt){if(M.spin<0.5||M.dead)return;const fx=Math.sin(M.h),f
 // the controls, for the column down the left
 function heliHow(p,D,armed,G){const A=id=>actMark(p,id),M=D.o;if(D.seat==='gun')return G;
   const md=A('hcMode')+(M.agile?' Simple mode':' Agile mode')+'  ·  ';
-  if(M.agile)return A('fwd')+'/'+A('back')+' collective  ·  '+A('left')+'/'+A('right')+' pedals  ·  camera tilts it  ·  '+md+G;
+  if(M.agile)return actPair(p,'fwd','back')+' collective  ·  '+actPair(p,'left','right')+' pedals  ·  camera tilts it  ·  '+md+G;
   return A('hcUp')+' climb  ·  '+A('hcDown')+' drop  ·  '+md+G;}

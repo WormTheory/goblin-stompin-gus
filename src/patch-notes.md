@@ -314,6 +314,8 @@
 
 ### Fixes
 
+- The controls listed down the left while driving now match what each vehicle really does. On a controller, the left stick now shows for a boat's or ship's throttle and rudder (the trawler's among them), a tank's tracks, a train's lever, a helicopter in Agile mode and the Gobway, where nothing showed before, and cars list the triggers as throttle and brake. The horn now shows for cars, the forklift, the tractor, the hovercraft and the pedalo, and the kick scooter's brake too. Pressing a stick in now shows as L3 or R3, rather than looking the same as pushing the stick about.
+- The chase camera behind a vehicle no longer swings back round behind it on its own. Switch on Camera auto-recenter in the Controls tab to have it back; it now swings round at the same pace whatever the frame rate.
 - Goblins riding bicycles, kick scooters, Gobways and motor scooters through town no longer sometimes vanish from them, leaving the vehicle rolling along empty. Motorbike riders and the heads of goblins driving cars had the same trouble.
 - The rush of air from sprinting no longer keeps playing after you get into a vehicle while running.
 - The prompt to get into a vehicle no longer stays on screen once you're in.

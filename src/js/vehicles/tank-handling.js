@@ -57,4 +57,4 @@ function tankHud(p,H){const D=p.drv,M=D&&D.k==='tank'&&drvArmed(p)?D.o:null;
   if(H.xh.style.background!==bg)H.xh.style.background=bg;}
 // the controls, for the column down the left
 function tankHow(p,D,armed,G){const A=id=>actMark(p,id),M=D.o;if(D.seat==='gun')return G+A('tkZoom')+' gunsight (hold)  ·  '+A('tkShell')+(M.shell==='ap'?' HE shells':' AP shells')+'  ·  ';
-  return A('fwd')+'/'+A('back')+' tracks  ·  '+A('left')+'/'+A('right')+' turn (pivots when still)  ·  '+A('tkCruise')+' cruise '+(M.cruise?['','slow','half','full'][M.cruise]:'off')+'  ·  '+(armed?G+A('tkZoom')+' gunsight (hold)  ·  '+A('tkShell')+(M.shell==='ap'?' HE shells':' AP shells')+'  ·  '+A('tkHull')+(M.hullLock?' hull lock off':' hull lock')+'  ·  ':'');}
+  return actPair(p,'fwd','back')+' tracks  ·  '+actPair(p,'left','right')+' turn (pivots when still)  ·  '+A('tkCruise')+' cruise '+(M.cruise?['','slow','half','full'][M.cruise]:'off')+'  ·  '+(armed?G+A('tkZoom')+' gunsight (hold)  ·  '+A('tkShell')+(M.shell==='ap'?' HE shells':' AP shells')+'  ·  '+A('tkHull')+(M.hullLock?' hull lock off':' hull lock')+'  ·  ':'');}

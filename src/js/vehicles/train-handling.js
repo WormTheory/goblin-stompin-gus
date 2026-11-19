@@ -41,4 +41,4 @@ function trainBends(T,p,R,v,lead,dir,dt){const C=T.C;let lim=Infinity;
   if(p)flashLabel('Derailed!',p);return true;}
 // the controls, for the column down the left
 function trainHow(p,D){const A=id=>actMark(p,id),R=D.o.rail||{rev:1};
-  return A('fwd')+'/'+A('back')+' lever: power / brake, a notch a tap  ·  '+A('rlRev')+' reverser ('+(R.rev>0?'forward':R.rev<0?'reverse':'neutral')+')  ·  '+A('rlEmerg')+' emergency brake  ·  '+A('rlHorn')+' horn (hold: long)  ·  '+A('rlBell')+(D.k==='subway'?' bell':' bell')+'  ·  ';}
+  return actPair(p,'fwd','back')+' lever: power / brake, a notch a tap  ·  '+A('rlRev')+' reverser ('+(R.rev>0?'forward':R.rev<0?'reverse':'neutral')+')  ·  '+A('rlEmerg')+' emergency brake  ·  '+A('rlHorn')+' horn (hold: long)  ·  '+A('rlBell')+' bell'+'  ·  ';}
