@@ -29,7 +29,7 @@ function makeRides(V){
   const S=V.S,k=V.k,X0=S.ax*CELL,Z0=S.az*CELL,R2=plotInfo(S.ax,S.az).theme,g=new THREE.Group(),C=R2.coaster,W2=R2.wheel,C2=R2.carousel;scene.add(g);V.ride=g;g.visible=false;V.survey={};
   // the coaster's train of cars running round its track
   {const K={isRide:true,kind:'coaster',k:k+':coaster',C:{cu:X0+C.cu,cv:Z0+C.cv,a:C.a,b:C.b},th:0,sp:0.5,cars:[],checkT:0,halted:false,off:false},W0=wrecked[K.k];
-   for(let i=0;i<4;i++){const cg=new THREE.Group(),m=new THREE.Mesh(LM_BOX,i?LMM.coach:LMM.loco);m.scale.set(1.3,0.8,2.0);m.position.y=0.5;cg.add(m);g.add(cg);K.cars.push({g:cg,hp:RIDE_HP.car,dead:false,fly:null,pr:ridePr(K,i,0.65,1.0,0.9)});}
+   for(let i=0;i<4;i++){const cg=new THREE.Group(),m=new THREE.Mesh(LM_BOX,i?LMM.coach:LMM.loco);cg.rotation.order='YXZ';m.scale.set(1.3,0.8,2.0);m.position.y=0.5;cg.add(m);g.add(cg);K.cars.push({g:cg,hp:RIDE_HP.car,dead:false,fly:null,pr:ridePr(K,i,0.65,1.0,0.9)});}
    if(W0){K.th=W0.th||0;K.sp=0;K.halted=true;K.off=!!W0.off;K.cars.forEach((c,i)=>{if(K.off)c.g.visible=false;c.dead=K.off||!!(W0.dead&&W0.dead[i]);c.pr.alive=!c.dead;if(c.dead)rideDark(c.g);});}
    V.K=K;}
   // the Ferris wheel turning, its gondolas hanging level
@@ -90,13 +90,28 @@ function carouselBlow(Cs){
 // is the track still there at this point round the circuit? (a car's the width of it, and the height goes in steps, so look close by)
 function coasterTrackAt(C,t){const x=Math.floor(C.cu+Math.cos(t)*C.a),z=Math.floor(C.cv+Math.sin(t)*C.b),h=G+coasterH(t);
   let broke=false;for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++)for(let y=h-1;y<=h+1;y++){const b=get(x+dx,y,z+dz);if(b===METAL)return true;if(b===AIR&&edits[(x+dx)+','+y+','+(z+dz)]!==undefined)broke=true;}return !broke;}
+// where a car rides at this point round the circuit. The track's blocks go up and down in whole steps (coasterH, rounded),
+// so a car following them jumped a block at a time. This is the same height eased over each step instead: level on the
+// block tops between steps, and across a step the height runs up (or down) the S of a smoothstep, centred where the
+// rounding changes, over the stretch the track takes to climb 0.7 of a block. That's only for the flatter stretches
+// (climbing under 0.12 of a block per block), where the steps are long: anywhere steeper, easing every step would make
+// a bumpy staircase of it, so there it follows the unrounded height (a straight run up the steps' edges, never more than
+// half a block off them), blended in by how steep it is. All of it from the unrounded height and its slope,
+// so it's smooth the whole way round.
+const CST_W=0.35;
+function coasterY(C,t){const r=coasterR(t),n=Math.floor(r),f=r-n-(0.5-CST_W);
+  let y=n;if(f>=2*CST_W)y=n+1;else if(f>0){const s=f/(2*CST_W);y=n+s*s*(3-2*s);}
+  const g=Math.abs(8*Math.cos(2*t)+3*Math.cos(t+0.7))/(Math.hypot(Math.sin(t)*C.a,Math.cos(t)*C.b)||1),k=Math.max(0,Math.min(1,(g-0.04)/0.08)),q=k*k*(3-2*k);
+  return Math.max(2,y+(r-y)*q);}
+// how steeply the track climbs here (blocks up per block along), for pitching a car to match
+function coasterSlope(C,t){const l=Math.hypot(Math.sin(t)*C.a,Math.cos(t)*C.b)||1,d=0.6/l;return (coasterY(C,t+d)-coasterY(C,t-d))/1.2;}
 const rideNear=(x,z,r)=>players.some(p=>p.active&&Math.hypot(p.pos.x-x,p.pos.z-z)<r);
 function updateRides(V,dt){
   const K=V.K,W=V.W,Cs=V.Cs,C=K.C;
   // the coaster: speed from the slope, slow up the lift hills, racing down the drops
   if(!K.off){
     if(K.halted){K.sp=Math.max(0,K.sp-dt*1.2);}
-    else{const h0=coasterH(K.th),h1=coasterH(K.th+0.05);K.sp=Math.max(0.12,Math.min(1.4,K.sp+(h0-h1)*dt*1.6+(K.sp<0.25?dt*0.2:0)));}
+    else{const h0=coasterY(C,K.th),h1=coasterY(C,K.th+0.05);K.sp=Math.max(0.12,Math.min(1.4,K.sp+(h0-h1)*dt*1.6+(K.sp<0.25?dt*0.2:0)));}
     K.th+=K.sp*dt*0.55;
     // (the track gone just ahead: off it goes, at whatever speed it was doing, and comes down wherever that takes it)
     K.checkT-=dt;if(K.checkT<=0&&K.sp>0){K.checkT=0.1;const ahead=K.th+2.5/((C.a+C.b)/2);
@@ -109,9 +124,9 @@ function updateRides(V,dt){
       if(gy!==null&&P.y<=gy||P.y<=G){P.y=gy!==null?gy:G;c.fly=null;c.dead=true;rideDark(cg);crushBall(P.x,P.y,P.z,2.5);rideBang(P.x,P.y+.5,P.z,0.9,K,5,8,'Flattened by a roller coaster car');}
       return;}
     if(K.off||!cg.visible)return;
-    const t=K.th-i*0.11,x=C.cu+Math.cos(t)*C.a,z=C.cv+Math.sin(t)*C.b,h=coasterH(t),tx=-Math.sin(t)*C.a,tz=Math.cos(t)*C.b,hd=Math.atan2(tx,tz),y=G+h+1;
-    cg.position.set(x,y,z);if(!c.dead)cg.rotation.set(0,hd,0);else cg.rotation.y=hd;
-    const pr=c.pr;pr.pos.set(x,y,z);pr.heading=hd;pr.top=y+1.1;   // (a touch over the car: a step up in the track mustn't take a rider's footing)
+    const t=K.th-i*0.11,x=C.cu+Math.cos(t)*C.a,z=C.cv+Math.sin(t)*C.b,h=coasterY(C,t),tx=-Math.sin(t)*C.a,tz=Math.cos(t)*C.b,hd=Math.atan2(tx,tz),y=G+h+1,pt=-Math.atan(coasterSlope(C,t));
+    cg.position.set(x,y,z);if(!c.dead)cg.rotation.set(pt,hd,0);else{cg.rotation.x=pt;cg.rotation.y=hd;}   // (nose up the climbs, down the drops: the order's YXZ)
+    const pr=c.pr;pr.pos.set(x,y,z);pr.heading=hd;pr.top=y+1.1;   // (a touch over the car, so a rider's footing holds on the climbs)
     if(!c.dead)TRAIN_BOXES.push({x,z,tx:Math.sin(hd),tz:Math.cos(hd),y0:y,top:pr.top,v:0,hx:0.65,hz:1.0,proxy:pr});});
   // the wheel: it stands while its A-frame does. Lose a side (or the axle) and the whole thing comes down
   if(!W.dead&&!W.fall){

@@ -1,5 +1,5 @@
 // ---- the grounds of the big complexes ----
-const coasterH=th=>Math.max(2,Math.round(7+4*Math.sin(2*th)+3*Math.sin(th+0.7)));
+const coasterR=th=>7+4*Math.sin(2*th)+3*Math.sin(th+0.7),coasterH=th=>Math.max(2,Math.round(coasterR(th)));   // (the track's height round its circuit, unrounded and in whole blocks: see coasterY)
 const B5_GROUND={
   // the university quad: lawns crossed by paths, trees along them
   campus(col,P,u,v,x,z){col(G-1,DIRT);const h=hash2(x*3+1,z*5+7);

@@ -338,6 +338,7 @@
 
 ### Fixes
 
+- Roller coaster cars now glide smoothly up and down the track, tilting to match the slope, instead of jumping a block at a time where it changes height. Anyone riding on top goes up and down smoothly with them.
 - Playing online, the buildings the host has destroyed and the vehicles wrecked are now kept up to date for everyone else too.
 - The controls listed down the left while driving now match what each vehicle really does. On a controller, the left stick now shows for a boat's or ship's throttle and rudder (the trawler's among them), a tank's tracks, a train's lever, a helicopter in Agile mode and the Gobway, where nothing showed before, and cars list the triggers as throttle and brake. The horn now shows for cars, the forklift, the tractor, the hovercraft and the pedalo, and the kick scooter's brake too. Pressing a stick in now shows as L3 or R3, rather than looking the same as pushing the stick about.
 - The chase camera behind a vehicle no longer swings back round behind it on its own. Switch on Camera auto-recenter in the Controls tab to have it back; it now swings round at the same pace whatever the frame rate.
