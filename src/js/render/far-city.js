@@ -15,6 +15,11 @@ const FAR_FRAG=[
   ' if(vWin.a<-0.5&&vWin.a>-1.5){float lum=dot(c0,vec3(0.3,0.59,0.11)),green=clamp((c0.g-max(c0.r,c0.b))*5.0,0.0,1.0);vec4 W=uSeasonW;',
   '  vec3 seas=(c0*vec3(1.03,1.08,0.84)+vec3(0.02,0.025,0.0))*W.x+c0*vec3(0.86,0.97,0.82)*W.y+mix(c0,vec3(0.66,0.6,0.3)*(0.5+lum*1.2),0.55*green)*W.z+mix(c0,vec3(0.5,0.47,0.33)*(0.55+lum),0.75*green)*W.w;',
   '  c0=mix(c0,seas,green);}',
+  // (a treetop, -4: its leaves turn and fall with the seasons as the blocks' do (the same colours as FOLIAGE_FRAG's), the
+  // whole tree at once, by its own share: vWin.r says when its leaves come down, vWin.g which autumn colour it turns)
+  ' if(vWin.a<-3.5&&vWin.a>-4.5){if(vWin.r<uLeafFall)discard;vec4 W=uSeasonW;float lum=dot(c0,vec3(0.3,0.59,0.11)),hT=vWin.g;',
+  '  vec3 pal=hT<0.3?vec3(0.95,0.72,0.2):hT<0.6?vec3(0.95,0.48,0.12):hT<0.82?vec3(0.78,0.2,0.1):vec3(0.55,0.36,0.16);',
+  '  c0=(c0*vec3(1.03,1.08,0.84)+vec3(0.02,0.025,0.0))*W.x+c0*vec3(0.86,0.97,0.82)*W.y+pal*(0.55+lum*1.4)*W.z+vec3(0.42,0.3,0.18)*(0.6+lum)*W.w;}',
   ' vec3 wall=c0*sh*uLight;',
   // (and weather on the tops, but not the sea's: rain darkens them, snow settles on them, on average as it does on the
   // blocks' tops, where each spot is covered once its own share of the snow comes)
@@ -27,7 +32,7 @@ const FAR_FRAG=[
   ' float hh=fract(sin(dot(floor(vec3((vWP.x+vWP.z)*0.5,(vWP.y-5.0)/5.0,0.0)),vec3(12.9898,78.233,37.719)))*43758.5453);',
   ' base+=win*(1.0-g)*step(0.42,hh)*uNightK*vec3(1.0,0.78,0.42)*0.85;   // (and at night, lights on in the windows that don\'t glow)',
   ' diffuseColor.rgb=base;'].join('\n');
-const FAR_CAMP={value:new THREE.Vector4(0,0,0,0)};
+const FAR_CAMP={value:new THREE.Vector4(0,0,0,0)},LEAFFALL_U={value:0};
 // (the horizon test, per box: a box wholly over the horizon is pushed out of view, so none of it is drawn)
 const FAR_HORIZ=[
   ' if(uWorldCurve>0.0){float hc=uHoriz.y-uHoriz.w;vec3 ic=(modelMatrix*instanceMatrix*vec4(0.0,0.0,0.0,1.0)).xyz;',
@@ -37,11 +42,11 @@ const FAR_HORIZ=[
   '   if(Y<0.0){float sm=sqrt(-Y/uWorldCurve);if(sm>dn&&sm<df)f=max(f,-2.0*sqrt(-Y*uWorldCurve));}',
   '   if(f<-2.0*sqrt(hc*uWorldCurve)-1e-4)gl_Position=vec4(2.0,2.0,2.0,1.0);}}'].join('\n');
 function farPatch(mat,win,ring){
-  const U={uLight:WORLD_LIGHT,uNightK:skyU.uNight,uMeshed:{value:MESHED_TEX},uWin:{value:win},uRing:ring,uCamP:FAR_CAMP,uHoriz:HORIZ_U,uSeasonW:SEASON_W,uSnow:SNOW_U,uWet:WET_U,uSnowClk:SNOWCLK_U};
+  const U={uLight:WORLD_LIGHT,uNightK:skyU.uNight,uMeshed:{value:MESHED_TEX},uWin:{value:win},uRing:ring,uCamP:FAR_CAMP,uHoriz:HORIZ_U,uSeasonW:SEASON_W,uSnow:SNOW_U,uWet:WET_U,uSnowClk:SNOWCLK_U,uLeafFall:LEAFFALL_U};
   mat.onBeforeCompile=sh=>{
     Object.assign(sh.uniforms,U);
     sh.vertexShader='attribute vec3 aCol;attribute vec3 aTop;attribute vec4 aWin;varying vec3 vCol;varying vec3 vTop;varying vec4 vWin;varying vec3 vWP;varying vec3 vN;uniform vec4 uHoriz;\n'+sh.vertexShader.replace('#include <project_vertex>','#include <project_vertex>\n vCol=aCol;vTop=aTop;vWin=aWin;vN=normal;\n#ifdef USE_INSTANCING\n vWP=(modelMatrix*instanceMatrix*vec4(transformed,1.0)).xyz;\n'+FAR_HORIZ+'\n#else\n vWP=(modelMatrix*vec4(transformed,1.0)).xyz;\n#endif');
-    sh.fragmentShader='uniform vec3 uLight;uniform vec4 uSeasonW;uniform float uNightK,uWin,uSnow,uWet,uSnowClk;uniform sampler2D uMeshed;uniform vec2 uRing;uniform vec4 uCamP;varying vec3 vCol;varying vec3 vTop;varying vec4 vWin;varying vec3 vWP;varying vec3 vN;\n'+sh.fragmentShader.replace('#include <color_fragment>',FAR_FRAG);
+    sh.fragmentShader='uniform vec3 uLight;uniform vec4 uSeasonW;uniform float uNightK,uWin,uSnow,uWet,uSnowClk,uLeafFall;uniform sampler2D uMeshed;uniform vec2 uRing;uniform vec4 uCamP;varying vec3 vCol;varying vec3 vTop;varying vec4 vWin;varying vec3 vWP;varying vec3 vN;\n'+sh.fragmentShader.replace('#include <color_fragment>',FAR_FRAG);
   };
   return mat;
 }
@@ -150,6 +155,82 @@ function farLinesPlot(SB,SG,px,pz){
 }
 function farGrow(F,cap){if(cap<=F.cap)return;scene.remove(F.m);F.m.geometry.dispose();F.m.material.dispose();const N=farInst(cap,F.win,F.ring);scene.remove(N.m);F.m=N.m;F.col=N.col;F.top=N.top;F.wn=N.wn;F.cap=cap;scene.add(F.m);}
 function mkLod(step,mk){const ring={value:new THREE.Vector2(0,0)};return{B:farInst(2048,1,ring),G:farInst(1024,0,ring),ring,sb:farStage(),sg:farStage(),step,mk,job:null,cx:1e9,cz:1e9,key:-1,coll:-1,collT:0};}
+// ---- trees and still water in the far rings. The near ring has every tree, as the chunks grow it (its trunk and two boxes
+// of leaves, which is near enough what a blocky tree is), so that where the full-detail city takes over a tree only gains
+// its detail; further off, woods are clumps of treetops. Ponds and lakes are water a hair above the ground, as rivers are. ----
+const FAR_LEAF=new THREE.Color(blockColor(LEAVES)),FAR_TRUNK=new THREE.Color(blockColor(LOG));
+function farLeaf(F,x0,y0,z0,x1,y1,z1,hFall,hCol){farBox(F,x0,y0,z0,x1,y1,z1,FAR_LEAF);const j=(F.n-1)*4;F.wn[j]=hFall;F.wn[j+1]=hCol;F.wn[j+3]=-4;}
+// the trees in one block, as genChunk grows them: x, z, the ground's top and the trunk's height of each. Worked out once (a
+// third of a millisecond for a block of plains) and kept, unless something in the block has been smashed since: then a
+// tree whose trunk was knocked out is left out, as its leaves are gone too (purgeLeaves)
+const farTreeC=new Map();let farTreeNew=false;
+function farTreesOf(px,pz){
+  const k=px*100003+pz,cx=px*CELL/CS,cz=pz*CELL/CS,E4=[];let ed=0;
+  for(let a=0;a<CELL/CS;a++)for(let b=0;b<CELL/CS;b++){const ce=chunkEdits.get(ckey(cx+a,cz+b));if(ce){E4.push(ce);ed+=ce.length;}}
+  const E=farTreeC.get(k);if(E&&E.ed===ed&&E.seed===seed)return E.t;
+  farTreeNew=true;
+  let gone=null;if(ed){gone=new Map();for(const ce of E4)for(const [x,y,z,b] of ce)gone.set(x+','+y+','+z,b);}
+  const t=[],X0=px*CELL,Z0=pz*CELL,pl=PLAINS_OPEN(px,pz)||!!bigPlainsAt(px,pz),S=superOf(px,pz);
+  const pk=S?S.kind==='capitol'||S.kind==='bigpark':plotInfo(px,pz).type==='park';
+  if(!pl&&!pk){farTreeC.set(k,{ed,seed,t});return t;}
+  const cap=pk&&S&&S.kind==='capitol';   // (the capitol's avenue trees go by the column, the rest only where x+z is even)
+  for(let z=Z0;z<Z0+CELL;z++)for(let x=X0+(cap?0:(X0+z)&1);x<X0+CELL;x+=cap?1:2){
+    // (no tree is likelier than this anywhere, the thickest woods included: most columns are done with here)
+    if(!cap&&hash2(x*3+1,z*7+5)>0.32)continue;
+    let T=pl?plainsTree(x,z):null;
+    if(pk&&parkTree(x,z))T=[G,4+Math.floor(hash2(x,z+99)*3)];   // (as the chunks do, the park's pass comes last)
+    if(!T)continue;
+    if(gone){let ok=true;for(let y=T[0]+1;y<=T[0]+T[1]&&ok;y++){const v=gone.get(x+','+y+','+z);if(v!==undefined&&v!==LOG)ok=false;}if(!ok)continue;}
+    t.push(x,z,T[0],T[1]);
+  }
+  if(farTreeC.size>40000)farTreeC.clear();
+  farTreeC.set(k,{ed,seed,t});return t;
+}
+function farTreeBoxes(SG,t){
+  for(let i=0;i<t.length;i+=4){const x=t[i],z=t[i+1],top=t[i+2]+t[i+3],hF=hash2(x*5+11,z*3+7),hC=hash2(x*7+3,z*13+1);
+    farBox(SG,x,G+1,z,x+1,top-2,z+1,FAR_TRUNK);
+    farLeaf(SG,x-2,top-2,z-2,x+3,top,z+3,hF,hC);
+    farLeaf(SG,x-1,top,z-1,x+2,top+2,z+2,hF,hC);}
+}
+// woods seen from further off: where the plains' copses are thick (or round a lumber camp or a campsite), one to three
+// clumps of treetops to each square of the given size, rather than every tree. (roads: keep them off the roads, which the
+// far ring, where a road is a hair across and the test would cost more than the rest put together, does without)
+function farWoods(SG,px,pz,cell,roads){
+  const site=bigPlainsAt(px,pz),X0=px*CELL,Z0=pz*CELL;let open=null,lum=null;
+  for(let j=0;j<CELL;j+=cell)for(let i=0;i<CELL;i+=cell){const x=X0+i+(cell>>1),z=Z0+j+(cell>>1);
+    let c=site?siteTrees(x,z):0;
+    if(!c){if(lum===null)lum=lumberNear(px,pz);c=lum?1.1:plainsCopse(x,z);if(c<0.3)continue;
+      if(open===null)open=PLAINS_OPEN(px,pz);if(!open)continue;}
+    if(plainsRaw(x,z)<-0.9||roads&&roadNear(x,z,14)<6)continue;   // (not in a pond, nor on a road)
+    const n=c>0.7?3:c>0.45?2:1;
+    for(let q=0;q<n;q++){const h=hash2(x*11+q*37,z*17+q*5),h2=hash2(x*3+q*7,z*29+q*13),w=cell*(0.4+0.25*h),
+      ox=x+(h2-0.5)*(cell-w)*0.9,oz=z+(hash2(x+q*3,z*7+1)-0.5)*(cell-w)*0.9,top=G+6+3*h2;
+      farLeaf(SG,ox-w/2,G+1.6,oz-w/2,ox+w/2,top,oz+w/2,hash2(x*5+q,z*3+q*11),h);}
+  }
+}
+// a block of open plains' ponds, found every st blocks and joined into runs along each row
+function farPonds(SG,px,pz,st,exact){
+  const X0=px*CELL,Z0=pz*CELL,o=st>>1;let open=null;
+  for(let z=Z0;z<Z0+CELL;z+=st){let run=-1;
+    for(let x=X0;x<=X0+CELL;x+=st){
+      let w=x<X0+CELL&&plainsRaw(x+o,z+o)<-0.9;
+      if(w){if(open===null)open=PLAINS_OPEN(px,pz);w=open&&(!exact||plainsH(x+o,z+o)<0);}
+      if(w&&run<0)run=x;else if(!w&&run>=0){farBox(SG,run,G+0.45,z,x,G+1.62,z+st,FARC.sea);run=-1;}}}
+}
+// water in an ellipse (a lake, a pond), as runs of rows st deep, its top at y
+function farOval(SG,cx,cz,rx,rz,st,y){
+  for(let z=cz-rz;z<cz+rz;z+=st){const m=z+st/2-cz;if(Math.abs(m)>=rz)continue;const hw=rx*Math.sqrt(1-(m/rz)**2);if(hw<1)continue;
+    farBox(SG,cx-hw,y-0.5,z,cx+hw,y,Math.min(z+st,cz+rz),FARC.sea);}
+}
+// the water in town: a park's pond, a big park's lake and reservoir, a theme park's boating lake
+function farTownWater(SG,px,pz,P,st){
+  const X0=px*CELL,Z0=pz*CELL,S=superOf(px,pz);
+  if(!S){if(P.type==='park'&&P.pond)farBox(SG,X0+PC-4,G+0.4,Z0+PC-4,X0+PC+4,G+0.99,Z0+PC+4,FARC.sea);return;}
+  if(px!==S.ax||pz!==S.az)return;
+  if(S.kind==='bigpark'){const W=(S.w-1)*CELL+PW,L=(S.h-1)*CELL+PW,g=bigParkGeo(W,L),sx=X0+PL0,sz=Z0+PL0,[lx,lz,lr,lq]=g.lake,[rx,rz,rr]=g.res;
+    farOval(SG,sx+lx,sz+lz,lr,lq,st,G+1.04);farOval(SG,sx+rx,sz+rz,rr,rr,st,G+1.04);}
+  else if(S.kind==='theme'){const T=plotInfo(S.ax,S.az).theme;if(T&&T.pond){const r=T.pond.r-1.5;farOval(SG,X0+T.pond.cu,Z0+T.pond.cv,r,r,st,G+0.99);}}
+}
 // the near ring: everything (as the single far city used to be)
 function* farJobNear(SB,SG,act,ra,rb){
   if(TENV){const p0=act[0];farBox(SG,p0.pos.x-rb-64,G+0.3,p0.pos.z-rb-64,p0.pos.x+rb+64,G+0.4,p0.pos.z+rb+64,FARC.park);return;}   // (the Testing Environment: grass to the horizon)
@@ -164,6 +245,8 @@ function* farJobNear(SB,SG,act,ra,rb){
       if(seaPlot(px,pz))farSea(SG,px,pz,4);
       else if(biomeOf(px,pz)==='plains'){farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.6,Z0+CELL,FARC.park);farLinesPlot(SB,SG,px,pz);if(turbineAt(px,pz))farTurbine(SB,px,pz,1);}   // the plains: all grass (hills are only drawn up close), and what crosses them
       else farBox(SG,X0+ROADW,G+0.4,Z0+ROADW,X0+CELL,G+0.97,Z0+CELL,P.type==='park'?FARC.park:P.type==='plaza'?FARC.plaza:FARC.side);
+      if(!seaPlot(px,pz)){if(biomeOf(px,pz)==='plains')farPonds(SG,px,pz,4,true);else farTownWater(SG,px,pz,P,2);}
+      farTreeNew=false;farTreeBoxes(SG,farTreesOf(px,pz));if(farTreeNew)yield;
       if(hwRow(pz,px)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('x',pz,X0+CELL/2)-1;farBox(SB,X0,y-1,Z0-3,X0+CELL,y+2,Z0+11,_fc);}
       if(hwCol(px,pz)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('z',px,Z0+CELL/2)-1;farBox(SB,X0-3,y-1,Z0,X0+11,y+2,Z0+CELL,_fc);}
       {const cv=cloverOf(px,pz);if(cv){_fc.setHex(blockColor(CONCRETE));const cx=cv.j*CELL+4,cz=cv.k*CELL+4;
@@ -214,11 +297,13 @@ function* farJobMid(SB,SG,act,ra,rb){
     const X0=px*CELL,Z0=pz*CELL;
     if(seaPlot(px,pz)){farSea(SG,px,pz,2);continue;}
     if(biomeOf(px,pz)==='plains'){farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.6,Z0+CELL,FARC.park);farLinesPlot(SB,SG,px,pz);if(turbineAt(px,pz))farTurbine(SB,px,pz,1.6);
+      farPonds(SG,px,pz,8,false);farWoods(SG,px,pz,16,true);
       if(hwRow(pz,px)&&!hwGround('x',pz,X0+16)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('x',pz,X0+CELL/2)-1;farBox(SB,X0,y-1,Z0-3,X0+CELL,y+2,Z0+11,_fc);}
       if(hwCol(px,pz)&&!hwGround('z',px,Z0+16)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('z',px,Z0+CELL/2)-1;farBox(SB,X0-3,y-1,Z0,X0+11,y+2,Z0+CELL,_fc);}
       continue;}
     const P=plotInfo(px,pz);
     farBox(SG,X0+ROADW,G+0.4,Z0+ROADW,X0+CELL,G+0.97,Z0+CELL,P.type==='park'?FARC.park:P.type==='plaza'?FARC.plaza:FARC.side);
+    farTownWater(SG,px,pz,P,6);
     if(hwRow(pz,px)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('x',pz,X0+CELL/2)-1;farBox(SB,X0,y-1,Z0-3,X0+CELL,y+2,Z0+11,_fc);}
     if(hwCol(px,pz)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('z',px,Z0+CELL/2)-1;farBox(SB,X0-3,y-1,Z0,X0+11,y+2,Z0+CELL,_fc);}
     for(let bi=0;bi<P.b.length;bi++){const b=P.b[bi];if(b.farSkip||b.x1-b.x0<3||b.z1-b.z0<3)continue;
@@ -246,7 +331,7 @@ function* farJobFar(SB,SG,act,ra,rb){
     const d=Math.hypot(qx*C4+C4/2-p.pos.x,qz*C4+C4/2-p.pos.z);if(d>rb+C4||d<ra-C4)continue;seen.add(k);
     for(let i=0;i<4;i++)for(let j=0;j<4;j++){const px=qx*4+i,pz=qz*4+j,X0=px*CELL,Z0=pz*CELL;
       if(seaPlot(px,pz)){farSea(SG,px,pz,1);continue;}
-      const ty=setType(px,pz);if(!ty){if(turbineAt(px,pz))farTurbine(SB,px,pz,2.6);continue;}
+      const ty=setType(px,pz);if(!ty){if(turbineAt(px,pz))farTurbine(SB,px,pz,2.6);if(biomeOf(px,pz)==='plains'){farPonds(SG,px,pz,16,false);farWoods(SG,px,pz,32,false);}continue;}
       farBox(SG,X0,G+0.45,Z0,X0+CELL,G+0.97,Z0+CELL,FARC.side);
       if(hwRow(pz,px)&&!hwGround('x',pz,X0+16)){_fc.setHex(blockColor(CONCRETE));farBox(SB,X0,HY_X-1,Z0-3,X0+CELL,HY_X+2,Z0+11,_fc);}
       if(hwCol(px,pz)&&!hwGround('z',px,Z0+16)){_fc.setHex(blockColor(CONCRETE));farBox(SB,X0-3,HY_Z-1,Z0,X0+11,HY_Z+2,Z0+CELL,_fc);}
@@ -279,6 +364,7 @@ let farDirty=true,farT=0;
 const FAR_BUDGET=4;   // milliseconds a frame for building the far rings
 function updateFar(dt){
   if(meshedDirty){MESHED_TEX.needsUpdate=true;meshedDirty=false;}
+  LEAFFALL_U.value=leafFall;
   const act=players.filter(q=>q.active);if(!act.length)return;
   {const a=act[0].pos,b=(act[1]||act[0]).pos;FAR_CAMP.value.set(a.x,a.z,b.x,b.z);}
   // where each ring starts and ends (it's nothing at all if you can't see past the full-detail city)

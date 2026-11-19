@@ -324,7 +324,9 @@ function plainsH(x,z){
   f=Math.min(f,Math.max(0,roadNear(x,z))/14);
   for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++){if(!dx&&!dz||PLAINS_OPEN(px+dx,pz+dz))continue;
     const ex=dx<0?rx:dx>0?CELL-1-rx:0,ez=dz<0?rz:dz>0?CELL-1-rz:0;f=Math.min(f,Math.max(dx?ex:0,dz?ez:0)/14);}
-  const n=(Math.sin(x*0.043+1.7)+Math.sin(z*0.051+0.4)+Math.sin((x+z)*0.029+2.3)*0.8+Math.sin((x-z)*0.037+0.9)*0.6)/3.4;
-  const h=(n+0.3)*4.4*f;
+  const h=plainsRaw(x,z)*f;
   return h<-0.9?-1:Math.max(0,Math.round(h));
 }
+// the plains' rolling ground before it's flattened toward roads and other blocks (plainsH scales it down there). Below
+// -0.9 it's a pond, so where this isn't, plainsH can't be either: a cheap first test for the far view's ponds
+function plainsRaw(x,z){const n=(Math.sin(x*0.043+1.7)+Math.sin(z*0.051+0.4)+Math.sin((x+z)*0.029+2.3)*0.8+Math.sin((x-z)*0.037+0.9)*0.6)/3.4;return (n+0.3)*4.4;}

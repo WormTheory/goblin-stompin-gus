@@ -111,7 +111,7 @@ It renders in software, so the picture is right but the frame rate says nothing 
 ## Map of the code (search `src/js` for these names)
 - **World and terrain:**
   - chunk generation `genChunk`; meshing (`meshes`, `MESHED`)
-  - far LOD rings `farJobNear`/`farJobMid`/`farJobFar` via `farBox`
+  - far LOD rings `farJobNear`/`farJobMid`/`farJobFar` via `farBox`; trees there come from the same rules the chunks grow them by (`plainsTree`, `parkTree`, kept per block in `farTreesOf`), woods further off from `farWoods`, ponds and lakes from `farPonds`/`farTownWater`
   - world curve `CURVE_U`, lighting `WORLD_LIGHT`. Any second renderer (e.g. the obituary preview) must zero/whiten these while it renders.
 - **Roads:**
   - towns `placeAt`; road spans `axisSpan` (kinds include `'moto'`, `'country'`; `flat` ends)

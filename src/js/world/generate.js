@@ -19,6 +19,29 @@ function linkNear(x,z){
   let e=1e9;for(const [a,b,c,d] of L){const dx=x<a?a-x:x>b?x-b:0,dz=z<c?c-z:z>d?z-d:0;e=Math.min(e,Math.hypot(dx,dz));}
   return e;
 }
+// does a plains tree grow from this column? [the ground's top, its trunk's height], or null. A few scattered, more where
+// copses grow and round sites in the wilds; never on a road, a railway, beside a billboard or in a pond. (Shared by the
+// chunks and the far view, so a tree seen from afar is the very one that's there up close: cheapest tests first.)
+function plainsTree(x,z){
+  if((x+z)%2)return null;
+  const px=Math.floor(x/CELL),pz=Math.floor(z/CELL),wood=siteTrees(x,z);if(!wood&&!PLAINS_OPEN(px,pz))return null;
+  const copse=wood?wood:lumberNear(px,pz)?1.1:plainsCopse(x,z);
+  if(hash2(x*3+1,z*7+5)>0.006+0.11*copse)return null;
+  if(roadNear(x,z,14)<4||railNear(x,z)<6||boardNear(x,z,7))return null;
+  const h=plainsH(x,z);if(h<0)return null;
+  return [G+h,4+Math.floor(hash2(x,z+99)*3)];
+}
+// how thick the woods are out on the open plains here: 0 (a tree here and there) up to 1 (a copse)
+function plainsCopse(x,z){return Math.max(0,Math.sin(x*0.021+0.6)+Math.sin(z*0.026+2.2)-1.0);}
+// does a tree grow here in a town park, the capitol's grounds or a big park (on the ground, G)?
+function parkTree(x,z){
+  const px=Math.floor(x/CELL),pz=Math.floor(z/CELL),rx=mod(x,CELL),rz=mod(z,CELL),BS=superOf(px,pz);
+  if(BS&&BS.kind==='capitol'){const u=x-BS.ax*CELL-PL0,v=z-BS.az*CELL-PL0;return !(u<0||v<0||u>=CAP.W||v>=CAP.L)&&!!capitolTree(u,v,x,z);}
+  if(BS&&BS.kind==='bigpark'){const u=x-BS.ax*CELL-PL0,v=z-BS.az*CELL-PL0,W=(BS.w-1)*CELL+PW,L=(BS.h-1)*CELL+PW;return !(u<0||v<0||u>=W||v>=L)&&!!bigParkTree(u,v,W,L,x,z);}
+  if(rx<PL0+1||rx>PL1-2||rz<PL0+1||rz>PL1-2||(rx>=PC-5&&rx<=PC+4&&rz>=PC-5&&rz<=PC+4)||rx===PC-1||rx===PC||rz===PC-1||rz===PC||(rx+rz)%2)return false;
+  if(hash2(x*3+1,z*7+5)>0.22)return false;
+  return plotInfo(px,pz).type==='park';
+}
 function genChunk(cx,cz){
   // (a chunk lies inside one block, so it's all shown or all flat)
   if(cx>=SHIP_CX0)return shipChunk(cx,cz);   // (a ship's own blocks: see vehicles/ships.js)
@@ -204,12 +227,8 @@ function genChunk(cx,cz){
   // plains trees: a few scattered, more where copses grow (leaves may reach across chunk edges, so look wider)
   {const putT=(px,py,pz,b,onlyAir)=>{const lx=px-x0,lz=pz-z0;if(lx<0||lz<0||lx>=CS||lz>=CS||py<0||py>=H)return;const i=li(lx,py,lz);if(onlyAir&&a[i]!==AIR)return;a[i]=b;};
    for(let z=z0-2;z<z0+CS+2;z++)for(let x=x0-2;x<x0+CS+2;x++){
-     const wood=siteTrees(x,z);if(!wood&&!PLAINS_OPEN(Math.floor(x/CELL),Math.floor(z/CELL))||(x+z)%2||roadNear(x,z,14)<4||railNear(x,z)<6)continue;
-     const copse=wood?wood:lumberNear(Math.floor(x/CELL),Math.floor(z/CELL))?1.1:Math.max(0,Math.sin(x*0.021+0.6)+Math.sin(z*0.026+2.2)-1.0);
-     if(hash2(x*3+1,z*7+5)>0.006+0.11*copse)continue;
-     if(boardNear(x,z,7))continue;
-     const h=plainsH(x,z);if(h<0)continue;
-     const gy=G+h,th=4+Math.floor(hash2(x,z+99)*3),top=gy+th;
+     const T=plainsTree(x,z);if(!T)continue;
+     const gy=T[0],th=T[1],top=gy+th;
      for(let y=1;y<=th;y++)putT(x,gy+y,z,LOG,false);
      for(let dy=-2;dy<=1;dy++){const rad=dy<=-1?2:1;for(let dz=-rad;dz<=rad;dz++)for(let dx=-rad;dx<=rad;dx++){if(rad===2&&Math.abs(dx)===2&&Math.abs(dz)===2&&hash2(x+dx*5,z+dz*5+dy)<.6)continue;putT(x+dx,top+dy,z+dz,LEAVES,true);}}
      putT(x,top+1,z,LEAVES,true);
@@ -217,19 +236,7 @@ function genChunk(cx,cz){
   // park trees (leaves may reach across chunk edges, so look a little wider)
   const put=(px,py,pz,b,onlyAir)=>{const lx=px-x0,lz=pz-z0;if(lx<0||lz<0||lx>=CS||lz>=CS||py<0||py>=H)return;const i=li(lx,py,lz);if(onlyAir&&a[i]!==AIR)return;a[i]=b;};
   for(let z=z0-2;z<z0+CS+2;z++)for(let x=x0-2;x<x0+CS+2;x++){
-    const rx=mod(x,CELL),rz=mod(z,CELL);
-    const BS=superOf(Math.floor(x/CELL),Math.floor(z/CELL));
-    if(BS&&BS.kind==='capitol'){
-      const u=x-BS.ax*CELL-PL0,v=z-BS.az*CELL-PL0;
-      if(u<0||v<0||u>=CAP.W||v>=CAP.L||!capitolTree(u,v,x,z))continue;
-    } else if(BS&&BS.kind==='bigpark'){
-      const u=x-BS.ax*CELL-PL0,v=z-BS.az*CELL-PL0,W=(BS.w-1)*CELL+PW,L=(BS.h-1)*CELL+PW;
-      if(u<0||v<0||u>=W||v>=L||!bigParkTree(u,v,W,L,x,z))continue;
-    } else {
-    if(rx<PL0+1||rx>PL1-2||rz<PL0+1||rz>PL1-2||(rx>=PC-5&&rx<=PC+4&&rz>=PC-5&&rz<=PC+4)||rx===PC-1||rx===PC||rz===PC-1||rz===PC||(rx+rz)%2)continue;
-    if(hash2(x*3+1,z*7+5)>0.22)continue;
-    if(plotInfo(Math.floor(x/CELL),Math.floor(z/CELL)).type!=='park')continue;
-    }
+    if(!parkTree(x,z))continue;
     const gy=G;
     const th=4+Math.floor(hash2(x,z+99)*3),top=gy+th;
     for(let y=1;y<=th;y++)put(x,gy+y,z,LOG,false);

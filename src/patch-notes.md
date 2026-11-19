@@ -7,6 +7,12 @@
 - At night, lights now light up what's around them. Street lamps pool light on the pavement, neon signs throw their own colours across the street, lit windows glow on the walls and rooms beside them, and lamps, TVs and screens light the rooms they're in. Walls block the light, so it stays in the room or the street it's in. Smash a lamp or a sign and its light goes out.
 - It's switched on or off with Block lighting under Sound & picture in Options. Off, the game looks and runs exactly as before.
 
+### Trees and water in the distance
+
+- Trees, ponds and lakes no longer pop up out of nowhere as you get close. Out past the full-detail city, the distant view now has every tree in its real spot, and up close each one becomes the real tree where it already stood.
+- Further off, woods show as clumps of treetops, and ponds, park lakes and the theme park's boating lake show as water.
+- Distant trees change colour with the seasons and lose their leaves in winter, like the near ones.
+
 ### Water
 
 - Water now pours into holes. Knock out a block under water, or the wall holding it back, and the water flows in and fills the space below, up to its own level. Dig down through the sea bed or a river and the hole floods. A small pool only spills what it holds, and a big breach stops after a few hundred blocks, so the sea never drains.
