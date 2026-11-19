@@ -90,12 +90,8 @@ function drvHud(p){
       if(rl){a.rl.style.width=((1-s.rl/s.W.reload)*100).toFixed(1)+'%';a.ac.textContent=(s.W.heat?'Overheated ':'Reloading ')+s.rl.toFixed(1)+'s';}
       else a.ac.textContent=a.many?String(s.n):'';}}
   // (where the shot would really go off, fired now, put on the screen: the gun's reach, the turret still swinging round
-  // and anything in the way all show; faint when it would burst in mid-air, out of range)
-  // (where the shot would really go off, fired now, put on the screen: the gun's reach, the turret still swinging round
-  // and anything in the way all show; faint when it would burst in mid-air, out of range)
-  // (a Mobile Gear's the same for each gun arm, where its barrel points: gunMk, from mgWpnPose. One for the right arm,
-  // and one for the left when it carries a rifle too)
-  const pts=D.k==='mech'?o.gunMk||[]:[armed&&o.pred?o.pred:null];
+  // and anything in the way all show; faint when it would burst in mid-air, out of range. A Mobile Gear has none)
+  const pts=D.k==='mech'?[]:[armed&&o.pred?o.pred:null];
   if(!H.xt2){H.xt2=document.createElement('div');H.xt2.className='xt';H.el.append(H.xt2);}
   [H.xt,H.xt2].forEach((e,k)=>{const P=pts[k];let show=false;
     if(P){const cam=p.camera;_dhv.set(P.x,P.y,P.z);if(P.x>=SHIP_X0)shipPt(_dhv);   // (aboard a ship, in its pocket: put where the ship really is)

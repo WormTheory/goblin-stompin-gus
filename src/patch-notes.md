@@ -154,7 +154,6 @@
 - Getting into any vehicle or gun seat no longer pops up a card of its controls on the right: they're all in the list down the left, including a helicopter's climb and drop, flying a plane, and the fire buttons.
 - The Mobile Gear is now solid against boats (it used to walk straight through them) and every other vehicle, and can stand on any of them: a boat, a train, a plane, a tank, another Mobile Gear. Stood on something that moves, it's carried along.
 - Its guns now fire from the ends of their barrels wherever the arms happen to be pointing, and the arms swing round smoothly on to what they're aiming at instead of snapping between positions.
-- A small diamond on the screen shows where each gun arm is pointing right now, as a tank's does for its cannon, so you can see the arm come on to the crosshair or the lock.
 - Its thrusters are a little louder.
 - Every vehicle can now be driven. Subway trains: climb in at a station and drive one round its loop, forwards or back. A rowboat pulled up on the beach, or a ship in a dry dock, is pushed off into the nearest open water as you climb in.
 

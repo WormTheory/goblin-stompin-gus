@@ -280,9 +280,9 @@ function mgWpnPose(M,J,ap,dt,ease){
   // (the arm's own aim, A.az and A.el, swings round to its mark at a steady rate rather than jumping there: the mark
   // moves from the last round's point to the lock, or back to straight ahead, the moment the firing stops, and the arm
   // went straight there with it. From the muzzle where it was last step, as the line from there is the barrel's)
-  // (Q: what it's aimed at, kept as A.Q for the gun marker; null, along the view)
+  // (Q: what it's aimed at; null, along the view)
   const aimArm=(A,a,m,kickT,fT,Q)=>{
-    if(!(fT>0&&Q))Q=T0&&lockAlive(T0)?{x:T0.pos.x,y:lockY(T0),z:T0.pos.z}:null;A.Q=Q;
+    if(!(fT>0&&Q))Q=T0&&lockAlive(T0)?{x:T0.pos.x,y:lockY(T0),z:T0.pos.z}:null;
     let az=0,el=ap;if(Q){const dx=Q.x-m.x,dz=Q.z-m.z;az=Math.max(-0.9,Math.min(0.9,angDiff(M.ty,Math.atan2(dx,dz))));el=Math.max(-0.9,Math.min(0.9,Math.atan2(Q.y-m.y,Math.hypot(dx,dz))));}
     // (its turn is set afresh each step from that, eased in by a, rather than left over from the step before: left over,
     // it stayed turned once the arm dropped, then snapped straight the moment it was all the way down)
@@ -316,11 +316,7 @@ function mgWpnPose(M,J,ap,dt,ease){
     if(Q){const m=M.mzC||mgAt(M,-0.95,7.9,2.9),dx=Q.x-m.x,dz=Q.z-m.z;cy=Math.max(-0.5,Math.min(0.5,angDiff(M.ty,Math.atan2(dx,dz))));ce=Math.max(-1,Math.min(1,Math.atan2(Q.y-m.y,Math.hypot(dx,dz))));}
     J.cannon.rotation.order='YXZ';J.cannon.rotation.y=cy*M.cnA;J.cannon.rotation.x=-2.2*(1-M.cnA)+(-ce-M.pt)*M.cnA;}
   M.pdA=ease(M.pdA||0,M.pod||M.podQ&&M.podQ.length||M.podT>0?1:0,10);J.podLid.rotation.x=-1.05*M.pdA;
-  // (where the muzzles are, posed as now, for aiming them next step; and for the pilot's gun markers, where each gun's
-  // barrel points: along it from the muzzle, as far as what it's aimed at, or a long way off)
+  // (where the muzzles are, posed as now, for aiming them next step)
   if(!M.g)return;
   const mz=(A,lx,ly,lz)=>A&&A.mz?mgPt(M,A.mz,lx,ly,lz):null;M.mzR=mz(R,0,0,0);M.mzL=lGun?mz(Lf,0,0,0):null;M.mzC=J.cannonM?mgPt(M,J.cannonM,0,0,0):null;
-  const mark=(A,m,a)=>{if(!m||a<0.5)return null;const f=mz(A,0,-1,0);if(!f)return null;const Q=A.Q,d=Q?Math.max(5,Math.hypot(Q.x-m.x,Q.y-m.y,Q.z-m.z)):80;
-    return{x:m.x+(f.x-m.x)*d,y:m.y+(f.y-m.y)*d,z:m.z+(f.z-m.z)*d};};
-  M.gunMk=M.drv?[mark(R,M.mzR,M.raA),lGun?mark(Lf,M.mzL,M.laA):null]:null;
 }
