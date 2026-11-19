@@ -13,6 +13,8 @@
 #   default "python tools/build.py") and those come from there. --no-rebuild skips that.
 #   The branch is moved only if it's still where it was read (git update-ref <new> <old>); if another thread got in first,
 #   it all starts again from the new tip (up to 5 times).
+#   It won't start while this folder's src/patch-notes.md or CLAUDE.md is a stale copy (tools/check_stale.py; --check
+#   runs just that check).
 import argparse,collections,os,shutil,subprocess,sys,tempfile
 
 GENERATED=['game/index.html','game/patch-notes/index.html','game/version.json']
@@ -90,8 +92,15 @@ def rebuild(tree,old,cmd,gen,idx_env):
     shutil.rmtree(wt,ignore_errors=True)
     git('worktree','prune')
 
+def stale_check():
+  # (tools/check_stale.py on this folder's own copies: one that's an old copy means a thread has just written a file
+  # whole, and anything built or committed from here now would take others' lines with it)
+  return subprocess.run([sys.executable,os.path.join(os.path.dirname(os.path.abspath(__file__)),'check_stale.py')]).returncode
+
 def main():
+  if '--check' in sys.argv[1:]:sys.exit(stale_check())
   ap=argparse.ArgumentParser(description='Commit a thread\'s own changes without undoing other threads\' commits.')
+  ap.add_argument('--check',action='store_true',help='only check this folder\'s patch notes and CLAUDE.md aren\'t stale copies')
   ap.add_argument('--base',required=True,help='the commit the thread started from')
   ap.add_argument('--from',dest='src',required=True,help='the folder holding the thread\'s copies')
   ap.add_argument('-m',dest='msg',action='append',default=[])
@@ -105,6 +114,7 @@ def main():
   if not a.msg and not a.msgfile:sys.exit('safe_commit: give a message with -m or -F')
   top=out('rev-parse','--show-toplevel')
   os.chdir(top)
+  if stale_check():sys.exit('safe_commit: refusing while this folder holds a stale copy (above); nothing was committed.')
   src=os.path.abspath(a.src)
   base=out('rev-parse','--verify',a.base+'^{commit}')
   branch=a.branch or out('symbolic-ref','--short','HEAD')
