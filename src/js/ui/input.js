@@ -138,7 +138,11 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)lockCalmOff
 function lockLostPause(){if(!menuOpen&&!dragMode&&!P1.paused&&!DT.kbdOpen&&!chatHasEsc()&&!locked()&&!(performance.now()-lastPadT<60000&&connectedPads().length))requestPause(P1);}
 document.addEventListener('pointerlockchange',()=>{if(locked()){lockOk=true;lockFails=0;return;}
   if(lockLostT!==null)clearTimeout(lockLostT);const t0=performance.now();
-  lockLostT=setTimeout(()=>{lockLostT=null;if(document.hidden||blurAt>t0-200||(document.hasFocus&&!document.hasFocus()))return;lockLostPause();},LOCK_WAIT);});
+  // (a long frame, the Testing Environment's say, can hold the window's blur back past the wait: a check that comes late
+  // waits once more, so a blur already on its way gets in first)
+  const chk=late=>{lockLostT=null;if(document.hidden||blurAt>t0-200||(document.hasFocus&&!document.hasFocus()))return;
+    if(!late&&performance.now()-t0>LOCK_WAIT+100){lockLostT=setTimeout(()=>chk(true),150);return;}lockLostPause();};
+  lockLostT=setTimeout(()=>chk(false),LOCK_WAIT);});
 // in co-op each hippo pauses on their own; the city only stops once everyone has paused
 const inCoop=()=>coop&&P2.active;
 function requestPause(p){if(inCoop())pausePlayer(p);else pause();}

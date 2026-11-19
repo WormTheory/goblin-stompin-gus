@@ -338,7 +338,7 @@
 
 ### Fixes
 
-- Clicking another window or switching tabs no longer pauses the game: it carries on in the background (handy for hosting online with the tab hidden). Esc still pauses, and a click on the game takes the mouse back.
+- Clicking another window or switching tabs no longer pauses the game: it carries on in the background (handy for hosting online with the tab hidden), in the Testing Environment too. Esc still pauses, and a click on the game takes the mouse back.
 - Roller coaster cars now glide smoothly up and down the track, tilting to match the slope, instead of jumping a block at a time where it changes height. Anyone riding on top goes up and down smoothly with them.
 - Playing online, the buildings the host has destroyed and the vehicles wrecked are now kept up to date for everyone else too.
 - The controls listed down the left while driving now match what each vehicle really does. On a controller, the left stick now shows for a boat's or ship's throttle and rudder (the trawler's among them), a tank's tracks, a train's lever, a helicopter in Agile mode and the Gobway, where nothing showed before, and cars list the triggers as throttle and brake. The horn now shows for cars, the forklift, the tractor, the hovercraft and the pedalo, and the kick scooter's brake too. Pressing a stick in now shows as L3 or R3, rather than looking the same as pushing the stick about.
