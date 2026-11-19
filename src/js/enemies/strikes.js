@@ -22,7 +22,7 @@ const strikeWind=k=>WEAPONS[k]&&WEAPONS[k].npc&&WEAPONS[k].npc.wind||0.45,strike
 function strikeAt(w,u){
   const C=STRIKES[w];u=Math.max(0,Math.min(2,u));
   for(let j=0;j<C.length;j++){const K=C[j];if(K.length<2){_SP[j]=K[0][1];continue;}let i=1;while(i<K.length-1&&K[i][0]<u)i++;
-    const a=K[i-1],b=K[i],s=Math.max(0,Math.min(1,(u-a[0])/(b[0]-a[0]))),e=b[2],k=e==='i'?s*s:e==='o'?1-(1-s)*(1-s):s*s*(3-2*s);
+    const a=K[i-1],b=K[i],s=Math.max(0,Math.min(1,(u-a[0])/(b[0]-a[0]))),e=b[2],k=e==='i'?s*s:e==='o'?1-(1-s)*(1-s):e==='l'?s:s*s*(3-2*s);
     _SP[j]=a[1]+(b[1]-a[1])*k;}
   return _SP;
 }

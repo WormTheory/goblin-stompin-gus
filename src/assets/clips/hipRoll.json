@@ -1,0 +1,25 @@
+{
+  "layout": "hippo",
+  "tracks": {
+    "head": [[0,0]],
+    "jaw": [[0,0]],
+    "pitch": [[0,0]],
+    "roll": [[0,0]],
+    "lift": [[0,0]],
+    "sx": [[0,0]],
+    "sy": [[0,0]],
+    "sz": [[0,0]],
+    "legFR": [[0,0]],
+    "legFL": [[0,0]],
+    "legBR": [[0,0]],
+    "legBL": [[0,0]],
+    "outFR": [[0,0]],
+    "outFL": [[0,0]],
+    "outBR": [[0,0]],
+    "outBL": [[0,0]],
+    "legW": [[0,0]],
+    "curl": [[0,0],[0.36,1],[1.64,1],[2,0]],
+    "spin": [[0,0],[0.12,0],[1.88,6.2832]]
+  },
+  "note": "The roll: curl tucks the legs and head in, somersault turns him over (a whole turn is 6.283)."
+}

@@ -1,7 +1,7 @@
 let __s=+(process.env.SEED||1);Math.random=()=>{__s=(__s*16807)%2147483647;return (__s-1)/2147483646;};
 const fs=require('fs');
 let src0=fs.readFileSync('g.js','utf8');
-let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={PROPS,FIXM,assetProp,assetFix,liveProp,liveFix,liveMove,liveRecord,AB,HB,DEV_ABIL,assetMovesAll,get trafficRefreshT(){return trafficRefreshT},players,cars,goblins,frame,setGob,WEAPONS,GOB_WPN,STRIKES,ASSETS,assetCheck,assetFmt,assetWeapon,assetWeaponOf,assetClip,assetClipOf,wpnHitShapes,hitWorld,hitTouch,liveWeapon,liveClip,PICKUPS,hitGoblins,assetList,assetPlace,ASSET_LISTS,wpnHitSweep,hitHand,gobSwingU};\n})();');
+let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={PROPS,FIXM,assetProp,assetFix,liveProp,liveFix,liveMove,liveRecord,AB,HB,DEV_ABIL,assetMovesAll,HCLIP,hipAt,HC,liveClip,get trafficRefreshT(){return trafficRefreshT},players,cars,goblins,frame,setGob,WEAPONS,GOB_WPN,STRIKES,ASSETS,assetCheck,assetFmt,assetWeapon,assetWeaponOf,assetClip,assetClipOf,wpnHitShapes,hitWorld,hitTouch,liveWeapon,liveClip,PICKUPS,hitGoblins,assetList,assetPlace,ASSET_LISTS,wpnHitSweep,hitHand,gobSwingU};\n})();');
 const deep=()=>new Proxy(function(){}, {get:(t,p)=>p===Symbol.toPrimitive?()=>0:(p==='length'?0:deep()),apply:()=>deep(),construct:()=>deep()});
 class Q{constructor(){this.x=0;this.y=0;this.z=0;this.w=1}set(x,y,z,w){this.x=x;this.y=y;this.z=z;this.w=w;return this}setFromAxisAngle(a,t){const s=Math.sin(t/2);this.x=a.x*s;this.y=a.y*s;this.z=a.z*s;this.w=Math.cos(t/2);return this}copy(q){this.x=q.x;this.y=q.y;this.z=q.z;this.w=q.w;return this}}
 class V3{project(){return this}fromBufferAttribute(a,i){const A=a.array||a.a;this.x=A[i*3];this.y=A[i*3+1];this.z=A[i*3+2];return this}applyMatrix4(m){const e=m.elements,x=this.x,y=this.y,z=this.z;this.x=e[0]*x+e[4]*y+e[8]*z+e[12];this.y=e[1]*x+e[5]*y+e[9]*z+e[13];this.z=e[2]*x+e[6]*y+e[10]*z+e[14];return this}setFromMatrixPosition(o){this.x=o.position.x;this.y=o.position.y;this.z=o.position.z;return this}normalize(){const l=Math.hypot(this.x,this.y,this.z)||1;this.x/=l;this.y/=l;this.z/=l;return this}add(v){this.x+=v.x;this.y+=v.y;this.z+=v.z;return this}applyQuaternion(q){const x=this.x,y=this.y,z=this.z,qx=q.x,qy=q.y,qz=q.z,qw=q.w;const ix=qw*x+qy*z-qz*y,iy=qw*y+qz*x-qx*z,iz=qw*z+qx*y-qy*x,iw=-qx*x-qy*y-qz*z;this.x=ix*qw+iw*-qx+iy*-qz-iz*-qy;this.y=iy*qw+iw*-qy+iz*-qx-ix*-qz;this.z=iz*qw+iw*-qz+ix*-qy-iy*-qx;return this}constructor(x=0,y=0,z=0){this.x=x;this.y=y;this.z=z}set(x,y,z){this.x=x;this.y=y;this.z=z;return this}copy(v){this.x=v.x;this.y=v.y;this.z=v.z;return this}clone(){return new V3(this.x,this.y,this.z)}addScaledVector(v,s){this.x+=v.x*s;this.y+=v.y*s;this.z+=v.z*s;return this}multiplyScalar(s){this.x*=s;this.y*=s;this.z*=s;return this}setScalar(s){return this.set(s,s,s)}}
@@ -50,7 +50,7 @@ for(const kind of ['weapons','clips','bodies','grips','props','fixtures','moves'
   for(const k in T.ASSETS.weapons){const f=JSON.parse(fs.readFileSync(path.join(AS,'weapons',k+'.json'),'utf8'));delete f.note;
     const back=T.assetWeaponOf(T.assetWeapon(f));if(JSON.stringify(back)!==JSON.stringify(T.assetWeaponOf(T.assetWeapon(T.ASSETS.weapons[k]))))wd.push(k);
     if(JSON.stringify(T.WEAPONS[k].model.held)!==JSON.stringify(T.assetWeapon(f).model.held))wd.push(k+'(held)');}
-  for(const k in T.ASSETS.clips)if(JSON.stringify(T.STRIKES[k])!==JSON.stringify(T.assetClip(T.ASSETS.clips[k])))cd.push(k);
+  for(const k in T.ASSETS.clips)if(JSON.stringify((T.ASSETS.clips[k].layout==='hippo'?T.HCLIP:T.STRIKES)[k])!==JSON.stringify(T.assetClip(T.ASSETS.clips[k])))cd.push(k);
   console.log('game tables from the files: weapons',wd.length?'differ '+wd.join(','):'same','| clips',cd.length?'differ '+cd.join(','):'same');}
 // (shared models: each view that shares the weapon's one model is it placed, and placing then taking the placing off
 // gives the model back; a view with its own version is just that)
@@ -107,6 +107,15 @@ console.log('above his head: a goblin on a ledge 1.5 up',hitAt({hit:{hitboxes:[{
 {const pd=[],fd=[];for(const k in T.ASSETS.props){const a=T.assetProp(T.ASSETS.props[k]);if(k!=='bed'&&(T.PROPS[k].length!==a.length||T.PROPS[k].some((q,i)=>q[0]!==a[i][0])))pd.push(k);}
   for(const k in T.ASSETS.fixtures)if(k!=='lamp'&&JSON.stringify(T.FIXM[k])!==JSON.stringify(T.assetFix(T.ASSETS.fixtures[k])))fd.push(k);
   console.log('props in the game',Object.keys(T.PROPS).length,'from files',Object.keys(T.ASSETS.props).length,pd.length?'differ '+pd.join(','):'same','| fixtures',Object.keys(T.FIXM).join(','),fd.length?'differ '+fd.join(','):'same');}
+// (the hippos' clips: in HCLIP and not STRIKES, hipAt against the sums they were made from (move.js before them), and one
+// edited live)
+{const n=Object.keys(T.HCLIP),sm=x=>{x=Math.max(0,Math.min(1,x));return x*x*(3-2*x);};let w=0;
+  for(let i=0;i<=200;i++){const k=i/200,H=T.hipAt('hipBite1',2*k),open=sm(k/0.6),shut=sm((k-0.69)/0.1),jab=Math.exp(-Math.pow((k-0.79)/0.07,2));
+    w=Math.max(w,Math.abs(H[T.HC.jaw]-open*(1-shut)),Math.abs(H[T.HC.head]-(0.1*open*(1-shut)-0.16*jab)));
+    const C=T.hipAt('hipCrash',2*k),e=k*0.5,k0=e<0.05?e/0.05:e<0.2?1:Math.max(0,1-(e-0.2)/0.3),q=k0*k0*(3-2*k0);w=Math.max(w,Math.abs(C[T.HC.outFR]+1.05*q),Math.abs(C[T.HC.lift]+0.42*q));}
+  const f=JSON.parse(fs.readFileSync(path.join(AS,'clips','hipKnock.json'),'utf8'));f.tracks.pitch=[[0,0],[1,-1]];T.liveClip('hipKnock',f);const p1=T.hipAt('hipKnock',1)[T.HC.pitch];
+  T.liveClip('hipKnock',JSON.parse(fs.readFileSync(path.join(AS,'clips','hipKnock.json'),'utf8')));
+  console.log('hippo clips',n.length,'| in STRIKES',n.filter(k=>T.STRIKES[k]).length,'| worst against the old sums',w.toFixed(4),'| live edit',p1,'| put back',T.hipAt('hipKnock',1)[T.HC.pitch].toFixed(3));}
 // (the hippos' moves: the game's tables from their files, a move edited live, and a recording for the editor's Hippo tab)
 {const D=T.assetMovesAll(T.ASSETS);let same=JSON.stringify(D)===JSON.stringify(T.DEV_ABIL);for(const m of D)for(const [pk,,v] of m.ps)if(T.AB[m.k][pk]!==v)same=false;
   console.log('moves in the game',T.DEV_ABIL.length,'from files',D.length,same?'same':'DIFFERENT','| custom hitboxes',Object.keys(T.HB).length);

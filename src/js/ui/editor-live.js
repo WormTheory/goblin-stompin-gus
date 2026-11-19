@@ -20,7 +20,7 @@ function liveWeapon(k,file){
   for(let i=PICKUPS.length-1;i>=0;i--){const P=PICKUPS[i];if(P.k===k&&!P.live){scene.remove(P.m);PICKUPS.splice(i,1);}}
   return 'ok';
 }
-function liveClip(name,file){STRIKES[name]=assetClip(file);return 'ok';}
+function liveClip(name,file){if(file.layout==='hippo')HCLIP[name]=assetClip(file);else STRIKES[name]=assetClip(file);return 'ok';}   // (a hippo's: move.js reads HCLIP)
 // (a body's hurtboxes are read from ASSETS each time a blow is tested: hit-shapes.js)
 // (a grip is read by gunGrip each time a goblin with a gun is drawn: grip.js)
 function liveGrip(name,file){const f=Object.assign({},file);delete f.note;GUN_GRIP[name]=f;return 'ok';}

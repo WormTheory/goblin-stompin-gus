@@ -212,3 +212,76 @@ EXT.moves={noGrid:true,tl:HIP_TL,
   del:hipDel,dup:hipDup,
   message:hipMessage,
   async start(){await Promise.all((S.list.moves||[]).map(n=>loadDoc('moves',n)));}};
+
+// ---- the hippo's animations (src/assets/clips/hip*.json, layout 'hippo'): the timed ones in player/move.js, edited
+// on the same timeline as a weapon's (a row of keys per channel). The view poses the hippo itself, as move.js does with
+// hipAt: his parts as the game builds them (from a recording, standing as a move starts), each channel added to that
+// stance. The game's copies (the hidden one recording moves, and Open game) take each edit as it's made ----
+CH_UI.hippo={head:['Head','plus nods it down, minus up','deg',-90,90],jaw:['Jaw open','how far the mouth opens (never less than he already has it)','deg',0,90],
+  pitch:['Body pitch','plus tips him nose down, minus nose up','deg',-90,90],roll:['Body roll','plus rolls him to his left','deg',-90,90],
+  lift:['Body up','plus raises the body off the ground, in blocks','blk',-1,1],sx:['Wider','plus stretches him sideways (0.1 is 10% wider)','',-0.5,0.5],
+  sy:['Taller','plus stretches him up, minus squashes','',-0.5,0.5],sz:['Longer','plus stretches him nose to tail','',-0.5,0.5],
+  legFR:['Front right leg','swing: minus forward, plus back','deg',-120,120],legFL:['Front left leg','swing: minus forward, plus back','deg',-120,120],
+  legBR:['Back right leg','swing: minus forward, plus back','deg',-120,120],legBL:['Back left leg','swing: minus forward, plus back','deg',-120,120],
+  outFR:['Front right out','minus out to his right','deg',-90,90],outFL:['Front left out','plus out to his left','deg',-90,90],
+  outBR:['Back right out','minus out to his right','deg',-90,90],outBL:['Back left out','plus out to his left','deg',-90,90],
+  legW:['Legs taken over','0 leaves the legs as they were (the leg channels are added), up to 1 puts them where the leg channels say','',0,1],
+  curl:['Curl','the roll only: 1 tucks legs and head right in','',0,1],spin:['Somersault','the roll only: how far over he has turned','deg',0,360]};
+const HIP_USE={hipBite1:'The bite combo\'s first hit (0.3 s), and a bite in the air (head and jaw only)',hipBite2:'The bite combo\'s second hit',hipUpper:'The bite combo\'s third hit, the uppercut',
+  hipCrash:'A crash landing (0.5 s)',hipLand:'Landing (0.22 s)',hipHop:'Taking off (0.12 s)',hipSpin:'A mid-air jump\'s spin (0.16 s)',hipKnock:'Reeling from a hit (0.5 s)',
+  hipPoundLand:'A ground pound landing (0.16 s)',hipRoll:'The roll'};
+HIP.rest=null;HIP.restId=0;HIP.wantRest=false;
+// (his stance, once: the first frame of the bite, recorded by the hidden game)
+function hipRest(){
+  hipFrame();if(!HIP.ready||HIP.busy){HIP.wantRest=true;return;}
+  HIP.busy=true;HIP.wantRest=false;HIP.restId=++HIP.id;HIP.frame.contentWindow.postMessage({type:'gsg-rec',key:'bite',id:HIP.restId},location.origin);
+}
+function hipClipLive(d){if(HIP.ready&&!assetCheck('clips',d.name,d.data).length)HIP.frame.contentWindow.postMessage({type:'gsg-asset',kind:'clips',name:d.name,file:clone(d.data)},location.origin);}
+{const msg=EXT.moves.message;EXT.moves.message=function(e){
+  const fw=HIP.frame&&HIP.frame.contentWindow;if(!fw||e.source!==fw)return false;const m=e.data;
+  if(m.type==='gsg-ready'){HIP.ready=true;for(const d of DOCS.values())if(d.kind==='clips'&&d.data.layout==='hippo'&&dirty(d))hipClipLive(d);
+    const c=doc();if(c&&c.kind==='clips'&&!HIP.rest)hipRest();else hipRecord();return true;}
+  if(m.type==='gsg-rec-done'&&m.id===HIP.restId){HIP.busy=false;if(m.rec&&!m.rec.error){HIP.rest=m.rec;const c=doc();if(c&&c.kind==='clips'&&c.data.layout==='hippo'){rebuild();frameView();}}
+    else HIP.err='Recording failed: '+(m.rec&&m.rec.error);
+    if(HIP.again)hipRecord();return true;}
+  const r=msg(e);if(r&&m.type==='gsg-rec-done'&&HIP.wantRest)hipRest();return r;};}
+// the hippo, stood as the recording has him on its first frame, and each part's place, turn and size there
+function hipClipRig(){
+  const R=HIP.rest;if(!R){hipRest();return null;}
+  const N=R.model.map(q=>{const g=new THREE.Group();g.name=q.n;if(q.g){const m=new THREE.Mesh(UNIT,matOf(q.c));m.scale.set(...q.g);g.add(m);}return g;});
+  R.model.forEach((q,i)=>{if(q.p>=0)N[q.p].add(N[i]);});
+  const W=new THREE.Group();W.position.y=-(R.G+1);content.add(W);R.model.forEach((q,i)=>{if(q.p<0)W.add(N[i]);});
+  const fl=new THREE.GridHelper(16,16,0x6a5030,0x3a3428);fl.position.set(0.5,R.G+1.002,0.5);W.add(fl);
+  const T=R.tr,P={k:'hippo',root:W,n:{},rest:{}};
+  N.forEach((o,i)=>{const b=i*11;o.position.set(T[b],T[b+1],T[b+2]);o.quaternion.set(T[b+3],T[b+4],T[b+5],T[b+6]);o.scale.set(T[b+7],T[b+8],T[b+9]);o.visible=T[b+10]>0.5;
+    if(o.name&&!P.n[o.name]){P.n[o.name]=o;P.rest[o.name]={p:o.position.clone(),e:new THREE.Euler().setFromQuaternion(o.quaternion,'XYZ'),s:o.scale.clone()};}});
+  return P;
+}
+// posed at u, as move.js does with hipAt
+const HIP_LEGS=['FR','FL','BR','BL'];
+function hipClipPose(P,c,u){
+  const v=clipAt(c,u),nm=chNames(c),g=k=>{const j=nm.indexOf(k);return j<0?0:v[j];};
+  for(const k in P.n){const o=P.n[k],r=P.rest[k];o.position.copy(r.p);o.rotation.copy(r.e);o.scale.copy(r.s);}
+  const rig=P.n.rig,head=P.n.head,jaw=P.n.jaw,tail=P.n.tail;if(!rig)return;
+  // (the legs: added to where they stand, or with legW taken over toward the channels' own values, as a bite does)
+  const usesW=(c.tracks.legW||[]).some(q=>q[1]),w=g('legW'),curl=g('curl'),spin=g('spin');
+  HIP_LEGS.forEach((L,i)=>{const o=P.n['leg.'+L];if(!o)return;const x=o.rotation.x,val=g('leg'+L);
+    o.rotation.x=usesW?x+(val-x)*w:x+val;o.rotation.z+=g('out'+L);
+    if(curl){o.rotation.x=o.rotation.x*(1-curl)+(i<2?1.25:-1.25)*curl;o.rotation.z*=1-curl;}});
+  rig.rotation.x+=g('pitch');rig.rotation.z+=g('roll');rig.position.y+=g('lift');
+  rig.scale.set(rig.scale.x*(1+g('sx')),rig.scale.y*(1+g('sy')),rig.scale.z*(1+g('sz')));
+  if(head)head.rotation.x+=g('head');if(jaw)jaw.rotation.x=Math.max(jaw.rotation.x,g('jaw'));
+  if(curl){if(head){head.position.set(0,1.55-0.35*curl,1.2-0.55*curl);head.rotation.x+=1.1*curl;}if(tail)tail.rotation.x+=0.8*curl;}
+  if(spin){const cy=1.3,cz=0.85;rig.rotation.x+=spin;rig.position.y+=cy-(cy*Math.cos(spin)-cz*Math.sin(spin));rig.position.z+=cz-(cy*Math.sin(spin)+cz*Math.cos(spin));}
+}
+// what a press on the posed hippo grabs: a leg (its swing and out), the jaw, the head, or the body (pitch and roll; Shift
+// raises it)
+function hipClipGrab(o,under,J,e,hit,fixed){
+  const P=posed;for(const L of HIP_LEGS){const n=P.n['leg.'+L];if(n&&under(n))return{ch:[J('leg'+L),J('out'+L)],pt:fixed(n,new THREE.Vector3(0,-0.74,0))};}
+  if(P.n.jaw&&under(P.n.jaw))return{ch:[J('jaw')],pt:fixed(P.n.jaw,new THREE.Vector3(0,-0.1,1.3))};
+  if(P.n.head&&under(P.n.head))return{ch:[J('head')],pt:fixed(P.n.head,new THREE.Vector3(0,0.2,1.1))};
+  return e.shiftKey?{ch:[J('lift')],pt:fixed(P.n.rig,new THREE.Vector3(0,1.5,0))}:{ch:[J('pitch'),J('roll')],pt:fixed(P.n.rig,new THREE.Vector3(0,1.5,1.6))};
+}
+// (the list: his moves, then his animations)
+{const L=EXT.moves.list;EXT.moves.list=hit=>{let h=L(hit);h+='<div class="grp"><span>Animations</span></div>';
+  for(const n of S.list.clips||[])if(/^hip/.test(n)&&(hit(n)||hit(HIP_USE[n])))h+=listIt('clips',n,n.replace(/^hip/,''),n);return h;};}

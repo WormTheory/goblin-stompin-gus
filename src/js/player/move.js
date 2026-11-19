@@ -1,4 +1,16 @@
 const SWIM_HOLD=0.35;   // (holding jump in the water: seconds between paddle strokes upward)
+// The hippos' timed animations are keyframed clips (src/assets/clips/hip*.json, layout 'hippo', made in the editor's
+// Hippo tab): hipAt(name,u) gives every channel at u (0 to 2 over the move's own length) in the layout's order, HC naming
+// the places. The steady poses that follow what he's doing (walking, the jump, swimming, climbing) are still sums here.
+const HCLIP=assetHipAll(ASSETS),HC_N=ASSET_LAYOUTS.hippo.ch.map(c=>c[0]),HC={};HC_N.forEach((k,i)=>{HC[k]=i;});
+const _HP=new Float32Array(HC_N.length),HC_LEG=['legFR','legFL','legBR','legBL'].map(k=>HC[k]),HC_OUT=['outFR','outFL','outBR','outBL'].map(k=>HC[k]);
+function hipAt(name,u){
+  const C=HCLIP[name];if(!C){_HP.fill(0);return _HP;}u=Math.max(0,Math.min(2,u));
+  for(let j=0;j<C.length;j++){const K=C[j];if(K.length<2){_HP[j]=K[0][1];continue;}let i=1;while(i<K.length-1&&K[i][0]<u)i++;
+    const a=K[i-1],b=K[i],s=Math.max(0,Math.min(1,(u-a[0])/(b[0]-a[0]))),e=b[2],k=e==='i'?s*s:e==='o'?1-(1-s)*(1-s):e==='l'?s:s*s*(3-2*s);
+    _HP[j]=a[1]+(b[1]-a[1])*k;}
+  return _HP;
+}
 function movePlayer(p,dt){
   if(!p.active)return;
   if(p.state!=='climb')p.vcl=null;   // (a hold on a vehicle's side ends with the cling, however that ended)
@@ -670,12 +682,14 @@ function movePlayer(p,dt){
   }
   // squash on landing, stretch on takeoff
   p.landT=Math.max(0,(p.landT||0)-dt);p.hopT=Math.max(0,(p.hopT||0)-dt);
-  const sq=p.landT>0?Math.sin(p.landT/0.22*Math.PI)*0.16:0,st=p.hopT>0?Math.sin(p.hopT/0.12*Math.PI)*0.1:0;
-  // a quick vertical squash as a mid-air jump's spin kicks off (bunching up, then springing back out)
-  p.spinSq=Math.max(0,(p.spinSq||0)-dt);const spq=p.spinSq>0?Math.sin((1-p.spinSq/0.16)*Math.PI)*0.12:0;
-  p.rig.scale.set(1+sq*0.6+spq*0.45,1-sq+st-spq,1+sq*0.3-st*0.5+spq*0.3);
+  // (hipLand over 0.22 s, hipHop over 0.12 s: a smaller one is started part way in, by a shorter landT or hopT)
+  // a quick vertical squash as a mid-air jump's spin kicks off (bunching up, then springing back out: hipSpin, 0.16 s)
+  p.spinSq=Math.max(0,(p.spinSq||0)-dt);
+  {let x=1,y=1,z=1;const add=(n,u)=>{const H=hipAt(n,u);x+=H[HC.sx];y+=H[HC.sy];z+=H[HC.sz];};
+   if(p.landT>0)add('hipLand',2*(1-p.landT/0.22));if(p.hopT>0)add('hipHop',2*(1-p.hopT/0.12));if(p.spinSq>0)add('hipSpin',2*(1-p.spinSq/0.16));
+   p.rig.scale.set(x,y,z);}
   // reeling from a hit: the head snaps up and back, then settles
-  if(p.knockT>0&&p.state==='walk'){const kk=Math.sin(Math.min(1,p.knockT/0.5)*Math.PI);p.rig.rotation.x-=0.4*kk;p.rig.rotation.z+=0.12*kk;}
+  if(p.knockT>0&&p.state==='walk'){const H=hipAt('hipKnock',2*(1-Math.min(1,p.knockT/0.5)));p.rig.rotation.x+=H[HC.pitch];p.rig.rotation.z+=H[HC.roll];}
   // ground-pound pose: body stood straight up on its rump, centred over the hippo
   const pk=p.poundK||0;
   if(pk>0){
@@ -694,7 +708,7 @@ function movePlayer(p,dt){
     if(p.wigK>0){p.wigT=(p.wigT||0)+dt;const wk=p.wigK*p.wigK*(3-2*p.wigK);
       p.legs.forEach((l,i)=>{const ph=p.wigT*4.2+i*1.7;l.rotation.x+=Math.sin(ph)*0.28*wk;l.rotation.z+=Math.sin(ph*0.7+i)*0.1*wk;});}
     else p.wigT=0;
-    if(p.state==='poundLand'&&p.t<0.16){const q=Math.sin(p.t/0.16*Math.PI);p.rig.scale.set(1+0.18*q,1+0.12*q,1-0.24*q);}
+    if(p.state==='poundLand'&&p.t<0.16){const H=hipAt('hipPoundLand',2*p.t/0.16);p.rig.scale.set(1+H[HC.sx],1+H[HC.sy],1+H[HC.sz]);}
   } else p.rig.position.z=-0.85;
   // the somersault turns about his middle (not his hips): the rig is moved each frame so the centre of his body stays
   // put while he rolls -- easing from where it sits standing to where it sits rump-down -- and it dips a little and
@@ -707,10 +721,10 @@ function movePlayer(p,dt){
   }
   // the roll: curled up into a ball (legs tucked under, head down, a little squashed) and turning one full forward
   // somersault about the middle of his body
-  {const D=p.dodge&&p.dodge.roll?p.dodge:null,u=D?Math.min(1,D.t/D.dur):1,ss=(a,b,x)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t);};
-   const curl=D?ss(0,0.18,u)*(1-ss(0.82,1,u)):0;p.rlK=(p.rlK||0)+(curl-(p.rlK||0))*Math.min(1,dt*20);
+  {const D=p.dodge&&p.dodge.roll?p.dodge:null,u=D?Math.min(1,D.t/D.dur):1,
+   H=D?hipAt('hipRoll',2*u):null,curl=D?H[HC.curl]:0;p.rlK=(p.rlK||0)+(curl-(p.rlK||0))*Math.min(1,dt*20);
    p.head.position.set(0,1.55,1.2);
-   if(D||p.rlK>0.01){const c=p.rlK,a=D?Math.PI*2*ss(0.06,0.94,u):0;
+   if(D||p.rlK>0.01){const c=p.rlK,a=D?H[HC.spin]:0;
      p.legs.forEach((l,i)=>{l.rotation.x=l.rotation.x*(1-c)+(i<2?1.25:-1.25)*c;l.rotation.z*=1-c;});
      p.head.position.set(0,1.55-0.35*c,1.2-0.55*c);p.tail.rotation.x+=0.8*c;   // (the head tucked right in, chin to chest)p.rig.scale.y*=1-0.12*c;p.rig.scale.z*=1-0.1*c;
      const cy=1.3,cz=0.85;p.rig.rotation.x+=a;p.rig.position.y+=cy-(cy*Math.cos(a)-cz*Math.sin(a));p.rig.position.z+=cz-(cy*Math.sin(a)+cz*Math.cos(a));}}
@@ -766,9 +780,9 @@ function movePlayer(p,dt){
   // crash landing: all four legs splay flat out (front ones forward, hind ones back, all out to the sides), the body
   // drops onto its belly and squashes flat for a moment, then he pushes himself back up
   p.crashT=Math.max(0,(p.crashT||0)-dt);
-  if(p.crashT>0){const e=CRASH_T-p.crashT,k0=e<0.05?e/0.05:e<0.2?1:Math.max(0,1-(e-0.2)/0.3),k=k0*k0*(3-2*k0);
-    p.legs.forEach((l,i)=>{const side=i%2?1:-1,front=i<2;l.rotation.z+=side*1.05*k;l.rotation.x+=(front?-0.45:0.45)*k;});
-    p.rig.position.y-=0.42*k;p.rig.scale.x*=1+0.16*k;p.rig.scale.z*=1+0.1*k;p.rig.scale.y*=1-0.24*k;p.head.rotation.x+=0.12*k;}
+  if(p.crashT>0){const H=hipAt('hipCrash',2*(CRASH_T-p.crashT)/CRASH_T);
+    p.legs.forEach((l,i)=>{l.rotation.z+=H[HC_OUT[i]];l.rotation.x+=H[HC_LEG[i]];});
+    p.rig.position.y+=H[HC.lift];p.rig.scale.x*=1+H[HC.sx];p.rig.scale.z*=1+H[HC.sz];p.rig.scale.y*=1+H[HC.sy];p.head.rotation.x+=H[HC.head];}
   // dodging: he ducks low, leans hard the way he's going (rolling onto his side for a sidestep, tipping back for a
   // backstep), and tucks his legs up under him for the hop; it all eases off as he lands
   // (the pose follows a smooth bell over the dodge -- in over its first third, out over its last half -- eased in and out on
@@ -812,35 +826,20 @@ function movePlayer(p,dt){
   p.head.rotation.y=0;
   // the light-attack combo: 1st bite swings in from the left, 2nd from the right, the 3rd dips the head and uppercuts
   if(p.biteT>0){
-    const D=p.biteDur||0.3;p.biteT-=dt;const k=Math.min(1,Math.max(0,1-p.biteT/D)),sm=x=>{x=Math.max(0,Math.min(1,x));return x*x*(3-2*x);};
-    if(p.biteStep===2){
-      const dip=sm(k/0.38),up=sm((k-0.4)/0.16),back=sm((k-0.7)/0.3);
-      p.head.rotation.x+=0.42*dip*(1-up)-0.6*up*(1-back);
-      p.rig.rotation.x+=0.09*dip*(1-up)-0.26*up*(1-back);
-      p.jaw.rotation.x=Math.max(jawOpen,k<0.42?1.05*sm(k/0.3):1.05*(1-sm((k-0.42)/0.12)));
-    } else {
-      // a straight snap timed to the end of the lurch: the jaws gape as he surges forward, then slam shut
-      // on impact (k~0.7) with a quick jab of the head
-      const open=sm(k/0.6),shut=sm((k-0.69)/0.1),jab=Math.exp(-Math.pow((k-0.79)/0.07,2));
-      p.jaw.rotation.x=Math.max(jawOpen,1.0*open*(1-shut));
-      p.head.rotation.x+=0.1*open*(1-shut)-0.16*jab;p.rig.rotation.x+=0.05*jab;
-    }
+    const D=p.biteDur||0.3;p.biteT-=dt;const k=Math.min(1,Math.max(0,1-p.biteT/D));
+    // the 3rd dips the head then uppercuts (hipUpper); the others are a straight snap timed to the end of the lurch, the
+    // jaws gaping as he surges forward, then slamming shut on impact with a quick jab of the head (hipBite1, hipBite2:
+    // the same but for which pair of legs steps; a bite in the air is hipBite1 without the legs)
+    const H=hipAt(p.biteStep===2?'hipUpper':p.biteStep===1?'hipBite2':'hipBite1',2*k);
+    p.jaw.rotation.x=Math.max(jawOpen,H[HC.jaw]);p.head.rotation.x+=H[HC.head];p.rig.rotation.x+=H[HC.pitch];p.rig.rotation.z+=H[HC.roll];
     // ground combo: every hit is one step. Hits 1 and 2 step with alternate diagonal pairs; the uppercut
     // plants both front feet forward and drives off the back ones
+    // (the legs blend from wherever they were, mid-stride or standing, into the step by legW; the stepping pair swings
+    // from behind to in front, the other pushes back)
     if(p.biteStep>=0&&p.grounded){
-      const lk=p.biteStep===2?0.63:0.78,st=sm(k/lk),lift=Math.sin(Math.min(1,k/lk)*Math.PI),settle=1-sm((k-lk)/(1-lk));   // timed to the lurch
-      const L=p.legs;
-      // blend from wherever the legs were (mid-stride, standing) into the step over the first moments
-      const ein=sm(k/0.2),L0=p.biteLeg0||[0,0,0,0],set=(i,v)=>{L[i].rotation.x=L0[i]+(v-L0[i])*ein;};
-      if(p.biteStep===2){
-        for(const i of[0,1])set(i,(0.25-0.75*st)*settle);for(const i of[2,3])set(i,(0.45*st)*settle);
-      } else {
-        const A=p.biteStep===0?[0,3]:[1,2],B=p.biteStep===0?[1,2]:[0,3];
-        // stepping pair swings from behind to in front (front leg reaches, hind leg follows); the other pair pushes back
-        for(const i of A)set(i,(0.35-0.8*st)*settle-0.15*lift);
-        for(const i of B)set(i,(-0.1+0.35*st)*settle);
-      }
-      p.rig.position.y+=0.06*lift;
+      const L=p.legs,w=H[HC.legW],L0=p.biteLeg0||[0,0,0,0];
+      for(let i=0;i<4;i++){L[i].rotation.x=L0[i]+(H[HC_LEG[i]]-L0[i])*w;L[i].rotation.z+=H[HC_OUT[i]];}
+      p.rig.position.y+=H[HC.lift];
     }
     if(p.biteT<=0){const mid=ABIL.biteCombo&&p.biteStep>=0&&p.biteStep<2;p.comboWin=mid?0.4:0;p.comboLockT=mid?0.08:0;}   // window to chain the next hit; only a brief root   // a short window to carry on into the next hit
   }

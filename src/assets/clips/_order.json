@@ -27,6 +27,16 @@
     "vrMag",
     "vrPistol",
     "vrShells",
-    "vrTube"
+    "vrTube",
+    "hipBite1",
+    "hipBite2",
+    "hipUpper",
+    "hipCrash",
+    "hipLand",
+    "hipHop",
+    "hipSpin",
+    "hipKnock",
+    "hipPoundLand",
+    "hipRoll"
   ]
 }

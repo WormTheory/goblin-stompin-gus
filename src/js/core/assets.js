@@ -10,7 +10,7 @@
 //   bolt, pump, slide), r:[x,y,z] (tilted, radians), sh (a shape other than a box: 'cyl', 'cone', 'wedge', 'sphere', each
 //   filling the box's size)}.
 // A clip: {layout, tracks:{channel:[[u, value, ease?],...],...}}: a track of keys per channel, its layout naming them in
-//   order (ASSET_LAYOUTS), u 0 to 2; ease 'i' (gathering speed) or 'o' (slowing), or none (smooth).
+//   order (ASSET_LAYOUTS), u 0 to 2; ease 'i' (gathering speed), 'o' (slowing), 'l' (steady) or none (smooth).
 const ASSET_LAYOUTS={
   // a goblin's blow, shot, throw or reload as anyone sees it, u 0 to 2, the blow landing at 1 (strikes.js)
   body:{about:'A goblin, as everyone sees it',ch:[['arm',"Arm's swing"],['armOut','Arm out to the side'],['wrist','Wrist'],['free',"Free arm's swing"],
@@ -18,10 +18,18 @@ const ASSET_LAYOUTS={
   // Gnash's and Grizzle's own arm in first person (the roll is left off a clip that never rolls)
   vm:{about:'First person: the weapon arm',ch:[['tilt','Tilt'],['across','Across'],['up','Up'],['fwd','Forward'],['roll','Roll']],min:4},
   // a reload in first person, added to where the gun's held
-  vr:{about:'First person: a reload',ch:[['tilt','Tilt'],['roll','Roll'],['across','Across'],['up','Up'],['fwd','Forward'],['mag','Magazine out (0 home, 1 gone)']],min:6}};
+  vr:{about:'First person: a reload',ch:[['tilt','Tilt'],['roll','Roll'],['across','Across'],['up','Up'],['fwd','Forward'],['mag','Magazine out (0 home, 1 gone)']],min:6},
+  // the hippos' timed moves (player/move.js: a bite, the uppercut, a crash landing, squash and stretch, the roll, reeling
+  // from a hit), u 0 to 2 over each one's own length. Every channel's there (one key of 0 when a clip doesn't use it);
+  // each is added to the pose the hippo's in at that moment, except the jaw (opened at least this far), the legs during
+  // a bite (taken over by legW, from where they were as it began) and the roll's curl and spin (read by the roll's own sums)
+  hippo:{about:'A hippo (Gus and Gertie)',ch:[['head','Head'],['jaw','Jaw open'],['pitch','Body pitch'],['roll','Body roll'],['lift','Body up'],
+    ['sx','Wider'],['sy','Taller'],['sz','Longer'],['legFR','Front right leg'],['legFL','Front left leg'],['legBR','Back right leg'],['legBL','Back left leg'],
+    ['outFR','Front right leg out'],['outFL','Front left leg out'],['outBR','Back right leg out'],['outBL','Back left leg out'],['legW','Legs taken over'],
+    ['curl','Curl (the roll)'],['spin','Somersault (the roll)']],min:19}};
 const ASSET_SHAPES=['box','cyl','cone','wedge','sphere'];
 const ASSET_ROLES={club:null};   // ('@club' is null in a weapon's list: wpnBoxes paints it the goblins' club colour, GC.club)
-const assetLayoutOf=name=>/^vm/.test(name)?'vm':/^vr/.test(name)?'vr':'body';
+const assetLayoutOf=name=>/^vm/.test(name)?'vm':/^vr/.test(name)?'vr':/^hip/.test(name)?'hippo':'body';
 // a box -> the list the game reads, [w,h,d,colour,x,y,z(,role or render order(,tag))], with r and sh hung on the list itself
 function assetBox(b){
   const c=typeof b.c==='string'&&b.c[0]==='@'?(ASSET_ROLES[b.c.slice(1)]??null):typeof b.c==='string'?parseInt(b.c.slice(1),16):b.c;
@@ -105,11 +113,13 @@ function assetClipOf(name,T){
 function assetPoseAt(c,u){
   u=Math.max(0,Math.min(2,u));
   return assetChNames(c).map(k=>{const K=c.tracks[k];if(K.length<2)return K[0][1];let i=1;while(i<K.length-1&&K[i][0]<u)i++;
-    const a=K[i-1],b=K[i],s=Math.max(0,Math.min(1,(u-a[0])/(b[0]-a[0]))),e=b[2],q=e==='i'?s*s:e==='o'?1-(1-s)*(1-s):s*s*(3-2*s);return a[1]+(b[1]-a[1])*q;});
+    const a=K[i-1],b=K[i],s=Math.max(0,Math.min(1,(u-a[0])/(b[0]-a[0]))),e=b[2],q=e==='i'?s*s:e==='o'?1-(1-s)*(1-s):e==='l'?s:s*s*(3-2*s);return a[1]+(b[1]-a[1])*q;});
 }
 // the tables, from ASSETS (files in the order their _order.json gives)
 function assetWeaponsAll(A){const o={};for(const k in A.weapons)o[k]=assetWeapon(A.weapons[k]);return o;}
-function assetClipsAll(A){const o={};for(const k in A.clips)o[k]=assetClip(A.clips[k]);return o;}
+function assetClipsAll(A){const o={};for(const k in A.clips)if(A.clips[k].layout!=='hippo')o[k]=assetClip(A.clips[k]);return o;}
+// (the hippos' clips: HCLIP in move.js, read by hipAt)
+function assetHipAll(A){const o={};for(const k in A.clips)if(A.clips[k].layout==='hippo')o[k]=assetClip(A.clips[k]);return o;}
 
 // ---- the hippos' moves (player/hitboxes.js): one file per move, its numbers and its own hitboxes ----
 // A move: {name, params:{key:{name, v (the value), min, max, step}}, smash:{shape, size, name} (what it does to blocks: shape
@@ -222,7 +232,7 @@ function assetCheck(kind,name,a){
           if(!Array.isArray(q)||q.length<2||q.length>3)return E.push(at+': a key is [time, value] or [time, value, ease]');
           if(!n(q[0])||q[0]<0||q[0]>2)E.push(at+': time must be a number from 0 to 2');else{if(q[0]<=t0)E.push(at+': keys must be in time order, no two at once');t0=q[0];}
           if(!n(q[1]))E.push(at+': value must be a number');
-          if(q.length>2&&q[2]!=='i'&&q[2]!=='o')E.push(at+": ease must be 'i', 'o' or left out");});}}
+          if(q.length>2&&q[2]!=='i'&&q[2]!=='o'&&q[2]!=='l')E.push(at+": ease must be 'i', 'o', 'l' or left out");});}}
     if(a.events!==undefined)E.push('events are no longer used: the hitboxes of a blow and when they hurt are on its weapon (hit.hitboxes, t)');
   }else if(kind==='grips'){
     // (enemies/grip.js: sh the weapon hand's spot, out how far along the gun from it, fore [aimed, carried] how far along
