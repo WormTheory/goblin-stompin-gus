@@ -224,7 +224,7 @@ function footprint(p){
 }
 function placePlayer(p,pos){
   p.pos.copy(pos);p.state='walk';p.t=0;p.vy=0;p.peakY=pos.y;p.hurt=0;p.biteT=0;p.hp=20;p.stam=100;p.exhausted=false;p.lungeT=0;p.biteHit=false;p.deadT=0;p.regenT=0;
-  p.root.visible=true;p.root.rotation.set(0,0,0);p.head.rotation.x=0;for(const l of p.legs)l.rotation.set(0,0,0);p.corpse=null;p.mvx=p.mvz=0;
+  p.root.visible=true;p.root.rotation.set(0,0,0);p.head.rotation.x=0;for(const l of p.legs)l.rotation.set(0,0,0);p.corpse=null;p.mvx=p.mvz=0;p.trK=0;   // (trK: no sprint carried over from before, nor its rush)
   p.pos.y=footprint(p)??p.pos.y;p.cam.yaw=p.heading+Math.PI;p.cam.pitch=-0.3;
 }
 function activateP2(){

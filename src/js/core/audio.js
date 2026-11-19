@@ -73,7 +73,7 @@ function woosh(vol,dur,f0,f1,delay=0){if(SBX)return;if(!audio)return;if(DT.sndLi
 // One looping noise source per hippo, filtered and faded in and out each frame.
 function poundWoosh(p){
   // (it starts with the flip itself, so even a pound from an ordinary jump gets its whoosh)
-  const on=p.state==='pound'&&!p.pHover&&playing&&!p.paused;
+  const on=p.state==='pound'&&!p.pHover&&!p.drv&&p.active&&playing&&!p.paused;
   if(!audio){return;}
   if(on&&!p.wsh){try{
     const len=audio.sampleRate*2|0,buf=audio.createBuffer(1,len,audio.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<len;i++)ch[i]=Math.random()*2-1;
@@ -90,7 +90,9 @@ function poundWoosh(p){
 }
 // running (trample, or the plain sprint): a light, steady rush of air while he's going, swelling a touch on each stride
 function runWoosh(p){
-  const on=(p.trK||0)>0.05&&p.state==='walk'&&p.grounded&&playing&&!p.paused&&!SBX;
+  // (only on foot: in a vehicle movePlayer isn't run, so trK would stay where it was the moment he got in and the rush
+  // with it. Online, other players' p.drv comes from the snapshots, so theirs stop too)
+  const on=(p.trK||0)>0.05&&p.state==='walk'&&p.grounded&&!p.drv&&p.active&&playing&&!p.paused&&!SBX;
   if(!audio)return;
   if(on&&!p.rwsh){try{
     const len=audio.sampleRate*2|0,buf=audio.createBuffer(1,len,audio.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<len;i++)ch[i]=Math.random()*2-1;
