@@ -80,6 +80,11 @@ const g=T.freeFoe('thief',8);T.foeSpawn(g,'thief',null,0);g.pos.set(X0+0.5,F,Z0+
  const g2=T.freeFoe('thief',8);T.foeSpawn(g2,'thief',null,0);g2.pos.set(A.pos.x,F,A.pos.z+1.6);g2.arms=Object.assign({},T.FOES.thief,{weapons:['nuke']});g2.state='dead';T.gobDrop(g2);
  const lv=pu.filter(q=>q.live&&q.k==='nuke').length;g2.state='wait';g2.root.visible=false;for(let i=0;i<60;i++){A.pos.z+=0.03;S(1);}
  console.log('dropped by an enemy:',lv,', picked up',A.wpns.includes('nuke'),', loaded',ammo(),', spare',spare());}
+// the debug menu's Nuke strength: a step down from the weapon's own, then set low, the next warhead's blast that reach
+{const st=E('dbgStep');st('nukeR',-1);const a=E('dbgVal')('nukeR');T.DT.nukeR=0;st('nukeR',99);const top=E('dbgVal')('nukeR');T.DT.nukeR=0;st('nukeR',-99);const lo=E('dbgVal')('nukeR');
+ T.DT.nukeR=24;home(0);A.wpn='nuke';A.ammo.nuke=1;A.relT=0;A.cam.pitch=0.5;S(2);press(2);S(2);let m=0;while(T.SHOTS.some(q=>q.live&&q.kind==='nuke')&&m<900){S(1);m++;}
+ const C=craters()[craters().length-1];settle();floor();T.DT.nukeR=0;
+ console.log('Nuke strength: one step down',a,', the most',top,', the least',lo,'| set to 24, the next blast',C&&C.R);}
 // fired at a wall just ahead: he's in it
 {home();floor();for(let y=0;y<4;y++)for(let v=-2;v<=2;v++)T.setRaw(X0+v,F+y,Z0+5,STONE);A.ammo.nuke=1;A.relT=0;A.hp=20;S(2);press(2);S(30);settle();
  console.log('fired at a wall 5 ahead: Gnash',A.state,', hp',A.hp);}

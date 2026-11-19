@@ -113,8 +113,10 @@ function updateShots(dt){
 // a nuke's warhead landing: a big blast (big-blast.js) at street level under it, or lower if it's come down in a
 // hole. Its goblin kills are the weapon's (so they count as the player's), and with PvP on a player it kills is blamed on
 // whoever fired it; the one who fired it is caught in it like anyone else
+// (its reach: the debug menu's Nuke strength if it's been set, else the warhead's own: options-debug.js)
+const nukeR=()=>DT.nukeR||WEAPONS.nuke.nuke;
 function shotNuke(S){
-  const J=bigBlast(S.pos.x,Math.max(1,Math.min(Math.round(S.pos.y),G+1)),S.pos.z,S.bb);
+  const J=bigBlast(S.pos.x,Math.max(1,Math.min(Math.round(S.pos.y),G+1)),S.pos.z,DT.nukeR||S.bb);
   if(J&&J.C){J.by=S.by;J.cause=S.cause;}}
 // a homing missile (a Mobile Gear's): for a moment it flies as launched, then speeds up to S.sp and turns, at most
 // S.turn a second, after its target (S.tgt, while it lives) or the spot it was sent at (S.at). True once it's on
