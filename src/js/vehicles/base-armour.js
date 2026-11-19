@@ -167,7 +167,9 @@ function updateHeli(M,V,dt){
   else if(M.state==='home'){const d=Math.hypot(M.home.x-M.x,M.home.z-M.z);ty=d>3?Math.max(M.y,G+14):G+1;if(d<3&&M.y<G+1.2){M.state='park';M.y=G+1;M.x=M.home.x;M.z=M.home.z;}face=d>3?Math.atan2(tx-M.x,tz-M.z):M.home.h;}
   else{tx=M.x;tz=M.z;ty=M.y;if(M.state==='idle'){ty=groundAt(M.x,M.z,M.y+1);face=M.h;}}   // (left by a goblin who flew it: it settles where it is)
   // flying: easing toward where it wants to be, never faster than 12 a second, tipped a little the way it's going
-  const dx=tx-M.x,dz=tz-M.z,dh=Math.hypot(dx,dz),sp=Math.min(12,dh*0.8),vx=dh>0.01?dx/dh*sp:0,vz=dh>0.01?dz/dh*sp:0;
+  const dx=tx-M.x,dz=tz-M.z,dh=Math.hypot(dx,dz),sp=Math.min(12,dh*0.8);let vx=dh>0.01?dx/dh*sp:0,vz=dh>0.01?dz/dh*sp:0;
+  // (a building or hill ahead: it climbs over it, holding back till it's high enough; see heliAvoid)
+  if(M.spin>0.8&&M.state!=='idle'){const top=heliAvoid(M,vx,vz,sp,dt);if(top){ty=Math.max(ty,top);if(M.y<top-1.5){vx*=0.12;vz*=0.12;}}}
   if(M.spin>0.8||M.state==='home'){M.vy=0;const stuck=milBlocked(M,M.x,M.z,M.h,M.y),ny=M.y+Math.max(-5*dt,Math.min(5*dt,ty-M.y));   // (it won't fly into another vehicle)
     if(stuck||!milBlocked(M,M.x+vx*dt,M.z+vz*dt,M.h,M.y)){M.x+=vx*dt;M.z+=vz*dt;}
     if(stuck||!milBlocked(M,M.x,M.z,M.h,ny))M.y=ny;}
@@ -179,6 +181,16 @@ function updateHeli(M,V,dt){
   milPlace(M);milBoxes(M,sp);milShove(M);
   if(M.spin>0.3&&audio&&playing&&n&&n.d<90){M.thT=(M.thT||0)-dt;if(M.thT<=0){M.thT=0.11;sfx('Helicopter rotor',()=>noise(0.08,0.05*M.spin*(1-n.d/90),180,'lowpass'));}}   // (the thud of its rotor)
 }
+// a base helicopter's look ahead (the same pilots' look-ahead as a carrier's jets: carrier-jets.js): along the way it's
+// going, at its skids and its rotor; seen something, it finds the top of it and wants to be a few blocks over that.
+// Returns that height while it's dealing with it, else 0
+function heliAvoid(M,vx,vz,sp,dt){
+  const A=airAvOf(M);A.t-=dt;if(A.rt>=0){A.rt-=dt;if(A.rt<0)A.t=AIR_AV.hold;}
+  if((A.cd-=dt)<=0&&sp>0.5){A.cd=AIR_AV.look*1.5;const ux=vx/sp,uz=vz/sp,d=Math.max(6,sp*(1+A.k));
+    const k=airRay(M.x,M.y+2.6,M.z,ux,0,uz,d,1.5)||airRay(M.x,M.y+0.2,M.z,ux,0,uz,d,1.5);
+    if(k&&(A.t>0||Math.random()>AIR_AV.miss*(1.3-A.k))){const gx=M.x+ux*(k+0.5),gz=M.z+uz*(k+0.5),top=groundAt(gx,gz,Math.min(H-2,M.y+60))+4;
+      A.top=A.t>0||A.rt>=0?Math.max(A.top,top):top;airAvSaw(A);}}
+  return A.t>0?A.top:0;}
 function milHit(M,n,dir){
   const r=vehDamage(M.kind,M,n);if(!r)return;const I=MIL[M.kind];M.hurt=0.2;M.jolt=0.3;   // (the steps every vehicle shares, the impact too: registry.js)
   if(!M.V.alert&&!calmNow())milAlert(M.V,(nearestPlayer(M.x,M.z)||{}).p);   // (shot at, the whole base wakes up)

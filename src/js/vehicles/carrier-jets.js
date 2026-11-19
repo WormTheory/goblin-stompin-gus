@@ -81,6 +81,51 @@ function jetTrapTick(pl,dt){const F=pl.free;F.thr=0;F.v=Math.max(0,F.v-Math.max(
 // the pilot goes below. Its flying is steered directly (jetFly) rather than through the stick, so it holds a line well
 // enough to land on a moving ship ----
 const JET_AI={cruise:85,attack:72,approach:44,turn:0.85,sortie:75,rest:15,tow:5,gs:0.065,min:12};
+// ---- AI aircraft seeing something in their way (a carrier's jets, a base's helicopters): a pilot looks ahead along
+// where it's going and pulls up, banks away or (a helicopter) climbs over it. Not perfectly: each pilot has their own
+// knack (k, 0.55 to 1: how far ahead they look and how quick they are), looks only every so often, can miss what's
+// there, and takes a moment to react, so now and then one still flies into something. Cheap: a handful of block
+// lookups a few times a second each, more only once something's seen ----
+const AIR_AV={look:0.18,miss:0.3,react:[0.15,0.5],hold:1.1,jetT:[1.3,2.4]};
+// solid there? Only what's already been built (a chunk not made yet counts as clear, so looking never makes the world),
+// and a point out in the world near a ship is looked for in its pocket too, so a jet coming at a carrier sees its
+// island before it's over the hull
+function airSolid(x,y,z){
+  if(y>=H)return false;const xi=Math.floor(x),zi=Math.floor(z),yi=Math.floor(y);
+  if(chunks.has(ckey(Math.floor(xi/CS),Math.floor(zi/CS)))&&solidAt(xi,yi,zi))return true;
+  if(x<SHIP_X0)for(const S of SHIPS){if(!S||Math.abs(x-S.x)>220||Math.abs(z-S.z)>220)continue;
+    const o=worldToShip(S,x,z,_avP),ox=Math.floor(o.x),oz=Math.floor(o.z);
+    if(chunks.has(ckey(Math.floor(ox/CS),Math.floor(oz/CS)))&&solidAt(ox,Math.floor(y+S.sk),oz))return true;}
+  return false;}
+const _avP={x:0,z:0};
+// along a line from x,y,z (dx,dy,dz a unit direction), a point every st blocks out to distance d (close enough not to
+// step over a tower): how far to the first solid one, or 0
+function airRay(x,y,z,dx,dy,dz,d,st){for(let k=st;k<=d;k+=st)if(airSolid(x+dx*k,y+dy*k,z+dz*k))return k;return 0;}
+// a pilot's look-ahead state (o.av), made the first time it's needed, with their own knack
+function airAvOf(o){return o.av||(o.av={k:0.55+Math.random()*0.45,cd:Math.random()*AIR_AV.look,t:0,rt:-1,side:0,up:0,top:0});}
+// (seen it: acts after a moment, unless it's already acting, when it just keeps at it)
+function airAvSaw(A){if(A.t>0){A.t=AIR_AV.hold;return;}if(A.rt<0)A.rt=AIR_AV.react[0]+(AIR_AV.react[1]-AIR_AV.react[0])*Math.random()*(1.45-A.k);}
+// a jet's look ahead, from jetSteer: where it'll be in the next second or two along its heading h and climb. Seen
+// something, it picks whichever of climbing or a hard bank either way looks clearest (climbing if it's a tie) and
+// returns {hw,gw} to fly instead for a moment; null when there's nothing to do
+function jetAvoid(pl,h,dt){
+  const F=pl.free,P=pl.g.position,A=airAvOf(pl);A.t-=dt;
+  if(A.rt>=0){A.rt-=dt;if(A.rt<0)A.t=AIR_AV.hold;}
+  if((A.cd-=dt)<=0){A.cd=AIR_AV.look;
+    const d=Math.max(30,F.v*(AIR_AV.jetT[0]+(AIR_AV.jetT[1]-AIR_AV.jetT[0])*A.k)),c=Math.cos(F.gm);
+    if(airRay(P.x,P.y,P.z,Math.sin(h)*c,Math.sin(F.gm),Math.cos(h)*c,d,3)&&(A.t>0||Math.random()>AIR_AV.miss*(1.3-A.k))){
+      if(A.t<=0&&A.rt<0){   // (which way out: up, or a turn either way; the further each looks clear, the better)
+        const ray=(hh,g)=>airRay(P.x,P.y,P.z,Math.sin(hh)*Math.cos(g),Math.sin(g),Math.cos(hh)*Math.cos(g),d,4)||d*1.5,
+          u=ray(h,0.5)*1.1,l=ray(h-0.8,0),r=ray(h+0.8,0);
+        A.up=u>=Math.max(l,r)?1:0.3;A.side=l>r?-1:r>l?1:(Math.random()<0.5?-1:1);if(A.up===1&&u>=d*1.5)A.side*=0.3;}
+      airAvSaw(A);}}
+  if(A.t<=0)return null;
+  return{hw:h+A.side*2,gw:A.up===1?0.5:Math.max(0.12,F.gm)};}
+// which way to pull away after a pass: straight on if that looks clear, else the nearest turn either way that does (a
+// pilot who doesn't think to look, now and then, just goes straight on)
+function jetBreakHdg(pl,h){const P=pl.g.position,A=airAvOf(pl);if(Math.random()<AIR_AV.miss*(1.3-A.k))return h;
+  for(const o of [0,0.6,-0.6,1.2,-1.2,1.9,-1.9])if(!airRay(P.x,P.y,P.z,Math.sin(h+o)*0.96,0.28,Math.cos(h+o)*0.96,140,4))return h+o;
+  return h;}
 // (a carrier jet's own place: where it's parked, and is it there?)
 function jetHomeAt(pl){const [s,w,h]=CV_JETS[pl.home],S=pl.S;return{x:S.ox-s+0.5,z:S.oz+w+0.5,h};}
 function jetAtHome(pl){if(pl.free&&(pl.free.air||pl.free.v>0.3))return false;const H=jetHomeAt(pl),P=pl.g.position;return Math.hypot(P.x-H.x,P.z-H.z)<1.5&&Math.abs(P.y-(G+17))<0.3;}
@@ -118,7 +163,8 @@ function jetFly(pl,tx,ty,tz,sp,dt){const P=pl.g.position,dx=tx-P.x,dz=tz-P.z;
 // to a deck at the end of a landing (final: its own rule)
 function jetSteer(pl,hw,gw,sp,dt,final){
   const F=pl.free,g=pl.g,P=g.position;let h=g.rotation.y;
-  const tr=Math.max(-JET_AI.turn,Math.min(JET_AI.turn,angDiff(h,hw)*1.6));h+=tr*dt;
+  const av=final?null:jetAvoid(pl,h,dt);if(av){hw=av.hw;gw=Math.max(gw,av.gw);}   // (something in the way: out of it)
+  const tm=av?JET_AI.turn*1.3:JET_AI.turn,tr=Math.max(-tm,Math.min(tm,angDiff(h,hw)*1.6));h+=tr*dt;
   F.rl+=(Math.max(-1.1,Math.min(1.1,tr*1.2))-F.rl)*Math.min(1,dt*3);
   if(!final&&P.y+Math.min(0,F.vy)*2<G+JET_AI.min-2)gw=Math.max(gw,0.3);   // (too low and sinking: pull up)
   F.gm+=(gw-F.gm)*Math.min(1,dt*2.5);
@@ -151,11 +197,11 @@ function jetAI(pl,dt){
   if(A.ph==='fight'){
     const Q=jetQuarry(pl);if(!Q){A.ph='back';return true;}
     const floor=Math.max(G+JET_AI.min,(shipOfPos(Q.x,Q.z)||Q.x>=SHIP_X0?G+30:G+JET_AI.min));
-    if(A.ext>0){A.ext-=dt;const h=g.rotation.y;return jetFly(pl,P.x+Math.sin(h)*200,G+55,P.z+Math.cos(h)*200,JET_AI.cruise,dt);}
+    if(A.ext>0){A.ext-=dt;const h=A.exh!==undefined?A.exh:g.rotation.y;return jetFly(pl,P.x+Math.sin(h)*200,G+55,P.z+Math.cos(h)*200,JET_AI.cruise,dt);}
     const ok=jetFly(pl,Q.x,Math.max(floor,Q.y+4),Q.z,Q.d<300?JET_AI.attack:JET_AI.cruise,dt);if(!ok)return true;
     // (lined up on them: the cannon close in, a missile from further off; too close, pull up and away and come round)
     const h=g.rotation.y,dx=Q.x-P.x,dy=Q.y+1-P.y,dz=Q.z-P.z,L=Math.hypot(dx,dy,dz)||1,cosA=(dx*Math.sin(h)*Math.cos(F.gm)+dy*Math.sin(F.gm)+dz*Math.cos(h)*Math.cos(F.gm))/L;
-    if(Q.d<55){A.ext=3.5;return true;}
+    if(Q.d<55){A.ext=3.5;A.exh=jetBreakHdg(pl,h);return true;}
     if(cosA>0.985&&L<170&&pl.wpn.gun.n>0)jetAIGun(pl,Q,dt);
     if(cosA>0.9&&L>70&&L<280&&A.mcd<=0&&P.x<SHIP_X0&&wpnFire(pl,'rkt')){A.mcd=6;jetAIMissile(pl,Q.q);}
     return true;}

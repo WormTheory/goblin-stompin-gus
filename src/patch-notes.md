@@ -246,6 +246,12 @@
 - A wreck always comes to rest on whatever's under it, and if that's blown away later, down it drops. Anything carried on a wrecked forklift's forks comes down too.
 - A train that loses a car grinds to a stop over a longer distance, as befits something that heavy.
 
+### Pilots watch where they're going
+
+- The aircraft carrier's fighter jets look ahead now and pull up or bank away from what's in front of them: the carrier's island, buildings, hills. Pulling away after a pass, they turn toward open sky instead of straight on into whatever's there.
+- The military bases' helicopters climb over buildings and hills in their way instead of flying through them.
+- They're not perfect: each pilot has their own skill, and now and then one reacts too late or doesn't see it, so you'll still see the odd jet hit the island.
+
 ### Map markers
 
 - Mark a spot on the map: click it on the pause menu's Map tab (tap it on a touch screen; on a controller, pan the crosshair over it and press Y). A pin goes there and shows on your minimap too, or, while it's off the minimap's edge, an arrow on the rim points the way with how far it is. Click the pin again to take it away, or somewhere else to move it.
