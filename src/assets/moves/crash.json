@@ -1,0 +1,9 @@
+{
+  "name": "Crash landing",
+  "params": {
+    "dmg": {"name":"Damage to enemies (+1.6 per block fallen)","v":3,"min":0,"max":100,"step":1},
+    "carMul": {"name":"Damage to cars (× enemy damage)","v":0.8,"min":0,"max":3,"step":0.05},
+    "hitR": {"name":"Hit radius (+0.35 per block fallen)","v":2.5,"min":0.5,"max":30,"step":0.1}
+  },
+  "smash": {"shape":"orig","size":1,"name":"Crater size"}
+}

@@ -1,0 +1,27 @@
+{
+  "order": [
+    "walk",
+    "dodge",
+    "trample",
+    "jump",
+    "djump",
+    "longJump",
+    "roll",
+    "blastDash",
+    "blastAirDash",
+    "blastJump",
+    "dash",
+    "bite",
+    "bite2",
+    "upper",
+    "airBite",
+    "stomp1",
+    "stomp2",
+    "groundSpike",
+    "stomp3",
+    "pound",
+    "pound2",
+    "pound3",
+    "crash"
+  ]
+}

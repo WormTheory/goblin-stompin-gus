@@ -1,45 +1,17 @@
-// ---- the Dev tab's ability tuning: every number the hippos' moves use that's worth adjusting, with its default.
-// AB[ability][param] is read by the moves themselves; changes are kept in the browser. blk: what it smashes (shape
-// 'orig' = the move's own hand-made shape, scaled by size; or a sphere/cube/cone of that radius) ----
-const DEV_ABIL=[
-  {k:'walk',n:'Walk',ps:[['speed','Movement speed',4.2,0.5,20,0.1]]},
-  {k:'dodge',n:'Dash',ps:[['dist','Movement distance',4,0.5,20,0.1],['speed','Movement speed',14,2,60,0.5],['stamina','Stamina cost',12,0,100,1]]},
-  {k:'trample',n:'Trample (charge run)',ps:[['dmg','Damage to enemies',5,0,100,1],['carDmg','Damage to cars',6,0,100,1],['hitR','Hit radius',1.6,0.3,10,0.1],['stamina','Stamina cost (per second)',20.2,0,100,0.5],['speed','Movement speed',8,1,40,0.5]],blk:['orig',1.6,'Smash radius']},
-  {k:'jump',n:'Jump',ps:[['launch','Launch speed (height)',9.5,2,30,0.1]]},
-  {k:'djump',n:'Double jump',ps:[['launch','Launch speed (height)',8.8,2,30,0.1]]},
-  {k:'longJump',n:'Long jump',ps:[['launch','Launch speed (height)',8,2,30,0.1],['speed','Movement speed (forward)',13,1,50,0.5]]},
-  {k:'roll',n:'Roll',ps:[['dist','Movement distance',8,1,30,0.1],['speed','Movement speed',17,2,60,0.5],['hop','Hop speed (height)',4.5,0,20,0.1],['stamina','Stamina cost',15,0,100,1],['dmg','Damage to enemies',8,0,100,1],['carDmg','Damage to cars',8,0,100,1],['hitR','Hit radius',1.8,0.3,10,0.1],['blkR','Block-smash radius',1.5,0,6,0.1]]},
-  {k:'blastDash',n:'Blast dash',ps:[['dist','Movement distance',11,1,40,0.1],['speed','Movement speed',30,2,80,0.5],['stamina','Stamina cost',18,0,100,1],['dmg','Damage to enemies',10,0,100,1],['carDmg','Damage to cars',10,0,100,1],['hitR','Hit radius',2,0.3,10,0.1],['blkR','Block-smash radius',1.6,0,6,0.1],['blastR','Blast radius behind',3,0,15,0.1]]},
-  {k:'blastAirDash',n:'Blast air dash',ps:[['dist','Movement distance',14,1,50,0.1],['speed','Movement speed',34,2,90,0.5],['stamina','Stamina cost',25,0,100,1],['dmg','Damage to enemies',12,0,100,1],['carDmg','Damage to cars',10,0,100,1],['hitR','Hit radius',2.2,0.3,10,0.1],['blkR','Block-smash radius',1.8,0,6,0.1],['blastR','Blast radius behind',3,0,15,0.1]]},
-  {k:'blastJump',n:'Blast long jump',ps:[['launch','Launch speed (height)',14,2,40,0.1],['speed','Movement speed (forward)',30,1,80,0.5],['dmg','Damage to enemies',12,0,100,1],['carDmg','Damage to cars',10,0,100,1],['hitR','Hit radius',2.4,0.5,10,0.1],['blastR','Blast radius behind',3.5,0,15,0.1]]},
-  {k:'dash',n:'Air dash',ps:[['dmg','Damage to enemies',7,0,100,1],['carDmg','Damage to cars',6,0,100,1],['hitR','Hit radius',1.8,0.3,10,0.1],['stamina','Stamina cost',20,0,100,1],['dist','Movement distance',4.8,0.5,40,0.1],['speed','Movement speed',15,2,60,0.5]],blk:['orig',1,'Smash size']},
-  {k:'bite',n:'Bite',ps:[['dmg','Damage to enemies',10,0,100,1],['carDmg','Damage to cars',5,0,100,1],['hitR','Hit radius (jaw sweep)',1.6,0.3,8,0.1],['dist','Movement distance (lurch)',1.4,0,10,0.1],['speed','Movement speed (lurch)',4.7,0.5,30,0.1]],blk:['orig',1,'Smash size']},
-  {k:'bite2',n:'Bite (2nd hit)',ps:[['dmg','Damage to enemies',10,0,100,1],['carDmg','Damage to cars',5,0,100,1],['hitR','Hit radius (jaw sweep)',1.6,0.3,8,0.1],['dist','Movement distance (lurch)',1.4,0,10,0.1],['speed','Movement speed (lurch)',4.7,0.5,30,0.1]],blk:['orig',1,'Smash size']},
-  {k:'upper',n:'Uppercut (3rd bite)',ps:[['dmg','Damage to enemies',14,0,100,1],['carDmg','Damage to cars',7,0,100,1],['hitR','Hit radius (jaw sweep)',1.6,0.3,8,0.1],['dist','Movement distance (lurch)',1.8,0,10,0.1],['speed','Movement speed (lurch)',4.7,0.5,30,0.1]],blk:['orig',1,'Smash size']},
-  {k:'airBite',n:'Air bite',ps:[['dmg','Damage to enemies',10,0,100,1],['carDmg','Damage to cars',5,0,100,1],['hitR','Hit radius (jaw sweep)',1.6,0.3,8,0.1],['dist','Movement distance (lurch)',1.3,0,10,0.1],['speed','Movement speed (lurch)',6.5,0.5,30,0.1]],blk:['orig',1,'Smash size']},
-  {k:'stomp1',n:'Stomp',ps:[['dmg','Damage to enemies',8,0,100,1],['carDmg','Damage to cars',8,0,100,1],['hitR','Hit radius',4,0.5,30,0.1]],blk:['orig',1,'Crater size']},
-  {k:'stomp2',n:'Stomp (charged)',ps:[['dmg','Damage to enemies',14,0,100,1],['carDmg','Damage to cars',15,0,100,1],['hitR','Hit radius',6.5,0.5,30,0.1]],blk:['orig',2,'Crater size']},
-  {k:'groundSpike',n:'Ground spike',ps:[['dmg','Damage to enemies',10,0,100,1],['carDmg','Damage to cars',10,0,100,1],['hitR','Hit radius (round each spike)',1.4,0,10,0.1],['size','Spike size',1,0.3,4,0.05],['launch','Throw upward',10,0,30,0.5]]},
-  {k:'stomp3',n:'Stomp (full charge)',ps:[['dmg','Damage to enemies',25,0,100,1],['carDmg','Damage to cars',28,0,100,1],['hitR','Hit radius',10,0.5,30,0.1]],blk:['orig',3,'Crater size']},
-  {k:'pound',n:'Ground pound',ps:[['dmg','Damage to enemies (+1.6 per block fallen)',12,0,100,1],['carMul','Damage to cars (× enemy damage)',0.8,0,3,0.05],['hitR','Hit radius (+0.35 per block fallen)',5.5,0.5,30,0.1]],blk:['orig',1,'Crater size']},
-  {k:'pound2',n:'Ground pound (charged)',ps:[['dmg','Damage to enemies (+1.6 per block fallen)',12,0,100,1],['carMul','Damage to cars (× enemy damage)',0.8,0,3,0.05],['hitR','Hit radius (+0.35 per block fallen)',5.5,0.5,30,0.1]],blk:['orig',1,'Crater size']},
-  {k:'pound3',n:'Ground pound (full charge)',ps:[['dmg','Damage to enemies (+1.6 per block fallen)',12,0,100,1],['carMul','Damage to cars (× enemy damage)',0.8,0,3,0.05],['hitR','Hit radius (+0.35 per block fallen)',5.5,0.5,30,0.1]],blk:['orig',1,'Crater size']},
-  {k:'crash',n:'Crash landing',ps:[['dmg','Damage to enemies (+1.6 per block fallen)',3,0,100,1],['carMul','Damage to cars (× enemy damage)',0.8,0,3,0.05],['hitR','Hit radius (+0.35 per block fallen)',2.5,0.5,30,0.1]],blk:['orig',1,'Crater size']},
-];
-const DEV_KEY='goblin-stompin-gus-dev',AB={};
+// ---- every number the hippos' moves use that's worth adjusting, from their files (src/assets/moves, edited in the
+// editor's Hippo tab). AB[ability][param] is read by the moves themselves. blk: what it smashes (shape 'orig' = the move's
+// own hand-made shape, scaled by size; or a sphere/cube/cone of that radius) ----
+const DEV_ABIL=assetMovesAll(ASSETS);
+const AB={};
 function abDefaults(k){const D=DEV_ABIL.find(a=>a.k===k),o={};for(const [pk,,d] of D.ps)o[pk]=d;if(D.blk){o.shape=D.blk[0];o.size=D.blk[1];}return o;}
 for(const D of DEV_ABIL)AB[D.k]=abDefaults(D.k);
-try{const sv=JSON.parse(localStorage.getItem(DEV_KEY)||'{}');for(const k in sv)if(AB[k])for(const pk in sv[k])if(pk in AB[k])AB[k][pk]=sv[k][pk];}catch(e){}
-const abSave=()=>{try{localStorage.setItem(DEV_KEY,JSON.stringify(AB));}catch(e){}};
 // ---- custom hitboxes: a move can have its own list of hit volumes in place of its built-in hits, each live for a range
 // of frames (at 60 a second) counted from the moment the move starts (its anchor: the button press for bites and jumps,
 // the release for a stomp, the start of a dash or charge run, the moment a ground pound or crash landing hits the ground). A charge run's list repeats for as long
 // as the charge lasts. Each volume: kind ('dmg' hurts goblins and cars, once each per time it switches on; 'block'
 // smashes), shape (sphere, cube, cone, cylinder), r (radius; a cone's end radius), len (a cone's length, a cylinder's
-// height), and its origin: fwd, up, side (to his right) from his feet. ----
-const HB_KEY='goblin-stompin-gus-hitbox',HB={};
-try{const v=JSON.parse(localStorage.getItem(HB_KEY)||'{}');for(const k in v)if(v[k]&&Array.isArray(v[k].boxes))HB[k]={on:!!v[k].on,boxes:v[k].boxes};}catch(e){}
-const hbSave=()=>{try{localStorage.setItem(HB_KEY,JSON.stringify(HB));}catch(e){}};
+// height), and its origin: fwd, up, side (to his right) from his feet. A move's file holds its list. ----
+const HB=assetHbAll(ASSETS);
 const hbOn=k=>!!(HB[k]&&HB[k].on);
 // how far round him a move's custom damage hitboxes reach on the ground (null: none of them does damage)
 function hbReach(k){const H=HB[k];if(!H||!H.on)return null;let m=0;
@@ -149,7 +121,9 @@ function hbTick(p,dt){
       // each damage box hurts a given goblin or car only once for the whole move, however many frames it's live for
       // (a charge run included: once per run)
       if(!run.hit[bi])run.hit[bi]=new Set();
+      if(SBX)SBX.src=bi;   // (a recording notes which of the move's hitboxes made each hit)
       const o=bonePos(p,B.bone,_hbO);hbApply(p,B,run.hit[bi],o.x+hx*B.fwd-hz*B.side,o.y+B.up,o.z+hz*B.fwd+hx*B.side,hx,hz);
+      if(SBX)SBX.src=undefined;
     });
     run.t+=dt;}
 }

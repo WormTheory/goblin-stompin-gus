@@ -8,10 +8,20 @@
 'use strict';
 const $=id=>document.getElementById(id);
 const S={grip:true,tab:'models',kind:null,name:null,wl:'held',sel:-1,ctx:true,insp:'box',hsel:-1,msel:[],hmsel:[],t:0,playing:false,speed:1,loop:true,key:null,autoKey:true,
-  snap:0.01,mode:'translate',game:null,gameOk:false,list:{weapons:[],clips:[],bodies:[],grips:[],props:[],fixtures:[]},search:'',previewW:null,fp:true,tint:'#6b7780',groups:{}};
+  snap:0.01,mode:'translate',game:null,gameOk:false,list:{weapons:[],clips:[],bodies:[],grips:[],props:[],fixtures:[],moves:[]},search:'',previewW:null,fp:true,tint:'#6b7780',groups:{}};
 const DOCS=new Map();
 const key=(k,n)=>k+'/'+n;
 const doc=()=>S.kind?DOCS.get(key(S.kind,S.name)):null;
+// ---- the editor's tabs: each shows its own kinds of file in the list, and keeps the file it had open ----
+const TABS=[['models','Weapons and goblins',['weapons','clips','bodies','grips']],['props','Props',['props','fixtures']],['hippo','Hippo',['moves']],['sites','Structures',['sites']]];
+const tabOf=kind=>(TABS.find(t=>t[2].includes(kind))||TABS[0])[0];
+const TAB_OPEN={};   // (the file each tab last had open: [kind, name])
+// ---- kinds of file a module of their own edits (hippo.js, sites.js): each hook, if it has one, stands in for the
+// editor's own for that kind -- open, rebuild (the view), insp and inspTabs (the inspector), toolbar, frame, tl (the
+// timeline: bar, draw, and its pointer events), tick (each frame), play (may it play), step, changed, del, dup, list,
+// start, message ----
+const EXT={};
+const ext=()=>{const d=doc();return d&&EXT[d.kind]||null;};
 const r4=v=>Math.round(v*1e4)/1e4;
 const clone=o=>JSON.parse(JSON.stringify(o));
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -47,6 +57,7 @@ function changed(full,soft){
   const d=doc();
   if(d&&d.kind==='weapons')WDATA[d.name]=d.data;
   if(d&&d.kind==='grips')GUN_GRIP[d.name]=d.data;   // (what gunGrip reads: the edit shows at once)
+  {const X=ext();if(X&&X.changed)X.changed(d,soft);}
   renderList();
   if(!soft)rebuild();else if(d&&d.kind==='clips')poseAt(S.t);   // (letting go of a drag makes the whole view again)
   if(full)renderInsp();else refreshInsp();drawTL();
@@ -62,10 +73,24 @@ const WCLIPS=[['npc','pose','Aiming pose','body'],['npc','strike','Strike up clo
   ['player','swing','First person: swing','vm'],['player','rl','First person: reload','vr']];
 const clipsOf=n=>{const W=WDATA[n],o=[];if(!W)return o;for(const [a,f,t] of WCLIPS){const c=W[a]&&W[a][f];if(typeof c==='string'&&c)o.push([c,t]);}return o;};
 const OPEN=new Set();   // (weapons whose animations are shown under them)
+const listDot=(kind,n)=>{const d=DOCS.get(key(kind,n));return d&&(dirty(d)||d.isNew)?' <span class="dirty" title="Not saved">●</span>':'';};
+const listIt=(kind,n,label,sm)=>'<div class="item'+(S.kind===kind&&S.name===n?' on':'')+'" data-k="'+kind+'" data-n="'+esc(n)+'">'+esc(label)+listDot(kind,n)+'<small>'+esc(sm!==undefined?sm:label===n?'':n)+'</small></div>';
 function renderList(){
   const q=S.search.toLowerCase(),hit=s=>!q||String(s||'').toLowerCase().includes(q);
-  const dot=(kind,n)=>{const d=DOCS.get(key(kind,n));return d&&(dirty(d)||d.isNew)?' <span class="dirty" title="Not saved">●</span>':'';};
-  const it=(kind,n,label,sm)=>'<div class="item'+(S.kind===kind&&S.name===n?' on':'')+'" data-k="'+kind+'" data-n="'+esc(n)+'">'+esc(label)+dot(kind,n)+'<small>'+esc(sm!==undefined?sm:label===n?'':n)+'</small></div>';
+  const dot=listDot,it=listIt;
+  $('tabs').innerHTML=TABS.map(([k,t])=>'<button data-tab="'+k+'"'+(S.tab===k?' class="on"':'')+'>'+t+'</button>').join('');
+  for(const b of $('tabs').querySelectorAll('button'))b.onclick=()=>setTab(b.dataset.tab);
+  {const T=TABS.find(t=>t[0]===S.tab),X=T&&T[2].map(k=>EXT[k]).find(x=>x&&x.list);if(X){$('assetList').innerHTML=X.list(hit);
+    for(const e of $('assetList').querySelectorAll('.item[data-k]'))e.onclick=()=>open(e.dataset.k,e.dataset.n);if(X.listBind)X.listBind();return;}}
+  if(S.tab==='props'){let h='';
+    // (props and fixtures: long lists, so their sections fold; searching opens them)
+    for(const [kind,title] of [['props','Props'],['fixtures','Street fixtures']]){const names=(S.list[kind]||[]).filter(n=>hit(n)),op=!!q||S.groups[kind]!==false;
+      h+='<div class="grp"><button class="tw" data-grp="'+kind+'">'+(op?'▾':'▸')+'</button><span>'+title+'</span><small>'+names.length+'</small></div>';
+      if(op)for(const n of names)h+=it(kind,n,n);}
+    $('assetList').innerHTML=h;
+    for(const e of $('assetList').querySelectorAll('.item'))e.onclick=()=>open(e.dataset.k,e.dataset.n);
+    for(const b of $('assetList').querySelectorAll('button[data-grp]'))b.onclick=()=>{const k=b.dataset.grp;S.groups[k]=S.groups[k]===false;renderList();};
+    return;}
   let h='<div class="grp"><span>Weapons</span><button class="x" id="newW" title="New weapon (a copy of the one open, or the club)">+ new</button></div>';
   const used=new Set();
   for(const n of S.list.weapons){const cl=clipsOf(n);for(const [c] of cl)used.add(c);
@@ -79,31 +104,34 @@ function renderList(){
   for(const n of S.list.grips||[])if(hit(n))h+=it('grips',n,n);
   h+='<div class="grp"><span>Bodies (hurtboxes)</span></div>';
   for(const n of S.list.bodies||[])if(hit(n))h+=it('bodies',n,(DOCS.get(key('bodies',n))||{data:{}}).data.name||n);
-  // (props and fixtures: long lists, so their sections fold; searching opens them)
-  for(const [kind,title] of [['props','Props'],['fixtures','Street fixtures']]){const names=(S.list[kind]||[]).filter(n=>hit(n)),op=!!q||S.groups[kind]===true||S.groups[kind]!==false&&S.kind===kind;
-    h+='<div class="grp"><button class="tw" data-grp="'+kind+'">'+(op?'▾':'▸')+'</button><span>'+title+'</span><small>'+names.length+'</small></div>';
-    if(op)for(const n of names)h+=it(kind,n,n);}
   h+='<div class="grp"><span>Other animations</span><button class="x" id="newC" title="New animation (a copy of the one open). A weapon uses it once it\'s picked in the weapon\'s Stats">+ new</button></div>';
   let none=true;for(const n of S.list.clips)if(!used.has(n)&&hit(n)){h+=it('clips',n,n,LAYOUT_NAME[clipLayout(n)]||'');none=false;}
   if(none)h+='<div class="note" style="padding:0 6px">'+(q?'None match':'None')+'</div>';
   $('assetList').innerHTML=h;
   for(const e of $('assetList').querySelectorAll('.item'))e.onclick=()=>open(e.dataset.k,e.dataset.n,e.dataset.w);
-  for(const b of $('assetList').querySelectorAll('button[data-grp]'))b.onclick=()=>{const k=b.dataset.grp,was=S.groups[k]===true||S.groups[k]!==false&&S.kind===k;S.groups[k]=!was;renderList();};
   for(const b of $('assetList').querySelectorAll('button[data-tw]'))b.onclick=ev=>{ev.stopPropagation();const n=b.dataset.tw;if(OPEN.has(n))OPEN.delete(n);else OPEN.add(n);renderList();};
   $('newW').onclick=()=>newAsset('weapons');$('newC').onclick=()=>newAsset('clips');
 }
+// switching tabs: the list shows that tab's files, and the file it last had open comes back (or nothing)
+const EMPTY_TXT={models:'Pick a weapon or an animation on the left.',props:'Pick a prop or a street fixture on the left.',hippo:'Pick a move on the left.',sites:'Pick a structure on the left.'};
+function setTab(t){if(S.tab===t)return;if(S.kind)TAB_OPEN[S.tab]=[S.kind,S.name];S.tab=t;S.search='';$('search').value='';
+  const o=TAB_OPEN[t];if(o)return open(o[0],o[1]);
+  S.kind=null;S.name=null;S.playing=false;gizmo.detach();$('empty').style.display='';$('empty').textContent=EMPTY_TXT[t]||'';
+  renderList();renderToolbar();renderInsp();rebuild();tlShow();status('');}
 async function open(kind,name,w){
   try{await loadDoc(kind,name);}catch(e){return status('Could not open '+name+': '+e.message,true);}
+  S.tab=tabOf(kind);
   S.kind=kind;S.name=name;S.sel=-1;S.hsel=-1;S.key=null;mergeTag=null;S.playing=false;renderTLBar();
   if(kind==='clips'){S.t=1;S.previewW=w||weaponFor(name);S.insp='clip';if(w)OPEN.add(w);}
   else if(kind==='bodies')S.insp='hit';
   else if(kind==='grips')S.insp='stats';
   else if(flatKind(kind)){S.insp='box';if(S.mode==='rotate')setMode('translate');}
   else if(!['box','stats','hit'].includes(S.insp))S.insp='box';
+  {const X=EXT[kind];if(X&&X.open)X.open(doc());}
   $('empty').style.display='none';
   renderList();renderToolbar();renderInsp();rebuild();frameView();
   tlShow();
-  status(({weapons:'Weapon ',bodies:'Body ',grips:'Grip ',props:'Prop ',fixtures:'Fixture '}[kind]||'Animation ')+name);
+  status(({weapons:'Weapon ',bodies:'Body ',grips:'Grip ',props:'Prop ',fixtures:'Fixture ',moves:'Move ',sites:'Structure '}[kind]||'Animation ')+name);
 }
 // (which weapon to show an animation with: the first that uses it)
 function weaponFor(c){
@@ -154,6 +182,7 @@ function openGame(){
 }
 addEventListener('message',e=>{
   if(e.origin!==location.origin||!e.data)return;
+  {for(const k in EXT)if(EXT[k].message&&EXT[k].message(e))return;}
   if(e.data.type==='gsg-ready'){S.gameOk=true;$('gameDot').className='on';status('Game connected');for(const d of DOCS.values())if(dirty(d))sendLive(d);}
   if(e.data.type==='gsg-asset-done'&&e.data.result!=='ok')status('The game couldn\'t take '+e.data.name+': '+e.data.result,true);
 });
@@ -260,7 +289,8 @@ function inParent(it){const M=new THREE.Matrix4().copy(it.par.matrixWorld).inver
 // make the view again from the open file
 function rebuild(){
   gizmo.detach();scene.remove(content);content=new THREE.Group();scene.add(content);pickable=[];posed=null;fpView=null;hitMeshes=[];curPgs=[];
-  const d=doc();if(!d){hud('');return;}
+  const d=doc();grid.visible=grid1.visible=axes.visible=true;if(!d){hud('');return;}
+  {const X=ext();grid.visible=grid1.visible=axes.visible=!(X&&X.noGrid);if(X&&X.rebuild){X.rebuild(d);return;}}
   if(d.kind==='bodies'){buildHit(d.data);return;}
   if(d.kind==='grips'){buildGrip(d.name);return;}
   if(flatKind(d.kind)){buildFlat(d);return;}
@@ -394,7 +424,7 @@ const hitBlowName=W=>W&&(W.player&&W.player.body||W.npc&&W.npc.strike)||'club';
 const hitBlow=W=>{const d=DOCS.get(key('clips',hitBlowName(W)));return d&&d.data.layout==='body'?d.data:null;};
 // (the timeline is a weapon's hitboxes', on its Hitboxes tab)
 const hitTL=()=>{const d=doc();return !!d&&d.kind==='weapons'&&S.insp==='hit';};
-function tlShow(){const d=doc();$('timeline').classList.toggle('show',!!d&&(d.kind==='clips'||hitTL()));renderTLBar();resize();drawTL();}
+function tlShow(){const d=doc(),X=ext();$('timeline').classList.toggle('show',!!d&&(X?!!(X.tl&&(!X.tlOn||X.tlOn(d))):d.kind==='clips'||hitTL()));renderTLBar();resize();drawTL();}
 let hitPose=null;
 // is a hitbox live at u? (one without a span: only as the blow lands)
 const hitIsLive=(s,u)=>s.t?u>=s.t[0]-1e-6&&u<=s.t[1]+1e-6:Math.abs(u-1)<0.02;
@@ -434,6 +464,7 @@ function putHit(W,o){const s=W.hit[hitSet()][o.userData.i];s.p=[r4(o.position.x)
     pickSel(i,e.shiftKey);rebuild();renderInsp();});}
 function frameView(){
   const d=doc();if(!d)return;
+  {const X=ext();if(X&&X.frame){X.frame(d);orbit.update();return;}}
   if(d.kind==='grips'){orbit.target.set(2.2,0.7,0);cam.position.set(-1.4,1.9,4.4);}   // (from in front and to the side: an aimed gun points at a viewer straight ahead)
   else if(S.insp==='hit'){orbit.target.set(0,0.6,0.8);cam.position.set(4.2,3,-1.6);}
   else if(!flatKind(d.kind)&&(d.kind==='clips'&&d.data.layout==='body'||S.ctx&&(S.wl==='held'||S.wl==='stow'))){orbit.target.set(0,0.65,0.2);cam.position.set(2.2,1.4,2.4);}
@@ -448,6 +479,7 @@ function frameView(){
 function renderToolbar(){
   const d=doc();let h='';
   if(!d){$('toolbar').innerHTML='';return;}
+  {const X=ext();if(X&&X.toolbar){$('toolbar').innerHTML=X.toolbar(d)+'<span class="grow"></span><button id="frameBtn" title="Frame the view (F)">Frame</button>';$('frameBtn').onclick=frameView;if(X.toolbarBind)X.toolbarBind(d);return;}}
   if(d.kind==='weapons'&&S.insp!=='hit'){
     const L=[['held','Held'],['view','First person'],['drop','Dropped'],['stow','Put away']];
     h+=L.map(([k,t])=>{const m=viewMode(d.data,k);return '<button data-wl="'+k+'" class="'+(S.wl===k?'on':'')+(m==='none'?' none':'')+'" title="'+
@@ -490,6 +522,10 @@ const num=(v,id,step=0.01)=>'<input type="number" step="'+step+'" id="'+id+'" va
 const v3=(v,id)=>'<span class="v3">'+[0,1,2].map(j=>num(v?v[j]:0,id+j)).join('')+'</span>';
 function renderInsp(){
   const d=doc();
+  {const X=ext();if(X&&X.insp){const T=X.inspTabs?X.inspTabs(d):[];
+    $('inspTabs').innerHTML=T.map(([k,t])=>'<button class="'+(S.insp===k?'on':'')+'" data-t="'+k+'">'+t+'</button>').join('');
+    for(const b of $('inspTabs').querySelectorAll('button'))b.onclick=()=>{S.insp=b.dataset.t;renderToolbar();renderInsp();rebuild();tlShow();};
+    return X.insp($('inspBody'),d);}}
   const tabs=!d?[]:flatKind(d.kind)?[['box','Boxes']]:d.kind==='weapons'?[['box','Boxes'],['stats','Stats'],['hit','Hitboxes']]:d.kind==='bodies'?[['hit','Hurtboxes']]:d.kind==='grips'?[['stats','Numbers']]:[['clip','Animation']];
   $('inspTabs').innerHTML=tabs.map(([k,t])=>'<button class="'+(S.insp===k?'on':'')+'" data-t="'+k+'">'+t+'</button>').join('');
   for(const b of $('inspTabs').querySelectorAll('button'))b.onclick=()=>{S.insp=b.dataset.t;S.sel=-1;S.hsel=-1;S.playing=false;if(hitTL())S.t=1;renderToolbar();renderInsp();rebuild();frameView();tlShow();};
@@ -587,15 +623,17 @@ function renderFlatInsp(B,d){
   $('wnote').onchange=e=>edit(W2=>{if(e.target.value)W2.note=e.target.value;else delete W2.note;});
 }
 function dup(){const d=doc();if(!d)return;
+  {const X=ext();if(X){if(X.dup)X.dup(d);return;}}
   if(d.kind==='clips')return copyKey();
   const P=selList();if(!P.length)return;
   if(S.insp==='hit'){edit(W=>{const H=W.hit[hitSet()];addSel(H,P.map(i=>{const c=clone(H[i]);c.p[0]=r4(c.p[0]+0.1);return c;}));});return;}
   edit(W=>{const L=editList(W,S.wl);addSel(L,P.map(i=>{const c=clone(L[i]);c.p[0]=r4(c.p[0]+0.05);return c;}));});}
 // (new copies onto the end of a list, and they become the selection)
 function addSel(L,cs){const n=L.length;L.push(...cs);const I=cs.map((c,i)=>n+i);S[selK()]=I[I.length-1];S[mselK()]=I.length>1?I:[];}
-function mirror(){const d=doc();if(!d||!(d.kind==='weapons'||flatKind(d.kind))||S.sel<0||S.insp!=='box')return;
+function mirror(){const d=doc();if(!d||ext()||!(d.kind==='weapons'||flatKind(d.kind))||S.sel<0||S.insp!=='box')return;
   const P=selList();edit(W=>{const L=editList(W,S.wl);addSel(L,P.map(i=>{const c=clone(L[i]);c.p[0]=r4(-c.p[0]);if(c.r){c.r[1]=-c.r[1];c.r[2]=-c.r[2];}return c;}));});}
 function del(){const d=doc();if(!d)return;
+  {const X=ext();if(X){if(X.del)X.del(d);return;}}
   if(d.kind==='clips')return delKey();
   const P=selList().sort((a,b)=>b-a);if(!P.length)return;
   if(S.insp==='hit'){const set=hitSet();edit(W=>{for(const i of P)W.hit[set].splice(i,1);S.hsel=-1;S.hmsel=[];if(!W.hit[set].length)delete W.hit[set];if(!Object.keys(W.hit).length)delete W.hit;});return;}
@@ -773,7 +811,7 @@ const tlX=(c,u)=>TL_L+u/2*(TL.width/devicePixelRatio-TL_L-TL_R);
 const tlU=(c,x)=>Math.max(0,Math.min(2,(x-TL_L)/(TL.width/devicePixelRatio-TL_L-TL_R)*2));
 const tlRowY=j=>TL_TOP+j*TL_ROW+TL_ROW/2;
 // (playing, the pose can't be changed: the key selected is let go, and the inspector's sliders follow the playhead)
-function setPlaying(v){const d=doc();if(v&&!(d&&(d.kind==='clips'||hitTL())))return;S.playing=v;if(v)S.key=null;renderTLBar();renderInsp();drawTL();}
+function setPlaying(v){const d=doc(),X=ext();if(v&&!(d&&(X?X.play&&X.play(d):d.kind==='clips'||hitTL())))return;S.playing=v;if(v)S.key=null;renderTLBar();renderInsp();drawTL();}
 // the inspector's pose follows the playhead, as it plays or is dragged (without drawing it all again, which would drop a slider)
 let poseShownK=null;
 function syncPose(){
@@ -784,6 +822,7 @@ function syncPose(){
     if(kd){const has=keyIn(trackOf(c,j),S.t)>=0;kd.textContent=has?'◆':'◇';kd.classList.toggle('on',has);}}
 }
 function renderTLBar(){
+  {const X=ext();if(X&&X.tl){$('tlbar').innerHTML=X.tl.bar();if(X.tl.barBind)X.tl.barBind();return;}}
   if(hitTL()){$('tlbar').innerHTML='<button id="tlPlay">'+(S.playing?'Pause':'Play')+' (Space)</button><label><input type="checkbox" id="tlLoop"'+(S.loop?' checked':'')+'> Loop</label>'+
       '<label>Speed <select id="tlSpd">'+[0.1,0.25,0.5,1].map(v=>'<option'+(v===S.speed?' selected':'')+'>'+v+'</option>').join('')+'</select></label><span class="note" id="tlU"></span><span class="grow"></span>';
     $('tlPlay').onclick=()=>setPlaying(!S.playing);$('tlLoop').onchange=e=>S.loop=e.target.checked;$('tlSpd').onchange=e=>S.speed=+e.target.value;return;}
@@ -793,6 +832,7 @@ function renderTLBar(){
 }
 function diamond(x,y,r,col){tg.fillStyle=col;tg.beginPath();tg.moveTo(x,y-r);tg.lineTo(x+r,y);tg.lineTo(x,y+r);tg.lineTo(x-r,y);tg.fill();}
 function drawTL(){
+  {const X=ext();if(X&&X.tl){X.tl.draw();return;}}
   if(hitTL())return drawHitTL();
   const d=doc();if(!d||d.kind!=='clips')return;const c=d.data,W=TL.clientWidth,H=TL.clientHeight;
   if(TL.width!==W*devicePixelRatio||TL.height!==H*devicePixelRatio){TL.width=W*devicePixelRatio;TL.height=H*devicePixelRatio;}
@@ -818,6 +858,8 @@ function drawTL(){
   const x=tlX(c,S.t);tg.fillStyle='#ffd060';tg.fillRect(x-1,0,2,H);
   const u=$('tlU');if(u)u.textContent='u '+S.t.toFixed(3);
 }
+// (a module's own timeline: its pointer handling first, ahead of the clips' and hitboxes' below)
+for(const ev of ['pointerdown','pointermove','pointerup','dblclick'])TL.addEventListener(ev,e=>{const X=ext();if(X&&X.tl){if(X.tl[ev])X.tl[ev](e);e.stopImmediatePropagation();}});
 // what's under a point on the timeline: {all:t} on the top row, {j,i} on a channel's row, else null
 function tlHit(c,x,y){
   if(y<TL_TOP){let best=null,bd=7;for(const t of keyTimes(c)){const dd=Math.abs(tlX(c,t)-x);if(dd<bd){bd=dd;best={all:t};}}return best;}
@@ -947,6 +989,7 @@ addEventListener('keydown',e=>{
   else if(k==='m')mirror();else if(k==='delete'||k==='backspace')del();else if(k==='f')frameView();
   else if(k===' '){e.preventDefault();setPlaying(!S.playing);}
   else if(k==='k'&&doc()&&doc().kind==='clips')addKey();
+  else if((k===','||k==='.')&&ext()&&ext().step){ext().step(k===','?-1:1);}
   else if((k===','||k==='.')&&doc()&&(doc().kind==='clips'||hitTL())){S.t=Math.max(0,Math.min(2,S.t+(k===','?-1:1)*0.01));S.key=null;poseAt(S.t);drawTL();renderInsp();}
   else if(k==='?'||k==='/')$('help').classList.toggle('show');
   else if(k==='escape'){$('help').classList.remove('show');closeDlg();}
@@ -972,7 +1015,8 @@ let last=performance.now();
 function loop(now){
   const dt=Math.min(0.1,(now-last)/1000);last=now;
   const d=doc();
-  if(S.playing&&d&&(d.kind==='clips'||hitTL())){const a=0,b=2;S.t+=dt*S.speed*(b-a)/1.0;   // (every clip runs u 0 to 2)
+  {const X=ext();if(X&&X.tick)X.tick(dt);}
+  if(S.playing&&d&&!ext()&&(d.kind==='clips'||hitTL())){const a=0,b=2;S.t+=dt*S.speed*(b-a)/1.0;   // (every clip runs u 0 to 2)
     if(S.t>b){if(S.loop)S.t=a+(S.t-b)%((b-a)||1);else{S.t=b;setPlaying(false);}}poseAt(S.t);drawTL();syncPose();}
   orbit.update();
   const r=$('viewWrap').getBoundingClientRect();
@@ -990,10 +1034,11 @@ async function start(){
   try{S.list=await api('/api/list');}catch(e){status('No server: run python tools/editor/serve.py and open http://localhost:8737/tools/editor/',true);return;}
   await Promise.all(S.list.weapons.map(async n=>{const d=await loadDoc('weapons',n);WDATA[n]=d.data;}));
   await Promise.all([...S.list.clips.map(n=>loadDoc('clips',n)),...(S.list.bodies||[]).map(n=>loadDoc('bodies',n)),...(S.list.grips||[]).map(async n=>{const d=await loadDoc('grips',n);GUN_GRIP[n]=d.data;})]);
+  for(const k in EXT)if(EXT[k].start)await EXT[k].start();
   renderList();renderTLBar();resize();applySnap();status('Ready');
   $('search').oninput=e=>{S.search=e.target.value;renderList();};
   $('saveBtn').onclick=()=>save();$('saveAllBtn').onclick=saveAll;$('buildBtn').onclick=build;$('gameBtn').onclick=openGame;
   $('helpBtn').onclick=()=>$('help').classList.toggle('show');
   requestAnimationFrame(loop);
 }
-start();
+// (start() is called from the page, once every module has loaded: hippo.js, sites.js)

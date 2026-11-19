@@ -102,7 +102,7 @@ kbd{background:#2c3038;border:1px solid #444;border-radius:3px;padding:0 4px;fon
 <div id="app">
   <header>
     <h1>Gus Editor</h1>
-    <div class="tabs" id="tabs"><button class="on" data-tab="models">Models and animation</button></div>
+    <div class="tabs" id="tabs"></div>
     <span class="grow"></span>
     <span id="status">Loading…</span>
     <button id="saveBtn" title="Save this file (Ctrl+S)">Save</button>
@@ -142,6 +142,8 @@ kbd{background:#2c3038;border:1px solid #444;border-radius:3px;padding:0 4px;fon
   <p>Each view uses the shared model, placed for that view, or a version of its own (Make unique). Editing the shared model changes every view using it.</p>
   <h3>Props and street fixtures</h3>
   <p>Plain boxes, never tilted. Tint is a prop's colour picked where it's placed. A fixture's spots (blue outlines) are where its lights, sign or advert go. New ones need placing in the game's code.</p>
+  <h3>Hippo</h3>
+  <p>Each move is acted out by the game itself, in a hidden copy, after every change (the game's code changes only after Build). Gus and Gertie share every move. A move's own hitboxes count their frames from its start (the dashed line); switched on, they take the place of its built-in hits.</p>
   <h3>Limits</h3>
   <p>Walking legs and recoil only show in the game (Open game). Panes resize from their edges.</p>
   <p style="text-align:right"><button onclick="document.getElementById('help').classList.remove('show')">Close</button></p>
@@ -156,5 +158,7 @@ kbd{background:#2c3038;border:1px solid #444;border-radius:3px;padding:0 4px;fon
 <script src="/src/js/enemies/grip.js"></script>
 <script src="ref.js"></script>
 <script src="editor.js"></script>
+<script src="hippo.js"></script>
+<script>start();</script>
 </body>
 </html>

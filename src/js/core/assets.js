@@ -111,6 +111,21 @@ function assetPoseAt(c,u){
 function assetWeaponsAll(A){const o={};for(const k in A.weapons)o[k]=assetWeapon(A.weapons[k]);return o;}
 function assetClipsAll(A){const o={};for(const k in A.clips)o[k]=assetClip(A.clips[k]);return o;}
 
+// ---- the hippos' moves (player/hitboxes.js): one file per move, its numbers and its own hitboxes ----
+// A move: {name, params:{key:{name, v (the value), min, max, step}}, smash:{shape, size, name} (what it does to blocks: shape
+// 'orig' the move's own hand-made shape scaled by size, or 'sphere', 'semi', 'cube', 'cone' of that radius), hitboxes:{on,
+// boxes:[...]} (its own hit volumes in place of the built-in hits, when on)}. A hitbox: {kind 'dmg' or 'block', shape
+// (sphere, semi, cube, cone, cylinder), bone (a rig point, 'root' his feet), fwd, up, side (from the bone), rx, ry, rz
+// (degrees), r, len, a and b (the frames it's live, at 60 a second from the move's start), dmg, carDmg}.
+// The game's tables: DEV_ABIL [{k, n, ps:[[key, name, value, min, max, step]], blk:[shape, size, name]}] and HB {k:{on, boxes}}.
+const MOVE_SHAPES=['orig','sphere','semi','cube','cone'],HB_SHAPE_LIST=['sphere','semi','cube','cone','cylinder'];
+function assetMove(k,M){const o={k,n:M.name,ps:Object.keys(M.params||{}).map(pk=>{const q=M.params[pk];return [pk,q.name,q.v,q.min,q.max,q.step];})};
+  if(M.smash)o.blk=[M.smash.shape,M.smash.size,M.smash.name];return o;}
+function assetMoveOf(D,H){const params={};for(const [pk,n,v,min,max,step] of D.ps)params[pk]={name:n,v,min,max,step};
+  const o={name:D.n,params};if(D.blk)o.smash={shape:D.blk[0],size:D.blk[1],name:D.blk[2]};if(H&&H.boxes&&H.boxes.length)o.hitboxes={on:!!H.on,boxes:H.boxes.map(b=>Object.assign({},b))};return o;}
+function assetMovesAll(A){const o=[];for(const k in A.moves||{})o.push(assetMove(k,A.moves[k]));return o;}
+function assetHbAll(A){const o={};for(const k in A.moves||{}){const H=A.moves[k].hitboxes;if(H)o[k]={on:!!H.on,boxes:H.boxes.map(b=>Object.assign({},b))};}return o;}
+
 // ---- props (dressing/props.js) and street fixtures (dressing/street.js) ----
 // A prop: {boxes:[{s,p,c,glow}]}, from its foot, its back -z: c '#rrggbb' or '@tint' (the prop's own tint, picked where it's
 // placed), glow true for a part that lights up (a screen, a hob). Plain boxes, never tilted: they're drawn as instanced
@@ -160,7 +175,7 @@ function assetFmt(v){
   const go=(x,ind)=>{
     const s=inl(x);if(s.length<=100||!x||typeof x!=='object')return s;
     // (a box or a key is always one line, however long)
-    if(!Array.isArray(x)&&(x.s&&x.p||'t' in x&&'v' in x))return s;
+    if(!Array.isArray(x)&&(x.s&&x.p||'t' in x&&'v' in x||x.shape&&x.kind&&'r' in x))return s;   // (a move's hitbox too)
     // (and so is an animation's track, a channel's keys: [[u,value,ease?],...])
     if(Array.isArray(x)&&x.length&&x.every(q=>Array.isArray(q)&&q.length>=2&&q.length<=3&&typeof q[0]==='number'&&typeof q[1]==='number'))return s;
     const i2=ind+'  ';
@@ -219,6 +234,19 @@ function assetCheck(kind,name,a){
   }else if(kind==='bodies'){
     if(typeof a.name!=='string')E.push('name missing');
     if(a.hit)assetCheckHit(a.hit,'hit',E);
+  }else if(kind==='moves'){
+    if(typeof a.name!=='string')E.push('name missing');
+    if(!a.params||typeof a.params!=='object'||Array.isArray(a.params))E.push('params must be {key:{name, v, min, max, step}}');
+    else for(const pk in a.params){const q=a.params[pk];if(!q||typeof q.name!=='string'||!['v','min','max','step'].every(f=>n(q[f])))E.push('params.'+pk+': needs name, v, min, max and step');}
+    if(a.smash!==undefined&&!(a.smash&&MOVE_SHAPES.includes(a.smash.shape)&&n(a.smash.size)&&typeof a.smash.name==='string'))E.push('smash needs shape ('+MOVE_SHAPES.join(', ')+'), size and name');
+    if(a.hitboxes!==undefined){const H=a.hitboxes;
+      if(!H||!Array.isArray(H.boxes))E.push('hitboxes must be {on, boxes:[...]}');
+      else H.boxes.forEach((b,i)=>{const at='hitboxes.boxes['+i+']';
+        if(b.kind!=='dmg'&&b.kind!=='block')E.push(at+": kind must be 'dmg' or 'block'");
+        if(!HB_SHAPE_LIST.includes(b.shape))E.push(at+': shape must be one of '+HB_SHAPE_LIST.join(', '));
+        for(const f of ['r','len','fwd','up','side','a','b'])if(!n(b[f]))E.push(at+': '+f+' must be a number');
+        for(const f of ['rx','ry','rz','dmg','carDmg'])if(b[f]!==undefined&&!n(b[f]))E.push(at+': '+f+' must be a number');
+        if(n(b.a)&&n(b.b)&&b.b<b.a)E.push(at+': b (last frame) must not be before a');});}
   }else if(kind==='props'||kind==='fixtures'){
     const roles=kind==='props'?['tint']:['pole','lamp'];
     if(!Array.isArray(a.boxes)||!a.boxes.length)E.push('boxes: a list of at least one box');

@@ -1,0 +1,9 @@
+{
+  "name": "Stomp (full charge)",
+  "params": {
+    "dmg": {"name":"Damage to enemies","v":25,"min":0,"max":100,"step":1},
+    "carDmg": {"name":"Damage to cars","v":28,"min":0,"max":100,"step":1},
+    "hitR": {"name":"Hit radius","v":10,"min":0.5,"max":30,"step":0.1}
+  },
+  "smash": {"shape":"orig","size":3,"name":"Crater size"}
+}

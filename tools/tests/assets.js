@@ -1,7 +1,7 @@
 let __s=+(process.env.SEED||1);Math.random=()=>{__s=(__s*16807)%2147483647;return (__s-1)/2147483646;};
 const fs=require('fs');
 let src0=fs.readFileSync('g.js','utf8');
-let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={PROPS,FIXM,assetProp,assetFix,liveProp,liveFix,get trafficRefreshT(){return trafficRefreshT},players,cars,goblins,frame,setGob,WEAPONS,GOB_WPN,STRIKES,ASSETS,assetCheck,assetFmt,assetWeapon,assetWeaponOf,assetClip,assetClipOf,wpnHitShapes,hitWorld,hitTouch,liveWeapon,liveClip,PICKUPS,hitGoblins,assetList,assetPlace,ASSET_LISTS,wpnHitSweep,hitHand,gobSwingU};\n})();');
+let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={PROPS,FIXM,assetProp,assetFix,liveProp,liveFix,liveMove,liveRecord,AB,HB,DEV_ABIL,assetMovesAll,get trafficRefreshT(){return trafficRefreshT},players,cars,goblins,frame,setGob,WEAPONS,GOB_WPN,STRIKES,ASSETS,assetCheck,assetFmt,assetWeapon,assetWeaponOf,assetClip,assetClipOf,wpnHitShapes,hitWorld,hitTouch,liveWeapon,liveClip,PICKUPS,hitGoblins,assetList,assetPlace,ASSET_LISTS,wpnHitSweep,hitHand,gobSwingU};\n})();');
 const deep=()=>new Proxy(function(){}, {get:(t,p)=>p===Symbol.toPrimitive?()=>0:(p==='length'?0:deep()),apply:()=>deep(),construct:()=>deep()});
 class Q{constructor(){this.x=0;this.y=0;this.z=0;this.w=1}set(x,y,z,w){this.x=x;this.y=y;this.z=z;this.w=w;return this}setFromAxisAngle(a,t){const s=Math.sin(t/2);this.x=a.x*s;this.y=a.y*s;this.z=a.z*s;this.w=Math.cos(t/2);return this}copy(q){this.x=q.x;this.y=q.y;this.z=q.z;this.w=q.w;return this}}
 class V3{project(){return this}fromBufferAttribute(a,i){const A=a.array||a.a;this.x=A[i*3];this.y=A[i*3+1];this.z=A[i*3+2];return this}applyMatrix4(m){const e=m.elements,x=this.x,y=this.y,z=this.z;this.x=e[0]*x+e[4]*y+e[8]*z+e[12];this.y=e[1]*x+e[5]*y+e[9]*z+e[13];this.z=e[2]*x+e[6]*y+e[10]*z+e[14];return this}setFromMatrixPosition(o){this.x=o.position.x;this.y=o.position.y;this.z=o.position.z;return this}normalize(){const l=Math.hypot(this.x,this.y,this.z)||1;this.x/=l;this.y/=l;this.z/=l;return this}add(v){this.x+=v.x;this.y+=v.y;this.z+=v.z;return this}applyQuaternion(q){const x=this.x,y=this.y,z=this.z,qx=q.x,qy=q.y,qz=q.z,qw=q.w;const ix=qw*x+qy*z-qz*y,iy=qw*y+qz*x-qx*z,iz=qw*z+qx*y-qy*x,iw=-qx*x-qy*y-qz*z;this.x=ix*qw+iw*-qx+iy*-qz-iz*-qy;this.y=iy*qw+iw*-qy+iz*-qx-ix*-qz;this.z=iz*qw+iw*-qz+ix*-qy-iy*-qx;return this}constructor(x=0,y=0,z=0){this.x=x;this.y=y;this.z=z}set(x,y,z){this.x=x;this.y=y;this.z=z;return this}copy(v){this.x=v.x;this.y=v.y;this.z=v.z;return this}clone(){return new V3(this.x,this.y,this.z)}addScaledVector(v,s){this.x+=v.x*s;this.y+=v.y*s;this.z+=v.z*s;return this}multiplyScalar(s){this.x*=s;this.y*=s;this.z*=s;return this}setScalar(s){return this.set(s,s,s)}}
@@ -40,7 +40,7 @@ const [A]=T.players;const S=n=>{for(let i=0;i<n;i++){now+=16.7;T.frame(now);}};f
 // keeps its exact layout through a load and save; what the game built from them matches the files; weapon hitboxes
 // against goblin hurtboxes (player/hit-shapes.js); the live preview's entries (ui/editor-live.js).
 const path=require('path'),AS=path.join(__dirname,'..','..','src','assets');
-for(const kind of ['weapons','clips','bodies','grips','props','fixtures']){
+for(const kind of ['weapons','clips','bodies','grips','props','fixtures','moves']){
   const names=JSON.parse(fs.readFileSync(path.join(AS,kind,'_order.json'),'utf8')).order;let bad=[],moved=[];
   for(const n of names){const text=fs.readFileSync(path.join(AS,kind,n+'.json'),'utf8').replace(/\r\n/g,'\n'),a=JSON.parse(text);
     const E=T.assetCheck(kind,n,a);if(E.length)bad.push(n+': '+E.join('; '));if(T.assetFmt(a)!==text)moved.push(n);}
@@ -107,4 +107,15 @@ console.log('above his head: a goblin on a ledge 1.5 up',hitAt({hit:{hitboxes:[{
 {const pd=[],fd=[];for(const k in T.ASSETS.props){const a=T.assetProp(T.ASSETS.props[k]);if(k!=='bed'&&(T.PROPS[k].length!==a.length||T.PROPS[k].some((q,i)=>q[0]!==a[i][0])))pd.push(k);}
   for(const k in T.ASSETS.fixtures)if(k!=='lamp'&&JSON.stringify(T.FIXM[k])!==JSON.stringify(T.assetFix(T.ASSETS.fixtures[k])))fd.push(k);
   console.log('props in the game',Object.keys(T.PROPS).length,'from files',Object.keys(T.ASSETS.props).length,pd.length?'differ '+pd.join(','):'same','| fixtures',Object.keys(T.FIXM).join(','),fd.length?'differ '+fd.join(','):'same');}
+// (the hippos' moves: the game's tables from their files, a move edited live, and a recording for the editor's Hippo tab)
+{const D=T.assetMovesAll(T.ASSETS);let same=JSON.stringify(D)===JSON.stringify(T.DEV_ABIL);for(const m of D)for(const [pk,,v] of m.ps)if(T.AB[m.k][pk]!==v)same=false;
+  console.log('moves in the game',T.DEV_ABIL.length,'from files',D.length,same?'same':'DIFFERENT','| custom hitboxes',Object.keys(T.HB).length);
+  const f=JSON.parse(fs.readFileSync(path.join(AS,'moves','stomp1.json'),'utf8')),A=T.AB.stomp1;f.params.dmg.v=33;
+  const R0=T.liveRecord('stomp1');
+  f.hitboxes={on:true,boxes:[{kind:'dmg',shape:'sphere',bone:'root',r:2,len:3,fwd:2,up:1,side:0,a:0,b:5,dmg:9,carDmg:9}]};
+  console.log('live move:',T.liveMove('stomp1',f),'| same entry',T.AB.stomp1===A,'| damage',A.dmg,'| hitboxes on',!!(T.HB.stomp1&&T.HB.stomp1.on),'| unknown',T.liveMove('nope',f));
+  const R=T.liveRecord('stomp1'),m=R.model;
+  console.log('recording: frames',R.N,'parts',m.length,'boxes',m.filter(q=>q.g).length,'named',m.filter(q=>q.n).map(q=>q.n).join(','),'| root at',R.tr[0].toFixed(2),R.tr[2].toFixed(2),
+    '| hits built-in',R0.hits.length,'custom',R.hits.filter(h=>h.src===0).length,'lines',R.hits.every(h=>h.L.length>0&&h.L.length%6===0),'| near him',R.hits.every(h=>Math.abs(h.L[0])<20&&Math.abs(h.L[2])<20),'| anchors',R.anchors.join(','));
+  const back=JSON.parse(fs.readFileSync(path.join(AS,'moves','stomp1.json'),'utf8'));T.liveMove('stomp1',back);console.log('put back: damage',A.dmg,'| hitboxes',!!T.HB.stomp1);}
 S(5);console.log('frames after: ok');

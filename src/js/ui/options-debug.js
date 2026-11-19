@@ -321,7 +321,7 @@ function dbgDraw(kind,shape,o){const m=dbgMesh(shape);m.material=dbgMat[kind];m.
   else{m.scale.setScalar(o.r);m.position.set(o.x,o.y,o.z);}}
 // a hit volume that flashes for a moment; 'block' or 'dmg', credited to whoever is acting
 // kind: 'block' or 'dmg' (one area for goblins and cars alike)
-function dbgHit(kind,shape,o,who){if(SBX){SBX.hits.push({f:SBX.frame,kind,shape,o:Object.assign({},o)});return;}const k=(who||DBG_WHO)+(kind==='block'?'Block':'Dmg');if(!DBG.show||!DBG[k])return;dbgTrans.push({k,shape,o,t:0.35});}
+function dbgHit(kind,shape,o,who){if(SBX){SBX.hits.push({f:SBX.frame,kind,shape,o:Object.assign({},o),src:SBX.src});return;}const k=(who||DBG_WHO)+(kind==='block'?'Block':'Dmg');if(!DBG.show||!DBG[k])return;dbgTrans.push({k,shape,o,t:0.35});}
 // an area hit around height y: the ball of radius r, cut to the band vReach allows
 const dbgCap=(x,y,z,r)=>({x,y,z,r,dn:Math.max(2.5,r*0.45),up:Math.max(3,r*0.6)});
 // the vertical band an area hit around height y reaches (see vReach)

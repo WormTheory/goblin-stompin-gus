@@ -1,0 +1,10 @@
+{
+  "name": "Ground spike",
+  "params": {
+    "dmg": {"name":"Damage to enemies","v":10,"min":0,"max":100,"step":1},
+    "carDmg": {"name":"Damage to cars","v":10,"min":0,"max":100,"step":1},
+    "hitR": {"name":"Hit radius (round each spike)","v":1.4,"min":0,"max":10,"step":0.1},
+    "size": {"name":"Spike size","v":1,"min":0.3,"max":4,"step":0.05},
+    "launch": {"name":"Throw upward","v":10,"min":0,"max":30,"step":0.5}
+  }
+}

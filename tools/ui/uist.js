@@ -4,7 +4,7 @@ const errs=[];p.on('pageerror',e=>errs.push(e.message));p.on('console',m=>{if(m.
 await p.route('**/*',r=>r.request().url().startsWith('file:')?r.continue():r.abort());
 await p.goto('file://'+process.cwd()+'/ui.html');await p.waitForTimeout(1500);
 await p.evaluate(()=>{document.getElementById('tabBtnDev').click();});await p.waitForTimeout(300);
-await p.evaluate(()=>{document.getElementById('devSecAbil').open=false;document.getElementById('devSecStruct').open=true;});
+await p.evaluate(()=>{document.getElementById('devSecFoe').open=false;document.getElementById('devSecStruct').open=true;});
 for(let i=0;i<10;i++){await p.waitForTimeout(500);const t=await p.evaluate(()=>document.getElementById('devStInfo').textContent);if(/·/.test(t)){console.log('info:',t);break;}}
 await p.click('#devStDD button');await p.waitForTimeout(200);await p.screenshot({path:'st1.png'});
 await p.click('#devStList li[data-k="airport"]');

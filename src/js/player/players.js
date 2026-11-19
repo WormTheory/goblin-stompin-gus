@@ -21,7 +21,7 @@ function makePlayer(idx){
   box(1.55,1.15,2.4,HC.skin,0,1.3,0,body);
   box(1.35,0.14,2.0,HC.belly,0,0.7,0,body);
   box(1.25,0.3,1.9,HC.skin,0,1.95,-0.1,body);
-  p.tail=box(0.12,0.4,0.08,HC.dark,0,1.35,-1.24,body);p.tail.rotation.x=0.4;
+  p.tail=box(0.12,0.4,0.08,HC.dark,0,1.35,-1.24,body);p.tail.rotation.x=0.4;p.tail.name='tail';
   const head=new THREE.Group();head.name='head';head.position.set(0,1.55,1.2);body.add(head);p.head=head;
   box(1.2,0.85,1.0,HC.skin,0,0.1,0.45,head);
   box(1.45,0.5,0.75,HC.skin,0,0.0,1.25,head);
