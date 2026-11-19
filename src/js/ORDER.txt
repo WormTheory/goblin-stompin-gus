@@ -48,6 +48,7 @@ vehicles/hose.js
 vehicles/farm-lift.js
 vehicles/road-handling.js
 vehicles/light-vehicles.js
+vehicles/collide.js
 vehicles/plane-flight.js
 vehicles/tank-handling.js
 vehicles/heli-handling.js

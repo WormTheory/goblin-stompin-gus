@@ -182,7 +182,8 @@ function movePlayer(p,dt){
       if(tramp&&p.chargeCD<=0){
         const hit=hbOn('trample')?[]:carsNear(frontX,frontZ,AB.trample.hitR,p.pos.y);
         if(hit.length){p.chargeCD=0.6;sfx('Trample hits a vehicle',()=>{clang();thud(0.8);});addShake(0.35,frontX,frontZ,12);rumble(p,0.7,200);
-          for(const c of hit){damageCar(c,AB.trample.carDmg);nudgeFlat(c,hx*1.2,hz*1.2);c.speed=0;}}
+          // (an impulse at the point it hits, from a hippo's mass at a charge: it shoves a car along, spins one hit off its middle, barely moves a bus; collide.js)
+          for(const c of hit){damageCar(c,AB.trample.carDmg);if(c.alive&&!hippoCar(p,c,hx*AB.trample.speed,hz*AB.trample.speed,frontX,frontZ))nudgeFlat(c,hx*1.2,hz*1.2);}}
       }
       // on or onto a ramp, judge the slope just ahead of the feet instead of a body-length ahead
       const rampy=rampUnder(p.pos.x,p.pos.z,p.pos.y)||rampUnder(p.pos.x+mvx*0.8,p.pos.z+mvz*0.8,p.pos.y)||rampUnder(p.pos.x+mvx*1.6,p.pos.z+mvz*1.6,ahead);

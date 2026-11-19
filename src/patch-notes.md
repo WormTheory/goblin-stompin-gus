@@ -2,6 +2,16 @@
 
 ## Version 0.5
 
+### Crashes
+
+- Vehicles now crash by their weight. A bus ploughs on through a car and shoves it aside, while a car that hits a bus mostly stops dead. Hit a car on its back corner and it spins round; traffic spun out stops steering for a moment, then sets off again.
+- Hit hard enough side-on, a tall vehicle such as a van tips over on its side, and is righted a little later.
+- Something much heavier can throw a lighter vehicle up over its bonnet. Bicycles and scooters hit at speed throw their riders off and cartwheel away.
+- Damage depends on how hard the hit really was, so a gentle nudge does nothing and a big one hurts, more for the lighter of the two.
+- Your own car spins when hit too, but you keep steering.
+- Walls: a glancing blow turns you off along the wall rather than stopping you, and whether you smash through depends on your weight as well as your speed, so a bus goes through where a car bounces off.
+- Gus and Gertie trample cars with their weight: a motorbike spins away, a bus barely moves.
+
 ### Bicycles and scooters
 
 - Four light vehicles out in the streets, ridden by goblins going about their day and parked along the kerbs: a bicycle, a kick scooter, the Gobway (a self-balancing two-wheeler) and a motor scooter. Each is ridden its own way.

@@ -141,7 +141,7 @@ function farmPost(c,dt){const F=c.farm;if(!F)return;
 function farmLiftPost(dt){for(const c of cars){
   // (a forklift wrecked or gone with something on its forks lets go of it, or a car up there would hang in the air)
   if(!c.alive||!c.g.visible){if(c.fork&&c.fork.load)forkDrop(c,false);continue;}const V=c.veh;
-  if(V!=='forklift'&&V!=='tractor'){if(c.tipR){c.tipR=0;c.tipV=0;}continue;}
+  if(V!=='forklift'&&V!=='tractor')continue;   // (anything else gone over is collide.js's: carTip)
   if(V==='forklift'){forkPost(c,dt);tipPost(c,dt);const F=c.fork,P=flParts(c);if(F&&P&&P.carr){const k=1/ES;P.carr.position.y=F.h*k;P.inner.position.y=F.h*k*0.5;P.mast.rotation.x=-F.tilt*Math.PI/180;P.crate.visible=!!(F.load&&F.load.k==='crate');}}
   else{farmPost(c,dt);const F=c.farm,P=flParts(c);if(F&&P&&P.imp){const K=0.8,want=F.down?0.35*K:0.75*K;P.imp.position.y+=(want-P.imp.position.y)*Math.min(1,dt*6);P.plough.visible=F.imp==='plough';P.mower.visible=F.imp==='mower';}}}}
 // their lines in the controls column (drvHow): the forks, or the hand throttle and the hitch

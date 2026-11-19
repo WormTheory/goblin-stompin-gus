@@ -337,12 +337,16 @@ function updateCars(dt){
       else if(ahead-c.pos.y>rampLim){
         // (into a wall fast enough, and it smashes a hole in it, wrecking its own front and losing most of its speed;
         // the bigger the vehicle and the faster, the bigger the hole; slower than that, it bounces off)
-        if((c.hunter||c.drv)&&Math.abs(c.speed)>13){const sp=Math.abs(c.speed),k=Math.min(1,(sp-13)/15),big=c.hz>3*ES?1.35:LIGHT_RIDE[c.veh]?0.7:1,R=(1.5+k*1.4)*big,
+        // (by its momentum: a bus smashes through at a crawl a car would bounce off at, though never under 7 a second; collide.js)
+        const mw=carMass(c);
+        if((c.hunter||c.drv)&&Math.abs(c.speed)>Math.max(7,13/mw)){const sp=Math.abs(c.speed),k=Math.min(1,(sp*mw-13)/15),big=c.hz>3*ES?1.35:LIGHT_RIDE[c.veh]?0.7:1,R=(1.5+k*1.4)*big,
             ix=c.pos.x+fx*2.7*dir,iz=c.pos.z+fz*2.7*dir,iy=c.pos.y+Math.min(R*0.9,(c.hy||1.4)*0.6)+0.1;
           crushBall(ix,iy,iz,R,{force:0.8+k});damageCar(c,4+sp*0.4,undefined,'acc');sfx('Vehicle crashes into a wall',()=>{thud(0.7);clang();});addShake(0.4+k*0.5,ix,iz,25);smoke(ix,iy,iz,6,0x9a948a);
           c.speed*=0.35;if(LIGHT_RIDE[c.veh]&&c.drv)drvExit(c.drv,true);}   // (off a motorcycle, or anything light, you go)
         else if(c.hunter||c.drv||c.crew){if(lightOf(c)&&c.drv&&Math.abs(c.speed)>5.5)drvExit(c.drv,true);   // (over the bars into a wall)
-          if(Math.abs(c.speed)>6){damageCar(c,1,undefined,'acc');sfx('Vehicle bumps a wall',()=>{thud(0.25);});}c.speed*=-0.25;if(c.reverseT<=0)c.reverseT=0.8;}
+          // (it bounces off at the corner that hit, so a glancing blow turns it along the wall and one off its middle spins it: collide.js)
+          const sp0=Math.abs(c.speed),P=carWallPt(c,dir)||{x:c.pos.x+fx*pa*dir,z:c.pos.z+fz*pa*dir},j=carWall(c,P.x,P.z);
+          if(j/mw>6){damageCar(c,1,undefined,'acc');sfx('Vehicle bumps a wall',()=>{thud(0.25);});}if(!c.drv&&c.reverseT<=0&&sp0>0.5)c.reverseT=0.8;}
         else if(c.path){const W=c.path[0],d=Math.hypot(W.x-c.pos.x,W.z-c.pos.z)||1;c.speed=Math.min(c.speed,1);nudgeFlat(c,(W.x-c.pos.x)/d*2*dt,(W.z-c.pos.z)/d*2*dt);
           // wedged against a barrier just after peeling off the motorway: give up on the exit and carry on along the motorway
           c.pathBlk=(c.pathBlk||0)+dt;if(c.pathBlk>1.5&&c.prevHw&&Math.abs(c.pos.y-c.prevHw.y)<1.2){c.hw=c.prevHw;c.prevHw=null;c.path=null;c.pathBlk=0;}}
@@ -358,8 +362,10 @@ function updateCars(dt){
         const fast=Math.abs(c.speed)>9,pd=pvpOn()&&pvpDriver(c),alive=q.state!=='dead';   // (driven by another player, with PvP on: theirs is the blame)
         damagePlayer(q,fast?4:2,new V3(q.pos.x,q.pos.y+1.3,q.pos.z),new V3(fx*dir,0.3,fz*dir),fast?'Run down':'Hit by traffic',pd&&pd!==q?pvpWho(pd):c.driver);
         if(pd&&pd!==q&&alive&&q.state==='dead')pvpKilled(pd,q);
-        shove(q,fx*dir*1.4,fz*dir*1.4);
-        c.speed*=-0.3;c.reverseT=0.9;c.ramCD=1.2;sfx('Vehicle rams a hippo',()=>{thud(0.8);clang();});addShake(0.4,q.pos.x,q.pos.z,10);
+        // (they trade momentum: a car bounces off a hippo, a bus barely slows and sends it flying; collide.js)
+        {const J=coImpulse(coBody(c),{m:q.gob?CO.gob:CO.hippo,I:Infinity,x:q.pos.x,z:q.pos.z,vx:0,vz:0,w:0},fx*dir,fz*dir,q.pos.x,q.pos.z,CO.e,CO.mu);
+          if(J){coApply(c,J.a,J.j,null);shove(q,J.b.dx*0.28,J.b.dz*0.28);}else shove(q,fx*dir*1.4,fz*dir*1.4);}
+        if(c.speed*dir<0.5)c.reverseT=0.9;c.ramCD=1.2;sfx('Vehicle rams a hippo',()=>{thud(0.8);clang();});addShake(0.4,q.pos.x,q.pos.z,10);
         flashLabel(fast?'Run down':'Hit by traffic',q);
         damageCar(c,2,undefined,'acc');
       }
@@ -370,28 +376,24 @@ function updateCars(dt){
     else if(Math.abs(c.speed)>5&&nearestPlayer(c.pos.x,c.pos.z,false)?.d<140){const sp=Math.abs(c.speed),R=c.hz+1.5;
       for(const gb of goblins){if(gb.state!=='chase'||gb.hp<=0||gb.trainT>0||!gb.root.visible)continue;const ex=gb.pos.x-c.pos.x,ez=gb.pos.z-c.pos.z;if(ex>R||ex<-R||ez>R||ez<-R||!carHitsGoblin(c,gb))continue;
         const k=Math.min(1,sp/24),sg=(ex*fz-ez*fx)>=0?1:-1,D=new V3(fx*dir*0.8+fz*sg*0.5,0,fz*dir*0.8-fx*sg*0.5);gb.trainT=1;
-        damageGoblin(gb,Math.round(2+8*k),new V3(gb.pos.x,gb.pos.y+0.8,gb.pos.z),D,'Run over',c.driver||ACCIDENT);gb.vy=Math.max(gb.vy||0,5+8*k);gb.kv.x+=D.x*(6+14*k);gb.kv.z+=D.z*(6+14*k);
+        damageGoblin(gb,Math.round(2+8*k),new V3(gb.pos.x,gb.pos.y+0.8,gb.pos.z),D,'Run over',c.driver||ACCIDENT);const mk=Math.sqrt(carMass(c));gb.vy=Math.max(gb.vy||0,(5+8*k)*Math.min(1.6,mk));gb.kv.x+=D.x*(6+14*k)*mk;gb.kv.z+=D.z*(6+14*k)*mk;   // (the heavier it is, the further it throws them)
         c.speed*=0.6;sfx('Vehicle runs a goblin over',()=>{thud(0.3);});}}
     if(c.hp<15){c.smokeT-=dt;if(c.smokeT<=0){c.smokeT=c.hp<8?0.06:0.15;const hx=c.pos.x+fx*1.5,hz=c.pos.z+fz*1.5;smoke(hx,c.pos.y+1.1,hz,1,c.hp<8?0x1a1a1a:0x666666);if(c.hp<8)puff(hx,c.pos.y+0.9,hz,1,Math.random()<.5?0xff8a2a:0xffc040,0.25);}}
     if(c.forkOn&&!(c.forkOn.alive&&c.forkOn.g.visible))c.forkOn=null;   // (its forklift's gone: it falls)
     if(c.forkOn){c.vy=0;c.grounded=true;}else carPhysics(c,dt);if(!c.alive)continue;   // (up on a forklift's forks: forkPost holds it there, it doesn't fall or settle on the ground under it)
     if(Math.abs(c.kv.x)+Math.abs(c.kv.z)>0.05){nudgeFlat(c,c.kv.x*dt,c.kv.z*dt);const k=Math.exp(-dt*3.5);c.kv.x*=k;c.kv.z*=k;}
+    carSpin(c,dt);   // (sent spinning by a knock: collide.js)
     c.g.position.copy(c.pos);c.g.rotation.set(c.pitch+(c.wly||0),c.heading,c.roll+(c.tipR||0)+(LIGHT_LEAN[c.veh]?-c.steer*Math.min(1,Math.abs(c.speed)/8)*LIGHT_LEAN[c.veh]:0));lightLook(c,dt);   // (a motorcycle, or a bicycle or scooter, leans into its turns)
+    carTip(c,dt);   // (gone over on its side: collide.js)
     for(const w of c.wheels)w.rotation.x+=c.speed*dt/0.36;
     for(const f of c.front)f.rotation.y=c.steer*(c.veh==='forklift'?-0.6:0.45);   // (a forklift steers with its back wheels)
     if(c.fan&&c.drv)c.fan.rotation.z+=dt*(14+Math.abs(c.speed)*0.8);   // (a hovercraft's fan, while someone's at the controls)
   }
-  // fender benders
-  for(let i=0;i<cars.length;i++){const a=cars[i];if(!a.alive)continue;for(let j=i+1;j<cars.length;j++){const b=cars[j];if(!b.alive)continue;
+  // fender benders: by their masses, an impulse where they meet (collide.js). Far apart is thrown out first, cheaply
+  for(let i=0;i<cars.length;i++){const a=cars[i];if(!a.alive)continue;const ra=Math.max(a.hx,a.hz)+0.5;for(let j=i+1;j<cars.length;j++){const b=cars[j];if(!b.alive)continue;
+    const dx=b.pos.x-a.pos.x,dz=b.pos.z-a.pos.z,r=ra+Math.max(b.hx,b.hz);if(dx>r||dx<-r||dz>r||dz<-r)continue;
     if(a.forkOn===b||b.forkOn===a)continue;   // (a car up on a forklift's forks sits over its front: they don't bump each other apart, or the forklift's shoved backwards every step)
-    const dx=b.pos.x-a.pos.x,dz=b.pos.z-a.pos.z,d=Math.hypot(dx,dz);
-    if(d<a.hz+b.hz+0.5&&d>0.001&&Math.abs(b.pos.y-a.pos.y)<1.6&&boxesTouch(a.pos.x,a.pos.z,a.heading,a.hx+0.15,a.hz+0.15,b.pos.x,b.pos.z,b.heading,b.hx+0.15,b.hz+0.15)){const push=0.25,ux=dx/d,uz=dz/d;
-      // (a car held on the forks doesn't give: the other one's pushed the whole way)
-      const pa=a.forkOn?0:b.forkOn?2*push:push,pb=b.forkOn?0:a.forkOn?2*push:push;nudgeFlat(a,-ux*pa,-uz*pa);nudgeFlat(b,ux*pb,uz*pb);
-      const rel=Math.abs(a.speed-b.speed*(Math.cos(a.heading-b.heading)));
-      // (a news van's on the road the longest, nobody gives way to it, and a bump's no story: it takes these lightly)
-      if(rel>5){if(a.svcPool!=='news'&&b.svcPool!=='news')reportNews(a.pos.x,a.pos.z,'car crash');damageCar(a,a.svcPool==='news'?1:4,undefined,'acc');damageCar(b,b.svcPool==='news'?1:4,undefined,'acc');sfx('Vehicles collide',()=>{clang();thud(0.4);});addShake(0.2,a.pos.x,a.pos.z,15);}
-      a.speed*=0.5;b.speed*=0.5;}}}
+    if(dx*dx+dz*dz<r*r&&Math.abs(b.pos.y-a.pos.y)<1.6)carsCollide(a,b,dt);}}
 }
 function updateSiren(dt){
   let best=null,bd=1e9;
