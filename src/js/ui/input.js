@@ -126,15 +126,19 @@ function pause(by){menuBy=by&&by.ui?by:P1;pauseAt=performance.now();SUB_FROM=nul
   if(TENV)tpShow(true);menuSeat();renderChar();menuOpen=true;playing=false;menuMode();keys.clear();mHeld.clear();pauseEl.hidden=false;renderObitCount();if(curTab==='obit'){obitSel=0;renderObits();}if(curTab==='controls')renderControls();if(curTab==='map'){MAPV.cx=null;saveExplored();setTimeout(renderMap,0);}renderRampage();try{if(locked())document.exitPointerLock();}catch(e){}const pf=document.getElementById(curTab==='game'?'resumeBtn':'subBack');if(inputKind==='pad')padFocus(pf);else pf.focus();}
 // the browser keeps Esc to let go of the mouse, so letting go is how Esc pauses. But the mouse is also let go when the
 // window loses focus (another window clicked, alt-tab) or the tab is hidden, and that mustn't pause: the game carries on
-// in the background (a host's tab hidden, say), and a click on it takes the mouse back. So it waits a moment and
-// pauses only if the window still has focus, is showing and hasn't just lost focus. (Not on a controller either: one used
-// in the last minute keeps working with the mouse let go.)
-let blurAt=-1e9;
-addEventListener('blur',()=>{blurAt=performance.now();});
-document.addEventListener('visibilitychange',()=>{if(document.hidden)blurAt=performance.now();});
+// in the background (a host's tab hidden, say), and a click on it takes the mouse back. Alt-tab can let the mouse go
+// before the window hears it's lost focus, so the pause waits LOCK_WAIT, and losing focus or being hidden any time from
+// just before letting go till then calls it off. (Not on a controller either: one used in the last minute keeps working
+// with the mouse let go.)
+const LOCK_WAIT=350;
+let blurAt=-1e9,lockLostT=null;
+function lockCalmOff(){blurAt=performance.now();if(lockLostT!==null){clearTimeout(lockLostT);lockLostT=null;}}
+addEventListener('blur',lockCalmOff);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)lockCalmOff();});
 function lockLostPause(){if(!menuOpen&&!dragMode&&!P1.paused&&!DT.kbdOpen&&!chatHasEsc()&&!locked()&&!(performance.now()-lastPadT<60000&&connectedPads().length))requestPause(P1);}
 document.addEventListener('pointerlockchange',()=>{if(locked()){lockOk=true;lockFails=0;return;}
-  setTimeout(()=>{if(document.hidden||performance.now()-blurAt<400||(document.hasFocus&&!document.hasFocus()))return;lockLostPause();},150);});
+  if(lockLostT!==null)clearTimeout(lockLostT);const t0=performance.now();
+  lockLostT=setTimeout(()=>{lockLostT=null;if(document.hidden||blurAt>t0-200||(document.hasFocus&&!document.hasFocus()))return;lockLostPause();},LOCK_WAIT);});
 // in co-op each hippo pauses on their own; the city only stops once everyone has paused
 const inCoop=()=>coop&&P2.active;
 function requestPause(p){if(inCoop())pausePlayer(p);else pause();}
