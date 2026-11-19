@@ -342,6 +342,7 @@
 - Theme park rides' and zoo animals' health now shows correctly to guests online.
 - Big worlds saved into the browser's database could be saved over by an older save finishing late, or not loaded back at all after a save that didn't finish; saves now go one at a time, and loading finds the blocks either way.
 - A badly smashed-up world no longer stutters every few seconds as it saves: the game only writes the parts of it that changed since the last save.
+- Wind turbines, motorways, bridges, stadiums and other things that aren't buildings no longer have rows of lit windows on them when seen from far off, and neither do windowless buildings such as building sites, car parks and the data centre.
 
 ## Version 0.4.1
 

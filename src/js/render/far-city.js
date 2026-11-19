@@ -18,11 +18,12 @@ const FAR_FRAG=[
   ' vec3 wall=c0*sh*uLight;',
   // (and weather on the tops, but not the sea's: rain darkens them, snow settles on them, on average as it does on the
   // blocks' tops, where each spot is covered once its own share of the snow comes)
-  ' if(up>0.5&&vWin.a>-1.5){wall*=1.0-0.3*uWet;float snowL=min(uSnow,uSnowClk);wall=mix(wall,vec3(0.897,0.909,0.927)*uLight,clamp(snowL*1.12,0.0,1.0)*step(0.002,snowL));}',
+  ' if(up>0.5&&abs(vWin.a+2.0)>0.5){wall*=1.0-0.3*uWet;float snowL=min(uSnow,uSnowClk);wall=mix(wall,vec3(0.897,0.909,0.927)*uLight,clamp(snowL*1.12,0.0,1.0)*step(0.002,snowL));}',
   ' const float WP=0.3575;',
-  ' float win=side*step(0.45,fract((vWP.x+vWP.z)*0.5))*step(0.35,fract((vWP.y-5.0)/5.0))*uWin;',
-  ' float f=max(vWin.a,0.0)*side*uWin,g=min(1.0,f/WP),gw=max(0.0,(f-WP)/(1.0-WP)),k=mix(1.0,(1.0-0.75*WP-0.25*min(f,WP))/(1.0-WP),side*uWin);',
-  ' vec3 base=mix(mix(wall*k,vWin.rgb,gw),mix(wall*0.75,vWin.rgb,g),win*step(0.001,uWin));',
+  ' float uw=uWin*step(-2.5,vWin.a);',   // (no windows on a box that isn't a building, -3)
+  ' float win=side*step(0.45,fract((vWP.x+vWP.z)*0.5))*step(0.35,fract((vWP.y-5.0)/5.0))*uw;',
+  ' float f=max(vWin.a,0.0)*side*uw,g=min(1.0,f/WP),gw=max(0.0,(f-WP)/(1.0-WP)),k=mix(1.0,(1.0-0.75*WP-0.25*min(f,WP))/(1.0-WP),side*uw);',
+  ' vec3 base=mix(mix(wall*k,vWin.rgb,gw),mix(wall*0.75,vWin.rgb,g),win*step(0.001,uw));',
   ' float hh=fract(sin(dot(floor(vec3((vWP.x+vWP.z)*0.5,(vWP.y-5.0)/5.0,0.0)),vec3(12.9898,78.233,37.719)))*43758.5453);',
   ' base+=win*(1.0-g)*step(0.42,hh)*uNightK*vec3(1.0,0.78,0.42)*0.85;   // (and at night, lights on in the windows that don\'t glow)',
   ' diffuseColor.rgb=base;'].join('\n');
@@ -70,6 +71,8 @@ const FARC={sea:new THREE.Color(topColor(WATER)),deep:new THREE.Color(topColor(W
 // where a building is a few pixels across, makes do with a third of the samples.
 const _flA=[0,0,0],_flB=[0,0,0],_flC=[0,0,0],_flD=[0,0,0];
 function farTile(t,o,k){const h=tileColor[t]!==undefined?tileColor[t]:0x888888;o[0]+=((h>>16)&255)*k;o[1]+=((h>>8)&255)*k;o[2]+=(h&255)*k;}
+// (the blocks that are windows: a building none of whose sides' samples is one gets no rows of windows drawn on its far box)
+const FAR_WINB=new Set([GLASS,WIN_BLUE,WIN_GREEN,WIN_WARM,STAINED]);
 const farAvg=(o,n,dflt)=>n?new THREE.Color(o[0]/n/255,o[1]/n/255,o[2]/n/255):new THREE.Color(dflt);
 function farLook(b,px,pz,fine=true){
   if(b._far&&(b._far.fine||!fine))return b._far;
@@ -77,10 +80,11 @@ function farLook(b,px,pz,fine=true){
   const sv=STRUCT,W=b.x1-b.x0,D=b.z1-b.z0,tierOn=b.tier>0&&W>=8,rf=roofOf(b),hi=b.top+(b.roof||0);
   let sd=Math.floor(hash2(px*73+b.x0*7+b.z1,pz*91+b.z0*5+b.top)*4294967296)>>>0;
   const rnd=()=>{sd=(Math.imul(sd,1664525)+1013904223)>>>0;return sd/4294967296;};
-  const wall=_flA,glow=_flB,roof=_flC,roofG=_flD;wall.fill(0);glow.fill(0);roof.fill(0);roofG.fill(0);let nw=0,ng=0,nr=0,nrg=0;
+  const wall=_flA,glow=_flB,roof=_flC,roofG=_flD;wall.fill(0);glow.fill(0);roof.fill(0);roofG.fill(0);let nw=0,ng=0,nr=0,nrg=0,nwin=0;
   // the sides: a spot on the outline (a tiered tower's upper part has its own, two in), then in from there to the first
-  // block, as it's seen from straight out
-  for(let n=0;n<NS;n++){
+  // block, as it's seen from straight out (the middle ring's fewer samples go on to the full number if they've found no window
+  // yet, so a building with only a few isn't taken for one with none)
+  for(let n=0;n<(fine||nwin||ng?NS:128);n++){
     const y=G+1+Math.floor(rnd()*(b.top-G)),ins=tierOn&&y>b.tier?2:0,w=W-2*ins,d=D-2*ins;if(w<=0||d<=0)continue;
     let t=rnd()*2*(w+d),rx,rz,dx=0,dz=0;
     if(t<w){rx=b.x0+ins+Math.floor(t);rz=b.z0+ins;dz=1;}
@@ -88,6 +92,7 @@ function farLook(b,px,pz,fine=true){
     else if((t-=w)<d){rz=b.z0+ins+Math.floor(t);rx=b.x0+ins;dx=1;}
     else{rz=b.z0+ins+Math.floor(t-d);rx=b.x1-1-ins;dx=-1;}
     for(let s=0;s<=Math.min(w,d)/2;s++){const v=blockAt(b,rx+dx*s,rz+dz*s,y,px,pz),B=v!==AIR&&BLOCK[v];if(!B||B.hide||B.thin||B.liquid)continue;
+      if(FAR_WINB.has(v))nwin++;
       if(B.glow){farTile(B.tiles[2],glow,1);ng++;}else{farTile(B.tiles[2],wall,1);nw++;}break;}
   }
   // the top: the highest block in each of a few columns (whatever's on the roof, or the roof itself)
@@ -103,18 +108,20 @@ function farLook(b,px,pz,fine=true){
   if(nrg>nr){for(let i=0;i<3;i++)roof[i]+=roofG[i];nr+=nrg;}
   STRUCT=sv;
   const c=farAvg(wall,nw,blockColor(b.wall));
-  return b._far={fine,wall:c,glow:farAvg(glow,ng,0),f:ng/Math.max(1,nw+ng),top:farAvg(roof,nr,topColor(ROOF))};
+  return b._far={fine,wall:c,glow:farAvg(glow,ng,0),f:nwin||ng?ng/Math.max(1,nw+ng):-3,top:farAvg(roof,nr,topColor(ROOF))};
 }
 // staging buffers: a job writes boxes here; they're copied into the ring's meshes when it finishes
 // (each box: its matrix, its colour (the sides), its top's colour, and its glowing windows' colour and share of the sides;
-// on a box of ground with no windows, that share says what it is instead: -1 grass, which turns with the seasons, -2 the sea)
+// on a box of ground with no windows, that share says what it is instead: -1 grass, which turns with the seasons, -2 the sea,
+// and -3 anything else with no look of its own: a highway, bridge, stadium or wind turbine, which gets no windows. A building
+// built from a plain colour that should still have them is given a look, farWinL)
 const farStage=()=>({mat:new Float32Array(16*2048),col:new Float32Array(3*2048),top:new Float32Array(3*2048),wn:new Float32Array(4*2048),n:0});
 const farGrowArr=(a,n)=>{const q=new Float32Array(n);q.set(a);return q;};
 function farBox(F,x0,y0,z0,x1,y1,z1,c,L){
   if((F.n+1)*16>F.mat.length){const N=F.mat.length*2;F.mat=farGrowArr(F.mat,N);F.col=farGrowArr(F.col,N*3/16);F.top=farGrowArr(F.top,N*3/16);F.wn=farGrowArr(F.wn,N/4);}
   const o=F.n*16,m=F.mat;m.fill(0,o,o+16);m[o]=x1-x0;m[o+5]=y1-y0;m[o+10]=z1-z0;m[o+12]=(x0+x1)/2;m[o+13]=(y0+y1)/2;m[o+14]=(z0+z1)/2;m[o+15]=1;
   const i=F.n*3,t=L?L.top:c;F.col[i]=c.r;F.col[i+1]=c.g;F.col[i+2]=c.b;F.top[i]=t.r;F.top[i+1]=t.g;F.top[i+2]=t.b;
-  const j=F.n*4;if(L){F.wn[j]=L.glow.r;F.wn[j+1]=L.glow.g;F.wn[j+2]=L.glow.b;F.wn[j+3]=L.f;}else{F.wn.fill(0,j,j+3);F.wn[j+3]=c===FARC.park?-1:c===FARC.sea||c===FARC.deep||c===_fw?-2:0;}
+  const j=F.n*4;if(L){F.wn[j]=L.glow.r;F.wn[j+1]=L.glow.g;F.wn[j+2]=L.glow.b;F.wn[j+3]=L.f;}else{F.wn.fill(0,j,j+3);F.wn[j+3]=c===FARC.park?-1:c===FARC.sea||c===FARC.deep||c===_fw?-2:-3;}
   F.n++;
 }
 // the far view of a block of the sea and its shore: n x n patches of water, beach, grass, or a port's concrete
@@ -130,6 +137,7 @@ function farSea(SG,px,pz,n){
 // the far view of one plains block: the rivers and highways crossing it, as boxes along their lines (each piece drawn
 // by the block its middle falls in, every third piece standing for three)
 const _fw=new THREE.Color();
+const FAR_DARK=new THREE.Color(0,0,0),farWinL=c=>({glow:FAR_DARK,f:0,top:c});   // (a plain-coloured building's look: windows, none glowing)
 function farLinesPlot(SB,SG,px,pz){
   const X0=px*CELL,Z0=pz*CELL,X1=X0+CELL,Z1=Z0+CELL,inP=(x,z)=>x>=X0&&x<X1&&z>=Z0&&z<Z1;
   const seg=(F,R,i,w,y0,y1,c)=>{const j=Math.min(i+3,R.pts.length-1),[ax,az]=R.pts[i],[bx,bz]=R.pts[j];if(!inP((ax+bx)/2,(az+bz)/2))return;
@@ -172,14 +180,14 @@ function* farJobNear(SB,SG,act,ra,rb){
         } else farBox(SB,X0+b.x0,G+1,Z0+b.z0,X0+b.x1,top+1+(b.roof||0)*0.6,Z0+b.z1,L.wall,L);
       }
       if(P.super&&P.super.kind==='capitol'&&px===P.super.ax&&pz===P.super.az&&collapses[px+','+pz+',0']===undefined){
-        const g=capGeo(),sx=X0+PL0,sz=Z0+PL0;_fc.setHex(blockColor(HOSPW));
+        const g=capGeo(),sx=X0+PL0,sz=Z0+PL0;_fc.setHex(blockColor(HOSPW));const cL=farWinL(_fc);
         farBox(SG,sx,G+0.97,sz,sx+g.W,G+1.02,sz+g.L,FARC.park);
-        farBox(SB,sx+g.px0,G+1,sz+g.bf,sx+g.px1,G+24,sz+g.back,_fc);
-        farBox(SB,sx+g.px0,G+1,sz+g.pz0,sx+g.px1,G+4,sz+g.bf,_fc);
-        farBox(SB,sx+g.c-16,G+24,sz+g.bf,sx+g.c+16,G+29,sz+g.bf+32,_fc);
-        farBox(SB,sx+g.c-12,G+29,sz+g.dc-12,sx+g.c+12,G+42,sz+g.dc+12,_fc);
-        farBox(SB,sx+g.c-7,G+42,sz+g.dc-7,sx+g.c+7,G+48,sz+g.dc+7,_fc);
-        farBox(SB,sx+g.c-1,G+48,sz+g.dc-1,sx+g.c+1,G+60,sz+g.dc+1,_fc);
+        farBox(SB,sx+g.px0,G+1,sz+g.bf,sx+g.px1,G+24,sz+g.back,_fc,cL);
+        farBox(SB,sx+g.px0,G+1,sz+g.pz0,sx+g.px1,G+4,sz+g.bf,_fc,cL);
+        farBox(SB,sx+g.c-16,G+24,sz+g.bf,sx+g.c+16,G+29,sz+g.bf+32,_fc,cL);
+        farBox(SB,sx+g.c-12,G+29,sz+g.dc-12,sx+g.c+12,G+42,sz+g.dc+12,_fc,cL);
+        farBox(SB,sx+g.c-7,G+42,sz+g.dc-7,sx+g.c+7,G+48,sz+g.dc+7,_fc,cL);
+        farBox(SB,sx+g.c-1,G+48,sz+g.dc-1,sx+g.c+1,G+60,sz+g.dc+1,_fc,cL);
       }
       if(P.super&&P.super.kind==='bigpark'&&px===P.super.ax&&pz===P.super.az){
         const SS=P.super;farBox(SG,X0+PL0,G+0.97,Z0+PL0,X0+(SS.w-1)*CELL+PL1,G+1.02,Z0+(SS.h-1)*CELL+PL1,FARC.park);
@@ -218,8 +226,8 @@ function* farJobMid(SB,SG,act,ra,rb){
       if(!b._far){farLook(b,px,pz,false);yield;}const L=b._far;
       farBox(SB,X0+b.x0,G+1,Z0+b.z0,X0+b.x1,(b.tier>0&&top>b.tier?(b.tier+top)/2:top)+1,Z0+b.z1,L.wall,L);}
     if(P.super&&P.super.kind==='capitol'&&px===P.super.ax&&pz===P.super.az&&collapses[px+','+pz+',0']===undefined){
-      const g=capGeo(),sx=X0+PL0,sz=Z0+PL0;_fc.setHex(blockColor(HOSPW));
-      farBox(SB,sx+g.px0,G+1,sz+g.bf,sx+g.px1,G+24,sz+g.back,_fc);farBox(SB,sx+g.c-12,G+24,sz+g.dc-12,sx+g.c+12,G+44,sz+g.dc+12,_fc);}
+      const g=capGeo(),sx=X0+PL0,sz=Z0+PL0;_fc.setHex(blockColor(HOSPW));const cL=farWinL(_fc);
+      farBox(SB,sx+g.px0,G+1,sz+g.bf,sx+g.px1,G+24,sz+g.back,_fc,cL);farBox(SB,sx+g.c-12,G+24,sz+g.dc-12,sx+g.c+12,G+44,sz+g.dc+12,_fc,cL);}
     if(P.super&&P.super.kind==='stadium'&&px===P.super.ax&&pz===P.super.az){
       const SS=P.super,sx=X0+PL0,sz=Z0+PL0,W=(SS.w-1)*CELL+PW,L=(SS.h-1)*CELL+PW;_fc.setHex(blockColor(CONCRETE));
       farBox(SB,sx,G+1,sz,sx+W,G+STAND+5,sz+L,_fc);}
