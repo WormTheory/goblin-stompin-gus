@@ -571,7 +571,8 @@ function netWorld(w){
     const have=new Set(TENV.boxes.map(key));for(const B of w.tenv)if(!have.has(key(B))){const C=Object.assign({},B);TENV.boxes.push(C);tenvIndex();linkNearC.clear();tenvRebuild(C);}}
   if(w.sea!==undefined&&TENV&&JSON.stringify(w.sea)!==JSON.stringify(TENV.sea||null)){TENV.sea=w.sea;if(w.sea)seaRebuild();}
   if(w.sprop)netShipPropsSet(w.sprop);
-  if(w.coll){const ch=new Set();for(const k in w.coll)if(!(NET_COLL.get(k)<=w.coll[k]))netCollapse(k,w.coll[k],ch);collapses=w.coll;if(ch.size)rebuildSet(ch);}   // (one whose word went missing, or came while away)if(w.wreck)wrecked=w.wreck;if(w.dest){destroyed=w.dest;destroyVer++;}
+  if(w.coll){const ch=new Set();for(const k in w.coll)if(!(NET_COLL.get(k)<=w.coll[k]))netCollapse(k,w.coll[k],ch);collapses=w.coll;if(ch.size)rebuildSet(ch);}   // (one whose word went missing, or came while away)
+  if(w.wreck)wrecked=w.wreck;if(w.dest){destroyed=w.dest;destroyVer++;}   // (these two were once lost on the end of the comment above)
   if(w.down){downFix.clear();for(const [k,v] of w.down)if(!falling.has(k))downFix.set(k,v);netDressT=0;}   // (one still falling here lands in its own time)   // (the street's fixtures drawn again, knocked-down ones lying down)
   if(w.fire){fires.length=0;for(const f of w.fire)fires.push({x:f[0],y:f[1],z:f[2],r:f[3],t:f[4],life:f[5],base:f[5],born:playTime,flames:!!f[6],acc:0,sacc:0,hurt:9,sm:f[7],rise:f[8],douse:!!f[9],blame:null});}
 }

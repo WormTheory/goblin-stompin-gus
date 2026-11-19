@@ -336,7 +336,7 @@ function buildBodyMesh(blocks,plane){
     const info=BLOCK[q.b];if(!info||!info.tiles)continue;let ex=false;
     for(const f of FACES){
       const [dx,dy,dz]=f.dir;if(set.has(bkey(q.x+dx,q.y+dy,q.z+dz)))continue;ex=true;
-      const tile=dy===1?info.tiles[0]:dy===-1?info.tiles[1]:info.tiles[2],tx=tile%AC,ty=Math.floor(tile/AC),n=P.length/3,s=info.glow?2:f.shade*DIM;
+      const tile=dy===1?info.tiles[0]:dy===-1?info.tiles[1]:info.tiles[2],tx=tile%AC,ty=Math.floor(tile/AC),n=P.length/3,s=f.shade*DIM;   // (a piece coming down never glows: its lights are out)
       for(const c of f.c){P.push(q.x+c[0],q.y+c[1],q.z+c[2]);U.push((tx+0.002+c[3]*0.996)/AC,1-(ty+1)/AR+(0.002+c[4]*0.996)/AR);C.push(s,s,s);}
       I.push(n,n+1,n+2,n+2,n+1,n+3);
     }

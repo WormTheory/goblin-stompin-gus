@@ -196,6 +196,8 @@ function adMat(i){
   const t=new THREE.CanvasTexture(cv);t.anisotropy=4;return adCache[i]=new THREE.MeshLambertMaterial({map:t});
 }
 const brandTexCache=new Map();
+// a sign whose building's lights are out: the same picture, lit like anything else rather than glowing
+function brandDark(m){if(!m.dark)m.dark=new THREE.MeshLambertMaterial({map:m.map,transparent:m.transparent,alphaTest:m.alphaTest,color:0x9a9a9a});return m.dark;}
 function brandTex(B,aspect){
   const key=B.n+'|'+B.bg+'|'+aspect;let t=brandTexCache.get(key);if(t)return t;
   const cv=document.createElement('canvas'),W=B.marq?1024:512,Hh=Math.round(W/aspect);cv.width=W;cv.height=Hh;const x=cv.getContext('2d');
@@ -339,7 +341,7 @@ function refreshBrandSigns(){
     for(let px=Math.floor((p.pos.x-R-pad)/CELL);px<=Math.floor((p.pos.x+R)/CELL);px++)for(let pz=Math.floor((p.pos.z-R-pad)/CELL);pz<=Math.floor((p.pos.z+R)/CELL);pz++){
       const ck=px*100003+pz;if(seen.has(ck))continue;seen.add(ck);
       if(!tenvShow(px,pz))continue;const P=plotInfo(px,pz);if(!P.b.length)continue;
-      for(let bi=0;bi<P.b.length;bi++){const b=P.b[bi];if(!b.brand)continue;
+      for(let bi=0;bi<P.b.length;bi++){const b=P.b[bi];if(!b.brand)continue;const dark=BL_DARK.has(px+','+pz+','+bi);   // (its lights out: lights-out.js)
         // (working out where a sign goes looks at its building, which makes its chunks: one a frame until they're there)
         if(!b._signs&&!ST.dressing&&!mayLook(px*CELL+b.x0,pz*CELL+b.z0))continue;
         const sp=brandSpots(b,px,pz);
@@ -351,11 +353,11 @@ function refreshBrandSigns(){
           if(!up){if(was===true){const c=parseInt(S.B.bg.slice(1),16);puff(S.x,S.y,S.z,10,c,0.7);puff(S.x,S.y,S.z,6,parseInt(S.B.fg.slice(1),16),0.5);clang();}continue;}
           if(S.pole){const q=bpoleAt(nBP++);if(!q)continue;const mt=brandTex(S.B,S.aspect),bot=S.y-S.h/2;
             q.g.position.set(S.x,0,S.z);q.g.rotation.set(0,S.yaw,0);q.post.position.set(0,(G+2+bot+0.3)/2,0);q.post.scale.set(1,bot+0.3-(G+2),1);
-            q.board.position.set(0,S.y,0);q.board.scale.set(S.w,S.h,1);q.board.material[4]=mt;q.board.material[5]=mt;
-            {let em=BPOLE.rims.get(S.B.ac);if(!em){em=new THREE.MeshBasicMaterial({color:parseInt(S.B.ac.slice(1),16)});BPOLE.rims.set(S.B.ac,em);}for(let k=0;k<4;k++)q.board.material[k]=em;}   // the board's sides in the sign's rim colour
+            q.board.position.set(0,S.y,0);q.board.scale.set(S.w,S.h,1);const mtd=dark?brandDark(mt):mt;q.board.material[4]=mtd;q.board.material[5]=mtd;
+            {let em=BPOLE.rims.get(S.B.ac);if(!em){em=new THREE.MeshBasicMaterial({color:parseInt(S.B.ac.slice(1),16)});BPOLE.rims.set(S.B.ac,em);}for(let k=0;k<4;k++)q.board.material[k]=dark?BPOLE.edge:em;}   // the board's sides in the sign's rim colour
             q.g.visible=true;continue;}
           const m=bsignAt(nBS++);if(!m)continue;
-          m.material=brandTex(S.B,S.aspect);m.position.set(S.x,S.y,S.z);m.rotation.set(0,S.yaw,0);m.scale.set(S.w,S.h,1);m.visible=true;
+          m.material=dark?brandDark(brandTex(S.B,S.aspect)):brandTex(S.B,S.aspect);m.position.set(S.x,S.y,S.z);m.rotation.set(0,S.yaw,0);m.scale.set(S.w,S.h,1);m.visible=true;
         }}
     }
   }

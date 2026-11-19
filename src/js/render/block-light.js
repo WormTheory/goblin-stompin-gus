@@ -28,9 +28,12 @@ const BL_D=new Uint8Array(BLW);for(let w=0;w<BLW;w++)BL_D[w]=Math.max(0,14-w,w-(
 let BL_y0=0,BL_y1=-1,BL_x0=0,BL_z0=0,BL_any=false;   // (the layers the last fill wrote, cleared after; the window's corner in the world)
 let BL_r=0,BL_g=0,BL_b=0;   // (the light emitBox, emitFence and emitRamp give their corners: set by buildChunk before each)
 // where a chunk's light-giving blocks are, found once and kept on its array (setRaw drops it when one comes or goes)
-function blkEmitters(A){
-  if(A.blkE)return A.blkE;const L=[];
-  for(let i=0;i<A.length;i++)if(B_LIT[A[i]])L.push(i);
+function blkEmitters(A,qx,qz){
+  if(A.blkE)return A.blkE;const L=[],A2=CS*CS,dk=new Map();
+  for(let i=0;i<A.length;i++)if(B_LIT[A[i]]){
+    // (not one in a building whose lights are out, lights-out.js)
+    if(BL_DARK.size&&i>=(G+1)*A2){const c=i%A2;let d=dk.get(c);if(d===undefined){d=bldgDarkAt(qx*CS+c%CS,qz*CS+Math.floor(c/CS));dk.set(c,d);}if(d)continue;}
+    L.push(i);}
   A.blkE=Int32Array.from(L);return A.blkE;
 }
 // the street lamps whose lamps hang in a chunk (where the plan puts them; whether each still stands is asked at the time)
@@ -93,7 +96,7 @@ function blkFill(cx,cz,yLo,yTop){
     const n=wx+wz*BLW+(y+1)*BLA;
     if(BL_R[n]>=r&&BL_G[n]>=g&&BL_B[n]>=b)return;if(BL_R[n]<r)BL_R[n]=r;if(BL_G[n]<g)BL_G[n]=g;if(BL_B[n]<b)BL_B[n]=b;
     if(!BL_INQ[n]){BL_INQ[n]=1;BL_Q[qt]=n;qt=(qt+1)&BL_QM;}if(y<ylo)ylo=y;if(y>yhi)yhi=y;};
-  for(let j=0;j<3;j++)for(let i=0;i<3;i++){const A=NB[j*3+i],E=blkEmitters(A),ox=(i-1)*CS+15,oz=(j-1)*CS+15,qx=cx+i-1,qz=cz+j-1;
+  for(let j=0;j<3;j++)for(let i=0;i<3;i++){const A=NB[j*3+i],E=blkEmitters(A,cx+i-1,cz+j-1),ox=(i-1)*CS+15,oz=(j-1)*CS+15,qx=cx+i-1,qz=cz+j-1;
     for(let q=0;q<E.length;q++){const e=E[q],y=Math.floor(e/(CS*CS)),r=e-y*CS*CS,b=A[e];seed(ox+(r%CS),oz+Math.floor(r/CS),y,B_LR[b],B_LG[b],B_LB[b]);}
     if(qx<SHIP_CX0){
       for(const L of blkLamps(qx,qz)){if(downFix.has(L.key)||falling.has(L.key))continue;

@@ -31,6 +31,7 @@ core/audio.js
 ui/sprites.js
 destruction/smashing.js
 destruction/structure.js
+destruction/lights-out.js
 destruction/topple.js
 destruction/water-flow.js
 player/players.js

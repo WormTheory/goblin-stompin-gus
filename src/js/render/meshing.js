@@ -228,11 +228,13 @@ function buildChunk(cx,cz){
   yLo=Math.max(0,yLo-1);
   // the light from lamps and neon round about (none, and nothing to do, with Block lighting off or nothing lit in reach)
   const BL=BL_ON,lit=BL&&blkFill(cx,cz,yLo,yTop);
+  // (a column of a building whose lights are out, lights-out.js: asked once a column, only where something glows)
+  const dkC=BL_DARK.size?new Int8Array(A2).fill(-1):null,darkCol=(lx,lz)=>{const i=lz*CS+lx;if(dkC[i]<0)dkC[i]=bldgDarkAt(x0+lx,z0+lz)?1:0;return dkC[i]===1;};
   for(let y=yLo;y<=yTop;y++){
     const midY=y>=1&&y<H-1;
     for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){
     const i0=lx+lz*CS+y*A2,b=a[i0];if(!b)continue;
-    const info=BLOCK[b],liquid=!!info.liquid,glow=!!info.glow,out=bufs[liquid?1:0];
+    const info=BLOCK[b],liquid=!!info.liquid,glow=!!info.glow&&!(y>G&&BL_DARK.size&&darkCol(lx,lz)),out=bufs[liquid?1:0];
     if(lit&&(info.ramp||info.thin))blkAt(x0+lx,y,z0+lz);else BL_r=BL_g=BL_b=0;
     if(info.ramp){emitRamp(out,mx0+lx,y,mz0+lz,info);continue;}
     if(info.hide)continue;

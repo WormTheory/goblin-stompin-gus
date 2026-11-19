@@ -8,6 +8,8 @@
 - Anything caught in it is hurt by how close it was: near the middle there's nothing left of anyone, and further out you're knocked about. Cars, gas pumps and mines in the middle are simply gone rather than setting each other off.
 - The game keeps running smoothly while it happens, and the crater is saved with the world and seen the same by everyone playing online.
 - The Testing Environment has a Big blast button, with a slider for its size, to set one off ahead of you.
+- The crater's rim of rubble now sits on the ground, so it no longer hangs in the air on uneven ground or where two craters overlap.
+- Across the flattened town grass is burnt to dirt, streets are broken up in patches of rubble, and the buildings it brings down leave heaps of rubble behind.
 
 ### Nuke Launcher
 
@@ -20,6 +22,7 @@
 
 - At night, lights now light up what's around them. Street lamps pool light on the pavement, neon signs throw their own colours across the street, lit windows glow on the walls and rooms beside them, and lamps, TVs and screens light the rooms they're in. Walls block the light, so it stays in the room or the street it's in. Smash a lamp or a sign and its light goes out.
 - It's switched on or off with Block lighting under Sound & picture in Options. Off, the game looks and runs exactly as before.
+- A building that's been destroyed or brought down goes dark: its windows, neon and signs stop glowing, and the pieces of it falling don't glow either.
 
 ### Trees and water in the distance
 
@@ -335,6 +338,7 @@
 
 ### Fixes
 
+- Playing online, the buildings the host has destroyed and the vehicles wrecked are now kept up to date for everyone else too.
 - The controls listed down the left while driving now match what each vehicle really does. On a controller, the left stick now shows for a boat's or ship's throttle and rudder (the trawler's among them), a tank's tracks, a train's lever, a helicopter in Agile mode and the Gobway, where nothing showed before, and cars list the triggers as throttle and brake. The horn now shows for cars, the forklift, the tractor, the hovercraft and the pedalo, and the kick scooter's brake too. Pressing a stick in now shows as L3 or R3, rather than looking the same as pushing the stick about.
 - The chase camera behind a vehicle no longer swings back round behind it on its own. Switch on Camera auto-recenter in the Controls tab to have it back; it now swings round at the same pace whatever the frame rate.
 - Goblins riding bicycles, kick scooters, Gobways and motor scooters through town no longer sometimes vanish from them, leaving the vehicle rolling along empty. Motorbike riders and the heads of goblins driving cars had the same trouble.

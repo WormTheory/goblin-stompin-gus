@@ -10,7 +10,7 @@ const fs=require('fs'),vm=require('vm'),{performance}=require('perf_hooks');
 const src0=fs.readFileSync('g.js','utf8'),d6=fs.readFileSync('dead6.js','utf8');
 const stubs=d6.slice(d6.indexOf('const deep='),d6.indexOf('\neval(src);'));
 const src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={frame,players,P1,P2,NET,netHostWith,netJoinWith,bigBlast,crushBall,BB,get craters(){return craters},get collapses(){return collapses},get edits(){return edits},'+
-  'get destroyed(){return destroyed},chunks,ckey,chunkArr,CS,G,H,DT,goblins,cars,save,get seed(){return seed},get chunkEdits(){return chunkEdits},rebuildQ,get RAMP(){return RAMP}};})();');
+  'get destroyed(){return destroyed},chunks,ckey,chunkArr,CS,G,H,DT,goblins,cars,save,get seed(){return seed},get chunkEdits(){return chunkEdits},rebuildQ,get RAMP(){return RAMP},bbCol,bbK,bbO,BL_DARK,get destroyedN(){return Object.keys(destroyed).length}};})();');
 if(src===src0)throw new Error('closing line not found');
 const SAVE_KEY=(src0.match(/SAVE_KEY='([^']+)'/)||[])[1];
 const store=init=>{const m=new Map(Object.entries(init||{}));return{getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,String(v)),removeItem:k=>m.delete(k),get _m(){return m}};};
@@ -67,6 +67,13 @@ if(process.env.SKIP2!=='1'){const H=game('solo',SEED,{});H.play();H.step(120);co
   console.log('whole frame while it ran: worst',f1(worstF),'ms, 95th',f1(sorted[Math.floor(sorted.length*0.95)]),'median',f1(sorted[sorted.length>>1]));
   H.step(60*8);T.save();H.step(60);
   const s=H.LS.getItem(SAVE_KEY)||'',o=JSON.parse(s||'{}');
+  // a second blast half a crater across, so its rim runs over the first one's bowl: any rim block with nothing under it?
+  const J2=T.bigBlast(J.C.x+R*0.3,T.G+1,J.C.z,R*0.5);let n2=0;while(!J2.done&&n2<60*40){H.step(1);n2++;}H.step(60);
+  {let lipN=0,fl=0;const o=T.bbO();for(const C of T.craters){const K=T.bbK(C);for(let x=Math.floor(C.x-C.R*0.3);x<=C.x+C.R*0.3;x++)for(let z=Math.floor(C.z-C.R*0.3);z<=C.z+C.R*0.3;z++){
+      T.bbCol(C,K,x,z,o);if(o.zone!==2)continue;const cx=Math.floor(x/16),cz=Math.floor(z/16),A=T.chunks.get(T.ckey(cx,cz));if(!A)continue;
+      for(let y=1;y<T.H-1;y++){const b=A[(x-cx*16)+(z-cz*16)*16+y*256];if(b!==10&&b!==39&&b!==2)continue;lipN++;if(!A[(x-cx*16)+(z-cz*16)*16+(y-1)*256])fl++;}}}
+    console.log('two craters overlapping: rim blocks',lipN,'over air',fl,ok(fl===0));}
+  console.log('buildings gone dark',T.BL_DARK.size,'of',T.destroyedN,'knocked about',ok(T.BL_DARK.size>0));
   console.log('after: craters',T.craters.length,'collapses +',Object.keys(T.collapses).length-c0,'edits',e0,'->',Object.keys(T.edits).length,'save',Math.round(s.length/1024),'KB, crater record',JSON.stringify((o.craters||[])[0]),'rampage buildings',T.RAMP.nB);}
 if(process.env.ONLY2==='1')process.exit(0);
 // ---- 3. online ----
@@ -88,6 +95,9 @@ compare(HG,G,C,'host against guest:');
 await yieldNow();HT.save();for(let i=0;i<60;i++){HG.step(1);G.step(1);await yieldNow();}   // (saves queue on a promise: let it run)
 if(process.env.DBG){const s=HG.LS.getItem(SAVE_KEY);console.log('DBG host save',s?s.length:null,s?JSON.stringify(JSON.parse(s).craters):'',[...HG.LS._m.keys()].join(' '));}
 const L=game('reload',SEED,Object.fromEntries(HG.LS._m));L.step(2);
+for(let i=0;i<60;i++){HG.step(1);G.step(1);L.step(1);}
+if(process.env.DBG){for(const k of HT.BL_DARK)if(!GT.BL_DARK.has(k))console.log('DBG dark on host only',k,'dest',HT.destroyed[k],GT.destroyed[k],'coll',HT.collapses[k],GT.collapses[k]);for(const k of GT.BL_DARK)if(!HT.BL_DARK.has(k))console.log('DBG dark on guest only',k);}
+console.log('gone dark: host',HT.BL_DARK.size,'guest',GT.BL_DARK.size,'reloaded',L.T.BL_DARK.size,ok(HT.BL_DARK.size>0&&GT.BL_DARK.size===HT.BL_DARK.size&&L.T.BL_DARK.size===HT.BL_DARK.size));
 console.log('reloaded: same seed',ok(L.T.seed===HT.seed),'craters',L.T.craters.length,ok(L.T.craters.length===HT.craters.length));
 HG.other=(cx,cz)=>L.T.chunkArr(cx,cz);compare(HG,null,C,'host against the save made again:');
 process.exit(0);

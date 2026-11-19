@@ -48,13 +48,39 @@ function bbCarve(A,cx,cz,C,J){
       if(v===PUMP&&o.zone===4&&J.pumps.length<12)J.pumps.push({x,y,z,b:PUMP});
       if(y<=G+1&&(lx>0&&A[i-1]===WATER||lx<CS-1&&A[i+1]===WATER||lz>0&&A[i-CS]===WATER||lz<CS-1&&A[i+CS]===WATER||y+1<H&&A[i+L]===WATER))wfNoteRemoved(x,y,z);
       if(J.fx.length<J.fxN&&!(n%7))J.fx.push({x,y,z,b:v});}
-    for(let y=o.l0;y<o.l1;y++){const i=base+y*L,v=A[i];if(v===WATER||v===BEDROCK)continue;A[i]=o.lb;lip=true;}
+    if(o.zone===2&&o.l1>o.l0){   // the lip: heaped on the ground as it is now (after any crater before it), never over air or water
+      let y=Math.min(o.l1,H-1)-1;const lo=Math.max(1,o.l0-K.D-K.lip-6);while(y>=lo&&!A[base+y*L])y--;
+      if(y>=lo&&A[base+y*L]!==WATER)for(let k=1;k<=o.l1-o.l0&&y+k<H;k++){const i=base+(y+k)*L;if(A[i])continue;A[i]=o.lb;lip=true;}}
+    else if(o.zone>=3&&bbScar(A,base,x,z,C,K,o))lip=true;
     if(J&&(n>n0||o.l1>o.l0)){const ck=x*65536+z;navCols.delete(ck);if(snow)snowBorn.set(ck,WX.snowClock);}
   }
   if(lip||n)tileTopsOf(A);   // (the rubble lip can rise above what was there)
   A.bb=Math.max(A.bb||0,C.n);
   return n;
 }
+// the flattened zone and the damage ring, below the cut: grass burnt to dirt, the street broken up in patches, and the buildings
+// it vaporised left as heaps of rubble on their ground floors (only those: under the collapse it sets, which a chunk made again
+// keeps, while the others are heaped up as they come down, bbSettle). Whether something's added is only the plan, hash2 and
+// the blast's seed, so it's the same everywhere.
+function bbStreet(v){return v===ASPHALT||v===LINE||v===LINEX||v===LINE_R||v===LINEX_R||v===CROSS||v===CROSSX||v===SIDEWALK||v===LANE||v===LANEX;}   // (a function: chunks can be carved before this file has run)
+function bbScar(A,base,x,z,C,K,o){
+  const L=CS*CS,s=C.s,w=o.zone===3?1:Math.max(0,1-o.t);let ch=false;
+  for(let y=Math.min(o.cut,H)-1,k=0;y>=1&&k<8;y--){const i=base+y*L,v=A[i];if(!v)continue;k++;if(v===GRASS||v===FLOWER){A[i]=DIRT;ch=true;}else if(v!==LEAVES)break;}
+  const gi=base+G*L,up=gi+L;
+  if(bbStreet(A[gi])&&!A[up]){const h=hash2((x>>1)*13+s*3,(z>>1)*17-s);
+    if(h<0.05+0.2*w){const n=hash2(x*7-s,z*3+s);A[gi]=n<0.5?GRAVEL:COBBLE;if(n<0.3)A[up]=COBBLE;ch=true;}}
+  if(w>0.5&&!A[up]&&A[gi]&&A[gi]!==WATER){const B=bldgAt(x,z);
+    if(B&&bbVap(C,K,B)&&hash2((x>>1)*5+s,(z>>1)*9-s)<0.55){const h=1+Math.floor(hash2(x-s*5,z+s*7)*2),m=bbRubble(x,z,s);
+      for(let k=0;k<h;k++){const i=up+k*L;if(A[i])break;A[i]=k?m:COBBLE;}ch=true;}}
+  return ch;
+}
+// is this building one the blast vaporises (wholly inside the flattened zone, as bbPlots decides)? kept per building
+function bbVap(C,K,B){
+  const M=K.vap||(K.vap=new Map());let v=M.get(B.key);if(v!==undefined)return v;
+  const b=B.b,X0=B.px*CELL,Z0=B.pz*CELL,x0=X0+b.x0,x1=X0+b.x1,z0=Z0+b.z0,z1=Z0+b.z1;
+  v=Math.max(Math.hypot(x0-C.x,z0-C.z),Math.hypot(x1-C.x,z0-C.z),Math.hypot(x0-C.x,z1-C.z),Math.hypot(x1-C.x,z1-C.z))*1.07<K.rf;M.set(B.key,v);return v;
+}
+function bbRubble(x,z,s){const n=hash2(x*11+s,z*13-s);return n<0.45?COBBLE:n<0.75?GRAVEL:n<0.9?BRICK:CONCRETE;}
 // a chunk being made: every crater that reaches it, in the order they went off (before its edits are put back)
 function bbGen(a,cx,cz){
   if(!craters.length||cx>=SHIP_CX0)return;
@@ -182,7 +208,22 @@ function bbSettle(J,t0){
     for(let x=b.x0;x<b.x1;x++)for(let z=b.z0;z<b.z1;z++){const wx=X0+x,wz=Z0+z;bbCol(C,K,wx,wz,o);if(o.zone<3||o.cut>top)continue;list.push({x:wx,y:Math.max(G+1,o.cut),z:wz});dx+=wx-C.x;dz+=wz-C.z;}
     if(!list.length)continue;
     const h=Math.hypot(dx,dz)||1;settle(list,{dx:dx/h,dz:dz/h,impact:true});
+    if(collapses[q.B.key]!==undefined)bbHeap(C,K,b,X0,Z0,top);
   }
+}
+// a building the blast brought down: rubble heaped round its foot and over its ground floor (on top of what its own collapse
+// leaves), more the taller it was and the nearer the blast. Host only, as edits (saved, and sent to guests like any others).
+function bbHeap(C,K,b,X0,Z0,top){
+  const o=bbO(),s=C.s,ch=new Set(),hm=Math.min(4,1+Math.round((top-G)/12));
+  for(let x=b.x0-2;x<b.x1+2;x++)for(let z=b.z0-2;z<b.z1+2;z++){const wx=X0+x,wz=Z0+z;bbCol(C,K,wx,wz,o);if(o.zone<3)continue;
+    const w=o.zone===3?1:Math.max(0,1-o.t),edge=x<b.x0||x>=b.x1||z<b.z0||z>=b.z1;
+    if(hash2((wx>>1)*19+s,(wz>>1)*23-s)>(edge?0.35:0.55)*(0.4+0.6*w))continue;
+    if(!chunks.has(ckey(Math.floor(wx/CS),Math.floor(wz/CS))))continue;
+    const y0=colSupport(wx,wz,G+5);if(y0<G+1||y0>G+3)continue;
+    const n=Math.max(1,Math.round(hm*(edge?0.5:1)*(0.5+hash2(wx+s*3,wz-s*11))));
+    for(let y=y0;y<y0+n&&y<H;y++){if(get(wx,y,wz)!==AIR)break;const m=bbRubble(wx,wz+y,s);setRaw(wx,y,wz,m);addEdit(wx,y,wz,m);}
+    ch.add(ckey(Math.floor(wx/CS),Math.floor(wz/CS)));}
+  if(ch.size)rebuildSet(ch);
 }
 // the vaporised buildings' size, worked out a slice at a time, then counted gone
 function bbCount(J,t0){
