@@ -8,5 +8,5 @@ again: razed 1
 card: 0 / 0 / 42 / 1
 a new rampage, already in ruins: razed 0
 info pane at first: hidden true
-switched on: hidden false  says Weather Clear Moon New moon Biome Sootbridge City
+switched on: hidden false  says Weather Clear Moon New moon Biome Sootbridge City Structure Plaza
 status card: Day 1 · morning Spring

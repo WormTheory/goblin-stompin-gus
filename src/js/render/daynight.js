@@ -96,8 +96,33 @@ let infoEl=null;
 function infoTick(whereLabel){
   if(!infoEl)infoEl=document.getElementById('infoPane');if(!infoEl)return;
   if(infoEl.hidden===DT.info)infoEl.hidden=!DT.info;if(!DT.info)return;
-  const h='<div><span class="ik">Weather</span>'+WX_TYPES[WX.type].n+'</div><div><span class="ik">Moon</span>'+moonInfo()[0]+'</div><div><span class="ik">Biome</span>'+noSym(whereLabel())+'</div>';
+  let st='—';try{st=structLabel();}catch(e){}
+  const h='<div><span class="ik">Weather</span>'+WX_TYPES[WX.type].n+'</div><div><span class="ik">Moon</span>'+moonInfo()[0]+'</div><div><span class="ik">Biome</span>'+noSym(whereLabel())+'</div><div><span class="ik">Structure</span>'+st+'</div>';
   if(infoEl.dataset.h!==h){infoEl.dataset.h=h;infoEl.innerHTML=h;}
+}
+// the structure or site the (first) player is in or on, named as the Structures previewer lists its kind (made singular).
+// A town lot's building only counts inside its walls (or on its roof), not out in the street in front; a big site, a
+// country site or an open lot (a park, a cemetery) counts anywhere on it. A shop's or restaurant's brand follows its kind.
+const ST_ONE={ruins:'Ruins',harbor:'Docks',news:'TV news',water:'Water works',yard:'Shipping port',castle:'Castle',fishing:'Fishing wharf',basin:'Shipping port',nbasin:'Naval base'};
+const stOne=k=>ST_ONE[k]||stName(k).replace(/ \(.*\)$/,'').replace(/ies$/,'y').replace(/(ch|sh|x)es$/,'$1').replace(/([^s])s$/,'$1');
+const ST_OPEN=new Set(['park','plaza','court','cemetery','build','trailers','camp','farmers','nursery','rail','beach','lighthouse','rig','wreck','navy','yard','harbor','basin','nbasin','farm','dump','truckstop']);
+function structLabel(){
+  const p=players.find(q=>q.active)||players[0];if(!p)return'—';
+  const x=Math.floor(p.pos.x),z=Math.floor(p.pos.z),px=Math.floor(x/CELL),pz=Math.floor(z/CELL);
+  if(TENV&&!tenvShow(px,pz))return'—';
+  const u=underAt(p.pos.x,p.pos.y,p.pos.z);if(u&&!(u==='subway'&&plotType(px,pz)==='metro')&&!(u==='cave'&&bigPlainsAt(px,pz)&&bigPlainsAt(px,pz).kind==='mine'))return'—';   // (in the sewers or caves: nothing up top counts, bar a mine's workings)
+  const known=k=>stName(k)!==k||!!ST_ONE[k];
+  const S=superOf(px,pz);if(S&&known(S.kind))return stOne(S.kind);
+  {const M=macroOf1(px,pz);if(M&&M.w&&known(M.kind)&&px>=M.ax&&px<M.ax+M.w&&pz>=M.az&&pz<M.az+M.h&&(M.kind!=='hood'||/^(homes|park|court)$/.test(plotType1(px,pz))))return stOne(M.kind);}
+  {const B=bigPlainsAt(px,pz);if(B&&known(B.kind))return stOne(B.kind);}
+  if(turbineAt(px,pz))return stOne('wind');
+  {const k=siteKind(px,pz);if(k==='bunker'||k==='wrecks')return stOne(k);}
+  let t=plotType(px,pz);if(t==='harbor'&&plotInfo(px,pz).fish)t='fishing';
+  if(!known(t))return'—';
+  if(ST_OPEN.has(t)||t==='metro'&&u)return stOne(t);   // (a subway station: down on its platforms)
+  const hit=bldgAt(x,z);if(!hit)return'—';
+  const nm=stOne(t),n=hit.b.brand&&!hit.b.brand.only&&hit.b.brand.n&&!String(hit.b.brand.n).toUpperCase().includes(nm.toUpperCase())&&hit.b.brand.n;   // (not a sign that just says what it is)
+  return nm+(n?' · '+String(n).replace(/&/g,'&amp;').replace(/</g,'&lt;'):'');
 }
 // The graphics card's programs are made the first time something needing each is drawn, and that's a stall: the first explosion, or
 // the first sprint. Everything hidden in the scene gets its program here instead, on the second frame, while the game is still

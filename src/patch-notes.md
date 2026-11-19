@@ -263,6 +263,7 @@
 - Invulnerability now covers whatever you're driving, flying or manning too: a car, tank, helicopter, plane, boat, balloon, Mobile Gear or deck weapon takes no damage while you're in it, and nor does the carrier while you're at its helm (its blocks can still be smashed).
 - The vehicle list scrolls all the way to the bottom now. The mouse wheel no longer jumps back as it scrolls, and opening the list scrolls the menu far enough to show all of it, so the last few vehicles (down to the aircraft carrier) can be reached with the mouse, the wheel, the keyboard or a controller.
 - Time of day: a slider in the World section that sets the clock to any hour, 00:00 to 23:00. The day carries on from there as usual.
+- The Info pane now shows the structure or site you're in or on, such as a fast food place and its brand, a park or a military base.
 
 ### Bullets break blocks
 

@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:e30dc5a5ce47056527086b1028868cef1d5ddca0b1ad2f50362fe0f0e3fcc0cb -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:fbd4b23a811fb890d9001df2e5d4087de0ed849ea2110f57d06e31a5219b9edf -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1607,7 +1607,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Enemy hostility: Pacifist</h3>
 <ul><li>A new step at the far left of the Enemy hostility slider: Pacifist. Goblins can't be harmed at all, whatever hits them, and as with Passive nobody reacts to you. Vehicles and buildings still break.</li></ul>
 <h3>Debug menu</h3>
-<ul><li>Vehicles: pick any vehicle from the list and press Spawn, and one is set down ahead of you, parked and empty, ready to get into. It works in the ordinary game too, not just the Testing Environment: anywhere with a level patch of ground in front of you, and what you spawn stays where you left it.</li><li>Infinite ammo: while it's on, nothing that has to be reloaded ever runs out (the Mobile Gear's blade still has to cool between swings).</li><li>Infinite stamina now keeps the Mobile Gear's energy bar full too, so it never redlines.</li><li>Invulnerability now covers whatever you're driving, flying or manning too: a car, tank, helicopter, plane, boat, balloon, Mobile Gear or deck weapon takes no damage while you're in it, and nor does the carrier while you're at its helm (its blocks can still be smashed).</li><li>The vehicle list scrolls all the way to the bottom now. The mouse wheel no longer jumps back as it scrolls, and opening the list scrolls the menu far enough to show all of it, so the last few vehicles (down to the aircraft carrier) can be reached with the mouse, the wheel, the keyboard or a controller.</li><li>Time of day: a slider in the World section that sets the clock to any hour, 00:00 to 23:00. The day carries on from there as usual.</li></ul>
+<ul><li>Vehicles: pick any vehicle from the list and press Spawn, and one is set down ahead of you, parked and empty, ready to get into. It works in the ordinary game too, not just the Testing Environment: anywhere with a level patch of ground in front of you, and what you spawn stays where you left it.</li><li>Infinite ammo: while it's on, nothing that has to be reloaded ever runs out (the Mobile Gear's blade still has to cool between swings).</li><li>Infinite stamina now keeps the Mobile Gear's energy bar full too, so it never redlines.</li><li>Invulnerability now covers whatever you're driving, flying or manning too: a car, tank, helicopter, plane, boat, balloon, Mobile Gear or deck weapon takes no damage while you're in it, and nor does the carrier while you're at its helm (its blocks can still be smashed).</li><li>The vehicle list scrolls all the way to the bottom now. The mouse wheel no longer jumps back as it scrolls, and opening the list scrolls the menu far enough to show all of it, so the last few vehicles (down to the aircraft carrier) can be reached with the mouse, the wheel, the keyboard or a controller.</li><li>Time of day: a slider in the World section that sets the clock to any hour, 00:00 to 23:00. The day carries on from there as usual.</li><li>The Info pane now shows the structure or site you're in or on, such as a fast food place and its brand, a park or a military base.</li></ul>
 <h3>Bullets break blocks</h3>
 <ul><li>Goblins' rifle and handgun rounds stop at the first block in the way. They used to hit you through a wall if they'd taken aim before you ducked behind it.</li><li>Rounds from guns, the Mobile Gear's rifle, Gnash's rifle and handgun, the helicopter's machine gun and the militia's mounted guns, now break the block they hit about half the time, so sustained fire slowly chews through cover.</li></ul>
 <h3>Less prop pop-in</h3>
@@ -2262,7 +2262,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='ea896b50f293';
+const GAME_VER='0.5',GAME_BUILD='dcd28d668fcd';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -28555,8 +28555,33 @@ let infoEl=null;
 function infoTick(whereLabel){
   if(!infoEl)infoEl=document.getElementById('infoPane');if(!infoEl)return;
   if(infoEl.hidden===DT.info)infoEl.hidden=!DT.info;if(!DT.info)return;
-  const h='<div><span class="ik">Weather</span>'+WX_TYPES[WX.type].n+'</div><div><span class="ik">Moon</span>'+moonInfo()[0]+'</div><div><span class="ik">Biome</span>'+noSym(whereLabel())+'</div>';
+  let st='—';try{st=structLabel();}catch(e){}
+  const h='<div><span class="ik">Weather</span>'+WX_TYPES[WX.type].n+'</div><div><span class="ik">Moon</span>'+moonInfo()[0]+'</div><div><span class="ik">Biome</span>'+noSym(whereLabel())+'</div><div><span class="ik">Structure</span>'+st+'</div>';
   if(infoEl.dataset.h!==h){infoEl.dataset.h=h;infoEl.innerHTML=h;}
+}
+// the structure or site the (first) player is in or on, named as the Structures previewer lists its kind (made singular).
+// A town lot's building only counts inside its walls (or on its roof), not out in the street in front; a big site, a
+// country site or an open lot (a park, a cemetery) counts anywhere on it. A shop's or restaurant's brand follows its kind.
+const ST_ONE={ruins:'Ruins',harbor:'Docks',news:'TV news',water:'Water works',yard:'Shipping port',castle:'Castle',fishing:'Fishing wharf',basin:'Shipping port',nbasin:'Naval base'};
+const stOne=k=>ST_ONE[k]||stName(k).replace(/ \(.*\)$/,'').replace(/ies$/,'y').replace(/(ch|sh|x)es$/,'$1').replace(/([^s])s$/,'$1');
+const ST_OPEN=new Set(['park','plaza','court','cemetery','build','trailers','camp','farmers','nursery','rail','beach','lighthouse','rig','wreck','navy','yard','harbor','basin','nbasin','farm','dump','truckstop']);
+function structLabel(){
+  const p=players.find(q=>q.active)||players[0];if(!p)return'—';
+  const x=Math.floor(p.pos.x),z=Math.floor(p.pos.z),px=Math.floor(x/CELL),pz=Math.floor(z/CELL);
+  if(TENV&&!tenvShow(px,pz))return'—';
+  const u=underAt(p.pos.x,p.pos.y,p.pos.z);if(u&&!(u==='subway'&&plotType(px,pz)==='metro')&&!(u==='cave'&&bigPlainsAt(px,pz)&&bigPlainsAt(px,pz).kind==='mine'))return'—';   // (in the sewers or caves: nothing up top counts, bar a mine's workings)
+  const known=k=>stName(k)!==k||!!ST_ONE[k];
+  const S=superOf(px,pz);if(S&&known(S.kind))return stOne(S.kind);
+  {const M=macroOf1(px,pz);if(M&&M.w&&known(M.kind)&&px>=M.ax&&px<M.ax+M.w&&pz>=M.az&&pz<M.az+M.h&&(M.kind!=='hood'||/^(homes|park|court)$/.test(plotType1(px,pz))))return stOne(M.kind);}
+  {const B=bigPlainsAt(px,pz);if(B&&known(B.kind))return stOne(B.kind);}
+  if(turbineAt(px,pz))return stOne('wind');
+  {const k=siteKind(px,pz);if(k==='bunker'||k==='wrecks')return stOne(k);}
+  let t=plotType(px,pz);if(t==='harbor'&&plotInfo(px,pz).fish)t='fishing';
+  if(!known(t))return'—';
+  if(ST_OPEN.has(t)||t==='metro'&&u)return stOne(t);   // (a subway station: down on its platforms)
+  const hit=bldgAt(x,z);if(!hit)return'—';
+  const nm=stOne(t),n=hit.b.brand&&!hit.b.brand.only&&hit.b.brand.n&&!String(hit.b.brand.n).toUpperCase().includes(nm.toUpperCase())&&hit.b.brand.n;   // (not a sign that just says what it is)
+  return nm+(n?' · '+String(n).replace(/&/g,'&amp;').replace(/</g,'&lt;'):'');
 }
 // The graphics card's programs are made the first time something needing each is drawn, and that's a stall: the first explosion, or
 // the first sprint. Everything hidden in the scene gets its program here instead, on the second frame, while the game is still
