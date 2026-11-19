@@ -81,7 +81,8 @@ function vehEach(fn){for(const V of venues.values()){const ks=VEH_BY_VENUE[V.kin
 function vehDamage(k,o,n){const K=VEHICLE_KINDS[k];if(K.dead(o)||K.invuln&&drvSafe(o))return 0;if(K.impact)n=impHit(o,n);
   const P=K.pos(o),x=P.x,y=P.y,z=P.z;dmgPop(x,y+K.top(o),z,Math.round(n),'#ffb04a');o.hp-=n;vHitFx(x,y+K.mid(o),z,n);
   if(o.hp>0)return 1;
-  o.dead=true;o.deadT=0;const pts=K.pts(o);if(BLAME!=='acc'){if(pts)award(pts,K.label(o),x,y+K.top(o)+1,z);if(K.rampage)RAMP.cars++;}
+  o.dead=true;o.deadT=0;o.ws=wsStartKind(k,o);const pts=K.pts(o);   // (its wreck carries on the way it was going: wreck-slide.js)
+if(BLAME!=='acc'){if(pts)award(pts,K.label(o),x,y+K.top(o)+1,z);if(K.rampage)RAMP.cars++;}
   return 2;}
 // smoke off a badly hurt vehicle, from where it is (x,y,z), by its health as its kind reads it (a guest: the host's)
 function vehSmoke(k,o,x,y,z,dt,i){const K=VEHICLE_KINDS[k];if(!(K.smoke>0))return;vDamaged(x,y,z,netHp(o,K.hp(o,i))/K.max(o),dt,K.smoke);}

@@ -207,6 +207,15 @@
 - Left click lets down a rope. Hostile goblins grab it and climb up (three at most), weighing the balloon down, and any that reach the basket tear at it. Pull the rope up to shake off the ones still climbing. Another player can climb the rope too, holding climb.
 - The Mobile Gear has its own instrument: a futuristic speed ring, its segments filling with speed, with a tag for what it's doing (walking, skating, in the air, assault boosting, or redlined with its energy gone), its climb rate, its height and a pip for each quick boost its energy will pay for.
 
+### Wrecks keep going
+
+- A vehicle destroyed on the move no longer stops dead. Its wreck skids, slides or falls on the way it was going, and the faster and heavier it was, the further it goes: a bus skids further than a car, a motorbike less.
+- Shot down in the air, a helicopter, plane or hot-air balloon arcs down to the ground rather than dropping straight.
+- A wreck ploughs through what's in its way, smashing the blocks as it goes. Glass and fences hardly slow it, brick and concrete take more, steel more still, and bedrock stops it flat. A plane brought down at speed into an office block ends up buried halfway into it; a car into a wall pushes in a block or so.
+- A wrecked car now leaves its burnt-out shell lying where it ends up for a while, instead of vanishing on the spot.
+- A wreck always comes to rest on whatever's under it, and if that's blown away later, down it drops. Anything carried on a wrecked forklift's forks comes down too.
+- A train that loses a car grinds to a stop over a longer distance, as befits something that heavy.
+
 ### Map markers
 
 - Mark a spot on the map: click it on the pause menu's Map tab (tap it on a touch screen; on a controller, pan the crosshair over it and press Y). A pin goes there and shows on your minimap too, or, while it's off the minimap's edge, an arrow on the rim points the way with how far it is. Click the pin again to take it away, or somewhere else to move it.

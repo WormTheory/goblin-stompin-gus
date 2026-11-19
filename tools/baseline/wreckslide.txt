@@ -1,0 +1,21 @@
+plane wrecked at 55 a second, 12 blocks short of the building: sliding true  mass 6
+  stopped after 1.30 s: nose 13.97 blocks into the building (16 deep), tail 14.83 blocks outside it  partway in: true
+  building blocks knocked out 72 of 2044  left solid along its way, front wall to nose 0  left inside its box 0  floating 0.00  height above the floor 1.00
+  3 s later: still there 13.97  floating 0.00
+car into concrete: car (mass 1) wrecked at 26 a second, its front 3 blocks short of a 6-deep wall: front 0.99 blocks into it, blocks broken 4  stopped after 0.25 s  left inside it 0  floating 0.00  shell shown true
+car into brick: car (mass 1) wrecked at 26 a second, its front 3 blocks short of a 6-deep wall: front 1.30 blocks into it, blocks broken 8  stopped after 0.35 s  left inside it 0  floating 0.00  shell shown true
+car into bedrock: car (mass 1) wrecked at 26 a second, its front 3 blocks short of a 6-deep wall: front -0.18 blocks into it, blocks broken 0  stopped after 0.15 s  left inside it 0  floating 0.00  shell shown true
+car slowly into concrete: car (mass 1) wrecked at 6 a second, its front 3 blocks short of a 6-deep wall: front -1.56 blocks into it, blocks broken 0  stopped after 0.50 s  left inside it 0  floating 0.00  shell shown true
+bus into concrete: bus (mass 4) wrecked at 26 a second, its front 3 blocks short of a 6-deep wall: front 1.98 blocks into it, blocks broken 24  stopped after 0.50 s  left inside it 0  floating 0.00  shell shown true
+driven car wrecked at 24.00 a second, 8 short of a wall: its wreck set off at 24.00  Gnash out false
+  Gnash thrown out true  then: front 0.22 blocks into the wall, floating 0.00
+car wrecked at 1.5 a second: went 0.09  floating 0.00
+wrecked at 18 a second on open ground, how far each went: bike (mass 0.4) 7.58, car (mass 1) 8.87, truck (mass 2.5) 11.35, semi (mass 4) 12.64   (worked out for mass 1: 9.07)
+helicopter shot down at 20 a second, 25 up: rose to 0.06 more, came down 32.94 blocks on, after 3.00 s, on the floor 0.00  floating 0.00
+tank wrecked at 9 a second into a brick wall: front 0.74 blocks into it, floating 0.00  left inside it 0
+mech wrecked at 24 a second into a brick wall: front 1.98 blocks into it, floating 0.00  left inside it 0
+forklift: car on the forks true  raised 1.85
+  wrecked moving at 5.96 a second: its load let go false  car on the forks still true
+  5 s on: forklift shell floating 0.00  the car 0.00 over the ground under it, alive true  forklift went 5.33
+shell on a platform 3 high, at 3.00 ; platform knocked out from under it: now at 0.00  floating 0.00
+errors 0 

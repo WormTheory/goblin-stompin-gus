@@ -213,7 +213,13 @@ function planeHit(pl,n){
 }
 function planeWreck(pl,V,dt){
   const g=pl.g,p=g.position;pl.deadT+=dt;
-  if(pl.fall){pl.vy-=26*dt;pl.fv*=1-dt*.25;const h=g.rotation.y;p.x+=Math.sin(h)*pl.fv*dt;p.z+=Math.cos(h)*pl.fv*dt;p.y+=pl.vy*dt;g.rotation.x=Math.min(.7,g.rotation.x+dt*.4);g.rotation.z+=dt*.5;if(Math.random()<dt*20)smoke(p.x,p.y+3,p.z,2,0x262626);
+  // (its wreck carries on the way it was going, falling if it's off the ground, through what's in its way: wreck-slide.js)
+  if(pl.ws){const W=pl.ws,air=W.air,v=wsStep(W,p,dt);
+    if(W.air){g.rotation.x=Math.min(.7,g.rotation.x+dt*.4);g.rotation.z+=dt*.5;if(Math.random()<dt*20)smoke(p.x,p.y+3,p.z,2,0x262626);}
+    if(air&&!W.air){pl.fall=false;g.rotation.x=0;g.rotation.z=.2;
+      if(v>6&&!W.hit){W.hit=true;airCrash(p.x,p.y,p.z,8,'Flattened by a falling plane');blastFx(p.x,p.y+2,p.z,0.8,2.4);smoke(p.x,p.y+2,p.z,26,0x262626);noise(1.4,1,400,'lowpass');addShake(1.2,p.x,p.z,60);hitGoblins(p.x,p.z,14,14,'Flattened by a falling plane',p.y+1);}else thud(0.6);}
+    else if(!W.air&&Math.random()<dt*3)smoke(p.x,p.y+3,p.z,2,0x262626);}
+  else if(pl.fall){pl.vy-=26*dt;pl.fv*=1-dt*.25;const h=g.rotation.y;p.x+=Math.sin(h)*pl.fv*dt;p.z+=Math.cos(h)*pl.fv*dt;p.y+=pl.vy*dt;g.rotation.x=Math.min(.7,g.rotation.x+dt*.4);g.rotation.z+=dt*.5;if(Math.random()<dt*20)smoke(p.x,p.y+3,p.z,2,0x262626);
     const gy=groundAt(p.x,p.z,p.y+2);if(p.y<=gy||p.y<=G+1){p.y=Math.max(gy,G+1);pl.fall=false;g.rotation.x=0;g.rotation.z=.2;airCrash(p.x,p.y,p.z,8,'Flattened by a falling plane');
       blastFx(p.x,p.y+2,p.z,0.8,2.4);smoke(p.x,p.y+2,p.z,26,0x262626);noise(1.4,1,400,'lowpass');addShake(1.2,p.x,p.z,60);hitGoblins(p.x,p.z,14,14,'Flattened by a falling plane',p.y+1);}}
   else if(Math.random()<dt*3)smoke(p.x,p.y+3,p.z,2,0x262626);

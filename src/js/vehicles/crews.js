@@ -12,7 +12,7 @@ const CREW_GUN={technical:{turn:2.2,range:60,burst:5,bt:0.09,cd:[1.8,2.8],hit:0.
   quad:{turn:4,range:45,burst:1,bt:0,cd:[1.8,2.8],hit:0.6,dmg:1,cause:'Shot from a four-wheeler'}};
 // the vehicles come out of a pool of their own (never traffic), olive drab
 const CREWCARS=[];
-function crewCar(){let c=CREWCARS.find(o=>!o.alive);
+function crewCar(){let c=CREWCARS.find(o=>!o.alive&&!o.ws);
   if(!c&&CREWCARS.length<12){c=makeCar(cars.length);c.g.scale.setScalar(ES);c.crewPool=true;c.respawnT=1e9;c.color=0x4a5a2a;c.paint.color.setHex(c.color);cars.push(c);CREWCARS.push(c);}
   return c||null;}
 // one put down at x,z, empty, as the given kind (k: who crews it)

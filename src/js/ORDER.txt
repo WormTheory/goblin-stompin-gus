@@ -42,6 +42,7 @@ vehicles/driving.js
 vehicles/gunner.js
 vehicles/fight.js
 vehicles/registry.js
+vehicles/wreck-slide.js
 vehicles/carjack.js
 vehicles/hose.js
 vehicles/farm-lift.js

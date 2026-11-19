@@ -58,7 +58,8 @@ function updateBalloons(V,dt){
     if(B.dead){
       // (shot down: the basket drops, and lies there a while before it's cleared away)
       B.deadT+=dt;const gy=balGround(B.x,B.z,B.y);
-      if(B.y>gy){B.vy-=20*dt;B.y=Math.max(gy,B.y+B.vy*dt);if(B.y<=gy){if(B.vy<-8){thud(0.5);puff(B.x,B.y+0.5,B.z,10,0x8c7a5a,1.4);hitGoblins(B.x,B.z,2,6,'Crushed by a falling balloon',B.y);}B.vy=0;}}
+      if(B.ws){const air=B.ws.air,v=wsStep(B.ws,B,dt);if(air&&!B.ws.air&&v>8&&!B.ws.hit){B.ws.hit=true;thud(0.5);puff(B.x,B.y+0.5,B.z,10,0x8c7a5a,1.4);hitGoblins(B.x,B.z,2,6,'Crushed by a falling balloon',B.y);}}   // (drifting on as it falls: wreck-slide.js)
+      else if(B.y>gy){B.vy-=20*dt;B.y=Math.max(gy,B.y+B.vy*dt);if(B.y<=gy){if(B.vy<-8){thud(0.5);puff(B.x,B.y+0.5,B.z,10,0x8c7a5a,1.4);hitGoblins(B.x,B.z,2,6,'Crushed by a falling balloon',B.y);}B.vy=0;}}
       balPlace(B);balloonBoxes(B);continue;}
     const p=B.drv,i=p?drvIn(p):null,burn=!!(i&&i.jump),vent=!!(i&&(i.climb||i.charge));
     // the heat in the envelope: the burner warms it a second or two behind (B.lag, so a climb has to be started early),

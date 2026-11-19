@@ -527,7 +527,8 @@ function netCommit(m){
   const seenG=new Set(),seenC=new Set();
   for(const e of m.g){const g=NETM.g.get(e[0]);if(!g)continue;seenG.add(g);g.state=e[15];if(e[16]!==undefined){g.hp=e[16];g.hpMax=e[17];}g.root.visible=true;if(g.orb)g.orb.visible=!!e[14];}
   for(const [,g] of NETM.g)if(!seenG.has(g)){g.root.visible=false;g.state='net';}
-  for(const e of m.c){const c=NETM.c.get(e[0]);if(!c)continue;seenC.add(c);c.g.visible=true;c.alive=!!e[11];if(e[13]!==undefined){c.hp=e[13];c.hpMax=e[14];}if(c.dh)c.dh.visible=!!e[9];if(c.hazG)c.hazG.visible=!!e[10];}
+  for(const e of m.c){const c=NETM.c.get(e[0]);if(!c)continue;seenC.add(c);c.g.visible=true;c.alive=!!e[11];if(!c.alive!==!!c.wsDk){c.wsDk=!c.alive;wsCarDark(c,c.wsDk);}   // (a wreck's burnt-out shell, sliding where the host has it: wreck-slide.js)
+  if(e[13]!==undefined){c.hp=e[13];c.hpMax=e[14];}if(c.dh)c.dh.visible=!!e[9];if(c.hazG)c.hazG.visible=!!e[10];}
   for(const [,c] of NETM.c)if(!seenC.has(c)){c.g.visible=false;c.alive=false;}
   if(m.sh)netShipSet(m.sh);
   // the events, in the order they happened

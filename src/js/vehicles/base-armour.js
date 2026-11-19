@@ -184,16 +184,22 @@ function milHit(M,n,dir){
   if(!M.V.alert&&!calmNow())milAlert(M.V,(nearestPlayer(M.x,M.z)||{}).p);   // (shot at, the whole base wakes up)
   if(r<2)return;
   M.fall=M.kind==='heli'&&M.y>G+2;M.vy=0;wrecked[M.key]=1;save();
+  if(M.ws&&M.kind==='heli'&&M.ws.air)M.fall=true;   // (falling, as wreck-slide.js has it, even while going up still)
   if(M.crew&&M.crew!==MIL_CREW[M.kind]){const o=crewAt(M.x,M.z,M.h,I.hx+1.2,0);crewCorpse('soldier',M.crew,o.x,M.y+1,o.z,'Killed in their '+I.name.toLowerCase());}M.crew=null;   // (whoever was in it)
   blastFx(M.x,M.y+1.5,M.z,0.8,2.2);smoke(M.x,M.y+2,M.z,22,0x262626);
   for(let k=0;k<8;k++){const d=debris[(debrisIdx++)%debris.length];d.m.position.set(M.x+(Math.random()-.5)*3,M.y+1.5+Math.random(),M.z+(Math.random()-.5)*4);d.v.set((Math.random()-.5)*18,8+Math.random()*10,(Math.random()-.5)*18);d.spin.set((Math.random()-.5)*12,(Math.random()-.5)*12,(Math.random()-.5)*12);d.life=25;d.m.visible=true;}
   milDark(M);if(M.kind==='tank')M.tur.rotation.z=0.25;
-  if(M.kind==='heli'&&!M.fall)airCrash(M.x,M.y+1,M.z,3.5,'Blown up with a helicopter');   // (shot down where it sits, or just above: it goes up there)
+  if(M.kind==='heli'&&!M.fall&&!(M.ws&&Math.hypot(M.ws.vx,M.ws.vz)>4))airCrash(M.x,M.y+1,M.z,3.5,'Blown up with a helicopter');   // (one going along on the ground goes up where it stops)   // (shot down where it sits, or just above: it goes up there)
   sfx(I.name+' destroyed',()=>{noise(1.1,1,500,'lowpass');tone('sawtooth',70,16,1.3,0.3);});addShake(0.9,M.x,M.z,45);hitGoblins(M.x,M.z,8,8,'Blown up with a '+I.name.toLowerCase(),M.y+1);
 }
 // a wreck: a helicopter shot down drops, spinning, and goes up where it lands; then it all lies there smouldering
 function milWreck(M,dt){
   M.deadT+=dt;
+  // (its wreck carries on the way it was going, falling if it's in the air, through what's in its way: wreck-slide.js)
+  if(M.ws){const W=M.ws,air=W.air,v=wsStep(W,M,dt);
+    if(W.air){M.h+=dt*(M.kind==='heli'?3:0.4);if(Math.random()<dt*20)smoke(M.x,M.y+2,M.z,2,0x262626);}
+    if(air&&!W.air){M.fall=false;M.roll=0.4;if(W.hit)thud(0.4);else if((W.hit=v>6||M.kind==='heli'))airCrash(M.x,M.y,M.z,M.kind==='heli'?5:3,M.kind==='heli'?'Crushed by a falling helicopter':'Crushed by a falling tank');else thud(0.6);}   // (the crash once, where it first comes down: not again each time it drops into its own crater)
+    milPlace(M);if(!W.air&&M.deadT<60&&Math.random()<dt*3)smoke(M.x,M.y+2,M.z,1,0x262626);return;}
   if(M.fall){M.vy-=22*dt;M.y+=M.vy*dt;M.h+=dt*3;const gy=groundAt(M.x,M.z,M.y+2);
     if(M.y<=gy){M.y=gy;M.fall=false;M.roll=0.4;airCrash(M.x,M.y,M.z,5,'Crushed by a falling helicopter');}
     if(Math.random()<dt*20)smoke(M.x,M.y+2,M.z,2,0x262626);milPlace(M);return;}

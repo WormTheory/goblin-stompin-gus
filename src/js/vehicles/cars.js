@@ -93,6 +93,7 @@ function carSpawn(c,o){
   c.pitch=c.roll=c.spinP=c.spinR=0;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.paint.emissive.setHex(0);c.g.visible=true;
   if(c.fork||c.farm||c.tipR)farmReset(c);   // (a forklift's forks down and empty, a tractor's hitch up: farm-lift.js)
   if(o.place){c.g.position.copy(c.pos);c.g.rotation.set(0,c.heading,0);}
+  if(c.ws){c.ws=null;wsCarDark(c,false);}c.wsP=null;   // (a burnt-out shell that was still lying somewhere: wreck-slide.js)
 }
 function buildVeh(c,t){
   const g=new THREE.Group();c.g.add(g);const wheels=[],front=[];let rider=null;
@@ -368,7 +369,7 @@ function managePull(){
         const P=rtPoint(R,o.s),d=Math.hypot(P.x-p.pos.x,P.z-p.pos.z);if(d<45||d>RB)continue;
         if(groundAt(P.x,P.z,G+3)!==G+1)continue;   // (the road there is built, and still there)
         if(d<far*0.8&&visibleToAny(P.x,G+2,P.z))continue;   // (never pops up in plain view: only out in the haze, or unseen)
-        const civ=PULL.find(c=>!c.alive&&!c.police),cop=day.police?PULL.find(c=>!c.alive&&c.police):null;
+        const civ=PULL.find(c=>!c.alive&&!c.ws&&!c.police),cop=day.police?PULL.find(c=>!c.alive&&!c.ws&&c.police):null;   // (not a burnt-out shell still lying somewhere: wreck-slide.js)
         if(!civ||(day.police&&!cop))continue;
         if(cars.some(c=>c.alive&&!c.pullPool&&Math.hypot(c.pos.x-P.x,c.pos.z-P.z)<16))continue;
         const hv=hash2(o.k*7+dayN*3,(o.s|0)*5),veh=hv<0.55?'car':hv<0.7?'van':hv<0.85?'pickup':hv<0.95?'truck':'semi';
@@ -394,7 +395,7 @@ function manageRVs(){
       const g=supportAt(x,z,G+1.5);if(g===null||Math.abs(g-(G+1))>0.3||solidAt(Math.floor(x),G+1,Math.floor(z))||solidAt(Math.floor(x),G+2,Math.floor(z)))continue;
       if(cars.some(c=>c.alive&&Math.hypot(c.pos.x-x,c.pos.z-z)<6)||players.some(o=>o.active&&Math.hypot(o.pos.x-x,o.pos.z-z)<7))continue;
       if(d<far*0.8&&visibleToAny(x,G+2,z))continue;
-      const c=RVS.find(o=>!o.alive);if(!c)return;
+      const c=RVS.find(o=>!o.alive&&!o.ws);if(!c)return;
       carSpawn(c,{veh:'rv',x,y:G+1,z,h:Math.PI/2,parked:true,place:true});c.paint.color.setHex(c.color);c.rusted=false;c.spot=key;c.driver=null;c.dh.visible=false;
       c.rt=null;c.hw=null;c.path=null;}}
 }

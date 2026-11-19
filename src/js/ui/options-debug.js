@@ -402,4 +402,5 @@ function explodeCar0(c){
   // chain reactions
   if(!(c.trainT>0))for(const pr of trainsNear(p.x,p.z,6,p.y-6,p.y+6))trainHit(pr.T,40,null,pr.i);   // (a car it's just run down doesn't derail the train)
   for(const o of cars){if(!o.alive)continue;const n=carNearest(o,p.x,p.y,p.z),d=Math.hypot(n.d2,n.dy);if(d>=6||!vReach(o.pos.y-p.y,6)&&!vReach(o.pos.y+o.hy-p.y,6))continue;launchCar(o,Math.max(3,9-d),new V3(o.pos.x-p.x,0,o.pos.z-p.z),5);damageCar(o,d<4?14:8);}
+  wsCarHulk(c);   // (and its burnt-out shell carries on the way it was going: wreck-slide.js)
 }

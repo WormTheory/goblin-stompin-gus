@@ -464,7 +464,8 @@ function updateMechs(V,dt){
   if(netGuest()){netMechStep(V,dt);return;}   // (online, a guest's copies follow the host's: see net-sync.js)
   for(const M of V.mechs){
     if(M.dead){M.deadT+=dt;if(M.deadT<60&&Math.random()<dt*3)smoke(M.x,M.y+5,M.z,1,0x262626);M.vx=M.vz=0;
-      {const gy=mgGround(M.x,M.z,M.y+0.3,M);if(M.y>gy+0.02){M.vy-=MG.grav*dt;M.y=Math.max(gy,M.y+M.vy*dt);}else M.vy=0;}}
+      if(M.ws){const air=M.ws.air,v=wsStep(M.ws,M,dt);if(air&&!M.ws.air&&v>6)mgLand(M,v);}   // (its wreck carries on the way it was going: wreck-slide.js)
+      else{const gy=mgGround(M.x,M.z,M.y+0.3,M);if(M.y>gy+0.02){M.vy-=MG.grav*dt;M.y=Math.max(gy,M.y+M.vy*dt);}else M.vy=0;}}
     else if(M.drv)drvMech(M,dt);else mechIdle(M,dt);
     M.hurt=(M.hurt||0)-dt;if(!M.dead)impTick(M,dt);if(!M.dead)vehSmoke('mech',M,M.x,M.y+MG.hy,M.z,dt);
     mechPose(M,dt);mechBoxes(M,Math.hypot(M.vx,M.vz));mechShove(M);}

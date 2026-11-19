@@ -193,7 +193,7 @@ function tenvFoe(kind){
       if(!car||groundAt(x,z,G+40)<=G+1.05&&!cars.some(o=>o.alive&&Math.hypot(o.pos.x-x,o.pos.z-z)<5))break;}
     const y=groundAt(x,z,car?G+40:p.pos.y+6),h=Math.atan2(p.pos.x-x,p.pos.z-z);
     if(car){
-      let c=cars.find(o=>!o.alive&&!o.svcPool&&!o.pullPool&&!o.parkPool&&!o.hwPool&&(kind==='police'?o.police:!o.police));
+      let c=cars.find(o=>!o.alive&&!o.ws&&!o.svcPool&&!o.pullPool&&!o.parkPool&&!o.hwPool&&(kind==='police'?o.police:!o.police));
       if(!c){c=makeCar(cars.length,kind==='police');c.g.scale.setScalar(ES);c.respawnT=1e9;cars.push(c);}
       carSpawn(c,{veh:kind==='police'?null:pickVeh('street'),x,y,z,h,hunter:true,parked:false});
       c.driver=makeDriver(kind==='police');c.path=null;c.hw=null;c.rt=null;c.svc=null;c.leaving=false;c.rampKey=null;c.spot=null;c.makeWay=0;
@@ -263,7 +263,7 @@ function tenvVeh(t){
     const y=spGround(x,z),h=Math.atan2(p.pos.x-x,p.pos.z-z);
     // (parked ones come from the parked cars' pool, which sits still; hunters from the traffic's)
     const pk=park&&!pol;
-    let c=cars.find(o=>!o.alive&&!o.svcPool&&!o.pullPool&&!o.rvPool&&!o.hwPool&&!!o.parkPool===pk&&!!o.police===pol);
+    let c=cars.find(o=>!o.alive&&!o.ws&&!o.svcPool&&!o.pullPool&&!o.rvPool&&!o.hwPool&&!!o.parkPool===pk&&!!o.police===pol);
     if(!c){c=makeCar(cars.length,pol);c.g.scale.setScalar(ES);c.respawnT=1e9;if(pk)c.parkPool=true;cars.push(c);}
     carSpawn(c,{veh:pol?null:t,x,y,z,h,hunter:!park,parked:park});
     c.driver=pk?null:makeDriver(pol);if(c.dh)c.dh.visible=!pk;

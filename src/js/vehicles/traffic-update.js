@@ -15,7 +15,7 @@ function updateTraffic(dt){
   if(trafficJob===1)refreshBrandSigns();else if(trafficJob===2)refreshDoors();else if(trafficJob===3)refreshLandmarks();
   if(trafficJob<4)trafficJob++;
   updateDoors(dt);updateLandmarks(dt);safe('venues',()=>updateVenues(dt));
-  headLamps();
+  headLamps();wsTrack(dt);   // (every vehicle's velocity, for its wreck: wreck-slide.js)
 }
 // each signal head showing the colour its light's on
 function headLamps(){for(const h of heads){if(!h.g.visible)continue;const ph=lightPhase(h.ct,h.axis),on=!h.lit?-1:ph==='r'?0:ph==='y'?1:2;h.lamps.forEach((m,j)=>{m.material=j===on?TL.on[j]:TL.off[j];});}}
@@ -35,6 +35,7 @@ function updateCars(dt){
   const clock=performance.now()/1000;
   for(const c of cars){
     if(!c.alive){
+      if(c.ws&&wsCarStep(c,dt))continue;   // (its burnt-out shell still sliding, or lying there: wreck-slide.js)
       c.respawnT-=dt;c.left=false;
       if(c.svcPool||c.pullPool||c.rvPool||c.crewPool||TENV)continue;
       if(c.parkPool){if(c.respawnT<=0&&playing&&!spawnParked(c))c.respawnT=1.5;continue;}

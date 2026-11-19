@@ -190,7 +190,7 @@ function updateTrains(dt){
   for(const T of TRAINS.values()){
     const C=T.C;
     if(T.dead||T.halted){T.deadT+=dt;
-      if(T.halted&&T.v>0){T.v=Math.max(0,T.v-30*dt);T.s+=T.v*T.dir*dt;}   // (a car gone: it grinds to a stop)
+      if(T.halted&&T.v>0){T.v=Math.max(0,T.v-(wsDecel(handOf(T.sub?'subway':'train').mass)+WS.drag*T.v)*dt);T.s+=T.v*T.dir*dt;}   // (a car gone: it grinds to a stop)
      
       // a wreck: smouldering a while; then (once nobody's near enough to see) a new train in service
       if(T.deadT<40&&Math.random()<dt*4&&T.cars){const g=T.cars[Math.floor(Math.random()*T.cars.length)];smoke(g.position.x+(Math.random()-.5)*2,g.position.y+3,g.position.z+(Math.random()-.5)*6,1,0x2a2a2a);}

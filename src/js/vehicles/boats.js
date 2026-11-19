@@ -114,6 +114,7 @@ function boatWreck(V,dt){
   const bo=V.bo,g=V.boat,p=g.position,K=bo.K;bo.deadT+=dt;
   if(V.dry||V.ground){if(!K.boom)g.visible=false;else if(bo.deadT<60&&Math.random()<dt*3)smoke(p.x,p.y+K.fb+1,p.z,2,0x262626);}
   else if(g.visible){const T=Math.min(30,4+bo.L*.7),k=Math.min(1,bo.deadT/T);
+    if(bo.ws)wsStep(bo.ws,p,dt);   // (drifting on the way it was going as it goes down, and running aground on what's in its way: wreck-slide.js)
     // (down by the bow first... a big one rolling over as it goes, burning till the water reaches it)
     p.y=bo.y0-(K.d+K.fb+6+bo.L*.25)*k*k;g.rotation.x=bo.tilt=(bo.L>10?.3:.15)*Math.min(1,k*1.5);g.rotation.z=bo.roll=(V.ph>3?1:-1)*(bo.L>10?.25:.5)*Math.min(1,k*2);
     if(k<.7&&K.boom&&Math.random()<dt*6)smoke(p.x+(Math.random()-.5)*K.W,G+2,p.z+(Math.random()-.5)*bo.L*.5,2,0x262626);
