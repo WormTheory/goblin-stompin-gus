@@ -23,6 +23,7 @@ buildings/grounds.js
 buildings/landmarks.js
 world/generate.js
 world/sites.js
+render/block-light.js
 render/meshing.js
 render/sky.js
 render/weather.js

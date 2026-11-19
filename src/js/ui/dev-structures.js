@@ -88,7 +88,7 @@ function stMeshes(X0,Z0,X1,Z1,Y0,Y1){
           out.c.push(s,s,s);out.k.push(0);}
         out.i.push(n,n+1,n+2,n+2,n+1,n+3);}}}
   return bufs.map((d,i)=>{const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(d.p,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(d.u,2));
-    g.setAttribute('color',new THREE.Float32BufferAttribute(d.c,3));g.setAttribute('aSky',new THREE.Float32BufferAttribute(d.k,1));g.setIndex(d.i);
+    g.setAttribute('color',new THREE.Float32BufferAttribute(d.c,3));g.setAttribute('aSky',new THREE.Float32BufferAttribute(d.k,1));g.setIndex(d.i);if(BL_ON)g.setAttribute('aBlk',new THREE.BufferAttribute(new Uint8Array(d.p.length),3,true));   // (unlit: render/block-light.js)
     const m=new THREE.Mesh(g,i?matWater:matOpaque);if(i)m.renderOrder=1;m.frustumCulled=false;return m;});
 }
 function stInitGL(){

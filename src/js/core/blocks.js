@@ -40,24 +40,25 @@ BLOCK[MOSSCON]  ={tiles:[16,16,17],solid:true};
 BLOCK[METAL]    ={tiles:[18,18,18],solid:true};
 BLOCK[RUST]     ={tiles:[19,19,19],solid:true};
 BLOCK[WIN_BLUE] ={tiles:[18,18,20],solid:true};
-BLOCK[WIN_GREEN]={tiles:[16,16,21],solid:true,glow:true};
-BLOCK[WIN_WARM] ={tiles:[16,16,22],solid:true,glow:true};
+// light:[level, colour]: how far it lights its surroundings at night (0 to 15, a block less each block away) and in what colour (render/block-light.js)
+BLOCK[WIN_GREEN]={tiles:[16,16,21],solid:true,glow:true,light:[7,0xbff0c8]};
+BLOCK[WIN_WARM] ={tiles:[16,16,22],solid:true,glow:true,light:[7,0xffc47a]};
 BLOCK[ROOF]     ={tiles:[23,23,23],solid:true};
-BLOCK[NEON_G]   ={tiles:[24,24,24],solid:true,glow:true};
-BLOCK[NEON_M]   ={tiles:[25,25,25],solid:true,glow:true};
-BLOCK[LAMP]     ={tiles:[26,26,26],solid:true,glow:true};
+BLOCK[NEON_G]   ={tiles:[24,24,24],solid:true,glow:true,light:[11,0x40ff70]};
+BLOCK[NEON_M]   ={tiles:[25,25,25],solid:true,glow:true,light:[11,0xff40e0]};
+BLOCK[LAMP]     ={tiles:[26,26,26],solid:true,glow:true,light:[14,0xffd49a]};
 BLOCK[MOSSSTONE]={tiles:[27,27,27],solid:true};
 BLOCK[SHELF]    ={tiles:[8,8,29],solid:true};
 BLOCK[BED]      ={tiles:[30,8,31],solid:true};
 BLOCK[SOFA]     ={tiles:[31,31,31],solid:true};
-BLOCK[SCREEN]   ={tiles:[18,18,32],solid:true,glow:true};
+BLOCK[SCREEN]   ={tiles:[18,18,32],solid:true,glow:true,light:[9,0x70d8ff]};
 BLOCK[CRATE]    ={tiles:[33,33,33],solid:true};
 BLOCK[AWN_R]    ={tiles:[34,34,34],solid:true};
 BLOCK[AWN_G]    ={tiles:[35,35,35],solid:true};
 BLOCK[FLOWER]   ={tiles:[36,2,36],solid:true};
 BLOCK[POLICE]   ={tiles:[37,37,37],solid:true};
-BLOCK[NEON_B]   ={tiles:[38,38,38],solid:true,glow:true};
-BLOCK[NEON_R]   ={tiles:[39,39,39],solid:true,glow:true};
+BLOCK[NEON_B]   ={tiles:[38,38,38],solid:true,glow:true,light:[11,0x4a80ff]};
+BLOCK[NEON_R]   ={tiles:[39,39,39],solid:true,glow:true,light:[11,0xff3a30]};
 BLOCK[GRAVEL]   ={tiles:[40,40,40],solid:true};
 BLOCK[FLOORT]   ={tiles:[41,16,16],solid:true};
 BLOCK[FRIDGE]   ={tiles:[42,42,42],solid:true};
@@ -68,7 +69,7 @@ BLOCK[CROSS]    ={tiles:[45,13,13],solid:true};
 BLOCK[CROSSX]   ={tiles:[46,13,13],solid:true};
 // hospitals, gas stations, houses
 BLOCK[HOSPW]    ={tiles:[47,47,47],solid:true};
-BLOCK[HOSPX]    ={tiles:[47,47,48],solid:true,glow:true};
+BLOCK[HOSPX]    ={tiles:[47,47,48],solid:true,glow:true,light:[9,0xff5a50]};
 BLOCK[PUMP]     ={tiles:[18,18,49],solid:true};
 BLOCK[SHINGLE]  ={tiles:[50,50,50],solid:true};
 BLOCK[SIDING]   ={tiles:[8,8,51],solid:true};
@@ -92,11 +93,11 @@ BLOCK[CLAY]     ={tiles:[59,59,59],solid:true};
 BLOCK[DEEPSLATE]={tiles:[60,60,60],solid:true};
 BLOCK[BEDROCK]  ={tiles:[61,61,61],solid:true};
 BLOCK[COAL]     ={tiles:[62,62,62],solid:true};
-BLOCK[CRYSTAL]  ={tiles:[63,63,63],solid:true,glow:true};
+BLOCK[CRYSTAL]  ={tiles:[63,63,63],solid:true,glow:true,light:[7,0x6ee6ff]};
 BLOCK[CHECKER]  ={tiles:[64,64,64],solid:true};
 [PAINT_BLUE,PAINT_RED,PAINT_GREEN,PAINT_ORANGE,PAINT_YELLOW,PAINT_WHITE,PAINT_NAVY,STUCCO,PAINT_DARK].forEach((b,i)=>{BLOCK[b]={tiles:[65+i,65+i,65+i],solid:true};});
-BLOCK[NEON_Y]   ={tiles:[74,74,74],solid:true,glow:true};
-BLOCK[NEON_O]   ={tiles:[75,75,75],solid:true,glow:true};
+BLOCK[NEON_Y]   ={tiles:[74,74,74],solid:true,glow:true,light:[11,0xfff050]};
+BLOCK[NEON_O]   ={tiles:[75,75,75],solid:true,glow:true,light:[11,0xff9430]};
 BLOCK[ICE]      ={tiles:[76,76,76],solid:true};   // a frozen top layer of water, in winter
 // doorways: invisible markers that nothing bumps into -- the doors themselves are real hinged (or sliding) doors drawn
 // over them, that open as anyone comes up to them (see the doors, further on). Smash the doorway and the door goes.

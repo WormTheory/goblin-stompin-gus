@@ -2,6 +2,11 @@
 
 ## Version 0.5
 
+### Lighting
+
+- At night, lights now light up what's around them. Street lamps pool light on the pavement, neon signs throw their own colours across the street, lit windows glow on the walls and rooms beside them, and lamps, TVs and screens light the rooms they're in. Walls block the light, so it stays in the room or the street it's in. Smash a lamp or a sign and its light goes out.
+- It's switched on or off with Block lighting under Sound & picture in Options. Off, the game looks and runs exactly as before.
+
 ### Water
 
 - Water now pours into holes. Knock out a block under water, or the wall holding it back, and the water flows in and fills the space below, up to its own level. Dig down through the sea bed or a river and the hole floods. A small pool only spills what it holds, and a big breach stops after a few hundred blocks, so the sea never drains.

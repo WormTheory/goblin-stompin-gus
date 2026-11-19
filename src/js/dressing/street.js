@@ -130,7 +130,7 @@ function drawFix(f,near){
   const lit=dn===undefined&&!fl,by=f.y0||G+1;
   fallMatrix(f.x,f.z,theta,ang,by);
   // (a lamp's and a signal's arm reach along +x in their files: turned to point the way the spot says, rx,rz or s)
-  if(f.type==='lamp')fixDraw(f,FIXM.lamp,Math.atan2(-f.rz,f.rx),lit);
+  if(f.type==='lamp'){fixDraw(f,FIXM.lamp,Math.atan2(-f.rz,f.rx),lit);blkLampDown(f,lit);}
   else if(f.type==='signal'){
     const M=FIXM.signal,yw=Math.atan2(-f.s[1],f.s[0]);fixDraw(f,M,yw,lit);
     if(near){const h=headAt(nHead++);if(h){const q=fixSpot(f,M,'head',yw,by);placeGroup(h.g,q[0],q[1],q[2],f.yaw+Math.PI);h.ct=f.ct;h.axis=f.axis;h.lit=lit;}}

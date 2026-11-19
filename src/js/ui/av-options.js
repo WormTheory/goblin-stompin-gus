@@ -1,4 +1,4 @@
-// ---------- Options: Sound volume, Brightness and Hide blood ----------
+// ---------- Options: Sound volume, Brightness, Block lighting and Hide blood ----------
 // All three are kept in this browser and go for everyone at once: split screen shares one sound system and one picture.
 // (The volume itself is in core/audio.js, sndDest; Hide blood in destruction/smashing.js, BLOOD_OFF.)
 const BRIGHT_KEY='goblin-stompin-gus-brightness';
@@ -21,4 +21,8 @@ function brightApply(){const c=document.getElementById('world');if(c&&c.style)c.
   bt.addEventListener('click',()=>{BLOOD_OFF=!BLOOD_OFF;showBl();try{localStorage.setItem(BLOOD_KEY,BLOOD_OFF?'1':'0');}catch(e){}
     // (switched on: what's already been spilt goes too)
     if(BLOOD_OFF){for(const d of decals)d.visible=false;decalsDirty=true;for(const p of players)p.pool.visible=false;}});
+  // (Block lighting: render/block-light.js)
+  const lt=document.getElementById('blkTog');
+  const showLt=()=>lt.setAttribute('aria-checked',String(BL_ON));showLt();
+  lt.addEventListener('click',()=>{setBlockLight(!BL_ON);showLt();});
 }

@@ -12,14 +12,20 @@ function faceVisible(b,nb){if(nb===AIR)return true;if(BLOCK[b].liquid)return fal
 // the voxel world is unlit; at night it's darkened by WORLD_LIGHT, except glowing blocks (windows, neon, lamps),
 // which are tagged with a vertex colour of 2 and always render at full brightness
 const WORLD_LIGHT={value:new THREE.Color(1,1,1)};
+// With Block lighting on (BLOCK_LIGHT, render/block-light.js), each corner also carries the light from lamps and neon round
+// it (aBlk), which lifts the dark toward full brightness: by day there's no dark to lift, so the day looks as it always did.
 function nightPatch(mat){
+  blkDefines(mat);
   mat.onBeforeCompile=sh=>{
     sh.uniforms.uLight=WORLD_LIGHT;sh.uniforms.uSeasonW=SEASON_W;
-    sh.fragmentShader='uniform vec3 uLight;uniform vec4 uSeasonW;\n'+sh.fragmentShader.replace('#include <color_fragment>',FOLIAGE_FRAG+'#ifdef USE_COLOR\n  float glowV=step(1.5,vColor.r);\n  diffuseColor.rgb*=mix(vColor*uLight,vec3(1.0),glowV);\n#endif'+SNOW_FRAG);
+    sh.vertexShader='#ifdef BLOCK_LIGHT\nattribute vec3 aBlk;varying vec3 vBlk;\n#endif\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n#ifdef BLOCK_LIGHT\n vBlk=aBlk;\n#endif');
+    sh.fragmentShader='uniform vec3 uLight;uniform vec4 uSeasonW;\n#ifdef BLOCK_LIGHT\nvarying vec3 vBlk;\n#endif\n'+sh.fragmentShader.replace('#include <color_fragment>',FOLIAGE_FRAG+LIT_FRAG+'#ifdef USE_COLOR\n  float glowV=step(1.5,vColor.r);\n  diffuseColor.rgb*=mix(vColor*litC,vec3(1.0),glowV);\n#endif'+SNOW_FRAG);
     weatherPatch(sh);
   };
   return mat;
 }
+// (a torch-like fall-off: bright close to, dropping away quickly; the moonlight's what's left when it's gone)
+const LIT_FRAG='\n#ifdef BLOCK_LIGHT\n  vec3 litC=uLight+pow(vBlk,vec3(1.5))*max(vec3(1.0)-uLight,vec3(0.0));\n#else\n  vec3 litC=uLight;\n#endif\n';
 // weather on the ground: a vertex flag (aSky) marks top faces with nothing above them; on those, snow settles in
 // patches as the snow cover grows, and rain darkens them. Anything under a roof, a deck, an awning or a tree stays clear.
 const SNOW_U={value:0},WET_U={value:0},SNOWCLK_U={value:0};
@@ -68,11 +74,12 @@ function weatherPatch(sh){
   sh.vertexShader='attribute float aSky;varying float vSky;varying float vBorn;varying vec3 vWp;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n vSky=step(0.5,aSky);vBorn=max(aSky-1.0,0.0);vWp=(modelMatrix*vec4(position,1.0)).xyz;');
   sh.fragmentShader='uniform float uSnow,uWet,uSnowClk;varying float vSky;varying float vBorn;varying vec3 vWp;\n'+sh.fragmentShader;
 }
-const SNOW_FRAG='\n  diffuseColor.rgb*=1.0-0.3*uWet*vSky;\n  if(vSky>0.5&&uSnow>0.0){\n  float snowN=fract(sin(dot(mod(floor(vWp.xz*4.0+0.001),509.0),vec2(12.9898,78.233)))*43758.5453);float snowL=min(uSnow,uSnowClk-vBorn);float snowC=step(snowN,snowL*1.12)*step(0.002,snowL);\n  float snowG=fract(sin(dot(mod(floor(vWp.xz*16.0+0.001),997.0),vec2(39.346,11.135)))*43758.5453);float snowV=0.84+0.11*snowG+0.03*step(0.93,snowG);\n  diffuseColor.rgb=mix(diffuseColor.rgb,vec3(snowV,snowV+0.012,snowV+0.03)*uLight,snowC);}';   // (only top faces open to the sky, only when there's snow: no sums for every other pixel on screen)
+const SNOW_FRAG='\n  diffuseColor.rgb*=1.0-0.3*uWet*vSky;\n  if(vSky>0.5&&uSnow>0.0){\n  float snowN=fract(sin(dot(mod(floor(vWp.xz*4.0+0.001),509.0),vec2(12.9898,78.233)))*43758.5453);float snowL=min(uSnow,uSnowClk-vBorn);float snowC=step(snowN,snowL*1.12)*step(0.002,snowL);\n  float snowG=fract(sin(dot(mod(floor(vWp.xz*16.0+0.001),997.0),vec2(39.346,11.135)))*43758.5453);float snowV=0.84+0.11*snowG+0.03*step(0.93,snowG);\n  diffuseColor.rgb=mix(diffuseColor.rgb,vec3(snowV,snowV+0.012,snowV+0.03)*litC,snowC);}';   // (only top faces open to the sky, only when there's snow: no sums for every other pixel on screen)
 const matOpaque=nightPatch(new THREE.MeshBasicMaterial({map:tex,vertexColors:true,alphaTest:.5}));
 // (the paint and the rails laid on the ground: pulled toward the camera a touch so they never flicker with it)
 const matDecal=nightPatch(new THREE.MeshBasicMaterial({map:tex,vertexColors:true,alphaTest:.5,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-4}));
 const matWater=nightPatch(new THREE.MeshBasicMaterial({map:tex,vertexColors:true,transparent:true,depthWrite:false,side:THREE.DoubleSide}));
+BL_MATS.push(matOpaque,matDecal,matWater);
 const scene=new THREE.Scene();
 // three.js works out the matrix of every object in the scene on every frame, hidden or not, and the pools of hidden cars, doors
 // and signs are most of them. What's hidden is skipped here (it's done again, in full, the frame it's shown), and so are cars,
@@ -93,7 +100,7 @@ function emitBox(out,X,Y,Z,x0,y0,z0,x1,y1,z1,tile,skip,sky){
       let u,v;
       if(dx){u=c[3]===c[2]?pz:1-pz;v=py;}else if(dz){u=c[3]===c[0]?px:1-px;v=py;}else{u=c[3]===c[0]?px:1-px;v=c[4]===c[2]?pz:1-pz;}
       out.p.push(X+px,Y+py,Z+pz);out.u.push((tx+0.002+u*0.996)/AC,1-(ty+1)/AR+(0.002+v*0.996)/AR);
-      const s=f.shade*DIM;out.c.push(s,s,s);out.k.push(dy===1&&sky?1:0);}
+      const s=f.shade*DIM;out.c.push(s,s,s);out.k.push(dy===1&&sky?1:0);if(out.b&&BL_ON)out.b.push(BL_r,BL_g,BL_b);}
     out.i.push(n,n+1,n+2,n+2,n+1,n+3);});
 }
 // a fence: a thin panel (picket or boards) through the middle of its block, running on to whichever neighbours are
@@ -121,7 +128,7 @@ function emitRamp(out,X,Y,Z,info){
     let cr=X3(e1,e2);if(Math.abs(cr[0])+Math.abs(cr[1])+Math.abs(cr[2])<1e-6)cr=X3(e1,[D[0]-A[0],D[1]-A[1],D[2]-A[2]]);   // a corner of zero height
     if(cr[0]*n[0]+cr[1]*n[1]+cr[2]*n[2]<0){const t=B;B=C;C=t;}
     const tx=tile%AC,ty=Math.floor(tile/AC),i0=out.p.length/3,s=shade*DIM;
-    for(const v of [A,B,C,D]){out.p.push(X+v[0],Y+v[1],Z+v[2]);const [u,w]=uvOf(v);out.u.push((tx+0.002+u*0.996)/AC,1-(ty+1)/AR+(0.002+w*0.996)/AR);out.c.push(s,s,s);if(out.k)out.k.push(n[1]>0.5?1:0);}
+    for(const v of [A,B,C,D]){out.p.push(X+v[0],Y+v[1],Z+v[2]);const [u,w]=uvOf(v);out.u.push((tx+0.002+u*0.996)/AC,1-(ty+1)/AR+(0.002+w*0.996)/AR);out.c.push(s,s,s);if(out.k)out.k.push(n[1]>0.5?1:0);if(out.b&&BL_ON)out.b.push(BL_r,BL_g,BL_b);}
     out.i.push(i0,i0+1,i0+2,i0+2,i0+1,i0+3);
   };
   const top=info.tiles[0],side=info.tiles[2];
@@ -181,17 +188,18 @@ class MBuf{
   push(){const n=arguments.length,A=this.room(n);let o=this.length;for(let i=0;i<n;i++)A[o++]=arguments[i];this.length=o;}
   take(){return this.a.slice(0,this.length);}
 }
-const mkBufs=()=>({p:new MBuf(Float32Array,1<<16),u:new MBuf(Float32Array,1<<15),c:new MBuf(Float32Array,1<<16),i:new MBuf(Uint32Array,1<<15),k:new MBuf(Float32Array,1<<14)});
+const mkBufs=()=>({p:new MBuf(Float32Array,1<<16),u:new MBuf(Float32Array,1<<15),c:new MBuf(Float32Array,1<<16),i:new MBuf(Uint32Array,1<<15),k:new MBuf(Float32Array,1<<14),b:new MBuf(Uint8Array,1<<16)});
 const MB=[mkBufs(),mkBufs()];
 // what's asked of every block many times over, as flat tables
 const B_OPQ=new Uint8Array(BLOCK.length),B_SEE=new Uint8Array(BLOCK.length);
 BLOCK.forEach((v,b)=>{B_OPQ[b]=b!==AIR&&!v.transparent?1:0;B_SEE[b]=v.transparent?1:0;});
 // each face's corners worked out once: where the corner is, its texture spot, and the three blocks that shade it (as x,y,z
 // offsets from the block, and as offsets into a chunk's array for blocks not on its edge)
-const FACE_T=FACES.map(f=>{const [dx,dy,dz]=f.dir,axis=dx?0:dy?1:2,ua=(axis+1)%3,va=(axis+2)%3,lin=(x,y,z)=>x+z*CS+y*CS*CS;
-  return {dx,dy,dz,dy1:dy===1,sel:dy===1?0:dy===-1?1:2,shade:f.shade*DIM,lin:lin(dx,dy,dz),cn:f.c.map(c=>{const du=[0,0,0],dv=[0,0,0];du[ua]=c[ua]?1:-1;dv[va]=c[va]?1:-1;
+// (and the same as offsets into block light's window, render/block-light.js)
+const FACE_T=FACES.map(f=>{const [dx,dy,dz]=f.dir,axis=dx?0:dy?1:2,ua=(axis+1)%3,va=(axis+2)%3,lin=(x,y,z)=>x+z*CS+y*CS*CS,wl=(x,y,z)=>x+z*BLW+y*BLA;
+  return {dx,dy,dz,dy1:dy===1,sel:dy===1?0:dy===-1?1:2,shade:f.shade*DIM,lin:lin(dx,dy,dz),wf:wl(dx,dy,dz),cn:f.c.map(c=>{const du=[0,0,0],dv=[0,0,0];du[ua]=c[ua]?1:-1;dv[va]=c[va]?1:-1;
     const s1=[dx+du[0],dy+du[1],dz+du[2]],s2=[dx+dv[0],dy+dv[1],dz+dv[2]],cc=[dx+du[0]+dv[0],dy+du[1]+dv[1],dz+du[2]+dv[2]];
-    return {x:c[0],y:c[1],z:c[2],u:c[3],v:c[4],s1,s2,cc,o1:lin(...s1),o2:lin(...s2),oc:lin(...cc)};})};});
+    return {x:c[0],y:c[1],z:c[2],u:c[3],v:c[4],s1,s2,cc,o1:lin(...s1),o2:lin(...s2),oc:lin(...cc),w1:wl(...s1),w2:wl(...s2),wc:wl(...cc)};})};});
 function buildChunk(cx,cz){
   const gfx=GFX_OFF.caves||GFX_OFF.sewers||GFX_OFF.subway?new Map():null;
   const a0=gfx?gfxArr(cx,cz):chunkArr(cx,cz),x0=cx*CS,z0=cz*CS,A2=CS*CS,lf=leafFall>0;
@@ -208,7 +216,7 @@ function buildChunk(cx,cz){
     const ni=lx<0?0:lx<CS?1:2,nj=lz<0?0:lz<CS?1:2,o=nj*3+ni;let N=NB[o];if(!N)N=NB[o]=chunkArr(cx+ni-1,cz+nj-1);
     const b=N[lx-(ni-1)*CS+(lz-(nj-1)*CS)*CS+y*A2];return b===LEAVES&&lf&&leafDown(x0+lx,y,z0+lz)?AIR:b;};
   const opq=(lx,y,lz)=>B_OPQ[at(lx,y,lz)]===1;
-  const bufs=MB;for(const d of bufs){d.p.length=d.u.length=d.c.length=d.i.length=d.k.length=0;}
+  const bufs=MB;for(const d of bufs){d.p.length=d.u.length=d.c.length=d.i.length=d.k.length=d.b.length=0;}
   // the top of each column (the highest thing in it, even glass or leaves): only that block's top face is open to the sky
   const tops=new Int16Array(A2).fill(-1);for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++)for(let y=H-1;y>=0;y--){const b=a[lx+lz*CS+y*A2];if(b){tops[lz*CS+lx]=BLOCK[b].liquid?-1:y;break;}}
   let yTop=H-1;scan:for(;yTop>0;yTop--){const o=yTop*A2;for(let i=0;i<A2;i++)if(a[o+i])break scan;}
@@ -218,11 +226,14 @@ function buildChunk(cx,cz){
     for(let k=0;k<CS;k++)if(!opq(-1,yLo,k)||!opq(CS,yLo,k)||!opq(k,yLo,-1)||!opq(k,yLo,CS))break low;
   }
   yLo=Math.max(0,yLo-1);
+  // the light from lamps and neon round about (none, and nothing to do, with Block lighting off or nothing lit in reach)
+  const BL=BL_ON,lit=BL&&blkFill(cx,cz,yLo,yTop);
   for(let y=yLo;y<=yTop;y++){
     const midY=y>=1&&y<H-1;
     for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){
     const i0=lx+lz*CS+y*A2,b=a[i0];if(!b)continue;
     const info=BLOCK[b],liquid=!!info.liquid,glow=!!info.glow,out=bufs[liquid?1:0];
+    if(lit&&(info.ramp||info.thin))blkAt(x0+lx,y,z0+lz);else BL_r=BL_g=BL_b=0;
     if(info.ramp){emitRamp(out,mx0+lx,y,mz0+lz,info);continue;}
     if(info.hide)continue;
     if(info.thin){emitFence(out,mx0+lx,y,mz0+lz,b,info,at(lx-1,y,lz),at(lx+1,y,lz),at(lx,y,lz-1),at(lx,y,lz+1),at(lx,y+1,lz),tops[lz*CS+lx]===y);continue;}
@@ -234,26 +245,34 @@ function buildChunk(cx,cz){
       const F=FACE_T[fi],nb=inner?a[i0+F.lin]:at(lx+F.dx,y+F.dy,lz+F.dz);
       if(nb!==AIR&&(liquid||!B_SEE[nb]||nb===b))continue;   // (the face is hidden)
       const tile=tiles[F.sel],tx=tile%AC,ty=Math.floor(tile/AC);
-      const P=out.p.room(12),U=out.u.room(8),C=out.c.room(12),K=out.k.room(4),n=out.p.length/3;
-      let po=out.p.length,uo=out.u.length,co=out.c.length,ko=out.k.length;
+      const P=out.p.room(12),U=out.u.room(8),C=out.c.room(12),K=out.k.room(4),n=out.p.length/3,Bv=BL?out.b.room(12):null;
+      let po=out.p.length,uo=out.u.length,co=out.c.length,ko=out.k.length,bo=BL?out.b.length:0;
+      const wb=lit?(lx+15)+(lz+15)*BLW+(y+1)*BLA:0,wi=wb+F.wf;   // (the block, and the open one in front of the face, in block light's window)
       const X=x0+lx,Z=z0+lz,sky=F.dy1&&skyTop?1+(snowBorn.get(X*65536+Z)||0):0,V0=1-(ty+1)/AR;
       for(let q=0;q<4;q++){
         const c=F.cn[q];
         P[po++]=mx0+lx+c.x;P[po++]=waterTop&&c.y===1?y+0.88:y+c.y;P[po++]=mz0+lz+c.z;
         U[uo++]=(tx+0.002+c.u*0.996)/AC;U[uo++]=V0+(0.002+c.v*0.996)/AR;
         let s;
-        if(glow)s=2;
+        if(glow){s=2;if(BL){Bv[bo++]=0;Bv[bo++]=0;Bv[bo++]=0;}}
         else{
           s=F.shade;
           if(!liquid){
             const s1=inner?B_OPQ[a[i0+c.o1]]:+opq(lx+c.s1[0],y+c.s1[1],lz+c.s1[2]),s2=inner?B_OPQ[a[i0+c.o2]]:+opq(lx+c.s2[0],y+c.s2[1],lz+c.s2[2]);
             const cc=inner?B_OPQ[a[i0+c.oc]]:+opq(lx+c.cc[0],y+c.cc[1],lz+c.cc[2]);
             s*=AO[s1&&s2?0:3-(s1+s2+cc)];
-          }
+            // (smooth light: the open ones of the same four blocks the shading reads, averaged; a solid one has no light of its own)
+            if(lit){let r=BL_R[wi],g=BL_G[wi],b=BL_B[wi],m=1;
+              if(!s1){const w=wb+c.w1;r+=BL_R[w];g+=BL_G[w];b+=BL_B[w];m++;}if(!s2){const w=wb+c.w2;r+=BL_R[w];g+=BL_G[w];b+=BL_B[w];m++;}
+              if(!cc&&!(s1&&s2)){const w=wb+c.wc;r+=BL_R[w];g+=BL_G[w];b+=BL_B[w];m++;}
+              const k=17/m;Bv[bo++]=r*k+0.5;Bv[bo++]=g*k+0.5;Bv[bo++]=b*k+0.5;}
+            else if(BL){Bv[bo++]=0;Bv[bo++]=0;Bv[bo++]=0;}
+          } else if(lit){Bv[bo++]=BL_R[wi]*17;Bv[bo++]=BL_G[wi]*17;Bv[bo++]=BL_B[wi]*17;}
+          else if(BL){Bv[bo++]=0;Bv[bo++]=0;Bv[bo++]=0;}
         }
         C[co++]=s;C[co++]=s;C[co++]=s;K[ko++]=sky;
       }
-      out.p.length=po;out.u.length=uo;out.c.length=co;out.k.length=ko;
+      out.p.length=po;out.u.length=uo;out.c.length=co;out.k.length=ko;if(BL)out.b.length=bo;
       const I=out.i.room(6);let io=out.i.length;I[io++]=n;I[io++]=n+1;I[io++]=n+2;I[io++]=n+2;I[io++]=n+1;I[io++]=n+3;out.i.length=io;
     }
     }
@@ -268,6 +287,7 @@ function buildChunk(cx,cz){
     g.setAttribute('position',new THREE.Float32BufferAttribute(d.p.take(),3));
     g.setAttribute('uv',new THREE.Float32BufferAttribute(d.u.take(),2));
     g.setAttribute('color',new THREE.Float32BufferAttribute(d.c.take(),3));g.setAttribute('aSky',new THREE.Float32BufferAttribute(d.k.take(),1));
+    if(BL)g.setAttribute('aBlk',new THREE.BufferAttribute(d.b.take(),3,true));
     const big=d.p.length/3>65535,ia=d.i.take();
     g.setIndex(new THREE.BufferAttribute(big?ia:Uint16Array.from(ia),1));
     // (where it is, known already: saves three.js going through every corner to find out)
@@ -275,18 +295,19 @@ function buildChunk(cx,cz){
     const mesh=new THREE.Mesh(g,i?matWater:matOpaque);if(i)mesh.renderOrder=1;par.add(mesh);m.push(mesh);
   });
   if(!pk){const mk=routeMarks(cx,cz);if(mk)m.push(mk);}
-  meshes.set(k,{cx,cz,m});if(!pk)markMeshed(cx,cz,true);
+  const E={cx,cz,m};meshes.set(k,E);if(!pk)markMeshed(cx,cz,true);
+  if(BL)blkDone(cx,cz,E,yLo,yTop);
 }
 // ---- the paint on the highways out on the plains: thin flat strips laid on the road surface at the road's own angle,
 // following its curves -- the yellow centre line and the dashed white lines between the lanes. Built with each chunk
 // (each little piece of road by the chunk its middle is in), skipping any piece whose road has been smashed away. ----
 function routeMarks(cx,cz){
   const x0=cx*CS,z0=cz*CS,L=routesNearBox(x0,z0,x0+CS-1,z0+CS-1);
-  const P=[],U=[],C=[],K=[],I=[];
+  const P=[],U=[],C=[],K=[],I=[],Bl=[];
   const uvOf=t=>[((t%AC)+0.5)/AC,1-(Math.floor(t/AC)+1)/AR+0.5/AR];
   // (yb: the height at the b end, if it isn't level -- on a ramp)
   const quad=(ax,az,bx,bz,nx,nz,o,w,y,t,yb=y)=>{const n=P.length/3,[u,v]=uvOf(t),o0=o-w/2,o1=o+w/2;
-    for(const [px,pz,py] of [[ax+nx*o0,az+nz*o0,y],[ax+nx*o1,az+nz*o1,y],[bx+nx*o0,bz+nz*o0,yb],[bx+nx*o1,bz+nz*o1,yb]]){P.push(px,py,pz);U.push(u,v);C.push(0.8,0.8,0.8);K.push(1);}
+    for(const [px,pz,py] of [[ax+nx*o0,az+nz*o0,y],[ax+nx*o1,az+nz*o1,y],[bx+nx*o0,bz+nz*o0,yb],[bx+nx*o1,bz+nz*o1,yb]]){P.push(px,py,pz);U.push(u,v);C.push(0.8,0.8,0.8);K.push(1);if(BL_ON){blkAt(px,py,pz);Bl.push(BL_r,BL_g,BL_b);}}
     I.push(n,n+1,n+2,n+1,n+3,n+2);};
   const byRoute=new Map();for(let q=0;q<L.length;q+=2){if(!byRoute.has(L[q]))byRoute.set(L[q],[]);byRoute.get(L[q]).push(L[q],L[q+1]);}
   for(let q=0;q<L.length;q+=2){const R=L[q],i=L[q+1],[ax,az]=R.pts[i],[bx,bz]=R.pts[i+1],mx=(ax+bx)/2,mz=(az+bz)/2;
@@ -351,9 +372,10 @@ function routeMarks(cx,cz){
   if(!I.length)return null;
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));
   g.setAttribute('color',new THREE.Float32BufferAttribute(C,3));g.setAttribute('aSky',new THREE.Float32BufferAttribute(K,1));g.setIndex(I);
+  if(BL_ON)g.setAttribute('aBlk',new THREE.BufferAttribute(Uint8Array.from(Bl),3,true));
   const mesh=new THREE.Mesh(g,matDecal);scene.add(mesh);return mesh;
 }
-function clearWorld(){rebuildQ.clear();regionsClear();planJob.S=null;for(const e of meshes.values())for(const m of e.m){if(m.parent)m.parent.remove(m);m.geometry.dispose();}meshes.clear();MESHED.fill(0);meshedDirty=true;farDirty=true;chunks.clear();gfxRecC.clear();plotCache.clear();plotTypeC.clear();lampSpotC.clear();bridgeCache.clear();superCache.clear();siteC.clear();siteI.clear();setCache.clear();setAtCache.clear();jDegC.clear();linkNearC.clear();ctlCache.clear();zoneCache.clear();farmC.clear();cloverCache.clear();clearLayout();joinCache.clear();icCache.clear();ctlCache.clear();lastK=-1;}
+function clearWorld(){rebuildQ.clear();regionsClear();planJob.S=null;for(const e of meshes.values())for(const m of e.m){if(m.parent)m.parent.remove(m);m.geometry.dispose();}meshes.clear();MESHED.fill(0);meshedDirty=true;farDirty=true;chunks.clear();gfxRecC.clear();plotCache.clear();plotTypeC.clear();lampSpotC.clear();blkLampC.clear();BL_PROPS.clear();blkLampOut.clear();bridgeCache.clear();superCache.clear();siteC.clear();siteI.clear();setCache.clear();setAtCache.clear();jDegC.clear();linkNearC.clear();ctlCache.clear();zoneCache.clear();farmC.clear();cloverCache.clear();clearLayout();joinCache.clear();icCache.clear();ctlCache.clear();lastK=-1;}
 // ---- far chunks drawn in fours: each chunk is its own draw call or three, which at a long detail distance is the bulk of a frame's.
 // So a group of up to 4 x 4 chunks a little way off that nothing has happened to for a while is copied into one mesh per material,
 // and the chunks themselves hidden. The picture's the same. Anything changing in the group (a block smashed, a chunk dropped) simply
@@ -378,15 +400,15 @@ function regionMerge(rk,keys){
   for(const [mat,L] of byMat){
     let nv=0,ni=0;for(const m of L){nv+=m.geometry.attributes.position.count;ni+=m.geometry.index.count;}
     if(!ni)continue;
-    const P=new Float32Array(nv*3),U=new Float32Array(nv*2),C=new Float32Array(nv*3),K=new Float32Array(nv),I=nv>65535?new Uint32Array(ni):new Uint16Array(ni);
+    const P=new Float32Array(nv*3),U=new Float32Array(nv*2),C=new Float32Array(nv*3),K=new Float32Array(nv),I=nv>65535?new Uint32Array(ni):new Uint16Array(ni),Bk=BL_ON?new Uint8Array(nv*3):null;
     let v=0,o=0,y0=1e9,y1=-1e9;
     for(const m of L){const a=m.geometry.attributes,q=m.geometry.index.array,pp=a.position.array;
-      P.set(pp,v*3);U.set(a.uv.array,v*2);C.set(a.color.array,v*3);K.set(a.aSky.array,v);
+      P.set(pp,v*3);U.set(a.uv.array,v*2);C.set(a.color.array,v*3);K.set(a.aSky.array,v);if(Bk&&a.aBlk)Bk.set(a.aBlk.array,v*3);
       for(let i=1;i<pp.length;i+=3){const y=pp[i];if(y<y0)y0=y;if(y>y1)y1=y;}
       for(let i=0;i<q.length;i++)I[o++]=q[i]+v;
       v+=a.position.count;}
     const g=new THREE.BufferGeometry();
-    for(const [n,arr,w] of [['position',P,3],['uv',U,2],['color',C,3],['aSky',K,1]]){const A=new THREE.BufferAttribute(arr,w);A.onUpload(regDrop);g.setAttribute(n,A);}
+    for(const [n,arr,w] of [['position',P,3],['uv',U,2],['color',C,3],['aSky',K,1],['aBlk',Bk,3]]){if(!arr)continue;const A=new THREE.BufferAttribute(arr,w,n==='aBlk');A.onUpload(regDrop);g.setAttribute(n,A);}
     const IA=new THREE.BufferAttribute(I,1);IA.onUpload(regDrop);g.setIndex(IA);
     g.boundingSphere=new THREE.Sphere(new V3((x0+x1)/2,(y0+y1)/2,(z0+z1)/2),Math.hypot((x1-x0)/2,(y1-y0)/2,(z1-z0)/2)+0.01);
     const M=new THREE.Mesh(g,mat);M.renderOrder=L[0].renderOrder;scene.add(M);out.push(M);

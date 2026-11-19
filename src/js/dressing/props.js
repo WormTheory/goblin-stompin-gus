@@ -36,6 +36,7 @@ function propScale(f){
 function drawProp(f){
   const dn=downFix.get(f.key),fl=falling.get(f.key);let theta=0,ang=0;
   if(dn!==undefined){theta=Math.PI/2*0.97;ang=dn;}else if(fl){const k=Math.min(1,fl.t/0.7);theta=Math.PI/2*0.97*k*k;ang=fl.ang;}
+  if(PROP_LT[f.type])blkProp(f,dn===undefined&&!fl);   // (a lamp or screen lights the room round it: render/block-light.js)
   fallMatrix(f.x,f.z,theta,ang,f.y0);f._iL=nPropL;f._iG=nPropG;f._gen=propGen;propSeen.add(f.key);
   const s=propScale(f);
   _C.makeRotationY(f.yaw);if(s<1){_B.makeScale(s,s,s);_C.multiply(_B);}_B.makeTranslation(f.x,f.y0,f.z);_C.premultiply(_B);_C.premultiply(_F);

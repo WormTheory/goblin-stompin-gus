@@ -344,6 +344,7 @@ function buildBodyMesh(blocks,plane){
   }
   const g=new THREE.BufferGeometry();
   g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));g.setAttribute('color',new THREE.Float32BufferAttribute(C,3));g.setIndex(I);
+  if(BL_ON)g.setAttribute('aBlk',new THREE.BufferAttribute(new Uint8Array(P.length),3,true));   // (no light of its own while it falls: render/block-light.js)
   // (a toppling piece looks just like the world's own blocks; one sinking into the ground needs a clipping plane of its own)
   const mesh=new THREE.Mesh(g,plane?clipMat(plane):matOpaque);
   mesh.userData.surface=surface;mesh.userData.set=set;return mesh;

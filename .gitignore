@@ -6,5 +6,6 @@ tools/ui/vcvol.html
 *.png
 *.ppm
 tools/ui/t3.html
+tools/ui/t3bl.html
 tools/ui/shots/
 tools/__pycache__/
