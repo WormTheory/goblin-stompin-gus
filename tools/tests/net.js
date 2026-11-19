@@ -7,7 +7,7 @@ const fs=require('fs'),vm=require('vm');
 const src0=fs.readFileSync('g.js','utf8');
 const d6=fs.readFileSync('dead6.js','utf8');
 const stubs=d6.slice(d6.indexOf('const deep='),d6.indexOf('\neval(src);'));
-const src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={tenvPlace,tenvSpawnOne,tenvClear,MG,get TENV(){return TENV},netSendSnap,netRewind,netUnwind,NETP,makeTopple,topples,NETF,V3,BRICK,NET_VN,venues,TRAINS,netVenueModels,frame,players,P1,P2,NET,NETM,netHostWith,netJoinWith,netClose,netEnd,crush,get,goblins,cars,keys,ABIL,fires,setGobP,'+
+const src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={cultSees,tenvPlace,tenvSpawnOne,tenvClear,MG,get TENV(){return TENV},netSendSnap,netRewind,netUnwind,NETP,makeTopple,topples,NETF,V3,BRICK,NET_VN,venues,TRAINS,netVenueModels,frame,players,P1,P2,NET,NETM,netHostWith,netJoinWith,netClose,netEnd,crush,get,goblins,cars,keys,ABIL,fires,setGobP,'+
   'collapseBuilding,bldgAt,plotInfo,CELL,FH,knockFix,activeFix,activeProps,falling,downFix,NET_BG,netBgTick,netBgClock,get collapses(){return collapses},'+
   'mineLay,MINES,MINEV,minesClear,foeArm,GOB_FOES,TRACERS,award,POPS,DT,setCombo,setPvp,pvpOn,doBite,obitList,get seed(){return seed},get edits(){return edits},get menuOpen(){return menuOpen},get saveBlocked(){return saveBlocked},chunks,ckey,CS,G};})();');
 if(src===src0)throw new Error('closing line not found');
@@ -193,8 +193,13 @@ const lag=[];
 // ---- a police officer's handgun: drawn on the guest's mirror, and the shot's tracer shown there ----
 {const mk=HT.goblins.map((g,i)=>[g,i]).filter(([g,i])=>g.wkit&&g.root.visible&&g.state==='chase'&&GT.NETM.g.has(i));
  if(!mk.length)console.log('police handgun: no goblin about to try it on');else{const [g,i]=mk[0];HT.foeArm(g,HT.GOB_FOES.police);g.inv=false;
-  // (stood off from both hippos, past the club's reach: 10 blocks out from the host's, on the far side from the guest's)
-  const A=HT.P1.pos,B=HT.P2.pos,ux=A.x-B.x,uz=A.z-B.z,ul=Math.hypot(ux,uz)||1,hold=()=>{g.pos.x=A.x+ux/ul*10;g.pos.z=A.z+uz/ul*10;g.pos.y=A.y;g.vy=0;};
+  // (stood off from both hippos, past the club's reach: about 10 blocks out from the host's, on the far side from the guest's,
+  // and where it can see the host's hippo, or it would never aim: the earlier smashing can leave a wall in the straight line)
+  const A=HT.P1.pos,B=HT.P2.pos,a0=Math.atan2(A.x-B.x,A.z-B.z);let sx=0,sz=0,spot=false;
+  for(let k=0;k<24&&!spot;k++){const a=a0+(k%2?1:-1)*Math.ceil(k/2)*Math.PI/12;
+   for(const r of [10,8,12]){g.pos.set(A.x+Math.sin(a)*r,A.y,A.z+Math.cos(a)*r);if(HT.cultSees(g,HT.P1)&&d(g.pos,B)>r+1){sx=g.pos.x;sz=g.pos.z;spot=true;break;}}}
+  if(!spot)console.log('police handgun: nowhere in sight of the host hippo to stand it BAD');
+  const hold=()=>{g.pos.x=sx;g.pos.z=sz;g.pos.y=A.y;g.vy=0;};
   let drawn=false,tr=false,club=false;for(let n=0;n<240;n++){if(!(g.aim>0))g.gunCD=n<40?9:0;hold();H.step(1);G.step(1);const m=GT.NETM.g.get(i);if(m&&m.wkit){if(m.wkit.shown===2&&m.wkit.gun.every(o=>o.visible)&&m.wkit.melee.every(o=>!o.visible))drawn=true;if(m.wkit.shown===1&&m.wkit.stow.every(o=>o.visible))club=true;}if(GT.TRACERS.some(t=>t.t>0))tr=true;}
   console.log('police handgun on the guest: holster and club',ok(club),'| gun drawn',ok(drawn),'| a tracer',ok(tr));
   g.arms=null;g.state='wait';g.root.visible=false;for(let n=0;n<5;n++){H.step(1);G.step(1);}}}   // (gone again, so nothing after this is shot at)
@@ -202,8 +207,9 @@ const lag=[];
 // ---- the host's tab in the background: no animation frames at all, so a worker's timer runs it (frame(now,true)), undrawn ----
 {const D=H.ctx.document;D.hidden=true;HT.netBgClock();const on=HT.NET_BG.on;const n0=GT.NET.cur?GT.NET.cur.n:0,b0=HT.P2.pos.clone();
  H.bg=true;
- GT.keys.add('KeyW');for(let i=0;i<60;i++){H.step(1);G.step(1);}GT.keys.delete('KeyW');for(let i=0;i<10;i++){H.step(1);G.step(1);}
- const n1=GT.NET.cur?GT.NET.cur.n:0,moved=d(HT.P2.pos,b0);
+ // (how far it got while forward was held: the goblins about can knock it back once it stops, which says nothing about the clock)
+ let moved=0;GT.keys.add('KeyW');for(let i=0;i<60;i++){H.step(1);G.step(1);moved=Math.max(moved,d(HT.P2.pos,b0));}GT.keys.delete('KeyW');for(let i=0;i<10;i++){H.step(1);G.step(1);}
+ const n1=GT.NET.cur?GT.NET.cur.n:0;
  D.hidden=false;HT.netBgClock();H.bg=false;for(let i=0;i<10;i++){H.step(1);G.step(1);}
  console.log('host tab hidden: background clock on',ok(on),'snapshots the guest got meanwhile',n1-n0,ok(n1-n0>=10),'guest walked on the host',f2(moved),ok(moved>2),'| clock off again when shown',ok(!HT.NET_BG.on));}
 

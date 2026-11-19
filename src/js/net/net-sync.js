@@ -108,7 +108,8 @@ function netMechSet(L){
   for(const e of L){const [vk,key,x,y,z,h,vx,vz,f]=e;keep.add(key);
     let V=venues.get(vk);if(!V){V={kind:'mech',mechs:[]};venues.set(vk,V);}
     let M=V.mechs.find(o=>o.key===key);if(!M){M=newMech(V,x,z,h,mgLoadDecode(f.ld));M.key=key;M.y=y;M.net=true;}
-    M.vx=vx;M.vz=vz;for(const k of NET_MGK)M[k]=f[k]||0;for(const k of NET_MGB)M[k]=!!f[k];
+    const qf=M.qbFlash||0;M.vx=vx;M.vz=vz;for(const k of NET_MGK)M[k]=f[k]||0;for(const k of NET_MGB)M[k]=!!f[k];
+    M.qbFlash=Math.max(M.qbFlash,qf);   // (a quick boost this guest pressed flashes at once, netMechStep: a snapshot sent before the host had it mustn't put it out)
     M.qbDir=f.qd?{x:f.qd[0],z:f.qd[1]}:null;M.ab=f.ab?{ph:f.ab===2?'go':'charge'}:null;M.kick=f.kk?{hit:f.kk===2}:null;
     M.sl=f.sl?Object.assign(M.sl||{},{fx:f.sl[0],fz:f.sl[1],e:f.sl[2],w:f.sl[3],f:f.sl[4],pt:f.sl[5]}):null;
     M.pod=f.pd?{locks:new Array(f.pd-1).fill(null)}:null;M.podQ=f.pq?new Array(f.pq).fill(null):[];M.hard=f.hd?netDeref(f.hd):null;}

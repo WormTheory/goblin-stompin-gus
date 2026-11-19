@@ -372,6 +372,7 @@
 - Big worlds saved into the browser's database could be saved over by an older save finishing late, or not loaded back at all after a save that didn't finish; saves now go one at a time, and loading finds the blocks either way.
 - A badly smashed-up world no longer stutters every few seconds as it saves: the game only writes the parts of it that changed since the last save.
 - Wind turbines, motorways, bridges, stadiums and other things that aren't buildings no longer have rows of lit windows on them when seen from far off, and neither do windowless buildings such as building sites, car parks and the data centre.
+- Online, a guest's Mobile Gear quick boost keeps its thruster flash from the moment it's pressed, instead of the flash cutting out for a moment until the host catches up.
 
 ## Version 0.4.1
 
