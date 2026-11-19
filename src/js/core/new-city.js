@@ -13,7 +13,7 @@ document.getElementById('newWorld').addEventListener('click',()=>{confirmEl.hidd
 document.getElementById('confirmNo').addEventListener('click',()=>{confirmEl.hidden=true;});
 document.getElementById('confirmYes').addEventListener('click',()=>{
   if(freshWorld([]))return;   // (a reload: everything worked out afresh for the new seed)
-  confirmEl.hidden=true;TEST_OFF=new Set();seed=(Math.random()*1e9)|0;noteQ.length=0;edits={};collapses={};wrecked={};destroyed={};destroyVer++;setDCache.clear();downFix.clear();falling.clear();chunkEdits.clear();clearBodies();clearWorld();
+  confirmEl.hidden=true;TEST_OFF=new Set();seed=(Math.random()*1e9)|0;noteQ.length=0;edits={};collapses={};craters=[];BB.jobs.length=0;BB.armed.length=0;wrecked={};destroyed={};destroyVer++;setDCache.clear();downFix.clear();falling.clear();chunkEdits.clear();clearBodies();clearWorld();
   for(const d of decals)d.visible=false;decalsDirty=true;for(const p of players)p.pool.visible=false;for(const s of scorches)s.visible=false;
   for(const c of cars){c.alive=false;c.g.visible=false;c.respawnT=1;}
   score=0;kills=0;rampReset();playTime=0;resetGoblins();

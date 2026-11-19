@@ -345,6 +345,10 @@ document.getElementById('testWorld').addEventListener('click',()=>{if(TENV)tpSho
 document.getElementById('tpGo').addEventListener('click',()=>startPlay());
 document.getElementById('tpNormal').addEventListener('click',()=>tenvLeave());
 document.getElementById('tpClear').addEventListener('click',()=>tenvClear());
+// a big blast ahead of Gus (big-blast.js), set off once the menu's closed
+{const r=document.getElementById('tpBBR'),v=document.getElementById('tpBBRVal');
+ r.addEventListener('input',()=>{v.textContent=r.value;});
+ document.getElementById('tpBB').addEventListener('click',()=>{BB.pendR=+r.value;startPlay();});}
 // Reset world: everything spawned, smashed or killed here gone, a fresh empty Testing Environment (a second press, within a
 // few seconds, to be sure)
 function tenvReset(){

@@ -281,6 +281,7 @@ function netSan(v,d){
 function netUnsan(v){if(v===null||typeof v!=='object')return v;if(Array.isArray(v))return v.map(netUnsan);if('$p' in v){const pl=players[v.$p];if(!pl)return null;
   // (the host's player one is drawn here as P2; this guest's seat is our P1)
   return netSeatP(v.$p,false);}const o={};for(const k in v)o[k]=netUnsan(v[k]);return o;}
+const NET_EBUDGET=4*3000;   // (numbers: four per block)
 function netEmit(e){for(const p of NET.guests.values()){const out=p.net.out;if(out.length<4000)out.push(e);}}
 // (the sounds, and which of their arguments is the volume)
 const NET_SND={tone:4,noise:1,woosh:0};
@@ -379,6 +380,8 @@ function netFallPose(a,b,k){
 }
 // (and its own blocks are the host's: a guess at a smash changes nothing here)
 {const sr=setRaw;setRaw=function setRaw(x,y,z,b){if(NET.mode===2&&NET.joined&&!NET_APPLY)return;return sr(x,y,z,b);};}
+// guest: big blasts the host has set off that this game hasn't heard of yet
+function netCrater(L){for(const C of bbValid(L))if(!craters.some(c=>c.n===C.n))bbStart(C,false);}
 // guest: one block, as the host has it
 function netSetBlock(x,y,z,b,ch){
   if(edits[x+','+y+','+z]===b)return;
@@ -391,7 +394,7 @@ function netSetBlock(x,y,z,b,ch){
 function netWorldBits(N){
   const out={},J=(k,v)=>{const s=JSON.stringify(v);if(N.wsent[k]!==s){N.wsent[k]=s;out[k]=v;}};
   if(TENV){J('tenv',TENV.boxes);J('sea',TENV.sea||null);}if(shipN)J('sprop',netShipProps());   // (and its sea, laid out for the first ship, and the furniture knocked over aboard ships)   // (the Testing Environment's structures, as they're spawned and removed)
-  J('coll',collapses);J('wreck',wrecked);J('down',[...downFix]);J('dest',destroyed);
+  J('coll',collapses);J('cr',craters);J('wreck',wrecked);J('down',[...downFix]);J('dest',destroyed);
   J('fire',fires.map(F=>[r3(F.x),r3(F.y),r3(F.z),r3(F.r),Math.round(F.t*10)/10,Math.round(F.life*10)/10,F.flames?1:0,r3(F.sm),r3(F.rise),F.douse?1:0]));
   return out;
 }
@@ -404,10 +407,14 @@ function netClockSet(k){if(!k)return;tod=k.tod;dayN=k.dayN;clockT=k.clockT;traff
 // ---- host: one guest's snapshot ----
 function netSendSnap(p){   // (and the goblins' places are kept each frame, below, for lag compensation)
   const N=p.net;if(!N.wsent)N.wsent={};
-  const m={t:'s',n:++N.seq,tt:NET.now,p:[],g:[],gl:{},c:[],cl:{},e:N.out};N.out=[];
+  // (the events in order, but no more than NET_EBUDGET smashed blocks' worth a snapshot: a big collapse or a long rampage is
+  // spread over the next few, so it can't hold up everyone's places behind it. The world bits wait till it's all gone over.)
+  let take=N.out.length,nb=0;for(let i=0;i<N.out.length;i++){const e=N.out[i];if(e[0]!=='e')continue;nb+=e[1].length;if(nb>NET_EBUDGET&&i>0){take=i;break;}}
+  const m={t:'s',n:++N.seq,tt:NET.now,p:[],g:[],gl:{},c:[],cl:{},e:take<N.out.length?N.out.slice(0,take):N.out};N.out=take<N.out.length?N.out.slice(take):[];
+  N.eLag=N.out.length?(N.eLag||0)+1:0;
   for(let s=0;s<players.length;s++){const q=players[s];if(q.active)m.p.push(netPlayerState(q,s,N));}
   netGoblins(p,N,m.g,m.gl);netCars(p,N,m.c,m.cl);m.v=[];netVenues(p,N,m.v);m.mg=netMechs();m.sh=netShips();m.vh=netVenueHP(N);m.fa=netFalls();m.sc=[score,kills,RAMP.cars,RAMP.best,RAMP.nB,RAMP.nR];
-  N.wT=(N.wT||0)-1;if(N.wT<=0){N.wT=NET_SNAP_HZ;m.w=netWorldBits(N);m.k=netClock();N.vhsent=null;}   // (and the venues' health all again next time, for a venue the guest has only just made)
+  N.wT=(N.wT||0)-1;if(N.wT<=0&&(!N.eLag||N.eLag>60)){N.wT=NET_SNAP_HZ;m.w=netWorldBits(N);m.k=netClock();N.vhsent=null;}   // (and the venues' health all again next time, for a venue the guest has only just made)
   try{NET.tr.send(m,N.peer);}catch(e){}
 }
 
@@ -537,6 +544,7 @@ function netCommit(m){
     if(e[0]==='e'){const L=e[1];for(let i=0;i+3<L.length;i+=4)netSetBlock(L[i],L[i+1],L[i+2],L[i+3],ch);}
     else if(e[0]==='t'||e[0]==='b'){try{netFallMake(e);}catch(er){}}
     else if(e[0]==='c'){try{netCollapse(e[1],e[2],ch);}catch(er){}}
+    else if(e[0]==='X'){try{netCrater([{x:e[1],y:e[2],z:e[3],R:e[4],s:e[5],n:e[6]}]);}catch(er){}}   // (a big blast: the guest carves it itself, big-blast.js)
     else if(e[0]==='k'){try{netKnock(e);}catch(er){}}
     else if(e[0]==='sk'){try{netShipKnock(e);}catch(er){}}
     else if(e[0]==='f'){const f=NET_FX[e[1]];if(!f)continue;if(ch.size){rebuildSet(ch);ch.clear();}
@@ -557,6 +565,7 @@ function netCommit(m){
   if(NET.cur&&NET.cur.tt<m.tt)NET.prev=NET.cur;NET.cur=m;
 }
 function netWorld(w){
+  if(w.cr)netCrater(w.cr);   // (one whose word went missing)
   if(w.tenv&&TENV){const key=B=>[B.k,B.ax,B.az,B.w,B.h].join(),want=new Set(w.tenv.map(key));
     for(let i=TENV.boxes.length-1;i>=0;i--)if(!want.has(key(TENV.boxes[i])))tenvRemove(i);
     const have=new Set(TENV.boxes.map(key));for(const B of w.tenv)if(!have.has(key(B))){const C=Object.assign({},B);TENV.boxes.push(C);tenvIndex();linkNearC.clear();tenvRebuild(C);}}
@@ -631,6 +640,7 @@ function netGuestDress(dt){
 // guest, on (re)joining a world this tab already built: whatever's changed on the host since that save, put in here too
 function netCatchUp(S){
   const ch=new Set(),P=S.ed2||{};
+  netCrater(S.craters);   // (big blasts meanwhile: carved first, then what's been smashed since)
   netCollSeed();for(const k in S.coll||{})netCollapse(k,S.coll[k],ch);   // (buildings that came down meanwhile, before the blocks changed since)
   for(const key in P){const [cx,cz]=key.split(',').map(Number),x0=cx*CS,z0=cz*CS;
     for(const part of P[key].split(';')){const c=part.indexOf(':'),b=+part.slice(0,c);

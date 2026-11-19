@@ -503,6 +503,7 @@ function seaChunk(cx,cz){
   for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){const x=x0+lx,z=z0+lz,wet=x>=R.x0&&x<R.x1&&z>=R.z0&&z<R.z1;
     if(!wet){for(let y=0;y<G;y++)a[li(lx,y,lz)]=earthAt(x,y,z);a[li(lx,G,lz)]=GRASS;continue;}
     for(let y=0;y<G-SEA_DEEP;y++)a[li(lx,y,lz)]=earthAt(x,y,z);a[li(lx,G-SEA_DEEP,lz)]=SAND;for(let y=G-SEA_DEEP+1;y<G;y++)a[li(lx,y,lz)]=WATER;}
+  bbGen(a,cx,cz);
   const ce=chunkEdits.get(ckey(cx,cz));
   if(ce)for(const [x,y,z,b] of ce)a[li(x-x0,y,z-z0)]=b;
   if(WX.frozen)freezeArr(a,true);

@@ -222,7 +222,7 @@ function refreshProps(){
          if(!chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS)))||get(fx,f.y0-1,fz)===AIR||get(fx,f.y0,fz)!==AIR||got.has(f.key)||siteIn(f.x,f.z))continue;
          got.add(f.key);activeProps.push(f);drawProp(f);if(!f.low&&!downFix.has(f.key)&&!falling.has(f.key))propCells.set(propCK(f.x,f.y0,f.z),f);}
        if(biomeOf(px,pz)==='plains')continue;
-       for(const f of streetFurn(px,pz)){if(!f.prop)continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);if(get(fx,G,fz)!==f.on||get(fx,G+1,fz)!==AIR)continue;
+       for(const f of streetFurn(px,pz)){if(!f.prop)continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);if(get(fx,G,fz)!==f.on||get(fx,G+1,fz)!==AIR||siteIn(f.x,f.z))continue;
          activeProps.push(f);activeFix.push(f);drawProp(f);if(downFix.has(f.key)||falling.has(f.key))continue;
          // (a bench is wider than one block: goblins go round the whole of it)
          const L=f.type==='parkbench'?.9:0,ux=Math.cos(f.yaw)*L,uz=-Math.sin(f.yaw)*L;for(const e of L?[-1,0,1]:[0])propCells.set(propCK(f.x+ux*e,f.y0,f.z+uz*e),f);}}}}
@@ -294,15 +294,16 @@ function refreshFixtures(){
       const X0=px*CELL,Z0=pz*CELL,near=Math.hypot(X0+4-p.pos.x,Z0+4-p.pos.z)<70;
       if(biomeOf(px,pz)==='plains')continue;
       const PBf=plotBounds(px,pz);
-      for(const [lx,lz,rx,rz] of lampSpotsOf(px,pz,X0,Z0,PBf)){if(!fixCanAsk(X0+lx,Z0+lz))continue;if(get(X0+lx,G,Z0+lz)===ASPHALT||get(X0+lx,G+1,Z0+lz)!==AIR)continue;const f={type:'lamp',key:'l'+(X0+lx)+','+(Z0+lz),x:X0+lx+0.5,z:Z0+lz+0.5,rx,rz};activeFix.push(f);drawFix(f,near);}
+      for(const [lx,lz,rx,rz] of lampSpotsOf(px,pz,X0,Z0,PBf)){if(!fixCanAsk(X0+lx,Z0+lz)||craters.length&&bbGone(X0+lx,Z0+lz))continue;if(get(X0+lx,G,Z0+lz)===ASPHALT||get(X0+lx,G+1,Z0+lz)!==AIR)continue;const f={type:'lamp',key:'l'+(X0+lx)+','+(Z0+lz),x:X0+lx+0.5,z:Z0+lz+0.5,rx,rz};activeFix.push(f);drawFix(f,near);}
       // benches and litter bins along the pavements of the busier blocks, and along the paths in the parks
-      for(const o of streetFurn(px,pz)){if(o.prop||o.on&&!fixCanAsk(o.x,o.z))continue;if(o.on&&(get(Math.floor(o.x),G,Math.floor(o.z))!==o.on||get(Math.floor(o.x),G+1,Math.floor(o.z))!==AIR))continue;activeFix.push(o);drawFix(o,near);}
+      for(const o of streetFurn(px,pz)){if(o.prop||o.on&&!fixCanAsk(o.x,o.z)||craters.length&&bbGone(o.x,o.z))continue;if(o.on&&(get(Math.floor(o.x),G,Math.floor(o.z))!==o.on||get(Math.floor(o.x),G+1,Math.floor(o.z))!==AIR))continue;activeFix.push(o);drawFix(o,near);}
       const ct=ctlAt(px,pz);
       if(ct.k!=='none')for(let d=0;d<4;d++){
         const A=APPR[d],axis=d%2?'x':'z',v=DIRV[d];
         if(ct.k==='yield'&&ct.ax!==axis)continue;
         if(!segOpen(px,pz,(d+2)%4)||superPart(X0+A.c[0],Z0+A.c[1])==='in')continue;
         const f={type:ct.k==='light'?'signal':'sign',key:sigKey(px,pz,d),x:X0+A.c[0]+0.5,z:Z0+A.c[1]+0.5,s:A.s,ct,axis,yaw:Math.atan2(-v[0],-v[1])};
+        if(craters.length&&bbGone(f.x,f.z))continue;
         activeFix.push(f);drawFix(f,near);
       }
     }

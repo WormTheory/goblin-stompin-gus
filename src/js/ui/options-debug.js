@@ -384,6 +384,8 @@ function explodeCar0(c){
   const pts=c.police?500:300;if(BLAME!=='acc'){reportCrime(p.x,p.z);RAMP.cars++;award(pts,c.police?'Police car tossed':c.crew&&CREW_NAME[c.veh]?CREW_NAME[c.veh]+' destroyed':'Car tossed',p.x,p.y+2,p.z);}
   if(c.police&&c.spot){policeDown[c.spot.split(':')[0]]=playTime+90;c.spot=null;}c.parked=false;
   if(c.svcPool&&c.svc){const keep=c.alive;svcDone(c,true);}
+  // (inside a big blast: just gone, with no blast of its own and nothing set off round it, big-blast.js)
+  if(BB.quiet){if(c.crew)crewWreck(c,p);if(c.parkPool&&c.spot){parkDown[c.spot]=playTime+120;c.spot=null;}return;}
   blastFx(p.x,p.y+1,p.z,0.6,1);
   smoke(p.x,p.y+1,p.z,22,0x262626);puff(p.x,p.y,p.z,16,0x5a4a3a,1.6);
   for(let i=0;i<12;i++){const d=debris[(debrisIdx++)%debris.length];

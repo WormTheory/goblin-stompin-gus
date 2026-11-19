@@ -247,6 +247,7 @@ function genChunk(cx,cz){
   railPass(a,x0,z0);
   siteStamp(a,cx,cz);   // (a structure from the editor's Structures tab built in its place: world/sites.js)
   if(TR.raw)return a;   // (a moved box's source: what's smashed and frozen is the box's own, added by trChunk)
+  bbGen(a,cx,cz);   // (big blasts' craters, before what's been smashed since: destruction/big-blast.js)
   const ce=chunkEdits.get(ckey(cx,cz));
   if(ce)for(const [x,y,z,b] of ce)a[li(x-x0,y,z-z0)]=b;
   if(WX.frozen)freezeArr(a,true);
@@ -258,6 +259,7 @@ function trChunk(cx,cz,B){
   const dx=B.sx-B.ax,dz=B.sz-B.az,real=collapses,mv=k=>{const m=typeof k==='string'&&/^(-?\d+),(-?\d+)(,.*)$/.exec(k);return m?(+m[1]-dx)+','+(+m[2]-dz)+m[3]:k;};
   collapses=new Proxy(real,{get:(o,k)=>o[mv(k)],has:(o,k)=>mv(k) in o});
   let a;TR.raw++;TR.d++;try{a=genChunk(cx+dx*CELL/CS,cz+dz*CELL/CS);}finally{TR.raw--;TR.d--;collapses=real;}
+  bbGen(a,cx,cz);
   const x0=cx*CS,z0=cz*CS,ce=chunkEdits.get(ckey(cx,cz));
   if(ce)for(const [x,y,z,b] of ce)a[li(x-x0,y,z-z0)]=b;
   if(WX.frozen)freezeArr(a,true);
@@ -267,6 +269,7 @@ function trChunk(cx,cz,B){
 function flatChunk(cx,cz){
   const a=new Uint8Array(CS*CS*H),x0=cx*CS,z0=cz*CS;
   for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){for(let y=0;y<G;y++)a[li(lx,y,lz)]=earthAt(x0+lx,y,z0+lz);a[li(lx,G,lz)]=GRASS;}
+  bbGen(a,cx,cz);
   const ce=chunkEdits.get(ckey(cx,cz));
   if(ce)for(const [x,y,z,b] of ce)a[li(x-x0,y,z-z0)]=b;
   if(WX.frozen)freezeArr(a,true);
@@ -301,8 +304,8 @@ function purgeLeaves(){
 const leafHash=(x,y,z)=>hash2(x*7+y*131,z*13+y*17);
 const leafDown=(x,y,z)=>leafFall>0&&leafHash(x,y,z)<leafFall;
 function get(x,y,z){x=Math.floor(x);y=Math.floor(y);z=Math.floor(z);if(y<0||y>=H)return AIR;const cx=Math.floor(x/CS),cz=Math.floor(z/CS);const b=chunkArr(cx,cz)[li(x-cx*CS,y,z-cz*CS)];return b===LEAVES&&leafDown(x,y,z)?AIR:b;}
-function setRaw(x,y,z,b){if(y<0||y>=H)return;if(x>=SHIP_X0&&shipN)b=shipDent(x,y,z,b);if(b===AIR&&y>G)noteRemoved(x,y,z);if(WX.snowCover>0){let open=true;for(let yy=y+1;yy<H;yy++)if(get(x,yy,z)){open=false;break;}if(open)snowBorn.set(Math.floor(x)*65536+Math.floor(z),WX.snowClock);}navCols.delete(Math.floor(x)*65536+Math.floor(z));const cx=Math.floor(x/CS),cz=Math.floor(z/CS);if(b!==LOG&&rawGet(x,y,z)===LOG)leafCheckQ.add(Math.floor(x)+','+Math.floor(y)+','+Math.floor(z));if(b===AIR&&get(x,y,z)===ICE)b=WATER;if(b===AIR)wfNoteRemoved(x,y,z);const A=chunkArr(cx,cz),lx=x-cx*CS,lz=z-cz*CS;if(BL_ON)blkEdit(x,y,z,A[li(lx,y,lz)],b,A);if(b&&A.tileTops){const t=(Math.floor(lz)>>2)*4+(Math.floor(lx)>>2);if(y>A.tileTops[t])A.tileTops[t]=y;}A[li(lx,y,lz)]=b;}
-function addEdit(x,y,z,b){if(b===AIR&&get(x,y,z)===WATER)b=WATER;edits[x+','+y+','+z]=b;const k=ckey(Math.floor(x/CS),Math.floor(z/CS));let l=chunkEdits.get(k);if(!l){l=[];chunkEdits.set(k,l);}l.push([x,y,z,b]);}
+function setRaw(x,y,z,b){if(y<0||y>=H)return;if(BB.jobs.length)bbTouch(x,z);if(x>=SHIP_X0&&shipN)b=shipDent(x,y,z,b);if(b===AIR&&y>G)noteRemoved(x,y,z);if(WX.snowCover>0){let open=true;for(let yy=y+1;yy<H;yy++)if(get(x,yy,z)){open=false;break;}if(open)snowBorn.set(Math.floor(x)*65536+Math.floor(z),WX.snowClock);}navCols.delete(Math.floor(x)*65536+Math.floor(z));const cx=Math.floor(x/CS),cz=Math.floor(z/CS);if(b!==LOG&&rawGet(x,y,z)===LOG)leafCheckQ.add(Math.floor(x)+','+Math.floor(y)+','+Math.floor(z));if(b===AIR&&get(x,y,z)===ICE)b=WATER;if(b===AIR)wfNoteRemoved(x,y,z);const A=chunkArr(cx,cz),lx=x-cx*CS,lz=z-cz*CS;if(BL_ON)blkEdit(x,y,z,A[li(lx,y,lz)],b,A);if(b&&A.tileTops){const t=(Math.floor(lz)>>2)*4+(Math.floor(lx)>>2);if(y>A.tileTops[t])A.tileTops[t]=y;}A[li(lx,y,lz)]=b;}
+function addEdit(x,y,z,b){if(BB.jobs.length)bbTouch(x,z);if(b===AIR&&get(x,y,z)===WATER)b=WATER;edits[x+','+y+','+z]=b;const k=ckey(Math.floor(x/CS),Math.floor(z/CS));let l=chunkEdits.get(k);if(!l){l=[];chunkEdits.set(k,l);}l.push([x,y,z,b]);}
 // the highest block in each 4 x 4 of a chunk's columns, kept with the chunk once something has asked. (A block knocked out can
 // leave it too high, which only means a closer look than was needed; a block put in raises it, in setRaw.)
 function tileTopsOf(A){

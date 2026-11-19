@@ -39,7 +39,8 @@ function siteOf(px,pz){
   siteC.set(ck,I);return I;
 }
 // (is world column (x,z) inside a site's lot: then the plan's own dressing there is left out)
-function siteIn(x,z){if(!SITES.size)return false;const I=siteOf(Math.floor(x/CELL),Math.floor(z/CELL));return !!I&&x>=I.X0&&x<I.X0+I.LX&&z>=I.Z0&&z<I.Z0+I.LZ;}
+function siteIn(x,z){if(craters.length&&bbGone(x,z))return true;   // (and nothing of the plan's where a big blast has taken everything)
+  if(!SITES.size)return false;const I=siteOf(Math.floor(x/CELL),Math.floor(z/CELL));return !!I&&x>=I.X0&&x<I.X0+I.LX&&z>=I.Z0&&z<I.Z0+I.LZ;}
 // the site's own block column at lot column (lx,lz): its index into s.A, or -1
 function siteCol(I,lx,lz){
   const s=I.s,NX=s.size[0],NZ=s.size[2];let u,v;
@@ -80,7 +81,7 @@ function sitePropsAdd(p,R,got,out){
 }
 // ---- its parked vehicles: in place of the plan's inside its lot (parkSpots0 is the plan's, vehicles/cars.js) ----
 function parkSpots(px,pz){
-  const L=parkSpots0(px,pz);if(!SITES.size)return L;const I=siteOf(px,pz);if(!I)return L;
+  let L=parkSpots0(px,pz);if(craters.length)L=L.filter(o=>!bbGone(o.x,o.z));if(!SITES.size)return L;const I=siteOf(px,pz);if(!I)return L;
   const out=L.filter(o=>!siteIn(o.x,o.z));
   if(I.ax===px&&I.az===pz)(I.s.cars||[]).forEach((c,i)=>{if(!VEH[c.k])return;const [x,z]=sitePt(I,c.p[0],c.p[2]);out.push({x,z,y:c.p[1],h:siteYaw(I,c.yaw),key:'st:'+I.key+':c'+i,p:1,veh:c.k});});
   return out;
