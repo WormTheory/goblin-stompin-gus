@@ -97,6 +97,7 @@ function carSpawn(c,o){
   if(o.x!==undefined){c.pos.set(o.x,o.y,o.z);c.heading=o.h||0;}
   c.speed=o.speed||0;c.kv.set(0,0,0);c.hp=c.hpMax=o.hp||carHP(c);c.alive=true;c.hunter=!!o.hunter;if(o.parked!==undefined)c.parked=o.parked;c.vy=0;
   c.pitch=c.roll=c.spinP=c.spinR=0;c.yawV=0;c.spinT=0;c.spinH=undefined;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.paint.emissive.setHex(0);c.g.visible=true;
+  if(c.dh)c.dh.visible=true;   // (back with a goblin aboard: a wreck or a carjacking had hidden him. Those that come back empty hide him again after)
   if(c.fork||c.farm||c.tipR)farmReset(c);   // (a forklift's forks down and empty, a tractor's hitch up: farm-lift.js)
   if(o.place){c.g.position.copy(c.pos);c.g.rotation.set(0,c.heading,0);}
   if(c.ws){c.ws=null;wsCarDark(c,false);}c.wsP=null;   // (a burnt-out shell that was still lying somewhere: wreck-slide.js)

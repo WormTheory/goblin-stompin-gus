@@ -8,7 +8,7 @@ const fs=require('fs');
 let hdr=fs.readFileSync('site.js','utf8').split('\n');
 const n=hdr.findIndex(l=>l.startsWith('eval(src);'));
 hdr=hdr.slice(0,n).join('\n');
-hdr=hdr.replace(/window\.__t=\{/,'window.__t={setGob,keys,mHeld,tenvSpawnOne,drvFind,cars,get,setRaw,handOf,drvInst,VEH_MIX,setChar,set menuOpen(v){menuOpen=v},get TS(){return TS},');
+hdr=hdr.replace(/window\.__t=\{/,'window.__t={setGob,keys,mHeld,tenvSpawnOne,drvFind,cars,get,setRaw,handOf,drvInst,VEH_MIX,setChar,carSpawn,set menuOpen(v){menuOpen=v},get TS(){return TS},');
 eval(hdr+`
 eval(src);const T=window.__t;let now=1000;
 const run=s=>{for(let i=0;i<s*60;i++){now+=16.7;T.frame(now);}};
@@ -61,6 +61,14 @@ const kmh=c=>f2(Math.abs(c.speed)*3.6);
   const f0=c.fuel;c.fuel=0;hold(['KeyW'],4);console.log('  out of fuel: splutters along at',kmh(c),'km/h');c.fuel=f0;
   hold(['KeyS'],3);getOut(c);}}
 // ---- out in the traffic
+// (each ridden by a goblin of the traffic, and the same one brought back from the pool after a wreck had hidden its
+// rider: he must be on it, and gone again once it's parked empty)
+for(const kind of ['bicycle','kick','segway','moped']){if(P.drv){tap('KeyF');run(0.3);}put(home.x+(spot++)*80,home.y,home.z);run(0.3);T.tenvSpawnOne(kind);run(1);
+  const c=T.cars.filter(o=>o.alive&&o.veh===kind&&!o.drv).sort((a,b)=>Math.hypot(a.pos.x-P.pos.x,a.pos.z-P.pos.z)-Math.hypot(b.pos.x-P.pos.x,b.pos.z-P.pos.z))[0];
+  if(!c){console.log(kind,'not spawned');continue;}const R=c.vehG[kind].rider,parkedR=R.visible;
+  c.dh.visible=false;run(0.1);const wreckR=R.visible;
+  T.carSpawn(c,{veh:kind,x:c.pos.x,y:c.pos.y,z:c.pos.z,h:c.heading,speed:3,parked:false});c.driver={name:'test'};run(0.5);
+  console.log(kind.padEnd(8),'traffic rider: parked empty shown',parkedR,' wrecked shown',wreckR,' back in the traffic shown',R.visible&&c.dh.visible);}
 {let n={};for(const [t,p] of T.VEH_MIX.street)n[t]=p;console.log('street mix: bicycle',n.bicycle,'motor scooter',n.moped,'kick scooter',n.kick,'Gobway',n.segway);}
 console.log('errors',errs.length,errs.slice(0,3));
 `);

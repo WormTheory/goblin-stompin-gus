@@ -314,6 +314,7 @@
 
 ### Fixes
 
+- Goblins riding bicycles, kick scooters, Gobways and motor scooters through town no longer sometimes vanish from them, leaving the vehicle rolling along empty. Motorbike riders and the heads of goblins driving cars had the same trouble.
 - The rush of air from sprinting no longer keeps playing after you get into a vehicle while running.
 - The prompt to get into a vehicle no longer stays on screen once you're in.
 - Gnash's rifle and handgun now damage every vehicle they hit, the same way: cars, tanks, helicopters, trains, planes, boats, balloons, Mobile Gears and the carrier's deck weapons all take three times what a goblin would. Before, they went straight through most vehicles, did a single point to cars, and only the deck weapons took real harm.
