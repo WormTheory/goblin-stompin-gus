@@ -407,7 +407,7 @@ function updateGoblins(dt){
           g.leapT=(g.leapT||0)-dt;if(!simple&&ddy>=1.5&&ddy<4&&g.leapT<=0&&!g.wet&&g.vy===0){g.vy=Math.sqrt(50*(ddy-0.2));g.leapT=1.4;g.atk=0.1;}}
         else {
           g.atk-=dt;
-          if(g.atk<=0){dbgHit('dmg','cyl',{x:g.pos.x,y:g.pos.y-1.5,z:g.pos.z,r:2.3,h:2.8},'n');const S=strikeOf(foeOf(g));g.atk=S.every;g.atkS=0;const q=tgt.p,ux=-dx/(d||1),uz=-dz/(d||1);damagePlayer(q,S.dmg,new V3(q.pos.x+ux*1.2,q.pos.y+1.1,q.pos.z+uz*1.2),new V3(-ux,0.3,-uz),S.cause,g.id);}   // (a dagger's quicker than a club)
+          if(g.atk<=0){dbgHit('dmg','cyl',{x:g.pos.x,y:g.pos.y-1.5,z:g.pos.z,r:2.3,h:2.8},'n');const S=strikeOf(foeOf(g));g.atk=S.every;g.atkS=0;const q=tgt.p,ux=-dx/(d||1),uz=-dz/(d||1);shotPlayer(q,S.dmg,new V3(q.pos.x+ux*1.2,q.pos.y+1.1,q.pos.z+uz*1.2),new V3(-ux,0.3,-uz),S.cause,g.id);if(q.drv)clang();}   // (a dagger's quicker than a club. A player in a vehicle: the vehicle takes the blow, as it takes a round: shotPlayer)
         }
       }
       // (its blow: wound up over the last 0.45 s before it lands, then the follow-through; see strikes.js. Just after a

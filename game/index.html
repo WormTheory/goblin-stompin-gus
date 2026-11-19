@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:fa2e00e17997012b5dda743b57542dd080f38e66c22c57729383d7bf81c2f0bd -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:ad7aa82709a8c2b01dfe97237c74dbf15f0a01684cf3751ebfaf1b1f5808c780 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1704,7 +1704,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Vehicles</h3>
 <ul><li><strong>Carjacking:</strong> playing as Gnash, getting into a vehicle that has someone at the controls hauls them out first. A car's door swings open, a motorcycle's rider is shoved off, a tank's crewman is dragged out of the hatch and a helicopter's door slides back. Whoever's thrown out, a driver, a police officer or a soldier, comes back at you or runs for it.</li><li>All vehicles now collide with each other. Tanks no longer drive through a helicopter's tail, trains, planes, boats and rides push tanks and cars out of the way, and driven planes and boats stop or crash when they meet another vehicle.</li><li>A driven tank ramming a wall knocks out a hole as big as its front and keeps going at speed. It also fits under overhangs it can pass beneath.</li><li>Firing with nothing loaded just clicks, and the tank's last shell marker empties while it reloads.</li><li>The vehicle health box and ammo panel now sit just above the hearts.</li><li>The get-out prompt shows Xbox button labels on Xbox controllers.</li><li>Parked motorcycles no longer have a rider, and a ridden one's rider sits properly on it.</li><li><strong>Planes fly properly:</strong> a driven plane has throttle, banks to turn, pitches up and down, gets its lift from airspeed, and stalls if it flies too slowly.</li><li><strong>Fire engines</strong> have a working water cannon.</li><li><strong>Militia camps</strong> have two technicals (pickups with a machine gun and a gunner in the back) and two four-wheelers (a rider and a rifleman behind him). Each carries a driver and a gunner. Once crewed they circle you while the gunner fires. Gnash can carjack them, and the gunner jumps off to fight. The Testing Environment has buttons for both.</li></ul>
 <h3>Movement</h3>
-<ul><li>Air dash comes back after Gus leaves the water, and can't be used while swimming.</li><li>Holding jump keeps you swimming up.</li><li><strong>Fighting from a wall:</strong> while spider-climbing a wall or the side of a vehicle, R1 (left click) snaps at goblins the way the hippo's head points: up, along or down. It bites vehicles in reach too, including the one you're clinging to. Gnash swings or shoots whatever he's holding.</li><li><strong>Kick through a wall:</strong> stomp while spider-climbing smashes a hole in the wall you're on and puts you inside, on the floor behind it. Into solid rock, it kicks out a hollow and you keep climbing, so you can tunnel in.</li></ul>
+<ul><li>Air dash comes back after Gus leaves the water, and can't be used while swimming.</li><li>Holding jump keeps you swimming up.</li><li><strong>Fighting from a wall:</strong> while spider-climbing a wall or the side of a vehicle, R1 (left click) snaps at goblins the way the hippo's head points: up, along or down. It bites vehicles in reach too, including the one you're clinging to. Gnash swings or shoots whatever he's holding.</li><li><strong>Kick through a wall:</strong> stomp while spider-climbing smashes a hole in the wall you're on and puts you inside, on the floor behind it. Into solid rock, it kicks out a hollow and you keep climbing, so you can tunnel in.</li><li><strong>Goblins hit your vehicle:</strong> a goblin that reaches Gus or Gertie while they're in a vehicle now clubs the vehicle instead of doing nothing, the same way its shots already did.</li></ul>
 <h3>World</h3>
 <ul><li>The pavement stairwells down to the sewers are gone. The sewers are still under every town street, but the only way in now is to smash through.</li><li>Subway station stairs are built from real stair blocks, so the way down to the platforms is a smooth flight of steps instead of a staircase of plain blocks.</li></ul>
 <h3>Menus and debug tools</h3>
@@ -2273,7 +2273,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='7e3d0cf6ea8e';
+const GAME_VER='0.5',GAME_BUILD='d6e96e9e8405';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -19949,7 +19949,7 @@ function updateGoblins(dt){
           g.leapT=(g.leapT||0)-dt;if(!simple&&ddy>=1.5&&ddy<4&&g.leapT<=0&&!g.wet&&g.vy===0){g.vy=Math.sqrt(50*(ddy-0.2));g.leapT=1.4;g.atk=0.1;}}
         else {
           g.atk-=dt;
-          if(g.atk<=0){dbgHit('dmg','cyl',{x:g.pos.x,y:g.pos.y-1.5,z:g.pos.z,r:2.3,h:2.8},'n');const S=strikeOf(foeOf(g));g.atk=S.every;g.atkS=0;const q=tgt.p,ux=-dx/(d||1),uz=-dz/(d||1);damagePlayer(q,S.dmg,new V3(q.pos.x+ux*1.2,q.pos.y+1.1,q.pos.z+uz*1.2),new V3(-ux,0.3,-uz),S.cause,g.id);}   // (a dagger's quicker than a club)
+          if(g.atk<=0){dbgHit('dmg','cyl',{x:g.pos.x,y:g.pos.y-1.5,z:g.pos.z,r:2.3,h:2.8},'n');const S=strikeOf(foeOf(g));g.atk=S.every;g.atkS=0;const q=tgt.p,ux=-dx/(d||1),uz=-dz/(d||1);shotPlayer(q,S.dmg,new V3(q.pos.x+ux*1.2,q.pos.y+1.1,q.pos.z+uz*1.2),new V3(-ux,0.3,-uz),S.cause,g.id);if(q.drv)clang();}   // (a dagger's quicker than a club. A player in a vehicle: the vehicle takes the blow, as it takes a round: shotPlayer)
         }
       }
       // (its blow: wound up over the last 0.45 s before it lands, then the follow-through; see strikes.js. Just after a
