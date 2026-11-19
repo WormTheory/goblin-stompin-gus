@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:d4c2aa6d45cdcaa3b7ac4d1913c2002e6369b793c93229d4f53b66817169288c -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:864e526a066909fb662cf3593d2fa512991722eca52d901fc74c5735a5e48834 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1606,7 +1606,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Pilots watch where they're going</h3>
 <ul><li>The aircraft carrier's fighter jets look ahead now and pull up or bank away from what's in front of them: the carrier's island, buildings, hills. Pulling away after a pass, they turn toward open sky instead of straight on into whatever's there.</li><li>The military bases' helicopters climb over buildings and hills in their way instead of flying through them.</li><li>They're not perfect: each pilot has their own skill, and now and then one reacts too late or doesn't see it, so you'll still see the odd jet hit the island.</li></ul>
 <h3>Map markers</h3>
-<ul><li>Mark a spot on the map: click it on the pause menu's Map tab (tap it on a touch screen; on a controller, pan the crosshair over it and press Y). A pin goes there and shows on your minimap too, or, while it's off the minimap's edge, an arrow on the rim points the way with how far it is. Click the pin again to take it away, or somewhere else to move it.</li><li>In split screen each player has a marker of their own, set from their own pause menu and shown on their own minimap, in their own colour. Markers are kept for each world.</li></ul>
+<ul><li>Mark a spot on the map: click it on the pause menu's Map tab (tap it on a touch screen; on a controller, pan the crosshair over it and press Y). A pin goes there and shows on your minimap too, or, while it's off the minimap's edge, an arrow on the rim points the way with how far it is. Click the pin again to take it away, or somewhere else to move it.</li><li>In split screen each player has a marker of their own, set from their own pause menu and shown on their own minimap, in their own colour. Markers are kept for each world.</li><li>The map is smooth to pan and zoom however much of the world you've explored. Zoomed right out, it can take a moment to fill in the first time.</li></ul>
 <h3>Enemy hostility: Pacifist</h3>
 <ul><li>A new step at the far left of the Enemy hostility slider: Pacifist. Goblins can't be harmed at all, whatever hits them, and as with Passive nobody reacts to you. Vehicles and buildings still break.</li></ul>
 <h3>Debug menu</h3>
@@ -2265,7 +2265,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='07b86b19c43f';
+const GAME_VER='0.5',GAME_BUILD='d7ce18a4c6f4';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -16983,14 +16983,14 @@ const MAP_KEY='goblin-stompin-gus-map';let explored=new Set(),exploredSeed=null,
 // the places you've found (any block of them seen): named on the map, with how much of each you've destroyed
 const knownSets=new Map();
 function noteKnown(px,pz){const S=settlementAt(px,pz);if(S)knownSets.set(S.rx+','+S.rz,S);}
-function loadExplored(){explored=new Set();exploredSeed=seed;knownSets.clear();try{const m=JSON.parse(localStorage.getItem(MAP_KEY)||'null');if(m&&m.seed===seed&&Array.isArray(m.cells)){explored=new Set(m.cells);for(const c of m.cells){const [a,b]=c.split(',');noteKnown(+a,+b);}}}catch(e){}}
+function loadExplored(){explored=new Set();exploredSeed=seed;knownSets.clear();mapTileClear();try{const m=JSON.parse(localStorage.getItem(MAP_KEY)||'null');if(m&&m.seed===seed&&Array.isArray(m.cells)){explored=new Set(m.cells);for(const c of m.cells){const [a,b]=c.split(',');noteKnown(+a,+b);}}}catch(e){}}
 function saveExplored(){try{localStorage.setItem(MAP_KEY,JSON.stringify({seed,cells:[...explored]}));}catch(e){}}
 function updateExplore(dt){
   if(exploredSeed!==seed)loadExplored();
   exploreT-=dt;mapSaveT-=dt;
   if(exploreT<=0){exploreT=0.5;
     for(const p of players){if(!p.active)continue;const cx=Math.floor(p.pos.x/CELL),cz=Math.floor(p.pos.z/CELL);
-      for(let dx=-2;dx<=2;dx++)for(let dz=-2;dz<=2;dz++){if(dx*dx+dz*dz>5)continue;const k=(cx+dx)+','+(cz+dz);if(!explored.has(k)&&tenvShow(cx+dx,cz+dz)){explored.add(k);exploreDirty=true;noteKnown(cx+dx,cz+dz);}}}}
+      for(let dx=-2;dx<=2;dx++)for(let dz=-2;dz<=2;dz++){if(dx*dx+dz*dz>5)continue;const k=(cx+dx)+','+(cz+dz);if(!explored.has(k)&&tenvShow(cx+dx,cz+dz)){explored.add(k);exploreDirty=true;noteKnown(cx+dx,cz+dz);mapTileStale(cx+dx,cz+dz);}}}}
   if(exploreDirty&&mapSaveT<=0){mapSaveT=5;exploreDirty=false;saveExplored();}
 }
 // ---- map markers: each player can mark one spot on the Map tab (click or tap it there; on a controller, Y marks the
@@ -17065,7 +17065,10 @@ function seaMapCells(px,pz,n){
   if(seaMapC.size>20000)seaMapC.clear();seaMapC.set(k,v);return v;
 }
 const MAPV={cx:null,cz:null,ppb:1.6,hl:null};   // hl: the legend entry being pointed at, lit up on the map   // centre (blocks) and pixels per block
-function mapPan(dx,dy){if(MAPV.cx===null)return;MAPV.cx+=dx/MAPV.ppb;MAPV.cz+=dy/MAPV.ppb;renderMap();}
+// (dragging, zooming and so on ask for the map to be drawn, at most once a frame -- a fast mouse sends several moves a frame)
+let mapRaf=0;
+function mapDraw(){if(mapRaf)return;mapRaf=requestAnimationFrame(()=>{mapRaf=0;renderMap();})||0;}
+function mapPan(dx,dy){if(MAPV.cx===null)return;MAPV.cx+=dx/MAPV.ppb;MAPV.cz+=dy/MAPV.ppb;mapDraw();}
 // (the furthest out it goes is far enough to see everything you've explored at once, from wherever the map's centred,
 // however far you've roamed; never less far out than it always went)
 function mapMinPPB(){
@@ -17075,7 +17078,7 @@ function mapMinPPB(){
   const hx=Math.max(Math.abs(cx-(B.x0-1)*CELL),Math.abs((B.x1+2)*CELL-cx)),hz=Math.max(Math.abs(cz-(B.z0-1)*CELL),Math.abs((B.z1+2)*CELL-cz));
   return Math.min(0.35,w/2/hx,h/2/hz);
 }
-function mapZoom(k){MAPV.ppb=Math.max(mapMinPPB(),Math.min(8,MAPV.ppb*k));renderMap();}
+function mapZoom(k){MAPV.ppb=Math.max(mapMinPPB(),Math.min(8,MAPV.ppb*k));mapDraw();}
 // the corners of everything explored, in city blocks (worked out again only when more has been explored)
 let expBox=null,expBoxN=-1,expBoxSet=null;
 function exploredBox(){
@@ -17086,7 +17089,7 @@ function exploredBox(){
   return expBox;
 }
 // back to where you are
-function mapRecentre(){MAPV.cx=null;renderMap();}
+function mapRecentre(){MAPV.cx=null;mapDraw();}
 // a marker at a point on the map canvas (CSS pixels from its corner), or at the middle (the controller's crosshair)
 function mapClick(sx,sy){const cv=document.getElementById('mapCanvas');if(!cv||MAPV.cx===null)return;
   const w=Math.max(200,cv.clientWidth||600),h=Math.max(200,cv.clientHeight||400),k=MAPV.ppb;
@@ -17094,40 +17097,35 @@ function mapClick(sx,sy){const cv=document.getElementById('mapCanvas');if(!cv||M
   const p=mapOwner(),m=markOf(p),wx=MAPV.cx+(sx-w/2)/k,wz=MAPV.cz+(sy-h/2)/k;
   // (within a few pixels of the spot, or on the pin's head standing above it, counts as pointing at the marker)
   const onIt=!!m&&(Math.hypot(m.x-wx,m.z-wz)*k<=12||Math.abs(m.x-wx)*k<=9&&(m.z-wz)*k>=0&&(m.z-wz)*k<=19);
-  toggleMark(p,wx,wz,onIt);renderMap();}
-function renderMap(){
-  const cv=document.getElementById('mapCanvas');if(!cv||!cv.getContext)return;
-  if(exploredSeed!==seed)loadExplored();
-  const dpr=Math.min(2,window.devicePixelRatio||1),w=Math.max(200,cv.clientWidth||600),h=Math.max(200,cv.clientHeight||400);
-  if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);}
-  const x=cv.getContext('2d');if(!x||!x.fillRect)return;x.setTransform(dpr,0,0,dpr,0,0);
-  const me=players.find(p=>p.active)||players[0];
-  if(MAPV.cx===null){MAPV.cx=me.pos.x;MAPV.cz=me.pos.z;}
-  const k=MAPV.ppb,ox=w/2-MAPV.cx*k,oz=h/2-MAPV.cz*k,X=v=>ox+v*k,Z=v=>oz+v*k;
-  x.fillStyle='#0b0f13';x.fillRect(0,0,w,h);
-  let c0=Math.floor((MAPV.cx-w/2/k)/CELL)-1,c1=Math.ceil((MAPV.cx+w/2/k)/CELL)+1,r0=Math.floor((MAPV.cz-h/2/k)/CELL)-1,r1=Math.ceil((MAPV.cz+h/2/k)/CELL)+1;
-  // (zoomed right out, only look over the blocks that have been explored, not the whole view)
-  {const B=exploredBox();if(B){c0=Math.max(c0,B.x0-1);c1=Math.min(c1,B.x1+1);r0=Math.max(r0,B.z0-1);r1=Math.min(r1,B.z1+1);}}
-  // everything drawn is tagged with its legend entry; the one being pointed at is drawn again, bright, over a dimmed map
-  const HL=MAPV.hl,hits=[];
-  const ruins=[];   // destroyed buildings, drawn last so they stand out
+  toggleMark(p,wx,wz,onIt);mapDraw();}
+// the capitol, once any of it's been drawn (for the star on its dome)
+let mapCapS=null;
+const mapClvC=new Map();   // cloverOf, remembered (it looks over 16 crossings each time)
+function mapClover(px,pz){const k=px*100003+pz;let v=mapClvC.get(k);if(v===undefined){v=cloverOf(px,pz);mapClvC.set(k,v);}return v;}
+// ---- the blocks, roads and rivers (then the ruins and the railways and highways) of the explored blocks c0..c1 x r0..r1, at k pixels per metre with
+// the world's origin at (ox,oz). o.all: every building drawn standing (the ruins go on top separately, in their own tiles);
+// otherwise ruined ones are left out and passed back in o.ruins. o.HL/o.hits: the legend entry being pointed at, and its
+// pieces. Far out, where a block's only a few pixels across, the sea's drawn coarser and the slivers too thin to see are
+// left out ----
+function drawMapBlocks(x,k,ox,oz,c0,c1,r0,r1,o){
+  const X=v=>ox+v*k,Z=v=>oz+v*k,HL=o.HL,hits=o.hits,ruins=o.ruins,all=o.all;
+  const bpx=CELL*k,seaN=bpx>=24?8:bpx>=12?4:bpx>=6?2:1,fine=bpx>=8;
   const rect=(x0,z0,x1,z1,col,cat)=>{const a=X(x0),b=Z(z0),ww=(x1-x0)*k+0.6,hh=(z1-z0)*k+0.6;x.fillStyle=col;x.fillRect(a,b,ww,hh);if(HL&&cat===HL)hits.push([a,b,ww,hh,col]);};
-  let seenCap=null;
-  for(let px=c0;px<=c1;px++)for(let pz=r0;pz<=r1;pz++){
+    for(let px=c0;px<=c1;px++)for(let pz=r0;pz<=r1;pz++){
     if(!explored.has(px+','+pz))continue;
     const X0=px*CELL,Z0=pz*CELL,t=plotType(px,pz);
-    if(seaPlot(px,pz)){const n=8,st=CELL/n,C=seaMapCells(px,pz,n),key=t==='yard'||t==='basin'?'yard':t==='navy'||t==='nbasin'?'navy':t==='lighthouse'?'lighthouse':t==='beach'?'beach':t==='rig'?'rig':'sea';
+    if(seaPlot(px,pz)){const n=seaN,st=CELL/n,C=seaMapCells(px,pz,n),key=t==='yard'||t==='basin'?'yard':t==='navy'||t==='nbasin'?'navy':t==='lighthouse'?'lighthouse':t==='beach'?'beach':t==='rig'?'rig':'sea';
       for(let j=0;j<n;j++)for(let i=0;i<n;i++)rect(X0+i*st,Z0+j*st,X0+(i+1)*st,Z0+(j+1)*st,C[j*n+i],key);continue;}
     if(biomeOf(px,pz)==='plains'){
       rect(X0,Z0,X0+CELL,Z0+CELL,MAPC.plains,'plains');
-      {const FL=farmLane(px,pz);if(FL)rect(X0+PC-1,FL.z0,X0+PC+1,FL.z1,'#a89a78','farm');}
+      if(fine){const FL=farmLane(px,pz);if(FL)rect(X0+PC-1,FL.z0,X0+PC+1,FL.z1,'#a89a78','farm');}
       if(t==='truckstop'){const P=plotInfo(px,pz);for(const b of P.b)rect(X0+b.x0,Z0+b.z0,X0+b.x1,Z0+b.z1,MAPC.truckstop,'truckstop');}
       if(t==='dump')rect(X0+1,Z0+1,X0+CELL-1,Z0+CELL-1,MAPC.dump,'dump');
-      if(turbineAt(px,pz))rect(X0+13,Z0+13,X0+19,Z0+19,MAPC.wind,'wind');
+      if(fine&&turbineAt(px,pz))rect(X0+13,Z0+13,X0+19,Z0+19,MAPC.wind,'wind');
       if(t==='castle')rect(X0+5,Z0+5,X0+CELL-5,Z0+CELL-5,MAPC.castle,'castle');
       if(t==='nuclear'||t==='base'||t==='airport'||t==='airfield'||t==='nasa'||t==='mine'||t==='quarry'||t==='lumber'||t==='campsite'||t==='cult'||t==='tower5g'||t==='prepper'||t==='militia'||t==='ruins'||t==='thieves'){rect(X0,Z0,X0+CELL,Z0+CELL,MAPC[t],t);const P=plotInfo(px,pz);for(const b of P.b)rect(X0+b.x0,Z0+b.z0,X0+b.x1,Z0+b.z1,'#3a3f45',t);}
       {const FD=t==='plains'&&farmlandOf(px,pz);if(FD)rect(X0,Z0,X0+CELL,Z0+CELL,FD.kind==='orchard'?MAPC.orchard:MAPC.field,'farm');}
-      if(t==='farm'){const P=plotInfo(px,pz);if(P.north)rect(X0+PC-1,Z0+P.field.z1,X0+PC+1,Z0+CELL,'#a89a78','farm');else rect(X0+PC-1,Z0,X0+PC+1,Z0+P.field.z0,'#a89a78','farm');rect(X0+P.field.x0,Z0+P.field.z0,X0+P.field.x1,Z0+P.field.z1,MAPC.field,'farm');for(const b of P.b)rect(X0+b.x0,Z0+b.z0,X0+b.x1,Z0+b.z1,MAPC.farm,'farm');}
+      if(t==='farm'){const P=plotInfo(px,pz);if(fine){if(P.north)rect(X0+PC-1,Z0+P.field.z1,X0+PC+1,Z0+CELL,'#a89a78','farm');else rect(X0+PC-1,Z0,X0+PC+1,Z0+P.field.z0,'#a89a78','farm');}rect(X0+P.field.x0,Z0+P.field.z0,X0+P.field.x1,Z0+P.field.z1,MAPC.field,'farm');for(const b of P.b)rect(X0+b.x0,Z0+b.z0,X0+b.x1,Z0+b.z1,MAPC.farm,'farm');}
       continue;
     }
     rect(X0,Z0,X0+CELL,Z0+CELL,MAPC.road);
@@ -17143,29 +17141,31 @@ function renderMap(){
       const sx0=S.ax*CELL+PL0,sz0=S.az*CELL+PL0,sx1=(S.ax+S.w-1)*CELL+PL1,sz1=(S.az+S.h-1)*CELL+PL1;
       const ix0=Math.max(sx0,X0),iz0=Math.max(sz0,Z0),ix1=Math.min(sx1,X0+CELL),iz1=Math.min(sz1,Z0+CELL);
       if(ix1>ix0&&iz1>iz0)rect(ix0,iz0,ix1,iz1,S.kind==='bigpark'?MAPC.bigpark:(MAPC[S.kind]||MAPC.mega),S.kind==='bigpark'?'park':MAPC[S.kind]?S.kind:'mega');
-      if(S.kind==='capitol')seenCap=S;
+      if(S.kind==='capitol')mapCapS=S;
       // buildings of the site, drawn darker, clipped to this block
       if(S.kind!=='bigpark'&&S.kind!=='stadium'){const P=plotInfo(S.ax,S.az),AX=S.ax*CELL,AZ=S.az*CELL;x.fillStyle='rgba(0,0,0,0.28)';
-        P.b.forEach((b,bi)=>{const bx0=Math.max(AX+b.x0,X0),bz0=Math.max(AZ+b.z0,Z0),bx1=Math.min(AX+b.x1,X0+CELL),bz1=Math.min(AZ+b.z1,Z0+CELL);if(bx1>bx0&&bz1>bz0){const ru=ruinedB(S.ax,S.az,bi);if(ru){if(!blockRuined(S.ax,S.az))ruins.push([bx0,bz0,bx1,bz1]);}else{x.fillStyle='rgba(0,0,0,0.28)';x.fillRect(X(bx0),Z(bz0),(bx1-bx0)*k,(bz1-bz0)*k);}}});}
+        P.b.forEach((b,bi)=>{const bx0=Math.max(AX+b.x0,X0),bz0=Math.max(AZ+b.z0,Z0),bx1=Math.min(AX+b.x1,X0+CELL),bz1=Math.min(AZ+b.z1,Z0+CELL);if(bx1>bx0&&bz1>bz0){const ru=!all&&ruinedB(S.ax,S.az,bi);if(ru){if(!blockRuined(S.ax,S.az))ruins.push([bx0,bz0,bx1,bz1]);}else{x.fillStyle='rgba(0,0,0,0.28)';x.fillRect(X(bx0),Z(bz0),(bx1-bx0)*k,(bz1-bz0)*k);}}});}
       continue;
     }
     rect(X0+ROADW,Z0+ROADW,X0+CELL,Z0+CELL,MAPC.walk);
     {const a=jz(px,pz),b=jx(px,pz),JC={alley:'#24282c',yard:'#4f7a3e'};if(a)rect(X0,Z0+ROADW,X0+ROADW,Z0+CELL,JC[a]);if(b)rect(X0+ROADW,Z0,X0+CELL,Z0+ROADW,JC[b]);}
     {const B=plotBounds(px,pz);rect(X0+B.x0,Z0+B.z0,X0+B.x1,Z0+B.z1,t==='park'?MAPC.park:t==='plaza'?MAPC.plaza:t==='homes'?'#5f8a46':t==='ramp'?MAPC.ramp:'#4a4f53',(t==='park'||t==='plaza'||t==='homes'||t==='ramp')?t:null);}
     const P=plotInfo(px,pz),col=MAPC[t]||'#777';
-    P.b.forEach((b,bi)=>{if(ruinedB(px,pz,bi)){if(!blockRuined(px,pz))ruins.push([X0+b.x0,Z0+b.z0,X0+b.x1,Z0+b.z1]);}else rect(X0+b.x0,Z0+b.z0,X0+b.x1,Z0+b.z1,col,t);});
+    P.b.forEach((b,bi)=>{if(!all&&ruinedB(px,pz,bi)){if(!blockRuined(px,pz))ruins.push([X0+b.x0,Z0+b.z0,X0+b.x1,Z0+b.z1]);}else rect(X0+b.x0,Z0+b.z0,X0+b.x1,Z0+b.z1,col,t);});
   }
   // the rivers winding across the plains (through the places they're blocks of their own, drawn above)
   {const L=riversNearBox(c0*CELL,r0*CELL,(c1+1)*CELL,(r1+1)*CELL);x.strokeStyle=MAPC.river;x.lineWidth=Math.max(1.5,RIV_W*2*k);x.lineCap='round';x.beginPath();
    for(let q=0;q<L.length;q+=2){const R=L[q],i=L[q+1],[ax,az]=R.pts[i],[bx,bz]=R.pts[i+1],mx=(ax+bx)/2,mz=(az+bz)/2,px=Math.floor(mx/CELL),pz=Math.floor(mz/CELL);
      if(!explored.has(px+','+pz)||settlementAt(px,pz))continue;x.moveTo(X(ax),Z(az));x.lineTo(X(bx),Z(bz));}
    x.stroke();}
-  // the ruins: hatched, outlined in red
-  {const pat=ruinPat(x,7),RG=ruinGrid(c0,c1,r0,r1,(px,pz)=>explored.has(px+','+pz));
-   x.fillStyle=pat;for(const [x0,z0,x1,z1] of RG.cells)x.fillRect(X(x0),Z(z0),(x1-x0)*k+0.6,(z1-z0)*k+0.6);
-   x.strokeStyle='#e0503c';x.lineWidth=1.5;x.beginPath();for(const [a,b,c,d] of RG.edges){x.moveTo(X(a),Z(b));x.lineTo(X(c),Z(d));}x.stroke();
-   if(HL==='ruin')for(const [x0,z0,x1,z1] of RG.cells)hits.push([X(x0),Z(z0),(x1-x0)*k,(z1-z0)*k,'#a3a7ad']);
-   for(const [x0,z0,x1,z1] of ruins){const a=X(x0),b=Z(z0),ww=(x1-x0)*k,hh=(z1-z0)*k;x.fillStyle=pat;x.fillRect(a,b,ww,hh);x.strokeStyle='#e0503c';x.lineWidth=1.5;x.strokeRect(a+0.75,b+0.75,ww-1.5,hh-1.5);if(HL==='ruin')hits.push([a,b,ww,hh,'#a3a7ad']);}}
+  if(!all)drawMapRuins(x,k,ox,oz,c0,c1,r0,r1,ruins,HL,hits);
+  drawMapLines(x,k,ox,oz,c0,c1,r0,r1,HL,hits);
+}
+// the railways, highways, slip roads and cloverleaves over the explored blocks (over the ruins too)
+function drawMapLines(x,k,ox,oz,c0,c1,r0,r1,HL,hits){
+  const X=v=>ox+v*k,Z=v=>oz+v*k;
+  const rect=(x0,z0,x1,z1,col,cat)=>{const a=X(x0),b=Z(z0),ww=(x1-x0)*k+0.6,hh=(z1-z0)*k+0.6;x.fillStyle=col;x.fillRect(a,b,ww,hh);if(HL&&cat===HL)hits.push([a,b,ww,hh,col]);};
+  const E=[];for(let px=c0;px<=c1;px++)for(let pz=r0;pz<=r1;pz++)if(explored.has(px+','+pz))E.push(px,pz,biomeOf(px,pz)==='plains'?1:0);
   // the railways you've seen
   {x.strokeStyle=MAPC.rail;x.lineWidth=Math.max(2,4*k);x.lineCap='butt';x.beginPath();
    for(const L of railLinksInBox(c0*CELL,r0*CELL,(c1+1)*CELL,(r1+1)*CELL))for(let i=0;i+4<L.L;i+=4){const [ax,az]=L.pts[i],[bx,bz]=L.pts[Math.min(L.L-1,i+4)];
@@ -17173,12 +17173,12 @@ function renderMap(){
    x.stroke();}
   // raised highways over the streets you've seen
   x.fillStyle='rgba(232,150,58,0.85)';
-  for(let px=c0;px<=c1;px++)for(let pz=r0;pz<=r1;pz++){if(!explored.has(px+','+pz))continue;const X0=px*CELL,Z0=pz*CELL;
+  for(let q=0;q<E.length;q+=3){const px=E[q],pz=E[q+1],X0=px*CELL,Z0=pz*CELL;
     if(hwRow(pz,px)){x.fillRect(X(X0),Z(Z0-3),CELL*k+0.6,14*k);if(HL==='highway')hits.push([X(X0),Z(Z0-3),CELL*k+0.6,14*k,'#e8963a']);}
     if(hwCol(px,pz)){x.fillRect(X(X0-3),Z(Z0),14*k,CELL*k+0.6);if(HL==='highway')hits.push([X(X0-3),Z(Z0),14*k,CELL*k+0.6,'#e8963a']);}}
   // the ground highways across the plains
   x.fillStyle='rgba(176,122,58,0.9)';
-  for(let px=c0;px<=c1;px++)for(let pz=r0;pz<=r1;pz++){if(!explored.has(px+','+pz)||biomeOf(px,pz)!=='plains')continue;const X0=px*CELL,Z0=pz*CELL;
+  for(let q=0;q<E.length;q+=3){if(!E[q+2])continue;const px=E[q],pz=E[q+1],X0=px*CELL,Z0=pz*CELL;
     if(gRow(pz,X0+16)){x.fillRect(X(X0),Z(Z0-3),CELL*k+0.6,14*k);if(HL==='ghw')hits.push([X(X0),Z(Z0-3),CELL*k+0.6,14*k,'#b07a3a']);}
     if(gCol(px,Z0+16)){x.fillRect(X(X0-3),Z(Z0),14*k,CELL*k+0.6);if(HL==='ghw')hits.push([X(X0-3),Z(Z0),14*k,CELL*k+0.6,'#b07a3a']);}}
   // the highways out across the plains on their own lines (motorways over the country highways), and the truck stops
@@ -17194,8 +17194,8 @@ function renderMap(){
      const bp=[Math.floor((T.cx+T.nx*47)/CELL),Math.floor((T.cz+T.nz*47)/CELL)];for(const b of plotInfo(bp[0],bp[1]).b)rect(bp[0]*CELL+b.x0,bp[1]*CELL+b.z0,bp[0]*CELL+b.x1,bp[1]*CELL+b.z1,MAPC.truckstop,'truckstop');}}}
   // their slip roads and cloverleaves
   {x.fillStyle='rgba(232,150,58,0.7)';const seen=new Set(),box=(ax0,az0,ax1,az1)=>{const a=X(Math.min(ax0,ax1)),b=Z(Math.min(az0,az1)),ww=Math.abs(ax1-ax0)*k+0.4,hh=Math.abs(az1-az0)*k+0.4;x.fillRect(a,b,ww,hh);if(HL==='ramp')hits.push([a,b,ww,hh,'#e8963a']);};
-   for(let px=c0;px<=c1;px++)for(let pz=r0;pz<=r1;pz++){if(!explored.has(px+','+pz))continue;
-     const cv=cloverOf(px,pz);
+   for(let q=0;q<E.length;q+=3){const px=E[q],pz=E[q+1];
+     const cv=mapClover(px,pz);
      if(cv&&!seen.has('c'+cv.j+','+cv.k)){seen.add('c'+cv.j+','+cv.k);const cx=cv.j*CELL+4,cz=cv.k*CELL+4;
        for(let n=0;n<4;n++)for(const o of CLV)if(o.t==='deck'||o.t==='slope'){const [a0,b0]=cvRot(n,o.p0,o.q0),[a1,b1]=cvRot(n,o.p1,o.q1);box(cx+a0,cz+b0,cx+a1,cz+b1);}}
      for(const [ax,kk,m] of [['x',pz,px],['x',pz+1,px],['z',px,pz],['z',px+1,pz]]){
@@ -17203,10 +17203,138 @@ function renderMap(){
        const HY=ax==='x'?HY_X:HY_Z,base=kk*CELL;
        for(const side of [1,-1])for(const R of icRamps(ax,m0,side,HY)){const c0=base+(side>0?12:-8);if(ax==='x')box(R.a0,c0,R.a1,c0+4);else box(c0,R.a0,c0+4,R.a1);}
      }}}
-  // the highlighted legend entry: everything else dims, its own pieces come back bright with an outline
-  if(HL){x.fillStyle='rgba(8,10,14,0.74)';x.fillRect(0,0,w,h);
-    for(const [a,b,ww,hh,col] of hits){x.fillStyle=col;x.fillRect(a,b,ww,hh);}
-    x.strokeStyle='#ffe27a';x.lineWidth=1.2;for(const [a,b,ww,hh] of hits)x.strokeRect(a+0.5,b+0.5,Math.max(1,ww-1),Math.max(1,hh-1));}
+}
+// the ruins: hatched, outlined in red -- the wasteland of whole destroyed blocks (joined across their streets), then the
+// single buildings that are down. Returns whether there were any
+function drawMapRuins(x,k,ox,oz,c0,c1,r0,r1,ruins,HL,hits){
+  const X=v=>ox+v*k,Z=v=>oz+v*k,pat=ruinPat(x,7),RG=ruinGrid(c0,c1,r0,r1,(px,pz)=>explored.has(px+','+pz));
+  if(!RG.cells.length&&!ruins.length)return false;
+  // (in a tile, the hatching's lined up with the world, so it runs on unbroken into the next tile)
+  if(pat.setTransform&&typeof DOMMatrix==='function')pat.setTransform(new DOMMatrix().translate(((ox%7)+7)%7,((oz%7)+7)%7));
+  x.fillStyle=pat;for(const [x0,z0,x1,z1] of RG.cells)x.fillRect(X(x0),Z(z0),(x1-x0)*k+0.6,(z1-z0)*k+0.6);
+  x.strokeStyle='#e0503c';x.lineWidth=1.5;x.beginPath();for(const [a,b,c,d] of RG.edges){x.moveTo(X(a),Z(b));x.lineTo(X(c),Z(d));}x.stroke();
+  if(HL==='ruin')for(const [x0,z0,x1,z1] of RG.cells)hits.push([X(x0),Z(z0),(x1-x0)*k,(z1-z0)*k,'#a3a7ad']);
+  for(const [x0,z0,x1,z1] of ruins){const a=X(x0),b=Z(z0),ww=(x1-x0)*k,hh=(z1-z0)*k;x.fillStyle=pat;x.fillRect(a,b,ww,hh);x.strokeStyle='#e0503c';x.lineWidth=1.5;x.strokeRect(a+0.75,b+0.75,ww-1.5,hh-1.5);if(HL==='ruin')hits.push([a,b,ww,hh,'#a3a7ad']);}
+  return true;
+}
+// the single buildings that are down (and not part of a wholly destroyed block), clipped to the explored blocks
+// c0..c1 x r0..r1 they cover: worked out from the list of damaged buildings, not by looking over every block
+let mapRuinL=null,mapRuinV='';
+function mapRuinPieces(c0,c1,r0,r1,rv){
+  const v=rv+','+explored.size;
+  if(mapRuinV!==v||!mapRuinL){mapRuinV=v;mapRuinL=[];
+    for(const key in destroyed){const p=key.split(',');if(p.length!==3)continue;const ax=+p[0],az=+p[1],i=+p[2];if(!isFinite(ax)||!isFinite(az)||!isFinite(i))continue;
+      const b=plotInfo(ax,az).b[i];if(!b||seaPlot(ax,az)||biomeOf(ax,az)==='plains'||plotType(ax,az)==='river'||!ruinedB(ax,az,i)||blockRuined(ax,az))continue;
+      const sup=plotType(ax,az)==='super'?superOf(ax,az):null;if(sup&&(sup.kind==='bigpark'||sup.kind==='stadium'))continue;
+      mapRuinL.push([ax*CELL+b.x0,az*CELL+b.z0,ax*CELL+b.x1,az*CELL+b.z1,!!sup]);}}
+  const out=[];
+  for(const [x0,z0,x1,z1,sup] of mapRuinL){
+    const p0=Math.floor(x0/CELL),p1=Math.floor((x1-1e-6)/CELL),q0=Math.floor(z0/CELL),q1=Math.floor((z1-1e-6)/CELL);
+    if(p1<c0||p0>c1||q1<r0||q0>r1)continue;
+    if(!sup){if(explored.has(p0+','+q0))out.push([x0,z0,x1,z1]);continue;}
+    for(let px=p0;px<=p1;px++)for(let pz=q0;pz<=q1;pz++){if(!explored.has(px+','+pz))continue;
+      const X0=px*CELL,Z0=pz*CELL,bx0=Math.max(x0,X0),bz0=Math.max(z0,Z0),bx1=Math.min(x1,X0+CELL),bz1=Math.min(z1,Z0+CELL);if(bx1>bx0&&bz1>bz0)out.push([bx0,bz0,bx1,bz1]);}}
+  return out;
+}
+// ---- the map's tiles: up to 256 device pixels square but never more than 16 blocks across (so one's quick to draw
+// however far out), at zoom steps half an octave apart (step L is 2^(L/2) pixels per metre), each drawn at the step just
+// finer than the zoom it's shown at, so it's only ever shrunk a little. Blocks and ruins
+// are separate tiles (the ruins with the railways and highways drawn again over them): knocking something down redraws
+// only the ruins. Kept until the world changes or a block in one is
+// first explored, the least recently used thrown away past MAPT_MAX pixels in all ----
+const MAPT_MAX=16e6,mapTiles=new Map(),mapStale=[];let mapTPix=0;
+let mapTSeed=null,mapTDpr=0;
+// (a block explored: the tiles round it are drawn again next time they're shown)
+function mapTileStale(px,pz){if(mapTiles.size)mapStale.push(px,pz);}
+function mapTileClear(){mapTiles.clear();mapTPix=0;mapStale.length=0;mapClvC.clear();mapCapS=null;mapRuinL=null;}
+function mapTileGeo(L,tx,tz,dpr){const s=Math.pow(2,L/2),n=Math.max(32,Math.min(256,Math.pow(2,Math.floor(Math.log2(16*CELL*s*dpr))))),W=n/(s*dpr),wx0=tx*W,wz0=tz*W;
+  return{s,n,W,wx0,wz0,c0:Math.floor(wx0/CELL)-1,c1:Math.floor((wx0+W)/CELL)+1,r0:Math.floor(wz0/CELL)-1,r1:Math.floor((wz0+W)/CELL)+1};}
+function mapTileMake(n){const c=document.createElement('canvas');c.width=c.height=n;mapTPix+=n*n;const g=c.getContext&&c.getContext('2d');return g&&g.fillRect&&g.drawImage?{c,g}:null;}
+// what the ruins depend on: what's been knocked down, and which of the places you've found are wiped out (not every
+// change in their figures, which keep catching up while the map's open)
+function mapRuinVer(){let g='';for(const S of knownSets.values())if(setGone(S))g+=S.rx+','+S.rz+';';return destroyVer+'|'+g;}
+function mapTileBuild(T,L,tx,tz,dpr,rv){
+  const G=mapTileGeo(L,tx,tz,dpr),B=exploredBox(),ox=-G.wx0*G.s,oz=-G.wz0*G.s;
+  let {c0,c1,r0,r1}=G;if(B){c0=Math.max(c0,B.x0-1);c1=Math.min(c1,B.x1+1);r0=Math.max(r0,B.z0-1);r1=Math.min(r1,B.z1+1);}
+  if(!T.base){const C=mapTileMake(G.n);if(!C)return false;C.g.setTransform(dpr,0,0,dpr,0,0);if(B&&c0<=c1&&r0<=r1)drawMapBlocks(C.g,G.s,ox,oz,c0,c1,r0,r1,{all:true});T.base=C.c;}
+  if(T.rv!==rv){T.rv=rv;
+    if(T.ruin){mapTPix-=G.n*G.n;T.ruin=null;}
+    if(B&&c0<=c1&&r0<=r1){const C=mapTileMake(G.n);if(!C)return false;C.g.setTransform(dpr,0,0,dpr,0,0);if(drawMapRuins(C.g,G.s,ox,oz,c0,c1,r0,r1,mapRuinPieces(c0,c1,r0,r1,rv),null,null)){drawMapLines(C.g,G.s,ox,oz,c0,c1,r0,r1,null,null);T.ruin=C.c;}else mapTPix-=G.n*G.n;}}
+  return true;
+}
+// a block explored since: throw away the tiles it's in (and the ones next to them: a block's highways and ramps spill over)
+function mapTileDrop(key){const T=mapTiles.get(key);if(!T)return;const n=mapTileGeo(T.L,0,0,mapTDpr).n;mapTPix-=n*n*((T.base?1:0)+(T.ruin?1:0));mapTiles.delete(key);}
+function mapTileSweep(dpr){
+  if(!mapStale.length)return;
+  for(const [key,T] of mapTiles){const G=mapTileGeo(T.L,T.tx,T.tz,dpr);
+    for(let q=0;q<mapStale.length;q+=2){const px=mapStale[q],pz=mapStale[q+1];if(px>=G.c0-1&&px<=G.c1+1&&pz>=G.r0-1&&pz<=G.r1+1){mapTileDrop(key);break;}}}
+  mapStale.length=0;
+}
+// draw the tiles over the view (device pixels, from the canvas's corner); any not drawn yet are drawn, for a few
+// milliseconds a frame, the middle of the view first -- the rest shown meanwhile from tiles of the steps either side, if
+// there are any. Returns whether some are still to draw (null: tiles can't be made here)
+function mapTilesDraw(x,W,H,dpr,k,cx,cz){
+  const L=Math.max(-14,Math.min(8,Math.ceil(2*Math.log2(k)-1e-9))),G0=mapTileGeo(L,0,0,dpr),TW=G0.W;
+  const tx0=Math.floor((cx-W/2/dpr/k)/TW),tx1=Math.floor((cx+W/2/dpr/k)/TW),tz0=Math.floor((cz-H/2/dpr/k)/TW),tz1=Math.floor((cz+H/2/dpr/k)/TW);
+  const B=exploredBox(),bx0=B?(B.x0-2)*CELL:0,bx1=B?(B.x1+3)*CELL:0,bz0=B?(B.z0-2)*CELL:0,bz1=B?(B.z1+3)*CELL:0;
+  const sx=v=>Math.round(W/2+(v-cx)*k*dpr),sz=v=>Math.round(H/2+(v-cz)*k*dpr);
+  const want=[];
+  for(let tx=tx0;tx<=tx1;tx++)for(let tz=tz0;tz<=tz1;tz++){
+    if(!B||(tx+1)*TW<bx0||tx*TW>bx1||(tz+1)*TW<bz0||tz*TW>bz1)continue;   // (nothing explored there)
+    want.push(tx,tz,Math.hypot((tx+0.5)*TW-cx,(tz+0.5)*TW-cz));}
+  const ord=[];for(let i=0;i<want.length;i+=3)ord.push(i);ord.sort((a,b)=>want[a+2]-want[b+2]);
+  const t0=performance.now(),rv=mapRuinVer();let more=false,built=0;
+  // (the missing tiles first, then the ruins that are out of date)
+  for(const pass of [0,1])for(const i of ord){const tx=want[i],tz=want[i+1],key=L+','+tx+','+tz;let T=mapTiles.get(key);
+    if(pass?!T||!T.base||T.rv===rv:T&&T.base)continue;
+    if(built&&performance.now()-t0>=8){more=true;break;}
+    if(!T){T={L,tx,tz,base:null,ruin:null,rv:null};mapTiles.set(key,T);}
+    if(!mapTileBuild(T,L,tx,tz,dpr,rv))return null;built++;}
+  const got=[];
+  for(const i of ord){const tx=want[i],tz=want[i+1],key=L+','+tx+','+tz,T=mapTiles.get(key);
+    if(T){mapTiles.delete(key);mapTiles.set(key,T);}   // (most recently used last)
+    if(!T||!T.base){more=true;got.push(null);continue;}
+    if(T.rv!==rv)more=true;
+    got.push(T);}
+  while(mapTPix>MAPT_MAX&&mapTiles.size>got.length)mapTileDrop(mapTiles.keys().next().value);
+  // the stand-ins for the tiles still to come
+  if(more){const sub=[L-1,L+1,L-2,L+2,L-3,L-4];
+    ord.forEach((i,n)=>{if(got[n])return;const tx=want[i],tz=want[i+1],a=sx(tx*TW),b=sz(tz*TW),c=sx((tx+1)*TW),d=sz((tz+1)*TW);
+      x.save();x.beginPath();x.rect(a,b,c-a,d-b);x.clip();
+      for(const L2 of sub){const TW2=mapTileGeo(L2,0,0,dpr).W;let any=false;
+        for(let ux=Math.floor(tx*TW/TW2);ux<=Math.floor(((tx+1)*TW-1e-6)/TW2);ux++)for(let uz=Math.floor(tz*TW/TW2);uz<=Math.floor(((tz+1)*TW-1e-6)/TW2);uz++){
+          const U=mapTiles.get(L2+','+ux+','+uz);if(!U||!U.base)continue;any=true;const e=sx(ux*TW2),f=sz(uz*TW2),g=sx((ux+1)*TW2),h=sz((uz+1)*TW2);
+          x.drawImage(U.base,e,f,g-e,h-f);if(U.ruin)x.drawImage(U.ruin,e,f,g-e,h-f);}
+        if(any)break;}
+      x.restore();});}
+  ord.forEach((i,n)=>{const T=got[n];if(!T)return;const tx=want[i],tz=want[i+1],a=sx(tx*TW),b=sz(tz*TW),c=sx((tx+1)*TW),d=sz((tz+1)*TW);
+    x.drawImage(T.base,a,b,c-a,d-b);if(T.ruin)x.drawImage(T.ruin,a,b,c-a,d-b);});
+  return more;
+}
+function renderMap(){
+  const cv=document.getElementById('mapCanvas');if(!cv||!cv.getContext)return;
+  if(exploredSeed!==seed)loadExplored();
+  const dpr=Math.min(2,window.devicePixelRatio||1),w=Math.max(200,cv.clientWidth||600),h=Math.max(200,cv.clientHeight||400);
+  if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);}
+  const x=cv.getContext('2d');if(!x||!x.fillRect)return;x.setTransform(dpr,0,0,dpr,0,0);
+  const me=players.find(p=>p.active)||players[0];
+  if(MAPV.cx===null){MAPV.cx=me.pos.x;MAPV.cz=me.pos.z;}
+  const k=MAPV.ppb,ox=w/2-MAPV.cx*k,oz=h/2-MAPV.cz*k,X=v=>ox+v*k,Z=v=>oz+v*k;
+  x.fillStyle='#0b0f13';x.fillRect(0,0,w,h);
+  let c0=Math.floor((MAPV.cx-w/2/k)/CELL)-1,c1=Math.ceil((MAPV.cx+w/2/k)/CELL)+1,r0=Math.floor((MAPV.cz-h/2/k)/CELL)-1,r1=Math.ceil((MAPV.cz+h/2/k)/CELL)+1;
+  // (zoomed right out, only look over the blocks that have been explored, not the whole view)
+  {const B=exploredBox();if(B){c0=Math.max(c0,B.x0-1);c1=Math.min(c1,B.x1+1);r0=Math.max(r0,B.z0-1);r1=Math.min(r1,B.z1+1);}}
+  // everything drawn is tagged with its legend entry; the one being pointed at is drawn again, bright, over a dimmed map
+  // (that's drawn straight, block by block: the tiles don't know what's what)
+  const HL=MAPV.hl;let more=false;
+  if(mapTSeed!==seed||mapTDpr!==dpr){mapTileClear();mapTSeed=seed;mapTDpr=dpr;}
+  mapTileSweep(dpr);
+  const tiled=!HL&&(()=>{x.setTransform(1,0,0,1,0,0);x.imageSmoothingEnabled=true;const r=mapTilesDraw(x,cv.width,cv.height,dpr,k,MAPV.cx,MAPV.cz);x.setTransform(dpr,0,0,dpr,0,0);if(r===null)return false;more=r;return true;})();
+  if(!tiled){const hits=[];drawMapBlocks(x,k,ox,oz,c0,c1,r0,r1,{HL,hits,ruins:[]});
+    // the highlighted legend entry: everything else dims, its own pieces come back bright with an outline
+    if(HL){x.fillStyle='rgba(8,10,14,0.74)';x.fillRect(0,0,w,h);
+      for(const [a,b,ww,hh,col] of hits){x.fillStyle=col;x.fillRect(a,b,ww,hh);}
+      x.strokeStyle='#ffe27a';x.lineWidth=1.2;for(const [a,b,ww,hh] of hits)x.strokeRect(a+0.5,b+0.5,Math.max(1,ww-1),Math.max(1,hh-1));}}
   // the places you've found: each one's name over its middle, and how much of it you've destroyed
   {x.textAlign='center';x.textBaseline='middle';x.lineJoin='round';
    for(const S of knownSets.values()){const sx=X(S.cx*CELL+CELL/2),sz=Z(S.cz*CELL+CELL/2);if(sx<-120||sx>w+120||sz<-40||sz>h+40)continue;
@@ -17217,7 +17345,7 @@ function renderMap(){
      x.font='700 12px "Atkinson Hyperlegible Next", system-ui, sans-serif';x.lineWidth=3;x.strokeText(t,sx,sz+15);x.fillStyle=v===null?'#c8c8c0':v>=1?'#ff6a50':v>0?'#ffb08a':'#cfe8c0';x.fillText(t,sx,sz+15);}
    x.textAlign='start';x.textBaseline='alphabetic';}
   // the capitol: a star on the dome
-  if(seenCap){const g=capGeo(),sx=X(seenCap.ax*CELL+PL0+g.c),sz=Z(seenCap.az*CELL+PL0+g.dc);x.fillStyle='#ffe27a';x.beginPath();for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?4:9;x.lineTo(sx+Math.cos(a)*rr,sz+Math.sin(a)*rr);}x.closePath();x.fill();}
+  if(mapCapS){const g=capGeo(),sx=X(mapCapS.ax*CELL+PL0+g.c),sz=Z(mapCapS.az*CELL+PL0+g.dc);x.fillStyle='#ffe27a';x.beginPath();for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?4:9;x.lineTo(sx+Math.cos(a)*rr,sz+Math.sin(a)*rr);}x.closePath();x.fill();}
   // the markers: everyone's, the one whose menu it is drawn last, on top (and on a controller, the crosshair that Y marks)
   {const own=mapOwner();for(const p of [...players.filter(q=>q!==own),own]){const m=p.active&&markOf(p);if(m)drawPin(x,X(m.x),Z(m.z),markCol(p),p===own);}
    if(inputKind==='pad'){const cx=w/2,cy=h/2;x.strokeStyle='rgba(0,0,0,.7)';x.lineWidth=3;x.beginPath();x.moveTo(cx-9,cy);x.lineTo(cx+9,cy);x.moveTo(cx,cy-9);x.lineTo(cx,cy+9);x.stroke();
@@ -17228,11 +17356,13 @@ function renderMap(){
     x.moveTo(px+hx*11,pz+hz*11);x.lineTo(px-hx*6+hz*6,pz-hz*6-hx*6);x.lineTo(px-hx*3,pz-hz*3);x.lineTo(px-hx*6-hz*6,pz-hz*6+hx*6);x.closePath();x.fill();x.stroke();}
   const note=document.getElementById('mapNote');
   if(note)note.textContent=explored.size+' blocks explored. Drag to pan, scroll to zoom, click to set a marker; on a controller, the right stick pans, the triggers zoom and Y sets a marker.';
+  // (tiles still to draw: on with them next frame)
+  if(more&&menuOpen&&curTab==='map')mapDraw();
 }
 // the legend, and mouse panning / zooming
 {const lg=document.getElementById('mapLegend');
  if(lg){lg.innerHTML=MAP_LEG.map(([k,n])=>'<li tabindex="0" data-k="'+k+'"><i style="background:'+(k==='ruin'?RUIN_SW+';outline:1px solid #e0503c':MAPC[k]||'#e8963a')+'"></i>'+n+'</li>').join('');
-  const setHl=k=>{if(MAPV.hl===k)return;MAPV.hl=k;for(const li of lg.querySelectorAll('li'))li.classList.toggle('on',li.dataset.k===k);renderMap();};
+  const setHl=k=>{if(MAPV.hl===k)return;MAPV.hl=k;for(const li of lg.querySelectorAll('li'))li.classList.toggle('on',li.dataset.k===k);mapDraw();};
   for(const li of lg.querySelectorAll('li')){li.addEventListener('mouseenter',()=>setHl(li.dataset.k));li.addEventListener('focus',()=>setHl(li.dataset.k));
     li.addEventListener('mouseleave',()=>{if(document.activeElement!==li)setHl(null);});li.addEventListener('blur',()=>setHl(null));}}
  const cv=document.getElementById('mapCanvas');let drag=null;const ptrs=new Map();let pinch=0;
@@ -17255,7 +17385,7 @@ function renderMap(){
   cv.addEventListener('wheel',e=>{e.preventDefault();mapZoom(e.deltaY<0?1.15:1/1.15);},{passive:false});
  }
  addEventListener('keydown',e=>{if(menuOpen&&curTab==='map'&&e.code==='KeyC'&&!e.repeat)mapRecentre();});
- addEventListener('resize',()=>{if(menuOpen&&curTab==='map')renderMap();});
+ addEventListener('resize',()=>{if(menuOpen&&curTab==='map')mapDraw();});
 }
 const TABS=[['game','Game'],['test','Test'],['map','Map'],['obit','Obit'],['custom','Custom'],['controls','Controls'],['options','Options'],['notes','Notes'],['dev','Dev']];let curTab='game';
 // (a tab whose button is hidden -- the Testing Environment's, outside it -- is passed over by next / previous tab)

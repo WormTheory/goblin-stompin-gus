@@ -257,6 +257,7 @@
 
 - Mark a spot on the map: click it on the pause menu's Map tab (tap it on a touch screen; on a controller, pan the crosshair over it and press Y). A pin goes there and shows on your minimap too, or, while it's off the minimap's edge, an arrow on the rim points the way with how far it is. Click the pin again to take it away, or somewhere else to move it.
 - In split screen each player has a marker of their own, set from their own pause menu and shown on their own minimap, in their own colour. Markers are kept for each world.
+- The map is smooth to pan and zoom however much of the world you've explored. Zoomed right out, it can take a moment to fill in the first time.
 
 ### Enemy hostility: Pacifist
 
