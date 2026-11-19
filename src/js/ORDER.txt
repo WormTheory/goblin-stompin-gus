@@ -31,6 +31,7 @@ ui/sprites.js
 destruction/smashing.js
 destruction/structure.js
 destruction/topple.js
+destruction/water-flow.js
 player/players.js
 player/hitboxes.js
 player/spikes.js

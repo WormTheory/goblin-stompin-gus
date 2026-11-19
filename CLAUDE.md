@@ -125,6 +125,7 @@ It renders in software, so the picture is right but the frame rate says nothing 
 - **Destruction:**
   - `crush(...)` (accepts `{round:R}` for round craters)
   - building collapse lean is worked out from the outer walls alone (`outerWalls`: the first and last structural block along each row and column of the footprint, as built): what's still standing of them on the floor that gave way, against the middle of the whole ring. Stairs, pillars, inside walls and furniture don't count. Snapped to a cardinal direction within 20° (`snapCard`). Suite `falldir` (`SC=none|stairs|east|eastwall`)
+  - water flow (`destruction/water-flow.js`): every block `setRaw` turns to air is noted (`wfNoteRemoved`); the next step (`updateWater`, every `WF_STEP`, host only) starts a breach (`wfBreach`) where water sits on it or beside it, and fills one layer of open blocks a step, no higher than that water's surface, through `setRaw` and `addEdit` (so it's saved and sent to guests). The water it came from stays; a breach fills at most `WF_CAP` blocks and no more than its body of water holds (`wfBody`). Suite `waterflow`
 - **Buttons on screen:** HUD text names a button as `⟦glyph id⟧` (`btnMark`, `bindGlyph`, `actMark`), and `hudHTML` draws it with the menus' `glyph`. Use these for any new prompt rather than `keyLabel`/`padLabel`.
 - **Controls:**
   - `ACTS` / `BINDS` (localStorage `goblin-binds-v1`), `KB_RESERVED`, `PAD_RESERVED`
@@ -215,6 +216,7 @@ It renders in software, so the picture is right but the frame rate says nothing 
   - blj: blast long jump
   - rkt*: rocket boost
   - lean / tilt: collapse lean
+  - waterflow: water pouring into holes knocked under and beside it: a shaft and a room under the sea bed fill, a cavern stops at `WF_CAP`, a small tank spills no more than it holds, a walled pool broken at its surface fills the pit beside it no higher than that, a dry hole stays dry, the host sends the water to a guest
   - floatdebris: rubble lying on a building that then collapses under it is gone from the edits too, so a chunk made afresh has none of it floating (every line should say `made afresh 0`)
   - falldir: which way a collapsing building falls, from its outer walls (`SC=stairs` should all drop straight, `SC=east` and `SC=eastwall` all tip 1.00,0.00)
   - bob: rocket pose

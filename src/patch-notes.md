@@ -2,6 +2,10 @@
 
 ## Version 0.5
 
+### Water
+
+- Water now pours into holes. Knock out a block under water, or the wall holding it back, and the water flows in and fills the space below, up to its own level. Dig down through the sea bed or a river and the hole floods. A small pool only spills what it holds, and a big breach stops after a few hundred blocks, so the sea never drains.
+
 ### Crashes
 
 - Vehicles now crash by their weight. A bus ploughs on through a car and shoves it aside, while a car that hits a bus mostly stops dead. Hit a car on its back corner and it spins round; traffic spun out stops steering for a moment, then sets off again.
