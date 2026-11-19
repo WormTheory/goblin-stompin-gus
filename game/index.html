@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:864e526a066909fb662cf3593d2fa512991722eca52d901fc74c5735a5e48834 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:64e8b596637ec129d4485aae9675afc44d886c3443bfecba74b4f728d4c65244 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1637,7 +1637,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Options</h3>
 <ul><li><strong>Sound volume</strong> and <strong>Brightness</strong> sliders, in a new Sound &amp; picture section at the top of Options. Brightness goes from 20% to 250% and only changes the game's picture, not the menus or the display, and in split screen it goes for both halves.</li><li><strong>Hide blood</strong>, under On screen: no blood sprays, splats on the ground or pools.</li></ul>
 <h3>Fixes</h3>
-<ul><li>Armories' corner turrets were cut off where they stuck out past the edge of their block, and could never count as destroyed. The drill hall is a little smaller now so its turrets fit.</li><li>Office towers, big police stations, the stadium and other big buildings sometimes never counted as destroyed, however much of them was knocked down, because the game overestimated how many blocks they had. It now counts every block.</li><li>Most of the false fronts on a film studio's backlot had no walls, only windows. They have their walls back.</li><li>Loading into a city or the Testing Environment could start with a loud burst of hiss, like breaking glass (in Firefox): the rain and wind sounds started at full volume. They're only started once there's weather to hear now, and fade in properly. Doors you arrive beside no longer all creak open at once either, and a limiter stops any pile-up of sounds coming out as one deafening crack.</li><li>Blood and scorch marks on the carrier's decks now go where the carrier goes, instead of staying behind in the sea.</li><li>Hitting the carrier from outside no longer puts a little damage puff in the middle of the island, wherever you hit it.</li><li>A piece of the carrier's island that's knocked off and toppling is now drawn on the ship, falling where it should.</li><li>The Mobile Gear's lock box now sits right on what it's locked on to, even while you or it are moving fast. Before, it trailed a frame behind.</li><li>The Mobile Gear's rifles point at exactly where their rounds go, not just the way you're looking, and the Breaker Cannon swings round on to what it fires at.</li><li>Rubble that had landed on a building's roof came back hanging in mid-air, where the roof used to be, once that building had come down and you'd left the area and returned (or loaded the game). It's now saved as gone with the building. (Rubble already left hanging in a saved city still falls if you knock it.)</li></ul>
+<ul><li>Armories' corner turrets were cut off where they stuck out past the edge of their block, and could never count as destroyed. The drill hall is a little smaller now so its turrets fit.</li><li>Office towers, big police stations, the stadium and other big buildings sometimes never counted as destroyed, however much of them was knocked down, because the game overestimated how many blocks they had. It now counts every block.</li><li>Most of the false fronts on a film studio's backlot had no walls, only windows. They have their walls back.</li><li>Loading into a city or the Testing Environment could start with a loud burst of hiss, like breaking glass (in Firefox): the rain and wind sounds started at full volume. They're only started once there's weather to hear now, and fade in properly. Doors you arrive beside no longer all creak open at once either, and a limiter stops any pile-up of sounds coming out as one deafening crack.</li><li>Blood and scorch marks on the carrier's decks now go where the carrier goes, instead of staying behind in the sea.</li><li>Hitting the carrier from outside no longer puts a little damage puff in the middle of the island, wherever you hit it.</li><li>A piece of the carrier's island that's knocked off and toppling is now drawn on the ship, falling where it should.</li><li>The Mobile Gear's lock box now sits right on what it's locked on to, even while you or it are moving fast. Before, it trailed a frame behind.</li><li>The Mobile Gear's rifles point at exactly where their rounds go, not just the way you're looking, and the Breaker Cannon swings round on to what it fires at.</li><li>Rubble that had landed on a building's roof came back hanging in mid-air, where the roof used to be, once that building had come down and you'd left the area and returned (or loaded the game). It's now saved as gone with the building. (Rubble already left hanging in a saved city still falls if you knock it.)</li><li>Some cars stayed tipped forwards or backwards for good. A car that had been a Gobway before it came back kept the Gobway's lean; now every car comes back level.</li><li>Drifting or sliding sideways into a wall fast enough now smashes through it, just as driving into it does. Before, only a car's front could break a wall, so a drift just stopped dead against it.</li></ul>
 </details>
 <details class="pn-up pn-fold" id="version-0-4"><summary tabindex="0"><h2>Version 0.4</h2><a class="pn-play" data-ver="0.4" href="v/0.4/" tabindex="0">Play 0.4</a><span class="pn-tog" aria-hidden="true"></span></summary>
 <h3>Goblins climb vehicles too</h3>
@@ -2265,7 +2265,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='d7ce18a4c6f4';
+const GAME_VER='0.5',GAME_BUILD='54ddc316a307';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -14218,13 +14218,38 @@ function carTip(c,dt){if(!c.tipR||c.veh==='forklift')return;if(!c.drv&&Math.abs(
 // ---- a car driven into a wall: the wall's a body that never moves, met at the corner that hit it. Returns the impulse
 // along the wall's face (for the smash and the damage) ----
 function carWall(c,px,pz){
-  const bx=Math.floor(px)+0.5,bz=Math.floor(pz)+0.5,ox=c.pos.x-bx,oz=c.pos.z-bz;
-  // (the face it hit: whichever side of the block the car's on)
-  let nx=0,nz=0;if(Math.abs(ox)>Math.abs(oz))nx=-Math.sign(ox);else nz=-Math.sign(oz);   // (n from the car into the wall)
-  const q=coBody(c),W={m:Infinity,I:Infinity,x:bx,z:bz,vx:0,vz:0,w:0};
+  const {nx,nz}=carWallN(c,px,pz),q=coBody(c),W={m:Infinity,I:Infinity,x:Math.floor(px)+0.5,z:Math.floor(pz)+0.5,vx:0,vz:0,w:0};
   const J=coImpulse(q,W,nx,nz,px,pz,handOf(c.veh||'car').bounce??CO.e,CO.mu);if(!J)return 0;
   coApply(c,J.a,J.j,null);return J.j;
 }
+// (the face of the block at px,pz a car meets: whichever side of it the car's on; n from the car into the wall)
+function carWallN(c,px,pz){const ox=c.pos.x-(Math.floor(px)+0.5),oz=c.pos.z-(Math.floor(pz)+0.5);
+  return Math.abs(ox)>Math.abs(oz)?{nx:-Math.sign(ox),nz:0}:{nx:0,nz:-Math.sign(oz)};}
+// how fast a car has to be going into a wall to smash through it: by its momentum, so a bus does at a crawl a car would
+// bounce off at, though never under 7 a second
+const carSmashV=c=>Math.max(7,13/carMass(c));
+// ---- a car smashing into a wall at px,pz (its front, or its side in a slide), going vn into it along n: a hole the
+// bigger the vehicle and the faster, its own front wrecked, and most of its speed into the wall gone (whatever way it
+// was pointing, so a drift smashes as hard as driving straight in) ----
+function carSmash(c,vn,nx,nz,px,pz,side){
+  const mw=carMass(c),k=Math.min(1,(vn*mw-13)/15),big=c.hz>3*ES?1.35:LIGHT_RIDE[c.veh]?0.7:1,R=(1.5+k*1.4)*big,iy=c.pos.y+Math.min(R*0.9,(c.hy||1.4)*0.6)+0.1;
+  // (side on, the whole length of it meets the wall: a hole along it, so it slides on through)
+  const fx=Math.sin(c.heading),fz=Math.cos(c.heading),pts=side?[-0.45,0.45].map(t=>[px+fx*c.hz*t,pz+fz*c.hz*t]):[[px,pz]];
+  for(const [x,z] of pts)crushBall(x+nx*0.6,iy,z+nz*0.6,R,{force:0.8+k});
+  damageCar(c,4+vn*0.4,undefined,'acc');sfx('Vehicle crashes into a wall',()=>{thud(0.7);clang();});addShake(0.4+k*0.5,px,pz,25);smoke(px+nx*0.6,iy,pz+nz*0.6,6,0x9a948a);
+  carDv(c,-nx*vn*0.65,-nz*vn*0.65);if(LIGHT_RIDE[c.veh]&&c.drv)drvExit(c.drv,true);}   // (off a motorcycle, or anything light, you go)
+// ---- a car sliding sideways (a drift, a handbrake turn, a knock) into a wall: updateCars only feels ahead of it for
+// walls, and its slide (roadSlip, its kv) just stops dead at one, so the side it's sliding toward is felt here first,
+// before it moves. True if it smashed ----
+function carSlideHit(c){
+  const v=carVel(c),fx=Math.sin(c.heading),fz=Math.cos(c.heading),rx=fz,rz=-fx,vl=v.x*rx+v.z*rz;
+  if(Math.abs(vl)<3)return false;
+  const s=vl<0?-1:1,y=c.pos.y,o=c.hx+0.5,thr=carSmashV(c);
+  for(const t of [0,-0.75,0.75]){const x=c.pos.x+rx*s*o+fx*c.hz*t,z=c.pos.z+rz*s*o+fz*c.hz*t;
+    if(groundAt(x,z,y)-y<=1.1)continue;   // (a kerb isn't a wall: it just stops it)
+    const n=carWallN(c,x,z),vn=v.x*n.nx+v.z*n.nz;if(vn<=thr)return false;
+    carSmash(c,vn,n.nx,n.nz,c.pos.x+rx*s*(c.hx+0.15),c.pos.z+rz*s*(c.hx+0.15),true);return true;}
+  return false;}
 // (the front corner of a car nearer a wall ahead: where it'll hit; null if neither is in a wall)
 function carWallPt(c,dir){const fx=Math.sin(c.heading),fz=Math.cos(c.heading),rx=fz,rz=-fx,f=(c.hz+0.15)*dir,y=c.pos.y;let best=null;
   for(const s of [-1,0,1]){const x=c.pos.x+fx*f+rx*c.hx*0.9*s,z=c.pos.z+fz*f+rz*c.hx*0.9*s;if(groundAt(x,z,y)-y>0.6&&!best)best={x,z};}return best;}
@@ -19964,7 +19989,8 @@ const pickVeh=mix=>{let u=Math.random();for(const [t,p] of VEH_MIX[mix]){if(u<p)
 function setVeh(c,t){
   if(!c.vehG[t])c.vehG[t]=buildVeh(c,t);
   for(const k in c.vehG)c.vehG[k].g.visible=k===t;
-  const V=VEH[t],G2=c.vehG[t];c.veh=t;c.wheels=G2.wheels;c.front=G2.front;c.fan=G2.fan||null;c.hvel=null;
+  const V=VEH[t],G2=c.vehG[t];c.veh=t;c.wheels=G2.wheels;c.front=G2.front;c.fan=G2.fan||null;c.hvel=null;c.wly=0;c.lkP=null;   // (a Gobway's lean or a wheelie isn't the next kind's: it stayed tipped for good)
+  
   c.hx=V.hx*ES;c.hz=V.hz*ES;c.hy=V.hy*ES;
   c.pts=[[0,0],[V.hx*0.9,V.hz-0.2],[-V.hx*0.9,V.hz-0.2],[V.hx*0.9,-V.hz+0.2],[-V.hx*0.9,-V.hz+0.2]].map(([a,b])=>[a*ES,b*ES]);
   if(t==='semi')c.pts.push([0,(V.hz/2)*ES],[0,(-V.hz/2)*ES]);
@@ -19981,7 +20007,7 @@ function carSpawn(c,o){
   if(o.veh)setVeh(c,o.veh);
   if(o.x!==undefined){c.pos.set(o.x,o.y,o.z);c.heading=o.h||0;}
   c.speed=o.speed||0;c.kv.set(0,0,0);c.hp=c.hpMax=o.hp||carHP(c);c.alive=true;c.hunter=!!o.hunter;if(o.parked!==undefined)c.parked=o.parked;c.vy=0;
-  c.pitch=c.roll=c.spinP=c.spinR=0;c.yawV=0;c.spinT=0;c.spinH=undefined;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.paint.emissive.setHex(0);c.g.visible=true;
+  c.pitch=c.roll=c.spinP=c.spinR=c.wly=0;c.lkP=null;c.yawV=0;c.spinT=0;c.spinH=undefined;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.paint.emissive.setHex(0);c.g.visible=true;
   if(c.dh)c.dh.visible=true;   // (back with a goblin aboard: a wreck or a carjacking had hidden him. Those that come back empty hide him again after)
   if(c.fork||c.farm||c.tipR)farmReset(c);   // (a forklift's forks down and empty, a tractor's hitch up: farm-lift.js)
   if(o.place){c.g.position.copy(c.pos);c.g.rotation.set(0,c.heading,0);}
@@ -20493,7 +20519,7 @@ function carPhysics(c,dt){
   // a wheel inside a wall gives no support (it doesn't hold the car up mid-air)
   const sup=(a,b)=>{const v=hovSup(c,c.pos.x+a*k+b*s,c.pos.z-a*s+b*k,reach);return v===null?-1e9:v;};
   const fl=sup(wx,wz),fr=sup(-wx,wz),bl=sup(wx,-wz),br=sup(-wx,-wz),ce=sup(0,0);
-  if(Math.max(fl,fr,bl,br,ce)<-1e8){c.grounded=true;c.vy=0;return;}
+  if(Math.max(fl,fr,bl,br,ce)<-1e8){c.grounded=true;c.vy=0;const r=Math.min(1,dt*8);c.pitch-=c.pitch*r;c.roll-=c.roll*r;c.spinP=c.spinR=0;return;}   // (and it levels out, or a tilt it had stays)
   const cl=v=>Math.max(v,c.pos.y-6);
   // (just up a step, front wheels first: the back ones still down below hold it up too, till they're up as well)
   const lip=c.stepT>0?1.15:0;if(lip)c.stepT-=dt;
@@ -26922,6 +26948,7 @@ function updateCars(dt){
     if(playing&&!c.hw&&!c.rt&&!c.path&&!c.parked&&!c.svcPool&&!c.hunter&&!c.police&&!c.drv&&!c.left&&!c.crew&&c.pos.y>G+2.5){const sh=Math.sin(c.heading),ch=Math.cos(c.heading),ax=Math.abs(sh)>Math.abs(ch)?'x':'z',dir=ax==='x'?Math.sign(sh):Math.sign(ch),k=Math.floor(((ax==='x'?c.pos.z:c.pos.x)+3)/CELL),al=ax==='x'?c.pos.x:c.pos.z;
       // (a long truck's middle sits well up the slope with its nose already on the street: it's finished with the ramp, not back on it)
       if(hwRampAt(ax,k,al)&&hwSurf(ax,k,al)>G+1.5){const inner=((ax==='x')===(dir>0))?5.5:2.5;c.hw={ax,dir,lane:k*CELL+inner,y:hwSurf(ax,k,al)};c.leaving=false;}}
+    if((c.drv||c.hunter)&&!c.forkOn)carSlideHit(c);   // (sliding sideways into a wall: collide.js)
     if(c.gnr)gnrCar(c,dt);   // (a player on its gun: see gunner.js)
     if(c.drv)drvCar(c,dt);   // (a goblin at the wheel: see drvCar)
     else if(c.left)c.speed*=Math.exp(-dt*3);   // (got out of and left where it stopped)
@@ -27179,12 +27206,10 @@ function updateCars(dt){
       else if(ahead-c.pos.y>rampLim){
         // (into a wall fast enough, and it smashes a hole in it, wrecking its own front and losing most of its speed;
         // the bigger the vehicle and the faster, the bigger the hole; slower than that, it bounces off)
-        // (by its momentum: a bus smashes through at a crawl a car would bounce off at, though never under 7 a second; collide.js)
-        const mw=carMass(c);
-        if((c.hunter||c.drv)&&Math.abs(c.speed)>Math.max(7,13/mw)){const sp=Math.abs(c.speed),k=Math.min(1,(sp*mw-13)/15),big=c.hz>3*ES?1.35:LIGHT_RIDE[c.veh]?0.7:1,R=(1.5+k*1.4)*big,
-            ix=c.pos.x+fx*2.7*dir,iz=c.pos.z+fz*2.7*dir,iy=c.pos.y+Math.min(R*0.9,(c.hy||1.4)*0.6)+0.1;
-          crushBall(ix,iy,iz,R,{force:0.8+k});damageCar(c,4+sp*0.4,undefined,'acc');sfx('Vehicle crashes into a wall',()=>{thud(0.7);clang();});addShake(0.4+k*0.5,ix,iz,25);smoke(ix,iy,iz,6,0x9a948a);
-          c.speed*=0.35;if(LIGHT_RIDE[c.veh]&&c.drv)drvExit(c.drv,true);}   // (off a motorcycle, or anything light, you go)
+        // (by its momentum, and by how fast it's really going into the wall, whichever way it points, so a drift into
+        // one smashes too: carSmashV, carSmash in collide.js)
+        const mw=carMass(c),WP=carWallPt(c,dir)||{x:c.pos.x+fx*pa*dir,z:c.pos.z+fz*pa*dir},WN=carWallN(c,WP.x,WP.z),VV=carVel(c),vn=VV.x*WN.nx+VV.z*WN.nz;
+        if((c.hunter||c.drv)&&vn>carSmashV(c)){const ah=Math.max(2.1,c.hz+0.15);carSmash(c,vn,WN.nx,WN.nz,c.pos.x+fx*ah*dir,c.pos.z+fz*ah*dir,false);}   // (the hole 2.7 ahead of its middle, as it always was, or just past a long one's nose)
         else if(c.hunter||c.drv||c.crew){if(lightOf(c)&&c.drv&&Math.abs(c.speed)>5.5)drvExit(c.drv,true);   // (over the bars into a wall)
           // (it bounces off at the corner that hit, so a glancing blow turns it along the wall and one off its middle spins it: collide.js)
           const sp0=Math.abs(c.speed),P=carWallPt(c,dir)||{x:c.pos.x+fx*pa*dir,z:c.pos.z+fz*pa*dir},j=carWall(c,P.x,P.z);

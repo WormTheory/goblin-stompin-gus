@@ -173,13 +173,38 @@ function carTip(c,dt){if(!c.tipR||c.veh==='forklift')return;if(!c.drv&&Math.abs(
 // ---- a car driven into a wall: the wall's a body that never moves, met at the corner that hit it. Returns the impulse
 // along the wall's face (for the smash and the damage) ----
 function carWall(c,px,pz){
-  const bx=Math.floor(px)+0.5,bz=Math.floor(pz)+0.5,ox=c.pos.x-bx,oz=c.pos.z-bz;
-  // (the face it hit: whichever side of the block the car's on)
-  let nx=0,nz=0;if(Math.abs(ox)>Math.abs(oz))nx=-Math.sign(ox);else nz=-Math.sign(oz);   // (n from the car into the wall)
-  const q=coBody(c),W={m:Infinity,I:Infinity,x:bx,z:bz,vx:0,vz:0,w:0};
+  const {nx,nz}=carWallN(c,px,pz),q=coBody(c),W={m:Infinity,I:Infinity,x:Math.floor(px)+0.5,z:Math.floor(pz)+0.5,vx:0,vz:0,w:0};
   const J=coImpulse(q,W,nx,nz,px,pz,handOf(c.veh||'car').bounce??CO.e,CO.mu);if(!J)return 0;
   coApply(c,J.a,J.j,null);return J.j;
 }
+// (the face of the block at px,pz a car meets: whichever side of it the car's on; n from the car into the wall)
+function carWallN(c,px,pz){const ox=c.pos.x-(Math.floor(px)+0.5),oz=c.pos.z-(Math.floor(pz)+0.5);
+  return Math.abs(ox)>Math.abs(oz)?{nx:-Math.sign(ox),nz:0}:{nx:0,nz:-Math.sign(oz)};}
+// how fast a car has to be going into a wall to smash through it: by its momentum, so a bus does at a crawl a car would
+// bounce off at, though never under 7 a second
+const carSmashV=c=>Math.max(7,13/carMass(c));
+// ---- a car smashing into a wall at px,pz (its front, or its side in a slide), going vn into it along n: a hole the
+// bigger the vehicle and the faster, its own front wrecked, and most of its speed into the wall gone (whatever way it
+// was pointing, so a drift smashes as hard as driving straight in) ----
+function carSmash(c,vn,nx,nz,px,pz,side){
+  const mw=carMass(c),k=Math.min(1,(vn*mw-13)/15),big=c.hz>3*ES?1.35:LIGHT_RIDE[c.veh]?0.7:1,R=(1.5+k*1.4)*big,iy=c.pos.y+Math.min(R*0.9,(c.hy||1.4)*0.6)+0.1;
+  // (side on, the whole length of it meets the wall: a hole along it, so it slides on through)
+  const fx=Math.sin(c.heading),fz=Math.cos(c.heading),pts=side?[-0.45,0.45].map(t=>[px+fx*c.hz*t,pz+fz*c.hz*t]):[[px,pz]];
+  for(const [x,z] of pts)crushBall(x+nx*0.6,iy,z+nz*0.6,R,{force:0.8+k});
+  damageCar(c,4+vn*0.4,undefined,'acc');sfx('Vehicle crashes into a wall',()=>{thud(0.7);clang();});addShake(0.4+k*0.5,px,pz,25);smoke(px+nx*0.6,iy,pz+nz*0.6,6,0x9a948a);
+  carDv(c,-nx*vn*0.65,-nz*vn*0.65);if(LIGHT_RIDE[c.veh]&&c.drv)drvExit(c.drv,true);}   // (off a motorcycle, or anything light, you go)
+// ---- a car sliding sideways (a drift, a handbrake turn, a knock) into a wall: updateCars only feels ahead of it for
+// walls, and its slide (roadSlip, its kv) just stops dead at one, so the side it's sliding toward is felt here first,
+// before it moves. True if it smashed ----
+function carSlideHit(c){
+  const v=carVel(c),fx=Math.sin(c.heading),fz=Math.cos(c.heading),rx=fz,rz=-fx,vl=v.x*rx+v.z*rz;
+  if(Math.abs(vl)<3)return false;
+  const s=vl<0?-1:1,y=c.pos.y,o=c.hx+0.5,thr=carSmashV(c);
+  for(const t of [0,-0.75,0.75]){const x=c.pos.x+rx*s*o+fx*c.hz*t,z=c.pos.z+rz*s*o+fz*c.hz*t;
+    if(groundAt(x,z,y)-y<=1.1)continue;   // (a kerb isn't a wall: it just stops it)
+    const n=carWallN(c,x,z),vn=v.x*n.nx+v.z*n.nz;if(vn<=thr)return false;
+    carSmash(c,vn,n.nx,n.nz,c.pos.x+rx*s*(c.hx+0.15),c.pos.z+rz*s*(c.hx+0.15),true);return true;}
+  return false;}
 // (the front corner of a car nearer a wall ahead: where it'll hit; null if neither is in a wall)
 function carWallPt(c,dir){const fx=Math.sin(c.heading),fz=Math.cos(c.heading),rx=fz,rz=-fx,f=(c.hz+0.15)*dir,y=c.pos.y;let best=null;
   for(const s of [-1,0,1]){const x=c.pos.x+fx*f+rx*c.hx*0.9*s,z=c.pos.z+fz*f+rz*c.hx*0.9*s;if(groundAt(x,z,y)-y>0.6&&!best)best={x,z};}return best;}

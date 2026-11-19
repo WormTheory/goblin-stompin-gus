@@ -79,7 +79,8 @@ const pickVeh=mix=>{let u=Math.random();for(const [t,p] of VEH_MIX[mix]){if(u<p)
 function setVeh(c,t){
   if(!c.vehG[t])c.vehG[t]=buildVeh(c,t);
   for(const k in c.vehG)c.vehG[k].g.visible=k===t;
-  const V=VEH[t],G2=c.vehG[t];c.veh=t;c.wheels=G2.wheels;c.front=G2.front;c.fan=G2.fan||null;c.hvel=null;
+  const V=VEH[t],G2=c.vehG[t];c.veh=t;c.wheels=G2.wheels;c.front=G2.front;c.fan=G2.fan||null;c.hvel=null;c.wly=0;c.lkP=null;   // (a Gobway's lean or a wheelie isn't the next kind's: it stayed tipped for good)
+  
   c.hx=V.hx*ES;c.hz=V.hz*ES;c.hy=V.hy*ES;
   c.pts=[[0,0],[V.hx*0.9,V.hz-0.2],[-V.hx*0.9,V.hz-0.2],[V.hx*0.9,-V.hz+0.2],[-V.hx*0.9,-V.hz+0.2]].map(([a,b])=>[a*ES,b*ES]);
   if(t==='semi')c.pts.push([0,(V.hz/2)*ES],[0,(-V.hz/2)*ES]);
@@ -96,7 +97,7 @@ function carSpawn(c,o){
   if(o.veh)setVeh(c,o.veh);
   if(o.x!==undefined){c.pos.set(o.x,o.y,o.z);c.heading=o.h||0;}
   c.speed=o.speed||0;c.kv.set(0,0,0);c.hp=c.hpMax=o.hp||carHP(c);c.alive=true;c.hunter=!!o.hunter;if(o.parked!==undefined)c.parked=o.parked;c.vy=0;
-  c.pitch=c.roll=c.spinP=c.spinR=0;c.yawV=0;c.spinT=0;c.spinH=undefined;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.paint.emissive.setHex(0);c.g.visible=true;
+  c.pitch=c.roll=c.spinP=c.spinR=c.wly=0;c.lkP=null;c.yawV=0;c.spinT=0;c.spinH=undefined;c.grounded=true;c.reverseT=0;c.stuckT=0;c.hurt=0;c.paint.emissive.setHex(0);c.g.visible=true;
   if(c.dh)c.dh.visible=true;   // (back with a goblin aboard: a wreck or a carjacking had hidden him. Those that come back empty hide him again after)
   if(c.fork||c.farm||c.tipR)farmReset(c);   // (a forklift's forks down and empty, a tractor's hitch up: farm-lift.js)
   if(o.place){c.g.position.copy(c.pos);c.g.rotation.set(0,c.heading,0);}

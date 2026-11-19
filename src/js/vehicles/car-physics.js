@@ -9,7 +9,7 @@ function carPhysics(c,dt){
   // a wheel inside a wall gives no support (it doesn't hold the car up mid-air)
   const sup=(a,b)=>{const v=hovSup(c,c.pos.x+a*k+b*s,c.pos.z-a*s+b*k,reach);return v===null?-1e9:v;};
   const fl=sup(wx,wz),fr=sup(-wx,wz),bl=sup(wx,-wz),br=sup(-wx,-wz),ce=sup(0,0);
-  if(Math.max(fl,fr,bl,br,ce)<-1e8){c.grounded=true;c.vy=0;return;}
+  if(Math.max(fl,fr,bl,br,ce)<-1e8){c.grounded=true;c.vy=0;const r=Math.min(1,dt*8);c.pitch-=c.pitch*r;c.roll-=c.roll*r;c.spinP=c.spinR=0;return;}   // (and it levels out, or a tilt it had stays)
   const cl=v=>Math.max(v,c.pos.y-6);
   // (just up a step, front wheels first: the back ones still down below hold it up too, till they're up as well)
   const lip=c.stepT>0?1.15:0;if(lip)c.stepT-=dt;

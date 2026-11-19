@@ -10,7 +10,7 @@ const fs=require('fs');
 let hdr=fs.readFileSync('site.js','utf8').split('\n');
 const n=hdr.findIndex(l=>l.startsWith('eval(src);'));
 hdr=hdr.slice(0,n).join('\n');
-hdr=hdr.replace(/window\.__t=\{/,'window.__t={setGob,keys,mHeld,tenvSpawnOne,cars,get,setRaw,handOf,carMass,CO,drvEnter,drvExit,forkPick,forkState,AB,hippoCar,boxesTouch,solidAt,setChar,damageCar,get TS(){return TS},get TRAIN_BOXES(){return TRAIN_BOXES},');
+hdr=hdr.replace(/window\.__t=\{/,'window.__t={setGob,keys,mHeld,tenvSpawnOne,cars,get,setRaw,handOf,carMass,CO,drvEnter,drvExit,forkPick,carSpawn,setVeh,forkState,AB,hippoCar,boxesTouch,solidAt,setChar,damageCar,get TS(){return TS},get TRAIN_BOXES(){return TRAIN_BOXES},');
 eval(hdr+`
 eval(src);const T=window.__t;let now=1000;
 const step=()=>{now+=16.7;T.frame(now);};
@@ -96,6 +96,30 @@ for(const w of [0,4]){const A=area(),a=veh('car',A.x,A.z,0);for(let i=0;i<10;i++
   else{const px=B.tz,pz=-B.tx,a=veh('car',B.x-px*((B.hx||2)+10),B.z-pz*((B.hx||2)+10),Math.atan2(px,pz));const pl=B.proxy.T||B.proxy,hp0=a.hp,ph0=pl.hp;
     let hit=-1,v=0,w=0;for(let i=0;i<150;i++){if(hit<0){a.speed=14;a.kv.set(0,0,0);}step();if(hit<0&&(a.hp<hp0||pl.hp<ph0||Math.abs(a.yawV||0)>0.01||a.speed<13))hit=i;if(hit>=0&&i===hit+1){v=sp(a)*Math.sign(a.speed||1);w=a.yawV||0;}if(hit>=0&&i>hit+30)break;}
     console.log(pad('car into a parked plane (14)',34),pad('car m1',12),pad('plane m'+(pl.jet?3:pl.light?2:6),12),hit<0?'NO HIT':'','| after: speed',f2(v),' yawV',f2(w),' | damage',Math.round(hp0-a.hp),Math.round(ph0-(pl.hp||0)));}}
+// ---- settling level: every car thrown up, cartwheeled or tipped is back flat on the ground in a few seconds, and a pooled
+// Gobway that comes back as another kind doesn't keep its lean (the model's pitch and roll, so a wheelie or lean counts) ----
+const tilt=c=>Math.max(Math.abs(c.g.rotation.x),Math.abs(c.g.rotation.z));
+function settles(name,cs,secs){let t=0,worst=0;for(;t<secs*60;t++){step();worst=Math.max(...cs.map(tilt));if(t>30&&cs.every(c=>c.grounded&&tilt(c)<0.03))break;}
+  console.log(pad('settles level: '+name,40),'| level after',t>=secs*60?'NEVER ('+secs+' s), still '+f2(worst):f2(t/60)+' s');}
+{const A=area(),b=veh('car',A.x,A.z,0),a=veh('bus',A.x,A.z-16,0);go(a,14,b,0);settles('car thrown by a bus',[a,b],5);}
+{const A=area(),b=veh('moped',A.x,A.z,Math.PI/2),a=veh('car',A.x,A.z-10,0);go(a,12,b,0);settles('moped cartwheeled by a car',[a,b],5);}
+{const A=area(),b=veh('van',A.x,A.z,Math.PI/2),a=veh('bus',A.x,A.z-16,0);go(a,14,b,0);settles('van tipped over (righted after 9 s)',[a,b],14);}
+{const A=area(),c=veh('segway',A.x,A.z,0);for(let i=0;i<40;i++){c.speed=i<25?5:0;step();}const w=c.wly||0;
+  c.alive=false;c.g.visible=false;T.carSpawn(c,{veh:'car',x:A.x,y:c.pos.y,z:A.z+5,h:0});c.left=true;c.parked=false;c.parkPool=null;
+  settles('a leaning Gobway ('+f2(w)+') back as a car',[c],3);}
+// ---- drifting into a wall: sideways (the slide, not its heading) at smash speed breaks through; slowly, it doesn't ----
+T.DT.invuln=false;
+for(const [k,vs] of [['car',15],['car',5],['bus',9]]){const A=area();wall(A.x,A.z+9,8,'x');const a=driven(k,A.x,A.z+9-a0(k),Math.PI/2);const hp0=a.hp;
+  let hit=-1;for(let i=0;i<120;i++){if(hit<0){a.speed=2;a.hvel={x:Math.sin(a.heading)*2,z:Math.cos(a.heading)*2+vs};a.kv.set(0,0,0);}step();
+    if(hit<0&&(a.hp<hp0||Math.hypot(a.hvel?a.hvel.z:0)<vs*0.8))hit=i;if(hit>=0&&i>hit+30)break;}
+  let n=0;for(let x=-4;x<=4;x++)for(let y=0;y<3;y++)if(!T.solidAt(Math.floor(A.x+x),Math.floor(home.y)+y,Math.floor(A.z+9)))n++;
+  console.log(pad(k+' drifting sideways into a wall ('+vs+')',40),hit<0?'NO HIT':'','| hole',n,'blocks  damage',Math.round(hp0-a.hp));out();}
+function a0(k){return k==='bus'?5:4;}
+// ---- a wreck sliding into a wall, head on and sideways, still breaks it (wreck-slide.js) ----
+for(const [nm,h] of [['head on',0],['sideways',Math.PI/2]])for(const v of [16,24]){const A=area();wall(A.x,A.z+9,8,'x');const a=veh('car',A.x,A.z,h);a.pos.z=A.z+9-(h?a.hx:a.hz)-2.5;
+  for(let i=0;i<6;i++){a.speed=0;a.kv.set(0,0,v);step();}T.damageCar(a,999,undefined,'acc');run(2);
+  let n=0;for(let x=-4;x<=4;x++)for(let y=0;y<3;y++)if(!T.solidAt(Math.floor(A.x+x),Math.floor(home.y)+y,Math.floor(A.z+9)))n++;
+  console.log(pad('car wrecked sliding '+nm+' at '+v+' into a wall',40),'| hole',n,'blocks');}
 console.log('errors',errs.length,errs.slice(0,3));
 `);
 process.exit(0);

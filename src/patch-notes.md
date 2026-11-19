@@ -378,6 +378,8 @@
 - The Mobile Gear's lock box now sits right on what it's locked on to, even while you or it are moving fast. Before, it trailed a frame behind.
 - The Mobile Gear's rifles point at exactly where their rounds go, not just the way you're looking, and the Breaker Cannon swings round on to what it fires at.
 - Rubble that had landed on a building's roof came back hanging in mid-air, where the roof used to be, once that building had come down and you'd left the area and returned (or loaded the game). It's now saved as gone with the building. (Rubble already left hanging in a saved city still falls if you knock it.)
+- Some cars stayed tipped forwards or backwards for good. A car that had been a Gobway before it came back kept the Gobway's lean; now every car comes back level.
+- Drifting or sliding sideways into a wall fast enough now smashes through it, just as driving into it does. Before, only a car's front could break a wall, so a drift just stopped dead against it.
 
 ## Version 0.4
 

@@ -80,6 +80,7 @@ function updateCars(dt){
     if(playing&&!c.hw&&!c.rt&&!c.path&&!c.parked&&!c.svcPool&&!c.hunter&&!c.police&&!c.drv&&!c.left&&!c.crew&&c.pos.y>G+2.5){const sh=Math.sin(c.heading),ch=Math.cos(c.heading),ax=Math.abs(sh)>Math.abs(ch)?'x':'z',dir=ax==='x'?Math.sign(sh):Math.sign(ch),k=Math.floor(((ax==='x'?c.pos.z:c.pos.x)+3)/CELL),al=ax==='x'?c.pos.x:c.pos.z;
       // (a long truck's middle sits well up the slope with its nose already on the street: it's finished with the ramp, not back on it)
       if(hwRampAt(ax,k,al)&&hwSurf(ax,k,al)>G+1.5){const inner=((ax==='x')===(dir>0))?5.5:2.5;c.hw={ax,dir,lane:k*CELL+inner,y:hwSurf(ax,k,al)};c.leaving=false;}}
+    if((c.drv||c.hunter)&&!c.forkOn)carSlideHit(c);   // (sliding sideways into a wall: collide.js)
     if(c.gnr)gnrCar(c,dt);   // (a player on its gun: see gunner.js)
     if(c.drv)drvCar(c,dt);   // (a goblin at the wheel: see drvCar)
     else if(c.left)c.speed*=Math.exp(-dt*3);   // (got out of and left where it stopped)
@@ -337,12 +338,10 @@ function updateCars(dt){
       else if(ahead-c.pos.y>rampLim){
         // (into a wall fast enough, and it smashes a hole in it, wrecking its own front and losing most of its speed;
         // the bigger the vehicle and the faster, the bigger the hole; slower than that, it bounces off)
-        // (by its momentum: a bus smashes through at a crawl a car would bounce off at, though never under 7 a second; collide.js)
-        const mw=carMass(c);
-        if((c.hunter||c.drv)&&Math.abs(c.speed)>Math.max(7,13/mw)){const sp=Math.abs(c.speed),k=Math.min(1,(sp*mw-13)/15),big=c.hz>3*ES?1.35:LIGHT_RIDE[c.veh]?0.7:1,R=(1.5+k*1.4)*big,
-            ix=c.pos.x+fx*2.7*dir,iz=c.pos.z+fz*2.7*dir,iy=c.pos.y+Math.min(R*0.9,(c.hy||1.4)*0.6)+0.1;
-          crushBall(ix,iy,iz,R,{force:0.8+k});damageCar(c,4+sp*0.4,undefined,'acc');sfx('Vehicle crashes into a wall',()=>{thud(0.7);clang();});addShake(0.4+k*0.5,ix,iz,25);smoke(ix,iy,iz,6,0x9a948a);
-          c.speed*=0.35;if(LIGHT_RIDE[c.veh]&&c.drv)drvExit(c.drv,true);}   // (off a motorcycle, or anything light, you go)
+        // (by its momentum, and by how fast it's really going into the wall, whichever way it points, so a drift into
+        // one smashes too: carSmashV, carSmash in collide.js)
+        const mw=carMass(c),WP=carWallPt(c,dir)||{x:c.pos.x+fx*pa*dir,z:c.pos.z+fz*pa*dir},WN=carWallN(c,WP.x,WP.z),VV=carVel(c),vn=VV.x*WN.nx+VV.z*WN.nz;
+        if((c.hunter||c.drv)&&vn>carSmashV(c)){const ah=Math.max(2.1,c.hz+0.15);carSmash(c,vn,WN.nx,WN.nz,c.pos.x+fx*ah*dir,c.pos.z+fz*ah*dir,false);}   // (the hole 2.7 ahead of its middle, as it always was, or just past a long one's nose)
         else if(c.hunter||c.drv||c.crew){if(lightOf(c)&&c.drv&&Math.abs(c.speed)>5.5)drvExit(c.drv,true);   // (over the bars into a wall)
           // (it bounces off at the corner that hit, so a glancing blow turns it along the wall and one off its middle spins it: collide.js)
           const sp0=Math.abs(c.speed),P=carWallPt(c,dir)||{x:c.pos.x+fx*pa*dir,z:c.pos.z+fz*pa*dir},j=carWall(c,P.x,P.z);
