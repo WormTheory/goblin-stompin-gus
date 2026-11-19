@@ -43,7 +43,7 @@ const pad=(i,ax,btn)=>{const P=pads[i];P.axes=ax.slice();P.buttons.forEach((b,k)
 const none=()=>{pad(0,[0,0,0,0],[]);pad(1,[0,0,0,0],[]);};
 const f=(v,n=1)=>v.toFixed(n);
 for(const f of els.playCoop.L.click)f();S(5);
-const [A,B]=T.players;T.DT.invuln=true;T.DT.host=0;
+const [A,B]=T.players;T.DT.invuln=true;T.DT.host=1;   // (Passive: nobody comes after anyone, but goblins can still be hurt, as Pacifist would stop)
 for(const c of T.cars){c.alive=false;c.respawnT=1e9;}for(const g of T.goblins){g.state='wait';g.t=-1e9;g.hp=0;g.root.visible=false;}
 S(30);T.setGobP(A,true);T.setGobP(B,true);S(10);
 // (a flat stone floor, open above, 80 along x)

@@ -145,7 +145,7 @@ hold([],1);
  T.trainHit(M,1000);run(0.3);console.log('hit for 1000: wrecked',M.dead,' pilot',st(),' thrown clear',f1(Math.hypot(P.pos.x-M.x,P.pos.z-M.z)));
  put(M.x-(T.MG.r+0.8),M.y+0.2,M.z);run(0.1);hold(['KeyF'],0.1);run(0.1);console.log('  F by the wreck:',st());}
 // ---- weapons and lock-on (nobody runs from it here: Passive)
-{T.DT.host=0;M=fresh();T.setGob(true);board(M);const mh=T.mHeld;
+{T.DT.host=1;M=fresh();T.setGob(true);board(M);const mh=T.mHeld;
  const gob=(dx,dz,hp)=>{const g=T.goblins.find(g=>g.state==='wait'&&!g.civ&&!g.special);g.state='chase';g.keep=true;g.hp=g.hpMax=hp||6;const x=M.x+dx,z=M.z+dz;g.pos.set(x,T.groundAt(x,z,G0+20),z);g.root.visible=true;return g;};
  const clear=()=>{for(const g of T.goblins)if(g.keep){g.keep=false;}run(0.1);};
  const W=()=>M.wpn,off=g=>{const c=P.camera.position,cp=Math.cos(P.cam.pitch),f=[-Math.sin(P.cam.yaw)*cp,Math.sin(P.cam.pitch),-Math.cos(P.cam.yaw)*cp],d=[g.pos.x-c.x,g.pos.y+1.1-c.y,g.pos.z-c.z],L=Math.hypot(...d);return Math.acos((d[0]*f[0]+d[1]*f[1]+d[2]*f[2])/L);};
@@ -219,7 +219,7 @@ hold([],1);
   tap('KeyE');run(0.6);tap('KeyE');run(1);console.log('  two more, then empty: shells',W().cannon.n,' reloading',W().cannon.rl>0);P.cam.pitch=-0.1;}
  hold(['KeyF'],0.8);console.log('  out of it: no locks',!M.soft&&!M.hard,' reloads go on: cannon',f1(W().cannon.rl));T.DT.host=1;}
 // ---- heavy hitting: the assault boost, the kick, impact and stagger, repair kits
-{T.DT.host=0;M=fresh();T.setGob(true);board(M);const sp=()=>Math.hypot(M.vx,M.vz),e0=M.en;
+{T.DT.host=1;M=fresh();T.setGob(true);board(M);const sp=()=>Math.hypot(M.vx,M.vz),e0=M.en;
  // (charge, then the dash where it's aimed; pressed again with nothing near, it stops and keeps a little speed)
  tap('KeyX');run(0.3);const c1=sp(),ch=!!(M.ab&&M.ab.ph==='charge');run(0.5);const v1=sp(),go=!!(M.ab&&M.ab.ph==='go'),z0=M.z;run(1);const d1=M.z-z0,e1=M.en;
  tap('KeyX');run(0.05);const v2=sp();run(0.5);

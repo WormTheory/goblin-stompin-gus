@@ -141,6 +141,12 @@ function mountBoxes(S){if(!S.mounts)return;const tx=Math.sin(S.yaw),tz=Math.cos(
     shipToWorld(S,Mt.x,Mt.z,_mtv);const y=Mt.y-S.sk,pr=Mt.pr;Mt.lk.pos.set(_mtv.x,y,_mtv.z);pr.pos.set(_mtv.x,y,_mtv.z);pr.top=y+hy;pr.heading=S.yaw;
     TRAIN_BOXES.push({x:_mtv.x,z:_mtv.z,tx,tz,y0:y,top:y+hy,v:S.sp,hx:h,hz:h,proxy:pr,mw:true});
     TRAIN_BOXES.push({x:Mt.x,z:Mt.z,tx:0,tz:1,y0:Mt.y,top:Mt.y+hy,v:0,hx:h,hz:h,proxy:pr});}}
+// (what one round from any gun does to a deck weapon: about 25 to wreck one, a few more the Sea Sparrow launcher. As a
+// little blast, as on other vehicles, it did under 4 from a vehicle's gun and less from Gnash's, so it took 40 or more
+// and looked as if it did nothing)
+const MOUNT_ROUND=6;
+// the deck weapon a round met, if it was one (h: what shotHitsVeh gave back)
+const mountOfHit=h=>h&&h.proxy&&h.proxy.T&&h.proxy.T.isMount?h.proxy.T:null;
 // hit (trainHit, from shots, blasts and rams): the number where it struck, and at none it's wrecked
 function mountHit(Mt,n){
   if(vehDamage('mount',Mt,n)===2)mountWreck(Mt);}   // (the steps every vehicle shares: registry.js)

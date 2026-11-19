@@ -345,6 +345,7 @@
 - The rush of air from sprinting no longer keeps playing after you get into a vehicle while running.
 - The prompt to get into a vehicle no longer stays on screen once you're in.
 - Gnash's rifle and handgun now damage every vehicle they hit, the same way: cars, tanks, helicopters, trains, planes, boats, balloons, Mobile Gears and the carrier's deck weapons all take three times what a goblin would. Before, they went straight through most vehicles, did a single point to cars, and only the deck weapons took real harm.
+- Bullets from any gun now do more to the carrier's deck weapons: about 25 rounds wreck one (a few more for a Sea Sparrow launcher), where it used to take 40 or more and looked as if they did nothing.
 - The minimap no longer draws the grey of the surrounding blocks over big sites that take up several blocks, such as theme parks, which hid most of their buildings.
 - Enemy gunfire now hits whatever you're driving. Before, rifles, the militia's machine guns, the helicopters' guns and the cultists' fireballs did nothing at all to a goblin behind the wheel; now the vehicle takes the hit instead.
 - Rounds from the fighter jets' cannons, the carrier's CIWS, the militia's machine guns and the helicopters' guns are stopped by walls, one round at a time. Before, some went straight through buildings, and a burst kept coming even after you ducked behind something.

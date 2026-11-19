@@ -16,7 +16,7 @@ const P=T.players[0];for(const f of els.play.L.click)f();pads.length=0;run(2);
 const f1=v=>v.toFixed(1),f2=v=>v.toFixed(2),G0=44;
 const hold=(ks,s)=>{for(const k of ks)T.keys.add(k);run(s);for(const k of ks)T.keys.delete(k);};
 const put=(x,y,z)=>{P.pos.set(x,y,z);P.vy=0;P.mvx=P.mvz=0;P.standCar=null;P.vcl=null;P.state='walk';P.grounded=false;};
-T.DT.invuln=true;T.DT.host=0;T.TS.n=1;
+T.DT.invuln=true;T.DT.host=1;T.TS.n=1;   // (Passive: Pacifist, now 0, would stop goblins being hurt)
 const V=()=>T.venues.get('tenvMechs');
 const spawn=()=>{P.cam.yaw=Math.PI;P.cam.pitch=-0.1;run(0.1);T.tenvVeh('mech');run(0.3);return V().mechs[V().mechs.length-1];};
 const board=M=>{put(M.x-(T.MG.r+0.8),M.y+0.2,M.z);run(0.05);hold(['KeyF'],0.1);run(0.2);M.h=0;P.cam.yaw=Math.PI;P.cam.pitch=-0.1;run(0.3);};

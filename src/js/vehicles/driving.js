@@ -325,10 +325,10 @@ function fireRound(o){
     // (with PvP on, another player nearer along it)
     if(o.pvp){pr=pvpRay(o.by,mx,my,mz,ux,uy,uz,Math.min(R,gt));if(pr){gt=pr.t;gg=pr.q;}}}
   const st=o.step||0.5,ve=Math.max(1,Math.round(0.4/st)),lim=Math.min(R,gt);   // (vehicles looked for every 0.4 or so: the narrowest box is far wider)
-  let t=st,i=0,hit='air',oh=null,wx=0,wy=0,wz=0;_sp.own=o.own||null;_sp.noShip=!!SL;
+  let t=st,i=0,hit='air',oh=null,hv=null,wx=0,wy=0,wz=0;_sp.own=o.own||null;_sp.noShip=!!SL;
   for(;t<lim;t+=st,i++){const x=mx+ux*t,y=my+uy*t,z=mz+uz*t;if(y<1||solidAt(x,Math.floor(y),z)){hit='wall';wx=Math.floor(x);wy=Math.floor(y);wz=Math.floor(z);break;}
-    if(o.vehs&&i%ve===0){_sp.pos.set(x,y,z);if(shotHitsVeh(_sp)){hit='veh';break;}}
-    if(SL&&(oh=shipLineAt(SL,t,who,true))){hit=oh.veh?'veh':oh.b?'wall':'sea';break;}}
+    if(o.vehs&&i%ve===0){_sp.pos.set(x,y,z);if(hv=shotHitsVeh(_sp)){hit='veh';break;}}
+    if(SL&&(oh=shipLineAt(SL,t,who,true))){hit=oh.veh?'veh':oh.b?'wall':'sea';hv=oh.veh||null;break;}}
   _sp.noShip=false;_sp.own=null;
   if(hit==='air'&&gg&&t>=gt){t=gt;hit='gob';}
   if(hit==='air'&&tgtHit)hit='tgt';   // (reached him)
@@ -341,7 +341,7 @@ function fireRound(o){
   const hx=oh?oh.x:ex,hy=oh?oh.y:ey,hz=oh?oh.z:ez;if(oh&&oh.b){wx=oh.b[0];wy=oh.b[1];wz=oh.b[2];}
   if(hit==='gob'&&pr&&gg===pr.q)pvpHurt(o.by,gg,o.pvp.n,new V3(ex,ey,ez),new V3(ux,0.3,uz),o.pvp.cause||o.cause,o.pvp.opt);
   else if(hit==='gob')damageGoblin(gg,o.dmg,SL?new V3(gg.pos.x,gg.pos.y+0.8,gg.pos.z):new V3(ex,ey,ez),new V3(ux,0.3,uz),o.cause);
-  else if(hit==='veh')vehBlast(hx,hy,hz,0.8,o.vd??4,o.own);
+  else if(hit==='veh'){const Mt=mountOfHit(hv);if(Mt)trainHit(Mt,MOUNT_ROUND);else vehBlast(hx,hy,hz,0.8,o.vd??4,o.own);}   // (a carrier's deck weapon: a round's own set damage, carrier-crew.js)
   else if(hit==='tgt'){const h=Math.hypot(ux,uz)||1;shotPlayer(o.tgt,o.pdmg,new V3(ex,ey,ez),new V3(ux/h,0.2,uz/h),o.cause,o.id,o.vd);}
   if(hit!=='tgt'&&(hit!=='air'||o.tgt))puff(hx,hy,hz,1,hit==='gob'||hit==='veh'?0xffb040:0x9a948a,0.2);   // (an enemy's miss raises dust where it ends)
   if(hit==='wall'&&o.breaks)bulletBreak(wx,wy,wz,ux,uz);
