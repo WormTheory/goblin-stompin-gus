@@ -343,6 +343,7 @@
 - The chase camera behind a vehicle no longer swings back round behind it on its own. Switch on Camera auto-recenter in the Controls tab to have it back; it now swings round at the same pace whatever the frame rate.
 - Goblins riding bicycles, kick scooters, Gobways and motor scooters through town no longer sometimes vanish from them, leaving the vehicle rolling along empty. Motorbike riders and the heads of goblins driving cars had the same trouble.
 - The rush of air from sprinting no longer keeps playing after you get into a vehicle while running.
+- Cars, lorries and other traffic no longer vanish from under you when you stand on one that's stopped and look the other way.
 - The prompt to get into a vehicle no longer stays on screen once you're in.
 - Gnash's rifle and handgun now damage every vehicle they hit, the same way: cars, tanks, helicopters, trains, planes, boats, balloons, Mobile Gears and the carrier's deck weapons all take three times what a goblin would. Before, they went straight through most vehicles, did a single point to cars, and only the deck weapons took real harm.
 - Bullets from any gun now do more to the carrier's deck weapons: about 25 rounds wreck one (a few more for a Sea Sparrow launcher), where it used to take 40 or more and looked as if they did nothing.

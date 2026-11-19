@@ -83,6 +83,14 @@ function visibleToAny(x,y,z){
   }
   return false;
 }
+// is anyone stood on, riding, clinging to or just over this car? (whatever the camera's looking at, they know it's there:
+// a car under a hippo is mostly out of the view cone, so visibleToAny alone would let it be recycled from under him)
+function carUnderPlayer(c){
+  for(const q of players){if(!q.active)continue;
+    if(q.standCar===c||q.rideC===c||q.vcl&&q.vcl.v===c)return true;
+    if(q.pos.y>=c.pos.y-1&&Math.hypot(q.pos.x-c.pos.x,q.pos.z-c.pos.z)<c.hz+3)return true;}
+  return false;
+}
 // a street (running away from junction ix,iz in direction d) that runs past a destroyed block, on either side
 function segRuinedA(ix,iz,ax){return ax===0?mapDead(ix-1,iz)||mapDead(ix,iz):mapDead(ix,iz-1)||mapDead(ix,iz);}
 function segRuined(ix,iz,d){return d===0?segRuinedA(ix,iz,0):d===1?segRuinedA(ix,iz,1):d===2?segRuinedA(ix,iz-1,0):segRuinedA(ix-1,iz,1);}

@@ -55,7 +55,7 @@ function updateCars(dt){
     if(!gone&&!c.parked&&!c.hunter&&!c.police&&!c.svcPool&&!c.crew){c.progT=(c.progT||0)+dt;if(!c.progP)c.progP={x:c.pos.x,z:c.pos.z};
       if(c.progT>15){if(Math.hypot(c.pos.x-c.progP.x,c.pos.z-c.progP.z)<3)carReroute(c);c.progT=0;c.progP.x=c.pos.x;c.progP.z=c.pos.z;}}
     if(!c.parked&&!c.hunter&&!c.police&&!c.svcPool&&!c.crew){c.stuckLong=Math.abs(c.speed)<0.3?(c.stuckLong||0)+dt:0;
-      if(!gone&&c.stuckLong>25&&c.visT<=0){c.visT=0.5;if(!visibleToAny(c.pos.x,c.pos.y+1,c.pos.z)){gone=true;c.stuckLong=0;}}}
+      if(!gone&&c.stuckLong>25&&c.visT<=0){c.visT=0.5;if(!visibleToAny(c.pos.x,c.pos.y+1,c.pos.z)&&!carUnderPlayer(c)){gone=true;c.stuckLong=0;}}}   // (never from under a hippo stood on it)
     if(c.svcPool)gone=!any||any.d>(c.svcPool==='news'?620:320);   // (a news van comes from further off: see NEWS_R)
     if(c.crewPool)gone=!c.spot&&(!any||any.d>viewFar()+30);   // (a militia vehicle's camp keeps it: see crewSite. Driven off, it goes once left far behind)
     if(c.drv||c.gnr)gone=false;   // (never recycled from under its driver, or its gunner)
@@ -75,7 +75,7 @@ function updateCars(dt){
     if(!c.police&&!c.parkPool&&!c.hwPool&&!c.crew&&!c.hunter&&!c.hw&&!c.rt&&!c.path&&!calmNow()&&playing&&tgt&&tgt.d<22&&hunters<2&&Math.random()<dt*0.07){c.hunter=true;hunters++;flashLabel('A car is coming for you',tgt.p);sfx('A car comes for you (horn)',()=>{horn(0.08);});}
     if(c.hunter&&!tgt)c.hunter=false;
     // a highway car that's come down into town drives the streets for a while, then slips away once nobody's looking
-    if(c.leaving&&c.hwPool&&!c.drv){c.leaveT=(c.leaveT||0)+dt;if(c.leaveT>14&&!visibleToAny(c.pos.x,c.pos.y+1,c.pos.z)&&!players.some(q=>q.standCar===c)){c.alive=false;c.g.visible=false;c.respawnT=0.5;c.leaving=false;c.leaveT=0;continue;}}
+    if(c.leaving&&c.hwPool&&!c.drv){c.leaveT=(c.leaveT||0)+dt;if(c.leaveT>14&&!visibleToAny(c.pos.x,c.pos.y+1,c.pos.z)&&!carUnderPlayer(c)){c.alive=false;c.g.visible=false;c.respawnT=0.5;c.leaving=false;c.leaveT=0;continue;}}
     // a car from the streets that's driven up a motorway's ramp: from the top it's motorway traffic
     if(playing&&!c.hw&&!c.rt&&!c.path&&!c.parked&&!c.svcPool&&!c.hunter&&!c.police&&!c.drv&&!c.left&&!c.crew&&c.pos.y>G+2.5){const sh=Math.sin(c.heading),ch=Math.cos(c.heading),ax=Math.abs(sh)>Math.abs(ch)?'x':'z',dir=ax==='x'?Math.sign(sh):Math.sign(ch),k=Math.floor(((ax==='x'?c.pos.z:c.pos.x)+3)/CELL),al=ax==='x'?c.pos.x:c.pos.z;
       // (a long truck's middle sits well up the slope with its nose already on the street: it's finished with the ramp, not back on it)
