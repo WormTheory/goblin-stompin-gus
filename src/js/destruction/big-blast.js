@@ -321,7 +321,7 @@ const BBF_N=9000,BBF_W=2400,BBF_SPD=343,BBF_LIFE=110,BBF_WIND=SMOKE_WIND,BB_GLOW
 const BBF_HEAT=[[0,0x3a1408],[0.2,0x8a1e08],[0.4,0xe0460c],[0.6,0xff9a1a],[0.8,0xffe27a],[1,0xfffbea]].map(([k,c])=>[k,new THREE.Color(c)]);
 const BBF=(()=>{const geo=new THREE.BoxGeometry(1,1,1),mb=o=>new THREE.MeshBasicMaterial(Object.assign({color:0xffffff,fog:false},o));
   return{glow:fxBatch(geo,mb(),BBF_N,false),cloud:fxBatch(new THREE.BoxGeometry(1,1,1),mb({transparent:true,depthWrite:false}),BBF_N,true),wil:fxBatch(geo,mb({transparent:true,opacity:0.5,depthWrite:false}),BBF_W,false),el:null};})();
-BBF.cloud.renderOrder=1;BB.glowK=0;BB.glowP=null;   // (before the fires' smoke, renderOrder 2, which mostly stands in front of it)
+BBF.cloud.renderOrder=1.5;BB.glowK=0;BB.glowP=null;   // (after the water, renderOrder 1, which would otherwise paint over it, and before the fires' smoke, 2, which mostly stands in front of it)
 // (the cloud is see-through, like the fires' smoke, so its cubes are gathered here first and drawn far to near: sorted into
 // BBF_BINS by distance from the camera, which is all the order see-through boxes this size need)
 const BBF_ST=new Float32Array(BBF_N*8),BBF_BINS=64,BBF_BC=new Uint32Array(BBF_BINS+1),BBF_KEY=new Uint8Array(BBF_N),BBF_D=new Float32Array(BBF_N);
@@ -403,7 +403,7 @@ function bbFxTick(dt){
     for(let j=0;j<700&&nc<BBF_N;j++){const o=(2000+j)*4,a=sd[o],b=sd[o+1],c=sd[o+2],d=sd[o+3],hf=(a+T*0.08)%1;if(hf>gro)continue;
       const sz=cube*(0.9+0.5*d)*1.2*(1-bbSm(45+30*d,80+20*d,T));if(sz<0.05)continue;
       // (flaring out at the top into the underside of the ring, loose and thinning there)
-      const fl=bbSm(0.68,1,hf),y=CL.y+hf*(top-CL.y)+fl*rt*0.45*(d-0.35),wid=R*0.045*(1+(1-hf)*(1-hf)*1.6)*(0.4+0.6*Math.sqrt(c))+fl*fl*(Rt*k*0.9+rt*0.4)*(0.3+0.7*c),ang=2*Math.PI*b+T*0.4*(1-0.6*fl),lean=k*hf*hf;
+      const fl=bbSm(0.68,1,hf),y=CL.y+hf*(top-CL.y)+fl*rt*0.45*(d-0.35),wid=R*0.045*(1+(1-hf)*(1-hf)*1.6)*(0.4+0.6*Math.sqrt(c))+fl*fl*(Rt*k*0.9+rt*0.4)*(0.3+0.7*c),ang=2*Math.PI*b+T*0.04*(1-0.6*fl),lean=k*hf*hf;
       _bbc.setHex(0x7e6e5c).lerp(_bbc2.setHex(0xaba196),hf);lit(bbVar(_bbc,a,b,d,0.1));if(T<10)_bbc.lerp(_bbc2.setHex(0xff8a30),0.5*hf*hf*Math.exp(-T/5));
       put(CL.x+CL.wx*lean+Math.cos(ang)*wid,y,CL.z+CL.wz*lean+Math.sin(ang)*wid,sz*(1+0.7*fl),_bbc,(0.7-0.35*fl)*(1-bbSm(50,90,T)));}
     // ---- the ground surge: a ring of dust going out with the shock, then settling ----
