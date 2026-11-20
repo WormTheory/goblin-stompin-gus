@@ -12,13 +12,18 @@ const PSPEEDS=[1,1.5,2,2.5,3,4,5,6,7,8,9,10];
 const DT={combo:false,hpBars:false,fps:false,sndList:false,info:false,curve:2,psI:0,invuln:false,infStam:false,infAmmo:false,veh:'car',vehMsg:'',fly:false,gob:false,host:3,speedI:6,paused:false,todStop:false,wxStop:false,wxLeft:0,freecam:false,step:false,quick:false,menu:false,kbdOpen:false,selHeld:false,cur:0,navDir:0,navT:0};
 try{const q=JSON.parse(localStorage.getItem('goblin-stompin-gus-quickdbg')||'null');if(typeof q==='boolean')DT.quick=q;}catch(e){}
 try{for(const k of ['fps','hpBars','sndList','info'])DT[k]=localStorage.getItem('goblin-stompin-gus-'+k)==='1';}catch(e){}
-// the debug settings carry over from one session to the next (all but stopping time and the free cam, which would
-// only be confusing to come back to; the time of day, weather and season go with the game's save). The sliders with
-// no starting value in DT (nukeR, fogLit, halo, haloFade) take a saved number.
-const DT_KEY='goblin-stompin-gus-debug',DT_SAVED=['curve','psI','speedI','invuln','infStam','infAmmo','veh','fly','fps','hpBars','sndList','info','quick','combo','nukeR','fogLit','halo','haloFade'];
-try{const q=JSON.parse(localStorage.getItem(DT_KEY)||'null');if(q&&typeof q==='object')for(const k of DT_SAVED)if(typeof q[k]===typeof DT[k]||DT[k]===undefined&&Number.isFinite(q[k]))DT[k]=q[k];
+// the debug settings all carry over from one session to the next (the time of day, weather and season go with the game's
+// save). The sliders with no starting value in DT (nukeR, fogLit, halo, haloFade) take a saved number. Along with DT_SAVED
+// go the Rendering switches (gfx: GFX_OFF), the Interface ones (ui: UI_OFF) and where the free cam was (fc), put back
+// once everything's made (DT_REST, below).
+const DT_KEY='goblin-stompin-gus-debug',DT_SAVED=['curve','psI','speedI','invuln','infStam','infAmmo','veh','fly','fps','hpBars','sndList','info','quick','nukeR','fogLit','halo','haloFade','paused','todStop','wxStop','wxLeft','freecam'];
+let DT_REST=null;
+try{const q=JSON.parse(localStorage.getItem(DT_KEY)||'null');if(q&&typeof q==='object')for(const k of DT_SAVED)if(typeof q[k]===typeof DT[k]||DT[k]===undefined&&Number.isFinite(q[k]))DT[k]=q[k];DT_REST=q;
   if(!(DT.speedI>=0&&DT.speedI<SPEEDS.length))DT.speedI=SPEEDS.indexOf(1);if(!(DT.psI>=0&&DT.psI<PSPEEDS.length))DT.psI=0;}catch(e){}
-function saveDT(){try{const o={};for(const k of DT_SAVED)o[k]=DT[k];localStorage.setItem(DT_KEY,JSON.stringify(o));
+// (the hitbox switches, DBG, share the key: kept in the same object, so saving one never wipes the other)
+function saveDT(){try{const o=Object.assign({},DBG);for(const k of DT_SAVED)o[k]=DT[k];
+  try{o.gfx=Object.assign({},GFX_OFF);o.ui=[...UI_OFF];o.fc=[FC.pos.x,FC.pos.y,FC.pos.z,FC.yaw,FC.pitch];}catch(e){}   // (not made yet: the first save comes later)
+  localStorage.setItem(DT_KEY,JSON.stringify(o));
   localStorage.setItem(HOST_KEY,String(DT.host));}catch(e){}}
 // Enemy hostility, four steps (the main screen's slider and the quick menu's are one setting, kept
 // from one session to the next): 0 Pacifist, as Passive, and no goblin can be hurt at all (pacifistNow);
@@ -175,7 +180,7 @@ function dbgMenuToggle(){const it=dbgItems()[DT.cur];if(!it)return;
   else if(it.k==='wxStop')setWxStop(!DT.wxStop);
   else if(it.k==='combo')setCombo(!DT.combo);
   else if(it.k==='invuln'||it.k==='infStam'||it.k==='infAmmo'||it.k==='fly'||it.k==='fps'||it.k==='sndList'||it.k==='info'){DT[it.k]=!DT[it.k];try{localStorage.setItem('goblin-stompin-gus-'+it.k,DT[it.k]?'1':'0');}catch(e){}}
-  else{DBG[it.k]=!DBG[it.k];try{localStorage.setItem(DBG_KEY,JSON.stringify(DBG));}catch(e){}}
+  else{DBG[it.k]=!DBG[it.k];saveDT();}
   tone('triangle',620,0,0.05,0.03);renderTime();}
 // up/down move the highlight within its column (letting go of a picked slider); left/right move across to the next
 // column, about level, or change the slider that's been picked; a step on the first push, then repeating
@@ -191,6 +196,14 @@ function dbgMenuNav(src,dy,dx,dt){
   else if(d){DT.navT-=dt;if(DT.navT<=0){DT.navT=0.12;act();}}
 }
 const FC={pos:new THREE.Vector3(),yaw:0,pitch:0};
+// (the saved switches that need the scene put back once it's all made: the Rendering ones through toggleGfx, the
+// Interface ones, and the free cam where it was, or off if there's no saved place)
+setTimeout(()=>{const q=DT_REST;if(!q)return;
+  try{if(q.gfx&&typeof q.gfx==='object')for(const k in GFX_KEY)if(q.gfx[GFX_KEY[k]]===true&&!GFX_OFF[GFX_KEY[k]])toggleGfx(k);}catch(e){}
+  try{if(Array.isArray(q.ui)){for(const k of q.ui)if(UI_PARTS[k])UI_OFF.add(k);applyUi();}}catch(e){}
+  if(DT.freecam){const f=q.fc;if(Array.isArray(f)&&f.length===5&&f.every(Number.isFinite)){FC.pos.set(f[0],f[1],f[2]);FC.yaw=f[3];FC.pitch=f[4];}else DT.freecam=false;}
+  try{renderTime();}catch(e){}},0);
+addEventListener('pagehide',()=>saveDT());   // (where the free cam's got to since)
 const gameSpeed=()=>DT.paused||DT.menu?0:SPEEDS[DT.speedI];
 function setFreecam(on){
   if(on===DT.freecam)return;DT.freecam=on;

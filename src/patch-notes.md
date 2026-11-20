@@ -50,7 +50,8 @@
 - Street lamps and lamps wiped out by a nuke no longer keep lighting the ground or glowing in the fog.
 - Falling snow and rain now darken with the time of day instead of staying bright white at night.
 - Halos no longer flicker as you turn the camera.
-- The debug menu's Fog light, Halos, Halo fade, Nuke strength and Combo system settings are now remembered from one session to the next.
+- Every debug menu setting is now remembered from one session to the next, including Stop time, the pause switches, Free cam (and where it was), the Rendering switches and the Interface switches. Turning on a hitbox switch no longer resets the other debug settings.
+- The last few halos that still switched off abruptly (a light going dark, or many fading at once) now fade like the rest.
 
 ### Trees and water in the distance
 
