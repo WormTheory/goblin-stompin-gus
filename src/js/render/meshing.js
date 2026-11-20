@@ -17,15 +17,43 @@ const WORLD_LIGHT={value:new THREE.Color(1,1,1)};
 function nightPatch(mat){
   blkDefines(mat);
   mat.onBeforeCompile=sh=>{
-    sh.uniforms.uLight=WORLD_LIGHT;sh.uniforms.uSeasonW=SEASON_W;
+    sh.uniforms.uLight=WORLD_LIGHT;sh.uniforms.uSeasonW=SEASON_W;sh.uniforms.uFogGlow=FOG_GLOW;
     sh.vertexShader='#ifdef BLOCK_LIGHT\nattribute vec3 aBlk;varying vec3 vBlk;\n#endif\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n#ifdef BLOCK_LIGHT\n vBlk=aBlk;\n#endif');
-    sh.fragmentShader='uniform vec3 uLight;uniform vec4 uSeasonW;\n#ifdef BLOCK_LIGHT\nvarying vec3 vBlk;\n#endif\n'+sh.fragmentShader.replace('#include <color_fragment>',FOLIAGE_FRAG+LIT_FRAG+'#ifdef USE_COLOR\n  float glowV=step(1.5,vColor.r);\n  diffuseColor.rgb*=mix(vColor*litC,vec3(1.0),glowV);\n#endif'+SNOW_FRAG);
+    sh.fragmentShader='uniform vec3 uLight;uniform vec4 uSeasonW;uniform float uFogGlow;\n#ifdef BLOCK_LIGHT\nvarying vec3 vBlk;\n#endif\n'+sh.fragmentShader.replace('#include <color_fragment>',FOLIAGE_FRAG+LIT_FRAG+'#ifdef USE_COLOR\n  float glowV=step(1.5,vColor.r);\n  diffuseColor.rgb*=mix(vColor*litC,vec3(1.0),glowV);\n#endif'+SNOW_FRAG).replace('#include <fog_fragment>',FOG_LIT_FRAG);
     weatherPatch(sh);
   };
   return mat;
 }
 // (a torch-like fall-off: bright close to, dropping away quickly; the moonlight's what's left when it's gone)
 const LIT_FRAG='\n#ifdef BLOCK_LIGHT\n  vec3 litC=uLight+pow(vBlk,vec3(1.5))*max(vec3(1.0)-uLight,vec3(0.0));\n#else\n  vec3 litC=uLight;\n#endif\n';
+// lights in the weather's fog: at night, glowing faces (windows, neon, lamps) and what block light lights up fade into the
+// fog over a longer way than everything else, and the fog in front of them takes on a little of their colour, so a lit
+// street shows through the murk as a soft glow some way past where the buildings are lost. FOG_GLOW (0 to 1) is how thick
+// the weather's fog is, set per view by renderView (0 under water and in clear weather, so the plain distance fog at the
+// view's edge is untouched); the shader weighs it by how dark it is, so by day nothing changes. (three r128's fog_fragment,
+// with fogDepth, written out again: a few sums a pixel, nothing per frame but the one uniform.)
+const FOG_GLOW={value:0};
+const FOG_LIT_FRAG=`
+#ifdef USE_FOG
+  float fogFactor=smoothstep(fogNear,fogFar,fogDepth);
+  float fogLt=0.0;
+  if(uFogGlow>0.0){
+#ifdef USE_COLOR
+    fogLt=glowV;
+#endif
+#ifdef BLOCK_LIGHT
+    vec3 fogB=pow(vBlk,vec3(1.5));fogLt=max(fogLt,min(1.0,max(max(fogB.r,fogB.g),fogB.b)*1.4)*0.8);
+#endif
+    fogLt*=uFogGlow*clamp((0.75-max(max(uLight.r,uLight.g),uLight.b))*2.5,0.0,1.0);
+  }
+  if(fogLt>0.0){
+    vec3 fogSrc=gl_FragColor.rgb;
+    float fogL=smoothstep(fogNear,fogFar*(1.0+0.9*fogLt),fogDepth);
+    float fogHz=fogLt*fogFactor*(1.0-smoothstep(fogFar*0.8,fogFar*(1.0+1.5*fogLt),fogDepth));
+    gl_FragColor.rgb=mix(fogSrc,fogColor,fogL)+fogSrc*fogHz*0.35;
+  }else gl_FragColor.rgb=mix(gl_FragColor.rgb,fogColor,fogFactor);
+#endif
+`;
 // weather on the ground: a vertex flag (aSky) marks top faces with nothing above them; on those, snow settles in
 // patches as the snow cover grows, and rain darkens them. Anything under a roof, a deck, an awning or a tree stays clear.
 const SNOW_U={value:0},WET_U={value:0},SNOWCLK_U={value:0};

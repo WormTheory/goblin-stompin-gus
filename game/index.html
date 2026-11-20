@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:a60a58893a0cd9e6af6848a320367c2bb7c7466a7402bea068619c3f5f68bf26 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:9cfc269a6f9f62a74eaa9d39791090c1b3ed8f233dde800fdf1c75dc17b440e2 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1582,7 +1582,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Nuke Launcher</h3>
 <ul><li>A new weapon for goblins, picked in the Loadout: a launcher with a nuclear warhead on the front. It lobs the warhead slowly in a shallow arc, and wherever it lands the same blast as a meltdown goes off, smaller but still enough to flatten a few streets.</li><li>Fire it level and it lands far enough off for you to live through it. Fire it at a wall in front of you and you won't.</li><li>One warhead in the tube and two spares, with a long reload. Once the spares are gone it's empty, unless Infinite ammo is on. The weapon bar shows how many spares are left.</li><li>The debug menu has a Nuke strength slider to make its blast smaller or bigger, up to the size of a meltdown.</li></ul>
 <h3>Lighting</h3>
-<ul><li>At night, lights now light up what's around them. Street lamps pool light on the pavement, neon signs throw their own colours across the street, lit windows glow on the walls and rooms beside them, and lamps, TVs and screens light the rooms they're in. Walls block the light, so it stays in the room or the street it's in. Smash a lamp or a sign and its light goes out.</li><li>It's switched on or off with Block lighting under Sound &amp; picture in Options. Off, the game looks and runs exactly as before.</li><li>A building that's been destroyed or brought down goes dark: its windows, neon and signs stop glowing, and the pieces of it falling don't glow either.</li></ul>
+<ul><li>At night, lights now light up what's around them. Street lamps pool light on the pavement, neon signs throw their own colours across the street, lit windows glow on the walls and rooms beside them, and lamps, TVs and screens light the rooms they're in. Walls block the light, so it stays in the room or the street it's in. Smash a lamp or a sign and its light goes out.</li><li>It's switched on or off with Block lighting under Sound &amp; picture in Options. Off, the game looks and runs exactly as before.</li><li>A building that's been destroyed or brought down goes dark: its windows, neon and signs stop glowing, and the pieces of it falling don't glow either.</li><li>In fog, rain and snow at night, lit windows, neon, lamps and the light they cast now show through the murk as a soft glow, some way past where the buildings themselves disappear.</li></ul>
 <h3>Trees and water in the distance</h3>
 <ul><li>Trees, ponds and lakes no longer pop up out of nowhere as you get close. Out past the full-detail city, the distant view now has every tree in its real spot, and up close each one becomes the real tree where it already stood.</li><li>Further off, woods show as clumps of treetops, and ponds, park lakes and the theme park's boating lake show as water.</li><li>Distant trees change colour with the seasons and lose their leaves in winter, like the near ones.</li></ul>
 <h3>Water</h3>
@@ -2273,7 +2273,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='1a094b9bd190';
+const GAME_VER='0.5',GAME_BUILD='9296ebcb0871';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -9237,15 +9237,43 @@ const WORLD_LIGHT={value:new THREE.Color(1,1,1)};
 function nightPatch(mat){
   blkDefines(mat);
   mat.onBeforeCompile=sh=>{
-    sh.uniforms.uLight=WORLD_LIGHT;sh.uniforms.uSeasonW=SEASON_W;
+    sh.uniforms.uLight=WORLD_LIGHT;sh.uniforms.uSeasonW=SEASON_W;sh.uniforms.uFogGlow=FOG_GLOW;
     sh.vertexShader='#ifdef BLOCK_LIGHT\nattribute vec3 aBlk;varying vec3 vBlk;\n#endif\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n#ifdef BLOCK_LIGHT\n vBlk=aBlk;\n#endif');
-    sh.fragmentShader='uniform vec3 uLight;uniform vec4 uSeasonW;\n#ifdef BLOCK_LIGHT\nvarying vec3 vBlk;\n#endif\n'+sh.fragmentShader.replace('#include <color_fragment>',FOLIAGE_FRAG+LIT_FRAG+'#ifdef USE_COLOR\n  float glowV=step(1.5,vColor.r);\n  diffuseColor.rgb*=mix(vColor*litC,vec3(1.0),glowV);\n#endif'+SNOW_FRAG);
+    sh.fragmentShader='uniform vec3 uLight;uniform vec4 uSeasonW;uniform float uFogGlow;\n#ifdef BLOCK_LIGHT\nvarying vec3 vBlk;\n#endif\n'+sh.fragmentShader.replace('#include <color_fragment>',FOLIAGE_FRAG+LIT_FRAG+'#ifdef USE_COLOR\n  float glowV=step(1.5,vColor.r);\n  diffuseColor.rgb*=mix(vColor*litC,vec3(1.0),glowV);\n#endif'+SNOW_FRAG).replace('#include <fog_fragment>',FOG_LIT_FRAG);
     weatherPatch(sh);
   };
   return mat;
 }
 // (a torch-like fall-off: bright close to, dropping away quickly; the moonlight's what's left when it's gone)
 const LIT_FRAG='\n#ifdef BLOCK_LIGHT\n  vec3 litC=uLight+pow(vBlk,vec3(1.5))*max(vec3(1.0)-uLight,vec3(0.0));\n#else\n  vec3 litC=uLight;\n#endif\n';
+// lights in the weather's fog: at night, glowing faces (windows, neon, lamps) and what block light lights up fade into the
+// fog over a longer way than everything else, and the fog in front of them takes on a little of their colour, so a lit
+// street shows through the murk as a soft glow some way past where the buildings are lost. FOG_GLOW (0 to 1) is how thick
+// the weather's fog is, set per view by renderView (0 under water and in clear weather, so the plain distance fog at the
+// view's edge is untouched); the shader weighs it by how dark it is, so by day nothing changes. (three r128's fog_fragment,
+// with fogDepth, written out again: a few sums a pixel, nothing per frame but the one uniform.)
+const FOG_GLOW={value:0};
+const FOG_LIT_FRAG=`
+#ifdef USE_FOG
+  float fogFactor=smoothstep(fogNear,fogFar,fogDepth);
+  float fogLt=0.0;
+  if(uFogGlow>0.0){
+#ifdef USE_COLOR
+    fogLt=glowV;
+#endif
+#ifdef BLOCK_LIGHT
+    vec3 fogB=pow(vBlk,vec3(1.5));fogLt=max(fogLt,min(1.0,max(max(fogB.r,fogB.g),fogB.b)*1.4)*0.8);
+#endif
+    fogLt*=uFogGlow*clamp((0.75-max(max(uLight.r,uLight.g),uLight.b))*2.5,0.0,1.0);
+  }
+  if(fogLt>0.0){
+    vec3 fogSrc=gl_FragColor.rgb;
+    float fogL=smoothstep(fogNear,fogFar*(1.0+0.9*fogLt),fogDepth);
+    float fogHz=fogLt*fogFactor*(1.0-smoothstep(fogFar*0.8,fogFar*(1.0+1.5*fogLt),fogDepth));
+    gl_FragColor.rgb=mix(fogSrc,fogColor,fogL)+fogSrc*fogHz*0.35;
+  }else gl_FragColor.rgb=mix(gl_FragColor.rgb,fogColor,fogFactor);
+#endif
+`;
 // weather on the ground: a vertex flag (aSky) marks top faces with nothing above them; on those, snow settles in
 // patches as the snow cover grows, and rain darkens them. Anything under a roof, a deck, an awning or a tree stays clear.
 const SNOW_U={value:0},WET_U={value:0},SNOWCLK_U={value:0};
@@ -28643,8 +28671,9 @@ function renderView(p,x,y,w,h){
   const c=p.camera.position,under=get(c.x,c.y,c.z)===WATER;
   p.ui.tint.hidden=!under;
   const far=lodFar();
-  if(under){scene.fog.color.copy(DEEP);scene.background.copy(DEEP);scene.fog.near=1;scene.fog.far=18;}
-  else{const fk=Math.max(0.2,WX.k.fog),ff=Math.min(far,wxFogFar(fk));scene.fog.color.copy(SKY);scene.background.copy(SKY);scene.fog.near=ff*0.45*fk*fk;scene.fog.far=ff;}
+  if(under){scene.fog.color.copy(DEEP);scene.background.copy(DEEP);scene.fog.near=1;scene.fog.far=18;FOG_GLOW.value=0;}
+  else{const fk=Math.max(0.2,WX.k.fog),ff=Math.min(far,wxFogFar(fk));scene.fog.color.copy(SKY);scene.background.copy(SKY);scene.fog.near=ff*0.45*fk*fk;scene.fog.far=ff;
+    FOG_GLOW.value=ff<far?Math.min(1,Math.max(0,(0.95-fk)/0.5)):0;}   // (lights through the weather's fog, FOG_LIT_FRAG)
   placePrecip(c,p.idx);
   p.camera.aspect=w/h;p.camera.fov=p.tkFov||(p.gob&&!p.drv&&p.scFov)||72-6*(p.speedFx||0)-8*(p.windZoom||0)+(p.drv&&p.drv.k==='mech'?p.mgFov||0:0);   // (tkFov: a tank's gunsight, tank-handling.js)
   p.camera.far=far+40;p.camera.near=p.gob?0.12:0.25;p.camera.updateProjectionMatrix();
