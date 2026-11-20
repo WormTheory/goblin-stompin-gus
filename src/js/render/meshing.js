@@ -26,7 +26,9 @@ function nightPatch(mat){
 }
 // (a torch-like fall-off: bright close to, dropping away quickly; the moonlight's what's left when it's gone)
 // (and the nearest moving cars' headlights, CARL_U: a cone ahead of each, fading out over 22 blocks; w is how dark it is, 0 for none)
-const LIT_FRAG='\n#ifdef BLOCK_LIGHT\n  vec3 litC=uLight+pow(vBlk,vec3(1.5))*max(vec3(1.0)-uLight,vec3(0.0));\n  for(int i=0;i<'+CAR_LN+';i++){vec4 cp=uCarP[i];if(cp.w<=0.0)break;vec3 dv=vWp-cp.xyz;float dl=length(dv)+0.001;\n   float hl=smoothstep(0.72,0.93,dot(dv/dl,uCarD[i]))*(1.0-smoothstep(1.0,22.0,dl));litC+=vec3(1.0,0.92,0.75)*hl*hl*cp.w*1.4*max(vec3(1.0)-uLight,vec3(0.0));}\n#else\n  vec3 litC=uLight;\n#endif\n';
+// (only on faces turned toward the lamp, from the face's slope on screen, and not far below it, so a car on an overpass doesn't
+// light the deck's underside or the road under it)
+const LIT_FRAG='\n#ifdef BLOCK_LIGHT\n  vec3 litC=uLight+pow(vBlk,vec3(1.5))*max(vec3(1.0)-uLight,vec3(0.0));\n#if __VERSION__ >= 300\n  vec3 nH=normalize(cross(dFdx(vWp),dFdy(vWp)));\n#endif\n  for(int i=0;i<'+CAR_LN+';i++){vec4 cp=uCarP[i];if(cp.w<=0.0)break;vec3 dv=vWp-cp.xyz;float dl=length(dv)+0.001;\n   float hl=smoothstep(0.72,0.93,dot(dv/dl,uCarD[i]))*(1.0-smoothstep(1.0,22.0,dl))*(1.0-smoothstep(1.5,2.5,-dv.y-dl*0.2));\n#if __VERSION__ >= 300\n   hl*=clamp(-dot(nH,dv/dl)*12.0,0.0,1.0);\n#endif\nlitC+=vec3(1.0,0.92,0.75)*hl*hl*cp.w*1.4*max(vec3(1.0)-uLight,vec3(0.0));}\n#else\n  vec3 litC=uLight;\n#endif\n';
 // lights in the weather's fog: at night, glowing faces (windows, neon, lamps) and what block light lights up fade into the
 // fog over a longer way than everything else, and the fog in front of them takes on a little of their colour, so a lit
 // street shows through the murk as a soft glow some way past where the buildings are lost. FOG_GLOW is how thick the

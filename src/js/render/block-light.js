@@ -97,8 +97,8 @@ function blkFireTick(dt){
 // How strong is HALO_U.uStr, set per view by renderView: the weather's fog thickness times the debug menu's Halos slider
 // (DT.halo) times how dark it is; nothing's drawn when that's 0, so a clear night or the day costs nothing. Each halo fades out into the fog a
 // long way further off than the fog's end (uNear, uFar: the fog's), as the lit faces do, and as you get right up to it.
-const BL_HALO_N=256,BL_HALO_PN=160,BL_HALO_CN=96,HALO_U={uStr:{value:0},uNear:{value:0},uFar:{value:1},uWorldCurve:CURVE_U};
-const HALO_A=new THREE.InstancedBufferAttribute(new Float32Array((BL_HALO_N+BL_HALO_CN)*4),4);HALO_A.usage=THREE.DynamicDrawUsage;
+const BL_HALO_N=256,BL_HALO_PN=160,BL_HALO_CN=96,BL_HALO_ALL=BL_HALO_N+64+BL_HALO_CN,HALO_U={uStr:{value:0},uNear:{value:0},uFar:{value:1},uWorldCurve:CURVE_U};
+const HALO_A=new THREE.InstancedBufferAttribute(new Float32Array(BL_HALO_ALL*4),4);HALO_A.usage=THREE.DynamicDrawUsage;
 // (made the first time it's needed: the scene isn't there yet when this file runs)
 let HALO=null;
 function haloMesh(){const g=new THREE.PlaneGeometry(2,2);g.setAttribute('aHalo',HALO_A);
@@ -109,7 +109,7 @@ function haloMesh(){const g=new THREE.PlaneGeometry(2,2);g.setAttribute('aHalo',
       // (brought toward the camera by most of its size, so the lamp's own post and the ground under it don't cut it off)
       'mv.xyz*=max(0.05,d-s*0.7)/max(d,0.05);mv.xy+=position.xy*s;gl_Position=projectionMatrix*mv;'+
       'vP=position.xy;vC=aHalo.rgb;vA=uStr*smoothstep(1.5,5.0,d)*(1.0-smoothstep(mix(uNear,uFar,0.5),uFar*(1.0+2.5*min(uStr,1.5)),d));}',
-    fragmentShader:'varying vec2 vP;varying vec3 vC;varying float vA;void main(){float r=dot(vP,vP);if(r>1.0)discard;float a=(1.0-r);a*=a;gl_FragColor=vec4(vC*a*vA*0.24,1.0);}'}),BL_HALO_N+BL_HALO_CN);
+    fragmentShader:'varying vec2 vP;varying vec3 vC;varying float vA;void main(){float r=dot(vP,vP);if(r>1.0)discard;float a=(1.0-r);a*=a;gl_FragColor=vec4(vC*a*vA*0.24,1.0);}'}),BL_HALO_ALL);
   m.count=0;m.frustumCulled=false;m.renderOrder=3;scene.add(m);return m;}
 // the glowing blocks of a chunk gathered into patches, 8 blocks a side: each patch's middle, its colour summed, and how many
 // there are. Kept on the chunk's list of light-giving blocks (blkEmitters), so it goes when that does.
@@ -132,10 +132,22 @@ function blkSeen(cx,cy,cz,x,y,z){
   return true;
 }
 const blkSeenAny=(C,x,y,z)=>{for(const c of C)if(blkSeen(c.x,c.y,c.z,x,y,z))return true;return false;};
+// The halos picked fade in and out (BL_HALO_FADE a second) rather than popping, so one coming or going as the camera swings
+// round (a lamp going behind a wall, a patch dropping out of the nearest) doesn't flicker: HALO_ON keeps each by where it is
+// ([x,y,z,r,g,b,size,shown,wanted]), wanted set by each pick, shown eased toward it every frame.
+const HALO_ON=new Map(),BL_HALO_FADE=4;
 let blHaloT=0,blHaloS=0;const _hM=new THREE.Matrix4(),_hV=new THREE.Vector3(),_hC=new THREE.Color();
 function blkHaloTick(dt){
-  if(HALO_U.uStr.value<=0.001){if(HALO)HALO.visible=false;blHaloS=0;return;}
-  if(!HALO)HALO=haloMesh();HALO.visible=true;if((blHaloT-=dt)>0)return;blHaloT=0.25;
+  if(HALO_U.uStr.value<=0.001){if(HALO)HALO.visible=false;blHaloS=0;HALO_ON.clear();return;}
+  if(!HALO)HALO=haloMesh();HALO.visible=true;if((blHaloT-=dt)<=0){blHaloT=0.25;blkHaloPick();}
+  // (every frame: each eased toward shown or gone, the wanted first, then those fading out while there's room)
+  const A=HALO_A.array,st=dt*BL_HALO_FADE;let n=0;
+  for(const pass of [1,0])for(const [k,e] of HALO_ON){if(e[8]!==pass)continue;e[7]=pass?Math.min(1,e[7]+st):e[7]-st;
+    if(e[7]<=0){HALO_ON.delete(k);continue;}if(n>=BL_HALO_N+64)continue;
+    _hM.makeTranslation(e[0],e[1],e[2]);HALO.setMatrixAt(n,_hM);const a=e[7]*e[7]*(3-2*e[7]);A[n*4]=e[3]*a;A[n*4+1]=e[4]*a;A[n*4+2]=e[5]*a;A[n*4+3]=e[6];n++;}
+  blHaloS=n;HALO.count=n;HALO.instanceMatrix.needsUpdate=true;HALO_A.needsUpdate=true;
+}
+function blkHaloPick(){
   const P=players.filter(q=>q.active),C=P.map(q=>q.camera.position),L=[],R=Math.min(80,HALO_U.uFar.value*2.6),RP=Math.min(160,HALO_U.uFar.value*3.5);
   const near=(x,z)=>{let d=Infinity;for(const q of P)d=Math.min(d,Math.hypot(q.pos.x-x,q.pos.z-z));return d;};
   // (s: how far out it reaches, k: how bright; left out, both go by the light's level)
@@ -158,10 +170,11 @@ function blkHaloTick(dt){
   L.sort((a,b)=>a[6]-b[6]);LP.sort((a,b)=>a[6]-b[6]);
   // (a patch's middle may be just behind a roof with its top half showing above it: its top's tried too)
   const pick=(S,m,T)=>{for(let i=0,c=0;i<S.length&&T.length<m&&c<m*4;i++){const e=S[i];c++;if(blkSeenAny(C,e[0],e[1],e[2])||e[7]>=2&&blkSeenAny(C,e[0],e[1]+e[7]*0.6,e[2]))T.push(e);}};
-  const T=[];pick(L,BL_HALO_N-BL_HALO_PN,T);pick(LP,BL_HALO_N,T);const n=T.length,A=HALO_A.array;
-  for(let i=0;i<n;i++){const [x,y,z,r,g,b,,s,k]=T[i],m=Math.max(r,g,b,1),f=(k??1)/m;_hM.makeTranslation(x,y,z);HALO.setMatrixAt(i,_hM);
-    A[i*4]=r*f;A[i*4+1]=g*f;A[i*4+2]=b*f;A[i*4+3]=s??1.2+m*0.17;}   // (bigger the brighter: reaching about 3.7 blocks out round a street lamp)
-  blHaloS=n;HALO.count=n;HALO.instanceMatrix.needsUpdate=true;HALO_A.needsUpdate=true;
+  const T=[];pick(L,BL_HALO_N-BL_HALO_PN,T);pick(LP,BL_HALO_N,T);
+  for(const e of HALO_ON.values())e[8]=0;
+  for(const [x,y,z,r,g,b,,s,k] of T){const m=Math.max(r,g,b,1),f=(k??1)/m,key=Math.round(x*4)+','+Math.round(y*4)+','+Math.round(z*4);
+    let e=HALO_ON.get(key);if(!e){e=[0,0,0,0,0,0,0,0,0];HALO_ON.set(key,e);}
+    e[0]=x;e[1]=y;e[2]=z;e[3]=r*f;e[4]=g*f;e[5]=b*f;e[6]=s??1.2+m*0.17;e[8]=1;}   // (bigger the brighter: reaching about 3.7 blocks out round a street lamp)
 }
 // ---- everything else that glows: halos in fog, and vehicles' headlights on the road ----
 // Lamps and fires are above. Everything else drawn to glow -- the head and tail lamps, indicators, hazards and light bars
@@ -247,13 +260,18 @@ function carLightsView(p){
   const R=Math.min(80,HALO_U.uFar.value*2.6),G2=[];
   for(const o of BL_GLOW){_cl.setFromMatrixPosition(o.matrixWorld);const d=Math.hypot(_cl.x-cam.x,_cl.z-cam.z);if(d<R)G2.push([o,d]);}
   G2.sort((a,b)=>a[1]-b[1]);
-  let n=blHaloS;const A=HALO_A.array,end=BL_HALO_N+BL_HALO_CN;
-  for(const [o] of G2){if(n>=end)break;if(!shownIn(o))continue;_cl.setFromMatrixPosition(o.matrixWorld);
+  let n=blHaloS;const A=HALO_A.array,end=BL_HALO_ALL;
+  // (each eased in and out like the others, per view: p._hf, mesh -> how shown; a flashing lamp's fade is quick enough to keep its flash)
+  const F=p._hf||(p._hf=new Map()),now=performance.now(),st=Math.min(0.1,(now-(p._hft||now))/1000)*BL_HALO_FADE*2;p._hft=now;const want=new Set();
+  for(const [o] of G2){if(want.size>=BL_HALO_CN)break;if(!shownIn(o))continue;_cl.setFromMatrixPosition(o.matrixWorld);
     let v=V.get(o);if(!v||playTime>=v[0]){v=[playTime+0.25,blkSeen(cam.x,cam.y,cam.z,_cl.x,_cl.y,_cl.z)];V.set(o,v);}if(!v[1])continue;
-    const kk=glowOf(o.material);if(!kk)continue;const m=Math.max(_gc.r,_gc.g,_gc.b);_gs.setFromMatrixScale(o.matrixWorld);
+    if(glowOf(o.material))want.add(o);}
+  for(const o of want)if(!F.has(o))F.set(o,0);
+  for(const [o,a0] of F){const a=want.has(o)?Math.min(1,a0+st):a0-st;if(a<=0||!o.parent){F.delete(o);continue;}F.set(o,a);if(n>=end)continue;
+    const kk=glowOf(o.material);if(!kk)continue;const m=Math.max(_gc.r,_gc.g,_gc.b),w=a*a*(3-2*a);_cl.setFromMatrixPosition(o.matrixWorld);_gs.setFromMatrixScale(o.matrixWorld);
     if(!o.geometry.boundingSphere)o.geometry.computeBoundingSphere();const r=o.geometry.boundingSphere.radius*Math.max(_gs.x,_gs.y,_gs.z);
     _hM.makeTranslation(_cl.x,_cl.y,_cl.z);HALO.setMatrixAt(n,_hM);
-    const f=Math.min(1,kk)*1.1/m;A[n*4]=_gc.r*f;A[n*4+1]=_gc.g*f;A[n*4+2]=_gc.b*f;A[n*4+3]=Math.min(6,Math.max(1.8,1+r*1.6));n++;}   // (even a small lamp's halo reaches a couple of blocks out)
+    const f=Math.min(1,kk)*1.1/m*w;A[n*4]=_gc.r*f;A[n*4+1]=_gc.g*f;A[n*4+2]=_gc.b*f;A[n*4+3]=Math.min(6,Math.max(1.8,1+r*1.6));n++;}   // (even a small lamp's halo reaches a couple of blocks out)
   HALO.count=n;HALO.instanceMatrix.needsUpdate=true;HALO_A.needsUpdate=true;
 }
 // every chunk within r blocks of (x,z) meshed again
