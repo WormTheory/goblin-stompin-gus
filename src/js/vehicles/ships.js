@@ -121,14 +121,14 @@ function shipFits(S,x,z,yaw){
 function updateShips(V,dt){
   for(const S of [...V.ships]){
     // (an online guest's copy: the host's snapshots place it, sink it and drop it, net-sync.js; here only its props)
-    if(S.net){if(S.propsT>0&&(S.propsT-=dt)<=0)shipPropsDraw(S);shipPropsFall(S,dt);continue;}
+    if(S.net){if(S.propsT>0&&(S.propsT-=dt)<=0)shipPropsDraw(S);shipPropsFall(S,dt);mountsFall(S,dt);continue;}
     if(S.dead){shipSinking(S,V,dt);continue;}
     if(S.leak&&!S.hull&&!drvSafe(S))S.hp-=S.leak*SHIP_LEAK*dt;   // (one that breaks up only floods where it's holed: ship-break.js)
     if(S.hp<=0){shipSink(S);continue;}
     if(S.hull&&S.hull.brk&&shipBreakCheck(S))continue;
     shipHelmIn(S,dt);shipDrive(S,dt);
     S.grp.position.set(S.x,0,S.z);S.grp.rotation.y=S.yaw;S.grp.updateMatrixWorld(true);
-    shipBoxes(S);if(S.propsT>0&&(S.propsT-=dt)<=0)shipPropsDraw(S);shipPropsFall(S,dt);shipCrewTick(S,dt);shipJetsTick(S,dt);
+    shipBoxes(S);if(S.propsT>0&&(S.propsT-=dt)<=0)shipPropsDraw(S);shipPropsFall(S,dt);mountsFall(S,dt);shipCrewTick(S,dt);shipJetsTick(S,dt);
   }
 }
 // ---- driving from the bridge. W and S ring the engine telegraph up and down its orders, one a press (held, on down

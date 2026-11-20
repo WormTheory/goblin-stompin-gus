@@ -96,6 +96,7 @@ function updateShots(dt){
         if(!solidAt(nx,Math.floor(S.pos.y),nz)){S.v.y=-S.v.y*0.3;S.v.x*=0.55;S.v.z*=0.55;if(Math.abs(S.v.y)<1.2)S.v.y=0;S.pos.x=nx;S.pos.z=nz;}
         else{S.v.x*=-0.4;S.v.z*=-0.4;}continue;}
       S.pos.set(nx,ny,nz);
+      if(S.bb&&nx<SHIP_X0&&get(nx,Math.floor(ny),nz)===WATER){boom=true;break;}   // (a nuke goes off as it hits the water: sunk to the sea bed first, its crater cut the coast round it down below the sea)
       // (a shell or a rocket goes off on whoever it reaches, too)
       if(!S.bounce)for(const q of players){if(!q.active||q.state==='dead'||q.drv&&q.drv.o===S.own||q===S.skipP&&S.t<0.6)continue;const hx=S.pos.x-q.pos.x,hz=S.pos.z-q.pos.z,hy=S.pos.y-q.pos.y;if(hx*hx+hz*hz<1.6*1.6&&hy>-0.3&&hy<2.4){boom=true;break;}}
       if(!S.bounce&&!boom&&S.gobs)for(const g of goblins){if(g.state!=='chase'||!g.root.visible)continue;const hx=S.pos.x-g.pos.x,hz=S.pos.z-g.pos.z,hy=S.pos.y-g.pos.y;if(hx*hx+hz*hz<0.7*0.7&&hy>-0.2&&hy<1.6){boom=true;break;}}
@@ -115,8 +116,12 @@ function updateShots(dt){
 // whoever fired it; the one who fired it is caught in it like anyone else
 // (its reach: the debug menu's Nuke strength if it's been set, else the warhead's own: options-debug.js)
 const nukeR=()=>DT.nukeR||WEAPONS.nuke.nuke;
+// (on a ship, out in the world where the ship really is: bigBlast carves the ships it reaches, bbShips. On the water, or on a
+// ship, at sea level, as on a street)
 function shotNuke(S){
-  const J=bigBlast(S.pos.x,Math.max(1,Math.min(Math.round(S.pos.y),G+1)),S.pos.z,DT.nukeR||S.bb);
+  const P=bbWorldPt(S.pos.x,S.pos.y,S.pos.z);let y=Math.max(1,Math.min(Math.round(P.y),G+1));
+  if(get(P.x,y,P.z)===WATER||get(P.x,y-1,P.z)===WATER)y=G+1;
+  const J=bigBlast(P.x,y,P.z,DT.nukeR||S.bb);
   if(J&&J.C){J.by=S.by;J.cause=S.cause;}}
 // a homing missile (a Mobile Gear's): for a moment it flies as launched, then speeds up to S.sp and turns, at most
 // S.turn a second, after its target (S.tgt, while it lives) or the spot it was sent at (S.at). True once it's on

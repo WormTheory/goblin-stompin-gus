@@ -142,6 +142,7 @@ function bbGone(x,z){
 // x,y,z: the middle (y the first block above street level); R its reach. Small ones are just a crushBall.
 function bigBlast(x,y,z,R,opt={}){
   if(R<BB_SMALL)return crushBall(x,y,z,R,opt);
+  {const P=bbWorldPt(x,y,z);x=P.x;y=P.y;z=P.z;}   // (set off aboard a ship: out where it is, and the ship carved by bbShips)
   if(netGuest())return null;   // (the host's to set off: a guest's is sent over)
   const n=craters.reduce((m,c)=>Math.max(m,c.n),0)+1;
   const C={x:Math.round(x*10)/10,y:Math.round(y),z:Math.round(z*10)/10,R:Math.round(R),s:(hash2(n*977,Math.round(x)+Math.round(z)*7)*1e6)|0,n};
@@ -160,7 +161,7 @@ function bbStart(C,fresh){
     const X0=px*CELL,Z0=pz*CELL,d=Math.hypot(Math.max(X0-C.x,0,C.x-X0-CELL),Math.max(Z0-C.z,0,C.z-Z0-CELL));if(d<=C.R*1.07)plots.push({px,pz,d});}
   plots.sort((a,b)=>a.d-b.d);
   const J={C,K,list,i:0,pend:new Set(list.map(e=>e.k)),byK:new Map(list.map(e=>[e.k,e])),plots,pi:0,seen:new Set(),vap:new Set(),
-    ring:0,t:0,fresh,hit:new Set(),dead:0,bq:[],dq:[],ch:new Set(),pumps:[],fx:[],fxN:0,fires:[],work:0,worst:0,frames:0,nVap:0,done:false};
+    ring:0,t:0,fresh,hit:new Set(),dead:0,bq:[],dq:[],ch:new Set(),pumps:[],fx:[],fxN:0,fires:[],sh:new Map(),work:0,worst:0,frames:0,nVap:0,done:false};
   BB.jobs.push(J);BB.jobs.sort((a,b)=>a.C.n-b.C.n);
   bbFxStart(J);
   return J;
@@ -180,10 +181,10 @@ function bbTick(dt){
       const e=J.list[J.i];if(J.pend.has(e.k))bbDo(J,e);J.i++;
       if(performance.now()-t0>BB.ms)break;}
     if(J.ch.size){rebuildSet(J.ch);J.ch.clear();}
-    bbThaw(J);let sw=0;if(host){bbHits(J);const ts=performance.now();bbSettle(J,t0);sw=performance.now()-ts;bbCount(J,t0);bbEdgeFx(J);}
+    bbThaw(J);let sw=0;if(host){bbHits(J);if(J.fresh)bbShips(J);const ts=performance.now();bbSettle(J,t0);sw=performance.now()-ts;bbCount(J,t0);bbEdgeFx(J);}
     const w=performance.now()-tj-sw;J.work+=w;if(w>J.worst)J.worst=w;   // (a building coming down costs what any collapse does: kept apart, J.sw)
     J.swT=(J.swT||0)+sw;if(sw>(J.sw||0))J.sw=sw;
-    if(J.i>=J.list.length&&J.pi>=J.plots.length&&J.ring>=J.C.R*1.1&&!J.bq.length&&!J.dq.length)bbEnd(J,host);
+    if(J.i>=J.list.length&&J.pi>=J.plots.length&&J.ring>=J.C.R*1.1&&!J.bq.length&&!J.dq.length&&[...J.sh.values()].every(Q=>Q.done))bbEnd(J,host);
   }
 }
 function bbEnd(J,host){
@@ -279,16 +280,37 @@ function bbHits(J){
   for(const B of TRAIN_BOXES){const pr=B.proxy,T=pr&&pr.T;if(!pr||!pr.alive||!T)continue;const key=T.cars&&T.C?T.cars[pr.i]||pr:T;if(J.hit.has(key))continue;
     const dx=B.x-cx,dz=B.z-cz,d=Math.max(0,Math.hypot(dx,dz)-Math.max(B.hx||0,B.hz||0));if(d>r)continue;J.hit.add(key);if(d>=C.R)continue;
     trainHit(T,d<K.rf?1e5:400*fall(d)**1.5,new V3(dx,0,dz),pr.i);}
-  // a ship's own blocks: its side facing the blast knocked in, in its pocket (ships.js)
-  for(const S of SHIPS){if(!S||S.dead||J.hit.has(S))continue;const SK=S.K,c=shipToWorld(S,S.ox+(SK.u0+SK.u1+1)/2,S.oz+(SK.w0+SK.w1+1)/2,{x:0,z:0}),
-      dx=cx-c.x,dz=cz-c.z,dd=Math.hypot(dx,dz),hw=Math.min(SK.u1-SK.u0,SK.w1-SK.w0)/2,d=Math.max(0,dd-hw);if(d>r)continue;J.hit.add(S);if(d>=C.R)continue;
-    const rr=d<K.rf?12:Math.round(10*fall(d));if(rr<3)continue;const k=Math.min(dd,hw)/(dd||1),px=c.x+dx*k,pz=c.z+dz*k;
-    shipSmash(px,G+2,pz,rr,{force:2,dx:-dx/(dd||1),dz:-dz/(dd||1)},(X,Y,Z,o)=>crushBall(X,Y,Z,rr,o));}
   for(const M of MINES){if(!M.live)continue;const d=Math.hypot(M.x-cx,M.z-cz);if(d>r||d>=C.R)continue;
     if(d<K.rf){M.live=false;mineShow(M.i,0,0,0,0);}else mineBoom(M);}
   if(J.pumps.length){pumpsHit(J.pumps);J.pumps.length=0;}
   const rk=Math.min(r,C.R);knockFixtures(cx,cz,rk,0,0);knockProps(cx,G+1,cz,rk,0,0);
 }
+// ---- the ships it reaches (ships.js): each one's blocks carved as the ring gets to them, a column at a time nearest first, to
+// the same shape as the ground's (bbCol, where that column of the ship is out in the world, its heights as the ship floats),
+// but through setRaw and addEdit, so shipDent counts them against its hull (it breaks, floods below the waterline and sinks as
+// it would from any other smashing), and they're its save (cvSnap) and sent to guests. One with its middle, or a third of its deck, in the crater or
+// the flattened zone is lost: what's left of it goes down. Host only, and only for a blast set off now (not one from a save)
+const _bbv={x:0,z:0};
+function bbShips(J){
+  const C=J.C,K=J.K,o=bbO(),R=C.R*1.07,t0=performance.now();
+  for(const S of SHIPS){if(!S)continue;let Q=J.sh.get(S);
+    if(!Q){const SK=S.K,c=shipToWorld(S,S.ox+(SK.u0+SK.u1+1)/2,S.oz+(SK.w0+SK.w1+1)/2,_bbv),hw=Math.hypot(SK.u1+1-SK.u0,SK.w1+1-SK.w0)/2;
+      const mid=Math.hypot(c.x-C.x,c.z-C.z);if(mid-hw>Math.min(J.ring,R))continue;   // (not reached yet, or never will be)
+      const cols=[];for(let w=SK.w0;w<=SK.w1;w++)for(let u=SK.u0;u<=SK.u1;u++){shipToWorld(S,S.ox+u+0.5,S.oz+w+0.5,_bbv);const d=Math.hypot(_bbv.x-C.x,_bbv.z-C.z);if(d<R)cols.push({u,w,d});}
+      cols.sort((a,b)=>a.d-b.d);Q={cols,i:0,mid,tot:(SK.u1+1-SK.u0)*(SK.w1+1-SK.w0),flat:0,ch:new Set(),done:false};J.sh.set(S,Q);}
+    while(Q.i<Q.cols.length&&Q.cols[Q.i].d<=J.ring&&performance.now()-t0<BB.ms)bbShipCol(S,C,K,Q.cols[Q.i++],o,Q);
+    if(Q.ch.size){rebuildSet(Q.ch);Q.ch.clear();}
+    if(!Q.done&&Q.i>=Q.cols.length){Q.done=true;if(!S.dead&&(Q.mid<K.rf||Q.flat>=Q.tot/3))shipSink(S);}}
+}
+function bbShipCol(S,C,K,q,o,Q){
+  const x=S.ox+q.u,z=S.oz+q.w;shipToWorld(S,x+0.5,z+0.5,_bbv);bbCol(C,K,Math.floor(_bbv.x),Math.floor(_bbv.z),o);if(!o.zone)return;if(o.zone<=3)Q.flat++;
+  if(!chunks.has(ckey(Math.floor(x/CS),Math.floor(z/CS))))return;
+  const y1=Math.min(H-1,S.K.y1??H-1);let n=0;
+  for(let y=Math.max(1,o.cut+Math.round(S.sk||0));y<=y1;y++){const b=rawGet(x,y,z);if(!b||b===WATER||b===BEDROCK)continue;setRaw(x,y,z,AIR);addEdit(x,y,z,AIR);n++;}
+  if(n)for(const ox of [-1,1])for(const oz of [-1,1])Q.ch.add(ckey(Math.floor((x+ox)/CS),Math.floor((z+oz)/CS)));
+}
+// a point in a ship's pocket, out in the world where it really is (else as it is)
+function bbWorldPt(x,y,z){if(x>=SHIP_X0){const S=shipOfPos(x,z);if(S){const t=shipToWorld(S,x,z,{x:0,z:0});return{x:t.x,y:y-S.sk,z:t.z};}}return{x,y,z};}
 // ---- how it looks: a flash, a fireball, a shockwave ring along the ground, a mushroom cloud, debris off the front, fires round the rim ----
 {const geo=new THREE.RingGeometry(0.9,1,96);for(let i=0;i<2;i++){const m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:0xfff2d8,transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false,fog:false}));m.rotation.x=-Math.PI/2;m.visible=false;scene.add(m);BB.rings.push({m,J:null});}}
 // a puff of the fires' own smoke (fires.js), kept by the cloud and moved by it

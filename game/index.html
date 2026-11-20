@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:344731313a99ebc3fbfd8d75a7fc4c6950149a36602b01e2d2c0140663d21cff -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:5ed621bd41af8b8c39d3e3d77740997adba5c3c30adc70ba45cfe202c20d3d6f -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1582,7 +1582,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Nuclear meltdown</h3>
 <ul><li>Bring down a reactor at a nuclear power station and the siren sounds. A few seconds later the whole place goes up: a blinding flash, a fireball and a shockwave that runs out across the town, flattening it as it goes. The middle is left a scorched crater ringed with rubble, the streets round it are levelled to the ground with a few stumps of wall standing, and further out buildings lose their top floors and the side that faced the blast, and some come down. Fires burn round the edge under a mushroom cloud.</li><li>Anything caught in it is hurt by how close it was: near the middle there's nothing left of anyone, and further out you're knocked about. Cars, gas pumps and mines in the middle are simply gone rather than setting each other off.</li><li>The game keeps running smoothly while it happens, and the crater is saved with the world and seen the same by everyone playing online.</li><li>The Testing Environment has a Big blast button, with a slider for its size, to set one off ahead of you.</li><li>The crater's rim of rubble now sits on the ground, so it no longer hangs in the air on uneven ground or where two craters overlap.</li><li>Across the flattened town grass is burnt to dirt, streets are broken up in patches of rubble, and the buildings it brings down leave heaps of rubble behind.</li><li>The capitol's lawns, stadium pitches, plazas, courts and railways are scarred too: lawns and pitches burnt to dirt, paving and track beds broken up, the rails and sleepers torn up, and rubble left on what's still standing of a stadium's stands.</li><li>Snow melts wherever the blast reaches, off the ground, the rooftops and anyone or anything caught in it. If it's still snowing, fresh snow settles on the crater from bare ground, and the melted snow stays melted in a save and online.</li><li>Seen from far off, a flattened town now looks flattened: the buildings it took are gone or left as low heaps, the ones further out are cut down to what's left of them, the ground is scorched and the trees are gone, rather than the whole town still standing on the horizon.</li><li>Any building brought down or badly smashed, nuke or no nuke, now looks that way from a distance too, even from the furthest edge of the view.</li></ul>
 <h3>Nuke Launcher</h3>
-<ul><li>A new weapon for goblins, picked in the Loadout: a launcher with a nuclear warhead on the front. It lobs the warhead slowly in a shallow arc, and wherever it lands the same blast as a meltdown goes off, smaller but still enough to flatten a few streets.</li><li>Fire it level and it lands far enough off for you to live through it. Fire it at a wall in front of you and you won't.</li><li>One warhead in the tube and two spares, with a long reload. Once the spares are gone it's empty, unless Infinite ammo is on. The weapon bar shows how many spares are left.</li><li>The debug menu has a Nuke strength slider to make its blast smaller or bigger, up to the size of a meltdown.</li></ul>
+<ul><li>A new weapon for goblins, picked in the Loadout: a launcher with a nuclear warhead on the front. It lobs the warhead slowly in a shallow arc, and wherever it lands the same blast as a meltdown goes off, smaller but still enough to flatten a few streets.</li><li>Fire it level and it lands far enough off for you to live through it. Fire it at a wall in front of you and you won't.</li><li>One warhead in the tube and two spares, with a long reload. Once the spares are gone it's empty, unless Infinite ammo is on. The weapon bar shows how many spares are left.</li><li>The debug menu has a Nuke strength slider to make its blast smaller or bigger, up to the size of a meltdown.</li><li>A warhead landing on or beside an aircraft carrier now tears into the ship itself, wherever it was fired from, not just when fired from its own deck. Hit near the middle, the carrier is lost and what's left of it sinks; further off it's holed, and can break up and sink as it does from any other smashing.</li><li>A carrier's deck weapons now fall, wrecked, when the deck under them is blown away, and drop into the sea if there's nothing left below.</li><li>Firing it into the sea no longer freezes the game for a moment: the warhead goes off as it hits the water rather than sinking to the sea bed.</li><li>Smashing a ship's blocks no longer stalls the game for a few seconds the first time.</li></ul>
 <h3>Rocket Launcher</h3>
 <ul><li>The bazooka is gone, replaced by the Rocket Launcher, an anti-tank launcher with a sight. Fired as it is, its rocket flies straight and bursts on whatever it hits.</li><li>Hold stomp to look down its sight. Keep a vehicle in the middle of it and the launcher growls as it tracks it, then locks on with a steady tone. A rocket fired while locked flies up and homes in on that vehicle, even if you've turned away or it moves.</li><li>A car locked on with the lock button counts too.</li><li>It hits vehicles harder than the bazooka did. A Loadout that had the bazooka switched on now has the Rocket Launcher.</li><li>An enemy firing one at you while you're driving locks on to your vehicle and its rocket chases you.</li></ul>
 <h3>Swimming</h3>
@@ -2281,7 +2281,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='f8639f2e7864';
+const GAME_VER='0.5',GAME_BUILD='3140abeae1b1';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -10850,7 +10850,9 @@ function floatingCluster(sx,sy,sz,supported){
   }
   return out;
 }
-function bldgAt(x,z){let px=Math.floor(x/CELL),pz=Math.floor(z/CELL),rx=mod(x,CELL),rz=mod(z,CELL);const S=superOf(px,pz);if(S){px=S.ax;pz=S.az;rx=x-px*CELL;rz=z-pz*CELL;}const P=plotInfo(px,pz);for(let i=0;i<P.b.length;i++){const b=P.b[i];if(rx>=b.x0&&rx<b.x1&&rz>=b.z0&&rz<b.z1)return{b,i,px,pz,key:px+','+pz+','+i};}return null;}
+// (never in a ship's pocket, which has no buildings: asking the plan about a place half a million blocks out made whole stretches of
+// it there, seconds of work the first time a ship was smashed)
+function bldgAt(x,z){if(x>=SHIP_X0)return null;let px=Math.floor(x/CELL),pz=Math.floor(z/CELL),rx=mod(x,CELL),rz=mod(z,CELL);const S=superOf(px,pz);if(S){px=S.ax;pz=S.az;rx=x-px*CELL;rz=z-pz*CELL;}const P=plotInfo(px,pz);for(let i=0;i<P.b.length;i++){const b=P.b[i];if(rx>=b.x0&&rx<b.x1&&rz>=b.z0&&rz<b.z1)return{b,i,px,pz,key:px+','+pz+','+i};}return null;}
 // ---- destruction: how much of each building is gone, and how much of each place ----
 // Every time an original block of a building is knocked out (by anything: a bite, a stomp, a collapse), that building's
 // count goes up. Blocks that weren't part of it as built (rubble piled on top, a car) don't count, and neither does
@@ -19444,6 +19446,7 @@ function updateShots(dt){
         if(!solidAt(nx,Math.floor(S.pos.y),nz)){S.v.y=-S.v.y*0.3;S.v.x*=0.55;S.v.z*=0.55;if(Math.abs(S.v.y)<1.2)S.v.y=0;S.pos.x=nx;S.pos.z=nz;}
         else{S.v.x*=-0.4;S.v.z*=-0.4;}continue;}
       S.pos.set(nx,ny,nz);
+      if(S.bb&&nx<SHIP_X0&&get(nx,Math.floor(ny),nz)===WATER){boom=true;break;}   // (a nuke goes off as it hits the water: sunk to the sea bed first, its crater cut the coast round it down below the sea)
       // (a shell or a rocket goes off on whoever it reaches, too)
       if(!S.bounce)for(const q of players){if(!q.active||q.state==='dead'||q.drv&&q.drv.o===S.own||q===S.skipP&&S.t<0.6)continue;const hx=S.pos.x-q.pos.x,hz=S.pos.z-q.pos.z,hy=S.pos.y-q.pos.y;if(hx*hx+hz*hz<1.6*1.6&&hy>-0.3&&hy<2.4){boom=true;break;}}
       if(!S.bounce&&!boom&&S.gobs)for(const g of goblins){if(g.state!=='chase'||!g.root.visible)continue;const hx=S.pos.x-g.pos.x,hz=S.pos.z-g.pos.z,hy=S.pos.y-g.pos.y;if(hx*hx+hz*hz<0.7*0.7&&hy>-0.2&&hy<1.6){boom=true;break;}}
@@ -19463,8 +19466,12 @@ function updateShots(dt){
 // whoever fired it; the one who fired it is caught in it like anyone else
 // (its reach: the debug menu's Nuke strength if it's been set, else the warhead's own: options-debug.js)
 const nukeR=()=>DT.nukeR||WEAPONS.nuke.nuke;
+// (on a ship, out in the world where the ship really is: bigBlast carves the ships it reaches, bbShips. On the water, or on a
+// ship, at sea level, as on a street)
 function shotNuke(S){
-  const J=bigBlast(S.pos.x,Math.max(1,Math.min(Math.round(S.pos.y),G+1)),S.pos.z,DT.nukeR||S.bb);
+  const P=bbWorldPt(S.pos.x,S.pos.y,S.pos.z);let y=Math.max(1,Math.min(Math.round(P.y),G+1));
+  if(get(P.x,y,P.z)===WATER||get(P.x,y-1,P.z)===WATER)y=G+1;
+  const J=bigBlast(P.x,y,P.z,DT.nukeR||S.bb);
   if(J&&J.C){J.by=S.by;J.cause=S.cause;}}
 // a homing missile (a Mobile Gear's): for a moment it flies as launched, then speeds up to S.sp and turns, at most
 // S.turn a second, after its target (S.tgt, while it lives) or the spot it was sent at (S.at). True once it's on
@@ -22097,6 +22104,7 @@ function bbGone(x,z){
 // x,y,z: the middle (y the first block above street level); R its reach. Small ones are just a crushBall.
 function bigBlast(x,y,z,R,opt={}){
   if(R<BB_SMALL)return crushBall(x,y,z,R,opt);
+  {const P=bbWorldPt(x,y,z);x=P.x;y=P.y;z=P.z;}   // (set off aboard a ship: out where it is, and the ship carved by bbShips)
   if(netGuest())return null;   // (the host's to set off: a guest's is sent over)
   const n=craters.reduce((m,c)=>Math.max(m,c.n),0)+1;
   const C={x:Math.round(x*10)/10,y:Math.round(y),z:Math.round(z*10)/10,R:Math.round(R),s:(hash2(n*977,Math.round(x)+Math.round(z)*7)*1e6)|0,n};
@@ -22115,7 +22123,7 @@ function bbStart(C,fresh){
     const X0=px*CELL,Z0=pz*CELL,d=Math.hypot(Math.max(X0-C.x,0,C.x-X0-CELL),Math.max(Z0-C.z,0,C.z-Z0-CELL));if(d<=C.R*1.07)plots.push({px,pz,d});}
   plots.sort((a,b)=>a.d-b.d);
   const J={C,K,list,i:0,pend:new Set(list.map(e=>e.k)),byK:new Map(list.map(e=>[e.k,e])),plots,pi:0,seen:new Set(),vap:new Set(),
-    ring:0,t:0,fresh,hit:new Set(),dead:0,bq:[],dq:[],ch:new Set(),pumps:[],fx:[],fxN:0,fires:[],work:0,worst:0,frames:0,nVap:0,done:false};
+    ring:0,t:0,fresh,hit:new Set(),dead:0,bq:[],dq:[],ch:new Set(),pumps:[],fx:[],fxN:0,fires:[],sh:new Map(),work:0,worst:0,frames:0,nVap:0,done:false};
   BB.jobs.push(J);BB.jobs.sort((a,b)=>a.C.n-b.C.n);
   bbFxStart(J);
   return J;
@@ -22135,10 +22143,10 @@ function bbTick(dt){
       const e=J.list[J.i];if(J.pend.has(e.k))bbDo(J,e);J.i++;
       if(performance.now()-t0>BB.ms)break;}
     if(J.ch.size){rebuildSet(J.ch);J.ch.clear();}
-    bbThaw(J);let sw=0;if(host){bbHits(J);const ts=performance.now();bbSettle(J,t0);sw=performance.now()-ts;bbCount(J,t0);bbEdgeFx(J);}
+    bbThaw(J);let sw=0;if(host){bbHits(J);if(J.fresh)bbShips(J);const ts=performance.now();bbSettle(J,t0);sw=performance.now()-ts;bbCount(J,t0);bbEdgeFx(J);}
     const w=performance.now()-tj-sw;J.work+=w;if(w>J.worst)J.worst=w;   // (a building coming down costs what any collapse does: kept apart, J.sw)
     J.swT=(J.swT||0)+sw;if(sw>(J.sw||0))J.sw=sw;
-    if(J.i>=J.list.length&&J.pi>=J.plots.length&&J.ring>=J.C.R*1.1&&!J.bq.length&&!J.dq.length)bbEnd(J,host);
+    if(J.i>=J.list.length&&J.pi>=J.plots.length&&J.ring>=J.C.R*1.1&&!J.bq.length&&!J.dq.length&&[...J.sh.values()].every(Q=>Q.done))bbEnd(J,host);
   }
 }
 function bbEnd(J,host){
@@ -22234,16 +22242,37 @@ function bbHits(J){
   for(const B of TRAIN_BOXES){const pr=B.proxy,T=pr&&pr.T;if(!pr||!pr.alive||!T)continue;const key=T.cars&&T.C?T.cars[pr.i]||pr:T;if(J.hit.has(key))continue;
     const dx=B.x-cx,dz=B.z-cz,d=Math.max(0,Math.hypot(dx,dz)-Math.max(B.hx||0,B.hz||0));if(d>r)continue;J.hit.add(key);if(d>=C.R)continue;
     trainHit(T,d<K.rf?1e5:400*fall(d)**1.5,new V3(dx,0,dz),pr.i);}
-  // a ship's own blocks: its side facing the blast knocked in, in its pocket (ships.js)
-  for(const S of SHIPS){if(!S||S.dead||J.hit.has(S))continue;const SK=S.K,c=shipToWorld(S,S.ox+(SK.u0+SK.u1+1)/2,S.oz+(SK.w0+SK.w1+1)/2,{x:0,z:0}),
-      dx=cx-c.x,dz=cz-c.z,dd=Math.hypot(dx,dz),hw=Math.min(SK.u1-SK.u0,SK.w1-SK.w0)/2,d=Math.max(0,dd-hw);if(d>r)continue;J.hit.add(S);if(d>=C.R)continue;
-    const rr=d<K.rf?12:Math.round(10*fall(d));if(rr<3)continue;const k=Math.min(dd,hw)/(dd||1),px=c.x+dx*k,pz=c.z+dz*k;
-    shipSmash(px,G+2,pz,rr,{force:2,dx:-dx/(dd||1),dz:-dz/(dd||1)},(X,Y,Z,o)=>crushBall(X,Y,Z,rr,o));}
   for(const M of MINES){if(!M.live)continue;const d=Math.hypot(M.x-cx,M.z-cz);if(d>r||d>=C.R)continue;
     if(d<K.rf){M.live=false;mineShow(M.i,0,0,0,0);}else mineBoom(M);}
   if(J.pumps.length){pumpsHit(J.pumps);J.pumps.length=0;}
   const rk=Math.min(r,C.R);knockFixtures(cx,cz,rk,0,0);knockProps(cx,G+1,cz,rk,0,0);
 }
+// ---- the ships it reaches (ships.js): each one's blocks carved as the ring gets to them, a column at a time nearest first, to
+// the same shape as the ground's (bbCol, where that column of the ship is out in the world, its heights as the ship floats),
+// but through setRaw and addEdit, so shipDent counts them against its hull (it breaks, floods below the waterline and sinks as
+// it would from any other smashing), and they're its save (cvSnap) and sent to guests. One with its middle, or a third of its deck, in the crater or
+// the flattened zone is lost: what's left of it goes down. Host only, and only for a blast set off now (not one from a save)
+const _bbv={x:0,z:0};
+function bbShips(J){
+  const C=J.C,K=J.K,o=bbO(),R=C.R*1.07,t0=performance.now();
+  for(const S of SHIPS){if(!S)continue;let Q=J.sh.get(S);
+    if(!Q){const SK=S.K,c=shipToWorld(S,S.ox+(SK.u0+SK.u1+1)/2,S.oz+(SK.w0+SK.w1+1)/2,_bbv),hw=Math.hypot(SK.u1+1-SK.u0,SK.w1+1-SK.w0)/2;
+      const mid=Math.hypot(c.x-C.x,c.z-C.z);if(mid-hw>Math.min(J.ring,R))continue;   // (not reached yet, or never will be)
+      const cols=[];for(let w=SK.w0;w<=SK.w1;w++)for(let u=SK.u0;u<=SK.u1;u++){shipToWorld(S,S.ox+u+0.5,S.oz+w+0.5,_bbv);const d=Math.hypot(_bbv.x-C.x,_bbv.z-C.z);if(d<R)cols.push({u,w,d});}
+      cols.sort((a,b)=>a.d-b.d);Q={cols,i:0,mid,tot:(SK.u1+1-SK.u0)*(SK.w1+1-SK.w0),flat:0,ch:new Set(),done:false};J.sh.set(S,Q);}
+    while(Q.i<Q.cols.length&&Q.cols[Q.i].d<=J.ring&&performance.now()-t0<BB.ms)bbShipCol(S,C,K,Q.cols[Q.i++],o,Q);
+    if(Q.ch.size){rebuildSet(Q.ch);Q.ch.clear();}
+    if(!Q.done&&Q.i>=Q.cols.length){Q.done=true;if(!S.dead&&(Q.mid<K.rf||Q.flat>=Q.tot/3))shipSink(S);}}
+}
+function bbShipCol(S,C,K,q,o,Q){
+  const x=S.ox+q.u,z=S.oz+q.w;shipToWorld(S,x+0.5,z+0.5,_bbv);bbCol(C,K,Math.floor(_bbv.x),Math.floor(_bbv.z),o);if(!o.zone)return;if(o.zone<=3)Q.flat++;
+  if(!chunks.has(ckey(Math.floor(x/CS),Math.floor(z/CS))))return;
+  const y1=Math.min(H-1,S.K.y1??H-1);let n=0;
+  for(let y=Math.max(1,o.cut+Math.round(S.sk||0));y<=y1;y++){const b=rawGet(x,y,z);if(!b||b===WATER||b===BEDROCK)continue;setRaw(x,y,z,AIR);addEdit(x,y,z,AIR);n++;}
+  if(n)for(const ox of [-1,1])for(const oz of [-1,1])Q.ch.add(ckey(Math.floor((x+ox)/CS),Math.floor((z+oz)/CS)));
+}
+// a point in a ship's pocket, out in the world where it really is (else as it is)
+function bbWorldPt(x,y,z){if(x>=SHIP_X0){const S=shipOfPos(x,z);if(S){const t=shipToWorld(S,x,z,{x:0,z:0});return{x:t.x,y:y-S.sk,z:t.z};}}return{x,y,z};}
 // ---- how it looks: a flash, a fireball, a shockwave ring along the ground, a mushroom cloud, debris off the front, fires round the rim ----
 {const geo=new THREE.RingGeometry(0.9,1,96);for(let i=0;i<2;i++){const m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:0xfff2d8,transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false,fog:false}));m.rotation.x=-Math.PI/2;m.visible=false;scene.add(m);BB.rings.push({m,J:null});}}
 // a puff of the fires' own smoke (fires.js), kept by the cloud and moved by it
@@ -25690,14 +25719,14 @@ function shipFits(S,x,z,yaw){
 function updateShips(V,dt){
   for(const S of [...V.ships]){
     // (an online guest's copy: the host's snapshots place it, sink it and drop it, net-sync.js; here only its props)
-    if(S.net){if(S.propsT>0&&(S.propsT-=dt)<=0)shipPropsDraw(S);shipPropsFall(S,dt);continue;}
+    if(S.net){if(S.propsT>0&&(S.propsT-=dt)<=0)shipPropsDraw(S);shipPropsFall(S,dt);mountsFall(S,dt);continue;}
     if(S.dead){shipSinking(S,V,dt);continue;}
     if(S.leak&&!S.hull&&!drvSafe(S))S.hp-=S.leak*SHIP_LEAK*dt;   // (one that breaks up only floods where it's holed: ship-break.js)
     if(S.hp<=0){shipSink(S);continue;}
     if(S.hull&&S.hull.brk&&shipBreakCheck(S))continue;
     shipHelmIn(S,dt);shipDrive(S,dt);
     S.grp.position.set(S.x,0,S.z);S.grp.rotation.y=S.yaw;S.grp.updateMatrixWorld(true);
-    shipBoxes(S);if(S.propsT>0&&(S.propsT-=dt)<=0)shipPropsDraw(S);shipPropsFall(S,dt);shipCrewTick(S,dt);shipJetsTick(S,dt);
+    shipBoxes(S);if(S.propsT>0&&(S.propsT-=dt)<=0)shipPropsDraw(S);shipPropsFall(S,dt);mountsFall(S,dt);shipCrewTick(S,dt);shipJetsTick(S,dt);
   }
 }
 // ---- driving from the bridge. W and S ring the engine telegraph up and down its orders, one a press (held, on down
@@ -26534,6 +26563,23 @@ function mountWreck(Mt){
   if(audio)sfx('Deck weapon destroyed',()=>{noise(0.8,0.5,500,'lowpass');tone('sawtooth',90,30,0.8,0.1);});
   Mt.g.traverse(o=>{if(o.isMesh)o.material=mtMat(0x1e1f21);});Mt.head.rotation.z=0.35;Mt.lift.rotation.x=0.5;
   if(Mt.caps)for(const c of Mt.caps)c.visible=false;
+}
+// ---- a deck weapon with its deck knocked out from under it (a nuke, a crater, a cut): wrecked, it drops till it lands on
+// what's left below, or into the sea and gone. Looked over a few times a second; on a guest's copy too, from its own blocks
+// (the host's say whether it's wrecked)
+const MT_FOOT=[[0,0],[-0.6,-0.6],[0.6,-0.6],[-0.6,0.6],[0.6,0.6]];   // (under its base, which is 1.4 across)
+const mountOn=(Mt,y)=>MT_FOOT.some(([a,b])=>solidAt(Mt.x+a,y,Mt.z+b));
+function mountsFall(S,dt){
+  if(!S.mounts)return;
+  for(const Mt of S.mounts){if(Mt.gone||Mt.g.parent!==S.pg)continue;   // (carried off on a wreck broken off it: ship-break.js)
+    if(!Mt.fall){if((Mt.supT=(Mt.supT||0)-dt)>0)continue;Mt.supT=0.25;
+      if(!chunks.has(ckey(Math.floor(Mt.x/CS),Math.floor(Mt.z/CS)))||mountOn(Mt,Math.floor(Mt.y-0.01)))continue;
+      Mt.fall={v:0};if(!Mt.dead&&!S.net){mountHit(Mt,Mt.hp+1);if(!Mt.dead)mountWreck(Mt);}}   // (destroyed, as if shot: points and all)
+    const F=Mt.fall;F.v=Math.min(40,F.v+28*dt);const y=Mt.y-F.v*dt,row=Math.floor(y);
+    if(mountOn(Mt,row)){Mt.y=row+1;Mt.fall=null;const P=Mt.lk.pos;puff(P.x,P.y,P.z,6,0x8a8a80,0.6);if(audio)noise(0.3,0.25,400,'lowpass');}
+    else if(y<G-2){Mt.gone=true;S.pg.remove(Mt.g);const P=Mt.lk.pos;puff(P.x,G,P.z,10,0xcfe8ff,1);}   // (over the side, or down through the hull: into the sea)
+    else Mt.y=y;
+    Mt.g.position.y=Mt.y;Mt.pos.y=Mt.y;}
 }
 // a player at it: the head follows their view; bite (or stomp) fires. Run with everyone aboard put where they really are
 // (shipOutside), so the aim, the lock and the shots are all out in the world

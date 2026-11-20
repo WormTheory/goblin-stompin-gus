@@ -49,7 +49,9 @@ function floatingCluster(sx,sy,sz,supported){
   }
   return out;
 }
-function bldgAt(x,z){let px=Math.floor(x/CELL),pz=Math.floor(z/CELL),rx=mod(x,CELL),rz=mod(z,CELL);const S=superOf(px,pz);if(S){px=S.ax;pz=S.az;rx=x-px*CELL;rz=z-pz*CELL;}const P=plotInfo(px,pz);for(let i=0;i<P.b.length;i++){const b=P.b[i];if(rx>=b.x0&&rx<b.x1&&rz>=b.z0&&rz<b.z1)return{b,i,px,pz,key:px+','+pz+','+i};}return null;}
+// (never in a ship's pocket, which has no buildings: asking the plan about a place half a million blocks out made whole stretches of
+// it there, seconds of work the first time a ship was smashed)
+function bldgAt(x,z){if(x>=SHIP_X0)return null;let px=Math.floor(x/CELL),pz=Math.floor(z/CELL),rx=mod(x,CELL),rz=mod(z,CELL);const S=superOf(px,pz);if(S){px=S.ax;pz=S.az;rx=x-px*CELL;rz=z-pz*CELL;}const P=plotInfo(px,pz);for(let i=0;i<P.b.length;i++){const b=P.b[i];if(rx>=b.x0&&rx<b.x1&&rz>=b.z0&&rz<b.z1)return{b,i,px,pz,key:px+','+pz+','+i};}return null;}
 // ---- destruction: how much of each building is gone, and how much of each place ----
 // Every time an original block of a building is knocked out (by anything: a bite, a stomp, a collapse), that building's
 // count goes up. Blocks that weren't part of it as built (rubble piled on top, a car) don't count, and neither does

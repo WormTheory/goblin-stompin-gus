@@ -160,6 +160,23 @@ function mountWreck(Mt){
   Mt.g.traverse(o=>{if(o.isMesh)o.material=mtMat(0x1e1f21);});Mt.head.rotation.z=0.35;Mt.lift.rotation.x=0.5;
   if(Mt.caps)for(const c of Mt.caps)c.visible=false;
 }
+// ---- a deck weapon with its deck knocked out from under it (a nuke, a crater, a cut): wrecked, it drops till it lands on
+// what's left below, or into the sea and gone. Looked over a few times a second; on a guest's copy too, from its own blocks
+// (the host's say whether it's wrecked)
+const MT_FOOT=[[0,0],[-0.6,-0.6],[0.6,-0.6],[-0.6,0.6],[0.6,0.6]];   // (under its base, which is 1.4 across)
+const mountOn=(Mt,y)=>MT_FOOT.some(([a,b])=>solidAt(Mt.x+a,y,Mt.z+b));
+function mountsFall(S,dt){
+  if(!S.mounts)return;
+  for(const Mt of S.mounts){if(Mt.gone||Mt.g.parent!==S.pg)continue;   // (carried off on a wreck broken off it: ship-break.js)
+    if(!Mt.fall){if((Mt.supT=(Mt.supT||0)-dt)>0)continue;Mt.supT=0.25;
+      if(!chunks.has(ckey(Math.floor(Mt.x/CS),Math.floor(Mt.z/CS)))||mountOn(Mt,Math.floor(Mt.y-0.01)))continue;
+      Mt.fall={v:0};if(!Mt.dead&&!S.net){mountHit(Mt,Mt.hp+1);if(!Mt.dead)mountWreck(Mt);}}   // (destroyed, as if shot: points and all)
+    const F=Mt.fall;F.v=Math.min(40,F.v+28*dt);const y=Mt.y-F.v*dt,row=Math.floor(y);
+    if(mountOn(Mt,row)){Mt.y=row+1;Mt.fall=null;const P=Mt.lk.pos;puff(P.x,P.y,P.z,6,0x8a8a80,0.6);if(audio)noise(0.3,0.25,400,'lowpass');}
+    else if(y<G-2){Mt.gone=true;S.pg.remove(Mt.g);const P=Mt.lk.pos;puff(P.x,G,P.z,10,0xcfe8ff,1);}   // (over the side, or down through the hull: into the sea)
+    else Mt.y=y;
+    Mt.g.position.y=Mt.y;Mt.pos.y=Mt.y;}
+}
 // a player at it: the head follows their view; bite (or stomp) fires. Run with everyone aboard put where they really are
 // (shipOutside), so the aim, the lock and the shots are all out in the world
 function mountPlayer(Mt,p,dt){
