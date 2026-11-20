@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:d26a918a8417d594b37e9096bf525a3b7d1b5f3e5a1d95fb67b9e02d8b8b80fa -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:5fcc8b107647a2d99578113244aba1e38ee407178bb1187cc2458ad92ccc9c05 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1596,7 +1596,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Swimming</h3>
 <ul><li>You now float at the surface instead of slowly sinking, so there's no need to keep paddling to stay up.</li><li>Hold climb (C, controller LB) to dive, and let go to bob back up. Near a wall it still grabs on and climbs.</li><li>A stroke at the surface throws you up far enough to climb out on to a one-block ledge.</li><li>Gnash and Grizzle can now paddle upward with jump in the water, as Gus and Gertie do.</li></ul>
 <h3>Mobile Gear on water</h3>
-<ul><li>Boost skating fast enough, the Mobile Gear skims across water, throwing up spray. Slow down, or switch the boost off, and it drops in with a splash.</li><li>Skating over bushes and one-block bumps no longer shakes it up and down. It now eases over each step.</li></ul>
+<ul><li>With its boost on, the Mobile Gear skates across water at any speed, throwing up spray. Switch the boost off and it drops in with a splash.</li><li>Skating over bushes and one-block bumps no longer shakes it up and down. It now eases over each step.</li></ul>
 <h3>Lighting</h3>
 <ul><li>At night, lights now light up what's around them. Street lamps pool light on the pavement, neon signs throw their own colours across the street, lit windows glow on the walls and rooms beside them, and lamps, TVs and screens light the rooms they're in. Walls block the light, so it stays in the room or the street it's in. Smash a lamp or a sign and its light goes out.</li><li>It's switched on or off with Block lighting under Sound &amp; picture in Options. Off, the game looks and runs exactly as before.</li><li>A building that's been destroyed or brought down goes dark: its windows, neon and signs stop glowing, and the pieces of it falling don't glow either.</li><li>In fog, rain and snow at night, lit windows, neon, lamps and the light they cast now show through the murk as a soft glow, some way past where the buildings themselves disappear.</li><li>In thick fog the sky and clouds are now lost in the fog too, so far-off towers no longer stand out as dark shapes against a clear sky.</li><li>The debug menu has a Fog light slider for how strongly lights show through fog.</li><li>Fires and campfires now light up the ground and walls around them at night, dimming as they die down.</li><li>In fog at night, street lamps, lamps, fires and traffic lights now have a soft halo of light in the air around them, as real fog scatters light. The Halos slider in the debug menu sets how strong they are.</li><li>Traffic lights now light the junction under them at night in red, amber or green, changing with the lights.</li><li>Lit windows and neon signs now have a fainter halo in fog too, one for each patch of them rather than every window.</li><li>Everything else that glows gets a halo in fog as well: vehicles' headlights, tail lights, indicators, hazard lights and the flashing light bars on police cars, fire engines and ambulances (the halos flash with them), lit signs, billboards and cinema marquees, level crossing lights, spell orbs, fireballs, explosions, lightning and the flames of jets and balloons.</li><li>Moving cars' headlights now light up the road ahead of them at night.</li><li>Lit signs, billboards, marquees and other glowing things that stay put now light up the ground and walls around them at night, as lamps do.</li><li>Halos no longer show through walls: a lamp, screen or sign indoors, or windows round the far side of a building, get no halo unless you can see them.</li><li>Skyscrapers' lit windows now get halos in fog, a long way off, and bigger patches of windows get brighter halos.</li><li>Smoke and explosion flashes now fade into fog like everything else, instead of showing in front of it.</li><li>Halos now fade in and out smoothly instead of flickering on and off as you look around. The Halo fade slider in the debug menu sets how long they take.</li><li>A car's headlights no longer light the underside of an overpass it's driving over, or the road below it.</li><li>Street lamps and lamps wiped out by a nuke no longer keep lighting the ground or glowing in the fog.</li><li>Falling snow and rain now darken with the time of day instead of staying bright white at night.</li><li>Halos no longer flicker as you turn the camera.</li><li>Every debug menu setting is now remembered from one session to the next, including Stop time, the pause switches, Free cam (and where it was), the Rendering switches and the Interface switches. Turning on a hitbox switch no longer resets the other debug settings.</li><li>The last few halos that still switched off abruptly (a light going dark, or many fading at once) now fade like the rest.</li><li>Lamps and screens just behind a wall no longer get a halo poking through it.</li><li>Cars' headlights now stay on when they stop, at the lights or in traffic, and only parked cars' are off.</li><li>Lights now show through fog twice as strongly by default (Fog light 2×), with fainter halos (Halos 0.25×) that fade over a quarter of a second.</li><li>Fireballs, explosions' flashes and other moving glowing things now light up the ground and walls around them as they go.</li><li>Parked cars' headlights and tail lights now stay dark.</li><li>The debug menu has on/off switches for Fog light and Halos.</li></ul>
 <h3>Trees and water in the distance</h3>
@@ -2289,7 +2289,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='0aef6f79bdaf';
+const GAME_VER='0.5',GAME_BUILD='5d448f15fe0f';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -15167,7 +15167,7 @@ function trainHow(p,D){const A=id=>actMark(p,id),R=D.o.rail||{rev:1};
 // (all the tuning in one place: speeds in blocks a second, energy out of enMax)
 // (ramV: from this fast, running into a wall or a building knocks a hole in it; plow: from this fast it hardly slows)
 const MG={hy:7.6,r:1.25,hp:600,walk:10.8,skate:32.4,air:28.8,airEN:12,hoverEN:5,grav:26,jumpV:16,jumpEN:8,jumpPre:0.12,ascV:9,ascEN:30,
-  skimV:16,stepEase:10,skimKeep:9,qbV:61,qbT:0.18,qbCD:0.35,qbEN:20,qbDec:0.35,enMax:100,enRegen:45,enDelay:0.5,red:1.8,stepWalk:1,stepSkate:2,outHold:0.5,
+  stepEase:10,qbV:61,qbT:0.18,qbCD:0.35,qbEN:20,qbDec:0.35,enMax:100,enRegen:45,enDelay:0.5,red:1.8,stepWalk:1,stepSkate:2,outHold:0.5,
   ramV:15,plow:24,
   // (the assault boost: a charge-up, then a long straight dash where you aim, up or down too, steering slowly; the kick:
   // pressed again with a target this near, a flying kick at it; the impact meter that staggers it; repair kits)
@@ -15265,9 +15265,8 @@ function mgGround(x,z,y,M){const r=MG.r;let g=-1;for(const ox of [-r,0,r])for(co
     if(boxesTouch(x,z,0,r,r,B.x,B.z,Math.atan2(B.tx,B.tz),bx,bz)){g=B.top;mgSup=pr;}}
   return g;}
 let mgSup=null;
-// skating across water: boost on (or a quick boost or an assault boost under way) and going at least MG.skimV, or
-// MG.skimKeep once it's already on the water, so easing off a little doesn't drop it straight in
-function mgSkims(M){if(M.dead||!(M.boostOn||M.qbT>0||M.ab&&M.ab.ph==='go'))return false;return Math.hypot(M.vx,M.vz)>=(M.skim?MG.skimKeep:MG.skimV);}
+// skating across water: boost on (or a quick boost or an assault boost under way), at any speed
+function mgSkims(M){return !M.dead&&!!(M.boostOn||M.qbT>0||M.ab&&M.ab.ph==='go');}
 // the top of the water under its middle, if the first thing below its feet is water (else -1)
 function mgWaterTop(x,z,y){const xi=Math.floor(x),zi=Math.floor(z);for(let yy=Math.min(H-1,Math.floor(y+0.3));yy>=Math.max(0,Math.floor(y-3));yy--){const b=get(xi,yy,zi);if(b===WATER)return yy+1;if(b!==AIR)return -1;}return -1;}
 // would it overlap another vehicle there (a train, plane, boat, ride car, tank, helicopter or another Mobile Gear)?

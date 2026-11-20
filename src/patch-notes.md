@@ -68,7 +68,7 @@
 
 ### Mobile Gear on water
 
-- Boost skating fast enough, the Mobile Gear skims across water, throwing up spray. Slow down, or switch the boost off, and it drops in with a splash.
+- With its boost on, the Mobile Gear skates across water at any speed, throwing up spray. Switch the boost off and it drops in with a splash.
 - Skating over bushes and one-block bumps no longer shakes it up and down. It now eases over each step.
 
 ### Lighting

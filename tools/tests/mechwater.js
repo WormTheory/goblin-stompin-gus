@@ -30,9 +30,10 @@ for(const who of [0,1]){P.who=who;hold(['KeyF'],0.8);T.tenvClear();put(S0[0]+who
   // boost on, then straight across
   tap('KeyC');let lo=1e9,on=0,n=0;T.keys.add('KeyW');for(let k=0;k<60*6&&M.z<W.z1+6;k++){run(1/60);if(M.z>W.z0+2&&M.z<W.z1-2){n++;lo=Math.min(lo,M.y);if(M.skim&&M.grounded)on++;}}T.keys.delete('KeyW');
   console.log(['Gnash','Grizzle'][who]+': boosted across',M.z>W.z1,' lowest over the water',f2(lo-W.top),' skimming',on+'/'+n,' spd',f1(Math.hypot(M.vx,M.vz)));
-  // turned round, slowing to a stop on the water: it drops in
+  // turned round, slowing to a stop on the water with the boost still on: it stays up; boost off: it drops in
   hold([],1.5);M.h=Math.PI;P.cam.yaw=0;run(0.3);T.keys.add('KeyW');for(let k=0;k<200&&M.z>W.z0+30;k++)run(1/60);T.keys.delete('KeyW');hold([],3);
-  console.log('  stopped on it: under the surface by',f1(W.top-M.y),' skimming',M.skim);
+  console.log('  stopped on it, boost on: above the surface by',f2(M.y-W.top),' skimming',M.skim);
+  tap('KeyC');hold([],3);console.log('  boost switched off: under the surface by',f1(W.top-M.y),' skimming',M.skim);
   // walking into it (boost off): sinks
   hold(['KeyF'],0.8);put(S0[0]+who*60+30,S0[1],S0[2]);run(1);M=fresh();board(M);run(1);const W2=pool(M);hold(['KeyW'],3.5);console.log('  walked in, boost off: under the surface by',f1(W2.top-M.y),' skimming',M.skim);
 }

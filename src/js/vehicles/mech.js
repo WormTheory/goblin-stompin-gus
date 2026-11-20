@@ -7,7 +7,7 @@
 // (all the tuning in one place: speeds in blocks a second, energy out of enMax)
 // (ramV: from this fast, running into a wall or a building knocks a hole in it; plow: from this fast it hardly slows)
 const MG={hy:7.6,r:1.25,hp:600,walk:10.8,skate:32.4,air:28.8,airEN:12,hoverEN:5,grav:26,jumpV:16,jumpEN:8,jumpPre:0.12,ascV:9,ascEN:30,
-  skimV:16,stepEase:10,skimKeep:9,qbV:61,qbT:0.18,qbCD:0.35,qbEN:20,qbDec:0.35,enMax:100,enRegen:45,enDelay:0.5,red:1.8,stepWalk:1,stepSkate:2,outHold:0.5,
+  stepEase:10,qbV:61,qbT:0.18,qbCD:0.35,qbEN:20,qbDec:0.35,enMax:100,enRegen:45,enDelay:0.5,red:1.8,stepWalk:1,stepSkate:2,outHold:0.5,
   ramV:15,plow:24,
   // (the assault boost: a charge-up, then a long straight dash where you aim, up or down too, steering slowly; the kick:
   // pressed again with a target this near, a flying kick at it; the impact meter that staggers it; repair kits)
@@ -105,9 +105,8 @@ function mgGround(x,z,y,M){const r=MG.r;let g=-1;for(const ox of [-r,0,r])for(co
     if(boxesTouch(x,z,0,r,r,B.x,B.z,Math.atan2(B.tx,B.tz),bx,bz)){g=B.top;mgSup=pr;}}
   return g;}
 let mgSup=null;
-// skating across water: boost on (or a quick boost or an assault boost under way) and going at least MG.skimV, or
-// MG.skimKeep once it's already on the water, so easing off a little doesn't drop it straight in
-function mgSkims(M){if(M.dead||!(M.boostOn||M.qbT>0||M.ab&&M.ab.ph==='go'))return false;return Math.hypot(M.vx,M.vz)>=(M.skim?MG.skimKeep:MG.skimV);}
+// skating across water: boost on (or a quick boost or an assault boost under way), at any speed
+function mgSkims(M){return !M.dead&&!!(M.boostOn||M.qbT>0||M.ab&&M.ab.ph==='go');}
 // the top of the water under its middle, if the first thing below its feet is water (else -1)
 function mgWaterTop(x,z,y){const xi=Math.floor(x),zi=Math.floor(z);for(let yy=Math.min(H-1,Math.floor(y+0.3));yy>=Math.max(0,Math.floor(y-3));yy--){const b=get(xi,yy,zi);if(b===WATER)return yy+1;if(b!==AIR)return -1;}return -1;}
 // would it overlap another vehicle there (a train, plane, boat, ride car, tank, helicopter or another Mobile Gear)?
