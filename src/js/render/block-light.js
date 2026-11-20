@@ -132,16 +132,16 @@ function blkSeen(cx,cy,cz,x,y,z){
   return true;
 }
 const blkSeenAny=(C,x,y,z)=>{for(const c of C)if(blkSeen(c.x,c.y,c.z,x,y,z))return true;return false;};
-// The halos picked fade in and out (BL_HALO_FADE a second) rather than popping, so one coming or going as the camera swings
+// The halos picked fade in and out (over DT.haloFade seconds, the debug menu's Halo fade, 0.25 unless set) rather than popping, so one coming or going as the camera swings
 // round (a lamp going behind a wall, a patch dropping out of the nearest) doesn't flicker: HALO_ON keeps each by where it is
 // ([x,y,z,r,g,b,size,shown,wanted]), wanted set by each pick, shown eased toward it every frame.
-const HALO_ON=new Map(),BL_HALO_FADE=4;
+const HALO_ON=new Map(),blHaloFade=()=>Math.max(1e-4,DT.haloFade??0.25);
 let blHaloT=0,blHaloS=0;const _hM=new THREE.Matrix4(),_hV=new THREE.Vector3(),_hC=new THREE.Color();
 function blkHaloTick(dt){
   if(HALO_U.uStr.value<=0.001){if(HALO)HALO.visible=false;blHaloS=0;HALO_ON.clear();return;}
   if(!HALO)HALO=haloMesh();HALO.visible=true;if((blHaloT-=dt)<=0){blHaloT=0.25;blkHaloPick();}
   // (every frame: each eased toward shown or gone, the wanted first, then those fading out while there's room)
-  const A=HALO_A.array,st=dt*BL_HALO_FADE;let n=0;
+  const A=HALO_A.array,st=dt/blHaloFade();let n=0;
   for(const pass of [1,0])for(const [k,e] of HALO_ON){if(e[8]!==pass)continue;e[7]=pass?Math.min(1,e[7]+st):e[7]-st;
     if(e[7]<=0){HALO_ON.delete(k);continue;}if(n>=BL_HALO_N+64)continue;
     _hM.makeTranslation(e[0],e[1],e[2]);HALO.setMatrixAt(n,_hM);const a=e[7]*e[7]*(3-2*e[7]);A[n*4]=e[3]*a;A[n*4+1]=e[4]*a;A[n*4+2]=e[5]*a;A[n*4+3]=e[6];n++;}
@@ -262,7 +262,7 @@ function carLightsView(p){
   G2.sort((a,b)=>a[1]-b[1]);
   let n=blHaloS;const A=HALO_A.array,end=BL_HALO_ALL;
   // (each eased in and out like the others, per view: p._hf, mesh -> how shown; a flashing lamp's fade is quick enough to keep its flash)
-  const F=p._hf||(p._hf=new Map()),now=performance.now(),st=Math.min(0.1,(now-(p._hft||now))/1000)*BL_HALO_FADE*2;p._hft=now;const want=new Set();
+  const F=p._hf||(p._hf=new Map()),now=performance.now(),st=Math.min(0.1,(now-(p._hft||now))/1000)/blHaloFade()*2;p._hft=now;const want=new Set();
   for(const [o] of G2){if(want.size>=BL_HALO_CN)break;if(!shownIn(o))continue;_cl.setFromMatrixPosition(o.matrixWorld);
     let v=V.get(o);if(!v||playTime>=v[0]){v=[playTime+0.25,blkSeen(cam.x,cam.y,cam.z,_cl.x,_cl.y,_cl.z)];V.set(o,v);}if(!v[1])continue;
     if(glowOf(o.material))want.add(o);}
