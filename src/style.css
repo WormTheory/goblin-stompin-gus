@@ -160,7 +160,6 @@ canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;point
 .gammo b small{font-size:15px;color:var(--mute);margin-left:2px}
 .gammo b.out{color:#ec4f42}
 .gammo b.rl{font-size:16px;color:#ffd75a}
-.gammo .sp{font:700 13px var(--f-mono);color:var(--mute)}
 .gammo span{display:inline-flex;align-items:center}
 @media (pointer:coarse){.gammo{bottom:calc(250px + env(safe-area-inset-bottom,0px))}}
 .gxh{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:rgba(255,255,255,.9);box-shadow:0 0 0 1px rgba(0,0,0,.55);pointer-events:none}

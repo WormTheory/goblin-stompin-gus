@@ -68,7 +68,7 @@
 
 - A new weapon for goblins, picked in the Loadout: a launcher with a nuclear warhead on the front. It lobs the warhead slowly in a shallow arc, and wherever it lands the same blast as a meltdown goes off, smaller but still enough to flatten a few streets.
 - Fire it level and it lands far enough off for you to live through it. Fire it at a wall in front of you and you won't.
-- One warhead in the tube and two spares, with a long reload. Once the spares are gone it's empty, unless Infinite ammo is on. The weapon bar shows how many spares are left.
+- One warhead in the tube and two spares, with a long reload. Once the spares are gone it's empty, unless Infinite ammo is on. The weapon bar shows how many warheads it has left in all, as it does for landmines and grenades.
 - The debug menu has a Nuke strength slider to make its blast smaller or bigger, up to the size of a meltdown.
 - A warhead landing on or beside an aircraft carrier now tears into the ship itself, wherever it was fired from, not just when fired from its own deck. Hit near the middle, the carrier is lost and what's left of it sinks; further off it's holed, and can break up and sink as it does from any other smashing.
 - A carrier's deck weapons now fall, wrecked, when the deck under them is blown away, and drop into the sea if there's nothing left below.

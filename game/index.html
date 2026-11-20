@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:f41df54481b0276567b5c092db6d25c87a2fc234522767f6e8368c4454133955 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:9ac0b2ceb9e491b752423c0f810b6ec1546ca8e07f106ff14ae5d712bcfc69c0 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -166,7 +166,6 @@ canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;point
 .gammo b small{font-size:15px;color:var(--mute);margin-left:2px}
 .gammo b.out{color:#ec4f42}
 .gammo b.rl{font-size:16px;color:#ffd75a}
-.gammo .sp{font:700 13px var(--f-mono);color:var(--mute)}
 .gammo span{display:inline-flex;align-items:center}
 @media (pointer:coarse){.gammo{bottom:calc(250px + env(safe-area-inset-bottom,0px))}}
 .gxh{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:rgba(255,255,255,.9);box-shadow:0 0 0 1px rgba(0,0,0,.55);pointer-events:none}
@@ -1628,7 +1627,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Nuclear meltdown</h3>
 <ul><li>Bring down a reactor at a nuclear power station and the siren sounds. A few seconds later the whole place goes up: a blinding flash, a fireball and a shockwave that runs out across the town, flattening it as it goes. The middle is left a scorched crater ringed with rubble, the streets round it are levelled to the ground with a few stumps of wall standing, and further out buildings lose their top floors and the side that faced the blast, and some come down. Fires burn round the edge under a mushroom cloud.</li><li>Anything caught in it is hurt by how close it was: near the middle there's nothing left of anyone, and further out you're knocked about. Cars, gas pumps and mines in the middle are simply gone rather than setting each other off.</li><li>The game keeps running smoothly while it happens, and the crater is saved with the world and seen the same by everyone playing online.</li><li>The Testing Environment has a Big blast button, with a slider for its size, to set one off ahead of you.</li><li>The crater's rim of rubble now sits on the ground, so it no longer hangs in the air on uneven ground or where two craters overlap.</li><li>Across the flattened town grass is burnt to dirt, streets are broken up in patches of rubble, and the buildings it brings down leave heaps of rubble behind.</li><li>The capitol's lawns, stadium pitches, plazas, courts and railways are scarred too: lawns and pitches burnt to dirt, paving and track beds broken up, the rails and sleepers torn up, and rubble left on what's still standing of a stadium's stands.</li><li>Snow melts wherever the blast reaches, off the ground, the rooftops and anyone or anything caught in it. If it's still snowing, fresh snow settles on the crater from bare ground, and the melted snow stays melted in a save and online.</li><li>Seen from far off, a flattened town now looks flattened: the buildings it took are gone or left as low heaps, the ones further out are cut down to what's left of them, the ground is scorched and the trees are gone, rather than the whole town still standing on the horizon.</li><li>Any building brought down or badly smashed, nuke or no nuke, now looks that way from a distance too, even from the furthest edge of the view.</li></ul>
 <h3>Nuke Launcher</h3>
-<ul><li>A new weapon for goblins, picked in the Loadout: a launcher with a nuclear warhead on the front. It lobs the warhead slowly in a shallow arc, and wherever it lands the same blast as a meltdown goes off, smaller but still enough to flatten a few streets.</li><li>Fire it level and it lands far enough off for you to live through it. Fire it at a wall in front of you and you won't.</li><li>One warhead in the tube and two spares, with a long reload. Once the spares are gone it's empty, unless Infinite ammo is on. The weapon bar shows how many spares are left.</li><li>The debug menu has a Nuke strength slider to make its blast smaller or bigger, up to the size of a meltdown.</li><li>A warhead landing on or beside an aircraft carrier now tears into the ship itself, wherever it was fired from, not just when fired from its own deck. Hit near the middle, the carrier is lost and what's left of it sinks; further off it's holed, and can break up and sink as it does from any other smashing.</li><li>A carrier's deck weapons now fall, wrecked, when the deck under them is blown away, and drop into the sea if there's nothing left below.</li><li>Firing it into the sea no longer freezes the game for a moment: the warhead goes off as it hits the water rather than sinking to the sea bed.</li><li>Smashing a ship's blocks no longer stalls the game for a few seconds the first time.</li></ul>
+<ul><li>A new weapon for goblins, picked in the Loadout: a launcher with a nuclear warhead on the front. It lobs the warhead slowly in a shallow arc, and wherever it lands the same blast as a meltdown goes off, smaller but still enough to flatten a few streets.</li><li>Fire it level and it lands far enough off for you to live through it. Fire it at a wall in front of you and you won't.</li><li>One warhead in the tube and two spares, with a long reload. Once the spares are gone it's empty, unless Infinite ammo is on. The weapon bar shows how many warheads it has left in all, as it does for landmines and grenades.</li><li>The debug menu has a Nuke strength slider to make its blast smaller or bigger, up to the size of a meltdown.</li><li>A warhead landing on or beside an aircraft carrier now tears into the ship itself, wherever it was fired from, not just when fired from its own deck. Hit near the middle, the carrier is lost and what's left of it sinks; further off it's holed, and can break up and sink as it does from any other smashing.</li><li>A carrier's deck weapons now fall, wrecked, when the deck under them is blown away, and drop into the sea if there's nothing left below.</li><li>Firing it into the sea no longer freezes the game for a moment: the warhead goes off as it hits the water rather than sinking to the sea bed.</li><li>Smashing a ship's blocks no longer stalls the game for a few seconds the first time.</li></ul>
 <h3>Rocket Launcher</h3>
 <ul><li>The bazooka is gone, replaced by the Rocket Launcher, an anti-tank launcher with a sight. Fired as it is, its rocket flies straight and bursts on whatever it hits.</li><li>Hold stomp to look down its sight. Keep a vehicle in the middle of it and the launcher growls as it tracks it, then locks on with a steady tone. A rocket fired while locked flies up and homes in on that vehicle, even if you've turned away or it moves.</li><li>A car locked on with the lock button counts too.</li><li>It hits vehicles harder than the bazooka did. A Loadout that had the bazooka switched on now has the Rocket Launcher.</li><li>An enemy firing one at you while you're driving locks on to your vehicle and its rocket chases you.</li></ul>
 <h3>Swimming</h3>
@@ -2327,7 +2326,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='5a13e7c44cd7';
+const GAME_VER='0.5',GAME_BUILD='2bec5c6b9736';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -19917,17 +19916,20 @@ function gobArmsHud(p){
   H.el.hidden=!show;if(!show)H.am.hidden=true;H.xh.hidden=!show||scoped||!gobAims(gobArms(p).wpn);if(!show)return;
   const bl=id=>actMark(p,id),L=GOB_WPN_ORDER.filter(k=>p.wpns.includes(k)),W=WEAPONS[p.wpn];
   // (a row of the weapons carried as little pictures of them, wpnIcon, the one in hand lit; landmines and grenades with
-  // how many. What's left in the magazine in hand, or reloading, and a reload asked for, go in the corner, H.am)
+  // how many, and so a gun with only so many reloads (spare, the nuke launcher): every round it has left, loaded or not.
+  // What's left in the magazine in hand, or reloading, and a reload asked for, go in the corner, H.am, as for any gun)
   const ic=(k,on,n)=>{const u=wpnIcon(k),nm=glEsc(WEAPONS[k].name);
       return '<span class="gwi'+(on?' on':'')+'" title="'+nm+'">'+(u?'<img src="'+u+'" alt="'+nm+'">':'<em>'+nm+'</em>')+(n!=null?'<i>×'+n+'</i>':'')+'</span>';},
     n=W&&W.mag?gobAmmoShown(p,p.wpn):0,sp=W&&W.mag?gobSpareShown(p,p.wpn):-1,
     rq=W&&W.mag&&!(p.relT>0)&&n<W.mag&&(sp!==0||DT.infAmmo)?bl('reload')+(n?' reload':' RELOAD'):'',
     t=(L.length>1?(bl('weaponPrev')?'  '+bl('weaponPrev')+' previous':'')+'  '+bl('weapon')+' next':''),
+    left=k=>{const w=WEAPONS[k];if(!w.mag||w.spare===undefined)return null;if(DT.infAmmo)return '∞';
+      const on=k===p.wpn,a=on?gobAmmoShown(p,k):gobAmmo(p,k),s=on?gobSpareShown(p,k):gobSpare(p,k);return a+Math.max(0,s)*w.mag;},
     t2=gobW(p).scope?bl('stomp')+(WEAPONS[p.wpn]&&WEAPONS[p.wpn].lock?' lock on (hold)':' scope (hold)'):p.gren||DT.infAmmo?bl('stomp')+' throw':'';
   const a=W&&W.mag?(p.relT>0?'<b class="rl">reloading…</b>':'<b'+(n?'':' class="out"')+'>'+n+'<small>/'+W.mag+'</small></b>')
-      +(sp>=0?'<small class="sp">+'+sp+'</small>':'')+(rq?'<span>'+hudHTML(rq)+'</span>':''):'';
+      +(rq?'<span>'+hudHTML(rq)+'</span>':''):'';
   H.am.hidden=!a;if(H.a!==a){H.a=a;H.am.innerHTML=a;}
-  const s=L.map(k=>ic(k,k===p.wpn,k==='landmine'?p.mines||0:null)).join('')+(t?'<span>'+hudHTML(t.trim())+'</span>':'')
+  const s=L.map(k=>ic(k,k===p.wpn,k==='landmine'?p.mines||0:left(k))).join('')+(t?'<span>'+hudHTML(t.trim())+'</span>':'')
     +'<span class="gsep"></span>'+ic('grenade',false,p.gren)+(t2?'<span>'+hudHTML(t2)+'</span>':'');
   if(H.s!==s){H.s=s;H.el.innerHTML=s;}
 }
