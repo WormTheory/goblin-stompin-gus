@@ -77,7 +77,7 @@ const DBG_COLS=4,DBG_SECS=[
   [0,'All',[{k:'_all',label:'Show all',act:true},{k:'_none',label:'Hide all',act:true}]],
   [0,'Time',[{k:'speed',label:'Game speed'},{k:'paused',label:'Stop time'}]],
   [0,'Camera',[{k:'freecam',label:'Free cam'},{k:'curve',label:'World curve'}]],
-  [0,'World',[{k:'tod',label:'Time of day'},{k:'wx',label:'Weather'},{k:'season',label:'Season'}]],
+  [0,'World',[{k:'tod',label:'Time of day'},{k:'wx',label:'Weather'},{k:'season',label:'Season'},{k:'fogLit',label:'Fog light'}]],
   // (pick a kind, then Spawn puts one down ahead of you, parked and empty: in the Testing Environment or the ordinary game)
   [0,'Vehicles',[{k:'vehSel',label:'Vehicle'},{k:'vehGo',label:'Spawn vehicle'}]],
   [1,'Player',[{k:'pspeed',label:'Player speed'},{k:'invuln',label:'Invulnerable'},{k:'infStam',label:'Infinite stamina'},{k:'infAmmo',label:'Infinite ammo'},{k:'nukeR',label:'Nuke strength'},{k:'fly',label:'Flying'},{k:'host',label:'Enemy hostility'},{k:'combo',label:'Combo system'}]],
@@ -91,7 +91,10 @@ const DBG_COLS=4,DBG_SECS=[
 const DBG_ITEMS=DBG_SECS.flatMap(([c,sec,rows])=>rows.map(it=>Object.assign(it,{c,sec})));
 // (the sliders: left and right only move one once it's been picked with A, and until then they go to the next column,
 // as on any other row, so a slider never gets in the way of crossing the menu)
-const DBG_SLIDE=new Set(['speed','pspeed','curve','host','tod','nukeR']);
+const DBG_SLIDE=new Set(['speed','pspeed','curve','host','tod','nukeR','fogLit']);
+// the Fog light slider: how strongly lights show through the weather's fog at night (DT.fogLit, FOG_LIT_FRAG), 0 to 3 times
+// in quarters, 1 to begin with (not saved, like the other switches)
+const FOGLIT_N=13,fogLitI=()=>Math.round((DT.fogLit??1)*4),fogLitSet=i=>{DT.fogLit=Math.max(0,Math.min(FOGLIT_N-1,i))/4;};
 // the Nuke strength slider: the reach of the Nuke Launcher's big blast (nukeR, shots.js), NUKE_R0 to NUKE_R1 in steps of
 // NUKE_RS, the weapon's own to begin with (not saved, like the other switches; the reactor's and the Testing
 // Environment's Big blast keep their own)
@@ -112,7 +115,7 @@ function toggleGfx(k){const g=GFX_KEY[k],off=GFX_OFF[g]=!GFX_OFF[g];
   const P=P1.pos,d=e=>Math.hypot(e.cx*CS-P.x,e.cz*CS-P.z);
   leafQ.length=0;for(const e of [...meshes.values()].sort((a,b)=>d(b)-d(a)))leafQ.push(ckey(e.cx,e.cz));}
 const curveTxt=()=>DT.curve===0?'Flat':DT.curve>0?'Down '+DT.curve:'Up '+(-DT.curve);
-function dbgVal(k){return k==='nukeR'?String(nukeR()):isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='tod'?todTxt():k==='vehSel'?tenvVehName(DT.veh):k==='vehGo'?DT.vehMsg:k==='paused'||k==='freecam'||k==='combo'||k==='invuln'||k==='infStam'||k==='infAmmo'||k==='fly'||k==='fps'||k==='sndList'||k==='info'?DT[k]:DBG[k];}
+function dbgVal(k){return k==='nukeR'?String(nukeR()):k==='fogLit'?(DT.fogLit??1)+'×':isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='tod'?todTxt():k==='vehSel'?tenvVehName(DT.veh):k==='vehGo'?DT.vehMsg:k==='paused'||k==='freecam'||k==='combo'||k==='invuln'||k==='infStam'||k==='infAmmo'||k==='fly'||k==='fps'||k==='sndList'||k==='info'?DT[k]:DBG[k];}
 // the rows on show: the individual hitbox switches only while 'Display hitboxes' is on
 // the menu's two tabs: 0 the switches themselves, 1 "Show / hide", which picks the rows tab 0 lists (kept in this browser)
 const DBG_HIDE_KEY='goblin-stompin-gus-dbghide',DBG_HIDE=new Set();
@@ -129,6 +132,7 @@ function dbgStep(k,d){if(k==='wx'){const L=Object.keys(WX_TYPES);wxSet(L[(L.inde
   else if(k==='host')DT.host=Math.max(0,Math.min(HOST_MAX,DT.host+d));
   else if(k==='tod')setTodHour(todHour()+d);
   else if(k==='nukeR')nukeSet(Math.round((nukeR()-NUKE_R0)/NUKE_RS)+d);
+  else if(k==='fogLit')fogLitSet(fogLitI()+d);
   else if(k==='speed')DT.speedI=Math.max(0,Math.min(SPEEDS.length-1,DT.speedI+d));else if(k==='pspeed')DT.psI=Math.max(0,Math.min(PSPEEDS.length-1,DT.psI+d));}
 function setKbdMenu(on){
   DT.kbdOpen=on;DT.menu=DT.quick&&(on||DT.selHeld);mHeld.clear();mTap.clear();renderTime();
@@ -198,7 +202,7 @@ function renderTime(){
     const dbgRows=dbgL.map((it,i)=>{const nAll=DBG_ITEMS.filter(o=>!o.act).length,v=it.act?(it.k==='_all'?(nAll-DBG_HIDE.size)+' / '+nAll+' shown':''):DT.tab?!DBG_HIDE.has(it.k):dbgVal(it.k),txt=typeof v==='boolean'?(DT.tab?(v?'SHOWN':'HIDDEN'):v?'ON':'OFF'):v;
       let body=txt;
       if(DT.tab){}
-      else if(DBG_SLIDE.has(it.k)){const n=it.k==='nukeR'?NUKE_RN:it.k==='curve'?21:it.k==='host'?HOST_MAX+1:it.k==='tod'?24:(it.k==='speed'?SPEEDS:PSPEEDS).length,f=(it.k==='nukeR'?(nukeR()-NUKE_R0)/NUKE_RS:it.k==='curve'?DT.curve+10:it.k==='host'?DT.host:it.k==='tod'?todHour():it.k==='speed'?DT.speedI:DT.psI)/(n-1)*100;body='<span class="sl" data-k="'+it.k+'"><i style="width:'+f+'%"></i><b style="left:'+f+'%"></b></span><span class="slv">'+txt+'</span>';}
+      else if(DBG_SLIDE.has(it.k)){const n=it.k==='fogLit'?FOGLIT_N:it.k==='nukeR'?NUKE_RN:it.k==='curve'?21:it.k==='host'?HOST_MAX+1:it.k==='tod'?24:(it.k==='speed'?SPEEDS:PSPEEDS).length,f=(it.k==='fogLit'?fogLitI():it.k==='nukeR'?(nukeR()-NUKE_R0)/NUKE_RS:it.k==='curve'?DT.curve+10:it.k==='host'?DT.host:it.k==='tod'?todHour():it.k==='speed'?DT.speedI:DT.psI)/(n-1)*100;body='<span class="sl" data-k="'+it.k+'"><i style="width:'+f+'%"></i><b style="left:'+f+'%"></b></span><span class="slv">'+txt+'</span>';}
       else if(DBG_DD.has(it.k))body='<span class="dd">'+(it.k==='wx'?WX_TYPES[WX.type].i+' ':'')+txt+' ▾</span>';
       else if(it.k==='vehGo')body='<span class="dbtn">Spawn</span>'+(txt?'<span class="dmsg">'+txt.replace(/[<&]/g,c=>c==='<'?'&lt;':'&amp;')+'</span>':'');
       let list='';
@@ -238,7 +242,7 @@ function renderTime(){
    const row=e.target.closest('.dr');if(!row)return;const ni=+row.dataset.i;if(DT.dd&&dbgItems()[ni].k!==DT.dd.k)DT.dd=null;DT.cur=ni;dbgMenuToggle();});
  // the sliders: press and drag anywhere along the track
  const slSet=x=>{const k=DT.slDrag,el=rows.querySelector('.sl[data-k="'+k+'"]');if(!el)return;const r=el.getBoundingClientRect(),f=Math.max(0,Math.min(1,(x-r.left)/r.width));
-   if(k==='nukeR')nukeSet(Math.round(f*(NUKE_RN-1)));else if(k==='curve')DT.curve=Math.round(f*20)-10;else if(k==='host')DT.host=Math.round(f*HOST_MAX);else if(k==='tod')setTodHour(Math.round(f*23));else if(k==='speed')DT.speedI=Math.round(f*(SPEEDS.length-1));else DT.psI=Math.round(f*(PSPEEDS.length-1));renderTime();};
+   if(k==='fogLit')fogLitSet(Math.round(f*(FOGLIT_N-1)));else if(k==='nukeR')nukeSet(Math.round(f*(NUKE_RN-1)));else if(k==='curve')DT.curve=Math.round(f*20)-10;else if(k==='host')DT.host=Math.round(f*HOST_MAX);else if(k==='tod')setTodHour(Math.round(f*23));else if(k==='speed')DT.speedI=Math.round(f*(SPEEDS.length-1));else DT.psI=Math.round(f*(PSPEEDS.length-1));renderTime();};
  rows.addEventListener('pointerdown',e=>{const sl=e.target.closest('.sl');if(!sl)return;DT.slDrag=sl.dataset.k;DT.dd=null;const row=sl.closest('.dr');if(row)DT.cur=+row.dataset.i;slSet(e.clientX);e.preventDefault();});
  addEventListener('pointermove',e=>{if(DT.slDrag)slSet(e.clientX);});
  addEventListener('pointerup',()=>{DT.slDrag=null;});

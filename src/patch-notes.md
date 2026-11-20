@@ -24,6 +24,8 @@
 - It's switched on or off with Block lighting under Sound & picture in Options. Off, the game looks and runs exactly as before.
 - A building that's been destroyed or brought down goes dark: its windows, neon and signs stop glowing, and the pieces of it falling don't glow either.
 - In fog, rain and snow at night, lit windows, neon, lamps and the light they cast now show through the murk as a soft glow, some way past where the buildings themselves disappear.
+- In thick fog the sky and clouds are now lost in the fog too, so far-off towers no longer stand out as dark shapes against a clear sky.
+- The debug menu has a Fog light slider for how strongly lights show through fog.
 
 ### Trees and water in the distance
 

@@ -48,11 +48,11 @@ scene.fog=new THREE.Fog(SKY.clone(),48,106);
 const hemi=new THREE.HemisphereLight(0xe8f0e0,0x40483a,0.75);scene.add(hemi);
 const sunLight=new THREE.DirectionalLight(0xffe8cc,0.55);sunLight.position.set(0.5,1,0.3);scene.add(sunLight);
 // ---- sky dome: gradient, sun, moon and stars; it rides along with whichever camera is drawing ----
-const skyU={uTop:{value:new THREE.Color(0x5d87b0)},uHor:{value:new THREE.Color(0xa9b8b4)},uSun:{value:new THREE.Vector3(0,1,0)},uMoon:{value:new THREE.Vector3(0,-1,0)},uNight:{value:0},uSunCol:{value:new THREE.Color(1,0.93,0.78)},uPhase:{value:0.5},uMoonLit:{value:1},uCover:{value:0},uHzn:{value:0}};
+const skyU={uTop:{value:new THREE.Color(0x5d87b0)},uHor:{value:new THREE.Color(0xa9b8b4)},uSun:{value:new THREE.Vector3(0,1,0)},uMoon:{value:new THREE.Vector3(0,-1,0)},uNight:{value:0},uSunCol:{value:new THREE.Color(1,0.93,0.78)},uPhase:{value:0.5},uMoonLit:{value:1},uCover:{value:0},uHzn:{value:0},uFog:{value:0},uFogCol:{value:scene.fog.color}};
 const sky=new THREE.Mesh(new THREE.SphereGeometry(70,32,16),new THREE.ShaderMaterial({uniforms:skyU,side:THREE.BackSide,depthWrite:false,depthTest:false,fog:false,
   vertexShader:'varying vec3 vD;void main(){vD=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
   fragmentShader:[
-    'uniform vec3 uTop,uHor,uSunCol,uSun,uMoon;uniform float uNight,uPhase,uMoonLit,uCover,uHzn;varying vec3 vD;',
+    'uniform vec3 uTop,uHor,uSunCol,uSun,uMoon,uFogCol;uniform float uNight,uPhase,uMoonLit,uCover,uHzn,uFog;varying vec3 vD;',
     'void main(){',
     // (h: height above the horizon -- which, with the world bent, sits lower (or higher) than straight ahead)
     ' vec3 d=normalize(vD);float h=d.y-uHzn;',
@@ -69,6 +69,9 @@ const sky=new THREE.Mesh(new THREE.SphereGeometry(70,32,16),new THREE.ShaderMate
     ' col+=(vec3(0.86,0.9,1.0)*smoothstep(0.9991,0.9995,md)*(0.06+0.94*lit)+vec3(0.22,0.27,0.42)*pow(md,60.0)*uMoonLit)*uNight*clear;',
     ' vec3 q=floor(d*220.0);float st=fract(sin(dot(q,vec3(12.9898,78.233,37.719)))*43758.5453);',
     ' col+=vec3(step(0.9982,st))*uNight*smoothstep(0.02,0.25,h)*0.85*clear;',
+    // weather fog: the sky's lost in it as the far blocks are (uFog, how thick it is, set per view by renderView), all
+    // the way overhead in thick fog, so nothing stands out against a sky that should be hidden
+    ' col=mix(col,uFogCol,uFog*(1.0-0.2*smoothstep(0.3,1.0,h)));',
     ' gl_FragColor=vec4(col,1.0);',
     '}'].join('\n')}));
 sky.renderOrder=-10;sky.frustumCulled=false;scene.add(sky);
@@ -92,12 +95,12 @@ function cloudMask(seed){
   g.putImageData(img,0,0);return c;
 }
 const CLOUD_VS='uniform float uWorldCurve;varying vec2 vUv;void main(){vUv=uv;vec4 w=modelMatrix*vec4(position,1.0);vec2 dd=w.xz-cameraPosition.xz;w.y-=uWorldCurve*dot(dd,dd);gl_Position=projectionMatrix*viewMatrix*w;}';
-const CLOUD_FS=['uniform sampler2D map;uniform sampler2D mask;uniform vec2 uMOff;uniform float uMRep;uniform vec2 uOff;uniform float uRep;uniform vec3 uTint;uniform float uOpacity;uniform float uShade;uniform float uCover;varying vec2 vUv;',
+const CLOUD_FS=['uniform sampler2D map;uniform sampler2D mask;uniform vec2 uMOff;uniform float uMRep;uniform vec2 uOff;uniform float uRep;uniform vec3 uTint;uniform float uOpacity;uniform float uShade;uniform float uCover;uniform float uFog;varying vec2 vUv;',
   'void main(){vec4 c=texture2D(map,vUv*uRep+uOff);float r=length(vUv-0.5)*2.0;float fade=1.0-smoothstep(0.55,1.0,r);',
   ' float m=texture2D(mask,vUv*uMRep+uMOff).r;m=smoothstep(0.28-0.5*uCover,0.72-0.45*uCover,m);',
   // overcast: the gaps between the cloud blocks fill in with a flat grey layer
   ' float fill=smoothstep(0.45,1.0,uCover)*0.85;float a=max(c.a,fill);vec3 rgb=mix(vec3(0.72,0.75,0.77),c.rgb,c.a);',
-  ' gl_FragColor=vec4(rgb*uTint*uShade,a*uOpacity*fade*m);}'].join('\n');
+  ' gl_FragColor=vec4(rgb*uTint*uShade,a*uOpacity*fade*m*(1.0-uFog));}'].join('\n');   // (gone in thick weather fog, as the sky is: skyU.uFog)
 // h: height above the top of the world; period: blocks per texture tile (64 texels); wind: blocks/second (x,z);
 // size: deck width (x the view); n: how many cloud blocks in a tile
 const CLOUD_DECKS=[
@@ -111,7 +114,7 @@ CLOUD_DECKS.forEach((D,di)=>{
   D.off=[0,0];D.drift=[0,0];
   for(const [dy,shade] of D.slices){
     const m=new THREE.Mesh(new THREE.PlaneGeometry(600,600,48,48),new THREE.ShaderMaterial({vertexShader:CLOUD_VS,fragmentShader:CLOUD_FS,transparent:true,depthWrite:false,fog:false,side:THREE.DoubleSide,
-      uniforms:{map:{value:tex},mask:{value:mtex},uMOff:{value:new THREE.Vector2()},uMRep:{value:1},uOff:{value:new THREE.Vector2()},uRep:{value:1},uTint:{value:new THREE.Color(1,1,1)},uOpacity:{value:D.op},uShade:{value:shade},uCover:{value:0}}}));
+      uniforms:{map:{value:tex},mask:{value:mtex},uMOff:{value:new THREE.Vector2()},uMRep:{value:1},uOff:{value:new THREE.Vector2()},uRep:{value:1},uTint:{value:new THREE.Color(1,1,1)},uOpacity:{value:D.op},uShade:{value:shade},uCover:{value:0},uFog:skyU.uFog}}));
     m.rotation.x=-Math.PI/2;m.frustumCulled=false;
     // drawn far to near as seen from below: the highest deck first, each deck's top slice before its shaded underside
     m.renderOrder=-4+di*0.9+(-dy)*0.05;

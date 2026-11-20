@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:9cfc269a6f9f62a74eaa9d39791090c1b3ed8f233dde800fdf1c75dc17b440e2 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:cf135042b566c6635aca1b74c29ec885a4a87f95a432403d69107c0e9d157c58 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1582,7 +1582,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Nuke Launcher</h3>
 <ul><li>A new weapon for goblins, picked in the Loadout: a launcher with a nuclear warhead on the front. It lobs the warhead slowly in a shallow arc, and wherever it lands the same blast as a meltdown goes off, smaller but still enough to flatten a few streets.</li><li>Fire it level and it lands far enough off for you to live through it. Fire it at a wall in front of you and you won't.</li><li>One warhead in the tube and two spares, with a long reload. Once the spares are gone it's empty, unless Infinite ammo is on. The weapon bar shows how many spares are left.</li><li>The debug menu has a Nuke strength slider to make its blast smaller or bigger, up to the size of a meltdown.</li></ul>
 <h3>Lighting</h3>
-<ul><li>At night, lights now light up what's around them. Street lamps pool light on the pavement, neon signs throw their own colours across the street, lit windows glow on the walls and rooms beside them, and lamps, TVs and screens light the rooms they're in. Walls block the light, so it stays in the room or the street it's in. Smash a lamp or a sign and its light goes out.</li><li>It's switched on or off with Block lighting under Sound &amp; picture in Options. Off, the game looks and runs exactly as before.</li><li>A building that's been destroyed or brought down goes dark: its windows, neon and signs stop glowing, and the pieces of it falling don't glow either.</li><li>In fog, rain and snow at night, lit windows, neon, lamps and the light they cast now show through the murk as a soft glow, some way past where the buildings themselves disappear.</li></ul>
+<ul><li>At night, lights now light up what's around them. Street lamps pool light on the pavement, neon signs throw their own colours across the street, lit windows glow on the walls and rooms beside them, and lamps, TVs and screens light the rooms they're in. Walls block the light, so it stays in the room or the street it's in. Smash a lamp or a sign and its light goes out.</li><li>It's switched on or off with Block lighting under Sound &amp; picture in Options. Off, the game looks and runs exactly as before.</li><li>A building that's been destroyed or brought down goes dark: its windows, neon and signs stop glowing, and the pieces of it falling don't glow either.</li><li>In fog, rain and snow at night, lit windows, neon, lamps and the light they cast now show through the murk as a soft glow, some way past where the buildings themselves disappear.</li><li>In thick fog the sky and clouds are now lost in the fog too, so far-off towers no longer stand out as dark shapes against a clear sky.</li><li>The debug menu has a Fog light slider for how strongly lights show through fog.</li></ul>
 <h3>Trees and water in the distance</h3>
 <ul><li>Trees, ponds and lakes no longer pop up out of nowhere as you get close. Out past the full-detail city, the distant view now has every tree in its real spot, and up close each one becomes the real tree where it already stood.</li><li>Further off, woods show as clumps of treetops, and ponds, park lakes and the theme park's boating lake show as water.</li><li>Distant trees change colour with the seasons and lose their leaves in winter, like the near ones.</li></ul>
 <h3>Water</h3>
@@ -2273,7 +2273,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='9296ebcb0871';
+const GAME_VER='0.5',GAME_BUILD='09d8e114b7dd';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -9248,9 +9248,10 @@ function nightPatch(mat){
 const LIT_FRAG='\n#ifdef BLOCK_LIGHT\n  vec3 litC=uLight+pow(vBlk,vec3(1.5))*max(vec3(1.0)-uLight,vec3(0.0));\n#else\n  vec3 litC=uLight;\n#endif\n';
 // lights in the weather's fog: at night, glowing faces (windows, neon, lamps) and what block light lights up fade into the
 // fog over a longer way than everything else, and the fog in front of them takes on a little of their colour, so a lit
-// street shows through the murk as a soft glow some way past where the buildings are lost. FOG_GLOW (0 to 1) is how thick
-// the weather's fog is, set per view by renderView (0 under water and in clear weather, so the plain distance fog at the
-// view's edge is untouched); the shader weighs it by how dark it is, so by day nothing changes. (three r128's fog_fragment,
+// street shows through the murk as a soft glow some way past where the buildings are lost. FOG_GLOW is how thick the
+// weather's fog is (0 to 1) times the debug menu's Fog light strength (DT.fogLit, 1 to begin with), set per view by
+// renderView (0 under water and in clear weather, so the plain distance fog at the view's edge is untouched); the shader
+// weighs it by how dark it is, so by day nothing changes. (three r128's fog_fragment,
 // with fogDepth, written out again: a few sums a pixel, nothing per frame but the one uniform.)
 const FOG_GLOW={value:0};
 const FOG_LIT_FRAG=`
@@ -9264,13 +9265,13 @@ const FOG_LIT_FRAG=`
 #ifdef BLOCK_LIGHT
     vec3 fogB=pow(vBlk,vec3(1.5));fogLt=max(fogLt,min(1.0,max(max(fogB.r,fogB.g),fogB.b)*1.4)*0.8);
 #endif
-    fogLt*=uFogGlow*clamp((0.75-max(max(uLight.r,uLight.g),uLight.b))*2.5,0.0,1.0);
+    fogLt*=min(3.0,uFogGlow)*clamp((0.75-max(max(uLight.r,uLight.g),uLight.b))*2.5,0.0,1.0);
   }
   if(fogLt>0.0){
     vec3 fogSrc=gl_FragColor.rgb;
-    float fogL=smoothstep(fogNear,fogFar*(1.0+0.9*fogLt),fogDepth);
-    float fogHz=fogLt*fogFactor*(1.0-smoothstep(fogFar*0.8,fogFar*(1.0+1.5*fogLt),fogDepth));
-    gl_FragColor.rgb=mix(fogSrc,fogColor,fogL)+fogSrc*fogHz*0.35;
+    float fogL=smoothstep(fogNear,fogFar*(1.0+1.4*fogLt),fogDepth);
+    float fogHz=min(1.5,fogLt)*fogFactor*(1.0-smoothstep(fogFar*0.8,fogFar*(1.0+2.2*fogLt),fogDepth));
+    gl_FragColor.rgb=mix(fogSrc,fogColor,fogL)+fogSrc*fogHz*0.55;
   }else gl_FragColor.rgb=mix(gl_FragColor.rgb,fogColor,fogFactor);
 #endif
 `;
@@ -9772,11 +9773,11 @@ scene.fog=new THREE.Fog(SKY.clone(),48,106);
 const hemi=new THREE.HemisphereLight(0xe8f0e0,0x40483a,0.75);scene.add(hemi);
 const sunLight=new THREE.DirectionalLight(0xffe8cc,0.55);sunLight.position.set(0.5,1,0.3);scene.add(sunLight);
 // ---- sky dome: gradient, sun, moon and stars; it rides along with whichever camera is drawing ----
-const skyU={uTop:{value:new THREE.Color(0x5d87b0)},uHor:{value:new THREE.Color(0xa9b8b4)},uSun:{value:new THREE.Vector3(0,1,0)},uMoon:{value:new THREE.Vector3(0,-1,0)},uNight:{value:0},uSunCol:{value:new THREE.Color(1,0.93,0.78)},uPhase:{value:0.5},uMoonLit:{value:1},uCover:{value:0},uHzn:{value:0}};
+const skyU={uTop:{value:new THREE.Color(0x5d87b0)},uHor:{value:new THREE.Color(0xa9b8b4)},uSun:{value:new THREE.Vector3(0,1,0)},uMoon:{value:new THREE.Vector3(0,-1,0)},uNight:{value:0},uSunCol:{value:new THREE.Color(1,0.93,0.78)},uPhase:{value:0.5},uMoonLit:{value:1},uCover:{value:0},uHzn:{value:0},uFog:{value:0},uFogCol:{value:scene.fog.color}};
 const sky=new THREE.Mesh(new THREE.SphereGeometry(70,32,16),new THREE.ShaderMaterial({uniforms:skyU,side:THREE.BackSide,depthWrite:false,depthTest:false,fog:false,
   vertexShader:'varying vec3 vD;void main(){vD=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
   fragmentShader:[
-    'uniform vec3 uTop,uHor,uSunCol,uSun,uMoon;uniform float uNight,uPhase,uMoonLit,uCover,uHzn;varying vec3 vD;',
+    'uniform vec3 uTop,uHor,uSunCol,uSun,uMoon,uFogCol;uniform float uNight,uPhase,uMoonLit,uCover,uHzn,uFog;varying vec3 vD;',
     'void main(){',
     // (h: height above the horizon -- which, with the world bent, sits lower (or higher) than straight ahead)
     ' vec3 d=normalize(vD);float h=d.y-uHzn;',
@@ -9793,6 +9794,9 @@ const sky=new THREE.Mesh(new THREE.SphereGeometry(70,32,16),new THREE.ShaderMate
     ' col+=(vec3(0.86,0.9,1.0)*smoothstep(0.9991,0.9995,md)*(0.06+0.94*lit)+vec3(0.22,0.27,0.42)*pow(md,60.0)*uMoonLit)*uNight*clear;',
     ' vec3 q=floor(d*220.0);float st=fract(sin(dot(q,vec3(12.9898,78.233,37.719)))*43758.5453);',
     ' col+=vec3(step(0.9982,st))*uNight*smoothstep(0.02,0.25,h)*0.85*clear;',
+    // weather fog: the sky's lost in it as the far blocks are (uFog, how thick it is, set per view by renderView), all
+    // the way overhead in thick fog, so nothing stands out against a sky that should be hidden
+    ' col=mix(col,uFogCol,uFog*(1.0-0.2*smoothstep(0.3,1.0,h)));',
     ' gl_FragColor=vec4(col,1.0);',
     '}'].join('\n')}));
 sky.renderOrder=-10;sky.frustumCulled=false;scene.add(sky);
@@ -9816,12 +9820,12 @@ function cloudMask(seed){
   g.putImageData(img,0,0);return c;
 }
 const CLOUD_VS='uniform float uWorldCurve;varying vec2 vUv;void main(){vUv=uv;vec4 w=modelMatrix*vec4(position,1.0);vec2 dd=w.xz-cameraPosition.xz;w.y-=uWorldCurve*dot(dd,dd);gl_Position=projectionMatrix*viewMatrix*w;}';
-const CLOUD_FS=['uniform sampler2D map;uniform sampler2D mask;uniform vec2 uMOff;uniform float uMRep;uniform vec2 uOff;uniform float uRep;uniform vec3 uTint;uniform float uOpacity;uniform float uShade;uniform float uCover;varying vec2 vUv;',
+const CLOUD_FS=['uniform sampler2D map;uniform sampler2D mask;uniform vec2 uMOff;uniform float uMRep;uniform vec2 uOff;uniform float uRep;uniform vec3 uTint;uniform float uOpacity;uniform float uShade;uniform float uCover;uniform float uFog;varying vec2 vUv;',
   'void main(){vec4 c=texture2D(map,vUv*uRep+uOff);float r=length(vUv-0.5)*2.0;float fade=1.0-smoothstep(0.55,1.0,r);',
   ' float m=texture2D(mask,vUv*uMRep+uMOff).r;m=smoothstep(0.28-0.5*uCover,0.72-0.45*uCover,m);',
   // overcast: the gaps between the cloud blocks fill in with a flat grey layer
   ' float fill=smoothstep(0.45,1.0,uCover)*0.85;float a=max(c.a,fill);vec3 rgb=mix(vec3(0.72,0.75,0.77),c.rgb,c.a);',
-  ' gl_FragColor=vec4(rgb*uTint*uShade,a*uOpacity*fade*m);}'].join('\n');
+  ' gl_FragColor=vec4(rgb*uTint*uShade,a*uOpacity*fade*m*(1.0-uFog));}'].join('\n');   // (gone in thick weather fog, as the sky is: skyU.uFog)
 // h: height above the top of the world; period: blocks per texture tile (64 texels); wind: blocks/second (x,z);
 // size: deck width (x the view); n: how many cloud blocks in a tile
 const CLOUD_DECKS=[
@@ -9835,7 +9839,7 @@ CLOUD_DECKS.forEach((D,di)=>{
   D.off=[0,0];D.drift=[0,0];
   for(const [dy,shade] of D.slices){
     const m=new THREE.Mesh(new THREE.PlaneGeometry(600,600,48,48),new THREE.ShaderMaterial({vertexShader:CLOUD_VS,fragmentShader:CLOUD_FS,transparent:true,depthWrite:false,fog:false,side:THREE.DoubleSide,
-      uniforms:{map:{value:tex},mask:{value:mtex},uMOff:{value:new THREE.Vector2()},uMRep:{value:1},uOff:{value:new THREE.Vector2()},uRep:{value:1},uTint:{value:new THREE.Color(1,1,1)},uOpacity:{value:D.op},uShade:{value:shade},uCover:{value:0}}}));
+      uniforms:{map:{value:tex},mask:{value:mtex},uMOff:{value:new THREE.Vector2()},uMRep:{value:1},uOff:{value:new THREE.Vector2()},uRep:{value:1},uTint:{value:new THREE.Color(1,1,1)},uOpacity:{value:D.op},uShade:{value:shade},uCover:{value:0},uFog:skyU.uFog}}));
     m.rotation.x=-Math.PI/2;m.frustumCulled=false;
     // drawn far to near as seen from below: the highest deck first, each deck's top slice before its shaded underside
     m.renderOrder=-4+di*0.9+(-dy)*0.05;
@@ -21206,7 +21210,7 @@ const DBG_COLS=4,DBG_SECS=[
   [0,'All',[{k:'_all',label:'Show all',act:true},{k:'_none',label:'Hide all',act:true}]],
   [0,'Time',[{k:'speed',label:'Game speed'},{k:'paused',label:'Stop time'}]],
   [0,'Camera',[{k:'freecam',label:'Free cam'},{k:'curve',label:'World curve'}]],
-  [0,'World',[{k:'tod',label:'Time of day'},{k:'wx',label:'Weather'},{k:'season',label:'Season'}]],
+  [0,'World',[{k:'tod',label:'Time of day'},{k:'wx',label:'Weather'},{k:'season',label:'Season'},{k:'fogLit',label:'Fog light'}]],
   // (pick a kind, then Spawn puts one down ahead of you, parked and empty: in the Testing Environment or the ordinary game)
   [0,'Vehicles',[{k:'vehSel',label:'Vehicle'},{k:'vehGo',label:'Spawn vehicle'}]],
   [1,'Player',[{k:'pspeed',label:'Player speed'},{k:'invuln',label:'Invulnerable'},{k:'infStam',label:'Infinite stamina'},{k:'infAmmo',label:'Infinite ammo'},{k:'nukeR',label:'Nuke strength'},{k:'fly',label:'Flying'},{k:'host',label:'Enemy hostility'},{k:'combo',label:'Combo system'}]],
@@ -21220,7 +21224,10 @@ const DBG_COLS=4,DBG_SECS=[
 const DBG_ITEMS=DBG_SECS.flatMap(([c,sec,rows])=>rows.map(it=>Object.assign(it,{c,sec})));
 // (the sliders: left and right only move one once it's been picked with A, and until then they go to the next column,
 // as on any other row, so a slider never gets in the way of crossing the menu)
-const DBG_SLIDE=new Set(['speed','pspeed','curve','host','tod','nukeR']);
+const DBG_SLIDE=new Set(['speed','pspeed','curve','host','tod','nukeR','fogLit']);
+// the Fog light slider: how strongly lights show through the weather's fog at night (DT.fogLit, FOG_LIT_FRAG), 0 to 3 times
+// in quarters, 1 to begin with (not saved, like the other switches)
+const FOGLIT_N=13,fogLitI=()=>Math.round((DT.fogLit??1)*4),fogLitSet=i=>{DT.fogLit=Math.max(0,Math.min(FOGLIT_N-1,i))/4;};
 // the Nuke strength slider: the reach of the Nuke Launcher's big blast (nukeR, shots.js), NUKE_R0 to NUKE_R1 in steps of
 // NUKE_RS, the weapon's own to begin with (not saved, like the other switches; the reactor's and the Testing
 // Environment's Big blast keep their own)
@@ -21241,7 +21248,7 @@ function toggleGfx(k){const g=GFX_KEY[k],off=GFX_OFF[g]=!GFX_OFF[g];
   const P=P1.pos,d=e=>Math.hypot(e.cx*CS-P.x,e.cz*CS-P.z);
   leafQ.length=0;for(const e of [...meshes.values()].sort((a,b)=>d(b)-d(a)))leafQ.push(ckey(e.cx,e.cz));}
 const curveTxt=()=>DT.curve===0?'Flat':DT.curve>0?'Down '+DT.curve:'Up '+(-DT.curve);
-function dbgVal(k){return k==='nukeR'?String(nukeR()):isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='tod'?todTxt():k==='vehSel'?tenvVehName(DT.veh):k==='vehGo'?DT.vehMsg:k==='paused'||k==='freecam'||k==='combo'||k==='invuln'||k==='infStam'||k==='infAmmo'||k==='fly'||k==='fps'||k==='sndList'||k==='info'?DT[k]:DBG[k];}
+function dbgVal(k){return k==='nukeR'?String(nukeR()):k==='fogLit'?(DT.fogLit??1)+'×':isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='tod'?todTxt():k==='vehSel'?tenvVehName(DT.veh):k==='vehGo'?DT.vehMsg:k==='paused'||k==='freecam'||k==='combo'||k==='invuln'||k==='infStam'||k==='infAmmo'||k==='fly'||k==='fps'||k==='sndList'||k==='info'?DT[k]:DBG[k];}
 // the rows on show: the individual hitbox switches only while 'Display hitboxes' is on
 // the menu's two tabs: 0 the switches themselves, 1 "Show / hide", which picks the rows tab 0 lists (kept in this browser)
 const DBG_HIDE_KEY='goblin-stompin-gus-dbghide',DBG_HIDE=new Set();
@@ -21258,6 +21265,7 @@ function dbgStep(k,d){if(k==='wx'){const L=Object.keys(WX_TYPES);wxSet(L[(L.inde
   else if(k==='host')DT.host=Math.max(0,Math.min(HOST_MAX,DT.host+d));
   else if(k==='tod')setTodHour(todHour()+d);
   else if(k==='nukeR')nukeSet(Math.round((nukeR()-NUKE_R0)/NUKE_RS)+d);
+  else if(k==='fogLit')fogLitSet(fogLitI()+d);
   else if(k==='speed')DT.speedI=Math.max(0,Math.min(SPEEDS.length-1,DT.speedI+d));else if(k==='pspeed')DT.psI=Math.max(0,Math.min(PSPEEDS.length-1,DT.psI+d));}
 function setKbdMenu(on){
   DT.kbdOpen=on;DT.menu=DT.quick&&(on||DT.selHeld);mHeld.clear();mTap.clear();renderTime();
@@ -21327,7 +21335,7 @@ function renderTime(){
     const dbgRows=dbgL.map((it,i)=>{const nAll=DBG_ITEMS.filter(o=>!o.act).length,v=it.act?(it.k==='_all'?(nAll-DBG_HIDE.size)+' / '+nAll+' shown':''):DT.tab?!DBG_HIDE.has(it.k):dbgVal(it.k),txt=typeof v==='boolean'?(DT.tab?(v?'SHOWN':'HIDDEN'):v?'ON':'OFF'):v;
       let body=txt;
       if(DT.tab){}
-      else if(DBG_SLIDE.has(it.k)){const n=it.k==='nukeR'?NUKE_RN:it.k==='curve'?21:it.k==='host'?HOST_MAX+1:it.k==='tod'?24:(it.k==='speed'?SPEEDS:PSPEEDS).length,f=(it.k==='nukeR'?(nukeR()-NUKE_R0)/NUKE_RS:it.k==='curve'?DT.curve+10:it.k==='host'?DT.host:it.k==='tod'?todHour():it.k==='speed'?DT.speedI:DT.psI)/(n-1)*100;body='<span class="sl" data-k="'+it.k+'"><i style="width:'+f+'%"></i><b style="left:'+f+'%"></b></span><span class="slv">'+txt+'</span>';}
+      else if(DBG_SLIDE.has(it.k)){const n=it.k==='fogLit'?FOGLIT_N:it.k==='nukeR'?NUKE_RN:it.k==='curve'?21:it.k==='host'?HOST_MAX+1:it.k==='tod'?24:(it.k==='speed'?SPEEDS:PSPEEDS).length,f=(it.k==='fogLit'?fogLitI():it.k==='nukeR'?(nukeR()-NUKE_R0)/NUKE_RS:it.k==='curve'?DT.curve+10:it.k==='host'?DT.host:it.k==='tod'?todHour():it.k==='speed'?DT.speedI:DT.psI)/(n-1)*100;body='<span class="sl" data-k="'+it.k+'"><i style="width:'+f+'%"></i><b style="left:'+f+'%"></b></span><span class="slv">'+txt+'</span>';}
       else if(DBG_DD.has(it.k))body='<span class="dd">'+(it.k==='wx'?WX_TYPES[WX.type].i+' ':'')+txt+' ▾</span>';
       else if(it.k==='vehGo')body='<span class="dbtn">Spawn</span>'+(txt?'<span class="dmsg">'+txt.replace(/[<&]/g,c=>c==='<'?'&lt;':'&amp;')+'</span>':'');
       let list='';
@@ -21367,7 +21375,7 @@ function renderTime(){
    const row=e.target.closest('.dr');if(!row)return;const ni=+row.dataset.i;if(DT.dd&&dbgItems()[ni].k!==DT.dd.k)DT.dd=null;DT.cur=ni;dbgMenuToggle();});
  // the sliders: press and drag anywhere along the track
  const slSet=x=>{const k=DT.slDrag,el=rows.querySelector('.sl[data-k="'+k+'"]');if(!el)return;const r=el.getBoundingClientRect(),f=Math.max(0,Math.min(1,(x-r.left)/r.width));
-   if(k==='nukeR')nukeSet(Math.round(f*(NUKE_RN-1)));else if(k==='curve')DT.curve=Math.round(f*20)-10;else if(k==='host')DT.host=Math.round(f*HOST_MAX);else if(k==='tod')setTodHour(Math.round(f*23));else if(k==='speed')DT.speedI=Math.round(f*(SPEEDS.length-1));else DT.psI=Math.round(f*(PSPEEDS.length-1));renderTime();};
+   if(k==='fogLit')fogLitSet(Math.round(f*(FOGLIT_N-1)));else if(k==='nukeR')nukeSet(Math.round(f*(NUKE_RN-1)));else if(k==='curve')DT.curve=Math.round(f*20)-10;else if(k==='host')DT.host=Math.round(f*HOST_MAX);else if(k==='tod')setTodHour(Math.round(f*23));else if(k==='speed')DT.speedI=Math.round(f*(SPEEDS.length-1));else DT.psI=Math.round(f*(PSPEEDS.length-1));renderTime();};
  rows.addEventListener('pointerdown',e=>{const sl=e.target.closest('.sl');if(!sl)return;DT.slDrag=sl.dataset.k;DT.dd=null;const row=sl.closest('.dr');if(row)DT.cur=+row.dataset.i;slSet(e.clientX);e.preventDefault();});
  addEventListener('pointermove',e=>{if(DT.slDrag)slSet(e.clientX);});
  addEventListener('pointerup',()=>{DT.slDrag=null;});
@@ -28671,9 +28679,10 @@ function renderView(p,x,y,w,h){
   const c=p.camera.position,under=get(c.x,c.y,c.z)===WATER;
   p.ui.tint.hidden=!under;
   const far=lodFar();
-  if(under){scene.fog.color.copy(DEEP);scene.background.copy(DEEP);scene.fog.near=1;scene.fog.far=18;FOG_GLOW.value=0;}
+  if(under){scene.fog.color.copy(DEEP);scene.background.copy(DEEP);scene.fog.near=1;scene.fog.far=18;FOG_GLOW.value=0;skyU.uFog.value=0;}
   else{const fk=Math.max(0.2,WX.k.fog),ff=Math.min(far,wxFogFar(fk));scene.fog.color.copy(SKY);scene.background.copy(SKY);scene.fog.near=ff*0.45*fk*fk;scene.fog.far=ff;
-    FOG_GLOW.value=ff<far?Math.min(1,Math.max(0,(0.95-fk)/0.5)):0;}   // (lights through the weather's fog, FOG_LIT_FRAG)
+    FOG_GLOW.value=ff<far?Math.min(1,Math.max(0,(0.95-fk)/0.5))*(DT.fogLit??1):0;   // (lights through the weather's fog, FOG_LIT_FRAG)
+    skyU.uFog.value=Math.min(1,Math.max(0,(0.92-fk)/0.45));}   // (and the sky and clouds lost in it)
   placePrecip(c,p.idx);
   p.camera.aspect=w/h;p.camera.fov=p.tkFov||(p.gob&&!p.drv&&p.scFov)||72-6*(p.speedFx||0)-8*(p.windZoom||0)+(p.drv&&p.drv.k==='mech'?p.mgFov||0:0);   // (tkFov: a tank's gunsight, tank-handling.js)
   p.camera.far=far+40;p.camera.near=p.gob?0.12:0.25;p.camera.updateProjectionMatrix();

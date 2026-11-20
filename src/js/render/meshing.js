@@ -28,9 +28,10 @@ function nightPatch(mat){
 const LIT_FRAG='\n#ifdef BLOCK_LIGHT\n  vec3 litC=uLight+pow(vBlk,vec3(1.5))*max(vec3(1.0)-uLight,vec3(0.0));\n#else\n  vec3 litC=uLight;\n#endif\n';
 // lights in the weather's fog: at night, glowing faces (windows, neon, lamps) and what block light lights up fade into the
 // fog over a longer way than everything else, and the fog in front of them takes on a little of their colour, so a lit
-// street shows through the murk as a soft glow some way past where the buildings are lost. FOG_GLOW (0 to 1) is how thick
-// the weather's fog is, set per view by renderView (0 under water and in clear weather, so the plain distance fog at the
-// view's edge is untouched); the shader weighs it by how dark it is, so by day nothing changes. (three r128's fog_fragment,
+// street shows through the murk as a soft glow some way past where the buildings are lost. FOG_GLOW is how thick the
+// weather's fog is (0 to 1) times the debug menu's Fog light strength (DT.fogLit, 1 to begin with), set per view by
+// renderView (0 under water and in clear weather, so the plain distance fog at the view's edge is untouched); the shader
+// weighs it by how dark it is, so by day nothing changes. (three r128's fog_fragment,
 // with fogDepth, written out again: a few sums a pixel, nothing per frame but the one uniform.)
 const FOG_GLOW={value:0};
 const FOG_LIT_FRAG=`
@@ -44,13 +45,13 @@ const FOG_LIT_FRAG=`
 #ifdef BLOCK_LIGHT
     vec3 fogB=pow(vBlk,vec3(1.5));fogLt=max(fogLt,min(1.0,max(max(fogB.r,fogB.g),fogB.b)*1.4)*0.8);
 #endif
-    fogLt*=uFogGlow*clamp((0.75-max(max(uLight.r,uLight.g),uLight.b))*2.5,0.0,1.0);
+    fogLt*=min(3.0,uFogGlow)*clamp((0.75-max(max(uLight.r,uLight.g),uLight.b))*2.5,0.0,1.0);
   }
   if(fogLt>0.0){
     vec3 fogSrc=gl_FragColor.rgb;
-    float fogL=smoothstep(fogNear,fogFar*(1.0+0.9*fogLt),fogDepth);
-    float fogHz=fogLt*fogFactor*(1.0-smoothstep(fogFar*0.8,fogFar*(1.0+1.5*fogLt),fogDepth));
-    gl_FragColor.rgb=mix(fogSrc,fogColor,fogL)+fogSrc*fogHz*0.35;
+    float fogL=smoothstep(fogNear,fogFar*(1.0+1.4*fogLt),fogDepth);
+    float fogHz=min(1.5,fogLt)*fogFactor*(1.0-smoothstep(fogFar*0.8,fogFar*(1.0+2.2*fogLt),fogDepth));
+    gl_FragColor.rgb=mix(fogSrc,fogColor,fogL)+fogSrc*fogHz*0.55;
   }else gl_FragColor.rgb=mix(gl_FragColor.rgb,fogColor,fogFactor);
 #endif
 `;
