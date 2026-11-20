@@ -30,7 +30,7 @@
 - The cloud drifts off with the wind and thins away over a minute or so. It's mottled in lighter and darker shades rather than one flat colour.
 - The fireball swells and rolls over into the mushroom's ring in one smooth movement, rather than sliding from a ball into a ring.
 - The mushroom cloud is see-through at its edges like other smoke, its stem flares out into the cap and turns only slowly, the collar round the stem is mottled, and the ring of dust along the ground keeps billowing out, climbing and drifting rather than sitting still.
-- Water no longer shows through in front of the mushroom cloud.
+- Water and smoke behind the mushroom cloud no longer show through in front of it.
 - The smoke rising round the edge of the blast fans out, bends over and drifts away rather than standing in columns.
 - All smoke now blows with the wind: burning buildings, campfires and wrecked vehicles too.
 - The boom and the shaking reach you at the speed of sound, so from far off you see it well before you hear it.

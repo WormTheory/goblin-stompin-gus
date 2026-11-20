@@ -320,8 +320,8 @@ function bbWorldPt(x,y,z){if(x>=SHIP_X0){const S=shipOfPos(x,z);if(S){const t=sh
 const BBF_N=9000,BBF_W=2400,BBF_SPD=343,BBF_LIFE=110,BBF_WIND=SMOKE_WIND,BB_GLOWC=new THREE.Color(1,0.46,0.16),_bbc=new THREE.Color(),_bbc2=new THREE.Color(),_bbFog=new THREE.Color();
 const BBF_HEAT=[[0,0x3a1408],[0.2,0x8a1e08],[0.4,0xe0460c],[0.6,0xff9a1a],[0.8,0xffe27a],[1,0xfffbea]].map(([k,c])=>[k,new THREE.Color(c)]);
 const BBF=(()=>{const geo=new THREE.BoxGeometry(1,1,1),mb=o=>new THREE.MeshBasicMaterial(Object.assign({color:0xffffff,fog:false},o));
-  return{glow:fxBatch(geo,mb(),BBF_N,false),cloud:fxBatch(new THREE.BoxGeometry(1,1,1),mb({transparent:true,depthWrite:false}),BBF_N,true),wil:fxBatch(geo,mb({transparent:true,opacity:0.5,depthWrite:false}),BBF_W,false),el:null};})();
-BBF.cloud.renderOrder=1.5;BB.glowK=0;BB.glowP=null;   // (after the water, renderOrder 1, which would otherwise paint over it, and before the fires' smoke, 2, which mostly stands in front of it)
+  return{glow:fxBatch(geo,mb(),BBF_N,false),cloud:fxBatch(new THREE.BoxGeometry(1,1,1),mb({transparent:true}),BBF_N,true),wil:fxBatch(geo,mb({transparent:true,opacity:0.5,depthWrite:false}),BBF_W,false),el:null};})();
+BBF.cloud.renderOrder=1.5;BB.glowK=0;BB.glowP=null;   // (after the water, renderOrder 1, which would otherwise paint over it, and before the fires' smoke, 2, which mostly stands in front of it; it writes depth, being drawn far to near anyway, so smoke behind it stays behind it)
 // (the cloud is see-through, like the fires' smoke, so its cubes are gathered here first and drawn far to near: sorted into
 // BBF_BINS by distance from the camera, which is all the order see-through boxes this size need)
 const BBF_ST=new Float32Array(BBF_N*8),BBF_BINS=64,BBF_BC=new Uint32Array(BBF_BINS+1),BBF_KEY=new Uint8Array(BBF_N),BBF_D=new Float32Array(BBF_N);
