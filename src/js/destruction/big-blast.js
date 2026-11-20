@@ -354,7 +354,7 @@ function bbFxStart(J){
     for(let i=0;i<BB_FIRES+BB_PLUMES;i++){const a=Math.random()*Math.PI*2,d=C.R*(0.66+Math.random()*0.24);J.fires.push({x:C.x+Math.cos(a)*d,z:C.z+Math.sin(a)*d,d,big:i<BB_PLUMES});}
     J.fires.sort((a,b)=>a.d-b.d);}
   // its cubes' numbers, from the seed (four a cube)
-  const sd=new Float32Array(5800*4);let h=(C.s*2654435761)>>>0||1;for(let i=0;i<sd.length;i++){h^=h<<13;h>>>=0;h^=h>>>17;h^=h<<5;h>>>=0;sd[i]=h/4294967296;}
+  const sd=new Float32Array(6800*4);let h=(C.s*2654435761)>>>0||1;for(let i=0;i<sd.length;i++){h^=h<<13;h>>>=0;h^=h>>>17;h^=h<<5;h>>>=0;sd[i]=h/4294967296;}
   // who hears the boom when: each player by how far off they are
   const ear=[];for(const q of players)if(q.active){const d=Math.hypot(pwx(q)-C.x,pwz(q)-C.z);ear.push({q,d,t:d/BBF_SPD});}
   BB.clouds.push({x:C.x,y:C.y,z:C.z,R:C.R,t:0,sd,ear,snd:false,wx:0,wz:0});
@@ -413,11 +413,17 @@ function bbFxTick(dt){
       const r=ring*(1-0.18*b*Math.min(1,T/2))+R*0.02*(c-0.5)+R*0.22*bil*(0.25+0.75*b)+R*0.018*Math.sin(ph)*bil;
       const hh=R*0.045*(1-b)*(0.4+0.6*c)*(0.4+0.6*Math.exp(-T/8))+R*0.07*bil*c*(1.2+Math.cos(ph*0.8+d*6));_bbc.setHex(0xb3a48c);lit(bbVar(_bbc,a,b,d,0.06));if(T<1.2)_bbc.lerp(_bbc2.setRGB(1,1,1),1-T/1.2);
       put(CL.x+Math.cos(ang)*r+CL.wx*bil*0.45,CL.y+hh*0.5,CL.z+Math.sin(ang)*r+CL.wz*bil*0.45,cube*1.1*(0.6+0.8*d)*(1+1.3*bil)*Math.sqrt(fade),_bbc,0.62*fade*(1-0.45*bil));}
+    // ---- dust hanging all over the circle inside the surge, each puff drifting on outward at its own pace (further out, faster) ----
+    const fd=bbSm(0.6,3,T)*(1-bbSm(25,65,T));
+    if(fd>0)for(let j=0;j<900&&nc<BBF_N;j++){const o=(5800+j)*4,a=sd[o],b=sd[o+1],c=sd[o+2],d=sd[o+3],f0=Math.sqrt(a),ph=T*(0.25+0.4*d)+b*30,ang=2*Math.PI*b+T*0.004*(c-0.5);
+      const r=ring*f0*(0.9+0.1*c)+R*0.0045*(0.15+f0)*Math.max(0,T-1.5),hh=R*(0.006+0.03*c*c)*(1+0.4*Math.sin(ph))+R*0.03*bbSm(3,40,T)*c,dr=bbSm(3,50,T)*0.45;
+      _bbc.setHex(0xa89a84).lerp(_bbc2.setHex(0x8f8474),c);lit(bbVar(_bbc,a,b,d,0.05));
+      put(CL.x+Math.cos(ang)*r+CL.wx*dr,CL.y+hh,CL.z+Math.sin(ang)*r+CL.wz*dr,cube*(0.5+0.9*d)*(1+0.8*bbSm(3,40,T)),_bbc,0.42*fd*(0.6+0.4*f0));}
     // ---- the condensation dome round the fireball for a moment, and the collar round the stem ----
     const wk=bbSm(0.25,0.6,T)*(1-bbSm(1.5,3.2,T));
     if(wk>0.01){B.wil.material.opacity=0.55*wk;const rw=R*(0.3+0.25*bbSm(0.25,3,T));lit(_bbc2.setRGB(1,1,1));
-      for(let j=0;j<1100&&nw<BBF_W;j++){const o=(4200+j)*4,a=sd[o],b=sd[o+1],c=sd[o+2],u=b*0.95,ph=2*Math.PI*a,sq=Math.sqrt(1-u*u);
-        bbPut(B.wil,nw++,CL.x+sq*Math.cos(ph)*rw,CL.y+u*rw*0.85+R*0.04,CL.z+sq*Math.sin(ph)*rw,cube*1.4*(0.7+0.6*c),_bbc2);}}
+      for(let j=0;j<1100&&nc<BBF_N;j++){const o=(4200+j)*4,a=sd[o],b=sd[o+1],c=sd[o+2],u=b*0.95,ph=2*Math.PI*a,sq=Math.sqrt(1-u*u);
+        put(CL.x+sq*Math.cos(ph)*rw,CL.y+u*rw*0.85+R*0.04,CL.z+sq*Math.sin(ph)*rw,cube*1.4*(0.7+0.6*c),_bbc2,0.55*wk);}}   // (in the cloud's own far-to-near order, so the dust in front of it and behind it is drawn so)
     const ck=bbSm(7,11,T)*(1-bbSm(30,45,T));
     if(ck>0.01){const ch=CL.y+(capH-CL.y)*0.5,cr=R*0.16*(0.6+0.4*rise);
       for(let j=0;j<320&&nc<BBF_N;j++){const o=(5400+j)*4,a=sd[o],b=sd[o+1],c=sd[o+2],d=sd[o+3],ang=2*Math.PI*a+T*0.03*(b-0.4),r=cr*(0.7+0.6*b)*(1+0.08*Math.sin(T*0.5+d*9));
