@@ -513,6 +513,17 @@ function seaChunk(cx,cz){
 function seaRebuild(){const R=TENV.sea,set=new Set();
   for(let cx=Math.floor(R.x0/CS)-1;cx<=Math.floor((R.x1-1)/CS)+1;cx++)for(let cz=Math.floor(R.z0/CS)-1;cz<=Math.floor((R.z1-1)/CS)+1;cz++){const k=ckey(cx,cz);chunks.delete(k);set.add(k);}
   lastK=-1;rebuildSet(set);chunkScan.key='';}
+// the Testing Environment's sea, for a ship or boat about to be spawned half blocks ahead: made there if there's none; moved
+// there if it isn't ahead and nothing's afloat on it (the land it covered comes back); else grown away from him till it's
+// at least 2 x half across
+function tenvSeaFor(px,pz,fx,fz,half){
+  const cx=Math.round(px+fx*(24+half)),cz=Math.round(pz+fz*(24+half)),R=TENV.sea,mk=()=>({x0:cx-half,x1:cx+half,z0:cz-half,z1:cz+half});
+  if(!R){TENV.sea=mk();seaRebuild();updateChunks(999,0);save();return;}
+  const ahead=cx>=R.x0&&cx<=R.x1&&cz>=R.z0&&cz<=R.z1,afloat=SHIPS.some(Boolean)||[...venues.keys()].some(k=>k.startsWith('tenvBoat:'));
+  if(!ahead&&!afloat){seaRebuild();TENV.sea=mk();seaRebuild();updateChunks(999,0);save();return;}   // (the first marks the old sea's chunks to be made again, as land)
+  if(R.x1-R.x0<2*half||R.z1-R.z0<2*half){const grow=(a,b,q)=>{const n=2*half-(b-a);if(n<=0)return[a,b];return q<a?[a,b+n]:q>b?[a-n,b]:[a-n/2,b+n/2];};
+    [R.x0,R.x1]=grow(R.x0,R.x1,px);[R.z0,R.z1]=grow(R.z0,R.z1,pz);seaRebuild();updateChunks(999,0);save();}
+}
 // a barge: on the sea ahead of Gus (a sea made first if there isn't one), pointing the way he's looking, empty, to walk
 // aboard and drive from its helm. Ships are kept in a venue of their own, 'tenvShips'
 function tenvShip(kind){
@@ -521,9 +532,7 @@ function tenvShip(kind){
   const px=pwx(p),pz=pwz(p),yaw=(p.cam.yaw+Math.PI)+(shipOf(p)?shipOf(p).yaw:0),fx=Math.sin(yaw),fz=Math.cos(yaw);
   // (a carrier wants a sea twice the size: one that's there already grows away from him)
   const K=SHIP_KINDS[kind],half=K.w1-K.w0>60?320:160;
-  if(!TENV.sea){const cx=Math.round(px+fx*(24+half)),cz=Math.round(pz+fz*(24+half));TENV.sea={x0:cx-half,x1:cx+half,z0:cz-half,z1:cz+half};seaRebuild();updateChunks(999,0);save();}
-  else if(TENV.sea.x1-TENV.sea.x0<2*half||TENV.sea.z1-TENV.sea.z0<2*half){const R=TENV.sea,grow=(a,b,q)=>{const n=2*half-(b-a);if(n<=0)return[a,b];return q<a?[a,b+n]:q>b?[a-n,b]:[a-n/2,b+n/2];};
-    [R.x0,R.x1]=grow(R.x0,R.x1,px);[R.z0,R.z1]=grow(R.z0,R.z1,pz);seaRebuild();updateChunks(999,0);save();}
+  tenvSeaFor(px,pz,fx,fz,half);
   const R=TENV.sea,S=makeShip(kind,0,0,yaw),r=Math.max(K.u1-K.u0,K.w1-K.w0)/2+12;let ok=false;
   // (the nearest open water straight ahead, else anywhere in the sea nearest him)
   for(let d=40-K.w0;d<=420-K.w0&&!ok;d+=6)for(const side of [0,-12,12,-30,30]){const x=px+fx*d-fz*side,z=pz+fz*d+fx*side;

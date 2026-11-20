@@ -155,8 +155,9 @@ function dbgStep(k,d){if(k==='wx'){const L=Object.keys(WX_TYPES);wxSet(L[(L.inde
   else if(k==='halo')haloSet(haloI()+d);
   else if(k==='haloFade')hfSet(hfI()+d);
   else if(k==='speed')DT.speedI=Math.max(0,Math.min(SPEEDS.length-1,DT.speedI+d));else if(k==='pspeed')DT.psI=Math.max(0,Math.min(PSPEEDS.length-1,DT.psI+d));}
+// (opened, or the keyboard taken up in a menu the controller opened; off closes it however it was opened)
 function setKbdMenu(on){
-  DT.kbdOpen=on;DT.menu=DT.quick&&(on||DT.selHeld);mHeld.clear();mTap.clear();renderTime();
+  DT.kbdOpen=on;if(on)DT.selHeld=false;else{DT.selHeld=false;DT.dd=null;DT.edit=null;}DT.menu=DT.quick&&on;mHeld.clear();mTap.clear();renderTime();
   try{if(on){if(locked())document.exitPointerLock();}else if(!dragMode&&!menuOpen&&!P1.paused){const r=canvas.requestPointerLock();if(r&&r.catch)r.catch(()=>{});}}catch(e){}
 }
 // the dropdown rows' choices, and choosing one (weather changes at once; season jumps to its first day; a vehicle is
@@ -249,7 +250,10 @@ function renderTime(){
     if(!dbgL.length)document.getElementById('dpRows').innerHTML='<p class="dpnone">Every switch is hidden. Show some on the Show / hide tab.</p>';
     // (on a short screen the menu scrolls: keep the highlight in view)
     {const r=document.querySelector('#dpRows .dr.cur');if(r&&r.scrollIntoView)r.scrollIntoView({block:'nearest'});}
-    {const l=document.querySelector('#dpRows .ddl');if(l){l.scrollTop=DT.ddScroll||0;if(DT.ddNav){DT.ddNav=false;const cur=l.querySelector('.ddo.cur');if(cur){const t=cur.offsetTop,b=t+cur.offsetHeight;if(t<l.scrollTop)l.scrollTop=t;else if(b>l.scrollTop+l.clientHeight)l.scrollTop=b-l.clientHeight;DT.ddScroll=l.scrollTop;}
+    {const l=document.querySelector('#dpRows .ddl');if(l){l.scrollTop=DT.ddScroll||0;if(DT.ddNav){DT.ddNav=false;const cur=l.querySelector('.ddo.cur');if(cur){
+         // (measured on screen: offsetTop counts from the whole menu, not the list, so with the d-pad the list never followed)
+         const lr=l.getBoundingClientRect(),cr=cur.getBoundingClientRect(),t=lr.top+l.clientTop,b=t+l.clientHeight;
+         if(cr.top<t)l.scrollTop-=t-cr.top;else if(cr.bottom>b)l.scrollTop+=cr.bottom-b;DT.ddScroll=l.scrollTop;}
        // (and the whole list on show in the menu: a long one, such as the vehicles, opened near the bottom used to hang
        // past the menu's edge, where neither the wheel nor the d-pad could get at its last few choices. Scrolls the menu
        // down only as far as keeps the dropdown's own row in sight.)
@@ -286,8 +290,9 @@ for(const i of ['hostMain'])document.getElementById(i).addEventListener('input',
 renderTime();
 addEventListener('keydown',e=>{
   if(menuOpen)return;
-  if(e.code==='Backquote'&&!e.repeat){if(DT.quick)setKbdMenu(!DT.kbdOpen);e.preventDefault();return;}
-  if(DT.kbdOpen&&DT.quick){
+  if(e.code==='Backquote'&&!e.repeat){if(DT.quick)setKbdMenu(!(DT.kbdOpen||DT.selHeld));e.preventDefault();return;}
+  if((DT.kbdOpen||DT.selHeld)&&DT.quick){
+    if(!DT.kbdOpen)setKbdMenu(true);   // (opened with a controller, then a key: the keyboard's prompts and the mouse pointer from here on)
     const c=e.code,dy=(c==='ArrowUp'||c==='KeyW')?-1:(c==='ArrowDown'||c==='KeyS')?1:0,dx=(c==='ArrowLeft'||c==='KeyA')?-1:(c==='ArrowRight'||c==='KeyD')?1:0;
     if(dy||dx){DT.navDir='';dbgMenuNav('kbd',dy,dx,0);DT.navDir='';e.preventDefault();return;}
     if((c==='Space'||c==='Enter')&&!e.repeat){dbgMenuToggle();e.preventDefault();return;}

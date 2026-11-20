@@ -14,7 +14,7 @@ addEventListener('keydown',e=>{
   keys.add(e.code);
   // (Esc normally reaches the page only in drag mode, since the browser keeps it to let go of the mouse. In full
   // screen the game claims Esc (see kbLock), so a tap comes here and pauses, and holding it leaves full screen.)
-  if(e.code==='Escape'&&!e.repeat&&!DT.kbdOpen)requestPause(P1);
+  if(e.code==='Escape'&&!e.repeat&&!DT.kbdOpen&&!DT.menu)requestPause(P1);
 });
 addEventListener('keyup',e=>keys.delete(e.code));
 addEventListener('blur',()=>{keys.clear();mHeld.clear();});
@@ -251,17 +251,23 @@ function readInputs(dt){
     const mine=!inCoop()||!menuBy?st:st.filter(s=>menuBy===P2?s.p===P2.pad:s.p!==P2.pad||!P2.pad);
     menuPad(mine,dt);mTap.clear();return;}
   // the debug quick menu: Select on any controller opens it and Select (or B) closes it again; ~ does the same on the
-  // keyboard. The game is paused meanwhile, and the controllers drive the menu instead of the hippos.
+  // keyboard. The game is paused meanwhile, and the controllers drive the menu instead of the hippos. It's one menu
+  // however it was opened: either device moves about in it and either closes it. DT.selHeld says the controller was
+  // the last used in it (its button prompts, and the right stick turning the camera), DT.kbdOpen the keyboard (the
+  // mouse pointer let go, to click)
   if(!DT.quick)DT.selHeld=false;
-  else for(const s of st){if(inCoop()&&P2.pad&&s.p===P2.pad&&!DT.selHeld)continue;   // (player two can't open the debug menu: it's player one's, as the Dev tab is)
-    if(s.pr[8])DT.selHeld=!DT.selHeld;else if(DT.selHeld&&s.pr[1]){if(DT.edit){DT.edit=null;renderTime();}else if(DT.dd){DT.dd=null;renderTime();}else DT.selHeld=false;}}
+  else for(const s of st){const open=DT.selHeld||DT.kbdOpen;if(inCoop()&&P2.pad&&s.p===P2.pad&&!open)continue;   // (player two can't open the debug menu: it's player one's, as the Dev tab is)
+    if(s.pr[8]){if(open)setKbdMenu(false);else DT.selHeld=true;}
+    else if(open&&s.pr[1]){DT.selHeld=true;if(DT.edit){DT.edit=null;renderTime();}else if(DT.dd){DT.dd=null;renderTime();}else setKbdMenu(false);}}
   const wasOpen=DT.menu;DT.menu=DT.quick&&(DT.selHeld||DT.kbdOpen);if(!DT.menu){DT.dd=null;DT.edit=null;}
   if(DT.menu){
-    let dy=0,dx=0;
-    for(const s of DT.selHeld?st:[]){const ax=s.p.axes,lx=ax[0]||0,ly=ax[1]||0;
+    let dy=0,dx=0,used=false;
+    for(const s of st){if(inCoop()&&P2.pad&&s.p===P2.pad)continue;const ax=s.p.axes,lx=ax[0]||0,ly=ax[1]||0;
       if(ly<-0.55||s.b[12])dy=-1;else if(ly>0.55||s.b[13])dy=1;
       if(lx<-0.55||s.b[14])dx=-1;else if(lx>0.55||s.b[15])dx=1;
-      if(s.pr[0])dbgMenuToggle();if(s.pr[4]||s.pr[5])dbgTab(DT.tab?0:1);}
+      if(s.pr[0]){used=true;dbgMenuToggle();}if(s.pr[4]||s.pr[5]){used=true;dbgTab(DT.tab?0:1);}}
+    // (opened on the keyboard and then driven with a controller: its prompts from here on)
+    if((used||dy||dx)&&!DT.selHeld){DT.selHeld=true;renderTime();}
     dbgMenuNav('pad',dy,dx,dt);
     if(!wasOpen)renderTime();
   } else if(wasOpen){renderTime();}
@@ -270,7 +276,7 @@ function readInputs(dt){
     const dz=v=>Math.abs(v)>0.15?v:0,rx=dz(s.p.axes[2]||0),ry=dz(s.p.axes[3]||0);
     if(DT.freecam&&p===P1){FC.yaw-=rx*2.4*dt;FC.pitch=Math.max(-1.5,Math.min(1.5,FC.pitch-ry*1.8*dt));}
     else if(!p.lockT||p.drv){const zk=scopeK(p);p.cam.yaw-=rx*2.8*dt*zk;p.cam.pitch=camPitch(p.cam.pitch-ry*1.8*dt*zk,p);}}
-  if(DT.menu&&DT.selHeld||wasOpen&&!DT.menu){s1=null;s2=null;}   // (the press that closes it doesn't also jump or trample)
+  if(DT.menu||wasOpen&&!DT.menu){s1=null;s2=null;}   // (the press that closes it doesn't also jump or trample)
   if(s1&&s1.b[8])s1=null;if(s2&&s2.b[8])s2=null;   // Select itself never plays
   // a paused player's controller drives their own pause panel
   const skip=new Set();
@@ -315,7 +321,7 @@ function readInputs(dt){
     // (the triggers, as far as they're pulled: a vehicle's analog throttle and brake)
     {const tv=k=>{const x=s.p.buttons[k];return x?Math.max(0,Math.min(1,+x.value||(x.pressed?1:0))):0;};i.rt=tv(7);i.lt=tv(6);}
   };
-  if(DT.menu&&DT.kbdOpen){const I=P1.in;for(const k in I)if(typeof I[k]==='boolean')I[k]=false;I.x=I.z=0;}
+  if(DT.menu){const I=P1.in;for(const k in I)if(typeof I[k]==='boolean')I[k]=false;I.x=I.z=0;}
   // (online chat: the controller's quick messages take it over while their list is up, and while a line's being typed
   // or picked player one stands still, so the keys typed never walk them off)
   if(s1&&chatPad(s1))s1=null;

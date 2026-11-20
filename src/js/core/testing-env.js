@@ -219,9 +219,13 @@ function tenvFoe(kind){
 // vehicles: any kind, a few steps further off than enemies. Hunting, they drive straight at Gus; parked, they sit there
 // with nobody in them, to stand on, smash or get into (a parked police car still wakes up when Gus comes close)
 const VEH_NAME={car:['car','cars'],van:['van','vans'],pickup:['pickup','pickups'],truck:['truck','trucks'],semi:['semi truck','semi trucks'],bus:['bus','buses'],
-  fire:['fire engine','fire engines'],jet:['fighter jet','fighter jets'],balloon:['hot-air balloon','hot-air balloons'],amb:['ambulance','ambulances'],news:['news van','news vans'],rv:['motorhome','motorhomes'],technical:['technical','technicals'],quad:['four-wheeler','four-wheelers'],bicycle:['bicycle','bicycles'],kick:['kick scooter','kick scooters'],segway:['Gobway','Gobways'],moped:['motor scooter','motor scooters'],police:['police car','police cars'],moto:['motorcycle','motorcycles'],motorcycle:['motorcycle','motorcycles'],bike:['motorcycle','motorcycles'],super:['supercar','supercars'],forklift:['forklift','forklifts'],tractor:['tractor','tractors'],hover:['hovercraft','hovercraft'],barge:['barge','barges'],carrier:['aircraft carrier','aircraft carriers'],mech:['Mobile Gear','Mobile Gears']};
+  fire:['fire engine','fire engines'],jet:['fighter jet','fighter jets'],balloon:['hot-air balloon','hot-air balloons'],amb:['ambulance','ambulances'],news:['news van','news vans'],rv:['motorhome','motorhomes'],technical:['technical','technicals'],quad:['four-wheeler','four-wheelers'],bicycle:['bicycle','bicycles'],kick:['kick scooter','kick scooters'],segway:['Gobway','Gobways'],moped:['motor scooter','motor scooters'],police:['police car','police cars'],moto:['motorcycle','motorcycles'],motorcycle:['motorcycle','motorcycles'],bike:['motorcycle','motorcycles'],super:['supercar','supercars'],forklift:['forklift','forklifts'],tractor:['tractor','tractors'],hover:['hovercraft','hovercraft'],barge:['barge','barges'],carrier:['aircraft carrier','aircraft carriers'],mech:['Mobile Gear','Mobile Gears'],
+  light:['two-seater plane','two-seater planes'],row:['rowboat','rowboats'],pedalo:['pedal boat','pedal boats'],speed:['speedboat','speedboats'],launch:['launch','launches'],
+  sail:['sailboat','sailboats'],fish:['fishing boat','fishing boats'],tug:['tug','tugs'],ferry:['ferry','ferries'],cargo:['container ship','container ships'],navy:['warship','warships']};
+// the boats that can be spawned (the kinds in BOATS, in this order)
+const TENV_BOATS=['row','pedalo','speed','launch','sail','fish','tug','ferry','cargo','navy'];
 // every kind of vehicle that can be spawned here, and its name with a capital (the panel's buttons and the debug menu's list)
-const tenvVehKinds=()=>[...Object.keys(VEH),'police','tank','heli','plane','jet','balloon','mech','barge','carrier'];
+const tenvVehKinds=()=>[...Object.keys(VEH),'police','tank','heli','plane','light','jet','balloon','mech',...TENV_BOATS,'barge','carrier'];
 const tenvVehName=t=>(VEH_NAME[t]||[MIL[t]?MIL[t].name:t])[0].replace(/^./,c=>c.toUpperCase());
 // the debug menu's Spawn: one of the kind picked, parked and empty, ready to get into (whatever the panel's count and
 // hunting or parked say). What it managed is what the panel would have said
@@ -249,7 +253,8 @@ function tenvRoom(x,z,r){
 function tenvVeh(t){
   if(MIL[t]){tenvMil(t);return;}
   // (these stay out in the world even beside a ship, so spawned from aboard one they're put by where Gus really is)
-  if(t==='plane'||t==='jet'){shipOutside(()=>tenvPlane(t==='jet'));return;}
+  if(t==='plane'||t==='jet'||t==='light'){shipOutside(()=>tenvPlane(t==='jet',t==='light'));return;}
+  if(BOATS[t]){shipOutside(()=>tenvBoat(t));return;}
   if(t==='balloon'){shipOutside(tenvBalloon);return;}
   if(t==='mech'){shipOutside(tenvMech);return;}
   if(SHIP_KINDS[t]){tenvShip(t);return;}
@@ -295,19 +300,19 @@ function tenvMil(kind){
 // planes, in the Testing Environment: an airliner parked on the grass ahead of Gus, nose pointing the way he's looking,
 // so it can be got into and taken straight off (no runway needed: any flat run of about 40 blocks). They're kept in an
 // airport of their own (the 'tenvPlanes' venue, flagged tenv, so updateAirport's timetable leaves them be)
-function tenvPlane(jet){
+function tenvPlane(jet,light){
   if(!TENV&&!TS.dbg)return;const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active);if(!p)return;
   let V=venues.get('tenvPlanes');if(!V){V={kind:'airport',tenv:true,planes:[],pl:[]};venues.set('tenvPlanes',V);}
   const fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw);let made=0;
   for(let i=0;i<TS.n;i++){
     // (each a wingspan apart, side by side across where Gus is looking, on open ground clear of the others)
-    let x=0,z=0,ok=false;for(let k=0;k<30&&!ok;k++){const side=(i%2?1:-1)*Math.ceil(i/2)*(jet?14:30)+(k?(Math.random()-.5)*k*4:0),ahead=(jet?24:36)+(k?Math.random()*k*3:0);
+    const sm=jet||light;let x=0,z=0,ok=false;for(let k=0;k<30&&!ok;k++){const side=(i%2?1:-1)*Math.ceil(i/2)*(sm?14:30)+(k?(Math.random()-.5)*k*4:0),ahead=(sm?24:36)+(k?Math.random()*k*3:0);
       x=p.pos.x+fx*ahead-fz*side;z=p.pos.z+fz*ahead+fx*side;
-      const y0=spGround(x,z);const Q=jet?JET_DIM:PLANE_DIM;ok=tenvRoom(x,z,Q.wx+0.5)&&Math.abs(spGround(x+fx*Q.hz,z+fz*Q.hz)-y0)<1.05&&Math.abs(spGround(x-fx*Q.hz,z-fz*Q.hz)-y0)<1.05;}
+      const y0=spGround(x,z);const Q=jet?JET_DIM:light?LIGHT_DIM:PLANE_DIM;ok=tenvRoom(x,z,Q.wx+0.5)&&Math.abs(spGround(x+fx*Q.hz,z+fz*Q.hz)-y0)<1.05&&Math.abs(spGround(x-fx*Q.hz,z-fz*Q.hz)-y0)<1.05;}
     if(!ok)continue;
-    const g=jet?makeJet():makePlane(V.planes.length);g.position.set(x,spGround(x,z),z);g.rotation.set(0,Math.atan2(fx,fz),0);scene.add(g);
-    V.planes.push(g);V.pl.push({isPlane:true,jet:!!jet,g,hp:PLANE_HP,dead:false,v:0});made++;}
-  tsSet(made?'Spawned '+made+(jet?' fighter jet':' plane')+(made>1?'s':'')+'.':'There\'s no clear ground for a plane just ahead. Try looking another way.');
+    const g=jet?makeJet():light?makeLightPlane(V.planes.length):makePlane(V.planes.length);g.position.set(x,spGround(x,z),z);g.rotation.set(0,Math.atan2(fx,fz),0);scene.add(g);
+    V.planes.push(g);V.pl.push({isPlane:true,jet:!!jet,light:!!light,g,hp:light?LIGHT_HP:PLANE_HP,dead:false,v:0});made++;}
+  tsSet(made?'Spawned '+made+(jet?' fighter jet':light?' two-seater plane':' plane')+(made>1?'s':'')+'.':'There\'s no clear ground for a plane just ahead. Try looking another way.');
 }
 // the Mobile Gear (see vehicles/mech.js): only here for now. Each press stands as many as the count says a little way
 // ahead of Gus, facing him, empty, to climb into. They're kept in a venue of their own, 'tenvMechs'
@@ -321,6 +326,38 @@ function tenvMech(){
     {const gy=mgGround(x,z,H+60,M);if(gy>M.y)M.y=gy;}}   // (over a ship: up on its deck, the top of the box that stands for it)
   if(!V.mechs.length)venues.delete('tenvMechs');
   tsSet(made?'Spawned '+made+' Mobile Gear'+(made>1?'s':'')+'. Goblins only.':'No room for a Mobile Gear just there.');
+}
+// boats: on open water ahead of Gus, pointing the way he's looking, tied up where they're put and empty, to swim out to and
+// take the helm of (as Gnash or Grizzle). In the Testing Environment a sea is laid out first if there isn't one big enough;
+// out in the city it has to be water that's already there. Each is a boat venue of its own, keyed 'tenvBoat:n', which
+// refreshVenues keeps wherever it was put
+let tenvBoatN=0;
+// the top of the water a boat of kind K would float on at x,z heading yaw, if it's deep enough everywhere under it (else null)
+function tenvBoatWater(K,x,z,yaw){
+  const tx=Math.sin(yaw),tz=Math.cos(yaw),d=Math.ceil(K.d)+1,top=y=>get(x0,y,z0);let wy=null,x0=0,z0=0;
+  for(let a=-K.L/2;a<=K.L/2+0.01;a+=Math.max(1,K.L/12))for(const c of [-K.W/2-0.5,0,K.W/2+0.5]){
+    x0=Math.floor(x+tx*a+tz*c);z0=Math.floor(z+tz*a-tx*c);if(!chunks.has(ckey(Math.floor(x0/CS),Math.floor(z0/CS))))return null;
+    let y=G+1;while(y>G-3&&top(y)!==WATER)y--;if(top(y)!==WATER||top(y+1)!==AIR)return null;
+    if(wy===null)wy=y;else if(y!==wy)return null;
+    if(top(y-d)!==WATER)return null;}
+  return wy===null?null:wy+1;
+}
+function tenvBoat(k){
+  const p=players.find(q=>q.active&&q.deadT<=0)||players.find(q=>q.active);if(!p)return;
+  const K=BOATS[k],yaw=Math.atan2(-Math.sin(p.cam.yaw),-Math.cos(p.cam.yaw)),fx=Math.sin(yaw),fz=Math.cos(yaw),nm=VEH_NAME[k];
+  // (in the Testing Environment: a sea ahead, made, moved or grown for it, tenvSeaFor)
+  if(TENV)tenvSeaFor(p.pos.x,p.pos.z,fx,fz,Math.max(80,Math.ceil(K.L*1.5)));
+  const taken=(x,z)=>{for(const [key,V] of venues)if(key.startsWith('tenvBoat:')&&!V.bo.dead&&Math.hypot(V.boat.position.x-x,V.boat.position.z-z)<(V.bo.L+K.L)/2+3)return true;
+    const Vs=venues.get('tenvShips');return!!(Vs&&Vs.ships.some(S=>Math.hypot(S.x-x,S.z-z)<K.L/2+60));};
+  let made=0;
+  for(let i=0;i<TS.n;i++){let x=0,z=0,y0=null;
+    // (the nearest open water straight ahead, a little to either side, out to 300 blocks)
+    for(let d=Math.max(10,K.L/2+6);d<=300&&y0===null;d+=4)for(const side of [0,-K.W*2-4,K.W*2+4,-K.W*5-10,K.W*5+10]){x=p.pos.x+fx*d-fz*side;z=p.pos.z+fz*d+fx*side;
+      if(TENV){for(let cx=Math.floor((x-K.L)/CS);cx<=Math.floor((x+K.L)/CS);cx++)for(let cz=Math.floor((z-K.L)/CS);cz<=Math.floor((z+K.L)/CS);cz++)chunkArr(cx,cz);}
+      if(taken(x,z))continue;y0=tenvBoatWater(K,x,z,yaw);if(y0!==null)break;}
+    if(y0===null)break;
+    boatVenue('tenvBoat:'+(++tenvBoatN),k,{x,z,yaw,y0:y0-0.15},new Set());made++;}
+  tsSet(made?'Spawned '+made+' '+nm[made>1?1:0]+' ahead of Gus.':'No open water deep enough for a '+nm[0]+' just ahead.');
 }
 function updateTenvPlanes(V,dt){
   for(const pl of V.pl){
@@ -338,6 +375,7 @@ function tenvClear(){
   {const V=venues.get('tenvMechs');if(V){V.mechs=V.mechs.filter(M=>{if(players.some(q=>q.drv&&q.drv.o===M))return true;scene.remove(M.g);return false;});if(!V.mechs.length)venues.delete('tenvMechs');}}
   {const V=venues.get('tenvBalloons');if(V){V.bl=V.bl.filter(B=>{if(players.some(q=>q.drv&&q.drv.o===B))return true;scene.remove(B.g);return false;});if(!V.bl.length)venues.delete('tenvBalloons');}}
   shipsClear();
+  for(const [key,V] of venues)if(key.startsWith('tenvBoat:')&&!players.some(q=>q.drv&&q.drv.o===V.bo)){scene.remove(V.boat);venues.delete(key);}
   {const V=venues.get('tenvPlanes');if(V){V.pl=V.pl.filter(pl=>{if(players.some(q=>q.drv&&q.drv.o===pl))return true;scene.remove(pl.g);return false;});V.planes=V.pl.map(pl=>pl.g);if(!V.pl.length)venues.delete('tenvPlanes');}}
   tsSet('Cleared every goblin and vehicle.');
 }

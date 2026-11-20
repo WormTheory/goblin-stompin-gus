@@ -128,10 +128,13 @@ function mapClover(px,pz){const k=px*100003+pz;let v=mapClvC.get(k);if(v===undef
 // otherwise ruined ones are left out and passed back in o.ruins. o.HL/o.hits: the legend entry being pointed at, and its
 // pieces. Far out, where a block's only a few pixels across, the sea's drawn coarser and the slivers too thin to see are
 // left out ----
+// (whether a piece of legend entry c is wanted in the hits: HL '*' takes every entry's, for a tile to keep)
+const hlOn=(HL,c)=>HL===c||HL==='*';
 function drawMapBlocks(x,k,ox,oz,c0,c1,r0,r1,o){
   const X=v=>ox+v*k,Z=v=>oz+v*k,HL=o.HL,hits=o.hits,ruins=o.ruins,all=o.all;
   const bpx=CELL*k,seaN=bpx>=24?8:bpx>=12?4:bpx>=6?2:1,fine=bpx>=8;
-  const rect=(x0,z0,x1,z1,col,cat)=>{const a=X(x0),b=Z(z0),ww=(x1-x0)*k+0.6,hh=(z1-z0)*k+0.6;x.fillStyle=col;x.fillRect(a,b,ww,hh);if(HL&&cat===HL)hits.push([a,b,ww,hh,col]);};
+  // (id: the building a piece is, [px,pz,i], so a tile's kept pieces can leave out one that's come down since)
+  const rect=(x0,z0,x1,z1,col,cat,id)=>{const a=X(x0),b=Z(z0),ww=(x1-x0)*k+0.6,hh=(z1-z0)*k+0.6;x.fillStyle=col;x.fillRect(a,b,ww,hh);if(HL&&cat&&hlOn(HL,cat))hits.push([a,b,ww,hh,col,cat,id]);};
     for(let px=c0;px<=c1;px++)for(let pz=r0;pz<=r1;pz++){
     if(!explored.has(px+','+pz))continue;
     const X0=px*CELL,Z0=pz*CELL,t=plotType(px,pz);
@@ -172,7 +175,7 @@ function drawMapBlocks(x,k,ox,oz,c0,c1,r0,r1,o){
     {const a=jz(px,pz),b=jx(px,pz),JC={alley:'#24282c',yard:'#4f7a3e'};if(a)rect(X0,Z0+ROADW,X0+ROADW,Z0+CELL,JC[a]);if(b)rect(X0+ROADW,Z0,X0+CELL,Z0+ROADW,JC[b]);}
     {const B=plotBounds(px,pz);rect(X0+B.x0,Z0+B.z0,X0+B.x1,Z0+B.z1,t==='park'?MAPC.park:t==='plaza'?MAPC.plaza:t==='homes'?'#5f8a46':t==='ramp'?MAPC.ramp:'#4a4f53',(t==='park'||t==='plaza'||t==='homes'||t==='ramp')?t:null);}
     const P=plotInfo(px,pz),col=MAPC[t]||'#777';
-    P.b.forEach((b,bi)=>{if(!all&&ruinedB(px,pz,bi)){if(!blockRuined(px,pz))ruins.push([X0+b.x0,Z0+b.z0,X0+b.x1,Z0+b.z1]);}else rect(X0+b.x0,Z0+b.z0,X0+b.x1,Z0+b.z1,col,t);});
+    P.b.forEach((b,bi)=>{if(!all&&ruinedB(px,pz,bi)){if(!blockRuined(px,pz))ruins.push([X0+b.x0,Z0+b.z0,X0+b.x1,Z0+b.z1]);}else rect(X0+b.x0,Z0+b.z0,X0+b.x1,Z0+b.z1,col,t,all?[px,pz,bi]:null);});
   }
   // the rivers winding across the plains (through the places they're blocks of their own, drawn above)
   {const L=riversNearBox(c0*CELL,r0*CELL,(c1+1)*CELL,(r1+1)*CELL);x.strokeStyle=MAPC.river;x.lineWidth=Math.max(1.5,RIV_W*2*k);x.lineCap='round';x.beginPath();
@@ -185,36 +188,36 @@ function drawMapBlocks(x,k,ox,oz,c0,c1,r0,r1,o){
 // the railways, highways, slip roads and cloverleaves over the explored blocks (over the ruins too)
 function drawMapLines(x,k,ox,oz,c0,c1,r0,r1,HL,hits){
   const X=v=>ox+v*k,Z=v=>oz+v*k;
-  const rect=(x0,z0,x1,z1,col,cat)=>{const a=X(x0),b=Z(z0),ww=(x1-x0)*k+0.6,hh=(z1-z0)*k+0.6;x.fillStyle=col;x.fillRect(a,b,ww,hh);if(HL&&cat===HL)hits.push([a,b,ww,hh,col]);};
+  const rect=(x0,z0,x1,z1,col,cat)=>{const a=X(x0),b=Z(z0),ww=(x1-x0)*k+0.6,hh=(z1-z0)*k+0.6;x.fillStyle=col;x.fillRect(a,b,ww,hh);if(HL&&cat&&hlOn(HL,cat))hits.push([a,b,ww,hh,col,cat]);};
   const E=[];for(let px=c0;px<=c1;px++)for(let pz=r0;pz<=r1;pz++)if(explored.has(px+','+pz))E.push(px,pz,biomeOf(px,pz)==='plains'?1:0);
   // the railways you've seen
   {x.strokeStyle=MAPC.rail;x.lineWidth=Math.max(2,4*k);x.lineCap='butt';x.beginPath();
    for(const L of railLinksInBox(c0*CELL,r0*CELL,(c1+1)*CELL,(r1+1)*CELL))for(let i=0;i+4<L.L;i+=4){const [ax,az]=L.pts[i],[bx,bz]=L.pts[Math.min(L.L-1,i+4)];
-     if(!explored.has(Math.floor(ax/CELL)+','+Math.floor(az/CELL)))continue;x.moveTo(X(ax),Z(az));x.lineTo(X(bx),Z(bz));if(HL==='rail')hits.push([X(Math.min(ax,bx))-2,Z(Math.min(az,bz))-2,Math.abs(bx-ax)*k+4,Math.abs(bz-az)*k+4,'#8a7a80']);}
+     if(!explored.has(Math.floor(ax/CELL)+','+Math.floor(az/CELL)))continue;x.moveTo(X(ax),Z(az));x.lineTo(X(bx),Z(bz));if(hlOn(HL,'rail'))hits.push([X(Math.min(ax,bx))-2,Z(Math.min(az,bz))-2,Math.abs(bx-ax)*k+4,Math.abs(bz-az)*k+4,'#8a7a80','rail']);}
    x.stroke();}
   // raised highways over the streets you've seen
   x.fillStyle='rgba(232,150,58,0.85)';
   for(let q=0;q<E.length;q+=3){const px=E[q],pz=E[q+1],X0=px*CELL,Z0=pz*CELL;
-    if(hwRow(pz,px)){x.fillRect(X(X0),Z(Z0-3),CELL*k+0.6,14*k);if(HL==='highway')hits.push([X(X0),Z(Z0-3),CELL*k+0.6,14*k,'#e8963a']);}
-    if(hwCol(px,pz)){x.fillRect(X(X0-3),Z(Z0),14*k,CELL*k+0.6);if(HL==='highway')hits.push([X(X0-3),Z(Z0),14*k,CELL*k+0.6,'#e8963a']);}}
+    if(hwRow(pz,px)){x.fillRect(X(X0),Z(Z0-3),CELL*k+0.6,14*k);if(hlOn(HL,'highway'))hits.push([X(X0),Z(Z0-3),CELL*k+0.6,14*k,'#e8963a','highway']);}
+    if(hwCol(px,pz)){x.fillRect(X(X0-3),Z(Z0),14*k,CELL*k+0.6);if(hlOn(HL,'highway'))hits.push([X(X0-3),Z(Z0),14*k,CELL*k+0.6,'#e8963a']);}}
   // the ground highways across the plains
   x.fillStyle='rgba(176,122,58,0.9)';
   for(let q=0;q<E.length;q+=3){if(!E[q+2])continue;const px=E[q],pz=E[q+1],X0=px*CELL,Z0=pz*CELL;
-    if(gRow(pz,X0+16)){x.fillRect(X(X0),Z(Z0-3),CELL*k+0.6,14*k);if(HL==='ghw')hits.push([X(X0),Z(Z0-3),CELL*k+0.6,14*k,'#b07a3a']);}
-    if(gCol(px,Z0+16)){x.fillRect(X(X0-3),Z(Z0),14*k,CELL*k+0.6);if(HL==='ghw')hits.push([X(X0-3),Z(Z0),14*k,CELL*k+0.6,'#b07a3a']);}}
+    if(gRow(pz,X0+16)){x.fillRect(X(X0),Z(Z0-3),CELL*k+0.6,14*k);if(hlOn(HL,'ghw'))hits.push([X(X0),Z(Z0-3),CELL*k+0.6,14*k,'#b07a3a','ghw']);}
+    if(gCol(px,Z0+16)){x.fillRect(X(X0-3),Z(Z0),14*k,CELL*k+0.6);if(hlOn(HL,'ghw'))hits.push([X(X0-3),Z(Z0),14*k,CELL*k+0.6,'#b07a3a']);}}
   // the highways out across the plains on their own lines (motorways over the country highways), and the truck stops
   {const L=routesNearBox(c0*CELL,r0*CELL,(c1+1)*CELL,(r1+1)*CELL),seen=new Set();
    for(const kind of ['country','moto']){x.strokeStyle=kind==='moto'?'rgba(232,150,58,0.95)':'rgba(176,122,58,0.95)';x.lineWidth=Math.max(1.5,14*k);x.lineCap='butt';x.beginPath();
      for(let q=0;q<L.length;q+=2){const R=L[q],i=L[q+1];if(R.kind!==kind)continue;const [ax,az]=R.pts[i],[bx,bz]=R.pts[i+1],px=Math.floor((ax+bx)/2/CELL),pz=Math.floor((az+bz)/2/CELL);
        if(!explored.has(px+','+pz)||settlementAt(px,pz))continue;x.moveTo(X(ax),Z(az));x.lineTo(X(bx),Z(bz));
-       if(HL===(kind==='moto'?'highway':'ghw'))hits.push([Math.min(X(ax),X(bx))-1,Math.min(Z(az),Z(bz))-1,Math.abs(X(bx)-X(ax))+2,Math.abs(Z(bz)-Z(az))+2,kind==='moto'?'#e8963a':'#b07a3a']);}
+       if(hlOn(HL,kind==='moto'?'highway':'ghw'))hits.push([Math.min(X(ax),X(bx))-1,Math.min(Z(az),Z(bz))-1,Math.abs(X(bx)-X(ax))+2,Math.abs(Z(bz)-Z(az))+2,kind==='moto'?'#e8963a':'#b07a3a',kind==='moto'?'highway':'ghw']);}
      x.stroke();}
    for(let q=0;q<L.length;q+=2){const R=L[q];if(R.kind!=='country'||seen.has(R))continue;seen.add(R);for(const T of truckStopOf(R)){if(!explored.has(Math.floor(T.cx/CELL)+','+Math.floor(T.cz/CELL)))continue;
      const c=(u,v)=>[X(T.cx+T.tx*u+T.nx*v),Z(T.cz+T.tz*u+T.nz*v)];x.fillStyle=MAPC.road;x.beginPath();for(const [u,v] of [[-44,7],[44,7],[44,58],[-44,58]]){const [a,b]=c(u,v);x.lineTo(a,b);}x.closePath();x.fill();
      x.fillStyle=MAPC.truckstop;x.beginPath();for(const [u,v] of [[-26,11],[26,11],[26,27],[-26,27]]){const [a,b]=c(u,v);x.lineTo(a,b);}x.closePath();x.fill();
      const bp=[Math.floor((T.cx+T.nx*47)/CELL),Math.floor((T.cz+T.nz*47)/CELL)];for(const b of plotInfo(bp[0],bp[1]).b)rect(bp[0]*CELL+b.x0,bp[1]*CELL+b.z0,bp[0]*CELL+b.x1,bp[1]*CELL+b.z1,MAPC.truckstop,'truckstop');}}}
   // their slip roads and cloverleaves
-  {x.fillStyle='rgba(232,150,58,0.7)';const seen=new Set(),box=(ax0,az0,ax1,az1)=>{const a=X(Math.min(ax0,ax1)),b=Z(Math.min(az0,az1)),ww=Math.abs(ax1-ax0)*k+0.4,hh=Math.abs(az1-az0)*k+0.4;x.fillRect(a,b,ww,hh);if(HL==='ramp')hits.push([a,b,ww,hh,'#e8963a']);};
+  {x.fillStyle='rgba(232,150,58,0.7)';const seen=new Set(),box=(ax0,az0,ax1,az1)=>{const a=X(Math.min(ax0,ax1)),b=Z(Math.min(az0,az1)),ww=Math.abs(ax1-ax0)*k+0.4,hh=Math.abs(az1-az0)*k+0.4;x.fillRect(a,b,ww,hh);if(hlOn(HL,'ramp'))hits.push([a,b,ww,hh,'#e8963a','ramp']);};
    for(let q=0;q<E.length;q+=3){const px=E[q],pz=E[q+1];
      const cv=mapClover(px,pz);
      if(cv&&!seen.has('c'+cv.j+','+cv.k)){seen.add('c'+cv.j+','+cv.k);const cx=cv.j*CELL+4,cz=cv.k*CELL+4;
@@ -234,8 +237,8 @@ function drawMapRuins(x,k,ox,oz,c0,c1,r0,r1,ruins,HL,hits){
   if(pat.setTransform&&typeof DOMMatrix==='function')pat.setTransform(new DOMMatrix().translate(((ox%7)+7)%7,((oz%7)+7)%7));
   x.fillStyle=pat;for(const [x0,z0,x1,z1] of RG.cells)x.fillRect(X(x0),Z(z0),(x1-x0)*k+0.6,(z1-z0)*k+0.6);
   x.strokeStyle='#e0503c';x.lineWidth=1.5;x.beginPath();for(const [a,b,c,d] of RG.edges){x.moveTo(X(a),Z(b));x.lineTo(X(c),Z(d));}x.stroke();
-  if(HL==='ruin')for(const [x0,z0,x1,z1] of RG.cells)hits.push([X(x0),Z(z0),(x1-x0)*k,(z1-z0)*k,'#a3a7ad']);
-  for(const [x0,z0,x1,z1] of ruins){const a=X(x0),b=Z(z0),ww=(x1-x0)*k,hh=(z1-z0)*k;x.fillStyle=pat;x.fillRect(a,b,ww,hh);x.strokeStyle='#e0503c';x.lineWidth=1.5;x.strokeRect(a+0.75,b+0.75,ww-1.5,hh-1.5);if(HL==='ruin')hits.push([a,b,ww,hh,'#a3a7ad']);}
+  if(hlOn(HL,'ruin'))for(const [x0,z0,x1,z1] of RG.cells)hits.push([X(x0),Z(z0),(x1-x0)*k,(z1-z0)*k,'#a3a7ad','ruin']);
+  for(const [x0,z0,x1,z1] of ruins){const a=X(x0),b=Z(z0),ww=(x1-x0)*k,hh=(z1-z0)*k;x.fillStyle=pat;x.fillRect(a,b,ww,hh);x.strokeStyle='#e0503c';x.lineWidth=1.5;x.strokeRect(a+0.75,b+0.75,ww-1.5,hh-1.5);if(hlOn(HL,'ruin'))hits.push([a,b,ww,hh,'#a3a7ad','ruin']);}
   return true;
 }
 // the single buildings that are down (and not part of a wholly destroyed block), clipped to the explored blocks
@@ -277,12 +280,16 @@ function mapRuinVer(){let g='';for(const S of knownSets.values())if(setGone(S))g
 function mapTileBuild(T,L,tx,tz,dpr,rv){
   const G=mapTileGeo(L,tx,tz,dpr),B=exploredBox(),ox=-G.wx0*G.s,oz=-G.wz0*G.s;
   let {c0,c1,r0,r1}=G;if(B){c0=Math.max(c0,B.x0-1);c1=Math.min(c1,B.x1+1);r0=Math.max(r0,B.z0-1);r1=Math.min(r1,B.z1+1);}
-  if(!T.base){const C=mapTileMake(G.n);if(!C)return false;C.g.setTransform(dpr,0,0,dpr,0,0);if(B&&c0<=c1&&r0<=r1)drawMapBlocks(C.g,G.s,ox,oz,c0,c1,r0,r1,{all:true});T.base=C.c;}
+  // (each legend entry's pieces are kept with the tile as it's drawn, T.hb and T.hr, so pointing at one in the legend
+  // lights them up straight from the tiles, however far out: no going over every block again)
+  if(!T.base){const C=mapTileMake(G.n);if(!C)return false;C.g.setTransform(dpr,0,0,dpr,0,0);const H=[];if(B&&c0<=c1&&r0<=r1)drawMapBlocks(C.g,G.s,ox,oz,c0,c1,r0,r1,{all:true,HL:'*',hits:H});T.base=C.c;T.hb=mapHitsBy(H);}
   if(T.rv!==rv){T.rv=rv;
-    if(T.ruin){mapTPix-=G.n*G.n;T.ruin=null;}
-    if(B&&c0<=c1&&r0<=r1){const C=mapTileMake(G.n);if(!C)return false;C.g.setTransform(dpr,0,0,dpr,0,0);if(drawMapRuins(C.g,G.s,ox,oz,c0,c1,r0,r1,mapRuinPieces(c0,c1,r0,r1,rv),null,null)){drawMapLines(C.g,G.s,ox,oz,c0,c1,r0,r1,null,null);T.ruin=C.c;}else mapTPix-=G.n*G.n;}}
+    if(T.ruin){mapTPix-=G.n*G.n;T.ruin=null;}T.hr=null;
+    if(B&&c0<=c1&&r0<=r1){const C=mapTileMake(G.n);if(!C)return false;C.g.setTransform(dpr,0,0,dpr,0,0);const H=[];if(drawMapRuins(C.g,G.s,ox,oz,c0,c1,r0,r1,mapRuinPieces(c0,c1,r0,r1,rv),'*',H)){T.hr=mapHitsBy(H);drawMapLines(C.g,G.s,ox,oz,c0,c1,r0,r1,null,null);T.ruin=C.c;}else mapTPix-=G.n*G.n;}}
   return true;
 }
+// a tile's highlight pieces, sorted by legend entry
+function mapHitsBy(H){const o={};for(const h of H)(o[h[5]]||(o[h[5]]=[])).push(h);return o;}
 // a block explored since: throw away the tiles it's in (and the ones next to them: a block's highways and ramps spill over)
 function mapTileDrop(key){const T=mapTiles.get(key);if(!T)return;const n=mapTileGeo(T.L,0,0,mapTDpr).n;mapTPix-=n*n*((T.base?1:0)+(T.ruin?1:0));mapTiles.delete(key);}
 function mapTileSweep(dpr){
@@ -294,7 +301,7 @@ function mapTileSweep(dpr){
 // draw the tiles over the view (device pixels, from the canvas's corner); any not drawn yet are drawn, for a few
 // milliseconds a frame, the middle of the view first -- the rest shown meanwhile from tiles of the steps either side, if
 // there are any. Returns whether some are still to draw (null: tiles can't be made here)
-function mapTilesDraw(x,W,H,dpr,k,cx,cz){
+function mapTilesDraw(x,W,H,dpr,k,cx,cz,HL){
   const L=Math.max(-14,Math.min(8,Math.ceil(2*Math.log2(k)-1e-9))),G0=mapTileGeo(L,0,0,dpr),TW=G0.W;
   const tx0=Math.floor((cx-W/2/dpr/k)/TW),tx1=Math.floor((cx+W/2/dpr/k)/TW),tz0=Math.floor((cz-H/2/dpr/k)/TW),tz1=Math.floor((cz+H/2/dpr/k)/TW);
   const B=exploredBox(),bx0=B?(B.x0-2)*CELL:0,bx1=B?(B.x1+3)*CELL:0,bz0=B?(B.z0-2)*CELL:0,bz1=B?(B.z1+3)*CELL:0;
@@ -330,6 +337,17 @@ function mapTilesDraw(x,W,H,dpr,k,cx,cz){
       x.restore();});}
   ord.forEach((i,n)=>{const T=got[n];if(!T)return;const tx=want[i],tz=want[i+1],a=sx(tx*TW),b=sz(tz*TW),c=sx((tx+1)*TW),d=sz((tz+1)*TW);
     x.drawImage(T.base,a,b,c-a,d-b);if(T.ruin)x.drawImage(T.ruin,a,b,c-a,d-b);});
+  // the highlighted legend entry: everything else dims, its own pieces come back bright with an outline, from what each
+  // tile kept as it was drawn (each tile's own clipped to it, as a piece near its edge is kept by the tiles either side)
+  if(HL){x.fillStyle='rgba(8,10,14,0.74)';x.fillRect(0,0,W,H);
+    ord.forEach((i,n)=>{const T=got[n];if(!T)return;const L1=T.hb&&T.hb[HL]||[],L2=T.hr&&T.hr[HL]||[];if(!L1.length&&!L2.length)return;
+      const tx=want[i],tz=want[i+1],a=sx(tx*TW),b=sz(tz*TW),c=sx((tx+1)*TW),d=sz((tz+1)*TW),f=(c-a)/(G0.n/dpr);
+      x.save();x.beginPath();x.rect(a,b,c-a,d-b);x.clip();
+      const up=id=>!id||!ruinedB(id[0],id[1],id[2]);   // (a building down since the tile was drawn is a ruin now)
+      for(const Lh of [L1,L2])for(const h of Lh){if(!up(h[6]))continue;x.fillStyle=h[4];x.fillRect(a+h[0]*f,b+h[1]*f,h[2]*f,h[3]*f);}
+      x.strokeStyle='#ffe27a';x.lineWidth=1.2*dpr;
+      for(const Lh of [L1,L2])for(const [p,q,ww,hh,,,id] of Lh)if(up(id))x.strokeRect(a+p*f+0.5*dpr,b+q*f+0.5*dpr,Math.max(dpr,ww*f-dpr),Math.max(dpr,hh*f-dpr));
+      x.restore();});}
   return more;
 }
 function renderMap(){
@@ -346,11 +364,11 @@ function renderMap(){
   // (zoomed right out, only look over the blocks that have been explored, not the whole view)
   {const B=exploredBox();if(B){c0=Math.max(c0,B.x0-1);c1=Math.min(c1,B.x1+1);r0=Math.max(r0,B.z0-1);r1=Math.min(r1,B.z1+1);}}
   // everything drawn is tagged with its legend entry; the one being pointed at is drawn again, bright, over a dimmed map
-  // (that's drawn straight, block by block: the tiles don't know what's what)
+  // (from the pieces the tiles kept; drawn straight, block by block, only where tiles can't be made)
   const HL=MAPV.hl;let more=false;
   if(mapTSeed!==seed||mapTDpr!==dpr){mapTileClear();mapTSeed=seed;mapTDpr=dpr;}
   mapTileSweep(dpr);
-  const tiled=!HL&&(()=>{x.setTransform(1,0,0,1,0,0);x.imageSmoothingEnabled=true;const r=mapTilesDraw(x,cv.width,cv.height,dpr,k,MAPV.cx,MAPV.cz);x.setTransform(dpr,0,0,dpr,0,0);if(r===null)return false;more=r;return true;})();
+  const tiled=(()=>{x.setTransform(1,0,0,1,0,0);x.imageSmoothingEnabled=true;const r=mapTilesDraw(x,cv.width,cv.height,dpr,k,MAPV.cx,MAPV.cz,HL);x.setTransform(dpr,0,0,dpr,0,0);if(r===null)return false;more=r;return true;})();
   if(!tiled){const hits=[];drawMapBlocks(x,k,ox,oz,c0,c1,r0,r1,{HL,hits,ruins:[]});
     // the highlighted legend entry: everything else dims, its own pieces come back bright with an outline
     if(HL){x.fillStyle='rgba(8,10,14,0.74)';x.fillRect(0,0,w,h);

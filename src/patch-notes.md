@@ -90,6 +90,7 @@
 - Trees, ponds and lakes no longer pop up out of nowhere as you get close. Out past the full-detail city, the distant view now has every tree in its real spot, and up close each one becomes the real tree where it already stood.
 - Further off, woods show as clumps of treetops, and ponds, park lakes and the theme park's boating lake show as water.
 - Distant trees change colour with the seasons and lose their leaves in winter, like the near ones.
+- Out in the countryside the distant view now shows farms' fields and orchards, and the farmhouses, barns and the buildings of country sites (power stations, bases, airports and airfields, mines, quarries, lumber camps, truck stops and the rest), rather than plain grass.
 
 ### Water
 
@@ -272,6 +273,7 @@
 - Planes: on the keyboard the throttle is now Left Shift and C (Space is the brakes); on a controller RT and LT. Lock on in a plane is the middle mouse button (R3), so Q and E are free for the rudder.
 - Tanks fire with RT on a controller, helicopters fire their gun with RT and rockets with LT, and LB and RB descend and climb.
 - Options: the Speedometer switch is now Vehicle instruments.
+- The two-seater plane's and the airliner's instruments now have a throttle gauge, like the boats'.
 - Every vehicle has instruments of its own in the bottom-right corner in place of the one speedometer: a dashboard with a rev counter for cars, a digital display that shows the lean on motorcycles, a truck dial with an air-pressure gauge, a fan and slip gauge on the hovercraft, the mast height, tilt and tip risk on the forklift, the gear range and implement on the tractor, a turret and hull compass on the tank, an artificial horizon with height and airspeed on the helicopter, round dials in the two-seater, a glass cockpit display in the airliner, an engine telegraph and rudder on boats and ships, oars on the rowing boat, a brake and power lever on trains and the wind at each height in the balloon. The fighter jet's display is drawn over the whole view, like a real head-up display.
 - Speeds are in km/h on land and knots on the water and in the air.
 - The forklift's forks work. Hold Space to raise them and C to lower them (RB and LB on a controller), and hold Left Shift (X) with either to tilt the mast. Raise them under a crate, a goblin or a light car and it comes up with you. Lower it on to anything, a ledge, a roof or the ground, and it's set down there. Drive at a goblin with the forks up and they spear it. The forklift steers with its back wheels, so it turns almost on the spot with its tail swinging wide, and it beeps when it reverses. Take a sharp turn with a load held high and it tips over on its side, throwing you out; get back in to rock it back on to its wheels.
@@ -341,6 +343,7 @@
 - Mark a spot on the map: click it on the pause menu's Map tab (tap it on a touch screen; on a controller, pan the crosshair over it and press Y). A pin goes there and shows on your minimap too, or, while it's off the minimap's edge, an arrow on the rim points the way with how far it is. Click the pin again to take it away, or somewhere else to move it.
 - In split screen each player has a marker of their own, set from their own pause menu and shown on their own minimap, in their own colour. Markers are kept for each world.
 - The map is smooth to pan and zoom however much of the world you've explored. Zoomed right out, it can take a moment to fill in the first time.
+- Pointing at an entry in the map's key now highlights it at any zoom, not just up close, without slowing the map down.
 
 ### Enemy hostility: Pacifist
 
@@ -355,6 +358,9 @@
 - The vehicle list scrolls all the way to the bottom now. The mouse wheel no longer jumps back as it scrolls, and opening the list scrolls the menu far enough to show all of it, so the last few vehicles (down to the aircraft carrier) can be reached with the mouse, the wheel, the keyboard or a controller.
 - Time of day: a slider in the World section that sets the clock to any hour, 00:00 to 23:00. The day carries on from there as usual.
 - Pause time of day and Pause weather: switches in the World section that stop the clock (and with it the day and season) or keep the current weather from changing. Online, the host's switches count for everyone.
+- The two-seater plane and every kind of boat (rowboat, pedal boat, speedboat, launch, sailboat, fishing boat, tug, ferry, container ship and warship) are now in the vehicle list, here and in the Testing Environment. A boat is put in open water ahead of you; in the Testing Environment a sea is laid out for it.
+- On a controller, stepping through the vehicle list keeps the highlighted vehicle in view.
+- Opening the menu with ~ and then using a controller, or the other way round, no longer leaves it stuck or open twice: either one opens it, works it and closes it.
 - The Info pane now shows the structure or site you're in or on, such as a fast food place and its brand, a park or a military base.
 - The menu starts with just the most used switches shown (game speed, the World and Vehicles rows, the Player cheats and the overlays). The rest are still on the Show / hide tab, and anything you've already shown or hidden there stays as you left it.
 

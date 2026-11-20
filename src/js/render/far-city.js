@@ -126,7 +126,7 @@ function farBox(F,x0,y0,z0,x1,y1,z1,c,L){
   if((F.n+1)*16>F.mat.length){const N=F.mat.length*2;F.mat=farGrowArr(F.mat,N);F.col=farGrowArr(F.col,N*3/16);F.top=farGrowArr(F.top,N*3/16);F.wn=farGrowArr(F.wn,N/4);}
   const o=F.n*16,m=F.mat;m.fill(0,o,o+16);m[o]=x1-x0;m[o+5]=y1-y0;m[o+10]=z1-z0;m[o+12]=(x0+x1)/2;m[o+13]=(y0+y1)/2;m[o+14]=(z0+z1)/2;m[o+15]=1;
   const i=F.n*3,t=L?L.top:c;F.col[i]=c.r;F.col[i+1]=c.g;F.col[i+2]=c.b;F.top[i]=t.r;F.top[i+1]=t.g;F.top[i+2]=t.b;
-  const j=F.n*4;if(L){F.wn[j]=L.glow.r;F.wn[j+1]=L.glow.g;F.wn[j+2]=L.glow.b;F.wn[j+3]=L.f;}else{F.wn.fill(0,j,j+3);F.wn[j+3]=c===FARC.park?-1:c===FARC.sea||c===FARC.deep||c===_fw?-2:-3;}
+  const j=F.n*4;if(L){F.wn[j]=L.glow.r;F.wn[j+1]=L.glow.g;F.wn[j+2]=L.glow.b;F.wn[j+3]=L.f;}else{F.wn.fill(0,j,j+3);F.wn[j+3]=c===FARC.park||c.grass?-1:c===FARC.sea||c===FARC.deep||c===_fw?-2:-3;}
   F.n++;
 }
 // the far view of a block of the sea and its shore: n x n patches of water, beach, grass, or a port's concrete
@@ -282,7 +282,7 @@ function* farJobNear(SB,SG,act,ra,rb){
       seen.add(k);
       const P=plotInfo(px,pz),X0=px*CELL,Z0=pz*CELL,sc=farScorched(X0+CELL/2,Z0+CELL/2);
       if(seaPlot(px,pz))farSea(SG,px,pz,4);
-      else if(biomeOf(px,pz)==='plains'){farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.6,Z0+CELL,sc?FAR_SCORCH:FARC.park);farLinesPlot(SB,SG,px,pz);if(turbineAt(px,pz)&&!sc)farTurbine(SB,px,pz,1);}   // the plains: all grass (hills are only drawn up close), and what crosses them
+      else if(biomeOf(px,pz)==='plains'){farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.6,Z0+CELL,sc?FAR_SCORCH:FARC.park);farLinesPlot(SB,SG,px,pz);if(turbineAt(px,pz)&&!sc)farTurbine(SB,px,pz,1);if(!sc)yield* farCountry(SB,SG,px,pz,0);}   // the plains: all grass (hills are only drawn up close), and what crosses them
       else farBox(SG,X0+ROADW,G+0.4,Z0+ROADW,X0+CELL,G+0.97,Z0+CELL,sc?FAR_SCORCH:P.type==='park'?FARC.park:P.type==='plaza'?FARC.plaza:FARC.side);
       if(!seaPlot(px,pz)){if(biomeOf(px,pz)==='plains')farPonds(SG,px,pz,4,true);else farTownWater(SG,px,pz,P,2);}
       farTreeNew=false;farTreeBoxes(SG,farTreesOf(px,pz));if(farTreeNew)yield;
@@ -337,7 +337,7 @@ function* farJobMid(SB,SG,act,ra,rb){
     const d=Math.hypot(px*CELL+CELL/2-p.pos.x,pz*CELL+CELL/2-p.pos.z);if(d>rb+CELL||d<ra-CELL)continue;seen.add(k);
     const X0=px*CELL,Z0=pz*CELL,sc=farScorched(X0+CELL/2,Z0+CELL/2);
     if(seaPlot(px,pz)){farSea(SG,px,pz,2);continue;}
-    if(biomeOf(px,pz)==='plains'){farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.6,Z0+CELL,sc?FAR_SCORCH:FARC.park);farLinesPlot(SB,SG,px,pz);if(turbineAt(px,pz)&&!sc)farTurbine(SB,px,pz,1.6);
+    if(biomeOf(px,pz)==='plains'){farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.6,Z0+CELL,sc?FAR_SCORCH:FARC.park);farLinesPlot(SB,SG,px,pz);if(turbineAt(px,pz)&&!sc)farTurbine(SB,px,pz,1.6);if(!sc)yield* farCountry(SB,SG,px,pz,1);
       farPonds(SG,px,pz,8,false);farWoods(SG,px,pz,16,true);
       if(hwRow(pz,px)&&!hwGround('x',pz,X0+16)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('x',pz,X0+CELL/2)-1;farBox(SB,X0,y-1,Z0-3,X0+CELL,y+2,Z0+11,_fc);}
       if(hwCol(px,pz)&&!hwGround('z',px,Z0+16)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('z',px,Z0+CELL/2)-1;farBox(SB,X0-3,y-1,Z0,X0+11,y+2,Z0+CELL,_fc);}
@@ -365,6 +365,40 @@ function* farPlotBuildings(SB,P,px,pz){
       const SS=P.super,sx=X0+PL0,sz=Z0+PL0,W=(SS.w-1)*CELL+PW,L=(SS.h-1)*CELL+PW;_fc.setHex(blockColor(CONCRETE));
       const t=farCraterTop(sx,sz,sx+W,sz+L,G+STAND+4);if(t>G)farBox(SB,sx,G+1,sz,sx+W,t+1,sz+L,t<G+3?FAR_RUB:_fc);}
 }
+// ---- the plains' farms and country sites in the far rings: fields and orchards as patches of their colour (crop rows are
+// dirt and leaves or flowers, an orchard's grass under its trees' crowns), and the buildings of a farm or site. A landmark
+// (a hangar, a tower, a reactor's dome, a launch tower) is drawn as columns of the height it really is, sampled every few
+// blocks, since one box round all of it would stand far too big ----
+const FAR_SITES=new Set(['farm','truckstop','nuclear','base','airport','airfield','nasa','mine','quarry','lumber','campsite','cult','tower5g','prepper','militia','ruins','thieves']);
+const farMix=(a,b,f)=>{const c=new THREE.Color(topColor(a));c.lerp(new THREE.Color(topColor(b)),f);return c;};
+// (green ones turn with the seasons as grass does: farBox gives them the grass's -1)
+const FAR_FIELD={veg:farMix(DIRT,LEAVES,0.5),flower:farMix(DIRT,FLOWER,0.5),orchard:farMix(GRASS,LEAVES,0.45)};
+FAR_FIELD.veg.grass=FAR_FIELD.orchard.grass=true;
+// a landmark's outline every st blocks: [x0,z0,x1,z1,top] runs (block coordinates in its plot), kept on it
+function farProfile(b,px,pz,st){
+  const P=b._farP||(b._farP={});if(P[st])return P[st];const out=[],hi=b.top+(b.roof||0)+2;
+  for(let z=b.z0;z<b.z1;z+=st){let run=null;const z1=Math.min(b.z1,z+st);
+    for(let x=b.x0;x<b.x1;x+=st){const x1=Math.min(b.x1,x+st),cx=Math.floor((x+x1)/2),cz=Math.floor((z+z1)/2);let t=G;
+      for(let y=hi;y>G;y--){const v=blockAt(b,cx,cz,y,px,pz);if(v!==AIR&&!BLOCK[v].hide&&!BLOCK[v].liquid){t=y;break;}}
+      if(run&&run[4]===t)run[2]=x1;else{if(run&&run[4]>G)out.push(run);run=[x,z,x1,z1,t];}}
+    if(run&&run[4]>G)out.push(run);}
+  return P[st]=out;
+}
+// one plains block's farmland, or its farm's or site's field and buildings. lvl 0 the near ring, 1 the middle, 2 the far
+function* farCountry(SB,SG,px,pz,lvl){
+  const X0=px*CELL,Z0=pz*CELL,t=plotType(px,pz);
+  if(t==='plains'){const F=farmlandOf(px,pz);if(F)farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.62,Z0+CELL,F.kind==='orchard'?FAR_FIELD.orchard:F.crop?FAR_FIELD.flower:FAR_FIELD.veg);return;}
+  if(!FAR_SITES.has(t))return;
+  const P=plotInfo(px,pz);
+  if(t==='farm'&&P.field){const F=P.field;farBox(SG,X0+F.x0+1,G+0.4,Z0+F.z0+1,X0+F.x1-1,G+1.62,Z0+F.z1-1,FAR_FIELD.veg);}
+  for(let bi=0;bi<P.b.length;bi++){const b=P.b[bi];if(b.farSkip||b.x1-b.x0<2||b.z1-b.z0<2)continue;
+    const key=px+','+pz+','+bi;yield* farSolid(b,px,pz,key);
+    const top=farTop(b,X0,Z0,key);if(top<=G)continue;if(top<G+3&&top<b.top){farRubble(SB,b,X0,Z0,top);continue;}
+    if(!b._far||lvl===0&&!b._far.fine){farLook(b,px,pz,lvl===0);yield;}const L=b._far;
+    if(b.kind==='landmark'&&lvl<2){const st=lvl?8:4,fresh=!(b._farP&&b._farP[st]),R=farProfile(b,px,pz,st);if(fresh)yield;
+      for(const r of R)farBox(SB,X0+r[0],G+1,Z0+r[1],X0+r[2],Math.min(r[4],top)+1,Z0+r[3],L.wall,L);}
+    else farBox(SB,X0+b.x0,G+1,Z0+b.z0,X0+b.x1,top+1+(lvl===0&&top>=b.top?(b.roof||0)*0.6:0),Z0+b.z1,L.wall,L);}
+}
 // the far ring: one box per town block, from the cheap per-block guesses (no plots worked out)
 // (no buildings are worked out out here, so each block gets a typical look: one of the common wall materials, with the share
 // of glowing windows and the roof colour the buildings nearer in have on average)
@@ -378,7 +412,7 @@ function* farJobFar(SB,SG,act,ra,rb){
     const d=Math.hypot(qx*C4+C4/2-p.pos.x,qz*C4+C4/2-p.pos.z);if(d>rb+C4||d<ra-C4)continue;seen.add(k);
     for(let i=0;i<4;i++)for(let j=0;j<4;j++){const px=qx*4+i,pz=qz*4+j,X0=px*CELL,Z0=pz*CELL,sc=farScorched(X0+CELL/2,Z0+CELL/2);
       if(seaPlot(px,pz)){farSea(SG,px,pz,1);continue;}
-      const ty=setType(px,pz);if(!ty){if(sc)farBox(SG,X0,G+0.45,Z0,X0+CELL,G+0.6,Z0+CELL,FAR_SCORCH);else if(turbineAt(px,pz))farTurbine(SB,px,pz,2.6);if(biomeOf(px,pz)==='plains'){farPonds(SG,px,pz,16,false);farWoods(SG,px,pz,32,false);}continue;}
+      const ty=setType(px,pz);if(!ty){if(sc)farBox(SG,X0,G+0.45,Z0,X0+CELL,G+0.6,Z0+CELL,FAR_SCORCH);else if(turbineAt(px,pz))farTurbine(SB,px,pz,2.6);if(biomeOf(px,pz)==='plains'){farPonds(SG,px,pz,16,false);farWoods(SG,px,pz,32,false);if(!sc)yield* farCountry(SB,SG,px,pz,2);}continue;}
       farBox(SG,X0,G+0.45,Z0,X0+CELL,G+0.97,Z0+CELL,sc?FAR_SCORCH:FARC.side);
       // (a plot where something's come down or been knocked about, or that a big blast reached: its real buildings, as
       // they've been left, rather than the guess)

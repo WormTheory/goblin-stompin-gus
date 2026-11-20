@@ -87,6 +87,14 @@ function inHeli(p,D){const M=D.o,agl=Math.max(0,Math.round(M.y-groundAt(M.x,M.z,
   return s+inT(222,22,10,M.agile?'AGILE':'SIMPLE','mono','end',0,M.agile?IN_YOLK:'#9aa3ad');}
 // (a plane's attitude, read off its model: pitch up, roll right positive)
 function inAtt(pl){const F=pl.free||{};if(F.q){const A=planeAtt(pl);return A;}return{roll:-(F.rl||0),pitch:F.pt||0,hd:pl.g.rotation.y};}
+// a plane's throttle lever, beside its other instruments as the boat's is beside its dial: its slot filling from idle at
+// the bottom to full at the top, a tick every quarter, the knob where the lever sits and the setting under it
+function inThrot(x,y,thr){const k=inCl(thr||0,0,1),h=72,t=y+16,ky=t+(1-k)*h;
+  let s=`<rect x="${x}" y="${y}" width="40" height="${h+38}" rx="6" fill="rgba(18,22,28,.78)" stroke="${IN_INK}" stroke-width="2"/>`+inT(x+20,y+11,8,'THR','mono','middle',0,'#9aa3ad');
+  s+=`<rect x="${x+17}" y="${t}" width="6" height="${h}" rx="3" fill="#0c0f14"/><rect x="${x+17}" y="${inF(ky)}" width="6" height="${inF(t+h-ky)}" rx="3" fill="${IN_GUS}"/>`;
+  for(let i=0;i<=4;i++){const q=t+h*i/4;s+=`<line x1="${x+5}" y1="${q}" x2="${x+12}" y2="${q}" stroke="#9aa3ad" stroke-width="1.5"/><line x1="${x+28}" y1="${q}" x2="${x+35}" y2="${q}" stroke="#9aa3ad" stroke-width="1.5"/>`;}
+  s+=`<rect x="${x+8}" y="${inF(ky-5)}" width="24" height="10" rx="3" fill="${IN_TOM}" stroke="${IN_INK}" stroke-width="1.5"/>`;
+  return s+inT(x+20,y+h+31,9,Math.round(k*100)+'%','mono','middle',0,'#fff');}
 function inSteam(p,D){const pl=D.o,F=pl.free||{},kt=Math.round((F.v||0)*BPS_KN),A=inAtt(pl),alt=Math.max(0,pl.g.position.y-G);
   const face=(cx,inner,label)=>`<g transform="translate(${cx},50)"><circle r="44" fill="#16191d" stroke="${IN_INK}" stroke-width="5"/><circle r="40" fill="none" stroke="#c9b48a" stroke-width="2"/>${inner}${inT(0,56,10,label,'px ink-t','middle',2.5)}</g>`;
   const ka=v=>-150+inCl((v-20)/140,0,1)*300;
@@ -97,13 +105,13 @@ function inSteam(p,D){const pl=D.o,F=pl.free||{},kt=Math.round((F.v||0)*BPS_KN),
   const att=inHorizon('att'+p.idx,0,0,38,A.roll,A.pitch,'#4f9ad8','#7a5530')+`<path d="M-24,0 h14 l5,5 l5,-5 h14" fill="none" stroke="${IN_YOLK}" stroke-width="3"/>`;
   let alti='';for(let i=0;i<10;i++){const[x,y]=inPt(i*36,30);alti+=inT(x,+y+4,10,i,'mono','middle',0,'#e9e3d3');}
   alti+=`<line x1="0" y1="4" x2="0" y2="-20" stroke="#fff" stroke-width="4" transform="rotate(${inF(alt/1000*360)})"/><line x1="0" y1="5" x2="0" y2="-33" stroke="#fff" stroke-width="2" transform="rotate(${inF(alt%100/100*360)})"/><circle r="3" fill="#fff"/>`+inT(0,20,8,'x100 m','mono','middle',0,'#e9e3d3');
-  return face(50,asi,'AIRSPEED')+face(150,att,'ATTITUDE')+face(250,alti,'ALTITUDE')+(planeStalled(F,pl)?inT(150,-4,14,'STALL','px ink-t','middle',3,'#ff9a8a'):'');}
+  return face(50,asi,'AIRSPEED')+face(150,att,'ATTITUDE')+face(250,alti,'ALTITUDE')+inThrot(304,-8,F.thr)+(planeStalled(F,pl)?inT(150,-4,14,'STALL','px ink-t','middle',3,'#ff9a8a'):'');}
 function inPfd(p,D){const pl=D.o,F=pl.free||{},A=inAtt(pl),spd=Math.round((F.v||0)*BPS_KN),alt=Math.round(Math.max(0,pl.g.position.y-G));
   let s=`<rect x="0" y="0" width="220" height="130" rx="8" fill="#0d1014" stroke="${IN_INK}" stroke-width="4"/><defs><clipPath id="pfd${p.idx}"><rect x="50" y="10" width="120" height="110" rx="6"/></clipPath></defs><g clip-path="url(#pfd${p.idx})"><g transform="translate(110,${inF(65+A.pitch/IN_R*3)}) rotate(${inF(-A.roll/IN_R)})"><rect x="-160" y="-160" width="320" height="160" fill="#2f78c4"/><rect x="-160" y="0" width="320" height="160" fill="#7a5126"/><line x1="-160" y1="0" x2="160" y2="0" stroke="#fff" stroke-width="1.5"/>${[-10,-5,5,10].map(q=>`<line x1="${q%10?-8:-16}" y1="${-q*3}" x2="${q%10?8:16}" y2="${-q*3}" stroke="#fff" stroke-width="1.2"/>`).join('')}</g></g><path d="M80,65 h20 v6 M140,65 h-20 v6" fill="none" stroke="${IN_YOLK}" stroke-width="3"/>`;
   s+=`<rect x="8" y="10" width="38" height="110" rx="4" fill="#2a2f36"/><rect x="6" y="56" width="44" height="18" rx="2" fill="#000" stroke="#fff" stroke-width="1"/>${inT(46,70,14,spd,'mono','end',0,'#fff')}`;
   s+=`<rect x="174" y="10" width="40" height="110" rx="4" fill="#2a2f36"/><rect x="172" y="56" width="46" height="18" rx="2" fill="#000" stroke="#fff" stroke-width="1"/>${inT(214,70,13,alt,'mono','end',0,'#5cff8a')}`;
   const ap=pl.ap?'AP  ALT HOLD':'AP OFF';
-  return s+inT(27,22,8,'KT','mono','middle',0,'#9aa3ad')+inT(194,22,8,'ALT','mono','middle',0,'#9aa3ad')+inT(110,116,9,(planeStalled(F,pl)?'STALL  ':'')+ap,'mono','middle',0,planeStalled(F,pl)?'#ff6a5a':'#5cff8a')+inT(110,22,9,'THR '+Math.round((F.thr||0)*100)+'%','mono','middle',0,'#9aa3ad');}
+  return s+inT(27,22,8,'KT','mono','middle',0,'#9aa3ad')+inT(194,22,8,'ALT','mono','middle',0,'#9aa3ad')+inT(110,116,9,(planeStalled(F,pl)?'STALL  ':'')+ap,'mono','middle',0,planeStalled(F,pl)?'#ff6a5a':'#5cff8a')+inThrot(226,10,F.thr);}
 // the boat's throttle notches, astern to full (step: where the lever sits, -1 astern to 4 full)
 const BOAT_NOTCH=['ASTERN','STOP','SLOW','HALF','FULL'];
 function inBoat(p,D){const bo=D.o,kn=Math.round(Math.abs(bo.sp||0)*BPS_KN),n=bo.notch??(bo.sp>0.3?2:bo.sp<-0.3?-1:0),hd=inBear(bo.g.rotation.y),top=Math.max(10,Math.ceil(Math.max(6,bo.K.sp*1.6)*1.3*BPS_KN/10)*10);
@@ -195,8 +203,8 @@ const INSTRUMENTS={
   tractor:{vb:'-52 -50 104 110',w:124,draw:inTractor},
   tank:{vb:'-48 -48 148 100',w:200,draw:inTank},
   heli:{vb:'0 0 230 100',w:250,draw:inHeli},
-  steam:{vb:'0 -14 300 126',w:300,draw:inSteam},
-  pfd:{vb:'0 0 220 130',w:230,draw:inPfd},
+  steam:{vb:'0 -14 348 126',w:348,draw:inSteam},
+  pfd:{vb:'0 0 270 130',w:282,draw:inPfd},
   jet:{over:'0 0 1600 900',draw:inJet},
   boat:{vb:'-55 -66 175 151',w:200,draw:inBoat},
   row:{vb:'0 0 200 80',w:200,draw:inRow},

@@ -446,7 +446,8 @@ function drvBoat(V,dt){
   const bo=V.bo,g=V.boat,K=bo.K,p=bo.drv,i=drvIn(p);
   boatDrive(V,bo,p,i,dt);   // (the throttle's notches, the oars, planing, waves, the anchor and the specials: boat-handling.js)
   const h=g.rotation.y,tx=Math.sin(h),tz=Math.cos(h),d=bo.sp<0?-1:1,nx=g.position.x+tx*bo.sp*dt,nz=g.position.z+tz*bo.sp*dt;
-  const wet=(x,z)=>get(x,G,z)===WATER&&!solidAt(x,G+1,z),fx=nx+tx*bo.L/2*d,fz=nz+tz*bo.L/2*d,w=K.W/2,y0=g.position.y-1,y1=g.position.y+K.fb+1;
+  // (the water's top block: a Testing Environment sea's surface is a block lower than the world's, and a boat spawned on it floats lower to match)
+  const wy=V.y0<G?G-1:G,wet=(x,z)=>get(x,wy,z)===WATER&&!solidAt(x,wy+1,z),fx=nx+tx*bo.L/2*d,fz=nz+tz*bo.L/2*d,w=K.W/2,y0=g.position.y-1,y1=g.position.y+K.fb+1;
   const hitV=vehIn(nx,nz,h,w,bo.L/2,y0,y1,bo),inV=hitV&&vehIn(g.position.x,g.position.z,h,w,bo.L/2,y0,y1,bo);
   // (another boat in the way: a tug in push mode shoves it along, anything else stops it)
   if(wet(fx,fz)&&wet(fx+tz*w,fz-tx*w)&&wet(fx-tz*w,fz+tx*w)&&(!hitV||inV||bo.push&&boatPush(bo,hitV,nx-g.position.x,nz-g.position.z))){g.position.x=nx;g.position.z=nz;}

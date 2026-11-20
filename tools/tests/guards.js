@@ -30,8 +30,8 @@ const put=(x,z)=>{P.pos.set(x,G0+1,z);P.vy=0;P.mvx=P.mvz=0;P.standCar=null;P.rid
 E('setGobP')(P,true);run(0.3);
 
 // ==== every vehicle: snow, health, damage, Invulnerability, points, online health ====
-// (one of each kind the debug menu spawns, then a carrier's deck weapon; the street's boats and trains, and the
-// two-seater planes, aren't spawned in the Testing Environment)
+// (one of each kind the debug menu spawns, then a carrier's deck weapon; trains and subways
+// aren't spawned in the Testing Environment)
 const shoot=E("typeof shotPlayer==='function'?shotPlayer:damagePlayer");   // (so this runs on an older build too)
 const hpOf=D=>{const h=E('drvHP')(D);return h&&isFinite(h.hp)?h.hp:NaN;};
 const hurt=(D,n)=>{if(D.k==='car')E('damageCar')(D.o,n,new V3(1,0,0));else E('trainHit')(D.o,n,new V3(1,0,0),D.ci);};
@@ -108,7 +108,7 @@ let kx=-600;for(const t of kinds){
  {const h=Tr.carHP?Tr.carHP[0]:E('CAR_HP');check('train','invuln',h===E('CAR_HP'),'car hp '+h);}
  // (This rampage counts each train car wrecked)
  {const r0=E('RAMP').cars;E('trainHit')(Tr,1e5,undefined,0);check('train','rampage',E('RAMP').cars===r0+1,r0+' -> '+E('RAMP').cars);}flush('vehicle train (stand-in)');}
-console.log('families covered:',Object.entries(did).map(([k,n])=>k+(n>1?' x'+n:'')).join(', '),'| not spawnable here: boats, trains, subways, two-seater planes');
+console.log('families covered:',Object.entries(did).map(([k,n])=>k+(n>1?' x'+n:'')).join(', '),'| not spawnable here: trains, subways');
 
 // ==== the registry itself: every kind has what the shared code reads ====
 {const VK=E('VEHICLE_KINDS');for(const k in VK){const K=VK[k],bad=[];for(const f of ['pos','top','mid','hp','max','dead','shown','groups','pts','label','hit'])if(typeof K[f]!=='function'&&!(k==='car'&&f==='groups'))bad.push(f);
