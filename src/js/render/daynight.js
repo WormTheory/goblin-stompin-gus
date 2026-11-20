@@ -9,7 +9,7 @@ const _wxGrey=new THREE.Color(),_wxFlash=new THREE.Color(0.92,0.95,1.0);
 const smooth=(a,b,x)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t);};
 const clockHand=document.getElementById('clockHand'),clockOrb=document.getElementById('clockOrb'),clockTxt=document.getElementById('clockTxt');
 function updateSky(dt){
-  if(playing){const pt=tod;tod=(tod+dt/DAY_LEN*DAY_SPEEDS[daySpd])%1;if(tod<pt)dayN++;}
+  if(playing&&!DT.todStop){const pt=tod;tod=(tod+dt/DAY_LEN*DAY_SPEEDS[daySpd])%1;if(tod<pt)dayN++;}
   const day=tod<DAY_FRAC,ang=day?Math.PI*tod/DAY_FRAC:Math.PI+Math.PI*(tod-DAY_FRAC)/(1-DAY_FRAC);
   const sy=Math.sin(ang),sx=Math.cos(ang);
   skyU.uSun.value.set(sx*0.92,sy,0.38).normalize();skyU.uMoon.value.set(-sx*0.92,-sy,-0.3).normalize();

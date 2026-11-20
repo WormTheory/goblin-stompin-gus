@@ -150,7 +150,7 @@ function updateVehSnow(dt){
 const wxFogFar=fk=>fk>=0.995?Infinity:24/(1-fk);
 function updateWeather(dt){
   if(playing){wxClock+=dt;
-    if(gameDays()>=WX.until)wxSet(wxPick(seasonOf()),false);
+    if(!DT.wxStop&&gameDays()>=WX.until)wxSet(wxPick(seasonOf()),false);   // (not while the debug menu's Pause weather is on)
     const tg=WX_TYPES[WX.type],r=1-Math.exp(-dt/10);
     for(const k of WX_KEYS)WX.k[k]+=((tg[k]??WX_DEF[k])-WX.k[k])*r;
     // the ground gets wet in the rain and dries off after; snow settles, and melts away again once it stops

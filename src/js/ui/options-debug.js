@@ -9,7 +9,7 @@ const sbxCells=cells=>{const h=SBX&&SBX.hits[SBX.hits.length-1];if(h&&h.kind==='
 // game speed and free cam
 const SPEEDS=[0.05,0.1,0.25,0.5,0.75,0.9,1,1.25,1.5,2];
 const PSPEEDS=[1,1.5,2,2.5,3,4,5,6,7,8,9,10];
-const DT={combo:false,hpBars:false,fps:false,sndList:false,info:false,curve:2,psI:0,invuln:false,infStam:false,infAmmo:false,veh:'car',vehMsg:'',fly:false,gob:false,host:3,speedI:6,paused:false,freecam:false,step:false,quick:false,menu:false,kbdOpen:false,selHeld:false,cur:0,navDir:0,navT:0};
+const DT={combo:false,hpBars:false,fps:false,sndList:false,info:false,curve:2,psI:0,invuln:false,infStam:false,infAmmo:false,veh:'car',vehMsg:'',fly:false,gob:false,host:3,speedI:6,paused:false,todStop:false,wxStop:false,wxLeft:0,freecam:false,step:false,quick:false,menu:false,kbdOpen:false,selHeld:false,cur:0,navDir:0,navT:0};
 try{const q=JSON.parse(localStorage.getItem('goblin-stompin-gus-quickdbg')||'null');if(typeof q==='boolean')DT.quick=q;}catch(e){}
 try{for(const k of ['fps','hpBars','sndList','info'])DT[k]=localStorage.getItem('goblin-stompin-gus-'+k)==='1';}catch(e){}
 // the debug settings carry over from one session to the next (all but stopping time and the free cam, which would
@@ -77,7 +77,7 @@ const DBG_COLS=4,DBG_SECS=[
   [0,'All',[{k:'_all',label:'Show all',act:true},{k:'_none',label:'Hide all',act:true}]],
   [0,'Time',[{k:'speed',label:'Game speed'},{k:'paused',label:'Stop time'}]],
   [0,'Camera',[{k:'freecam',label:'Free cam'},{k:'curve',label:'World curve'}]],
-  [0,'World',[{k:'tod',label:'Time of day'},{k:'wx',label:'Weather'},{k:'season',label:'Season'},{k:'fogLit',label:'Fog light'},{k:'halo',label:'Halos'}]],
+  [0,'World',[{k:'tod',label:'Time of day'},{k:'todStop',label:'Pause time of day'},{k:'wx',label:'Weather'},{k:'wxStop',label:'Pause weather'},{k:'season',label:'Season'},{k:'fogLit',label:'Fog light'},{k:'halo',label:'Halos'}]],
   // (pick a kind, then Spawn puts one down ahead of you, parked and empty: in the Testing Environment or the ordinary game)
   [0,'Vehicles',[{k:'vehSel',label:'Vehicle'},{k:'vehGo',label:'Spawn vehicle'}]],
   [1,'Player',[{k:'pspeed',label:'Player speed'},{k:'invuln',label:'Invulnerable'},{k:'infStam',label:'Infinite stamina'},{k:'infAmmo',label:'Infinite ammo'},{k:'nukeR',label:'Nuke strength'},{k:'fly',label:'Flying'},{k:'host',label:'Enemy hostility'},{k:'combo',label:'Combo system'}]],
@@ -107,6 +107,11 @@ const nukeSet=i=>{DT.nukeR=NUKE_R0+NUKE_RS*Math.max(0,Math.min(NUKE_RN-1,i));};
 const todHour=()=>Math.floor(hourNow()+1e-6)%24;
 function setTodHour(h){h=((h%24)+24)%24;if(netGuest())return;tod=(((h-6)%24+24)%24)/24;clockT=0;}
 const todTxt=()=>String(todHour()).padStart(2,'0')+':00';
+// the Pause time of day and Pause weather switches: the clock (and so the day and season) stands still, or the weather
+// stays as it is, while the rest of the game runs on. Online only the host's count, sent to guests with the clock
+// (netClock). Paused, the weather's time left is kept, and given back from where the clock is when it's unpaused.
+function setTodStop(on){if(netGuest())return;DT.todStop=on;}
+function setWxStop(on){if(netGuest())return;if(on)DT.wxLeft=Math.max(0,WX.until-gameDays());else WX.until=gameDays()+(DT.wxLeft??0);DT.wxStop=on;}
 // the Rendering switches, and what each one stops being drawn (not saved: a world with holes in the picture would only
 // be confusing to come back to). The caves, sewers and subways redraw over the next few frames, nearest first.
 const GFX_KEY={gProps:'props',gFixtures:'fixtures',gCaves:'caves',gSewers:'sewers',gSubway:'subway'};
@@ -117,7 +122,7 @@ function toggleGfx(k){const g=GFX_KEY[k],off=GFX_OFF[g]=!GFX_OFF[g];
   const P=P1.pos,d=e=>Math.hypot(e.cx*CS-P.x,e.cz*CS-P.z);
   leafQ.length=0;for(const e of [...meshes.values()].sort((a,b)=>d(b)-d(a)))leafQ.push(ckey(e.cx,e.cz));}
 const curveTxt=()=>DT.curve===0?'Flat':DT.curve>0?'Down '+DT.curve:'Up '+(-DT.curve);
-function dbgVal(k){return k==='nukeR'?String(nukeR()):k==='fogLit'?(DT.fogLit??1)+'×':k==='halo'?(DT.halo??1)+'×':isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='tod'?todTxt():k==='vehSel'?tenvVehName(DT.veh):k==='vehGo'?DT.vehMsg:k==='paused'||k==='freecam'||k==='combo'||k==='invuln'||k==='infStam'||k==='infAmmo'||k==='fly'||k==='fps'||k==='sndList'||k==='info'?DT[k]:DBG[k];}
+function dbgVal(k){return k==='nukeR'?String(nukeR()):k==='fogLit'?(DT.fogLit??1)+'×':k==='halo'?(DT.halo??1)+'×':isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='tod'?todTxt():k==='vehSel'?tenvVehName(DT.veh):k==='vehGo'?DT.vehMsg:k==='todStop'||k==='wxStop'||k==='paused'||k==='freecam'||k==='combo'||k==='invuln'||k==='infStam'||k==='infAmmo'||k==='fly'||k==='fps'||k==='sndList'||k==='info'?DT[k]:DBG[k];}
 // the rows on show: the individual hitbox switches only while 'Display hitboxes' is on
 // the menu's two tabs: 0 the switches themselves, 1 "Show / hide", which picks the rows tab 0 lists (kept in this browser)
 const DBG_HIDE_KEY='goblin-stompin-gus-dbghide',DBG_HIDE=new Set();
@@ -128,7 +133,7 @@ function dbgItems(){const L=DT.tab?DBG_ITEMS:DBG_ITEMS.filter(it=>!it.act&&!DBG_
 // over to the other tab, keeping the highlight on the same row if it's there
 function dbgTab(t){const k=(dbgItems()[DT.cur]||{}).k;DT.tab=t;DT.edit=null;DT.dd=null;const i=dbgItems().findIndex(it=>it.k===k);DT.cur=Math.max(0,i);tone('triangle',560,0,0.04,0.02);renderTime();}
 // step a slider row (game speed or player speed) left or right
-function dbgStep(k,d){if(k==='wx'){const L=Object.keys(WX_TYPES);wxSet(L[(L.indexOf(WX.type)+d+L.length)%L.length],true);WX.until=gameDays()+1;}
+function dbgStep(k,d){if(k==='wx'){const L=Object.keys(WX_TYPES);wxSet(L[(L.indexOf(WX.type)+d+L.length)%L.length],true);WX.until=gameDays()+1;DT.wxLeft=1;}
   else if(k==='season'){const y=Math.floor((dayN-1)/120);dayN=y*120+((seasonOf()+d+4)%4)*SEASON_LEN+1;wxSet(wxPick(seasonOf()),true);}
   else if(k==='curve')DT.curve=Math.max(-10,Math.min(10,DT.curve+d));
   else if(k==='host')DT.host=Math.max(0,Math.min(HOST_MAX,DT.host+d));
@@ -148,7 +153,7 @@ function ddOpts(k){return k==='vehSel'?tenvVehKinds().map(t=>({v:t,n:tenvVehName
 function ddCur(k){return k==='vehSel'?Math.max(0,tenvVehKinds().indexOf(DT.veh)):k==='wx'?Object.keys(WX_TYPES).indexOf(WX.type):seasonOf();}
 function ddChoose(k,j){
   if(k==='vehSel'){DT.veh=tenvVehKinds()[j];DT.vehMsg='';}
-  else if(k==='wx'){wxSet(Object.keys(WX_TYPES)[j],true);WX.until=gameDays()+1;}
+  else if(k==='wx'){wxSet(Object.keys(WX_TYPES)[j],true);WX.until=gameDays()+1;DT.wxLeft=1;}
   else{const y=Math.floor((dayN-1)/120);dayN=y*120+j*SEASON_LEN+1;wxSet(wxPick(seasonOf()),true);}
   DT.dd=null;tone('triangle',620,0,0.05,0.03);renderTime();
 }
@@ -162,6 +167,8 @@ function dbgMenuToggle(){const it=dbgItems()[DT.cur];if(!it)return;
   else if(it.k==='vehGo'){DT.vehMsg=tenvSpawnOne(DT.veh);tone('triangle',TENV?700:300,0,0.06,0.03);renderTime();return;}
   else if(it.k==='freecam')setFreecam(!DT.freecam);
   else if(it.k==='paused')DT.paused=!DT.paused;
+  else if(it.k==='todStop')setTodStop(!DT.todStop);
+  else if(it.k==='wxStop')setWxStop(!DT.wxStop);
   else if(it.k==='combo')setCombo(!DT.combo);
   else if(it.k==='invuln'||it.k==='infStam'||it.k==='infAmmo'||it.k==='fly'||it.k==='fps'||it.k==='sndList'||it.k==='info'){DT[it.k]=!DT[it.k];try{localStorage.setItem('goblin-stompin-gus-'+it.k,DT[it.k]?'1':'0');}catch(e){}}
   else{DBG[it.k]=!DBG[it.k];try{localStorage.setItem(DBG_KEY,JSON.stringify(DBG));}catch(e){}}
