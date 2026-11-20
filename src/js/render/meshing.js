@@ -382,7 +382,7 @@ function routeMarks(cx,cz){
   for(let q=0;q<LR.length;q+=2){const R=LR[q],RL=railOf(R);if(!RL)continue;const i=LR[q+1],[ax,az]=R.pts[i],[bx,bz]=R.pts[i+1],l=Math.hypot(bx-ax,bz-az);if(l<1e-6)continue;
     const tx=(bx-ax)/l,tz=(bz-az)/l,nx=-tz,nz=tx,o=RL.off;
     for(let a=0;a<l;a+=1){const m=a+0.5,s=R.cum[i]+m;if(Math.min(s,R.L-s)<25)continue;const px=ax+tx*m+nx*o,pz=az+tz*m+nz*o;if(px<x0||px>=x0+CS||pz<z0||pz>=z0+CS)continue;
-      const gb=get(Math.floor(px),G,Math.floor(pz));if((gb!==GRAVEL&&gb!==PLANKS)||get(Math.floor(px),G+1,Math.floor(pz))!==AIR)continue;
+      const gb=get(Math.floor(px),G,Math.floor(pz));if((gb!==GRAVEL&&gb!==PLANKS)||get(Math.floor(px),G+1,Math.floor(pz))!==AIR||bbTorn(px,pz))continue;
       const cx=ax+tx*m,cz=az+tz*m;quad(cx+nx*(o-1.15),cz+nz*(o-1.15),cx+nx*(o+1.15),cz+nz*(o+1.15),-tx,-tz,0,0.36,G+1.04,8);   // a sleeper
       for(const k of [-0.72,0.72])quad(ax+tx*a,az+tz*a,ax+tx*(a+1),az+tz*(a+1),nx,nz,o+k,0.13,G+1.16,18);}}   // the rails
   // the truck stops' lorry bays: long white lines out from the road behind the canopy, square to the road
@@ -395,7 +395,7 @@ function routeMarks(cx,cz){
   // the railways: sleepers across, two steel rails along, down the middle of each line (where there's still ground
   // under them); round the bends in short straight pieces
   {const Ls=new Set();for(const [qx,qz] of [[x0,z0],[x0+CS-1,z0+CS-1]])for(const L of railLinksNear(Math.floor(qx/CELL),Math.floor(qz/CELL)))Ls.add(L);
-   const inC=(x,z)=>x>=x0&&x<x0+CS&&z>=z0&&z<z0+CS,ok=(x,z)=>{const gx=Math.floor(x),gz=Math.floor(z),b=get(gx,G,gz);return b&&b!==WATER&&get(gx,G+1,gz)===AIR;};
+   const inC=(x,z)=>x>=x0&&x<x0+CS&&z>=z0&&z<z0+CS,ok=(x,z)=>{const gx=Math.floor(x),gz=Math.floor(z),b=get(gx,G,gz);return b&&b!==WATER&&get(gx,G+1,gz)===AIR&&!bbTorn(x,z);};
    for(const L of Ls){const p=L.pts;
      for(let i=0;i<p.length-1;i++){const [ax,az]=p[i],[bx,bz]=p[i+1];const mx=(ax+bx)/2,mz=(az+bz)/2;if(!inC(Math.floor(mx),Math.floor(mz))||!ok(mx,mz))continue;
        // (a stretch shared with the next line along, through a station: drawn by only one of them)

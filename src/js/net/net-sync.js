@@ -549,7 +549,7 @@ function netCommit(m){
     if(e[0]==='e'){const L=e[1];for(let i=0;i+3<L.length;i+=4)netSetBlock(L[i],L[i+1],L[i+2],L[i+3],ch);}
     else if(e[0]==='t'||e[0]==='b'){try{netFallMake(e);}catch(er){}}
     else if(e[0]==='c'){try{netCollapse(e[1],e[2],ch);}catch(er){}}
-    else if(e[0]==='X'){try{netCrater([{x:e[1],y:e[2],z:e[3],R:e[4],s:e[5],n:e[6]}]);}catch(er){}}   // (a big blast: the guest carves it itself, big-blast.js)
+    else if(e[0]==='X'){try{netCrater([{x:e[1],y:e[2],z:e[3],R:e[4],s:e[5],n:e[6],w:e[7]}]);}catch(er){}}   // (a big blast: the guest carves it itself, big-blast.js)
     else if(e[0]==='k'){try{netKnock(e);}catch(er){}}
     else if(e[0]==='sk'){try{netShipKnock(e);}catch(er){}}
     else if(e[0]==='f'){const f=NET_FX[e[1]];if(!f)continue;if(ch.size){rebuildSet(ch);ch.clear();}

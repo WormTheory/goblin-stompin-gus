@@ -17,6 +17,8 @@
 - The Testing Environment has a Big blast button, with a slider for its size, to set one off ahead of you.
 - The crater's rim of rubble now sits on the ground, so it no longer hangs in the air on uneven ground or where two craters overlap.
 - Across the flattened town grass is burnt to dirt, streets are broken up in patches of rubble, and the buildings it brings down leave heaps of rubble behind.
+- The capitol's lawns, stadium pitches, plazas, courts and railways are scarred too: lawns and pitches burnt to dirt, paving and track beds broken up, the rails and sleepers torn up, and rubble left on what's still standing of a stadium's stands.
+- Snow melts wherever the blast reaches, off the ground, the rooftops and anyone or anything caught in it. If it's still snowing, fresh snow settles on the crater from bare ground, and the melted snow stays melted in a save and online.
 
 ### Nuke Launcher
 

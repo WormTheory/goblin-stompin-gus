@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:0c3be0c156323e128049fb12e5d7148f7b05804391f7e8123fe6adae174af07a -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:a9a983b31e50af519d34854711e3295023386395f11536b39dce7b66a94e503d -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1580,7 +1580,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Saves</h3>
 <ul><li>Your game now carries on just as you left it: your score, goblins slain and everything in This rampage, the time of day, the day and season, and the weather.</li><li>Each player's health and stamina are kept too, and as a goblin your weapons, ammo, grenades and landmines. Left dead, you come back at full health. Player two gets theirs back on joining.</li><li>Left in a car, tank, helicopter, plane, hot-air balloon or Mobile Gear, you're back in it, in the same seat, with the damage it had. Anything that was flying comes back on the ground below. Trains, boats and ships can't be brought back, so you start beside where you were.</li><li>New city starts all of it afresh.</li></ul>
 <h3>Nuclear meltdown</h3>
-<ul><li>Bring down a reactor at a nuclear power station and the siren sounds. A few seconds later the whole place goes up: a blinding flash, a fireball and a shockwave that runs out across the town, flattening it as it goes. The middle is left a scorched crater ringed with rubble, the streets round it are levelled to the ground with a few stumps of wall standing, and further out buildings lose their top floors and the side that faced the blast, and some come down. Fires burn round the edge under a mushroom cloud.</li><li>Anything caught in it is hurt by how close it was: near the middle there's nothing left of anyone, and further out you're knocked about. Cars, gas pumps and mines in the middle are simply gone rather than setting each other off.</li><li>The game keeps running smoothly while it happens, and the crater is saved with the world and seen the same by everyone playing online.</li><li>The Testing Environment has a Big blast button, with a slider for its size, to set one off ahead of you.</li><li>The crater's rim of rubble now sits on the ground, so it no longer hangs in the air on uneven ground or where two craters overlap.</li><li>Across the flattened town grass is burnt to dirt, streets are broken up in patches of rubble, and the buildings it brings down leave heaps of rubble behind.</li></ul>
+<ul><li>Bring down a reactor at a nuclear power station and the siren sounds. A few seconds later the whole place goes up: a blinding flash, a fireball and a shockwave that runs out across the town, flattening it as it goes. The middle is left a scorched crater ringed with rubble, the streets round it are levelled to the ground with a few stumps of wall standing, and further out buildings lose their top floors and the side that faced the blast, and some come down. Fires burn round the edge under a mushroom cloud.</li><li>Anything caught in it is hurt by how close it was: near the middle there's nothing left of anyone, and further out you're knocked about. Cars, gas pumps and mines in the middle are simply gone rather than setting each other off.</li><li>The game keeps running smoothly while it happens, and the crater is saved with the world and seen the same by everyone playing online.</li><li>The Testing Environment has a Big blast button, with a slider for its size, to set one off ahead of you.</li><li>The crater's rim of rubble now sits on the ground, so it no longer hangs in the air on uneven ground or where two craters overlap.</li><li>Across the flattened town grass is burnt to dirt, streets are broken up in patches of rubble, and the buildings it brings down leave heaps of rubble behind.</li><li>The capitol's lawns, stadium pitches, plazas, courts and railways are scarred too: lawns and pitches burnt to dirt, paving and track beds broken up, the rails and sleepers torn up, and rubble left on what's still standing of a stadium's stands.</li><li>Snow melts wherever the blast reaches, off the ground, the rooftops and anyone or anything caught in it. If it's still snowing, fresh snow settles on the crater from bare ground, and the melted snow stays melted in a save and online.</li></ul>
 <h3>Nuke Launcher</h3>
 <ul><li>A new weapon for goblins, picked in the Loadout: a launcher with a nuclear warhead on the front. It lobs the warhead slowly in a shallow arc, and wherever it lands the same blast as a meltdown goes off, smaller but still enough to flatten a few streets.</li><li>Fire it level and it lands far enough off for you to live through it. Fire it at a wall in front of you and you won't.</li><li>One warhead in the tube and two spares, with a long reload. Once the spares are gone it's empty, unless Infinite ammo is on. The weapon bar shows how many spares are left.</li><li>The debug menu has a Nuke strength slider to make its blast smaller or bigger, up to the size of a meltdown.</li></ul>
 <h3>Lighting</h3>
@@ -2275,7 +2275,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='fa179ea5311d';
+const GAME_VER='0.5',GAME_BUILD='e89c0102fda7';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -9822,7 +9822,7 @@ function routeMarks(cx,cz){
   for(let q=0;q<LR.length;q+=2){const R=LR[q],RL=railOf(R);if(!RL)continue;const i=LR[q+1],[ax,az]=R.pts[i],[bx,bz]=R.pts[i+1],l=Math.hypot(bx-ax,bz-az);if(l<1e-6)continue;
     const tx=(bx-ax)/l,tz=(bz-az)/l,nx=-tz,nz=tx,o=RL.off;
     for(let a=0;a<l;a+=1){const m=a+0.5,s=R.cum[i]+m;if(Math.min(s,R.L-s)<25)continue;const px=ax+tx*m+nx*o,pz=az+tz*m+nz*o;if(px<x0||px>=x0+CS||pz<z0||pz>=z0+CS)continue;
-      const gb=get(Math.floor(px),G,Math.floor(pz));if((gb!==GRAVEL&&gb!==PLANKS)||get(Math.floor(px),G+1,Math.floor(pz))!==AIR)continue;
+      const gb=get(Math.floor(px),G,Math.floor(pz));if((gb!==GRAVEL&&gb!==PLANKS)||get(Math.floor(px),G+1,Math.floor(pz))!==AIR||bbTorn(px,pz))continue;
       const cx=ax+tx*m,cz=az+tz*m;quad(cx+nx*(o-1.15),cz+nz*(o-1.15),cx+nx*(o+1.15),cz+nz*(o+1.15),-tx,-tz,0,0.36,G+1.04,8);   // a sleeper
       for(const k of [-0.72,0.72])quad(ax+tx*a,az+tz*a,ax+tx*(a+1),az+tz*(a+1),nx,nz,o+k,0.13,G+1.16,18);}}   // the rails
   // the truck stops' lorry bays: long white lines out from the road behind the canopy, square to the road
@@ -9835,7 +9835,7 @@ function routeMarks(cx,cz){
   // the railways: sleepers across, two steel rails along, down the middle of each line (where there's still ground
   // under them); round the bends in short straight pieces
   {const Ls=new Set();for(const [qx,qz] of [[x0,z0],[x0+CS-1,z0+CS-1]])for(const L of railLinksNear(Math.floor(qx/CELL),Math.floor(qz/CELL)))Ls.add(L);
-   const inC=(x,z)=>x>=x0&&x<x0+CS&&z>=z0&&z<z0+CS,ok=(x,z)=>{const gx=Math.floor(x),gz=Math.floor(z),b=get(gx,G,gz);return b&&b!==WATER&&get(gx,G+1,gz)===AIR;};
+   const inC=(x,z)=>x>=x0&&x<x0+CS&&z>=z0&&z<z0+CS,ok=(x,z)=>{const gx=Math.floor(x),gz=Math.floor(z),b=get(gx,G,gz);return b&&b!==WATER&&get(gx,G+1,gz)===AIR&&!bbTorn(x,z);};
    for(const L of Ls){const p=L.pts;
      for(let i=0;i<p.length-1;i++){const [ax,az]=p[i],[bx,bz]=p[i+1];const mx=(ax+bx)/2,mz=(az+bz)/2;if(!inC(Math.floor(mx),Math.floor(mz))||!ok(mx,mz))continue;
        // (a stretch shared with the next line along, through a station: drawn by only one of them)
@@ -21804,7 +21804,8 @@ function explodeCar0(c){
 // the edits it covered are dropped as it's carved. Online the host sends ['X',...] once and each guest runs the same job.
 // (BB, its numbers and `craters` are in world/places.js, as chunks can be made before this file has run)
 // (craters from a save or the host: only whole, sensible records)
-function bbValid(L){return Array.isArray(L)?L.filter(C=>C&&['x','y','z','R','s','n'].every(k=>Number.isFinite(C[k]))&&C.R>=BB_SMALL&&C.R<=400).map(C=>({x:C.x,y:C.y,z:C.z,R:C.R,s:C.s,n:C.n})).sort((a,b)=>a.n-b.n):[];}
+// (w, if there is one: the snow clock when it went off, so the snow it melted stays melted in a save and online)
+function bbValid(L){return Array.isArray(L)?L.filter(C=>C&&['x','y','z','R','s','n'].every(k=>Number.isFinite(C[k]))&&C.R>=BB_SMALL&&C.R<=400).map(C=>{const o={x:C.x,y:C.y,z:C.z,R:C.R,s:C.s,n:C.n};if(Number.isFinite(C.w)&&C.w>=0)o.w=C.w;return o;}).sort((a,b)=>a.n-b.n):[];}
 // the blast's sizes, worked out once (kept off the record, which is saved and sent as it is)
 function bbK(C){let K=C._k;if(!K){K={rc:C.R*0.18,rf:C.R*0.7,gy:C.y-1,D:Math.max(2,Math.round(C.R*0.055)),lip:Math.max(1,Math.round(C.R*0.02)),R2:(C.R*1.07)**2};Object.defineProperty(C,'_k',{value:K,enumerable:false});}return K;}
 // what the blast does to one column: zone 0 nothing, 1 crater, 2 lip, 3 flattened, 4 damage ring. Everything from `cut` up goes
@@ -21827,10 +21828,14 @@ function bbNear(C,cx,cz){const x0=cx*CS,z0=cz*CS,dx=Math.max(x0-C.x,0,C.x-(x0+CS
 // carve one chunk's blocks. J: the live job (then it notes what it took for the building counts, gas pumps, water, effects);
 // null for a chunk being made
 function bbCarve(A,cx,cz,C,J){
-  const K=bbK(C),x0=cx*CS,z0=cz*CS,o=bbO(),T=A.tileTops||tileTopsOf(A),L=CS*CS,host=J&&!netGuest(),snow=J&&WX.snowCover>0;let n=0,lip=false;
+  const K=bbK(C),x0=cx*CS,z0=cz*CS,o=bbO(),T=A.tileTops||tileTopsOf(A),L=CS*CS,host=J&&!netGuest();let n=0,lip=false;
+  // the snow it reaches is melted (all of it, not just where blocks went), and what settles after starts from bare ground:
+  // the snow clock when it went off (C.w), so a chunk made later, a save loaded again and a guest melt the same
+  const melt=WX.snowCover>0?(Number.isFinite(C.w)?C.w:J?WX.snowClock:-1):-1;
   for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){
     const x=x0+lx,z=z0+lz;bbCol(C,K,x,z,o);if(!o.zone)continue;
     const base=lx+lz*CS,top=Math.max(T[(lz>>2)*4+(lx>>2)],o.l1);let n0=n,B=undefined;
+    if(melt>=0){const ck=x*65536+z;if(!(snowBorn.get(ck)>=melt))snowBorn.set(ck,melt);}
     if(o.floor>=1){const i=base+o.floor*L,v=A[i];if(v&&v!==WATER&&v!==BEDROCK)A[i]=o.fb;}
     for(let y=Math.max(1,o.cut);y<=top&&y<H;y++){const i=base+y*L,v=A[i];if(!v||v===WATER||v===BEDROCK)continue;A[i]=AIR;n++;
       if(!host)continue;
@@ -21844,7 +21849,7 @@ function bbCarve(A,cx,cz,C,J){
       let y=Math.min(o.l1,H-1)-1;const lo=Math.max(1,o.l0-K.D-K.lip-6);while(y>=lo&&!A[base+y*L])y--;
       if(y>=lo&&A[base+y*L]!==WATER)for(let k=1;k<=o.l1-o.l0&&y+k<H;k++){const i=base+(y+k)*L;if(A[i])continue;A[i]=o.lb;lip=true;}}
     else if(o.zone>=3&&bbScar(A,base,x,z,C,K,o))lip=true;
-    if(J&&(n>n0||o.l1>o.l0)){const ck=x*65536+z;navCols.delete(ck);if(snow)snowBorn.set(ck,WX.snowClock);}
+    if(J&&(n>n0||o.l1>o.l0))navCols.delete(x*65536+z);
   }
   if(lip||n)tileTopsOf(A);   // (the rubble lip can rise above what was there)
   A.bb=Math.max(A.bb||0,C.n);
@@ -21855,15 +21860,23 @@ function bbCarve(A,cx,cz,C,J){
 // keeps, while the others are heaped up as they come down, bbSettle). Whether something's added is only the plan, hash2 and
 // the blast's seed, so it's the same everywhere.
 function bbStreet(v){return v===ASPHALT||v===LINE||v===LINEX||v===LINE_R||v===LINEX_R||v===CROSS||v===CROSSX||v===SIDEWALK||v===LANE||v===LANEX;}   // (a function: chunks can be carved before this file has run)
+// (and everything else paved or laid that breaks up the same way: plazas, concourses, courts, a railway's ballast)
+function bbPaved(v){return bbStreet(v)||v===CONCRETE||v===GRAVEL||v===COURT||v===COURT_L||v===CHECKER;}
+// (grass, a mown lawn or a pitch: burnt to dirt)
+function bbGrass(v){return v===GRASS||v===FLOWER||v===FIELD||v===FIELD_L;}
 function bbScar(A,base,x,z,C,K,o){
   const L=CS*CS,s=C.s,w=o.zone===3?1:Math.max(0,1-o.t);let ch=false;
-  for(let y=Math.min(o.cut,H)-1,k=0;y>=1&&k<8;y--){const i=base+y*L,v=A[i];if(!v)continue;k++;if(v===GRASS||v===FLOWER){A[i]=DIRT;ch=true;}else if(v!==LEAVES)break;}
+  for(let y=Math.min(o.cut,H)-1,k=0;y>=1&&k<8;y--){const i=base+y*L,v=A[i];if(!v)continue;k++;if(bbGrass(v)){A[i]=DIRT;ch=true;}else if(v!==LEAVES)break;}
   const gi=base+G*L,up=gi+L;
-  if(bbStreet(A[gi])&&!A[up]){const h=hash2((x>>1)*13+s*3,(z>>1)*17-s);
+  if(bbPaved(A[gi])&&!A[up]){const h=hash2((x>>1)*13+s*3,(z>>1)*17-s);
     if(h<0.05+0.2*w){const n=hash2(x*7-s,z*3+s);A[gi]=n<0.5?GRAVEL:COBBLE;if(n<0.3)A[up]=COBBLE;ch=true;}}
   if(w>0.5&&!A[up]&&A[gi]&&A[gi]!==WATER){const B=bldgAt(x,z);
     if(B&&bbVap(C,K,B)&&hash2((x>>1)*5+s,(z>>1)*9-s)<0.55){const h=1+Math.floor(hash2(x-s*5,z+s*7)*2),m=bbRubble(x,z,s);
       for(let k=0;k<h;k++){const i=up+k*L;if(A[i])break;A[i]=k?m:COBBLE;}ch=true;}}
+  // what's left standing of something that isn't a building (a stadium's stands, a station's platforms, a wall): rubble on top
+  const v1=A[up],u2=up+L,bk=v1&&BLOCK[v1];
+  if(w>0.5&&u2<A.length&&!A[u2]&&bk&&bk.solid&&!bk.transparent&&!bk.thin&&v1!==WATER&&v1!==LOG&&hash2((x>>1)*29-s,(z>>1)*31+s)<0.4*w&&!bldgAt(x,z)){
+    const h=1+Math.floor(hash2(x+s*17,z-s*19)*2),m=bbRubble(x,z,s);for(let k=0;k<h;k++){const i=u2+k*L;if(i>=A.length||A[i])break;A[i]=k?m:COBBLE;}ch=true;}
   return ch;
 }
 // is this building one the blast vaporises (wholly inside the flattened zone, as bbPlots decides)? kept per building
@@ -21904,6 +21917,13 @@ function bbDo(J,e){
   for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const k2=ckey(e.cx+a,e.cz+b),A2=chunks.get(k2);if(A2)A2.blkE=null;J.ch.add(k2);}   // (lights gone: the glow round them too)
   return n;
 }
+// has a blast taken everything here, as far as this column's chunk has been carved? (the railway's rails and sleepers aren't
+// laid there: routeMarks)
+function bbTorn(x,z){
+  if(!craters.length)return false;const fx=Math.floor(x),fz=Math.floor(z),A=chunks.get(ckey(Math.floor(fx/CS),Math.floor(fz/CS))),bb=A&&A.bb||0;if(!bb)return false;
+  const o=bbO();for(const C of craters){if(C.n>bb)continue;bbCol(C,bbK(C),fx,fz,o);if(o.zone&&o.zone<=3)return true;}
+  return false;
+}
 // where a blast has taken everything: the plan's furniture, street furniture, lamps, doors and signs aren't put out there
 function bbGone(x,z){
   for(const C of craters){const K=bbK(C),d=Math.hypot(x-C.x,z-C.z);if(d>=K.rf*0.93)continue;
@@ -21917,7 +21937,8 @@ function bigBlast(x,y,z,R,opt={}){
   if(netGuest())return null;   // (the host's to set off: a guest's is sent over)
   const n=craters.reduce((m,c)=>Math.max(m,c.n),0)+1;
   const C={x:Math.round(x*10)/10,y:Math.round(y),z:Math.round(z*10)/10,R:Math.round(R),s:(hash2(n*977,Math.round(x)+Math.round(z)*7)*1e6)|0,n};
-  if(netHost()&&NET.guests.size)netEmit(['X',C.x,C.y,C.z,C.R,C.s,C.n]);
+  if(WX.snowCover>0)C.w=WX.snowClock;   // (the snow it melts: bbCarve)
+  if(netHost()&&NET.guests.size)netEmit(['X',C.x,C.y,C.z,C.R,C.s,C.n,C.w??-1]);
   return bbStart(C,true);
 }
 // (a crater record from anywhere: this game's own, the host's, a save's)
@@ -21951,7 +21972,7 @@ function bbTick(dt){
       const e=J.list[J.i];if(J.pend.has(e.k))bbDo(J,e);J.i++;
       if(performance.now()-t0>BB.ms)break;}
     if(J.ch.size){rebuildSet(J.ch);J.ch.clear();}
-    let sw=0;if(host){bbHits(J);const ts=performance.now();bbSettle(J,t0);sw=performance.now()-ts;bbCount(J,t0);bbEdgeFx(J);}
+    bbThaw(J);let sw=0;if(host){bbHits(J);const ts=performance.now();bbSettle(J,t0);sw=performance.now()-ts;bbCount(J,t0);bbEdgeFx(J);}
     const w=performance.now()-tj-sw;J.work+=w;if(w>J.worst)J.worst=w;   // (a building coming down costs what any collapse does: kept apart, J.sw)
     J.swT=(J.swT||0)+sw;if(sw>(J.sw||0))J.sw=sw;
     if(J.i>=J.list.length&&J.pi>=J.plots.length&&J.ring>=J.C.R*1.1&&!J.bq.length&&!J.dq.length)bbEnd(J,host);
@@ -22021,6 +22042,15 @@ function bbHeap(C,K,b,X0,Z0,top){
 function bbCount(J,t0){
   while(J.dq.length){const q=J.dq[0],n=bldgSolidPart(q.b,q.px,q.pz,q.key,Math.max(t0+BB.ms,performance.now()+0.5));if(n===undefined)return;
     J.dq.shift();destroyed[q.key]=Math.max(destroyed[q.key]||0,n);destroyVer++;}
+}
+// the snow on everyone and everything inside the ring melted off (it settles again as on anything else)
+function bbThaw(J){
+  if(WX.snowCover<=0)return;
+  const C=J.C,r=Math.min(J.ring,C.R),in_=(x,z)=>Math.hypot(x-C.x,z-C.z)<r,off=o=>{if(o&&o.snowU&&o.snowU.value>0)o.snowU.value=0;};
+  for(const q of players)if(q.active&&in_(pwx(q),pwz(q)))off(q);
+  for(const g of goblins)if(g.snowU&&g.snowU.value>0&&in_(g.pos.x,g.pos.z))off(g);
+  for(const c of cars)if(c.snowU&&c.snowU.value>0&&in_(c.pos.x,c.pos.z))off(c);
+  vehEach((K,o)=>{if(!o.snowU||!(o.snowU.value>0))return;const P=K.pos(o);if(P&&in_(P.x,P.z))off(o);});
 }
 // ---- the people, vehicles and things the ring reaches: hurt once each, by how close they were ----
 const BB_CAUSE='Vaporised in a nuclear blast';
@@ -30651,7 +30681,7 @@ function netCommit(m){
     if(e[0]==='e'){const L=e[1];for(let i=0;i+3<L.length;i+=4)netSetBlock(L[i],L[i+1],L[i+2],L[i+3],ch);}
     else if(e[0]==='t'||e[0]==='b'){try{netFallMake(e);}catch(er){}}
     else if(e[0]==='c'){try{netCollapse(e[1],e[2],ch);}catch(er){}}
-    else if(e[0]==='X'){try{netCrater([{x:e[1],y:e[2],z:e[3],R:e[4],s:e[5],n:e[6]}]);}catch(er){}}   // (a big blast: the guest carves it itself, big-blast.js)
+    else if(e[0]==='X'){try{netCrater([{x:e[1],y:e[2],z:e[3],R:e[4],s:e[5],n:e[6],w:e[7]}]);}catch(er){}}   // (a big blast: the guest carves it itself, big-blast.js)
     else if(e[0]==='k'){try{netKnock(e);}catch(er){}}
     else if(e[0]==='sk'){try{netShipKnock(e);}catch(er){}}
     else if(e[0]==='f'){const f=NET_FX[e[1]];if(!f)continue;if(ch.size){rebuildSet(ch);ch.clear();}

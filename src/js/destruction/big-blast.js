@@ -12,7 +12,8 @@
 // the edits it covered are dropped as it's carved. Online the host sends ['X',...] once and each guest runs the same job.
 // (BB, its numbers and `craters` are in world/places.js, as chunks can be made before this file has run)
 // (craters from a save or the host: only whole, sensible records)
-function bbValid(L){return Array.isArray(L)?L.filter(C=>C&&['x','y','z','R','s','n'].every(k=>Number.isFinite(C[k]))&&C.R>=BB_SMALL&&C.R<=400).map(C=>({x:C.x,y:C.y,z:C.z,R:C.R,s:C.s,n:C.n})).sort((a,b)=>a.n-b.n):[];}
+// (w, if there is one: the snow clock when it went off, so the snow it melted stays melted in a save and online)
+function bbValid(L){return Array.isArray(L)?L.filter(C=>C&&['x','y','z','R','s','n'].every(k=>Number.isFinite(C[k]))&&C.R>=BB_SMALL&&C.R<=400).map(C=>{const o={x:C.x,y:C.y,z:C.z,R:C.R,s:C.s,n:C.n};if(Number.isFinite(C.w)&&C.w>=0)o.w=C.w;return o;}).sort((a,b)=>a.n-b.n):[];}
 // the blast's sizes, worked out once (kept off the record, which is saved and sent as it is)
 function bbK(C){let K=C._k;if(!K){K={rc:C.R*0.18,rf:C.R*0.7,gy:C.y-1,D:Math.max(2,Math.round(C.R*0.055)),lip:Math.max(1,Math.round(C.R*0.02)),R2:(C.R*1.07)**2};Object.defineProperty(C,'_k',{value:K,enumerable:false});}return K;}
 // what the blast does to one column: zone 0 nothing, 1 crater, 2 lip, 3 flattened, 4 damage ring. Everything from `cut` up goes
@@ -35,10 +36,14 @@ function bbNear(C,cx,cz){const x0=cx*CS,z0=cz*CS,dx=Math.max(x0-C.x,0,C.x-(x0+CS
 // carve one chunk's blocks. J: the live job (then it notes what it took for the building counts, gas pumps, water, effects);
 // null for a chunk being made
 function bbCarve(A,cx,cz,C,J){
-  const K=bbK(C),x0=cx*CS,z0=cz*CS,o=bbO(),T=A.tileTops||tileTopsOf(A),L=CS*CS,host=J&&!netGuest(),snow=J&&WX.snowCover>0;let n=0,lip=false;
+  const K=bbK(C),x0=cx*CS,z0=cz*CS,o=bbO(),T=A.tileTops||tileTopsOf(A),L=CS*CS,host=J&&!netGuest();let n=0,lip=false;
+  // the snow it reaches is melted (all of it, not just where blocks went), and what settles after starts from bare ground:
+  // the snow clock when it went off (C.w), so a chunk made later, a save loaded again and a guest melt the same
+  const melt=WX.snowCover>0?(Number.isFinite(C.w)?C.w:J?WX.snowClock:-1):-1;
   for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){
     const x=x0+lx,z=z0+lz;bbCol(C,K,x,z,o);if(!o.zone)continue;
     const base=lx+lz*CS,top=Math.max(T[(lz>>2)*4+(lx>>2)],o.l1);let n0=n,B=undefined;
+    if(melt>=0){const ck=x*65536+z;if(!(snowBorn.get(ck)>=melt))snowBorn.set(ck,melt);}
     if(o.floor>=1){const i=base+o.floor*L,v=A[i];if(v&&v!==WATER&&v!==BEDROCK)A[i]=o.fb;}
     for(let y=Math.max(1,o.cut);y<=top&&y<H;y++){const i=base+y*L,v=A[i];if(!v||v===WATER||v===BEDROCK)continue;A[i]=AIR;n++;
       if(!host)continue;
@@ -52,7 +57,7 @@ function bbCarve(A,cx,cz,C,J){
       let y=Math.min(o.l1,H-1)-1;const lo=Math.max(1,o.l0-K.D-K.lip-6);while(y>=lo&&!A[base+y*L])y--;
       if(y>=lo&&A[base+y*L]!==WATER)for(let k=1;k<=o.l1-o.l0&&y+k<H;k++){const i=base+(y+k)*L;if(A[i])continue;A[i]=o.lb;lip=true;}}
     else if(o.zone>=3&&bbScar(A,base,x,z,C,K,o))lip=true;
-    if(J&&(n>n0||o.l1>o.l0)){const ck=x*65536+z;navCols.delete(ck);if(snow)snowBorn.set(ck,WX.snowClock);}
+    if(J&&(n>n0||o.l1>o.l0))navCols.delete(x*65536+z);
   }
   if(lip||n)tileTopsOf(A);   // (the rubble lip can rise above what was there)
   A.bb=Math.max(A.bb||0,C.n);
@@ -63,15 +68,23 @@ function bbCarve(A,cx,cz,C,J){
 // keeps, while the others are heaped up as they come down, bbSettle). Whether something's added is only the plan, hash2 and
 // the blast's seed, so it's the same everywhere.
 function bbStreet(v){return v===ASPHALT||v===LINE||v===LINEX||v===LINE_R||v===LINEX_R||v===CROSS||v===CROSSX||v===SIDEWALK||v===LANE||v===LANEX;}   // (a function: chunks can be carved before this file has run)
+// (and everything else paved or laid that breaks up the same way: plazas, concourses, courts, a railway's ballast)
+function bbPaved(v){return bbStreet(v)||v===CONCRETE||v===GRAVEL||v===COURT||v===COURT_L||v===CHECKER;}
+// (grass, a mown lawn or a pitch: burnt to dirt)
+function bbGrass(v){return v===GRASS||v===FLOWER||v===FIELD||v===FIELD_L;}
 function bbScar(A,base,x,z,C,K,o){
   const L=CS*CS,s=C.s,w=o.zone===3?1:Math.max(0,1-o.t);let ch=false;
-  for(let y=Math.min(o.cut,H)-1,k=0;y>=1&&k<8;y--){const i=base+y*L,v=A[i];if(!v)continue;k++;if(v===GRASS||v===FLOWER){A[i]=DIRT;ch=true;}else if(v!==LEAVES)break;}
+  for(let y=Math.min(o.cut,H)-1,k=0;y>=1&&k<8;y--){const i=base+y*L,v=A[i];if(!v)continue;k++;if(bbGrass(v)){A[i]=DIRT;ch=true;}else if(v!==LEAVES)break;}
   const gi=base+G*L,up=gi+L;
-  if(bbStreet(A[gi])&&!A[up]){const h=hash2((x>>1)*13+s*3,(z>>1)*17-s);
+  if(bbPaved(A[gi])&&!A[up]){const h=hash2((x>>1)*13+s*3,(z>>1)*17-s);
     if(h<0.05+0.2*w){const n=hash2(x*7-s,z*3+s);A[gi]=n<0.5?GRAVEL:COBBLE;if(n<0.3)A[up]=COBBLE;ch=true;}}
   if(w>0.5&&!A[up]&&A[gi]&&A[gi]!==WATER){const B=bldgAt(x,z);
     if(B&&bbVap(C,K,B)&&hash2((x>>1)*5+s,(z>>1)*9-s)<0.55){const h=1+Math.floor(hash2(x-s*5,z+s*7)*2),m=bbRubble(x,z,s);
       for(let k=0;k<h;k++){const i=up+k*L;if(A[i])break;A[i]=k?m:COBBLE;}ch=true;}}
+  // what's left standing of something that isn't a building (a stadium's stands, a station's platforms, a wall): rubble on top
+  const v1=A[up],u2=up+L,bk=v1&&BLOCK[v1];
+  if(w>0.5&&u2<A.length&&!A[u2]&&bk&&bk.solid&&!bk.transparent&&!bk.thin&&v1!==WATER&&v1!==LOG&&hash2((x>>1)*29-s,(z>>1)*31+s)<0.4*w&&!bldgAt(x,z)){
+    const h=1+Math.floor(hash2(x+s*17,z-s*19)*2),m=bbRubble(x,z,s);for(let k=0;k<h;k++){const i=u2+k*L;if(i>=A.length||A[i])break;A[i]=k?m:COBBLE;}ch=true;}
   return ch;
 }
 // is this building one the blast vaporises (wholly inside the flattened zone, as bbPlots decides)? kept per building
@@ -112,6 +125,13 @@ function bbDo(J,e){
   for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const k2=ckey(e.cx+a,e.cz+b),A2=chunks.get(k2);if(A2)A2.blkE=null;J.ch.add(k2);}   // (lights gone: the glow round them too)
   return n;
 }
+// has a blast taken everything here, as far as this column's chunk has been carved? (the railway's rails and sleepers aren't
+// laid there: routeMarks)
+function bbTorn(x,z){
+  if(!craters.length)return false;const fx=Math.floor(x),fz=Math.floor(z),A=chunks.get(ckey(Math.floor(fx/CS),Math.floor(fz/CS))),bb=A&&A.bb||0;if(!bb)return false;
+  const o=bbO();for(const C of craters){if(C.n>bb)continue;bbCol(C,bbK(C),fx,fz,o);if(o.zone&&o.zone<=3)return true;}
+  return false;
+}
 // where a blast has taken everything: the plan's furniture, street furniture, lamps, doors and signs aren't put out there
 function bbGone(x,z){
   for(const C of craters){const K=bbK(C),d=Math.hypot(x-C.x,z-C.z);if(d>=K.rf*0.93)continue;
@@ -125,7 +145,8 @@ function bigBlast(x,y,z,R,opt={}){
   if(netGuest())return null;   // (the host's to set off: a guest's is sent over)
   const n=craters.reduce((m,c)=>Math.max(m,c.n),0)+1;
   const C={x:Math.round(x*10)/10,y:Math.round(y),z:Math.round(z*10)/10,R:Math.round(R),s:(hash2(n*977,Math.round(x)+Math.round(z)*7)*1e6)|0,n};
-  if(netHost()&&NET.guests.size)netEmit(['X',C.x,C.y,C.z,C.R,C.s,C.n]);
+  if(WX.snowCover>0)C.w=WX.snowClock;   // (the snow it melts: bbCarve)
+  if(netHost()&&NET.guests.size)netEmit(['X',C.x,C.y,C.z,C.R,C.s,C.n,C.w??-1]);
   return bbStart(C,true);
 }
 // (a crater record from anywhere: this game's own, the host's, a save's)
@@ -159,7 +180,7 @@ function bbTick(dt){
       const e=J.list[J.i];if(J.pend.has(e.k))bbDo(J,e);J.i++;
       if(performance.now()-t0>BB.ms)break;}
     if(J.ch.size){rebuildSet(J.ch);J.ch.clear();}
-    let sw=0;if(host){bbHits(J);const ts=performance.now();bbSettle(J,t0);sw=performance.now()-ts;bbCount(J,t0);bbEdgeFx(J);}
+    bbThaw(J);let sw=0;if(host){bbHits(J);const ts=performance.now();bbSettle(J,t0);sw=performance.now()-ts;bbCount(J,t0);bbEdgeFx(J);}
     const w=performance.now()-tj-sw;J.work+=w;if(w>J.worst)J.worst=w;   // (a building coming down costs what any collapse does: kept apart, J.sw)
     J.swT=(J.swT||0)+sw;if(sw>(J.sw||0))J.sw=sw;
     if(J.i>=J.list.length&&J.pi>=J.plots.length&&J.ring>=J.C.R*1.1&&!J.bq.length&&!J.dq.length)bbEnd(J,host);
@@ -229,6 +250,15 @@ function bbHeap(C,K,b,X0,Z0,top){
 function bbCount(J,t0){
   while(J.dq.length){const q=J.dq[0],n=bldgSolidPart(q.b,q.px,q.pz,q.key,Math.max(t0+BB.ms,performance.now()+0.5));if(n===undefined)return;
     J.dq.shift();destroyed[q.key]=Math.max(destroyed[q.key]||0,n);destroyVer++;}
+}
+// the snow on everyone and everything inside the ring melted off (it settles again as on anything else)
+function bbThaw(J){
+  if(WX.snowCover<=0)return;
+  const C=J.C,r=Math.min(J.ring,C.R),in_=(x,z)=>Math.hypot(x-C.x,z-C.z)<r,off=o=>{if(o&&o.snowU&&o.snowU.value>0)o.snowU.value=0;};
+  for(const q of players)if(q.active&&in_(pwx(q),pwz(q)))off(q);
+  for(const g of goblins)if(g.snowU&&g.snowU.value>0&&in_(g.pos.x,g.pos.z))off(g);
+  for(const c of cars)if(c.snowU&&c.snowU.value>0&&in_(c.pos.x,c.pos.z))off(c);
+  vehEach((K,o)=>{if(!o.snowU||!(o.snowU.value>0))return;const P=K.pos(o);if(P&&in_(P.x,P.z))off(o);});
 }
 // ---- the people, vehicles and things the ring reaches: hurt once each, by how close they were ----
 const BB_CAUSE='Vaporised in a nuclear blast';
