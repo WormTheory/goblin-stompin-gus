@@ -50,8 +50,9 @@ function jackVictim(D,J){
     if(o.police){g=take(hostile);how='fight';}
     else{how=o.svcPool||Math.random()<0.62?'flee':'fight';g=take(how==='flee'?civ:hostile)||take(how==='flee'?hostile:civ);if(g)how=g.civ?'flee':'fight';}
     if(g){g.vendor=null;g.indoor=false;g.employer=null;g.homeV=null;g.cop=null;g.inv=false;g.wt=null;g.idle=0;g.fleeing=false;g.alert=false;g.trip=null;g.stUp=undefined;
-      const L=dressGoblin(g);
-      if(o.police){L.tunic=0x1c2a5a;L.pants=0x1c2a5a;L.show=L.show.filter(k=>!['cap','top','beanie','hardhat','bandana','mohawk','scarf','tie','backpack','apron','eyepatch'].includes(k));L.hatType='cap';L.hat=0x1c2a5a;L.show.push('cap');L.hatShown=L.hat;applyLook(g,L,ES);}
+      // (dressed as the driver you saw at the wheel: cars.js's dhSync)
+      const L=dr.look?{...dr.look,show:dr.look.show.slice()}:dressGoblin(g);
+      if(o.police&&!dr.look)lookCop(L);if(dr.look||o.police)applyLook(g,L,ES);
       g.id=makeIdentity(g,L);if(name){g.id.name=name;g.id.age=dr.age||g.id.age;g.id.occ=occ;g.id.hobby=dr.hobby||g.id.hobby;g.id.quirk=dr.quirk||g.id.quirk;}
       g.hp=g.hpMax=g.civ?3:4;g.atk=1;g.arm.rotation.x=0;g.armL.rotation.x=0;g.arms=null;g.aim=0;if(o.police)foeArm(g,GOB_FOES.police);}}
   if(!g)return null;

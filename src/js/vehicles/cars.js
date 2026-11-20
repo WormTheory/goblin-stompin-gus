@@ -8,7 +8,8 @@ const sharedMat={};const smat=c=>sharedMat[c]||(sharedMat[c]=new THREE.MeshLambe
 // or whether it's parked changes)
 const LAMP_OFF={},lampOff=c=>LAMP_OFF[c]||(LAMP_OFF[c]=new THREE.MeshLambertMaterial({color:c}));
 function carLampsSync(){const H=smat(CARC.head),T=smat(CARC.tail),Ho=lampOff(CARC.head),To=lampOff(CARC.tail);
-  for(const c of cars){const k=(c.parked?'p':'')+c.veh;if(c._lk===k)continue;const G=c.vehG&&c.vehG[c.veh];if(!G)continue;c._lk=k;
+  for(const c of cars){if(c.alive)dhSync(c);   // (and its driver dressed as whoever's at the wheel)
+    const k=(c.parked?'p':'')+c.veh;if(c._lk===k)continue;const G=c.vehG&&c.vehG[c.veh];if(!G)continue;c._lk=k;
     G.g.traverse(o=>{if(!o.isMesh)return;const m=o.material;
       if(c.parked){if(m===H)o.material=Ho;else if(m===T)o.material=To;}else if(m===Ho)o.material=H;else if(m===To)o.material=T;});}}
 function snowCar(mat,c){
@@ -38,10 +39,11 @@ function makeCar(i,police){
     const spin=new THREE.Group();piv.add(spin);b(0.32,0.72,0.72,smat(CARC.tire),0,0,0,spin);b(0.34,0.26,0.26,smat(CARC.hub),0,0,0,spin);
     c.wheels.push(spin);if(z>0)c.front.push(piv);
   }
-  // goblin driver poking out of the sunroof
+  // goblin driver poking out of the sunroof: a whole goblin sat at the wheel, his head at dh's, dressed as whoever's
+  // driving (dhSync)
   const dh=new THREE.Group();dh.position.set(0.35,1.4,-0.1);c.g.add(dh);c.dh=dh;
-  b(0.48,0.42,0.42,smat(GC.skin),0,0.45,0,dh);
-  for(const s of[-1,1]){const e=b(0.3,0.1,0.06,smat(GC.skin),s*0.36,0.52,0,dh);e.rotation.z=s*0.35;b(0.1,0.07,0.03,smat(GC.eye),s*0.11,0.51,0.22,dh);}
+  {const dg=new THREE.Group();dh.add(dg);dg.position.y=0.45-DH_HEAD;const m=goblinModel(dg,{club:false,shareGeo:true,snowU:c.snowU});
+    for(const L of m.legs)L.rotation.x=-1.3;m.arm.rotation.x=m.armL.rotation.x=-1.1;c.dhM={root:dg,roles:m.roles,acc:m.acc,head:m.head};}
   // hazard lights: four amber lamps at the corners, only shown (blinking) when it's broken down on the shoulder
   c.hazM=new THREE.MeshBasicMaterial({color:0x3a2408});c.hazG=new THREE.Group();c.hazG.visible=false;c.g.add(c.hazG);
   for(let k=0;k<4;k++)b(0.26,0.16,0.08,c.hazM,0,0,0,c.hazG);
@@ -83,6 +85,22 @@ const VEH={bus:{hx:1.25,hz:5.2,hy:3.3,hp:45,head:[0.5,2.7,4.3],roof:l=>3.3},
 // which vehicles each kind of traffic is made of
 const VEH_MIX={street:[['car',0.49],['bicycle',0.03],['moped',0.03],['kick',0.01],['segway',0.01],['super',0.01],['bike',0.08],['van',0.12],['pickup',0.12],['truck',0.10]],hw:[['car',0.49],['super',0.01],['bike',0.05],['van',0.1],['pickup',0.1],['truck',0.12],['semi',0.13]],park:[['car',0.6],['bicycle',0.03],['moped',0.03],['kick',0.005],['segway',0.005],['bike',0.08],['van',0.12],['pickup',0.13]]};
 const pickVeh=mix=>{let u=Math.random();for(const [t,p] of VEH_MIX[mix]){if(u<p)return t;u-=p;}return'car';};
+// ---- who's at the wheel: the street's drivers each dressed their own way (makeDriver's look), a crew's as their
+// crewman, a police car's officer in blue, and a goblin player as their own goblin. On anything ridden (a motorcycle, a
+// four-wheeler, a scooter) only the head's his: the rider's body is the vehicle's own ----
+const DH_HEAD=1.16;   // (from a goblin model's feet to the middle of its head)
+const DH_PLAIN={skin:GC.skin,tunic:GC.tunic,pants:GC.dark,hat:0x2a2a2a,acc:0x884422,acc2:0x111111,hair:0x1b1b1b,show:[],h:1,w:1,hs:1};
+const DH_PL=new Map();   // (a goblin player's look at the wheel, by tunic colour)
+function dhLookOf(c){
+  const p=c.drv;if(p&&p.gob){const t=GOB_TUNIC[p.who?1:0];let L=DH_PL.get(t);if(!L){L={...DH_PLAIN,tunic:t};DH_PL.set(t,L);}return L;}
+  const C=c.crew&&c.crew.drv;if(C&&C.look)return C.look;
+  return c.driver&&c.driver.look||DH_PLAIN;
+}
+let dhN=0;
+function dhDress(c,L){const M=c.dhM;if(!M)return;applyLook(M,L,1);M.root.position.y=0.45-DH_HEAD*L.h;c.dhL=L;c.dhV=c.veh;c.dhN=++dhN;
+  const bare=!!(c.vehG[c.veh]&&c.vehG[c.veh].rider),acc=new Set();for(const k in M.acc)for(const m of M.acc[k])acc.add(m);
+  for(const o of M.root.children){if(o===M.head)continue;if(bare)o.visible=false;else if(!acc.has(o))o.visible=true;}}
+function dhSync(c){if(!c.dhM||!c.dh.visible||c.net)return;const L=dhLookOf(c);if(c.dhL!==L||c.dhV!==c.veh)dhDress(c,L);}
 // build (once) and show a vehicle body on a car object; its size, wheel footprint and roof go with it
 function setVeh(c,t){
   if(!c.vehG[t])c.vehG[t]=buildVeh(c,t);

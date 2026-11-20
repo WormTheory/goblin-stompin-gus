@@ -46,7 +46,7 @@ function inCar(p,D){const c=D.o,H=handOf(c.veh||'car'),{g,rpm}=inGear(c.speed,H.
     if(to>0)ring+=`<path d="${inArc(50,sg[0]+2,sg[0]+2+(sg[1]-sg[0]-4)*to)}" fill="none" stroke="${[IN_YOLK,'#ffa03a',IN_TOM][i]}" stroke-width="4"/>`;});
   const drift=H.drift!==false;
   return`<g transform="translate(-62,12) scale(.62)">${inDial({v:rpm,max:8,unit:'rpm x1000',ticks:8,num:'',zone:[.78,1,'rgba(224,86,74,.8)']})}${inT(0,6,34,gear,'px ink-t','middle',4)}</g>${drift?ring:''}${inDial({v,max:200,unit:'km/h',ticks:5,labels:[0,40,80,120,160,200]})}${drift?inT(0,-54,9,'DRIFT','px ink-t','middle',2.5):''}`;}
-function inBike(p,D){const c=D.o,H=handOf('bike'),v=Math.round(Math.max(0,p.spV)),{g,rpm}=inGear(c.speed,H.top),r=inCl(rpm/8,0,1),lean=Math.round(Math.abs(c.g.rotation.z||0)/IN_R);
+function inBike(p,D){const c=D.o,H=handOf('bike'),v=Math.round(Math.max(0,p.spV)),{g,rpm}=inGear(c.speed,H.top),r=inCl(rpm/8,0,1),lean=Math.round(Math.abs(c.g&&c.g.rotation.z||0)/IN_R);
   let s=`<rect x="0" y="0" width="200" height="86" rx="12" fill="#14171b" stroke="${IN_INK}" stroke-width="4"/>`;
   for(let i=0;i<20;i++){const on=i/20<r;s+=`<rect x="${12+i*8.8}" y="${12+(20-i)*.5}" width="6" height="${10+i*.5}" rx="1" fill="${on?(i>15?IN_TOM:i>11?IN_ORA:IN_GUS):'rgba(238,240,230,.12)'}"/>`;}
   return s+inT(120,72,40,v,'px','end',0,IN_PAPER)+inT(126,72,10,'km/h','mono','start',0,'#9aa3ad')+`<rect x="160" y="44" width="28" height="30" rx="4" fill="${IN_YOLK}"/>`+inT(174,68,24,c.speed<-0.3?'R':g,'px','middle',0,IN_INK)+inT(14,72,11,'LEAN '+lean+'°','mono','start',0,'#9aa3ad');}

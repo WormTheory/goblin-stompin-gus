@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:5709de6cc46df417c6370696503afeb25b60458acb44eeb6242ee43ffe06d0fc -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:499cf161c2a787fd33df0bc0df0f836b0a6ab7060b1e8e0a95cdad1c8bb72e7a -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1579,6 +1579,10 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <details class="pn-up pn-fold pn-new" id="version-0-5" open><summary tabindex="0"><h2>Version 0.5</h2><span class="pn-tog" aria-hidden="true"></span></summary>
 <h3>Saves</h3>
 <ul><li>Your game now carries on just as you left it: your score, goblins slain and everything in This rampage, the time of day, the day and season, and the weather.</li><li>Each player's health and stamina are kept too, and as a goblin your weapons, ammo, grenades and landmines. Left dead, you come back at full health. Player two gets theirs back on joining.</li><li>Left in a car, tank, helicopter, plane, hot-air balloon or Mobile Gear, you're back in it, in the same seat, with the damage it had. Anything that was flying comes back on the ground below. Trains, boats and ships can't be brought back, so you start beside where you were.</li><li>New city starts all of it afresh.</li></ul>
+<h3>Playing online</h3>
+<ul><li>As a guest, your own shots show the moment you fire: the tracer and the bang no longer wait on the host, and bullet streaks no longer hang in the air.</li><li>Guests now see grenades, shells, rockets and the Nuke Launcher's warhead in flight, instead of a warhead stuck where it was fired.</li><li>As a guest you see your own goblin stealing a vehicle and riding anything open, as everyone else does.</li></ul>
+<h3>Drivers</h3>
+<ul><li>Everyone at the wheel is dressed as themselves, in their own colours, hats, glasses and the rest, instead of a plain green head, and whoever you haul out or leave in a wreck is dressed the same. Police drivers are in blue, and your own goblin shows at the wheel of whatever you drive.</li></ul>
 <h3>Nuclear meltdown</h3>
 <ul><li>Bring down a reactor at a nuclear power station and the siren sounds. A few seconds later the whole place goes up: a blinding flash, a fireball and a shockwave that runs out across the town, flattening it as it goes. The middle is left a scorched crater ringed with rubble, the streets round it are levelled to the ground with a few stumps of wall standing, and further out buildings lose their top floors and the side that faced the blast, and some come down. Fires burn round the edge under a mushroom cloud.</li><li>Anything caught in it is hurt by how close it was: near the middle there's nothing left of anyone, and further out you're knocked about. Cars, gas pumps and mines in the middle are simply gone rather than setting each other off.</li><li>The game keeps running smoothly while it happens, and the crater is saved with the world and seen the same by everyone playing online.</li><li>The Testing Environment has a Big blast button, with a slider for its size, to set one off ahead of you.</li><li>The crater's rim of rubble now sits on the ground, so it no longer hangs in the air on uneven ground or where two craters overlap.</li><li>Across the flattened town grass is burnt to dirt, streets are broken up in patches of rubble, and the buildings it brings down leave heaps of rubble behind.</li><li>The capitol's lawns, stadium pitches, plazas, courts and railways are scarred too: lawns and pitches burnt to dirt, paving and track beds broken up, the rails and sleepers torn up, and rubble left on what's still standing of a stadium's stands.</li><li>Snow melts wherever the blast reaches, off the ground, the rooftops and anyone or anything caught in it. If it's still snowing, fresh snow settles on the crater from bare ground, and the melted snow stays melted in a save and online.</li><li>Seen from far off, a flattened town now looks flattened: the buildings it took are gone or left as low heaps, the ones further out are cut down to what's left of them, the ground is scorched and the trees are gone, rather than the whole town still standing on the horizon.</li><li>Any building brought down or badly smashed, nuke or no nuke, now looks that way from a distance too, even from the furthest edge of the view.</li></ul>
 <h3>Nuke Launcher</h3>
@@ -2281,7 +2285,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='66ed236d3f36';
+const GAME_VER='0.5',GAME_BUILD='dd041e6470a7';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -12891,7 +12895,9 @@ function gobViewGun(p,K,wk,sw,up,bob){
 function gobView(v){
   for(const q of players){if(!q.gb)continue;
     const me=q===v&&!(DT.freecam&&v===P1);
-    q.gb.root.visible=q.gob&&q.active&&(q.drv?rideShown(q):!me);q.gb.vm.visible=q.gob&&q.active&&me&&q.state!=='dead'&&!q.drv&&!(q.scope>0.5);   // (in a vehicle you're out of sight, unless it's a motorcycle)
+    const N=q.netGk;   // (a guest online: a player in a vehicle, posed as the host has it, net-sync.js)
+    q.gb.root.visible=q.gob&&q.active&&(N?!!N.a[0]:q.drv?rideShown(q):!me);q.gb.vm.visible=q.gob&&q.active&&me&&q.state!=='dead'&&!q.drv&&!N&&!(q.scope>0.5);
+    if(N&&N.a[0]&&q.gob)netGkPose(q.gb,N);   // (in a vehicle you're out of sight, unless it's a motorcycle)
     if(q.gb.vm.visible){q.gb.vm.position.copy(v.camera.position);q.gb.vm.rotation.set(v.camera.rotation.x,v.camera.rotation.y,v.camera.rotation.z);}}
 }
 // ---- Play as a goblin: driving. Stood by a vehicle, the stomp button (E) gets in and takes the controls; pressed
@@ -13938,8 +13944,9 @@ function jackVictim(D,J){
     if(o.police){g=take(hostile);how='fight';}
     else{how=o.svcPool||Math.random()<0.62?'flee':'fight';g=take(how==='flee'?civ:hostile)||take(how==='flee'?hostile:civ);if(g)how=g.civ?'flee':'fight';}
     if(g){g.vendor=null;g.indoor=false;g.employer=null;g.homeV=null;g.cop=null;g.inv=false;g.wt=null;g.idle=0;g.fleeing=false;g.alert=false;g.trip=null;g.stUp=undefined;
-      const L=dressGoblin(g);
-      if(o.police){L.tunic=0x1c2a5a;L.pants=0x1c2a5a;L.show=L.show.filter(k=>!['cap','top','beanie','hardhat','bandana','mohawk','scarf','tie','backpack','apron','eyepatch'].includes(k));L.hatType='cap';L.hat=0x1c2a5a;L.show.push('cap');L.hatShown=L.hat;applyLook(g,L,ES);}
+      // (dressed as the driver you saw at the wheel: cars.js's dhSync)
+      const L=dr.look?{...dr.look,show:dr.look.show.slice()}:dressGoblin(g);
+      if(o.police&&!dr.look)lookCop(L);if(dr.look||o.police)applyLook(g,L,ES);
       g.id=makeIdentity(g,L);if(name){g.id.name=name;g.id.age=dr.age||g.id.age;g.id.occ=occ;g.id.hobby=dr.hobby||g.id.hobby;g.id.quirk=dr.quirk||g.id.quirk;}
       g.hp=g.hpMax=g.civ?3:4;g.atk=1;g.arm.rotation.x=0;g.armL.rotation.x=0;g.arms=null;g.aim=0;if(o.police)foeArm(g,GOB_FOES.police);}}
   if(!g)return null;
@@ -17095,7 +17102,7 @@ function makeGoblin(o,x){
 }
 function goblinModel(parent,o={}){
   parent.netOpt=o;   // (how it was made, so a guest online can make the same)
-  const out={legs:[],acc:{},snowU:{value:0}},roles={},matList=[];
+  const out={legs:[],acc:{},snowU:o.snowU||{value:0}},roles={},matList=[];   // (o.snowU: a car's, for its driver: cars.js)
   // things worn over the head/face are drawn a hair in front of whatever they sit flush against, so they never flicker
   const OVER={hat:1,hatdark:1,hair:1,patch:1,acc2:1,gold:1};
   const role=(r,c)=>{if(!roles[r]){roles[r]=new THREE.MeshLambertMaterial(OVER[r]?{color:c,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-3}:{color:c});const sn=r==='skin'||r==='hat'||r==='hair'||r==='hatdark';if(sn)snowCar(roles[r],out);matList.push(roles[r]);}return roles[r];};   // (heads and hats catch the snow)
@@ -17188,22 +17195,26 @@ function applyLook(t,L,base){
   for(const k of L.show||[])if(t.acc[k])for(const m of t.acc[k])m.visible=true;
   t.root.scale.set(base*L.w,base*L.h,base*L.w);t.head.scale.setScalar(L.hs);
 }
-function dressGoblin(g){
-  const L={skin:pick(GPAL.skin),tunic:pick(GPAL.tunic),pants:pick(GPAL.pants),hat:pick(GPAL.hat),acc:pick(GPAL.acc),acc2:pick(GPAL.acc2),hair:pick(GPAL.hair),show:[]};
+function dressGoblin(g){const L=lookNew(g.civ,g.vendor,Math.random);applyLook(g,L,ES);return L;}
+// a goblin's look, from R (Math.random, or a driver's own: makeDriver): colours, hat, face, the rest it wears, its build
+function lookNew(civ,vendor,R){
+  const pk=a=>a[Math.floor(R()*a.length)];
+  const L={skin:pk(GPAL.skin),tunic:pk(GPAL.tunic),pants:pk(GPAL.pants),hat:pk(GPAL.hat),acc:pk(GPAL.acc),acc2:pk(GPAL.acc2),hair:pk(GPAL.hair),show:[]};
   const add=k=>L.show.push(k);
-  const hats=g.civ?['none','none','cap','cap','top','beanie','hardhat','bandana']:['none','none','bandana','bandana','mohawk','cap','beanie','hardhat'];
-  L.hatType=pick(hats);if(L.hatType!=='none')add(L.hatType);
+  const hats=civ?['none','none','cap','cap','top','beanie','hardhat','bandana']:['none','none','bandana','bandana','mohawk','cap','beanie','hardhat'];
+  L.hatType=pk(hats);if(L.hatType!=='none')add(L.hatType);
   L.hatShown=L.hatType==='none'?L.skin:L.hatType==='top'?0x1a1a1e:L.hatType==='mohawk'?L.hair:L.hat;
-  const face=pick(g.civ?['none','none','none','glasses','glasses','monocle']:['none','none','none','eyepatch','glasses','monocle']);if(face!=='none')add(face);
-  if(Math.random()<0.2)add('tuft');if(Math.random()<0.25)add('earring');if(Math.random()<0.3)add('pouch');
-  if(Math.random()<0.2)add('scarf');else if(g.civ&&Math.random()<0.25)add('tie');
-  if(g.civ&&(g.vendor||Math.random()<0.12))add('apron');
-  if(Math.random()<0.15)add('backpack');
+  const face=pk(civ?['none','none','none','glasses','glasses','monocle']:['none','none','none','eyepatch','glasses','monocle']);if(face!=='none')add(face);
+  if(R()<0.2)add('tuft');if(R()<0.25)add('earring');if(R()<0.3)add('pouch');
+  if(R()<0.2)add('scarf');else if(civ&&R()<0.25)add('tie');
+  if(civ&&(vendor||R()<0.12))add('apron');
+  if(R()<0.15)add('backpack');
   // slight differences in height and build
-  L.h=0.86+Math.random()*0.3;L.w=0.9+Math.random()*0.2;L.hs=0.92+Math.random()*0.18;
-  applyLook(g,L,ES);
+  L.h=0.86+R()*0.3;L.w=0.9+R()*0.2;L.hs=0.92+R()*0.18;
   return L;
 }
+// a police officer's: all in blue, a blue cap and nothing else on top
+function lookCop(L){L.tunic=0x1c2a5a;L.pants=0x1c2a5a;L.show=L.show.filter(k=>!['cap','top','beanie','hardhat','bandana','mohawk','scarf','tie','backpack','apron','eyepatch'].includes(k));L.hatType='cap';L.hat=0x1c2a5a;L.show.push('cap');L.hatShown=L.hat;return L;}
 function makeIdentity(g,look){
   return{name:pick(GOB.first)+' '+pick(GOB.last),age:12+Math.floor(Math.random()*79),occ:pick(g.civ?GOB.civ:GOB.hostile),hobby:pick(GOB.hobby),quirk:pick(GOB.quirk),
     sk:hexCss(look.skin),tu:hexCss(look.tunic),ht:hexCss(look.hatShown),look};
@@ -19435,6 +19446,7 @@ function tracer(x0,y0,z0,x1,y1,z1){
 const GREN_CRUSH=2.8;
 const SHOTS=[],SHOT_LOOK={grenade:[[0.24,0.24,0.24],0x3a4a22],shell:[[0.28,0.28,0.7],0x2a2a24],rocket:[[0.22,0.22,0.9],0xd8d8d0],nuke:[[0.42,0.42,0.75],0x6f7f34],missile:[[0.2,0.2,0.75],0xe8e4d8]},SHOT_M={};
 function shot(o){
+  if(NET.mode===2&&NET.joined)return null;   // (a guest online: only the host's game fires shells, and they're shown here from its snapshots, netShotsPlace)
   let S=SHOTS.find(q=>!q.live&&q.kind===o.kind);
   if(!S){const L=SHOT_LOOK[o.kind],m=new THREE.Mesh(FB_GEO,SHOT_M[o.kind]||(SHOT_M[o.kind]=new THREE.MeshLambertMaterial({color:L[1]})));m.scale.set(...L[0]);m.visible=false;scene.add(m);S={kind:o.kind,g:m,pos:new V3(),v:new V3(),live:false};SHOTS.push(S);}
   Object.assign(S,{grav:o.grav,fuse:o.fuse??9,R:o.R,dmg:o.dmg,cause:o.cause,by:o.by||null,bounce:!!o.bounce,t:0,live:true,trail:0,crush:o.crush||0,vd:o.vd,own:o.own||null,ap:!!o.ap,hitB:false,tgt:o.tgt||null,chase:o.chase||null,at:o.at||null,sp:o.sp||0,turn:o.turn||0,skipP:o.skipP||null,gobs:!!o.gobs,bb:o.bb||0});   // (skipP: the player who fired it, not hit by it as it leaves; gobs: it goes off on a goblin it reaches, a rocket launcher's; bb: a nuke's big blast, its reach)
@@ -19453,8 +19465,10 @@ function foeBoom(x,y,z,R,dmg,cause,by,crush,vd,own){
   hitGoblins(x,z,R,dmg,cause,y);vehBlast(x,y,z,R*1.15,vd??dmg*6,own);mineArea(x,z,R,y,by);   // (and any landmine it reaches goes up too)
   if(crush)crushBall(x,y,z,crush);
 }
+// (a guest online runs this alone: its tracers fade on their own, and the host's shells are shown it from the snapshots)
+function tracerTick(dt){for(const T of TRACERS)if(T.t>0){T.t-=dt;if(T.t<=0)T.m.visible=false;}}
 function updateShots(dt){
-  for(const T of TRACERS)if(T.t>0){T.t-=dt;if(T.t<=0)T.m.visible=false;}
+  tracerTick(dt);
   if(!playing)return;
   for(const S of SHOTS){if(!S.live)continue;S.t+=dt;S.fuse-=dt;
     let boom=S.fuse<=0;if(S.tgt||S.chase||S.at)boom=shotSteer(S,dt)||boom;const ns=Math.max(1,Math.ceil(Math.hypot(S.v.x,S.v.y,S.v.z)*dt/0.4));
@@ -19510,16 +19524,20 @@ function shotSteer(S,dt){
 const vReach=(dy,r)=>dy>-Math.max(2.5,r*0.45)&&dy<Math.max(3,r*0.6);   // how far below/above the source an area hit still reaches
 function hitGoblins(x,z,r,n,cause,y){if(y!==undefined)dbgHit('dmg','cap',dbgCap(x,y,z,r));for(const g of goblins){if(g.state!=='chase')continue;const dx=g.pos.x-x,dz=g.pos.z-z,dy=y===undefined?0:g.pos.y-y,d=Math.hypot(dx,dz)||0.01;if(Math.hypot(d,dy)<r&&(y===undefined||vReach(dy,r)))damageGoblin(g,n,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(dx/d,0.6,dz/d),cause);}}
 // every car has someone at the wheel
+// (look: how they're dressed, shown at the wheel (dhSync, cars.js) and on whoever's hauled out or killed. From a
+// sequence of its own, drvRnd, so a car changing hands doesn't move on everything else's Math.random)
+let DRV_S=12345;const drvRnd=()=>{DRV_S=(DRV_S*16807)%2147483647;return(DRV_S-1)/2147483646;};
 function makeDriver(police){
+  const look=lookNew(!police,false,drvRnd);if(police)lookCop(look);
   return{name:pick(GOB.first)+' '+pick(GOB.last),age:17+Math.floor(Math.random()*70),occ:police?'Police officer':pick(['Commuter','Delivery driver','Cab driver','Pizza courier','Getaway driver','Joyrider','Tow-truck moonlighter','Lost tourist']),
-    hobby:pick(GOB.hobby),quirk:pick(GOB.quirk),civ:!police};
+    hobby:pick(GOB.hobby),quirk:pick(GOB.quirk),civ:!police,look};
 }
 function dropGoblinCorpse(x,y,z,driver){
   const g=goblins.find(o=>o.state==='wait'&&!o.civ&&!o.special);if(!g)return;
   g.pos.set(x,y,z);g.kv.set(0,0,0);g.vy=0;g.hp=g.hpMax=1;g.state='chase';g.root.visible=true;g.root.rotation.set(0,0,0);g.heading=Math.random()*6.28;
   // the body that drops out of the wreck is that car's driver
   const D=driver||makeDriver(false);
-  g.id=makeIdentity(g,dressGoblin(g));Object.assign(g.id,{name:D.name,age:D.age,occ:D.occ,hobby:D.hobby,quirk:D.quirk,civ:D.civ});
+  g.id=makeIdentity(g,D.look?(applyLook(g,D.look,ES),D.look):dressGoblin(g));Object.assign(g.id,{name:D.name,age:D.age,occ:D.occ,hobby:D.hobby,quirk:D.quirk,civ:D.civ});
   damageGoblin(g,99,new V3(x,y+1,z),new V3(0,1,0),'Killed when their car exploded');
 }
 // ---- landmines (WEAPONS.landmine, whose numbers they all are): pressed into the ground by a player goblin (gobPlant,
@@ -20421,7 +20439,8 @@ const sharedMat={};const smat=c=>sharedMat[c]||(sharedMat[c]=new THREE.MeshLambe
 // or whether it's parked changes)
 const LAMP_OFF={},lampOff=c=>LAMP_OFF[c]||(LAMP_OFF[c]=new THREE.MeshLambertMaterial({color:c}));
 function carLampsSync(){const H=smat(CARC.head),T=smat(CARC.tail),Ho=lampOff(CARC.head),To=lampOff(CARC.tail);
-  for(const c of cars){const k=(c.parked?'p':'')+c.veh;if(c._lk===k)continue;const G=c.vehG&&c.vehG[c.veh];if(!G)continue;c._lk=k;
+  for(const c of cars){if(c.alive)dhSync(c);   // (and its driver dressed as whoever's at the wheel)
+    const k=(c.parked?'p':'')+c.veh;if(c._lk===k)continue;const G=c.vehG&&c.vehG[c.veh];if(!G)continue;c._lk=k;
     G.g.traverse(o=>{if(!o.isMesh)return;const m=o.material;
       if(c.parked){if(m===H)o.material=Ho;else if(m===T)o.material=To;}else if(m===Ho)o.material=H;else if(m===To)o.material=T;});}}
 function snowCar(mat,c){
@@ -20451,10 +20470,11 @@ function makeCar(i,police){
     const spin=new THREE.Group();piv.add(spin);b(0.32,0.72,0.72,smat(CARC.tire),0,0,0,spin);b(0.34,0.26,0.26,smat(CARC.hub),0,0,0,spin);
     c.wheels.push(spin);if(z>0)c.front.push(piv);
   }
-  // goblin driver poking out of the sunroof
+  // goblin driver poking out of the sunroof: a whole goblin sat at the wheel, his head at dh's, dressed as whoever's
+  // driving (dhSync)
   const dh=new THREE.Group();dh.position.set(0.35,1.4,-0.1);c.g.add(dh);c.dh=dh;
-  b(0.48,0.42,0.42,smat(GC.skin),0,0.45,0,dh);
-  for(const s of[-1,1]){const e=b(0.3,0.1,0.06,smat(GC.skin),s*0.36,0.52,0,dh);e.rotation.z=s*0.35;b(0.1,0.07,0.03,smat(GC.eye),s*0.11,0.51,0.22,dh);}
+  {const dg=new THREE.Group();dh.add(dg);dg.position.y=0.45-DH_HEAD;const m=goblinModel(dg,{club:false,shareGeo:true,snowU:c.snowU});
+    for(const L of m.legs)L.rotation.x=-1.3;m.arm.rotation.x=m.armL.rotation.x=-1.1;c.dhM={root:dg,roles:m.roles,acc:m.acc,head:m.head};}
   // hazard lights: four amber lamps at the corners, only shown (blinking) when it's broken down on the shoulder
   c.hazM=new THREE.MeshBasicMaterial({color:0x3a2408});c.hazG=new THREE.Group();c.hazG.visible=false;c.g.add(c.hazG);
   for(let k=0;k<4;k++)b(0.26,0.16,0.08,c.hazM,0,0,0,c.hazG);
@@ -20496,6 +20516,22 @@ const VEH={bus:{hx:1.25,hz:5.2,hy:3.3,hp:45,head:[0.5,2.7,4.3],roof:l=>3.3},
 // which vehicles each kind of traffic is made of
 const VEH_MIX={street:[['car',0.49],['bicycle',0.03],['moped',0.03],['kick',0.01],['segway',0.01],['super',0.01],['bike',0.08],['van',0.12],['pickup',0.12],['truck',0.10]],hw:[['car',0.49],['super',0.01],['bike',0.05],['van',0.1],['pickup',0.1],['truck',0.12],['semi',0.13]],park:[['car',0.6],['bicycle',0.03],['moped',0.03],['kick',0.005],['segway',0.005],['bike',0.08],['van',0.12],['pickup',0.13]]};
 const pickVeh=mix=>{let u=Math.random();for(const [t,p] of VEH_MIX[mix]){if(u<p)return t;u-=p;}return'car';};
+// ---- who's at the wheel: the street's drivers each dressed their own way (makeDriver's look), a crew's as their
+// crewman, a police car's officer in blue, and a goblin player as their own goblin. On anything ridden (a motorcycle, a
+// four-wheeler, a scooter) only the head's his: the rider's body is the vehicle's own ----
+const DH_HEAD=1.16;   // (from a goblin model's feet to the middle of its head)
+const DH_PLAIN={skin:GC.skin,tunic:GC.tunic,pants:GC.dark,hat:0x2a2a2a,acc:0x884422,acc2:0x111111,hair:0x1b1b1b,show:[],h:1,w:1,hs:1};
+const DH_PL=new Map();   // (a goblin player's look at the wheel, by tunic colour)
+function dhLookOf(c){
+  const p=c.drv;if(p&&p.gob){const t=GOB_TUNIC[p.who?1:0];let L=DH_PL.get(t);if(!L){L={...DH_PLAIN,tunic:t};DH_PL.set(t,L);}return L;}
+  const C=c.crew&&c.crew.drv;if(C&&C.look)return C.look;
+  return c.driver&&c.driver.look||DH_PLAIN;
+}
+let dhN=0;
+function dhDress(c,L){const M=c.dhM;if(!M)return;applyLook(M,L,1);M.root.position.y=0.45-DH_HEAD*L.h;c.dhL=L;c.dhV=c.veh;c.dhN=++dhN;
+  const bare=!!(c.vehG[c.veh]&&c.vehG[c.veh].rider),acc=new Set();for(const k in M.acc)for(const m of M.acc[k])acc.add(m);
+  for(const o of M.root.children){if(o===M.head)continue;if(bare)o.visible=false;else if(!acc.has(o))o.visible=true;}}
+function dhSync(c){if(!c.dhM||!c.dh.visible||c.net)return;const L=dhLookOf(c);if(c.dhL!==L||c.dhV!==c.veh)dhDress(c,L);}
 // build (once) and show a vehicle body on a car object; its size, wheel footprint and roof go with it
 function setVeh(c,t){
   if(!c.vehG[t])c.vehG[t]=buildVeh(c,t);
@@ -29285,7 +29321,7 @@ function inCar(p,D){const c=D.o,H=handOf(c.veh||'car'),{g,rpm}=inGear(c.speed,H.
     if(to>0)ring+=`<path d="${inArc(50,sg[0]+2,sg[0]+2+(sg[1]-sg[0]-4)*to)}" fill="none" stroke="${[IN_YOLK,'#ffa03a',IN_TOM][i]}" stroke-width="4"/>`;});
   const drift=H.drift!==false;
   return`<g transform="translate(-62,12) scale(.62)">${inDial({v:rpm,max:8,unit:'rpm x1000',ticks:8,num:'',zone:[.78,1,'rgba(224,86,74,.8)']})}${inT(0,6,34,gear,'px ink-t','middle',4)}</g>${drift?ring:''}${inDial({v,max:200,unit:'km/h',ticks:5,labels:[0,40,80,120,160,200]})}${drift?inT(0,-54,9,'DRIFT','px ink-t','middle',2.5):''}`;}
-function inBike(p,D){const c=D.o,H=handOf('bike'),v=Math.round(Math.max(0,p.spV)),{g,rpm}=inGear(c.speed,H.top),r=inCl(rpm/8,0,1),lean=Math.round(Math.abs(c.g.rotation.z||0)/IN_R);
+function inBike(p,D){const c=D.o,H=handOf('bike'),v=Math.round(Math.max(0,p.spV)),{g,rpm}=inGear(c.speed,H.top),r=inCl(rpm/8,0,1),lean=Math.round(Math.abs(c.g&&c.g.rotation.z||0)/IN_R);
   let s=`<rect x="0" y="0" width="200" height="86" rx="12" fill="#14171b" stroke="${IN_INK}" stroke-width="4"/>`;
   for(let i=0;i<20;i++){const on=i/20<r;s+=`<rect x="${12+i*8.8}" y="${12+(20-i)*.5}" width="6" height="${10+i*.5}" rx="1" fill="${on?(i>15?IN_TOM:i>11?IN_ORA:IN_GUS):'rgba(238,240,230,.12)'}"/>`;}
   return s+inT(120,72,40,v,'px','end',0,IN_PAPER)+inT(126,72,10,'km/h','mono','start',0,'#9aa3ad')+`<rect x="160" y="44" width="28" height="30" rx="4" fill="${IN_YOLK}"/>`+inT(174,68,24,c.speed<-0.3?'R':g,'px','middle',0,IN_INK)+inT(14,72,11,'LEAN '+lean+'°','mono','start',0,'#9aa3ad');}
@@ -30524,6 +30560,8 @@ function netPlayerState(p,seat,N){
   const lk=p.lockT?netRef(p.lockT):null;
   const e={s:seat,who:p.who,gob:!!p.gob,act:!!p.active,f,pos:[r3(p.pos.x),r3(p.pos.y),r3(p.pos.z)],h:r3(p.heading),pose:netPoseOf(netJoints(p)),lk,
     rd:!!(p.drv||p.rideC||p.standCar||p.vcl&&p.state==='climb')};
+  // (a goblin player at the wheel or stealing one: the goblin model the others see, as the host has posed it, netGk)
+  if(p.gob&&p.drv){const D=p.drv,A=D.jack?p.jackA:p.gb;e.gk=A?netGkOf(A,D.jack?A.root.visible:rideShown(p)):[0];}
   // (in a vehicle: what it is and where, for the guest's chase camera)
   if(p.drv&&!p.drv.jack){try{const D=p.drv,S=drvPose(D),H=drvHP(D),o=D.o,W={};for(const k in o.wpn||{}){const s=o.wpn[k];W[k]=[s.n,Math.round(s.rl*10)/10];}
     e.dv=[D.k,r3(S.x),r3(S.y),r3(S.z),r3(S.h),r3(S.hx),r3(S.hz),r3(S.hy),r3(S.v||0),drvName(D),Math.round(H.hp*10)/10,H.max,W,o.veh||'',!!o.hose,D.seat||'',!!o.gnr,D.k==='mech'?o.key:0,D.k==='ship'?o.n:D.k==='mount'?o.S.n:0,D.k==='mount'?o.i:-1,p.shipBridge?1:0];}catch(er){}}   // (and its name, health and guns, for the guest's own display)   // (driving, riding or clinging to something that moves: the guest can't guess that, so it doesn't try)
@@ -30531,6 +30569,16 @@ function netPlayerState(p,seat,N){
   if(p.net&&p.net.seat===seat){e.ack=N.inN||0;e.adt=Math.round(NET.now-(N.inAt||NET.now));}
   return e;
 }
+// A goblin player in a vehicle is posed by the host's drvSeat: sat on an open one (seatPose, ridePose, gunPose), or the
+// stand-in stealing it (jackPose, carjack.js). A guest doesn't run that, so it's sent: shown or not, where the body is
+// and its turn, and the legs and arms, [shown, x,y,z, rx,ry,rz, legs' and arms' x and z, the wrist]; gobView puts that
+// guest's own model of the player there (netGkPose), blended between snapshots
+function netGkOf(K,shown){if(!shown)return[0];const R=K.root,m=K.m,a=[1,r3(R.position.x),r3(R.position.y),r3(R.position.z),r3(R.rotation.x),r3(R.rotation.y),r3(R.rotation.z)];
+  for(const L of [m.legs[0],m.legs[1],m.arm,m.armL])a.push(r3(L.rotation.x),r3(L.rotation.z));a.push(r3(m.arm.hand?m.arm.hand.rotation.x:0));return a;}
+function netGkPose(K,G){const a=G.a,b=G.b&&G.b[0]?G.b:null,k=G.k,v=n=>b?a[n]+(b[n]-a[n])*k:a[n],w=n=>b?lerpA(a[n],b[n],k):a[n],R=K.root,m=K.m;
+  R.position.set(v(1),v(2),v(3));R.rotation.set(w(4),w(5),w(6));let i=7;
+  for(const L of [m.legs[0],m.legs[1],m.arm,m.armL]){L.rotation.set(w(i),0,w(i+1));i+=2;}if(m.arm.hand)m.arm.hand.rotation.set(w(i),0,0);
+  for(const k2 in K.tp)K.tp[k2].visible=false;}   // (nothing in his hands at the wheel)
 // (something a player can be locked on to, as both ends can name it)
 function netRef(o){let i=goblins.indexOf(o);if(i>=0)return['g',i];i=cars.indexOf(o);if(i>=0)return['c',i];
   if(isPlT(o)){const s=o===P1?0:o.net&&o.net.seat;if(s!==undefined&&s!==null)return['p',s];}   // (another player, locked on to with PvP on: by seat)
@@ -30560,7 +30608,7 @@ function netCars(p,N,out,cfg){
     const P=G.position,Q=G.rotation,w=[],f=[];for(const s of c.wheels)w.push(r3(s.rotation.x));for(const s of c.front)f.push(r3(s.rotation.y));
     out.push([i,r3(P.x),r3(P.y),r3(P.z),r3(Q.x),r3(Q.y),r3(Q.z),w,f,c.dh&&c.dh.visible?1:0,c.hazG&&c.hazG.visible?1:0,c.alive?1:0,
       (c.police&&(c.hunter||c.pullLit||c.svcPool&&c.svc&&c.svc.st!=='parked'&&c.svc.st!=='leave')?1:0)|(c.hazard?2:0)|(c.flash&&c.svc&&c.svc.st!=='parked'?4:0)|(c.blink<0?8:c.blink>0?16:0),r3(c.hp),c.hpMax>=c.hp?c.hpMax:Math.max(r3(c.hp),carHP(c))]);   // (lights flashing: a police car's, hazards, an ambulance's or fire engine's)
-    const k=c.veh+'|'+netCol(c.paint.color)+'|'+(c.police?1:0);if(N.cars.get(i)!==k){N.cars.set(i,k);cfg[i]=[c.veh,netCol(c.paint.color),c.police?1:0,!!c.hunter];}}
+    const k=c.veh+'|'+netCol(c.paint.color)+'|'+(c.police?1:0)+'|'+(c.dhN||0);if(N.cars.get(i)!==k){N.cars.set(i,k);cfg[i]=[c.veh,netCol(c.paint.color),c.police?1:0,!!c.hunter,c.dhL||null];}}   // (and how its driver's dressed: dhDress)
 }
 
 // ---- the venues' moving models: trains, planes, boats, rides, animals, base vehicles... ----
@@ -30781,15 +30829,26 @@ function netFx(name,f){
   NET_FX[name]=f;
   // (named as the one it wraps: the debug Sound list reads names off the stack to say what made a sound)
   return {[name](...a){
-    if(NET_MUTE)return;
-    if(NET.mode===1&&NET_FXD===0&&NET.guests.size){try{const e=['f',name,a.map(x=>netSan(x,0))];if(NET_SPOS&&NET_SND[name]!==undefined){const w=netWorldXZ(NET_SPOS.x,NET_SPOS.z);e.push([r3(w.x),r3(w.z)]);}netEmit(e);}catch(e){}}
+    // (a guest's own shot is seen and heard on the guest as it fires, NET_SHOOTER: see netOwnShot)
+    const own=NET_SHOOTER&&NET_OWNFX[name];
+    if(NET_MUTE&&!(own&&NET.mode===2))return;
+    if(NET.mode===1&&NET_FXD===0&&NET.guests.size){try{const e=['f',name,a.map(x=>netSan(x,0))];if(NET_SPOS&&NET_SND[name]!==undefined){const w=netWorldXZ(NET_SPOS.x,NET_SPOS.z);e.push([r3(w.x),r3(w.z)]);}
+      if(own&&NET_SHOOTER.net){e[3]=e[3]||null;e[4]=NET_SHOOTER.net.seat;}netEmit(e);}catch(e){}}
     NET_FXD++;try{return f.apply(this,a);}finally{NET_FXD--;}
   }}[name];
 }
 puff=netFx('puff',puff);smoke=netFx('smoke',smoke);blood=netFx('blood',blood);splat=netFx('splat',splat);
 destroyFX=netFx('destroyFX',destroyFX);shockwave=netFx('shockwave',shockwave);shockCone=netFx('shockCone',shockCone);blastFx=netFx('blastFx',blastFx);
 tone=netFx('tone',tone);noise=netFx('noise',noise);dmgPop=netFx('dmgPop',dmgPop);woosh=netFx('woosh',woosh);tracer=netFx('tracer',tracer);
-mineShow=netFx('mineShow',mineShow);   // (landmines in the ground, and their lights: mines.js)
+mineShow=netFx('mineShow',mineShow);
+// A guest's own shots. Waiting a round trip and the drawing delay to see your own tracer and hear your own gun felt
+// laggy, so a guest's goblin shows them as it fires, in its own guess at its player (netPredStep), and the host marks
+// the same ones from that guest's step with its seat, so that guest leaves them out (unless it wasn't guessing just
+// then: driving, say). Only the shot itself: what it hits, and the blood and dust, are still the host's.
+let NET_SHOOTER=null;const NET_OWNFX={tracer:1,tone:1,noise:1,smoke:1};
+{const gs=gobShoot;gobShoot=function gobShoot(p){const o=NET_SHOOTER;NET_SHOOTER=p;try{return gs(p);}finally{NET_SHOOTER=o;}};}
+// (guest: one of its own shots the host sent back, already shown here if this guest fired it itself lately)
+function netOwnShot(e){if(e[4]!==NET.seat)return false;return NETP.shotAt!==undefined&&NET.now-NETP.shotAt<1500;}   // (landmines in the ground, and their lights: mines.js)
 // (a message for one player goes to that player only; one for everyone, to everyone)
 {const fl=flashLabel;NET_FX.flashLabel=fl;flashLabel=function flashLabel(s,who){
   if(NET_MUTE)return;
@@ -30907,7 +30966,7 @@ function netSendSnap(p){   // (and the goblins' places are kept each frame, belo
   const m={t:'s',n:++N.seq,tt:NET.now,p:[],g:[],gl:{},c:[],cl:{},e:take<N.out.length?N.out.slice(0,take):N.out};N.out=take<N.out.length?N.out.slice(take):[];
   N.eLag=N.out.length?(N.eLag||0)+1:0;
   for(let s=0;s<players.length;s++){const q=players[s];if(q.active)m.p.push(netPlayerState(q,s,N));}
-  netGoblins(p,N,m.g,m.gl);netCars(p,N,m.c,m.cl);m.v=[];netVenues(p,N,m.v);m.mg=netMechs();m.sh=netShips();m.vh=netVenueHP(N);m.fa=netFalls();m.sc=[score,kills,RAMP.cars,RAMP.best,RAMP.nB,RAMP.nR];
+  netGoblins(p,N,m.g,m.gl);netCars(p,N,m.c,m.cl);m.v=[];netVenues(p,N,m.v);m.mg=netMechs();m.sh=netShips();m.vh=netVenueHP(N);m.fa=netFalls();m.so=netShots();m.sc=[score,kills,RAMP.cars,RAMP.best,RAMP.nB,RAMP.nR];
   N.wT=(N.wT||0)-1;if(N.wT<=0&&(!N.eLag||N.eLag>60)){N.wT=NET_SNAP_HZ;m.w=netWorldBits(N);m.k=netClock();N.vhsent=null;}   // (and the venues' health all again next time, for a venue the guest has only just made)
   try{NET.tr.send(m,N.peer);}catch(e){}
 }
@@ -30943,7 +31002,8 @@ function netPredCheck(m){
 function netPredStep(sdt,first){
   if(!NETP.on||NETP.snap)return;
   if(!first){const I=P1.in;I.jumpPress=I.bitePress=I.lockPress=I.chargePress=I.dashPress=I.sprintPress=false;}
-  NET_MUTE=true;try{updatePlayer(P1,sdt);if(shipN&&!P1.drv){shipCross(P1,true);NETP.fr=shipOf(P1);}}catch(e){}finally{NET_MUTE=false;}
+  const n0=P1.shotN||0;
+  NET_MUTE=true;try{updatePlayer(P1,sdt);if((P1.shotN||0)!==n0)NETP.shotAt=NET.now;if(shipN&&!P1.drv){shipCross(P1,true);NETP.fr=shipOf(P1);}}catch(e){}finally{NET_MUTE=false;}
 }
 // each frame: ease off whatever's left of a correction
 function netPredEase(dt){
@@ -30987,6 +31047,7 @@ function netGuestBegin(h){
   for(const g of goblins){g.state='wait';g.root.visible=false;}
   for(const c of cars){c.alive=false;c.g.visible=false;}
   for(const [,g] of NETM.g)g.root.visible=false;for(const [,c] of NETM.c)c.g.visible=false;
+  for(const [,M] of NETSO)M.m.visible=false;
   NET.q.length=0;NET.cur=null;NET.off=null;netShowReset();NETP.on=false;NETP.snap=false;NETP.hist.length=0;NETP.corr.set(0,0,0);
   P1.net={mirror:true,seat:NET.seat};P2.net={mirror:true,seat:0};
   if(h){P2.who=h.who?1:0;setGobP(P2,!!h.gob);}
@@ -31001,7 +31062,7 @@ function netCar(id,k){
   let c=NETM.c.get(id);
   if(c&&c.police!==!!k[2]){c.g.visible=false;c.alive=false;NETM.c.delete(id);c=null;}
   if(!c){c=makeCar(id,!!k[2]);c.g.scale.setScalar(ES);c.net=true;c.respawnT=1e9;cars.push(c);NETM.c.set(id,c);}
-  if(c.veh!==k[0]&&VEH[k[0]])setVeh(c,k[0]);c.paint.color.setHex(k[1]);c.hunter=!!k[3];
+  if(c.veh!==k[0]&&VEH[k[0]])setVeh(c,k[0]);c.paint.color.setHex(k[1]);c.hunter=!!k[3];if(k[4])dhDress(c,k[4]);
   return c;
 }
 // a snapshot becoming the one shown: everything in it that isn't blended
@@ -31041,7 +31102,7 @@ function netCommit(m){
     else if(e[0]==='X'){try{netCrater([{x:e[1],y:e[2],z:e[3],R:e[4],s:e[5],n:e[6],w:e[7]}]);}catch(er){}}   // (a big blast: the guest carves it itself, big-blast.js)
     else if(e[0]==='k'){try{netKnock(e);}catch(er){}}
     else if(e[0]==='sk'){try{netShipKnock(e);}catch(er){}}
-    else if(e[0]==='f'){const f=NET_FX[e[1]];if(!f)continue;if(ch.size){rebuildSet(ch);ch.clear();}
+    else if(e[0]==='f'){const f=NET_FX[e[1]];if(!f)continue;if(e[4]!==undefined&&netOwnShot(e))continue;if(ch.size){rebuildSet(ch);ch.clear();}
       if(e[1]==='flashLabel'){const who=e[2][1]?netUnsan(e[2][1]):null;f(e[2][0],who);continue;}
       const a=e[2].map(netUnsan);
       // (a sound one of the players made: quieter the further that player is from this one)
@@ -31086,7 +31147,9 @@ function netGuestFrame(dt){
   // (o: the snapshot the places are blended toward -- the next, or with none in yet the one before -- and kp how far)
   let o=b,kp=k;if(!b&&NET.prev&&NET.prev.tt<a.tt&&rt>a.tt){o=NET.prev;kp=-Math.min(rt-a.tt,NET_EXTRA)/(a.tt-o.tt);}
   const ms=o?Math.abs(o.tt-a.tt):0;
-  for(const e of a.p){const q=netSeatP(e.s,false);if(!q||!q.active)continue;if(q===P1&&NETP.on){netPredEase(dt);continue;}const f=b&&b.p.find(x=>x.s===e.s),fo=o&&o.p.find(x=>x.s===e.s);
+  for(const e of a.p){const q=netSeatP(e.s,false);if(!q||!q.active)continue;
+    {const fo=o&&o.p.find(x=>x.s===e.s);q.netGk=e.gk?{a:e.gk,b:fo&&fo.gk||null,k:kp}:null;}   // (a goblin player at the wheel: gobView poses its model)
+    if(q===P1&&NETP.on){netPredEase(dt);continue;}const f=b&&b.p.find(x=>x.s===e.s),fo=o&&o.p.find(x=>x.s===e.s);
     const P=e.pos,P2b=fo?fo.pos:P,kq=fo?netKP(P,P2b,0,kp,ms):0;q.pos.set(P[0]+(P2b[0]-P[0])*kq,P[1]+(P2b[1]-P[1])*kq,P[2]+(P2b[2]-P[2])*kq);
     q.heading=fo?lerpA(e.h,fo.h,kq):e.h;netPoseSet(netJoints(q),e.pose,f&&f.pose,k);
     if(e.dv&&q.drv&&q.drv.netS){const S=q.drv.netS,g=fo&&fo.dv&&fo.dv[0]===e.dv[0]?fo.dv:e.dv,kd=netKP(e.dv,g,1,kp,ms);S.x=e.dv[1]+(g[1]-e.dv[1])*kd;S.y=e.dv[2]+(g[2]-e.dv[2])*kd;S.z=e.dv[3]+(g[3]-e.dv[3])*kd;S.h=lerpA(e.dv[4],g[4],kd);}}
@@ -31096,7 +31159,7 @@ function netGuestFrame(dt){
     g.legs[0].rotation.x=w(9);g.legs[1].rotation.x=w(10);g.arm.rotation.x=w(11);g.armL.rotation.x=w(12);g.head.rotation.z=w(13);
     if(e[18]!==undefined){g.arm.rotation.z=w(18);if(g.arm.hand)g.arm.hand.rotation.x=f&&f[19]!==undefined?e[19]+(f[19]-e[19])*k:e[19];}   // (the wrist turns past half a turn: straight between, not the short way round)
     if(g.wkit)wkitShow(g.wkit,e[20]||0);g.relT=e[21]?1:0;}   // (a blade or club in hand, the gun drawn or put away, foes.js; reloading, its gun held as the pose has it, not gripped, strikes.js)
-  netVenuePose(rt);netMechPlace(a,o,kp,ms);netShipPlace(a,o,kp);netFallPose(a,b,k);
+  netVenuePose(rt);netMechPlace(a,o,kp,ms);netShotsPlace(a,o,kp);netShipPlace(a,o,kp);netFallPose(a,b,k);
   for(const e of a.c){const c=NETM.c.get(e[0]);if(!c)continue;const fo=bc.get(e[0]),f=b?fo:null,kq=netKP(e,fo,1,kp,ms),w=n=>f?lerpA(e[n],f[n],k):e[n],x=n=>fo?e[n]+(fo[n]-e[n])*kq:e[n],y=n=>fo?lerpA(e[n],fo[n],kq):e[n];
     c.g.position.set(x(1),x(2),x(3));c.g.rotation.set(w(4),y(5),w(6));c.pos.copy(c.g.position);c.heading=c.g.rotation.y;
     e[7].forEach((r,i)=>{if(c.wheels[i])c.wheels[i].rotation.x=f&&f[7][i]!==undefined?lerpA(r,f[7][i],k):r;});
@@ -31109,9 +31172,24 @@ function netGuestFrame(dt){
     if(lightOf(c)){c.netM=true;lightLook(c,1/60,L);}}   // (a bicycle's legs, a kick, the Gobway's tilt, a scooter's indicators: light-vehicles.js)
   netShipFrames();
 }
+// ---- shells, rockets, grenades, a nuke's warhead in flight: only the host's game fires them (shot does nothing on a
+// guest), so each snapshot carries where its live ones are, [number, kind, x, y, z, vx, vy, vz], and a guest draws its
+// own model of each there, blended between snapshots as the goblins are. (Their smoke trails come as the host's smoke.)
+function netShots(){const L=[];for(let i=0;i<SHOTS.length;i++){const S=SHOTS[i];if(S.live)L.push([i,S.kind,r3(S.pos.x),r3(S.pos.y),r3(S.pos.z),r3(S.v.x),r3(S.v.y),r3(S.v.z)]);}return L;}
+const NETSO=new Map();   // (guest: the host's number for a shell -> {m, the model; k, its kind})
+function netShotsPlace(a,o,kp){
+  const L=a.so||[],seen=new Set(),bo=new Map();if(o&&o.so)for(const e of o.so)bo.set(e[0],e);
+  for(const e of L){const L0=SHOT_LOOK[e[1]];if(!L0)continue;let M=NETSO.get(e[0]);
+    if(M&&M.k!==e[1]){scene.remove(M.m);M=null;}
+    if(!M){const m=new THREE.Mesh(FB_GEO,SHOT_M[e[1]]||(SHOT_M[e[1]]=new THREE.MeshLambertMaterial({color:L0[1]})));m.scale.set(...L0[0]);scene.add(m);M={m,k:e[1]};NETSO.set(e[0],M);}
+    seen.add(e[0]);const f=bo.get(e[0]),x=n=>f?e[n]+(f[n]-e[n])*kp:e[n];const g=M.m;g.position.set(x(2),x(3),x(4));g.visible=true;
+    const vx=x(5),vy=x(6),vz=x(7);if(e[1]==='grenade')g.rotation.x+=0.2;else g.rotation.set(-Math.atan2(vy,Math.hypot(vx,vz)),Math.atan2(vx,vz),0,'YXZ');
+    if(g.position.x>=SHIP_X0){const px=g.position.x,pz=g.position.z;shipPt(g.position);g.rotation.y+=shipYawAt(px,pz);}}   // (aboard a ship: drawn where that is on it)
+  for(const [i,M] of NETSO)if(!seen.has(i))M.m.visible=false;
+}
 // (guest, each step: only what's for show. The host's snapshots do everything else)
 function netGuestStep(sdt,first){
-  safe('predict',()=>netPredStep(sdt,first));
+  safe('predict',()=>netPredStep(sdt,first));safe('tracers',()=>tracerTick(sdt));
   safe('weather',()=>updateWeather(sdt));safe('sky',()=>updateSky(sdt));
   safe('parts',()=>updateParts(sdt));safe('rubble',()=>updateRubble(sdt));safe('shocks',()=>{updateShocks(sdt);updateCones(sdt);});
   safe('fires',()=>updateFires(sdt));safe('flecks',()=>updateFlecks(sdt));

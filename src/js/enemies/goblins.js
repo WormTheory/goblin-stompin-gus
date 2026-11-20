@@ -92,7 +92,7 @@ function makeGoblin(o,x){
 }
 function goblinModel(parent,o={}){
   parent.netOpt=o;   // (how it was made, so a guest online can make the same)
-  const out={legs:[],acc:{},snowU:{value:0}},roles={},matList=[];
+  const out={legs:[],acc:{},snowU:o.snowU||{value:0}},roles={},matList=[];   // (o.snowU: a car's, for its driver: cars.js)
   // things worn over the head/face are drawn a hair in front of whatever they sit flush against, so they never flicker
   const OVER={hat:1,hatdark:1,hair:1,patch:1,acc2:1,gold:1};
   const role=(r,c)=>{if(!roles[r]){roles[r]=new THREE.MeshLambertMaterial(OVER[r]?{color:c,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-3}:{color:c});const sn=r==='skin'||r==='hat'||r==='hair'||r==='hatdark';if(sn)snowCar(roles[r],out);matList.push(roles[r]);}return roles[r];};   // (heads and hats catch the snow)
@@ -185,22 +185,26 @@ function applyLook(t,L,base){
   for(const k of L.show||[])if(t.acc[k])for(const m of t.acc[k])m.visible=true;
   t.root.scale.set(base*L.w,base*L.h,base*L.w);t.head.scale.setScalar(L.hs);
 }
-function dressGoblin(g){
-  const L={skin:pick(GPAL.skin),tunic:pick(GPAL.tunic),pants:pick(GPAL.pants),hat:pick(GPAL.hat),acc:pick(GPAL.acc),acc2:pick(GPAL.acc2),hair:pick(GPAL.hair),show:[]};
+function dressGoblin(g){const L=lookNew(g.civ,g.vendor,Math.random);applyLook(g,L,ES);return L;}
+// a goblin's look, from R (Math.random, or a driver's own: makeDriver): colours, hat, face, the rest it wears, its build
+function lookNew(civ,vendor,R){
+  const pk=a=>a[Math.floor(R()*a.length)];
+  const L={skin:pk(GPAL.skin),tunic:pk(GPAL.tunic),pants:pk(GPAL.pants),hat:pk(GPAL.hat),acc:pk(GPAL.acc),acc2:pk(GPAL.acc2),hair:pk(GPAL.hair),show:[]};
   const add=k=>L.show.push(k);
-  const hats=g.civ?['none','none','cap','cap','top','beanie','hardhat','bandana']:['none','none','bandana','bandana','mohawk','cap','beanie','hardhat'];
-  L.hatType=pick(hats);if(L.hatType!=='none')add(L.hatType);
+  const hats=civ?['none','none','cap','cap','top','beanie','hardhat','bandana']:['none','none','bandana','bandana','mohawk','cap','beanie','hardhat'];
+  L.hatType=pk(hats);if(L.hatType!=='none')add(L.hatType);
   L.hatShown=L.hatType==='none'?L.skin:L.hatType==='top'?0x1a1a1e:L.hatType==='mohawk'?L.hair:L.hat;
-  const face=pick(g.civ?['none','none','none','glasses','glasses','monocle']:['none','none','none','eyepatch','glasses','monocle']);if(face!=='none')add(face);
-  if(Math.random()<0.2)add('tuft');if(Math.random()<0.25)add('earring');if(Math.random()<0.3)add('pouch');
-  if(Math.random()<0.2)add('scarf');else if(g.civ&&Math.random()<0.25)add('tie');
-  if(g.civ&&(g.vendor||Math.random()<0.12))add('apron');
-  if(Math.random()<0.15)add('backpack');
+  const face=pk(civ?['none','none','none','glasses','glasses','monocle']:['none','none','none','eyepatch','glasses','monocle']);if(face!=='none')add(face);
+  if(R()<0.2)add('tuft');if(R()<0.25)add('earring');if(R()<0.3)add('pouch');
+  if(R()<0.2)add('scarf');else if(civ&&R()<0.25)add('tie');
+  if(civ&&(vendor||R()<0.12))add('apron');
+  if(R()<0.15)add('backpack');
   // slight differences in height and build
-  L.h=0.86+Math.random()*0.3;L.w=0.9+Math.random()*0.2;L.hs=0.92+Math.random()*0.18;
-  applyLook(g,L,ES);
+  L.h=0.86+R()*0.3;L.w=0.9+R()*0.2;L.hs=0.92+R()*0.18;
   return L;
 }
+// a police officer's: all in blue, a blue cap and nothing else on top
+function lookCop(L){L.tunic=0x1c2a5a;L.pants=0x1c2a5a;L.show=L.show.filter(k=>!['cap','top','beanie','hardhat','bandana','mohawk','scarf','tie','backpack','apron','eyepatch'].includes(k));L.hatType='cap';L.hat=0x1c2a5a;L.show.push('cap');L.hatShown=L.hat;return L;}
 function makeIdentity(g,look){
   return{name:pick(GOB.first)+' '+pick(GOB.last),age:12+Math.floor(Math.random()*79),occ:pick(g.civ?GOB.civ:GOB.hostile),hobby:pick(GOB.hobby),quirk:pick(GOB.quirk),
     sk:hexCss(look.skin),tu:hexCss(look.tunic),ht:hexCss(look.hatShown),look};

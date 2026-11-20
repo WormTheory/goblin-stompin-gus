@@ -9,6 +9,16 @@
 - Left in a car, tank, helicopter, plane, hot-air balloon or Mobile Gear, you're back in it, in the same seat, with the damage it had. Anything that was flying comes back on the ground below. Trains, boats and ships can't be brought back, so you start beside where you were.
 - New city starts all of it afresh.
 
+### Playing online
+
+- As a guest, your own shots show the moment you fire: the tracer and the bang no longer wait on the host, and bullet streaks no longer hang in the air.
+- Guests now see grenades, shells, rockets and the Nuke Launcher's warhead in flight, instead of a warhead stuck where it was fired.
+- As a guest you see your own goblin stealing a vehicle and riding anything open, as everyone else does.
+
+### Drivers
+
+- Everyone at the wheel is dressed as themselves, in their own colours, hats, glasses and the rest, instead of a plain green head, and whoever you haul out or leave in a wreck is dressed the same. Police drivers are in blue, and your own goblin shows at the wheel of whatever you drive.
+
 ### Nuclear meltdown
 
 - Bring down a reactor at a nuclear power station and the siren sounds. A few seconds later the whole place goes up: a blinding flash, a fireball and a shockwave that runs out across the town, flattening it as it goes. The middle is left a scorched crater ringed with rubble, the streets round it are levelled to the ground with a few stumps of wall standing, and further out buildings lose their top floors and the side that faced the blast, and some come down. Fires burn round the edge under a mushroom cloud.

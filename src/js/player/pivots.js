@@ -337,6 +337,8 @@ function gobViewGun(p,K,wk,sw,up,bob){
 function gobView(v){
   for(const q of players){if(!q.gb)continue;
     const me=q===v&&!(DT.freecam&&v===P1);
-    q.gb.root.visible=q.gob&&q.active&&(q.drv?rideShown(q):!me);q.gb.vm.visible=q.gob&&q.active&&me&&q.state!=='dead'&&!q.drv&&!(q.scope>0.5);   // (in a vehicle you're out of sight, unless it's a motorcycle)
+    const N=q.netGk;   // (a guest online: a player in a vehicle, posed as the host has it, net-sync.js)
+    q.gb.root.visible=q.gob&&q.active&&(N?!!N.a[0]:q.drv?rideShown(q):!me);q.gb.vm.visible=q.gob&&q.active&&me&&q.state!=='dead'&&!q.drv&&!N&&!(q.scope>0.5);
+    if(N&&N.a[0]&&q.gob)netGkPose(q.gb,N);   // (in a vehicle you're out of sight, unless it's a motorcycle)
     if(q.gb.vm.visible){q.gb.vm.position.copy(v.camera.position);q.gb.vm.rotation.set(v.camera.rotation.x,v.camera.rotation.y,v.camera.rotation.z);}}
 }

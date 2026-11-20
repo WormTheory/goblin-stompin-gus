@@ -66,6 +66,7 @@ function tracer(x0,y0,z0,x1,y1,z1){
 const GREN_CRUSH=2.8;
 const SHOTS=[],SHOT_LOOK={grenade:[[0.24,0.24,0.24],0x3a4a22],shell:[[0.28,0.28,0.7],0x2a2a24],rocket:[[0.22,0.22,0.9],0xd8d8d0],nuke:[[0.42,0.42,0.75],0x6f7f34],missile:[[0.2,0.2,0.75],0xe8e4d8]},SHOT_M={};
 function shot(o){
+  if(NET.mode===2&&NET.joined)return null;   // (a guest online: only the host's game fires shells, and they're shown here from its snapshots, netShotsPlace)
   let S=SHOTS.find(q=>!q.live&&q.kind===o.kind);
   if(!S){const L=SHOT_LOOK[o.kind],m=new THREE.Mesh(FB_GEO,SHOT_M[o.kind]||(SHOT_M[o.kind]=new THREE.MeshLambertMaterial({color:L[1]})));m.scale.set(...L[0]);m.visible=false;scene.add(m);S={kind:o.kind,g:m,pos:new V3(),v:new V3(),live:false};SHOTS.push(S);}
   Object.assign(S,{grav:o.grav,fuse:o.fuse??9,R:o.R,dmg:o.dmg,cause:o.cause,by:o.by||null,bounce:!!o.bounce,t:0,live:true,trail:0,crush:o.crush||0,vd:o.vd,own:o.own||null,ap:!!o.ap,hitB:false,tgt:o.tgt||null,chase:o.chase||null,at:o.at||null,sp:o.sp||0,turn:o.turn||0,skipP:o.skipP||null,gobs:!!o.gobs,bb:o.bb||0});   // (skipP: the player who fired it, not hit by it as it leaves; gobs: it goes off on a goblin it reaches, a rocket launcher's; bb: a nuke's big blast, its reach)
@@ -84,8 +85,10 @@ function foeBoom(x,y,z,R,dmg,cause,by,crush,vd,own){
   hitGoblins(x,z,R,dmg,cause,y);vehBlast(x,y,z,R*1.15,vd??dmg*6,own);mineArea(x,z,R,y,by);   // (and any landmine it reaches goes up too)
   if(crush)crushBall(x,y,z,crush);
 }
+// (a guest online runs this alone: its tracers fade on their own, and the host's shells are shown it from the snapshots)
+function tracerTick(dt){for(const T of TRACERS)if(T.t>0){T.t-=dt;if(T.t<=0)T.m.visible=false;}}
 function updateShots(dt){
-  for(const T of TRACERS)if(T.t>0){T.t-=dt;if(T.t<=0)T.m.visible=false;}
+  tracerTick(dt);
   if(!playing)return;
   for(const S of SHOTS){if(!S.live)continue;S.t+=dt;S.fuse-=dt;
     let boom=S.fuse<=0;if(S.tgt||S.chase||S.at)boom=shotSteer(S,dt)||boom;const ns=Math.max(1,Math.ceil(Math.hypot(S.v.x,S.v.y,S.v.z)*dt/0.4));
@@ -141,15 +144,19 @@ function shotSteer(S,dt){
 const vReach=(dy,r)=>dy>-Math.max(2.5,r*0.45)&&dy<Math.max(3,r*0.6);   // how far below/above the source an area hit still reaches
 function hitGoblins(x,z,r,n,cause,y){if(y!==undefined)dbgHit('dmg','cap',dbgCap(x,y,z,r));for(const g of goblins){if(g.state!=='chase')continue;const dx=g.pos.x-x,dz=g.pos.z-z,dy=y===undefined?0:g.pos.y-y,d=Math.hypot(dx,dz)||0.01;if(Math.hypot(d,dy)<r&&(y===undefined||vReach(dy,r)))damageGoblin(g,n,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(dx/d,0.6,dz/d),cause);}}
 // every car has someone at the wheel
+// (look: how they're dressed, shown at the wheel (dhSync, cars.js) and on whoever's hauled out or killed. From a
+// sequence of its own, drvRnd, so a car changing hands doesn't move on everything else's Math.random)
+let DRV_S=12345;const drvRnd=()=>{DRV_S=(DRV_S*16807)%2147483647;return(DRV_S-1)/2147483646;};
 function makeDriver(police){
+  const look=lookNew(!police,false,drvRnd);if(police)lookCop(look);
   return{name:pick(GOB.first)+' '+pick(GOB.last),age:17+Math.floor(Math.random()*70),occ:police?'Police officer':pick(['Commuter','Delivery driver','Cab driver','Pizza courier','Getaway driver','Joyrider','Tow-truck moonlighter','Lost tourist']),
-    hobby:pick(GOB.hobby),quirk:pick(GOB.quirk),civ:!police};
+    hobby:pick(GOB.hobby),quirk:pick(GOB.quirk),civ:!police,look};
 }
 function dropGoblinCorpse(x,y,z,driver){
   const g=goblins.find(o=>o.state==='wait'&&!o.civ&&!o.special);if(!g)return;
   g.pos.set(x,y,z);g.kv.set(0,0,0);g.vy=0;g.hp=g.hpMax=1;g.state='chase';g.root.visible=true;g.root.rotation.set(0,0,0);g.heading=Math.random()*6.28;
   // the body that drops out of the wreck is that car's driver
   const D=driver||makeDriver(false);
-  g.id=makeIdentity(g,dressGoblin(g));Object.assign(g.id,{name:D.name,age:D.age,occ:D.occ,hobby:D.hobby,quirk:D.quirk,civ:D.civ});
+  g.id=makeIdentity(g,D.look?(applyLook(g,D.look,ES),D.look):dressGoblin(g));Object.assign(g.id,{name:D.name,age:D.age,occ:D.occ,hobby:D.hobby,quirk:D.quirk,civ:D.civ});
   damageGoblin(g,99,new V3(x,y+1,z),new V3(0,1,0),'Killed when their car exploded');
 }
