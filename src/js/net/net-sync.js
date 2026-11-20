@@ -399,8 +399,11 @@ function netWorldBits(N){
   J('fire',fires.map(F=>[r3(F.x),r3(F.y),r3(F.z),r3(F.r),Math.round(F.t*10)/10,Math.round(F.life*10)/10,F.flames?1:0,r3(F.sm),r3(F.rise),F.douse?1:0]));
   return out;
 }
-function netClock(){return{tod,dayN,clockT,tc:trafficClock,wc:wxClock,wx:{type:WX.type,until:WX.until,k:Object.assign({},WX.k),wet:WX.wet,snowCover:WX.snowCover,snowClock:WX.snowClock,frozen:!!WX.frozen},host:Math.max(0,DT.host-1),hostV:DT.host,combo:DT.combo,pvp:DT.pvp};}
-function netClockSet(k){if(!k)return;tod=k.tod;dayN=k.dayN;clockT=k.clockT;trafficClock=k.tc;wxClock=k.wc;if(k.wx){const w=k.wx;WX.type=WX_TYPES[w.type]?w.type:'partly';WX.until=w.until;Object.assign(WX.k,w.k);WX.wet=w.wet;WX.snowCover=w.snowCover;WX.snowClock=w.snowClock;WX.frozen=w.frozen;}
+// the clock and the weather as they stand: sent to guests (netClock) and kept in the save (ui/play-save.js), the same fields both ways
+function clockState(){return{tod,dayN,clockT,tc:trafficClock,wc:wxClock,wx:{type:WX.type,until:WX.until,k:Object.assign({},WX.k),wet:WX.wet,snowCover:WX.snowCover,snowClock:WX.snowClock,frozen:!!WX.frozen}};}
+function clockApply(k){tod=k.tod;dayN=k.dayN;clockT=k.clockT;trafficClock=k.tc;wxClock=k.wc;if(k.wx){const w=k.wx;WX.type=WX_TYPES[w.type]?w.type:'partly';WX.until=w.until;Object.assign(WX.k,w.k);WX.wet=w.wet;WX.snowCover=w.snowCover;WX.snowClock=w.snowClock;WX.frozen=w.frozen;}}
+function netClock(){return Object.assign(clockState(),{host:Math.max(0,DT.host-1),hostV:DT.host,combo:DT.combo,pvp:DT.pvp});}
+function netClockSet(k){if(!k)return;clockApply(k);
   {const h=k.hostV!==undefined?k.hostV:k.host!==undefined?k.host+1:undefined;if(h!==undefined&&h!==DT.host){DT.host=h;try{syncHost();}catch(e){}}}   // (hostV: the four steps; a host on an older version sends only host, its three, which start at Passive)
   if(k.pvp!==undefined&&!!k.pvp!==NET_PVP){NET_PVP=!!k.pvp;try{syncPvp();}catch(e){}}   // (PvP is the host's to say, as hostility is)
   if(k.combo!==undefined&&k.combo!==DT.combo){DT.combo=!!k.combo;try{comboUiSync();}catch(e){}}}   // (the host's Combo system switch: whether there's a combo to show at all)

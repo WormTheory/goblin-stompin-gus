@@ -127,6 +127,7 @@ net/net-voice.js
 ui/av-options.js
 ui/title-pop.js
 ui/saves.js
+ui/play-save.js
 ui/update-check.js
 core/new-city.js
 ui/editor-live.js

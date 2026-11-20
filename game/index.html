@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:17a898a250570dbe4de7c694496b2d5507a364f1e572b463064b87644c20dd2e -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:60d6d801879a3351719bcdd61cf12c2f59daf7e7af2592e07c56e3bd7202536c -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1577,6 +1577,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
       <div class="pn">
         <p class="pn-web">Also on <a href="patch-notes/index.html" target="_blank" rel="noopener">their own page</a>.</p>
 <details class="pn-up pn-fold pn-new" id="version-0-5" open><summary tabindex="0"><h2>Version 0.5</h2><span class="pn-tog" aria-hidden="true"></span></summary>
+<h3>Saves</h3>
+<ul><li>Your game now carries on just as you left it: your score, goblins slain and everything in This rampage, the time of day, the day and season, and the weather.</li><li>Each player's health and stamina are kept too, and as a goblin your weapons, ammo, grenades and landmines. Left dead, you come back at full health. Player two gets theirs back on joining.</li><li>Left in a car, tank, helicopter, plane, hot-air balloon or Mobile Gear, you're back in it, in the same seat, with the damage it had. Anything that was flying comes back on the ground below. Trains, boats and ships can't be brought back, so you start beside where you were.</li><li>New city starts all of it afresh.</li></ul>
 <h3>Nuclear meltdown</h3>
 <ul><li>Bring down a reactor at a nuclear power station and the siren sounds. A few seconds later the whole place goes up: a blinding flash, a fireball and a shockwave that runs out across the town, flattening it as it goes. The middle is left a scorched crater ringed with rubble, the streets round it are levelled to the ground with a few stumps of wall standing, and further out buildings lose their top floors and the side that faced the blast, and some come down. Fires burn round the edge under a mushroom cloud.</li><li>Anything caught in it is hurt by how close it was: near the middle there's nothing left of anyone, and further out you're knocked about. Cars, gas pumps and mines in the middle are simply gone rather than setting each other off.</li><li>The game keeps running smoothly while it happens, and the crater is saved with the world and seen the same by everyone playing online.</li><li>The Testing Environment has a Big blast button, with a slider for its size, to set one off ahead of you.</li><li>The crater's rim of rubble now sits on the ground, so it no longer hangs in the air on uneven ground or where two craters overlap.</li><li>Across the flattened town grass is burnt to dirt, streets are broken up in patches of rubble, and the buildings it brings down leave heaps of rubble behind.</li></ul>
 <h3>Nuke Launcher</h3>
@@ -2273,7 +2275,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='9555c0fe0e66';
+const GAME_VER='0.5',GAME_BUILD='8a4c99aada50';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -19888,7 +19890,7 @@ function updateGoblins(dt){
   const simple=pathSimple();   // (Options' Simple pathfinding: no route maps, no jumping or climbing. See setPath)
   if(!simple)navUpdate(dt);
   const nAct=players.filter(p=>p.active).length;
-  if(playing){playTime+=dt;posSaveT=(posSaveT||0)+dt;if(posSaveT>2){posSaveT=0;savePos();}}
+  if(playing){playTime+=dt;posSaveT=(posSaveT||0)+dt;if(posSaveT>2){posSaveT=0;savePos();playSave();}}
   const sb=streetBusy(),active=Math.round(Math.min(14,(nAct>1?8:5)+Math.floor(playTime/75))*crowd*(0.75+0.25*sb)),civTarget=Math.round((nAct>1?12:9)*crowd*(0.4+0.6*sb));let gone=false;
   let hostileAlive=0,civAlive=0;for(const g of goblins)if(g.state==='chase'){if(g.staff||g.special)continue;if(g.civ)civAlive++;else hostileAlive++;}
   // who's standing where, a block to a cell, so each goblin only checks the few around it for crowding (checking every
@@ -30277,8 +30279,11 @@ function netWorldBits(N){
   J('fire',fires.map(F=>[r3(F.x),r3(F.y),r3(F.z),r3(F.r),Math.round(F.t*10)/10,Math.round(F.life*10)/10,F.flames?1:0,r3(F.sm),r3(F.rise),F.douse?1:0]));
   return out;
 }
-function netClock(){return{tod,dayN,clockT,tc:trafficClock,wc:wxClock,wx:{type:WX.type,until:WX.until,k:Object.assign({},WX.k),wet:WX.wet,snowCover:WX.snowCover,snowClock:WX.snowClock,frozen:!!WX.frozen},host:Math.max(0,DT.host-1),hostV:DT.host,combo:DT.combo,pvp:DT.pvp};}
-function netClockSet(k){if(!k)return;tod=k.tod;dayN=k.dayN;clockT=k.clockT;trafficClock=k.tc;wxClock=k.wc;if(k.wx){const w=k.wx;WX.type=WX_TYPES[w.type]?w.type:'partly';WX.until=w.until;Object.assign(WX.k,w.k);WX.wet=w.wet;WX.snowCover=w.snowCover;WX.snowClock=w.snowClock;WX.frozen=w.frozen;}
+// the clock and the weather as they stand: sent to guests (netClock) and kept in the save (ui/play-save.js), the same fields both ways
+function clockState(){return{tod,dayN,clockT,tc:trafficClock,wc:wxClock,wx:{type:WX.type,until:WX.until,k:Object.assign({},WX.k),wet:WX.wet,snowCover:WX.snowCover,snowClock:WX.snowClock,frozen:!!WX.frozen}};}
+function clockApply(k){tod=k.tod;dayN=k.dayN;clockT=k.clockT;trafficClock=k.tc;wxClock=k.wc;if(k.wx){const w=k.wx;WX.type=WX_TYPES[w.type]?w.type:'partly';WX.until=w.until;Object.assign(WX.k,w.k);WX.wet=w.wet;WX.snowCover=w.snowCover;WX.snowClock=w.snowClock;WX.frozen=w.frozen;}}
+function netClock(){return Object.assign(clockState(),{host:Math.max(0,DT.host-1),hostV:DT.host,combo:DT.combo,pvp:DT.pvp});}
+function netClockSet(k){if(!k)return;clockApply(k);
   {const h=k.hostV!==undefined?k.hostV:k.host!==undefined?k.host+1:undefined;if(h!==undefined&&h!==DT.host){DT.host=h;try{syncHost();}catch(e){}}}   // (hostV: the four steps; a host on an older version sends only host, its three, which start at Passive)
   if(k.pvp!==undefined&&!!k.pvp!==NET_PVP){NET_PVP=!!k.pvp;try{syncPvp();}catch(e){}}   // (PvP is the host's to say, as hostility is)
   if(k.combo!==undefined&&k.combo!==DT.combo){DT.combo=!!k.combo;try{comboUiSync();}catch(e){}}}   // (the host's Combo system switch: whether there's a combo to show at all)
@@ -31102,7 +31107,7 @@ addEventListener('resize',titlePopPlace);
 // Environment do. The files' handles are kept in IndexedDB too, so next time the game opens the same file again (the
 // browser asks once a session whether the game may still change it, on the first click or key press).
 const SV_MODE_KEY='goblin-stompin-gus-savemode';
-const SV_KEYS=()=>[SAVE_KEY,POS_KEY,OBIT_KEY,MAP_KEY,TENV_PARK];   // (a function: some of these are declared further on)
+const SV_KEYS=()=>[SAVE_KEY,POS_KEY,OBIT_KEY,MAP_KEY,TENV_PARK,PLAY_KEY];   // (a function: some of these are declared further on)
 const SV={mode:'browser',cur:null,t:0,can:false,why:'',files:[],rec:null,perm:'',err:'',block:false,busy:false,last:null,status:''};
 try{const o=JSON.parse(localStorage.getItem(SV_MODE_KEY)||'null');if(o&&o.mode==='local'&&o.cur){SV.mode='local';SV.cur=String(o.cur);SV.t=+o.t||0;}}catch(e){}
 // (whether this browser can save to files at all, and if not, why not, in words for the menu)
@@ -31186,7 +31191,7 @@ function worldRefresh(){
 // ---- the working copy, and a save file's contents ----
 // (where you're standing, the obituary and the map, saved now; the world itself is taken live, by svData)
 function svFlush(){if(saveBlocked)return;
-  try{savePos();}catch(e){}try{saveExplored();}catch(e){}
+  try{savePos();}catch(e){}try{playSave();}catch(e){}try{saveExplored();}catch(e){}
   try{if(obits&&obitSeed===seed)localStorage.setItem(OBIT_KEY,JSON.stringify({seed,total:obitTotal,list:obitList()}));}catch(e){}}
 // (and the world too, wherever it goes)
 async function svFlushAll(){if(saveBlocked||WB.pending)return;clearTimeout(saveTimer);svFlush();flushNotes(Infinity);await worldPut(saveObj({tenv:TENV||undefined}));}
@@ -31379,6 +31384,142 @@ async function svImport(){
   svUi();
 })();
 svUi();
+// ---------- The game as it was left: score, this rampage, each player, the clock and weather, the vehicle you were in ----------
+// Kept beside the world (PLAY_KEY, one of the save's SV_KEYS, so a save file carries it too) rather than in it: it's
+// small and changes all the time, so it's written with where you're standing (every couple of seconds, on leaving the
+// page, Save now), while the world, which can be megabytes, is only written as it's smashed. Per city (by seed), never in
+// the Testing Environment or for an online guest (whose game is the host's). Anything missing, as in a save from before
+// it was kept, stays as a new game has it. Each seat's own part waits for that player: player one at boot, player two
+// when they join. Gus and Gertie (and Gnash and Grizzle) are kept and given back alike: nothing here reads p.who.
+const PLAY_KEY='goblin-stompin-gus-play';
+let PLAY_PEND=null,PLAY_LAST='';   // (the seats' parts not yet given back; the last thing written, so an unchanged one isn't written again)
+const plNum=(v,d)=>typeof v==='number'&&Number.isFinite(v)?v:d,plR=(v,n)=>+v.toFixed(n);
+// the vehicle a player's in, as something that can be put back: its kind, where it stands and its health. Trains,
+// subways, boats, ships, deck weapons and a carrier's jets can't be made again on their own, so they're left out (and
+// the player comes back on foot, on the ground there)
+function playVeh(p){const D=p.drv;if(!D||!D.o||D.netS)return null;const o=D.o,S=drvPose(D);if(!(S.x<SHIP_X0)||![S.x,S.y,S.z].every(Number.isFinite))return null;
+  let t=null;
+  if(D.k==='car')t=o.police?'police':o.veh;
+  else if(D.k==='tank'||D.k==='heli'||D.k==='mech'||D.k==='balloon')t=D.k;
+  else if(D.k==='plane'&&!o.cvJet)t=o.jet?'jet':o.light?'light':'plane';
+  if(!t||D.k==='car'&&!VEH[t]&&t!=='police')return null;
+  const h=vehHealth(D),R={k:D.k,t,seat:D.seat==='gun'?'gun':'drv',x:plR(S.x,2),y:plR(S.y,2),z:plR(S.z,2),h:plR(S.h,3),hp:plR(h.hp,1)};
+  if(D.k==='plane'){const g=groundAt(S.x,S.z,S.y+0.5);R.air=S.y-g>2;}   // (a plane in the air isn't put back: there's no knowing it'd be over a runway)
+  if(D.k==='mech'&&o.load)R.load=o.load;
+  // (two players in the one vehicle: the other's seat says so, and goes back into the same one)
+  const q=players.find(q=>q!==p&&q.active&&q.drv&&q.drv.o===o);if(q)R.with=q.idx;
+  return R;
+}
+function playOf(p){
+  const dead=p.deadT>0||!(p.hp>0)||p.state==='dead';   // (dead when saved: back at full health, as after a respawn)
+  const R={i:p.idx,gob:!!p.gob,hp:dead?20:plR(p.hp,2),stam:dead?100:plR(plNum(p.stam,100),1)};
+  if(p.gob&&p.wpns){const st={};for(const k of GOB_STACKS)st[stkField(k)]=p[stkField(k)]||0;
+    R.w={wpns:p.wpns.slice(),wpn:p.wpn,ammo:Object.assign({},p.ammo||{}),spare:Object.assign({},p.spare||{}),st};}
+  if(!dead){const v=playVeh(p);if(v)R.veh=v;}
+  return R;
+}
+function playSave(){try{
+  if(saveBlocked||TENV||netGuest()||netWorldText())return;
+  const pl=players.filter(p=>p.active&&!p.net).map(playOf);
+  // (a seat whose player hasn't joined yet this time keeps what it had)
+  if(PLAY_PEND)for(const r of PLAY_PEND)if(!pl.some(q=>q.i===r.i))pl.push(r);
+  const s=JSON.stringify({seed,score,kills,playTime:plR(playTime,1),
+    ramp:{cars:RAMP.cars,best:RAMP.best,b:[...RAMP.bldgs],r:[...RAMP.razed],pre:[...RAMP.pre],seen:[...RAMP.seen]},clock:clockState(),pl});
+  if(s!==PLAY_LAST){localStorage.setItem(PLAY_KEY,s);PLAY_LAST=s;}}catch(e){}}
+addEventListener('pagehide',playSave);addEventListener('beforeunload',playSave);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)playSave();});
+// a saved clock, checked over: anything missing or nonsense stays as it is now
+function playClock(k){
+  if(!k||typeof k!=='object'||!(plNum(k.dayN,0)>=1))return;const C=clockState(),w=k.wx&&typeof k.wx==='object'?k.wx:{};
+  C.tod=((plNum(k.tod,C.tod)%1)+1)%1;C.dayN=Math.floor(k.dayN);C.clockT=plNum(k.clockT,C.clockT);C.tc=plNum(k.tc,C.tc);C.wc=plNum(k.wc,C.wc);
+  if(WX_TYPES[w.type])C.wx.type=w.type;C.wx.until=plNum(w.until,C.wx.until);
+  if(w.k&&typeof w.k==='object')for(const n of WX_KEYS)C.wx.k[n]=plNum(w.k[n],C.wx.k[n]);
+  for(const n of ['wet','snowCover','snowClock'])C.wx[n]=plNum(w[n],C.wx[n]);
+  clockApply(C);
+  // (winter's ice: chunks made from here on freeze as they're made, and any made already are frozen now)
+  WX.frozen=false;freezeQ.length=0;if(seasonOf()===3){WX.frozen=true;freezeWorld(true);}
+  try{updateSeasonW();}catch(e){}try{renderTime();}catch(e){}
+}
+// on loading (just after the world, before anyone's placed): what belongs to the whole game, and each seat's part kept back
+function playLoad(){
+  PLAY_PEND=null;if(TENV||netWorldText())return;
+  let q=null;try{q=JSON.parse(localStorage.getItem(PLAY_KEY)||'null');}catch(e){}
+  if(!q||typeof q!=='object'||q.seed!==seed)return;
+  score=Math.max(0,plNum(q.score,0));kills=Math.max(0,Math.floor(plNum(q.kills,0)));playTime=Math.max(0,plNum(q.playTime,0));
+  const R=q.ramp;if(R&&typeof R==='object'){RAMP.cars=Math.max(0,plNum(R.cars,0));RAMP.best=Math.max(0,plNum(R.best,0));
+    for(const [f,k] of [['b','bldgs'],['r','razed'],['pre','pre'],['seen','seen']]){RAMP[k].clear();if(Array.isArray(R[f]))for(const v of R[f])if(typeof v==='string')RAMP[k].add(v);}
+    RAMP.nB=RAMP.bldgs.size;RAMP.nR=RAMP.razed.size;}
+  playClock(q.clock);
+  PLAY_PEND=Array.isArray(q.pl)?q.pl.filter(r=>r&&typeof r==='object'&&Number.isInteger(r.i)):[];
+}
+// a new city: nothing carried over
+function playReset(){PLAY_PEND=null;PLAY_LAST='';try{localStorage.removeItem(PLAY_KEY);}catch(e){}}
+// a seat's part, given back to its player once they're placed: health, stamina, a goblin's weapons, the vehicle
+function playPlayer(p){
+  if(!PLAY_PEND||!p||!p.active||p.net)return;const j=PLAY_PEND.findIndex(r=>r.i===p.idx);if(j<0)return;const R=PLAY_PEND.splice(j,1)[0];
+  const hp=plNum(R.hp,0);if(hp>0)p.hp=Math.min(p.hp,hp);
+  p.stam=Math.max(0,Math.min(100,plNum(R.stam,p.stam)));
+  if(!!R.gob!==!!p.gob)return;   // (someone else picked since: Gnash's weapons don't go to Gus)
+  if(p.gob&&R.w&&Array.isArray(R.w.wpns))try{playArms(p,R.w);}catch(e){}
+  if(p.gob&&R.veh)try{playVehBack(p,R.veh);}catch(e){}
+}
+function playArms(p,W){
+  const st=W.st&&typeof W.st==='object'?W.st:{};
+  for(const k of GOB_STACKS){const f=stkField(k);p[f]=Math.max(0,Math.min(stkMax(k),Math.floor(plNum(st[f],p[f]||0))));}
+  const ws=W.wpns.filter((k,i,a)=>typeof k==='string'&&GOB_WPN[k]&&a.indexOf(k)===i&&!(WEAPONS[k].stack&&!(p[stkField(k)]>0)));
+  if(!ws.length)return;p.wpns=ws;p.wpn=ws.includes(W.wpn)?W.wpn:ws[0];p.relT=0;p.ammo={};p.spare={};
+  for(const k of ws){const W2=WEAPONS[k],a=W.ammo&&W.ammo[k],s=W.spare&&W.spare[k];
+    if(W2.mag&&Number.isFinite(a))p.ammo[k]=Math.max(0,Math.min(W2.mag,Math.floor(a)));
+    if(W2.spare!==undefined&&Number.isFinite(s))p.spare[k]=Math.max(0,Math.floor(s));}
+  p.wpnT=camClock;
+}
+// the vehicle, made again where it stood (on the ground under it, if it was flying) and the player put back in their seat
+function playVehBack(p,R){
+  if(!['x','y','z','h'].every(k=>Number.isFinite(R[k])))return;
+  // (in with the other player, if they're already back in it)
+  if(Number.isInteger(R.with)){const q=players.find(q=>q.idx===R.with&&q.active&&q.drv);
+    if(q&&q.drv.k===R.k){const o=q.drv.o,D=Object.assign({},q.drv,{seat:undefined});
+      if(R.seat==='gun'){if(!o.gnr&&gunSeat(D)){D.seat='gun';drvEnter(p,D);}}else if(!o.drv)drvEnter(p,D);return;}}
+  const o=playVehMake(R);if(!o)return;
+  const D=o.D;delete o.D;const max=VEHICLE_KINDS[D.k]?VEHICLE_KINDS[D.k].max(D.o):0,hp=plNum(R.hp,0);
+  if(hp>0&&max>0)D.o.hp=Math.min(max,hp);
+  if(R.seat==='gun'){if(!gunSeat(D))return;D.seat='gun';}
+  drvEnter(p,D);drvSeat(p);
+}
+function playVehMake(R){
+  const x=R.x,z=R.z,h=R.h,gy=groundAt(x,z,R.y+0.5),y=Number.isFinite(gy)&&gy>0?gy:R.y;
+  if(R.k==='car'){const c=playCar(R.t,x,R.y,z,h);return c?{D:{k:'car',o:c}}:null;}
+  if(R.k==='tank'||R.k==='heli'){
+    const V=tenvArmy(),mk=R.k==='tank'?makeTank():makeHeli();TS.mil=(TS.mil||0)+1;
+    // (empty and left standing, as a player leaves one: getting in isn't a carjacking)
+    const M=Object.assign({isMil:true,crew:null,kind:R.k,V,x,y,z,h,tu:0,hp:MIL[R.k].hp,dead:false,key:'mil:tenv:'+Date.now()+':'+TS.mil,home:{x,z,h},state:'idle',
+      cd:1.5,rcd:6,burst:0,bt:0,stuck:0,v:0,vy:0,spin:0,oa:Math.random()*6.3,hurt:0},mk);
+    scene.add(M.g);milPlace(M);V.mil.push(M);return{D:{k:R.k,o:M,V}};}
+  if(R.k==='mech'){let V=venues.get('tenvMechs');if(!V){V={kind:'mech',mechs:[]};venues.set('tenvMechs',V);}
+    const M=newMech(V,x,z,h,R.load);M.y=Math.max(y,mgGround(x,z,y+1.5,M));return{D:{k:'mech',o:M,V}};}
+  if(R.k==='balloon'){let V=venues.get('tenvBalloons');if(!V){V={kind:'balloon',bl:[]};venues.set('tenvBalloons',V);}
+    const n=(TS.bal=(TS.bal||0)+1),M=makeBalloon(n),B={isBalloon:true,key:'bal:'+n,ck:n,V,g:M.g,flame:M.flame,env:M.env,x,y,z,h,vx:0,vz:0,vy:0,heat:0,hp:BAL.hp,dead:false,deadT:0};
+    scene.add(B.g);balPlace(B);V.bl.push(B);return{D:{k:'balloon',o:B,V}};}
+  if(R.k==='plane'){if(R.air)return null;
+    let V=venues.get('tenvPlanes');if(!V){V={kind:'airport',tenv:true,planes:[],pl:[]};venues.set('tenvPlanes',V);}
+    const jet=R.t==='jet',light=R.t==='light',g=jet?makeJet():light?makeLightPlane(V.planes.length):makePlane(V.planes.length);
+    g.position.set(x,y,z);g.rotation.set(0,h,0);scene.add(g);
+    const pl={isPlane:true,jet,light,g,hp:light?LIGHT_HP:PLANE_HP,dead:false,v:0};V.planes.push(g);V.pl.push(pl);return{D:{k:'plane',o:pl,V}};}
+  return null;
+}
+// a car of kind t put down at x,y,z facing h, parked and empty (as the debug menu's Spawn makes one: tenvVeh)
+function playCar(t,x,y,z,h){
+  if(t==='technical'||t==='quad'){const c=crewCar();if(!c)return null;crewPut(c,t,x,z,h,null,'militia');c.spot=null;c.pos.y=y;c.g.position.copy(c.pos);return c;}
+  const pol=t==='police';if(!pol&&!VEH[t])return null;
+  let c=cars.find(o=>!o.alive&&!o.ws&&!o.svcPool&&!o.pullPool&&!o.rvPool&&!o.hwPool&&!!o.parkPool===!pol&&!!o.police===pol);
+  if(!c){c=makeCar(cars.length,pol);c.g.scale.setScalar(ES);c.respawnT=1e9;if(!pol)c.parkPool=true;cars.push(c);}
+  carSpawn(c,{veh:pol?null:t,x,y,z,h,hunter:false,parked:true,place:true});
+  c.driver=null;if(c.dh)c.dh.visible=false;
+  c.path=null;c.hw=null;c.rt=null;c.svc=null;c.leaving=false;c.rampKey=null;c.spot=null;c.makeWay=0;c.rusted=false;c.paint.color.setHex(c.color);c.lastInter=-1;
+  return c;
+}
+// player two's part comes back when they join
+{const a0=activateP2;activateP2=function activateP2(){const was=P2.active;a0();if(!was&&P2.active)playPlayer(P2);};}
 // ---------- Is there a newer version? ----------
 // Every build writes game/version.json beside the game (tools/build.py): its version and an id for that exact build. When
 // the game's opened from the website it fetches that file, past the browser's cache, and if the id isn't its own, a newer
@@ -31427,7 +31568,7 @@ document.getElementById('confirmYes').addEventListener('click',()=>{
   tod=0.08;dayN=1;clockT=0;wxReset();STN.clear();for(const c of SVC)if(c.alive){c.alive=false;c.g.visible=false;c.svc=null;}fires.length=0;pendingBooms.length=0;boomedAt.clear();
   obits=[];obitTotal=0;obitSeed=seed;obitSel=0;try{localStorage.removeItem(OBIT_KEY);}catch(e){}renderObitCount();if(curTab==='obit')renderObits();
   for(const p of players)if(p.active)p.hp=20;
-  try{localStorage.removeItem(POS_KEY);}catch(e){}
+  try{localStorage.removeItem(POS_KEY);}catch(e){}playReset();
   boot();save();
 });
 // ---- every kind of structure the world builds, in groups (the Structures preview and the Testing Environment list them) ----
@@ -31648,15 +31789,15 @@ function tpShow(on){
 // then the page reloads so everything's worked out from scratch
 function freshWorld(off,tenv){
   try{localStorage.setItem(SAVE_KEY,JSON.stringify({seed:(Math.random()*1e9)|0,edits:{},coll:{},down:[],dest:{},test:[...off],tenv}));
-    localStorage.removeItem(POS_KEY);localStorage.removeItem(OBIT_KEY);
+    localStorage.removeItem(POS_KEY);localStorage.removeItem(OBIT_KEY);localStorage.removeItem(PLAY_KEY);
     if(localStorage.getItem(SAVE_KEY)){clearTimeout(saveTimer);saveBlocked=true;location.reload();return true;}}catch(e){}
   return false;
 }
 // into the Testing Environment: your city (as it is this moment, where you stand, its obituary) is put aside first
 function tenvEnter(){
   if(WB.pending)return;   // (a big city still being read back in: it can't be put aside half loaded)
-  try{savePos();}catch(e){}
-  const park={key:SAVE_KEY,pos:localStorage.getItem(POS_KEY),obit:localStorage.getItem(OBIT_KEY)};
+  try{savePos();playSave();}catch(e){}
+  const park={key:SAVE_KEY,pos:localStorage.getItem(POS_KEY),obit:localStorage.getItem(OBIT_KEY),play:localStorage.getItem(PLAY_KEY)};
   try{localStorage.setItem(TENV_PARK,JSON.stringify(Object.assign({save:saveText()},park)));}
   catch(e){
     // (a city too big for localStorage goes aside in IndexedDB, as its saves do: see worldPut)
@@ -31675,11 +31816,11 @@ function tenvEnterNow(){
 function tenvLeave(){
   let P=null;try{P=JSON.parse(localStorage.getItem(TENV_PARK)||'null');}catch(e){}
   if(P&&P.key===SAVE_KEY&&P.idb){svKv('park:'+SAVE_KEY).then(o=>{if(!o)throw 0;return worldPut(o);}).then(()=>{
-      for(const [k,v] of [[POS_KEY,P.pos],[OBIT_KEY,P.obit]])if(v)localStorage.setItem(k,v);else localStorage.removeItem(k);
+      for(const [k,v] of [[POS_KEY,P.pos],[OBIT_KEY,P.obit],[PLAY_KEY,P.play]])if(v)localStorage.setItem(k,v);else localStorage.removeItem(k);
       localStorage.removeItem(TENV_PARK);svKv('park:'+SAVE_KEY,null).catch(()=>{});clearTimeout(saveTimer);saveBlocked=true;location.reload();},
     ()=>{try{flashLabel("Couldn't bring your world back");}catch(e){}});return;}
   if(P&&P.key===SAVE_KEY&&P.save){try{localStorage.setItem(SAVE_KEY,P.save);
-    for(const [k,v] of [[POS_KEY,P.pos],[OBIT_KEY,P.obit]])if(v)localStorage.setItem(k,v);else localStorage.removeItem(k);
+    for(const [k,v] of [[POS_KEY,P.pos],[OBIT_KEY,P.obit],[PLAY_KEY,P.play]])if(v)localStorage.setItem(k,v);else localStorage.removeItem(k);
     localStorage.removeItem(TENV_PARK);clearTimeout(saveTimer);saveBlocked=true;location.reload();return;}catch(e){}}
   if(!freshWorld([])){TENV=null;tenvIndex();document.getElementById('confirmYes').click();tpShow(false);}
 }
@@ -31964,8 +32105,12 @@ for(const b of document.querySelectorAll('#tpFoes [data-foe]'))b.addEventListene
 for(const b of document.querySelectorAll('#tpN [data-n]'))b.addEventListener('click',()=>{TS.n=+b.dataset.n;tpRender();});
 // where Gus was standing last time (in this city): saved every couple of seconds and when the page closes
 const POS_KEY='goblin-stompin-gus-pos';
-function savePos(){try{if(saveBlocked||netGuest()||!P1.active||P1.deadT>0||!isFinite(P1.pos.x)||P1.pos.x>=SHIP_X0||!P1.grounded||P1.state!=='walk')return;   // (only where he's standing: never mid-jump, mid-boost or clinging to a wall)
-  localStorage.setItem(POS_KEY,JSON.stringify({seed,x:+P1.pos.x.toFixed(2),y:+P1.pos.y.toFixed(2),z:+P1.pos.z.toFixed(2),h:+P1.heading.toFixed(3),yaw:+P1.cam.yaw.toFixed(3)}));}catch(e){}}
+function savePos(){try{if(saveBlocked||netGuest()||!P1.active||P1.deadT>0||!isFinite(P1.pos.x)||P1.pos.x>=SHIP_X0)return;
+  let x=P1.pos.x,y=P1.pos.y,z=P1.pos.z;
+  // (in a vehicle: on the ground under it, where it's made again on loading (ui/play-save.js), or he gets out if it can't be)
+  if(P1.drv){const S=drvPose(P1.drv);if(!(S.x<SHIP_X0)||![S.x,S.y,S.z].every(Number.isFinite))return;x=S.x;z=S.z;y=groundAt(x,z,S.y+0.5);if(!(y>0))return;}
+  else if(!P1.grounded||P1.state!=='walk')return;   // (only where he's standing: never mid-jump, mid-boost or clinging to a wall)
+  localStorage.setItem(POS_KEY,JSON.stringify({seed,x:+x.toFixed(2),y:+y.toFixed(2),z:+z.toFixed(2),h:+P1.heading.toFixed(3),yaw:+P1.cam.yaw.toFixed(3)}));}catch(e){}}
 function loadPos(){try{const q=JSON.parse(localStorage.getItem(POS_KEY)||'null');if(q&&q.seed===seed&&[q.x,q.y,q.z].every(Number.isFinite)&&q.y>0&&q.y<H)return q;}catch(e){}return null;}
 addEventListener('pagehide',savePos);addEventListener('beforeunload',savePos);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)savePos();});
@@ -31978,11 +32123,13 @@ function boot(){
   updateChunks(999,0);
   // (once the ground under him has been built, stand him back on it)
   if(sp){const f=footprint(P1);if(f!==null&&f!==undefined&&f>=P1.pos.y-1.5)P1.pos.y=f;}
+  try{playPlayer(P1);}catch(e){}   // (his health, weapons and the vehicle he was in: ui/play-save.js)
   layout();
   seedLine();   // (ui/saves.js: the version, the seed and where it's saved)
   if(TENV)tpShow(true);
 }
 if(!load())seed=(Math.random()*1e9)|0;
+playLoad();   // (the score, this rampage, the clock and weather as they were: ui/play-save.js)
 if(TENV)trInstall();
 resize();
 boot();

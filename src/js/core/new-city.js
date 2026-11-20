@@ -21,7 +21,7 @@ document.getElementById('confirmYes').addEventListener('click',()=>{
   tod=0.08;dayN=1;clockT=0;wxReset();STN.clear();for(const c of SVC)if(c.alive){c.alive=false;c.g.visible=false;c.svc=null;}fires.length=0;pendingBooms.length=0;boomedAt.clear();
   obits=[];obitTotal=0;obitSeed=seed;obitSel=0;try{localStorage.removeItem(OBIT_KEY);}catch(e){}renderObitCount();if(curTab==='obit')renderObits();
   for(const p of players)if(p.active)p.hp=20;
-  try{localStorage.removeItem(POS_KEY);}catch(e){}
+  try{localStorage.removeItem(POS_KEY);}catch(e){}playReset();
   boot();save();
 });
 // ---- every kind of structure the world builds, in groups (the Structures preview and the Testing Environment list them) ----

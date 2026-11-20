@@ -49,15 +49,15 @@ function tpShow(on){
 // then the page reloads so everything's worked out from scratch
 function freshWorld(off,tenv){
   try{localStorage.setItem(SAVE_KEY,JSON.stringify({seed:(Math.random()*1e9)|0,edits:{},coll:{},down:[],dest:{},test:[...off],tenv}));
-    localStorage.removeItem(POS_KEY);localStorage.removeItem(OBIT_KEY);
+    localStorage.removeItem(POS_KEY);localStorage.removeItem(OBIT_KEY);localStorage.removeItem(PLAY_KEY);
     if(localStorage.getItem(SAVE_KEY)){clearTimeout(saveTimer);saveBlocked=true;location.reload();return true;}}catch(e){}
   return false;
 }
 // into the Testing Environment: your city (as it is this moment, where you stand, its obituary) is put aside first
 function tenvEnter(){
   if(WB.pending)return;   // (a big city still being read back in: it can't be put aside half loaded)
-  try{savePos();}catch(e){}
-  const park={key:SAVE_KEY,pos:localStorage.getItem(POS_KEY),obit:localStorage.getItem(OBIT_KEY)};
+  try{savePos();playSave();}catch(e){}
+  const park={key:SAVE_KEY,pos:localStorage.getItem(POS_KEY),obit:localStorage.getItem(OBIT_KEY),play:localStorage.getItem(PLAY_KEY)};
   try{localStorage.setItem(TENV_PARK,JSON.stringify(Object.assign({save:saveText()},park)));}
   catch(e){
     // (a city too big for localStorage goes aside in IndexedDB, as its saves do: see worldPut)
@@ -76,11 +76,11 @@ function tenvEnterNow(){
 function tenvLeave(){
   let P=null;try{P=JSON.parse(localStorage.getItem(TENV_PARK)||'null');}catch(e){}
   if(P&&P.key===SAVE_KEY&&P.idb){svKv('park:'+SAVE_KEY).then(o=>{if(!o)throw 0;return worldPut(o);}).then(()=>{
-      for(const [k,v] of [[POS_KEY,P.pos],[OBIT_KEY,P.obit]])if(v)localStorage.setItem(k,v);else localStorage.removeItem(k);
+      for(const [k,v] of [[POS_KEY,P.pos],[OBIT_KEY,P.obit],[PLAY_KEY,P.play]])if(v)localStorage.setItem(k,v);else localStorage.removeItem(k);
       localStorage.removeItem(TENV_PARK);svKv('park:'+SAVE_KEY,null).catch(()=>{});clearTimeout(saveTimer);saveBlocked=true;location.reload();},
     ()=>{try{flashLabel("Couldn't bring your world back");}catch(e){}});return;}
   if(P&&P.key===SAVE_KEY&&P.save){try{localStorage.setItem(SAVE_KEY,P.save);
-    for(const [k,v] of [[POS_KEY,P.pos],[OBIT_KEY,P.obit]])if(v)localStorage.setItem(k,v);else localStorage.removeItem(k);
+    for(const [k,v] of [[POS_KEY,P.pos],[OBIT_KEY,P.obit],[PLAY_KEY,P.play]])if(v)localStorage.setItem(k,v);else localStorage.removeItem(k);
     localStorage.removeItem(TENV_PARK);clearTimeout(saveTimer);saveBlocked=true;location.reload();return;}catch(e){}}
   if(!freshWorld([])){TENV=null;tenvIndex();document.getElementById('confirmYes').click();tpShow(false);}
 }
@@ -365,8 +365,12 @@ for(const b of document.querySelectorAll('#tpFoes [data-foe]'))b.addEventListene
 for(const b of document.querySelectorAll('#tpN [data-n]'))b.addEventListener('click',()=>{TS.n=+b.dataset.n;tpRender();});
 // where Gus was standing last time (in this city): saved every couple of seconds and when the page closes
 const POS_KEY='goblin-stompin-gus-pos';
-function savePos(){try{if(saveBlocked||netGuest()||!P1.active||P1.deadT>0||!isFinite(P1.pos.x)||P1.pos.x>=SHIP_X0||!P1.grounded||P1.state!=='walk')return;   // (only where he's standing: never mid-jump, mid-boost or clinging to a wall)
-  localStorage.setItem(POS_KEY,JSON.stringify({seed,x:+P1.pos.x.toFixed(2),y:+P1.pos.y.toFixed(2),z:+P1.pos.z.toFixed(2),h:+P1.heading.toFixed(3),yaw:+P1.cam.yaw.toFixed(3)}));}catch(e){}}
+function savePos(){try{if(saveBlocked||netGuest()||!P1.active||P1.deadT>0||!isFinite(P1.pos.x)||P1.pos.x>=SHIP_X0)return;
+  let x=P1.pos.x,y=P1.pos.y,z=P1.pos.z;
+  // (in a vehicle: on the ground under it, where it's made again on loading (ui/play-save.js), or he gets out if it can't be)
+  if(P1.drv){const S=drvPose(P1.drv);if(!(S.x<SHIP_X0)||![S.x,S.y,S.z].every(Number.isFinite))return;x=S.x;z=S.z;y=groundAt(x,z,S.y+0.5);if(!(y>0))return;}
+  else if(!P1.grounded||P1.state!=='walk')return;   // (only where he's standing: never mid-jump, mid-boost or clinging to a wall)
+  localStorage.setItem(POS_KEY,JSON.stringify({seed,x:+x.toFixed(2),y:+y.toFixed(2),z:+z.toFixed(2),h:+P1.heading.toFixed(3),yaw:+P1.cam.yaw.toFixed(3)}));}catch(e){}}
 function loadPos(){try{const q=JSON.parse(localStorage.getItem(POS_KEY)||'null');if(q&&q.seed===seed&&[q.x,q.y,q.z].every(Number.isFinite)&&q.y>0&&q.y<H)return q;}catch(e){}return null;}
 addEventListener('pagehide',savePos);addEventListener('beforeunload',savePos);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)savePos();});
@@ -379,11 +383,13 @@ function boot(){
   updateChunks(999,0);
   // (once the ground under him has been built, stand him back on it)
   if(sp){const f=footprint(P1);if(f!==null&&f!==undefined&&f>=P1.pos.y-1.5)P1.pos.y=f;}
+  try{playPlayer(P1);}catch(e){}   // (his health, weapons and the vehicle he was in: ui/play-save.js)
   layout();
   seedLine();   // (ui/saves.js: the version, the seed and where it's saved)
   if(TENV)tpShow(true);
 }
 if(!load())seed=(Math.random()*1e9)|0;
+playLoad();   // (the score, this rampage, the clock and weather as they were: ui/play-save.js)
 if(TENV)trInstall();
 resize();
 boot();

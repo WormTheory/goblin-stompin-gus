@@ -283,7 +283,7 @@ function updateGoblins(dt){
   const simple=pathSimple();   // (Options' Simple pathfinding: no route maps, no jumping or climbing. See setPath)
   if(!simple)navUpdate(dt);
   const nAct=players.filter(p=>p.active).length;
-  if(playing){playTime+=dt;posSaveT=(posSaveT||0)+dt;if(posSaveT>2){posSaveT=0;savePos();}}
+  if(playing){playTime+=dt;posSaveT=(posSaveT||0)+dt;if(posSaveT>2){posSaveT=0;savePos();playSave();}}
   const sb=streetBusy(),active=Math.round(Math.min(14,(nAct>1?8:5)+Math.floor(playTime/75))*crowd*(0.75+0.25*sb)),civTarget=Math.round((nAct>1?12:9)*crowd*(0.4+0.6*sb));let gone=false;
   let hostileAlive=0,civAlive=0;for(const g of goblins)if(g.state==='chase'){if(g.staff||g.special)continue;if(g.civ)civAlive++;else hostileAlive++;}
   // who's standing where, a block to a cell, so each goblin only checks the few around it for crowding (checking every

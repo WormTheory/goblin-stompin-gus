@@ -8,7 +8,7 @@
 // Environment do. The files' handles are kept in IndexedDB too, so next time the game opens the same file again (the
 // browser asks once a session whether the game may still change it, on the first click or key press).
 const SV_MODE_KEY='goblin-stompin-gus-savemode';
-const SV_KEYS=()=>[SAVE_KEY,POS_KEY,OBIT_KEY,MAP_KEY,TENV_PARK];   // (a function: some of these are declared further on)
+const SV_KEYS=()=>[SAVE_KEY,POS_KEY,OBIT_KEY,MAP_KEY,TENV_PARK,PLAY_KEY];   // (a function: some of these are declared further on)
 const SV={mode:'browser',cur:null,t:0,can:false,why:'',files:[],rec:null,perm:'',err:'',block:false,busy:false,last:null,status:''};
 try{const o=JSON.parse(localStorage.getItem(SV_MODE_KEY)||'null');if(o&&o.mode==='local'&&o.cur){SV.mode='local';SV.cur=String(o.cur);SV.t=+o.t||0;}}catch(e){}
 // (whether this browser can save to files at all, and if not, why not, in words for the menu)
@@ -92,7 +92,7 @@ function worldRefresh(){
 // ---- the working copy, and a save file's contents ----
 // (where you're standing, the obituary and the map, saved now; the world itself is taken live, by svData)
 function svFlush(){if(saveBlocked)return;
-  try{savePos();}catch(e){}try{saveExplored();}catch(e){}
+  try{savePos();}catch(e){}try{playSave();}catch(e){}try{saveExplored();}catch(e){}
   try{if(obits&&obitSeed===seed)localStorage.setItem(OBIT_KEY,JSON.stringify({seed,total:obitTotal,list:obitList()}));}catch(e){}}
 // (and the world too, wherever it goes)
 async function svFlushAll(){if(saveBlocked||WB.pending)return;clearTimeout(saveTimer);svFlush();flushNotes(Infinity);await worldPut(saveObj({tenv:TENV||undefined}));}
