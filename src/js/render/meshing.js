@@ -17,18 +17,19 @@ const WORLD_LIGHT={value:new THREE.Color(1,1,1)};
 function nightPatch(mat){
   blkDefines(mat);
   mat.onBeforeCompile=sh=>{
-    sh.uniforms.uLight=WORLD_LIGHT;sh.uniforms.uSeasonW=SEASON_W;sh.uniforms.uFogGlow=FOG_GLOW;sh.uniforms.uCarP=CARL_U.uCarP;sh.uniforms.uCarD=CARL_U.uCarD;
+    sh.uniforms.uLight=WORLD_LIGHT;sh.uniforms.uSeasonW=SEASON_W;sh.uniforms.uFogGlow=FOG_GLOW;sh.uniforms.uCarP=CARL_U.uCarP;sh.uniforms.uCarD=CARL_U.uCarD;sh.uniforms.uMovP=MOVL_U.uMovP;sh.uniforms.uMovC=MOVL_U.uMovC;
     sh.vertexShader='#ifdef BLOCK_LIGHT\nattribute vec3 aBlk;varying vec3 vBlk;\n#endif\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n#ifdef BLOCK_LIGHT\n vBlk=aBlk;\n#endif');
-    sh.fragmentShader='uniform vec3 uLight;uniform vec4 uSeasonW;uniform float uFogGlow;\n#ifdef BLOCK_LIGHT\nvarying vec3 vBlk;uniform vec4 uCarP['+CAR_LN+'];uniform vec3 uCarD['+CAR_LN+'];\n#endif\n'+sh.fragmentShader.replace('#include <color_fragment>',FOLIAGE_FRAG+LIT_FRAG+'#ifdef USE_COLOR\n  float glowV=step(1.5,vColor.r);\n  diffuseColor.rgb*=mix(vColor*litC,vec3(1.0),glowV);\n#endif'+SNOW_FRAG).replace('#include <fog_fragment>',FOG_LIT_FRAG);
+    sh.fragmentShader='uniform vec3 uLight;uniform vec4 uSeasonW;uniform float uFogGlow;\n#ifdef BLOCK_LIGHT\nvarying vec3 vBlk;uniform vec4 uCarP['+CAR_LN+'];uniform vec3 uCarD['+CAR_LN+'];uniform vec4 uMovP['+MOV_LN+'];uniform vec3 uMovC['+MOV_LN+'];\n#endif\n'+sh.fragmentShader.replace('#include <color_fragment>',FOLIAGE_FRAG+LIT_FRAG+'#ifdef USE_COLOR\n  float glowV=step(1.5,vColor.r);\n  diffuseColor.rgb*=mix(vColor*litC,vec3(1.0),glowV);\n#endif'+SNOW_FRAG).replace('#include <fog_fragment>',FOG_LIT_FRAG);
     weatherPatch(sh);
   };
   return mat;
 }
 // (a torch-like fall-off: bright close to, dropping away quickly; the moonlight's what's left when it's gone)
 // (and the nearest moving cars' headlights, CARL_U: a cone ahead of each, fading out over 22 blocks; w is how dark it is, 0 for none)
+// (and the nearest moving glowing things, MOVL_U -- a fireball, a blast's flash: a pool of their colour round each, out to w)
 // (only on faces turned toward the lamp, from the face's slope on screen, and not far below it, so a car on an overpass doesn't
 // light the deck's underside or the road under it)
-const LIT_FRAG='\n#ifdef BLOCK_LIGHT\n  vec3 litC=uLight+pow(vBlk,vec3(1.5))*max(vec3(1.0)-uLight,vec3(0.0));\n#if __VERSION__ >= 300\n  vec3 nH=normalize(cross(dFdx(vWp),dFdy(vWp)));\n#endif\n  for(int i=0;i<'+CAR_LN+';i++){vec4 cp=uCarP[i];if(cp.w<=0.0)break;vec3 dv=vWp-cp.xyz;float dl=length(dv)+0.001;\n   float hl=smoothstep(0.72,0.93,dot(dv/dl,uCarD[i]))*(1.0-smoothstep(1.0,22.0,dl))*(1.0-smoothstep(1.5,2.5,-dv.y-dl*0.2));\n#if __VERSION__ >= 300\n   hl*=clamp(-dot(nH,dv/dl)*12.0,0.0,1.0);\n#endif\nlitC+=vec3(1.0,0.92,0.75)*hl*hl*cp.w*1.4*max(vec3(1.0)-uLight,vec3(0.0));}\n#else\n  vec3 litC=uLight;\n#endif\n';
+const LIT_FRAG='\n#ifdef BLOCK_LIGHT\n  vec3 litC=uLight+pow(vBlk,vec3(1.5))*max(vec3(1.0)-uLight,vec3(0.0));\n#if __VERSION__ >= 300\n  vec3 nH=normalize(cross(dFdx(vWp),dFdy(vWp)));\n#endif\n  for(int i=0;i<'+CAR_LN+';i++){vec4 cp=uCarP[i];if(cp.w<=0.0)break;vec3 dv=vWp-cp.xyz;float dl=length(dv)+0.001;\n   float hl=smoothstep(0.72,0.93,dot(dv/dl,uCarD[i]))*(1.0-smoothstep(1.0,22.0,dl))*(1.0-smoothstep(1.5,2.5,-dv.y-dl*0.2));\n#if __VERSION__ >= 300\n   hl*=clamp(-dot(nH,dv/dl)*12.0,0.0,1.0);\n#endif\nlitC+=vec3(1.0,0.92,0.75)*hl*hl*cp.w*1.4*max(vec3(1.0)-uLight,vec3(0.0));}\n  for(int i=0;i<'+MOV_LN+';i++){vec4 mp=uMovP[i];if(mp.w<=0.0)break;vec3 dv=vWp-mp.xyz;float dl=length(dv)+0.001;float ml=1.0-smoothstep(0.0,mp.w,dl);ml*=ml;\n#if __VERSION__ >= 300\n   ml*=clamp(0.25-dot(nH,dv/dl)*3.0,0.0,1.0);\n#endif\n   litC+=uMovC[i]*ml*1.6*max(vec3(1.0)-uLight,vec3(0.0));}\n#else\n  vec3 litC=uLight;\n#endif\n';
 // lights in the weather's fog: at night, glowing faces (windows, neon, lamps) and what block light lights up fade into the
 // fog over a longer way than everything else, and the fog in front of them takes on a little of their colour, so a lit
 // street shows through the murk as a soft glow some way past where the buildings are lost. FOG_GLOW is how thick the

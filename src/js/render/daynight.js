@@ -30,8 +30,8 @@ function updateSky(dt){
   const moonUp=sy<0,ml=skyU.uMoonLit.value;sunLight.intensity=(moonUp?0.04+0.12*ml:0.55*dk+0.06)*(1-0.75*WX.k.cover);sunLight.color.setRGB(moonUp?0.6:1,moonUp?0.7:0.91-0.25*tw,moonUp?1:0.8-0.35*tw);
   const L=moonUp?skyU.uMoon.value:skyU.uSun.value;sunLight.position.set(L.x*10,Math.max(0.2,L.y)*10,L.z*10);
   for(const L of cloudLayers){const u=L.m.material.uniforms;u.uTint.value.copy(WORLD_LIGHT.value).multiplyScalar(1-0.25*WX.k.dark);u.uOpacity.value=Math.min(0.97,L.D.op*(0.35+0.65*dk)*(0.6+2.2*WX.k.cover));u.uCover.value=WX.k.cover;}
-  // headlights and tail lights come on after dark
-  const nl=1-dk;smat(CARC.head).emissive.setRGB(0.9*nl,0.8*nl,0.5*nl);smat(CARC.tail).emissive.setRGB(0.7*nl,0.06*nl,0.04*nl);
+  // headlights and tail lights come on after dark (not a parked car's: carLampsSync)
+  const nl=1-dk;smat(CARC.head).emissive.setRGB(0.9*nl,0.8*nl,0.5*nl);smat(CARC.tail).emissive.setRGB(0.7*nl,0.06*nl,0.04*nl);carLampsSync();
   // where the (first) player is: the kind of place, or the open country
 const PLACE_LBL={city:'\u{1F3D9}\uFE0F City',large:'\u{1F3E2} Large town',small:'\u{1F3D8}\uFE0F Small town',village:'\u{1F3E1} Village',coastcity:'\u{1F3D9}\uFE0F Coastal city',harbortown:'\u2693 Harbor town',resort:'\u{1F3D6}\uFE0F Resort town',fishing:'\u{1F41F} Fishing village'};
 function whereLabel(){

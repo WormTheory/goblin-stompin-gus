@@ -3,6 +3,14 @@ const cars=[];
 const PAINTS=[0x4c8a2a,0x8a3b2a,0x2a6fdb,0x8a8a2a,0x5a2a6a,0xc9a02a,0x2a7a7a,0xa83232,0x3a3f46,0xd6d2c4];
 const CARC={stripe:0xf4efe4,glass:0x1b2a3c,tire:0x16181c,hub:0x9aa0a8,bumper:0x22252b,head:0xffe9a0,tail:0xd2302a};
 const sharedMat={};const smat=c=>sharedMat[c]||(sharedMat[c]=new THREE.MeshLambertMaterial({color:c}));
+// a parked car's head and tail lamps stay dark after dark (nobody's in it): while it's parked they're swapped for unlit twins
+// of the shared lamp materials (carLampsSync, every frame from the day and night; looked at again only when the car's kind
+// or whether it's parked changes)
+const LAMP_OFF={},lampOff=c=>LAMP_OFF[c]||(LAMP_OFF[c]=new THREE.MeshLambertMaterial({color:c}));
+function carLampsSync(){const H=smat(CARC.head),T=smat(CARC.tail),Ho=lampOff(CARC.head),To=lampOff(CARC.tail);
+  for(const c of cars){const k=(c.parked?'p':'')+c.veh;if(c._lk===k)continue;const G=c.vehG&&c.vehG[c.veh];if(!G)continue;c._lk=k;
+    G.g.traverse(o=>{if(!o.isMesh)return;const m=o.material;
+      if(c.parked){if(m===H)o.material=Ho;else if(m===T)o.material=To;}else if(m===Ho)o.material=H;else if(m===To)o.material=T;});}}
 function snowCar(mat,c){
   mat.snowU=c.snowU;   // (batDraw reads each box's snow from here)
   mat.onBeforeCompile=sh=>{sh.uniforms.uCarSnow=c.snowU;sh.uniforms.uLightC=WORLD_LIGHT;

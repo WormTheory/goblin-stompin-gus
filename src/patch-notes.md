@@ -57,6 +57,9 @@
 - Lamps and screens just behind a wall no longer get a halo poking through it.
 - Cars' headlights now stay on when they stop, at the lights or in traffic, and only parked cars' are off.
 - Lights now show through fog twice as strongly by default (Fog light 2×), with fainter halos (Halos 0.25×) that fade over a quarter of a second.
+- Fireballs, explosions' flashes and other moving glowing things now light up the ground and walls around them as they go.
+- Parked cars' headlights and tail lights now stay dark.
+- The debug menu has on/off switches for Fog light and Halos.
 
 ### Trees and water in the distance
 

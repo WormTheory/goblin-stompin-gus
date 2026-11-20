@@ -198,6 +198,12 @@ function blkHaloPick(){
 // Headlights: the CAR_LN nearest moving cars cast a cone of light along the road ahead, into CARL_U for the voxel shader
 // (LIT_FRAG; with Block lighting on, after dark).
 const CAR_LN=6,CARL_U={uCarP:{value:Array.from({length:CAR_LN},()=>new THREE.Vector4())},uCarD:{value:Array.from({length:CAR_LN},()=>new THREE.Vector3())}};
+// Moving light: the MOV_LN nearest other glowing things, the ones not lit into the fill (a fireball, a spell orb, a blast's
+// flash, a jet's flame, a flashing light bar), light what's round them as they go, into MOVL_U for the voxel shader (LIT_FRAG):
+// uMovP xyz where and w how far it reaches (0 for none), uMovC its colour by how bright it is and how dark it is. Only what's
+// drawn unlit (MeshBasicMaterial) and big enough to be a light (0.25 across or more), so not every car's tail lamps.
+const MOV_LN=8,MOVL_U={uMovP:{value:Array.from({length:MOV_LN},()=>new THREE.Vector4())},uMovC:{value:Array.from({length:MOV_LN},()=>new THREE.Vector3())}};
+let BL_MOVC=[];
 const _cl=new THREE.Vector3(),_cf=new THREE.Vector3(),_gc=new THREE.Color(),_gs=new THREE.Vector3();
 let BL_GLOW=[],blGlowT=0;
 // (a texture's average colour, from a tiny copy of it)
@@ -218,14 +224,16 @@ function glowOf(m){
   return 0;
 }
 function blkGlowScan(){
-  const L=[];
+  const L=[],M=[];
   scene.traverse(o=>{if(!o.isMesh||o.isInstancedMesh||o===HALO)return;const m=o.material;if(Array.isArray(m)||!m)return;
     if(m.type!=='MeshBasicMaterial'&&!m.emissive||m.vertexColors||m.depthTest===false||m.polygonOffset||m.alphaMap)return;
     // (not the countless lit materials with no glow at all, nor anything hidden; a lamp that's off now (dark, but bright
     // enough to be a light's off colour) stays in, as it may come on before the next look)
-    const c=m.type==='MeshBasicMaterial'?m.color:m.emissive;if(Math.max(c.r,c.g,c.b)<(m.type==='MeshBasicMaterial'?0.15:0.05)||!shownIn(o))return;
-    L.push(o);});
-  BL_GLOW=L;blkGlowLight(L);
+    const c=m.type==='MeshBasicMaterial'?m.color:m.emissive;if(Math.max(c.r,c.g,c.b)<(m.type==='MeshBasicMaterial'?0.15:0.05))return;
+    // (the moving light's list takes hidden ones too: a fireball's kept hidden till it's cast, and only lights while shown)
+    if(m.type==='MeshBasicMaterial'&&!o.userData.noGlowLight)M.push(o);
+    if(shownIn(o))L.push(o);});
+  BL_GLOW=L;BL_MOVC=M;blkGlowLight(L);
 }
 // ...and the ones that stay put (a sign, a billboard, a marquee: not a vehicle's lamps, nor anything that flashes) light
 // what's round them as the lamps do: the BL_GLOWL_N nearest the players, into the fill (blkFill) like the fires, at a level
@@ -262,6 +270,20 @@ function carLightsView(p){
       c.g.updateMatrixWorld();_cf.set(0,0,1).transformDirection(c.g.matrixWorld);_cf.y=0;if(_cf.lengthSq()<1e-4)continue;_cf.normalize();
       _cl.set(0,0.85,1.9).applyMatrix4(c.g.matrixWorld);CARL_U.uCarP.value[k].set(_cl.x,_cl.y,_cl.z,dk);CARL_U.uCarD.value[k].copy(_cf);k++;}}
   for(let i=k;i<CAR_LN;i++)CARL_U.uCarP.value[i].w=0;
+  // moving light: the nearest glowing things that are showing and lit now (one and its glow round it, as a fireball's core and
+  // halo, within a block and a half of each other, are one light, reaching as far as the bigger)
+  let j=0;
+  if(BL_ON&&dk>0){const near=[],MP=MOVL_U.uMovP.value;
+    for(const o of BL_MOVC){if(BL_GLOWL.has(o))continue;_cl.setFromMatrixPosition(o.matrixWorld);const dx=_cl.x-cam.x,dz=_cl.z-cam.z,d=dx*dx+dz*dz;if(d<1600)near.push([o,d]);}
+    near.sort((a,b)=>a[1]-b[1]);
+    for(const [o] of near){if(j>=MOV_LN)break;if(!shownIn(o))continue;const kk=glowOf(o.material);if(!kk)continue;
+      if(!o.geometry.boundingSphere)o.geometry.computeBoundingSphere();_gs.setFromMatrixScale(o.matrixWorld);
+      const r=o.geometry.boundingSphere.radius*Math.max(_gs.x,_gs.y,_gs.z);if(r<0.25)continue;
+      _cl.setFromMatrixPosition(o.matrixWorld);const R=Math.min(10,3+r*7);let q=-1;
+      for(let i=0;i<j;i++)if(Math.abs(MP[i].x-_cl.x)+Math.abs(MP[i].y-_cl.y)+Math.abs(MP[i].z-_cl.z)<1.5){q=i;break;}
+      if(q>=0){MP[q].w=Math.max(MP[q].w,R);continue;}
+      const b=Math.min(1,kk)*dk;MP[j].set(_cl.x,_cl.y,_cl.z,R);MOVL_U.uMovC.value[j].set(_gc.r*b,_gc.g*b,_gc.b*b);j++;}}
+  for(let i=j;i<MOV_LN;i++)MOVL_U.uMovP.value[i].w=0;
   // (the scene looked through once a second after dark, for the ground light above, and for the halos below in fog)
   if(playTime>=blGlowT){blGlowT=playTime+1;if(BL_ON&&dk>0||HALO&&HALO.visible)blkGlowScan();else if(BL_GLOWL.size)blkGlowLight([]);}
   // halos on everything else that glows (that this view's camera could see: checked a few times a second each)
