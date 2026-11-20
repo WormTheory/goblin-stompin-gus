@@ -108,10 +108,10 @@ function wreckHud(p,dt){
   let nm='';try{nm=setName(u.wkS);}catch(e){}
   const pc=Math.round(v*100),t=(nm||'Settlement')+' razed',k=t+pc;
   if(u.wreckK!==k){u.wreckK=k;
-    // (about 22 letters fit along the arc: a longer line splits in two, the name on an arc above; a name too long even
-    // for that, 'Greater Sludgeborough-on-the-Marsh', is shrunk to fit)
-    const one=t+'  '+pc+'%',two=one.length>22&&u.wkT2,fit=(el,s)=>{el.textContent=s;const tp=el.parentNode;if(tp&&tp.style)tp.style.fontSize=s.length>22?Math.max(8,15*22/s.length).toFixed(1)+'px':'';};
-    if(two){fit(u.wkT2,nm||'Settlement');fit(u.wkT,'razed  '+pc+'%');}else{fit(u.wkT,one);if(u.wkT2)u.wkT2.textContent='';}
+    // (about 22 letters fit along the bar's arc: a longer line splits in two, the name on a longer arc above, which
+    // takes 32, past the longest setName gives, 'Gristleborough-on-the-Marsh' at 27; anything longer is shrunk to fit)
+    const one=t+'  '+pc+'%',two=one.length>22&&u.wkT2,fit=(el,s,n)=>{el.textContent=s;const tp=el.parentNode;if(tp&&tp.style)tp.style.fontSize=s.length>n?Math.max(8,15*n/s.length).toFixed(1)+'px':'';};
+    if(two){fit(u.wkT2,nm||'Settlement',32);fit(u.wkT,'razed  '+pc+'%',22);}else{fit(u.wkT,one,22);if(u.wkT2)u.wkT2.textContent='';}
     if(u.wreck.classList.contains('wk2')!==!!two)u.wreck.classList.toggle('wk2',!!two);   // (the controls column and chat move up for it)
     u.wkFill.setAttribute('stroke-dasharray',pc+' 200');u.wkFill.style.visibility=pc?'':'hidden';}   // (the bar is an arc over the minimap, filled by its dash)
 }
