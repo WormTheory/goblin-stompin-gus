@@ -108,7 +108,7 @@ const HFADE=[0,0.1,0.25,0.5,0.75,1,1.5,2],hfI=()=>{const i=HFADE.indexOf(DT.halo
 // the Nuke strength slider: the reach of the Nuke Launcher's big blast (nukeR, shots.js), NUKE_R0 to NUKE_R1 in steps of
 // NUKE_RS, the weapon's own to begin with (not saved, like the other switches; the reactor's and the Testing
 // Environment's Big blast keep their own)
-const NUKE_R0=12,NUKE_R1=160,NUKE_RS=4,NUKE_RN=(NUKE_R1-NUKE_R0)/NUKE_RS+1;
+const NUKE_R0=12,NUKE_R1=320,NUKE_RS=4,NUKE_RN=(NUKE_R1-NUKE_R0)/NUKE_RS+1;
 const nukeSet=i=>{DT.nukeR=NUKE_R0+NUKE_RS*Math.max(0,Math.min(NUKE_RN-1,i));};
 // the Time of day slider: the clock's hour, 00:00 to 23:00 (tod 0 is six in the morning: hourNow). Setting it jumps
 // straight there, the same day, and the day goes on from it as usual (online, only the host's clock counts)
