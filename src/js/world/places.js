@@ -24,7 +24,7 @@ const tenvShow=(px,pz)=>px<SHIP_PX0&&(!TENV||TENV_PL.has(tenvK(px,pz)));
 const TR={d:0,raw:0,on:false,c:new WeakMap()};
 let seed=0, edits={}, collapses={}, craters=[], wrecked={}, downFix=new Map(), destroyed={};   // destroyed: building key -> how many of its original blocks are gone
 // big blasts (destruction/big-blast.js): craters, saved beside collapses; the jobs carving them, rim fires, clouds
-const BB={jobs:[],ms:4,speed:120,clouds:[],armed:[],quiet:0,rings:[]},BB_SMALL=12,BB_STUMP=3,BB_CORPSES=30,BB_FIRES=25,BB_PLUMES=4;
+const BB={jobs:[],ms:4,speed:120,clouds:[],armed:[],quiet:0},BB_SMALL=12,BB_STUMP=3,BB_CORPSES=30,BB_FIRES=25,BB_PLUMES=4;
 const BL_DARK=new Set();   // (the buildings gone dark, destruction/lights-out.js: read by the mesher, which can run before that file)
 const chunkEdits=new Map(),chunks=new Map(),plotCache=new Map();
 const ckey=(cx,cz)=>(cx+32768)*65536+(cz+32768);

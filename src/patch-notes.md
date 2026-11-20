@@ -19,6 +19,13 @@
 
 - Street lamps, traffic lights, signs, flags, billboards, benches, bins and furniture now go over to every attack, not just smashing into them: a bite, roll or dash, Gnash's blades and clubs, bullets, grenades, shells, rockets, fireballs and the Mobile Gear's blade. A bullet stops at the post it hits.
 
+### Nukes
+
+- A nuke looks the part now: a blinding flash, a fireball that cools from white to red and rolls up into a mushroom cloud on a stem of dust, a ring of dust racing out along the ground, a white dome round the fireball for a moment and a collar round the stem.
+- The cloud drifts off with the wind and thins away over a minute or so.
+- The boom and the shaking reach you at the speed of sound, so from far off you see it well before you hear it.
+- At night it lights the whole sky and the ground round it orange.
+
 ### Screen layout
 
 - The Mobile Gear's weapon readouts are narrower and sit just left of the speedometer, rather than stacked above it.

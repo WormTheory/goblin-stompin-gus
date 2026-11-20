@@ -25,7 +25,7 @@ function updateSky(dt){
    skyU.uCover.value=cov;const mp=moonPhase();skyU.uPhase.value=mp;skyU.uMoonLit.value=(1-Math.cos(Math.PI*2*mp))/2;}
   SKY.copy(skyU.uHor.value);
   WORLD_LIGHT.value.copy(SKYC.lightNight).lerp(SKYC.lightDay,dk).lerp(SKYC.dusk.clone().multiplyScalar(Math.max(0.35,dk)),tw*0.55);
-  WORLD_LIGHT.value.multiplyScalar(1-0.42*WX.k.dark);if(WX.flash>0)WORLD_LIGHT.value.lerp(_wxFlash,WX.flash*0.55);
+  WORLD_LIGHT.value.multiplyScalar(1-0.42*WX.k.dark);if(WX.flash>0)WORLD_LIGHT.value.lerp(_wxFlash,WX.flash*0.55);bbGlowSky();
   hemi.intensity=(0.16+0.59*dk)*(1-0.3*WX.k.dark);
   const moonUp=sy<0,ml=skyU.uMoonLit.value;sunLight.intensity=(moonUp?0.04+0.12*ml:0.55*dk+0.06)*(1-0.75*WX.k.cover);sunLight.color.setRGB(moonUp?0.6:1,moonUp?0.7:0.91-0.25*tw,moonUp?1:0.8-0.35*tw);
   const L=moonUp?skyU.uMoon.value:skyU.uSun.value;sunLight.position.set(L.x*10,Math.max(0.2,L.y)*10,L.z*10);

@@ -283,6 +283,7 @@ function carLightsView(p){
       for(let i=0;i<j;i++)if(Math.abs(MP[i].x-_cl.x)+Math.abs(MP[i].y-_cl.y)+Math.abs(MP[i].z-_cl.z)<1.5){q=i;break;}
       if(q>=0){MP[q].w=Math.max(MP[q].w,R);continue;}
       const b=Math.min(1,kk)*dk;MP[j].set(_cl.x,_cl.y,_cl.z,R);MOVL_U.uMovC.value[j].set(_gc.r*b,_gc.g*b,_gc.b*b);j++;}}
+  if(BL_ON)j=bbMovLight(j,dk);   // (a big blast's glow, big-blast.js)
   for(let i=j;i<MOV_LN;i++)MOVL_U.uMovP.value[i].w=0;
   // (the scene looked through once a second after dark, for the ground light above, and for the halos below in fog)
   if(playTime>=blGlowT){blGlowT=playTime+1;if(BL_ON&&dk>0||HALO&&HALO.visible)blkGlowScan();else if(BL_GLOWL.size)blkGlowLight([]);}
