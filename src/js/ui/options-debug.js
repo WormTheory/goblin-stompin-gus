@@ -9,14 +9,14 @@ const sbxCells=cells=>{const h=SBX&&SBX.hits[SBX.hits.length-1];if(h&&h.kind==='
 // game speed and free cam
 const SPEEDS=[0.05,0.1,0.25,0.5,0.75,0.9,1,1.25,1.5,2];
 const PSPEEDS=[1,1.5,2,2.5,3,4,5,6,7,8,9,10];
-const DT={combo:false,hpBars:false,fps:false,sndList:false,info:false,curve:2,psI:0,invuln:false,infStam:false,infAmmo:false,veh:'car',vehMsg:'',fly:false,gob:false,host:3,speedI:6,fogLit:2,halo:0.25,haloFade:0.25,fogLitOn:true,haloOn:true,paused:false,todStop:false,wxStop:false,wxLeft:0,freecam:false,step:false,quick:false,menu:false,kbdOpen:false,selHeld:false,cur:0,navDir:0,navT:0};
+const DT={combo:false,hpBars:false,fps:false,prof:false,sndList:false,info:false,curve:2,psI:0,invuln:false,infStam:false,infAmmo:false,veh:'car',vehMsg:'',fly:false,gob:false,host:3,speedI:6,fogLit:2,halo:0.25,haloFade:0.25,fogLitOn:true,haloOn:true,paused:false,todStop:false,wxStop:false,wxLeft:0,freecam:false,step:false,quick:false,menu:false,kbdOpen:false,selHeld:false,cur:0,navDir:0,navT:0};
 try{const q=JSON.parse(localStorage.getItem('goblin-stompin-gus-quickdbg')||'null');if(typeof q==='boolean')DT.quick=q;}catch(e){}
-try{for(const k of ['fps','hpBars','sndList','info'])DT[k]=localStorage.getItem('goblin-stompin-gus-'+k)==='1';}catch(e){}
+try{for(const k of ['fps','prof','hpBars','sndList','info'])DT[k]=localStorage.getItem('goblin-stompin-gus-'+k)==='1';}catch(e){}
 // the debug settings all carry over from one session to the next (the time of day, weather and season go with the game's
 // save). A slider with no starting value in DT (nukeR) takes a saved number. Along with DT_SAVED
 // go the Rendering switches (gfx: GFX_OFF), the Interface ones (ui: UI_OFF) and where the free cam was (fc), put back
 // once everything's made (DT_REST, below).
-const DT_KEY='goblin-stompin-gus-debug',DT_SAVED=['curve','psI','speedI','invuln','infStam','infAmmo','veh','fly','fps','hpBars','sndList','info','quick','nukeR','fogLit','halo','haloFade','fogLitOn','haloOn','paused','todStop','wxStop','wxLeft','freecam'];
+const DT_KEY='goblin-stompin-gus-debug',DT_SAVED=['curve','psI','speedI','invuln','infStam','infAmmo','veh','fly','fps','prof','hpBars','sndList','info','quick','nukeR','fogLit','halo','haloFade','fogLitOn','haloOn','paused','todStop','wxStop','wxLeft','freecam'];
 let DT_REST=null;
 try{const q=JSON.parse(localStorage.getItem(DT_KEY)||'null');if(q&&typeof q==='object')for(const k of DT_SAVED)if(typeof q[k]===typeof DT[k]||DT[k]===undefined&&Number.isFinite(q[k]))DT[k]=q[k];DT_REST=q;
   if(!(DT.speedI>=0&&DT.speedI<SPEEDS.length))DT.speedI=SPEEDS.indexOf(1);if(!(DT.psI>=0&&DT.psI<PSPEEDS.length))DT.psI=0;}catch(e){}
@@ -87,7 +87,7 @@ const DBG_COLS=4,DBG_SECS=[
   // (pick a kind, then Spawn puts one down ahead of you, parked and empty: in the Testing Environment or the ordinary game)
   [0,'Vehicles',[{k:'vehSel',label:'Vehicle'},{k:'vehGo',label:'Spawn vehicle'}]],
   [1,'Player',[{k:'pspeed',label:'Player speed'},{k:'invuln',label:'Invulnerable'},{k:'infStam',label:'Infinite stamina'},{k:'infAmmo',label:'Infinite ammo'},{k:'nukeR',label:'Nuke strength'},{k:'fly',label:'Flying'},{k:'host',label:'Enemy hostility'},{k:'combo',label:'Combo system'}]],
-  [1,'Overlays',[{k:'fps',label:'FPS counter'},{k:'sndList',label:'Sound list'},{k:'info',label:'Info pane'}]],
+  [1,'Overlays',[{k:'fps',label:'FPS counter'},{k:'prof',label:'Profiler'},{k:'sndList',label:'Sound list'},{k:'info',label:'Info pane'}]],
   [2,'Rendering',[{k:'gProps',label:'Props'},{k:'gFixtures',label:'Fixtures'},{k:'gCaves',label:'Caves'},{k:'gSewers',label:'Sewers'},{k:'gSubway',label:'Subways'}]],
   [2,'Hitboxes',[{k:'show',label:'Display hitboxes'},
     {k:'pBlock',label:'Player block hitboxes',col:'#ff9a2a'},{k:'nBlock',label:'NPC block hitboxes',col:'#e8d040'},
@@ -130,15 +130,19 @@ function toggleGfx(k){const g=GFX_KEY[k],off=GFX_OFF[g]=!GFX_OFF[g];
   const P=P1.pos,d=e=>Math.hypot(e.cx*CS-P.x,e.cz*CS-P.z);
   leafQ.length=0;for(const e of [...meshes.values()].sort((a,b)=>d(b)-d(a)))leafQ.push(ckey(e.cx,e.cz));}
 const curveTxt=()=>DT.curve===0?'Flat':DT.curve>0?'Down '+DT.curve:'Up '+(-DT.curve);
-function dbgVal(k){return k==='nukeR'?String(nukeR()):k==='fogLit'?(DT.fogLit??2)+'×':k==='halo'?(DT.halo??0.25)+'×':k==='haloFade'?HFADE[hfI()]+'s':isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='tod'?todTxt():k==='vehSel'?tenvVehName(DT.veh):k==='vehGo'?DT.vehMsg:k==='fogLitOn'||k==='haloOn'||k==='todStop'||k==='wxStop'||k==='paused'||k==='freecam'||k==='combo'||k==='invuln'||k==='infStam'||k==='infAmmo'||k==='fly'||k==='fps'||k==='sndList'||k==='info'?DT[k]:DBG[k];}
+function dbgVal(k){return k==='nukeR'?String(nukeR()):k==='fogLit'?(DT.fogLit??2)+'×':k==='halo'?(DT.halo??0.25)+'×':k==='haloFade'?HFADE[hfI()]+'s':isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='tod'?todTxt():k==='vehSel'?tenvVehName(DT.veh):k==='vehGo'?DT.vehMsg:k==='fogLitOn'||k==='haloOn'||k==='todStop'||k==='wxStop'||k==='paused'||k==='freecam'||k==='combo'||k==='invuln'||k==='infStam'||k==='infAmmo'||k==='fly'||k==='fps'||k==='prof'||k==='sndList'||k==='info'?DT[k]:DBG[k];}
 // the rows on show: the individual hitbox switches only while 'Display hitboxes' is on
 // the menu's two tabs: 0 the switches themselves, 1 "Show / hide", which picks the rows tab 0 lists (kept in this browser)
 // (until someone picks their own, only the rows in DBG_SHOW0 are shown: Thomas's choice of the ones used most)
-const DBG_HIDE_KEY='goblin-stompin-gus-dbghide',DBG_HIDE=new Set();
+const DBG_HIDE_KEY='goblin-stompin-gus-dbghide',DBG_HIDE=new Set(),DBG_NEW=['prof'];
 const DBG_SHOW0=new Set(['speed','tod','todStop','wx','wxStop','season','fogLitOn','haloOn','vehSel','vehGo',
   'pspeed','invuln','infStam','infAmmo','nukeR','fly','host','fps','sndList','info']);
 try{const s=localStorage.getItem(DBG_HIDE_KEY),h=s==null?DBG_ITEMS.filter(it=>!it.act&&!DBG_SHOW0.has(it.k)).map(it=>it.k):JSON.parse(s);
-  if(Array.isArray(h))for(const k of h)if(DBG_ITEMS.some(it=>it.k===k))DBG_HIDE.add(k);}catch(e){}
+  if(Array.isArray(h))for(const k of h)if(DBG_ITEMS.some(it=>it.k===k))DBG_HIDE.add(k);
+  // (rows added since a hide list was saved start hidden too: DBG_NEW, each once)
+  const N=JSON.parse(localStorage.getItem(DBG_HIDE_KEY+'-new')||'[]');let ch=false;
+  for(const k of DBG_NEW)if(!N.includes(k)){N.push(k);if(s!=null){DBG_HIDE.add(k);ch=true;}}
+  localStorage.setItem(DBG_HIDE_KEY+'-new',JSON.stringify(N));if(ch)localStorage.setItem(DBG_HIDE_KEY,JSON.stringify([...DBG_HIDE]));}catch(e){}
 // the rows on show: on the main tab, those not hidden (and the individual hitbox switches only while 'Display hitboxes'
 // is on); on Show / hide, every row
 function dbgItems(){const L=DT.tab?DBG_ITEMS:DBG_ITEMS.filter(it=>!it.act&&!DBG_HIDE.has(it.k)&&(!it.col||DBG.show));if(DT.cur>=L.length)DT.cur=Math.max(0,L.length-1);return L;}
@@ -185,7 +189,7 @@ function dbgMenuToggle(){const it=dbgItems()[DT.cur];if(!it)return;
   else if(it.k==='todStop')setTodStop(!DT.todStop);
   else if(it.k==='wxStop')setWxStop(!DT.wxStop);
   else if(it.k==='combo')setCombo(!DT.combo);
-  else if(it.k==='invuln'||it.k==='infStam'||it.k==='infAmmo'||it.k==='fly'||it.k==='fps'||it.k==='sndList'||it.k==='info'){DT[it.k]=!DT[it.k];try{localStorage.setItem('goblin-stompin-gus-'+it.k,DT[it.k]?'1':'0');}catch(e){}}
+  else if(it.k==='invuln'||it.k==='infStam'||it.k==='infAmmo'||it.k==='fly'||it.k==='fps'||it.k==='prof'||it.k==='sndList'||it.k==='info'){DT[it.k]=!DT[it.k];try{localStorage.setItem('goblin-stompin-gus-'+it.k,DT[it.k]?'1':'0');}catch(e){}}
   else{DBG[it.k]=!DBG[it.k];saveDT();}
   tone('triangle',620,0,0.05,0.03);renderTime();}
 // up/down move the highlight within its column (letting go of a picked slider); left/right move across to the next

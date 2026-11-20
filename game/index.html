@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:b686949a70caeb42b45582f1bbef9204d3b17e383c274bc58e66c27df6a6f8cf -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:2c46a329d7bbe9811db37c4be5405385b1211d2e1c9566f696bd77cdc841128c -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -112,6 +112,12 @@ canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;point
 .sndlist .sl-r.on{border-left-color:#ffd75a;color:#fff;animation:slFlash .24s steps(1) infinite}
 @keyframes slFlash{50%{background:rgba(120,96,24,.85)}}
 .fpsc.mid{color:#e8c14a}.fpsc.low{color:#ff6a5a}
+.profPane{position:absolute;left:max(16px,env(safe-area-inset-left,0px));top:calc(96px + env(safe-area-inset-top,0px));width:340px;max-width:calc(100vw - 32px);max-height:calc(100vh - 330px);overflow:hidden;font:600 11px/1.35 var(--f-mono);color:#dfe3e8;background:rgba(18,22,28,.82);border-radius:3px;z-index:7;pointer-events:none;font-variant-numeric:tabular-nums}
+.profPane canvas{display:block;width:100%;height:72px;border-radius:3px 3px 0 0}
+.profPane .pf-t{padding:4px 7px 6px}.profPane .pf-t>div{margin-top:2px}.profPane .pf-c>div,.profPane .pf-sp>div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.profPane .pf-h b{color:#9fe870}.profPane small{font-size:10px;opacity:.7}.profPane i{font-style:normal;color:#ff8a6a;margin-left:3px}
+.profPane .pf-s{display:inline-block;width:8px;height:8px;margin-right:5px;border-radius:2px}
+.profPane .pf-sp{border-top:1px solid rgba(255,255,255,.15);padding-top:3px}.profPane .pf-sp b{color:#ff6a5a}
 .dbgbadge{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:rgba(18,22,28,.82);border:1px solid #e8c14a;color:#e8c14a;font:700 12px var(--f-display);letter-spacing:.02em;padding:4px 10px;border-radius:3px;z-index:5}
 .readout{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));left:max(16px,env(safe-area-inset-left,0px));font:500 12px/1.5 var(--f-mono);color:var(--bone);background:rgba(18,22,28,.6);padding:4px 8px;border-radius:3px;font-variant-numeric:tabular-nums;max-width:calc(100vw - 32px);z-index:2}
 .readout b{color:var(--moss);font-weight:500}
@@ -1317,6 +1323,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
   <div class="dbgbadge" id="dbgBadge" hidden></div>
   <div class="fpsc" id="fpsCounter" hidden aria-hidden="true"></div>
   <div class="sndlist" id="sndList" hidden aria-hidden="true"></div>
+  <div class="profPane" id="profPane" hidden aria-hidden="true"></div>
   <div class="dbgpad" id="dbgPad" hidden>
     <h4>DEBUG <span id="dpHint">game paused</span><button type="button" class="dpx" id="dpClose" aria-label="Close the debug menu">✕</button></h4>
     <div class="dptabs" id="dpTabs" role="tablist"></div>
@@ -1599,6 +1606,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <ul><li>Street lamps, traffic lights, signs, flags, billboards, benches, bins and furniture now go over to every attack, not just smashing into them: a bite, roll or dash, Gnash's blades and clubs, bullets, grenades, shells, rockets, fireballs and the Mobile Gear's blade. A bullet stops at the post it hits.</li></ul>
 <h3>Screen layout</h3>
 <ul><li>The Mobile Gear's weapon readouts are narrower and sit just left of the speedometer, rather than stacked above it.</li><li>The Settlement razed card sits just above the minimap now, so the speedometer no longer jumps up to make room for it.</li><li>The time of day is gone from the card beside the clock, which now shows just the day and season. It's in the debug menu's Info pane instead, as a clock time (and whether time's paused) beside the time of day.</li></ul>
+<h3>Profiler</h3>
+<ul><li>The debug menu's Overlays have a Profiler: a graph of each frame's time, split by what took it (players, goblins, traffic, the world being built, destruction, drawing, online play), the busiest parts of each, what's being drawn, memory, how many of everything there is, and the last few slow frames with what was happening at the time (a building coming down, a blast, a car going up). It's off until switched on, and hidden in Show / hide until you show it.</li></ul>
 <h3>Drivers</h3>
 <ul><li>Everyone at the wheel is dressed as themselves, in their own colours, hats, glasses and the rest, instead of a plain green head, and whoever you haul out or leave in a wreck is dressed the same. Police drivers are in blue, and your own goblin shows at the wheel of whatever you drive.</li></ul>
 <h3>Switching weapons</h3>
@@ -2307,7 +2316,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='a375dd9adf25';
+const GAME_VER='0.5',GAME_BUILD='e8e985627a9f';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -21669,14 +21678,14 @@ const sbxCells=cells=>{const h=SBX&&SBX.hits[SBX.hits.length-1];if(h&&h.kind==='
 // game speed and free cam
 const SPEEDS=[0.05,0.1,0.25,0.5,0.75,0.9,1,1.25,1.5,2];
 const PSPEEDS=[1,1.5,2,2.5,3,4,5,6,7,8,9,10];
-const DT={combo:false,hpBars:false,fps:false,sndList:false,info:false,curve:2,psI:0,invuln:false,infStam:false,infAmmo:false,veh:'car',vehMsg:'',fly:false,gob:false,host:3,speedI:6,fogLit:2,halo:0.25,haloFade:0.25,fogLitOn:true,haloOn:true,paused:false,todStop:false,wxStop:false,wxLeft:0,freecam:false,step:false,quick:false,menu:false,kbdOpen:false,selHeld:false,cur:0,navDir:0,navT:0};
+const DT={combo:false,hpBars:false,fps:false,prof:false,sndList:false,info:false,curve:2,psI:0,invuln:false,infStam:false,infAmmo:false,veh:'car',vehMsg:'',fly:false,gob:false,host:3,speedI:6,fogLit:2,halo:0.25,haloFade:0.25,fogLitOn:true,haloOn:true,paused:false,todStop:false,wxStop:false,wxLeft:0,freecam:false,step:false,quick:false,menu:false,kbdOpen:false,selHeld:false,cur:0,navDir:0,navT:0};
 try{const q=JSON.parse(localStorage.getItem('goblin-stompin-gus-quickdbg')||'null');if(typeof q==='boolean')DT.quick=q;}catch(e){}
-try{for(const k of ['fps','hpBars','sndList','info'])DT[k]=localStorage.getItem('goblin-stompin-gus-'+k)==='1';}catch(e){}
+try{for(const k of ['fps','prof','hpBars','sndList','info'])DT[k]=localStorage.getItem('goblin-stompin-gus-'+k)==='1';}catch(e){}
 // the debug settings all carry over from one session to the next (the time of day, weather and season go with the game's
 // save). A slider with no starting value in DT (nukeR) takes a saved number. Along with DT_SAVED
 // go the Rendering switches (gfx: GFX_OFF), the Interface ones (ui: UI_OFF) and where the free cam was (fc), put back
 // once everything's made (DT_REST, below).
-const DT_KEY='goblin-stompin-gus-debug',DT_SAVED=['curve','psI','speedI','invuln','infStam','infAmmo','veh','fly','fps','hpBars','sndList','info','quick','nukeR','fogLit','halo','haloFade','fogLitOn','haloOn','paused','todStop','wxStop','wxLeft','freecam'];
+const DT_KEY='goblin-stompin-gus-debug',DT_SAVED=['curve','psI','speedI','invuln','infStam','infAmmo','veh','fly','fps','prof','hpBars','sndList','info','quick','nukeR','fogLit','halo','haloFade','fogLitOn','haloOn','paused','todStop','wxStop','wxLeft','freecam'];
 let DT_REST=null;
 try{const q=JSON.parse(localStorage.getItem(DT_KEY)||'null');if(q&&typeof q==='object')for(const k of DT_SAVED)if(typeof q[k]===typeof DT[k]||DT[k]===undefined&&Number.isFinite(q[k]))DT[k]=q[k];DT_REST=q;
   if(!(DT.speedI>=0&&DT.speedI<SPEEDS.length))DT.speedI=SPEEDS.indexOf(1);if(!(DT.psI>=0&&DT.psI<PSPEEDS.length))DT.psI=0;}catch(e){}
@@ -21747,7 +21756,7 @@ const DBG_COLS=4,DBG_SECS=[
   // (pick a kind, then Spawn puts one down ahead of you, parked and empty: in the Testing Environment or the ordinary game)
   [0,'Vehicles',[{k:'vehSel',label:'Vehicle'},{k:'vehGo',label:'Spawn vehicle'}]],
   [1,'Player',[{k:'pspeed',label:'Player speed'},{k:'invuln',label:'Invulnerable'},{k:'infStam',label:'Infinite stamina'},{k:'infAmmo',label:'Infinite ammo'},{k:'nukeR',label:'Nuke strength'},{k:'fly',label:'Flying'},{k:'host',label:'Enemy hostility'},{k:'combo',label:'Combo system'}]],
-  [1,'Overlays',[{k:'fps',label:'FPS counter'},{k:'sndList',label:'Sound list'},{k:'info',label:'Info pane'}]],
+  [1,'Overlays',[{k:'fps',label:'FPS counter'},{k:'prof',label:'Profiler'},{k:'sndList',label:'Sound list'},{k:'info',label:'Info pane'}]],
   [2,'Rendering',[{k:'gProps',label:'Props'},{k:'gFixtures',label:'Fixtures'},{k:'gCaves',label:'Caves'},{k:'gSewers',label:'Sewers'},{k:'gSubway',label:'Subways'}]],
   [2,'Hitboxes',[{k:'show',label:'Display hitboxes'},
     {k:'pBlock',label:'Player block hitboxes',col:'#ff9a2a'},{k:'nBlock',label:'NPC block hitboxes',col:'#e8d040'},
@@ -21790,15 +21799,19 @@ function toggleGfx(k){const g=GFX_KEY[k],off=GFX_OFF[g]=!GFX_OFF[g];
   const P=P1.pos,d=e=>Math.hypot(e.cx*CS-P.x,e.cz*CS-P.z);
   leafQ.length=0;for(const e of [...meshes.values()].sort((a,b)=>d(b)-d(a)))leafQ.push(ckey(e.cx,e.cz));}
 const curveTxt=()=>DT.curve===0?'Flat':DT.curve>0?'Down '+DT.curve:'Up '+(-DT.curve);
-function dbgVal(k){return k==='nukeR'?String(nukeR()):k==='fogLit'?(DT.fogLit??2)+'×':k==='halo'?(DT.halo??0.25)+'×':k==='haloFade'?HFADE[hfI()]+'s':isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='tod'?todTxt():k==='vehSel'?tenvVehName(DT.veh):k==='vehGo'?DT.vehMsg:k==='fogLitOn'||k==='haloOn'||k==='todStop'||k==='wxStop'||k==='paused'||k==='freecam'||k==='combo'||k==='invuln'||k==='infStam'||k==='infAmmo'||k==='fly'||k==='fps'||k==='sndList'||k==='info'?DT[k]:DBG[k];}
+function dbgVal(k){return k==='nukeR'?String(nukeR()):k==='fogLit'?(DT.fogLit??2)+'×':k==='halo'?(DT.halo??0.25)+'×':k==='haloFade'?HFADE[hfI()]+'s':isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='tod'?todTxt():k==='vehSel'?tenvVehName(DT.veh):k==='vehGo'?DT.vehMsg:k==='fogLitOn'||k==='haloOn'||k==='todStop'||k==='wxStop'||k==='paused'||k==='freecam'||k==='combo'||k==='invuln'||k==='infStam'||k==='infAmmo'||k==='fly'||k==='fps'||k==='prof'||k==='sndList'||k==='info'?DT[k]:DBG[k];}
 // the rows on show: the individual hitbox switches only while 'Display hitboxes' is on
 // the menu's two tabs: 0 the switches themselves, 1 "Show / hide", which picks the rows tab 0 lists (kept in this browser)
 // (until someone picks their own, only the rows in DBG_SHOW0 are shown: Thomas's choice of the ones used most)
-const DBG_HIDE_KEY='goblin-stompin-gus-dbghide',DBG_HIDE=new Set();
+const DBG_HIDE_KEY='goblin-stompin-gus-dbghide',DBG_HIDE=new Set(),DBG_NEW=['prof'];
 const DBG_SHOW0=new Set(['speed','tod','todStop','wx','wxStop','season','fogLitOn','haloOn','vehSel','vehGo',
   'pspeed','invuln','infStam','infAmmo','nukeR','fly','host','fps','sndList','info']);
 try{const s=localStorage.getItem(DBG_HIDE_KEY),h=s==null?DBG_ITEMS.filter(it=>!it.act&&!DBG_SHOW0.has(it.k)).map(it=>it.k):JSON.parse(s);
-  if(Array.isArray(h))for(const k of h)if(DBG_ITEMS.some(it=>it.k===k))DBG_HIDE.add(k);}catch(e){}
+  if(Array.isArray(h))for(const k of h)if(DBG_ITEMS.some(it=>it.k===k))DBG_HIDE.add(k);
+  // (rows added since a hide list was saved start hidden too: DBG_NEW, each once)
+  const N=JSON.parse(localStorage.getItem(DBG_HIDE_KEY+'-new')||'[]');let ch=false;
+  for(const k of DBG_NEW)if(!N.includes(k)){N.push(k);if(s!=null){DBG_HIDE.add(k);ch=true;}}
+  localStorage.setItem(DBG_HIDE_KEY+'-new',JSON.stringify(N));if(ch)localStorage.setItem(DBG_HIDE_KEY,JSON.stringify([...DBG_HIDE]));}catch(e){}
 // the rows on show: on the main tab, those not hidden (and the individual hitbox switches only while 'Display hitboxes'
 // is on); on Show / hide, every row
 function dbgItems(){const L=DT.tab?DBG_ITEMS:DBG_ITEMS.filter(it=>!it.act&&!DBG_HIDE.has(it.k)&&(!it.col||DBG.show));if(DT.cur>=L.length)DT.cur=Math.max(0,L.length-1);return L;}
@@ -21845,7 +21858,7 @@ function dbgMenuToggle(){const it=dbgItems()[DT.cur];if(!it)return;
   else if(it.k==='todStop')setTodStop(!DT.todStop);
   else if(it.k==='wxStop')setWxStop(!DT.wxStop);
   else if(it.k==='combo')setCombo(!DT.combo);
-  else if(it.k==='invuln'||it.k==='infStam'||it.k==='infAmmo'||it.k==='fly'||it.k==='fps'||it.k==='sndList'||it.k==='info'){DT[it.k]=!DT[it.k];try{localStorage.setItem('goblin-stompin-gus-'+it.k,DT[it.k]?'1':'0');}catch(e){}}
+  else if(it.k==='invuln'||it.k==='infStam'||it.k==='infAmmo'||it.k==='fly'||it.k==='fps'||it.k==='prof'||it.k==='sndList'||it.k==='info'){DT[it.k]=!DT[it.k];try{localStorage.setItem('goblin-stompin-gus-'+it.k,DT[it.k]?'1':'0');}catch(e){}}
   else{DBG[it.k]=!DBG[it.k];saveDT();}
   tone('triangle',620,0,0.05,0.03);renderTime();}
 // up/down move the highlight within its column (letting go of a picked slider); left/right move across to the next
@@ -30213,7 +30226,9 @@ function destLabel(){
 }
 // one part of the world going wrong shouldn't stop the whole game: each update runs on its own, and an error in one is
 // reported (once per kind) and skipped for that frame
-const safe=(name,f)=>{try{f();}catch(e){if(!safe.seen[name]){safe.seen[name]=1;console.error('['+name+']',e);}}};safe.seen={};
+const safe=(name,f)=>{if(PROF_ON){safeT(name,f);return;}try{f();}catch(e){if(!safe.seen[name]){safe.seen[name]=1;console.error('['+name+']',e);}}};safe.seen={};
+// (the same, timed for the profiler: ui/profiler.js)
+function safeT(name,f){const t0=performance.now(),c0=PROF_CH;PROF_CH=0;try{f();}catch(e){if(!safe.seen[name]){safe.seen[name]=1;console.error('['+name+']',e);}}const el=performance.now()-t0;profAdd(name,el-PROF_CH);PROF_CH=c0+el;}
 const FPS={el:null,n:0,t:0,worst:0,shown:false};
 function fpsTick(raw){
   if(!FPS.el)FPS.el=document.getElementById('fpsCounter');if(!FPS.el)return;
@@ -30275,7 +30290,7 @@ function warmShaders(){
 }
 function frame(now,bg){   // (bg: a tab in the background while online, kept going by netBgClock without being drawn)
   if(warmT<2&&++warmT===2)warmShaders();
-  madeNow=0;
+  madeNow=0;profBegin(now);
   fpsTick((now-last)/1000);safe('sound list',sndTick);
   frameMs+=(Math.min(100,Math.max(0,now-last))-frameMs)*0.05;   // (how long frames have been taking lately)
   const dt=Math.max(0,Math.min(0.06,(now-last)/1000));last=now;   // (never below 0: a long boot can hand the first frame a timestamp older than last, and negative time winds timers up, which queued a stomp nobody pressed)
@@ -30337,7 +30352,7 @@ function frame(now,bg){   // (bg: a tab in the background while online, kept goi
   if(bg)return;   // (nobody's looking: no drawing, and no next frame asked for, the browser having stopped giving this tab any)
   const w=innerWidth,h=innerHeight;
   // (the title screen draws its own backdrop instead of the city: see ui/title-scene.js)
-  if(atTitle&&menuOpen){let drew=false;safe('title',()=>{drew=titleDraw(dt,w,h);});if(drew){requestAnimationFrame(frame);return;}}
+  if(atTitle&&menuOpen){let drew=false;safe('title',()=>{drew=titleDraw(dt,w,h);});if(drew){profEnd();requestAnimationFrame(frame);return;}}
   let views;
   safe('batDraw',batDraw);safe('fxDraw',fxDraw);
   if(split==='none'){renderer.setScissorTest(false);renderView(P1,0,0,w,h);views=[[P1,0,0,w,h]];}
@@ -30347,7 +30362,7 @@ function frame(now,bg){   // (bg: a tab in the background while online, kept goi
     else{renderView(P1,0,h/2,w,h/2);renderView(P2,0,0,w,h/2);views=[[P1,0,h/2,w,h/2],[P2,0,0,w,h/2]];}
   }
   safe('dbgOverlay',()=>drawDbgOverlay(dt,views));
-  requestAnimationFrame(frame);
+  profEnd();requestAnimationFrame(frame);
 }
 
 // ---------- Online co-op: transports and sessions ----------
@@ -32551,6 +32566,149 @@ if(EDITOR_LIVE){
   // (tell the editor this window is ready for its edits)
   try{if(window.opener)window.opener.postMessage({type:'gsg-ready'},location.origin);}catch(e){}
   try{if(window.parent!==window)window.parent.postMessage({type:'gsg-ready',frame:true},location.origin);}catch(e){}   // (the Hippo tab's hidden copy)
+}
+// ---- the performance profiler (debug menu, Overlays: DT.prof, kept in this browser, off to begin with) ----
+// Where each frame's time goes. Every system the frame runs is already wrapped in safe(name,...) (daynight.js), so that's
+// where it's timed, by name, each name's own time only (a safe inside another is taken off the outer one's). Chunk
+// generation, meshing, block lighting and drawing aren't each in a safe of their own, so they're wrapped here too, as
+// are the big events worth seeing a spike against (a building coming down, a blast, a car going up). Off, all it costs is
+// safe() and those wrappers looking at PROF.on.
+const PROF={on:false,el:null,cv:null,tx:null,
+  N:240,i:0,fill:0,iv:new Float32Array(240),cpu:new Float32Array(240),cat:new Float32Array(240*8),ev:new Array(240).fill(null),
+  t0:0,last:0,lab:new Map(),fev:null,avg:new Map(),mx:new Map(),spikes:[],txT:0,ivAvg:16,
+  gq:null,gpu:0,gpuQ:[],calls:0,tris:0,ch:0};
+// the systems, each a colour on the graph: what each safe() name (and the wrappers below) counts as
+const PROF_CATS=[['Player','#7fd04a'],['AI','#ff9a2a'],['Vehicles','#5ab4ff'],['World','#c58cff'],['Destruction','#ff5a4a'],['Render','#e8d040'],['Net','#46d4ff'],['Other','#8a8f96']];
+const PROF_OF=(()=>{const m={},put=(c,L)=>{for(const k of L.split(' '))m[k]=c;};
+  put(0,'player health drive vpin predict arms hud view');
+  put(1,'goblins stations services venues devfo');
+  put(2,'cars traffic farmlift ships fireballs spikes');
+  put(3,'chunks gen meshing lighting regions far explore weather sky tenv devst');
+  put(4,'topples water booms fires blast flecks bodies shocks parts rubble');
+  put(5,'render batDraw fxDraw dbgOverlay title gpu');
+  put(6,'net dress tracers');
+  return k=>m[k]??7;})();
+// (the names shown for the wrappers' and frame's own labels)
+const PROF_NAME={gen:'chunk gen',meshing:'meshing',lighting:'block light',render:'draw calls (CPU)'};
+// (PROF_ON is PROF.on where safe() reads it, a var so it's there from the start, before this file runs; PROF_CH the time
+// taken by timed things inside the one being timed now)
+var PROF_ON=false,PROF_CH=0;
+function profAdd(k,ms){PROF.lab.set(k,(PROF.lab.get(k)||0)+ms);}
+// time f, as label k, counting only its own time
+function profRun(k,f,self,args){const t0=performance.now(),c0=PROF_CH;PROF_CH=0;
+  try{return f.apply(self,args);}finally{const el=performance.now()-t0;profAdd(k,el-PROF_CH);PROF_CH=c0+el;}}
+const profWrap=(k,f)=>function(...a){return PROF.on?profRun(k,f,this,a):f.apply(this,a);};
+// an event this frame (shown on the graph and against a spike), counted
+function profEv(k){if(!PROF.on)return;if(!PROF.fev)PROF.fev=new Map();PROF.fev.set(k,(PROF.fev.get(k)||0)+1);}
+const profEvWrap=(k,f,ok)=>function(...a){if(PROF.on&&(!ok||ok(...a)))profEv(k);return f.apply(this,a);};
+// the hot spots that aren't a safe() of their own (function declarations can be swapped like this: every caller looks
+// them up by name)
+genChunk=profWrap('gen',profEvWrap('chunk made',genChunk));
+buildChunk=profWrap('meshing',buildChunk);
+blkFill=profWrap('lighting',blkFill);
+regionTick=profWrap('regions',regionTick);
+renderView=profWrap('render',renderView);
+collapseBuilding=profEvWrap('collapse',collapseBuilding);
+bigBlast=profEvWrap('big blast',bigBlast,(x,y,z,R)=>R>=BB_SMALL);
+foeBoom=profEvWrap('explosion',foeBoom);
+explodeCar0=profEvWrap('car wrecked',explodeCar0);
+airCrash=profEvWrap('air crash',airCrash);
+shipBreak=profEvWrap('ship broke',shipBreak);
+crush=profEvWrap('crater',crush,(x,y,z,r)=>r>=4);
+// the graphics card's own time, where the browser lets us have it (a timer query round each view drawn; the answer comes
+// back a frame or two later)
+function profGpuBegin(){const G=PROF.gq;if(!G)return;try{const q=G.gl.createQuery();G.gl.beginQuery(G.ext.TIME_ELAPSED_EXT,q);G.cur=q;}catch(e){PROF.gq=null;}}
+function profGpuEnd(){const G=PROF.gq;if(!G||!G.cur)return;try{G.gl.endQuery(G.ext.TIME_ELAPSED_EXT);G.f.push(G.cur);}catch(e){PROF.gq=null;}G.cur=null;}
+function profGpuPoll(){const G=PROF.gq;if(!G)return;const gl=G.gl;
+  if(G.f.length){PROF.gpuQ.push(G.f);G.f=[];}
+  while(PROF.gpuQ.length){const L=PROF.gpuQ[0];
+    if(!L.every(q=>gl.getQueryParameter(q,gl.QUERY_RESULT_AVAILABLE)))break;
+    PROF.gpuQ.shift();let ns=0;const bad=gl.getParameter(G.ext.GPU_DISJOINT_EXT);
+    for(const q of L){ns+=gl.getQueryParameter(q,gl.QUERY_RESULT);gl.deleteQuery(q);}
+    if(!bad)PROF.gpu+=(ns/1e6-PROF.gpu)*0.1;}
+  if(PROF.gpuQ.length>8){for(const L of PROF.gpuQ.splice(0,PROF.gpuQ.length-8))for(const q of L)gl.deleteQuery(q);}}
+{const rv=renderView;renderView=function(...a){if(!PROF.on||!PROF.gq)return rv.apply(this,a);profGpuBegin();try{return rv.apply(this,a);}finally{profGpuEnd();}};}
+function profSet(on){
+  PROF.on=PROF_ON=on;PROF.fill=0;PROF.i=0;PROF.lab.clear();PROF.avg.clear();PROF.mx.clear();PROF.spikes.length=0;PROF.fev=null;PROF.t0=0;PROF.gpu=0;
+  try{renderer.info.autoReset=!on;renderer.info.reset();}catch(e){}   // (on, the counts cover every view of the frame, not just the last)
+  if(on&&!PROF.gq){try{const gl=renderer.getContext(),ext=gl&&gl.getExtension&&gl.getExtension('EXT_disjoint_timer_query_webgl2');if(ext)PROF.gq={gl,ext,f:[],cur:null};}catch(e){}}
+  if(!PROF.el)PROF.el=document.getElementById('profPane');
+  if(PROF.el){PROF.el.hidden=!on;if(on&&!PROF.cv){PROF.el.innerHTML='<canvas width="340" height="72"></canvas><div class="pf-t"></div>';PROF.cv=PROF.el.firstChild;PROF.tx=PROF.el.lastChild;}}
+}
+// the start of each frame closes off the one before (now: the frame's timestamp)
+function profBegin(now){
+  if(PROF.on!==!!DT.prof)profSet(!!DT.prof);
+  if(!PROF.on)return;
+  const t=performance.now();
+  if(PROF.t0){
+    const iv=Math.min(250,Math.max(0,now-PROF.last)),cpu=Math.max(0,(PROF.end||t)-PROF.t0),i=PROF.i;
+    PROF.iv[i]=iv;PROF.cpu[i]=cpu;PROF.ev[i]=PROF.fev;
+    for(let c=0;c<8;c++)PROF.cat[i*8+c]=0;
+    let acc=0;for(const [k,ms] of PROF.lab){PROF.cat[i*8+PROF_OF(k)]+=ms;acc+=ms;
+      PROF.avg.set(k,(PROF.avg.get(k)||0)*0.95+ms*0.05);PROF.mx.set(k,Math.max(PROF.mx.get(k)||0,ms));}
+    PROF.cat[i*8+7]+=Math.max(0,cpu-acc);   // (the frame's own work round them all)
+    // a spike: well over the usual, or slower than 30 a second
+    if(PROF.fill>30&&iv>Math.max(34,PROF.ivAvg*2)){
+      const top=[...PROF.lab].sort((a,b)=>b[1]-a[1]).slice(0,3).filter(e=>e[1]>=1);
+      PROF.spikes.unshift({iv,cpu,top,ev:PROF.fev?[...PROF.fev]:[]});if(PROF.spikes.length>3)PROF.spikes.pop();}
+    PROF.ivAvg+=(iv-PROF.ivAvg)*0.05;
+    PROF.i=(i+1)%PROF.N;PROF.fill=Math.min(PROF.N,PROF.fill+1);
+    try{const r=renderer.info.render;PROF.calls=r.calls;PROF.tris=r.triangles;renderer.info.reset();}catch(e){}
+  }
+  PROF.lab.clear();PROF.fev=null;PROF.end=0;PROF.t0=t;PROF.last=now;PROF_CH=0;
+  profGpuPoll();
+  if((PROF.txT-=1)<=0){PROF.txT=12;profDraw();}else profGraph();
+}
+// the end of a frame's work (before it waits for the next)
+function profEnd(){if(PROF.on)PROF.end=performance.now();}
+const pfMs=v=>v<10?v.toFixed(1):Math.round(v)+'';
+const pfEsc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+// the graph: a bar a frame, coloured by system, up to the time between frames (the grey above is waiting for the screen);
+// lines at 60 and 30 a second; an event's mark along the top
+function profGraph(){
+  const cv=PROF.cv;if(!cv||!cv.getContext)return;const x=cv.getContext('2d');if(!x)return;
+  const W=cv.width,H=cv.height,top=50,k=(H-6)/top,N=PROF.N,bw=W/N;
+  x.clearRect(0,0,W,H);x.fillStyle='rgba(18,22,28,.82)';x.fillRect(0,0,W,H);
+  for(let j=0;j<PROF.fill;j++){const i=(PROF.i-PROF.fill+j+N)%N,px=W-(PROF.fill-j)*bw;
+    let y=H;const iv=Math.min(top,PROF.iv[i]);
+    x.fillStyle='rgba(255,255,255,.13)';x.fillRect(px,H-iv*k,bw,iv*k);
+    for(let c=0;c<8;c++){const h=Math.min(y,PROF.cat[i*8+c]*k);if(h<=0)continue;x.fillStyle=PROF_CATS[c][1];x.fillRect(px,y-h,Math.max(1,bw),h);y-=h;}
+    if(PROF.iv[i]>top){x.fillStyle='#ff4a3a';x.fillRect(px,0,Math.max(1,bw),3);}
+    if(PROF.ev[i]&&[...PROF.ev[i].keys()].some(k=>k!=='chunk made')){x.fillStyle='#fff';x.fillRect(px,4,Math.max(1,bw),5);}}   // (chunks are made nearly every frame on the move: only listed against a spike)
+  x.fillStyle='rgba(255,255,255,.35)';for(const ms of [1000/60,1000/30]){const yy=Math.round(H-ms*k)+0.5;x.fillRect(0,yy,W,1);}
+  x.font='600 9px ui-monospace,Consolas,monospace';x.fillStyle='rgba(255,255,255,.6)';x.fillText('16',2,H-16.7*k-2);x.fillText('33',2,H-33.3*k-2);
+}
+// the text: frame times, each system and its busiest parts, the counts, the last few spikes and what came with them
+function profDraw(){
+  profGraph();if(!PROF.tx)return;
+  const n=Math.min(PROF.fill,60);let iv=0,cpu=0,worst=0;const cs=new Float32Array(8);
+  for(let j=1;j<=n;j++){const i=(PROF.i-j+PROF.N)%PROF.N;iv+=PROF.iv[i];cpu+=PROF.cpu[i];worst=Math.max(worst,PROF.iv[i]);for(let c=0;c<8;c++)cs[c]+=PROF.cat[i*8+c];}
+  const d=Math.max(1,n);iv/=d;cpu/=d;
+  let h='<div class="pf-h"><b>'+(iv>0?Math.round(1000/iv):0)+' FPS</b> '+pfMs(iv)+' ms · CPU '+pfMs(cpu)+(PROF.gq&&PROF.gpu>0.01?' · GPU '+pfMs(PROF.gpu):'')+' · worst '+pfMs(worst)+'</div>';
+  // (each system, then its three busiest names, by their running average)
+  const by=[...PROF.avg].sort((a,b)=>b[1]-a[1]);
+  h+='<div class="pf-c">'+PROF_CATS.map(([nm,col],c)=>{const ms=cs[c]/d;if(ms<0.05)return'';
+    const sub=by.filter(e=>PROF_OF(e[0])===c&&e[1]>=0.05).slice(0,3).map(e=>pfEsc(PROF_NAME[e[0]]||e[0])+' '+pfMs(e[1])+(PROF.mx.get(e[0])>Math.max(4,e[1]*3)?'<i>↑'+pfMs(PROF.mx.get(e[0]))+'</i>':'')).join(', ');
+    return'<div><span class="pf-s" style="background:'+col+'"></span><b>'+nm+'</b> '+pfMs(ms)+(sub?' <small>'+sub+'</small>':'')+'</div>';}).join('')+'</div>';
+  PROF.mx.clear();
+  // (what's being drawn, and memory where the browser says)
+  let mem='';try{const m=performance.memory;if(m)mem=' · heap '+Math.round(m.usedJSHeapSize/1048576)+' MB';}catch(e){}
+  let gm='';try{const r=renderer.info.memory;gm=' · '+r.geometries+' geo, '+r.textures+' tex';}catch(e){}
+  h+='<div>'+PROF.calls+' draws · '+(PROF.tris>=1e6?(PROF.tris/1e6).toFixed(1)+'M':Math.round(PROF.tris/1e3)+'k')+' tris'+gm+mem+'</div>';
+  h+='<div>'+pfEsc(profCounts())+'</div>';
+  if(PROF.spikes.length)h+='<div class="pf-sp">'+PROF.spikes.map(s=>'<div><b>'+Math.round(s.iv)+' ms</b> <small>CPU '+Math.round(s.cpu)+'</small> '+
+    s.top.map(e=>pfEsc(PROF_NAME[e[0]]||e[0])+' '+Math.round(e[1])).join(', ')+(s.ev.length?' <i>'+s.ev.map(e=>pfEsc(e[0])+(e[1]>1?' ×'+e[1]:'')).join(', ')+'</i>':'')+'</div>').join('')+'</div>';
+  if(PROF.tx.dataset.h!==h){PROF.tx.dataset.h=h;PROF.tx.innerHTML=h;}
+}
+// how many of each thing there is (only worked out while the text is redrawn, a few times a second)
+function profCounts(){
+  let gh=0,gc=0,ca=0,fx=0,rb=0;
+  for(const g of goblins)if(g.state==='chase'||g.state==='wait'){if(g.civ||g.staff)gc++;else gh++;}
+  for(const c of cars)if(c.alive)ca++;
+  for(const p of parts)if(p.life>0)fx++;for(const r of rubble)if(r.life>0)rb++;
+  const S=[[gh,'goblins'],[gc,'folk'],[ca,'cars'],[TRAIN_BOXES.length,'big vehicle boxes'],[chunks.size,'chunks'],[meshes.size,'meshes'],[rebuildQ.size,'remeshing'],
+    [fx,'parts'],[rb,'rubble'],[fires.length,'fires'],[SHOTS.length+FIREB.length,'shots'],[topples.length,'toppling'],[bodies.length,'bodies'],[BB.jobs.length,'big blasts'],[venues.size,'venues']];
+  return S.filter(e=>e[0]>0).map(e=>e[0]+' '+e[1]).join(' · ');   // (nothing there, nothing said)
 }
 // ---- the Testing Environment: an empty, flat world to try things out in. Any kind of structure can be spawned into it
 // (the nearest one in this world's plan, dressed by the world's own code, built on the nearest clear ground in front of Gus),

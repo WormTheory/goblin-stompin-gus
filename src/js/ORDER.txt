@@ -131,4 +131,5 @@ ui/play-save.js
 ui/update-check.js
 core/new-city.js
 ui/editor-live.js
+ui/profiler.js
 core/testing-env.js

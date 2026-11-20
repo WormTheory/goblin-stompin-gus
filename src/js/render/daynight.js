@@ -78,7 +78,9 @@ function destLabel(){
 }
 // one part of the world going wrong shouldn't stop the whole game: each update runs on its own, and an error in one is
 // reported (once per kind) and skipped for that frame
-const safe=(name,f)=>{try{f();}catch(e){if(!safe.seen[name]){safe.seen[name]=1;console.error('['+name+']',e);}}};safe.seen={};
+const safe=(name,f)=>{if(PROF_ON){safeT(name,f);return;}try{f();}catch(e){if(!safe.seen[name]){safe.seen[name]=1;console.error('['+name+']',e);}}};safe.seen={};
+// (the same, timed for the profiler: ui/profiler.js)
+function safeT(name,f){const t0=performance.now(),c0=PROF_CH;PROF_CH=0;try{f();}catch(e){if(!safe.seen[name]){safe.seen[name]=1;console.error('['+name+']',e);}}const el=performance.now()-t0;profAdd(name,el-PROF_CH);PROF_CH=c0+el;}
 const FPS={el:null,n:0,t:0,worst:0,shown:false};
 function fpsTick(raw){
   if(!FPS.el)FPS.el=document.getElementById('fpsCounter');if(!FPS.el)return;
@@ -140,7 +142,7 @@ function warmShaders(){
 }
 function frame(now,bg){   // (bg: a tab in the background while online, kept going by netBgClock without being drawn)
   if(warmT<2&&++warmT===2)warmShaders();
-  madeNow=0;
+  madeNow=0;profBegin(now);
   fpsTick((now-last)/1000);safe('sound list',sndTick);
   frameMs+=(Math.min(100,Math.max(0,now-last))-frameMs)*0.05;   // (how long frames have been taking lately)
   const dt=Math.max(0,Math.min(0.06,(now-last)/1000));last=now;   // (never below 0: a long boot can hand the first frame a timestamp older than last, and negative time winds timers up, which queued a stomp nobody pressed)
@@ -202,7 +204,7 @@ function frame(now,bg){   // (bg: a tab in the background while online, kept goi
   if(bg)return;   // (nobody's looking: no drawing, and no next frame asked for, the browser having stopped giving this tab any)
   const w=innerWidth,h=innerHeight;
   // (the title screen draws its own backdrop instead of the city: see ui/title-scene.js)
-  if(atTitle&&menuOpen){let drew=false;safe('title',()=>{drew=titleDraw(dt,w,h);});if(drew){requestAnimationFrame(frame);return;}}
+  if(atTitle&&menuOpen){let drew=false;safe('title',()=>{drew=titleDraw(dt,w,h);});if(drew){profEnd();requestAnimationFrame(frame);return;}}
   let views;
   safe('batDraw',batDraw);safe('fxDraw',fxDraw);
   if(split==='none'){renderer.setScissorTest(false);renderView(P1,0,0,w,h);views=[[P1,0,0,w,h]];}
@@ -212,6 +214,6 @@ function frame(now,bg){   // (bg: a tab in the background while online, kept goi
     else{renderView(P1,0,h/2,w,h/2);renderView(P2,0,0,w,h/2);views=[[P1,0,h/2,w,h/2],[P2,0,0,w,h/2]];}
   }
   safe('dbgOverlay',()=>drawDbgOverlay(dt,views));
-  requestAnimationFrame(frame);
+  profEnd();requestAnimationFrame(frame);
 }
 
