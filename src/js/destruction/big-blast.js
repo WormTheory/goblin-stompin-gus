@@ -361,6 +361,7 @@ function bbFxTick(dt){
   let FK=0;const lit=c=>{c.r*=Lw.r;c.g*=Lw.g;c.b*=Lw.b;if(FK>0)c.lerp(_bbFog,FK);return c;};
   for(let i=BB.clouds.length-1;i>=0;i--){const CL=BB.clouds[i];CL.t+=dt;const T=CL.t,R=CL.R,sd=CL.sd;
     if(T>BBF_LIFE){BB.clouds.splice(i,1);continue;}
+    CL.roll=(CL.roll||0)+0.8*bbSm(1,4,T)*Math.exp(-T/30)*dt;
     bbBoom(CL);
     {const w=windNow(),g=bbSm(4,12,T)*BBF_WIND;CL.wx+=w.x*g*dt;CL.wz+=w.z*g*dt;}
     // the flash: the screen whited out, and the sky and the world lit up
@@ -368,18 +369,18 @@ function bbFxTick(dt){
     let dmin=Infinity;for(const q of P)dmin=Math.min(dmin,Math.hypot(pwx(q)-CL.x,pwz(q)-CL.z));
     FK=fog?Math.min(0.45,dmin/(fog.far*4)):0;
     const rise=1-Math.exp(-T/7),capH=CL.y+R*(0.18+0.95*rise),rfb=R*0.2*Math.min(1,Math.pow(T/0.6,0.45)),cube=R*0.032;
-    const k=bbSm(1.8,6,T),Rt=R*(0.11+0.2*rise),rt=R*(0.085+0.06*rise),cx=CL.x+CL.wx*k,cz=CL.z+CL.wz*k;
+    const k=bbSm(1.5,7,T),Rt=R*(0.11+0.2*rise),rt=R*(0.085+0.06*rise),cx=CL.x+CL.wx*k,cz=CL.z+CL.wz*k;
     // how bright it glows (the fireball, then the cap's underside a while), for the night's light
     const gi=Math.min(1,1.2*Math.exp(-T/5)+0.35*Math.exp(-T/25))*(1-bbSm(R*3,R*10,dmin));
     if(gi>glow){glow=gi;BB.glowP={x:cx,y:CL.y+(capH-CL.y)*k+rfb*(1-k),z:cz,R,k:gi};}
     // ---- the fireball, rolling up into the cap ----
     for(let j=0;j<1800;j++){const o=j*4,a=sd[o],b=sd[o+1],c=sd[o+2],d=sd[o+3];
       const sz=cube*(0.8+0.5*d)*(1-bbSm(60+30*d,95+15*d,T));if(sz<0.05)continue;
-      const u=2*a-1,ph=2*Math.PI*b,sq=Math.sqrt(1-u*u),rr=0.55+0.45*Math.cbrt(c),by=CL.y+rfb*0.85+R*0.25*bbSm(0.8,3,T);
-      const px=CL.x+sq*Math.cos(ph)*rfb*rr,pz=CL.z+sq*Math.sin(ph)*rfb*rr,py=by+u*rfb*rr;
-      const th=2*Math.PI*a,tp=2*Math.PI*b+T*0.55*(1-rise*0.7),tr=rt*Math.sqrt(c),rad=Rt+tr*Math.cos(tp);
-      const qx=cx+Math.cos(th)*rad,qz=cz+Math.sin(th)*rad,qy=capH+tr*Math.sin(tp)*0.75+R*0.03*(d-0.5),under=Math.sin(tp)<-0.2?1:(Math.cos(tp)<-0.6?0.5:0);
-      const x=px+(qx-px)*k,y=py+(qy-py)*k,z=pz+(qz-pz)*k;
+      // (one shape all the way: a ring whose hole starts at nothing is a ball, each cube at its latitude on it; the hole opens, the
+      // tube thins, and the surface rolls over the top, down the outside and in underneath, inner cubes faster, so it fills round)
+      const u=2*a-1,ph=2*Math.PI*b,rr=0.55+0.45*Math.cbrt(c),by=CL.y+rfb*0.85+R*0.25*bbSm(0.8,3,T),cy=by+(capH-by)*k;
+      const tp=Math.asin(u)-CL.roll*(0.5+1.0*(1-rr)/0.45),tr=(rfb+(rt-rfb)*k)*rr,rad=Rt*k+tr*Math.cos(tp),under=Math.sin(tp)<-0.2?k:(Math.cos(tp)<-0.6?0.5*k:0);
+      const x=cx+Math.cos(ph)*rad,z=cz+Math.sin(ph)*rad,y=cy+tr*Math.sin(tp)*(1-0.25*k)+R*0.03*(d-0.5)*k;
       const Tm=Math.exp(-T/1.6)*(1.15-0.35*rr)+under*0.55*Math.exp(-Math.max(0,T-3)/12);
       if(Tm>0.32){if(ng<BBF_N)bbPut(B.glow,ng++,x,y,z,sz,bbHeat(Tm,_bbc));}
       else if(nc<BBF_N){const sk=Math.min(1,(0.32-Tm)/0.25);_bbc.setHex(0x5e534c).lerp(_bbc2.setHex(0xbdb4aa),Math.max(0,Math.min(1,(y-capH)/rt*0.5+0.5)));
