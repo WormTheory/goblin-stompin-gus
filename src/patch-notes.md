@@ -402,7 +402,7 @@
 
 - Goblins' rifle and handgun rounds stop at the first block in the way. They used to hit you through a wall if they'd taken aim before you ducked behind it.
 - Rounds from guns, the Mobile Gear's rifle, Gnash's rifle and handgun, the helicopter's machine gun and the militia's mounted guns, now break the block they hit about half the time, so sustained fire slowly chews through cover.
-- How likely a block is to break now depends on how tough it is: glass, stained glass, signs, planks and the like break every time they're hit, logs and earth a little more often than not, and brick, concrete and metal still about half the time.
+- How likely a block is to break now depends on how tough it is: glass, buildings' windows, stained glass, signs, planks and the like break every time they're hit, logs and earth a little more often than not, and brick, concrete and metal still about half the time.
 
 ### Less prop pop-in
 

@@ -356,7 +356,8 @@ function fireRound(o){
 // well short of what a shell, a missile or a blade does), with the same wreckage as anything else breaking. How likely
 // is by how tough it is (WS_TOUGH, wreck-slide.js), looked at first: glass, signs, planks and the like (0.5 or less) every
 // time, anything as tough as earth or brick half the time, as all of them used to, and what's in between in between
-const bulletOdds=b=>{const t=WS_TOUGH[b];return t<=0.5?1:t>=1?0.5:1-(t-0.5);};
+const BULLET_GLASS=new Set([WIN_BLUE,WIN_GREEN,WIN_WARM]);   // (window panes: tougher than glass to a wreck, but a round goes straight through)
+const bulletOdds=b=>{if(BULLET_GLASS.has(b))return 1;const t=WS_TOUGH[b];return t<=0.5?1:t>=1?0.5:1-(t-0.5);};
 function bulletBreak(bx,by,bz,ux,uz){
   if(SBX||by<1||by>=H)return false;const b=get(bx,by,bz);if(b===AIR||b===WATER||b===BEDROCK||Math.random()>=bulletOdds(b))return false;
   setRaw(bx,by,bz,AIR);addEdit(bx,by,bz,AIR);const ch=new Set();for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((bx+ox)/CS),Math.floor((bz+oz)/CS)));
