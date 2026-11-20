@@ -185,7 +185,8 @@ function gobHint(L,p){const w=p&&p.wpns?p.wpn:'club',out=[];
   if(L('stomp'))out.push(L('stomp')+(W&&W.player&&W.player.scope?' look down the scope (hold)':' throw a grenade'));if(L('jump'))out.push(L('jump')+' jump');
   if(L('dashSprint'))out.push('tap '+L('dashSprint')+' dash, hold to sprint');else{if(L('dash'))out.push(L('dash')+' dash');}
   if(L('sprint'))out.push('hold '+L('sprint')+' to sprint');
-  if(L('climb'))out.push('hold '+L('climb')+' climb');if(L('weapon'))out.push(L('weapon')+' next weapon');if(L('weaponPrev'))out.push(L('weaponPrev')+' previous weapon');if(L('use'))out.push(L('use')+' get in');
+  if(L('climb'))out.push('hold '+L('climb')+' climb');{const n=L('weapon'),v=L('weaponPrev');   // (next and previous as one line: the wheel, or the d-pad's left and right, shown once)
+    const m=n==='⟦WHEELDN⟧'&&v==='⟦WHEELUP⟧'?'⟦WHEEL⟧':n&&n===v?n:[n,v].filter(Boolean).join('/');if(m)out.push(m+' switch weapon');}if(L('use'))out.push(L('use')+' get in');
   return out.join('  ·  ');
 }
 // ---- rebinding: pick a slot, then press what goes in it
