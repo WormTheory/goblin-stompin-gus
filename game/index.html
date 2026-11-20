@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:18d1ae9a422547728fa93e14dce24dce28e3a2aca26e309f33204201602edb95 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:d26a918a8417d594b37e9096bf525a3b7d1b5f3e5a1d95fb67b9e02d8b8b80fa -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1585,6 +1585,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <ul><li>Street lamps, traffic lights, signs, flags, billboards, benches, bins and furniture now go over to every attack, not just smashing into them: a bite, roll or dash, Gnash's blades and clubs, bullets, grenades, shells, rockets, fireballs and the Mobile Gear's blade. A bullet stops at the post it hits.</li></ul>
 <h3>Drivers</h3>
 <ul><li>Everyone at the wheel is dressed as themselves, in their own colours, hats, glasses and the rest, instead of a plain green head, and whoever you haul out or leave in a wreck is dressed the same. Police drivers are in blue, and your own goblin shows at the wheel of whatever you drive.</li></ul>
+<h3>Ruined towns</h3>
+<ul><li>A town you've wiped out stays dead. Traffic no longer drives into it: cars on the roads in turn back or head the other way, and none come off the motorway into it. Nobody turns up there, the shops have no staff, nothing's parked, no one's sent out to it, and anyone left wandering about slips away once you're not looking.</li></ul>
 <h3>Nuclear meltdown</h3>
 <ul><li>Bring down a reactor at a nuclear power station and the siren sounds. A few seconds later the whole place goes up: a blinding flash, a fireball and a shockwave that runs out across the town, flattening it as it goes. The middle is left a scorched crater ringed with rubble, the streets round it are levelled to the ground with a few stumps of wall standing, and further out buildings lose their top floors and the side that faced the blast, and some come down. Fires burn round the edge under a mushroom cloud.</li><li>Anything caught in it is hurt by how close it was: near the middle there's nothing left of anyone, and further out you're knocked about. Cars, gas pumps and mines in the middle are simply gone rather than setting each other off.</li><li>The game keeps running smoothly while it happens, and the crater is saved with the world and seen the same by everyone playing online.</li><li>The Testing Environment has a Big blast button, with a slider for its size, to set one off ahead of you.</li><li>The crater's rim of rubble now sits on the ground, so it no longer hangs in the air on uneven ground or where two craters overlap.</li><li>Across the flattened town grass is burnt to dirt, streets are broken up in patches of rubble, and the buildings it brings down leave heaps of rubble behind.</li><li>The capitol's lawns, stadium pitches, plazas, courts and railways are scarred too: lawns and pitches burnt to dirt, paving and track beds broken up, the rails and sleepers torn up, and rubble left on what's still standing of a stadium's stands.</li><li>Snow melts wherever the blast reaches, off the ground, the rooftops and anyone or anything caught in it. If it's still snowing, fresh snow settles on the crater from bare ground, and the melted snow stays melted in a save and online.</li><li>Seen from far off, a flattened town now looks flattened: the buildings it took are gone or left as low heaps, the ones further out are cut down to what's left of them, the ground is scorched and the trees are gone, rather than the whole town still standing on the horizon.</li><li>Any building brought down or badly smashed, nuke or no nuke, now looks that way from a distance too, even from the furthest edge of the view.</li></ul>
 <h3>Nuke Launcher</h3>
@@ -2287,7 +2289,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='a14e57478beb';
+const GAME_VER='0.5',GAME_BUILD='0aef6f79bdaf';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -10949,6 +10951,10 @@ function setDestroyed(S){
 }
 // a place that's been wiped out (only known once its total has been worked out, i.e. once someone's been there)
 const setGone=S=>setListC.has(S.rx+','+S.rz)&&setDestroyed(S)>=1;
+// a block (or a point) of a place that's been wiped out: nobody lives there any more. No traffic drives in, nobody turns
+// up or is sent there (the stations there are dead too), and whoever was about there slips away once out of sight.
+const goneAt=(px,pz)=>{const S=settlementAt(px,pz);return!!S&&setGone(S);};
+const ptGone=(x,z)=>goneAt(Math.floor(x/CELL),Math.floor(z/CELL));
 // ---- how the maps show destruction, block by block ----
 // A block with buildings is destroyed once all of them are. A block with nothing on it to destroy (a park, a plaza, a
 // car park...) goes with its neighbours: it counts as destroyed when every built-on block of its place that it touches
@@ -19128,6 +19134,7 @@ function spawnGoblin(g,any){
   if(any)pos=c.pos.clone();
   // down in the sewers or the subway: they come at you along the tunnel
   if(!any&&c.pos.y<G-1&&underAt(c.pos.x,c.pos.y,c.pos.z)){
+    if(ptGone(c.pos.x,c.pos.z))return false;   // (nobody left under a place that's been wiped out, either)
     for(let k=0;k<40&&!pos;k++){const a=Math.random()*6.283,rr=8+Math.random()*20,x=Math.floor(c.pos.x+Math.cos(a)*rr),z=Math.floor(c.pos.z+Math.sin(a)*rr);
       for(let y=Math.floor(c.pos.y)+3;y>=Math.floor(c.pos.y)-3;y--){const f=get(x,y-1,z);if(f&&f!==WATER&&!get(x,y,z)&&!get(x,y+1,z)){pos=new V3(x+0.5,y,z+0.5);break;}}}
     if(!pos)return false;}
@@ -20317,6 +20324,10 @@ function updateGoblins(dt){
     // home -- quietly vanishing somewhere no one's looking
     if(!gone&&g.t>15&&any.d>28&&!g.medic&&!g.ff&&!g.cop&&!g.news&&(g.civ&&!g.staff&&!TENV&&civAlive>civTarget||g.staff&&g.employer&&staffAt(g.employer.key)>staffCapNow(g.employer.b))&&!visibleToAny(g.pos.x,g.pos.y+1,g.pos.z)){
       gone=true;g.state='wait';g.t=0;g.root.visible=false;if(g.civ&&!g.staff)civAlive--;g.vendor=null;g.employer=null;return;}
+    // a place that's been wiped out: whoever's still about in it (townsfolk, shop staff, a goblin) slips away, one at a
+    // time, once nobody's looking -- no one new turns up there (spawnOK), so it's left empty
+    if(!gone&&g.t>4&&any.d>20&&!g.special&&!g.medic&&!g.ff&&!g.cop&&!g.news&&!g.mount&&(g.goneT=(g.goneT||0)-dt)<=0){g.goneT=1;
+      if(ptGone(g.pos.x,g.pos.z)&&!visibleToAny(g.pos.x,g.pos.y+1,g.pos.z)){gone=true;g.state='wait';g.t=0;g.root.visible=false;if(g.civ&&!g.staff)civAlive--;else if(!g.staff)hostileAlive--;g.vendor=null;g.employer=null;return;}}
     const tgt=nearestPlayer(g.pos.x,g.pos.z,true);
     let moving=false,d=1e9,dx=0,dz=0;
     if(g.snowU){if(g.snowFor!==g.id){g.snowFor=g.id;g.snowU.value=WX.k.snow>0.08?WX.snowCover*0.5:0;}snowGather(g,dt,g.phaseWas!==g.phase);g.phaseWas=g.phase;}
@@ -20911,6 +20922,7 @@ function spawnParked(c){
   for(let dx=-PR;dx<=PR;dx++)for(let dz=-PR;dz<=PR;dz++){
     const qx=pcx+dx,qz=pcz+dz,t=plotType(qx,qz);
     if(t==='super'){const S=superOf(qx,qz);if(S.ax!==qx||S.az!==qz)continue;}
+    if(goneAt(qx,qz))continue;   // (nothing's parked up in a place that's been wiped out)
     for(const o of parkSpots(qx,qz)){
       if(hash2(Math.floor(o.x)*13+o.y,Math.floor(o.z)*7+o.y*3)>o.p)continue;
       if(parkDown[o.key]&&playTime<parkDown[o.key])continue;
@@ -20988,7 +21000,7 @@ function spawnHw(c){
     for(const H of L){const pa=Math.floor((H.ax==='x'?p.pos.x:p.pos.z)/CELL);for(let m=pa-5;m<=pa+5;m++){const m0=icOf(H.ax,H.k,m);if(m0===m)for(const side of [1,-1])opts.push({H,m0,side});}}
     for(let tries=0;tries<4&&opts.length;tries++){
       const o=opts.splice(Math.floor(Math.random()*opts.length),1)[0],R=icRoutes(o.H.ax,o.H.k,o.m0,o.side),s0=R.on[0];
-      if(!mayLook(s0.x,s0.z))continue;const y=groundAt(s0.x,s0.z,G+3);if(Math.abs(y-(G+1))>0.5)continue;if(!segOpen(Math.floor(s0.x/CELL),Math.floor(s0.z/CELL),o.H.ax==='x'?0:1))continue;
+      if(!mayLook(s0.x,s0.z)||ptGone(s0.x,s0.z))continue;const y=groundAt(s0.x,s0.z,G+3);if(Math.abs(y-(G+1))>0.5)continue;if(!segOpen(Math.floor(s0.x/CELL),Math.floor(s0.z/CELL),o.H.ax==='x'?0:1))continue;
       if(Math.hypot(s0.x-p.pos.x,s0.z-p.pos.z)<40&&visibleToAny(s0.x,y+1,s0.z))continue;
       if(cars.some(q=>q!==c&&q.alive&&Math.hypot(q.pos.x-s0.x,q.pos.z-s0.z)<8))continue;
       const nx=R.on[1];
@@ -21010,7 +21022,8 @@ function spawnHw(c){
   const go=(x,y,z)=>{carSpawn(c,{veh:pickVeh('hw'),speed:16,parked:false});c.driver=makeDriver(false);c.dh.visible=true;c.spot=null;};
   for(let tries=0;tries<10;tries++){
     if(RL.length&&(Math.random()<0.75||!L.length)){
-      const R=RL[Math.floor(Math.random()*RL.length)],me=rtProject(R,p.pos.x,p.pos.z),dir=Math.random()<0.5?1:-1,lane=RT_LANES[Math.floor(Math.random()*2)];
+      const R=RL[Math.floor(Math.random()*RL.length)],me=rtProject(R,p.pos.x,p.pos.z);let dir=Math.random()<0.5?1:-1;const lane=RT_LANES[Math.floor(Math.random()*2)];
+      {const gA=setGone(R.A.T),gB=setGone(R.B.T);if(gA&&gB)continue;if(dir>0?gB:gA)dir=-dir;}   // (only ever heading away from a place that's been wiped out)
       const s=me.s+(Math.random()<0.5?-1:1)*(40+Math.random()*Math.max(10,Math.min(80,viewFar()-45)));if(s<4||s>R.L-4)continue;
       const lane2=R.kind==='country'&&(dir>0?R.L-s:s)<200?1.5:lane,P=rtPoint(R,s),tx=P.tx*dir,tz=P.tz*dir,x=P.x-tz*lane2,z=P.z+tx*lane2,y=rtSurfY(R,s);
       if(settlementAt(Math.floor(x/CELL),Math.floor(z/CELL)))continue;
@@ -21024,7 +21037,7 @@ function spawnHw(c){
     const along=(H.ax==='x'?p.pos.x:p.pos.z)+(Math.random()<0.5?-1:1)*(40+Math.random()*Math.max(10,Math.min(70,viewFar()-45)));
     if(!(H.ax==='x'?hwRow(H.k,Math.floor(along/CELL)):hwCol(H.k,Math.floor(along/CELL))))continue;
     const x=H.ax==='x'?along:lane,z=H.ax==='x'?lane:along,y=hwSurf(H.ax);
-    if(!ok(x,y,z))continue;
+    if(ptGone(x,z)||!ok(x,y,z))continue;
     go(x,y,z);c.hw={ax:H.ax,dir,lane,y};
     c.pos.set(x,y,z);c.heading=H.ax==='x'?(dir>0?Math.PI/2:-Math.PI/2):(dir>0?0:Math.PI);
     return true;
@@ -21037,7 +21050,7 @@ function spawnPolice(c){
     const pcx=Math.floor(p.pos.x/CELL),pcz=Math.floor(p.pos.z/CELL),PR=Math.ceil(viewFar()/CELL),minD=playTime<2?24:Math.max(24,viewFar()*0.72);
     for(let dx=-PR;dx<=PR;dx++)for(let dz=-PR;dz<=PR;dz++){
       const px=pcx+dx,pz=pcz+dz;const PI_=plotInfo(px,pz);if(!(PI_.type==='super'&&PI_.super.kind==='police'&&PI_.super.ax===px&&PI_.super.az===pz))continue;
-      if(collapses[px+','+pz+',0']!==undefined)continue;
+      if(collapses[px+','+pz+',0']!==undefined||goneAt(px,pz))continue;
       const k=px+','+pz;if(policeDown[k]&&playTime<policeDown[k])continue;
       const PL=PI_.lots.find(L=>L.police);if(!PL)continue;
       const bays=lotBays(PL).filter((o,i)=>i%2===0).slice(0,6);
@@ -21178,6 +21191,7 @@ function spawnTraffic(c){
     if(superPart(Math.floor(px),Math.floor(pz))&&superPart(Math.floor(px),Math.floor(pz))!=='road')continue;
     if(!segOpen(Math.floor(px/CELL),Math.floor(pz/CELL),alongZ?0:1))continue;
     if(!c.police&&segRuinedA(Math.floor(px/CELL),Math.floor(pz/CELL),alongZ?0:1))continue;   // (not among the ruins)
+    if(ptGone(px,pz))continue;   // (nor anywhere in a place that's been wiped out, police or not)
     if(cars.some(o=>o!==c&&o.alive&&Math.hypot(o.pos.x-px,o.pos.z-pz)<7))continue;
     if(players.some(q=>q.active&&Math.hypot(q.pos.x-px,q.pos.z-pz)<20))continue;
     if(playTime>=2&&Math.hypot(px-p.pos.x,pz-p.pos.z)<hazeMin&&visibleToAny(px,G+2,pz))continue;
@@ -24924,6 +24938,8 @@ function refreshVenues(){
       if(!tenvShow(px,pz))continue;const S=superOf(px,pz);
       if(S&&S.kind==='theme'&&LM_TYPES.has(plotType(S.ax,S.az))){const k='t'+S.ax+','+S.az;want.add(k);if(!venues.has(k))venues.set(k,{S,kind:'theme',k,ride:null});pondBoats(S,want);}
       if(!S||S.ax!==px||S.az!==pz)continue;
+      const dead=(S.kind==='stadium'||S.kind==='arena'||S.kind==='zoo')&&goneAt(px,pz);   // (a wiped-out place: once it's out of reach, nobody's there when you come back)
+      if(dead&&!venues.has((S.kind==='zoo'?'z':'v')+px+','+pz))continue;
       if(S.kind==='stadium'||S.kind==='arena'){const k='v'+px+','+pz;want.add(k);if(!venues.has(k)){const V={S,kind:S.kind,seats:null,cheer:0,cheerT:8,ball:null};
         if(S.kind==='stadium'){const W=(S.w-1)*CELL+PL1-PL0,L=(S.h-1)*CELL+PL1-PL0,F=stadiumField(W,L);V.pitch={x0:px*CELL+PL0+F.fx0,z0:pz*CELL+PL0+F.fz0,w:F.fw,h:F.fh,y:G+1,long:F.long};}
         else{const b=plotInfo(px,pz).b[0],c=(b.x1-b.x0-1)/2;V.pitch={x0:px*CELL+b.x0+c+0.5-13,z0:pz*CELL+b.z0+c+0.5-8,w:26,h:16,y:G+2,long:false};}
@@ -27555,7 +27571,7 @@ function stationDef(px,pz){
   superCache.set(k,D);return D;
 }
 function stnState(D){let T=STN.get(D.key);if(!T){T={slots:D.bays.map(()=>({st:'home',t:0,car:null}))};STN.set(D.key,T);}return T;}
-const stnDown=D=>collapses[D.key+',0']!==undefined;
+const stnDown=D=>collapses[D.key+',0']!==undefined||goneAt(D.px,D.pz);   // (or its place has been wiped out)
 // put a vehicle from the pool into a bay
 function svcPark(c,D,i){
   const y=D.bays[i];carSpawn(c,{x:y.x,y:G+1,z:y.z,h:y.h,hp:45,parked:false,place:true});c.spot=null;   // (a station's vehicles are all as tough as a fire engine)
@@ -27932,7 +27948,8 @@ function updateServices(dt){
   const near=(x,z,R)=>act.some(p=>Math.hypot(p.pos.x-x,p.pos.z-z)<R);
   const busy=(kind,x,z,R)=>SVC.some(c=>c.alive&&c.svc&&c.svc.st!=='parked'&&c.svcPool===kind&&Math.hypot(c.svc.tx-x,c.svc.tz-z)<R);
   // a vehicle from the nearest station with one at home: its parked one if it's on show, or one from the pool
-  const send=(kind,x,z)=>{const pk=pickStation(kind,x,z);if(!pk)return null;let c=stnState(pk.D).slots[pk.k].car;if(!c||!c.alive)c=SVC.find(o=>!o.alive&&o.svcPool===kind);if(!c)return null;return svcStart(c,kind,pk,x,z)?c:null;};
+  const send=(kind,x,z)=>{if(ptGone(x,z))return null;const pk=pickStation(kind,x,z);   // (nobody's sent into a place that's been wiped out)
+   if(!pk)return null;let c=stnState(pk.D).slots[pk.k].car;if(!c||!c.alive)c=SVC.find(o=>!o.alive&&o.svcPool===kind);if(!c)return null;return svcStart(c,kind,pk,x,z)?c:null;};
   // fires
   for(const F of fires){if(F.t<3||F.douse||!near(F.x,F.z,140)||busy('fire',F.x,F.z,24))continue;const c=send('fire',F.x,F.z);if(c){flashLabel('Fire engine on its way',(nearestPlayer(F.x,F.z)||{}).p);break;}}
   // bodies
@@ -28005,6 +28022,10 @@ function updateCars(dt){
       if(c.progT>15){if(Math.hypot(c.pos.x-c.progP.x,c.pos.z-c.progP.z)<3)carReroute(c);c.progT=0;c.progP.x=c.pos.x;c.progP.z=c.pos.z;}}
     if(!c.parked&&!c.hunter&&!c.police&&!c.svcPool&&!c.crew){c.stuckLong=Math.abs(c.speed)<0.3?(c.stuckLong||0)+dt:0;
       if(!gone&&c.stuckLong>25&&c.visT<=0){c.visT=0.5;if(!visibleToAny(c.pos.x,c.pos.y+1,c.pos.z)&&!carUnderPlayer(c)){gone=true;c.stuckLong=0;}}}   // (never from under a hippo stood on it)
+    // (a place that's been wiped out: the traffic still driving about it slips away once nobody's looking, and anything
+    // parked there isn't put back. Hunters, police on the move and the services see their business through)
+    if(!gone&&!c.hunter&&(!c.police||c.parked)&&!c.svcPool&&!c.crew&&!c.drv&&!c.gnr&&!c.left&&(c.goneT=(c.goneT||0)-dt)<=0){c.goneT=1;
+      if(ptGone(c.pos.x,c.pos.z)&&!visibleToAny(c.pos.x,c.pos.y+1,c.pos.z)&&!carUnderPlayer(c))gone=true;}
     if(c.svcPool)gone=!any||any.d>(c.svcPool==='news'?620:320);   // (a news van comes from further off: see NEWS_R)
     if(c.crewPool)gone=!c.spot&&(!any||any.d>viewFar()+30);   // (a militia vehicle's camp keeps it: see crewSite. Driven off, it goes once left far behind)
     if(c.drv||c.gnr)gone=false;   // (never recycled from under its driver, or its gunner)
@@ -28075,6 +28096,11 @@ function updateCars(dt){
       const onDeck=Math.abs(c.pos.y-rtSurfY(R,me.s))<1.3&&Math.abs(me.sd)<9;
       // the end of the route: hand over to the place's main street, or its motorway deck
       const end=T.dir>0?me.s>R.L-1.5:me.s<1.5;
+      // (heading for a place that's been wiped out: nobody drives into the ruins. Out of sight it slips away; if it's
+      // seen all the way to the edge of town, it turns round there)
+      if(setGone((T.dir>0?R.B:R.A).T)){
+        if(end){T.dir=-T.dir;c.heading+=Math.PI;c.speed=0;continue;}
+        if(c.hwPool&&(T.dir>0?R.L-me.s:me.s)<260&&(c.goneT=(c.goneT||0)-dt)<=0){c.goneT=1;if(!visibleToAny(c.pos.x,c.pos.y+1,c.pos.z)&&!carUnderPlayer(c)){c.alive=false;c.g.visible=false;c.respawnT=0.5;c.rt=null;continue;}}}
       if(end){const E=T.dir>0?R.B:R.A,inDir=-E.s;c.rt=null;
         if(R.kind==='moto'&&axisSpan(E.T,E.ax).kind==='moto'){const k=lineOf(E.T,E.ax),inner=Math.abs(T.lane)<3,lp=E.ax==='x'?(inDir>0?(inner?5.5:8.5):(inner?2.5:-0.5)):(inDir>0?(inner?2.5:-0.5):(inner?5.5:8.5));
           c.hw={ax:E.ax,dir:inDir,lane:k*CELL+lp,y:hwSurf(E.ax)};}
@@ -28126,7 +28152,8 @@ function updateCars(dt){
           if(Math.hypot(pt[0]-c.pos.x,pt[1]-c.pos.z)<30&&((nx[0]-pt[0])*(H.ax==='x'?H.dir:0)+(nx[1]-pt[1])*(H.ax==='z'?H.dir:0))>0){J={R,dir,s};break;}}}
         if(J){dbgJoin++;c.rt={R:J.R,dir:J.dir,lane:1.5,i:J.s?J.R.pts.length-2:0};c.hw=null;continue;}
         H.dir=-H.dir;H.lane=Math.floor((H.lane+3)/CELL)*CELL+(((H.ax==='x')===(H.dir>0))?5.5:2.5);c.heading+=Math.PI;c.speed=0;c.revT=6;dbgRev++;}
-      if((H.ground||H.y<=G+1.5)&&biomeOf(Math.floor(c.pos.x/CELL),Math.floor(c.pos.z/CELL))!=='plains'){c.hw=null;c.dir=H.ax==='x'?(H.dir>0?1:3):(H.dir>0?0:2);c.lastInter=-1;c.leaving=!!c.hwPool;c.leaveT=0;continue;}
+      if((H.ground||H.y<=G+1.5)&&!(c.revT>0)&&goneAt(Math.floor(c.pos.x/CELL),Math.floor(c.pos.z/CELL))){H.dir=-H.dir;H.lane=Math.floor((H.lane+3)/CELL)*CELL+(((H.ax==='x')===(H.dir>0))?5.5:2.5);c.heading+=Math.PI;c.speed=0;c.revT=6;}   // (not into a wiped-out town: back out the way it came)
+      else if((H.ground||H.y<=G+1.5)&&biomeOf(Math.floor(c.pos.x/CELL),Math.floor(c.pos.z/CELL))!=='plains'){c.hw=null;c.dir=H.ax==='x'?(H.dir>0?1:3):(H.dir>0?0:2);c.lastInter=-1;c.leaving=!!c.hwPool;c.leaveT=0;continue;}
       if(onDeck){
         const want=H.ax==='x'?(H.dir>0?Math.PI/2:-Math.PI/2):(H.dir>0?0:Math.PI),off=(H.ax==='x'?H.lane-c.pos.z:H.lane-c.pos.x);
         const side=H.ax==='x'?(H.dir>0?1:-1):(H.dir>0?-1:1);
@@ -28140,7 +28167,7 @@ function updateCars(dt){
         if(!H.ground){const a=H.ax==='x'?c.pos.x:c.pos.z,k=Math.round((H.ax==='x'?H.lane-8.5:H.lane+0.5)/CELL),side=H.ax==='x'?(H.dir>0?1:-1):(H.dir>0?-1:1),m=Math.floor((a+H.dir*20)/CELL),m0=icOf(H.ax,Math.floor((H.ax==='x'?c.pos.z:c.pos.x)/CELL+0.2),m);
          if(m0!==null){const kk=Math.floor((H.ax==='x'?c.pos.z:c.pos.x)/CELL+0.2),R=icRoutes(H.ax,kk,m0,side),key=H.ax+kk+','+m0;
            const sa=R.off.start,da=(sa-a)*H.dir;
-           if(da>0&&da<6&&c.icKey!==key){c.icKey=key;if(c.veh!=='semi'&&Math.random()<0.3){c.path=R.off.pts.slice();c.pathEnd='leave';c.leaveDir=R.leaveDir;c.prevHw=c.hw;c.pathBlk=0;c.hw=null;}}}}
+           if(da>0&&da<6&&c.icKey!==key){c.icKey=key;const oe=R.off.pts[R.off.pts.length-1];if(c.veh!=='semi'&&Math.random()<0.3&&!ptGone(oe.x,oe.z)){c.path=R.off.pts.slice();c.pathEnd='leave';c.leaveDir=R.leaveDir;c.prevHw=c.hw;c.pathBlk=0;c.hw=null;}}}}
         if(!H.ground)cloverChoice(c,H);
         // coming up to a town, where the ground-level highway narrows to one lane each way: zip merge. The outer lane
         // runs on to near the edge of town; its cars slot into the inner lane wherever there's room, and each car in the
@@ -28204,7 +28231,7 @@ function updateCars(dt){
            // the place whose highway this is, and the routes leaving it here
            let T=null;const r0=Math.round((ax==='x'?m:k)/SET_SP),q0=Math.round((ax==='x'?k:m)/SET_SP);
            for(let rx=r0-1;rx<=r0+1&&!T;rx++)for(let rz=q0-1;rz<=q0+1&&!T;rz++){const P=placeAt(rx,rz);const S=axisSpan(P,ax);if(S&&S.k===k&&S.kind==='country'&&(dir>0?S.m1===m-1:S.m0===m+1))T=P;}
-           const opts=T?routesAtExit(T,ax,dir):[];
+           const opts=T?routesAtExit(T,ax,dir).filter(o=>!setGone((o.dir>0?o.R.B:o.R.A).T)):[];   // (not off towards a place that's been wiped out)
            if(opts.length){const o=opts[Math.floor(Math.random()*opts.length)];c.rt={R:o.R,dir:o.dir,lane:1.5,i:o.dir>0?0:o.R.pts.length-2};}
            else{c.dir=(c.dir+2)%4;c.lastInter=-1;}   // (no highway on: turn round)
          }}}

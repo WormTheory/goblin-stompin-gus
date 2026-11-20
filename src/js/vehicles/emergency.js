@@ -34,7 +34,7 @@ function stationDef(px,pz){
   superCache.set(k,D);return D;
 }
 function stnState(D){let T=STN.get(D.key);if(!T){T={slots:D.bays.map(()=>({st:'home',t:0,car:null}))};STN.set(D.key,T);}return T;}
-const stnDown=D=>collapses[D.key+',0']!==undefined;
+const stnDown=D=>collapses[D.key+',0']!==undefined||goneAt(D.px,D.pz);   // (or its place has been wiped out)
 // put a vehicle from the pool into a bay
 function svcPark(c,D,i){
   const y=D.bays[i];carSpawn(c,{x:y.x,y:G+1,z:y.z,h:y.h,hp:45,parked:false,place:true});c.spot=null;   // (a station's vehicles are all as tough as a fire engine)
@@ -411,7 +411,8 @@ function updateServices(dt){
   const near=(x,z,R)=>act.some(p=>Math.hypot(p.pos.x-x,p.pos.z-z)<R);
   const busy=(kind,x,z,R)=>SVC.some(c=>c.alive&&c.svc&&c.svc.st!=='parked'&&c.svcPool===kind&&Math.hypot(c.svc.tx-x,c.svc.tz-z)<R);
   // a vehicle from the nearest station with one at home: its parked one if it's on show, or one from the pool
-  const send=(kind,x,z)=>{const pk=pickStation(kind,x,z);if(!pk)return null;let c=stnState(pk.D).slots[pk.k].car;if(!c||!c.alive)c=SVC.find(o=>!o.alive&&o.svcPool===kind);if(!c)return null;return svcStart(c,kind,pk,x,z)?c:null;};
+  const send=(kind,x,z)=>{if(ptGone(x,z))return null;const pk=pickStation(kind,x,z);   // (nobody's sent into a place that's been wiped out)
+   if(!pk)return null;let c=stnState(pk.D).slots[pk.k].car;if(!c||!c.alive)c=SVC.find(o=>!o.alive&&o.svcPool===kind);if(!c)return null;return svcStart(c,kind,pk,x,z)?c:null;};
   // fires
   for(const F of fires){if(F.t<3||F.douse||!near(F.x,F.z,140)||busy('fire',F.x,F.z,24))continue;const c=send('fire',F.x,F.z);if(c){flashLabel('Fire engine on its way',(nearestPlayer(F.x,F.z)||{}).p);break;}}
   // bodies

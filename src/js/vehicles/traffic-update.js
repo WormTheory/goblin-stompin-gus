@@ -56,6 +56,10 @@ function updateCars(dt){
       if(c.progT>15){if(Math.hypot(c.pos.x-c.progP.x,c.pos.z-c.progP.z)<3)carReroute(c);c.progT=0;c.progP.x=c.pos.x;c.progP.z=c.pos.z;}}
     if(!c.parked&&!c.hunter&&!c.police&&!c.svcPool&&!c.crew){c.stuckLong=Math.abs(c.speed)<0.3?(c.stuckLong||0)+dt:0;
       if(!gone&&c.stuckLong>25&&c.visT<=0){c.visT=0.5;if(!visibleToAny(c.pos.x,c.pos.y+1,c.pos.z)&&!carUnderPlayer(c)){gone=true;c.stuckLong=0;}}}   // (never from under a hippo stood on it)
+    // (a place that's been wiped out: the traffic still driving about it slips away once nobody's looking, and anything
+    // parked there isn't put back. Hunters, police on the move and the services see their business through)
+    if(!gone&&!c.hunter&&(!c.police||c.parked)&&!c.svcPool&&!c.crew&&!c.drv&&!c.gnr&&!c.left&&(c.goneT=(c.goneT||0)-dt)<=0){c.goneT=1;
+      if(ptGone(c.pos.x,c.pos.z)&&!visibleToAny(c.pos.x,c.pos.y+1,c.pos.z)&&!carUnderPlayer(c))gone=true;}
     if(c.svcPool)gone=!any||any.d>(c.svcPool==='news'?620:320);   // (a news van comes from further off: see NEWS_R)
     if(c.crewPool)gone=!c.spot&&(!any||any.d>viewFar()+30);   // (a militia vehicle's camp keeps it: see crewSite. Driven off, it goes once left far behind)
     if(c.drv||c.gnr)gone=false;   // (never recycled from under its driver, or its gunner)
@@ -126,6 +130,11 @@ function updateCars(dt){
       const onDeck=Math.abs(c.pos.y-rtSurfY(R,me.s))<1.3&&Math.abs(me.sd)<9;
       // the end of the route: hand over to the place's main street, or its motorway deck
       const end=T.dir>0?me.s>R.L-1.5:me.s<1.5;
+      // (heading for a place that's been wiped out: nobody drives into the ruins. Out of sight it slips away; if it's
+      // seen all the way to the edge of town, it turns round there)
+      if(setGone((T.dir>0?R.B:R.A).T)){
+        if(end){T.dir=-T.dir;c.heading+=Math.PI;c.speed=0;continue;}
+        if(c.hwPool&&(T.dir>0?R.L-me.s:me.s)<260&&(c.goneT=(c.goneT||0)-dt)<=0){c.goneT=1;if(!visibleToAny(c.pos.x,c.pos.y+1,c.pos.z)&&!carUnderPlayer(c)){c.alive=false;c.g.visible=false;c.respawnT=0.5;c.rt=null;continue;}}}
       if(end){const E=T.dir>0?R.B:R.A,inDir=-E.s;c.rt=null;
         if(R.kind==='moto'&&axisSpan(E.T,E.ax).kind==='moto'){const k=lineOf(E.T,E.ax),inner=Math.abs(T.lane)<3,lp=E.ax==='x'?(inDir>0?(inner?5.5:8.5):(inner?2.5:-0.5)):(inDir>0?(inner?2.5:-0.5):(inner?5.5:8.5));
           c.hw={ax:E.ax,dir:inDir,lane:k*CELL+lp,y:hwSurf(E.ax)};}
@@ -177,7 +186,8 @@ function updateCars(dt){
           if(Math.hypot(pt[0]-c.pos.x,pt[1]-c.pos.z)<30&&((nx[0]-pt[0])*(H.ax==='x'?H.dir:0)+(nx[1]-pt[1])*(H.ax==='z'?H.dir:0))>0){J={R,dir,s};break;}}}
         if(J){dbgJoin++;c.rt={R:J.R,dir:J.dir,lane:1.5,i:J.s?J.R.pts.length-2:0};c.hw=null;continue;}
         H.dir=-H.dir;H.lane=Math.floor((H.lane+3)/CELL)*CELL+(((H.ax==='x')===(H.dir>0))?5.5:2.5);c.heading+=Math.PI;c.speed=0;c.revT=6;dbgRev++;}
-      if((H.ground||H.y<=G+1.5)&&biomeOf(Math.floor(c.pos.x/CELL),Math.floor(c.pos.z/CELL))!=='plains'){c.hw=null;c.dir=H.ax==='x'?(H.dir>0?1:3):(H.dir>0?0:2);c.lastInter=-1;c.leaving=!!c.hwPool;c.leaveT=0;continue;}
+      if((H.ground||H.y<=G+1.5)&&!(c.revT>0)&&goneAt(Math.floor(c.pos.x/CELL),Math.floor(c.pos.z/CELL))){H.dir=-H.dir;H.lane=Math.floor((H.lane+3)/CELL)*CELL+(((H.ax==='x')===(H.dir>0))?5.5:2.5);c.heading+=Math.PI;c.speed=0;c.revT=6;}   // (not into a wiped-out town: back out the way it came)
+      else if((H.ground||H.y<=G+1.5)&&biomeOf(Math.floor(c.pos.x/CELL),Math.floor(c.pos.z/CELL))!=='plains'){c.hw=null;c.dir=H.ax==='x'?(H.dir>0?1:3):(H.dir>0?0:2);c.lastInter=-1;c.leaving=!!c.hwPool;c.leaveT=0;continue;}
       if(onDeck){
         const want=H.ax==='x'?(H.dir>0?Math.PI/2:-Math.PI/2):(H.dir>0?0:Math.PI),off=(H.ax==='x'?H.lane-c.pos.z:H.lane-c.pos.x);
         const side=H.ax==='x'?(H.dir>0?1:-1):(H.dir>0?-1:1);
@@ -191,7 +201,7 @@ function updateCars(dt){
         if(!H.ground){const a=H.ax==='x'?c.pos.x:c.pos.z,k=Math.round((H.ax==='x'?H.lane-8.5:H.lane+0.5)/CELL),side=H.ax==='x'?(H.dir>0?1:-1):(H.dir>0?-1:1),m=Math.floor((a+H.dir*20)/CELL),m0=icOf(H.ax,Math.floor((H.ax==='x'?c.pos.z:c.pos.x)/CELL+0.2),m);
          if(m0!==null){const kk=Math.floor((H.ax==='x'?c.pos.z:c.pos.x)/CELL+0.2),R=icRoutes(H.ax,kk,m0,side),key=H.ax+kk+','+m0;
            const sa=R.off.start,da=(sa-a)*H.dir;
-           if(da>0&&da<6&&c.icKey!==key){c.icKey=key;if(c.veh!=='semi'&&Math.random()<0.3){c.path=R.off.pts.slice();c.pathEnd='leave';c.leaveDir=R.leaveDir;c.prevHw=c.hw;c.pathBlk=0;c.hw=null;}}}}
+           if(da>0&&da<6&&c.icKey!==key){c.icKey=key;const oe=R.off.pts[R.off.pts.length-1];if(c.veh!=='semi'&&Math.random()<0.3&&!ptGone(oe.x,oe.z)){c.path=R.off.pts.slice();c.pathEnd='leave';c.leaveDir=R.leaveDir;c.prevHw=c.hw;c.pathBlk=0;c.hw=null;}}}}
         if(!H.ground)cloverChoice(c,H);
         // coming up to a town, where the ground-level highway narrows to one lane each way: zip merge. The outer lane
         // runs on to near the edge of town; its cars slot into the inner lane wherever there's room, and each car in the
@@ -255,7 +265,7 @@ function updateCars(dt){
            // the place whose highway this is, and the routes leaving it here
            let T=null;const r0=Math.round((ax==='x'?m:k)/SET_SP),q0=Math.round((ax==='x'?k:m)/SET_SP);
            for(let rx=r0-1;rx<=r0+1&&!T;rx++)for(let rz=q0-1;rz<=q0+1&&!T;rz++){const P=placeAt(rx,rz);const S=axisSpan(P,ax);if(S&&S.k===k&&S.kind==='country'&&(dir>0?S.m1===m-1:S.m0===m+1))T=P;}
-           const opts=T?routesAtExit(T,ax,dir):[];
+           const opts=T?routesAtExit(T,ax,dir).filter(o=>!setGone((o.dir>0?o.R.B:o.R.A).T)):[];   // (not off towards a place that's been wiped out)
            if(opts.length){const o=opts[Math.floor(Math.random()*opts.length)];c.rt={R:o.R,dir:o.dir,lane:1.5,i:o.dir>0?0:o.R.pts.length-2};}
            else{c.dir=(c.dir+2)%4;c.lastInter=-1;}   // (no highway on: turn round)
          }}}

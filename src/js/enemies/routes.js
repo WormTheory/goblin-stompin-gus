@@ -317,6 +317,10 @@ function updateGoblins(dt){
     // home -- quietly vanishing somewhere no one's looking
     if(!gone&&g.t>15&&any.d>28&&!g.medic&&!g.ff&&!g.cop&&!g.news&&(g.civ&&!g.staff&&!TENV&&civAlive>civTarget||g.staff&&g.employer&&staffAt(g.employer.key)>staffCapNow(g.employer.b))&&!visibleToAny(g.pos.x,g.pos.y+1,g.pos.z)){
       gone=true;g.state='wait';g.t=0;g.root.visible=false;if(g.civ&&!g.staff)civAlive--;g.vendor=null;g.employer=null;return;}
+    // a place that's been wiped out: whoever's still about in it (townsfolk, shop staff, a goblin) slips away, one at a
+    // time, once nobody's looking -- no one new turns up there (spawnOK), so it's left empty
+    if(!gone&&g.t>4&&any.d>20&&!g.special&&!g.medic&&!g.ff&&!g.cop&&!g.news&&!g.mount&&(g.goneT=(g.goneT||0)-dt)<=0){g.goneT=1;
+      if(ptGone(g.pos.x,g.pos.z)&&!visibleToAny(g.pos.x,g.pos.y+1,g.pos.z)){gone=true;g.state='wait';g.t=0;g.root.visible=false;if(g.civ&&!g.staff)civAlive--;else if(!g.staff)hostileAlive--;g.vendor=null;g.employer=null;return;}}
     const tgt=nearestPlayer(g.pos.x,g.pos.z,true);
     let moving=false,d=1e9,dx=0,dz=0;
     if(g.snowU){if(g.snowFor!==g.id){g.snowFor=g.id;g.snowU.value=WX.k.snow>0.08?WX.snowCover*0.5:0;}snowGather(g,dt,g.phaseWas!==g.phase);g.phaseWas=g.phase;}

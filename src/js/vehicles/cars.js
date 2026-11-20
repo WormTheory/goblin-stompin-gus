@@ -471,6 +471,7 @@ function spawnParked(c){
   for(let dx=-PR;dx<=PR;dx++)for(let dz=-PR;dz<=PR;dz++){
     const qx=pcx+dx,qz=pcz+dz,t=plotType(qx,qz);
     if(t==='super'){const S=superOf(qx,qz);if(S.ax!==qx||S.az!==qz)continue;}
+    if(goneAt(qx,qz))continue;   // (nothing's parked up in a place that's been wiped out)
     for(const o of parkSpots(qx,qz)){
       if(hash2(Math.floor(o.x)*13+o.y,Math.floor(o.z)*7+o.y*3)>o.p)continue;
       if(parkDown[o.key]&&playTime<parkDown[o.key])continue;
@@ -548,7 +549,7 @@ function spawnHw(c){
     for(const H of L){const pa=Math.floor((H.ax==='x'?p.pos.x:p.pos.z)/CELL);for(let m=pa-5;m<=pa+5;m++){const m0=icOf(H.ax,H.k,m);if(m0===m)for(const side of [1,-1])opts.push({H,m0,side});}}
     for(let tries=0;tries<4&&opts.length;tries++){
       const o=opts.splice(Math.floor(Math.random()*opts.length),1)[0],R=icRoutes(o.H.ax,o.H.k,o.m0,o.side),s0=R.on[0];
-      if(!mayLook(s0.x,s0.z))continue;const y=groundAt(s0.x,s0.z,G+3);if(Math.abs(y-(G+1))>0.5)continue;if(!segOpen(Math.floor(s0.x/CELL),Math.floor(s0.z/CELL),o.H.ax==='x'?0:1))continue;
+      if(!mayLook(s0.x,s0.z)||ptGone(s0.x,s0.z))continue;const y=groundAt(s0.x,s0.z,G+3);if(Math.abs(y-(G+1))>0.5)continue;if(!segOpen(Math.floor(s0.x/CELL),Math.floor(s0.z/CELL),o.H.ax==='x'?0:1))continue;
       if(Math.hypot(s0.x-p.pos.x,s0.z-p.pos.z)<40&&visibleToAny(s0.x,y+1,s0.z))continue;
       if(cars.some(q=>q!==c&&q.alive&&Math.hypot(q.pos.x-s0.x,q.pos.z-s0.z)<8))continue;
       const nx=R.on[1];
@@ -570,7 +571,8 @@ function spawnHw(c){
   const go=(x,y,z)=>{carSpawn(c,{veh:pickVeh('hw'),speed:16,parked:false});c.driver=makeDriver(false);c.dh.visible=true;c.spot=null;};
   for(let tries=0;tries<10;tries++){
     if(RL.length&&(Math.random()<0.75||!L.length)){
-      const R=RL[Math.floor(Math.random()*RL.length)],me=rtProject(R,p.pos.x,p.pos.z),dir=Math.random()<0.5?1:-1,lane=RT_LANES[Math.floor(Math.random()*2)];
+      const R=RL[Math.floor(Math.random()*RL.length)],me=rtProject(R,p.pos.x,p.pos.z);let dir=Math.random()<0.5?1:-1;const lane=RT_LANES[Math.floor(Math.random()*2)];
+      {const gA=setGone(R.A.T),gB=setGone(R.B.T);if(gA&&gB)continue;if(dir>0?gB:gA)dir=-dir;}   // (only ever heading away from a place that's been wiped out)
       const s=me.s+(Math.random()<0.5?-1:1)*(40+Math.random()*Math.max(10,Math.min(80,viewFar()-45)));if(s<4||s>R.L-4)continue;
       const lane2=R.kind==='country'&&(dir>0?R.L-s:s)<200?1.5:lane,P=rtPoint(R,s),tx=P.tx*dir,tz=P.tz*dir,x=P.x-tz*lane2,z=P.z+tx*lane2,y=rtSurfY(R,s);
       if(settlementAt(Math.floor(x/CELL),Math.floor(z/CELL)))continue;
@@ -584,7 +586,7 @@ function spawnHw(c){
     const along=(H.ax==='x'?p.pos.x:p.pos.z)+(Math.random()<0.5?-1:1)*(40+Math.random()*Math.max(10,Math.min(70,viewFar()-45)));
     if(!(H.ax==='x'?hwRow(H.k,Math.floor(along/CELL)):hwCol(H.k,Math.floor(along/CELL))))continue;
     const x=H.ax==='x'?along:lane,z=H.ax==='x'?lane:along,y=hwSurf(H.ax);
-    if(!ok(x,y,z))continue;
+    if(ptGone(x,z)||!ok(x,y,z))continue;
     go(x,y,z);c.hw={ax:H.ax,dir,lane,y};
     c.pos.set(x,y,z);c.heading=H.ax==='x'?(dir>0?Math.PI/2:-Math.PI/2):(dir>0?0:Math.PI);
     return true;
@@ -597,7 +599,7 @@ function spawnPolice(c){
     const pcx=Math.floor(p.pos.x/CELL),pcz=Math.floor(p.pos.z/CELL),PR=Math.ceil(viewFar()/CELL),minD=playTime<2?24:Math.max(24,viewFar()*0.72);
     for(let dx=-PR;dx<=PR;dx++)for(let dz=-PR;dz<=PR;dz++){
       const px=pcx+dx,pz=pcz+dz;const PI_=plotInfo(px,pz);if(!(PI_.type==='super'&&PI_.super.kind==='police'&&PI_.super.ax===px&&PI_.super.az===pz))continue;
-      if(collapses[px+','+pz+',0']!==undefined)continue;
+      if(collapses[px+','+pz+',0']!==undefined||goneAt(px,pz))continue;
       const k=px+','+pz;if(policeDown[k]&&playTime<policeDown[k])continue;
       const PL=PI_.lots.find(L=>L.police);if(!PL)continue;
       const bays=lotBays(PL).filter((o,i)=>i%2===0).slice(0,6);

@@ -142,6 +142,10 @@ function setDestroyed(S){
 }
 // a place that's been wiped out (only known once its total has been worked out, i.e. once someone's been there)
 const setGone=S=>setListC.has(S.rx+','+S.rz)&&setDestroyed(S)>=1;
+// a block (or a point) of a place that's been wiped out: nobody lives there any more. No traffic drives in, nobody turns
+// up or is sent there (the stations there are dead too), and whoever was about there slips away once out of sight.
+const goneAt=(px,pz)=>{const S=settlementAt(px,pz);return!!S&&setGone(S);};
+const ptGone=(x,z)=>goneAt(Math.floor(x/CELL),Math.floor(z/CELL));
 // ---- how the maps show destruction, block by block ----
 // A block with buildings is destroyed once all of them are. A block with nothing on it to destroy (a park, a plaza, a
 // car park...) goes with its neighbours: it counts as destroyed when every built-on block of its place that it touches

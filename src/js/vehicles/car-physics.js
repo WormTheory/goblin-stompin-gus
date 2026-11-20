@@ -112,6 +112,7 @@ function spawnTraffic(c){
     if(superPart(Math.floor(px),Math.floor(pz))&&superPart(Math.floor(px),Math.floor(pz))!=='road')continue;
     if(!segOpen(Math.floor(px/CELL),Math.floor(pz/CELL),alongZ?0:1))continue;
     if(!c.police&&segRuinedA(Math.floor(px/CELL),Math.floor(pz/CELL),alongZ?0:1))continue;   // (not among the ruins)
+    if(ptGone(px,pz))continue;   // (nor anywhere in a place that's been wiped out, police or not)
     if(cars.some(o=>o!==c&&o.alive&&Math.hypot(o.pos.x-px,o.pos.z-pz)<7))continue;
     if(players.some(q=>q.active&&Math.hypot(q.pos.x-px,q.pos.z-pz)<20))continue;
     if(playTime>=2&&Math.hypot(px-p.pos.x,pz-p.pos.z)<hazeMin&&visibleToAny(px,G+2,pz))continue;

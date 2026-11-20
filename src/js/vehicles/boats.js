@@ -257,6 +257,8 @@ function refreshVenues(){
       if(!tenvShow(px,pz))continue;const S=superOf(px,pz);
       if(S&&S.kind==='theme'&&LM_TYPES.has(plotType(S.ax,S.az))){const k='t'+S.ax+','+S.az;want.add(k);if(!venues.has(k))venues.set(k,{S,kind:'theme',k,ride:null});pondBoats(S,want);}
       if(!S||S.ax!==px||S.az!==pz)continue;
+      const dead=(S.kind==='stadium'||S.kind==='arena'||S.kind==='zoo')&&goneAt(px,pz);   // (a wiped-out place: once it's out of reach, nobody's there when you come back)
+      if(dead&&!venues.has((S.kind==='zoo'?'z':'v')+px+','+pz))continue;
       if(S.kind==='stadium'||S.kind==='arena'){const k='v'+px+','+pz;want.add(k);if(!venues.has(k)){const V={S,kind:S.kind,seats:null,cheer:0,cheerT:8,ball:null};
         if(S.kind==='stadium'){const W=(S.w-1)*CELL+PL1-PL0,L=(S.h-1)*CELL+PL1-PL0,F=stadiumField(W,L);V.pitch={x0:px*CELL+PL0+F.fx0,z0:pz*CELL+PL0+F.fz0,w:F.fw,h:F.fh,y:G+1,long:F.long};}
         else{const b=plotInfo(px,pz).b[0],c=(b.x1-b.x0-1)/2;V.pitch={x0:px*CELL+b.x0+c+0.5-13,z0:pz*CELL+b.z0+c+0.5-8,w:26,h:16,y:G+2,long:false};}

@@ -184,6 +184,7 @@ function spawnGoblin(g,any){
   if(any)pos=c.pos.clone();
   // down in the sewers or the subway: they come at you along the tunnel
   if(!any&&c.pos.y<G-1&&underAt(c.pos.x,c.pos.y,c.pos.z)){
+    if(ptGone(c.pos.x,c.pos.z))return false;   // (nobody left under a place that's been wiped out, either)
     for(let k=0;k<40&&!pos;k++){const a=Math.random()*6.283,rr=8+Math.random()*20,x=Math.floor(c.pos.x+Math.cos(a)*rr),z=Math.floor(c.pos.z+Math.sin(a)*rr);
       for(let y=Math.floor(c.pos.y)+3;y>=Math.floor(c.pos.y)-3;y--){const f=get(x,y-1,z);if(f&&f!==WATER&&!get(x,y,z)&&!get(x,y+1,z)){pos=new V3(x+0.5,y,z+0.5);break;}}}
     if(!pos)return false;}
