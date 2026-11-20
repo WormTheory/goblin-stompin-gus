@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:8568acfff04fdf296d8ba250416c581eb742cadf9c4341454b98ab8bd335440a -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:96542d4a6d28baccb8086267aca97c3ce327d7bf5683215270a1615e8cc46a80 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2275,7 +2275,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='6296302528b4';
+const GAME_VER='0.5',GAME_BUILD='20254b54f20d';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -9157,7 +9157,7 @@ function blkFireTick(dt){
 // dark it is; nothing's drawn when that's 0, so a clear night or the day costs nothing. Each halo fades out into the fog a
 // little further off than the lit faces do (uNear, uFar: the fog's), and as you get right up to it.
 const BL_HALO_N=96,HALO_U={uStr:{value:0},uNear:{value:0},uFar:{value:1},uWorldCurve:CURVE_U};
-const HALO_A=new THREE.InstancedBufferAttribute(new Float32Array(BL_HALO_N*4),4);HALO_A.setUsage(THREE.DynamicDrawUsage);
+const HALO_A=new THREE.InstancedBufferAttribute(new Float32Array(BL_HALO_N*4),4);HALO_A.usage=THREE.DynamicDrawUsage;
 // (made the first time it's needed: the scene isn't there yet when this file runs)
 let HALO=null;
 function haloMesh(){const g=new THREE.PlaneGeometry(2,2);g.setAttribute('aHalo',HALO_A);

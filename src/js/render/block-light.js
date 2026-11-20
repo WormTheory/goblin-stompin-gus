@@ -90,7 +90,7 @@ function blkFireTick(dt){
 // dark it is; nothing's drawn when that's 0, so a clear night or the day costs nothing. Each halo fades out into the fog a
 // little further off than the lit faces do (uNear, uFar: the fog's), and as you get right up to it.
 const BL_HALO_N=96,HALO_U={uStr:{value:0},uNear:{value:0},uFar:{value:1},uWorldCurve:CURVE_U};
-const HALO_A=new THREE.InstancedBufferAttribute(new Float32Array(BL_HALO_N*4),4);HALO_A.setUsage(THREE.DynamicDrawUsage);
+const HALO_A=new THREE.InstancedBufferAttribute(new Float32Array(BL_HALO_N*4),4);HALO_A.usage=THREE.DynamicDrawUsage;
 // (made the first time it's needed: the scene isn't there yet when this file runs)
 let HALO=null;
 function haloMesh(){const g=new THREE.PlaneGeometry(2,2);g.setAttribute('aHalo',HALO_A);
