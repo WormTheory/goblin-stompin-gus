@@ -1297,6 +1297,7 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
    minimap's outer edge, --mm and its 4px rim, is 84 from the middle, so it stays round the minimap at any size) */
 .wreck{position:absolute;left:calc(max(20px,env(safe-area-inset-left,0px)) - (var(--mm,160px) + 8px) * 36 / 168);bottom:calc(20px + env(safe-area-inset-bottom,0px) + (var(--mm,160px) + 8px) / 2);width:calc((var(--mm,160px) + 8px) * 240 / 168);pointer-events:none}
 .wreck[hidden]{display:none}
+.wreck.wkout{opacity:0;transition:opacity 1s}   /* (left behind: fading out, WK_FADE) */
 .wreck svg{display:block;width:100%;height:auto;overflow:visible}
 .wreck path{fill:none;stroke-linecap:round}
 .wreck .wk-rim{stroke:var(--ink);stroke-width:15}

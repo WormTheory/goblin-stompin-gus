@@ -93,11 +93,18 @@ function killShout(cause){
   const c=String(cause||'').toLowerCase();
   return /stomp|squash|flatten|landed|crash|sat on|pound/.test(c)?'SPLAT!':/bit|chomp|jaw/.test(c)?'CHOMP!':/trampl|run over|rammed|charg/.test(c)?'FLATTENED!':/blown|explo|blast|boom|rocket|grenade|shell/.test(c)?'KABOOM!':/shot|rifle|gun/.test(c)?'BLAM!':/club|dagger|stab/.test(c)?'WHACK!':'BONK!';
 }
-// ---- the Settlement razed card, bottom right of each player's view: how much of the place they're in is knocked down ----
+// ---- the Settlement razed bar, round the top of each player's minimap: how much of the place they're in is knocked down.
+// Left, it stays WK_HOLD seconds on the last place's figure, then fades out (WK_FADE); a new place takes over at once ----
+const WK_HOLD=15,WK_FADE=1;
 function wreckHud(p,dt){
-  const u=p.ui;if(!u.wreck)return;u.wreckT=(u.wreckT||0)-dt;if(u.wreckT>0)return;u.wreckT=0.25;
+  const u=p.ui;if(!u.wreck)return;u.wreckT=(u.wreckT||0)-dt;if(u.wreckT>0)return;const step=0.25-u.wreckT;u.wreckT=0.25;
   let S=null,v=null;try{S=placeOf(p);v=S&&setListC.has(S.rx+','+S.rz)?setDestroyed(S):null;}catch(e){}
-  const on=v!=null&&playing;if(u.wreck.hidden===on)u.wreck.hidden=!on;if(!on)return;
+  if(v!=null){u.wkS=S;u.wkHold=WK_HOLD;}
+  else if(u.wkS&&u.wkHold>-WK_FADE){u.wkHold-=step;try{v=setDestroyed(u.wkS);}catch(e){v=null;}}   // (just left: the place it was)
+  const on=v!=null&&playing&&!(u.wkHold<=-WK_FADE);if(!on)u.wkS=null;
+  if(u.wreck.hidden===on)u.wreck.hidden=!on;
+  const fade=on&&u.wkHold<=0;if(u.wreck.classList.contains('wkout')!==fade)u.wreck.classList.toggle('wkout',fade);
+  if(!on)return;
   const pc=Math.round(v*100),t='Settlement razed',k=t+pc;
   if(u.wreckK!==k){u.wreckK=k;u.wkT.textContent=t+'  '+pc+'%';u.wkFill.setAttribute('stroke-dasharray',pc+' 200');u.wkFill.style.visibility=pc?'':'hidden';}   // (the bar is an arc over the minimap, filled by its dash)
 }
