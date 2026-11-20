@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:c0fba8c3306d48db9c1535edef57dfea01505b54e0e859e000ef7185de508dfa -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:d3c801862660dd0ba8c6d3e0f68720071a83d4c555b25445aababe361c2e090e -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2332,7 +2332,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='7e74b5acdb5c';
+const GAME_VER='0.5',GAME_BUILD='a7237be53144';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -22585,7 +22585,7 @@ function bbFxTick(dt){
     for(let j=0;j<700&&nc<BBF_N;j++){const o=(2000+j)*4,a=sd[o],b=sd[o+1],c=sd[o+2],d=sd[o+3],hf=(a+T*0.08)%1;if(hf>gro)continue;
       const sz=cube*(0.9+0.5*d)*1.2*(1-bbSm(45+30*d,80+20*d,T));if(sz<0.05)continue;
       // (flaring out at the top into the underside of the ring, loose and thinning there)
-      const fl=bbSm(0.68,1,hf),y=CL.y+hf*(top-CL.y)+fl*rt*0.45*(d-0.35),wid=R*0.045*(1+(1-hf)*(1-hf)*1.6)*(0.4+0.6*Math.sqrt(c))+fl*fl*(Rt*k*0.9+rt*0.4)*(0.3+0.7*c),ang=2*Math.PI*b+T*0.04*(1-0.6*fl),lean=k*hf*hf;
+      const fl=bbSm(0.74,1,hf),y=CL.y+hf*(top-CL.y)+fl*rt*0.45*(d-0.35),wid=R*0.045*(1+(1-hf)*(1-hf)*1.6)*(0.4+0.6*Math.sqrt(c))+fl*fl*(Rt*k*0.6+rt*0.25)*(0.3+0.7*c),ang=2*Math.PI*b+T*0.04*(1-0.6*fl),lean=k*hf*hf;
       _bbc.setHex(0x7e6e5c).lerp(_bbc2.setHex(0xaba196),hf);lit(bbVar(_bbc,a,b,d,0.1));if(T<10)_bbc.lerp(_bbc2.setHex(0xff8a30),0.5*hf*hf*Math.exp(-T/5));
       put(CL.x+CL.wx*lean+Math.cos(ang)*wid,y,CL.z+CL.wz*lean+Math.sin(ang)*wid,sz*(1+0.7*fl),_bbc,(0.7-0.35*fl)*(1-bbSm(50,90,T)));}
     // ---- the ground surge: a ring of dust going out with the shock, then settling ----
