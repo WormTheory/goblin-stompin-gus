@@ -107,9 +107,12 @@ function wreckHud(p,dt){
   if(!on)return;
   let nm='';try{nm=setName(u.wkS);}catch(e){}
   const pc=Math.round(v*100),t=(nm||'Settlement')+' razed',k=t+pc;
-  if(u.wreckK!==k){u.wreckK=k;u.wkT.textContent=t+'  '+pc+'%';
-    // (a long name, 'Greater Sludgeborough-on-the-Marsh', is shrunk to fit along the arc: about 22 letters fit at full size)
-    const n=u.wkT.textContent.length,tp=u.wkT.parentNode;if(tp&&tp.style)tp.style.fontSize=n>22?Math.max(8,15*22/n).toFixed(1)+'px':'';u.wkFill.setAttribute('stroke-dasharray',pc+' 200');u.wkFill.style.visibility=pc?'':'hidden';}   // (the bar is an arc over the minimap, filled by its dash)
+  if(u.wreckK!==k){u.wreckK=k;
+    // (about 22 letters fit along the arc: a longer line splits in two, the name on an arc above; a name too long even
+    // for that, 'Greater Sludgeborough-on-the-Marsh', is shrunk to fit)
+    const one=t+'  '+pc+'%',two=one.length>22&&u.wkT2,fit=(el,s)=>{el.textContent=s;const tp=el.parentNode;if(tp&&tp.style)tp.style.fontSize=s.length>22?Math.max(8,15*22/s.length).toFixed(1)+'px':'';};
+    if(two){fit(u.wkT2,nm||'Settlement');fit(u.wkT,'razed  '+pc+'%');}else{fit(u.wkT,one);if(u.wkT2)u.wkT2.textContent='';}
+    u.wkFill.setAttribute('stroke-dasharray',pc+' 200');u.wkFill.style.visibility=pc?'':'hidden';}   // (the bar is an arc over the minimap, filled by its dash)
 }
 // (Options: reduced motion, kept in this browser; the system's own setting turns it on too, see reduceMotion)
 const CALM_KEY='goblin-stompin-gus-calm';
