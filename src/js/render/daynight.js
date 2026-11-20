@@ -69,9 +69,9 @@ function destLabel(){
     clockHand.setAttribute('x2',hx.toFixed(2));clockHand.setAttribute('y2',hy.toFixed(2));
     clockOrb.setAttribute('cx',hx.toFixed(2));clockOrb.setAttribute('cy',hy.toFixed(2));
     clockOrb.setAttribute('fill',day?'#ffd447':'#fff6dc');
-    // beside the clock: the day (and the time of day), then the season. (How wrecked it is: the City wrecked card, bottom right)
-    if(clockTxt){const part=timeLabel().split(', ')[1];
-      const h='<b>Day '+dayN+' · '+part+'</b><div>'+SEASONS[seasonOf()]+'</div>';
+    // beside the clock: the day, then the season (the time of day is in the debug menu's Info pane; how wrecked a place is,
+    // the Settlement razed card over the minimap)
+    if(clockTxt){const h='<b>Day '+dayN+'</b><div>'+SEASONS[seasonOf()]+'</div>';
       if(clockTxt.dataset.h!==h){clockTxt.dataset.h=h;clockTxt.innerHTML=h;}}
     infoTick(whereLabel);   // (whereLabel lives in here, in updateSky)
   }
@@ -89,7 +89,7 @@ function fpsTick(raw){
     FPS.el.className='fpsc'+(f<30?' low':f<50?' mid':'');FPS.n=0;FPS.t=0;FPS.worst=0;}
 }
 let readoutH='';
-// The info pane, under the clock: the weather, the moon and where you are, in words. Shown from the debug menu's Overlays
+// The info pane, under the clock: the time of day, the weather, the moon and where you are, in words. Shown from the debug menu's Overlays
 // (DT.info, kept in this browser), off to begin with
 const noSym=s=>s.replace(/[\u{1F000}-\u{1FAFF}\u2190-\u2BFF\uFE0F\u200D]/gu,'').replace(/ {2,}/g,' ').replace(/> /g,'>').trim();
 let infoEl=null;
@@ -97,7 +97,8 @@ function infoTick(whereLabel){
   if(!infoEl)infoEl=document.getElementById('infoPane');if(!infoEl)return;
   if(infoEl.hidden===DT.info)infoEl.hidden=!DT.info;if(!DT.info)return;
   let st='—';try{st=structLabel();}catch(e){}
-  const h='<div><span class="ik">Weather</span>'+WX_TYPES[WX.type].n+'</div><div><span class="ik">Moon</span>'+moonInfo()[0]+'</div><div><span class="ik">Biome</span>'+noSym(whereLabel())+'</div><div><span class="ik">Structure</span>'+st+'</div>';
+  const hr=hourNow(),tm=String(Math.floor(hr)).padStart(2,'0')+':'+String(Math.floor(hr%1*60)).padStart(2,'0');
+  const h='<div><span class="ik">Time</span>'+tm+', '+timeLabel().split(', ')[1]+(DT.todStop?' (paused)':'')+'</div><div><span class="ik">Weather</span>'+WX_TYPES[WX.type].n+'</div><div><span class="ik">Moon</span>'+moonInfo()[0]+'</div><div><span class="ik">Biome</span>'+noSym(whereLabel())+'</div><div><span class="ik">Structure</span>'+st+'</div>';
   if(infoEl.dataset.h!==h){infoEl.dataset.h=h;infoEl.innerHTML=h;}
 }
 // the structure or site the (first) player is in or on, named as the Structures previewer lists its kind (made singular).

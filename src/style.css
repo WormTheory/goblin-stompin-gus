@@ -133,7 +133,7 @@ canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;point
 @media (max-width:600px){.placeBanner .pn{font-size:30px}}
 .clockTxt{position:absolute;top:calc(58px + env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px));font:500 12px/1.4 var(--f-mono);color:var(--bone);background:rgba(18,22,28,.6);padding:2px 7px;border-radius:3px;white-space:nowrap;pointer-events:none}
 .readout i{color:#f0a04a;font-style:normal}
-.view{position:absolute;overflow:hidden}
+.view{position:absolute;overflow:hidden;container:hud/size}   /* (sized by layout(): its own HUD asks its size, split screen too) */
 .water-tint{position:absolute;inset:0;background:rgba(30,80,170,.38)}
 .hurt{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(150,0,0,0) 45%,rgba(150,0,0,.8) 100%);opacity:0}
 /* driving in goblin mode: the vehicle's name and health along the top, the crosshair for one with a gun (see drvHud) */
@@ -183,18 +183,20 @@ canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;point
 .drvhud .mglb .mgg.r1{left:calc(100% + 7px)}.drvhud .mglb .mgg.r2{left:calc(100% + 18px)}
 .drvhud .mglb .mgg.lo i{background:#ff6a4a}
 .drvhud .mglb .mgg.rl i{background:#f0a04a}
-/* (the readouts: just above the speedometer, in the corner (beside it they'd run into the health bar on all but the
-   widest screens), two by two, each its button, then what's loaded, a rule, and its name) */
-.drvhud .mgro{position:absolute;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(172px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(2,176px);gap:8px 16px;padding:8px 12px;background:rgba(14,17,22,.62);border-radius:4px;color:#ffd75a;text-shadow:0 1px 0 #000}
-.drvhud .mgc{display:grid;grid-template-columns:auto 1fr;align-items:end;column-gap:10px;min-width:0}
+/* (the readouts: just left of the speedometer (and the Mobile Gear's ring round it), level with its foot (narrow, so they stay clear of the health bar in the
+   middle), two by two, each its button, then what's loaded, a rule, and its name) */
+.drvhud .mgro{position:absolute;right:calc(max(18px,env(safe-area-inset-right,0px)) + 174px);bottom:calc(14px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(2,122px);gap:6px 8px;padding:6px 8px;background:rgba(14,17,22,.62);border-radius:4px;color:#ffd75a;text-shadow:0 1px 0 #000}
+.drvhud .mgc{display:grid;grid-template-columns:auto 1fr;align-items:end;column-gap:6px;min-width:0}
 /* (the button drawn at about the height of the text: the glyphs are made for the hint line, so they're scaled down) */
 .drvhud .mgc .cb{display:flex;align-items:center;height:16px;width:22px;overflow:visible}
 .drvhud .mgc .cb .g{margin:0;transform:scale(.6);transform-origin:left center}
-.drvhud .mgc .cn{text-align:right;font:400 22px var(--f-px);line-height:1}
-.drvhud .mgc .cw{grid-column:1/3;margin-top:2px;padding-top:2px;border-top:2px solid currentColor;text-align:right;font:600 10px var(--f-mono);letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.drvhud .mgc .cn{text-align:right;font:400 20px var(--f-px);line-height:1}
+.drvhud .mgc .cw{grid-column:1/3;margin-top:2px;padding-top:2px;border-top:2px solid currentColor;text-align:right;font:600 9px var(--f-mono);letter-spacing:0;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .drvhud .mgc.rl{color:#f0a04a}
-@media (pointer:coarse){.drvhud .mgro{bottom:calc(352px + env(safe-area-inset-bottom,0px))}}
-@media (max-width:700px){.drvhud .mgro{grid-template-columns:repeat(2,128px);gap:6px 10px;padding:6px 8px}.drvhud .mgc .cn{font-size:18px}}
+@media (pointer:coarse){.drvhud .mgro{right:calc(max(18px,env(safe-area-inset-right,0px)) + 150px);bottom:calc(250px + env(safe-area-inset-bottom,0px))}}
+/* (a narrower view: one column beside the speedometer; narrower still, two small ones above it, clear of the health bar) */
+@container hud (max-width:1273px){.drvhud .mgro{grid-template-columns:138px}}
+@container hud (max-width:1050px){.drvhud .mgro{right:max(18px,env(safe-area-inset-right,0px));bottom:calc(196px + env(safe-area-inset-bottom,0px));grid-template-columns:repeat(2,112px);gap:5px 8px;padding:5px 7px}.drvhud .mgc .cn{font-size:17px}}
 .rb-t tr.rb-sec th{padding-top:14px;font:600 11px var(--f-body);color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
 .dveh{display:flex;gap:6px;align-items:stretch;justify-content:center;flex-wrap:wrap;max-width:100%}
 .dveh[hidden]{display:none}
@@ -1270,14 +1272,19 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
 .feed .lbl.old{opacity:0!important}
 .feed .lbl.bump{animation:cbBump .25s ease-out}
 @keyframes feedIn{from{transform:translateX(40px) rotate(4deg);opacity:0}to{transform:none;opacity:1}}
-/* the City wrecked card, bottom right; the speedometer moves up over it while it's there */
-.wreck{position:absolute;right:max(20px,env(safe-area-inset-right,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px));width:210px;box-sizing:border-box;padding:9px 14px 11px;display:flex;flex-direction:column;gap:6px;color:var(--ink);background-color:var(--paper);background-image:var(--dither);background-size:6px 6px;border:4px solid var(--ink);border-radius:var(--wob);box-shadow:5px 5px 0 var(--ink);pointer-events:none}
-.wreck .wk1{display:flex;justify-content:space-between;align-items:baseline;font:700 15px var(--f-body)}
-.wreck .wkv{font:400 20px/1 var(--f-px)}
-.wreck .wkbar{height:20px;border:3px solid var(--ink);border-radius:10px 12px 9px 13px;background:#fff;overflow:hidden;box-sizing:border-box}
-.wreck .wkbar i{display:block;height:100%;width:0;background:var(--tomato);border-right:3px solid var(--ink);box-sizing:border-box;transition:width .4s}
+/* the Settlement razed card, just above the minimap (its 160, rim and shadow), slim so it fits under a vehicle's controls column */
+.wreck{position:absolute;left:max(20px,env(safe-area-inset-left,0px));bottom:calc(36px + var(--mm,160px) + env(safe-area-inset-bottom,0px));width:190px;box-sizing:border-box;padding:5px 10px 7px;display:flex;flex-direction:column;gap:4px;color:var(--ink);background-color:var(--paper);background-image:var(--dither);background-size:6px 6px;border:3px solid var(--ink);border-radius:var(--wobs);box-shadow:4px 4px 0 var(--ink);pointer-events:none}
+.wreck .wk1{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font:700 13px var(--f-body);white-space:nowrap}
+.wreck .wkv{font:400 16px/1 var(--f-px)}
+.wreck .wkbar{height:12px;border:2px solid var(--ink);border-radius:6px 8px 5px 9px;background:#fff;overflow:hidden;box-sizing:border-box}
+.wreck .wkbar i{display:block;height:100%;width:0;background:var(--tomato);border-right:2px solid var(--ink);box-sizing:border-box;transition:width .4s}
 .wreck .wkbar i.none{border-right:0}
-.view:has(.wreck:not([hidden])) .speedo{bottom:calc(112px + env(safe-area-inset-bottom,0px))}
+@media (pointer:coarse){.wreck{bottom:calc(416px + env(safe-area-inset-bottom,0px))}}
+/* (online, the chat column goes up over it while it's there) */
+.view:has(.wreck:not([hidden])) .chat{bottom:calc(96px + var(--mm,160px) + env(safe-area-inset-bottom,0px))}
+/* (and on a short screen a vehicle's controls column stands on it rather than in the middle of the side) */
+@container hud (max-height:800px){.view:has(.wreck:not([hidden])) .drvhud .dkeys{top:auto;bottom:calc(100px + var(--mm,160px) + env(safe-area-inset-bottom,0px));transform:none;max-height:calc(100% - 140px - var(--mm,160px));overflow:hidden}}
+@media (pointer:coarse){.view:has(.wreck:not([hidden])) .chat{bottom:calc(476px + env(safe-area-inset-bottom,0px))}}
 /* pop-ups: points (yolk), damage (tomato), shouts (paper), a combo milestone (big, in the middle of the view) */
 .pops{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:4}
 .pop{position:absolute;left:0;top:0;white-space:nowrap;will-change:transform,opacity;font:400 30px/1 var(--f-px);letter-spacing:.5px;color:var(--yolk);text-shadow:2px 0 var(--ink),-2px 0 var(--ink),0 2px var(--ink),0 -2px var(--ink),2px 2px var(--ink),-2px 2px var(--ink),2px -2px var(--ink),-2px -2px var(--ink),0 4px var(--ink)}

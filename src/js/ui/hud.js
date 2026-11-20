@@ -43,7 +43,7 @@ function layout(){
   else{set(P1.ui.view,0,0,w,h/2);set(P2.ui.view,0,h/2,w,h/2);set(divider,0,h/2-1,w,2);divider.hidden=false;}
   // (which corners of the screen each view has: the score sits in player one's top left, the clock in the top right)
   P1.ui.view.classList.add('tl');P1.ui.view.classList.toggle('tr',split!=='lr');P2.ui.view.classList.toggle('tr',split==='lr');
-  for(const p of players){p.ui.who.hidden=split==='none';if(p.ui.mini){const sz=split==='none'?160:118;p.ui.mini.style.width=p.ui.mini.style.height=sz+'px';}}
+  for(const p of players){p.ui.who.hidden=split==='none';if(p.ui.mini){const sz=split==='none'?160:118;p.ui.mini.style.width=p.ui.mini.style.height=sz+'px';const st=p.ui.view.style;if(st.setProperty)st.setProperty('--mm',sz+'px');}}   // (--mm: the Settlement razed card sits over the minimap)
 }
 function resize(){renderer.setSize(innerWidth,innerHeight,false);layout();}
 addEventListener('resize',resize);
