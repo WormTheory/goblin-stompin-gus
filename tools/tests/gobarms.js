@@ -49,6 +49,7 @@ const home=(yaw=Math.PI)=>{A.pos.set(X0+.5,F,Z0+.5);A.vy=0;A.state='walk';A.cam.
 const hold=(ks,n)=>{for(const k of ks)T.keys.add(k);S(n);for(const k of ks)T.keys.delete(k);};
 const press=(n,k='Mouse0')=>{T.mHeld.add(k);S(n);T.mHeld.delete(k);};
 const tap=(k,n=3)=>{T.keys.add(k);S(n);T.keys.delete(k);};
+const nextW=()=>{for(let i=0;i<3;i++){T.mTap.add('MouseWheelDown');S(1);}};   // (the next weapon: a notch of the wheel down)
 const f=(v,n=2)=>v.toFixed(n);
 for(const g of T.goblins){g.state='wait';g.root.visible=false;}
 // a foe of kind k standing d ahead of him (yaw PI: ahead is +z), ready to fight
@@ -75,7 +76,8 @@ for(const gob of [false,true]){
   // a second militiaman, killed when he's already got a rifle: just grenades
   {home();A.wpn='rifle';const g=foe('militia',6,1);freeze();S(30);press(4);S(20);console.log('shoot a militiaman with a rifle already: drops',drops());killAll();}
   // the weapon button goes round what he's got
-  {home();const seq=[A.wpn];for(let i=0;i<3;i++){tap('KeyR',3);S(3);seq.push(A.wpn);}console.log('weapon button:',seq.join(' > '));
+  {home();const seq=[A.wpn];for(let i=0;i<3;i++){nextW();S(3);seq.push(A.wpn);}console.log('weapon button:',seq.join(' > '));
+   {const w0=A.wpn;tap('KeyR',3);S(3);console.log('R:',w0===A.wpn?'no switch':'switched to '+A.wpn);}
    // (the mouse wheel: down the next, up the one before; the D-pad: right the next, left the one before)
    const wh=c=>{for(let i=0;i<3;i++){T.mTap.add(c);S(1);}S(3);},dp=b=>{pads.push(mk(0));S(2);pads[0].buttons[b].pressed=true;S(3);pads[0].buttons[b].pressed=false;S(3);pads.length=0;};
    const sw=[A.wpn];wh('MouseWheelDown');sw.push(A.wpn);wh('MouseWheelDown');sw.push(A.wpn);wh('MouseWheelUp');sw.push(A.wpn);wh('MouseWheelUp');sw.push(A.wpn);console.log('mouse wheel down, down, up, up:',sw.join(' > '));
@@ -94,12 +96,12 @@ for(const gob of [false,true]){
    hold([KF],60);S(5);console.log('walk over it:',kit(),' new weapons',A.wpns.length-n);
    const g2=foe('thief',12,5);freeze();S(30);const h=g2.hp;press(4);S(25);press(4);S(20);console.log('handgun at a thief 12 ahead, twice: hp',h,'->',g2.hp);
    const g3=foe('thief',34,5);g3.pos.x=A.pos.x;freeze();S(30);const h3=g3.hp;press(4);S(20);console.log('and one 34 ahead, past its reach: hp',h3,'->',g3.hp);
-   const seq=[A.wpn];for(let i=0;i<4;i++){tap('KeyR',3);S(3);seq.push(A.wpn);}console.log('weapon button:',seq.join(' > '));killAll();}
+   const seq=[A.wpn];for(let i=0;i<4;i++){nextW();S(3);seq.push(A.wpn);}console.log('weapon button:',seq.join(' > '));killAll();}
   // the Fireball Spellbook: a cultist drops it, and it's conjured (the weapon's cast) then flies and bends after the nearest enemy
   {home();const W=T.WEAPONS.spellbook;const c=T.freeCultist(8);T.cultSpawn(c,null,0);c.pos.set(A.pos.x,F,A.pos.z+1.1);c.state='chase';c.gunCD=1e9;c.stun=0;c.kv.set(0,0,0);
    T.damageGoblin(c,9,c.pos.clone(),null,'Clubbed by another goblin');S(2);console.log('kill a cultist: drops',drops());
    hold([KF],60);S(5);console.log('walk over it:',kit());
-   while(A.wpn!=='spellbook'){tap('KeyR',3);S(3);}
+   while(A.wpn!=='spellbook'){nextW();S(3);}
    const g=foe('thief',14,5);g.pos.x=A.pos.x+0.6;freeze();S(30);g.pos.set(A.pos.x+0.6,F,A.pos.z+14);g.stun=9;const h=g.hp;let live=-1,t=0,x0=null,x1=null,B=null;T.mHeld.add('Mouse0');
    for(let i=0;i<200;i++){S(1);t+=16.7;const f=T.FIREB.find(f=>f.live);if(f){if(live<0){live=t;B=f;x0=f.pos.x;}x1=f.pos.x;}if(i===3)T.mHeld.delete('Mouse0');if(g.hp<h||live>0&&!B.live)break;}
    console.log('cast straight ahead (a still thief 14 ahead, 0.6 right of the aim): ball out after',live<0?'never':(live/1000).toFixed(2)+'s','(cast',W.cast+'s), bent',x1==null?'-':(x1-x0).toFixed(2),'toward it, thief hp',h,'->',g.hp);

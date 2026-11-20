@@ -31,7 +31,7 @@ const ACTS=[
   {id:'lock',n:'Lock on',c:'#e0564a',kb:['KeyQ'],pad:[11]},
   {id:'climb',n:'Spider Climb (hold)',c:'#9a7ae0',kb:['KeyC'],pad:[4]},
   {id:'use',n:'Get in / out (as Gnash)',c:'#6ab0d8',kb:['KeyF'],pad:[3]},
-  {id:'weapon',n:'Next weapon (as Gnash)',c:'#b0b8c0',kb:['KeyR','MouseWheelDown'],pad:[15]},
+  {id:'weapon',n:'Next weapon (as Gnash)',c:'#b0b8c0',kb:['MouseWheelDown'],pad:[15]},   // (not R any more: the wheel does it)
   {id:'weaponPrev',n:'Previous weapon (as Gnash)',c:'#b0b8c0',kb:['MouseWheelUp'],pad:[14]},   // (D-pad left, which was push to talk's)
   {id:'reload',n:'Reload (as Gnash)',c:'#d0b070',kb:['KeyX'],pad:[13]},   // (D-pad down: a gun's next magazine)
   {id:'talk',n:'Push to talk (online voice chat)',c:'#7fc8a0',kb:['KeyT'],pad:[]},   // (no button free on a controller: set one in the Controls tab)
@@ -131,6 +131,9 @@ function loadBinds(){BINDS=defaultBinds();
     // wheel down if it has room for it)
     if(v&&typeof v==='object'&&!v.weaponPrev){const T=BINDS.talk.pad,W=BINDS.weapon.kb;if(T.length===1&&T[0]===14)BINDS.talk.pad=[];
       if(W.length<2&&!ACTS.some(o=>!o.ctx&&BINDS[o.id].kb.includes('MouseWheelDown')))W.push('MouseWheelDown');}
+    // (Next weapon was on R as well as the wheel: saved controls from then let R go, once, and keep the wheel)
+    if(v&&typeof v==='object'&&!localStorage.getItem(BIND_KEY+'-noR')){const W=BINDS.weapon.kb,i=W.indexOf('KeyR');if(i>=0)W.splice(i,1);
+      if(!W.length&&!ACTS.some(o=>!o.ctx&&BINDS[o.id].kb.includes('MouseWheelDown')))W.push('MouseWheelDown');localStorage.setItem(BIND_KEY+'-noR','1');}
     if(v&&typeof v==='object')for(const a of ACTS){if(v[a.id])continue;const cx=a.ctx||'';
       for(const dev of ['kb','pad'])BINDS[a.id][dev]=BINDS[a.id][dev].filter(c=>!ACTS.some(o=>o!==a&&v[o.id]&&(o.ctx||'')===cx&&BINDS[o.id][dev].includes(c)));}}catch(e){}}
 const MG_PAD_WAS={mgArmL:6,mgArmR:7,mgShL:4,mgShR:5};

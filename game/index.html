@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:9ac0b2ceb9e491b752423c0f810b6ec1546ca8e07f106ff14ae5d712bcfc69c0 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:9e08dad49c3793759a1b773cd457e327b343ca9ea1d08e57f0ab3cac3a1976f0 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1621,7 +1621,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Drivers</h3>
 <ul><li>Everyone at the wheel is dressed as themselves, in their own colours, hats, glasses and the rest, instead of a plain green head, and whoever you haul out or leave in a wreck is dressed the same. Police drivers are in blue, and your own goblin shows at the wheel of whatever you drive.</li></ul>
 <h3>Switching weapons</h3>
-<ul><li>The weapon bar above your hearts now shows your weapons as a row of little pictures of each one, the one in hand lit up, with landmines and grenades showing how many you have.</li><li>The rounds left in your gun, and the reload prompt, are now in the bottom right corner in big numbers, turning red when the magazine's empty.</li><li>As a goblin, the mouse wheel and the D-pad now go both ways through your weapons: wheel down or D-pad right for the next, wheel up or D-pad left for the one before. Both can be changed in the Controls tab.</li><li>Push to talk no longer has a controller button by default (D-pad left was it): give it one in the Controls tab if you play online with a controller.</li></ul>
+<ul><li>The weapon bar above your hearts now shows your weapons as a row of little pictures of each one, the one in hand lit up, with landmines and grenades showing how many you have.</li><li>R no longer switches weapons (the mouse wheel does), and the weapon bar no longer lists buttons: just your weapons and grenades.</li><li>The rounds left in your gun, and the reload prompt, are now in the bottom right corner in big numbers, turning red when the magazine's empty.</li><li>As a goblin, the mouse wheel and the D-pad now go both ways through your weapons: wheel down or D-pad right for the next, wheel up or D-pad left for the one before. Both can be changed in the Controls tab.</li><li>Push to talk no longer has a controller button by default (D-pad left was it): give it one in the Controls tab if you play online with a controller.</li></ul>
 <h3>Ruined towns</h3>
 <ul><li>A town you've wiped out stays dead. Traffic no longer drives into it: cars on the roads in turn back or head the other way, and none come off the motorway into it. Nobody turns up there, the shops have no staff, nothing's parked, no one's sent out to it, and anyone left wandering about slips away once you're not looking.</li></ul>
 <h3>Nuclear meltdown</h3>
@@ -2326,7 +2326,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='2bec5c6b9736';
+const GAME_VER='0.5',GAME_BUILD='d71c4b4384f6';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -18659,7 +18659,7 @@ const ACTS=[
   {id:'lock',n:'Lock on',c:'#e0564a',kb:['KeyQ'],pad:[11]},
   {id:'climb',n:'Spider Climb (hold)',c:'#9a7ae0',kb:['KeyC'],pad:[4]},
   {id:'use',n:'Get in / out (as Gnash)',c:'#6ab0d8',kb:['KeyF'],pad:[3]},
-  {id:'weapon',n:'Next weapon (as Gnash)',c:'#b0b8c0',kb:['KeyR','MouseWheelDown'],pad:[15]},
+  {id:'weapon',n:'Next weapon (as Gnash)',c:'#b0b8c0',kb:['MouseWheelDown'],pad:[15]},   // (not R any more: the wheel does it)
   {id:'weaponPrev',n:'Previous weapon (as Gnash)',c:'#b0b8c0',kb:['MouseWheelUp'],pad:[14]},   // (D-pad left, which was push to talk's)
   {id:'reload',n:'Reload (as Gnash)',c:'#d0b070',kb:['KeyX'],pad:[13]},   // (D-pad down: a gun's next magazine)
   {id:'talk',n:'Push to talk (online voice chat)',c:'#7fc8a0',kb:['KeyT'],pad:[]},   // (no button free on a controller: set one in the Controls tab)
@@ -18759,6 +18759,9 @@ function loadBinds(){BINDS=defaultBinds();
     // wheel down if it has room for it)
     if(v&&typeof v==='object'&&!v.weaponPrev){const T=BINDS.talk.pad,W=BINDS.weapon.kb;if(T.length===1&&T[0]===14)BINDS.talk.pad=[];
       if(W.length<2&&!ACTS.some(o=>!o.ctx&&BINDS[o.id].kb.includes('MouseWheelDown')))W.push('MouseWheelDown');}
+    // (Next weapon was on R as well as the wheel: saved controls from then let R go, once, and keep the wheel)
+    if(v&&typeof v==='object'&&!localStorage.getItem(BIND_KEY+'-noR')){const W=BINDS.weapon.kb,i=W.indexOf('KeyR');if(i>=0)W.splice(i,1);
+      if(!W.length&&!ACTS.some(o=>!o.ctx&&BINDS[o.id].kb.includes('MouseWheelDown')))W.push('MouseWheelDown');localStorage.setItem(BIND_KEY+'-noR','1');}
     if(v&&typeof v==='object')for(const a of ACTS){if(v[a.id])continue;const cx=a.ctx||'';
       for(const dev of ['kb','pad'])BINDS[a.id][dev]=BINDS[a.id][dev].filter(c=>!ACTS.some(o=>o!==a&&v[o.id]&&(o.ctx||'')===cx&&BINDS[o.id][dev].includes(c)));}}catch(e){}}
 const MG_PAD_WAS={mgArmL:6,mgArmR:7,mgShL:4,mgShR:5};
@@ -19922,15 +19925,13 @@ function gobArmsHud(p){
       return '<span class="gwi'+(on?' on':'')+'" title="'+nm+'">'+(u?'<img src="'+u+'" alt="'+nm+'">':'<em>'+nm+'</em>')+(n!=null?'<i>×'+n+'</i>':'')+'</span>';},
     n=W&&W.mag?gobAmmoShown(p,p.wpn):0,sp=W&&W.mag?gobSpareShown(p,p.wpn):-1,
     rq=W&&W.mag&&!(p.relT>0)&&n<W.mag&&(sp!==0||DT.infAmmo)?bl('reload')+(n?' reload':' RELOAD'):'',
-    t=(L.length>1?(bl('weaponPrev')?'  '+bl('weaponPrev')+' previous':'')+'  '+bl('weapon')+' next':''),
     left=k=>{const w=WEAPONS[k];if(!w.mag||w.spare===undefined)return null;if(DT.infAmmo)return '∞';
-      const on=k===p.wpn,a=on?gobAmmoShown(p,k):gobAmmo(p,k),s=on?gobSpareShown(p,k):gobSpare(p,k);return a+Math.max(0,s)*w.mag;},
-    t2=gobW(p).scope?bl('stomp')+(WEAPONS[p.wpn]&&WEAPONS[p.wpn].lock?' lock on (hold)':' scope (hold)'):p.gren||DT.infAmmo?bl('stomp')+' throw':'';
+      const on=k===p.wpn,a=on?gobAmmoShown(p,k):gobAmmo(p,k),s=on?gobSpareShown(p,k):gobSpare(p,k);return a+Math.max(0,s)*w.mag;};
   const a=W&&W.mag?(p.relT>0?'<b class="rl">reloading…</b>':'<b'+(n?'':' class="out"')+'>'+n+'<small>/'+W.mag+'</small></b>')
       +(rq?'<span>'+hudHTML(rq)+'</span>':''):'';
   H.am.hidden=!a;if(H.a!==a){H.a=a;H.am.innerHTML=a;}
-  const s=L.map(k=>ic(k,k===p.wpn,k==='landmine'?p.mines||0:left(k))).join('')+(t?'<span>'+hudHTML(t.trim())+'</span>':'')
-    +'<span class="gsep"></span>'+ic('grenade',false,p.gren)+(t2?'<span>'+hudHTML(t2)+'</span>':'');
+  // (no buttons named on it: switching, throwing and the scope are in the controls hint, gobHint)
+  const s=L.map(k=>ic(k,k===p.wpn,k==='landmine'?p.mines||0:left(k))).join('')+'<span class="gsep"></span>'+ic('grenade',false,p.gren);
   if(H.s!==s){H.s=s;H.el.innerHTML=s;}
 }
 // ---- hit shapes from the editor (tools/editor/): a weapon's hitboxes against goblins' hurtboxes ----

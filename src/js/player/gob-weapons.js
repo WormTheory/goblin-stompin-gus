@@ -252,14 +252,12 @@ function gobArmsHud(p){
       return '<span class="gwi'+(on?' on':'')+'" title="'+nm+'">'+(u?'<img src="'+u+'" alt="'+nm+'">':'<em>'+nm+'</em>')+(n!=null?'<i>×'+n+'</i>':'')+'</span>';},
     n=W&&W.mag?gobAmmoShown(p,p.wpn):0,sp=W&&W.mag?gobSpareShown(p,p.wpn):-1,
     rq=W&&W.mag&&!(p.relT>0)&&n<W.mag&&(sp!==0||DT.infAmmo)?bl('reload')+(n?' reload':' RELOAD'):'',
-    t=(L.length>1?(bl('weaponPrev')?'  '+bl('weaponPrev')+' previous':'')+'  '+bl('weapon')+' next':''),
     left=k=>{const w=WEAPONS[k];if(!w.mag||w.spare===undefined)return null;if(DT.infAmmo)return '∞';
-      const on=k===p.wpn,a=on?gobAmmoShown(p,k):gobAmmo(p,k),s=on?gobSpareShown(p,k):gobSpare(p,k);return a+Math.max(0,s)*w.mag;},
-    t2=gobW(p).scope?bl('stomp')+(WEAPONS[p.wpn]&&WEAPONS[p.wpn].lock?' lock on (hold)':' scope (hold)'):p.gren||DT.infAmmo?bl('stomp')+' throw':'';
+      const on=k===p.wpn,a=on?gobAmmoShown(p,k):gobAmmo(p,k),s=on?gobSpareShown(p,k):gobSpare(p,k);return a+Math.max(0,s)*w.mag;};
   const a=W&&W.mag?(p.relT>0?'<b class="rl">reloading…</b>':'<b'+(n?'':' class="out"')+'>'+n+'<small>/'+W.mag+'</small></b>')
       +(rq?'<span>'+hudHTML(rq)+'</span>':''):'';
   H.am.hidden=!a;if(H.a!==a){H.a=a;H.am.innerHTML=a;}
-  const s=L.map(k=>ic(k,k===p.wpn,k==='landmine'?p.mines||0:left(k))).join('')+(t?'<span>'+hudHTML(t.trim())+'</span>':'')
-    +'<span class="gsep"></span>'+ic('grenade',false,p.gren)+(t2?'<span>'+hudHTML(t2)+'</span>':'');
+  // (no buttons named on it: switching, throwing and the scope are in the controls hint, gobHint)
+  const s=L.map(k=>ic(k,k===p.wpn,k==='landmine'?p.mines||0:left(k))).join('')+'<span class="gsep"></span>'+ic('grenade',false,p.gren);
   if(H.s!==s){H.s=s;H.el.innerHTML=s;}
 }
