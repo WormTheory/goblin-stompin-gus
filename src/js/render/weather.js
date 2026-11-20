@@ -36,6 +36,8 @@ const PRECIP_N=2400,PBX=24,PBY=28;
 const rainM=new THREE.InstancedMesh(new THREE.BoxGeometry(0.035,0.9,0.035),new THREE.MeshBasicMaterial({color:0xa9b9cc,transparent:true,opacity:0.5,depthWrite:false}),PRECIP_N);
 const snowM=new THREE.InstancedMesh(new THREE.BoxGeometry(0.14,0.14,0.14),new THREE.MeshBasicMaterial({color:0xf2f6ff,transparent:true,opacity:0.92}),PRECIP_N);
 for(const m of [rainM,snowM]){m.frustumCulled=false;m.count=0;m.renderOrder=2;scene.add(m);}
+// (unlit, so they're darkened by hand with the world's light, as the blocks are: grey at dusk, dim at night, never black)
+const RAIN_C=new THREE.Color(0xa9b9cc),SNOW_C=new THREE.Color(0xf2f6ff);
 const drops=[];{const r=mulberry(4711);for(let i=0;i<PRECIP_N;i++)drops.push({x:r()*PBX*2,y:r()*PBY,z:r()*PBX*2,s:r()});}
 const _pm=new THREE.Matrix4(),_pq=new THREE.Quaternion(),_pv=new THREE.Vector3(),_ps=new THREE.Vector3(1,1,1),_pa=new THREE.Vector3();let wxClock=0;
 const wrapC=(v,c,h)=>c+((((v-c+h)%(2*h))+2*h)%(2*h))-h;
@@ -66,6 +68,7 @@ function placePrecip(cam,who){
   // a drop under a roof, a deck or a bridge is hidden; the rain and snow out in the open still show from under cover
   if(nr+ns)coverMap(cam,who);
   rainM.count=nr;snowM.count=ns;
+  {const L=WORLD_LIGHT.value,f=c=>Math.max(0.1,c);rainM.material.color.setRGB(RAIN_C.r*f(L.r),RAIN_C.g*f(L.g),RAIN_C.b*f(L.b));snowM.material.color.setRGB(SNOW_C.r*f(L.r),SNOW_C.g*f(L.g),SNOW_C.b*f(L.b));}
   const CM=COVER,under=(x,y,z)=>{const i=Math.floor(x)-CM.x0,j=Math.floor(z)-CM.z0;if(i<0||j<0||i>=CM.N||j>=CM.N)return false;return y<CM.top[j*CM.N+i];};
   const t=wxClock,w=WX.k.wind,wx=w*1.6,wz=w*0.7;
   if(nr){const V=precipCamVel(cam,who);

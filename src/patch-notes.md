@@ -45,6 +45,8 @@
 - Smoke and explosion flashes now fade into fog like everything else, instead of showing in front of it.
 - Halos now fade in and out smoothly instead of flickering on and off as you look around. The Halo fade slider in the debug menu sets how long they take.
 - A car's headlights no longer light the underside of an overpass it's driving over, or the road below it.
+- Street lamps and lamps wiped out by a nuke no longer keep lighting the ground or glowing in the fog.
+- Falling snow and rain now darken with the time of day instead of staying bright white at night.
 
 ### Trees and water in the distance
 

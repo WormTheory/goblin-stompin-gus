@@ -57,6 +57,9 @@ function blkProp(f,standing){
   if(standing){if(!M){M=new Map();BL_PROPS.set(k,M);}const c=blkRGB(T[0],T[1]);M.set(f.key,[x,y,z,c[0],c[1],c[2]]);}else M.delete(f.key);
   blkAround(x,z,T[0]-1);
 }
+// gone in a nuke's blast (big-blast.js: inside its spreading ring, where refreshFixtures and the props stop drawing what stood
+// there, without knocking it down): its lamp or prop gives no light and no halo
+const blkNuked=(x,z)=>craters.length>0&&bbGone(x,z);
 // a street lamp knocked over goes dark (drawFix asks each time it's drawn)
 const blkLampOut=new Set();
 function blkLampDown(f,lit){
@@ -155,10 +158,10 @@ function blkHaloPick(){
   const cs=new Set();for(const q of P)for(let qx=Math.floor((q.pos.x-RP)/CS);qx<=Math.floor((q.pos.x+RP)/CS);qx++)for(let qz=Math.floor((q.pos.z-RP)/CS);qz<=Math.floor((q.pos.z+RP)/CS);qz++)cs.add(qx+','+qz);
   for(const c of cs){const [qx,qz]=c.split(',').map(Number);if(!meshes.has(ckey(qx,qz)))continue;
     // (the street lamps that stand and are lit, as blkFill has them)
-    if(qx<SHIP_CX0&&near((qx+0.5)*CS,(qz+0.5)*CS)<R+CS)for(const S of blkLamps(qx,qz)){if(downFix.has(S.key)||falling.has(S.key)||blkLampOut.has(S.key))continue;
+    if(qx<SHIP_CX0&&near((qx+0.5)*CS,(qz+0.5)*CS)<R+CS)for(const S of blkLamps(qx,qz)){if(downFix.has(S.key)||falling.has(S.key)||blkLampOut.has(S.key)||blkNuked(S.fx,S.fz))continue;
       if(chunks.has(ckey(Math.floor(S.fx/CS),Math.floor(S.fz/CS)))&&(get(S.fx,G,S.fz)===ASPHALT||get(S.fx,G+1,S.fz)!==AIR))continue;
       if(get(S.x,S.y,S.z)!==AIR)continue;add(S.x+0.5,S.y+0.3,S.z+0.5,BL_STREET[0],BL_STREET[1],BL_STREET[2]);}
-    const M=BL_PROPS.get(ckey(qx,qz));if(M)for(const p of M.values())add(p[0]+0.5,p[1]+0.5,p[2]+0.5,p[3],p[4],p[5]);
+    const M=BL_PROPS.get(ckey(qx,qz));if(M)for(const p of M.values())if(!blkNuked(p[0],p[2]))add(p[0]+0.5,p[1]+0.5,p[2]+0.5,p[3],p[4],p[5]);
     // (windows and neon, further out than the lamps, as a tower's lit side shows a long way off: a patch's halo grows with
     // how many glowing blocks it has, and is a little fainter than a lamp's; a big patch counts as nearer than it is)
     for(const p of blkPatches(chunkArr(qx,qz),qx,qz)){add(p[0],p[1],p[2],p[3],p[4],p[5],Math.min(6,2+Math.sqrt(p[6])*0.45),0.45+0.45*Math.min(1,p[6]/24),LP);
@@ -309,12 +312,12 @@ function blkFill(cx,cz,yLo,yTop){
   for(let j=0;j<3;j++)for(let i=0;i<3;i++){const A=NB[j*3+i],E=blkEmitters(A,cx+i-1,cz+j-1),ox=(i-1)*CS+15,oz=(j-1)*CS+15,qx=cx+i-1,qz=cz+j-1;
     for(let q=0;q<E.length;q++){const e=E[q],y=Math.floor(e/(CS*CS)),r=e-y*CS*CS,b=A[e];seed(ox+(r%CS),oz+Math.floor(r/CS),y,B_LR[b],B_LG[b],B_LB[b]);}
     if(qx<SHIP_CX0){
-      for(const L of blkLamps(qx,qz)){if(downFix.has(L.key)||falling.has(L.key))continue;
+      for(const L of blkLamps(qx,qz)){if(downFix.has(L.key)||falling.has(L.key)||blkNuked(L.fx,L.fz))continue;
         // (where the street plan's lamp isn't drawn, as in refreshFixtures; its foot may be in a chunk not made yet, which isn't made for this)
         if(chunks.has(ckey(Math.floor(L.fx/CS),Math.floor(L.fz/CS)))&&(get(L.fx,G,L.fz)===ASPHALT||get(L.fx,G+1,L.fz)!==AIR))continue;
         if(A[li(L.x-qx*CS,L.y,L.z-qz*CS)]!==AIR)continue;
         seed(L.x-x0,L.z-z0,L.y,BL_STREET[0],BL_STREET[1],BL_STREET[2]);}
-      const M=BL_PROPS.get(ckey(qx,qz));if(M)for(const P of M.values())seed(P[0]-x0,P[2]-z0,P[1],P[3],P[4],P[5]);}
+      const M=BL_PROPS.get(ckey(qx,qz));if(M)for(const P of M.values())if(!blkNuked(P[0],P[2]))seed(P[0]-x0,P[2]-z0,P[1],P[3],P[4],P[5]);}
   }
   for(const P of BL_FIRE.values())seed(P[0]-x0,P[2]-z0,P[1],P[3],P[4],P[5]);   // (fires: seed leaves out those too far off)
   for(const P of BL_GLOWL.values())seed(P[0]-x0,P[2]-z0,P[1],P[3],P[4],P[5]);
