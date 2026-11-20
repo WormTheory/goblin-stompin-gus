@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:1eff20c2f32ec6ad3e101479054e36e11bad2b297e43898dce7b84572dfcf3a9 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:33f02aa17999d780cca9093f072755cb4a78f81f62b1b76599f3fc4fb321dea3 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -249,7 +249,7 @@ canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;point
 .dveh .dbar i{display:block;height:100%;width:100%;background:#7fc24a}
 /* (a vehicle's controls: down the left of the view, a line each) */
 .dkeys{position:absolute;pointer-events:none;left:max(14px,env(safe-area-inset-left,0px));top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:5px;padding:8px 10px;background:rgba(18,22,28,.62);border-radius:4px;font:600 11px var(--f-mono);color:var(--bone);white-space:nowrap;max-width:40%}
-.dkeys:empty,.dkeys[hidden]{display:none}
+.dkeys:empty,.dkeys[hidden],.nokeys .dkeys{display:none}
 .dkeys>div{display:flex;align-items:center;gap:2px}
 .bar{position:absolute;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;max-width:calc(100% - 32px)}
 .who{font:700 13px var(--f-display);letter-spacing:.02em;text-shadow:0 2px 0 rgba(0,0,0,.6)}
@@ -1579,6 +1579,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <button type="button" class="tog" role="checkbox" id="shoutTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Shouts<small>SPLAT!, CHOMP! or KABOOM! when a goblin goes down, combo milestones, and FULL CHARGE! on a charged stomp</small></span></button>
         <button type="button" class="tog" role="checkbox" id="hpBarTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Health bars<small>Over enemies and players</small></span></button>
         <button type="button" class="tog" role="checkbox" id="bloodTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Hide blood</span></button>
+        <button type="button" class="tog" role="checkbox" id="keysTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Hide controls</span></button>
         <button type="button" class="tog" role="checkbox" id="calmTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Reduced motion<small>Follows your system setting</small></span></button>
       </div>
     </div>
@@ -1621,7 +1622,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Nukes</h3>
 <ul><li>A nuke looks the part now: a blinding flash, a fireball that cools from white to red and rolls up into a mushroom cloud on a stem of dust, a ring of dust racing out along the ground, a white dome round the fireball for a moment and a collar round the stem.</li><li>The cloud drifts off with the wind and thins away over a minute or so. It's mottled in lighter and darker shades rather than one flat colour.</li><li>The fireball swells and rolls over into the mushroom's ring in one smooth movement, rather than sliding from a ball into a ring.</li><li>The mushroom cloud is see-through at its edges like other smoke, its stem flares out into the cap and turns only slowly, the collar round the stem is mottled, and the ring of dust along the ground keeps billowing out, climbing and drifting rather than sitting still. Dust hangs over the whole blast area too, drifting outward, faster the further out it is.</li><li>Water, smoke and dust behind the mushroom cloud and the white dome no longer show through in front of them.</li><li>The smoke rising round the edge of the blast fans out, bends over and drifts away rather than standing in columns.</li><li>All smoke now blows with the wind: burning buildings, campfires and wrecked vehicles too.</li><li>The boom and the shaking reach you at the speed of sound, so from far off you see it well before you hear it.</li><li>At night it lights the whole sky and the ground round it orange.</li></ul>
 <h3>Screen layout</h3>
-<ul><li>The Mobile Gear's weapon readouts are narrower and sit just left of the speedometer, rather than stacked above it.</li><li>How much of a settlement you've razed is now a bar curved round the top of the minimap, with the place's name and how much of it is down curved along it (on two lines when the name's long), so the speedometer no longer jumps up to make room for a card. It stays up for 5 seconds after you leave a place, then fades away, unless you walk into another place, which takes over at once.</li><li>Your controls on foot are now listed down the left of the screen, one to a line, where a vehicle's go, and they stay there rather than fading away. In a vehicle its own controls take their place.</li><li>Next and previous weapon are one line in the controls list now, "switch weapon", shown as the scroll wheel or the D-pad's left and right.</li><li>The time of day is gone from the card beside the clock, which now shows just the day and season. It's in the debug menu's Info pane instead, as a clock time (and whether time's paused) beside the time of day.</li></ul>
+<ul><li>The Mobile Gear's weapon readouts are narrower and sit just left of the speedometer, rather than stacked above it.</li><li>How much of a settlement you've razed is now a bar curved round the top of the minimap, with the place's name and how much of it is down curved along it (on two lines when the name's long), so the speedometer no longer jumps up to make room for a card. It stays up for 5 seconds after you leave a place, then fades away, unless you walk into another place, which takes over at once.</li><li>Your controls on foot are now listed down the left of the screen, one to a line, where a vehicle's go, and they stay there rather than fading away. In a vehicle its own controls take their place.</li><li>Next and previous weapon are one line in the controls list now, "switch weapon", shown as the scroll wheel or the D-pad's left and right.</li><li>Options has a Hide controls switch, which hides the controls list down the left, on foot and in vehicles.</li><li>The time of day is gone from the card beside the clock, which now shows just the day and season. It's in the debug menu's Info pane instead, as a clock time (and whether time's paused) beside the time of day.</li></ul>
 <h3>Profiler</h3>
 <ul><li>The debug menu's Overlays have a Profiler: a graph of each frame's time, split by what took it (players, goblins, traffic, the world being built, destruction, drawing, online play), the busiest parts of each, what's being drawn, memory, how many of everything there is, and the last few slow frames with what was happening at the time (a building coming down, a blast, a car going up). It's off until switched on, and hidden in Show / hide until you show it. Beside the CPU's time it shows GPU / wait: the rest of each frame, mostly the graphics card drawing it, so a slow frame with a low CPU time means the graphics card is what's holding it up.</li></ul>
 <h3>Drivers</h3>
@@ -2332,7 +2333,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='83df6da658fe';
+const GAME_VER='0.5',GAME_BUILD='1df003f88684';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -32041,7 +32042,7 @@ chatEl('vcVol').addEventListener('change',vcSave);
 chatEl('vcMicVol').addEventListener('input',e=>{VC.micVol=Math.max(0,Math.min(2,(+e.target.value||0)/100));if(VC.gain)try{VC.gain.gain.value=VC.micVol;}catch(x){}chatEl('vcMicVolVal').textContent=Math.round(VC.micVol*100)+'%';});
 chatEl('vcMicVol').addEventListener('change',vcSave);
 vcOptsDraw();
-// ---------- Options: Sound volume, Brightness, Block lighting and Hide blood ----------
+// ---------- Options: Sound volume, Brightness, Block lighting, Hide blood and Hide controls ----------
 // All three are kept in this browser and go for everyone at once: split screen shares one sound system and one picture.
 // (The volume itself is in core/audio.js, sndDest; Hide blood in destruction/smashing.js, BLOOD_OFF.)
 const BRIGHT_KEY='goblin-stompin-gus-brightness';
@@ -32049,6 +32050,7 @@ const BRIGHT_MIN=0.2,BRIGHT_MAX=2.5;   // (20% to 250%: from a dim night-time lo
 let brightness=1;try{const v=localStorage.getItem(BRIGHT_KEY);if(v!==null&&+v>=BRIGHT_MIN&&+v<=BRIGHT_MAX)brightness=+v;}catch(e){}
 // (brightness is a filter on the 3D view's own canvas, so the menus, HUD and text over it stay as they are; at 100% there's
 // no filter at all, so it costs nothing unless it's used)
+const KEYS_KEY='goblin-stompin-gus-nokeys';let KEYS_OFF=false;try{KEYS_OFF=localStorage.getItem(KEYS_KEY)==='1';}catch(e){}
 function brightApply(){const c=document.getElementById('world');if(c&&c.style)c.style.filter=Math.abs(brightness-1)<0.001?'':'brightness('+brightness+')';}
 {
   const vs=document.getElementById('sndVol'),vl=document.getElementById('sndVolVal');
@@ -32064,6 +32066,10 @@ function brightApply(){const c=document.getElementById('world');if(c&&c.style)c.
   bt.addEventListener('click',()=>{BLOOD_OFF=!BLOOD_OFF;showBl();try{localStorage.setItem(BLOOD_KEY,BLOOD_OFF?'1':'0');}catch(e){}
     // (switched on: what's already been spilt goes too)
     if(BLOOD_OFF){for(const d of decals)d.visible=false;decalsDirty=true;for(const p of players)p.pool.visible=false;}});
+  // (Hide controls: the column of controls down the left, on foot and in a vehicle, hidden by a class on the page)
+  const kt=document.getElementById('keysTog');
+  const showK=()=>{kt.setAttribute('aria-checked',String(KEYS_OFF));if(document.body)document.body.classList.toggle('nokeys',KEYS_OFF);};showK();   // (document.body: the tests' pretend page has none)
+  kt.addEventListener('click',()=>{KEYS_OFF=!KEYS_OFF;showK();try{localStorage.setItem(KEYS_KEY,KEYS_OFF?'1':'0');}catch(e){}});
   // (Block lighting: render/block-light.js)
   const lt=document.getElementById('blkTog');
   const showLt=()=>lt.setAttribute('aria-checked',String(BL_ON));showLt();

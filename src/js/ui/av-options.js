@@ -1,4 +1,4 @@
-// ---------- Options: Sound volume, Brightness, Block lighting and Hide blood ----------
+// ---------- Options: Sound volume, Brightness, Block lighting, Hide blood and Hide controls ----------
 // All three are kept in this browser and go for everyone at once: split screen shares one sound system and one picture.
 // (The volume itself is in core/audio.js, sndDest; Hide blood in destruction/smashing.js, BLOOD_OFF.)
 const BRIGHT_KEY='goblin-stompin-gus-brightness';
@@ -6,6 +6,7 @@ const BRIGHT_MIN=0.2,BRIGHT_MAX=2.5;   // (20% to 250%: from a dim night-time lo
 let brightness=1;try{const v=localStorage.getItem(BRIGHT_KEY);if(v!==null&&+v>=BRIGHT_MIN&&+v<=BRIGHT_MAX)brightness=+v;}catch(e){}
 // (brightness is a filter on the 3D view's own canvas, so the menus, HUD and text over it stay as they are; at 100% there's
 // no filter at all, so it costs nothing unless it's used)
+const KEYS_KEY='goblin-stompin-gus-nokeys';let KEYS_OFF=false;try{KEYS_OFF=localStorage.getItem(KEYS_KEY)==='1';}catch(e){}
 function brightApply(){const c=document.getElementById('world');if(c&&c.style)c.style.filter=Math.abs(brightness-1)<0.001?'':'brightness('+brightness+')';}
 {
   const vs=document.getElementById('sndVol'),vl=document.getElementById('sndVolVal');
@@ -21,6 +22,10 @@ function brightApply(){const c=document.getElementById('world');if(c&&c.style)c.
   bt.addEventListener('click',()=>{BLOOD_OFF=!BLOOD_OFF;showBl();try{localStorage.setItem(BLOOD_KEY,BLOOD_OFF?'1':'0');}catch(e){}
     // (switched on: what's already been spilt goes too)
     if(BLOOD_OFF){for(const d of decals)d.visible=false;decalsDirty=true;for(const p of players)p.pool.visible=false;}});
+  // (Hide controls: the column of controls down the left, on foot and in a vehicle, hidden by a class on the page)
+  const kt=document.getElementById('keysTog');
+  const showK=()=>{kt.setAttribute('aria-checked',String(KEYS_OFF));if(document.body)document.body.classList.toggle('nokeys',KEYS_OFF);};showK();   // (document.body: the tests' pretend page has none)
+  kt.addEventListener('click',()=>{KEYS_OFF=!KEYS_OFF;showK();try{localStorage.setItem(KEYS_KEY,KEYS_OFF?'1':'0');}catch(e){}});
   // (Block lighting: render/block-light.js)
   const lt=document.getElementById('blkTog');
   const showLt=()=>lt.setAttribute('aria-checked',String(BL_ON));showLt();
