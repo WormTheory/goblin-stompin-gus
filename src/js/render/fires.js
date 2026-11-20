@@ -68,7 +68,7 @@ function trimFires(room){const cap=FIRE_CAPS[fireCapI];while(fires.length>0&&fir
 function refireDur(){const m=Math.min(FIRE_DURS[fireDurI].m,1e6);for(const F of fires){const f=F.t/F.life;F.life=F.base*m;F.t=F.life*f;}}
 const _firM=new THREE.Matrix4(),_firQ=new THREE.Quaternion(),_firS=new V3(),_firP=new V3(),_firC=new THREE.Color(),FL_COLS=[0xfff2a0,0xffc23a,0xff7a1e,0xd8380e];
 function updateFires(dt){
-  blkFireTick(dt);   // (their light round them at night, render/block-light.js)
+  blkFireTick(dt);blkHaloTick(dt);   // (their light round them at night, and the lamps' and fires' halos in fog: render/block-light.js)
   for(let i=fires.length-1;i>=0;i--){
     const F=fires[i];if(FIRE_DURS[fireDurI].m!==Infinity||F.douse)F.t-=dt;if(F.t<=0){fires.splice(i,1);continue;}
     // the heat melts the snow round it (it starts settling again, from nothing, once the fire's out) -- off the ground,

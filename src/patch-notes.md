@@ -34,6 +34,7 @@
 - In thick fog the sky and clouds are now lost in the fog too, so far-off towers no longer stand out as dark shapes against a clear sky.
 - The debug menu has a Fog light slider for how strongly lights show through fog.
 - Fires and campfires now light up the ground and walls around them at night, dimming as they die down.
+- In fog at night, street lamps, lamps, fires and traffic lights now have a soft halo of light in the air around them, as real fog scatters light. The Fog light slider sets how strong it is.
 
 ### Trees and water in the distance
 

@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:60d6d801879a3351719bcdd61cf12c2f59daf7e7af2592e07c56e3bd7202536c -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:8568acfff04fdf296d8ba250416c581eb742cadf9c4341454b98ab8bd335440a -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1584,7 +1584,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Nuke Launcher</h3>
 <ul><li>A new weapon for goblins, picked in the Loadout: a launcher with a nuclear warhead on the front. It lobs the warhead slowly in a shallow arc, and wherever it lands the same blast as a meltdown goes off, smaller but still enough to flatten a few streets.</li><li>Fire it level and it lands far enough off for you to live through it. Fire it at a wall in front of you and you won't.</li><li>One warhead in the tube and two spares, with a long reload. Once the spares are gone it's empty, unless Infinite ammo is on. The weapon bar shows how many spares are left.</li><li>The debug menu has a Nuke strength slider to make its blast smaller or bigger, up to the size of a meltdown.</li></ul>
 <h3>Lighting</h3>
-<ul><li>At night, lights now light up what's around them. Street lamps pool light on the pavement, neon signs throw their own colours across the street, lit windows glow on the walls and rooms beside them, and lamps, TVs and screens light the rooms they're in. Walls block the light, so it stays in the room or the street it's in. Smash a lamp or a sign and its light goes out.</li><li>It's switched on or off with Block lighting under Sound &amp; picture in Options. Off, the game looks and runs exactly as before.</li><li>A building that's been destroyed or brought down goes dark: its windows, neon and signs stop glowing, and the pieces of it falling don't glow either.</li><li>In fog, rain and snow at night, lit windows, neon, lamps and the light they cast now show through the murk as a soft glow, some way past where the buildings themselves disappear.</li><li>In thick fog the sky and clouds are now lost in the fog too, so far-off towers no longer stand out as dark shapes against a clear sky.</li><li>The debug menu has a Fog light slider for how strongly lights show through fog.</li><li>Fires and campfires now light up the ground and walls around them at night, dimming as they die down.</li></ul>
+<ul><li>At night, lights now light up what's around them. Street lamps pool light on the pavement, neon signs throw their own colours across the street, lit windows glow on the walls and rooms beside them, and lamps, TVs and screens light the rooms they're in. Walls block the light, so it stays in the room or the street it's in. Smash a lamp or a sign and its light goes out.</li><li>It's switched on or off with Block lighting under Sound &amp; picture in Options. Off, the game looks and runs exactly as before.</li><li>A building that's been destroyed or brought down goes dark: its windows, neon and signs stop glowing, and the pieces of it falling don't glow either.</li><li>In fog, rain and snow at night, lit windows, neon, lamps and the light they cast now show through the murk as a soft glow, some way past where the buildings themselves disappear.</li><li>In thick fog the sky and clouds are now lost in the fog too, so far-off towers no longer stand out as dark shapes against a clear sky.</li><li>The debug menu has a Fog light slider for how strongly lights show through fog.</li><li>Fires and campfires now light up the ground and walls around them at night, dimming as they die down.</li><li>In fog at night, street lamps, lamps, fires and traffic lights now have a soft halo of light in the air around them, as real fog scatters light. The Fog light slider sets how strong it is.</li></ul>
 <h3>Trees and water in the distance</h3>
 <ul><li>Trees, ponds and lakes no longer pop up out of nowhere as you get close. Out past the full-detail city, the distant view now has every tree in its real spot, and up close each one becomes the real tree where it already stood.</li><li>Further off, woods show as clumps of treetops, and ponds, park lakes and the theme park's boating lake show as water.</li><li>Distant trees change colour with the seasons and lose their leaves in winter, like the near ones.</li></ul>
 <h3>Water</h3>
@@ -2275,7 +2275,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='8a4c99aada50';
+const GAME_VER='0.5',GAME_BUILD='6296302528b4';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -9149,6 +9149,49 @@ function blkFireTick(dt){
   }
   for(const [o,e] of BL_FIRE){const w=want.get(o);if(!w||w[6]!==e[6]||w[0]!==e[0]||w[2]!==e[2]){BL_FIRE.delete(o);blkAround(e[0],e[2],e[6]-1);}}
   for(const [o,w] of want)if(!BL_FIRE.has(o)){BL_FIRE.set(o,w);blkAround(w[0],w[2],w[6]-1);}
+}
+// halos: in the weather's fog at night, the air round a street lamp, a lamp prop or a fire glows, as real fog scatters a
+// light round it (traffic lights too, in whichever colour's showing). A soft disc facing the camera on each of the BL_HALO_N nearest such lights (one instanced mesh, drawn
+// additively; walls in front hide it as they would the light), picked afresh a couple of times a second by blkHaloTick.
+// How strong is HALO_U.uStr, set per view by renderView with FOG_GLOW (fog thickness times the Fog light slider) times how
+// dark it is; nothing's drawn when that's 0, so a clear night or the day costs nothing. Each halo fades out into the fog a
+// little further off than the lit faces do (uNear, uFar: the fog's), and as you get right up to it.
+const BL_HALO_N=96,HALO_U={uStr:{value:0},uNear:{value:0},uFar:{value:1},uWorldCurve:CURVE_U};
+const HALO_A=new THREE.InstancedBufferAttribute(new Float32Array(BL_HALO_N*4),4);HALO_A.setUsage(THREE.DynamicDrawUsage);
+// (made the first time it's needed: the scene isn't there yet when this file runs)
+let HALO=null;
+function haloMesh(){const g=new THREE.PlaneGeometry(2,2);g.setAttribute('aHalo',HALO_A);
+  const m=new THREE.InstancedMesh(g,new THREE.ShaderMaterial({uniforms:HALO_U,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,fog:false,
+    vertexShader:'uniform float uStr,uNear,uFar,uWorldCurve;attribute vec4 aHalo;varying vec2 vP;varying vec3 vC;varying float vA;void main(){'+
+      'vec4 w=modelMatrix*instanceMatrix*vec4(0.0,0.0,0.0,1.0);vec2 dd=w.xz-cameraPosition.xz;w.y-=uWorldCurve*dot(dd,dd);'+
+      'vec4 mv=viewMatrix*w;float d=-mv.z,s=aHalo.w;'+
+      // (brought toward the camera by most of its size, so the lamp's own post and the ground under it don't cut it off)
+      'mv.xyz*=max(0.05,d-s*0.7)/max(d,0.05);mv.xy+=position.xy*s;gl_Position=projectionMatrix*mv;'+
+      'vP=position.xy;vC=aHalo.rgb;vA=uStr*smoothstep(1.5,5.0,d)*(1.0-smoothstep(mix(uNear,uFar,0.5),uFar*(1.0+1.2*min(uStr,1.5)),d));}',
+    fragmentShader:'varying vec2 vP;varying vec3 vC;varying float vA;void main(){float r=dot(vP,vP);if(r>1.0)discard;float a=(1.0-r);a*=a;gl_FragColor=vec4(vC*a*vA*0.24,1.0);}'}),BL_HALO_N);
+  m.count=0;m.frustumCulled=false;m.renderOrder=3;scene.add(m);return m;}
+let blHaloT=0;const _hM=new THREE.Matrix4(),_hV=new THREE.Vector3(),_hC=new THREE.Color();
+function blkHaloTick(dt){
+  if(HALO_U.uStr.value<=0.001){if(HALO)HALO.visible=false;return;}
+  if(!HALO)HALO=haloMesh();HALO.visible=true;if((blHaloT-=dt)>0)return;blHaloT=0.25;
+  const P=players.filter(q=>q.active),L=[],R=Math.min(80,HALO_U.uFar.value*2.6);
+  const near=(x,z)=>{let d=Infinity;for(const q of P)d=Math.min(d,Math.hypot(q.pos.x-x,q.pos.z-z));return d;};
+  const add=(x,y,z,r,g,b)=>{const d=near(x,z);if(d<R)L.push([x,y,z,r,g,b,d]);};
+  const cs=new Set();for(const q of P)for(let qx=Math.floor((q.pos.x-R)/CS);qx<=Math.floor((q.pos.x+R)/CS);qx++)for(let qz=Math.floor((q.pos.z-R)/CS);qz<=Math.floor((q.pos.z+R)/CS);qz++)cs.add(qx+','+qz);
+  for(const c of cs){const [qx,qz]=c.split(',').map(Number);if(!meshes.has(ckey(qx,qz)))continue;
+    // (the street lamps that stand and are lit, as blkFill has them)
+    if(qx<SHIP_CX0)for(const S of blkLamps(qx,qz)){if(downFix.has(S.key)||falling.has(S.key)||blkLampOut.has(S.key))continue;
+      if(chunks.has(ckey(Math.floor(S.fx/CS),Math.floor(S.fz/CS)))&&(get(S.fx,G,S.fz)===ASPHALT||get(S.fx,G+1,S.fz)!==AIR))continue;
+      if(get(S.x,S.y,S.z)!==AIR)continue;add(S.x+0.5,S.y+0.3,S.z+0.5,BL_STREET[0],BL_STREET[1],BL_STREET[2]);}
+    const M=BL_PROPS.get(ckey(qx,qz));if(M)for(const p of M.values())add(p[0]+0.5,p[1]+0.5,p[2]+0.5,p[3],p[4],p[5]);}
+  for(const p of BL_FIRE.values())add(p[0]+0.5,p[1]+0.5,p[2]+0.5,p[3],p[4],p[5]);
+  // (traffic lights: the lamp that's on in each signal head drawn near you, as headLamps shows it; a smaller halo, level 7)
+  for(const h of heads){if(!h.g.visible||!h.lit)continue;const ph=lightPhase(h.ct,h.axis),j=ph==='r'?0:ph==='y'?1:2;
+    _hV.set(0,0.38-0.38*j,0.35).applyMatrix4(h.g.matrix);_hC.copy(TL.on[j].color);add(_hV.x,_hV.y,_hV.z,_hC.r*7,_hC.g*7,_hC.b*7);}
+  L.sort((a,b)=>a[6]-b[6]);const n=Math.min(BL_HALO_N,L.length),A=HALO_A.array;
+  for(let i=0;i<n;i++){const [x,y,z,r,g,b]=L[i],m=Math.max(r,g,b,1);_hM.makeTranslation(x,y,z);HALO.setMatrixAt(i,_hM);
+    A[i*4]=r/m;A[i*4+1]=g/m;A[i*4+2]=b/m;A[i*4+3]=1.2+m*0.17;}   // (bigger the brighter: reaching about 3.7 blocks out round a street lamp)
+  HALO.count=n;HALO.instanceMatrix.needsUpdate=true;HALO_A.needsUpdate=true;
 }
 // every chunk within r blocks of (x,z) meshed again
 function blkAround(x,z,r){
@@ -21048,7 +21091,7 @@ function trimFires(room){const cap=FIRE_CAPS[fireCapI];while(fires.length>0&&fir
 function refireDur(){const m=Math.min(FIRE_DURS[fireDurI].m,1e6);for(const F of fires){const f=F.t/F.life;F.life=F.base*m;F.t=F.life*f;}}
 const _firM=new THREE.Matrix4(),_firQ=new THREE.Quaternion(),_firS=new V3(),_firP=new V3(),_firC=new THREE.Color(),FL_COLS=[0xfff2a0,0xffc23a,0xff7a1e,0xd8380e];
 function updateFires(dt){
-  blkFireTick(dt);   // (their light round them at night, render/block-light.js)
+  blkFireTick(dt);blkHaloTick(dt);   // (their light round them at night, and the lamps' and fires' halos in fog: render/block-light.js)
   for(let i=fires.length-1;i>=0;i--){
     const F=fires[i];if(FIRE_DURS[fireDurI].m!==Infinity||F.douse)F.t-=dt;if(F.t<=0){fires.splice(i,1);continue;}
     // the heat melts the snow round it (it starts settling again, from nothing, once the fire's out) -- off the ground,
@@ -28706,6 +28749,7 @@ function renderView(p,x,y,w,h){
   else{const fk=Math.max(0.2,WX.k.fog),ff=Math.min(far,wxFogFar(fk));scene.fog.color.copy(SKY);scene.background.copy(SKY);scene.fog.near=ff*0.45*fk*fk;scene.fog.far=ff;
     FOG_GLOW.value=ff<far?Math.min(1,Math.max(0,(0.95-fk)/0.5))*(DT.fogLit??1):0;   // (lights through the weather's fog, FOG_LIT_FRAG)
     skyU.uFog.value=Math.min(1,Math.max(0,(0.92-fk)/0.45));}   // (and the sky and clouds lost in it)
+  {const L=WORLD_LIGHT.value;HALO_U.uStr.value=FOG_GLOW.value*Math.min(1,Math.max(0,(0.75-Math.max(L.r,L.g,L.b))*2.5));HALO_U.uNear.value=scene.fog.near;HALO_U.uFar.value=scene.fog.far;}   // (halos round lamps in the fog)
   placePrecip(c,p.idx);
   p.camera.aspect=w/h;p.camera.fov=p.tkFov||(p.gob&&!p.drv&&p.scFov)||72-6*(p.speedFx||0)-8*(p.windZoom||0)+(p.drv&&p.drv.k==='mech'?p.mgFov||0:0);   // (tkFov: a tank's gunsight, tank-handling.js)
   p.camera.far=far+40;p.camera.near=p.gob?0.12:0.25;p.camera.updateProjectionMatrix();

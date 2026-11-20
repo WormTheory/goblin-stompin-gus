@@ -83,6 +83,49 @@ function blkFireTick(dt){
   for(const [o,e] of BL_FIRE){const w=want.get(o);if(!w||w[6]!==e[6]||w[0]!==e[0]||w[2]!==e[2]){BL_FIRE.delete(o);blkAround(e[0],e[2],e[6]-1);}}
   for(const [o,w] of want)if(!BL_FIRE.has(o)){BL_FIRE.set(o,w);blkAround(w[0],w[2],w[6]-1);}
 }
+// halos: in the weather's fog at night, the air round a street lamp, a lamp prop or a fire glows, as real fog scatters a
+// light round it (traffic lights too, in whichever colour's showing). A soft disc facing the camera on each of the BL_HALO_N nearest such lights (one instanced mesh, drawn
+// additively; walls in front hide it as they would the light), picked afresh a couple of times a second by blkHaloTick.
+// How strong is HALO_U.uStr, set per view by renderView with FOG_GLOW (fog thickness times the Fog light slider) times how
+// dark it is; nothing's drawn when that's 0, so a clear night or the day costs nothing. Each halo fades out into the fog a
+// little further off than the lit faces do (uNear, uFar: the fog's), and as you get right up to it.
+const BL_HALO_N=96,HALO_U={uStr:{value:0},uNear:{value:0},uFar:{value:1},uWorldCurve:CURVE_U};
+const HALO_A=new THREE.InstancedBufferAttribute(new Float32Array(BL_HALO_N*4),4);HALO_A.setUsage(THREE.DynamicDrawUsage);
+// (made the first time it's needed: the scene isn't there yet when this file runs)
+let HALO=null;
+function haloMesh(){const g=new THREE.PlaneGeometry(2,2);g.setAttribute('aHalo',HALO_A);
+  const m=new THREE.InstancedMesh(g,new THREE.ShaderMaterial({uniforms:HALO_U,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,fog:false,
+    vertexShader:'uniform float uStr,uNear,uFar,uWorldCurve;attribute vec4 aHalo;varying vec2 vP;varying vec3 vC;varying float vA;void main(){'+
+      'vec4 w=modelMatrix*instanceMatrix*vec4(0.0,0.0,0.0,1.0);vec2 dd=w.xz-cameraPosition.xz;w.y-=uWorldCurve*dot(dd,dd);'+
+      'vec4 mv=viewMatrix*w;float d=-mv.z,s=aHalo.w;'+
+      // (brought toward the camera by most of its size, so the lamp's own post and the ground under it don't cut it off)
+      'mv.xyz*=max(0.05,d-s*0.7)/max(d,0.05);mv.xy+=position.xy*s;gl_Position=projectionMatrix*mv;'+
+      'vP=position.xy;vC=aHalo.rgb;vA=uStr*smoothstep(1.5,5.0,d)*(1.0-smoothstep(mix(uNear,uFar,0.5),uFar*(1.0+1.2*min(uStr,1.5)),d));}',
+    fragmentShader:'varying vec2 vP;varying vec3 vC;varying float vA;void main(){float r=dot(vP,vP);if(r>1.0)discard;float a=(1.0-r);a*=a;gl_FragColor=vec4(vC*a*vA*0.24,1.0);}'}),BL_HALO_N);
+  m.count=0;m.frustumCulled=false;m.renderOrder=3;scene.add(m);return m;}
+let blHaloT=0;const _hM=new THREE.Matrix4(),_hV=new THREE.Vector3(),_hC=new THREE.Color();
+function blkHaloTick(dt){
+  if(HALO_U.uStr.value<=0.001){if(HALO)HALO.visible=false;return;}
+  if(!HALO)HALO=haloMesh();HALO.visible=true;if((blHaloT-=dt)>0)return;blHaloT=0.25;
+  const P=players.filter(q=>q.active),L=[],R=Math.min(80,HALO_U.uFar.value*2.6);
+  const near=(x,z)=>{let d=Infinity;for(const q of P)d=Math.min(d,Math.hypot(q.pos.x-x,q.pos.z-z));return d;};
+  const add=(x,y,z,r,g,b)=>{const d=near(x,z);if(d<R)L.push([x,y,z,r,g,b,d]);};
+  const cs=new Set();for(const q of P)for(let qx=Math.floor((q.pos.x-R)/CS);qx<=Math.floor((q.pos.x+R)/CS);qx++)for(let qz=Math.floor((q.pos.z-R)/CS);qz<=Math.floor((q.pos.z+R)/CS);qz++)cs.add(qx+','+qz);
+  for(const c of cs){const [qx,qz]=c.split(',').map(Number);if(!meshes.has(ckey(qx,qz)))continue;
+    // (the street lamps that stand and are lit, as blkFill has them)
+    if(qx<SHIP_CX0)for(const S of blkLamps(qx,qz)){if(downFix.has(S.key)||falling.has(S.key)||blkLampOut.has(S.key))continue;
+      if(chunks.has(ckey(Math.floor(S.fx/CS),Math.floor(S.fz/CS)))&&(get(S.fx,G,S.fz)===ASPHALT||get(S.fx,G+1,S.fz)!==AIR))continue;
+      if(get(S.x,S.y,S.z)!==AIR)continue;add(S.x+0.5,S.y+0.3,S.z+0.5,BL_STREET[0],BL_STREET[1],BL_STREET[2]);}
+    const M=BL_PROPS.get(ckey(qx,qz));if(M)for(const p of M.values())add(p[0]+0.5,p[1]+0.5,p[2]+0.5,p[3],p[4],p[5]);}
+  for(const p of BL_FIRE.values())add(p[0]+0.5,p[1]+0.5,p[2]+0.5,p[3],p[4],p[5]);
+  // (traffic lights: the lamp that's on in each signal head drawn near you, as headLamps shows it; a smaller halo, level 7)
+  for(const h of heads){if(!h.g.visible||!h.lit)continue;const ph=lightPhase(h.ct,h.axis),j=ph==='r'?0:ph==='y'?1:2;
+    _hV.set(0,0.38-0.38*j,0.35).applyMatrix4(h.g.matrix);_hC.copy(TL.on[j].color);add(_hV.x,_hV.y,_hV.z,_hC.r*7,_hC.g*7,_hC.b*7);}
+  L.sort((a,b)=>a[6]-b[6]);const n=Math.min(BL_HALO_N,L.length),A=HALO_A.array;
+  for(let i=0;i<n;i++){const [x,y,z,r,g,b]=L[i],m=Math.max(r,g,b,1);_hM.makeTranslation(x,y,z);HALO.setMatrixAt(i,_hM);
+    A[i*4]=r/m;A[i*4+1]=g/m;A[i*4+2]=b/m;A[i*4+3]=1.2+m*0.17;}   // (bigger the brighter: reaching about 3.7 blocks out round a street lamp)
+  HALO.count=n;HALO.instanceMatrix.needsUpdate=true;HALO_A.needsUpdate=true;
+}
 // every chunk within r blocks of (x,z) meshed again
 function blkAround(x,z,r){
   if(r<0)return;
