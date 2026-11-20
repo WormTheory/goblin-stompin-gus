@@ -105,8 +105,11 @@ function wreckHud(p,dt){
   if(u.wreck.hidden===on)u.wreck.hidden=!on;
   const fade=on&&u.wkHold<=0;if(u.wreck.classList.contains('wkout')!==fade)u.wreck.classList.toggle('wkout',fade);
   if(!on)return;
-  const pc=Math.round(v*100),t='Settlement razed',k=t+pc;
-  if(u.wreckK!==k){u.wreckK=k;u.wkT.textContent=t+'  '+pc+'%';u.wkFill.setAttribute('stroke-dasharray',pc+' 200');u.wkFill.style.visibility=pc?'':'hidden';}   // (the bar is an arc over the minimap, filled by its dash)
+  let nm='';try{nm=setName(u.wkS);}catch(e){}
+  const pc=Math.round(v*100),t=(nm||'Settlement')+' razed',k=t+pc;
+  if(u.wreckK!==k){u.wreckK=k;u.wkT.textContent=t+'  '+pc+'%';
+    // (a long name, 'Greater Sludgeborough-on-the-Marsh', is shrunk to fit along the arc: about 22 letters fit at full size)
+    const n=u.wkT.textContent.length,tp=u.wkT.parentNode;if(tp&&tp.style)tp.style.fontSize=n>22?Math.max(8,15*22/n).toFixed(1)+'px':'';u.wkFill.setAttribute('stroke-dasharray',pc+' 200');u.wkFill.style.visibility=pc?'':'hidden';}   // (the bar is an arc over the minimap, filled by its dash)
 }
 // (Options: reduced motion, kept in this browser; the system's own setting turns it on too, see reduceMotion)
 const CALM_KEY='goblin-stompin-gus-calm';
