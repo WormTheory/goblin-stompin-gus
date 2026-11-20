@@ -47,6 +47,8 @@
 - A car's headlights no longer light the underside of an overpass it's driving over, or the road below it.
 - Street lamps and lamps wiped out by a nuke no longer keep lighting the ground or glowing in the fog.
 - Falling snow and rain now darken with the time of day instead of staying bright white at night.
+- Halos no longer flicker as you turn the camera.
+- The debug menu's Fog light, Halos, Halo fade, Nuke strength and Combo system settings are now remembered from one session to the next.
 
 ### Trees and water in the distance
 

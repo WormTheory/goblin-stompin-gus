@@ -108,9 +108,12 @@ function haloMesh(){const g=new THREE.PlaneGeometry(2,2);g.setAttribute('aHalo',
   const m=new THREE.InstancedMesh(g,new THREE.ShaderMaterial({uniforms:HALO_U,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,fog:false,
     vertexShader:'uniform float uStr,uNear,uFar,uWorldCurve;attribute vec4 aHalo;varying vec2 vP;varying vec3 vC;varying float vA;void main(){'+
       'vec4 w=modelMatrix*instanceMatrix*vec4(0.0,0.0,0.0,1.0);vec2 dd=w.xz-cameraPosition.xz;w.y-=uWorldCurve*dot(dd,dd);'+
-      'vec4 mv=viewMatrix*w;float d=-mv.z,s=aHalo.w;'+
-      // (brought toward the camera by most of its size, so the lamp's own post and the ground under it don't cut it off)
-      'mv.xyz*=max(0.05,d-s*0.7)/max(d,0.05);mv.xy+=position.xy*s;gl_Position=projectionMatrix*mv;'+
+      'vec3 tc=cameraPosition-w.xyz;float d=max(length(tc),0.05),s=aHalo.w;vec3 V=tc/d;'+
+      // (facing the camera's position, not lying flat to the screen, and measured by straight distance, not depth: so turning
+      // on the spot changes nothing, where a screen-flat disc swung through the walls beside it and flickered as you looked round;
+      // brought toward the camera by most of its size, so the lamp's own post and the ground under it don't cut it off)
+      'vec3 Rt=cross(vec3(0.0,1.0,0.0),V);Rt=dot(Rt,Rt)<1e-4?vec3(1.0,0.0,0.0):normalize(Rt);vec3 Up=cross(V,Rt);'+
+      'w.xyz+=V*min(s*0.7,d-0.05)+(Rt*position.x+Up*position.y)*s;gl_Position=projectionMatrix*viewMatrix*w;'+
       'vP=position.xy;vC=aHalo.rgb;vA=uStr*smoothstep(1.5,5.0,d)*(1.0-smoothstep(mix(uNear,uFar,0.5),uFar*(1.0+2.5*min(uStr,1.5)),d));}',
     fragmentShader:'varying vec2 vP;varying vec3 vC;varying float vA;void main(){float r=dot(vP,vP);if(r>1.0)discard;float a=(1.0-r);a*=a;gl_FragColor=vec4(vC*a*vA*0.24,1.0);}'}),BL_HALO_ALL);
   m.count=0;m.frustumCulled=false;m.renderOrder=3;scene.add(m);return m;}
