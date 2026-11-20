@@ -68,7 +68,9 @@ function blkLampDown(f,lit){
 // and go, and die down, so a couple of times a second blkFireTick works out which should be lit and how brightly, and remeshes
 // round any that started, went out or dropped a step. Only after dark (by day the light wouldn't show, and the remeshing would
 // be wasted), and only the BL_FIRE_N nearest the players, so a town left burning doesn't remesh half the map.
-const BL_FIRE=new Map(),BL_FIRE_N=24,BL_FIRE_C=0xff8a30;let blFireT=0;
+// Traffic lights go in the same list: the lamp that's on in each of the BL_SIG_N nearest signal heads drawn (heads, in
+// fixtures), at level 9 in its colour (the heads hang high, so less would hardly reach the road), so the junction's lit red, then green, then amber; each change remeshes round it.
+const BL_FIRE=new Map(),BL_FIRE_N=24,BL_FIRE_C=0xff8a30,BL_SIG_N=12,_bsV=new THREE.Vector3();let blFireT=0;
 function blkFireTick(dt){
   if((blFireT-=dt)>0)return;blFireT=0.5;
   const want=new Map();
@@ -79,15 +81,19 @@ function blkFireTick(dt){
     for(const H of hearths.values())L.push([H,H.x,H.y,H.z,9,dist(H.x,H.z)]);
     L.sort((a,b)=>a[5]-b[5]);
     for(let i=0;i<Math.min(BL_FIRE_N,L.length);i++){const [o,x,y,z,lv,d]=L[i];if(d>CS*12)break;const c=blkRGB(lv,BL_FIRE_C);want.set(o,[Math.floor(x),Math.floor(y)+1,Math.floor(z),c[0],c[1],c[2],lv]);}
+    const S=[];for(const h of heads){if(!h.g.visible||!h.lit)continue;const ph=lightPhase(h.ct,h.axis),j=ph==='r'?0:ph==='y'?1:2;
+      _bsV.set(0,0.38-0.38*j,0.35).applyMatrix4(h.g.matrix);const d=dist(_bsV.x,_bsV.z);if(d<CS*4)S.push([h,_bsV.x,_bsV.y,_bsV.z,j,d]);}
+    S.sort((a,b)=>a[5]-b[5]);
+    for(let i=0;i<Math.min(BL_SIG_N,S.length);i++){const [h,x,y,z,j]=S[i],c=blkRGB(9,TL.on[j].color.getHex());want.set(h,[Math.floor(x),Math.floor(y),Math.floor(z),c[0],c[1],c[2],9]);}
   }
-  for(const [o,e] of BL_FIRE){const w=want.get(o);if(!w||w[6]!==e[6]||w[0]!==e[0]||w[2]!==e[2]){BL_FIRE.delete(o);blkAround(e[0],e[2],e[6]-1);}}
+  for(const [o,e] of BL_FIRE){const w=want.get(o);if(!w||w[6]!==e[6]||w[0]!==e[0]||w[1]!==e[1]||w[2]!==e[2]||w[3]!==e[3]||w[4]!==e[4]){BL_FIRE.delete(o);blkAround(e[0],e[2],e[6]-1);}}
   for(const [o,w] of want)if(!BL_FIRE.has(o)){BL_FIRE.set(o,w);blkAround(w[0],w[2],w[6]-1);}
 }
 // halos: in the weather's fog at night, the air round a street lamp, a lamp prop or a fire glows, as real fog scatters a
 // light round it (traffic lights too, in whichever colour's showing). A soft disc facing the camera on each of the BL_HALO_N nearest such lights (one instanced mesh, drawn
 // additively; walls in front hide it as they would the light), picked afresh a couple of times a second by blkHaloTick.
-// How strong is HALO_U.uStr, set per view by renderView with FOG_GLOW (fog thickness times the Fog light slider) times how
-// dark it is; nothing's drawn when that's 0, so a clear night or the day costs nothing. Each halo fades out into the fog a
+// How strong is HALO_U.uStr, set per view by renderView: the weather's fog thickness times the debug menu's Halos slider
+// (DT.halo) times how dark it is; nothing's drawn when that's 0, so a clear night or the day costs nothing. Each halo fades out into the fog a
 // little further off than the lit faces do (uNear, uFar: the fog's), and as you get right up to it.
 const BL_HALO_N=96,HALO_U={uStr:{value:0},uNear:{value:0},uFar:{value:1},uWorldCurve:CURVE_U};
 const HALO_A=new THREE.InstancedBufferAttribute(new Float32Array(BL_HALO_N*4),4);HALO_A.usage=THREE.DynamicDrawUsage;

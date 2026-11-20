@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:96542d4a6d28baccb8086267aca97c3ce327d7bf5683215270a1615e8cc46a80 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:82f7ab2b05ceb88556a4225201deff3da141a2c97ef0efc1cb8d2ffcfc61ccff -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1584,7 +1584,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Nuke Launcher</h3>
 <ul><li>A new weapon for goblins, picked in the Loadout: a launcher with a nuclear warhead on the front. It lobs the warhead slowly in a shallow arc, and wherever it lands the same blast as a meltdown goes off, smaller but still enough to flatten a few streets.</li><li>Fire it level and it lands far enough off for you to live through it. Fire it at a wall in front of you and you won't.</li><li>One warhead in the tube and two spares, with a long reload. Once the spares are gone it's empty, unless Infinite ammo is on. The weapon bar shows how many spares are left.</li><li>The debug menu has a Nuke strength slider to make its blast smaller or bigger, up to the size of a meltdown.</li></ul>
 <h3>Lighting</h3>
-<ul><li>At night, lights now light up what's around them. Street lamps pool light on the pavement, neon signs throw their own colours across the street, lit windows glow on the walls and rooms beside them, and lamps, TVs and screens light the rooms they're in. Walls block the light, so it stays in the room or the street it's in. Smash a lamp or a sign and its light goes out.</li><li>It's switched on or off with Block lighting under Sound &amp; picture in Options. Off, the game looks and runs exactly as before.</li><li>A building that's been destroyed or brought down goes dark: its windows, neon and signs stop glowing, and the pieces of it falling don't glow either.</li><li>In fog, rain and snow at night, lit windows, neon, lamps and the light they cast now show through the murk as a soft glow, some way past where the buildings themselves disappear.</li><li>In thick fog the sky and clouds are now lost in the fog too, so far-off towers no longer stand out as dark shapes against a clear sky.</li><li>The debug menu has a Fog light slider for how strongly lights show through fog.</li><li>Fires and campfires now light up the ground and walls around them at night, dimming as they die down.</li><li>In fog at night, street lamps, lamps, fires and traffic lights now have a soft halo of light in the air around them, as real fog scatters light. The Fog light slider sets how strong it is.</li></ul>
+<ul><li>At night, lights now light up what's around them. Street lamps pool light on the pavement, neon signs throw their own colours across the street, lit windows glow on the walls and rooms beside them, and lamps, TVs and screens light the rooms they're in. Walls block the light, so it stays in the room or the street it's in. Smash a lamp or a sign and its light goes out.</li><li>It's switched on or off with Block lighting under Sound &amp; picture in Options. Off, the game looks and runs exactly as before.</li><li>A building that's been destroyed or brought down goes dark: its windows, neon and signs stop glowing, and the pieces of it falling don't glow either.</li><li>In fog, rain and snow at night, lit windows, neon, lamps and the light they cast now show through the murk as a soft glow, some way past where the buildings themselves disappear.</li><li>In thick fog the sky and clouds are now lost in the fog too, so far-off towers no longer stand out as dark shapes against a clear sky.</li><li>The debug menu has a Fog light slider for how strongly lights show through fog.</li><li>Fires and campfires now light up the ground and walls around them at night, dimming as they die down.</li><li>In fog at night, street lamps, lamps, fires and traffic lights now have a soft halo of light in the air around them, as real fog scatters light. The Halos slider in the debug menu sets how strong they are.</li><li>Traffic lights now light the junction under them at night in red, amber or green, changing with the lights.</li></ul>
 <h3>Trees and water in the distance</h3>
 <ul><li>Trees, ponds and lakes no longer pop up out of nowhere as you get close. Out past the full-detail city, the distant view now has every tree in its real spot, and up close each one becomes the real tree where it already stood.</li><li>Further off, woods show as clumps of treetops, and ponds, park lakes and the theme park's boating lake show as water.</li><li>Distant trees change colour with the seasons and lose their leaves in winter, like the near ones.</li></ul>
 <h3>Water</h3>
@@ -2275,7 +2275,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='20254b54f20d';
+const GAME_VER='0.5',GAME_BUILD='b2eb47ce66d8';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -9135,7 +9135,9 @@ function blkLampDown(f,lit){
 // and go, and die down, so a couple of times a second blkFireTick works out which should be lit and how brightly, and remeshes
 // round any that started, went out or dropped a step. Only after dark (by day the light wouldn't show, and the remeshing would
 // be wasted), and only the BL_FIRE_N nearest the players, so a town left burning doesn't remesh half the map.
-const BL_FIRE=new Map(),BL_FIRE_N=24,BL_FIRE_C=0xff8a30;let blFireT=0;
+// Traffic lights go in the same list: the lamp that's on in each of the BL_SIG_N nearest signal heads drawn (heads, in
+// fixtures), at level 9 in its colour (the heads hang high, so less would hardly reach the road), so the junction's lit red, then green, then amber; each change remeshes round it.
+const BL_FIRE=new Map(),BL_FIRE_N=24,BL_FIRE_C=0xff8a30,BL_SIG_N=12,_bsV=new THREE.Vector3();let blFireT=0;
 function blkFireTick(dt){
   if((blFireT-=dt)>0)return;blFireT=0.5;
   const want=new Map();
@@ -9146,15 +9148,19 @@ function blkFireTick(dt){
     for(const H of hearths.values())L.push([H,H.x,H.y,H.z,9,dist(H.x,H.z)]);
     L.sort((a,b)=>a[5]-b[5]);
     for(let i=0;i<Math.min(BL_FIRE_N,L.length);i++){const [o,x,y,z,lv,d]=L[i];if(d>CS*12)break;const c=blkRGB(lv,BL_FIRE_C);want.set(o,[Math.floor(x),Math.floor(y)+1,Math.floor(z),c[0],c[1],c[2],lv]);}
+    const S=[];for(const h of heads){if(!h.g.visible||!h.lit)continue;const ph=lightPhase(h.ct,h.axis),j=ph==='r'?0:ph==='y'?1:2;
+      _bsV.set(0,0.38-0.38*j,0.35).applyMatrix4(h.g.matrix);const d=dist(_bsV.x,_bsV.z);if(d<CS*4)S.push([h,_bsV.x,_bsV.y,_bsV.z,j,d]);}
+    S.sort((a,b)=>a[5]-b[5]);
+    for(let i=0;i<Math.min(BL_SIG_N,S.length);i++){const [h,x,y,z,j]=S[i],c=blkRGB(9,TL.on[j].color.getHex());want.set(h,[Math.floor(x),Math.floor(y),Math.floor(z),c[0],c[1],c[2],9]);}
   }
-  for(const [o,e] of BL_FIRE){const w=want.get(o);if(!w||w[6]!==e[6]||w[0]!==e[0]||w[2]!==e[2]){BL_FIRE.delete(o);blkAround(e[0],e[2],e[6]-1);}}
+  for(const [o,e] of BL_FIRE){const w=want.get(o);if(!w||w[6]!==e[6]||w[0]!==e[0]||w[1]!==e[1]||w[2]!==e[2]||w[3]!==e[3]||w[4]!==e[4]){BL_FIRE.delete(o);blkAround(e[0],e[2],e[6]-1);}}
   for(const [o,w] of want)if(!BL_FIRE.has(o)){BL_FIRE.set(o,w);blkAround(w[0],w[2],w[6]-1);}
 }
 // halos: in the weather's fog at night, the air round a street lamp, a lamp prop or a fire glows, as real fog scatters a
 // light round it (traffic lights too, in whichever colour's showing). A soft disc facing the camera on each of the BL_HALO_N nearest such lights (one instanced mesh, drawn
 // additively; walls in front hide it as they would the light), picked afresh a couple of times a second by blkHaloTick.
-// How strong is HALO_U.uStr, set per view by renderView with FOG_GLOW (fog thickness times the Fog light slider) times how
-// dark it is; nothing's drawn when that's 0, so a clear night or the day costs nothing. Each halo fades out into the fog a
+// How strong is HALO_U.uStr, set per view by renderView: the weather's fog thickness times the debug menu's Halos slider
+// (DT.halo) times how dark it is; nothing's drawn when that's 0, so a clear night or the day costs nothing. Each halo fades out into the fog a
 // little further off than the lit faces do (uNear, uFar: the fog's), and as you get right up to it.
 const BL_HALO_N=96,HALO_U={uStr:{value:0},uNear:{value:0},uFar:{value:1},uWorldCurve:CURVE_U};
 const HALO_A=new THREE.InstancedBufferAttribute(new Float32Array(BL_HALO_N*4),4);HALO_A.usage=THREE.DynamicDrawUsage;
@@ -21276,7 +21282,7 @@ const DBG_COLS=4,DBG_SECS=[
   [0,'All',[{k:'_all',label:'Show all',act:true},{k:'_none',label:'Hide all',act:true}]],
   [0,'Time',[{k:'speed',label:'Game speed'},{k:'paused',label:'Stop time'}]],
   [0,'Camera',[{k:'freecam',label:'Free cam'},{k:'curve',label:'World curve'}]],
-  [0,'World',[{k:'tod',label:'Time of day'},{k:'wx',label:'Weather'},{k:'season',label:'Season'},{k:'fogLit',label:'Fog light'}]],
+  [0,'World',[{k:'tod',label:'Time of day'},{k:'wx',label:'Weather'},{k:'season',label:'Season'},{k:'fogLit',label:'Fog light'},{k:'halo',label:'Halos'}]],
   // (pick a kind, then Spawn puts one down ahead of you, parked and empty: in the Testing Environment or the ordinary game)
   [0,'Vehicles',[{k:'vehSel',label:'Vehicle'},{k:'vehGo',label:'Spawn vehicle'}]],
   [1,'Player',[{k:'pspeed',label:'Player speed'},{k:'invuln',label:'Invulnerable'},{k:'infStam',label:'Infinite stamina'},{k:'infAmmo',label:'Infinite ammo'},{k:'nukeR',label:'Nuke strength'},{k:'fly',label:'Flying'},{k:'host',label:'Enemy hostility'},{k:'combo',label:'Combo system'}]],
@@ -21290,10 +21296,12 @@ const DBG_COLS=4,DBG_SECS=[
 const DBG_ITEMS=DBG_SECS.flatMap(([c,sec,rows])=>rows.map(it=>Object.assign(it,{c,sec})));
 // (the sliders: left and right only move one once it's been picked with A, and until then they go to the next column,
 // as on any other row, so a slider never gets in the way of crossing the menu)
-const DBG_SLIDE=new Set(['speed','pspeed','curve','host','tod','nukeR','fogLit']);
+const DBG_SLIDE=new Set(['speed','pspeed','curve','host','tod','nukeR','fogLit','halo']);
 // the Fog light slider: how strongly lights show through the weather's fog at night (DT.fogLit, FOG_LIT_FRAG), 0 to 3 times
 // in quarters, 1 to begin with (not saved, like the other switches)
 const FOGLIT_N=13,fogLitI=()=>Math.round((DT.fogLit??1)*4),fogLitSet=i=>{DT.fogLit=Math.max(0,Math.min(FOGLIT_N-1,i))/4;};
+// the Halos slider: the same steps, for the halos round lamps, fires and traffic lights in fog (DT.halo, HALO_U)
+const haloI=()=>Math.round((DT.halo??1)*4),haloSet=i=>{DT.halo=Math.max(0,Math.min(FOGLIT_N-1,i))/4;};
 // the Nuke strength slider: the reach of the Nuke Launcher's big blast (nukeR, shots.js), NUKE_R0 to NUKE_R1 in steps of
 // NUKE_RS, the weapon's own to begin with (not saved, like the other switches; the reactor's and the Testing
 // Environment's Big blast keep their own)
@@ -21314,7 +21322,7 @@ function toggleGfx(k){const g=GFX_KEY[k],off=GFX_OFF[g]=!GFX_OFF[g];
   const P=P1.pos,d=e=>Math.hypot(e.cx*CS-P.x,e.cz*CS-P.z);
   leafQ.length=0;for(const e of [...meshes.values()].sort((a,b)=>d(b)-d(a)))leafQ.push(ckey(e.cx,e.cz));}
 const curveTxt=()=>DT.curve===0?'Flat':DT.curve>0?'Down '+DT.curve:'Up '+(-DT.curve);
-function dbgVal(k){return k==='nukeR'?String(nukeR()):k==='fogLit'?(DT.fogLit??1)+'×':isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='tod'?todTxt():k==='vehSel'?tenvVehName(DT.veh):k==='vehGo'?DT.vehMsg:k==='paused'||k==='freecam'||k==='combo'||k==='invuln'||k==='infStam'||k==='infAmmo'||k==='fly'||k==='fps'||k==='sndList'||k==='info'?DT[k]:DBG[k];}
+function dbgVal(k){return k==='nukeR'?String(nukeR()):k==='fogLit'?(DT.fogLit??1)+'×':k==='halo'?(DT.halo??1)+'×':isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='tod'?todTxt():k==='vehSel'?tenvVehName(DT.veh):k==='vehGo'?DT.vehMsg:k==='paused'||k==='freecam'||k==='combo'||k==='invuln'||k==='infStam'||k==='infAmmo'||k==='fly'||k==='fps'||k==='sndList'||k==='info'?DT[k]:DBG[k];}
 // the rows on show: the individual hitbox switches only while 'Display hitboxes' is on
 // the menu's two tabs: 0 the switches themselves, 1 "Show / hide", which picks the rows tab 0 lists (kept in this browser)
 const DBG_HIDE_KEY='goblin-stompin-gus-dbghide',DBG_HIDE=new Set();
@@ -21332,6 +21340,7 @@ function dbgStep(k,d){if(k==='wx'){const L=Object.keys(WX_TYPES);wxSet(L[(L.inde
   else if(k==='tod')setTodHour(todHour()+d);
   else if(k==='nukeR')nukeSet(Math.round((nukeR()-NUKE_R0)/NUKE_RS)+d);
   else if(k==='fogLit')fogLitSet(fogLitI()+d);
+  else if(k==='halo')haloSet(haloI()+d);
   else if(k==='speed')DT.speedI=Math.max(0,Math.min(SPEEDS.length-1,DT.speedI+d));else if(k==='pspeed')DT.psI=Math.max(0,Math.min(PSPEEDS.length-1,DT.psI+d));}
 function setKbdMenu(on){
   DT.kbdOpen=on;DT.menu=DT.quick&&(on||DT.selHeld);mHeld.clear();mTap.clear();renderTime();
@@ -21401,7 +21410,7 @@ function renderTime(){
     const dbgRows=dbgL.map((it,i)=>{const nAll=DBG_ITEMS.filter(o=>!o.act).length,v=it.act?(it.k==='_all'?(nAll-DBG_HIDE.size)+' / '+nAll+' shown':''):DT.tab?!DBG_HIDE.has(it.k):dbgVal(it.k),txt=typeof v==='boolean'?(DT.tab?(v?'SHOWN':'HIDDEN'):v?'ON':'OFF'):v;
       let body=txt;
       if(DT.tab){}
-      else if(DBG_SLIDE.has(it.k)){const n=it.k==='fogLit'?FOGLIT_N:it.k==='nukeR'?NUKE_RN:it.k==='curve'?21:it.k==='host'?HOST_MAX+1:it.k==='tod'?24:(it.k==='speed'?SPEEDS:PSPEEDS).length,f=(it.k==='fogLit'?fogLitI():it.k==='nukeR'?(nukeR()-NUKE_R0)/NUKE_RS:it.k==='curve'?DT.curve+10:it.k==='host'?DT.host:it.k==='tod'?todHour():it.k==='speed'?DT.speedI:DT.psI)/(n-1)*100;body='<span class="sl" data-k="'+it.k+'"><i style="width:'+f+'%"></i><b style="left:'+f+'%"></b></span><span class="slv">'+txt+'</span>';}
+      else if(DBG_SLIDE.has(it.k)){const n=it.k==='fogLit'||it.k==='halo'?FOGLIT_N:it.k==='nukeR'?NUKE_RN:it.k==='curve'?21:it.k==='host'?HOST_MAX+1:it.k==='tod'?24:(it.k==='speed'?SPEEDS:PSPEEDS).length,f=(it.k==='fogLit'?fogLitI():it.k==='halo'?haloI():it.k==='nukeR'?(nukeR()-NUKE_R0)/NUKE_RS:it.k==='curve'?DT.curve+10:it.k==='host'?DT.host:it.k==='tod'?todHour():it.k==='speed'?DT.speedI:DT.psI)/(n-1)*100;body='<span class="sl" data-k="'+it.k+'"><i style="width:'+f+'%"></i><b style="left:'+f+'%"></b></span><span class="slv">'+txt+'</span>';}
       else if(DBG_DD.has(it.k))body='<span class="dd">'+(it.k==='wx'?WX_TYPES[WX.type].i+' ':'')+txt+' ▾</span>';
       else if(it.k==='vehGo')body='<span class="dbtn">Spawn</span>'+(txt?'<span class="dmsg">'+txt.replace(/[<&]/g,c=>c==='<'?'&lt;':'&amp;')+'</span>':'');
       let list='';
@@ -21441,7 +21450,7 @@ function renderTime(){
    const row=e.target.closest('.dr');if(!row)return;const ni=+row.dataset.i;if(DT.dd&&dbgItems()[ni].k!==DT.dd.k)DT.dd=null;DT.cur=ni;dbgMenuToggle();});
  // the sliders: press and drag anywhere along the track
  const slSet=x=>{const k=DT.slDrag,el=rows.querySelector('.sl[data-k="'+k+'"]');if(!el)return;const r=el.getBoundingClientRect(),f=Math.max(0,Math.min(1,(x-r.left)/r.width));
-   if(k==='fogLit')fogLitSet(Math.round(f*(FOGLIT_N-1)));else if(k==='nukeR')nukeSet(Math.round(f*(NUKE_RN-1)));else if(k==='curve')DT.curve=Math.round(f*20)-10;else if(k==='host')DT.host=Math.round(f*HOST_MAX);else if(k==='tod')setTodHour(Math.round(f*23));else if(k==='speed')DT.speedI=Math.round(f*(SPEEDS.length-1));else DT.psI=Math.round(f*(PSPEEDS.length-1));renderTime();};
+   if(k==='fogLit')fogLitSet(Math.round(f*(FOGLIT_N-1)));else if(k==='halo')haloSet(Math.round(f*(FOGLIT_N-1)));else if(k==='nukeR')nukeSet(Math.round(f*(NUKE_RN-1)));else if(k==='curve')DT.curve=Math.round(f*20)-10;else if(k==='host')DT.host=Math.round(f*HOST_MAX);else if(k==='tod')setTodHour(Math.round(f*23));else if(k==='speed')DT.speedI=Math.round(f*(SPEEDS.length-1));else DT.psI=Math.round(f*(PSPEEDS.length-1));renderTime();};
  rows.addEventListener('pointerdown',e=>{const sl=e.target.closest('.sl');if(!sl)return;DT.slDrag=sl.dataset.k;DT.dd=null;const row=sl.closest('.dr');if(row)DT.cur=+row.dataset.i;slSet(e.clientX);e.preventDefault();});
  addEventListener('pointermove',e=>{if(DT.slDrag)slSet(e.clientX);});
  addEventListener('pointerup',()=>{DT.slDrag=null;});
@@ -28749,7 +28758,9 @@ function renderView(p,x,y,w,h){
   else{const fk=Math.max(0.2,WX.k.fog),ff=Math.min(far,wxFogFar(fk));scene.fog.color.copy(SKY);scene.background.copy(SKY);scene.fog.near=ff*0.45*fk*fk;scene.fog.far=ff;
     FOG_GLOW.value=ff<far?Math.min(1,Math.max(0,(0.95-fk)/0.5))*(DT.fogLit??1):0;   // (lights through the weather's fog, FOG_LIT_FRAG)
     skyU.uFog.value=Math.min(1,Math.max(0,(0.92-fk)/0.45));}   // (and the sky and clouds lost in it)
-  {const L=WORLD_LIGHT.value;HALO_U.uStr.value=FOG_GLOW.value*Math.min(1,Math.max(0,(0.75-Math.max(L.r,L.g,L.b))*2.5));HALO_U.uNear.value=scene.fog.near;HALO_U.uFar.value=scene.fog.far;}   // (halos round lamps in the fog)
+  // (halos round lamps in the fog: the same fog thickness, times the debug menu's Halos slider, DT.halo, and how dark it is)
+  {const L=WORLD_LIGHT.value,w=!under&&scene.fog.far<far?Math.min(1,Math.max(0,(0.95-Math.max(0.2,WX.k.fog))/0.5)):0;
+   HALO_U.uStr.value=w*(DT.halo??1)*Math.min(1,Math.max(0,(0.75-Math.max(L.r,L.g,L.b))*2.5));HALO_U.uNear.value=scene.fog.near;HALO_U.uFar.value=scene.fog.far;}
   placePrecip(c,p.idx);
   p.camera.aspect=w/h;p.camera.fov=p.tkFov||(p.gob&&!p.drv&&p.scFov)||72-6*(p.speedFx||0)-8*(p.windZoom||0)+(p.drv&&p.drv.k==='mech'?p.mgFov||0:0);   // (tkFov: a tank's gunsight, tank-handling.js)
   p.camera.far=far+40;p.camera.near=p.gob?0.12:0.25;p.camera.updateProjectionMatrix();
