@@ -39,6 +39,9 @@
 - Lit windows and neon signs now have a fainter halo in fog too, one for each patch of them rather than every window.
 - Everything else that glows gets a halo in fog as well: vehicles' headlights, tail lights, indicators, hazard lights and the flashing light bars on police cars, fire engines and ambulances (the halos flash with them), lit signs, billboards and cinema marquees, level crossing lights, spell orbs, fireballs, explosions, lightning and the flames of jets and balloons.
 - Moving cars' headlights now light up the road ahead of them at night.
+- Lit signs, billboards, marquees and other glowing things that stay put now light up the ground and walls around them at night, as lamps do.
+- Halos no longer show through walls: a lamp, screen or sign indoors, or windows round the far side of a building, get no halo unless you can see them.
+- Skyscrapers' lit windows now get halos in fog, a long way off, and bigger patches of windows get brighter halos.
 
 ### Trees and water in the distance
 
