@@ -154,7 +154,7 @@ function farLinesPlot(SB,SG,px,pz){
     seg(rp?SB:SG,R,L[q+1],6,rp?yt-1.2:G+0.45,yt,FARC.road);}}
 }
 function farGrow(F,cap){if(cap<=F.cap)return;scene.remove(F.m);F.m.geometry.dispose();F.m.material.dispose();const N=farInst(cap,F.win,F.ring);scene.remove(N.m);F.m=N.m;F.col=N.col;F.top=N.top;F.wn=N.wn;F.cap=cap;scene.add(F.m);}
-function mkLod(step,mk){const ring={value:new THREE.Vector2(0,0)};return{B:farInst(2048,1,ring),G:farInst(1024,0,ring),ring,sb:farStage(),sg:farStage(),step,mk,job:null,cx:1e9,cz:1e9,key:-1,coll:-1,collT:0};}
+function mkLod(step,mk){const ring={value:new THREE.Vector2(0,0)};return{B:farInst(2048,1,ring),G:farInst(1024,0,ring),ring,sb:farStage(),sg:farStage(),step,mk,job:null,cx:1e9,cz:1e9,key:-1,coll:-1,cr:-1,dv:-1,collT:0};}
 // ---- trees and still water in the far rings. The near ring has every tree, as the chunks grow it (its trunk and two boxes
 // of leaves, which is near enough what a blocky tree is), so that where the full-detail city takes over a tree only gains
 // its detail; further off, woods are clumps of treetops. Ponds and lakes are water a hair above the ground, as rivers are. ----
@@ -167,12 +167,14 @@ const farTreeC=new Map();let farTreeNew=false;
 function farTreesOf(px,pz){
   const k=px*100003+pz,cx=px*CELL/CS,cz=pz*CELL/CS,E4=[];let ed=0;
   for(let a=0;a<CELL/CS;a++)for(let b=0;b<CELL/CS;b++){const ce=chunkEdits.get(ckey(cx+a,cz+b));if(ce){E4.push(ce);ed+=ce.length;}}
-  const E=farTreeC.get(k);if(E&&E.ed===ed&&E.seed===seed)return E.t;
+  const cn=craters.length+BB.jobs.length*1000,E=farTreeC.get(k);   // (asked again once a blast's job is over, as it only counts behind its ring till then)if(E&&E.ed===ed&&E.seed===seed&&E.cn===cn)return E.t;
   farTreeNew=true;
+  // (a big blast's carving isn't kept as edits: a tree it reaches is asked of the crater instead)
+  const bl=farBlastNear(px,pz);
   let gone=null;if(ed){gone=new Map();for(const ce of E4)for(const [x,y,z,b] of ce)gone.set(x+','+y+','+z,b);}
   const t=[],X0=px*CELL,Z0=pz*CELL,pl=PLAINS_OPEN(px,pz)||!!bigPlainsAt(px,pz),S=superOf(px,pz);
   const pk=S?S.kind==='capitol'||S.kind==='bigpark':plotInfo(px,pz).type==='park';
-  if(!pl&&!pk){farTreeC.set(k,{ed,seed,t});return t;}
+  if(!pl&&!pk){farTreeC.set(k,{ed,seed,cn,t});return t;}
   const cap=pk&&S&&S.kind==='capitol';   // (the capitol's avenue trees go by the column, the rest only where x+z is even)
   for(let z=Z0;z<Z0+CELL;z++)for(let x=X0+(cap?0:(X0+z)&1);x<X0+CELL;x+=cap?1:2){
     // (no tree is likelier than this anywhere, the thickest woods included: most columns are done with here)
@@ -181,10 +183,11 @@ function farTreesOf(px,pz){
     if(pk&&parkTree(x,z))T=[G,4+Math.floor(hash2(x,z+99)*3)];   // (as the chunks do, the park's pass comes last)
     if(!T)continue;
     if(gone){let ok=true;for(let y=T[0]+1;y<=T[0]+T[1]&&ok;y++){const v=gone.get(x+','+y+','+z);if(v!==undefined&&v!==LOG)ok=false;}if(!ok)continue;}
+    if(bl&&farCraterTop(x,z,x+1,z+1,T[0]+T[1])<T[0]+T[1])continue;
     t.push(x,z,T[0],T[1]);
   }
   if(farTreeC.size>40000)farTreeC.clear();
-  farTreeC.set(k,{ed,seed,t});return t;
+  farTreeC.set(k,{ed,seed,cn,t});return t;
 }
 function farTreeBoxes(SG,t){
   for(let i=0;i<t.length;i+=4){const x=t[i],z=t[i+1],top=t[i+2]+t[i+3],hF=hash2(x*5+11,z*3+7),hC=hash2(x*7+3,z*13+1);
@@ -201,7 +204,7 @@ function farWoods(SG,px,pz,cell,roads){
     let c=site?siteTrees(x,z):0;
     if(!c){if(lum===null)lum=lumberNear(px,pz);c=lum?1.1:plainsCopse(x,z);if(c<0.3)continue;
       if(open===null)open=PLAINS_OPEN(px,pz);if(!open)continue;}
-    if(plainsRaw(x,z)<-0.9||roads&&roadNear(x,z,14)<6)continue;   // (not in a pond, nor on a road)
+    if(plainsRaw(x,z)<-0.9||roads&&roadNear(x,z,14)<6||farScorched(x,z))continue;   // (not in a pond, nor on a road, nor where a big blast flattened everything)
     const n=c>0.7?3:c>0.45?2:1;
     for(let q=0;q<n;q++){const h=hash2(x*11+q*37,z*17+q*5),h2=hash2(x*3+q*7,z*29+q*13),w=cell*(0.4+0.25*h),
       ox=x+(h2-0.5)*(cell-w)*0.9,oz=z+(hash2(x+q*3,z*7+1)-0.5)*(cell-w)*0.9,top=G+6+3*h2;
@@ -231,6 +234,42 @@ function farTownWater(SG,px,pz,P,st){
     farOval(SG,sx+lx,sz+lz,lr,lq,st,G+1.04);farOval(SG,sx+rx,sz+rz,rr,rr,st,G+1.04);}
   else if(S.kind==='theme'){const T=plotInfo(S.ax,S.az).theme;if(T&&T.pond){const r=T.pond.r-1.5;farOval(SG,X0+T.pond.cu,Z0+T.pond.cv,r,r,st,G+0.99);}}
 }
+// ---- what's been destroyed, as the far rings show it. Worked out from what's saved and sent online (collapses, destroyed,
+// craters), so it's the same after loading and on a guest. ----
+const FAR_RUB=new THREE.Color(topColor(COBBLE)),FAR_SCORCH=new THREE.Color(topColor(DIRT));
+const _fbo={zone:0,cut:H,floor:-1,fb:0,l0:0,l1:0,lb:0,t:0},FAR_CS=[[0.5,0.5],[0.2,0.2],[0.8,0.2],[0.2,0.8],[0.8,0.8]];
+// (the average height a box over x0..x1, z0..z1 still stands to after the big blasts: what bbCol cuts away, at five spots)
+function farCraterTop(x0,z0,x1,z1,top){
+  if(!craters.length)return top;let s=0;
+  for(const [fx,fz] of FAR_CS){const x=Math.floor(x0+(x1-x0)*fx),z=Math.floor(z0+(z1-z0)*fz);let c=top;
+    for(const C of craters){const d=Math.hypot(x-C.x,z-C.z);if(d>C.R*1.2||d>farRing(C))continue;bbCol(C,bbK(C),x,z,_fbo);if(_fbo.zone&&_fbo.cut-1<c)c=_fbo.cut-1;}
+    s+=c;}
+  return Math.floor(s/FAR_CS.length);
+}
+// (how far out a blast's shockwave has got: the far rings take it in only behind it, as the chunks are carved)
+function farRing(C){const J=BB.jobs.find(j=>j.C===C);return J?J.ring:1e9;}
+// (inside a big blast's flattened zone: the ground's scorched and nothing stands)
+const farScorched=(x,z)=>craters.length>0&&craters.some(C=>{const d=Math.hypot(x-C.x,z-C.z);return d<bbK(C).rf&&d<=farRing(C);});
+// (a big blast reaching this plot at all)
+const farBlastNear=(px,pz)=>craters.length>0&&craters.some(C=>Math.hypot(px*CELL+CELL/2-C.x,pz*CELL+CELL/2-C.z)<C.R*1.07+CELL);
+// how high a building still stands: its collapse, the craters, and the blocks knocked out of it (a building smashed about
+// loses height by the share of it gone; its total's worked out first by the job, farSolid)
+function farTop(b,X0,Z0,key){
+  const cap=collapses[key];let top=b.top;if(cap!==undefined)top=Math.min(top,cap-1);
+  const d=destroyed[key];if(d){const N=bSolidC.get(key);top=Math.min(top,G+Math.round((top-G)*(N?Math.max(0,1-d/N):0)));}
+  return Math.min(top,farCraterTop(X0+b.x0,Z0+b.z0,X0+b.x1,Z0+b.z1,top));
+}
+function* farSolid(b,px,pz,key){if(destroyed[key])while(bldgSolidPart(b,px,pz,key,performance.now()+1)===undefined)yield;}
+// (brought down to a heap: a low box of rubble rather than a stub of the building)
+const farRubble=(F,b,X0,Z0,top)=>farBox(F,X0+b.x0,G+1,Z0+b.z0,X0+b.x1,top+1,Z0+b.z1,FAR_RUB);
+// the plots with a building that's come down or been knocked about (a superblock's every plot), for the far ring, which
+// otherwise only guesses: they're drawn building by building instead
+function farDamaged(){
+  const S=new Set(),add=k=>{const a=k.split(','),px=+a[0],pz=+a[1];if(S.has(px+','+pz))return;const B=superOf(px,pz);
+    if(B&&B.ax===px&&B.az===pz){for(let i=0;i<B.w;i++)for(let j=0;j<B.h;j++)S.add((px+i)+','+(pz+j));}else S.add(px+','+pz);};
+  for(const k in collapses)add(k);for(const k in destroyed)add(k);
+  return S;
+}
 // the near ring: everything (as the single far city used to be)
 function* farJobNear(SB,SG,act,ra,rb){
   if(TENV){const p0=act[0];farBox(SG,p0.pos.x-rb-64,G+0.3,p0.pos.z-rb-64,p0.pos.x+rb+64,G+0.4,p0.pos.z+rb+64,FARC.park);return;}   // (the Testing Environment: grass to the horizon)
@@ -241,10 +280,10 @@ function* farJobNear(SB,SG,act,ra,rb){
       const d=Math.hypot(px*CELL+CELL/2-p.pos.x,pz*CELL+CELL/2-p.pos.z);
       if(d>rb+CELL||d<ra-CELL*1.5)continue;   // outside this ring
       seen.add(k);
-      const P=plotInfo(px,pz),X0=px*CELL,Z0=pz*CELL;
+      const P=plotInfo(px,pz),X0=px*CELL,Z0=pz*CELL,sc=farScorched(X0+CELL/2,Z0+CELL/2);
       if(seaPlot(px,pz))farSea(SG,px,pz,4);
-      else if(biomeOf(px,pz)==='plains'){farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.6,Z0+CELL,FARC.park);farLinesPlot(SB,SG,px,pz);if(turbineAt(px,pz))farTurbine(SB,px,pz,1);}   // the plains: all grass (hills are only drawn up close), and what crosses them
-      else farBox(SG,X0+ROADW,G+0.4,Z0+ROADW,X0+CELL,G+0.97,Z0+CELL,P.type==='park'?FARC.park:P.type==='plaza'?FARC.plaza:FARC.side);
+      else if(biomeOf(px,pz)==='plains'){farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.6,Z0+CELL,sc?FAR_SCORCH:FARC.park);farLinesPlot(SB,SG,px,pz);if(turbineAt(px,pz)&&!sc)farTurbine(SB,px,pz,1);}   // the plains: all grass (hills are only drawn up close), and what crosses them
+      else farBox(SG,X0+ROADW,G+0.4,Z0+ROADW,X0+CELL,G+0.97,Z0+CELL,sc?FAR_SCORCH:P.type==='park'?FARC.park:P.type==='plaza'?FARC.plaza:FARC.side);
       if(!seaPlot(px,pz)){if(biomeOf(px,pz)==='plains')farPonds(SG,px,pz,4,true);else farTownWater(SG,px,pz,P,2);}
       farTreeNew=false;farTreeBoxes(SG,farTreesOf(px,pz));if(farTreeNew)yield;
       if(hwRow(pz,px)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('x',pz,X0+CELL/2)-1;farBox(SB,X0,y-1,Z0-3,X0+CELL,y+2,Z0+11,_fc);}
@@ -255,12 +294,13 @@ function* farJobNear(SB,SG,act,ra,rb){
           if(x1<=x0||z1<=z0)continue;const h=o.t==='deck'?(o.h==='A'?hA:hB):(hA+hB)/2;farBox(SB,x0,h-1,z0,x1,h+1,z1,_fc);}}}}
       for(let bi=0;bi<P.b.length;bi++){const b=P.b[bi];
         if(b.farSkip)continue;
-        const cap=collapses[px+','+pz+','+bi];let top=b.top;if(cap!==undefined)top=Math.min(top,cap-1);if(top<=G)continue;
+        const key=px+','+pz+','+bi;yield* farSolid(b,px,pz,key);
+        const top=farTop(b,X0,Z0,key);if(top<=G)continue;if(top<G+3&&top<b.top){farRubble(SB,b,X0,Z0,top);continue;}
         if(!b._far||!b._far.fine){farLook(b,px,pz);yield;}const L=b._far;
         if(b.tier>0&&(b.x1-b.x0)>=8){
           farBox(SB,X0+b.x0,G+1,Z0+b.z0,X0+b.x1,Math.min(top,b.tier)+1,Z0+b.z1,L.wall,L);
           if(top>b.tier)farBox(SB,X0+b.x0+2,b.tier+1,Z0+b.z0+2,X0+b.x1-2,top+1,Z0+b.z1-2,L.wall,L);
-        } else farBox(SB,X0+b.x0,G+1,Z0+b.z0,X0+b.x1,top+1+(b.roof||0)*0.6,Z0+b.z1,L.wall,L);
+        } else farBox(SB,X0+b.x0,G+1,Z0+b.z0,X0+b.x1,top+1+(top<b.top?0:(b.roof||0)*0.6),Z0+b.z1,L.wall,L);   // (no roof on what's left)
       }
       if(P.super&&P.super.kind==='capitol'&&px===P.super.ax&&pz===P.super.az&&collapses[px+','+pz+',0']===undefined){
         const g=capGeo(),sx=X0+PL0,sz=Z0+PL0;_fc.setHex(blockColor(HOSPW));const cL=farWinL(_fc);
@@ -278,8 +318,9 @@ function* farJobNear(SB,SG,act,ra,rb){
       if(P.super&&P.super.kind==='stadium'&&px===P.super.ax&&pz===P.super.az){
         const SS=P.super,sx=X0+PL0,sz=Z0+PL0,W=(SS.w-1)*CELL+PW,L=(SS.h-1)*CELL+PW,F=stadiumField(W,L),o=STAND+2;
         const x0=sx+F.fx0-o,x1=sx+F.fx0+F.fw+o,z0=sz+F.fz0-o,z1=sz+F.fz0+F.fh+o,y1=G+STAND+5;_fc.setHex(blockColor(CONCRETE));
-        farBox(SB,x0,G+1,z0,x1,y1,z0+o,_fc);farBox(SB,x0,G+1,z1-o,x1,y1,z1,_fc);
-        farBox(SB,x0,G+1,z0+o,x0+o,y1,z1-o,_fc);farBox(SB,x1-o,G+1,z0+o,x1,y1,z1-o,_fc);
+        // (each stand as much of it as the big blasts left)
+        const st=(a,b,c,d)=>{const t=farCraterTop(a,b,c,d,y1-1);if(t>G)farBox(SB,a,G+1,b,c,t+1,d,t<G+3?FAR_RUB:_fc);};
+        st(x0,z0,x1,z0+o);st(x0,z1-o,x1,z1);st(x0,z0+o,x0+o,z1-o);st(x1-o,z0+o,x1,z1-o);
         farBox(SG,sx+F.fx0,G+0.97,sz+F.fz0,sx+F.fx0+F.fw,G+1.02,sz+F.fz0+F.fh,FARC.park);
       }
       for(const ax of[0,1]){const br=bridgeOf(px,pz,ax);if(!br)continue;_fc.setHex(blockColor(br.wall));
@@ -294,20 +335,27 @@ function* farJobMid(SB,SG,act,ra,rb){
   for(const p of act)for(let px=Math.floor((p.pos.x-rb)/CELL);px<=Math.floor((p.pos.x+rb)/CELL);px++){yield;for(let pz=Math.floor((p.pos.z-rb)/CELL);pz<=Math.floor((p.pos.z+rb)/CELL);pz++){
     const k=px*100003+pz;if(seen.has(k))continue;
     const d=Math.hypot(px*CELL+CELL/2-p.pos.x,pz*CELL+CELL/2-p.pos.z);if(d>rb+CELL||d<ra-CELL)continue;seen.add(k);
-    const X0=px*CELL,Z0=pz*CELL;
+    const X0=px*CELL,Z0=pz*CELL,sc=farScorched(X0+CELL/2,Z0+CELL/2);
     if(seaPlot(px,pz)){farSea(SG,px,pz,2);continue;}
-    if(biomeOf(px,pz)==='plains'){farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.6,Z0+CELL,FARC.park);farLinesPlot(SB,SG,px,pz);if(turbineAt(px,pz))farTurbine(SB,px,pz,1.6);
+    if(biomeOf(px,pz)==='plains'){farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.6,Z0+CELL,sc?FAR_SCORCH:FARC.park);farLinesPlot(SB,SG,px,pz);if(turbineAt(px,pz)&&!sc)farTurbine(SB,px,pz,1.6);
       farPonds(SG,px,pz,8,false);farWoods(SG,px,pz,16,true);
       if(hwRow(pz,px)&&!hwGround('x',pz,X0+16)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('x',pz,X0+CELL/2)-1;farBox(SB,X0,y-1,Z0-3,X0+CELL,y+2,Z0+11,_fc);}
       if(hwCol(px,pz)&&!hwGround('z',px,Z0+16)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('z',px,Z0+CELL/2)-1;farBox(SB,X0-3,y-1,Z0,X0+11,y+2,Z0+CELL,_fc);}
       continue;}
     const P=plotInfo(px,pz);
-    farBox(SG,X0+ROADW,G+0.4,Z0+ROADW,X0+CELL,G+0.97,Z0+CELL,P.type==='park'?FARC.park:P.type==='plaza'?FARC.plaza:FARC.side);
+    farBox(SG,X0+ROADW,G+0.4,Z0+ROADW,X0+CELL,G+0.97,Z0+CELL,sc?FAR_SCORCH:P.type==='park'?FARC.park:P.type==='plaza'?FARC.plaza:FARC.side);
     farTownWater(SG,px,pz,P,6);
     if(hwRow(pz,px)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('x',pz,X0+CELL/2)-1;farBox(SB,X0,y-1,Z0-3,X0+CELL,y+2,Z0+11,_fc);}
     if(hwCol(px,pz)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('z',px,Z0+CELL/2)-1;farBox(SB,X0-3,y-1,Z0,X0+11,y+2,Z0+CELL,_fc);}
+    yield* farPlotBuildings(SB,P,px,pz);
+  }}
+}
+// the middle ring's buildings on one plot, one plain box each (and the far ring's, on a plot where something's been destroyed)
+function* farPlotBuildings(SB,P,px,pz){
+    const X0=px*CELL,Z0=pz*CELL;
     for(let bi=0;bi<P.b.length;bi++){const b=P.b[bi];if(b.farSkip||b.x1-b.x0<3||b.z1-b.z0<3)continue;
-      const cap=collapses[px+','+pz+','+bi];let top=b.top;if(cap!==undefined)top=Math.min(top,cap-1);if(top<=G)continue;
+      const key=px+','+pz+','+bi;yield* farSolid(b,px,pz,key);
+      const top=farTop(b,X0,Z0,key);if(top<=G)continue;if(top<G+3&&top<b.top){farRubble(SB,b,X0,Z0,top);continue;}
       if(!b._far){farLook(b,px,pz,false);yield;}const L=b._far;
       farBox(SB,X0+b.x0,G+1,Z0+b.z0,X0+b.x1,(b.tier>0&&top>b.tier?(b.tier+top)/2:top)+1,Z0+b.z1,L.wall,L);}
     if(P.super&&P.super.kind==='capitol'&&px===P.super.ax&&pz===P.super.az&&collapses[px+','+pz+',0']===undefined){
@@ -315,8 +363,7 @@ function* farJobMid(SB,SG,act,ra,rb){
       farBox(SB,sx+g.px0,G+1,sz+g.bf,sx+g.px1,G+24,sz+g.back,_fc,cL);farBox(SB,sx+g.c-12,G+24,sz+g.dc-12,sx+g.c+12,G+44,sz+g.dc+12,_fc,cL);}
     if(P.super&&P.super.kind==='stadium'&&px===P.super.ax&&pz===P.super.az){
       const SS=P.super,sx=X0+PL0,sz=Z0+PL0,W=(SS.w-1)*CELL+PW,L=(SS.h-1)*CELL+PW;_fc.setHex(blockColor(CONCRETE));
-      farBox(SB,sx,G+1,sz,sx+W,G+STAND+5,sz+L,_fc);}
-  }}
+      const t=farCraterTop(sx,sz,sx+W,sz+L,G+STAND+4);if(t>G)farBox(SB,sx,G+1,sz,sx+W,t+1,sz+L,t<G+3?FAR_RUB:_fc);}
 }
 // the far ring: one box per town block, from the cheap per-block guesses (no plots worked out)
 // (no buildings are worked out out here, so each block gets a typical look: one of the common wall materials, with the share
@@ -325,14 +372,17 @@ const FAR3_LOOKS=[BRICK,CONCRETE,SIDING,STUCCO,GLASS,PAINT_WHITE].map(b=>({wall:
 function* farJobFar(SB,SG,act,ra,rb){
   if(TENV){const p0=act[0];farBox(SG,p0.pos.x-rb-128,G+0.3,p0.pos.z-rb-128,p0.pos.x+rb+128,G+0.4,p0.pos.z+rb+128,FARC.park);return;}
   {const p0=act[0];farBox(SG,p0.pos.x-rb-128,G+0.3,p0.pos.z-rb-128,p0.pos.x+rb+128,G+0.4,p0.pos.z+rb+128,FARC.park);}   // (out here it's mostly fields)
-  const seen=new Set(),C4=4*CELL;
+  const seen=new Set(),C4=4*CELL,dmg=farDamaged();
   for(const p of act)for(let qx=Math.floor((p.pos.x-rb)/C4);qx<=Math.floor((p.pos.x+rb)/C4);qx++){yield;for(let qz=Math.floor((p.pos.z-rb)/C4);qz<=Math.floor((p.pos.z+rb)/C4);qz++){
     const k=qx*100003+qz;if(seen.has(k))continue;
     const d=Math.hypot(qx*C4+C4/2-p.pos.x,qz*C4+C4/2-p.pos.z);if(d>rb+C4||d<ra-C4)continue;seen.add(k);
-    for(let i=0;i<4;i++)for(let j=0;j<4;j++){const px=qx*4+i,pz=qz*4+j,X0=px*CELL,Z0=pz*CELL;
+    for(let i=0;i<4;i++)for(let j=0;j<4;j++){const px=qx*4+i,pz=qz*4+j,X0=px*CELL,Z0=pz*CELL,sc=farScorched(X0+CELL/2,Z0+CELL/2);
       if(seaPlot(px,pz)){farSea(SG,px,pz,1);continue;}
-      const ty=setType(px,pz);if(!ty){if(turbineAt(px,pz))farTurbine(SB,px,pz,2.6);if(biomeOf(px,pz)==='plains'){farPonds(SG,px,pz,16,false);farWoods(SG,px,pz,32,false);}continue;}
-      farBox(SG,X0,G+0.45,Z0,X0+CELL,G+0.97,Z0+CELL,FARC.side);
+      const ty=setType(px,pz);if(!ty){if(sc)farBox(SG,X0,G+0.45,Z0,X0+CELL,G+0.6,Z0+CELL,FAR_SCORCH);else if(turbineAt(px,pz))farTurbine(SB,px,pz,2.6);if(biomeOf(px,pz)==='plains'){farPonds(SG,px,pz,16,false);farWoods(SG,px,pz,32,false);}continue;}
+      farBox(SG,X0,G+0.45,Z0,X0+CELL,G+0.97,Z0+CELL,sc?FAR_SCORCH:FARC.side);
+      // (a plot where something's come down or been knocked about, or that a big blast reached: its real buildings, as
+      // they've been left, rather than the guess)
+      if(dmg.has(px+','+pz)||farBlastNear(px,pz)){if(!sc)yield* farPlotBuildings(SB,plotInfo(px,pz),px,pz);yield;continue;}
       if(hwRow(pz,px)&&!hwGround('x',pz,X0+16)){_fc.setHex(blockColor(CONCRETE));farBox(SB,X0,HY_X-1,Z0-3,X0+CELL,HY_X+2,Z0+11,_fc);}
       if(hwCol(px,pz)&&!hwGround('z',px,Z0+16)){_fc.setHex(blockColor(CONCRETE));farBox(SB,X0-3,HY_Z-1,Z0,X0+11,HY_Z+2,Z0+CELL,_fc);}
       const t=baseType(px,pz),h=hash2(px*41+7,pz*37+3);let top=0,inset=0;
@@ -378,13 +428,15 @@ function updateFar(dt){
     const key=Math.round(R)*100+viewR,nColl=Object.keys(collapses).length,p=act[0].pos,dirty=farDirty;farDirty=false;
     LODS.forEach((L,i)=>{
       const [r0,r1]=edges[i];L.collT-=0.25;
-      const moved=Math.hypot(p.x-L.cx,p.z-L.cz)>L.step,collCh=i<2&&nColl!==L.coll&&L.collT<=0;
+      // (a building down or a crater: soon, the further rings less often; blocks knocked out: every few seconds at most)
+      const cc=nColl!==L.coll||craters.length!==L.cr,dc=destroyVer!==L.dv,collCh=(cc||dc)&&L.collT<=0;
+      const moved=Math.hypot(p.x-L.cx,p.z-L.cz)>L.step;
       if(!(dirty||moved||key!==L.key||collCh))return;
       if(!on||r1<=r0){L.job=null;L.sb.n=0;L.sg.n=0;farCommit(L);L.key=key;L.cx=p.x;L.cz=p.z;return;}
       // built with a margin round its ring, so it still covers the ring as you move until the next build
       const m=L.step+(i===2?256:64);
       L.sb.n=0;L.sg.n=0;L.job=L.mk(L.sb,L.sg,act.map(q=>({pos:q.pos.clone()})),Math.max(0,r0-m),r1+m);
-      L.cx=p.x;L.cz=p.z;L.key=key;L.coll=nColl;if(collCh)L.collT=i?4:0;
+      L.cx=p.x;L.cz=p.z;L.key=key;L.coll=nColl;L.cr=craters.length;L.dv=destroyVer;if(collCh)L.collT=cc?[0,4,8][i]:[3,6,12][i];
     });
   }
   // run the builds, nearest ring first, for a few milliseconds

@@ -19,6 +19,8 @@
 - Across the flattened town grass is burnt to dirt, streets are broken up in patches of rubble, and the buildings it brings down leave heaps of rubble behind.
 - The capitol's lawns, stadium pitches, plazas, courts and railways are scarred too: lawns and pitches burnt to dirt, paving and track beds broken up, the rails and sleepers torn up, and rubble left on what's still standing of a stadium's stands.
 - Snow melts wherever the blast reaches, off the ground, the rooftops and anyone or anything caught in it. If it's still snowing, fresh snow settles on the crater from bare ground, and the melted snow stays melted in a save and online.
+- Seen from far off, a flattened town now looks flattened: the buildings it took are gone or left as low heaps, the ones further out are cut down to what's left of them, the ground is scorched and the trees are gone, rather than the whole town still standing on the horizon.
+- Any building brought down or badly smashed, nuke or no nuke, now looks that way from a distance too, even from the furthest edge of the view.
 
 ### Nuke Launcher
 
