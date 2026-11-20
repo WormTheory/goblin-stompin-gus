@@ -58,6 +58,9 @@ function tracer(x0,y0,z0,x1,y1,z1){
   let T=TRACERS.find(o=>o.t<=0);if(!T){if(TRACERS.length>=24)T=TRACERS[0];else{const m=new THREE.Mesh(FB_GEO,TR_MAT);m.visible=false;scene.add(m);T={m,t:0};TRACERS.push(T);}}
   if(x0>=SHIP_X0){const S=shipOfPos(x0,z0);if(S){shipToWorld(S,x0,z0,_sv);x0=_sv.x;z0=_sv.z;y0-=S.sk;shipToWorld(S,x1,z1,_sv);x1=_sv.x;z1=_sv.z;y1-=S.sk;}}   // (fired aboard a ship: drawn where that is)
   const L=Math.hypot(x1-x0,y1-y0,z1-z0)||0.01;T.m.position.set((x0+x1)/2,(y0+y1)/2,(z0+z1)/2);T.m.scale.set(0.05,0.05,L);T.m.lookAt(x1,y1,z1);T.m.visible=true;T.t=0.07;
+  // (its light, the moving light and halo, is the muzzle flash: where it starts, the size of a flash, not the middle of the
+  // streak, which put the light out along the bullet's path: glowAt, glowR in block-light.js)
+  const U=T.m.userData;(U.lp||(U.lp=new THREE.Vector3())).set(x0,y0,z0);U.lr=0.3;
 }
 // ---- things thrown and fired that go off: grenades, tank shells, rockets. Each flies under gravity (a shell
 // barely), a bomb bounces and rolls until its fuse is done; a shell or a rocket goes off on whatever it hits ----

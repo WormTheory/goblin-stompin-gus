@@ -59,16 +59,33 @@ function gobShoot(p){
   else{
     // (a shotgun's pellets each a round of their own, scattered round the middle of the view: across along the view's right,
     // up and down along the view's own up (right x forward), so the pattern stays round aiming steeply up or down too)
+    // (the tracer, and the flash's light with it, from the barrel's tip as it is in your own view (gobMuzzle); scoped, or
+    // with no view gun shown, a little ahead and below the eye as before)
+    const mz=gobMuzzle(p,wk),sy=Math.sin(p.cam.yaw),cy=Math.cos(p.cam.yaw),sp=dy;
+    const tr=mz?{x:c.x+rx*mz.x+sy*sp*mz.y-dx*mz.z,y:c.y+cp*mz.y-dy*mz.z,z:c.z+rz*mz.x+cy*sp*mz.y-dz*mz.z}:{x:c.x+fx*0.5+rx*0.18,y:c.y-0.18,z:c.z+fz*0.5+rz*0.18};
     const n=W.pellets||1,ux=-rz*dy,uy=rz*dx-rx*dz,uz=rx*dy,hip=W.hip&&!(p.scope>0.9)?W.hip:0;for(let i=0;i<n;i++){let ex=dx,ey=dy,ez=dz;
       // (a scoped gun fired off the scope: a little way off the middle, the same way the pellets scatter)
       if(hip){const a=Math.random()*6.283,r=hip*Math.sqrt(Math.random()),ca=Math.cos(a)*r,sa=Math.sin(a)*r;ex+=rx*ca+ux*sa;ey+=uy*sa;ez+=rz*ca+uz*sa;const L=Math.hypot(ex,ey,ez);ex/=L;ey/=L;ez/=L;}
       if(n>1){const a=Math.random()*6.283,r=W.spread*Math.sqrt(Math.random()),ca=Math.cos(a)*r,sa=Math.sin(a)*r;ex+=rx*ca+ux*sa;ey+=uy*sa;ez+=rz*ca+uz*sa;const L=Math.hypot(ex,ey,ez);ex/=L;ey/=L;ez/=L;}
-      fireRound({x:c.x,y:c.y,z:c.z,dir:{x:ex,y:ey,z:ez},range:W.range,step:0.2,by:p,tr:{x:c.x+fx*0.5+rx*0.18,y:c.y-0.18,z:c.z+fz*0.5+rz*0.18},
+      fireRound({x:c.x,y:c.y,z:c.z,dir:{x:ex,y:ey,z:ez},range:W.range,step:0.2,by:p,tr,
         gobs:true,gb:[0.45,0,1.5],dmg:W.dmg,cause:W.cause,pvp:{n:W.dmg,cause:'Shot',opt:{cd:0}},vehs:true,vd:W.dmg*VEH_SHOT_K,breaks:W.breaks,ship:true,
         snd:i?null:()=>wpnCrack(wk)});}}   // (the handgun cracks higher and shorter, as the police's does)
   p.shake=Math.max(p.shake||0,W.shake);rumble(p,W.rumble,50);
   // (the view kicked up a little, and a hair to one side then the other, so a held trigger climbs: the same every time)
   if(W.climb){p.cam.pitch=camPitch(p.cam.pitch+W.climb,p);p.cam.yaw+=W.climb*0.2*(p.shotN%2?1:-1);}
+}
+// the barrel's tip of the gun in your own view, in the camera's frame (x right, y up, -z ahead): the middle of its
+// frontmost face, from the boxes as they're posed now (a magazine out in a reload isn't counted). Null if it isn't shown
+const _mzA=new THREE.Vector3();
+function gobMuzzle(p,wk){
+  const K=p.gb;if(!K||!K.vm.visible||!K.held[wk]||!K.held[wk].visible)return null;
+  try{K.vm.updateMatrixWorld(true);const P=[];
+    K.held[wk].traverseVisible(o=>{if(!o.isMesh||o===K.orb)return;const g=o.geometry;if(!g.boundingBox)g.computeBoundingBox();const b=g.boundingBox;
+      for(let i=0;i<8;i++){_mzA.set(i&1?b.max.x:b.min.x,i&2?b.max.y:b.min.y,i&4?b.max.z:b.min.z).applyMatrix4(o.matrixWorld);K.vm.worldToLocal(_mzA);P.push([_mzA.x,_mzA.y,_mzA.z]);}});
+    if(!P.length)return null;let z=Infinity;for(const q of P)z=Math.min(z,q[2]);
+    let x=0,y=0,n=0;for(const q of P)if(q[2]<z+0.03){x+=q[0];y+=q[1];n++;}
+    const s=K.vm.scale.x;if(!isFinite(x+y+z))return null;return {x:x/n*s,y:y/n*s,z:z*s};}
+  catch(e){return null;}
 }
 // a spellbook's fireball, once it's conjured (the attack's wind-up is the conjuring: its player block's lunge is the
 // weapon's cast): out of the free hand, a little below and left of the eye, at whatever's under the crosshair. It flies

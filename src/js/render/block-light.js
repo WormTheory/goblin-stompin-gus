@@ -245,13 +245,12 @@ function blkGlowLight(L){
   if(BL_ON&&Math.max(Wl.r,Wl.g,Wl.b)<0.8){
     const P=players.filter(q=>q.active),S=[];
     for(const o of L){const m=o.material;if(m.type!=='MeshBasicMaterial'||o.userData.noGlowLight)continue;
-      _cl.setFromMatrixPosition(o.matrixWorld);const kk=glowOf(m),hx=_gc.getHex(),c=kk?hx*32+Math.round(kk*20):-1;
+      glowAt(o,_cl);const kk=glowOf(m),hx=_gc.getHex(),c=kk?hx*32+Math.round(kk*20):-1;
       const same=o._gp&&o._gp.distanceToSquared(_cl)<1e-4;if(o._gcol!==undefined&&o._gcol!==c&&same)o._gflk=true;
       o._gst=same&&o._gcol===c?(o._gst||0)+1:0;if(!o._gp)o._gp=new THREE.Vector3();o._gp.copy(_cl);o._gcol=c;
       if(o._gflk||o._gst<1||!kk)continue;
       let d=Infinity;for(const q of P)d=Math.min(d,Math.hypot(q.pos.x-_cl.x,q.pos.z-_cl.z));if(d>48)continue;
-      if(!o.geometry.boundingSphere)o.geometry.computeBoundingSphere();_gs.setFromMatrixScale(o.matrixWorld);
-      const r=o.geometry.boundingSphere.radius*Math.max(_gs.x,_gs.y,_gs.z),lv=Math.round(Math.min(12,5+r*2)*Math.min(1,kk));if(lv<3)continue;
+      const r=glowR(o),lv=Math.round(Math.min(12,5+r*2)*Math.min(1,kk));if(lv<3)continue;
       S.push([o,Math.floor(_cl.x),Math.floor(_cl.y),Math.floor(_cl.z),hx,lv,d]);}
     S.sort((a,b)=>a[6]-b[6]);
     for(let i=0;i<Math.min(BL_GLOWL_N,S.length);i++){const [o,x,y,z,c,lv]=S[i],q=blkRGB(lv,c);want.set(o,[x,y,z,q[0],q[1],q[2],lv]);}
@@ -260,6 +259,10 @@ function blkGlowLight(L){
   for(const [o,w] of want)if(!BL_GLOWL.has(o)){BL_GLOWL.set(o,w);blkAround(w[0],w[2],w[6]-1);}
 }
 const shownIn=o=>{for(;o;o=o.parent)if(!o.visible)return false;return true;};
+// where a glowing thing's light is, into v, and how big it is: its middle and its size, unless it says otherwise
+// (userData.lp, userData.lr: a bullet's tracer lights at the muzzle it leaves, not halfway along its streak)
+function glowAt(o,v){const U=o.userData;return U.lp?v.copy(U.lp):v.setFromMatrixPosition(o.matrixWorld);}
+function glowR(o){const U=o.userData;if(U.lr!==undefined)return U.lr;if(!o.geometry.boundingSphere)o.geometry.computeBoundingSphere();_gs.setFromMatrixScale(o.matrixWorld);return o.geometry.boundingSphere.radius*Math.max(_gs.x,_gs.y,_gs.z);}
 function carLightsView(p){
   const L=WORLD_LIGHT.value,dk=Math.min(1,Math.max(0,(0.75-Math.max(L.r,L.g,L.b))*2.5)),cam=p.camera.position;
   // headlights on the road: every car that's out on the road, moving or stopped at the lights (not a parked one, whose are off)
@@ -274,12 +277,11 @@ function carLightsView(p){
   // halo, within a block and a half of each other, are one light, reaching as far as the bigger)
   let j=0;
   if(BL_ON&&dk>0){const near=[],MP=MOVL_U.uMovP.value;
-    for(const o of BL_MOVC){if(BL_GLOWL.has(o))continue;_cl.setFromMatrixPosition(o.matrixWorld);const dx=_cl.x-cam.x,dz=_cl.z-cam.z,d=dx*dx+dz*dz;if(d<1600)near.push([o,d]);}
+    for(const o of BL_MOVC){if(BL_GLOWL.has(o))continue;glowAt(o,_cl);const dx=_cl.x-cam.x,dz=_cl.z-cam.z,d=dx*dx+dz*dz;if(d<1600)near.push([o,d]);}
     near.sort((a,b)=>a[1]-b[1]);
     for(const [o] of near){if(j>=MOV_LN)break;if(!shownIn(o))continue;const kk=glowOf(o.material);if(!kk)continue;
-      if(!o.geometry.boundingSphere)o.geometry.computeBoundingSphere();_gs.setFromMatrixScale(o.matrixWorld);
-      const r=o.geometry.boundingSphere.radius*Math.max(_gs.x,_gs.y,_gs.z);if(r<0.25)continue;
-      _cl.setFromMatrixPosition(o.matrixWorld);const R=Math.min(10,3+r*7);let q=-1;
+      const r=glowR(o);if(r<0.25)continue;
+      glowAt(o,_cl);const R=Math.min(10,3+r*7);let q=-1;
       for(let i=0;i<j;i++)if(Math.abs(MP[i].x-_cl.x)+Math.abs(MP[i].y-_cl.y)+Math.abs(MP[i].z-_cl.z)<1.5){q=i;break;}
       if(q>=0){MP[q].w=Math.max(MP[q].w,R);continue;}
       const b=Math.min(1,kk)*dk;MP[j].set(_cl.x,_cl.y,_cl.z,R);MOVL_U.uMovC.value[j].set(_gc.r*b,_gc.g*b,_gc.b*b);j++;}}
@@ -291,21 +293,20 @@ function carLightsView(p){
   if(!HALO||!HALO.visible)return;
   const V=p._hv||(p._hv=new WeakMap());
   const R=Math.min(80,HALO_U.uFar.value*2.6),G2=[];
-  for(const o of BL_GLOW){_cl.setFromMatrixPosition(o.matrixWorld);const d=Math.hypot(_cl.x-cam.x,_cl.z-cam.z);if(d<R)G2.push([o,d]);}
+  for(const o of BL_GLOW){glowAt(o,_cl);const d=Math.hypot(_cl.x-cam.x,_cl.z-cam.z);if(d<R)G2.push([o,d]);}
   G2.sort((a,b)=>a[1]-b[1]);
   let n=blHaloS;const A=HALO_A.array,end=BL_HALO_ALL;
   // (each eased in and out like the others, per view: p._hf, mesh -> how shown; a flashing lamp's fade is quick enough to keep its flash)
   const F=p._hf||(p._hf=new Map()),now=performance.now(),st=Math.min(0.1,(now-(p._hft||now))/1000)/blHaloFade()*2;p._hft=now;const want=new Set();
-  for(const [o] of G2){if(want.size>=BL_HALO_CN)break;if(!shownIn(o))continue;_cl.setFromMatrixPosition(o.matrixWorld);
+  for(const [o] of G2){if(want.size>=BL_HALO_CN)break;if(!shownIn(o))continue;glowAt(o,_cl);
     let v=V.get(o);if(!v||playTime>=v[0]){v=[playTime+0.25,blkSeen(cam.x,cam.y,cam.z,_cl.x,_cl.y,_cl.z)];V.set(o,v);}if(!v[1])continue;
     if(glowOf(o.material))want.add(o);}
   for(const o of want)if(!F.has(o))F.set(o,[0,0,0,0,0]);
   // (each: [how shown, its colour and size when last lit]; one fading out after it's gone dark or been hidden keeps the colour it had)
   for(const [o,e] of F){const a=e[0]=want.has(o)?Math.min(1,e[0]+st):e[0]-st;if(a<=0||!o.parent){F.delete(o);continue;}if(n>=end)continue;
-    const kk=glowOf(o.material),w=a*a*(3-2*a);_cl.setFromMatrixPosition(o.matrixWorld);
+    const kk=glowOf(o.material),w=a*a*(3-2*a);glowAt(o,_cl);
     if(!kk){if(!e[4])continue;_hM.makeTranslation(_cl.x,_cl.y,_cl.z);HALO.setMatrixAt(n,_hM);A[n*4]=e[1]*w;A[n*4+1]=e[2]*w;A[n*4+2]=e[3]*w;A[n*4+3]=e[4];n++;continue;}
-    const m=Math.max(_gc.r,_gc.g,_gc.b);_gs.setFromMatrixScale(o.matrixWorld);
-    if(!o.geometry.boundingSphere)o.geometry.computeBoundingSphere();const r=o.geometry.boundingSphere.radius*Math.max(_gs.x,_gs.y,_gs.z);
+    const m=Math.max(_gc.r,_gc.g,_gc.b),r=glowR(o);
     _hM.makeTranslation(_cl.x,_cl.y,_cl.z);HALO.setMatrixAt(n,_hM);
     const f=Math.min(1,kk)*1.1/m;e[1]=_gc.r*f;e[2]=_gc.g*f;e[3]=_gc.b*f;e[4]=Math.min(6,Math.max(1.8,1+r*1.6));
     A[n*4]=e[1]*w;A[n*4+1]=e[2]*w;A[n*4+2]=e[3]*w;A[n*4+3]=e[4];n++;}   // (even a small lamp's halo reaches a couple of blocks out)

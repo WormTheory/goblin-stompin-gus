@@ -15,6 +15,11 @@
 - Guests now see grenades, shells, rockets and the Nuke Launcher's warhead in flight, instead of a warhead stuck where it was fired.
 - As a guest you see your own goblin stealing a vehicle and riding anything open, as everyone else does.
 
+### Gunfire
+
+- The flash of light from a gunshot now comes from the barrel, not from a spot partway along the bullet's streak. That goes for every gun: goblins', Gnash's, vehicles', the Mobile Gear's and the carrier's, and online too.
+- Gnash's bullets now start from the tip of the gun in your hands.
+
 ### Knock everything over
 
 - Street lamps, traffic lights, signs, flags, billboards, benches, bins and furniture now go over to every attack, not just smashing into them: a bite, roll or dash, Gnash's blades and clubs, bullets, grenades, shells, rockets, fireballs and the Mobile Gear's blade. A bullet stops at the post it hits.

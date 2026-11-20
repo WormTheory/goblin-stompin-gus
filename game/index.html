@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:9e08dad49c3793759a1b773cd457e327b343ca9ea1d08e57f0ab3cac3a1976f0 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:f24b46657ddaeebbc0d2d889b3ee98be1068cfeabe33518ac6ee82437dfbfb4d -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1610,6 +1610,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <ul><li>Your game now carries on just as you left it: your score, goblins slain and everything in This rampage, the time of day, the day and season, and the weather.</li><li>Each player's health and stamina are kept too, and as a goblin your weapons, ammo, grenades and landmines. Left dead, you come back at full health. Player two gets theirs back on joining.</li><li>Left in a car, tank, helicopter, plane, hot-air balloon or Mobile Gear, you're back in it, in the same seat, with the damage it had. Anything that was flying comes back on the ground below. Trains, boats and ships can't be brought back, so you start beside where you were.</li><li>New city starts all of it afresh.</li></ul>
 <h3>Playing online</h3>
 <ul><li>As a guest, your own shots show the moment you fire: the tracer and the bang no longer wait on the host, and bullet streaks no longer hang in the air.</li><li>Guests now see grenades, shells, rockets and the Nuke Launcher's warhead in flight, instead of a warhead stuck where it was fired.</li><li>As a guest you see your own goblin stealing a vehicle and riding anything open, as everyone else does.</li></ul>
+<h3>Gunfire</h3>
+<ul><li>The flash of light from a gunshot now comes from the barrel, not from a spot partway along the bullet's streak. That goes for every gun: goblins', Gnash's, vehicles', the Mobile Gear's and the carrier's, and online too.</li><li>Gnash's bullets now start from the tip of the gun in your hands.</li></ul>
 <h3>Knock everything over</h3>
 <ul><li>Street lamps, traffic lights, signs, flags, billboards, benches, bins and furniture now go over to every attack, not just smashing into them: a bite, roll or dash, Gnash's blades and clubs, bullets, grenades, shells, rockets, fireballs and the Mobile Gear's blade. A bullet stops at the post it hits.</li></ul>
 <h3>Nukes</h3>
@@ -2326,7 +2328,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='d71c4b4384f6';
+const GAME_VER='0.5',GAME_BUILD='bad613768da4';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -9395,13 +9397,12 @@ function blkGlowLight(L){
   if(BL_ON&&Math.max(Wl.r,Wl.g,Wl.b)<0.8){
     const P=players.filter(q=>q.active),S=[];
     for(const o of L){const m=o.material;if(m.type!=='MeshBasicMaterial'||o.userData.noGlowLight)continue;
-      _cl.setFromMatrixPosition(o.matrixWorld);const kk=glowOf(m),hx=_gc.getHex(),c=kk?hx*32+Math.round(kk*20):-1;
+      glowAt(o,_cl);const kk=glowOf(m),hx=_gc.getHex(),c=kk?hx*32+Math.round(kk*20):-1;
       const same=o._gp&&o._gp.distanceToSquared(_cl)<1e-4;if(o._gcol!==undefined&&o._gcol!==c&&same)o._gflk=true;
       o._gst=same&&o._gcol===c?(o._gst||0)+1:0;if(!o._gp)o._gp=new THREE.Vector3();o._gp.copy(_cl);o._gcol=c;
       if(o._gflk||o._gst<1||!kk)continue;
       let d=Infinity;for(const q of P)d=Math.min(d,Math.hypot(q.pos.x-_cl.x,q.pos.z-_cl.z));if(d>48)continue;
-      if(!o.geometry.boundingSphere)o.geometry.computeBoundingSphere();_gs.setFromMatrixScale(o.matrixWorld);
-      const r=o.geometry.boundingSphere.radius*Math.max(_gs.x,_gs.y,_gs.z),lv=Math.round(Math.min(12,5+r*2)*Math.min(1,kk));if(lv<3)continue;
+      const r=glowR(o),lv=Math.round(Math.min(12,5+r*2)*Math.min(1,kk));if(lv<3)continue;
       S.push([o,Math.floor(_cl.x),Math.floor(_cl.y),Math.floor(_cl.z),hx,lv,d]);}
     S.sort((a,b)=>a[6]-b[6]);
     for(let i=0;i<Math.min(BL_GLOWL_N,S.length);i++){const [o,x,y,z,c,lv]=S[i],q=blkRGB(lv,c);want.set(o,[x,y,z,q[0],q[1],q[2],lv]);}
@@ -9410,6 +9411,10 @@ function blkGlowLight(L){
   for(const [o,w] of want)if(!BL_GLOWL.has(o)){BL_GLOWL.set(o,w);blkAround(w[0],w[2],w[6]-1);}
 }
 const shownIn=o=>{for(;o;o=o.parent)if(!o.visible)return false;return true;};
+// where a glowing thing's light is, into v, and how big it is: its middle and its size, unless it says otherwise
+// (userData.lp, userData.lr: a bullet's tracer lights at the muzzle it leaves, not halfway along its streak)
+function glowAt(o,v){const U=o.userData;return U.lp?v.copy(U.lp):v.setFromMatrixPosition(o.matrixWorld);}
+function glowR(o){const U=o.userData;if(U.lr!==undefined)return U.lr;if(!o.geometry.boundingSphere)o.geometry.computeBoundingSphere();_gs.setFromMatrixScale(o.matrixWorld);return o.geometry.boundingSphere.radius*Math.max(_gs.x,_gs.y,_gs.z);}
 function carLightsView(p){
   const L=WORLD_LIGHT.value,dk=Math.min(1,Math.max(0,(0.75-Math.max(L.r,L.g,L.b))*2.5)),cam=p.camera.position;
   // headlights on the road: every car that's out on the road, moving or stopped at the lights (not a parked one, whose are off)
@@ -9424,12 +9429,11 @@ function carLightsView(p){
   // halo, within a block and a half of each other, are one light, reaching as far as the bigger)
   let j=0;
   if(BL_ON&&dk>0){const near=[],MP=MOVL_U.uMovP.value;
-    for(const o of BL_MOVC){if(BL_GLOWL.has(o))continue;_cl.setFromMatrixPosition(o.matrixWorld);const dx=_cl.x-cam.x,dz=_cl.z-cam.z,d=dx*dx+dz*dz;if(d<1600)near.push([o,d]);}
+    for(const o of BL_MOVC){if(BL_GLOWL.has(o))continue;glowAt(o,_cl);const dx=_cl.x-cam.x,dz=_cl.z-cam.z,d=dx*dx+dz*dz;if(d<1600)near.push([o,d]);}
     near.sort((a,b)=>a[1]-b[1]);
     for(const [o] of near){if(j>=MOV_LN)break;if(!shownIn(o))continue;const kk=glowOf(o.material);if(!kk)continue;
-      if(!o.geometry.boundingSphere)o.geometry.computeBoundingSphere();_gs.setFromMatrixScale(o.matrixWorld);
-      const r=o.geometry.boundingSphere.radius*Math.max(_gs.x,_gs.y,_gs.z);if(r<0.25)continue;
-      _cl.setFromMatrixPosition(o.matrixWorld);const R=Math.min(10,3+r*7);let q=-1;
+      const r=glowR(o);if(r<0.25)continue;
+      glowAt(o,_cl);const R=Math.min(10,3+r*7);let q=-1;
       for(let i=0;i<j;i++)if(Math.abs(MP[i].x-_cl.x)+Math.abs(MP[i].y-_cl.y)+Math.abs(MP[i].z-_cl.z)<1.5){q=i;break;}
       if(q>=0){MP[q].w=Math.max(MP[q].w,R);continue;}
       const b=Math.min(1,kk)*dk;MP[j].set(_cl.x,_cl.y,_cl.z,R);MOVL_U.uMovC.value[j].set(_gc.r*b,_gc.g*b,_gc.b*b);j++;}}
@@ -9441,21 +9445,20 @@ function carLightsView(p){
   if(!HALO||!HALO.visible)return;
   const V=p._hv||(p._hv=new WeakMap());
   const R=Math.min(80,HALO_U.uFar.value*2.6),G2=[];
-  for(const o of BL_GLOW){_cl.setFromMatrixPosition(o.matrixWorld);const d=Math.hypot(_cl.x-cam.x,_cl.z-cam.z);if(d<R)G2.push([o,d]);}
+  for(const o of BL_GLOW){glowAt(o,_cl);const d=Math.hypot(_cl.x-cam.x,_cl.z-cam.z);if(d<R)G2.push([o,d]);}
   G2.sort((a,b)=>a[1]-b[1]);
   let n=blHaloS;const A=HALO_A.array,end=BL_HALO_ALL;
   // (each eased in and out like the others, per view: p._hf, mesh -> how shown; a flashing lamp's fade is quick enough to keep its flash)
   const F=p._hf||(p._hf=new Map()),now=performance.now(),st=Math.min(0.1,(now-(p._hft||now))/1000)/blHaloFade()*2;p._hft=now;const want=new Set();
-  for(const [o] of G2){if(want.size>=BL_HALO_CN)break;if(!shownIn(o))continue;_cl.setFromMatrixPosition(o.matrixWorld);
+  for(const [o] of G2){if(want.size>=BL_HALO_CN)break;if(!shownIn(o))continue;glowAt(o,_cl);
     let v=V.get(o);if(!v||playTime>=v[0]){v=[playTime+0.25,blkSeen(cam.x,cam.y,cam.z,_cl.x,_cl.y,_cl.z)];V.set(o,v);}if(!v[1])continue;
     if(glowOf(o.material))want.add(o);}
   for(const o of want)if(!F.has(o))F.set(o,[0,0,0,0,0]);
   // (each: [how shown, its colour and size when last lit]; one fading out after it's gone dark or been hidden keeps the colour it had)
   for(const [o,e] of F){const a=e[0]=want.has(o)?Math.min(1,e[0]+st):e[0]-st;if(a<=0||!o.parent){F.delete(o);continue;}if(n>=end)continue;
-    const kk=glowOf(o.material),w=a*a*(3-2*a);_cl.setFromMatrixPosition(o.matrixWorld);
+    const kk=glowOf(o.material),w=a*a*(3-2*a);glowAt(o,_cl);
     if(!kk){if(!e[4])continue;_hM.makeTranslation(_cl.x,_cl.y,_cl.z);HALO.setMatrixAt(n,_hM);A[n*4]=e[1]*w;A[n*4+1]=e[2]*w;A[n*4+2]=e[3]*w;A[n*4+3]=e[4];n++;continue;}
-    const m=Math.max(_gc.r,_gc.g,_gc.b);_gs.setFromMatrixScale(o.matrixWorld);
-    if(!o.geometry.boundingSphere)o.geometry.computeBoundingSphere();const r=o.geometry.boundingSphere.radius*Math.max(_gs.x,_gs.y,_gs.z);
+    const m=Math.max(_gc.r,_gc.g,_gc.b),r=glowR(o);
     _hM.makeTranslation(_cl.x,_cl.y,_cl.z);HALO.setMatrixAt(n,_hM);
     const f=Math.min(1,kk)*1.1/m;e[1]=_gc.r*f;e[2]=_gc.g*f;e[3]=_gc.b*f;e[4]=Math.min(6,Math.max(1.8,1+r*1.6));
     A[n*4]=e[1]*w;A[n*4+1]=e[2]*w;A[n*4+2]=e[3]*w;A[n*4+3]=e[4];n++;}   // (even a small lamp's halo reaches a couple of blocks out)
@@ -19501,6 +19504,9 @@ function tracer(x0,y0,z0,x1,y1,z1){
   let T=TRACERS.find(o=>o.t<=0);if(!T){if(TRACERS.length>=24)T=TRACERS[0];else{const m=new THREE.Mesh(FB_GEO,TR_MAT);m.visible=false;scene.add(m);T={m,t:0};TRACERS.push(T);}}
   if(x0>=SHIP_X0){const S=shipOfPos(x0,z0);if(S){shipToWorld(S,x0,z0,_sv);x0=_sv.x;z0=_sv.z;y0-=S.sk;shipToWorld(S,x1,z1,_sv);x1=_sv.x;z1=_sv.z;y1-=S.sk;}}   // (fired aboard a ship: drawn where that is)
   const L=Math.hypot(x1-x0,y1-y0,z1-z0)||0.01;T.m.position.set((x0+x1)/2,(y0+y1)/2,(z0+z1)/2);T.m.scale.set(0.05,0.05,L);T.m.lookAt(x1,y1,z1);T.m.visible=true;T.t=0.07;
+  // (its light, the moving light and halo, is the muzzle flash: where it starts, the size of a flash, not the middle of the
+  // streak, which put the light out along the bullet's path: glowAt, glowR in block-light.js)
+  const U=T.m.userData;(U.lp||(U.lp=new THREE.Vector3())).set(x0,y0,z0);U.lr=0.3;
 }
 // ---- things thrown and fired that go off: grenades, tank shells, rockets. Each flies under gravity (a shell
 // barely), a bomb bounces and rolls until its fuse is done; a shell or a rocket goes off on whatever it hits ----
@@ -19732,16 +19738,33 @@ function gobShoot(p){
   else{
     // (a shotgun's pellets each a round of their own, scattered round the middle of the view: across along the view's right,
     // up and down along the view's own up (right x forward), so the pattern stays round aiming steeply up or down too)
+    // (the tracer, and the flash's light with it, from the barrel's tip as it is in your own view (gobMuzzle); scoped, or
+    // with no view gun shown, a little ahead and below the eye as before)
+    const mz=gobMuzzle(p,wk),sy=Math.sin(p.cam.yaw),cy=Math.cos(p.cam.yaw),sp=dy;
+    const tr=mz?{x:c.x+rx*mz.x+sy*sp*mz.y-dx*mz.z,y:c.y+cp*mz.y-dy*mz.z,z:c.z+rz*mz.x+cy*sp*mz.y-dz*mz.z}:{x:c.x+fx*0.5+rx*0.18,y:c.y-0.18,z:c.z+fz*0.5+rz*0.18};
     const n=W.pellets||1,ux=-rz*dy,uy=rz*dx-rx*dz,uz=rx*dy,hip=W.hip&&!(p.scope>0.9)?W.hip:0;for(let i=0;i<n;i++){let ex=dx,ey=dy,ez=dz;
       // (a scoped gun fired off the scope: a little way off the middle, the same way the pellets scatter)
       if(hip){const a=Math.random()*6.283,r=hip*Math.sqrt(Math.random()),ca=Math.cos(a)*r,sa=Math.sin(a)*r;ex+=rx*ca+ux*sa;ey+=uy*sa;ez+=rz*ca+uz*sa;const L=Math.hypot(ex,ey,ez);ex/=L;ey/=L;ez/=L;}
       if(n>1){const a=Math.random()*6.283,r=W.spread*Math.sqrt(Math.random()),ca=Math.cos(a)*r,sa=Math.sin(a)*r;ex+=rx*ca+ux*sa;ey+=uy*sa;ez+=rz*ca+uz*sa;const L=Math.hypot(ex,ey,ez);ex/=L;ey/=L;ez/=L;}
-      fireRound({x:c.x,y:c.y,z:c.z,dir:{x:ex,y:ey,z:ez},range:W.range,step:0.2,by:p,tr:{x:c.x+fx*0.5+rx*0.18,y:c.y-0.18,z:c.z+fz*0.5+rz*0.18},
+      fireRound({x:c.x,y:c.y,z:c.z,dir:{x:ex,y:ey,z:ez},range:W.range,step:0.2,by:p,tr,
         gobs:true,gb:[0.45,0,1.5],dmg:W.dmg,cause:W.cause,pvp:{n:W.dmg,cause:'Shot',opt:{cd:0}},vehs:true,vd:W.dmg*VEH_SHOT_K,breaks:W.breaks,ship:true,
         snd:i?null:()=>wpnCrack(wk)});}}   // (the handgun cracks higher and shorter, as the police's does)
   p.shake=Math.max(p.shake||0,W.shake);rumble(p,W.rumble,50);
   // (the view kicked up a little, and a hair to one side then the other, so a held trigger climbs: the same every time)
   if(W.climb){p.cam.pitch=camPitch(p.cam.pitch+W.climb,p);p.cam.yaw+=W.climb*0.2*(p.shotN%2?1:-1);}
+}
+// the barrel's tip of the gun in your own view, in the camera's frame (x right, y up, -z ahead): the middle of its
+// frontmost face, from the boxes as they're posed now (a magazine out in a reload isn't counted). Null if it isn't shown
+const _mzA=new THREE.Vector3();
+function gobMuzzle(p,wk){
+  const K=p.gb;if(!K||!K.vm.visible||!K.held[wk]||!K.held[wk].visible)return null;
+  try{K.vm.updateMatrixWorld(true);const P=[];
+    K.held[wk].traverseVisible(o=>{if(!o.isMesh||o===K.orb)return;const g=o.geometry;if(!g.boundingBox)g.computeBoundingBox();const b=g.boundingBox;
+      for(let i=0;i<8;i++){_mzA.set(i&1?b.max.x:b.min.x,i&2?b.max.y:b.min.y,i&4?b.max.z:b.min.z).applyMatrix4(o.matrixWorld);K.vm.worldToLocal(_mzA);P.push([_mzA.x,_mzA.y,_mzA.z]);}});
+    if(!P.length)return null;let z=Infinity;for(const q of P)z=Math.min(z,q[2]);
+    let x=0,y=0,n=0;for(const q of P)if(q[2]<z+0.03){x+=q[0];y+=q[1];n++;}
+    const s=K.vm.scale.x;if(!isFinite(x+y+z))return null;return {x:x/n*s,y:y/n*s,z:z*s};}
+  catch(e){return null;}
 }
 // a spellbook's fireball, once it's conjured (the attack's wind-up is the conjuring: its player block's lunge is the
 // weapon's cast): out of the free hand, a little below and left of the eye, at whatever's under the crosshair. It flies
