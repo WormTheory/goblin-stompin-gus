@@ -37,6 +37,8 @@
 - In fog at night, street lamps, lamps, fires and traffic lights now have a soft halo of light in the air around them, as real fog scatters light. The Halos slider in the debug menu sets how strong they are.
 - Traffic lights now light the junction under them at night in red, amber or green, changing with the lights.
 - Lit windows and neon signs now have a fainter halo in fog too, one for each patch of them rather than every window.
+- Everything else that glows gets a halo in fog as well: vehicles' headlights, tail lights, indicators, hazard lights and the flashing light bars on police cars, fire engines and ambulances (the halos flash with them), lit signs, billboards and cinema marquees, level crossing lights, spell orbs, fireballs, explosions, lightning and the flames of jets and balloons.
+- Moving cars' headlights now light up the road ahead of them at night.
 
 ### Trees and water in the distance
 

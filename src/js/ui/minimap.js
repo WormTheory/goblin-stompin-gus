@@ -167,6 +167,7 @@ function renderView(p,x,y,w,h){
   // (halos round lamps in the fog: the same fog thickness, times the debug menu's Halos slider, DT.halo, and how dark it is)
   {const L=WORLD_LIGHT.value,w=!under&&scene.fog.far<far?Math.min(1,Math.max(0,(0.95-Math.max(0.2,WX.k.fog))/0.5)):0;
    HALO_U.uStr.value=w*(DT.halo??1)*Math.min(1,Math.max(0,(0.75-Math.max(L.r,L.g,L.b))*2.5));HALO_U.uNear.value=scene.fog.near;HALO_U.uFar.value=scene.fog.far;}
+  carLightsView(p);   // (the cars' lamps: their halos, and their headlights on the road)
   placePrecip(c,p.idx);
   p.camera.aspect=w/h;p.camera.fov=p.tkFov||(p.gob&&!p.drv&&p.scFov)||72-6*(p.speedFx||0)-8*(p.windZoom||0)+(p.drv&&p.drv.k==='mech'?p.mgFov||0:0);   // (tkFov: a tank's gunsight, tank-handling.js)
   p.camera.far=far+40;p.camera.near=p.gob?0.12:0.25;p.camera.updateProjectionMatrix();

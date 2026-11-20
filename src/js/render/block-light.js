@@ -90,14 +90,14 @@ function blkFireTick(dt){
   for(const [o,w] of want)if(!BL_FIRE.has(o)){BL_FIRE.set(o,w);blkAround(w[0],w[2],w[6]-1);}
 }
 // halos: in the weather's fog at night, the air round a street lamp, a lamp prop or a fire glows, as real fog scatters a
-// light round it (traffic lights too, in whichever colour's showing), and so does the air in front of lit windows and neon:
+// light round it (traffic lights get theirs with everything else that glows, carLightsView), and so does the air in front of lit windows and neon:
 // not a halo a block (a tower's side has hundreds), but one soft, dimmer one for each patch of them (blkPatches). A soft disc facing the camera on each of the BL_HALO_N nearest such lights (one instanced mesh, drawn
 // additively; walls in front hide it as they would the light), picked afresh a couple of times a second by blkHaloTick.
 // How strong is HALO_U.uStr, set per view by renderView: the weather's fog thickness times the debug menu's Halos slider
 // (DT.halo) times how dark it is; nothing's drawn when that's 0, so a clear night or the day costs nothing. Each halo fades out into the fog a
 // little further off than the lit faces do (uNear, uFar: the fog's), and as you get right up to it.
-const BL_HALO_N=192,BL_HALO_PN=96,HALO_U={uStr:{value:0},uNear:{value:0},uFar:{value:1},uWorldCurve:CURVE_U};
-const HALO_A=new THREE.InstancedBufferAttribute(new Float32Array(BL_HALO_N*4),4);HALO_A.usage=THREE.DynamicDrawUsage;
+const BL_HALO_N=192,BL_HALO_PN=96,BL_HALO_CN=96,HALO_U={uStr:{value:0},uNear:{value:0},uFar:{value:1},uWorldCurve:CURVE_U};
+const HALO_A=new THREE.InstancedBufferAttribute(new Float32Array((BL_HALO_N+BL_HALO_CN)*4),4);HALO_A.usage=THREE.DynamicDrawUsage;
 // (made the first time it's needed: the scene isn't there yet when this file runs)
 let HALO=null;
 function haloMesh(){const g=new THREE.PlaneGeometry(2,2);g.setAttribute('aHalo',HALO_A);
@@ -108,7 +108,7 @@ function haloMesh(){const g=new THREE.PlaneGeometry(2,2);g.setAttribute('aHalo',
       // (brought toward the camera by most of its size, so the lamp's own post and the ground under it don't cut it off)
       'mv.xyz*=max(0.05,d-s*0.7)/max(d,0.05);mv.xy+=position.xy*s;gl_Position=projectionMatrix*mv;'+
       'vP=position.xy;vC=aHalo.rgb;vA=uStr*smoothstep(1.5,5.0,d)*(1.0-smoothstep(mix(uNear,uFar,0.5),uFar*(1.0+1.2*min(uStr,1.5)),d));}',
-    fragmentShader:'varying vec2 vP;varying vec3 vC;varying float vA;void main(){float r=dot(vP,vP);if(r>1.0)discard;float a=(1.0-r);a*=a;gl_FragColor=vec4(vC*a*vA*0.24,1.0);}'}),BL_HALO_N);
+    fragmentShader:'varying vec2 vP;varying vec3 vC;varying float vA;void main(){float r=dot(vP,vP);if(r>1.0)discard;float a=(1.0-r);a*=a;gl_FragColor=vec4(vC*a*vA*0.24,1.0);}'}),BL_HALO_N+BL_HALO_CN);
   m.count=0;m.frustumCulled=false;m.renderOrder=3;scene.add(m);return m;}
 // the glowing blocks of a chunk gathered into patches, 8 blocks a side: each patch's middle, its colour summed, and how many
 // there are. Kept on the chunk's list of light-giving blocks (blkEmitters), so it goes when that does.
@@ -119,9 +119,9 @@ function blkPatches(A,qx,qz){
   const L=[];for(const P of M.values()){const n=P[6];if(n<2)continue;L.push([qx*CS+P[0]/n+0.5,P[1]/n+0.5,qz*CS+P[2]/n+0.5,P[3]/n,P[4]/n,P[5]/n,n]);}
   return E.halo=L;
 }
-let blHaloT=0;const _hM=new THREE.Matrix4(),_hV=new THREE.Vector3(),_hC=new THREE.Color();
+let blHaloT=0,blHaloS=0;const _hM=new THREE.Matrix4(),_hV=new THREE.Vector3(),_hC=new THREE.Color();
 function blkHaloTick(dt){
-  if(HALO_U.uStr.value<=0.001){if(HALO)HALO.visible=false;return;}
+  if(HALO_U.uStr.value<=0.001){if(HALO)HALO.visible=false;blHaloS=0;return;}
   if(!HALO)HALO=haloMesh();HALO.visible=true;if((blHaloT-=dt)>0)return;blHaloT=0.25;
   const P=players.filter(q=>q.active),L=[],R=Math.min(80,HALO_U.uFar.value*2.6);
   const near=(x,z)=>{let d=Infinity;for(const q of P)d=Math.min(d,Math.hypot(q.pos.x-x,q.pos.z-z));return d;};
@@ -137,14 +137,77 @@ function blkHaloTick(dt){
     // (windows and neon: a patch's halo grows with how many glowing blocks it has, and is fainter than a lamp's)
     for(const p of blkPatches(chunkArr(qx,qz),qx,qz))add(p[0],p[1],p[2],p[3],p[4],p[5],Math.min(6,2+Math.sqrt(p[6])*0.45),0.3+0.4*Math.min(1,p[6]/24),LP);}
   for(const p of BL_FIRE.values())add(p[0]+0.5,p[1]+0.5,p[2]+0.5,p[3],p[4],p[5]);
-  // (traffic lights: the lamp that's on in each signal head drawn near you, as headLamps shows it; a smaller halo, level 7)
-  for(const h of heads){if(!h.g.visible||!h.lit)continue;const ph=lightPhase(h.ct,h.axis),j=ph==='r'?0:ph==='y'?1:2;
-    _hV.set(0,0.38-0.38*j,0.35).applyMatrix4(h.g.matrix);_hC.copy(TL.on[j].color);add(_hV.x,_hV.y,_hV.z,_hC.r*7,_hC.g*7,_hC.b*7);}
   // (the lamps, fires and signals first, then up to BL_HALO_PN window and neon patches, so a wall of windows close by never
   // crowds out the street lamps further off)
   L.sort((a,b)=>a[6]-b[6]);LP.sort((a,b)=>a[6]-b[6]);L.length=Math.min(L.length,BL_HALO_N-BL_HALO_PN);for(let i=0;i<Math.min(BL_HALO_PN,LP.length);i++)L.push(LP[i]);const n=Math.min(BL_HALO_N,L.length),A=HALO_A.array;
   for(let i=0;i<n;i++){const [x,y,z,r,g,b,,s,k]=L[i],m=Math.max(r,g,b,1),f=(k??1)/m;_hM.makeTranslation(x,y,z);HALO.setMatrixAt(i,_hM);
     A[i*4]=r*f;A[i*4+1]=g*f;A[i*4+2]=b*f;A[i*4+3]=s??1.2+m*0.17;}   // (bigger the brighter: reaching about 3.7 blocks out round a street lamp)
+  blHaloS=n;HALO.count=n;HALO.instanceMatrix.needsUpdate=true;HALO_A.needsUpdate=true;
+}
+// ---- everything else that glows: halos in fog, and vehicles' headlights on the road ----
+// Lamps and fires are above. Everything else drawn to glow -- the head and tail lamps, indicators, hazards and light bars
+// of every vehicle, lit signs, billboards and marquees, level crossing lights, the altar's glow, spell orbs, fireballs,
+// flames out of jets and balloons, explosions -- is found by what it's drawn with: an unlit, flat-coloured material
+// (MeshBasicMaterial, bright enough to be a light) or a lit one glowing (an emissive colour turned up, as the cars' lamps are
+// after dark). Once a second blkGlowScan looks through the scene for such meshes (not the world's blocks, instanced
+// effects, decals, markers drawn over everything, or anything faint); each view then puts a halo on the BL_HALO_CN nearest
+// that are showing and lit right now, in their colour as it is now, so a flashing light bar's halo flashes with it.
+// A picture's colour (a sign's) is taken from its texture, averaged once. carLightsView, from renderView, does it per view.
+// Headlights: the CAR_LN nearest moving cars cast a cone of light along the road ahead, into CARL_U for the voxel shader
+// (LIT_FRAG; with Block lighting on, after dark).
+const CAR_LN=6,CARL_U={uCarP:{value:Array.from({length:CAR_LN},()=>new THREE.Vector4())},uCarD:{value:Array.from({length:CAR_LN},()=>new THREE.Vector3())}};
+const _cl=new THREE.Vector3(),_cf=new THREE.Vector3(),_gc=new THREE.Color(),_gs=new THREE.Vector3();
+let BL_GLOW=[],blGlowT=0;
+// (a texture's average colour, from a tiny copy of it)
+function texAvg(t){
+  if(t._avg!==undefined)return t._avg;let a=null;
+  try{const im=t.image;if(im&&im.width){const c=document.createElement('canvas');c.width=c.height=8;const x=c.getContext('2d');x.drawImage(im,0,0,8,8);
+    const d=x.getImageData(0,0,8,8).data;let r=0,g=0,b=0,n=0;for(let i=0;i<d.length;i+=4){const w=d[i+3]/255;r+=d[i]*w;g+=d[i+1]*w;b+=d[i+2]*w;n+=w;}
+    if(n>0)a=new THREE.Color(r/n/255,g/n/255,b/n/255);}}catch(e){}
+  return t._avg=a;
+}
+// a material's glow as it is now, into _gc, and how bright (0 if it isn't one)
+function glowOf(m){
+  if(!m||m.vertexColors||m.depthTest===false||m.polygonOffset||m.alphaMap)return 0;
+  if(m.type==='MeshBasicMaterial'){if(m.transparent&&m.opacity<0.4)return 0;_gc.copy(m.color);
+    if(m.map){const a=texAvg(m.map);if(!a)return 0;_gc.multiply(a);}
+    const k=Math.max(_gc.r,_gc.g,_gc.b);return k<0.5?0:k*(m.transparent?m.opacity:1);}
+  if(m.emissive){_gc.copy(m.emissive);const k=Math.max(_gc.r,_gc.g,_gc.b);return k<0.3?0:k;}
+  return 0;
+}
+function blkGlowScan(){
+  const L=[];
+  scene.traverse(o=>{if(!o.isMesh||o.isInstancedMesh||o===HALO)return;const m=o.material;if(Array.isArray(m)||!m)return;
+    if(m.type!=='MeshBasicMaterial'&&!m.emissive||m.vertexColors||m.depthTest===false||m.polygonOffset||m.alphaMap)return;
+    // (not the countless lit materials with no glow at all, nor anything hidden; a lamp that's off now (dark, but bright
+    // enough to be a light's off colour) stays in, as it may come on before the next look)
+    const c=m.type==='MeshBasicMaterial'?m.color:m.emissive;if(Math.max(c.r,c.g,c.b)<(m.type==='MeshBasicMaterial'?0.15:0.05)||!shownIn(o))return;
+    L.push(o);});
+  BL_GLOW=L;
+}
+const shownIn=o=>{for(;o;o=o.parent)if(!o.visible)return false;return true;};
+function carLightsView(p){
+  const L=WORLD_LIGHT.value,dk=Math.min(1,Math.max(0,(0.75-Math.max(L.r,L.g,L.b))*2.5)),cam=p.camera.position;
+  // headlights on the road: moving cars only (a parked one's are as good as off)
+  let k=0;
+  if(BL_ON&&dk>0){const near=[];for(const c of cars){if(!c.alive||!c.g.visible||c.parked||Math.abs(c.speed||0)<0.5&&!c.drv)continue;const d=Math.hypot(c.pos.x-cam.x,c.pos.z-cam.z);if(d<64)near.push([c,d]);}
+    near.sort((a,b)=>a[1]-b[1]);
+    for(const [c] of near){if(k>=CAR_LN)break;
+      c.g.updateMatrixWorld();_cf.set(0,0,1).transformDirection(c.g.matrixWorld);_cf.y=0;if(_cf.lengthSq()<1e-4)continue;_cf.normalize();
+      _cl.set(0,0.85,1.9).applyMatrix4(c.g.matrixWorld);CARL_U.uCarP.value[k].set(_cl.x,_cl.y,_cl.z,dk);CARL_U.uCarD.value[k].copy(_cf);k++;}}
+  for(let i=k;i<CAR_LN;i++)CARL_U.uCarP.value[i].w=0;
+  // halos on everything else that glows
+  if(!HALO||!HALO.visible)return;
+  if(playTime>=blGlowT){blGlowT=playTime+1;blkGlowScan();}
+  const R=Math.min(80,HALO_U.uFar.value*2.6),G2=[];
+  for(const o of BL_GLOW){_cl.setFromMatrixPosition(o.matrixWorld);const d=Math.hypot(_cl.x-cam.x,_cl.z-cam.z);if(d<R)G2.push([o,d]);}
+  G2.sort((a,b)=>a[1]-b[1]);
+  let n=blHaloS;const A=HALO_A.array,end=BL_HALO_N+BL_HALO_CN;
+  for(const [o] of G2){if(n>=end)break;if(!shownIn(o))continue;const kk=glowOf(o.material);if(!kk)continue;
+    const m=Math.max(_gc.r,_gc.g,_gc.b);_cl.setFromMatrixPosition(o.matrixWorld);_gs.setFromMatrixScale(o.matrixWorld);
+    if(!o.geometry.boundingSphere)o.geometry.computeBoundingSphere();const r=o.geometry.boundingSphere.radius*Math.max(_gs.x,_gs.y,_gs.z);
+    _hM.makeTranslation(_cl.x,_cl.y,_cl.z);HALO.setMatrixAt(n,_hM);
+    const f=Math.min(1,kk)*1.1/m;A[n*4]=_gc.r*f;A[n*4+1]=_gc.g*f;A[n*4+2]=_gc.b*f;A[n*4+3]=Math.min(6,Math.max(1.8,1+r*1.6));n++;}   // (even a small lamp's halo reaches a couple of blocks out)
   HALO.count=n;HALO.instanceMatrix.needsUpdate=true;HALO_A.needsUpdate=true;
 }
 // every chunk within r blocks of (x,z) meshed again
