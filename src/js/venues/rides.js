@@ -55,6 +55,19 @@ function wheelFall(W,why){
   if(W.dead||W.fall)return;W.fall={vy:-1,sg:Math.random()<.5?1:-1};W.rim.alive=false;for(const q of W.gonds)q.pr.alive=false;
   rideBang(W.hub.x,W.hub.y,W.hub.z,why?1.2:1.8,W,6,10,'Blown up with a Ferris wheel');crushBall(W.hub.x,W.top,W.hub.z,4);
   award(1000,'Ferris wheel destroyed',W.hub.x,W.hub.y,W.hub.z);
+  if(!netGuest())wheelLegsFall(W,W.fall.sg);
+}
+// the wheel's two A-frames (blocks, as grounds.js builds them: a leg either side leaning in to the axle's end) go over
+// with it, toppling the way the wheel falls. What's left of each comes down whole, however much of it was already smashed
+function wheelLegsFall(W,sg){
+  for(const dz of [-2,2]){const z=W.cv+dz,cl=[],ch=new Set();
+    for(let y=G+1;y<W.top;y++){const off=Math.round((W.top-y)*0.42);for(const x of off?[W.cu-off,W.cu+off]:[W.cu])if(get(x,y,z)===METAL)cl.push({x,y,z,b:METAL});}
+    if(get(W.cu,W.top,z)===METAL)cl.push({x:W.cu,y:W.top,z,b:METAL});
+    if(!cl.length)continue;
+    for(const c of cl){setRaw(c.x,c.y,c.z,AIR);addEdit(c.x,c.y,c.z,AIR);ch.add(ckey(Math.floor(c.x/CS),Math.floor(c.z/CS)));}
+    rebuildSet(ch);save();
+    let minY=1e9;for(const c of cl)minY=Math.min(minY,c.y);
+    makeTopple(cl,new V3(W.cu+0.5,minY,z+0.5+sg*0.5),new V3(0,0,sg));}
 }
 function coasterMark(K){wrecked[K.k]={th:K.th,off:K.off,dead:K.cars.map(c=>c.dead)};save();}
 function rideHit(T,n,ci){

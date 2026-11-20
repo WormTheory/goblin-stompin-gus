@@ -62,6 +62,10 @@ T.DT.invuln=false;
 {const A=area();wall(A.x,A.z+8,12,'x');const a=driven('car',A.x-8,A.z+5,Math.PI/2-0.35);const r=go(a,10,null,undefined);row('car glancing a wall (10, 20 deg)',a,null,r);out();}
 for(const k of ['car','bus']){const A=area();wall(A.x,A.z+9,6,'x');const a=driven(k,A.x,A.z-2,0);const holed=()=>{let n=0;for(let x=-2;x<=2;x++)for(let y=0;y<3;y++)if(!T.solidAt(Math.floor(A.x+x),Math.floor(home.y)+y,Math.floor(A.z+9)))n++;return n;};
   const r=go(a,9,null,undefined);row(k+' into a wall (9)',a,null,r,' | hole '+holed()+' blocks');out();}
+// (a tall one's hole used to start a block up, leaving the bottom row as a kerb: each row of the hole straight ahead, bottom first)
+for(const k of ['car','pickup','van','truck'])for(const v of [12,20]){const A=area();wall(A.x,A.z+9,6,'x');const a=driven(k,A.x,A.z-2,0);
+  const rows=()=>[0,1,2].map(y=>{let n=0;for(let x=-1;x<=1;x++)if(!T.solidAt(Math.floor(A.x+x),Math.floor(home.y)+y,Math.floor(A.z+9)))n++;return n;}).join(' ');
+  const r=go(a,v,null,undefined);row(k+' into a wall ('+v+')',a,null,r,' | open of 3 across, rows from the bottom '+rows());out();}
 T.DT.invuln=true;
 // ---- your own car hit on its back corner: it spins, and you still steer ----
 {const A=area(),b=driven('car',A.x+0.9,A.z,0),a=veh('car',A.x-0.9,A.z-12,0);const r=go(a,12,b,0);const h0=b.heading;T.keys.add('KeyD');run(0.5);T.keys.delete('KeyD');
@@ -109,11 +113,12 @@ function settles(name,cs,secs){let t=0,worst=0;for(;t<secs*60;t++){step();worst=
   settles('a leaning Gobway ('+f2(w)+') back as a car',[c],3);}
 // ---- drifting into a wall: sideways (the slide, not its heading) at smash speed breaks through; slowly, it doesn't ----
 T.DT.invuln=false;
-for(const [k,vs] of [['car',15],['car',5],['bus',9]]){const A=area();wall(A.x,A.z+9,8,'x');const a=driven(k,A.x,A.z+9-a0(k),Math.PI/2);const hp0=a.hp;
-  let hit=-1;for(let i=0;i<120;i++){if(hit<0){a.speed=2;a.hvel={x:Math.sin(a.heading)*2,z:Math.cos(a.heading)*2+vs};a.kv.set(0,0,0);}step();
+for(const [k,vs] of [['car',15],['car',5],['car',3],['van',5],['bus',9],['bus',3]]){const A=area();wall(A.x,A.z+9,8,'x');const a=driven(k,A.x,A.z+9-a0(k),Math.PI/2);const hp0=a.hp;
+  let hit=-1,inW=0;for(let i=0;i<120;i++){if(hit<0){a.speed=2;a.hvel={x:Math.sin(a.heading)*2,z:Math.cos(a.heading)*2+vs};a.kv.set(0,0,0);}step();inW=Math.max(inW,a.pos.z+a.hx-(A.z+9));
     if(hit<0&&(a.hp<hp0||Math.hypot(a.hvel?a.hvel.z:0)<vs*0.8))hit=i;if(hit>=0&&i>hit+30)break;}
   let n=0;for(let x=-4;x<=4;x++)for(let y=0;y<3;y++)if(!T.solidAt(Math.floor(A.x+x),Math.floor(home.y)+y,Math.floor(A.z+9)))n++;
-  console.log(pad(k+' drifting sideways into a wall ('+vs+')',40),hit<0?'NO HIT':'','| hole',n,'blocks  damage',Math.round(hp0-a.hp));out();}
+  // (into the wall: how far its side got past the wall's face, which only means something when there's no hole)
+  console.log(pad(k+' drifting sideways into a wall ('+vs+')',40),hit<0?'NO HIT':'','| hole',n,'blocks  damage',Math.round(hp0-a.hp),n?'':'  side into the wall '+f2(Math.max(0,inW)));out();}
 function a0(k){return k==='bus'?5:4;}
 // ---- a wreck sliding into a wall, head on and sideways, still breaks it (wreck-slide.js) ----
 for(const [nm,h] of [['head on',0],['sideways',Math.PI/2]])for(const v of [16,24]){const A=area();wall(A.x,A.z+9,8,'x');const a=veh('car',A.x,A.z,h);a.pos.z=A.z+9-(h?a.hx:a.hz)-2.5;

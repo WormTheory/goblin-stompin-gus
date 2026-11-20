@@ -66,7 +66,9 @@ const bars=(x,z,r)=>{let n=0,full=0,low=0;T.rideBarsEach((bx,by,bz,hp,mx)=>{if(M
   const flew=K.cars.filter(c=>c.fly).length;let t2=0;while(K.cars.some(c=>c.fly)&&t2<10){hover(x,G0+30,z,6);t2+=.1;}console.log('derailed',K.off,'after',s.toFixed(1)+'s','cars flying',flew,'down after',t2.toFixed(1)+'s','all dead',K.cars.every(c=>c.dead),'score',T.scoreNow-s0);}
  // the wheel: cut one side's legs (both frames)
  {const x=W.cu+Math.round((W.top-(G0+3))*0.42),s0=T.scoreNow;hover(W.hub.x,G0+70,W.hub.z+50,3);for(const dz of [-2,2])T.crush(x,G0+3,W.cv+dz,1,-1,1);hover(W.hub.x,G0+70,W.hub.z+50,60);const f=!!W.fall||W.dead;let t=0;while(!W.dead&&t<12){hover(W.hub.x,G0+70,W.hub.z+50,6);t+=.1;}
-  console.log('legs cut on one side: came down',f,'after',t.toFixed(1)+'s','lying at',(W.g.position.y-G0).toFixed(1),'tipped',Math.abs(W.g.rotation.x).toFixed(2),'score',T.scoreNow-s0,'hits left',T.carsNear(W.hub.x,W.hub.z,3,G0+2).includes(W.rim));}
+  console.log('legs cut on one side: came down',f,'after',t.toFixed(1)+'s','lying at',(W.g.position.y-G0).toFixed(1),'tipped',Math.abs(W.g.rotation.x).toFixed(2),'score',T.scoreNow-s0,'hits left',T.carsNear(W.hub.x,W.hub.z,3,G0+2).includes(W.rim));
+  // (its A-frames go over with it)
+  hover(W.hub.x,G0+70,W.hub.z+50,600);{let n=0;for(const dz of [-2,2])for(let y=G0+1;y<=W.top;y++){const o=Math.round((W.top-y)*0.42);for(const x of o?[W.cu-o,W.cu+o]:[W.cu])if(T.get(x,y,W.cv+dz)===T.METAL)n++;}console.log('A-frame blocks still standing',n);}}
  // and it all stays that way
  {hover(X0+4000,G0+40,Z0+4000,130);console.log('venue dropped away',!T.venues.has(k));hover(mx,G0+70,mz,70);const V2=T.venues.get(k);console.log('back: wheel down',V2.W.dead,'carousel down',V2.Cs.dead,'coaster off',V2.K.off,'cars drawn',V2.K.cars.filter(c=>c.g.visible).length,'wheel height',(V2.W.g.position.y-G0).toFixed(1));}
 }}

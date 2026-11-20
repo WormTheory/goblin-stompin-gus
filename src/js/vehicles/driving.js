@@ -257,7 +257,8 @@ function drvCar(c,dt){
   // (and a road vehicle's steering eases off with speed, so a lane change at speed isn't twitchy; its own grip then
   // brings where it's going round to where it points: roadSlip)
   const fall=Hd.fall||(road?Hd.top*3:0);
-  c.steer+=(st-c.steer)*Math.min(1,dt*8);const dh=c.steer*dt*(Lt&&Lt.spot?1:Math.max(-1,Math.min(1,c.speed/(V==='forklift'?2:5))))*Hd.steer*(fall?Math.max(0.45,1-Math.abs(c.speed)/fall):1)*(R?R.yaw:1);
+  c.steer+=(st-c.steer)*Math.min(1,dt*8);let dh=c.steer*dt*(Lt&&Lt.spot?1:Math.max(-1,Math.min(1,c.speed/(V==='forklift'?2:5))))*Hd.steer*(fall?Math.max(0.45,1-Math.abs(c.speed)/fall):1)*(R?R.yaw:1);
+  if(R&&dh&&carIntoWall(c,c.pos.x,c.pos.z,c.heading+dh))dh=0;   // (no swinging a corner into a wall: collide.js)
   c.heading+=dh;if(V==='forklift')forkPivot(c,dh);
   if(V==='hover')hovDrift(c,dt);else if(R)roadSlip(c,dt,Hd,R.grip);
   if(c.veh==='fire')drvHose(c,i,dt);   // (a fire engine: bite sprays water, its special is the siren. See hose.js)
@@ -299,7 +300,7 @@ function gunRound(M,p,mx,my,mz,dmg,sc0,cause,snd,A0){
 // the muzzle; own the vehicle it's fired from (spared); by the player firing (or null).
 // What it can hit (each gun's own switches): gobs, goblins (dmg each; gb [radius, lowest, highest] how near the line,
 // from its feet), and with PvP on another player (pvp {n, cause, opt} for pvpHurt); vehs, stopping at a vehicle in its
-// way (vd to it through vehBlast, 4 by default); breaks, half the time the block it hits breaks (bulletBreak); ship,
+// way (vd to it through vehBlast, 4 by default); breaks, the block it hits may break (bulletBreak: glass every time, brick half the time); ship,
 // followed across a ship's side (shipLines). An enemy's shot is aimed at a player, tgt: hit the chance it finds them,
 // else it's aimed off to one side by miss [nearest, furthest, up, up at random, how much further on], pdmg hearts (a
 // driver's vehicle takes vd, else pdmg times VEH_SHOT_K: shotPlayer), id the goblin to blame; walls stop it, and for now
@@ -348,10 +349,13 @@ function fireRound(o){
   if(mr)mineBoom(mr.M,isPlT(o.by)?pvpBy(o.by):undefined);
   return{hit,x:ex,y:ey,z:ez};
 }
-// a bullet into a wall: half the time the block it struck breaks (only that one, so a stream of rounds chews through a
-// wall slowly, well short of what a shell, a missile or a blade does), with the same wreckage as anything else breaking
+// a bullet into a wall: the block it struck may break (only that one, so a stream of rounds chews through a wall slowly,
+// well short of what a shell, a missile or a blade does), with the same wreckage as anything else breaking. How likely
+// is by how tough it is (WS_TOUGH, wreck-slide.js), looked at first: glass, signs, planks and the like (0.5 or less) every
+// time, anything as tough as earth or brick half the time, as all of them used to, and what's in between in between
+const bulletOdds=b=>{const t=WS_TOUGH[b];return t<=0.5?1:t>=1?0.5:1-(t-0.5);};
 function bulletBreak(bx,by,bz,ux,uz){
-  if(SBX||Math.random()>=0.5||by<1||by>=H)return false;const b=get(bx,by,bz);if(b===AIR||b===WATER||b===BEDROCK)return false;
+  if(SBX||by<1||by>=H)return false;const b=get(bx,by,bz);if(b===AIR||b===WATER||b===BEDROCK||Math.random()>=bulletOdds(b))return false;
   setRaw(bx,by,bz,AIR);addEdit(bx,by,bz,AIR);const ch=new Set();for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((bx+ox)/CS),Math.floor((bz+oz)/CS)));
   const L=[{x:bx,y:by,z:bz,b}],o={force:0.5,dx:ux,dz:uz,up:0.4};rebuildSet(ch);save();destroyFX(L,o);settle(L,o);pumpsHit(L);return true;}
 // a tank's shell as it would leave the gun now: from the muzzle, along the turret as it's turned (it may still be swinging

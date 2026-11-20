@@ -338,6 +338,7 @@
 
 - Goblins' rifle and handgun rounds stop at the first block in the way. They used to hit you through a wall if they'd taken aim before you ducked behind it.
 - Rounds from guns, the Mobile Gear's rifle, Gnash's rifle and handgun, the helicopter's machine gun and the militia's mounted guns, now break the block they hit about half the time, so sustained fire slowly chews through cover.
+- How likely a block is to break now depends on how tough it is: glass, stained glass, signs, planks and the like break every time they're hit, logs and earth a little more often than not, and brick, concrete and metal still about half the time.
 
 ### Less prop pop-in
 
@@ -412,6 +413,10 @@
 - A badly smashed-up world no longer stutters every few seconds as it saves: the game only writes the parts of it that changed since the last save.
 - Wind turbines, motorways, bridges, stadiums and other things that aren't buildings no longer have rows of lit windows on them when seen from far off, and neither do windowless buildings such as building sites, car parks and the data centre.
 - Online, a guest's Mobile Gear quick boost keeps its thruster flash from the moment it's pressed, instead of the flash cutting out for a moment until the host catches up.
+- When the Ferris wheel comes down, its two A-frames topple over with it, instead of being left standing with nothing to hold up.
+- A wind turbine's blades now come down with it. Topple the tower and they go over with the top of it, then lie flat on the ground where they land; smash just the top and they drop off. They're still lying there when you come back.
+- Driving a pickup, van or lorry through a wall now takes out the bottom row of blocks too, instead of leaving a low ledge you then bump up over.
+- Drifting slowly into a building no longer lets the side of your car, or a corner swinging round, slide into the wall.
 
 ## Version 0.4.1
 

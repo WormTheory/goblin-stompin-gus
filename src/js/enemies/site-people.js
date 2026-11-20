@@ -15,7 +15,8 @@ function refreshSiteVenues(p,want){
   {const R=Math.max(150,viewR*CS+40);
    for(let px=Math.floor((p.pos.x-R)/CELL);px<=Math.floor((p.pos.x+R)/CELL);px++)for(let pz=Math.floor((p.pos.z-R)/CELL);pz<=Math.floor((p.pos.z+R)/CELL);pz++){
     if(!tenvShow(px,pz)||!turbineAt(px,pz)||!meshes.has(ckey(Math.floor((px*CELL+16)/CS),Math.floor((pz*CELL+16)/CS)))&&!stHas(px*CELL+16,pz*CELL+16))continue;const key='w'+px+','+pz;want.add(key);if(!venues.has(key)){const g=makeRotor();g.position.set(px*CELL+16,G+41.9,pz*CELL+12.6);scene.add(g);
-      venues.set(key,{kind:'wind',rotor:g,sp:0.55+hash2(Math.floor(px/7),Math.floor(pz/7))*0.4,ck:ckey(Math.floor((px*CELL+16)/CS),Math.floor((pz*CELL+16)/CS))});}}}
+      const V={kind:'wind',rotor:g,sp:0.55+hash2(Math.floor(px/7),Math.floor(pz/7))*0.4,ck:ckey(Math.floor((px*CELL+16)/CS),Math.floor((pz*CELL+16)/CS)),hx:px*CELL+15,hz:pz*CELL+13,wk:'wind:'+px+','+pz,chkT:0};
+      venues.set(key,V);windRestore(V);}}}
   for(let px=Math.floor((p.pos.x-150)/CELL);px<=Math.floor((p.pos.x+150)/CELL);px++)for(let pz=Math.floor((p.pos.z-150)/CELL);pz<=Math.floor((p.pos.z+150)/CELL);pz++){
     if(biomeOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;
     const B=bigPlainsAt(px,pz);if(!B||!FIG_STYLE[B.kind]||(B.ax!==px||B.az!==pz)&&B.kind!=='airport'||siteOf(B.ax,B.az))continue;   // (a structure from the editor in its place has its own people: world/sites.js)   // (an airport's too big to wait till its corner's in reach)
@@ -32,7 +33,7 @@ function refreshSiteVenues(p,want){
     const key='m'+px+','+pz;want.add(key);if(!venues.has(key))venues.set(key,armyVenue(B));}
 }
 function updateSiteVenue(V,dt,t){
-  if(V.kind==='wind'){V.rotor.rotation.z+=dt*V.sp;V.rotor.visible=meshes.has(V.ck);return;}   // (hidden the moment its tower drops back to the distant scenery)
+  if(V.kind==='wind'){windTick(V,dt);V.rotor.visible=meshes.has(V.ck);return;}   // (hidden the moment its tower drops back to the distant scenery)
   const me=players.find(q=>q.active);let dmin=1e9;if(me)for(const F of V.posts)dmin=Math.min(dmin,Math.hypot(me.pos.x-F.x,me.pos.z-F.z));
   // who's still at their post (as at the cult altars: gone home leaves a place to fill, killed stays dead a while)
   for(let i=0;i<V.slots.length;i++){const g=V.slots[i];if(!g)continue;

@@ -297,6 +297,37 @@ function makeRotor(){
     const tip=new THREE.Mesh(LM_BOX,TURBM);tip.scale.set(0.5,3,0.2);tip.position.y=18.5;arm.add(tip);g.add(arm);}
   return g;
 }
+// A turbine's rotor is a model, not blocks, so when its tower comes down (the nacelle it hangs on gone) it has to come down
+// too: carried round with the toppling piece that has the nacelle in it (V.fall.T, the rotor held where it was in that
+// piece's frame), then once that lands, or straight away if the nacelle just went (smashed, or dropped as rubble), it
+// falls by itself, turning to lie flat, and stays there: kept in `wrecked` (V.wk) so it's lying there next time too.
+const WIND_FLAT=[-Math.SQRT1_2,0,0,Math.SQRT1_2];   // (the blades' disc lying flat: its face turned up)
+const windNacelle=V=>get(V.hx,G+42,V.hz)===PAINT_WHITE||get(V.hx+1,G+42,V.hz)===PAINT_WHITE;
+function windRestore(V){
+  const W=wrecked[V.wk],r=V.rotor;if(!W)return;V.down=true;
+  if(W===1){r.visible=false;V.gone=true;return;}
+  r.position.set(W.x,W.y,W.z);r.quaternion.set(W.q[0],W.q[1],W.q[2],W.q[3]);
+}
+function windTick(V,dt){
+  const r=V.rotor;if(V.gone){r.visible=false;return;}if(V.down)return;
+  if(!V.fall){r.rotation.z+=dt*V.sp;V.chkT-=dt;if(V.chkT>0)return;V.chkT=0.25;if(windNacelle(V))return;
+    // which toppling piece took the nacelle?
+    const k0=bkey(V.hx,G+42,V.hz),k1=bkey(V.hx+1,G+42,V.hz),T=topples.find(T=>T.bset&&(T.bset.has(k0)||T.bset.has(k1)));
+    const q=r.quaternion;V.fall={T:T||null,p0:{x:r.position.x,y:r.position.y,z:r.position.z},q0:[q.x,q.y,q.z,q.w],vx:0,vy:0,vz:0};}
+  const F=V.fall,q=r.quaternion;
+  if(F.T&&topples.includes(F.T)){const T=F.T,v=new V3(F.p0.x-T.pivot.x,F.p0.y-T.pivot.y,F.p0.z-T.pivot.z).applyQuaternion(T.q),ox=r.position.x,oy=r.position.y,oz=r.position.z;
+    r.position.set(T.pivot.x+v.x,T.pivot.y-T.dy+v.y,T.pivot.z+v.z);const m=qMul([T.q.x,T.q.y,T.q.z,T.q.w],F.q0);q.set(m[0],m[1],m[2],m[3]);
+    if(dt>0){F.vx=(r.position.x-ox)/dt;F.vy=(r.position.y-oy)/dt;F.vz=(r.position.z-oz)/dt;}return;}
+  // on its own: dropping, its spin turning it to lie flat as it goes
+  F.T=null;F.vy-=30*dt;F.vx*=Math.exp(-dt*2);F.vz*=Math.exp(-dt*2);r.position.x+=F.vx*dt;r.position.y+=F.vy*dt;r.position.z+=F.vz*dt;
+  let a=[q.x,q.y,q.z,q.w],b=WIND_FLAT;if(a[0]*b[0]+a[1]*b[1]+a[2]*b[2]+a[3]*b[3]<0)b=b.map(c=>-c);const t=Math.min(1,dt*3);
+  a=a.map((c,i)=>c+(b[i]-c)*t);const l=Math.hypot(...a)||1;q.set(a[0]/l,a[1]/l,a[2]/l,a[3]/l);
+  const gy=groundAt(r.position.x,r.position.z,r.position.y)+0.4;
+  if(r.position.y<=gy||r.position.y<G-20){r.position.y=Math.max(gy,r.position.y);q.set(b[0],b[1],b[2],b[3]);V.fall=null;V.down=true;
+    const P=r.position;thud(1);noise(0.6,0.5,500,'lowpass');addShake(0.4,P.x,P.z,50);smoke(P.x,P.y+0.5,P.z,10,0x8a8a84);
+    hitGoblins(P.x,P.z,8,99,'Flattened by a turbine blade',P.y);
+    wrecked[V.wk]={x:+P.x.toFixed(2),y:+P.y.toFixed(2),z:+P.z.toFixed(2),q:[q.x,q.y,q.z,q.w].map(c=>+c.toFixed(4))};save();}
+}
 // ---- doomsday preppers' compounds: a concrete wall topped with wire round the lot; the house, a watchtower, solar
 // panels, a water tank, stacked containers of supplies, a fuel tank, a vegetable patch -- and the hatch to the bunker ----
 function prepperColumn(col,B,U,V,x,z){

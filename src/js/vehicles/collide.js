@@ -190,7 +190,10 @@ function carSmash(c,vn,nx,nz,px,pz,side){
   const mw=carMass(c),k=Math.min(1,(vn*mw-13)/15),big=c.hz>3*ES?1.35:LIGHT_RIDE[c.veh]?0.7:1,R=(1.5+k*1.4)*big,iy=c.pos.y+Math.min(R*0.9,(c.hy||1.4)*0.6)+0.1;
   // (side on, the whole length of it meets the wall: a hole along it, so it slides on through)
   const fx=Math.sin(c.heading),fz=Math.cos(c.heading),pts=side?[-0.45,0.45].map(t=>[px+fx*c.hz*t,pz+fz*c.hz*t]):[[px,pz]];
-  for(const [x,z] of pts)crushBall(x+nx*0.6,iy,z+nz*0.6,R,{force:0.8+k});
+  // (a tall one's hole is centred a block or more up, and a ball reaches less far down than across, so it left the wall's
+  // bottom row standing as a kerb it then climbed: another ball from the ground up takes that row too)
+  const gy=Math.floor(c.pos.y+0.05)+0.5,low=Math.floor(iy)>Math.floor(gy);
+  for(const [x,z] of pts){crushBall(x+nx*0.6,iy,z+nz*0.6,R,{force:0.8+k});if(low)crushBall(x+nx*0.6,gy,z+nz*0.6,R,{force:0.8+k});}
   damageCar(c,4+vn*0.4,undefined,'acc');sfx('Vehicle crashes into a wall',()=>{thud(0.7);clang();});addShake(0.4+k*0.5,px,pz,25);smoke(px+nx*0.6,iy,pz+nz*0.6,6,0x9a948a);
   carDv(c,-nx*vn*0.65,-nz*vn*0.65);if(LIGHT_RIDE[c.veh]&&c.drv)drvExit(c.drv,true);}   // (off a motorcycle, or anything light, you go)
 // ---- a car sliding sideways (a drift, a handbrake turn, a knock) into a wall: updateCars only feels ahead of it for
@@ -205,6 +208,15 @@ function carSlideHit(c){
     const n=carWallN(c,x,z),vn=v.x*n.nx+v.z*n.nz;if(vn<=thr)return false;
     carSmash(c,vn,n.nx,n.nz,c.pos.x+rx*s*(c.hx+0.15),c.pos.z+rz*s*(c.hx+0.15),true);return true;}
   return false;}
+// ---- a driven car's footprint against walls: its corners and the middles of its sides and ends, at a place and heading.
+// Its slide (roadSlip) only felt for a wall under its middle, and its turning not at all, so a slow drift (too slow to
+// smash: carSlideHit) carried its side or a swinging corner into a building. Now neither may put any of those points into
+// a wall (more than a kerb's height above it) that wasn't in one already, so a car already touching one can still get away ----
+const carWallAt=(x,z,y)=>groundAt(x,z,y)-y>1.1;
+function carFootPts(c,x,z,h){const s=Math.sin(h),k=Math.cos(h),a=c.hx,b=c.hz,o=[];
+  for(const [u,v] of [[-a,-b],[a,-b],[-a,b],[a,b],[-a,0],[a,0],[0,-b],[0,b]])o.push(x+u*k+v*s,z-u*s+v*k);return o;}
+function carIntoWall(c,x1,z1,h1){const y=c.pos.y,P0=carFootPts(c,c.pos.x,c.pos.z,c.heading),P1=carFootPts(c,x1,z1,h1);
+  for(let i=0;i<P1.length;i+=2)if(carWallAt(P1[i],P1[i+1],y)&&!carWallAt(P0[i],P0[i+1],y))return true;return false;}
 // (the front corner of a car nearer a wall ahead: where it'll hit; null if neither is in a wall)
 function carWallPt(c,dir){const fx=Math.sin(c.heading),fz=Math.cos(c.heading),rx=fz,rz=-fx,f=(c.hz+0.15)*dir,y=c.pos.y;let best=null;
   for(const s of [-1,0,1]){const x=c.pos.x+fx*f+rx*c.hx*0.9*s,z=c.pos.z+fz*f+rz*c.hx*0.9*s;if(groundAt(x,z,y)-y>0.6&&!best)best={x,z};}return best;}

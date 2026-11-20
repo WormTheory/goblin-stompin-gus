@@ -68,7 +68,8 @@ function roadSlip(c,dt,Hd,k){const vx=Math.sin(c.heading)*c.speed,vz=Math.cos(c.
   // (turned all at once, more than any steering could in a step, crossing into a ship's frame say: the slide turns with it)
   if(c.slipH!==undefined){const j=angDiff(c.slipH,c.heading);if(Math.abs(j)>0.3){const cs=Math.cos(j),sn=Math.sin(j),x=H.x;H.x=x*cs+H.z*sn;H.z=-x*sn+H.z*cs;}}c.slipH=c.heading;
   if(c.grounded){const r=Math.min(1,dt*roadGrip(c,Hd)*k);H.x+=(vx-H.x)*r;H.z+=(vz-H.z)*r;}
-  const sx=(H.x-vx)*dt,sz=(H.z-vz)*dt;if(Math.abs(sx)+Math.abs(sz)>1e-4){const x0=c.pos.x,z0=c.pos.z;nudgeFlat(c,sx,sz);if(c.pos.x===x0&&c.pos.z===z0){H.x=vx;H.z=vz;}}}
+  // (the slide stops dead at a wall: under its middle, or, driven, at its side or a corner, carIntoWall in collide.js)
+  const sx=(H.x-vx)*dt,sz=(H.z-vz)*dt;if(Math.abs(sx)+Math.abs(sz)>1e-4){const x0=c.pos.x,z0=c.pos.z;if(!c.drv||!carIntoWall(c,x0+sx,z0+sz,c.heading))nudgeFlat(c,sx,sz);if(c.pos.x===x0&&c.pos.z===z0){H.x=vx;H.z=vz;}}}
 // a car going about its own business: is a player's siren coming up behind it? (updateCars pulls it over, as for a
 // service vehicle on a call)
 function sirenYield(c){for(const q of players){const D=q.drv;if(!D||D.k!=='car'||!D.o.siren||D.o===c)continue;const sv=D.o,ox=sv.pos.x-c.pos.x,oz=sv.pos.z-c.pos.z;if(Math.abs(ox)+Math.abs(oz)>40)continue;
