@@ -99,7 +99,7 @@ function wreckHud(p,dt){
   let S=null,v=null;try{S=placeOf(p);v=S&&setListC.has(S.rx+','+S.rz)?setDestroyed(S):null;}catch(e){}
   const on=v!=null&&playing;if(u.wreck.hidden===on)u.wreck.hidden=!on;if(!on)return;
   const pc=Math.round(v*100),t='Settlement razed',k=t+pc;
-  if(u.wreckK!==k){u.wreckK=k;u.wkT.textContent=t;u.wkV.textContent=pc+'%';u.wkFill.style.width=pc+'%';u.wkFill.classList.toggle('none',pc===0);}
+  if(u.wreckK!==k){u.wreckK=k;u.wkT.textContent=t+'  '+pc+'%';u.wkFill.setAttribute('stroke-dasharray',pc+' 200');u.wkFill.style.visibility=pc?'':'hidden';}   // (the bar is an arc over the minimap, filled by its dash)
 }
 // (Options: reduced motion, kept in this browser; the system's own setting turns it on too, see reduceMotion)
 const CALM_KEY='goblin-stompin-gus-calm';

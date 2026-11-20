@@ -1293,19 +1293,20 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
 .feed .lbl.old{opacity:0!important}
 .feed .lbl.bump{animation:cbBump .25s ease-out}
 @keyframes feedIn{from{transform:translateX(40px) rotate(4deg);opacity:0}to{transform:none;opacity:1}}
-/* the Settlement razed card, just above the minimap (its 160, rim and shadow), slim so it fits under a vehicle's controls column */
-.wreck{position:absolute;left:max(20px,env(safe-area-inset-left,0px));bottom:calc(36px + var(--mm,160px) + env(safe-area-inset-bottom,0px));width:190px;box-sizing:border-box;padding:5px 10px 7px;display:flex;flex-direction:column;gap:4px;color:var(--ink);background-color:var(--paper);background-image:var(--dither);background-size:6px 6px;border:3px solid var(--ink);border-radius:var(--wobs);box-shadow:4px 4px 0 var(--ink);pointer-events:none}
-.wreck .wk1{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font:700 13px var(--f-body);white-space:nowrap}
-.wreck .wkv{font:400 16px/1 var(--f-px)}
-.wreck .wkbar{height:12px;border:2px solid var(--ink);border-radius:6px 8px 5px 9px;background:#fff;overflow:hidden;box-sizing:border-box}
-.wreck .wkbar i{display:block;height:100%;width:0;background:var(--tomato);border-right:2px solid var(--ink);box-sizing:border-box;transition:width .4s}
-.wreck .wkbar i.none{border-right:0}
-@media (pointer:coarse){.wreck{bottom:calc(416px + env(safe-area-inset-bottom,0px))}}
+/* the Settlement razed bar: an arc round the top third of the minimap, its words curved over it. (Drawn in units where the
+   minimap's outer edge, --mm and its 4px rim, is 84 from the middle, so it stays round the minimap at any size) */
+.wreck{position:absolute;left:calc(max(20px,env(safe-area-inset-left,0px)) - (var(--mm,160px) + 8px) * 36 / 168);bottom:calc(20px + env(safe-area-inset-bottom,0px) + (var(--mm,160px) + 8px) / 2);width:calc((var(--mm,160px) + 8px) * 240 / 168);pointer-events:none}
+.wreck[hidden]{display:none}
+.wreck svg{display:block;width:100%;height:auto;overflow:visible}
+.wreck path{fill:none;stroke-linecap:round}
+.wreck .wk-rim{stroke:var(--ink);stroke-width:15}
+.wreck .wk-bg{stroke:#fff;stroke-width:9}
+.wreck .wk-fill{stroke:var(--tomato);stroke-width:9;transition:stroke-dasharray .4s}
+.wreck .wk-t{font:400 15px var(--f-px);letter-spacing:1px;fill:var(--paper);paint-order:stroke;stroke:var(--ink);stroke-width:3.5px;stroke-linejoin:round;text-transform:uppercase}
 /* (online, the chat column goes up over it while it's there) */
-.view:has(.wreck:not([hidden])) .chat{bottom:calc(96px + var(--mm,160px) + env(safe-area-inset-bottom,0px))}
+.view:has(.wreck:not([hidden])) .chat{bottom:calc(60px + var(--mm,160px) + env(safe-area-inset-bottom,0px))}
 /* (and on a short screen a vehicle's controls column stands on it rather than in the middle of the side) */
-@container hud (max-height:800px){.view:has(.wreck:not([hidden])) .drvhud .dkeys{top:auto;bottom:calc(100px + var(--mm,160px) + env(safe-area-inset-bottom,0px));transform:none;max-height:calc(100% - 140px - var(--mm,160px));overflow:hidden}}
-@media (pointer:coarse){.view:has(.wreck:not([hidden])) .chat{bottom:calc(476px + env(safe-area-inset-bottom,0px))}}
+@container hud (max-height:800px){.view:has(.wreck:not([hidden])) .drvhud .dkeys{top:auto;bottom:calc(64px + var(--mm,160px) + env(safe-area-inset-bottom,0px));transform:none;max-height:calc(100% - 104px - var(--mm,160px));overflow:hidden}}
 /* pop-ups: points (yolk), damage (tomato), shouts (paper), a combo milestone (big, in the middle of the view) */
 .pops{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:4}
 .pop{position:absolute;left:0;top:0;white-space:nowrap;will-change:transform,opacity;font:400 30px/1 var(--f-px);letter-spacing:.5px;color:var(--yolk);text-shadow:2px 0 var(--ink),-2px 0 var(--ink),0 2px var(--ink),0 -2px var(--ink),2px 2px var(--ink),-2px 2px var(--ink),2px -2px var(--ink),-2px -2px var(--ink),0 4px var(--ink)}

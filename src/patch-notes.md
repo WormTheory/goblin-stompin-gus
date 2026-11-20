@@ -36,7 +36,7 @@
 ### Screen layout
 
 - The Mobile Gear's weapon readouts are narrower and sit just left of the speedometer, rather than stacked above it.
-- The Settlement razed card sits just above the minimap now, so the speedometer no longer jumps up to make room for it.
+- How much of a settlement you've razed is now a bar curved round the top of the minimap, with its words curved along it, so the speedometer no longer jumps up to make room for a card.
 - The time of day is gone from the card beside the clock, which now shows just the day and season. It's in the debug menu's Info pane instead, as a clock time (and whether time's paused) beside the time of day.
 
 ### Profiler
