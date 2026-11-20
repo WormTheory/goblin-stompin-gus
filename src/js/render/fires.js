@@ -28,7 +28,7 @@ function updateFlecks(dt){
 // for a while. Each fire has its own pools of instanced flame and smoke puffs. Standing in one hurts. ----
 const fires=[],FL_N=1600,SM_N=4500;
 const flameM=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.92,depthWrite:true}),FL_N);
-const smokeM=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.5,depthWrite:false,fog:false}),SM_N);
+const smokeM=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.5,depthWrite:false}),SM_N);   // (fogged like everything else, so weather fog hides a far fire's smoke)
 const flameP=[],smokeP=[],_smLive=[];let flI=0,smI=0,flLive=0,smLive=0;
 {const c0=new THREE.Color(0xffffff);
  for(let i=0;i<FL_N;i++)flameP.push({x:0,y:0,z:0,vy:0,life:0,max:1,s:1,ph:0});

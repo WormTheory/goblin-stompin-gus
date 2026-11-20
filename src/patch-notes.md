@@ -42,6 +42,7 @@
 - Lit signs, billboards, marquees and other glowing things that stay put now light up the ground and walls around them at night, as lamps do.
 - Halos no longer show through walls: a lamp, screen or sign indoors, or windows round the far side of a building, get no halo unless you can see them.
 - Skyscrapers' lit windows now get halos in fog, a long way off, and bigger patches of windows get brighter halos.
+- Smoke and explosion flashes now fade into fog like everything else, instead of showing in front of it.
 
 ### Trees and water in the distance
 
