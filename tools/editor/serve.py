@@ -8,6 +8,9 @@
 #                                        A new name is added to the end of its kind's _order.json
 #   POST /api/delete {kind,name,stamp}   remove a file and its line in _order.json
 #   POST /api/build                      run tools/build.py, as the Build button does
+#   GET  /api/changes                    saved asset files not yet committed (git status of src/assets/)
+#   POST /api/commit {message,files}     commit those files to the branch checked out, through tools/safe_commit.py (so
+#                                        other threads' commits meanwhile stay, and the game is rebuilt); never pushes
 # Nothing outside src/assets/ is ever written, and only by name (letters, digits, - and _).
 import http.server,json,os,re,subprocess,sys,urllib.parse
 ROOT=os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -25,6 +28,15 @@ def write_order(kind,names):
   else:t='{\n  "order": '+(lst if len(lst)<=100 else '[\n'+',\n'.join('    '+json.dumps(n,ensure_ascii=False) for n in names)+'\n  ]')+'\n}'
   with open(order_path(kind),'w',encoding='utf-8',newline='\n') as f:f.write(t+'\n')
 def stamp(p):return str(os.stat(p).st_mtime_ns) if os.path.exists(p) else ''
+def changes():
+  # (each saved asset file that differs from the last commit: [path, 'M' changed, 'A' new or 'D' deleted])
+  r=subprocess.run(['git','status','--porcelain','-uall','--','src/assets'],cwd=ROOT,capture_output=True,text=True)
+  L=[]
+  for ln in r.stdout.splitlines():
+    st,f=ln[:2],ln[3:].strip().strip('"')
+    if ' -> ' in f:f=f.split(' -> ')[1]
+    L.append([f,'D' if 'D' in st else 'A' if st=='??' or 'A' in st else 'M'])
+  return L
 def file_of(kind,name):
   if kind not in KINDS or not NAME.match(name or ''):raise ValueError('bad kind or name')
   return os.path.join(ASSETS,kind,name+'.json')
@@ -41,6 +53,7 @@ class H(http.server.SimpleHTTPRequestHandler):
     u=urllib.parse.urlparse(s.path);q=dict(urllib.parse.parse_qsl(u.query))
     try:
       if u.path=='/api/list':return s.reply(200,{k:read_order(k) for k in KINDS})
+      if u.path=='/api/changes':return s.reply(200,{'files':changes()})
       if u.path=='/api/read':
         p=file_of(q.get('kind'),q.get('name'))
         with open(p,encoding='utf-8') as f:t=f.read().replace('\r\n','\n')
@@ -71,6 +84,18 @@ class H(http.server.SimpleHTTPRequestHandler):
         return s.reply(200,{})
       if u=='/api/build':
         r=subprocess.run([sys.executable,os.path.join(ROOT,'tools','build.py')],cwd=ROOT,capture_output=True,text=True)
+        return s.reply(200,{'ok':r.returncode==0,'out':(r.stdout+r.stderr).strip()})
+      if u=='/api/commit':
+        msg=(body.get('message') or '').strip()
+        if not msg:return s.reply(400,{'error':'no message'})
+        now={f:k for f,k in changes()};want=body.get('files') or list(now)
+        bad=[f for f in want if f not in now]
+        if bad:return s.reply(409,{'error':'no longer changed: '+', '.join(bad)})
+        gone=[f for f in want if now[f]=='D']
+        # (safe_commit merges files that exist; a deleted one is left for a thread to commit)
+        if gone:return s.reply(400,{'error':"deleted files can't be committed from here yet: "+', '.join(gone)})
+        r=subprocess.run([sys.executable,os.path.join(ROOT,'tools','safe_commit.py'),'--base','HEAD','--from',ROOT,'-m',msg]+want,
+          cwd=ROOT,capture_output=True,text=True)
         return s.reply(200,{'ok':r.returncode==0,'out':(r.stdout+r.stderr).strip()})
     except Exception as e:return s.reply(400,{'error':str(e)})
     s.reply(404,{'error':'no such endpoint'})

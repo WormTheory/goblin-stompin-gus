@@ -173,6 +173,27 @@ async function build(){
     if(!j.ok)dialog('<h3>Build failed</h3><div class="err">'+esc(j.out)+'</div><p style="text-align:right"><button onclick="closeDlg()">OK</button></p>');}
   catch(e){status('Build failed: '+e.message,true);}
 }
+// ---- Commit: the saved asset files not yet in git, committed through serve.py (tools/safe_commit.py), never pushed ----
+async function commitDlg(){
+  for(const d of DOCS.values())if(dirty(d)||d.isNew){if(confirm("Some files aren't saved, and only what's saved is committed. Save them all first?"))await saveAll();break;}
+  let L;try{L=(await api('/api/changes')).files;}catch(e){return status('Commit failed: '+e.message,true);}
+  if(!L.length)return dialog('<h3>Nothing to commit</h3><p style="text-align:right"><button onclick="closeDlg()">OK</button></p>');
+  const tag={M:'',A:' (new)',D:' (deleted)'};
+  dialog('<h3>Commit</h3><ul class="cmList">'+L.map(([f,k])=>'<li><label><input type="checkbox" data-cm="'+esc(f)+'"'+(k==='D'?' disabled':' checked')+'> '+esc(f.replace(/^src\/assets\//,''))+tag[k]+'</label></li>').join('')+'</ul>'+
+    '<textarea id="cmMsg" placeholder="What changed"></textarea><div class="err" id="cmErr"></div>'+
+    '<p style="text-align:right"><button onclick="closeDlg()">Cancel</button> <button id="cmGo">Commit</button></p>');
+  $('cmMsg').focus();
+  $('cmGo').onclick=async()=>{
+    const files=[...document.querySelectorAll('[data-cm]')].filter(c=>c.checked).map(c=>c.dataset.cm),m=$('cmMsg').value.trim();
+    if(!files.length)return $('cmErr').textContent='Pick a file.';
+    if(!m)return $('cmErr').textContent='Say what changed.';
+    $('cmGo').disabled=true;status('Committing…');
+    try{const j=await api('/api/commit',{message:m,files});
+      if(j.ok){closeDlg();status('Committed '+files.length+' file'+(files.length===1?'':'s'));}
+      else{$('cmErr').textContent=j.out;$('cmGo').disabled=false;status('Commit failed',true);}}
+    catch(e){$('cmErr').textContent=e.message;$('cmGo').disabled=false;status('Commit failed',true);}
+  };
+}
 function dialog(h){$('dlgBody').innerHTML=h;$('dialog').classList.add('show');}
 function closeDlg(){$('dialog').classList.remove('show');}
 window.closeDlg=closeDlg;
@@ -1055,7 +1076,7 @@ async function start(){
   for(const k in EXT)if(EXT[k].start)await EXT[k].start();
   renderList();renderTLBar();resize();applySnap();status('Ready');
   $('search').oninput=e=>{S.search=e.target.value;renderList();};
-  $('saveBtn').onclick=()=>save();$('saveAllBtn').onclick=saveAll;$('buildBtn').onclick=build;$('gameBtn').onclick=openGame;
+  $('saveBtn').onclick=()=>save();$('saveAllBtn').onclick=saveAll;$('buildBtn').onclick=build;$('commitBtn').onclick=commitDlg;$('gameBtn').onclick=openGame;
   $('helpBtn').onclick=()=>$('help').classList.toggle('show');
   requestAnimationFrame(loop);
 }

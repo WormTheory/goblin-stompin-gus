@@ -84,6 +84,8 @@ h3{font-size:12px;margin:12px 0 4px;color:var(--dim);text-transform:uppercase;le
 .list .item{border-radius:0}
 .note{color:var(--dim);font-size:12px;margin:4px 0}
 .err{color:var(--bad);font-size:12px;white-space:pre-wrap}
+#cmMsg{width:100%;box-sizing:border-box;min-height:54px;font:inherit}
+.cmList{font-size:12px;margin:6px 0 10px;padding-left:18px}
 table.stats{width:100%;border-collapse:collapse}
 table.stats td{border-bottom:1px solid var(--line);padding:2px 3px;vertical-align:middle}
 table.stats td:first-child{color:var(--dim);width:42%;word-break:break-all}
@@ -108,6 +110,7 @@ kbd{background:#2c3038;border:1px solid #444;border-radius:3px;padding:0 4px;fon
     <button id="saveBtn" title="Save this file (Ctrl+S)">Save</button>
     <button id="saveAllBtn" title="Save every changed file">Save all</button>
     <button id="buildBtn" title="Build game/index.html from src/ (tools/build.py)">Build</button>
+    <button id="commitBtn" title="Commit saved files to git (not pushed)">Commit</button>
     <button id="gameBtn" title="Live preview"><i id="gameDot"></i>Open game</button>
     <button id="helpBtn" title="Keys and how it works (?)">?</button>
   </header>
@@ -126,7 +129,7 @@ kbd{background:#2c3038;border:1px solid #444;border-radius:3px;padding:0 4px;fon
 </div>
 <div id="help"><div>
   <h2 style="margin-top:0">Gus Editor</h2>
-  <p>Everything here is saved as JSON in <code>src/assets/</code>. Save writes the file; Build makes <code>game/index.html</code> from it; Open game shows your edits live in a game, before you save.</p>
+  <p>Everything here is saved as JSON in <code>src/assets/</code>. Save writes the file; Build makes <code>game/index.html</code> from it; Commit puts what's saved into git (not pushed); Open game shows your edits live in a game, before you save.</p>
   <h3>Keys</h3>
   <p><kbd>G</kbd> move, <kbd>R</kbd> tilt, <kbd>S</kbd> size (on a selected box or hit shape) · <kbd>Ctrl</kbd>+<kbd>D</kbd> duplicate · <kbd>M</kbd> mirror across x · <kbd>Del</kbd> delete the selected box, shape or key · <kbd>F</kbd> frame the view on it<br>
   <kbd>Space</kbd> play or pause · <kbd>K</kbd> key at the playhead · <kbd>,</kbd> and <kbd>.</kbd> step the playhead · <kbd>Ctrl</kbd>+<kbd>Z</kbd> undo, <kbd>Ctrl</kbd>+<kbd>Y</kbd> redo · <kbd>Ctrl</kbd>+<kbd>S</kbd> save · <kbd>?</kbd> this help</p>
