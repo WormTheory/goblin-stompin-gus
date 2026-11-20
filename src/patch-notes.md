@@ -332,6 +332,7 @@
 - Time of day: a slider in the World section that sets the clock to any hour, 00:00 to 23:00. The day carries on from there as usual.
 - Pause time of day and Pause weather: switches in the World section that stop the clock (and with it the day and season) or keep the current weather from changing. Online, the host's switches count for everyone.
 - The Info pane now shows the structure or site you're in or on, such as a fast food place and its brand, a park or a military base.
+- The menu starts with just the most used switches shown (game speed, the World and Vehicles rows, the Player cheats and the overlays). The rest are still on the Show / hide tab, and anything you've already shown or hidden there stays as you left it.
 
 ### Bullets break blocks
 

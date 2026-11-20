@@ -133,8 +133,12 @@ const curveTxt=()=>DT.curve===0?'Flat':DT.curve>0?'Down '+DT.curve:'Up '+(-DT.cu
 function dbgVal(k){return k==='nukeR'?String(nukeR()):k==='fogLit'?(DT.fogLit??2)+'×':k==='halo'?(DT.halo??0.25)+'×':k==='haloFade'?HFADE[hfI()]+'s':isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='tod'?todTxt():k==='vehSel'?tenvVehName(DT.veh):k==='vehGo'?DT.vehMsg:k==='fogLitOn'||k==='haloOn'||k==='todStop'||k==='wxStop'||k==='paused'||k==='freecam'||k==='combo'||k==='invuln'||k==='infStam'||k==='infAmmo'||k==='fly'||k==='fps'||k==='sndList'||k==='info'?DT[k]:DBG[k];}
 // the rows on show: the individual hitbox switches only while 'Display hitboxes' is on
 // the menu's two tabs: 0 the switches themselves, 1 "Show / hide", which picks the rows tab 0 lists (kept in this browser)
+// (until someone picks their own, only the rows in DBG_SHOW0 are shown: Thomas's choice of the ones used most)
 const DBG_HIDE_KEY='goblin-stompin-gus-dbghide',DBG_HIDE=new Set();
-try{const h=JSON.parse(localStorage.getItem(DBG_HIDE_KEY)||'[]');if(Array.isArray(h))for(const k of h)if(DBG_ITEMS.some(it=>it.k===k))DBG_HIDE.add(k);}catch(e){}
+const DBG_SHOW0=new Set(['speed','tod','todStop','wx','wxStop','season','fogLitOn','haloOn','vehSel','vehGo',
+  'pspeed','invuln','infStam','infAmmo','nukeR','fly','host','fps','sndList','info']);
+try{const s=localStorage.getItem(DBG_HIDE_KEY),h=s==null?DBG_ITEMS.filter(it=>!it.act&&!DBG_SHOW0.has(it.k)).map(it=>it.k):JSON.parse(s);
+  if(Array.isArray(h))for(const k of h)if(DBG_ITEMS.some(it=>it.k===k))DBG_HIDE.add(k);}catch(e){}
 // the rows on show: on the main tab, those not hidden (and the individual hitbox switches only while 'Display hitboxes'
 // is on); on Show / hide, every row
 function dbgItems(){const L=DT.tab?DBG_ITEMS:DBG_ITEMS.filter(it=>!it.act&&!DBG_HIDE.has(it.k)&&(!it.col||DBG.show));if(DT.cur>=L.length)DT.cur=Math.max(0,L.length-1);return L;}
