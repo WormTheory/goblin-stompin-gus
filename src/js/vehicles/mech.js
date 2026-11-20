@@ -7,7 +7,7 @@
 // (all the tuning in one place: speeds in blocks a second, energy out of enMax)
 // (ramV: from this fast, running into a wall or a building knocks a hole in it; plow: from this fast it hardly slows)
 const MG={hy:7.6,r:1.25,hp:600,walk:10.8,skate:32.4,air:28.8,airEN:12,hoverEN:5,grav:26,jumpV:16,jumpEN:8,jumpPre:0.12,ascV:9,ascEN:30,
-  qbV:61,qbT:0.18,qbCD:0.35,qbEN:20,qbDec:0.35,enMax:100,enRegen:45,enDelay:0.5,red:1.8,stepWalk:1,stepSkate:2,outHold:0.5,
+  skimV:16,stepEase:10,skimKeep:9,qbV:61,qbT:0.18,qbCD:0.35,qbEN:20,qbDec:0.35,enMax:100,enRegen:45,enDelay:0.5,red:1.8,stepWalk:1,stepSkate:2,outHold:0.5,
   ramV:15,plow:24,
   // (the assault boost: a charge-up, then a long straight dash where you aim, up or down too, steering slowly; the kick:
   // pressed again with a target this near, a flying kick at it; the impact meter that staggers it; repair kits)
@@ -96,6 +96,8 @@ function mgFits(x,y,z){const r=MG.r,y0=Math.floor(y+0.05),y1=Math.floor(y+MG.hy)
 // keeps clear, its edges and corners too: felt any narrower, a step its body had already run into wasn't under its feet
 // yet, so walking up to one slowly it was moved into it instead of up on to it, and stuck there)
 function mgGround(x,z,y,M){const r=MG.r;let g=-1;for(const ox of [-r,0,r])for(const oz of [-r,0,r])g=Math.max(g,groundAt(x+ox,z+oz,y-0.9));
+  // (boost skating fast enough, the water's surface holds it up like ground: mgSkims says when. M.skim says it's on water)
+  if(M){M.skim=false;if(mgSkims(M)){const w=mgWaterTop(x,z,y);if(w>g){g=w;M.skim=true;}}}
   // (and the top of any vehicle under it -- a boat, a train car, a plane, a tank, another Mobile Gear -- that's no higher
   // than y: it stands on that too. mgSup says which, so it can be carried along with it)
   mgSup=null;if(M)for(const L of [TRAIN_BOXES,PREV_BOXES])for(const B of L){const pr=B.proxy;if(pr===M.pr||B.soft||!pr.alive||B.top>y||B.top<=g)continue;
@@ -103,6 +105,11 @@ function mgGround(x,z,y,M){const r=MG.r;let g=-1;for(const ox of [-r,0,r])for(co
     if(boxesTouch(x,z,0,r,r,B.x,B.z,Math.atan2(B.tx,B.tz),bx,bz)){g=B.top;mgSup=pr;}}
   return g;}
 let mgSup=null;
+// skating across water: boost on (or a quick boost or an assault boost under way) and going at least MG.skimV, or
+// MG.skimKeep once it's already on the water, so easing off a little doesn't drop it straight in
+function mgSkims(M){if(M.dead||!(M.boostOn||M.qbT>0||M.ab&&M.ab.ph==='go'))return false;return Math.hypot(M.vx,M.vz)>=(M.skim?MG.skimKeep:MG.skimV);}
+// the top of the water under its middle, if the first thing below its feet is water (else -1)
+function mgWaterTop(x,z,y){const xi=Math.floor(x),zi=Math.floor(z);for(let yy=Math.min(H-1,Math.floor(y+0.3));yy>=Math.max(0,Math.floor(y-3));yy--){const b=get(xi,yy,zi);if(b===WATER)return yy+1;if(b!==AIR)return -1;}return -1;}
 // would it overlap another vehicle there (a train, plane, boat, ride car, tank, helicopter or another Mobile Gear)?
 // (TRAIN_BOXES has only what's moved so far this frame, so last frame's are checked too: PREV_BOXES, kept by
 // updateVenues. Without them anything updated after the Mobile Gears, such as boats, would be passed through)
@@ -191,7 +198,7 @@ function mechIdle(M,dt){mgDisarm(M,dt);M.boostOn=false;M.asc=false;M.airB=false;
   if(M.enIdle>=MG.enDelay)M.en=Math.min(MG.enMax,M.en+MG.enRegen*dt);
   const k=Math.min(1,dt*6);M.vx-=M.vx*k;M.vz-=M.vz*k;mgMove(M,dt,MG.stepWalk);}
 // moving it: across (a side at a time, so it slides along a wall), up a step if it's low enough, then up or down
-function mgMove(M,dt,step){
+function mgMove(M,dt,step){const y0=M.y,g0=M.grounded;
   if(M.onPr&&M.onP&&M.onPr.alive){const P=M.onPr.pos,dx=P.x-M.onP[0],dz=P.z-M.onP[2];   // (riding a vehicle it's standing on)
     if(Math.abs(dx)+Math.abs(dz)<5&&(dx||dz)&&mgFits(M.x+dx,M.y,M.z+dz)){M.x+=dx;M.z+=dz;M.y+=Math.max(0,P.y-M.onP[1]);}}
   const sp0=Math.hypot(M.vx,M.vz),tryTo=(nx,nz)=>{
@@ -219,6 +226,11 @@ function mgMove(M,dt,step){
     M.y=Math.min(ny,H+80);}
   // (stood on a vehicle: remember where it is, so next step it's carried along by however far that's moved)
   M.onPr=M.grounded&&sup&&sup.pos?sup:null;if(M.onPr)M.onP=[sup.pos.x,sup.pos.y,sup.pos.z];
+  {const d=M.y-y0;if(g0&&M.grounded&&Math.abs(d)>0.3&&Math.abs(d)<=2.2)M.dy=Math.max(-2.2,Math.min(2.2,(M.dy||0)-d));}   // (a step up or down: eased in mechPose)
+  // (skating on water: spray thrown up behind each foot; dropping in when it slows, a splash)
+  if(M.grounded&&M.skim){if(Math.random()<dt*30)puff(M.x-M.vx*0.05+(Math.random()-0.5)*2.4,M.y+0.2,M.z-M.vz*0.05+(Math.random()-0.5)*2.4,2,0xdff0ff,0.9);M.wasSkim=true;}
+  else if(M.wasSkim&&!M.grounded){M.wasSkim=false;puff(M.x,M.y+0.3,M.z,14,0xcfe8ff,2);if(audio)sfx('Mobile Gear splash',()=>noise(0.5,0.3,800,'lowpass'));}
+  else if(M.grounded)M.wasSkim=false;
 }
 // knocking a hole in what's in front of it, as wide and tall as itself and deeper the faster it's going (the same
 // wreckage as a tank ramming: the blocks fly, and a building that loses enough comes down). Returns how many broke
@@ -337,7 +349,10 @@ function mgLeg(L,dx,dy,dz,bp,br){
 // you're looking at; and the thrusters burning on the side away from where it's headed
 function mechPose(M,dt){
   const J=M.J,g=M.g,sp=Math.hypot(M.vx,M.vz),h=M.h,ch=Math.cos(h),sh=Math.sin(h),ease=(k,t,r)=>k+(t-k)*Math.min(1,dt*r);
-  g.position.set(M.x,M.y,M.z);if(M.pos)M.pos.set(M.x,M.y,M.z);else M.pos=new V3(M.x,M.y,M.z);
+  // (stepping up or down while it's on the ground, the picture is eased over the step rather than jumping: M.dy, set by
+  // mgMove. Without it skating over bushes and one-block bumps shook it up and down several times a second)
+  M.dy=(M.dy||0)*Math.exp(-dt*MG.stepEase);if(Math.abs(M.dy)<0.002)M.dy=0;const Y=M.y+M.dy;
+  g.position.set(M.x,Y,M.z);if(M.pos)M.pos.set(M.x,M.y,M.z);else M.pos=new V3(M.x,M.y,M.z);
   if(M.dead){g.rotation.set(0.12,h,0.2,'YXZ');return;}
   g.rotation.set(0,h,0);
   // (which way it's going in the legs' own frame: ux to its left, uz ahead)
@@ -398,8 +413,8 @@ function mechPose(M,dt){
     // foot stays up rather than reaching for the bottom, and it eases there either way: quickly up, slower down. Once
     // it's left the ground, level with where it was; pushing off, where it pushed from)
     const wx=M.x+gx*ch+gz*sh,wz=M.z-gx*sh+gz*ch;let fg=0;
-    if(push>0&&!M.grounded)fg=Math.max(-0.6,M.jy0-M.y);
-    else if(M.grounded){fg=Math.min(1.1,groundAt(wx,wz,M.y+1.2)-M.y);if(fg<-1.05)fg=-0.25;}
+    if(push>0&&!M.grounded)fg=Math.max(-0.6,M.jy0-Y);
+    else if(M.grounded){fg=Math.min(1.1,groundAt(wx,wz,M.y+1.2)-M.y)-M.dy;if(fg<-1.05-M.dy)fg=-0.25;}
     M.fy[j]=push>0&&!M.grounded?fg:ease(M.fy[j],fg,fg>M.fy[j]&&M.grounded?30:7);const gy=M.fy[j]+0.04+lift;
     // (in the air: legs nearly straight, swept well back from the way it's flying: most of the way by walking speed,
     // the rest as boosted flight builds to full speed; the feet rise a little as they swing back so the legs stay in

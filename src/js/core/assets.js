@@ -275,7 +275,7 @@ function assetCheck(kind,name,a){
         if(!v||typeof v!=='object'){E.push('model.'+j+' must be a list or {at, own}');continue;}
         const at=v.at;if(!at||!v3(at.p)||at.r!==undefined&&!v3(at.r)||at.k!==undefined&&!(n(at.k)&&at.k>0))E.push('model.'+j+'.at needs p, and r and k (above 0) if given');
         if(v.own!==undefined){if(!Array.isArray(v.own))E.push('model.'+j+'.own must be a list');else v.own.forEach((b,i)=>box(b,'model.'+j+'.own['+i+']'));}
-        else if(!Array.isArray(M.boxes))E.push('model.'+j+' uses the shared shape, but model.boxes is missing');}}   // (boxes sharing a tag move together: the bazooka's rocket)
+        else if(!Array.isArray(M.boxes))E.push('model.'+j+' uses the shared shape, but model.boxes is missing');}}   // (boxes sharing a tag move together: the rocket launcher's rocket)
     if(M&&M.fore&&!(v3(M.fore.p)&&v3(M.fore.r)))E.push('model.fore needs p and r');
     for(const s of ['dmg','every','range','r','reach','R','mag','reload','grav','lob','nuke','spare'])if(a[s]!==undefined&&!(n(a[s])&&a[s]>=0))E.push(s+' must be a number, 0 or more');
     if(a.hit)assetCheckHit(a.hit,'hit',E);

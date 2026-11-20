@@ -315,7 +315,7 @@ function gobCamera(p){
 }
 // a gun in your own view (each gun's player.vm: where it's held, how much it kicks up and back): kicking when it fires;
 // its bolt, pump or slide worked after a shot (player.cycle); reloaded (player.rl, a timeline in strikes.js added to where
-// it's held, its magazine or rocket out and back in); a rocket on the bazooka only while it's loaded
+// it's held, its magazine or rocket out and back in); a rocket on the rocket launcher only while it's loaded
 const GOB_VM={x:0.34,y:-0.46,z:-0.5,kick:0.22,back:0.12};
 function gobViewGun(p,K,wk,sw,up,bob){
   const W=WEAPONS[wk],P=W.player,M=P.vm||GOB_VM,kick=p.biteT>0?Math.max(0,1-sw*4):0,T=K.tags[wk]||{};

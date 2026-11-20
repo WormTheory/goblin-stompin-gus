@@ -68,7 +68,7 @@ const SHOTS=[],SHOT_LOOK={grenade:[[0.24,0.24,0.24],0x3a4a22],shell:[[0.28,0.28,
 function shot(o){
   let S=SHOTS.find(q=>!q.live&&q.kind===o.kind);
   if(!S){const L=SHOT_LOOK[o.kind],m=new THREE.Mesh(FB_GEO,SHOT_M[o.kind]||(SHOT_M[o.kind]=new THREE.MeshLambertMaterial({color:L[1]})));m.scale.set(...L[0]);m.visible=false;scene.add(m);S={kind:o.kind,g:m,pos:new V3(),v:new V3(),live:false};SHOTS.push(S);}
-  Object.assign(S,{grav:o.grav,fuse:o.fuse??9,R:o.R,dmg:o.dmg,cause:o.cause,by:o.by||null,bounce:!!o.bounce,t:0,live:true,trail:0,crush:o.crush||0,vd:o.vd,own:o.own||null,ap:!!o.ap,hitB:false,tgt:o.tgt||null,chase:o.chase||null,at:o.at||null,sp:o.sp||0,turn:o.turn||0,skipP:o.skipP||null,gobs:!!o.gobs,bb:o.bb||0});   // (skipP: the player who fired it, not hit by it as it leaves; gobs: it goes off on a goblin it reaches, a bazooka's; bb: a nuke's big blast, its reach)
+  Object.assign(S,{grav:o.grav,fuse:o.fuse??9,R:o.R,dmg:o.dmg,cause:o.cause,by:o.by||null,bounce:!!o.bounce,t:0,live:true,trail:0,crush:o.crush||0,vd:o.vd,own:o.own||null,ap:!!o.ap,hitB:false,tgt:o.tgt||null,chase:o.chase||null,at:o.at||null,sp:o.sp||0,turn:o.turn||0,skipP:o.skipP||null,gobs:!!o.gobs,bb:o.bb||0});   // (skipP: the player who fired it, not hit by it as it leaves; gobs: it goes off on a goblin it reaches, a rocket launcher's; bb: a nuke's big blast, its reach)
   S.pos.set(o.x,o.y,o.z);S.v.set(o.vx,o.vy,o.vz);S.g.position.copy(S.pos);S.g.visible=true;return S;
 }
 // a blast: the flash, smoke and noise, everyone near it hurt (less at the edge) and thrown, goblins too, maybe a crater

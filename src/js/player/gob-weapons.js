@@ -50,9 +50,10 @@ function gobShoot(p){
   // (a round out of the magazine: its count, kept per weapon (gobAmmo))
   if(W.mag){const n=gobAmmo(p,wk);if(n<=0)return;if(!DT.infAmmo)p.ammo[wk]=n-1;}   // (the debug menu's Infinite ammo: none used up)
   p.shotT=camClock;p.shotN=(p.shotN||0)+1;
-  // a bazooka's rocket: off the shoulder, along the view, bursting on whatever it meets (shots.js); it can't go off on
-  // you as it leaves (skipP)
-  if(W.proj){shot({kind:W.proj,x:c.x+dx*1.1+rx*0.22,y:c.y-0.08+dy*1.1,z:c.z+dz*1.1+rz*0.22,vx:dx*W.speed,vy:dy*W.speed+(W.lob||0),vz:dz*W.speed,grav:W.grav||0,fuse:W.range/W.speed+0.5,
+  // a rocket: off the shoulder, along the view, bursting on whatever it meets (shots.js); it can't go off on you as it
+  // leaves (skipP). The rocket launcher's, locked on a vehicle (gobSeek, or the lock button), homes in on it (shotSteer)
+  if(W.proj){const LK=WEAPONS[wk].lock,T=LK&&p.lockT&&lockAlive(p.lockT)&&isVehT(p.lockT)?p.lockT:null;
+    shot({kind:W.proj,tgt:T,sp:T?LK.sp:0,turn:T?LK.turn:0,x:c.x+dx*1.1+rx*0.22,y:c.y-0.08+dy*1.1,z:c.z+dz*1.1+rz*0.22,vx:dx*W.speed,vy:dy*W.speed+(W.lob||0)+(T?LK.loft||0:0),vz:dz*W.speed,grav:W.grav||0,fuse:W.range/W.speed+0.5,
       R:W.R,dmg:W.dmg,cause:W.cause,by:pvpBy(p),crush:W.crush,vd:W.vd,skipP:p,gobs:true,bb:W.nuke});   // (a nuke launcher's drops a little and lands in a big blast)
     wpnCrack(wk);smoke(c.x-dx*0.9+rx*0.22,c.y-0.1,c.z-dz*0.9+rz*0.22,3,0xbababa);}   // (and its backblast)
   else{
@@ -161,10 +162,31 @@ function gobPickupsClear(){for(const P of PICKUPS){P.live=false;P.m.visible=fals
 // it: the view zoomed to its fov (minimap.js draws it at p.scFov), the sight drawn over the view and the gun out of sight
 // (gobArmsHud, the view model in pivots.js), the look slowed to match (scopeK, input.js). Worked out where the view's
 // drawn, from that player's own controls, so an online guest's comes at once. Not while reloading, climbing or driving
-function gobScope(p){const t=camClock,dt=Math.min(0.1,Math.max(0,t-(p.scT??t)));p.scT=t;
+function gobScope(p){const t=camClock,dt=Math.min(0.1,Math.max(0,t-(p.scT??t)));p.scT=t;gobSeek(p,dt);
   const sc=gobW(p).scope,want=!!(sc&&p.in&&p.in.stomp&&!(p.relT>0)&&!p.drv&&p.state!=='dead'&&p.state!=='climb'&&!p.paused);
   p.scope=Math.max(0,Math.min(1,(p.scope||0)+(want?1:-1)*dt/((sc&&sc.in)||0.15)));
   const e=p.scope*p.scope*(3-2*p.scope);p.scFov=p.scope>0&&sc?72+(sc.fov-72)*e:0;}
+// what a rocket launcher can lock on to: a vehicle (a car, a tank or helicopter, a carrier's deck weapon or jet, another
+// player's vehicle with PvP on), not a goblin or a player on foot
+const isVehT=t=>isCarT(t)||isMilT(t)||!!(t&&(t.isMountT||t.isJetT))||isPlT(t)&&!!t.drv;
+// the rocket launcher's seeker: with its sight up (stomp held), the vehicle nearest the crosshair, in sight and within
+// its lock's cone and range, is tracked (the lock marker on it, amber, closing in) for lock.t seconds with a growl, then
+// locked: the ordinary lock-on (setLock), so a rocket fired now homes in on it. Looking away starts it again
+function gobSeek(p,dt){const W=WEAPONS[gobArms(p).wpn],LK=W&&W.lock,S=p.rlS||(p.rlS={t:null,k:0,b:0});
+  const off=()=>{if(S.t&&!p.lockT&&p.lockMark)p.lockMark.visible=false;S.t=null;S.k=0;};
+  const mk=c=>{const m=lockMarker(p);for(const o of m.children)o.material.color.setHex(c);return m;};
+  if(!LK||!p.gob||p.drv||p.state==='dead'||!(p.scope>0.9)||p.lockT&&isVehT(p.lockT)){if(S.t)off();if(p.lockMark&&p.lockMark.visible&&p.lockT)mk(0xff2a2a);return;}
+  const c=shipEye(p),cp=Math.cos(p.cam.pitch),fx=-Math.sin(p.cam.yaw)*cp,fy=Math.sin(p.cam.pitch),fz=-Math.cos(p.cam.yaw)*cp;let best=null,bs=1e9;
+  for(const o of lockTargets(p,LK.range)){if(!isVehT(o.t)||o.hid)continue;const ty=lockY(o.t),dx=o.t.pos.x-c.x,dy=ty-c.y,dz=o.t.pos.z-c.z,L=Math.hypot(dx,dy,dz)||1,
+      a=Math.acos(Math.max(-1,Math.min(1,(dx*fx+dy*fy+dz*fz)/L)))-Math.atan((isMilT(o.t)?MIL[o.t.kind].hz:1)/L);if(a>LK.cone)continue;
+    const sc=Math.max(0,a)*80+L*0.02;if(sc<bs){bs=sc;best=o.t;}}
+  if(!best){off();return;}
+  if(p.lockT)setLock(p,null);   // (a goblin locked on foot gives way to the vehicle in the sight)
+  if(best!==S.t){S.t=best;S.k=0;S.b=0;}
+  S.k+=dt/LK.t;S.b-=dt;if(S.b<=0){S.b=0.18;tone('square',520+S.k*500,520+S.k*500,0.06,0.025);}
+  if(S.k>=1){const T=S.t;S.t=null;S.k=0;mk(0xff2a2a);setLock(p,T);tone('square',1100,1100,0.35,0.035);return;}
+  const m=mk(0xffb030),ty=lockY(best),cam=p.camera.position;m.visible=true;m.position.set(best.pos.x,ty,best.pos.z);
+  m.scale.setScalar(Math.max(0.55,Math.hypot(best.pos.x-cam.x,ty-cam.y,best.pos.z-cam.z)*0.05)*(isMilT(best)?2:1)*(1+(1-S.k)*1.5));}
 // (how much the look's slowed: the zoomed field of view against the usual)
 const scopeK=p=>p.gob&&!p.drv&&p.scFov?p.scFov/72:1;
 function gobArmsHud(p){
@@ -177,7 +199,7 @@ function gobArmsHud(p){
     const ln='position:absolute;background:rgba(0,0,0,.85);';let h='<div style="'+ln+'left:12%;right:12%;top:50%;height:2px;margin-top:-1px"></div><div style="'+ln+'top:12%;bottom:12%;left:50%;width:2px;margin-left:-1px"></div>';
     for(let k=1;k<=4;k++)h+='<div style="'+ln+'left:50%;top:calc(50% + '+(k*3.2)+'%);width:'+(k%2?10:16)+'px;height:2px;margin-left:-'+(k%2?5:8)+'px"></div>';
     s.innerHTML=h;p.ui.view.insertBefore(s,p.ui.view.firstChild||null);H.sc=s;}
-  const scoped=show&&(p.scope||0)>0.5;H.sc.hidden=!scoped;
+  const scoped=show&&(p.scope||0)>0.5&&gobW(p).scope.ring!==false;H.sc.hidden=!scoped;   // (the rocket launcher's sight has no ring: just the crosshair, zoomed)
   H.el.hidden=!show;H.xh.hidden=!show||scoped||!gobAims(gobArms(p).wpn);if(!show)return;
   const bl=id=>actMark(p,id),L=GOB_WPN_ORDER.filter(k=>p.wpns.includes(k)),W=WEAPONS[p.wpn];
   // (what's in hand in bold: a gun with what's left in its magazine, reloading, or a reload asked for when it's empty;
@@ -185,6 +207,6 @@ function gobArmsHud(p){
   const nm=k=>GOB_WPN[k].name+(k==='landmine'?' ×'+(p.mines||0):''),n=W&&W.mag?gobAmmoShown(p,p.wpn):0;
   const sp=W&&W.mag?gobSpareShown(p,p.wpn):-1,cur=nm(p.wpn)+(W&&W.mag?(p.relT>0?'  reloading…':'  '+n+' / '+W.mag)+(sp>=0?'  +'+sp:''):''),
     rq=W&&W.mag&&!(p.relT>0)&&n<W.mag&&(sp!==0||DT.infAmmo)?'  '+bl('reload')+(n?' reload':' RELOAD'):'';
-  const s=L.map(k=>k===p.wpn?'<b>'+cur+'</b>':nm(k)).join(' · ')+rq+(L.length>1?'  '+bl('weapon')+' next':'')+'  |  Grenades '+p.gren+(gobW(p).scope?'  '+bl('stomp')+' scope (hold)':p.gren||DT.infAmmo?'  '+bl('stomp')+' throw':'');
+  const s=L.map(k=>k===p.wpn?'<b>'+cur+'</b>':nm(k)).join(' · ')+rq+(L.length>1?'  '+bl('weapon')+' next':'')+'  |  Grenades '+p.gren+(gobW(p).scope?'  '+bl('stomp')+(WEAPONS[p.wpn]&&WEAPONS[p.wpn].lock?' lock on (hold)':' scope (hold)'):p.gren||DT.infAmmo?'  '+bl('stomp')+' throw':'');
   if(H.s!==s){H.s=s;H.el.innerHTML=s.split(/(<b>[^<]*<\/b>)/).map(t=>t.startsWith('<b>')?'<b>'+glEsc(t.slice(3,-4))+'</b>':hudHTML(t)).join('');}
 }

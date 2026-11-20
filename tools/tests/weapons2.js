@@ -46,7 +46,7 @@ const STONE=3;
 for(const c of T.cars){c.alive=false;c.respawnT=1e9;}for(const g of T.goblins){g.state='wait';g.t=-1e9;g.hp=0;}
 A.hp=20;S(30);
 const X0=Math.floor(A.pos.x),Z0=Math.floor(A.pos.z),F=70;
-// (the floor, put back after each blast: a crater left by the bazooka or a mine would swallow the next drop)
+// (the floor, put back after each blast: a crater left by the rocket launcher or a mine would swallow the next drop)
 const floor=()=>{for(let x=X0-24;x<=X0+24;x++)for(let z=Z0-30;z<=Z0+30;z++){for(let y=F-4;y<F;y++)if(!T.get(x,y,z))T.setRaw(x,y,z,STONE);for(let y=F;y<F+24;y++)if(T.get(x,y,z))T.setRaw(x,y,z,0);}};floor();
 const home=(yaw=Math.PI)=>{A.pos.set(X0+.5,F,Z0+.5);A.vy=0;A.state='walk';A.cam.yaw=yaw;A.cam.pitch=0;A.heading=yaw+Math.PI;A.hp=20;A.mvx=A.mvz=0;A.relT=0;A.biteT=0;A.biteCD=0;};
 const press=(n,k='Mouse0')=>{T.mHeld.add(k);S(n);T.mHeld.delete(k);};
@@ -56,7 +56,7 @@ for(const g of T.goblins){g.state='wait';g.root.visible=false;}
 const foe=(k,d,hp,dx=0)=>{const g=T.freeFoe(k,8);T.foeSpawn(g,k,null,0);g.pos.set(A.pos.x+dx,F,A.pos.z+d);g.heading=Math.PI;g.gunCD=g.bombCD=g.mineCD=1e9;g.stun=0;g.kv.set(0,0,0);if(hp)g.hp=hp;return g;};
 const freeze=()=>{for(const g of T.goblins)if(g.state==='chase'){g.gunCD=g.bombCD=g.mineCD=1e9;g.kv.set(0,0,0);g.stun=9;}};
 const killAll=()=>{for(const g of T.goblins)if(g.state==='chase'||g.state==='dead'){g.state='wait';g.root.visible=false;}for(const P of T.PICKUPS){P.live=false;P.m.visible=false;}for(const Q of T.SHOTS){Q.live=false;Q.g.visible=false;}E('minesClear()');floor();};
-const W=T.WEAPONS,NEW=['bigclub','katana','shotgun','arifle','sniper','bazooka','landmine'],GUNS=Object.keys(W).filter(k=>W[k].kind==='gun');
+const W=T.WEAPONS,NEW=['bigclub','katana','shotgun','arifle','sniper','launcher','landmine'],GUNS=Object.keys(W).filter(k=>W[k].kind==='gun');
 const ammo=k=>E('gobAmmo')(A,k);
 const arm=()=>{A.wpns=E('GOB_WPN_ORDER').slice();A.mines=6;A.gren=0;A.ammo={};A.relT=0;};
 const hint=()=>E('bindHint')(false,A).replace(/⟦([^⟧]*)⟧/g,'[$1]');
@@ -80,10 +80,10 @@ for(const k of GUNS){home();arm();A.wpn=k;S(20);const w=W[k];let shots=0,t=0;
 {home();arm();A.wpn='arifle';S(20);const g=foe('thief',10,99);freeze();const a=ammo('arifle');T.mHeld.add('Mouse0');S(60);T.mHeld.delete('Mouse0');S(5);
  console.log('assault rifle held a second: fired',a-ammo('arifle'),', a thief 10 ahead took',99-g.hp,', the view climbed',f(A.cam.pitch,3),'rad');killAll();}
 {home();arm();A.wpn='sniper';S(20);const g=foe('thief',28,9);freeze();press(2);S(30);console.log('sniper at a thief 28 ahead (9 hp):',9-g.hp,'damage, dead',g.state==='dead');killAll();}
-{home();arm();A.wpn='bazooka';S(20);const g=foe('thief',12,9),g2=foe('thief',13,9,1.4);freeze();press(2);S(2);const R=T.SHOTS.find(Q=>Q.live&&Q.kind==='rocket');S(60);
- console.log('bazooka at a thief 12 ahead: rocket',!!R,', thief hp 9 ->',g.hp,', one beside it ->',g2.hp,', my hp',A.hp,', loaded',ammo('bazooka'),', reloading',A.relT>0);killAll();}
-{home();arm();A.wpn='bazooka';S(20);for(let y=0;y<3;y++)for(let v=-2;v<=2;v++)T.setRaw(X0+v,F+y,Z0+4,STONE);press(2);S(40);
- console.log('bazooka at a wall 4 ahead: blocks left of 15:',[0,1,2].reduce((s,y)=>s+[-2,-1,0,1,2].filter(v=>T.get(X0+v,F+y,Z0+4)).length,0),', my hp',A.hp);
+{home();arm();A.wpn='launcher';S(20);const g=foe('thief',12,9),g2=foe('thief',13,9,1.4);freeze();press(2);S(2);const R=T.SHOTS.find(Q=>Q.live&&Q.kind==='rocket');S(60);
+ console.log('launcher at a thief 12 ahead: rocket',!!R,', thief hp 9 ->',g.hp,', one beside it ->',g2.hp,', my hp',A.hp,', loaded',ammo('launcher'),', reloading',A.relT>0);killAll();}
+{home();arm();A.wpn='launcher';S(20);for(let y=0;y<3;y++)for(let v=-2;v<=2;v++)T.setRaw(X0+v,F+y,Z0+4,STONE);press(2);S(40);
+ console.log('launcher at a wall 4 ahead: blocks left of 15:',[0,1,2].reduce((s,y)=>s+[-2,-1,0,1,2].filter(v=>T.get(X0+v,F+y,Z0+4)).length,0),', my hp',A.hp);
  killAll();}
 // landmines
 {home();arm();A.wpn='landmine';S(20);press(2);S(130);const M=E('MINES').filter(m=>m.live);console.log('plant a landmine: mines 6 ->',A.mines,', in the ground',M.length,', armed after',W.landmine.arm,'s:',!!M[0]&&M[0].armed);
@@ -104,7 +104,7 @@ for(const k of GUNS){home();arm();A.wpn=k;S(20);const w=W[k];let shots=0,t=0;
 // his own view through a reload: the magazine out and back, the rocket gone once fired and back once reloaded
 {home();arm();A.wpn='rifle';S(20);A.ammo.rifle=0;tap('KeyX',1);let lo=0,hid=false;while(A.relT>0){S(1);const T2=A.gb.tags.rifle.mag;lo=Math.min(lo,T2.position.y);if(!T2.visible)hid=true;}S(2);
  console.log('rifle reload, first person: magazine down to',f(lo),', out of sight',hid,', home again',A.gb.tags.rifle.mag.position.y===0&&A.gb.tags.rifle.mag.visible);
- A.wpn='bazooka';S(20);const L=A.gb.tags.bazooka.load;A.biteCD=0;S(2);const v0=L.visible;press(2);S(3);const v1=L.visible;S(30);while(A.relT>0)S(1);S(2);console.log('bazooka rocket shown: loaded',v0,', fired',v1,', reloaded',L.visible);
+ A.wpn='launcher';S(20);const L=A.gb.tags.launcher.load;A.biteCD=0;S(2);const v0=L.visible;press(2);S(3);const v1=L.visible;S(30);while(A.relT>0)S(1);S(2);console.log('launcher rocket shown: loaded',v0,', fired',v1,', reloaded',L.visible);
  A.wpn='shotgun';A.biteCD=0;S(20);press(2);let pm=0;for(let i=0;i<40;i++){S(1);pm=Math.max(pm,A.gb.tags.shotgun.pump.position.z);}console.log('shotgun pump racked back',f(pm),'after a shot');
  A.wpn='sniper';A.biteCD=0;S(20);press(2);let bz=0;for(let i=0;i<70;i++){S(1);bz=Math.max(bz,A.gb.tags.sniper.bolt.position.z);}console.log('sniper bolt drawn back',f(bz),'after a shot');
  A.wpn='handgun';A.biteCD=0;S(20);T.mHeld.add('Mouse0');let sl=0;for(let i=0;i<10;i++){S(1);sl=Math.max(sl,A.gb.tags.handgun.slide.position.z);}T.mHeld.delete('Mouse0');console.log('handgun slide back',f(sl),'as it fires');}

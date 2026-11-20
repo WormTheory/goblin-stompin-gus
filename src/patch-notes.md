@@ -29,6 +29,26 @@
 - One warhead in the tube and two spares, with a long reload. Once the spares are gone it's empty, unless Infinite ammo is on. The weapon bar shows how many spares are left.
 - The debug menu has a Nuke strength slider to make its blast smaller or bigger, up to the size of a meltdown.
 
+### Rocket Launcher
+
+- The bazooka is gone, replaced by the Rocket Launcher, an anti-tank launcher with a sight. Fired as it is, its rocket flies straight and bursts on whatever it hits.
+- Hold stomp to look down its sight. Keep a vehicle in the middle of it and the launcher growls as it tracks it, then locks on with a steady tone. A rocket fired while locked flies up and homes in on that vehicle, even if you've turned away or it moves.
+- A car locked on with the lock button counts too.
+- It hits vehicles harder than the bazooka did. A Loadout that had the bazooka switched on now has the Rocket Launcher.
+- An enemy firing one at you while you're driving locks on to your vehicle and its rocket chases you.
+
+### Swimming
+
+- You now float at the surface instead of slowly sinking, so there's no need to keep paddling to stay up.
+- Hold climb (C, controller LB) to dive, and let go to bob back up. Near a wall it still grabs on and climbs.
+- A stroke at the surface throws you up far enough to climb out on to a one-block ledge.
+- Gnash and Grizzle can now paddle upward with jump in the water, as Gus and Gertie do.
+
+### Mobile Gear on water
+
+- Boost skating fast enough, the Mobile Gear skims across water, throwing up spray. Slow down, or switch the boost off, and it drops in with a splash.
+- Skating over bushes and one-block bumps no longer shakes it up and down. It now eases over each step.
+
 ### Lighting
 
 - At night, lights now light up what's around them. Street lamps pool light on the pavement, neon signs throw their own colours across the street, lit windows glow on the walls and rooms beside them, and lamps, TVs and screens light the rooms they're in. Walls block the light, so it stays in the room or the street it's in. Smash a lamp or a sign and its light goes out.

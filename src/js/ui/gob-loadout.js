@@ -9,8 +9,9 @@ const GLOAD_KEY='goblin-stompin-gus-gob-loadout',GLOAD2_KEY='goblin-stompin-gus-
 // (as a goblin was before there was a choice: just his club, no grenades)
 const gloadDef=()=>{const w={},L={w};for(const k of GOB_PICK)w[k]=k==='club';for(const k of GOB_STACKS)L[stkField(k)]=0;return L;};
 // (mended: only weapons we know, a whole number of grenades in range, and never nothing in hand: the club, then)
+// (a saved loadout from before the rocket launcher took the bazooka's place carries its switch over)
 function gloadFix(L){const D=gloadDef();if(!L||typeof L!=='object')return D;
-  const w=L.w&&typeof L.w==='object'?L.w:{};for(const k of GOB_PICK)D.w[k]=typeof w[k]==='boolean'?w[k]:D.w[k];
+  const w=L.w&&typeof L.w==='object'?Object.assign({},L.w):{};if(typeof w.bazooka==='boolean'&&w.launcher===undefined)w.launcher=w.bazooka;for(const k of GOB_PICK)D.w[k]=typeof w[k]==='boolean'?w[k]:D.w[k];
   if(!GOB_PICK.some(k=>D.w[k]))D.w.club=true;
   for(const k of GOB_STACKS){const f=stkField(k);D[f]=Math.max(0,Math.min(stkMax(k),Math.round(+L[f])||0));}return D;}
 function gloadRead(key){try{const s=localStorage.getItem(key);return s?gloadFix(JSON.parse(s)):null;}catch(e){return null;}}

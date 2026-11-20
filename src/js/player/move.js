@@ -1,4 +1,5 @@
 const SWIM_HOLD=0.35;   // (holding jump in the water: seconds between paddle strokes upward)
+const SWIM={float:0.2,rise:3.5,dive:3.5,out:7.5};   // (afloat his feet sit float above the top water block's floor, so his back's out; rising and diving speeds; a stroke at the surface throws him out at out, enough for a one-block ledge)
 // The hippos' timed animations are keyframed clips (src/assets/clips/hip*.json, layout 'hippo', made in the editor's
 // Hippo tab): hipAt(name,u) gives every channel at u (0 to 2 over the move's own length) in the layout's order, HC naming
 // the places. The steady poses that follow what he's doing (walking, the jump, swimming, climbing) are still sums here.
@@ -104,7 +105,7 @@ function movePlayer(p,dt){
   if(p.dodge&&inp.jumpPress&&p.dodge.combo&&p.dodge.t<LJ_GRACE&&ABIL.longJump&&(inp.x||inp.z)&&p.state==='walk'){
     p.dodge=null;p.sinceDodge=9;p.coyote=Math.max(p.coyote||0,0.1);p.ljNowT=camClock;p.qJump=Math.max(p.qJump,0.1);}
   else if(p.dodge&&inp.jumpPress)p.qJump=Math.max(p.qJump,p.dodge.dur-p.dodge.t+0.15);
-  if(p.qJump>0&&p.state==='walk'&&!p.dodge&&!comboLock&&!((p.sinceDodge??9)<0.3&&!p.grounded)&&(p.grounded||p.coyote>0||p.airJumps>0)){p.qJump=0;wantJump=true;}
+  if(p.qJump>0&&p.state==='walk'&&!p.dodge&&!comboLock&&!((p.sinceDodge??9)<0.3&&!p.grounded)&&(p.grounded||p.coyote>0||p.airJumps>0||p.wet)){p.qJump=0;wantJump=true;}   // (in the water a stroke needs no air jump left: Gnash has none)
   if(p.qStomp>0&&!busy&&p.grounded){p.qStomp=0;wantStomp=true;}
   let pitch=0,jawOpen=0,moving=false,tremble=0,charging=false;p.sprinting=false;
   // the bite lunges forward, then the jaws land
@@ -141,7 +142,7 @@ function movePlayer(p,dt){
         sfx('Long jump',()=>{grunt(p,true);thud(0.12);});rumble(p,0.3,120);puff(p.pos.x-hx*1.2,p.pos.y+0.2,p.pos.z-hz*1.2,8,0xb8b2a6,0.6);
         p.blastJ=BL;p.blastAt=null;if(BL)blastOff(p,hx,hz);
       }
-      else if(p.wet&&!p.grounded){const bb=boatBeside(p);p.vy=Math.max(p.vy,bb?Math.sqrt(50*(bb.top-p.pos.y+1)):4.2);if(bb){p.mvx=(bb.x-p.pos.x)/Math.hypot(bb.x-p.pos.x,bb.z-p.pos.z||1)*5;p.mvz=(bb.z-p.pos.z)/Math.hypot(bb.x-p.pos.x,bb.z-p.pos.z||1)*5;}p.hopT=0.1;puff(p.pos.x,p.pos.y+0.5,p.pos.z,4,0xcfe8ff,0.5);}   // swimming: a paddle stroke upward
+      else if(p.wet&&!p.grounded){const bb=boatBeside(p);p.vy=Math.max(p.vy,bb?Math.sqrt(50*(bb.top-p.pos.y+1)):p.swimTop!=null&&p.pos.y>p.swimTop+SWIM.float-0.5?SWIM.out:4.2);if(bb){p.mvx=(bb.x-p.pos.x)/Math.hypot(bb.x-p.pos.x,bb.z-p.pos.z||1)*5;p.mvz=(bb.z-p.pos.z)/Math.hypot(bb.x-p.pos.x,bb.z-p.pos.z||1)*5;}p.hopT=0.1;puff(p.pos.x,p.pos.y+0.5,p.pos.z,4,0xcfe8ff,0.5);}   // swimming: a paddle stroke upward
       else if(p.grounded||p.coyote>0){hbStart(p,'jump');p.vy=AB.jump.launch;p.grounded=false;p.coyote=0;p.airBiteCD=0;p.hopT=0.12;p.airJumps=airJumpsMax();sfx('Jump',()=>{grunt(p,false);thud(0.08);});}
       else if(p.airJumps>0){
         // double jump: a second kick in mid-air with a full twirl and a puff of air underneath
@@ -552,7 +553,10 @@ function movePlayer(p,dt){
   // in deep water: you sink slowly, can paddle up with jump, and the water breaks any fall
   const wet=get(Math.floor(p.pos.x),Math.floor(p.pos.y+0.6),Math.floor(p.pos.z))===WATER;
   if(wet&&!p.wet){puff(p.pos.x,p.pos.y+0.8,p.pos.z,12,0xcfe8ff,1.2);sfx('Splash',()=>{noise(0.4,0.35,900,'lowpass');tone('sine',300,120,0.25,0.06);});}
-  p.wet=wet;if(wet){p.peakY=p.pos.y;p.airJumps=airJumpsMax();p.airDash=true;}   // (the air dash comes back in the water, but can't be used until he's out of it)
+  p.wet=wet;if(wet){p.peakY=p.pos.y;p.airJumps=airJumpsMax();p.airDash=true;}
+  // (the top water block over him, so he floats at the surface; climb held dives, as long as there's no wall to cling to)
+  if(wet){const x=Math.floor(p.pos.x),z=Math.floor(p.pos.z);let t=Math.floor(p.pos.y+0.6);for(let k=0;k<48&&get(x,t+1,z)===WATER;k++)t++;p.swimTop=t;}else p.swimTop=null;
+  p.dive=wet&&p.state==='walk'&&!!p.in.climb;   // (the air dash comes back in the water, but can't be used until he's out of it)
   // (holding jump in the water keeps on paddling upward, a stroke every SWIM_HOLD seconds after the first)
   if(wet&&ABIL.jump&&p.in.jump&&!p.grounded&&p.state==='walk'){p.swimHoldT=(p.swimHoldT??SWIM_HOLD)-dt;if(p.swimHoldT<=0){p.swimHoldT=SWIM_HOLD;p.vy=Math.max(p.vy,4.2);puff(p.pos.x,p.pos.y+0.5,p.pos.z,4,0xcfe8ff,0.5);}}else p.swimHoldT=SWIM_HOLD;
   if(g!==null){
@@ -571,7 +575,13 @@ function movePlayer(p,dt){
       if(p.rocket&&p.longJump){p.longJump=false;p.blastJ=false;}
       if(p.rocket){p.vy+=25*dt+(ROCKET_RISE-p.vy)*Math.min(1,dt*2.2);if(!DT.infStam)p.stam=Math.max(0,p.stam-ROCKET_STAM*dt);p.peakY=p.pos.y;
         if(Math.random()<dt*14){const hx=Math.sin(p.heading),hz=Math.cos(p.heading),fx=(Math.random()<.5?-1:1)*0.45*ES,fz=(Math.random()<.5?-1:1)*0.7*ES;puff(p.pos.x+hz*fx+hx*fz,p.pos.y-0.3,p.pos.z-hx*fx+hz*fz,1,0x8a8680,0.3);}}
-      p.vy-=(wet?8:25)*dt;if(wet)p.vy=Math.max(p.vy,-4);p.pos.y+=p.vy*dt;p.grounded=false;
+      if(wet&&p.state==='walk'){
+        // swimming: bobbing at the surface, or diving with climb held (let go and he comes back up)
+        const want=p.dive?-SWIM.dive:Math.max(-4,Math.min(SWIM.rise,(p.swimTop+SWIM.float-p.pos.y)*3));
+        if(p.vy>want&&!p.dive)p.vy=Math.max(want,p.vy-8*dt);else p.vy+=(want-p.vy)*Math.min(1,dt*4);
+      }
+      else{p.vy-=(wet?8:25)*dt;if(wet)p.vy=Math.max(p.vy,-4);}
+      p.pos.y+=p.vy*dt;p.grounded=false;
       // ground-pounding or coming down hard: leaves, glass, awnings and furniture give way instead of catching you
       if(!p.gob&&g!==null&&p.pos.y<g&&(p.state==='pound'||p.vy<-11)){
         for(let k=0;k<4&&g!==null&&p.pos.y<g;k++){if(!smashSoftUnder(p,g))break;g=footprint(p);}
