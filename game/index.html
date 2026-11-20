@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:d3c801862660dd0ba8c6d3e0f68720071a83d4c555b25445aababe361c2e090e -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:a77c09257120bbdcbce202a53521352f4670cd29b2d4e8184c308e35badd69e7 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2332,7 +2332,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='a7237be53144';
+const GAME_VER='0.5',GAME_BUILD='0950271fcfe7';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -22592,9 +22592,9 @@ function bbFxTick(dt){
     // (once out, it keeps billowing: rolling over, climbing, spreading further and drifting off with the wind as it thins)
     const ring=R*1.1*(1-Math.exp(-T/1.6)),fade=1-bbSm(20,58,T),bil=bbSm(1.5,30,T);
     if(fade>0)for(let j=0;j<1200&&nc<BBF_N;j++){const o=(3000+j)*4,a=sd[o],b=sd[o+1],c=sd[o+2],d=sd[o+3],ph=T*(0.35+0.45*d)+a*40,ang=2*Math.PI*a+T*0.006*(b-0.5);
-      const r=ring*(1-0.18*b*Math.min(1,T/2))+R*0.02*(c-0.5)+R*0.22*bil*(0.25+0.75*b)+R*0.018*Math.sin(ph)*bil;
+      const r=ring*(1-0.4*b*b*Math.min(1,T/2))+R*0.09*(c-0.5)*(0.4+d)*Math.min(1,T/1.5)+R*0.22*bil*(0.25+0.75*b)+R*0.018*Math.sin(ph)*bil;
       const hh=R*0.045*(1-b)*(0.4+0.6*c)*(0.4+0.6*Math.exp(-T/8))+R*0.07*bil*c*(1.2+Math.cos(ph*0.8+d*6));_bbc.setHex(0xb3a48c);lit(bbVar(_bbc,a,b,d,0.06));if(T<1.2)_bbc.lerp(_bbc2.setRGB(1,1,1),1-T/1.2);
-      put(CL.x+Math.cos(ang)*r+CL.wx*bil*0.45,CL.y+hh*0.5,CL.z+Math.sin(ang)*r+CL.wz*bil*0.45,cube*1.1*(0.6+0.8*d)*(1+1.3*bil)*Math.sqrt(fade),_bbc,0.62*fade*(1-0.45*bil));}
+      put(CL.x+Math.cos(ang)*r+CL.wx*bil*0.45,CL.y+hh*0.5,CL.z+Math.sin(ang)*r+CL.wz*bil*0.45,cube*1.1*(0.6+0.8*d)*(1+1.3*bil)*Math.sqrt(fade),_bbc,0.62*fade*(1-0.45*bil)*(0.45+0.55*_bbFr(c*7.7+d*3.3)));}
     // ---- dust hanging all over the circle inside the surge, each puff drifting on outward at its own pace (further out, faster) ----
     const fd=bbSm(0.6,3,T)*(1-bbSm(25,65,T));
     if(fd>0)for(let j=0;j<900&&nc<BBF_N;j++){const o=(5800+j)*4,a=sd[o],b=sd[o+1],c=sd[o+2],d=sd[o+3],f0=Math.sqrt(a),ph=T*(0.25+0.4*d)+b*30,ang=2*Math.PI*b+T*0.004*(c-0.5);

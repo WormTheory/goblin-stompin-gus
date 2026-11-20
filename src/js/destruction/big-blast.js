@@ -410,9 +410,9 @@ function bbFxTick(dt){
     // (once out, it keeps billowing: rolling over, climbing, spreading further and drifting off with the wind as it thins)
     const ring=R*1.1*(1-Math.exp(-T/1.6)),fade=1-bbSm(20,58,T),bil=bbSm(1.5,30,T);
     if(fade>0)for(let j=0;j<1200&&nc<BBF_N;j++){const o=(3000+j)*4,a=sd[o],b=sd[o+1],c=sd[o+2],d=sd[o+3],ph=T*(0.35+0.45*d)+a*40,ang=2*Math.PI*a+T*0.006*(b-0.5);
-      const r=ring*(1-0.18*b*Math.min(1,T/2))+R*0.02*(c-0.5)+R*0.22*bil*(0.25+0.75*b)+R*0.018*Math.sin(ph)*bil;
+      const r=ring*(1-0.4*b*b*Math.min(1,T/2))+R*0.09*(c-0.5)*(0.4+d)*Math.min(1,T/1.5)+R*0.22*bil*(0.25+0.75*b)+R*0.018*Math.sin(ph)*bil;
       const hh=R*0.045*(1-b)*(0.4+0.6*c)*(0.4+0.6*Math.exp(-T/8))+R*0.07*bil*c*(1.2+Math.cos(ph*0.8+d*6));_bbc.setHex(0xb3a48c);lit(bbVar(_bbc,a,b,d,0.06));if(T<1.2)_bbc.lerp(_bbc2.setRGB(1,1,1),1-T/1.2);
-      put(CL.x+Math.cos(ang)*r+CL.wx*bil*0.45,CL.y+hh*0.5,CL.z+Math.sin(ang)*r+CL.wz*bil*0.45,cube*1.1*(0.6+0.8*d)*(1+1.3*bil)*Math.sqrt(fade),_bbc,0.62*fade*(1-0.45*bil));}
+      put(CL.x+Math.cos(ang)*r+CL.wx*bil*0.45,CL.y+hh*0.5,CL.z+Math.sin(ang)*r+CL.wz*bil*0.45,cube*1.1*(0.6+0.8*d)*(1+1.3*bil)*Math.sqrt(fade),_bbc,0.62*fade*(1-0.45*bil)*(0.45+0.55*_bbFr(c*7.7+d*3.3)));}
     // ---- dust hanging all over the circle inside the surge, each puff drifting on outward at its own pace (further out, faster) ----
     const fd=bbSm(0.6,3,T)*(1-bbSm(25,65,T));
     if(fd>0)for(let j=0;j<900&&nc<BBF_N;j++){const o=(5800+j)*4,a=sd[o],b=sd[o+1],c=sd[o+2],d=sd[o+3],f0=Math.sqrt(a),ph=T*(0.25+0.4*d)+b*30,ang=2*Math.PI*b+T*0.004*(c-0.5);
