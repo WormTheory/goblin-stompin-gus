@@ -27,6 +27,7 @@
 ### Nukes
 
 - A nuke looks the part now: a blinding flash, a fireball that cools from white to red and rolls up into a mushroom cloud on a stem of dust, a ring of dust racing out along the ground, a white dome round the fireball for a moment and a collar round the stem.
+- A nuke fired a long way no longer goes off early in mid-air: it flies on until it hits something.
 - The cloud drifts off with the wind and thins away over a minute or so. It's mottled in lighter and darker shades rather than one flat colour.
 - The fireball swells and rolls over into the mushroom's ring in one smooth movement, rather than sliding from a ball into a ring.
 - The mushroom cloud is see-through at its edges like other smoke, its stem flares out into the cap and turns only slowly, the collar round the stem is mottled, and the ring of dust along the ground keeps billowing out, climbing and drifting rather than sitting still. Dust hangs over the whole blast area too, drifting outward, faster the further out it is. The dust settles on the ground under it, down in the crater too, rather than hanging at one height.

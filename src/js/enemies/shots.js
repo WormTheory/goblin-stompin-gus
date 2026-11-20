@@ -95,7 +95,9 @@ function updateShots(dt){
   tracerTick(dt);
   if(!playing)return;
   for(const S of SHOTS){if(!S.live)continue;S.t+=dt;S.fuse-=dt;
-    let boom=S.fuse<=0;if(S.tgt||S.chase||S.at)boom=shotSteer(S,dt)||boom;const ns=Math.max(1,Math.ceil(Math.hypot(S.v.x,S.v.y,S.v.z)*dt/0.4));
+    // (a nuke's warhead has no fuse: it flies on till it meets something, or it would go off in the air and be carved at the
+    // ground under it, short of where it was going)
+    let boom=!S.bb&&S.fuse<=0;if(S.tgt||S.chase||S.at)boom=shotSteer(S,dt)||boom;const ns=Math.max(1,Math.ceil(Math.hypot(S.v.x,S.v.y,S.v.z)*dt/0.4));
     for(let k=0;k<ns&&!boom;k++){const h=dt/ns;S.v.y-=S.grav*h;const nx=S.pos.x+S.v.x*h,ny=S.pos.y+S.v.y*h,nz=S.pos.z+S.v.z*h;
       if(solidAt(nx,Math.floor(ny),nz)||ny<1){
         if(!S.bounce){boom=true;S.hitB=true;break;}
@@ -109,7 +111,7 @@ function updateShots(dt){
       if(!S.bounce&&!boom&&S.gobs)for(const g of goblins){if(g.state!=='chase'||!g.root.visible)continue;const hx=S.pos.x-g.pos.x,hz=S.pos.z-g.pos.z,hy=S.pos.y-g.pos.y;if(hx*hx+hz*hz<0.7*0.7&&hy>-0.2&&hy<1.6){boom=true;break;}}
       if(!S.bounce&&!boom&&shotHitsVeh(S))boom=true;
       if(!S.bounce&&!boom&&knockRay(S.pos.x-S.v.x*h,S.pos.y-S.v.y*h,S.pos.z-S.v.z*h,S.v.x*h,S.v.y*h,S.v.z*h,1))boom=true;}   // (a fixture or prop in its way: it goes off on it, and foeBoom knocks it over)
-    if(boom||S.t>12){S.live=false;S.g.visible=false;if(S.ap&&S.hitB)apTunnel(S);impX=S.imp||1;   // (an AP shell into a wall bores on: tank-handling.js)
+    if(boom||S.t>(S.bb?120:12)){S.live=false;S.g.visible=false;if(S.ap&&S.hitB)apTunnel(S);impX=S.imp||1;   // (an AP shell into a wall bores on: tank-handling.js)
      foeBoom(S.pos.x,S.pos.y,S.pos.z,S.R,S.dmg,S.cause,S.by,S.crush,S.vd,S.own);impX=1;
      if(S.bb)shotNuke(S);continue;}   // (imp: how much a heavy shell fills an impact meter: see impHit)
     if(S.pos.x>=SHIP_X0)shipShotOut(S);   // (fired from aboard a ship and gone over its side: out into the world)

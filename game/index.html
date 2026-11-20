@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:5240e42c35958b155142fcceec6431eed52899e034017dd79a48c33cb0918ca6 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:fbe684d69e20c24d2cc55a4a92b282189253cdf1761e836cfa8f331b9fafa533 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1620,7 +1620,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Knock everything over</h3>
 <ul><li>Street lamps, traffic lights, signs, flags, billboards, benches, bins and furniture now go over to every attack, not just smashing into them: a bite, roll or dash, Gnash's blades and clubs, bullets, grenades, shells, rockets, fireballs and the Mobile Gear's blade. A bullet stops at the post it hits.</li></ul>
 <h3>Nukes</h3>
-<ul><li>A nuke looks the part now: a blinding flash, a fireball that cools from white to red and rolls up into a mushroom cloud on a stem of dust, a ring of dust racing out along the ground, a white dome round the fireball for a moment and a collar round the stem.</li><li>The cloud drifts off with the wind and thins away over a minute or so. It's mottled in lighter and darker shades rather than one flat colour.</li><li>The fireball swells and rolls over into the mushroom's ring in one smooth movement, rather than sliding from a ball into a ring.</li><li>The mushroom cloud is see-through at its edges like other smoke, its stem flares out into the cap and turns only slowly, the collar round the stem is mottled, and the ring of dust along the ground keeps billowing out, climbing and drifting rather than sitting still. Dust hangs over the whole blast area too, drifting outward, faster the further out it is. The dust settles on the ground under it, down in the crater too, rather than hanging at one height.</li><li>Water, smoke and dust behind the mushroom cloud and the white dome no longer show through in front of them.</li><li>The smoke rising round the edge of the blast fans out, bends over and drifts away rather than standing in columns.</li><li>All smoke now blows with the wind: burning buildings, campfires and wrecked vehicles too.</li><li>The boom and the shaking reach you at the speed of sound, so from far off you see it well before you hear it.</li><li>At night it lights the whole sky and the ground round it orange.</li></ul>
+<ul><li>A nuke looks the part now: a blinding flash, a fireball that cools from white to red and rolls up into a mushroom cloud on a stem of dust, a ring of dust racing out along the ground, a white dome round the fireball for a moment and a collar round the stem.</li><li>A nuke fired a long way no longer goes off early in mid-air: it flies on until it hits something.</li><li>The cloud drifts off with the wind and thins away over a minute or so. It's mottled in lighter and darker shades rather than one flat colour.</li><li>The fireball swells and rolls over into the mushroom's ring in one smooth movement, rather than sliding from a ball into a ring.</li><li>The mushroom cloud is see-through at its edges like other smoke, its stem flares out into the cap and turns only slowly, the collar round the stem is mottled, and the ring of dust along the ground keeps billowing out, climbing and drifting rather than sitting still. Dust hangs over the whole blast area too, drifting outward, faster the further out it is. The dust settles on the ground under it, down in the crater too, rather than hanging at one height.</li><li>Water, smoke and dust behind the mushroom cloud and the white dome no longer show through in front of them.</li><li>The smoke rising round the edge of the blast fans out, bends over and drifts away rather than standing in columns.</li><li>All smoke now blows with the wind: burning buildings, campfires and wrecked vehicles too.</li><li>The boom and the shaking reach you at the speed of sound, so from far off you see it well before you hear it.</li><li>At night it lights the whole sky and the ground round it orange.</li></ul>
 <h3>Screen layout</h3>
 <ul><li>The Mobile Gear's weapon readouts are narrower and sit just left of the speedometer, rather than stacked above it.</li><li>How much of a settlement you've razed is now a bar curved round the top of the minimap, with the place's name and how much of it is down curved along it (on two lines when the name's long), so the speedometer no longer jumps up to make room for a card. It stays up for 5 seconds after you leave a place, then fades away, unless you walk into another place, which takes over at once.</li><li>Your controls on foot are now listed down the left of the screen, one to a line, where a vehicle's go, and they stay there rather than fading away. In a vehicle its own controls take their place.</li><li>Next and previous weapon are one line in the controls list now, "switch weapon", shown as the scroll wheel or the D-pad's left and right.</li><li>Options has a Hide controls switch, which hides the controls list down the left, on foot and in vehicles.</li><li>The time of day is gone from the card beside the clock, which now shows just the day and season. It's in the debug menu's Info pane instead, as a clock time (and whether time's paused) beside the time of day.</li></ul>
 <h3>Profiler</h3>
@@ -2333,7 +2333,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='a6cce6762cff';
+const GAME_VER='0.5',GAME_BUILD='1a65eeba23e1';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -19549,7 +19549,9 @@ function updateShots(dt){
   tracerTick(dt);
   if(!playing)return;
   for(const S of SHOTS){if(!S.live)continue;S.t+=dt;S.fuse-=dt;
-    let boom=S.fuse<=0;if(S.tgt||S.chase||S.at)boom=shotSteer(S,dt)||boom;const ns=Math.max(1,Math.ceil(Math.hypot(S.v.x,S.v.y,S.v.z)*dt/0.4));
+    // (a nuke's warhead has no fuse: it flies on till it meets something, or it would go off in the air and be carved at the
+    // ground under it, short of where it was going)
+    let boom=!S.bb&&S.fuse<=0;if(S.tgt||S.chase||S.at)boom=shotSteer(S,dt)||boom;const ns=Math.max(1,Math.ceil(Math.hypot(S.v.x,S.v.y,S.v.z)*dt/0.4));
     for(let k=0;k<ns&&!boom;k++){const h=dt/ns;S.v.y-=S.grav*h;const nx=S.pos.x+S.v.x*h,ny=S.pos.y+S.v.y*h,nz=S.pos.z+S.v.z*h;
       if(solidAt(nx,Math.floor(ny),nz)||ny<1){
         if(!S.bounce){boom=true;S.hitB=true;break;}
@@ -19563,7 +19565,7 @@ function updateShots(dt){
       if(!S.bounce&&!boom&&S.gobs)for(const g of goblins){if(g.state!=='chase'||!g.root.visible)continue;const hx=S.pos.x-g.pos.x,hz=S.pos.z-g.pos.z,hy=S.pos.y-g.pos.y;if(hx*hx+hz*hz<0.7*0.7&&hy>-0.2&&hy<1.6){boom=true;break;}}
       if(!S.bounce&&!boom&&shotHitsVeh(S))boom=true;
       if(!S.bounce&&!boom&&knockRay(S.pos.x-S.v.x*h,S.pos.y-S.v.y*h,S.pos.z-S.v.z*h,S.v.x*h,S.v.y*h,S.v.z*h,1))boom=true;}   // (a fixture or prop in its way: it goes off on it, and foeBoom knocks it over)
-    if(boom||S.t>12){S.live=false;S.g.visible=false;if(S.ap&&S.hitB)apTunnel(S);impX=S.imp||1;   // (an AP shell into a wall bores on: tank-handling.js)
+    if(boom||S.t>(S.bb?120:12)){S.live=false;S.g.visible=false;if(S.ap&&S.hitB)apTunnel(S);impX=S.imp||1;   // (an AP shell into a wall bores on: tank-handling.js)
      foeBoom(S.pos.x,S.pos.y,S.pos.z,S.R,S.dmg,S.cause,S.by,S.crush,S.vd,S.own);impX=1;
      if(S.bb)shotNuke(S);continue;}   // (imp: how much a heavy shell fills an impact meter: see impHit)
     if(S.pos.x>=SHIP_X0)shipShotOut(S);   // (fired from aboard a ship and gone over its side: out into the world)
