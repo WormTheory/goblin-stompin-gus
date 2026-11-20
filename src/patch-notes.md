@@ -31,6 +31,7 @@
 
 ### Switching weapons
 
+- The weapon bar above your hearts now shows your weapons as a row of little pictures of each one, the one in hand lit up, with landmines and grenades showing how many you have.
 - As a goblin, the mouse wheel and the D-pad now go both ways through your weapons: wheel down or D-pad right for the next, wheel up or D-pad left for the one before. Both can be changed in the Controls tab.
 - Push to talk no longer has a controller button by default (D-pad left was it): give it one in the Controls tab if you play online with a controller.
 

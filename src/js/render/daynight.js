@@ -136,6 +136,7 @@ function warmShaders(){
   for(const o of [L,M]){scene.add(o);WARM.push(o);}
   try{renderer.compile(scene,P1.camera);}catch(e){}
   for(const o of [L,M])scene.remove(o);
+  try{wpnIconsAll();}catch(e){}   // (the weapon bar's pictures, gob-weapons.js: drawn now, not when Gnash first shows it)
 }
 function frame(now,bg){   // (bg: a tab in the background while online, kept going by netBgClock without being drawn)
   if(warmT<2&&++warmT===2)warmShaders();

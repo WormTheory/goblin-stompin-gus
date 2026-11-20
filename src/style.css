@@ -138,9 +138,16 @@ canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;point
 .hurt{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(150,0,0,0) 45%,rgba(150,0,0,.8) 100%);opacity:0}
 /* driving in goblin mode: the vehicle's name and health along the top, the crosshair for one with a gun (see drvHud) */
 .drvhud{position:absolute;inset:0;pointer-events:none}
-.gwpn{padding:5px 10px;background:rgba(14,17,22,.8);border-radius:4px;font:600 11px var(--f-mono);color:var(--mute);white-space:nowrap}
+.gwpn{display:flex;align-items:center;gap:4px;padding:4px 8px;background:rgba(14,17,22,.8);border-radius:4px;font:600 11px var(--f-mono);color:var(--mute);white-space:nowrap}
 .gwpn[hidden]{display:none}
-.gwpn b{color:var(--bone);font-weight:700}
+.gwpn b{color:var(--bone);font-weight:700;margin-left:4px}
+.gwpn>span:not(.gwi){margin-left:4px;display:inline-flex;align-items:center}
+.gwi{position:relative;display:inline-flex;align-items:center;justify-content:center;width:48px;height:24px;border-radius:3px;background:rgba(255,255,255,.05);opacity:.5}
+.gwi.on{opacity:1;background:rgba(255,255,255,.16);box-shadow:inset 0 0 0 1px var(--bone)}
+.gwi img{width:48px;height:24px;display:block}
+.gwi em{font:600 8px var(--f-mono);font-style:normal;color:var(--bone);overflow:hidden;text-overflow:ellipsis;max-width:46px}
+.gwi i{position:absolute;right:2px;bottom:0;font:700 9px var(--f-mono);font-style:normal;color:var(--bone);text-shadow:0 1px 0 #000,1px 0 0 #000,-1px 0 0 #000}
+.gsep{width:1px;align-self:stretch;margin:2px 4px;background:rgba(255,255,255,.18)}
 .gxh{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:rgba(255,255,255,.9);box-shadow:0 0 0 1px rgba(0,0,0,.55);pointer-events:none}
 .gxh[hidden]{display:none}
 .drvhud .xh{position:absolute;left:50%;top:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border:2px solid rgba(255,255,255,.9);border-radius:50%;box-shadow:0 0 0 1px rgba(0,0,0,.45),inset 0 0 0 1px rgba(0,0,0,.45);transition:border-color .12s}

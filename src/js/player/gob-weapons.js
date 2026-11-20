@@ -135,6 +135,47 @@ const PICKUPS=[],PU_MAT={};
 function puModel(k){const g=new THREE.Group(),m=c=>PU_MAT[c]||(PU_MAT[c]=new THREE.MeshLambertMaterial({color:c}));
   wpnBoxes(WEAPONS[k].model.drop,(w,h,d,c,x,y,z)=>{const o=new THREE.Mesh(FB_GEO,m(c));o.scale.set(w,h,d);o.position.set(x,y,z);g.add(o);return o;});   // (its shape lying on the ground: WEAPONS)
   g.visible=false;scene.add(g);return g;}
+// ---- the weapon bar's icons: each weapon's own model (as it lies dropped) drawn once, nearly side on, into a little
+// picture, by the game's own renderer into a texture of its own (the world's curve and light put aside meanwhile, as
+// the obituary's preview does). All drawn at load (warmShaders), so the shader for them is made then and not in play.
+// Kept by weapon as a data URL; null where it can't be drawn (no WebGL: the tests' stub), and the bar shows the name
+const WPN_ICON={},WPN_ICON_W=96,WPN_ICON_H=48;
+function wpnIcon(k){
+  if(k in WPN_ICON)return WPN_ICON[k];WPN_ICON[k]=null;
+  const W=WEAPONS[k];if(!W||!W.model||!THREE.WebGLRenderTarget||!renderer.readRenderTargetPixels||!THREE.Box3)return null;
+  try{
+    const sc=new THREE.Scene(),g=new THREE.Group(),m=c=>PU_MAT[c]||(PU_MAT[c]=new THREE.MeshLambertMaterial({color:c}));
+    wpnBoxes(W.model.drop,(w,h,d,c,x,y,z)=>{const o=new THREE.Mesh(FB_GEO,m(c));o.scale.set(w,h,d);o.position.set(x,y,z);g.add(o);return o;});
+    sc.add(g);sc.add(new THREE.AmbientLight(0xffffff,0.7));
+    g.updateMatrixWorld(true);const bb=new THREE.Box3().setFromObject(g);if(bb.isEmpty())return null;
+    // (looked at across its thinnest side, its longest side running across the picture, turned a little to show its top)
+    const s=bb.getSize(new V3()),c=bb.getCenter(new V3()),ax=['x','y','z'].sort((a,b)=>s[a]-s[b]),e=n=>{const v=new V3();v[n]=1;return v;};
+    const up=e(ax[1]),dir=e(ax[0]).addScaledVector(up,0.45).addScaledVector(e(ax[2]),0.2).normalize();
+    const cam=new THREE.OrthographicCamera(-1,1,1,-1,0.01,100);cam.position.copy(c).addScaledVector(dir,20);cam.up.copy(up);cam.lookAt(c);cam.updateMatrixWorld(true);
+    const sun=new THREE.DirectionalLight(0xffffff,0.75);sun.position.copy(cam.position).addScaledVector(up,12);sun.target.position.copy(c);sc.add(sun,sun.target);sun.updateMatrixWorld(true);sun.target.updateMatrixWorld(true);
+    // (fitted to the picture: the box's corners in the camera's frame)
+    let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;
+    for(let i=0;i<8;i++){const q=new V3(i&1?bb.max.x:bb.min.x,i&2?bb.max.y:bb.min.y,i&4?bb.max.z:bb.min.z).applyMatrix4(cam.matrixWorldInverse);
+      x0=Math.min(x0,q.x);x1=Math.max(x1,q.x);y0=Math.min(y0,q.y);y1=Math.max(y1,q.y);}
+    const asp=WPN_ICON_W/WPN_ICON_H,mx=(x0+x1)/2,my=(y0+y1)/2;let hw=(x1-x0)/2*1.08,hh=(y1-y0)/2*1.08;if(hw<hh*asp)hw=hh*asp;else hh=hw/asp;
+    cam.left=mx-hw;cam.right=mx+hw;cam.top=my+hh;cam.bottom=my-hh;cam.updateProjectionMatrix();
+    const rt=new THREE.WebGLRenderTarget(WPN_ICON_W,WPN_ICON_H),px=new Uint8Array(WPN_ICON_W*WPN_ICON_H*4);
+    const t0=renderer.getRenderTarget(),c0=renderer.getClearColor(new THREE.Color()),a0=renderer.getClearAlpha(),L0=WORLD_LIGHT.value.clone(),cu=CURVE_U.value;
+    WORLD_LIGHT.value.setRGB(1,1,1);CURVE_U.value=0;
+    try{renderer.setRenderTarget(rt);renderer.setClearColor(0x000000,0);renderer.clear();renderer.render(sc,cam);renderer.readRenderTargetPixels(rt,0,0,WPN_ICON_W,WPN_ICON_H,px);}
+    finally{renderer.setRenderTarget(t0);renderer.setClearColor(c0,a0);WORLD_LIGHT.value.copy(L0);CURVE_U.value=cu;rt.dispose();}
+    // (the texture's rows run bottom up)
+    const cv=document.createElement('canvas');cv.width=WPN_ICON_W;cv.height=WPN_ICON_H;const x=cv.getContext('2d'),im=x.createImageData(WPN_ICON_W,WPN_ICON_H),rw=WPN_ICON_W*4;
+    for(let r=0;r<WPN_ICON_H;r++)im.data.set(px.subarray(r*rw,(r+1)*rw),(WPN_ICON_H-1-r)*rw);
+    // (a pale rim round it, two pixels, so a black gun still shows on the bar's dark ground)
+    const D=im.data,A=D.map((v,i)=>i%4===3?v:0);
+    for(let yy=0;yy<WPN_ICON_H;yy++)for(let xx=0;xx<WPN_ICON_W;xx++){const i=(yy*WPN_ICON_W+xx)*4;if(A[i+3]>40)continue;let near=false;
+      for(let dy=-2;dy<=2&&!near;dy++)for(let dx=-2;dx<=2;dx++){const u=xx+dx,v=yy+dy;if(u>=0&&v>=0&&u<WPN_ICON_W&&v<WPN_ICON_H&&dx*dx+dy*dy<=5&&A[(v*WPN_ICON_W+u)*4+3]>40){near=true;break;}}
+      if(near){D[i]=226;D[i+1]=220;D[i+2]=204;D[i+3]=150;}}
+    x.putImageData(im,0,0);return WPN_ICON[k]=cv.toDataURL('image/png');
+  }catch(err){return null;}
+}
+function wpnIconsAll(){for(const k of GOB_WPN_ORDER)wpnIcon(k);wpnIcon('grenade');}
 function gobDrop(g){const G2=gobGear(g),at=(k,n,o)=>{let P=PICKUPS.find(q=>!q.live&&q.k===k);if(!P){if(PICKUPS.length>=32){P=PICKUPS.find(q=>q.k===k);if(!P)return;}else{P={k,m:puModel(k),pos:new V3()};PICKUPS.push(P);}}
     const y=supportAt(g.pos.x+o,g.pos.z,g.pos.y+1.5);P.pos.set(g.pos.x+o,(y??g.pos.y)+0.3,g.pos.z);P.n=n;P.t=0;P.live=true;P.m.visible=true;P.m.position.copy(P.pos);
     const par=shipPar(P.pos.x,P.pos.z);if(P.m.parent!==par)par.add(P.m);};   // (aboard a ship it's in the ship's pocket: hung off the ship's picture so it shows where the ship really is, see ships.js)
@@ -202,11 +243,16 @@ function gobArmsHud(p){
   const scoped=show&&(p.scope||0)>0.5&&gobW(p).scope.ring!==false;H.sc.hidden=!scoped;   // (the rocket launcher's sight has no ring: just the crosshair, zoomed)
   H.el.hidden=!show;H.xh.hidden=!show||scoped||!gobAims(gobArms(p).wpn);if(!show)return;
   const bl=id=>actMark(p,id),L=GOB_WPN_ORDER.filter(k=>p.wpns.includes(k)),W=WEAPONS[p.wpn];
-  // (what's in hand in bold: a gun with what's left in its magazine, reloading, or a reload asked for when it's empty;
-  // landmines with how many)
-  const nm=k=>GOB_WPN[k].name+(k==='landmine'?' ×'+(p.mines||0):''),n=W&&W.mag?gobAmmoShown(p,p.wpn):0;
-  const sp=W&&W.mag?gobSpareShown(p,p.wpn):-1,cur=nm(p.wpn)+(W&&W.mag?(p.relT>0?'  reloading…':'  '+n+' / '+W.mag)+(sp>=0?'  +'+sp:''):''),
-    rq=W&&W.mag&&!(p.relT>0)&&n<W.mag&&(sp!==0||DT.infAmmo)?'  '+bl('reload')+(n?' reload':' RELOAD'):'';
-  const s=L.map(k=>k===p.wpn?'<b>'+cur+'</b>':nm(k)).join(' · ')+rq+(L.length>1?(bl('weaponPrev')?'  '+bl('weaponPrev')+' previous':'')+'  '+bl('weapon')+' next':'')+'  |  Grenades '+p.gren+(gobW(p).scope?'  '+bl('stomp')+(WEAPONS[p.wpn]&&WEAPONS[p.wpn].lock?' lock on (hold)':' scope (hold)'):p.gren||DT.infAmmo?'  '+bl('stomp')+' throw':'');
-  if(H.s!==s){H.s=s;H.el.innerHTML=s.split(/(<b>[^<]*<\/b>)/).map(t=>t.startsWith('<b>')?'<b>'+glEsc(t.slice(3,-4))+'</b>':hudHTML(t)).join('');}
+  // (a row of the weapons carried as little pictures of them, wpnIcon, the one in hand lit; landmines and grenades with
+  // how many. After it, in bold, what's left in the magazine in hand, or reloading, and a reload asked for when it's empty)
+  const ic=(k,on,n)=>{const u=wpnIcon(k),nm=glEsc(WEAPONS[k].name);
+      return '<span class="gwi'+(on?' on':'')+'" title="'+nm+'">'+(u?'<img src="'+u+'" alt="'+nm+'">':'<em>'+nm+'</em>')+(n!=null?'<i>×'+n+'</i>':'')+'</span>';},
+    n=W&&W.mag?gobAmmoShown(p,p.wpn):0,sp=W&&W.mag?gobSpareShown(p,p.wpn):-1,
+    cur=W&&W.mag?(p.relT>0?'reloading…':n+' / '+W.mag)+(sp>=0?'  +'+sp:''):'',
+    rq=W&&W.mag&&!(p.relT>0)&&n<W.mag&&(sp!==0||DT.infAmmo)?bl('reload')+(n?' reload':' RELOAD'):'',
+    t=(rq?'  '+rq:'')+(L.length>1?(bl('weaponPrev')?'  '+bl('weaponPrev')+' previous':'')+'  '+bl('weapon')+' next':''),
+    t2=gobW(p).scope?bl('stomp')+(WEAPONS[p.wpn]&&WEAPONS[p.wpn].lock?' lock on (hold)':' scope (hold)'):p.gren||DT.infAmmo?bl('stomp')+' throw':'';
+  const s=L.map(k=>ic(k,k===p.wpn,k==='landmine'?p.mines||0:null)).join('')+(cur?'<b>'+glEsc(cur)+'</b>':'')+(t?'<span>'+hudHTML(t.trim())+'</span>':'')
+    +'<span class="gsep"></span>'+ic('grenade',false,p.gren)+(t2?'<span>'+hudHTML(t2)+'</span>':'');
+  if(H.s!==s){H.s=s;H.el.innerHTML=s;}
 }

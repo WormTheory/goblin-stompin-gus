@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:c8f5b9ec77acb9a23fbcd2da8e2a4a79c020d3535ecb81ac0c6bfed03959a772 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:b686949a70caeb42b45582f1bbef9204d3b17e383c274bc58e66c27df6a6f8cf -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -144,9 +144,16 @@ canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;point
 .hurt{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(150,0,0,0) 45%,rgba(150,0,0,.8) 100%);opacity:0}
 /* driving in goblin mode: the vehicle's name and health along the top, the crosshair for one with a gun (see drvHud) */
 .drvhud{position:absolute;inset:0;pointer-events:none}
-.gwpn{padding:5px 10px;background:rgba(14,17,22,.8);border-radius:4px;font:600 11px var(--f-mono);color:var(--mute);white-space:nowrap}
+.gwpn{display:flex;align-items:center;gap:4px;padding:4px 8px;background:rgba(14,17,22,.8);border-radius:4px;font:600 11px var(--f-mono);color:var(--mute);white-space:nowrap}
 .gwpn[hidden]{display:none}
-.gwpn b{color:var(--bone);font-weight:700}
+.gwpn b{color:var(--bone);font-weight:700;margin-left:4px}
+.gwpn>span:not(.gwi){margin-left:4px;display:inline-flex;align-items:center}
+.gwi{position:relative;display:inline-flex;align-items:center;justify-content:center;width:48px;height:24px;border-radius:3px;background:rgba(255,255,255,.05);opacity:.5}
+.gwi.on{opacity:1;background:rgba(255,255,255,.16);box-shadow:inset 0 0 0 1px var(--bone)}
+.gwi img{width:48px;height:24px;display:block}
+.gwi em{font:600 8px var(--f-mono);font-style:normal;color:var(--bone);overflow:hidden;text-overflow:ellipsis;max-width:46px}
+.gwi i{position:absolute;right:2px;bottom:0;font:700 9px var(--f-mono);font-style:normal;color:var(--bone);text-shadow:0 1px 0 #000,1px 0 0 #000,-1px 0 0 #000}
+.gsep{width:1px;align-self:stretch;margin:2px 4px;background:rgba(255,255,255,.18)}
 .gxh{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:rgba(255,255,255,.9);box-shadow:0 0 0 1px rgba(0,0,0,.55);pointer-events:none}
 .gxh[hidden]{display:none}
 .drvhud .xh{position:absolute;left:50%;top:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border:2px solid rgba(255,255,255,.9);border-radius:50%;box-shadow:0 0 0 1px rgba(0,0,0,.45),inset 0 0 0 1px rgba(0,0,0,.45);transition:border-color .12s}
@@ -1595,7 +1602,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Drivers</h3>
 <ul><li>Everyone at the wheel is dressed as themselves, in their own colours, hats, glasses and the rest, instead of a plain green head, and whoever you haul out or leave in a wreck is dressed the same. Police drivers are in blue, and your own goblin shows at the wheel of whatever you drive.</li></ul>
 <h3>Switching weapons</h3>
-<ul><li>As a goblin, the mouse wheel and the D-pad now go both ways through your weapons: wheel down or D-pad right for the next, wheel up or D-pad left for the one before. Both can be changed in the Controls tab.</li><li>Push to talk no longer has a controller button by default (D-pad left was it): give it one in the Controls tab if you play online with a controller.</li></ul>
+<ul><li>The weapon bar above your hearts now shows your weapons as a row of little pictures of each one, the one in hand lit up, with landmines and grenades showing how many you have.</li><li>As a goblin, the mouse wheel and the D-pad now go both ways through your weapons: wheel down or D-pad right for the next, wheel up or D-pad left for the one before. Both can be changed in the Controls tab.</li><li>Push to talk no longer has a controller button by default (D-pad left was it): give it one in the Controls tab if you play online with a controller.</li></ul>
 <h3>Ruined towns</h3>
 <ul><li>A town you've wiped out stays dead. Traffic no longer drives into it: cars on the roads in turn back or head the other way, and none come off the motorway into it. Nobody turns up there, the shops have no staff, nothing's parked, no one's sent out to it, and anyone left wandering about slips away once you're not looking.</li></ul>
 <h3>Nuclear meltdown</h3>
@@ -2300,7 +2307,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='7b416b8deb8d';
+const GAME_VER='0.5',GAME_BUILD='a375dd9adf25';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -19777,6 +19784,47 @@ const PICKUPS=[],PU_MAT={};
 function puModel(k){const g=new THREE.Group(),m=c=>PU_MAT[c]||(PU_MAT[c]=new THREE.MeshLambertMaterial({color:c}));
   wpnBoxes(WEAPONS[k].model.drop,(w,h,d,c,x,y,z)=>{const o=new THREE.Mesh(FB_GEO,m(c));o.scale.set(w,h,d);o.position.set(x,y,z);g.add(o);return o;});   // (its shape lying on the ground: WEAPONS)
   g.visible=false;scene.add(g);return g;}
+// ---- the weapon bar's icons: each weapon's own model (as it lies dropped) drawn once, nearly side on, into a little
+// picture, by the game's own renderer into a texture of its own (the world's curve and light put aside meanwhile, as
+// the obituary's preview does). All drawn at load (warmShaders), so the shader for them is made then and not in play.
+// Kept by weapon as a data URL; null where it can't be drawn (no WebGL: the tests' stub), and the bar shows the name
+const WPN_ICON={},WPN_ICON_W=96,WPN_ICON_H=48;
+function wpnIcon(k){
+  if(k in WPN_ICON)return WPN_ICON[k];WPN_ICON[k]=null;
+  const W=WEAPONS[k];if(!W||!W.model||!THREE.WebGLRenderTarget||!renderer.readRenderTargetPixels||!THREE.Box3)return null;
+  try{
+    const sc=new THREE.Scene(),g=new THREE.Group(),m=c=>PU_MAT[c]||(PU_MAT[c]=new THREE.MeshLambertMaterial({color:c}));
+    wpnBoxes(W.model.drop,(w,h,d,c,x,y,z)=>{const o=new THREE.Mesh(FB_GEO,m(c));o.scale.set(w,h,d);o.position.set(x,y,z);g.add(o);return o;});
+    sc.add(g);sc.add(new THREE.AmbientLight(0xffffff,0.7));
+    g.updateMatrixWorld(true);const bb=new THREE.Box3().setFromObject(g);if(bb.isEmpty())return null;
+    // (looked at across its thinnest side, its longest side running across the picture, turned a little to show its top)
+    const s=bb.getSize(new V3()),c=bb.getCenter(new V3()),ax=['x','y','z'].sort((a,b)=>s[a]-s[b]),e=n=>{const v=new V3();v[n]=1;return v;};
+    const up=e(ax[1]),dir=e(ax[0]).addScaledVector(up,0.45).addScaledVector(e(ax[2]),0.2).normalize();
+    const cam=new THREE.OrthographicCamera(-1,1,1,-1,0.01,100);cam.position.copy(c).addScaledVector(dir,20);cam.up.copy(up);cam.lookAt(c);cam.updateMatrixWorld(true);
+    const sun=new THREE.DirectionalLight(0xffffff,0.75);sun.position.copy(cam.position).addScaledVector(up,12);sun.target.position.copy(c);sc.add(sun,sun.target);sun.updateMatrixWorld(true);sun.target.updateMatrixWorld(true);
+    // (fitted to the picture: the box's corners in the camera's frame)
+    let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;
+    for(let i=0;i<8;i++){const q=new V3(i&1?bb.max.x:bb.min.x,i&2?bb.max.y:bb.min.y,i&4?bb.max.z:bb.min.z).applyMatrix4(cam.matrixWorldInverse);
+      x0=Math.min(x0,q.x);x1=Math.max(x1,q.x);y0=Math.min(y0,q.y);y1=Math.max(y1,q.y);}
+    const asp=WPN_ICON_W/WPN_ICON_H,mx=(x0+x1)/2,my=(y0+y1)/2;let hw=(x1-x0)/2*1.08,hh=(y1-y0)/2*1.08;if(hw<hh*asp)hw=hh*asp;else hh=hw/asp;
+    cam.left=mx-hw;cam.right=mx+hw;cam.top=my+hh;cam.bottom=my-hh;cam.updateProjectionMatrix();
+    const rt=new THREE.WebGLRenderTarget(WPN_ICON_W,WPN_ICON_H),px=new Uint8Array(WPN_ICON_W*WPN_ICON_H*4);
+    const t0=renderer.getRenderTarget(),c0=renderer.getClearColor(new THREE.Color()),a0=renderer.getClearAlpha(),L0=WORLD_LIGHT.value.clone(),cu=CURVE_U.value;
+    WORLD_LIGHT.value.setRGB(1,1,1);CURVE_U.value=0;
+    try{renderer.setRenderTarget(rt);renderer.setClearColor(0x000000,0);renderer.clear();renderer.render(sc,cam);renderer.readRenderTargetPixels(rt,0,0,WPN_ICON_W,WPN_ICON_H,px);}
+    finally{renderer.setRenderTarget(t0);renderer.setClearColor(c0,a0);WORLD_LIGHT.value.copy(L0);CURVE_U.value=cu;rt.dispose();}
+    // (the texture's rows run bottom up)
+    const cv=document.createElement('canvas');cv.width=WPN_ICON_W;cv.height=WPN_ICON_H;const x=cv.getContext('2d'),im=x.createImageData(WPN_ICON_W,WPN_ICON_H),rw=WPN_ICON_W*4;
+    for(let r=0;r<WPN_ICON_H;r++)im.data.set(px.subarray(r*rw,(r+1)*rw),(WPN_ICON_H-1-r)*rw);
+    // (a pale rim round it, two pixels, so a black gun still shows on the bar's dark ground)
+    const D=im.data,A=D.map((v,i)=>i%4===3?v:0);
+    for(let yy=0;yy<WPN_ICON_H;yy++)for(let xx=0;xx<WPN_ICON_W;xx++){const i=(yy*WPN_ICON_W+xx)*4;if(A[i+3]>40)continue;let near=false;
+      for(let dy=-2;dy<=2&&!near;dy++)for(let dx=-2;dx<=2;dx++){const u=xx+dx,v=yy+dy;if(u>=0&&v>=0&&u<WPN_ICON_W&&v<WPN_ICON_H&&dx*dx+dy*dy<=5&&A[(v*WPN_ICON_W+u)*4+3]>40){near=true;break;}}
+      if(near){D[i]=226;D[i+1]=220;D[i+2]=204;D[i+3]=150;}}
+    x.putImageData(im,0,0);return WPN_ICON[k]=cv.toDataURL('image/png');
+  }catch(err){return null;}
+}
+function wpnIconsAll(){for(const k of GOB_WPN_ORDER)wpnIcon(k);wpnIcon('grenade');}
 function gobDrop(g){const G2=gobGear(g),at=(k,n,o)=>{let P=PICKUPS.find(q=>!q.live&&q.k===k);if(!P){if(PICKUPS.length>=32){P=PICKUPS.find(q=>q.k===k);if(!P)return;}else{P={k,m:puModel(k),pos:new V3()};PICKUPS.push(P);}}
     const y=supportAt(g.pos.x+o,g.pos.z,g.pos.y+1.5);P.pos.set(g.pos.x+o,(y??g.pos.y)+0.3,g.pos.z);P.n=n;P.t=0;P.live=true;P.m.visible=true;P.m.position.copy(P.pos);
     const par=shipPar(P.pos.x,P.pos.z);if(P.m.parent!==par)par.add(P.m);};   // (aboard a ship it's in the ship's pocket: hung off the ship's picture so it shows where the ship really is, see ships.js)
@@ -19844,13 +19892,18 @@ function gobArmsHud(p){
   const scoped=show&&(p.scope||0)>0.5&&gobW(p).scope.ring!==false;H.sc.hidden=!scoped;   // (the rocket launcher's sight has no ring: just the crosshair, zoomed)
   H.el.hidden=!show;H.xh.hidden=!show||scoped||!gobAims(gobArms(p).wpn);if(!show)return;
   const bl=id=>actMark(p,id),L=GOB_WPN_ORDER.filter(k=>p.wpns.includes(k)),W=WEAPONS[p.wpn];
-  // (what's in hand in bold: a gun with what's left in its magazine, reloading, or a reload asked for when it's empty;
-  // landmines with how many)
-  const nm=k=>GOB_WPN[k].name+(k==='landmine'?' ×'+(p.mines||0):''),n=W&&W.mag?gobAmmoShown(p,p.wpn):0;
-  const sp=W&&W.mag?gobSpareShown(p,p.wpn):-1,cur=nm(p.wpn)+(W&&W.mag?(p.relT>0?'  reloading…':'  '+n+' / '+W.mag)+(sp>=0?'  +'+sp:''):''),
-    rq=W&&W.mag&&!(p.relT>0)&&n<W.mag&&(sp!==0||DT.infAmmo)?'  '+bl('reload')+(n?' reload':' RELOAD'):'';
-  const s=L.map(k=>k===p.wpn?'<b>'+cur+'</b>':nm(k)).join(' · ')+rq+(L.length>1?(bl('weaponPrev')?'  '+bl('weaponPrev')+' previous':'')+'  '+bl('weapon')+' next':'')+'  |  Grenades '+p.gren+(gobW(p).scope?'  '+bl('stomp')+(WEAPONS[p.wpn]&&WEAPONS[p.wpn].lock?' lock on (hold)':' scope (hold)'):p.gren||DT.infAmmo?'  '+bl('stomp')+' throw':'');
-  if(H.s!==s){H.s=s;H.el.innerHTML=s.split(/(<b>[^<]*<\/b>)/).map(t=>t.startsWith('<b>')?'<b>'+glEsc(t.slice(3,-4))+'</b>':hudHTML(t)).join('');}
+  // (a row of the weapons carried as little pictures of them, wpnIcon, the one in hand lit; landmines and grenades with
+  // how many. After it, in bold, what's left in the magazine in hand, or reloading, and a reload asked for when it's empty)
+  const ic=(k,on,n)=>{const u=wpnIcon(k),nm=glEsc(WEAPONS[k].name);
+      return '<span class="gwi'+(on?' on':'')+'" title="'+nm+'">'+(u?'<img src="'+u+'" alt="'+nm+'">':'<em>'+nm+'</em>')+(n!=null?'<i>×'+n+'</i>':'')+'</span>';},
+    n=W&&W.mag?gobAmmoShown(p,p.wpn):0,sp=W&&W.mag?gobSpareShown(p,p.wpn):-1,
+    cur=W&&W.mag?(p.relT>0?'reloading…':n+' / '+W.mag)+(sp>=0?'  +'+sp:''):'',
+    rq=W&&W.mag&&!(p.relT>0)&&n<W.mag&&(sp!==0||DT.infAmmo)?bl('reload')+(n?' reload':' RELOAD'):'',
+    t=(rq?'  '+rq:'')+(L.length>1?(bl('weaponPrev')?'  '+bl('weaponPrev')+' previous':'')+'  '+bl('weapon')+' next':''),
+    t2=gobW(p).scope?bl('stomp')+(WEAPONS[p.wpn]&&WEAPONS[p.wpn].lock?' lock on (hold)':' scope (hold)'):p.gren||DT.infAmmo?bl('stomp')+' throw':'';
+  const s=L.map(k=>ic(k,k===p.wpn,k==='landmine'?p.mines||0:null)).join('')+(cur?'<b>'+glEsc(cur)+'</b>':'')+(t?'<span>'+hudHTML(t.trim())+'</span>':'')
+    +'<span class="gsep"></span>'+ic('grenade',false,p.gren)+(t2?'<span>'+hudHTML(t2)+'</span>':'');
+  if(H.s!==s){H.s=s;H.el.innerHTML=s;}
 }
 // ---- hit shapes from the editor (tools/editor/): a weapon's hitboxes against goblins' hurtboxes ----
 // A weapon file can carry hit.hitboxes (spheres, capsules and boxes in the attacker's own frame: from its feet, +z the
@@ -30218,6 +30271,7 @@ function warmShaders(){
   for(const o of [L,M]){scene.add(o);WARM.push(o);}
   try{renderer.compile(scene,P1.camera);}catch(e){}
   for(const o of [L,M])scene.remove(o);
+  try{wpnIconsAll();}catch(e){}   // (the weapon bar's pictures, gob-weapons.js: drawn now, not when Gnash first shows it)
 }
 function frame(now,bg){   // (bg: a tab in the background while online, kept going by netBgClock without being drawn)
   if(warmT<2&&++warmT===2)warmShaders();
