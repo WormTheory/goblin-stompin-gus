@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:5fcc8b107647a2d99578113244aba1e38ee407178bb1187cc2458ad92ccc9c05 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:5cbee176d8ee2e4a8f1065feeeccbf7ccb1cd92cfd9816ca0ea42c29726712ec -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1585,6 +1585,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <ul><li>Street lamps, traffic lights, signs, flags, billboards, benches, bins and furniture now go over to every attack, not just smashing into them: a bite, roll or dash, Gnash's blades and clubs, bullets, grenades, shells, rockets, fireballs and the Mobile Gear's blade. A bullet stops at the post it hits.</li></ul>
 <h3>Drivers</h3>
 <ul><li>Everyone at the wheel is dressed as themselves, in their own colours, hats, glasses and the rest, instead of a plain green head, and whoever you haul out or leave in a wreck is dressed the same. Police drivers are in blue, and your own goblin shows at the wheel of whatever you drive.</li></ul>
+<h3>Switching weapons</h3>
+<ul><li>As a goblin, the mouse wheel and the D-pad now go both ways through your weapons: wheel down or D-pad right for the next, wheel up or D-pad left for the one before. Both can be changed in the Controls tab.</li><li>Push to talk no longer has a controller button by default (D-pad left was it): give it one in the Controls tab if you play online with a controller.</li></ul>
 <h3>Ruined towns</h3>
 <ul><li>A town you've wiped out stays dead. Traffic no longer drives into it: cars on the roads in turn back or head the other way, and none come off the motorway into it. Nobody turns up there, the shops have no staff, nothing's parked, no one's sent out to it, and anyone left wandering about slips away once you're not looking.</li></ul>
 <h3>Nuclear meltdown</h3>
@@ -2289,7 +2291,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='5d448f15fe0f';
+const GAME_VER='0.5',GAME_BUILD='124acb00c3c9';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -18531,9 +18533,10 @@ function glyph(id){
   if(id.startsWith('DPAD')){const dir=id.split(':')[1]||'',hv=dir!=='h',hh=dir!=='v',on='#e8edf0',off='#56616c';
     return `<span class="g"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M9 2h6v7h7v6h-7v7H9v-7H2V9h7Z" fill="#2c353f" stroke="#7a8794" stroke-width="1.2" stroke-linejoin="round"/><path d="M12 4.2l2 2.6h-4Z M12 19.8l2-2.6h-4Z" fill="${hv?on:off}"/><path d="M4.2 12l2.6-2v4Z M19.8 12l-2.6-2v4Z" fill="${hh?on:off}"/></svg></span>`;}
   if(id.startsWith('KEY:'))return `<span class="g gkey">${glEsc(id.slice(4))}</span>`;
-  if(id==='LMB'||id==='WHEEL'||id==='MDRAG'||id==='RMB'){
-    const L=id==='LMB'||id==='MDRAG'?'#e8c14a':'#3c4752',R=id==='RMB'?'#e8c14a':'#3c4752',W=id==='WHEEL'?'#e8c14a':'#7a8794';
-    const ex=id==='MDRAG'?'<path d="M1.5 12l2.6-2.4v4.8Z M24.5 12l-2.6-2.4v4.8Z" fill="#e8c14a"/>':id==='WHEEL'?'<path d="M13 .6l2 2.2h-4Z M13 25.4l2-2.2h-4Z" fill="#e8c14a"/>':'';
+  if(id==='LMB'||id==='WHEEL'||id==='WHEELUP'||id==='WHEELDN'||id==='MDRAG'||id==='RMB'){
+    const L=id==='LMB'||id==='MDRAG'?'#e8c14a':'#3c4752',R=id==='RMB'?'#e8c14a':'#3c4752',W=id.startsWith('WHEEL')?'#e8c14a':'#7a8794';
+    const ex=id==='MDRAG'?'<path d="M1.5 12l2.6-2.4v4.8Z M24.5 12l-2.6-2.4v4.8Z" fill="#e8c14a"/>':id==='WHEEL'?'<path d="M13 .6l2 2.2h-4Z M13 25.4l2-2.2h-4Z" fill="#e8c14a"/>':
+      id==='WHEELUP'?'<path d="M13 .6l2 2.2h-4Z" fill="#e8c14a"/>':id==='WHEELDN'?'<path d="M13 25.4l2-2.2h-4Z" fill="#e8c14a"/>':'';
     return `<span class="g"><svg width="26" height="26" viewBox="0 0 26 26"><rect x="6.5" y="3.5" width="13" height="19" rx="6.5" fill="#2c353f" stroke="#7a8794" stroke-width="1.3"/><path d="M7.2 11V10a5.8 5.8 0 0 1 5.3-5.8V11Z" fill="${L}"/><path d="M18.8 11V10a5.8 5.8 0 0 0-5.3-5.8V11Z" fill="${R}"/><rect x="11.9" y="6" width="2.2" height="4" rx="1.1" fill="${W}"/>${ex}</svg></span>`;}
   if(id==='TAP'||id==='TDRAG'){const ex=id==='TDRAG'?'<path d="M2 9l2.6-2.4v4.8Z M24 9l-2.6-2.4v4.8Z" fill="#e8c14a"/>':'<circle cx="13" cy="7" r="5" fill="none" stroke="#e8c14a" stroke-width="1.2" opacity=".8"/>';
     return `<span class="g"><svg width="26" height="26" viewBox="0 0 26 26">${ex}<path d="M11.2 7.6a1.8 1.8 0 0 1 3.6 0v6.2l4.4 1.1c1.2.3 1.9 1.4 1.7 2.6l-.9 5H11l-4-5.4a1.6 1.6 0 0 1 2.4-2.1l1.8 1.8Z" fill="#e8edf0" stroke="#14181d" stroke-width=".8" stroke-linejoin="round"/></svg></span>`;}
@@ -18619,9 +18622,10 @@ const ACTS=[
   {id:'lock',n:'Lock on',c:'#e0564a',kb:['KeyQ'],pad:[11]},
   {id:'climb',n:'Spider Climb (hold)',c:'#9a7ae0',kb:['KeyC'],pad:[4]},
   {id:'use',n:'Get in / out (as Gnash)',c:'#6ab0d8',kb:['KeyF'],pad:[3]},
-  {id:'weapon',n:'Next weapon (as Gnash)',c:'#b0b8c0',kb:['KeyR'],pad:[15]},
+  {id:'weapon',n:'Next weapon (as Gnash)',c:'#b0b8c0',kb:['KeyR','MouseWheelDown'],pad:[15]},
+  {id:'weaponPrev',n:'Previous weapon (as Gnash)',c:'#b0b8c0',kb:['MouseWheelUp'],pad:[14]},   // (D-pad left, which was push to talk's)
   {id:'reload',n:'Reload (as Gnash)',c:'#d0b070',kb:['KeyX'],pad:[13]},   // (D-pad down: a gun's next magazine)
-  {id:'talk',n:'Push to talk (online voice chat)',c:'#7fc8a0',kb:['KeyT'],pad:[14]},
+  {id:'talk',n:'Push to talk (online voice chat)',c:'#7fc8a0',kb:['KeyT'],pad:[]},   // (no button free on a controller: set one in the Controls tab)
   {id:'quickChat',n:'Quick chat message (online)',c:'#8fb8e0',kb:[],pad:[12]},
   // (piloting a Mobile Gear: its own set, which only counts while you're in one, so these can share keys and buttons
   // with the ones above. mg: one of these; see mech.js. The weapons are named by where they're carried, since the
@@ -18701,7 +18705,7 @@ const CTX_NAMES={road:'Driving cars, bikes and trucks',lift:'Driving a forklift'
   air:'Flying a plane',sea:'Boats and ships',rail:'Driving a train',balloon:'Flying a hot-air balloon',mg:'Piloting a Mobile Gear (Testing Environment)'};
 // (the controls on foot that a vehicle's own set takes over while you're in it: everything but Get in / out, Lock on and
 // the online chat keys, which work everywhere)
-const CTX_TAKES=['bite','stomp','jump','climb','charge','dash','sprint','weapon','reload'];
+const CTX_TAKES=['bite','stomp','jump','climb','charge','dash','sprint','weapon','weaponPrev','reload'];
 const KB_RESERVED=new Set(['Escape','Backquote','KeyP','KeyV','Period','BracketLeft','BracketRight','Backspace','Delete','Enter','NumpadEnter']),PAD_RESERVED=new Set([8,9]);
 let BINDS={};
 function defaultBinds(){const o={};for(const a of ACTS)o[a.id]={kb:a.kb.slice(),pad:a.pad.slice()};return o;}
@@ -18714,12 +18718,16 @@ function loadBinds(){BINDS=defaultBinds();
     // (an action added since these were saved starts on its defaults, but not on a key or button the player has already
     // given something else in the same context: Reload's X or D-pad down, say, moved on to another move by hand, would
     // otherwise do both. It's left unbound there, for the player to set)
+    // (saved before Previous weapon: push to talk still on its old D-pad left gives it up, and Next weapon takes the
+    // wheel down if it has room for it)
+    if(v&&typeof v==='object'&&!v.weaponPrev){const T=BINDS.talk.pad,W=BINDS.weapon.kb;if(T.length===1&&T[0]===14)BINDS.talk.pad=[];
+      if(W.length<2&&!ACTS.some(o=>!o.ctx&&BINDS[o.id].kb.includes('MouseWheelDown')))W.push('MouseWheelDown');}
     if(v&&typeof v==='object')for(const a of ACTS){if(v[a.id])continue;const cx=a.ctx||'';
       for(const dev of ['kb','pad'])BINDS[a.id][dev]=BINDS[a.id][dev].filter(c=>!ACTS.some(o=>o!==a&&v[o.id]&&(o.ctx||'')===cx&&BINDS[o.id][dev].includes(c)));}}catch(e){}}
 const MG_PAD_WAS={mgArmL:6,mgArmR:7,mgShL:4,mgShR:5};
 function saveBinds(){try{localStorage.setItem(BIND_KEY,JSON.stringify(BINDS));}catch(e){}}
 loadBinds();
-const KEY_NAMES={Mouse0:'Left click',Mouse1:'Middle click',Mouse2:'Right click',Mouse3:'Mouse 4',Mouse4:'Mouse 5',Space:'Space',ShiftLeft:'Left Shift',ShiftRight:'Right Shift',
+const KEY_NAMES={Mouse0:'Left click',Mouse1:'Middle click',Mouse2:'Right click',Mouse3:'Mouse 4',Mouse4:'Mouse 5',MouseWheelUp:'Wheel up',MouseWheelDown:'Wheel down',Space:'Space',ShiftLeft:'Left Shift',ShiftRight:'Right Shift',
   ControlLeft:'Left Ctrl',ControlRight:'Right Ctrl',AltLeft:'Left Alt',AltRight:'Right Alt',MetaLeft:'Left ⌘',MetaRight:'Right ⌘',ArrowUp:'↑',ArrowDown:'↓',ArrowLeft:'←',ArrowRight:'→',
   Enter:'Enter',Tab:'Tab',CapsLock:'Caps Lock',Comma:',',Slash:'/',Semicolon:';',Quote:"'",Backslash:'\\',Minus:'-',Equal:'=',Insert:'Insert',Home:'Home',End:'End',PageUp:'Page Up',PageDown:'Page Down',IntlBackslash:'\\'};
 function keyLabel(c){if(!c)return '—';if(KEY_NAMES[c])return KEY_NAMES[c];if(c.startsWith('Key'))return c.slice(3);if(c.startsWith('Digit'))return c.slice(5);if(c.startsWith('Numpad'))return 'Num '+c.slice(6);return c;}
@@ -18734,7 +18742,7 @@ function kbAct(id){const B=BINDS[id];if(B)for(const c of B.kb)if(c.startsWith('M
 // turns that line into the page's markup
 // (the sticks pressed in are named L3 and R3: LS and RS are the sticks themselves, pushed about)
 const PAD_GLYPH=['A','B','X','Y','LB','RB','LT','RT','SELECT','START','KEY:L3','KEY:R3','DPAD:v','DPAD:v','DPAD:h','DPAD:h'];
-function bindGlyph(dev,v){if(v==null)return null;if(dev==='pad')return PAD_GLYPH[v]||'KEY:'+padLabel(v,padStyle==='ps');return v==='Mouse0'?'LMB':v==='Mouse2'?'RMB':v==='Mouse1'?'WHEEL':'KEY:'+keyLabel(v);}
+function bindGlyph(dev,v){if(v==null)return null;if(dev==='pad')return PAD_GLYPH[v]||'KEY:'+padLabel(v,padStyle==='ps');return v==='Mouse0'?'LMB':v==='Mouse2'?'RMB':v==='Mouse1'?'WHEEL':v==='MouseWheelUp'?'WHEELUP':v==='MouseWheelDown'?'WHEELDN':'KEY:'+keyLabel(v);}
 const btnMark=g=>g?'⟦'+g+'⟧':'';
 // (the first button bound to an action, on a player's controller or else the keyboard and mouse)
 // (in a vehicle, a control on foot that its own set takes over is named by what's bound there: a car's horn, not bite)
@@ -18763,7 +18771,7 @@ function gobHint(L,p){const w=p&&p.wpns?p.wpn:'club',out=[];
   if(L('stomp'))out.push(L('stomp')+(W&&W.player&&W.player.scope?' look down the scope (hold)':' throw a grenade'));if(L('jump'))out.push(L('jump')+' jump');
   if(L('dashSprint'))out.push('tap '+L('dashSprint')+' dash, hold to sprint');else{if(L('dash'))out.push(L('dash')+' dash');}
   if(L('sprint'))out.push('hold '+L('sprint')+' to sprint');
-  if(L('climb'))out.push('hold '+L('climb')+' climb');if(L('weapon'))out.push(L('weapon')+' next weapon');if(L('use'))out.push(L('use')+' get in');
+  if(L('climb'))out.push('hold '+L('climb')+' climb');if(L('weapon'))out.push(L('weapon')+' next weapon');if(L('weaponPrev'))out.push(L('weaponPrev')+' previous weapon');if(L('use'))out.push(L('use')+' get in');
   return out.join('  ·  ');
 }
 // ---- rebinding: pick a slot, then press what goes in it
@@ -18788,6 +18796,8 @@ addEventListener('keydown',e=>{if(!BIND_CAP)return;e.preventDefault();e.stopImme
   setBind(BIND_CAP.id,'kb',BIND_CAP.i,e.code);},true);
 addEventListener('mousedown',e=>{if(!BIND_CAP||BIND_CAP.dev!=='kb'||performance.now()-BIND_CAP.t<150)return;
   e.preventDefault();e.stopImmediatePropagation();bindClickT=performance.now();setBind(BIND_CAP.id,'kb',BIND_CAP.i,'Mouse'+e.button);},true);
+addEventListener('wheel',e=>{if(!BIND_CAP||BIND_CAP.dev!=='kb'||performance.now()-BIND_CAP.t<150||!e.deltaY)return;
+  e.preventDefault();e.stopImmediatePropagation();setBind(BIND_CAP.id,'kb',BIND_CAP.i,e.deltaY<0?'MouseWheelUp':'MouseWheelDown');},{capture:true,passive:false});
 addEventListener('contextmenu',e=>{if(BIND_CAP||performance.now()-bindClickT<600)e.preventDefault();},true);
 document.getElementById('ctlBody').addEventListener('click',e=>{
   const r=e.target.closest&&e.target.closest('#rbReset');
@@ -19743,14 +19753,14 @@ function gobThrow(p){
   shot({kind:'grenade',x:c.x+dx*0.6,y:c.y-0.1+dy*0.6,z:c.z+dz*0.6,vx:dx*v,vy:dy*v+4,vz:dz*v,grav:20,fuse:GREN.fuse,R:GREN.R,dmg:GREN.dmg,cause:GREN_CAUSE,by:pvpBy(p),bounce:true,crush:GREN_CRUSH});
   sfx('Goblin throws a grenade',()=>{woosh(0.15,0.2,400,1200,0.08);});
 }
-function gobNextWpn(p){gobArms(p);const L=GOB_WPN_ORDER.filter(k=>p.wpns.includes(k));if(L.length<2)return;
-  p.wpn=L[(L.indexOf(p.wpn)+1)%L.length];p.wpnT=camClock;p.relT=0;   // (a reload's dropped: it starts again next time)
+function gobNextWpn(p,d=1){gobArms(p);const L=GOB_WPN_ORDER.filter(k=>p.wpns.includes(k));if(L.length<2)return;   // (d -1: the one before)
+  p.wpn=L[(L.indexOf(p.wpn)+d+L.length)%L.length];p.wpnT=camClock;p.relT=0;   // (a reload's dropped: it starts again next time)
   sfx('Goblin switches weapon',()=>{tone('square',700,900,0.04,0.03);});}
 // once a frame per player goblin, before the move: the throw and the weapon buttons, and the cooldown
 function gobArmsTick(p,dt){gobArms(p);wpnHitSweep(p);p.grenCD=Math.max(0,p.grenCD-dt);p.thrS=(p.thrS??9)+dt;   // (since his last throw: the arm coming through, gobBodyPose)
-  const st=!!p.in.stomp,wp=!!p.in.weapon,rl=!!p.in.reload;
+  const st=!!p.in.stomp,wp=!!p.in.weapon,wv=!!p.in.weaponPrev,rl=!!p.in.reload;
   // (with a scoped gun in hand stomp looks down the scope instead: gobScope)
-  if(st&&!p.gStompWas&&playing&&!gobW(p).scope)gobThrow(p);if(wp&&!p.gWpnWas&&playing)gobNextWpn(p);if(rl&&!p.gRelWas&&playing)gobReload(p);p.gStompWas=st;p.gWpnWas=wp;p.gRelWas=rl;
+  if(st&&!p.gStompWas&&playing&&!gobW(p).scope)gobThrow(p);if(wp&&!p.gWpnWas&&playing)gobNextWpn(p);if(wv&&!p.gWpvWas&&playing)gobNextWpn(p,-1);p.gWpvWas=wv;if(rl&&!p.gRelWas&&playing)gobReload(p);p.gStompWas=st;p.gWpnWas=wp;p.gRelWas=rl;
   if(playing)gobReloadTick(p,dt);
   if(!netGuest()){const W=WEAPONS[p.wpn];p.ammoN=W&&W.mag?gobAmmo(p,p.wpn):-1;p.spareN=W?gobSpare(p,p.wpn):-1;}}   // (for the display, here and on a guest)
 // ---- what's dropped: a little model on the ground, turning, until someone picks it up (or a minute and a half) ----
@@ -19830,7 +19840,7 @@ function gobArmsHud(p){
   const nm=k=>GOB_WPN[k].name+(k==='landmine'?' ×'+(p.mines||0):''),n=W&&W.mag?gobAmmoShown(p,p.wpn):0;
   const sp=W&&W.mag?gobSpareShown(p,p.wpn):-1,cur=nm(p.wpn)+(W&&W.mag?(p.relT>0?'  reloading…':'  '+n+' / '+W.mag)+(sp>=0?'  +'+sp:''):''),
     rq=W&&W.mag&&!(p.relT>0)&&n<W.mag&&(sp!==0||DT.infAmmo)?'  '+bl('reload')+(n?' reload':' RELOAD'):'';
-  const s=L.map(k=>k===p.wpn?'<b>'+cur+'</b>':nm(k)).join(' · ')+rq+(L.length>1?'  '+bl('weapon')+' next':'')+'  |  Grenades '+p.gren+(gobW(p).scope?'  '+bl('stomp')+(WEAPONS[p.wpn]&&WEAPONS[p.wpn].lock?' lock on (hold)':' scope (hold)'):p.gren||DT.infAmmo?'  '+bl('stomp')+' throw':'');
+  const s=L.map(k=>k===p.wpn?'<b>'+cur+'</b>':nm(k)).join(' · ')+rq+(L.length>1?(bl('weaponPrev')?'  '+bl('weaponPrev')+' previous':'')+'  '+bl('weapon')+' next':'')+'  |  Grenades '+p.gren+(gobW(p).scope?'  '+bl('stomp')+(WEAPONS[p.wpn]&&WEAPONS[p.wpn].lock?' lock on (hold)':' scope (hold)'):p.gren||DT.infAmmo?'  '+bl('stomp')+' throw':'');
   if(H.s!==s){H.s=s;H.el.innerHTML=s.split(/(<b>[^<]*<\/b>)/).map(t=>t.startsWith('<b>')?'<b>'+glEsc(t.slice(3,-4))+'</b>':hudHTML(t)).join('');}
 }
 // ---- hit shapes from the editor (tools/editor/): a weapon's hitboxes against goblins' hurtboxes ----
@@ -28767,6 +28777,8 @@ canvas.addEventListener('mousedown',e=>{
   else if(dragMode&&!touchMode)downAt={x:e.clientX,y:e.clientY,b:e.button,moved:false};
   else wantLock();
 });
+// (the wheel's notches, up or down, are presses like a button's, for one frame: Gnash's previous and next weapon)
+canvas.addEventListener('wheel',e=>{if(menuOpen||P1.paused||DT.kbdOpen||!e.deltaY)return;e.preventDefault();mTap.add(e.deltaY<0?'MouseWheelUp':'MouseWheelDown');},{passive:false});
 addEventListener('mouseup',e=>{const code='Mouse'+e.button;mHeld.delete(code);if(e.button===2){downAt=null;return;}if(downAt&&!downAt.moved&&!menuOpen&&!P1.paused)mTap.add(code);downAt=null;});
 addEventListener('mousemove',e=>{
   if(menuOpen||P1.paused||DT.kbdOpen)return;
@@ -28813,7 +28825,7 @@ function readInputs(dt){
   else{s1=st[0]||null;s2=st[1]||null;}
   if(s1)P1.pad=s1.p;if(s2&&P2.active&&!P2.net)P2.pad=s2.p;
   P2.ui.join.hidden=!(P2.active&&!P2.pad);
-  for(const p of players){const i=p.in;i.x=0;i.z=0;i.charge=false;i.chargePress=false;i.stomp=false;i.bite=false;i.bitePress=false;i.jumpPress=false;i.jump=false;i.lockPress=false;i.dash=false;i.dashPress=false;i.sprint=false;i.sprintPress=false;i.lookX=0;i.lookY=0;i.climb=false;i.use=false;i.weapon=false;i.reload=false;i.talk=false;i.kbd=false;i.rt=i.lt=0;for(const k of CTX_IDS)i[k]=i[k+'P']=false;}
+  for(const p of players){const i=p.in;i.x=0;i.z=0;i.charge=false;i.chargePress=false;i.stomp=false;i.bite=false;i.bitePress=false;i.jumpPress=false;i.jump=false;i.lockPress=false;i.dash=false;i.dashPress=false;i.sprint=false;i.sprintPress=false;i.lookX=0;i.lookY=0;i.climb=false;i.use=false;i.weapon=false;i.weaponPrev=false;i.reload=false;i.talk=false;i.kbd=false;i.rt=i.lt=0;for(const k of CTX_IDS)i[k]=i[k+'P']=false;}
   // (rebinding a control in the menu: the next button pressed on any controller is the one)
   if(menuOpen&&BIND_CAP){if(performance.now()-BIND_CAP.t>200)for(const s of st){const i=s.pr.findIndex(Boolean);if(i<0)continue;
       if(BIND_CAP.dev==='pad'){if(PAD_RESERVED.has(i))bindCancel();else setBind(BIND_CAP.id,'pad',BIND_CAP.i,i);}else if(i===1||i===9)bindCancel();break;}
@@ -28865,7 +28877,7 @@ function readInputs(dt){
     I.z+=(A.back?1:0)-(A.fwd?1:0);I.x+=(A.right?1:0)-(A.left?1:0);
     I.kbd=!P1.pad;   // (flying on the keyboard: a plane is flown WASD-style, see drvPlane; the same rule as the hints' p.pad)
     I.charge=A.dashSprint;I.chargePress=A.dashSprintP;I.dash=A.dash;I.dashPress=A.dashP;I.sprint=A.sprint;I.sprintPress=A.sprintP;
-    I.stomp=A.stomp;I.jumpPress=A.jumpP;I.jump=A.jump;I.lockPress=A.lockP;I.climb=A.climb;I.bite=A.bite;I.bitePress=A.biteP;I.use=A.use;I.weapon=A.weapon;I.reload=A.reload;I.talk=A.talk;
+    I.stomp=A.stomp;I.jumpPress=A.jumpP;I.jump=A.jump;I.lockPress=A.lockP;I.climb=A.climb;I.bite=A.bite;I.bitePress=A.biteP;I.use=A.use;I.weapon=A.weapon;I.weaponPrev=A.weaponPrev;I.reload=A.reload;I.talk=A.talk;
     for(const k of CTX_IDS){I[k]=A[k];I[k+'P']=A[k+'P'];}
   }else for(const a of ACTS)kbPrevA[a.id]=false;
   mTap.clear();
@@ -28884,7 +28896,7 @@ function readInputs(dt){
     i.charge=i.charge||pb('dashSprint');i.chargePress=i.chargePress||pp('dashSprint');
     i.dash=i.dash||pb('dash');i.dashPress=i.dashPress||pp('dash');
     i.sprint=i.sprint||pb('sprint');i.sprintPress=i.sprintPress||pp('sprint');
-    i.stomp=i.stomp||pb('stomp');i.use=i.use||pb('use');i.weapon=i.weapon||pb('weapon');i.reload=i.reload||pb('reload');
+    i.stomp=i.stomp||pb('stomp');i.use=i.use||pb('use');i.weapon=i.weapon||pb('weapon');i.weaponPrev=i.weaponPrev||pb('weaponPrev');i.reload=i.reload||pb('reload');
     i.jumpPress=i.jumpPress||pp('jump');i.jump=i.jump||pb('jump');
     i.bite=i.bite||pb('bite');
     i.bitePress=i.bitePress||pp('bite');
@@ -30419,7 +30431,7 @@ function netHostLeft(peer){
 }
 // a guest's controls: what's held now replaces what was held; a press counts once, on the host's next frame, however many
 // of the guest's frames it was spread over (and none is lost between two of them)
-const NET_HELD=['charge','stomp','bite','jump','dash','sprint','climb','use','weapon','reload','kbd',...CTX_IDS],NET_PRESS=['chargePress','bitePress','jumpPress','lockPress','dashPress','sprintPress',...CTX_PRESS];
+const NET_HELD=['charge','stomp','bite','jump','dash','sprint','climb','use','weapon','weaponPrev','reload','kbd',...CTX_IDS],NET_PRESS=['chargePress','bitePress','jumpPress','lockPress','dashPress','sprintPress',...CTX_PRESS];
 function netGotInput(p,m){
   const N=p.net;if(typeof m.n==='number'&&m.n<=(N.inN||0))return;N.inN=m.n;N.inAt=NET.now;
   N.inb=m;if(Number.isFinite(m.vt))N.vt=m.vt;if(m.pr&&(m.pr.bitePress||m.pr.chargePress)||m.h&&(m.h.bite||m.h.stomp))N.atkAt=NET.now;

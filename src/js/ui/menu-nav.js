@@ -168,9 +168,10 @@ function glyph(id){
   if(id.startsWith('DPAD')){const dir=id.split(':')[1]||'',hv=dir!=='h',hh=dir!=='v',on='#e8edf0',off='#56616c';
     return `<span class="g"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M9 2h6v7h7v6h-7v7H9v-7H2V9h7Z" fill="#2c353f" stroke="#7a8794" stroke-width="1.2" stroke-linejoin="round"/><path d="M12 4.2l2 2.6h-4Z M12 19.8l2-2.6h-4Z" fill="${hv?on:off}"/><path d="M4.2 12l2.6-2v4Z M19.8 12l-2.6-2v4Z" fill="${hh?on:off}"/></svg></span>`;}
   if(id.startsWith('KEY:'))return `<span class="g gkey">${glEsc(id.slice(4))}</span>`;
-  if(id==='LMB'||id==='WHEEL'||id==='MDRAG'||id==='RMB'){
-    const L=id==='LMB'||id==='MDRAG'?'#e8c14a':'#3c4752',R=id==='RMB'?'#e8c14a':'#3c4752',W=id==='WHEEL'?'#e8c14a':'#7a8794';
-    const ex=id==='MDRAG'?'<path d="M1.5 12l2.6-2.4v4.8Z M24.5 12l-2.6-2.4v4.8Z" fill="#e8c14a"/>':id==='WHEEL'?'<path d="M13 .6l2 2.2h-4Z M13 25.4l2-2.2h-4Z" fill="#e8c14a"/>':'';
+  if(id==='LMB'||id==='WHEEL'||id==='WHEELUP'||id==='WHEELDN'||id==='MDRAG'||id==='RMB'){
+    const L=id==='LMB'||id==='MDRAG'?'#e8c14a':'#3c4752',R=id==='RMB'?'#e8c14a':'#3c4752',W=id.startsWith('WHEEL')?'#e8c14a':'#7a8794';
+    const ex=id==='MDRAG'?'<path d="M1.5 12l2.6-2.4v4.8Z M24.5 12l-2.6-2.4v4.8Z" fill="#e8c14a"/>':id==='WHEEL'?'<path d="M13 .6l2 2.2h-4Z M13 25.4l2-2.2h-4Z" fill="#e8c14a"/>':
+      id==='WHEELUP'?'<path d="M13 .6l2 2.2h-4Z" fill="#e8c14a"/>':id==='WHEELDN'?'<path d="M13 25.4l2-2.2h-4Z" fill="#e8c14a"/>':'';
     return `<span class="g"><svg width="26" height="26" viewBox="0 0 26 26"><rect x="6.5" y="3.5" width="13" height="19" rx="6.5" fill="#2c353f" stroke="#7a8794" stroke-width="1.3"/><path d="M7.2 11V10a5.8 5.8 0 0 1 5.3-5.8V11Z" fill="${L}"/><path d="M18.8 11V10a5.8 5.8 0 0 0-5.3-5.8V11Z" fill="${R}"/><rect x="11.9" y="6" width="2.2" height="4" rx="1.1" fill="${W}"/>${ex}</svg></span>`;}
   if(id==='TAP'||id==='TDRAG'){const ex=id==='TDRAG'?'<path d="M2 9l2.6-2.4v4.8Z M24 9l-2.6-2.4v4.8Z" fill="#e8c14a"/>':'<circle cx="13" cy="7" r="5" fill="none" stroke="#e8c14a" stroke-width="1.2" opacity=".8"/>';
     return `<span class="g"><svg width="26" height="26" viewBox="0 0 26 26">${ex}<path d="M11.2 7.6a1.8 1.8 0 0 1 3.6 0v6.2l4.4 1.1c1.2.3 1.9 1.4 1.7 2.6l-.9 5H11l-4-5.4a1.6 1.6 0 0 1 2.4-2.1l1.8 1.8Z" fill="#e8edf0" stroke="#14181d" stroke-width=".8" stroke-linejoin="round"/></svg></span>`;}

@@ -31,9 +31,10 @@ const ACTS=[
   {id:'lock',n:'Lock on',c:'#e0564a',kb:['KeyQ'],pad:[11]},
   {id:'climb',n:'Spider Climb (hold)',c:'#9a7ae0',kb:['KeyC'],pad:[4]},
   {id:'use',n:'Get in / out (as Gnash)',c:'#6ab0d8',kb:['KeyF'],pad:[3]},
-  {id:'weapon',n:'Next weapon (as Gnash)',c:'#b0b8c0',kb:['KeyR'],pad:[15]},
+  {id:'weapon',n:'Next weapon (as Gnash)',c:'#b0b8c0',kb:['KeyR','MouseWheelDown'],pad:[15]},
+  {id:'weaponPrev',n:'Previous weapon (as Gnash)',c:'#b0b8c0',kb:['MouseWheelUp'],pad:[14]},   // (D-pad left, which was push to talk's)
   {id:'reload',n:'Reload (as Gnash)',c:'#d0b070',kb:['KeyX'],pad:[13]},   // (D-pad down: a gun's next magazine)
-  {id:'talk',n:'Push to talk (online voice chat)',c:'#7fc8a0',kb:['KeyT'],pad:[14]},
+  {id:'talk',n:'Push to talk (online voice chat)',c:'#7fc8a0',kb:['KeyT'],pad:[]},   // (no button free on a controller: set one in the Controls tab)
   {id:'quickChat',n:'Quick chat message (online)',c:'#8fb8e0',kb:[],pad:[12]},
   // (piloting a Mobile Gear: its own set, which only counts while you're in one, so these can share keys and buttons
   // with the ones above. mg: one of these; see mech.js. The weapons are named by where they're carried, since the
@@ -113,7 +114,7 @@ const CTX_NAMES={road:'Driving cars, bikes and trucks',lift:'Driving a forklift'
   air:'Flying a plane',sea:'Boats and ships',rail:'Driving a train',balloon:'Flying a hot-air balloon',mg:'Piloting a Mobile Gear (Testing Environment)'};
 // (the controls on foot that a vehicle's own set takes over while you're in it: everything but Get in / out, Lock on and
 // the online chat keys, which work everywhere)
-const CTX_TAKES=['bite','stomp','jump','climb','charge','dash','sprint','weapon','reload'];
+const CTX_TAKES=['bite','stomp','jump','climb','charge','dash','sprint','weapon','weaponPrev','reload'];
 const KB_RESERVED=new Set(['Escape','Backquote','KeyP','KeyV','Period','BracketLeft','BracketRight','Backspace','Delete','Enter','NumpadEnter']),PAD_RESERVED=new Set([8,9]);
 let BINDS={};
 function defaultBinds(){const o={};for(const a of ACTS)o[a.id]={kb:a.kb.slice(),pad:a.pad.slice()};return o;}
@@ -126,12 +127,16 @@ function loadBinds(){BINDS=defaultBinds();
     // (an action added since these were saved starts on its defaults, but not on a key or button the player has already
     // given something else in the same context: Reload's X or D-pad down, say, moved on to another move by hand, would
     // otherwise do both. It's left unbound there, for the player to set)
+    // (saved before Previous weapon: push to talk still on its old D-pad left gives it up, and Next weapon takes the
+    // wheel down if it has room for it)
+    if(v&&typeof v==='object'&&!v.weaponPrev){const T=BINDS.talk.pad,W=BINDS.weapon.kb;if(T.length===1&&T[0]===14)BINDS.talk.pad=[];
+      if(W.length<2&&!ACTS.some(o=>!o.ctx&&BINDS[o.id].kb.includes('MouseWheelDown')))W.push('MouseWheelDown');}
     if(v&&typeof v==='object')for(const a of ACTS){if(v[a.id])continue;const cx=a.ctx||'';
       for(const dev of ['kb','pad'])BINDS[a.id][dev]=BINDS[a.id][dev].filter(c=>!ACTS.some(o=>o!==a&&v[o.id]&&(o.ctx||'')===cx&&BINDS[o.id][dev].includes(c)));}}catch(e){}}
 const MG_PAD_WAS={mgArmL:6,mgArmR:7,mgShL:4,mgShR:5};
 function saveBinds(){try{localStorage.setItem(BIND_KEY,JSON.stringify(BINDS));}catch(e){}}
 loadBinds();
-const KEY_NAMES={Mouse0:'Left click',Mouse1:'Middle click',Mouse2:'Right click',Mouse3:'Mouse 4',Mouse4:'Mouse 5',Space:'Space',ShiftLeft:'Left Shift',ShiftRight:'Right Shift',
+const KEY_NAMES={Mouse0:'Left click',Mouse1:'Middle click',Mouse2:'Right click',Mouse3:'Mouse 4',Mouse4:'Mouse 5',MouseWheelUp:'Wheel up',MouseWheelDown:'Wheel down',Space:'Space',ShiftLeft:'Left Shift',ShiftRight:'Right Shift',
   ControlLeft:'Left Ctrl',ControlRight:'Right Ctrl',AltLeft:'Left Alt',AltRight:'Right Alt',MetaLeft:'Left ⌘',MetaRight:'Right ⌘',ArrowUp:'↑',ArrowDown:'↓',ArrowLeft:'←',ArrowRight:'→',
   Enter:'Enter',Tab:'Tab',CapsLock:'Caps Lock',Comma:',',Slash:'/',Semicolon:';',Quote:"'",Backslash:'\\',Minus:'-',Equal:'=',Insert:'Insert',Home:'Home',End:'End',PageUp:'Page Up',PageDown:'Page Down',IntlBackslash:'\\'};
 function keyLabel(c){if(!c)return '—';if(KEY_NAMES[c])return KEY_NAMES[c];if(c.startsWith('Key'))return c.slice(3);if(c.startsWith('Digit'))return c.slice(5);if(c.startsWith('Numpad'))return 'Num '+c.slice(6);return c;}
@@ -146,7 +151,7 @@ function kbAct(id){const B=BINDS[id];if(B)for(const c of B.kb)if(c.startsWith('M
 // turns that line into the page's markup
 // (the sticks pressed in are named L3 and R3: LS and RS are the sticks themselves, pushed about)
 const PAD_GLYPH=['A','B','X','Y','LB','RB','LT','RT','SELECT','START','KEY:L3','KEY:R3','DPAD:v','DPAD:v','DPAD:h','DPAD:h'];
-function bindGlyph(dev,v){if(v==null)return null;if(dev==='pad')return PAD_GLYPH[v]||'KEY:'+padLabel(v,padStyle==='ps');return v==='Mouse0'?'LMB':v==='Mouse2'?'RMB':v==='Mouse1'?'WHEEL':'KEY:'+keyLabel(v);}
+function bindGlyph(dev,v){if(v==null)return null;if(dev==='pad')return PAD_GLYPH[v]||'KEY:'+padLabel(v,padStyle==='ps');return v==='Mouse0'?'LMB':v==='Mouse2'?'RMB':v==='Mouse1'?'WHEEL':v==='MouseWheelUp'?'WHEELUP':v==='MouseWheelDown'?'WHEELDN':'KEY:'+keyLabel(v);}
 const btnMark=g=>g?'⟦'+g+'⟧':'';
 // (the first button bound to an action, on a player's controller or else the keyboard and mouse)
 // (in a vehicle, a control on foot that its own set takes over is named by what's bound there: a car's horn, not bite)
@@ -175,7 +180,7 @@ function gobHint(L,p){const w=p&&p.wpns?p.wpn:'club',out=[];
   if(L('stomp'))out.push(L('stomp')+(W&&W.player&&W.player.scope?' look down the scope (hold)':' throw a grenade'));if(L('jump'))out.push(L('jump')+' jump');
   if(L('dashSprint'))out.push('tap '+L('dashSprint')+' dash, hold to sprint');else{if(L('dash'))out.push(L('dash')+' dash');}
   if(L('sprint'))out.push('hold '+L('sprint')+' to sprint');
-  if(L('climb'))out.push('hold '+L('climb')+' climb');if(L('weapon'))out.push(L('weapon')+' next weapon');if(L('use'))out.push(L('use')+' get in');
+  if(L('climb'))out.push('hold '+L('climb')+' climb');if(L('weapon'))out.push(L('weapon')+' next weapon');if(L('weaponPrev'))out.push(L('weaponPrev')+' previous weapon');if(L('use'))out.push(L('use')+' get in');
   return out.join('  ·  ');
 }
 // ---- rebinding: pick a slot, then press what goes in it
@@ -200,6 +205,8 @@ addEventListener('keydown',e=>{if(!BIND_CAP)return;e.preventDefault();e.stopImme
   setBind(BIND_CAP.id,'kb',BIND_CAP.i,e.code);},true);
 addEventListener('mousedown',e=>{if(!BIND_CAP||BIND_CAP.dev!=='kb'||performance.now()-BIND_CAP.t<150)return;
   e.preventDefault();e.stopImmediatePropagation();bindClickT=performance.now();setBind(BIND_CAP.id,'kb',BIND_CAP.i,'Mouse'+e.button);},true);
+addEventListener('wheel',e=>{if(!BIND_CAP||BIND_CAP.dev!=='kb'||performance.now()-BIND_CAP.t<150||!e.deltaY)return;
+  e.preventDefault();e.stopImmediatePropagation();setBind(BIND_CAP.id,'kb',BIND_CAP.i,e.deltaY<0?'MouseWheelUp':'MouseWheelDown');},{capture:true,passive:false});
 addEventListener('contextmenu',e=>{if(BIND_CAP||performance.now()-bindClickT<600)e.preventDefault();},true);
 document.getElementById('ctlBody').addEventListener('click',e=>{
   const r=e.target.closest&&e.target.closest('#rbReset');

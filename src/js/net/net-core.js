@@ -143,7 +143,7 @@ function netHostLeft(peer){
 }
 // a guest's controls: what's held now replaces what was held; a press counts once, on the host's next frame, however many
 // of the guest's frames it was spread over (and none is lost between two of them)
-const NET_HELD=['charge','stomp','bite','jump','dash','sprint','climb','use','weapon','reload','kbd',...CTX_IDS],NET_PRESS=['chargePress','bitePress','jumpPress','lockPress','dashPress','sprintPress',...CTX_PRESS];
+const NET_HELD=['charge','stomp','bite','jump','dash','sprint','climb','use','weapon','weaponPrev','reload','kbd',...CTX_IDS],NET_PRESS=['chargePress','bitePress','jumpPress','lockPress','dashPress','sprintPress',...CTX_PRESS];
 function netGotInput(p,m){
   const N=p.net;if(typeof m.n==='number'&&m.n<=(N.inN||0))return;N.inN=m.n;N.inAt=NET.now;
   N.inb=m;if(Number.isFinite(m.vt))N.vt=m.vt;if(m.pr&&(m.pr.bitePress||m.pr.chargePress)||m.h&&(m.h.bite||m.h.stomp))N.atkAt=NET.now;

@@ -23,6 +23,11 @@
 
 - Everyone at the wheel is dressed as themselves, in their own colours, hats, glasses and the rest, instead of a plain green head, and whoever you haul out or leave in a wreck is dressed the same. Police drivers are in blue, and your own goblin shows at the wheel of whatever you drive.
 
+### Switching weapons
+
+- As a goblin, the mouse wheel and the D-pad now go both ways through your weapons: wheel down or D-pad right for the next, wheel up or D-pad left for the one before. Both can be changed in the Controls tab.
+- Push to talk no longer has a controller button by default (D-pad left was it): give it one in the Controls tab if you play online with a controller.
+
 ### Ruined towns
 
 - A town you've wiped out stays dead. Traffic no longer drives into it: cars on the roads in turn back or head the other way, and none come off the motorway into it. Nobody turns up there, the shops have no staff, nothing's parked, no one's sent out to it, and anyone left wandering about slips away once you're not looking.

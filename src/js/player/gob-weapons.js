@@ -120,14 +120,14 @@ function gobThrow(p){
   shot({kind:'grenade',x:c.x+dx*0.6,y:c.y-0.1+dy*0.6,z:c.z+dz*0.6,vx:dx*v,vy:dy*v+4,vz:dz*v,grav:20,fuse:GREN.fuse,R:GREN.R,dmg:GREN.dmg,cause:GREN_CAUSE,by:pvpBy(p),bounce:true,crush:GREN_CRUSH});
   sfx('Goblin throws a grenade',()=>{woosh(0.15,0.2,400,1200,0.08);});
 }
-function gobNextWpn(p){gobArms(p);const L=GOB_WPN_ORDER.filter(k=>p.wpns.includes(k));if(L.length<2)return;
-  p.wpn=L[(L.indexOf(p.wpn)+1)%L.length];p.wpnT=camClock;p.relT=0;   // (a reload's dropped: it starts again next time)
+function gobNextWpn(p,d=1){gobArms(p);const L=GOB_WPN_ORDER.filter(k=>p.wpns.includes(k));if(L.length<2)return;   // (d -1: the one before)
+  p.wpn=L[(L.indexOf(p.wpn)+d+L.length)%L.length];p.wpnT=camClock;p.relT=0;   // (a reload's dropped: it starts again next time)
   sfx('Goblin switches weapon',()=>{tone('square',700,900,0.04,0.03);});}
 // once a frame per player goblin, before the move: the throw and the weapon buttons, and the cooldown
 function gobArmsTick(p,dt){gobArms(p);wpnHitSweep(p);p.grenCD=Math.max(0,p.grenCD-dt);p.thrS=(p.thrS??9)+dt;   // (since his last throw: the arm coming through, gobBodyPose)
-  const st=!!p.in.stomp,wp=!!p.in.weapon,rl=!!p.in.reload;
+  const st=!!p.in.stomp,wp=!!p.in.weapon,wv=!!p.in.weaponPrev,rl=!!p.in.reload;
   // (with a scoped gun in hand stomp looks down the scope instead: gobScope)
-  if(st&&!p.gStompWas&&playing&&!gobW(p).scope)gobThrow(p);if(wp&&!p.gWpnWas&&playing)gobNextWpn(p);if(rl&&!p.gRelWas&&playing)gobReload(p);p.gStompWas=st;p.gWpnWas=wp;p.gRelWas=rl;
+  if(st&&!p.gStompWas&&playing&&!gobW(p).scope)gobThrow(p);if(wp&&!p.gWpnWas&&playing)gobNextWpn(p);if(wv&&!p.gWpvWas&&playing)gobNextWpn(p,-1);p.gWpvWas=wv;if(rl&&!p.gRelWas&&playing)gobReload(p);p.gStompWas=st;p.gWpnWas=wp;p.gRelWas=rl;
   if(playing)gobReloadTick(p,dt);
   if(!netGuest()){const W=WEAPONS[p.wpn];p.ammoN=W&&W.mag?gobAmmo(p,p.wpn):-1;p.spareN=W?gobSpare(p,p.wpn):-1;}}   // (for the display, here and on a guest)
 // ---- what's dropped: a little model on the ground, turning, until someone picks it up (or a minute and a half) ----
@@ -207,6 +207,6 @@ function gobArmsHud(p){
   const nm=k=>GOB_WPN[k].name+(k==='landmine'?' ×'+(p.mines||0):''),n=W&&W.mag?gobAmmoShown(p,p.wpn):0;
   const sp=W&&W.mag?gobSpareShown(p,p.wpn):-1,cur=nm(p.wpn)+(W&&W.mag?(p.relT>0?'  reloading…':'  '+n+' / '+W.mag)+(sp>=0?'  +'+sp:''):''),
     rq=W&&W.mag&&!(p.relT>0)&&n<W.mag&&(sp!==0||DT.infAmmo)?'  '+bl('reload')+(n?' reload':' RELOAD'):'';
-  const s=L.map(k=>k===p.wpn?'<b>'+cur+'</b>':nm(k)).join(' · ')+rq+(L.length>1?'  '+bl('weapon')+' next':'')+'  |  Grenades '+p.gren+(gobW(p).scope?'  '+bl('stomp')+(WEAPONS[p.wpn]&&WEAPONS[p.wpn].lock?' lock on (hold)':' scope (hold)'):p.gren||DT.infAmmo?'  '+bl('stomp')+' throw':'');
+  const s=L.map(k=>k===p.wpn?'<b>'+cur+'</b>':nm(k)).join(' · ')+rq+(L.length>1?(bl('weaponPrev')?'  '+bl('weaponPrev')+' previous':'')+'  '+bl('weapon')+' next':'')+'  |  Grenades '+p.gren+(gobW(p).scope?'  '+bl('stomp')+(WEAPONS[p.wpn]&&WEAPONS[p.wpn].lock?' lock on (hold)':' scope (hold)'):p.gren||DT.infAmmo?'  '+bl('stomp')+' throw':'');
   if(H.s!==s){H.s=s;H.el.innerHTML=s.split(/(<b>[^<]*<\/b>)/).map(t=>t.startsWith('<b>')?'<b>'+glEsc(t.slice(3,-4))+'</b>':hudHTML(t)).join('');}
 }

@@ -195,6 +195,8 @@ canvas.addEventListener('mousedown',e=>{
   else if(dragMode&&!touchMode)downAt={x:e.clientX,y:e.clientY,b:e.button,moved:false};
   else wantLock();
 });
+// (the wheel's notches, up or down, are presses like a button's, for one frame: Gnash's previous and next weapon)
+canvas.addEventListener('wheel',e=>{if(menuOpen||P1.paused||DT.kbdOpen||!e.deltaY)return;e.preventDefault();mTap.add(e.deltaY<0?'MouseWheelUp':'MouseWheelDown');},{passive:false});
 addEventListener('mouseup',e=>{const code='Mouse'+e.button;mHeld.delete(code);if(e.button===2){downAt=null;return;}if(downAt&&!downAt.moved&&!menuOpen&&!P1.paused)mTap.add(code);downAt=null;});
 addEventListener('mousemove',e=>{
   if(menuOpen||P1.paused||DT.kbdOpen)return;
@@ -241,7 +243,7 @@ function readInputs(dt){
   else{s1=st[0]||null;s2=st[1]||null;}
   if(s1)P1.pad=s1.p;if(s2&&P2.active&&!P2.net)P2.pad=s2.p;
   P2.ui.join.hidden=!(P2.active&&!P2.pad);
-  for(const p of players){const i=p.in;i.x=0;i.z=0;i.charge=false;i.chargePress=false;i.stomp=false;i.bite=false;i.bitePress=false;i.jumpPress=false;i.jump=false;i.lockPress=false;i.dash=false;i.dashPress=false;i.sprint=false;i.sprintPress=false;i.lookX=0;i.lookY=0;i.climb=false;i.use=false;i.weapon=false;i.reload=false;i.talk=false;i.kbd=false;i.rt=i.lt=0;for(const k of CTX_IDS)i[k]=i[k+'P']=false;}
+  for(const p of players){const i=p.in;i.x=0;i.z=0;i.charge=false;i.chargePress=false;i.stomp=false;i.bite=false;i.bitePress=false;i.jumpPress=false;i.jump=false;i.lockPress=false;i.dash=false;i.dashPress=false;i.sprint=false;i.sprintPress=false;i.lookX=0;i.lookY=0;i.climb=false;i.use=false;i.weapon=false;i.weaponPrev=false;i.reload=false;i.talk=false;i.kbd=false;i.rt=i.lt=0;for(const k of CTX_IDS)i[k]=i[k+'P']=false;}
   // (rebinding a control in the menu: the next button pressed on any controller is the one)
   if(menuOpen&&BIND_CAP){if(performance.now()-BIND_CAP.t>200)for(const s of st){const i=s.pr.findIndex(Boolean);if(i<0)continue;
       if(BIND_CAP.dev==='pad'){if(PAD_RESERVED.has(i))bindCancel();else setBind(BIND_CAP.id,'pad',BIND_CAP.i,i);}else if(i===1||i===9)bindCancel();break;}
@@ -293,7 +295,7 @@ function readInputs(dt){
     I.z+=(A.back?1:0)-(A.fwd?1:0);I.x+=(A.right?1:0)-(A.left?1:0);
     I.kbd=!P1.pad;   // (flying on the keyboard: a plane is flown WASD-style, see drvPlane; the same rule as the hints' p.pad)
     I.charge=A.dashSprint;I.chargePress=A.dashSprintP;I.dash=A.dash;I.dashPress=A.dashP;I.sprint=A.sprint;I.sprintPress=A.sprintP;
-    I.stomp=A.stomp;I.jumpPress=A.jumpP;I.jump=A.jump;I.lockPress=A.lockP;I.climb=A.climb;I.bite=A.bite;I.bitePress=A.biteP;I.use=A.use;I.weapon=A.weapon;I.reload=A.reload;I.talk=A.talk;
+    I.stomp=A.stomp;I.jumpPress=A.jumpP;I.jump=A.jump;I.lockPress=A.lockP;I.climb=A.climb;I.bite=A.bite;I.bitePress=A.biteP;I.use=A.use;I.weapon=A.weapon;I.weaponPrev=A.weaponPrev;I.reload=A.reload;I.talk=A.talk;
     for(const k of CTX_IDS){I[k]=A[k];I[k+'P']=A[k+'P'];}
   }else for(const a of ACTS)kbPrevA[a.id]=false;
   mTap.clear();
@@ -312,7 +314,7 @@ function readInputs(dt){
     i.charge=i.charge||pb('dashSprint');i.chargePress=i.chargePress||pp('dashSprint');
     i.dash=i.dash||pb('dash');i.dashPress=i.dashPress||pp('dash');
     i.sprint=i.sprint||pb('sprint');i.sprintPress=i.sprintPress||pp('sprint');
-    i.stomp=i.stomp||pb('stomp');i.use=i.use||pb('use');i.weapon=i.weapon||pb('weapon');i.reload=i.reload||pb('reload');
+    i.stomp=i.stomp||pb('stomp');i.use=i.use||pb('use');i.weapon=i.weapon||pb('weapon');i.weaponPrev=i.weaponPrev||pb('weaponPrev');i.reload=i.reload||pb('reload');
     i.jumpPress=i.jumpPress||pp('jump');i.jump=i.jump||pb('jump');
     i.bite=i.bite||pb('bite');
     i.bitePress=i.bitePress||pp('bite');
