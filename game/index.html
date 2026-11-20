@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:147ba6ee0d269d319d991da5b78bdc0c99bdc4bcf9b465b6388dba183397d20e -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:00fd732d83a85de25fcfed6ab6387a8d0d992e2cc54077481c97dda152ad19e0 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -160,6 +160,15 @@ canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;point
 .gwi em{font:600 8px var(--f-mono);font-style:normal;color:var(--bone);overflow:hidden;text-overflow:ellipsis;max-width:46px}
 .gwi i{position:absolute;right:2px;bottom:0;font:700 9px var(--f-mono);font-style:normal;color:var(--bone);text-shadow:0 1px 0 #000,1px 0 0 #000,-1px 0 0 #000}
 .gsep{width:1px;align-self:stretch;margin:2px 4px;background:rgba(255,255,255,.18)}
+.gammo{position:absolute;right:max(18px,env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;align-items:flex-end;gap:2px;padding:6px 12px;background:rgba(14,17,22,.8);border-radius:4px;font:600 11px var(--f-mono);color:var(--mute);white-space:nowrap;pointer-events:none}
+.gammo[hidden]{display:none}
+.gammo b{font:700 30px/1 var(--f-mono);color:var(--bone)}
+.gammo b small{font-size:15px;color:var(--mute);margin-left:2px}
+.gammo b.out{color:#ec4f42}
+.gammo b.rl{font-size:16px;color:#ffd75a}
+.gammo .sp{font:700 13px var(--f-mono);color:var(--mute)}
+.gammo span{display:inline-flex;align-items:center}
+@media (pointer:coarse){.gammo{bottom:calc(250px + env(safe-area-inset-bottom,0px))}}
 .gxh{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:rgba(255,255,255,.9);box-shadow:0 0 0 1px rgba(0,0,0,.55);pointer-events:none}
 .gxh[hidden]{display:none}
 .drvhud .xh{position:absolute;left:50%;top:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border:2px solid rgba(255,255,255,.9);border-radius:50%;box-shadow:0 0 0 1px rgba(0,0,0,.45),inset 0 0 0 1px rgba(0,0,0,.45);transition:border-color .12s}
@@ -1611,7 +1620,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Drivers</h3>
 <ul><li>Everyone at the wheel is dressed as themselves, in their own colours, hats, glasses and the rest, instead of a plain green head, and whoever you haul out or leave in a wreck is dressed the same. Police drivers are in blue, and your own goblin shows at the wheel of whatever you drive.</li></ul>
 <h3>Switching weapons</h3>
-<ul><li>The weapon bar above your hearts now shows your weapons as a row of little pictures of each one, the one in hand lit up, with landmines and grenades showing how many you have.</li><li>As a goblin, the mouse wheel and the D-pad now go both ways through your weapons: wheel down or D-pad right for the next, wheel up or D-pad left for the one before. Both can be changed in the Controls tab.</li><li>Push to talk no longer has a controller button by default (D-pad left was it): give it one in the Controls tab if you play online with a controller.</li></ul>
+<ul><li>The weapon bar above your hearts now shows your weapons as a row of little pictures of each one, the one in hand lit up, with landmines and grenades showing how many you have.</li><li>The rounds left in your gun, and the reload prompt, are now in the bottom right corner in big numbers, turning red when the magazine's empty.</li><li>As a goblin, the mouse wheel and the D-pad now go both ways through your weapons: wheel down or D-pad right for the next, wheel up or D-pad left for the one before. Both can be changed in the Controls tab.</li><li>Push to talk no longer has a controller button by default (D-pad left was it): give it one in the Controls tab if you play online with a controller.</li></ul>
 <h3>Ruined towns</h3>
 <ul><li>A town you've wiped out stays dead. Traffic no longer drives into it: cars on the roads in turn back or head the other way, and none come off the motorway into it. Nobody turns up there, the shops have no staff, nothing's parked, no one's sent out to it, and anyone left wandering about slips away once you're not looking.</li></ul>
 <h3>Nuclear meltdown</h3>
@@ -2316,7 +2325,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='dcb407e6ac79';
+const GAME_VER='0.5',GAME_BUILD='1cfc38ce1640';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -19892,7 +19901,9 @@ const scopeK=p=>p.gob&&!p.drv&&p.scFov?p.scFov/72:1;
 function gobArmsHud(p){
   let H=p.ui.gw;const show=p.gob&&p.active&&!p.drv&&p.state!=='dead';
   if(!H){if(!show)return;const el=document.createElement('div');el.className='gwpn';const xh=document.createElement('div');xh.className='gxh';xh.hidden=true;p.ui.view.append(xh);
-    const bar=p.ui.view.querySelector('.bar'),who=bar&&bar.querySelector('.who');if(who)bar.insertBefore(el,who);else p.ui.view.append(el);H=p.ui.gw={el,xh,s:''};}
+    const bar=p.ui.view.querySelector('.bar'),who=bar&&bar.querySelector('.who');if(who)bar.insertBefore(el,who);else p.ui.view.append(el);
+    // (the magazine's count in the bottom right corner, where a vehicle's speedometer goes: none's shown on foot)
+    const am=document.createElement('div');am.className='gammo';am.hidden=true;p.ui.view.append(am);H=p.ui.gw={el,xh,am,s:'',a:''};}
   // (the scope's sight: a ring of black round a circle of view, cross hairs with marks down them for holding over)
   if(!H.sc){const s=document.createElement('div');s.className='gscope';s.hidden=true;
     s.style.cssText='position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at center,transparent 0,transparent 37%,rgba(0,0,0,.55) 38%,#050505 39.5%)';
@@ -19900,18 +19911,20 @@ function gobArmsHud(p){
     for(let k=1;k<=4;k++)h+='<div style="'+ln+'left:50%;top:calc(50% + '+(k*3.2)+'%);width:'+(k%2?10:16)+'px;height:2px;margin-left:-'+(k%2?5:8)+'px"></div>';
     s.innerHTML=h;p.ui.view.insertBefore(s,p.ui.view.firstChild||null);H.sc=s;}
   const scoped=show&&(p.scope||0)>0.5&&gobW(p).scope.ring!==false;H.sc.hidden=!scoped;   // (the rocket launcher's sight has no ring: just the crosshair, zoomed)
-  H.el.hidden=!show;H.xh.hidden=!show||scoped||!gobAims(gobArms(p).wpn);if(!show)return;
+  H.el.hidden=!show;if(!show)H.am.hidden=true;H.xh.hidden=!show||scoped||!gobAims(gobArms(p).wpn);if(!show)return;
   const bl=id=>actMark(p,id),L=GOB_WPN_ORDER.filter(k=>p.wpns.includes(k)),W=WEAPONS[p.wpn];
   // (a row of the weapons carried as little pictures of them, wpnIcon, the one in hand lit; landmines and grenades with
-  // how many. After it, in bold, what's left in the magazine in hand, or reloading, and a reload asked for when it's empty)
+  // how many. What's left in the magazine in hand, or reloading, and a reload asked for, go in the corner, H.am)
   const ic=(k,on,n)=>{const u=wpnIcon(k),nm=glEsc(WEAPONS[k].name);
       return '<span class="gwi'+(on?' on':'')+'" title="'+nm+'">'+(u?'<img src="'+u+'" alt="'+nm+'">':'<em>'+nm+'</em>')+(n!=null?'<i>×'+n+'</i>':'')+'</span>';},
     n=W&&W.mag?gobAmmoShown(p,p.wpn):0,sp=W&&W.mag?gobSpareShown(p,p.wpn):-1,
-    cur=W&&W.mag?(p.relT>0?'reloading…':n+' / '+W.mag)+(sp>=0?'  +'+sp:''):'',
     rq=W&&W.mag&&!(p.relT>0)&&n<W.mag&&(sp!==0||DT.infAmmo)?bl('reload')+(n?' reload':' RELOAD'):'',
-    t=(rq?'  '+rq:'')+(L.length>1?(bl('weaponPrev')?'  '+bl('weaponPrev')+' previous':'')+'  '+bl('weapon')+' next':''),
+    t=(L.length>1?(bl('weaponPrev')?'  '+bl('weaponPrev')+' previous':'')+'  '+bl('weapon')+' next':''),
     t2=gobW(p).scope?bl('stomp')+(WEAPONS[p.wpn]&&WEAPONS[p.wpn].lock?' lock on (hold)':' scope (hold)'):p.gren||DT.infAmmo?bl('stomp')+' throw':'';
-  const s=L.map(k=>ic(k,k===p.wpn,k==='landmine'?p.mines||0:null)).join('')+(cur?'<b>'+glEsc(cur)+'</b>':'')+(t?'<span>'+hudHTML(t.trim())+'</span>':'')
+  const a=W&&W.mag?(p.relT>0?'<b class="rl">reloading…</b>':'<b'+(n?'':' class="out"')+'>'+n+'<small>/'+W.mag+'</small></b>')
+      +(sp>=0?'<small class="sp">+'+sp+'</small>':'')+(rq?'<span>'+hudHTML(rq)+'</span>':''):'';
+  H.am.hidden=!a;if(H.a!==a){H.a=a;H.am.innerHTML=a;}
+  const s=L.map(k=>ic(k,k===p.wpn,k==='landmine'?p.mines||0:null)).join('')+(t?'<span>'+hudHTML(t.trim())+'</span>':'')
     +'<span class="gsep"></span>'+ic('grenade',false,p.gren)+(t2?'<span>'+hudHTML(t2)+'</span>':'');
   if(H.s!==s){H.s=s;H.el.innerHTML=s;}
 }

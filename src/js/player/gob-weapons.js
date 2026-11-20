@@ -233,7 +233,9 @@ const scopeK=p=>p.gob&&!p.drv&&p.scFov?p.scFov/72:1;
 function gobArmsHud(p){
   let H=p.ui.gw;const show=p.gob&&p.active&&!p.drv&&p.state!=='dead';
   if(!H){if(!show)return;const el=document.createElement('div');el.className='gwpn';const xh=document.createElement('div');xh.className='gxh';xh.hidden=true;p.ui.view.append(xh);
-    const bar=p.ui.view.querySelector('.bar'),who=bar&&bar.querySelector('.who');if(who)bar.insertBefore(el,who);else p.ui.view.append(el);H=p.ui.gw={el,xh,s:''};}
+    const bar=p.ui.view.querySelector('.bar'),who=bar&&bar.querySelector('.who');if(who)bar.insertBefore(el,who);else p.ui.view.append(el);
+    // (the magazine's count in the bottom right corner, where a vehicle's speedometer goes: none's shown on foot)
+    const am=document.createElement('div');am.className='gammo';am.hidden=true;p.ui.view.append(am);H=p.ui.gw={el,xh,am,s:'',a:''};}
   // (the scope's sight: a ring of black round a circle of view, cross hairs with marks down them for holding over)
   if(!H.sc){const s=document.createElement('div');s.className='gscope';s.hidden=true;
     s.style.cssText='position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at center,transparent 0,transparent 37%,rgba(0,0,0,.55) 38%,#050505 39.5%)';
@@ -241,18 +243,20 @@ function gobArmsHud(p){
     for(let k=1;k<=4;k++)h+='<div style="'+ln+'left:50%;top:calc(50% + '+(k*3.2)+'%);width:'+(k%2?10:16)+'px;height:2px;margin-left:-'+(k%2?5:8)+'px"></div>';
     s.innerHTML=h;p.ui.view.insertBefore(s,p.ui.view.firstChild||null);H.sc=s;}
   const scoped=show&&(p.scope||0)>0.5&&gobW(p).scope.ring!==false;H.sc.hidden=!scoped;   // (the rocket launcher's sight has no ring: just the crosshair, zoomed)
-  H.el.hidden=!show;H.xh.hidden=!show||scoped||!gobAims(gobArms(p).wpn);if(!show)return;
+  H.el.hidden=!show;if(!show)H.am.hidden=true;H.xh.hidden=!show||scoped||!gobAims(gobArms(p).wpn);if(!show)return;
   const bl=id=>actMark(p,id),L=GOB_WPN_ORDER.filter(k=>p.wpns.includes(k)),W=WEAPONS[p.wpn];
   // (a row of the weapons carried as little pictures of them, wpnIcon, the one in hand lit; landmines and grenades with
-  // how many. After it, in bold, what's left in the magazine in hand, or reloading, and a reload asked for when it's empty)
+  // how many. What's left in the magazine in hand, or reloading, and a reload asked for, go in the corner, H.am)
   const ic=(k,on,n)=>{const u=wpnIcon(k),nm=glEsc(WEAPONS[k].name);
       return '<span class="gwi'+(on?' on':'')+'" title="'+nm+'">'+(u?'<img src="'+u+'" alt="'+nm+'">':'<em>'+nm+'</em>')+(n!=null?'<i>×'+n+'</i>':'')+'</span>';},
     n=W&&W.mag?gobAmmoShown(p,p.wpn):0,sp=W&&W.mag?gobSpareShown(p,p.wpn):-1,
-    cur=W&&W.mag?(p.relT>0?'reloading…':n+' / '+W.mag)+(sp>=0?'  +'+sp:''):'',
     rq=W&&W.mag&&!(p.relT>0)&&n<W.mag&&(sp!==0||DT.infAmmo)?bl('reload')+(n?' reload':' RELOAD'):'',
-    t=(rq?'  '+rq:'')+(L.length>1?(bl('weaponPrev')?'  '+bl('weaponPrev')+' previous':'')+'  '+bl('weapon')+' next':''),
+    t=(L.length>1?(bl('weaponPrev')?'  '+bl('weaponPrev')+' previous':'')+'  '+bl('weapon')+' next':''),
     t2=gobW(p).scope?bl('stomp')+(WEAPONS[p.wpn]&&WEAPONS[p.wpn].lock?' lock on (hold)':' scope (hold)'):p.gren||DT.infAmmo?bl('stomp')+' throw':'';
-  const s=L.map(k=>ic(k,k===p.wpn,k==='landmine'?p.mines||0:null)).join('')+(cur?'<b>'+glEsc(cur)+'</b>':'')+(t?'<span>'+hudHTML(t.trim())+'</span>':'')
+  const a=W&&W.mag?(p.relT>0?'<b class="rl">reloading…</b>':'<b'+(n?'':' class="out"')+'>'+n+'<small>/'+W.mag+'</small></b>')
+      +(sp>=0?'<small class="sp">+'+sp+'</small>':'')+(rq?'<span>'+hudHTML(rq)+'</span>':''):'';
+  H.am.hidden=!a;if(H.a!==a){H.a=a;H.am.innerHTML=a;}
+  const s=L.map(k=>ic(k,k===p.wpn,k==='landmine'?p.mines||0:null)).join('')+(t?'<span>'+hudHTML(t.trim())+'</span>':'')
     +'<span class="gsep"></span>'+ic('grenade',false,p.gren)+(t2?'<span>'+hudHTML(t2)+'</span>':'');
   if(H.s!==s){H.s=s;H.el.innerHTML=s;}
 }

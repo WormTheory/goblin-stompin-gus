@@ -10,7 +10,7 @@ const b=await chromium.launch({args:['--use-gl=angle','--use-angle=swiftshader',
 const p=await b.newPage({viewport:{width:1280,height:720},deviceScaleFactor:2});
 const errs=[];p.on('pageerror',e=>errs.push(e.message));p.on('console',m=>{if(m.type()==='error')errs.push(m.text().slice(0,200));});
 await p.addInitScript(([k,s])=>{if(!localStorage.getItem(k))localStorage.setItem(k,JSON.stringify({seed:s}));localStorage.setItem('goblin-stompin-gus-character','goblin');},[SAVE_KEY,seed]);
-await p.goto('file://'+process.cwd()+'/t3.html');await p.waitForTimeout(3000);
+await p.goto('file://'+process.cwd()+'/t3.html',{waitUntil:'domcontentloaded',timeout:60000});await p.waitForTimeout(3000);
 await p.evaluate(()=>document.getElementById('play').click());await p.waitForTimeout(12000);
 const all=await p.evaluate(()=>{const G=window.__G,P=G.players[0];P.wpns=G.GOB_WPN_ORDER.slice();P.wpn='club';P.gren=5;P.mines=3;return G.GOB_WPN_ORDER;});
 console.log('weapons',all.join(','));
@@ -18,7 +18,9 @@ const n=await p.evaluate(()=>{const G=window.__G;return Object.keys(G.WPN_ICON).
 console.log('icons',n);
 for(const w of ['club','rifle','landmine']){await p.evaluate(w=>{window.__G.players[0].wpn=w;},w);await p.waitForTimeout(500);
   const el=await p.$('.gwpn');if(el)await el.screenshot({path:out+'/wpnbar-'+w+'.png'});}
+await p.evaluate(()=>{window.__G.players[0].wpn='rifle';});await p.waitForTimeout(500);
 await p.screenshot({path:out+'/wpnbar-whole.png'});
+const am=await p.$('.gammo');if(am)await am.screenshot({path:out+'/ammo-rifle.png'});console.log('ammo box',am?await am.evaluate(e=>e.hidden+' '+e.textContent):'none');
 // each icon big, on a grey card, in a grid
 await p.evaluate(()=>{const G=window.__G,d=document.createElement('div');d.id='iconSheet';
   d.style.cssText='position:fixed;inset:0;z-index:99999;background:#3a4048;display:flex;flex-wrap:wrap;gap:10px;padding:10px;align-content:flex-start';

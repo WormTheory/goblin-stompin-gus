@@ -154,6 +154,15 @@ canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;point
 .gwi em{font:600 8px var(--f-mono);font-style:normal;color:var(--bone);overflow:hidden;text-overflow:ellipsis;max-width:46px}
 .gwi i{position:absolute;right:2px;bottom:0;font:700 9px var(--f-mono);font-style:normal;color:var(--bone);text-shadow:0 1px 0 #000,1px 0 0 #000,-1px 0 0 #000}
 .gsep{width:1px;align-self:stretch;margin:2px 4px;background:rgba(255,255,255,.18)}
+.gammo{position:absolute;right:max(18px,env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;align-items:flex-end;gap:2px;padding:6px 12px;background:rgba(14,17,22,.8);border-radius:4px;font:600 11px var(--f-mono);color:var(--mute);white-space:nowrap;pointer-events:none}
+.gammo[hidden]{display:none}
+.gammo b{font:700 30px/1 var(--f-mono);color:var(--bone)}
+.gammo b small{font-size:15px;color:var(--mute);margin-left:2px}
+.gammo b.out{color:#ec4f42}
+.gammo b.rl{font-size:16px;color:#ffd75a}
+.gammo .sp{font:700 13px var(--f-mono);color:var(--mute)}
+.gammo span{display:inline-flex;align-items:center}
+@media (pointer:coarse){.gammo{bottom:calc(250px + env(safe-area-inset-bottom,0px))}}
 .gxh{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:rgba(255,255,255,.9);box-shadow:0 0 0 1px rgba(0,0,0,.55);pointer-events:none}
 .gxh[hidden]{display:none}
 .drvhud .xh{position:absolute;left:50%;top:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border:2px solid rgba(255,255,255,.9);border-radius:50%;box-shadow:0 0 0 1px rgba(0,0,0,.45),inset 0 0 0 1px rgba(0,0,0,.45);transition:border-color .12s}
