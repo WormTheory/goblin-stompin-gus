@@ -335,6 +335,8 @@ function fireRound(o){
   if(hit==='air'&&tgtHit)hit='tgt';   // (reached him)
   // (a player's round, or any not aimed at a player, sets off a landmine it reaches first: just short of the ground under
   // it counts, as the line meets the mine as it meets the ground)
+  // (and stops at a street fixture or prop in its way short of that, knocking it over)
+  let kr=null;if(!o.tgt&&(kr=knockRay(mx,my,mz,ux,uy,uz,Math.min(R,t)))){t=kr.t;hit='fix';oh=null;}
   let mr=null;if(!o.tgt&&MINES.length&&(mr=mineRay(mx,my,mz,ux,uy,uz,Math.min(R,t+0.4)))){t=mr.t;hit='mine';oh=null;}
   t=Math.min(t,R);const ex=mx+ux*t,ey=my+uy*t,ez=mz+uz*t,T0=o.tr||o;tracer(T0.x,T0.y,T0.z,ex,ey,ez);
   if(typeof o.snd==='function')o.snd();else if(o.snd&&audio)sfx(o.snd,()=>noise(0.06,0.1,2400,'highpass'));
@@ -346,6 +348,7 @@ function fireRound(o){
   else if(hit==='tgt'){const h=Math.hypot(ux,uz)||1;shotPlayer(o.tgt,o.pdmg,new V3(ex,ey,ez),new V3(ux/h,0.2,uz/h),o.cause,o.id,o.vd);}
   if(hit!=='tgt'&&(hit!=='air'||o.tgt))puff(hx,hy,hz,1,hit==='gob'||hit==='veh'?0xffb040:0x9a948a,0.2);   // (an enemy's miss raises dust where it ends)
   if(hit==='wall'&&o.breaks)bulletBreak(wx,wy,wz,ux,uz);
+  if(hit==='fix'&&!SBX&&!netGuest())knockFix(kr.f,ux,uz);
   if(mr)mineBoom(mr.M,isPlT(o.by)?pvpBy(o.by):undefined);
   return{hit,x:ex,y:ey,z:ez};
 }

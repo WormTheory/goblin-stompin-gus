@@ -184,6 +184,7 @@ function doBite(p){
       if(fin){if(g.state==='dead'){g.vy=Math.max(g.vy,21);g.kv.x+=hx*4;g.kv.z+=hz*4;}else{g.kv.x+=hx*1.5;g.kv.z+=hz*1.5;g.vy=Math.max(g.vy,10);g.stun=Math.max(g.stun||0,0.7);}}}}
     for(const q of pvpFoes(p))if(segD(q.pos.x,q.pos.z)<JR&&Math.abs(q.pos.y-p.pos.y)<JH&&pvpHurt(p,q,A.dmg,null,fin?new V3(hx*0.6,1.6,hz*0.6):new V3(hx,0.4,hz),fin?'Uppercut':'Bitten')&&fin&&q.hp>0){q.vy=Math.max(q.vy,8);q.grounded=false;}   // (and with PvP on, another player)
     for(const M of MINES)if(M.live&&segD(M.x,M.z)<JR&&Math.abs(M.y-p.pos.y)<JH)mineBoom(M,pvpBy(p));   // (and any landmine in the jaws goes off)
+    for(let t=0;t<=J1-J0+1e-6;t+=0.5)knockAt(ax+hx*t,p.pos.y,az+hz*t,JR*0.6,hx,hz);   // (and fixtures and props in them go over)
     // cars: their body against the same slot (checked at points a half-block apart along it)
     const near=new Set();for(let t=0;t<=J1-J0+1e-6;t+=0.5)for(const c of carsInCyl(ax+hx*t,az+hz*t,JR,p.pos.y-JH,p.pos.y+JH))near.add(c);
     for(const c of near){if(hitC.has(c))continue;hitC.add(c);damageCar(c,A.carDmg,new V3(hx,0,hz));if(fin&&c.alive){c.kv.x+=hx*11;c.kv.z+=hz*11;c.vy=Math.max(c.vy||0,6.5);c.grounded=false;c.spinP=(c.spinP||0)-1.5;thud(0.4);}clang();}   // the uppercut shoves cars hard

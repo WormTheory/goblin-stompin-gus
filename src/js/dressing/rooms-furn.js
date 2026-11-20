@@ -273,6 +273,21 @@ function refreshProps(){
   for(const k of propBorn.keys())if(!propSeen.has(k))propBorn.delete(k);   // (gone out of range: it grows in again when it's back)
 }
 function knockProps(x,y,z,r,dx,dz){if(x>=SHIP_X0){shipKnockAt(x,y,z,r,dx,dz);return;}for(const f of activeProps){const ex=f.x-x,ez=f.z-z,rr=r+f.rad;if(ex*ex+ez*ez<rr*rr&&Math.abs(f.y0+.5-y)<r+1.5)knockFix(f,dx||ex,dz||ez);}}
+// any attack's reach knocking over the street fixtures and props in it: r round (x,z), y its height if it has one (fixtures
+// only stand at street level, so one up on a roof leaves them be). Every player attack's area goes through pvpArea, blasts
+// through foeBoom, and the moves with loops of their own call it beside their goblins. (The host's: a guest's told by netKnock)
+function knockAt(x,y,z,r,dx,dz){if(SBX||netGuest())return;if(y===undefined||y-r<G+7)knockFixtures(x,z,r,dx||0,dz||0);knockProps(x,y===undefined?G+1:y,z,r,dx||0,dz||0);}
+// the nearest street fixture or prop still standing that a round's line from (x,y,z) along (ux,uy,uz) meets within R
+// ({f,t} or null): a fixture as a post of its kind's height, a prop as a short block round its middle
+const FIX_TALL={lamp:7,signal:5.5,sign:3.2,flag:7,board:11,parkbench:1,litterbin:1.1};
+function knockRay(x,y,z,ux,uy,uz,R){
+  const h2=ux*ux+uz*uz;if(h2<1e-6||x>=SHIP_X0)return null;let best=null,bt=R;
+  const see=(f,r,y0,y1)=>{if(downFix.has(f.key)||falling.has(f.key))return;const ox=f.x-x,oz=f.z-z,tc=(ox*ux+oz*uz)/h2;if(tc<0)return;
+    const cx=ox-ux*tc,cz=oz-uz*tc,d2=cx*cx+cz*cz;if(d2>=r*r)return;const t=Math.max(0,tc-Math.sqrt((r*r-d2)/h2));if(t>=bt)return;
+    const yt=y+uy*t,yc=y+uy*tc;if(Math.max(yt,yc)<y0||Math.min(yt,yc)>y1)return;bt=t;best={f,t};};
+  for(const f of activeFix){if(f.type==='bunt')continue;const r=f.type==='board'?Math.max(f.rad||0,2.5):Math.max(0.3,Math.min(f.rad||0,0.6)),y0=f.y0??G+1;see(f,r,y0,y0+(FIX_TALL[f.type]||1.5));}
+  for(const f of activeProps)see(f,Math.max(0.3,f.rad||0),f.y0,f.y0+1.4);
+  return best;}
 // which of a block's lamp spots the street plan allows: that never changes, and asking is most of what this refresh costs
 const lampSpotC=new Map();
 function lampSpotsOf(px,pz,X0,Z0,PBf){

@@ -234,7 +234,7 @@ function mgSlice(M,S,lo,hi){
   // (the bits fly on round the way the blade's going: toward its left)
   const am=(lo+hi)/2,lx=S.fz,lz=-S.fx,ux=S.fx*Math.cos(am)+lx*Math.sin(am),uz=S.fz*Math.cos(am)+lz*Math.sin(am);
   const o={force:0.9,dx:ux+lx*0.6,dz:uz+lz*0.6,up:0.6};rebuildSet(ch);save();destroyFX(broken.slice(0,60),o);settle(broken,o);pumpsHit(broken);
-  knockProps(M.x+ux*(MG.r+MGW.bladeR*0.5),M.y+4.5,M.z+uz*(MG.r+MGW.bladeR*0.5),MGW.bladeR*0.5,ux,uz);
+  knockAt(M.x+ux*(MG.r+MGW.bladeR*0.5),M.y+4.5,M.z+uz*(MG.r+MGW.bladeR*0.5),MGW.bladeR*0.5,ux,uz);   // (street fixtures too)
   return broken.length;}
 // one missile off the pod: up and out first, then it turns after its lock (or the crosshair's spot, with none)
 function mgMissile(M,p,T){

@@ -28,7 +28,7 @@ function pvpHurt(p,q,n,pt,dir,cause,o){const raw=o&&o.raw,cd=o&&o.cd!==undefined
 function pvpKilled(p,q){flashLabel(charName(q)+' was killed by '+charName(p),q);award(500,charName(q)+' flattened',q.pos.x,q.pos.y+2,q.pos.z,p);}
 // the hitGoblins of players: everyone within r of (x,z), and at height y (if given) within reach. Every player attack
 // calls it, so it also sets off the landmines it reaches, PvP or not (mineArea)
-function pvpArea(p,x,z,r,n,cause,y){mineArea(x,z,r,y,pvpBy(p));
+function pvpArea(p,x,z,r,n,cause,y){mineArea(x,z,r,y,pvpBy(p));knockAt(x,y,z,r);   // (and knocks over the fixtures and props it reaches)
   for(const q of pvpFoes(p)){const dx=q.pos.x-x,dz=q.pos.z-z,dy=y===undefined?0:q.pos.y-y,d=Math.hypot(dx,dz)||0.01;
     if(Math.hypot(d,dy)<r&&(y===undefined||vReach(dy,r)))pvpHurt(p,q,n,new V3(q.pos.x,q.pos.y+1.1,q.pos.z),new V3(dx/d,0.6,dz/d),cause);}}
 // the player nearest along a ray from (x,y,z) heading (ux,uy,uz), out to R, as a gun's round meets them ({q,t} or null)

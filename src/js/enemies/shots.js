@@ -14,7 +14,7 @@ function fireball(x,y,z,tx,ty,tz,o){
   return F;
 }
 function fbBurst(F){
-  F.live=false;F.g.visible=false;if(F.pl)mineArea(F.pos.x,F.pos.z,1.2,F.pos.y,F.by);   // (a player's sets off a landmine it bursts on)
+  F.live=false;F.g.visible=false;if(F.pl){mineArea(F.pos.x,F.pos.z,1.2,F.pos.y,F.by);knockAt(F.pos.x,F.pos.y,F.pos.z,1.2,F.v.x,F.v.z);}   // (a player's sets off a landmine it bursts on, and knocks over what it bursts on)
   puff(F.pos.x,F.pos.y-0.15,F.pos.z,9,0xff6a10,0.45);puff(F.pos.x,F.pos.y-0.15,F.pos.z,5,0xffd040,0.3);
   if(audio)tone('sawtooth',170,45,0.35,0.06);
 }
@@ -43,6 +43,7 @@ function updateFireballs(dt){
         if(!done)for(const q of pvpFoes(pl)){const r=q.gob?B.rg:B.r,hx=F.pos.x-q.pos.x,hz=F.pos.z-q.pos.z,hy=F.pos.y-q.pos.y;
           if(hx*hx+hz*hz<r*r&&hy>-0.3&&hy<(q.gob?1.6:2.4)){pvpHurt(pl,q,W.dmg,F.pos.clone(),h(),W.player.pvp,{cd:0});done=true;break;}}}
       // (a vehicle in its way takes it as a round's worth: VEH_SHOT_K times the damage, through the blast's harm)
+      if(!done&&pl){const s=sp*dt/ns,k=knockRay(F.pos.x-F.v.x/sp*s,F.pos.y-F.v.y/sp*s,F.pos.z-F.v.z/sp*s,F.v.x/sp,F.v.y/sp,F.v.z/sp,s);if(k)done=true;}   // (a player's bursts on a fixture or prop: fbBurst knocks it over)
       if(!done&&shotHitsVeh({pos:F.pos,own:null})){vehBlast(F.pos.x,F.pos.y,F.pos.z,1.5,W.dmg*VEH_SHOT_K,null);done=true;}
       if(!done&&(solidAt(F.pos.x,Math.floor(F.pos.y),F.pos.z)||F.pos.y<0))done=true;}
     if(done||F.t>B.life){fbBurst(F);continue;}
@@ -82,7 +83,7 @@ function foeBoom(x,y,z,R,dmg,cause,by,crush,vd,own){
     // (by, for a player's shot with PvP on, is that player: see pvpBy. Their own blast isn't blamed on them)
     const h=Math.hypot(dx,dz)||1,pk=by&&by.pvp,alive=q.state!=='dead';damagePlayer(q,Math.max(1,Math.round(dmg*(1-0.6*d3/R))),new V3(q.pos.x,q.pos.y+1,q.pos.z),new V3(dx/h,0.6,dz/h),cause,pk===q?undefined:by);
     if(pk&&pk!==q&&alive&&q.state==='dead')pvpKilled(pk,q);}
-  hitGoblins(x,z,R,dmg,cause,y);vehBlast(x,y,z,R*1.15,vd??dmg*6,own);mineArea(x,z,R,y,by);   // (and any landmine it reaches goes up too)
+  hitGoblins(x,z,R,dmg,cause,y);vehBlast(x,y,z,R*1.15,vd??dmg*6,own);mineArea(x,z,R,y,by);knockAt(x,y,z,R);   // (and any landmine it reaches goes up too; fixtures and props go over)
   if(crush)crushBall(x,y,z,crush);
 }
 // (a guest online runs this alone: its tracers fade on their own, and the host's shells are shown it from the snapshots)
@@ -103,7 +104,8 @@ function updateShots(dt){
       // (a shell or a rocket goes off on whoever it reaches, too)
       if(!S.bounce)for(const q of players){if(!q.active||q.state==='dead'||q.drv&&q.drv.o===S.own||q===S.skipP&&S.t<0.6)continue;const hx=S.pos.x-q.pos.x,hz=S.pos.z-q.pos.z,hy=S.pos.y-q.pos.y;if(hx*hx+hz*hz<1.6*1.6&&hy>-0.3&&hy<2.4){boom=true;break;}}
       if(!S.bounce&&!boom&&S.gobs)for(const g of goblins){if(g.state!=='chase'||!g.root.visible)continue;const hx=S.pos.x-g.pos.x,hz=S.pos.z-g.pos.z,hy=S.pos.y-g.pos.y;if(hx*hx+hz*hz<0.7*0.7&&hy>-0.2&&hy<1.6){boom=true;break;}}
-      if(!S.bounce&&!boom&&shotHitsVeh(S))boom=true;}
+      if(!S.bounce&&!boom&&shotHitsVeh(S))boom=true;
+      if(!S.bounce&&!boom&&knockRay(S.pos.x-S.v.x*h,S.pos.y-S.v.y*h,S.pos.z-S.v.z*h,S.v.x*h,S.v.y*h,S.v.z*h,1))boom=true;}   // (a fixture or prop in its way: it goes off on it, and foeBoom knocks it over)
     if(boom||S.t>12){S.live=false;S.g.visible=false;if(S.ap&&S.hitB)apTunnel(S);impX=S.imp||1;   // (an AP shell into a wall bores on: tank-handling.js)
      foeBoom(S.pos.x,S.pos.y,S.pos.z,S.R,S.dmg,S.cause,S.by,S.crush,S.vd,S.own);impX=1;
      if(S.bb)shotNuke(S);continue;}   // (imp: how much a heavy shell fills an impact meter: see impHit)

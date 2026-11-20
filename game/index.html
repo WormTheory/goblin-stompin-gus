@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:499cf161c2a787fd33df0bc0df0f836b0a6ab7060b1e8e0a95cdad1c8bb72e7a -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:18d1ae9a422547728fa93e14dce24dce28e3a2aca26e309f33204201602edb95 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1581,6 +1581,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <ul><li>Your game now carries on just as you left it: your score, goblins slain and everything in This rampage, the time of day, the day and season, and the weather.</li><li>Each player's health and stamina are kept too, and as a goblin your weapons, ammo, grenades and landmines. Left dead, you come back at full health. Player two gets theirs back on joining.</li><li>Left in a car, tank, helicopter, plane, hot-air balloon or Mobile Gear, you're back in it, in the same seat, with the damage it had. Anything that was flying comes back on the ground below. Trains, boats and ships can't be brought back, so you start beside where you were.</li><li>New city starts all of it afresh.</li></ul>
 <h3>Playing online</h3>
 <ul><li>As a guest, your own shots show the moment you fire: the tracer and the bang no longer wait on the host, and bullet streaks no longer hang in the air.</li><li>Guests now see grenades, shells, rockets and the Nuke Launcher's warhead in flight, instead of a warhead stuck where it was fired.</li><li>As a guest you see your own goblin stealing a vehicle and riding anything open, as everyone else does.</li></ul>
+<h3>Knock everything over</h3>
+<ul><li>Street lamps, traffic lights, signs, flags, billboards, benches, bins and furniture now go over to every attack, not just smashing into them: a bite, roll or dash, Gnash's blades and clubs, bullets, grenades, shells, rockets, fireballs and the Mobile Gear's blade. A bullet stops at the post it hits.</li></ul>
 <h3>Drivers</h3>
 <ul><li>Everyone at the wheel is dressed as themselves, in their own colours, hats, glasses and the rest, instead of a plain green head, and whoever you haul out or leave in a wreck is dressed the same. Police drivers are in blue, and your own goblin shows at the wheel of whatever you drive.</li></ul>
 <h3>Nuclear meltdown</h3>
@@ -2285,7 +2287,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='dd041e6470a7';
+const GAME_VER='0.5',GAME_BUILD='a14e57478beb';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -12089,6 +12091,7 @@ function doBite(p){
       if(fin){if(g.state==='dead'){g.vy=Math.max(g.vy,21);g.kv.x+=hx*4;g.kv.z+=hz*4;}else{g.kv.x+=hx*1.5;g.kv.z+=hz*1.5;g.vy=Math.max(g.vy,10);g.stun=Math.max(g.stun||0,0.7);}}}}
     for(const q of pvpFoes(p))if(segD(q.pos.x,q.pos.z)<JR&&Math.abs(q.pos.y-p.pos.y)<JH&&pvpHurt(p,q,A.dmg,null,fin?new V3(hx*0.6,1.6,hz*0.6):new V3(hx,0.4,hz),fin?'Uppercut':'Bitten')&&fin&&q.hp>0){q.vy=Math.max(q.vy,8);q.grounded=false;}   // (and with PvP on, another player)
     for(const M of MINES)if(M.live&&segD(M.x,M.z)<JR&&Math.abs(M.y-p.pos.y)<JH)mineBoom(M,pvpBy(p));   // (and any landmine in the jaws goes off)
+    for(let t=0;t<=J1-J0+1e-6;t+=0.5)knockAt(ax+hx*t,p.pos.y,az+hz*t,JR*0.6,hx,hz);   // (and fixtures and props in them go over)
     // cars: their body against the same slot (checked at points a half-block apart along it)
     const near=new Set();for(let t=0;t<=J1-J0+1e-6;t+=0.5)for(const c of carsInCyl(ax+hx*t,az+hz*t,JR,p.pos.y-JH,p.pos.y+JH))near.add(c);
     for(const c of near){if(hitC.has(c))continue;hitC.add(c);damageCar(c,A.carDmg,new V3(hx,0,hz));if(fin&&c.alive){c.kv.x+=hx*11;c.kv.z+=hz*11;c.vy=Math.max(c.vy||0,6.5);c.grounded=false;c.spinP=(c.spinP||0)-1.5;thud(0.4);}clang();}   // the uppercut shoves cars hard
@@ -12584,6 +12587,7 @@ function wallBiteHit(p){
     if(Math.hypot(v[0]-u[0]*t,v[1]-u[1]*t,v[2]-u[2]*t)<A.hitR)pvpHurt(p,q,A.dmg,null,new V3(u[0]-d[0]*0.8,u[1]*0.6+0.3,u[2]-d[1]*0.8),cause);}
   for(const M of MINES){if(!M.live)continue;const v=[M.x-a[0],M.y+0.1-a[1],M.z-a[2]],t=Math.max(0,Math.min(J1-J0,v[0]*u[0]+v[1]*u[1]+v[2]*u[2]));   // (a landmine in reach goes off)
     if(Math.hypot(v[0]-u[0]*t,v[1]-u[1]*t,v[2]-u[2]*t)<A.hitR+0.3)mineBoom(M,pvpBy(p));}
+  for(let t=0;t<=J1-J0+1e-6;t+=0.5)knockAt(a[0]+u[0]*t,a[1]+u[1]*t,a[2]+u[2]*t,A.hitR,u[0],u[2]);   // (fixtures and props in reach go over)
   // vehicles in reach too: the one he's clinging to, or one going by
   {const near=new Set();for(let t=0;t<=J1-J0+1e-6;t+=0.5){const x=a[0]+u[0]*t,y=a[1]+u[1]*t,z=a[2]+u[2]*t;for(const v of carsInCyl(x,z,A.hitR,y-1.5,y+1.5))near.add(v);}
    for(const v of near){damageCar(v,gk?1:A.carDmg,new V3(u[0]+d[0]*0.5,0,u[2]+d[1]*0.5));clang();}}
@@ -13237,6 +13241,8 @@ function fireRound(o){
   if(hit==='air'&&tgtHit)hit='tgt';   // (reached him)
   // (a player's round, or any not aimed at a player, sets off a landmine it reaches first: just short of the ground under
   // it counts, as the line meets the mine as it meets the ground)
+  // (and stops at a street fixture or prop in its way short of that, knocking it over)
+  let kr=null;if(!o.tgt&&(kr=knockRay(mx,my,mz,ux,uy,uz,Math.min(R,t)))){t=kr.t;hit='fix';oh=null;}
   let mr=null;if(!o.tgt&&MINES.length&&(mr=mineRay(mx,my,mz,ux,uy,uz,Math.min(R,t+0.4)))){t=mr.t;hit='mine';oh=null;}
   t=Math.min(t,R);const ex=mx+ux*t,ey=my+uy*t,ez=mz+uz*t,T0=o.tr||o;tracer(T0.x,T0.y,T0.z,ex,ey,ez);
   if(typeof o.snd==='function')o.snd();else if(o.snd&&audio)sfx(o.snd,()=>noise(0.06,0.1,2400,'highpass'));
@@ -13248,6 +13254,7 @@ function fireRound(o){
   else if(hit==='tgt'){const h=Math.hypot(ux,uz)||1;shotPlayer(o.tgt,o.pdmg,new V3(ex,ey,ez),new V3(ux/h,0.2,uz/h),o.cause,o.id,o.vd);}
   if(hit!=='tgt'&&(hit!=='air'||o.tgt))puff(hx,hy,hz,1,hit==='gob'||hit==='veh'?0xffb040:0x9a948a,0.2);   // (an enemy's miss raises dust where it ends)
   if(hit==='wall'&&o.breaks)bulletBreak(wx,wy,wz,ux,uz);
+  if(hit==='fix'&&!SBX&&!netGuest())knockFix(kr.f,ux,uz);
   if(mr)mineBoom(mr.M,isPlT(o.by)?pvpBy(o.by):undefined);
   return{hit,x:ex,y:ey,z:ez};
 }
@@ -15873,7 +15880,7 @@ function mgSlice(M,S,lo,hi){
   // (the bits fly on round the way the blade's going: toward its left)
   const am=(lo+hi)/2,lx=S.fz,lz=-S.fx,ux=S.fx*Math.cos(am)+lx*Math.sin(am),uz=S.fz*Math.cos(am)+lz*Math.sin(am);
   const o={force:0.9,dx:ux+lx*0.6,dz:uz+lz*0.6,up:0.6};rebuildSet(ch);save();destroyFX(broken.slice(0,60),o);settle(broken,o);pumpsHit(broken);
-  knockProps(M.x+ux*(MG.r+MGW.bladeR*0.5),M.y+4.5,M.z+uz*(MG.r+MGW.bladeR*0.5),MGW.bladeR*0.5,ux,uz);
+  knockAt(M.x+ux*(MG.r+MGW.bladeR*0.5),M.y+4.5,M.z+uz*(MG.r+MGW.bladeR*0.5),MGW.bladeR*0.5,ux,uz);   // (street fixtures too)
   return broken.length;}
 // one missile off the pod: up and out first, then it turns after its lock (or the crosshair's spot, with none)
 function mgMissile(M,p,T){
@@ -16474,7 +16481,7 @@ function movePlayer(p,dt){
             if(Math.hypot(d,dy)<R.hitR&&vReach(dy,R.hitR)){D.hitG.add(g);damageGoblin(g,R.dmg,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(D.dx*0.8+dx/d*0.4,0.7,D.dz*0.8+dz/d*0.4),D.blast?'Blasted aside by a blast-dashing hippo':'Bowled over by a rolling hippo');sfx('Roll hits a goblin',()=>{thud(0.35);});}}
           for(const q of pvpFoes(p)){const dx=q.pos.x-fx,dz=q.pos.z-fz,dy=q.pos.y-p.pos.y,d=Math.hypot(dx,dz)||0.01;   // (and with PvP on, another player)
             if(Math.hypot(d,dy)<R.hitR&&vReach(dy,R.hitR))pvpHurt(p,q,R.dmg,null,new V3(D.dx*0.8+dx/d*0.4,0.7,D.dz*0.8+dz/d*0.4),D.blast?'Blasted aside by a blast dash':'Bowled over by a roll');}
-          mineArea(fx,fz,R.hitR,p.pos.y,pvpBy(p));   // (landmines it rolls into go off)
+          mineArea(fx,fz,R.hitR,p.pos.y,pvpBy(p));knockAt(fx,p.pos.y,fz,R.hitR,D.dx,D.dz);   // (landmines it rolls into go off, fixtures and props go over)
           for(const c of carsNear(fx,fz,R.hitR,p.pos.y)){if(c.rollHitT>camClock)continue;c.rollHitT=camClock+0.5;damageCar(c,R.carDmg,new V3(D.dx,0,D.dz));if(c.alive)launchCar(c,4,new V3(D.dx,0,D.dz),3);sfx('Roll hits a vehicle',()=>{clang();thud(0.5);});}}}
       if(groundAt(p.pos.x+D.dx*1.4,p.pos.z+D.dz*1.4,p.pos.y)-p.pos.y<=1.05&&(!bodyHits(p,nx,nz,p.heading)||bodyHits(p,p.pos.x,p.pos.z,p.heading))){p.pos.x=nx;p.pos.z=nz;}
       // (blocked -- often right at the start, pressed up against a wall: smash what's directly in front of him and try
@@ -16520,7 +16527,7 @@ function movePlayer(p,dt){
             if(Math.hypot(d,dy)<A.hitR&&vReach(dy,A.hitR)){S.add(g);damageGoblin(g,A.dmg,new V3(g.pos.x,g.pos.y+0.8,g.pos.z),new V3(hx*0.8+dx/d*0.4,0.7,hz*0.8+dz/d*0.4),'Blasted aside by a flying hippo');}}
           for(const q of pvpFoes(p)){const dx=q.pos.x-fx2,dz=q.pos.z-fz2,dy=q.pos.y-p.pos.y,d=Math.hypot(dx,dz)||0.01;
             if(Math.hypot(d,dy)<A.hitR&&vReach(dy,A.hitR))pvpHurt(p,q,A.dmg,null,new V3(hx*0.8+dx/d*0.4,0.7,hz*0.8+dz/d*0.4),'Blasted aside by a blast air dash');}
-          mineArea(fx2,fz2,A.hitR,p.pos.y,pvpBy(p));
+          mineArea(fx2,fz2,A.hitR,p.pos.y,pvpBy(p));knockAt(fx2,p.pos.y,fz2,A.hitR,hx,hz);
           for(const c of carsNear(fx2,fz2,A.hitR,p.pos.y)){if(c.blastHitT>camClock)continue;c.blastHitT=camClock+0.6;damageCar(c,A.carDmg,new V3(hx,0,hz));if(c.alive)launchCar(c,6,new V3(hx,0,hz),4);sfx('Blast hits a vehicle',()=>{clang();});}}}}
     if(groundAt(p.pos.x+hx*1.6,p.pos.z+hz*1.6,p.pos.y)-p.pos.y<=1.05&&(!bodyHits(p,p.pos.x+hx*ds*dt,p.pos.z+hz*ds*dt,p.heading)||bodyHits(p,p.pos.x,p.pos.z,p.heading))){p.pos.x+=hx*ds*dt;p.pos.z+=hz*ds*dt;}
     else if(!p.dashBlast&&p.smashCD<=0&&!hbOn('dash')){p.smashCD=0.2;const o={force:1.3,dx:hx,dz:hz};if(blockHit(AB.dash,fx2,p.pos.y,fz2,hx,hz,o,sz=>crush(fx2,p.pos.y,fz2,Math.max(0,Math.round(sz)),0,2,o))){addShake(0.3,fx2,fz2,12);sfx('Dash smashes blocks',()=>{thud(0.7);});}}
@@ -19394,7 +19401,7 @@ function fireball(x,y,z,tx,ty,tz,o){
   return F;
 }
 function fbBurst(F){
-  F.live=false;F.g.visible=false;if(F.pl)mineArea(F.pos.x,F.pos.z,1.2,F.pos.y,F.by);   // (a player's sets off a landmine it bursts on)
+  F.live=false;F.g.visible=false;if(F.pl){mineArea(F.pos.x,F.pos.z,1.2,F.pos.y,F.by);knockAt(F.pos.x,F.pos.y,F.pos.z,1.2,F.v.x,F.v.z);}   // (a player's sets off a landmine it bursts on, and knocks over what it bursts on)
   puff(F.pos.x,F.pos.y-0.15,F.pos.z,9,0xff6a10,0.45);puff(F.pos.x,F.pos.y-0.15,F.pos.z,5,0xffd040,0.3);
   if(audio)tone('sawtooth',170,45,0.35,0.06);
 }
@@ -19423,6 +19430,7 @@ function updateFireballs(dt){
         if(!done)for(const q of pvpFoes(pl)){const r=q.gob?B.rg:B.r,hx=F.pos.x-q.pos.x,hz=F.pos.z-q.pos.z,hy=F.pos.y-q.pos.y;
           if(hx*hx+hz*hz<r*r&&hy>-0.3&&hy<(q.gob?1.6:2.4)){pvpHurt(pl,q,W.dmg,F.pos.clone(),h(),W.player.pvp,{cd:0});done=true;break;}}}
       // (a vehicle in its way takes it as a round's worth: VEH_SHOT_K times the damage, through the blast's harm)
+      if(!done&&pl){const s=sp*dt/ns,k=knockRay(F.pos.x-F.v.x/sp*s,F.pos.y-F.v.y/sp*s,F.pos.z-F.v.z/sp*s,F.v.x/sp,F.v.y/sp,F.v.z/sp,s);if(k)done=true;}   // (a player's bursts on a fixture or prop: fbBurst knocks it over)
       if(!done&&shotHitsVeh({pos:F.pos,own:null})){vehBlast(F.pos.x,F.pos.y,F.pos.z,1.5,W.dmg*VEH_SHOT_K,null);done=true;}
       if(!done&&(solidAt(F.pos.x,Math.floor(F.pos.y),F.pos.z)||F.pos.y<0))done=true;}
     if(done||F.t>B.life){fbBurst(F);continue;}
@@ -19462,7 +19470,7 @@ function foeBoom(x,y,z,R,dmg,cause,by,crush,vd,own){
     // (by, for a player's shot with PvP on, is that player: see pvpBy. Their own blast isn't blamed on them)
     const h=Math.hypot(dx,dz)||1,pk=by&&by.pvp,alive=q.state!=='dead';damagePlayer(q,Math.max(1,Math.round(dmg*(1-0.6*d3/R))),new V3(q.pos.x,q.pos.y+1,q.pos.z),new V3(dx/h,0.6,dz/h),cause,pk===q?undefined:by);
     if(pk&&pk!==q&&alive&&q.state==='dead')pvpKilled(pk,q);}
-  hitGoblins(x,z,R,dmg,cause,y);vehBlast(x,y,z,R*1.15,vd??dmg*6,own);mineArea(x,z,R,y,by);   // (and any landmine it reaches goes up too)
+  hitGoblins(x,z,R,dmg,cause,y);vehBlast(x,y,z,R*1.15,vd??dmg*6,own);mineArea(x,z,R,y,by);knockAt(x,y,z,R);   // (and any landmine it reaches goes up too; fixtures and props go over)
   if(crush)crushBall(x,y,z,crush);
 }
 // (a guest online runs this alone: its tracers fade on their own, and the host's shells are shown it from the snapshots)
@@ -19483,7 +19491,8 @@ function updateShots(dt){
       // (a shell or a rocket goes off on whoever it reaches, too)
       if(!S.bounce)for(const q of players){if(!q.active||q.state==='dead'||q.drv&&q.drv.o===S.own||q===S.skipP&&S.t<0.6)continue;const hx=S.pos.x-q.pos.x,hz=S.pos.z-q.pos.z,hy=S.pos.y-q.pos.y;if(hx*hx+hz*hz<1.6*1.6&&hy>-0.3&&hy<2.4){boom=true;break;}}
       if(!S.bounce&&!boom&&S.gobs)for(const g of goblins){if(g.state!=='chase'||!g.root.visible)continue;const hx=S.pos.x-g.pos.x,hz=S.pos.z-g.pos.z,hy=S.pos.y-g.pos.y;if(hx*hx+hz*hz<0.7*0.7&&hy>-0.2&&hy<1.6){boom=true;break;}}
-      if(!S.bounce&&!boom&&shotHitsVeh(S))boom=true;}
+      if(!S.bounce&&!boom&&shotHitsVeh(S))boom=true;
+      if(!S.bounce&&!boom&&knockRay(S.pos.x-S.v.x*h,S.pos.y-S.v.y*h,S.pos.z-S.v.z*h,S.v.x*h,S.v.y*h,S.v.z*h,1))boom=true;}   // (a fixture or prop in its way: it goes off on it, and foeBoom knocks it over)
     if(boom||S.t>12){S.live=false;S.g.visible=false;if(S.ap&&S.hitB)apTunnel(S);impX=S.imp||1;   // (an AP shell into a wall bores on: tank-handling.js)
      foeBoom(S.pos.x,S.pos.y,S.pos.z,S.R,S.dmg,S.cause,S.by,S.crush,S.vd,S.own);impX=1;
      if(S.bb)shotNuke(S);continue;}   // (imp: how much a heavy shell fills an impact meter: see impHit)
@@ -22424,7 +22433,7 @@ function pvpHurt(p,q,n,pt,dir,cause,o){const raw=o&&o.raw,cd=o&&o.cd!==undefined
 function pvpKilled(p,q){flashLabel(charName(q)+' was killed by '+charName(p),q);award(500,charName(q)+' flattened',q.pos.x,q.pos.y+2,q.pos.z,p);}
 // the hitGoblins of players: everyone within r of (x,z), and at height y (if given) within reach. Every player attack
 // calls it, so it also sets off the landmines it reaches, PvP or not (mineArea)
-function pvpArea(p,x,z,r,n,cause,y){mineArea(x,z,r,y,pvpBy(p));
+function pvpArea(p,x,z,r,n,cause,y){mineArea(x,z,r,y,pvpBy(p));knockAt(x,y,z,r);   // (and knocks over the fixtures and props it reaches)
   for(const q of pvpFoes(p)){const dx=q.pos.x-x,dz=q.pos.z-z,dy=y===undefined?0:q.pos.y-y,d=Math.hypot(dx,dz)||0.01;
     if(Math.hypot(d,dy)<r&&(y===undefined||vReach(dy,r)))pvpHurt(p,q,n,new V3(q.pos.x,q.pos.y+1.1,q.pos.z),new V3(dx/d,0.6,dz/d),cause);}}
 // the player nearest along a ray from (x,y,z) heading (ux,uy,uz), out to R, as a gun's round meets them ({q,t} or null)
@@ -24268,6 +24277,21 @@ function refreshProps(){
   for(const k of propBorn.keys())if(!propSeen.has(k))propBorn.delete(k);   // (gone out of range: it grows in again when it's back)
 }
 function knockProps(x,y,z,r,dx,dz){if(x>=SHIP_X0){shipKnockAt(x,y,z,r,dx,dz);return;}for(const f of activeProps){const ex=f.x-x,ez=f.z-z,rr=r+f.rad;if(ex*ex+ez*ez<rr*rr&&Math.abs(f.y0+.5-y)<r+1.5)knockFix(f,dx||ex,dz||ez);}}
+// any attack's reach knocking over the street fixtures and props in it: r round (x,z), y its height if it has one (fixtures
+// only stand at street level, so one up on a roof leaves them be). Every player attack's area goes through pvpArea, blasts
+// through foeBoom, and the moves with loops of their own call it beside their goblins. (The host's: a guest's told by netKnock)
+function knockAt(x,y,z,r,dx,dz){if(SBX||netGuest())return;if(y===undefined||y-r<G+7)knockFixtures(x,z,r,dx||0,dz||0);knockProps(x,y===undefined?G+1:y,z,r,dx||0,dz||0);}
+// the nearest street fixture or prop still standing that a round's line from (x,y,z) along (ux,uy,uz) meets within R
+// ({f,t} or null): a fixture as a post of its kind's height, a prop as a short block round its middle
+const FIX_TALL={lamp:7,signal:5.5,sign:3.2,flag:7,board:11,parkbench:1,litterbin:1.1};
+function knockRay(x,y,z,ux,uy,uz,R){
+  const h2=ux*ux+uz*uz;if(h2<1e-6||x>=SHIP_X0)return null;let best=null,bt=R;
+  const see=(f,r,y0,y1)=>{if(downFix.has(f.key)||falling.has(f.key))return;const ox=f.x-x,oz=f.z-z,tc=(ox*ux+oz*uz)/h2;if(tc<0)return;
+    const cx=ox-ux*tc,cz=oz-uz*tc,d2=cx*cx+cz*cz;if(d2>=r*r)return;const t=Math.max(0,tc-Math.sqrt((r*r-d2)/h2));if(t>=bt)return;
+    const yt=y+uy*t,yc=y+uy*tc;if(Math.max(yt,yc)<y0||Math.min(yt,yc)>y1)return;bt=t;best={f,t};};
+  for(const f of activeFix){if(f.type==='bunt')continue;const r=f.type==='board'?Math.max(f.rad||0,2.5):Math.max(0.3,Math.min(f.rad||0,0.6)),y0=f.y0??G+1;see(f,r,y0,y0+(FIX_TALL[f.type]||1.5));}
+  for(const f of activeProps)see(f,Math.max(0.3,f.rad||0),f.y0,f.y0+1.4);
+  return best;}
 // which of a block's lamp spots the street plan allows: that never changes, and asking is most of what this refresh costs
 const lampSpotC=new Map();
 function lampSpotsOf(px,pz,X0,Z0,PBf){
