@@ -254,9 +254,9 @@ function blkGlowLight(L){
 const shownIn=o=>{for(;o;o=o.parent)if(!o.visible)return false;return true;};
 function carLightsView(p){
   const L=WORLD_LIGHT.value,dk=Math.min(1,Math.max(0,(0.75-Math.max(L.r,L.g,L.b))*2.5)),cam=p.camera.position;
-  // headlights on the road: moving cars only (a parked one's are as good as off)
+  // headlights on the road: every car that's out on the road, moving or stopped at the lights (not a parked one, whose are off)
   let k=0;
-  if(BL_ON&&dk>0){const near=[];for(const c of cars){if(!c.alive||!c.g.visible||c.parked||Math.abs(c.speed||0)<0.5&&!c.drv)continue;const d=Math.hypot(c.pos.x-cam.x,c.pos.z-cam.z);if(d<64)near.push([c,d]);}
+  if(BL_ON&&dk>0){const near=[];for(const c of cars){if(!c.alive||!c.g.visible||c.parked)continue;const d=Math.hypot(c.pos.x-cam.x,c.pos.z-cam.z);if(d<64)near.push([c,d]);}
     near.sort((a,b)=>a[1]-b[1]);
     for(const [c] of near){if(k>=CAR_LN)break;
       c.g.updateMatrixWorld();_cf.set(0,0,1).transformDirection(c.g.matrixWorld);_cf.y=0;if(_cf.lengthSq()<1e-4)continue;_cf.normalize();
