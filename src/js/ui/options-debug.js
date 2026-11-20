@@ -195,7 +195,8 @@ function dbgMenuNav(src,dy,dx,dt){
     const it=L[DT.cur],colOf=c=>L.filter(o=>o.c===c),here=colOf(it.c),j=here.indexOf(it);
     if(dy){DT.edit=null;DT.cur=L.indexOf(here[(j+dy+here.length)%here.length]);tone('triangle',520,0,0.03,0.02);}
     else if(dx&&DT.edit===it.k)dbgStep(it.k,dx);
-    else if(dx){const N=colOf((it.c+dx+DBG_COLS)%DBG_COLS);DT.cur=L.indexOf(N[Math.min(j,N.length-1)]);tone('triangle',520,0,0.03,0.02);}
+    // (passing over a column whose rows are all hidden)
+    else if(dx){let c=it.c,N;do{c=(c+dx+DBG_COLS)%DBG_COLS;N=colOf(c);}while(!N.length);DT.cur=L.indexOf(N[Math.min(j,N.length-1)]);tone('triangle',520,0,0.03,0.02);}
     renderTime();};
   if(d!==DT.navDir){DT.navDir=d;DT.navT=0.35;if(d)act();}
   else if(d){DT.navT-=dt;if(DT.navT<=0){DT.navT=0.12;act();}}

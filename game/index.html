@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:281961afe5a3053c972655edc7278d1f198b940a1c44d87354d5d58e5fdf99ba -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:e279d8e6e4be04192dbc8678a61ab78759e047d4112be8e30d3a491cf977cfa8 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2275,7 +2275,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='51204867e745';
+const GAME_VER='0.5',GAME_BUILD='ccbdf6dccf42';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -21594,7 +21594,8 @@ function dbgMenuNav(src,dy,dx,dt){
     const it=L[DT.cur],colOf=c=>L.filter(o=>o.c===c),here=colOf(it.c),j=here.indexOf(it);
     if(dy){DT.edit=null;DT.cur=L.indexOf(here[(j+dy+here.length)%here.length]);tone('triangle',520,0,0.03,0.02);}
     else if(dx&&DT.edit===it.k)dbgStep(it.k,dx);
-    else if(dx){const N=colOf((it.c+dx+DBG_COLS)%DBG_COLS);DT.cur=L.indexOf(N[Math.min(j,N.length-1)]);tone('triangle',520,0,0.03,0.02);}
+    // (passing over a column whose rows are all hidden)
+    else if(dx){let c=it.c,N;do{c=(c+dx+DBG_COLS)%DBG_COLS;N=colOf(c);}while(!N.length);DT.cur=L.indexOf(N[Math.min(j,N.length-1)]);tone('triangle',520,0,0.03,0.02);}
     renderTime();};
   if(d!==DT.navDir){DT.navDir=d;DT.navT=0.35;if(d)act();}
   else if(d){DT.navT-=dt;if(DT.navT<=0){DT.navT=0.12;act();}}
