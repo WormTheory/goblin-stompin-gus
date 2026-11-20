@@ -95,7 +95,7 @@ function killShout(cause){
 }
 // ---- the Settlement razed bar, round the top of each player's minimap: how much of the place they're in is knocked down.
 // Left, it stays WK_HOLD seconds on the last place's figure, then fades out (WK_FADE); a new place takes over at once ----
-const WK_HOLD=15,WK_FADE=1;
+const WK_HOLD=5,WK_FADE=1;
 function wreckHud(p,dt){
   const u=p.ui;if(!u.wreck)return;u.wreckT=(u.wreckT||0)-dt;if(u.wreckT>0)return;const step=0.25-u.wreckT;u.wreckT=0.25;
   let S=null,v=null;try{S=placeOf(p);v=S&&setListC.has(S.rx+','+S.rz)?setDestroyed(S):null;}catch(e){}

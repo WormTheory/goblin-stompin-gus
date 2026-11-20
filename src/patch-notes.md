@@ -37,7 +37,7 @@
 ### Screen layout
 
 - The Mobile Gear's weapon readouts are narrower and sit just left of the speedometer, rather than stacked above it.
-- How much of a settlement you've razed is now a bar curved round the top of the minimap, with the place's name and how much of it is down curved along it, so the speedometer no longer jumps up to make room for a card. It stays up for 15 seconds after you leave a place, then fades away, unless you walk into another place, which takes over at once.
+- How much of a settlement you've razed is now a bar curved round the top of the minimap, with the place's name and how much of it is down curved along it, so the speedometer no longer jumps up to make room for a card. It stays up for 5 seconds after you leave a place, then fades away, unless you walk into another place, which takes over at once.
 - Your controls on foot are now listed down the left of the screen, one to a line, where a vehicle's go, and they stay there rather than fading away. In a vehicle its own controls take their place.
 - The time of day is gone from the card beside the clock, which now shows just the day and season. It's in the debug menu's Info pane instead, as a clock time (and whether time's paused) beside the time of day.
 

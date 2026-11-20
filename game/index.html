@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:a7231487f7bfc5373ca1a50afc1d237bfefb3a37411fbcb5ff6253111fbf8c56 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:75b3b41789fc36b57b1908ffd547b14be78c208921e6bf0c4f609a4bf90944c5 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1619,7 +1619,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Nukes</h3>
 <ul><li>A nuke looks the part now: a blinding flash, a fireball that cools from white to red and rolls up into a mushroom cloud on a stem of dust, a ring of dust racing out along the ground, a white dome round the fireball for a moment and a collar round the stem.</li><li>The cloud drifts off with the wind and thins away over a minute or so. It's mottled in lighter and darker shades rather than one flat colour.</li><li>The fireball swells and rolls over into the mushroom's ring in one smooth movement, rather than sliding from a ball into a ring.</li><li>The smoke rising round the edge of the blast fans out, bends over and drifts away rather than standing in columns.</li><li>All smoke now blows with the wind: burning buildings, campfires and wrecked vehicles too.</li><li>The boom and the shaking reach you at the speed of sound, so from far off you see it well before you hear it.</li><li>At night it lights the whole sky and the ground round it orange.</li></ul>
 <h3>Screen layout</h3>
-<ul><li>The Mobile Gear's weapon readouts are narrower and sit just left of the speedometer, rather than stacked above it.</li><li>How much of a settlement you've razed is now a bar curved round the top of the minimap, with the place's name and how much of it is down curved along it, so the speedometer no longer jumps up to make room for a card. It stays up for 15 seconds after you leave a place, then fades away, unless you walk into another place, which takes over at once.</li><li>Your controls on foot are now listed down the left of the screen, one to a line, where a vehicle's go, and they stay there rather than fading away. In a vehicle its own controls take their place.</li><li>The time of day is gone from the card beside the clock, which now shows just the day and season. It's in the debug menu's Info pane instead, as a clock time (and whether time's paused) beside the time of day.</li></ul>
+<ul><li>The Mobile Gear's weapon readouts are narrower and sit just left of the speedometer, rather than stacked above it.</li><li>How much of a settlement you've razed is now a bar curved round the top of the minimap, with the place's name and how much of it is down curved along it, so the speedometer no longer jumps up to make room for a card. It stays up for 5 seconds after you leave a place, then fades away, unless you walk into another place, which takes over at once.</li><li>Your controls on foot are now listed down the left of the screen, one to a line, where a vehicle's go, and they stay there rather than fading away. In a vehicle its own controls take their place.</li><li>The time of day is gone from the card beside the clock, which now shows just the day and season. It's in the debug menu's Info pane instead, as a clock time (and whether time's paused) beside the time of day.</li></ul>
 <h3>Profiler</h3>
 <ul><li>The debug menu's Overlays have a Profiler: a graph of each frame's time, split by what took it (players, goblins, traffic, the world being built, destruction, drawing, online play), the busiest parts of each, what's being drawn, memory, how many of everything there is, and the last few slow frames with what was happening at the time (a building coming down, a blast, a car going up). It's off until switched on, and hidden in Show / hide until you show it. Beside the CPU's time it shows GPU / wait: the rest of each frame, mostly the graphics card drawing it, so a slow frame with a low CPU time means the graphics card is what's holding it up.</li></ul>
 <h3>Drivers</h3>
@@ -2330,7 +2330,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='37ac97ab8434';
+const GAME_VER='0.5',GAME_BUILD='4f50eff2d933';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -29249,7 +29249,7 @@ function killShout(cause){
 }
 // ---- the Settlement razed bar, round the top of each player's minimap: how much of the place they're in is knocked down.
 // Left, it stays WK_HOLD seconds on the last place's figure, then fades out (WK_FADE); a new place takes over at once ----
-const WK_HOLD=15,WK_FADE=1;
+const WK_HOLD=5,WK_FADE=1;
 function wreckHud(p,dt){
   const u=p.ui;if(!u.wreck)return;u.wreckT=(u.wreckT||0)-dt;if(u.wreckT>0)return;const step=0.25-u.wreckT;u.wreckT=0.25;
   let S=null,v=null;try{S=placeOf(p);v=S&&setListC.has(S.rx+','+S.rz)?setDestroyed(S):null;}catch(e){}
