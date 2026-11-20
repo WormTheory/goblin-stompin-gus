@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:cf135042b566c6635aca1b74c29ec885a4a87f95a432403d69107c0e9d157c58 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:17a898a250570dbe4de7c694496b2d5507a364f1e572b463064b87644c20dd2e -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1582,7 +1582,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Nuke Launcher</h3>
 <ul><li>A new weapon for goblins, picked in the Loadout: a launcher with a nuclear warhead on the front. It lobs the warhead slowly in a shallow arc, and wherever it lands the same blast as a meltdown goes off, smaller but still enough to flatten a few streets.</li><li>Fire it level and it lands far enough off for you to live through it. Fire it at a wall in front of you and you won't.</li><li>One warhead in the tube and two spares, with a long reload. Once the spares are gone it's empty, unless Infinite ammo is on. The weapon bar shows how many spares are left.</li><li>The debug menu has a Nuke strength slider to make its blast smaller or bigger, up to the size of a meltdown.</li></ul>
 <h3>Lighting</h3>
-<ul><li>At night, lights now light up what's around them. Street lamps pool light on the pavement, neon signs throw their own colours across the street, lit windows glow on the walls and rooms beside them, and lamps, TVs and screens light the rooms they're in. Walls block the light, so it stays in the room or the street it's in. Smash a lamp or a sign and its light goes out.</li><li>It's switched on or off with Block lighting under Sound &amp; picture in Options. Off, the game looks and runs exactly as before.</li><li>A building that's been destroyed or brought down goes dark: its windows, neon and signs stop glowing, and the pieces of it falling don't glow either.</li><li>In fog, rain and snow at night, lit windows, neon, lamps and the light they cast now show through the murk as a soft glow, some way past where the buildings themselves disappear.</li><li>In thick fog the sky and clouds are now lost in the fog too, so far-off towers no longer stand out as dark shapes against a clear sky.</li><li>The debug menu has a Fog light slider for how strongly lights show through fog.</li></ul>
+<ul><li>At night, lights now light up what's around them. Street lamps pool light on the pavement, neon signs throw their own colours across the street, lit windows glow on the walls and rooms beside them, and lamps, TVs and screens light the rooms they're in. Walls block the light, so it stays in the room or the street it's in. Smash a lamp or a sign and its light goes out.</li><li>It's switched on or off with Block lighting under Sound &amp; picture in Options. Off, the game looks and runs exactly as before.</li><li>A building that's been destroyed or brought down goes dark: its windows, neon and signs stop glowing, and the pieces of it falling don't glow either.</li><li>In fog, rain and snow at night, lit windows, neon, lamps and the light they cast now show through the murk as a soft glow, some way past where the buildings themselves disappear.</li><li>In thick fog the sky and clouds are now lost in the fog too, so far-off towers no longer stand out as dark shapes against a clear sky.</li><li>The debug menu has a Fog light slider for how strongly lights show through fog.</li><li>Fires and campfires now light up the ground and walls around them at night, dimming as they die down.</li></ul>
 <h3>Trees and water in the distance</h3>
 <ul><li>Trees, ponds and lakes no longer pop up out of nowhere as you get close. Out past the full-detail city, the distant view now has every tree in its real spot, and up close each one becomes the real tree where it already stood.</li><li>Further off, woods show as clumps of treetops, and ponds, park lakes and the theme park's boating lake show as water.</li><li>Distant trees change colour with the seasons and lose their leaves in winter, like the near ones.</li></ul>
 <h3>Water</h3>
@@ -2273,7 +2273,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='09d8e114b7dd';
+const GAME_VER='0.5',GAME_BUILD='9555c0fe0e66';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -9069,7 +9069,7 @@ function updateSitePpl(V,dt){
 // blue are filled separately, so neon lights its street in its own colour. The result goes into each corner of each face as a
 // vertex colour (aBlk), averaged from the same four blocks the corner's shading reads, and the night shader (nightPatch) lifts
 // the dark toward it. Nothing's kept but the mesh: no light in saves or online, as it all follows from the blocks.
-// The sources: blocks with light:[level,colour] in BLOCK, the street lamps while they stand, and lamp and screen props.
+// The sources: blocks with light:[level,colour] in BLOCK, the street lamps while they stand, lamp and screen props, and fires.
 // Options' Block lighting (BL_ON, localStorage BL_KEY) turns it all off: no fill, no aBlk, the shader as it was.
 const BL_KEY='goblin-stompin-gus-blocklight';
 let BL_ON=true;try{if(localStorage.getItem(BL_KEY)==='0')BL_ON=false;}catch(e){}
@@ -9129,6 +9129,25 @@ function blkLampDown(f,lit){
   if(!lit){if(blkLampOut.has(f.key))return;blkLampOut.add(f.key);}else{if(!blkLampOut.has(f.key))return;blkLampOut.delete(f.key);}
   blkAround(Math.floor(f.x+f.rx*1.5),Math.floor(f.z+f.rz*1.5),14);
 }
+// fires (render/fires.js: the lingering ones in 'fires', and campfires in 'hearths') light their surroundings too. They come
+// and go, and die down, so a couple of times a second blkFireTick works out which should be lit and how brightly, and remeshes
+// round any that started, went out or dropped a step. Only after dark (by day the light wouldn't show, and the remeshing would
+// be wasted), and only the BL_FIRE_N nearest the players, so a town left burning doesn't remesh half the map.
+const BL_FIRE=new Map(),BL_FIRE_N=24,BL_FIRE_C=0xff8a30;let blFireT=0;
+function blkFireTick(dt){
+  if((blFireT-=dt)>0)return;blFireT=0.5;
+  const want=new Map();
+  if(BL_ON&&Math.max(WORLD_LIGHT.value.r,WORLD_LIGHT.value.g,WORLD_LIGHT.value.b)<0.8){
+    const L=[],P=players.filter(q=>q.active),dist=(x,z)=>{let d=Infinity;for(const q of P)d=Math.min(d,Math.hypot(q.pos.x-x,q.pos.z-z));return d;};
+    // (a fire's brightness: by its size, dimming in steps as it dies down over its last third, as its flames do)
+    for(const F of fires){if(!F.flames)continue;const k=Math.min(1,F.t/(F.life*0.35)),lv=Math.round(Math.min(14,9+F.r*2)*Math.ceil(k*3)/3);if(lv>=3)L.push([F,F.x,F.y,F.z,lv,dist(F.x,F.z)]);}
+    for(const H of hearths.values())L.push([H,H.x,H.y,H.z,9,dist(H.x,H.z)]);
+    L.sort((a,b)=>a[5]-b[5]);
+    for(let i=0;i<Math.min(BL_FIRE_N,L.length);i++){const [o,x,y,z,lv,d]=L[i];if(d>CS*12)break;const c=blkRGB(lv,BL_FIRE_C);want.set(o,[Math.floor(x),Math.floor(y)+1,Math.floor(z),c[0],c[1],c[2],lv]);}
+  }
+  for(const [o,e] of BL_FIRE){const w=want.get(o);if(!w||w[6]!==e[6]||w[0]!==e[0]||w[2]!==e[2]){BL_FIRE.delete(o);blkAround(e[0],e[2],e[6]-1);}}
+  for(const [o,w] of want)if(!BL_FIRE.has(o)){BL_FIRE.set(o,w);blkAround(w[0],w[2],w[6]-1);}
+}
 // every chunk within r blocks of (x,z) meshed again
 function blkAround(x,z,r){
   if(r<0)return;
@@ -9171,6 +9190,7 @@ function blkFill(cx,cz,yLo,yTop){
         seed(L.x-x0,L.z-z0,L.y,BL_STREET[0],BL_STREET[1],BL_STREET[2]);}
       const M=BL_PROPS.get(ckey(qx,qz));if(M)for(const P of M.values())seed(P[0]-x0,P[2]-z0,P[1],P[3],P[4],P[5]);}
   }
+  for(const P of BL_FIRE.values())seed(P[0]-x0,P[2]-z0,P[1],P[3],P[4],P[5]);   // (fires: seed leaves out those too far off)
   if(!qt){BL_y0=0;BL_y1=-1;return false;}
   // the columns of the window: which of the nine chunks each is in, and where in it
   for(let c=0;c<BLA;c++){const wx=BL_CX[c],wz=BL_CZ[c],i=wx<15?0:wx<15+CS?1:2,j=wz<15?0:wz<15+CS?1:2;BL_COLA[c]=NB[j*3+i];BL_COLO[c]=(wx-15-(i-1)*CS)+(wz-15-(j-1)*CS)*CS;}
@@ -9213,7 +9233,7 @@ function blkDefines(mat){if(BL_ON)mat.defines=Object.assign(mat.defines||{},{BLO
 function setBlockLight(on){
   on=!!on;if(on===BL_ON)return;BL_ON=on;try{localStorage.setItem(BL_KEY,on?'1':'0');}catch(e){}
   for(const m of BL_MATS){blkDefines(m);m.needsUpdate=true;}
-  blkLampOut.clear();BL_PROPS.clear();
+  blkLampOut.clear();BL_PROPS.clear();BL_FIRE.clear();
   for(const [k,e] of meshes){e.lc=null;rebuildQ.add(k);}
   trafficRefreshT=0;   // (the props and lamps noted again)
 }
@@ -21026,6 +21046,7 @@ function trimFires(room){const cap=FIRE_CAPS[fireCapI];while(fires.length>0&&fir
 function refireDur(){const m=Math.min(FIRE_DURS[fireDurI].m,1e6);for(const F of fires){const f=F.t/F.life;F.life=F.base*m;F.t=F.life*f;}}
 const _firM=new THREE.Matrix4(),_firQ=new THREE.Quaternion(),_firS=new V3(),_firP=new V3(),_firC=new THREE.Color(),FL_COLS=[0xfff2a0,0xffc23a,0xff7a1e,0xd8380e];
 function updateFires(dt){
+  blkFireTick(dt);   // (their light round them at night, render/block-light.js)
   for(let i=fires.length-1;i>=0;i--){
     const F=fires[i];if(FIRE_DURS[fireDurI].m!==Infinity||F.douse)F.t-=dt;if(F.t<=0){fires.splice(i,1);continue;}
     // the heat melts the snow round it (it starts settling again, from nothing, once the fire's out) -- off the ground,

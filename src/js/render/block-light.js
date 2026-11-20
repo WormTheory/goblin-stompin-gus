@@ -4,7 +4,7 @@
 // blue are filled separately, so neon lights its street in its own colour. The result goes into each corner of each face as a
 // vertex colour (aBlk), averaged from the same four blocks the corner's shading reads, and the night shader (nightPatch) lifts
 // the dark toward it. Nothing's kept but the mesh: no light in saves or online, as it all follows from the blocks.
-// The sources: blocks with light:[level,colour] in BLOCK, the street lamps while they stand, and lamp and screen props.
+// The sources: blocks with light:[level,colour] in BLOCK, the street lamps while they stand, lamp and screen props, and fires.
 // Options' Block lighting (BL_ON, localStorage BL_KEY) turns it all off: no fill, no aBlk, the shader as it was.
 const BL_KEY='goblin-stompin-gus-blocklight';
 let BL_ON=true;try{if(localStorage.getItem(BL_KEY)==='0')BL_ON=false;}catch(e){}
@@ -64,6 +64,25 @@ function blkLampDown(f,lit){
   if(!lit){if(blkLampOut.has(f.key))return;blkLampOut.add(f.key);}else{if(!blkLampOut.has(f.key))return;blkLampOut.delete(f.key);}
   blkAround(Math.floor(f.x+f.rx*1.5),Math.floor(f.z+f.rz*1.5),14);
 }
+// fires (render/fires.js: the lingering ones in 'fires', and campfires in 'hearths') light their surroundings too. They come
+// and go, and die down, so a couple of times a second blkFireTick works out which should be lit and how brightly, and remeshes
+// round any that started, went out or dropped a step. Only after dark (by day the light wouldn't show, and the remeshing would
+// be wasted), and only the BL_FIRE_N nearest the players, so a town left burning doesn't remesh half the map.
+const BL_FIRE=new Map(),BL_FIRE_N=24,BL_FIRE_C=0xff8a30;let blFireT=0;
+function blkFireTick(dt){
+  if((blFireT-=dt)>0)return;blFireT=0.5;
+  const want=new Map();
+  if(BL_ON&&Math.max(WORLD_LIGHT.value.r,WORLD_LIGHT.value.g,WORLD_LIGHT.value.b)<0.8){
+    const L=[],P=players.filter(q=>q.active),dist=(x,z)=>{let d=Infinity;for(const q of P)d=Math.min(d,Math.hypot(q.pos.x-x,q.pos.z-z));return d;};
+    // (a fire's brightness: by its size, dimming in steps as it dies down over its last third, as its flames do)
+    for(const F of fires){if(!F.flames)continue;const k=Math.min(1,F.t/(F.life*0.35)),lv=Math.round(Math.min(14,9+F.r*2)*Math.ceil(k*3)/3);if(lv>=3)L.push([F,F.x,F.y,F.z,lv,dist(F.x,F.z)]);}
+    for(const H of hearths.values())L.push([H,H.x,H.y,H.z,9,dist(H.x,H.z)]);
+    L.sort((a,b)=>a[5]-b[5]);
+    for(let i=0;i<Math.min(BL_FIRE_N,L.length);i++){const [o,x,y,z,lv,d]=L[i];if(d>CS*12)break;const c=blkRGB(lv,BL_FIRE_C);want.set(o,[Math.floor(x),Math.floor(y)+1,Math.floor(z),c[0],c[1],c[2],lv]);}
+  }
+  for(const [o,e] of BL_FIRE){const w=want.get(o);if(!w||w[6]!==e[6]||w[0]!==e[0]||w[2]!==e[2]){BL_FIRE.delete(o);blkAround(e[0],e[2],e[6]-1);}}
+  for(const [o,w] of want)if(!BL_FIRE.has(o)){BL_FIRE.set(o,w);blkAround(w[0],w[2],w[6]-1);}
+}
 // every chunk within r blocks of (x,z) meshed again
 function blkAround(x,z,r){
   if(r<0)return;
@@ -106,6 +125,7 @@ function blkFill(cx,cz,yLo,yTop){
         seed(L.x-x0,L.z-z0,L.y,BL_STREET[0],BL_STREET[1],BL_STREET[2]);}
       const M=BL_PROPS.get(ckey(qx,qz));if(M)for(const P of M.values())seed(P[0]-x0,P[2]-z0,P[1],P[3],P[4],P[5]);}
   }
+  for(const P of BL_FIRE.values())seed(P[0]-x0,P[2]-z0,P[1],P[3],P[4],P[5]);   // (fires: seed leaves out those too far off)
   if(!qt){BL_y0=0;BL_y1=-1;return false;}
   // the columns of the window: which of the nine chunks each is in, and where in it
   for(let c=0;c<BLA;c++){const wx=BL_CX[c],wz=BL_CZ[c],i=wx<15?0:wx<15+CS?1:2,j=wz<15?0:wz<15+CS?1:2;BL_COLA[c]=NB[j*3+i];BL_COLO[c]=(wx-15-(i-1)*CS)+(wz-15-(j-1)*CS)*CS;}
@@ -148,7 +168,7 @@ function blkDefines(mat){if(BL_ON)mat.defines=Object.assign(mat.defines||{},{BLO
 function setBlockLight(on){
   on=!!on;if(on===BL_ON)return;BL_ON=on;try{localStorage.setItem(BL_KEY,on?'1':'0');}catch(e){}
   for(const m of BL_MATS){blkDefines(m);m.needsUpdate=true;}
-  blkLampOut.clear();BL_PROPS.clear();
+  blkLampOut.clear();BL_PROPS.clear();BL_FIRE.clear();
   for(const [k,e] of meshes){e.lc=null;rebuildQ.add(k);}
   trafficRefreshT=0;   // (the props and lamps noted again)
 }
