@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:4dbed7a1015758d445cf692e93c87327c158646b0060cd52963d89e88bd05cbf -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:f41df54481b0276567b5c092db6d25c87a2fc234522767f6e8368c4454133955 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1618,7 +1618,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Screen layout</h3>
 <ul><li>The Mobile Gear's weapon readouts are narrower and sit just left of the speedometer, rather than stacked above it.</li><li>The Settlement razed card sits just above the minimap now, so the speedometer no longer jumps up to make room for it.</li><li>The time of day is gone from the card beside the clock, which now shows just the day and season. It's in the debug menu's Info pane instead, as a clock time (and whether time's paused) beside the time of day.</li></ul>
 <h3>Profiler</h3>
-<ul><li>The debug menu's Overlays have a Profiler: a graph of each frame's time, split by what took it (players, goblins, traffic, the world being built, destruction, drawing, online play), the busiest parts of each, what's being drawn, memory, how many of everything there is, and the last few slow frames with what was happening at the time (a building coming down, a blast, a car going up). It's off until switched on, and hidden in Show / hide until you show it.</li></ul>
+<ul><li>The debug menu's Overlays have a Profiler: a graph of each frame's time, split by what took it (players, goblins, traffic, the world being built, destruction, drawing, online play), the busiest parts of each, what's being drawn, memory, how many of everything there is, and the last few slow frames with what was happening at the time (a building coming down, a blast, a car going up). It's off until switched on, and hidden in Show / hide until you show it. Beside the CPU's time it shows GPU / wait: the rest of each frame, mostly the graphics card drawing it, so a slow frame with a low CPU time means the graphics card is what's holding it up.</li></ul>
 <h3>Drivers</h3>
 <ul><li>Everyone at the wheel is dressed as themselves, in their own colours, hats, glasses and the rest, instead of a plain green head, and whoever you haul out or leave in a wreck is dressed the same. Police drivers are in blue, and your own goblin shows at the wheel of whatever you drive.</li></ul>
 <h3>Switching weapons</h3>
@@ -2327,7 +2327,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='c056f77c38fe';
+const GAME_VER='0.5',GAME_BUILD='5a13e7c44cd7';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -32770,8 +32770,10 @@ function profDraw(){
   profGraph();if(!PROF.tx)return;
   const n=Math.min(PROF.fill,60);let iv=0,cpu=0,worst=0;const cs=new Float32Array(8);
   for(let j=1;j<=n;j++){const i=(PROF.i-j+PROF.N)%PROF.N;iv+=PROF.iv[i];cpu+=PROF.cpu[i];worst=Math.max(worst,PROF.iv[i]);for(let c=0;c<8;c++)cs[c]+=PROF.cat[i*8+c];}
+  // (GPU / wait: the rest of each frame, after the CPU's work, mostly the graphics card finishing and the screen's refresh;
+  // the GPU's own time only where the browser gives it)
   const d=Math.max(1,n);iv/=d;cpu/=d;
-  let h='<div class="pf-h"><b>'+(iv>0?Math.round(1000/iv):0)+' FPS</b> '+pfMs(iv)+' ms · CPU '+pfMs(cpu)+(PROF.gq&&PROF.gpu>0.01?' · GPU '+pfMs(PROF.gpu):'')+' · worst '+pfMs(worst)+'</div>';
+  let h='<div class="pf-h"><b>'+(iv>0?Math.round(1000/iv):0)+' FPS</b> '+pfMs(iv)+' ms · CPU '+pfMs(cpu)+' · GPU / wait '+pfMs(Math.max(0,iv-cpu))+(PROF.gq&&PROF.gpu>0.01?' (GPU '+pfMs(PROF.gpu)+')':'')+' · worst '+pfMs(worst)+'</div>';
   // (each system, then its three busiest names, by their running average)
   const by=[...PROF.avg].sort((a,b)=>b[1]-a[1]);
   h+='<div class="pf-c">'+PROF_CATS.map(([nm,col],c)=>{const ms=cs[c]/d;if(ms<0.05)return'';
@@ -32783,7 +32785,7 @@ function profDraw(){
   let gm='';try{const r=renderer.info.memory;gm=' · '+r.geometries+' geo, '+r.textures+' tex';}catch(e){}
   h+='<div>'+PROF.calls+' draws · '+(PROF.tris>=1e6?(PROF.tris/1e6).toFixed(1)+'M':Math.round(PROF.tris/1e3)+'k')+' tris'+gm+mem+'</div>';
   h+='<div>'+pfEsc(profCounts())+'</div>';
-  if(PROF.spikes.length)h+='<div class="pf-sp">'+PROF.spikes.map(s=>'<div><b>'+Math.round(s.iv)+' ms</b> <small>CPU '+Math.round(s.cpu)+'</small> '+
+  if(PROF.spikes.length)h+='<div class="pf-sp">'+PROF.spikes.map(s=>'<div><b>'+Math.round(s.iv)+' ms</b> <small>CPU '+Math.round(s.cpu)+' · wait '+Math.round(Math.max(0,s.iv-s.cpu))+'</small> '+
     s.top.map(e=>pfEsc(PROF_NAME[e[0]]||e[0])+' '+Math.round(e[1])).join(', ')+(s.ev.length?' <i>'+s.ev.map(e=>pfEsc(e[0])+(e[1]>1?' ×'+e[1]:'')).join(', ')+'</i>':'')+'</div>').join('')+'</div>';
   if(PROF.tx.dataset.h!==h){PROF.tx.dataset.h=h;PROF.tx.innerHTML=h;}
 }

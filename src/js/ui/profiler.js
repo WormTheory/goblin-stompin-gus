@@ -114,8 +114,10 @@ function profDraw(){
   profGraph();if(!PROF.tx)return;
   const n=Math.min(PROF.fill,60);let iv=0,cpu=0,worst=0;const cs=new Float32Array(8);
   for(let j=1;j<=n;j++){const i=(PROF.i-j+PROF.N)%PROF.N;iv+=PROF.iv[i];cpu+=PROF.cpu[i];worst=Math.max(worst,PROF.iv[i]);for(let c=0;c<8;c++)cs[c]+=PROF.cat[i*8+c];}
+  // (GPU / wait: the rest of each frame, after the CPU's work, mostly the graphics card finishing and the screen's refresh;
+  // the GPU's own time only where the browser gives it)
   const d=Math.max(1,n);iv/=d;cpu/=d;
-  let h='<div class="pf-h"><b>'+(iv>0?Math.round(1000/iv):0)+' FPS</b> '+pfMs(iv)+' ms · CPU '+pfMs(cpu)+(PROF.gq&&PROF.gpu>0.01?' · GPU '+pfMs(PROF.gpu):'')+' · worst '+pfMs(worst)+'</div>';
+  let h='<div class="pf-h"><b>'+(iv>0?Math.round(1000/iv):0)+' FPS</b> '+pfMs(iv)+' ms · CPU '+pfMs(cpu)+' · GPU / wait '+pfMs(Math.max(0,iv-cpu))+(PROF.gq&&PROF.gpu>0.01?' (GPU '+pfMs(PROF.gpu)+')':'')+' · worst '+pfMs(worst)+'</div>';
   // (each system, then its three busiest names, by their running average)
   const by=[...PROF.avg].sort((a,b)=>b[1]-a[1]);
   h+='<div class="pf-c">'+PROF_CATS.map(([nm,col],c)=>{const ms=cs[c]/d;if(ms<0.05)return'';
@@ -127,7 +129,7 @@ function profDraw(){
   let gm='';try{const r=renderer.info.memory;gm=' · '+r.geometries+' geo, '+r.textures+' tex';}catch(e){}
   h+='<div>'+PROF.calls+' draws · '+(PROF.tris>=1e6?(PROF.tris/1e6).toFixed(1)+'M':Math.round(PROF.tris/1e3)+'k')+' tris'+gm+mem+'</div>';
   h+='<div>'+pfEsc(profCounts())+'</div>';
-  if(PROF.spikes.length)h+='<div class="pf-sp">'+PROF.spikes.map(s=>'<div><b>'+Math.round(s.iv)+' ms</b> <small>CPU '+Math.round(s.cpu)+'</small> '+
+  if(PROF.spikes.length)h+='<div class="pf-sp">'+PROF.spikes.map(s=>'<div><b>'+Math.round(s.iv)+' ms</b> <small>CPU '+Math.round(s.cpu)+' · wait '+Math.round(Math.max(0,s.iv-s.cpu))+'</small> '+
     s.top.map(e=>pfEsc(PROF_NAME[e[0]]||e[0])+' '+Math.round(e[1])).join(', ')+(s.ev.length?' <i>'+s.ev.map(e=>pfEsc(e[0])+(e[1]>1?' ×'+e[1]:'')).join(', ')+'</i>':'')+'</div>').join('')+'</div>';
   if(PROF.tx.dataset.h!==h){PROF.tx.dataset.h=h;PROF.tx.innerHTML=h;}
 }

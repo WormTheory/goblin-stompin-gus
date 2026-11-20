@@ -34,7 +34,7 @@
 
 ### Profiler
 
-- The debug menu's Overlays have a Profiler: a graph of each frame's time, split by what took it (players, goblins, traffic, the world being built, destruction, drawing, online play), the busiest parts of each, what's being drawn, memory, how many of everything there is, and the last few slow frames with what was happening at the time (a building coming down, a blast, a car going up). It's off until switched on, and hidden in Show / hide until you show it.
+- The debug menu's Overlays have a Profiler: a graph of each frame's time, split by what took it (players, goblins, traffic, the world being built, destruction, drawing, online play), the busiest parts of each, what's being drawn, memory, how many of everything there is, and the last few slow frames with what was happening at the time (a building coming down, a blast, a car going up). It's off until switched on, and hidden in Show / hide until you show it. Beside the CPU's time it shows GPU / wait: the rest of each frame, mostly the graphics card drawing it, so a slow frame with a low CPU time means the graphics card is what's holding it up.
 
 ### Drivers
 
