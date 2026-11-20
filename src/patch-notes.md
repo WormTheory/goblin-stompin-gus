@@ -32,6 +32,7 @@
 - The fireball swells and rolls over into the mushroom's ring in one smooth movement, rather than sliding from a ball into a ring.
 - The mushroom cloud is see-through at its edges like other smoke, its stem flares out into the cap and turns only slowly, the collar round the stem is mottled, and the ring of dust along the ground keeps billowing out, climbing and drifting rather than sitting still. Dust hangs over the whole blast area too, drifting outward, faster the further out it is. The dust settles on the ground under it, down in the crater too, rather than hanging at one height.
 - Water, smoke and dust behind the mushroom cloud and the white dome no longer show through in front of them.
+- Smoke from fires shows through the nuke's dust, and the dust through the smoke.
 - The smoke rising round the edge of the blast fans out, bends over and drifts away rather than standing in columns.
 - All smoke now blows with the wind: burning buildings, campfires and wrecked vehicles too.
 - The boom and the shaking reach you at the speed of sound, so from far off you see it well before you hear it.

@@ -317,21 +317,23 @@ function bbWorldPt(x,y,z){if(x>=SHIP_X0){const S=shipOfPos(x,z);if(S){const t=sh
 // took back), each cube's place worked out from the crater's seed and the time, so a guest's is the same. The boom and the shake
 // reach each player at the speed of sound (BBF_SPD), and after dark it lights the world orange (bbGlowSky, from updateSky; with
 // Block lighting, a pool of light on the ground round it too, bbMovLight).
-const BBF_N=9000,BBF_W=2400,BBF_SPD=343,BBF_LIFE=110,BBF_WIND=SMOKE_WIND,BB_GLOWC=new THREE.Color(1,0.46,0.16),_bbc=new THREE.Color(),_bbc2=new THREE.Color(),_bbFog=new THREE.Color();
+const BBF_N=13500,BBF_W=2400,BBF_SPD=343,BBF_LIFE=110,BBF_WIND=SMOKE_WIND,BB_GLOWC=new THREE.Color(1,0.46,0.16),_bbc=new THREE.Color(),_bbc2=new THREE.Color(),_bbFog=new THREE.Color();
 const BBF_HEAT=[[0,0x3a1408],[0.2,0x8a1e08],[0.4,0xe0460c],[0.6,0xff9a1a],[0.8,0xffe27a],[1,0xfffbea]].map(([k,c])=>[k,new THREE.Color(c)]);
 const BBF=(()=>{const geo=new THREE.BoxGeometry(1,1,1),mb=o=>new THREE.MeshBasicMaterial(Object.assign({color:0xffffff,fog:false},o));
   return{glow:fxBatch(geo,mb(),BBF_N,false),cloud:fxBatch(new THREE.BoxGeometry(1,1,1),mb({transparent:true}),BBF_N,true),wil:fxBatch(geo,mb({transparent:true,opacity:0.5,depthWrite:false}),BBF_W,false),el:null};})();
 BBF.cloud.renderOrder=1.5;BB.glowK=0;BB.glowP=null;   // (after the water, renderOrder 1, which would otherwise paint over it, and before the fires' smoke, 2, which mostly stands in front of it; it writes depth, being drawn far to near anyway, so smoke behind it stays behind it)
 // (the cloud is see-through, like the fires' smoke, so its cubes are gathered here first and drawn far to near: sorted into
 // BBF_BINS by distance from the camera, which is all the order see-through boxes this size need)
-const BBF_ST=new Float32Array(BBF_N*8),BBF_BINS=64,BBF_BC=new Uint32Array(BBF_BINS+1),BBF_KEY=new Uint8Array(BBF_N),BBF_D=new Float32Array(BBF_N);
-function bbCloudSend(n){const M=BBF.cloud,S=BBF_ST,P=players.find(q=>q.active)||players[0],cp=P&&P.camera.position;
+const BBF_X=new Float32Array(SM_N*9);let BBF_XN=0;   // (the fires' smoke puffs, put here by updateFires while a cloud's up: place, size, colour, alpha, turn)
+const BBF_ST=new Float32Array(BBF_N*9),BBF_BINS=64,BBF_BC=new Uint32Array(BBF_BINS+1),BBF_KEY=new Uint8Array(BBF_N),BBF_D=new Float32Array(BBF_N);
+function bbCloudSend(n){for(let i=0;i<BBF_XN&&n<BBF_N;i++,n++)BBF_ST.set(BBF_X.subarray(i*9,i*9+9),n*9);BBF_XN=0;
+ const M=BBF.cloud,S=BBF_ST,P=players.find(q=>q.active)||players[0],cp=P&&P.camera.position;
   let lo=Infinity,hi=0;const D=BBF_D;
-  for(let i=0;i<n;i++){const o=i*8,d=cp?(S[o]-cp.x)**2+(S[o+1]-cp.y)**2+(S[o+2]-cp.z)**2:0;D[i]=d;if(d<lo)lo=d;if(d>hi)hi=d;}
+  for(let i=0;i<n;i++){const o=i*9,d=cp?(S[o]-cp.x)**2+(S[o+1]-cp.y)**2+(S[o+2]-cp.z)**2:0;D[i]=d;if(d<lo)lo=d;if(d>hi)hi=d;}
   const sc=hi>lo?BBF_BINS/(Math.sqrt(hi)-Math.sqrt(lo)+1e-6):0,sl=Math.sqrt(lo);BBF_BC.fill(0);
   for(let i=0;i<n;i++){const b=Math.min(BBF_BINS-1,Math.floor((Math.sqrt(D[i])-sl)*sc));BBF_KEY[i]=BBF_BINS-1-b;BBF_BC[BBF_KEY[i]+1]++;}
   for(let b=1;b<=BBF_BINS;b++)BBF_BC[b]+=BBF_BC[b-1];
-  for(let i=0;i<n;i++){const j=BBF_BC[BBF_KEY[i]]++,o=i*8;_bbc.setRGB(S[o+4],S[o+5],S[o+6]);bbPut(M,j,S[o],S[o+1],S[o+2],S[o+3],_bbc);M.fxA.array[j]=S[o+7];}
+  for(let i=0;i<n;i++){const j=BBF_BC[BBF_KEY[i]]++,o=i*9;_bbc.setRGB(S[o+4],S[o+5],S[o+6]);bbPut(M,j,S[o],S[o+1],S[o+2],S[o+3],_bbc,S[o+8]);M.fxA.array[j]=S[o+7];}
   fxSent(M,n);}
 // (each cube of cloud its own shade, from its seed: lighter and darker, browner or greyer, and now and then a sooty one,
 // so the cloud's lumpy and mottled rather than one flat colour)
@@ -353,7 +355,7 @@ const bbSm=(a,b,x)=>{x=Math.min(1,Math.max(0,(x-a)/(b-a)));return x*x*(3-2*x);};
 // the colour of something at heat T (1 white-hot ... 0 dark red)
 function bbHeat(T,out){T=Math.max(0,Math.min(1,T));for(let i=1;i<BBF_HEAT.length;i++)if(T<=BBF_HEAT[i][0]){const a=BBF_HEAT[i-1],b=BBF_HEAT[i];return out.copy(a[1]).lerp(b[1],(T-a[0])/(b[0]-a[0]));}return out.copy(BBF_HEAT[5][1]);}
 // one cube into a batch (a plain scale and place: these never turn)
-function bbPut(M,n,x,y,z,s,c){const a=M.instanceMatrix.array,o=n*16;a[o]=s;a[o+1]=a[o+2]=a[o+3]=a[o+4]=0;a[o+5]=s;a[o+6]=a[o+7]=a[o+8]=a[o+9]=0;a[o+10]=s;a[o+11]=0;a[o+12]=x;a[o+13]=y;a[o+14]=z;a[o+15]=1;
+function bbPut(M,n,x,y,z,s,c,r){const a=M.instanceMatrix.array,o=n*16,cr=r?Math.cos(r)*s:s,sr=r?Math.sin(r)*s:0;a[o]=cr;a[o+1]=0;a[o+2]=-sr;a[o+3]=a[o+4]=0;a[o+5]=s;a[o+6]=a[o+7]=0;a[o+8]=sr;a[o+9]=0;a[o+10]=cr;a[o+11]=0;a[o+12]=x;a[o+13]=y;a[o+14]=z;a[o+15]=1;
   const C=M.instanceColor.array;C[n*3]=c.r;C[n*3+1]=c.g;C[n*3+2]=c.b;}
 // the white of the flash over the whole picture (under the HUD and menus)
 function bbFlashEl(){if(BBF.el===null){BBF.el=0;try{const w=document.getElementById('world'),e=document.createElement('div');e.style.cssText='position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none';
@@ -381,7 +383,7 @@ function bbFxTick(dt){
   const Lw=WORLD_LIGHT.value,fog=scene.fog,P=players.filter(q=>q.active);if(fog)_bbFog.copy(fog.color);
   // (a cloud's cubes are lit, not glowing: dimmed by the world's light, then toward the fog's colour by how far off it is)
   // (a cube of cloud: place, size, colour and how see-through)
-  const put=(x,y,z,s,c,al)=>{const o=nc*8,S=BBF_ST;S[o]=x;S[o+1]=y;S[o+2]=z;S[o+3]=s;S[o+4]=c.r;S[o+5]=c.g;S[o+6]=c.b;S[o+7]=al;nc++;};
+  const put=(x,y,z,s,c,al)=>{const o=nc*9,S=BBF_ST;S[o]=x;S[o+1]=y;S[o+2]=z;S[o+3]=s;S[o+4]=c.r;S[o+5]=c.g;S[o+6]=c.b;S[o+7]=al;S[o+8]=0;nc++;};
   let FK=0;const lit=c=>{c.r*=Lw.r;c.g*=Lw.g;c.b*=Lw.b;if(FK>0)c.lerp(_bbFog,FK);return c;};
   for(let i=BB.clouds.length-1;i>=0;i--){const CL=BB.clouds[i];CL.t+=dt;const T=CL.t,R=CL.R,sd=CL.sd;
     if(T>BBF_LIFE){BB.clouds.splice(i,1);continue;}

@@ -129,11 +129,18 @@ function updateFires(dt){
   const cp=(players.find(q=>q.active)||players[0]).camera.position;
   for(const p of live){shipPt(_firP.set(p.x,p.y,p.z));p.cd=(_firP.x-cp.x)**2+(p.y-cp.y)**2+(_firP.z-cp.z)**2;}
   live.sort((a,b)=>b.cd-a.cd);
+  // (while a big blast's cloud is up, the puffs go into its far-to-near drawing instead, so each shows through the other:
+  // big-blast.js, BBF_X; fogged here, as that cloud's material isn't)
+  const inBB=BB.clouds.length>0,fog=scene.fog;if(inBB)BBF_XN=0;
   for(let n=0;n<live.length;n++){const p=live[n],u=1-p.life/p.max;
+    if(inBB){if(BBF_XN>=SM_N)break;const sc=p.s*(1+u*2.6*(1+(p.sp||0)*0.9))*(u>0.85?(1-u)/0.15:1);shipPt(_firP.set(p.x,p.y,p.z));
+      const g=p.g*(1-u*0.25)*WORLD_LIGHT.value.r,w=p.glow*Math.max(0,1-u*3.2),d=Math.sqrt(p.cd);_firC.setRGB(g*(1-w)+1.0*w,g*(1-w)+0.42*w,g*1.05*(1-w)+0.12*w);
+      if(fog){const f=fog.isFogExp2?1-Math.exp(-((fog.density*d)**2)):Math.min(1,Math.max(0,(d-fog.near)/(fog.far-fog.near)));if(w<0.5)_firC.lerp(fog.color,f);}
+      const X=BBF_X,o=BBF_XN*9;X[o]=_firP.x;X[o+1]=_firP.y;X[o+2]=_firP.z;X[o+3]=sc;X[o+4]=_firC.r;X[o+5]=_firC.g;X[o+6]=_firC.b;X[o+7]=0.5;X[o+8]=u*1.5+p.i;BBF_XN++;continue;}
     const sc=p.s*(1+u*2.6*(1+(p.sp||0)*0.9))*(u>0.85?(1-u)/0.15:1);_firS.set(sc,sc,sc);shipPt(_firP.set(p.x,p.y,p.z));_firQ.setFromAxisAngle(_upAx,u*1.5+p.i);
     smokeM.setMatrixAt(n,_firM.compose(_firP,_firQ,_firS));const g=p.g*(1-u*0.25)*WORLD_LIGHT.value.r,w=p.glow*Math.max(0,1-u*3.2);   // lit orange from below while it's still low over the flames
     smokeM.setColorAt(n,_firC.setRGB(g*(1-w)+1.0*w,g*(1-w)+0.42*w,g*1.05*(1-w)+0.12*w));}
-  smLive=live.length;smokeM.count=live.length;
+  smLive=live.length;smokeM.count=inBB?0:live.length;
   for(const [M,n] of [[flameM,nf],[smokeM,live.length]])for(const [a,w] of [[M.instanceMatrix,16],[M.instanceColor,3]])if(a){a.needsUpdate=true;if(a.updateRange){a.updateRange.offset=0;a.updateRange.count=n*w;}}
 }
 const _upAx=new V3(0,1,0),SMOKE_WIND=4;   // (how hard the wind, windNow, pushes smoke: every fire's, wrecks', and a big blast's cloud)
