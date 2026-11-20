@@ -9,11 +9,11 @@ const sbxCells=cells=>{const h=SBX&&SBX.hits[SBX.hits.length-1];if(h&&h.kind==='
 // game speed and free cam
 const SPEEDS=[0.05,0.1,0.25,0.5,0.75,0.9,1,1.25,1.5,2];
 const PSPEEDS=[1,1.5,2,2.5,3,4,5,6,7,8,9,10];
-const DT={combo:false,hpBars:false,fps:false,sndList:false,info:false,curve:2,psI:0,invuln:false,infStam:false,infAmmo:false,veh:'car',vehMsg:'',fly:false,gob:false,host:3,speedI:6,paused:false,todStop:false,wxStop:false,wxLeft:0,freecam:false,step:false,quick:false,menu:false,kbdOpen:false,selHeld:false,cur:0,navDir:0,navT:0};
+const DT={combo:false,hpBars:false,fps:false,sndList:false,info:false,curve:2,psI:0,invuln:false,infStam:false,infAmmo:false,veh:'car',vehMsg:'',fly:false,gob:false,host:3,speedI:6,fogLit:2,halo:0.25,haloFade:0.25,paused:false,todStop:false,wxStop:false,wxLeft:0,freecam:false,step:false,quick:false,menu:false,kbdOpen:false,selHeld:false,cur:0,navDir:0,navT:0};
 try{const q=JSON.parse(localStorage.getItem('goblin-stompin-gus-quickdbg')||'null');if(typeof q==='boolean')DT.quick=q;}catch(e){}
 try{for(const k of ['fps','hpBars','sndList','info'])DT[k]=localStorage.getItem('goblin-stompin-gus-'+k)==='1';}catch(e){}
 // the debug settings all carry over from one session to the next (the time of day, weather and season go with the game's
-// save). The sliders with no starting value in DT (nukeR, fogLit, halo, haloFade) take a saved number. Along with DT_SAVED
+// save). A slider with no starting value in DT (nukeR) takes a saved number. Along with DT_SAVED
 // go the Rendering switches (gfx: GFX_OFF), the Interface ones (ui: UI_OFF) and where the free cam was (fc), put back
 // once everything's made (DT_REST, below).
 const DT_KEY='goblin-stompin-gus-debug',DT_SAVED=['curve','psI','speedI','invuln','infStam','infAmmo','veh','fly','fps','hpBars','sndList','info','quick','nukeR','fogLit','halo','haloFade','paused','todStop','wxStop','wxLeft','freecam'];
@@ -100,9 +100,9 @@ const DBG_ITEMS=DBG_SECS.flatMap(([c,sec,rows])=>rows.map(it=>Object.assign(it,{
 const DBG_SLIDE=new Set(['speed','pspeed','curve','host','tod','nukeR','fogLit','halo','haloFade']);
 // the Fog light slider: how strongly lights show through the weather's fog at night (DT.fogLit, FOG_LIT_FRAG), 0 to 3 times
 // in quarters, 1 to begin with (not saved, like the other switches)
-const FOGLIT_N=13,fogLitI=()=>Math.round((DT.fogLit??1)*4),fogLitSet=i=>{DT.fogLit=Math.max(0,Math.min(FOGLIT_N-1,i))/4;};
+const FOGLIT_N=13,fogLitI=()=>Math.round((DT.fogLit??2)*4),fogLitSet=i=>{DT.fogLit=Math.max(0,Math.min(FOGLIT_N-1,i))/4;};
 // the Halos slider: the same steps, for the halos round lamps, fires and traffic lights in fog (DT.halo, HALO_U)
-const haloI=()=>Math.round((DT.halo??1)*4),haloSet=i=>{DT.halo=Math.max(0,Math.min(FOGLIT_N-1,i))/4;};
+const haloI=()=>Math.round((DT.halo??0.25)*4),haloSet=i=>{DT.halo=Math.max(0,Math.min(FOGLIT_N-1,i))/4;};
 // the Halo fade slider: how long a halo takes to fade in or out, in seconds (DT.haloFade; 0 pops them on and off)
 const HFADE=[0,0.1,0.25,0.5,0.75,1,1.5,2],hfI=()=>{const i=HFADE.indexOf(DT.haloFade??0.25);return i<0?2:i;},hfSet=i=>{DT.haloFade=HFADE[Math.max(0,Math.min(HFADE.length-1,i))];};
 // the Nuke strength slider: the reach of the Nuke Launcher's big blast (nukeR, shots.js), NUKE_R0 to NUKE_R1 in steps of
@@ -130,7 +130,7 @@ function toggleGfx(k){const g=GFX_KEY[k],off=GFX_OFF[g]=!GFX_OFF[g];
   const P=P1.pos,d=e=>Math.hypot(e.cx*CS-P.x,e.cz*CS-P.z);
   leafQ.length=0;for(const e of [...meshes.values()].sort((a,b)=>d(b)-d(a)))leafQ.push(ckey(e.cx,e.cz));}
 const curveTxt=()=>DT.curve===0?'Flat':DT.curve>0?'Down '+DT.curve:'Up '+(-DT.curve);
-function dbgVal(k){return k==='nukeR'?String(nukeR()):k==='fogLit'?(DT.fogLit??1)+'×':k==='halo'?(DT.halo??1)+'×':k==='haloFade'?HFADE[hfI()]+'s':isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='tod'?todTxt():k==='vehSel'?tenvVehName(DT.veh):k==='vehGo'?DT.vehMsg:k==='todStop'||k==='wxStop'||k==='paused'||k==='freecam'||k==='combo'||k==='invuln'||k==='infStam'||k==='infAmmo'||k==='fly'||k==='fps'||k==='sndList'||k==='info'?DT[k]:DBG[k];}
+function dbgVal(k){return k==='nukeR'?String(nukeR()):k==='fogLit'?(DT.fogLit??2)+'×':k==='halo'?(DT.halo??0.25)+'×':k==='haloFade'?HFADE[hfI()]+'s':isUi(k)?uiVal(k):GFX_KEY[k]?!GFX_OFF[GFX_KEY[k]]:k==='curve'?curveTxt():k==='wx'?WX_TYPES[WX.type].n:k==='season'?SEASONS[seasonOf()]:k==='speed'?SPEEDS[DT.speedI]+'×':k==='pspeed'?PSPEEDS[DT.psI]+'×':k==='host'?HOST_N[DT.host]:k==='tod'?todTxt():k==='vehSel'?tenvVehName(DT.veh):k==='vehGo'?DT.vehMsg:k==='todStop'||k==='wxStop'||k==='paused'||k==='freecam'||k==='combo'||k==='invuln'||k==='infStam'||k==='infAmmo'||k==='fly'||k==='fps'||k==='sndList'||k==='info'?DT[k]:DBG[k];}
 // the rows on show: the individual hitbox switches only while 'Display hitboxes' is on
 // the menu's two tabs: 0 the switches themselves, 1 "Show / hide", which picks the rows tab 0 lists (kept in this browser)
 const DBG_HIDE_KEY='goblin-stompin-gus-dbghide',DBG_HIDE=new Set();

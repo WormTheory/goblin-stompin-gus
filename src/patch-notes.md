@@ -56,6 +56,7 @@
 - The last few halos that still switched off abruptly (a light going dark, or many fading at once) now fade like the rest.
 - Lamps and screens just behind a wall no longer get a halo poking through it.
 - Cars' headlights now stay on when they stop, at the lights or in traffic, and only parked cars' are off.
+- Lights now show through fog twice as strongly by default (Fog light 2×), with fainter halos (Halos 0.25×) that fade over a quarter of a second.
 
 ### Trees and water in the distance
 
