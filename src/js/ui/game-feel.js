@@ -112,6 +112,7 @@ function wreckHud(p,dt){
     // for that, 'Greater Sludgeborough-on-the-Marsh', is shrunk to fit)
     const one=t+'  '+pc+'%',two=one.length>22&&u.wkT2,fit=(el,s)=>{el.textContent=s;const tp=el.parentNode;if(tp&&tp.style)tp.style.fontSize=s.length>22?Math.max(8,15*22/s.length).toFixed(1)+'px':'';};
     if(two){fit(u.wkT2,nm||'Settlement');fit(u.wkT,'razed  '+pc+'%');}else{fit(u.wkT,one);if(u.wkT2)u.wkT2.textContent='';}
+    if(u.wreck.classList.contains('wk2')!==!!two)u.wreck.classList.toggle('wk2',!!two);   // (the controls column and chat move up for it)
     u.wkFill.setAttribute('stroke-dasharray',pc+' 200');u.wkFill.style.visibility=pc?'':'hidden';}   // (the bar is an arc over the minimap, filled by its dash)
 }
 // (Options: reduced motion, kept in this browser; the system's own setting turns it on too, see reduceMotion)

@@ -1306,8 +1306,10 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
 .wreck .wk-t{font:400 15px var(--f-px);letter-spacing:1px;fill:var(--paper);paint-order:stroke;stroke:var(--ink);stroke-width:3.5px;stroke-linejoin:round;text-transform:uppercase}
 /* (online, the chat column goes up over it while it's there) */
 .view:has(.wreck:not([hidden])) .chat{bottom:calc(60px + var(--mm,160px) + env(safe-area-inset-bottom,0px))}
+.view:has(.wreck.wk2:not([hidden])) .chat{bottom:calc(80px + var(--mm,160px) + env(safe-area-inset-bottom,0px))}
 /* (and on a short screen a vehicle's controls column stands on it rather than in the middle of the side) */
-@container hud (max-height:800px){.view:has(.wreck:not([hidden])) .dkeys{top:auto;bottom:calc(64px + var(--mm,160px) + env(safe-area-inset-bottom,0px));transform:none;max-height:calc(100% - 104px - var(--mm,160px));overflow:hidden}}
+@container hud (max-height:800px){.view:has(.wreck:not([hidden])) .dkeys{top:auto;bottom:calc(64px + var(--mm,160px) + env(safe-area-inset-bottom,0px));transform:none;max-height:calc(100% - 104px - var(--mm,160px));overflow:hidden}
+  .view:has(.wreck.wk2:not([hidden])) .dkeys{bottom:calc(84px + var(--mm,160px) + env(safe-area-inset-bottom,0px));max-height:calc(100% - 124px - var(--mm,160px))}}
 /* pop-ups: points (yolk), damage (tomato), shouts (paper), a combo milestone (big, in the middle of the view) */
 .pops{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:4}
 .pop{position:absolute;left:0;top:0;white-space:nowrap;will-change:transform,opacity;font:400 30px/1 var(--f-px);letter-spacing:.5px;color:var(--yolk);text-shadow:2px 0 var(--ink),-2px 0 var(--ink),0 2px var(--ink),0 -2px var(--ink),2px 2px var(--ink),-2px 2px var(--ink),2px -2px var(--ink),-2px -2px var(--ink),0 4px var(--ink)}
