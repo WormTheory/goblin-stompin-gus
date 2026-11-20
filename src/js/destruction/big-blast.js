@@ -320,8 +320,19 @@ function bbWorldPt(x,y,z){if(x>=SHIP_X0){const S=shipOfPos(x,z);if(S){const t=sh
 const BBF_N=9000,BBF_W=2400,BBF_SPD=343,BBF_LIFE=110,BBF_WIND=SMOKE_WIND,BB_GLOWC=new THREE.Color(1,0.46,0.16),_bbc=new THREE.Color(),_bbc2=new THREE.Color(),_bbFog=new THREE.Color();
 const BBF_HEAT=[[0,0x3a1408],[0.2,0x8a1e08],[0.4,0xe0460c],[0.6,0xff9a1a],[0.8,0xffe27a],[1,0xfffbea]].map(([k,c])=>[k,new THREE.Color(c)]);
 const BBF=(()=>{const geo=new THREE.BoxGeometry(1,1,1),mb=o=>new THREE.MeshBasicMaterial(Object.assign({color:0xffffff,fog:false},o));
-  return{glow:fxBatch(geo,mb(),BBF_N,false),cloud:fxBatch(geo,mb(),BBF_N,false),wil:fxBatch(geo,mb({transparent:true,opacity:0.5,depthWrite:false}),BBF_W,false),el:null};})();
-BB.glowK=0;BB.glowP=null;
+  return{glow:fxBatch(geo,mb(),BBF_N,false),cloud:fxBatch(new THREE.BoxGeometry(1,1,1),mb({transparent:true,depthWrite:false}),BBF_N,true),wil:fxBatch(geo,mb({transparent:true,opacity:0.5,depthWrite:false}),BBF_W,false),el:null};})();
+BBF.cloud.renderOrder=1;BB.glowK=0;BB.glowP=null;   // (before the fires' smoke, renderOrder 2, which mostly stands in front of it)
+// (the cloud is see-through, like the fires' smoke, so its cubes are gathered here first and drawn far to near: sorted into
+// BBF_BINS by distance from the camera, which is all the order see-through boxes this size need)
+const BBF_ST=new Float32Array(BBF_N*8),BBF_BINS=64,BBF_BC=new Uint32Array(BBF_BINS+1),BBF_KEY=new Uint8Array(BBF_N),BBF_D=new Float32Array(BBF_N);
+function bbCloudSend(n){const M=BBF.cloud,S=BBF_ST,P=players.find(q=>q.active)||players[0],cp=P&&P.camera.position;
+  let lo=Infinity,hi=0;const D=BBF_D;
+  for(let i=0;i<n;i++){const o=i*8,d=cp?(S[o]-cp.x)**2+(S[o+1]-cp.y)**2+(S[o+2]-cp.z)**2:0;D[i]=d;if(d<lo)lo=d;if(d>hi)hi=d;}
+  const sc=hi>lo?BBF_BINS/(Math.sqrt(hi)-Math.sqrt(lo)+1e-6):0,sl=Math.sqrt(lo);BBF_BC.fill(0);
+  for(let i=0;i<n;i++){const b=Math.min(BBF_BINS-1,Math.floor((Math.sqrt(D[i])-sl)*sc));BBF_KEY[i]=BBF_BINS-1-b;BBF_BC[BBF_KEY[i]+1]++;}
+  for(let b=1;b<=BBF_BINS;b++)BBF_BC[b]+=BBF_BC[b-1];
+  for(let i=0;i<n;i++){const j=BBF_BC[BBF_KEY[i]]++,o=i*8;_bbc.setRGB(S[o+4],S[o+5],S[o+6]);bbPut(M,j,S[o],S[o+1],S[o+2],S[o+3],_bbc);M.fxA.array[j]=S[o+7];}
+  fxSent(M,n);}
 // (each cube of cloud its own shade, from its seed: lighter and darker, browner or greyer, and now and then a sooty one,
 // so the cloud's lumpy and mottled rather than one flat colour)
 const BBF_SOOT=new THREE.Color(0x2e2925),BBF_BROWN=new THREE.Color(0x8a6f58),_bbFr=x=>x-Math.floor(x);
@@ -358,6 +369,8 @@ function bbFxTick(dt){
   const B=BBF;let ng=0,nc=0,nw=0,fl=0,glow=0;BB.glowP=null;
   const Lw=WORLD_LIGHT.value,fog=scene.fog,P=players.filter(q=>q.active);if(fog)_bbFog.copy(fog.color);
   // (a cloud's cubes are lit, not glowing: dimmed by the world's light, then toward the fog's colour by how far off it is)
+  // (a cube of cloud: place, size, colour and how see-through)
+  const put=(x,y,z,s,c,al)=>{const o=nc*8,S=BBF_ST;S[o]=x;S[o+1]=y;S[o+2]=z;S[o+3]=s;S[o+4]=c.r;S[o+5]=c.g;S[o+6]=c.b;S[o+7]=al;nc++;};
   let FK=0;const lit=c=>{c.r*=Lw.r;c.g*=Lw.g;c.b*=Lw.b;if(FK>0)c.lerp(_bbFog,FK);return c;};
   for(let i=BB.clouds.length-1;i>=0;i--){const CL=BB.clouds[i];CL.t+=dt;const T=CL.t,R=CL.R,sd=CL.sd;
     if(T>BBF_LIFE){BB.clouds.splice(i,1);continue;}
@@ -384,30 +397,34 @@ function bbFxTick(dt){
       const Tm=Math.exp(-T/1.6)*(1.15-0.35*rr)+under*0.55*Math.exp(-Math.max(0,T-3)/12);
       if(Tm>0.32){if(ng<BBF_N)bbPut(B.glow,ng++,x,y,z,sz,bbHeat(Tm,_bbc));}
       else if(nc<BBF_N){const sk=Math.min(1,(0.32-Tm)/0.25);_bbc.setHex(0x5e534c).lerp(_bbc2.setHex(0xbdb4aa),Math.max(0,Math.min(1,(y-capH)/rt*0.5+0.5)));
-        lit(bbVar(_bbc,a,b,d,0.16)).lerp(bbHeat(Tm,_bbc2),1-sk);bbPut(B.cloud,nc++,x,y,z,sz*(1+0.4*k),_bbc);}}
+        lit(bbVar(_bbc,a,b,d,0.16)).lerp(bbHeat(Tm,_bbc2),1-sk);put(x,y,z,sz*(1+0.4*k),_bbc,(0.85-0.35*(rr-0.55)/0.45*k)*(1-bbSm(55,100,T)));}}
     // ---- the stem: dust drawn up from the ground into the cap, leaning with it ----
     const gro=bbSm(1.2,5,T),top=capH-rt*0.7;
     for(let j=0;j<700&&nc<BBF_N;j++){const o=(2000+j)*4,a=sd[o],b=sd[o+1],c=sd[o+2],d=sd[o+3],hf=(a+T*0.08)%1;if(hf>gro)continue;
       const sz=cube*(0.9+0.5*d)*1.2*(1-bbSm(45+30*d,80+20*d,T));if(sz<0.05)continue;
-      const y=CL.y+hf*(top-CL.y),wid=R*0.045*(1+(1-hf)*(1-hf)*1.6)*(0.4+0.6*Math.sqrt(c)),ang=2*Math.PI*b+T*0.4,lean=k*hf*hf;
+      // (flaring out at the top into the underside of the ring, loose and thinning there)
+      const fl=bbSm(0.68,1,hf),y=CL.y+hf*(top-CL.y)+fl*rt*0.45*(d-0.35),wid=R*0.045*(1+(1-hf)*(1-hf)*1.6)*(0.4+0.6*Math.sqrt(c))+fl*fl*(Rt*k*0.9+rt*0.4)*(0.3+0.7*c),ang=2*Math.PI*b+T*0.4*(1-0.6*fl),lean=k*hf*hf;
       _bbc.setHex(0x7e6e5c).lerp(_bbc2.setHex(0xaba196),hf);lit(bbVar(_bbc,a,b,d,0.1));if(T<10)_bbc.lerp(_bbc2.setHex(0xff8a30),0.5*hf*hf*Math.exp(-T/5));
-      bbPut(B.cloud,nc++,CL.x+CL.wx*lean+Math.cos(ang)*wid,y,CL.z+CL.wz*lean+Math.sin(ang)*wid,sz,_bbc);}
+      put(CL.x+CL.wx*lean+Math.cos(ang)*wid,y,CL.z+CL.wz*lean+Math.sin(ang)*wid,sz*(1+0.7*fl),_bbc,(0.7-0.35*fl)*(1-bbSm(50,90,T)));}
     // ---- the ground surge: a ring of dust going out with the shock, then settling ----
-    const ring=R*1.1*(1-Math.exp(-T/1.6)),fade=1-bbSm(14,40,T);
-    if(fade>0)for(let j=0;j<1200&&nc<BBF_N;j++){const o=(3000+j)*4,a=sd[o],b=sd[o+1],c=sd[o+2],d=sd[o+3],ang=2*Math.PI*a,r=ring*(1-0.18*b*Math.min(1,T/2))+R*0.02*(c-0.5);
-      const hh=R*0.045*(1-b)*(0.4+0.6*c)*(0.4+0.6*Math.exp(-T/8));_bbc.setHex(0xb3a48c);lit(bbVar(_bbc,a,b,d,0.06));if(T<1.2)_bbc.lerp(_bbc2.setRGB(1,1,1),1-T/1.2);
-      bbPut(B.cloud,nc++,CL.x+Math.cos(ang)*r,CL.y+hh*0.5,CL.z+Math.sin(ang)*r,cube*1.1*(0.6+0.8*d)*fade,_bbc);}
+    // (once out, it keeps billowing: rolling over, climbing, spreading further and drifting off with the wind as it thins)
+    const ring=R*1.1*(1-Math.exp(-T/1.6)),fade=1-bbSm(20,58,T),bil=bbSm(1.5,30,T);
+    if(fade>0)for(let j=0;j<1200&&nc<BBF_N;j++){const o=(3000+j)*4,a=sd[o],b=sd[o+1],c=sd[o+2],d=sd[o+3],ph=T*(0.35+0.45*d)+a*40,ang=2*Math.PI*a+T*0.006*(b-0.5);
+      const r=ring*(1-0.18*b*Math.min(1,T/2))+R*0.02*(c-0.5)+R*0.22*bil*(0.25+0.75*b)+R*0.018*Math.sin(ph)*bil;
+      const hh=R*0.045*(1-b)*(0.4+0.6*c)*(0.4+0.6*Math.exp(-T/8))+R*0.07*bil*c*(1.2+Math.cos(ph*0.8+d*6));_bbc.setHex(0xb3a48c);lit(bbVar(_bbc,a,b,d,0.06));if(T<1.2)_bbc.lerp(_bbc2.setRGB(1,1,1),1-T/1.2);
+      put(CL.x+Math.cos(ang)*r+CL.wx*bil*0.45,CL.y+hh*0.5,CL.z+Math.sin(ang)*r+CL.wz*bil*0.45,cube*1.1*(0.6+0.8*d)*(1+1.3*bil)*Math.sqrt(fade),_bbc,0.62*fade*(1-0.45*bil));}
     // ---- the condensation dome round the fireball for a moment, and the collar round the stem ----
     const wk=bbSm(0.25,0.6,T)*(1-bbSm(1.5,3.2,T));
     if(wk>0.01){B.wil.material.opacity=0.55*wk;const rw=R*(0.3+0.25*bbSm(0.25,3,T));lit(_bbc2.setRGB(1,1,1));
       for(let j=0;j<1100&&nw<BBF_W;j++){const o=(4200+j)*4,a=sd[o],b=sd[o+1],c=sd[o+2],u=b*0.95,ph=2*Math.PI*a,sq=Math.sqrt(1-u*u);
         bbPut(B.wil,nw++,CL.x+sq*Math.cos(ph)*rw,CL.y+u*rw*0.85+R*0.04,CL.z+sq*Math.sin(ph)*rw,cube*1.4*(0.7+0.6*c),_bbc2);}}
     const ck=bbSm(7,11,T)*(1-bbSm(30,45,T));
-    if(ck>0.01){const ch=CL.y+(capH-CL.y)*0.5,cr=R*0.16*(0.6+0.4*rise);lit(_bbc.setHex(0xe9e6e0));
-      for(let j=0;j<320&&nc<BBF_N;j++){const o=(5400+j)*4,a=sd[o],b=sd[o+1],c=sd[o+2],ang=2*Math.PI*a,r=cr*(0.75+0.5*b);
-        bbPut(B.cloud,nc++,CL.x+CL.wx*k*0.25+Math.cos(ang)*r,ch+R*0.025*(c-0.5),CL.z+CL.wz*k*0.25+Math.sin(ang)*r,cube*1.1*ck,_bbc);}}
+    if(ck>0.01){const ch=CL.y+(capH-CL.y)*0.5,cr=R*0.16*(0.6+0.4*rise);
+      for(let j=0;j<320&&nc<BBF_N;j++){const o=(5400+j)*4,a=sd[o],b=sd[o+1],c=sd[o+2],d=sd[o+3],ang=2*Math.PI*a+T*0.03*(b-0.4),r=cr*(0.7+0.6*b)*(1+0.08*Math.sin(T*0.5+d*9));
+        _bbc.setHex(0xe2ddd5).lerp(_bbc2.setHex(0xa9a196),0.6*c);lit(bbVar(_bbc,a,b,d,0.03));
+        put(CL.x+CL.wx*k*0.25+Math.cos(ang)*r,ch+R*0.05*(c-0.5)*(1-Math.abs(b-0.5)),CL.z+CL.wz*k*0.25+Math.sin(ang)*r,cube*(0.7+0.9*d)*1.2*ck,_bbc,0.6*ck);}}
   }
-  fxSent(B.glow,ng);fxSent(B.cloud,nc);fxSent(B.wil,nw);
+  fxSent(B.glow,ng);bbCloudSend(nc);fxSent(B.wil,nw);
   const e=(fl>0||BBF.el)&&bbFlashEl();if(e){const v=Math.max(0,fl).toFixed(3);if(e.style.opacity!==v)e.style.opacity=v;}
   BB.glowK=glow*0.4;   // (after dark: how far the world's light goes orange, read by updateSky)
 }
