@@ -54,6 +54,7 @@
 - Halos no longer flicker as you turn the camera.
 - Every debug menu setting is now remembered from one session to the next, including Stop time, the pause switches, Free cam (and where it was), the Rendering switches and the Interface switches. Turning on a hitbox switch no longer resets the other debug settings.
 - The last few halos that still switched off abruptly (a light going dark, or many fading at once) now fade like the rest.
+- Lamps and screens just behind a wall no longer get a halo poking through it.
 
 ### Trees and water in the distance
 

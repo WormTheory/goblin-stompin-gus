@@ -129,15 +129,18 @@ function blkPatches(A,qx,qz){
   return E.halo=L;
 }
 // whether (x,y,z) can be seen from (cx,cy,cz): nothing solid in the way but glowing blocks (a window doesn't hide the one
-// beside it), looked for every 3/4 block along the line, stopping short of the light's own block; chunks not made yet count as open
-function blkSeen(cx,cy,cz,x,y,z){
-  const dx=x-cx,dy=y-cy,dz=z-cz,L=Math.hypot(dx,dy,dz),n=Math.floor((L-1.2)/0.75);let lk=null,lA=null;
-  for(let i=1;i<=n;i++){const t=i*0.75/L,X=Math.floor(cx+dx*t),Y=Math.floor(cy+dy*t),Z=Math.floor(cz+dz*t);if(Y<0||Y>=H)continue;
+// beside it), looked for every 1/2 block along the line right up to the light, but not in the light's own block (a lamp's
+// or a sign's, or the wall a patch of windows is set in); chunks not made yet count as open. (It used to stop over a block
+// short, which missed a wall just in front of a lamp indoors, and its halo showed through.) pad: how far short of it to stop
+// instead, for a patch of windows, whose middle is in its wall (one seen side-on looks along that wall).
+function blkSeen(cx,cy,cz,x,y,z,pad=0.3){
+  const dx=x-cx,dy=y-cy,dz=z-cz,L=Math.hypot(dx,dy,dz),n=Math.floor((L-pad)/0.5),x0=Math.floor(x),y0=Math.floor(y),z0=Math.floor(z);let lk=null,lA=null;
+  for(let i=1;i<=n;i++){const t=i*0.5/L,X=Math.floor(cx+dx*t),Y=Math.floor(cy+dy*t),Z=Math.floor(cz+dz*t);if(Y<0||Y>=H||X===x0&&Y===y0&&Z===z0)continue;
     const qx=Math.floor(X/CS),qz=Math.floor(Z/CS),k=ckey(qx,qz);if(k!==lk){lk=k;lA=chunks.get(k);}if(!lA)continue;
     const b=lA[li(X-qx*CS,Y,Z-qz*CS)];if(B_OPQ[b]&&!B_LIT[b])return false;}
   return true;
 }
-const blkSeenAny=(C,x,y,z)=>{for(const c of C)if(blkSeen(c.x,c.y,c.z,x,y,z))return true;return false;};
+const blkSeenAny=(C,x,y,z,pad)=>{for(const c of C)if(blkSeen(c.x,c.y,c.z,x,y,z,pad))return true;return false;};
 // The halos picked fade in and out (over DT.haloFade seconds, the debug menu's Halo fade, 0.25 unless set) rather than popping, so one coming or going as the camera swings
 // round (a lamp going behind a wall, a patch dropping out of the nearest) doesn't flicker: HALO_ON keeps each by where it is
 // ([x,y,z,r,g,b,size,shown,wanted]), wanted set by each pick, shown eased toward it every frame. (Room's kept for as many
@@ -176,8 +179,8 @@ function blkHaloPick(){
   // window round the back doesn't glow through the wall)
   L.sort((a,b)=>a[6]-b[6]);LP.sort((a,b)=>a[6]-b[6]);
   // (a patch's middle may be just behind a roof with its top half showing above it: its top's tried too)
-  const pick=(S,m,T)=>{for(let i=0,c=0;i<S.length&&T.length<m&&c<m*4;i++){const e=S[i];c++;if(blkSeenAny(C,e[0],e[1],e[2])||e[7]>=2&&blkSeenAny(C,e[0],e[1]+e[7]*0.6,e[2]))T.push(e);}};
-  const T=[];pick(L,BL_HALO_N-BL_HALO_PN,T);pick(LP,BL_HALO_N,T);
+  const pick=(S,m,T,pad)=>{for(let i=0,c=0;i<S.length&&T.length<m&&c<m*4;i++){const e=S[i];c++;if(blkSeenAny(C,e[0],e[1],e[2],pad)||pad&&blkSeenAny(C,e[0],e[1]+e[7]*0.6,e[2],pad))T.push(e);}};
+  const T=[];pick(L,BL_HALO_N-BL_HALO_PN,T);pick(LP,BL_HALO_N,T,1.2);
   for(const e of HALO_ON.values())e[8]=0;
   for(const [x,y,z,r,g,b,,s,k] of T){const m=Math.max(r,g,b,1),f=(k??1)/m,key=Math.round(x*4)+','+Math.round(y*4)+','+Math.round(z*4);
     let e=HALO_ON.get(key);if(!e){e=[0,0,0,0,0,0,0,0,0];HALO_ON.set(key,e);}
