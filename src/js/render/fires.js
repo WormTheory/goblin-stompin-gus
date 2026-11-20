@@ -39,7 +39,7 @@ const flameP=[],smokeP=[],_smLive=[];let flI=0,smI=0,flLive=0,smLive=0;
 function addFire(x,y,z,r,life,flames=true,o={}){
   trimFires(1);   // too many: the oldest go out
   const L=life*Math.min(FIRE_DURS[fireDurI].m,1e6);
-  fires.push({x,y,z,r,t:L,life:L,base:life,born:playTime,flames,acc:0,sacc:0,hurt:0,sm:o.smoke??1,rise:o.rise??1,blame:BLAME});
+  fires.push({x,y,z,r,t:L,life:L,base:life,born:playTime,flames,acc:0,sacc:0,hurt:0,sm:o.smoke??1,rise:o.rise??1,sp:o.spread||0,blame:BLAME});
 }
 // ---- campfires: the fire pits on a campsite's pitches, an encampment's barrel fire, the fire before a cult's altar, the
 // fires at the militia's and the thieves' camps. Real flames and smoke from the same pools as any fire, but small and
@@ -54,7 +54,7 @@ function hearthBurn(H,dt){
   // (a thin wisp: a campfire, not a burning building)
   H.sacc+=dt*(frameMs>40?0.4:1);
   while(H.sacc>=1){H.sacc--;const p=smokeP[smI];smI=(smI+1)%SM_N;p.x=H.x+(Math.random()-.5)*0.3;p.z=H.z+(Math.random()-.5)*0.3;p.y=H.y+0.9+Math.random()*0.4;
-    p.vx=0.2+(Math.random()-.5)*0.3;p.vz=0.1+(Math.random()-.5)*0.3;p.vy=1.1+Math.random()*0.8;p.max=p.life=2.5+Math.random()*2;p.s=0.3+Math.random()*0.3;p.g=0.3+Math.random()*0.1;p.glow=0.35;}
+    p.vx=(Math.random()-.5)*0.3;p.vz=(Math.random()-.5)*0.3;p.vy=1.1+Math.random()*0.8;p.max=p.life=2.5+Math.random()*2;p.s=0.3+Math.random()*0.3;p.g=0.3+Math.random()*0.1;p.glow=0.35;p.sp=0;}
   // burns whoever's right in it: their middle within a little over half a block of the wood's, at the wood's height
   H.hurt-=dt;if(H.hurt>0)return;H.hurt=0.9;
   for(const q of players){if(!q.active||q.state==='dead'||q.drv)continue;const dx=q.pos.x-H.x,dz=q.pos.z-H.z,dy=q.pos.y-H.y;
@@ -104,7 +104,7 @@ function updateFires(dt){
     F.sacc+=dt*(1.5+R*1.6)*smR*(0.4+0.6*k)*(frameMs>40?0.35:frameMs>25?0.6:1);
     while(F.sacc>=1){F.sacc--;const p=smokeP[smI];smI=(smI+1)%SM_N;
       const a=Math.random()*Math.PI*2,d=Math.random()*R*0.7;p.x=F.x+Math.cos(a)*d;p.z=F.z+Math.sin(a)*d;p.y=F.y+0.8+Math.random();
-      const ri=F.rise;p.vx=(0.5+(Math.random()-.5)*0.6)*Math.sqrt(ri);p.vz=(0.25+(Math.random()-.5)*0.6)*Math.sqrt(ri);p.vy=(2.2+Math.random()*1.6)*ri;p.max=p.life=(3.5+Math.random()*3)*(1+(ri-1)*0.9);p.s=(0.8+Math.random()*0.8+R*0.25)*(1+(ri-1)*0.35)*smS;p.g=F.flames?0.1+Math.random()*0.08:0.32+Math.random()*0.12;p.glow=F.flames?k*(0.55+Math.random()*0.35):0;}
+      const ri=F.rise,sp=F.sp;p.vx=((Math.random()-.5)*0.6+Math.cos(a)*sp*1.2)*Math.sqrt(ri);p.vz=((Math.random()-.5)*0.6+Math.sin(a)*sp*1.2)*Math.sqrt(ri);p.sp=sp;p.vy=(2.2+Math.random()*1.6)*ri;p.max=p.life=(3.5+Math.random()*3)*(1+(ri-1)*0.9);p.s=(0.8+Math.random()*0.8+R*0.25)*(1+(ri-1)*0.35)*smS;p.g=F.flames?0.1+Math.random()*0.08:0.32+Math.random()*0.12;p.glow=F.flames?k*(0.55+Math.random()*0.35):0;}
   }
   for(const H of hearths.values())hearthBurn(H,dt);
   // (nothing burning and the last of it gone: nothing to go through, or to send to the graphics card)
@@ -120,19 +120,23 @@ function updateFires(dt){
   // smoke is see-through, so it has to be drawn far-to-near: live puffs are sorted by distance from the camera
   // and packed into the instance slots in that order (otherwise a pale puff behind could paint over a dark one)
   const live=_smLive;live.length=0;
+  // (the world's wind takes every puff, harder the older and higher it gets; a spreading one, sp, also wanders on eddies of
+  // its own and slows as it climbs, so a plume bends over and fans out rather than standing as a column)
+  const w=windNow(),wx=w.x*SMOKE_WIND,wz=w.z*SMOKE_WIND,tt=playTime;
   for(let i=0;i<SM_N;i++){const p=smokeP[i];if(p.life<=0)continue;
-    p.life-=dt;if(p.life<=0)continue;p.x+=p.vx*dt;p.y+=p.vy*dt;p.z+=p.vz*dt;p.vy*=1-0.08*dt;p.i=i;live.push(p);}
+    p.life-=dt;if(p.life<=0)continue;const u=1-p.life/p.max,sp=p.sp||0,wk=(0.35+1.65*u)*(1+sp*0.6),ed=sp*(0.4+1.6*u)*1.4;
+    p.x+=(p.vx+wx*wk+Math.sin(tt*0.7+i*2.3)*ed)*dt;p.y+=p.vy*dt;p.z+=(p.vz+wz*wk+Math.cos(tt*0.6+i*1.7)*ed)*dt;p.vy*=1-(0.08+0.5*sp*u)*dt;p.i=i;live.push(p);}
   const cp=(players.find(q=>q.active)||players[0]).camera.position;
   for(const p of live){shipPt(_firP.set(p.x,p.y,p.z));p.cd=(_firP.x-cp.x)**2+(p.y-cp.y)**2+(_firP.z-cp.z)**2;}
   live.sort((a,b)=>b.cd-a.cd);
   for(let n=0;n<live.length;n++){const p=live[n],u=1-p.life/p.max;
-    const sc=p.s*(1+u*2.6)*(u>0.85?(1-u)/0.15:1);_firS.set(sc,sc,sc);shipPt(_firP.set(p.x,p.y,p.z));_firQ.setFromAxisAngle(_upAx,u*1.5+p.i);
+    const sc=p.s*(1+u*2.6*(1+(p.sp||0)*0.9))*(u>0.85?(1-u)/0.15:1);_firS.set(sc,sc,sc);shipPt(_firP.set(p.x,p.y,p.z));_firQ.setFromAxisAngle(_upAx,u*1.5+p.i);
     smokeM.setMatrixAt(n,_firM.compose(_firP,_firQ,_firS));const g=p.g*(1-u*0.25)*WORLD_LIGHT.value.r,w=p.glow*Math.max(0,1-u*3.2);   // lit orange from below while it's still low over the flames
     smokeM.setColorAt(n,_firC.setRGB(g*(1-w)+1.0*w,g*(1-w)+0.42*w,g*1.05*(1-w)+0.12*w));}
   smLive=live.length;smokeM.count=live.length;
   for(const [M,n] of [[flameM,nf],[smokeM,live.length]])for(const [a,w] of [[M.instanceMatrix,16],[M.instanceColor,3]])if(a){a.needsUpdate=true;if(a.updateRange){a.updateRange.offset=0;a.updateRange.count=n*w;}}
 }
-const _upAx=new V3(0,1,0);
+const _upAx=new V3(0,1,0),SMOKE_WIND=4;   // (how hard the wind, windNow, pushes smoke: every fire's, wrecks', and a big blast's cloud)
 // a round blast: knocks out everything within R (a ragged ball, flattened so it bites into the ground less)
 function crushBall(x,y,z,R,opt={}){
   if(shipN&&x<SHIP_X0)shipSmash(x,y,z,R,opt,(X,Y,Z,o)=>crushBall(X,Y,Z,R,o));   // (a ship there: see ships.js)

@@ -35,9 +35,9 @@ function smoke(x,y,z,n,color){for(let i=0;i<n;i++){const p=takePart();p.kind=2;p
 // online too: a guest's game makes the blood the host sends through these same functions.)
 const BLOOD_KEY='goblin-stompin-gus-noblood';let BLOOD_OFF=false;try{BLOOD_OFF=localStorage.getItem(BLOOD_KEY)==='1';}catch(e){}
 function blood(x,y,z,n,dir){if(SBX||BLOOD_OFF)return;for(let i=0;i<n;i++){const p=takePart();p.kind=1;p.life=1.4;const s=(0.05+Math.random()*0.1)/0.22;p.m.scale.set(s,s,s);p.m.material.color.setHex([0x7a0b0b,0x9c1212,0x5c0707][i%3]);p.m.position.set(x,y,z);p.v.set((Math.random()-.5)*3,Math.random()*3,(Math.random()-.5)*3);if(dir)p.v.addScaledVector(dir,2+Math.random()*5);p.m.visible=true;}}
-function updateParts(dt){for(const p of parts){if(p.life<=0)continue;p.life-=dt;const m=p.m;
+function updateParts(dt){const w=windNow();for(const p of parts){if(p.life<=0)continue;p.life-=dt;const m=p.m;
   if(p.kind===1){p.v.y-=20*dt;m.position.addScaledVector(p.v,dt);const g=groundAt(m.position.x,m.position.z,m.position.y);if(m.position.y<=g){if(Math.random()<0.5)splat(m.position.x,m.position.z,g+0.5,0.08+Math.random()*0.2);p.life=0;}m.material.opacity=1;}
-  else if(p.kind===2){p.v.multiplyScalar(1-0.9*dt);m.position.addScaledVector(p.v,dt);m.scale.setScalar(1.5+(2.4-p.life)*1.3);m.material.opacity=Math.max(0,Math.min(1,p.life))*0.75;}
+  else if(p.kind===2){p.v.multiplyScalar(1-0.9*dt);m.position.addScaledVector(p.v,dt);m.position.x+=w.x*SMOKE_WIND*0.8*dt;m.position.z+=w.z*SMOKE_WIND*0.8*dt;m.scale.setScalar(1.5+(2.4-p.life)*1.3);m.material.opacity=Math.max(0,Math.min(1,p.life))*0.75;}
   else{p.v.y-=6*dt;p.v.multiplyScalar(1-2*dt);m.position.addScaledVector(p.v,dt);m.material.opacity=Math.max(0,Math.min(1,p.life*1.6));m.scale.setScalar(1+(1-p.life));}
   if(p.life<=0)m.visible=false;}}
 const decals=[];let decalIdx=0,decalsDirty=false;
