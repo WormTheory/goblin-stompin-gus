@@ -192,9 +192,13 @@ function frame(now,bg){   // (bg: a tab in the background while online, kept goi
   hintTime-=dt;
   for(const p of act){
     if(netGuest())safe('arms',()=>gobArmsHud(p));else gobArmsHud(p);
-    const hint=p.ui.hint,grab=p===P1&&mouseNeedsClick();hint.hidden=!(grab||playing&&hintTime>0&&!p.drv);   // (in any vehicle its own controls column down the left takes over)
+    const hint=p.ui.hint,grab=p===P1&&mouseNeedsClick();hint.hidden=!grab;
     if(grab){const txt='Click to look around with the mouse';if(hint._s!==txt){hint._s=txt;hint.textContent=txt;}}
-    else if(!hint.hidden){const txt=touchMode&&!p.pad?(p.gob?'BITE attacks  ·  STOMP throws a grenade  ·  JUMP  ·  tap DASH to dash, hold to sprint':'Hold STOMP  ·  BITE  ·  JUMP  ·  tap DASH to dash, hold to '+(abilOf(p).trample?'trample':'sprint')):bindHint(!!p.pad,p);if(hint._s!==txt){hint._s=txt;hint.innerHTML=hudHTML(txt);}}
+    // (your controls on foot: a column down the left, the same place and look as a vehicle's, which take over while
+    // you're in one (drvHud), so the two never show together)
+    let fk=p.ui.fkeys;if(!fk){fk=p.ui.fkeys=document.createElement('div');fk.className='dkeys fkeys';fk.hidden=true;p.ui.view.append(fk);}
+    fk.hidden=!(playing&&!p.drv);
+    if(!fk.hidden){const txt=touchMode&&!p.pad?(p.gob?'BITE attacks  ·  STOMP throws a grenade  ·  JUMP  ·  tap DASH to dash, hold to sprint':'Hold STOMP  ·  BITE  ·  JUMP  ·  tap DASH to dash, hold to '+(abilOf(p).trample?'trample':'sprint')):bindHint(!!p.pad,p);if(fk._s!==txt){fk._s=txt;fk.innerHTML=keysHTML(txt);}}
   }
   for(const p of act){if(!p.paused)continue;const o=act.find(q=>q!==p);const txt=!o?'':o.paused?'Both paused. The city is frozen.':`The city keeps going while ${charName(o)} plays.`;if(p.ui.pstatus.textContent!==txt)p.ui.pstatus.textContent=txt;}
   const pol=cars.some(c=>c.alive&&c.police&&c.hunter);

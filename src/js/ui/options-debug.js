@@ -63,7 +63,7 @@ const UI_PARTS={
   uiStam:['.stam','Stamina bar','Under the hearts'],
   uiCharge:['.smeter','Charge meter',''],
   uiMsg:['.label','Messages',''],
-  uiHint:['.hint','Control hints','Above the hearts'],
+  uiHint:['.hint,.dkeys','Control hints','Down the left'],
   uiPlace:['.placeBanner','Place names',''],
   uiHurt:['.hurt','Hurt flash',''],
   uiWater:['.water-tint','Underwater tint',''],

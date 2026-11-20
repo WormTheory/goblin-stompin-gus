@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:a41c6a00922fc19030cc77678f325c3e4d04739d73dce169affb7e4536a6d401 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:070ebb75ea03475a220f8b8b449e3e698efd8e677eec8384a2b9fa587593444a -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -248,9 +248,9 @@ canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;point
 .dveh .dbar{height:6px;margin-top:5px;background:rgba(238,240,230,.16);border-radius:2px;overflow:hidden}
 .dveh .dbar i{display:block;height:100%;width:100%;background:#7fc24a}
 /* (a vehicle's controls: down the left of the view, a line each) */
-.drvhud .dkeys{position:absolute;left:max(14px,env(safe-area-inset-left,0px));top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:5px;padding:8px 10px;background:rgba(18,22,28,.62);border-radius:4px;font:600 11px var(--f-mono);color:var(--bone);white-space:nowrap;max-width:40%}
-.drvhud .dkeys:empty{display:none}
-.drvhud .dkeys>div{display:flex;align-items:center;gap:2px}
+.dkeys{position:absolute;pointer-events:none;left:max(14px,env(safe-area-inset-left,0px));top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:5px;padding:8px 10px;background:rgba(18,22,28,.62);border-radius:4px;font:600 11px var(--f-mono);color:var(--bone);white-space:nowrap;max-width:40%}
+.dkeys:empty,.dkeys[hidden]{display:none}
+.dkeys>div{display:flex;align-items:center;gap:2px}
 .bar{position:absolute;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;max-width:calc(100% - 32px)}
 .who{font:700 13px var(--f-display);letter-spacing:.02em;text-shadow:0 2px 0 rgba(0,0,0,.6)}
 .who.p2{color:var(--gertie)}
@@ -272,7 +272,7 @@ canvas#dbgOver{position:fixed;inset:0;width:100%;height:100%;display:block;point
 .slv{font:700 12px var(--f-display);letter-spacing:.02em;min-width:52px;text-shadow:0 2px 0 rgba(0,0,0,.6);color:#c9a27a}
 .smeter.lv1 .mfill{background:#f08a3a}.smeter.lv1 .slv{color:#f5a65a}
 .smeter.lv2 .mfill{background:#fff0b0}.smeter.lv2 .sbar{box-shadow:0 0 10px #ffd860}.smeter.lv2 .slv{color:#ffe98a}
-.hint .g,.label .g,.dveh .g,.drvhud .g{vertical-align:middle;margin:0 3px;transform:translateY(-1px)}
+.hint .g,.label .g,.dveh .g,.drvhud .g,.dkeys .g{vertical-align:middle;margin:0 3px;transform:translateY(-1px)}
 .hint{font:700 14px var(--f-display);letter-spacing:.02em;background:rgba(18,22,28,.72);padding:6px 12px;border-radius:3px;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
 .join{position:absolute;inset:0;display:grid;place-items:center;font:700 18px var(--f-display);letter-spacing:.02em;text-align:center;padding:16px;background:rgba(10,13,17,.35);text-shadow:0 2px 0 rgba(0,0,0,.6)}
 .divider{position:absolute;background:#0a0d10}
@@ -1313,7 +1313,7 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
 /* (online, the chat column goes up over it while it's there) */
 .view:has(.wreck:not([hidden])) .chat{bottom:calc(60px + var(--mm,160px) + env(safe-area-inset-bottom,0px))}
 /* (and on a short screen a vehicle's controls column stands on it rather than in the middle of the side) */
-@container hud (max-height:800px){.view:has(.wreck:not([hidden])) .drvhud .dkeys{top:auto;bottom:calc(64px + var(--mm,160px) + env(safe-area-inset-bottom,0px));transform:none;max-height:calc(100% - 104px - var(--mm,160px));overflow:hidden}}
+@container hud (max-height:800px){.view:has(.wreck:not([hidden])) .dkeys{top:auto;bottom:calc(64px + var(--mm,160px) + env(safe-area-inset-bottom,0px));transform:none;max-height:calc(100% - 104px - var(--mm,160px));overflow:hidden}}
 /* pop-ups: points (yolk), damage (tomato), shouts (paper), a combo milestone (big, in the middle of the view) */
 .pops{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:4}
 .pop{position:absolute;left:0;top:0;white-space:nowrap;will-change:transform,opacity;font:400 30px/1 var(--f-px);letter-spacing:.5px;color:var(--yolk);text-shadow:2px 0 var(--ink),-2px 0 var(--ink),0 2px var(--ink),0 -2px var(--ink),2px 2px var(--ink),-2px 2px var(--ink),2px -2px var(--ink),-2px -2px var(--ink),0 4px var(--ink)}
@@ -2330,7 +2330,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='e8bd345a7134';
+const GAME_VER='0.5',GAME_BUILD='39f346337b9f';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -13656,7 +13656,7 @@ function drvHud(p){
     const bar=p.ui.view.querySelector('.bar'),who=bar&&bar.querySelector('.who');if(who)bar.insertBefore(dv,who);else el.append(dv);
     H=p.ui.drvHud={el,dv,xh:el.querySelector('.xh'),xt:el.querySelector('.xt'),box:dv.querySelector('.dbox'),name:dv.querySelector('.dname'),fill:dv.querySelector('.dbar i'),wpn:dk,ammo:dv.querySelector('.dammo'),txt:{}};}
   const D=p.drv,o=D.o,armed=drvArmed(p),{hp,max}=drvHP(D),f=Math.max(0,Math.min(1,hp/max));
-  const set=(k,el,v)=>{if(H.txt[k]!==v){H.txt[k]=v;el.innerHTML=k==='w'?String(v).split(/\s+·\s+/).map(l=>'<div>'+hudHTML(l)+'</div>').join(''):hudHTML(v);}};
+  const set=(k,el,v)=>{if(H.txt[k]!==v){H.txt[k]=v;el.innerHTML=k==='w'?keysHTML(v):hudHTML(v);}};
   H.el.hidden=false;H.dv.hidden=false;
   set('n',H.name,(D.seat==='gun'?'Gunner  ·  ':'')+drvName(D).replace(/^./,c=>c.toUpperCase())+'  ·  '+Math.max(0,Math.ceil(hp))+' / '+Math.round(max));
   const w=(f*100).toFixed(1)+'%';if(H.txt.hpw!==w){H.txt.hpw=w;H.fill.style.width=w;H.fill.style.background=f>0.5?'#7fc24a':f>0.25?'#f0a04a':'#e0564a';}
@@ -18799,7 +18799,9 @@ const actMark=(p,id)=>{id=ctxId(p,id);const B=BINDS[id];return btnMark(p&&p.pad?
 // a pair of actions (W/S, A/D) as one control: the stick shown once on a controller
 const actPair=(p,a,b)=>{const x=actMark(p,a),y=actMark(p,b);return x===y?x:x+'/'+y;};
 function hudHTML(s){return String(s).split(/⟦([^⟧]*)⟧/).map((t,i)=>i%2?glyph(t):glEsc(t)).join('');}
-// the bottom-of-screen hint, from the bindings
+// a column of controls, one to a line (the '  ·  ' between them split off): a vehicle's, or your own on foot
+const keysHTML=s=>String(s).split(/\s+·\s+/).map(l=>'<div>'+hudHTML(l)+'</div>').join('');
+// your controls on foot, from the bindings (the column down the left, where a vehicle's go while you're in one)
 function bindHint(pad,p){
   const L=id=>{const B=BINDS[id];return pad?(B.pad.length?btnMark(bindGlyph('pad',B.pad[0])):null):(B.kb.length?btnMark(bindGlyph('kb',B.kb[0])):null);},hv=(p&&!p.gob?abilOf(p):ABIL).trample?'trample':'sprint',out=[];
   if(p&&p.gob)return gobHint(L,p);
@@ -21781,7 +21783,7 @@ const UI_PARTS={
   uiStam:['.stam','Stamina bar','Under the hearts'],
   uiCharge:['.smeter','Charge meter',''],
   uiMsg:['.label','Messages',''],
-  uiHint:['.hint','Control hints','Above the hearts'],
+  uiHint:['.hint,.dkeys','Control hints','Down the left'],
   uiPlace:['.placeBanner','Place names',''],
   uiHurt:['.hurt','Hurt flash',''],
   uiWater:['.water-tint','Underwater tint',''],
@@ -30472,9 +30474,13 @@ function frame(now,bg){   // (bg: a tab in the background while online, kept goi
   hintTime-=dt;
   for(const p of act){
     if(netGuest())safe('arms',()=>gobArmsHud(p));else gobArmsHud(p);
-    const hint=p.ui.hint,grab=p===P1&&mouseNeedsClick();hint.hidden=!(grab||playing&&hintTime>0&&!p.drv);   // (in any vehicle its own controls column down the left takes over)
+    const hint=p.ui.hint,grab=p===P1&&mouseNeedsClick();hint.hidden=!grab;
     if(grab){const txt='Click to look around with the mouse';if(hint._s!==txt){hint._s=txt;hint.textContent=txt;}}
-    else if(!hint.hidden){const txt=touchMode&&!p.pad?(p.gob?'BITE attacks  ·  STOMP throws a grenade  ·  JUMP  ·  tap DASH to dash, hold to sprint':'Hold STOMP  ·  BITE  ·  JUMP  ·  tap DASH to dash, hold to '+(abilOf(p).trample?'trample':'sprint')):bindHint(!!p.pad,p);if(hint._s!==txt){hint._s=txt;hint.innerHTML=hudHTML(txt);}}
+    // (your controls on foot: a column down the left, the same place and look as a vehicle's, which take over while
+    // you're in one (drvHud), so the two never show together)
+    let fk=p.ui.fkeys;if(!fk){fk=p.ui.fkeys=document.createElement('div');fk.className='dkeys fkeys';fk.hidden=true;p.ui.view.append(fk);}
+    fk.hidden=!(playing&&!p.drv);
+    if(!fk.hidden){const txt=touchMode&&!p.pad?(p.gob?'BITE attacks  ·  STOMP throws a grenade  ·  JUMP  ·  tap DASH to dash, hold to sprint':'Hold STOMP  ·  BITE  ·  JUMP  ·  tap DASH to dash, hold to '+(abilOf(p).trample?'trample':'sprint')):bindHint(!!p.pad,p);if(fk._s!==txt){fk._s=txt;fk.innerHTML=keysHTML(txt);}}
   }
   for(const p of act){if(!p.paused)continue;const o=act.find(q=>q!==p);const txt=!o?'':o.paused?'Both paused. The city is frozen.':`The city keeps going while ${charName(o)} plays.`;if(p.ui.pstatus.textContent!==txt)p.ui.pstatus.textContent=txt;}
   const pol=cars.some(c=>c.alive&&c.police&&c.hunter);

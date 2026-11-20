@@ -166,7 +166,9 @@ const actMark=(p,id)=>{id=ctxId(p,id);const B=BINDS[id];return btnMark(p&&p.pad?
 // a pair of actions (W/S, A/D) as one control: the stick shown once on a controller
 const actPair=(p,a,b)=>{const x=actMark(p,a),y=actMark(p,b);return x===y?x:x+'/'+y;};
 function hudHTML(s){return String(s).split(/⟦([^⟧]*)⟧/).map((t,i)=>i%2?glyph(t):glEsc(t)).join('');}
-// the bottom-of-screen hint, from the bindings
+// a column of controls, one to a line (the '  ·  ' between them split off): a vehicle's, or your own on foot
+const keysHTML=s=>String(s).split(/\s+·\s+/).map(l=>'<div>'+hudHTML(l)+'</div>').join('');
+// your controls on foot, from the bindings (the column down the left, where a vehicle's go while you're in one)
 function bindHint(pad,p){
   const L=id=>{const B=BINDS[id];return pad?(B.pad.length?btnMark(bindGlyph('pad',B.pad[0])):null):(B.kb.length?btnMark(bindGlyph('kb',B.kb[0])):null);},hv=(p&&!p.gob?abilOf(p):ABIL).trample?'trample':'sprint',out=[];
   if(p&&p.gob)return gobHint(L,p);
