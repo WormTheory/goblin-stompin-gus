@@ -509,6 +509,11 @@
 - Dust, smoke puffs, shockwave rings, blast flashes and fireball glows no longer disappear behind water or cut box-shaped holes in it, and flames no longer flicker against water.
 - Overlapping smoke, dust, blast flashes, fireball glows and shockwave rings now show through each other in the right order, rather than one always painting over the other.
 
+### World Generator
+
+- A map of any world, at the game's address followed by /WorldGen. Type a seed and see its land and sea, every settlement with its name and type, the capital, military bases, naval bases and where aircraft carriers spawn. Zoom in and it fills in what's on every plot. Click a settlement to see what's in it.
+- It opens on the world you're playing in this browser, and uses the game's own world generation, so it always matches the version it sits beside.
+
 ## Version 0.4.1
 
 ### Saving
