@@ -1,4 +1,4 @@
-// Real 3D screenshots of Gnash's weapons: the club, the dagger mid-stab and the rifle mid-shot, with the weapon bar by
+// Real 3D screenshots of Gnash's weapons: the club, the dagger mid-stab, the rifle mid-shot and a grenade drawn back, with the weapon bar by
 // his hearts and the rifle's crosshair (see player/gob-weapons.js). Picks Gnash on the title screen and arms him.
 // Usage, from tools/ui (after python3 ../build_3d.py ../../game/index.html t3.html): node gobarms.js [seed] [outDir] [tag]
 const {chromium}=require('playwright');
@@ -10,20 +10,20 @@ const b=await chromium.launch({args:['--use-gl=angle','--use-angle=swiftshader',
 const p=await b.newPage({viewport:{width:1280,height:720}});
 const errs=[];p.on('pageerror',e=>errs.push(e.message));p.on('console',m=>{if(m.type()==='error')errs.push(m.text().slice(0,200));});
 await p.addInitScript(([k,s])=>{if(!localStorage.getItem(k))localStorage.setItem(k,JSON.stringify({seed:s}));localStorage.setItem('goblin-stompin-gus-character','goblin');},[SAVE_KEY,seed]);
-await p.goto('file://'+process.cwd()+'/t3.html');await p.waitForTimeout(3000);
+await p.goto('file://'+process.cwd()+'/t3.html',{waitUntil:'domcontentloaded',timeout:60000});await p.waitForFunction(()=>window.__G,null,{timeout:120000});await p.waitForTimeout(3000);
 await p.evaluate(()=>document.getElementById('play').click());await p.waitForTimeout(12000);
 console.log('goblin mode',await p.evaluate(()=>window.__G.DT.gob));
-await p.evaluate(()=>{const P=window.__G.players[0];P.wpns=['club','dagger','rifle'];P.wpn='club';P.gren=5;P.cam.pitch=-0.1;});
+await p.evaluate(()=>{const P=window.__G.players[0];P.wpns=['club','dagger','rifle','grenade'];P.wpn='club';P.gren=5;P.cam.pitch=-0.1;});
 const shot=async(nm,wpn,attack,wait)=>{await p.evaluate(w=>{const P=window.__G.players[0];P.wpn=w;P.wpnT=-9;},wpn);await p.waitForTimeout(600);
   if(attack){await p.mouse.down();await p.waitForTimeout(wait);}
   console.log(nm.padEnd(8),await p.evaluate(()=>{const e=document.querySelector('.gwpn'),x=document.querySelector('.gxh');return (e&&!e.hidden?e.textContent:'no bar')+' | crosshair '+(x&&!x.hidden);}));
   await p.screenshot({path:out+'/gobarms'+tag+'-'+nm+'.png'});if(attack){await p.mouse.up();await p.waitForTimeout(700);}};
-await shot('club','club',false);await shot('swing','club',true,120);await shot('dagger','dagger',false);await shot('stab','dagger',true,110);await shot('rifle','rifle',false);await shot('fire','rifle',true,40);
+await shot('grenade','grenade',false);await shot('windup','grenade',true,180);await shot('club','club',false);await shot('swing','club',true,120);await shot('dagger','dagger',false);await shot('stab','dagger',true,110);await shot('rifle','rifle',false);await shot('fire','rifle',true,40);
 // as the others see him (co-op), from the free cam set beside him: the weapon in hand on his own goblin
 await p.evaluate(()=>{const P=window.__G.players[0];P.cam.pitch=0;});
 await p.evaluate(()=>dispatchEvent(new KeyboardEvent('keydown',{code:'KeyV'})));await p.waitForTimeout(400);
-for(const w of ['club','dagger','rifle']){await p.evaluate(w=>{const P=window.__G.players[0];P.wpn=w;clearInterval(window.__fc);
+for(const w of ['club','dagger','rifle','grenade','throw']){await p.evaluate(w=>{const P=window.__G.players[0];P.wpn=w==='throw'?'grenade':w;clearInterval(window.__fc);
     window.__fc=setInterval(()=>{const h=P.heading,cx=P.pos.x+Math.cos(h)*2.2+Math.sin(h)*1.2,cz=P.pos.z-Math.sin(h)*2.2+Math.cos(h)*1.2;
-      window.__G.FC.pos.set(cx,P.pos.y+1.0,cz);window.__G.FC.yaw=Math.atan2(-(P.pos.x-cx),-(P.pos.z-cz));window.__G.FC.pitch=-0.1;},5);},w);
+      window.__G.FC.pos.set(cx,P.pos.y+1.0,cz);window.__G.FC.yaw=Math.atan2(-(P.pos.x-cx),-(P.pos.z-cz));window.__G.FC.pitch=-0.1;if(w==='throw'){P.biteDur=0.55;P.biteT=0.36;P.lungeT=0;}},5);},w);
   await p.waitForTimeout(600);await p.screenshot({path:out+'/gobarms'+tag+'-seen-'+w+'.png'});}
 console.log(errs.join('\n')||'no errors');await b.close();})();

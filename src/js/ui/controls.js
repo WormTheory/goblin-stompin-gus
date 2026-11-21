@@ -182,7 +182,7 @@ function gobHint(L,p){const w=p&&p.wpns?p.wpn:'club',out=[];
   // (each weapon says what its attack is, WEAPONS' player.verb; a gun with a magazine can be reloaded)
   const W=WEAPONS[w];if(L('bite'))out.push(L('bite')+' '+(W&&W.player&&W.player.verb||'swing the club'));
   if(L('reload')&&W&&W.mag)out.push(L('reload')+' reload');
-  if(L('stomp'))out.push(L('stomp')+(W&&W.player&&W.player.scope?' look down the scope (hold)':' throw a grenade'));if(L('jump'))out.push(L('jump')+' jump');
+  if(L('stomp')&&W&&W.player&&W.player.scope)out.push(L('stomp')+' look down the scope (hold)');if(L('jump'))out.push(L('jump')+' jump');
   if(L('dashSprint'))out.push('tap '+L('dashSprint')+' dash, hold to sprint');else{if(L('dash'))out.push(L('dash')+' dash');}
   if(L('sprint'))out.push('hold '+L('sprint')+' to sprint');
   if(L('climb'))out.push('hold '+L('climb')+' climb');{const n=L('weapon'),v=L('weaponPrev');   // (next and previous as one line: the wheel, or the d-pad's left and right, shown once)

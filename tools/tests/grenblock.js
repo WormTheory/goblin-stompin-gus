@@ -49,11 +49,11 @@ const press=(n,k='Mouse2')=>{T.mHeld.add(k);S(n);T.mHeld.delete(k);};
 let at='';const boomWait=()=>{let Q=T.SHOTS.find(Q=>Q.live);for(let i=0;i<300&&T.SHOTS.some(Q=>Q.live);i++){if(Q)at=(Q.pos.x-X0-.5).toFixed(1)+','+(Q.pos.y-F).toFixed(1)+','+(Q.pos.z-Z0-.5).toFixed(1);S(1);}S(10);};
 console.log('GREN_CRUSH',T.GREN_CRUSH);
 for(const who of ['Gus','Gertie','Gnash']){
-  T.setGob(who==='Gnash');A.who=who==='Gertie'?1:0;pad();home();S(5);if(A.gren!==undefined)A.gren=5;
+  T.setGob(who==='Gnash');A.who=who==='Gertie'?1:0;pad();home();S(5);if(A.gob){A.gren=5;A.wpns=['club','grenade'];A.wpn='grenade';A.biteCD=0;}   // (Gnash: grenades in hand, thrown with the attack)
   // a stone wall 5 ahead (ahead is +z), 7 wide and 5 high
   for(let x=-3;x<=3;x++)for(let y=0;y<5;y++)T.setRaw(X0+x,F+y,Z0+5,STONE);
   const w0=count(X0-3,X0+3,F,F+4,Z0+5,Z0+5),fl0=count(X0-8,X0+8,F-4,F-1,Z0-8,Z0+8),e0=Object.keys(T.edits).length;
-  A.cam.pitch=0.05;press(3);boomWait();
+  A.cam.pitch=0.05;press(3,A.gob?'Mouse0':'Mouse2');S(A.gob?20:0);boomWait();
   const w1=count(X0-3,X0+3,F,F+4,Z0+5,Z0+5),fl1=count(X0-8,X0+8,F-4,F-1,Z0-8,Z0+8);
   console.log(who.padEnd(6),'throws at a wall 5 ahead: wall',w0,'->',w1,' floor near it',fl0,'->',fl1,' edits saved',Object.keys(T.edits).length-e0,' hp',A.hp,A.gob?' went off at '+at+' from him':'');
 }

@@ -1,14 +1,14 @@
 // ---- Gnash's weapons: what he starts with (his seat's loadout, gob-loadout.js), and what he takes off the enemies he kills ----
 // (each weapon's numbers, shapes and sounds are its entry in WEAPONS, weapons.js)
 // Each player goblin carries a list (p.wpns, the one in hand p.wpn) and a stack of grenades (p.gren). The attack button
-// uses the one in hand (gobAttack, from doBite), the stomp button throws a grenade (gobThrow), and the weapon button goes
+// uses the one in hand (gobAttack, from doBite; grenades in hand are thrown, gobThrow), and the weapon button goes
 // on to the next (gobNextWpn). Kill an enemy whose weapon you haven't got and it's dropped where they fell (gobDrop: a
 // police officer's handgun, a thief's dagger, a cultist's spellbook, a rifle off the compounds, the army and the carrier's crew,
 // whatever FOES says they carry); a soldier of any kind drops grenades as well, every time, since they stack. Walk over a drop to pick it up (gobPickups).
 // (Pipe bombs are gone: the preppers throw grenades too.) Hippos never see any of this.
 // (Gnash's side of each weapon in WEAPONS (weapons.js): GOB_WPN[k] is its player block, GOB_WPN_ORDER the ones he can hold,
-// in the order the weapon button goes through them; grenades are thrown with stomp instead)
-const GOB_WPN={},GOB_WPN_ORDER=WEAPON_ORDER.filter(k=>WEAPONS[k].player&&WEAPONS[k].kind!=='throw');
+// in the order the weapon button goes through them; grenades and landmines too, in hand while he has any)
+const GOB_WPN={},GOB_WPN_ORDER=WEAPON_ORDER.filter(k=>WEAPONS[k].player);
 for(const k of GOB_WPN_ORDER)GOB_WPN[k]=WEAPONS[k].player;
 const GREN=WEAPONS.grenade.player,GREN_MAX=GREN.max,GREN_CAUSE=GREN.cause;
 // (what comes in a pile, carried as a count on the player, its player block's field: grenades as p.gren, landmines as
@@ -33,6 +33,7 @@ function gobAttack(p){const k=gobArms(p).wpn,K=WEAPONS[k];
   if(K&&K.kind==='gun'){gobShoot(p);return;}
   if(K&&K.kind==='spell'){gobCast(p);return;}
   if(K&&K.kind==='mine'){gobPlant(p);return;}
+  if(K&&K.kind==='throw'){gobThrow(p);return;}
   if(K&&K.kind==='melee'&&K.player.reach){const W=K.player,hx=Math.sin(p.heading),hz=Math.cos(p.heading),fx=p.pos.x+hx*W.reach,fz=p.pos.z+hz*W.reach;if(!wpnHitShapes(p,K,W.dmg,W.cause,W.pvp)){hitGoblins(fx,fz,W.r,W.dmg,W.cause,p.pos.y);pvpArea(p,fx,fz,W.r,W.dmg,W.pvp,p.pos.y);}
     for(const c of carsNear(fx,fz,W.r,p.pos.y)){damageCar(c,W.carDmg||1,new V3(hx,0,hz));clang();}
     // (the large club slammed into the ground: the shock of it, dust, the ground shaking)
@@ -96,7 +97,7 @@ function gobCast(p){const W=WEAPONS[gobArms(p).wpn];if(!W||W.kind!=='spell')retu
   rumble(p,0.12,60);}
 // the attack button's sound as it starts: the club's or dagger's swing, a spell's rising note while it's conjured (a gun's
 // is its crack, when it fires)
-function gobPressSnd(p){const W=WEAPONS[p.wpn];if(W&&W.kind==='spell')wpnCue(p.wpn,W.cast);else if(W&&W.kind==='mine')return;
+function gobPressSnd(p){const W=WEAPONS[p.wpn];if(W&&W.kind==='spell')wpnCue(p.wpn,W.cast);else if(W&&(W.kind==='mine'||W.kind==='throw'))return;
   else if(p.wpn==='bigclub')sfx('Large club heaved',()=>{woosh(0.5,0.18,240,700,0.3);});else if(p.wpn==='katana')sfx('Katana swing',()=>{woosh(0.12,0.24,900,3200,0.14);});
   else if(!gobGun(p.wpn))sfx('Club swing',()=>{woosh(0.13,0.22,520,1700,0.1);});}
 // ---- reloading: each gun's magazine (its mag) is counted per weapon (p.ammo), so switching away and back keeps what's
@@ -117,9 +118,10 @@ function gobReloadTick(p,dt){const k=p.wpn,W=WEAPONS[k];
   else if(W&&W.mag&&gobAmmoShown(p,k)<=0&&!(p.biteT>0))gobReload(p);   // (the last one's gone: straight on to the next magazine)
 }
 // (whether the attack button can start what's in hand: not mid-reload; a gun with nothing in it reloads instead, with
-// a dry click; a landmine needs one to plant, and the ground to plant it in)
+// a dry click; a landmine needs one to plant, and the ground to plant it in; a grenade, one to throw)
 function gobReady(p){gobArms(p);const k=p.wpn,W=WEAPONS[k];if(p.relT>0)return false;
   if(W&&W.kind==='mine')return p.mines>0&&p.state!=='climb'&&!!p.grounded;   // (pressed into the ground at his feet: not mid-jump)
+  if(W&&W.kind==='throw')return p.gren>0||DT.infAmmo;
   if(W&&W.mag&&gobAmmoShown(p,k)<=0){sfx('Dry fire',()=>{tone('square',1800,1600,0.02,0.03);});gobReload(p);return false;}
   return true;}
 // what's shown loaded: a guest's own count is the host's
@@ -127,24 +129,27 @@ const gobAmmoShown=(p,k)=>netGuest()&&p.ammoN!==undefined?p.ammoN:gobAmmo(p,k);
 // a landmine set down just in front of him (the attack's crouch, gobBodyPose); once the last's gone, the next weapon
 function gobPlant(p){const W=GOB_WPN.landmine;if(!(p.mines>0))return;if(!DT.infAmmo)p.mines--;   // (Infinite ammo: the pile never goes down)
   const hx=Math.sin(p.heading),hz=Math.cos(p.heading);mineLay(p.pos.x+hx*0.6,p.pos.y,p.pos.z+hz*0.6,{side:'p',by:pvpBy(p),owner:p,cause:W.cause,k:'landmine'});
-  if(p.mines<=0){p.wpns=p.wpns.filter(k=>k!=='landmine');if(!p.wpns.length)p.wpns=['club'];p.wpn=p.wpns[0];p.wpnT=camClock;}}
+  gobPileOut(p,'landmine');}
+// (a pile that's run out leaves his hands: the next weapon comes up, the club if that was all)
+function gobPileOut(p,k){if(p[stkField(k)]>0)return;p.wpns=p.wpns.filter(q=>q!==k);if(!p.wpns.length)p.wpns=['club'];if(p.wpn===k){p.wpn=p.wpns[0];p.wpnT=camClock;}}
 // what aims down the view, with a crosshair: a gun, or a spell
 const gobAims=k=>gobGun(k)||!!WEAPONS[k]&&WEAPONS[k].kind==='spell';
-// the stomp button: lob a grenade the way you're looking
+// grenades in hand: the attack lobs one the way you're looking, as the arm comes over (the attack's lunge); once the
+// last's gone, the next weapon
 function gobThrow(p){
-  gobArms(p);if(!(p.gren>0||DT.infAmmo)||p.grenCD>0||p.state==='dead'||p.drv)return;   // (Infinite ammo: thrown with none left too, and none used up)
-  if(!DT.infAmmo)p.gren--;p.grenCD=GREN.cd;p.thrS=0;const c=shipEye(p),cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp,v=GREN.v;
+  gobArms(p);if(!(p.gren>0||DT.infAmmo)||p.state==='dead'||p.drv)return;   // (Infinite ammo: thrown with none left too, and none used up)
+  if(!DT.infAmmo)p.gren--;const c=shipEye(p),cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp,v=GREN.v;
   shot({kind:'grenade',x:c.x+dx*0.6,y:c.y-0.1+dy*0.6,z:c.z+dz*0.6,vx:dx*v,vy:dy*v+4,vz:dz*v,grav:20,fuse:GREN.fuse,R:GREN.R,dmg:GREN.dmg,cause:GREN_CAUSE,by:pvpBy(p),bounce:true,crush:GREN_CRUSH});
   sfx('Goblin throws a grenade',()=>{woosh(0.15,0.2,400,1200,0.08);});
+  if(!DT.infAmmo)gobPileOut(p,'grenade');
 }
 function gobNextWpn(p,d=1){gobArms(p);const L=GOB_WPN_ORDER.filter(k=>p.wpns.includes(k));if(L.length<2)return;   // (d -1: the one before)
   p.wpn=L[(L.indexOf(p.wpn)+d+L.length)%L.length];p.wpnT=camClock;p.relT=0;   // (a reload's dropped: it starts again next time)
   sfx('Goblin switches weapon',()=>{tone('square',700,900,0.04,0.03);});}
-// once a frame per player goblin, before the move: the throw and the weapon buttons, and the cooldown
-function gobArmsTick(p,dt){gobArms(p);wpnHitSweep(p);p.grenCD=Math.max(0,p.grenCD-dt);p.thrS=(p.thrS??9)+dt;   // (since his last throw: the arm coming through, gobBodyPose)
-  const st=!!p.in.stomp,wp=!!p.in.weapon,wv=!!p.in.weaponPrev,rl=!!p.in.reload;
-  // (with a scoped gun in hand stomp looks down the scope instead: gobScope)
-  if(st&&!p.gStompWas&&playing&&!gobW(p).scope)gobThrow(p);if(wp&&!p.gWpnWas&&playing)gobNextWpn(p);if(wv&&!p.gWpvWas&&playing)gobNextWpn(p,-1);p.gWpvWas=wv;if(rl&&!p.gRelWas&&playing)gobReload(p);p.gStompWas=st;p.gWpnWas=wp;p.gRelWas=rl;
+// once a frame per player goblin, before the move: the weapon and reload buttons (stomp is the sniper's scope, gobScope)
+function gobArmsTick(p,dt){gobArms(p);wpnHitSweep(p);
+  const wp=!!p.in.weapon,wv=!!p.in.weaponPrev,rl=!!p.in.reload;
+  if(wp&&!p.gWpnWas&&playing)gobNextWpn(p);if(wv&&!p.gWpvWas&&playing)gobNextWpn(p,-1);p.gWpvWas=wv;if(rl&&!p.gRelWas&&playing)gobReload(p);p.gWpnWas=wp;p.gRelWas=rl;
   if(playing)gobReloadTick(p,dt);
   if(!netGuest()){const W=WEAPONS[p.wpn];p.ammoN=W&&W.mag?gobAmmo(p,p.wpn):-1;p.spareN=W?gobSpare(p,p.wpn):-1;}}   // (for the display, here and on a guest)
 // ---- what's dropped: a little model on the ground, turning, until someone picks it up (or a minute and a half) ----
@@ -192,7 +197,7 @@ function wpnIcon(k){
     x.putImageData(im,0,0);return WPN_ICON[k]=cv.toDataURL('image/png');
   }catch(err){return null;}
 }
-function wpnIconsAll(){for(const k of GOB_WPN_ORDER)wpnIcon(k);wpnIcon('grenade');}
+function wpnIconsAll(){for(const k of GOB_WPN_ORDER)wpnIcon(k);}
 function gobDrop(g){const G2=gobGear(g),at=(k,n,o)=>{let P=PICKUPS.find(q=>!q.live&&q.k===k);if(!P){if(PICKUPS.length>=32){P=PICKUPS.find(q=>q.k===k);if(!P)return;}else{P={k,m:puModel(k),pos:new V3()};PICKUPS.push(P);}}
     const y=supportAt(g.pos.x+o,g.pos.z,g.pos.y+1.5);P.pos.set(g.pos.x+o,(y??g.pos.y)+0.3,g.pos.z);P.n=n;P.t=0;P.live=true;P.m.visible=true;P.m.position.copy(P.pos);
     const par=shipPar(P.pos.x,P.pos.z);if(P.m.parent!==par)par.add(P.m);};   // (aboard a ship it's in the ship's pocket: hung off the ship's picture so it shows where the ship really is, see ships.js)
@@ -207,7 +212,7 @@ function gobPickups(dt){
     P.m.rotation.y+=dt*1.6;P.m.position.y=P.pos.y+0.08*Math.sin(P.t*3);
     for(const p of players){if(!p.gob||!p.active||p.state==='dead'||p.drv)continue;if(Math.hypot(p.pos.x-P.pos.x,p.pos.z-P.pos.z)>1.1||Math.abs(p.pos.y+0.3-P.pos.y)>1.6)continue;
       gobArms(p);
-      // (a pile, grenades or landmines, up to the most he can carry; landmines go in his hand as well, if they weren't)
+      // (a pile, grenades or landmines, up to the most he can carry; it goes in his list of weapons as well, if it wasn't)
       if(WEAPONS[P.k].stack){const f=stkField(P.k),mx=stkMax(P.k);if((p[f]||0)>=mx)continue;const n=Math.min(P.n,mx-(p[f]||0));p[f]=(p[f]||0)+n;P.n-=n;
         if(GOB_WPN[P.k]&&!p.wpns.includes(P.k))p.wpns.push(P.k);
         const nm=WEAPONS[P.k].name.replace(/s$/,'');flashLabel(nm+(n>1?'s':'')+' +'+n+'  ·  '+p[f]+' in all',p);if(P.n>0)continue;}
@@ -275,6 +280,6 @@ function gobArmsHud(p){
       +(rq?'<span>'+hudHTML(rq)+'</span>':''):'';
   H.am.hidden=!a;if(H.a!==a){H.a=a;H.am.innerHTML=a;}
   // (no buttons named on it: switching, throwing and the scope are in the controls hint, gobHint)
-  const s=L.map(k=>ic(k,k===p.wpn,k==='landmine'?p.mines||0:left(k))).join('')+'<span class="gsep"></span>'+ic('grenade',false,p.gren);
+  const s=L.map(k=>ic(k,k===p.wpn,WEAPONS[k].stack?p[stkField(k)]||0:left(k))).join('');
   if(H.s!==s){H.s=s;H.el.innerHTML=s;}
 }

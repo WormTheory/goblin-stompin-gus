@@ -87,8 +87,10 @@ for(const gob of [false,true]){
   // grenades: they stack (up to 9), and one thrown at a goblin's feet goes off
   {home();A.gren=0;for(let i=0;i<6;i++){const g=foe('militia',1.5,1);T.damageGoblin(g,5,g.pos.clone(),null,'Clubbed by another goblin');}S(2);console.log('six militiamen down: drops',drops());
    hold([KF],60);S(5);console.log('picked up: grenades',A.gren,' left lying',drops());killAll();
-   home();A.cam.pitch=-0.35;const g=foe('thief',8,3);freeze();const gz=g.pos.z,pin=n=>{for(let i=0;i<n;i++){g.pos.z=gz;g.kv.set(0,0,0);S(1);}};const n=A.gren;press(3,'Mouse2');pin(4);press(3,'Mouse2');pin(5);const live=T.SHOTS.filter(Q=>Q.live).length;
-   console.log('right click, twice quickly: grenades',n,'->',A.gren,' in the air',live);pin(160);console.log('  the thief 8 ahead, where it lands: hp 3 ->',g.hp,' dead',g.state==='dead',' my hp',A.hp);killAll();A.cam.pitch=0;}
+   home();A.cam.pitch=-0.2;const g=foe('thief',8,3);freeze();const gz=g.pos.z,pin=n=>{for(let i=0;i<n;i++){g.pos.z=gz;g.kv.set(0,0,0);S(1);}};const n=A.gren;press(3,'Mouse2');pin(10);const rc=A.gren;
+   const wasW=A.wpn;A.wpn='grenade';A.biteCD=0;press(3,'Mouse0');pin(4);press(3,'Mouse0');pin(20);const live=T.SHOTS.filter(Q=>Q.live).length;
+   console.log('grenades in the weapon list:',A.wpns.includes('grenade'),' right click throws none:',n,'->',rc,' grenades in hand, attack twice quickly: ->',A.gren,' in the air',live);pin(160);console.log('  the thief 8 ahead, where it lands: hp 3 ->',g.hp,' dead',g.state==='dead',' my hp',A.hp);killAll();
+   A.gren=1;A.wpn='grenade';A.biteCD=0;A.cam.pitch=0.15;A.cam.yaw+=Math.PI;press(3,'Mouse0');S(30);console.log('  the last one thrown: grenades',A.gren,' in the list',A.wpns.includes('grenade'),' in hand now',A.wpn);S(200);killAll();A.cam.pitch=0;A.cam.yaw-=Math.PI;}
   // a police officer's handgun: dropped where he falls, picked up, and fired (quicker than the rifle, shorter reach)
   {home();const g=T.goblins.find(q=>q.wkit&&q.state==='wait'&&!q.special&&!q.cultist);
    g.state='chase';g.root.visible=true;g.civ=false;g.foeKind=null;g.hp=4;g.stun=0;g.kv.set(0,0,0);g.pos.set(A.pos.x,F,A.pos.z+1.1);T.foeArm(g,T.GOB_FOES.police);g.gunCD=1e9;

@@ -28,7 +28,7 @@ const gobLoadOf=p=>p.gload||(players.includes(p)?GOB_LOADS[p.idx===1?1:0]:GLOAD_
 function gobLoadArm(p){const L=gobLoadOf(p);p.wpns=GOB_WPN_ORDER.filter(k=>L.w[k]||WEAPONS[k].stack&&(L[stkField(k)]||0)>0);if(!p.wpns.length)p.wpns=['club'];
   // (a weapon he still carries keeps what's in its magazine, and stays in hand if it was; only a gun he's put down loses
   // its count, and a reload goes on if its gun's still the one in hand)
-  const was=p.wpn,old=p.ammo||{};p.wpn=p.wpns.includes(was)?was:p.wpns[0];for(const k of GOB_STACKS)p[stkField(k)]=L[stkField(k)]||0;p.grenCD=0;
+  const was=p.wpn,old=p.ammo||{};p.wpn=p.wpns.includes(was)?was:p.wpns[0];for(const k of GOB_STACKS)p[stkField(k)]=L[stkField(k)]||0;
   p.ammo={};for(const k of p.wpns)if(old[k]!==undefined)p.ammo[k]=old[k];
   {const os=p.spare||{};p.spare={};for(const k of p.wpns)if(os[k]!==undefined)p.spare[k]=os[k];}if(!(p.relT>0&&p.relW===p.wpn))p.relT=0;}   // (spare warheads likewise: gobSpare)
 // a change in the menu takes effect at once (anything picked up since is put down: the new choice is what he carries)

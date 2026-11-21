@@ -1,6 +1,6 @@
 {
   "name": "Grenades",
-  "about": "Thrown with Stomp: how many he starts with",
+  "about": "How many he starts with",
   "kind": "throw",
   "drop": true,
   "stack": true,
@@ -8,10 +8,36 @@
   "R": 3.3,
   "fuse": 2.2,
   "model": {
-    "drop": [
-      {"s":[0.22,0.24,0.22],"p":[0,0,0],"c":"#3a4a22"},
-      {"s":[0.08,0.08,0.08],"p":[0,0.15,0],"c":"#8a8a90"}
-    ]
+    "boxes": [
+      {"s":[0.14,0.16,0.14],"p":[0,-0.03,0.07],"c":"#3a4a22","role":"body"},
+      {"s":[0.06,0.06,0.06],"p":[0,0.07,0.07],"c":"#8a8a90","role":"pin"}
+    ],
+    "held": {"at":{"p":[0,0,0]}},
+    "view": {
+      "at": {"p":[0,0.1,-0.56],"r":[0,3.1416,0],"k":0.56},
+      "own": [
+        {"s":[0.08,0.09,0.08],"p":[0,0.07,-0.5],"c":"#3a4a22","o":61},
+        {"s":[0.035,0.035,0.035],"p":[0,0.13,-0.5],"c":"#8a8a90","o":62}
+      ]
+    },
+    "drop": {
+      "at": {"p":[0,0.05,-0.11],"k":1.55},
+      "own": [
+        {"s":[0.22,0.24,0.22],"p":[0,0,0],"c":"#3a4a22"},
+        {"s":[0.08,0.08,0.08],"p":[0,0.15,0],"c":"#8a8a90"}
+      ]
+    }
   },
-  "player": {"cause":"Blown up by a goblin's grenade","max":9,"cd":0.6,"v":15,"field":"gren"}
+  "player": {
+    "dur": 0.55,
+    "lunge": 0.25,
+    "cause": "Blown up by a goblin's grenade",
+    "verb": "throw a grenade",
+    "max": 9,
+    "cd": 0.6,
+    "v": 15,
+    "field": "gren",
+    "swing": "vmThrow",
+    "body": "throwR"
+  }
 }

@@ -236,8 +236,8 @@ const lag=[];
 // ---- a grenade thrown by the guest's goblin: it goes off on the host, which breaks the blocks, and the guest gets the same ones ----
 {HT.setGobP(HT.P2,true);for(let i=0;i<20;i++){H.step(1);G.step(1);}
  const before=Object.keys(HT.edits).length,pads=G.ctx.navigator.getGamepads();
- HT.P2.gren=3;for(let i=0;i<5;i++){H.step(1);G.step(1);}const g0=HT.P2.gren;   // (a goblin starts with none: they're picked up)
- pads[0].buttons[7].pressed=true;pads[0].buttons[7].value=1;for(let i=0;i<10;i++){G.step(1);H.step(1);}pads[0].buttons[7].pressed=false;pads[0].buttons[7].value=0;
+ HT.P2.gren=3;HT.P2.wpns=['club','grenade'];HT.P2.wpn='grenade';for(let i=0;i<5;i++){H.step(1);G.step(1);}const g0=HT.P2.gren;   // (a goblin starts with none: they're picked up; in hand, the attack throws one)
+ pads[0].buttons[5].pressed=true;pads[0].buttons[5].value=1;for(let i=0;i<10;i++){G.step(1);H.step(1);}pads[0].buttons[5].pressed=false;pads[0].buttons[5].value=0;for(let i=0;i<20;i++){G.step(1);H.step(1);}
  const thrown=HT.P2.gren===g0-1;
  for(let i=0;i<200;i++){H.step(1);G.step(1);}
  let same=0,diff=0;for(const k of Object.keys(HT.edits)){const [a,b,c]=k.split(',').map(Number);if(HT.get(a,b,c)===GT.get(a,b,c))same++;else diff++;}

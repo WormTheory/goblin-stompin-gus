@@ -59,6 +59,7 @@
 
 - The weapon bar above your hearts now shows your weapons as a row of little pictures of each one, the one in hand lit up, with landmines and grenades showing how many you have.
 - R no longer switches weapons (the mouse wheel does), and the weapon bar no longer lists buttons: just your weapons and grenades.
+- Grenades are now a weapon like the others: switch to them and attack to throw one, overarm, with the grenade in your hand until it goes. Stomp no longer throws them. Throw your last and you're back to your next weapon.
 - The rounds left in your gun, and the reload prompt, are now in the bottom right corner in big numbers, turning red when the magazine's empty.
 - As a goblin, the mouse wheel and the D-pad now go both ways through your weapons: wheel down or D-pad right for the next, wheel up or D-pad left for the one before. Both can be changed in the Controls tab.
 - Push to talk no longer has a controller button by default (D-pad left was it): give it one in the Controls tab if you play online with a controller.

@@ -13,7 +13,7 @@ function wallBite(p){
 function wallBiteHit(p){
   // (Gnash is a goblin, far smaller than a hippo: his club or dagger reaches about a block past his head. His rifle or
   // handgun shoots where he's looking, as anywhere)
-  const gk=p.gob?gobW(p):null;if(gk&&gk.range){gobAttack(p);return;}   // (a gun's shot, or a spell's fireball)
+  const gk=p.gob?gobW(p):null;if(gk&&(gk.range||WEAPONS[p.wpn].kind==='throw')){gobAttack(p);return;}   // (a gun's shot, a spell's fireball, a grenade)
   let {d,c,u}=wallFrame(p);if(gk)c=[p.pos.x-d[0]*0.4,p.pos.y+0.7,p.pos.z-d[1]*0.4];
   const A=gk?{hitR:gk.r||1,dmg:gk.dmg||1}:AB.bite,J0=gk?0.3:1.0,J1=gk?1.4:3.2,a=[c[0]+u[0]*J0,c[1]+u[1]*J0,c[2]+u[2]*J0],cause=gk?gk.cause||'Clubbed by another goblin':'Bitten';
   dbgHit('dmg','sph',{x:c[0]+u[0]*(J0+J1)/2,y:c[1]+u[1]*(J0+J1)/2,z:c[2]+u[2]*(J0+J1)/2,r:A.hitR});
@@ -263,14 +263,13 @@ function gobSwingU(p){
   return t<h?t/h:1+(t-h)/Math.max(0.01,D-h);
 }
 // the body others see: legs swinging as he walks; the rifle held up at where he's looking, kicking when it fires; the club
-// chopped and the dagger thrust as the enemies do theirs, and the arm coming through after a grenade's thrown (the Dev
+// chopped and the dagger thrust as the enemies do theirs, a grenade thrown overarm (the Dev
 // tab's preview poses his model with this too). The body's twist, lean and step are left on m.atkX: see gobBodyRoot.
 function gobBodyPose(m,p){
   gunGripUndo(m);   // (last frame's two-handed grip, drawn and done with: gobGunGrip)
   const walking=p.state==='walk'&&p.grounded&&p.lastSp>0.2,sn=Math.sin(p.phase),sw=p.biteT>0?1-p.biteT/(p.biteDur||0.38):0,wk=gobArms(p).wpn;
   m.legs[0].rotation.x=walking?sn*0.7:0;m.legs[1].rotation.x=walking?-sn*0.7:0;
   const X=m.atkX||(m.atkX={tw:0,ln:0,lu:0});X.tw=X.ln=X.lu=0;m.arm.rotation.z=0;m.arm.hand.rotation.x=0;m.armL.rotation.x=0;
-  if((p.thrS??9)<STRIKE_FT)gobStrike(m,'throw',1+p.thrS/STRIKE_FT,'L');   // (the throw's the instant you press: only its follow-through shows)
   const W=WEAPONS[wk];
   // (reloading: the gun lowered and the magazine changed as an enemy does it, its npc.rl)
   if(gobGun(wk)&&p.relT>0&&p.relW===wk)gobStrike(m,W.npc.rl||'rlMag',2*(1-p.relT/(p.relDur||1)));
@@ -280,8 +279,8 @@ function gobBodyPose(m,p){
   else m.arm.rotation.x=-0.5;
 }
 // a rifle or handgun in his hand: held in both, as the enemies hold theirs (strikes.js), once his root's placed; not while
-// his free arm's coming through after a grenade, dead, or in a vehicle
-function gobGunGrip(m,root,p){const wk=gobArms(p).wpn;if(gobGun(wk)&&p.state!=='dead'&&!p.drv&&!(p.relT>0)&&!((p.thrS??9)<STRIKE_FT))gunGrip(m,root,WEAPONS[wk].npc.aim||'rifle');}   // (not while reloading: the free hand's busy)
+// dead, reloading, or in a vehicle
+function gobGunGrip(m,root,p){const wk=gobArms(p).wpn;if(gobGun(wk)&&p.state!=='dead'&&!p.drv&&!(p.relT>0))gunGrip(m,root,WEAPONS[wk].npc.aim||'rifle');}   // (not while reloading: the free hand's busy)
 function gobCamera(p){
   const K=gobKit(p),lie=p.state==='dead'?Math.min(1,p.t*3):0,walking=p.state==='walk'&&p.grounded&&p.lastSp>0.2,sn=Math.sin(p.phase),v=p.visOff;
   p.camHang=(p.camHang||0)+((p.state==='ceil'||(p.state==='piv'&&p.piv&&p.piv.next==='ceil')?1:0)-(p.camHang||0))*0.12;
@@ -311,8 +310,8 @@ function gobCamera(p){
   if(WEAPONS[wk]&&WEAPONS[wk].kind==='spell'){const u=p.biteT>0?gobSwingU(p):0,th=u>=1&&u<1.4?Math.max(0,1-(u-1)*2.5):0;K.arm.rotation.x=0.18-0.1*th;K.arm.rotation.z=0;K.arm.position.set(0.3,-0.5-up*0.5+bob,-0.56-0.08*th);}
   else if(gobGun(wk))gobViewGun(p,K,wk,sw,up,bob);
   else{const sk=WEAPONS[wk]&&WEAPONS[wk].player.swing||'vmClub',u=gobSwingU(p),v=strikeAt(sk,u);K.arm.rotation.x=v[0]+(walking?sn*0.03:0);K.arm.rotation.z=STRIKES[sk].length>4?v[4]:0;K.arm.position.set(v[1],v[2]-up*0.5+bob,v[3]);
-    // (a landmine's gone from the hand once it's set down, till the arm's back up with the next)
-    if(WEAPONS[wk]&&WEAPONS[wk].kind==='mine')K.held[wk].visible=!(u>1&&u<1.6)&&p.mines>0;}
+    // (a landmine's gone from the hand once it's set down, a grenade once it's thrown, till the arm's back up with the next)
+    const Q=WEAPONS[wk];if(Q&&Q.stack)K.held[wk].visible=!(u>1&&u<(Q.kind==='throw'?1.7:1.6))&&(p[stkField(wk)]>0||DT.infAmmo);}
 }
 // a gun in your own view (each gun's player.vm: where it's held, how much it kicks up and back): kicking when it fires;
 // its bolt, pump or slide worked after a shot (player.cycle); reloaded (player.rl, a timeline in strikes.js added to where
