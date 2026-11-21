@@ -507,6 +507,7 @@
 - Driving a pickup, van or lorry through a wall now takes out the bottom row of blocks too, instead of leaving a low ledge you then bump up over.
 - Drifting slowly into a building no longer lets the side of your car, or a corner swinging round, slide into the wall.
 - Dust, smoke puffs, shockwave rings, blast flashes and fireball glows no longer disappear behind water or cut box-shaped holes in it, and flames no longer flicker against water.
+- Overlapping smoke, dust, blast flashes, fireball glows and shockwave rings now show through each other in the right order, rather than one always painting over the other.
 
 ## Version 0.4.1
 

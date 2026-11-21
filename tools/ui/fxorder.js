@@ -10,7 +10,7 @@
 const {chromium}=require('playwright');
 const fs=require('fs');
 const out=process.argv[2]||'fxorder',ONLY=process.argv[3]?process.argv[3].split(','):null;
-const EXP='puff,smoke,blood,addFire,fires,flameP,smokeP,shockwave,shockCone,shocks,cones,blastFx,blasts,fireball,FIREB,parts,PART_M,flameM,smokeM,rainM,snowM,matWater,wxSet,WX,'+
+const EXP='puff,smoke,blood,addFire,fires,flameP,smokeP,shockwave,shockCone,shocks,cones,blastFx,blasts,fireball,FIREB,parts,PART_M,SEE_M,SEE_M2,flameM,smokeM,rainM,snowM,matWater,wxSet,WX,'+
   'supportAt,WATER,updateParts,updateFires,updateShocks,updateCones,updateFireballs,updateCars,';
 const src=fs.readFileSync('t3.html','utf8');
 // (frameMs: how long frames have been taking; set while the stage is laid out, so the fires make the plumes a quick machine sees)
@@ -60,8 +60,10 @@ const setup=await p.evaluate(()=>{const G=window.__G;G.DT.invuln=true;G.wxSet('c
   // the bank nearest the middle of the water, and which way the water lies from it
   bank:for(let r=1;r<40;r+=0.5)for(let a=0;a<6.28;a+=0.2){const x=C.x+Math.cos(a)*r,z=C.z+Math.sin(a)*r;if(wet(x,z))continue;
     const back=[1,2,3].every(k=>!wet(x+Math.cos(a)*k,z+Math.sin(a)*k));if(!back)continue;F.S={x,y:ground(x,z),z,dx:-Math.cos(a),dz:-Math.sin(a)};break bank;}
-  F.groups={dust:()=>[G.PART_M],smoke:()=>[G.PART_M],blood:()=>[G.PART_M],fire:()=>[G.flameM,G.smokeM],smoulder:()=>[G.smokeM],
-    ring:()=>G.shocks.map(s=>s.m),cone:()=>G.cones.map(c=>c.m),flash:()=>G.blasts.flatMap(b=>b.m),fireball:()=>G.FIREB.map(f=>f.halo),water:F.waterMeshes};
+  // (puffs, fires' smoke, flashes and fireballs' glow are drawn as one batch sorted far to near, SEE_M: pairs of those can't be
+  // drawn any other way, so they're only photographed)
+  F.groups={dust:()=>[G.SEE_M,G.SEE_M2],smoke:()=>[G.SEE_M,G.SEE_M2],blood:()=>[G.SEE_M,G.SEE_M2],fire:()=>[G.flameM,G.SEE_M,G.SEE_M2],smoulder:()=>[G.SEE_M,G.SEE_M2],
+    ring:()=>G.shocks.map(s=>s.m),cone:()=>G.cones.map(c=>c.m),flash:()=>[G.SEE_M,G.SEE_M2],fireball:()=>[G.SEE_M,G.SEE_M2],water:F.waterMeshes};
   // (yaw: the way the camera looks; flat: a ring lying on the ground rather than standing facing the camera)
   F.spawn={dust:(x,y,z)=>G.puff(x,y,z,14,0x9a948a,1.1),smoke:(x,y,z)=>G.smoke(x,y,z,10,0x4a4a4a),blood:(x,y,z)=>G.blood(x,y,z,14,null),
     fire:(x,y,z)=>G.addFire(x,y,z,1.1,60,true),smoulder:(x,y,z)=>G.addFire(x,y,z,1.1,60,false,{smoke:2}),
@@ -89,7 +91,7 @@ const setup=await p.evaluate(()=>{const G=window.__G;G.DT.invuln=true;G.wxSet('c
     const k=[String(o.renderOrder).padStart(5),o.type.padEnd(13),m.type.padEnd(18),'#'+(m.color?m.color.getHexString():'------'),'depthWrite '+m.depthWrite,'depthTest '+m.depthTest,m.blending===2?'additive':'normal',o.position.lengthSq()<1e-6?'at origin':'placed'].join(' | ');M.set(k,(M.get(k)||0)+1);});
     return [...M].sort((a,b)=>parseFloat(a[0])-parseFloat(b[0]));};
   // only the effects, the water and the sky left showing: every other material hidden, and the page's own overlays
-  F.hide=()=>{G.fireball(0,-999,0,1,-999,0,{});const keep=new Set([G.matWater,G.PART_M.material,G.flameM.material,G.smokeM.material,G.rainM.material,G.snowM.material,
+  F.hide=()=>{G.fireball(0,-999,0,1,-999,0,{});const keep=new Set([G.matWater,G.SEE_M.material,G.SEE_M2.material,G.PART_M.material,G.flameM.material,G.smokeM.material,G.rainM.material,G.snowM.material,
       ...G.shocks.map(s=>s.m.material),...G.cones.map(c=>c.m.material),...G.blasts.flatMap(b=>b.m.map(m=>m.material)),...G.FIREB.flatMap(f=>f.g.children.map(c=>c.material))]);
     G.scene.traverse(o=>{const m=o.material;if(!m||Array.isArray(m)||o.renderOrder<0||keep.has(m))return;m.visible=false;});F.clear();
     document.querySelectorAll('body *').forEach(e=>{if(e!==G.renderer.domElement&&!e.contains(G.renderer.domElement))e.style.visibility='hidden';});};

@@ -28,7 +28,8 @@ const parts=[];
 for(let i=0;i<200;i++)parts.push({m:fxObj(0xb79a72,1),v:new V3(),life:0,kind:0});
 const PART_M=fxBatch(new THREE.BoxGeometry(0.22,0.22,0.22),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,depthWrite:false}),200,true);
 // (the see-through effects take turns by renderOrder, as three.js sorts whole meshes and every batch sits at the origin:
-// water 1, flames 1.1, a big blast's cloud 1.5, these puffs 1.6, rings, cones, flashes and fireballs' glow 1.7, fires' smoke 2.
+// water 1, flames 1.1, a big blast's cloud 1.5, the see-through boxes (these puffs, fires' smoke, flashes and fireballs' glow,
+// drawn as one sorted batch, SEE_M below) beyond the nearest ring 1.6, rings and cones 1.7, the boxes nearer than it 1.8.
 // All after the water, so it never paints over them; and none that fades writes depth, so a fading one never cuts a box-shaped
 // hole in the water or smoke behind it. tools/ui/fxorder.js checks every pair of them.)
 PART_M.renderOrder=1.6;
@@ -90,6 +91,37 @@ function fxDraw(){
   if(fxOrder.length>1)fxOrder.sort((a,b)=>b.d-a.d);
   n=0;for(const p of fxOrder){PART_M.fxA.array[n]=p.m.material.opacity;fxPut(PART_M,n++,p.m);}
   if(n||PART_M.count)fxSent(PART_M,n);
+  seeDraw();
+}
+// ---- the see-through boxes, all drawn as one: the puffs above, fires' smoke (render/fires.js), blast flashes (blastFx) and
+// fireballs' glow. three.js sorts whole meshes, not the boxes in them, so kept apart they'd take turns by renderOrder whatever
+// stood nearer; gathered here each frame and drawn far to near, each shows through the others the way it should. The meshes
+// they used to draw with still hold them (PART_M and smokeM filled as before, the flashes and glows still moved and faded)
+// but aren't drawn themselves. ----
+// (in two: the boxes beyond the nearest shockwave ring or cone drawn before it, the rest after, so a ring shows through the
+// smoke in front of it and over the smoke behind it)
+const SEE_N=5000,seeBatch=()=>fxBatch(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,depthWrite:false}),SEE_N,true);
+const SEE_M=seeBatch(),SEE_M2=seeBatch();SEE_M.renderOrder=1.6;SEE_M2.renderOrder=1.8;
+const SEE_S=new Float32Array(SEE_N*20),SEE_D=new Float32Array(SEE_N),SEE_I=new Uint32Array(SEE_N);let seeOff=false;
+function seeDraw(){
+  if(!seeOff){seeOff=true;PART_M.visible=false;smokeM.visible=false;FB_HALO.visible=false;for(const bl of blasts)for(const f of bl.m)f.material.visible=false;}
+  const S=SEE_S,c=P1.camera.position;let n=0;
+  // (one box: its matrix from e at o, k its mesh's box size, its colour and see-through-ness)
+  const add=(e,o,k,r,g,b,a)=>{if(n>=SEE_N||a<=0)return;const j=n*20;for(let q=0;q<16;q++)S[j+q]=e[o+q]*(q<11&&q%4<3?k:1);
+    S[j+16]=r;S[j+17]=g;S[j+18]=b;S[j+19]=a;const dx=e[o+12]-c.x,dy=e[o+13]-c.y,dz=e[o+14]-c.z;SEE_D[n]=dx*dx+dy*dy+dz*dz;n++;};
+  {const e=PART_M.instanceMatrix.array,C=PART_M.instanceColor.array,A=PART_M.fxA.array;for(let i=0;i<PART_M.count;i++)add(e,i*16,0.22,C[i*3],C[i*3+1],C[i*3+2],A[i]);}
+  {const e=smokeM.instanceMatrix.array,C=smokeM.instanceColor.array,a=smokeM.material.opacity;for(let i=0;i<smokeM.count;i++)add(e,i*16,1,C[i*3],C[i*3+1],C[i*3+2],a);}
+  const one=m=>{m.updateWorldMatrix(true,false);const M=m.material,col=M.color;add(m.matrixWorld.elements,0,1,col.r,col.g,col.b,M.opacity);};
+  for(const bl of blasts)if(bl.t>0)for(const f of bl.m)if(f.visible)one(f);
+  for(const F of FIREB)if(F.live&&F.g.visible)one(F.halo);
+  const I=SEE_I.subarray(0,n);for(let i=0;i<n;i++)I[i]=i;if(n>1)I.sort((a,b)=>SEE_D[b]-SEE_D[a]);
+  let cut=Infinity;const near=t=>{t.updateWorldMatrix(true,false);const e=t.matrixWorld.elements,d=(e[12]-c.x)**2+(e[13]-c.y)**2+(e[14]-c.z)**2;if(d<cut)cut=d;};
+  for(const s of shocks)if(s.m.visible)near(s.m);for(const k of cones)if(k.g.visible)near(k.m);
+  let m=0;while(m<n&&SEE_D[I[m]]>=cut)m++;
+  const put=(M,i0,i1)=>{const E=M.instanceMatrix.array,C=M.instanceColor.array,A=M.fxA.array;
+    for(let i=i0;i<i1;i++){const j=I[i]*20,o=i-i0;for(let q=0;q<16;q++)E[o*16+q]=S[j+q];C[o*3]=S[j+16];C[o*3+1]=S[j+17];C[o*3+2]=S[j+18];A[o]=S[j+19];}
+    fxSent(M,i1-i0);};
+  put(SEE_M,0,m);put(SEE_M2,m,n);
 }
 let rIdx=0;
 function takeRubble(){for(let k=0;k<rubble.length;k++){const r=rubble[(rIdx+k)%rubble.length];if(r.life<=0){rIdx=(rIdx+k+1)%rubble.length;return r;}}const r=rubble[rIdx];rIdx=(rIdx+1)%rubble.length;return r;}
