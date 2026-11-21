@@ -109,6 +109,7 @@ python tools/build_3d.py game/index.html tools/ui/t3.html   # local three.js, in
 cd tools/ui && node real3d.js [seed] [outDir]               # menu, spawn, above spawn, motorway, country road
 ```
 It renders in software, so the picture is right but the frame rate says nothing about a real graphics card.
+`node fxorder.js [outDir] [effects]` (from `tools/ui`, after `build_3d.py`) checks the see-through effects draw in the right order: dust, smoke, blood, fire, smoulder, rings, cones, flashes and fireballs, each in front of each other, over the water and in rain and snow, frozen and photographed, each pair also drawn strictly far one first; where the two pictures differ the pair is flagged (`outDir/index.html` shows the shots with the difference, `report.txt` lists them with every see-through material's renderOrder, depthWrite and depthTest; exits 1 if any are flagged).
 
 ## Map of the code (search `src/js` for these names)
 - **World and terrain:**
