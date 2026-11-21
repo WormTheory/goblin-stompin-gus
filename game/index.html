@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:174bb28cc87526815aff5cc03edf05728afc78d06f5bc38f2dfa662e867ff2b2 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:e3fe9fd1965c7f888a242bf849eacc8a3e22ccfef20c545b2a2c598afbb93928 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2333,7 +2333,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='dc987e86c2a0';
+const GAME_VER='0.5',GAME_BUILD='d240015e3dd9';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v96'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -10697,11 +10697,12 @@ function seeDraw(){
     S[j+16]=r;S[j+17]=g;S[j+18]=b;S[j+19]=a;const dx=e[o+12]-c.x,dy=e[o+13]-c.y,dz=e[o+14]-c.z;SEE_D[n]=dx*dx+dy*dy+dz*dz;n++;};
   {const e=PART_M.instanceMatrix.array,C=PART_M.instanceColor.array,A=PART_M.fxA.array;for(let i=0;i<PART_M.count;i++)add(e,i*16,0.22,C[i*3],C[i*3+1],C[i*3+2],A[i]);}
   {const e=smokeM.instanceMatrix.array,C=smokeM.instanceColor.array,a=smokeM.material.opacity;for(let i=0;i<smokeM.count;i++)add(e,i*16,1,C[i*3],C[i*3+1],C[i*3+2],a);}
-  const one=m=>{m.updateWorldMatrix(true,false);const M=m.material,col=M.color;add(m.matrixWorld.elements,0,1,col.r,col.g,col.b,M.opacity);};
+  // (the tests' stand-in three.js has no world matrices: there the flashes, glows and rings are simply left out)
+  const one=m=>{if(!m.updateWorldMatrix)return;m.updateWorldMatrix(true,false);const M=m.material,col=M.color;add(m.matrixWorld.elements,0,1,col.r,col.g,col.b,M.opacity);};
   for(const bl of blasts)if(bl.t>0)for(const f of bl.m)if(f.visible)one(f);
   for(const F of FIREB)if(F.live&&F.g.visible)one(F.halo);
   const I=SEE_I.subarray(0,n);for(let i=0;i<n;i++)I[i]=i;if(n>1)I.sort((a,b)=>SEE_D[b]-SEE_D[a]);
-  let cut=Infinity;const near=t=>{t.updateWorldMatrix(true,false);const e=t.matrixWorld.elements,d=(e[12]-c.x)**2+(e[13]-c.y)**2+(e[14]-c.z)**2;if(d<cut)cut=d;};
+  let cut=Infinity;const near=t=>{if(!t.updateWorldMatrix)return;t.updateWorldMatrix(true,false);const e=t.matrixWorld.elements,d=(e[12]-c.x)**2+(e[13]-c.y)**2+(e[14]-c.z)**2;if(d<cut)cut=d;};
   for(const s of shocks)if(s.m.visible)near(s.m);for(const k of cones)if(k.g.visible)near(k.m);
   let m=0;while(m<n&&SEE_D[I[m]]>=cut)m++;
   const put=(M,i0,i1)=>{const E=M.instanceMatrix.array,C=M.instanceColor.array,A=M.fxA.array;

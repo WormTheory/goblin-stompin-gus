@@ -111,11 +111,12 @@ function seeDraw(){
     S[j+16]=r;S[j+17]=g;S[j+18]=b;S[j+19]=a;const dx=e[o+12]-c.x,dy=e[o+13]-c.y,dz=e[o+14]-c.z;SEE_D[n]=dx*dx+dy*dy+dz*dz;n++;};
   {const e=PART_M.instanceMatrix.array,C=PART_M.instanceColor.array,A=PART_M.fxA.array;for(let i=0;i<PART_M.count;i++)add(e,i*16,0.22,C[i*3],C[i*3+1],C[i*3+2],A[i]);}
   {const e=smokeM.instanceMatrix.array,C=smokeM.instanceColor.array,a=smokeM.material.opacity;for(let i=0;i<smokeM.count;i++)add(e,i*16,1,C[i*3],C[i*3+1],C[i*3+2],a);}
-  const one=m=>{m.updateWorldMatrix(true,false);const M=m.material,col=M.color;add(m.matrixWorld.elements,0,1,col.r,col.g,col.b,M.opacity);};
+  // (the tests' stand-in three.js has no world matrices: there the flashes, glows and rings are simply left out)
+  const one=m=>{if(!m.updateWorldMatrix)return;m.updateWorldMatrix(true,false);const M=m.material,col=M.color;add(m.matrixWorld.elements,0,1,col.r,col.g,col.b,M.opacity);};
   for(const bl of blasts)if(bl.t>0)for(const f of bl.m)if(f.visible)one(f);
   for(const F of FIREB)if(F.live&&F.g.visible)one(F.halo);
   const I=SEE_I.subarray(0,n);for(let i=0;i<n;i++)I[i]=i;if(n>1)I.sort((a,b)=>SEE_D[b]-SEE_D[a]);
-  let cut=Infinity;const near=t=>{t.updateWorldMatrix(true,false);const e=t.matrixWorld.elements,d=(e[12]-c.x)**2+(e[13]-c.y)**2+(e[14]-c.z)**2;if(d<cut)cut=d;};
+  let cut=Infinity;const near=t=>{if(!t.updateWorldMatrix)return;t.updateWorldMatrix(true,false);const e=t.matrixWorld.elements,d=(e[12]-c.x)**2+(e[13]-c.y)**2+(e[14]-c.z)**2;if(d<cut)cut=d;};
   for(const s of shocks)if(s.m.visible)near(s.m);for(const k of cones)if(k.g.visible)near(k.m);
   let m=0;while(m<n&&SEE_D[I[m]]>=cut)m++;
   const put=(M,i0,i1)=>{const E=M.instanceMatrix.array,C=M.instanceColor.array,A=M.fxA.array;
