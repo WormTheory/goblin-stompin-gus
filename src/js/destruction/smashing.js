@@ -102,28 +102,36 @@ function fxDraw(){
 // smoke in front of it and over the smoke behind it)
 const SEE_N=5000,seeBatch=()=>fxBatch(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,depthWrite:false}),SEE_N,true);
 const SEE_M=seeBatch(),SEE_M2=seeBatch();SEE_M.renderOrder=1.6;SEE_M2.renderOrder=1.8;
-const SEE_S=new Float32Array(SEE_N*20),SEE_D=new Float32Array(SEE_N),SEE_I=new Uint32Array(SEE_N);let seeOff=false;
+let seeOff=false;
 function seeDraw(){
   if(!seeOff){seeOff=true;PART_M.visible=false;smokeM.visible=false;FB_HALO.visible=false;for(const bl of blasts)for(const f of bl.m)f.material.visible=false;}
-  const S=SEE_S,c=P1.camera.position;let n=0;
-  // (one box: its matrix from e at o, k its mesh's box size, its colour and see-through-ness)
-  const add=(e,o,k,r,g,b,a)=>{if(n>=SEE_N||a<=0)return;const j=n*20;for(let q=0;q<16;q++)S[j+q]=e[o+q]*(q<11&&q%4<3?k:1);
-    S[j+16]=r;S[j+17]=g;S[j+18]=b;S[j+19]=a;const dx=e[o+12]-c.x,dy=e[o+13]-c.y,dz=e[o+14]-c.z;SEE_D[n]=dx*dx+dy*dy+dz*dz;n++;};
-  {const e=PART_M.instanceMatrix.array,C=PART_M.instanceColor.array,A=PART_M.fxA.array;for(let i=0;i<PART_M.count;i++)add(e,i*16,0.22,C[i*3],C[i*3+1],C[i*3+2],A[i]);}
-  {const e=smokeM.instanceMatrix.array,C=smokeM.instanceColor.array,a=smokeM.material.opacity;for(let i=0;i<smokeM.count;i++)add(e,i*16,1,C[i*3],C[i*3+1],C[i*3+2],a);}
+  const c=P1.camera.position,d2=(e,o)=>(e[o+12]-c.x)**2+(e[o+13]-c.y)**2+(e[o+14]-c.z)**2;
+  // the few loose ones (flashes, fireballs' glow), sorted far to near
   // (the tests' stand-in three.js has no world matrices: there the flashes, glows and rings are simply left out)
-  const one=m=>{if(!m.updateWorldMatrix)return;m.updateWorldMatrix(true,false);const M=m.material,col=M.color;add(m.matrixWorld.elements,0,1,col.r,col.g,col.b,M.opacity);};
+  const X=SEE_X;X.length=0;
+  const one=m=>{if(!m.updateWorldMatrix)return;m.updateWorldMatrix(true,false);const M=m.material;if(M.opacity<=0)return;const e=m.matrixWorld.elements;X.push({e,c:M.color,a:M.opacity,d:d2(e,0)});};
   for(const bl of blasts)if(bl.t>0)for(const f of bl.m)if(f.visible)one(f);
   for(const F of FIREB)if(F.live&&F.g.visible)one(F.halo);
-  const I=SEE_I.subarray(0,n);for(let i=0;i<n;i++)I[i]=i;if(n>1)I.sort((a,b)=>SEE_D[b]-SEE_D[a]);
-  let cut=Infinity;const near=t=>{if(!t.updateWorldMatrix)return;t.updateWorldMatrix(true,false);const e=t.matrixWorld.elements,d=(e[12]-c.x)**2+(e[13]-c.y)**2+(e[14]-c.z)**2;if(d<cut)cut=d;};
+  if(X.length>1)X.sort((a,b)=>b.d-a.d);
+  let cut=-1;const near=t=>{if(!t.updateWorldMatrix)return;t.updateWorldMatrix(true,false);const d=d2(t.matrixWorld.elements,0);if(cut<0||d<cut)cut=d;};
   for(const s of shocks)if(s.m.visible)near(s.m);for(const k of cones)if(k.g.visible)near(k.m);
-  let m=0;while(m<n&&SEE_D[I[m]]>=cut)m++;
-  const put=(M,i0,i1)=>{const E=M.instanceMatrix.array,C=M.instanceColor.array,A=M.fxA.array;
-    for(let i=i0;i<i1;i++){const j=I[i]*20,o=i-i0;for(let q=0;q<16;q++)E[o*16+q]=S[j+q];C[o*3]=S[j+16];C[o*3+1]=S[j+17];C[o*3+2]=S[j+18];A[o]=S[j+19];}
-    fxSent(M,i1-i0);};
-  put(SEE_M,0,m);put(SEE_M2,m,n);
+  // merged with the puffs (PART_M, put far to near by fxDraw) and fires' smoke (smokeM, put far to near by updateFires):
+  // a pass down the three lists rather than sorting every box again
+  const pe=PART_M.instanceMatrix.array,pc=PART_M.instanceColor.array,pa=PART_M.fxA.array,pn=PART_M.count;
+  const se=smokeM.instanceMatrix.array,sc=smokeM.instanceColor.array,sa=smokeM.material.opacity,sn=smokeM.count;
+  let i=0,j=0,x=0,o=0,M=SEE_M,E=M.instanceMatrix.array,C=M.instanceColor.array,A=M.fxA.array;
+  let di=pn?d2(pe,0):-1,dj=sn?d2(se,0):-1,dx=X.length?X[0].d:-1;
+  for(let n=0;n<SEE_N;n++){
+    const d=Math.max(di,dj,dx);if(d<0)break;
+    if(M===SEE_M&&cut>=0&&d<cut){fxSent(SEE_M,o);M=SEE_M2;o=0;E=M.instanceMatrix.array;C=M.instanceColor.array;A=M.fxA.array;}   // (nearer than the nearest ring: drawn after it)
+    const t=o*16;
+    if(d===di){const s=i*16;for(let q=0;q<16;q++)E[t+q]=pe[s+q];for(const q of SEE_K)E[t+q]*=0.22;C[o*3]=pc[i*3];C[o*3+1]=pc[i*3+1];C[o*3+2]=pc[i*3+2];A[o]=pa[i];i++;di=i<pn?d2(pe,i*16):-1;}
+    else if(d===dj){const s=j*16;for(let q=0;q<16;q++)E[t+q]=se[s+q];C[o*3]=sc[j*3];C[o*3+1]=sc[j*3+1];C[o*3+2]=sc[j*3+2];A[o]=sa;j++;dj=j<sn?d2(se,j*16):-1;}
+    else{const L=X[x];for(let q=0;q<16;q++)E[t+q]=L.e[q];C[o*3]=L.c.r;C[o*3+1]=L.c.g;C[o*3+2]=L.c.b;A[o]=L.a;x++;dx=x<X.length?X[x].d:-1;}
+    o++;}
+  fxSent(M,o);if(M===SEE_M)fxSent(SEE_M2,0);
 }
+const SEE_X=[],SEE_K=[0,1,2,4,5,6,8,9,10];   // (SEE_K: a matrix's turn-and-size part, scaled by a puff's 0.22 box)
 let rIdx=0;
 function takeRubble(){for(let k=0;k<rubble.length;k++){const r=rubble[(rIdx+k)%rubble.length];if(r.life<=0){rIdx=(rIdx+k+1)%rubble.length;return r;}}const r=rubble[rIdx];rIdx=(rIdx+1)%rubble.length;return r;}
 // kind: 0 chunk, 1 shard, 2 spark, 3 leaf
