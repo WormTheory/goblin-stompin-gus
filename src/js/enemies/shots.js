@@ -5,7 +5,7 @@ const FIREB=[],FB_GEO=new THREE.BoxGeometry(1,1,1),FB_CORE=new THREE.MeshBasicMa
 // (o: W the weapon, by who's to blame, cause, and pl the player goblin who cast it, if one did)
 function fireball(x,y,z,tx,ty,tz,o){
   let F=FIREB.find(f=>!f.live);
-  if(!F){if(FIREB.length>=24)return null;const g=new THREE.Group(),c=new THREE.Mesh(FB_GEO,FB_CORE),h=new THREE.Mesh(FB_GEO,FB_HALO);c.scale.setScalar(0.32);h.scale.setScalar(0.6);g.add(c);g.add(h);g.visible=false;scene.add(g);
+  if(!F){if(FIREB.length>=24)return null;const g=new THREE.Group(),c=new THREE.Mesh(FB_GEO,FB_CORE),h=new THREE.Mesh(FB_GEO,FB_HALO);h.renderOrder=1.7;c.scale.setScalar(0.32);h.scale.setScalar(0.6);g.add(c);g.add(h);g.visible=false;scene.add(g);
     F={g,halo:h,pos:new V3(),v:new V3(),t:0,live:false,by:null,trail:0};FIREB.push(F);}
   o=o||{};const W=o.W||WEAPONS.spellbook,sp=W.ball.speed;F.W=W;F.pl=o.pl||null;F.cause=o.cause||W.player.cause;
   F.pos.set(x,y,z);{const ex=tx-x,ey=ty-y,ez=tz-z,L=Math.hypot(ex,ey,ez);if(L<1e-3)F.v.set(0,0,sp);else F.v.set(ex/L*sp,ey/L*sp,ez/L*sp);}

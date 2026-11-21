@@ -34,7 +34,7 @@ const flameP=[],smokeP=[],_smLive=[];let flI=0,smI=0,flLive=0,smLive=0;
  for(let i=0;i<FL_N;i++)flameP.push({x:0,y:0,z:0,vy:0,life:0,max:1,s:1,ph:0});
  for(let i=0;i<SM_N;i++)smokeP.push({x:0,y:0,z:0,vx:0,vy:0,vz:0,life:0,max:1,s:1,g:0.2,glow:0});
  flameM.setColorAt(0,c0);smokeM.setColorAt(0,c0);flameM.instanceMatrix.usage=flameM.instanceColor.usage=smokeM.instanceMatrix.usage=smokeM.instanceColor.usage=THREE.DynamicDrawUsage;
- flameM.frustumCulled=false;smokeM.frustumCulled=false;flameM.renderOrder=1;smokeM.renderOrder=2;/* flames first (writing depth), then smoke over them: smoke in front veils the fire, smoke behind it doesn't */flameM.count=0;smokeM.count=0;scene.add(flameM);scene.add(smokeM);}
+ flameM.frustumCulled=false;smokeM.frustumCulled=false;flameM.renderOrder=1.1;smokeM.renderOrder=2;/* flames first (writing depth), then smoke over them: smoke in front veils the fire, smoke behind it doesn't; flames after the water (1), which they'd otherwise tie with */flameM.count=0;smokeM.count=0;scene.add(flameM);scene.add(smokeM);}
 // a fire at (x,y,z): r is how wide it burns, life in seconds; flames:false is just smouldering smoke
 function addFire(x,y,z,r,life,flames=true,o={}){
   trimFires(1);   // too many: the oldest go out

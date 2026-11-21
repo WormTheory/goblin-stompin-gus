@@ -505,6 +505,7 @@
 - A wind turbine's blades now come down with it. Topple the tower and they go over with the top of it, then lie flat on the ground where they land; smash just the top and they drop off. They're still lying there when you come back.
 - Driving a pickup, van or lorry through a wall now takes out the bottom row of blocks too, instead of leaving a low ledge you then bump up over.
 - Drifting slowly into a building no longer lets the side of your car, or a corner swinging round, slide into the wall.
+- Dust, smoke puffs, shockwave rings, blast flashes and fireball glows no longer disappear behind water or cut box-shaped holes in it, and flames no longer flicker against water.
 
 ## Version 0.4.1
 

@@ -26,7 +26,12 @@ function fxPut(M,i,o){
 const fxSent=(M,n)=>{if(!n&&!M.count)return;M.count=n;for(const [a,w] of [[M.instanceMatrix,16],[M.instanceColor,3],[M.fxA,1]])if(a){a.needsUpdate=true;if(a.updateRange){a.updateRange.offset=0;a.updateRange.count=n*w;}}};
 const parts=[];
 for(let i=0;i<200;i++)parts.push({m:fxObj(0xb79a72,1),v:new V3(),life:0,kind:0});
-const PART_M=fxBatch(new THREE.BoxGeometry(0.22,0.22,0.22),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true}),200,true);
+const PART_M=fxBatch(new THREE.BoxGeometry(0.22,0.22,0.22),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,depthWrite:false}),200,true);
+// (the see-through effects take turns by renderOrder, as three.js sorts whole meshes and every batch sits at the origin:
+// water 1, flames 1.1, a big blast's cloud 1.5, these puffs 1.6, rings, cones, flashes and fireballs' glow 1.7, fires' smoke 2.
+// All after the water, so it never paints over them; and none that fades writes depth, so a fading one never cuts a box-shaped
+// hole in the water or smoke behind it. tools/ui/fxorder.js checks every pair of them.)
+PART_M.renderOrder=1.6;
 let pIdx=0;
 function takePart(){for(let k=0;k<parts.length;k++){const p=parts[(pIdx+k)%parts.length];if(p.life<=0){pIdx=(pIdx+k+1)%parts.length;return p;}}const p=parts[pIdx];pIdx=(pIdx+1)%parts.length;return p;}
 function puff(x,y,z,n,color=0x9a948a,spread=1){if(SBX)return;for(let i=0;i<n;i++){const p=takePart();p.kind=0;p.life=0.7+Math.random()*0.5;p.m.material.color.setHex(color);p.m.position.set(x+(Math.random()-.5)*1.4*spread,y+0.15,z+(Math.random()-.5)*1.4*spread);const a=Math.random()*Math.PI*2,s=(2+Math.random()*3)*spread;p.v.set(Math.cos(a)*s,1.5+Math.random()*2.5,Math.sin(a)*s);p.m.scale.setScalar(1);p.m.visible=true;}}

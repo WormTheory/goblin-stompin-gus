@@ -77,7 +77,7 @@ function updateSpikes(dt){
 }
 // expanding rings along the ground where the rump lands
 const shocks=[];
-{const geo=new THREE.RingGeometry(0.82,1,40);for(let i=0;i<6;i++){const m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:0xf2efe6,transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false}));m.rotation.x=-Math.PI/2;m.visible=false;scene.add(m);shocks.push({m,t:0,d:0,r:1,life:0.45});}}
+{const geo=new THREE.RingGeometry(0.82,1,40);for(let i=0;i<6;i++){const m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:0xf2efe6,transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false}));m.rotation.x=-Math.PI/2;m.renderOrder=1.7;m.visible=false;scene.add(m);shocks.push({m,t:0,d:0,r:1,life:0.45});}}
 // expanding rings: flat on the ground, or (with face = a heading) standing upright facing that way, like a sonic boom in mid-air
 function shockwave(x,y,z,r,face,life0){if(SBX)return;
   const L=life0||0.45;
@@ -88,7 +88,7 @@ function shockwave(x,y,z,r,face,life0){if(SBX)return;
 }
 // a cone-shaped burst: point at the launch spot, flaring out backwards along the path, left behind as the hippo flies off
 const cones=[];
-{const geo=new THREE.ConeGeometry(1,1,28,1,true);for(let i=0;i<4;i++){const g=new THREE.Group(),m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:0xf2efe6,transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false}));m.rotation.x=Math.PI/2;g.add(m);g.visible=false;scene.add(g);cones.push({g,m,t:0,life:0.35,d:0,R:1,Lm:1});}}
+{const geo=new THREE.ConeGeometry(1,1,28,1,true);for(let i=0;i<4;i++){const g=new THREE.Group(),m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:0xf2efe6,transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false}));m.rotation.x=Math.PI/2;m.renderOrder=1.7;g.add(m);g.visible=false;scene.add(g);cones.push({g,m,t:0,life:0.35,d:0,R:1,Lm:1});}}
 function shockCone(x,y,z,heading,R,len,life){if(SBX)return;
   [[0,1,1],[0.05,0.68,0.8]].forEach(([delay,k,lk])=>{const c=cones.find(o=>o.t<=0&&o.d<=0)||cones[0];c.d=delay;c.t=c.life=life*lk;c.R=R*k;c.Lm=len*k;c.g.position.set(x,y,z);c.g.rotation.set(0,heading+shipYawAt(x,z),0);shipPt(c.g.position);c.m.material.opacity=0;c.m.scale.set(0.05,0.05,0.05);c.g.visible=true;});
 }
