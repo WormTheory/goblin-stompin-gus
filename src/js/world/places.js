@@ -203,6 +203,7 @@ function settlementRaw(px,pz){
   const rx0=Math.round(px/SET_SP),rz0=Math.round(pz/SET_SP),j=hash2(px*13+5,pz*29+3)*2-1;
   for(let rx=rx0-1;rx<=rx0+1&&!v;rx++)for(let rz=rz0-1;rz<=rz0+1&&!v;rz++){const S=settlementLat(rx,rz),b=Math.min(1.6,0.35*S.R);
     if(px===S.cx&&pz===S.cz||setDist(S,px,pz)+j*b<=S.R)v=S;}
+  if(setAtCache.size>1000000)setAtCache.clear();   // (one a plot: kept from outgrowing what a Map can hold once a lot of the world has been asked about)
   setAtCache.set(k,v);return v;
 }
 // ...and the place it actually belongs to: the same, except where a river winds through the edge of a place (on its
@@ -212,7 +213,7 @@ const setFinC=new Map();
 function settlementAt(px,pz){
   const k=px*100003+pz;let v=setFinC.get(k);if(v!==undefined)return v;
   v=settlementRaw(px,pz);if(v&&(riverCuts(px,pz)||seaPlot(px,pz)))v=null;
-  setFinC.set(k,v);return v;
+  if(setFinC.size>1000000)setFinC.clear();setFinC.set(k,v);return v;
 }
 function riverCuts(px,pz){
   if(riverDir(px,pz))return false;   // (a block of the river's straight run through town: drawn as such)

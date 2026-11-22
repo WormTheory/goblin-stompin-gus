@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:5a326147726e297b2b471a09ad9cac687fd8ed5142f746be9bc90edb0f20b7f9 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:8bad1dcc06b54d8c1d7ac8ecf6bc63b10ed83b65a04d1e5ff45e24f6b5452f72 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2337,7 +2337,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='74d56bb2ab53';
+const GAME_VER='0.5',GAME_BUILD='0544bbee5121';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v98'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -2833,6 +2833,7 @@ function settlementRaw(px,pz){
   const rx0=Math.round(px/SET_SP),rz0=Math.round(pz/SET_SP),j=hash2(px*13+5,pz*29+3)*2-1;
   for(let rx=rx0-1;rx<=rx0+1&&!v;rx++)for(let rz=rz0-1;rz<=rz0+1&&!v;rz++){const S=settlementLat(rx,rz),b=Math.min(1.6,0.35*S.R);
     if(px===S.cx&&pz===S.cz||setDist(S,px,pz)+j*b<=S.R)v=S;}
+  if(setAtCache.size>1000000)setAtCache.clear();   // (one a plot: kept from outgrowing what a Map can hold once a lot of the world has been asked about)
   setAtCache.set(k,v);return v;
 }
 // ...and the place it actually belongs to: the same, except where a river winds through the edge of a place (on its
@@ -2842,7 +2843,7 @@ const setFinC=new Map();
 function settlementAt(px,pz){
   const k=px*100003+pz;let v=setFinC.get(k);if(v!==undefined)return v;
   v=settlementRaw(px,pz);if(v&&(riverCuts(px,pz)||seaPlot(px,pz)))v=null;
-  setFinC.set(k,v);return v;
+  if(setFinC.size>1000000)setFinC.clear();setFinC.set(k,v);return v;
 }
 function riverCuts(px,pz){
   if(riverDir(px,pz))return false;   // (a block of the river's straight run through town: drawn as such)
@@ -4673,7 +4674,7 @@ function riverDir(px,pz){
       for(let j=j0-1;j<=j0+1&&!v;j++){if(!rivOn(ax,j))continue;
         for(let ii=i-1;ii<=i+1&&!v;ii++)for(const S of rivTile(ax,j,ii).secs)if(S.r===(ax==='x'?pz:px)&&(ax==='x'?px:pz)>=S.m0&&(ax==='x'?px:pz)<=S.m1&&settlementRaw(px,pz)===S.T){v=ax;break;}}
       if(v)break;}}
-  rivPlotC.set(key,v);return v;
+  if(rivPlotC.size>1000000)rivPlotC.clear();rivPlotC.set(key,v);return v;
 }
 const isRiver=(px,pz)=>riverDir(px,pz)!==null;
 // ---- distances to the nearest route / river line from a point ----

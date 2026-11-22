@@ -229,7 +229,7 @@ function riverDir(px,pz){
       for(let j=j0-1;j<=j0+1&&!v;j++){if(!rivOn(ax,j))continue;
         for(let ii=i-1;ii<=i+1&&!v;ii++)for(const S of rivTile(ax,j,ii).secs)if(S.r===(ax==='x'?pz:px)&&(ax==='x'?px:pz)>=S.m0&&(ax==='x'?px:pz)<=S.m1&&settlementRaw(px,pz)===S.T){v=ax;break;}}
       if(v)break;}}
-  rivPlotC.set(key,v);return v;
+  if(rivPlotC.size>1000000)rivPlotC.clear();rivPlotC.set(key,v);return v;
 }
 const isRiver=(px,pz)=>riverDir(px,pz)!==null;
 // ---- distances to the nearest route / river line from a point ----
