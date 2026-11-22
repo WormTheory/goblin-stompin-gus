@@ -190,12 +190,12 @@ function farmlandColumn(col,F,px,pz,rx,rz,x,z){
 // a river out on the plains: no embankments, just grassy banks sloping down to sand and the water
 // a river out on the plains, d blocks from its centre line: no embankments, just grassy banks sloping down to sand and
 // the water (cut into whatever the column already had)
-function plainsRiverColumn(col,d){
-  const WL=G-2,RB=G-11;
-  if(d>RIV_W+4)return;
-  if(d>RIV_W+2){col(G-1,DIRT);col(G,GRASS);for(let y=G+1;y<G+8;y++)col(y,AIR);return;}
-  if(d>RIV_W){col(G-1,SAND);for(let y=G;y<G+8;y++)col(y,AIR);return;}
-  const bed=RB+Math.round((d/RIV_W)*6);col(bed,SAND);for(let y=bed+1;y<=WL;y++)col(y,WATER);
+function plainsRiverColumn(col,d,w=RIV_W){   // (w: its width, a tributary's narrower)
+  const WL=G-2,RB=G-11+(w<RIV_W?3:0);
+  if(d>w+4)return;
+  if(d>w+2){col(G-1,DIRT);col(G,GRASS);for(let y=G+1;y<G+8;y++)col(y,AIR);return;}
+  if(d>w){col(G-1,SAND);for(let y=G;y<G+8;y++)col(y,AIR);return;}
+  const bed=RB+Math.round((d/w)*(w<RIV_W?3:6));col(bed,SAND);for(let y=bed+1;y<=WL;y++)col(y,WATER);
   for(let y=WL+1;y<G+8;y++)col(y,AIR);   // open to the sky (the ground layers would otherwise roof it over)
 }
 // a landmark's grounds: a gravel path in from the street to its door; a fence round the water tower; a hedge, flower

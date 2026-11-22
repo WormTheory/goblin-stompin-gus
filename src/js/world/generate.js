@@ -95,7 +95,7 @@ function genChunk(cx,cz){
       else{plainsColumn(col,x,z);if(farmLaneCol(x,z)){col(G-1,DIRT);col(G,GRAVEL);col(G+1,AIR);}if(bunkerAt(qx,qz))bunkerColumn(col,rx,rz,x,z);else if(caveMouth(qx,qz))caveMouthColumn(col,rx,rz,x,z);else if(turbineAt(qx,qz))turbineColumn(col,rx,rz);}   // (a farm lane: two blocks wide, flaring out where it meets the road)
       pylonColumn(col,x,z);railColumn(col,x,z);
       // a river winding through: its water and banks cut into whatever's there
-      {const W=riverAt(x+0.5,z+0.5,RIV_W+5);if(W)plainsRiverColumn(col,W.d);}
+      {const W=riverCol(x+0.5,z+0.5);if(W&&!W.lake)plainsRiverColumn(col,W.d,W.w);}
       continue;}}
     {const qx=Math.floor(x/CELL),qz=Math.floor(z/CELL);if(isRiver(qx,qz)&&riverColumn(col,qx,qz,rx,rz))continue;}
     // inside a superblock (its pavement ring or its site): laid out in the superblock's own coordinates

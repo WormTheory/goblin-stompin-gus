@@ -34,7 +34,7 @@ self.AudioContext=undefined;self.webkitAudioContext=undefined;
 let WSEED=1;
 // (the game reads its world from its save on loading: hand it a fresh world with this seed)
 self.localStorage={getItem:k=>String(k).startsWith('goblin-city-v')?JSON.stringify({seed:WSEED,edits:{},coll:{},down:[],dest:{},test:[]}):null,setItem(){},removeItem(){},key:()=>null,length:0};
-const NAMES=['settlementLat','settlementAt','settlementRaw','setName','setKind','PLACE_KIND','zoneAt','seaPlot','seaV','SEA_T','coastType','plotType1','superOf','isRiver','riversNearBox','stMatch','cvSite','portCell','capitolPlan','climateAt','bioPick','BIOMES','reliefNat','plainsH','realmOf','rlfSnow','rlfRock','RLF','CELL','SET_SP','BIGP','bigCell','MAPC','TEST_GROUPS','seed'];
+const NAMES=['settlementLat','settlementAt','settlementRaw','setName','setKind','PLACE_KIND','zoneAt','seaPlot','seaV','SEA_T','coastType','plotType1','superOf','isRiver','riversNearBox','stMatch','cvSite','portCell','capitolPlan','climateAt','bioPick','BIOMES','reliefNat','plainsH','rlfValleys','realmOf','rlfSnow','rlfRock','RLF','CELL','SET_SP','BIGP','bigCell','MAPC','TEST_GROUPS','seed'];
 let T=null;
 function loadGame(html,seed,sea){
   WSEED=seed;self.GSG_WORLD=sea||undefined;   // (the Land & sea sliders: the game's WORLD_CFG, read by its coast.js as it loads)
@@ -83,8 +83,11 @@ function clim(tx,tz,L){
   // (and the land's height above the datum out in the wilds, reliefNat, with what it is there: 0 ground, 1 bare rock,
   // 2 snow, 3 a lake (not the hills' ponds). Towns and everything else built stay at the datum)
   const hg=T.reliefNat?new Int16Array(M*M):null,hk=hg?new Uint8Array(M*M):null;
+  // (river valleys and source lakes only this close in: further out they'd want every river on the continent worked out)
+  if(T.rlfValleys)T.rlfValleys(L<=2);
   for(let j=0;j<M;j++)for(let i=0;i<M;i++){const q=j*M+i,X=(x0+i*st+h)*C,Z=(z0+j*st+h)*C,c=T.climateAt(X,Z),ct=c.t;t[q]=Math.round(ct*255);m[q]=Math.round(c.m*255);if(bp)b[q]=bp(ct,c.m,X,Z);
     if(hg&&r.land[q]===2&&T.realmOf(x0+i*st+h,z0+j*st+h)==='plains'){const v=Math.round(T.reliefNat(X,Z));hg[q]=Math.max(0,v);hk[q]=v<-0.9&&T.RLF.lake>1?3:v>T.rlfSnow(ct)?2:v>T.rlfRock(ct)?1:0;}}
+  if(T.rlfValleys)T.rlfValleys(true);
   return {land:r.land,M,st,t,m,b,hg,hk,bio:T.BIOMES?T.BIOMES.map(B=>[B.n,B.map]):null};
 }
 function coarse(tx,tz){
@@ -107,7 +110,7 @@ function coarse(tx,tz){
     for(let q=0;q<L.length;q+=2){const R=L[q];if(sentRivers.has(R))continue;sentRivers.add(R);
       // (the game only cuts a river into dry land: where its line runs into the sea, the sea's water is there instead,
       // so the line is broken there, every few blocks along it, rather than drawn across the water)
-      let run=[];const cut=()=>{if(run.length>1)rivers.push(run);run=[];},wet=(x,z)=>T.seaV(x/T.CELL,z/T.CELL)>T.SEA_T;
+      let run=[];const cut=()=>{if(run.length>1)rivers.push({p:run,w:R.w||9});run=[];},wet=(x,z)=>T.seaV(x/T.CELL,z/T.CELL)>T.SEA_T;
       for(let i=0;i<R.pts.length;i++){const [x1,z1]=R.pts[i];
         if(i){const [x0,z0]=R.pts[i-1],n=Math.max(1,Math.ceil(Math.hypot(x1-x0,z1-z0)/6));
           for(let k=1;k<n;k++){const x=x0+(x1-x0)*k/n,z=z0+(z1-z0)*k/n;if(wet(x,z))cut();else run.push([x/T.CELL,z/T.CELL]);}}

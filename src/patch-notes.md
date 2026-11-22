@@ -33,6 +33,14 @@
 - The World Generator has River sliders: how many rivers there are, how much they meander, how far they wander and how wide they are. The game's own worlds are unchanged.
 - This makes a new world again, so a saved city starts afresh.
 
+### Rivers
+
+- Rivers now start somewhere and go somewhere: each one rises in the hills or mountains, or flows out of a lake, and runs downhill until it reaches the sea or joins a bigger river.
+- Smaller, shallower streams branch off the rivers and feed into them.
+- Through the hills and mountains, rivers carve valleys for themselves.
+- The World Generator has two more River sliders: how far rivers run inland, and how many streams branch off them. It draws streams thinner than rivers.
+- This makes a new world again, so a saved city starts afresh.
+
 ### Co-op on two screens
 
 - The Controls screen has a new Players section listing the keyboard and mouse and every controller plugged in, each lighting up as you use it. Give each one to Player 1 or Player 2, so player two can play on the keyboard and player one on a controller, or each player can have a controller of their own however they're numbered. Auto puts it back as it was.

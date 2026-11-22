@@ -13,11 +13,11 @@ let OCEAN_O=null,seaDeepK=0,seaIsl=false,seaCcSeed=null;const SEA_CC=new Map();
 // (or the older GSG_SEA) before loading the game; the game itself never changes them, so they're the defaults, which leave
 // every sum exactly as it was. A world made with others keeps them in its save (cfg: only what isn't a default, from
 // worldCfgSent), so a guest online builds it with the host's)
-const WORLD_DEF={land:0,size:1,rough:1,chan:1,isles:1,islz:1,temp:0,rain:0,czone:1,lat:1,mtn:0,mth:1,hill:1,lakes:1,riv:1,rmd:1,rwd:1,rwid:1};   // (temp, rain, czone, lat: the climate's, world/climate.js; mtn, mth, hill, lakes: the land's shape, world/relief.js; riv, rmd, rwd, rwid: the rivers', world/routes.js)
+const WORLD_DEF={land:0,size:1,rough:1,chan:1,isles:1,islz:1,temp:0,rain:0,czone:1,lat:1,mtn:0,mth:1,hill:1,lakes:1,riv:1,rmd:1,rwd:1,rwid:1,rlen:1,rbr:1};   // (temp, rain, czone, lat: the climate's, world/climate.js; mtn, mth, hill, lakes: the land's shape, world/relief.js; riv, rmd, rwd, rwid, rlen, rbr: the rivers', world/routes.js)
 const WORLD_CFG=Object.assign({},WORLD_DEF);
 // (sets them from o, anything missing or not a number at its default: only before the world's worked out (loading), as
 // what's been worked out already isn't redone)
-function worldCfgSet(o){for(const k in WORLD_DEF)WORLD_CFG[k]=o&&typeof o[k]==='number'&&isFinite(o[k])?o[k]:WORLD_DEF[k];seaCcSeed=null;clSeed=null;seaPlotC.clear();plotCache.clear();rlfRtC.clear();rlfRvC.clear();rlfRt16.clear();rlfRv16.clear();RLF_AIR.clear();RLF_MAPC.clear();rivCfg();}
+function worldCfgSet(o){for(const k in WORLD_DEF)WORLD_CFG[k]=o&&typeof o[k]==='number'&&isFinite(o[k])?o[k]:WORLD_DEF[k];seaCcSeed=null;clSeed=null;seaPlotC.clear();plotCache.clear();rlfRtC.clear();rlfRvC.clear();rlfRt16.clear();rlfRv16.clear();RLF_AIR.clear();RLF_MAPC.clear();RLF_VC.clear();RLF_VL.clear();rivCfg();}
 const worldCfgSent=()=>{let o;for(const k in WORLD_DEF)if(WORLD_CFG[k]!==WORLD_DEF[k])(o=o||{})[k]=WORLD_CFG[k];return o;};
 if(typeof window!=='undefined'&&(window.GSG_WORLD||window.GSG_SEA))worldCfgSet(window.GSG_WORLD||window.GSG_SEA);
 function seaCont(fx,fz){

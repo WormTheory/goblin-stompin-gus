@@ -311,7 +311,7 @@ const PLAINS_OPEN=(px,pz)=>realmOf(px,pz)==='plains'&&farmK(px,pz)===null&&!farm
 function roadNear(x,z,pad){
   const px=Math.floor(x/CELL),pz=Math.floor(z/CELL);let e=1e9;
   {const R=routeAt(x,z,40);if(R)e=Math.min(e,R.d-9.6);}
-  {const W=riverAt(x,z,40);if(W)e=Math.min(e,W.d-RIV_W-4);}
+  {const W=riverAt(x,z,40);if(W){const S=W.R.src;if(!S||rlfLen(x-S[0],z-S[1])>=S[2]+1)e=Math.min(e,W.d-(W.R.w||RIV_W)-4);}}   // (not in the lake a river rises in)
   {const k=Math.floor(x/16)*100003+Math.floor(z/16);if(!tsC.has(k))tsAt(x,z);for(const T of tsC.get(k)||[]){const dx=x+0.5-T.cx,dz=z+0.5-T.cz,u=dx*T.tx+dz*T.tz,v=dx*T.nx+dz*T.nz;
      e=Math.min(e,Math.hypot(Math.max(0,Math.abs(u)-46),Math.max(0,v-60,6.5-v))-2);}}
   {const L=farmLane(px,pz);if(L&&z>=L.z0-2&&z<L.z1+2)e=Math.min(e,(Math.abs(x-(px*CELL+PC-0.5))-1)*14/(pad||8));}

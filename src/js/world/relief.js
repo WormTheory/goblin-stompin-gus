@@ -26,12 +26,40 @@ function ruggedAt(x,z){
 function reliefNat(x,z){
   const hill=plainsRaw(x,z)*WORLD_CFG.hill,r=clBlend('r'),m=CLIM.m;   // (plainsRaw has just asked the climate here)
   const top=Math.min(RLF_MAX,rlfTop(r)*WORLD_CFG.mth);let mtn=0,lake=0;
-  if(top>0.3){const w=nzWarp(x,z,1400,380,3307),P=nzRidged(w[0],w[1],900,4,3301);mtn=top*(0.12+0.88*P*P);}
+  if(top>0.3){const w=nzWarp(x,z,1400,380,3307),P=nzRidged(w[0],w[1],900,4,3301);mtn=top*(0.12+0.88*P*P)*rlfValley(x,z);}
   // (lakes: low, wet ground only, deepest where it's flattest)
   if(r<0.4&&WORLD_CFG.lakes>0){const L=nzFbm(x,z,800,3,3401),th=-0.3+0.3*(m-0.5);if(L<th)lake=Math.min(RLF_LAKE,(th-L)*60)*WORLD_CFG.lakes*(1-r/0.4);}
+  if(RLF_VON){const sl=rlfSrcLake(x,z);if(sl>lake)lake=sl;}
   RLF.hill=hill;RLF.mtn=mtn;RLF.lake=lake;RLF.r=r;
   return hill+mtn-lake;
 }
+// ---- river valleys: the rivers (world/routes.js) wind through the mountains, so near one the mountains are let stand
+// only so far: nothing on its floor (RLF_VM for a river, RLF_VT a tributary: [blocks of flat floor past its banks, how far
+// out the sides go up to their full height]), rising in a smooth curve to full height. Worked out at the corners of a 16-
+// block lattice and blended, as a valley's hundreds of blocks across; the steep last stretch by the banks is reliefMask's.
+// And a lake at a river's source in low country (R.src: where, how wide). RLF_VON off (rlfValleys) leaves both out: the
+// World Generator does, zoomed far out, where they're too small to see and would need every river on the continent ----
+const RLF_VM=[30,340],RLF_VT=[12,170],RLF_VR=420,RLF_VC=new Map(),RLF_VL=new Map();var RLF_VON=true;
+const rlfValleys=on=>{RLF_VON=!!on;};
+// (the river pieces within RLF_VR of a 256-block square, and the sources with lakes among them)
+function rlfVList(x,z){const k=Math.floor(x/256)*100003+Math.floor(z/256);let l=RLF_VL.get(k);if(l)return l;
+  if(RLF_VL.size>4000)RLF_VL.clear();const X=Math.floor(x/256)*256,Z=Math.floor(z/256)*256,P=riversNearBox(X-RLF_VR,Z-RLF_VR,X+256+RLF_VR,Z+256+RLF_VR),S=[];
+  for(let q=0;q<P.length;q+=2){const R=P[q];if(R.src&&!S.includes(R))S.push(R);}
+  l={P,S};RLF_VL.set(k,l);return l;}
+function rlfVCorner(cx,cz){const k=cx*100003+cz;let v=RLF_VC.get(k);if(v!==undefined)return v;v=1;
+  const x=cx*16,z=cz*16,L=rlfVList(x,z).P;
+  for(let q=0;q<L.length&&v>0;q+=2){const R=L[q],i=L[q+1],P=R.pts,ax=P[i][0],az=P[i][1],dx=P[i+1][0]-ax,dz=P[i+1][1]-az,l2=dx*dx+dz*dz||1e-9;
+    const F=R.trib?RLF_VT:RLF_VM,ex0=x-ax,ez0=z-az;if(ex0*ex0+ez0*ez0>(F[0]+F[1]+R.w+40)*(F[0]+F[1]+R.w+40)+l2*4)continue;
+    let t=(ex0*dx+ez0*dz)/l2;t=t<0?0:t>1?1:t;const ex=ex0-dx*t,ez=ez0-dz*t,u=(rlfLen(ex,ez)-R.w-4-F[0])/F[1];
+    const s=u<=0?0:u>=1?1:u*u*(3-2*u);if(s<v)v=s;}
+  if(RLF_VC.size>300000)RLF_VC.clear();RLF_VC.set(k,v);return v;}
+function rlfValley(x,z){if(!RLF_VON)return 1;const fx=x/16,fz=z/16,cx=Math.floor(fx),cz=Math.floor(fz),u=fx-cx,w=fz-cz;
+  const a=rlfVCorner(cx,cz),b=rlfVCorner(cx+1,cz),c=rlfVCorner(cx,cz+1),d=rlfVCorner(cx+1,cz+1);
+  return (a+(b-a)*u)*(1-w)+(c+(d-c)*u)*w;}
+// (how deep a source's lake is at (x,z): a round hollow, deepest in the middle)
+function rlfSrcLake(x,z){const S=rlfVList(x,z).S;let L=0;
+  for(const R of S){const [sx,sz,r]=R.src,dx=x-sx,dz=z-sz,d2=dx*dx+dz*dz;if(d2<r*r){const v=(RLF_LAKE+3)*(1-d2/(r*r))+1;if(v>L)L=v;}}
+  return L;}
 // (the lines further off than routeAt and riverAt look, for the slopes up from them: a list per 64-block square)
 // (and per 16-block square, only those pieces within 96 of it: a column of mountain asks for the nearest of them)
 const rlfRtC=new Map(),rlfRvC=new Map(),rlfRt16=new Map(),rlfRv16=new Map();

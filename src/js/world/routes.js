@@ -164,17 +164,24 @@ function ensureRoutes(x,z){
   const rx0=Math.round(x/CELL/SET_SP),rz0=Math.round(z/CELL/SET_SP);
   for(let rx=rx0-2;rx<=rx0+2;rx++)for(let rz=rz0-2;rz<=rz0+2;rz++)buildRoutesFrom(rx,rz);
 }
-// ---- rivers: each runs along a row (or a column) of a coarse grid about 1600 blocks across, but which rows and
-// columns have one is down to chance, so they're spaced unevenly. Its line wanders between jittered waypoints, with
-// two kinds of bend on top: long sweeps, and meanders whose spacing and size keep changing along it (tight wiggly
-// stretches, lazy loops, the odd near-straight reach). Where it meets a place it straightens out onto a row (or column)
-// of blocks and runs dead straight through, easing back into its bends either side. ----
-// (the World Generator's Rivers sliders, WORLD_CFG: riv how many of the lines have one, rmd how far the bends swing, rwd how
-// far the whole line wanders, rwid the width (RIV_W, set by rivCfg). At 1 each, every sum is as it always was. RIV_JR is how
-// many lines either side might wander over a spot, a var like RIV_W so worldCfgSet can set them before this file's run)
-const RIV_SP=1600;var RIV_W=9,RIV_JR=1,RIV_UP=false;
-const rivOn=(ax,j)=>{const f=WORLD_CFG.riv;return ax==='x'?hash2(j*733+1,4099)<0.45*f:hash2(j*577+9,4111)<0.4*f;};
-// along-axis coordinate a -> cross-axis position of river j's guide line (smooth through jittered waypoints)
+// ---- rivers: each starts at a source up in the hills or mountains, or in a lake, and runs down to the sea or into another
+// river. They keep to a coarse grid about 1600 blocks across: a node where each row (z about j*RIV_SP) meets each column
+// (x about k*RIV_SP), and the line between two neighbouring nodes is a tile of that row's or column's line. Every node
+// drains to a neighbour a step nearer the sea (rivDs: in steps along the grid; rivDown picks the most seaward of them by
+// the sea's own noise, seaV), so following the drain from anywhere leads to the sea and two paths that meet stay together.
+// A node is a river's source by chance, more often the more rugged (rivBias), if the sea's within RIV_LEN of it; all below it is
+// river (rivMain). A tributary's source is by chance too, kept only if it reaches a river or the sea within RIV_TRIB
+// (rivWet). A river runs to the node at the end of its stretch of line, or, where it turns or meets another, to where the
+// two lines really cross (rivX), so it joins the other's water. Each line wanders between jittered waypoints, with two
+// kinds of bend on top: long sweeps, and meanders whose spacing and size keep changing along it (tight wiggly stretches,
+// lazy loops, the odd near-straight reach). Where it meets a place it straightens out onto a row (or column) of blocks and
+// runs dead straight through, easing back into its bends either side. ----
+// (the World Generator's Rivers sliders, WORLD_CFG: riv how many rivers, rmd how far the bends swing, rwd how far the whole
+// line wanders, rwid the width (RIV_W), rlen how far inland they reach (RIV_LEN, and RIV_TRIB a tributary's), rbr how many
+// tributaries; set by rivCfg. RIV_JR is how many lines either side might wander over a spot. They're vars so worldCfgSet
+// can set them before this file's run)
+const RIV_SP=1600;var RIV_W=9,RIV_JR=1,RIV_LEN=14,RIV_TRIB=3,RIV_UP=false,RIV_ID=0;
+// along-axis coordinate a -> cross-axis position of line j's guide (smooth through jittered waypoints)
 function rivGuide(ax,j,a){
   const w=WORLD_CFG.rwd,n=c=>j*RIV_SP+(hash2(c*37+j*11+(ax==='x'?0:5),j*53+3)-0.5)*RIV_SP*0.8*w;
   const i=Math.floor(a/RIV_SP),t=a/RIV_SP-i,p0=n(i-1),p1=n(i),p2=n(i+1),p3=n(i+2);
@@ -187,10 +194,11 @@ function rivOff(ax,j,a){
   const amp=Math.min(70*WORLD_CFG.rmd*(0.3+0.7*(0.5+0.5*Math.sin(a/900+h(3)))),0.8/Math.max(fr,1e-3));
   return amp*Math.sin(ph)+(330*Math.sin(a/1500+h(4))+120*Math.sin(a/610+h(5)))*WORLD_CFG.rwd;
 }
-// one tile (RIV_SP long) of river j: its centre line, and the places it straightens through {T,r,m0,m1}
-const rivTileC=new Map();
-function rivTile(ax,j,i){
-  const key=ax+j+','+i;let v=rivTileC.get(key);if(v)return v;
+// tile i of line j (ax 'x' a row, 'z' a column) as it would run, wet or not: its centre every 4 blocks along a (A, C) from
+// 500 before the tile to 500 after, and the places it straightens through {T,r,m0,m1}
+const rivFullC=new Map();
+function rivFull(ax,j,i){
+  const key=ax+j+','+i;let v=rivFullC.get(key);if(v)return v;
   const a0=i*RIV_SP-500,a1=(i+1)*RIV_SP+500,N=Math.round((a1-a0)/4),A=[],C=[];
   for(let n=0;n<=N;n++){const a=a0+n*4;A.push(a);C.push(rivGuide(ax,j,a)+rivOff(ax,j,a));}
   const P=(a,c)=>ax==='x'?[Math.floor(a/CELL),Math.floor(c/CELL)]:[Math.floor(c/CELL),Math.floor(a/CELL)];
@@ -211,26 +219,102 @@ function rivTile(ax,j,i){
   // pull the line straight through each, easing in and out over 220 blocks either side
   for(let n=0;n<=N;n++){const a=A[n];
     for(const S of secs){const d=a<S.lo?S.lo-a:a>S.hi?a-S.hi:0;if(d>=220)continue;const u=1-d/220,w=u*u*(3-2*u);C[n]+=(S.c-C[n])*w;}}
-  // keep just the tile's own stretch (plus a little overlap)
-  const pts=[];for(let n=0;n<=N;n++){if(A[n]<i*RIV_SP-8||A[n]>(i+1)*RIV_SP+8)continue;pts.push(ax==='x'?[A[n],C[n]]:[C[n],A[n]]);}
-  v={pts,secs,ax,j};rivTileC.set(key,v);
-  const R=mkRoute(pts,{kind:'river',ax});v.R=R;indexLine(rvIdx,R);
+  v={A,C,secs,a0};rivFullC.set(key,v);return v;
+}
+// (line j's cross position at a, as it runs)
+function rivAt(ax,j,a){const F=rivFull(ax,j,Math.floor(a/RIV_SP)),f=(a-F.a0)/4,n=Math.floor(f);return F.C[n]+(F.C[n+1]-F.C[n])*(f-n);}
+// ---- the drainage: nodes {k,j,x,z (about where the two lines cross), sea, f (how seaward)} ----
+const rivNodeC=new Map(),RIV_NB=[[1,0],[-1,0],[0,1],[0,-1]];
+function rivNode(k,j){const key=k*100003+j;let n=rivNodeC.get(key);if(n)return n;
+  const x=rivGuide('z',k,j*RIV_SP)+rivOff('z',k,j*RIV_SP),z=rivGuide('x',j,k*RIV_SP)+rivOff('x',j,k*RIV_SP),sv=seaV(x/CELL,z/CELL);
+  n={k,j,x,z,sea:sv>SEA_T,f:sv+hash2(k*31+7,j*57+11)*1e-6};rivNodeC.set(key,n);return n;}
+const rivNb=(n,q)=>rivNode(n.k+RIV_NB[q][0],n.j+RIV_NB[q][1]);
+// (steps along the grid to the nearest node at sea; Infinity past the longest a river and a tributary could reach)
+function rivDs(n){if(n.ds!==undefined)return n.ds;if(n.sea)return n.ds=0;const M=RIV_LEN+RIV_TRIB+1;
+  for(let r=1;r<=M;r++)for(let a=-r;a<=r;a++){const b=r-Math.abs(a);if(rivNode(n.k+a,n.j+b).sea||b&&rivNode(n.k+a,n.j-b).sea)return n.ds=r;}
+  return n.ds=Infinity;}
+// (the neighbour it drains to: of those a step nearer the sea, the most seaward; null at sea or out of reach of it)
+function rivDown(n){if(n.down!==undefined)return n.down;let b=null;const d=rivDs(n);
+  if(d>=1&&d!==Infinity)for(let q=0;q<4;q++){const m=rivNb(n,q);if(rivDs(m)===d-1&&(!b||m.f>b.f))b=m;}
+  return n.down=b;}
+// (how likely a source is here: mostly up in the mountains; in low wet country, a lake's. Never in a place)
+function rivBias(n){if(n.b!==undefined)return n.b;let b=0;
+  if(!n.sea&&!settlementRaw(Math.floor(n.x/CELL),Math.floor(n.z/CELL))){const r=ruggedAt(n.x,n.z);b=0.35+1.65*r;if(r<0.35){b+=0.8*climateAt(n.x,n.z).m;n.lake=true;}}
+  return n.b=b;}
+const rivSrcM=n=>hash2(n.k*131+5,n.j*173+9)<0.16*WORLD_CFG.riv*rivBias(n)&&rivSrcOK(n);
+const rivSrcT=n=>hash2(n.k*197+3,n.j*149+21)<0.22*WORLD_CFG.rbr*rivBias(n)&&rivSrcOK(n);
+// (and only where it would really rise out in the country: not in a place or near one, nor in the sea. Nothing here may
+// ask what's built in the country (farms and the like keep clear of the rivers, plotNearLines), or it'd go round in circles)
+function rivSrcOK(n){if(n.ok!==undefined)return n.ok;const X=rivX(n),px=Math.floor(X.x/CELL),pz=Math.floor(X.z/CELL);let ok=seaV(X.x/CELL,X.z/CELL)<=SEA_T;
+  for(let a=-2;a<=2&&ok;a++)for(let b=-2;b<=2&&ok;b++)if(settlementRaw(px+a,pz+b))ok=false;
+  return n.ok=ok;}
+// (is n on a river from a source: its own, or one above it. Only nodes within RIV_LEN of the sea can be)
+function rivMain(n){if(n.main!==undefined)return n.main;let v=false;const d=rivDs(n);
+  if(d>=1&&d<=RIV_LEN){v=rivSrcM(n);for(let q=0;q<4&&!v;q++){const m=rivNb(n,q);if(rivDown(m)===n&&rivMain(m))v=true;}}
+  return n.main=v;}
+// (fewest nodes up from n to a tributary's source, looking b up at most; Infinity if none)
+function rivTu(n,b){if(n.sea||rivMain(n))return Infinity;if(rivSrcT(n))return 0;if(b<=0)return Infinity;let v=Infinity;
+  for(let q=0;q<4;q++){const m=rivNb(n,q);if(rivDown(m)===n){const t=rivTu(m,b-1)+1;if(t<v)v=t;}}return v;}
+// (nodes down from n to a river or the sea, Infinity past RIV_TRIB)
+function rivTo(n){let m=n,s=0;while(m&&!m.sea&&!rivMain(m)){if(++s>RIV_TRIB)return Infinity;m=rivDown(m);}return m?s:Infinity;}
+// what leaves node n down its drain: 2 a river, 1 a tributary, 0 nothing
+function rivWet(n){if(n.w!==undefined)return n.w;let w=0;
+  if(!n.sea&&rivDown(n)){if(rivMain(n))w=2;else if(RIV_TRIB>0&&rivTu(n,RIV_TRIB)+rivTo(n)<=RIV_TRIB)w=1;}
+  return n.w=w;}
+const rivInflow=n=>{for(let q=0;q<4;q++){const m=rivNb(n,q);if(rivDown(m)===n&&rivWet(m))return true;}return false;};
+// where the row and the column through node n really cross, as they run (straightened through places too): {x,z}. The
+// crossing nearest where the node's worked out to be, a line's guide is used if they don't cross within reach
+function rivX(n){if(n.X)return n.X;let best=null,bd=1e9,px=0,ph=0;
+  for(let x=n.x-1400,s=0;x<=n.x+1400;x+=8,s++){const h=x-rivAt('z',n.k,rivAt('x',n.j,x));
+    if(s&&(h<=0)!==(ph<=0)){const xx=px+(x-px)*ph/(ph-h),d=Math.abs(xx-n.x);if(d<bd){bd=d;best=xx;}}px=x;ph=h;}
+  if(best===null)best=n.x;return n.X={x:best,z:rivAt('x',n.j,best)};}
+const rivNodeOn=(ax,L,e)=>ax==='x'?rivNode(e,L):rivNode(L,e);
+// the stretches of line L that are river near tile i: [lo,hi,w (2 river, 1 tributary),src (the node it rises at),up end]
+function rivRuns(ax,L,i){const out=[],cut=n=>ax==='x'?rivX(n).x:rivX(n).z;
+  for(let e=i-2;e<=i+2;e++){const A=rivNodeOn(ax,L,e),B=rivNodeOn(ax,L,e+1);let U,D,s;
+    if(rivDown(A)===B&&rivWet(A)){U=A;D=B;s=1;}else if(rivDown(B)===A&&rivWet(B)){U=B;D=A;s=-1;}else continue;
+    const w=rivWet(U),aU=(s>0?e:e+1)*RIV_SP,aD=(s>0?e+1:e)*RIV_SP;
+    // (its top end: on from the stretch above it on this line, else from where the lines cross: a turn, or its source)
+    const P=rivNodeOn(ax,L,s>0?e-1:e+2),on=rivDown(P)===U&&rivWet(P)===w,lo=on?aU:cut(U),src=!on&&!rivInflow(U)?U:null;
+    // (its bottom end: into the sea, on out past the node; on along this line, to the node; else to where it meets the other)
+    const N=rivNodeOn(ax,L,s>0?e+2:e-1),hi=D.sea?aD+s*RIV_SP:rivDown(D)===N&&rivWet(D)===w?aD:cut(D);
+    out.push([Math.min(lo,hi),Math.max(lo,hi),w,src,lo]);}
+  // (a stretch carrying on the next one of the same kind is one run)
+  out.sort((p,q)=>p[0]-q[0]);const M=[];for(const r of out){const t=M[M.length-1];if(t&&t[2]===r[2]&&r[0]<=t[1]+0.5){if(r[1]>t[1])t[1]=r[1];if(r[3])t[3]=r[3],t[4]=r[4];}else M.push(r.slice());}
+  return M;}
+// one tile of line j: the runs of river on it (each a route of its own), and the places it straightens through
+const rivTileC=new Map();
+function rivTile(ax,j,i){
+  const key=ax+j+','+i;let v=rivTileC.get(key);if(v)return v;
+  const t0=i*RIV_SP-8,t1=(i+1)*RIV_SP+8,runs=rivRuns(ax,j,i).filter(r=>r[1]>t0&&r[0]<t1);v={secs:[],runs,ax,j};rivTileC.set(key,v);
+  if(!runs.length)return v;
+  const F=rivFull(ax,j,i),A=F.A,C=F.C,pt=(a,c)=>ax==='x'?[a,c]:[c,a],at=a=>{const f=(a-F.a0)/4,n=Math.floor(f);return pt(a,C[n]+(C[n+1]-C[n])*(f-n));};
+  v.secs=F.secs;
+  for(const r of runs){const lo=Math.max(t0,r[0]),hi=Math.min(t1,r[1]),pts=[at(lo)];
+    for(let n=0;n<A.length;n++)if(A[n]>lo&&A[n]<hi)pts.push(pt(A[n],C[n]));pts.push(at(hi));if(hi-lo<1)continue;
+    const R=mkRoute(pts,{kind:'river',ax,w:r[2]===2?RIV_W:Math.max(3,Math.round(RIV_W*0.6)),trib:r[2]===1});R.id=500000+RIV_ID++;
+    // (a lake at its source, out in low country, if its top's in this tile)
+    if(r[3]&&r[3].lake&&r[4]>=t0&&r[4]<=t1){const X=rivX(r[3]);R.src=[X.x,X.z,16+hash2(r[3].k*7+1,r[3].j*13+5)*14];}
+    indexLine(rvIdx,R);}
   return v;
 }
+// (is a along line j's tile i in one of its runs?)
+const rivWetAt=(v,a)=>v.runs.some(r=>a>=r[0]&&a<=r[1]);
 const rvReady=new Set();
 function ensureRivers(x,z){
   const bk=Math.floor(x/512)*100003+Math.floor(z/512);if(rvReady.has(bk))return;rvReady.add(bk);
   for(const ax of ['x','z']){const a=ax==='x'?x:z,c=ax==='x'?z:x,i=Math.floor(a/RIV_SP),j0=Math.round(c/RIV_SP);
-    for(let j=j0-RIV_JR;j<=j0+RIV_JR;j++){if(!rivOn(ax,j))continue;for(let ii=i-1;ii<=i+1;ii++)rivTile(ax,j,ii);}}
+    for(let j=j0-RIV_JR;j<=j0+RIV_JR;j++)for(let ii=i-1;ii<=i+1;ii++)rivTile(ax,j,ii);}
 }
 // the river (if any) whose straightened stretch block (px,pz) of a place is on: 'x' (it runs along x) or 'z'
 const rivPlotC=new Map();
 function riverDir(px,pz){
   const key=px*100003+pz;let v=rivPlotC.get(key);if(v!==undefined)return v;v=null;
   if(settlementRaw(px,pz)){
-    for(const ax of ['x','z']){const a=(ax==='x'?px:pz)*CELL,c=(ax==='x'?pz:px)*CELL,i=Math.floor(a/RIV_SP),j0=Math.round(c/RIV_SP);
-      for(let j=j0-RIV_JR;j<=j0+RIV_JR&&!v;j++){if(!rivOn(ax,j))continue;
-        for(let ii=i-1;ii<=i+1&&!v;ii++)for(const S of rivTile(ax,j,ii).secs)if(S.r===(ax==='x'?pz:px)&&(ax==='x'?px:pz)>=S.m0&&(ax==='x'?px:pz)<=S.m1&&settlementRaw(px,pz)===S.T){v=ax;break;}}
+    for(const ax of ['x','z']){const m=ax==='x'?px:pz,a=m*CELL,c=(ax==='x'?pz:px)*CELL,i=Math.floor(a/RIV_SP),j0=Math.round(c/RIV_SP);
+      for(let j=j0-RIV_JR;j<=j0+RIV_JR&&!v;j++)
+        for(let ii=i-1;ii<=i+1&&!v;ii++){const T=rivTile(ax,j,ii);if(!T.runs.length)continue;
+          for(const S of T.secs)if(S.r===(ax==='x'?pz:px)&&m>=S.m0&&m<=S.m1&&settlementRaw(px,pz)===S.T&&rivWetAt(T,a+16)){v=ax;break;}}
       if(v)break;}}
   if(rivPlotC.size>1000000)rivPlotC.clear();rivPlotC.set(key,v);return v;
 }
@@ -260,6 +344,13 @@ function rtList(x,z){const k=Math.floor(x/16)*100003+Math.floor(z/16);let l=near
 function rvList(x,z){const k=Math.floor(x/16)*100003+Math.floor(z/16);let l=nearRvC.get(k);if(!l){if(nearRvC.size>6000)nearRvC.clear();const X=Math.floor(x/16)*16,Z=Math.floor(z/16)*16;l=riversNearBox(X,Z,X+15,Z+15);nearRvC.set(k,l);}return l;}
 const routeAt=(x,z,lim=12)=>nearestOn(rtList(x,z),x,z,lim);
 const riverAt=(x,z,lim=16)=>nearestOn(rvList(x,z),x,z,lim);
+// (the river whose water or banks (x,z) is most in, measured from each one's edge, as a tributary's narrower: {d,w,lake}, or
+// null; lake: in the lake at its source, which it leaves as it is)
+function riverCol(x,z){const L=rvList(x,z);let best=null,be=5;
+  for(let q=0;q<L.length;q+=2){const R=L[q],i=L[q+1],P=R.pts,ax=P[i][0],az=P[i][1],dx=P[i+1][0]-ax,dz=P[i+1][1]-az,l2=dx*dx+dz*dz||1e-9;
+    let t=((x-ax)*dx+(z-az)*dz)/l2;t=t<0?0:t>1?1:t;const ex=x-ax-dx*t,ez=z-az-dz*t,d=Math.sqrt(ex*ex+ez*ez),e=d-R.w;if(e<be){be=e;best={d,w:R.w,R};}}
+  if(best){const S=best.R.src;if(S&&rlfLen(x-S[0],z-S[1])<S[2]+1)best.lake=true;}
+  return best;}
 // is anything of a route or river within the plot (plus a margin)? (for keeping farms and the like clear)
 // ---- truck stops: big gas stations out on long country highways. Partway along a long enough route, on a straight
 // stretch with open land to one side, a wide apron opens off the road: a long canopy over rows of pumps, room for the
@@ -402,15 +493,19 @@ function truckStopColumn(a,col,t,px,pz,rx,rz,lx,lz,x,z){
 // does a river out on the plains cross (or come right up to) block (px,pz)?
 const rivNearC=new Map();
 function rivPlotNear(px,pz){const k=px*100003+pz;let v=rivNearC.get(k);if(v===undefined){const X0=px*CELL,Z0=pz*CELL,b=nearestOn(riversNearBox(X0,Z0,X0+CELL-1,Z0+CELL-1),X0+16,Z0+16,CELL*0.71+RIV_W+4);v=!!b;rivNearC.set(k,v);}return v;}
-function clearLayout(){for(const M of [castleC,dumpC,bunkC,bigPC,bigOK,pyIdx,cutC,tsPlotC,setFinC,rivNearC,tsC,fieldC,edgeC,spanC,axC,hwLineC,rtIdx,rvIdx,rivTileC,rivPlotC,nearRtC,nearRvC])M.clear();for(const S of [rtDone,rtReady,rvReady])S.clear();ROUTES.length=0;}
+function clearLayout(){for(const M of [castleC,dumpC,bunkC,bigPC,bigOK,pyIdx,cutC,tsPlotC,setFinC,rivNearC,tsC,fieldC,edgeC,spanC,axC,hwLineC,rtIdx,rvIdx,rivTileC,rivFullC,rivNodeC,rivPlotC,nearRtC,nearRvC])M.clear();for(const S of [rtDone,rtReady,rvReady])S.clear();ROUTES.length=0;}
 // (the Rivers sliders' width and reach; a change once the rivers are worked out throws them away, from worldCfgSet)
 function rivCfg(){RIV_W=Math.max(3,Math.round(9*WORLD_CFG.rwid));RIV_JR=Math.max(1,Math.ceil(((640+450)*WORLD_CFG.rwd+70*WORLD_CFG.rmd+300)/1600));   // (1600: RIV_SP, not yet set when the World Generator calls this first)
-  if(!RIV_UP)return;for(const M of [rivNearC,rvIdx,rivTileC,rivPlotC,nearRvC])M.clear();rvReady.clear();}
+  RIV_LEN=Math.max(1,Math.round(14*WORLD_CFG.rlen));RIV_TRIB=Math.max(1,Math.round(3*WORLD_CFG.rlen));
+  if(!RIV_UP)return;for(const M of [rivNearC,rvIdx,rivTileC,rivFullC,rivNodeC,rivPlotC,nearRvC])M.clear();rvReady.clear();}
 RIV_UP=true;rivCfg();
 function plotNearLines(px,pz,pad){
   const x0=px*CELL-pad,z0=pz*CELL-pad,x1=(px+1)*CELL+pad,z1=(pz+1)*CELL+pad,cx=(x0+x1)/2,cz=(z0+z1)/2,r=CELL/2*1.42+pad;
-  const a=nearestOn(routesNearBox(x0,z0,x1,z1),cx,cz,r+9.6),b=nearestOn(riversNearBox(x0,z0,x1,z1),cx,cz,r+RIV_W);
-  return !!(a&&a.d<r+9.6||b&&b.d<r+RIV_W);
+  const a=nearestOn(routesNearBox(x0,z0,x1,z1),cx,cz,r+9.6),L=riversNearBox(x0-32,z0-32,x1+32,z1+32),b=nearestOn(L,cx,cz,r+RIV_W);
+  if(a&&a.d<r+9.6||b&&b.d<r+RIV_W)return true;
+  // (and a river's lake at its source)
+  for(let q=0;q<L.length;q+=2){const S=L[q].src;if(S&&rlfLen(S[0]-cx,S[1]-cz)<r+S[2])return true;}
+  return false;
 }
 const rectPlains=(ax,az,w,h)=>{for(let i=0;i<w;i++)for(let j=0;j<h;j++)if(realmOf(ax+i,az+j)==='plains')return true;return false;};
 // plains terrain: gentle rolling hills (0-5 blocks up), flattening out toward any block that isn't open plains (the
