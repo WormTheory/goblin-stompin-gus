@@ -64,6 +64,10 @@ details[open]>summary.lbl::before{transform:rotate(90deg)}
 #tip{position:fixed;pointer-events:none;background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:7px;padding:7px 9px;font-size:12.5px;line-height:1.45;box-shadow:0 4px 16px rgba(0,0,0,.25);max-width:260px;z-index:5;font-variant-numeric:tabular-nums}
 #tip b{font-family:var(--display);font-size:16px;font-weight:700}
 #msg{position:fixed;inset:0;display:grid;place-items:center;color:#f2f0e6;font:600 18px var(--display);letter-spacing:.06em;text-transform:uppercase;pointer-events:none;text-align:center;padding:0 24px}
+.sliders{display:grid;grid-template-columns:auto 1fr 3.2em;gap:4px 10px;align-items:center;font-size:12.5px}
+.sliders input{width:100%;min-width:0;margin:0;accent-color:var(--chipOn);height:28px}
+.sliders output{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+#seaReset{margin-top:8px}
 @media (prefers-reduced-motion:reduce){summary.lbl::before{transition:none}}
 </style>
 </head>
@@ -86,6 +90,7 @@ details[open]>summary.lbl::before{transform:rotate(90deg)}
     <div id="place" hidden></div>
     <div><div class="lbl">Show</div><div class="chips" id="layers"></div></div>
     <div><div class="lbl">Ground</div><div class="chips" id="ground"></div></div>
+    <details id="seabox"><summary class="lbl">Land &amp; sea</summary><div class="sliders" id="sliders"></div><button class="btn small" id="seaReset" type="button">Default</button></details>
     <details id="keybox" open><summary class="lbl">Key</summary><div class="legend" id="legend"></div></details>
   </div>
 </div>
@@ -113,22 +118,46 @@ function call(m,w){return new Promise((a,b)=>{m.id=++wid;P.set(wid,[a,b]);(w||W)
 function worker(){const w=new Worker('gen-worker.js');w.onmessage=e=>{const p=P.get(e.data.id);if(!p)return;P.delete(e.data.id);e.data.err!==undefined?p[1](e.data.err):p[0](e.data.ok);};return w;}
 // ---- what's been worked out so far, by tile ----
 let LANDT=new Map(),SITET=new Map(),DET=new Map(),setsAll=new Map(),bases=[],navy=[],cvs=[],rivers=[];
+let curSeed=0;
 async function start(seed){
+  curSeed=seed;clearTimeout(seaT);
   if(W)W.terminate();if(LW&&LW!==W)LW.terminate();const g=++gen;ready=false;P.forEach(p=>p[1]('stopped'));P=new Map();
   LANDT=new Map();SITET=new Map();DET=new Map();setsAll=new Map();bases=[];navy=[];cvs=[];rivers=[];selected=null;placeEl.hidden=true;busy=0;lbusy=0;
   msg.textContent='Loading the game…';msg.hidden=false;draw();
   W=worker();LW=worker();
   W.onerror=e=>{msg.hidden=false;msg.textContent="The map couldn't be made: "+(e.message||'the game failed to load');};
-  const url=new URL('../index.html',location.href).href,lw=LW,li=call({op:'init',url,seed},lw).catch(()=>null);
-  try{info=await call({op:'init',url,seed});}
+  const url=new URL('../index.html',location.href).href,sea=seaSent(),lw=LW,li=call({op:'init',url,seed,sea},lw).catch(()=>null);
+  try{info=await call({op:'init',url,seed,sea});}
   catch(err){if(g!==gen)return;msg.hidden=false;msg.textContent="This game build can't be read by the World Generator ("+err+").";return;}
   if(g!==gen)return;
   MAPC=info.mapc||{};LABELS=info.labels||{};ready=true;msg.hidden=true;
   li.then(r=>{if(g!==gen)return;if(!r){lw.terminate();if(LW===lw)LW=W;}pump();});
   if(LW!==W)LW.ready=false;li.then(r=>{if(r&&LW===lw)lw.ready=true;});
-  seedIn.value=seed;try{history.replaceState(null,'','?seed='+seed);}catch(e){}
+  seedIn.value=seed;try{history.replaceState(null,'','?seed='+seed+seaQuery());}catch(e){}
   draw();pump();
 }
+
+// ---- Land & sea: the game's SEA_CFG (world/coast.js), the defaults leaving the world as the game makes it ----
+// (each range is as far as the start can still always be found inland with a coast in reach)
+const SEA_S=[['land','Land',-2.5,2.5,0.1,0],['size','Continent size',0.4,1.8,0.05,1],['rough','Coastline roughness',0,2.5,0.1,1],['chan','Ocean channels',0,2.5,0.1,1],['isles','Island chains',0,3,0.1,1]];
+const SEAC={},seaIn={},seaOut={};
+SEA_S.forEach(([k,,lo,hi,st,d])=>SEAC[k]=d);
+const seaFmt=(k,v)=>k==='land'?(v>0?'+':'')+v.toFixed(1):'×'+v.toFixed(k==='size'?2:1);
+function seaSent(){const o={};let any=false;SEA_S.forEach(([k,,,,,d])=>{if(SEAC[k]!==d){o[k]=SEAC[k];any=true;}});return any?o:undefined;}
+function seaQuery(){const o=seaSent();return o?Object.keys(o).map(k=>'&'+k+'='+o[k]).join(''):'';}
+function seaSet(k,v){const s=SEA_S.find(r=>r[0]===k);if(!s||!isFinite(v))return;v=Math.round(Math.max(s[2],Math.min(s[3],v))/s[4])*s[4];SEAC[k]=+v.toFixed(2);}
+let seaT=0;
+function seaRedo(){clearTimeout(seaT);seaT=setTimeout(()=>start(curSeed),250);}
+const slEl=document.getElementById('sliders');
+SEA_S.forEach(([k,name,lo,hi,st])=>{
+  const id='sea_'+k,l=document.createElement('label'),i=document.createElement('input'),o=document.createElement('output');
+  l.htmlFor=id;l.textContent=name;i.type='range';i.id=id;i.min=lo;i.max=hi;i.step=st;o.htmlFor=id;
+  i.oninput=()=>{seaSet(k,+i.value);o.textContent=seaFmt(k,SEAC[k]);};
+  i.onchange=()=>{i.oninput();seaRedo();};
+  slEl.append(l,i,o);seaIn[k]=i;seaOut[k]=o;
+});
+function seaShow(){SEA_S.forEach(([k])=>{seaIn[k].value=SEAC[k];seaOut[k].textContent=seaFmt(k,SEAC[k]);});}
+document.getElementById('seaReset').onclick=()=>{if(!seaSent())return;SEA_S.forEach(([k,,,,,d])=>SEAC[k]=d);seaShow();seaRedo();};
 
 // ---- view: centre (plots) and scale (CSS pixels a plot) ----
 let dpr=1,vw=0,vh=0,cx=0,cz=0,sc=0.9;
@@ -367,7 +396,9 @@ else if(/\/hotfix\/WorldGen/i.test(location.pathname))document.getElementById('s
 addEventListener('resize',resize);
 vw=innerWidth;vh=innerHeight;home();resize();
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
-const qs=toSeed(new URLSearchParams(location.search).get('seed')||'');
+const usp=new URLSearchParams(location.search),qs=toSeed(usp.get('seed')||'');
+SEA_S.forEach(([k])=>{if(usp.has(k))seaSet(k,parseFloat(usp.get(k)));});seaShow();
+if(seaSent())document.getElementById('seabox').open=true;
 start(qs!==null?qs:my!==null?my:(Math.random()*1e9)|0);
 })();
 </script>

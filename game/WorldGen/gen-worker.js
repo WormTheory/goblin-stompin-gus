@@ -36,8 +36,8 @@ let WSEED=1;
 self.localStorage={getItem:k=>String(k).startsWith('goblin-city-v')?JSON.stringify({seed:WSEED,edits:{},coll:{},down:[],dest:{},test:[]}):null,setItem(){},removeItem(){},key:()=>null,length:0};
 const NAMES=['settlementLat','settlementAt','settlementRaw','setName','setKind','PLACE_KIND','zoneAt','seaPlot','seaV','SEA_T','coastType','plotType1','superOf','isRiver','riversNearBox','stMatch','cvSite','portCell','capitolPlan','CELL','SET_SP','BIGP','bigCell','MAPC','TEST_GROUPS','seed'];
 let T=null;
-function loadGame(html,seed){
-  WSEED=seed;
+function loadGame(html,seed,sea){
+  WSEED=seed;self.GSG_SEA=sea||undefined;   // (the Land & sea sliders, read by the game's coast.js as it loads)
   const a=html.indexOf('three.min.js');if(a<0)throw new Error('no game script');
   const i=html.indexOf('<script>',a)+8,j=html.lastIndexOf('</script>');
   let src=html.slice(i,html.indexOf('</script>',i));
@@ -140,7 +140,7 @@ self.onmessage=async e=>{
   try{
     if(m.op==='init'){
       const t0=Date.now(),r=await fetch(m.url,{cache:'no-store'});if(!r.ok)throw new Error('game file '+r.status);
-      loadGame(await r.text(),m.seed);
+      loadGame(await r.text(),m.seed,m.sea);
       if(T.seed!==m.seed)throw new Error('seed not taken');
       const C=T.capitolPlan?T.capitolPlan():null;capitol=C;const S=C?T.settlementAt(C.ax,C.az):T.settlementLat(0,0);capKey=S?S.rx+','+S.rz:null;
       const labels={};if(T.TEST_GROUPS)for(const [,L] of T.TEST_GROUPS)for(const [k,n] of L)labels[k]=n;

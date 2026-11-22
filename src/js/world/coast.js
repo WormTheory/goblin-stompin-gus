@@ -8,11 +8,16 @@ const SEA_T=0.34,seaPlotC=new Map();
 // off the continents' edges, with the odd group further out. Never right on top of where you start, which is slid along
 // the noise to somewhere well inland with a coast in reach.
 let OCEAN_O=null,seaDeepK=0,seaIsl=false,seaCcSeed=null;const SEA_CC=new Map();
+// (the World Generator's Land & sea sliders: more or less land, continent size, coast roughness, ocean channels and
+// island chains. It sets window.GSG_SEA before loading the game; the game never does, so these are always the defaults,
+// which leave every sum exactly as it was)
+const SEA_CFG=Object.assign({land:0,size:1,rough:1,chan:1,isles:1},typeof window!=='undefined'&&window.GSG_SEA||{});
 function seaCont(fx,fz){
+  if(SEA_CFG.size!==1){fx/=SEA_CFG.size;fz/=SEA_CFG.size;}
   const wx=fx+420*gridNoise(fx,fz,1100,1201)+45*gridNoise(fx,fz,260,1223),wz=fz+420*gridNoise(fx,fz,1100,1307)+45*gridNoise(fx,fz,260,1327);
   let c=0.6*gridNoise(wx,wz,1500,1409)+0.28*gridNoise(wx,wz,600,1511)+0.12*gridNoise(wx,wz,210,1613);
-  const ch=1-Math.abs(gridNoise(wx,wz,2600,1709)+0.25*gridNoise(wx,wz,700,1733));c+=0.5*Math.max(0,ch-0.65)/0.35;
-  return Math.tanh(c*3)/Math.tanh(1.5)*0.5-0.165;   // (the -0.165: about half the world land, measured over many seeds)
+  const ch=1-Math.abs(gridNoise(wx,wz,2600,1709)+0.25*gridNoise(wx,wz,700,1733));c+=0.5*SEA_CFG.chan*Math.max(0,ch-0.65)/0.35;
+  return Math.tanh(c*3)/Math.tanh(1.5)*0.5-0.165-0.1*SEA_CFG.land;   // (the -0.165: about half the world land, measured over many seeds)
 }
 // (that's slow, and smooth over hundreds of blocks-of-32, so it's worked out once per corner of each one and blended)
 function seaContAt(ix,iz){const k=ix*100003+iz;let v=SEA_CC.get(k);if(v===undefined){if(SEA_CC.size>300000)SEA_CC.clear();v=seaCont(ix,iz);SEA_CC.set(k,v);}return v;}
@@ -28,7 +33,7 @@ function seaRaw(fx,fz){
   // (the continent's edge made steep, so the finer noises only nudge the coast in and out -- bays, headlands, coves --
   // rather than carving it into long thin fingers, lakes and specks for miles either side of it)
   seaIsl=false;
-  let v=SEA_T+c*0.9+0.16*Math.tanh(c/0.025)+0.08*gridNoise(fx,fz,150,541)+0.09*gridNoise(fx,fz,60,557)+0.045*gridNoise(fx,fz,16,313)+0.012*gridNoise(fx,fz,5,211);
+  let v=SEA_T+c*0.9+0.16*Math.tanh(c/0.025)+0.08*SEA_CFG.rough*gridNoise(fx,fz,150,541)+0.09*SEA_CFG.rough*gridNoise(fx,fz,60,557)+0.045*SEA_CFG.rough*gridNoise(fx,fz,16,313)+0.012*SEA_CFG.rough*gridNoise(fx,fz,5,211);
   if(c>0.03){
     // (island chains: spots of land strung along ridges just off the continents' edges, each island a whole round one,
     // not a stringy line; and now and then a group of them further out)
@@ -38,7 +43,7 @@ function seaRaw(fx,fz){
     const reg=Math.max(0,gridNoise(fx,fz,500,1913)-0.5)/0.5,blob=Math.max(0,gridNoise(fx,fz,22,2017)+0.25*gridNoise(fx,fz,7,2111)-0.45);
     // (a ceiling on the value rather than taken off it: between the islands the value is calm and level, so the sea bed
     // rises smoothly round each one, straight from that value (oceanDepth, with seaIsl), rather than in steps)
-    const isl=spot*arc*e*1.6+blob*reg*3.2;const f=SEA_T+(0.25-isl)*0.8;if(f<v){v=f;seaIsl=true;}}
+    const isl=spot*arc*e*1.6*SEA_CFG.isles+blob*reg*3.2*SEA_CFG.isles;const f=SEA_T+(0.25-isl)*0.8;if(f<v){v=f;seaIsl=true;}}
   seaDeepK=Math.max(0,Math.min(1,(c-0.04)/0.2));   // (how far out into an ocean basin: off the continental shelf)
   return v;
 }
@@ -47,12 +52,13 @@ function seaV(fx,fz){
   if(seaCcSeed!==seed)seaContL(0,0);
   if(!OCEAN_O){
     // the noise slid along so the start lands somewhere well inland (a natural coastline, not a moat round the start)
-    OCEAN_O=[0,0];for(let k=0;k<800;k++){const ox=(hash2(k*31+7,503)-0.5)*4000,oz=(hash2(k*17+3,911)-0.5)*4000;
+    OCEAN_O=[0,0];const NT=SEA_CFG.size!==1||SEA_CFG.land||SEA_CFG.chan!==1?4000:800;   // (the sliders' far ends can need longer)
+    for(let k=0;k<NT;k++){const ox=(hash2(k*31+7,503)-0.5)*4000*SEA_CFG.size,oz=(hash2(k*17+3,911)-0.5)*4000*SEA_CFG.size;
       // (well inland right here, but with real coast within 40 blocks-of-32 or so, in some direction)
       let ok=seaRaw(ox,oz)<SEA_T-0.08;for(let a=0;a<12&&ok;a++){const A=a*Math.PI/6;if(seaRaw(ox+Math.cos(A)*11,oz+Math.sin(A)*11)>SEA_T-0.03)ok=false;}
       if(ok){let wet=false;for(let a=0;a<24&&!wet;a++){const A=a*Math.PI/12;for(const R of [22,30,38])if(seaRaw(ox+Math.cos(A)*R,oz+Math.sin(A)*R)>SEA_T+0.03)wet=true;}ok=wet;}
       // (and on a continent, not an island off one: land still in a good few directions far off)
-      if(ok){let n=0;for(let a=0;a<24;a++){const A=a*Math.PI/12;for(const R of [250,400])if(seaRaw(ox+Math.cos(A)*R,oz+Math.sin(A)*R)<SEA_T)n++;}ok=n>=16;}
+      if(ok){let n=0;for(let a=0;a<24;a++){const A=a*Math.PI/12;for(const R of [250*SEA_CFG.size,400*SEA_CFG.size])if(seaRaw(ox+Math.cos(A)*R,oz+Math.sin(A)*R)<SEA_T)n++;}ok=n>=16;}
       if(ok){OCEAN_O=[ox,oz];break;}}}
   let v=seaRaw(fx+OCEAN_O[0],fz+OCEAN_O[1]);
   const d=Math.hypot(fx,fz);if(d<8)v-=(1-d/8)*1.5;
