@@ -66,11 +66,12 @@ function setAlive(S){
 }
 function setInfo(S){return {k:S.rx+','+S.rz,name:T.setName(S),type:S.type,kind:T.PLACE_KIND?T.PLACE_KIND[T.setKind(S)]||S.type:S.type,x:S.cx+.5,z:S.cz+.5,R:S.R};}
 let capKey=null,capitol=null;
-// ---- the overview: 256 plots a side. The land first (every other plot, from the sea's own noise: quick), then what
-// stands on it ----
-function land(tx,tz){
-  const N=256,st=2,M=N/st,x0=tx*N,z0=tz*N,a=new Uint8Array(M*M),t=T.SEA_T;
-  for(let j=0;j<M;j++)for(let i=0;i<M;i++){const v=T.seaV(x0+i*st+1,z0+j*st+1);a[j*M+i]=v>t+0.05?0:v>t?1:2;}
+// ---- the overview: the land first (from the sea's own noise: quick), then what stands on it. Land tiles come in levels:
+// level 0 is 256 plots a side sampled every other plot, and each level up is twice as far across, sampled half as finely,
+// so a whole continent's worth costs about the same as a town's when zoomed far out ----
+function land(tx,tz,L){
+  L=Math.max(0,L|0);const N=256<<L,st=2<<L,h=st>>1,M=N/st,x0=tx*N,z0=tz*N,a=new Uint8Array(M*M),t=T.SEA_T;
+  for(let j=0;j<M;j++)for(let i=0;i<M;i++){const v=T.seaV(x0+i*st+h,z0+j*st+h);a[j*M+i]=v>t+0.05?0:v>t?1:2;}
   return {land:a,M};
 }
 function coarse(tx,tz){
@@ -145,7 +146,7 @@ self.onmessage=async e=>{
       const labels={};if(T.TEST_GROUPS)for(const [,L] of T.TEST_GROUPS)for(const [k,n] of L)labels[k]=n;
       postMessage({id:m.id,ok:{seed:T.seed,mapc:T.MAPC||{},labels,cap:capKey,capitol:C,ms:Date.now()-t0}});return;}
     let r;
-    if(m.op==='land')r=land(m.tx,m.tz);
+    if(m.op==='land')r=land(m.tx,m.tz,m.L);
     else if(m.op==='coarse')r=coarse(m.tx,m.tz);
     else if(m.op==='detail')r=detail(m.tx,m.tz);
     else if(m.op==='plot')r=plot(m.px,m.pz);
