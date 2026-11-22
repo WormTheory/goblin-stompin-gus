@@ -31,6 +31,13 @@
 - The World Generator has a Height layer and Land shape sliders: more or fewer mountains, how high they get, how hilly the rest is and how many lakes there are.
 - This makes a new world again, so a saved city starts afresh.
 
+### Co-op on two screens
+
+- The Controls screen has a new Players section listing the keyboard and mouse and every controller plugged in, each lighting up as you use it. Give each one to Player 1 or Player 2, so player two can play on the keyboard and player one on a controller, or each player can have a controller of their own however they're numbered. Auto puts it back as it was.
+- Player 2 screen: Split screen, as before, or Second window, which gives player two a window of their own to put on a second monitor. In Chrome and Edge it opens full screen on the other monitor by itself, once you've allowed the game to see your screens; in other browsers drag it across and press Full screen.
+- With Second window chosen, it opens when you click Co-op, or with Open window. Close it and you're back to split screen.
+- Drawing two windows is harder work for the graphics card than split screen.
+
 ### Saves
 
 - Your game now carries on just as you left it: your score, goblins slain and everything in This rampage, the time of day, the day and season, and the weather.

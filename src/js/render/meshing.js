@@ -432,8 +432,9 @@ function regionUnmerge(rk){
 }
 function regionTouch(cx,cz){const rk=regionKey(cx,cz);regionChanged.set(rk,regClock);if(REGIONS.size)regionUnmerge(rk);}
 function regionsClear(){for(const R of REGIONS.values())for(const m of R.m){scene.remove(m);m.geometry.dispose();}REGIONS.clear();regionChanged.clear();regionQ.length=0;}
-// (the merged copy's arrays are only needed until they're on the graphics card; the chunks keep their own)
-function regDrop(){this.array=null;}
+// (the merged copy's arrays are only needed until they're on the graphics card; the chunks keep their own. Not while
+// player two has a window of their own, whose renderer uploads them again: ui/seats.js)
+function regDrop(){if(!W2.r)this.array=null;}
 function regionMerge(rk,keys){
   const byMat=new Map();
   for(const k of keys){const e=meshes.get(k);if(!e)return;for(const m of e.m){if(!m.geometry.index||!m.geometry.index.array)return;let L=byMat.get(m.material);if(!L){L=[];byMat.set(m.material,L);}L.push(m);}}

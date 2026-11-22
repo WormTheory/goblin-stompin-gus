@@ -1,7 +1,7 @@
 // ---------- Health & HUD ----------
 const readout=document.getElementById('readout'),divider=document.getElementById('divider');
 // (the hearts are pixel sprites: whole, half or empty; a little smaller in split screen)
-function renderHearts(p){const px=split==='none'?3:2,k=p.hp+':'+px;if(k===p.lastHp)return;p.lastHp=k;const h=p.ui.hearts;h.textContent='';
+function renderHearts(p){const px=split==='none'||split==='win'?3:2,k=p.hp+':'+px;if(k===p.lastHp)return;p.lastHp=k;const h=p.ui.hearts;h.textContent='';
   for(let i=0;i<10;i++){const s=document.createElement('span'),v=p.hp-i*2;s.className='hrt'+(v>=2?'':v>0?' half':' empty')+' '+sprCls(v>=2?'heart':v>0?'hearth':'hearte',px);h.append(s);}
   try{h.setAttribute('aria-label',charName(p)+' health: '+(p.hp/2)+' of 10 hearts');}catch(e){}}
 function updateHealth(p,dt){
@@ -35,15 +35,16 @@ function healthHud(p,dt){
 let split='none';
 function layout(){
   const two=P1.active&&P2.active&&!P2.net,w=innerWidth,h=innerHeight;   // (online, the other player is on a screen of their own)
-  split=two?(w>=h?'lr':'tb'):'none';
+  split=two?(w2Live()?'win':w>=h?'lr':'tb'):'none';   // ('win': player two in a window of their own, ui/seats.js)
   const set=(el,l,t,ww,hh)=>{el.style.left=l+'px';el.style.top=t+'px';el.style.width=ww+'px';el.style.height=hh+'px';};
   P1.ui.view.hidden=!P1.active;P2.ui.view.hidden=!P2.active||!!P2.net;
   if(split==='none'){set(P1.ui.view,0,0,w,h);divider.hidden=true;}
+  else if(split==='win'){set(P1.ui.view,0,0,w,h);divider.hidden=true;const W=W2.win;set(P2.ui.view,0,0,W.innerWidth,W.innerHeight);}
   else if(split==='lr'){set(P1.ui.view,0,0,w/2,h);set(P2.ui.view,w/2,0,w/2,h);set(divider,w/2-1,0,2,h);divider.hidden=false;}
   else{set(P1.ui.view,0,0,w,h/2);set(P2.ui.view,0,h/2,w,h/2);set(divider,0,h/2-1,w,2);divider.hidden=false;}
   // (which corners of the screen each view has: the score sits in player one's top left, the clock in the top right)
-  P1.ui.view.classList.add('tl');P1.ui.view.classList.toggle('tr',split!=='lr');P2.ui.view.classList.toggle('tr',split==='lr');
-  for(const p of players){p.ui.who.hidden=split==='none';if(p.ui.mini){const sz=split==='none'?160:118;p.ui.mini.style.width=p.ui.mini.style.height=sz+'px';const st=p.ui.view.style;if(st.setProperty)st.setProperty('--mm',sz+'px');}}   // (--mm: the Settlement razed card sits over the minimap)
+  P1.ui.view.classList.add('tl');P1.ui.view.classList.toggle('tr',split!=='lr');P2.ui.view.classList.toggle('tr',split==='lr');   // (in a window of its own player two's has neither: the score and clock are on player one's screen)
+  for(const p of players){p.ui.who.hidden=split==='none';if(p.ui.mini){const sz=split==='none'||split==='win'?160:118;p.ui.mini.style.width=p.ui.mini.style.height=sz+'px';const st=p.ui.view.style;if(st.setProperty)st.setProperty('--mm',sz+'px');}}   // (--mm: the Settlement razed card sits over the minimap)
 }
 function resize(){renderer.setSize(innerWidth,innerHeight,false);layout();}
 addEventListener('resize',resize);

@@ -192,7 +192,7 @@ function frame(now,bg){   // (bg: a tab in the background while online, kept goi
   hintTime-=dt;
   for(const p of act){
     if(netGuest())safe('arms',()=>gobArmsHud(p));else gobArmsHud(p);
-    const hint=p.ui.hint,grab=p===P1&&mouseNeedsClick();hint.hidden=!grab;
+    const hint=p.ui.hint,grab=p===kbP()&&mouseNeedsClick();hint.hidden=!grab;
     if(grab){const txt='Click to look around with the mouse';if(hint._s!==txt){hint._s=txt;hint.textContent=txt;}}
     // (your controls on foot: a column down the left, the same place and look as a vehicle's, which take over while
     // you're in one (drvHud), so the two never show together)
@@ -212,6 +212,7 @@ function frame(now,bg){   // (bg: a tab in the background while online, kept goi
   let views;
   safe('batDraw',batDraw);safe('fxDraw',fxDraw);
   if(split==='none'){renderer.setScissorTest(false);renderView(P1,0,0,w,h);views=[[P1,0,0,w,h]];}
+  else if(split==='win'){renderer.setScissorTest(false);renderView(P1,0,0,w,h);views=[[P1,0,0,w,h]];safe('w2',w2Render);}   // (player two in a window of their own, ui/seats.js)
   else{
     renderer.setScissorTest(true);
     if(split==='lr'){renderView(P1,0,0,w/2,h);renderView(P2,w/2,0,w/2,h);views=[[P1,0,0,w/2,h],[P2,w/2,0,w/2,h]];}

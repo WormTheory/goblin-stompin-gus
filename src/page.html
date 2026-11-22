@@ -165,6 +165,12 @@
         </div>
       </div>
       <div class="abil"><button type="button" class="tog" role="checkbox" id="camTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Camera auto-recenter</span></button></div>
+      <div class="custom seats" id="seats">
+        <h2>PLAYERS <button type="button" class="pmenu seatauto" id="seatAuto" hidden>Auto</button></h2>
+        <div id="seatRows"></div>
+        <div class="crow"><span class="clab" id="scrLab">PLAYER 2 SCREEN</span><div class="seg" role="radiogroup" aria-labelledby="scrLab" id="scrSeg"><button type="button" role="radio" data-scr="split" aria-checked="true">Split screen</button><button type="button" role="radio" data-scr="win" aria-checked="false">Second window</button></div><button type="button" class="pmenu" id="scrOpen" hidden>Open window</button></div>
+        <p class="vnote" id="scrNote" hidden></p>
+      </div>
       <div id="ctlBody"></div>
     </div>
     <div class="tabpane" id="tabCustom" role="tabpanel" hidden>

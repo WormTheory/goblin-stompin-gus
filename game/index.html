@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:617028070b6b345711411d6584883cf74ec75e72000dfa23753ab7a0211b6bdd -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:a76041466d2133df5390ba8e6de04c4a0a045520d48aa1c94d9f932956a18212 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1324,6 +1324,15 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
 .pop.mile{font-size:clamp(34px,5.5vw,64px);color:var(--yolk);text-transform:uppercase;text-shadow:3px 0 var(--ink),-3px 0 var(--ink),0 3px var(--ink),0 -3px var(--ink),3px 3px var(--ink),-3px 3px var(--ink),3px -3px var(--ink),-3px -3px var(--ink),0 7px var(--ink),3px 7px var(--ink),-3px 7px var(--ink)}
 body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 @media (prefers-reduced-motion:reduce){.combo.bump,.feed .lbl,.feed .lbl.bump{animation:none}}
+/* the Controls screen's Players section (ui/seats.js): each input with its Player 1 / Player 2 switch, lit while it's used */
+.seats h2{display:flex;align-items:center;justify-content:space-between}
+.seatauto{padding:3px 10px}
+.seatrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:5px 8px;border-radius:4px;transition:background .15s}
+.seatrow.live{background:rgba(127,209,74,.3)}
+.seatname{display:flex;flex-direction:column;font:600 13px var(--f-body);color:var(--bone)}
+.seatname small{font-weight:400;color:var(--mute)}
+.seatseg button.s1[aria-checked="true"]{background:var(--gus);color:var(--ink)}
+.seatseg button.s2[aria-checked="true"]{background:var(--pink);color:var(--ink)}
 </style>
 
 <canvas id="world"></canvas>
@@ -1485,6 +1494,12 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         </div>
       </div>
       <div class="abil"><button type="button" class="tog" role="checkbox" id="camTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Camera auto-recenter</span></button></div>
+      <div class="custom seats" id="seats">
+        <h2>PLAYERS <button type="button" class="pmenu seatauto" id="seatAuto" hidden>Auto</button></h2>
+        <div id="seatRows"></div>
+        <div class="crow"><span class="clab" id="scrLab">PLAYER 2 SCREEN</span><div class="seg" role="radiogroup" aria-labelledby="scrLab" id="scrSeg"><button type="button" role="radio" data-scr="split" aria-checked="true">Split screen</button><button type="button" role="radio" data-scr="win" aria-checked="false">Second window</button></div><button type="button" class="pmenu" id="scrOpen" hidden>Open window</button></div>
+        <p class="vnote" id="scrNote" hidden></p>
+      </div>
       <div id="ctlBody"></div>
     </div>
     <div class="tabpane" id="tabCustom" role="tabpanel" hidden>
@@ -1617,6 +1632,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <ul><li>The wilds between towns now have a climate, and with it twelve biomes: grassland, temperate forest, taiga, tundra, ice fields, desert, badlands, scrubland, savanna, rainforest, swamp and moor. Each region of them is thousands of blocks across, and you always start in grassland.</li><li>Each biome has its own ground (snow, sand over sandstone, red sand over banded clay, mud), its own trees (pines, acacias, jungle giants, drooping swamp trees, cactus and dead trees), its own ponds (frozen in the ice fields, muddy and reedy in the swamp) and its own shade of grass and leaves, in towns too.</li><li>Biomes are seen from afar, and shown on the map and the minimap.</li><li>The World Generator can show the biomes, and has Climate sliders: warmer or colder, wetter or drier, how big the climate regions are and how strongly it gets colder one way and hotter the other.</li><li>This makes a new world, so a saved city starts afresh.</li></ul>
 <h3>Mountains and lakes</h3>
 <ul><li>Out in the wilds the land now rises into hills and mountain ranges, up to about 130 blocks, with bare rock near the top, snow on the peaks (lower the colder it is) and a new Alpine biome up high.</li><li>Towns, farms, sites, roads, railways and rivers all stay on the level: the mountains rise away from them, so towns sit in valleys and rivers run along valley floors.</li><li>Roads and railways cut through the hills and tunnel under the high ground (road tunnels are lined and lit).</li><li>Lakes lie in the low, wet country, frozen over in the ice fields.</li><li>Mountains are seen from afar, and the map and minimap show the hills shaded, with the rock, snow and lakes.</li><li>The World Generator has a Height layer and Land shape sliders: more or fewer mountains, how high they get, how hilly the rest is and how many lakes there are.</li><li>This makes a new world again, so a saved city starts afresh.</li></ul>
+<h3>Co-op on two screens</h3>
+<ul><li>The Controls screen has a new Players section listing the keyboard and mouse and every controller plugged in, each lighting up as you use it. Give each one to Player 1 or Player 2, so player two can play on the keyboard and player one on a controller, or each player can have a controller of their own however they're numbered. Auto puts it back as it was.</li><li>Player 2 screen: Split screen, as before, or Second window, which gives player two a window of their own to put on a second monitor. In Chrome and Edge it opens full screen on the other monitor by itself, once you've allowed the game to see your screens; in other browsers drag it across and press Full screen.</li><li>With Second window chosen, it opens when you click Co-op, or with Open window. Close it and you're back to split screen.</li><li>Drawing two windows is harder work for the graphics card than split screen.</li></ul>
 <h3>Saves</h3>
 <ul><li>Your game now carries on just as you left it: your score, goblins slain and everything in This rampage, the time of day, the day and season, and the weather.</li><li>Each player's health and stamina are kept too, and as a goblin your weapons, ammo, grenades and landmines. Left dead, you come back at full health. Player two gets theirs back on joining.</li><li>Left in a car, tank, helicopter, plane, hot-air balloon or Mobile Gear, you're back in it, in the same seat, with the damage it had. Anything that was flying comes back on the ground below. Trains, boats and ships can't be brought back, so you start beside where you were.</li><li>New city starts all of it afresh.</li></ul>
 <h3>Playing online</h3>
@@ -2341,7 +2358,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='bfb00884c726';
+const GAME_VER='0.5',GAME_BUILD='cf42ade1dfce';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v100'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
 const WORLD_GEN=2;
@@ -10392,8 +10409,9 @@ function regionUnmerge(rk){
 }
 function regionTouch(cx,cz){const rk=regionKey(cx,cz);regionChanged.set(rk,regClock);if(REGIONS.size)regionUnmerge(rk);}
 function regionsClear(){for(const R of REGIONS.values())for(const m of R.m){scene.remove(m);m.geometry.dispose();}REGIONS.clear();regionChanged.clear();regionQ.length=0;}
-// (the merged copy's arrays are only needed until they're on the graphics card; the chunks keep their own)
-function regDrop(){this.array=null;}
+// (the merged copy's arrays are only needed until they're on the graphics card; the chunks keep their own. Not while
+// player two has a window of their own, whose renderer uploads them again: ui/seats.js)
+function regDrop(){if(!W2.r)this.array=null;}
 function regionMerge(rk,keys){
   const byMat=new Map();
   for(const k of keys){const e=meshes.get(k);if(!e)return;for(const m of e.m){if(!m.geometry.index||!m.geometry.index.array)return;let L=byMat.get(m.material);if(!L){L=[];byMat.set(m.material,L);}L.push(m);}}
@@ -29102,7 +29120,7 @@ function huntersCount(){let n=0;for(const c of cars)if(c.alive&&c.hunter)n++;ret
 // ---------- Health & HUD ----------
 const readout=document.getElementById('readout'),divider=document.getElementById('divider');
 // (the hearts are pixel sprites: whole, half or empty; a little smaller in split screen)
-function renderHearts(p){const px=split==='none'?3:2,k=p.hp+':'+px;if(k===p.lastHp)return;p.lastHp=k;const h=p.ui.hearts;h.textContent='';
+function renderHearts(p){const px=split==='none'||split==='win'?3:2,k=p.hp+':'+px;if(k===p.lastHp)return;p.lastHp=k;const h=p.ui.hearts;h.textContent='';
   for(let i=0;i<10;i++){const s=document.createElement('span'),v=p.hp-i*2;s.className='hrt'+(v>=2?'':v>0?' half':' empty')+' '+sprCls(v>=2?'heart':v>0?'hearth':'hearte',px);h.append(s);}
   try{h.setAttribute('aria-label',charName(p)+' health: '+(p.hp/2)+' of 10 hearts');}catch(e){}}
 function updateHealth(p,dt){
@@ -29136,15 +29154,16 @@ function healthHud(p,dt){
 let split='none';
 function layout(){
   const two=P1.active&&P2.active&&!P2.net,w=innerWidth,h=innerHeight;   // (online, the other player is on a screen of their own)
-  split=two?(w>=h?'lr':'tb'):'none';
+  split=two?(w2Live()?'win':w>=h?'lr':'tb'):'none';   // ('win': player two in a window of their own, ui/seats.js)
   const set=(el,l,t,ww,hh)=>{el.style.left=l+'px';el.style.top=t+'px';el.style.width=ww+'px';el.style.height=hh+'px';};
   P1.ui.view.hidden=!P1.active;P2.ui.view.hidden=!P2.active||!!P2.net;
   if(split==='none'){set(P1.ui.view,0,0,w,h);divider.hidden=true;}
+  else if(split==='win'){set(P1.ui.view,0,0,w,h);divider.hidden=true;const W=W2.win;set(P2.ui.view,0,0,W.innerWidth,W.innerHeight);}
   else if(split==='lr'){set(P1.ui.view,0,0,w/2,h);set(P2.ui.view,w/2,0,w/2,h);set(divider,w/2-1,0,2,h);divider.hidden=false;}
   else{set(P1.ui.view,0,0,w,h/2);set(P2.ui.view,0,h/2,w,h/2);set(divider,0,h/2-1,w,2);divider.hidden=false;}
   // (which corners of the screen each view has: the score sits in player one's top left, the clock in the top right)
-  P1.ui.view.classList.add('tl');P1.ui.view.classList.toggle('tr',split!=='lr');P2.ui.view.classList.toggle('tr',split==='lr');
-  for(const p of players){p.ui.who.hidden=split==='none';if(p.ui.mini){const sz=split==='none'?160:118;p.ui.mini.style.width=p.ui.mini.style.height=sz+'px';const st=p.ui.view.style;if(st.setProperty)st.setProperty('--mm',sz+'px');}}   // (--mm: the Settlement razed card sits over the minimap)
+  P1.ui.view.classList.add('tl');P1.ui.view.classList.toggle('tr',split!=='lr');P2.ui.view.classList.toggle('tr',split==='lr');   // (in a window of its own player two's has neither: the score and clock are on player one's screen)
+  for(const p of players){p.ui.who.hidden=split==='none';if(p.ui.mini){const sz=split==='none'||split==='win'?160:118;p.ui.mini.style.width=p.ui.mini.style.height=sz+'px';const st=p.ui.view.style;if(st.setProperty)st.setProperty('--mm',sz+'px');}}   // (--mm: the Settlement razed card sits over the minimap)
 }
 function resize(){renderer.setSize(innerWidth,innerHeight,false);layout();}
 addEventListener('resize',resize);
@@ -29295,21 +29314,25 @@ let atTitle=true,menuOpen=true,playing=false,begun=false,dragMode=false,downAt=n
 const pauseEl=document.getElementById('pause');
 const touchMode=matchMedia('(pointer: coarse)').matches;
 if(touchMode){document.getElementById('touch').hidden=false;dragMode=true;}
-addEventListener('keydown',e=>{
+// (the keyboard and mouse handlers are named so player two's own window, ui/seats.js, can hand them its events too; they
+// drive whoever has the keyboard, kbP(), player one unless the Controls screen gave it to player two)
+function onKeyDown(e){
   if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();
   // Esc with the game paused carries on playing (in co-op, just your own hippo), or backs out of the new-world question
   // first. (Checked before the pausing below, so the Esc that pauses in full screen doesn't also resume.) Keys that
   // something else claims for Esc never get here: the chat box, choosing a new key on Controls, the expanded Dev preview.
-  if(e.code==='Escape'&&(menuOpen||P1.paused)){if(!e.repeat&&performance.now()-pauseAt>300)escResume();return;}
-  if(menuOpen||P1.paused)return;
+  if(e.code==='Escape'&&(menuOpen||kbP().paused)){if(!e.repeat&&performance.now()-pauseAt>300)escResume();return;}
+  if(menuOpen||kbP().paused)return;
   keys.add(e.code);
   // (Esc normally reaches the page only in drag mode, since the browser keeps it to let go of the mouse. In full
   // screen the game claims Esc (see kbLock), so a tap comes here and pauses, and holding it leaves full screen.)
-  if(e.code==='Escape'&&!e.repeat&&!DT.kbdOpen&&!DT.menu)requestPause(P1);
-});
-addEventListener('keyup',e=>keys.delete(e.code));
-addEventListener('blur',()=>{keys.clear();mHeld.clear();});
-const locked=()=>document.pointerLockElement===canvas;
+  if(e.code==='Escape'&&!e.repeat&&!DT.kbdOpen&&!DT.menu)requestPause(kbP());
+}
+const onKeyUp=e=>keys.delete(e.code),onBlur=()=>{keys.clear();mHeld.clear();};
+addEventListener('keydown',onKeyDown);addEventListener('keyup',onKeyUp);addEventListener('blur',onBlur);
+// (the mouse is captured by player one's view, or by player two's own window while they have the keyboard there)
+const locked=()=>document.pointerLockElement===canvas||w2Locked();
+function unlockMouse(){try{if(document.pointerLockElement)document.exitPointerLock();}catch(e){}w2Unlock();}
 // capturing the mouse. A request the browser turns down (Chrome refuses one made within about a second of Esc
 // letting the mouse go) used to switch to click-and-drag looking for good, which left the mouse moving a cursor for
 // the rest of the session. Now only a browser that has never once given the lock (and refused three times) falls
@@ -29317,12 +29340,13 @@ const locked=()=>document.pointerLockElement===canvas;
 let lockOk=false,lockFails=0,mouseMoveT=-1e9;
 function wantLock(){
   if(dragMode||touchMode)return;
-  if(typeof canvas.requestPointerLock!=='function'){dragMode=true;return;}
-  try{const r=canvas.requestPointerLock();if(r&&r.catch)r.catch(()=>{});}catch(e){lockFailed();}
+  const cv=kbCanvas();
+  if(typeof cv.requestPointerLock!=='function'){dragMode=true;return;}
+  try{const r=cv.requestPointerLock();if(r&&r.catch)r.catch(()=>{});}catch(e){lockFailed();}
 }
 function lockFailed(){if(!lockOk&&++lockFails>=3)dragMode=true;}
 // (playing on the mouse and keyboard, but the mouse isn't captured: a click on the game will capture it)
-const mouseNeedsClick=()=>playing&&!menuOpen&&!P1.paused&&!DT.kbdOpen&&!dragMode&&!touchMode&&!locked()&&(inputKind!=='pad'||performance.now()-mouseMoveT<3000);
+const mouseNeedsClick=()=>playing&&!menuOpen&&!kbP().paused&&!DT.kbdOpen&&!dragMode&&!touchMode&&!locked()&&(inputKind!=='pad'||performance.now()-mouseMoveT<3000);
 let hintTime=0;
 function startPlay(mode,fromPad){
   if(netOn()&&P2.net)mode='net';   // (online, player two's seat is someone else's: Play just carries on)
@@ -29414,7 +29438,7 @@ document.getElementById('devLink').addEventListener('click',()=>openSub('dev','d
 addEventListener('keydown',e=>{if(!menuOpen||BIND_CAP||e.repeat)return;const t=e.target;if(t&&(t.tagName==='INPUT'&&t.type!=='range'&&t.type!=='checkbox'||t.tagName==='TEXTAREA'))return;
   if(e.code==='KeyQ'||e.code==='KeyE'){e.preventDefault();subStep(e.code==='KeyE'?1:-1);}});
 function pause(by){menuBy=by&&by.ui?by:P1;pauseAt=performance.now();SUB_FROM=null;if(curTab!=='game')showTab('game');   // (the pause menu always opens on its own buttons)
-  if(TENV)tpShow(true);menuSeat();renderChar();menuOpen=true;playing=false;menuMode();keys.clear();mHeld.clear();pauseEl.hidden=false;renderObitCount();if(curTab==='obit'){obitSel=0;renderObits();}if(curTab==='controls')renderControls();if(curTab==='map'){MAPV.cx=null;saveExplored();setTimeout(renderMap,0);}renderRampage();try{if(locked())document.exitPointerLock();}catch(e){}const pf=document.getElementById(curTab==='game'?'resumeBtn':'subBack');if(inputKind==='pad')padFocus(pf);else pf.focus();}
+  if(TENV)tpShow(true);menuSeat();renderChar();menuOpen=true;playing=false;menuMode();keys.clear();mHeld.clear();pauseEl.hidden=false;renderObitCount();if(curTab==='obit'){obitSel=0;renderObits();}if(curTab==='controls')renderControls();if(curTab==='map'){MAPV.cx=null;saveExplored();setTimeout(renderMap,0);}renderRampage();unlockMouse();const pf=document.getElementById(curTab==='game'?'resumeBtn':'subBack');if(inputKind==='pad')padFocus(pf);else pf.focus();}
 // the browser keeps Esc to let go of the mouse, so letting go is how Esc pauses. But the mouse is also let go when the
 // window loses focus (another window clicked, alt-tab) or the tab is hidden, and that mustn't pause: the game carries on
 // in the background (a host's tab hidden, say), and a click on it takes the mouse back. Alt-tab can let the mouse go
@@ -29426,7 +29450,7 @@ let blurAt=-1e9,lockLostT=null;
 function lockCalmOff(){blurAt=performance.now();if(lockLostT!==null){clearTimeout(lockLostT);lockLostT=null;}}
 addEventListener('blur',lockCalmOff);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)lockCalmOff();});
-function lockLostPause(){if(!menuOpen&&!dragMode&&!P1.paused&&!DT.kbdOpen&&!chatHasEsc()&&!locked()&&!(performance.now()-lastPadT<60000&&connectedPads().length))requestPause(P1);}
+function lockLostPause(){if(kbP()!==P1)return;if(!menuOpen&&!dragMode&&!P1.paused&&!DT.kbdOpen&&!chatHasEsc()&&!locked()&&!(performance.now()-lastPadT<60000&&connectedPads().length))requestPause(P1);}
 document.addEventListener('pointerlockchange',()=>{if(locked()){lockOk=true;lockFails=0;return;}
   if(lockLostT!==null)clearTimeout(lockLostT);const t0=performance.now();
   // (a long frame, the Testing Environment's say, can hold the window's blur back past the wait: a check that comes late
@@ -29438,12 +29462,12 @@ document.addEventListener('pointerlockchange',()=>{if(locked()){lockOk=true;lock
 const inCoop=()=>coop&&P2.active;
 function requestPause(p){if(inCoop())pausePlayer(p);else pause();}
 function pausePlayer(p){
-  p.paused=true;p.ui.ppause.hidden=false;if(p===P1)pauseAt=performance.now();
-  if(p===P1){keys.clear();mHeld.clear();try{if(locked())document.exitPointerLock();}catch(e){}p.ui.pres.focus();}
+  p.paused=true;p.ui.ppause.hidden=false;if(p===kbP())pauseAt=performance.now();
+  if(p===kbP()){keys.clear();mHeld.clear();unlockMouse();try{p.ui.pres.focus();}catch(e){}}
 }
 function resumePlayer(p,fromPad){
   p.paused=false;p.ui.ppause.hidden=true;
-  if(p===P1&&!fromPad)wantLock();
+  if(p===kbP()&&!fromPad)wantLock();
   try{if(audio&&!(DT.paused||SPEEDS[DT.speedI]===0))audio.resume();}catch(e){}
 }
 function escResume(){
@@ -29458,7 +29482,7 @@ function escResume(){
     if(curTab!=='game'){backHome();return;}   // (a screen opened from the menu: back to the menu first)
     if(atTitle||!begun)return;   // (the title screen: nothing to go back to)
     startPlay(null);   // (as the controller's Start: same players as before, and the mouse is captured again)
-  }else if(P1.paused&&!DT.kbdOpen)resumePlayer(P1,false);
+  }else if(kbP().paused&&!DT.kbdOpen)resumePlayer(kbP(),false);
 }
 for(const p of players){p.ui.pres.addEventListener('click',()=>resumePlayer(p,false));p.ui.pmenu.addEventListener('click',()=>pause(p));}
 document.addEventListener('pointerlockerror',lockFailed);
@@ -29477,24 +29501,25 @@ function look(p,dx,dy,k){
   p.cam.yaw-=dx*k;
   p.cam.pitch=camPitch(p.cam.pitch-dy*k,p);
 }
-canvas.addEventListener('contextmenu',e=>e.preventDefault());
-canvas.addEventListener('mousedown',e=>{
-  if(menuOpen||P1.paused||DT.kbdOpen)return;
+function onCanvasDown(e){
+  if(menuOpen||kbP().paused||DT.kbdOpen)return;
   const code='Mouse'+e.button;if(e.button===1)e.preventDefault();   // (middle click: no scrolling the page)
   if(e.button===2){mHeld.add(code);mTap.add(code);if(!locked()&&dragMode&&!touchMode)downAt={x:e.clientX,y:e.clientY,b:2,moved:false};return;}
   if(locked()){mHeld.add(code);mTap.add(code);}
   else if(dragMode&&!touchMode)downAt={x:e.clientX,y:e.clientY,b:e.button,moved:false};
   else wantLock();
-});
+}
 // (the wheel's notches, up or down, are presses like a button's, for one frame: Gnash's previous and next weapon)
-canvas.addEventListener('wheel',e=>{if(menuOpen||P1.paused||DT.kbdOpen||!e.deltaY)return;e.preventDefault();mTap.add(e.deltaY<0?'MouseWheelUp':'MouseWheelDown');},{passive:false});
-addEventListener('mouseup',e=>{const code='Mouse'+e.button;mHeld.delete(code);if(e.button===2){downAt=null;return;}if(downAt&&!downAt.moved&&!menuOpen&&!P1.paused)mTap.add(code);downAt=null;});
-addEventListener('mousemove',e=>{
-  if(menuOpen||P1.paused||DT.kbdOpen)return;
+function onWheel(e){if(menuOpen||kbP().paused||DT.kbdOpen||!e.deltaY)return;e.preventDefault();mTap.add(e.deltaY<0?'MouseWheelUp':'MouseWheelDown');}
+function onMouseUp(e){const code='Mouse'+e.button;mHeld.delete(code);if(e.button===2){downAt=null;return;}if(downAt&&!downAt.moved&&!menuOpen&&!kbP().paused)mTap.add(code);downAt=null;}
+function onMouseMove(e){
+  if(menuOpen||kbP().paused||DT.kbdOpen)return;
   if(!locked()&&(e.movementX||e.movementY))mouseMoveT=performance.now();
-  if(locked())look(P1,e.movementX,e.movementY,0.0024);
-  else if(downAt){if(Math.abs(e.clientX-downAt.x)+Math.abs(e.clientY-downAt.y)>5)downAt.moved=true;if(downAt.moved)look(P1,e.movementX,e.movementY,0.005);}
-});
+  if(locked())look(kbP(),e.movementX,e.movementY,0.0024);
+  else if(downAt){if(Math.abs(e.clientX-downAt.x)+Math.abs(e.clientY-downAt.y)>5)downAt.moved=true;if(downAt.moved)look(kbP(),e.movementX,e.movementY,0.005);}
+}
+canvas.addEventListener('contextmenu',e=>e.preventDefault());canvas.addEventListener('mousedown',onCanvasDown);canvas.addEventListener('wheel',onWheel,{passive:false});
+addEventListener('mouseup',onMouseUp);addEventListener('mousemove',onMouseMove);
 let tId=null,tX=0,tY=0;
 canvas.addEventListener('touchstart',e=>{if(!playing)return;const t=e.changedTouches[0];tId=t.identifier;tX=t.clientX;tY=t.clientY;},{passive:true});
 canvas.addEventListener('touchmove',e=>{for(const t of e.changedTouches)if(t.identifier===tId){look(P1,t.clientX-tX,t.clientY-tY,0.006);tX=t.clientX;tY=t.clientY;}},{passive:true});
@@ -29511,7 +29536,9 @@ document.getElementById('tMenu').addEventListener('click',()=>pause(P1));
 // ---------- Gamepads ----------
 const padPrev=new Map();let padCount=-1;
 const DZ=0.18,dead=v=>Math.abs(v)<DZ?0:(v-Math.sign(v)*DZ)/(1-DZ);
-function connectedPads(){let ps=[];try{ps=navigator.getGamepads?Array.from(navigator.getGamepads()):[];}catch(e){}return ps.filter(p=>p&&p.connected).sort((a,b)=>a.index-b.index);}
+// (with player two's own window open, either window may be the one with focus, and a browser may only tell the focused one
+// about its controllers: both are asked and the fresher reading of each controller taken, w2Pads in ui/seats.js)
+function connectedPads(){let ps=[];try{ps=navigator.getGamepads?Array.from(navigator.getGamepads()):[];}catch(e){}ps=w2Pads(ps);return ps.filter(p=>p&&p.connected).sort((a,b)=>a.index-b.index);}
 function rumble(p,s,ms){try{const pad=p&&p.pad;if(pad&&pad.vibrationActuator)pad.vibrationActuator.playEffect('dual-rumble',{duration:ms,strongMagnitude:Math.min(1,s),weakMagnitude:Math.min(1,s*0.6)});}catch(e){}}
 // in a vehicle, its own controls (its control context, ctx in VEHICLE_KINDS) take the place of the ones on foot: those
 // the vehicle reads under their old names (as: a car's horn is still bite) are filled from it, the rest left off
@@ -29529,11 +29556,13 @@ function readInputs(dt){
   const st=pads.map(p=>{const prev=padPrev.get(p.index)||[];const b=p.buttons.map(x=>!!(x&&(x.pressed||x.value>0.5)));return{p,b,pr:b.map((v,i)=>v&&!prev[i])};});
   for(const s of st)if(s.pr.some(Boolean)||s.p.axes.some(a=>Math.abs(a)>0.5)){noteInput('pad',s.p);break;}
   for(const s of st)padPrev.set(s.p.index,s.b);
-  P1.pad=null;P2.pad=null;let s1=null,s2=null;
-  if(coop&&P2.active){if(st.length>=2){s1=st[0];s2=st[1];}else s2=st[0]||null;}
-  else{s1=st[0]||null;s2=st[1]||null;}
+  // which controllers are whose (padSeats, ui/seats.js: as the Controls screen's Players section has them, or the old
+  // rule: alone, the first is yours and the second joins; in co-op the first two are one each, or a lone one is player two's)
+  P1.pad=null;P2.pad=null;const PS=padSeats(st.map(s=>s.p)),S1=st.filter(s=>PS.get(s.p.index)===1),S2=st.filter(s=>PS.get(s.p.index)===2);
+  let s1=S1[0]||null,s2=S2[0]||null;
+  seatsSeen(st);
   if(s1)P1.pad=s1.p;if(s2&&P2.active&&!P2.net)P2.pad=s2.p;
-  P2.ui.join.hidden=!(P2.active&&!P2.pad);
+  P2.ui.join.hidden=!(P2.active&&!P2.pad&&kbP()!==P2);
   for(const p of players){const i=p.in;i.x=0;i.z=0;i.charge=false;i.chargePress=false;i.stomp=false;i.bite=false;i.bitePress=false;i.jumpPress=false;i.jump=false;i.lockPress=false;i.dash=false;i.dashPress=false;i.sprint=false;i.sprintPress=false;i.lookX=0;i.lookY=0;i.climb=false;i.use=false;i.weapon=false;i.weaponPrev=false;i.reload=false;i.talk=false;i.kbd=false;i.rt=i.lt=0;for(const k of CTX_IDS)i[k]=i[k+'P']=false;}
   // (rebinding a control in the menu: the next button pressed on any controller is the one)
   if(menuOpen&&BIND_CAP){if(performance.now()-BIND_CAP.t>200)for(const s of st){const i=s.pr.findIndex(Boolean);if(i<0)continue;
@@ -29541,7 +29570,7 @@ function readInputs(dt){
     mTap.clear();return;}
   if(menuOpen){
     // (split screen: the menu answers only the controller of whoever opened it)
-    const mine=!inCoop()||!menuBy?st:st.filter(s=>menuBy===P2?s.p===P2.pad:s.p!==P2.pad||!P2.pad);
+    const mine=!inCoop()||!menuBy?st:st.filter(s=>menuBy===P2?S2.includes(s):!S2.includes(s)||!S2.length);
     menuPad(mine,dt);mTap.clear();return;}
   // the debug quick menu: Select on any controller opens it and Select (or B) closes it again; ~ does the same on the
   // keyboard. The game is paused meanwhile, and the controllers drive the menu instead of the hippos. It's one menu
@@ -29549,13 +29578,13 @@ function readInputs(dt){
   // the last used in it (its button prompts, and the right stick turning the camera), DT.kbdOpen the keyboard (the
   // mouse pointer let go, to click)
   if(!DT.quick)DT.selHeld=false;
-  else for(const s of st){const open=DT.selHeld||DT.kbdOpen;if(inCoop()&&P2.pad&&s.p===P2.pad&&!open)continue;   // (player two can't open the debug menu: it's player one's, as the Dev tab is)
+  else for(const s of st){const open=DT.selHeld||DT.kbdOpen;if(inCoop()&&S2.includes(s)&&!open)continue;   // (player two can't open the debug menu: it's player one's, as the Dev tab is)
     if(s.pr[8]){if(open)setKbdMenu(false);else DT.selHeld=true;}
     else if(open&&s.pr[1]){DT.selHeld=true;if(DT.edit){DT.edit=null;renderTime();}else if(DT.dd){DT.dd=null;renderTime();}else setKbdMenu(false);}}
   const wasOpen=DT.menu;DT.menu=DT.quick&&(DT.selHeld||DT.kbdOpen);if(!DT.menu){DT.dd=null;DT.edit=null;}
   if(DT.menu){
     let dy=0,dx=0,used=false;
-    for(const s of st){if(inCoop()&&P2.pad&&s.p===P2.pad)continue;const ax=s.p.axes,lx=ax[0]||0,ly=ax[1]||0;
+    for(const s of st){if(inCoop()&&S2.includes(s))continue;const ax=s.p.axes,lx=ax[0]||0,ly=ax[1]||0;
       if(ly<-0.55||s.b[12])dy=-1;else if(ly>0.55||s.b[13])dy=1;
       if(lx<-0.55||s.b[14])dx=-1;else if(lx>0.55||s.b[15])dx=1;
       if(s.pr[0]){used=true;dbgMenuToggle();}if(s.pr[4]||s.pr[5]){used=true;dbgTab(DT.tab?0:1);}}
@@ -29580,11 +29609,11 @@ function readInputs(dt){
   }
   if(menuOpen){mTap.clear();return;}
   if(!P2.active&&!netOn()&&s2&&(s2.pr[9]||s2.pr[0])){coop=true;activateP2();P2.pad=s2.p;skip.add(P2);}
-  const I=P1.in;
-  if(!P1.paused){
+  const KP=kbP(),I=KP.in;
+  if(!KP.paused){
     const A={};for(const a of ACTS){const h=kbAct(a.id);A[a.id]=h;A[a.id+'P']=h&&!kbPrevA[a.id];kbPrevA[a.id]=h;}
     I.z+=(A.back?1:0)-(A.fwd?1:0);I.x+=(A.right?1:0)-(A.left?1:0);
-    I.kbd=!P1.pad;   // (flying on the keyboard: a plane is flown WASD-style, see drvPlane; the same rule as the hints' p.pad)
+    I.kbd=!KP.pad;   // (flying on the keyboard: a plane is flown WASD-style, see drvPlane; the same rule as the hints' p.pad)
     I.charge=A.dashSprint;I.chargePress=A.dashSprintP;I.dash=A.dash;I.dashPress=A.dashP;I.sprint=A.sprint;I.sprintPress=A.sprintP;
     I.stomp=A.stomp;I.jumpPress=A.jumpP;I.jump=A.jump;I.lockPress=A.lockP;I.climb=A.climb;I.bite=A.bite;I.bitePress=A.biteP;I.use=A.use;I.weapon=A.weapon;I.weaponPrev=A.weaponPrev;I.reload=A.reload;I.talk=A.talk;
     for(const k of CTX_IDS){I[k]=A[k];I[k+'P']=A[k+'P'];}
@@ -29612,13 +29641,15 @@ function readInputs(dt){
     i.talk=i.talk||pb('talk');
     for(const k of CTX_IDS){if(pb(k))i[k]=true;if(pp(k))i[k+'P']=true;}
     // (the triggers, as far as they're pulled: a vehicle's analog throttle and brake)
-    {const tv=k=>{const x=s.p.buttons[k];return x?Math.max(0,Math.min(1,+x.value||(x.pressed?1:0))):0;};i.rt=tv(7);i.lt=tv(6);}
+    {const tv=k=>{const x=s.p.buttons[k];return x?Math.max(0,Math.min(1,+x.value||(x.pressed?1:0))):0;};i.rt=Math.max(i.rt||0,tv(7));i.lt=Math.max(i.lt||0,tv(6));}
   };
   if(DT.menu){const I=P1.in;for(const k in I)if(typeof I[k]==='boolean')I[k]=false;I.x=I.z=0;}
   // (online chat: the controller's quick messages take it over while their list is up, and while a line's being typed
   // or picked player one stands still, so the keys typed never walk them off)
   if(s1&&chatPad(s1))s1=null;
-  apply(P1,s1);if(P2.active&&!P2.net)apply(P2,s2);
+  // (every controller a player has counts: a second one of player one's adds to the first, as the keyboard does)
+  apply(P1,s1);if(s1)for(const s of S1)if(s!==s1)apply(P1,s);
+  if(P2.active&&!P2.net){apply(P2,s2);if(s2)for(const s of S2)if(s!==s2)apply(P2,s);}
   for(const p of players)if(!p.net)ctxApply(p);
   if(CHAT.open||CHAT.quick){const I=P1.in;for(const k in I)if(typeof I[k]==='boolean')I[k]=false;I.x=I.z=0;I.lookX=I.lookY=0;}
   for(const p of players)p.in.chargeHeld=p.in.charge;
@@ -29626,6 +29657,185 @@ function readInputs(dt){
   for(const p of players)if(!abilOf(p).climb)p.in.climb=false;   // (each player's own switch)
 }
 
+// ---------- Who plays on what, and player two's own window ----------
+// The Controls screen's Players section lists every input it has seen (the keyboard and mouse, and each controller) with
+// a Player 1 / Player 2 switch on each. Left alone it's Auto, the old rule: playing alone the first controller is yours and
+// the second joins with Start; in co-op the first two are one each, or a lone controller is player two's and the keyboard
+// player one's. Touching a switch makes it Manual (kept in this browser, INMAP), and Auto puts it back. The seats only
+// count while both are playing here: alone, the keyboard is always yours, and a controller set to player two is the one
+// that joins.
+const INMAP_KEY='goblin-stompin-gus-inputs';
+const INMAP={auto:true,kb:1,pad:{}};
+try{const o=JSON.parse(localStorage.getItem(INMAP_KEY)||'null');
+  if(o&&typeof o==='object'){INMAP.auto=o.auto!==false;INMAP.kb=o.kb===2?2:1;if(o.pad&&typeof o.pad==='object')for(const k in o.pad)if(o.pad[k]===1||o.pad[k]===2)INMAP.pad[k]=o.pad[k];}}catch(e){}
+function inmapSave(){try{localStorage.setItem(INMAP_KEY,JSON.stringify(INMAP));}catch(e){}}
+function twoHere(){return !!(P2.active&&!P2.net);}
+// (pad index -> 1, 2, or 0 for nobody's: Auto leaves a third controller and more out, as before)
+function padSeats(pads){const m=new Map();
+  if(INMAP.auto){if(twoHere()&&pads.length===1)m.set(pads[0].index,2);else pads.forEach((p,i)=>m.set(p.index,i<2?i+1:0));return m;}
+  for(const p of pads){let v=INMAP.pad[p.index];
+    // (a controller first seen in Manual goes to player two if nothing else is theirs yet, so it can join)
+    if(v!==1&&v!==2){v=INMAP.kb===2||pads.some(q=>INMAP.pad[q.index]===2)?1:2;INMAP.pad[p.index]=v;inmapSave();}
+    m.set(p.index,v);}
+  return m;}
+function kbP(){return !INMAP.auto&&INMAP.kb===2&&twoHere()?P2:P1;}
+function kbCanvas(){return kbP()===P2&&w2Live()?W2.cv:canvas;}
+// (a switch touched: Auto's answer for everything connected becomes Manual's starting point, then the one change)
+function inmapSet(k,seat){
+  if(INMAP.auto){const ps=connectedPads(),m=padSeats(ps);INMAP.auto=false;INMAP.kb=1;INMAP.pad={};for(const p of ps)INMAP.pad[p.index]=m.get(p.index)===2?2:1;}
+  if(k==='kb')INMAP.kb=seat;else INMAP.pad[k]=seat;
+  inmapSave();seatsRender();
+}
+// (when each input was last used, to light up its row: pressing something finds it in the list)
+const SEAT={kbT:-1e9,padT:new Map(),sig:''};
+function seatKb(){SEAT.kbT=performance.now();}
+addEventListener('keydown',seatKb);addEventListener('mousedown',seatKb);
+const padName=p=>String(p.id||'Controller').replace(/\s*\(.*$/,'').replace(/^[0-9a-f]{4}-[0-9a-f]{4}-/i,'').trim()||'Controller';
+function seatsRender(){
+  const box=document.getElementById('seatRows');if(!box)return;
+  const ps=connectedPads(),m=padSeats(ps),kb=INMAP.auto?1:INMAP.kb;
+  const seg=(k,v,lab)=>`<div class="seg seatseg" role="radiogroup" aria-label="${lab}">${[1,2].map(n=>`<button type="button" role="radio" class="s${n}" data-in="${k}" data-seat="${n}" aria-checked="${v===n}">Player ${n}</button>`).join('')}</div>`;
+  let h=`<div class="seatrow" data-in="kb"><span class="seatname">Keyboard &amp; mouse</span>${seg('kb',kb,'Keyboard and mouse')}</div>`;
+  for(const p of ps){const nm=padName(p);h+=`<div class="seatrow" data-in="${p.index}"><span class="seatname">Controller ${p.index+1}<small>${nm.replace(/[<&>"]/g,'')}</small></span>${seg(p.index,m.get(p.index)||0,'Controller '+(p.index+1))}</div>`;}
+  const keep=document.activeElement&&box.contains(document.activeElement)?[document.activeElement.dataset.in,document.activeElement.dataset.seat]:null;
+  box.innerHTML=h;
+  if(keep){const b=box.querySelector(`button[data-in="${keep[0]}"][data-seat="${keep[1]}"]`);if(b){if(inputKind==='pad')padFocus(b);else b.focus({preventScroll:true});}}
+  const au=document.getElementById('seatAuto');if(au)au.hidden=INMAP.auto;
+  w2Show();
+}
+document.getElementById('seatRows').addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('button[data-seat]');if(!b)return;inmapSet(b.dataset.in==='kb'?'kb':+b.dataset.in,+b.dataset.seat);});
+document.getElementById('seatAuto').addEventListener('click',()=>{INMAP.auto=true;inmapSave();seatsRender();const r=document.querySelector('#seatRows button');if(r){if(inputKind==='pad')padFocus(r);else r.focus({preventScroll:true});}});
+// (every frame, from readInputs: notes which controllers were used, redraws the list when they come or go, and checks on
+// player two's window)
+function seatsSeen(st){
+  const now=performance.now();
+  for(const s of st)if(s.b.some(Boolean)||s.p.axes.some(a=>Math.abs(a)>0.5))SEAT.padT.set(s.p.index,now);
+  w2Check();
+  const pane=document.getElementById('tabControls');if(!menuOpen||!pane||pane.hidden)return;
+  const sig=st.map(s=>s.p.index+':'+s.p.id).join('|')+'/'+JSON.stringify(INMAP)+(twoHere()?'2':'1')+(W2.win?'w':'');
+  if(sig!==SEAT.sig){SEAT.sig=sig;seatsRender();}
+  for(const r of document.querySelectorAll('#seatRows .seatrow')){const k=r.dataset.in,t=k==='kb'?SEAT.kbT:SEAT.padT.get(+k)||-1e9;r.classList.toggle('live',now-t<350);}
+}
+
+// Player two's own window: the Controls screen's Player 2 screen lets player two play in a second window (meant for a second monitor) instead of on half
+// of this one. It's an empty page opened from here and written into, with a canvas and player two's HUD (P2.ui.view, moved
+// across) and a renderer of its own (W2.r), drawing the same scene from P2's camera (renderView's R): the same game, so
+// nothing's sent between them, but the graphics card holds everything twice. Where the browser has the Window Management
+// API (Chrome, Edge) and it's allowed, the window opens full screen on the other monitor; elsewhere it opens beside, to be
+// dragged across, with a full-screen button. Both windows' keys and mouse go to the same handlers, and controllers are read
+// through both (w2Pads), since a browser may only tell the window with focus about them.
+const W2_KEY='goblin-stompin-gus-screen2';
+const W2={mode:'split',win:null,cv:null,r:null,hud:null,fs:null,idle:null,ok:false,w:0,h:0,pr:0,cls:null,ui:null,uiOff:null,flt:null,blocked:false};
+try{W2.mode=localStorage.getItem(W2_KEY)==='win'?'win':'split';}catch(e){}
+try{navigator.permissions.query({name:'window-management'}).then(st=>{W2.ok=st.state==='granted';st.onchange=()=>{W2.ok=st.state==='granted';};}).catch(()=>{});}catch(e){}
+function w2Open_(){return !!(W2.win&&!W2.win.closed);}
+function w2Live(){return !!(W2.r&&w2Open_()&&twoHere());}
+function w2Locked(){try{return !!(w2Open_()&&W2.cv&&W2.win.document.pointerLockElement===W2.cv);}catch(e){return false;}}
+function w2Unlock(){try{if(w2Open_()&&W2.win.document.pointerLockElement)W2.win.document.exitPointerLock();}catch(e){}}
+function w2Pads(ps){
+  if(!w2Open_())return ps;let q=[],dt=0;
+  try{q=Array.from(W2.win.navigator.getGamepads());dt=W2.win.performance.timeOrigin-performance.timeOrigin;}catch(e){return ps;}
+  const out=ps.slice();
+  for(const p of q){if(!p||!p.connected)continue;const o=out[p.index];if(!o||!o.connected||p.timestamp+dt>o.timestamp)out[p.index]=p;}
+  return out;
+}
+// (the other monitor, if the browser will say: getScreenDetails asks permission the first time)
+async function w2Screen(){if(!('getScreenDetails' in window))return null;
+  try{const d=await window.getScreenDetails();W2.ok=true;return d.screens.find(s=>s!==d.currentScreen)||null;}catch(e){return null;}}
+async function w2Open(){
+  if(w2Open_()){try{W2.win.focus();}catch(e){}return;}
+  // (already allowed: ask for the screens first and open straight on to the other one, full screen. Otherwise open now,
+  // while the click still counts, and move it across once the browser's been asked)
+  let sc=W2.ok?await w2Screen():null;
+  const f=sc?`popup,fullscreen,left=${sc.availLeft},top=${sc.availTop},width=${sc.availWidth},height=${sc.availHeight}`:'popup,width=960,height=540';
+  let w=null;try{w=window.open('','gsg-player2',f);}catch(e){}
+  W2.blocked=!w;
+  if(!w){seatsRender();return;}
+  if(!w2Setup(w)){try{w.close();}catch(e){}seatsRender();return;}
+  if(!sc){sc=await w2Screen();if(sc&&w2Open_())try{w.moveTo(sc.availLeft,sc.availTop);w.resizeTo(sc.availWidth,sc.availHeight);}catch(e){}}
+  // (the keyboard stays here unless it's player two's)
+  setTimeout(()=>{if(kbP()===P1)try{window.focus();}catch(e){}},400);
+  seatsRender();
+}
+function w2Setup(w){
+  let d;try{d=w.document;d.open();d.write('<!doctype html><html><head><meta charset="utf-8"><title>Goblin-Stompin\' Gus</title></head><body></body></html>');d.close();}catch(e){return false;}
+  for(const el of document.querySelectorAll('style,link[rel="stylesheet"]')){const c=d.importNode(el,true);if(el.id==='uiOff')W2.uiOff=c;c.removeAttribute('id');d.head.append(c);}
+  const own=d.createElement('style');
+  own.textContent='html,body{margin:0;height:100%;overflow:hidden;background:#0c0f14}canvas.w2cv{position:fixed;inset:0;width:100%;height:100%;display:block}'+
+    '.w2fs{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:60;pointer-events:auto;font:400 20px/1 var(--f-px);letter-spacing:.5px;text-transform:uppercase;color:var(--ink);background:var(--bone);padding:8px 14px 6px;border:3px solid var(--ink);border-radius:var(--wobs);box-shadow:3px 3px 0 var(--ink);cursor:pointer}'+
+    '.w2idle{position:fixed;inset:0;display:grid;place-items:center;font:400 64px/1 var(--f-px);letter-spacing:2px;text-transform:uppercase;color:var(--pink);text-shadow:4px 4px 0 var(--ink)}';
+  d.head.append(own);
+  const cv=d.createElement('canvas');cv.className='w2cv';
+  const hud=d.createElement('div');hud.className='hud';
+  const idle=d.createElement('div');idle.className='w2idle';
+  const fs=d.createElement('button');fs.type='button';fs.className='w2fs';fs.textContent='Full screen';
+  fs.addEventListener('click',()=>{try{const r=d.documentElement.requestFullscreen();if(r&&r.catch)r.catch(()=>{});}catch(e){}});
+  d.body.append(cv,idle,hud,fs);
+  // (three.js tells WebGL2 from WebGL1 by instanceof, against this window's WebGL2RenderingContext, and a context from the
+  // other window's canvas is the other window's kind: lent theirs while it looks, it gets WebGL2 as the first window does)
+  let r;const G2=window.WebGL2RenderingContext;
+  try{if(w.WebGL2RenderingContext)window.WebGL2RenderingContext=w.WebGL2RenderingContext;r=new THREE.WebGLRenderer({canvas:cv,antialias:false});}catch(e){return false;}
+  finally{window.WebGL2RenderingContext=G2;}
+  if(!r||typeof r.render!=='function')return false;
+  r.localClippingEnabled=true;
+  Object.assign(W2,{win:w,cv,r,hud,fs,idle,w:0,h:0,pr:0,cls:null,flt:null});
+  hud.append(P2.ui.view);
+  // (this window's keys and mouse drive the game as the first window's do: whoever has the keyboard, kbP)
+  w.addEventListener('keydown',e=>{seatKb();onKeyDown(e);});w.addEventListener('keyup',onKeyUp);w.addEventListener('blur',onBlur);
+  w.addEventListener('mousemove',onMouseMove);w.addEventListener('mouseup',onMouseUp);w.addEventListener('mousedown',seatKb);
+  cv.addEventListener('mousedown',onCanvasDown);cv.addEventListener('wheel',onWheel,{passive:false});cv.addEventListener('contextmenu',e=>e.preventDefault());
+  // (Esc lets the mouse go: that pauses player two, if it's theirs and this window still has focus)
+  d.addEventListener('pointerlockchange',()=>{if(w2Locked()){lockOk=true;return;}
+    try{if(kbP()===P2&&playing&&!menuOpen&&!P2.paused&&!dragMode&&d.hasFocus())requestPause(P2);}catch(e){}});
+  w.addEventListener('pagehide',()=>setTimeout(w2Check,0));
+  try{regionsClear();}catch(e){}   // (merged far chunks have let their arrays go once drawn: made again, they keep them, regDrop)
+  try{r.compile(scene,P2.camera);}catch(e){}   // (its own copy of every program now, not mid-game: warmShaders)
+  w2Sync();layout();
+  return true;
+}
+// (the window shut, from either side: player two's HUD comes home and it's split screen again)
+function w2Close(){
+  if(!W2.r&&!W2.win)return;
+  const hud=document.getElementById('hud');if(hud)hud.insertBefore(P2.ui.view,hud.firstChild);
+  try{W2.r.dispose();}catch(e){}
+  try{if(W2.win&&!W2.win.closed)W2.win.close();}catch(e){}
+  Object.assign(W2,{win:null,cv:null,r:null,hud:null,fs:null,idle:null,uiOff:null});
+  layout();seatsRender();
+}
+function w2Check(){if((W2.win||W2.r)&&!w2Open_())w2Close();else w2Sync();}
+addEventListener('pagehide',()=>{try{if(w2Open_())W2.win.close();}catch(e){}});
+// (what the first window's page carries that the picture and HUD answer to: the brightness, the Interface switches, the body's classes)
+function w2Sync(){
+  if(!w2Open_())return;const d=W2.win.document;
+  const f=canvas.style.filter||'';if(f!==W2.flt){W2.flt=f;W2.cv.style.filter=f;}
+  const c=document.body.className;if(c!==W2.cls){W2.cls=c;d.body.className=c;}
+  const u=document.getElementById('uiOff');if(u&&W2.uiOff&&u.textContent!==W2.uiOff.textContent)W2.uiOff.textContent=u.textContent;
+  const live=twoHere();W2.idle.hidden=live;if(!live&&W2.idle.textContent!==charName(P2))W2.idle.textContent=charName(P2);
+  W2.fs.hidden=!!d.fullscreenElement||w2Locked();
+}
+function w2Render(){
+  if(!w2Live())return;const W=W2.win,w=W.innerWidth,h=W.innerHeight;if(w<2||h<2)return;
+  const pr=Math.min(W.devicePixelRatio||1,1.5);
+  if(pr!==W2.pr){W2.pr=pr;W2.r.setPixelRatio(pr);W2.w=0;}
+  if(w!==W2.w||h!==W2.h){W2.w=w;W2.h=h;W2.r.setSize(w,h,false);layout();}
+  W2.r.setScissorTest(false);renderView(P2,0,0,w,h,W2.r);
+}
+// (Player 2 screen: player two on half this screen or in a window of their own)
+function w2Show(){
+  const seg=document.getElementById('scrSeg');if(!seg)return;
+  for(const b of seg.querySelectorAll('button'))b.setAttribute('aria-checked',String(b.dataset.scr===W2.mode));
+  const op=document.getElementById('scrOpen');if(op)op.hidden=W2.mode!=='win'||w2Open_();
+  const n=document.getElementById('scrNote');if(n){n.hidden=!(W2.mode==='win'&&W2.blocked&&!w2Open_());n.textContent='The browser blocked the window: allow pop-ups for this page.';}
+}
+document.getElementById('scrSeg').addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('button[data-scr]');if(!b)return;
+  W2.mode=b.dataset.scr==='win'?'win':'split';try{localStorage.setItem(W2_KEY,W2.mode);}catch(err){}
+  if(W2.mode==='split')w2Close();else if(twoHere()&&!w2Open_())w2Open();
+  w2Show();});
+document.getElementById('scrOpen').addEventListener('click',()=>w2Open());
+// (Co-op, clicked, with Second window chosen: the window opens with it. A controller's press can't open one, so a pad that
+// starts co-op plays in split screen until Open window is clicked)
+{const s0=startPlay;startPlay=function startPlay(mode,fromPad){if(mode==='coop'&&W2.mode==='win'&&!fromPad&&!netOn()&&!w2Open_())w2Open();s0(mode,fromPad);};}
+seatsRender();
 // ---------- This rampage: the pause menu's stats card ----------
 // Beside the pause menu's buttons: goblins slain, score, the best combo, vehicles destroyed (any kind, wrecked by a player, not
 // by accident), buildings demolished (each brought down by a player once, however many times it gives way: rampBldg),
@@ -30029,7 +30239,7 @@ function drawDbgOverlay(dt,views){
     x.restore();
   }
 }
-function renderView(p,x,y,w,h){
+function renderView(p,x,y,w,h,R=renderer){   // (R: player two's own window draws with a renderer of its own, ui/seats.js)
   const c=p.camera.position,under=get(c.x,c.y,c.z)===WATER;
   p.ui.tint.hidden=!under;
   const far=lodFar();
@@ -30045,14 +30255,14 @@ function renderView(p,x,y,w,h){
   placePrecip(c,p.idx);
   p.camera.aspect=w/h;p.camera.fov=p.tkFov||(p.gob&&!p.drv&&p.scFov)||72-6*(p.speedFx||0)-8*(p.windZoom||0)+(p.drv&&p.drv.k==='mech'?p.mgFov||0:0);   // (tkFov: a tank's gunsight, tank-handling.js)
   p.camera.far=far+40;p.camera.near=p.gob?0.12:0.25;p.camera.updateProjectionMatrix();
-  renderer.setViewport(x,y,w,h);renderer.setScissor(x,y,w,h);
+  R.setViewport(x,y,w,h);R.setScissor(x,y,w,h);
   sky.position.copy(p.camera.position);
   if(p.lockMark&&p.lockMark.visible)p.lockMark.quaternion.copy(p.camera.quaternion);
   // the sky's horizon goes where the world's edge appears: bent down, the top of the curve (or the end of the view, if
   // that comes first); bent up, the rim of the bowl. Measured from where it'd sit with the world flat
   {const k=CURVE_U.value,hh=Math.max(0.5,c.y-(G+1)),F=Math.max(60,far);let sl=-(hh/F+k*F);if(k>0&&Math.sqrt(hh/k)<F)sl=-2*Math.sqrt(hh*k);
    const at=sl=>sl/Math.sqrt(1+sl*sl);skyU.uHzn.value=k?at(sl)-at(-hh/F):0;}
-  gobView(p);CURVE_CAM.copy(p.camera.position);HORIZ_U.value.set(CURVE_CAM.x,CURVE_CAM.y,CURVE_CAM.z,HORIZ_Y0);renderer.render(scene,p.camera);
+  gobView(p);CURVE_CAM.copy(p.camera.position);HORIZ_U.value.set(CURVE_CAM.x,CURVE_CAM.y,CURVE_CAM.z,HORIZ_Y0);R.render(scene,p.camera);
 }
 // shrink every character and vehicle model to ES (feet stay on the ground: their origins are at the base)
 for(const p of players)p.root.scale.setScalar(ES);
@@ -31016,7 +31226,7 @@ function frame(now,bg){   // (bg: a tab in the background while online, kept goi
   hintTime-=dt;
   for(const p of act){
     if(netGuest())safe('arms',()=>gobArmsHud(p));else gobArmsHud(p);
-    const hint=p.ui.hint,grab=p===P1&&mouseNeedsClick();hint.hidden=!grab;
+    const hint=p.ui.hint,grab=p===kbP()&&mouseNeedsClick();hint.hidden=!grab;
     if(grab){const txt='Click to look around with the mouse';if(hint._s!==txt){hint._s=txt;hint.textContent=txt;}}
     // (your controls on foot: a column down the left, the same place and look as a vehicle's, which take over while
     // you're in one (drvHud), so the two never show together)
@@ -31036,6 +31246,7 @@ function frame(now,bg){   // (bg: a tab in the background while online, kept goi
   let views;
   safe('batDraw',batDraw);safe('fxDraw',fxDraw);
   if(split==='none'){renderer.setScissorTest(false);renderView(P1,0,0,w,h);views=[[P1,0,0,w,h]];}
+  else if(split==='win'){renderer.setScissorTest(false);renderView(P1,0,0,w,h);views=[[P1,0,0,w,h]];safe('w2',w2Render);}   // (player two in a window of their own, ui/seats.js)
   else{
     renderer.setScissorTest(true);
     if(split==='lr'){renderView(P1,0,0,w/2,h);renderView(P2,w/2,0,w/2,h);views=[[P1,0,0,w/2,h],[P2,w/2,0,w/2,h]];}

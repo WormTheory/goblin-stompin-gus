@@ -156,7 +156,7 @@ function drawDbgOverlay(dt,views){
     x.restore();
   }
 }
-function renderView(p,x,y,w,h){
+function renderView(p,x,y,w,h,R=renderer){   // (R: player two's own window draws with a renderer of its own, ui/seats.js)
   const c=p.camera.position,under=get(c.x,c.y,c.z)===WATER;
   p.ui.tint.hidden=!under;
   const far=lodFar();
@@ -172,14 +172,14 @@ function renderView(p,x,y,w,h){
   placePrecip(c,p.idx);
   p.camera.aspect=w/h;p.camera.fov=p.tkFov||(p.gob&&!p.drv&&p.scFov)||72-6*(p.speedFx||0)-8*(p.windZoom||0)+(p.drv&&p.drv.k==='mech'?p.mgFov||0:0);   // (tkFov: a tank's gunsight, tank-handling.js)
   p.camera.far=far+40;p.camera.near=p.gob?0.12:0.25;p.camera.updateProjectionMatrix();
-  renderer.setViewport(x,y,w,h);renderer.setScissor(x,y,w,h);
+  R.setViewport(x,y,w,h);R.setScissor(x,y,w,h);
   sky.position.copy(p.camera.position);
   if(p.lockMark&&p.lockMark.visible)p.lockMark.quaternion.copy(p.camera.quaternion);
   // the sky's horizon goes where the world's edge appears: bent down, the top of the curve (or the end of the view, if
   // that comes first); bent up, the rim of the bowl. Measured from where it'd sit with the world flat
   {const k=CURVE_U.value,hh=Math.max(0.5,c.y-(G+1)),F=Math.max(60,far);let sl=-(hh/F+k*F);if(k>0&&Math.sqrt(hh/k)<F)sl=-2*Math.sqrt(hh*k);
    const at=sl=>sl/Math.sqrt(1+sl*sl);skyU.uHzn.value=k?at(sl)-at(-hh/F):0;}
-  gobView(p);CURVE_CAM.copy(p.camera.position);HORIZ_U.value.set(CURVE_CAM.x,CURVE_CAM.y,CURVE_CAM.z,HORIZ_Y0);renderer.render(scene,p.camera);
+  gobView(p);CURVE_CAM.copy(p.camera.position);HORIZ_U.value.set(CURVE_CAM.x,CURVE_CAM.y,CURVE_CAM.z,HORIZ_Y0);R.render(scene,p.camera);
 }
 // shrink every character and vehicle model to ES (feet stay on the ground: their origins are at the base)
 for(const p of players)p.root.scale.setScalar(ES);

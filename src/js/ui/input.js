@@ -4,21 +4,25 @@ let atTitle=true,menuOpen=true,playing=false,begun=false,dragMode=false,downAt=n
 const pauseEl=document.getElementById('pause');
 const touchMode=matchMedia('(pointer: coarse)').matches;
 if(touchMode){document.getElementById('touch').hidden=false;dragMode=true;}
-addEventListener('keydown',e=>{
+// (the keyboard and mouse handlers are named so player two's own window, ui/seats.js, can hand them its events too; they
+// drive whoever has the keyboard, kbP(), player one unless the Controls screen gave it to player two)
+function onKeyDown(e){
   if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();
   // Esc with the game paused carries on playing (in co-op, just your own hippo), or backs out of the new-world question
   // first. (Checked before the pausing below, so the Esc that pauses in full screen doesn't also resume.) Keys that
   // something else claims for Esc never get here: the chat box, choosing a new key on Controls, the expanded Dev preview.
-  if(e.code==='Escape'&&(menuOpen||P1.paused)){if(!e.repeat&&performance.now()-pauseAt>300)escResume();return;}
-  if(menuOpen||P1.paused)return;
+  if(e.code==='Escape'&&(menuOpen||kbP().paused)){if(!e.repeat&&performance.now()-pauseAt>300)escResume();return;}
+  if(menuOpen||kbP().paused)return;
   keys.add(e.code);
   // (Esc normally reaches the page only in drag mode, since the browser keeps it to let go of the mouse. In full
   // screen the game claims Esc (see kbLock), so a tap comes here and pauses, and holding it leaves full screen.)
-  if(e.code==='Escape'&&!e.repeat&&!DT.kbdOpen&&!DT.menu)requestPause(P1);
-});
-addEventListener('keyup',e=>keys.delete(e.code));
-addEventListener('blur',()=>{keys.clear();mHeld.clear();});
-const locked=()=>document.pointerLockElement===canvas;
+  if(e.code==='Escape'&&!e.repeat&&!DT.kbdOpen&&!DT.menu)requestPause(kbP());
+}
+const onKeyUp=e=>keys.delete(e.code),onBlur=()=>{keys.clear();mHeld.clear();};
+addEventListener('keydown',onKeyDown);addEventListener('keyup',onKeyUp);addEventListener('blur',onBlur);
+// (the mouse is captured by player one's view, or by player two's own window while they have the keyboard there)
+const locked=()=>document.pointerLockElement===canvas||w2Locked();
+function unlockMouse(){try{if(document.pointerLockElement)document.exitPointerLock();}catch(e){}w2Unlock();}
 // capturing the mouse. A request the browser turns down (Chrome refuses one made within about a second of Esc
 // letting the mouse go) used to switch to click-and-drag looking for good, which left the mouse moving a cursor for
 // the rest of the session. Now only a browser that has never once given the lock (and refused three times) falls
@@ -26,12 +30,13 @@ const locked=()=>document.pointerLockElement===canvas;
 let lockOk=false,lockFails=0,mouseMoveT=-1e9;
 function wantLock(){
   if(dragMode||touchMode)return;
-  if(typeof canvas.requestPointerLock!=='function'){dragMode=true;return;}
-  try{const r=canvas.requestPointerLock();if(r&&r.catch)r.catch(()=>{});}catch(e){lockFailed();}
+  const cv=kbCanvas();
+  if(typeof cv.requestPointerLock!=='function'){dragMode=true;return;}
+  try{const r=cv.requestPointerLock();if(r&&r.catch)r.catch(()=>{});}catch(e){lockFailed();}
 }
 function lockFailed(){if(!lockOk&&++lockFails>=3)dragMode=true;}
 // (playing on the mouse and keyboard, but the mouse isn't captured: a click on the game will capture it)
-const mouseNeedsClick=()=>playing&&!menuOpen&&!P1.paused&&!DT.kbdOpen&&!dragMode&&!touchMode&&!locked()&&(inputKind!=='pad'||performance.now()-mouseMoveT<3000);
+const mouseNeedsClick=()=>playing&&!menuOpen&&!kbP().paused&&!DT.kbdOpen&&!dragMode&&!touchMode&&!locked()&&(inputKind!=='pad'||performance.now()-mouseMoveT<3000);
 let hintTime=0;
 function startPlay(mode,fromPad){
   if(netOn()&&P2.net)mode='net';   // (online, player two's seat is someone else's: Play just carries on)
@@ -123,7 +128,7 @@ document.getElementById('devLink').addEventListener('click',()=>openSub('dev','d
 addEventListener('keydown',e=>{if(!menuOpen||BIND_CAP||e.repeat)return;const t=e.target;if(t&&(t.tagName==='INPUT'&&t.type!=='range'&&t.type!=='checkbox'||t.tagName==='TEXTAREA'))return;
   if(e.code==='KeyQ'||e.code==='KeyE'){e.preventDefault();subStep(e.code==='KeyE'?1:-1);}});
 function pause(by){menuBy=by&&by.ui?by:P1;pauseAt=performance.now();SUB_FROM=null;if(curTab!=='game')showTab('game');   // (the pause menu always opens on its own buttons)
-  if(TENV)tpShow(true);menuSeat();renderChar();menuOpen=true;playing=false;menuMode();keys.clear();mHeld.clear();pauseEl.hidden=false;renderObitCount();if(curTab==='obit'){obitSel=0;renderObits();}if(curTab==='controls')renderControls();if(curTab==='map'){MAPV.cx=null;saveExplored();setTimeout(renderMap,0);}renderRampage();try{if(locked())document.exitPointerLock();}catch(e){}const pf=document.getElementById(curTab==='game'?'resumeBtn':'subBack');if(inputKind==='pad')padFocus(pf);else pf.focus();}
+  if(TENV)tpShow(true);menuSeat();renderChar();menuOpen=true;playing=false;menuMode();keys.clear();mHeld.clear();pauseEl.hidden=false;renderObitCount();if(curTab==='obit'){obitSel=0;renderObits();}if(curTab==='controls')renderControls();if(curTab==='map'){MAPV.cx=null;saveExplored();setTimeout(renderMap,0);}renderRampage();unlockMouse();const pf=document.getElementById(curTab==='game'?'resumeBtn':'subBack');if(inputKind==='pad')padFocus(pf);else pf.focus();}
 // the browser keeps Esc to let go of the mouse, so letting go is how Esc pauses. But the mouse is also let go when the
 // window loses focus (another window clicked, alt-tab) or the tab is hidden, and that mustn't pause: the game carries on
 // in the background (a host's tab hidden, say), and a click on it takes the mouse back. Alt-tab can let the mouse go
@@ -135,7 +140,7 @@ let blurAt=-1e9,lockLostT=null;
 function lockCalmOff(){blurAt=performance.now();if(lockLostT!==null){clearTimeout(lockLostT);lockLostT=null;}}
 addEventListener('blur',lockCalmOff);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)lockCalmOff();});
-function lockLostPause(){if(!menuOpen&&!dragMode&&!P1.paused&&!DT.kbdOpen&&!chatHasEsc()&&!locked()&&!(performance.now()-lastPadT<60000&&connectedPads().length))requestPause(P1);}
+function lockLostPause(){if(kbP()!==P1)return;if(!menuOpen&&!dragMode&&!P1.paused&&!DT.kbdOpen&&!chatHasEsc()&&!locked()&&!(performance.now()-lastPadT<60000&&connectedPads().length))requestPause(P1);}
 document.addEventListener('pointerlockchange',()=>{if(locked()){lockOk=true;lockFails=0;return;}
   if(lockLostT!==null)clearTimeout(lockLostT);const t0=performance.now();
   // (a long frame, the Testing Environment's say, can hold the window's blur back past the wait: a check that comes late
@@ -147,12 +152,12 @@ document.addEventListener('pointerlockchange',()=>{if(locked()){lockOk=true;lock
 const inCoop=()=>coop&&P2.active;
 function requestPause(p){if(inCoop())pausePlayer(p);else pause();}
 function pausePlayer(p){
-  p.paused=true;p.ui.ppause.hidden=false;if(p===P1)pauseAt=performance.now();
-  if(p===P1){keys.clear();mHeld.clear();try{if(locked())document.exitPointerLock();}catch(e){}p.ui.pres.focus();}
+  p.paused=true;p.ui.ppause.hidden=false;if(p===kbP())pauseAt=performance.now();
+  if(p===kbP()){keys.clear();mHeld.clear();unlockMouse();try{p.ui.pres.focus();}catch(e){}}
 }
 function resumePlayer(p,fromPad){
   p.paused=false;p.ui.ppause.hidden=true;
-  if(p===P1&&!fromPad)wantLock();
+  if(p===kbP()&&!fromPad)wantLock();
   try{if(audio&&!(DT.paused||SPEEDS[DT.speedI]===0))audio.resume();}catch(e){}
 }
 function escResume(){
@@ -167,7 +172,7 @@ function escResume(){
     if(curTab!=='game'){backHome();return;}   // (a screen opened from the menu: back to the menu first)
     if(atTitle||!begun)return;   // (the title screen: nothing to go back to)
     startPlay(null);   // (as the controller's Start: same players as before, and the mouse is captured again)
-  }else if(P1.paused&&!DT.kbdOpen)resumePlayer(P1,false);
+  }else if(kbP().paused&&!DT.kbdOpen)resumePlayer(kbP(),false);
 }
 for(const p of players){p.ui.pres.addEventListener('click',()=>resumePlayer(p,false));p.ui.pmenu.addEventListener('click',()=>pause(p));}
 document.addEventListener('pointerlockerror',lockFailed);
@@ -186,24 +191,25 @@ function look(p,dx,dy,k){
   p.cam.yaw-=dx*k;
   p.cam.pitch=camPitch(p.cam.pitch-dy*k,p);
 }
-canvas.addEventListener('contextmenu',e=>e.preventDefault());
-canvas.addEventListener('mousedown',e=>{
-  if(menuOpen||P1.paused||DT.kbdOpen)return;
+function onCanvasDown(e){
+  if(menuOpen||kbP().paused||DT.kbdOpen)return;
   const code='Mouse'+e.button;if(e.button===1)e.preventDefault();   // (middle click: no scrolling the page)
   if(e.button===2){mHeld.add(code);mTap.add(code);if(!locked()&&dragMode&&!touchMode)downAt={x:e.clientX,y:e.clientY,b:2,moved:false};return;}
   if(locked()){mHeld.add(code);mTap.add(code);}
   else if(dragMode&&!touchMode)downAt={x:e.clientX,y:e.clientY,b:e.button,moved:false};
   else wantLock();
-});
+}
 // (the wheel's notches, up or down, are presses like a button's, for one frame: Gnash's previous and next weapon)
-canvas.addEventListener('wheel',e=>{if(menuOpen||P1.paused||DT.kbdOpen||!e.deltaY)return;e.preventDefault();mTap.add(e.deltaY<0?'MouseWheelUp':'MouseWheelDown');},{passive:false});
-addEventListener('mouseup',e=>{const code='Mouse'+e.button;mHeld.delete(code);if(e.button===2){downAt=null;return;}if(downAt&&!downAt.moved&&!menuOpen&&!P1.paused)mTap.add(code);downAt=null;});
-addEventListener('mousemove',e=>{
-  if(menuOpen||P1.paused||DT.kbdOpen)return;
+function onWheel(e){if(menuOpen||kbP().paused||DT.kbdOpen||!e.deltaY)return;e.preventDefault();mTap.add(e.deltaY<0?'MouseWheelUp':'MouseWheelDown');}
+function onMouseUp(e){const code='Mouse'+e.button;mHeld.delete(code);if(e.button===2){downAt=null;return;}if(downAt&&!downAt.moved&&!menuOpen&&!kbP().paused)mTap.add(code);downAt=null;}
+function onMouseMove(e){
+  if(menuOpen||kbP().paused||DT.kbdOpen)return;
   if(!locked()&&(e.movementX||e.movementY))mouseMoveT=performance.now();
-  if(locked())look(P1,e.movementX,e.movementY,0.0024);
-  else if(downAt){if(Math.abs(e.clientX-downAt.x)+Math.abs(e.clientY-downAt.y)>5)downAt.moved=true;if(downAt.moved)look(P1,e.movementX,e.movementY,0.005);}
-});
+  if(locked())look(kbP(),e.movementX,e.movementY,0.0024);
+  else if(downAt){if(Math.abs(e.clientX-downAt.x)+Math.abs(e.clientY-downAt.y)>5)downAt.moved=true;if(downAt.moved)look(kbP(),e.movementX,e.movementY,0.005);}
+}
+canvas.addEventListener('contextmenu',e=>e.preventDefault());canvas.addEventListener('mousedown',onCanvasDown);canvas.addEventListener('wheel',onWheel,{passive:false});
+addEventListener('mouseup',onMouseUp);addEventListener('mousemove',onMouseMove);
 let tId=null,tX=0,tY=0;
 canvas.addEventListener('touchstart',e=>{if(!playing)return;const t=e.changedTouches[0];tId=t.identifier;tX=t.clientX;tY=t.clientY;},{passive:true});
 canvas.addEventListener('touchmove',e=>{for(const t of e.changedTouches)if(t.identifier===tId){look(P1,t.clientX-tX,t.clientY-tY,0.006);tX=t.clientX;tY=t.clientY;}},{passive:true});
@@ -220,7 +226,9 @@ document.getElementById('tMenu').addEventListener('click',()=>pause(P1));
 // ---------- Gamepads ----------
 const padPrev=new Map();let padCount=-1;
 const DZ=0.18,dead=v=>Math.abs(v)<DZ?0:(v-Math.sign(v)*DZ)/(1-DZ);
-function connectedPads(){let ps=[];try{ps=navigator.getGamepads?Array.from(navigator.getGamepads()):[];}catch(e){}return ps.filter(p=>p&&p.connected).sort((a,b)=>a.index-b.index);}
+// (with player two's own window open, either window may be the one with focus, and a browser may only tell the focused one
+// about its controllers: both are asked and the fresher reading of each controller taken, w2Pads in ui/seats.js)
+function connectedPads(){let ps=[];try{ps=navigator.getGamepads?Array.from(navigator.getGamepads()):[];}catch(e){}ps=w2Pads(ps);return ps.filter(p=>p&&p.connected).sort((a,b)=>a.index-b.index);}
 function rumble(p,s,ms){try{const pad=p&&p.pad;if(pad&&pad.vibrationActuator)pad.vibrationActuator.playEffect('dual-rumble',{duration:ms,strongMagnitude:Math.min(1,s),weakMagnitude:Math.min(1,s*0.6)});}catch(e){}}
 // in a vehicle, its own controls (its control context, ctx in VEHICLE_KINDS) take the place of the ones on foot: those
 // the vehicle reads under their old names (as: a car's horn is still bite) are filled from it, the rest left off
@@ -238,11 +246,13 @@ function readInputs(dt){
   const st=pads.map(p=>{const prev=padPrev.get(p.index)||[];const b=p.buttons.map(x=>!!(x&&(x.pressed||x.value>0.5)));return{p,b,pr:b.map((v,i)=>v&&!prev[i])};});
   for(const s of st)if(s.pr.some(Boolean)||s.p.axes.some(a=>Math.abs(a)>0.5)){noteInput('pad',s.p);break;}
   for(const s of st)padPrev.set(s.p.index,s.b);
-  P1.pad=null;P2.pad=null;let s1=null,s2=null;
-  if(coop&&P2.active){if(st.length>=2){s1=st[0];s2=st[1];}else s2=st[0]||null;}
-  else{s1=st[0]||null;s2=st[1]||null;}
+  // which controllers are whose (padSeats, ui/seats.js: as the Controls screen's Players section has them, or the old
+  // rule: alone, the first is yours and the second joins; in co-op the first two are one each, or a lone one is player two's)
+  P1.pad=null;P2.pad=null;const PS=padSeats(st.map(s=>s.p)),S1=st.filter(s=>PS.get(s.p.index)===1),S2=st.filter(s=>PS.get(s.p.index)===2);
+  let s1=S1[0]||null,s2=S2[0]||null;
+  seatsSeen(st);
   if(s1)P1.pad=s1.p;if(s2&&P2.active&&!P2.net)P2.pad=s2.p;
-  P2.ui.join.hidden=!(P2.active&&!P2.pad);
+  P2.ui.join.hidden=!(P2.active&&!P2.pad&&kbP()!==P2);
   for(const p of players){const i=p.in;i.x=0;i.z=0;i.charge=false;i.chargePress=false;i.stomp=false;i.bite=false;i.bitePress=false;i.jumpPress=false;i.jump=false;i.lockPress=false;i.dash=false;i.dashPress=false;i.sprint=false;i.sprintPress=false;i.lookX=0;i.lookY=0;i.climb=false;i.use=false;i.weapon=false;i.weaponPrev=false;i.reload=false;i.talk=false;i.kbd=false;i.rt=i.lt=0;for(const k of CTX_IDS)i[k]=i[k+'P']=false;}
   // (rebinding a control in the menu: the next button pressed on any controller is the one)
   if(menuOpen&&BIND_CAP){if(performance.now()-BIND_CAP.t>200)for(const s of st){const i=s.pr.findIndex(Boolean);if(i<0)continue;
@@ -250,7 +260,7 @@ function readInputs(dt){
     mTap.clear();return;}
   if(menuOpen){
     // (split screen: the menu answers only the controller of whoever opened it)
-    const mine=!inCoop()||!menuBy?st:st.filter(s=>menuBy===P2?s.p===P2.pad:s.p!==P2.pad||!P2.pad);
+    const mine=!inCoop()||!menuBy?st:st.filter(s=>menuBy===P2?S2.includes(s):!S2.includes(s)||!S2.length);
     menuPad(mine,dt);mTap.clear();return;}
   // the debug quick menu: Select on any controller opens it and Select (or B) closes it again; ~ does the same on the
   // keyboard. The game is paused meanwhile, and the controllers drive the menu instead of the hippos. It's one menu
@@ -258,13 +268,13 @@ function readInputs(dt){
   // the last used in it (its button prompts, and the right stick turning the camera), DT.kbdOpen the keyboard (the
   // mouse pointer let go, to click)
   if(!DT.quick)DT.selHeld=false;
-  else for(const s of st){const open=DT.selHeld||DT.kbdOpen;if(inCoop()&&P2.pad&&s.p===P2.pad&&!open)continue;   // (player two can't open the debug menu: it's player one's, as the Dev tab is)
+  else for(const s of st){const open=DT.selHeld||DT.kbdOpen;if(inCoop()&&S2.includes(s)&&!open)continue;   // (player two can't open the debug menu: it's player one's, as the Dev tab is)
     if(s.pr[8]){if(open)setKbdMenu(false);else DT.selHeld=true;}
     else if(open&&s.pr[1]){DT.selHeld=true;if(DT.edit){DT.edit=null;renderTime();}else if(DT.dd){DT.dd=null;renderTime();}else setKbdMenu(false);}}
   const wasOpen=DT.menu;DT.menu=DT.quick&&(DT.selHeld||DT.kbdOpen);if(!DT.menu){DT.dd=null;DT.edit=null;}
   if(DT.menu){
     let dy=0,dx=0,used=false;
-    for(const s of st){if(inCoop()&&P2.pad&&s.p===P2.pad)continue;const ax=s.p.axes,lx=ax[0]||0,ly=ax[1]||0;
+    for(const s of st){if(inCoop()&&S2.includes(s))continue;const ax=s.p.axes,lx=ax[0]||0,ly=ax[1]||0;
       if(ly<-0.55||s.b[12])dy=-1;else if(ly>0.55||s.b[13])dy=1;
       if(lx<-0.55||s.b[14])dx=-1;else if(lx>0.55||s.b[15])dx=1;
       if(s.pr[0]){used=true;dbgMenuToggle();}if(s.pr[4]||s.pr[5]){used=true;dbgTab(DT.tab?0:1);}}
@@ -289,11 +299,11 @@ function readInputs(dt){
   }
   if(menuOpen){mTap.clear();return;}
   if(!P2.active&&!netOn()&&s2&&(s2.pr[9]||s2.pr[0])){coop=true;activateP2();P2.pad=s2.p;skip.add(P2);}
-  const I=P1.in;
-  if(!P1.paused){
+  const KP=kbP(),I=KP.in;
+  if(!KP.paused){
     const A={};for(const a of ACTS){const h=kbAct(a.id);A[a.id]=h;A[a.id+'P']=h&&!kbPrevA[a.id];kbPrevA[a.id]=h;}
     I.z+=(A.back?1:0)-(A.fwd?1:0);I.x+=(A.right?1:0)-(A.left?1:0);
-    I.kbd=!P1.pad;   // (flying on the keyboard: a plane is flown WASD-style, see drvPlane; the same rule as the hints' p.pad)
+    I.kbd=!KP.pad;   // (flying on the keyboard: a plane is flown WASD-style, see drvPlane; the same rule as the hints' p.pad)
     I.charge=A.dashSprint;I.chargePress=A.dashSprintP;I.dash=A.dash;I.dashPress=A.dashP;I.sprint=A.sprint;I.sprintPress=A.sprintP;
     I.stomp=A.stomp;I.jumpPress=A.jumpP;I.jump=A.jump;I.lockPress=A.lockP;I.climb=A.climb;I.bite=A.bite;I.bitePress=A.biteP;I.use=A.use;I.weapon=A.weapon;I.weaponPrev=A.weaponPrev;I.reload=A.reload;I.talk=A.talk;
     for(const k of CTX_IDS){I[k]=A[k];I[k+'P']=A[k+'P'];}
@@ -321,13 +331,15 @@ function readInputs(dt){
     i.talk=i.talk||pb('talk');
     for(const k of CTX_IDS){if(pb(k))i[k]=true;if(pp(k))i[k+'P']=true;}
     // (the triggers, as far as they're pulled: a vehicle's analog throttle and brake)
-    {const tv=k=>{const x=s.p.buttons[k];return x?Math.max(0,Math.min(1,+x.value||(x.pressed?1:0))):0;};i.rt=tv(7);i.lt=tv(6);}
+    {const tv=k=>{const x=s.p.buttons[k];return x?Math.max(0,Math.min(1,+x.value||(x.pressed?1:0))):0;};i.rt=Math.max(i.rt||0,tv(7));i.lt=Math.max(i.lt||0,tv(6));}
   };
   if(DT.menu){const I=P1.in;for(const k in I)if(typeof I[k]==='boolean')I[k]=false;I.x=I.z=0;}
   // (online chat: the controller's quick messages take it over while their list is up, and while a line's being typed
   // or picked player one stands still, so the keys typed never walk them off)
   if(s1&&chatPad(s1))s1=null;
-  apply(P1,s1);if(P2.active&&!P2.net)apply(P2,s2);
+  // (every controller a player has counts: a second one of player one's adds to the first, as the keyboard does)
+  apply(P1,s1);if(s1)for(const s of S1)if(s!==s1)apply(P1,s);
+  if(P2.active&&!P2.net){apply(P2,s2);if(s2)for(const s of S2)if(s!==s2)apply(P2,s);}
   for(const p of players)if(!p.net)ctxApply(p);
   if(CHAT.open||CHAT.quick){const I=P1.in;for(const k in I)if(typeof I[k]==='boolean')I[k]=false;I.x=I.z=0;I.lookX=I.lookY=0;}
   for(const p of players)p.in.chargeHeld=p.in.charge;

@@ -1318,3 +1318,12 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
 .pop.mile{font-size:clamp(34px,5.5vw,64px);color:var(--yolk);text-transform:uppercase;text-shadow:3px 0 var(--ink),-3px 0 var(--ink),0 3px var(--ink),0 -3px var(--ink),3px 3px var(--ink),-3px 3px var(--ink),3px -3px var(--ink),-3px -3px var(--ink),0 7px var(--ink),3px 7px var(--ink),-3px 7px var(--ink)}
 body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 @media (prefers-reduced-motion:reduce){.combo.bump,.feed .lbl,.feed .lbl.bump{animation:none}}
+/* the Controls screen's Players section (ui/seats.js): each input with its Player 1 / Player 2 switch, lit while it's used */
+.seats h2{display:flex;align-items:center;justify-content:space-between}
+.seatauto{padding:3px 10px}
+.seatrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:5px 8px;border-radius:4px;transition:background .15s}
+.seatrow.live{background:rgba(127,209,74,.3)}
+.seatname{display:flex;flex-direction:column;font:600 13px var(--f-body);color:var(--bone)}
+.seatname small{font-weight:400;color:var(--mute)}
+.seatseg button.s1[aria-checked="true"]{background:var(--gus);color:var(--ink)}
+.seatseg button.s2[aria-checked="true"]{background:var(--pink);color:var(--ink)}
