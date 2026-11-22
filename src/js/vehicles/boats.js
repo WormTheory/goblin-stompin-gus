@@ -270,7 +270,7 @@ function refreshVenues(){
       const cars2=[];for(let i=0;i<4;i++){const g=makeTrainCar(i===0);scene.add(g);cars2.push(g);}
       venues.set(k,{kind:'train',R,s:45+Math.random()*(R.L-90),dir:Math.random()<0.5?1:-1,v:0,wait:0,cars:cars2});}}
     for(let px=Math.floor((p.pos.x-700)/CELL);px<=Math.floor((p.pos.x+700)/CELL);px+=1)for(let pz=Math.floor((p.pos.z-700)/CELL);pz<=Math.floor((p.pos.z+700)/CELL);pz+=1){
-      if(biomeOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;const B=bigPlainsAt(px,pz);if(!B||B.ax!==px||B.az!==pz||B.kind!=='airport'&&B.kind!=='airfield'&&B.kind!=='nasa')continue;const k='b'+px+','+pz;want.add(k);if(venues.has(k))continue;
+      if(realmOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;const B=bigPlainsAt(px,pz);if(!B||B.ax!==px||B.az!==pz||B.kind!=='airport'&&B.kind!=='airfield'&&B.kind!=='nasa')continue;const k='b'+px+','+pz;want.add(k);if(venues.has(k))continue;
       if(B.kind==='airport'||B.kind==='airfield'){   // (an airport's airliners: two that come and go, one at each gate; an airfield's three two-seaters)
         const planes=[],n=B.kind==='airport'?2+AP.gates.length:3;for(let i=0;i<n;i++){const g=B.kind==='airport'?makePlane(i):makeLightPlane(i);scene.add(g);planes.push(g);}venues.set(k,{kind:'airport',B,planes});}
       else{const g=makeRocket();scene.add(g);venues.set(k,{kind:'nasa',B,rocket:g,st:'pad',t:0,y:0,v:0,lastHr:-1});}}

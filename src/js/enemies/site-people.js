@@ -18,7 +18,7 @@ function refreshSiteVenues(p,want){
       const V={kind:'wind',rotor:g,sp:0.55+hash2(Math.floor(px/7),Math.floor(pz/7))*0.4,ck:ckey(Math.floor((px*CELL+16)/CS),Math.floor((pz*CELL+16)/CS)),hx:px*CELL+15,hz:pz*CELL+13,wk:'wind:'+px+','+pz,chkT:0};
       venues.set(key,V);windRestore(V);}}}
   for(let px=Math.floor((p.pos.x-150)/CELL);px<=Math.floor((p.pos.x+150)/CELL);px++)for(let pz=Math.floor((p.pos.z-150)/CELL);pz<=Math.floor((p.pos.z+150)/CELL);pz++){
-    if(biomeOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;
+    if(realmOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;
     const B=bigPlainsAt(px,pz);if(!B||!FIG_STYLE[B.kind]||(B.ax!==px||B.az!==pz)&&B.kind!=='airport'||siteOf(B.ax,B.az))continue;   // (a structure from the editor in its place has its own people: world/sites.js)   // (an airport's too big to wait till its corner's in reach)
     const key='g'+B.ax+','+B.az;want.add(key);if(venues.has(key))continue;
     const posts=sitePeople(B).map(([u,v,y],i)=>({x:B.ax*CELL+u+0.5,z:B.az*CELL+v+0.5,y,h0:hash2(B.ax+i,B.az*3+i)*6.28}));
@@ -28,7 +28,7 @@ function refreshSiteVenues(p,want){
     venues.set(key,V);}
   // the military bases' armour (see armyVenue)
   for(let px=Math.floor((p.pos.x-300)/CELL);px<=Math.floor((p.pos.x+300)/CELL);px++)for(let pz=Math.floor((p.pos.z-300)/CELL);pz<=Math.floor((p.pos.z+300)/CELL);pz++){
-    if(biomeOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;
+    if(realmOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;
     const B=bigPlainsAt(px,pz);if(!B||B.ax!==px||B.az!==pz||B.kind!=='base')continue;
     const key='m'+px+','+pz;want.add(key);if(!venues.has(key))venues.set(key,armyVenue(B));}
 }

@@ -20,7 +20,7 @@ function airportOf(S){
   // (the neighbouring cities ahead of it in the order go first and keep theirs: no two airports overlap)
   const others=[];for(let rx=S.rx-2;rx<=S.rx+2;rx++)for(let rz=S.rz-2;rz<=S.rz+2;rz++){const S2=settlementLat(rx,rz);
     if(S2.type==='city'&&(S2.cx<S.cx||S2.cx===S.cx&&S2.cz<S.cz)&&settlementAt(S2.cx,S2.cz)===S2){const A=airportOf(S2);if(A)others.push(A);}}
-  const free=(ax,az)=>{if(others.some(A=>ax<A.ax+A.w+1&&ax+16>A.ax-1&&az<A.az+A.h+1&&az+8>A.az-1))return false;for(let a=ax;a<ax+16;a++)for(let b=az;b<az+8;b++)if(biomeOf(a,b)!=='plains'||settlementAt(a,b)||seaPlot(a,b)||railPlot(a,b)||farmK(a,b)!==null||tsPlot(a,b)||plotNearLines(a,b,1)||rivPlotNear(a,b))return false;return true;};
+  const free=(ax,az)=>{if(others.some(A=>ax<A.ax+A.w+1&&ax+16>A.ax-1&&az<A.az+A.h+1&&az+8>A.az-1))return false;for(let a=ax;a<ax+16;a++)for(let b=az;b<az+8;b++)if(realmOf(a,b)!=='plains'||settlementAt(a,b)||seaPlot(a,b)||railPlot(a,b)||farmK(a,b)!==null||tsPlot(a,b)||plotNearLines(a,b,1)||rivPlotNear(a,b))return false;return true;};
   const R=Math.ceil(S.R)+3,cols=[];for(let d=0;d<=R;d++){cols.push(S.cx+d);if(d)cols.push(S.cx-d);}
   for(const flip of [false,true]){if(v)break;
     for(const ix of cols){if(v)break;

@@ -34,10 +34,10 @@ self.AudioContext=undefined;self.webkitAudioContext=undefined;
 let WSEED=1;
 // (the game reads its world from its save on loading: hand it a fresh world with this seed)
 self.localStorage={getItem:k=>String(k).startsWith('goblin-city-v')?JSON.stringify({seed:WSEED,edits:{},coll:{},down:[],dest:{},test:[]}):null,setItem(){},removeItem(){},key:()=>null,length:0};
-const NAMES=['settlementLat','settlementAt','settlementRaw','setName','setKind','PLACE_KIND','zoneAt','seaPlot','seaV','SEA_T','coastType','plotType1','superOf','isRiver','riversNearBox','stMatch','cvSite','portCell','capitolPlan','CELL','SET_SP','BIGP','bigCell','MAPC','TEST_GROUPS','seed'];
+const NAMES=['settlementLat','settlementAt','settlementRaw','setName','setKind','PLACE_KIND','zoneAt','seaPlot','seaV','SEA_T','coastType','plotType1','superOf','isRiver','riversNearBox','stMatch','cvSite','portCell','capitolPlan','climateAt','CELL','SET_SP','BIGP','bigCell','MAPC','TEST_GROUPS','seed'];
 let T=null;
 function loadGame(html,seed,sea){
-  WSEED=seed;self.GSG_SEA=sea||undefined;   // (the Land & sea sliders, read by the game's coast.js as it loads)
+  WSEED=seed;self.GSG_WORLD=sea||undefined;   // (the Land & sea sliders: the game's WORLD_CFG, read by its coast.js as it loads)
   const a=html.indexOf('three.min.js');if(a<0)throw new Error('no game script');
   const i=html.indexOf('<script>',a)+8,j=html.lastIndexOf('</script>');
   let src=html.slice(i,html.indexOf('</script>',i));
@@ -73,6 +73,14 @@ function land(tx,tz,L){
   L=Math.max(0,L|0);const N=256<<L,st=2<<L,h=st>>1,M=N/st,x0=tx*N,z0=tz*N,a=new Uint8Array(M*M),t=T.SEA_T;
   for(let j=0;j<M;j++)for(let i=0;i<M;i++){const v=T.seaV(x0+i*st+h,z0+j*st+h);a[j*M+i]=v>t+0.05?0:v>t?1:2;}
   return {land:a,M};
+}
+// ---- the climate, tiled as the land is: each sample's temperature and moisture (0..255) from the game's climateAt, and
+// whether it's land, so the sea can be left as it is ----
+function clim(tx,tz,L){
+  if(!T.climateAt)throw new Error('no climate in this build');
+  const r=land(tx,tz,L),M=r.M,st=2<<Math.max(0,L|0),h=st>>1,N=M*st,x0=tx*N,z0=tz*N,t=new Uint8Array(M*M),m=new Uint8Array(M*M),C=T.CELL;
+  for(let j=0;j<M;j++)for(let i=0;i<M;i++){const c=T.climateAt((x0+i*st+h)*C,(z0+j*st+h)*C);t[j*M+i]=Math.round(c.t*255);m[j*M+i]=Math.round(c.m*255);}
+  return {land:r.land,M,t,m};
 }
 function coarse(tx,tz){
   const N=256,x0=tx*N,z0=tz*N;
@@ -147,6 +155,7 @@ self.onmessage=async e=>{
       postMessage({id:m.id,ok:{seed:T.seed,mapc:T.MAPC||{},labels,cap:capKey,capitol:C,ms:Date.now()-t0}});return;}
     let r;
     if(m.op==='land')r=land(m.tx,m.tz,m.L);
+    else if(m.op==='clim')r=clim(m.tx,m.tz,m.L);
     else if(m.op==='coarse')r=coarse(m.tx,m.tz);
     else if(m.op==='detail')r=detail(m.tx,m.tz);
     else if(m.op==='plot')r=plot(m.px,m.pz);

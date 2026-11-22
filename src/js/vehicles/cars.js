@@ -422,7 +422,7 @@ let rvT=0;
 function manageRVs(){
   const act=players.filter(p=>p.active);if(!act.length)return;const far=viewFar(),RB=Math.min(far+10,200);
   for(const p of act)for(let px=Math.floor((p.pos.x-RB)/CELL);px<=Math.floor((p.pos.x+RB)/CELL);px++)for(let pz=Math.floor((p.pos.z-RB)/CELL);pz<=Math.floor((p.pos.z+RB)/CELL);pz++){
-    if(biomeOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;const B=bigPlainsAt(px,pz);if(!B||B.kind!=='campsite'||B.ax!==px||B.az!==pz)continue;
+    if(realmOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;const B=bigPlainsAt(px,pz);if(!B||B.kind!=='campsite'||B.ax!==px||B.az!==pz)continue;
     for(const q of campPitches(B)){if(q.k!=='rv')continue;const key='rv'+px+','+pz+':'+q.c,x=px*CELL+q.u+4,z=pz*CELL+q.v+1.5,d=Math.hypot(x-p.pos.x,z-p.pos.z);
       if(d>RB||cars.some(c=>c.alive&&c.spot===key)||parkDown[key]&&playTime<parkDown[key])continue;
       if(!chunks.has(ckey(Math.floor(x/CS),Math.floor(z/CS))))continue;

@@ -607,7 +607,7 @@ function routeColumn(a,lx,lz,x,z,n,HY){
   const F=R.kind==='moto'?rtFlat(R):null,RL=F?2*(R.HY-G):0,e=Math.min(n.s-(F&&!F[0]?RL:0),R.L-n.s-(F&&!F[1]?RL:0)),t=Math.max(0,Math.min(1,(e-10)/40));let W=6+2.0*t*t*(3-2*t);   // (the extra width outside the outer lane is the hard shoulder)
   // (and where it runs into a town's main street, the barriers close in to the street's own width over the last stretch,
   // by which time the outer lane's cars have moved over, instead of the road just stepping in at the junction)
-  {if(!R.nar){const nar=E=>{const [px,pz]=E===R.A?R.pts[0]:R.pts[R.pts.length-1],a=E.ax==='x'?px-E.s:px,b=E.ax==='x'?pz:pz-E.s;return biomeOf(Math.floor(a/CELL),Math.floor(b/CELL))!=='plains';};R.nar=[(!F||F[0])&&nar(R.A),(!F||F[1])&&nar(R.B)];}
+  {if(!R.nar){const nar=E=>{const [px,pz]=E===R.A?R.pts[0]:R.pts[R.pts.length-1],a=E.ax==='x'?px-E.s:px,b=E.ax==='x'?pz:pz-E.s;return realmOf(Math.floor(a/CELL),Math.floor(b/CELL))!=='plains';};R.nar=[(!F||F[0])&&nar(R.A),(!F||F[1])&&nar(R.B)];}
    if(R.nar[0]&&n.s<14)W=Math.min(W,4+n.s/7);if(R.nar[1]&&R.L-n.s<14)W=Math.min(W,4+(R.L-n.s)/7);}
   if(ad>=W+1.4)return false;
   const bar=ad>=W;

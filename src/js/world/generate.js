@@ -56,7 +56,7 @@ function genChunk(cx,cz){
     // a river block: water, banks and bridges (streets across it stay, with the water running underneath)
     // the plains: rolling grass, ponds, the odd boulder; farms; rivers winding through with grassy banks
     {const qx=Math.floor(x/CELL),qz=Math.floor(z/CELL);if(seaPlot(qx,qz)){seaColumn(a,col,qx,qz,rx,rz,lx,lz,x,z);continue;}}
-    {const qx=Math.floor(x/CELL),qz=Math.floor(z/CELL);if(biomeOf(qx,qz)==='plains'){
+    {const qx=Math.floor(x/CELL),qz=Math.floor(z/CELL);if(realmOf(qx,qz)==='plains'){
       const TS=tsAt(x,z);
       if(TS)truckStopColumn(a,col,TS,qx,qz,rx,rz,lx,lz,x,z);
       else if(plotType(qx,qz)==='truckstop'){plainsColumn(col,x,z);const P=plotInfo(qx,qz);for(let bi=0;bi<P.b.length;bi++){const b=P.b[bi];if(rx>=b.x0&&rx<b.x1&&rz>=b.z0&&rz<b.z1){col(G,b.floor);buildingColumn(a,lx,lz,rx,rz,b,collapses[qx+','+qz+','+bi],qx,qz);break;}}}
@@ -199,7 +199,7 @@ function genChunk(cx,cz){
   // ground-level highways across the plains (in the places themselves they're just the main street)
   for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){
     const x=x0+lx,z=z0+lz,pa=Math.floor((z+3)/CELL),pb=Math.floor((x+3)/CELL);
-    let rowQ=gRow(pa,x)&&biomeOf(Math.floor(x/CELL),pa)==='plains'?z-pa*CELL+3:-1,colQ=gCol(pb,z)&&biomeOf(pb,Math.floor(z/CELL))==='plains'?x-pb*CELL+3:-1;if(rowQ>13)rowQ=-1;if(colQ>13)colQ=-1;
+    let rowQ=gRow(pa,x)&&realmOf(Math.floor(x/CELL),pa)==='plains'?z-pa*CELL+3:-1,colQ=gCol(pb,z)&&realmOf(pb,Math.floor(z/CELL))==='plains'?x-pb*CELL+3:-1;if(rowQ>13)rowQ=-1;if(colQ>13)colQ=-1;
     if(rowQ<0&&colQ<0)continue;
     for(let y=G+1;y<G+12;y++)a[li(lx,y,lz)]=AIR;   // (clear any hill, tree or pond)
     for(let y=G-2;y<G;y++)a[li(lx,y,lz)]=DIRT;
@@ -342,7 +342,7 @@ function findStreet(cx,cz,rMin,rMax){
   for(let k=0;k<160;k++){
     const a=Math.random()*Math.PI*2,r=rMin+Math.random()*(rMax-rMin)+(k>110?k-110:0);
     const x=cx+Math.cos(a)*r,z=cz+Math.sin(a)*r,s=surfaceAt(x,z);
-    if(!(s.y===G+1&&STREET.has(s.b))&&!(s.b===GRASS&&biomeOf(Math.floor(x/CELL),Math.floor(z/CELL))==='plains'))continue;
+    if(!(s.y===G+1&&STREET.has(s.b))&&!(s.b===GRASS&&realmOf(Math.floor(x/CELL),Math.floor(z/CELL))==='plains'))continue;
     return new V3(Math.floor(x)+.5,s.y,Math.floor(z)+.5);
   }
   const x=Math.round(cx/CELL)*CELL+RC,z=Math.round(cz/CELL)*CELL+RC;

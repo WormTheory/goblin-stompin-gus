@@ -34,7 +34,7 @@ function caveCol(col,x,z){
 const caveMouthC=new Map();
 function caveMouth(px,pz){
   const k=px*100003+pz;let v=caveMouthC.get(k);if(v!==undefined)return v;
-  v=!TEST_OFF.has('caves')&&hash2(px*523+31,pz*211+17)<0.03&&biomeOf(px,pz)==='plains'&&farmK(px,pz)===null&&!farmlandOf(px,pz)&&dumpAt(px,pz)===null&&!bunkerAt(px,pz)&&!bigPlainsAt(px,pz)&&!nearSea(px,pz)&&!plotNearLines(px,pz,2)&&!rivPlotNear(px,pz)&&!railPlot(px,pz)&&!tsPlot(px,pz);
+  v=!TEST_OFF.has('caves')&&hash2(px*523+31,pz*211+17)<0.03&&realmOf(px,pz)==='plains'&&farmK(px,pz)===null&&!farmlandOf(px,pz)&&dumpAt(px,pz)===null&&!bunkerAt(px,pz)&&!bigPlainsAt(px,pz)&&!nearSea(px,pz)&&!plotNearLines(px,pz,2)&&!rivPlotNear(px,pz)&&!railPlot(px,pz)&&!tsPlot(px,pz);
   if(v)for(let a=-2;a<=2&&v;a++)for(let b=-2;b<=2&&v;b++)if(settlementAt(px+a,pz+b))v=false;   // (out in the wilds)
   if(caveMouthC.size>100000)caveMouthC.clear();caveMouthC.set(k,v);return v;
 }
@@ -229,7 +229,7 @@ const CULTM={glow:new THREE.MeshBasicMaterial({color:0xff2a1a,transparent:true,o
 const CULT_RING=5.6;   // (how far from the altar they walk: clear of the fire's ring of stones, inside the standing stones)
 function refreshCultVenues(p,want){
   for(let px=Math.floor((p.pos.x-140)/CELL);px<=Math.floor((p.pos.x+140)/CELL);px++)for(let pz=Math.floor((p.pos.z-140)/CELL);pz<=Math.floor((p.pos.z+140)/CELL);pz++){
-    if(biomeOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;const B=bigPlainsAt(px,pz);if(!B||B.kind!=='cult')continue;
+    if(realmOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;const B=bigPlainsAt(px,pz);if(!B||B.kind!=='cult')continue;
     const key='c'+px+','+pz;want.add(key);if(venues.has(key))continue;
     const cx=px*CELL+16.5,cz=pz*CELL+16.5,n=5+Math.floor(hash2(px,pz)*3);
     const glow=new THREE.Mesh(LM_BOX,CULTM.glow);glow.position.set(cx,G+3.2,cz+0.5);scene.add(glow);
@@ -280,7 +280,7 @@ function tower5gColumn(col,B,U,V,x,z){
 const turbC=new Map();
 function turbineAt(px,pz){
   const k=px*100003+pz;let v=turbC.get(k);if(v!==undefined)return v;v=false;
-  if(!TEST_OFF.has('wind')&&mod(px+pz,2)===0&&hash2(Math.floor(px/7)*311+5,Math.floor(pz/7)*157+3)<0.07&&biomeOf(px,pz)==='plains'&&farmK(px,pz)===null&&dumpAt(px,pz)===null&&!bigPlainsAt(px,pz)&&!bunkerAt(px,pz)&&!caveMouth(px,pz)&&!tsPlot(px,pz)&&!rivPlotNear(px,pz)&&!nearSea(px,pz)){
+  if(!TEST_OFF.has('wind')&&mod(px+pz,2)===0&&hash2(Math.floor(px/7)*311+5,Math.floor(pz/7)*157+3)<0.07&&realmOf(px,pz)==='plains'&&farmK(px,pz)===null&&dumpAt(px,pz)===null&&!bigPlainsAt(px,pz)&&!bunkerAt(px,pz)&&!caveMouth(px,pz)&&!tsPlot(px,pz)&&!rivPlotNear(px,pz)&&!nearSea(px,pz)){
     const cx=px*CELL+16,cz=pz*CELL+16;if(roadNear(cx,cz,16)>=12&&railNear(cx,cz)>=10)v=true;}
   if(turbC.size>100000)turbC.clear();turbC.set(k,v);return v;
 }

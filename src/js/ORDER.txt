@@ -3,6 +3,8 @@ core/setup.js
 core/blocks.js
 core/atlas.js
 world/places.js
+world/noise.js
+world/climate.js
 world/coast.js
 world/underground.js
 world/railways.js

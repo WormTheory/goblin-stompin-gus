@@ -4,7 +4,7 @@ const castleC=new Map();
 function castleAt(px,pz){
   return false;   // (castles are gone)
   const k=px*100003+pz;let v=castleC.get(k);if(v!==undefined)return v;v=false;
-  if(hash2(px*523+7,pz*271+13)<0.0016&&biomeOf(px,pz)==='plains'){let near=false;
+  if(hash2(px*523+7,pz*271+13)<0.0016&&realmOf(px,pz)==='plains'){let near=false;
     for(let a=-2;a<=2&&!near;a++)for(let b=-2;b<=2&&!near;b++)if(settlementAt(px+a,pz+b))near=true;
     if(!near&&!bigPlainsAt(px,pz)&&!plotNearLines(px,pz,8)&&farmK(px,pz)===null&&!rivPlotNear(px,pz)&&![[4,4],[28,4],[4,28],[28,28],[16,16]].some(([a,b])=>tsAt(px*CELL+a,pz*CELL+b)))v=true;}
   castleC.set(k,v);return v;
@@ -123,7 +123,7 @@ const bunkC=new Map();
 function bunkerAt(px,pz){
   if(TEST_OFF.has('bunker'))return false;
   const k=px*100003+pz;let v=bunkC.get(k);if(v!==undefined)return v;v=false;
-  if(hash2(px*613+29,pz*307+41)<0.0015&&biomeOf(px,pz)==='plains'&&!railPlot(px,pz)&&!bigPlainsAt(px,pz)&&farmK(px,pz)===null&&dumpAt(px,pz)===null&&!castleAt(px,pz)&&!tsPlot(px,pz)&&!plotNearLines(px,pz,3)&&!rivPlotNear(px,pz))v=true;
+  if(hash2(px*613+29,pz*307+41)<0.0015&&realmOf(px,pz)==='plains'&&!railPlot(px,pz)&&!bigPlainsAt(px,pz)&&farmK(px,pz)===null&&dumpAt(px,pz)===null&&!castleAt(px,pz)&&!tsPlot(px,pz)&&!plotNearLines(px,pz,3)&&!rivPlotNear(px,pz))v=true;
   bunkC.set(k,v);return v;
 }
 function bunkerColumn(col,rx,rz,x,z){
@@ -210,7 +210,7 @@ function dumpSite(ax,az){
   const k=ax*100003+az;let v=dumpSC.get(k);if(v!==undefined)return v;dumpSC.set(k,null);v=null;   // (null while it's worked out)
   if(hash2(ax*389+11,az*167+3)<0.22){
     let ok=true;
-    for(let i=0;i<4&&ok;i++)for(let j=0;j<4&&ok;j++){const px=ax+i,pz=az+j;if(biomeOf(px,pz)!=='plains'||railPlot(px,pz)||bigPlainsAt(px,pz)||plotNearLines(px,pz,4)||farmK(px,pz)!==null||rivPlotNear(px,pz)||[[4,4],[28,4],[4,28],[28,28],[16,16]].some(([a,b])=>tsAt(px*CELL+a,pz*CELL+b)))ok=false;}
+    for(let i=0;i<4&&ok;i++)for(let j=0;j<4&&ok;j++){const px=ax+i,pz=az+j;if(realmOf(px,pz)!=='plains'||railPlot(px,pz)||bigPlainsAt(px,pz)||plotNearLines(px,pz,4)||farmK(px,pz)!==null||rivPlotNear(px,pz)||[[4,4],[28,4],[4,28],[28,28],[16,16]].some(([a,b])=>tsAt(px*CELL+a,pz*CELL+b)))ok=false;}
     // a street ending at one of its sides: (side, i) -- 0 low x, 1 high x, 2 low z, 3 high z; i blocks along that side
     if(ok)for(const i of [1,2,0,3]){if(v)break;for(let side=0;side<4&&!v;side++){
       const open=side===0?segBase(ax-1,az+i,1):side===1?segBase(ax+4,az+i,1):side===2?segBase(ax+i,az-1,0):segBase(ax+i,az+4,0);
@@ -254,7 +254,7 @@ function dumpColumn(a,col,px,pz,rx,rz,lx,lz,x,z){
 }
 // ---- farms: out on the plains, a block or few to either side of a country highway, with a straight gravel lane
 // (north or south) out to it ----
-const farmC=new Map(),farmCand=(px,pz)=>hash2(px*19+5,pz*23+7)<0.1&&biomeOf(px,pz)==='plains';
+const farmC=new Map(),farmCand=(px,pz)=>hash2(px*19+5,pz*23+7)<0.1&&realmOf(px,pz)==='plains';
 // a farm on block (px,pz): {s (-1: its road is to the north, 1: to the south), zEnd (where its lane meets the road's
 // edge)} or null. Which way is tried first is down to the farm; the lane must cross only open plains (no river, no
 // other farm, no town) and reach a country highway within four blocks.
@@ -265,7 +265,7 @@ function farmK(px,pz){
     const x=px*CELL+PC;
     const tryDir=s=>{
       for(let z=s<0?pz*CELL-1:(pz+1)*CELL,n=0;n<64;z+=s*2,n++){
-        const qz=Math.floor(z/CELL);if(qz!==pz&&(biomeOf(px,qz)!=='plains'||farmCand(px,qz)))return null;
+        const qz=Math.floor(z/CELL);if(qz!==pz&&(realmOf(px,qz)!=='plains'||farmCand(px,qz)))return null;
         const R=routeAt(x,z,10);if(R&&R.R.kind!=='country')continue;
         if(R&&R.d<7.5)return{s,zEnd:z};
         const W=riverAt(x,z,RIV_W+6);if(W&&W.d<RIV_W+5)return null;}
@@ -295,7 +295,7 @@ function farmlandSpec(fx,fz){
   const r=n=>hash2(fx*37+n*11,fz*53+n*7),W=4+Math.floor(r(5)*3),w=Math.floor(r(4)*W);
   return{kind:r(2)<0.55?'crop':'orchard',crop:r(3)<0.5?0:1,w,e:W-1-w,depth:4+Math.floor(r(6)*3)};
 }
-const fieldFree=(px,pz)=>dumpAt(px,pz)===null&&!castleAt(px,pz)&&!bigPlainsAt(px,pz)&&biomeOf(px,pz)==='plains'&&farmK(px,pz)===null&&!farmLane(px,pz)&&!plotNearLines(px,pz,4)&&![[4,4],[28,4],[4,28],[28,28],[16,16]].some(([a,b])=>tsAt(px*CELL+a,pz*CELL+b));
+const fieldFree=(px,pz)=>dumpAt(px,pz)===null&&!castleAt(px,pz)&&!bigPlainsAt(px,pz)&&realmOf(px,pz)==='plains'&&farmK(px,pz)===null&&!farmLane(px,pz)&&!plotNearLines(px,pz,4)&&![[4,4],[28,4],[4,28],[28,28],[16,16]].some(([a,b])=>tsAt(px*CELL+a,pz*CELL+b));
 // the farmland on block (px,pz): {kind,crop,fx,fz} or null
 function farmlandOf(px,pz){
   const key=px*100003+pz;let v=fieldC.get(key);if(v!==undefined)return v;v=null;
@@ -306,7 +306,7 @@ function farmlandOf(px,pz){
       v={kind:S.kind,crop:S.crop,fx,fz};}
   fieldC.set(key,v);return v;
 }
-const PLAINS_OPEN=(px,pz)=>biomeOf(px,pz)==='plains'&&farmK(px,pz)===null&&!farmlandOf(px,pz)&&dumpAt(px,pz)===null&&!castleAt(px,pz)&&!bunkerAt(px,pz)&&!bigPlainsAt(px,pz)&&!caveMouth(px,pz)&&!turbineAt(px,pz);
+const PLAINS_OPEN=(px,pz)=>realmOf(px,pz)==='plains'&&farmK(px,pz)===null&&!farmlandOf(px,pz)&&dumpAt(px,pz)===null&&!castleAt(px,pz)&&!bunkerAt(px,pz)&&!bigPlainsAt(px,pz)&&!caveMouth(px,pz)&&!turbineAt(px,pz);
 // close to a highway's line or a farm lane out on the plains (keep it flat, keep the trees off)
 function roadNear(x,z,pad){
   const px=Math.floor(x/CELL),pz=Math.floor(z/CELL);let e=1e9;

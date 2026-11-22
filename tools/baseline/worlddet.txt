@@ -1,0 +1,72 @@
+== seed 1
+chunk 0,0: blocks b50e65b8 tops 2efe1dc5 realm city
+chunk 1,0: blocks ba064496 tops 2efe1dc5 realm city
+chunk 0,-1: blocks 97b4a364 tops ef74661c realm city
+chunk 3,-2: blocks 0c8e40d6 tops bf7fd185 realm city
+chunk -5,7: blocks 3f797d06 tops 277f31e5 realm city
+chunk 12,12: blocks 85010919 tops 2efe1dc5 realm city
+chunk -20,9: blocks 98fda0a8 tops 01df1745 realm city
+chunk 40,-33: blocks 06b1f66a tops 41c22785 realm plains
+chunk -77,61: blocks f06740b2 tops 73f7a465 realm plains
+chunk 150,150: blocks 74f70782 tops c9100585 realm plains
+chunk -300,-220: blocks bc4af627 tops 2efe1dc5 realm sea
+chunk 700,-512: blocks 2e14769c tops 41556345 realm plains
+chunks made the same twice: 12/12
+nzNoise: range -0.929..0.927 mean -0.002 hash 4f90ca0b repeat diff 0 not finite 0
+nzFbm: range -0.501..0.554 mean -0.004 hash 6cb93c9f repeat diff 0 not finite 0
+nzRidged: range 0.008..0.957 mean 0.550 hash d4c8b26e repeat diff 0 not finite 0
+nzWarpX: range -136.184..131.793 mean -0.493 hash dfb06086 repeat diff 0 not finite 0
+climT: range 0.000..1.000 mean 0.497 hash 3068f362 repeat diff 0 not finite 0
+climM: range 0.000..1.000 mean 0.496 hash 0fa324b9 repeat diff 0 not finite 0
+nzNoise out of -1..1: 0, not 0 on lattice points: 0
+nzSmooth 0,.5,1 -> 0,0.5,1; nzClamp01 -1,.3,2 -> 0,0.3,1
+noise uses only arithmetic: yes
+biomeAt(0,0) grassland; biomeOf gone: true; WORLD_CFG {"land":0,"size":1,"rough":1,"chan":1,"isles":1,"islz":1}; cfg in a default save: undefined
+== seed 2
+chunk 0,0: blocks ef376d09 tops 2efe1dc5 realm city
+chunk 1,0: blocks a09f0988 tops 2efe1dc5 realm city
+chunk 0,-1: blocks 9dc0baee tops 308fe8c5 realm city
+chunk 3,-2: blocks 55c29826 tops 7a829485 realm city
+chunk -5,7: blocks 6778e84e tops a5d0d6c5 realm city
+chunk 12,12: blocks 7044b172 tops 4f819905 realm city
+chunk -20,9: blocks 179a7cb6 tops c8b6d105 realm city
+chunk 40,-33: blocks da19192e tops fa8a8a3c realm plains
+chunk -77,61: blocks a7ab4434 tops 2efe1dc5 realm sea
+chunk 150,150: blocks b46273a5 tops 2efe1dc5 realm sea
+chunk -300,-220: blocks c0f4ea02 tops 3409722e realm plains
+chunk 700,-512: blocks bd9fcda0 tops 9a3559d0 realm plains
+chunks made the same twice: 12/12
+nzNoise: range -0.934..0.805 mean 0.003 hash fa5936e5 repeat diff 0 not finite 0
+nzFbm: range -0.551..0.578 mean -0.004 hash fd427bcd repeat diff 0 not finite 0
+nzRidged: range 0.010..0.946 mean 0.549 hash 931fb6de repeat diff 0 not finite 0
+nzWarpX: range -134.168..140.895 mean -0.466 hash 189b3da1 repeat diff 0 not finite 0
+climT: range 0.000..1.000 mean 0.500 hash c1b4edcc repeat diff 0 not finite 0
+climM: range 0.000..1.000 mean 0.495 hash 7ac18381 repeat diff 0 not finite 0
+nzNoise out of -1..1: 0, not 0 on lattice points: 0
+nzSmooth 0,.5,1 -> 0,0.5,1; nzClamp01 -1,.3,2 -> 0,0.3,1
+noise uses only arithmetic: yes
+biomeAt(0,0) grassland; biomeOf gone: true; WORLD_CFG {"land":0,"size":1,"rough":1,"chan":1,"isles":1,"islz":1}; cfg in a default save: undefined
+== seed 3
+chunk 0,0: blocks 5ef652d2 tops 2efe1dc5 realm city
+chunk 1,0: blocks 6230f389 tops 2efe1dc5 realm city
+chunk 0,-1: blocks 827e9e6f tops 60fe3545 realm city
+chunk 3,-2: blocks ac6341ce tops 80b56865 realm city
+chunk -5,7: blocks 0ebfde39 tops 7d851c25 realm city
+chunk 12,12: blocks 237b408b tops ecefdcfc realm city
+chunk -20,9: blocks 0412a520 tops eb36a285 realm city
+chunk 40,-33: blocks a49de570 tops 549be4bc realm plains
+chunk -77,61: blocks 46839ed2 tops 2efe1dc5 realm city
+chunk 150,150: blocks 2fb85b1b tops 72060fe2 realm plains
+chunk -300,-220: blocks c8d69753 tops 854a1dc5 realm plains
+chunk 700,-512: blocks edda3504 tops e30b8dc5 realm plains
+chunks made the same twice: 12/12
+nzNoise: range -0.847..0.856 mean 0.004 hash 81e12639 repeat diff 0 not finite 0
+nzFbm: range -0.642..0.610 mean 0.000 hash 2e70303c repeat diff 0 not finite 0
+nzRidged: range 0.001..0.962 mean 0.552 hash d8630c34 repeat diff 0 not finite 0
+nzWarpX: range -133.237..127.281 mean -0.854 hash 3029af42 repeat diff 0 not finite 0
+climT: range 0.000..1.000 mean 0.504 hash 0ded5184 repeat diff 0 not finite 0
+climM: range 0.000..1.000 mean 0.501 hash 2008caba repeat diff 0 not finite 0
+nzNoise out of -1..1: 0, not 0 on lattice points: 0
+nzSmooth 0,.5,1 -> 0,0.5,1; nzClamp01 -1,.3,2 -> 0,0.3,1
+noise uses only arithmetic: yes
+biomeAt(0,0) grassland; biomeOf gone: true; WORLD_CFG {"land":0,"size":1,"rough":1,"chan":1,"isles":1,"islz":1}; cfg in a default save: undefined

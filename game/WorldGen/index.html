@@ -68,6 +68,8 @@ details[open]>summary.lbl::before{transform:rotate(90deg)}
 .sliders input{width:100%;min-width:0;margin:0;accent-color:var(--chipOn);height:28px}
 .sliders output{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
 #seaReset{margin-top:8px}
+.ramp{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-top:6px}
+.ramp i{flex:1;height:10px;border-radius:3px}
 @media (prefers-reduced-motion:reduce){summary.lbl::before{transition:none}}
 </style>
 </head>
@@ -90,6 +92,7 @@ details[open]>summary.lbl::before{transform:rotate(90deg)}
     <div id="place" hidden></div>
     <div><div class="lbl">Show</div><div class="chips" id="layers"></div></div>
     <div><div class="lbl">Ground</div><div class="chips" id="ground"></div></div>
+    <div><div class="lbl">Climate</div><div class="chips" id="climate"></div><div class="ramp" id="climKey" hidden><span></span><i></i><span></span></div></div>
     <details id="seabox"><summary class="lbl">Land &amp; sea</summary><div class="sliders" id="sliders"></div><button class="btn small" id="seaReset" type="button">Default</button></details>
     <details id="keybox" open><summary class="lbl">Key</summary><div class="legend" id="legend"></div></details>
   </div>
@@ -117,12 +120,12 @@ let W=null,LW=null,wid=0,P=new Map(),gen=0,ready=false,info=null;
 function call(m,w){return new Promise((a,b)=>{m.id=++wid;P.set(wid,[a,b]);(w||W).postMessage(m);});}
 function worker(){const w=new Worker('gen-worker.js');w.onmessage=e=>{const p=P.get(e.data.id);if(!p)return;P.delete(e.data.id);e.data.err!==undefined?p[1](e.data.err):p[0](e.data.ok);};return w;}
 // ---- what's been worked out so far, by tile ----
-let LANDT=new Map(),SITET=new Map(),DET=new Map(),setsAll=new Map(),bases=[],navy=[],cvs=[],rivers=[];
+let LANDT=new Map(),CLIMT=new Map(),SITET=new Map(),DET=new Map(),setsAll=new Map(),bases=[],navy=[],cvs=[],rivers=[];
 let curSeed=0;
 async function start(seed){
   curSeed=seed;clearTimeout(seaT);
   if(W)W.terminate();if(LW&&LW!==W)LW.terminate();const g=++gen;ready=false;P.forEach(p=>p[1]('stopped'));P=new Map();
-  LANDT=new Map();SITET=new Map();DET=new Map();setsAll=new Map();bases=[];navy=[];cvs=[];rivers=[];selected=null;placeEl.hidden=true;busy=0;lbusy=0;
+  LANDT=new Map();CLIMT=new Map();SITET=new Map();DET=new Map();setsAll=new Map();bases=[];navy=[];cvs=[];rivers=[];selected=null;placeEl.hidden=true;busy=0;lbusy=0;
   msg.textContent='Loading the game…';msg.hidden=false;draw();
   W=worker();LW=worker();
   W.onerror=e=>{msg.hidden=false;msg.textContent="The map couldn't be made: "+(e.message||'the game failed to load');};
@@ -137,7 +140,7 @@ async function start(seed){
   draw();pump();
 }
 
-// ---- Land & sea: the game's SEA_CFG (world/coast.js), the defaults leaving the world as the game makes it ----
+// ---- Land & sea: the game's WORLD_CFG (world/coast.js), the defaults leaving the world as the game makes it ----
 // (each range is as far as the start can still always be found inland with a coast in reach)
 const SEA_S=[['land','Land',-2.5,2.5,0.1,0],['size','Continent size',0.4,1.8,0.05,1],['rough','Coastline roughness',0,2.5,0.1,1],['chan','Ocean channels',0,2.5,0.1,1],['isles','Island chains',0,3,0.1,1],['islz','Island size',0.6,3,0.1,1]];
 const SEAC={},seaIn={},seaOut={};
@@ -173,7 +176,9 @@ function viewTiles(T,m){const a=Math.floor(wx(-m)/T),b=Math.floor(wx(vw+m)/T),c=
 // ---- asking for what's in view: the land everywhere first, then what's on it, then the detail ----
 let busy=0,lbusy=0;const busyEl=document.getElementById('busy');
 const landKey=(L,i,j)=>L+'|'+i+','+j;
-function landJobs(){const L=landLv(),T=CT<<L,out=[];for(const [i,j] of viewTiles(T,64))if(!LANDT.has(landKey(L,i,j)))out.push({op:'land',tx:i,tz:j,L});return out;}
+// (the climate's tiles too, while it's shown: on the same worker, after the land)
+function landJobs(){const L=landLv(),T=CT<<L,out=[],V=viewTiles(T,64);for(const [i,j] of V)if(!LANDT.has(landKey(L,i,j)))out.push({op:'land',tx:i,tz:j,L});
+  if(clim!=='off')for(const [i,j] of V)if(!CLIMT.has(landKey(L,i,j)))out.push({op:'clim',tx:i,tz:j,L});return out;}
 function siteJob(count){let n=0,job=null;
   if(sc>=SITES)for(const [i,j] of viewTiles(CT,64))if(!SITET.has(i+','+j)){n++;if(!job)job={op:'coarse',tx:i,tz:j};if(!count)return job;}
   if(sc>=DETAIL)for(const [i,j] of viewTiles(DT,0))if(!DET.has(i+','+j)){n++;if(!job)job={op:'detail',tx:i,tz:j};if(!count)return job;}
@@ -184,7 +189,7 @@ function pump(){
   // (the land first: on the land worker if it's up, or before anything else on the one worker)
   if(lj.length&&!lbusy&&(landW!==W||!busy)){const job=lj[0],g=gen,key=landKey(job.L,job.tx,job.tz),own=landW!==W;if(own)lbusy=1;else busy=1;
     const done=()=>{if(own)lbusy=0;else busy=0;};
-    call(job,landW).then(r=>{if(g!==gen)return;done();take('land',key,r,job);draw();pump();},err=>{if(g!==gen)return;done();LANDT.set(key,null);console.warn('land',key,err);pump();});}
+    call(job,landW).then(r=>{if(g!==gen)return;done();take(job.op,key,r,job);draw();pump();},err=>{if(g!==gen)return;done();(job.op==='clim'?CLIMT:LANDT).set(key,null);console.warn(job.op,key,err);pump();});}
   if(!busy&&(landW!==W||!lj.length)){const job=siteJob(false);
     if(job){busy=1;const g=gen,key=job.tx+','+job.tz;
       call(job).then(r=>{if(g!==gen)return;busy=0;take(job.op,key,r,job);draw();pump();},err=>{if(g!==gen)return;busy=0;
@@ -200,6 +205,7 @@ let ptNames=[];
 function take(op,key,r,job){
   if(op==='land'){const L=[hex(SEA),hex(SHALLOW),hex(LAND)];LANDT.set(key,paint(r.M,k=>L[r.land[k]]));
     if(LANDT.size>3000){const k0=LANDT.keys().next().value;LANDT.delete(k0);}}
+  else if(op==='clim'){CLIMT.set(key,{r,c:{}});if(CLIMT.size>1500){const k0=CLIMT.keys().next().value;CLIMT.delete(k0);}}
   else if(op==='coarse'){SITET.set(key,true);for(const s of r.sets)setsAll.set(s.k,s);bases.push(...r.bases);navy.push(...r.navy);cvs.push(...r.cvs);
     // (each river's box and how far apart its points are, so zoomed out it's drawn from every few points, and not at all
     // when it's off screen)
@@ -219,6 +225,20 @@ const lay=document.getElementById('layers');
 for(const [k,t,c] of LAY){const b=document.createElement('button');b.className='chip';b.type='button';b.id='lay-'+k;b.setAttribute('aria-pressed','true');b.innerHTML=`<i class="sw" style="background:${c};border-radius:50%"></i>${t}`;b.onclick=()=>{show[k]=!show[k];b.setAttribute('aria-pressed',show[k]);draw();};lay.append(b);}
 const gr=document.getElementById('ground');
 for(const [k,t] of [['plots','Plot types'],['zones','Zones']]){const b=document.createElement('button');b.className='chip seg';b.type='button';b.id='gr-'+k;b.textContent=t;b.setAttribute('aria-pressed',k===ground);b.onclick=()=>{ground=k;for(const q of gr.children)q.setAttribute('aria-pressed',q===b);draw();};gr.append(b);}
+// (the climate over the land: the game's climateAt, worked out but not yet used by its world)
+let clim='off';
+const CLIMS={t:{name:'Temperature',ends:['Cold','Hot'],stops:['#2f5fc4','#9ec9e8','#f1ecd2','#f0a050','#c2321f']},m:{name:'Moisture',ends:['Dry','Wet'],stops:['#b98a46','#d9c78a','#9cc46a','#3f9a5a','#1f6f7a']}};
+for(const k in CLIMS)CLIMS[k].rgb=CLIMS[k].stops.map(hex);
+const climRGB=(k,v)=>{const S=CLIMS[k].rgb,f=v/255*(S.length-1),i=Math.min(S.length-2,Math.floor(f)),u=f-i;return [0,1,2].map(c=>Math.round(S[i][c]+(S[i+1][c]-S[i][c])*u));};
+// (a tile's picture for what's shown, made the first time it's wanted; the sea left clear)
+function climPic(e,k){if(e.c[k])return e.c[k];const r=e.r,N=r.M,c=document.createElement('canvas');c.width=c.height=N;const x=c.getContext('2d'),im=x.createImageData(N,N);
+  for(let q=0;q<N*N;q++){if(r.land[q]!==2)continue;const [R,G,B]=climRGB(k,r[k][q]);im.data[q*4]=R;im.data[q*4+1]=G;im.data[q*4+2]=B;im.data[q*4+3]=255;}
+  x.putImageData(im,0,0);return e.c[k]=c;}
+const clEl=document.getElementById('climate'),clKey=document.getElementById('climKey');
+for(const [k,t] of [['off','Off'],['t',CLIMS.t.name],['m',CLIMS.m.name]]){const b=document.createElement('button');b.className='chip seg';b.type='button';b.id='cl-'+k;b.textContent=t;b.setAttribute('aria-pressed',k===clim);
+  b.onclick=()=>{clim=k;for(const q of clEl.children)q.setAttribute('aria-pressed',q===b);clKey.hidden=k==='off';
+    if(k!=='off'){const C=CLIMS[k];clKey.children[0].textContent=C.ends[0];clKey.children[2].textContent=C.ends[1];clKey.children[1].style.background='linear-gradient(90deg,'+C.stops.join(',')+')';}
+    draw();pump();};clEl.append(b);}
 const leg=document.getElementById('legend');
 const mk=(h,t)=>{const s=document.createElement('span');s.innerHTML=h+t;leg.append(s);};
 mk(`<svg class="sw" viewBox="0 0 14 14"><polygon points="7,0.5 8.9,5 13.5,5.2 9.9,8.2 11.1,13 7,10.3 2.9,13 4.1,8.2 0.5,5.2 5.1,5" fill="#ffc800" stroke="#503000"/></svg>`,'Capital');
@@ -258,6 +278,9 @@ function render(){
   if(sc>=SITES){for(const s of setsAll.values()){if(!inV(s.x,s.z,s.R*sc+10))continue;if(det&&DET.get(Math.floor(s.x/DT)+','+Math.floor(s.z/DT)))continue;
     const T=TYPE[s.type]||TYPE.village;ctx.beginPath();ctx.arc(sx(s.x),sy(s.z),Math.max(2,s.R*sc),0,7);ctx.fillStyle=T.blob;ctx.fill();}}
   if(det)for(const [i,j] of viewTiles(DT,0)){const d=DET.get(i+','+j);if(d)ctx.drawImage(ground==='plots'?d.pc:d.zc,sx(i*DT),sy(j*DT),DT*sc+.5,DT*sc+.5);}
+  // the climate over the land, when it's shown (coarser tiles first, as for the land)
+  if(clim!=='off'){ctx.imageSmoothingEnabled=true;const L0=landLv();for(let L=LMAX;L>=L0;L--){const T=CT<<L,V=viewTiles(T,0);if(L<LMAX&&V.length>400)continue;
+    for(const [i,j] of V){const e=CLIMT.get(landKey(L,i,j));if(e)ctx.drawImage(climPic(e,clim),sx(i*T),sy(j*T),T*sc+.5,T*sc+.5);}}ctx.imageSmoothingEnabled=false;}
   if(sc>=28){ctx.strokeStyle='rgba(0,0,0,.08)';ctx.lineWidth=1;ctx.beginPath();
     for(let x=Math.ceil(wx(0));x<=wx(vw);x++){const X=Math.round(sx(x))+.5;ctx.moveTo(X,0);ctx.lineTo(X,vh);}
     for(let z=Math.ceil(wz(0));z<=wz(vh);z++){const Y=Math.round(sy(z))+.5;ctx.moveTo(0,Y);ctx.lineTo(vw,Y);}ctx.stroke();}

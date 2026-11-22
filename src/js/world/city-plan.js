@@ -342,7 +342,7 @@ function routeCuts(px,pz){
 }
 function plotType(px,pz){
   const t=plotType1(px,pz);if(!TEST_OFF.size||!TEST_OFF.has(t))return t;
-  return biomeOf(px,pz)==='city'?'empty':'plains';   // (switched off: an empty lot in town, open grass out in the country)
+  return realmOf(px,pz)==='city'?'empty':'plains';   // (switched off: an empty lot in town, open grass out in the country)
 }
 // (asked for constantly: every street segment, lamp post and goblin route goes through it, and working it out from scratch
 // isn't cheap. Not remembered while a theme park is being placed, nor in the Testing Environment, where the answer can move.)
@@ -356,7 +356,7 @@ function plotType1(px,pz){
 function plotType0(px,pz){
   if(seaPlot(px,pz))return coastType(px,pz);
   if(isRiver(px,pz))return'river';
-  if(biomeOf(px,pz)==='plains')return railPlot(px,pz)?'plains':tsPlot(px,pz)?'truckstop':farmK(px,pz)!==null?'farm':dumpAt(px,pz)!==null?'dump':castleAt(px,pz)?'castle':bigPlainsAt(px,pz)?bigPlainsAt(px,pz).kind:'plains';
+  if(realmOf(px,pz)==='plains')return railPlot(px,pz)?'plains':tsPlot(px,pz)?'truckstop':farmK(px,pz)!==null?'farm':dumpAt(px,pz)!==null?'dump':castleAt(px,pz)?'castle':bigPlainsAt(px,pz)?bigPlainsAt(px,pz).kind:'plains';
   if(railPlot(px,pz))return railStation(px,pz)?'station':'rail';
   if(metroStation(px,pz))return'metro';
   if(cloverOf(px,pz))return'ramp';

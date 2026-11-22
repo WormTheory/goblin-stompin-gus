@@ -221,7 +221,7 @@ function refreshProps(){
        if(siteKind(px,pz))for(const f of siteProps(plotInfo(px,pz),px,pz)){if(out(f,p,RS))continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);
          if(!chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS)))||get(fx,f.y0-1,fz)===AIR||get(fx,f.y0,fz)!==AIR||got.has(f.key)||siteIn(f.x,f.z))continue;
          got.add(f.key);activeProps.push(f);drawProp(f);if(!f.low&&!downFix.has(f.key)&&!falling.has(f.key))propCells.set(propCK(f.x,f.y0,f.z),f);}
-       if(biomeOf(px,pz)==='plains')continue;
+       if(realmOf(px,pz)==='plains')continue;
        for(const f of streetFurn(px,pz)){if(!f.prop)continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);if(get(fx,G,fz)!==f.on||get(fx,G+1,fz)!==AIR||siteIn(f.x,f.z))continue;
          activeProps.push(f);activeFix.push(f);drawProp(f);if(downFix.has(f.key)||falling.has(f.key))continue;
          // (a bench is wider than one block: goblins go round the whole of it)
@@ -255,7 +255,7 @@ function refreshProps(){
   fallMatrix(0,0,0,0);
   for(const p of viewers()){const seenR=new Set();
     for(let px=Math.floor((p.pos.x-30)/CELL);px<=Math.floor((p.pos.x+30)/CELL);px++)for(let pz=Math.floor((p.pos.z-30)/CELL);pz<=Math.floor((p.pos.z+30)/CELL);pz++){
-      if(biomeOf(px,pz)!=='city')continue;const Sx=superOf(px,pz);
+      if(realmOf(px,pz)!=='city')continue;const Sx=superOf(px,pz);
       // (a big site's stairs are all listed on its first plot, which may be well out of this range)
       if(Sx&&seenR.has(Sx))continue;if(Sx)seenR.add(Sx);const ax=Sx?Sx.ax:px,az=Sx?Sx.az:pz;
       for(const b of plotInfo(ax,az).b)for(const S of b.stair2?[b.stair,b.stair2]:b.east?[b.stair,b.east.stair]:b.stair?[b.stair]:[]){const al=S.ax==='x',R0=(al?ax:az)*CELL+S.r0,CC=(al?az:ax)*CELL,Y=stairFloors(b);
@@ -307,7 +307,7 @@ function refreshFixtures(){
       const ck=px*100003+pz;if(seen.has(ck))continue;seen.add(ck);
       if(!tenvShow(px,pz))continue;
       const X0=px*CELL,Z0=pz*CELL,near=Math.hypot(X0+4-p.pos.x,Z0+4-p.pos.z)<70;
-      if(biomeOf(px,pz)==='plains')continue;
+      if(realmOf(px,pz)==='plains')continue;
       const PBf=plotBounds(px,pz);
       for(const [lx,lz,rx,rz] of lampSpotsOf(px,pz,X0,Z0,PBf)){if(!fixCanAsk(X0+lx,Z0+lz)||craters.length&&bbGone(X0+lx,Z0+lz))continue;if(get(X0+lx,G,Z0+lz)===ASPHALT||get(X0+lx,G+1,Z0+lz)!==AIR)continue;const f={type:'lamp',key:'l'+(X0+lx)+','+(Z0+lz),x:X0+lx+0.5,z:Z0+lz+0.5,rx,rz};activeFix.push(f);drawFix(f,near);}
       // benches and litter bins along the pavements of the busier blocks, and along the paths in the parks

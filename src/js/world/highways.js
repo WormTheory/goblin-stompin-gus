@@ -174,7 +174,7 @@ function cloverAt(j,k){
   if(v===undefined){
     v=hwCol(j,k)&&hwRow(k,j);
     // (anywhere that's built up all round the crossing, so the ramps have somewhere to go: not just in a city)
-    if(v){const S=settlementAt(j,k);if(!S)v=false;for(let px=j-2;px<=j+1&&v;px++)for(let pz=k-2;pz<=k+1&&v;pz++)if(settlementAt(px,pz)!==S||biomeOf(px,pz)!=='city')v=false;}
+    if(v){const S=settlementAt(j,k);if(!S)v=false;for(let px=j-2;px<=j+1&&v;px++)for(let pz=k-2;pz<=k+1&&v;pz++)if(settlementAt(px,pz)!==S||realmOf(px,pz)!=='city')v=false;}
     for(let d=1;d<=3&&v;d++)if(hwCol(j-d,k)||hwCol(j+d,k)||hwRow(k-d,j)||hwRow(k+d,j))v=false;
     for(let px=j-2;px<=j+1&&v;px++)for(let pz=k-2;pz<=k+1&&v;pz++)if(isRiver(px,pz))v=false;
     cloverCache.set(key,v);

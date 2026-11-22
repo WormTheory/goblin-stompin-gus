@@ -78,7 +78,7 @@ function spawnStaff(g){
   g.id=makeIdentity(g,L);{const J=STAFF_JOBS_BY[b.brand.n]||STAFF_JOBS[b.signCat];g.id.occ=J[Math.floor(Math.random()*J.length)]+' at Goblin '+brandName(b.brand);}
   return true;
 }
-function findSidewalk(cx,cz,rMin,rMax){for(let k=0;k<60;k++){const a=Math.random()*Math.PI*2,r=rMin+Math.random()*(rMax-rMin),x=cx+Math.cos(a)*r,z=cz+Math.sin(a)*r,s=surfaceAt(x,z);if(s.y===G+1&&s.b===SIDEWALK||s.b===GRASS&&biomeOf(Math.floor(x/CELL),Math.floor(z/CELL))==='plains')return new V3(Math.floor(x)+.5,s.y,Math.floor(z)+.5);}return null;}
+function findSidewalk(cx,cz,rMin,rMax){for(let k=0;k<60;k++){const a=Math.random()*Math.PI*2,r=rMin+Math.random()*(rMax-rMin),x=cx+Math.cos(a)*r,z=cz+Math.sin(a)*r,s=surfaceAt(x,z);if(s.y===G+1&&s.b===SIDEWALK||s.b===GRASS&&realmOf(Math.floor(x/CELL),Math.floor(z/CELL))==='plains')return new V3(Math.floor(x)+.5,s.y,Math.floor(z)+.5);}return null;}
 function freeStall(x,z){
   const out=[];
   for(let px=Math.floor((x-45)/CELL);px<=Math.floor((x+45)/CELL);px++)for(let pz=Math.floor((z-45)/CELL);pz<=Math.floor((z+45)/CELL);pz++){

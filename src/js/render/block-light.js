@@ -42,7 +42,7 @@ function blkLamps(qx,qz){
   const k=ckey(qx,qz);let L=TENV?null:blkLampC.get(k);if(L)return L;L=[];
   const x0=qx*CS,z0=qz*CS;
   for(let px=Math.floor((x0-3)/CELL);px<=Math.floor((x0+CS+2)/CELL);px++)for(let pz=Math.floor((z0-3)/CELL);pz<=Math.floor((z0+CS+2)/CELL);pz++){
-    if(!tenvShow(px,pz)||biomeOf(px,pz)==='plains')continue;const X0=px*CELL,Z0=pz*CELL;
+    if(!tenvShow(px,pz)||realmOf(px,pz)==='plains')continue;const X0=px*CELL,Z0=pz*CELL;
     for(const [lx,lz,rx,rz] of lampSpotsOf(px,pz,X0,Z0,plotBounds(px,pz))){
       const hx=Math.floor(X0+lx+0.5+rx*1.5),hz=Math.floor(Z0+lz+0.5+rz*1.5);if(hx<x0||hx>=x0+CS||hz<z0||hz>=z0+CS)continue;
       L.push({key:'l'+(X0+lx)+','+(Z0+lz),fx:X0+lx,fz:Z0+lz,x:hx,y:G+6,z:hz});}}

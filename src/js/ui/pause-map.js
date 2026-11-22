@@ -140,7 +140,7 @@ function drawMapBlocks(x,k,ox,oz,c0,c1,r0,r1,o){
     const X0=px*CELL,Z0=pz*CELL,t=plotType(px,pz);
     if(seaPlot(px,pz)){const n=seaN,st=CELL/n,C=seaMapCells(px,pz,n),key=t==='yard'||t==='basin'?'yard':t==='navy'||t==='nbasin'?'navy':t==='lighthouse'?'lighthouse':t==='beach'?'beach':t==='rig'?'rig':'sea';
       for(let j=0;j<n;j++)for(let i=0;i<n;i++)rect(X0+i*st,Z0+j*st,X0+(i+1)*st,Z0+(j+1)*st,C[j*n+i],key);continue;}
-    if(biomeOf(px,pz)==='plains'){
+    if(realmOf(px,pz)==='plains'){
       rect(X0,Z0,X0+CELL,Z0+CELL,MAPC.plains,'plains');
       if(fine){const FL=farmLane(px,pz);if(FL)rect(X0+PC-1,FL.z0,X0+PC+1,FL.z1,'#a89a78','farm');}
       if(t==='truckstop'){const P=plotInfo(px,pz);for(const b of P.b)rect(X0+b.x0,Z0+b.z0,X0+b.x1,Z0+b.z1,MAPC.truckstop,'truckstop');}
@@ -189,7 +189,7 @@ function drawMapBlocks(x,k,ox,oz,c0,c1,r0,r1,o){
 function drawMapLines(x,k,ox,oz,c0,c1,r0,r1,HL,hits){
   const X=v=>ox+v*k,Z=v=>oz+v*k;
   const rect=(x0,z0,x1,z1,col,cat)=>{const a=X(x0),b=Z(z0),ww=(x1-x0)*k+0.6,hh=(z1-z0)*k+0.6;x.fillStyle=col;x.fillRect(a,b,ww,hh);if(HL&&cat&&hlOn(HL,cat))hits.push([a,b,ww,hh,col,cat]);};
-  const E=[];for(let px=c0;px<=c1;px++)for(let pz=r0;pz<=r1;pz++)if(explored.has(px+','+pz))E.push(px,pz,biomeOf(px,pz)==='plains'?1:0);
+  const E=[];for(let px=c0;px<=c1;px++)for(let pz=r0;pz<=r1;pz++)if(explored.has(px+','+pz))E.push(px,pz,realmOf(px,pz)==='plains'?1:0);
   // the railways you've seen
   {x.strokeStyle=MAPC.rail;x.lineWidth=Math.max(2,4*k);x.lineCap='butt';x.beginPath();
    for(const L of railLinksInBox(c0*CELL,r0*CELL,(c1+1)*CELL,(r1+1)*CELL))for(let i=0;i+4<L.L;i+=4){const [ax,az]=L.pts[i],[bx,bz]=L.pts[Math.min(L.L-1,i+4)];
@@ -248,7 +248,7 @@ function mapRuinPieces(c0,c1,r0,r1,rv){
   const v=rv+','+explored.size;
   if(mapRuinV!==v||!mapRuinL){mapRuinV=v;mapRuinL=[];
     for(const key in destroyed){const p=key.split(',');if(p.length!==3)continue;const ax=+p[0],az=+p[1],i=+p[2];if(!isFinite(ax)||!isFinite(az)||!isFinite(i))continue;
-      const b=plotInfo(ax,az).b[i];if(!b||seaPlot(ax,az)||biomeOf(ax,az)==='plains'||plotType(ax,az)==='river'||!ruinedB(ax,az,i)||blockRuined(ax,az))continue;
+      const b=plotInfo(ax,az).b[i];if(!b||seaPlot(ax,az)||realmOf(ax,az)==='plains'||plotType(ax,az)==='river'||!ruinedB(ax,az,i)||blockRuined(ax,az))continue;
       const sup=plotType(ax,az)==='super'?superOf(ax,az):null;if(sup&&(sup.kind==='bigpark'||sup.kind==='stadium'))continue;
       mapRuinL.push([ax*CELL+b.x0,az*CELL+b.z0,ax*CELL+b.x1,az*CELL+b.z1,!!sup]);}}
   const out=[];

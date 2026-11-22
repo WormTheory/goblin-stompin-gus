@@ -180,14 +180,14 @@ function updateCars(dt){
       // a ground highway reaching a town: from here it's the main street
       // down a town's ramp at its open end, out in the country: on along whatever highway starts there (or, if none does, back up it)
       if(c.revT>0)c.revT-=dt;
-      if(!H.ground&&H.y<=G+1.5&&!(c.revT>0)&&biomeOf(Math.floor(c.pos.x/CELL),Math.floor(c.pos.z/CELL))==='plains'){
+      if(!H.ground&&H.y<=G+1.5&&!(c.revT>0)&&realmOf(Math.floor(c.pos.x/CELL),Math.floor(c.pos.z/CELL))==='plains'){
         let J=null;const cands=routesNearBox(c.pos.x-30,c.pos.z-30,c.pos.x+30,c.pos.z+30);
         for(let q=0;q<cands.length&&!J;q+=2){const R=cands[q];for(const [dir,s] of [[1,0],[-1,1]]){const pt=R.pts[s?R.pts.length-1:0],nx=R.pts[s?R.pts.length-2:1];
           if(Math.hypot(pt[0]-c.pos.x,pt[1]-c.pos.z)<30&&((nx[0]-pt[0])*(H.ax==='x'?H.dir:0)+(nx[1]-pt[1])*(H.ax==='z'?H.dir:0))>0){J={R,dir,s};break;}}}
         if(J){dbgJoin++;c.rt={R:J.R,dir:J.dir,lane:1.5,i:J.s?J.R.pts.length-2:0};c.hw=null;continue;}
         H.dir=-H.dir;H.lane=Math.floor((H.lane+3)/CELL)*CELL+(((H.ax==='x')===(H.dir>0))?5.5:2.5);c.heading+=Math.PI;c.speed=0;c.revT=6;dbgRev++;}
       if((H.ground||H.y<=G+1.5)&&!(c.revT>0)&&goneAt(Math.floor(c.pos.x/CELL),Math.floor(c.pos.z/CELL))){H.dir=-H.dir;H.lane=Math.floor((H.lane+3)/CELL)*CELL+(((H.ax==='x')===(H.dir>0))?5.5:2.5);c.heading+=Math.PI;c.speed=0;c.revT=6;}   // (not into a wiped-out town: back out the way it came)
-      else if((H.ground||H.y<=G+1.5)&&biomeOf(Math.floor(c.pos.x/CELL),Math.floor(c.pos.z/CELL))!=='plains'){c.hw=null;c.dir=H.ax==='x'?(H.dir>0?1:3):(H.dir>0?0:2);c.lastInter=-1;c.leaving=!!c.hwPool;c.leaveT=0;continue;}
+      else if((H.ground||H.y<=G+1.5)&&realmOf(Math.floor(c.pos.x/CELL),Math.floor(c.pos.z/CELL))!=='plains'){c.hw=null;c.dir=H.ax==='x'?(H.dir>0?1:3):(H.dir>0?0:2);c.lastInter=-1;c.leaving=!!c.hwPool;c.leaveT=0;continue;}
       if(onDeck){
         const want=H.ax==='x'?(H.dir>0?Math.PI/2:-Math.PI/2):(H.dir>0?0:Math.PI),off=(H.ax==='x'?H.lane-c.pos.z:H.lane-c.pos.x);
         const side=H.ax==='x'?(H.dir>0?1:-1):(H.dir>0?-1:1);
@@ -211,7 +211,7 @@ function updateCars(dt){
         const dRamp=H.ground?1e9:rampAhead(H,H.ax==='x'?c.pos.x:c.pos.z);
         if(H.ground||H.y===G+1||dRamp<130){
           const a=H.ax==='x'?c.pos.x:c.pos.z,k=Math.floor((H.lane+3)/CELL),base=k*CELL;let dT=dRamp;
-          if(H.ground||H.y===G+1)for(let s=0;s<=3;s++){const m=Math.floor(a/CELL)+s*H.dir;if(biomeOf(H.ax==='x'?m:k,H.ax==='x'?k:m)!=='plains'){dT=Math.min(dT,H.dir>0?m*CELL-a:a-(m+1)*CELL);break;}}
+          if(H.ground||H.y===G+1)for(let s=0;s<=3;s++){const m=Math.floor(a/CELL)+s*H.dir;if(realmOf(H.ax==='x'?m:k,H.ax==='x'?k:m)!=='plains'){dT=Math.min(dT,H.dir>0?m*CELL-a:a-(m+1)*CELL);break;}}
           if(dT<80){
             const inner=base+((H.ax==='x')===(H.dir>0)?5.5:2.5),lat=o=>H.ax==='x'?o.pos.z:o.pos.x,rel=o=>((H.ax==='x'?o.pos.x:o.pos.z)-a)*H.dir;
             const same=o=>o!==c&&o.alive&&o.hw&&o.hw.ax===H.ax&&o.hw.dir===H.dir&&Math.abs(o.pos.y-c.pos.y)<2&&Math.abs(lat(o)-inner)<6;
@@ -259,7 +259,7 @@ function updateCars(dt){
       const rx=mod(c.pos.x,CELL),rz=mod(c.pos.z,CELL);
       {const bx=Math.floor(c.pos.x/CELL),bz=Math.floor(c.pos.z/CELL);
        // driving out of town along a main street, past the last of its blocks: onto the country highway from there
-       if(biomeOf(bx,bz)==='plains'&&!c.svcPool){const ax=c.dir%2?'x':'z',k=ax==='x'?Math.floor((c.pos.z+3)/CELL):Math.floor((c.pos.x+3)/CELL);
+       if(realmOf(bx,bz)==='plains'&&!c.svcPool){const ax=c.dir%2?'x':'z',k=ax==='x'?Math.floor((c.pos.z+3)/CELL):Math.floor((c.pos.x+3)/CELL);
          const along=ax==='x'?c.pos.x:c.pos.z,m=Math.floor(along/CELL),dir=c.dir===1||c.dir===0?1:-1;
          if(hwLine(ax,k,m)===null&&hwLine(ax,k,m-dir)==='country'){
            // the place whose highway this is, and the routes leaving it here

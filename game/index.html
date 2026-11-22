@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:078322edaacb4d663d9d7ef8a957abfde1db2834099e2b8d555cc8f5e854d9a0 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:58bb4f89d28500f6b91f5096d95132246b6ce73bbbe170c15c0112905af1181d -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1612,7 +1612,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <p class="pn-web">Also on <a href="patch-notes/index.html" target="_blank" rel="noopener">their own page</a>.</p>
 <details class="pn-up pn-fold pn-new" id="version-0-5" open><summary tabindex="0"><h2>Version 0.5</h2><span class="pn-tog" aria-hidden="true"></span></summary>
 <h3>The world</h3>
-<ul><li>The world is made of continents and oceans now, about half land and half sea. Before, one side of the world was all ocean and the other all land. Now there are big continents and smaller ones, seas and oceans between them, island chains off their coasts and the odd group of islands far out at sea.</li><li>The sea is shallow over the continental shelf near the coast and deep out in the open ocean.</li><li>Continents have bold, solid coastlines, with big peninsulas, bays and gulfs. Island chains off the coasts are made of whole, rounded islands, with the sea bed rising smoothly round each one.</li><li>You now always start on a continent, never on an island off one.</li><li>The World Generator zooms out more than ten times further, far enough to see whole continents and oceans. Far out it shows just the land, the sea and the capital; settlements, bases and rivers come back as you zoom in, and markers that would pile on top of each other are thinned out.</li><li>The World Generator has Land &amp; sea sliders: how much land there is, how big the continents are, how rough their coastlines, how many ocean channels cut through them and how many island chains lie offshore. The settings go in the page's address, so a world can be shared as you've shaped it. Island size makes the islands in a chain bigger and fewer, with fewer tiny specks between them. The game's own worlds are unchanged.</li><li>This makes a new world, so a saved city starts afresh.</li></ul>
+<ul><li>The world is made of continents and oceans now, about half land and half sea. Before, one side of the world was all ocean and the other all land. Now there are big continents and smaller ones, seas and oceans between them, island chains off their coasts and the odd group of islands far out at sea.</li><li>The sea is shallow over the continental shelf near the coast and deep out in the open ocean.</li><li>Continents have bold, solid coastlines, with big peninsulas, bays and gulfs. Island chains off the coasts are made of whole, rounded islands, with the sea bed rising smoothly round each one.</li><li>You now always start on a continent, never on an island off one.</li><li>The World Generator zooms out more than ten times further, far enough to see whole continents and oceans. Far out it shows just the land, the sea and the capital; settlements, bases and rivers come back as you zoom in, and markers that would pile on top of each other are thinned out.</li><li>The World Generator has Land &amp; sea sliders: how much land there is, how big the continents are, how rough their coastlines, how many ocean channels cut through them and how many island chains lie offshore. The settings go in the page's address, so a world can be shared as you've shaped it. Island size makes the islands in a chain bigger and fewer, with fewer tiny specks between them. The game's own worlds are unchanged.</li><li>This makes a new world, so a saved city starts afresh.</li><li>The World Generator can show the climate over the land, as temperature or moisture: the groundwork for biomes. It doesn't change the game's world yet.</li></ul>
 <h3>Saves</h3>
 <ul><li>Your game now carries on just as you left it: your score, goblins slain and everything in This rampage, the time of day, the day and season, and the weather.</li><li>Each player's health and stamina are kept too, and as a goblin your weapons, ammo, grenades and landmines. Left dead, you come back at full health. Player two gets theirs back on joining.</li><li>Left in a car, tank, helicopter, plane, hot-air balloon or Mobile Gear, you're back in it, in the same seat, with the damage it had. Anything that was flying comes back on the ground below. Trains, boats and ships can't be brought back, so you start beside where you were.</li><li>New city starts all of it afresh.</li></ul>
 <h3>Playing online</h3>
@@ -2337,7 +2337,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='87a6b5d34f77';
+const GAME_VER='0.5',GAME_BUILD='89849fbe00a6';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v98'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -2862,6 +2862,50 @@ function zoneAt(px,pz){
   zoneCache.set(k,v);return v;
 }
 const setType=zoneAt;
+// ---- gradient noise: smooth seeded noise for the landscape (climate, biomes and relief; docs/biomes-plan.md). Arithmetic
+// only (+ - * / and floor, which IEEE makes exactly the same in every browser), never Math.sin, cos, tanh, exp or
+// Math.random, so a host and a guest on different browsers always work out the same ground. Seeded through hash2, each
+// use with a salt of its own. Positions are in lattice units for nzNoise, in blocks for the rest ----
+const NZ_R=0.7071067811865476,NZ_GX=[1,-1,0,0,NZ_R,-NZ_R,NZ_R,-NZ_R],NZ_GZ=[0,0,1,-1,NZ_R,NZ_R,-NZ_R,-NZ_R];
+// (the gradient at lattice point (ix,iz), one of eight directions, dotted with the offset (dx,dz) from it)
+function nzGrad(ix,iz,salt,dx,dz){const g=Math.floor(hash2(ix*1619+salt*31337,iz*6971+salt*1013)*8);return NZ_GX[g]*dx+NZ_GZ[g]*dz;}
+// 2-D gradient noise (Perlin's, with his quintic easing): about -1..1, 0 on every lattice point
+function nzNoise(x,z,salt){
+  const ix=Math.floor(x),iz=Math.floor(z),fx=x-ix,fz=z-iz;
+  const u=fx*fx*fx*(fx*(fx*6-15)+10),v=fz*fz*fz*(fz*(fz*6-15)+10);
+  const a=nzGrad(ix,iz,salt,fx,fz),b=nzGrad(ix+1,iz,salt,fx-1,fz),c=nzGrad(ix,iz+1,salt,fx,fz-1),d=nzGrad(ix+1,iz+1,salt,fx-1,fz-1);
+  const ab=a+(b-a)*u,cd=c+(d-c)*u;
+  return (ab+(cd-ab)*v)*1.4142;   // (eight unit gradients reach at most 0.707: scaled up to about 1)
+}
+// fractal noise (fBm): oct octaves from a lattice sp blocks apart, each twice as fine and half as strong (each shifted, so
+// their lattice points don't line up); about -1..1
+function nzFbm(x,z,sp,oct,salt){let f=1/sp,a=1,s=0,n=0;
+  for(let i=0;i<oct;i++){s+=a*nzNoise(x*f+i*19.31,z*f-i*7.73,salt+i*101);n+=a;f*=2;a*=0.5;}return s/n;}
+// ridged noise: sharp crests where the noise crosses zero (ranges, ridgelines), each octave weighted by the one before so
+// the fine detail gathers along the crests; 0 (valley) .. 1 (crest)
+function nzRidged(x,z,sp,oct,salt){let f=1/sp,a=1,w=1,s=0,n=0;
+  for(let i=0;i<oct;i++){let r=1-Math.abs(nzNoise(x*f+i*19.31,z*f-i*7.73,salt+i*101));r*=r*w;w=r*2;if(w>1)w=1;s+=a*r;n+=a;f*=2;a*=0.5;}return s/n;}
+// domain warp: (x,z) pushed about by up to amp blocks of two-octave fBm sp blocks across, so edges and ridges wander
+// instead of following the lattice. The answer goes in NZ_W (no new array a call)
+const NZ_W=[0,0];
+function nzWarp(x,z,sp,amp,salt){const dx=nzFbm(x,z,sp,2,salt),dz=nzFbm(x,z,sp,2,salt+57);NZ_W[0]=x+amp*dx;NZ_W[1]=z+amp*dz;return NZ_W;}
+// (curves in place of tanh and the like: a clamp to 0..1, and smoothstep from e0 to e1)
+const nzClamp01=t=>t<0?0:t>1?1:t;
+function nzSmooth(e0,e1,t){t=nzClamp01((t-e0)/(e1-e0));return t*t*(3-2*t);}
+// ---- climate: temperature and moisture, the fields the biomes are to be chosen from (docs/biomes-plan.md, section 4).
+// Only the World Generator's Climate layer reads them so far: the game's world doesn't change by them yet ----
+const CLIM={t:0,m:0};
+// at block (x,z): t from cold 0 to hot 1, m from arid 0 to soaked 1. Broad, domain-warped fBm (gradient noise, so the
+// same in every browser), its regions some 6 to 15 thousand blocks across. The answer goes in CLIM
+function climateAt(x,z){
+  const w=nzWarp(x,z,14000,3000,2101),wx=w[0],wz=w[1];
+  CLIM.t=nzClamp01(0.5+0.85*nzFbm(wx,wz,18000,3,2203));
+  CLIM.m=nzClamp01(0.5+0.85*nzFbm(wx+50000,wz-30000,13000,3,2311));
+  return CLIM;
+}
+// the biome at block (x,z): grassland everywhere for now. (Not realmOf, world/coast.js, which says whether a plot is sea,
+// city or plains)
+const biomeAt=(x,z)=>'grassland';
 // ---- the sea: here and there across the world a coastline, the sea beyond it. Decided from a smooth noise over the
 // map (and a finer one for the coast's wiggles), so it can turn up anywhere -- except right on top of where you start ----
 const SEA_T=0.34,seaPlotC=new Map();
@@ -2872,16 +2916,24 @@ const SEA_T=0.34,seaPlotC=new Map();
 // off the continents' edges, with the odd group further out. Never right on top of where you start, which is slid along
 // the noise to somewhere well inland with a coast in reach.
 let OCEAN_O=null,seaDeepK=0,seaIsl=false,seaCcSeed=null;const SEA_CC=new Map();
-// (the World Generator's Land & sea sliders: more or less land, continent size, coast roughness, ocean channels and
-// island chains, and Island size (islz). It sets window.GSG_SEA before loading the game; the game never does, so these are always the defaults,
-// which leave every sum exactly as it was)
-const SEA_CFG=Object.assign({land:0,size:1,rough:1,chan:1,isles:1,islz:1},typeof window!=='undefined'&&window.GSG_SEA||{});
+// (the world's settings, WORLD_CFG: so far the World Generator's Land & sea sliders: more or less land, continent size,
+// coast roughness, ocean channels and island chains, and Island size (islz). The World Generator sets window.GSG_WORLD
+// (or the older GSG_SEA) before loading the game; the game itself never changes them, so they're the defaults, which leave
+// every sum exactly as it was. A world made with others keeps them in its save (cfg: only what isn't a default, from
+// worldCfgSent), so a guest online builds it with the host's)
+const WORLD_DEF={land:0,size:1,rough:1,chan:1,isles:1,islz:1};
+const WORLD_CFG=Object.assign({},WORLD_DEF);
+// (sets them from o, anything missing or not a number at its default: only before the world's worked out (loading), as
+// what's been worked out already isn't redone)
+function worldCfgSet(o){for(const k in WORLD_DEF)WORLD_CFG[k]=o&&typeof o[k]==='number'&&isFinite(o[k])?o[k]:WORLD_DEF[k];seaCcSeed=null;seaPlotC.clear();plotCache.clear();}
+const worldCfgSent=()=>{let o;for(const k in WORLD_DEF)if(WORLD_CFG[k]!==WORLD_DEF[k])(o=o||{})[k]=WORLD_CFG[k];return o;};
+if(typeof window!=='undefined'&&(window.GSG_WORLD||window.GSG_SEA))worldCfgSet(window.GSG_WORLD||window.GSG_SEA);
 function seaCont(fx,fz){
-  if(SEA_CFG.size!==1){fx/=SEA_CFG.size;fz/=SEA_CFG.size;}
+  if(WORLD_CFG.size!==1){fx/=WORLD_CFG.size;fz/=WORLD_CFG.size;}
   const wx=fx+420*gridNoise(fx,fz,1100,1201)+45*gridNoise(fx,fz,260,1223),wz=fz+420*gridNoise(fx,fz,1100,1307)+45*gridNoise(fx,fz,260,1327);
   let c=0.6*gridNoise(wx,wz,1500,1409)+0.28*gridNoise(wx,wz,600,1511)+0.12*gridNoise(wx,wz,210,1613);
-  const ch=1-Math.abs(gridNoise(wx,wz,2600,1709)+0.25*gridNoise(wx,wz,700,1733));c+=0.5*SEA_CFG.chan*Math.max(0,ch-0.65)/0.35;
-  return Math.tanh(c*3)/Math.tanh(1.5)*0.5-0.165-0.1*SEA_CFG.land;   // (the -0.165: about half the world land, measured over many seeds)
+  const ch=1-Math.abs(gridNoise(wx,wz,2600,1709)+0.25*gridNoise(wx,wz,700,1733));c+=0.5*WORLD_CFG.chan*Math.max(0,ch-0.65)/0.35;
+  return Math.tanh(c*3)/Math.tanh(1.5)*0.5-0.165-0.1*WORLD_CFG.land;   // (the -0.165: about half the world land, measured over many seeds)
 }
 // (that's slow, and smooth over hundreds of blocks-of-32, so it's worked out once per corner of each one and blended)
 function seaContAt(ix,iz){const k=ix*100003+iz;let v=SEA_CC.get(k);if(v===undefined){if(SEA_CC.size>300000)SEA_CC.clear();v=seaCont(ix,iz);SEA_CC.set(k,v);}return v;}
@@ -2897,20 +2949,20 @@ function seaRaw(fx,fz){
   // (the continent's edge made steep, so the finer noises only nudge the coast in and out -- bays, headlands, coves --
   // rather than carving it into long thin fingers, lakes and specks for miles either side of it)
   seaIsl=false;
-  let v=SEA_T+c*0.9+0.16*Math.tanh(c/0.025)+0.08*SEA_CFG.rough*gridNoise(fx,fz,150,541)+0.09*SEA_CFG.rough*gridNoise(fx,fz,60,557)+0.045*SEA_CFG.rough*gridNoise(fx,fz,16,313)+0.012*SEA_CFG.rough*gridNoise(fx,fz,5,211);
+  let v=SEA_T+c*0.9+0.16*Math.tanh(c/0.025)+0.08*WORLD_CFG.rough*gridNoise(fx,fz,150,541)+0.09*WORLD_CFG.rough*gridNoise(fx,fz,60,557)+0.045*WORLD_CFG.rough*gridNoise(fx,fz,16,313)+0.012*WORLD_CFG.rough*gridNoise(fx,fz,5,211);
   if(c>0.03){
     // (island chains: spots of land strung along ridges just off the continents' edges, each island a whole round one,
     // not a stringy line; and now and then a group of them further out)
     const e=Math.max(0,1-Math.abs(c-0.13)/0.09)*Math.max(0,Math.min(1,(gridNoise(fx,fz,400,1931)+0.05)/0.3));   // (off some coasts, not all)
     // (islz, the Island size slider, stretches the islands' noise and widens the ridge to hold them, while fading the
     // finer ripple and raising the cut-off, so bigger islands come with fewer specks between; at 1 every sum is as it was)
-    const iz=SEA_CFG.islz,rip=1/(iz*iz),cut=0.1+0.1*iz;
+    const iz=WORLD_CFG.islz,rip=1/(iz*iz),cut=0.1+0.1*iz;
     const r=1-Math.abs(gridNoise(fx,fz,170,1759)+0.3*gridNoise(fx,fz,45,1811)),arc=Math.max(0,Math.min(1,(r-(1-0.25*Math.sqrt(iz)))/(0.12*Math.sqrt(iz))));
     const spot=Math.max(0,gridNoise(fx,fz,14*iz,2213)+0.2*rip*gridNoise(fx,fz,7*iz,2239)-cut)/0.45;
     const reg=Math.max(0,gridNoise(fx,fz,500,1913)-0.5)/0.5,blob=Math.max(0,gridNoise(fx,fz,22*iz,2017)+0.25*rip*gridNoise(fx,fz,7*iz,2111)-0.45);
     // (a ceiling on the value rather than taken off it: between the islands the value is calm and level, so the sea bed
     // rises smoothly round each one, straight from that value (oceanDepth, with seaIsl), rather than in steps)
-    const isl=spot*arc*e*1.6*SEA_CFG.isles+blob*reg*3.2*SEA_CFG.isles;const f=SEA_T+(0.25-isl)*0.8;if(f<v){v=f;seaIsl=true;}}
+    const isl=spot*arc*e*1.6*WORLD_CFG.isles+blob*reg*3.2*WORLD_CFG.isles;const f=SEA_T+(0.25-isl)*0.8;if(f<v){v=f;seaIsl=true;}}
   seaDeepK=Math.max(0,Math.min(1,(c-0.04)/0.2));   // (how far out into an ocean basin: off the continental shelf)
   return v;
 }
@@ -2919,13 +2971,13 @@ function seaV(fx,fz){
   if(seaCcSeed!==seed)seaContL(0,0);
   if(!OCEAN_O){
     // the noise slid along so the start lands somewhere well inland (a natural coastline, not a moat round the start)
-    OCEAN_O=[0,0];const NT=SEA_CFG.size!==1||SEA_CFG.land||SEA_CFG.chan!==1?4000:800;   // (the sliders' far ends can need longer)
-    for(let k=0;k<NT;k++){const ox=(hash2(k*31+7,503)-0.5)*4000*SEA_CFG.size,oz=(hash2(k*17+3,911)-0.5)*4000*SEA_CFG.size;
+    OCEAN_O=[0,0];const NT=WORLD_CFG.size!==1||WORLD_CFG.land||WORLD_CFG.chan!==1?4000:800;   // (the sliders' far ends can need longer)
+    for(let k=0;k<NT;k++){const ox=(hash2(k*31+7,503)-0.5)*4000*WORLD_CFG.size,oz=(hash2(k*17+3,911)-0.5)*4000*WORLD_CFG.size;
       // (well inland right here, but with real coast within 40 blocks-of-32 or so, in some direction)
       let ok=seaRaw(ox,oz)<SEA_T-0.08;for(let a=0;a<12&&ok;a++){const A=a*Math.PI/6;if(seaRaw(ox+Math.cos(A)*11,oz+Math.sin(A)*11)>SEA_T-0.03)ok=false;}
       if(ok){let wet=false;for(let a=0;a<24&&!wet;a++){const A=a*Math.PI/12;for(const R of [22,30,38])if(seaRaw(ox+Math.cos(A)*R,oz+Math.sin(A)*R)>SEA_T+0.03)wet=true;}ok=wet;}
       // (and on a continent, not an island off one: land still in a good few directions far off)
-      if(ok){let n=0;for(let a=0;a<24;a++){const A=a*Math.PI/12;for(const R of [250*SEA_CFG.size,400*SEA_CFG.size])if(seaRaw(ox+Math.cos(A)*R,oz+Math.sin(A)*R)<SEA_T)n++;}ok=n>=16;}
+      if(ok){let n=0;for(let a=0;a<24;a++){const A=a*Math.PI/12;for(const R of [250*WORLD_CFG.size,400*WORLD_CFG.size])if(seaRaw(ox+Math.cos(A)*R,oz+Math.sin(A)*R)<SEA_T)n++;}ok=n>=16;}
       if(ok){OCEAN_O=[ox,oz];break;}}}
   let v=seaRaw(fx+OCEAN_O[0],fz+OCEAN_O[1]);
   const d=Math.hypot(fx,fz);if(d<8)v-=(1-d/8)*1.5;
@@ -2944,7 +2996,8 @@ function seaPlot(px,pz){
     if(cx>-3)v=cn>3?2:1;}
   if(seaPlotC.size>200000)seaPlotC.clear();seaPlotC.set(k,v);return v;
 }
-const biomeOf=(px,pz)=>seaPlot(px,pz)?'sea':settlementAt(px,pz)?'city':'plains';
+// (the realm a plot is in: sea, city or plains. Not the climate's biome, which is biomeAt in world/climate.js)
+const realmOf=(px,pz)=>seaPlot(px,pz)?'sea':settlementAt(px,pz)?'city':'plains';
 // ---- the coast: what each block along the shore is ----
 // Ports take whole stretches of coast: the land blocks along the shore in a port's patch of the map are paved over as
 // its yard (container stacks and quayside cranes, or a naval base), and the water blocks next to them dredged out as
@@ -3678,7 +3731,7 @@ function caveCol(col,x,z){
 const caveMouthC=new Map();
 function caveMouth(px,pz){
   const k=px*100003+pz;let v=caveMouthC.get(k);if(v!==undefined)return v;
-  v=!TEST_OFF.has('caves')&&hash2(px*523+31,pz*211+17)<0.03&&biomeOf(px,pz)==='plains'&&farmK(px,pz)===null&&!farmlandOf(px,pz)&&dumpAt(px,pz)===null&&!bunkerAt(px,pz)&&!bigPlainsAt(px,pz)&&!nearSea(px,pz)&&!plotNearLines(px,pz,2)&&!rivPlotNear(px,pz)&&!railPlot(px,pz)&&!tsPlot(px,pz);
+  v=!TEST_OFF.has('caves')&&hash2(px*523+31,pz*211+17)<0.03&&realmOf(px,pz)==='plains'&&farmK(px,pz)===null&&!farmlandOf(px,pz)&&dumpAt(px,pz)===null&&!bunkerAt(px,pz)&&!bigPlainsAt(px,pz)&&!nearSea(px,pz)&&!plotNearLines(px,pz,2)&&!rivPlotNear(px,pz)&&!railPlot(px,pz)&&!tsPlot(px,pz);
   if(v)for(let a=-2;a<=2&&v;a++)for(let b=-2;b<=2&&v;b++)if(settlementAt(px+a,pz+b))v=false;   // (out in the wilds)
   if(caveMouthC.size>100000)caveMouthC.clear();caveMouthC.set(k,v);return v;
 }
@@ -3873,7 +3926,7 @@ const CULTM={glow:new THREE.MeshBasicMaterial({color:0xff2a1a,transparent:true,o
 const CULT_RING=5.6;   // (how far from the altar they walk: clear of the fire's ring of stones, inside the standing stones)
 function refreshCultVenues(p,want){
   for(let px=Math.floor((p.pos.x-140)/CELL);px<=Math.floor((p.pos.x+140)/CELL);px++)for(let pz=Math.floor((p.pos.z-140)/CELL);pz<=Math.floor((p.pos.z+140)/CELL);pz++){
-    if(biomeOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;const B=bigPlainsAt(px,pz);if(!B||B.kind!=='cult')continue;
+    if(realmOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;const B=bigPlainsAt(px,pz);if(!B||B.kind!=='cult')continue;
     const key='c'+px+','+pz;want.add(key);if(venues.has(key))continue;
     const cx=px*CELL+16.5,cz=pz*CELL+16.5,n=5+Math.floor(hash2(px,pz)*3);
     const glow=new THREE.Mesh(LM_BOX,CULTM.glow);glow.position.set(cx,G+3.2,cz+0.5);scene.add(glow);
@@ -3924,7 +3977,7 @@ function tower5gColumn(col,B,U,V,x,z){
 const turbC=new Map();
 function turbineAt(px,pz){
   const k=px*100003+pz;let v=turbC.get(k);if(v!==undefined)return v;v=false;
-  if(!TEST_OFF.has('wind')&&mod(px+pz,2)===0&&hash2(Math.floor(px/7)*311+5,Math.floor(pz/7)*157+3)<0.07&&biomeOf(px,pz)==='plains'&&farmK(px,pz)===null&&dumpAt(px,pz)===null&&!bigPlainsAt(px,pz)&&!bunkerAt(px,pz)&&!caveMouth(px,pz)&&!tsPlot(px,pz)&&!rivPlotNear(px,pz)&&!nearSea(px,pz)){
+  if(!TEST_OFF.has('wind')&&mod(px+pz,2)===0&&hash2(Math.floor(px/7)*311+5,Math.floor(pz/7)*157+3)<0.07&&realmOf(px,pz)==='plains'&&farmK(px,pz)===null&&dumpAt(px,pz)===null&&!bigPlainsAt(px,pz)&&!bunkerAt(px,pz)&&!caveMouth(px,pz)&&!tsPlot(px,pz)&&!rivPlotNear(px,pz)&&!nearSea(px,pz)){
     const cx=px*CELL+16,cz=pz*CELL+16;if(roadNear(cx,cz,16)>=12&&railNear(cx,cz)>=10)v=true;}
   if(turbC.size>100000)turbC.clear();turbC.set(k,v);return v;
 }
@@ -4088,7 +4141,7 @@ function refreshSiteVenues(p,want){
       const V={kind:'wind',rotor:g,sp:0.55+hash2(Math.floor(px/7),Math.floor(pz/7))*0.4,ck:ckey(Math.floor((px*CELL+16)/CS),Math.floor((pz*CELL+16)/CS)),hx:px*CELL+15,hz:pz*CELL+13,wk:'wind:'+px+','+pz,chkT:0};
       venues.set(key,V);windRestore(V);}}}
   for(let px=Math.floor((p.pos.x-150)/CELL);px<=Math.floor((p.pos.x+150)/CELL);px++)for(let pz=Math.floor((p.pos.z-150)/CELL);pz<=Math.floor((p.pos.z+150)/CELL);pz++){
-    if(biomeOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;
+    if(realmOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;
     const B=bigPlainsAt(px,pz);if(!B||!FIG_STYLE[B.kind]||(B.ax!==px||B.az!==pz)&&B.kind!=='airport'||siteOf(B.ax,B.az))continue;   // (a structure from the editor in its place has its own people: world/sites.js)   // (an airport's too big to wait till its corner's in reach)
     const key='g'+B.ax+','+B.az;want.add(key);if(venues.has(key))continue;
     const posts=sitePeople(B).map(([u,v,y],i)=>({x:B.ax*CELL+u+0.5,z:B.az*CELL+v+0.5,y,h0:hash2(B.ax+i,B.az*3+i)*6.28}));
@@ -4098,7 +4151,7 @@ function refreshSiteVenues(p,want){
     venues.set(key,V);}
   // the military bases' armour (see armyVenue)
   for(let px=Math.floor((p.pos.x-300)/CELL);px<=Math.floor((p.pos.x+300)/CELL);px++)for(let pz=Math.floor((p.pos.z-300)/CELL);pz<=Math.floor((p.pos.z+300)/CELL);pz++){
-    if(biomeOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;
+    if(realmOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;
     const B=bigPlainsAt(px,pz);if(!B||B.ax!==px||B.az!==pz||B.kind!=='base')continue;
     const key='m'+px+','+pz;want.add(key);if(!venues.has(key))venues.set(key,armyVenue(B));}
 }
@@ -4859,7 +4912,7 @@ function plotNearLines(px,pz,pad){
   const a=nearestOn(routesNearBox(x0,z0,x1,z1),cx,cz,r+9.6),b=nearestOn(riversNearBox(x0,z0,x1,z1),cx,cz,r+RIV_W);
   return !!(a&&a.d<r+9.6||b&&b.d<r+RIV_W);
 }
-const rectPlains=(ax,az,w,h)=>{for(let i=0;i<w;i++)for(let j=0;j<h;j++)if(biomeOf(ax+i,az+j)==='plains')return true;return false;};
+const rectPlains=(ax,az,w,h)=>{for(let i=0;i<w;i++)for(let j=0;j<h;j++)if(realmOf(ax+i,az+j)==='plains')return true;return false;};
 // plains terrain: gentle rolling hills (0-5 blocks up), flattening out toward any block that isn't open plains (the
 // city, a farm, a river); hollows below the line hold ponds (-1)
 // ---- castles: now and then, out in open country well away from any place, a castle on its hill: a moat round the
@@ -4868,7 +4921,7 @@ const castleC=new Map();
 function castleAt(px,pz){
   return false;   // (castles are gone)
   const k=px*100003+pz;let v=castleC.get(k);if(v!==undefined)return v;v=false;
-  if(hash2(px*523+7,pz*271+13)<0.0016&&biomeOf(px,pz)==='plains'){let near=false;
+  if(hash2(px*523+7,pz*271+13)<0.0016&&realmOf(px,pz)==='plains'){let near=false;
     for(let a=-2;a<=2&&!near;a++)for(let b=-2;b<=2&&!near;b++)if(settlementAt(px+a,pz+b))near=true;
     if(!near&&!bigPlainsAt(px,pz)&&!plotNearLines(px,pz,8)&&farmK(px,pz)===null&&!rivPlotNear(px,pz)&&![[4,4],[28,4],[4,28],[28,28],[16,16]].some(([a,b])=>tsAt(px*CELL+a,pz*CELL+b)))v=true;}
   castleC.set(k,v);return v;
@@ -4987,7 +5040,7 @@ const bunkC=new Map();
 function bunkerAt(px,pz){
   if(TEST_OFF.has('bunker'))return false;
   const k=px*100003+pz;let v=bunkC.get(k);if(v!==undefined)return v;v=false;
-  if(hash2(px*613+29,pz*307+41)<0.0015&&biomeOf(px,pz)==='plains'&&!railPlot(px,pz)&&!bigPlainsAt(px,pz)&&farmK(px,pz)===null&&dumpAt(px,pz)===null&&!castleAt(px,pz)&&!tsPlot(px,pz)&&!plotNearLines(px,pz,3)&&!rivPlotNear(px,pz))v=true;
+  if(hash2(px*613+29,pz*307+41)<0.0015&&realmOf(px,pz)==='plains'&&!railPlot(px,pz)&&!bigPlainsAt(px,pz)&&farmK(px,pz)===null&&dumpAt(px,pz)===null&&!castleAt(px,pz)&&!tsPlot(px,pz)&&!plotNearLines(px,pz,3)&&!rivPlotNear(px,pz))v=true;
   bunkC.set(k,v);return v;
 }
 function bunkerColumn(col,rx,rz,x,z){
@@ -5074,7 +5127,7 @@ function dumpSite(ax,az){
   const k=ax*100003+az;let v=dumpSC.get(k);if(v!==undefined)return v;dumpSC.set(k,null);v=null;   // (null while it's worked out)
   if(hash2(ax*389+11,az*167+3)<0.22){
     let ok=true;
-    for(let i=0;i<4&&ok;i++)for(let j=0;j<4&&ok;j++){const px=ax+i,pz=az+j;if(biomeOf(px,pz)!=='plains'||railPlot(px,pz)||bigPlainsAt(px,pz)||plotNearLines(px,pz,4)||farmK(px,pz)!==null||rivPlotNear(px,pz)||[[4,4],[28,4],[4,28],[28,28],[16,16]].some(([a,b])=>tsAt(px*CELL+a,pz*CELL+b)))ok=false;}
+    for(let i=0;i<4&&ok;i++)for(let j=0;j<4&&ok;j++){const px=ax+i,pz=az+j;if(realmOf(px,pz)!=='plains'||railPlot(px,pz)||bigPlainsAt(px,pz)||plotNearLines(px,pz,4)||farmK(px,pz)!==null||rivPlotNear(px,pz)||[[4,4],[28,4],[4,28],[28,28],[16,16]].some(([a,b])=>tsAt(px*CELL+a,pz*CELL+b)))ok=false;}
     // a street ending at one of its sides: (side, i) -- 0 low x, 1 high x, 2 low z, 3 high z; i blocks along that side
     if(ok)for(const i of [1,2,0,3]){if(v)break;for(let side=0;side<4&&!v;side++){
       const open=side===0?segBase(ax-1,az+i,1):side===1?segBase(ax+4,az+i,1):side===2?segBase(ax+i,az-1,0):segBase(ax+i,az+4,0);
@@ -5118,7 +5171,7 @@ function dumpColumn(a,col,px,pz,rx,rz,lx,lz,x,z){
 }
 // ---- farms: out on the plains, a block or few to either side of a country highway, with a straight gravel lane
 // (north or south) out to it ----
-const farmC=new Map(),farmCand=(px,pz)=>hash2(px*19+5,pz*23+7)<0.1&&biomeOf(px,pz)==='plains';
+const farmC=new Map(),farmCand=(px,pz)=>hash2(px*19+5,pz*23+7)<0.1&&realmOf(px,pz)==='plains';
 // a farm on block (px,pz): {s (-1: its road is to the north, 1: to the south), zEnd (where its lane meets the road's
 // edge)} or null. Which way is tried first is down to the farm; the lane must cross only open plains (no river, no
 // other farm, no town) and reach a country highway within four blocks.
@@ -5129,7 +5182,7 @@ function farmK(px,pz){
     const x=px*CELL+PC;
     const tryDir=s=>{
       for(let z=s<0?pz*CELL-1:(pz+1)*CELL,n=0;n<64;z+=s*2,n++){
-        const qz=Math.floor(z/CELL);if(qz!==pz&&(biomeOf(px,qz)!=='plains'||farmCand(px,qz)))return null;
+        const qz=Math.floor(z/CELL);if(qz!==pz&&(realmOf(px,qz)!=='plains'||farmCand(px,qz)))return null;
         const R=routeAt(x,z,10);if(R&&R.R.kind!=='country')continue;
         if(R&&R.d<7.5)return{s,zEnd:z};
         const W=riverAt(x,z,RIV_W+6);if(W&&W.d<RIV_W+5)return null;}
@@ -5159,7 +5212,7 @@ function farmlandSpec(fx,fz){
   const r=n=>hash2(fx*37+n*11,fz*53+n*7),W=4+Math.floor(r(5)*3),w=Math.floor(r(4)*W);
   return{kind:r(2)<0.55?'crop':'orchard',crop:r(3)<0.5?0:1,w,e:W-1-w,depth:4+Math.floor(r(6)*3)};
 }
-const fieldFree=(px,pz)=>dumpAt(px,pz)===null&&!castleAt(px,pz)&&!bigPlainsAt(px,pz)&&biomeOf(px,pz)==='plains'&&farmK(px,pz)===null&&!farmLane(px,pz)&&!plotNearLines(px,pz,4)&&![[4,4],[28,4],[4,28],[28,28],[16,16]].some(([a,b])=>tsAt(px*CELL+a,pz*CELL+b));
+const fieldFree=(px,pz)=>dumpAt(px,pz)===null&&!castleAt(px,pz)&&!bigPlainsAt(px,pz)&&realmOf(px,pz)==='plains'&&farmK(px,pz)===null&&!farmLane(px,pz)&&!plotNearLines(px,pz,4)&&![[4,4],[28,4],[4,28],[28,28],[16,16]].some(([a,b])=>tsAt(px*CELL+a,pz*CELL+b));
 // the farmland on block (px,pz): {kind,crop,fx,fz} or null
 function farmlandOf(px,pz){
   const key=px*100003+pz;let v=fieldC.get(key);if(v!==undefined)return v;v=null;
@@ -5170,7 +5223,7 @@ function farmlandOf(px,pz){
       v={kind:S.kind,crop:S.crop,fx,fz};}
   fieldC.set(key,v);return v;
 }
-const PLAINS_OPEN=(px,pz)=>biomeOf(px,pz)==='plains'&&farmK(px,pz)===null&&!farmlandOf(px,pz)&&dumpAt(px,pz)===null&&!castleAt(px,pz)&&!bunkerAt(px,pz)&&!bigPlainsAt(px,pz)&&!caveMouth(px,pz)&&!turbineAt(px,pz);
+const PLAINS_OPEN=(px,pz)=>realmOf(px,pz)==='plains'&&farmK(px,pz)===null&&!farmlandOf(px,pz)&&dumpAt(px,pz)===null&&!castleAt(px,pz)&&!bunkerAt(px,pz)&&!bigPlainsAt(px,pz)&&!caveMouth(px,pz)&&!turbineAt(px,pz);
 // close to a highway's line or a farm lane out on the plains (keep it flat, keep the trees off)
 function roadNear(x,z,pad){
   const px=Math.floor(x/CELL),pz=Math.floor(z/CELL);let e=1e9;
@@ -5216,7 +5269,7 @@ function airportOf(S){
   // (the neighbouring cities ahead of it in the order go first and keep theirs: no two airports overlap)
   const others=[];for(let rx=S.rx-2;rx<=S.rx+2;rx++)for(let rz=S.rz-2;rz<=S.rz+2;rz++){const S2=settlementLat(rx,rz);
     if(S2.type==='city'&&(S2.cx<S.cx||S2.cx===S.cx&&S2.cz<S.cz)&&settlementAt(S2.cx,S2.cz)===S2){const A=airportOf(S2);if(A)others.push(A);}}
-  const free=(ax,az)=>{if(others.some(A=>ax<A.ax+A.w+1&&ax+16>A.ax-1&&az<A.az+A.h+1&&az+8>A.az-1))return false;for(let a=ax;a<ax+16;a++)for(let b=az;b<az+8;b++)if(biomeOf(a,b)!=='plains'||settlementAt(a,b)||seaPlot(a,b)||railPlot(a,b)||farmK(a,b)!==null||tsPlot(a,b)||plotNearLines(a,b,1)||rivPlotNear(a,b))return false;return true;};
+  const free=(ax,az)=>{if(others.some(A=>ax<A.ax+A.w+1&&ax+16>A.ax-1&&az<A.az+A.h+1&&az+8>A.az-1))return false;for(let a=ax;a<ax+16;a++)for(let b=az;b<az+8;b++)if(realmOf(a,b)!=='plains'||settlementAt(a,b)||seaPlot(a,b)||railPlot(a,b)||farmK(a,b)!==null||tsPlot(a,b)||plotNearLines(a,b,1)||rivPlotNear(a,b))return false;return true;};
   const R=Math.ceil(S.R)+3,cols=[];for(let d=0;d<=R;d++){cols.push(S.cx+d);if(d)cols.push(S.cx-d);}
   for(const flip of [false,true]){if(v)break;
     for(const ix of cols){if(v)break;
@@ -5494,7 +5547,7 @@ function cloverAt(j,k){
   if(v===undefined){
     v=hwCol(j,k)&&hwRow(k,j);
     // (anywhere that's built up all round the crossing, so the ramps have somewhere to go: not just in a city)
-    if(v){const S=settlementAt(j,k);if(!S)v=false;for(let px=j-2;px<=j+1&&v;px++)for(let pz=k-2;pz<=k+1&&v;pz++)if(settlementAt(px,pz)!==S||biomeOf(px,pz)!=='city')v=false;}
+    if(v){const S=settlementAt(j,k);if(!S)v=false;for(let px=j-2;px<=j+1&&v;px++)for(let pz=k-2;pz<=k+1&&v;pz++)if(settlementAt(px,pz)!==S||realmOf(px,pz)!=='city')v=false;}
     for(let d=1;d<=3&&v;d++)if(hwCol(j-d,k)||hwCol(j+d,k)||hwRow(k-d,j)||hwRow(k+d,j))v=false;
     for(let px=j-2;px<=j+1&&v;px++)for(let pz=k-2;pz<=k+1&&v;pz++)if(isRiver(px,pz))v=false;
     cloverCache.set(key,v);
@@ -5943,7 +5996,7 @@ function routeCuts(px,pz){
 }
 function plotType(px,pz){
   const t=plotType1(px,pz);if(!TEST_OFF.size||!TEST_OFF.has(t))return t;
-  return biomeOf(px,pz)==='city'?'empty':'plains';   // (switched off: an empty lot in town, open grass out in the country)
+  return realmOf(px,pz)==='city'?'empty':'plains';   // (switched off: an empty lot in town, open grass out in the country)
 }
 // (asked for constantly: every street segment, lamp post and goblin route goes through it, and working it out from scratch
 // isn't cheap. Not remembered while a theme park is being placed, nor in the Testing Environment, where the answer can move.)
@@ -5957,7 +6010,7 @@ function plotType1(px,pz){
 function plotType0(px,pz){
   if(seaPlot(px,pz))return coastType(px,pz);
   if(isRiver(px,pz))return'river';
-  if(biomeOf(px,pz)==='plains')return railPlot(px,pz)?'plains':tsPlot(px,pz)?'truckstop':farmK(px,pz)!==null?'farm':dumpAt(px,pz)!==null?'dump':castleAt(px,pz)?'castle':bigPlainsAt(px,pz)?bigPlainsAt(px,pz).kind:'plains';
+  if(realmOf(px,pz)==='plains')return railPlot(px,pz)?'plains':tsPlot(px,pz)?'truckstop':farmK(px,pz)!==null?'farm':dumpAt(px,pz)!==null?'dump':castleAt(px,pz)?'castle':bigPlainsAt(px,pz)?bigPlainsAt(px,pz).kind:'plains';
   if(railPlot(px,pz))return railStation(px,pz)?'station':'rail';
   if(metroStation(px,pz))return'metro';
   if(cloverOf(px,pz))return'ramp';
@@ -8645,7 +8698,7 @@ function routeColumn(a,lx,lz,x,z,n,HY){
   const F=R.kind==='moto'?rtFlat(R):null,RL=F?2*(R.HY-G):0,e=Math.min(n.s-(F&&!F[0]?RL:0),R.L-n.s-(F&&!F[1]?RL:0)),t=Math.max(0,Math.min(1,(e-10)/40));let W=6+2.0*t*t*(3-2*t);   // (the extra width outside the outer lane is the hard shoulder)
   // (and where it runs into a town's main street, the barriers close in to the street's own width over the last stretch,
   // by which time the outer lane's cars have moved over, instead of the road just stepping in at the junction)
-  {if(!R.nar){const nar=E=>{const [px,pz]=E===R.A?R.pts[0]:R.pts[R.pts.length-1],a=E.ax==='x'?px-E.s:px,b=E.ax==='x'?pz:pz-E.s;return biomeOf(Math.floor(a/CELL),Math.floor(b/CELL))!=='plains';};R.nar=[(!F||F[0])&&nar(R.A),(!F||F[1])&&nar(R.B)];}
+  {if(!R.nar){const nar=E=>{const [px,pz]=E===R.A?R.pts[0]:R.pts[R.pts.length-1],a=E.ax==='x'?px-E.s:px,b=E.ax==='x'?pz:pz-E.s;return realmOf(Math.floor(a/CELL),Math.floor(b/CELL))!=='plains';};R.nar=[(!F||F[0])&&nar(R.A),(!F||F[1])&&nar(R.B)];}
    if(R.nar[0]&&n.s<14)W=Math.min(W,4+n.s/7);if(R.nar[1]&&R.L-n.s<14)W=Math.min(W,4+(R.L-n.s)/7);}
   if(ad>=W+1.4)return false;
   const bar=ad>=W;
@@ -8795,7 +8848,7 @@ function genChunk(cx,cz){
     // a river block: water, banks and bridges (streets across it stay, with the water running underneath)
     // the plains: rolling grass, ponds, the odd boulder; farms; rivers winding through with grassy banks
     {const qx=Math.floor(x/CELL),qz=Math.floor(z/CELL);if(seaPlot(qx,qz)){seaColumn(a,col,qx,qz,rx,rz,lx,lz,x,z);continue;}}
-    {const qx=Math.floor(x/CELL),qz=Math.floor(z/CELL);if(biomeOf(qx,qz)==='plains'){
+    {const qx=Math.floor(x/CELL),qz=Math.floor(z/CELL);if(realmOf(qx,qz)==='plains'){
       const TS=tsAt(x,z);
       if(TS)truckStopColumn(a,col,TS,qx,qz,rx,rz,lx,lz,x,z);
       else if(plotType(qx,qz)==='truckstop'){plainsColumn(col,x,z);const P=plotInfo(qx,qz);for(let bi=0;bi<P.b.length;bi++){const b=P.b[bi];if(rx>=b.x0&&rx<b.x1&&rz>=b.z0&&rz<b.z1){col(G,b.floor);buildingColumn(a,lx,lz,rx,rz,b,collapses[qx+','+qz+','+bi],qx,qz);break;}}}
@@ -8938,7 +8991,7 @@ function genChunk(cx,cz){
   // ground-level highways across the plains (in the places themselves they're just the main street)
   for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){
     const x=x0+lx,z=z0+lz,pa=Math.floor((z+3)/CELL),pb=Math.floor((x+3)/CELL);
-    let rowQ=gRow(pa,x)&&biomeOf(Math.floor(x/CELL),pa)==='plains'?z-pa*CELL+3:-1,colQ=gCol(pb,z)&&biomeOf(pb,Math.floor(z/CELL))==='plains'?x-pb*CELL+3:-1;if(rowQ>13)rowQ=-1;if(colQ>13)colQ=-1;
+    let rowQ=gRow(pa,x)&&realmOf(Math.floor(x/CELL),pa)==='plains'?z-pa*CELL+3:-1,colQ=gCol(pb,z)&&realmOf(pb,Math.floor(z/CELL))==='plains'?x-pb*CELL+3:-1;if(rowQ>13)rowQ=-1;if(colQ>13)colQ=-1;
     if(rowQ<0&&colQ<0)continue;
     for(let y=G+1;y<G+12;y++)a[li(lx,y,lz)]=AIR;   // (clear any hill, tree or pond)
     for(let y=G-2;y<G;y++)a[li(lx,y,lz)]=DIRT;
@@ -9081,7 +9134,7 @@ function findStreet(cx,cz,rMin,rMax){
   for(let k=0;k<160;k++){
     const a=Math.random()*Math.PI*2,r=rMin+Math.random()*(rMax-rMin)+(k>110?k-110:0);
     const x=cx+Math.cos(a)*r,z=cz+Math.sin(a)*r,s=surfaceAt(x,z);
-    if(!(s.y===G+1&&STREET.has(s.b))&&!(s.b===GRASS&&biomeOf(Math.floor(x/CELL),Math.floor(z/CELL))==='plains'))continue;
+    if(!(s.y===G+1&&STREET.has(s.b))&&!(s.b===GRASS&&realmOf(Math.floor(x/CELL),Math.floor(z/CELL))==='plains'))continue;
     return new V3(Math.floor(x)+.5,s.y,Math.floor(z)+.5);
   }
   const x=Math.round(cx/CELL)*CELL+RC,z=Math.round(cz/CELL)*CELL+RC;
@@ -9256,7 +9309,7 @@ function blkLamps(qx,qz){
   const k=ckey(qx,qz);let L=TENV?null:blkLampC.get(k);if(L)return L;L=[];
   const x0=qx*CS,z0=qz*CS;
   for(let px=Math.floor((x0-3)/CELL);px<=Math.floor((x0+CS+2)/CELL);px++)for(let pz=Math.floor((z0-3)/CELL);pz<=Math.floor((z0+CS+2)/CELL);pz++){
-    if(!tenvShow(px,pz)||biomeOf(px,pz)==='plains')continue;const X0=px*CELL,Z0=pz*CELL;
+    if(!tenvShow(px,pz)||realmOf(px,pz)==='plains')continue;const X0=px*CELL,Z0=pz*CELL;
     for(const [lx,lz,rx,rz] of lampSpotsOf(px,pz,X0,Z0,plotBounds(px,pz))){
       const hx=Math.floor(X0+lx+0.5+rx*1.5),hz=Math.floor(Z0+lz+0.5+rz*1.5);if(hx<x0||hx>=x0+CS||hz<z0||hz>=z0+CS)continue;
       L.push({key:'l'+(X0+lx)+','+(Z0+lz),fx:X0+lx,fz:Z0+lz,x:hx,y:G+6,z:hz});}}
@@ -10151,7 +10204,7 @@ function editsUnpack(P){
         edits[x+','+y+','+z]=b;l.push([x,y,z,b]);}}}
 }
 // (the world as saved; extra: anything else to go in with it)
-const saveObj=extra=>Object.assign({seed,ed2:editsPacked(),coll:collapses,craters,wreck:wrecked,down:[...downFix],dest:destroyed,test:[...TEST_OFF]},extra);
+const saveObj=extra=>Object.assign({seed,cfg:worldCfgSent(),ed2:editsPacked(),coll:collapses,craters,wreck:wrecked,down:[...downFix],dest:destroyed,test:[...TEST_OFF]},extra);
 const saveText=extra=>JSON.stringify(saveObj(extra));
 let saveFullSaid=false;
 var WB={on:false,pending:null,saved:null};   // (a city too big for localStorage: see worldPut in ui/saves.js)
@@ -10163,7 +10216,7 @@ function save(){if(saveBlocked||WB.pending)return;clearTimeout(saveTimer);saveTi
   // (better to say so once than to quietly stop saving)
   if(!saveFullSaid){saveFullSaid=true;try{flashLabel("Can't save: the browser's storage is full");}catch(e2){}}});},700);}
 function load(){try{const s=JSON.parse(netWorldText()||localStorage.getItem(SAVE_KEY)||'null');   // (a tab joining a game online builds the host's world, kept in its own session storage)
-  if(netWorldText())saveBlocked=true;if(s&&typeof s.seed==='number'){seed=s.seed;TEST_OFF=new Set(Array.isArray(s.test)?s.test:[]);TENV=s.tenv&&Array.isArray(s.tenv.boxes)?{boxes:s.tenv.boxes.filter(B=>B&&[B.ax,B.az,B.w,B.h].every(Number.isFinite))}:null;if(TENV&&s.tenv.sea&&['x0','x1','z0','z1'].every(k=>Number.isFinite(s.tenv.sea[k])))TENV.sea=s.tenv.sea;tenvIndex();if(s.ed2db&&!s.ed2){WB.on=true;WB.pending=s.ed2db;}edits=s.ed2?{}:s.edits||{};collapses=s.coll||{};craters=bbValid(s.craters);wrecked=(s.wreck&&typeof s.wreck==='object')?s.wreck:{};destroyed=(s.dest&&typeof s.dest==='object')?s.dest:{};destroyVer++;setDCache.clear();downFix=new Map(Array.isArray(s.down)?s.down:[]);if(s.ed2)editsUnpack(s.ed2);else for(const k in edits){const [x,y,z]=k.split(',').map(Number);const ck=ckey(Math.floor(x/CS),Math.floor(z/CS));let l=chunkEdits.get(ck);if(!l){l=[];chunkEdits.set(ck,l);}l.push([x,y,z,edits[k]]);}return true;}}catch(e){}return false;}
+  if(netWorldText())saveBlocked=true;if(s&&typeof s.seed==='number'){seed=s.seed;if(s.cfg&&typeof s.cfg==='object')worldCfgSet(s.cfg);TEST_OFF=new Set(Array.isArray(s.test)?s.test:[]);TENV=s.tenv&&Array.isArray(s.tenv.boxes)?{boxes:s.tenv.boxes.filter(B=>B&&[B.ax,B.az,B.w,B.h].every(Number.isFinite))}:null;if(TENV&&s.tenv.sea&&['x0','x1','z0','z1'].every(k=>Number.isFinite(s.tenv.sea[k])))TENV.sea=s.tenv.sea;tenvIndex();if(s.ed2db&&!s.ed2){WB.on=true;WB.pending=s.ed2db;}edits=s.ed2?{}:s.edits||{};collapses=s.coll||{};craters=bbValid(s.craters);wrecked=(s.wreck&&typeof s.wreck==='object')?s.wreck:{};destroyed=(s.dest&&typeof s.dest==='object')?s.dest:{};destroyVer++;setDCache.clear();downFix=new Map(Array.isArray(s.down)?s.down:[]);if(s.ed2)editsUnpack(s.ed2);else for(const k in edits){const [x,y,z]=k.split(',').map(Number);const ck=ckey(Math.floor(x/CS),Math.floor(z/CS));let l=chunkEdits.get(ck);if(!l){l=[];chunkEdits.set(ck,l);}l.push([x,y,z,edits[k]]);}return true;}}catch(e){}return false;}
 
 // ---------- Renderer ----------
 const canvas=document.getElementById('world');
@@ -17755,7 +17808,7 @@ function drawMapBlocks(x,k,ox,oz,c0,c1,r0,r1,o){
     const X0=px*CELL,Z0=pz*CELL,t=plotType(px,pz);
     if(seaPlot(px,pz)){const n=seaN,st=CELL/n,C=seaMapCells(px,pz,n),key=t==='yard'||t==='basin'?'yard':t==='navy'||t==='nbasin'?'navy':t==='lighthouse'?'lighthouse':t==='beach'?'beach':t==='rig'?'rig':'sea';
       for(let j=0;j<n;j++)for(let i=0;i<n;i++)rect(X0+i*st,Z0+j*st,X0+(i+1)*st,Z0+(j+1)*st,C[j*n+i],key);continue;}
-    if(biomeOf(px,pz)==='plains'){
+    if(realmOf(px,pz)==='plains'){
       rect(X0,Z0,X0+CELL,Z0+CELL,MAPC.plains,'plains');
       if(fine){const FL=farmLane(px,pz);if(FL)rect(X0+PC-1,FL.z0,X0+PC+1,FL.z1,'#a89a78','farm');}
       if(t==='truckstop'){const P=plotInfo(px,pz);for(const b of P.b)rect(X0+b.x0,Z0+b.z0,X0+b.x1,Z0+b.z1,MAPC.truckstop,'truckstop');}
@@ -17804,7 +17857,7 @@ function drawMapBlocks(x,k,ox,oz,c0,c1,r0,r1,o){
 function drawMapLines(x,k,ox,oz,c0,c1,r0,r1,HL,hits){
   const X=v=>ox+v*k,Z=v=>oz+v*k;
   const rect=(x0,z0,x1,z1,col,cat)=>{const a=X(x0),b=Z(z0),ww=(x1-x0)*k+0.6,hh=(z1-z0)*k+0.6;x.fillStyle=col;x.fillRect(a,b,ww,hh);if(HL&&cat&&hlOn(HL,cat))hits.push([a,b,ww,hh,col,cat]);};
-  const E=[];for(let px=c0;px<=c1;px++)for(let pz=r0;pz<=r1;pz++)if(explored.has(px+','+pz))E.push(px,pz,biomeOf(px,pz)==='plains'?1:0);
+  const E=[];for(let px=c0;px<=c1;px++)for(let pz=r0;pz<=r1;pz++)if(explored.has(px+','+pz))E.push(px,pz,realmOf(px,pz)==='plains'?1:0);
   // the railways you've seen
   {x.strokeStyle=MAPC.rail;x.lineWidth=Math.max(2,4*k);x.lineCap='butt';x.beginPath();
    for(const L of railLinksInBox(c0*CELL,r0*CELL,(c1+1)*CELL,(r1+1)*CELL))for(let i=0;i+4<L.L;i+=4){const [ax,az]=L.pts[i],[bx,bz]=L.pts[Math.min(L.L-1,i+4)];
@@ -17863,7 +17916,7 @@ function mapRuinPieces(c0,c1,r0,r1,rv){
   const v=rv+','+explored.size;
   if(mapRuinV!==v||!mapRuinL){mapRuinV=v;mapRuinL=[];
     for(const key in destroyed){const p=key.split(',');if(p.length!==3)continue;const ax=+p[0],az=+p[1],i=+p[2];if(!isFinite(ax)||!isFinite(az)||!isFinite(i))continue;
-      const b=plotInfo(ax,az).b[i];if(!b||seaPlot(ax,az)||biomeOf(ax,az)==='plains'||plotType(ax,az)==='river'||!ruinedB(ax,az,i)||blockRuined(ax,az))continue;
+      const b=plotInfo(ax,az).b[i];if(!b||seaPlot(ax,az)||realmOf(ax,az)==='plains'||plotType(ax,az)==='river'||!ruinedB(ax,az,i)||blockRuined(ax,az))continue;
       const sup=plotType(ax,az)==='super'?superOf(ax,az):null;if(sup&&(sup.kind==='bigpark'||sup.kind==='stadium'))continue;
       mapRuinL.push([ax*CELL+b.x0,az*CELL+b.z0,ax*CELL+b.x1,az*CELL+b.z1,!!sup]);}}
   const out=[];
@@ -19190,7 +19243,7 @@ function spawnStaff(g){
   g.id=makeIdentity(g,L);{const J=STAFF_JOBS_BY[b.brand.n]||STAFF_JOBS[b.signCat];g.id.occ=J[Math.floor(Math.random()*J.length)]+' at Goblin '+brandName(b.brand);}
   return true;
 }
-function findSidewalk(cx,cz,rMin,rMax){for(let k=0;k<60;k++){const a=Math.random()*Math.PI*2,r=rMin+Math.random()*(rMax-rMin),x=cx+Math.cos(a)*r,z=cz+Math.sin(a)*r,s=surfaceAt(x,z);if(s.y===G+1&&s.b===SIDEWALK||s.b===GRASS&&biomeOf(Math.floor(x/CELL),Math.floor(z/CELL))==='plains')return new V3(Math.floor(x)+.5,s.y,Math.floor(z)+.5);}return null;}
+function findSidewalk(cx,cz,rMin,rMax){for(let k=0;k<60;k++){const a=Math.random()*Math.PI*2,r=rMin+Math.random()*(rMax-rMin),x=cx+Math.cos(a)*r,z=cz+Math.sin(a)*r,s=surfaceAt(x,z);if(s.y===G+1&&s.b===SIDEWALK||s.b===GRASS&&realmOf(Math.floor(x/CELL),Math.floor(z/CELL))==='plains')return new V3(Math.floor(x)+.5,s.y,Math.floor(z)+.5);}return null;}
 function freeStall(x,z){
   const out=[];
   for(let px=Math.floor((x-45)/CELL);px<=Math.floor((x+45)/CELL);px++)for(let pz=Math.floor((z-45)/CELL);pz<=Math.floor((z+45)/CELL);pz++){
@@ -21113,7 +21166,7 @@ let rvT=0;
 function manageRVs(){
   const act=players.filter(p=>p.active);if(!act.length)return;const far=viewFar(),RB=Math.min(far+10,200);
   for(const p of act)for(let px=Math.floor((p.pos.x-RB)/CELL);px<=Math.floor((p.pos.x+RB)/CELL);px++)for(let pz=Math.floor((p.pos.z-RB)/CELL);pz<=Math.floor((p.pos.z+RB)/CELL);pz++){
-    if(biomeOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;const B=bigPlainsAt(px,pz);if(!B||B.kind!=='campsite'||B.ax!==px||B.az!==pz)continue;
+    if(realmOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;const B=bigPlainsAt(px,pz);if(!B||B.kind!=='campsite'||B.ax!==px||B.az!==pz)continue;
     for(const q of campPitches(B)){if(q.k!=='rv')continue;const key='rv'+px+','+pz+':'+q.c,x=px*CELL+q.u+4,z=pz*CELL+q.v+1.5,d=Math.hypot(x-p.pos.x,z-p.pos.z);
       if(d>RB||cars.some(c=>c.alive&&c.spot===key)||parkDown[key]&&playTime<parkDown[key])continue;
       if(!chunks.has(ckey(Math.floor(x/CS),Math.floor(z/CS))))continue;
@@ -24608,7 +24661,7 @@ function refreshProps(){
        if(siteKind(px,pz))for(const f of siteProps(plotInfo(px,pz),px,pz)){if(out(f,p,RS))continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);
          if(!chunks.has(ckey(Math.floor(fx/CS),Math.floor(fz/CS)))||get(fx,f.y0-1,fz)===AIR||get(fx,f.y0,fz)!==AIR||got.has(f.key)||siteIn(f.x,f.z))continue;
          got.add(f.key);activeProps.push(f);drawProp(f);if(!f.low&&!downFix.has(f.key)&&!falling.has(f.key))propCells.set(propCK(f.x,f.y0,f.z),f);}
-       if(biomeOf(px,pz)==='plains')continue;
+       if(realmOf(px,pz)==='plains')continue;
        for(const f of streetFurn(px,pz)){if(!f.prop)continue;const fx=Math.floor(f.x),fz=Math.floor(f.z);if(get(fx,G,fz)!==f.on||get(fx,G+1,fz)!==AIR||siteIn(f.x,f.z))continue;
          activeProps.push(f);activeFix.push(f);drawProp(f);if(downFix.has(f.key)||falling.has(f.key))continue;
          // (a bench is wider than one block: goblins go round the whole of it)
@@ -24642,7 +24695,7 @@ function refreshProps(){
   fallMatrix(0,0,0,0);
   for(const p of viewers()){const seenR=new Set();
     for(let px=Math.floor((p.pos.x-30)/CELL);px<=Math.floor((p.pos.x+30)/CELL);px++)for(let pz=Math.floor((p.pos.z-30)/CELL);pz<=Math.floor((p.pos.z+30)/CELL);pz++){
-      if(biomeOf(px,pz)!=='city')continue;const Sx=superOf(px,pz);
+      if(realmOf(px,pz)!=='city')continue;const Sx=superOf(px,pz);
       // (a big site's stairs are all listed on its first plot, which may be well out of this range)
       if(Sx&&seenR.has(Sx))continue;if(Sx)seenR.add(Sx);const ax=Sx?Sx.ax:px,az=Sx?Sx.az:pz;
       for(const b of plotInfo(ax,az).b)for(const S of b.stair2?[b.stair,b.stair2]:b.east?[b.stair,b.east.stair]:b.stair?[b.stair]:[]){const al=S.ax==='x',R0=(al?ax:az)*CELL+S.r0,CC=(al?az:ax)*CELL,Y=stairFloors(b);
@@ -24694,7 +24747,7 @@ function refreshFixtures(){
       const ck=px*100003+pz;if(seen.has(ck))continue;seen.add(ck);
       if(!tenvShow(px,pz))continue;
       const X0=px*CELL,Z0=pz*CELL,near=Math.hypot(X0+4-p.pos.x,Z0+4-p.pos.z)<70;
-      if(biomeOf(px,pz)==='plains')continue;
+      if(realmOf(px,pz)==='plains')continue;
       const PBf=plotBounds(px,pz);
       for(const [lx,lz,rx,rz] of lampSpotsOf(px,pz,X0,Z0,PBf)){if(!fixCanAsk(X0+lx,Z0+lz)||craters.length&&bbGone(X0+lx,Z0+lz))continue;if(get(X0+lx,G,Z0+lz)===ASPHALT||get(X0+lx,G+1,Z0+lz)!==AIR)continue;const f={type:'lamp',key:'l'+(X0+lx)+','+(Z0+lz),x:X0+lx+0.5,z:Z0+lz+0.5,rx,rz};activeFix.push(f);drawFix(f,near);}
       // benches and litter bins along the pavements of the busier blocks, and along the paths in the parks
@@ -25320,7 +25373,7 @@ function refreshVenues(){
       const cars2=[];for(let i=0;i<4;i++){const g=makeTrainCar(i===0);scene.add(g);cars2.push(g);}
       venues.set(k,{kind:'train',R,s:45+Math.random()*(R.L-90),dir:Math.random()<0.5?1:-1,v:0,wait:0,cars:cars2});}}
     for(let px=Math.floor((p.pos.x-700)/CELL);px<=Math.floor((p.pos.x+700)/CELL);px+=1)for(let pz=Math.floor((p.pos.z-700)/CELL);pz<=Math.floor((p.pos.z+700)/CELL);pz+=1){
-      if(biomeOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;const B=bigPlainsAt(px,pz);if(!B||B.ax!==px||B.az!==pz||B.kind!=='airport'&&B.kind!=='airfield'&&B.kind!=='nasa')continue;const k='b'+px+','+pz;want.add(k);if(venues.has(k))continue;
+      if(realmOf(px,pz)!=='plains'||!tenvShow(px,pz))continue;const B=bigPlainsAt(px,pz);if(!B||B.ax!==px||B.az!==pz||B.kind!=='airport'&&B.kind!=='airfield'&&B.kind!=='nasa')continue;const k='b'+px+','+pz;want.add(k);if(venues.has(k))continue;
       if(B.kind==='airport'||B.kind==='airfield'){   // (an airport's airliners: two that come and go, one at each gate; an airfield's three two-seaters)
         const planes=[],n=B.kind==='airport'?2+AP.gates.length:3;for(let i=0;i<n;i++){const g=B.kind==='airport'?makePlane(i):makeLightPlane(i);scene.add(g);planes.push(g);}venues.set(k,{kind:'airport',B,planes});}
       else{const g=makeRocket();scene.add(g);venues.set(k,{kind:'nasa',B,rocket:g,st:'pad',t:0,y:0,v:0,lastHr:-1});}}
@@ -28515,14 +28568,14 @@ function updateCars(dt){
       // a ground highway reaching a town: from here it's the main street
       // down a town's ramp at its open end, out in the country: on along whatever highway starts there (or, if none does, back up it)
       if(c.revT>0)c.revT-=dt;
-      if(!H.ground&&H.y<=G+1.5&&!(c.revT>0)&&biomeOf(Math.floor(c.pos.x/CELL),Math.floor(c.pos.z/CELL))==='plains'){
+      if(!H.ground&&H.y<=G+1.5&&!(c.revT>0)&&realmOf(Math.floor(c.pos.x/CELL),Math.floor(c.pos.z/CELL))==='plains'){
         let J=null;const cands=routesNearBox(c.pos.x-30,c.pos.z-30,c.pos.x+30,c.pos.z+30);
         for(let q=0;q<cands.length&&!J;q+=2){const R=cands[q];for(const [dir,s] of [[1,0],[-1,1]]){const pt=R.pts[s?R.pts.length-1:0],nx=R.pts[s?R.pts.length-2:1];
           if(Math.hypot(pt[0]-c.pos.x,pt[1]-c.pos.z)<30&&((nx[0]-pt[0])*(H.ax==='x'?H.dir:0)+(nx[1]-pt[1])*(H.ax==='z'?H.dir:0))>0){J={R,dir,s};break;}}}
         if(J){dbgJoin++;c.rt={R:J.R,dir:J.dir,lane:1.5,i:J.s?J.R.pts.length-2:0};c.hw=null;continue;}
         H.dir=-H.dir;H.lane=Math.floor((H.lane+3)/CELL)*CELL+(((H.ax==='x')===(H.dir>0))?5.5:2.5);c.heading+=Math.PI;c.speed=0;c.revT=6;dbgRev++;}
       if((H.ground||H.y<=G+1.5)&&!(c.revT>0)&&goneAt(Math.floor(c.pos.x/CELL),Math.floor(c.pos.z/CELL))){H.dir=-H.dir;H.lane=Math.floor((H.lane+3)/CELL)*CELL+(((H.ax==='x')===(H.dir>0))?5.5:2.5);c.heading+=Math.PI;c.speed=0;c.revT=6;}   // (not into a wiped-out town: back out the way it came)
-      else if((H.ground||H.y<=G+1.5)&&biomeOf(Math.floor(c.pos.x/CELL),Math.floor(c.pos.z/CELL))!=='plains'){c.hw=null;c.dir=H.ax==='x'?(H.dir>0?1:3):(H.dir>0?0:2);c.lastInter=-1;c.leaving=!!c.hwPool;c.leaveT=0;continue;}
+      else if((H.ground||H.y<=G+1.5)&&realmOf(Math.floor(c.pos.x/CELL),Math.floor(c.pos.z/CELL))!=='plains'){c.hw=null;c.dir=H.ax==='x'?(H.dir>0?1:3):(H.dir>0?0:2);c.lastInter=-1;c.leaving=!!c.hwPool;c.leaveT=0;continue;}
       if(onDeck){
         const want=H.ax==='x'?(H.dir>0?Math.PI/2:-Math.PI/2):(H.dir>0?0:Math.PI),off=(H.ax==='x'?H.lane-c.pos.z:H.lane-c.pos.x);
         const side=H.ax==='x'?(H.dir>0?1:-1):(H.dir>0?-1:1);
@@ -28546,7 +28599,7 @@ function updateCars(dt){
         const dRamp=H.ground?1e9:rampAhead(H,H.ax==='x'?c.pos.x:c.pos.z);
         if(H.ground||H.y===G+1||dRamp<130){
           const a=H.ax==='x'?c.pos.x:c.pos.z,k=Math.floor((H.lane+3)/CELL),base=k*CELL;let dT=dRamp;
-          if(H.ground||H.y===G+1)for(let s=0;s<=3;s++){const m=Math.floor(a/CELL)+s*H.dir;if(biomeOf(H.ax==='x'?m:k,H.ax==='x'?k:m)!=='plains'){dT=Math.min(dT,H.dir>0?m*CELL-a:a-(m+1)*CELL);break;}}
+          if(H.ground||H.y===G+1)for(let s=0;s<=3;s++){const m=Math.floor(a/CELL)+s*H.dir;if(realmOf(H.ax==='x'?m:k,H.ax==='x'?k:m)!=='plains'){dT=Math.min(dT,H.dir>0?m*CELL-a:a-(m+1)*CELL);break;}}
           if(dT<80){
             const inner=base+((H.ax==='x')===(H.dir>0)?5.5:2.5),lat=o=>H.ax==='x'?o.pos.z:o.pos.x,rel=o=>((H.ax==='x'?o.pos.x:o.pos.z)-a)*H.dir;
             const same=o=>o!==c&&o.alive&&o.hw&&o.hw.ax===H.ax&&o.hw.dir===H.dir&&Math.abs(o.pos.y-c.pos.y)<2&&Math.abs(lat(o)-inner)<6;
@@ -28594,7 +28647,7 @@ function updateCars(dt){
       const rx=mod(c.pos.x,CELL),rz=mod(c.pos.z,CELL);
       {const bx=Math.floor(c.pos.x/CELL),bz=Math.floor(c.pos.z/CELL);
        // driving out of town along a main street, past the last of its blocks: onto the country highway from there
-       if(biomeOf(bx,bz)==='plains'&&!c.svcPool){const ax=c.dir%2?'x':'z',k=ax==='x'?Math.floor((c.pos.z+3)/CELL):Math.floor((c.pos.x+3)/CELL);
+       if(realmOf(bx,bz)==='plains'&&!c.svcPool){const ax=c.dir%2?'x':'z',k=ax==='x'?Math.floor((c.pos.z+3)/CELL):Math.floor((c.pos.x+3)/CELL);
          const along=ax==='x'?c.pos.x:c.pos.z,m=Math.floor(along/CELL),dir=c.dir===1||c.dir===0?1:-1;
          if(hwLine(ax,k,m)===null&&hwLine(ax,k,m-dir)==='country'){
            // the place whose highway this is, and the routes leaving it here
@@ -30243,9 +30296,9 @@ function* farJobNear(SB,SG,act,ra,rb){
       seen.add(k);
       const P=plotInfo(px,pz),X0=px*CELL,Z0=pz*CELL,sc=farScorched(X0+CELL/2,Z0+CELL/2);
       if(seaPlot(px,pz))farSea(SG,px,pz,4);
-      else if(biomeOf(px,pz)==='plains'){farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.6,Z0+CELL,sc?FAR_SCORCH:FARC.park);farLinesPlot(SB,SG,px,pz);if(turbineAt(px,pz)&&!sc)farTurbine(SB,px,pz,1);if(!sc)yield* farCountry(SB,SG,px,pz,0);}   // the plains: all grass (hills are only drawn up close), and what crosses them
+      else if(realmOf(px,pz)==='plains'){farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.6,Z0+CELL,sc?FAR_SCORCH:FARC.park);farLinesPlot(SB,SG,px,pz);if(turbineAt(px,pz)&&!sc)farTurbine(SB,px,pz,1);if(!sc)yield* farCountry(SB,SG,px,pz,0);}   // the plains: all grass (hills are only drawn up close), and what crosses them
       else farBox(SG,X0+ROADW,G+0.4,Z0+ROADW,X0+CELL,G+0.97,Z0+CELL,sc?FAR_SCORCH:P.type==='park'?FARC.park:P.type==='plaza'?FARC.plaza:FARC.side);
-      if(!seaPlot(px,pz)){if(biomeOf(px,pz)==='plains')farPonds(SG,px,pz,4,true);else farTownWater(SG,px,pz,P,2);}
+      if(!seaPlot(px,pz)){if(realmOf(px,pz)==='plains')farPonds(SG,px,pz,4,true);else farTownWater(SG,px,pz,P,2);}
       farTreeNew=false;farTreeBoxes(SG,farTreesOf(px,pz));if(farTreeNew)yield;
       if(hwRow(pz,px)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('x',pz,X0+CELL/2)-1;farBox(SB,X0,y-1,Z0-3,X0+CELL,y+2,Z0+11,_fc);}
       if(hwCol(px,pz)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('z',px,Z0+CELL/2)-1;farBox(SB,X0-3,y-1,Z0,X0+11,y+2,Z0+CELL,_fc);}
@@ -30298,7 +30351,7 @@ function* farJobMid(SB,SG,act,ra,rb){
     const d=Math.hypot(px*CELL+CELL/2-p.pos.x,pz*CELL+CELL/2-p.pos.z);if(d>rb+CELL||d<ra-CELL)continue;seen.add(k);
     const X0=px*CELL,Z0=pz*CELL,sc=farScorched(X0+CELL/2,Z0+CELL/2);
     if(seaPlot(px,pz)){farSea(SG,px,pz,2);continue;}
-    if(biomeOf(px,pz)==='plains'){farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.6,Z0+CELL,sc?FAR_SCORCH:FARC.park);farLinesPlot(SB,SG,px,pz);if(turbineAt(px,pz)&&!sc)farTurbine(SB,px,pz,1.6);if(!sc)yield* farCountry(SB,SG,px,pz,1);
+    if(realmOf(px,pz)==='plains'){farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.6,Z0+CELL,sc?FAR_SCORCH:FARC.park);farLinesPlot(SB,SG,px,pz);if(turbineAt(px,pz)&&!sc)farTurbine(SB,px,pz,1.6);if(!sc)yield* farCountry(SB,SG,px,pz,1);
       farPonds(SG,px,pz,8,false);farWoods(SG,px,pz,16,true);
       if(hwRow(pz,px)&&!hwGround('x',pz,X0+16)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('x',pz,X0+CELL/2)-1;farBox(SB,X0,y-1,Z0-3,X0+CELL,y+2,Z0+11,_fc);}
       if(hwCol(px,pz)&&!hwGround('z',px,Z0+16)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('z',px,Z0+CELL/2)-1;farBox(SB,X0-3,y-1,Z0,X0+11,y+2,Z0+CELL,_fc);}
@@ -30373,7 +30426,7 @@ function* farJobFar(SB,SG,act,ra,rb){
     const d=Math.hypot(qx*C4+C4/2-p.pos.x,qz*C4+C4/2-p.pos.z);if(d>rb+C4||d<ra-C4)continue;seen.add(k);
     for(let i=0;i<4;i++)for(let j=0;j<4;j++){const px=qx*4+i,pz=qz*4+j,X0=px*CELL,Z0=pz*CELL,sc=farScorched(X0+CELL/2,Z0+CELL/2);
       if(seaPlot(px,pz)){farSea(SG,px,pz,1);continue;}
-      const ty=setType(px,pz);if(!ty){if(sc)farBox(SG,X0,G+0.45,Z0,X0+CELL,G+0.6,Z0+CELL,FAR_SCORCH);else if(turbineAt(px,pz))farTurbine(SB,px,pz,2.6);if(biomeOf(px,pz)==='plains'){farPonds(SG,px,pz,16,false);farWoods(SG,px,pz,32,false);if(!sc)yield* farCountry(SB,SG,px,pz,2);}continue;}
+      const ty=setType(px,pz);if(!ty){if(sc)farBox(SG,X0,G+0.45,Z0,X0+CELL,G+0.6,Z0+CELL,FAR_SCORCH);else if(turbineAt(px,pz))farTurbine(SB,px,pz,2.6);if(realmOf(px,pz)==='plains'){farPonds(SG,px,pz,16,false);farWoods(SG,px,pz,32,false);if(!sc)yield* farCountry(SB,SG,px,pz,2);}continue;}
       farBox(SG,X0,G+0.45,Z0,X0+CELL,G+0.97,Z0+CELL,sc?FAR_SCORCH:FARC.side);
       // (a plot where something's come down or been knocked about, or that a big blast reached: its real buildings, as
       // they've been left, rather than the guess)

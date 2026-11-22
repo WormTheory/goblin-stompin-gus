@@ -405,6 +405,6 @@ function plotNearLines(px,pz,pad){
   const a=nearestOn(routesNearBox(x0,z0,x1,z1),cx,cz,r+9.6),b=nearestOn(riversNearBox(x0,z0,x1,z1),cx,cz,r+RIV_W);
   return !!(a&&a.d<r+9.6||b&&b.d<r+RIV_W);
 }
-const rectPlains=(ax,az,w,h)=>{for(let i=0;i<w;i++)for(let j=0;j<h;j++)if(biomeOf(ax+i,az+j)==='plains')return true;return false;};
+const rectPlains=(ax,az,w,h)=>{for(let i=0;i<w;i++)for(let j=0;j<h;j++)if(realmOf(ax+i,az+j)==='plains')return true;return false;};
 // plains terrain: gentle rolling hills (0-5 blocks up), flattening out toward any block that isn't open plains (the
 // city, a farm, a river); hollows below the line hold ponds (-1)
