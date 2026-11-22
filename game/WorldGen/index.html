@@ -139,7 +139,7 @@ async function start(seed){
 
 // ---- Land & sea: the game's SEA_CFG (world/coast.js), the defaults leaving the world as the game makes it ----
 // (each range is as far as the start can still always be found inland with a coast in reach)
-const SEA_S=[['land','Land',-2.5,2.5,0.1,0],['size','Continent size',0.4,1.8,0.05,1],['rough','Coastline roughness',0,2.5,0.1,1],['chan','Ocean channels',0,2.5,0.1,1],['isles','Island chains',0,3,0.1,1]];
+const SEA_S=[['land','Land',-2.5,2.5,0.1,0],['size','Continent size',0.4,1.8,0.05,1],['rough','Coastline roughness',0,2.5,0.1,1],['chan','Ocean channels',0,2.5,0.1,1],['isles','Island chains',0,3,0.1,1],['islz','Island size',0.6,3,0.1,1]];
 const SEAC={},seaIn={},seaOut={};
 SEA_S.forEach(([k,,lo,hi,st,d])=>SEAC[k]=d);
 const seaFmt=(k,v)=>k==='land'?(v>0?'+':'')+v.toFixed(1):'×'+v.toFixed(k==='size'?2:1);

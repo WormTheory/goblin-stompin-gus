@@ -9,9 +9,9 @@ const SEA_T=0.34,seaPlotC=new Map();
 // the noise to somewhere well inland with a coast in reach.
 let OCEAN_O=null,seaDeepK=0,seaIsl=false,seaCcSeed=null;const SEA_CC=new Map();
 // (the World Generator's Land & sea sliders: more or less land, continent size, coast roughness, ocean channels and
-// island chains. It sets window.GSG_SEA before loading the game; the game never does, so these are always the defaults,
+// island chains, and Island size (islz). It sets window.GSG_SEA before loading the game; the game never does, so these are always the defaults,
 // which leave every sum exactly as it was)
-const SEA_CFG=Object.assign({land:0,size:1,rough:1,chan:1,isles:1},typeof window!=='undefined'&&window.GSG_SEA||{});
+const SEA_CFG=Object.assign({land:0,size:1,rough:1,chan:1,isles:1,islz:1},typeof window!=='undefined'&&window.GSG_SEA||{});
 function seaCont(fx,fz){
   if(SEA_CFG.size!==1){fx/=SEA_CFG.size;fz/=SEA_CFG.size;}
   const wx=fx+420*gridNoise(fx,fz,1100,1201)+45*gridNoise(fx,fz,260,1223),wz=fz+420*gridNoise(fx,fz,1100,1307)+45*gridNoise(fx,fz,260,1327);
@@ -38,9 +38,12 @@ function seaRaw(fx,fz){
     // (island chains: spots of land strung along ridges just off the continents' edges, each island a whole round one,
     // not a stringy line; and now and then a group of them further out)
     const e=Math.max(0,1-Math.abs(c-0.13)/0.09)*Math.max(0,Math.min(1,(gridNoise(fx,fz,400,1931)+0.05)/0.3));   // (off some coasts, not all)
-    const r=1-Math.abs(gridNoise(fx,fz,170,1759)+0.3*gridNoise(fx,fz,45,1811)),arc=Math.max(0,Math.min(1,(r-0.75)/0.12));
-    const spot=Math.max(0,gridNoise(fx,fz,14,2213)+0.2*gridNoise(fx,fz,7,2239)-0.2)/0.45;
-    const reg=Math.max(0,gridNoise(fx,fz,500,1913)-0.5)/0.5,blob=Math.max(0,gridNoise(fx,fz,22,2017)+0.25*gridNoise(fx,fz,7,2111)-0.45);
+    // (islz, the Island size slider, stretches the islands' noise and widens the ridge to hold them, while fading the
+    // finer ripple and raising the cut-off, so bigger islands come with fewer specks between; at 1 every sum is as it was)
+    const iz=SEA_CFG.islz,rip=1/(iz*iz),cut=0.1+0.1*iz;
+    const r=1-Math.abs(gridNoise(fx,fz,170,1759)+0.3*gridNoise(fx,fz,45,1811)),arc=Math.max(0,Math.min(1,(r-(1-0.25*Math.sqrt(iz)))/(0.12*Math.sqrt(iz))));
+    const spot=Math.max(0,gridNoise(fx,fz,14*iz,2213)+0.2*rip*gridNoise(fx,fz,7*iz,2239)-cut)/0.45;
+    const reg=Math.max(0,gridNoise(fx,fz,500,1913)-0.5)/0.5,blob=Math.max(0,gridNoise(fx,fz,22*iz,2017)+0.25*rip*gridNoise(fx,fz,7*iz,2111)-0.45);
     // (a ceiling on the value rather than taken off it: between the islands the value is calm and level, so the sea bed
     // rises smoothly round each one, straight from that value (oceanDepth, with seaIsl), rather than in steps)
     const isl=spot*arc*e*1.6*SEA_CFG.isles+blob*reg*3.2*SEA_CFG.isles;const f=SEA_T+(0.25-isl)*0.8;if(f<v){v=f;seaIsl=true;}}

@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:46b5006850147f28ce4d1de5b99010f27ab9d0b84a8e07ad171a680f544792bf -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:078322edaacb4d663d9d7ef8a957abfde1db2834099e2b8d555cc8f5e854d9a0 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1612,7 +1612,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <p class="pn-web">Also on <a href="patch-notes/index.html" target="_blank" rel="noopener">their own page</a>.</p>
 <details class="pn-up pn-fold pn-new" id="version-0-5" open><summary tabindex="0"><h2>Version 0.5</h2><span class="pn-tog" aria-hidden="true"></span></summary>
 <h3>The world</h3>
-<ul><li>The world is made of continents and oceans now, about half land and half sea. Before, one side of the world was all ocean and the other all land. Now there are big continents and smaller ones, seas and oceans between them, island chains off their coasts and the odd group of islands far out at sea.</li><li>The sea is shallow over the continental shelf near the coast and deep out in the open ocean.</li><li>Continents have bold, solid coastlines, with big peninsulas, bays and gulfs. Island chains off the coasts are made of whole, rounded islands, with the sea bed rising smoothly round each one.</li><li>You now always start on a continent, never on an island off one.</li><li>The World Generator zooms out more than ten times further, far enough to see whole continents and oceans. Far out it shows just the land, the sea and the capital; settlements, bases and rivers come back as you zoom in, and markers that would pile on top of each other are thinned out.</li><li>The World Generator has Land &amp; sea sliders: how much land there is, how big the continents are, how rough their coastlines, how many ocean channels cut through them and how many island chains lie offshore. The settings go in the page's address, so a world can be shared as you've shaped it. The game's own worlds are unchanged.</li><li>This makes a new world, so a saved city starts afresh.</li></ul>
+<ul><li>The world is made of continents and oceans now, about half land and half sea. Before, one side of the world was all ocean and the other all land. Now there are big continents and smaller ones, seas and oceans between them, island chains off their coasts and the odd group of islands far out at sea.</li><li>The sea is shallow over the continental shelf near the coast and deep out in the open ocean.</li><li>Continents have bold, solid coastlines, with big peninsulas, bays and gulfs. Island chains off the coasts are made of whole, rounded islands, with the sea bed rising smoothly round each one.</li><li>You now always start on a continent, never on an island off one.</li><li>The World Generator zooms out more than ten times further, far enough to see whole continents and oceans. Far out it shows just the land, the sea and the capital; settlements, bases and rivers come back as you zoom in, and markers that would pile on top of each other are thinned out.</li><li>The World Generator has Land &amp; sea sliders: how much land there is, how big the continents are, how rough their coastlines, how many ocean channels cut through them and how many island chains lie offshore. The settings go in the page's address, so a world can be shared as you've shaped it. Island size makes the islands in a chain bigger and fewer, with fewer tiny specks between them. The game's own worlds are unchanged.</li><li>This makes a new world, so a saved city starts afresh.</li></ul>
 <h3>Saves</h3>
 <ul><li>Your game now carries on just as you left it: your score, goblins slain and everything in This rampage, the time of day, the day and season, and the weather.</li><li>Each player's health and stamina are kept too, and as a goblin your weapons, ammo, grenades and landmines. Left dead, you come back at full health. Player two gets theirs back on joining.</li><li>Left in a car, tank, helicopter, plane, hot-air balloon or Mobile Gear, you're back in it, in the same seat, with the damage it had. Anything that was flying comes back on the ground below. Trains, boats and ships can't be brought back, so you start beside where you were.</li><li>New city starts all of it afresh.</li></ul>
 <h3>Playing online</h3>
@@ -2337,7 +2337,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='171c663b3b86';
+const GAME_VER='0.5',GAME_BUILD='87a6b5d34f77';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v98'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
@@ -2873,9 +2873,9 @@ const SEA_T=0.34,seaPlotC=new Map();
 // the noise to somewhere well inland with a coast in reach.
 let OCEAN_O=null,seaDeepK=0,seaIsl=false,seaCcSeed=null;const SEA_CC=new Map();
 // (the World Generator's Land & sea sliders: more or less land, continent size, coast roughness, ocean channels and
-// island chains. It sets window.GSG_SEA before loading the game; the game never does, so these are always the defaults,
+// island chains, and Island size (islz). It sets window.GSG_SEA before loading the game; the game never does, so these are always the defaults,
 // which leave every sum exactly as it was)
-const SEA_CFG=Object.assign({land:0,size:1,rough:1,chan:1,isles:1},typeof window!=='undefined'&&window.GSG_SEA||{});
+const SEA_CFG=Object.assign({land:0,size:1,rough:1,chan:1,isles:1,islz:1},typeof window!=='undefined'&&window.GSG_SEA||{});
 function seaCont(fx,fz){
   if(SEA_CFG.size!==1){fx/=SEA_CFG.size;fz/=SEA_CFG.size;}
   const wx=fx+420*gridNoise(fx,fz,1100,1201)+45*gridNoise(fx,fz,260,1223),wz=fz+420*gridNoise(fx,fz,1100,1307)+45*gridNoise(fx,fz,260,1327);
@@ -2902,9 +2902,12 @@ function seaRaw(fx,fz){
     // (island chains: spots of land strung along ridges just off the continents' edges, each island a whole round one,
     // not a stringy line; and now and then a group of them further out)
     const e=Math.max(0,1-Math.abs(c-0.13)/0.09)*Math.max(0,Math.min(1,(gridNoise(fx,fz,400,1931)+0.05)/0.3));   // (off some coasts, not all)
-    const r=1-Math.abs(gridNoise(fx,fz,170,1759)+0.3*gridNoise(fx,fz,45,1811)),arc=Math.max(0,Math.min(1,(r-0.75)/0.12));
-    const spot=Math.max(0,gridNoise(fx,fz,14,2213)+0.2*gridNoise(fx,fz,7,2239)-0.2)/0.45;
-    const reg=Math.max(0,gridNoise(fx,fz,500,1913)-0.5)/0.5,blob=Math.max(0,gridNoise(fx,fz,22,2017)+0.25*gridNoise(fx,fz,7,2111)-0.45);
+    // (islz, the Island size slider, stretches the islands' noise and widens the ridge to hold them, while fading the
+    // finer ripple and raising the cut-off, so bigger islands come with fewer specks between; at 1 every sum is as it was)
+    const iz=SEA_CFG.islz,rip=1/(iz*iz),cut=0.1+0.1*iz;
+    const r=1-Math.abs(gridNoise(fx,fz,170,1759)+0.3*gridNoise(fx,fz,45,1811)),arc=Math.max(0,Math.min(1,(r-(1-0.25*Math.sqrt(iz)))/(0.12*Math.sqrt(iz))));
+    const spot=Math.max(0,gridNoise(fx,fz,14*iz,2213)+0.2*rip*gridNoise(fx,fz,7*iz,2239)-cut)/0.45;
+    const reg=Math.max(0,gridNoise(fx,fz,500,1913)-0.5)/0.5,blob=Math.max(0,gridNoise(fx,fz,22*iz,2017)+0.25*rip*gridNoise(fx,fz,7*iz,2111)-0.45);
     // (a ceiling on the value rather than taken off it: between the islands the value is calm and level, so the sea bed
     // rises smoothly round each one, straight from that value (oceanDepth, with seaIsl), rather than in steps)
     const isl=spot*arc*e*1.6*SEA_CFG.isles+blob*reg*3.2*SEA_CFG.isles;const f=SEA_T+(0.25-isl)*0.8;if(f<v){v=f;seaIsl=true;}}
