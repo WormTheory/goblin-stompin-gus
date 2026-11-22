@@ -90,7 +90,15 @@ function coarse(tx,tz){
     const v=T.cvSite?T.cvSite(cx,cz):null;if(v)cvs.push([v.x/T.CELL,v.z/T.CELL,v.yaw]);}}
   const rivers=[];
   if(T.riversNearBox){const L=T.riversNearBox(x0*T.CELL,z0*T.CELL,(x0+N)*T.CELL,(z0+N)*T.CELL);
-    for(let q=0;q<L.length;q+=2){const R=L[q];if(sentRivers.has(R))continue;sentRivers.add(R);rivers.push(R.pts.map(p=>[p[0]/T.CELL,p[1]/T.CELL]));}}
+    for(let q=0;q<L.length;q+=2){const R=L[q];if(sentRivers.has(R))continue;sentRivers.add(R);
+      // (the game only cuts a river into dry land: where its line runs into the sea, the sea's water is there instead,
+      // so the line is broken there, every few blocks along it, rather than drawn across the water)
+      let run=[];const cut=()=>{if(run.length>1)rivers.push(run);run=[];},wet=(x,z)=>T.seaV(x/T.CELL,z/T.CELL)>T.SEA_T;
+      for(let i=0;i<R.pts.length;i++){const [x1,z1]=R.pts[i];
+        if(i){const [x0,z0]=R.pts[i-1],n=Math.max(1,Math.ceil(Math.hypot(x1-x0,z1-z0)/6));
+          for(let k=1;k<n;k++){const x=x0+(x1-x0)*k/n,z=z0+(z1-z0)*k/n;if(wet(x,z))cut();else run.push([x/T.CELL,z/T.CELL]);}}
+        if(wet(x1,z1))cut();else run.push([x1/T.CELL,z1/T.CELL]);}
+      cut();}}
   return {sets,bases,navy,cvs,rivers};
 }
 // ---- the detail: 32 plots a side, each plot as the game has it ----
