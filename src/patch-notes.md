@@ -2,6 +2,11 @@
 
 ## Version 0.5
 
+### Shape your own world
+
+- New world now lets you shape the world before it's made, with the World Generator's sliders: Land & sea, Land shape, Rivers and Climate. Left alone, they make the world just as before.
+- The settings are saved with the world, so it's made the same way every time you load it, and online friends get the host's world.
+
 ### The world
 
 - The world is made of continents and oceans now, about half land and half sea. Before, one side of the world was all ocean and the other all land. Now there are big continents and smaller ones, seas and oceans between them, island chains off their coasts and the odd group of islands far out at sea.

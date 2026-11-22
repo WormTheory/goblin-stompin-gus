@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:cb6c676ded4f2564bfd9fe747b1271cef11d4cc900aeadf2354a77739bf4996a -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:3acfbd88aa3af8e4770f802354388b4af6a6f3e96011e0a0b3c56fd5f91d8812 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -807,6 +807,20 @@ body.attitle #hud{visibility:hidden}
 .tmenu .confirm{display:flex;flex-wrap:wrap;gap:10px;color:var(--ink);font:600 14px/1.4 var(--f-body);background:#ffe1d8;border:3px solid var(--ink);border-radius:var(--wobs);padding:10px 12px}
 .tmenu .confirm button,.ckb{font:400 19px/1 var(--f-px);letter-spacing:.4px;color:var(--ink);background:var(--biscuit);border:3px solid var(--ink);border-radius:9px 13px 8px 14px/13px 8px 14px 9px;box-shadow:0 4px 0 var(--ink);padding:7px 12px 6px;cursor:pointer;text-transform:uppercase}
 .tmenu .confirm button.yes{background:var(--tomato);border-color:var(--ink)}
+/* New world's settings (the World Generator's sliders): a heading per group, opened to show its sliders */
+.confirm .nwset{flex:1 1 100%;display:flex;flex-direction:column;gap:4px}
+.confirm .nwset .nw-g{all:unset;box-sizing:border-box;cursor:pointer;display:flex;justify-content:space-between;align-items:center;width:100%;font:700 13px/1.2 var(--f-body);color:var(--ink);padding:5px 8px;border:2px solid var(--ink);border-radius:7px;background:var(--paper)}
+.confirm .nwset .nw-g::after{content:'›';font-size:16px;transition:transform .12s}
+.confirm .nwset .nw-g[aria-expanded="true"]::after{transform:rotate(90deg)}
+.confirm .nwset .nw-g.ch{background:var(--yolk)}
+.confirm .nwset .nw-g.padfocus,.confirm .nwset .nw-g:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.confirm .nwset .nw-s{display:grid;grid-template-columns:minmax(10em,auto) 1fr 3.4em;gap:2px 8px;align-items:center;font:600 12.5px/1.2 var(--f-body);padding:2px 4px 4px}
+.confirm .nwset .nw-s[hidden]{display:none}
+.confirm .nwset .nw-s input{width:100%;min-width:60px;margin:0;height:24px;accent-color:var(--tomato)}
+.confirm .nwset .nw-s output{text-align:right;font-variant-numeric:tabular-nums}
+.confirm .nwset .nw-def{all:unset;cursor:pointer;align-self:flex-end;font:700 12px var(--f-body);color:var(--ink);text-decoration:underline;padding:2px 4px}
+.confirm .nwset .nw-def.padfocus,.confirm .nwset .nw-def:focus-visible{outline:2px solid var(--ink)}
+.confirm .nwset .nw-def[hidden]{display:none}
 /* "What's new", a yolk sticker under the card; the version, bottom left */
 .gamepane .pnlatest.sticker{background:var(--yolk);color:var(--ink);font:400 20px/1 var(--f-px);letter-spacing:.5px;padding:10px 16px;transform:rotate(-4deg);text-transform:uppercase;text-decoration:none}
 .gamepane .pnlatest.sticker:hover{text-decoration:none;filter:brightness(1.05)}
@@ -1439,6 +1453,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <button type="button" class="ck set tfull" id="fullBtn">Full screen</button>
         <div class="confirm" id="confirm" hidden>
         <span>Start over in a new world? Everything resets.</span>
+        <div class="nwset" id="nwSet"></div>
         <button class="yes" id="confirmYes">New world</button>
         <button id="confirmNo">Keep this one</button>
       </div>
@@ -1626,6 +1641,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
       <div class="pn">
         <p class="pn-web">Also on <a href="patch-notes/index.html" target="_blank" rel="noopener">their own page</a>.</p>
 <details class="pn-up pn-fold pn-new" id="version-0-5" open><summary tabindex="0"><h2>Version 0.5</h2><span class="pn-tog" aria-hidden="true"></span></summary>
+<h3>Shape your own world</h3>
+<ul><li>New world now lets you shape the world before it's made, with the World Generator's sliders: Land &amp; sea, Land shape, Rivers and Climate. Left alone, they make the world just as before.</li><li>The settings are saved with the world, so it's made the same way every time you load it, and online friends get the host's world.</li></ul>
 <h3>The world</h3>
 <ul><li>The world is made of continents and oceans now, about half land and half sea. Before, one side of the world was all ocean and the other all land. Now there are big continents and smaller ones, seas and oceans between them, island chains off their coasts and the odd group of islands far out at sea.</li><li>The sea is shallow over the continental shelf near the coast and deep out in the open ocean.</li><li>Continents have bold, solid coastlines, with big peninsulas, bays and gulfs. Island chains off the coasts are made of whole, rounded islands, with the sea bed rising smoothly round each one.</li><li>You now always start on a continent, never on an island off one.</li><li>The World Generator zooms out more than ten times further, far enough to see whole continents and oceans. Far out it shows just the land, the sea and the capital; settlements, bases and rivers come back as you zoom in, and markers that would pile on top of each other are thinned out.</li><li>The World Generator has Land &amp; sea sliders: how much land there is, how big the continents are, how rough their coastlines, how many ocean channels cut through them and how many island chains lie offshore. The settings go in the page's address, so a world can be shared as you've shaped it. Island size makes the islands in a chain bigger and fewer, with fewer tiny specks between them. The game's own worlds are unchanged.</li><li>This makes a new world, so a saved city starts afresh.</li><li>The World Generator can show the climate over the land, as temperature or moisture: the groundwork for biomes. It doesn't change the game's world yet.</li></ul>
 <h3>Biomes</h3>
@@ -2360,7 +2377,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='be9d6a715ef8';
+const GAME_VER='0.5',GAME_BUILD='9fe71562e242';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v101'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
 const WORLD_GEN=3;
@@ -33413,11 +33430,43 @@ const confirmEl=document.getElementById('confirm');
  const can=document.fullscreenEnabled||document.webkitFullscreenEnabled;if(!can)for(const fb of fbs)fb.hidden=true;
  for(const fb of fbs)fb.addEventListener('click',()=>{try{if(fsEl()){(document.exitFullscreen||document.webkitExitFullscreen).call(document);}else{const el=document.documentElement,rq=el.requestFullscreen||el.webkitRequestFullscreen;const pr=rq&&rq.call(el);if(pr&&pr.catch)pr.catch(()=>{});}}catch(e){}});
  document.addEventListener('fullscreenchange',()=>{showFs();setTimeout(()=>{try{resize();}catch(e){}},50);});document.addEventListener('webkitfullscreenchange',showFs);showFs();}
-document.getElementById('newWorld').addEventListener('click',()=>{confirmEl.hidden=false;document.getElementById('confirmNo').focus();});
+// ---- New world's settings: the World Generator's sliders (its Land & sea, Land shape, Rivers and Climate boxes), in
+// WORLD_CFG's terms, so the defaults make the world exactly as before. Each range is as far as the World Generator's (as far
+// as the start can still always be found inland with a coast in reach). They go in the save (cfg, worldCfgSent), so the
+// world is made the same way whenever it's loaded, and online a guest's is the host's ----
+const NW_GROUPS=[['sea','Land & sea'],['shape','Land shape'],['riv','Rivers'],['clim','Climate']];
+const NW_SL=[['land','Land',-2.5,2.5,0.1,'sea'],['size','Continent size',0.4,1.8,0.05,'sea'],['rough','Coastline roughness',0,2.5,0.1,'sea'],['chan','Ocean channels',0,2.5,0.1,'sea'],['isles','Island chains',0,3,0.1,'sea'],['islz','Island size',0.6,3,0.1,'sea'],
+  ['mtn','Mountains',-0.5,0.5,0.05,'shape'],['mth','Mountain height',0.3,1.2,0.05,'shape'],['hill','Hilliness',0,3,0.1,'shape'],['lakes','Lakes',0,3,0.1,'shape'],
+  ['riv','How often',0,2.2,0.1,'riv'],['rmd','Meandering',0,3,0.1,'riv'],['rwd','Wandering',0,3,0.1,'riv'],['rwid','Width',0.5,2,0.05,'riv'],['rlen','Length',0.3,2.5,0.1,'riv'],['rbr','Branching',0,3,0.1,'riv'],
+  ['temp','Temperature',-0.4,0.4,0.02,'clim'],['rain','Rainfall',-0.4,0.4,0.02,'clim'],['czone','Climate zone size',0.4,2.5,0.1,'clim'],['lat','Latitude bands',0,4,0.1,'clim']];
+const NW={v:Object.assign({},WORLD_DEF),inp:{},out:{},hd:{},box:{}};
+const nwFmt=(k,v)=>k==='land'||k==='temp'||k==='rain'||k==='mtn'?(v>0?'+':v<0?'−':'')+Math.abs(v).toFixed(k==='land'?1:2):'×'+v.toFixed(k==='size'||k==='mth'||k==='rwid'?2:1);
+// (only what isn't a default, as the save keeps it; undefined for the world as it's always been)
+function nwChosen(){let o;for(const [k] of NW_SL)if(NW.v[k]!==WORLD_DEF[k])(o=o||{})[k]=NW.v[k];return o;}
+function nwShow(){for(const [k] of NW_SL){NW.inp[k].value=NW.v[k];NW.out[k].textContent=nwFmt(k,NW.v[k]);}
+  for(const [g] of NW_GROUPS)NW.hd[g].classList.toggle('ch',NW_SL.some(r=>r[5]===g&&NW.v[r[0]]!==WORLD_DEF[r[0]]));
+  NW.def.hidden=!nwChosen();}
+{const root=document.getElementById('nwSet');
+ for(const [g,name] of NW_GROUPS){const h=document.createElement('button'),b=document.createElement('div');
+   h.type='button';h.className='nw-g';h.textContent=name;h.setAttribute('aria-expanded','false');b.className='nw-s';b.hidden=true;b.id='nw_'+g;h.setAttribute('aria-controls',b.id);
+   h.addEventListener('click',()=>{b.hidden=!b.hidden;h.setAttribute('aria-expanded',String(!b.hidden));try{titlePopPlace();}catch(e){}});
+   NW.hd[g]=h;NW.box[g]=b;root.append(h,b);}
+ for(const [k,name,lo,hi,st,g] of NW_SL){const id='nw_'+k,l=document.createElement('label'),i=document.createElement('input'),o=document.createElement('output');
+   l.htmlFor=id;l.textContent=name;i.type='range';i.id=id;i.min=lo;i.max=hi;i.step=st;o.htmlFor=id;
+   i.addEventListener('input',()=>{NW.v[k]=+(+i.value).toFixed(2);nwShow();});
+   NW.box[g].append(l,i,o);NW.inp[k]=i;NW.out[k]=o;}
+ NW.def=document.createElement('button');NW.def.type='button';NW.def.className='nw-def';NW.def.textContent='Defaults';
+ NW.def.addEventListener('click',()=>{const f=document.activeElement===NW.def;NW.v=Object.assign({},WORLD_DEF);nwShow();if(f)padFocus(document.getElementById('confirmNo'));});
+ root.append(NW.def);}
+// (each time it's opened: the defaults again, the groups closed)
+function nwOpen(){NW.v=Object.assign({},WORLD_DEF);for(const [g] of NW_GROUPS){NW.box[g].hidden=true;NW.hd[g].setAttribute('aria-expanded','false');}nwShow();}
+document.getElementById('newWorld').addEventListener('click',()=>{nwOpen();confirmEl.hidden=false;document.getElementById('confirmNo').focus();});
 document.getElementById('confirmNo').addEventListener('click',()=>{confirmEl.hidden=true;});
 document.getElementById('confirmYes').addEventListener('click',()=>{
-  if(freshWorld([]))return;   // (a reload: everything worked out afresh for the new seed)
-  confirmEl.hidden=true;TEST_OFF=new Set();seed=(Math.random()*1e9)|0;noteQ.length=0;edits={};collapses={};craters=[];BB.jobs.length=0;BB.armed.length=0;wrecked={};destroyed={};destroyVer++;setDCache.clear();downFix.clear();falling.clear();chunkEdits.clear();clearBodies();clearWorld();
+  // (the settings chosen, if it was opened from New world; the Testing Environment's and anything else's get the defaults)
+  const cfg=confirmEl.hidden?undefined:nwChosen();
+  if(freshWorld([],undefined,cfg))return;   // (a reload: everything worked out afresh for the new seed)
+  confirmEl.hidden=true;TEST_OFF=new Set();seed=(Math.random()*1e9)|0;worldCfgSet(cfg);noteQ.length=0;edits={};collapses={};craters=[];BB.jobs.length=0;BB.armed.length=0;wrecked={};destroyed={};destroyVer++;setDCache.clear();downFix.clear();falling.clear();chunkEdits.clear();clearBodies();clearWorld();
   for(const d of decals)d.visible=false;decalsDirty=true;for(const p of players)p.pool.visible=false;for(const s of scorches)s.visible=false;
   for(const c of cars){c.alive=false;c.g.visible=false;c.respawnT=1;}
   score=0;kills=0;rampReset();playTime=0;resetGoblins();
@@ -33789,8 +33838,8 @@ function tpShow(on){
 }
 // a fresh world (a new seed, nothing smashed, no saved position or obituary), built under the given switches: saved,
 // then the page reloads so everything's worked out from scratch
-function freshWorld(off,tenv){
-  try{localStorage.setItem(SAVE_KEY,JSON.stringify({seed:(Math.random()*1e9)|0,edits:{},coll:{},down:[],dest:{},test:[...off],tenv}));
+function freshWorld(off,tenv,cfg){   // (cfg: New world's settings, WORLD_CFG's way, only what isn't a default)
+  try{localStorage.setItem(SAVE_KEY,JSON.stringify({seed:(Math.random()*1e9)|0,gen:WORLD_GEN,cfg,edits:{},coll:{},down:[],dest:{},test:[...off],tenv}));
     localStorage.removeItem(POS_KEY);localStorage.removeItem(OBIT_KEY);localStorage.removeItem(PLAY_KEY);
     if(localStorage.getItem(SAVE_KEY)){clearTimeout(saveTimer);saveBlocked=true;location.reload();return true;}}catch(e){}
   return false;
