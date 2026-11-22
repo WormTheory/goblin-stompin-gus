@@ -35,7 +35,7 @@ function plainsTree(x,z){
   else{const B=BIOMES[biomeAt(x,z)],copse=lumberNear(px,pz)?1.1:plainsCopse(x,z);if(v>B.sc+B.dn*copse||!B.trees.length)return null;
     let q=hash2(x*5+17,z*3+29);for(const [k,w] of B.trees){sp=TREE_I[k];if((q-=w)<0)break;}}
   if(roadNear(x,z,14)<4||railNear(x,z)<6||boardNear(x,z,7))return null;
-  const h=plainsH(x,z);if(h<0)return null;
+  const h=plainsH(x,z);if(h<0||RLF.cut||h>rlfRock(CLIM.t)-6)return null;   // (nor on a cutting's bare face, nor up past the treeline)
   return [G+h,TREE_TH[sp][0]+Math.floor(hash2(x,z+99)*TREE_TH[sp][1]),sp];
 }
 // a tree of species sp, its ground's top gy and trunk th high, grown at column (x,z) through put(x,y,z,block,onlyAir)

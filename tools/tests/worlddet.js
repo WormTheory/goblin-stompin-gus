@@ -13,7 +13,7 @@ if(WS===undefined){
   process.exit(0);
 }
 let src0=fs.readFileSync('g.js','utf8');
-const NAMES=['genChunk','seed','CS','H','CELL','nzNoise','nzFbm','nzRidged','nzWarp','nzSmooth','nzClamp01','climateAt','biomeAt','realmOf','WORLD_CFG','worldCfgSent','saveObj','seaV','settlementAt','BIOMES','biomeOfPlot','bioPick','climAt','PLAINS_OPEN','plainsTree','TREE_K'];
+const NAMES=['genChunk','seed','CS','H','CELL','nzNoise','nzFbm','nzRidged','nzWarp','nzSmooth','nzClamp01','climateAt','biomeAt','realmOf','WORLD_CFG','worldCfgSent','saveObj','seaV','settlementAt','BIOMES','biomeOfPlot','bioPick','climAt','PLAINS_OPEN','plainsTree','TREE_K','reliefNat','ruggedAt','plainsH','reliefMask','rlfDist','rlfLines16','railDist','rlfTop','RLF','rlfSnow','rlfRock','landTop'];
 let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={};'+NAMES.map(n=>`try{if(typeof ${n}!=='undefined')window.__t.${n}=${n};}catch(e){}`).join('')+'\n})();');
 const deep=()=>new Proxy(function(){}, {get:(t,p)=>p===Symbol.toPrimitive?()=>0:(p==='length'?0:deep()),apply:()=>deep(),construct:()=>deep()});
 class Q{constructor(){this.x=0;this.y=0;this.z=0;this.w=1}set(x,y,z,w){this.x=x;this.y=y;this.z=z;this.w=w;return this}setFromAxisAngle(a,t){const s=Math.sin(t/2);this.x=a.x*s;this.y=a.y*s;this.z=a.z*s;this.w=Math.cos(t/2);return this}copy(q){this.x=q.x;this.y=q.y;this.z=q.z;this.w=q.w;return this}}
@@ -67,7 +67,9 @@ const fns={
   nzRidged:([x,z])=>T.nzRidged(x,z,800,4,13),
   nzWarpX:([x,z])=>T.nzWarp(x,z,600,200,17)[0]-x,
   climT:([x,z])=>T.climateAt(x,z).t,
-  climM:([x,z])=>T.climateAt(x,z).m};
+  climM:([x,z])=>T.climateAt(x,z).m,
+  rugged:([x,z])=>T.ruggedAt(x,z),
+  relief:([x,z])=>T.reliefNat(x,z)};
 for(const k in fns){const A=P.map(fns[k]),B=P.map(fns[k]);let mn=1e9,mx=-1e9,s=0,diff=0,bad=0;
   for(let i=0;i<A.length;i++){if(!Object.is(A[i],B[i]))diff++;if(!isFinite(A[i]))bad++;mn=Math.min(mn,A[i]);mx=Math.max(mx,A[i]);s+=A[i];}
   console.log(`${k}: range ${mn.toFixed(3)}..${mx.toFixed(3)} mean ${(s/A.length).toFixed(3)} hash ${hashNums(A)} repeat diff ${diff} not finite ${bad}`);}
@@ -78,6 +80,9 @@ for(const k in fns){const A=P.map(fns[k]),B=P.map(fns[k]);let mn=1e9,mx=-1e9,s=0
 const srcOf=['nzNoise','nzFbm','nzRidged','nzWarp','nzSmooth','climateAt','climAt','bioPick','biomeAt'].map(n=>String(T[n])).join('\n')+String(src0.match(/function nzGrad[^\n]*/)||'');
 const banned=srcOf.match(/Math\.(sin|cos|tan|tanh|exp|log|pow|random|sqrt|atan2?|hypot|cbrt)\b/g);
 console.log('noise uses only arithmetic: '+(banned?'NO ('+[...new Set(banned)].join(' ')+')':'yes'));
+// (the relief and its mask: arithmetic and square roots, which every browser rounds the same)
+{const rs=['ruggedAt','reliefNat','rlfTop','reliefMask','rlfDist','rlfLines16','railDist','plainsH','landTop'].map(n=>String(T[n])).join('\n'),b=rs.match(/Math\.(sin|cos|tan|tanh|exp|log|pow|random|atan2?|hypot|cbrt)\b/g);
+  console.log('relief uses only arithmetic and sqrt: '+(b?'NO ('+[...new Set(b)].join(' ')+')':'yes'));}
 // the stubs and settings
 console.log(`biomeAt(0,0) ${T.biomeAt(0,0)}; biomeOf gone: ${!/\bbiomeOf\b/.test(src0)}; WORLD_CFG ${JSON.stringify(T.WORLD_CFG)}; cfg in a default save: ${JSON.stringify(T.saveObj().cfg)}`);
 // the biomes: their shares of the land over a square 60,000 blocks a side (a plot sampled every 500 blocks), the start's
@@ -89,6 +94,13 @@ console.log(`biomeAt(0,0) ${T.biomeAt(0,0)}; biomeOf gone: ${!/\bbiomeOf\b/.test
   for(let k=0;k<400;k++){const x=((k%20)-10)*280,z=(Math.floor(k/20)-10)*280;if(T.biomeAt(x,z)!==0)startBad++;}
   console.log('biome shares of the land: '+T.BIOMES.map((B,i)=>B.k+' '+(100*cnt[i]/land).toFixed(1)+'%').join(', '));
   console.log('start not grassland: '+startBad+'/400');
+  // (the land's height, world/relief.js: how high the open plains stand, in bands, the highest, and round the start)
+  {const band={},bk=h=>h<-0.9?'lake':h<2?'0-1':h<10?'2-9':h<30?'10-29':h<60?'30-59':h<100?'60-99':'100+';let n=0,mx=-1,snow=0,st=0;
+    for(let j=0;j<N;j++)for(let i=0;i<N;i++){const x=(i-N/2)*500,z=(j-N/2)*500,px=Math.floor(x/T.CELL),pz=Math.floor(z/T.CELL);
+      if(T.realmOf(px,pz)!=='plains'||!T.PLAINS_OPEN(px,pz))continue;n++;const h=T.reliefNat(x,z);band[bk(h)]=(band[bk(h)]||0)+1;if(h>mx)mx=h;}
+    for(let k=0;k<400;k++){const x=((k%20)-10)*140,z=(Math.floor(k/20)-10)*140;st=Math.max(st,T.reliefNat(x,z)-T.RLF.hill);}
+    console.log('open plains by height (natural): '+Object.keys(band).sort().map(k=>k+' '+(100*band[k]/n).toFixed(1)+'%').join(', ')+'; highest '+mx.toFixed(1));
+    console.log('mountains within 1400 of the start: '+st.toFixed(2));}
   for(const b in first){const [px,pz]=first[b],cx=Math.floor(px*T.CELL/T.CS),cz=Math.floor(pz*T.CELL/T.CS),a=T.genChunk(cx,cz),top={};let tr=0;
     for(let lz=0;lz<T.CS;lz++)for(let lx=0;lx<T.CS;lx++){let y=T.H-1;while(y>0&&!a[lx+lz*T.CS+y*T.CS*T.CS])y--;const v=a[lx+lz*T.CS+y*T.CS*T.CS];top[v]=(top[v]||0)+1;}
     for(let z=cz*T.CS;z<cz*T.CS+T.CS;z++)for(let x=cx*T.CS;x<cx*T.CS+T.CS;x++){const t=T.plainsTree(x,z);if(t)tr++;}

@@ -220,19 +220,30 @@ function farWoods(SG,px,pz,cell,roads){
     let c=site?siteTrees(x,z):0;
     if(!c){if(lum===null)lum=lumberNear(px,pz);c=lum?1.1:plainsCopse(x,z);if(c<0.3)continue;
       if(open===null)open=PLAINS_OPEN(px,pz);if(!open)continue;}
-    if(plainsRaw(x,z)<-0.9||roads&&roadNear(x,z,14)<6||farScorched(x,z))continue;   // (not in a pond, nor on a road, nor where a big blast flattened everything)
-    const n=c>0.7?3:c>0.45?2:1;
+    const hN=reliefNat(x,z);
+    if(hN<-0.9||hN>rlfRock(CLIM.t)-6||roads&&roadNear(x,z,14)<6||farScorched(x,z))continue;   // (not in a pond, nor up on the bare rock, nor on a road, nor where a big blast flattened everything)
+    const n=c>0.7?3:c>0.45?2:1,gy=site?0:Math.max(0,Math.round(hN));   // (on the land as it stands, near enough: a site's is level)
     for(let q=0;q<n;q++){const h=hash2(x*11+q*37,z*17+q*5),h2=hash2(x*3+q*7,z*29+q*13),w=cell*(0.4+0.25*h),
-      ox=x+(h2-0.5)*(cell-w)*0.9,oz=z+(hash2(x+q*3,z*7+1)-0.5)*(cell-w)*0.9,top=G+6+3*h2;
-      farLeaf(SG,ox-w/2,G+1.6,oz-w/2,ox+w/2,top,oz+w/2,hash2(x*5+q,z*3+q*11),h,lc);}
+      ox=x+(h2-0.5)*(cell-w)*0.9,oz=z+(hash2(x+q*3,z*7+1)-0.5)*(cell-w)*0.9,top=G+gy+6+3*h2;
+      farLeaf(SG,ox-w/2,G+gy+1.6,oz-w/2,ox+w/2,top,oz+w/2,hash2(x*5+q,z*3+q*11),h,lc);}
   }
+}
+// the land standing up off the plains (world/relief.js), seen from afar: a column of ground for each st x st square of an
+// open block whose land rises, as high as the land in its middle, in its biome's colour, or bare rock or snow by height.
+// exact: as the chunks build it (plainsH, the near ring); else the land's own height (further off)
+const FAR_ROCK=new THREE.Color(topColor(STONE)),FAR_SNOW=new THREE.Color(topColor(SNOW));
+function farTerrain(SG,px,pz,st,exact){
+  climAt(px*CELL+16,pz*CELL+16);if(clBlend('r')<0.28&&WORLD_CFG.hill<=1.5||!PLAINS_OPEN(px,pz))return;   // (no more than the rolling hills)
+  const g=farBio(px,pz).g,X0=px*CELL,Z0=pz*CELL,o=st>>1;
+  for(let j=0;j<CELL;j+=st)for(let i=0;i<CELL;i+=st){const x=X0+i+o,z=Z0+j+o,h=exact?plainsH(x,z):Math.round(reliefNat(x,z));if(h<2)continue;
+    const t=CLIM.t;farBox(SG,X0+i,G+1.6,Z0+j,X0+i+st,G+h+1,Z0+j+st,h>rlfSnow(t)?FAR_SNOW:h>rlfRock(t)?FAR_ROCK:g);}
 }
 // a block of open plains' ponds, found every st blocks and joined into runs along each row
 function farPonds(SG,px,pz,st,exact){
   const X0=px*CELL,Z0=pz*CELL,o=st>>1;let open=null;
   for(let z=Z0;z<Z0+CELL;z+=st){let run=-1;
     for(let x=X0;x<=X0+CELL;x+=st){
-      let w=x<X0+CELL&&plainsRaw(x+o,z+o)<-0.9;
+      let w=x<X0+CELL&&reliefNat(x+o,z+o)<-0.9;
       if(w){if(open===null)open=PLAINS_OPEN(px,pz);w=open&&(!exact||plainsH(x+o,z+o)<0);}
       if(w&&run<0)run=x;else if(!w&&run>=0){farBox(SG,run,G+0.45,z,x,G+1.62,z+st,FARC.sea);run=-1;}}}
 }
@@ -298,7 +309,7 @@ function* farJobNear(SB,SG,act,ra,rb){
       seen.add(k);
       const P=plotInfo(px,pz),X0=px*CELL,Z0=pz*CELL,sc=farScorched(X0+CELL/2,Z0+CELL/2);
       if(seaPlot(px,pz))farSea(SG,px,pz,4);
-      else if(realmOf(px,pz)==='plains'){farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.6,Z0+CELL,sc?FAR_SCORCH:farBio(px,pz).g);farLinesPlot(SB,SG,px,pz);if(turbineAt(px,pz)&&!sc)farTurbine(SB,px,pz,1);if(!sc)yield* farCountry(SB,SG,px,pz,0);}   // the plains: all grass (hills are only drawn up close), and what crosses them
+      else if(realmOf(px,pz)==='plains'){farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.6,Z0+CELL,sc?FAR_SCORCH:farBio(px,pz).g);if(!sc)farTerrain(SG,px,pz,8,true);farLinesPlot(SB,SG,px,pz);if(turbineAt(px,pz)&&!sc)farTurbine(SB,px,pz,1);if(!sc)yield* farCountry(SB,SG,px,pz,0);}   // the plains: all grass (hills are only drawn up close), and what crosses them
       else farBox(SG,X0+ROADW,G+0.4,Z0+ROADW,X0+CELL,G+0.97,Z0+CELL,sc?FAR_SCORCH:P.type==='park'?FARC.park:P.type==='plaza'?FARC.plaza:FARC.side);
       if(!seaPlot(px,pz)){if(realmOf(px,pz)==='plains')farPonds(SG,px,pz,4,true);else farTownWater(SG,px,pz,P,2);}
       farTreeNew=false;farTreeBoxes(SG,farTreesOf(px,pz),farBio(px,pz).l);if(farTreeNew)yield;
@@ -353,7 +364,7 @@ function* farJobMid(SB,SG,act,ra,rb){
     const d=Math.hypot(px*CELL+CELL/2-p.pos.x,pz*CELL+CELL/2-p.pos.z);if(d>rb+CELL||d<ra-CELL)continue;seen.add(k);
     const X0=px*CELL,Z0=pz*CELL,sc=farScorched(X0+CELL/2,Z0+CELL/2);
     if(seaPlot(px,pz)){farSea(SG,px,pz,2);continue;}
-    if(realmOf(px,pz)==='plains'){farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.6,Z0+CELL,sc?FAR_SCORCH:farBio(px,pz).g);farLinesPlot(SB,SG,px,pz);if(turbineAt(px,pz)&&!sc)farTurbine(SB,px,pz,1.6);if(!sc)yield* farCountry(SB,SG,px,pz,1);
+    if(realmOf(px,pz)==='plains'){farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.6,Z0+CELL,sc?FAR_SCORCH:farBio(px,pz).g);if(!sc)farTerrain(SG,px,pz,16,false);farLinesPlot(SB,SG,px,pz);if(turbineAt(px,pz)&&!sc)farTurbine(SB,px,pz,1.6);if(!sc)yield* farCountry(SB,SG,px,pz,1);
       farPonds(SG,px,pz,8,false);farWoods(SG,px,pz,16,true);
       if(hwRow(pz,px)&&!hwGround('x',pz,X0+16)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('x',pz,X0+CELL/2)-1;farBox(SB,X0,y-1,Z0-3,X0+CELL,y+2,Z0+11,_fc);}
       if(hwCol(px,pz)&&!hwGround('z',px,Z0+16)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('z',px,Z0+CELL/2)-1;farBox(SB,X0-3,y-1,Z0,X0+11,y+2,Z0+CELL,_fc);}
@@ -429,7 +440,7 @@ function* farJobFar(SB,SG,act,ra,rb){
     {const bi=biomeOfPlot(qx*4+2,qz*4+2);if(bi!==BIO_GRASS)farBox(SG,qx*C4,G+0.31,qz*C4,qx*C4+C4,G+0.42,qz*C4+C4,FAR_BIO[bi].g);}   // (a biome's ground under the fields)
     for(let i=0;i<4;i++)for(let j=0;j<4;j++){const px=qx*4+i,pz=qz*4+j,X0=px*CELL,Z0=pz*CELL,sc=farScorched(X0+CELL/2,Z0+CELL/2);
       if(seaPlot(px,pz)){farSea(SG,px,pz,1);continue;}
-      const ty=setType(px,pz);if(!ty){if(sc)farBox(SG,X0,G+0.45,Z0,X0+CELL,G+0.6,Z0+CELL,FAR_SCORCH);else if(turbineAt(px,pz))farTurbine(SB,px,pz,2.6);if(realmOf(px,pz)==='plains'){farPonds(SG,px,pz,16,false);farWoods(SG,px,pz,32,false);if(!sc)yield* farCountry(SB,SG,px,pz,2);}continue;}
+      const ty=setType(px,pz);if(!ty){if(sc)farBox(SG,X0,G+0.45,Z0,X0+CELL,G+0.6,Z0+CELL,FAR_SCORCH);else if(turbineAt(px,pz))farTurbine(SB,px,pz,2.6);if(realmOf(px,pz)==='plains'){if(!sc)farTerrain(SG,px,pz,32,false);farPonds(SG,px,pz,16,false);farWoods(SG,px,pz,32,false);if(!sc)yield* farCountry(SB,SG,px,pz,2);}continue;}
       farBox(SG,X0,G+0.45,Z0,X0+CELL,G+0.97,Z0+CELL,sc?FAR_SCORCH:FARC.side);
       // (a plot where something's come down or been knocked about, or that a big blast reached: its real buildings, as
       // they've been left, rather than the guess)

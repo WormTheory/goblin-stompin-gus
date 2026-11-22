@@ -22,7 +22,7 @@ function updateMinimap(p,dt){
     if(!tenvShow(cx,cz)){x.fillStyle=MAPC.plains;x.fillRect(X0,Z0,CELL,CELL);continue;}
     if(seaPlot(cx,cz)){const n=4,st=CELL/n,C=seaMapCells(cx,cz,n);for(let j=0;j<n;j++)for(let i=0;i<n;i++){x.fillStyle=C[j*n+i];x.fillRect(X0+i*st,Z0+j*st,st,st);}continue;}
     if(t==='river'){x.fillStyle=MAPC.road;x.fillRect(X0,Z0,CELL,CELL);x.fillStyle=MAPC.river;if(riverDir(cx,cz)==='x')x.fillRect(X0,Z0+10,CELL,20);else x.fillRect(X0+10,Z0,20,CELL);continue;}
-    if(t==='plains'||t==='farm'||t==='truckstop'){x.fillStyle=BIOMES[biomeOfPlot(cx,cz)].map;x.fillRect(X0,Z0,CELL,CELL);x.fillStyle='#5b5f63';if(gRow(cz,X0+16))x.fillRect(X0,Z0-3,CELL,14);if(gCol(cx,Z0+16))x.fillRect(X0-3,Z0,14,CELL);continue;}
+    if(t==='plains'||t==='farm'||t==='truckstop'){const RC=t==='plains'&&reliefMapCells(cx,cz,4);if(RC){for(let j=0;j<4;j++)for(let i=0;i<4;){const c=RC[j*4+i];let e=i+1;while(e<4&&RC[j*4+e]===c)e++;x.fillStyle=c;x.fillRect(X0+i*8,Z0+j*8,(e-i)*8,8);i=e;}}else{x.fillStyle=BIOMES[biomeOfPlot(cx,cz)].map;x.fillRect(X0,Z0,CELL,CELL);}x.fillStyle='#5b5f63';if(gRow(cz,X0+16))x.fillRect(X0,Z0-3,CELL,14);if(gCol(cx,Z0+16))x.fillRect(X0-3,Z0,14,CELL);continue;}
     x.fillStyle='#565b5f';x.fillRect(X0+ROADW,Z0+ROADW,CELL-ROADW,CELL-ROADW);
     const Sp=superOf(cx,cz);
     if(Sp){if(done.has(Sp))continue;done.add(Sp);late.push(()=>{

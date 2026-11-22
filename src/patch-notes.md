@@ -21,6 +21,16 @@
 - The World Generator can show the biomes, and has Climate sliders: warmer or colder, wetter or drier, how big the climate regions are and how strongly it gets colder one way and hotter the other.
 - This makes a new world, so a saved city starts afresh.
 
+### Mountains and lakes
+
+- Out in the wilds the land now rises into hills and mountain ranges, up to about 130 blocks, with bare rock near the top, snow on the peaks (lower the colder it is) and a new Alpine biome up high.
+- Towns, farms, sites, roads, railways and rivers all stay on the level: the mountains rise away from them, so towns sit in valleys and rivers run along valley floors.
+- Roads and railways cut through the hills and tunnel under the high ground (road tunnels are lined and lit).
+- Lakes lie in the low, wet country, frozen over in the ice fields.
+- Mountains are seen from afar, and the map and minimap show the hills shaded, with the rock, snow and lakes.
+- The World Generator has a Height layer and Land shape sliders: more or fewer mountains, how high they get, how hilly the rest is and how many lakes there are.
+- This makes a new world again, so a saved city starts afresh.
+
 ### Saves
 
 - Your game now carries on just as you left it: your score, goblins slain and everything in This rampage, the time of day, the day and season, and the weather.

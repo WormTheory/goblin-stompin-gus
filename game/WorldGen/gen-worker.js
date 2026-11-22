@@ -34,7 +34,7 @@ self.AudioContext=undefined;self.webkitAudioContext=undefined;
 let WSEED=1;
 // (the game reads its world from its save on loading: hand it a fresh world with this seed)
 self.localStorage={getItem:k=>String(k).startsWith('goblin-city-v')?JSON.stringify({seed:WSEED,edits:{},coll:{},down:[],dest:{},test:[]}):null,setItem(){},removeItem(){},key:()=>null,length:0};
-const NAMES=['settlementLat','settlementAt','settlementRaw','setName','setKind','PLACE_KIND','zoneAt','seaPlot','seaV','SEA_T','coastType','plotType1','superOf','isRiver','riversNearBox','stMatch','cvSite','portCell','capitolPlan','climateAt','bioPick','BIOMES','CELL','SET_SP','BIGP','bigCell','MAPC','TEST_GROUPS','seed'];
+const NAMES=['settlementLat','settlementAt','settlementRaw','setName','setKind','PLACE_KIND','zoneAt','seaPlot','seaV','SEA_T','coastType','plotType1','superOf','isRiver','riversNearBox','stMatch','cvSite','portCell','capitolPlan','climateAt','bioPick','BIOMES','reliefNat','realmOf','rlfSnow','rlfRock','RLF','CELL','SET_SP','BIGP','bigCell','MAPC','TEST_GROUPS','seed'];
 let T=null;
 function loadGame(html,seed,sea){
   WSEED=seed;self.GSG_WORLD=sea||undefined;   // (the Land & sea sliders: the game's WORLD_CFG, read by its coast.js as it loads)
@@ -80,8 +80,12 @@ function land(tx,tz,L){
 function clim(tx,tz,L){
   if(!T.climateAt)throw new Error('no climate in this build');
   const r=land(tx,tz,L),M=r.M,st=2<<Math.max(0,L|0),h=st>>1,N=M*st,x0=tx*N,z0=tz*N,t=new Uint8Array(M*M),m=new Uint8Array(M*M),b=new Uint8Array(M*M),C=T.CELL,bp=T.bioPick;
-  for(let j=0;j<M;j++)for(let i=0;i<M;i++){const X=(x0+i*st+h)*C,Z=(z0+j*st+h)*C,c=T.climateAt(X,Z);t[j*M+i]=Math.round(c.t*255);m[j*M+i]=Math.round(c.m*255);if(bp)b[j*M+i]=bp(c.t,c.m,X,Z);}
-  return {land:r.land,M,t,m,b,bio:T.BIOMES?T.BIOMES.map(B=>[B.n,B.map]):null};
+  // (and the land's height above the datum out in the wilds, reliefNat, with what it is there: 0 ground, 1 bare rock,
+  // 2 snow, 3 a lake (not the hills' ponds). Towns and everything else built stay at the datum)
+  const hg=T.reliefNat?new Int16Array(M*M):null,hk=hg?new Uint8Array(M*M):null;
+  for(let j=0;j<M;j++)for(let i=0;i<M;i++){const q=j*M+i,X=(x0+i*st+h)*C,Z=(z0+j*st+h)*C,c=T.climateAt(X,Z),ct=c.t;t[q]=Math.round(ct*255);m[q]=Math.round(c.m*255);if(bp)b[q]=bp(ct,c.m,X,Z);
+    if(hg&&r.land[q]===2&&T.realmOf(x0+i*st+h,z0+j*st+h)==='plains'){const v=Math.round(T.reliefNat(X,Z));hg[q]=Math.max(0,v);hk[q]=v<-0.9&&T.RLF.lake>1?3:v>T.rlfSnow(ct)?2:v>T.rlfRock(ct)?1:0;}}
+  return {land:r.land,M,st,t,m,b,hg,hk,bio:T.BIOMES?T.BIOMES.map(B=>[B.n,B.map]):null};
 }
 function coarse(tx,tz){
   const N=256,x0=tx*N,z0=tz*N;

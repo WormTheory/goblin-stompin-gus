@@ -5,6 +5,7 @@ core/atlas.js
 world/places.js
 world/noise.js
 world/climate.js
+world/relief.js
 world/coast.js
 world/underground.js
 world/railways.js

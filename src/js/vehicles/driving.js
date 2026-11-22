@@ -517,7 +517,8 @@ function drvPlane(pl,dt){
   const ana=i?(i.rt||0)-(i.lt||0):0,tin=!i?0:mode==='aim'?-i.z:Math.abs(ana)>0.05?ana:(i.jump?1:0)-(i.climb?1:0),bank=i?-i.x:0;
   const up=!i?0:mode==='aim'?(Math.sin(p.cam.pitch)>Math.sin(F.pt||0)+0.06?1:0):i.z;
   // (the sea's surface counts as ground; so does sea level, out where nothing's been built yet)
-  const wetAt=(x,z)=>!chunks.has(ckey(Math.floor(x/CS),Math.floor(z/CS)))||get(x,G,z)===WATER?G+1:0,gnd=(x,z,y)=>Math.max(groundAt(x,z,y),wetAt(x,z));
+  // (where the chunks aren't made yet, the land as it'll be: a mountain's there before it's drawn, world/relief.js)
+  const wetAt=(x,z)=>!chunks.has(ckey(Math.floor(x/CS),Math.floor(z/CS)))?landTop(x,z):get(x,G,z)===WATER?G+1:0,gnd=(x,z,y)=>Math.max(groundAt(x,z,y),wetAt(x,z));
   const was=F.air,air=P.y>gnd(P.x,P.z,P.y+1)+0.05;F.air=air;
   if(!air&&F.vy<-0.5&&(F.vy<-14||!fly&&F.v>20)){planeCrash(pl,P.x,P.y,P.z,true);return;}   // (touched down too hard, or with nobody flying it)
   // the throttle on the ground (in the air it's pfAir's), shut when nobody's flying it

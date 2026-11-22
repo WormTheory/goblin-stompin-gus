@@ -40,7 +40,9 @@ const BIOMES=[
   {k:'savanna',n:'Savanna',map:'#b4a650',grass:[1.8,1.0,1.3],leaf:[1.4,1.05,1.0],trees:[['acacia',1]],sc:0.004,dn:0.02,wood:-0.35,pond:0,bush:0.025,flower:0.01,rock:0.002},
   {k:'rainforest',n:'Rainforest',map:'#2f6a28',grass:[0.58,0.85,0.75],leaf:[0.7,0.95,0.8],trees:[['jungle',0.6],['oak',0.4]],sc:0.06,dn:0.2,wood:0.7,pond:0.15,bush:0.08,flower:0.03,rock:0.001},
   {k:'swamp',n:'Swamp',map:'#55704a',sub:MUD,grass:[0.84,0.69,1.04],leaf:[0.85,0.8,1.0],trees:[['swamp',1]],sc:0.012,dn:0.1,wood:0.1,pond:0.6,bush:0.03,flower:0.01,rock:0.0005,reeds:0.25},
-  {k:'moor',n:'Moor',map:'#86707a',grass:[1.26,0.6,1.8],leaf:[1.15,0.8,1.2],trees:[['oak',0.3],['dead',0.7]],sc:0.0015,dn:0.01,wood:-0.6,pond:0.2,bush:0.03,flower:0.03,rock:0.014}
+  {k:'moor',n:'Moor',map:'#86707a',grass:[1.26,0.6,1.8],leaf:[1.15,0.8,1.2],trees:[['oak',0.3],['dead',0.7]],sc:0.0015,dn:0.01,wood:-0.6,pond:0.2,bush:0.03,flower:0.03,rock:0.014},
+  // (alpine isn't in the table: it's the bare rock and snow high on the mountains, by height, world/relief.js)
+  {k:'alpine',n:'Alpine',map:'#a4a29c',top:STONE,sub:STONE,grass:[1.3,0.95,1.4],leaf:[1.1,0.95,1.1],trees:[],sc:0,dn:0,wood:-2,pond:0,bush:0,flower:0,rock:0.02}
 ];
 const BIO_I={};BIOMES.forEach((B,i)=>{BIO_I[B.k]=i;B.i=i;});
 const BIO_GRASS=0;
@@ -57,12 +59,12 @@ const bioBand=(v,E)=>v<E[0]?0:v<E[1]?1:v<E[2]?2:v<E[3]?3:4;
 function bioPick(t,m,x,z){let b=BIO_TAB[bioBand(t,BIO_T)][bioBand(m,BIO_M)];
   if(b===BIO_I.desert&&t>0.84&&nzNoise(x/2600,z/2600,2411)>0.12)b=BIO_I.badlands;return b;}
 // (one corner of the lattice: its climate, its biome, and the smooth fields blended between corners: grass and leaf tints,
-// how much likelier ponds are, how much thicker the woods)
+// how much likelier ponds are, how much thicker the woods, and how rugged the land is, world/relief.js)
 function clCorner(ix,iz){
   if(clSeed!==seed){clSeed=seed;CL_C.clear();}
   const k=ix*100003+iz;let E=CL_C.get(k);if(E)return E;
   const x=ix*CL_SP,z=iz*CL_SP,c=climateAt(x,z),B=BIOMES[bioPick(c.t,c.m,x,z)];
-  E={t:c.t,m:c.m,b:B.i,gr:B.grass,lf:B.leaf,pond:B.pond,wood:B.wood};
+  E={t:c.t,m:c.m,b:B.i,gr:B.grass,lf:B.leaf,pond:B.pond,wood:B.wood,r:ruggedAt(x,z)};
   if(CL_C.size>200000)CL_C.clear();CL_C.set(k,E);return E;
 }
 // the climate at block (x,z), blended from the lattice. Into CLIM, with CLIM.u, CLIM.v and the four corners in CL_Q for
@@ -83,8 +85,10 @@ function biomeAt(x,z){
   const c=climAt(x,z),j=hash2(x*7+2203,z*13+2207)-0.5,j2=hash2(x*11+2213,z*5+2221)-0.5;
   return bioPick(c.t+j*0.03,c.m+j2*0.03,x,z);
 }
-// the biome a plot's mostly in (its middle, no dithering): for the maps and the far view
-const biomeOfPlot=(px,pz)=>{const x=px*CELL+16,z=pz*CELL+16,c=climAt(x,z);return bioPick(c.t,c.m,x,z);};
+// the biome a plot's mostly in (its middle, no dithering; alpine where its middle's above the bare rock): for the maps and
+// the far view
+const biomeOfPlot=(px,pz)=>{const x=px*CELL+16,z=pz*CELL+16,c=climAt(x,z),t=c.t,m=c.m;
+  if(realmOf(px,pz)==='plains'&&clBlend('r')>0.5&&PLAINS_OPEN(px,pz)&&reliefNat(x,z)>rlfRock(t))return BIO_I.alpine;return bioPick(t,m,x,z);};
 // the grass (g 0) or leaf (g 1) tint at block (x,z), blended between the lattice's corners: into BIO_TINT
 const BIO_TINT=[1,1,1];
 function bioTint(x,z,g){climAt(x,z);const u=CLIM.u,v=CLIM.v,Q=CL_Q,f=g?'lf':'gr';

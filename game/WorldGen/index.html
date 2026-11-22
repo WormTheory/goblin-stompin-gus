@@ -67,7 +67,7 @@ details[open]>summary.lbl::before{transform:rotate(90deg)}
 .sliders{display:grid;grid-template-columns:auto 1fr 3.2em;gap:4px 10px;align-items:center;font-size:12.5px}
 .sliders input{width:100%;min-width:0;margin:0;accent-color:var(--chipOn);height:28px}
 .sliders output{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
-#seaReset,#climReset{margin-top:8px}
+#seaReset,#climReset,#shapeReset{margin-top:8px}
 .biokey{display:grid;grid-template-columns:1fr 1fr;gap:3px 10px;font-size:12px;color:var(--muted);margin-top:6px}
 .biokey span{display:flex;align-items:center;gap:6px}.biokey i{width:12px;height:12px;border-radius:3px;flex:none}
 .ramp{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-top:6px}
@@ -96,6 +96,7 @@ details[open]>summary.lbl::before{transform:rotate(90deg)}
     <div><div class="lbl">Ground</div><div class="chips" id="ground"></div></div>
     <div><div class="lbl">Climate</div><div class="chips" id="climate"></div><div class="ramp" id="climKey" hidden><span></span><i></i><span></span></div><div class="biokey" id="bioKey" hidden></div></div>
     <details id="seabox"><summary class="lbl">Land &amp; sea</summary><div class="sliders" id="sliders"></div><button class="btn small" id="seaReset" type="button">Default</button></details>
+    <details id="shapebox"><summary class="lbl">Land shape</summary><div class="sliders" id="shsliders"></div><button class="btn small" id="shapeReset" type="button">Default</button></details>
     <details id="climbox"><summary class="lbl">Climate</summary><div class="sliders" id="clsliders"></div><button class="btn small" id="climReset" type="button">Default</button></details>
     <details id="keybox" open><summary class="lbl">Key</summary><div class="legend" id="legend"></div></details>
   </div>
@@ -146,28 +147,30 @@ async function start(seed){
 // ---- Land & sea and Climate: the game's WORLD_CFG (world/coast.js), the defaults leaving the world as the game makes it ----
 // (each range is as far as the start can still always be found inland with a coast in reach)
 const SEA_S=[['land','Land',-2.5,2.5,0.1,0],['size','Continent size',0.4,1.8,0.05,1],['rough','Coastline roughness',0,2.5,0.1,1],['chan','Ocean channels',0,2.5,0.1,1],['isles','Island chains',0,3,0.1,1],['islz','Island size',0.6,3,0.1,1],
-  ['temp','Temperature',-0.4,0.4,0.02,0,'clim'],['rain','Rainfall',-0.4,0.4,0.02,0,'clim'],['czone','Climate zone size',0.4,2.5,0.1,1,'clim'],['lat','Latitude bands',0,4,0.1,1,'clim']];
+  ['temp','Temperature',-0.4,0.4,0.02,0,'clim'],['rain','Rainfall',-0.4,0.4,0.02,0,'clim'],['czone','Climate zone size',0.4,2.5,0.1,1,'clim'],['lat','Latitude bands',0,4,0.1,1,'clim'],
+  ['mtn','Mountains',-0.5,0.5,0.05,0,'shape'],['mth','Mountain height',0.3,1.2,0.05,1,'shape'],['hill','Hilliness',0,3,0.1,1,'shape'],['lakes','Lakes',0,3,0.1,1,'shape']];
 const SEAC={},seaIn={},seaOut={};
 SEA_S.forEach(([k,,lo,hi,st,d])=>SEAC[k]=d);
-const seaFmt=(k,v)=>k==='land'||k==='temp'||k==='rain'?(v>0?'+':'')+v.toFixed(k==='land'?1:2):'×'+v.toFixed(k==='size'?2:1);
+const seaFmt=(k,v)=>k==='land'||k==='temp'||k==='rain'||k==='mtn'?(v>0?'+':'')+v.toFixed(k==='land'?1:2):'×'+v.toFixed(k==='size'||k==='mth'?2:1);
 function seaSent(){const o={};let any=false;SEA_S.forEach(([k,,,,,d])=>{if(SEAC[k]!==d){o[k]=SEAC[k];any=true;}});return any?o:undefined;}
 function seaQuery(){const o=seaSent();return o?Object.keys(o).map(k=>'&'+k+'='+o[k]).join(''):'';}
 function seaSet(k,v){const s=SEA_S.find(r=>r[0]===k);if(!s||!isFinite(v))return;v=Math.round(Math.max(s[2],Math.min(s[3],v))/s[4])*s[4];SEAC[k]=+v.toFixed(2);}
 let seaT=0;
 function seaRedo(){clearTimeout(seaT);seaT=setTimeout(()=>start(curSeed),250);}
-const slEl=document.getElementById('sliders'),clSlEl=document.getElementById('clsliders');
+const slEl=document.getElementById('sliders'),clSlEl=document.getElementById('clsliders'),shSlEl=document.getElementById('shsliders');
 SEA_S.forEach(([k,name,lo,hi,st,,grp])=>{
   const id='sea_'+k,l=document.createElement('label'),i=document.createElement('input'),o=document.createElement('output');
   l.htmlFor=id;l.textContent=name;i.type='range';i.id=id;i.min=lo;i.max=hi;i.step=st;o.htmlFor=id;
   i.oninput=()=>{seaSet(k,+i.value);o.textContent=seaFmt(k,SEAC[k]);};
   i.onchange=()=>{i.oninput();seaRedo();};
-  (grp==='clim'?clSlEl:slEl).append(l,i,o);seaIn[k]=i;seaOut[k]=o;
+  (grp==='clim'?clSlEl:grp==='shape'?shSlEl:slEl).append(l,i,o);seaIn[k]=i;seaOut[k]=o;
 });
 function seaShow(){SEA_S.forEach(([k])=>{seaIn[k].value=SEAC[k];seaOut[k].textContent=seaFmt(k,SEAC[k]);});}
 // (each box's Default puts back only its own)
 const seaDef=g=>{let ch=false;SEA_S.forEach(([k,,,,,d,grp])=>{if((grp||'sea')===g&&SEAC[k]!==d){SEAC[k]=d;ch=true;}});if(ch){seaShow();seaRedo();}};
 document.getElementById('seaReset').onclick=()=>seaDef('sea');
 document.getElementById('climReset').onclick=()=>seaDef('clim');
+document.getElementById('shapeReset').onclick=()=>seaDef('shape');
 
 // ---- view: centre (plots) and scale (CSS pixels a plot) ----
 let dpr=1,vw=0,vh=0,cx=0,cz=0,sc=0.9;
@@ -240,12 +243,21 @@ const climRGB=(k,v)=>{const S=CLIMS[k].rgb,f=v/255*(S.length-1),i=Math.min(S.len
 // (a tile's picture for what's shown, made the first time it's wanted; the sea left clear)
 let bioPal=null;
 function climPic(e,k){if(e.c[k])return e.c[k];const r=e.r,N=r.M,c=document.createElement('canvas');c.width=c.height=N;const x=c.getContext('2d'),im=x.createImageData(N,N);
-  if(k==='b'&&!r.bio)return e.c[k]=c;const P=k==='b'?r.bio.map(q=>hex(q[1])):null;
+  if(k==='b'&&!r.bio||k==='h'&&!r.hg)return e.c[k]=c;const P=k==='b'?r.bio.map(q=>hex(q[1])):null;
+  if(k==='h'){const H=r.hg,K=r.hk,D=Math.max(1,r.st*8);   // (shaded as if lit from the north-west, steeper the darker or brighter)
+    for(let q=0;q<N*N;q++){if(r.land[q]!==2)continue;const v=H[q],kk=K[q];let C=kk===3?HLAKE:kk===2?HSNOW:kk===1?HROCK:hRamp(v);
+      if(kk!==3){const i=q%N,a=i>0?H[q-1]:v,b=q>=N?H[q-N]:v,f=Math.max(-0.5,Math.min(0.5,((v-a)+(v-b))*2/D));C=C.map(x=>Math.round(f>0?x+(255-x)*f:x*(1+f)));}
+      im.data[q*4]=C[0];im.data[q*4+1]=C[1];im.data[q*4+2]=C[2];im.data[q*4+3]=255;}
+    x.putImageData(im,0,0);return e.c[k]=c;}
   for(let q=0;q<N*N;q++){if(r.land[q]!==2)continue;const [R,G,B]=P?P[r.b[q]]:climRGB(k,r[k][q]);im.data[q*4]=R;im.data[q*4+1]=G;im.data[q*4+2]=B;im.data[q*4+3]=255;}
   x.putImageData(im,0,0);return e.c[k]=c;}
+// (the Height layer's colours: low ground to high, bare rock, snow, lakes)
+const HSTOPS=['#7fa860','#a9b46c','#b89a68','#8e7a66'],HRGB=HSTOPS.map(hex),HROCK=hex('#8c8a84'),HSNOW=hex('#f2f5f7'),HLAKE=hex('#5a8fc8');
+const hRamp=v=>{const f=Math.max(0,Math.min(1,v/90))*(HRGB.length-1),i=Math.min(HRGB.length-2,Math.floor(f)),u=f-i;return [0,1,2].map(c=>Math.round(HRGB[i][c]+(HRGB[i+1][c]-HRGB[i][c])*u));};
+CLIMS.h={name:'Height',ends:['Low','High'],stops:HSTOPS.concat(['#8c8a84','#f2f5f7'])};
 const clEl=document.getElementById('climate'),clKey=document.getElementById('climKey'),bioKey=document.getElementById('bioKey');
 function bioKeyFill(){bioKey.textContent='';for(const [n,c] of bioPal){const s=document.createElement('span'),i=document.createElement('i');i.style.background=c;s.append(i,n);bioKey.append(s);}}
-for(const [k,t] of [['off','Off'],['b','Biomes'],['t',CLIMS.t.name],['m',CLIMS.m.name]]){const b=document.createElement('button');b.className='chip seg';b.type='button';b.id='cl-'+k;b.textContent=t;b.setAttribute('aria-pressed',k===clim);
+for(const [k,t] of [['off','Off'],['b','Biomes'],['t',CLIMS.t.name],['m',CLIMS.m.name],['h',CLIMS.h.name]]){const b=document.createElement('button');b.className='chip seg';b.type='button';b.id='cl-'+k;b.textContent=t;b.setAttribute('aria-pressed',k===clim);
   b.onclick=()=>{clim=k;for(const q of clEl.children)q.setAttribute('aria-pressed',q===b);clKey.hidden=k==='off'||k==='b';bioKey.hidden=k!=='b';
     if(CLIMS[k]){const C=CLIMS[k];clKey.children[0].textContent=C.ends[0];clKey.children[2].textContent=C.ends[1];clKey.children[1].style.background='linear-gradient(90deg,'+C.stops.join(',')+')';}
     draw();pump();};clEl.append(b);}
@@ -431,7 +443,7 @@ vw=innerWidth;vh=innerHeight;home();resize();
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
 const usp=new URLSearchParams(location.search),qs=toSeed(usp.get('seed')||'');
 SEA_S.forEach(([k])=>{if(usp.has(k))seaSet(k,parseFloat(usp.get(k)));});seaShow();
-SEA_S.forEach(([k,,,,,d,grp])=>{if(SEAC[k]!==d)document.getElementById(grp==='clim'?'climbox':'seabox').open=true;});
+SEA_S.forEach(([k,,,,,d,grp])=>{if(SEAC[k]!==d)document.getElementById((grp||'sea')+'box').open=true;});
 start(qs!==null?qs:my!==null?my:(Math.random()*1e9)|0);
 })();
 </script>

@@ -614,7 +614,13 @@ function routeColumn(a,lx,lz,x,z,n,HY){
   const surf=ASPHALT;   // (the lines are painted on over the top, at the road's own angle: see routeMarks)
   if(HY===G){
     const wet=riverAt(x+0.5,z+0.5,RIV_W+1);
-    for(let y=G+1;y<G+12;y++)put(y,AIR);if(!wet)for(let y=G-2;y<G;y++)put(y,DIRT);
+    // (through a mountain, world/relief.js: a tunnel, lined in concrete and lit along its middle, rather than the open
+    // cutting's headroom)
+    const tun=!wet&&a[li(lx,G+12,lz)]!==AIR;
+    if(tun){for(let y=G+1;y<G+8;y++)put(y,AIR);put(G+8,CONCRETE);if(Math.abs(n.sd)<1&&mod(along,10)===0)put(G+8,LAMP);for(let y=G-2;y<G;y++)put(y,DIRT);
+      if(bar&&!farmLaneCol(x,z)&&!tsApron(x,z)&&!OPEN_TOP.has(a[li(lx,G,lz)])&&railNear(x,z)>3){for(let y=G;y<G+8;y++)put(y,CONCRETE);return true;}   // (its walls, open where something joins or crosses)
+      if(bar&&railNear(x,z)<=3)return true;}
+    else for(let y=G+1;y<G+12;y++)put(y,AIR);if(!wet&&!tun)for(let y=G-2;y<G;y++)put(y,DIRT);
     if(bar&&farmLaneCol(x,z)){put(G,ASPHALT);return true;}   // a farm lane joins here: an opening in the barrier
     if(bar&&tsApron(x,z)){put(G,ASPHALT);return true;}       // (and the way into a truck stop)
     if(bar&&OPEN_TOP.has(a[li(lx,G,lz)]))return true;        // (and wherever another road's already here: where two meet it's an open junction, not a wall across its lanes)

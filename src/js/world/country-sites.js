@@ -318,17 +318,23 @@ function roadNear(x,z,pad){
   e=Math.min(e,linkNear(x,z));
   return e;
 }
+// the ground's height at (x,z) out in the open plains, in blocks above G (below 0: a pond or lake that deep): the land's
+// own (reliefNat, world/relief.js) as what's built lets it stand. The rolling hills and the lakes ease out to nothing
+// within 14 blocks of a road, a river or the edge of a block that isn't open plains (as the plains always did, so the
+// lakes' shores make embankments where a road runs by); the mountains are cut back more steeply (reliefMask)
 function plainsH(x,z){
-  const px=Math.floor(x/CELL),pz=Math.floor(z/CELL);if(!PLAINS_OPEN(px,pz))return 0;
+  const px=Math.floor(x/CELL),pz=Math.floor(z/CELL);RLF.cut=RLF.tun=false;RLF.r=0;if(!PLAINS_OPEN(px,pz))return 0;
   const rx=x-px*CELL,rz=z-pz*CELL;let f=1;
   f=Math.min(f,Math.max(0,roadNear(x,z))/14);
   for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++){if(!dx&&!dz||PLAINS_OPEN(px+dx,pz+dz))continue;
     const ex=dx<0?rx:dx>0?CELL-1-rx:0,ez=dz<0?rz:dz>0?CELL-1-rz:0;f=Math.min(f,Math.max(dx?ex:0,dz?ez:0)/14);}
-  const h=plainsRaw(x,z)*f;
-  return h<-0.9?-1:Math.max(0,Math.round(h));
+  f=Math.min(f,rlfLane(x,z,px,pz)/6);   // (and level with a farm's lane, which only clears its own height)
+  reliefNat(x,z);const mtn=RLF.mtn,hill=RLF.hill,lake=RLF.lake;
+  const h=(hill-lake)*f+(mtn>0.5?reliefMask(x,z,px,pz,mtn,hill+mtn):mtn*f);
+  return h<-0.9?Math.max(-RLF_LAKE,Math.round(h)):Math.max(0,Math.round(h));
 }
 // the plains' rolling ground before it's flattened toward roads and other blocks (plainsH scales it down there). Below
-// -0.9 it's a pond, so where this isn't, plainsH can't be either: a cheap first test for the far view's ponds
+// -0.9 it's a pond (a lake too, world/relief.js, can be where this isn't: the far view asks plainsH for those)
 function plainsRaw(x,z){
   let r=(nzFbm(x,z,110,3,4401)*1.9+0.3)*4.4;climAt(x,z);const p=clBlend('pond');
   // (the biome's ponds: a wet one lowers the ground into more of them, a dry one lifts the hollows out of them)
