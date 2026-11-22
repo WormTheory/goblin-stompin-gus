@@ -24,6 +24,9 @@
 - Each biome has its own ground (snow, sand over sandstone, red sand over banded clay, mud), its own trees (pines, acacias, jungle giants, drooping swamp trees, cactus and dead trees), its own ponds (frozen in the ice fields, muddy and reedy in the swamp) and its own shade of grass and leaves, in towns too.
 - Biomes are seen from afar, and shown on the map and the minimap.
 - The World Generator can show the biomes, and has Climate sliders: warmer or colder, wetter or drier, how big the climate regions are and how strongly it gets colder one way and hotter the other.
+- The woods round sites in the wilds (campsites, lumber camps, thieves' hideouts, ruins) grow the biome's own trees.
+- River banks are the biome's ground, muddy in the swamp.
+- The debug menu's Info pane shows the biome you're standing in, apart from the place.
 - This makes a new world, so a saved city starts afresh.
 
 ### Mountains and lakes
@@ -45,6 +48,8 @@
 - The map and minimap shade the land as it really is beside the roads, rivers and towns.
 - There are no lakes near the start, as there are no mountains there.
 - Planes flying their rounds climb over the hills and mountains.
+- Beside towns, farms and sites the land climbs in terraces held up by stone retaining walls, rather than sheer rock faces.
+- Sites in the wilds keep away from the most rugged country.
 - This makes a new world again, so a saved city starts afresh.
 
 ### Rivers
@@ -53,6 +58,7 @@
 - Smaller, shallower streams branch off the rivers and feed into them.
 - Through the hills and mountains, rivers carve valleys for themselves.
 - The World Generator has two more River sliders: how far rivers run inland, and how many streams branch off them. It draws streams thinner than rivers.
+- Each river has a width of its own, the same all the way down (the Width slider still sets the widest).
 - This makes a new world again, so a saved city starts afresh.
 
 ### Co-op on two screens
@@ -577,6 +583,7 @@
 - Wind turbines, motorways, bridges, stadiums and other things that aren't buildings no longer have rows of lit windows on them when seen from far off, and neither do windowless buildings such as building sites, car parks and the data centre.
 - Online, a guest's Mobile Gear quick boost keeps its thruster flash from the moment it's pressed, instead of the flash cutting out for a moment until the host catches up.
 - When the Ferris wheel comes down, its two A-frames topple over with it, instead of being left standing with nothing to hold up.
+- Wind turbines no longer fall down by themselves as you arrive: one could be put where a farm's fields were laid, leaving its blades with no tower.
 - A wind turbine's blades now come down with it. Topple the tower and they go over with the top of it, then lie flat on the ground where they land; smash just the top and they drop off. They're still lying there when you come back.
 - Driving a pickup, van or lorry through a wall now takes out the bottom row of blocks too, instead of leaving a low ledge you then bump up over.
 - Drifting slowly into a building no longer lets the side of your car, or a corner swinging round, slide into the wall.

@@ -95,12 +95,15 @@ let readoutH='';
 // (DT.info, kept in this browser), off to begin with
 const noSym=s=>s.replace(/[\u{1F000}-\u{1FAFF}\u2190-\u2BFF\uFE0F\u200D]/gu,'').replace(/ {2,}/g,' ').replace(/> /g,'>').trim();
 let infoEl=null;
+// (the biome at the first player's feet, as the ground there is made: biomeAt, or Alpine up on the bare rock)
+function infoBiome(){const p=players.find(q=>q.active)||players[0];if(!p)return'—';const x=Math.floor(p.pos.x),z=Math.floor(p.pos.z);
+  let i=biomeAt(x,z);const t=CLIM.t;if(realmOf(Math.floor(x/CELL),Math.floor(z/CELL))==='plains'&&plainsH(x,z)>rlfRock(t))i=BIO_I.alpine;return BIOMES[i].n;}
 function infoTick(whereLabel){
   if(!infoEl)infoEl=document.getElementById('infoPane');if(!infoEl)return;
   if(infoEl.hidden===DT.info)infoEl.hidden=!DT.info;if(!DT.info)return;
   let st='—';try{st=structLabel();}catch(e){}
   const hr=hourNow(),tm=String(Math.floor(hr)).padStart(2,'0')+':'+String(Math.floor(hr%1*60)).padStart(2,'0');
-  const h='<div><span class="ik">Time</span>'+tm+', '+timeLabel().split(', ')[1]+(DT.todStop?' (paused)':'')+'</div><div><span class="ik">Weather</span>'+WX_TYPES[WX.type].n+'</div><div><span class="ik">Moon</span>'+moonInfo()[0]+'</div><div><span class="ik">Biome</span>'+noSym(whereLabel())+'</div><div><span class="ik">Structure</span>'+st+'</div>';
+  const h='<div><span class="ik">Time</span>'+tm+', '+timeLabel().split(', ')[1]+(DT.todStop?' (paused)':'')+'</div><div><span class="ik">Weather</span>'+WX_TYPES[WX.type].n+'</div><div><span class="ik">Moon</span>'+moonInfo()[0]+'</div><div><span class="ik">Place</span>'+noSym(whereLabel())+'</div><div><span class="ik">Biome</span>'+infoBiome()+'</div><div><span class="ik">Structure</span>'+st+'</div>';
   if(infoEl.dataset.h!==h){infoEl.dataset.h=h;infoEl.innerHTML=h;}
 }
 // the structure or site the (first) player is in or on, named as the Structures previewer lists its kind (made singular).

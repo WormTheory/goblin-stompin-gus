@@ -48,6 +48,9 @@ const BIGP=[{kind:'airport',w:16,h:8,p:0,salt:11},{kind:'nasa',w:2,h:3,p:0.005,s
 function bigCell(i,ax,az){
   const K=BIGP[i],kk=K.kind+ax+','+az;if(i===0)return false;let ok=bigOK.get(kk);if(ok!==undefined)return ok;
   ok=hash2(ax*389+K.salt,az*211+K.salt*3)<K.p&&!TEST_OFF.has(K.kind);
+  // (not in rugged country, world/relief.js: fewer the more rugged, none in the high mountains. Only that coarse field,
+  // never the land's real height, which is worked out from where the sites are)
+  if(ok){const g=ruggedAt((ax+K.w/2)*CELL,(az+K.h/2)*CELL);if(g>0.5&&hash2(ax*97+K.salt,az*53+7)<(g-0.5)/0.15)ok=false;}
   if(ok)for(let a=ax-2;a<ax+K.w+2&&ok;a++)for(let b=az-2;b<az+K.h+2&&ok;b++){const inR=a>=ax&&a<ax+K.w&&b>=az&&b<az+K.h;if(settlementAt(a,b)||seaPlot(a,b)||inR&&railPlot(a,b)||inR&&(farmK(a,b)!==null||tsPlot(a,b)||plotNearLines(a,b,2)||rivPlotNear(a,b)))ok=false;}
   if(ok)for(let a=ax;a<ax+K.w&&ok;a++)for(let b=az;b<az+K.h&&ok;b++)for(let i2=0;i2<i&&ok;i2++){const K2=BIGP[i2];if(i2===0?airportAt(a,b):bigCell(i2,Math.floor(a/K2.w)*K2.w,Math.floor(b/K2.h)*K2.h))ok=false;}
   if(!apBusy)bigOK.set(kk,ok);return ok;
@@ -327,7 +330,7 @@ function roadNear(x,z,pad){
 // deeper than a few blocks isn't filled in for a highway, though: it runs on under it, and the road crosses on a deck on
 // pillars (routeColumn), easing from the one to the other as the lake gets deeper
 function plainsH(x,z){
-  const px=Math.floor(x/CELL),pz=Math.floor(z/CELL);RLF.cut=RLF.tun=false;RLF.r=0;if(!PLAINS_OPEN(px,pz))return 0;
+  const px=Math.floor(x/CELL),pz=Math.floor(z/CELL);RLF.cut=RLF.tun=RLF.ter=RLF.tw=false;RLF.r=0;if(!PLAINS_OPEN(px,pz))return 0;
   const rx=x-px*CELL,rz=z-pz*CELL;let f=1;
   roadNear(x,z);f=Math.min(f,Math.max(0,RN_O)/14);const fr=Math.min(1,Math.max(0,RN_RT)/14);
   for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++){if(!dx&&!dz||PLAINS_OPEN(px+dx,pz+dz))continue;

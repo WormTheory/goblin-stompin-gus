@@ -280,7 +280,7 @@ function tower5gColumn(col,B,U,V,x,z){
 const turbC=new Map();
 function turbineAt(px,pz){
   const k=px*100003+pz;let v=turbC.get(k);if(v!==undefined)return v;v=false;
-  if(!TEST_OFF.has('wind')&&mod(px+pz,2)===0&&hash2(Math.floor(px/7)*311+5,Math.floor(pz/7)*157+3)<0.07&&realmOf(px,pz)==='plains'&&farmK(px,pz)===null&&dumpAt(px,pz)===null&&!bigPlainsAt(px,pz)&&!bunkerAt(px,pz)&&!caveMouth(px,pz)&&!tsPlot(px,pz)&&!rivPlotNear(px,pz)&&!nearSea(px,pz)){
+  if(!TEST_OFF.has('wind')&&mod(px+pz,2)===0&&hash2(Math.floor(px/7)*311+5,Math.floor(pz/7)*157+3)<0.07&&realmOf(px,pz)==='plains'&&farmK(px,pz)===null&&!farmlandOf(px,pz)&&dumpAt(px,pz)===null&&!bigPlainsAt(px,pz)&&!bunkerAt(px,pz)&&!caveMouth(px,pz)&&!tsPlot(px,pz)&&!rivPlotNear(px,pz)&&!nearSea(px,pz)){
     const cx=px*CELL+16,cz=pz*CELL+16;if(roadNear(cx,cz,16)>=12&&railNear(cx,cz)>=10)v=true;}
   if(turbC.size>100000)turbC.clear();turbC.set(k,v);return v;
 }

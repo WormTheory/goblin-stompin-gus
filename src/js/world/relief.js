@@ -7,7 +7,7 @@
 //     (RLF_TOP), and ridged noise shapes ranges and crests under that
 //   lakes: hollows below the datum where the land's low and wet, filled with water up to G
 // The World Generator's Land shape sliders scale them (WORLD_CFG's mtn, mth, hill, lakes) ----
-const RLF={hill:0,mtn:0,lake:0,r:0,cut:false,tun:false};
+const RLF={hill:0,mtn:0,lake:0,r:0,cut:false,tun:false,ter:false,tw:false};
 // (a length: Math.sqrt is exact in every browser, Math.hypot may differ in the last bit, and the land must be the same
 // for every player online)
 const rlfLen=(a,b)=>Math.sqrt(a*a+b*b);
@@ -107,7 +107,7 @@ function rlfAir(px,pz){const k=px*100003+pz;let L=RLF_AIR.get(k);if(L)return L;L
 // once the land's higher than RLF_TUN (a motorway's deck counts too). RLF.cut: cut back, so its face is bare rock;
 // RLF.tun: left standing over a road or railway
 function reliefMask(x,z,px,pz,mtn,tot){
-  let cap=mtn;RLF.cut=false;RLF.tun=false;
+  let cap=mtn;RLF.cut=false;RLF.tun=false;RLF.ter=false;RLF.tw=false;
   const lim=Math.min(90,mtn/0.7+6),q=(d,k,v)=>{const c=Math.max(0,d-v)*k;if(c<cap)cap=c;};
   {const d=rlfDist(rlfLines16(rlfRt16,rlfRtC,routesNearBox,x,z),x,z,mtn/2+12),R=RLF_NR;if(R){const tn=RLF_TUN+(R.kind==='moto'?R.HY-G:0);if(tot>tn)RLF.tun=true;else q(d-9.6,2,1);}}
   if(cap>0){const d=railDist(x,z,mtn/2+6);if(d<mtn/2+6){if(tot>RLF_TUN)RLF.tun=true;else q(d-2.5,2,1);}}
@@ -116,11 +116,14 @@ function reliefMask(x,z,px,pz,mtn,tot){
     const k=Math.floor(x/16)*100003+Math.floor(z/16);if(!tsC.has(k))tsAt(x,z);for(const T of tsC.get(k)||[]){const dx=x+0.5-T.cx,dz=z+0.5-T.cz,u=dx*T.tx+dz*T.tz,v=dx*T.nx+dz*T.nz;
       q(rlfLen(Math.max(0,Math.abs(u)-46),Math.max(0,v-60,6.5-v))-2,1.5,1);}}
   if(cap>0)for(const A of rlfAir(px,pz))q(rlfLen(Math.max(0,A[0]-x,x-A[2]),Math.max(0,A[1]-z,z-A[3])),A[4],0);
-  // (the edges of the blocks round about that aren't open plains: two blocks out, for the taller mountains)
-  if(cap>0){const rx=x-px*CELL,rz=z-pz*CELL,R=mtn>36?2:1;
+  // (the edges of the blocks round about that aren't open plains, two blocks out for the taller mountains: the land's
+  // graded up from them in terraces, 3 blocks high and 4 deep, each held up by a retaining wall (RLF.tw: a column on the
+  // wall's top edge), rather than cut back to a rock face)
+  if(cap>0){const rx=x-px*CELL,rz=z-pz*CELL,R=mtn>36?2:1;let e=1e9;
     for(let dx=-R;dx<=R;dx++)for(let dz=-R;dz<=R;dz++){if(!dx&&!dz||PLAINS_OPEN(px+dx,pz+dz))continue;
-      const ex=dx<0?rx+(-dx-1)*CELL:dx>0?(dx-1)*CELL+CELL-1-rx:0,ez=dz<0?rz+(-dz-1)*CELL:dz>0?(dz-1)*CELL+CELL-1-rz:0;q(rlfLen(ex,ez),1.2,2);}}
-  if(cap<mtn-2&&cap>2)RLF.cut=true;
+      const ex=dx<0?rx+(-dx-1)*CELL:dx>0?(dx-1)*CELL+CELL-1-rx:0,ez=dz<0?rz+(-dz-1)*CELL:dz>0?(dz-1)*CELL+CELL-1-rz:0,d=rlfLen(ex,ez);if(d<e)e=d;}
+    const u=Math.max(0,e-2),k=Math.floor(u/4);if(3*k<cap){cap=3*k;RLF.ter=true;RLF.tw=k>=1&&u-4*k<1;}}
+  if(cap<mtn-2&&cap>2&&!RLF.ter)RLF.cut=true;
   return cap;
 }
 // (the heights above G where the trees stop and the ground's bare rock and scree, and where it's snow all year: lower the

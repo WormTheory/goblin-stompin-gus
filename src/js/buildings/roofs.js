@@ -141,7 +141,7 @@ function joinColumn(col,J,c,a,x,z){
 }
 function plainsColumn(col,x,z,noShore){
   if(!noShore&&nearSea(Math.floor(x/CELL),Math.floor(z/CELL))){const cd=coastD(x,z);if(cd>=0){seaWater(col,x,z,1,cd);return;}if(cd>-22&&natLand(col,x,z,null,cd))return;}
-  const h=plainsH(x,z),cut=RLF.cut,r=RLF.r,B=BIOMES[biomeAt(x,z)],t=CLIM.t;
+  const h=plainsH(x,z),cut=RLF.cut,tw=RLF.tw,r=RLF.r,B=BIOMES[biomeAt(x,z)],t=CLIM.t;
   // a pond or a lake: still water up to G over sand (over mud in a swamp, frozen over in the ice fields)
   if(h<0){col(G+h,B.sub===MUD?MUD:SAND);for(let y=G+h+1;y<=G;y++)col(y,y===G&&B.ice?ICE:WATER);return;}
   // the biome's ground: its top block over a few of its own (the badlands' in bands of clay), and rock under that in the
@@ -151,6 +151,7 @@ function plainsColumn(col,x,z,noShore){
   if(B.sub){col(G-2,sub);col(G-1,sub);}
   for(let y=G;y<G+h;y++)col(y,bare||y<G+h-4?STONE:sub);
   if(sub===TERRA)for(let y=G-3;y<G+h;y++)col(y,(y+(hash2(x>>3,z>>3)<0.5?1:0))%3?TERRA:TERRA2);
+  if(tw&&!bare)for(let y=Math.max(G,G+h-3);y<G+h;y++)col(y,COBBLE);   // (a terrace's retaining wall, world/relief.js)
   col(G+h,top);
   const v=hash2(x*7+3,z*11+5),rk=B.rock*(1+5*r);   // (boulders: many more on rugged ground)
   if(bare){if(!snow&&v>1-rk){col(G+h+1,STONE);if(v>1-rk*0.32)col(G+h+2,STONE);}return;}
@@ -195,12 +196,14 @@ function farmlandColumn(col,F,px,pz,rx,rz,x,z){
 // a river out on the plains: no embankments, just grassy banks sloping down to sand and the water
 // a river out on the plains, d blocks from its centre line: no embankments, just grassy banks sloping down to sand and
 // the water (cut into whatever the column already had)
-function plainsRiverColumn(col,d,w=RIV_W){   // (w: its width, a tributary's narrower)
-  const WL=G-2,RB=G-11+(w<RIV_W?3:0);
+function plainsRiverColumn(col,d,w,trib,x,z){   // (w: its width; a tributary's shallower)
+  const WL=G-2,RB=G-11+(trib?3:0);
   if(d>w+4)return;
-  if(d>w+2){col(G-1,DIRT);col(G,GRASS);for(let y=G+1;y<G+8;y++)col(y,AIR);return;}
-  if(d>w){col(G-1,SAND);for(let y=G;y<G+8;y++)col(y,AIR);return;}
-  const bed=RB+Math.round((d/w)*(w<RIV_W?3:6));col(bed,SAND);for(let y=bed+1;y<=WL;y++)col(y,WATER);
+  // (the banks in the biome's ground: grass over dirt, sand, snow, mud in a swamp)
+  const B=BIOMES[biomeAt(x,z)],sd=B.sub===MUD?MUD:SAND;
+  if(d>w+2){col(G-1,B.sub||DIRT);col(G,B.top||GRASS);for(let y=G+1;y<G+8;y++)col(y,AIR);return;}
+  if(d>w){col(G-1,sd);for(let y=G;y<G+8;y++)col(y,AIR);return;}
+  const bed=RB+Math.round((d/w)*(trib?3:6));col(bed,sd);for(let y=bed+1;y<=WL;y++)col(y,WATER);
   for(let y=WL+1;y<G+8;y++)col(y,AIR);   // open to the sky (the ground layers would otherwise roof it over)
 }
 // a landmark's grounds: a gravel path in from the street to its door; a fence round the water tower; a hedge, flower

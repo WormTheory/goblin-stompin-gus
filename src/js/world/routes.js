@@ -257,6 +257,8 @@ function rivTu(n,b){if(n.sea||rivMain(n))return Infinity;if(rivSrcT(n))return 0;
   for(let q=0;q<4;q++){const m=rivNb(n,q);if(rivDown(m)===n){const t=rivTu(m,b-1)+1;if(t<v)v=t;}}return v;}
 // (nodes down from n to a river or the sea, Infinity past RIV_TRIB)
 function rivTo(n){let m=n,s=0;while(m&&!m.sea&&!rivMain(m)){if(++s>RIV_TRIB)return Infinity;m=rivDown(m);}return m?s:Infinity;}
+// (0..1, how wide the river through node n is, the same all the way down: seeded by the node where it meets the sea)
+function rivWide(n){let m=n,s=0;while(m&&!m.sea&&s<64){const d=rivDown(m);if(!d)break;m=d;s++;}return hash2(m.k*61+3,m.j*89+7);}
 // what leaves node n down its drain: 2 a river, 1 a tributary, 0 nothing
 function rivWet(n){if(n.w!==undefined)return n.w;let w=0;
   if(!n.sea&&rivDown(n)){if(rivMain(n))w=2;else if(RIV_TRIB>0&&rivTu(n,RIV_TRIB)+rivTo(n)<=RIV_TRIB)w=1;}
@@ -292,7 +294,10 @@ function rivTile(ax,j,i){
   v.secs=F.secs;
   for(const r of runs){const lo=Math.max(t0,r[0]),hi=Math.min(t1,r[1]),pts=[at(lo)];
     for(let n=0;n<A.length;n++)if(A[n]>lo&&A[n]<hi)pts.push(pt(A[n],C[n]));pts.push(at(hi));if(hi-lo<1)continue;
-    const R=mkRoute(pts,{kind:'river',ax,w:r[2]===2?RIV_W:Math.max(3,Math.round(RIV_W*0.6)),trib:r[2]===1});R.id=500000+RIV_ID++;
+    // (its width: each river its own, from where it meets the sea, from 0.6 to the whole of RIV_W, which the Width slider
+    // sets; its streams 0.6 of that)
+    const wr=RIV_W*(0.6+0.4*rivWide(r[3]||(ax==='x'?rivNode(Math.floor((lo+hi)/2/RIV_SP),j):rivNode(j,Math.floor((lo+hi)/2/RIV_SP)))));
+    const R=mkRoute(pts,{kind:'river',ax,w:r[2]===2?Math.max(4,Math.round(wr)):Math.max(3,Math.round(wr*0.6)),trib:r[2]===1});R.id=500000+RIV_ID++;
     // (a lake at its source, out in low country, if its top's in this tile)
     if(r[3]&&r[3].lake&&r[4]>=t0&&r[4]<=t1){const X=rivX(r[3]);R.src=[X.x,X.z,16+hash2(r[3].k*7+1,r[3].j*13+5)*14];}
     indexLine(rvIdx,R);}

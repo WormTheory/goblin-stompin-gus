@@ -31,7 +31,8 @@ function plainsTree(x,z){
   const v=hash2(x*3+1,z*7+5);if(v>0.32)return null;   // (no biome's woods are thicker than this)
   const px=Math.floor(x/CELL),pz=Math.floor(z/CELL),wood=siteTrees(x,z);if(!wood&&!PLAINS_OPEN(px,pz))return null;
   let sp=0;
-  if(wood){if(v>0.006+0.11*wood)return null;}
+  if(wood){if(v>0.006+0.11*wood)return null;   // (a site's woods: the biome's own trees, pines where it has none)
+    const L=BIOMES[biomeAt(x,z)].trees;if(!L.length)sp=TREE_I.pine;else{let q=hash2(x*5+17,z*3+29);for(const [k,w] of L){sp=TREE_I[k];if((q-=w)<0)break;}}}
   else{const B=BIOMES[biomeAt(x,z)],copse=lumberNear(px,pz)?1.1:plainsCopse(x,z);if(v>B.sc+B.dn*copse||!B.trees.length)return null;
     let q=hash2(x*5+17,z*3+29);for(const [k,w] of B.trees){sp=TREE_I[k];if((q-=w)<0)break;}}
   if(roadNear(x,z,14)<4||railNear(x,z)<6||boardNear(x,z,7))return null;
@@ -95,7 +96,7 @@ function genChunk(cx,cz){
       else{plainsColumn(col,x,z);if(farmLaneCol(x,z)){col(G-1,DIRT);col(G,GRAVEL);col(G+1,AIR);}if(bunkerAt(qx,qz))bunkerColumn(col,rx,rz,x,z);else if(caveMouth(qx,qz))caveMouthColumn(col,rx,rz,x,z);else if(turbineAt(qx,qz))turbineColumn(col,rx,rz);}   // (a farm lane: two blocks wide, flaring out where it meets the road)
       pylonColumn(col,x,z);railColumn(col,x,z);
       // a river winding through: its water and banks cut into whatever's there
-      {const W=riverCol(x+0.5,z+0.5);if(W&&!W.lake)plainsRiverColumn(col,W.d,W.w);}
+      {const W=riverCol(x+0.5,z+0.5);if(W&&!W.lake)plainsRiverColumn(col,W.d,W.w,W.R.trib,x,z);}
       continue;}}
     {const qx=Math.floor(x/CELL),qz=Math.floor(z/CELL);if(isRiver(qx,qz)&&riverColumn(col,qx,qz,rx,rz))continue;}
     // inside a superblock (its pavement ring or its site): laid out in the superblock's own coordinates
