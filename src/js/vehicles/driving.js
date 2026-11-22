@@ -66,7 +66,7 @@ function drvHintClear(p){p.drvHintO=null;const box=p.ui&&(p.ui.feed||p.ui.label)
   for(const el of Array.from(box.children))if(el._s&&/  (Drive|Steal) the /.test(el._s)){clearTimeout(el._t);el.remove();}}
 function drvEnter(p,D){
   {const S=D&&shipN?shipOf(p):null;if(S&&D.k!=='ship'&&D.k!=='mount'&&!((D.o.pos?D.o.pos.x:D.o.isPlane?D.o.g.position.x:D.o.x)>=SHIP_X0))shipMove(p,S,false,true);}   // (from aboard a ship into something out in the world, the Mobile Gear on its deck: put out there with it)
-  const o=D.o,gun=D.seat==='gun',jack=!gun&&jackable(D);p.drv=D;p.standCar=null;p.vcl=null;p.state='walk';p.vy=0;p.mvx=p.mvz=0;p.biteT=0;p.trK=0;   // (trK: no running pose or rush carried in, or back out again)p.drvLook=-9;p.drvYaw=undefined;p.shipBridge=false;
+  const o=D.o,gun=D.seat==='gun',jack=!gun&&jackable(D);p.drv=D;p.standCar=null;p.vcl=null;p.state='walk';p.vy=0;p.mvx=p.mvz=0;p.biteT=0;p.trK=0;   p.drvLook=-9;p.drvYaw=undefined;p.shipBridge=false;   // (trK: no running pose or rush carried in, or back out again)
   drvHintClear(p);
   if(gun)o.gnr=p;else drvTake(p,D);
   if(gunSeat(D))wpnInit(o,drvGunK(D));
@@ -129,7 +129,7 @@ function drvSeat(p){
   if(D.k==='car'?!o.alive:o.dead||o.fall){drvExit(p,true);return;}
   if(D.jack){jackPose(p);return;}
   if(D.k==='ship'){shipSeat(p,o);return;}
-  const S=drvPose(D);p.pos.set(S.x,S.y+(D.k==='mech'?5:Math.min(1.2,S.hy*0.5)),S.z);   // (a Mobile Gear's pilot sits up in its chest)p.heading=S.h;
+  const S=drvPose(D);p.pos.set(S.x,S.y+(D.k==='mech'?5:Math.min(1.2,S.hy*0.5)),S.z);   p.heading=S.h;   // (a Mobile Gear's pilot sits up in its chest. heading: facing the way it does, which the minimap's arrow shows)
   p.vy=0;p.grounded=true;p.mvx=p.mvz=0;p.standCar=null;p.vcl=null;p.peakY=p.pos.y;p.biteT=0;
   if(p.gb)gunGripUndo(p.gb.m);   // (a gun held two-handed the moment before getting in: strikes.js)
   if(rideShown(p)){if(D.seat==='gun')gunPose(p,o);else if(rideSeatOf(D)){seatPose(p,D);if(D.k==='car')lightRider(p,o);}else ridePose(p,o);}

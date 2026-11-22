@@ -9,9 +9,10 @@
 const MG={hy:7.6,r:1.25,hp:600,walk:10.8,skate:32.4,air:28.8,airEN:12,hoverEN:5,grav:26,jumpV:16,jumpEN:8,jumpPre:0.12,ascV:9,ascEN:30,
   stepEase:10,qbV:61,qbT:0.18,qbCD:0.35,qbEN:20,qbDec:0.35,enMax:100,enRegen:45,enDelay:0.5,red:1.8,stepWalk:1,stepSkate:2,outHold:0.5,
   ramV:15,plow:24,
-  // (the assault boost: a charge-up, then a long straight dash where you aim, up or down too, steering slowly; the kick:
+  // (the assault boost: a charge-up, then a long straight dash where you aim, up or down too, steering slowly, abUp more
+// up or down with jump or boost held; for abCarry after it it keeps its speed, easing off at abCarryK a second; the kick:
   // pressed again with a target this near, a flying kick at it; the impact meter that staggers it; repair kits)
-  abCharge:0.6,abV:65,abEN0:15,abEN:10,abTurn:1.4,kickR:18,kickV:55,kickT:0.4,kickDmg:30,kickVD:60,kickEN:10,kickImp:4,impMax:260,kits:3,repK:0.35,repT:1};
+  abCharge:0.6,abV:65,abEN0:15,abEN:10,abTurn:1.4,abUp:30,abUpK:8,abCarry:1.2,abCarryK:1.3,kickR:18,kickV:55,kickT:0.4,kickDmg:30,kickVD:60,kickEN:10,kickImp:4,impMax:260,kits:3,repK:0.35,repT:1};
 // (the legs: thigh and shin lengths, and how high the hips stand)
 const MG_L1=1.9,MG_L2=1.75,MG_HIP=3.75;
 DRV_NAME.mech='Mobile Gear';
@@ -137,7 +138,7 @@ function drvMech(M,dt){
   // getting out is a short hold (so it never happens by accident mid-fight), and only once the button's been let go
   // after getting in
   if(!i.mgOut)M.outArm=true;M.outT=i.mgOut&&M.outArm?(M.outT||0)+dt:0;
-  if(i.mgBoostP){M.boostOn=!M.boostOn;if(audio)sfx('Mobile Gear boost switch',()=>tone('triangle',M.boostOn?300:520,M.boostOn?620:260,0.12,0.05));}
+  if(i.mgBoostP&&!M.ab){M.boostOn=!M.boostOn;if(audio)sfx('Mobile Gear boost switch',()=>tone('triangle',M.boostOn?300:520,M.boostOn?620:260,0.12,0.05));}
   // a quick boost: a burst at MG.qbV the way you push (straight back with nothing pushed), for MG.qbT
   if(i.mgQBP&&M.qbCD<=0&&mgCanBoost(M)){let dx=wx,dz=wz;if(!moving){dx=-fx;dz=-fz;}else{const m=Math.hypot(dx,dz);dx/=m;dz/=m;}
     mgDraw(M,MG.qbEN);M.qbT=MG.qbT;M.qbx=dx*MG.qbV;M.qbz=dz*MG.qbV;M.qbCD=MG.qbT+MG.qbCD;M.qbFlash=0.25;M.qbDir={x:dx,z:dz};
@@ -163,9 +164,11 @@ function drvMech(M,dt){
   let lx=0,lz=0;if(M.lgT>0){const a=Math.max(0,M.lgT-dt/2)/MGW.lungeT;M.lgT=Math.max(0,M.lgT-dt);lx=M.lgx*a*a;lz=M.lgz*a*a;}
   // (the kick and the assault boost take it over completely; charging one up, it slows to a near stop, holding its height)
   if(M.kick){const K=M.kick;M.vx=K.vx;M.vz=K.vz;M.vy=K.vy;}
-  else if(M.ab&&M.ab.ph==='go'){const d=M.ab.d;M.vx=d.x*MG.abV;M.vz=d.z*MG.abV;M.vy=M.grounded&&d.y<0.03?0:d.y*MG.abV+MG.grav*dt;if(M.vy>0)M.grounded=false;}
+  else if(M.ab&&M.ab.ph==='go'){const d=M.ab.d,vy=d.y*MG.abV+(M.ab.u||0);M.vx=d.x*MG.abV;M.vz=d.z*MG.abV;M.vy=M.grounded&&vy<2?0:vy+MG.grav*dt;if(M.vy>0)M.grounded=false;}
   else if(M.ab){const k=Math.min(1,dt*5);M.vx-=M.vx*k;M.vz-=M.vz*k;if(!M.grounded)M.vy=Math.max(M.vy,0)*0.5+MG.grav*dt;}
   else if(M.qbT>0){M.qbT-=dt;M.vx=M.qbx;M.vz=M.qbz;if(M.qbT<=0)M.qbD=MG.qbDec;}
+  // (just after an assault boost: it carries its speed on, easing off toward what you're holding, rather than stopping dead)
+  else if(M.abC>0){M.abC-=dt;const k=Math.min(1,dt*MG.abCarryK);M.vx+=(wx*spd-M.vx)*k;M.vz+=(wz*spd-M.vz)*k;}
   else if(M.qbD>0){M.qbD-=dt;const k=Math.min(1,dt*6);M.vx+=(wx*spd-M.vx)*k;M.vz+=(wz*spd-M.vz)*k;}
   else if(!air&&!M.boostOn){
     // (on foot it gets going briskly and picks up into a jog -- pushing harder the faster it's already going -- and
@@ -208,8 +211,9 @@ function mgMove(M,dt,step){const y0=M.y,g0=M.grounded;
     return false;};
   let bx=M.vx&&!tryTo(M.x+M.vx*dt,M.z),bz=M.vz&&!tryTo(M.x,M.z+M.vz*dt);
   // (fast enough, it smashes a way through whatever stopped it and carries on: boosting flat out it hardly slows)
-  if((bx||bz)&&sp0>=MG.ramV&&!M.dead&&mgRam(M,M.vx/sp0,M.vz/sp0,sp0)){const keep=sp0>=MG.plow?0.94:0.5;M.vx*=keep;M.vz*=keep;if(M.qbT>0){M.qbx*=keep;M.qbz*=keep;}
-    if(bx)bx=!tryTo(M.x+M.vx*dt,M.z);if(bz)bz=!tryTo(M.x,M.z+M.vz*dt);}
+  if((bx||bz)&&sp0>=MG.ramV&&!M.dead&&mgRam(M,M.vx/sp0,M.vz/sp0,sp0,sp0*dt)){const keep=sp0>=MG.plow?0.94:0.5;M.vx*=keep;M.vz*=keep;if(M.qbT>0){M.qbx*=keep;M.qbz*=keep;}
+    if(bx)bx=!tryTo(M.x+M.vx*dt,M.z);if(bz)bz=!tryTo(M.x,M.z+M.vz*dt);
+    if(bx&&bz&&tryTo(M.x+M.vx*dt,M.z+M.vz*dt))bx=bz=false;}
   if(bx)M.vx=0;if(bz)M.vz=0;const hit=bx||bz;
   if(hit&&sp0>12&&!M.clangT){M.clangT=0.4;clang();addShake(0.25,M.x,M.z,15);puff(M.x+M.vx*0.1,M.y+3,M.z+M.vz*0.1,5,0x9a948a,1);}
   if(M.clangT>0)M.clangT=Math.max(0,M.clangT-dt);if(M.ramT>0)M.ramT=Math.max(0,M.ramT-dt);
@@ -217,9 +221,11 @@ function mgMove(M,dt,step){const y0=M.y,g0=M.grounded;
   const gy=mgGround(M.x,M.z,M.y+0.3,M);let sup=mgSup;
   if(M.grounded&&M.vy<=0){if(gy>=M.y-1.05&&gy<=M.y+0.3){M.y=gy;M.vy=0;}else M.grounded=false;}
   if(!M.grounded){
-    const g=M.airB&&M.vy<=0?MG.grav*0.35:MG.grav;M.vy-=g*dt;if(M.airB&&M.vy<-5)M.vy=Math.max(M.vy,-5-dt*20);
+    // (boosting it falls slowly, but not in an assault boost, which goes where it's sent, down too)
+    const fl=M.airB&&!(M.ab&&M.ab.ph==='go'),g=fl&&M.vy<=0?MG.grav*0.35:MG.grav;M.vy-=g*dt;if(fl&&M.vy<-5)M.vy=Math.max(M.vy,-5-dt*20);
     let ny=M.y+M.vy*dt;
-    if(M.vy>0&&!mgFits(M.x,ny,M.z)){ny=M.y;M.vy=0;}
+    // (a ceiling: an assault boost climbing smashes up through it, anything else stops under it)
+    if(M.vy>0&&!mgFits(M.x,ny,M.z)&&!(M.ab&&M.ab.ph==='go'&&!M.dead&&mgRam(M,0,0,MG.abV,0,ny)&&mgFits(M.x,ny,M.z))){ny=M.y;M.vy=0;}
     const g2=mgGround(M.x,M.z,Math.max(M.y,ny)+0.3,M);sup=mgSup;
     if(ny<=g2&&M.vy<=0){mgLand(M,-M.vy);ny=g2;M.vy=0;M.grounded=true;}
     M.y=Math.min(ny,H+80);}
@@ -232,15 +238,24 @@ function mgMove(M,dt,step){const y0=M.y,g0=M.grounded;
   else if(M.grounded)M.wasSkim=false;
 }
 // knocking a hole in what's in front of it, as wide and tall as itself and deeper the faster it's going (the same
-// wreckage as a tank ramming: the blocks fly, and a building that loses enough comes down). Returns how many broke
-function mgRam(M,fx,fz,sp){
-  if(SBX)return 0;const depth=sp>=MG.plow?2.4:1.3,W=MG.r+0.55,y0=Math.floor(M.y+0.05),y1=Math.floor(M.y+MG.hy),E=Math.ceil(MG.r+depth+W)+1;
-  const ch=new Set(),broken=[],cx0=Math.floor(M.x),cz0=Math.floor(M.z);
-  for(let bz=cz0-E;bz<=cz0+E;bz++)for(let bx=cx0-E;bx<=cx0+E;bx++){const rx=bx+0.5-M.x,rz=bz+0.5-M.z,a=rx*fx+rz*fz,l=Math.abs(rx*fz-rz*fx);
-    for(let by=y0;by<=y1;by++){const rag=0.4*hash2(bx*5+by*3,bz*13+by);if(a<-MG.r||a>MG.r+depth+rag||l>W+rag)continue;   // (from its back edge: anything it's already scraping along goes too)
-      const b=get(bx,by,bz);if(b===AIR||b===WATER||b===BEDROCK||by<1||by>=H)continue;
-      setRaw(bx,by,bz,AIR);addEdit(bx,by,bz,AIR);broken.push({x:bx,y:by,z:bz,b});
-      for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((bx+ox)/CS),Math.floor((bz+oz)/CS)));}}
+// wreckage as a tank ramming: the blocks fly, and a building that loses enough comes down). Returns how many broke.
+// mv: how far it's moving this step; up: a height it's climbing to, for a hole knocked upward instead (an assault
+// boost into a ceiling)
+function mgRam(M,fx,fz,sp,mv,up){
+  if(SBX)return 0;const depth=sp>=MG.plow?2.4:1.3,W=MG.r+0.55,r=MG.r,y0=Math.floor(M.y+0.05),y1=Math.floor(M.y+MG.hy),E=Math.ceil(MG.r+depth+W)+1;
+  const ch=new Set(),broken=[],cx0=Math.floor(M.x),cz0=Math.floor(M.z),brk=(bx,by,bz)=>{
+    const b=get(bx,by,bz);if(b===AIR||b===WATER||b===BEDROCK||by<1||by>=H)return;
+    setRaw(bx,by,bz,AIR);addEdit(bx,by,bz,AIR);broken.push({x:bx,y:by,z:bz,b});
+    for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((bx+ox)/CS),Math.floor((bz+oz)/CS)));};
+  if(up!==undefined){for(const ox of[-r,0,r])for(const oz of[-r,0,r])for(let by=y1;by<=Math.floor(up+MG.hy)+1;by++)brk(Math.floor(M.x+ox),by,Math.floor(M.z+oz));}
+  else{for(let bz=cz0-E;bz<=cz0+E;bz++)for(let bx=cx0-E;bx<=cx0+E;bx++){const rx=bx+0.5-M.x,rz=bz+0.5-M.z,a=rx*fx+rz*fz,l=Math.abs(rx*fz-rz*fx);
+      for(let by=y0;by<=y1;by++){const rag=0.4*hash2(bx*5+by*3,bz*13+by);if(a<-MG.r||a>MG.r+depth+rag||l>W+rag)continue;   // (from its back edge: anything it's already scraping along goes too)
+        brk(bx,by,bz);}}
+    // (and whatever the square it stands on (mgFits's) would meet on its way: the ragged strip above is measured across
+    // the way it's going, so going diagonally it missed the square's corners, and it stopped dead, stuck in the wall)
+    const L=Math.max(depth,(mv||0)+0.6),ss=[];for(let t=0;t<L;t+=0.5)ss.push(t);ss.push(L,mv||0);
+    for(const t of ss)for(const [ax,az] of [[fx*t,fz*t],[fx*t,0],[0,fz*t]])for(const ox of[-r,0,r])for(const oz of[-r,0,r])
+      for(let by=y0;by<=y1;by++)brk(Math.floor(M.x+ax+ox),by,Math.floor(M.z+az+oz));}
   if(!broken.length)return 0;
   const o={force:0.8+sp*0.03,dx:fx,dz:fz,up:1};rebuildSet(ch);save();destroyFX(broken.slice(0,120),o);settle(broken,o);pumpsHit(broken);
   knockProps(M.x+fx*(MG.r+1),M.y+1,M.z+fz*(MG.r+1),W+1,fx,fz);
@@ -253,18 +268,19 @@ function mgLand(M,v){M.landT=Math.min(0.5,0.08+v*0.015);M.landK=Math.min(1,v/22)
 // pushing goblins and cars out of its way; a goblin it walks on is squashed, a car it walks into shoved
 // the assault boost (mgAB): pressed, it charges for MG.abCharge (crouching, glowing, a rising whine), then dashes at
 // MG.abV straight where you're aiming, up or down too, turning toward the aim only slowly, drawing energy as it goes and
-// smashing through walls (mgMove's ram, at that speed). It stops when you pull back, press it again with nothing near to
-// kick, or run out of energy, and keeps a little of its speed for a moment after (M.qbD), boost left on. Pressed again
+// smashing through walls (mgMove's ram, at that speed); jump held climbs and boost held drops, on top of the aim (A.u).
+// It stops when you pull back, press it again with nothing near to kick, or run out of energy, and carries its speed on
+// for a while after (M.abC), boost left on. Pressed again
 // with the locked target within MG.kickR: a flying kick at it (M.kick, see mgKick)
 function mgAssault(M,p,i,dt,f){
   const aim=()=>{const cp=Math.cos(p.cam.pitch);return{x:-Math.sin(p.cam.yaw)*cp,y:Math.sin(p.cam.pitch),z:-Math.cos(p.cam.yaw)*cp};};
-  const end=()=>{M.ab=null;M.boostOn=true;M.qbD=MG.qbDec*1.5;};
+  const end=()=>{M.ab=null;M.boostOn=true;M.abC=MG.abCarry;};
   if(M.kick){mgKick(M,dt);return;}
   if(i.mgABP){
-    if(!M.ab){if(mgCanBoost(M)&&M.en>=MG.abEN0){M.ab={ph:'charge',t:MG.abCharge};M.qbT=0;if(audio)sfx('Mobile Gear assault boost charge',()=>tone('sawtooth',90,420,MG.abCharge,0.06));}}
+    if(!M.ab){if(mgCanBoost(M)&&M.en>=MG.abEN0){M.ab={ph:'charge',t:MG.abCharge};M.qbT=0;M.abC=0;if(audio)sfx('Mobile Gear assault boost charge',()=>tone('sawtooth',90,420,MG.abCharge,0.06));}}
     else if(M.ab.ph==='go'){const T=mgTarget(M);let near=false;
       if(T&&lockAlive(T)){const dx=T.pos.x-M.x,dy=lockY(T)-(M.y+4),dz=T.pos.z-M.z;near=Math.hypot(dx,dy,dz)<MG.kickR;}
-      if(near&&mgDraw(M,MG.kickEN)){M.ab=null;mgKickStart(M,T);return;}
+      if(near&&mgDraw(M,MG.kickEN)){M.ab=null;M.abC=0;mgKickStart(M,T);return;}
       end();return;}
     else{M.ab=null;return;}}   // (pressed again while it's still charging: called off)
   if(!M.ab)return;const A=M.ab;
@@ -275,6 +291,7 @@ function mgAssault(M,p,i,dt,f){
     return;}
   // (going: steering slowly toward the aim, drawing energy; pulled back, or out of energy, it's over)
   const W=aim(),d=A.d,k=Math.min(1,MG.abTurn*dt);d.x+=(W.x-d.x)*k;d.y+=(W.y-d.y)*k;d.z+=(W.z-d.z)*k;if(M.grounded&&d.y<0)d.y=0;
+  {const want=(i.mgJump?1:0)-(i.mgBoost?1:0);A.u=(A.u||0)+(want*MG.abUp-(A.u||0))*Math.min(1,dt*MG.abUpK);if(M.grounded&&A.u<0)A.u=0;}
   {const m=Math.hypot(d.x,d.y,d.z)||1;d.x/=m;d.y/=m;d.z/=m;}
   M.abGlow=1;M.qbDir={x:d.x,z:d.z};M.qbFlash=Math.max(M.qbFlash||0,0.12);
   if(f<-0.5||!mgDraw(M,MG.abEN*dt)){end();return;}

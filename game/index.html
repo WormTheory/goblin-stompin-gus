@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:3acfbd88aa3af8e4770f802354388b4af6a6f3e96011e0a0b3c56fd5f91d8812 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:b5f29d702383bbca337c10bd1c47d5b1ecec61b7329651cfe75734f970d94dc3 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1683,6 +1683,10 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <ul><li>You now float at the surface instead of slowly sinking, so there's no need to keep paddling to stay up.</li><li>Hold climb (C, controller LB) to dive, and let go to bob back up. Near a wall it still grabs on and climbs.</li><li>A stroke at the surface throws you up far enough to climb out on to a one-block ledge.</li><li>Gnash and Grizzle can now paddle upward with jump in the water, as Gus and Gertie do.</li></ul>
 <h3>Mobile Gear on water</h3>
 <ul><li>With its boost on, the Mobile Gear skates across water at any speed, throwing up spray. Switch the boost off and it drops in with a splash.</li><li>Skating over bushes and one-block bumps no longer shakes it up and down. It now eases over each step.</li></ul>
+<h3>Mobile Gear assault boost</h3>
+<ul><li>The assault boost no longer gets stuck in buildings and trees. Going through them at an angle it used to catch on the corners of the hole it made and stop dead; now it smashes straight on through. Boosting upward into a ceiling smashes through that too.</li><li>During an assault boost, hold jump (Space) to climb and boost (C) to dive. Aiming down into a dive works properly now too, rather than sinking slowly.</li><li>When an assault boost ends, the Mobile Gear keeps its speed and slows down over a second or so, rather than stopping almost at once.</li><li>Skating flat out into a solid wall or building now smashes through it, as it was meant to, rather than stopping at it.</li><li>The shoulder cannon no longer swings round to where it last fired when you press its button. It points where you're aiming while it braces.</li></ul>
+<h3>Fixes</h3>
+<ul><li>The minimap's arrow now shows which way you're facing while you're in a vehicle.</li><li>The airliners have their windows and coloured stripe back.</li><li>Online, a guest aiming up or down reaches the host again, so their shots go where they're looking rather than straight out level.</li></ul>
 <h3>Lighting</h3>
 <ul><li>At night, lights now light up what's around them. Street lamps pool light on the pavement, neon signs throw their own colours across the street, lit windows glow on the walls and rooms beside them, and lamps, TVs and screens light the rooms they're in. Walls block the light, so it stays in the room or the street it's in. Smash a lamp or a sign and its light goes out.</li><li>It's switched on or off with Block lighting under Sound &amp; picture in Options. Off, the game looks and runs exactly as before.</li><li>A building that's been destroyed or brought down goes dark: its windows, neon and signs stop glowing, and the pieces of it falling don't glow either.</li><li>In fog, rain and snow at night, lit windows, neon, lamps and the light they cast now show through the murk as a soft glow, some way past where the buildings themselves disappear.</li><li>In thick fog the sky and clouds are now lost in the fog too, so far-off towers no longer stand out as dark shapes against a clear sky.</li><li>The debug menu has a Fog light slider for how strongly lights show through fog.</li><li>Fires and campfires now light up the ground and walls around them at night, dimming as they die down.</li><li>In fog at night, street lamps, lamps, fires and traffic lights now have a soft halo of light in the air around them, as real fog scatters light. The Halos slider in the debug menu sets how strong they are.</li><li>Traffic lights now light the junction under them at night in red, amber or green, changing with the lights.</li><li>Lit windows and neon signs now have a fainter halo in fog too, one for each patch of them rather than every window.</li><li>Everything else that glows gets a halo in fog as well: vehicles' headlights, tail lights, indicators, hazard lights and the flashing light bars on police cars, fire engines and ambulances (the halos flash with them), lit signs, billboards and cinema marquees, level crossing lights, spell orbs, fireballs, explosions, lightning and the flames of jets and balloons.</li><li>Moving cars' headlights now light up the road ahead of them at night.</li><li>Lit signs, billboards, marquees and other glowing things that stay put now light up the ground and walls around them at night, as lamps do.</li><li>Halos no longer show through walls: a lamp, screen or sign indoors, or windows round the far side of a building, get no halo unless you can see them.</li><li>Skyscrapers' lit windows now get halos in fog, a long way off, and bigger patches of windows get brighter halos.</li><li>Smoke and explosion flashes now fade into fog like everything else, instead of showing in front of it.</li><li>Halos now fade in and out smoothly instead of flickering on and off as you look around. The Halo fade slider in the debug menu sets how long they take.</li><li>A car's headlights no longer light the underside of an overpass it's driving over, or the road below it.</li><li>Street lamps and lamps wiped out by a nuke no longer keep lighting the ground or glowing in the fog.</li><li>Falling snow and rain now darken with the time of day instead of staying bright white at night.</li><li>Halos no longer flicker as you turn the camera.</li><li>Every debug menu setting is now remembered from one session to the next, including Stop time, the pause switches, Free cam (and where it was), the Rendering switches and the Interface switches. Turning on a hitbox switch no longer resets the other debug settings.</li><li>The last few halos that still switched off abruptly (a light going dark, or many fading at once) now fade like the rest.</li><li>Lamps and screens just behind a wall no longer get a halo poking through it.</li><li>Cars' headlights now stay on when they stop, at the lights or in traffic, and only parked cars' are off.</li><li>Lights now show through fog twice as strongly by default (Fog light 2×), with fainter halos (Halos 0.25×) that fade over a quarter of a second.</li><li>Fireballs, explosions' flashes and other moving glowing things now light up the ground and walls around them as they go.</li><li>Parked cars' headlights and tail lights now stay dark.</li><li>The debug menu has on/off switches for Fog light and Halos.</li></ul>
 <h3>Trees and water in the distance</h3>
@@ -2377,7 +2381,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='9fe71562e242';
+const GAME_VER='0.5',GAME_BUILD='c9ae44e3093d';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v101'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
 const WORLD_GEN=3;
@@ -13640,7 +13644,7 @@ function drvHintClear(p){p.drvHintO=null;const box=p.ui&&(p.ui.feed||p.ui.label)
   for(const el of Array.from(box.children))if(el._s&&/  (Drive|Steal) the /.test(el._s)){clearTimeout(el._t);el.remove();}}
 function drvEnter(p,D){
   {const S=D&&shipN?shipOf(p):null;if(S&&D.k!=='ship'&&D.k!=='mount'&&!((D.o.pos?D.o.pos.x:D.o.isPlane?D.o.g.position.x:D.o.x)>=SHIP_X0))shipMove(p,S,false,true);}   // (from aboard a ship into something out in the world, the Mobile Gear on its deck: put out there with it)
-  const o=D.o,gun=D.seat==='gun',jack=!gun&&jackable(D);p.drv=D;p.standCar=null;p.vcl=null;p.state='walk';p.vy=0;p.mvx=p.mvz=0;p.biteT=0;p.trK=0;   // (trK: no running pose or rush carried in, or back out again)p.drvLook=-9;p.drvYaw=undefined;p.shipBridge=false;
+  const o=D.o,gun=D.seat==='gun',jack=!gun&&jackable(D);p.drv=D;p.standCar=null;p.vcl=null;p.state='walk';p.vy=0;p.mvx=p.mvz=0;p.biteT=0;p.trK=0;   p.drvLook=-9;p.drvYaw=undefined;p.shipBridge=false;   // (trK: no running pose or rush carried in, or back out again)
   drvHintClear(p);
   if(gun)o.gnr=p;else drvTake(p,D);
   if(gunSeat(D))wpnInit(o,drvGunK(D));
@@ -13703,7 +13707,7 @@ function drvSeat(p){
   if(D.k==='car'?!o.alive:o.dead||o.fall){drvExit(p,true);return;}
   if(D.jack){jackPose(p);return;}
   if(D.k==='ship'){shipSeat(p,o);return;}
-  const S=drvPose(D);p.pos.set(S.x,S.y+(D.k==='mech'?5:Math.min(1.2,S.hy*0.5)),S.z);   // (a Mobile Gear's pilot sits up in its chest)p.heading=S.h;
+  const S=drvPose(D);p.pos.set(S.x,S.y+(D.k==='mech'?5:Math.min(1.2,S.hy*0.5)),S.z);   p.heading=S.h;   // (a Mobile Gear's pilot sits up in its chest. heading: facing the way it does, which the minimap's arrow shows)
   p.vy=0;p.grounded=true;p.mvx=p.mvz=0;p.standCar=null;p.vcl=null;p.peakY=p.pos.y;p.biteT=0;
   if(p.gb)gunGripUndo(p.gb.m);   // (a gun held two-handed the moment before getting in: strikes.js)
   if(rideShown(p)){if(D.seat==='gun')gunPose(p,o);else if(rideSeatOf(D)){seatPose(p,D);if(D.k==='car')lightRider(p,o);}else ridePose(p,o);}
@@ -15833,9 +15837,10 @@ function trainHow(p,D){const A=id=>actMark(p,id),R=D.o.rail||{rev:1};
 const MG={hy:7.6,r:1.25,hp:600,walk:10.8,skate:32.4,air:28.8,airEN:12,hoverEN:5,grav:26,jumpV:16,jumpEN:8,jumpPre:0.12,ascV:9,ascEN:30,
   stepEase:10,qbV:61,qbT:0.18,qbCD:0.35,qbEN:20,qbDec:0.35,enMax:100,enRegen:45,enDelay:0.5,red:1.8,stepWalk:1,stepSkate:2,outHold:0.5,
   ramV:15,plow:24,
-  // (the assault boost: a charge-up, then a long straight dash where you aim, up or down too, steering slowly; the kick:
+  // (the assault boost: a charge-up, then a long straight dash where you aim, up or down too, steering slowly, abUp more
+// up or down with jump or boost held; for abCarry after it it keeps its speed, easing off at abCarryK a second; the kick:
   // pressed again with a target this near, a flying kick at it; the impact meter that staggers it; repair kits)
-  abCharge:0.6,abV:65,abEN0:15,abEN:10,abTurn:1.4,kickR:18,kickV:55,kickT:0.4,kickDmg:30,kickVD:60,kickEN:10,kickImp:4,impMax:260,kits:3,repK:0.35,repT:1};
+  abCharge:0.6,abV:65,abEN0:15,abEN:10,abTurn:1.4,abUp:30,abUpK:8,abCarry:1.2,abCarryK:1.3,kickR:18,kickV:55,kickT:0.4,kickDmg:30,kickVD:60,kickEN:10,kickImp:4,impMax:260,kits:3,repK:0.35,repT:1};
 // (the legs: thigh and shin lengths, and how high the hips stand)
 const MG_L1=1.9,MG_L2=1.75,MG_HIP=3.75;
 DRV_NAME.mech='Mobile Gear';
@@ -15961,7 +15966,7 @@ function drvMech(M,dt){
   // getting out is a short hold (so it never happens by accident mid-fight), and only once the button's been let go
   // after getting in
   if(!i.mgOut)M.outArm=true;M.outT=i.mgOut&&M.outArm?(M.outT||0)+dt:0;
-  if(i.mgBoostP){M.boostOn=!M.boostOn;if(audio)sfx('Mobile Gear boost switch',()=>tone('triangle',M.boostOn?300:520,M.boostOn?620:260,0.12,0.05));}
+  if(i.mgBoostP&&!M.ab){M.boostOn=!M.boostOn;if(audio)sfx('Mobile Gear boost switch',()=>tone('triangle',M.boostOn?300:520,M.boostOn?620:260,0.12,0.05));}
   // a quick boost: a burst at MG.qbV the way you push (straight back with nothing pushed), for MG.qbT
   if(i.mgQBP&&M.qbCD<=0&&mgCanBoost(M)){let dx=wx,dz=wz;if(!moving){dx=-fx;dz=-fz;}else{const m=Math.hypot(dx,dz);dx/=m;dz/=m;}
     mgDraw(M,MG.qbEN);M.qbT=MG.qbT;M.qbx=dx*MG.qbV;M.qbz=dz*MG.qbV;M.qbCD=MG.qbT+MG.qbCD;M.qbFlash=0.25;M.qbDir={x:dx,z:dz};
@@ -15987,9 +15992,11 @@ function drvMech(M,dt){
   let lx=0,lz=0;if(M.lgT>0){const a=Math.max(0,M.lgT-dt/2)/MGW.lungeT;M.lgT=Math.max(0,M.lgT-dt);lx=M.lgx*a*a;lz=M.lgz*a*a;}
   // (the kick and the assault boost take it over completely; charging one up, it slows to a near stop, holding its height)
   if(M.kick){const K=M.kick;M.vx=K.vx;M.vz=K.vz;M.vy=K.vy;}
-  else if(M.ab&&M.ab.ph==='go'){const d=M.ab.d;M.vx=d.x*MG.abV;M.vz=d.z*MG.abV;M.vy=M.grounded&&d.y<0.03?0:d.y*MG.abV+MG.grav*dt;if(M.vy>0)M.grounded=false;}
+  else if(M.ab&&M.ab.ph==='go'){const d=M.ab.d,vy=d.y*MG.abV+(M.ab.u||0);M.vx=d.x*MG.abV;M.vz=d.z*MG.abV;M.vy=M.grounded&&vy<2?0:vy+MG.grav*dt;if(M.vy>0)M.grounded=false;}
   else if(M.ab){const k=Math.min(1,dt*5);M.vx-=M.vx*k;M.vz-=M.vz*k;if(!M.grounded)M.vy=Math.max(M.vy,0)*0.5+MG.grav*dt;}
   else if(M.qbT>0){M.qbT-=dt;M.vx=M.qbx;M.vz=M.qbz;if(M.qbT<=0)M.qbD=MG.qbDec;}
+  // (just after an assault boost: it carries its speed on, easing off toward what you're holding, rather than stopping dead)
+  else if(M.abC>0){M.abC-=dt;const k=Math.min(1,dt*MG.abCarryK);M.vx+=(wx*spd-M.vx)*k;M.vz+=(wz*spd-M.vz)*k;}
   else if(M.qbD>0){M.qbD-=dt;const k=Math.min(1,dt*6);M.vx+=(wx*spd-M.vx)*k;M.vz+=(wz*spd-M.vz)*k;}
   else if(!air&&!M.boostOn){
     // (on foot it gets going briskly and picks up into a jog -- pushing harder the faster it's already going -- and
@@ -16032,8 +16039,9 @@ function mgMove(M,dt,step){const y0=M.y,g0=M.grounded;
     return false;};
   let bx=M.vx&&!tryTo(M.x+M.vx*dt,M.z),bz=M.vz&&!tryTo(M.x,M.z+M.vz*dt);
   // (fast enough, it smashes a way through whatever stopped it and carries on: boosting flat out it hardly slows)
-  if((bx||bz)&&sp0>=MG.ramV&&!M.dead&&mgRam(M,M.vx/sp0,M.vz/sp0,sp0)){const keep=sp0>=MG.plow?0.94:0.5;M.vx*=keep;M.vz*=keep;if(M.qbT>0){M.qbx*=keep;M.qbz*=keep;}
-    if(bx)bx=!tryTo(M.x+M.vx*dt,M.z);if(bz)bz=!tryTo(M.x,M.z+M.vz*dt);}
+  if((bx||bz)&&sp0>=MG.ramV&&!M.dead&&mgRam(M,M.vx/sp0,M.vz/sp0,sp0,sp0*dt)){const keep=sp0>=MG.plow?0.94:0.5;M.vx*=keep;M.vz*=keep;if(M.qbT>0){M.qbx*=keep;M.qbz*=keep;}
+    if(bx)bx=!tryTo(M.x+M.vx*dt,M.z);if(bz)bz=!tryTo(M.x,M.z+M.vz*dt);
+    if(bx&&bz&&tryTo(M.x+M.vx*dt,M.z+M.vz*dt))bx=bz=false;}
   if(bx)M.vx=0;if(bz)M.vz=0;const hit=bx||bz;
   if(hit&&sp0>12&&!M.clangT){M.clangT=0.4;clang();addShake(0.25,M.x,M.z,15);puff(M.x+M.vx*0.1,M.y+3,M.z+M.vz*0.1,5,0x9a948a,1);}
   if(M.clangT>0)M.clangT=Math.max(0,M.clangT-dt);if(M.ramT>0)M.ramT=Math.max(0,M.ramT-dt);
@@ -16041,9 +16049,11 @@ function mgMove(M,dt,step){const y0=M.y,g0=M.grounded;
   const gy=mgGround(M.x,M.z,M.y+0.3,M);let sup=mgSup;
   if(M.grounded&&M.vy<=0){if(gy>=M.y-1.05&&gy<=M.y+0.3){M.y=gy;M.vy=0;}else M.grounded=false;}
   if(!M.grounded){
-    const g=M.airB&&M.vy<=0?MG.grav*0.35:MG.grav;M.vy-=g*dt;if(M.airB&&M.vy<-5)M.vy=Math.max(M.vy,-5-dt*20);
+    // (boosting it falls slowly, but not in an assault boost, which goes where it's sent, down too)
+    const fl=M.airB&&!(M.ab&&M.ab.ph==='go'),g=fl&&M.vy<=0?MG.grav*0.35:MG.grav;M.vy-=g*dt;if(fl&&M.vy<-5)M.vy=Math.max(M.vy,-5-dt*20);
     let ny=M.y+M.vy*dt;
-    if(M.vy>0&&!mgFits(M.x,ny,M.z)){ny=M.y;M.vy=0;}
+    // (a ceiling: an assault boost climbing smashes up through it, anything else stops under it)
+    if(M.vy>0&&!mgFits(M.x,ny,M.z)&&!(M.ab&&M.ab.ph==='go'&&!M.dead&&mgRam(M,0,0,MG.abV,0,ny)&&mgFits(M.x,ny,M.z))){ny=M.y;M.vy=0;}
     const g2=mgGround(M.x,M.z,Math.max(M.y,ny)+0.3,M);sup=mgSup;
     if(ny<=g2&&M.vy<=0){mgLand(M,-M.vy);ny=g2;M.vy=0;M.grounded=true;}
     M.y=Math.min(ny,H+80);}
@@ -16056,15 +16066,24 @@ function mgMove(M,dt,step){const y0=M.y,g0=M.grounded;
   else if(M.grounded)M.wasSkim=false;
 }
 // knocking a hole in what's in front of it, as wide and tall as itself and deeper the faster it's going (the same
-// wreckage as a tank ramming: the blocks fly, and a building that loses enough comes down). Returns how many broke
-function mgRam(M,fx,fz,sp){
-  if(SBX)return 0;const depth=sp>=MG.plow?2.4:1.3,W=MG.r+0.55,y0=Math.floor(M.y+0.05),y1=Math.floor(M.y+MG.hy),E=Math.ceil(MG.r+depth+W)+1;
-  const ch=new Set(),broken=[],cx0=Math.floor(M.x),cz0=Math.floor(M.z);
-  for(let bz=cz0-E;bz<=cz0+E;bz++)for(let bx=cx0-E;bx<=cx0+E;bx++){const rx=bx+0.5-M.x,rz=bz+0.5-M.z,a=rx*fx+rz*fz,l=Math.abs(rx*fz-rz*fx);
-    for(let by=y0;by<=y1;by++){const rag=0.4*hash2(bx*5+by*3,bz*13+by);if(a<-MG.r||a>MG.r+depth+rag||l>W+rag)continue;   // (from its back edge: anything it's already scraping along goes too)
-      const b=get(bx,by,bz);if(b===AIR||b===WATER||b===BEDROCK||by<1||by>=H)continue;
-      setRaw(bx,by,bz,AIR);addEdit(bx,by,bz,AIR);broken.push({x:bx,y:by,z:bz,b});
-      for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((bx+ox)/CS),Math.floor((bz+oz)/CS)));}}
+// wreckage as a tank ramming: the blocks fly, and a building that loses enough comes down). Returns how many broke.
+// mv: how far it's moving this step; up: a height it's climbing to, for a hole knocked upward instead (an assault
+// boost into a ceiling)
+function mgRam(M,fx,fz,sp,mv,up){
+  if(SBX)return 0;const depth=sp>=MG.plow?2.4:1.3,W=MG.r+0.55,r=MG.r,y0=Math.floor(M.y+0.05),y1=Math.floor(M.y+MG.hy),E=Math.ceil(MG.r+depth+W)+1;
+  const ch=new Set(),broken=[],cx0=Math.floor(M.x),cz0=Math.floor(M.z),brk=(bx,by,bz)=>{
+    const b=get(bx,by,bz);if(b===AIR||b===WATER||b===BEDROCK||by<1||by>=H)return;
+    setRaw(bx,by,bz,AIR);addEdit(bx,by,bz,AIR);broken.push({x:bx,y:by,z:bz,b});
+    for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((bx+ox)/CS),Math.floor((bz+oz)/CS)));};
+  if(up!==undefined){for(const ox of[-r,0,r])for(const oz of[-r,0,r])for(let by=y1;by<=Math.floor(up+MG.hy)+1;by++)brk(Math.floor(M.x+ox),by,Math.floor(M.z+oz));}
+  else{for(let bz=cz0-E;bz<=cz0+E;bz++)for(let bx=cx0-E;bx<=cx0+E;bx++){const rx=bx+0.5-M.x,rz=bz+0.5-M.z,a=rx*fx+rz*fz,l=Math.abs(rx*fz-rz*fx);
+      for(let by=y0;by<=y1;by++){const rag=0.4*hash2(bx*5+by*3,bz*13+by);if(a<-MG.r||a>MG.r+depth+rag||l>W+rag)continue;   // (from its back edge: anything it's already scraping along goes too)
+        brk(bx,by,bz);}}
+    // (and whatever the square it stands on (mgFits's) would meet on its way: the ragged strip above is measured across
+    // the way it's going, so going diagonally it missed the square's corners, and it stopped dead, stuck in the wall)
+    const L=Math.max(depth,(mv||0)+0.6),ss=[];for(let t=0;t<L;t+=0.5)ss.push(t);ss.push(L,mv||0);
+    for(const t of ss)for(const [ax,az] of [[fx*t,fz*t],[fx*t,0],[0,fz*t]])for(const ox of[-r,0,r])for(const oz of[-r,0,r])
+      for(let by=y0;by<=y1;by++)brk(Math.floor(M.x+ax+ox),by,Math.floor(M.z+az+oz));}
   if(!broken.length)return 0;
   const o={force:0.8+sp*0.03,dx:fx,dz:fz,up:1};rebuildSet(ch);save();destroyFX(broken.slice(0,120),o);settle(broken,o);pumpsHit(broken);
   knockProps(M.x+fx*(MG.r+1),M.y+1,M.z+fz*(MG.r+1),W+1,fx,fz);
@@ -16077,18 +16096,19 @@ function mgLand(M,v){M.landT=Math.min(0.5,0.08+v*0.015);M.landK=Math.min(1,v/22)
 // pushing goblins and cars out of its way; a goblin it walks on is squashed, a car it walks into shoved
 // the assault boost (mgAB): pressed, it charges for MG.abCharge (crouching, glowing, a rising whine), then dashes at
 // MG.abV straight where you're aiming, up or down too, turning toward the aim only slowly, drawing energy as it goes and
-// smashing through walls (mgMove's ram, at that speed). It stops when you pull back, press it again with nothing near to
-// kick, or run out of energy, and keeps a little of its speed for a moment after (M.qbD), boost left on. Pressed again
+// smashing through walls (mgMove's ram, at that speed); jump held climbs and boost held drops, on top of the aim (A.u).
+// It stops when you pull back, press it again with nothing near to kick, or run out of energy, and carries its speed on
+// for a while after (M.abC), boost left on. Pressed again
 // with the locked target within MG.kickR: a flying kick at it (M.kick, see mgKick)
 function mgAssault(M,p,i,dt,f){
   const aim=()=>{const cp=Math.cos(p.cam.pitch);return{x:-Math.sin(p.cam.yaw)*cp,y:Math.sin(p.cam.pitch),z:-Math.cos(p.cam.yaw)*cp};};
-  const end=()=>{M.ab=null;M.boostOn=true;M.qbD=MG.qbDec*1.5;};
+  const end=()=>{M.ab=null;M.boostOn=true;M.abC=MG.abCarry;};
   if(M.kick){mgKick(M,dt);return;}
   if(i.mgABP){
-    if(!M.ab){if(mgCanBoost(M)&&M.en>=MG.abEN0){M.ab={ph:'charge',t:MG.abCharge};M.qbT=0;if(audio)sfx('Mobile Gear assault boost charge',()=>tone('sawtooth',90,420,MG.abCharge,0.06));}}
+    if(!M.ab){if(mgCanBoost(M)&&M.en>=MG.abEN0){M.ab={ph:'charge',t:MG.abCharge};M.qbT=0;M.abC=0;if(audio)sfx('Mobile Gear assault boost charge',()=>tone('sawtooth',90,420,MG.abCharge,0.06));}}
     else if(M.ab.ph==='go'){const T=mgTarget(M);let near=false;
       if(T&&lockAlive(T)){const dx=T.pos.x-M.x,dy=lockY(T)-(M.y+4),dz=T.pos.z-M.z;near=Math.hypot(dx,dy,dz)<MG.kickR;}
-      if(near&&mgDraw(M,MG.kickEN)){M.ab=null;mgKickStart(M,T);return;}
+      if(near&&mgDraw(M,MG.kickEN)){M.ab=null;M.abC=0;mgKickStart(M,T);return;}
       end();return;}
     else{M.ab=null;return;}}   // (pressed again while it's still charging: called off)
   if(!M.ab)return;const A=M.ab;
@@ -16099,6 +16119,7 @@ function mgAssault(M,p,i,dt,f){
     return;}
   // (going: steering slowly toward the aim, drawing energy; pulled back, or out of energy, it's over)
   const W=aim(),d=A.d,k=Math.min(1,MG.abTurn*dt);d.x+=(W.x-d.x)*k;d.y+=(W.y-d.y)*k;d.z+=(W.z-d.z)*k;if(M.grounded&&d.y<0)d.y=0;
+  {const want=(i.mgJump?1:0)-(i.mgBoost?1:0);A.u=(A.u||0)+(want*MG.abUp-(A.u||0))*Math.min(1,dt*MG.abUpK);if(M.grounded&&A.u<0)A.u=0;}
   {const m=Math.hypot(d.x,d.y,d.z)||1;d.x/=m;d.y/=m;d.z/=m;}
   M.abGlow=1;M.qbDir={x:d.x,z:d.z};M.qbFlash=Math.max(M.qbFlash||0,0.12);
   if(f<-0.5||!mgDraw(M,MG.abEN*dt)){end();return;}
@@ -16473,7 +16494,7 @@ function mgWeapons(M,p,i,dt){
   // (the lobber instead: held, a clod of a shell every W.gap, lobbed high so it drops on to what's aimed at)
   if(i.mgShR&&W.lobber&&wpnFire(M,'lobber'))mgLob(M,p);
   const cw=W.cannon;
-  if(cw&&i.mgShRP&&!(M.brace>0)){if(cw.rl>0||cw.n<=0)wpnClick();else if(cw.cd<=0){if(M.grounded&&!M.ab){M.brace=MGW.brace;M.cnT=MGW.brace+0.9;}else mgCannon(M,p);}}
+  if(cw&&i.mgShRP&&!(M.brace>0)){if(cw.rl>0||cw.n<=0)wpnClick();else if(cw.cd<=0){if(M.grounded&&!M.ab){M.brace=MGW.brace;M.cnT=MGW.brace+0.9;M.cA=null;}else mgCannon(M,p);}}
   if(M.brace>0){M.brace-=dt;if(M.brace<=0){M.brace=0;mgCannon(M,p);}}
 }
 // with nobody in it: no locks, nothing firing, but the weapons still reload
@@ -16626,7 +16647,8 @@ function mgWpnPose(M,J,ap,dt,ease){
   if(Lf.bl){Lf.bl.visible=ig>0.01;Lf.bl.scale.y=Math.max(0.01,ig);}
   J.T.rotation.y+=tw;J.T.rotation.x+=lean*0.8;R.sh.rotation.x-=0.35*rr;R.sh.rotation.z+=-0.3*rr;
   M.cnA=ease(M.cnA||0,M.brace>0||M.cnT>0?1:0,M.brace>0?14:5);
-  // (the cannon at what it fired at, or what's locked, or along the view)
+  // (the cannon at what it fired at, or what's locked, or along the view. Bracing it's at the lock or the view: the last
+  // shot's mark, M.cA, is let go on the press, or it swung round to where it fired last and only came back on firing)
   {let ce=ap,cy=0,Q=M.cnT>0&&M.cA?M.cA:T0&&lockAlive(T0)?{x:T0.pos.x,y:lockY(T0),z:T0.pos.z}:null;
     if(Q){const m=M.mzC||mgAt(M,-0.95,7.9,2.9),dx=Q.x-m.x,dz=Q.z-m.z;cy=Math.max(-0.5,Math.min(0.5,angDiff(M.ty,Math.atan2(dx,dz))));ce=Math.max(-1,Math.min(1,Math.atan2(Q.y-m.y,Math.hypot(dx,dz))));}
     J.cannon.rotation.order='YXZ';J.cannon.rotation.y=cy*M.cnA;J.cannon.rotation.x=-2.2*(1-M.cnA)+(-ce-M.pt)*M.cnA;}
@@ -16652,8 +16674,8 @@ function mechCamera(p){
   if(p.shake>0.002&&gameSpeed()>0){const c=p.camera.position;c.x+=(Math.random()-.5)*p.shake;c.y+=(Math.random()-.5)*p.shake;c.z+=(Math.random()-.5)*p.shake;}
 }
 // the line of controls along the top of the display
-function mechHint(p){const L=id=>actMark(p,id),M=p.drv.o;
-  return L('mgQB')+' quick boost  ·  '+L('mgBoost')+' boost '+(M.boostOn?'ON':'off')+'  ·  '+L('mgAB')+(M.ab&&M.ab.ph==='go'?' stop, or kick':' assault boost')+'  ·  '+L('mgJump')+' jump, hold to fly  ·  '+L('mgLock')+(M.hard?' let go':' lock on')+'  ·  '+L('mgRep')+' repair ('+(M.kits??MG.kits)+' left)  ·  hold '+L('mgOut')+' get out';}
+function mechHint(p){const L=id=>actMark(p,id),M=p.drv.o,go=!!(M.ab&&M.ab.ph==='go');   // (assault boosting: jump and boost steer it up and down)
+  return L('mgQB')+' quick boost  ·  '+L('mgBoost')+(go?' down':' boost '+(M.boostOn?'ON':'off'))+'  ·  '+L('mgAB')+(go?' stop, or kick':' assault boost')+'  ·  '+L('mgJump')+(go?' up':' jump, hold to fly')+'  ·  '+L('mgLock')+(M.hard?' let go':' lock on')+'  ·  '+L('mgRep')+' repair ('+(M.kits??MG.kits)+' left)  ·  hold '+L('mgOut')+' get out';}
 // the energy gauge: a thin bar along the bottom of the lock box, its whole width, how much is left, red and flashing while
 // it's redlined; under it, thinner, its own impact meter (how near it is to being staggered), with "STAGGERED" flashing
 // under that while it is (made after the weapons' display, which makes the lock box)
@@ -26085,7 +26107,7 @@ function makeTrainCar(loco,rear){
 const PLANE_K=[1.15,1.25,1.45];
 function makePlane(i){
   const g0=new THREE.Group(),g=new THREE.Group();g.scale.set(...PLANE_K);g0.add(g);const bx=(m,sx,sy,sz,x,y,z)=>{const o=new THREE.Mesh(LM_BOX,m);o.scale.set(sx,sy,sz);o.position.set(x,y,z);g.add(o);return o;},liv=[TRM.red,TRM.loco,LMM.gold][i%3];
-  bx(TRM.white,2.5,2.5,17,0,2.4,0);bx(TRM.white,1.8,1.1,1.6,0,1.95,9.2);bx(LPM.glass,1.7,0.7,1.3,0,2.85,9.05);bx(TRM.white,1.8,0.12,1.6,0,3.26,9.2);   // (the nose, the cockpit's windscreen and its roof)bx(TRM.win,2.54,0.4,13,0,2.9,0.5);bx(liv,2.56,0.35,16,0,1.9,0);
+  bx(TRM.white,2.5,2.5,17,0,2.4,0);bx(TRM.white,1.8,1.1,1.6,0,1.95,9.2);bx(LPM.glass,1.7,0.7,1.3,0,2.85,9.05);bx(TRM.white,1.8,0.12,1.6,0,3.26,9.2);bx(TRM.win,2.54,0.4,13,0,2.9,0.5);bx(liv,2.56,0.35,16,0,1.9,0);   // (the nose, the cockpit's windscreen and its roof; then the windows and the stripe)
   bx(TRM.wing,21,0.35,3.4,0,1.7,0.6);for(const s2 of[-1,1])bx(TRM.dark,1.2,1.2,2.8,s2*4.8,0.9,1.2);
   bx(liv,0.35,3.6,2.8,0,4.6,-7.2);bx(TRM.wing,7.2,0.3,1.9,0,2.6,-7.6);
   for(const [x,z] of [[0,6],[-1.6,-0.4],[1.6,-0.4]])bx(TRM.dark,0.4,1.0,0.6,x,0.5,z);
@@ -31556,7 +31578,7 @@ function netGotInput(p,m){
   N.inb=m;if(Number.isFinite(m.vt))N.vt=m.vt;if(m.pr&&(m.pr.bitePress||m.pr.chargePress)||m.h&&(m.h.bite||m.h.stomp))N.atkAt=NET.now;
   for(const k of NET_PRESS)if(m.pr&&m.pr[k])N.pr[k]=true;
   if(m.fl){p.flickReq=m.fl[0]||p.flickReq;p.flickReqY=m.fl[1]||p.flickReqY;}
-  if(Number.isFinite(m.yaw))p.cam.yaw=m.yaw-netFrameYaw(p);   // (sent as out in the world: each end turns it into the frame its own copy of that player is in, a ship's or the world's)if(Number.isFinite(m.pitch))p.cam.pitch=camPitch(m.pitch,p);
+  if(Number.isFinite(m.yaw))p.cam.yaw=m.yaw-netFrameYaw(p);   if(Number.isFinite(m.pitch))p.cam.pitch=camPitch(m.pitch,p);   // (yaw sent as out in the world: each end turns it into the frame its own copy of that player is in, a ship's or the world's)
 }
 // (host, every frame after the local controls have been read: a guest's seat gets its controls from the network)
 function netHostInputs(){

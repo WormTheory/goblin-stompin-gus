@@ -149,7 +149,7 @@ function netGotInput(p,m){
   N.inb=m;if(Number.isFinite(m.vt))N.vt=m.vt;if(m.pr&&(m.pr.bitePress||m.pr.chargePress)||m.h&&(m.h.bite||m.h.stomp))N.atkAt=NET.now;
   for(const k of NET_PRESS)if(m.pr&&m.pr[k])N.pr[k]=true;
   if(m.fl){p.flickReq=m.fl[0]||p.flickReq;p.flickReqY=m.fl[1]||p.flickReqY;}
-  if(Number.isFinite(m.yaw))p.cam.yaw=m.yaw-netFrameYaw(p);   // (sent as out in the world: each end turns it into the frame its own copy of that player is in, a ship's or the world's)if(Number.isFinite(m.pitch))p.cam.pitch=camPitch(m.pitch,p);
+  if(Number.isFinite(m.yaw))p.cam.yaw=m.yaw-netFrameYaw(p);   if(Number.isFinite(m.pitch))p.cam.pitch=camPitch(m.pitch,p);   // (yaw sent as out in the world: each end turns it into the frame its own copy of that player is in, a ship's or the world's)
 }
 // (host, every frame after the local controls have been read: a guest's seat gets its controls from the network)
 function netHostInputs(){

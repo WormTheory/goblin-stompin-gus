@@ -15,8 +15,8 @@ function mechCamera(p){
   if(p.shake>0.002&&gameSpeed()>0){const c=p.camera.position;c.x+=(Math.random()-.5)*p.shake;c.y+=(Math.random()-.5)*p.shake;c.z+=(Math.random()-.5)*p.shake;}
 }
 // the line of controls along the top of the display
-function mechHint(p){const L=id=>actMark(p,id),M=p.drv.o;
-  return L('mgQB')+' quick boost  ·  '+L('mgBoost')+' boost '+(M.boostOn?'ON':'off')+'  ·  '+L('mgAB')+(M.ab&&M.ab.ph==='go'?' stop, or kick':' assault boost')+'  ·  '+L('mgJump')+' jump, hold to fly  ·  '+L('mgLock')+(M.hard?' let go':' lock on')+'  ·  '+L('mgRep')+' repair ('+(M.kits??MG.kits)+' left)  ·  hold '+L('mgOut')+' get out';}
+function mechHint(p){const L=id=>actMark(p,id),M=p.drv.o,go=!!(M.ab&&M.ab.ph==='go');   // (assault boosting: jump and boost steer it up and down)
+  return L('mgQB')+' quick boost  ·  '+L('mgBoost')+(go?' down':' boost '+(M.boostOn?'ON':'off'))+'  ·  '+L('mgAB')+(go?' stop, or kick':' assault boost')+'  ·  '+L('mgJump')+(go?' up':' jump, hold to fly')+'  ·  '+L('mgLock')+(M.hard?' let go':' lock on')+'  ·  '+L('mgRep')+' repair ('+(M.kits??MG.kits)+' left)  ·  hold '+L('mgOut')+' get out';}
 // the energy gauge: a thin bar along the bottom of the lock box, its whole width, how much is left, red and flashing while
 // it's redlined; under it, thinner, its own impact meter (how near it is to being staggered), with "STAGGERED" flashing
 // under that while it is (made after the weapons' display, which makes the lock box)

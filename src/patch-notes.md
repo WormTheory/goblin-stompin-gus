@@ -164,6 +164,20 @@
 - With its boost on, the Mobile Gear skates across water at any speed, throwing up spray. Switch the boost off and it drops in with a splash.
 - Skating over bushes and one-block bumps no longer shakes it up and down. It now eases over each step.
 
+### Mobile Gear assault boost
+
+- The assault boost no longer gets stuck in buildings and trees. Going through them at an angle it used to catch on the corners of the hole it made and stop dead; now it smashes straight on through. Boosting upward into a ceiling smashes through that too.
+- During an assault boost, hold jump (Space) to climb and boost (C) to dive. Aiming down into a dive works properly now too, rather than sinking slowly.
+- When an assault boost ends, the Mobile Gear keeps its speed and slows down over a second or so, rather than stopping almost at once.
+- Skating flat out into a solid wall or building now smashes through it, as it was meant to, rather than stopping at it.
+- The shoulder cannon no longer swings round to where it last fired when you press its button. It points where you're aiming while it braces.
+
+### Fixes
+
+- The minimap's arrow now shows which way you're facing while you're in a vehicle.
+- The airliners have their windows and coloured stripe back.
+- Online, a guest aiming up or down reaches the host again, so their shots go where they're looking rather than straight out level.
+
 ### Lighting
 
 - At night, lights now light up what's around them. Street lamps pool light on the pavement, neon signs throw their own colours across the street, lit windows glow on the walls and rooms beside them, and lamps, TVs and screens light the rooms they're in. Walls block the light, so it stays in the room or the street it's in. Smash a lamp or a sign and its light goes out.

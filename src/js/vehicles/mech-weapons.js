@@ -158,7 +158,7 @@ function mgWeapons(M,p,i,dt){
   // (the lobber instead: held, a clod of a shell every W.gap, lobbed high so it drops on to what's aimed at)
   if(i.mgShR&&W.lobber&&wpnFire(M,'lobber'))mgLob(M,p);
   const cw=W.cannon;
-  if(cw&&i.mgShRP&&!(M.brace>0)){if(cw.rl>0||cw.n<=0)wpnClick();else if(cw.cd<=0){if(M.grounded&&!M.ab){M.brace=MGW.brace;M.cnT=MGW.brace+0.9;}else mgCannon(M,p);}}
+  if(cw&&i.mgShRP&&!(M.brace>0)){if(cw.rl>0||cw.n<=0)wpnClick();else if(cw.cd<=0){if(M.grounded&&!M.ab){M.brace=MGW.brace;M.cnT=MGW.brace+0.9;M.cA=null;}else mgCannon(M,p);}}
   if(M.brace>0){M.brace-=dt;if(M.brace<=0){M.brace=0;mgCannon(M,p);}}
 }
 // with nobody in it: no locks, nothing firing, but the weapons still reload
@@ -311,7 +311,8 @@ function mgWpnPose(M,J,ap,dt,ease){
   if(Lf.bl){Lf.bl.visible=ig>0.01;Lf.bl.scale.y=Math.max(0.01,ig);}
   J.T.rotation.y+=tw;J.T.rotation.x+=lean*0.8;R.sh.rotation.x-=0.35*rr;R.sh.rotation.z+=-0.3*rr;
   M.cnA=ease(M.cnA||0,M.brace>0||M.cnT>0?1:0,M.brace>0?14:5);
-  // (the cannon at what it fired at, or what's locked, or along the view)
+  // (the cannon at what it fired at, or what's locked, or along the view. Bracing it's at the lock or the view: the last
+  // shot's mark, M.cA, is let go on the press, or it swung round to where it fired last and only came back on firing)
   {let ce=ap,cy=0,Q=M.cnT>0&&M.cA?M.cA:T0&&lockAlive(T0)?{x:T0.pos.x,y:lockY(T0),z:T0.pos.z}:null;
     if(Q){const m=M.mzC||mgAt(M,-0.95,7.9,2.9),dx=Q.x-m.x,dz=Q.z-m.z;cy=Math.max(-0.5,Math.min(0.5,angDiff(M.ty,Math.atan2(dx,dz))));ce=Math.max(-1,Math.min(1,Math.atan2(Q.y-m.y,Math.hypot(dx,dz))));}
     J.cannon.rotation.order='YXZ';J.cannon.rotation.y=cy*M.cnA;J.cannon.rotation.x=-2.2*(1-M.cnA)+(-ce-M.pt)*M.cnA;}

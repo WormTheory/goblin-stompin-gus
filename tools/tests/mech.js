@@ -214,6 +214,9 @@ hold([],1);
   const cnt=()=>{let c=0;for(let x=X-6;x<=X+6;x++)for(let y=Y;y<Y+12;y++)for(let z=Z;z<Z+3;z++)if(T.get(x,y,z)===3)c++;return c;},c0=cnt();
   T.keys.add('KeyW');run(1);const v0=Math.hypot(M.vx,M.vz);tap('KeyE');let t=0.05,sh=null;while(!sh&&t<1.5){run(1/60);t+=1/60;sh=T.SHOTS.find(S=>S.live&&S.kind==='shell');}const vb=Math.hypot(M.vx,M.vz);T.keys.delete('KeyW');
   run(1.5);console.log('Breaker Cannon on the ground, walking at',f1(v0)+': fired after',f2(t),'s braced, speed then',f1(vb),' blocks blown out of a wall 40 ahead',c0-cnt(),' shells left',W().cannon.n);
+  // (turned away from where it last fired, the barrel swings to the new aim as it braces, not back to the old mark)
+  {const n=W().cannon.n;P.cam.yaw=Math.PI+1;run(1.2);tap('KeyE');run(0.2);const cy=M.J.cannon.rotation.y,br=M.brace>0;run(0.6);P.cam.yaw=Math.PI;run(1);W().cannon.n=n;W().cannon.rl=0;
+   console.log('  turned 1 rad away and fired again: bracing',br,' barrel turned off the view by',f2(cy),'(0 is along the view)');}
   hold(['Space'],0.6);const vx0=M.vx,vz0=M.vz;tap('KeyE');run(0.02);console.log('  fired in the air: at once',T.SHOTS.some(S=>S.live&&S.kind==='shell'),' knocked back',f1(Math.hypot(M.vx-vx0,M.vz-vz0)),'(it pushes away from the shot:',M.vz<vz0,')');
   for(let x=X-6;x<=X+6;x++)for(let y=Y;y<Y+12;y++)for(let z=Z;z<Z+3;z++)T.setRaw(x,y,z,0);for(let i=0;i<300&&!M.grounded;i++)run(1/60);run(1);
   tap('KeyE');run(0.6);tap('KeyE');run(1);console.log('  two more, then empty: shells',W().cannon.n,' reloading',W().cannon.rl>0);P.cam.pitch=-0.1;}
@@ -227,6 +230,10 @@ hold([],1);
  // (aimed up, it climbs; pulled back, it stops)
  run(2);M.en=T.MG.enMax;P.cam.pitch=0.45;tap('KeyX');run(0.7);const y0=M.y;run(0.6);const up=M.y-y0;hold(['KeyS'],0.1);const stop=!M.ab;P.cam.pitch=-0.1;run(3);
  console.log('  aimed up: climbed',f1(up),'in 0.6 s;  pulled back: over',stop);
+ // (level, with jump held it climbs, with boost held it drops, and C doesn't switch the boost meanwhile)
+ run(1);M.en=T.MG.enMax;P.cam.pitch=0;tap('KeyX');run(0.7);{const ya=M.y;T.keys.add('Space');run(0.6);T.keys.delete('Space');const upS=M.y-ya;run(0.2);const yb=M.y,b0=M.boostOn;T.keys.add('KeyC');for(let q=0;q<5;q++){run(0.1);}T.keys.delete('KeyC');
+ console.log('  level, Space held 0.6 s: up',f1(upS),';  then C held 0.5 s: down',f1(yb-M.y),' boost switch untouched',M.boostOn===b0,' hint',/ up/.test(T.mechHint(P))&&/ down/.test(T.mechHint(P)));
+ tap('KeyX');const s0=sp();run(0.5);const s5=sp();run(0.7);console.log('  stopped: speed',f1(s0),', 0.5 s later',f1(s5),', 1.2 s later',f1(sp()),'(carried on, easing off)');P.cam.pitch=-0.1;for(let k=0;k<400&&!M.grounded;k++)run(1/60);run(1);}
  // (through a wall: one block thick, eight high, thirty ahead)
  run(1);M.en=T.MG.enMax;const X=Math.floor(M.x),Z=Math.floor(M.z)+30,Y=Math.floor(M.y);for(let x=X-6;x<=X+6;x++)for(let y=Y;y<Y+8;y++)T.setRaw(x,y,Z,3);
  const cnt=()=>{let c=0;for(let x=X-6;x<=X+6;x++)for(let y=Y;y<Y+8;y++)if(T.get(x,y,Z)===3)c++;return c;};const c0=cnt();

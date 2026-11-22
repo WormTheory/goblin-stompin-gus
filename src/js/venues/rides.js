@@ -187,7 +187,7 @@ function makeTrainCar(loco,rear){
 const PLANE_K=[1.15,1.25,1.45];
 function makePlane(i){
   const g0=new THREE.Group(),g=new THREE.Group();g.scale.set(...PLANE_K);g0.add(g);const bx=(m,sx,sy,sz,x,y,z)=>{const o=new THREE.Mesh(LM_BOX,m);o.scale.set(sx,sy,sz);o.position.set(x,y,z);g.add(o);return o;},liv=[TRM.red,TRM.loco,LMM.gold][i%3];
-  bx(TRM.white,2.5,2.5,17,0,2.4,0);bx(TRM.white,1.8,1.1,1.6,0,1.95,9.2);bx(LPM.glass,1.7,0.7,1.3,0,2.85,9.05);bx(TRM.white,1.8,0.12,1.6,0,3.26,9.2);   // (the nose, the cockpit's windscreen and its roof)bx(TRM.win,2.54,0.4,13,0,2.9,0.5);bx(liv,2.56,0.35,16,0,1.9,0);
+  bx(TRM.white,2.5,2.5,17,0,2.4,0);bx(TRM.white,1.8,1.1,1.6,0,1.95,9.2);bx(LPM.glass,1.7,0.7,1.3,0,2.85,9.05);bx(TRM.white,1.8,0.12,1.6,0,3.26,9.2);bx(TRM.win,2.54,0.4,13,0,2.9,0.5);bx(liv,2.56,0.35,16,0,1.9,0);   // (the nose, the cockpit's windscreen and its roof; then the windows and the stripe)
   bx(TRM.wing,21,0.35,3.4,0,1.7,0.6);for(const s2 of[-1,1])bx(TRM.dark,1.2,1.2,2.8,s2*4.8,0.9,1.2);
   bx(liv,0.35,3.6,2.8,0,4.6,-7.2);bx(TRM.wing,7.2,0.3,1.9,0,2.6,-7.6);
   for(const [x,z] of [[0,6],[-1.6,-0.4],[1.6,-0.4]])bx(TRM.dark,0.4,1.0,0.6,x,0.5,z);
