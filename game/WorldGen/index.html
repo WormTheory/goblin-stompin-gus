@@ -72,6 +72,14 @@ details[open]>summary.lbl::before{transform:rotate(90deg)}
 .biokey span{display:flex;align-items:center;gap:6px}.biokey i{width:12px;height:12px;border-radius:3px;flex:none}
 .ramp{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-top:6px}
 .ramp i{flex:1;height:10px;border-radius:3px}
+#v3d{position:fixed;inset:0;z-index:6;background:#20231f;touch-action:none;cursor:grab}
+#v3d.drag{cursor:grabbing}
+#v3d canvas{display:block;width:100%;height:100%}
+.v3bar{position:fixed;right:max(12px,env(safe-area-inset-right,0px));top:calc(env(safe-area-inset-top,0px) + 12px);display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 8px 6px 12px;box-shadow:0 6px 24px rgba(0,0,0,.25);font-size:12.5px;cursor:auto}
+.v3bar input{width:120px;accent-color:var(--chipOn)}
+.v3bar output{min-width:2.6em;text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+#v3msg{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);color:#f2f0e6;font:600 18px var(--display);letter-spacing:.06em;text-transform:uppercase;pointer-events:none}
+.zoom #z3d{font-size:15px}
 @media (prefers-reduced-motion:reduce){summary.lbl::before{transition:none}}
 </style>
 </head>
@@ -102,7 +110,8 @@ details[open]>summary.lbl::before{transform:rotate(90deg)}
     <details id="keybox" open><summary class="lbl">Key</summary><div class="legend" id="legend"></div></details>
   </div>
 </div>
-<div class="zoom"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button><button id="zhome" aria-label="Back to the start">⌂</button></div>
+<div class="zoom"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button><button id="zhome" aria-label="Back to the start">⌂</button><button id="z3d" aria-label="3D view">3D</button></div>
+<div id="v3d" hidden><div class="v3bar"><label for="v3h">Height</label><input type="range" id="v3h" min="0" max="1" step="0.01"><output id="v3ho"></output><button class="btn small" id="v3x" type="button">Close</button></div><div id="v3msg"></div></div>
 <div id="busy" hidden></div>
 <div id="tip" hidden></div>
 <script>
@@ -418,6 +427,56 @@ cv.addEventListener('pointermove',e=>{const p=ptrs.get(e.pointerId);if(!p){hover
 const up=e=>{const was=ptrs.has(e.pointerId);ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;if(!ptrs.size)cv.classList.remove('drag');if(was&&e.type==='pointerup'&&dragged<6&&!ptrs.size)click(e);};
 cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);cv.addEventListener('pointerleave',()=>{tip.hidden=true;hq++;});
 cv.addEventListener('dblclick',e=>zoomAt(2,e.clientX,e.clientY));
+// ---- the 3D view: the square in the middle of the map, as the map shows it (every layer that's on), laid over the
+// ground's heights from the worker. three.js is the same build the game loads, fetched only when the view is first
+// opened. Drag to turn it round and tilt it, the wheel (or pinch) to go nearer; heights are scaled up, as the land's
+// a few hundred blocks high at most and the square can be tens of thousands across ----
+const V3={on:false,R:null,S:null,cam:null,mesh:null,sea:null,yaw:0.6,pit:0.75,dist:1.45,ex:1,exA:1,side:0,raw:null,n:0,q:0,lib:null};
+const v3El=document.getElementById('v3d'),v3H=document.getElementById('v3h'),v3Ho=document.getElementById('v3ho'),v3Msg=document.getElementById('v3msg');
+function v3Lib(){if(window.THREE)return Promise.resolve();if(V3.lib)return V3.lib;
+  return V3.lib=new Promise((a,b)=>{const t=document.createElement('script');t.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';t.onload=a;t.onerror=()=>{V3.lib=null;b('three.js would not load');};document.head.append(t);});}
+// (the slider goes from flat to 40 times, on a curve so the middle's useful, and starts where the land shows its shape)
+const v3Ex=u=>u*u*40,v3U=e=>Math.sqrt(Math.max(0,Math.min(40,e))/40);
+function v3Draw(){if(!V3.on||!V3.R)return;const T=V3.R,c=V3.cam,d=V3.side*0.9*V3.dist,ce=Math.cos(V3.pit);
+  c.position.set(Math.sin(V3.yaw)*ce*d,Math.sin(V3.pit)*d,Math.cos(V3.yaw)*ce*d);c.near=d/200;c.far=d*6;c.updateProjectionMatrix();c.lookAt(0,0,0);T.render(V3.S,c);}
+function v3Size(){if(!V3.R)return;V3.R.setPixelRatio(Math.min(2,window.devicePixelRatio||1));V3.R.setSize(innerWidth,innerHeight);V3.cam.aspect=innerWidth/innerHeight;V3.cam.updateProjectionMatrix();v3Draw();}
+function v3Heights(){const g=V3.mesh.geometry,P=g.attributes.position,H=V3.raw;   // (the square's drawn 1 unit a sample: V3.ex is a block of height in those units, scaled up)
+  for(let q=0;q<H.length;q++)P.setY(q,H[q]*V3.ex);P.needsUpdate=true;V3.sea.position.y=-1.5*V3.ex;   // (the sea a little under the level towns stand at, so they don't flicker into it)
+  g.computeVertexNormals();g.computeBoundingSphere();v3Draw();}
+function v3Close(){V3.on=false;V3.q++;v3El.hidden=true;if(V3.mesh){V3.mesh.geometry.dispose();V3.mesh.material.map.dispose();V3.mesh.material.dispose();V3.S.remove(V3.mesh);V3.mesh=null;}}
+async function v3Open(){
+  if(!ready)return;V3.on=true;const q=++V3.q;v3El.hidden=false;v3Msg.textContent='Working out the heights…';v3Msg.hidden=false;if(V3.R)V3.R.domElement.style.visibility='hidden';
+  // (the square: as wide as the map's shorter side, sampled up to 200 times a side)
+  const side=Math.min(vw,vh)/sc,n=Math.max(32,Math.min(200,Math.round(side/0.5)+1)),st=side/(n-1),x0=cx-side/2,z0=cz-side/2;
+  // (the map as it is now, under the square, for its colours)
+  const tex=document.createElement('canvas');tex.width=tex.height=1024;const tx=tex.getContext('2d');tx.fillStyle='#3a3b38';tx.fillRect(0,0,1024,1024);
+  tx.drawImage(cv,sx(x0)*dpr,sy(z0)*dpr,side*sc*dpr,side*sc*dpr,0,0,1024,1024);
+  let r;try{[r]=await Promise.all([call({op:'grid',x0,z0,st,n}),v3Lib()]);}catch(e){if(q===V3.q)v3Msg.textContent=String(e);return;}
+  if(q!==V3.q)return;const T3=window.THREE;
+  if(!V3.R){V3.R=new T3.WebGLRenderer({antialias:true});v3El.prepend(V3.R.domElement);V3.S=new T3.Scene();V3.S.background=new T3.Color(0x20231f);
+    V3.cam=new T3.PerspectiveCamera(45,1,1,10);const sun=new T3.DirectionalLight(0xffffff,0.85);sun.position.set(-0.6,1,-0.35);V3.S.add(sun,new T3.HemisphereLight(0xf4f7ff,0x4a4436,0.55));
+    V3.sea=new T3.Mesh(new T3.PlaneGeometry(1,1).rotateX(-Math.PI/2),new T3.MeshLambertMaterial({color:0x2c5d8f,transparent:true,opacity:0.45,depthWrite:false}));V3.S.add(V3.sea);}
+  V3.n=n;V3.st=st;V3.side=n-1;V3.raw=r.h;
+  const g=new T3.PlaneGeometry(n-1,n-1,n-1,n-1).rotateX(-Math.PI/2),map=new T3.CanvasTexture(tex);map.anisotropy=V3.R.capabilities.getMaxAnisotropy();
+  V3.mesh=new T3.Mesh(g,new T3.MeshLambertMaterial({map}));V3.S.add(V3.mesh);V3.sea.scale.set(n-1,1,n-1);
+  // (a block of height in the square's units is 1/(blocks a sample); the slider's scale starts where the highest ground
+  // stands a tenth of the square's width, or 10 times, whichever's less)
+  const bs=st*32;let hi=1;for(const v of r.h)hi=Math.max(hi,v);V3.unit=1/bs;V3.ex0=Math.max(1,Math.min(10,(n-1)*0.1/(hi*V3.unit)));
+  v3H.value=v3U(V3.ex0);v3Set();v3Msg.hidden=true;V3.R.domElement.style.visibility='';v3Size();}
+function v3Set(){const e=Math.max(0.05,v3Ex(+v3H.value));V3.ex=e*V3.unit;v3Ho.textContent='×'+(e<10?e.toFixed(1):Math.round(e));if(V3.mesh)v3Heights();}
+v3H.oninput=v3Set;
+document.getElementById('z3d').onclick=v3Open;document.getElementById('v3x').onclick=v3Close;
+addEventListener('keydown',e=>{if(e.key==='Escape'&&V3.on)v3Close();});addEventListener('resize',()=>{if(V3.on)v3Size();});
+{const pts=new Map();let pd=0;
+  v3El.addEventListener('pointerdown',e=>{if(e.target.closest('.v3bar'))return;v3El.setPointerCapture(e.pointerId);pts.set(e.pointerId,[e.clientX,e.clientY]);v3El.classList.add('drag');
+    if(pts.size===2){const [a,b]=[...pts.values()];pd=Math.hypot(a[0]-b[0],a[1]-b[1]);}});
+  v3El.addEventListener('pointermove',e=>{const o=pts.get(e.pointerId);if(!o)return;
+    if(pts.size===1){V3.yaw-=(e.clientX-o[0])*0.006;V3.pit=Math.max(0.12,Math.min(1.5,V3.pit+(e.clientY-o[1])*0.005));}
+    pts.set(e.pointerId,[e.clientX,e.clientY]);
+    if(pts.size===2){const [a,b]=[...pts.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]);if(pd>0)V3.dist=Math.max(0.15,Math.min(3,V3.dist*pd/d));pd=d;}
+    v3Draw();});
+  const up=e=>{pts.delete(e.pointerId);pd=0;if(!pts.size)v3El.classList.remove('drag');};v3El.addEventListener('pointerup',up);v3El.addEventListener('pointercancel',up);
+  v3El.addEventListener('wheel',e=>{e.preventDefault();V3.dist=Math.max(0.15,Math.min(3,V3.dist*Math.exp(e.deltaY*(e.deltaMode===1?.05:.0016))));v3Draw();},{passive:false});}
 document.getElementById('zin').onclick=()=>zoomAt(1.6,vw/2,vh/2);
 document.getElementById('zout').onclick=()=>zoomAt(1/1.6,vw/2,vh/2);
 document.getElementById('zhome').onclick=()=>{home();moved();};

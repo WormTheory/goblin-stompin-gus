@@ -146,6 +146,19 @@ function point(x,z){
   if(T.climateAt&&T.bioPick&&T.BIOMES&&!o.sea){const c=T.climateAt(X,Z),B=T.BIOMES[T.bioPick(c.t,c.m,X,Z)];if(B)o.bio=B.n;}
   return o;
 }
+// ---- a square of heights for the 3D view: n x n samples st plots apart from (x0,z0) (in plots), in blocks above the
+// sea's surface: the land's own height out in the wilds (reliefNat, with river valleys and lakes when it's close enough
+// in to work them out), the datum in towns, and the sea bed sloping gently down from the shore by how far out the sea is (shallow, as it's scaled up
+// with the land) ----
+function grid(x0,z0,st,n){
+  const C=T.CELL,h=new Float32Array(n*n),t=T.SEA_T;if(T.rlfValleys)T.rlfValleys(st*C<=48);
+  for(let j=0;j<n;j++)for(let i=0;i<n;i++){const x=x0+i*st,z=z0+j*st,v=T.seaV(x,z);let y=0;
+    if(v>t)y=-Math.min(14,2+(v-t)*90);
+    else if(T.reliefNat&&T.realmOf(Math.floor(x),Math.floor(z))==='plains')y=T.reliefNat(x*C,z*C);
+    h[j*n+i]=y;}
+  if(T.rlfValleys)T.rlfValleys(true);
+  return {h,n};
+}
 // ---- a settlement in full: how big it is and what's in it ----
 function place(k){
   const [rx,rz]=k.split(',').map(Number),S=T.settlementLat(rx,rz),r=Math.ceil(S.R*1.4)+3,counts={};let n=0;
@@ -180,6 +193,7 @@ self.onmessage=async e=>{
     else if(m.op==='plot')r=plot(m.px,m.pz);
     else if(m.op==='pt')r=point(m.x,m.z);
     else if(m.op==='place')r=place(m.k);
+    else if(m.op==='grid')r=grid(m.x0,m.z0,m.st,m.n);
     else if(m.op==='search')r=search(m.q,m.cx,m.cz);
     postMessage({id:m.id,ok:r});
   }catch(err){postMessage({id:m.id,err:String(err&&err.message||err)});}

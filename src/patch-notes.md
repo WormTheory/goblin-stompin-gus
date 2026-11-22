@@ -30,6 +30,7 @@
 - Mountains are seen from afar, and the map and minimap show the hills shaded, with the rock, snow and lakes.
 - The World Generator has a Height layer and Land shape sliders: more or fewer mountains, how high they get, how hilly the rest is and how many lakes there are.
 - The World Generator shows the ground's height and biome wherever you point, and can lay hill shading and contour lines over any map.
+- The World Generator has a 3D view: the middle of the map, just as it's shown, raised up to the ground's height, to turn round and tilt, with a slider for how much to exaggerate the heights.
 - The World Generator has River sliders: how many rivers there are, how much they meander, how far they wander and how wide they are. The game's own worlds are unchanged.
 - This makes a new world again, so a saved city starts afresh.
 
