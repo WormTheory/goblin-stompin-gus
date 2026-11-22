@@ -29,7 +29,7 @@ Open the file in a browser to play. The source it's built from is in **`src/`**.
 - `game/index.html` is the only deliverable: it must stay one file that works when simply opened. The build only joins files, so keep it that way, with no bundler or dependencies.
 - Parody of real brands is welcome and part of the humour (names like "Goblin Walmart"). Draw parody logos rather than copying real artwork.
 - Comments are plain English, explaining *why*, often in parentheses. Match the existing style.
-- **Bump `SAVE_KEY`** (currently `'goblin-city-v96'`) whenever world generation changes, so old saves don't load into a different world.
+- **Bump `SAVE_KEY`** (currently `'goblin-city-v97'`) whenever world generation changes, so old saves don't load into a different world.
 - Make edits with exact, unique string replacements. Many identifiers repeat, so check for a single match within the file before replacing.
 - After every change: run the tests (below) before calling it done.
 

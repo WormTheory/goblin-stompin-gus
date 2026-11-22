@@ -2,6 +2,12 @@
 
 ## Version 0.5
 
+### The world
+
+- The world is made of continents and oceans now, about half land and half sea. Before, one side of the world was all ocean and the other all land. Now there are big continents and smaller ones, seas and oceans between them, island chains off their coasts and the odd group of islands far out at sea.
+- The sea is shallow over the continental shelf near the coast and deep out in the open ocean.
+- This makes a new world, so a saved city starts afresh.
+
 ### Saves
 
 - Your game now carries on just as you left it: your score, goblins slain and everything in This rampage, the time of day, the day and season, and the weather.

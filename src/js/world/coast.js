@@ -1,23 +1,49 @@
 // ---- the sea: here and there across the world a coastline, the sea beyond it. Decided from a smooth noise over the
 // map (and a finer one for the coast's wiggles), so it can turn up anywhere -- except right on top of where you start ----
 const SEA_T=0.34,seaPlotC=new Map();
-// The ocean: continents and oceans from a very broad, slow noise (with finer ones on top for the bays, headlands and
-// islands), plus a long, steady slope down into open ocean off to one side of the world (which side, from the seed), so
-// there's always a coast within a day's walk; never right on top of where you start
-let OCEAN_DIR=null,OCEAN_O=null;
-const seaRaw=(fx,fz)=>0.62*gridNoise(fx,fz,160,991)+0.24*gridNoise(fx,fz,48,557)+0.11*gridNoise(fx,fz,14,313)+0.025*gridNoise(fx,fz,4,211);
+// The ocean: continents and oceans, about half of each. A very broad, warped noise gives the continents (big and mid-sized,
+// pushed apart by a tanh so there's broad land and broad sea), the lines where a still broader noise crosses zero are
+// opened up into ocean (they join up round the continents, so the seas link into oceans rather than sitting in the land as
+// lakes), and finer noises on top give the bays, headlands and coastal islands. Out at sea, island chains run along ridges
+// off the continents' edges, with the odd group further out. Never right on top of where you start, which is slid along
+// the noise to somewhere well inland with a coast in reach.
+let OCEAN_O=null,seaDeepK=0,seaCcSeed=null;const SEA_CC=new Map();
+function seaCont(fx,fz){
+  const wx=fx+420*gridNoise(fx,fz,1100,1201)+90*gridNoise(fx,fz,260,1223),wz=fz+420*gridNoise(fx,fz,1100,1307)+90*gridNoise(fx,fz,260,1327);
+  let c=0.6*gridNoise(wx,wz,1500,1409)+0.28*gridNoise(wx,wz,600,1511)+0.12*gridNoise(wx,wz,210,1613);
+  const ch=1-Math.abs(gridNoise(wx,wz,2600,1709)+0.25*gridNoise(wx,wz,700,1733));c+=0.5*Math.max(0,ch-0.7)/0.3;
+  return Math.tanh(c*3)/Math.tanh(1.5)*0.5-0.12;   // (the -0.12: about half the world land, measured over many seeds)
+}
+// (that's slow, and smooth over hundreds of blocks-of-32, so it's worked out once per corner of each one and blended)
+function seaContAt(ix,iz){const k=ix*100003+iz;let v=SEA_CC.get(k);if(v===undefined){if(SEA_CC.size>300000)SEA_CC.clear();v=seaCont(ix,iz);SEA_CC.set(k,v);}return v;}
+function seaContL(fx,fz){
+  if(seaCcSeed!==seed){seaCcSeed=seed;SEA_CC.clear();OCEAN_O=null;}   // (a new city without a reload)
+  const ix=Math.floor(fx),iz=Math.floor(fz),u=fx-ix,w=fz-iz;
+  return (seaContAt(ix,iz)*(1-u)+seaContAt(ix+1,iz)*u)*(1-w)+(seaContAt(ix,iz+1)*(1-u)+seaContAt(ix+1,iz+1)*u)*w;
+}
+function seaRaw(fx,fz){
+  // (+ is ocean: over SEA_T is water)
+  const c=seaContL(fx,fz);
+  let v=SEA_T+c*0.9+0.13*gridNoise(fx,fz,48,557)+0.07*gridNoise(fx,fz,14,313)+0.02*gridNoise(fx,fz,4,211);
+  if(c>0){
+    const e=Math.max(0,1-Math.abs(c-0.16)/0.2);   // (island arcs: just off the continents, not in the middle of the ocean)
+    const r=1-Math.abs(gridNoise(fx,fz,170,1759)+0.3*gridNoise(fx,fz,45,1811)),arc=Math.max(0,r-0.8)/0.2*(0.5+0.5*gridNoise(fx,fz,9,2213));
+    const reg=Math.max(0,gridNoise(fx,fz,500,1913)-0.25)/0.75,blob=Math.max(0,gridNoise(fx,fz,13,2017)+0.35*gridNoise(fx,fz,5,2111)-0.5);
+    v-=arc*e*0.9+blob*reg*3;}
+  seaDeepK=Math.max(0,Math.min(1,(c-0.04)/0.2));   // (how far out into an ocean basin: off the continental shelf)
+  return v;
+}
 function seaV(fx,fz){
   // fx, fz in blocks-of-32 units (fractional): the ocean's value there; over SEA_T is water
+  if(seaCcSeed!==seed)seaContL(0,0);
   if(!OCEAN_O){
     // the noise slid along so the start lands somewhere well inland (a natural coastline, not a moat round the start)
-    OCEAN_O=[0,0];for(let k=0;k<400;k++){const ox=(hash2(k*31+7,503)-0.5)*4000,oz=(hash2(k*17+3,911)-0.5)*4000;
+    OCEAN_O=[0,0];for(let k=0;k<800;k++){const ox=(hash2(k*31+7,503)-0.5)*4000,oz=(hash2(k*17+3,911)-0.5)*4000;
       // (well inland right here, but with real coast within 40 blocks-of-32 or so, in some direction)
-      let ok=seaRaw(ox,oz)<SEA_T-0.15;for(let a=0;a<12&&ok;a++){const A=a*Math.PI/6;if(seaRaw(ox+Math.cos(A)*11,oz+Math.sin(A)*11)>SEA_T-0.05)ok=false;}
-      if(ok){let wet=false;for(let a=0;a<24&&!wet;a++){const A=a*Math.PI/12;for(const R of [22,30,38])if(seaRaw(ox+Math.cos(A)*R,oz+Math.sin(A)*R)>SEA_T+0.08)wet=true;}ok=wet;}
-      if(ok){OCEAN_O=[ox,oz];break;}}
-    const a=hash2(9173,4421)*Math.PI*2;OCEAN_DIR=[Math.cos(a),Math.sin(a)];}
+      let ok=seaRaw(ox,oz)<SEA_T-0.08;for(let a=0;a<12&&ok;a++){const A=a*Math.PI/6;if(seaRaw(ox+Math.cos(A)*11,oz+Math.sin(A)*11)>SEA_T-0.03)ok=false;}
+      if(ok){let wet=false;for(let a=0;a<24&&!wet;a++){const A=a*Math.PI/12;for(const R of [22,30,38])if(seaRaw(ox+Math.cos(A)*R,oz+Math.sin(A)*R)>SEA_T+0.03)wet=true;}ok=wet;}
+      if(ok){OCEAN_O=[ox,oz];break;}}}
   let v=seaRaw(fx+OCEAN_O[0],fz+OCEAN_O[1]);
-  const p=fx*OCEAN_DIR[0]+fz*OCEAN_DIR[1];v+=Math.max(0,Math.min(1,(p-40)/30))*0.75;
   const d=Math.hypot(fx,fz);if(d<8)v-=(1-d/8)*1.5;
   return v;
 }
@@ -197,7 +223,8 @@ function coastD(x,z){
 }
 // how deep the sea is here, from the broad shape of the coast rather than the distance to the shoreline: that distance is
 // worked out from how fast the value's changing, which jumps about, and left pits and steps all over the sea bed
-const oceanDepth=(x,z)=>Math.max(1,Math.min(28,1+Math.floor(Math.max(0,seaV(x/CELL,z/CELL)-SEA_T)/0.0006*0.33)));
+// (no deeper than 12 on the continental shelf, down to 28 out over an ocean basin: seaV leaves which in seaDeepK)
+function oceanDepth(x,z){const v=seaV(x/CELL,z/CELL);return Math.max(1,Math.min(12+Math.round(16*seaDeepK),1+Math.floor(Math.max(0,v-SEA_T)/0.0006*0.33)));}
 // the sea bed and the water over it: shelving gently from the shore, out to deep ocean; sand, then gravel further out,
 // kelp in the shallows and on the shelf, the odd rock
 function seaWater(col,x,z,minD,cd){
