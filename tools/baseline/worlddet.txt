@@ -1,72 +1,114 @@
 == seed 1
-chunk 0,0: blocks b50e65b8 tops 2efe1dc5 realm city
-chunk 1,0: blocks ba064496 tops 2efe1dc5 realm city
-chunk 0,-1: blocks 97b4a364 tops ef74661c realm city
-chunk 3,-2: blocks 0c8e40d6 tops bf7fd185 realm city
-chunk -5,7: blocks 3f797d06 tops 277f31e5 realm city
-chunk 12,12: blocks 85010919 tops 2efe1dc5 realm city
-chunk -20,9: blocks 98fda0a8 tops 01df1745 realm city
-chunk 40,-33: blocks 06b1f66a tops 41c22785 realm plains
-chunk -77,61: blocks f06740b2 tops 73f7a465 realm plains
-chunk 150,150: blocks 74f70782 tops c9100585 realm plains
-chunk -300,-220: blocks bc4af627 tops 2efe1dc5 realm sea
-chunk 700,-512: blocks 2e14769c tops 41556345 realm plains
+chunk 0,0: blocks 2444544b tops 2efe1dc5 realm city
+chunk 1,0: blocks daeebb8d tops 2efe1dc5 realm city
+chunk 0,-1: blocks 9577555e tops ef74661c realm city
+chunk 3,-2: blocks e100e51f tops bf7fd185 realm city
+chunk -5,7: blocks 8198c4fc tops 277f31e5 realm city
+chunk 12,12: blocks bc657328 tops 2efe1dc5 realm city
+chunk -20,9: blocks 568013a6 tops 01df1745 realm city
+chunk 40,-33: blocks b223291f tops 41c22785 realm plains
+chunk -77,61: blocks 41f765ce tops c8b918a2 realm plains
+chunk 150,150: blocks 2a257b53 tops af52c7eb realm plains
+chunk -300,-220: blocks 5957adb6 tops 2efe1dc5 realm sea
+chunk 700,-512: blocks 3e93f48f tops 41556345 realm plains
 chunks made the same twice: 12/12
 nzNoise: range -0.929..0.927 mean -0.002 hash 4f90ca0b repeat diff 0 not finite 0
 nzFbm: range -0.501..0.554 mean -0.004 hash 6cb93c9f repeat diff 0 not finite 0
 nzRidged: range 0.008..0.957 mean 0.550 hash d4c8b26e repeat diff 0 not finite 0
 nzWarpX: range -136.184..131.793 mean -0.493 hash dfb06086 repeat diff 0 not finite 0
-climT: range 0.000..1.000 mean 0.497 hash 3068f362 repeat diff 0 not finite 0
-climM: range 0.000..1.000 mean 0.496 hash 0fa324b9 repeat diff 0 not finite 0
+climT: range 0.000..1.000 mean 0.496 hash c51e903c repeat diff 0 not finite 0
+climM: range 0.000..1.000 mean 0.520 hash 3511645c repeat diff 0 not finite 0
 nzNoise out of -1..1: 0, not 0 on lattice points: 0
 nzSmooth 0,.5,1 -> 0,0.5,1; nzClamp01 -1,.3,2 -> 0,0.3,1
 noise uses only arithmetic: yes
-biomeAt(0,0) grassland; biomeOf gone: true; WORLD_CFG {"land":0,"size":1,"rough":1,"chan":1,"isles":1,"islz":1}; cfg in a default save: undefined
+biomeAt(0,0) 0; biomeOf gone: true; WORLD_CFG {"land":0,"size":1,"rough":1,"chan":1,"isles":1,"islz":1,"temp":0,"rain":0,"czone":1,"lat":1}; cfg in a default save: undefined
+biome shares of the land: grassland 34.4%, forest 9.9%, taiga 8.6%, tundra 7.8%, ice 2.1%, desert 9.5%, badlands 2.4%, scrub 4.8%, savanna 9.0%, rainforest 1.7%, swamp 3.4%, moor 6.5%
+start not grassland: 0/400
+  grassland at chunk 250,-1876: blocks ae931497 tops by block {"1":84,"5":164,"35":8} trees 8
+  forest at chunk 280,-1564: blocks 2bae6d77 tops by block {"1":3,"5":253} trees 22
+  taiga at chunk -314,-1876: blocks 33ea110b tops by block {"1":163,"5":3,"9":90} trees 0
+  tundra at chunk 62,-1876: blocks a22fd95e tops by block {"1":226,"3":2,"4":1,"5":3,"35":1,"39":15,"160":8} trees 1
+  ice at chunk 0,-1688: blocks e242a7b9 tops by block {"1":83,"3":2,"4":1,"5":1,"27":3,"39":5,"153":161} trees 1
+  desert at chunk -532,-1126: blocks d8e9d703 tops by block {"6":256} trees 0
+  badlands at chunk 500,-844: blocks 286be986 tops by block {"4":3,"27":1,"155":252} trees 2
+  scrub at chunk 30,-1188: blocks 81ec23f6 tops by block {"1":222,"4":2,"5":24,"39":8} trees 3
+  savanna at chunk 342,-1220: blocks 1a08b533 tops by block {"1":203,"5":48,"27":1,"35":4} trees 1
+  rainforest at chunk 750,-844: blocks d63dacb0 tops by block {"5":85,"9":171} trees 7
+  swamp at chunk 624,-1720: blocks f52e76c7 tops by block {"9":256} trees 0
+  moor at chunk 0,-1844: blocks 7545168c tops by block {"1":3,"6":14,"9":239} trees 0
 == seed 2
-chunk 0,0: blocks ef376d09 tops 2efe1dc5 realm city
-chunk 1,0: blocks a09f0988 tops 2efe1dc5 realm city
-chunk 0,-1: blocks 9dc0baee tops 308fe8c5 realm city
-chunk 3,-2: blocks 55c29826 tops 7a829485 realm city
-chunk -5,7: blocks 6778e84e tops a5d0d6c5 realm city
-chunk 12,12: blocks 7044b172 tops 4f819905 realm city
-chunk -20,9: blocks 179a7cb6 tops c8b6d105 realm city
-chunk 40,-33: blocks da19192e tops fa8a8a3c realm plains
-chunk -77,61: blocks a7ab4434 tops 2efe1dc5 realm sea
-chunk 150,150: blocks b46273a5 tops 2efe1dc5 realm sea
-chunk -300,-220: blocks c0f4ea02 tops 3409722e realm plains
-chunk 700,-512: blocks bd9fcda0 tops 9a3559d0 realm plains
+chunk 0,0: blocks ba025cc1 tops 2efe1dc5 realm city
+chunk 1,0: blocks f54b2fdb tops 2efe1dc5 realm city
+chunk 0,-1: blocks 3879e46e tops 308fe8c5 realm city
+chunk 3,-2: blocks 75cdaee6 tops 7a829485 realm city
+chunk -5,7: blocks 7c98b843 tops a5d0d6c5 realm city
+chunk 12,12: blocks 7fc56685 tops 4f819905 realm city
+chunk -20,9: blocks b0500dd0 tops c8b6d105 realm city
+chunk 40,-33: blocks 58de0d11 tops 6dca7be2 realm plains
+chunk -77,61: blocks b91e9c02 tops 2efe1dc5 realm sea
+chunk 150,150: blocks 140fd461 tops 2efe1dc5 realm sea
+chunk -300,-220: blocks 7df1a222 tops 21504197 realm plains
+chunk 700,-512: blocks d2caadad tops 2efe1dc5 realm plains
 chunks made the same twice: 12/12
 nzNoise: range -0.934..0.805 mean 0.003 hash fa5936e5 repeat diff 0 not finite 0
 nzFbm: range -0.551..0.578 mean -0.004 hash fd427bcd repeat diff 0 not finite 0
 nzRidged: range 0.010..0.946 mean 0.549 hash 931fb6de repeat diff 0 not finite 0
 nzWarpX: range -134.168..140.895 mean -0.466 hash 189b3da1 repeat diff 0 not finite 0
-climT: range 0.000..1.000 mean 0.500 hash c1b4edcc repeat diff 0 not finite 0
-climM: range 0.000..1.000 mean 0.495 hash 7ac18381 repeat diff 0 not finite 0
+climT: range 0.000..1.000 mean 0.499 hash ffad3bb2 repeat diff 0 not finite 0
+climM: range 0.000..1.000 mean 0.517 hash 40d4013c repeat diff 0 not finite 0
 nzNoise out of -1..1: 0, not 0 on lattice points: 0
 nzSmooth 0,.5,1 -> 0,0.5,1; nzClamp01 -1,.3,2 -> 0,0.3,1
 noise uses only arithmetic: yes
-biomeAt(0,0) grassland; biomeOf gone: true; WORLD_CFG {"land":0,"size":1,"rough":1,"chan":1,"isles":1,"islz":1}; cfg in a default save: undefined
+biomeAt(0,0) 0; biomeOf gone: true; WORLD_CFG {"land":0,"size":1,"rough":1,"chan":1,"isles":1,"islz":1,"temp":0,"rain":0,"czone":1,"lat":1}; cfg in a default save: undefined
+biome shares of the land: grassland 29.1%, forest 9.6%, taiga 8.8%, tundra 7.6%, ice 3.6%, desert 6.1%, badlands 0.7%, scrub 7.5%, savanna 10.1%, rainforest 3.3%, swamp 9.1%, moor 4.6%
+start not grassland: 0/400
+  grassland at chunk 1468,-1782: blocks 6294b90c tops by block {"1":214,"3":2,"5":30,"27":1,"35":9} trees 1
+  forest at chunk 1124,-1844: blocks 6d286023 tops by block {"1":41,"5":215} trees 24
+  taiga at chunk 1592,-1876: blocks 66597612 tops by block {"1":120,"5":15,"27":2,"35":2,"160":117} trees 6
+  tundra at chunk 1468,-1876: blocks f7130518 tops by block {"1":161,"3":1,"5":1,"39":9,"160":84} trees 4
+  ice at chunk 436,-1344: blocks 1e2d0b8f tops by block {"87":81,"153":175} trees 0
+  desert at chunk 1312,-1470: blocks 34cc8b5f tops by block {"1":4,"3":1,"6":250,"159":1} trees 1
+  badlands at chunk 1718,-688: blocks 9dd56959 tops by block {"1":37,"5":1,"155":218} trees 0
+  scrub at chunk 1374,-1532: blocks 942f501e tops by block {"1":202,"5":46,"35":3,"39":5} trees 1
+  savanna at chunk 1374,-1688: blocks 5bec6fcc tops by block {"1":148,"5":105,"35":3} trees 4
+  rainforest at chunk 1250,-1782: blocks 4c563e83 tops by block {"1":9,"5":247} trees 21
+  swamp at chunk 1374,-1876: blocks 13439368 tops by block {"1":60,"5":41,"6":21,"9":116,"161":18} trees 1
+  moor at chunk 1500,-1814: blocks 51cde25d tops by block {"1":219,"3":1,"5":24,"27":3,"35":9} trees 1
 == seed 3
-chunk 0,0: blocks 5ef652d2 tops 2efe1dc5 realm city
-chunk 1,0: blocks 6230f389 tops 2efe1dc5 realm city
-chunk 0,-1: blocks 827e9e6f tops 60fe3545 realm city
-chunk 3,-2: blocks ac6341ce tops 80b56865 realm city
-chunk -5,7: blocks 0ebfde39 tops 7d851c25 realm city
-chunk 12,12: blocks 237b408b tops ecefdcfc realm city
-chunk -20,9: blocks 0412a520 tops eb36a285 realm city
-chunk 40,-33: blocks a49de570 tops 549be4bc realm plains
-chunk -77,61: blocks 46839ed2 tops 2efe1dc5 realm city
-chunk 150,150: blocks 2fb85b1b tops 72060fe2 realm plains
-chunk -300,-220: blocks c8d69753 tops 854a1dc5 realm plains
-chunk 700,-512: blocks edda3504 tops e30b8dc5 realm plains
+chunk 0,0: blocks 3eac672e tops 2efe1dc5 realm city
+chunk 1,0: blocks 39d79fdd tops 2efe1dc5 realm city
+chunk 0,-1: blocks 5472b12b tops 60fe3545 realm city
+chunk 3,-2: blocks d966c20b tops 80b56865 realm city
+chunk -5,7: blocks 2c501625 tops 7d851c25 realm city
+chunk 12,12: blocks 3ff5db5a tops ecefdcfc realm city
+chunk -20,9: blocks b5d61eab tops eb36a285 realm city
+chunk 40,-33: blocks 10e442ea tops 2e2f2ed9 realm plains
+chunk -77,61: blocks d9432d0e tops 2efe1dc5 realm city
+chunk 150,150: blocks 8140af7d tops c5d3261c realm plains
+chunk -300,-220: blocks f7dcc075 tops 854a1dc5 realm plains
+chunk 700,-512: blocks 49419e92 tops 5b445dc5 realm plains
 chunks made the same twice: 12/12
 nzNoise: range -0.847..0.856 mean 0.004 hash 81e12639 repeat diff 0 not finite 0
 nzFbm: range -0.642..0.610 mean 0.000 hash 2e70303c repeat diff 0 not finite 0
 nzRidged: range 0.001..0.962 mean 0.552 hash d8630c34 repeat diff 0 not finite 0
 nzWarpX: range -133.237..127.281 mean -0.854 hash 3029af42 repeat diff 0 not finite 0
-climT: range 0.000..1.000 mean 0.504 hash 0ded5184 repeat diff 0 not finite 0
-climM: range 0.000..1.000 mean 0.501 hash 2008caba repeat diff 0 not finite 0
+climT: range 0.000..1.000 mean 0.506 hash c8d782f1 repeat diff 0 not finite 0
+climM: range 0.000..1.000 mean 0.528 hash 2d3aa63d repeat diff 0 not finite 0
 nzNoise out of -1..1: 0, not 0 on lattice points: 0
 nzSmooth 0,.5,1 -> 0,0.5,1; nzClamp01 -1,.3,2 -> 0,0.3,1
 noise uses only arithmetic: yes
-biomeAt(0,0) grassland; biomeOf gone: true; WORLD_CFG {"land":0,"size":1,"rough":1,"chan":1,"isles":1,"islz":1}; cfg in a default save: undefined
+biomeAt(0,0) 0; biomeOf gone: true; WORLD_CFG {"land":0,"size":1,"rough":1,"chan":1,"isles":1,"islz":1,"temp":0,"rain":0,"czone":1,"lat":1}; cfg in a default save: undefined
+biome shares of the land: grassland 36.5%, forest 10.9%, taiga 7.9%, tundra 10.0%, ice 4.5%, desert 4.7%, badlands 0.3%, scrub 3.9%, savanna 7.6%, rainforest 3.5%, swamp 4.7%, moor 5.5%
+start not grassland: 0/400
+  grassland at chunk -1470,-1876: blocks c2032ca6 tops by block {"1":127,"5":26,"9":29,"12":64,"35":10} trees 1
+  forest at chunk -1532,-1876: blocks c8b62ce7 tops by block {"1":19,"5":237} trees 21
+  taiga at chunk -1876,-1876: blocks 8d5dad23 tops by block {"1":27,"6":26,"9":203} trees 0
+  tundra at chunk 1312,-1876: blocks 0c46386a tops by block {"1":229,"3":1,"5":5,"27":2,"35":1,"39":18} trees 0
+  ice at chunk 1562,-1876: blocks 631d0917 tops by block {"153":256} trees 0
+  desert at chunk -188,-1876: blocks 11761cde tops by block {"6":255,"159":1} trees 1
+  badlands at chunk -94,-1814: blocks 3ebd438a tops by block {"3":1,"27":1,"155":254} trees 0
+  scrub at chunk -1376,-1876: blocks 4573a88a tops by block {"1":198,"3":1,"5":41,"27":1,"35":1,"39":14} trees 1
+  savanna at chunk -1282,-1876: blocks d178bd23 tops by block {"1":103,"5":3,"9":149,"35":1} trees 0
+  rainforest at chunk -1000,-1876: blocks 305a74ba tops by block {"5":256} trees 48
+  swamp at chunk -688,-1844: blocks 481fe926 tops by block {"1":128,"5":71,"9":31,"35":2,"161":24} trees 3
+  moor at chunk -1594,-1814: blocks f6bb1095 tops by block {"1":108,"5":3,"6":33,"9":110,"35":2} trees 0

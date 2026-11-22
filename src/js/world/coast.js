@@ -8,16 +8,16 @@ const SEA_T=0.34,seaPlotC=new Map();
 // off the continents' edges, with the odd group further out. Never right on top of where you start, which is slid along
 // the noise to somewhere well inland with a coast in reach.
 let OCEAN_O=null,seaDeepK=0,seaIsl=false,seaCcSeed=null;const SEA_CC=new Map();
-// (the world's settings, WORLD_CFG: so far the World Generator's Land & sea sliders: more or less land, continent size,
+// (the world's settings, WORLD_CFG: so far the World Generator's Land & sea and Climate sliders: more or less land, continent size,
 // coast roughness, ocean channels and island chains, and Island size (islz). The World Generator sets window.GSG_WORLD
 // (or the older GSG_SEA) before loading the game; the game itself never changes them, so they're the defaults, which leave
 // every sum exactly as it was. A world made with others keeps them in its save (cfg: only what isn't a default, from
 // worldCfgSent), so a guest online builds it with the host's)
-const WORLD_DEF={land:0,size:1,rough:1,chan:1,isles:1,islz:1};
+const WORLD_DEF={land:0,size:1,rough:1,chan:1,isles:1,islz:1,temp:0,rain:0,czone:1,lat:1};   // (temp, rain, czone, lat: the climate's, world/climate.js)
 const WORLD_CFG=Object.assign({},WORLD_DEF);
 // (sets them from o, anything missing or not a number at its default: only before the world's worked out (loading), as
 // what's been worked out already isn't redone)
-function worldCfgSet(o){for(const k in WORLD_DEF)WORLD_CFG[k]=o&&typeof o[k]==='number'&&isFinite(o[k])?o[k]:WORLD_DEF[k];seaCcSeed=null;seaPlotC.clear();plotCache.clear();}
+function worldCfgSet(o){for(const k in WORLD_DEF)WORLD_CFG[k]=o&&typeof o[k]==='number'&&isFinite(o[k])?o[k]:WORLD_DEF[k];seaCcSeed=null;clSeed=null;seaPlotC.clear();plotCache.clear();}
 const worldCfgSent=()=>{let o;for(const k in WORLD_DEF)if(WORLD_CFG[k]!==WORLD_DEF[k])(o=o||{})[k]=WORLD_CFG[k];return o;};
 if(typeof window!=='undefined'&&(window.GSG_WORLD||window.GSG_SEA))worldCfgSet(window.GSG_WORLD||window.GSG_SEA);
 function seaCont(fx,fz){

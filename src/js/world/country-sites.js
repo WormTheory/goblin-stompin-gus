@@ -329,4 +329,9 @@ function plainsH(x,z){
 }
 // the plains' rolling ground before it's flattened toward roads and other blocks (plainsH scales it down there). Below
 // -0.9 it's a pond, so where this isn't, plainsH can't be either: a cheap first test for the far view's ponds
-function plainsRaw(x,z){const n=(Math.sin(x*0.043+1.7)+Math.sin(z*0.051+0.4)+Math.sin((x+z)*0.029+2.3)*0.8+Math.sin((x-z)*0.037+0.9)*0.6)/3.4;return (n+0.3)*4.4;}
+function plainsRaw(x,z){
+  let r=(nzFbm(x,z,110,3,4401)*1.9+0.3)*4.4;climAt(x,z);const p=clBlend('pond');
+  // (the biome's ponds: a wet one lowers the ground into more of them, a dry one lifts the hollows out of them)
+  if(p>0)r-=3.3*p;else if(r<0)r*=1+p;
+  return r;
+}

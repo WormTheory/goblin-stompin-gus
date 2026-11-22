@@ -19,20 +19,46 @@ function linkNear(x,z){
   let e=1e9;for(const [a,b,c,d] of L){const dx=x<a?a-x:x>b?x-b:0,dz=z<c?c-z:z>d?z-d:0;e=Math.min(e,Math.hypot(dx,dz));}
   return e;
 }
-// does a plains tree grow from this column? [the ground's top, its trunk's height], or null. A few scattered, more where
-// copses grow and round sites in the wilds; never on a road, a railway, beside a billboard or in a pond. (Shared by the
-// chunks and the far view, so a tree seen from afar is the very one that's there up close: cheapest tests first.)
+// does a plains tree grow from this column? [the ground's top, its trunk's height, its species (TREE_K)], or null. A few
+// scattered, more where copses grow and round sites in the wilds, each biome its own trees and its own woods; never on a
+// road, a railway, beside a billboard or in a pond. (Shared by the chunks and the far view, so a tree seen from afar is
+// the very one that's there up close: cheapest tests first.)
+const TREE_K=['oak','big','pine','acacia','jungle','swamp','cactus','dead'],TREE_I={};TREE_K.forEach((k,i)=>TREE_I[k]=i);
+// (each species' trunk: the shortest, and how many more blocks it may have)
+const TREE_TH=[[4,3],[6,3],[6,4],[4,2],[9,5],[4,2],[1,3],[2,2]];
 function plainsTree(x,z){
   if((x+z)%2)return null;
+  const v=hash2(x*3+1,z*7+5);if(v>0.32)return null;   // (no biome's woods are thicker than this)
   const px=Math.floor(x/CELL),pz=Math.floor(z/CELL),wood=siteTrees(x,z);if(!wood&&!PLAINS_OPEN(px,pz))return null;
-  const copse=wood?wood:lumberNear(px,pz)?1.1:plainsCopse(x,z);
-  if(hash2(x*3+1,z*7+5)>0.006+0.11*copse)return null;
+  let sp=0;
+  if(wood){if(v>0.006+0.11*wood)return null;}
+  else{const B=BIOMES[biomeAt(x,z)],copse=lumberNear(px,pz)?1.1:plainsCopse(x,z);if(v>B.sc+B.dn*copse||!B.trees.length)return null;
+    let q=hash2(x*5+17,z*3+29);for(const [k,w] of B.trees){sp=TREE_I[k];if((q-=w)<0)break;}}
   if(roadNear(x,z,14)<4||railNear(x,z)<6||boardNear(x,z,7))return null;
   const h=plainsH(x,z);if(h<0)return null;
-  return [G+h,4+Math.floor(hash2(x,z+99)*3)];
+  return [G+h,TREE_TH[sp][0]+Math.floor(hash2(x,z+99)*TREE_TH[sp][1]),sp];
+}
+// a tree of species sp, its ground's top gy and trunk th high, grown at column (x,z) through put(x,y,z,block,onlyAir)
+// (the leaves may reach three blocks out, into the next chunk: the chunks look that far round for trees)
+function treeGrow(x,z,gy,th,sp,put){
+  const top=gy+th,L=sp===2?PINE:LEAVES;
+  if(sp===6){for(let y=1;y<=th;y++)put(x,gy+y,z,CACTUS,false);return;}
+  for(let y=1;y<=th;y++)put(x,gy+y,z,LOG,false);
+  const disc=(y,r,cut)=>{for(let dz=-r;dz<=r;dz++)for(let dx=-r;dx<=r;dx++){if(Math.abs(dx)+Math.abs(dz)>cut)continue;put(x+dx,y,z+dz,L,true);}};
+  if(sp===7){if(th>2){const h=hash2(x*7+1,z*5+3);put(x+(h<0.5?1:-1),top,z,LOG,false);}return;}   // (dead: a bare trunk and a stub of a branch)
+  if(sp===2){put(x,top+1,z,L,true);put(x,top+2,z,L,true);   // (a pine: tiers narrowing to the top)
+    for(let y=top,i=0;y>gy+2;y--,i++)disc(y,i%2?2:1,i%2?3:1);return;}
+  if(sp===3){disc(top,3,4);disc(top+1,2,2);return;}   // (an acacia: a flat crown)
+  if(sp===4){disc(top-1,3,5);disc(top,2,3);disc(top+1,1,1);disc(top-5,1,1);return;}   // (a jungle giant, a tuft lower down)
+  if(sp===5){disc(top,3,4);disc(top+1,1,1);   // (a swamp tree: a wide crown with leaves hanging off its rim)
+    for(let dz=-3;dz<=3;dz++)for(let dx=-3;dx<=3;dx++){if(Math.max(Math.abs(dx),Math.abs(dz))<2||Math.abs(dx)+Math.abs(dz)>4)continue;const q=hash2(x+dx*7,z+dz*5+11);if(q<0.4){put(x+dx,top-1,z+dz,L,true);if(q<0.15)put(x+dx,top-2,z+dz,L,true);}}return;}
+  if(sp===1){disc(top-2,3,5);disc(top-1,3,5);disc(top-3,2,3);disc(top,2,3);put(x,top+1,z,L,true);return;}   // (a big oak)
+  // an oak, as the plains always grew them
+  for(let dy=-2;dy<=1;dy++){const rad=dy<=-1?2:1;for(let dz=-rad;dz<=rad;dz++)for(let dx=-rad;dx<=rad;dx++){if(rad===2&&Math.abs(dx)===2&&Math.abs(dz)===2&&hash2(x+dx*5,z+dz*5+dy)<.6)continue;put(x+dx,top+dy,z+dz,L,true);}}
+  put(x,top+1,z,L,true);
 }
 // how thick the woods are out on the open plains here: 0 (a tree here and there) up to 1 (a copse)
-function plainsCopse(x,z){return Math.max(0,Math.sin(x*0.021+0.6)+Math.sin(z*0.026+2.2)-1.0);}
+function plainsCopse(x,z){const n=nzFbm(x,z,150,2,4411)*2.4;climAt(x,z);return Math.min(1.3,Math.max(0,n+clBlend('wood')));}
 // does a tree grow here in a town park, the capitol's grounds or a big park (on the ground, G)?
 function parkTree(x,z){
   const px=Math.floor(x/CELL),pz=Math.floor(z/CELL),rx=mod(x,CELL),rz=mod(z,CELL),BS=superOf(px,pz);
@@ -226,13 +252,7 @@ function genChunk(cx,cz){
     }}}
   // plains trees: a few scattered, more where copses grow (leaves may reach across chunk edges, so look wider)
   {const putT=(px,py,pz,b,onlyAir)=>{const lx=px-x0,lz=pz-z0;if(lx<0||lz<0||lx>=CS||lz>=CS||py<0||py>=H)return;const i=li(lx,py,lz);if(onlyAir&&a[i]!==AIR)return;a[i]=b;};
-   for(let z=z0-2;z<z0+CS+2;z++)for(let x=x0-2;x<x0+CS+2;x++){
-     const T=plainsTree(x,z);if(!T)continue;
-     const gy=T[0],th=T[1],top=gy+th;
-     for(let y=1;y<=th;y++)putT(x,gy+y,z,LOG,false);
-     for(let dy=-2;dy<=1;dy++){const rad=dy<=-1?2:1;for(let dz=-rad;dz<=rad;dz++)for(let dx=-rad;dx<=rad;dx++){if(rad===2&&Math.abs(dx)===2&&Math.abs(dz)===2&&hash2(x+dx*5,z+dz*5+dy)<.6)continue;putT(x+dx,top+dy,z+dz,LEAVES,true);}}
-     putT(x,top+1,z,LEAVES,true);
-   }}
+   for(let z=z0-3;z<z0+CS+3;z++)for(let x=x0-3;x<x0+CS+3;x++){const T=plainsTree(x,z);if(T)treeGrow(x,z,T[0],T[1],T[2],putT);}}
   // park trees (leaves may reach across chunk edges, so look a little wider)
   const put=(px,py,pz,b,onlyAir)=>{const lx=px-x0,lz=pz-z0;if(lx<0||lz<0||lx>=CS||lz>=CS||py<0||py>=H)return;const i=li(lx,py,lz);if(onlyAir&&a[i]!==AIR)return;a[i]=b;};
   for(let z=z0-2;z<z0+CS+2;z++)for(let x=x0-2;x<x0+CS+2;x++){

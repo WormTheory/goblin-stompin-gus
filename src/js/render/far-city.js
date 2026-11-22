@@ -137,7 +137,7 @@ function farSea(SG,px,pz,n){
     const q=t==='basin'||t==='nbasin'||n===1&&seaPlot(px,pz)===2?1:seaBlk(x+st/2,z+st/2);
     if(q>=SEA_T)farBox(SG,x,G+0.4,z,x+st,G+0.95,z+st,n<=2&&seaPlot(px,pz)===2?FARC.deep:FARC.sea);
     else if(n>1&&coastD(x+st/2,z+st/2)>-8)farBox(SG,x,G+0.4,z,x+st,G+1,z+st,FARC.sand);
-    else farBox(SG,x,G+0.4,z,x+st,G+1.6,z+st,FARC.park);}
+    else farBox(SG,x,G+0.4,z,x+st,G+1.6,z+st,farBio(px,pz).g);}
 }
 // the far view of one plains block: the rivers and highways crossing it, as boxes along their lines (each piece drawn
 // by the block its middle falls in, every third piece standing for three)
@@ -159,15 +159,25 @@ function mkLod(step,mk){const ring={value:new THREE.Vector2(0,0)};return{B:farIn
 // of leaves, which is near enough what a blocky tree is), so that where the full-detail city takes over a tree only gains
 // its detail; further off, woods are clumps of treetops. Ponds and lakes are water a hair above the ground, as rivers are. ----
 const FAR_LEAF=new THREE.Color(blockColor(LEAVES)),FAR_TRUNK=new THREE.Color(blockColor(LOG));
-function farLeaf(F,x0,y0,z0,x1,y1,z1,hFall,hCol){farBox(F,x0,y0,z0,x1,y1,z1,FAR_LEAF);const j=(F.n-1)*4;F.wn[j]=hFall;F.wn[j+1]=hCol;F.wn[j+3]=-4;}
-// the trees in one block, as genChunk grows them: x, z, the ground's top and the trunk's height of each. Worked out once (a
+// (each biome's ground and leaves seen from afar, world/climate.js: its top block's colour, a grassy one's grass tinted, and
+// so turning with the seasons; grassland's are the plain ones, so a grassland world looks as it always did)
+const FAR_PINE=new THREE.Color(blockColor(PINE)),FAR_CACT=new THREE.Color(blockColor(CACTUS));
+const FAR_BIO=BIOMES.map(B=>{const top=B.top||GRASS;let g,l;
+  if(B.i===BIO_GRASS){g=FARC.park;l=FAR_LEAF;}
+  else{g=new THREE.Color(topColor(top));if(top===GRASS){g.r*=B.grass[0];g.g*=B.grass[1];g.b*=B.grass[2];g.grass=true;}
+    l=FAR_LEAF.clone();l.r*=B.leaf[0];l.g*=B.leaf[1];l.b*=B.leaf[2];}
+  return {g,l};});
+const farBio=(px,pz)=>FAR_BIO[biomeOfPlot(px,pz)];
+function farLeaf(F,x0,y0,z0,x1,y1,z1,hFall,hCol,c){farBox(F,x0,y0,z0,x1,y1,z1,c||FAR_LEAF);const j=(F.n-1)*4;F.wn[j]=hFall;F.wn[j+1]=hCol;F.wn[j+3]=-4;}
+// the trees in one block, as genChunk grows them: x, z, the ground's top, the trunk's height and the species of each. Worked out once (a
 // third of a millisecond for a block of plains) and kept, unless something in the block has been smashed since: then a
 // tree whose trunk was knocked out is left out, as its leaves are gone too (purgeLeaves)
 const farTreeC=new Map();let farTreeNew=false;
 function farTreesOf(px,pz){
   const k=px*100003+pz,cx=px*CELL/CS,cz=pz*CELL/CS,E4=[];let ed=0;
   for(let a=0;a<CELL/CS;a++)for(let b=0;b<CELL/CS;b++){const ce=chunkEdits.get(ckey(cx+a,cz+b));if(ce){E4.push(ce);ed+=ce.length;}}
-  const cn=craters.length+BB.jobs.length*1000,E=farTreeC.get(k);   // (asked again once a blast's job is over, as it only counts behind its ring till then)if(E&&E.ed===ed&&E.seed===seed&&E.cn===cn)return E.t;
+  const cn=craters.length+BB.jobs.length*1000,E=farTreeC.get(k);   // (asked again once a blast's job is over, as it only counts behind its ring till then)
+  if(E&&E.ed===ed&&E.seed===seed&&E.cn===cn)return E.t;
   farTreeNew=true;
   // (a big blast's carving isn't kept as edits: a tree it reaches is asked of the crater instead)
   const bl=farBlastNear(px,pz);
@@ -180,26 +190,32 @@ function farTreesOf(px,pz){
     // (no tree is likelier than this anywhere, the thickest woods included: most columns are done with here)
     if(!cap&&hash2(x*3+1,z*7+5)>0.32)continue;
     let T=pl?plainsTree(x,z):null;
-    if(pk&&parkTree(x,z))T=[G,4+Math.floor(hash2(x,z+99)*3)];   // (as the chunks do, the park's pass comes last)
+    if(pk&&parkTree(x,z))T=[G,4+Math.floor(hash2(x,z+99)*3),0];   // (as the chunks do, the park's pass comes last)
     if(!T)continue;
     if(gone){let ok=true;for(let y=T[0]+1;y<=T[0]+T[1]&&ok;y++){const v=gone.get(x+','+y+','+z);if(v!==undefined&&v!==LOG)ok=false;}if(!ok)continue;}
     if(bl&&farCraterTop(x,z,x+1,z+1,T[0]+T[1])<T[0]+T[1])continue;
-    t.push(x,z,T[0],T[1]);
+    t.push(x,z,T[0],T[1],T[2]);
   }
   if(farTreeC.size>40000)farTreeC.clear();
   farTreeC.set(k,{ed,seed,cn,t});return t;
 }
-function farTreeBoxes(SG,t){
-  for(let i=0;i<t.length;i+=4){const x=t[i],z=t[i+1],top=t[i+2]+t[i+3],hF=hash2(x*5+11,z*3+7),hC=hash2(x*7+3,z*13+1);
-    farBox(SG,x,G+1,z,x+1,top-2,z+1,FAR_TRUNK);
-    farLeaf(SG,x-2,top-2,z-2,x+3,top,z+3,hF,hC);
-    farLeaf(SG,x-1,top,z-1,x+2,top+2,z+2,hF,hC);}
+function farTreeBoxes(SG,t,lc){
+  for(let i=0;i<t.length;i+=5){const x=t[i],z=t[i+1],gy=t[i+2],top=gy+t[i+3],sp=t[i+4],hF=hash2(x*5+11,z*3+7),hC=hash2(x*7+3,z*13+1);
+    // (each species as treeGrow shapes it, near enough: TREE_K)
+    if(sp===6){farBox(SG,x,gy+1,z,x+1,top+1,z+1,FAR_CACT);continue;}
+    if(sp===7){farBox(SG,x,gy+1,z,x+1,top+1,z+1,FAR_TRUNK);continue;}
+    if(sp===2){farBox(SG,x,gy+1,z,x+1,gy+3,z+1,FAR_TRUNK);farBox(SG,x-2,gy+3,z-2,x+3,top-1,z+3,FAR_PINE);farBox(SG,x-1,top-1,z-1,x+2,top+3,z+2,FAR_PINE);continue;}
+    farBox(SG,x,gy+1,z,x+1,top-2,z+1,FAR_TRUNK);
+    if(sp===3){farLeaf(SG,x-3,top,z-3,x+4,top+1,z+4,hF,hC,lc);farLeaf(SG,x-2,top+1,z-2,x+3,top+2,z+3,hF,hC,lc);continue;}
+    if(sp===4||sp===5||sp===1){farLeaf(SG,x-3,top-2,z-3,x+4,top+1,z+4,hF,hC,lc);farLeaf(SG,x-1,top+1,z-1,x+2,top+2,z+2,hF,hC,lc);continue;}
+    farLeaf(SG,x-2,top-2,z-2,x+3,top,z+3,hF,hC,lc);
+    farLeaf(SG,x-1,top,z-1,x+2,top+2,z+2,hF,hC,lc);}
 }
 // woods seen from further off: where the plains' copses are thick (or round a lumber camp or a campsite), one to three
 // clumps of treetops to each square of the given size, rather than every tree. (roads: keep them off the roads, which the
 // far ring, where a road is a hair across and the test would cost more than the rest put together, does without)
 function farWoods(SG,px,pz,cell,roads){
-  const site=bigPlainsAt(px,pz),X0=px*CELL,Z0=pz*CELL;let open=null,lum=null;
+  const site=bigPlainsAt(px,pz),X0=px*CELL,Z0=pz*CELL,bi=biomeOfPlot(px,pz),lc=bi===BIO_I.taiga?FAR_PINE:FAR_BIO[bi].l;let open=null,lum=null;
   for(let j=0;j<CELL;j+=cell)for(let i=0;i<CELL;i+=cell){const x=X0+i+(cell>>1),z=Z0+j+(cell>>1);
     let c=site?siteTrees(x,z):0;
     if(!c){if(lum===null)lum=lumberNear(px,pz);c=lum?1.1:plainsCopse(x,z);if(c<0.3)continue;
@@ -208,7 +224,7 @@ function farWoods(SG,px,pz,cell,roads){
     const n=c>0.7?3:c>0.45?2:1;
     for(let q=0;q<n;q++){const h=hash2(x*11+q*37,z*17+q*5),h2=hash2(x*3+q*7,z*29+q*13),w=cell*(0.4+0.25*h),
       ox=x+(h2-0.5)*(cell-w)*0.9,oz=z+(hash2(x+q*3,z*7+1)-0.5)*(cell-w)*0.9,top=G+6+3*h2;
-      farLeaf(SG,ox-w/2,G+1.6,oz-w/2,ox+w/2,top,oz+w/2,hash2(x*5+q,z*3+q*11),h);}
+      farLeaf(SG,ox-w/2,G+1.6,oz-w/2,ox+w/2,top,oz+w/2,hash2(x*5+q,z*3+q*11),h,lc);}
   }
 }
 // a block of open plains' ponds, found every st blocks and joined into runs along each row
@@ -282,10 +298,10 @@ function* farJobNear(SB,SG,act,ra,rb){
       seen.add(k);
       const P=plotInfo(px,pz),X0=px*CELL,Z0=pz*CELL,sc=farScorched(X0+CELL/2,Z0+CELL/2);
       if(seaPlot(px,pz))farSea(SG,px,pz,4);
-      else if(realmOf(px,pz)==='plains'){farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.6,Z0+CELL,sc?FAR_SCORCH:FARC.park);farLinesPlot(SB,SG,px,pz);if(turbineAt(px,pz)&&!sc)farTurbine(SB,px,pz,1);if(!sc)yield* farCountry(SB,SG,px,pz,0);}   // the plains: all grass (hills are only drawn up close), and what crosses them
+      else if(realmOf(px,pz)==='plains'){farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.6,Z0+CELL,sc?FAR_SCORCH:farBio(px,pz).g);farLinesPlot(SB,SG,px,pz);if(turbineAt(px,pz)&&!sc)farTurbine(SB,px,pz,1);if(!sc)yield* farCountry(SB,SG,px,pz,0);}   // the plains: all grass (hills are only drawn up close), and what crosses them
       else farBox(SG,X0+ROADW,G+0.4,Z0+ROADW,X0+CELL,G+0.97,Z0+CELL,sc?FAR_SCORCH:P.type==='park'?FARC.park:P.type==='plaza'?FARC.plaza:FARC.side);
       if(!seaPlot(px,pz)){if(realmOf(px,pz)==='plains')farPonds(SG,px,pz,4,true);else farTownWater(SG,px,pz,P,2);}
-      farTreeNew=false;farTreeBoxes(SG,farTreesOf(px,pz));if(farTreeNew)yield;
+      farTreeNew=false;farTreeBoxes(SG,farTreesOf(px,pz),farBio(px,pz).l);if(farTreeNew)yield;
       if(hwRow(pz,px)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('x',pz,X0+CELL/2)-1;farBox(SB,X0,y-1,Z0-3,X0+CELL,y+2,Z0+11,_fc);}
       if(hwCol(px,pz)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('z',px,Z0+CELL/2)-1;farBox(SB,X0-3,y-1,Z0,X0+11,y+2,Z0+CELL,_fc);}
       {const cv=cloverOf(px,pz);if(cv){_fc.setHex(blockColor(CONCRETE));const cx=cv.j*CELL+4,cz=cv.k*CELL+4;
@@ -337,7 +353,7 @@ function* farJobMid(SB,SG,act,ra,rb){
     const d=Math.hypot(px*CELL+CELL/2-p.pos.x,pz*CELL+CELL/2-p.pos.z);if(d>rb+CELL||d<ra-CELL)continue;seen.add(k);
     const X0=px*CELL,Z0=pz*CELL,sc=farScorched(X0+CELL/2,Z0+CELL/2);
     if(seaPlot(px,pz)){farSea(SG,px,pz,2);continue;}
-    if(realmOf(px,pz)==='plains'){farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.6,Z0+CELL,sc?FAR_SCORCH:FARC.park);farLinesPlot(SB,SG,px,pz);if(turbineAt(px,pz)&&!sc)farTurbine(SB,px,pz,1.6);if(!sc)yield* farCountry(SB,SG,px,pz,1);
+    if(realmOf(px,pz)==='plains'){farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.6,Z0+CELL,sc?FAR_SCORCH:farBio(px,pz).g);farLinesPlot(SB,SG,px,pz);if(turbineAt(px,pz)&&!sc)farTurbine(SB,px,pz,1.6);if(!sc)yield* farCountry(SB,SG,px,pz,1);
       farPonds(SG,px,pz,8,false);farWoods(SG,px,pz,16,true);
       if(hwRow(pz,px)&&!hwGround('x',pz,X0+16)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('x',pz,X0+CELL/2)-1;farBox(SB,X0,y-1,Z0-3,X0+CELL,y+2,Z0+11,_fc);}
       if(hwCol(px,pz)&&!hwGround('z',px,Z0+16)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('z',px,Z0+CELL/2)-1;farBox(SB,X0-3,y-1,Z0,X0+11,y+2,Z0+CELL,_fc);}
@@ -410,6 +426,7 @@ function* farJobFar(SB,SG,act,ra,rb){
   for(const p of act)for(let qx=Math.floor((p.pos.x-rb)/C4);qx<=Math.floor((p.pos.x+rb)/C4);qx++){yield;for(let qz=Math.floor((p.pos.z-rb)/C4);qz<=Math.floor((p.pos.z+rb)/C4);qz++){
     const k=qx*100003+qz;if(seen.has(k))continue;
     const d=Math.hypot(qx*C4+C4/2-p.pos.x,qz*C4+C4/2-p.pos.z);if(d>rb+C4||d<ra-C4)continue;seen.add(k);
+    {const bi=biomeOfPlot(qx*4+2,qz*4+2);if(bi!==BIO_GRASS)farBox(SG,qx*C4,G+0.31,qz*C4,qx*C4+C4,G+0.42,qz*C4+C4,FAR_BIO[bi].g);}   // (a biome's ground under the fields)
     for(let i=0;i<4;i++)for(let j=0;j<4;j++){const px=qx*4+i,pz=qz*4+j,X0=px*CELL,Z0=pz*CELL,sc=farScorched(X0+CELL/2,Z0+CELL/2);
       if(seaPlot(px,pz)){farSea(SG,px,pz,1);continue;}
       const ty=setType(px,pz);if(!ty){if(sc)farBox(SG,X0,G+0.45,Z0,X0+CELL,G+0.6,Z0+CELL,FAR_SCORCH);else if(turbineAt(px,pz))farTurbine(SB,px,pz,2.6);if(realmOf(px,pz)==='plains'){farPonds(SG,px,pz,16,false);farWoods(SG,px,pz,32,false);if(!sc)yield* farCountry(SB,SG,px,pz,2);}continue;}

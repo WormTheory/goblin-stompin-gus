@@ -2,7 +2,7 @@
 const fs=require('fs');
 let hdr=fs.readFileSync('stairs.js','utf8').split('\n');
 const n=hdr.findIndex(l=>l.startsWith('eval(src);'));
-hdr=hdr.slice(0,n).join('\n').replace(/window\.__t=\{/,'window.__t={G0:G,venues,damageCar,carsNear,TRAIN_BOXES,BOATS,boatVenue,boatLane,boatAt,lanePt,mooredBoats,plotType,seaPlot,oceanDepth,coastType,MOORS,CS,get scoreNow(){return score},get playTime(){return playTime},inpOf:()=>0,');
+hdr=hdr.slice(0,n).join('\n').replace('class V3{','class V3{length(){return Math.hypot(this.x,this.y,this.z)}').replace('class Q{','class Q{setFromUnitVectors(a,b){let r=a.x*b.x+a.y*b.y+a.z*b.z+1;let x,y,z;if(r<1e-6){r=0;if(Math.abs(a.x)>Math.abs(a.z)){x=-a.y;y=a.x;z=0}else{x=0;y=-a.z;z=a.y}}else{x=a.y*b.z-a.z*b.y;y=a.z*b.x-a.x*b.z;z=a.x*b.y-a.y*b.x}const l=Math.hypot(x,y,z,r)||1;this.x=x/l;this.y=y/l;this.z=z/l;this.w=r/l;return this}').replace(/window\.__t=\{/,'window.__t={G0:G,venues,damageCar,carsNear,TRAIN_BOXES,BOATS,boatVenue,boatLane,boatAt,lanePt,mooredBoats,plotType,seaPlot,oceanDepth,coastType,MOORS,CS,get scoreNow(){return score},get playTime(){return playTime},inpOf:()=>0,');
 eval(hdr+`
 eval(src);const T=window.__t,G0=T.G0;let now=1000;
 const [A]=T.players;for(const f of els.play.L.click)f();pads.length=0;A.hp=9999;

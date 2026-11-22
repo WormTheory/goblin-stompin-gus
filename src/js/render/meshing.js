@@ -262,6 +262,9 @@ function buildChunk(cx,cz){
   // the light from lamps and neon round about (none, and nothing to do, with Block lighting off or nothing lit in reach)
   const BL=BL_ON,lit=BL&&blkFill(cx,cz,yLo,yTop);
   // (a column of a building whose lights are out, lights-out.js: asked once a column, only where something glows)
+  // (the biome's tint on grass and leaves, world/climate.js: asked once a column, g 0 grass, 1 leaves; 1,1,1 in grassland)
+  const tnF=new Uint8Array(A2*2),tnC=new Float32Array(A2*6),tint=(lx,lz,g)=>{const i=(lz*CS+lx)*2+g;
+    if(!tnF[i]){tnF[i]=1;const T=bioTint(x0+lx,z0+lz,g);tnC[i*3]=T[0];tnC[i*3+1]=T[1];tnC[i*3+2]=T[2];}return i*3;};
   const dkC=BL_DARK.size?new Int8Array(A2).fill(-1):null,darkCol=(lx,lz)=>{const i=lz*CS+lx;if(dkC[i]<0)dkC[i]=bldgDarkAt(x0+lx,z0+lz)?1:0;return dkC[i]===1;};
   for(let y=yLo;y<=yTop;y++){
     const midY=y>=1&&y<H-1;
@@ -272,7 +275,7 @@ function buildChunk(cx,cz){
     if(info.ramp){emitRamp(out,mx0+lx,y,mz0+lz,info);continue;}
     if(info.hide)continue;
     if(info.thin){emitFence(out,mx0+lx,y,mz0+lz,b,info,at(lx-1,y,lz),at(lx+1,y,lz),at(lx,y,lz-1),at(lx,y,lz+1),at(lx,y+1,lz),tops[lz*CS+lx]===y);continue;}
-    const skyTop=tops[lz*CS+lx]===y;
+    const skyTop=tops[lz*CS+lx]===y,tg=b===GRASS?0:b===LEAVES||b===PINE?1:-1,ti=tg<0?-1:tint(lx,lz,tg);
     const waterTop=liquid&&at(lx,y+1,lz)!==WATER;
     // (not on the chunk's edge, nor the world's top or bottom: every block asked about is right here in the array)
     const inner=midY&&lx>0&&lx<CS-1&&lz>0&&lz<CS-1,tiles=info.tiles;
@@ -305,7 +308,10 @@ function buildChunk(cx,cz){
           } else if(lit){Bv[bo++]=BL_R[wi]*17;Bv[bo++]=BL_G[wi]*17;Bv[bo++]=BL_B[wi]*17;}
           else if(BL){Bv[bo++]=0;Bv[bo++]=0;Bv[bo++]=0;}
         }
-        C[co++]=s;C[co++]=s;C[co++]=s;K[ko++]=sky;
+        if(ti<0||F.sel===1&&!tg){C[co++]=s;C[co++]=s;C[co++]=s;}
+        else if(tg||F.dy1){C[co++]=s*tnC[ti];C[co++]=s*tnC[ti+1];C[co++]=s*tnC[ti+2];}
+        else{C[co++]=s*(1+tnC[ti])/2;C[co++]=s*(1+tnC[ti+1])/2;C[co++]=s*(1+tnC[ti+2])/2;}   // (a grass block's side: its green edge, half)
+        K[ko++]=sky;
       }
       out.p.length=po;out.u.length=uo;out.c.length=co;out.k.length=ko;if(BL)out.b.length=bo;
       const I=out.i.room(6);let io=out.i.length;I[io++]=n;I[io++]=n+1;I[io++]=n+2;I[io++]=n+2;I[io++]=n+1;I[io++]=n+3;out.i.length=io;

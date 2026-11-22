@@ -13,6 +13,14 @@
 - This makes a new world, so a saved city starts afresh.
 - The World Generator can show the climate over the land, as temperature or moisture: the groundwork for biomes. It doesn't change the game's world yet.
 
+### Biomes
+
+- The wilds between towns now have a climate, and with it twelve biomes: grassland, temperate forest, taiga, tundra, ice fields, desert, badlands, scrubland, savanna, rainforest, swamp and moor. Each region of them is thousands of blocks across, and you always start in grassland.
+- Each biome has its own ground (snow, sand over sandstone, red sand over banded clay, mud), its own trees (pines, acacias, jungle giants, drooping swamp trees, cactus and dead trees), its own ponds (frozen in the ice fields, muddy and reedy in the swamp) and its own shade of grass and leaves, in towns too.
+- Biomes are seen from afar, and shown on the map and the minimap.
+- The World Generator can show the biomes, and has Climate sliders: warmer or colder, wetter or drier, how big the climate regions are and how strongly it gets colder one way and hotter the other.
+- This makes a new world, so a saved city starts afresh.
+
 ### Saves
 
 - Your game now carries on just as you left it: your score, goblins slain and everything in This rampage, the time of day, the day and season, and the weather.

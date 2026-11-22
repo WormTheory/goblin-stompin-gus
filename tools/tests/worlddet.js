@@ -13,7 +13,7 @@ if(WS===undefined){
   process.exit(0);
 }
 let src0=fs.readFileSync('g.js','utf8');
-const NAMES=['genChunk','seed','CS','H','CELL','nzNoise','nzFbm','nzRidged','nzWarp','nzSmooth','nzClamp01','climateAt','biomeAt','realmOf','WORLD_CFG','worldCfgSent','saveObj','seaV','settlementAt'];
+const NAMES=['genChunk','seed','CS','H','CELL','nzNoise','nzFbm','nzRidged','nzWarp','nzSmooth','nzClamp01','climateAt','biomeAt','realmOf','WORLD_CFG','worldCfgSent','saveObj','seaV','settlementAt','BIOMES','biomeOfPlot','bioPick','climAt','PLAINS_OPEN','plainsTree','TREE_K'];
 let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={};'+NAMES.map(n=>`try{if(typeof ${n}!=='undefined')window.__t.${n}=${n};}catch(e){}`).join('')+'\n})();');
 const deep=()=>new Proxy(function(){}, {get:(t,p)=>p===Symbol.toPrimitive?()=>0:(p==='length'?0:deep()),apply:()=>deep(),construct:()=>deep()});
 class Q{constructor(){this.x=0;this.y=0;this.z=0;this.w=1}set(x,y,z,w){this.x=x;this.y=y;this.z=z;this.w=w;return this}setFromAxisAngle(a,t){const s=Math.sin(t/2);this.x=a.x*s;this.y=a.y*s;this.z=a.z*s;this.w=Math.cos(t/2);return this}copy(q){this.x=q.x;this.y=q.y;this.z=q.z;this.w=q.w;return this}}
@@ -75,8 +75,21 @@ for(const k in fns){const A=P.map(fns[k]),B=P.map(fns[k]);let mn=1e9,mx=-1e9,s=0
   console.log(`nzNoise out of -1..1: ${a}, not 0 on lattice points: ${b}`);}
 {const t=[0,0.5,1].map(v=>T.nzSmooth(0,1,v)).join(','),c=[-1,0.3,2].map(T.nzClamp01).join(',');console.log(`nzSmooth 0,.5,1 -> ${t}; nzClamp01 -1,.3,2 -> ${c}`);}
 // arithmetic only
-const srcOf=['nzNoise','nzFbm','nzRidged','nzWarp','nzSmooth','climateAt'].map(n=>String(T[n])).join('\n')+String(src0.match(/function nzGrad[^\n]*/)||'');
+const srcOf=['nzNoise','nzFbm','nzRidged','nzWarp','nzSmooth','climateAt','climAt','bioPick','biomeAt'].map(n=>String(T[n])).join('\n')+String(src0.match(/function nzGrad[^\n]*/)||'');
 const banned=srcOf.match(/Math\.(sin|cos|tan|tanh|exp|log|pow|random|sqrt|atan2?|hypot|cbrt)\b/g);
 console.log('noise uses only arithmetic: '+(banned?'NO ('+[...new Set(banned)].join(' ')+')':'yes'));
 // the stubs and settings
 console.log(`biomeAt(0,0) ${T.biomeAt(0,0)}; biomeOf gone: ${!/\bbiomeOf\b/.test(src0)}; WORLD_CFG ${JSON.stringify(T.WORLD_CFG)}; cfg in a default save: ${JSON.stringify(T.saveObj().cfg)}`);
+// the biomes: their shares of the land over a square 60,000 blocks a side (a plot sampled every 500 blocks), the start's
+// (always grassland within START_R0), and a chunk of open plains in each one found: its hash, what lies on top, its trees
+{const N=120,cnt=new Array(T.BIOMES.length).fill(0),first={};let land=0,startBad=0;
+  for(let j=0;j<N;j++)for(let i=0;i<N;i++){const x=(i-N/2)*500,z=(j-N/2)*500,px=Math.floor(x/T.CELL),pz=Math.floor(z/T.CELL);
+    if(T.realmOf(px,pz)==='sea')continue;land++;const b=T.biomeOfPlot(px,pz);cnt[b]++;
+    if(first[b]===undefined&&T.realmOf(px,pz)==='plains'&&T.PLAINS_OPEN(px,pz))first[b]=[px,pz];}
+  for(let k=0;k<400;k++){const x=((k%20)-10)*280,z=(Math.floor(k/20)-10)*280;if(T.biomeAt(x,z)!==0)startBad++;}
+  console.log('biome shares of the land: '+T.BIOMES.map((B,i)=>B.k+' '+(100*cnt[i]/land).toFixed(1)+'%').join(', '));
+  console.log('start not grassland: '+startBad+'/400');
+  for(const b in first){const [px,pz]=first[b],cx=Math.floor(px*T.CELL/T.CS),cz=Math.floor(pz*T.CELL/T.CS),a=T.genChunk(cx,cz),top={};let tr=0;
+    for(let lz=0;lz<T.CS;lz++)for(let lx=0;lx<T.CS;lx++){let y=T.H-1;while(y>0&&!a[lx+lz*T.CS+y*T.CS*T.CS])y--;const v=a[lx+lz*T.CS+y*T.CS*T.CS];top[v]=(top[v]||0)+1;}
+    for(let z=cz*T.CS;z<cz*T.CS+T.CS;z++)for(let x=cx*T.CS;x<cx*T.CS+T.CS;x++){const t=T.plainsTree(x,z);if(t)tr++;}
+    console.log(`  ${T.BIOMES[b].k} at chunk ${cx},${cz}: blocks ${hashArr(a)} tops by block ${JSON.stringify(top)} trees ${tr}`);}}

@@ -645,10 +645,12 @@ function routeRampCol(a,lx,lz,x,z,n,r){
   put(y,rampId(rise,kind));if(y-1>G)put(y-1,CONCRETE);
   return true;
 }
+// how far the ground's layers wander up and down at column (x,z), about -1.8..1.8 (seeded noise, the same for earthAt and earthCol)
+const earthW=(x,z)=>nzFbm(x,z,45,2,4421)*3;
 // which layer of the ground a block is in: the boundaries wander up and down so the strata look natural
 function earthAt(x,y,z){
   if(y===0)return BEDROCK;
-  const w=Math.sin(x*0.071)+Math.sin(z*0.093+1.3)+Math.sin((x+z)*0.031+2.1),d=G-1-y;
+  const w=earthW(x,z),d=G-1-y;
   if(y<=2&&hash2(x*7+y,z*5+1)<(y===1?0.6:0.25))return BEDROCK;
   if(d<3+w*0.4)return DIRT;
   if(d<8+w*1.2)return CLAY;
@@ -659,7 +661,7 @@ function earthAt(x,y,z){
 // the whole column of it, in a chunk's array from offset o (the same as asking earthAt of each height, but the part that wanders
 // only depends on where the column is, and every chunk made goes through this 256 x 44 times)
 function earthCol(a,o,x,z){
-  const w=Math.sin(x*0.071)+Math.sin(z*0.093+1.3)+Math.sin((x+z)*0.031+2.1),A=CS*CS,g1=3+w*0.4,g2=8+w*1.2,g3=10+w*1.5,g4=24+w*2.5;
+  const w=earthW(x,z),A=CS*CS,g1=3+w*0.4,g2=8+w*1.2,g3=10+w*1.5,g4=24+w*2.5;
   a[o]=BEDROCK;
   for(let y=1;y<G;y++){
     const d=G-1-y;let v;

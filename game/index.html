@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:58bb4f89d28500f6b91f5096d95132246b6ce73bbbe170c15c0112905af1181d -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:637974be9c47be92457ad2fb246d1d788dcd8943ef0805daf9e236b10c242aec -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1613,6 +1613,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <details class="pn-up pn-fold pn-new" id="version-0-5" open><summary tabindex="0"><h2>Version 0.5</h2><span class="pn-tog" aria-hidden="true"></span></summary>
 <h3>The world</h3>
 <ul><li>The world is made of continents and oceans now, about half land and half sea. Before, one side of the world was all ocean and the other all land. Now there are big continents and smaller ones, seas and oceans between them, island chains off their coasts and the odd group of islands far out at sea.</li><li>The sea is shallow over the continental shelf near the coast and deep out in the open ocean.</li><li>Continents have bold, solid coastlines, with big peninsulas, bays and gulfs. Island chains off the coasts are made of whole, rounded islands, with the sea bed rising smoothly round each one.</li><li>You now always start on a continent, never on an island off one.</li><li>The World Generator zooms out more than ten times further, far enough to see whole continents and oceans. Far out it shows just the land, the sea and the capital; settlements, bases and rivers come back as you zoom in, and markers that would pile on top of each other are thinned out.</li><li>The World Generator has Land &amp; sea sliders: how much land there is, how big the continents are, how rough their coastlines, how many ocean channels cut through them and how many island chains lie offshore. The settings go in the page's address, so a world can be shared as you've shaped it. Island size makes the islands in a chain bigger and fewer, with fewer tiny specks between them. The game's own worlds are unchanged.</li><li>This makes a new world, so a saved city starts afresh.</li><li>The World Generator can show the climate over the land, as temperature or moisture: the groundwork for biomes. It doesn't change the game's world yet.</li></ul>
+<h3>Biomes</h3>
+<ul><li>The wilds between towns now have a climate, and with it twelve biomes: grassland, temperate forest, taiga, tundra, ice fields, desert, badlands, scrubland, savanna, rainforest, swamp and moor. Each region of them is thousands of blocks across, and you always start in grassland.</li><li>Each biome has its own ground (snow, sand over sandstone, red sand over banded clay, mud), its own trees (pines, acacias, jungle giants, drooping swamp trees, cactus and dead trees), its own ponds (frozen in the ice fields, muddy and reedy in the swamp) and its own shade of grass and leaves, in towns too.</li><li>Biomes are seen from afar, and shown on the map and the minimap.</li><li>The World Generator can show the biomes, and has Climate sliders: warmer or colder, wetter or drier, how big the climate regions are and how strongly it gets colder one way and hotter the other.</li><li>This makes a new world, so a saved city starts afresh.</li></ul>
 <h3>Saves</h3>
 <ul><li>Your game now carries on just as you left it: your score, goblins slain and everything in This rampage, the time of day, the day and season, and the weather.</li><li>Each player's health and stamina are kept too, and as a goblin your weapons, ammo, grenades and landmines. Left dead, you come back at full health. Player two gets theirs back on joining.</li><li>Left in a car, tank, helicopter, plane, hot-air balloon or Mobile Gear, you're back in it, in the same seat, with the damage it had. Anything that was flying comes back on the ground below. Trains, boats and ships can't be brought back, so you start beside where you were.</li><li>New city starts all of it afresh.</li></ul>
 <h3>Playing online</h3>
@@ -2337,8 +2339,10 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='89849fbe00a6';
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v98'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
+const GAME_VER='0.5',GAME_BUILD='ba7f67a2f6ce';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v99'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
+// (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
+const WORLD_GEN=1;
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -2400,7 +2404,10 @@ const AIR=0,GRASS=1,DIRT=2,STONE=3,LOG=4,LEAVES=5,SAND=6,PLANKS=7,GLASS=8,WATER=
   // courts and cemeteries, church glass, a bank's gold
   COURT=133,COURT_L=134,CHAINLINK=135,GRAVE=136,GRAVEX=137,STAINED=138,GOLD=139,
   STAIR0=140,   // stairs: 3 materials (concrete, steel, wood) x 4 directions, up to 151
-  RAILPOST=152;   // a slim steel post (the bars between posts are drawn as fixtures)
+  RAILPOST=152,   // a slim steel post (the bars between posts are drawn as fixtures)
+  // the biomes' ground and plants (world/climate.js): snow, sandstone, the badlands' red sand and banded clay, mud, cactus,
+  // pine needles (evergreen: the seasons leave them be) and reeds
+  SNOW=153,SANDSTONE=154,RED_SAND=155,TERRA=156,TERRA2=157,MUD=158,CACTUS=159,PINE=160,REEDS=161;
 // ramps: 4 directions (the way it rises: +x, -x, +z, -z) x 3 shapes (a full 0->1 slope, or the low and high halves
 // of a gentle slope that takes two blocks to climb one). rampId(dir,kind)
 const stairId=(dir,mat)=>STAIR0+(mat||0)*4+dir,rampId=(dir,kind)=>RAMP0+dir*3+kind,rampLineId=(dir,kind,t)=>RAMPL0+t*12+dir*3+kind;
@@ -2505,11 +2512,20 @@ BLOCK[GRAVE]    ={tiles:[92,92,92],solid:true,transparent:true,brittle:true,thin
 BLOCK[GRAVEX]   ={tiles:[93,93,93],solid:true,transparent:true,brittle:true,thin:0.09};
 BLOCK[STAINED]  ={tiles:[94,94,94],solid:true,transparent:true,glow:true};
 BLOCK[GOLD]     ={tiles:[95,95,95],solid:true,glow:true};
+BLOCK[SNOW]     ={tiles:[96,96,96],solid:true};
+BLOCK[SANDSTONE]={tiles:[98,98,97],solid:true};
+BLOCK[RED_SAND] ={tiles:[99,99,99],solid:true};
+BLOCK[TERRA]    ={tiles:[100,100,100],solid:true};
+BLOCK[TERRA2]   ={tiles:[101,101,101],solid:true};
+BLOCK[MUD]      ={tiles:[102,102,102],solid:true};
+BLOCK[CACTUS]   ={tiles:[104,104,103],solid:true};
+BLOCK[PINE]     ={tiles:[105,105,105],solid:true,transparent:true};
+BLOCK[REEDS]    ={tiles:[106,2,106],solid:true,transparent:true};
 // height of a ramp's surface above its block's base at (fx,fz) within the block (0..1 each)
 function rampH(b,fx,fz){const R=BLOCK[b].ramp,t=R.dir===0?fx:R.dir===1?1-fx:R.dir===2?fz:1-fz;return R.h0+(R.h1-R.h0)*Math.max(0,Math.min(1,t));}
 
 // ---------- Texture atlas ----------
-const T=16,AC=8,AR=12;
+const T=16,AC=8,AR=14;
 const atlas=document.createElement('canvas');atlas.width=T*AC;atlas.height=T*AR;
 const actx=atlas.getContext('2d');
 function mulberry(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}}
@@ -2625,6 +2641,19 @@ paint(80,(x,y,r)=>jit([214,182,48],r,8));paint(81,(x,y,r)=>jit([226,226,220],r,6
  // a board fence: upright planks, close together
  paint(86,(x,y,r)=>{if(x%5===0)return y<1?[0,0,0,0]:jit([104,76,46],r,6);return y===0&&x%5===2?[0,0,0,0]:jit([150,112,70],r,10);});}
 paint(75,(x,y,r)=>{const e=x<2||y<2||x>13||y>13;return e?[214,96,10]:jit([255,170,70],r,14);});
+// the biomes' ground and plants (world/climate.js): snow, sandstone (its side in layers), red sand, the badlands' two
+// bands of clay, mud, cactus (ribbed side, a flower-dotted top), pine needles and reeds
+paint(96,(x,y,r)=>{const v=r();return v<.08?[214,224,232]:jit([240,246,250],r,6);});
+paint(97,(x,y,r)=>{const band=y%5===4;return jit(band?[196,170,116]:y%5===0?[226,206,150]:[214,192,136],r,8);});
+paint(98,(x,y,r)=>{const v=r();return v<.1?[200,178,124]:jit([218,198,142],r,8);});
+paint(99,(x,y,r)=>{const v=r();return v<.1?[168,84,46]:v>.92?[214,128,82]:jit([192,104,60],r,12);});
+paint(100,(x,y,r)=>jit(y%8<5?[178,92,58]:[150,74,48],r,8));
+paint(101,(x,y,r)=>jit(y%8<3?[214,170,118]:[196,140,96],r,8));
+paint(102,(x,y,r)=>{const v=r();return v<.15?[58,46,32]:v>.9?[104,84,58]:jit([80,64,44],r,10);});
+paint(103,(x,y,r)=>{const rib=x%4===0;if(rib&&y%3===1)return[226,220,180];return jit(rib?[38,98,44]:[60,130,62],r,10);});
+paint(104,(x,y,r)=>{const d=Math.max(Math.abs(x-7.5),Math.abs(y-7.5));if(d<1.5)return[236,96,130];return jit(d>5.5?[46,108,50]:[70,140,70],r,10);});
+paint(105,(x,y,r)=>{const v=r();if(v<.14)return[0,0,0,0];return jit(v>.86?[52,104,72]:[30,74,50],r,14);});
+paint(106,(x,y,r)=>{const stalk=x%3===0&&r()>.1;if(!stalk)return[0,0,0,0];return y<3?jit([118,86,48],r,10):jit([110,140,60],r,16);});
 const tex=new THREE.CanvasTexture(atlas);
 tex.magFilter=THREE.NearestFilter;tex.minFilter=THREE.NearestFilter;tex.generateMipmaps=false;
 
@@ -2892,20 +2921,97 @@ function nzWarp(x,z,sp,amp,salt){const dx=nzFbm(x,z,sp,2,salt),dz=nzFbm(x,z,sp,2
 // (curves in place of tanh and the like: a clamp to 0..1, and smoothstep from e0 to e1)
 const nzClamp01=t=>t<0?0:t>1?1:t;
 function nzSmooth(e0,e1,t){t=nzClamp01((t-e0)/(e1-e0));return t*t*(3-2*t);}
-// ---- climate: temperature and moisture, the fields the biomes are to be chosen from (docs/biomes-plan.md, section 4).
-// Only the World Generator's Climate layer reads them so far: the game's world doesn't change by them yet ----
-const CLIM={t:0,m:0};
-// at block (x,z): t from cold 0 to hot 1, m from arid 0 to soaked 1. Broad, domain-warped fBm (gradient noise, so the
-// same in every browser), its regions some 6 to 15 thousand blocks across. The answer goes in CLIM
+// ---- climate and biomes (docs/biomes-plan.md, sections 4, 6 and 7): temperature and moisture over the world, and from
+// them the biome of every column out in the wilds. All from the seed and the place (gradient noise, so every browser works
+// out the same), lazily, and cheaply: the slow part is worked out once per corner of a lattice CL_SP blocks apart and
+// blended between. The world's settings (WORLD_CFG's temp, rain, czone and lat) shift and stretch it ----
+const CLIM={t:0,m:0},CL_SP=64,CL_C=new Map();let clSeed=null;
+// (a slow north-south swing, hot toward +z and cold toward -z, LAT_P blocks from the start to the hottest, 0 at the start;
+// WORLD_CFG.lat 1 is the default, weak, 0 off. A triangle wave, so no sine)
+const LAT_P=60000,LAT_K=0.12;
+function latBand(z){let u=z/LAT_P;u-=4*Math.floor((u+1)/4);return u<1?u:2-u;}
+// (the start's region is always temperate and middling wet: grassland, as the world always was, within START_R blocks)
+const START_R0=3000,START_R1=8000;
+// at block (x,z): t from cold 0 to hot 1, m from arid 0 to soaked 1, before the lattice (the World Generator's Climate
+// layer asks this directly). Broad, domain-warped fBm, its regions some 6 to 15 thousand blocks across. Into CLIM
 function climateAt(x,z){
-  const w=nzWarp(x,z,14000,3000,2101),wx=w[0],wz=w[1];
-  CLIM.t=nzClamp01(0.5+0.85*nzFbm(wx,wz,18000,3,2203));
-  CLIM.m=nzClamp01(0.5+0.85*nzFbm(wx+50000,wz-30000,13000,3,2311));
+  const s=WORLD_CFG.czone,w=nzWarp(x/s,z/s,14000,3000,2101),wx=w[0],wz=w[1];
+  let t=0.5+1.25*nzFbm(wx,wz,18000,3,2203)+LAT_K*WORLD_CFG.lat*latBand(z)+WORLD_CFG.temp;
+  let m=0.45+1.3*nzFbm(wx+50000,wz-30000,13000,3,2311)+WORLD_CFG.rain;
+  // (wetter within reach of the sea: the shore's air off the water)
+  const v=seaV(x/CELL,z/CELL);m+=0.14*nzSmooth(SEA_T-0.32,SEA_T,v);
+  const d2=x*x+z*z,k=nzSmooth(START_R0*START_R0,START_R1*START_R1,d2);
+  t=0.5+(t-0.5)*k;m=0.52+(m-0.52)*k;
+  CLIM.t=nzClamp01(t);CLIM.m=nzClamp01(m);
   return CLIM;
 }
-// the biome at block (x,z): grassland everywhere for now. (Not realmOf, world/coast.js, which says whether a plot is sea,
-// city or plains)
-const biomeAt=(x,z)=>'grassland';
+// ---- the biomes: what each one is, as data (everything about one is here, so a new one is a new record). top: the block
+// on the surface, sub the few under it (null: as the plains); grass and leaf: tints multiplying the grass and leaves'
+// colours (each no more than 1.8: a vertex colour of 1.5 or more glows, and the brightest face's shade is 0.8); map: its
+// colour on the maps; trees: species and how likely each, sc the scattered trees' odds and dn how much more where the
+// woods are thick, wood how much thicker the woods are here (-1 none); pond: how much likelier ponds are (water, or ice
+// in ice fields); bush, flower, rock: odds of a bush, a flower, a boulder on a column ----
+const BIOMES=[
+  {k:'grassland',n:'Grassland',map:'#6c9448',grass:[1,1,1],leaf:[1,1,1],trees:[['oak',1]],sc:0.006,dn:0.11,wood:-0.25,pond:0,bush:0.01,flower:0.045,rock:0.0025},
+  {k:'forest',n:'Temperate forest',map:'#4f7a38',grass:[0.74,0.85,0.85],leaf:[0.85,0.95,0.85],trees:[['oak',0.75],['big',0.25]],sc:0.02,dn:0.17,wood:0.5,pond:0.1,bush:0.04,flower:0.02,rock:0.002},
+  {k:'taiga',n:'Taiga',map:'#4a6e58',grass:[0.74,0.82,1.5],leaf:[0.8,0.9,1.2],trees:[['pine',0.9],['oak',0.1]],sc:0.012,dn:0.15,wood:0.35,pond:0.15,bush:0.015,flower:0.006,rock:0.004},
+  {k:'tundra',n:'Tundra',map:'#8e9a84',grass:[1.37,0.94,1.8],leaf:[1.2,1,1.4],trees:[['pine',0.4],['dead',0.6]],sc:0.0015,dn:0.01,wood:-0.6,pond:0.2,bush:0.02,flower:0.004,rock:0.012,gravel:0.08},
+  {k:'ice',n:'Ice fields',map:'#e4ecf0',top:SNOW,sub:SNOW,grass:[1,1,1],leaf:[1,1,1],trees:[],sc:0,dn:0,wood:-2,pond:0.25,bush:0,flower:0,rock:0.004,ice:true},
+  {k:'desert',n:'Desert',map:'#d8c48a',top:SAND,sub:SANDSTONE,grass:[1.8,1.0,1.3],leaf:[1.35,1.0,1.0],trees:[['cactus',0.75],['dead',0.25]],sc:0.004,dn:0,wood:-2,pond:-1,bush:0,flower:0,rock:0.002},
+  {k:'badlands',n:'Badlands',map:'#c0703f',top:RED_SAND,sub:TERRA,grass:[1.8,0.95,1.2],leaf:[1.35,1.0,1.0],trees:[['dead',0.8],['cactus',0.2]],sc:0.002,dn:0,wood:-2,pond:-1,bush:0,flower:0,rock:0.006},
+  {k:'scrub',n:'Scrubland',map:'#9a9a5a',grass:[1.42,0.91,1.32],leaf:[1.3,0.95,1.1],trees:[['oak',0.4],['dead',0.3],['acacia',0.3]],sc:0.006,dn:0.03,wood:-0.2,pond:-0.3,bush:0.05,flower:0.008,rock:0.004,gravel:0.04},
+  {k:'savanna',n:'Savanna',map:'#b4a650',grass:[1.8,1.0,1.3],leaf:[1.4,1.05,1.0],trees:[['acacia',1]],sc:0.004,dn:0.02,wood:-0.35,pond:0,bush:0.025,flower:0.01,rock:0.002},
+  {k:'rainforest',n:'Rainforest',map:'#2f6a28',grass:[0.58,0.85,0.75],leaf:[0.7,0.95,0.8],trees:[['jungle',0.6],['oak',0.4]],sc:0.06,dn:0.2,wood:0.7,pond:0.15,bush:0.08,flower:0.03,rock:0.001},
+  {k:'swamp',n:'Swamp',map:'#55704a',sub:MUD,grass:[0.84,0.69,1.04],leaf:[0.85,0.8,1.0],trees:[['swamp',1]],sc:0.012,dn:0.1,wood:0.1,pond:0.6,bush:0.03,flower:0.01,rock:0.0005,reeds:0.25},
+  {k:'moor',n:'Moor',map:'#86707a',grass:[1.26,0.6,1.8],leaf:[1.15,0.8,1.2],trees:[['oak',0.3],['dead',0.7]],sc:0.0015,dn:0.01,wood:-0.6,pond:0.2,bush:0.03,flower:0.03,rock:0.014}
+];
+const BIO_I={};BIOMES.forEach((B,i)=>{BIO_I[B.k]=i;B.i=i;});
+const BIO_GRASS=0;
+// the table: temperature rows (frozen, cold, temperate, warm, hot) by moisture columns (arid, dry, moderate, wet, soaked)
+const BIO_T=[0.2,0.36,0.64,0.8],BIO_M=[0.22,0.4,0.62,0.8];
+const BIO_TAB=[
+  ['ice','ice','tundra','taiga','taiga'],
+  ['tundra','tundra','moor','taiga','swamp'],
+  ['grassland','grassland','grassland','forest','swamp'],
+  ['desert','scrub','savanna','forest','rainforest'],
+  ['desert','desert','savanna','rainforest','rainforest']].map(r=>r.map(k=>BIO_I[k]));
+const bioBand=(v,E)=>v<E[0]?0:v<E[1]?1:v<E[2]?2:v<E[3]?3:4;
+// the biome a climate (t, m) gives, at block (x,z) (badlands are hot dry ground where a patch noise says so)
+function bioPick(t,m,x,z){let b=BIO_TAB[bioBand(t,BIO_T)][bioBand(m,BIO_M)];
+  if(b===BIO_I.desert&&t>0.84&&nzNoise(x/2600,z/2600,2411)>0.12)b=BIO_I.badlands;return b;}
+// (one corner of the lattice: its climate, its biome, and the smooth fields blended between corners: grass and leaf tints,
+// how much likelier ponds are, how much thicker the woods)
+function clCorner(ix,iz){
+  if(clSeed!==seed){clSeed=seed;CL_C.clear();}
+  const k=ix*100003+iz;let E=CL_C.get(k);if(E)return E;
+  const x=ix*CL_SP,z=iz*CL_SP,c=climateAt(x,z),B=BIOMES[bioPick(c.t,c.m,x,z)];
+  E={t:c.t,m:c.m,b:B.i,gr:B.grass,lf:B.leaf,pond:B.pond,wood:B.wood};
+  if(CL_C.size>200000)CL_C.clear();CL_C.set(k,E);return E;
+}
+// the climate at block (x,z), blended from the lattice. Into CLIM, with CLIM.u, CLIM.v and the four corners in CL_Q for
+// the blended fields
+const CL_Q=[null,null,null,null];
+function climAt(x,z){
+  const fx=x/CL_SP,fz=z/CL_SP,ix=Math.floor(fx),iz=Math.floor(fz),u=fx-ix,v=fz-iz;
+  const a=CL_Q[0]=clCorner(ix,iz),b=CL_Q[1]=clCorner(ix+1,iz),c=CL_Q[2]=clCorner(ix,iz+1),d=CL_Q[3]=clCorner(ix+1,iz+1);
+  CLIM.u=u;CLIM.v=v;
+  CLIM.t=(a.t*(1-u)+b.t*u)*(1-v)+(c.t*(1-u)+d.t*u)*v;CLIM.m=(a.m*(1-u)+b.m*u)*(1-v)+(c.m*(1-u)+d.m*u)*v;
+  return CLIM;
+}
+// (a blended field of the corners just asked, by name)
+function clBlend(f){const u=CLIM.u,v=CLIM.v,Q=CL_Q;return (Q[0][f]*(1-u)+Q[1][f]*u)*(1-v)+(Q[2][f]*(1-u)+Q[3][f]*u)*v;}
+// the biome of the column at block (x,z): the table, from the blended climate dithered a little per column, so the edge
+// between two biomes is ragged rather than a line. (Every column has one: towns are in a biome too, for their grass)
+function biomeAt(x,z){
+  const c=climAt(x,z),j=hash2(x*7+2203,z*13+2207)-0.5,j2=hash2(x*11+2213,z*5+2221)-0.5;
+  return bioPick(c.t+j*0.03,c.m+j2*0.03,x,z);
+}
+// the biome a plot's mostly in (its middle, no dithering): for the maps and the far view
+const biomeOfPlot=(px,pz)=>{const x=px*CELL+16,z=pz*CELL+16,c=climAt(x,z);return bioPick(c.t,c.m,x,z);};
+// the grass (g 0) or leaf (g 1) tint at block (x,z), blended between the lattice's corners: into BIO_TINT
+const BIO_TINT=[1,1,1];
+function bioTint(x,z,g){climAt(x,z);const u=CLIM.u,v=CLIM.v,Q=CL_Q,f=g?'lf':'gr';
+  for(let i=0;i<3;i++)BIO_TINT[i]=(Q[0][f][i]*(1-u)+Q[1][f][i]*u)*(1-v)+(Q[2][f][i]*(1-u)+Q[3][f][i]*u)*v;return BIO_TINT;}
 // ---- the sea: here and there across the world a coastline, the sea beyond it. Decided from a smooth noise over the
 // map (and a finer one for the coast's wiggles), so it can turn up anywhere -- except right on top of where you start ----
 const SEA_T=0.34,seaPlotC=new Map();
@@ -2916,16 +3022,16 @@ const SEA_T=0.34,seaPlotC=new Map();
 // off the continents' edges, with the odd group further out. Never right on top of where you start, which is slid along
 // the noise to somewhere well inland with a coast in reach.
 let OCEAN_O=null,seaDeepK=0,seaIsl=false,seaCcSeed=null;const SEA_CC=new Map();
-// (the world's settings, WORLD_CFG: so far the World Generator's Land & sea sliders: more or less land, continent size,
+// (the world's settings, WORLD_CFG: so far the World Generator's Land & sea and Climate sliders: more or less land, continent size,
 // coast roughness, ocean channels and island chains, and Island size (islz). The World Generator sets window.GSG_WORLD
 // (or the older GSG_SEA) before loading the game; the game itself never changes them, so they're the defaults, which leave
 // every sum exactly as it was. A world made with others keeps them in its save (cfg: only what isn't a default, from
 // worldCfgSent), so a guest online builds it with the host's)
-const WORLD_DEF={land:0,size:1,rough:1,chan:1,isles:1,islz:1};
+const WORLD_DEF={land:0,size:1,rough:1,chan:1,isles:1,islz:1,temp:0,rain:0,czone:1,lat:1};   // (temp, rain, czone, lat: the climate's, world/climate.js)
 const WORLD_CFG=Object.assign({},WORLD_DEF);
 // (sets them from o, anything missing or not a number at its default: only before the world's worked out (loading), as
 // what's been worked out already isn't redone)
-function worldCfgSet(o){for(const k in WORLD_DEF)WORLD_CFG[k]=o&&typeof o[k]==='number'&&isFinite(o[k])?o[k]:WORLD_DEF[k];seaCcSeed=null;seaPlotC.clear();plotCache.clear();}
+function worldCfgSet(o){for(const k in WORLD_DEF)WORLD_CFG[k]=o&&typeof o[k]==='number'&&isFinite(o[k])?o[k]:WORLD_DEF[k];seaCcSeed=null;clSeed=null;seaPlotC.clear();plotCache.clear();}
 const worldCfgSent=()=>{let o;for(const k in WORLD_DEF)if(WORLD_CFG[k]!==WORLD_DEF[k])(o=o||{})[k]=WORLD_CFG[k];return o;};
 if(typeof window!=='undefined'&&(window.GSG_WORLD||window.GSG_SEA))worldCfgSet(window.GSG_WORLD||window.GSG_SEA);
 function seaCont(fx,fz){
@@ -5246,7 +5352,12 @@ function plainsH(x,z){
 }
 // the plains' rolling ground before it's flattened toward roads and other blocks (plainsH scales it down there). Below
 // -0.9 it's a pond, so where this isn't, plainsH can't be either: a cheap first test for the far view's ponds
-function plainsRaw(x,z){const n=(Math.sin(x*0.043+1.7)+Math.sin(z*0.051+0.4)+Math.sin((x+z)*0.029+2.3)*0.8+Math.sin((x-z)*0.037+0.9)*0.6)/3.4;return (n+0.3)*4.4;}
+function plainsRaw(x,z){
+  let r=(nzFbm(x,z,110,3,4401)*1.9+0.3)*4.4;climAt(x,z);const p=clBlend('pond');
+  // (the biome's ponds: a wet one lowers the ground into more of them, a dry one lifts the hollows out of them)
+  if(p>0)r-=3.3*p;else if(r<0)r*=1+p;
+  return r;
+}
 // ---- flying sites: the big airport (16 x 8 blocks) and the country airfield (4 x 2). Their ground, laid out in the site's
 // own coordinates (U along x, V along z, from the site's corner), and the buildings on it (airportBuildings,
 // airfieldBuildings: city-plan.js adds the ones that fall on each block). Their planes are in vehicles/airfields.js ----
@@ -7709,13 +7820,22 @@ function joinColumn(col,J,c,a,x,z){
 }
 function plainsColumn(col,x,z,noShore){
   if(!noShore&&nearSea(Math.floor(x/CELL),Math.floor(z/CELL))){const cd=coastD(x,z);if(cd>=0){seaWater(col,x,z,1,cd);return;}if(cd>-22&&natLand(col,x,z,null,cd))return;}
-  const h=plainsH(x,z);
-  if(h<0){col(G-1,SAND);col(G,WATER);return;}
-  for(let y=G;y<G+h;y++)col(y,DIRT);col(G+h,GRASS);
+  const h=plainsH(x,z),B=BIOMES[biomeAt(x,z)];
+  // a pond: still water over sand (over mud in a swamp, frozen over in the ice fields)
+  if(h<0){col(G-1,B.sub===MUD?MUD:SAND);col(G,B.ice?ICE:WATER);return;}
+  // the biome's ground: its top block over a few of its own (the badlands' in bands of clay)
+  const top=B.top||GRASS,sub=B.sub||DIRT;
+  if(B.sub){col(G-2,sub);col(G-1,sub);}
+  for(let y=G;y<G+h;y++)col(y,sub);
+  if(sub===TERRA)for(let y=G-3;y<G+h;y++)col(y,(y+(hash2(x>>3,z>>3)<0.5?1:0))%3?TERRA:TERRA2);
+  col(G+h,top);
+  if(B.gravel&&hash2(x*13+2,z*3+11)<B.gravel*(1+2*nzNoise(x/9,z/9,4431)))col(G+h,GRAVEL);   // (bare patches of stony ground)
+  // (reeds in the mud at a swamp pond's edge)
+  if(B.reeds&&h===0&&hash2(x*5+7,z*13+1)<B.reeds&&plainsRaw(x,z)<0.4){col(G,MUD);col(G+1,REEDS);return;}
   const v=hash2(x*7+3,z*11+5);
-  if(v<0.045)col(G+h+1,FLOWER);
-  else if(v<0.055)col(G+h+1,LEAVES);                        // a bush
-  else if(v>0.9975){col(G+h+1,MOSSSTONE);if(v>0.9992)col(G+h+2,STONE);}   // a boulder
+  if(v<B.flower)col(G+h+1,FLOWER);
+  else if(v<B.flower+B.bush)col(G+h+1,LEAVES);                        // a bush
+  else if(v>1-B.rock){col(G+h+1,MOSSSTONE);if(v>1-B.rock*0.32)col(G+h+2,STONE);}   // a boulder
 }
 function farmColumn(a,col,px,pz,rx,rz,lx,lz,x,z){
   const P=plotInfo(px,pz),F=P.field;
@@ -8736,10 +8856,12 @@ function routeRampCol(a,lx,lz,x,z,n,r){
   put(y,rampId(rise,kind));if(y-1>G)put(y-1,CONCRETE);
   return true;
 }
+// how far the ground's layers wander up and down at column (x,z), about -1.8..1.8 (seeded noise, the same for earthAt and earthCol)
+const earthW=(x,z)=>nzFbm(x,z,45,2,4421)*3;
 // which layer of the ground a block is in: the boundaries wander up and down so the strata look natural
 function earthAt(x,y,z){
   if(y===0)return BEDROCK;
-  const w=Math.sin(x*0.071)+Math.sin(z*0.093+1.3)+Math.sin((x+z)*0.031+2.1),d=G-1-y;
+  const w=earthW(x,z),d=G-1-y;
   if(y<=2&&hash2(x*7+y,z*5+1)<(y===1?0.6:0.25))return BEDROCK;
   if(d<3+w*0.4)return DIRT;
   if(d<8+w*1.2)return CLAY;
@@ -8750,7 +8872,7 @@ function earthAt(x,y,z){
 // the whole column of it, in a chunk's array from offset o (the same as asking earthAt of each height, but the part that wanders
 // only depends on where the column is, and every chunk made goes through this 256 x 44 times)
 function earthCol(a,o,x,z){
-  const w=Math.sin(x*0.071)+Math.sin(z*0.093+1.3)+Math.sin((x+z)*0.031+2.1),A=CS*CS,g1=3+w*0.4,g2=8+w*1.2,g3=10+w*1.5,g4=24+w*2.5;
+  const w=earthW(x,z),A=CS*CS,g1=3+w*0.4,g2=8+w*1.2,g3=10+w*1.5,g4=24+w*2.5;
   a[o]=BEDROCK;
   for(let y=1;y<G;y++){
     const d=G-1-y;let v;
@@ -8811,20 +8933,46 @@ function linkNear(x,z){
   let e=1e9;for(const [a,b,c,d] of L){const dx=x<a?a-x:x>b?x-b:0,dz=z<c?c-z:z>d?z-d:0;e=Math.min(e,Math.hypot(dx,dz));}
   return e;
 }
-// does a plains tree grow from this column? [the ground's top, its trunk's height], or null. A few scattered, more where
-// copses grow and round sites in the wilds; never on a road, a railway, beside a billboard or in a pond. (Shared by the
-// chunks and the far view, so a tree seen from afar is the very one that's there up close: cheapest tests first.)
+// does a plains tree grow from this column? [the ground's top, its trunk's height, its species (TREE_K)], or null. A few
+// scattered, more where copses grow and round sites in the wilds, each biome its own trees and its own woods; never on a
+// road, a railway, beside a billboard or in a pond. (Shared by the chunks and the far view, so a tree seen from afar is
+// the very one that's there up close: cheapest tests first.)
+const TREE_K=['oak','big','pine','acacia','jungle','swamp','cactus','dead'],TREE_I={};TREE_K.forEach((k,i)=>TREE_I[k]=i);
+// (each species' trunk: the shortest, and how many more blocks it may have)
+const TREE_TH=[[4,3],[6,3],[6,4],[4,2],[9,5],[4,2],[1,3],[2,2]];
 function plainsTree(x,z){
   if((x+z)%2)return null;
+  const v=hash2(x*3+1,z*7+5);if(v>0.32)return null;   // (no biome's woods are thicker than this)
   const px=Math.floor(x/CELL),pz=Math.floor(z/CELL),wood=siteTrees(x,z);if(!wood&&!PLAINS_OPEN(px,pz))return null;
-  const copse=wood?wood:lumberNear(px,pz)?1.1:plainsCopse(x,z);
-  if(hash2(x*3+1,z*7+5)>0.006+0.11*copse)return null;
+  let sp=0;
+  if(wood){if(v>0.006+0.11*wood)return null;}
+  else{const B=BIOMES[biomeAt(x,z)],copse=lumberNear(px,pz)?1.1:plainsCopse(x,z);if(v>B.sc+B.dn*copse||!B.trees.length)return null;
+    let q=hash2(x*5+17,z*3+29);for(const [k,w] of B.trees){sp=TREE_I[k];if((q-=w)<0)break;}}
   if(roadNear(x,z,14)<4||railNear(x,z)<6||boardNear(x,z,7))return null;
   const h=plainsH(x,z);if(h<0)return null;
-  return [G+h,4+Math.floor(hash2(x,z+99)*3)];
+  return [G+h,TREE_TH[sp][0]+Math.floor(hash2(x,z+99)*TREE_TH[sp][1]),sp];
+}
+// a tree of species sp, its ground's top gy and trunk th high, grown at column (x,z) through put(x,y,z,block,onlyAir)
+// (the leaves may reach three blocks out, into the next chunk: the chunks look that far round for trees)
+function treeGrow(x,z,gy,th,sp,put){
+  const top=gy+th,L=sp===2?PINE:LEAVES;
+  if(sp===6){for(let y=1;y<=th;y++)put(x,gy+y,z,CACTUS,false);return;}
+  for(let y=1;y<=th;y++)put(x,gy+y,z,LOG,false);
+  const disc=(y,r,cut)=>{for(let dz=-r;dz<=r;dz++)for(let dx=-r;dx<=r;dx++){if(Math.abs(dx)+Math.abs(dz)>cut)continue;put(x+dx,y,z+dz,L,true);}};
+  if(sp===7){if(th>2){const h=hash2(x*7+1,z*5+3);put(x+(h<0.5?1:-1),top,z,LOG,false);}return;}   // (dead: a bare trunk and a stub of a branch)
+  if(sp===2){put(x,top+1,z,L,true);put(x,top+2,z,L,true);   // (a pine: tiers narrowing to the top)
+    for(let y=top,i=0;y>gy+2;y--,i++)disc(y,i%2?2:1,i%2?3:1);return;}
+  if(sp===3){disc(top,3,4);disc(top+1,2,2);return;}   // (an acacia: a flat crown)
+  if(sp===4){disc(top-1,3,5);disc(top,2,3);disc(top+1,1,1);disc(top-5,1,1);return;}   // (a jungle giant, a tuft lower down)
+  if(sp===5){disc(top,3,4);disc(top+1,1,1);   // (a swamp tree: a wide crown with leaves hanging off its rim)
+    for(let dz=-3;dz<=3;dz++)for(let dx=-3;dx<=3;dx++){if(Math.max(Math.abs(dx),Math.abs(dz))<2||Math.abs(dx)+Math.abs(dz)>4)continue;const q=hash2(x+dx*7,z+dz*5+11);if(q<0.4){put(x+dx,top-1,z+dz,L,true);if(q<0.15)put(x+dx,top-2,z+dz,L,true);}}return;}
+  if(sp===1){disc(top-2,3,5);disc(top-1,3,5);disc(top-3,2,3);disc(top,2,3);put(x,top+1,z,L,true);return;}   // (a big oak)
+  // an oak, as the plains always grew them
+  for(let dy=-2;dy<=1;dy++){const rad=dy<=-1?2:1;for(let dz=-rad;dz<=rad;dz++)for(let dx=-rad;dx<=rad;dx++){if(rad===2&&Math.abs(dx)===2&&Math.abs(dz)===2&&hash2(x+dx*5,z+dz*5+dy)<.6)continue;put(x+dx,top+dy,z+dz,L,true);}}
+  put(x,top+1,z,L,true);
 }
 // how thick the woods are out on the open plains here: 0 (a tree here and there) up to 1 (a copse)
-function plainsCopse(x,z){return Math.max(0,Math.sin(x*0.021+0.6)+Math.sin(z*0.026+2.2)-1.0);}
+function plainsCopse(x,z){const n=nzFbm(x,z,150,2,4411)*2.4;climAt(x,z);return Math.min(1.3,Math.max(0,n+clBlend('wood')));}
 // does a tree grow here in a town park, the capitol's grounds or a big park (on the ground, G)?
 function parkTree(x,z){
   const px=Math.floor(x/CELL),pz=Math.floor(z/CELL),rx=mod(x,CELL),rz=mod(z,CELL),BS=superOf(px,pz);
@@ -9018,13 +9166,7 @@ function genChunk(cx,cz){
     }}}
   // plains trees: a few scattered, more where copses grow (leaves may reach across chunk edges, so look wider)
   {const putT=(px,py,pz,b,onlyAir)=>{const lx=px-x0,lz=pz-z0;if(lx<0||lz<0||lx>=CS||lz>=CS||py<0||py>=H)return;const i=li(lx,py,lz);if(onlyAir&&a[i]!==AIR)return;a[i]=b;};
-   for(let z=z0-2;z<z0+CS+2;z++)for(let x=x0-2;x<x0+CS+2;x++){
-     const T=plainsTree(x,z);if(!T)continue;
-     const gy=T[0],th=T[1],top=gy+th;
-     for(let y=1;y<=th;y++)putT(x,gy+y,z,LOG,false);
-     for(let dy=-2;dy<=1;dy++){const rad=dy<=-1?2:1;for(let dz=-rad;dz<=rad;dz++)for(let dx=-rad;dx<=rad;dx++){if(rad===2&&Math.abs(dx)===2&&Math.abs(dz)===2&&hash2(x+dx*5,z+dz*5+dy)<.6)continue;putT(x+dx,top+dy,z+dz,LEAVES,true);}}
-     putT(x,top+1,z,LEAVES,true);
-   }}
+   for(let z=z0-3;z<z0+CS+3;z++)for(let x=x0-3;x<x0+CS+3;x++){const T=plainsTree(x,z);if(T)treeGrow(x,z,T[0],T[1],T[2],putT);}}
   // park trees (leaves may reach across chunk edges, so look a little wider)
   const put=(px,py,pz,b,onlyAir)=>{const lx=px-x0,lz=pz-z0;if(lx<0||lz<0||lx>=CS||lz>=CS||py<0||py>=H)return;const i=li(lx,py,lz);if(onlyAir&&a[i]!==AIR)return;a[i]=b;};
   for(let z=z0-2;z<z0+CS+2;z++)for(let x=x0-2;x<x0+CS+2;x++){
@@ -9934,6 +10076,9 @@ function buildChunk(cx,cz){
   // the light from lamps and neon round about (none, and nothing to do, with Block lighting off or nothing lit in reach)
   const BL=BL_ON,lit=BL&&blkFill(cx,cz,yLo,yTop);
   // (a column of a building whose lights are out, lights-out.js: asked once a column, only where something glows)
+  // (the biome's tint on grass and leaves, world/climate.js: asked once a column, g 0 grass, 1 leaves; 1,1,1 in grassland)
+  const tnF=new Uint8Array(A2*2),tnC=new Float32Array(A2*6),tint=(lx,lz,g)=>{const i=(lz*CS+lx)*2+g;
+    if(!tnF[i]){tnF[i]=1;const T=bioTint(x0+lx,z0+lz,g);tnC[i*3]=T[0];tnC[i*3+1]=T[1];tnC[i*3+2]=T[2];}return i*3;};
   const dkC=BL_DARK.size?new Int8Array(A2).fill(-1):null,darkCol=(lx,lz)=>{const i=lz*CS+lx;if(dkC[i]<0)dkC[i]=bldgDarkAt(x0+lx,z0+lz)?1:0;return dkC[i]===1;};
   for(let y=yLo;y<=yTop;y++){
     const midY=y>=1&&y<H-1;
@@ -9944,7 +10089,7 @@ function buildChunk(cx,cz){
     if(info.ramp){emitRamp(out,mx0+lx,y,mz0+lz,info);continue;}
     if(info.hide)continue;
     if(info.thin){emitFence(out,mx0+lx,y,mz0+lz,b,info,at(lx-1,y,lz),at(lx+1,y,lz),at(lx,y,lz-1),at(lx,y,lz+1),at(lx,y+1,lz),tops[lz*CS+lx]===y);continue;}
-    const skyTop=tops[lz*CS+lx]===y;
+    const skyTop=tops[lz*CS+lx]===y,tg=b===GRASS?0:b===LEAVES||b===PINE?1:-1,ti=tg<0?-1:tint(lx,lz,tg);
     const waterTop=liquid&&at(lx,y+1,lz)!==WATER;
     // (not on the chunk's edge, nor the world's top or bottom: every block asked about is right here in the array)
     const inner=midY&&lx>0&&lx<CS-1&&lz>0&&lz<CS-1,tiles=info.tiles;
@@ -9977,7 +10122,10 @@ function buildChunk(cx,cz){
           } else if(lit){Bv[bo++]=BL_R[wi]*17;Bv[bo++]=BL_G[wi]*17;Bv[bo++]=BL_B[wi]*17;}
           else if(BL){Bv[bo++]=0;Bv[bo++]=0;Bv[bo++]=0;}
         }
-        C[co++]=s;C[co++]=s;C[co++]=s;K[ko++]=sky;
+        if(ti<0||F.sel===1&&!tg){C[co++]=s;C[co++]=s;C[co++]=s;}
+        else if(tg||F.dy1){C[co++]=s*tnC[ti];C[co++]=s*tnC[ti+1];C[co++]=s*tnC[ti+2];}
+        else{C[co++]=s*(1+tnC[ti])/2;C[co++]=s*(1+tnC[ti+1])/2;C[co++]=s*(1+tnC[ti+2])/2;}   // (a grass block's side: its green edge, half)
+        K[ko++]=sky;
       }
       out.p.length=po;out.u.length=uo;out.c.length=co;out.k.length=ko;if(BL)out.b.length=bo;
       const I=out.i.room(6);let io=out.i.length;I[io++]=n;I[io++]=n+1;I[io++]=n+2;I[io++]=n+2;I[io++]=n+1;I[io++]=n+3;out.i.length=io;
@@ -10204,7 +10352,7 @@ function editsUnpack(P){
         edits[x+','+y+','+z]=b;l.push([x,y,z,b]);}}}
 }
 // (the world as saved; extra: anything else to go in with it)
-const saveObj=extra=>Object.assign({seed,cfg:worldCfgSent(),ed2:editsPacked(),coll:collapses,craters,wreck:wrecked,down:[...downFix],dest:destroyed,test:[...TEST_OFF]},extra);
+const saveObj=extra=>Object.assign({seed,gen:WORLD_GEN,cfg:worldCfgSent(),ed2:editsPacked(),coll:collapses,craters,wreck:wrecked,down:[...downFix],dest:destroyed,test:[...TEST_OFF]},extra);
 const saveText=extra=>JSON.stringify(saveObj(extra));
 let saveFullSaid=false;
 var WB={on:false,pending:null,saved:null};   // (a city too big for localStorage: see worldPut in ui/saves.js)
@@ -10216,7 +10364,7 @@ function save(){if(saveBlocked||WB.pending)return;clearTimeout(saveTimer);saveTi
   // (better to say so once than to quietly stop saving)
   if(!saveFullSaid){saveFullSaid=true;try{flashLabel("Can't save: the browser's storage is full");}catch(e2){}}});},700);}
 function load(){try{const s=JSON.parse(netWorldText()||localStorage.getItem(SAVE_KEY)||'null');   // (a tab joining a game online builds the host's world, kept in its own session storage)
-  if(netWorldText())saveBlocked=true;if(s&&typeof s.seed==='number'){seed=s.seed;if(s.cfg&&typeof s.cfg==='object')worldCfgSet(s.cfg);TEST_OFF=new Set(Array.isArray(s.test)?s.test:[]);TENV=s.tenv&&Array.isArray(s.tenv.boxes)?{boxes:s.tenv.boxes.filter(B=>B&&[B.ax,B.az,B.w,B.h].every(Number.isFinite))}:null;if(TENV&&s.tenv.sea&&['x0','x1','z0','z1'].every(k=>Number.isFinite(s.tenv.sea[k])))TENV.sea=s.tenv.sea;tenvIndex();if(s.ed2db&&!s.ed2){WB.on=true;WB.pending=s.ed2db;}edits=s.ed2?{}:s.edits||{};collapses=s.coll||{};craters=bbValid(s.craters);wrecked=(s.wreck&&typeof s.wreck==='object')?s.wreck:{};destroyed=(s.dest&&typeof s.dest==='object')?s.dest:{};destroyVer++;setDCache.clear();downFix=new Map(Array.isArray(s.down)?s.down:[]);if(s.ed2)editsUnpack(s.ed2);else for(const k in edits){const [x,y,z]=k.split(',').map(Number);const ck=ckey(Math.floor(x/CS),Math.floor(z/CS));let l=chunkEdits.get(ck);if(!l){l=[];chunkEdits.set(ck,l);}l.push([x,y,z,edits[k]]);}return true;}}catch(e){}return false;}
+  if(netWorldText())saveBlocked=true;if(s&&typeof s.seed==="number"&&(s.gen===undefined||s.gen===WORLD_GEN)){seed=s.seed;if(s.cfg&&typeof s.cfg==='object')worldCfgSet(s.cfg);TEST_OFF=new Set(Array.isArray(s.test)?s.test:[]);TENV=s.tenv&&Array.isArray(s.tenv.boxes)?{boxes:s.tenv.boxes.filter(B=>B&&[B.ax,B.az,B.w,B.h].every(Number.isFinite))}:null;if(TENV&&s.tenv.sea&&['x0','x1','z0','z1'].every(k=>Number.isFinite(s.tenv.sea[k])))TENV.sea=s.tenv.sea;tenvIndex();if(s.ed2db&&!s.ed2){WB.on=true;WB.pending=s.ed2db;}edits=s.ed2?{}:s.edits||{};collapses=s.coll||{};craters=bbValid(s.craters);wrecked=(s.wreck&&typeof s.wreck==='object')?s.wreck:{};destroyed=(s.dest&&typeof s.dest==='object')?s.dest:{};destroyVer++;setDCache.clear();downFix=new Map(Array.isArray(s.down)?s.down:[]);if(s.ed2)editsUnpack(s.ed2);else for(const k in edits){const [x,y,z]=k.split(',').map(Number);const ck=ckey(Math.floor(x/CS),Math.floor(z/CS));let l=chunkEdits.get(ck);if(!l){l=[];chunkEdits.set(ck,l);}l.push([x,y,z,edits[k]]);}return true;}}catch(e){}return false;}
 
 // ---------- Renderer ----------
 const canvas=document.getElementById('world');
@@ -10765,8 +10913,8 @@ for(const b of [WIN_BLUE,WIN_GREEN,WIN_WARM,GLASS,ICE])KIND[b]='glass';
 for(const b of [NEON_G,NEON_M,NEON_Y,NEON_O,LAMP])KIND[b]='neon';
 for(const b of [METAL,RUST])KIND[b]='metal';
 for(const b of [LOG,PLANKS])KIND[b]='wood';
-for(const b of [LEAVES,GRASS])KIND[b]='plant';
-for(const b of [DIRT,SAND])KIND[b]='dirt';
+for(const b of [LEAVES,GRASS,PINE,REEDS,CACTUS])KIND[b]="plant";
+for(const b of [DIRT,SAND,SNOW,RED_SAND,MUD])KIND[b]="dirt";KIND[SANDSTONE]=KIND[TERRA]=KIND[TERRA2]="stone";
 for(const b of [MARBLE])KIND[b]='stone';for(const b of [BRONZE])KIND[b]='metal';for(const b of [SHELF,CRATE,DOOR_W,DOOR_WK,DOOR_BARN,FENCE,FENCE_W])KIND[b]='wood';KIND[DOOR_G]=KIND[DOOR_GB]=KIND[STAINED]='glass';KIND[GRAVE]=KIND[GRAVEX]='stone';KIND[CHAINLINK]=KIND[GOLD]='metal';
 for(const b of [BED,SOFA,AWN_R,AWN_G])KIND[b]='fabric';
 KIND[PUMP]='metal';KIND[SIDING]='wood';KIND[SIDING_Y]='wood';KIND[SHINGLE]='wood';KIND[HOSPX]='neon';
@@ -11019,7 +11167,7 @@ function colSupport(x,z,fromY){for(let y=Math.min(H-1,fromY-1);y>=0;y--)if(solid
 const FC_REACH=72;
 function floatingCluster(sx,sy,sz,supported){
   if(sy<=G)return null;
-  const b0=get(sx,sy,sz);if(b0===AIR||b0===WATER||b0===LEAVES)return null;
+  const b0=get(sx,sy,sz);if(b0===AIR||b0===WATER||b0===LEAVES||b0===PINE)return null;
   const k0=bkey(sx,sy,sz);if(supported.has(k0))return null;
   const seen=new Set([k0]),list=[];
   const held=()=>{for(const k of seen)supported.add(k);return null;};
@@ -11040,7 +11188,7 @@ function floatingCluster(sx,sy,sz,supported){
       if(ny<0||ny>=H)continue;
       if(Math.abs(nx-sx)>FC_REACH||Math.abs(nz-sz)>FC_REACH)return held();
       if(!chunks.has(ckey(Math.floor(nx/CS),Math.floor(nz/CS))))return held();
-      const b=get(nx,ny,nz);if(b===AIR||b===WATER||b===LEAVES)continue;
+      const b=get(nx,ny,nz);if(b===AIR||b===WATER||b===LEAVES||b===PINE)continue;
       if(ny<=G)return held();
       const k=bkey(nx,ny,nz);if(seen.has(k))continue;if(supported.has(k))return held();
       seen.add(k);push(nx,ny,nz);
@@ -11532,7 +11680,7 @@ function updateTopples(dt){
         if(cy>=H)continue;
         const cx=Math.floor(R00*lx+R01*ly+R02*lz+px),cz=Math.floor(R20*lx+R21*ly+R22*lz+pz),b=cy<=G?STONE:get(cx,cy,cz);
         // the ground (and the natural lie of the land: a grassy hill) stops it; anything else it smashes through
-        if(cy<=G||(b===GRASS||b===DIRT||b===SAND)&&cy<=G+6){if(T.far[k]||T.dropping)ground++;continue;}
+        if(cy<=G||(b===GRASS||b===DIRT||b===SAND||b===SNOW||b===RED_SAND||b===MUD||b===SANDSTONE||b===TERRA||b===TERRA2)&&cy<=G+6){if(T.far[k]||T.dropping)ground++;continue;}
         if(b===AIR||b===WATER||b===BEDROCK)continue;
         setRaw(cx,cy,cz,AIR);addEdit(cx,cy,cz,AIR);batch.push({x:cx,y:cy,z:cz,b});
         ch.add(ckey(Math.floor(cx/CS),Math.floor(cz/CS)));for(const [ox,oz] of [[1,0],[-1,0],[0,1],[0,-1]])ch.add(ckey(Math.floor((cx+ox)/CS),Math.floor((cz+oz)/CS)));
@@ -12146,7 +12294,7 @@ function groundSpikes(p,lvl){
 // about his own level. Anything built on top of it there (a wall, a bench, a parked trailer) isn't ground: the spike
 // comes up underneath it and smashes it out of the way. Checked at the middle and round the edge of its base; the
 // ground's height, or null where there's none near his level (up a bank, or over a real drop)
-const SPIKE_EARTH=new Set([GRASS,DIRT,SAND,STONE,GRAVEL,CLAY]);
+const SPIKE_EARTH=new Set([GRASS,DIRT,SAND,STONE,GRAVEL,CLAY,SNOW,SANDSTONE,RED_SAND,TERRA,TERRA2,MUD]);
 function spikeGround(x,z,r,y0){
   let gy=null;
   for(const [a,b] of [[0,0],[r*0.6,0],[-r*0.6,0],[0,r*0.6],[0,-r*0.6]]){
@@ -13996,7 +14144,7 @@ const WS_TOUGH=(()=>{const T=new Float32Array(256).fill(1),set=(v,L)=>{for(const
   for(let b=0;b<BLOCK.length;b++)if(BLOCK[b]&&BLOCK[b].brittle)T[b]=0.2;   // (fences, railings, gravestones)
   set(0.2,[GLASS,STAINED,LEAVES,FLOWER,AWN_R,AWN_G,LAMP,NEON_G,NEON_M,NEON_B,NEON_R,NEON_Y,NEON_O,SCREEN]);
   set(0.5,[PLANKS,SHELF,BED,SOFA,CRATE,SIDING,SIDING_Y,SHINGLE,SEAT_B,SEAT_R,ICE]);
-  set(0.7,[LOG,FRIDGE,ROOF,SAND,GRAVEL,PUMP]);
+  set(0.7,[LOG,FRIDGE,ROOF,SAND,GRAVEL,PUMP,RED_SAND,SNOW,MUD]);
   set(0.9,[GRASS,DIRT,FIELD,FIELD_L,CLAY,WIN_BLUE,WIN_GREEN,WIN_WARM,COURT,COURT_L]);
   set(1.2,[BRICK,STUCCO,PAINT_BLUE,PAINT_RED,PAINT_GREEN,PAINT_ORANGE,PAINT_YELLOW,PAINT_WHITE,PAINT_NAVY,PAINT_DARK]);
   set(1.5,[CONCRETE,MOSSCON,COBBLE,STONE,MOSSSTONE,MARBLE,ASPHALT,LINE,LINEX,LINE_R,LINEX_R,CROSS,CROSSX,LANE,LANEX,SIDEWALK,HOSPW,HOSPX,CHECKER,POLICE]);
@@ -14523,7 +14671,7 @@ function roadSpecial(c,i,dt,thr){const k=roadKind(c),pr=!!i.rdSpecP,h=!!i.rdSpec
   if(c.siren){c.sirenT=(c.sirenT||0)-dt;if(c.sirenT<=0){c.sirenT=0.5;const hi=(c.sirenN=(c.sirenN||0)+1)%2;if(audio)sfx('Siren',()=>tone('triangle',hi?960:720,hi?960:720,0.45,0.035));}}}
 // the slide: where it's really going comes round to where it points as fast as the tyres grip (k a share of that)
 function roadGrip(c,Hd){let g=Hd.grip||9;const b=get(Math.floor(c.pos.x),Math.floor(c.pos.y-0.5),Math.floor(c.pos.z));
-  if(b===GRASS||b===DIRT||b===FIELD||b===FIELD_L||b===GRAVEL||b===FLOWER)g*=Hd.off||0.6;else if(b===SAND)g*=(Hd.off||0.6)*0.75;else if(b===ICE)g*=0.2;
+  if(b===GRASS||b===DIRT||b===FIELD||b===FIELD_L||b===GRAVEL||b===FLOWER)g*=Hd.off||0.6;else if(b===SAND||b===RED_SAND||b===MUD)g*=(Hd.off||0.6)*0.75;else if(b===ICE)g*=0.2;else if(b===SNOW)g*=0.45;
   if(WX.snowCover>0.3&&c.snowOpen)g*=0.6;return g;}
 function roadSlip(c,dt,Hd,k){const vx=Math.sin(c.heading)*c.speed,vz=Math.cos(c.heading)*c.speed;if(!c.hvel)c.hvel={x:vx,z:vz};const H=c.hvel;
   // (turned all at once, more than any steering could in a step, crossing into a ship's frame say: the slide turns with it)
@@ -17809,7 +17957,7 @@ function drawMapBlocks(x,k,ox,oz,c0,c1,r0,r1,o){
     if(seaPlot(px,pz)){const n=seaN,st=CELL/n,C=seaMapCells(px,pz,n),key=t==='yard'||t==='basin'?'yard':t==='navy'||t==='nbasin'?'navy':t==='lighthouse'?'lighthouse':t==='beach'?'beach':t==='rig'?'rig':'sea';
       for(let j=0;j<n;j++)for(let i=0;i<n;i++)rect(X0+i*st,Z0+j*st,X0+(i+1)*st,Z0+(j+1)*st,C[j*n+i],key);continue;}
     if(realmOf(px,pz)==='plains'){
-      rect(X0,Z0,X0+CELL,Z0+CELL,MAPC.plains,'plains');
+      rect(X0,Z0,X0+CELL,Z0+CELL,BIOMES[biomeOfPlot(px,pz)].map,'plains');
       if(fine){const FL=farmLane(px,pz);if(FL)rect(X0+PC-1,FL.z0,X0+PC+1,FL.z1,'#a89a78','farm');}
       if(t==='truckstop'){const P=plotInfo(px,pz);for(const b of P.b)rect(X0+b.x0,Z0+b.z0,X0+b.x1,Z0+b.z1,MAPC.truckstop,'truckstop');}
       if(t==='dump')rect(X0+1,Z0+1,X0+CELL-1,Z0+CELL-1,MAPC.dump,'dump');
@@ -29599,7 +29747,7 @@ function updateMinimap(p,dt){
     if(!tenvShow(cx,cz)){x.fillStyle=MAPC.plains;x.fillRect(X0,Z0,CELL,CELL);continue;}
     if(seaPlot(cx,cz)){const n=4,st=CELL/n,C=seaMapCells(cx,cz,n);for(let j=0;j<n;j++)for(let i=0;i<n;i++){x.fillStyle=C[j*n+i];x.fillRect(X0+i*st,Z0+j*st,st,st);}continue;}
     if(t==='river'){x.fillStyle=MAPC.road;x.fillRect(X0,Z0,CELL,CELL);x.fillStyle=MAPC.river;if(riverDir(cx,cz)==='x')x.fillRect(X0,Z0+10,CELL,20);else x.fillRect(X0+10,Z0,20,CELL);continue;}
-    if(t==='plains'||t==='farm'||t==='truckstop'){x.fillStyle=MAPC.plains;x.fillRect(X0,Z0,CELL,CELL);x.fillStyle='#5b5f63';if(gRow(cz,X0+16))x.fillRect(X0,Z0-3,CELL,14);if(gCol(cx,Z0+16))x.fillRect(X0-3,Z0,14,CELL);continue;}
+    if(t==='plains'||t==='farm'||t==='truckstop'){x.fillStyle=BIOMES[biomeOfPlot(cx,cz)].map;x.fillRect(X0,Z0,CELL,CELL);x.fillStyle='#5b5f63';if(gRow(cz,X0+16))x.fillRect(X0,Z0-3,CELL,14);if(gCol(cx,Z0+16))x.fillRect(X0-3,Z0,14,CELL);continue;}
     x.fillStyle='#565b5f';x.fillRect(X0+ROADW,Z0+ROADW,CELL-ROADW,CELL-ROADW);
     const Sp=superOf(cx,cz);
     if(Sp){if(done.has(Sp))continue;done.add(Sp);late.push(()=>{
@@ -30151,7 +30299,7 @@ function farSea(SG,px,pz,n){
     const q=t==='basin'||t==='nbasin'||n===1&&seaPlot(px,pz)===2?1:seaBlk(x+st/2,z+st/2);
     if(q>=SEA_T)farBox(SG,x,G+0.4,z,x+st,G+0.95,z+st,n<=2&&seaPlot(px,pz)===2?FARC.deep:FARC.sea);
     else if(n>1&&coastD(x+st/2,z+st/2)>-8)farBox(SG,x,G+0.4,z,x+st,G+1,z+st,FARC.sand);
-    else farBox(SG,x,G+0.4,z,x+st,G+1.6,z+st,FARC.park);}
+    else farBox(SG,x,G+0.4,z,x+st,G+1.6,z+st,farBio(px,pz).g);}
 }
 // the far view of one plains block: the rivers and highways crossing it, as boxes along their lines (each piece drawn
 // by the block its middle falls in, every third piece standing for three)
@@ -30173,15 +30321,25 @@ function mkLod(step,mk){const ring={value:new THREE.Vector2(0,0)};return{B:farIn
 // of leaves, which is near enough what a blocky tree is), so that where the full-detail city takes over a tree only gains
 // its detail; further off, woods are clumps of treetops. Ponds and lakes are water a hair above the ground, as rivers are. ----
 const FAR_LEAF=new THREE.Color(blockColor(LEAVES)),FAR_TRUNK=new THREE.Color(blockColor(LOG));
-function farLeaf(F,x0,y0,z0,x1,y1,z1,hFall,hCol){farBox(F,x0,y0,z0,x1,y1,z1,FAR_LEAF);const j=(F.n-1)*4;F.wn[j]=hFall;F.wn[j+1]=hCol;F.wn[j+3]=-4;}
-// the trees in one block, as genChunk grows them: x, z, the ground's top and the trunk's height of each. Worked out once (a
+// (each biome's ground and leaves seen from afar, world/climate.js: its top block's colour, a grassy one's grass tinted, and
+// so turning with the seasons; grassland's are the plain ones, so a grassland world looks as it always did)
+const FAR_PINE=new THREE.Color(blockColor(PINE)),FAR_CACT=new THREE.Color(blockColor(CACTUS));
+const FAR_BIO=BIOMES.map(B=>{const top=B.top||GRASS;let g,l;
+  if(B.i===BIO_GRASS){g=FARC.park;l=FAR_LEAF;}
+  else{g=new THREE.Color(topColor(top));if(top===GRASS){g.r*=B.grass[0];g.g*=B.grass[1];g.b*=B.grass[2];g.grass=true;}
+    l=FAR_LEAF.clone();l.r*=B.leaf[0];l.g*=B.leaf[1];l.b*=B.leaf[2];}
+  return {g,l};});
+const farBio=(px,pz)=>FAR_BIO[biomeOfPlot(px,pz)];
+function farLeaf(F,x0,y0,z0,x1,y1,z1,hFall,hCol,c){farBox(F,x0,y0,z0,x1,y1,z1,c||FAR_LEAF);const j=(F.n-1)*4;F.wn[j]=hFall;F.wn[j+1]=hCol;F.wn[j+3]=-4;}
+// the trees in one block, as genChunk grows them: x, z, the ground's top, the trunk's height and the species of each. Worked out once (a
 // third of a millisecond for a block of plains) and kept, unless something in the block has been smashed since: then a
 // tree whose trunk was knocked out is left out, as its leaves are gone too (purgeLeaves)
 const farTreeC=new Map();let farTreeNew=false;
 function farTreesOf(px,pz){
   const k=px*100003+pz,cx=px*CELL/CS,cz=pz*CELL/CS,E4=[];let ed=0;
   for(let a=0;a<CELL/CS;a++)for(let b=0;b<CELL/CS;b++){const ce=chunkEdits.get(ckey(cx+a,cz+b));if(ce){E4.push(ce);ed+=ce.length;}}
-  const cn=craters.length+BB.jobs.length*1000,E=farTreeC.get(k);   // (asked again once a blast's job is over, as it only counts behind its ring till then)if(E&&E.ed===ed&&E.seed===seed&&E.cn===cn)return E.t;
+  const cn=craters.length+BB.jobs.length*1000,E=farTreeC.get(k);   // (asked again once a blast's job is over, as it only counts behind its ring till then)
+  if(E&&E.ed===ed&&E.seed===seed&&E.cn===cn)return E.t;
   farTreeNew=true;
   // (a big blast's carving isn't kept as edits: a tree it reaches is asked of the crater instead)
   const bl=farBlastNear(px,pz);
@@ -30194,26 +30352,32 @@ function farTreesOf(px,pz){
     // (no tree is likelier than this anywhere, the thickest woods included: most columns are done with here)
     if(!cap&&hash2(x*3+1,z*7+5)>0.32)continue;
     let T=pl?plainsTree(x,z):null;
-    if(pk&&parkTree(x,z))T=[G,4+Math.floor(hash2(x,z+99)*3)];   // (as the chunks do, the park's pass comes last)
+    if(pk&&parkTree(x,z))T=[G,4+Math.floor(hash2(x,z+99)*3),0];   // (as the chunks do, the park's pass comes last)
     if(!T)continue;
     if(gone){let ok=true;for(let y=T[0]+1;y<=T[0]+T[1]&&ok;y++){const v=gone.get(x+','+y+','+z);if(v!==undefined&&v!==LOG)ok=false;}if(!ok)continue;}
     if(bl&&farCraterTop(x,z,x+1,z+1,T[0]+T[1])<T[0]+T[1])continue;
-    t.push(x,z,T[0],T[1]);
+    t.push(x,z,T[0],T[1],T[2]);
   }
   if(farTreeC.size>40000)farTreeC.clear();
   farTreeC.set(k,{ed,seed,cn,t});return t;
 }
-function farTreeBoxes(SG,t){
-  for(let i=0;i<t.length;i+=4){const x=t[i],z=t[i+1],top=t[i+2]+t[i+3],hF=hash2(x*5+11,z*3+7),hC=hash2(x*7+3,z*13+1);
-    farBox(SG,x,G+1,z,x+1,top-2,z+1,FAR_TRUNK);
-    farLeaf(SG,x-2,top-2,z-2,x+3,top,z+3,hF,hC);
-    farLeaf(SG,x-1,top,z-1,x+2,top+2,z+2,hF,hC);}
+function farTreeBoxes(SG,t,lc){
+  for(let i=0;i<t.length;i+=5){const x=t[i],z=t[i+1],gy=t[i+2],top=gy+t[i+3],sp=t[i+4],hF=hash2(x*5+11,z*3+7),hC=hash2(x*7+3,z*13+1);
+    // (each species as treeGrow shapes it, near enough: TREE_K)
+    if(sp===6){farBox(SG,x,gy+1,z,x+1,top+1,z+1,FAR_CACT);continue;}
+    if(sp===7){farBox(SG,x,gy+1,z,x+1,top+1,z+1,FAR_TRUNK);continue;}
+    if(sp===2){farBox(SG,x,gy+1,z,x+1,gy+3,z+1,FAR_TRUNK);farBox(SG,x-2,gy+3,z-2,x+3,top-1,z+3,FAR_PINE);farBox(SG,x-1,top-1,z-1,x+2,top+3,z+2,FAR_PINE);continue;}
+    farBox(SG,x,gy+1,z,x+1,top-2,z+1,FAR_TRUNK);
+    if(sp===3){farLeaf(SG,x-3,top,z-3,x+4,top+1,z+4,hF,hC,lc);farLeaf(SG,x-2,top+1,z-2,x+3,top+2,z+3,hF,hC,lc);continue;}
+    if(sp===4||sp===5||sp===1){farLeaf(SG,x-3,top-2,z-3,x+4,top+1,z+4,hF,hC,lc);farLeaf(SG,x-1,top+1,z-1,x+2,top+2,z+2,hF,hC,lc);continue;}
+    farLeaf(SG,x-2,top-2,z-2,x+3,top,z+3,hF,hC,lc);
+    farLeaf(SG,x-1,top,z-1,x+2,top+2,z+2,hF,hC,lc);}
 }
 // woods seen from further off: where the plains' copses are thick (or round a lumber camp or a campsite), one to three
 // clumps of treetops to each square of the given size, rather than every tree. (roads: keep them off the roads, which the
 // far ring, where a road is a hair across and the test would cost more than the rest put together, does without)
 function farWoods(SG,px,pz,cell,roads){
-  const site=bigPlainsAt(px,pz),X0=px*CELL,Z0=pz*CELL;let open=null,lum=null;
+  const site=bigPlainsAt(px,pz),X0=px*CELL,Z0=pz*CELL,bi=biomeOfPlot(px,pz),lc=bi===BIO_I.taiga?FAR_PINE:FAR_BIO[bi].l;let open=null,lum=null;
   for(let j=0;j<CELL;j+=cell)for(let i=0;i<CELL;i+=cell){const x=X0+i+(cell>>1),z=Z0+j+(cell>>1);
     let c=site?siteTrees(x,z):0;
     if(!c){if(lum===null)lum=lumberNear(px,pz);c=lum?1.1:plainsCopse(x,z);if(c<0.3)continue;
@@ -30222,7 +30386,7 @@ function farWoods(SG,px,pz,cell,roads){
     const n=c>0.7?3:c>0.45?2:1;
     for(let q=0;q<n;q++){const h=hash2(x*11+q*37,z*17+q*5),h2=hash2(x*3+q*7,z*29+q*13),w=cell*(0.4+0.25*h),
       ox=x+(h2-0.5)*(cell-w)*0.9,oz=z+(hash2(x+q*3,z*7+1)-0.5)*(cell-w)*0.9,top=G+6+3*h2;
-      farLeaf(SG,ox-w/2,G+1.6,oz-w/2,ox+w/2,top,oz+w/2,hash2(x*5+q,z*3+q*11),h);}
+      farLeaf(SG,ox-w/2,G+1.6,oz-w/2,ox+w/2,top,oz+w/2,hash2(x*5+q,z*3+q*11),h,lc);}
   }
 }
 // a block of open plains' ponds, found every st blocks and joined into runs along each row
@@ -30296,10 +30460,10 @@ function* farJobNear(SB,SG,act,ra,rb){
       seen.add(k);
       const P=plotInfo(px,pz),X0=px*CELL,Z0=pz*CELL,sc=farScorched(X0+CELL/2,Z0+CELL/2);
       if(seaPlot(px,pz))farSea(SG,px,pz,4);
-      else if(realmOf(px,pz)==='plains'){farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.6,Z0+CELL,sc?FAR_SCORCH:FARC.park);farLinesPlot(SB,SG,px,pz);if(turbineAt(px,pz)&&!sc)farTurbine(SB,px,pz,1);if(!sc)yield* farCountry(SB,SG,px,pz,0);}   // the plains: all grass (hills are only drawn up close), and what crosses them
+      else if(realmOf(px,pz)==='plains'){farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.6,Z0+CELL,sc?FAR_SCORCH:farBio(px,pz).g);farLinesPlot(SB,SG,px,pz);if(turbineAt(px,pz)&&!sc)farTurbine(SB,px,pz,1);if(!sc)yield* farCountry(SB,SG,px,pz,0);}   // the plains: all grass (hills are only drawn up close), and what crosses them
       else farBox(SG,X0+ROADW,G+0.4,Z0+ROADW,X0+CELL,G+0.97,Z0+CELL,sc?FAR_SCORCH:P.type==='park'?FARC.park:P.type==='plaza'?FARC.plaza:FARC.side);
       if(!seaPlot(px,pz)){if(realmOf(px,pz)==='plains')farPonds(SG,px,pz,4,true);else farTownWater(SG,px,pz,P,2);}
-      farTreeNew=false;farTreeBoxes(SG,farTreesOf(px,pz));if(farTreeNew)yield;
+      farTreeNew=false;farTreeBoxes(SG,farTreesOf(px,pz),farBio(px,pz).l);if(farTreeNew)yield;
       if(hwRow(pz,px)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('x',pz,X0+CELL/2)-1;farBox(SB,X0,y-1,Z0-3,X0+CELL,y+2,Z0+11,_fc);}
       if(hwCol(px,pz)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('z',px,Z0+CELL/2)-1;farBox(SB,X0-3,y-1,Z0,X0+11,y+2,Z0+CELL,_fc);}
       {const cv=cloverOf(px,pz);if(cv){_fc.setHex(blockColor(CONCRETE));const cx=cv.j*CELL+4,cz=cv.k*CELL+4;
@@ -30351,7 +30515,7 @@ function* farJobMid(SB,SG,act,ra,rb){
     const d=Math.hypot(px*CELL+CELL/2-p.pos.x,pz*CELL+CELL/2-p.pos.z);if(d>rb+CELL||d<ra-CELL)continue;seen.add(k);
     const X0=px*CELL,Z0=pz*CELL,sc=farScorched(X0+CELL/2,Z0+CELL/2);
     if(seaPlot(px,pz)){farSea(SG,px,pz,2);continue;}
-    if(realmOf(px,pz)==='plains'){farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.6,Z0+CELL,sc?FAR_SCORCH:FARC.park);farLinesPlot(SB,SG,px,pz);if(turbineAt(px,pz)&&!sc)farTurbine(SB,px,pz,1.6);if(!sc)yield* farCountry(SB,SG,px,pz,1);
+    if(realmOf(px,pz)==='plains'){farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.6,Z0+CELL,sc?FAR_SCORCH:farBio(px,pz).g);farLinesPlot(SB,SG,px,pz);if(turbineAt(px,pz)&&!sc)farTurbine(SB,px,pz,1.6);if(!sc)yield* farCountry(SB,SG,px,pz,1);
       farPonds(SG,px,pz,8,false);farWoods(SG,px,pz,16,true);
       if(hwRow(pz,px)&&!hwGround('x',pz,X0+16)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('x',pz,X0+CELL/2)-1;farBox(SB,X0,y-1,Z0-3,X0+CELL,y+2,Z0+11,_fc);}
       if(hwCol(px,pz)&&!hwGround('z',px,Z0+16)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('z',px,Z0+CELL/2)-1;farBox(SB,X0-3,y-1,Z0,X0+11,y+2,Z0+CELL,_fc);}
@@ -30424,6 +30588,7 @@ function* farJobFar(SB,SG,act,ra,rb){
   for(const p of act)for(let qx=Math.floor((p.pos.x-rb)/C4);qx<=Math.floor((p.pos.x+rb)/C4);qx++){yield;for(let qz=Math.floor((p.pos.z-rb)/C4);qz<=Math.floor((p.pos.z+rb)/C4);qz++){
     const k=qx*100003+qz;if(seen.has(k))continue;
     const d=Math.hypot(qx*C4+C4/2-p.pos.x,qz*C4+C4/2-p.pos.z);if(d>rb+C4||d<ra-C4)continue;seen.add(k);
+    {const bi=biomeOfPlot(qx*4+2,qz*4+2);if(bi!==BIO_GRASS)farBox(SG,qx*C4,G+0.31,qz*C4,qx*C4+C4,G+0.42,qz*C4+C4,FAR_BIO[bi].g);}   // (a biome's ground under the fields)
     for(let i=0;i<4;i++)for(let j=0;j<4;j++){const px=qx*4+i,pz=qz*4+j,X0=px*CELL,Z0=pz*CELL,sc=farScorched(X0+CELL/2,Z0+CELL/2);
       if(seaPlot(px,pz)){farSea(SG,px,pz,1);continue;}
       const ty=setType(px,pz);if(!ty){if(sc)farBox(SG,X0,G+0.45,Z0,X0+CELL,G+0.6,Z0+CELL,FAR_SCORCH);else if(turbineAt(px,pz))farTurbine(SB,px,pz,2.6);if(realmOf(px,pz)==='plains'){farPonds(SG,px,pz,16,false);farWoods(SG,px,pz,32,false);if(!sc)yield* farCountry(SB,SG,px,pz,2);}continue;}

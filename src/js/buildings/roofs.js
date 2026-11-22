@@ -141,13 +141,22 @@ function joinColumn(col,J,c,a,x,z){
 }
 function plainsColumn(col,x,z,noShore){
   if(!noShore&&nearSea(Math.floor(x/CELL),Math.floor(z/CELL))){const cd=coastD(x,z);if(cd>=0){seaWater(col,x,z,1,cd);return;}if(cd>-22&&natLand(col,x,z,null,cd))return;}
-  const h=plainsH(x,z);
-  if(h<0){col(G-1,SAND);col(G,WATER);return;}
-  for(let y=G;y<G+h;y++)col(y,DIRT);col(G+h,GRASS);
+  const h=plainsH(x,z),B=BIOMES[biomeAt(x,z)];
+  // a pond: still water over sand (over mud in a swamp, frozen over in the ice fields)
+  if(h<0){col(G-1,B.sub===MUD?MUD:SAND);col(G,B.ice?ICE:WATER);return;}
+  // the biome's ground: its top block over a few of its own (the badlands' in bands of clay)
+  const top=B.top||GRASS,sub=B.sub||DIRT;
+  if(B.sub){col(G-2,sub);col(G-1,sub);}
+  for(let y=G;y<G+h;y++)col(y,sub);
+  if(sub===TERRA)for(let y=G-3;y<G+h;y++)col(y,(y+(hash2(x>>3,z>>3)<0.5?1:0))%3?TERRA:TERRA2);
+  col(G+h,top);
+  if(B.gravel&&hash2(x*13+2,z*3+11)<B.gravel*(1+2*nzNoise(x/9,z/9,4431)))col(G+h,GRAVEL);   // (bare patches of stony ground)
+  // (reeds in the mud at a swamp pond's edge)
+  if(B.reeds&&h===0&&hash2(x*5+7,z*13+1)<B.reeds&&plainsRaw(x,z)<0.4){col(G,MUD);col(G+1,REEDS);return;}
   const v=hash2(x*7+3,z*11+5);
-  if(v<0.045)col(G+h+1,FLOWER);
-  else if(v<0.055)col(G+h+1,LEAVES);                        // a bush
-  else if(v>0.9975){col(G+h+1,MOSSSTONE);if(v>0.9992)col(G+h+2,STONE);}   // a boulder
+  if(v<B.flower)col(G+h+1,FLOWER);
+  else if(v<B.flower+B.bush)col(G+h+1,LEAVES);                        // a bush
+  else if(v>1-B.rock){col(G+h+1,MOSSSTONE);if(v>1-B.rock*0.32)col(G+h+2,STONE);}   // a boulder
 }
 function farmColumn(a,col,px,pz,rx,rz,lx,lz,x,z){
   const P=plotInfo(px,pz),F=P.field;

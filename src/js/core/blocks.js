@@ -14,7 +14,10 @@ const AIR=0,GRASS=1,DIRT=2,STONE=3,LOG=4,LEAVES=5,SAND=6,PLANKS=7,GLASS=8,WATER=
   // courts and cemeteries, church glass, a bank's gold
   COURT=133,COURT_L=134,CHAINLINK=135,GRAVE=136,GRAVEX=137,STAINED=138,GOLD=139,
   STAIR0=140,   // stairs: 3 materials (concrete, steel, wood) x 4 directions, up to 151
-  RAILPOST=152;   // a slim steel post (the bars between posts are drawn as fixtures)
+  RAILPOST=152,   // a slim steel post (the bars between posts are drawn as fixtures)
+  // the biomes' ground and plants (world/climate.js): snow, sandstone, the badlands' red sand and banded clay, mud, cactus,
+  // pine needles (evergreen: the seasons leave them be) and reeds
+  SNOW=153,SANDSTONE=154,RED_SAND=155,TERRA=156,TERRA2=157,MUD=158,CACTUS=159,PINE=160,REEDS=161;
 // ramps: 4 directions (the way it rises: +x, -x, +z, -z) x 3 shapes (a full 0->1 slope, or the low and high halves
 // of a gentle slope that takes two blocks to climb one). rampId(dir,kind)
 const stairId=(dir,mat)=>STAIR0+(mat||0)*4+dir,rampId=(dir,kind)=>RAMP0+dir*3+kind,rampLineId=(dir,kind,t)=>RAMPL0+t*12+dir*3+kind;
@@ -119,6 +122,15 @@ BLOCK[GRAVE]    ={tiles:[92,92,92],solid:true,transparent:true,brittle:true,thin
 BLOCK[GRAVEX]   ={tiles:[93,93,93],solid:true,transparent:true,brittle:true,thin:0.09};
 BLOCK[STAINED]  ={tiles:[94,94,94],solid:true,transparent:true,glow:true};
 BLOCK[GOLD]     ={tiles:[95,95,95],solid:true,glow:true};
+BLOCK[SNOW]     ={tiles:[96,96,96],solid:true};
+BLOCK[SANDSTONE]={tiles:[98,98,97],solid:true};
+BLOCK[RED_SAND] ={tiles:[99,99,99],solid:true};
+BLOCK[TERRA]    ={tiles:[100,100,100],solid:true};
+BLOCK[TERRA2]   ={tiles:[101,101,101],solid:true};
+BLOCK[MUD]      ={tiles:[102,102,102],solid:true};
+BLOCK[CACTUS]   ={tiles:[104,104,103],solid:true};
+BLOCK[PINE]     ={tiles:[105,105,105],solid:true,transparent:true};
+BLOCK[REEDS]    ={tiles:[106,2,106],solid:true,transparent:true};
 // height of a ramp's surface above its block's base at (fx,fz) within the block (0..1 each)
 function rampH(b,fx,fz){const R=BLOCK[b].ramp,t=R.dir===0?fx:R.dir===1?1-fx:R.dir===2?fz:1-fz;return R.h0+(R.h1-R.h0)*Math.max(0,Math.min(1,t));}
 

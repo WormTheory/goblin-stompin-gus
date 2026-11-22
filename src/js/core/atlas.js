@@ -1,5 +1,5 @@
 // ---------- Texture atlas ----------
-const T=16,AC=8,AR=12;
+const T=16,AC=8,AR=14;
 const atlas=document.createElement('canvas');atlas.width=T*AC;atlas.height=T*AR;
 const actx=atlas.getContext('2d');
 function mulberry(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}}
@@ -115,6 +115,19 @@ paint(80,(x,y,r)=>jit([214,182,48],r,8));paint(81,(x,y,r)=>jit([226,226,220],r,6
  // a board fence: upright planks, close together
  paint(86,(x,y,r)=>{if(x%5===0)return y<1?[0,0,0,0]:jit([104,76,46],r,6);return y===0&&x%5===2?[0,0,0,0]:jit([150,112,70],r,10);});}
 paint(75,(x,y,r)=>{const e=x<2||y<2||x>13||y>13;return e?[214,96,10]:jit([255,170,70],r,14);});
+// the biomes' ground and plants (world/climate.js): snow, sandstone (its side in layers), red sand, the badlands' two
+// bands of clay, mud, cactus (ribbed side, a flower-dotted top), pine needles and reeds
+paint(96,(x,y,r)=>{const v=r();return v<.08?[214,224,232]:jit([240,246,250],r,6);});
+paint(97,(x,y,r)=>{const band=y%5===4;return jit(band?[196,170,116]:y%5===0?[226,206,150]:[214,192,136],r,8);});
+paint(98,(x,y,r)=>{const v=r();return v<.1?[200,178,124]:jit([218,198,142],r,8);});
+paint(99,(x,y,r)=>{const v=r();return v<.1?[168,84,46]:v>.92?[214,128,82]:jit([192,104,60],r,12);});
+paint(100,(x,y,r)=>jit(y%8<5?[178,92,58]:[150,74,48],r,8));
+paint(101,(x,y,r)=>jit(y%8<3?[214,170,118]:[196,140,96],r,8));
+paint(102,(x,y,r)=>{const v=r();return v<.15?[58,46,32]:v>.9?[104,84,58]:jit([80,64,44],r,10);});
+paint(103,(x,y,r)=>{const rib=x%4===0;if(rib&&y%3===1)return[226,220,180];return jit(rib?[38,98,44]:[60,130,62],r,10);});
+paint(104,(x,y,r)=>{const d=Math.max(Math.abs(x-7.5),Math.abs(y-7.5));if(d<1.5)return[236,96,130];return jit(d>5.5?[46,108,50]:[70,140,70],r,10);});
+paint(105,(x,y,r)=>{const v=r();if(v<.14)return[0,0,0,0];return jit(v>.86?[52,104,72]:[30,74,50],r,14);});
+paint(106,(x,y,r)=>{const stalk=x%3===0&&r()>.1;if(!stalk)return[0,0,0,0];return y<3?jit([118,86,48],r,10):jit([110,140,60],r,16);});
 const tex=new THREE.CanvasTexture(atlas);
 tex.magFilter=THREE.NearestFilter;tex.minFilter=THREE.NearestFilter;tex.generateMipmaps=false;
 

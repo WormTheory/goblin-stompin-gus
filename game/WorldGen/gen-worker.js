@@ -34,7 +34,7 @@ self.AudioContext=undefined;self.webkitAudioContext=undefined;
 let WSEED=1;
 // (the game reads its world from its save on loading: hand it a fresh world with this seed)
 self.localStorage={getItem:k=>String(k).startsWith('goblin-city-v')?JSON.stringify({seed:WSEED,edits:{},coll:{},down:[],dest:{},test:[]}):null,setItem(){},removeItem(){},key:()=>null,length:0};
-const NAMES=['settlementLat','settlementAt','settlementRaw','setName','setKind','PLACE_KIND','zoneAt','seaPlot','seaV','SEA_T','coastType','plotType1','superOf','isRiver','riversNearBox','stMatch','cvSite','portCell','capitolPlan','climateAt','CELL','SET_SP','BIGP','bigCell','MAPC','TEST_GROUPS','seed'];
+const NAMES=['settlementLat','settlementAt','settlementRaw','setName','setKind','PLACE_KIND','zoneAt','seaPlot','seaV','SEA_T','coastType','plotType1','superOf','isRiver','riversNearBox','stMatch','cvSite','portCell','capitolPlan','climateAt','bioPick','BIOMES','CELL','SET_SP','BIGP','bigCell','MAPC','TEST_GROUPS','seed'];
 let T=null;
 function loadGame(html,seed,sea){
   WSEED=seed;self.GSG_WORLD=sea||undefined;   // (the Land & sea sliders: the game's WORLD_CFG, read by its coast.js as it loads)
@@ -74,13 +74,14 @@ function land(tx,tz,L){
   for(let j=0;j<M;j++)for(let i=0;i<M;i++){const v=T.seaV(x0+i*st+h,z0+j*st+h);a[j*M+i]=v>t+0.05?0:v>t?1:2;}
   return {land:a,M};
 }
-// ---- the climate, tiled as the land is: each sample's temperature and moisture (0..255) from the game's climateAt, and
-// whether it's land, so the sea can be left as it is ----
+// ---- the climate, tiled as the land is: each sample's temperature and moisture (0..255) from the game's climateAt, its
+// biome (bioPick, an index into BIOMES, whose names and map colours come too) and whether it's land, so the sea can be
+// left as it is ----
 function clim(tx,tz,L){
   if(!T.climateAt)throw new Error('no climate in this build');
-  const r=land(tx,tz,L),M=r.M,st=2<<Math.max(0,L|0),h=st>>1,N=M*st,x0=tx*N,z0=tz*N,t=new Uint8Array(M*M),m=new Uint8Array(M*M),C=T.CELL;
-  for(let j=0;j<M;j++)for(let i=0;i<M;i++){const c=T.climateAt((x0+i*st+h)*C,(z0+j*st+h)*C);t[j*M+i]=Math.round(c.t*255);m[j*M+i]=Math.round(c.m*255);}
-  return {land:r.land,M,t,m};
+  const r=land(tx,tz,L),M=r.M,st=2<<Math.max(0,L|0),h=st>>1,N=M*st,x0=tx*N,z0=tz*N,t=new Uint8Array(M*M),m=new Uint8Array(M*M),b=new Uint8Array(M*M),C=T.CELL,bp=T.bioPick;
+  for(let j=0;j<M;j++)for(let i=0;i<M;i++){const X=(x0+i*st+h)*C,Z=(z0+j*st+h)*C,c=T.climateAt(X,Z);t[j*M+i]=Math.round(c.t*255);m[j*M+i]=Math.round(c.m*255);if(bp)b[j*M+i]=bp(c.t,c.m,X,Z);}
+  return {land:r.land,M,t,m,b,bio:T.BIOMES?T.BIOMES.map(B=>[B.n,B.map]):null};
 }
 function coarse(tx,tz){
   const N=256,x0=tx*N,z0=tz*N;

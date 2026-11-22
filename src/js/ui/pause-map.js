@@ -141,7 +141,7 @@ function drawMapBlocks(x,k,ox,oz,c0,c1,r0,r1,o){
     if(seaPlot(px,pz)){const n=seaN,st=CELL/n,C=seaMapCells(px,pz,n),key=t==='yard'||t==='basin'?'yard':t==='navy'||t==='nbasin'?'navy':t==='lighthouse'?'lighthouse':t==='beach'?'beach':t==='rig'?'rig':'sea';
       for(let j=0;j<n;j++)for(let i=0;i<n;i++)rect(X0+i*st,Z0+j*st,X0+(i+1)*st,Z0+(j+1)*st,C[j*n+i],key);continue;}
     if(realmOf(px,pz)==='plains'){
-      rect(X0,Z0,X0+CELL,Z0+CELL,MAPC.plains,'plains');
+      rect(X0,Z0,X0+CELL,Z0+CELL,BIOMES[biomeOfPlot(px,pz)].map,'plains');
       if(fine){const FL=farmLane(px,pz);if(FL)rect(X0+PC-1,FL.z0,X0+PC+1,FL.z1,'#a89a78','farm');}
       if(t==='truckstop'){const P=plotInfo(px,pz);for(const b of P.b)rect(X0+b.x0,Z0+b.z0,X0+b.x1,Z0+b.z1,MAPC.truckstop,'truckstop');}
       if(t==='dump')rect(X0+1,Z0+1,X0+CELL-1,Z0+CELL-1,MAPC.dump,'dump');
