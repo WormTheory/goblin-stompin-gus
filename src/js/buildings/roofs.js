@@ -155,6 +155,11 @@ function plainsColumn(col,x,z,noShore){
   const v=hash2(x*7+3,z*11+5),rk=B.rock*(1+5*r);   // (boulders: many more on rugged ground)
   if(bare){if(!snow&&v>1-rk){col(G+h+1,STONE);if(v>1-rk*0.32)col(G+h+2,STONE);}return;}
   if(B.gravel&&hash2(x*13+2,z*3+11)<B.gravel*(1+2*nzNoise(x/9,z/9,4431)))col(G+h,GRAVEL);   // (bare patches of stony ground)
+  // scree: the last stretch below the bare rock more and more loose stone
+  {const k=(h-rlfRock(t)+12)/12;if(r>0.45&&k>0&&hash2(x*17+5,z*19+3)<k*0.85){col(G+h,k>0.6&&hash2(x*5+1,z*3+7)<0.3?COBBLE:GRAVEL);return;}}
+  // boulder fields at the mountains' feet: big ones, two blocks across, where a patch noise says
+  if(r>0.5&&h>=1&&h<28&&nzNoise(x/48,z/48,4441)>0.3){const bx=x>>1,bz=z>>1,q=hash2(bx*23+7,bz*29+3);
+    if(q<0.16){const bh=1+Math.floor(hash2(bx*3+11,bz*7+5)*3);for(let y=1;y<=bh;y++)col(G+h+y,y===bh&&q<0.07?MOSSSTONE:STONE);return;}}
   // (reeds in the mud at a swamp pond's edge)
   if(B.reeds&&h===0&&hash2(x*5+7,z*13+1)<B.reeds&&plainsRaw(x,z)<0.4){col(G,MUD);col(G+1,REEDS);return;}
   if(v<B.flower)col(G+h+1,FLOWER);

@@ -113,9 +113,14 @@ function railPass(a,x0,z0){
     const set=(y,b)=>{a[li(lx,y,lz)]=b;},at=y=>a[li(lx,y,lz)];
     const c=R.c,ac=Math.abs(c),s=Math.floor(R.s),town=!!settlementAt(px,pz);
     const stn=town&&R.ax!=='a'&&plotInfo(px,pz).stnAx===R.ax;
+    // (under a mountain, world/relief.js: a tunnel, lined in concrete and lit along the middle, as the roads' are; open
+    // where a road's already through)
+    const tun=!town&&at(G+12)!==AIR&&!ROADTOP.has(at(G));
+    if(tun&&ac>2.5&&ac<=3.5){for(let y=G+1;y<=G+10;y++)set(y,CONCRETE);continue;}
     if(ac<=2.5){
       // the track bed: cut through whatever was there (but not the motorways' pillars)
       for(let y=G+1;y<=G+9;y++)if(at(y)!==CONCRETE)set(y,AIR);
+      if(tun)set(G+10,ac<=0.5&&mod(s,10)===0?LAMP:CONCRETE);
       let wet=false;for(let y=G-3;y<=G;y++)if(at(y)===WATER)wet=true;
       if(wet){
         // a steel truss bridge

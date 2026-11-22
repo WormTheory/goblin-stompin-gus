@@ -28,7 +28,7 @@ function reliefNat(x,z){
   const top=Math.min(RLF_MAX,rlfTop(r)*WORLD_CFG.mth);let mtn=0,lake=0;
   if(top>0.3){const w=nzWarp(x,z,1400,380,3307),P=nzRidged(w[0],w[1],900,4,3301);mtn=top*(0.12+0.88*P*P)*rlfValley(x,z);}
   // (lakes: low, wet ground only, deepest where it's flattest)
-  if(r<0.4&&WORLD_CFG.lakes>0){const L=nzFbm(x,z,800,3,3401),th=-0.3+0.3*(m-0.5);if(L<th)lake=Math.min(RLF_LAKE,(th-L)*60)*WORLD_CFG.lakes*(1-r/0.4);}
+  if(r<0.4&&WORLD_CFG.lakes>0){const L=nzFbm(x,z,800,3,3401),th=-0.3+0.3*(m-0.5);if(L<th)lake=Math.min(RLF_LAKE,(th-L)*60)*WORLD_CFG.lakes*(1-r/0.4)*nzSmooth(START_R0*START_R0,START_R1*START_R1,x*x+z*z);}   // (none round the start, as there are no mountains there)
   if(RLF_VON){const sl=rlfSrcLake(x,z);if(sl>lake)lake=sl;}
   RLF.hill=hill;RLF.mtn=mtn;RLF.lake=lake;RLF.r=r;
   return hill+mtn-lake;
@@ -138,7 +138,7 @@ function reliefMapCells(px,pz,n){
   if(rlfMapSeed!==seed){rlfMapSeed=seed;RLF_MAPC.clear();}if(RLF_MAPC.size>60000)RLF_MAPC.clear();
   if(!PLAINS_OPEN(px,pz)){RLF_MAPC.set(key,null);return null;}
   const st=CELL/n,base=BIOMES[biomeOfPlot(px,pz)].map,C=[];let any=false;
-  const hAt=(x,z)=>reliefNat(x,z);
+  const hAt=(x,z)=>plainsH(Math.floor(x),Math.floor(z));   // (the land as the chunks build it: levelled by the roads, the rivers and the edges of what's built)
   for(let j=0;j<n;j++)for(let i=0;i<n;i++){
     const x=px*CELL+(i+0.5)*st,z=pz*CELL+(j+0.5)*st,h=hAt(x,z),t=CLIM.t,d=Math.max(2,st/2);
     if(h<-0.9){C.push(MAPC.river);any=true;continue;}

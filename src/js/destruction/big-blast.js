@@ -19,12 +19,19 @@ function bbK(C){let K=C._k;if(!K){K={rc:C.R*0.18,rf:C.R*0.7,gy:C.y-1,D:Math.max(
 // what the blast does to one column: zone 0 nothing, 1 crater, 2 lip, 3 flattened, 4 damage ring. Everything from `cut` up goes
 // (but water and bedrock); the crater's `floor` block is scorched; lip blocks l0..l1-1 are rubble.
 function bbO(){return{zone:0,cut:H,floor:-1,fb:0,l0:0,l1:0,lb:0,t:0};}
+// (the top of the ground at a column as the plan made it: up on the hills and mountains, world/relief.js, else street
+// level; kept per column for the blast, as it's asked again and again)
+function bbGround(K,x,z){let M=K.gm;if(!M)M=K.gm=new Map();const k=x*65536+z;let v=M.get(k);
+  if(v===undefined){v=G+Math.max(0,plainsH(x,z));if(M.size<400000)M.set(k,v);}return v;}
 function bbCol(C,K,x,z,o){
   o.zone=0;o.cut=H;o.floor=-1;o.l0=o.l1=0;
   const dx=x+0.5-C.x,dz=z+0.5-C.z,d2=dx*dx+dz*dz;if(d2>=K.R2)return o;
   const s=C.s,n1=hash2(x*3+s,z*5-s),nc=hash2((x>>2)+s*7,(z>>2)-s*3),de=Math.sqrt(d2)*(1+0.12*(0.6*nc+0.4*n1-0.5));   // (a ragged edge, in clumps)
   if(de>=C.R)return o;
-  const gy=K.gy;
+  // (the shape follows the land: each column carved from its own ground, as far above or below it as the blast was
+  // above or below the ground where it went off)
+  if(K.g0===undefined)K.g0=bbGround(K,Math.floor(C.x),Math.floor(C.z));
+  const gy=K.gy+bbGround(K,x,z)-K.g0;
   if(de<K.rc){const f=gy-Math.round(K.D*(1-(de/K.rc)**2));o.zone=1;o.floor=f;o.fb=n1<0.55?COAL:n1<0.85?DEEPSLATE:GRAVEL;o.cut=f+1;}
   else if(de<K.rc*1.35){const t=(de-K.rc)/(K.rc*0.35),h=Math.max(0,Math.round((1-t)*K.lip*(0.6+0.5*n1)));o.zone=2;o.l0=gy+1;o.l1=gy+1+h;o.lb=nc<0.4?COBBLE:nc<0.75?GRAVEL:DIRT;o.cut=gy+1+h;}
   else if(de<K.rf){o.zone=3;const st=hash2((x>>1)*7+s,(z>>1)*11-s);o.cut=gy+2+(st<0.1?1+Math.floor(hash2(x+s*13,z-s)*BB_STUMP):0);}   // (a stump here and there)

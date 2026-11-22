@@ -37,6 +37,14 @@
 - The World Generator shows the ground's height and biome wherever you point, and can lay hill shading and contour lines over any map.
 - The World Generator has a 3D view: the middle of the map, just as it's shown, raised up to the ground's height, to turn round and tilt, with a slider for how much to exaggerate the heights.
 - The World Generator has River sliders: how many rivers there are, how much they meander, how far they wander and how wide they are. The game's own worlds are unchanged.
+- Highways cross the deeper lakes on a deck on pillars, with the water running underneath.
+- Railway tunnels are lined and lit, like the road tunnels.
+- Fields of big boulders lie at the mountains' feet, and loose scree just below the bare rock.
+- Big blasts carve their craters into the hills and mountains as they stand, rather than at street level.
+- Towns in rugged country are fewer and smaller.
+- The map and minimap shade the land as it really is beside the roads, rivers and towns.
+- There are no lakes near the start, as there are no mountains there.
+- Planes flying their rounds climb over the hills and mountains.
 - This makes a new world again, so a saved city starts afresh.
 
 ### Rivers

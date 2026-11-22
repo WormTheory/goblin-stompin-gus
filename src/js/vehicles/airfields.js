@@ -115,7 +115,11 @@ function aiFly(pl,S,X0,Z0,dt){
   else{   // (on the ground it stops and swings round before moving off, so anyone standing on it isn't thrown)
     let a=d>2?Math.atan2(du,dv)-S.hd:0;a=Math.atan2(Math.sin(a),Math.cos(a));S.hd+=Math.max(-o.gturn*dt,Math.min(o.gturn*dt,a));
     if(Math.abs(a)<0.2){S.pos.u+=du/d*step;S.pos.v+=dv/d*step;S.pos.h+=(P[2]-S.pos.h)*Math.min(1,step/Math.max(1,d));}else{S.sp*=1-Math.min(1,dt*2);pl.v=S.sp;}}
-  const climb=Math.max(-0.25,Math.min(0.25,(P[2]-S.pos.h)/Math.max(1,d)*1.5));
+  // (well away from the field, the hills and mountains, world/relief.js: never lower than 18 over the land under it or ahead)
+  if(air&&S.sp>4){const a=S.hd;let lo=Math.max(landTop(X0+S.pos.u,Z0+S.pos.v),landTop(X0+S.pos.u+Math.sin(a)*40,Z0+S.pos.v+Math.cos(a)*40),landTop(X0+S.pos.u+Math.sin(a)*90,Z0+S.pos.v+Math.cos(a)*90))-G-1;
+    if(lo>2&&S.pos.h<lo+18){lo+=18;S.pos.h+=Math.min(lo-S.pos.h,Math.max(4,lo-S.pos.h)*dt*1.5);S.clr=0.2;}}
+  if(S.clr>0)S.clr-=dt;
+  const climb=S.clr>0?0.22:Math.max(-0.25,Math.min(0.25,(P[2]-S.pos.h)/Math.max(1,d)*1.5));
   // (banked into its turns in the air)
   let tr=dt>0?Math.atan2(Math.sin(S.hd-hd0),Math.cos(S.hd-hd0))/dt:0;S.roll=(S.roll||0)+((air?Math.max(-0.6,Math.min(0.6,tr*0.8)):0)-(S.roll||0))*Math.min(1,dt*2);
   g.position.set(X0+S.pos.u,G+1+S.pos.h,Z0+S.pos.v);g.rotation.set(-climb,S.hd,-S.roll,'YXZ');

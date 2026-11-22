@@ -146,7 +146,11 @@ const superCache=new Map();
 const SET_SP=36,SET_R={city:[13,4],large:[7,2],small:[3,1.2],village:[1.6,0.8]},setCache=new Map(),setAtCache=new Map(),zoneCache=new Map();
 function settlementLat(rx,rz){
   const k=rx*100003+rz;let S=setCache.get(k);if(S)return S;
-  let type;if(rx===0&&rz===0)type='city';else{const h=hash2(rx*577+31,rz*331+17);type=h<0.14?'city':h<0.38?'large':h<0.68?'small':'village';}
+  let type;if(rx===0&&rz===0)type='city';else{const h=hash2(rx*577+31,rz*331+17);type=h<0.14?'city':h<0.38?'large':h<0.68?'small':'village';
+    // (in rugged country, world/relief.js, places are smaller: a step down for each band of ruggedness where the place
+    // would be. Only that coarse field, never the land's real height, which is worked out from where the places are)
+    const g=ruggedAt(rx*SET_SP*CELL,rz*SET_SP*CELL),dn=g>0.9?3:g>0.78?2:g>0.62?1:0;
+    if(dn){const T=['city','large','small','village'];type=T[Math.min(3,T.indexOf(type)+dn)];}}
   const [r0,rv]=SET_R[type];// (each place is nudged off its grid point on its own, up to 11 blocks either way, so they don't line up)
   S={rx,rz,type,R:rx===0&&rz===0?15:r0+hash2(rx*41+3,rz*59+5)*rv,cx:rx===0&&rz===0?0:rx*SET_SP+Math.round((hash2(rx*733+rz*97+1,rz*311+5)-0.5)*22),cz:rx===0&&rz===0?0:rz*SET_SP+Math.round((hash2(rz*733+rx*89+2,rx*271+9)-0.5)*22)};
   setCache.set(k,S);return S;

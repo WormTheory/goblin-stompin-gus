@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:b5f29d702383bbca337c10bd1c47d5b1ecec61b7329651cfe75734f970d94dc3 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:423dc0753cc0bfc6545f04aab3c148e96fcdcd5191712d88c9d6167c434ff188 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1648,7 +1648,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Biomes</h3>
 <ul><li>The wilds between towns now have a climate, and with it twelve biomes: grassland, temperate forest, taiga, tundra, ice fields, desert, badlands, scrubland, savanna, rainforest, swamp and moor. Each region of them is thousands of blocks across, and you always start in grassland.</li><li>Each biome has its own ground (snow, sand over sandstone, red sand over banded clay, mud), its own trees (pines, acacias, jungle giants, drooping swamp trees, cactus and dead trees), its own ponds (frozen in the ice fields, muddy and reedy in the swamp) and its own shade of grass and leaves, in towns too.</li><li>Biomes are seen from afar, and shown on the map and the minimap.</li><li>The World Generator can show the biomes, and has Climate sliders: warmer or colder, wetter or drier, how big the climate regions are and how strongly it gets colder one way and hotter the other.</li><li>This makes a new world, so a saved city starts afresh.</li></ul>
 <h3>Mountains and lakes</h3>
-<ul><li>Out in the wilds the land now rises into hills and mountain ranges, up to about 130 blocks, with bare rock near the top, snow on the peaks (lower the colder it is) and a new Alpine biome up high.</li><li>Towns, farms, sites, roads, railways and rivers all stay on the level: the mountains rise away from them, so towns sit in valleys and rivers run along valley floors.</li><li>Roads and railways cut through the hills and tunnel under the high ground (road tunnels are lined and lit).</li><li>Lakes lie in the low, wet country, frozen over in the ice fields.</li><li>Mountains are seen from afar, and the map and minimap show the hills shaded, with the rock, snow and lakes.</li><li>The World Generator has a Height layer and Land shape sliders: more or fewer mountains, how high they get, how hilly the rest is and how many lakes there are.</li><li>The World Generator shows the ground's height and biome wherever you point, and can lay hill shading and contour lines over any map.</li><li>The World Generator has a 3D view: the middle of the map, just as it's shown, raised up to the ground's height, to turn round and tilt, with a slider for how much to exaggerate the heights.</li><li>The World Generator has River sliders: how many rivers there are, how much they meander, how far they wander and how wide they are. The game's own worlds are unchanged.</li><li>This makes a new world again, so a saved city starts afresh.</li></ul>
+<ul><li>Out in the wilds the land now rises into hills and mountain ranges, up to about 130 blocks, with bare rock near the top, snow on the peaks (lower the colder it is) and a new Alpine biome up high.</li><li>Towns, farms, sites, roads, railways and rivers all stay on the level: the mountains rise away from them, so towns sit in valleys and rivers run along valley floors.</li><li>Roads and railways cut through the hills and tunnel under the high ground (road tunnels are lined and lit).</li><li>Lakes lie in the low, wet country, frozen over in the ice fields.</li><li>Mountains are seen from afar, and the map and minimap show the hills shaded, with the rock, snow and lakes.</li><li>The World Generator has a Height layer and Land shape sliders: more or fewer mountains, how high they get, how hilly the rest is and how many lakes there are.</li><li>The World Generator shows the ground's height and biome wherever you point, and can lay hill shading and contour lines over any map.</li><li>The World Generator has a 3D view: the middle of the map, just as it's shown, raised up to the ground's height, to turn round and tilt, with a slider for how much to exaggerate the heights.</li><li>The World Generator has River sliders: how many rivers there are, how much they meander, how far they wander and how wide they are. The game's own worlds are unchanged.</li><li>Highways cross the deeper lakes on a deck on pillars, with the water running underneath.</li><li>Railway tunnels are lined and lit, like the road tunnels.</li><li>Fields of big boulders lie at the mountains' feet, and loose scree just below the bare rock.</li><li>Big blasts carve their craters into the hills and mountains as they stand, rather than at street level.</li><li>Towns in rugged country are fewer and smaller.</li><li>The map and minimap shade the land as it really is beside the roads, rivers and towns.</li><li>There are no lakes near the start, as there are no mountains there.</li><li>Planes flying their rounds climb over the hills and mountains.</li><li>This makes a new world again, so a saved city starts afresh.</li></ul>
 <h3>Rivers</h3>
 <ul><li>Rivers now start somewhere and go somewhere: each one rises in the hills or mountains, or flows out of a lake, and runs downhill until it reaches the sea or joins a bigger river.</li><li>Smaller, shallower streams branch off the rivers and feed into them.</li><li>Through the hills and mountains, rivers carve valleys for themselves.</li><li>The World Generator has two more River sliders: how far rivers run inland, and how many streams branch off them. It draws streams thinner than rivers.</li><li>This makes a new world again, so a saved city starts afresh.</li></ul>
 <h3>Co-op on two screens</h3>
@@ -2381,10 +2381,10 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='c9ae44e3093d';
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v101'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
+const GAME_VER='0.5',GAME_BUILD='96b292024719';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v102'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
-const WORLD_GEN=3;
+const WORLD_GEN=4;
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -2847,7 +2847,11 @@ const superCache=new Map();
 const SET_SP=36,SET_R={city:[13,4],large:[7,2],small:[3,1.2],village:[1.6,0.8]},setCache=new Map(),setAtCache=new Map(),zoneCache=new Map();
 function settlementLat(rx,rz){
   const k=rx*100003+rz;let S=setCache.get(k);if(S)return S;
-  let type;if(rx===0&&rz===0)type='city';else{const h=hash2(rx*577+31,rz*331+17);type=h<0.14?'city':h<0.38?'large':h<0.68?'small':'village';}
+  let type;if(rx===0&&rz===0)type='city';else{const h=hash2(rx*577+31,rz*331+17);type=h<0.14?'city':h<0.38?'large':h<0.68?'small':'village';
+    // (in rugged country, world/relief.js, places are smaller: a step down for each band of ruggedness where the place
+    // would be. Only that coarse field, never the land's real height, which is worked out from where the places are)
+    const g=ruggedAt(rx*SET_SP*CELL,rz*SET_SP*CELL),dn=g>0.9?3:g>0.78?2:g>0.62?1:0;
+    if(dn){const T=['city','large','small','village'];type=T[Math.min(3,T.indexOf(type)+dn)];}}
   const [r0,rv]=SET_R[type];// (each place is nudged off its grid point on its own, up to 11 blocks either way, so they don't line up)
   S={rx,rz,type,R:rx===0&&rz===0?15:r0+hash2(rx*41+3,rz*59+5)*rv,cx:rx===0&&rz===0?0:rx*SET_SP+Math.round((hash2(rx*733+rz*97+1,rz*311+5)-0.5)*22),cz:rx===0&&rz===0?0:rz*SET_SP+Math.round((hash2(rz*733+rx*89+2,rx*271+9)-0.5)*22)};
   setCache.set(k,S);return S;
@@ -3088,7 +3092,7 @@ function reliefNat(x,z){
   const top=Math.min(RLF_MAX,rlfTop(r)*WORLD_CFG.mth);let mtn=0,lake=0;
   if(top>0.3){const w=nzWarp(x,z,1400,380,3307),P=nzRidged(w[0],w[1],900,4,3301);mtn=top*(0.12+0.88*P*P)*rlfValley(x,z);}
   // (lakes: low, wet ground only, deepest where it's flattest)
-  if(r<0.4&&WORLD_CFG.lakes>0){const L=nzFbm(x,z,800,3,3401),th=-0.3+0.3*(m-0.5);if(L<th)lake=Math.min(RLF_LAKE,(th-L)*60)*WORLD_CFG.lakes*(1-r/0.4);}
+  if(r<0.4&&WORLD_CFG.lakes>0){const L=nzFbm(x,z,800,3,3401),th=-0.3+0.3*(m-0.5);if(L<th)lake=Math.min(RLF_LAKE,(th-L)*60)*WORLD_CFG.lakes*(1-r/0.4)*nzSmooth(START_R0*START_R0,START_R1*START_R1,x*x+z*z);}   // (none round the start, as there are no mountains there)
   if(RLF_VON){const sl=rlfSrcLake(x,z);if(sl>lake)lake=sl;}
   RLF.hill=hill;RLF.mtn=mtn;RLF.lake=lake;RLF.r=r;
   return hill+mtn-lake;
@@ -3198,7 +3202,7 @@ function reliefMapCells(px,pz,n){
   if(rlfMapSeed!==seed){rlfMapSeed=seed;RLF_MAPC.clear();}if(RLF_MAPC.size>60000)RLF_MAPC.clear();
   if(!PLAINS_OPEN(px,pz)){RLF_MAPC.set(key,null);return null;}
   const st=CELL/n,base=BIOMES[biomeOfPlot(px,pz)].map,C=[];let any=false;
-  const hAt=(x,z)=>reliefNat(x,z);
+  const hAt=(x,z)=>plainsH(Math.floor(x),Math.floor(z));   // (the land as the chunks build it: levelled by the roads, the rivers and the edges of what's built)
   for(let j=0;j<n;j++)for(let i=0;i<n;i++){
     const x=px*CELL+(i+0.5)*st,z=pz*CELL+(j+0.5)*st,h=hAt(x,z),t=CLIM.t,d=Math.max(2,st/2);
     if(h<-0.9){C.push(MAPC.river);any=true;continue;}
@@ -3802,9 +3806,14 @@ function railPass(a,x0,z0){
     const set=(y,b)=>{a[li(lx,y,lz)]=b;},at=y=>a[li(lx,y,lz)];
     const c=R.c,ac=Math.abs(c),s=Math.floor(R.s),town=!!settlementAt(px,pz);
     const stn=town&&R.ax!=='a'&&plotInfo(px,pz).stnAx===R.ax;
+    // (under a mountain, world/relief.js: a tunnel, lined in concrete and lit along the middle, as the roads' are; open
+    // where a road's already through)
+    const tun=!town&&at(G+12)!==AIR&&!ROADTOP.has(at(G));
+    if(tun&&ac>2.5&&ac<=3.5){for(let y=G+1;y<=G+10;y++)set(y,CONCRETE);continue;}
     if(ac<=2.5){
       // the track bed: cut through whatever was there (but not the motorways' pillars)
       for(let y=G+1;y<=G+9;y++)if(at(y)!==CONCRETE)set(y,AIR);
+      if(tun)set(G+10,ac<=0.5&&mod(s,10)===0?LAMP:CONCRETE);
       let wet=false;for(let y=G-3;y<=G;y++)if(at(y)===WATER)wet=true;
       if(wet){
         // a steel truss bridge
@@ -5632,29 +5641,33 @@ function farmlandOf(px,pz){
 }
 const PLAINS_OPEN=(px,pz)=>realmOf(px,pz)==='plains'&&farmK(px,pz)===null&&!farmlandOf(px,pz)&&dumpAt(px,pz)===null&&!castleAt(px,pz)&&!bunkerAt(px,pz)&&!bigPlainsAt(px,pz)&&!caveMouth(px,pz)&&!turbineAt(px,pz);
 // close to a highway's line or a farm lane out on the plains (keep it flat, keep the trees off)
+// (RN_RT: the highways' part of the last answer, RN_O everything else's, for plainsH)
+let RN_RT=1e9,RN_O=1e9;
 function roadNear(x,z,pad){
   const px=Math.floor(x/CELL),pz=Math.floor(z/CELL);let e=1e9;
-  {const R=routeAt(x,z,40);if(R)e=Math.min(e,R.d-9.6);}
+  {const R=routeAt(x,z,40);RN_RT=R?R.d-9.6:1e9;}
   {const W=riverAt(x,z,40);if(W){const S=W.R.src;if(!S||rlfLen(x-S[0],z-S[1])>=S[2]+1)e=Math.min(e,W.d-(W.R.w||RIV_W)-4);}}   // (not in the lake a river rises in)
   {const k=Math.floor(x/16)*100003+Math.floor(z/16);if(!tsC.has(k))tsAt(x,z);for(const T of tsC.get(k)||[]){const dx=x+0.5-T.cx,dz=z+0.5-T.cz,u=dx*T.tx+dz*T.tz,v=dx*T.nx+dz*T.nz;
      e=Math.min(e,Math.hypot(Math.max(0,Math.abs(u)-46),Math.max(0,v-60,6.5-v))-2);}}
   {const L=farmLane(px,pz);if(L&&z>=L.z0-2&&z<L.z1+2)e=Math.min(e,(Math.abs(x-(px*CELL+PC-0.5))-1)*14/(pad||8));}
   e=Math.min(e,linkNear(x,z));
-  return e;
+  RN_O=e;return Math.min(e,RN_RT);
 }
 // the ground's height at (x,z) out in the open plains, in blocks above G (below 0: a pond or lake that deep): the land's
 // own (reliefNat, world/relief.js) as what's built lets it stand. The rolling hills and the lakes ease out to nothing
 // within 14 blocks of a road, a river or the edge of a block that isn't open plains (as the plains always did, so the
-// lakes' shores make embankments where a road runs by); the mountains are cut back more steeply (reliefMask)
+// lakes' shores make embankments where a road runs by); the mountains are cut back more steeply (reliefMask). A lake
+// deeper than a few blocks isn't filled in for a highway, though: it runs on under it, and the road crosses on a deck on
+// pillars (routeColumn), easing from the one to the other as the lake gets deeper
 function plainsH(x,z){
   const px=Math.floor(x/CELL),pz=Math.floor(z/CELL);RLF.cut=RLF.tun=false;RLF.r=0;if(!PLAINS_OPEN(px,pz))return 0;
   const rx=x-px*CELL,rz=z-pz*CELL;let f=1;
-  f=Math.min(f,Math.max(0,roadNear(x,z))/14);
+  roadNear(x,z);f=Math.min(f,Math.max(0,RN_O)/14);const fr=Math.min(1,Math.max(0,RN_RT)/14);
   for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++){if(!dx&&!dz||PLAINS_OPEN(px+dx,pz+dz))continue;
     const ex=dx<0?rx:dx>0?CELL-1-rx:0,ez=dz<0?rz:dz>0?CELL-1-rz:0;f=Math.min(f,Math.max(dx?ex:0,dz?ez:0)/14);}
   f=Math.min(f,rlfLane(x,z,px,pz)/6);   // (and level with a farm's lane, which only clears its own height)
-  reliefNat(x,z);const mtn=RLF.mtn,hill=RLF.hill,lake=RLF.lake;
-  const h=(hill-lake)*f+(mtn>0.5?reliefMask(x,z,px,pz,mtn,hill+mtn):mtn*f);
+  reliefNat(x,z);const mtn=RLF.mtn,hill=RLF.hill,lake=RLF.lake,s=Math.max(0,Math.min(1,(lake-2)/3)),fh=Math.min(f,fr),fl=Math.min(f,fr+(1-fr)*s);
+  const h=hill*fh-lake*fl+(mtn>0.5?reliefMask(x,z,px,pz,mtn,hill+mtn):mtn*fh);
   return h<-0.9?Math.max(-RLF_LAKE,Math.round(h)):Math.max(0,Math.round(h));
 }
 // the plains' rolling ground before it's flattened toward roads and other blocks (plainsH scales it down there). Below
@@ -8141,6 +8154,11 @@ function plainsColumn(col,x,z,noShore){
   const v=hash2(x*7+3,z*11+5),rk=B.rock*(1+5*r);   // (boulders: many more on rugged ground)
   if(bare){if(!snow&&v>1-rk){col(G+h+1,STONE);if(v>1-rk*0.32)col(G+h+2,STONE);}return;}
   if(B.gravel&&hash2(x*13+2,z*3+11)<B.gravel*(1+2*nzNoise(x/9,z/9,4431)))col(G+h,GRAVEL);   // (bare patches of stony ground)
+  // scree: the last stretch below the bare rock more and more loose stone
+  {const k=(h-rlfRock(t)+12)/12;if(r>0.45&&k>0&&hash2(x*17+5,z*19+3)<k*0.85){col(G+h,k>0.6&&hash2(x*5+1,z*3+7)<0.3?COBBLE:GRAVEL);return;}}
+  // boulder fields at the mountains' feet: big ones, two blocks across, where a patch noise says
+  if(r>0.5&&h>=1&&h<28&&nzNoise(x/48,z/48,4441)>0.3){const bx=x>>1,bz=z>>1,q=hash2(bx*23+7,bz*29+3);
+    if(q<0.16){const bh=1+Math.floor(hash2(bx*3+11,bz*7+5)*3);for(let y=1;y<=bh;y++)col(G+h+y,y===bh&&q<0.07?MOSSSTONE:STONE);return;}}
   // (reeds in the mud at a swamp pond's edge)
   if(B.reeds&&h===0&&hash2(x*5+7,z*13+1)<B.reeds&&plainsRaw(x,z)<0.4){col(G,MUD);col(G+1,REEDS);return;}
   if(v<B.flower)col(G+h+1,FLOWER);
@@ -9137,11 +9155,13 @@ function routeColumn(a,lx,lz,x,z,n,HY){
     const wet=riverAt(x+0.5,z+0.5,RIV_W+1);
     // (through a mountain, world/relief.js: a tunnel, lined in concrete and lit along its middle, rather than the open
     // cutting's headroom)
-    const tun=!wet&&a[li(lx,G+12,lz)]!==AIR;
+    // (over a lake deep enough to be left under it, country-sites.js's plainsH: a deck on pillars, the water running under)
+    const lk=!wet&&a[li(lx,G-1,lz)]===WATER,tun=!wet&&!lk&&a[li(lx,G+12,lz)]!==AIR;
+    if(lk&&mod(along,8)===0&&(bar||ad<1))for(let y=G-1;y>0;y--){const b=a[li(lx,y,lz)];if(b!==WATER&&b!==AIR&&b!==ICE)break;put(y,CONCRETE);}
     if(tun){for(let y=G+1;y<G+8;y++)put(y,AIR);put(G+8,CONCRETE);if(Math.abs(n.sd)<1&&mod(along,10)===0)put(G+8,LAMP);for(let y=G-2;y<G;y++)put(y,DIRT);
       if(bar&&!farmLaneCol(x,z)&&!tsApron(x,z)&&!OPEN_TOP.has(a[li(lx,G,lz)])&&railNear(x,z)>3){for(let y=G;y<G+8;y++)put(y,CONCRETE);return true;}   // (its walls, open where something joins or crosses)
       if(bar&&railNear(x,z)<=3)return true;}
-    else for(let y=G+1;y<G+12;y++)put(y,AIR);if(!wet&&!tun)for(let y=G-2;y<G;y++)put(y,DIRT);
+    else for(let y=G+1;y<G+12;y++)put(y,AIR);if(!wet&&!tun&&!lk)for(let y=G-2;y<G;y++)put(y,DIRT);
     if(bar&&farmLaneCol(x,z)){put(G,ASPHALT);return true;}   // a farm lane joins here: an opening in the barrier
     if(bar&&tsApron(x,z)){put(G,ASPHALT);return true;}       // (and the way into a truck stop)
     if(bar&&OPEN_TOP.has(a[li(lx,G,lz)]))return true;        // (and wherever another road's already here: where two meet it's an open junction, not a wall across its lanes)
@@ -22857,12 +22877,19 @@ function bbK(C){let K=C._k;if(!K){K={rc:C.R*0.18,rf:C.R*0.7,gy:C.y-1,D:Math.max(
 // what the blast does to one column: zone 0 nothing, 1 crater, 2 lip, 3 flattened, 4 damage ring. Everything from `cut` up goes
 // (but water and bedrock); the crater's `floor` block is scorched; lip blocks l0..l1-1 are rubble.
 function bbO(){return{zone:0,cut:H,floor:-1,fb:0,l0:0,l1:0,lb:0,t:0};}
+// (the top of the ground at a column as the plan made it: up on the hills and mountains, world/relief.js, else street
+// level; kept per column for the blast, as it's asked again and again)
+function bbGround(K,x,z){let M=K.gm;if(!M)M=K.gm=new Map();const k=x*65536+z;let v=M.get(k);
+  if(v===undefined){v=G+Math.max(0,plainsH(x,z));if(M.size<400000)M.set(k,v);}return v;}
 function bbCol(C,K,x,z,o){
   o.zone=0;o.cut=H;o.floor=-1;o.l0=o.l1=0;
   const dx=x+0.5-C.x,dz=z+0.5-C.z,d2=dx*dx+dz*dz;if(d2>=K.R2)return o;
   const s=C.s,n1=hash2(x*3+s,z*5-s),nc=hash2((x>>2)+s*7,(z>>2)-s*3),de=Math.sqrt(d2)*(1+0.12*(0.6*nc+0.4*n1-0.5));   // (a ragged edge, in clumps)
   if(de>=C.R)return o;
-  const gy=K.gy;
+  // (the shape follows the land: each column carved from its own ground, as far above or below it as the blast was
+  // above or below the ground where it went off)
+  if(K.g0===undefined)K.g0=bbGround(K,Math.floor(C.x),Math.floor(C.z));
+  const gy=K.gy+bbGround(K,x,z)-K.g0;
   if(de<K.rc){const f=gy-Math.round(K.D*(1-(de/K.rc)**2));o.zone=1;o.floor=f;o.fb=n1<0.55?COAL:n1<0.85?DEEPSLATE:GRAVEL;o.cut=f+1;}
   else if(de<K.rc*1.35){const t=(de-K.rc)/(K.rc*0.35),h=Math.max(0,Math.round((1-t)*K.lip*(0.6+0.5*n1)));o.zone=2;o.l0=gy+1;o.l1=gy+1+h;o.lb=nc<0.4?COBBLE:nc<0.75?GRAVEL:DIRT;o.cut=gy+1+h;}
   else if(de<K.rf){o.zone=3;const st=hash2((x>>1)*7+s,(z>>1)*11-s);o.cut=gy+2+(st<0.1?1+Math.floor(hash2(x+s*13,z-s)*BB_STUMP):0);}   // (a stump here and there)
@@ -26327,7 +26354,11 @@ function aiFly(pl,S,X0,Z0,dt){
   else{   // (on the ground it stops and swings round before moving off, so anyone standing on it isn't thrown)
     let a=d>2?Math.atan2(du,dv)-S.hd:0;a=Math.atan2(Math.sin(a),Math.cos(a));S.hd+=Math.max(-o.gturn*dt,Math.min(o.gturn*dt,a));
     if(Math.abs(a)<0.2){S.pos.u+=du/d*step;S.pos.v+=dv/d*step;S.pos.h+=(P[2]-S.pos.h)*Math.min(1,step/Math.max(1,d));}else{S.sp*=1-Math.min(1,dt*2);pl.v=S.sp;}}
-  const climb=Math.max(-0.25,Math.min(0.25,(P[2]-S.pos.h)/Math.max(1,d)*1.5));
+  // (well away from the field, the hills and mountains, world/relief.js: never lower than 18 over the land under it or ahead)
+  if(air&&S.sp>4){const a=S.hd;let lo=Math.max(landTop(X0+S.pos.u,Z0+S.pos.v),landTop(X0+S.pos.u+Math.sin(a)*40,Z0+S.pos.v+Math.cos(a)*40),landTop(X0+S.pos.u+Math.sin(a)*90,Z0+S.pos.v+Math.cos(a)*90))-G-1;
+    if(lo>2&&S.pos.h<lo+18){lo+=18;S.pos.h+=Math.min(lo-S.pos.h,Math.max(4,lo-S.pos.h)*dt*1.5);S.clr=0.2;}}
+  if(S.clr>0)S.clr-=dt;
+  const climb=S.clr>0?0.22:Math.max(-0.25,Math.min(0.25,(P[2]-S.pos.h)/Math.max(1,d)*1.5));
   // (banked into its turns in the air)
   let tr=dt>0?Math.atan2(Math.sin(S.hd-hd0),Math.cos(S.hd-hd0))/dt:0;S.roll=(S.roll||0)+((air?Math.max(-0.6,Math.min(0.6,tr*0.8)):0)-(S.roll||0))*Math.min(1,dt*2);
   g.position.set(X0+S.pos.u,G+1+S.pos.h,Z0+S.pos.v);g.rotation.set(-climb,S.hd,-S.roll,'YXZ');
