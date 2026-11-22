@@ -29,6 +29,8 @@
 - Lakes lie in the low, wet country, frozen over in the ice fields.
 - Mountains are seen from afar, and the map and minimap show the hills shaded, with the rock, snow and lakes.
 - The World Generator has a Height layer and Land shape sliders: more or fewer mountains, how high they get, how hilly the rest is and how many lakes there are.
+- The World Generator shows the ground's height and biome wherever you point, and can lay hill shading and contour lines over any map.
+- The World Generator has River sliders: how many rivers there are, how much they meander, how far they wander and how wide they are. The game's own worlds are unchanged.
 - This makes a new world again, so a saved city starts afresh.
 
 ### Co-op on two screens

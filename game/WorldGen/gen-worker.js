@@ -34,7 +34,7 @@ self.AudioContext=undefined;self.webkitAudioContext=undefined;
 let WSEED=1;
 // (the game reads its world from its save on loading: hand it a fresh world with this seed)
 self.localStorage={getItem:k=>String(k).startsWith('goblin-city-v')?JSON.stringify({seed:WSEED,edits:{},coll:{},down:[],dest:{},test:[]}):null,setItem(){},removeItem(){},key:()=>null,length:0};
-const NAMES=['settlementLat','settlementAt','settlementRaw','setName','setKind','PLACE_KIND','zoneAt','seaPlot','seaV','SEA_T','coastType','plotType1','superOf','isRiver','riversNearBox','stMatch','cvSite','portCell','capitolPlan','climateAt','bioPick','BIOMES','reliefNat','realmOf','rlfSnow','rlfRock','RLF','CELL','SET_SP','BIGP','bigCell','MAPC','TEST_GROUPS','seed'];
+const NAMES=['settlementLat','settlementAt','settlementRaw','setName','setKind','PLACE_KIND','zoneAt','seaPlot','seaV','SEA_T','coastType','plotType1','superOf','isRiver','riversNearBox','stMatch','cvSite','portCell','capitolPlan','climateAt','bioPick','BIOMES','reliefNat','plainsH','realmOf','rlfSnow','rlfRock','RLF','CELL','SET_SP','BIGP','bigCell','MAPC','TEST_GROUPS','seed'];
 let T=null;
 function loadGame(html,seed,sea){
   WSEED=seed;self.GSG_WORLD=sea||undefined;   // (the Land & sea sliders: the game's WORLD_CFG, read by its coast.js as it loads)
@@ -132,6 +132,17 @@ function plot(px,pz){
   const S=T.settlementAt(px,pz),sp=T.seaPlot(px,pz);let t;const B=T.superOf&&T.superOf(px,pz);t=sp===2?'sea':B?B.kind:T.plotType1(px,pz);
   return {t:String(t),set:S?setInfo(S):null,zone:S?T.zoneAt(px,pz):null,cap:S&&(S.rx+','+S.rz)===capKey};
 }
+// ---- one point (in plots): how high the ground is there, in blocks above the sea (the sea's surface is the datum, G,
+// which towns and everything built stay at), what it is (rock, snow, a lake) and the biome ----
+function point(x,z){
+  const C=T.CELL,X=x*C,Z=z*C,px=Math.floor(x),pz=Math.floor(z),o={};
+  if(T.seaPlot(px,pz)===2)o.sea=true;
+  else if(T.plainsH&&T.realmOf(px,pz)==='plains'){const h=T.plainsH(X,Z);o.h=h;if(T.RLF.cut)o.cut=true;if(T.RLF.tun)o.tun=true;
+    if(T.climateAt&&h>0){const t=T.climateAt(X,Z).t;if(h>T.rlfSnow(t))o.snow=true;else if(h>T.rlfRock(t))o.rock=true;}}
+  else o.h=0;
+  if(T.climateAt&&T.bioPick&&T.BIOMES&&!o.sea){const c=T.climateAt(X,Z),B=T.BIOMES[T.bioPick(c.t,c.m,X,Z)];if(B)o.bio=B.n;}
+  return o;
+}
 // ---- a settlement in full: how big it is and what's in it ----
 function place(k){
   const [rx,rz]=k.split(',').map(Number),S=T.settlementLat(rx,rz),r=Math.ceil(S.R*1.4)+3,counts={};let n=0;
@@ -164,6 +175,7 @@ self.onmessage=async e=>{
     else if(m.op==='coarse')r=coarse(m.tx,m.tz);
     else if(m.op==='detail')r=detail(m.tx,m.tz);
     else if(m.op==='plot')r=plot(m.px,m.pz);
+    else if(m.op==='pt')r=point(m.x,m.z);
     else if(m.op==='place')r=place(m.k);
     else if(m.op==='search')r=search(m.q,m.cx,m.cz);
     postMessage({id:m.id,ok:r});

@@ -97,6 +97,7 @@ details[open]>summary.lbl::before{transform:rotate(90deg)}
     <div><div class="lbl">Climate</div><div class="chips" id="climate"></div><div class="ramp" id="climKey" hidden><span></span><i></i><span></span></div><div class="biokey" id="bioKey" hidden></div></div>
     <details id="seabox"><summary class="lbl">Land &amp; sea</summary><div class="sliders" id="sliders"></div><button class="btn small" id="seaReset" type="button">Default</button></details>
     <details id="shapebox"><summary class="lbl">Land shape</summary><div class="sliders" id="shsliders"></div><button class="btn small" id="shapeReset" type="button">Default</button></details>
+    <details id="rivbox"><summary class="lbl">Rivers</summary><div class="sliders" id="rvsliders"></div><button class="btn small" id="rivReset" type="button">Default</button></details>
     <details id="climbox"><summary class="lbl">Climate</summary><div class="sliders" id="clsliders"></div><button class="btn small" id="climReset" type="button">Default</button></details>
     <details id="keybox" open><summary class="lbl">Key</summary><div class="legend" id="legend"></div></details>
   </div>
@@ -148,22 +149,23 @@ async function start(seed){
 // (each range is as far as the start can still always be found inland with a coast in reach)
 const SEA_S=[['land','Land',-2.5,2.5,0.1,0],['size','Continent size',0.4,1.8,0.05,1],['rough','Coastline roughness',0,2.5,0.1,1],['chan','Ocean channels',0,2.5,0.1,1],['isles','Island chains',0,3,0.1,1],['islz','Island size',0.6,3,0.1,1],
   ['temp','Temperature',-0.4,0.4,0.02,0,'clim'],['rain','Rainfall',-0.4,0.4,0.02,0,'clim'],['czone','Climate zone size',0.4,2.5,0.1,1,'clim'],['lat','Latitude bands',0,4,0.1,1,'clim'],
-  ['mtn','Mountains',-0.5,0.5,0.05,0,'shape'],['mth','Mountain height',0.3,1.2,0.05,1,'shape'],['hill','Hilliness',0,3,0.1,1,'shape'],['lakes','Lakes',0,3,0.1,1,'shape']];
+  ['mtn','Mountains',-0.5,0.5,0.05,0,'shape'],['mth','Mountain height',0.3,1.2,0.05,1,'shape'],['hill','Hilliness',0,3,0.1,1,'shape'],['lakes','Lakes',0,3,0.1,1,'shape'],
+  ['riv','How often',0,2.2,0.1,1,'riv'],['rmd','Meandering',0,3,0.1,1,'riv'],['rwd','Wandering',0,3,0.1,1,'riv'],['rwid','Width',0.5,2,0.05,1,'riv']];
 const SEAC={},seaIn={},seaOut={};
 SEA_S.forEach(([k,,lo,hi,st,d])=>SEAC[k]=d);
-const seaFmt=(k,v)=>k==='land'||k==='temp'||k==='rain'||k==='mtn'?(v>0?'+':'')+v.toFixed(k==='land'?1:2):'×'+v.toFixed(k==='size'||k==='mth'?2:1);
+const seaFmt=(k,v)=>k==='land'||k==='temp'||k==='rain'||k==='mtn'?(v>0?'+':'')+v.toFixed(k==='land'?1:2):'×'+v.toFixed(k==='size'||k==='mth'||k==='rwid'?2:1);
 function seaSent(){const o={};let any=false;SEA_S.forEach(([k,,,,,d])=>{if(SEAC[k]!==d){o[k]=SEAC[k];any=true;}});return any?o:undefined;}
 function seaQuery(){const o=seaSent();return o?Object.keys(o).map(k=>'&'+k+'='+o[k]).join(''):'';}
 function seaSet(k,v){const s=SEA_S.find(r=>r[0]===k);if(!s||!isFinite(v))return;v=Math.round(Math.max(s[2],Math.min(s[3],v))/s[4])*s[4];SEAC[k]=+v.toFixed(2);}
 let seaT=0;
 function seaRedo(){clearTimeout(seaT);seaT=setTimeout(()=>start(curSeed),250);}
-const slEl=document.getElementById('sliders'),clSlEl=document.getElementById('clsliders'),shSlEl=document.getElementById('shsliders');
+const slEl=document.getElementById('sliders'),clSlEl=document.getElementById('clsliders'),shSlEl=document.getElementById('shsliders'),rvSlEl=document.getElementById('rvsliders');
 SEA_S.forEach(([k,name,lo,hi,st,,grp])=>{
   const id='sea_'+k,l=document.createElement('label'),i=document.createElement('input'),o=document.createElement('output');
   l.htmlFor=id;l.textContent=name;i.type='range';i.id=id;i.min=lo;i.max=hi;i.step=st;o.htmlFor=id;
   i.oninput=()=>{seaSet(k,+i.value);o.textContent=seaFmt(k,SEAC[k]);};
   i.onchange=()=>{i.oninput();seaRedo();};
-  (grp==='clim'?clSlEl:grp==='shape'?shSlEl:slEl).append(l,i,o);seaIn[k]=i;seaOut[k]=o;
+  (grp==='clim'?clSlEl:grp==='shape'?shSlEl:grp==='riv'?rvSlEl:slEl).append(l,i,o);seaIn[k]=i;seaOut[k]=o;
 });
 function seaShow(){SEA_S.forEach(([k])=>{seaIn[k].value=SEAC[k];seaOut[k].textContent=seaFmt(k,SEAC[k]);});}
 // (each box's Default puts back only its own)
@@ -171,6 +173,7 @@ const seaDef=g=>{let ch=false;SEA_S.forEach(([k,,,,,d,grp])=>{if((grp||'sea')===
 document.getElementById('seaReset').onclick=()=>seaDef('sea');
 document.getElementById('climReset').onclick=()=>seaDef('clim');
 document.getElementById('shapeReset').onclick=()=>seaDef('shape');
+document.getElementById('rivReset').onclick=()=>seaDef('riv');
 
 // ---- view: centre (plots) and scale (CSS pixels a plot) ----
 let dpr=1,vw=0,vh=0,cx=0,cz=0,sc=0.9;
@@ -188,7 +191,7 @@ let busy=0,lbusy=0;const busyEl=document.getElementById('busy');
 const landKey=(L,i,j)=>L+'|'+i+','+j;
 // (the climate's tiles too, while it's shown: on the same worker, after the land)
 function landJobs(){const L=landLv(),T=CT<<L,out=[],V=viewTiles(T,64);for(const [i,j] of V)if(!LANDT.has(landKey(L,i,j)))out.push({op:'land',tx:i,tz:j,L});
-  if(clim!=='off')for(const [i,j] of V)if(!CLIMT.has(landKey(L,i,j)))out.push({op:'clim',tx:i,tz:j,L});return out;}
+  if(climWanted())for(const [i,j] of V)if(!CLIMT.has(landKey(L,i,j)))out.push({op:'clim',tx:i,tz:j,L});return out;}
 function siteJob(count){let n=0,job=null;
   if(sc>=SITES)for(const [i,j] of viewTiles(CT,64))if(!SITET.has(i+','+j)){n++;if(!job)job={op:'coarse',tx:i,tz:j};if(!count)return job;}
   if(sc>=DETAIL)for(const [i,j] of viewTiles(DT,0))if(!DET.has(i+','+j)){n++;if(!job)job={op:'detail',tx:i,tz:j};if(!count)return job;}
@@ -229,10 +232,11 @@ function take(op,key,r,job){
 }
 
 // ---- toggles and key ----
-const show={sets:true,bases:true,navy:true,cv:true,rivers:true,grid:true};let ground='plots';
-const LAY=[['sets','Settlements','#14141c'],['bases','Military bases',BASEC],['navy','Naval bases',NAVYC],['cv','Carriers',CVC],['rivers','Rivers','#4a86c0'],['grid','Grid','#9aa68f']];
+const show={sets:true,bases:true,navy:true,cv:true,rivers:true,grid:true,shade:false,cont:false};let ground='plots';
+const climWanted=()=>clim!=='off'||show.shade||show.cont;
+const LAY=[['sets','Settlements','#14141c'],['bases','Military bases',BASEC],['navy','Naval bases',NAVYC],['cv','Carriers',CVC],['rivers','Rivers','#4a86c0'],['grid','Grid','#9aa68f'],['shade','Hill shading','#7d6a55'],['cont','Contours','#8a5a2b']];
 const lay=document.getElementById('layers');
-for(const [k,t,c] of LAY){const b=document.createElement('button');b.className='chip';b.type='button';b.id='lay-'+k;b.setAttribute('aria-pressed','true');b.innerHTML=`<i class="sw" style="background:${c};border-radius:50%"></i>${t}`;b.onclick=()=>{show[k]=!show[k];b.setAttribute('aria-pressed',show[k]);draw();};lay.append(b);}
+for(const [k,t,c] of LAY){const b=document.createElement('button');b.className='chip';b.type='button';b.id='lay-'+k;b.setAttribute('aria-pressed',show[k]);b.innerHTML=`<i class="sw" style="background:${c};border-radius:50%"></i>${t}`;b.onclick=()=>{show[k]=!show[k];b.setAttribute('aria-pressed',show[k]);draw();pump();};lay.append(b);}
 const gr=document.getElementById('ground');
 for(const [k,t] of [['plots','Plot types'],['zones','Zones']]){const b=document.createElement('button');b.className='chip seg';b.type='button';b.id='gr-'+k;b.textContent=t;b.setAttribute('aria-pressed',k===ground);b.onclick=()=>{ground=k;for(const q of gr.children)q.setAttribute('aria-pressed',q===b);draw();};gr.append(b);}
 // (the climate over the land, the game's climateAt, and the biomes it makes, bioPick)
@@ -244,13 +248,38 @@ const climRGB=(k,v)=>{const S=CLIMS[k].rgb,f=v/255*(S.length-1),i=Math.min(S.len
 let bioPal=null;
 function climPic(e,k){if(e.c[k])return e.c[k];const r=e.r,N=r.M,c=document.createElement('canvas');c.width=c.height=N;const x=c.getContext('2d'),im=x.createImageData(N,N);
   if(k==='b'&&!r.bio||k==='h'&&!r.hg)return e.c[k]=c;const P=k==='b'?r.bio.map(q=>hex(q[1])):null;
-  if(k==='h'){const H=r.hg,K=r.hk,D=Math.max(1,r.st*8);   // (shaded as if lit from the north-west, steeper the darker or brighter)
+  if(k==='h'){const H=hSmooth(r),K=r.hk,D=Math.max(1,r.st*8);   // (shaded as if lit from the north-west, steeper the darker or brighter)
     for(let q=0;q<N*N;q++){if(r.land[q]!==2)continue;const v=H[q],kk=K[q];let C=kk===3?HLAKE:kk===2?HSNOW:kk===1?HROCK:hRamp(v);
       if(kk!==3){const i=q%N,a=i>0?H[q-1]:v,b=q>=N?H[q-N]:v,f=Math.max(-0.5,Math.min(0.5,((v-a)+(v-b))*2/D));C=C.map(x=>Math.round(f>0?x+(255-x)*f:x*(1+f)));}
       im.data[q*4]=C[0];im.data[q*4+1]=C[1];im.data[q*4+2]=C[2];im.data[q*4+3]=255;}
     x.putImageData(im,0,0);return e.c[k]=c;}
   for(let q=0;q<N*N;q++){if(r.land[q]!==2)continue;const [R,G,B]=P?P[r.b[q]]:climRGB(k,r[k][q]);im.data[q*4]=R;im.data[q*4+1]=G;im.data[q*4+2]=B;im.data[q*4+3]=255;}
   x.putImageData(im,0,0);return e.c[k]=c;}
+// (the heights a tile's shading is worked out from: each the average of the 3 x 3 round it, as the hills' little bumps are
+// about as far apart as the samples, and lit one by one they come out as speckle)
+function hSmooth(r){if(r.hs)return r.hs;const N=r.M,H=r.hg,o=new Float32Array(N*N);
+  for(let j=0;j<N;j++)for(let i=0;i<N;i++){let t=0,n=0;for(let b=Math.max(0,j-1);b<=Math.min(N-1,j+1);b++)for(let a=Math.max(0,i-1);a<=Math.min(N-1,i+1);a++){t+=H[b*N+a];n++;}o[j*N+i]=t/n;}
+  return r.hs=o;}
+// (hill shading over whatever's under it: the same light as the Height layer's, as see-through white and black)
+function shadePic(e){if(e.c.s)return e.c.s;const r=e.r,N=r.M,c=document.createElement('canvas');c.width=c.height=N;if(!r.hg)return e.c.s=c;
+  const x=c.getContext('2d'),im=x.createImageData(N,N),H=hSmooth(r),K=r.hk,D=Math.max(1,r.st*8);
+  for(let q=0;q<N*N;q++){if(r.land[q]!==2||K[q]===3)continue;const i=q%N,v=H[q],a=i>0?H[q-1]:v,b=q>=N?H[q-N]:v,f=Math.max(-0.5,Math.min(0.5,((v-a)+(v-b))*2/D));
+    const g=f>0?255:0;im.data[q*4]=im.data[q*4+1]=im.data[q*4+2]=g;im.data[q*4+3]=Math.round(Math.abs(f)*(f>0?0.8:0.95)*255);}
+  x.putImageData(im,0,0);return e.c.s=c;}
+// (contour lines: marching squares over a tile's heights, carried on into the tiles to its east and south where they've
+// come in, so the lines join up; kept per interval in plots, every fifth line bold)
+function contours(L,i,j,I){const e=CLIMT.get(landKey(L,i,j));if(!e||!e.r.hg)return null;const r=e.r,N=r.M;
+  const hgOf=q=>q&&q.r.hg&&q.r.M===N?q.r.hg:null,he=hgOf(CLIMT.get(landKey(L,i+1,j))),hs=hgOf(CLIMT.get(landKey(L,i,j+1))),hse=hgOf(CLIMT.get(landKey(L,i+1,j+1)));
+  const key=I+'|'+(he?1:0)+(hs?2:0)+(hse?4:0);if(e.cn&&e.cn.key===key)return e.cn;
+  const V=(a,b)=>a<N&&b<N?r.hg[b*N+a]:a>=N&&b<N?(he?he[b*N]:null):a<N?(hs?hs[a]:null):(hse?hse[0]:null);
+  const T=CT<<L,st=r.st,h=st/2,x0=i*T+h,z0=j*T+h,thin=[],bold=[];
+  for(let b=0;b<N;b++)for(let a=0;a<N;a++){const p=V(a,b),q=V(a+1,b),s2=V(a,b+1),t=V(a+1,b+1);if(p===null||q===null||s2===null||t===null)continue;
+    const lo=Math.min(p,q,s2,t),hi=Math.max(p,q,s2,t);if(hi<I)continue;
+    for(let lv=Math.max(I,Math.ceil(lo/I)*I);lv<=hi;lv+=I){if(lv===lo||lv===hi&&lo===hi)continue;const P=[];
+      const ed=(u,v,ax,az,bx,bz)=>{if((u<lv)!==(v<lv)){const f=(lv-u)/(v-u);P.push(x0+(ax+(bx-ax)*f)*st,z0+(az+(bz-az)*f)*st);}};
+      ed(p,q,a,b,a+1,b);ed(q,t,a+1,b,a+1,b+1);ed(s2,t,a,b+1,a+1,b+1);ed(p,s2,a,b,a,b+1);
+      const out=lv%(I*5)?thin:bold;if(P.length>=4)out.push(P[0],P[1],P[2],P[3]);if(P.length>=8)out.push(P[4],P[5],P[6],P[7]);}}
+  return e.cn={key,thin,bold};}
 // (the Height layer's colours: low ground to high, bare rock, snow, lakes)
 const HSTOPS=['#7fa860','#a9b46c','#b89a68','#8e7a66'],HRGB=HSTOPS.map(hex),HROCK=hex('#8c8a84'),HSNOW=hex('#f2f5f7'),HLAKE=hex('#5a8fc8');
 const hRamp=v=>{const f=Math.max(0,Math.min(1,v/90))*(HRGB.length-1),i=Math.min(HRGB.length-2,Math.floor(f)),u=f-i;return [0,1,2].map(c=>Math.round(HRGB[i][c]+(HRGB[i+1][c]-HRGB[i][c])*u));};
@@ -303,10 +332,18 @@ function render(){
   // the climate over the land, when it's shown (coarser tiles first, as for the land)
   if(clim!=='off'){ctx.imageSmoothingEnabled=clim!=='b';const L0=landLv();for(let L=LMAX;L>=L0;L--){const T=CT<<L,V=viewTiles(T,0);if(L<LMAX&&V.length>400)continue;
     for(const [i,j] of V){const e=CLIMT.get(landKey(L,i,j));if(e)ctx.drawImage(climPic(e,clim),sx(i*T),sy(j*T),T*sc+.5,T*sc+.5);}}ctx.imageSmoothingEnabled=false;}
+  // hill shading and contours over that
+  if(show.shade&&clim!=='h'){ctx.imageSmoothingEnabled=true;const L0=landLv();for(let L=LMAX;L>=L0;L--){const T=CT<<L,V=viewTiles(T,0);if(L<LMAX&&V.length>400)continue;
+    for(const [i,j] of V){const e=CLIMT.get(landKey(L,i,j));if(e)ctx.drawImage(shadePic(e),sx(i*T),sy(j*T),T*sc+.5,T*sc+.5);}}ctx.imageSmoothingEnabled=false;}
+  if(show.cont){const L0=landLv(),I=sc<2?20:10,done=new Set();ctx.lineCap='round';
+    for(const [i,j] of viewTiles(CT<<L0,0)){let C=contours(L0,i,j,I);   // (a tile not in yet: the coarser one over it, once)
+      if(!C&&L0<LMAX){const k=Math.floor(i/2)+','+Math.floor(j/2);if(done.has(k))continue;done.add(k);C=contours(L0+1,Math.floor(i/2),Math.floor(j/2),I);}if(!C)continue;
+      for(const [A,w,col] of [[C.thin,1,'rgba(92,58,24,.45)'],[C.bold,1.6,'rgba(92,58,24,.75)']]){if(!A.length)continue;ctx.strokeStyle=col;ctx.lineWidth=w;ctx.beginPath();
+        for(let k=0;k<A.length;k+=4){ctx.moveTo(sx(A[k]),sy(A[k+1]));ctx.lineTo(sx(A[k+2]),sy(A[k+3]));}ctx.stroke();}}}
   if(sc>=28){ctx.strokeStyle='rgba(0,0,0,.08)';ctx.lineWidth=1;ctx.beginPath();
     for(let x=Math.ceil(wx(0));x<=wx(vw);x++){const X=Math.round(sx(x))+.5;ctx.moveTo(X,0);ctx.lineTo(X,vh);}
     for(let z=Math.ceil(wz(0));z<=wz(vh);z++){const Y=Math.round(sy(z))+.5;ctx.moveTo(0,Y);ctx.lineTo(vw,Y);}ctx.stroke();}
-  if(show.rivers&&sc>=SITES){ctx.strokeStyle='#4a86c0';ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=Math.max(1.5,18/32*sc);
+  if(show.rivers&&sc>=SITES){ctx.strokeStyle='#4a86c0';ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=Math.max(1.5,18/32*sc*SEAC.rwid);
     const x0=wx(-60),x1=wx(vw+60),z0=wz(-60),z1=wz(vh+60);
     for(const r of rivers){const b=r.bb;if(b&&(b[2]<x0||b[0]>x1||b[3]<z0||b[1]>z1))continue;const k=Math.max(1,Math.floor(2/(sc*(r.sp||1))));
       ctx.beginPath();let on=false;for(let i=0;i<r.length;i+=(i+k<r.length||i===r.length-1?k:r.length-1-i)){const [x,z]=r[i];if(x<x0||x>x1||z<z0||z>z1){on=false;continue;}const X=sx(x),Y=sy(z);on?ctx.lineTo(X,Y):ctx.moveTo(X,Y);on=true;}ctx.stroke();}}
@@ -377,9 +414,9 @@ const ptrs=new Map();let pinch=null,dragged=0;
 cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});dragged=0;cv.classList.add('drag');if(ptrs.size===2){const [a,b]=[...ptrs.values()];pinch={d:Math.hypot(a.x-b.x,a.y-b.y)};}});
 cv.addEventListener('pointermove',e=>{const p=ptrs.get(e.pointerId);if(!p){hover(e);return;}
   if(ptrs.size===2&&pinch){p.x=e.clientX;p.y=e.clientY;const [a,b]=[...ptrs.values()],d=Math.hypot(a.x-b.x,a.y-b.y);zoomAt(d/pinch.d,(a.x+b.x)/2,(a.y+b.y)/2);pinch.d=d;dragged=99;return;}
-  const dx=e.clientX-p.x,dy=e.clientY-p.y;dragged+=Math.abs(dx)+Math.abs(dy);p.x=e.clientX;p.y=e.clientY;cx-=dx/sc;cz-=dy/sc;moved();tip.hidden=true;});
+  const dx=e.clientX-p.x,dy=e.clientY-p.y;dragged+=Math.abs(dx)+Math.abs(dy);p.x=e.clientX;p.y=e.clientY;cx-=dx/sc;cz-=dy/sc;moved();tip.hidden=true;hq++;});
 const up=e=>{const was=ptrs.has(e.pointerId);ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;if(!ptrs.size)cv.classList.remove('drag');if(was&&e.type==='pointerup'&&dragged<6&&!ptrs.size)click(e);};
-cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);cv.addEventListener('pointerleave',()=>{tip.hidden=true;});
+cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);cv.addEventListener('pointerleave',()=>{tip.hidden=true;hq++;});
 cv.addEventListener('dblclick',e=>zoomAt(2,e.clientX,e.clientY));
 document.getElementById('zin').onclick=()=>zoomAt(1.6,vw/2,vh/2);
 document.getElementById('zout').onclick=()=>zoomAt(1/1.6,vw/2,vh/2);
@@ -409,9 +446,13 @@ function hover(e){if(!ready)return;const x=wx(e.clientX),z=wz(e.clientY),px=Math
   const show2=h=>{tip.innerHTML=h;tip.hidden=false;const tw=tip.offsetWidth,th=tip.offsetHeight;let tx=e.clientX+14,ty=e.clientY+14;if(tx+tw>vw-8)tx=e.clientX-tw-14;if(ty+th>vh-8)ty=e.clientY-th-14;tip.style.left=tx+'px';tip.style.top=ty+'px';};
   if(cvn)return show2(`<b>Aircraft carrier spawn</b><br>${coords}`);
   if(base)return show2(`<b>Military base</b><br>${coords}`);
-  if(sc<DETAIL){const s=nearestSet(e.clientX,e.clientY);return show2(s?`<b>${esc(s.name)}</b><br><span class="muted">${esc(s.kind)}${s.cap?' · Capital':''}</span><br>${coords}`:coords);}
-  const q=++hq,g=gen;clearTimeout(hover.t);hover.t=setTimeout(()=>call({op:'plot',px,pz}).then(r=>{if(q!==hq||g!==gen)return;
-    show2((r.set?`<b>${esc(r.set.name)}</b><br><span class="muted">${esc(r.set.kind)}${r.cap?' · Capital':''}</span><br>`:'')+esc(label(r.t))+'<br>'+coords);},()=>{}),40);}
+  // (and the ground's height and biome under the pointer, at any zoom)
+  const q=++hq,g=gen,gnd=o=>!o||o.sea?'':`<br>${o.h<0?'Lake':'Height '+o.h}${o.snow?' · snow':o.rock?' · rock':''}${o.tun?' · tunnel':o.cut?' · cutting':''}${o.bio?' · '+esc(o.bio):''}`;
+  clearTimeout(hover.t);
+  if(sc<DETAIL){const s=nearestSet(e.clientX,e.clientY),top=s?`<b>${esc(s.name)}</b><br><span class="muted">${esc(s.kind)}${s.cap?' · Capital':''}</span><br>`:'';show2(top+coords);
+    hover.t=setTimeout(()=>call({op:'pt',x,z}).then(o=>{if(q!==hq||g!==gen)return;show2(top+coords+gnd(o));},()=>{}),40);return;}
+  hover.t=setTimeout(()=>Promise.all([call({op:'plot',px,pz}),call({op:'pt',x,z}).catch(()=>null)]).then(([r,o])=>{if(q!==hq||g!==gen)return;
+    show2((r.set?`<b>${esc(r.set.name)}</b><br><span class="muted">${esc(r.set.kind)}${r.cap?' · Capital':''}</span><br>`:'')+esc(label(r.t))+'<br>'+coords+gnd(o));},()=>{}),40);}
 
 // ---- search ----
 const q=document.getElementById('q'),hits=document.getElementById('hits');let hl=[],hi=0;

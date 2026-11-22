@@ -169,11 +169,14 @@ function ensureRoutes(x,z){
 // two kinds of bend on top: long sweeps, and meanders whose spacing and size keep changing along it (tight wiggly
 // stretches, lazy loops, the odd near-straight reach). Where it meets a place it straightens out onto a row (or column)
 // of blocks and runs dead straight through, easing back into its bends either side. ----
-const RIV_SP=1600,RIV_W=9;
-const rivOn=(ax,j)=>ax==='x'?hash2(j*733+1,4099)<0.45:hash2(j*577+9,4111)<0.4;
+// (the World Generator's Rivers sliders, WORLD_CFG: riv how many of the lines have one, rmd how far the bends swing, rwd how
+// far the whole line wanders, rwid the width (RIV_W, set by rivCfg). At 1 each, every sum is as it always was. RIV_JR is how
+// many lines either side might wander over a spot, a var like RIV_W so worldCfgSet can set them before this file's run)
+const RIV_SP=1600;var RIV_W=9,RIV_JR=1,RIV_UP=false;
+const rivOn=(ax,j)=>{const f=WORLD_CFG.riv;return ax==='x'?hash2(j*733+1,4099)<0.45*f:hash2(j*577+9,4111)<0.4*f;};
 // along-axis coordinate a -> cross-axis position of river j's guide line (smooth through jittered waypoints)
 function rivGuide(ax,j,a){
-  const n=c=>j*RIV_SP+(hash2(c*37+j*11+(ax==='x'?0:5),j*53+3)-0.5)*RIV_SP*0.8;
+  const w=WORLD_CFG.rwd,n=c=>j*RIV_SP+(hash2(c*37+j*11+(ax==='x'?0:5),j*53+3)-0.5)*RIV_SP*0.8*w;
   const i=Math.floor(a/RIV_SP),t=a/RIV_SP-i,p0=n(i-1),p1=n(i),p2=n(i+1),p3=n(i+2);
   return 0.5*((2*p1)+(-p0+p2)*t+(2*p0-5*p1+4*p2-p3)*t*t+(-p0+3*p1-3*p2+p3)*t*t*t);
 }
@@ -181,8 +184,8 @@ function rivOff(ax,j,a){
   const h=k=>hash2(j*91+k,(ax==='x'?17:29)+k*7)*6.283;
   const ph=a/95+2.2*Math.sin(a/700+h(1))+1.3*Math.sin(a/310+h(2));
   const fr=Math.abs(1/95+2.2/700*Math.cos(a/700+h(1))+1.3/310*Math.cos(a/310+h(2)));
-  const amp=Math.min(70*(0.3+0.7*(0.5+0.5*Math.sin(a/900+h(3)))),0.8/Math.max(fr,1e-3));
-  return amp*Math.sin(ph)+330*Math.sin(a/1500+h(4))+120*Math.sin(a/610+h(5));
+  const amp=Math.min(70*WORLD_CFG.rmd*(0.3+0.7*(0.5+0.5*Math.sin(a/900+h(3)))),0.8/Math.max(fr,1e-3));
+  return amp*Math.sin(ph)+(330*Math.sin(a/1500+h(4))+120*Math.sin(a/610+h(5)))*WORLD_CFG.rwd;
 }
 // one tile (RIV_SP long) of river j: its centre line, and the places it straightens through {T,r,m0,m1}
 const rivTileC=new Map();
@@ -218,7 +221,7 @@ const rvReady=new Set();
 function ensureRivers(x,z){
   const bk=Math.floor(x/512)*100003+Math.floor(z/512);if(rvReady.has(bk))return;rvReady.add(bk);
   for(const ax of ['x','z']){const a=ax==='x'?x:z,c=ax==='x'?z:x,i=Math.floor(a/RIV_SP),j0=Math.round(c/RIV_SP);
-    for(let j=j0-1;j<=j0+1;j++){if(!rivOn(ax,j))continue;for(let ii=i-1;ii<=i+1;ii++)rivTile(ax,j,ii);}}
+    for(let j=j0-RIV_JR;j<=j0+RIV_JR;j++){if(!rivOn(ax,j))continue;for(let ii=i-1;ii<=i+1;ii++)rivTile(ax,j,ii);}}
 }
 // the river (if any) whose straightened stretch block (px,pz) of a place is on: 'x' (it runs along x) or 'z'
 const rivPlotC=new Map();
@@ -226,7 +229,7 @@ function riverDir(px,pz){
   const key=px*100003+pz;let v=rivPlotC.get(key);if(v!==undefined)return v;v=null;
   if(settlementRaw(px,pz)){
     for(const ax of ['x','z']){const a=(ax==='x'?px:pz)*CELL,c=(ax==='x'?pz:px)*CELL,i=Math.floor(a/RIV_SP),j0=Math.round(c/RIV_SP);
-      for(let j=j0-1;j<=j0+1&&!v;j++){if(!rivOn(ax,j))continue;
+      for(let j=j0-RIV_JR;j<=j0+RIV_JR&&!v;j++){if(!rivOn(ax,j))continue;
         for(let ii=i-1;ii<=i+1&&!v;ii++)for(const S of rivTile(ax,j,ii).secs)if(S.r===(ax==='x'?pz:px)&&(ax==='x'?px:pz)>=S.m0&&(ax==='x'?px:pz)<=S.m1&&settlementRaw(px,pz)===S.T){v=ax;break;}}
       if(v)break;}}
   if(rivPlotC.size>1000000)rivPlotC.clear();rivPlotC.set(key,v);return v;
@@ -400,6 +403,10 @@ function truckStopColumn(a,col,t,px,pz,rx,rz,lx,lz,x,z){
 const rivNearC=new Map();
 function rivPlotNear(px,pz){const k=px*100003+pz;let v=rivNearC.get(k);if(v===undefined){const X0=px*CELL,Z0=pz*CELL,b=nearestOn(riversNearBox(X0,Z0,X0+CELL-1,Z0+CELL-1),X0+16,Z0+16,CELL*0.71+RIV_W+4);v=!!b;rivNearC.set(k,v);}return v;}
 function clearLayout(){for(const M of [castleC,dumpC,bunkC,bigPC,bigOK,pyIdx,cutC,tsPlotC,setFinC,rivNearC,tsC,fieldC,edgeC,spanC,axC,hwLineC,rtIdx,rvIdx,rivTileC,rivPlotC,nearRtC,nearRvC])M.clear();for(const S of [rtDone,rtReady,rvReady])S.clear();ROUTES.length=0;}
+// (the Rivers sliders' width and reach; a change once the rivers are worked out throws them away, from worldCfgSet)
+function rivCfg(){RIV_W=Math.max(3,Math.round(9*WORLD_CFG.rwid));RIV_JR=Math.max(1,Math.ceil(((640+450)*WORLD_CFG.rwd+70*WORLD_CFG.rmd+300)/1600));   // (1600: RIV_SP, not yet set when the World Generator calls this first)
+  if(!RIV_UP)return;for(const M of [rivNearC,rvIdx,rivTileC,rivPlotC,nearRvC])M.clear();rvReady.clear();}
+RIV_UP=true;rivCfg();
 function plotNearLines(px,pz,pad){
   const x0=px*CELL-pad,z0=pz*CELL-pad,x1=(px+1)*CELL+pad,z1=(pz+1)*CELL+pad,cx=(x0+x1)/2,cz=(z0+z1)/2,r=CELL/2*1.42+pad;
   const a=nearestOn(routesNearBox(x0,z0,x1,z1),cx,cz,r+9.6),b=nearestOn(riversNearBox(x0,z0,x1,z1),cx,cz,r+RIV_W);
