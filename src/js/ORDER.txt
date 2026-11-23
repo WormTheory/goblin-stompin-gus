@@ -16,6 +16,7 @@ world/coast-columns.js
 world/routes.js
 world/country-sites.js
 world/biome-sites.js
+world/wonders.js
 world/airfields.js
 world/highways.js
 world/city-plan.js

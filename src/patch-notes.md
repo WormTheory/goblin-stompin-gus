@@ -98,6 +98,18 @@
 - The other country sites suit the land too: lumber camps are in the forests, more mines and ruins are in the desert, and more cult altars are in the swamp. There are no farms in the ice fields.
 - This makes a new world again, so a saved city starts afresh.
 
+### Wonders of the wilds
+
+- Waterfalls pour over the steeper drops in the hills into a pool at the foot.
+- Stone arches stand in the desert, badlands and scrub.
+- Rugged coasts have sea stacks offshore, and now and then a sea arch you can sail under.
+- Cold mountains carry glaciers: ice flowing down below the snow line, with crevasses across it.
+- Cold, rugged coasts are fjords: sheer rock walls up to 40 blocks high, with deep water right under them.
+- Each biome has its own landmark, far apart and well away from roads: a giant's ribs in the dry country, a great tree in the forests, a great baobab on the savanna, a wandering stone on the tundra, and standing stones elsewhere.
+- Where-you-are names a wonder when you're beside it.
+- Mountain tarns now show in the far view, at their own height.
+- This makes a new world again, so a saved city starts afresh.
+
 ### Rivers
 
 - Rivers now start somewhere and go somewhere: each one rises in the hills or mountains, or flows out of a lake, and runs downhill until it reaches the sea or joins a bigger river.

@@ -267,11 +267,14 @@ function seaWater(col,x,z,minD,cd){
   // cold shore's bed is shingle)
   const F=cd<CF_IW+24?coastFlav(x,z):0,rc=F>=0&&cd<CF_IW+24?CF_RC:0,mg=F===3&&cd<CF_MW&&beachK(x,z,1)<0.3;
   // (shelving up to any nearby land, so a little island sits on a shoal and not on a pillar out of deep water)
-  const od=oceanDepth(x,z),d0=Math.max(minD||1,seaIsl?od:Math.min(od,1+Math.floor(Math.max(0,cd)*(0.6+1.2*rc)))),d=mg?Math.min(d0,2):d0,f=G-d-1,h=hash2(x*13+5,z*7+3);
+  // (under a fjord's wall, a cold shore at its most rugged, the water's deep right up to it, however shallow the sea is
+  // further out: eased in by how rugged it is and out again by 40 blocks from the shore, so it never ends in a step)
+  const od=oceanDepth(x,z),fk=(F===1||F===2)?Math.max(0,Math.min(1,(rc-0.5)*4,(40-cd)/16)):0,d0=Math.max(minD||1,seaIsl?od:Math.min(od,1+Math.floor(Math.max(0,cd)*(0.6+1.2*rc))),Math.round(fk*Math.min(4+Math.max(0,cd)*2.5,24))),d=mg?Math.min(d0,2):d0,f=G-d-1,h=hash2(x*13+5,z*7+3);
   for(let y=f-2;y<f;y++)col(y,SAND);col(f,mg?MUD:(F===1||F===2)&&cd<14?GRAVEL:d>14?(h<0.5?GRAVEL:SAND):SAND);for(let y=G-d;y<=G;y++)col(y,WATER);
   if(d>=5&&d<=20&&h<0.035){const n=Math.min(d-2,2+Math.floor(hash2(x,z*5)*6));for(let y=f+1;y<=f+n;y++)col(y,LEAVES);}   // kelp
   else if(h>0.994){col(f+1,MOSSSTONE);if(h>0.998)col(f+2,MOSSSTONE);}
   if(F===2)iceShelf(col,x,z,cd);else if(mg)mangroveCol(col,x,z,f+1);
+  else if(rc>0.4&&cd>=3&&cd<=24)seaStack(col,x,z,f);   // (sea stacks and arches off a rugged shore, world/wonders.js)
 }
 // the shore's flavour by its climate (plan section 6.3): 0 sand, 1 shingle (cold), 2 an ice shelf (frozen), 3 mangroves
 // (warm and wet), 4 the badlands' red sand. From the blended climate, dithered a little per column so one gives way to the
@@ -341,8 +344,9 @@ function natLand(col,x,z,kind,cd){
   // (the more rugged, the more of it), easing down toward the land behind from 12 blocks in. Kept back from roads,
   // railways, rivers and anything built (coastCap), and from a town's beach or harbour
   if(rc>0.15&&w<CF_HW&&bk1<0.5){
-    const P=Math.round(rc*Math.min(Math.max(reliefNat(x,z),10),28)),cap=P>=2?coastCap(x,z):0;
-    if(P>=2&&cap>=2){const ph=w>=12?Math.max(0,plainsH(x,z)):0,h=Math.round(Math.min(cap,w<0.8?Math.min(P,2):w<12?P:P+(ph-P)*(w-12)/(CF_HW-12)));
+    // (a cold shore at its most rugged is a fjord's wall: higher, and sheer from the water up)
+    const fj=(F===1||F===2)&&rc>0.5,P=Math.round(rc*Math.min(Math.max(reliefNat(x,z),fj?16:10),fj?40:28)),cap=P>=2?coastCap(x,z):0;
+    if(P>=2&&cap>=2){const ph=w>=12?Math.max(0,plainsH(x,z)):0,h=Math.round(Math.min(cap,w<0.8&&!fj?Math.min(P,2):w<12?P:P+(ph-P)*(w-12)/(CF_HW-12)));
       if(h>0){for(let y=G-2;y<G+h;y++)col(y,hash2(x*3+y,z*5)<0.3?MOSSSTONE:STONE);col(G+h,w<1.5?STONE:F===2?SNOW:BIOMES[biomeAt(x,z)].top||GRASS);return true;}}}
   // cliffs rise out of the beach as the noise climbs, instead of standing up suddenly beside it
   const rk=Math.max(0,Math.min(1,(gridNoise(x/CELL,z/CELL,7,77)-0.06)/0.14))*(1-bk1);

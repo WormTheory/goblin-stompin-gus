@@ -42,6 +42,7 @@ function whereLabel(){
   if(seaPlot(px,pz)){const t=plotType(px,pz),O=t==='yard'||t==='basin'||t==='harbor'||t==='beach'?coastOwner(px,pz):null,on=O?'<div class="sname">'+setName(O)+'</div>':'';if(O&&coastD(p.pos.x,p.pos.z)<4)return on+(t==='harbor'?(plotInfo(px,pz).fish?'\u{1F41F} Fishing docks':'\u2693 Docks'):t==='beach'?'\u{1F3D6}\uFE0F Beach':'\u{1F6A2} Shipping port');return t==='yard'||t==='basin'?'\u{1F6A2} Shipping port':t==='navy'||t==='nbasin'?'\u2693 Naval base':t==='harbor'?'\u2693 Docks':t==='lighthouse'?'\u{1F5FC} Lighthouse':t==='rig'?'\u{1F6E2}\uFE0F Oil rig':coastD(p.pos.x,p.pos.z)>=0?'\u{1F30A} Ocean':t==='beach'?'\u{1F3D6}\uFE0F Beach':'\u{1F30A} Coast';}
   if(S)return '<div class="sname">'+setName(S)+'</div>'+(zoneAt(px,pz)==='suburb'?'\u{1F3E1} Suburbs of a '+PLACE_KIND[setKind(S)].toLowerCase():PLACE_LBL[setKind(S)]);
   if(isRiver(px,pz)||riverAt(p.pos.x,p.pos.z,RIV_W+1))return'\u{1F30A} River';
+  {const W=realmOf(px,pz)==='plains'?wonderNear(p.pos.x,p.pos.z,40):null;if(W)return WD_NAME[W.k];}
   if(tsAt(Math.floor(p.pos.x),Math.floor(p.pos.z)))return'\u26FD Truck stop';
   if(dumpAt(px,pz)!==null)return'\u{1F5D1}\uFE0F Garbage dump';
   if(castleAt(px,pz))return'\u{1F3F0} Castle';

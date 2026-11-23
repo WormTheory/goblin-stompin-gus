@@ -85,7 +85,7 @@ mountains within 1400 of the start: 0.00
   rainforest at chunk 1250,-1782: blocks 56c34ff7 tops by block {"1":9,"5":247} trees 21
   swamp at chunk 1374,-1876: blocks 8468cc51 tops by block {"1":67,"5":5,"9":153,"158":8,"161":23} trees 0
   moor at chunk 1468,-1844: blocks 17029dbd tops by block {"1":216,"3":14,"4":2,"5":5,"9":3,"27":12,"35":4} trees 1
-  alpine at chunk 1624,-1814: blocks f874989c tops by block {"3":181,"39":75} trees 0
+  alpine at chunk 1624,-1814: blocks b322c090 tops by block {"3":174,"9":8,"39":74} trees 0
 == seed 3
 chunk 0,0: blocks 3eac672e tops 2efe1dc5 realm city
 chunk 1,0: blocks 39d79fdd tops 2efe1dc5 realm city

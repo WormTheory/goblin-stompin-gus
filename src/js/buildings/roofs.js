@@ -159,6 +159,9 @@ function plainsColumn(col,x,z,noShore){
   if(tw&&!bare)for(let y=Math.max(G,G+h-3);y<G+h;y++)col(y,COBBLE);   // (a terrace's retaining wall, world/relief.js)
   // (a tarn: a gravel bed under its water, frozen over in the cold)
   if(wl>h){col(G+h,GRAVEL);for(let y=G+h+1;y<=G+wl;y++)col(y,y===G+wl&&t<0.3?ICE:WATER);return;}
+  // (a glacier: in cold mountains, where a broad patch noise says, ice flowing down from the snow, crevasses across it.
+  // Sea ice's block, so it never thaws)
+  if(t<0.3&&r>0.5&&!cut&&h>rlfSnow(t)-14&&nzNoise(x/80,z/80,4451)>0.15){const cv=mod(x*3+z*7,53)<2;for(let y=Math.max(G,G+h-2);y<=G+h;y++)col(y,cv&&y>G+h-2?AIR:PACKICE);return;}
   col(G+h,top);
   const v=hash2(x*7+3,z*11+5),rk=B.rock*(1+5*r);   // (boulders: many more on rugged ground)
   if(bare){if(!snow&&v>1-rk){col(G+h+1,STONE);if(v>1-rk*0.32)col(G+h+2,STONE);}return;}

@@ -250,6 +250,8 @@ function farPonds(SG,px,pz,st,exact){
       let w=x<X0+CELL&&reliefNat(x+o,z+o)<-0.9;
       if(w){if(open===null)open=PLAINS_OPEN(px,pz);w=open&&(!exact||plainsH(x+o,z+o)<0);}
       if(w&&run<0)run=x;else if(!w&&run>=0){farBox(SG,run,G+0.45,z,x,G+1.62,z+st,FARC.sea);run=-1;}}}
+  // (a tarn up in the mountains, at its own level: only for the nearer rings, as working one out asks the land round it)
+  if(st<=8&&PLAINS_OPEN(px,pz)){const T=rlfInCell(X0+PC,Z0+PC,TARN_SP,rlfTarnAt);if(T&&Math.floor(T.x/CELL)===px&&Math.floor(T.z/CELL)===pz)farOval(SG,T.x+0.5,T.z+0.5,T.R-0.5,T.R-0.5,Math.min(st,4),G+T.L+1);}
 }
 // water in an ellipse (a lake, a pond), as runs of rows st deep, its top at y
 function farOval(SG,cx,cz,rx,rz,st,y){
