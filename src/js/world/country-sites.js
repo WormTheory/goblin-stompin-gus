@@ -331,7 +331,7 @@ function roadNear(x,z,pad){
 // deeper than a few blocks isn't filled in for a highway, though: it runs on under it, and the road crosses on a deck on
 // pillars (routeColumn), easing from the one to the other as the lake gets deeper
 function plainsH(x,z){
-  const px=Math.floor(x/CELL),pz=Math.floor(z/CELL);RLF.cut=RLF.tun=RLF.ter=RLF.tw=RLF.salt=RLF.face=false;RLF.r=RLF.dune=0;if(!PLAINS_OPEN(px,pz))return 0;
+  const px=Math.floor(x/CELL),pz=Math.floor(z/CELL);RLF.cut=RLF.tun=RLF.ter=RLF.tw=RLF.salt=RLF.face=RLF.oas=false;RLF.r=RLF.dune=0;RLF.wl=-99;if(!PLAINS_OPEN(px,pz))return 0;
   const rx=x-px*CELL,rz=z-pz*CELL;let f=1;
   roadNear(x,z);const fr=Math.min(1,Math.max(0,RN_RT)/14);
   for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++){if(!dx&&!dz||PLAINS_OPEN(px+dx,pz+dz))continue;
@@ -339,7 +339,7 @@ function plainsH(x,z){
   f=Math.min(f,rlfLane(x,z,px,pz)/6);   // (and level with a farm's lane, which only clears its own height)
   // (a lake isn't faded out by a river: the two meet, the river running into it, buildings/roofs.js's plainsRiverColumn)
   const fn=Math.min(f,Math.max(0,RN_N)/14);f=Math.min(f,Math.max(0,RN_O)/14);
-  reliefNat(x,z);const mtn=RLF.mtn,hill=RLF.hill,lake=RLF.lake,s=Math.max(0,Math.min(1,(lake-2)/3)),fh=Math.min(f,fr),fl=Math.min(fn,fr+(1-fr)*s);
+  reliefNat(x,z,true);const mtn=RLF.mtn,hill=RLF.hill,lake=RLF.lake,s=Math.max(0,Math.min(1,(lake-2)/3)),fh=Math.min(f,fr),fl=Math.min(fn,fr+(1-fr)*s);
   const h=hill*fh-lake*fl+(mtn>0.5?reliefMask(x,z,px,pz,mtn,hill+mtn):mtn*fh);
   return h<-0.9?Math.max(-RLF_LAKE,Math.round(h)):Math.max(0,Math.round(h));
 }

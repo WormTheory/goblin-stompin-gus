@@ -7,7 +7,7 @@
 //     (RLF_TOP), and ridged noise shapes ranges and crests under that
 //   lakes: hollows below the datum where the land's low and wet, filled with water up to G
 // The World Generator's Land shape sliders scale them (WORLD_CFG's mtn, mth, hill, lakes) ----
-const RLF={hill:0,mtn:0,lake:0,r:0,cut:false,tun:false,ter:false,tw:false,dune:0,salt:false,face:false};
+const RLF={hill:0,mtn:0,lake:0,r:0,cut:false,tun:false,ter:false,tw:false,dune:0,salt:false,face:false,wl:-99,oas:false};
 // (a length: Math.sqrt is exact in every browser, Math.hypot may differ in the last bit, and the land must be the same
 // for every player online)
 const rlfLen=(a,b)=>Math.sqrt(a*a+b*b);
@@ -22,8 +22,13 @@ function ruggedAt(x,z){
   const r=(0.4+1.6*nzFbm(w[0],w[1],7000,3,3203)+WORLD_CFG.mtn)*nzSmooth(START_R0*START_R0,START_R1*START_R1,x*x+z*z);
   return nzClamp01(r);
 }
-// the land's own height at (x,z) in blocks above G, before anything built flattens it: its parts into RLF
-function reliefNat(x,z){
+// the land's own height at (x,z) in blocks above G, before anything built flattens it: its parts into RLF (feat: with the
+// tarns and oases)
+function reliefNat(x,z,feat){
+  // (with feat (plainsH asks so), a tarn or an oasis here too: looked up first, as working one out asks the land round it,
+  // and plainsRaw then sets the climate back to this place's. Without, the land as it lies, for what looks far and wide:
+  // the far view's distant rings, the plots' biomes, the World Generator)
+  const no=!feat||RLF_TN||!RLF_VON,TN=no?null:rlfInCell(x,z,TARN_SP,rlfTarnAt),OA=no?null:rlfInCell(x,z,OAS_SP,rlfOasisAt);   // (left out with the valleys, zoomed far out)
   const hill=plainsRaw(x,z)*WORLD_CFG.hill,r=clBlend('r'),m=CLIM.m;   // (plainsRaw has just asked the climate here)
   const top=Math.min(RLF_MAX,rlfTop(r)*WORLD_CFG.mth);let mtn=0,lake=0;
   if(top>0.3){const w=nzWarp(x,z,1400,380,3307),P=nzRidged(w[0],w[1],900,4,3301);mtn=top*(0.12+0.88*P*P)*rlfValley(x,z);}
@@ -37,6 +42,16 @@ function reliefNat(x,z){
   if(du>0.02&&!RLF.salt){const d=rlfDune(x,z)*du*WORLD_CFG.hill*(sa>0.5?nzSmooth(-0.1,0.05,nzFbm(x,z,700,2,3551)):1);h2+=d;RLF.dune=d;}
   if(me>0.02){mtn+=rlfMesa(x,z,me)*WORLD_CFG.mth;h2*=1-0.85*RLF_MS;}   // (a mesa's top is flat: the hills smoothed out on it)
   if(r>0.25&&r<0.7)mtn+=rlfCliff(x,z,r)*rlfValley(x,z);
+  RLF.wl=-99;RLF.oas=false;
+  // (an oasis: a little lake at the datum with a ring of green round it, the dunes dying away toward it)
+  if(OA){const d=rlfLen(x-OA.x,z-OA.z);if(d<OA.R+40){const k=nzSmooth(OA.R+8,OA.R+40,d);h2-=RLF.dune*(1-k);RLF.dune*=k;
+    if(d<OA.R){const v=1+4*(1-d*d/(OA.R*OA.R));if(v>lake)lake=v;}if(d<OA.R+9)RLF.oas=true;}}
+  // (a tarn: a mountain lake in a bowl, its water at the lowest point of its rim (RLF.wl), the rim built up round it so it
+  // holds)
+  if(TN){const d=rlfLen(x-TN.x,z-TN.z),L=TN.L;if(d<TN.R+12){const t0=h2+mtn-lake;let t=t0;
+    if(d<TN.R){t=Math.min(t0,L-1-4*(1-d*d/(TN.R*TN.R)));RLF.wl=L;}
+    else t=Math.max(t0,d<TN.R+4?L+1:L+1-(d-TN.R-4)*1.5);
+    mtn+=t-t0;}}
   RLF.hill=h2;RLF.mtn=mtn;RLF.lake=lake;RLF.r=r;
   return h2+mtn-lake;
 }
@@ -71,6 +86,54 @@ function rlfCliff(x,z,r){
   if(p>0.04&&p<0.96)RLF.face=true;
   return 14*b*p*WORLD_CFG.mth;
 }
+// ---- tarns, oases and sinkholes: at most one of each kind per cell of a lattice (TARN_SP, OAS_SP, SINK_SP blocks), its
+// middle kept 64 blocks inside the cell so all of it is in the cell; each worked out once (RLF_TC). RLF_TN: working one
+// out (asking plainsH round it) ----
+const TARN_SP=448,OAS_SP=640,SINK_SP=384,RLF_TC=new Map();let RLF_TN=false,RLF_TCS=null;
+function rlfCell(SP,fn,ix,iz){
+  if(RLF_TCS!==seed){RLF_TCS=seed;RLF_TC.clear();}
+  const k=(ix*100003+iz)*4+(SP===TARN_SP?0:SP===OAS_SP?1:2);if(RLF_TC.has(k))return RLF_TC.get(k);
+  const cx=Math.floor(ix*SP+64+hash2(ix*31+SP,iz*17+3)*(SP-128)),cz=Math.floor(iz*SP+64+hash2(ix*7+1,iz*43+SP)*(SP-128)),v=fn(ix,iz,cx,cz);
+  if(RLF_TC.size>50000)RLF_TC.clear();RLF_TC.set(k,v);return v;}
+const rlfInCell=(x,z,SP,fn)=>rlfCell(SP,fn,Math.floor(x/SP),Math.floor(z/SP));
+// (all open plains round (cx,cz), n plots each way)
+function rlfOpen(cx,cz,n){const px=Math.floor(cx/CELL),pz=Math.floor(cz/CELL);for(let a=-n;a<=n;a++)for(let b=-n;b<=n;b++)if(!PLAINS_OPEN(px+a,pz+b))return false;return true;}
+const RLF_D8=[[1,0],[-1,0],[0,1],[0,-1],[0.7071,0.7071],[-0.7071,0.7071],[0.7071,-0.7071],[-0.7071,-0.7071]];
+// a tarn: up in the mountains (ruggedness over 0.55), well away from roads, rivers and anything built (so nothing cuts its
+// rim down); its water level is the lowest of its rim, the land's own height there, which must be high ground
+function rlfTarnAt(ix,iz,cx,cz){
+  if(hash2(ix*13+5,iz*29+1)>0.7||WORLD_CFG.lakes<=0)return null;
+  if(clCorner(Math.round(cx/CL_SP),Math.round(cz/CL_SP)).r<0.55||!rlfOpen(cx,cz,3))return null;
+  const R=7+Math.floor(hash2(ix*3+9,iz*5+7)*9);if(roadNear(cx,cz)<R+30)return null;
+  {const P=rlfVList(cx,cz).P;for(let q=0;q<P.length;q+=2){const [ax,az]=P[q].pts[P[q+1]];if(rlfLen(ax-cx,az-cz)<R+70)return null;}}
+  RLF_TN=true;let L=1e9;for(const [a,b] of RLF_D8)L=Math.min(L,Math.round(reliefNat(Math.floor(cx+a*(R+10)),Math.floor(cz+b*(R+10)))));const c=reliefNat(cx,cz);RLF_TN=false;
+  if(L<12||c<6)return null;
+  return {x:cx,z:cz,R,L:L-1};}
+// an oasis: in the open desert (not a salt flat)
+function rlfOasisAt(ix,iz,cx,cz){
+  if(hash2(ix*11+3,iz*19+5)>0.4||WORLD_CFG.lakes<=0)return null;
+  const E=clCorner(Math.round(cx/CL_SP),Math.round(cz/CL_SP));if(E.dune<1||E.salt||!rlfOpen(cx,cz,1))return null;
+  return {x:cx,z:cz,R:9+Math.floor(hash2(ix*5+1,iz*7+3)*7)};}
+// a sinkhole: a round shaft down toward the caves (bot: its floor), on open ground clear of roads and rivers, with water at
+// the bottom in warm country (a cenote). Not in the ice fields
+function rlfSinkAt(ix,iz,cx,cz){
+  if(hash2(ix*17+9,iz*23+7)>0.15||cx*cx+cz*cz<START_R0*START_R0)return null;   // (none in the start's flat country)
+  const E=clCorner(Math.round(cx/CL_SP),Math.round(cz/CL_SP));if(BIOMES[E.b].ice||!rlfOpen(cx,cz,0))return null;
+  const R=3+Math.floor(hash2(ix*9+2,iz*3+4)*4);if(roadNear(cx,cz)<R+14)return null;
+  return {x:cx,z:cz,R,bot:12+Math.floor(hash2(ix*5+6,iz*11+2)*8),wet:E.t>0.55};}
+// (how far (x,z) is outside a sinkhole's shaft (below 0: inside), and the sinkhole in RLF_SK; 99 if none near)
+let RLF_SK=null;
+function rlfSinkD(x,z){const S=RLF_SK=rlfInCell(x,z,SINK_SP,rlfSinkAt);if(!S)return 99;return rlfLen(x+0.5-S.x,z+0.5-S.z)-S.R;}
+// a sinkhole's column, cut into what plainsColumn made: open down to its floor, undercut round the bottom, water there in
+// warm country, a ring of mossy stone round its lip
+function sinkColumn(col,x,z){
+  const d=rlfSinkD(x,z),S=RLF_SK;if(d>=3)return;const h=plainsH(x,z);if(h<0||RLF.wl>-99)return;
+  const top=G+h,b=S.bot;
+  if(d<0){col(b,STONE);for(let y=b+1;y<=top+3;y++)col(y,S.wet&&y<=b+4?WATER:AIR);return;}
+  for(let y=b+1;y<=b+5;y++)col(y,S.wet&&y<=b+4?WATER:AIR);col(b,STONE);
+  if(d<1)col(top,MOSSSTONE);}
+// (how far (x,z) is outside an oasis's water (below 0: in it); 99 if none near)
+function rlfOasisD(x,z){const O=rlfInCell(x,z,OAS_SP,rlfOasisAt);return O?rlfLen(x-O.x,z-O.z)-O.R:99;}
 // ---- river valleys: the rivers (world/routes.js) wind through the mountains, so near one the mountains are let stand
 // only so far: nothing on its floor (RLF_VM for a river, RLF_VT a tributary: [blocks of flat floor past its banks, how far
 // out the sides go up to their full height]), rising in a smooth curve to full height. Worked out at the corners of a 16-
@@ -184,6 +247,7 @@ function reliefMapCells(px,pz,n){
     const x=px*CELL+(i+0.5)*st,z=pz*CELL+(j+0.5)*st,h=hAt(x,z),t=CLIM.t,d=Math.max(2,st/2);
     if(h<-0.9){C.push(MAPC.river);any=true;continue;}
     if(RLF.salt&&h===0){C.push('#e8e4d8');any=true;continue;}
+    if(RLF.wl>h){C.push(MAPC.river);any=true;continue;}
     const s=((h-hAt(x-d,z))+(h-hAt(x,z-d)))/d;   // (facing the light: brighter; away from it: darker)
     let col=h>rlfSnow(t)?'#eef2f4':h>rlfRock(t)?'#8c8a84':base;
     const k=Math.max(-0.45,Math.min(0.45,s*0.35))+Math.min(0.12,h/600);

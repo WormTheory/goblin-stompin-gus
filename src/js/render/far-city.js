@@ -206,7 +206,7 @@ function farTreeBoxes(SG,t,lc){
     if(sp===7){farBox(SG,x,gy+1,z,x+1,top+1,z+1,FAR_TRUNK);continue;}
     if(sp===2){farBox(SG,x,gy+1,z,x+1,gy+3,z+1,FAR_TRUNK);farBox(SG,x-2,gy+3,z-2,x+3,top-1,z+3,FAR_PINE);farBox(SG,x-1,top-1,z-1,x+2,top+3,z+2,FAR_PINE);continue;}
     farBox(SG,x,gy+1,z,x+1,top-2,z+1,FAR_TRUNK);
-    if(sp===3){farLeaf(SG,x-3,top,z-3,x+4,top+1,z+4,hF,hC,lc);farLeaf(SG,x-2,top+1,z-2,x+3,top+2,z+3,hF,hC,lc);continue;}
+    if(sp===3||sp===8){farLeaf(SG,x-3,top,z-3,x+4,top+1,z+4,hF,hC,lc);farLeaf(SG,x-2,top+1,z-2,x+3,top+2,z+3,hF,hC,lc);continue;}
     if(sp===4||sp===5||sp===1){farLeaf(SG,x-3,top-2,z-3,x+4,top+1,z+4,hF,hC,lc);farLeaf(SG,x-1,top+1,z-1,x+2,top+2,z+2,hF,hC,lc);continue;}
     farLeaf(SG,x-2,top-2,z-2,x+3,top,z+3,hF,hC,lc);
     farLeaf(SG,x-1,top,z-1,x+2,top+2,z+2,hF,hC,lc);}

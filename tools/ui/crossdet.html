@@ -1,9 +1,9 @@
 <!doctype html><meta charset="utf-8"><title>crossdet</title><pre id="o">working</pre>
 <script>
 // The cross-browser determinism check (plan section 13): this page, served from the repository's root by crossdet.py, works
-// out a hash of each chunk in a fixed list (mountains, lakes, rivers, each biome) in whatever browser opens it, shows them
+// out a hash of each chunk in a fixed list (mountains, lakes, rivers, each biome, each landform) in whatever browser opens it, shows them
 // and posts them back to crossdet.py, which compares browsers. ?b=name names the browser.
-const CH=[[0,0],[1,0],[-5,7],[40,-33],[-77,61],[150,150],[-300,-220],[700,-512],[-1376,-1876],[-1282,-1876],[-1000,-1876],[-688,-1844],[-1594,-1814],[1624,-1688],
+const CH=[[121,-447],[217,-399],[305,-327],[472,-332],[-608,518],[328,-65],[0,0],[1,0],[-5,7],[40,-33],[-77,61],[150,150],[-300,-220],[700,-512],[-1376,-1876],[-1282,-1876],[-1000,-1876],[-688,-1844],[-1594,-1814],[1624,-1688],
   [-2944,-2719],[-2925,-2779],[-2888,-2625],[-1100,1500],[-1575,-2650],[-1580,-2650],[-1585,-2652],[-1590,-2655],[434,436],[436,379],[-395,617],[-307,-466],[-21,522],[-1589,-2653],[-1600,-2650],[-2887,-2626]];
 const b=new URLSearchParams(location.search).get('b')||'?';
 fetch('/game/index.html',{cache:'no-store'}).then(r=>r.text()).then(html=>{const w=new Worker('crossdet-worker.js');

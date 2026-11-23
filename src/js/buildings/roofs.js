@@ -141,7 +141,9 @@ function joinColumn(col,J,c,a,x,z){
 }
 function plainsColumn(col,x,z,noShore){
   if(!noShore&&nearSea(Math.floor(x/CELL),Math.floor(z/CELL))){const cd=coastD(x,z);if(cd>=0){seaWater(col,x,z,1,cd);return;}if(cd>-22&&natLand(col,x,z,null,cd))return;}
-  const h=plainsH(x,z),cut=RLF.cut||RLF.face,tw=RLF.tw,r=RLF.r,dn=RLF.dune>1,salt=RLF.salt&&h===0,B=BIOMES[biomeAt(x,z)],t=CLIM.t;
+  const h=plainsH(x,z),cut=RLF.cut||RLF.face,tw=RLF.tw,r=RLF.r,dn=RLF.dune>1,salt=RLF.salt&&h===0,wl=RLF.wl,t=CLIM.t;
+  // (an oasis's ring of green, world/relief.js)
+  const B=RLF.oas?BIOMES[BIO_I.grassland]:BIOMES[biomeAt(x,z)];
   // a pond or a lake: still water up to G over sand (over mud in a swamp, frozen over in the ice fields)
   if(h<0){col(G+h,B.sub===MUD?MUD:SAND);for(let y=G+h+1;y<=G;y++)col(y,y===G&&B.ice?ICE:WATER);return;}
   // the biome's ground: its top block over a few of its own (the badlands' in bands of clay), and rock under that in the
@@ -155,6 +157,8 @@ function plainsColumn(col,x,z,noShore){
   if(dn&&!bare)for(let y=G;y<G+h;y++)col(y,SAND);   // (a dune's sand all the way through)
   if(sub===TERRA)for(let y=G-3;y<G+h;y++)col(y,(y+(hash2(x>>3,z>>3)<0.5?1:0))%3?TERRA:TERRA2);
   if(tw&&!bare)for(let y=Math.max(G,G+h-3);y<G+h;y++)col(y,COBBLE);   // (a terrace's retaining wall, world/relief.js)
+  // (a tarn: a gravel bed under its water, frozen over in the cold)
+  if(wl>h){col(G+h,GRAVEL);for(let y=G+h+1;y<=G+wl;y++)col(y,y===G+wl&&t<0.3?ICE:WATER);return;}
   col(G+h,top);
   const v=hash2(x*7+3,z*11+5),rk=B.rock*(1+5*r);   // (boulders: many more on rugged ground)
   if(bare){if(!snow&&v>1-rk){col(G+h+1,STONE);if(v>1-rk*0.32)col(G+h+2,STONE);}return;}

@@ -1,6 +1,6 @@
 // relief: the land's height in the wilds (world/relief.js) as genChunk builds it, at fixed places in seed 1's world (SPOTS=
 // to use others, x,z;x,z): roads and railways under mountains keep their headroom (tunnels), what's covered and how high, any
-// block left hanging over air that isn't a tunnel's roof, a tree or a building's, lakes' water never above G, and the
+// block left hanging over air that isn't a tunnel's roof, a tree or a building's, lakes' water never above G (but a tarn's), and the
 // mountains' tallest and snow. Every 'low headroom' and 'hanging' count should be 0 (the road at -46800,-44400 has a sign
 // gantry over it, there before the mountains)
 // worlddet: the world is the same every time it's worked out from a seed. For a few fixed seeds (each in a process of its
@@ -52,7 +52,8 @@ for(const [X,Z] of spots){const cx0=Math.floor(X/CS),cz0=Math.floor(Z/CS);let ro
   for(let ci=-3;ci<=3;ci++)for(let cj=-3;cj<=3;cj++){const cx=cx0+ci,cz=cz0+cj,a=T.genChunk(cx,cz),at=(lx,y,lz)=>a[lx+lz*CS+y*CS*CS];
     for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){const x=cx*CS+lx,z=cz*CS+lz;
       let tp=H-1;while(tp>G&&!at(lx,tp,lz))tp--;if(tp-G>top)top=tp-G;
-      for(let y=G+1;y<H;y++){const b=at(lx,y,lz);if(b===T.WATER){water++;wetHi++;}}
+      T.plainsH(x,z);const tarn=T.RLF.wl>-99;   // (a tarn's water is meant to be up in the mountains, world/relief.js)
+      for(let y=G+1;y<H;y++){const b=at(lx,y,lz);if(b===T.WATER){water++;if(!tarn)wetHi++;}}
       // (hanging: the land's own blocks over air, out on the open plains, away from a railway's tunnel (its roof is bare rock))
       if(T.PLAINS_OPEN(Math.floor(x/32),Math.floor(z/32)))for(let y=G+2;y<tp;y++){const b=at(lx,y,lz);if(NAT.has(b)&&at(lx,y-1,lz)===0&&T.railNear(x,z)>5){
         let lt=false;for(let yy=y;yy<=tp;yy++)if(at(lx,yy,lz)===T.LEAVES||at(lx,yy,lz)===T.PINE)lt=true;if(!lt){hang++;if(!hx)hx=[x,y-G,z,b];}}}

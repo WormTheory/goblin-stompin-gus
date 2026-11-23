@@ -23,9 +23,9 @@ function linkNear(x,z){
 // scattered, more where copses grow and round sites in the wilds, each biome its own trees and its own woods; never on a
 // road, a railway, beside a billboard or in a pond. (Shared by the chunks and the far view, so a tree seen from afar is
 // the very one that's there up close: cheapest tests first.)
-const TREE_K=['oak','big','pine','acacia','jungle','swamp','cactus','dead'],TREE_I={};TREE_K.forEach((k,i)=>TREE_I[k]=i);
+const TREE_K=['oak','big','pine','acacia','jungle','swamp','cactus','dead','palm'],TREE_I={};TREE_K.forEach((k,i)=>TREE_I[k]=i);
 // (each species' trunk: the shortest, and how many more blocks it may have)
-const TREE_TH=[[4,3],[6,3],[6,4],[4,2],[9,5],[4,2],[1,3],[2,2]];
+const TREE_TH=[[4,3],[6,3],[6,4],[4,2],[9,5],[4,2],[1,3],[2,2],[5,3]];
 function plainsTree(x,z){
   if((x+z)%2)return null;
   const v=hash2(x*3+1,z*7+5);if(v>0.32)return null;   // (no biome's woods are thicker than this)
@@ -33,10 +33,13 @@ function plainsTree(x,z){
   let sp=0;
   if(wood){if(v>0.006+0.11*wood)return null;   // (a site's woods: the biome's own trees, pines where it has none)
     const L=BIOMES[biomeAt(x,z)].trees;if(!L.length)sp=TREE_I.pine;else{let q=hash2(x*5+17,z*3+29);for(const [k,w] of L){sp=TREE_I[k];if((q-=w)<0)break;}}}
-  else{const B=BIOMES[biomeAt(x,z)],copse=lumberNear(px,pz)?1.1:plainsCopse(x,z);if(v>B.sc+B.dn*copse||!B.trees.length)return null;
-    let q=hash2(x*5+17,z*3+29);for(const [k,w] of B.trees){sp=TREE_I[k];if((q-=w)<0)break;}}
+  else{const od=rlfOasisD(x,z);   // (palms round an oasis's water)
+    if(od>-1&&od<7){if(v>0.09)return null;sp=TREE_I.palm;}
+    else{const B=BIOMES[biomeAt(x,z)],copse=lumberNear(px,pz)?1.1:plainsCopse(x,z);if(v>B.sc+B.dn*copse||!B.trees.length)return null;
+    let q=hash2(x*5+17,z*3+29);for(const [k,w] of B.trees){sp=TREE_I[k];if((q-=w)<0)break;}}}
+  if(rlfSinkD(x,z)<3)return null;
   if(roadNear(x,z,14)<4||railNear(x,z)<6||boardNear(x,z,7))return null;
-  const h=plainsH(x,z);if(h<0||RLF.cut||RLF.face||RLF.salt||h>rlfRock(CLIM.t)-6)return null;   // (nor on a cutting's bare face, nor up past the treeline)
+  const h=plainsH(x,z);if(h<0||RLF.cut||RLF.face||RLF.salt||RLF.wl>-99||h>rlfRock(CLIM.t)-6)return null;   // (nor on a cutting's bare face, nor up past the treeline)
   return [G+h,TREE_TH[sp][0]+Math.floor(hash2(x,z+99)*TREE_TH[sp][1]),sp];
 }
 // a tree of species sp, its ground's top gy and trunk th high, grown at column (x,z) through put(x,y,z,block,onlyAir)
@@ -50,6 +53,9 @@ function treeGrow(x,z,gy,th,sp,put){
   if(sp===2){put(x,top+1,z,L,true);put(x,top+2,z,L,true);   // (a pine: tiers narrowing to the top)
     for(let y=top,i=0;y>gy+2;y--,i++)disc(y,i%2?2:1,i%2?3:1);return;}
   if(sp===3){disc(top,3,4);disc(top+1,2,2);return;}   // (an acacia: a flat crown)
+  if(sp===8){put(x,top+1,z,L,true);   // (a palm: fronds out from the top, drooping at their ends)
+    for(const [a,b] of [[1,0],[-1,0],[0,1],[0,-1]]){put(x+a,top+1,z+b,L,true);put(x+2*a,top+1,z+2*b,L,true);put(x+3*a,top,z+3*b,L,true);}
+    for(const [a,b] of [[1,1],[-1,1],[1,-1],[-1,-1]]){put(x+a,top,z+b,L,true);put(x+2*a,top-1,z+2*b,L,true);}return;}
   if(sp===4){disc(top-1,3,5);disc(top,2,3);disc(top+1,1,1);disc(top-5,1,1);return;}   // (a jungle giant, a tuft lower down)
   if(sp===5){disc(top,3,4);disc(top+1,1,1);   // (a swamp tree: a wide crown with leaves hanging off its rim)
     for(let dz=-3;dz<=3;dz++)for(let dx=-3;dx<=3;dx++){if(Math.max(Math.abs(dx),Math.abs(dz))<2||Math.abs(dx)+Math.abs(dz)>4)continue;const q=hash2(x+dx*7,z+dz*5+11);if(q<0.4){put(x+dx,top-1,z+dz,L,true);if(q<0.15)put(x+dx,top-2,z+dz,L,true);}}return;}
@@ -93,7 +99,7 @@ function genChunk(cx,cz){
       else if(plotType(qx,qz)==='farm')farmColumn(a,col,qx,qz,rx,rz,lx,lz,x,z);
       else if((rx<ROADW||rz<ROADW)&&linkRoad(col,qx,qz,rx,rz,x,z)){}
       else if(farmlandOf(qx,qz))farmlandColumn(col,farmlandOf(qx,qz),qx,qz,rx,rz,x,z);
-      else{plainsColumn(col,x,z);if(farmLaneCol(x,z)){col(G-1,DIRT);col(G,GRAVEL);col(G+1,AIR);}if(bunkerAt(qx,qz))bunkerColumn(col,rx,rz,x,z);else if(caveMouth(qx,qz))caveMouthColumn(col,rx,rz,x,z);else if(turbineAt(qx,qz))turbineColumn(col,rx,rz);}   // (a farm lane: two blocks wide, flaring out where it meets the road)
+      else{plainsColumn(col,x,z);sinkColumn(col,x,z);if(farmLaneCol(x,z)){col(G-1,DIRT);col(G,GRAVEL);col(G+1,AIR);}if(bunkerAt(qx,qz))bunkerColumn(col,rx,rz,x,z);else if(caveMouth(qx,qz))caveMouthColumn(col,rx,rz,x,z);else if(turbineAt(qx,qz))turbineColumn(col,rx,rz);}   // (a farm lane: two blocks wide, flaring out where it meets the road)
       pylonColumn(col,x,z);railColumn(col,x,z);
       // a river winding through: its water and banks cut into whatever's there
       {const W=riverCol(x+0.5,z+0.5);if(W&&!W.lake)plainsRiverColumn(col,W.d,W.w,W.R.trib,x,z,W);}

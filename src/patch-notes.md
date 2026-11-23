@@ -58,6 +58,9 @@
 - The badlands rise into flat-topped mesas and plateaus with stepped sides of banded clay, and canyons cut down through them. Scrubland has lower plateaus.
 - In middling hilly country the land steps up sheer rock cliffs that run on for kilometres.
 - The driest, hottest deserts have dead-flat white salt flats.
+- Small lakes called tarns lie in bowls high in the mountains, frozen over where it's cold.
+- Oases dot the deserts: a pool of water ringed with grass and palm trees, the dunes dying away round it.
+- Sinkholes drop straight down toward the caves, with water at the bottom in warm country.
 - This makes a new world again, so a saved city starts afresh.
 
 ### Rivers
