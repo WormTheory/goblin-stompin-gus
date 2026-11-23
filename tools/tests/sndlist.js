@@ -19,7 +19,7 @@ T.audio={};T.DT.sndList=true;T.DT.invuln=true;T.DT.host=1;T.setGob(true);run(0.5
 // (what the list showed during f: each name, with how many times)
 const heard=(what,f)=>{T.SL.rows.clear();f();console.log(what.padEnd(36),'->',[...T.SL.rows.keys()].join(' | ')||'(nothing)');};
 const G0=44;
-heard('stone blocks breaking',()=>T.destroyFX([[Math.floor(P.pos.x)+3,G0-1,Math.floor(P.pos.z),T.STONE]],{force:1}));
+heard('stone blocks breaking',()=>T.destroyFX([{x:Math.floor(P.pos.x)+3,y:G0-1,z:Math.floor(P.pos.z),b:T.STONE}],{force:1}));
 heard('dry-fire click, right after',()=>T.wpnClick());
 T.tenvSpawn('base');{let n=0;while(T.TS.search&&n<5000){T.tenvTick();n++;}}run(3);
 const V=[...T.venues.values()].find(v=>v.kind==='army');

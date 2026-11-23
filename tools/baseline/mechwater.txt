@@ -1,0 +1,10 @@
+Gnash: boosted across true  lowest over the water 0.00  skimming 109/109  spd 32.4
+  stopped on it, boost on: above the surface by 0.00  skimming true
+  boost switched off: under the surface by 8.0  skimming false
+  walked in, boost off: under the surface by 8.0  skimming false
+Grizzle: boosted across true  lowest over the water 0.00  skimming 109/109  spd 32.4
+  stopped on it, boost on: above the surface by 0.00  skimming true
+  boost switched off: under the surface by 8.0  skimming false
+  walked in, boost off: under the surface by 8.0  skimming false
+skating over bumps: biggest jump in a frame, body 1.00  picture 0.15  speed 32.4
+errors 0 

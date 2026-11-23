@@ -42,4 +42,4 @@ foe deckhand guard 360 | walk 144 | attack 120 h0,60 | jump 96 | climb 168 | swi
 foe sailor   guard 360 | walk 144 | attack 156 h0,78 | shoot 108 h59 s1 | reload 162 | jump 96 | climb 168 | swim 144 | death 120
 foe marine   guard 360 | walk 144 | attack 156 h0,78 | shoot 96 h48 s1 | reload 162 | throw 216 h185 s1 | jump 96 | climb 168 | swim 144 | death 120
 foe soldier  guard 360 | walk 144 | attack 156 h0,78 | shoot 96 h48 s1 | reload 162 | jump 96 | climb 168 | swim 144 | death 120
-real world untouched: true player still at  0.00 chunks 103 -> 103
+real world untouched: true player still at  0.00 chunks 137 -> 137

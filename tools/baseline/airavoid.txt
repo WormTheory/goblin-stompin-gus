@@ -1,0 +1,3 @@
+phases reached tow:8 cat:8 fight:8 back:8 final:8 roll:8 park:8 | missiles/shots 5
+deckP  launched 3 | crashed 0  | avoid samples 28
+TOTAL crashes 0 errors 0 

@@ -1,0 +1,13 @@
+capitol at plot 7 6
+crater record has the snow clock 50.031629077867294 ok
+Gus's snow melted off 0.01 ok
+snow melted over the crater: columns 8908 still snowy 0 ok
+outside the blast still snowy (melted samples) 0 ok
+capitol grounds in the flattened zone: columns 19747 still green 0 ok
+no stadium found near: skipped
+town railway at 159,-44
+railway in the flattened zone: columns 265 rails torn up 265 ok ballast 125 with rubble on 19
+reloaded: crater keeps its snow clock 50.031629077867294 ok snow cover 1.00
+reloaded: snow still melted, columns 8908 snowy again 0 ok
+no snow: no snow clock ok snow notes 0 -> 0 ok
+all ok

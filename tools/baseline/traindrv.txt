@@ -1,0 +1,17 @@
+train: in train | a straight run true | controls: [KEY:W]/[KEY:S] lever: power / brake, a notch a tap  ·  [KEY:R] reverser (forward)  ·  [KEY:Space] emergency brake  ·  [LMB] horn (hold: long)  ·  [RMB] bell  ·  [KEY:F] get out
+lever: W tapped 1  held 1.2 s more 5 (P5 is 5) | 2 s on: 3.7  8 s on: 10.9  (top 30)
+  R while moving: reverser still 1
+brakes: from 16.1 with S held to -5 : stopped in 85.5 blocks, 6.1 s  brake pipe 1.0
+  stopped, R twice: reverser -1 (reverse)
+  P5 in reverse 8 s: -10.1 (the other way)
+  R again: reverser 1 (forward)
+  emergency brake (Space) from 16.2 : stopped in 35.6 blocks, 4.1 s  lever -5  emergency true
+  W after: emergency off true  lever -4
+  R: neutral true
+  P5 in neutral 3 s: speed 0.0
+sharpest bend: safe speed 9.2 ( 33.0 km/h ) at 706.4
+  at 8.3 (under the limit): instrument marks 33.0 km/h  through it true  derailed false
+  at 11.9 (over it): squealing true  derailed false
+  at 16.5 (far over it): derailed true  driver thrown out true
+subway: in subway  W held 1.4 s: lever 5  3 s on: went 9.6  speed 4.9
+errors 0 []

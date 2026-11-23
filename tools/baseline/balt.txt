@@ -1,0 +1,16 @@
+in: balloon
+controls: [KEY:Space] burner (hold; it warms a moment behind) | [KEY:C] vent | Move to trim the drift: climb or sink to change wind | [RMB] drop a sandbag (6 left) | [LMB] let down the rope | [KEY:F] get out
+burner: after 0.5 s heat 0.01  (warming 0.29)  after 3 s 0.41  1 s after letting go still warming 0.44
+layers on the way up: SURFACE from 0.7 blowing 0.6 at 119.2° | LOW from 14.8 blowing 2.1 at 58.3° | MID from 30.9 blowing 3.6 at 211.2° | HIGH from 63.9 blowing 5.2 at 280.2°
+  drifting 6 s in HIGH : went 30.6  along its wind at 5.1 a second (it blows 5.2)
+sandbag: rising 5.0 -> 6.5  left 5  falling 1
+  six more taps: left 0  message 
+  a bag dropped from 10.8 up on a goblin under it: hp 4 -> -4  dead true
+rope: down true  basket 5.9 up  shown true  length 6.2
+  4 goblins at its foot (the burner held from here on): on the rope 3 (three at most)
+  after 6.5 s: in the basket 3  still climbing 0  climbing speed held down to 1.2 (burning with nobody on the rope gives 5.5)
+  3 s with goblins aboard: balloon hp 60 -> 42
+  rope pulled up: on the rope 0  in the basket 3  rope shown false
+  controls now: [RMB] drop a sandbag (2 left) | [LMB] let down the rope
+shot down: dead true  climbers left 0
+errors 0 []

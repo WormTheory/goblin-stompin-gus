@@ -1,5 +1,6 @@
-BATHROOM DOORS 2692 with a problem 4
-    4 of 276 tower/normal/lobby no door block (0) 304,45,-1001
+BATHROOM DOORS 2105 with a problem 3
+    2 of 192 tower/normal/lobby no door block (0) -112,45,23
+    1 of 1 zoo/house/shop no door block (0) 464,45,-753
 LARGEST SHARE OF THE GROUND FLOOR
   20% zoo/house/shop/shop rooms per building 1.0
   19% farm/house/apartment/apartment rooms per building 1.0
@@ -13,35 +14,36 @@ LARGEST SHARE OF THE GROUND FLOOR
   14% radio/normal/radio/office rooms per building 1.0
   14% base/normal/barracks/barracks rooms per building 1.0
   13% bank/normal/bank/bank rooms per building 1.0
-  13% shops/normal/guns/apartment rooms per building 1.0
+  13% shops/normal/dispo/apartment rooms per building 1.0
+  13% food/normal/diner/apartment rooms per building 1.0
   13% shops/normal/bar/apartment rooms per building 1.0
-  13% theater/normal/theater/theater rooms per building 1.0
-  13% shops/normal/dentist/office rooms per building 1.0
+  13% food/normal/cafe/apartment rooms per building 1.0
 NONE ON THE GROUND FLOOR
-  503 of   503 farm/house/barn/barn e.g. 6x10
-  498 of  2975 homes/house/apartment/apartment e.g. 16x12
-  184 of   184 fire/normal/firehall/apartment e.g. 13x13
-  184 of   184 fire/normal/office/office e.g. 3x5
-  182 of   182 build/site/office/office e.g. 10x10
-  148 of   148 church/church/church/church e.g. 11x15
-  132 of   132 trailers/normal/apartment/apartment e.g. 4x8
-   90 of    90 mansion/house/apartment/apartment e.g. 16x11
-   68 of    68 lumber/house/apartment/apartment e.g. 8x7
-   62 of    62 thieves/house/shop/shop e.g. 8x7
-   62 of    62 thieves/normal/shop/shop e.g. 6x5
-   54 of    54 garage/garage/garage/garage e.g. 50x50
-   54 of    54 campsite/house/office/office e.g. 6x7
-   54 of    54 campsite/normal/shop/shop e.g. 10x6
-   39 of    39 nursery/house/shop/shop e.g. 6x5
-   39 of    39 mine/normal/shop/shop e.g. 10x12
-   36 of    36 cemetery/church/church/church e.g. 6x7
-   34 of    34 derelict/normal/apartment/apartment e.g. 14x13
-   34 of    34 lumber/normal/shop/shop e.g. 22x16
-   29 of    29 jail/normal/cells/cells e.g. 12x11
-   27 of    27 derelict/normal/shop/apartment e.g. 14x13
-   25 of    25 lighthouse/lighthouse/landmark/landmark e.g. 9x9
-    6 of     6 studio/normal/apartment/apartment e.g. 4x8
+  477 of   477 farm/house/barn/barn e.g. 6x10
+  454 of  2702 homes/house/apartment/apartment e.g. 16x12
+  148 of   148 build/site/office/office e.g. 10x10
+  146 of   146 fire/normal/firehall/apartment e.g. 13x13
+  146 of   146 fire/normal/office/office e.g. 3x5
+  125 of   125 church/church/church/church e.g. 11x15
+   93 of    93 mansion/house/apartment/apartment e.g. 16x11
+   90 of    90 trailers/normal/apartment/apartment e.g. 4x8
+   70 of    70 thieves/house/shop/shop e.g. 8x7
+   70 of    70 thieves/normal/shop/shop e.g. 6x5
+   46 of    46 mine/normal/shop/shop e.g. 10x12
+   44 of    44 lumber/house/apartment/apartment e.g. 8x7
+   42 of    42 campsite/house/office/office e.g. 6x7
+   42 of    42 campsite/normal/shop/shop e.g. 10x6
+   38 of    38 garage/garage/garage/garage e.g. 50x50
+   37 of    37 cemetery/church/church/church e.g. 6x7
+   34 of    34 derelict/normal/shop/apartment e.g. 14x13
+   33 of    33 nursery/house/shop/shop e.g. 6x5
+   25 of    25 derelict/normal/apartment/apartment e.g. 14x13
+   22 of    22 jail/normal/cells/cells e.g. 12x11
+   22 of    22 lumber/normal/shop/shop e.g. 22x16
+   19 of    19 lighthouse/lighthouse/landmark/landmark e.g. 9x9
     6 of     6 cathedral/cathedral/church/church e.g. 48x80
-    5 of     5 mall/mall/shop/shop e.g. 112x112
-    4 of    12 campus/normal/apartment/apartment e.g. 14x12
+    6 of     6 studio/normal/apartment/apartment e.g. 4x8
+    3 of     3 prison/normal/cells/cells e.g. 28x22
+    2 of     6 campus/normal/apartment/apartment e.g. 14x12
+    2 of     2 mall/mall/shop/shop e.g. 112x112
     1 of     1 capitol/capitol/capitol/capitol e.g. 84x74

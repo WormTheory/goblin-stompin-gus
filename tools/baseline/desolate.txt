@@ -1,0 +1,6 @@
+place large -1 1 at plot -26 43 R 7.3
+road into it: country length 1505
+intact         destroyed 0 | second half, average (peak): moving 7.8 (8), parked 0.0 (0), police 6.0 (6), svc 8.0 (8), hostile 5.1 (7), civ 9.0 (9), staff 15.8 (19) | route cars toward it 0 away 0 | gone false
+intact         on that road, average: toward it 8.5 away 4.5 | driving about inside it 0.0 | turned round 0
+wiped out      destroyed 1 | second half, average (peak): moving 0.0 (0), parked 0.0 (0), police 0.0 (0), svc 0.0 (0), hostile 0.0 (0), civ 0.0 (0), staff 0.0 (0) | route cars toward it 0 away 1 | gone true
+wiped out      on that road, average: toward it 0.0 away 11.5 | driving about inside it 0.0 | turned round 0

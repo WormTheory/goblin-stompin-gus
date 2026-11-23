@@ -15,20 +15,35 @@ vehicle super (car) ok
 vehicle forklift (car) ok
 vehicle hover (car) ok
 vehicle tractor (car) ok
+vehicle bicycle (car) ok
+vehicle kick (car) ok
+vehicle segway (car) ok
+vehicle moped (car) ok
 vehicle police (car) ok
 vehicle tank (tank) ok
 vehicle heli (heli) ok
 vehicle plane (plane) ok
+vehicle light (plane) ok
 vehicle jet (plane) ok
 vehicle balloon (balloon) ok
 vehicle mech (mech) ok
+vehicle row (boat) ok
+vehicle pedalo (boat) ok
+vehicle speed (boat) ok
+vehicle launch (boat) ok
+vehicle sail (boat) ok
+vehicle fish (boat) ok
+vehicle tug (boat) ok
+vehicle ferry (boat) ok
+vehicle cargo (boat) ok
+vehicle navy (boat) ok
 vehicle barge (ship) ok
 vehicle carrier (ship) ok
 vehicle carrier deck weapon ok
 vehicle train (stand-in) ok
-families covered: car x18, tank, heli, plane x2, balloon, mech, barge, carrier | not spawnable here: boats, trains, subways, two-seater planes
+families covered: car x22, tank, heli, plane x3, balloon, mech, boat x10, barge, carrier | not spawnable here: trains, subways
 vehicle registry (car, train, subway, tank, heli, plane, boat, balloon, mech, ship, mount) ok
-car spawns (17 kinds and a police car) ok
+car spawns (21 kinds and a police car) ok
 gun foeShoot (rifles, handguns) | on foot -12 hp, driving: tank -36, boxed in 0 ok
 gun crewGun (technical) | on foot -5 hp, driving: tank -15, boxed in 0 ok
 gun helicopter gun (AI) | on foot -6 hp, driving: tank -18, boxed in 0 ok
@@ -38,9 +53,9 @@ gun fireball (cultists) | on foot -2 hp, driving: tank -8.460000000000008, boxed
 gun gunRound | goblin hurt 10 in the open, 0 through a wall ok
 blasts and shells vs every kind of vehicle box ok
 enemy kinds (thief, prepper, militia, security, deckhand, sailor, marine, soldier) ok
-weapons lists (goblin: club; police: club+handgun; civilian: ; cultist: spellbook+dagger; thief: dagger; prepper: rifle+grenade; militia: rifle+grenade; security: ; deckhand: ; sailor: rifle; marine: rifle+grenade; soldier: rifle; made-up bigclub: bigclub; made-up katana: katana; made-up shotgun: dagger+shotgun; made-up arifle: dagger+arifle; made-up sniper: dagger+sniper; made-up bazooka: dagger+bazooka; made-up landmine: club+landmine) ok
+weapons lists (goblin: club; police: club+handgun; civilian: ; cultist: spellbook+dagger; thief: dagger; prepper: rifle+grenade; militia: rifle+grenade; security: ; deckhand: ; sailor: rifle; marine: rifle+grenade; soldier: rifle; made-up bigclub: bigclub; made-up katana: katana; made-up shotgun: dagger+shotgun; made-up arifle: dagger+arifle; made-up sniper: dagger+sniper; made-up launcher: dagger+launcher; made-up nuke: dagger+nuke; made-up landmine: club+landmine) ok
 a gun at range, a blade or club up close (any kind) ok
-weapon stats only in WEAPONS (club, bigclub, katana, dagger, handgun, shotgun, rifle, arifle, sniper, bazooka, spellbook, landmine, grenade; FOES, GOB_FOES) ok
+weapon stats only in WEAPONS (club, bigclub, katana, dagger, handgun, shotgun, rifle, arifle, sniper, launcher, nuke, spellbook, landmine, grenade; FOES, GOB_FOES) ok
 the same weapon in the hands of an enemy as of a player ok
 errors 0 
 GUARDS: no new gaps | expected gaps 3 | fixed 0

@@ -3,8 +3,8 @@ militia: roused false | vehicles 4 technical technical quad quad | at their spot
 gus walks in: roused true | runners 8 heading for tdrv tgun tdrv tgun qdrv qgun qdrv qgun | from the HQ true
    1.5 s | bullets 0 | hits on gus 0 lowest hp 20 | vehicles t:D-h moved 6.2, t:DGhg moved 2.3, q:-- moved 0.0, q:-- moved 0.0 | runners 5
    one killed running: dead true | another sent for that seat true
-   4 s more | bullets 22 | hits on gus 9 lowest hp 6 | vehicles t:D-h moved 34.5, t:DGhg moved 17.2, q:DGhg moved 24.0, q:D-h moved 30.4 | runners 2
-   8 s more | bullets 40 | hits on gus 18 lowest hp 6 | vehicles t:D-h moved 34.7, t:DGhg moved 23.5, q:DGhg moved 24.8, q:DGhg moved 30.4 | nearest to gus 13.8 19.6 5.8 11.1
+   4 s more | bullets 23 | hits on gus 6 lowest hp 8 | vehicles t:D-h moved 32.9, t:DGhg moved 17.5, q:DGhg moved 23.4, q:D-h moved 31.3 | runners 2
+   8 s more | bullets 47 | hits on gus 22 lowest hp 6 | vehicles t:DGhg moved 32.7, t:DGhg moved 27.3, q:DGhg moved 30.4, q:DGhg moved 29.9 | nearest to gus 7.4 17.9 10.3 4.9
 technical destroyed: alive false | bodies thrown out 1 | by name true | militiamen true
    its spot stays empty 3 vehicles left
    gone 700 off: vehicles 0
@@ -14,15 +14,15 @@ gus in the base: alert true | tanks man 3 hunt 1 crewed 1 moved 0 | helis man up
    its soldier killed: that tank park | crewed false
    1 s: tanks man 0 hunt 3 crewed 3 moved 0 | helis man up 0.0, man up 0.0 | soldiers running 2
    3 s more: tanks man 0 hunt 4 crewed 4 moved 3 | helis hunt crewed up 0.0, man up 0.0 | soldiers running 1
-   6 s more: tanks man 0 hunt 4 crewed 4 moved 4 | helis hunt crewed up 13.0, man up 0.0 | soldiers running 1
+   6 s more: tanks man 0 hunt 4 crewed 4 moved 4 | helis hunt crewed up 13.0, hunt crewed up 0.0 | soldiers running 0
    10 s more: tanks man 0 hunt 4 crewed 4 moved 4 | helis hunt crewed up 13.0, hunt crewed up 13.0 | soldiers running 0
 tank destroyed: its crewman's body out of it true
-hostility to Peaceful: alert false | going home 3
-   back in their places, empty 3 of 3 | soldiers seen walking back to the barracks 3
+hostility to Peaceful: alert false | going home 2
+   back in their places, empty 1 of 2 | soldiers seen walking back to the barracks 2
 technical hunt Spawned 2 hunting technicals ahead of Gus.
-   6 s | bullets 20 | hits on gus 3 lowest hp 17 | t:DGhg moved 35.7, t:DGhg moved 45.3
+   6 s | bullets 20 | hits on gus 4 lowest hp 16 | t:DGhg moved 19.5, t:DGhg moved 26.2
 quad hunt Spawned 2 hunting four-wheelers ahead of Gus.
-   6 s | bullets 5 | hits on gus 2 lowest hp 18 | q:DGhg moved 31.7, q:DGhg moved 40.6
+   6 s | bullets 6 | hits on gus 1 lowest hp 19 | q:DGhg moved 28.4, q:DGhg moved 4.2
 technical park Spawned 2 parked technicals ahead of Gus.
    6 s | bullets 0 | hits on gus 0 lowest hp 20 | t:-- moved 0.0, t:-- moved 0.0
 errors 0 []

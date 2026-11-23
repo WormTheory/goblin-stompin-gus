@@ -1,0 +1,34 @@
+== airliner (airliner roll rate 0.8 rad/s)
+  D held: a whole roll true in 8.0 s  height lost 112.9  let go 3 s: bank -0.02  climb rate 1.8  wrecked false
+  a loop (S held): round in 7.9 s   upside down at the top true  slowest 36.6  (stalls at 20)  stalled frames 0  height 23.5 to 141.0  heading after 0.00  wings creaking frames 138 hp 298.8/300  wrecked false
+    3 s after: bank 0.00  nose 0.04  speed 62.3  climb rate 0.5
+  Mouse-aim, camera 90 degrees left: on the new heading after 3.7 s (steepest bank 1.63)  3 s on: off by 0.02  bank -0.30  climb rate -2.2
+    camera up 0.4: climbs 92.5  flight path 0.35 (nose 0.00) camera level again 4 s: climb rate -3.0  stalled false
+    free look (X held, camera swung 2.5 away for 2 s): heading moved -0.00  let go: camera back true
+  Mouse-aim landing from 30 up at 40 (slowest it stays up at about 20) : on the ground true  wrecked false  stopped true after 13.6 s  flared for 258 frames  hp 298.8/300
+  right click: autopilot true  after a knock, 15 s on: height off by -1.0  heading off by 0.00  bank -0.01  display says true
+    A: autopilot off true
+  R: gear up true  belly landing: survived true  plane hp 88.8/300  slid to a stop true  can it take off again false
+== two-seater (two-seater roll rate 2.1 rad/s)
+  D held: a whole roll true in 3.1 s  height lost 30.6  let go 3 s: bank 0.00  climb rate 0.5  wrecked false
+  a loop (S held): round in 4.4 s   upside down at the top true  slowest 32.6  (stalls at 11)  stalled frames 0  height 59.1 to 113.6  heading after 0.00   wrecked false
+    3 s after: bank 0.00  nose 0.05  speed 46.0  climb rate 0.9
+  Mouse-aim, camera 90 degrees left: on the new heading after 1.5 s (steepest bank 1.46)  3 s on: off by -0.00  bank 0.00  climb rate -2.1
+    camera up 0.4: climbs 58.1  flight path 0.34 (nose -0.00) camera level again 4 s: climb rate -2.0  stalled false
+    free look (X held, camera swung 2.5 away for 2 s): heading moved -0.00  let go: camera back true
+  Mouse-aim landing from 30 up at 20 (slowest it stays up at about 11) : on the ground true  wrecked false  stopped true after 10.4 s  flared for 145 frames  hp 120.0/120
+  right click: smoke trail true  puffs out true
+    again: off true
+  R: gear up true  belly landing: survived true  plane hp 36.0/120  slid to a stop true  can it take off again false
+== fighter jet (jet roll rate 4.7 rad/s)
+  D held: a whole roll true in 1.4 s  height lost 5.7  let go 3 s: bank -0.00  climb rate -0.5  wrecked false
+  a loop (S held): round in 4.3 s   upside down at the top true  slowest 74.0  (stalls at 20)  stalled frames 0  height 23.0 to 136.2  heading after 0.00   wrecked false
+    3 s after: bank 0.00  nose 0.02  speed 97.6  climb rate -0.0
+  Mouse-aim, camera 90 degrees left: on the new heading after 2.5 s (steepest bank 1.48)  3 s on: off by -0.00  bank 0.00  climb rate -1.6
+    camera up 0.4: climbs 117.1  flight path 0.00 (nose 0.01) camera level again 4 s: climb rate -0.7  stalled false
+    free look (X held, camera swung 2.5 away for 2 s): heading moved 0.01  let go: camera back true
+  Mouse-aim landing from 30 up at 45 (slowest it stays up at about 20) : on the ground true  wrecked false  stopped true after 14.0 s  flared for 283 frames  hp 300.0/300
+  A tapped twice: barrel roll true  a whole turn true in 1.3 s  wrecked false
+  Shift at full throttle: afterburner true  speed 111.0 -> 198.5  heat after 3 s 0.50  after 8 s overheated true  display says AFTERBURNER true
+  a hard pull at 140: up to 6.9 G  edges greyed true ( 0.49 )
+errors 0 []

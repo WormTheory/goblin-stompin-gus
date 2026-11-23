@@ -1,4 +1,4 @@
-button: venue true  mechs 1  feet on the ground 0.00  hp 600  energy 100  says Spawned 1 Mobile Gear ahead of Gus. Walk up to one as Gnash or Grizzle and press F (controller Y) to climb in.
+button: venue true  mechs 1  feet on the ground 0.00  hp 600  energy 100  says Spawned 1 Mobile Gear. Goblins only.
 its own controls: mgJump Space/0, mgQB ShiftLeft/2, mgBoost KeyC/1, mgOut KeyF/3, mgArmL Mouse0/4, mgArmR Mouse2/5, mgShL KeyQ/6, mgShR KeyE/7, mgLock Mouse1/11, mgAB KeyX/10, mgRep KeyR/13
 as Gus (a hippo), F beside it: on foot
 as Gnash, F beside it: mech  this one true  pilot hidden in its chest 5.0
@@ -22,12 +22,12 @@ jump (a tap): up 4.8  energy 100.0 -> 100.0  back down true
   walking at a 1-block ledge: up 1.0  went 11.5
   walking at a 2-block ledge: up 0.0  went 4.7
   skating at a 2-block ledge: up 2.0  went 83.6
-  skating at a 3-block wall: up 0.0  went 5.7
+  skating at a 3-block wall: up 0.0  went 47.5
 smashing through:
   walking into a wall: blocks broken 0 of 66  went 21.9 in 2.5 s  speed after 10.8
   skating flat out into a wall: blocks broken 24 of 66  went 80.9 in 2.5 s  speed after 32.4
-  skating flat out into a building: blocks broken 68 of 237  went 78.9 in 2.5 s  speed after 32.3
-  a quick boost into a wall from standing: blocks broken 23 of 66  went 52.3 in 2.5 s  speed after 32.3
+  skating flat out into a building: blocks broken 68 of 237  went 79.6 in 2.5 s  speed after 32.3
+  a quick boost into a wall from standing: blocks broken 24 of 66  went 52.3 in 2.5 s  speed after 32.3
 the legs: soles above the ground (left right), worst tilt off flat
   standing: 0.03 0.03  tilt 0.00
   turned on the spot 0.6 of a half turn: legs turned 1.87  steps 6  most a planted foot slid in a frame 0.00  soles after 0.03 0.03
@@ -57,44 +57,47 @@ hit for 50: hp 600  display Mobile Gear  ·  600 / 600
 hit for 1000: wrecked false  pilot mech  thrown clear 0.0
   F by the wreck: mech
 weapons: Rivet Rifle 40/2.5s, Heat Cleaver 1/1.2s, Swarm Pod 8/6s, Breaker Cannon 3/7s
-lock box: ahead 0.12 rad off the crosshair, locked true  the one to the side 0.66 in the box false  marker shown false
-  Rivet Rifle held 0.6 s: rounds 6  the goblin ahead chase  arm raised 1.00
-  muzzle on the forearm true  gun marker set while firing true  the arm turned at most 0.00 a step
-hard lock (middle click) on the one 0.58 off: locked false  1 s later 0.53 off  hint true
+lock box: ahead 0.12 rad off the crosshair, locked true  the one to the side 0.67 in the box false  marker shown false
+  Rivet Rifle held 0.6 s: rounds 6  the goblin ahead dead  arm raised 1.00
+  muzzle on the forearm true  the arm turned at most 0.01 a step
+hard lock (middle click) on the one 0.67 off: locked true  1 s later 0.09 off  hint true
   middle click again: let go true
-  leading a goblin crossing at 8/s, 100/s shot: aims 1.98 ahead of it (expected about 1.97)
+  leading a goblin crossing at 8/s, 100/s shot: aims 2.28 ahead of it (expected about 2.28)
   40 rounds gone in 2.4 s; reloaded in 2.5 s, back to 40
-Heat Cleaver at a locked goblin 18 ahead: lunged 8.4  goblin chase  blade shown true  cooling true  arm swept from -1.15 to 1.74 (right to left: true )
-  the swing, frame by frame (60 a second): blade appears at 12 full at 18  body turned -0.45 to 0.40  blade back in the hand by frame 37
+Heat Cleaver at a locked goblin 18 ahead: lunged 8.7  goblin dead  blade shown true  cooling true  arm swept from -1.15 to 1.74 (right to left: true )
+  the swing, frame by frame (60 a second): blade appears at 12 full at 18  body turned -0.45 to 0.41  blade back in the hand by frame 37
   pressed again mid-swing: a new swing false
-  goblins 10 to its right, left, ahead, and behind either side: cut down no no no no no
-  slashing at a wall 12 ahead, nothing locked: lunged 2.2  cut 40 blocks, 12 of them more than 5 off to one side and 10 to the other
-  a goblin locked in a pit 6.0 down: swing tilted -0.66  bent at the hips 0.53  goblin chase
-  nothing locked, looking down: swing tilted -0.42  ground cut 76 blocks
+  goblins 10 to its right, left, ahead, and behind either side: cut down yes yes yes no no
+  slashing at a wall 12 ahead, nothing locked: lunged 2.0  cut 63 blocks, 18 of them more than 5 off to one side and 18 to the other
+  a goblin locked in a pit 6.0 down: swing tilted -0.66  bent at the hips 0.53  goblin dead
+  nothing locked, looking down: swing tilted -0.42  ground cut 146 blocks
 Heat Cleaver on the move, walking at 0.0: its own speed during the swing 0.0 to 0.0, after 0.0; covered 0.0 in 0.8 s (0.0 of it its own);  boosting at 0.0: its own speed during the swing 0.0 to 0.0, after 0.0; covered 0.0 in 0.8 s (0.0 of it its own)
-Rivet Rifle into a wall: rounds 20  blocks broken 9 (about half)
+Rivet Rifle into a wall: rounds 20  blocks broken 7 (about half)
 Infinite ammo: rifle held 5 s, rounds 20 -> 20  reloading false  cannon after a shot 3  blade cooling still true
-Swarm Pod: Q held 0.35 s 2 locks, 1 s 4 (pips 0)  let go: missiles out 4  all landed in 1.4 s  goblins down 0 of 4  left in the pod 4 of 8
+Swarm Pod: Q held 0.35 s 2 locks, 1 s 4 (pips 0)  let go: missiles out 4  all landed in 1.4 s  goblins down 4 of 4  left in the pod 4 of 8
   tapped with nothing in the box: one missile at the crosshair, pod 3
 Breaker Cannon on the ground, walking at 0.0: fired after 0.40 s braced, speed then 0.0  blocks blown out of a wall 40 ahead 0  shells left 2
+  turned 1 rad away and fired again: bracing true  barrel turned off the view by 0.00 (0 is along the view)
   fired in the air: at once true  knocked back 12.7 (it pushes away from the shot: true )
   two more, then empty: shells 0  reloading true
   out of it: no locks true  reloads go on: cannon 4.9
-assault boost: charging true at 0.0  then going true at 65.0  covered 65.1 in 1 s, energy 100.0 to 72.5  pressed again: over true  speed 34.5 then 1.9  boost left on true
+assault boost: charging true at 0.0  then going true at 65.0  covered 65.1 in 1 s, energy 100.0 to 72.5  pressed again: over true  speed 57.0 then 29.5  boost left on true
   aimed up: climbed 17.0 in 0.6 s;  pulled back: over true
-  into a wall 30 ahead: through it true  blocks broken 104  still going true at 64.7
+  level, Space held 0.6 s: up 14.8 ;  then C held 0.5 s: down 11.3  boost switch untouched true  hint true
+  stopped: speed 60.9 , 0.5 s later 31.5 , 1.2 s later 12.0 (carried on, easing off)
+  into a wall 30 ahead: through it true  blocks broken 32  still going true at 65.0
   kick at a tank: kicking true  landed true  damage 30.0  its impact meter 0.0 of 120  staggered true  bounced back to 10.1
 impact: a tank hit for 60 not staggered  then 70 more staggered  hit for 10 while staggered: takes 15.0  2.2 s later still staggered false
   meter after a hit 50.0  1 s later 50.0  3 s later 0.0 (drains once it stops being hit)
   the Mobile Gear hit for 265 : staggered false  (STAGGERED shown false)  pushing forward: 1.4  rounds fired 3  2.5 s later moving again 0.0
 repair kits: 3  (the controls say 3 left)  at full health a press does nothing true  from 200: 410.0  after using them all 0 left, hp 100.0 (the last press did nothing)
 walked at a boat 22 ahead: stopped 2.8 from its middle (it is 2.8 to touching)  inside it false
-  dropped on its deck (top 47.1): stands at 47.1  the boat moved 5: carried 5.0
-debug menu vehicles: 26 kinds, rows Vehicle, Spawn vehicle  Infinite ammo row true
+  dropped on its deck (top 47.2): stands at 47.2  the boat moved 5: carried 5.0
+debug menu vehicles: 41 kinds, rows Vehicle, Spawn vehicle  Infinite ammo row true
   spawn car: Spawned 1 parked car ahead of Gus.
   spawn tank: Spawned 1 parked tank ahead of Gus.
-  spawn mech: Spawned 1 Mobile Gear ahead of Gus. Walk up to one as Gnash or Grizzle and press F (controller Y) to climb in.
-debug menu in the ordinary game: car: Spawned 1 parked;  tank: Spawned 1 parked;  mech: Spawned 1 Mobile;  plane: Spawned 1 plane
+  spawn mech: Spawned 1 Mobile Gear. Goblins only.
+debug menu in the ordinary game: car: Spawned 1 parked;  tank: Spawned 1 parked;  mech: Spawned 1 Mobile;  plane: Spawned 1 plane.
   on the raised ground (top 48 ): mech at 48.0  tank at 48.0  plane at 48.0
   2 s later, still there: mech true  tank true  plane true
 Gnash and Grizzle, the same inputs: furthest apart 0.000

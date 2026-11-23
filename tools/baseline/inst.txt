@@ -1,0 +1,83 @@
+bus        car      instrument truck     slot shown true  overlay shown false  drawn true  clean true  controls column has throttle/climb/rudder readouts false
+           out: slot hidden true  overlay hidden true
+car        car      instrument car       slot shown true  overlay shown false  drawn true  clean true  controls column has throttle/climb/rudder readouts false
+           out: slot hidden true  overlay hidden true
+van        car      instrument car       slot shown true  overlay shown false  drawn true  clean true  controls column has throttle/climb/rudder readouts false
+           out: slot hidden true  overlay hidden true
+pickup     car      instrument car       slot shown true  overlay shown false  drawn true  clean true  controls column has throttle/climb/rudder readouts false
+           out: slot hidden true  overlay hidden true
+truck      car      instrument truck     slot shown true  overlay shown false  drawn true  clean true  controls column has throttle/climb/rudder readouts false
+           out: slot hidden true  overlay hidden true
+semi       car      instrument truck     slot shown true  overlay shown false  drawn true  clean true  controls column has throttle/climb/rudder readouts false
+           out: slot hidden true  overlay hidden true
+fire       car      instrument truck     slot shown true  overlay shown false  drawn true  clean true  controls column has throttle/climb/rudder readouts false
+           out: slot hidden true  overlay hidden true
+amb        car      instrument car       slot shown true  overlay shown false  drawn true  clean true  controls column has throttle/climb/rudder readouts false
+           out: slot hidden true  overlay hidden true
+news       car      instrument car       slot shown true  overlay shown false  drawn true  clean true  controls column has throttle/climb/rudder readouts false
+           out: slot hidden true  overlay hidden true
+bike       car      instrument bike      slot shown true  overlay shown false  drawn true  clean true  controls column has throttle/climb/rudder readouts false
+           out: slot hidden true  overlay hidden true
+rv         car      instrument car       slot shown true  overlay shown false  drawn true  clean true  controls column has throttle/climb/rudder readouts false
+           out: slot hidden true  overlay hidden true
+technical  car      instrument car       slot shown true  overlay shown false  drawn true  clean true  controls column has throttle/climb/rudder readouts false
+           out: slot hidden true  overlay hidden true
+quad       car      instrument car       slot shown true  overlay shown false  drawn true  clean true  controls column has throttle/climb/rudder readouts false
+           out: slot hidden true  overlay hidden true
+super      car      instrument car       slot shown true  overlay shown false  drawn true  clean true  controls column has throttle/climb/rudder readouts false
+           out: slot hidden true  overlay hidden true
+forklift   car      instrument fork      slot shown true  overlay shown false  drawn true  clean true  controls column has throttle/climb/rudder readouts false
+           out: slot hidden true  overlay hidden true
+hover      car      instrument hover     slot shown true  overlay shown false  drawn true  clean true  controls column has throttle/climb/rudder readouts false
+           out: slot hidden true  overlay hidden true
+tractor    car      instrument tractor   slot shown true  overlay shown false  drawn true  clean true  controls column has throttle/climb/rudder readouts false
+           out: slot hidden true  overlay hidden true
+bicycle    car      instrument cycle     slot shown true  overlay shown false  drawn true  clean true  controls column has throttle/climb/rudder readouts false
+           out: slot hidden true  overlay hidden true
+kick       car      instrument null      slot shown false  overlay shown false  drawn true  clean true  controls column has throttle/climb/rudder readouts false
+           out: slot hidden true  overlay hidden true
+segway     car      instrument gyro      slot shown true  overlay shown false  drawn true  clean true  controls column has throttle/climb/rudder readouts false
+           out: slot hidden true  overlay hidden true
+moped      car      instrument moped     slot shown true  overlay shown false  drawn true  clean true  controls column has throttle/climb/rudder readouts false
+           out: slot hidden true  overlay hidden true
+police     car      instrument car       slot shown true  overlay shown false  drawn true  clean true  controls column has throttle/climb/rudder readouts false
+           out: slot hidden true  overlay hidden true
+tank       tank     instrument tank      slot shown true  overlay shown false  drawn true  clean true  controls column has throttle/climb/rudder readouts false
+           out: slot hidden true  overlay hidden true
+heli       heli     instrument heli      slot shown true  overlay shown false  drawn true  clean true  controls column has throttle/climb/rudder readouts false
+           out: slot hidden true  overlay hidden true
+plane      plane    instrument pfd       slot shown true  overlay shown false  drawn true  clean true  controls column has throttle/climb/rudder readouts false
+           out: slot hidden true  overlay hidden true
+light      plane    instrument steam     slot shown true  overlay shown false  drawn true  clean true  controls column has throttle/climb/rudder readouts false
+           out: slot hidden true  overlay hidden true
+jet        plane    instrument jet       slot shown false  overlay shown true  drawn true  clean true  controls column has throttle/climb/rudder readouts false
+           out: slot hidden true  overlay hidden true
+balloon    balloon  instrument balloon   slot shown true  overlay shown false  drawn true  clean true  controls column has throttle/climb/rudder readouts false
+           out: slot hidden true  overlay hidden true
+mech       mech     instrument mgring    slot shown true  overlay shown false  drawn true  clean true  controls column has throttle/climb/rudder readouts false
+           out: slot hidden true  overlay hidden true
+row        boat     instrument row       slot shown true  overlay shown false  drawn true  clean true  controls column has throttle/climb/rudder readouts false
+           out: slot hidden true  overlay hidden true
+pedalo     boat     instrument row       slot shown true  overlay shown false  drawn true  clean true  controls column has throttle/climb/rudder readouts false
+           out: slot hidden true  overlay hidden true
+speed      nothing found to get into
+launch     nothing found to get into
+sail       nothing found to get into
+fish       nothing found to get into
+tug        nothing found to get into
+ferry      nothing found to get into
+cargo      nothing found to get into
+navy       nothing found to get into
+boat pedalo   instrument row  drawn true  clean true
+boat row      instrument row  drawn true  clean true
+boat speed    instrument boat  drawn true  clean true
+boat launch   instrument boat  drawn true  clean true
+boat sail     instrument boat  drawn true  clean true
+boat fish     instrument boat  drawn true  clean true
+boat tug      instrument boat  drawn true  clean true
+boat ferry    instrument boat  drawn true  clean true
+boat navy     instrument boat  drawn true  clean true
+boat cargo    instrument boat  drawn true  clean true
+ship           drawn true  clean true
+train          drawn true  clean true
+errors 0 []

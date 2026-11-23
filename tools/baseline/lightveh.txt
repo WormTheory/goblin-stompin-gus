@@ -1,0 +1,38 @@
+bicycle: in true  name Bicycle  ·  14 / 14 instrument cycle  rider shown true  its own rider model hidden true
+  controls: [RMB] pedal hard (tap) | [KEY:Space] back brake | [LMB] bell | [KEY:C] look behind
+  pedalling 6 s: 26.78 km/h (top 43.2 )
+  legs going round (your own goblin's): -0.54 model leg -0.55
+  20 taps of the special in rhythm: 40.64 km/h  cadence 0.84  legs left 0.50
+  60 more: legs left 0.04  speed 27.43
+  coasting 3 s: 13.06  legs back to 0.34
+  back brake 1 s: 0.00
+  into a wall at 26.78 km/h: thrown off true
+kick: in true  name Kick scooter  ·  10 / 10 instrument null  rider shown true  its own rider model hidden true
+  controls: [KEY:W] kick (tap) | [RMB] ollie (let go) | [KEY:Space] brake | [LMB] bell
+  one kick: 11.39 km/h
+  coasting 2 s: 7.94
+  8 kicks in rhythm: 23.11 (top 27.00)
+  W held 3.5 s (a kick every 0.75 s): 20.92  kicking leg swung 0.12
+  foot brake 1 s: 9.74
+  ollie: 0.42 high
+  got off: true  standing by it 1.28
+segway: in true  name Gobway  ·  16 / 16 instrument gyro  rider shown true  its own rider model hidden true
+  controls: [KEY:W]/[KEY:S] lean forward / back | [LMB] beep | [KEY:C] look behind | [KEY:F] get out
+  lean forward: lean 0.76 tilt 0.16  after 4.4 s 20.16 km/h (top 20.16)  pushback true
+  stood up straight 2 s: 0.42  lean 0.00
+  turning on the spot 1 s: turned 2.32 rad, moved 0.03
+  lean back 2 s: -7.92 km/h
+  battery 0.98 -> low: top 10.08 km/h, the light gyro
+  got off: true  standing by it 1.50
+moped: in true  name Motor scooter  ·  20 / 20 instrument moped  rider shown true  its own rider model hidden true
+  controls: [RMB] indicators | [KEY:Space] back brake | [LMB] horn | [KEY:C] look behind
+  twist and go: 1 s 18.02  3 s 49.49  9 s 54.00 km/h (top 54 )
+  indicators: steering right 1  again: off true
+  out of fuel: splutters along at 18.90 km/h
+  got off: true  standing by it 1.31
+bicycle  traffic rider: parked empty shown false  wrecked shown false  back in the traffic shown true
+kick     traffic rider: parked empty shown false  wrecked shown false  back in the traffic shown true
+segway   traffic rider: parked empty shown false  wrecked shown false  back in the traffic shown true
+moped    traffic rider: parked empty shown false  wrecked shown false  back in the traffic shown true
+street mix: bicycle 0.03 motor scooter 0.03 kick scooter 0.01 Gobway 0.01
+errors 0 []

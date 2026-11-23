@@ -1,0 +1,10 @@
+sea shaft: filled 3 of 3 in 0.75s | saved as edits true
+sea room 48: dry before 0 after 48 | shaft 4 of 4
+sea cavern 500: filled 500 + shaft 8 of 8 | safety cap 20000
+tank of 4 holed underneath: water below it 4 (at most 4) | tank still 4
+walled pool broken at its surface: beside it 35 above the surface 0 (0) | gap 1
+dry hole stays dry true
+sent to a guest -702,35,-703,0 -702,35,-703,9 | water true
+edge: tunnel 8 of 8 | waiting at the edge 1 | next chunk still unmade true
+edge: once made, the tunnel on in it 4 of 4 | still waiting 0
+jobs left 0 queued 0 seen 0

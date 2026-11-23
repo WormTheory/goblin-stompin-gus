@@ -1,7 +1,7 @@
   mid (15 tall, Gus 8 up)      same side  36 blows, first after 6.6s     time on the roof 0.0s ended -0.2 -1.5 0.1 up
   mid (15 tall, Gus 8 up)      left end   33 blows, first after 10.6s    time on the roof 0.0s ended -0.2 -1.5 0.1 up
   mid (15 tall, Gus 8 up)      right end  33 blows, first after 10.5s    time on the roof 0.0s ended 0.2 -1.5 0.1 up
-  mid (15 tall, Gus 8 up)      far side   30 blows, first after 15.6s    time on the roof 0.0s ended 0.2 -1.5 0.1 up
+  mid (15 tall, Gus 8 up)      far side   30 blows, first after 15.5s    time on the roof 0.0s ended 0.2 -1.5 0.1 up
   tower (20 tall, Gus 10 up)   same side  36 blows, first after 7.4s     time on the roof 0.0s ended -0.2 -1.5 0.1 up
   tower (20 tall, Gus 10 up)   left end   32 blows, first after 12.9s    time on the roof 0.0s ended -0.2 -1.5 0.1 up
   tower (20 tall, Gus 10 up)   right end  32 blows, first after 13.2s    time on the roof 0.0s ended 0.2 -1.5 0.1 up

@@ -1,0 +1,22 @@
+host seed 266144506 P1 at 10.50 45.00 10.50
+host edits before join 25
+hosting yes status: Hosting online. Room code TESTA · waiting for someone to join
+guest city seed before joining 289328063 (different from the host: ok)
+guest asked to reload into the host world ok kept in session storage ok local save untouched ok
+host keeps the seat for the guest while it reloads ok
+reloaded guest builds the host world: seed 266144506 ok edits 25 ok saving blocked ok
+guest joined ok seat 1 playing ok host has player two ok
+messages so far 55 bytes 87646 (about 1594 a message)
+guest P1 vs host P2 0.00 guest P2 vs host P1 0.00 ok
+camera from its hippo: guest 7.24 host 7.24 (guest P2 on the host 7.24)
+hp shown 20 state walk host P2 20 walk
+venues near: host 7 trains 1 | guest 7 trains 1 | venue joints placed by the host 7
+venue models within reach 47 furthest a guest one is from the host one 0.00 (a train moves about 2 in the 0.1 s a guest is behind)
+goblins shown host 19 guest 19 | vehicles host 5 guest 4 | guest's own goblins out 0 ok
+guest rifle shot: tracer on the guest after 0 frames ok (fired on the host after 1) | streaks still showing a second later 0 ok | streaks shown 1 ok
+guest nuke: launched on the host ok from 2.50 blocks off the guest goblin | flew 253 frames ok landed 89.7 blocks away | warhead seen flying on the guest 250 frames ok | a crater ok
+guest nuke shells left on the guest 0 ok
+street drivers with a look of their own 14 dressed as it at the wheel 14 ok | the same on the guest 14/14 ok
+car: stolen ok | the guest saw its own goblin 84 of 113 frames of it ok at most 0.37 off the host's ok | the driver hauled out dressed as at the wheel ok | hidden in it, its own head at the wheel on the guest ok
+bike: stolen ok | the guest saw its own goblin 81 of 81 frames of it ok at most 0.36 off the host's ok | the driver hauled out dressed as at the wheel ok | its goblin astride it on the guest ok
+done

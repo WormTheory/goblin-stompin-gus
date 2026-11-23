@@ -1,0 +1,14 @@
+in the tank: tank true  controls: [KEY:W]/[KEY:S] tracks  ·  [KEY:A]/[KEY:D] turn (pivots when still)  ·  [KEY:Left Shift] cruise off  ·  [LMB] fire  ·  [RMB] gunsight (hold)  ·  [KEY:R] AP shells  ·  [KEY:C] hull lock  ·  [KEY:Q] lock on  ·  [KEY:F] get out  ·  [KEY:X] man the gun
+tracks: W 0.5 s 1.30  3.5 s 7.00  (top 7)  let go: stopped after 1.20 s
+pivot: D 1 s at a standstill: turned -0.90  moved 0.00
+  D 1 s at 7.00 : turned -0.50  (wider with speed)
+cruise: Shift three times: steps 1,2,3  4 s with nothing pressed: speed 7.00  S: cruise 0  speed 3.39
+  Shift once: cruise 1  speed 2.33
+bloom: moving 0.55  crosshair scale(1.88) | stopped: 0.00  1.2 s still: 0.00  crosshair scale(1.00)
+HE on the wall: blocks gone 27  deepest 2 of 8 | vd 60  radius 4.5 | bloom on firing, 0.5 s, 1.2 s on: 0.92 -> 0.42 -> 0.00
+R: shell now ap | AP on the wall: blocks gone 15  deepest 8 of 8 | vd 120  radius 2  ap flag true
+  R again: he
+gunsight: right click held: fov 72 -> 22  camera 1.60 from the middle, 2.82 up  overlay true | let go: fov 72  overlay false
+hull lock: C on true  camera swung 1.2: turret 0.00 -> 0.00 | C off: turret follows to 1.20  controls say true
+slope: level pitch 0.00  driving up a ramp: pitch 0.00  then -0.16  roll -0.01  climbed 0.97
+errors 0 []

@@ -1,0 +1,8 @@
+building -5,-6,0 top 75
+intact                 near 75.0 mid 75.0 far 64.8
+collapsed to G+8       near 7.0 mid 7.0 far 7.0
+collapsed to G+2       near 1.0 mid 1.0 far 1.0
+half knocked out       near 37.0 mid 37.0 far 37.0
+crater on it           near none mid none far none
+crater ring 130 off    near 18.0 mid 18.0 far 18.0
+crater gone            near 75.0 mid 75.0 far 64.8

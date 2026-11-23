@@ -16,6 +16,6 @@ tank wrecked at 9 a second into a brick wall: front 0.74 blocks into it, floatin
 mech wrecked at 24 a second into a brick wall: front 1.98 blocks into it, floating 0.00  left inside it 0
 forklift: car on the forks true  raised 1.85
   wrecked moving at 5.96 a second: its load let go false  car on the forks still true
-  5 s on: forklift shell floating 0.00  the car 0.00 over the ground under it, alive true  forklift went 5.33
+  5 s on: forklift shell floating 0.00  the car 0.00 over the ground under it, alive true  forklift went 5.35
 shell on a platform 3 high, at 3.00 ; platform knocked out from under it: now at 0.00  floating 0.00
 errors 0 

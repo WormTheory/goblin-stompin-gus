@@ -3,15 +3,15 @@ thieves  box {"k":"thieves","ax":0,"az":1,"w":1,"h":1,"sx":6,"sz":-20} | posts 4
    gus near the posts: roused true
    8 s | bullets 0 | thrown/fired {} | hits on gus 9 lowest hp 6 | alive 3 at 2 2 2
    killed all: alive 0 slain marks 4
-prepper  box {"k":"prepper","ax":-1,"az":21,"w":2,"h":2,"sx":24,"sz":20} | posts 3 filled 3 | alive 3 hp 5,5,5 | up a tower 1 | roused false | jobs Doomsday prepper, Off-grid survivalist, Doomsday prepper
+prepper  box {"k":"prepper","ax":-1,"az":21,"w":2,"h":2,"sx":24,"sz":20} | posts 3 filled 3 | alive 3 hp 5,5,5 | up a tower 1 | roused false | jobs Off-grid survivalist, Water-filter enthusiast, Canned-goods hoarder
    3 s later: still calm true gus hp 20 | at posts 0.0 0.0 0.0
    gus near the posts: roused true
-   8 s | bullets 10 | thrown/fired {"grenade":2} | hits on gus 10 lowest hp 6 | alive 3 at 31 8 7
+   8 s | bullets 10 | thrown/fired {"grenade":2} | hits on gus 6 lowest hp 8 | alive 3 at 28 9 10
    killed all: alive 0 slain marks 3
-militia  box {"k":"militia","ax":-1,"az":41,"w":2,"h":2,"sx":-18,"sz":28} | posts 9 filled 7 | alive 7 hp 5,5,5,5,5,5,5 | up a tower 2 | roused true | jobs Sentry, Camo enthusiast, Weekend warrior
-   3 s later: still calm false gus hp 12 | at posts 0.0 0.0 8.7 9.4 13.4 15.3 15.0
+militia  box {"k":"militia","ax":-1,"az":41,"w":2,"h":2,"sx":18,"sz":16} | posts 9 filled 7 | alive 7 hp 5,5,5,5,5,5,5 | up a tower 2 | roused true | jobs Weekend warrior, Sentry, Self-styled colonel
+   3 s later: still calm false gus hp 8 | at posts 0.0 0.0 7.9 8.9 13.5 15.2 11.9
    gus near the posts: roused true
-   8 s | bullets 41 | thrown/fired {"grenade":7} | hits on gus 20 lowest hp 1 | alive 6 at 36 25 12 13 5 2
+   8 s | bullets 47 | thrown/fired {"grenade":5} | hits on gus 24 lowest hp 6 | alive 7 at 37 27 20 18 4 3 9
    killed all: alive 0 slain marks 7
 preppers, gus 60 off: roused false alive 3
 hit one: roused true
@@ -19,18 +19,18 @@ base box {"k":"base","ax":-2,"az":83,"w":4,"h":4,"sx":12,"sz":80} | tanks 15 hel
 stand-ins in TRAIN_BOXES 19
 5 s outside: alert false
 gus in the base: alert true
-base first 4 s | bullets 0 | thrown/fired {"shell":4} | hits on gus 3 lowest hp 14 | hunting tanks 4 moved 4 | helis hunt up 0.0 from gus 58, man up 0.0 from gus 56
-base next 10 s | bullets 12 | thrown/fired {"shell":7} | hits on gus 8 lowest hp 7 | hunting tanks 4 moved 4 | helis hunt up 13.0 from gus 18, man up 0.0 from gus 70
+base first 4 s | bullets 0 | thrown/fired {"shell":4} | hits on gus 3 lowest hp 14 | hunting tanks 4 moved 4 | helis hunt up 0.0 from gus 58, man up 0.0 from gus 57
+base next 10 s | bullets 12 | thrown/fired {"shell":7} | hits on gus 7 lowest hp 7 | hunting tanks 4 moved 4 | helis hunt up 14.0 from gus 18, man up 0.0 from gus 67
 6 s more: frames with two of them overlapping 0
-goblin put in front of a driving tank (speed 4.9): hp 3 -> -8 state dead
+goblin put in front of a driving tank (speed 0.0): hp 3 -> 3 state chase
 car parked in front of it: hp 30 -> 30 | inside the tank false
-destroyed: tank true helicopter true it fell 10.0 to 3.0 | saved wrecked true | another tank woke 4
+destroyed: tank true helicopter true it fell 12.9 to 0.0 | saved wrecked true | another tank woke 4
 gone 500 off for 40 s: venue false (dropped)
 back at the fence: alert false wrecks still wrecked 2 parked 17
 foe thief Spawned 3 thieves ahead of Gus.
-   thief button, 5 s | bullets 0 | thrown/fired {} | hits on gus 3 lowest hp 14 | at 2.2 2.5 2.8
+   thief button, 5 s | bullets 0 | thrown/fired {} | hits on gus 2 lowest hp 16 | at 2.4 2.0 2.1
 foe prepper Spawned 3 preppers ahead of Gus.
-   prepper button, 5 s | bullets 7 | thrown/fired {"grenade":1} | hits on gus 6 lowest hp 7 | at 17.7 16.8 15.0
+   prepper button, 5 s | bullets 9 | thrown/fired {} | hits on gus 5 lowest hp 10 | at 18.9 22.7 16.6
 foe militia Spawned 3 militiamen ahead of Gus.
-   militia button, 5 s | bullets 9 | thrown/fired {"grenade":2} | hits on gus 6 lowest hp 8 | at 23.2 23.0 22.5
+   militia button, 5 s | bullets 9 | thrown/fired {"grenade":2} | hits on gus 8 lowest hp 6 | at 25.6 25.1 23.9
 errors 0 []

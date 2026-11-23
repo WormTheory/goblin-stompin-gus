@@ -1,0 +1,7 @@
+off: PROF_ON false labels 0 frames kept 0
+on: PROF_ON true frames kept 89 pane shown true
+labels timed 41 (goblins, cars, chunks, render among them)
+spikes 1 first N ms, events explosion,crater, stall named true
+systems vs cpu match
+counts 8 items
+off again: PROF_ON false pane hidden true

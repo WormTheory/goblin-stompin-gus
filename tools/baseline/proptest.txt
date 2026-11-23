@@ -1,15 +1,15 @@
 sitdown goblin out of the bathroom in 1.0s
-sitdown size 16 x 22 props near 385 goblin reached in 5s checks inside a prop 0 of 55 knocked by Gus 8
-food goblin out of the bathroom in 1.1s
-food size 16 x 13 props near 257 goblin reached in 5s checks inside a prop 0 of 45 knocked by Gus 14
-market goblin out of the bathroom in 1.1s
-market size 38 x 27 props near 547 goblin FAILED at 278.4,241.6 checks inside a prop 400 of 400 knocked by Gus 43
-drug goblin out of the bathroom in 0.7s
-drug size 16 x 23 props near 420 goblin reached in 6s checks inside a prop 0 of 62 knocked by Gus 13
-school goblin out of the bathroom in 6.0s
-school size 60 x 18 props near 265 goblin FAILED at -279.3,66.4 checks inside a prop 0 of 400 knocked by Gus 10
-police goblin out of the bathroom in 2.2s
-police size 35 x 48 props near 493 goblin FAILED at -9.8,-251.9 checks inside a prop 0 of 400 knocked by Gus 6
+sitdown size 16 x 22 props near 322 goblin reached in 6s checks inside a prop 0 of 61 knocked by Gus 8
+food goblin out of the bathroom in 1.2s
+food size 16 x 13 props near 268 goblin reached in 3s checks inside a prop 0 of 30 knocked by Gus 14
+market goblin out of the bathroom in 1.2s
+market size 38 x 27 props near 549 goblin FAILED at -239.1,-261.3 checks inside a prop 0 of 400 knocked by Gus 40
+drug goblin out of the bathroom in 0.8s
+drug size 16 x 23 props near 376 goblin reached in 7s checks inside a prop 0 of 72 knocked by Gus 14
+school goblin out of the bathroom in 4.4s
+school size 60 x 18 props near 265 goblin reached in 19s checks inside a prop 0 of 189 knocked by Gus 10
+police goblin out of the bathroom in 13.3s
+police size 35 x 48 props near 393 goblin FAILED at -26.0,-259.2 checks inside a prop 0 of 400 knocked by Gus 4
 ikea goblin out of the bathroom in 6.1s
-ikea goblin out of the bathroom in 5.3s
-ikea size 112 x 66 props near 324 goblin FAILED at 969.6,-1101.7 checks inside a prop 0 of 400 knocked by Gus 18
+ikea goblin out of the bathroom in 1.6s
+ikea size 112 x 66 props near 108 goblin reached in 21s checks inside a prop 0 of 209 knocked by Gus 14

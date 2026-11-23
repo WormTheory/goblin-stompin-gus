@@ -1,9 +1,9 @@
 players: Gnash (goblin) + Grizzle (goblin)
 == technical
   A: driver of car  B: gunner of car  car.drv is A true  car.gnr is B true
-  A drives 2 s: moved 20.2  B carried along, off its middle by 0.0  B shown on it true  B up 0.9
+  A drives 2 s: moved 15.2  B carried along, off its middle by 0.0  B shown on it true  B up 0.9
   B display: true  crosshair true  says Gunner  ·  Technical  ·  45 / 45 | [LMB] fire  ·  [KEY:Q] lock on  ·  [KEY:F] get out  ammo panel true
-  A display: crosshair false  says [KEY:F] get out
+  A display: crosshair false  says [KEY:Space] handbrake / drift  ·  [RMB] hop (let go)  ·  [KEY:C] look behind  ·  [LMB] horn  ·  [KEY:F] get out
   gun swung 1.7  toward the goblin at 1.8
   B fires: rounds 50 -> 40  goblin hp 6 -> 0 dead
   A bite (the horn): rounds used 0
@@ -15,11 +15,11 @@ players: Gnash (goblin) + Grizzle (goblin)
   A gets out: on foot
 == quad
   A: driver of car  B: gunner of car  car.drv is A true  car.gnr is B true
-  A drives 2 s: moved 20.2  B carried along, off its middle by 0.0  B shown on it true  B up 0.4
-  B display: true  crosshair true  says Gunner  ·  Four-wheeler  ·  24 / 45 | [LMB] fire  ·  [KEY:Q] lock on  ·  [KEY:F] get out  ammo panel true
-  A display: crosshair false  says [KEY:F] get out
-  gun swung 1.7  toward the goblin at 1.8
-  B fires: rounds 6 -> 2  goblin hp 6 -> 3 chase
+  A drives 2 s: moved 15.2  B carried along, off its middle by 0.0  B shown on it true  B up 0.4
+  B display: true  crosshair true  says Gunner  ·  Four-wheeler  ·  24 / 24 | [LMB] fire  ·  [KEY:Q] lock on  ·  [KEY:F] get out  ammo panel true
+  A display: crosshair false  says [KEY:Space] handbrake / drift  ·  [RMB] hop (let go)  ·  [KEY:C] look behind  ·  [LMB] horn  ·  [KEY:F] get out
+  gun swung 1.8  toward the goblin at 1.8
+  B fires: rounds 6 -> 2  goblin hp 6 -> 0 dead
   A bite (the horn): rounds used 0
   B gets off: on foot  car.gnr null  A still driver of car
   A alone, free seat to move to true
@@ -29,7 +29,7 @@ players: Gnash (goblin) + Grizzle (goblin)
   A gets out: on foot
 == tank  state park
   A: driver of tank  B: gunner of tank  gnr is B true
-  A display: crosshair false  says [KEY:F] get out  ·  Your gunner has the guns
+  A display: crosshair false  says [KEY:W]/[KEY:S] tracks  ·  [KEY:A]/[KEY:D] turn (pivots when still)  ·  [KEY:Left Shift] cruise off  ·  [KEY:F] get out  ·  Your gunner has the guns
   B display: crosshair true  says Gunner  ·  Tank  ·  160 / 160 | [LMB] fire  ·  [KEY:Q] lock on  ·  [KEY:F] get out
   turret off where B looks by 0.0   off where A looks by 1.5
   A bite/stomp: shots 0  ammo Shells 4/4 -> Shells 4/4
@@ -40,7 +40,7 @@ players: Gnash (goblin) + Grizzle (goblin)
   B gets out: on foot  vehicle idle
 == heli  state park
   A: driver of heli  B: gunner of heli  gnr is B true
-  A display: crosshair false  says [KEY:Space] climb  ·  [KEY:C] drop  ·  [KEY:F] get out  ·  Your gunner has the guns
+  A display: crosshair false  says [KEY:Space] climb  ·  [KEY:C] drop  ·  [KEY:R] Agile mode  ·  [KEY:F] get out  ·  Your gunner has the guns
   B display: crosshair true  says Gunner  ·  Helicopter  ·  80 / 80 | [LMB] gun  ·  [RMB] rockets  ·  [KEY:Q] lock on  ·  [KEY:F] get out
   A climbs 3 s: up 8.3  B with it, up 9.4
   A bite/stomp: shots 0  ammo Gun 40/40, Rockets 4/4 -> Gun 40/40, Rockets 4/4

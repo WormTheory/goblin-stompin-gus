@@ -1,19 +1,18 @@
-places by kind {"village":385,"large":240,"small":346,"city":147,"resort":21,"coastcity":32,"harbortown":40,"fishing":14}
-coast blocks {"shore":18746,"sea":686290,"wreck":2817,"rig":1013,"lighthouse":517,"harbor":476,"beach":1422,"yard":246,"basin":278,"nbasin":238,"navy":200}
-    10 beach of city
-   627 beach of coastcity
-   398 beach of harbortown
-    27 beach of large
-   332 beach of resort
-    28 beach of small
-   256 harbor of coastcity
-    24 harbor of fishing
-   196 harbor of harbortown
-   246 yard of coastcity
+places by kind {"village":489,"large":225,"small":335,"city":120,"resort":9,"harbortown":23,"coastcity":17,"fishing":7}
+coast blocks {"sea":669089,"wreck":2633,"shore":8292,"nbasin":73,"rig":1044,"lighthouse":287,"navy":55,"beach":551,"harbor":246,"basin":150,"yard":123}
+     5 beach of city
+   221 beach of coastcity
+   181 beach of harbortown
+    20 beach of large
+    94 beach of resort
+    30 beach of small
+   131 harbor of coastcity
+    14 harbor of fishing
+   101 harbor of harbortown
+   123 yard of coastcity
 what each place has
-     1 coastcity: port 
-     3 coastcity: port beach
-    22 coastcity: port docks beach
-    11 fishing: docks 
-    31 harbortown: docks beach
-    18 resort: beach
+     1 coastcity: port beach
+    15 coastcity: port docks beach
+     5 fishing: docks 
+    18 harbortown: docks beach
+     7 resort: beach

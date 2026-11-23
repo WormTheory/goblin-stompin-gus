@@ -1,0 +1,35 @@
+weapons 14 files | problems none | layout changed by a save none
+clips 44 files | problems none | layout changed by a save none
+bodies 1 files | problems none | layout changed by a save none
+grips 3 files | problems none | layout changed by a save none
+props 190 files | problems none | layout changed by a save none
+fixtures 5 files | problems none | layout changed by a save none
+moves 23 files | problems none | layout changed by a save none
+sites 0 files | problems none | layout changed by a save none
+vehicles 4 files | problems none | layout changed by a save none
+game tables from the files: weapons same | clips same
+shared models: views sharing 23 | with their own 27 | round trip exact | club dropped 2
+club has hitboxes of its own false | none: wpnHitShapes leaves it to the old hit true
+built-in hit as a capsule against the old circle: agree 693/725 | both hit 50 | only the capsule (its goblin has a body) 32 | only the circle 0
+capsule: ahead true | behind false | far ahead false | turned to face +x, goblin at +x true | turned, goblin still ahead of where he faced false
+box out to his +x side: there true | the other side false | straight ahead false
+a sweep across, tilted on its side: at its left end true | right end true | standing up (no tilt) the ends miss false
+above his head: a goblin on a ledge 1.5 up true | on the ground under it false
+a swing in time: live as it lands, goblin ahead hit at u 1 | well behind missed | live only in the wind-up missed | a short span at 60 fps hit at u 1.08 | and at 15 fps (stepped over, still counted) hit at u 1.3 | live all through: hit once hit at u 0
+the hand moves with the blow: wind-up 0.48,0.78,0.14 | landing -0.09,0.66,0.61
+live weapon: ok | same entry kept true | new shape true | new damage reaches Gnash true | unknown weapon: no weapon nope in this build: save it and press Build
+put back: damage true
+live clip: ok | in the table true
+live prop: ok | a box more true | glows true | dressing redrawn true | unknown prop true
+live fixture: ok | taller post true
+vehicles bicycle,kick,segway,moped same as their files | rider clips rdPedal,rdKick,rdGyro,rdScoot | each one has its clip true | parts after their parents true
+live vehicle: ok | a box more true | unknown true
+live rider clip: ok | in the table true | not in STRIKES true
+props in the game 190 from files 190 same | fixtures lamp,signal,sign,flag,board same
+hippo clips 10 | in STRIKES 0 | worst against the old sums 0.0024 | live edit -1 | put back -0.400
+moves in the game 23 from files 23 same | custom hitboxes 0
+live move: ok | same entry true | damage 33 | hitboxes on true | unknown no move nope in this build
+recording: frames 78 parts 43 boxes 0 named root,rig,body,tail,head,jaw,leg.FR,leg.FL,leg.BR,leg.BL | root at 0.00 0.00 | hits built-in 2 custom 6 lines true | near him true | anchors 21
+put back: damage 8 | hitboxes false
+frames after: ok
+editor scripts parse: all

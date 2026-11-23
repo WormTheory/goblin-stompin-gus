@@ -1,0 +1,123 @@
+capture courthouse | at 5,-3 | plots 1x1 | face 2 | size 18x33x18 from y 23 | props 26 | people 0 | cars 0 | text 8k | check ok | round trip same | N ms
+capture tower | at -1,-1 | plots 1x1 | face 3 | size 18x44x18 from y 41 | props 99 | people 0 | cars 0 | text 9k | check ok | round trip same | N ms
+capture mid | at -1,1 | plots 1x1 | face 3 | size 18x19x18 from y 41 | props 56 | people 0 | cars 0 | text 6k | check ok | round trip same | N ms
+capture homes | at -6,5 | plots 1x1 | face 2 | size 18x12x18 from y 41 | props 36 | people 0 | cars 0 | text 4k | check ok | round trip same | N ms
+capture shops | at -1,0 | plots 1x1 | face 2 | size 18x13x18 from y 41 | props 26 | people 0 | cars 0 | text 4k | check ok | round trip same | N ms
+capture park | at -1,-2 | plots 1x1 | face -1 | size 18x11x18 from y 41 | props 4 | people 0 | cars 0 | text 4k | check ok | round trip same | N ms
+capture plaza | at 0,0 | plots 1x1 | face 2 | size 18x33x18 from y 41 | props 11 | people 0 | cars 0 | text 3k | check ok | round trip same | N ms
+capture gas | at -2,3 | plots 1x1 | face 2 | size 18x12x18 from y 41 | props 23 | people 0 | cars 0 | text 4k | check ok | round trip same | N ms
+capture food | at 0,1 | plots 1x1 | face 2 | size 18x14x18 from y 41 | props 72 | people 0 | cars 0 | text 4k | check ok | round trip same | N ms
+capture fastfood | at -4,1 | plots 1x1 | face 2 | size 18x12x18 from y 41 | props 50 | people 0 | cars 0 | text 4k | check ok | round trip same | N ms
+capture fire | at -2,5 | plots 1x1 | face 2 | size 18x52x18 from y 23 | props 31 | people 0 | cars 0 | text 9k | check ok | round trip same | N ms
+capture police | at -2,-8 | plots 2x2 | face 0 | size 50x33x50 from y 41 | props 701 | people 0 | cars 0 | text 55k | check ok | round trip same | N ms
+capture build | at -5,-3 | plots 1x1 | face 2 | size 18x96x18 from y 23 | props 246 | people 0 | cars 0 | text 10k | check ok | round trip same | N ms
+capture wtower | at 7,-9 | plots 1x1 | face 2 | size 18x31x18 from y 41 | props 0 | people 0 | cars 0 | text 3k | check ok | round trip same | N ms
+capture bell | at -1,2 | plots 1x1 | face 2 | size 18x29x18 from y 41 | props 0 | people 0 | cars 0 | text 3k | check ok | round trip same | N ms
+capture church | at -2,0 | plots 1x1 | face 2 | size 18x38x18 from y 41 | props 24 | people 0 | cars 0 | text 4k | check ok | round trip same | N ms
+capture cemetery | at -2,-4 | plots 1x1 | face 2 | size 18x14x18 from y 41 | props 12 | people 0 | cars 0 | text 3k | check ok | round trip same | N ms
+capture library | at -4,4 | plots 1x1 | face 2 | size 18x23x18 from y 41 | props 117 | people 0 | cars 0 | text 7k | check ok | round trip same | N ms
+capture bank | at -6,-3 | plots 1x1 | face 2 | size 18x15x18 from y 41 | props 48 | people 0 | cars 0 | text 5k | check ok | round trip same | N ms
+capture news | at 6,-21 | plots 1x1 | face 2 | size 18x19x18 from y 41 | props 79 | people 0 | cars 0 | text 5k | check ok | round trip same | N ms
+capture radio | at -3,6 | plots 1x1 | face 2 | size 18x50x18 from y 41 | props 16 | people 0 | cars 0 | text 4k | check ok | round trip same | N ms
+capture disco | at -1,-5 | plots 1x1 | face 2 | size 18x44x18 from y 23 | props 50 | people 0 | cars 0 | text 9k | check ok | round trip same | N ms
+capture club | at 2,0 | plots 1x1 | face 2 | size 18x19x18 from y 41 | props 45 | people 0 | cars 0 | text 5k | check ok | round trip same | N ms
+capture court | at 11,-1 | plots 1x1 | face -1 | size 18x10x18 from y 41 | props 3 | people 0 | cars 0 | text 3k | check ok | round trip same | N ms
+capture derelict | at 0,5 | plots 1x1 | face 2 | size 18x32x18 from y 23 | props 23 | people 0 | cars 0 | text 8k | check ok | round trip same | N ms
+capture mansion | at -1,-4 | plots 1x1 | face 2 | size 18x19x18 from y 41 | props 31 | people 0 | cars 0 | text 5k | check ok | round trip same | N ms
+capture trailers | at 12,6 | plots 1x1 | face 1 | size 18x8x18 from y 41 | props 20 | people 0 | cars 4 | text 3k | check ok | round trip same | N ms
+capture camp | at 7,-23 | plots 1x1 | face -1 | size 18x6x18 from y 41 | props 7 | people 0 | cars 0 | text 2k | check ok | round trip same | N ms
+capture farmers | at -6,-4 | plots 1x1 | face -1 | size 18x8x18 from y 41 | props 77 | people 0 | cars 0 | text 3k | check ok | round trip same | N ms
+capture nursery | at 7,12 | plots 1x1 | face 0 | size 18x13x18 from y 41 | props 23 | people 0 | cars 0 | text 4k | check ok | round trip same | N ms
+capture dealer | at -7,11 | plots 1x1 | face 2 | size 18x11x18 from y 41 | props 11 | people 0 | cars 9 | text 3k | check ok | round trip same | N ms
+capture armory | at -9,4 | plots 1x1 | face 2 | size 18x22x18 from y 41 | props 21 | people 0 | cars 0 | text 4k | check ok | round trip same | N ms
+capture theater | at -1,-6 | plots 1x1 | face 2 | size 18x19x18 from y 41 | props 18 | people 0 | cars 0 | text 4k | check ok | round trip same | N ms
+capture stocks | at 33,24 | plots 1x1 | face 2 | size 18x15x18 from y 41 | props 21 | people 0 | cars 0 | text 4k | check ok | round trip same | N ms
+capture datacenter | at 9,-7 | plots 1x1 | face 2 | size 18x14x18 from y 41 | props 0 | people 0 | cars 0 | text 4k | check ok | round trip same | N ms
+capture electric | at -30,-7 | plots 1x1 | face 2 | size 18x20x18 from y 41 | props 12 | people 0 | cars 0 | text 4k | check ok | round trip same | N ms
+capture lab | at -3,9 | plots 1x1 | face 2 | size 18x18x18 from y 41 | props 28 | people 0 | cars 0 | text 5k | check ok | round trip same | N ms
+capture jail | at 9,3 | plots 1x1 | face 2 | size 18x9x18 from y 41 | props 9 | people 0 | cars 0 | text 3k | check ok | round trip same | N ms
+capture hospital | at 12,-6 | plots 3x3 | face 2 | size 82x62x82 from y 41 | props 3062 | people 0 | cars 24 | text 181k | check ok | round trip same | N ms
+capture garage | at -4,-2 | plots 2x2 | face 0 | size 50x14x50 from y 41 | props 0 | people 0 | cars 240 | text 39k | check ok | round trip same | N ms
+capture mega | at -4,-4 | plots 2x1 | face 2 | size 50x74x18 from y 41 | props 212 | people 0 | cars 5 | text 28k | check ok | round trip same | N ms
+capture market | at -8,-10 | plots 2x2 | face 2 | size 50x11x50 from y 41 | props 305 | people 0 | cars 15 | text 22k | check ok | round trip same | N ms
+capture drug | at -7,-6 | plots 1x2 | face 2 | size 18x14x50 from y 41 | props 76 | people 0 | cars 10 | text 9k | check ok | round trip same | N ms
+capture sitdown | at -3,-6 | plots 1x2 | face 2 | size 18x33x50 from y 23 | props 85 | people 0 | cars 10 | text 19k | check ok | round trip same | N ms
+capture mall | at 108,48 | plots 6x4 | face 2 | size 178x45x114 from y 23 | props 3118 | people 0 | cars 216 | text 577k | check ok | round trip same | N ms
+capture bigbox | at -12,-6 | plots 4x4 | face 2 | size 114x13x114 from y 41 | props 1696 | people 0 | cars 144 | text 119k | check ok | round trip same | N ms
+capture ikea | at 108,-102 | plots 4x3 | face 2 | size 114x28x82 from y 28 | props 787 | people 0 | cars 0 | text 159k | check ok | round trip same | N ms
+capture cathedral | at 8,0 | plots 2x3 | face 2 | size 50x41x82 from y 41 | props 1128 | people 0 | cars 0 | text 55k | check ok | round trip same | N ms
+capture museum | at -114,36 | plots 3x2 | face 2 | size 82x55x50 from y 23 | props 284 | people 0 | cars 0 | text 105k | check ok | round trip same | N ms
+capture aquarium | none: There is none of these near enough in this world | N ms
+capture casino | at 37,-24 | plots 1x2 | face 2 | size 18x57x50 from y 41 | props 197 | people 0 | cars 0 | text 23k | check ok | round trip same | N ms
+capture school | at 108,84 | plots 3x3 | face 2 | size 82x25x82 from y 41 | props 354 | people 0 | cars 4 | text 67k | check ok | round trip same | N ms
+capture factory | at 62,-138 | plots 4x3 | face 2 | size 114x48x82 from y 41 | props 1649 | people 0 | cars 7 | text 118k | check ok | round trip same | N ms
+capture cinema | at -10,-12 | plots 2x2 | face 2 | size 50x20x50 from y 41 | props 99 | people 0 | cars 0 | text 29k | check ok | round trip same | N ms
+capture stadium | none: There is none of these near enough in this world | N ms
+capture arena | at 2,-4 | plots 2x2 | face 2 | size 50x39x50 from y 41 | props 15 | people 0 | cars 0 | text 35k | check ok | round trip same | N ms
+capture campus | at -126,24 | plots 6x6 | face 3 | size 178x29x178 from y 41 | props 3754 | people 0 | cars 0 | text 423k | check ok | round trip same | N ms
+capture prison | at -76,150 | plots 4x4 | face 2 | size 114x20x114 from y 41 | props 585 | people 0 | cars 0 | text 154k | check ok | round trip same | N ms
+capture water | at 18,-24 | plots 1x2 | face 2 | size 18x9x50 from y 41 | props 16 | people 0 | cars 0 | text 8k | check ok | round trip same | N ms
+capture power | at -6,6 | plots 3x3 | face 2 | size 82x50x82 from y 41 | props 16 | people 0 | cars 0 | text 58k | check ok | round trip same | N ms
+capture nuclear | at -24,24 | plots 8x8 | face 2 | size 242x114x242 from y 3 | props 160 | people 0 | cars 0 | text 1437k | check ok | round trip same | N ms
+capture zoo | at 12,-24 | plots 5x5 | face 2 | size 146x11x146 from y 41 | props 15 | people 0 | cars 0 | text 161k | check ok | round trip same | N ms
+capture studio | at 30,-22 | plots 4x4 | face 2 | size 114x38x114 from y 23 | props 409 | people 0 | cars 0 | text 245k | check ok | round trip same | N ms
+capture theme | at -180,113 | plots 8x8 | face 2 | size 242x68x242 from y 41 | props 0 | people 0 | cars 0 | text 491k | check ok | round trip same | N ms
+capture bigpark | none: There is none of these near enough in this world | N ms
+capture hood | at 30,-18 | plots 4x4 | face 2 | size 114x26x114 from y 35 | props 529 | people 0 | cars 0 | text 206k | check ok | round trip same | N ms
+capture capitol | at 7,6 | plots 4x6 | face 2 | size 114x64x178 from y 41 | props 1700 | people 0 | cars 27 | text 294k | check ok | round trip same | N ms
+capture farm | at 21,21 | plots 1x1 | face 3 | size 18x16x18 from y 41 | props 20 | people 0 | cars 0 | text 4k | check ok | round trip same | N ms
+capture truckstop | at 17,34 | plots 1x1 | face 1 | size 18x42x18 from y 8 | props 18 | people 0 | cars 0 | text 8k | check ok | round trip same | N ms
+capture dump | at -20,-4 | plots 4x4 | face -1 | size 114x57x114 from y 3 | props 11 | people 0 | cars 0 | text 387k | check ok | round trip same | N ms
+capture mine | at 9,21 | plots 3x3 | face -1 | size 82x68x82 from y 4 | props 7 | people 0 | cars 0 | text 174k | check ok | round trip same | N ms
+capture quarry | at -36,12 | plots 6x6 | face 3 | size 178x54x178 from y 3 | props 7 | people 0 | cars 0 | text 607k | check ok | round trip same | N ms
+capture lumber | at -16,18 | plots 4x3 | face 3 | size 114x50x82 from y 3 | props 18 | people 0 | cars 0 | text 237k | check ok | round trip same | N ms
+capture campsite | at 8,18 | plots 2x2 | face 1 | size 50x49x50 from y 3 | props 24 | people 0 | cars 0 | text 66k | check ok | round trip same | N ms
+capture cult | at -12,17 | plots 1x1 | face -1 | size 18x40x18 from y 10 | props 6 | people 0 | cars 0 | text 8k | check ok | round trip same | N ms
+capture wrecks | at -11,-13 | plots 1x1 | face -1 | size 18x34x18 from y 21 | props 1 | people 0 | cars 0 | text 7k | check ok | round trip same | N ms
+capture tower5g | at -24,-9 | plots 1x1 | face -1 | size 18x56x18 from y 22 | props 0 | people 0 | cars 0 | text 6k | check ok | round trip same | N ms
+capture prepper | at -38,52 | plots 2x2 | face 3 | size 50x51x50 from y 5 | props 25 | people 1 | cars 0 | text 65k | check ok | round trip same | N ms
+capture militia | at -22,4 | plots 2x2 | face -1 | size 50x53x50 from y 3 | props 40 | people 4 | cars 0 | text 58k | check ok | round trip same | N ms
+capture ruins | at 28,-8 | plots 2x2 | face -1 | size 50x50x50 from y 3 | props 18 | people 0 | cars 0 | text 64k | check ok | round trip same | N ms
+capture thieves | at -33,-13 | plots 1x1 | face 2 | size 18x50x18 from y 3 | props 10 | people 2 | cars 1 | text 8k | check ok | round trip same | N ms
+capture wind | at -1,13 | plots 3x3 | face -1 | size 82x85x82 from y 3 | props 2 | people 0 | cars 1 | text 167k | check ok | round trip same | N ms
+capture airport | at -54,122 | plots 16x8 | face -1 | size 498x76x242 from y 3 | props 1500 | people 6 | cars 0 | text 2993k | check ok | round trip same | N ms
+capture airfield | at -12,20 | plots 4x2 | face -1 | size 114x53x50 from y 3 | props 24 | people 0 | cars 0 | text 141k | check ok | round trip same | N ms
+capture nasa | at 58,39 | plots 2x3 | face 3 | size 50x98x82 from y 3 | props 46 | people 0 | cars 0 | text 107k | check ok | round trip same | N ms
+capture base | at -24,16 | plots 4x4 | face 2 | size 114x58x114 from y 3 | props 148 | people 0 | cars 0 | text 314k | check ok | round trip same | N ms
+capture bunker | at -29,31 | plots 1x1 | face -1 | size 18x40x18 from y 7 | props 6 | people 0 | cars 0 | text 8k | check ok | round trip same | N ms
+capture rail | at 1,-2 | plots 1x1 | face -1 | size 18x5x18 from y 41 | props 0 | people 0 | cars 0 | text 3k | check ok | round trip same | N ms
+capture station | at 0,-2 | plots 1x1 | face 2 | size 18x30x18 from y 41 | props 8 | people 0 | cars 0 | text 4k | check ok | round trip same | N ms
+capture sea | at -23,-23 | plots 1x1 | face -1 | size 18x14x18 from y 31 | props 0 | people 0 | cars 0 | text 2k | check ok | round trip same | N ms
+capture beach | at -9,-22 | plots 1x1 | face -1 | size 18x8x18 from y 41 | props 0 | people 0 | cars 0 | text 3k | check ok | round trip same | N ms
+capture harbor | at 9,-25 | plots 2x1 | face -1 | size 50x11x18 from y 37 | props 0 | people 0 | cars 0 | text 11k | check ok | round trip same | N ms
+capture yard | at 16,-27 | plots 6x3 | face -1 | size 178x44x82 from y 31 | props 106 | people 0 | cars 0 | text 235k | check ok | round trip same | N ms
+capture navy | none: There is none of these near enough in this world | N ms
+capture lighthouse | at 70,-43 | plots 1x1 | face 2 | size 18x31x18 from y 41 | props 5 | people 0 | cars 0 | text 4k | check ok | round trip same | N ms
+capture rig | at 2,-28 | plots 1x1 | face -1 | size 18x65x18 from y 14 | props 7 | people 0 | cars 0 | text 7k | check ok | round trip same | N ms
+capture wreck | at -8,-30 | plots 1x1 | face -1 | size 18x14x18 from y 31 | props 0 | people 0 | cars 0 | text 2k | check ok | round trip same | N ms
+capture fishing | at 61,-38 | plots 1x1 | face -1 | size 18x9x18 from y 41 | props 0 | people 0 | cars 0 | text 4k | check ok | round trip same | N ms
+capture sewers | at 0,0 | plots 1x1 | face 2 | size 18x33x18 from y 41 | props 11 | people 0 | cars 0 | text 3k | check ok | round trip same | N ms
+capture subway | at 1,-5 | plots 1x1 | face -1 | size 18x26x18 from y 23 | props 0 | people 0 | cars 0 | text 8k | check ok | round trip same | N ms
+capture caves | at -14,12 | plots 3x3 | face -1 | size 82x51x82 from y 4 | props 0 | people 0 | cars 0 | text 169k | check ok | round trip same | N ms
+capture metro | at 1,-5 | plots 1x1 | face -1 | size 18x26x18 from y 23 | props 0 | people 0 | cars 0 | text 8k | check ok | round trip same | N ms
+kinds 102 | captured 98 | none near aquarium,stadium,bigpark,navy
+on police #0 at -2,-8 | face 0 turns 0 | blocks unlike the file 0 of 82500 | marker at 2,4,3 expected 2,4,3
+on police #1 at -10,-10 | face 0 turns 0 | blocks unlike the file 0 of 82500 | marker at 2,4,3 expected 2,4,3
+on police #2 at 10,-22 | face 0 turns 0 | blocks unlike the file 0 of 82500 | marker at 2,4,3 expected 2,4,3
+on police #3 at 28,20 | face 0 turns 0 | blocks unlike the file 0 of 82500 | marker at 2,4,3 expected 2,4,3
+on police #4 at 34,-24 | face 0 turns 0 | blocks unlike the file 0 of 82500 | marker at 2,4,3 expected 2,4,3
+on police #5 at 37,-2 | not built: its size 1x1 against 2x2
+on police #6 at 41,-2 | not built: its size 1x1 against 2x2
+on police #7 at 42,-24 | face 0 turns 0 | blocks unlike the file 0 of 82500 | marker at 2,4,3 expected 2,4,3
+on police #8 at -4,42 | face 0 turns 0 | blocks unlike the file 0 of 82500 | marker at 2,4,3 expected 2,4,3
+on police #9 at -24,44 | face 0 turns 0 | blocks unlike the file 0 of 82500 | marker at 2,4,3 expected 2,4,3
+turns seen 0
+file facing 0 | this one faces 0 turns 0 | blocks unlike the file 0 | marker at 2,4,3 expected 2,4,3
+file facing 1 | this one faces 0 turns 2 | blocks unlike the file 0 | marker at 47,4,46 expected 47,4,46
+file facing 2 | this one faces 0 turns 3 | blocks unlike the file 0 | marker at 3,4,47 expected 3,4,47
+file facing 3 | this one faces 0 turns 1 | blocks unlike the file 0 | marker at 46,4,2 expected 46,4,2
+props: its own drawn 690 of 701 | the plan's left in its lot 0
+people: thief chase at its post, civilian chase at its spot, staff chase at its spot
+parked: its own pickup | the plan's left in its lot 0
+off: built no longer
+total N ms

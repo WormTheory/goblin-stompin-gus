@@ -1,0 +1,15 @@
+lamps near 356 props near 245
+knockAt                     down   (knocked 1)
+knockAt on a roof           STANDING   (knocked 0)
+pvpArea (stomp, club...)    down   (knocked 1)
+foeBoom (grenade, shell)    down   (knocked 2)
+  bullet ended fix at -0.28
+bullet                      down   (knocked 1)
+bullet missing it           STANDING   (knocked 0)
+rocket                      down   (knocked 1)
+fireball                    down   (knocked 1)
+bite                        down   (knocked 1)
+wall-high bullet over it    STANDING   (knocked 0)
+prop: bullet                down   (knocked 1)
+prop: pvpArea               down   (knocked 1)
+prop: foeBoom               down   (knocked 1)

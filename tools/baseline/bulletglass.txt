@@ -1,0 +1,12 @@
+GLASS     hit the wall 400 of 400, broke 100%
+STAINED   hit the wall 400 of 400, broke 100%
+WIN_BLUE  hit the wall 400 of 400, broke 100%
+WIN_GREEN hit the wall 400 of 400, broke 100%
+WIN_WARM  hit the wall 400 of 400, broke 100%
+PLANKS    hit the wall 400 of 400, broke 100%
+LOG       hit the wall 400 of 400, broke 80%
+GRASS     hit the wall 400 of 400, broke 58%
+BRICK     hit the wall 400 of 400, broke 49%
+CONCRETE  hit the wall 400 of 400, broke 51%
+METAL     hit the wall 400 of 400, broke 53%
+done

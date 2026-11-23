@@ -1,0 +1,10 @@
+straight at a car 26 ahead: hit true  lock false
+straight, 25 degrees off a car: hit false
+sight on a car 26 off: locked true after 1.38 s; marker shown true
+  turned 25 degrees away and fired: hit true
+sight held 24 degrees off a car: locked false
+sight held on a goblin: locked false
+lock button on a car 18 ahead: true  fired 17 degrees off to one side: hit true
+enemy rocket at a player driving: chases true  on foot: false
+saved loadout with the bazooka on: launcher true  with it off: false
+done

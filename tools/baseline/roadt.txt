@@ -1,0 +1,20 @@
+car: controls: [KEY:Space] handbrake / drift  ·  [RMB] flash headlights  ·  [KEY:C] look behind  ·  [LMB] horn  ·  [KEY:F] get out
+  W 0.1 s: throttle 0.32  0.4 s: 1.00  speed 2.52
+  W 3.4 s: 24.00  then a turn: speed 24.00  slide angle 0.19
+  handbrake 0.8 s from 24.00 : down to 5.03  drift false
+  drift from 24.00 : on true  charge after 2.8 s 1.00 (stage 3)  slide angle 1.05  speed 24.00  let go: boost 1.98 s
+    speed through the boost 24.50 -> 31.20  top 24
+  right click, a goblin 9 ahead: dazzled true ( 0.77 )
+  C held: camera looks back true  let go: forward again false
+  in the air, W 0.5 s: nose 0.00 -> -0.19
+lorry: from 17.00 handbrake and turn: drift false  charge 0.00  speed 0.00  boost 0.00
+  air brakes 1 s from 17.00 : 0.56
+  controls: [KEY:Space] handbrake  ·  [RMB] air brakes (hold)  ·  [KEY:C] look behind  ·  [LMB] horn  ·  [KEY:F] get out
+supercar: handbrake + throttle at a standstill 1.2 s: launch 1.00  let go: speed 19.18  after 1 s 46.53  boost 0.00
+  2 s more throttle: + 24.30  with nitro: + 42.36  nitro 1.00 -> 0.34
+motorcycle: wheelie (W + right click) -0.41  stoppie (right click, rolling) 0.24  back down 0.01
+four-wheeler: right click let go: hops 0.97 high
+van: right click: hazard lights true  again: off true
+police car: right click: siren true  controls say siren off true
+  again: off true
+errors 0 []

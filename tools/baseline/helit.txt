@@ -1,0 +1,13 @@
+in the helicopter: heli true  controls: [KEY:Space] climb  ·  [KEY:C] drop  ·  [KEY:R] Agile mode  ·  [LMB] gun  ·  [RMB] rockets  ·  [KEY:Q] lock on  ·  [KEY:F] get out  ·  [KEY:X] man the gun
+spool-up, Space held (rotor/height each half second): 0.33/0.00 0.55/0.00 0.70/0.00 0.80/0.00 0.87/1.62 0.91/4.77  after 5 s height 20.32
+Simple: W 0.3 s: nose down 0.11  speed 0.95 | W 3.8 s: nose 0.20  speed 16.17 | let go: nose up to -0.22 (negative: a flare)  hovering after 2.60 s  height held 44.22
+R: mode Agile  display says true
+  W 1.5 s (collective): climbed 8.34 | S 1 s: -1.45 | D 1 s (pedals): turned -1.40  moved 0.04  camera turned with it -1.40
+  camera tipped down 0.3: nose 0.48  forward speed 12.37
+  camera swung 0.35 right: roll 0.42 (right wing down positive)  sideways speed -8.64 (left positive)  heading kept -1.40
+  R again: Simple
+rotor: a goblin on a tower, its head at rotor height: hp 4 -> -21 | minced true
+  a wall in the rotor's sweep: blocks chipped 9 of 9  helicopter hp 80 -> 77
+autorotation: at 84.44 up, hp 16 : engine out true  2.5 s on: rotor 0.60  sinking -5.45  turned 0.50  display (on the instrument)
+  near the ground at -5.50 : Space flares: sinking -3.35 at touchdown  down after 1.75 s  survived true  hp 11
+errors 0 []

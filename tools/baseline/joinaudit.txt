@@ -1,10 +1,15 @@
 world seed 266144506
-ground highway ends 563 not joined to streets 0 []
-routes 310 length 310082 problem stretches {}
-by block {}
-street stretches 3648 junction degrees {"0":4333,"1":215,"2":316,"3":383,"4":1314} problems {"blocked CONCRETE":3,"noSurface CONCRETE":1}
-  {"k":"blocked","x":-18,"y":45,"z":98,"b":"CONCRETE","n":36,"type":"mid"}
-  {"k":"noSurface","x":-16,"y":44,"z":98,"b":"CONCRETE","n":32,"type":"mid"}
-  {"k":"blocked","x":424,"y":46,"z":-478,"b":"CONCRETE","n":5,"type":"plains"}
-  {"k":"blocked","x":412,"y":46,"z":-478,"b":"CONCRETE","n":4,"type":"ramp"}
-dead ends 215 with road just beyond 14 [{"i":-39,"j":-31,"x":-1244,"z":-988,"dir":0,"type":"homes","near":8,"bar":"AIR"},{"i":-39,"j":-24,"x":-1244,"z":-764,"dir":2,"type":"dump","near":8,"bar":"AIR"},{"i":-36,"j":-29,"x":-1148,"z":-924,"dir":3,"type":"plains","near":8,"bar":"AIR"},{"i":-31,"j":39,"x":-988,"z":1252,"dir":1,"type":"food","near":8,"bar":"AIR"},{"i":-1,"j":-29,"x":-28,"z":-924,"dir":1,"type":"mid","near":8,"bar":"AIR"},{"i":3,"j":-16,"x":100,"z":-508,"dir":2,"type":"plains","near":12,"bar":"AIR"},{"i":3,"j":-15,"x":100,"z":-476,"dir":0,"type":"ramp","near":14,"bar":"AIR"},{"i":4,"j":16,"x":132,"z":516,"dir":1,"type":"homes","near":26,"bar":"AIR"}]
+ground highway ends 748 not joined to streets 0 []
+routes 415 length 411199 problem stretches {"blocked":4,"noRoad":1}
+by block {"blocked CONCRETE":4,"noRoad AIR":1}
+  {"k":"blocked","R":51,"s":29,"x":-35,"y":45,"z":4543,"b":"CONCRETE","n":2}
+  {"k":"blocked","R":53,"s":29,"x":-35,"y":45,"z":4543,"b":"CONCRETE","n":2}
+  {"k":"blocked","R":54,"s":29,"x":-35,"y":45,"z":4543,"b":"CONCRETE","n":2}
+  {"k":"blocked","R":207,"s":29,"x":-10051,"y":45,"z":7775,"b":"CONCRETE","n":2}
+  {"k":"noRoad","R":74,"s":1130,"x":5938,"y":52,"z":389,"b":"AIR","n":8}
+street stretches 2670 junction degrees {"0":4872,"1":213,"2":273,"3":289,"4":914} problems {"blocked CONCRETE":2,"noSurface CONCRETE":2}
+  {"k":"blocked","x":98,"y":45,"z":-22,"b":"CONCRETE","n":44,"type":"food"}
+  {"k":"noSurface","x":98,"y":44,"z":-20,"b":"CONCRETE","n":40,"type":"food"}
+  {"k":"blocked","x":-1010,"y":45,"z":2,"b":"CONCRETE","n":36,"type":"gas"}
+  {"k":"noSurface","x":-1008,"y":44,"z":2,"b":"CONCRETE","n":32,"type":"gas"}
+dead ends 213 with road just beyond 24 [{"i":-31,"j":1,"x":-988,"z":36,"dir":2,"type":"plains","near":8,"bar":"AIR"},{"i":-26,"j":-1,"x":-828,"z":-28,"dir":2,"type":"plains","near":26,"bar":"AIR"},{"i":-26,"j":35,"x":-828,"z":1124,"dir":0,"type":"gas","near":8,"bar":"AIR"},{"i":-16,"j":-3,"x":-508,"z":-92,"dir":1,"type":"homes","near":8,"bar":"AIR"},{"i":-14,"j":4,"x":-444,"z":132,"dir":0,"type":"plains","near":26,"bar":"AIR"},{"i":4,"j":16,"x":132,"z":516,"dir":1,"type":"homes","near":26,"bar":"AIR"},{"i":10,"j":-24,"x":324,"z":-764,"dir":0,"type":"tower","near":8,"bar":"AIR"},{"i":12,"j":-24,"x":388,"z":-764,"dir":0,"type":"super","near":8,"bar":"AIR"}]

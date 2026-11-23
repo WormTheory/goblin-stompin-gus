@@ -2,7 +2,7 @@ nuke launcher: mag 1 spare 2 reload 6 s, big blast reach 48 , in the loadout lis
 loaded 1 , spare 2
 fired level: warhead true , flew 3.37 s, highest 4.1 above the floor, landed 73.8 blocks off
 big blast: true , reach 48 , its middle 76.0 from Gnash, a job running true
-settled in 35 frames; Gnash hp 20 walk ; the goblin out there dead , the mine gone
+settled in 39 frames; Gnash hp 20 walk ; the goblin out there dead , the mine gone
 after firing: loaded 0 , reloading true , spare 2
 fired 3 in all; loaded/spare after each reload 1/1 1/0 0/0
 reload button with no spares: reloading false
@@ -10,6 +10,6 @@ attack with it empty and no spares: reloading false , shot false
 Infinite ammo: reloads with none spare true , loaded 1 , spare 0
 Infinite ammo: fired and still loaded 1 , spare 0
 dropped by an enemy: 1 , picked up true , loaded 1 , spare 2
-Nuke strength: one step down 44 , the most 160 , the least 12 | set to 24, the next blast 24
+Nuke strength: one step down 44 , the most 320 , the least 12 | set to 24, the next blast 24
 fired at a wall 5 ahead: Gnash dead , hp 0
-an enemy carrying one: fired a warhead true , with a big blast 48
+an enemy carrying one: fired a warhead false , with a big blast 0

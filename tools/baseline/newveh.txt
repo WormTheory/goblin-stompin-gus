@@ -1,47 +1,44 @@
 supercar share: street 0.01  highway 0.01  parked 0
   20000 street picks: supercars 219 (about 200 expected), forklifts 0  hovercraft 0
   mixes add up to 1.00 1.00 1.00
-factory -38 -27 along x: 1 docks, 2 forklift spots, in the hall 0  nearest lorry middle 5.7  facing the docks true
-factory 42 -34 along x: 3 docks, 4 forklift spots, in the hall 0  nearest lorry middle 5.7  facing the docks true
-factories within 60 plots: 2
-  forklifts parked there after waiting: 2  first at a forklift spot true, nobody in it true
-farm -92 -61 (road north) 2 tractor spots, overlapping a building or the field 0  one colour true  facing 3.14 3.14
-farm -89 -59 (road north) 2 tractor spots, overlapping a building or the field 0  one colour true  facing 3.14 3.14
-farm -84 -61 (road north) 2 tractor spots, overlapping a building or the field 0  one colour true  facing 3.14 3.14
-farm -83 -62 (road north) 2 tractor spots, overlapping a building or the field 0  one colour true  facing 3.14 3.14
-farms within 60 plots: 87 ( 42 with the road south ) tractor spots 174  overlapping 0
-  tractors parked there after waiting: 1  first at a tractor spot true, nobody in it true, the farm colour true
+factories within 60 plots: 0
+farm -60 38 (road north) 2 tractor spots, overlapping a building or the field 0  one colour true  facing 3.14 3.14
+farm -58 34 (road south) 2 tractor spots, overlapping a building or the field 0  one colour true  facing 0.00 0.00
+farm -57 32 (road south) 2 tractor spots, overlapping a building or the field 0  one colour true  facing 0.00 0.00
+farm -54 39 (road north) 2 tractor spots, overlapping a building or the field 0  one colour true  facing 3.14 3.14
+farms within 60 plots: 43 ( 26 with the road south ) tractor spots 86  overlapping 0
+  tractors parked there after waiting: 2  first at a tractor spot true, nobody in it true, the farm colour true
   Gus dropped on its cab roof: standing on it true  feet 1.95 above its wheels
   Gus dropped on its bonnet: standing on it true  feet 1.02 above its wheels
 errors 0 []
 spawn list has: supercar true  forklift true  hovercraft true  fighter jet true  balloon true  tractor true  names Supercar, Forklift, Hovercraft, Fighter jet, Hot-air balloon, Tractor
-Car: car, W 6 s: top speed 24.0, 20 a second after 2 s, went 115.7, hp 30.0
-Supercar: car, W 8 s: top speed 62.0, 20 a second after 1 s, went 388.7, hp 30.0
+Car: car, W 6 s: top speed 24.0, 20 a second after 2.2 s, went 108.1, hp 30.0
+Supercar: car, W 8 s: top speed 62.0, 20 a second after 1.1 s, went 372.0, hp 30.0
 Forklift: car, W 4 s: top speed 8.0, 20 a second after never, went 25.7, hp 30.0
 Tractor: car, W 4 s: top speed 11.0, 20 a second after never, went 35.5, hp 30.0
-Supercar: car, W 1 s: top speed 21.1, 20 a second after 1 s, went 11.2, hp 30.0
+Supercar: car, W 1 s: top speed 18.3, 20 a second after never, went 6.4, hp 30.0
   display says Supercar  ·  30 / 30
 flat floor: ground at 45.0  sea level block 44
-Car: driven 4 s into a pool, frames over the water 28  lowest there -5.0  (start 0), now -5.0  speed 24.0  went 52.3
-Hovercraft: driven 4 s into a pool, frames over the water 22  lowest there 0.0  (start 0), now 0.0  speed 27.0  went 46.9
+Car: driven 4 s into a pool, frames over the water 26  lowest there -5.0  (start 0), now -5.0  speed 24.0  went 45.3
+Hovercraft: driven 4 s into a pool, frames over the water 22  lowest there 0.0  (start 0), now 0.0  speed 27.0  went 47.0
   hard turn on the water: slides up to 40.9 degrees off the way it points; still afloat true
   got out over the water: hovercraft still at 1.0 over sea level, alive true
-airliner: off the ground after 3.5 s  speed after 12 s more at full throttle 81.1  height 159.4  bank after half a second of A 0.50  dead false
-  controls: [KEY:W]/[KEY:S] nose down/up | [KEY:A]/[KEY:D] bank | [KEY:Space]/[KEY:C] throttle up/down | Throttle 100% | Speed 81 | Climb 0 | [KEY:F] get out
-fighter jet: off the ground after 1.7 s  speed after 12 s more at full throttle 167.3  height 234.7  bank after half a second of A 1.40  dead false
-  controls: [KEY:W]/[KEY:S] nose down/up | [KEY:A]/[KEY:D] bank | [KEY:Space]/[KEY:C] throttle up/down | [LMB] cannon | [RMB] missiles | [KEY:R] hook down | Throttle 100% | Speed 167 | Climb -2
+airliner: off the ground after 3.9 s  speed after 12 s more at full throttle 81.3  height 90.1  bank after half a second of A 0.20  dead false
+  controls: [KEY:W]/[KEY:S] nose down/up | [KEY:A]/[KEY:D] roll | [KEY:Left Shift]/[KEY:C] throttle | [KEY:Q]/[KEY:E] rudder | [KEY:Space] brakes | [RMB] autopilot on | [KEY:R] gear up | [KEY:F] get out
+fighter jet: off the ground after 1.5 s  speed after 12 s more at full throttle 167.2  height 235.0  bank after half a second of A 2.08  dead false
+  controls: [KEY:W]/[KEY:S] nose down/up | [KEY:A]/[KEY:D] roll (twice: barrel roll) | [KEY:Left Shift] throttle (full: afterburner) | [KEY:C] throttle down | [KEY:Q]/[KEY:E] rudder | [KEY:Space] brakes | [LMB] cannon | [RMB] missiles | [KEY:R] hook down
 jet cannon held 1 s: 120 -> 100 rounds
   locked on the tank true  tank 26.0 off
   a missile away true  tank hp 160.0 -> 100.0  missiles left 5
 balloon: spawned 2 boxes
   get in: balloon
-  burner 6 s: up 13.5  heat 1.00  flame lit while burning
-  4 s more, let go: up another 19.4  rising at 4.1
-  W 5 s (drifting the way the view points): went 17.2  height 47.5
-  vent 5 s: height 37.0  sinking at -4.2
-  display: Hot-air balloon  ·  60 / 60  controls: [KEY:Space] burner (rise) | [KEY:C] vent (sink) | Move to drift | [KEY:F] get out
-  back down on the ground after 8.5 s more, at 0.0
+  burner 6 s: up 4.2  heat 1.00  flame lit while burning
+  4 s more, let go: up another 19.6  rising at 5.3
+  W 5 s (drifting the way the view points): went 10.7  height 47.4
+  vent 5 s: height 42.9  sinking at -4.0
+  display: Hot-air balloon  ·  60 / 60  controls: [KEY:Space] burner (hold; it warms a moment behind) | [KEY:C] vent | Move to trim the drift: climb or sink to change wind | [RMB] drop a sandbag (6 left) | [LMB] let down the rope | [KEY:F] get out
+  back down on the ground after 10.0 s more, at 0.0
   dropped on the envelope: standing at 0.0 above its top, standing on it true
-  shot down at 24.1 up: dead true  pilot thrown out true
+  shot down at 13.3 up: dead true  pilot thrown out true
   5 s later the basket lies at 0.0  envelope shown false
 errors 0 []

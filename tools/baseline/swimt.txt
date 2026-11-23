@@ -1,0 +1,5 @@
+sea: top water block 0 from G, depth 13
+Gus    floats at 0.20 (wet true) bob 0.001 | 2.5s diving: down 7.8 wet true | back up in 3.4s | stroke rises 1.26
+Gertie floats at 0.20 (wet true) bob 0.001 | 2.5s diving: down 7.8 wet true | back up in 3.4s | stroke rises 1.26
+Gnash  floats at 0.20 (wet true) bob 0.001 | 2.5s diving: down 7.8 wet true | back up in 3.4s | stroke rises 1.26
+done

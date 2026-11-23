@@ -1,6 +1,6 @@
-==== airport (city to its south) at -13 -50 16x8
-  town plots beyond the gate: true,true,true  the junction paved true
-  road surface from town to the drop-off: block 44, block 13, block 13, road, road, road
+==== airport (city to its south) at -54 122 16x8
+  town plots beyond the gate: true,true,false  the junction paved true
+  road surface from town to the drop-off: block 13, block 13, block 13, road, road, road
   planes 8 (going round 2, parked 6)  health 300,300,300,300,300,300,300,300  pilots shown in the ones going round true,true  in the parked false
   security posts 6  on duty 6  foe security  posts inside the terminal 6
   buildings 15  kinds terminal/normal landmark/ctrl landmark/hangar landmark/tank landmark/normal
@@ -18,8 +18,8 @@
   health now 236,300,178,300,300,300,300,300
   parked one wrecked after 5 hits of 40, score 1000
   replaced after 2 minutes out of sight true  health 300
-==== airport (city to its north, mirrored) at 115 -126 16x8
-  town plots beyond the gate: true,true,true  the junction paved (inside the fence)
+==== airport (city to its north, mirrored) at -297 83 16x8
+  town plots beyond the gate: true,true,false  the junction paved (inside the fence)
   road surface from town to the drop-off: block 13, block 13, block 13, road, road, road
   planes 8 (going round 2, parked 6)  health 300,300,300,300,300,300,300,300  pilots shown in the ones going round true,true  in the parked false
   security posts 6  on duty 6  foe security  posts inside the terminal 6

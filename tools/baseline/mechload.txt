@@ -9,12 +9,12 @@ right arm put back to the rifle: {"mgArmL":"rifleL","mgArmR":"rifle","mgShL":"vo
 sent online as 1111 and 0000  read back the same true
 in the second: true
   display names Rivet Rifle on mgArmL, Scrap Shotgun on mgArmR, Rocket Volley on mgShL, Clod Lobber on mgShR
-left-hand Rivet Rifle held 0.6 s: rounds 6  the goblin ahead chase  left arm raised 1.00  no blade swing true
+left-hand Rivet Rifle held 0.6 s: rounds 6  the goblin ahead dead  left arm raised 1.00  no blade swing true
   40 rounds gone in 3.4 s; reloaded in 2.5 s
-Scrap Shotgun, one shot at two goblins 14 ahead: shells used 1  goblins chase chase  soft lock true
-  held 3 s at a wall 25 ahead: shells 6 (then reloading true)  blocks broken 16
+Scrap Shotgun, one shot at two goblins 14 ahead: shells used 1  goblins dead chase  soft lock true
+  held 3 s at a wall 25 ahead: shells 6 (then reloading true)  blocks broken 21
 Rocket Volley held 1 s at a wall 40 ahead: rockets 7  blocks blown out 25  pod lid opened 1.00
   all twelve gone, reloading true
 Clod Lobber held 1.2 s at a wall 50 ahead: shells 3  blocks blown out 32  no brace true  cannon swung over 1.00
-  one shell at a goblin 35 ahead: chase 6.0  locked true  shells 2
+  one shell at a goblin 35 ahead: dead 0.0  locked true  shells 2
 errors: none

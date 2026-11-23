@@ -1,0 +1,10 @@
+turbines [[0,14],[4,14]]
+base standing rotor at height 41.9
+base down true rode the topple frames 223 lying at height 5.4 ground there 6.0 flat true on record true
+base venue dropped true
+base back: lying true same place true
+nacelle standing rotor at height 41.9
+nacelle down true rode the topple frames 0 lying at height 1.4 ground there 1.0 flat true on record true
+nacelle venue dropped true
+nacelle back: lying true same place true
+done

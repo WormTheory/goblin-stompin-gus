@@ -1,12 +1,12 @@
 sea: the warhead went off at y 0.8 (sea level 0) after 174 frames | crater y 1
-  whole frame after it went off: worst N ms, 95th 35.4 median 17.0 | blast work worst N ms | slow N
+  whole frame after it went off: worst N ms, 95th 27.5 median 16.9 | blast work worst N ms | slow N
 carrier nuked from the sea beside it: went off at y -0.2 | crater at 33.0,72.5 from its middle, y 1 | ship blocks 56468 -> 53262 (6% gone) | health 3000 -> 2894
-  worst frame N ms, 95th 47.4 | blast work worst N ms | slow N
+  worst frame N ms, 95th 74.4 | blast work worst N ms | slow N
   ships now 1 | afloat 1 | sinking 0 | the carrier afloat after 60 s
   deck weapons: ciws wrecked dropped -18.9 gone on 9; ciws dropped 0.0 on 12; sparrow dropped 0.0 on 12; sparrow dropped 0.0 on 13; ram dropped 0.0 on 12; ram wrecked dropped -18.9 gone on 9
   deck weapons hanging over nothing: 0
 carrier nuked on its flight deck: went off at y 17.2 | crater at 0.0,0.0 from its middle, y 1 | ship blocks 56468 -> 43393 (23% gone) | health 3000 -> 0
-  worst frame N ms, 95th 41.6 | blast work worst N ms | slow N
+  worst frame N ms, 95th 98.1 | blast work worst N ms | slow N
   ships now 1 | afloat 0 | sinking 1 | the carrier sinking or gone after 0 s
   deck weapons: ciws dropped 0.0 on 12; ciws dropped 0.0 on 12; sparrow dropped 0.0 on 12; sparrow dropped 0.0 on 13; ram dropped 0.0 on 12; ram dropped 0.0 on 12
   deck weapons hanging over nothing: 0

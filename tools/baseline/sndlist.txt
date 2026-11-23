@@ -6,7 +6,7 @@ last shell: magazine empty           -> Magazine empty | Tank fires
 bite with nothing loaded             -> Dry fire click
 reload finishing                     -> Explosion | Knocked over | Stone breaks | Wood breaks | Weapon reloaded
 in the helicopter heli
-helicopter rotor                     -> Helicopter rotor
-helicopter gun (bite held)           -> Helicopter gun | Helicopter rotor
+helicopter rotor                     -> Helicopter rotor | Rotor spooling up
+helicopter gun (bite held)           -> Helicopter gun | Plants torn | Helicopter rotor
 helicopter rocket (stomp)            -> Helicopter rocket | Helicopter rotor
 errors 0 []

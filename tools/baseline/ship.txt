@@ -2,22 +2,22 @@ spawn: Spawned a barge on the sea ahead of Gus. Swim out, climb aboard from the 
 sea {"x0":-150,"x1":170,"z0":35,"z1":355} water at its middle true | ship at 10.5 67.5 yaw 6.3 | from gus 57.0
 pocket chunks drawn 8 | hung off the ship true | meshes 8
 blocks: deck 7 console 31 stair 146 roof 18 water off the side 9
-swimming 5 off the stern: in the world (y -1.1)
-swimming 2 off the stern: aboard (u -0.5 w -19.5 y -1.1) state walk
+swimming 5 off the stern: in the world (y -0.7)
+swimming 2 off the stern: aboard (u -0.5 w -19.5 y -0.7) state walk
   swum on and climbed up: aboard (u -0.5 w -14.7 y 1.0) in 1.7 s
 dropped on the deck: aboard (u 0.5 w -1.5 y 1.0) grounded true
   W 1.2 s toward the bow: went 3.4 aboard (u 0.5 w 1.9 y 1.0)
   W 0.8 s to port: went 2.2 aboard (u -1.7 w 1.9 y 1.0)
 up the stairs 3 s: aboard (u -2.0 w -3.4 y 8.0) (roof is y 7)
 F at the helm: ship | hud says Barge  ·  200 / 200
-  W 8 s: speed 7.0 speedometer 25 went 35.8 | gus still at the helm aboard (u 1.0 w -5.5 y 1.0) | camera from the ship 26.6
+  W 8 s: speed 7.0 speedometer  went 35.8 | gus still at the helm aboard (u 1.0 w -5.5 y 1.0) | camera from the ship 26.6
   W+D 4 s: yaw turned -0.7 (right is negative)
   W+A 4 s: yaw now -1.0
   camera behind the ship by 26.6 aside 0.0 up 16.3
   F again: on foot aboard (u 1.0 w -5.5 y 1.0)
 standing while it coasts 2 s: moved on the deck 0.0 | ship moved 12.2 aboard (u 1.0 w -5.5 y 1.0)
 goblins spawned aboard: 3 of 3
-  8 s on: closest a goblin got 1.4 | still aboard 3 | fell in 0
+  8 s on: closest a goblin got 1.7 | still aboard 3 | fell in 0
   crushed the deck: blocks changed 9 all in the pocket true
 shockwave on the deck: drawn 0.0 from where that is on the ship
 a flame on the wheelhouse: drawn 0.0 from where it is on the ship
@@ -29,6 +29,6 @@ Gus dropped on the deck: aboard (u 0.5 w -1.6 y 1.0) grounded true
   W 1.2 s toward the bow: went 4.1 aboard (u 0.5 w 2.5 y 1.0)
   on the first steps: aboard (u -2.0 w -10.5 y 2.3)
   up the stairs 2 s: highest 7.0 aboard (u -2.0 w -1.2 y 6.2) (roof is y 7)
-swimming off to starboard 3 s: in the world (y -12.9) from the ship 17.6
+swimming off to starboard 3 s: in the world (y -0.8) from the ship 17.6
 cleared: ships 0 | pocket chunks drawn 0 | venue false | sea kept true
 errors 0 []

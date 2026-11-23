@@ -1,6 +1,6 @@
 spawn: Spawned an aircraft carrier on the sea ahead of Gus. Swim out, climb aboard from the stern, and take the helm on the island's navigation bridge, its third storey, with F (as Gnash or Grizzle). | N ms
 sea 640 x 640 | ship at 10.5 139.5 yaw 6.3 | from gus 129.0
-pocket chunks drawn 56 over 20 frames, N ms (slowest frame N ms) | hung off the ship true | meshes 56
+pocket chunks drawn 56 over 10 frames, N ms (slowest frame N ms) | hung off the ship true | meshes 56
 hull below water  air      0 | metal 22585
 lower deck        air  26663 | metal 3234, floor tile 2843, white wall 1541, #124 368, checker 325, #80 220, glass 116, hospital white 112, #82 110, screen 22, reactor glow 18, stairs 16
 hangar            air  35987 | dark paint 3579, metal 2891, #80 134, rail 85, stairs 24, #124 20
@@ -8,11 +8,11 @@ gallery deck      air  24904 | floor tile 5692, white wall 2444, metal 1962, #12
 flight deck       air   1022 | deck 5545, metal 223, yellow line 153, white line 88, floor tile 85, stairs 4
 island            air   2857 | metal 791, glass 246, floor tile 225, rail 66, stairs 40, #124 12, screen 10, dark paint 9
 key blocks: landing 18 stern door 124 hangar 0 gallery 0 deck 12 island door 124 helm console 31 mast 18
-props 1276 | boxes drawn 7162 + 112 glowing | hung off the ship true
+props 1276 | boxes drawn 7168 + 112 glowing | hung off the ship true
   pcrate 502, bunk 180, seats 175, sofa 49, bench 48, locker 43, machine 43, drum 38, ltable 24, gearrack 22, swivel 20, toolrack 19, prep 18, deskm 15, clothes 12, mtable 12, chair 9, gunrack 8, fridge2 6, range 6, sink 6, ammobox 5, bed 3, vitals 3, gurney 3, drip 3, table 2, tv 2
   in a wall or over nothing: 0 
 doorways 72 | all of them door markers true
-swimming 6 off the stern: in the world (y -1.1)
+swimming 6 off the stern: in the world (y -0.7)
   swum to the landing and climbed out: aboard (s -0.5 w -86.9 y 1.0) in 2.9 s
   walked in at the stern door: aboard (s -0.5 w -82.7 y 1.0) (the lobby is w -85 to -73, y 1)
 stairs:
@@ -54,7 +54,7 @@ F at the helm: ship | hud says Aircraft carrier  ·  3000 / 3000 | ⟦KEY:W⟧/�
   F again: on foot aboard (s 14.0 w -5.5 y 27.0)
 goblins spawned in the hangar: 4 of 4
   8 s on: closest 2.9 | still aboard 4
-  a goblin from the lower deck after Gnash on the flight deck: made it up in 19 s
+  a goblin from the lower deck after Gnash on the flight deck: made it up in 20.5 s
 Gus:
   lower deck to hangar: up in 1.3 s, now aboard (s 8.6 w -77.9 y 6.0)
   hangar to gallery deck: up in 1.5 s, now aboard (s -11.4 w -77.1 y 12.0)
@@ -65,7 +65,7 @@ health 2999.843157757156 | after a crater in the flight deck 2999.8
   a crater through the lower deck floor into the hull: 4.9 off, holes letting the sea in 25 | water in the crater true
   10 s later it's lost 0.0 more to the sea coming in
   boxes out in the world 3 | a 120 shell on the hull from outside: 0.0 off
-  a bunk at s -11.5 y 1.0 w -33.0 with its floor smashed out: gone true | boxes drawn now 7138
+  a bunk at s -11.5 y 1.0 w -33.0 with its floor smashed out: gone true | boxes drawn now 7144
   (Gus ended at s -6.4 y 1.0 w -69.0 )
 Gus walked into a ltable at s -3.8 y 1.0 w -69.0 : knocked over true | goblins still go round it false
 a blast just outside the hull (out in the world, by the hangar wall): blocks smashed 19 | hull block there 18 -> 0 | health 0.8 off
@@ -74,21 +74,21 @@ spawned from the flight deck: Spawned 1 parked tank ahead of Gus
 spawned from the flight deck: Spawned 1 parked helicopter ahead of Gus
 spawned from the flight deck: Spawned 1 Mobile Gear
   car aboard (s -0.5 w 0.5 y 17.0) | model hung off the ship true
-  tank aboard (s -0.3 w 13.6 y 17.0) | model hung off the ship true
-  helicopter aboard (s 7.2 w 21.9 y 17.0) | model hung off the ship true
+  tank aboard (s 1.7 w 19.5 y 17.0) | model hung off the ship true
+  helicopter aboard (s -5.4 w 11.1 y 17.0) | model hung off the ship true
   Mobile Gear (stays out in the world, on the ship's box): y 17.0 | 5.5 from the ship's middle
   car driven along the deck 30.5 blocks, still aboard (s -0.5 w -30.0 y 17.0) | Gnash aboard (s -0.5 w -30.0 y 17.7)
   the car left standing 3 s: moved 0.6
   the carrier under way: moved 3.6 | the parked car on its deck moved 0.0 in the ship's frame
-  helicopter lifted off: aboard (s 7.2 w 21.9 y 21.8)
+  helicopter lifted off: aboard (s -5.4 w 11.1 y 21.8)
   flown off the side: in the world (y 25.1) | model back in the world true | Gnash in the world (y 26.2)
-  flown back over the deck ( 4.2 s): aboard (s 8.8 w 21.9 y 25.1) | model hung off the ship true
-  let down: landed aboard (s 9.3 w 21.9 y 17.0) | hp 80
-  Gnash out on the deck aboard (s 8.5 w 19.7 y 17.0)
-  tank shell fired over the side: started 14.5 from the ship's middle, drawn there | out into the world after 0.5 s
+  flown back over the deck ( 4.9 s): aboard (s 7.3 w 11.1 y 25.1) | model hung off the ship true
+  let down: landed aboard (s 7.8 w 11.1 y 17.0) | hp 80
+  Gnash out on the deck aboard (s 7.8 w 9.2 y 17.0)
+  tank shell fired over the side: started 19.7 from the ship's middle, drawn there | out into the world after 0.5 s
 Mobile Gear on the deck: Gnash aboard beside it finds mech
   in: mech | Gnash in the world (y 22.0)
-  20 rifle rounds at the deck at its feet: blocks broken 8 | health 0.1 off
+  20 rifle rounds at the deck at its feet: blocks broken 10 | health 0.2 off
   a rifle round at a goblin stood on the deck: its hp 4 -> 0 dead
   Heat Cleaver at a goblin stood on the deck 8 off: its hp 4 -> -16 dead
   swung down at the deck ahead: blocks cut 183 | the ship's health 0.0 off
@@ -115,7 +115,7 @@ Gnash at the Sea Sparrow: a tank out in the world world 59.1 from the ship
   Q: locked on the tank true
   bite: missiles up 1 | magazine 7
   4 s on: the tank's hp 160 -> 97.3 
-Gnash at the Phalanx, holding fire on a rocket coming at it: gone after 1.0 s 49.5 off it | heat 155
+Gnash at the Phalanx, holding fire on a rocket coming at it: gone after 0.7 s 56.5 off it | heat 159
 deck weapons: Gnash 70 off the side, the lock-on picks out 6 of 6 | the RAM among them true
   missiles at the RAM: 2 | its health 150 -> 0 | wrecked true | still in the lock-on false
   Gnash beside the wreck: F finds mount
@@ -139,16 +139,16 @@ beside jet 4: F finds plane true
   t 70 jets -  -  -  X -  -  -  -  | flying 
   t 80 jets -  -  -  X -  -  -  -  | flying 
 pilots at GQ: launched 0 | caught a wire 0 | towed home after landing 0 | wrecked 1
-breaking up: blasts in a narrow cut through the hull near the stern 45 | broke true | carrier afloat true | health 2988.785779636649 -> 2655.7 | its length 177 -> 158 | ships 1 -> 2 | the frames it broke in took N ms
+breaking up: blasts in a narrow cut through the hull near the stern 45 | broke true | carrier afloat true | health 2988.628937393805 -> 2655.5 | its length 177 -> 158 | ships 1 -> 2 | the frames it broke in took N ms
   the stern end: -89 to -71 | sinking true | Gnash still on the carrier true | its chunks drawn 16 | a carrier block where it was 0 | on the wreck 80
   Gnash walked aft across the break: on the stern end aboard (s -0.5 w 951.8 y 17.0) grounded true
   Gnash washed off the stern end after 24 s, having gone down 16.1 | stood on it till then true | it drifted 11.8 clear of the carrier's middle
-  that end gone after 44.5 s: true | its far end went down first true | the carrier still afloat true | health 2655.7
+  that end gone after 44.5 s: true | its far end went down first true | the carrier still afloat true | health 2655.5
   a narrow cut near the bow: blasts 70 | broke true | its length now 137 | carrier afloat true
   Gnash dropped on to the bow end from outside: aboard it aboard (s -0.5 w 1104.5 y 17.0)
   Gnash washed off the bow end after 23 s, having gone down 16.0 | stood on it till then true | it drifted 11.8 clear of the carrier's middle
-  that end gone after 43.5 s: true | its far end went down first true | the carrier still afloat true | health 2419.8
-  a row of craters across the flight deck: broke false | health 2419.8
+  that end gone after 43.5 s: true | its far end went down first true | the carrier still afloat true | health 2419.6
+  a row of craters across the flight deck: broke false | health 2419.6
 sinking: true | Gnash on the flight deck aboard (s -0.5 w 0.5 y 13.8)
-  goblin on the lower deck washed off after 5 s | Gnash washed off after 20.5 s, now in the world (y -15.0) walk | ship gone after 45.0 s: true | pocket chunks drawn 0
+  goblin on the lower deck washed off after 5 s | Gnash washed off after 20.5 s, now in the world (y -0.8) walk | ship gone after 45.0 s: true | pocket chunks drawn 0
 errors 0 []

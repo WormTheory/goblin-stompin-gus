@@ -1,7 +1,7 @@
-guest joined out in the world ok | naval base cv9,-13
+guest joined out in the world ok | naval base cv-7,-7
 the carrier on the host ok | on the guest ok | the guest made none of its own ok | apart 0.00 ok | its jets on the guest ok
 broken on the host: length 177 -> 164 | the guest's 164 ok | blocks that differ 0
-both left: gone on the host ok | on the guest ok (ships out there: host cv20,-16 guest 4carrier) | remembered ok
+both left: gone on the host ok | on the guest ok (ships out there: host  guest ) | remembered ok
 both back: on the host ok | on the guest ok | length 164 guest 164 ok | blocks the same 26700 different 0 ok | weapons wrecked 2 guest 2 ok | jets 8 guest 8 ok
 a third player joins: has it ok | length 164 ok | blocks the same 26700 different 0 ok | jets 8 ok
 done
