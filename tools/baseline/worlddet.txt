@@ -24,7 +24,7 @@ nzNoise out of -1..1: 0, not 0 on lattice points: 0
 nzSmooth 0,.5,1 -> 0,0.5,1; nzClamp01 -1,.3,2 -> 0,0.3,1
 noise uses only arithmetic: yes
 relief uses only arithmetic and sqrt: yes
-biomeAt(0,0) 0; biomeOf gone: true; WORLD_CFG {"land":0,"size":1,"rough":1,"chan":1,"isles":1,"islz":1,"temp":0,"rain":0,"czone":1,"lat":1,"mtn":0,"mth":1,"hill":1,"lakes":1,"riv":1,"rmd":1,"rwd":1,"rwid":1,"rlen":1,"rbr":1}; cfg in a default save: undefined
+biomeAt(0,0) 0; biomeOf gone: true; WORLD_CFG {"land":0,"size":1,"rough":1,"chan":1,"isles":1,"islz":1,"temp":0,"rain":0,"czone":1,"lat":1,"mtn":0,"mth":1,"hill":1,"lakes":1,"riv":1,"rmd":1,"rwd":1,"rwid":1,"rlen":1,"rbr":1,"towns":1,"csize":1,"clu":0,"sites":1}; cfg in a default save: undefined
 biome shares of the land: grassland 34.3%, forest 9.8%, taiga 8.2%, tundra 7.6%, ice 1.8%, desert 9.4%, badlands 2.4%, scrub 4.8%, savanna 9.0%, rainforest 1.7%, swamp 3.4%, moor 6.5%, alpine 1.2%
 start not grassland: 0/400
 open plains by height (natural): 0-1 23.3%, 10-29 30.2%, 2-9 31.9%, 30-59 7.5%, 60-99 1.7%, lake 5.4%; highest 93.9
@@ -68,7 +68,7 @@ nzNoise out of -1..1: 0, not 0 on lattice points: 0
 nzSmooth 0,.5,1 -> 0,0.5,1; nzClamp01 -1,.3,2 -> 0,0.3,1
 noise uses only arithmetic: yes
 relief uses only arithmetic and sqrt: yes
-biomeAt(0,0) 0; biomeOf gone: true; WORLD_CFG {"land":0,"size":1,"rough":1,"chan":1,"isles":1,"islz":1,"temp":0,"rain":0,"czone":1,"lat":1,"mtn":0,"mth":1,"hill":1,"lakes":1,"riv":1,"rmd":1,"rwd":1,"rwid":1,"rlen":1,"rbr":1}; cfg in a default save: undefined
+biomeAt(0,0) 0; biomeOf gone: true; WORLD_CFG {"land":0,"size":1,"rough":1,"chan":1,"isles":1,"islz":1,"temp":0,"rain":0,"czone":1,"lat":1,"mtn":0,"mth":1,"hill":1,"lakes":1,"riv":1,"rmd":1,"rwd":1,"rwid":1,"rlen":1,"rbr":1,"towns":1,"csize":1,"clu":0,"sites":1}; cfg in a default save: undefined
 biome shares of the land: grassland 29.0%, forest 9.6%, taiga 8.8%, tundra 7.5%, ice 3.5%, desert 6.1%, badlands 0.7%, scrub 7.4%, savanna 10.1%, rainforest 3.3%, swamp 9.0%, moor 4.5%, alpine 0.5%
 start not grassland: 0/400
 open plains by height (natural): 0-1 25.0%, 10-29 28.5%, 100+ 0.0%, 2-9 34.9%, 30-59 4.8%, 60-99 1.0%, lake 5.7%; highest 104.4
@@ -112,7 +112,7 @@ nzNoise out of -1..1: 0, not 0 on lattice points: 0
 nzSmooth 0,.5,1 -> 0,0.5,1; nzClamp01 -1,.3,2 -> 0,0.3,1
 noise uses only arithmetic: yes
 relief uses only arithmetic and sqrt: yes
-biomeAt(0,0) 0; biomeOf gone: true; WORLD_CFG {"land":0,"size":1,"rough":1,"chan":1,"isles":1,"islz":1,"temp":0,"rain":0,"czone":1,"lat":1,"mtn":0,"mth":1,"hill":1,"lakes":1,"riv":1,"rmd":1,"rwd":1,"rwid":1,"rlen":1,"rbr":1}; cfg in a default save: undefined
+biomeAt(0,0) 0; biomeOf gone: true; WORLD_CFG {"land":0,"size":1,"rough":1,"chan":1,"isles":1,"islz":1,"temp":0,"rain":0,"czone":1,"lat":1,"mtn":0,"mth":1,"hill":1,"lakes":1,"riv":1,"rmd":1,"rwd":1,"rwid":1,"rlen":1,"rbr":1,"towns":1,"csize":1,"clu":0,"sites":1}; cfg in a default save: undefined
 biome shares of the land: grassland 36.3%, forest 10.9%, taiga 7.7%, tundra 9.7%, ice 4.4%, desert 4.7%, badlands 0.3%, scrub 3.9%, savanna 7.6%, rainforest 3.5%, swamp 4.7%, moor 5.2%, alpine 1.0%
 start not grassland: 0/400
 open plains by height (natural): 0-1 26.9%, 10-29 27.5%, 2-9 31.7%, 30-59 5.8%, 60-99 1.1%, lake 6.9%; highest 88.5

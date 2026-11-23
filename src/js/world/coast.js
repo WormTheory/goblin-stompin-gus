@@ -13,7 +13,7 @@ let OCEAN_O=null,seaDeepK=0,seaIsl=false,seaCcSeed=null;const SEA_CC=new Map();
 // (or the older GSG_SEA) before loading the game; the game itself never changes them, so they're the defaults, which leave
 // every sum exactly as it was. A world made with others keeps them in its save (cfg: only what isn't a default, from
 // worldCfgSent), so a guest online builds it with the host's)
-const WORLD_DEF={land:0,size:1,rough:1,chan:1,isles:1,islz:1,temp:0,rain:0,czone:1,lat:1,mtn:0,mth:1,hill:1,lakes:1,riv:1,rmd:1,rwd:1,rwid:1,rlen:1,rbr:1};   // (temp, rain, czone, lat: the climate's, world/climate.js; mtn, mth, hill, lakes: the land's shape, world/relief.js; riv, rmd, rwd, rwid, rlen, rbr: the rivers', world/routes.js)
+const WORLD_DEF={land:0,size:1,rough:1,chan:1,isles:1,islz:1,temp:0,rain:0,czone:1,lat:1,mtn:0,mth:1,hill:1,lakes:1,riv:1,rmd:1,rwd:1,rwid:1,rlen:1,rbr:1,towns:1,csize:1,clu:0,sites:1};   // (temp, rain, czone, lat: the climate's, world/climate.js; mtn, mth, hill, lakes: the land's shape, world/relief.js; riv, rmd, rwd, rwid, rlen, rbr: the rivers', world/routes.js; towns, csize, clu: the places, world/places.js; sites: farms and the big sites, world/country-sites.js)
 const WORLD_CFG=Object.assign({},WORLD_DEF);
 // (sets them from o, anything missing or not a number at its default: only before the world's worked out (loading), as
 // what's been worked out already isn't redone)

@@ -24,6 +24,7 @@ const edgeC=new Map();
 function edgeOn(rx,rz,dx,dz){
   const key=rx+','+rz+','+dx+','+dz;let v=edgeC.get(key);if(v!==undefined)return v;
   const A=placeAt(rx,rz),B=placeAt(rx+dx,rz+dz),h=hash2(rx*31+dx*7+100,rz*17+dz*13+200);
+  if(A.none||B.none){edgeC.set(key,false);return false;}   // (no place there: New world's Towns or Clustered)
   // (no highway across the sea)
   {let wet=false;for(let t=0;t<=1&&!wet;t+=0.04){const fx=A.cx+(B.cx-A.cx)*t+0.5,fz=A.cz+(B.cz-A.cz)*t+0.5;if(seaV(fx,fz)>SEA_T-0.06)wet=true;}if(wet){edgeC.set(key,false);return false;}}
   if(dx&&dz)v=h<0.18&&!!diagExit(A,B);

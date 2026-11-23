@@ -48,7 +48,7 @@ const BIGP=[{kind:'airport',w:16,h:8,p:0,salt:11},{kind:'nasa',w:2,h:3,p:0.005,s
 function bigCell(i,ax,az){
   const K=BIGP[i],kk=K.kind+ax+','+az;if(i===0)return false;let ok=bigOK.get(kk);if(ok!==undefined)return ok;
   // (the climate has its say: some kinds likelier in some country, the biome sites only in their own, biome-sites.js)
-  {const h=hash2(ax*389+K.salt,az*211+K.salt*3);ok=h<K.p*3&&!TEST_OFF.has(K.kind);if(ok)ok=h<K.p*siteBioW(K,(ax+K.w/2)*CELL,(az+K.h/2)*CELL);}
+  {const h=hash2(ax*389+K.salt,az*211+K.salt*3),p=K.p*WORLD_CFG.sites;ok=h<p*3&&!TEST_OFF.has(K.kind);if(ok)ok=h<p*siteBioW(K,(ax+K.w/2)*CELL,(az+K.h/2)*CELL);}
   // (not in rugged country, world/relief.js: fewer the more rugged, none in the high mountains. Only that coarse field,
   // never the land's real height, which is worked out from where the sites are)
   // (mines and quarries go higher, bases, launch sites and airfields want gentler ground; the ski slope wants mountains)
@@ -261,8 +261,8 @@ function dumpColumn(a,col,px,pz,rx,rz,lx,lz,x,z){
 // ---- farms: out on the plains, a block or few to either side of a country highway, with a straight gravel lane
 // (north or south) out to it ----
 // (no farms in the ice fields, and fewer where little grows: the tundra, desert and badlands)
-const farmC=new Map(),farmCand=(px,pz)=>{const h=hash2(px*19+5,pz*23+7);if(!(h<0.1)||realmOf(px,pz)!=='plains')return false;
-  const b=bioNear(px*CELL+PC,pz*CELL+PC).k;return b==='ice'?false:b==='tundra'||b==='desert'||b==='badlands'?h<0.035:true;};
+const farmC=new Map(),farmCand=(px,pz)=>{const h=hash2(px*19+5,pz*23+7),st=WORLD_CFG.sites;if(!(h<0.1*st)||realmOf(px,pz)!=='plains')return false;
+  const b=bioNear(px*CELL+PC,pz*CELL+PC).k;return b==='ice'?false:b==='tundra'||b==='desert'||b==='badlands'?h<0.035*st:true;};
 // a farm on block (px,pz): {s (-1: its road is to the north, 1: to the south), zEnd (where its lane meets the road's
 // edge)} or null. Which way is tried first is down to the farm; the lane must cross only open plains (no river, no
 // other farm, no town) and reach a country highway within four blocks.

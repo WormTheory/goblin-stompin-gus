@@ -106,6 +106,7 @@ details[open]>summary.lbl::before{transform:rotate(90deg)}
     <details id="seabox"><summary class="lbl">Land &amp; sea</summary><div class="sliders" id="sliders"></div><button class="btn small" id="seaReset" type="button">Default</button></details>
     <details id="shapebox"><summary class="lbl">Land shape</summary><div class="sliders" id="shsliders"></div><button class="btn small" id="shapeReset" type="button">Default</button></details>
     <details id="rivbox"><summary class="lbl">Rivers</summary><div class="sliders" id="rvsliders"></div><button class="btn small" id="rivReset" type="button">Default</button></details>
+    <details id="setbox"><summary class="lbl">Settlements</summary><div class="sliders" id="stsliders"></div><button class="btn small" id="setReset" type="button">Default</button></details>
     <details id="climbox"><summary class="lbl">Climate</summary><div class="sliders" id="clsliders"></div><button class="btn small" id="climReset" type="button">Default</button></details>
     <details id="keybox" open><summary class="lbl">Key</summary><div class="legend" id="legend"></div></details>
   </div>
@@ -154,27 +155,28 @@ async function start(seed){
   draw();pump();
 }
 
-// ---- Land & sea and Climate: the game's WORLD_CFG (world/coast.js), the defaults leaving the world as the game makes it ----
+// ---- Land & sea, Land shape, Rivers, Climate and Settlements: the game's WORLD_CFG (world/coast.js), the defaults leaving the world as the game makes it ----
 // (each range is as far as the start can still always be found inland with a coast in reach)
 const SEA_S=[['land','Land',-2.5,2.5,0.1,0],['size','Continent size',0.4,1.8,0.05,1],['rough','Coastline roughness',0,2.5,0.1,1],['chan','Ocean channels',0,2.5,0.1,1],['isles','Island chains',0,3,0.1,1],['islz','Island size',0.6,3,0.1,1],
   ['temp','Temperature',-0.4,0.4,0.02,0,'clim'],['rain','Rainfall',-0.4,0.4,0.02,0,'clim'],['czone','Climate zone size',0.4,2.5,0.1,1,'clim'],['lat','Latitude bands',0,4,0.1,1,'clim'],
   ['mtn','Mountains',-0.5,0.5,0.05,0,'shape'],['mth','Mountain height',0.3,1.2,0.05,1,'shape'],['hill','Hilliness',0,3,0.1,1,'shape'],['lakes','Lakes',0,3,0.1,1,'shape'],
-  ['riv','How often',0,2.2,0.1,1,'riv'],['rmd','Meandering',0,3,0.1,1,'riv'],['rwd','Wandering',0,3,0.1,1,'riv'],['rwid','Width',0.5,2,0.05,1,'riv'],['rlen','Length',0.3,2.5,0.1,1,'riv'],['rbr','Branching',0,3,0.1,1,'riv']];
+  ['riv','How often',0,2.2,0.1,1,'riv'],['rmd','Meandering',0,3,0.1,1,'riv'],['rwd','Wandering',0,3,0.1,1,'riv'],['rwid','Width',0.5,2,0.05,1,'riv'],['rlen','Length',0.3,2.5,0.1,1,'riv'],['rbr','Branching',0,3,0.1,1,'riv'],
+  ['towns','Towns',0.2,1,0.05,1,'set'],['csize','City size',0.6,1.8,0.05,1,'set'],['clu','Clustering',-1,1,0.1,0,'set'],['sites','Country sites',0,3,0.1,1,'set']];
 const SEAC={},seaIn={},seaOut={};
 SEA_S.forEach(([k,,lo,hi,st,d])=>SEAC[k]=d);
-const seaFmt=(k,v)=>k==='land'||k==='temp'||k==='rain'||k==='mtn'?(v>0?'+':'')+v.toFixed(k==='land'?1:2):'×'+v.toFixed(k==='size'||k==='mth'||k==='rwid'?2:1);
+const seaFmt=(k,v)=>k==='land'||k==='temp'||k==='rain'||k==='mtn'||k==='clu'?(v>0?'+':'')+v.toFixed(k==='land'||k==='clu'?1:2):'×'+v.toFixed(k==='size'||k==='mth'||k==='rwid'||k==='towns'||k==='csize'?2:1);
 function seaSent(){const o={};let any=false;SEA_S.forEach(([k,,,,,d])=>{if(SEAC[k]!==d){o[k]=SEAC[k];any=true;}});return any?o:undefined;}
 function seaQuery(){const o=seaSent();return o?Object.keys(o).map(k=>'&'+k+'='+o[k]).join(''):'';}
 function seaSet(k,v){const s=SEA_S.find(r=>r[0]===k);if(!s||!isFinite(v))return;v=Math.round(Math.max(s[2],Math.min(s[3],v))/s[4])*s[4];SEAC[k]=+v.toFixed(2);}
 let seaT=0;
 function seaRedo(){clearTimeout(seaT);seaT=setTimeout(()=>start(curSeed),250);}
-const slEl=document.getElementById('sliders'),clSlEl=document.getElementById('clsliders'),shSlEl=document.getElementById('shsliders'),rvSlEl=document.getElementById('rvsliders');
+const slEl=document.getElementById('sliders'),clSlEl=document.getElementById('clsliders'),shSlEl=document.getElementById('shsliders'),rvSlEl=document.getElementById('rvsliders'),stSlEl=document.getElementById('stsliders');
 SEA_S.forEach(([k,name,lo,hi,st,,grp])=>{
   const id='sea_'+k,l=document.createElement('label'),i=document.createElement('input'),o=document.createElement('output');
   l.htmlFor=id;l.textContent=name;i.type='range';i.id=id;i.min=lo;i.max=hi;i.step=st;o.htmlFor=id;
   i.oninput=()=>{seaSet(k,+i.value);o.textContent=seaFmt(k,SEAC[k]);};
   i.onchange=()=>{i.oninput();seaRedo();};
-  (grp==='clim'?clSlEl:grp==='shape'?shSlEl:grp==='riv'?rvSlEl:slEl).append(l,i,o);seaIn[k]=i;seaOut[k]=o;
+  (grp==='clim'?clSlEl:grp==='shape'?shSlEl:grp==='riv'?rvSlEl:grp==='set'?stSlEl:slEl).append(l,i,o);seaIn[k]=i;seaOut[k]=o;
 });
 function seaShow(){SEA_S.forEach(([k])=>{seaIn[k].value=SEAC[k];seaOut[k].textContent=seaFmt(k,SEAC[k]);});}
 // (each box's Default puts back only its own)
@@ -183,6 +185,7 @@ document.getElementById('seaReset').onclick=()=>seaDef('sea');
 document.getElementById('climReset').onclick=()=>seaDef('clim');
 document.getElementById('shapeReset').onclick=()=>seaDef('shape');
 document.getElementById('rivReset').onclick=()=>seaDef('riv');
+document.getElementById('setReset').onclick=()=>seaDef('set');
 
 // ---- view: centre (plots) and scale (CSS pixels a plot) ----
 let dpr=1,vw=0,vh=0,cx=0,cz=0,sc=0.9;

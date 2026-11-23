@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:479d54a4c9ac736e0739b500961291340c7e96d8634346af531067ad32a98175 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:3b1eadc81b76965eff3ad77d11bcc34eaef6514331603487fd3cbd0d79a9af0d -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1646,7 +1646,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <p class="pn-web">Also on <a href="patch-notes/index.html" target="_blank" rel="noopener">their own page</a>.</p>
 <details class="pn-up pn-fold pn-new" id="version-0-5" open><summary tabindex="0"><h2>Version 0.5</h2><span class="pn-tog" aria-hidden="true"></span></summary>
 <h3>Shape your own world</h3>
-<ul><li>New world now lets you shape the world before it's made, with the World Generator's sliders: Land &amp; sea, Land shape, Rivers and Climate. Left alone, they make the world just as before.</li><li>The settings are saved with the world, so it's made the same way every time you load it, and online friends get the host's world.</li><li>New world has a Seed box. Leave it empty for a random world, or type a number or any word or phrase: the same seed always makes the same world. The World Generator's seed box takes words too, so a seed tried there makes the same world in the game.</li></ul>
+<ul><li>New world now lets you shape the world before it's made, with the World Generator's sliders: Land &amp; sea, Land shape, Rivers and Climate. Left alone, they make the world just as before.</li><li>The settings are saved with the world, so it's made the same way every time you load it, and online friends get the host's world.</li><li>New world and the World Generator have a Settlements group too: Towns (how many places there are), City size (how big cities and large towns grow), Clustering (from evenly spaced to gathered in clumps with open country between) and Country sites (how many farms, bases, airfields, mines, campsites and the like). The seed line says "custom" when a world has settings of its own.</li><li>New world has a Seed box. Leave it empty for a random world, or type a number or any word or phrase: the same seed always makes the same world. The World Generator's seed box takes words too, so a seed tried there makes the same world in the game.</li></ul>
 <h3>The world</h3>
 <ul><li>The world is made of continents and oceans now, about half land and half sea. Before, one side of the world was all ocean and the other all land. Now there are big continents and smaller ones, seas and oceans between them, island chains off their coasts and the odd group of islands far out at sea.</li><li>The sea is shallow over the continental shelf near the coast and deep out in the open ocean.</li><li>Continents have bold, solid coastlines, with big peninsulas, bays and gulfs. Island chains off the coasts are made of whole, rounded islands, with the sea bed rising smoothly round each one.</li><li>You now always start on a continent, never on an island off one.</li><li>The World Generator zooms out more than ten times further, far enough to see whole continents and oceans. Far out it shows just the land, the sea and the capital; settlements, bases and rivers come back as you zoom in, and markers that would pile on top of each other are thinned out.</li><li>The World Generator has Land &amp; sea sliders: how much land there is, how big the continents are, how rough their coastlines, how many ocean channels cut through them and how many island chains lie offshore. The settings go in the page's address, so a world can be shared as you've shaped it. Island size makes the islands in a chain bigger and fewer, with fewer tiny specks between them. The game's own worlds are unchanged.</li><li>This makes a new world, so a saved city starts afresh.</li><li>The World Generator can show the climate over the land, as temperature or moisture: the groundwork for biomes. It doesn't change the game's world yet.</li></ul>
 <h3>Biomes</h3>
@@ -2395,7 +2395,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='a37156cb4680';
+const GAME_VER='0.5',GAME_BUILD='7e5636f12d13';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v109'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
 const WORLD_GEN=11;
@@ -2873,10 +2873,21 @@ function settlementLat(rx,rz){
     // (and in harsh country, world/climate.js: the ice fields, tundra, desert, badlands and rainforest have fewer big places)
     const X=rx*SET_SP*CELL,Z=rz*SET_SP*CELL,g=ruggedAt(X,Z),bt=bioNear(X,Z).town,dn=(g>0.9?3:g>0.78?2:g>0.62?1:0)+(bt?bt.dn:0);
     if(dn){const T=['city','large','small','village'];type=T[Math.min(3,T.indexOf(type)+dn)];}}
-  const [r0,rv]=SET_R[type];// (each place is nudged off its grid point on its own, up to 11 blocks either way, so they don't line up)
-  S={rx,rz,type,R:rx===0&&rz===0?15:r0+hash2(rx*41+3,rz*59+5)*rv,cx:rx===0&&rz===0?0:rx*SET_SP+Math.round((hash2(rx*733+rz*97+1,rz*311+5)-0.5)*22),cz:rx===0&&rz===0?0:rz*SET_SP+Math.round((hash2(rz*733+rx*89+2,rx*271+9)-0.5)*22)};
+  const [r0,rv]=SET_R[type],W=WORLD_CFG;// (each place is nudged off its grid point on its own, up to 11 blocks either way, so they don't line up)
+  // (New world's Settlements: spread out evenly brings the nudge down toward none, a grid; csize grows cities and large towns)
+  const nj=W.clu<0?22*(1+W.clu):22;
+  S={rx,rz,type,R:rx===0&&rz===0?15:r0+hash2(rx*41+3,rz*59+5)*rv,cx:rx===0&&rz===0?0:rx*SET_SP+Math.round((hash2(rx*733+rz*97+1,rz*311+5)-0.5)*nj),cz:rx===0&&rz===0?0:rz*SET_SP+Math.round((hash2(rz*733+rx*89+2,rx*271+9)-0.5)*nj)};
+  if(W.csize!==1&&(type==='city'||type==='large'))S.R=Math.min(30,S.R*W.csize);
+  // (fewer towns, or clustered: some grid points have no place at all. The start's always has one)
+  if((W.towns<1||W.clu>0)&&!(rx===0&&rz===0)&&setNone(rx,rz)){S.none=true;S.type='village';S.R=0;}
   setCache.set(k,S);return S;
 }
+// is grid point (rx,rz) left empty? Towns keeps that share of them, and clustered thins them out where a coarse noise over
+// the grid (a few places across) is low, so they gather in clumps with open country between. Only the grid point and
+// hash2, nothing about the land, so it's the same however the world's asked about
+function setNone(rx,rz){const W=WORLD_CFG;let m=1;
+  if(W.clu>0){const f=Math.max(0,Math.min(1,0.5+nzNoise(rx/3.2,rz/3.2,4481)*1.6));m=1-W.clu+W.clu*f;}
+  return hash2(rx*919+13,rz*443+29)>=W.towns*m;}
 // ---- every place has a name: made up from its spot on the map (so it's always the same) out of goblin-ish bits ----
 const NM_A=['Grub','Snot','Mud','Wart','Grim','Bog','Gnar','Rot','Muck','Skulk','Fang','Gob','Toad','Moss','Slag','Rust','Grit','Crag','Sludge','Nettle','Thorn','Murk','Gloom','Bramble','Stink','Grot','Knob','Lump','Scab','Cinder','Gristle','Snaggle','Fester','Mold','Gorse','Dreg','Twig','Weevil','Blister','Clod','Gulch','Rubble','Mire','Soot','Bunion','Grime','Skunk','Hag','Troll','Kettle'];
 const NM_B=['ton','ville','burg','ford','wick','hollow','mouth','stead','bury','by','thorpe','field','well','dale','moor','gate','bridge','pool','marsh','heath','borough','combe','den','hole','ditch','pit','crossing','bottom','worth'];
@@ -2933,7 +2944,7 @@ function setDist(S,px,pz){
 function settlementRaw(px,pz){
   const k=px*100003+pz;let v=setAtCache.get(k);if(v!==undefined)return v;v=null;
   const rx0=Math.round(px/SET_SP),rz0=Math.round(pz/SET_SP),j=hash2(px*13+5,pz*29+3)*2-1;
-  for(let rx=rx0-1;rx<=rx0+1&&!v;rx++)for(let rz=rz0-1;rz<=rz0+1&&!v;rz++){const S=settlementLat(rx,rz),b=Math.min(1.6,0.35*S.R);
+  for(let rx=rx0-1;rx<=rx0+1&&!v;rx++)for(let rz=rz0-1;rz<=rz0+1&&!v;rz++){const S=settlementLat(rx,rz),b=Math.min(1.6,0.35*S.R);if(S.none)continue;
     if(px===S.cx&&pz===S.cz||setDist(S,px,pz)+j*b<=S.R)v=S;}
   if(setAtCache.size>1000000)setAtCache.clear();   // (one a plot: kept from outgrowing what a Map can hold once a lot of the world has been asked about)
   setAtCache.set(k,v);return v;
@@ -3387,7 +3398,7 @@ let OCEAN_O=null,seaDeepK=0,seaIsl=false,seaCcSeed=null;const SEA_CC=new Map();
 // (or the older GSG_SEA) before loading the game; the game itself never changes them, so they're the defaults, which leave
 // every sum exactly as it was. A world made with others keeps them in its save (cfg: only what isn't a default, from
 // worldCfgSent), so a guest online builds it with the host's)
-const WORLD_DEF={land:0,size:1,rough:1,chan:1,isles:1,islz:1,temp:0,rain:0,czone:1,lat:1,mtn:0,mth:1,hill:1,lakes:1,riv:1,rmd:1,rwd:1,rwid:1,rlen:1,rbr:1};   // (temp, rain, czone, lat: the climate's, world/climate.js; mtn, mth, hill, lakes: the land's shape, world/relief.js; riv, rmd, rwd, rwid, rlen, rbr: the rivers', world/routes.js)
+const WORLD_DEF={land:0,size:1,rough:1,chan:1,isles:1,islz:1,temp:0,rain:0,czone:1,lat:1,mtn:0,mth:1,hill:1,lakes:1,riv:1,rmd:1,rwd:1,rwid:1,rlen:1,rbr:1,towns:1,csize:1,clu:0,sites:1};   // (temp, rain, czone, lat: the climate's, world/climate.js; mtn, mth, hill, lakes: the land's shape, world/relief.js; riv, rmd, rwd, rwid, rlen, rbr: the rivers', world/routes.js; towns, csize, clu: the places, world/places.js; sites: farms and the big sites, world/country-sites.js)
 const WORLD_CFG=Object.assign({},WORLD_DEF);
 // (sets them from o, anything missing or not a number at its default: only before the world's worked out (loading), as
 // what's been worked out already isn't redone)
@@ -5071,6 +5082,7 @@ const edgeC=new Map();
 function edgeOn(rx,rz,dx,dz){
   const key=rx+','+rz+','+dx+','+dz;let v=edgeC.get(key);if(v!==undefined)return v;
   const A=placeAt(rx,rz),B=placeAt(rx+dx,rz+dz),h=hash2(rx*31+dx*7+100,rz*17+dz*13+200);
+  if(A.none||B.none){edgeC.set(key,false);return false;}   // (no place there: New world's Towns or Clustered)
   // (no highway across the sea)
   {let wet=false;for(let t=0;t<=1&&!wet;t+=0.04){const fx=A.cx+(B.cx-A.cx)*t+0.5,fz=A.cz+(B.cz-A.cz)*t+0.5;if(seaV(fx,fz)>SEA_T-0.06)wet=true;}if(wet){edgeC.set(key,false);return false;}}
   if(dx&&dz)v=h<0.18&&!!diagExit(A,B);
@@ -5612,7 +5624,7 @@ const BIGP=[{kind:'airport',w:16,h:8,p:0,salt:11},{kind:'nasa',w:2,h:3,p:0.005,s
 function bigCell(i,ax,az){
   const K=BIGP[i],kk=K.kind+ax+','+az;if(i===0)return false;let ok=bigOK.get(kk);if(ok!==undefined)return ok;
   // (the climate has its say: some kinds likelier in some country, the biome sites only in their own, biome-sites.js)
-  {const h=hash2(ax*389+K.salt,az*211+K.salt*3);ok=h<K.p*3&&!TEST_OFF.has(K.kind);if(ok)ok=h<K.p*siteBioW(K,(ax+K.w/2)*CELL,(az+K.h/2)*CELL);}
+  {const h=hash2(ax*389+K.salt,az*211+K.salt*3),p=K.p*WORLD_CFG.sites;ok=h<p*3&&!TEST_OFF.has(K.kind);if(ok)ok=h<p*siteBioW(K,(ax+K.w/2)*CELL,(az+K.h/2)*CELL);}
   // (not in rugged country, world/relief.js: fewer the more rugged, none in the high mountains. Only that coarse field,
   // never the land's real height, which is worked out from where the sites are)
   // (mines and quarries go higher, bases, launch sites and airfields want gentler ground; the ski slope wants mountains)
@@ -5825,8 +5837,8 @@ function dumpColumn(a,col,px,pz,rx,rz,lx,lz,x,z){
 // ---- farms: out on the plains, a block or few to either side of a country highway, with a straight gravel lane
 // (north or south) out to it ----
 // (no farms in the ice fields, and fewer where little grows: the tundra, desert and badlands)
-const farmC=new Map(),farmCand=(px,pz)=>{const h=hash2(px*19+5,pz*23+7);if(!(h<0.1)||realmOf(px,pz)!=='plains')return false;
-  const b=bioNear(px*CELL+PC,pz*CELL+PC).k;return b==='ice'?false:b==='tundra'||b==='desert'||b==='badlands'?h<0.035:true;};
+const farmC=new Map(),farmCand=(px,pz)=>{const h=hash2(px*19+5,pz*23+7),st=WORLD_CFG.sites;if(!(h<0.1*st)||realmOf(px,pz)!=='plains')return false;
+  const b=bioNear(px*CELL+PC,pz*CELL+PC).k;return b==='ice'?false:b==='tundra'||b==='desert'||b==='badlands'?h<0.035*st:true;};
 // a farm on block (px,pz): {s (-1: its road is to the north, 1: to the south), zEnd (where its lane meets the road's
 // edge)} or null. Which way is tried first is down to the farm; the lane must cross only open plains (no river, no
 // other farm, no town) and reach a country highway within four blocks.
@@ -34086,7 +34098,7 @@ function svUi(){
 // (the line under the menu and at the foot of the pause menu: the version, the city's seed and where it's saved)
 function seedLine(){const sn=svEl('seedNote');if(!sn)return;
   const where=SV.mode==='local'&&SV.rec?(SV.perm==='granted'&&!SV.block?'saving to '+SV.rec.name:'saving in this browser until '+SV.rec.name+' can be reached'):'smashed blocks save in this browser';
-  const t=TENV?`Testing Environment · ${TENV.boxes.length} structure${TENV.boxes.length===1?'':'s'} spawned · seed ${seed}`:`World seed ${seed} · endless · ${where}`;
+  const t=TENV?`Testing Environment · ${TENV.boxes.length} structure${TENV.boxes.length===1?'':'s'} spawned · seed ${seed}`:`World seed ${seed}${worldCfgSent()?' · custom':''} · endless · ${where}`;
   sn.textContent='';const v=document.createElement('span');v.className='sn-ver';v.textContent='Version '+GAME_VER+' · ';sn.append(v,t);}
 {
   const pan=svEl('savePanel'),l=svEl('saveLocal');
@@ -34333,17 +34345,18 @@ const confirmEl=document.getElementById('confirm');
  const can=document.fullscreenEnabled||document.webkitFullscreenEnabled;if(!can)for(const fb of fbs)fb.hidden=true;
  for(const fb of fbs)fb.addEventListener('click',()=>{try{if(fsEl()){(document.exitFullscreen||document.webkitExitFullscreen).call(document);}else{const el=document.documentElement,rq=el.requestFullscreen||el.webkitRequestFullscreen;const pr=rq&&rq.call(el);if(pr&&pr.catch)pr.catch(()=>{});}}catch(e){}});
  document.addEventListener('fullscreenchange',()=>{showFs();setTimeout(()=>{try{resize();}catch(e){}},50);});document.addEventListener('webkitfullscreenchange',showFs);showFs();}
-// ---- New world's settings: the World Generator's sliders (its Land & sea, Land shape, Rivers and Climate boxes), in
+// ---- New world's settings: the World Generator's sliders (its Land & sea, Land shape, Rivers, Climate and Settlements boxes), in
 // WORLD_CFG's terms, so the defaults make the world exactly as before. Each range is as far as the World Generator's (as far
 // as the start can still always be found inland with a coast in reach). They go in the save (cfg, worldCfgSent), so the
 // world is made the same way whenever it's loaded, and online a guest's is the host's ----
-const NW_GROUPS=[['sea','Land & sea'],['shape','Land shape'],['riv','Rivers'],['clim','Climate']];
+const NW_GROUPS=[['sea','Land & sea'],['shape','Land shape'],['riv','Rivers'],['clim','Climate'],['set','Settlements']];
 const NW_SL=[['land','Land',-2.5,2.5,0.1,'sea'],['size','Continent size',0.4,1.8,0.05,'sea'],['rough','Coastline roughness',0,2.5,0.1,'sea'],['chan','Ocean channels',0,2.5,0.1,'sea'],['isles','Island chains',0,3,0.1,'sea'],['islz','Island size',0.6,3,0.1,'sea'],
   ['mtn','Mountains',-0.5,0.5,0.05,'shape'],['mth','Mountain height',0.3,1.2,0.05,'shape'],['hill','Hilliness',0,3,0.1,'shape'],['lakes','Lakes',0,3,0.1,'shape'],
   ['riv','How often',0,2.2,0.1,'riv'],['rmd','Meandering',0,3,0.1,'riv'],['rwd','Wandering',0,3,0.1,'riv'],['rwid','Width',0.5,2,0.05,'riv'],['rlen','Length',0.3,2.5,0.1,'riv'],['rbr','Branching',0,3,0.1,'riv'],
-  ['temp','Temperature',-0.4,0.4,0.02,'clim'],['rain','Rainfall',-0.4,0.4,0.02,'clim'],['czone','Climate zone size',0.4,2.5,0.1,'clim'],['lat','Latitude bands',0,4,0.1,'clim']];
+  ['temp','Temperature',-0.4,0.4,0.02,'clim'],['rain','Rainfall',-0.4,0.4,0.02,'clim'],['czone','Climate zone size',0.4,2.5,0.1,'clim'],['lat','Latitude bands',0,4,0.1,'clim'],
+  ['towns','Towns',0.2,1,0.05,'set'],['csize','City size',0.6,1.8,0.05,'set'],['clu','Clustering',-1,1,0.1,'set'],['sites','Country sites',0,3,0.1,'set']];
 const NW={v:Object.assign({},WORLD_DEF),inp:{},out:{},hd:{},box:{}};
-const nwFmt=(k,v)=>k==='land'||k==='temp'||k==='rain'||k==='mtn'?(v>0?'+':v<0?'−':'')+Math.abs(v).toFixed(k==='land'?1:2):'×'+v.toFixed(k==='size'||k==='mth'||k==='rwid'?2:1);
+const nwFmt=(k,v)=>k==='land'||k==='temp'||k==='rain'||k==='mtn'||k==='clu'?(v>0?'+':v<0?'−':'')+Math.abs(v).toFixed(k==='land'||k==='clu'?1:2):'×'+v.toFixed(k==='size'||k==='mth'||k==='rwid'||k==='towns'||k==='csize'?2:1);
 // (only what isn't a default, as the save keeps it; undefined for the world as it's always been)
 function nwChosen(){let o;for(const [k] of NW_SL)if(NW.v[k]!==WORLD_DEF[k])(o=o||{})[k]=NW.v[k];return o;}
 function nwShow(){for(const [k] of NW_SL){NW.inp[k].value=NW.v[k];NW.out[k].textContent=nwFmt(k,NW.v[k]);}

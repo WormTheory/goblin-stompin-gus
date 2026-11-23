@@ -152,10 +152,21 @@ function settlementLat(rx,rz){
     // (and in harsh country, world/climate.js: the ice fields, tundra, desert, badlands and rainforest have fewer big places)
     const X=rx*SET_SP*CELL,Z=rz*SET_SP*CELL,g=ruggedAt(X,Z),bt=bioNear(X,Z).town,dn=(g>0.9?3:g>0.78?2:g>0.62?1:0)+(bt?bt.dn:0);
     if(dn){const T=['city','large','small','village'];type=T[Math.min(3,T.indexOf(type)+dn)];}}
-  const [r0,rv]=SET_R[type];// (each place is nudged off its grid point on its own, up to 11 blocks either way, so they don't line up)
-  S={rx,rz,type,R:rx===0&&rz===0?15:r0+hash2(rx*41+3,rz*59+5)*rv,cx:rx===0&&rz===0?0:rx*SET_SP+Math.round((hash2(rx*733+rz*97+1,rz*311+5)-0.5)*22),cz:rx===0&&rz===0?0:rz*SET_SP+Math.round((hash2(rz*733+rx*89+2,rx*271+9)-0.5)*22)};
+  const [r0,rv]=SET_R[type],W=WORLD_CFG;// (each place is nudged off its grid point on its own, up to 11 blocks either way, so they don't line up)
+  // (New world's Settlements: spread out evenly brings the nudge down toward none, a grid; csize grows cities and large towns)
+  const nj=W.clu<0?22*(1+W.clu):22;
+  S={rx,rz,type,R:rx===0&&rz===0?15:r0+hash2(rx*41+3,rz*59+5)*rv,cx:rx===0&&rz===0?0:rx*SET_SP+Math.round((hash2(rx*733+rz*97+1,rz*311+5)-0.5)*nj),cz:rx===0&&rz===0?0:rz*SET_SP+Math.round((hash2(rz*733+rx*89+2,rx*271+9)-0.5)*nj)};
+  if(W.csize!==1&&(type==='city'||type==='large'))S.R=Math.min(30,S.R*W.csize);
+  // (fewer towns, or clustered: some grid points have no place at all. The start's always has one)
+  if((W.towns<1||W.clu>0)&&!(rx===0&&rz===0)&&setNone(rx,rz)){S.none=true;S.type='village';S.R=0;}
   setCache.set(k,S);return S;
 }
+// is grid point (rx,rz) left empty? Towns keeps that share of them, and clustered thins them out where a coarse noise over
+// the grid (a few places across) is low, so they gather in clumps with open country between. Only the grid point and
+// hash2, nothing about the land, so it's the same however the world's asked about
+function setNone(rx,rz){const W=WORLD_CFG;let m=1;
+  if(W.clu>0){const f=Math.max(0,Math.min(1,0.5+nzNoise(rx/3.2,rz/3.2,4481)*1.6));m=1-W.clu+W.clu*f;}
+  return hash2(rx*919+13,rz*443+29)>=W.towns*m;}
 // ---- every place has a name: made up from its spot on the map (so it's always the same) out of goblin-ish bits ----
 const NM_A=['Grub','Snot','Mud','Wart','Grim','Bog','Gnar','Rot','Muck','Skulk','Fang','Gob','Toad','Moss','Slag','Rust','Grit','Crag','Sludge','Nettle','Thorn','Murk','Gloom','Bramble','Stink','Grot','Knob','Lump','Scab','Cinder','Gristle','Snaggle','Fester','Mold','Gorse','Dreg','Twig','Weevil','Blister','Clod','Gulch','Rubble','Mire','Soot','Bunion','Grime','Skunk','Hag','Troll','Kettle'];
 const NM_B=['ton','ville','burg','ford','wick','hollow','mouth','stead','bury','by','thorpe','field','well','dale','moor','gate','bridge','pool','marsh','heath','borough','combe','den','hole','ditch','pit','crossing','bottom','worth'];
@@ -212,7 +223,7 @@ function setDist(S,px,pz){
 function settlementRaw(px,pz){
   const k=px*100003+pz;let v=setAtCache.get(k);if(v!==undefined)return v;v=null;
   const rx0=Math.round(px/SET_SP),rz0=Math.round(pz/SET_SP),j=hash2(px*13+5,pz*29+3)*2-1;
-  for(let rx=rx0-1;rx<=rx0+1&&!v;rx++)for(let rz=rz0-1;rz<=rz0+1&&!v;rz++){const S=settlementLat(rx,rz),b=Math.min(1.6,0.35*S.R);
+  for(let rx=rx0-1;rx<=rx0+1&&!v;rx++)for(let rz=rz0-1;rz<=rz0+1&&!v;rz++){const S=settlementLat(rx,rz),b=Math.min(1.6,0.35*S.R);if(S.none)continue;
     if(px===S.cx&&pz===S.cz||setDist(S,px,pz)+j*b<=S.R)v=S;}
   if(setAtCache.size>1000000)setAtCache.clear();   // (one a plot: kept from outgrowing what a Map can hold once a lot of the world has been asked about)
   setAtCache.set(k,v);return v;
