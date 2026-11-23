@@ -1,0 +1,23 @@
+""                     game       null  worldgen       null same
+"   "                  game       null  worldgen       null same
+"12345"                game      12345  worldgen      12345 same
+"-77"                  game        -77  worldgen        -77 same
+"0007"                 game          7  worldgen          7 same
+"9007199254740993"     game  930871505  worldgen  930871505 same
+"Goblin Town"          game  421009282  worldgen  421009282 same
+"goblin town"          game  321327170  worldgen  321327170 same
+"  Goblin Town  "      game  421009282  worldgen  421009282 same
+"🦛 hippo"             game  292849790  worldgen  292849790 same
+"1e5"                  game   29130698  worldgen   29130698 same
+"3.5"                  game  191973155  worldgen  191973155 same
+"a"                    game  826002220  worldgen  826002220 same
+same in both 13/13
+text twice gives the same seed true  all whole numbers true
+new world ""               panel open   saved seed  643026686 reloads true expected random
+new world "12345"          panel open   saved seed      12345 reloads true expected yes
+new world "Goblin Town"    panel open   saved seed  421009282 reloads true expected yes
+new world "  Goblin Town"  panel open   saved seed  421009282 reloads true expected yes
+new world "12345"          panel hidden saved seed  349529057 reloads true expected random
+field emptied on opening again ""
+keys kept from the game 2/2
+reset in place: seed 421009282 as typed · seed line has it (stub)

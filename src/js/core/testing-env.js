@@ -47,8 +47,8 @@ function tpShow(on){
 }
 // a fresh world (a new seed, nothing smashed, no saved position or obituary), built under the given switches: saved,
 // then the page reloads so everything's worked out from scratch
-function freshWorld(off,tenv,cfg){   // (cfg: New world's settings, WORLD_CFG's way, only what isn't a default)
-  try{localStorage.setItem(SAVE_KEY,JSON.stringify({seed:(Math.random()*1e9)|0,gen:WORLD_GEN,cfg,edits:{},coll:{},down:[],dest:{},test:[...off],tenv}));
+function freshWorld(off,tenv,cfg,sd){   // (cfg: New world's settings, WORLD_CFG's way, only what isn't a default; sd its seed, or random)
+  try{localStorage.setItem(SAVE_KEY,JSON.stringify({seed:sd!=null?sd:(Math.random()*1e9)|0,gen:WORLD_GEN,cfg,edits:{},coll:{},down:[],dest:{},test:[...off],tenv}));
     localStorage.removeItem(POS_KEY);localStorage.removeItem(OBIT_KEY);localStorage.removeItem(PLAY_KEY);
     if(localStorage.getItem(SAVE_KEY)){clearTimeout(saveTimer);saveBlocked=true;location.reload();return true;}}catch(e){}
   return false;

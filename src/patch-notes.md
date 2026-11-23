@@ -6,6 +6,7 @@
 
 - New world now lets you shape the world before it's made, with the World Generator's sliders: Land & sea, Land shape, Rivers and Climate. Left alone, they make the world just as before.
 - The settings are saved with the world, so it's made the same way every time you load it, and online friends get the host's world.
+- New world has a Seed box. Leave it empty for a random world, or type a number or any word or phrase: the same seed always makes the same world. The World Generator's seed box takes words too, so a seed tried there makes the same world in the game.
 
 ### The world
 

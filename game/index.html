@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:37cf8c12ee8952691c6df51b2f4b83188d8123f280779866fe1f60ce688643e0 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:479d54a4c9ac736e0739b500961291340c7e96d8634346af531067ad32a98175 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -807,6 +807,10 @@ body.attitle #hud{visibility:hidden}
 .tmenu .confirm{display:flex;flex-wrap:wrap;gap:10px;color:var(--ink);font:600 14px/1.4 var(--f-body);background:#ffe1d8;border:3px solid var(--ink);border-radius:var(--wobs);padding:10px 12px}
 .tmenu .confirm button,.ckb{font:400 19px/1 var(--f-px);letter-spacing:.4px;color:var(--ink);background:var(--biscuit);border:3px solid var(--ink);border-radius:9px 13px 8px 14px/13px 8px 14px 9px;box-shadow:0 4px 0 var(--ink);padding:7px 12px 6px;cursor:pointer;text-transform:uppercase}
 .tmenu .confirm button.yes{background:var(--tomato);border-color:var(--ink)}
+/* New world's seed: blank for a random one */
+.confirm .nwseed{flex:1 1 100%;display:flex;align-items:center;gap:8px;font:700 13px/1.2 var(--f-body)}
+.confirm .nwseed input{flex:1;min-width:0;font:600 14px var(--f-body);color:var(--ink);background:var(--paper);border:2px solid var(--ink);border-radius:7px;padding:4px 8px}
+.confirm .nwseed input.padfocus,.confirm .nwseed input:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
 /* New world's settings (the World Generator's sliders): a heading per group, opened to show its sliders */
 .confirm .nwset{flex:1 1 100%;display:flex;flex-direction:column;gap:4px}
 .confirm .nwset .nw-g{all:unset;box-sizing:border-box;cursor:pointer;display:flex;justify-content:space-between;align-items:center;width:100%;font:700 13px/1.2 var(--f-body);color:var(--ink);padding:5px 8px;border:2px solid var(--ink);border-radius:7px;background:var(--paper)}
@@ -1453,7 +1457,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <button type="button" class="ck set tfull" id="fullBtn">Full screen</button>
         <div class="confirm" id="confirm" hidden>
         <span>Start over in a new world? Everything resets.</span>
-        <div class="nwset" id="nwSet"></div>
+        <label class="nwseed" for="nwSeed">Seed<input type="text" id="nwSeed" tabindex="0" maxlength="40" placeholder="Random" autocomplete="off" spellcheck="false"></label><div class="nwset" id="nwSet"></div>
         <button class="yes" id="confirmYes">New world</button>
         <button id="confirmNo">Keep this one</button>
       </div>
@@ -1642,7 +1646,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <p class="pn-web">Also on <a href="patch-notes/index.html" target="_blank" rel="noopener">their own page</a>.</p>
 <details class="pn-up pn-fold pn-new" id="version-0-5" open><summary tabindex="0"><h2>Version 0.5</h2><span class="pn-tog" aria-hidden="true"></span></summary>
 <h3>Shape your own world</h3>
-<ul><li>New world now lets you shape the world before it's made, with the World Generator's sliders: Land &amp; sea, Land shape, Rivers and Climate. Left alone, they make the world just as before.</li><li>The settings are saved with the world, so it's made the same way every time you load it, and online friends get the host's world.</li></ul>
+<ul><li>New world now lets you shape the world before it's made, with the World Generator's sliders: Land &amp; sea, Land shape, Rivers and Climate. Left alone, they make the world just as before.</li><li>The settings are saved with the world, so it's made the same way every time you load it, and online friends get the host's world.</li><li>New world has a Seed box. Leave it empty for a random world, or type a number or any word or phrase: the same seed always makes the same world. The World Generator's seed box takes words too, so a seed tried there makes the same world in the game.</li></ul>
 <h3>The world</h3>
 <ul><li>The world is made of continents and oceans now, about half land and half sea. Before, one side of the world was all ocean and the other all land. Now there are big continents and smaller ones, seas and oceans between them, island chains off their coasts and the odd group of islands far out at sea.</li><li>The sea is shallow over the continental shelf near the coast and deep out in the open ocean.</li><li>Continents have bold, solid coastlines, with big peninsulas, bays and gulfs. Island chains off the coasts are made of whole, rounded islands, with the sea bed rising smoothly round each one.</li><li>You now always start on a continent, never on an island off one.</li><li>The World Generator zooms out more than ten times further, far enough to see whole continents and oceans. Far out it shows just the land, the sea and the capital; settlements, bases and rivers come back as you zoom in, and markers that would pile on top of each other are thinned out.</li><li>The World Generator has Land &amp; sea sliders: how much land there is, how big the continents are, how rough their coastlines, how many ocean channels cut through them and how many island chains lie offshore. The settings go in the page's address, so a world can be shared as you've shaped it. Island size makes the islands in a chain bigger and fewer, with fewer tiny specks between them. The game's own worlds are unchanged.</li><li>This makes a new world, so a saved city starts afresh.</li><li>The World Generator can show the climate over the land, as temperature or moisture: the groundwork for biomes. It doesn't change the game's world yet.</li></ul>
 <h3>Biomes</h3>
@@ -2391,7 +2395,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='fd7b91437829';
+const GAME_VER='0.5',GAME_BUILD='a37156cb4680';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v109'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
 const WORLD_GEN=11;
@@ -34357,15 +34361,26 @@ function nwShow(){for(const [k] of NW_SL){NW.inp[k].value=NW.v[k];NW.out[k].text
  NW.def=document.createElement('button');NW.def.type='button';NW.def.className='nw-def';NW.def.textContent='Defaults';
  NW.def.addEventListener('click',()=>{const f=document.activeElement===NW.def;NW.v=Object.assign({},WORLD_DEF);nwShow();if(f)padFocus(document.getElementById('confirmNo'));});
  root.append(NW.def);}
+// ---- New world's seed: blank is a random one, a whole number is that seed, and any other text is turned into one, by
+// arithmetic alone (FNV-1a over its characters) so every browser makes the same world from it. The World Generator's
+// seed box (game/WorldGen/index.html, toSeed) does exactly the same, so a seed typed in either gives the same world ----
+function seedFromText(t){t=String(t==null?'':t).trim();if(!t)return null;
+  if(/^-?\d+$/.test(t)){const n=Number(t);if(Number.isSafeInteger(n))return n;}
+  let h=2166136261;for(let i=0;i<t.length;i++){h^=t.charCodeAt(i);h=Math.imul(h,16777619);}
+  return (h>>>0)%1000000000;}
+const nwSeedEl=document.getElementById('nwSeed');
+// (typing in it mustn't reach the game's keys or the menu's; Enter makes the world, Esc goes back to the buttons)
+nwSeedEl.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter'){e.preventDefault();document.getElementById('confirmYes').click();}
+  else if(e.key==='Escape'){e.preventDefault();padFocus(document.getElementById('confirmNo'));}});
 // (each time it's opened: the defaults again, the groups closed)
-function nwOpen(){NW.v=Object.assign({},WORLD_DEF);for(const [g] of NW_GROUPS){NW.box[g].hidden=true;NW.hd[g].setAttribute('aria-expanded','false');}nwShow();}
+function nwOpen(){nwSeedEl.value='';NW.v=Object.assign({},WORLD_DEF);for(const [g] of NW_GROUPS){NW.box[g].hidden=true;NW.hd[g].setAttribute('aria-expanded','false');}nwShow();}
 document.getElementById('newWorld').addEventListener('click',()=>{nwOpen();confirmEl.hidden=false;document.getElementById('confirmNo').focus();});
 document.getElementById('confirmNo').addEventListener('click',()=>{confirmEl.hidden=true;});
 document.getElementById('confirmYes').addEventListener('click',()=>{
   // (the settings chosen, if it was opened from New world; the Testing Environment's and anything else's get the defaults)
-  const cfg=confirmEl.hidden?undefined:nwChosen();
-  if(freshWorld([],undefined,cfg))return;   // (a reload: everything worked out afresh for the new seed)
-  confirmEl.hidden=true;TEST_OFF=new Set();seed=(Math.random()*1e9)|0;worldCfgSet(cfg);noteQ.length=0;edits={};collapses={};craters=[];BB.jobs.length=0;BB.armed.length=0;wrecked={};destroyed={};destroyVer++;setDCache.clear();downFix.clear();falling.clear();chunkEdits.clear();clearBodies();clearWorld();
+  const cfg=confirmEl.hidden?undefined:nwChosen(),sd=confirmEl.hidden?null:seedFromText(nwSeedEl.value);
+  if(freshWorld([],undefined,cfg,sd))return;   // (a reload: everything worked out afresh for the new seed)
+  confirmEl.hidden=true;TEST_OFF=new Set();seed=sd!=null?sd:(Math.random()*1e9)|0;worldCfgSet(cfg);noteQ.length=0;edits={};collapses={};craters=[];BB.jobs.length=0;BB.armed.length=0;wrecked={};destroyed={};destroyVer++;setDCache.clear();downFix.clear();falling.clear();chunkEdits.clear();clearBodies();clearWorld();
   for(const d of decals)d.visible=false;decalsDirty=true;for(const p of players)p.pool.visible=false;for(const s of scorches)s.visible=false;
   for(const c of cars){c.alive=false;c.g.visible=false;c.respawnT=1;}
   score=0;kills=0;rampReset();playTime=0;resetGoblins();
@@ -34737,8 +34752,8 @@ function tpShow(on){
 }
 // a fresh world (a new seed, nothing smashed, no saved position or obituary), built under the given switches: saved,
 // then the page reloads so everything's worked out from scratch
-function freshWorld(off,tenv,cfg){   // (cfg: New world's settings, WORLD_CFG's way, only what isn't a default)
-  try{localStorage.setItem(SAVE_KEY,JSON.stringify({seed:(Math.random()*1e9)|0,gen:WORLD_GEN,cfg,edits:{},coll:{},down:[],dest:{},test:[...off],tenv}));
+function freshWorld(off,tenv,cfg,sd){   // (cfg: New world's settings, WORLD_CFG's way, only what isn't a default; sd its seed, or random)
+  try{localStorage.setItem(SAVE_KEY,JSON.stringify({seed:sd!=null?sd:(Math.random()*1e9)|0,gen:WORLD_GEN,cfg,edits:{},coll:{},down:[],dest:{},test:[...off],tenv}));
     localStorage.removeItem(POS_KEY);localStorage.removeItem(OBIT_KEY);localStorage.removeItem(PLAY_KEY);
     if(localStorage.getItem(SAVE_KEY)){clearTimeout(saveTimer);saveBlocked=true;location.reload();return true;}}catch(e){}
   return false;

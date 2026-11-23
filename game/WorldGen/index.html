@@ -93,7 +93,7 @@ details[open]>summary.lbl::before{transform:rotate(90deg)}
   </div>
   <div class="body">
     <form class="row" id="seedForm">
-      <input type="text" id="seedIn" inputmode="numeric" aria-label="Seed" placeholder="Seed">
+      <input type="text" id="seedIn" aria-label="Seed" placeholder="Seed" maxlength="40" autocomplete="off" spellcheck="false">
       <button class="btn go" type="submit">Show</button>
       <button class="btn" type="button" id="rand">Random</button>
       <button class="btn" type="button" id="mine" hidden>My world</button>
@@ -524,7 +524,9 @@ q.addEventListener('keydown',e=>{if(hits.hidden)return;if(e.key==='ArrowDown'||e
 
 // ---- the seed: from the address, the world you're playing, or a new one ----
 const seedIn=document.getElementById('seedIn');
-const toSeed=v=>{v=String(v).trim();if(!/^-?\d+$/.test(v))return null;const n=Number(v);return Number.isSafeInteger(n)?n:null;};
+// (as the game's New world does, seedFromText in core/new-city.js: a whole number is that seed, other text is turned into one)
+const toSeed=v=>{v=String(v==null?'':v).trim();if(!v)return null;if(/^-?\d+$/.test(v)){const n=Number(v);if(Number.isSafeInteger(n))return n;}
+  let h=2166136261;for(let i=0;i<v.length;i++){h^=v.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0)%1000000000;};
 document.getElementById('seedForm').addEventListener('submit',e=>{e.preventDefault();const s=toSeed(seedIn.value);if(s===null){seedIn.focus();seedIn.select();return;}home();start(s);});
 document.getElementById('rand').onclick=()=>{home();start((Math.random()*1e9)|0);};
 // (the world saved in this browser: the game keeps it under 'goblin-city-v' and a number, the newest number is current)

@@ -37,15 +37,26 @@ function nwShow(){for(const [k] of NW_SL){NW.inp[k].value=NW.v[k];NW.out[k].text
  NW.def=document.createElement('button');NW.def.type='button';NW.def.className='nw-def';NW.def.textContent='Defaults';
  NW.def.addEventListener('click',()=>{const f=document.activeElement===NW.def;NW.v=Object.assign({},WORLD_DEF);nwShow();if(f)padFocus(document.getElementById('confirmNo'));});
  root.append(NW.def);}
+// ---- New world's seed: blank is a random one, a whole number is that seed, and any other text is turned into one, by
+// arithmetic alone (FNV-1a over its characters) so every browser makes the same world from it. The World Generator's
+// seed box (game/WorldGen/index.html, toSeed) does exactly the same, so a seed typed in either gives the same world ----
+function seedFromText(t){t=String(t==null?'':t).trim();if(!t)return null;
+  if(/^-?\d+$/.test(t)){const n=Number(t);if(Number.isSafeInteger(n))return n;}
+  let h=2166136261;for(let i=0;i<t.length;i++){h^=t.charCodeAt(i);h=Math.imul(h,16777619);}
+  return (h>>>0)%1000000000;}
+const nwSeedEl=document.getElementById('nwSeed');
+// (typing in it mustn't reach the game's keys or the menu's; Enter makes the world, Esc goes back to the buttons)
+nwSeedEl.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter'){e.preventDefault();document.getElementById('confirmYes').click();}
+  else if(e.key==='Escape'){e.preventDefault();padFocus(document.getElementById('confirmNo'));}});
 // (each time it's opened: the defaults again, the groups closed)
-function nwOpen(){NW.v=Object.assign({},WORLD_DEF);for(const [g] of NW_GROUPS){NW.box[g].hidden=true;NW.hd[g].setAttribute('aria-expanded','false');}nwShow();}
+function nwOpen(){nwSeedEl.value='';NW.v=Object.assign({},WORLD_DEF);for(const [g] of NW_GROUPS){NW.box[g].hidden=true;NW.hd[g].setAttribute('aria-expanded','false');}nwShow();}
 document.getElementById('newWorld').addEventListener('click',()=>{nwOpen();confirmEl.hidden=false;document.getElementById('confirmNo').focus();});
 document.getElementById('confirmNo').addEventListener('click',()=>{confirmEl.hidden=true;});
 document.getElementById('confirmYes').addEventListener('click',()=>{
   // (the settings chosen, if it was opened from New world; the Testing Environment's and anything else's get the defaults)
-  const cfg=confirmEl.hidden?undefined:nwChosen();
-  if(freshWorld([],undefined,cfg))return;   // (a reload: everything worked out afresh for the new seed)
-  confirmEl.hidden=true;TEST_OFF=new Set();seed=(Math.random()*1e9)|0;worldCfgSet(cfg);noteQ.length=0;edits={};collapses={};craters=[];BB.jobs.length=0;BB.armed.length=0;wrecked={};destroyed={};destroyVer++;setDCache.clear();downFix.clear();falling.clear();chunkEdits.clear();clearBodies();clearWorld();
+  const cfg=confirmEl.hidden?undefined:nwChosen(),sd=confirmEl.hidden?null:seedFromText(nwSeedEl.value);
+  if(freshWorld([],undefined,cfg,sd))return;   // (a reload: everything worked out afresh for the new seed)
+  confirmEl.hidden=true;TEST_OFF=new Set();seed=sd!=null?sd:(Math.random()*1e9)|0;worldCfgSet(cfg);noteQ.length=0;edits={};collapses={};craters=[];BB.jobs.length=0;BB.armed.length=0;wrecked={};destroyed={};destroyVer++;setDCache.clear();downFix.clear();falling.clear();chunkEdits.clear();clearBodies();clearWorld();
   for(const d of decals)d.visible=false;decalsDirty=true;for(const p of players)p.pool.visible=false;for(const s of scorches)s.visible=false;
   for(const c of cars){c.alive=false;c.g.visible=false;c.respawnT=1;}
   score=0;kills=0;rampReset();playTime=0;resetGoblins();
