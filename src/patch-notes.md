@@ -20,6 +20,17 @@
 - New world and the World Generator have a Territories group: Size (how big territories are on average) and Variety (how much they differ). The World Generator shows them as a layer on the Map, and in the Noise view.
 - Fixed the World Generator sometimes showing only sea after an update, when the browser kept an older copy of its map maker.
 
+### Biomes, polished
+
+- Waterfalls drop into a proper plunge pool now, about six blocks deep under the fall and shallower toward the rim, deep enough to dive into.
+- Where a river meets a lake it runs down to the lake's level in a steady slope, with no more steps like little weirs.
+- The land behind a rocky headland rises into the hills inland, instead of lying flat behind it.
+- The pause map marks stone arches, waterfalls and landmarks you've explored, and colours natural shores by kind: sandy shores, shingle, ice shelves, mangroves, red sand, cliffs and headlands, and fjords. Each has an entry in the key. The World Generator's Map has the same, as its Wonders and Coasts layers.
+- Out in the far view, the oil fields, peat diggings, research stations, safari lodges, stilt villages and ski slopes look like themselves (the rigs and tanks, the trenches, the radar dome and mast, the tents and waterhole, the huts over the water, the piste and its lift) rather than plain patches of ground.
+- Dust devils are easy to see now: tall, swirling funnels of dust that lean with the wind.
+- Towns are built a little more their biome's way: in the desert and the badlands, small shops and eateries are adobe with parapets and log beam ends, squares are more often paved plazas, and there are more rows of shops; in forests, swamps and the cold they're log and plank with false fronts or steep roofs, and the squares are left green; on the moor they're stone.
+- This changes how the world is made, so a saved city starts afresh.
+
 ### The world
 
 - The world is made of continents and oceans now, about half land and half sea. Before, one side of the world was all ocean and the other all land. Now there are big continents and smaller ones, seas and oceans between them, island chains off their coasts and the odd group of islands far out at sea.
