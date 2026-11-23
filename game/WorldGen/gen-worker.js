@@ -34,7 +34,7 @@ self.AudioContext=undefined;self.webkitAudioContext=undefined;
 let WSEED=1;
 // (the game reads its world from its save on loading: hand it a fresh world with this seed)
 self.localStorage={getItem:k=>String(k).startsWith('goblin-city-v')?JSON.stringify({seed:WSEED,edits:{},coll:{},down:[],dest:{},test:[]}):null,setItem(){},removeItem(){},key:()=>null,length:0};
-const NAMES=['settlementLat','settlementAt','settlementRaw','setName','setKind','PLACE_KIND','zoneAt','seaPlot','seaV','SEA_T','coastType','plotType1','superOf','isRiver','riversNearBox','stMatch','cvSite','portCell','capitolPlan','climateAt','bioPick','BIOMES','reliefNat','plainsH','rlfValleys','realmOf','rlfSnow','rlfRock','RLF','CELL','SET_SP','BIGP','bigCell','MAPC','TEST_GROUPS','seed'];
+const NAMES=['settlementLat','settlementAt','settlementRaw','setName','setKind','PLACE_KIND','zoneAt','seaPlot','seaV','SEA_T','coastType','plotType1','superOf','isRiver','riversNearBox','stMatch','cvSite','portCell','capitolPlan','climateAt','bioPick','BIOMES','reliefNat','plainsH','rlfValleys','realmOf','rlfSnow','rlfRock','RLF','CELL','SET_SP','BIGP','bigCell','MAPC','TEST_GROUPS','seed','ruggedAt','worldCfgSet','WORLD_CFG','setCache','setAtCache','nzNoise'];
 let T=null;
 function loadGame(html,seed,sea){
   WSEED=seed;self.GSG_WORLD=sea||undefined;   // (the Land & sea sliders: the game's WORLD_CFG, read by its coast.js as it loads)
@@ -159,6 +159,37 @@ function grid(x0,z0,st,n){
   if(T.rlfValleys)T.rlfValleys(true);
   return {h,n};
 }
+// ---- the Noise view: the raw fields generation starts from, sampled straight from the game's functions on a grid of
+// nx samples a row, st plots apart, from (x0,z0) (in plots), rows j0 to j0+nj. Nothing built is worked out: no roads,
+// rivers' courses or chunks. NaN is the sea, where a field is only about the land ----
+const NZ_TYPES=['city','large','small','village'];
+function noise(f,x0,z0,st,nx,j0,nj){
+  const C=T.CELL,ts=T.SEA_T,W=T.WORLD_CFG,o=new Float32Array(nx*nj),SP=T.SET_SP;
+  if(f==='h'&&T.rlfValleys)T.rlfValleys(false);   // (valleys want every river's course: the land as it lies)
+  for(let j=0;j<nj;j++){const z=z0+(j0+j+.5)*st;
+    for(let i=0;i<nx;i++){const x=x0+(i+.5)*st,q=j*nx+i,v=T.seaV(x,z);
+      if(f==='land'){o[q]=ts-v;continue;}   // (above 0 is land: the coastline is where the continent field crosses SEA_T)
+      if(v>ts){o[q]=NaN;continue;}
+      const X=x*C,Z=z*C;let r;
+      if(f==='t'||f==='m'){const c=T.climateAt(X,Z);r=f==='t'?c.t:c.m;}
+      else if(f==='bio'){const c=T.climateAt(X,Z);r=T.bioPick(c.t,c.m,X,Z);}
+      else if(f==='rug')r=T.ruggedAt(X,Z);
+      else if(f==='h')r=Math.max(0,T.reliefNat(X,Z));
+      // (how likely a river is to rise here: a lattice node's odds of being a source, as rivBias and rivSrcM in
+      // world/routes.js work them out, before what's built nearby rules one out)
+      else if(f==='riv'){const g=T.ruggedAt(X,Z);let b=0.35+1.65*g;if(g<0.35)b+=0.8*T.climateAt(X,Z).m;r=Math.min(1,0.16*W.riv*b);}
+      // (the places: the chance a grid point has one, as setNone in world/places.js works it out, and where the places
+      // themselves stand, as negative numbers by type, while samples are close enough together to see them)
+      else if(f==='town'){let m=1;if(W.clu>0){const g=Math.max(0,Math.min(1,0.5+T.nzNoise(x/SP/3.2,z/SP/3.2,4481)*1.6));m=1-W.clu+W.clu*g;}r=W.towns*m;
+        if(st<=12){const rx=Math.round(x/SP),rz=Math.round(z/SP);
+          for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const S=T.settlementLat(rx+a,rz+b);if(S.none)continue;
+            const dx=x-S.cx-.5,dz=z-S.cz-.5;if(dx*dx+dz*dz<=S.R*S.R){const k=-1-NZ_TYPES.indexOf(S.type);if(k<r)r=k;}}}}
+      o[q]=r;}}
+  if(f==='h'&&T.rlfValleys)T.rlfValleys(true);
+  return {v:o,bio:f==='bio'&&T.BIOMES?T.BIOMES.map(B=>[B.n,B.map]):null};
+}
+// (the sliders, changed without loading the game again: the world's settings and everything worked out from them)
+function cfg(o){T.worldCfgSet(o||{});if(T.setCache)T.setCache.clear();if(T.setAtCache)T.setAtCache.clear();sentRivers.clear();return true;}
 // ---- a settlement in full: how big it is and what's in it ----
 function place(k){
   const [rx,rz]=k.split(',').map(Number),S=T.settlementLat(rx,rz),r=Math.ceil(S.R*1.4)+3,counts={};let n=0;
@@ -182,6 +213,7 @@ self.onmessage=async e=>{
       const t0=Date.now(),r=await fetch(m.url,{cache:'no-store'});if(!r.ok)throw new Error('game file '+r.status);
       loadGame(await r.text(),m.seed,m.sea);
       if(T.seed!==m.seed)throw new Error('seed not taken');
+      if(m.lite){postMessage({id:m.id,ok:{seed:T.seed,lite:true,mapc:{},labels:{},cap:null,ms:Date.now()-t0}});return;}   // (the Noise view: none of what's built)
       const C=T.capitolPlan?T.capitolPlan():null;capitol=C;const S=C?T.settlementAt(C.ax,C.az):T.settlementLat(0,0);capKey=S?S.rx+','+S.rz:null;
       const labels={};if(T.TEST_GROUPS)for(const [,L] of T.TEST_GROUPS)for(const [k,n] of L)labels[k]=n;
       postMessage({id:m.id,ok:{seed:T.seed,mapc:T.MAPC||{},labels,cap:capKey,capitol:C,ms:Date.now()-t0}});return;}
@@ -194,6 +226,8 @@ self.onmessage=async e=>{
     else if(m.op==='pt')r=point(m.x,m.z);
     else if(m.op==='place')r=place(m.k);
     else if(m.op==='grid')r=grid(m.x0,m.z0,m.st,m.n);
+    else if(m.op==='noise')r=noise(m.f,m.x0,m.z0,m.st,m.nx,m.j0,m.nj);
+    else if(m.op==='cfg')r=cfg(m.cfg);
     else if(m.op==='search')r=search(m.q,m.cx,m.cz);
     postMessage({id:m.id,ok:r});
   }catch(err){postMessage({id:m.id,err:String(err&&err.message||err)});}
