@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:72312df8a41dfb06da535fa5b664e24a27b5a1a21edd3e68619354776775e7de -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:cfe7051f0f03d24a007d80ed48883b302424b01f747a924ace885c586069901f -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1649,6 +1649,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <ul><li>The wilds between towns now have a climate, and with it twelve biomes: grassland, temperate forest, taiga, tundra, ice fields, desert, badlands, scrubland, savanna, rainforest, swamp and moor. Each region of them is thousands of blocks across, and you always start in grassland.</li><li>Each biome has its own ground (snow, sand over sandstone, red sand over banded clay, mud), its own trees (pines, acacias, jungle giants, drooping swamp trees, cactus and dead trees), its own ponds (frozen in the ice fields, muddy and reedy in the swamp) and its own shade of grass and leaves, in towns too.</li><li>Biomes are seen from afar, and shown on the map and the minimap.</li><li>The World Generator can show the biomes, and has Climate sliders: warmer or colder, wetter or drier, how big the climate regions are and how strongly it gets colder one way and hotter the other.</li><li>The woods round sites in the wilds (campsites, lumber camps, thieves' hideouts, ruins) grow the biome's own trees.</li><li>River banks are the biome's ground, muddy in the swamp.</li><li>The debug menu's Info pane shows the biome you're standing in, apart from the place.</li><li>This makes a new world, so a saved city starts afresh.</li></ul>
 <h3>Mountains and lakes</h3>
 <ul><li>Out in the wilds the land now rises into hills and mountain ranges, up to about 130 blocks, with bare rock near the top, snow on the peaks (lower the colder it is) and a new Alpine biome up high.</li><li>Towns, farms, sites, roads, railways and rivers all stay on the level: the mountains rise away from them, so towns sit in valleys and rivers run along valley floors.</li><li>Roads and railways cut through the hills and tunnel under the high ground (road tunnels are lined and lit).</li><li>Lakes lie in the low, wet country, frozen over in the ice fields.</li><li>Mountains are seen from afar, and the map and minimap show the hills shaded, with the rock, snow and lakes.</li><li>The World Generator has a Height layer and Land shape sliders: more or fewer mountains, how high they get, how hilly the rest is and how many lakes there are.</li><li>The World Generator shows the ground's height and biome wherever you point, and can lay hill shading and contour lines over any map.</li><li>The World Generator has a 3D view: the middle of the map, just as it's shown, raised up to the ground's height, to turn round and tilt, with a slider for how much to exaggerate the heights.</li><li>The World Generator has River sliders: how many rivers there are, how much they meander, how far they wander and how wide they are. The game's own worlds are unchanged.</li><li>Highways cross the deeper lakes on a deck on pillars, with the water running underneath.</li><li>Railway tunnels are lined and lit, like the road tunnels.</li><li>Fields of big boulders lie at the mountains' feet, and loose scree just below the bare rock.</li><li>Big blasts carve their craters into the hills and mountains as they stand, rather than at street level.</li><li>Towns in rugged country are fewer and smaller.</li><li>The map and minimap shade the land as it really is beside the roads, rivers and towns.</li><li>There are no lakes near the start, as there are no mountains there.</li><li>Planes flying their rounds climb over the hills and mountains.</li><li>Beside towns, farms and sites the land climbs in terraces held up by stone retaining walls, rather than sheer rock faces.</li><li>Sites in the wilds keep away from the most rugged country.</li><li>This makes a new world again, so a saved city starts afresh.</li></ul>
+<h3>Landforms</h3>
+<ul><li>Deserts are rolling seas of dunes, long sandy ridges with a steep face on the side away from the wind.</li><li>The badlands rise into flat-topped mesas and plateaus with stepped sides of banded clay, and canyons cut down through them. Scrubland has lower plateaus.</li><li>In middling hilly country the land steps up sheer rock cliffs that run on for kilometres.</li><li>The driest, hottest deserts have dead-flat white salt flats.</li><li>This makes a new world again, so a saved city starts afresh.</li></ul>
 <h3>Rivers</h3>
 <ul><li>Rivers now start somewhere and go somewhere: each one rises in the hills or mountains, or flows out of a lake, and runs downhill until it reaches the sea or joins a bigger river.</li><li>Smaller, shallower streams branch off the rivers and feed into them.</li><li>Through the hills and mountains, rivers carve valleys for themselves.</li><li>The World Generator has two more River sliders: how far rivers run inland, and how many streams branch off them. It draws streams thinner than rivers.</li><li>Each river has a width of its own, the same all the way down (the Width slider still sets the widest).</li><li>A river passing a lake now runs into it, with no strip of land left between the two, and rises to the lake's level as it reaches it.</li><li>Swamp river banks are muddy along whole stretches rather than in patches.</li><li>The map and minimap no longer draw rivers out across the sea.</li><li>This makes a new world again, so a saved city starts afresh.</li></ul>
 <h3>Co-op on two screens</h3>
@@ -2381,10 +2383,10 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='ed1dbf3f9287';
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v104'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
+const GAME_VER='0.5',GAME_BUILD='aa6e96b77f3b';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v105'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
-const WORLD_GEN=6;
+const WORLD_GEN=7;
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -2449,7 +2451,8 @@ const AIR=0,GRASS=1,DIRT=2,STONE=3,LOG=4,LEAVES=5,SAND=6,PLANKS=7,GLASS=8,WATER=
   RAILPOST=152,   // a slim steel post (the bars between posts are drawn as fixtures)
   // the biomes' ground and plants (world/climate.js): snow, sandstone, the badlands' red sand and banded clay, mud, cactus,
   // pine needles (evergreen: the seasons leave them be) and reeds
-  SNOW=153,SANDSTONE=154,RED_SAND=155,TERRA=156,TERRA2=157,MUD=158,CACTUS=159,PINE=160,REEDS=161;
+  SNOW=153,SANDSTONE=154,RED_SAND=155,TERRA=156,TERRA2=157,MUD=158,CACTUS=159,PINE=160,REEDS=161,
+  SALT=162;   // (a salt flat's white crust, world/relief.js)
 // ramps: 4 directions (the way it rises: +x, -x, +z, -z) x 3 shapes (a full 0->1 slope, or the low and high halves
 // of a gentle slope that takes two blocks to climb one). rampId(dir,kind)
 const stairId=(dir,mat)=>STAIR0+(mat||0)*4+dir,rampId=(dir,kind)=>RAMP0+dir*3+kind,rampLineId=(dir,kind,t)=>RAMPL0+t*12+dir*3+kind;
@@ -2557,6 +2560,7 @@ BLOCK[GOLD]     ={tiles:[95,95,95],solid:true,glow:true};
 BLOCK[SNOW]     ={tiles:[96,96,96],solid:true};
 BLOCK[SANDSTONE]={tiles:[98,98,97],solid:true};
 BLOCK[RED_SAND] ={tiles:[99,99,99],solid:true};
+BLOCK[SALT]     ={tiles:[107,107,107],solid:true};
 BLOCK[TERRA]    ={tiles:[100,100,100],solid:true};
 BLOCK[TERRA2]   ={tiles:[101,101,101],solid:true};
 BLOCK[MUD]      ={tiles:[102,102,102],solid:true};
@@ -2695,6 +2699,8 @@ paint(102,(x,y,r)=>{const v=r();return v<.15?[58,46,32]:v>.9?[104,84,58]:jit([80
 paint(103,(x,y,r)=>{const rib=x%4===0;if(rib&&y%3===1)return[226,220,180];return jit(rib?[38,98,44]:[60,130,62],r,10);});
 paint(104,(x,y,r)=>{const d=Math.max(Math.abs(x-7.5),Math.abs(y-7.5));if(d<1.5)return[236,96,130];return jit(d>5.5?[46,108,50]:[70,140,70],r,10);});
 paint(105,(x,y,r)=>{const v=r();if(v<.14)return[0,0,0,0];return jit(v>.86?[52,104,72]:[30,74,50],r,14);});
+// (a salt crust: white, cracked into plates)
+paint(107,(x,y,r)=>{const c=(x*3+y*5)%11===0||(x*7-y*2+33)%13===0;return c?jit([196,192,180],r,6):jit([238,236,228],r,5);});
 paint(106,(x,y,r)=>{const stalk=x%3===0&&r()>.1;if(!stalk)return[0,0,0,0];return y<3?jit([118,86,48],r,10):jit([110,140,60],r,16);});
 const tex=new THREE.CanvasTexture(atlas);
 tex.magFilter=THREE.NearestFilter;tex.minFilter=THREE.NearestFilter;tex.generateMipmaps=false;
@@ -3033,7 +3039,10 @@ function clCorner(ix,iz){
   if(clSeed!==seed){clSeed=seed;CL_C.clear();}
   const k=ix*100003+iz;let E=CL_C.get(k);if(E)return E;
   const x=ix*CL_SP,z=iz*CL_SP,c=climateAt(x,z),B=BIOMES[bioPick(c.t,c.m,x,z)];
-  E={t:c.t,m:c.m,b:B.i,gr:B.grass,lf:B.leaf,pond:B.pond,wood:B.wood,r:ruggedAt(x,z)};
+  E={t:c.t,m:c.m,b:B.i,gr:B.grass,lf:B.leaf,pond:B.pond,wood:B.wood,r:ruggedAt(x,z),
+    // (the landforms, world/relief.js: dunes in the desert, mesas in the badlands and lower plateaus in scrubland, salt
+    // flats in the driest, hottest desert)
+    dune:B.k==='desert'?1:0,mesa:B.k==='badlands'?1:B.k==='scrub'?0.5:0,salt:B.k==='desert'&&c.m<0.14?1:0};
   if(CL_C.size>200000)CL_C.clear();CL_C.set(k,E);return E;
 }
 // the climate at block (x,z), blended from the lattice. Into CLIM, with CLIM.u, CLIM.v and the four corners in CL_Q for
@@ -3071,7 +3080,7 @@ function bioTint(x,z,g){climAt(x,z);const u=CLIM.u,v=CLIM.v,Q=CL_Q,f=g?'lf':'gr'
 //     (RLF_TOP), and ridged noise shapes ranges and crests under that
 //   lakes: hollows below the datum where the land's low and wet, filled with water up to G
 // The World Generator's Land shape sliders scale them (WORLD_CFG's mtn, mth, hill, lakes) ----
-const RLF={hill:0,mtn:0,lake:0,r:0,cut:false,tun:false,ter:false,tw:false};
+const RLF={hill:0,mtn:0,lake:0,r:0,cut:false,tun:false,ter:false,tw:false,dune:0,salt:false,face:false};
 // (a length: Math.sqrt is exact in every browser, Math.hypot may differ in the last bit, and the land must be the same
 // for every player online)
 const rlfLen=(a,b)=>Math.sqrt(a*a+b*b);
@@ -3094,8 +3103,46 @@ function reliefNat(x,z){
   // (lakes: low, wet ground only, deepest where it's flattest)
   if(r<0.4&&WORLD_CFG.lakes>0){const L=nzFbm(x,z,800,3,3401),th=-0.3+0.3*(m-0.5);if(L<th)lake=Math.min(RLF_LAKE,(th-L)*60)*WORLD_CFG.lakes*(1-r/0.4)*nzSmooth(START_R0*START_R0,START_R1*START_R1,x*x+z*z);}   // (none round the start, as there are no mountains there)
   if(RLF_VON){const sl=rlfSrcLake(x,z);if(sl>lake)lake=sl;}
-  RLF.hill=hill;RLF.mtn=mtn;RLF.lake=lake;RLF.r=r;
-  return hill+mtn-lake;
+  // (the landforms of phase 3: dunes on the hills' part, so they ease out by the roads as the hills do; mesas, plateaus and
+  // escarpments on the mountains' part, cut back from what's built as the mountains are; salt flats level the ground)
+  const du=clBlend('dune'),me=clBlend('mesa'),sa=clBlend('salt');let h2=hill;RLF.dune=0;RLF.salt=false;RLF.face=false;
+  if(sa>0.5){const L=nzFbm(x,z,700,2,3551);if(L<0.02){const s=nzSmooth(-0.1,0.02,L);h2*=s;if(L<-0.1)RLF.salt=true;}}
+  if(du>0.02&&!RLF.salt){const d=rlfDune(x,z)*du*WORLD_CFG.hill*(sa>0.5?nzSmooth(-0.1,0.05,nzFbm(x,z,700,2,3551)):1);h2+=d;RLF.dune=d;}
+  if(me>0.02){mtn+=rlfMesa(x,z,me)*WORLD_CFG.mth;h2*=1-0.85*RLF_MS;}   // (a mesa's top is flat: the hills smoothed out on it)
+  if(r>0.25&&r<0.7)mtn+=rlfCliff(x,z,r)*rlfValley(x,z);
+  RLF.hill=h2;RLF.mtn=mtn;RLF.lake=lake;RLF.r=r;
+  return h2+mtn-lake;
+}
+// ---- landforms (docs/biomes-plan.md, phase 3) ----
+// dunes: long ridges across the world's wind (one way per world, RLF_DW, a whole-number direction so no trig: [dx,dz,its
+// length]), gentle on the windward side and steep on the lee (the slip face), 3 to 12 blocks high, wandering and broken
+// up along their length
+const RLF_DW=[[4,3,5],[3,4,5],[-3,4,5],[-4,3,5],[5,12,13],[12,5,13],[-12,5,13],[-5,12,13]];let RLF_DS=null,RLF_DD=null;
+function rlfDune(x,z){
+  if(RLF_DS!==seed){RLF_DS=seed;RLF_DD=RLF_DW[Math.floor(hash2(7717,9931)*8)];}const D=RLF_DD;
+  const w=nzWarp(x,z,320,28,3501),wx=w[0],wz=w[1],u=(wx*D[0]+wz*D[1])/D[2]/46,f=u-Math.floor(u);
+  let p=f<0.74?f/0.74:(1-f)/0.26;p=p*p*(3-2*p);
+  const a=3+9*nzClamp01(0.5+0.9*nzFbm(x,z,260,2,3511)),br=nzSmooth(-0.45,0.1,nzFbm(wx,wz,140,1,3521));   // (how tall; and where a ridge dies away)
+  return a*p*br;
+}
+// mesas: flat-topped tables 18 to 40 blocks high whose sides go up in steps of 5 (terraces of banded clay, as the
+// badlands' ground is), plateaus where they're broad; canyons cut down through them to the datum along ridged noise's
+// crests. me is how much of the badlands' (1) or scrubland's (0.5) there is here
+let RLF_MS=0;   // (how much of the last place asked is on a mesa, 0 to 1)
+function rlfMesa(x,z,me){
+  const w=nzWarp(x,z,600,90,3523),n=nzFbm(w[0],w[1],700,3,3525),th=0.08-0.12*me;RLF_MS=0;if(n<th)return 0;
+  const s=nzSmooth(th,th+0.035,n),H=(18+22*nzClamp01(0.5+nzFbm(x,z,2500,1,3531)))*me;
+  const c=nzRidged(w[0],w[1],520,2,3541),k=1-nzSmooth(0.84,0.9,c);   // (a canyon)
+  RLF_MS=s*k;
+  return Math.floor(s*k*H/5)*5;
+}
+// escarpments: in middling country (ruggedness r 0.3 to 0.6) the land steps up a cliff of up to 14 blocks along a line
+// that wanders for kilometres, high ground one side and low the other. RLF.face: on the cliff, so it's bare rock
+function rlfCliff(x,z,r){
+  const b=nzSmooth(0.25,0.35,r)*(1-nzSmooth(0.6,0.7,r));if(b<=0)return 0;
+  const w=nzWarp(x,z,700,120,3561),e=nzFbm(w[0],w[1],1600,2,3571),p=nzClamp01((e-0.05)/0.008);
+  if(p>0.04&&p<0.96)RLF.face=true;
+  return 14*b*p*WORLD_CFG.mth;
 }
 // ---- river valleys: the rivers (world/routes.js) wind through the mountains, so near one the mountains are let stand
 // only so far: nothing on its floor (RLF_VM for a river, RLF_VT a tributary: [blocks of flat floor past its banks, how far
@@ -3209,6 +3256,7 @@ function reliefMapCells(px,pz,n){
   for(let j=0;j<n;j++)for(let i=0;i<n;i++){
     const x=px*CELL+(i+0.5)*st,z=pz*CELL+(j+0.5)*st,h=hAt(x,z),t=CLIM.t,d=Math.max(2,st/2);
     if(h<-0.9){C.push(MAPC.river);any=true;continue;}
+    if(RLF.salt&&h===0){C.push('#e8e4d8');any=true;continue;}
     const s=((h-hAt(x-d,z))+(h-hAt(x,z-d)))/d;   // (facing the light: brighter; away from it: darker)
     let col=h>rlfSnow(t)?'#eef2f4':h>rlfRock(t)?'#8c8a84':base;
     const k=Math.max(-0.45,Math.min(0.45,s*0.35))+Math.min(0.12,h/600);
@@ -5672,7 +5720,7 @@ function roadNear(x,z,pad){
 // deeper than a few blocks isn't filled in for a highway, though: it runs on under it, and the road crosses on a deck on
 // pillars (routeColumn), easing from the one to the other as the lake gets deeper
 function plainsH(x,z){
-  const px=Math.floor(x/CELL),pz=Math.floor(z/CELL);RLF.cut=RLF.tun=RLF.ter=RLF.tw=false;RLF.r=0;if(!PLAINS_OPEN(px,pz))return 0;
+  const px=Math.floor(x/CELL),pz=Math.floor(z/CELL);RLF.cut=RLF.tun=RLF.ter=RLF.tw=RLF.salt=RLF.face=false;RLF.r=RLF.dune=0;if(!PLAINS_OPEN(px,pz))return 0;
   const rx=x-px*CELL,rz=z-pz*CELL;let f=1;
   roadNear(x,z);const fr=Math.min(1,Math.max(0,RN_RT)/14);
   for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++){if(!dx&&!dz||PLAINS_OPEN(px+dx,pz+dz))continue;
@@ -8154,7 +8202,7 @@ function joinColumn(col,J,c,a,x,z){
 }
 function plainsColumn(col,x,z,noShore){
   if(!noShore&&nearSea(Math.floor(x/CELL),Math.floor(z/CELL))){const cd=coastD(x,z);if(cd>=0){seaWater(col,x,z,1,cd);return;}if(cd>-22&&natLand(col,x,z,null,cd))return;}
-  const h=plainsH(x,z),cut=RLF.cut,tw=RLF.tw,r=RLF.r,B=BIOMES[biomeAt(x,z)],t=CLIM.t;
+  const h=plainsH(x,z),cut=RLF.cut||RLF.face,tw=RLF.tw,r=RLF.r,dn=RLF.dune>1,salt=RLF.salt&&h===0,B=BIOMES[biomeAt(x,z)],t=CLIM.t;
   // a pond or a lake: still water up to G over sand (over mud in a swamp, frozen over in the ice fields)
   if(h<0){col(G+h,B.sub===MUD?MUD:SAND);for(let y=G+h+1;y<=G;y++)col(y,y===G&&B.ice?ICE:WATER);return;}
   // the biome's ground: its top block over a few of its own (the badlands' in bands of clay), and rock under that in the
@@ -8162,7 +8210,10 @@ function plainsColumn(col,x,z,noShore){
   // snow above the snowline
   const hi=h>rlfRock(t),snow=h>rlfSnow(t),bare=cut||hi,top=snow?SNOW:bare?(hash2(x*3+5,z*7+1)<0.3?GRAVEL:STONE):B.top||GRASS,sub=B.sub||DIRT;
   if(B.sub){col(G-2,sub);col(G-1,sub);}
+  // (a salt flat: a white crust over the sand, and nothing growing on it)
+  if(salt){col(G,SALT);return;}
   for(let y=G;y<G+h;y++)col(y,bare||y<G+h-4?STONE:sub);
+  if(dn&&!bare)for(let y=G;y<G+h;y++)col(y,SAND);   // (a dune's sand all the way through)
   if(sub===TERRA)for(let y=G-3;y<G+h;y++)col(y,(y+(hash2(x>>3,z>>3)<0.5?1:0))%3?TERRA:TERRA2);
   if(tw&&!bare)for(let y=Math.max(G,G+h-3);y<G+h;y++)col(y,COBBLE);   // (a terrace's retaining wall, world/relief.js)
   col(G+h,top);
@@ -9326,7 +9377,7 @@ function plainsTree(x,z){
   else{const B=BIOMES[biomeAt(x,z)],copse=lumberNear(px,pz)?1.1:plainsCopse(x,z);if(v>B.sc+B.dn*copse||!B.trees.length)return null;
     let q=hash2(x*5+17,z*3+29);for(const [k,w] of B.trees){sp=TREE_I[k];if((q-=w)<0)break;}}
   if(roadNear(x,z,14)<4||railNear(x,z)<6||boardNear(x,z,7))return null;
-  const h=plainsH(x,z);if(h<0||RLF.cut||h>rlfRock(CLIM.t)-6)return null;   // (nor on a cutting's bare face, nor up past the treeline)
+  const h=plainsH(x,z);if(h<0||RLF.cut||RLF.face||RLF.salt||h>rlfRock(CLIM.t)-6)return null;   // (nor on a cutting's bare face, nor up past the treeline)
   return [G+h,TREE_TH[sp][0]+Math.floor(hash2(x,z+99)*TREE_TH[sp][1]),sp];
 }
 // a tree of species sp, its ground's top gy and trunk th high, grown at column (x,z) through put(x,y,z,block,onlyAir)
@@ -11292,7 +11343,7 @@ for(const b of [NEON_G,NEON_M,NEON_Y,NEON_O,LAMP])KIND[b]='neon';
 for(const b of [METAL,RUST])KIND[b]='metal';
 for(const b of [LOG,PLANKS])KIND[b]='wood';
 for(const b of [LEAVES,GRASS,PINE,REEDS,CACTUS])KIND[b]="plant";
-for(const b of [DIRT,SAND,SNOW,RED_SAND,MUD])KIND[b]="dirt";KIND[SANDSTONE]=KIND[TERRA]=KIND[TERRA2]="stone";
+for(const b of [DIRT,SAND,SNOW,RED_SAND,MUD,SALT])KIND[b]="dirt";KIND[SANDSTONE]=KIND[TERRA]=KIND[TERRA2]="stone";
 for(const b of [MARBLE])KIND[b]='stone';for(const b of [BRONZE])KIND[b]='metal';for(const b of [SHELF,CRATE,DOOR_W,DOOR_WK,DOOR_BARN,FENCE,FENCE_W])KIND[b]='wood';KIND[DOOR_G]=KIND[DOOR_GB]=KIND[STAINED]='glass';KIND[GRAVE]=KIND[GRAVEX]='stone';KIND[CHAINLINK]=KIND[GOLD]='metal';
 for(const b of [BED,SOFA,AWN_R,AWN_G])KIND[b]='fabric';
 KIND[PUMP]='metal';KIND[SIDING]='wood';KIND[SIDING_Y]='wood';KIND[SHINGLE]='wood';KIND[HOSPX]='neon';
@@ -12058,7 +12109,7 @@ function updateTopples(dt){
         if(cy>=H)continue;
         const cx=Math.floor(R00*lx+R01*ly+R02*lz+px),cz=Math.floor(R20*lx+R21*ly+R22*lz+pz),b=cy<=G?STONE:get(cx,cy,cz);
         // the ground (and the natural lie of the land: a grassy hill) stops it; anything else it smashes through
-        if(cy<=G||(b===GRASS||b===DIRT||b===SAND||b===SNOW||b===RED_SAND||b===MUD||b===SANDSTONE||b===TERRA||b===TERRA2)&&cy<=G+6){if(T.far[k]||T.dropping)ground++;continue;}
+        if(cy<=G||(b===GRASS||b===DIRT||b===SAND||b===SNOW||b===RED_SAND||b===MUD||b===SALT||b===SANDSTONE||b===TERRA||b===TERRA2)&&cy<=G+6){if(T.far[k]||T.dropping)ground++;continue;}
         if(b===AIR||b===WATER||b===BEDROCK)continue;
         setRaw(cx,cy,cz,AIR);addEdit(cx,cy,cz,AIR);batch.push({x:cx,y:cy,z:cz,b});
         ch.add(ckey(Math.floor(cx/CS),Math.floor(cz/CS)));for(const [ox,oz] of [[1,0],[-1,0],[0,1],[0,-1]])ch.add(ckey(Math.floor((cx+ox)/CS),Math.floor((cz+oz)/CS)));
@@ -12672,7 +12723,7 @@ function groundSpikes(p,lvl){
 // about his own level. Anything built on top of it there (a wall, a bench, a parked trailer) isn't ground: the spike
 // comes up underneath it and smashes it out of the way. Checked at the middle and round the edge of its base; the
 // ground's height, or null where there's none near his level (up a bank, or over a real drop)
-const SPIKE_EARTH=new Set([GRASS,DIRT,SAND,STONE,GRAVEL,CLAY,SNOW,SANDSTONE,RED_SAND,TERRA,TERRA2,MUD]);
+const SPIKE_EARTH=new Set([GRASS,DIRT,SAND,STONE,GRAVEL,CLAY,SNOW,SANDSTONE,RED_SAND,TERRA,TERRA2,MUD,SALT]);
 function spikeGround(x,z,r,y0){
   let gy=null;
   for(const [a,b] of [[0,0],[r*0.6,0],[-r*0.6,0],[0,r*0.6],[0,-r*0.6]]){
@@ -14523,7 +14574,7 @@ const WS_TOUGH=(()=>{const T=new Float32Array(256).fill(1),set=(v,L)=>{for(const
   for(let b=0;b<BLOCK.length;b++)if(BLOCK[b]&&BLOCK[b].brittle)T[b]=0.2;   // (fences, railings, gravestones)
   set(0.2,[GLASS,STAINED,LEAVES,FLOWER,AWN_R,AWN_G,LAMP,NEON_G,NEON_M,NEON_B,NEON_R,NEON_Y,NEON_O,SCREEN]);
   set(0.5,[PLANKS,SHELF,BED,SOFA,CRATE,SIDING,SIDING_Y,SHINGLE,SEAT_B,SEAT_R,ICE]);
-  set(0.7,[LOG,FRIDGE,ROOF,SAND,GRAVEL,PUMP,RED_SAND,SNOW,MUD]);
+  set(0.7,[LOG,FRIDGE,ROOF,SAND,GRAVEL,PUMP,RED_SAND,SNOW,MUD,SALT]);
   set(0.9,[GRASS,DIRT,FIELD,FIELD_L,CLAY,WIN_BLUE,WIN_GREEN,WIN_WARM,COURT,COURT_L]);
   set(1.2,[BRICK,STUCCO,PAINT_BLUE,PAINT_RED,PAINT_GREEN,PAINT_ORANGE,PAINT_YELLOW,PAINT_WHITE,PAINT_NAVY,PAINT_DARK]);
   set(1.5,[CONCRETE,MOSSCON,COBBLE,STONE,MOSSSTONE,MARBLE,ASPHALT,LINE,LINEX,LINE_R,LINEX_R,CROSS,CROSSX,LANE,LANEX,SIDEWALK,HOSPW,HOSPX,CHECKER,POLICE]);

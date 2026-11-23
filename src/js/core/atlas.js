@@ -127,6 +127,8 @@ paint(102,(x,y,r)=>{const v=r();return v<.15?[58,46,32]:v>.9?[104,84,58]:jit([80
 paint(103,(x,y,r)=>{const rib=x%4===0;if(rib&&y%3===1)return[226,220,180];return jit(rib?[38,98,44]:[60,130,62],r,10);});
 paint(104,(x,y,r)=>{const d=Math.max(Math.abs(x-7.5),Math.abs(y-7.5));if(d<1.5)return[236,96,130];return jit(d>5.5?[46,108,50]:[70,140,70],r,10);});
 paint(105,(x,y,r)=>{const v=r();if(v<.14)return[0,0,0,0];return jit(v>.86?[52,104,72]:[30,74,50],r,14);});
+// (a salt crust: white, cracked into plates)
+paint(107,(x,y,r)=>{const c=(x*3+y*5)%11===0||(x*7-y*2+33)%13===0;return c?jit([196,192,180],r,6):jit([238,236,228],r,5);});
 paint(106,(x,y,r)=>{const stalk=x%3===0&&r()>.1;if(!stalk)return[0,0,0,0];return y<3?jit([118,86,48],r,10):jit([110,140,60],r,16);});
 const tex=new THREE.CanvasTexture(atlas);
 tex.magFilter=THREE.NearestFilter;tex.minFilter=THREE.NearestFilter;tex.generateMipmaps=false;

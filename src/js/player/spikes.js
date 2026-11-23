@@ -31,7 +31,7 @@ function groundSpikes(p,lvl){
 // about his own level. Anything built on top of it there (a wall, a bench, a parked trailer) isn't ground: the spike
 // comes up underneath it and smashes it out of the way. Checked at the middle and round the edge of its base; the
 // ground's height, or null where there's none near his level (up a bank, or over a real drop)
-const SPIKE_EARTH=new Set([GRASS,DIRT,SAND,STONE,GRAVEL,CLAY,SNOW,SANDSTONE,RED_SAND,TERRA,TERRA2,MUD]);
+const SPIKE_EARTH=new Set([GRASS,DIRT,SAND,STONE,GRAVEL,CLAY,SNOW,SANDSTONE,RED_SAND,TERRA,TERRA2,MUD,SALT]);
 function spikeGround(x,z,r,y0){
   let gy=null;
   for(const [a,b] of [[0,0],[r*0.6,0],[-r*0.6,0],[0,r*0.6],[0,-r*0.6]]){

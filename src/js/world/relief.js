@@ -7,7 +7,7 @@
 //     (RLF_TOP), and ridged noise shapes ranges and crests under that
 //   lakes: hollows below the datum where the land's low and wet, filled with water up to G
 // The World Generator's Land shape sliders scale them (WORLD_CFG's mtn, mth, hill, lakes) ----
-const RLF={hill:0,mtn:0,lake:0,r:0,cut:false,tun:false,ter:false,tw:false};
+const RLF={hill:0,mtn:0,lake:0,r:0,cut:false,tun:false,ter:false,tw:false,dune:0,salt:false,face:false};
 // (a length: Math.sqrt is exact in every browser, Math.hypot may differ in the last bit, and the land must be the same
 // for every player online)
 const rlfLen=(a,b)=>Math.sqrt(a*a+b*b);
@@ -30,8 +30,46 @@ function reliefNat(x,z){
   // (lakes: low, wet ground only, deepest where it's flattest)
   if(r<0.4&&WORLD_CFG.lakes>0){const L=nzFbm(x,z,800,3,3401),th=-0.3+0.3*(m-0.5);if(L<th)lake=Math.min(RLF_LAKE,(th-L)*60)*WORLD_CFG.lakes*(1-r/0.4)*nzSmooth(START_R0*START_R0,START_R1*START_R1,x*x+z*z);}   // (none round the start, as there are no mountains there)
   if(RLF_VON){const sl=rlfSrcLake(x,z);if(sl>lake)lake=sl;}
-  RLF.hill=hill;RLF.mtn=mtn;RLF.lake=lake;RLF.r=r;
-  return hill+mtn-lake;
+  // (the landforms of phase 3: dunes on the hills' part, so they ease out by the roads as the hills do; mesas, plateaus and
+  // escarpments on the mountains' part, cut back from what's built as the mountains are; salt flats level the ground)
+  const du=clBlend('dune'),me=clBlend('mesa'),sa=clBlend('salt');let h2=hill;RLF.dune=0;RLF.salt=false;RLF.face=false;
+  if(sa>0.5){const L=nzFbm(x,z,700,2,3551);if(L<0.02){const s=nzSmooth(-0.1,0.02,L);h2*=s;if(L<-0.1)RLF.salt=true;}}
+  if(du>0.02&&!RLF.salt){const d=rlfDune(x,z)*du*WORLD_CFG.hill*(sa>0.5?nzSmooth(-0.1,0.05,nzFbm(x,z,700,2,3551)):1);h2+=d;RLF.dune=d;}
+  if(me>0.02){mtn+=rlfMesa(x,z,me)*WORLD_CFG.mth;h2*=1-0.85*RLF_MS;}   // (a mesa's top is flat: the hills smoothed out on it)
+  if(r>0.25&&r<0.7)mtn+=rlfCliff(x,z,r)*rlfValley(x,z);
+  RLF.hill=h2;RLF.mtn=mtn;RLF.lake=lake;RLF.r=r;
+  return h2+mtn-lake;
+}
+// ---- landforms (docs/biomes-plan.md, phase 3) ----
+// dunes: long ridges across the world's wind (one way per world, RLF_DW, a whole-number direction so no trig: [dx,dz,its
+// length]), gentle on the windward side and steep on the lee (the slip face), 3 to 12 blocks high, wandering and broken
+// up along their length
+const RLF_DW=[[4,3,5],[3,4,5],[-3,4,5],[-4,3,5],[5,12,13],[12,5,13],[-12,5,13],[-5,12,13]];let RLF_DS=null,RLF_DD=null;
+function rlfDune(x,z){
+  if(RLF_DS!==seed){RLF_DS=seed;RLF_DD=RLF_DW[Math.floor(hash2(7717,9931)*8)];}const D=RLF_DD;
+  const w=nzWarp(x,z,320,28,3501),wx=w[0],wz=w[1],u=(wx*D[0]+wz*D[1])/D[2]/46,f=u-Math.floor(u);
+  let p=f<0.74?f/0.74:(1-f)/0.26;p=p*p*(3-2*p);
+  const a=3+9*nzClamp01(0.5+0.9*nzFbm(x,z,260,2,3511)),br=nzSmooth(-0.45,0.1,nzFbm(wx,wz,140,1,3521));   // (how tall; and where a ridge dies away)
+  return a*p*br;
+}
+// mesas: flat-topped tables 18 to 40 blocks high whose sides go up in steps of 5 (terraces of banded clay, as the
+// badlands' ground is), plateaus where they're broad; canyons cut down through them to the datum along ridged noise's
+// crests. me is how much of the badlands' (1) or scrubland's (0.5) there is here
+let RLF_MS=0;   // (how much of the last place asked is on a mesa, 0 to 1)
+function rlfMesa(x,z,me){
+  const w=nzWarp(x,z,600,90,3523),n=nzFbm(w[0],w[1],700,3,3525),th=0.08-0.12*me;RLF_MS=0;if(n<th)return 0;
+  const s=nzSmooth(th,th+0.035,n),H=(18+22*nzClamp01(0.5+nzFbm(x,z,2500,1,3531)))*me;
+  const c=nzRidged(w[0],w[1],520,2,3541),k=1-nzSmooth(0.84,0.9,c);   // (a canyon)
+  RLF_MS=s*k;
+  return Math.floor(s*k*H/5)*5;
+}
+// escarpments: in middling country (ruggedness r 0.3 to 0.6) the land steps up a cliff of up to 14 blocks along a line
+// that wanders for kilometres, high ground one side and low the other. RLF.face: on the cliff, so it's bare rock
+function rlfCliff(x,z,r){
+  const b=nzSmooth(0.25,0.35,r)*(1-nzSmooth(0.6,0.7,r));if(b<=0)return 0;
+  const w=nzWarp(x,z,700,120,3561),e=nzFbm(w[0],w[1],1600,2,3571),p=nzClamp01((e-0.05)/0.008);
+  if(p>0.04&&p<0.96)RLF.face=true;
+  return 14*b*p*WORLD_CFG.mth;
 }
 // ---- river valleys: the rivers (world/routes.js) wind through the mountains, so near one the mountains are let stand
 // only so far: nothing on its floor (RLF_VM for a river, RLF_VT a tributary: [blocks of flat floor past its banks, how far
@@ -145,6 +183,7 @@ function reliefMapCells(px,pz,n){
   for(let j=0;j<n;j++)for(let i=0;i<n;i++){
     const x=px*CELL+(i+0.5)*st,z=pz*CELL+(j+0.5)*st,h=hAt(x,z),t=CLIM.t,d=Math.max(2,st/2);
     if(h<-0.9){C.push(MAPC.river);any=true;continue;}
+    if(RLF.salt&&h===0){C.push('#e8e4d8');any=true;continue;}
     const s=((h-hAt(x-d,z))+(h-hAt(x,z-d)))/d;   // (facing the light: brighter; away from it: darker)
     let col=h>rlfSnow(t)?'#eef2f4':h>rlfRock(t)?'#8c8a84':base;
     const k=Math.max(-0.45,Math.min(0.45,s*0.35))+Math.min(0.12,h/600);

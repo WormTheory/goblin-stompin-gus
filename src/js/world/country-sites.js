@@ -331,7 +331,7 @@ function roadNear(x,z,pad){
 // deeper than a few blocks isn't filled in for a highway, though: it runs on under it, and the road crosses on a deck on
 // pillars (routeColumn), easing from the one to the other as the lake gets deeper
 function plainsH(x,z){
-  const px=Math.floor(x/CELL),pz=Math.floor(z/CELL);RLF.cut=RLF.tun=RLF.ter=RLF.tw=false;RLF.r=0;if(!PLAINS_OPEN(px,pz))return 0;
+  const px=Math.floor(x/CELL),pz=Math.floor(z/CELL);RLF.cut=RLF.tun=RLF.ter=RLF.tw=RLF.salt=RLF.face=false;RLF.r=RLF.dune=0;if(!PLAINS_OPEN(px,pz))return 0;
   const rx=x-px*CELL,rz=z-pz*CELL;let f=1;
   roadNear(x,z);const fr=Math.min(1,Math.max(0,RN_RT)/14);
   for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++){if(!dx&&!dz||PLAINS_OPEN(px+dx,pz+dz))continue;

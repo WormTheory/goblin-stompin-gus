@@ -64,7 +64,10 @@ function clCorner(ix,iz){
   if(clSeed!==seed){clSeed=seed;CL_C.clear();}
   const k=ix*100003+iz;let E=CL_C.get(k);if(E)return E;
   const x=ix*CL_SP,z=iz*CL_SP,c=climateAt(x,z),B=BIOMES[bioPick(c.t,c.m,x,z)];
-  E={t:c.t,m:c.m,b:B.i,gr:B.grass,lf:B.leaf,pond:B.pond,wood:B.wood,r:ruggedAt(x,z)};
+  E={t:c.t,m:c.m,b:B.i,gr:B.grass,lf:B.leaf,pond:B.pond,wood:B.wood,r:ruggedAt(x,z),
+    // (the landforms, world/relief.js: dunes in the desert, mesas in the badlands and lower plateaus in scrubland, salt
+    // flats in the driest, hottest desert)
+    dune:B.k==='desert'?1:0,mesa:B.k==='badlands'?1:B.k==='scrub'?0.5:0,salt:B.k==='desert'&&c.m<0.14?1:0};
   if(CL_C.size>200000)CL_C.clear();CL_C.set(k,E);return E;
 }
 // the climate at block (x,z), blended from the lattice. Into CLIM, with CLIM.u, CLIM.v and the four corners in CL_Q for

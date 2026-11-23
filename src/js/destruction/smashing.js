@@ -70,7 +70,7 @@ for(const b of [NEON_G,NEON_M,NEON_Y,NEON_O,LAMP])KIND[b]='neon';
 for(const b of [METAL,RUST])KIND[b]='metal';
 for(const b of [LOG,PLANKS])KIND[b]='wood';
 for(const b of [LEAVES,GRASS,PINE,REEDS,CACTUS])KIND[b]="plant";
-for(const b of [DIRT,SAND,SNOW,RED_SAND,MUD])KIND[b]="dirt";KIND[SANDSTONE]=KIND[TERRA]=KIND[TERRA2]="stone";
+for(const b of [DIRT,SAND,SNOW,RED_SAND,MUD,SALT])KIND[b]="dirt";KIND[SANDSTONE]=KIND[TERRA]=KIND[TERRA2]="stone";
 for(const b of [MARBLE])KIND[b]='stone';for(const b of [BRONZE])KIND[b]='metal';for(const b of [SHELF,CRATE,DOOR_W,DOOR_WK,DOOR_BARN,FENCE,FENCE_W])KIND[b]='wood';KIND[DOOR_G]=KIND[DOOR_GB]=KIND[STAINED]='glass';KIND[GRAVE]=KIND[GRAVEX]='stone';KIND[CHAINLINK]=KIND[GOLD]='metal';
 for(const b of [BED,SOFA,AWN_R,AWN_G])KIND[b]='fabric';
 KIND[PUMP]='metal';KIND[SIDING]='wood';KIND[SIDING_Y]='wood';KIND[SHINGLE]='wood';KIND[HOSPX]='neon';

@@ -52,6 +52,14 @@
 - Sites in the wilds keep away from the most rugged country.
 - This makes a new world again, so a saved city starts afresh.
 
+### Landforms
+
+- Deserts are rolling seas of dunes, long sandy ridges with a steep face on the side away from the wind.
+- The badlands rise into flat-topped mesas and plateaus with stepped sides of banded clay, and canyons cut down through them. Scrubland has lower plateaus.
+- In middling hilly country the land steps up sheer rock cliffs that run on for kilometres.
+- The driest, hottest deserts have dead-flat white salt flats.
+- This makes a new world again, so a saved city starts afresh.
+
 ### Rivers
 
 - Rivers now start somewhere and go somewhere: each one rises in the hills or mountains, or flows out of a lake, and runs downhill until it reaches the sea or joins a bigger river.
