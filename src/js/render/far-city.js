@@ -23,7 +23,7 @@ const FAR_FRAG=[
   ' vec3 wall=c0*sh*uLight;',
   // (and weather on the tops, but not the sea's: rain darkens them, snow settles on them, on average as it does on the
   // blocks' tops, where each spot is covered once its own share of the snow comes)
-  ' if(up>0.5&&abs(vWin.a+2.0)>0.5){wall*=1.0-0.3*uWet;float snowL=min(uSnow,uSnowClk);wall=mix(wall,vec3(0.897,0.909,0.927)*uLight,clamp(snowL*1.12,0.0,1.0)*step(0.002,snowL));}',
+  ' if(up>0.5&&abs(vWin.a+2.0)>0.5){float wkF;float snF=snowHere(vWP,wkF);wall*=1.0-0.3*uWet*wkF*(1.0-snF);float snowL=min(snF,uSnowClk);wall=mix(wall,vec3(0.897,0.909,0.927)*uLight,clamp(snowL*1.12,0.0,1.0)*step(0.002,snowL));}',
   ' const float WP=0.3575;',
   ' float uw=uWin*step(-2.5,vWin.a);',   // (no windows on a box that isn't a building, -3)
   ' float win=side*step(0.45,fract((vWP.x+vWP.z)*0.5))*step(0.35,fract((vWP.y-5.0)/5.0))*uw;',
@@ -42,11 +42,11 @@ const FAR_HORIZ=[
   '   if(Y<0.0){float sm=sqrt(-Y/uWorldCurve);if(sm>dn&&sm<df)f=max(f,-2.0*sqrt(-Y*uWorldCurve));}',
   '   if(f<-2.0*sqrt(hc*uWorldCurve)-1e-4)gl_Position=vec4(2.0,2.0,2.0,1.0);}}'].join('\n');
 function farPatch(mat,win,ring){
-  const U={uLight:WORLD_LIGHT,uNightK:skyU.uNight,uMeshed:{value:MESHED_TEX},uWin:{value:win},uRing:ring,uCamP:FAR_CAMP,uHoriz:HORIZ_U,uSeasonW:SEASON_W,uSnow:SNOW_U,uWet:WET_U,uSnowClk:SNOWCLK_U,uLeafFall:LEAFFALL_U};
+  const U={uLight:WORLD_LIGHT,uNightK:skyU.uNight,uMeshed:{value:MESHED_TEX},uWin:{value:win},uRing:ring,uCamP:FAR_CAMP,uHoriz:HORIZ_U,uSeasonW:SEASON_W,uSnow:SNOW_U,uWet:WET_U,uSnowClk:SNOWCLK_U,uSnowB:SNOWB_U,uColdT:COLDT_U,uLeafFall:LEAFFALL_U};
   mat.onBeforeCompile=sh=>{
     Object.assign(sh.uniforms,U);
     sh.vertexShader='attribute vec3 aCol;attribute vec3 aTop;attribute vec4 aWin;varying vec3 vCol;varying vec3 vTop;varying vec4 vWin;varying vec3 vWP;varying vec3 vN;uniform vec4 uHoriz;\n'+sh.vertexShader.replace('#include <project_vertex>','#include <project_vertex>\n vCol=aCol;vTop=aTop;vWin=aWin;vN=normal;\n#ifdef USE_INSTANCING\n vWP=(modelMatrix*instanceMatrix*vec4(transformed,1.0)).xyz;\n'+FAR_HORIZ+'\n#else\n vWP=(modelMatrix*vec4(transformed,1.0)).xyz;\n#endif');
-    sh.fragmentShader='uniform vec3 uLight;uniform vec4 uSeasonW;uniform float uNightK,uWin,uSnow,uWet,uSnowClk,uLeafFall;uniform sampler2D uMeshed;uniform vec2 uRing;uniform vec4 uCamP;varying vec3 vCol;varying vec3 vTop;varying vec4 vWin;varying vec3 vWP;varying vec3 vN;\n'+sh.fragmentShader.replace('#include <color_fragment>',FAR_FRAG);
+    sh.fragmentShader=SNOW_GLSL+'uniform vec3 uLight;uniform vec4 uSeasonW;uniform float uNightK,uWin,uSnow,uWet,uSnowClk,uLeafFall;uniform sampler2D uMeshed;uniform vec2 uRing;uniform vec4 uCamP;varying vec3 vCol;varying vec3 vTop;varying vec4 vWin;varying vec3 vWP;varying vec3 vN;\n'+sh.fragmentShader.replace('#include <color_fragment>',FAR_FRAG);
   };
   return mat;
 }

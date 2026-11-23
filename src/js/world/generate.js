@@ -277,7 +277,7 @@ function genChunk(cx,cz){
   bbGen(a,cx,cz);   // (big blasts' craters, before what's been smashed since: destruction/big-blast.js)
   const ce=chunkEdits.get(ckey(cx,cz));
   if(ce)for(const [x,y,z,b] of ce)a[li(x-x0,y,z-z0)]=b;
-  if(WX.frozen)freezeArr(a,true);
+  if(chunkFreeze(cx,cz))freezeArr(a,true);
   return a;
 }
 // a chunk of a moved box: the same chunk of its source, as the plan makes it there (what's fallen down at the box
@@ -289,7 +289,7 @@ function trChunk(cx,cz,B){
   bbGen(a,cx,cz);
   const x0=cx*CS,z0=cz*CS,ce=chunkEdits.get(ckey(cx,cz));
   if(ce)for(const [x,y,z,b] of ce)a[li(x-x0,y,z-z0)]=b;
-  if(WX.frozen)freezeArr(a,true);
+  if(chunkFreeze(cx,cz))freezeArr(a,true);
   return a;
 }
 // the Testing Environment's empty ground: grass on top, the usual earth and bedrock under it (smashed blocks still apply)
@@ -299,7 +299,7 @@ function flatChunk(cx,cz){
   bbGen(a,cx,cz);
   const ce=chunkEdits.get(ckey(cx,cz));
   if(ce)for(const [x,y,z,b] of ce)a[li(x-x0,y,z-z0)]=b;
-  if(WX.frozen)freezeArr(a,true);
+  if(chunkFreeze(cx,cz))freezeArr(a,true);
   return a;
 }
 function chunkArr(cx,cz){const k=ckey(cx,cz);if(k===lastK)return lastA;let a=chunks.get(k);if(!a){a=genChunk(cx,cz);chunks.set(k,a);}lastK=k;lastA=a;return a;}
@@ -331,7 +331,7 @@ function purgeLeaves(){
 const leafHash=(x,y,z)=>hash2(x*7+y*131,z*13+y*17);
 const leafDown=(x,y,z)=>leafFall>0&&leafHash(x,y,z)<leafFall;
 function get(x,y,z){x=Math.floor(x);y=Math.floor(y);z=Math.floor(z);if(y<0||y>=H)return AIR;const cx=Math.floor(x/CS),cz=Math.floor(z/CS);const b=chunkArr(cx,cz)[li(x-cx*CS,y,z-cz*CS)];return b===LEAVES&&leafDown(x,y,z)?AIR:b;}
-function setRaw(x,y,z,b){if(y<0||y>=H)return;if(BB.jobs.length)bbTouch(x,z);if(x>=SHIP_X0&&shipN)b=shipDent(x,y,z,b);if(b===AIR&&y>G)noteRemoved(x,y,z);if(WX.snowCover>0){let open=true;for(let yy=y+1;yy<H;yy++)if(get(x,yy,z)){open=false;break;}if(open)snowBorn.set(Math.floor(x)*65536+Math.floor(z),WX.snowClock);}navCols.delete(Math.floor(x)*65536+Math.floor(z));const cx=Math.floor(x/CS),cz=Math.floor(z/CS);if(b!==LOG&&rawGet(x,y,z)===LOG)leafCheckQ.add(Math.floor(x)+','+Math.floor(y)+','+Math.floor(z));if(b===AIR&&get(x,y,z)===ICE)b=WATER;if(b===AIR)wfNoteRemoved(x,y,z);const A=chunkArr(cx,cz),lx=x-cx*CS,lz=z-cz*CS;if(BL_ON)blkEdit(x,y,z,A[li(lx,y,lz)],b,A);if(b&&A.tileTops){const t=(Math.floor(lz)>>2)*4+(Math.floor(lx)>>2);if(y>A.tileTops[t])A.tileTops[t]=y;}A[li(lx,y,lz)]=b;}
+function setRaw(x,y,z,b){if(y<0||y>=H)return;if(BB.jobs.length)bbTouch(x,z);if(x>=SHIP_X0&&shipN)b=shipDent(x,y,z,b);if(b===AIR&&y>G)noteRemoved(x,y,z);if(snowMax()>0&&snowAt(x,z,y)>0){let open=true;for(let yy=y+1;yy<H;yy++)if(get(x,yy,z)){open=false;break;}if(open)snowBorn.set(Math.floor(x)*65536+Math.floor(z),WX.snowClock);}navCols.delete(Math.floor(x)*65536+Math.floor(z));const cx=Math.floor(x/CS),cz=Math.floor(z/CS);if(b!==LOG&&rawGet(x,y,z)===LOG)leafCheckQ.add(Math.floor(x)+','+Math.floor(y)+','+Math.floor(z));if(b===AIR&&get(x,y,z)===ICE)b=WATER;if(b===AIR)wfNoteRemoved(x,y,z);const A=chunkArr(cx,cz),lx=x-cx*CS,lz=z-cz*CS;if(BL_ON)blkEdit(x,y,z,A[li(lx,y,lz)],b,A);if(b&&A.tileTops){const t=(Math.floor(lz)>>2)*4+(Math.floor(lx)>>2);if(y>A.tileTops[t])A.tileTops[t]=y;}A[li(lx,y,lz)]=b;}
 function addEdit(x,y,z,b){if(BB.jobs.length)bbTouch(x,z);if(b===AIR&&get(x,y,z)===WATER)b=WATER;edits[x+','+y+','+z]=b;const k=ckey(Math.floor(x/CS),Math.floor(z/CS));let l=chunkEdits.get(k);if(!l){l=[];chunkEdits.set(k,l);}l.push([x,y,z,b]);}
 // the highest block in each 4 x 4 of a chunk's columns, kept with the chunk once something has asked. (A block knocked out can
 // leave it too high, which only means a closer look than was needed; a block put in raises it, in setRaw.)

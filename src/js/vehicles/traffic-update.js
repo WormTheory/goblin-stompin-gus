@@ -67,8 +67,8 @@ function updateCars(dt){
     if(gone){if(c.svcPool){svcDone(c);continue;}c.alive=false;c.g.visible=false;c.respawnT=c.police?6:0.5;c.hunter=false;c.spot=null;continue;}
     c.hurt-=dt;c.ramCD-=dt;c.honkT-=dt;
     {const R=c.vehG[c.veh].rider;if(R&&R.visible!==c.dh.visible)R.visible=c.dh.visible;}   // (a motorcycle's or a four-wheeler's rider goes with its driver)
-    c.snowChk=(c.snowChk||0)-dt;if(c.snowChk<=0){c.snowChk=0.6+Math.random()*0.4;const cx=Math.floor(c.pos.x),cz=Math.floor(c.pos.z);let open=true;for(let y=Math.floor(c.pos.y)+3;y<Math.min(H,c.pos.y+45);y++)if(solidAt(cx,y,cz)){open=false;break;}c.snowOpen=open;}
-    c.snowU.value+=((c.snowOpen?WX.snowCover:0)-c.snowU.value)*Math.min(1,dt*0.4);
+    c.snowChk=(c.snowChk||0)-dt;if(c.snowChk<=0){c.snowChk=0.6+Math.random()*0.4;const cx=Math.floor(c.pos.x),cz=Math.floor(c.pos.z);let open=true;for(let y=Math.floor(c.pos.y)+3;y<Math.min(H,c.pos.y+45);y++)if(solidAt(cx,y,cz)){open=false;break;}c.snowOpen=open;c.snowHere=snowMax()>0?snowAt(c.pos.x,c.pos.z,c.pos.y):0;}
+    c.snowU.value+=((c.snowOpen?c.snowHere??WX.snowCover:0)-c.snowU.value)*Math.min(1,dt*0.4);
     c.paint.emissive.setHex(c.hurt>0?0x441100:0x000000);
     const tgt=nearestPlayer(c.pos.x,c.pos.z,true);
     if(calmNow()&&c.hunter){c.hunter=false;if(c.police)c.parked=true;}

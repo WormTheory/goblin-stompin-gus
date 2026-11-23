@@ -63,6 +63,16 @@
 - Sinkholes drop straight down toward the caves, with water at the bottom in warm country.
 - This makes a new world again, so a saved city starts afresh.
 
+### Weather by region
+
+- The weather now depends on where you are. Rain falls as snow in the cold north and high in the mountains, the ice fields get blizzards, and the desert stays dry.
+- Deserts and badlands get sandstorms: the air turns ochre, dust blows past and you can hardly see.
+- The savanna and scrubland have dusty days, with dust devils whirling across the plain.
+- The rainforest gets heavier rain, and a humid haze on its drier days. Moors and swamps fog over more often.
+- Snow lies by temperature. The tundra and ice fields stay white all year, even on a clear summer day. Cold country keeps its snow far into spring, and it melts fast in warm places.
+- Winter only freezes ponds and rivers where it's cold enough, never in the desert, savanna or rainforest.
+- In split screen, each player sees the weather where they are.
+
 ### Rivers
 
 - Rivers now start somewhere and go somewhere: each one rises in the hills or mountains, or flows out of a lake, and runs downhill until it reaches the sea or joins a bigger river.

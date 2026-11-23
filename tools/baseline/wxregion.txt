@@ -1,0 +1,37 @@
+spots grassland -400,-400 | forest 4400,4000 | taiga -4400,-4400 | tundra -10000,8800 | ice -12000,11200 | desert 5600,-5600 | badlands 8000,-4800 | scrub 5200,-4800 | savanna 4400,-4400 | rainforest 4800,5200 | swamp -6000,-3600 | moor -3600,-4400
+-- spring (spell by spell, a few spells each)
+grassland  clear>clear partly>partly cloudy>cloudy foggy>foggy lrain>lrain rain>rain hrain>hrain storm>storm lsnow>lsnow snow>snow blizzard>blizzard
+forest     clear>clear partly>partly cloudy>cloudy foggy>foggy lrain>lrain rain>rain hrain>hrain storm>storm lsnow>lrain snow>rain blizzard>storm
+taiga      clear>clear partly>partly cloudy>cloudy foggy>foggy lrain>lsnow rain>snow hrain>snow storm>blizzard lsnow>lsnow snow>snow blizzard>blizzard
+tundra     clear>clear partly>partly cloudy>cloudy foggy>foggy lrain>lsnow rain>snow hrain>snow storm>blizzard lsnow>lsnow snow>snow blizzard>blizzard
+ice        clear>clear partly>partly cloudy>cloudy foggy>foggy/lsnow lrain>lsnow rain>snow/blizzard hrain>snow/blizzard storm>blizzard lsnow>lsnow snow>snow/blizzard blizzard>blizzard
+desert     clear>clear/sand partly>partly/sand cloudy>cloudy foggy>clear lrain>partly rain>cloudy hrain>sand/rain storm>sand/rain lsnow>partly snow>cloudy blizzard>sand/rain
+badlands   clear>clear/sand partly>partly/sand cloudy>cloudy foggy>clear lrain>partly rain>cloudy hrain>sand/rain storm>sand/rain lsnow>partly snow>cloudy blizzard>sand/rain
+scrub      clear>clear/dust partly>partly/dust cloudy>cloudy foggy>partly lrain>lrain rain>rain hrain>hrain storm>storm lsnow>lrain snow>rain blizzard>storm
+savanna    clear>clear/dust partly>partly/dust cloudy>cloudy foggy>partly lrain>lrain rain>rain hrain>hrain storm>storm lsnow>lrain snow>rain blizzard>storm
+rainforest clear>partly/haze partly>partly/haze cloudy>cloudy/haze foggy>foggy/haze lrain>rain rain>hrain hrain>hrain storm>storm lsnow>rain snow>hrain blizzard>storm
+swamp      clear>clear partly>partly cloudy>cloudy foggy>foggy lrain>lsnow rain>snow hrain>snow storm>blizzard lsnow>lsnow snow>snow blizzard>blizzard
+moor       clear>clear/foggy partly>partly/foggy cloudy>cloudy/foggy foggy>foggy lrain>lrain rain>rain hrain>hrain storm>storm lsnow>lsnow snow>snow blizzard>blizzard
+-- winter (spell by spell, a few spells each)
+grassland  clear>clear partly>partly cloudy>cloudy foggy>foggy lrain>lrain rain>rain hrain>hrain storm>storm lsnow>lsnow snow>snow blizzard>blizzard
+forest     clear>clear partly>partly cloudy>cloudy foggy>foggy lrain>lrain rain>rain hrain>hrain storm>storm lsnow>lrain snow>rain blizzard>storm
+taiga      clear>clear partly>partly cloudy>cloudy foggy>foggy lrain>lsnow rain>snow hrain>snow storm>blizzard lsnow>lsnow snow>snow blizzard>blizzard
+tundra     clear>clear partly>partly cloudy>cloudy foggy>foggy lrain>lsnow rain>snow hrain>snow storm>blizzard lsnow>lsnow snow>snow blizzard>blizzard
+ice        clear>clear partly>partly cloudy>cloudy foggy>foggy/lsnow lrain>lsnow rain>snow/blizzard hrain>snow/blizzard storm>blizzard lsnow>lsnow snow>snow/blizzard blizzard>blizzard
+desert     clear>clear/sand partly>partly/sand cloudy>cloudy foggy>clear lrain>partly rain>cloudy hrain>sand/rain storm>sand/rain lsnow>partly snow>cloudy blizzard>sand/rain
+badlands   clear>clear/sand partly>partly/sand cloudy>cloudy foggy>clear lrain>partly rain>cloudy hrain>sand/rain storm>sand/rain lsnow>partly snow>cloudy blizzard>sand/rain
+scrub      clear>clear/dust partly>partly/dust cloudy>cloudy foggy>partly lrain>lrain rain>rain hrain>hrain storm>storm lsnow>lrain snow>rain blizzard>storm
+savanna    clear>clear/dust partly>partly/dust cloudy>cloudy foggy>partly lrain>lrain rain>rain hrain>hrain storm>storm lsnow>lrain snow>rain blizzard>storm
+rainforest clear>partly/haze partly>partly/haze cloudy>cloudy/haze foggy>foggy/haze lrain>rain rain>hrain hrain>hrain storm>storm lsnow>rain snow>hrain blizzard>storm
+swamp      clear>clear partly>partly cloudy>cloudy foggy>foggy lrain>lsnow rain>snow hrain>snow storm>blizzard lsnow>lsnow snow>snow blizzard>blizzard
+moor       clear>clear partly>partly cloudy>cloudy foggy>foggy lrain>lsnow rain>snow hrain>snow storm>blizzard lsnow>lsnow snow>snow blizzard>blizzard
+mountain -9800,20200,77,taiga summer rain at the top: snow at the foot: rain
+desert in a storm: local sand rain 0.00 dust 1.00 fog 0.24 | world spell storm rain 1.00
+cold map under the player: temperature 0.85 (climate 0.85) wet 0.00
+after a clear summer       grassland 0.00 forest 0.00 taiga 0.19 tundra 0.80 ice 0.95 desert 0.00 badlands 0.00 scrub 0.00 savanna 0.00 rainforest 0.00 swamp 0.37 moor 0.00
+200s of winter snow        grassland 1.00 forest 0.00 taiga 1.00 tundra 1.00 ice 1.00 desert 0.00 badlands 0.00 scrub 0.00 savanna 0.00 rainforest 0.00 swamp 1.00 moor 1.00
+then 300s clear            grassland 0.50 forest 0.00 taiga 0.84 tundra 0.80 ice 0.95 desert 0.00 badlands 0.00 scrub 0.00 savanna 0.00 rainforest 0.00 swamp 0.87 moor 0.64
+200s of summer rain        grassland 0.50 forest 0.00 taiga 0.30 tundra 0.80 ice 0.95 desert 0.00 badlands 0.00 scrub 0.00 savanna 0.00 rainforest 0.00 swamp 0.46 moor 0.33
+freezes in winter grassland true forest false taiga true tundra true ice true desert false badlands false scrub false savanna false rainforest false swamp true moor true
+online: the clock carries the bands [1,0.13333333333333505,0]
+errors 0 

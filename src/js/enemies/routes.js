@@ -323,7 +323,7 @@ function updateGoblins(dt){
       if(ptGone(g.pos.x,g.pos.z)&&!visibleToAny(g.pos.x,g.pos.y+1,g.pos.z)){gone=true;g.state='wait';g.t=0;g.root.visible=false;if(g.civ&&!g.staff)civAlive--;else if(!g.staff)hostileAlive--;g.vendor=null;g.employer=null;return;}}
     const tgt=nearestPlayer(g.pos.x,g.pos.z,true);
     let moving=false,d=1e9,dx=0,dz=0;
-    if(g.snowU){if(g.snowFor!==g.id){g.snowFor=g.id;g.snowU.value=WX.k.snow>0.08?WX.snowCover*0.5:0;}snowGather(g,dt,g.phaseWas!==g.phase);g.phaseWas=g.phase;}
+    if(g.snowU){if(g.snowFor!==g.id){g.snowFor=g.id;g.snowU.value=wxSnowFall(g.pos.x,g.pos.z,g.pos.y)>0.08?snowAt(g.pos.x,g.pos.z,g.pos.y)*0.5:0;}snowGather(g,dt,g.phaseWas!==g.phase);g.phaseWas=g.phase;}
     g.stun-=dt;knockMove(g,dt);
     // (partway through a jump or a climb: that's all it's doing, unless something knocks it off)
     if(g.act){if(g.stun>0||!playing)g.act=null;else{

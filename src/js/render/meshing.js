@@ -62,6 +62,16 @@ const FOG_LIT_FRAG=`
 // weather on the ground: a vertex flag (aSky) marks top faces with nothing above them; on those, snow settles in
 // patches as the snow cover grows, and rain darkens them. Anything under a roof, a deck, an awning or a tree stays clear.
 const SNOW_U={value:0},WET_U={value:0},SNOWCLK_U={value:0};
+// snow and wet by place: the snow lying in each band of climate (uSnowB: polar, cold, temperate, warm; the temperate
+// one is uSnow, as before), and a map of how cold and how wet each 16-block cell is (COLD, wrapped every 4096 blocks
+// and kept round the players by coldTick, weather.js): red the temperature, lower on the mountains; green how wet the
+// ground gets in the rain (none in the desert); blue the snow that never goes (the tundra's and the ice fields'). An unfilled cell is temperate and ordinary, so it's as it always was.
+const SNOWB_U={value:new THREE.Vector4(0,0,0,0)},COLD_N=256,COLD_S=16,COLD=new Uint8Array(COLD_N*COLD_N*4);
+for(let i=0;i<COLD.length;i+=4){COLD[i]=128;COLD[i+1]=128;COLD[i+3]=255;}
+const COLD_TEX=new THREE.DataTexture(COLD,COLD_N,COLD_N,THREE.RGBAFormat);COLD_TEX.wrapS=COLD_TEX.wrapT=THREE.RepeatWrapping;COLD_TEX.magFilter=COLD_TEX.minFilter=THREE.LinearFilter;COLD_TEX.needsUpdate=true;
+const COLDT_U={value:COLD_TEX};
+// (the bands' snow at a cell's temperature, blended between them: polar to 0.1, cold at 0.28, temperate from 0.38 to 0.5, warm from 0.62)
+const SNOW_GLSL='uniform vec4 uSnowB;uniform sampler2D uColdT;\nfloat snowHere(vec3 p,out float wk){vec4 c=texture2D(uColdT,p.xz*'+(1/(COLD_N*COLD_S))+');wk=c.g*2.0;float t=c.r;\n return max(c.b,t<0.28?mix(uSnowB.x,uSnowB.y,clamp((t-0.1)/0.18,0.0,1.0)):t<0.5?mix(uSnowB.y,uSnowB.z,clamp((t-0.28)/0.1,0.0,1.0)):mix(uSnowB.z,uSnowB.w,clamp((t-0.5)/0.12,0.0,1.0)));}\n';
 // the seasons on the plants: how much of spring, summer, autumn and winter it is (each season fades into the next over
 // its last six days). Picked out in the shader by texture tile: leaves (tile 6), grass (0 top, 1 side), flowers (36), crops (55, 56).
 const SEASON_W={value:new THREE.Vector4(1,0,0,0)};
@@ -103,11 +113,11 @@ const FOLIAGE_FRAG=`
 // by smashing starts bare and builds up its own snow at the normal rate. aSky = 0 (covered) or 1 + that time.
 const snowBorn=new Map();
 function weatherPatch(sh){
-  sh.uniforms.uSnow=SNOW_U;sh.uniforms.uWet=WET_U;sh.uniforms.uSnowClk=SNOWCLK_U;
+  sh.uniforms.uSnow=SNOW_U;sh.uniforms.uWet=WET_U;sh.uniforms.uSnowClk=SNOWCLK_U;sh.uniforms.uSnowB=SNOWB_U;sh.uniforms.uColdT=COLDT_U;
   sh.vertexShader='attribute float aSky;varying float vSky;varying float vBorn;varying vec3 vWp;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n vSky=step(0.5,aSky);vBorn=max(aSky-1.0,0.0);vWp=(modelMatrix*vec4(position,1.0)).xyz;');
-  sh.fragmentShader='uniform float uSnow,uWet,uSnowClk;varying float vSky;varying float vBorn;varying vec3 vWp;\n'+sh.fragmentShader;
+  sh.fragmentShader='uniform float uSnow,uWet,uSnowClk;varying float vSky;varying float vBorn;varying vec3 vWp;\n'+SNOW_GLSL+sh.fragmentShader;
 }
-const SNOW_FRAG='\n  diffuseColor.rgb*=1.0-0.3*uWet*vSky;\n  if(vSky>0.5&&uSnow>0.0){\n  float snowN=fract(sin(dot(mod(floor(vWp.xz*4.0+0.001),509.0),vec2(12.9898,78.233)))*43758.5453);float snowL=min(uSnow,uSnowClk-vBorn);float snowC=step(snowN,snowL*1.12)*step(0.002,snowL);\n  float snowG=fract(sin(dot(mod(floor(vWp.xz*16.0+0.001),997.0),vec2(39.346,11.135)))*43758.5453);float snowV=0.84+0.11*snowG+0.03*step(0.93,snowG);\n  diffuseColor.rgb=mix(diffuseColor.rgb,vec3(snowV,snowV+0.012,snowV+0.03)*litC,snowC);}';   // (only top faces open to the sky, only when there's snow: no sums for every other pixel on screen)
+const SNOW_FRAG='\n  if(vSky>0.5){float wkS;float snS=snowHere(vWp,wkS);diffuseColor.rgb*=1.0-0.3*uWet*wkS*(1.0-snS);\n  if(snS>0.0){\n  float snowN=fract(sin(dot(mod(floor(vWp.xz*4.0+0.001),509.0),vec2(12.9898,78.233)))*43758.5453);float snowL=min(snS,uSnowClk-vBorn);float snowC=step(snowN,snowL*1.12)*step(0.002,snowL);\n  float snowG=fract(sin(dot(mod(floor(vWp.xz*16.0+0.001),997.0),vec2(39.346,11.135)))*43758.5453);float snowV=0.84+0.11*snowG+0.03*step(0.93,snowG);\n  diffuseColor.rgb=mix(diffuseColor.rgb,vec3(snowV,snowV+0.012,snowV+0.03)*litC,snowC);}}';   // (only top faces open to the sky, only when there's snow: no sums for every other pixel on screen)
 const matOpaque=nightPatch(new THREE.MeshBasicMaterial({map:tex,vertexColors:true,alphaTest:.5}));
 // (the paint and the rails laid on the ground: pulled toward the camera a touch so they never flicker with it)
 const matDecal=nightPatch(new THREE.MeshBasicMaterial({map:tex,vertexColors:true,alphaTest:.5,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-4}));

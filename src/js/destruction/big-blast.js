@@ -46,7 +46,7 @@ function bbCarve(A,cx,cz,C,J){
   const K=bbK(C),x0=cx*CS,z0=cz*CS,o=bbO(),T=A.tileTops||tileTopsOf(A),L=CS*CS,host=J&&!netGuest();let n=0,lip=false;
   // the snow it reaches is melted (all of it, not just where blocks went), and what settles after starts from bare ground:
   // the snow clock when it went off (C.w), so a chunk made later, a save loaded again and a guest melt the same
-  const melt=WX.snowCover>0?(Number.isFinite(C.w)?C.w:J?WX.snowClock:-1):-1;
+  const melt=snowAt(C.x,C.z,C.y)>0?(Number.isFinite(C.w)?C.w:J?WX.snowClock:-1):-1;
   for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){
     const x=x0+lx,z=z0+lz;bbCol(C,K,x,z,o);if(!o.zone)continue;
     const base=lx+lz*CS,top=Math.max(T[(lz>>2)*4+(lx>>2)],o.l1);let n0=n,B=undefined;
@@ -153,7 +153,7 @@ function bigBlast(x,y,z,R,opt={}){
   if(netGuest())return null;   // (the host's to set off: a guest's is sent over)
   const n=craters.reduce((m,c)=>Math.max(m,c.n),0)+1;
   const C={x:Math.round(x*10)/10,y:Math.round(y),z:Math.round(z*10)/10,R:Math.round(R),s:(hash2(n*977,Math.round(x)+Math.round(z)*7)*1e6)|0,n};
-  if(WX.snowCover>0)C.w=WX.snowClock;   // (the snow it melts: bbCarve)
+  if(snowAt(C.x,C.z,C.y)>0)C.w=WX.snowClock;   // (the snow it melts: bbCarve)
   if(netHost()&&NET.guests.size)netEmit(['X',C.x,C.y,C.z,C.R,C.s,C.n,C.w??-1]);
   return bbStart(C,true);
 }
@@ -261,7 +261,7 @@ function bbCount(J,t0){
 }
 // the snow on everyone and everything inside the ring melted off (it settles again as on anything else)
 function bbThaw(J){
-  if(WX.snowCover<=0)return;
+  if(snowMax()<=0)return;
   const C=J.C,r=Math.min(J.ring,C.R),in_=(x,z)=>Math.hypot(x-C.x,z-C.z)<r,off=o=>{if(o&&o.snowU&&o.snowU.value>0)o.snowU.value=0;};
   for(const q of players)if(q.active&&in_(pwx(q),pwz(q)))off(q);
   for(const g of goblins)if(g.snowU&&g.snowU.value>0&&in_(g.pos.x,g.pos.z))off(g);

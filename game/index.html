@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:7eeb2c32561fddbfde0a0baa961dc99875d349c18d4d507488a96d84749a42d8 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:499f12011e0f4a3e350c4152c01c7eb7d3f592923b1d555f21b9d286fa171b53 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1651,6 +1651,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <ul><li>Out in the wilds the land now rises into hills and mountain ranges, up to about 130 blocks, with bare rock near the top, snow on the peaks (lower the colder it is) and a new Alpine biome up high.</li><li>Towns, farms, sites, roads, railways and rivers all stay on the level: the mountains rise away from them, so towns sit in valleys and rivers run along valley floors.</li><li>Roads and railways cut through the hills and tunnel under the high ground (road tunnels are lined and lit).</li><li>Lakes lie in the low, wet country, frozen over in the ice fields.</li><li>Mountains are seen from afar, and the map and minimap show the hills shaded, with the rock, snow and lakes.</li><li>The World Generator has a Height layer and Land shape sliders: more or fewer mountains, how high they get, how hilly the rest is and how many lakes there are.</li><li>The World Generator shows the ground's height and biome wherever you point, and can lay hill shading and contour lines over any map.</li><li>The World Generator has a 3D view: the middle of the map, just as it's shown, raised up to the ground's height, to turn round and tilt, with a slider for how much to exaggerate the heights.</li><li>The World Generator has River sliders: how many rivers there are, how much they meander, how far they wander and how wide they are. The game's own worlds are unchanged.</li><li>Highways cross the deeper lakes on a deck on pillars, with the water running underneath.</li><li>Railway tunnels are lined and lit, like the road tunnels.</li><li>Fields of big boulders lie at the mountains' feet, and loose scree just below the bare rock.</li><li>Big blasts carve their craters into the hills and mountains as they stand, rather than at street level.</li><li>Towns in rugged country are fewer and smaller.</li><li>The map and minimap shade the land as it really is beside the roads, rivers and towns.</li><li>There are no lakes near the start, as there are no mountains there.</li><li>Planes flying their rounds climb over the hills and mountains.</li><li>Beside towns, farms and sites the land climbs in terraces held up by stone retaining walls, rather than sheer rock faces.</li><li>Sites in the wilds keep away from the most rugged country.</li><li>This makes a new world again, so a saved city starts afresh.</li></ul>
 <h3>Landforms</h3>
 <ul><li>Deserts are rolling seas of dunes, long sandy ridges with a steep face on the side away from the wind.</li><li>The badlands rise into flat-topped mesas and plateaus with stepped sides of banded clay, and canyons cut down through them. Scrubland has lower plateaus.</li><li>In middling hilly country the land steps up sheer rock cliffs that run on for kilometres.</li><li>The driest, hottest deserts have dead-flat white salt flats.</li><li>Small lakes called tarns lie in bowls high in the mountains, frozen over where it's cold.</li><li>Oases dot the deserts: a pool of water ringed with grass and palm trees, the dunes dying away round it.</li><li>Sinkholes drop straight down toward the caves, with water at the bottom in warm country.</li><li>This makes a new world again, so a saved city starts afresh.</li></ul>
+<h3>Weather by region</h3>
+<ul><li>The weather now depends on where you are. Rain falls as snow in the cold north and high in the mountains, the ice fields get blizzards, and the desert stays dry.</li><li>Deserts and badlands get sandstorms: the air turns ochre, dust blows past and you can hardly see.</li><li>The savanna and scrubland have dusty days, with dust devils whirling across the plain.</li><li>The rainforest gets heavier rain, and a humid haze on its drier days. Moors and swamps fog over more often.</li><li>Snow lies by temperature. The tundra and ice fields stay white all year, even on a clear summer day. Cold country keeps its snow far into spring, and it melts fast in warm places.</li><li>Winter only freezes ponds and rivers where it's cold enough, never in the desert, savanna or rainforest.</li><li>In split screen, each player sees the weather where they are.</li></ul>
 <h3>Rivers</h3>
 <ul><li>Rivers now start somewhere and go somewhere: each one rises in the hills or mountains, or flows out of a lake, and runs downhill until it reaches the sea or joins a bigger river.</li><li>Smaller, shallower streams branch off the rivers and feed into them.</li><li>Through the hills and mountains, rivers carve valleys for themselves.</li><li>The World Generator has two more River sliders: how far rivers run inland, and how many streams branch off them. It draws streams thinner than rivers.</li><li>Each river has a width of its own, the same all the way down (the Width slider still sets the widest).</li><li>A river passing a lake now runs into it, with no strip of land left between the two, and rises to the lake's level as it reaches it.</li><li>Swamp river banks are muddy along whole stretches rather than in patches.</li><li>The map and minimap no longer draw rivers out across the sea.</li><li>This makes a new world again, so a saved city starts afresh.</li></ul>
 <h3>Co-op on two screens</h3>
@@ -2383,7 +2385,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='49e96c31cb28';
+const GAME_VER='0.5',GAME_BUILD='13bd953752c7';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v106'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
 const WORLD_GEN=8;
@@ -9686,7 +9688,7 @@ function genChunk(cx,cz){
   bbGen(a,cx,cz);   // (big blasts' craters, before what's been smashed since: destruction/big-blast.js)
   const ce=chunkEdits.get(ckey(cx,cz));
   if(ce)for(const [x,y,z,b] of ce)a[li(x-x0,y,z-z0)]=b;
-  if(WX.frozen)freezeArr(a,true);
+  if(chunkFreeze(cx,cz))freezeArr(a,true);
   return a;
 }
 // a chunk of a moved box: the same chunk of its source, as the plan makes it there (what's fallen down at the box
@@ -9698,7 +9700,7 @@ function trChunk(cx,cz,B){
   bbGen(a,cx,cz);
   const x0=cx*CS,z0=cz*CS,ce=chunkEdits.get(ckey(cx,cz));
   if(ce)for(const [x,y,z,b] of ce)a[li(x-x0,y,z-z0)]=b;
-  if(WX.frozen)freezeArr(a,true);
+  if(chunkFreeze(cx,cz))freezeArr(a,true);
   return a;
 }
 // the Testing Environment's empty ground: grass on top, the usual earth and bedrock under it (smashed blocks still apply)
@@ -9708,7 +9710,7 @@ function flatChunk(cx,cz){
   bbGen(a,cx,cz);
   const ce=chunkEdits.get(ckey(cx,cz));
   if(ce)for(const [x,y,z,b] of ce)a[li(x-x0,y,z-z0)]=b;
-  if(WX.frozen)freezeArr(a,true);
+  if(chunkFreeze(cx,cz))freezeArr(a,true);
   return a;
 }
 function chunkArr(cx,cz){const k=ckey(cx,cz);if(k===lastK)return lastA;let a=chunks.get(k);if(!a){a=genChunk(cx,cz);chunks.set(k,a);}lastK=k;lastA=a;return a;}
@@ -9740,7 +9742,7 @@ function purgeLeaves(){
 const leafHash=(x,y,z)=>hash2(x*7+y*131,z*13+y*17);
 const leafDown=(x,y,z)=>leafFall>0&&leafHash(x,y,z)<leafFall;
 function get(x,y,z){x=Math.floor(x);y=Math.floor(y);z=Math.floor(z);if(y<0||y>=H)return AIR;const cx=Math.floor(x/CS),cz=Math.floor(z/CS);const b=chunkArr(cx,cz)[li(x-cx*CS,y,z-cz*CS)];return b===LEAVES&&leafDown(x,y,z)?AIR:b;}
-function setRaw(x,y,z,b){if(y<0||y>=H)return;if(BB.jobs.length)bbTouch(x,z);if(x>=SHIP_X0&&shipN)b=shipDent(x,y,z,b);if(b===AIR&&y>G)noteRemoved(x,y,z);if(WX.snowCover>0){let open=true;for(let yy=y+1;yy<H;yy++)if(get(x,yy,z)){open=false;break;}if(open)snowBorn.set(Math.floor(x)*65536+Math.floor(z),WX.snowClock);}navCols.delete(Math.floor(x)*65536+Math.floor(z));const cx=Math.floor(x/CS),cz=Math.floor(z/CS);if(b!==LOG&&rawGet(x,y,z)===LOG)leafCheckQ.add(Math.floor(x)+','+Math.floor(y)+','+Math.floor(z));if(b===AIR&&get(x,y,z)===ICE)b=WATER;if(b===AIR)wfNoteRemoved(x,y,z);const A=chunkArr(cx,cz),lx=x-cx*CS,lz=z-cz*CS;if(BL_ON)blkEdit(x,y,z,A[li(lx,y,lz)],b,A);if(b&&A.tileTops){const t=(Math.floor(lz)>>2)*4+(Math.floor(lx)>>2);if(y>A.tileTops[t])A.tileTops[t]=y;}A[li(lx,y,lz)]=b;}
+function setRaw(x,y,z,b){if(y<0||y>=H)return;if(BB.jobs.length)bbTouch(x,z);if(x>=SHIP_X0&&shipN)b=shipDent(x,y,z,b);if(b===AIR&&y>G)noteRemoved(x,y,z);if(snowMax()>0&&snowAt(x,z,y)>0){let open=true;for(let yy=y+1;yy<H;yy++)if(get(x,yy,z)){open=false;break;}if(open)snowBorn.set(Math.floor(x)*65536+Math.floor(z),WX.snowClock);}navCols.delete(Math.floor(x)*65536+Math.floor(z));const cx=Math.floor(x/CS),cz=Math.floor(z/CS);if(b!==LOG&&rawGet(x,y,z)===LOG)leafCheckQ.add(Math.floor(x)+','+Math.floor(y)+','+Math.floor(z));if(b===AIR&&get(x,y,z)===ICE)b=WATER;if(b===AIR)wfNoteRemoved(x,y,z);const A=chunkArr(cx,cz),lx=x-cx*CS,lz=z-cz*CS;if(BL_ON)blkEdit(x,y,z,A[li(lx,y,lz)],b,A);if(b&&A.tileTops){const t=(Math.floor(lz)>>2)*4+(Math.floor(lx)>>2);if(y>A.tileTops[t])A.tileTops[t]=y;}A[li(lx,y,lz)]=b;}
 function addEdit(x,y,z,b){if(BB.jobs.length)bbTouch(x,z);if(b===AIR&&get(x,y,z)===WATER)b=WATER;edits[x+','+y+','+z]=b;const k=ckey(Math.floor(x/CS),Math.floor(z/CS));let l=chunkEdits.get(k);if(!l){l=[];chunkEdits.set(k,l);}l.push([x,y,z,b]);}
 // the highest block in each 4 x 4 of a chunk's columns, kept with the chunk once something has asked. (A block knocked out can
 // leave it too high, which only means a closer look than was needed; a block put in raises it, in setRaw.)
@@ -10378,6 +10380,16 @@ const FOG_LIT_FRAG=`
 // weather on the ground: a vertex flag (aSky) marks top faces with nothing above them; on those, snow settles in
 // patches as the snow cover grows, and rain darkens them. Anything under a roof, a deck, an awning or a tree stays clear.
 const SNOW_U={value:0},WET_U={value:0},SNOWCLK_U={value:0};
+// snow and wet by place: the snow lying in each band of climate (uSnowB: polar, cold, temperate, warm; the temperate
+// one is uSnow, as before), and a map of how cold and how wet each 16-block cell is (COLD, wrapped every 4096 blocks
+// and kept round the players by coldTick, weather.js): red the temperature, lower on the mountains; green how wet the
+// ground gets in the rain (none in the desert); blue the snow that never goes (the tundra's and the ice fields'). An unfilled cell is temperate and ordinary, so it's as it always was.
+const SNOWB_U={value:new THREE.Vector4(0,0,0,0)},COLD_N=256,COLD_S=16,COLD=new Uint8Array(COLD_N*COLD_N*4);
+for(let i=0;i<COLD.length;i+=4){COLD[i]=128;COLD[i+1]=128;COLD[i+3]=255;}
+const COLD_TEX=new THREE.DataTexture(COLD,COLD_N,COLD_N,THREE.RGBAFormat);COLD_TEX.wrapS=COLD_TEX.wrapT=THREE.RepeatWrapping;COLD_TEX.magFilter=COLD_TEX.minFilter=THREE.LinearFilter;COLD_TEX.needsUpdate=true;
+const COLDT_U={value:COLD_TEX};
+// (the bands' snow at a cell's temperature, blended between them: polar to 0.1, cold at 0.28, temperate from 0.38 to 0.5, warm from 0.62)
+const SNOW_GLSL='uniform vec4 uSnowB;uniform sampler2D uColdT;\nfloat snowHere(vec3 p,out float wk){vec4 c=texture2D(uColdT,p.xz*'+(1/(COLD_N*COLD_S))+');wk=c.g*2.0;float t=c.r;\n return max(c.b,t<0.28?mix(uSnowB.x,uSnowB.y,clamp((t-0.1)/0.18,0.0,1.0)):t<0.5?mix(uSnowB.y,uSnowB.z,clamp((t-0.28)/0.1,0.0,1.0)):mix(uSnowB.z,uSnowB.w,clamp((t-0.5)/0.12,0.0,1.0)));}\n';
 // the seasons on the plants: how much of spring, summer, autumn and winter it is (each season fades into the next over
 // its last six days). Picked out in the shader by texture tile: leaves (tile 6), grass (0 top, 1 side), flowers (36), crops (55, 56).
 const SEASON_W={value:new THREE.Vector4(1,0,0,0)};
@@ -10419,11 +10431,11 @@ const FOLIAGE_FRAG=`
 // by smashing starts bare and builds up its own snow at the normal rate. aSky = 0 (covered) or 1 + that time.
 const snowBorn=new Map();
 function weatherPatch(sh){
-  sh.uniforms.uSnow=SNOW_U;sh.uniforms.uWet=WET_U;sh.uniforms.uSnowClk=SNOWCLK_U;
+  sh.uniforms.uSnow=SNOW_U;sh.uniforms.uWet=WET_U;sh.uniforms.uSnowClk=SNOWCLK_U;sh.uniforms.uSnowB=SNOWB_U;sh.uniforms.uColdT=COLDT_U;
   sh.vertexShader='attribute float aSky;varying float vSky;varying float vBorn;varying vec3 vWp;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n vSky=step(0.5,aSky);vBorn=max(aSky-1.0,0.0);vWp=(modelMatrix*vec4(position,1.0)).xyz;');
-  sh.fragmentShader='uniform float uSnow,uWet,uSnowClk;varying float vSky;varying float vBorn;varying vec3 vWp;\n'+sh.fragmentShader;
+  sh.fragmentShader='uniform float uSnow,uWet,uSnowClk;varying float vSky;varying float vBorn;varying vec3 vWp;\n'+SNOW_GLSL+sh.fragmentShader;
 }
-const SNOW_FRAG='\n  diffuseColor.rgb*=1.0-0.3*uWet*vSky;\n  if(vSky>0.5&&uSnow>0.0){\n  float snowN=fract(sin(dot(mod(floor(vWp.xz*4.0+0.001),509.0),vec2(12.9898,78.233)))*43758.5453);float snowL=min(uSnow,uSnowClk-vBorn);float snowC=step(snowN,snowL*1.12)*step(0.002,snowL);\n  float snowG=fract(sin(dot(mod(floor(vWp.xz*16.0+0.001),997.0),vec2(39.346,11.135)))*43758.5453);float snowV=0.84+0.11*snowG+0.03*step(0.93,snowG);\n  diffuseColor.rgb=mix(diffuseColor.rgb,vec3(snowV,snowV+0.012,snowV+0.03)*litC,snowC);}';   // (only top faces open to the sky, only when there's snow: no sums for every other pixel on screen)
+const SNOW_FRAG='\n  if(vSky>0.5){float wkS;float snS=snowHere(vWp,wkS);diffuseColor.rgb*=1.0-0.3*uWet*wkS*(1.0-snS);\n  if(snS>0.0){\n  float snowN=fract(sin(dot(mod(floor(vWp.xz*4.0+0.001),509.0),vec2(12.9898,78.233)))*43758.5453);float snowL=min(snS,uSnowClk-vBorn);float snowC=step(snowN,snowL*1.12)*step(0.002,snowL);\n  float snowG=fract(sin(dot(mod(floor(vWp.xz*16.0+0.001),997.0),vec2(39.346,11.135)))*43758.5453);float snowV=0.84+0.11*snowG+0.03*step(0.93,snowG);\n  diffuseColor.rgb=mix(diffuseColor.rgb,vec3(snowV,snowV+0.012,snowV+0.03)*litC,snowC);}}';   // (only top faces open to the sky, only when there's snow: no sums for every other pixel on screen)
 const matOpaque=nightPatch(new THREE.MeshBasicMaterial({map:tex,vertexColors:true,alphaTest:.5}));
 // (the paint and the rails laid on the ground: pulled toward the camera a touch so they never flicker with it)
 const matDecal=nightPatch(new THREE.MeshBasicMaterial({map:tex,vertexColors:true,alphaTest:.5,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-4}));
@@ -10970,30 +10982,156 @@ const WX_TYPES={
   storm:{n:'Thunderstorm',i:'⛈️',cover:1,dark:0.62,fog:0.58,rain:1,wind:2.2,storm:1},
   lsnow:{n:'Light snow',i:'🌨️',cover:0.85,dark:0.2,fog:0.8,snow:0.3,wind:0.6},
   snow:{n:'Snow',i:'❄️',cover:0.95,dark:0.3,fog:0.6,snow:0.65,wind:0.9},
-  blizzard:{n:'Blizzard',i:'🌨️',cover:1,dark:0.42,fog:0.26,snow:1,wind:3.6}};
-const WX_KEYS=['cover','dark','fog','rain','snow','wind','storm'],WX_DEF={cover:0,dark:0,fog:1,rain:0,snow:0,wind:0.5,storm:0};
+  blizzard:{n:'Blizzard',i:'🌨️',cover:1,dark:0.42,fog:0.26,snow:1,wind:3.6},
+  // (the regional kinds: wxLocal picks them for a place, never for the whole world, though the debug menu can)
+  sand:{n:'Sandstorm',i:'🌪️',cover:0.5,dark:0.3,fog:0.24,wind:3.2,dust:1,reg:1},
+  dust:{n:'Dusty',i:'🌬️',cover:0.1,fog:0.72,wind:1.3,dust:0.35,devil:1,reg:1},
+  haze:{n:'Humid haze',i:'🌫️',cover:0.5,dark:0.08,fog:0.5,wind:0.2,haze:1,reg:1}};
+const WX_KEYS=['cover','dark','fog','rain','snow','wind','storm','dust','haze'],WX_DEF={cover:0,dark:0,fog:1,rain:0,snow:0,wind:0.5,storm:0,dust:0,haze:0};
 // the odds of each kind of weather, season by season
 const WX_ODDS=[
   {clear:3,partly:4,cloudy:2,foggy:1.5,lrain:3,rain:2.5,hrain:1,storm:1,lsnow:0.3},
   {clear:6,partly:4,cloudy:1,foggy:0.4,lrain:1.5,rain:1,hrain:0.8,storm:2},
   {clear:2,partly:3,cloudy:3,foggy:2.5,lrain:2.5,rain:2,hrain:1,storm:0.5,lsnow:0.5},
   {clear:1.5,partly:2,cloudy:3,foggy:2,lrain:0.5,rain:0.3,lsnow:3,snow:2.5,blizzard:1.2}];
-const WX={snowClock:0,type:'clear',until:1,k:Object.assign({},WX_DEF,{cover:0.05,wind:0.4}),wet:0,snowCover:0,flash:0,boltT:6,thunder:[]};
+const WX={snowClock:1,type:'clear',until:1,k:Object.assign({},WX_DEF,{cover:0.05,wind:0.4}),wet:0,snowCover:0,snowP:1,snowC:0.8,snowW:0,flash:0,boltT:6,thunder:[]};
 const seasonOf=()=>Math.floor((dayN-1)/SEASON_LEN)%4,seasonDay=()=>(dayN-1)%SEASON_LEN+1,gameDays=()=>dayN-1+tod;
 const moonPhase=()=>((dayN-1+tod)/MOON_LEN)%1;   // 0 new, 0.5 full
 const MOON_NAMES=[['New moon','🌑'],['Waxing crescent','🌒'],['First quarter','🌓'],['Waxing gibbous','🌔'],['Full moon','🌕'],['Waning gibbous','🌖'],['Last quarter','🌗'],['Waning crescent','🌘']];
 const moonInfo=()=>MOON_NAMES[Math.round(moonPhase()*8)%8];
 function wxPick(se){const O=WX_ODDS[se];let tot=0;for(const k in O)tot+=O[k];let u=Math.random()*tot;for(const k in O){if(u<O[k])return k;u-=O[k];}return'partly';}
-function wxSet(type,now){WX.type=type;WX.until=gameDays()+0.3+Math.random()*0.7;if(now){const T=WX_TYPES[type];for(const k of WX_KEYS)WX.k[k]=T[k]??WX_DEF[k];}}
+function wxSet(type,now){WX.type=type;WX.until=gameDays()+0.3+Math.random()*0.7;if(now){const T=WX_TYPES[type];for(const k of WX_KEYS)WX.k[k]=T[k]??WX_DEF[k];WX.snap=true;}}
 function wxReset(){WX.frozen=false;freezeQ.length=0;wxSet('clear',true);WX.until=1;   // day 1 is always a clear spring day
- WX.wet=WX.k.rain>0.2?0.6:0;WX.snowCover=seasonOf()===3&&WX.k.snow>0?0.5:0;WX.flash=0;WX.thunder.length=0;}
+ WX.wet=WX.k.rain>0.2?0.6:0;WX.snowCover=seasonOf()===3&&WX.k.snow>0?0.5:0;WX.flash=0;WX.thunder.length=0;
+ WX.snowP=1;WX.snowC=0.8;WX.snowW=0;WX.snowClock=Math.max(1,WX.snowClock);}
+// ---------- weather by region ----------
+// The world has one spell of weather at a time (WX.type, eased into WX.k, the same for everyone online); what it is
+// where you are comes from the climate there (wxLocal): rain falls as snow in the cold and high on the mountains, and
+// not at all in the desert, where a storm is a sandstorm and a clear day sometimes one too; the savanna's clear days
+// are dusty, with dust devils; moors and swamps fog over; the rainforest pours, and steams in a humid haze between.
+// A pure function of the spell, the season and the place, so host and guest agree without sending anything more. Each
+// player's own weather eases toward it (p.wxk), and each view is drawn in its player's (WXK, renderView); the sky's
+// light and the sounds follow the first player's.
+const WX_RAIN={lrain:'lsnow',rain:'snow',hrain:'snow',storm:'blizzard'},WX_SNOW={lsnow:'lrain',snow:'rain',blizzard:'storm'};
+const WX_SEAS=[0,0.06,0,-0.08];   // (how much warmer or colder each season makes a place, for whether it rains or snows)
+const WX_COLD=0.3,WX_WARM=0.56;   // (below, rain comes down as snow; above, snow as rain)
+const wxSeed=()=>hash2(Math.floor(WX.until*4096),9203);
+function wxLocalOf(type,t,bk,cold){
+  if(!WX_TYPES[type]||WX_TYPES[type].reg)return type;   // (one the debug menu put everywhere)
+  const s=wxSeed();
+  if(cold||t<WX_COLD||bk==='ice'||bk==='tundra'&&seasonOf()!==1){   // (the tundra's summer rains)
+   let k=WX_RAIN[type]||type;
+    if(bk==='ice'){if(k==='snow'&&s<0.45)k='blizzard';else if(k==='foggy'&&s<0.5)k='lsnow';}
+    return k;}
+  if(bk==='desert'||bk==='badlands'){
+    if(type==='storm'||type==='hrain'||type==='blizzard')return s<0.2?'rain':'sand';   // (now and then a cloudburst)
+    if(type==='rain'||type==='snow')return'cloudy';if(type==='lrain'||type==='lsnow')return'partly';if(type==='foggy')return'clear';
+    if((type==='clear'||type==='partly')&&s<0.12)return'sand';
+    return type;}
+  if(t>WX_WARM)type=WX_SNOW[type]||type;
+  if(bk==='savanna'||bk==='scrub'){if(type==='foggy')return'partly';if((type==='clear'||type==='partly')&&s<(bk==='savanna'?0.35:0.2))return'dust';return type;}
+  if(bk==='rainforest'){if(type==='lrain')return'rain';if(type==='rain')return'hrain';
+    if(type==='clear'||type==='partly'||type==='cloudy'||type==='foggy')return s<0.55?'haze':type==='clear'?'partly':type;return type;}
+  if(bk==='swamp'||bk==='moor'){if(type==='clear'&&s<0.3||type==='partly'&&s<0.4||type==='cloudy'&&s<0.6)return'foggy';return type;}
+  return type;
+}
+// the weather at (x,z) and height y: by the climate there (the biome's own, not dithered), cold high on a mountain
+// (within 25 of where the snow lies), remembered per 64 blocks and 16 of height while the spell and season last
+const WX_LC=new Map();let wxLcKey='';
+function wxLocal(x,z,y){
+  if(TENV)return WX.type;   // (the Testing Environment's flat ground has no climate of its own)
+  const key=WX.type+WX.until+'/'+seasonOf();if(key!==wxLcKey){wxLcKey=key;WX_LC.clear();}
+  const cx=Math.floor(x/64),cz=Math.floor(z/64),cy=Math.max(0,Math.floor(((y||G)-G)/16)),ck=(cx*65536+cz)*64+Math.min(63,cy);
+  let k=WX_LC.get(ck);if(k)return k;
+  const c=climAt(cx*64+32,cz*64+32),t=c.t,bk=BIOMES[bioPick(t,c.m,cx*64+32,cz*64+32)].k,cold=cy*16+8>rlfSnow(t)-25;
+  k=wxLocalOf(WX.type,t+WX_SEAS[seasonOf()],bk,cold);if(WX_LC.size>4096)WX_LC.clear();WX_LC.set(ck,k);return k;
+}
+// the snow lying at (x,z,y): the bands' (polar, cold, temperate, warm; WX.snowCover is the temperate one, as it always
+// was) blended by the temperature there, lower up a mountain, as the ground's shader does (snowHere)
+const coldLapse=h=>Math.max(0,h-50)*0.0085;
+function snowBand(t){const P=WX.snowP,C=WX.snowC,T=WX.snowCover,Wm=WX.snowW,cl=v=>Math.max(0,Math.min(1,v));
+  return t<0.28?P+(C-P)*cl((t-0.1)/0.18):t<0.5?C+(T-C)*cl((t-0.28)/0.1):T+(Wm-T)*cl((t-0.5)/0.12);}
+const PERMA_SNOW={tundra:0.8,ice:0.95};   // (snow lying all year round, whatever the weather: tundra roofs stay white)
+// (lower up a mountain, by the height asked about, but only out in the wilds: a tower in town is no colder at the top)
+function snowAt(x,z,y){if(TENV)return WX.snowCover;const up=y>G+50&&realmOf(Math.floor(x/CELL),Math.floor(z/CELL))==='plains'?y-G:0,c=climAt(x,z),t=c.t-coldLapse(up);return Math.max(PERMA_SNOW[BIOMES[bioPick(c.t,c.m,Math.floor(x),Math.floor(z))].k]||0,snowBand(t));}
+const snowMax=()=>Math.max(WX.snowP,WX.snowC,WX.snowCover,WX.snowW);
+// the bands' snow over time: what the spell drops at each band's temperature (snow where it's cold enough, rain where
+// it's warm), settling at the usual rate; melting never in the polar band, slowly down to a white covering in the cold
+// one (to a white covering through winter, half that in spring and autumn, all of it over summer: the tundra's and ice
+// fields' own snow, which never goes, is the cold map's, PERMA_SNOW), as before in the temperate one and fast in the warm one
+const WX_BAND_T=[0.1,0.28,0.5,0.72];
+function wxBands(dt){
+  const sd=WX_SEAS[seasonOf()],S=WX.k.snow,R=WX.k.rain;let most=0;
+  const fall=tb=>{const te=tb+sd;return te<WX_COLD?S+R:te>WX_WARM?0:S;},rain=tb=>{const te=tb+sd;return te<WX_COLD?0:te>WX_WARM?S+R:R;};
+  const step=(v,i,melt,floor)=>{const f=fall(WX_BAND_T[i]);if(f>0.08){most=Math.max(most,f);return Math.min(1,v+dt*f/70);}
+    return Math.max(floor,v-(melt?dt/melt*(rain(WX_BAND_T[i])>0.1?3:1):0));};
+  WX.snowP=step(WX.snowP,0,0,0.92);WX.snowC=step(WX.snowC,1,900,[0.4,0,0.4,0.8][seasonOf()]);WX.snowW=step(WX.snowW,3,40,0);
+  if(S>0.08)most=Math.max(most,S);
+  return most;
+}
+// the cold map (COLD, meshing.js): each 16-block cell's temperature (lower on the mountains, by landTop near the
+// players) and how wet its ground gets, filled nearest first round every viewer, a little each frame, and sent up to
+// the graphics card a few times a second while it's changing
+const COLD_KX=new Int32Array(COLD_N*COLD_N).fill(-2147483648),COLD_KZ=new Int32Array(COLD_N*COLD_N),COLD_Q=new Uint8Array(COLD_N*COLD_N);
+const COLD_R0=24,COLD_R1=110,COLD_ORD=(()=>{const L=[];for(let dz=-COLD_R1;dz<=COLD_R1;dz++)for(let dx=-COLD_R1;dx<=COLD_R1;dx++){const d=dx*dx+dz*dz;if(d<=COLD_R1*COLD_R1)L.push([d,dx,dz]);}
+  L.sort((a,b)=>a[0]-b[0]);const o=new Int16Array(L.length*2);L.forEach((e,i)=>{o[i*2]=e[1];o[i*2+1]=e[2];});return o;})();
+const COLD_WET={desert:0,badlands:0,savanna:0.6,scrub:0.6,rainforest:1.3,swamp:1.3,ice:0};
+const COLD_V=[];let coldDirty=false,coldSent=0,coldSeed=null;
+function coldCell(cx,cz,near){
+  if(TENV)return;const x=cx*COLD_S+8,z=cz*COLD_S+8,c=climAt(x,z),t0=c.t,m=c.m,bk=BIOMES[bioPick(t0,m,x,z)].k;
+  const h=near&&!TENV?landTop(x,z)-G-1:0,t=t0-coldLapse(h),i=(((cz%COLD_N)+COLD_N)%COLD_N*COLD_N+((cx%COLD_N)+COLD_N)%COLD_N)*4;
+  COLD[i]=Math.round(Math.max(0,Math.min(1,t))*255);COLD[i+1]=Math.round(Math.min(2,COLD_WET[bk]??1)/2*255);COLD[i+2]=Math.round((PERMA_SNOW[bk]||0)*255);coldDirty=true;
+}
+function coldTick(){
+  {const sk=seed+'/'+!!TENV+JSON.stringify(WORLD_CFG);if(coldSeed!==sk){coldSeed=sk;COLD_KX.fill(-2147483648);for(let i=0;i<COLD.length;i+=4){COLD[i]=128;COLD[i+1]=128;COLD[i+2]=0;}coldDirty=true;COLD_V.length=0;}}
+  const t0=performance.now();let vi=0;
+  for(const p of players){if(!p.active)continue;
+    const V=COLD_V[vi]||(COLD_V[vi]={cx:1e9,cz:1e9,i:0});vi++;
+    const px=Math.floor(pwx(p)/COLD_S),pz=Math.floor(pwz(p)/COLD_S);if(Math.abs(px-V.cx)>3||Math.abs(pz-V.cz)>3){V.cx=px;V.cz=pz;V.i=0;}const cx=V.cx,cz=V.cz;   // (moved 64 blocks: round again from the middle)
+    for(let n=0;n<3000&&V.i<COLD_ORD.length;n++,V.i++){
+      const dx=COLD_ORD[V.i*2],dz=COLD_ORD[V.i*2+1],x=cx+dx,z=cz+dz,near=dx*dx+dz*dz<=COLD_R0*COLD_R0?2:1;
+      const s=((z%COLD_N)+COLD_N)%COLD_N*COLD_N+((x%COLD_N)+COLD_N)%COLD_N;
+      if(COLD_KX[s]===x&&COLD_KZ[s]===z&&COLD_Q[s]>=near)continue;
+      coldCell(x,z,near===2);COLD_KX[s]=x;COLD_KZ[s]=z;COLD_Q[s]=near;
+      if(performance.now()-t0>0.5)break;}
+    if(performance.now()-t0>0.5)break;}
+  if(coldDirty&&wxClock-coldSent>0.3){coldDirty=false;coldSent=wxClock;COLD_TEX.needsUpdate=true;}
+}
+// the weather being drawn: the first player's outside renderView, each view's own inside it
+let WXK=WX.k;
+function wxPlayers(dt,r){
+  let main=null;
+  for(const p of players){if(!p.active)continue;
+    p.wxAt=(p.wxAt||0)-dt;if(p.wxAt<=0||!p.wxL||WX.snap){p.wxAt=0.5;p.wxL=wxLocal(pwx(p),pwz(p),p.pos.y);}
+    const tg=WX_TYPES[p.wxL]||WX_TYPES.partly;
+    if(!p.wxk||WX.snap){p.wxk={};for(const k of WX_KEYS)p.wxk[k]=tg[k]??WX_DEF[k];}
+    else for(const k of WX_KEYS)p.wxk[k]+=((tg[k]??WX_DEF[k])-p.wxk[k])*r;
+    if(!main)main=p;}
+  WX.snap=false;WXK=main?main.wxk:WX.k;
+}
+const wxHere=()=>{for(const p of players)if(p.active&&p.wxL)return p.wxL;return WX.type;};   // (the first player's, for the Info pane)
+// dust devils: a whirl of dust wandering across the savanna (or the scrub) on a dusty day, now and then, near a player
+const DEVILS=[];
+function devilTick(dt){
+  for(const p of players){if(!p.active||!p.wxL||!WX_TYPES[p.wxL].devil||p.pos.y>G+40)continue;
+    if(DEVILS.length<2&&Math.random()<dt*0.08){const a=Math.random()*Math.PI*2,r=20+Math.random()*30,x=pwx(p)+Math.cos(a)*r,z=pwz(p)+Math.sin(a)*r;
+      DEVILS.push({x,z,y:landTop(x,z),t:6+Math.random()*5,a:Math.random()*Math.PI*2,s:0});}}
+  const w=windNow();
+  for(let i=DEVILS.length-1;i>=0;i--){const D=DEVILS[i];D.t-=dt;if(D.t<=0){DEVILS.splice(i,1);continue;}
+    if(!D.still){D.x+=(w.x*1.5+Math.sin(D.a)*1.2)*dt;D.z+=(w.z*1.5+Math.cos(D.a)*1.2)*dt;}D.a+=dt*0.4;D.s-=dt;if(D.s>0)continue;D.s=0.04;   // (about 35 puffs a devil at a time: the pool's shared with all the dust and smoke)
+    const k=Math.min(1,D.t/2);for(let q=0;q<1;q++){const h=Math.random()*9,an=Math.random()*Math.PI*2,rr=0.3+h*0.3,P=takePart();
+    P.kind=2;P.life=1.2+Math.random()*0.4;P.m.material.color.setHex(Math.random()<0.5?0x8c6c4a:0x7a5c3e);
+    P.m.position.set(D.x+Math.cos(an)*rr,D.y+h,D.z+Math.sin(an)*rr);P.v.set(-Math.sin(an)*5*k,1.5+Math.random()*1.5,Math.cos(an)*5*k);}}
+}
 // precipitation: streaks of rain or flakes of snow in a box round the camera, fixed in the world as you move through it
 const PRECIP_N=2400,PBX=24,PBY=28;
 const rainM=new THREE.InstancedMesh(new THREE.BoxGeometry(0.035,0.9,0.035),new THREE.MeshBasicMaterial({color:0xa9b9cc,transparent:true,opacity:0.5,depthWrite:false}),PRECIP_N);
 const snowM=new THREE.InstancedMesh(new THREE.BoxGeometry(0.14,0.14,0.14),new THREE.MeshBasicMaterial({color:0xf2f6ff,transparent:true,opacity:0.92}),PRECIP_N);
 for(const m of [rainM,snowM]){m.frustumCulled=false;m.count=0;m.renderOrder=2;scene.add(m);}
 // (unlit, so they're darkened by hand with the world's light, as the blocks are: grey at dusk, dim at night, never black)
-const RAIN_C=new THREE.Color(0xa9b9cc),SNOW_C=new THREE.Color(0xf2f6ff);
+const RAIN_C=new THREE.Color(0xa9b9cc),SNOW_C=new THREE.Color(0xf2f6ff),DUST_C=new THREE.Color(0xb8976a),HAZE_C=new THREE.Color(0xc9cbb4);
+// (a sandstorm's grains of dust, blown along)
+const dustM=new THREE.InstancedMesh(new THREE.BoxGeometry(0.06,0.06,0.06),new THREE.MeshBasicMaterial({color:0xc8a070,transparent:true,opacity:0.75}),PRECIP_N);dustM.count=0;dustM.frustumCulled=false;scene.add(dustM);
 const drops=[];{const r=mulberry(4711);for(let i=0;i<PRECIP_N;i++)drops.push({x:r()*PBX*2,y:r()*PBY,z:r()*PBX*2,s:r()});}
 const _pm=new THREE.Matrix4(),_pq=new THREE.Quaternion(),_pv=new THREE.Vector3(),_ps=new THREE.Vector3(1,1,1),_pa=new THREE.Vector3();let wxClock=0;
 const wrapC=(v,c,h)=>c+((((v-c+h)%(2*h))+2*h)%(2*h))-h;
@@ -11020,13 +11158,13 @@ function coverMap(cam,who){
   C.under=C.top[(cz-C.z0)*C.N+(cx-C.x0)]>cam.y+1.2;
 }
 function placePrecip(cam,who){
-  const rain=WX.k.rain,snow=WX.k.snow;let nr=Math.round(PRECIP_N*Math.min(1,rain)),ns=Math.round(PRECIP_N*Math.min(1,snow));
+  const rain=WXK.rain,snow=WXK.snow,nd=Math.round(PRECIP_N*0.7*Math.min(1,WXK.dust||0));let nr=Math.round(PRECIP_N*Math.min(1,rain)),ns=Math.round(PRECIP_N*Math.min(1,snow));
   // a drop under a roof, a deck or a bridge is hidden; the rain and snow out in the open still show from under cover
-  if(nr+ns)coverMap(cam,who);
-  rainM.count=nr;snowM.count=ns;
+  if(nr+ns+nd)coverMap(cam,who);
+  rainM.count=nr;snowM.count=ns;dustM.count=nd;
   {const L=WORLD_LIGHT.value,f=c=>Math.max(0.1,c);rainM.material.color.setRGB(RAIN_C.r*f(L.r),RAIN_C.g*f(L.g),RAIN_C.b*f(L.b));snowM.material.color.setRGB(SNOW_C.r*f(L.r),SNOW_C.g*f(L.g),SNOW_C.b*f(L.b));}
   const CM=COVER,under=(x,y,z)=>{const i=Math.floor(x)-CM.x0,j=Math.floor(z)-CM.z0;if(i<0||j<0||i>=CM.N||j>=CM.N)return false;return y<CM.top[j*CM.N+i];};
-  const t=wxClock,w=WX.k.wind,wx=w*1.6,wz=w*0.7;
+  const t=wxClock,w=WXK.wind,wx=w*1.6,wz=w*0.7;
   if(nr){const V=precipCamVel(cam,who);
     // each streak lies along its drop's motion less the camera's (the wind, its own speed of fall), so it always points
     // the way it's moving on screen; stretched a little when that's fast (motion blur)
@@ -11037,12 +11175,15 @@ function placePrecip(cam,who){
   if(ns){_pq.set(0,0,0,1);
     for(let i=0;i<ns;i++){const d=drops[PRECIP_N-1-i],sw=Math.sin(t*1.3+d.s*9)*0.5;_pv.set(wrapC(d.x+wx*t*1.8+sw,cam.x,PBX),wrapC(d.y-(1.8+d.s*1.4+w*0.6)*t,cam.y+4,PBY/2),wrapC(d.z+wz*t*1.8+Math.cos(t+d.s*7)*0.4,cam.z,PBX));if(under(_pv.x,_pv.y,_pv.z))_pv.y=-500;_pm.compose(_pv,_pq,_ps);snowM.setMatrixAt(i,_pm);}
     snowM.instanceMatrix.needsUpdate=true;}
+  if(nd){_pq.set(0,0,0,1);const L=WORLD_LIGHT.value;dustM.material.color.setRGB(0.78*Math.max(0.1,L.r),0.62*Math.max(0.1,L.g),0.42*Math.max(0.1,L.b));
+    for(let i=0;i<nd;i++){const d=drops[(i*7)%PRECIP_N],sw=Math.sin(t*3+d.s*11)*0.6;_pv.set(wrapC(d.x+wx*t*6,cam.x,PBX),wrapC(d.y*0.5+sw-t*0.4,cam.y+2,PBY/4),wrapC(d.z+wz*t*6+Math.cos(t*2+d.s*5),cam.z,PBX));if(under(_pv.x,_pv.y,_pv.z))_pv.y=-500;_pm.compose(_pv,_pq,_ps);dustM.setMatrixAt(i,_pm);}
+    dustM.instanceMatrix.needsUpdate=true;}
 }
 // a lightning bolt: a jagged chain of bright segments from the clouds to the ground, shown for a moment
 const BOLT=new THREE.Group(),boltSegs=[];{const m=new THREE.MeshBasicMaterial({color:0xeef4ff,fog:false});for(let i=0;i<10;i++){const b=new THREE.Mesh(new THREE.BoxGeometry(0.5,1,0.5),m);BOLT.add(b);boltSegs.push(b);}}
 BOLT.visible=false;scene.add(BOLT);
 function strikeBolt(){
-  const act=players.filter(p=>p.active);if(!act.length)return;const p=act[Math.floor(Math.random()*act.length)];
+  const act=players.filter(p=>p.active&&(p.wxk?p.wxk.storm:WX.k.storm)>0.5);if(!act.length)return;const p=act[Math.floor(Math.random()*act.length)];
   const a=Math.random()*Math.PI*2,r=50+Math.random()*60,x0=p.pos.x+Math.cos(a)*r,z0=p.pos.z+Math.sin(a)*r;
   let px=x0,py=H+30,pz=z0;const y1=G;
   for(let i=0;i<boltSegs.length;i++){const ny=py-(py-y1)/(boltSegs.length-i),nx=px+(Math.random()-.5)*7,nz=pz+(Math.random()-.5)*7,b=boltSegs[i];
@@ -11059,7 +11200,7 @@ let WXA=null;
 function wxAudio(){
   if(!audio)return;
   const t=audio.currentTime,on=playing?1:0,inside=COVERS[0].under;
-  const want={rain:on*WX.k.rain*(inside?0.025:0.07),wind:on*Math.max(0,WX.k.wind-0.5)*0.03};
+  const want={rain:on*WXK.rain*(inside?0.025:0.07),wind:on*Math.max(0,WXK.wind-0.5)*0.03};
   if(!WXA){if(want.rain<0.0005&&want.wind<0.0005)return;
     try{const mk=(type,f,q)=>{const len=audio.sampleRate*2|0,buf=audio.createBuffer(1,len,audio.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<len;i++)ch[i]=Math.random()*2-1;
       const src=audio.createBufferSource(),fl=audio.createBiquadFilter(),g=audio.createGain();src.buffer=buf;src.loop=true;fl.type=type;fl.frequency.value=f;fl.Q.value=q;g.gain.value=0;src.connect(fl).connect(g).connect(sndDest());src.start();return{src,fl,g,v:0};};
@@ -11067,22 +11208,26 @@ function wxAudio(){
   if(!WXA.rain)return;
   const dt=Math.max(0,Math.min(0.25,t-WXA.t));WXA.t=t;
   for(const [k,tc] of [['rain',0.4],['wind',0.6]]){const L=WXA[k];L.v+=(want[k]-L.v)*(1-Math.exp(-dt/tc));if(L.v<1e-5)L.v=0;L.g.gain.value=L.v;}
-  if(DT.sndList&&on){if(WX.k.rain>0.02)sndNote(0.1,inside?'Rain (under cover)':'Rain');if(WX.k.wind>0.52)sndNote(0.1,'Wind');}
-  WXA.wind.fl.frequency.value=260+Math.sin(t*0.7)*90+WX.k.wind*60;
+  if(DT.sndList&&on){if(WXK.rain>0.02)sndNote(0.1,inside?'Rain (under cover)':'Rain');if(WXK.wind>0.52)sndNote(0.1,'Wind');}
+  WXA.wind.fl.frequency.value=260+Math.sin(t*0.7)*90+WXK.wind*60;
 }
 // winter: the top layer of every pond, river and fountain freezes to ice (loaded chunks are converted and re-meshed a
 // few at a time; chunks built later freeze as they're made), and thaws back to water in spring
 const ICE_Y0=G-8,ICE_Y1=G+12,freezeQ=[];
 function freezeArr(a,on){let n=0;const L=CS*CS;for(let y=ICE_Y0;y<=ICE_Y1;y++)for(let i=0;i<L;i++){const j=y*L+i,b=a[j];
   if(on){if(b===WATER&&a[j+L]===AIR){a[j]=ICE;n++;}}else if(b===ICE){a[j]=WATER;n++;}}return n;}
-function freezeWorld(on){for(const [k,a] of chunks){if(freezeArr(a,on)&&meshes.has(k))freezeQ.push(k);}lastK=-1;}
+function freezeWorld(on){for(const [k,a] of chunks){const cx=Math.floor(k/65536)-32768,cz=k%65536-32768;if(freezeArr(a,on&&chunkFreeze(cx,cz))&&meshes.has(k))freezeQ.push(k);}lastK=-1;}
+// (winter freezes the water only where it's not warm: never in the desert, the savanna or the rainforest)
+function chunkFreeze(cx,cz){if(!WX.frozen)return false;if(TENV||cx*CS>=SHIP_X0)return true;return climAt(cx*CS+8,cz*CS+8).t<0.64;}
 // is (x,y,z) out under the open sky?
 function openSky(x,y,z){const cx=Math.floor(x),cz=Math.floor(z);for(let yy=Math.floor(y)+2;yy<Math.min(H,y+45);yy++)if(solidAt(cx,yy,cz))return false;return true;}
 function snowGather(o,dt,moving){
-  o.skyT=(o.skyT||0)-dt;if(o.skyT<=0){o.skyT=0.6+Math.random()*0.5;o.skyOpen=openSky(o.pos.x,o.pos.y,o.pos.z);}
-  const u=o.snowU;if(WX.k.snow>0.08&&o.skyOpen)u.value=Math.min(1,u.value+dt*WX.k.snow/50*(moving?0.35:1));
-  else u.value=Math.max(0,u.value-dt/(WX.k.snow>0.08?240:45));
+  o.skyT=(o.skyT||0)-dt;if(o.skyT<=0){o.skyT=0.6+Math.random()*0.5;o.skyOpen=openSky(o.pos.x,o.pos.y,o.pos.z);o.wxS=wxSnowFall(o.pos.x,o.pos.z,o.pos.y);}
+  const u=o.snowU,sf=o.wxS??WX.k.snow;if(sf>0.08&&o.skyOpen)u.value=Math.min(1,u.value+dt*sf/50*(moving?0.35:1));
+  else u.value=Math.max(0,u.value-dt/(sf>0.08?240:45));
 }
+// (the snow falling at a place: the global spell's, as it comes down there)
+function wxSnowFall(x,z,y){const L=wxLocal(x,z,y);if(L===WX.type)return WX.k.snow;return WX_TYPES[L].snow||0;}
 function shakeSnow(o,y){if(o.snowU&&o.snowU.value>0.08){puff(o.pos.x,o.pos.y+y,o.pos.z,10,0xf0f4fa,0.45);o.snowU.value=0;}}
 // snow on every vehicle whose kind says so (VEHICLE_KINDS: tanks, helicopters, planes, boats, trains, balloons and
 // Mobile Gears), as on cars. Their paints are shared by every one of a kind, so each gets copies of its own with the cars' snow (snowCar) the first time any snow is lying, and the
@@ -11096,10 +11241,10 @@ function vehSnowKit(o,gs){
 }
 function vehSnow(o,x,y,z,gone,dt,gs){
   if(gone)return;
-  if(!o.snowU){if(WX.snowCover<0.01)return;vehSnowKit(o,gs);}
+  if(!o.snowU){if(snowMax()<0.01||snowAt(x,z,y)<0.01)return;vehSnowKit(o,gs);}
   const P=o.snowP||(o.snowP={x,z}),sp=Math.hypot(x-P.x,z-P.z)/Math.max(dt,1e-3);P.x=x;P.z=z;
-  o.skyT=(o.skyT||0)-dt;if(o.skyT<=0){o.skyT=0.6+Math.random()*0.4;o.skyOpen=openSky(x,y,z);}
-  const fast=sp>20,u=o.snowU;u.value+=((o.skyOpen&&!fast?WX.snowCover:0)-u.value)*Math.min(1,dt*(fast?1.5:0.4));
+  o.skyT=(o.skyT||0)-dt;if(o.skyT<=0){o.skyT=0.6+Math.random()*0.4;o.skyOpen=openSky(x,y,z);o.snowHere=snowAt(x,z,y);}
+  const fast=sp>20,u=o.snowU;u.value+=((o.skyOpen&&!fast?o.snowHere??WX.snowCover:0)-u.value)*Math.min(1,dt*(fast?1.5:0.4));
 }
 function updateVehSnow(dt){
   vehEach((K,o)=>{if(K.snow!==true)return;const P=K.pos(o);vehSnow(o,P.x,P.y,P.z,K.dead(o)||!K.shown(o),dt,K.groups(o));});
@@ -11114,18 +11259,21 @@ function updateWeather(dt){
     for(const k of WX_KEYS)WX.k[k]+=((tg[k]??WX_DEF[k])-WX.k[k])*r;
     // the ground gets wet in the rain and dries off after; snow settles, and melts away again once it stops
     if(WX.k.rain>0.08)WX.wet=Math.min(1,WX.wet+dt*WX.k.rain/25);else WX.wet=Math.max(0,WX.wet-dt/(WX.k.cover<0.5?60:150));
-    if(WX.k.snow>0.08){WX.snowCover=Math.min(1,WX.snowCover+dt*WX.k.snow/70);WX.snowClock+=dt*WX.k.snow/70;}
-    else{WX.snowCover=Math.max(0,WX.snowCover-dt/(seasonOf()===3?600:120)*(WX.k.rain>0.1?3:1));if(WX.snowCover===0&&snowBorn.size)snowBorn.clear();}
+    if(WX.k.snow>0.08)WX.snowCover=Math.min(1,WX.snowCover+dt*WX.k.snow/70);
+    else{WX.snowCover=Math.max(0,WX.snowCover-dt/(seasonOf()===3?600:120)*(WX.k.rain>0.1?3:1));if(snowMax()===0&&snowBorn.size)snowBorn.clear();}
+    {const f=wxBands(dt);if(f>0.08)WX.snowClock+=dt*f/70;}   // (the snow clock runs while snow's settling anywhere)
+    wxPlayers(dt,r);devilTick(dt);
     updateVehSnow(dt);
     // rain puts fires out (slowly)
-    if(WX.k.rain>0.25)for(const F of fires){F.douse=true;F.t-=dt*WX.k.rain*0.5;}
+    if(WX.k.rain+WX.k.snow>0.25)for(const F of fires){const L=WX_TYPES[wxLocal(F.x,F.z,F.y)],rn=L===WX_TYPES[WX.type]?WX.k.rain:L.rain||0;if(rn>0.25){F.douse=true;F.t-=dt*rn*0.5;}}
     // lightning
-    if(WX.k.storm>0.5){WX.boltT-=dt;if(WX.boltT<=0){WX.boltT=3+Math.random()*9;strikeBolt();}}
+    if(players.some(p=>p.active&&(p.wxk?p.wxk.storm:WX.k.storm)>0.5)){WX.boltT-=dt;if(WX.boltT<=0){WX.boltT=3+Math.random()*9;strikeBolt();}}
     for(let i=WX.thunder.length-1;i>=0;i--){const q=WX.thunder[i];q.t-=dt;if(q.t<=0){WX.thunder.splice(i,1);noise(2.6,0.5*q.v,140,'lowpass');tone('sine',55,28,2.2,0.25*q.v);for(const p of players)if(p.active)p.shake=Math.max(p.shake,0.12*q.v);}}
   }
   WX.flash=Math.max(0,WX.flash-dt*3.2);if(WX.boltShow!==undefined){WX.boltShow-=dt;if(WX.boltShow<=0)BOLT.visible=false;}
   wxAudio();
-  updateSeasonW();SNOW_U.value=WX.snowCover;SNOWCLK_U.value=WX.snowClock;WET_U.value=WX.wet*(1-WX.snowCover);
+  if(!playing)wxPlayers(0,0);coldTick();
+  updateSeasonW();SNOW_U.value=WX.snowCover;SNOWB_U.value.set(WX.snowP,WX.snowC,WX.snowCover,WX.snowW);SNOWCLK_U.value=WX.snowClock;WET_U.value=WX.wet;
   {const fz=seasonOf()===3;if(fz!==!!WX.frozen){WX.frozen=fz;freezeWorld(fz);}}
   for(let n=0;n<3&&freezeQ.length;n++){const e=meshes.get(freezeQ.shift());if(e)buildChunk(e.cx,e.cz);}
 }
@@ -15176,7 +15324,7 @@ function roadSpecial(c,i,dt,thr){const k=roadKind(c),pr=!!i.rdSpecP,h=!!i.rdSpec
 // the slide: where it's really going comes round to where it points as fast as the tyres grip (k a share of that)
 function roadGrip(c,Hd){let g=Hd.grip||9;const b=get(Math.floor(c.pos.x),Math.floor(c.pos.y-0.5),Math.floor(c.pos.z));
   if(b===GRASS||b===DIRT||b===FIELD||b===FIELD_L||b===GRAVEL||b===FLOWER)g*=Hd.off||0.6;else if(b===SAND||b===RED_SAND||b===MUD)g*=(Hd.off||0.6)*0.75;else if(b===ICE)g*=0.2;else if(b===SNOW)g*=0.45;
-  if(WX.snowCover>0.3&&c.snowOpen)g*=0.6;return g;}
+  if((c.snowHere??WX.snowCover)>0.3&&c.snowOpen)g*=0.6;return g;}
 function roadSlip(c,dt,Hd,k){const vx=Math.sin(c.heading)*c.speed,vz=Math.cos(c.heading)*c.speed;if(!c.hvel)c.hvel={x:vx,z:vz};const H=c.hvel;
   // (turned all at once, more than any steering could in a step, crossing into a ship's frame say: the slide turns with it)
   if(c.slipH!==undefined){const j=angDiff(c.slipH,c.heading);if(Math.abs(j)>0.3){const cs=Math.cos(j),sn=Math.sin(j),x=H.x;H.x=x*cs+H.z*sn;H.z=-x*sn+H.z*cs;}}c.slipH=c.heading;
@@ -21294,7 +21442,7 @@ function updateGoblins(dt){
       if(ptGone(g.pos.x,g.pos.z)&&!visibleToAny(g.pos.x,g.pos.y+1,g.pos.z)){gone=true;g.state='wait';g.t=0;g.root.visible=false;if(g.civ&&!g.staff)civAlive--;else if(!g.staff)hostileAlive--;g.vendor=null;g.employer=null;return;}}
     const tgt=nearestPlayer(g.pos.x,g.pos.z,true);
     let moving=false,d=1e9,dx=0,dz=0;
-    if(g.snowU){if(g.snowFor!==g.id){g.snowFor=g.id;g.snowU.value=WX.k.snow>0.08?WX.snowCover*0.5:0;}snowGather(g,dt,g.phaseWas!==g.phase);g.phaseWas=g.phase;}
+    if(g.snowU){if(g.snowFor!==g.id){g.snowFor=g.id;g.snowU.value=wxSnowFall(g.pos.x,g.pos.z,g.pos.y)>0.08?snowAt(g.pos.x,g.pos.z,g.pos.y)*0.5:0;}snowGather(g,dt,g.phaseWas!==g.phase);g.phaseWas=g.phase;}
     g.stun-=dt;knockMove(g,dt);
     // (partway through a jump or a climb: that's all it's doing, unless something knocks it off)
     if(g.act){if(g.stun>0||!playing)g.act=null;else{
@@ -22451,7 +22599,7 @@ function updateFires(dt){
     // the heat melts the snow round it (it starts settling again, from nothing, once the fire's out) -- off the ground,
     // and off any car, goblin or hippo standing close by
     F.melt=(F.melt||0)-dt;
-    if(F.melt<=0&&WX.snowCover>0){F.melt=1+Math.random()*0.5;const R=F.r+1.5,ch=new Set();let melted=0;
+    if(F.melt<=0&&snowMax()>0&&snowAt(F.x,F.z,F.y)>0){F.melt=1+Math.random()*0.5;const R=F.r+1.5,ch=new Set();let melted=0;
       for(let x=Math.floor(F.x-R);x<=Math.floor(F.x+R);x++)for(let z=Math.floor(F.z-R);z<=Math.floor(F.z+R);z++){
         if(Math.hypot(x+0.5-F.x,z+0.5-F.z)>R)continue;const key=x*65536+z,was=snowBorn.get(key)||0;
         if(WX.snowClock-was>0.02){snowBorn.set(key,WX.snowClock);ch.add(ckey(Math.floor(x/CS),Math.floor(z/CS)));melted++;}}
@@ -23070,7 +23218,7 @@ function bbCarve(A,cx,cz,C,J){
   const K=bbK(C),x0=cx*CS,z0=cz*CS,o=bbO(),T=A.tileTops||tileTopsOf(A),L=CS*CS,host=J&&!netGuest();let n=0,lip=false;
   // the snow it reaches is melted (all of it, not just where blocks went), and what settles after starts from bare ground:
   // the snow clock when it went off (C.w), so a chunk made later, a save loaded again and a guest melt the same
-  const melt=WX.snowCover>0?(Number.isFinite(C.w)?C.w:J?WX.snowClock:-1):-1;
+  const melt=snowAt(C.x,C.z,C.y)>0?(Number.isFinite(C.w)?C.w:J?WX.snowClock:-1):-1;
   for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){
     const x=x0+lx,z=z0+lz;bbCol(C,K,x,z,o);if(!o.zone)continue;
     const base=lx+lz*CS,top=Math.max(T[(lz>>2)*4+(lx>>2)],o.l1);let n0=n,B=undefined;
@@ -23177,7 +23325,7 @@ function bigBlast(x,y,z,R,opt={}){
   if(netGuest())return null;   // (the host's to set off: a guest's is sent over)
   const n=craters.reduce((m,c)=>Math.max(m,c.n),0)+1;
   const C={x:Math.round(x*10)/10,y:Math.round(y),z:Math.round(z*10)/10,R:Math.round(R),s:(hash2(n*977,Math.round(x)+Math.round(z)*7)*1e6)|0,n};
-  if(WX.snowCover>0)C.w=WX.snowClock;   // (the snow it melts: bbCarve)
+  if(snowAt(C.x,C.z,C.y)>0)C.w=WX.snowClock;   // (the snow it melts: bbCarve)
   if(netHost()&&NET.guests.size)netEmit(['X',C.x,C.y,C.z,C.R,C.s,C.n,C.w??-1]);
   return bbStart(C,true);
 }
@@ -23285,7 +23433,7 @@ function bbCount(J,t0){
 }
 // the snow on everyone and everything inside the ring melted off (it settles again as on anything else)
 function bbThaw(J){
-  if(WX.snowCover<=0)return;
+  if(snowMax()<=0)return;
   const C=J.C,r=Math.min(J.ring,C.R),in_=(x,z)=>Math.hypot(x-C.x,z-C.z)<r,off=o=>{if(o&&o.snowU&&o.snowU.value>0)o.snowU.value=0;};
   for(const q of players)if(q.active&&in_(pwx(q),pwz(q)))off(q);
   for(const g of goblins)if(g.snowU&&g.snowU.value>0&&in_(g.pos.x,g.pos.z))off(g);
@@ -29137,8 +29285,8 @@ function updateCars(dt){
     if(gone){if(c.svcPool){svcDone(c);continue;}c.alive=false;c.g.visible=false;c.respawnT=c.police?6:0.5;c.hunter=false;c.spot=null;continue;}
     c.hurt-=dt;c.ramCD-=dt;c.honkT-=dt;
     {const R=c.vehG[c.veh].rider;if(R&&R.visible!==c.dh.visible)R.visible=c.dh.visible;}   // (a motorcycle's or a four-wheeler's rider goes with its driver)
-    c.snowChk=(c.snowChk||0)-dt;if(c.snowChk<=0){c.snowChk=0.6+Math.random()*0.4;const cx=Math.floor(c.pos.x),cz=Math.floor(c.pos.z);let open=true;for(let y=Math.floor(c.pos.y)+3;y<Math.min(H,c.pos.y+45);y++)if(solidAt(cx,y,cz)){open=false;break;}c.snowOpen=open;}
-    c.snowU.value+=((c.snowOpen?WX.snowCover:0)-c.snowU.value)*Math.min(1,dt*0.4);
+    c.snowChk=(c.snowChk||0)-dt;if(c.snowChk<=0){c.snowChk=0.6+Math.random()*0.4;const cx=Math.floor(c.pos.x),cz=Math.floor(c.pos.z);let open=true;for(let y=Math.floor(c.pos.y)+3;y<Math.min(H,c.pos.y+45);y++)if(solidAt(cx,y,cz)){open=false;break;}c.snowOpen=open;c.snowHere=snowMax()>0?snowAt(c.pos.x,c.pos.z,c.pos.y):0;}
+    c.snowU.value+=((c.snowOpen?c.snowHere??WX.snowCover:0)-c.snowU.value)*Math.min(1,dt*0.4);
     c.paint.emissive.setHex(c.hurt>0?0x441100:0x000000);
     const tgt=nearestPlayer(c.pos.x,c.pos.z,true);
     if(calmNow()&&c.hunter){c.hunter=false;if(c.police)c.parked=true;}
@@ -30608,16 +30756,20 @@ function drawDbgOverlay(dt,views){
   }
 }
 function renderView(p,x,y,w,h,R=renderer){   // (R: player two's own window draws with a renderer of its own, ui/seats.js)
+  const wk0=WXK;WXK=p.wxk||WXK;try{renderView0(p,x,y,w,h,R);}finally{WXK=wk0;}}   // (each view in its own player's weather)
+function renderView0(p,x,y,w,h,R){
   const c=p.camera.position,under=get(c.x,c.y,c.z)===WATER;
   p.ui.tint.hidden=!under;
   const far=lodFar();
   if(under){scene.fog.color.copy(DEEP);scene.background.copy(DEEP);scene.fog.near=1;scene.fog.far=18;FOG_GLOW.value=0;skyU.uFog.value=0;}
-  else{const fk=Math.max(0.2,WX.k.fog),ff=Math.min(far,wxFogFar(fk));scene.fog.color.copy(SKY);scene.background.copy(SKY);scene.fog.near=ff*0.45*fk*fk;scene.fog.far=ff;
+  else{const fk=Math.max(0.2,WXK.fog),ff=Math.min(far,wxFogFar(fk));scene.fog.color.copy(SKY);
+    if(WXK.dust>0.01)scene.fog.color.lerp(DUST_C,Math.min(1,WXK.dust)*0.75);if(WXK.haze>0.01)scene.fog.color.lerp(HAZE_C,Math.min(1,WXK.haze)*0.45);   // (a sandstorm's ochre, the rainforest's haze)
+    scene.background.copy(scene.fog.color);scene.fog.near=ff*0.45*fk*fk;scene.fog.far=ff;
     FOG_GLOW.value=ff<far?Math.min(1,Math.max(0,(0.95-fk)/0.5))*(DT.fogLitOn===false?0:DT.fogLit??2):0;   // (lights through the weather's fog, FOG_LIT_FRAG)
     skyU.uFog.value=Math.min(1,Math.max(0,(0.92-fk)/0.45));}   // (and the sky and clouds lost in it)
   // (halos round lamps in the fog: the same fog thickness, times the debug menu's Halos slider, DT.halo, and how dark it is;
   // none with Halos on switched off, as the Fog light on switch does the fog light)
-  {const L=WORLD_LIGHT.value,w=!under&&scene.fog.far<far?Math.min(1,Math.max(0,(0.95-Math.max(0.2,WX.k.fog))/0.5)):0;
+  {const L=WORLD_LIGHT.value,w=!under&&scene.fog.far<far?Math.min(1,Math.max(0,(0.95-Math.max(0.2,WXK.fog))/0.5)):0;
    HALO_U.uStr.value=w*(DT.haloOn===false?0:DT.halo??0.25)*Math.min(1,Math.max(0,(0.75-Math.max(L.r,L.g,L.b))*2.5));HALO_U.uNear.value=scene.fog.near;HALO_U.uFar.value=scene.fog.far;}
   carLightsView(p);   // (the cars' lamps: their halos, and their headlights on the road)
   placePrecip(c,p.idx);
@@ -30911,7 +31063,7 @@ const FAR_FRAG=[
   ' vec3 wall=c0*sh*uLight;',
   // (and weather on the tops, but not the sea's: rain darkens them, snow settles on them, on average as it does on the
   // blocks' tops, where each spot is covered once its own share of the snow comes)
-  ' if(up>0.5&&abs(vWin.a+2.0)>0.5){wall*=1.0-0.3*uWet;float snowL=min(uSnow,uSnowClk);wall=mix(wall,vec3(0.897,0.909,0.927)*uLight,clamp(snowL*1.12,0.0,1.0)*step(0.002,snowL));}',
+  ' if(up>0.5&&abs(vWin.a+2.0)>0.5){float wkF;float snF=snowHere(vWP,wkF);wall*=1.0-0.3*uWet*wkF*(1.0-snF);float snowL=min(snF,uSnowClk);wall=mix(wall,vec3(0.897,0.909,0.927)*uLight,clamp(snowL*1.12,0.0,1.0)*step(0.002,snowL));}',
   ' const float WP=0.3575;',
   ' float uw=uWin*step(-2.5,vWin.a);',   // (no windows on a box that isn't a building, -3)
   ' float win=side*step(0.45,fract((vWP.x+vWP.z)*0.5))*step(0.35,fract((vWP.y-5.0)/5.0))*uw;',
@@ -30930,11 +31082,11 @@ const FAR_HORIZ=[
   '   if(Y<0.0){float sm=sqrt(-Y/uWorldCurve);if(sm>dn&&sm<df)f=max(f,-2.0*sqrt(-Y*uWorldCurve));}',
   '   if(f<-2.0*sqrt(hc*uWorldCurve)-1e-4)gl_Position=vec4(2.0,2.0,2.0,1.0);}}'].join('\n');
 function farPatch(mat,win,ring){
-  const U={uLight:WORLD_LIGHT,uNightK:skyU.uNight,uMeshed:{value:MESHED_TEX},uWin:{value:win},uRing:ring,uCamP:FAR_CAMP,uHoriz:HORIZ_U,uSeasonW:SEASON_W,uSnow:SNOW_U,uWet:WET_U,uSnowClk:SNOWCLK_U,uLeafFall:LEAFFALL_U};
+  const U={uLight:WORLD_LIGHT,uNightK:skyU.uNight,uMeshed:{value:MESHED_TEX},uWin:{value:win},uRing:ring,uCamP:FAR_CAMP,uHoriz:HORIZ_U,uSeasonW:SEASON_W,uSnow:SNOW_U,uWet:WET_U,uSnowClk:SNOWCLK_U,uSnowB:SNOWB_U,uColdT:COLDT_U,uLeafFall:LEAFFALL_U};
   mat.onBeforeCompile=sh=>{
     Object.assign(sh.uniforms,U);
     sh.vertexShader='attribute vec3 aCol;attribute vec3 aTop;attribute vec4 aWin;varying vec3 vCol;varying vec3 vTop;varying vec4 vWin;varying vec3 vWP;varying vec3 vN;uniform vec4 uHoriz;\n'+sh.vertexShader.replace('#include <project_vertex>','#include <project_vertex>\n vCol=aCol;vTop=aTop;vWin=aWin;vN=normal;\n#ifdef USE_INSTANCING\n vWP=(modelMatrix*instanceMatrix*vec4(transformed,1.0)).xyz;\n'+FAR_HORIZ+'\n#else\n vWP=(modelMatrix*vec4(transformed,1.0)).xyz;\n#endif');
-    sh.fragmentShader='uniform vec3 uLight;uniform vec4 uSeasonW;uniform float uNightK,uWin,uSnow,uWet,uSnowClk,uLeafFall;uniform sampler2D uMeshed;uniform vec2 uRing;uniform vec4 uCamP;varying vec3 vCol;varying vec3 vTop;varying vec4 vWin;varying vec3 vWP;varying vec3 vN;\n'+sh.fragmentShader.replace('#include <color_fragment>',FAR_FRAG);
+    sh.fragmentShader=SNOW_GLSL+'uniform vec3 uLight;uniform vec4 uSeasonW;uniform float uNightK,uWin,uSnow,uWet,uSnowClk,uLeafFall;uniform sampler2D uMeshed;uniform vec2 uRing;uniform vec4 uCamP;varying vec3 vCol;varying vec3 vTop;varying vec4 vWin;varying vec3 vWP;varying vec3 vN;\n'+sh.fragmentShader.replace('#include <color_fragment>',FAR_FRAG);
   };
   return mat;
 }
@@ -31421,17 +31573,17 @@ function updateSky(dt){
   skyU.uNight.value=1-smooth(-0.25,0.05,sy);
   skyU.uSunCol.value.copy(SKYC.sunDay).lerp(SKYC.sunDusk,tw);
   // the weather: grey it over, darken it, light it up for a lightning flash
-  {const cov=WX.k.cover,dkw=WX.k.dark,grey=_wxGrey.setRGB(0.6,0.63,0.66).multiplyScalar(0.12+0.88*dk);
+  {const cov=WXK.cover,dkw=WXK.dark,grey=_wxGrey.setRGB(0.6,0.63,0.66).multiplyScalar(0.12+0.88*dk);
    skyU.uTop.value.lerp(grey,cov*0.75).multiplyScalar(1-0.5*dkw);skyU.uHor.value.lerp(grey,cov*0.6).multiplyScalar(1-0.38*dkw);
    if(WX.flash>0){const f=WX.flash*(0.6+0.4*Math.random());skyU.uTop.value.lerp(_wxFlash,f*0.6);skyU.uHor.value.lerp(_wxFlash,f*0.5);}
    skyU.uCover.value=cov;const mp=moonPhase();skyU.uPhase.value=mp;skyU.uMoonLit.value=(1-Math.cos(Math.PI*2*mp))/2;}
   SKY.copy(skyU.uHor.value);
   WORLD_LIGHT.value.copy(SKYC.lightNight).lerp(SKYC.lightDay,dk).lerp(SKYC.dusk.clone().multiplyScalar(Math.max(0.35,dk)),tw*0.55);
-  WORLD_LIGHT.value.multiplyScalar(1-0.42*WX.k.dark);if(WX.flash>0)WORLD_LIGHT.value.lerp(_wxFlash,WX.flash*0.55);bbGlowSky();
-  hemi.intensity=(0.16+0.59*dk)*(1-0.3*WX.k.dark);
-  const moonUp=sy<0,ml=skyU.uMoonLit.value;sunLight.intensity=(moonUp?0.04+0.12*ml:0.55*dk+0.06)*(1-0.75*WX.k.cover);sunLight.color.setRGB(moonUp?0.6:1,moonUp?0.7:0.91-0.25*tw,moonUp?1:0.8-0.35*tw);
+  WORLD_LIGHT.value.multiplyScalar(1-0.42*WXK.dark);if(WX.flash>0)WORLD_LIGHT.value.lerp(_wxFlash,WX.flash*0.55);bbGlowSky();
+  hemi.intensity=(0.16+0.59*dk)*(1-0.3*WXK.dark);
+  const moonUp=sy<0,ml=skyU.uMoonLit.value;sunLight.intensity=(moonUp?0.04+0.12*ml:0.55*dk+0.06)*(1-0.75*WXK.cover);sunLight.color.setRGB(moonUp?0.6:1,moonUp?0.7:0.91-0.25*tw,moonUp?1:0.8-0.35*tw);
   const L=moonUp?skyU.uMoon.value:skyU.uSun.value;sunLight.position.set(L.x*10,Math.max(0.2,L.y)*10,L.z*10);
-  for(const L of cloudLayers){const u=L.m.material.uniforms;u.uTint.value.copy(WORLD_LIGHT.value).multiplyScalar(1-0.25*WX.k.dark);u.uOpacity.value=Math.min(0.97,L.D.op*(0.35+0.65*dk)*(0.6+2.2*WX.k.cover));u.uCover.value=WX.k.cover;}
+  for(const L of cloudLayers){const u=L.m.material.uniforms;u.uTint.value.copy(WORLD_LIGHT.value).multiplyScalar(1-0.25*WXK.dark);u.uOpacity.value=Math.min(0.97,L.D.op*(0.35+0.65*dk)*(0.6+2.2*WXK.cover));u.uCover.value=WXK.cover;}
   // headlights and tail lights come on after dark (not a parked car's: carLampsSync)
   const nl=1-dk;smat(CARC.head).emissive.setRGB(0.9*nl,0.8*nl,0.5*nl);smat(CARC.tail).emissive.setRGB(0.7*nl,0.06*nl,0.04*nl);carLampsSync();
   // where the (first) player is: the kind of place, or the open country
@@ -31505,7 +31657,7 @@ function infoTick(whereLabel){
   if(infoEl.hidden===DT.info)infoEl.hidden=!DT.info;if(!DT.info)return;
   let st='—';try{st=structLabel();}catch(e){}
   const hr=hourNow(),tm=String(Math.floor(hr)).padStart(2,'0')+':'+String(Math.floor(hr%1*60)).padStart(2,'0');
-  const h='<div><span class="ik">Time</span>'+tm+', '+timeLabel().split(', ')[1]+(DT.todStop?' (paused)':'')+'</div><div><span class="ik">Weather</span>'+WX_TYPES[WX.type].n+'</div><div><span class="ik">Moon</span>'+moonInfo()[0]+'</div><div><span class="ik">Place</span>'+noSym(whereLabel())+'</div><div><span class="ik">Biome</span>'+infoBiome()+'</div><div><span class="ik">Structure</span>'+st+'</div>';
+  const h='<div><span class="ik">Time</span>'+tm+', '+timeLabel().split(', ')[1]+(DT.todStop?' (paused)':'')+'</div><div><span class="ik">Weather</span>'+WX_TYPES[wxHere()].n+'</div><div><span class="ik">Moon</span>'+moonInfo()[0]+'</div><div><span class="ik">Place</span>'+noSym(whereLabel())+'</div><div><span class="ik">Biome</span>'+infoBiome()+'</div><div><span class="ik">Structure</span>'+st+'</div>';
   if(infoEl.dataset.h!==h){infoEl.dataset.h=h;infoEl.innerHTML=h;}
 }
 // the structure or site the (first) player is in or on, named as the Structures previewer lists its kind (made singular).
@@ -31588,7 +31740,7 @@ function frame(now,bg){   // (bg: a tab in the background while online, kept goi
   const act=players.filter(p=>p.active);
   const mx=act.reduce((s,p)=>s+pwx(p),0)/act.length,mz=act.reduce((s,p)=>s+pwz(p),0)/act.length;
   // each deck follows the players (so it always covers the sky) but its pattern stays put in the world and drifts on its own wind
-  for(const D of CLOUD_DECKS){if(!reduce&&gdt>0){const wk=0.5+WX.k.wind;D.drift[0]+=D.wind[0]*dt*wk;D.drift[1]+=D.wind[1]*dt*wk;}}
+  for(const D of CLOUD_DECKS){if(!reduce&&gdt>0){const wk=0.5+WXK.wind;D.drift[0]+=D.wind[0]*dt*wk;D.drift[1]+=D.wind[1]*dt*wk;}}
   for(const L of cloudLayers){const D=L.D,size=600*L.m.scale.x,u=L.m.material.uniforms;
     L.m.position.set(mx,H+D.h+L.dy,mz);u.uRep.value=size/D.period;
     // uv (0..1 across the deck) times the repeat, shifted so the deck's centre shows the pattern at the players' spot
@@ -32351,8 +32503,8 @@ function netWorldBits(N){
   return out;
 }
 // the clock and the weather as they stand: sent to guests (netClock) and kept in the save (ui/play-save.js), the same fields both ways
-function clockState(){return{tod,dayN,clockT,tc:trafficClock,wc:wxClock,wx:{type:WX.type,until:WX.until,k:Object.assign({},WX.k),wet:WX.wet,snowCover:WX.snowCover,snowClock:WX.snowClock,frozen:!!WX.frozen}};}
-function clockApply(k){tod=k.tod;dayN=k.dayN;clockT=k.clockT;trafficClock=k.tc;wxClock=k.wc;if(k.wx){const w=k.wx;WX.type=WX_TYPES[w.type]?w.type:'partly';WX.until=w.until;Object.assign(WX.k,w.k);WX.wet=w.wet;WX.snowCover=w.snowCover;WX.snowClock=w.snowClock;WX.frozen=w.frozen;}}
+function clockState(){return{tod,dayN,clockT,tc:trafficClock,wc:wxClock,wx:{type:WX.type,until:WX.until,k:Object.assign({},WX.k),wet:WX.wet,snowCover:WX.snowCover,snowB:[WX.snowP,WX.snowC,WX.snowW],snowClock:WX.snowClock,frozen:!!WX.frozen}};}
+function clockApply(k){tod=k.tod;dayN=k.dayN;clockT=k.clockT;trafficClock=k.tc;wxClock=k.wc;if(k.wx){const w=k.wx;WX.type=WX_TYPES[w.type]?w.type:'partly';WX.until=w.until;Object.assign(WX.k,w.k);WX.wet=w.wet;WX.snowCover=w.snowCover;if(w.snowB){WX.snowP=w.snowB[0];WX.snowC=w.snowB[1];WX.snowW=w.snowB[2];}WX.snowClock=w.snowClock;WX.frozen=w.frozen;}}
 function netClock(){return Object.assign(clockState(),{host:Math.max(0,DT.host-1),hostV:DT.host,combo:DT.combo,pvp:DT.pvp,todStop:!!DT.todStop,wxStop:!!DT.wxStop});}
 function netClockSet(k){if(!k)return;clockApply(k);
   {const h=k.hostV!==undefined?k.hostV:k.host!==undefined?k.host+1:undefined;if(h!==undefined&&h!==DT.host){DT.host=h;try{syncHost();}catch(e){}}}   // (hostV: the four steps; a host on an older version sends only host, its three, which start at Passive)

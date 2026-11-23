@@ -6,7 +6,7 @@ guest asked to reload into the host world ok kept in session storage ok local sa
 host keeps the seat for the guest while it reloads ok
 reloaded guest builds the host world: seed 266144506 ok edits 25 ok saving blocked ok
 guest joined ok seat 1 playing ok host has player two ok
-messages so far 55 bytes 87646 (about 1594 a message)
+messages so far 55 bytes 88347 (about 1606 a message)
 guest P1 vs host P2 0.00 guest P2 vs host P1 0.00 ok
 camera from its hippo: guest 7.24 host 7.24 (guest P2 on the host 7.24)
 hp shown 20 state walk host P2 20 walk
@@ -50,7 +50,7 @@ a third player joins: seat 2 ok host players active 3 ok | first guest shows the
 third player walks: moved on the host 0.79 BAD the other guests see it there 0.00 ok
 third player left: host ok first guest ok status: Hosting online. Room code TESTA · Gertie is here
 cost: one snapshot built on the host under N ms ok
-bumpy network: guest draws N ms behind (at least 100) ok | jerks in 3 s (stopping, then jumping to catch up): the host hippo 0 ok | vehicles in view 13 between them 0 (stopping and starting on the host itself 0) ok | messages a second 46 bytes each 2023
+bumpy network: guest draws N ms behind (at least 100) ok | jerks in 3 s (stopping, then jumping to catch up): the host hippo 0 ok | vehicles in view 13 between them 0 (stopping and starting on the host itself 0) ok | messages a second 46 bytes each 2032
 back on a smooth network for 2 s: guest draws N ms behind, easing back toward 100
 Mobile Gear spawned on the host: on the guest too ok apart 0.00
   guest pressed use beside it: host has it piloting ok guest knows ok

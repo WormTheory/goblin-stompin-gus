@@ -19,17 +19,17 @@ function updateSky(dt){
   skyU.uNight.value=1-smooth(-0.25,0.05,sy);
   skyU.uSunCol.value.copy(SKYC.sunDay).lerp(SKYC.sunDusk,tw);
   // the weather: grey it over, darken it, light it up for a lightning flash
-  {const cov=WX.k.cover,dkw=WX.k.dark,grey=_wxGrey.setRGB(0.6,0.63,0.66).multiplyScalar(0.12+0.88*dk);
+  {const cov=WXK.cover,dkw=WXK.dark,grey=_wxGrey.setRGB(0.6,0.63,0.66).multiplyScalar(0.12+0.88*dk);
    skyU.uTop.value.lerp(grey,cov*0.75).multiplyScalar(1-0.5*dkw);skyU.uHor.value.lerp(grey,cov*0.6).multiplyScalar(1-0.38*dkw);
    if(WX.flash>0){const f=WX.flash*(0.6+0.4*Math.random());skyU.uTop.value.lerp(_wxFlash,f*0.6);skyU.uHor.value.lerp(_wxFlash,f*0.5);}
    skyU.uCover.value=cov;const mp=moonPhase();skyU.uPhase.value=mp;skyU.uMoonLit.value=(1-Math.cos(Math.PI*2*mp))/2;}
   SKY.copy(skyU.uHor.value);
   WORLD_LIGHT.value.copy(SKYC.lightNight).lerp(SKYC.lightDay,dk).lerp(SKYC.dusk.clone().multiplyScalar(Math.max(0.35,dk)),tw*0.55);
-  WORLD_LIGHT.value.multiplyScalar(1-0.42*WX.k.dark);if(WX.flash>0)WORLD_LIGHT.value.lerp(_wxFlash,WX.flash*0.55);bbGlowSky();
-  hemi.intensity=(0.16+0.59*dk)*(1-0.3*WX.k.dark);
-  const moonUp=sy<0,ml=skyU.uMoonLit.value;sunLight.intensity=(moonUp?0.04+0.12*ml:0.55*dk+0.06)*(1-0.75*WX.k.cover);sunLight.color.setRGB(moonUp?0.6:1,moonUp?0.7:0.91-0.25*tw,moonUp?1:0.8-0.35*tw);
+  WORLD_LIGHT.value.multiplyScalar(1-0.42*WXK.dark);if(WX.flash>0)WORLD_LIGHT.value.lerp(_wxFlash,WX.flash*0.55);bbGlowSky();
+  hemi.intensity=(0.16+0.59*dk)*(1-0.3*WXK.dark);
+  const moonUp=sy<0,ml=skyU.uMoonLit.value;sunLight.intensity=(moonUp?0.04+0.12*ml:0.55*dk+0.06)*(1-0.75*WXK.cover);sunLight.color.setRGB(moonUp?0.6:1,moonUp?0.7:0.91-0.25*tw,moonUp?1:0.8-0.35*tw);
   const L=moonUp?skyU.uMoon.value:skyU.uSun.value;sunLight.position.set(L.x*10,Math.max(0.2,L.y)*10,L.z*10);
-  for(const L of cloudLayers){const u=L.m.material.uniforms;u.uTint.value.copy(WORLD_LIGHT.value).multiplyScalar(1-0.25*WX.k.dark);u.uOpacity.value=Math.min(0.97,L.D.op*(0.35+0.65*dk)*(0.6+2.2*WX.k.cover));u.uCover.value=WX.k.cover;}
+  for(const L of cloudLayers){const u=L.m.material.uniforms;u.uTint.value.copy(WORLD_LIGHT.value).multiplyScalar(1-0.25*WXK.dark);u.uOpacity.value=Math.min(0.97,L.D.op*(0.35+0.65*dk)*(0.6+2.2*WXK.cover));u.uCover.value=WXK.cover;}
   // headlights and tail lights come on after dark (not a parked car's: carLampsSync)
   const nl=1-dk;smat(CARC.head).emissive.setRGB(0.9*nl,0.8*nl,0.5*nl);smat(CARC.tail).emissive.setRGB(0.7*nl,0.06*nl,0.04*nl);carLampsSync();
   // where the (first) player is: the kind of place, or the open country
@@ -103,7 +103,7 @@ function infoTick(whereLabel){
   if(infoEl.hidden===DT.info)infoEl.hidden=!DT.info;if(!DT.info)return;
   let st='—';try{st=structLabel();}catch(e){}
   const hr=hourNow(),tm=String(Math.floor(hr)).padStart(2,'0')+':'+String(Math.floor(hr%1*60)).padStart(2,'0');
-  const h='<div><span class="ik">Time</span>'+tm+', '+timeLabel().split(', ')[1]+(DT.todStop?' (paused)':'')+'</div><div><span class="ik">Weather</span>'+WX_TYPES[WX.type].n+'</div><div><span class="ik">Moon</span>'+moonInfo()[0]+'</div><div><span class="ik">Place</span>'+noSym(whereLabel())+'</div><div><span class="ik">Biome</span>'+infoBiome()+'</div><div><span class="ik">Structure</span>'+st+'</div>';
+  const h='<div><span class="ik">Time</span>'+tm+', '+timeLabel().split(', ')[1]+(DT.todStop?' (paused)':'')+'</div><div><span class="ik">Weather</span>'+WX_TYPES[wxHere()].n+'</div><div><span class="ik">Moon</span>'+moonInfo()[0]+'</div><div><span class="ik">Place</span>'+noSym(whereLabel())+'</div><div><span class="ik">Biome</span>'+infoBiome()+'</div><div><span class="ik">Structure</span>'+st+'</div>';
   if(infoEl.dataset.h!==h){infoEl.dataset.h=h;infoEl.innerHTML=h;}
 }
 // the structure or site the (first) player is in or on, named as the Structures previewer lists its kind (made singular).
@@ -186,7 +186,7 @@ function frame(now,bg){   // (bg: a tab in the background while online, kept goi
   const act=players.filter(p=>p.active);
   const mx=act.reduce((s,p)=>s+pwx(p),0)/act.length,mz=act.reduce((s,p)=>s+pwz(p),0)/act.length;
   // each deck follows the players (so it always covers the sky) but its pattern stays put in the world and drifts on its own wind
-  for(const D of CLOUD_DECKS){if(!reduce&&gdt>0){const wk=0.5+WX.k.wind;D.drift[0]+=D.wind[0]*dt*wk;D.drift[1]+=D.wind[1]*dt*wk;}}
+  for(const D of CLOUD_DECKS){if(!reduce&&gdt>0){const wk=0.5+WXK.wind;D.drift[0]+=D.wind[0]*dt*wk;D.drift[1]+=D.wind[1]*dt*wk;}}
   for(const L of cloudLayers){const D=L.D,size=600*L.m.scale.x,u=L.m.material.uniforms;
     L.m.position.set(mx,H+D.h+L.dy,mz);u.uRep.value=size/D.period;
     // uv (0..1 across the deck) times the repeat, shifted so the deck's centre shows the pattern at the players' spot
