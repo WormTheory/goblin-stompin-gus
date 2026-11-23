@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:a0544a75c070ccf68508a5ab05a6ea6c6ee279c1a4e1ce1ccb391821064728d0 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:a35431fd7e467656154ddfad31766fe120326bfd3782d8c105a8c94e9cc3b269 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2397,7 +2397,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='6559cb6aa649';
+const GAME_VER='0.5',GAME_BUILD='348a63d541d3';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v110'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
 const WORLD_GEN=12;
@@ -11430,7 +11430,7 @@ function routeMarks(cx,cz){
   if(BL_ON)g.setAttribute('aBlk',new THREE.BufferAttribute(Uint8Array.from(Bl),3,true));
   const mesh=new THREE.Mesh(g,matDecal);scene.add(mesh);return mesh;
 }
-function clearWorld(){rebuildQ.clear();regionsClear();planJob.S=null;for(const e of meshes.values())for(const m of e.m){if(m.parent)m.parent.remove(m);m.geometry.dispose();}meshes.clear();MESHED.fill(0);meshedDirty=true;farDirty=true;chunks.clear();gfxRecC.clear();plotCache.clear();plotTypeC.clear();lampSpotC.clear();blkLampC.clear();BL_PROPS.clear();blkLampOut.clear();bridgeCache.clear();superCache.clear();siteC.clear();siteI.clear();setCache.clear();setAtCache.clear();jDegC.clear();linkNearC.clear();if(RIV_H){RIV_H.clear();RIV_LV.clear();}ctlCache.clear();zoneCache.clear();farmC.clear();cloverCache.clear();clearLayout();joinCache.clear();icCache.clear();ctlCache.clear();lastK=-1;}
+function clearWorld(){rebuildQ.clear();regionsClear();planJob.S=null;for(const e of meshes.values())for(const m of e.m){if(m.parent)m.parent.remove(m);m.geometry.dispose();}meshes.clear();MESHED.fill(0);meshedDirty=true;farDirty=true;chunks.clear();FAR_BS.clear();gfxRecC.clear();plotCache.clear();plotTypeC.clear();lampSpotC.clear();blkLampC.clear();BL_PROPS.clear();blkLampOut.clear();bridgeCache.clear();superCache.clear();siteC.clear();siteI.clear();setCache.clear();setAtCache.clear();jDegC.clear();linkNearC.clear();if(RIV_H){RIV_H.clear();RIV_LV.clear();}ctlCache.clear();zoneCache.clear();farmC.clear();cloverCache.clear();clearLayout();joinCache.clear();icCache.clear();ctlCache.clear();lastK=-1;}
 // ---- far chunks drawn in fours: each chunk is its own draw call or three, which at a long detail distance is the bulk of a frame's.
 // So a group of up to 4 x 4 chunks a little way off that nothing has happened to for a while is copied into one mesh per material,
 // and the chunks themselves hidden. The picture's the same. Anything changing in the group (a block smashed, a chunk dropped) simply
@@ -11796,18 +11796,32 @@ function wxPlayers(dt,r){
   WX.snap=false;WXK=main?main.wxk:WX.k;
 }
 const wxHere=()=>{for(const p of players)if(p.active&&p.wxL)return p.wxL;return WX.type;};   // (the first player's, for the Info pane)
-// dust devils: a whirl of dust wandering across the savanna (or the scrub) on a dusty day, now and then, near a player
-const DEVILS=[];
+// dust devils: a whirl of dust wandering across the savanna (or the scrub) on a dusty day, now and then, near a player.
+// Each is a funnel of its own: DEVIL_N boxes of dust in a mesh of their own (so they never run short, as the shared
+// pool of puffs did), spiralling up a column 14 to 22 high that widens and leans with the wind, faded in and out, with a
+// skirt of puffs kicked up round its foot
+const DEVILS=[],DEVIL_N=150,DEVIL_MAX=4;
+const devilM=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xc4a074,transparent:true,opacity:0.5,depthWrite:false}),DEVIL_N*DEVIL_MAX);
+devilM.count=0;devilM.frustumCulled=false;devilM.renderOrder=2;scene.add(devilM);
+let devilT=0;const _dm=new THREE.Matrix4(),_dq=new THREE.Quaternion(),_dv=new THREE.Vector3(),_ds=new THREE.Vector3(),_dax=new THREE.Vector3(0,1,0);
 function devilTick(dt){
   for(const p of players){if(!p.active||!p.wxL||!WX_TYPES[p.wxL].devil||p.pos.y>G+40)continue;
-    if(DEVILS.length<2&&Math.random()<dt*0.08){const a=Math.random()*Math.PI*2,r=20+Math.random()*30,x=pwx(p)+Math.cos(a)*r,z=pwz(p)+Math.sin(a)*r;
-      DEVILS.push({x,z,y:landTop(x,z),t:6+Math.random()*5,a:Math.random()*Math.PI*2,s:0});}}
-  const w=windNow();
-  for(let i=DEVILS.length-1;i>=0;i--){const D=DEVILS[i];D.t-=dt;if(D.t<=0){DEVILS.splice(i,1);continue;}
-    if(!D.still){D.x+=(w.x*1.5+Math.sin(D.a)*1.2)*dt;D.z+=(w.z*1.5+Math.cos(D.a)*1.2)*dt;}D.a+=dt*0.4;D.s-=dt;if(D.s>0)continue;D.s=0.04;   // (about 35 puffs a devil at a time: the pool's shared with all the dust and smoke)
-    const k=Math.min(1,D.t/2);for(let q=0;q<1;q++){const h=Math.random()*9,an=Math.random()*Math.PI*2,rr=0.3+h*0.3,P=takePart();
-    P.kind=2;P.life=1.2+Math.random()*0.4;P.m.material.color.setHex(Math.random()<0.5?0x8c6c4a:0x7a5c3e);
-    P.m.position.set(D.x+Math.cos(an)*rr,D.y+h,D.z+Math.sin(an)*rr);P.v.set(-Math.sin(an)*5*k,1.5+Math.random()*1.5,Math.cos(an)*5*k);}}
+    if(DEVILS.length<2&&Math.random()<dt*0.08){const a=Math.random()*Math.PI*2,r=25+Math.random()*35,x=pwx(p)+Math.cos(a)*r,z=pwz(p)+Math.sin(a)*r;
+      DEVILS.push({x,z,y:landTop(x,z),t:10+Math.random()*8,a:Math.random()*Math.PI*2,s:0,H:14+Math.random()*8,t0:0});}}
+  const w=windNow();devilT+=dt;let n=0;
+  for(let i=DEVILS.length-1;i>=0;i--){const D=DEVILS[i];D.t-=dt;D.t0=(D.t0||0)+dt;if(D.t<=0){DEVILS.splice(i,1);continue;}
+    if(!D.still){D.x+=(w.x*1.5+Math.sin(D.a)*1.2)*dt;D.z+=(w.z*1.5+Math.cos(D.a)*1.2)*dt;}D.a+=dt*0.4;}
+  // (the funnels: each box on its own turn of the spiral, rising and coming round again, smaller and fainter up top)
+  const L=WORLD_LIGHT.value;devilM.material.color.setRGB(0.77*Math.max(0.12,L.r),0.63*Math.max(0.12,L.g),0.45*Math.max(0.12,L.b));
+  for(let d=0;d<DEVILS.length&&d<DEVIL_MAX;d++){const D=DEVILS[d],k=Math.min(1,D.t/2.5,D.t0/1.5),H=(D.H||16)*(0.4+0.6*k);
+    for(let j=0;j<DEVIL_N;j++){const s=(j*0.618034)%1,u=(s+devilT*0.12)%1,h=u*H,rr=(0.5+h*0.16+h*h*0.004)*(0.85+0.3*((j*0.37)%1)),an=j*2.39996+devilT*(4.2-u*1.8);
+      _dv.set(D.x+Math.cos(an)*rr+w.x*h*0.12,D.y+0.4+h,D.z+Math.sin(an)*rr+w.z*h*0.12);
+      const sz=(0.9+h*0.06)*k*(u<0.08?u/0.08:u>0.85?(1-u)/0.15:1);_ds.set(sz,sz,sz);_dq.setFromAxisAngle(_dax,an);_dm.compose(_dv,_dq,_ds);devilM.setMatrixAt(n++,_dm);}
+    D.s-=dt;if(D.s>0)continue;D.s=0.12;
+    {const an=Math.random()*Math.PI*2,rr=1+Math.random()*1.5,P=takePart();
+    P.kind=2;P.life=1+Math.random()*0.5;P.m.material.color.setHex(Math.random()<0.5?0x9c7c56:0x8a6c4a);
+    P.m.position.set(D.x+Math.cos(an)*rr,D.y+0.3,D.z+Math.sin(an)*rr);P.v.set(-Math.sin(an)*4*k,0.6+Math.random(),Math.cos(an)*4*k);}}
+  devilM.count=n;if(n)devilM.instanceMatrix.needsUpdate=true;
 }
 // precipitation: streaks of rain or flakes of snow in a box round the camera, fixed in the world as you move through it
 const PRECIP_N=2400,PBX=24,PBY=28;
@@ -32274,6 +32288,7 @@ function* farCountry(SB,SG,px,pz,lvl){
   const X0=px*CELL,Z0=pz*CELL,t=plotType(px,pz);
   if(t==='plains'){const F=farmlandOf(px,pz);if(F)farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.62,Z0+CELL,F.kind==='orchard'?FAR_FIELD.orchard:F.crop?FAR_FIELD.flower:FAR_FIELD.veg);return;}
   if(!FAR_SITES.has(t))return;
+  if(BIO_SITES.has(t))farBioSite(SB,SG,px,pz,lvl);
   const P=plotInfo(px,pz);
   if(t==='farm'&&P.field){const F=P.field;farBox(SG,X0+F.x0+1,G+0.4,Z0+F.z0+1,X0+F.x1-1,G+1.62,Z0+F.z1-1,FAR_FIELD.veg);}
   for(let bi=0;bi<P.b.length;bi++){const b=P.b[bi];if(b.farSkip||b.x1-b.x0<2||b.z1-b.z0<2)continue;
@@ -32283,6 +32298,36 @@ function* farCountry(SB,SG,px,pz,lvl){
     if(b.kind==='landmark'&&lvl<2){const st=lvl?8:4,fresh=!(b._farP&&b._farP[st]),R=farProfile(b,px,pz,st);if(fresh)yield;
       for(const r of R)farBox(SB,X0+r[0],G+1,Z0+r[1],X0+r[2],Math.min(r[4],top)+1,Z0+r[3],L.wall,L);}
     else farBox(SB,X0+b.x0,G+1,Z0+b.z0,X0+b.x1,top+1+(lvl===0&&top>=b.top?(b.roof||0)*0.6:0),Z0+b.z1,L.wall,L);}
+}
+// a biome site's ground and what stands on it out of its own columns (the derrick's tower and tanks, the peat trenches,
+// the radar dome and mast, the safari tents and waterhole, the stilt huts over their water, the ski piste and its lift),
+// sampled every st blocks: each sample's runs of solid blocks [y0,y1,block], the top one's colour on top. Samples with
+// the same runs are joined along x, and the whole is kept per plot and step (the plan never changes)
+const FAR_BS=new Map(),FAR_BSC=new Map(),FAR_BSL=new Map(),FAR_NOGLOW=new THREE.Color(0,0,0);
+const farBsCol=b=>{let c=FAR_BSC.get(b);if(!c){c=new THREE.Color(topColor(b));FAR_BSC.set(b,c);}return c;};
+const farBsSide=b=>{let c=FAR_BSL.get(b);if(!c){c={top:farBsCol(b),glow:FAR_NOGLOW,f:-3,w:new THREE.Color(blockColor(b))};FAR_BSL.set(b,c);}return c;};
+function farBioRuns(B,px,pz,st){
+  const k=px+','+pz+','+st;let R=FAR_BS.get(k);if(R)return R;if(FAR_BS.size>6000)FAR_BS.clear();R=[];
+  const ox=(px-B.ax)*CELL,oz=(pz-B.az)*CELL,cl=new Map();let lo=1e9,hi=-1e9;
+  const col=(y,b)=>{if(b===AIR||b===REEDS||b===FLOWER||BLOCK[b]&&BLOCK[b].hide)cl.delete(y);else{cl.set(y,b);}};
+  for(let rz=0;rz<CELL;rz+=st){let run=null;
+    for(let rx=0;rx<CELL;rx+=st){const cx=rx+(st>>1),cz=rz+(st>>1),x=px*CELL+cx,z=pz*CELL+cz;cl.clear();
+      bigColumn(col,B,ox+cx,oz+cz,x,z);
+      // (the ground: the highest block at or below G; then each run of solid blocks above it)
+      let g=AIR,gy=G-3;for(let y=G;y>=G-3;y--)if(cl.has(y)){g=cl.get(y);gy=y;break;}
+      const ys=[...cl.keys()].filter(y=>y>G).sort((a,b)=>a-b),runs=[];
+      for(const y of ys){const b=cl.get(y),r=runs[runs.length-1];if(r&&r[1]===y-1){r[1]=y;r[2]=b;}else runs.push([y,y,b]);}
+      const sig=g+':'+gy+'|'+runs.map(r=>r.join(',')).join('|');
+      if(run&&run.sig===sig)run.x1=rx+st;else{run={sig,x0:rx,x1:rx+st,z0:rz,z1:Math.min(CELL,rz+st),g,gy,runs};R.push(run);}}}
+  FAR_BS.set(k,R);return R;
+}
+function farBioSite(SB,SG,px,pz,lvl){
+  const B=bigPlainsAt(px,pz);if(!B||!BIO_SITES.has(B.kind))return;
+  const X0=px*CELL,Z0=pz*CELL,R=farBioRuns(B,px,pz,lvl===0?2:lvl===1?4:8);
+  for(const r of R){
+    // (the ground a touch over the biome's patch under it, sunk a little where it's dug out or water)
+    if(r.g!==AIR)farBox(SG,X0+r.x0,G+0.4,Z0+r.z0,X0+r.x1,G+(r.gy<G?1.2:1.66),Z0+r.z1,farBsCol(r.g));
+    for(const q of r.runs){const L=farBsSide(q[2]);farBox(SB,X0+r.x0,q[0],Z0+r.z0,X0+r.x1,q[1]+1,Z0+r.z1,L.w,L);}}
 }
 // the far ring: one box per town block, from the cheap per-block guesses (no plots worked out)
 // (no buildings are worked out out here, so each block gets a typical look: one of the common wall materials, with the share

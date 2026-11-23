@@ -142,18 +142,32 @@ function wxPlayers(dt,r){
   WX.snap=false;WXK=main?main.wxk:WX.k;
 }
 const wxHere=()=>{for(const p of players)if(p.active&&p.wxL)return p.wxL;return WX.type;};   // (the first player's, for the Info pane)
-// dust devils: a whirl of dust wandering across the savanna (or the scrub) on a dusty day, now and then, near a player
-const DEVILS=[];
+// dust devils: a whirl of dust wandering across the savanna (or the scrub) on a dusty day, now and then, near a player.
+// Each is a funnel of its own: DEVIL_N boxes of dust in a mesh of their own (so they never run short, as the shared
+// pool of puffs did), spiralling up a column 14 to 22 high that widens and leans with the wind, faded in and out, with a
+// skirt of puffs kicked up round its foot
+const DEVILS=[],DEVIL_N=150,DEVIL_MAX=4;
+const devilM=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xc4a074,transparent:true,opacity:0.5,depthWrite:false}),DEVIL_N*DEVIL_MAX);
+devilM.count=0;devilM.frustumCulled=false;devilM.renderOrder=2;scene.add(devilM);
+let devilT=0;const _dm=new THREE.Matrix4(),_dq=new THREE.Quaternion(),_dv=new THREE.Vector3(),_ds=new THREE.Vector3(),_dax=new THREE.Vector3(0,1,0);
 function devilTick(dt){
   for(const p of players){if(!p.active||!p.wxL||!WX_TYPES[p.wxL].devil||p.pos.y>G+40)continue;
-    if(DEVILS.length<2&&Math.random()<dt*0.08){const a=Math.random()*Math.PI*2,r=20+Math.random()*30,x=pwx(p)+Math.cos(a)*r,z=pwz(p)+Math.sin(a)*r;
-      DEVILS.push({x,z,y:landTop(x,z),t:6+Math.random()*5,a:Math.random()*Math.PI*2,s:0});}}
-  const w=windNow();
-  for(let i=DEVILS.length-1;i>=0;i--){const D=DEVILS[i];D.t-=dt;if(D.t<=0){DEVILS.splice(i,1);continue;}
-    if(!D.still){D.x+=(w.x*1.5+Math.sin(D.a)*1.2)*dt;D.z+=(w.z*1.5+Math.cos(D.a)*1.2)*dt;}D.a+=dt*0.4;D.s-=dt;if(D.s>0)continue;D.s=0.04;   // (about 35 puffs a devil at a time: the pool's shared with all the dust and smoke)
-    const k=Math.min(1,D.t/2);for(let q=0;q<1;q++){const h=Math.random()*9,an=Math.random()*Math.PI*2,rr=0.3+h*0.3,P=takePart();
-    P.kind=2;P.life=1.2+Math.random()*0.4;P.m.material.color.setHex(Math.random()<0.5?0x8c6c4a:0x7a5c3e);
-    P.m.position.set(D.x+Math.cos(an)*rr,D.y+h,D.z+Math.sin(an)*rr);P.v.set(-Math.sin(an)*5*k,1.5+Math.random()*1.5,Math.cos(an)*5*k);}}
+    if(DEVILS.length<2&&Math.random()<dt*0.08){const a=Math.random()*Math.PI*2,r=25+Math.random()*35,x=pwx(p)+Math.cos(a)*r,z=pwz(p)+Math.sin(a)*r;
+      DEVILS.push({x,z,y:landTop(x,z),t:10+Math.random()*8,a:Math.random()*Math.PI*2,s:0,H:14+Math.random()*8,t0:0});}}
+  const w=windNow();devilT+=dt;let n=0;
+  for(let i=DEVILS.length-1;i>=0;i--){const D=DEVILS[i];D.t-=dt;D.t0=(D.t0||0)+dt;if(D.t<=0){DEVILS.splice(i,1);continue;}
+    if(!D.still){D.x+=(w.x*1.5+Math.sin(D.a)*1.2)*dt;D.z+=(w.z*1.5+Math.cos(D.a)*1.2)*dt;}D.a+=dt*0.4;}
+  // (the funnels: each box on its own turn of the spiral, rising and coming round again, smaller and fainter up top)
+  const L=WORLD_LIGHT.value;devilM.material.color.setRGB(0.77*Math.max(0.12,L.r),0.63*Math.max(0.12,L.g),0.45*Math.max(0.12,L.b));
+  for(let d=0;d<DEVILS.length&&d<DEVIL_MAX;d++){const D=DEVILS[d],k=Math.min(1,D.t/2.5,D.t0/1.5),H=(D.H||16)*(0.4+0.6*k);
+    for(let j=0;j<DEVIL_N;j++){const s=(j*0.618034)%1,u=(s+devilT*0.12)%1,h=u*H,rr=(0.5+h*0.16+h*h*0.004)*(0.85+0.3*((j*0.37)%1)),an=j*2.39996+devilT*(4.2-u*1.8);
+      _dv.set(D.x+Math.cos(an)*rr+w.x*h*0.12,D.y+0.4+h,D.z+Math.sin(an)*rr+w.z*h*0.12);
+      const sz=(0.9+h*0.06)*k*(u<0.08?u/0.08:u>0.85?(1-u)/0.15:1);_ds.set(sz,sz,sz);_dq.setFromAxisAngle(_dax,an);_dm.compose(_dv,_dq,_ds);devilM.setMatrixAt(n++,_dm);}
+    D.s-=dt;if(D.s>0)continue;D.s=0.12;
+    {const an=Math.random()*Math.PI*2,rr=1+Math.random()*1.5,P=takePart();
+    P.kind=2;P.life=1+Math.random()*0.5;P.m.material.color.setHex(Math.random()<0.5?0x9c7c56:0x8a6c4a);
+    P.m.position.set(D.x+Math.cos(an)*rr,D.y+0.3,D.z+Math.sin(an)*rr);P.v.set(-Math.sin(an)*4*k,0.6+Math.random(),Math.cos(an)*4*k);}}
+  devilM.count=n;if(n)devilM.instanceMatrix.needsUpdate=true;
 }
 // precipitation: streaks of rain or flakes of snow in a box round the camera, fixed in the world as you move through it
 const PRECIP_N=2400,PBX=24,PBY=28;

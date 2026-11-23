@@ -422,6 +422,7 @@ function* farCountry(SB,SG,px,pz,lvl){
   const X0=px*CELL,Z0=pz*CELL,t=plotType(px,pz);
   if(t==='plains'){const F=farmlandOf(px,pz);if(F)farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.62,Z0+CELL,F.kind==='orchard'?FAR_FIELD.orchard:F.crop?FAR_FIELD.flower:FAR_FIELD.veg);return;}
   if(!FAR_SITES.has(t))return;
+  if(BIO_SITES.has(t))farBioSite(SB,SG,px,pz,lvl);
   const P=plotInfo(px,pz);
   if(t==='farm'&&P.field){const F=P.field;farBox(SG,X0+F.x0+1,G+0.4,Z0+F.z0+1,X0+F.x1-1,G+1.62,Z0+F.z1-1,FAR_FIELD.veg);}
   for(let bi=0;bi<P.b.length;bi++){const b=P.b[bi];if(b.farSkip||b.x1-b.x0<2||b.z1-b.z0<2)continue;
@@ -431,6 +432,36 @@ function* farCountry(SB,SG,px,pz,lvl){
     if(b.kind==='landmark'&&lvl<2){const st=lvl?8:4,fresh=!(b._farP&&b._farP[st]),R=farProfile(b,px,pz,st);if(fresh)yield;
       for(const r of R)farBox(SB,X0+r[0],G+1,Z0+r[1],X0+r[2],Math.min(r[4],top)+1,Z0+r[3],L.wall,L);}
     else farBox(SB,X0+b.x0,G+1,Z0+b.z0,X0+b.x1,top+1+(lvl===0&&top>=b.top?(b.roof||0)*0.6:0),Z0+b.z1,L.wall,L);}
+}
+// a biome site's ground and what stands on it out of its own columns (the derrick's tower and tanks, the peat trenches,
+// the radar dome and mast, the safari tents and waterhole, the stilt huts over their water, the ski piste and its lift),
+// sampled every st blocks: each sample's runs of solid blocks [y0,y1,block], the top one's colour on top. Samples with
+// the same runs are joined along x, and the whole is kept per plot and step (the plan never changes)
+const FAR_BS=new Map(),FAR_BSC=new Map(),FAR_BSL=new Map(),FAR_NOGLOW=new THREE.Color(0,0,0);
+const farBsCol=b=>{let c=FAR_BSC.get(b);if(!c){c=new THREE.Color(topColor(b));FAR_BSC.set(b,c);}return c;};
+const farBsSide=b=>{let c=FAR_BSL.get(b);if(!c){c={top:farBsCol(b),glow:FAR_NOGLOW,f:-3,w:new THREE.Color(blockColor(b))};FAR_BSL.set(b,c);}return c;};
+function farBioRuns(B,px,pz,st){
+  const k=px+','+pz+','+st;let R=FAR_BS.get(k);if(R)return R;if(FAR_BS.size>6000)FAR_BS.clear();R=[];
+  const ox=(px-B.ax)*CELL,oz=(pz-B.az)*CELL,cl=new Map();let lo=1e9,hi=-1e9;
+  const col=(y,b)=>{if(b===AIR||b===REEDS||b===FLOWER||BLOCK[b]&&BLOCK[b].hide)cl.delete(y);else{cl.set(y,b);}};
+  for(let rz=0;rz<CELL;rz+=st){let run=null;
+    for(let rx=0;rx<CELL;rx+=st){const cx=rx+(st>>1),cz=rz+(st>>1),x=px*CELL+cx,z=pz*CELL+cz;cl.clear();
+      bigColumn(col,B,ox+cx,oz+cz,x,z);
+      // (the ground: the highest block at or below G; then each run of solid blocks above it)
+      let g=AIR,gy=G-3;for(let y=G;y>=G-3;y--)if(cl.has(y)){g=cl.get(y);gy=y;break;}
+      const ys=[...cl.keys()].filter(y=>y>G).sort((a,b)=>a-b),runs=[];
+      for(const y of ys){const b=cl.get(y),r=runs[runs.length-1];if(r&&r[1]===y-1){r[1]=y;r[2]=b;}else runs.push([y,y,b]);}
+      const sig=g+':'+gy+'|'+runs.map(r=>r.join(',')).join('|');
+      if(run&&run.sig===sig)run.x1=rx+st;else{run={sig,x0:rx,x1:rx+st,z0:rz,z1:Math.min(CELL,rz+st),g,gy,runs};R.push(run);}}}
+  FAR_BS.set(k,R);return R;
+}
+function farBioSite(SB,SG,px,pz,lvl){
+  const B=bigPlainsAt(px,pz);if(!B||!BIO_SITES.has(B.kind))return;
+  const X0=px*CELL,Z0=pz*CELL,R=farBioRuns(B,px,pz,lvl===0?2:lvl===1?4:8);
+  for(const r of R){
+    // (the ground a touch over the biome's patch under it, sunk a little where it's dug out or water)
+    if(r.g!==AIR)farBox(SG,X0+r.x0,G+0.4,Z0+r.z0,X0+r.x1,G+(r.gy<G?1.2:1.66),Z0+r.z1,farBsCol(r.g));
+    for(const q of r.runs){const L=farBsSide(q[2]);farBox(SB,X0+r.x0,q[0],Z0+r.z0,X0+r.x1,q[1]+1,Z0+r.z1,L.w,L);}}
 }
 // the far ring: one box per town block, from the cheap per-block guesses (no plots worked out)
 // (no buildings are worked out out here, so each block gets a typical look: one of the common wall materials, with the share
