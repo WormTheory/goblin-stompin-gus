@@ -65,7 +65,7 @@ try{const d=actx.getImageData(0,0,atlas.width,atlas.height).data;for(let t=0;t<A
 const shadeHex=(h,k)=>{const r=Math.min(255,((h>>16)&255)*k),g=Math.min(255,((h>>8)&255)*k),b=Math.min(255,(h&255)*k);return(r<<16)|(g<<8)|b;};
 const blockColor=b=>{const t=BLOCK[b]&&BLOCK[b].tiles;return t&&tileColor[t[2]]!==undefined?tileColor[t[2]]:0x888888;};
 const KIND={};
-for(const b of [WIN_BLUE,WIN_GREEN,WIN_WARM,GLASS,ICE])KIND[b]='glass';
+for(const b of [WIN_BLUE,WIN_GREEN,WIN_WARM,GLASS,ICE,PACKICE])KIND[b]='glass';
 for(const b of [NEON_G,NEON_M,NEON_Y,NEON_O,LAMP])KIND[b]='neon';
 for(const b of [METAL,RUST])KIND[b]='metal';
 for(const b of [LOG,PLANKS])KIND[b]='wood';

@@ -73,6 +73,15 @@
 - Winter only freezes ponds and rivers where it's cold enough, never in the desert, savanna or rainforest.
 - In split screen, each player sees the weather where they are.
 
+### Coasts
+
+- Coasts now match the land behind them. Where the country is rugged, the shore stands up out of the sea as tall rocky headlands.
+- Cold shores are shingle: gravel, cobbles and the odd bit of driftwood.
+- Frozen shores have an ice shelf you can walk out on, with floes drifting beyond its edge.
+- Warm, wet shores grow mangroves, trees standing on arched roots in shallow, muddy water.
+- Beaches in the badlands are red sand.
+- This makes a new world again, so a saved city starts afresh.
+
 ### Rivers
 
 - Rivers now start somewhere and go somewhere: each one rises in the hills or mountains, or flows out of a lake, and runs downhill until it reaches the sea or joins a bigger river.

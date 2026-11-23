@@ -62,7 +62,7 @@ function roadSpecial(c,i,dt,thr){const k=roadKind(c),pr=!!i.rdSpecP,h=!!i.rdSpec
   if(c.siren){c.sirenT=(c.sirenT||0)-dt;if(c.sirenT<=0){c.sirenT=0.5;const hi=(c.sirenN=(c.sirenN||0)+1)%2;if(audio)sfx('Siren',()=>tone('triangle',hi?960:720,hi?960:720,0.45,0.035));}}}
 // the slide: where it's really going comes round to where it points as fast as the tyres grip (k a share of that)
 function roadGrip(c,Hd){let g=Hd.grip||9;const b=get(Math.floor(c.pos.x),Math.floor(c.pos.y-0.5),Math.floor(c.pos.z));
-  if(b===GRASS||b===DIRT||b===FIELD||b===FIELD_L||b===GRAVEL||b===FLOWER)g*=Hd.off||0.6;else if(b===SAND||b===RED_SAND||b===MUD)g*=(Hd.off||0.6)*0.75;else if(b===ICE)g*=0.2;else if(b===SNOW)g*=0.45;
+  if(b===GRASS||b===DIRT||b===FIELD||b===FIELD_L||b===GRAVEL||b===FLOWER)g*=Hd.off||0.6;else if(b===SAND||b===RED_SAND||b===MUD)g*=(Hd.off||0.6)*0.75;else if(b===ICE||b===PACKICE)g*=0.2;else if(b===SNOW)g*=0.45;
   if((c.snowHere??WX.snowCover)>0.3&&c.snowOpen)g*=0.6;return g;}
 function roadSlip(c,dt,Hd,k){const vx=Math.sin(c.heading)*c.speed,vz=Math.cos(c.heading)*c.speed;if(!c.hvel)c.hvel={x:vx,z:vz};const H=c.hvel;
   // (turned all at once, more than any steering could in a step, crossing into a ship's frame say: the slide turns with it)

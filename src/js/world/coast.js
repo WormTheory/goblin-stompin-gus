@@ -263,11 +263,61 @@ function oceanDepth(x,z){
 // kelp in the shallows and on the shelf, the odd rock
 function seaWater(col,x,z,minD,cd){
   if(cd===undefined)cd=coastD(x,z);
+  // (the shore's flavour, close in: under cliffs the bed drops away faster, mangroves stand in a shallow muddy flat, and a
+  // cold shore's bed is shingle)
+  const F=cd<CF_IW+24?coastFlav(x,z):0,rc=F>=0&&cd<CF_IW+24?CF_RC:0,mg=F===3&&cd<CF_MW&&beachK(x,z,1)<0.3;
   // (shelving up to any nearby land, so a little island sits on a shoal and not on a pillar out of deep water)
-  const od=oceanDepth(x,z),d=Math.max(minD||1,seaIsl?od:Math.min(od,1+Math.floor(Math.max(0,cd)*0.6))),f=G-d-1,h=hash2(x*13+5,z*7+3);
-  for(let y=f-2;y<f;y++)col(y,SAND);col(f,d>14?(h<0.5?GRAVEL:SAND):SAND);for(let y=G-d;y<=G;y++)col(y,WATER);
+  const od=oceanDepth(x,z),d0=Math.max(minD||1,seaIsl?od:Math.min(od,1+Math.floor(Math.max(0,cd)*(0.6+1.2*rc)))),d=mg?Math.min(d0,2):d0,f=G-d-1,h=hash2(x*13+5,z*7+3);
+  for(let y=f-2;y<f;y++)col(y,SAND);col(f,mg?MUD:(F===1||F===2)&&cd<14?GRAVEL:d>14?(h<0.5?GRAVEL:SAND):SAND);for(let y=G-d;y<=G;y++)col(y,WATER);
   if(d>=5&&d<=20&&h<0.035){const n=Math.min(d-2,2+Math.floor(hash2(x,z*5)*6));for(let y=f+1;y<=f+n;y++)col(y,LEAVES);}   // kelp
   else if(h>0.994){col(f+1,MOSSSTONE);if(h>0.998)col(f+2,MOSSSTONE);}
+  if(F===2)iceShelf(col,x,z,cd);else if(mg)mangroveCol(col,x,z,f+1);
+}
+// the shore's flavour by its climate (plan section 6.3): 0 sand, 1 shingle (cold), 2 an ice shelf (frozen), 3 mangroves
+// (warm and wet), 4 the badlands' red sand. From the blended climate, dithered a little per column so one gives way to the
+// next raggedly rather than along a line. Into CF_RC, how rugged the land is (0..1), which stands any shore up into cliffs
+const CF_IW=24,CF_MW=16,CF_HW=22;let CF_RC=0;
+// how high a headland may stand at (x,z): rising 1.5 a block from a road, railway or river, 1.2 from the edge of a block
+// that's neither open plains nor natural shore (a town, a farm, a site), 0 in one
+function coastCap(x,z){
+  let e=Math.min(roadNear(x,z),railDist(x,z,40)-4)*1.25;
+  const px=Math.floor(x/CELL),pz=Math.floor(z/CELL),rx=x-px*CELL,rz=z-pz*CELL;
+  for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++){const qx=px+dx,qz=pz+dz;
+    if(PLAINS_OPEN(qx,qz)||seaPlot(qx,qz)&&(coastType(qx,qz)==='shore'||coastType(qx,qz)==='sea'))continue;
+    const ex=dx<0?rx:dx>0?CELL-1-rx:0,ez=dz<0?rz:dz>0?CELL-1-rz:0;e=Math.min(e,Math.max(dx?ex:0,dz?ez:0));}
+  return Math.max(0,e*1.2);
+}
+function coastFlav(x,z){
+  const c=climAt(x,z),t=c.t,m=c.m;CF_RC=nzClamp01((clBlend('r')-0.32)/0.2);
+  const j=(hash2(x*7+4421,z*11+4423)-0.5)*0.03,tj=t+j,mj=m+j;
+  if(tj<0.17)return 2;if(tj<0.36)return 1;if(mj>0.8&&tj>0.55||tj>0.8&&mj>0.62)return 3;
+  return bioPick(t,m,x,z)===BIO_I.badlands?4:0;
+}
+// an ice shelf along a frozen shore: sea ice two blocks thick out to a ragged edge (11 to 24 blocks out), snow drifted on
+// it, bites out of its edge, and floes beyond, thinning out. None in front of a town's beach or harbour (their boats)
+function iceShelf(col,x,z,cd){
+  if(cd>CF_IW+22||beachK(x,z,1)>0.1)return;
+  const W=CF_IW*(0.45+0.55*nzClamp01(0.5+0.7*nzNoise(x/40,z/40,4431))),h=hash2(x*17+4433,z*29+4435);
+  if(cd<W){if(cd>W-2.5&&h<0.15)return;col(G-1,PACKICE);col(G,PACKICE);if(cd<W-3&&nzNoise(x/9,z/9,4437)>0.25)col(G+1,SNOW);return;}
+  if(nzNoise(x/5,z/5,4439)>0.4+0.5*(cd-W)/22)col(G,PACKICE);
+}
+// mangroves on a warm, wet shore: trees on arched roots in the shallows and on the mud, one to a 6-block cell where the
+// cell's hash says, their crowns overlapping. The column's part of every tree within reach, the crowns first and then the
+// wood, from y0 (the sea bed's top, or the ground's) up
+const MG_T=[];
+function mangroveCol(col,x,z,y0){
+  const ix=Math.floor(x/6),iz=Math.floor(z/6);let n=0;
+  for(let a=ix-1;a<=ix+1;a++)for(let b=iz-1;b<=iz+1;b++){
+    const hh=hash2(a*31+4451,b*17+4453);if(hh>0.8)continue;
+    const cx=a*6+1+Math.floor(hash2(a*7+4457,b*3+4459)*4),cz=b*6+1+Math.floor(hash2(a*5+4461,b*11+4463)*4),u=x-cx,v=z-cz;
+    if(u<-3||u>3||v<-3||v>3)continue;
+    const cd=coastD(cx,cz);if(cd<-4||cd>CF_MW-2||coastFlav(cx,cz)!==3||beachK(cx,cz,1)>=0.3)continue;
+    MG_T[n++]=[u,v,4+Math.floor(hh*3.75),2.2+hash2(a*13+4465,b*5+4467)*1.2];}
+  for(let i=0;i<n;i++){const [u,v,hg,R]=MG_T[i],r2=u*u+v*v;
+    if(r2<=R*R)for(let y=G+hg-(r2<=(R-1)*(R-1)?1:0);y<=G+hg+(r2<=2?2:1);y++)col(y,LEAVES);}
+  for(let i=0;i<n;i++){const [u,v,hg]=MG_T[i],au=Math.abs(u),av=Math.abs(v);
+    const top=au+av===0?G+hg:au===1&&av===1?G+2:au+av===2&&(au===0||av===0)?G+1:-1;
+    for(let y=y0;y<=top;y++)col(y,LOG);}
 }
 // the natural shore: open water; then either a sandy beach (wide where it's a town's) backed by dunes, or rocky cliffs
 // standing up out of the water; then the grass. True if it's water here
@@ -286,15 +336,29 @@ function beachK(x,z,orHarbor){
   return (b(i,j)*(1-su)+b(i+1,j)*su)*(1-sv)+(b(i,j+1)*(1-su)+b(i+1,j+1)*su)*sv;
 }
 function natLand(col,x,z,kind,cd){
-  const w=-cd,bk=beachK(x,z);   // (and no cliffs in front of a town's harbour either: see below)
+  const w=-cd,bk=beachK(x,z),bk1=beachK(x,z,1),F=coastFlav(x,z),rc=CF_RC;   // (and no cliffs in front of a town's harbour either: see below)
+  // a rugged shore stands up out of the sea as a headland: a sheer face over a rocky foot, a top as high as the land's own
+  // (the more rugged, the more of it), easing down toward the land behind from 12 blocks in. Kept back from roads,
+  // railways, rivers and anything built (coastCap), and from a town's beach or harbour
+  if(rc>0.15&&w<CF_HW&&bk1<0.5){
+    const P=Math.round(rc*Math.min(Math.max(reliefNat(x,z),10),28)),cap=P>=2?coastCap(x,z):0;
+    if(P>=2&&cap>=2){const ph=w>=12?Math.max(0,plainsH(x,z)):0,h=Math.round(Math.min(cap,w<0.8?Math.min(P,2):w<12?P:P+(ph-P)*(w-12)/(CF_HW-12)));
+      if(h>0){for(let y=G-2;y<G+h;y++)col(y,hash2(x*3+y,z*5)<0.3?MOSSSTONE:STONE);col(G+h,w<1.5?STONE:F===2?SNOW:BIOMES[biomeAt(x,z)].top||GRASS);return true;}}}
   // cliffs rise out of the beach as the noise climbs, instead of standing up suddenly beside it
-  const rk=Math.max(0,Math.min(1,(gridNoise(x/CELL,z/CELL,7,77)-0.06)/0.14))*(1-beachK(x,z,1));
+  const rk=Math.max(0,Math.min(1,(gridNoise(x/CELL,z/CELL,7,77)-0.06)/0.14))*(1-bk1);
   if(rk>0&&w<10){
     const ph=Math.max(0,plainsH(x,z)),h0=w<3?w*2.4:7+(ph-7)*Math.min(1,(w-3)/7),h=Math.round(h0*rk);
-    if(h>0||rk>0.5){for(let y=G-2;y<G+h;y++)col(y,hash2(x*3+y,z*5)<0.3?MOSSSTONE:STONE);col(G+h,w<3||rk<0.6?STONE:GRASS);return true;}}
+    if(h>0||rk>0.5){for(let y=G-2;y<G+h;y++)col(y,hash2(x*3+y,z*5)<0.3?MOSSSTONE:STONE);col(G+h,w<3||rk<0.6?STONE:F===2?SNOW:BIOMES[biomeAt(x,z)].top||GRASS);return true;}}
+  // (mangroves: a strip of mud under their trees, unless a town's cleared it for its beach)
+  if(F===3&&bk<0.3&&w<8){col(G,MUD);col(G-1,MUD);col(G-2,DIRT);mangroveCol(col,x,z,G+1);return true;}
   const bw=7+13*bk;
-  if(w<bw){col(G,SAND);col(G-1,SAND);col(G-2,SAND);
-    if(w>bw-4&&w>4&&gridNoise(x/6,z/6,1,91)>0){col(G+1,SAND);if(hash2(x*5+1,z*3+7)<0.08)col(G+2,LEAVES);}   // the dunes, with marram grass
+  // a cold shore's shingle: gravel and cobbles, a ridge of it at the back, the odd piece of driftwood, snow over it all on a
+  // frozen one
+  if(w<bw&&(F===1||F===2)){const h=hash2(x*5+1,z*3+7);let y=G;col(G-2,GRAVEL);col(G-1,GRAVEL);col(G,h<0.12?COBBLE:h<0.16?STONE:GRAVEL);
+    if(w>bw-4&&w>4&&gridNoise(x/6,z/6,1,91)>0)col(++y,GRAVEL);else if(h>0.994&&w>2)col(++y,LOG);
+    if(F===2)col(y+1,SNOW);return true;}
+  if(w<bw){const sd=F===4?RED_SAND:SAND;col(G,sd);col(G-1,sd);col(G-2,sd);
+    if(w>bw-4&&w>4&&gridNoise(x/6,z/6,1,91)>0){col(G+1,sd);if(hash2(x*5+1,z*3+7)<0.08)col(G+2,LEAVES);}   // the dunes, with marram grass
     return true;}
   return false;
 }

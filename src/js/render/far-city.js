@@ -68,6 +68,8 @@ function farInst(cap,win,ring){
 const _fc=new THREE.Color();
 const topColor=b=>{const t=BLOCK[b].tiles[0];return tileColor[t]!==undefined?tileColor[t]:0x888888;};
 const FARC={sea:new THREE.Color(topColor(WATER)),deep:new THREE.Color(topColor(WATER)).multiplyScalar(0.62),sand:new THREE.Color(topColor(SAND)),con:new THREE.Color(topColor(CONCRETE)),side:new THREE.Color(topColor(SIDEWALK)),park:new THREE.Color(topColor(GRASS)),plaza:new THREE.Color(topColor(CONCRETE)),road:new THREE.Color(topColor(ASPHALT))};
+// (a shore's colours by its flavour, coastFlav: shingle, sea ice, the mangroves' mud, red sand)
+const FARC_CF=[null,new THREE.Color(topColor(GRAVEL)),new THREE.Color(topColor(PACKICE)),new THREE.Color(topColor(MUD)),new THREE.Color(topColor(RED_SAND))];
 // what a building looks like from outside, for its far box: the colour of its walls (glowing windows apart), of its glowing
 // windows and how much of the walls they make up, and of its roof. Taken from the very blocks the full-detail city builds it
 // from, a hundred and sixty picked at random over its sides and its top (the same ones every time), so a building looks the same
@@ -135,8 +137,10 @@ function farSea(SG,px,pz,n){
   for(let j=0;j<n;j++)for(let i=0;i<n;i++){const x=X0+i*st,z=Z0+j*st;
     if(t==='yard'||t==='navy'){farBox(SG,x,G+0.4,z,x+st,G+1,z+st,FARC.con);continue;}
     const q=t==='basin'||t==='nbasin'||n===1&&seaPlot(px,pz)===2?1:seaBlk(x+st/2,z+st/2);
-    if(q>=SEA_T)farBox(SG,x,G+0.4,z,x+st,G+0.95,z+st,n<=2&&seaPlot(px,pz)===2?FARC.deep:FARC.sea);
-    else if(n>1&&coastD(x+st/2,z+st/2)>-8)farBox(SG,x,G+0.4,z,x+st,G+1,z+st,FARC.sand);
+    if(q>=SEA_T){const cd=n>1?coastD(x+st/2,z+st/2):99;
+      if(cd<CF_IW*0.6&&coastFlav(x+st/2,z+st/2)===2)farBox(SG,x,G+0.4,z,x+st,G+1,z+st,FARC_CF[2]);
+      else farBox(SG,x,G+0.4,z,x+st,G+0.95,z+st,n<=2&&seaPlot(px,pz)===2?FARC.deep:FARC.sea);}
+    else if(n>1&&coastD(x+st/2,z+st/2)>-8)farBox(SG,x,G+0.4,z,x+st,G+1,z+st,FARC_CF[coastFlav(x+st/2,z+st/2)]||FARC.sand);
     else farBox(SG,x,G+0.4,z,x+st,G+1.6,z+st,farBio(px,pz).g);}
 }
 // the far view of one plains block: the rivers and highways crossing it, as boxes along their lines (each piece drawn

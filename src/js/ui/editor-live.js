@@ -96,7 +96,7 @@ function liveSiteFind(kind,n){
 }
 // (nature's own blocks, and the ore deep down: a site keeps everything from the lowest height anything else is found at,
 // and at least a few blocks under the ground)
-const SITE_NATURAL=new Set([AIR,GRASS,DIRT,STONE,SAND,WATER,GRAVEL,CLAY,DEEPSLATE,BEDROCK,COAL,CRYSTAL,ICE]);
+const SITE_NATURAL=new Set([AIR,GRASS,DIRT,STONE,SAND,WATER,GRAVEL,CLAY,DEEPSLATE,BEDROCK,COAL,CRYSTAL,ICE,PACKICE]);
 function liveSiteCapture(kind,n){
   const m=liveSiteFind(kind,n|0);if(!m)return {error:'There is none of these near enough in this world'};
   const X0=m.ax*CELL+PL0,Z0=m.az*CELL+PL0,NX=(m.w-1)*CELL+PW,NZ=(m.h-1)*CELL+PW,C=new Map();

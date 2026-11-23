@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:499f12011e0f4a3e350c4152c01c7eb7d3f592923b1d555f21b9d286fa171b53 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:332b26d63d599acb20b1340ea1ee454fb9c2e3595f0795e40cda2a44d734db36 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1653,6 +1653,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <ul><li>Deserts are rolling seas of dunes, long sandy ridges with a steep face on the side away from the wind.</li><li>The badlands rise into flat-topped mesas and plateaus with stepped sides of banded clay, and canyons cut down through them. Scrubland has lower plateaus.</li><li>In middling hilly country the land steps up sheer rock cliffs that run on for kilometres.</li><li>The driest, hottest deserts have dead-flat white salt flats.</li><li>Small lakes called tarns lie in bowls high in the mountains, frozen over where it's cold.</li><li>Oases dot the deserts: a pool of water ringed with grass and palm trees, the dunes dying away round it.</li><li>Sinkholes drop straight down toward the caves, with water at the bottom in warm country.</li><li>This makes a new world again, so a saved city starts afresh.</li></ul>
 <h3>Weather by region</h3>
 <ul><li>The weather now depends on where you are. Rain falls as snow in the cold north and high in the mountains, the ice fields get blizzards, and the desert stays dry.</li><li>Deserts and badlands get sandstorms: the air turns ochre, dust blows past and you can hardly see.</li><li>The savanna and scrubland have dusty days, with dust devils whirling across the plain.</li><li>The rainforest gets heavier rain, and a humid haze on its drier days. Moors and swamps fog over more often.</li><li>Snow lies by temperature. The tundra and ice fields stay white all year, even on a clear summer day. Cold country keeps its snow far into spring, and it melts fast in warm places.</li><li>Winter only freezes ponds and rivers where it's cold enough, never in the desert, savanna or rainforest.</li><li>In split screen, each player sees the weather where they are.</li></ul>
+<h3>Coasts</h3>
+<ul><li>Coasts now match the land behind them. Where the country is rugged, the shore stands up out of the sea as tall rocky headlands.</li><li>Cold shores are shingle: gravel, cobbles and the odd bit of driftwood.</li><li>Frozen shores have an ice shelf you can walk out on, with floes drifting beyond its edge.</li><li>Warm, wet shores grow mangroves, trees standing on arched roots in shallow, muddy water.</li><li>Beaches in the badlands are red sand.</li><li>This makes a new world again, so a saved city starts afresh.</li></ul>
 <h3>Rivers</h3>
 <ul><li>Rivers now start somewhere and go somewhere: each one rises in the hills or mountains, or flows out of a lake, and runs downhill until it reaches the sea or joins a bigger river.</li><li>Smaller, shallower streams branch off the rivers and feed into them.</li><li>Through the hills and mountains, rivers carve valleys for themselves.</li><li>The World Generator has two more River sliders: how far rivers run inland, and how many streams branch off them. It draws streams thinner than rivers.</li><li>Each river has a width of its own, the same all the way down (the Width slider still sets the widest).</li><li>A river passing a lake now runs into it, with no strip of land left between the two, and rises to the lake's level as it reaches it.</li><li>Swamp river banks are muddy along whole stretches rather than in patches.</li><li>The map and minimap no longer draw rivers out across the sea.</li><li>This makes a new world again, so a saved city starts afresh.</li></ul>
 <h3>Co-op on two screens</h3>
@@ -2385,10 +2387,10 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='13bd953752c7';
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v106'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
+const GAME_VER='0.5',GAME_BUILD='ab2ff59f2b3e';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v107'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
-const WORLD_GEN=8;
+const WORLD_GEN=9;
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -2454,7 +2456,8 @@ const AIR=0,GRASS=1,DIRT=2,STONE=3,LOG=4,LEAVES=5,SAND=6,PLANKS=7,GLASS=8,WATER=
   // the biomes' ground and plants (world/climate.js): snow, sandstone, the badlands' red sand and banded clay, mud, cactus,
   // pine needles (evergreen: the seasons leave them be) and reeds
   SNOW=153,SANDSTONE=154,RED_SAND=155,TERRA=156,TERRA2=157,MUD=158,CACTUS=159,PINE=160,REEDS=161,
-  SALT=162;   // (a salt flat's white crust, world/relief.js)
+  SALT=162,   // (a salt flat's white crust, world/relief.js)
+  PACKICE=163;   // (an ice shelf's sea ice along a frozen shore, world/coast.js: ICE's look, but winter's thaw leaves it be)
 // ramps: 4 directions (the way it rises: +x, -x, +z, -z) x 3 shapes (a full 0->1 slope, or the low and high halves
 // of a gentle slope that takes two blocks to climb one). rampId(dir,kind)
 const stairId=(dir,mat)=>STAIR0+(mat||0)*4+dir,rampId=(dir,kind)=>RAMP0+dir*3+kind,rampLineId=(dir,kind,t)=>RAMPL0+t*12+dir*3+kind;
@@ -2563,6 +2566,7 @@ BLOCK[SNOW]     ={tiles:[96,96,96],solid:true};
 BLOCK[SANDSTONE]={tiles:[98,98,97],solid:true};
 BLOCK[RED_SAND] ={tiles:[99,99,99],solid:true};
 BLOCK[SALT]     ={tiles:[107,107,107],solid:true};
+BLOCK[PACKICE]  ={tiles:[76,76,76],solid:true};
 BLOCK[TERRA]    ={tiles:[100,100,100],solid:true};
 BLOCK[TERRA2]   ={tiles:[101,101,101],solid:true};
 BLOCK[MUD]      ={tiles:[102,102,102],solid:true};
@@ -3597,11 +3601,61 @@ function oceanDepth(x,z){
 // kelp in the shallows and on the shelf, the odd rock
 function seaWater(col,x,z,minD,cd){
   if(cd===undefined)cd=coastD(x,z);
+  // (the shore's flavour, close in: under cliffs the bed drops away faster, mangroves stand in a shallow muddy flat, and a
+  // cold shore's bed is shingle)
+  const F=cd<CF_IW+24?coastFlav(x,z):0,rc=F>=0&&cd<CF_IW+24?CF_RC:0,mg=F===3&&cd<CF_MW&&beachK(x,z,1)<0.3;
   // (shelving up to any nearby land, so a little island sits on a shoal and not on a pillar out of deep water)
-  const od=oceanDepth(x,z),d=Math.max(minD||1,seaIsl?od:Math.min(od,1+Math.floor(Math.max(0,cd)*0.6))),f=G-d-1,h=hash2(x*13+5,z*7+3);
-  for(let y=f-2;y<f;y++)col(y,SAND);col(f,d>14?(h<0.5?GRAVEL:SAND):SAND);for(let y=G-d;y<=G;y++)col(y,WATER);
+  const od=oceanDepth(x,z),d0=Math.max(minD||1,seaIsl?od:Math.min(od,1+Math.floor(Math.max(0,cd)*(0.6+1.2*rc)))),d=mg?Math.min(d0,2):d0,f=G-d-1,h=hash2(x*13+5,z*7+3);
+  for(let y=f-2;y<f;y++)col(y,SAND);col(f,mg?MUD:(F===1||F===2)&&cd<14?GRAVEL:d>14?(h<0.5?GRAVEL:SAND):SAND);for(let y=G-d;y<=G;y++)col(y,WATER);
   if(d>=5&&d<=20&&h<0.035){const n=Math.min(d-2,2+Math.floor(hash2(x,z*5)*6));for(let y=f+1;y<=f+n;y++)col(y,LEAVES);}   // kelp
   else if(h>0.994){col(f+1,MOSSSTONE);if(h>0.998)col(f+2,MOSSSTONE);}
+  if(F===2)iceShelf(col,x,z,cd);else if(mg)mangroveCol(col,x,z,f+1);
+}
+// the shore's flavour by its climate (plan section 6.3): 0 sand, 1 shingle (cold), 2 an ice shelf (frozen), 3 mangroves
+// (warm and wet), 4 the badlands' red sand. From the blended climate, dithered a little per column so one gives way to the
+// next raggedly rather than along a line. Into CF_RC, how rugged the land is (0..1), which stands any shore up into cliffs
+const CF_IW=24,CF_MW=16,CF_HW=22;let CF_RC=0;
+// how high a headland may stand at (x,z): rising 1.5 a block from a road, railway or river, 1.2 from the edge of a block
+// that's neither open plains nor natural shore (a town, a farm, a site), 0 in one
+function coastCap(x,z){
+  let e=Math.min(roadNear(x,z),railDist(x,z,40)-4)*1.25;
+  const px=Math.floor(x/CELL),pz=Math.floor(z/CELL),rx=x-px*CELL,rz=z-pz*CELL;
+  for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++){const qx=px+dx,qz=pz+dz;
+    if(PLAINS_OPEN(qx,qz)||seaPlot(qx,qz)&&(coastType(qx,qz)==='shore'||coastType(qx,qz)==='sea'))continue;
+    const ex=dx<0?rx:dx>0?CELL-1-rx:0,ez=dz<0?rz:dz>0?CELL-1-rz:0;e=Math.min(e,Math.max(dx?ex:0,dz?ez:0));}
+  return Math.max(0,e*1.2);
+}
+function coastFlav(x,z){
+  const c=climAt(x,z),t=c.t,m=c.m;CF_RC=nzClamp01((clBlend('r')-0.32)/0.2);
+  const j=(hash2(x*7+4421,z*11+4423)-0.5)*0.03,tj=t+j,mj=m+j;
+  if(tj<0.17)return 2;if(tj<0.36)return 1;if(mj>0.8&&tj>0.55||tj>0.8&&mj>0.62)return 3;
+  return bioPick(t,m,x,z)===BIO_I.badlands?4:0;
+}
+// an ice shelf along a frozen shore: sea ice two blocks thick out to a ragged edge (11 to 24 blocks out), snow drifted on
+// it, bites out of its edge, and floes beyond, thinning out. None in front of a town's beach or harbour (their boats)
+function iceShelf(col,x,z,cd){
+  if(cd>CF_IW+22||beachK(x,z,1)>0.1)return;
+  const W=CF_IW*(0.45+0.55*nzClamp01(0.5+0.7*nzNoise(x/40,z/40,4431))),h=hash2(x*17+4433,z*29+4435);
+  if(cd<W){if(cd>W-2.5&&h<0.15)return;col(G-1,PACKICE);col(G,PACKICE);if(cd<W-3&&nzNoise(x/9,z/9,4437)>0.25)col(G+1,SNOW);return;}
+  if(nzNoise(x/5,z/5,4439)>0.4+0.5*(cd-W)/22)col(G,PACKICE);
+}
+// mangroves on a warm, wet shore: trees on arched roots in the shallows and on the mud, one to a 6-block cell where the
+// cell's hash says, their crowns overlapping. The column's part of every tree within reach, the crowns first and then the
+// wood, from y0 (the sea bed's top, or the ground's) up
+const MG_T=[];
+function mangroveCol(col,x,z,y0){
+  const ix=Math.floor(x/6),iz=Math.floor(z/6);let n=0;
+  for(let a=ix-1;a<=ix+1;a++)for(let b=iz-1;b<=iz+1;b++){
+    const hh=hash2(a*31+4451,b*17+4453);if(hh>0.8)continue;
+    const cx=a*6+1+Math.floor(hash2(a*7+4457,b*3+4459)*4),cz=b*6+1+Math.floor(hash2(a*5+4461,b*11+4463)*4),u=x-cx,v=z-cz;
+    if(u<-3||u>3||v<-3||v>3)continue;
+    const cd=coastD(cx,cz);if(cd<-4||cd>CF_MW-2||coastFlav(cx,cz)!==3||beachK(cx,cz,1)>=0.3)continue;
+    MG_T[n++]=[u,v,4+Math.floor(hh*3.75),2.2+hash2(a*13+4465,b*5+4467)*1.2];}
+  for(let i=0;i<n;i++){const [u,v,hg,R]=MG_T[i],r2=u*u+v*v;
+    if(r2<=R*R)for(let y=G+hg-(r2<=(R-1)*(R-1)?1:0);y<=G+hg+(r2<=2?2:1);y++)col(y,LEAVES);}
+  for(let i=0;i<n;i++){const [u,v,hg]=MG_T[i],au=Math.abs(u),av=Math.abs(v);
+    const top=au+av===0?G+hg:au===1&&av===1?G+2:au+av===2&&(au===0||av===0)?G+1:-1;
+    for(let y=y0;y<=top;y++)col(y,LOG);}
 }
 // the natural shore: open water; then either a sandy beach (wide where it's a town's) backed by dunes, or rocky cliffs
 // standing up out of the water; then the grass. True if it's water here
@@ -3620,15 +3674,29 @@ function beachK(x,z,orHarbor){
   return (b(i,j)*(1-su)+b(i+1,j)*su)*(1-sv)+(b(i,j+1)*(1-su)+b(i+1,j+1)*su)*sv;
 }
 function natLand(col,x,z,kind,cd){
-  const w=-cd,bk=beachK(x,z);   // (and no cliffs in front of a town's harbour either: see below)
+  const w=-cd,bk=beachK(x,z),bk1=beachK(x,z,1),F=coastFlav(x,z),rc=CF_RC;   // (and no cliffs in front of a town's harbour either: see below)
+  // a rugged shore stands up out of the sea as a headland: a sheer face over a rocky foot, a top as high as the land's own
+  // (the more rugged, the more of it), easing down toward the land behind from 12 blocks in. Kept back from roads,
+  // railways, rivers and anything built (coastCap), and from a town's beach or harbour
+  if(rc>0.15&&w<CF_HW&&bk1<0.5){
+    const P=Math.round(rc*Math.min(Math.max(reliefNat(x,z),10),28)),cap=P>=2?coastCap(x,z):0;
+    if(P>=2&&cap>=2){const ph=w>=12?Math.max(0,plainsH(x,z)):0,h=Math.round(Math.min(cap,w<0.8?Math.min(P,2):w<12?P:P+(ph-P)*(w-12)/(CF_HW-12)));
+      if(h>0){for(let y=G-2;y<G+h;y++)col(y,hash2(x*3+y,z*5)<0.3?MOSSSTONE:STONE);col(G+h,w<1.5?STONE:F===2?SNOW:BIOMES[biomeAt(x,z)].top||GRASS);return true;}}}
   // cliffs rise out of the beach as the noise climbs, instead of standing up suddenly beside it
-  const rk=Math.max(0,Math.min(1,(gridNoise(x/CELL,z/CELL,7,77)-0.06)/0.14))*(1-beachK(x,z,1));
+  const rk=Math.max(0,Math.min(1,(gridNoise(x/CELL,z/CELL,7,77)-0.06)/0.14))*(1-bk1);
   if(rk>0&&w<10){
     const ph=Math.max(0,plainsH(x,z)),h0=w<3?w*2.4:7+(ph-7)*Math.min(1,(w-3)/7),h=Math.round(h0*rk);
-    if(h>0||rk>0.5){for(let y=G-2;y<G+h;y++)col(y,hash2(x*3+y,z*5)<0.3?MOSSSTONE:STONE);col(G+h,w<3||rk<0.6?STONE:GRASS);return true;}}
+    if(h>0||rk>0.5){for(let y=G-2;y<G+h;y++)col(y,hash2(x*3+y,z*5)<0.3?MOSSSTONE:STONE);col(G+h,w<3||rk<0.6?STONE:F===2?SNOW:BIOMES[biomeAt(x,z)].top||GRASS);return true;}}
+  // (mangroves: a strip of mud under their trees, unless a town's cleared it for its beach)
+  if(F===3&&bk<0.3&&w<8){col(G,MUD);col(G-1,MUD);col(G-2,DIRT);mangroveCol(col,x,z,G+1);return true;}
   const bw=7+13*bk;
-  if(w<bw){col(G,SAND);col(G-1,SAND);col(G-2,SAND);
-    if(w>bw-4&&w>4&&gridNoise(x/6,z/6,1,91)>0){col(G+1,SAND);if(hash2(x*5+1,z*3+7)<0.08)col(G+2,LEAVES);}   // the dunes, with marram grass
+  // a cold shore's shingle: gravel and cobbles, a ridge of it at the back, the odd piece of driftwood, snow over it all on a
+  // frozen one
+  if(w<bw&&(F===1||F===2)){const h=hash2(x*5+1,z*3+7);let y=G;col(G-2,GRAVEL);col(G-1,GRAVEL);col(G,h<0.12?COBBLE:h<0.16?STONE:GRAVEL);
+    if(w>bw-4&&w>4&&gridNoise(x/6,z/6,1,91)>0)col(++y,GRAVEL);else if(h>0.994&&w>2)col(++y,LOG);
+    if(F===2)col(y+1,SNOW);return true;}
+  if(w<bw){const sd=F===4?RED_SAND:SAND;col(G,sd);col(G-1,sd);col(G-2,sd);
+    if(w>bw-4&&w>4&&gridNoise(x/6,z/6,1,91)>0){col(G+1,sd);if(hash2(x*5+1,z*3+7)<0.08)col(G+2,LEAVES);}   // the dunes, with marram grass
     return true;}
   return false;
 }
@@ -9742,7 +9810,7 @@ function purgeLeaves(){
 const leafHash=(x,y,z)=>hash2(x*7+y*131,z*13+y*17);
 const leafDown=(x,y,z)=>leafFall>0&&leafHash(x,y,z)<leafFall;
 function get(x,y,z){x=Math.floor(x);y=Math.floor(y);z=Math.floor(z);if(y<0||y>=H)return AIR;const cx=Math.floor(x/CS),cz=Math.floor(z/CS);const b=chunkArr(cx,cz)[li(x-cx*CS,y,z-cz*CS)];return b===LEAVES&&leafDown(x,y,z)?AIR:b;}
-function setRaw(x,y,z,b){if(y<0||y>=H)return;if(BB.jobs.length)bbTouch(x,z);if(x>=SHIP_X0&&shipN)b=shipDent(x,y,z,b);if(b===AIR&&y>G)noteRemoved(x,y,z);if(snowMax()>0&&snowAt(x,z,y)>0){let open=true;for(let yy=y+1;yy<H;yy++)if(get(x,yy,z)){open=false;break;}if(open)snowBorn.set(Math.floor(x)*65536+Math.floor(z),WX.snowClock);}navCols.delete(Math.floor(x)*65536+Math.floor(z));const cx=Math.floor(x/CS),cz=Math.floor(z/CS);if(b!==LOG&&rawGet(x,y,z)===LOG)leafCheckQ.add(Math.floor(x)+','+Math.floor(y)+','+Math.floor(z));if(b===AIR&&get(x,y,z)===ICE)b=WATER;if(b===AIR)wfNoteRemoved(x,y,z);const A=chunkArr(cx,cz),lx=x-cx*CS,lz=z-cz*CS;if(BL_ON)blkEdit(x,y,z,A[li(lx,y,lz)],b,A);if(b&&A.tileTops){const t=(Math.floor(lz)>>2)*4+(Math.floor(lx)>>2);if(y>A.tileTops[t])A.tileTops[t]=y;}A[li(lx,y,lz)]=b;}
+function setRaw(x,y,z,b){if(y<0||y>=H)return;if(BB.jobs.length)bbTouch(x,z);if(x>=SHIP_X0&&shipN)b=shipDent(x,y,z,b);if(b===AIR&&y>G)noteRemoved(x,y,z);if(snowMax()>0&&snowAt(x,z,y)>0){let open=true;for(let yy=y+1;yy<H;yy++)if(get(x,yy,z)){open=false;break;}if(open)snowBorn.set(Math.floor(x)*65536+Math.floor(z),WX.snowClock);}navCols.delete(Math.floor(x)*65536+Math.floor(z));const cx=Math.floor(x/CS),cz=Math.floor(z/CS);if(b!==LOG&&rawGet(x,y,z)===LOG)leafCheckQ.add(Math.floor(x)+','+Math.floor(y)+','+Math.floor(z));if(b===AIR&&(get(x,y,z)===ICE||y<=G&&get(x,y,z)===PACKICE))b=WATER;if(b===AIR)wfNoteRemoved(x,y,z);const A=chunkArr(cx,cz),lx=x-cx*CS,lz=z-cz*CS;if(BL_ON)blkEdit(x,y,z,A[li(lx,y,lz)],b,A);if(b&&A.tileTops){const t=(Math.floor(lz)>>2)*4+(Math.floor(lx)>>2);if(y>A.tileTops[t])A.tileTops[t]=y;}A[li(lx,y,lz)]=b;}
 function addEdit(x,y,z,b){if(BB.jobs.length)bbTouch(x,z);if(b===AIR&&get(x,y,z)===WATER)b=WATER;edits[x+','+y+','+z]=b;const k=ckey(Math.floor(x/CS),Math.floor(z/CS));let l=chunkEdits.get(k);if(!l){l=[];chunkEdits.set(k,l);}l.push([x,y,z,b]);}
 // the highest block in each 4 x 4 of a chunk's columns, kept with the chunk once something has asked. (A block knocked out can
 // leave it too high, which only means a closer look than was needed; a block put in raises it, in setRaw.)
@@ -11560,7 +11628,7 @@ try{const d=actx.getImageData(0,0,atlas.width,atlas.height).data;for(let t=0;t<A
 const shadeHex=(h,k)=>{const r=Math.min(255,((h>>16)&255)*k),g=Math.min(255,((h>>8)&255)*k),b=Math.min(255,(h&255)*k);return(r<<16)|(g<<8)|b;};
 const blockColor=b=>{const t=BLOCK[b]&&BLOCK[b].tiles;return t&&tileColor[t[2]]!==undefined?tileColor[t[2]]:0x888888;};
 const KIND={};
-for(const b of [WIN_BLUE,WIN_GREEN,WIN_WARM,GLASS,ICE])KIND[b]='glass';
+for(const b of [WIN_BLUE,WIN_GREEN,WIN_WARM,GLASS,ICE,PACKICE])KIND[b]='glass';
 for(const b of [NEON_G,NEON_M,NEON_Y,NEON_O,LAMP])KIND[b]='neon';
 for(const b of [METAL,RUST])KIND[b]='metal';
 for(const b of [LOG,PLANKS])KIND[b]='wood';
@@ -14795,7 +14863,7 @@ const WS={g:24,air:0.3,water:0.9,fric:10,drag:0.7,cost:2,vmin:3,step:0.4,tmax:10
 const WS_TOUGH=(()=>{const T=new Float32Array(256).fill(1),set=(v,L)=>{for(const b of L)T[b]=v;};
   for(let b=0;b<BLOCK.length;b++)if(BLOCK[b]&&BLOCK[b].brittle)T[b]=0.2;   // (fences, railings, gravestones)
   set(0.2,[GLASS,STAINED,LEAVES,FLOWER,AWN_R,AWN_G,LAMP,NEON_G,NEON_M,NEON_B,NEON_R,NEON_Y,NEON_O,SCREEN]);
-  set(0.5,[PLANKS,SHELF,BED,SOFA,CRATE,SIDING,SIDING_Y,SHINGLE,SEAT_B,SEAT_R,ICE]);
+  set(0.5,[PLANKS,SHELF,BED,SOFA,CRATE,SIDING,SIDING_Y,SHINGLE,SEAT_B,SEAT_R,ICE,PACKICE]);
   set(0.7,[LOG,FRIDGE,ROOF,SAND,GRAVEL,PUMP,RED_SAND,SNOW,MUD,SALT]);
   set(0.9,[GRASS,DIRT,FIELD,FIELD_L,CLAY,WIN_BLUE,WIN_GREEN,WIN_WARM,COURT,COURT_L]);
   set(1.2,[BRICK,STUCCO,PAINT_BLUE,PAINT_RED,PAINT_GREEN,PAINT_ORANGE,PAINT_YELLOW,PAINT_WHITE,PAINT_NAVY,PAINT_DARK]);
@@ -15323,7 +15391,7 @@ function roadSpecial(c,i,dt,thr){const k=roadKind(c),pr=!!i.rdSpecP,h=!!i.rdSpec
   if(c.siren){c.sirenT=(c.sirenT||0)-dt;if(c.sirenT<=0){c.sirenT=0.5;const hi=(c.sirenN=(c.sirenN||0)+1)%2;if(audio)sfx('Siren',()=>tone('triangle',hi?960:720,hi?960:720,0.45,0.035));}}}
 // the slide: where it's really going comes round to where it points as fast as the tyres grip (k a share of that)
 function roadGrip(c,Hd){let g=Hd.grip||9;const b=get(Math.floor(c.pos.x),Math.floor(c.pos.y-0.5),Math.floor(c.pos.z));
-  if(b===GRASS||b===DIRT||b===FIELD||b===FIELD_L||b===GRAVEL||b===FLOWER)g*=Hd.off||0.6;else if(b===SAND||b===RED_SAND||b===MUD)g*=(Hd.off||0.6)*0.75;else if(b===ICE)g*=0.2;else if(b===SNOW)g*=0.45;
+  if(b===GRASS||b===DIRT||b===FIELD||b===FIELD_L||b===GRAVEL||b===FLOWER)g*=Hd.off||0.6;else if(b===SAND||b===RED_SAND||b===MUD)g*=(Hd.off||0.6)*0.75;else if(b===ICE||b===PACKICE)g*=0.2;else if(b===SNOW)g*=0.45;
   if((c.snowHere??WX.snowCover)>0.3&&c.snowOpen)g*=0.6;return g;}
 function roadSlip(c,dt,Hd,k){const vx=Math.sin(c.heading)*c.speed,vz=Math.cos(c.heading)*c.speed;if(!c.hvel)c.hvel={x:vx,z:vz};const H=c.hvel;
   // (turned all at once, more than any steering could in a step, crossing into a ship's frame say: the slide turns with it)
@@ -31108,6 +31176,8 @@ function farInst(cap,win,ring){
 const _fc=new THREE.Color();
 const topColor=b=>{const t=BLOCK[b].tiles[0];return tileColor[t]!==undefined?tileColor[t]:0x888888;};
 const FARC={sea:new THREE.Color(topColor(WATER)),deep:new THREE.Color(topColor(WATER)).multiplyScalar(0.62),sand:new THREE.Color(topColor(SAND)),con:new THREE.Color(topColor(CONCRETE)),side:new THREE.Color(topColor(SIDEWALK)),park:new THREE.Color(topColor(GRASS)),plaza:new THREE.Color(topColor(CONCRETE)),road:new THREE.Color(topColor(ASPHALT))};
+// (a shore's colours by its flavour, coastFlav: shingle, sea ice, the mangroves' mud, red sand)
+const FARC_CF=[null,new THREE.Color(topColor(GRAVEL)),new THREE.Color(topColor(PACKICE)),new THREE.Color(topColor(MUD)),new THREE.Color(topColor(RED_SAND))];
 // what a building looks like from outside, for its far box: the colour of its walls (glowing windows apart), of its glowing
 // windows and how much of the walls they make up, and of its roof. Taken from the very blocks the full-detail city builds it
 // from, a hundred and sixty picked at random over its sides and its top (the same ones every time), so a building looks the same
@@ -31175,8 +31245,10 @@ function farSea(SG,px,pz,n){
   for(let j=0;j<n;j++)for(let i=0;i<n;i++){const x=X0+i*st,z=Z0+j*st;
     if(t==='yard'||t==='navy'){farBox(SG,x,G+0.4,z,x+st,G+1,z+st,FARC.con);continue;}
     const q=t==='basin'||t==='nbasin'||n===1&&seaPlot(px,pz)===2?1:seaBlk(x+st/2,z+st/2);
-    if(q>=SEA_T)farBox(SG,x,G+0.4,z,x+st,G+0.95,z+st,n<=2&&seaPlot(px,pz)===2?FARC.deep:FARC.sea);
-    else if(n>1&&coastD(x+st/2,z+st/2)>-8)farBox(SG,x,G+0.4,z,x+st,G+1,z+st,FARC.sand);
+    if(q>=SEA_T){const cd=n>1?coastD(x+st/2,z+st/2):99;
+      if(cd<CF_IW*0.6&&coastFlav(x+st/2,z+st/2)===2)farBox(SG,x,G+0.4,z,x+st,G+1,z+st,FARC_CF[2]);
+      else farBox(SG,x,G+0.4,z,x+st,G+0.95,z+st,n<=2&&seaPlot(px,pz)===2?FARC.deep:FARC.sea);}
+    else if(n>1&&coastD(x+st/2,z+st/2)>-8)farBox(SG,x,G+0.4,z,x+st,G+1,z+st,FARC_CF[coastFlav(x+st/2,z+st/2)]||FARC.sand);
     else farBox(SG,x,G+0.4,z,x+st,G+1.6,z+st,farBio(px,pz).g);}
 }
 // the far view of one plains block: the rivers and highways crossing it, as boxes along their lines (each piece drawn
@@ -33957,7 +34029,7 @@ function liveSiteFind(kind,n){
 }
 // (nature's own blocks, and the ore deep down: a site keeps everything from the lowest height anything else is found at,
 // and at least a few blocks under the ground)
-const SITE_NATURAL=new Set([AIR,GRASS,DIRT,STONE,SAND,WATER,GRAVEL,CLAY,DEEPSLATE,BEDROCK,COAL,CRYSTAL,ICE]);
+const SITE_NATURAL=new Set([AIR,GRASS,DIRT,STONE,SAND,WATER,GRAVEL,CLAY,DEEPSLATE,BEDROCK,COAL,CRYSTAL,ICE,PACKICE]);
 function liveSiteCapture(kind,n){
   const m=liveSiteFind(kind,n|0);if(!m)return {error:'There is none of these near enough in this world'};
   const X0=m.ax*CELL+PL0,Z0=m.az*CELL+PL0,NX=(m.w-1)*CELL+PW,NZ=(m.h-1)*CELL+PW,C=new Map();

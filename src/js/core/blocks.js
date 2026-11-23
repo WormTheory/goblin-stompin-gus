@@ -18,7 +18,8 @@ const AIR=0,GRASS=1,DIRT=2,STONE=3,LOG=4,LEAVES=5,SAND=6,PLANKS=7,GLASS=8,WATER=
   // the biomes' ground and plants (world/climate.js): snow, sandstone, the badlands' red sand and banded clay, mud, cactus,
   // pine needles (evergreen: the seasons leave them be) and reeds
   SNOW=153,SANDSTONE=154,RED_SAND=155,TERRA=156,TERRA2=157,MUD=158,CACTUS=159,PINE=160,REEDS=161,
-  SALT=162;   // (a salt flat's white crust, world/relief.js)
+  SALT=162,   // (a salt flat's white crust, world/relief.js)
+  PACKICE=163;   // (an ice shelf's sea ice along a frozen shore, world/coast.js: ICE's look, but winter's thaw leaves it be)
 // ramps: 4 directions (the way it rises: +x, -x, +z, -z) x 3 shapes (a full 0->1 slope, or the low and high halves
 // of a gentle slope that takes two blocks to climb one). rampId(dir,kind)
 const stairId=(dir,mat)=>STAIR0+(mat||0)*4+dir,rampId=(dir,kind)=>RAMP0+dir*3+kind,rampLineId=(dir,kind,t)=>RAMPL0+t*12+dir*3+kind;
@@ -127,6 +128,7 @@ BLOCK[SNOW]     ={tiles:[96,96,96],solid:true};
 BLOCK[SANDSTONE]={tiles:[98,98,97],solid:true};
 BLOCK[RED_SAND] ={tiles:[99,99,99],solid:true};
 BLOCK[SALT]     ={tiles:[107,107,107],solid:true};
+BLOCK[PACKICE]  ={tiles:[76,76,76],solid:true};
 BLOCK[TERRA]    ={tiles:[100,100,100],solid:true};
 BLOCK[TERRA2]   ={tiles:[101,101,101],solid:true};
 BLOCK[MUD]      ={tiles:[102,102,102],solid:true};

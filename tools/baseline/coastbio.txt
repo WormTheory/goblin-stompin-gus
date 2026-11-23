@@ -1,0 +1,19 @@
+sand       -960,-640      ice 0 (out to 0) snow 0 mud 0 wood 0 leaves 18 gravel 0 cobble 0 sand 2418 red sand 0 stone 4 | land within 10 of the water up to +2
+sand       2720,-3520     ice 0 (out to 0) snow 0 mud 0 wood 0 leaves 5 gravel 0 cobble 0 sand 158 red sand 0 stone 2375 | land within 10 of the water up to +7
+sand       -4480,800      ice 0 (out to 0) snow 0 mud 0 wood 0 leaves 4 gravel 0 cobble 0 sand 2292 red sand 0 stone 2339 | land within 10 of the water up to +7
+shingle    -10080,1760    ice 0 (out to 0) snow 0 mud 629 wood 1 leaves 30 gravel 1271 cobble 46 sand 277 red sand 0 stone 18 | land within 10 of the water up to +1
+shingle    -10880,15200   ice 0 (out to 0) snow 0 mud 0 wood 0 leaves 5 gravel 495 cobble 0 sand 1442 red sand 0 stone 2854 | land within 10 of the water up to +26
+shingle    17760,1920     ice 0 (out to 0) snow 0 mud 0 wood 0 leaves 17 gravel 320 cobble 0 sand 480 red sand 0 stone 3333 | land within 10 of the water up to +7
+ice shelf  -14080,800     ice 1433 (out to 19) snow 348 mud 0 wood 0 leaves 7 gravel 1449 cobble 32 sand 819 red sand 0 stone 16 | land within 10 of the water up to +2
+ice shelf  -22720,-32160  ice 719 (out to 19) snow 270 mud 0 wood 8 leaves 10 gravel 1381 cobble 30 sand 1167 red sand 0 stone 18 | land within 10 of the water up to +2
+ice shelf  58400,21440    ice 1594 (out to 20) snow 1761 mud 0 wood 1 leaves 6 gravel 1315 cobble 34 sand 573 red sand 0 stone 13 | land within 10 of the water up to +2
+mangroves  -8960,-21440   ice 0 (out to 0) snow 0 mud 936 wood 792 leaves 1514 gravel 0 cobble 0 sand 2592 red sand 0 stone 2258 | land within 10 of the water up to +7
+mangroves  -23520,-11840  ice 0 (out to 0) snow 0 mud 1679 wood 894 leaves 1669 gravel 0 cobble 0 sand 1282 red sand 0 stone 9 | land within 10 of the water up to +7
+mangroves  -13280,24160   ice 0 (out to 0) snow 0 mud 1307 wood 794 leaves 1247 gravel 0 cobble 0 sand 1226 red sand 0 stone 1573 | land within 10 of the water up to +8
+red sand   12480,-4320    ice 0 (out to 0) snow 0 mud 0 wood 0 leaves 4 gravel 0 cobble 0 sand 2012 red sand 1484 stone 16 | land within 10 of the water up to +2
+red sand   46240,19040    ice 0 (out to 0) snow 0 mud 0 wood 0 leaves 14 gravel 0 cobble 0 sand 1174 red sand 1279 stone 163 | land within 10 of the water up to +3
+red sand   -7040,58720    ice 0 (out to 0) snow 0 mud 0 wood 0 leaves 0 gravel 0 cobble 0 sand 1549 red sand 875 stone 3805 | land within 10 of the water up to +7
+rugged     3040,-6560     (sand) ice 0 (out to 0) snow 0 mud 0 wood 0 leaves 20 gravel 0 cobble 0 sand 707 red sand 0 stone 11157 | land within 10 of the water up to +21
+rugged     -12160,-6400   (shingle) ice 0 (out to 0) snow 0 mud 0 wood 0 leaves 12 gravel 412 cobble 0 sand 540 red sand 0 stone 10260 | land within 10 of the water up to +15
+rugged     13120,-5600    (sand) ice 0 (out to 0) snow 0 mud 0 wood 0 leaves 23 gravel 0 cobble 0 sand 914 red sand 0 stone 12836 | land within 10 of the water up to +26
+errors 0 
