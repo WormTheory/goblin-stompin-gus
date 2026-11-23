@@ -1,16 +1,16 @@
 // The World Generator's territories in a real browser (serving game/ itself): the map at seed 1 with the Territories
 // layer (coloured land, borders, names, capitals), the hover naming the territory, the Territories sliders (redrawn
-// without loading the game again), and the Noise view's Territories field. Screenshots to shotDir if given.
+// without loading the game again), and the Noise view's Territories field. Screenshots to shotDir (work/territory-shots unless given).
 // The page is opened as a browser with an older worker in its cache would see it: the plain gen-worker.js address answers
 // with a worker that knows nothing (as an old copy knew nothing of territories, and the map was all sea); the page must
 // load its own. The territories are checked by their colours on the canvas, not just by what the page says it did.
 // node wgter.js [shotDir]   (from tools/ui)
-const {chromium}=require('playwright'),{spawn}=require('child_process'),path=require('path');
-const out=process.argv[2],port=18000+Math.floor(Math.random()*900);
+const {chromium}=require('playwright'),{spawn}=require('child_process'),path=require('path'),fs=require('fs');
+const out=process.argv[2]||path.join(__dirname,'..','..','work','territory-shots'),port=18000+Math.floor(Math.random()*900);
 const srv=spawn('python',['-m','http.server',String(port),'--bind','127.0.0.1','--directory',path.join(__dirname,'..','..','game')],{stdio:'ignore'});
 const base='http://127.0.0.1:'+port+'/WorldGen/?seed=1';
 let bad=0;const ok=(c,t)=>{if(!c)bad++;console.log((c?'  ok   ':'  BAD  ')+t);};
-(async()=>{await new Promise(r=>setTimeout(r,800));
+(async()=>{fs.mkdirSync(out,{recursive:true});await new Promise(r=>setTimeout(r,800));
   const b=await chromium.launch();const errs=[];
   const p=await b.newPage({viewport:{width:1400,height:900}});p.on('pageerror',e=>errs.push(String(e)));
   let stale=0;await p.route(/\/WorldGen\/gen-worker\.js$/,r=>{stale++;r.fulfill({contentType:'text/javascript',body:"onmessage=e=>postMessage({id:e.data.id,ok:{}});"});});
@@ -27,7 +27,8 @@ let bad=0;const ok=(c,t)=>{if(!c)bad++;console.log((c?'  ok   ':'  BAD  ')+t);};
   if(stale){ok(false,'the page asked for the plain worker address, which a cache may answer with an old copy');await b.close();srv.kill();console.log('1 BAD');process.exit(1);}
   await settle();console.log('map settled in',Date.now()-t0,'ms');
   ok(await p.evaluate(()=>document.getElementById('lay-ter').getAttribute('aria-pressed')==='true'),'Territories layer on');
-  ok(stale===0,"the page's own worker loaded, never the plain address a cache may answer");  if(out)await p.screenshot({path:out+'/wg_territories_near.png'});
+  ok(stale===0,"the page's own worker loaded, never the plain address a cache may answer");
+  if(out)await p.screenshot({path:out+'/wg_territories_near.png'});
   // (zoomed out a little so several territories show)
   await p.evaluate(()=>{for(let i=0;i<3;i++)document.getElementById('zout').click();});t0=Date.now();await settle();console.log('zoomed out, settled in',Date.now()-t0,'ms');
   if(out)await p.screenshot({path:out+'/wg_territories.png'});

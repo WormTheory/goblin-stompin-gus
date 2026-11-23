@@ -1,5 +1,5 @@
 // Territories in the game (stub three.js): the banner naming the territory you're in once it's worked out, and the Map
-// tab's borders and names over a big explored square, zoomed out. Screenshot to out.png.
+// tab's borders and names over a big explored square, zoomed out. Screenshot to out.png (work/territory-shots/mapter.png unless given).
 // python3 tools/build_ui.py game/index.html tools/ui/ui.html, then node mapter.js [ui.html] [out.png] from tools/ui
 const {chromium}=require('playwright');const path=require('path'),fs=require('fs');
 (async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1280,height:800}});
@@ -21,6 +21,6 @@ for(let i=0;i<26;i++){await p.mouse.wheel(0,200);await p.waitForTimeout(20);}
 // (the longest frame while the territories are worked out a little at a time)
 const worst=await p.evaluate(()=>new Promise(res=>{let w=0,prev=performance.now(),n=0;const f=()=>{const t=performance.now();w=Math.max(w,t-prev);prev=t;if(++n<300)requestAnimationFrame(f);else res(Math.round(w));};requestAnimationFrame(f);}));
 console.log('longest map frame while drawing',worst,'ms');
-await p.waitForTimeout(2000);await p.screenshot({path:process.argv[3]||'mapter.png'});
+await p.waitForTimeout(2000);const shot=process.argv[3]||path.join(__dirname,'..','..','work','territory-shots','mapter.png');fs.mkdirSync(path.dirname(shot),{recursive:true});await p.screenshot({path:shot});
 console.log('errors',errs.length?errs.slice(0,4).join(' | '):'none');
 await b.close();})();
