@@ -18,10 +18,11 @@ T.TS.n=5;T.tenvVeh('plane');console.log('5 more:',els.tpInfo.textContent);
 const V=T.venues.get('tenvPlanes');console.log('planes',V.pl.length,'at',V.pl.map(pl=>f1(pl.g.position.x-P.pos.x)+','+f1(pl.g.position.z-P.pos.z)+' h'+f1(pl.g.rotation.y)).join(' | '));
 run(2);console.log('2 s on, still parked:',V.pl.every(pl=>!pl.free&&!pl.dead));
 const pl=V.pl[0],g=pl.g;P.pos.set(g.position.x-Math.cos(g.rotation.y)*2,g.position.y+0.2,g.position.z+Math.sin(g.rotation.y)*2);P.vy=0;P.state='walk';run(0.05);
-hold(['KeyE'],0.1);console.log('E beside it:',st(),'the one spawned',P.drv&&P.drv.o===pl);
-const x0=g.position.x,z0=g.position.z;hold(['KeyW'],3);hold(['KeyW','Space'],3);
-console.log('W 3 s then W+Jump 3 s over the grass: speed',f1(pl.free.v),'height',f1(g.position.y-G0-1),'ground run',f1(Math.hypot(g.position.x-x0,g.position.z-z0)),'wrecked',pl.dead);
-hold(['KeyE'],0.1);run(0.5);T.tenvClear();console.log('clear all while flying it: planes left',T.venues.get('tenvPlanes')?T.venues.get('tenvPlanes').pl.length:0);
+hold(['KeyF'],0.1);console.log('F (use) beside it:',st(),'the one spawned',P.drv&&P.drv.o===pl);
+// (Direct mode: Shift opens the throttle, S pulls back; Space is the brakes now)
+P.planeCtl='direct';const x0=g.position.x,z0=g.position.z;hold(['ShiftLeft'],8);hold(['ShiftLeft','KeyS'],3);
+console.log('throttle up 8 s then pull back 3 s over the grass: speed',f1(pl.free.v),'height',f1(g.position.y-G0-1),'ground run',f1(Math.hypot(g.position.x-x0,g.position.z-z0)),'wrecked',pl.dead);
+hold(['KeyF'],0.1);run(0.5);T.tenvClear();console.log('clear all while flying it: planes left',T.venues.get('tenvPlanes')?T.venues.get('tenvPlanes').pl.length:0);
 console.log('errors',errs.length,errs.slice(0,3));
 `);
 process.exit(0);
