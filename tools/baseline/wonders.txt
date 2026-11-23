@@ -6,9 +6,9 @@ landmark henge    at -3209 2910 in grassland ground 2 | top above it 2 | blocks 
 arch at 5339 -4355 in scrub half-span 8 height 12 | under the middle: open 8 then rock 4 | a leg STONE
 arch at 6469 -3589 in scrub half-span 13 height 14 | under the middle: open 10 then rock 4 | a leg STONE
 arch at 7122 -6011 in desert half-span 12 height 12 | under the middle: open 8 then rock 4 | a leg SANDSTONE
-waterfall at 4782 -3824 drop 15 (from 15 to 0) | water down the face 79 | in the pool at its foot 2 | label 💧 Waterfall
-waterfall at 5317 -4976 drop 10 (from 10 to 0) | water down the face 40 | in the pool at its foot 2 | label 💧 Waterfall
-waterfall at 5230 -3792 drop 13 (from 13 to 0) | water down the face 61 | in the pool at its foot 2 | label 💧 Waterfall
+waterfall at 4782 -3824 drop 15 (from 15 to 0) | water down the face 79 | in the pool at its foot 6 | label 💧 Waterfall
+waterfall at 5317 -4976 drop 10 (from 10 to 0) | water down the face 40 | in the pool at its foot 5 | label 💧 Waterfall
+waterfall at 5230 -3792 drop 13 (from 13 to 0) | water down the face 61 | in the pool at its foot 6 | label 💧 Waterfall
 sea stack at 3723 -6235 out 10.9 radius 2.7 | rock from -24 to 11 (planned 11)
 sea stack at 3688 -6374 out 10.7 radius 2.2 | rock from -26 to 18 (planned 18)
 sea arch  at 3465 -6527 out 15.6 radius 1.7 | rock from -25 to 8 (planned 8) | under the span: water 1, air 4
