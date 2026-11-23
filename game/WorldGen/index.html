@@ -136,7 +136,10 @@ const label=k=>ONE[k]||(LABELS[k]?sing(LABELS[k]):k);
 // (two of them: one for the land alone, so the coastlines keep coming in while the other works out what stands on them)
 let W=null,LW=null,wid=0,P=new Map(),gen=0,ready=false,info=null;
 function call(m,w){return new Promise((a,b)=>{m.id=++wid;P.set(wid,[a,b]);(w||W).postMessage(m);});}
-function worker(){const w=new Worker('gen-worker.js');w.onmessage=e=>{const p=P.get(e.data.id);if(!p)return;P.delete(e.data.id);e.data.err!==undefined?p[1](e.data.err):p[0](e.data.ok);};return w;}
+// (the worker's address is new each time the page loads: a browser may otherwise start an older copy it has cached, with
+// a fresh page, and an older worker knows nothing of what the page asks for, such as the territories, and draws only sea)
+const WK_URL='gen-worker.js?t='+Date.now().toString(36);
+function worker(){const w=new Worker(WK_URL);w.onmessage=e=>{const p=P.get(e.data.id);if(!p)return;P.delete(e.data.id);e.data.err!==undefined?p[1](e.data.err):p[0](e.data.ok);};return w;}
 // ---- what's been worked out so far, by tile ----
 let LANDT=new Map(),CLIMT=new Map(),SITET=new Map(),DET=new Map(),setsAll=new Map(),bases=[],navy=[],cvs=[],rivers=[];
 // (the territories, by tile: each its picture and borders, from the worker's ter op; TERI each territory's name, colour,

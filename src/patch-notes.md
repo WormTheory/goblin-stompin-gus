@@ -18,6 +18,7 @@
 - Their borders follow the land: coastlines, rivers, lakes and mountain ranges.
 - The pause map draws their borders and names over what you've explored, the minimap shows a border you're near, and a banner names the territory you've come into.
 - New world and the World Generator have a Territories group: Size (how big territories are on average) and Variety (how much they differ). The World Generator shows them as a layer on the Map, and in the Noise view.
+- Fixed the World Generator sometimes showing only sea after an update, when the browser kept an older copy of its map maker.
 
 ### The world
 
