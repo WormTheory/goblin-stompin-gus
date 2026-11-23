@@ -196,11 +196,34 @@ function farmlandColumn(col,F,px,pz,rx,rz,x,z){
 // a river out on the plains: no embankments, just grassy banks sloping down to sand and the water
 // a river out on the plains, d blocks from its centre line: no embankments, just grassy banks sloping down to sand and
 // the water (cut into whatever the column already had)
-function plainsRiverColumn(col,d,w,trib,x,z){   // (w: its width; a tributary's shallower)
-  const WL=G-2,RB=G-11+(trib?3:0);
+// (plainsH round a river, remembered, as its columns ask it of the same places again and again. A var, as worldCfgSet and
+// clearWorld empty it and may run before this file has)
+var RIV_H=new Map(),RIV_HS=null;function rivH(x,z){if(RIV_HS!==seed){RIV_HS=seed;RIV_H.clear();RIV_LV.clear();}const k=x*131072+z;let v=RIV_H.get(k);if(v===undefined){if(RIV_H.size>200000)RIV_H.clear();v=plainsH(x,z);RIV_H.set(k,v);}return v;}
+// (a river's water level by a lake, world/relief.js: up to the lake's own, G, with a lake within 4.5 blocks of its banks,
+// G-1 within 7.5, else G-2 as everywhere else. Worked out from points on its middle line, every 2 blocks along it, the
+// highest of those within 4 either way along it (so it doesn't flicker between levels where a lake runs alongside), so
+// the whole width is at one level and it steps a block at a time)
+var RIV_LV=new Map();const RIV_RR=[1.5,3,4.5,6,7.5],RIV_D8=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
+function rivLvl(cx,cz,w,tx,tz){let v=G-2;for(const s of [-4,-2,0,2,4])v=Math.max(v,rivLvl0(cx+tx*s,cz+tz*s,w));return v;}
+function rivLvl0(cx,cz,w){const X=Math.round(cx/2)*2,Z=Math.round(cz/2)*2,k=X*131072+Z;let v=RIV_LV.get(k);if(v!==undefined)return v;
+  v=G-2;out:for(const r of RIV_RR)for(const [a,b] of RIV_D8){const l=a&&b?0.7071:1;if(rivH(Math.round(X+a*l*(w+r)),Math.round(Z+b*l*(w+r)))<0){v=r<=4.5?G:G-1;break out;}}
+  if(RIV_LV.size>50000)RIV_LV.clear();RIV_LV.set(k,v);return v;}
+function plainsRiverColumn(col,d,w,trib,x,z,W){   // (w: its width; a tributary's shallower; W riverCol's answer: the nearest point on its middle and which way it runs there)
+  const RB=G-11+(trib?3:0);
+  if(d>w+8)return;
+  // (the banks in the biome's ground: grass over dirt, sand, snow; mud in a swamp, decided per 16 blocks of bank, so a
+  // stretch of it is muddy or not rather than patchy where the swamp's edge is dithered)
+  const B=BIOMES[biomeAt(x,z)];let sd=SAND;{const X=(x&~15)+8,Z=(z&~15)+8,c=climAt(X,Z);if(BIOMES[bioPick(c.t,c.m,X,Z)].sub===MUD)sd=MUD;}
+  // (where it meets a lake: in the lake the river's bed runs on under the lake's water and its banks are the lake's, at
+  // least 2 deep; close by, its water rises to the lake's level, rivLvl, so the two are one sheet of water with no rim)
+  const lh=rivH(x,z);
+  if(lh<0){const bed=Math.min(G+lh,d>w?G-2:RB+Math.round((d/w)*(trib?3:6)));if(bed<G+lh){col(bed,sd);for(let y=bed+1;y<=G+lh;y++)col(y,WATER);}return;}
+  const WL=rivLvl(W.cx,W.cz,w,W.tx,W.tz);
+  // (beside it, with a lake just past: under water too, so no strip of land's left between the two)
+  if(d>w&&WL===G){let lk=false;for(const r of [1.5,3,4.5]){for(const [a,b] of RIV_D8){const l=a&&b?0.7071:1;if(rivH(Math.round(x+a*l*r),Math.round(z+b*l*r))<0){lk=true;break;}}if(lk)break;}
+    if(lk){col(G-2,sd);col(G-1,WATER);col(G,WATER);for(let y=G+1;y<G+8;y++)col(y,AIR);return;}}
   if(d>w+4)return;
-  // (the banks in the biome's ground: grass over dirt, sand, snow, mud in a swamp)
-  const B=BIOMES[biomeAt(x,z)],sd=B.sub===MUD?MUD:SAND;
+  if(d>w&&d<=w+2&&WL===G){col(G-2,sd);col(G-1,WATER);col(G,WATER);for(let y=G+1;y<G+8;y++)col(y,AIR);return;}   // (its banks under the water)
   if(d>w+2){col(G-1,B.sub||DIRT);col(G,B.top||GRASS);for(let y=G+1;y<G+8;y++)col(y,AIR);return;}
   if(d>w){col(G-1,sd);for(let y=G;y<G+8;y++)col(y,AIR);return;}
   const bed=RB+Math.round((d/w)*(trib?3:6));col(bed,sd);for(let y=bed+1;y<=WL;y++)col(y,WATER);

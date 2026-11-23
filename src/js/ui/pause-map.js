@@ -181,7 +181,7 @@ function drawMapBlocks(x,k,ox,oz,c0,c1,r0,r1,o){
   // the rivers winding across the plains (through the places they're blocks of their own, drawn above)
   {const L=riversNearBox(c0*CELL,r0*CELL,(c1+1)*CELL,(r1+1)*CELL);x.strokeStyle=MAPC.river;x.lineWidth=Math.max(1.5,RIV_W*2*k);x.lineCap='round';x.beginPath();
    for(let q=0;q<L.length;q+=2){const R=L[q],i=L[q+1],[ax,az]=R.pts[i],[bx,bz]=R.pts[i+1],mx=(ax+bx)/2,mz=(az+bz)/2,px=Math.floor(mx/CELL),pz=Math.floor(mz/CELL);
-     if(!explored.has(px+','+pz)||settlementAt(px,pz))continue;x.moveTo(X(ax),Z(az));x.lineTo(X(bx),Z(bz));}
+     if(!explored.has(px+','+pz)||settlementAt(px,pz)||seaV(mx/CELL,mz/CELL)>SEA_T)continue;x.moveTo(X(ax),Z(az));x.lineTo(X(bx),Z(bz));}
    x.stroke();}
   if(!all)drawMapRuins(x,k,ox,oz,c0,c1,r0,r1,ruins,HL,hits);
   drawMapLines(x,k,ox,oz,c0,c1,r0,r1,HL,hits);

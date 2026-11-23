@@ -311,17 +311,18 @@ function farmlandOf(px,pz){
 }
 const PLAINS_OPEN=(px,pz)=>realmOf(px,pz)==='plains'&&farmK(px,pz)===null&&!farmlandOf(px,pz)&&dumpAt(px,pz)===null&&!castleAt(px,pz)&&!bunkerAt(px,pz)&&!bigPlainsAt(px,pz)&&!caveMouth(px,pz)&&!turbineAt(px,pz);
 // close to a highway's line or a farm lane out on the plains (keep it flat, keep the trees off)
-// (RN_RT: the highways' part of the last answer, RN_O everything else's, for plainsH)
-let RN_RT=1e9,RN_O=1e9;
+// (RN_RT: the highways' part of the last answer, RN_O everything else's, RN_N everything but the highways and rivers, for
+// plainsH)
+let RN_RT=1e9,RN_O=1e9,RN_N=1e9;
 function roadNear(x,z,pad){
   const px=Math.floor(x/CELL),pz=Math.floor(z/CELL);let e=1e9;
   {const R=routeAt(x,z,40);RN_RT=R?R.d-9.6:1e9;}
-  {const W=riverAt(x,z,40);if(W){const S=W.R.src;if(!S||rlfLen(x-S[0],z-S[1])>=S[2]+1)e=Math.min(e,W.d-(W.R.w||RIV_W)-4);}}   // (not in the lake a river rises in)
+  let rv=1e9;{const W=riverAt(x,z,40);if(W){const S=W.R.src;if(!S||rlfLen(x-S[0],z-S[1])>=S[2]+1)rv=W.d-(W.R.w||RIV_W)-4;}}   // (not in the lake a river rises in)
   {const k=Math.floor(x/16)*100003+Math.floor(z/16);if(!tsC.has(k))tsAt(x,z);for(const T of tsC.get(k)||[]){const dx=x+0.5-T.cx,dz=z+0.5-T.cz,u=dx*T.tx+dz*T.tz,v=dx*T.nx+dz*T.nz;
      e=Math.min(e,Math.hypot(Math.max(0,Math.abs(u)-46),Math.max(0,v-60,6.5-v))-2);}}
   {const L=farmLane(px,pz);if(L&&z>=L.z0-2&&z<L.z1+2)e=Math.min(e,(Math.abs(x-(px*CELL+PC-0.5))-1)*14/(pad||8));}
   e=Math.min(e,linkNear(x,z));
-  RN_O=e;return Math.min(e,RN_RT);
+  RN_N=e;e=Math.min(e,rv);RN_O=e;return Math.min(e,RN_RT);
 }
 // the ground's height at (x,z) out in the open plains, in blocks above G (below 0: a pond or lake that deep): the land's
 // own (reliefNat, world/relief.js) as what's built lets it stand. The rolling hills and the lakes ease out to nothing
@@ -332,11 +333,13 @@ function roadNear(x,z,pad){
 function plainsH(x,z){
   const px=Math.floor(x/CELL),pz=Math.floor(z/CELL);RLF.cut=RLF.tun=RLF.ter=RLF.tw=false;RLF.r=0;if(!PLAINS_OPEN(px,pz))return 0;
   const rx=x-px*CELL,rz=z-pz*CELL;let f=1;
-  roadNear(x,z);f=Math.min(f,Math.max(0,RN_O)/14);const fr=Math.min(1,Math.max(0,RN_RT)/14);
+  roadNear(x,z);const fr=Math.min(1,Math.max(0,RN_RT)/14);
   for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++){if(!dx&&!dz||PLAINS_OPEN(px+dx,pz+dz))continue;
     const ex=dx<0?rx:dx>0?CELL-1-rx:0,ez=dz<0?rz:dz>0?CELL-1-rz:0;f=Math.min(f,Math.max(dx?ex:0,dz?ez:0)/14);}
   f=Math.min(f,rlfLane(x,z,px,pz)/6);   // (and level with a farm's lane, which only clears its own height)
-  reliefNat(x,z);const mtn=RLF.mtn,hill=RLF.hill,lake=RLF.lake,s=Math.max(0,Math.min(1,(lake-2)/3)),fh=Math.min(f,fr),fl=Math.min(f,fr+(1-fr)*s);
+  // (a lake isn't faded out by a river: the two meet, the river running into it, buildings/roofs.js's plainsRiverColumn)
+  const fn=Math.min(f,Math.max(0,RN_N)/14);f=Math.min(f,Math.max(0,RN_O)/14);
+  reliefNat(x,z);const mtn=RLF.mtn,hill=RLF.hill,lake=RLF.lake,s=Math.max(0,Math.min(1,(lake-2)/3)),fh=Math.min(f,fr),fl=Math.min(fn,fr+(1-fr)*s);
   const h=hill*fh-lake*fl+(mtn>0.5?reliefMask(x,z,px,pz,mtn,hill+mtn):mtn*fh);
   return h<-0.9?Math.max(-RLF_LAKE,Math.round(h)):Math.max(0,Math.round(h));
 }

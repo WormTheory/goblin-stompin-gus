@@ -59,6 +59,9 @@
 - Through the hills and mountains, rivers carve valleys for themselves.
 - The World Generator has two more River sliders: how far rivers run inland, and how many streams branch off them. It draws streams thinner than rivers.
 - Each river has a width of its own, the same all the way down (the Width slider still sets the widest).
+- A river passing a lake now runs into it, with no strip of land left between the two, and rises to the lake's level as it reaches it.
+- Swamp river banks are muddy along whole stretches rather than in patches.
+- The map and minimap no longer draw rivers out across the sea.
 - This makes a new world again, so a saved city starts afresh.
 
 ### Co-op on two screens

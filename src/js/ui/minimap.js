@@ -39,8 +39,8 @@ function updateMinimap(p,dt){
   if(!TENV){x.strokeStyle=MAPC.rail;x.lineWidth=4;x.beginPath();for(const L of railLinksInBox(c0x*CELL,c0z*CELL,(c1x+1)*CELL,(c1z+1)*CELL))for(let i=0;i+4<L.L;i+=4){x.moveTo(L.pts[i][0],L.pts[i][1]);x.lineTo(L.pts[Math.min(L.L-1,i+4)][0],L.pts[Math.min(L.L-1,i+4)][1]);}x.stroke();}
   // rivers and highways out across the plains, on their own lines
   if(!TENV){const X0=c0x*CELL,Z0=c0z*CELL,X1=(c1x+1)*CELL,Z1=(c1z+1)*CELL,pl=(ax,az,bx,bz)=>!settlementAt(Math.floor((ax+bx)/2/CELL),Math.floor((az+bz)/2/CELL));
-   const draw=(L,pick,col,w)=>{x.strokeStyle=col;x.lineWidth=w;x.lineCap='round';x.beginPath();for(let q=0;q<L.length;q+=2){const R=L[q],i=L[q+1];if(!pick(R))continue;const [ax,az]=R.pts[i],[bx,bz]=R.pts[i+1];if(!pl(ax,az,bx,bz))continue;x.moveTo(ax,az);x.lineTo(bx,bz);}x.stroke();};
-   draw(riversNearBox(X0,Z0,X1,Z1),()=>true,MAPC.river,RIV_W*2);
+   const draw=(L,pick,col,w,dry)=>{x.strokeStyle=col;x.lineWidth=w;x.lineCap='round';x.beginPath();for(let q=0;q<L.length;q+=2){const R=L[q],i=L[q+1];if(!pick(R))continue;const [ax,az]=R.pts[i],[bx,bz]=R.pts[i+1];if(!pl(ax,az,bx,bz)||dry&&!dry(ax,az,bx,bz))continue;x.moveTo(ax,az);x.lineTo(bx,bz);}x.stroke();};
+   draw(riversNearBox(X0,Z0,X1,Z1),()=>true,MAPC.river,RIV_W*2,(ax,az,bx,bz)=>seaV((ax+bx)/2/CELL,(az+bz)/2/CELL)<=SEA_T);
    const L=routesNearBox(X0,Z0,X1,Z1);draw(L,R=>R.kind==='country','#5b5f63',14);draw(L,R=>R.kind==='moto','#7a7f86',14);}
   {const RG=ruinGrid(c0x,c1x,c0z,c1z,null);if(RG.cells.length){x.fillStyle=ruinPat(x,4);for(const [a,b,c,d] of RG.cells)x.fillRect(a,b,c-a,d-b);
     x.strokeStyle='#e0503c';x.lineWidth=0.7;x.beginPath();for(const [a,b,c,d] of RG.edges){x.moveTo(a,b);x.lineTo(c,d);}x.stroke();}}

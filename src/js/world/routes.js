@@ -353,7 +353,7 @@ const riverAt=(x,z,lim=16)=>nearestOn(rvList(x,z),x,z,lim);
 // null; lake: in the lake at its source, which it leaves as it is)
 function riverCol(x,z){const L=rvList(x,z);let best=null,be=5;
   for(let q=0;q<L.length;q+=2){const R=L[q],i=L[q+1],P=R.pts,ax=P[i][0],az=P[i][1],dx=P[i+1][0]-ax,dz=P[i+1][1]-az,l2=dx*dx+dz*dz||1e-9;
-    let t=((x-ax)*dx+(z-az)*dz)/l2;t=t<0?0:t>1?1:t;const ex=x-ax-dx*t,ez=z-az-dz*t,d=Math.sqrt(ex*ex+ez*ez),e=d-R.w;if(e<be){be=e;best={d,w:R.w,R};}}
+    let t=((x-ax)*dx+(z-az)*dz)/l2;t=t<0?0:t>1?1:t;const ex=x-ax-dx*t,ez=z-az-dz*t,d=Math.sqrt(ex*ex+ez*ez),e=d-R.w;if(e<be){be=e;best={d,w:R.w,R,cx:ax+dx*t,cz:az+dz*t,tx:dx/Math.sqrt(l2),tz:dz/Math.sqrt(l2)};}}
   if(best){const S=best.R.src;if(S&&rlfLen(x-S[0],z-S[1])<S[2]+1)best.lake=true;}
   return best;}
 // is anything of a route or river within the plot (plus a margin)? (for keeping farms and the like clear)

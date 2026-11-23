@@ -17,7 +17,7 @@ function seaColumn(a,col,px,pz,rx,rz,lx,lz,x,z){
   if(t==='lighthouse'){const d=Math.hypot(rx-P.lh.x,rz-P.lh.z);
     if(d<8){for(let y=G-3;y<=G+1;y++)col(y,AIR);const h=d<6.5?1:0;col(G-1,STONE);col(G,hash2(x*3,z*5)<0.4?MOSSSTONE:STONE);if(h&&d>4.6)col(G+1,hash2(x,z*3)<0.5?STONE:AIR);}   // the rocks it stands on
     plotBuildings(a,lx,lz,rx,rz,x,z,P);}
-  if(!wet){const W=riverCol(x+0.5,z+0.5);if(W&&!W.lake)plainsRiverColumn(col,W.d,W.w,W.R.trib,x,z);}
+  if(!wet){const W=riverCol(x+0.5,z+0.5);if(W&&!W.lake)plainsRiverColumn(col,W.d,W.w,W.R.trib,x,z,W);}
 }
 // a town's beach: a row of beach huts at the back of the sand and a boardwalk behind them
 function beachColumn(col,P,rx,rz,x,z){
