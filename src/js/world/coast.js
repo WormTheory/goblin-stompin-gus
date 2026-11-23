@@ -296,6 +296,10 @@ function coastFlav(x,z){
   if(tj<0.17)return 2;if(tj<0.36)return 1;if(mj>0.8&&tj>0.55||tj>0.8&&mj>0.62)return 3;
   return bioPick(t,m,x,z)===BIO_I.badlands?4:0;
 }
+// what kind of natural shore (x,z) is, for the maps: 0 sand, 1 shingle, 2 an ice shelf, 3 mangroves, 4 red sand (as
+// coastFlav), 5 cliffs and headlands (rugged), 6 a fjord's walls (cold and most rugged, as natLand builds them)
+function coastKind(x,z){const F=coastFlav(x,z),rc=CF_RC;return (F===1||F===2)&&rc>0.5?6:F===2||F===3?F:rc>0.15?5:F;}
+const COAST_KC=['#dccb92','#a4a298','#e4f0f4','#4f7a42','#c8764a','#7e7a70','#5c6470'],COAST_KN=['Sandy shores','Shingle shores','Ice shelves','Mangroves','Red sand shores','Cliffs & headlands','Fjords'];
 // an ice shelf along a frozen shore: sea ice two blocks thick out to a ragged edge (11 to 24 blocks out), snow drifted on
 // it, bites out of its edge, and floes beyond, thinning out. None in front of a town's beach or harbour (their boats)
 function iceShelf(col,x,z,cd){

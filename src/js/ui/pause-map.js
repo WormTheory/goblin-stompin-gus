@@ -68,21 +68,29 @@ function ruinGrid(c0,c1,r0,r1,ok){
 }
 const MAPC={derricks:'#3a3430',peat:'#5a4636',research:'#c83a3a',safari:'#c8a050',stilts:'#6a5a3a',ski:'#e0e8f0',nuclear:'#c8c850',tower5g:'#c8c8d0',prepper:'#7a6a3a',militia:'#3a4a2a',ruins:'#8a8a78',thieves:'#2a2420',wind:'#f0f4f4',campsite:'#6a9a4a',cult:'#5a1a24',mine:'#6a5a48',quarry:'#a8a090',lumber:'#4a6a2a',base:'#5a6a3a',airport:'#8a9aa8',airfield:'#9ab878',nasa:'#e8e8f0',theme:'#f05a8a',nuclear:'#d8d03a',arena:'#e07a2a',campus:'#a03a4a',prison:'#5a5a5a',jail:'#6a6a6a',water:'#4a9ad8',power:'#8a8a3a',zoo:'#5aa83a',studio:'#d0a04a',lab:'#3ad04a',castle:'#9a9a8a',ikea:'#0058a3',cathedral:'#c8b890',museum:'#d8c8a0',aquarium:'#3aa0d8',casino:'#e04ab0',school:'#c87a4a',factory:'#7a6a5a',datacenter:'#4a5a6a',electric:'#d8c83a',dump:'#7a6a50',derelict:'#6a6258',mansion:'#d8b0a0',trailers:'#a8a078',camp:'#8a7a5a',farmers:'#d0904a',nursery:'#5aa04a',dealer:'#4a8ad0',armory:'#8a4a3a',theater:'#a0283a',stocks:'#c8c0a0',court:'#3e766c',cemetery:'#5c6e58',church:'#a89880',library:'#8a6a4a',cinema:'#b03a4a',radio:'#d05a5a',news:'#3a5a9a',bank:'#c8a84a',disco:'#b04ac8',club:'#4aa04a',shops:'#c0607a',wtower:'#b8c4cc',bell:'#9a8a70',market:'#2f9a8a',drug:'#d0506a',food:'#c86a3a',fastfood:'#e0a030',sitdown:'#a0522d',fire:'#b8302a',build:'#a89060',ramp:'#5a6a4a',plains:'#6c9448',field:'#9a8a4a',orchard:'#4c7a32',truckstop:'#e0a52e',farm:'#b0503a',road:'#3a3f45',walk:'#565b5f',tower:'#4a5a70',mid:'#7a6450',park:'#3f8a3a',plaza:'#9a9a90',police:'#3456a8',grocery:'#2f9a8a',homes:'#c8a870',
   gas:'#c8433a',garage:'#6c7076',hospital:'#e8eaec',mall:'#9a52b8',stadium:'#56b04a',capitol:'#e8c35a',ghw:'#b07a3a',bigbox:'#2f7fd0',mega:'#5e7f9a',bigpark:'#3a9a3a',river:'#2f6fc8',highway:'#e8963a',empty:'#4a4f53',metro:'#3a6ad0',rail:'#3a3036',sea:'#2a5f9e',rig:'#c8c040',beach:'#d8c890',harbor:'#9a9488',yard:'#8f949a',navy:'#5c6672',lighthouse:'#e04040'};
+COAST_KC.forEach((c,i)=>MAPC['cf'+i]=c);
+// the wilds' wonders on the maps: a marker each, in its kind's colour (world/wonders.js)
+const WD_MC={arch:'#e0904a',fall:'#4ad0f0',ribs:'#c070e0',tree:'#c070e0',baobab:'#c070e0',erratic:'#c070e0',henge:'#c070e0'},
+  WD_LEG=[['wd_arch','Stone arches'],['wd_fall','Waterfalls'],['wd_lm','Landmarks']];
+MAPC.wd_arch=WD_MC.arch;MAPC.wd_fall=WD_MC.fall;MAPC.wd_lm=WD_MC.henge;
 const MAP_LEG=[['base','Military bases'],['airport','Airports'],['airfield','Airfields'],['mine','Mines'],['quarry','Quarries'],['lumber','Lumber camps'],['campsite','Campsites'],['cult','Cult altars'],['tower5g','5G towers'],['prepper','Prepper compounds'],['militia','Militia compounds'],['ruins','Ruins'],['thieves',"Thieves' hideouts"],['derricks','Oil fields'],['peat','Peat diggings'],['research','Research stations'],['safari','Safari lodges'],['stilts','Stilt villages'],['ski','Ski slopes'],['wind','Wind farms'],['nasa','Launch sites'],['theme','Theme parks'],['nuclear','Nuclear plants'],['arena','Arenas'],['campus','Universities'],['prison','Prisons'],['jail','Jails'],['water','Water works'],['power','Power stations'],['zoo','Zoos'],['studio','Film studios'],['lab','Goblin labs'],['ikea','Furniture superstores'],['cathedral','Cathedrals'],['museum','Museums'],['aquarium','Aquariums'],['casino','Casinos'],['school','Schools'],['factory','Factories'],['datacenter','Data centers'],['electric','Electric company'],['dump','Garbage dumps'],['derelict','Abandoned buildings'],['mansion','Mansions'],['trailers','Trailer parks'],['camp','Encampments'],['farmers',"Farmer's markets"],['nursery','Tree nurseries'],['dealer','Car dealers'],['armory','Armories'],['theater','Theatres'],['stocks','Stock exchange'],['church','Churches'],['cemetery','Cemeteries'],['library','Libraries'],['cinema','Cinemas'],['bank','Banks'],['disco','Discos'],['club','Night clubs'],['news','TV news'],['radio','Radio stations'],['court','Basketball courts'],['shops','Little shops & bars'],['wtower','Water towers'],['bell','Bell towers'],['ramp','Interchanges'],['food','Restaurants'],['fastfood','Fast food'],['sitdown','Sit-down restaurants'],['fire','Fire stations'],['build','Building sites'],['plains','Plains'],['farm','Farms'],['truckstop','Truck stops'],['tower','Towers'],['mid','Mid-rises'],['homes','Homes'],['park','Parks'],['plaza','Plazas'],['market','Supermarkets'],['drug','Drugstores'],['gas','Gas stations'],['police','Police'],
-  ['hospital','Hospitals'],['garage','Car parks'],['mall','Malls'],['bigbox','Superstores'],['mega','Mega-buildings'],['stadium','Stadiums'],['capitol','The capitol'],['river','Rivers'],['rail','Railways'],['sea','Ocean'],['beach','Beaches'],['yard','Shipping ports'],['navy','Naval bases'],['lighthouse','Lighthouses'],['rig','Oil rigs'],['ghw','Country highways'],['ruin','Destroyed'],['highway','Highways']];
+  ['hospital','Hospitals'],['garage','Car parks'],['mall','Malls'],['bigbox','Superstores'],['mega','Mega-buildings'],['stadium','Stadiums'],['capitol','The capitol'],['river','Rivers'],['rail','Railways'],['sea','Ocean'],['beach','Beaches'],['yard','Shipping ports'],['navy','Naval bases'],['lighthouse','Lighthouses'],['rig','Oil rigs'],...COAST_KN.map((n,i)=>['cf'+i,n]),...WD_LEG,['ghw','Country highways'],['ruin','Destroyed'],['highway','Highways']];
 // the sea on the maps: each block sampled on a grid (water, beach, land), ports and harbours in their own colours
 const seaMapC=new Map();
 function seaMapCells(px,pz,n){
   const k=(px*100003+pz)*8+n;let v=seaMapC.get(k);if(v)return v;
   const t=plotType(px,pz),st=CELL/n;v=[];
-  for(let j=0;j<n;j++)for(let i=0;i<n;i++){const x=px*CELL+(i+0.5)*st,z=pz*CELL+(j+0.5)*st;let c;
+  const ks=v.k=[];   // (each cell's legend entry, where it isn't the block's own: a natural shore's kind)
+  for(let j=0;j<n;j++)for(let i=0;i<n;i++){const x=px*CELL+(i+0.5)*st,z=pz*CELL+(j+0.5)*st;let c,kk=null;
     if(t==='yard'||t==='navy')c=MAPC[t];else if(t==='basin'||t==='nbasin')c=MAPC.sea;
-    else{const cd=coastD(x,z);
-      if(cd>=0){const f=Math.min(1,cd/80);c='rgb('+Math.round(70-46*f)+','+Math.round(128-66*f)+','+Math.round(196-82*f)+')';}   // (shallows light, the deep ocean dark)
+    else{const cd=coastD(x,z),nat=t==='shore'||t==='sea'||t==='lighthouse',ck=nat&&cd>-12&&cd<26?coastKind(x,z):-1;
+      if(cd>=0){const f=Math.min(1,cd/80);c='rgb('+Math.round(70-46*f)+','+Math.round(128-66*f)+','+Math.round(196-82*f)+')';   // (shallows light, the deep ocean dark)
+        if(ck===2&&cd<CF_IW*0.7||ck===3&&cd<CF_MW*0.6){c=COAST_KC[ck];kk='cf'+ck;}}   // (an ice shelf, mangroves out in the shallows)
+      else if(ck>=0&&cd>-9){c=COAST_KC[ck];kk='cf'+ck;}   // (a natural shore, by its kind)
       else c=t==='harbor'&&cd>-9?MAPC.harbor:t==='beach'&&cd>-17?MAPC.beach:t==='beach'&&cd>-21?'#a07a50':cd>-7?(t==='rig'||t==='wreck'?MAPC.sea:gridNoise(x/CELL,z/CELL,7,77)>0.12?'#8a8a80':MAPC.beach):MAPC.plains;}
     if(t==='rig'&&Math.abs(i*st+st/2-16)<12&&Math.abs(j*st+st/2-16)<12)c='#c8c040';
     if(t==='lighthouse'){const P=plotInfo(px,pz);if(Math.abs(i*st+st/2-P.lh.x)<st&&Math.abs(j*st+st/2-P.lh.z)<st)c=MAPC.lighthouse;}
-    v.push(c);}
+    v.push(c);ks.push(kk);}
   if(seaMapC.size>20000)seaMapC.clear();seaMapC.set(k,v);return v;
 }
 const MAPV={cx:null,cz:null,ppb:1.6,hl:null};   // hl: the legend entry being pointed at, lit up on the map   // centre (blocks) and pixels per block
@@ -139,7 +147,7 @@ function drawMapBlocks(x,k,ox,oz,c0,c1,r0,r1,o){
     if(!explored.has(px+','+pz))continue;
     const X0=px*CELL,Z0=pz*CELL,t=plotType(px,pz);
     if(seaPlot(px,pz)){const n=seaN,st=CELL/n,C=seaMapCells(px,pz,n),key=t==='yard'||t==='basin'?'yard':t==='navy'||t==='nbasin'?'navy':t==='lighthouse'?'lighthouse':t==='beach'?'beach':t==='rig'?'rig':'sea';
-      for(let j=0;j<n;j++)for(let i=0;i<n;i++)rect(X0+i*st,Z0+j*st,X0+(i+1)*st,Z0+(j+1)*st,C[j*n+i],key);continue;}
+      for(let j=0;j<n;j++)for(let i=0;i<n;i++)rect(X0+i*st,Z0+j*st,X0+(i+1)*st,Z0+(j+1)*st,C[j*n+i],C.k[j*n+i]||key);continue;}
     if(realmOf(px,pz)==='plains'){
       {const RC=reliefMapCells(px,pz,seaN),n=seaN,st=CELL/n;if(!RC)rect(X0,Z0,X0+CELL,Z0+CELL,BIOMES[biomeOfPlot(px,pz)].map,'plains');
         else for(let j=0;j<n;j++)for(let i=0;i<n;i++)rect(X0+i*st,Z0+j*st,X0+(i+1)*st,Z0+(j+1)*st,RC[j*n+i],'plains');}
@@ -377,6 +385,17 @@ function renderMap(){
       x.strokeStyle='#ffe27a';x.lineWidth=1.2;for(const [a,b,ww,hh] of hits)x.strokeRect(a+0.5,b+0.5,Math.max(1,ww-1),Math.max(1,hh-1));}}
   // the territories' borders and names (ui/map-territories.js)
   if(!HL&&mapTerDraw(x,w,h,k,X,Z))more=true;
+  // the wilds' wonders in the blocks you've explored: a diamond each in its kind's colour, named when zoomed in (lit up
+  // when their legend entry's pointed at). Worked out a few milliseconds a frame, so zoomed far out they come in by degrees
+  {const B=exploredBox();if(B){const vx0=Math.max(MAPV.cx-w/2/k,B.x0*CELL),vx1=Math.min(MAPV.cx+w/2/k,(B.x1+1)*CELL),vz0=Math.max(MAPV.cz-h/2/k,B.z0*CELL),vz1=Math.min(MAPV.cz+h/2/k,(B.z1+1)*CELL);
+    if(vx1>vx0&&vz1>vz0&&(vx1-vx0)*(vz1-vz0)<4e8){const L=wondersIn(vx0,vz0,vx1,vz1,6);if(WD_MORE)more=true;
+      x.textAlign='center';x.textBaseline='middle';x.lineJoin='round';
+      for(const [kd,wx,wz] of L){if(!explored.has(Math.floor(wx/CELL)+','+Math.floor(wz/CELL)))continue;
+        const cat=kd==='arch'?'wd_arch':kd==='fall'?'wd_fall':'wd_lm',lit=HL===cat;if(HL&&!lit)continue;
+        const sx=X(wx),sz=Z(wz),r=lit?8:6;x.beginPath();x.moveTo(sx,sz-r);x.lineTo(sx+r,sz);x.lineTo(sx,sz+r);x.lineTo(sx-r,sz);x.closePath();
+        x.fillStyle=WD_MC[kd];x.fill();x.lineWidth=lit?2:1.5;x.strokeStyle=lit?'#ffe27a':'#111';x.stroke();
+        if(k>=0.5){const nm=WD_NAME[kd].replace(/^\S+\s/,'');x.font='700 11px "Atkinson Hyperlegible Next", system-ui, sans-serif';x.lineWidth=3;x.strokeStyle='rgba(0,0,0,0.85)';x.strokeText(nm,sx,sz-13);x.fillStyle='#f4ecd8';x.fillText(nm,sx,sz-13);}}
+      x.textAlign='start';x.textBaseline='alphabetic';}}}
   // the places you've found: each one's name over its middle, and how much of it you've destroyed
   {x.textAlign='center';x.textBaseline='middle';x.lineJoin='round';
    for(const S of knownSets.values()){const sx=X(S.cx*CELL+CELL/2),sz=Z(S.cz*CELL+CELL/2);if(sx<-120||sx>w+120||sz<-40||sz>h+40)continue;

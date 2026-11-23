@@ -303,14 +303,20 @@ function take(op,key,r,job){
   else{for(let i=0;i<r.names.length;i++)ptNames[r.n0+i]=r.names[i];
     const zc=paint(DT,k=>ZRGB[r.zone[k]]||[255,0,255]);
     const pc=paint(DT,k=>{const z=r.zone[k];if(z===1)return ZRGB[1];const n=ptNames[r.pt[k]];if(!n||n==='shore'||n==='basin'||n==='nbasin'||n==='sea'||n==='plains'||!MAPC[n])return ZRGB[z]||[255,0,255];return hex(MAPC[n]);});
-    DET.set(key,{zc,pc,zone:r.zone,pt:r.pt});
+    // (the natural shores by kind, over the rest: see-through elsewhere)
+    let cc=null;if(r.cf&&r.cf.some(v=>v)){cc=document.createElement('canvas');cc.width=cc.height=DT;const x=cc.getContext('2d'),im=x.createImageData(DT,DT);
+      for(let k=0;k<DT*DT;k++){const v=r.cf[k];if(!v)continue;const [R,G2,B]=hex(CF_COL[v-1]);im.data[k*4]=R;im.data[k*4+1]=G2;im.data[k*4+2]=B;im.data[k*4+3]=255;}x.putImageData(im,0,0);}
+    DET.set(key,{zc,pc,cc,wd:r.wd||[],zone:r.zone,pt:r.pt});
     if(DET.size>4000){const k0=DET.keys().next().value;DET.delete(k0);}}
 }
 
 // ---- toggles and key ----
-const show={ter:true,sets:true,bases:true,navy:true,cv:true,rivers:true,grid:true,shade:false,cont:false};let ground='plots';
+const show={ter:true,sets:true,bases:true,navy:true,cv:true,rivers:true,wd:true,coast:true,grid:true,shade:false,cont:false};
+// (natural shores by kind, the game's coastKind and COAST_KC, and the wilds' wonders' colours, its WD_MC: kept the same)
+const CF_COL=['#dccb92','#a4a298','#e4f0f4','#4f7a42','#c8764a','#7e7a70','#5c6470'],CF_NAME=['Sandy shore','Shingle shore','Ice shelf','Mangroves','Red sand shore','Cliffs & headlands','Fjord'],
+  WD_COL={arch:'#e0904a',fall:'#4ad0f0',ribs:'#c070e0',tree:'#c070e0',baobab:'#c070e0',erratic:'#c070e0',henge:'#c070e0'};let ground='plots';
 const climWanted=()=>clim!=='off'||show.shade||show.cont;
-const LAY=[['ter','Territories','#b0508a'],['sets','Settlements','#14141c'],['bases','Military bases',BASEC],['navy','Naval bases',NAVYC],['cv','Carriers',CVC],['rivers','Rivers','#4a86c0'],['grid','Grid','#9aa68f'],['shade','Hill shading','#7d6a55'],['cont','Contours','#8a5a2b']];
+const LAY=[['ter','Territories','#b0508a'],['sets','Settlements','#14141c'],['bases','Military bases',BASEC],['navy','Naval bases',NAVYC],['cv','Carriers',CVC],['rivers','Rivers','#4a86c0'],['coast','Coasts','#7e7a70'],['wd','Wonders','#4ad0f0'],['grid','Grid','#9aa68f'],['shade','Hill shading','#7d6a55'],['cont','Contours','#8a5a2b']];
 const lay=document.getElementById('layers');
 for(const [k,t,c] of LAY){const b=document.createElement('button');b.className='chip';b.type='button';b.id='lay-'+k;b.setAttribute('aria-pressed',show[k]);b.innerHTML=`<i class="sw" style="background:${c};border-radius:50%"></i>${t}`;b.onclick=()=>{show[k]=!show[k];b.setAttribute('aria-pressed',show[k]);draw();pump();};lay.append(b);}
 const gr=document.getElementById('ground');
@@ -464,6 +470,8 @@ mk(`<svg class="sw" viewBox="0 0 14 14"><polygon points="0,5 11,5 14,7 11,9 0,9"
 mk(`<svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="#fff" stroke="#b8321f" stroke-width="2.5"/></svg>`,'Spawn point');
 mk(`<svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="3" fill="#46464f"/><circle cx="7" cy="7" r="5.6" fill="none" stroke="#8a1f6a" stroke-width="2"/></svg>`,'Territory capital');
 mk(`<svg class="sw" viewBox="0 0 14 14"><rect width="7" height="14" fill="#e0a0c8"/><rect x="7" width="7" height="14" fill="#a8d890"/><line x1="7" y1="0" x2="7" y2="14" stroke="#46123a" stroke-width="2"/></svg>`,'Territory border');
+for(const [k,t] of [['arch','Stone arch'],['fall','Waterfall'],['henge','Landmark']])mk(`<svg class="sw" viewBox="0 0 14 14"><polygon points="7,0.5 13.5,7 7,13.5 0.5,7" fill="${WD_COL[k]}" stroke="#1a1a1a" stroke-width="1.2"/></svg>`,t);
+CF_NAME.forEach((t,i)=>mk(`<i class="sw" style="background:${CF_COL[i]};border-radius:3px"></i>`,t));
 for(const [t,z] of [['City core',10],['City ring / large town',11],['Suburbs',12],['Small town',13],['Village',14],['Open country',3],['Beach',4],['Shallows',2],['Sea',1],['River',5]])mk(`<i class="sw" style="background:${ZCOL[z]};border-radius:3px"></i>`,t);
 
 // ---- drawing ----
@@ -476,6 +484,8 @@ const hit=b=>pcells(b,k=>{const L=placed.get(k);if(L)for(const p of L)if(!(b[2]<
 function text(t,x,y,font,fill,align){ctx.font=font;ctx.textAlign=align||'left';ctx.lineJoin='round';ctx.lineWidth=3.5;ctx.strokeStyle='rgba(255,255,255,.92)';ctx.strokeText(t,x,y);ctx.fillStyle=fill;ctx.fillText(t,x,y);}
 function star(x,y,r){ctx.beginPath();for(let k=0;k<10;k++){const a=-Math.PI/2+k*Math.PI/5,rr=k%2?r*.45:r;ctx.lineTo(x+rr*Math.cos(a),y+rr*Math.sin(a));}ctx.closePath();ctx.fillStyle='#ffc800';ctx.fill();ctx.lineWidth=2;ctx.strokeStyle='#503000';ctx.stroke();}
 let raf=0;function draw(){if(!raf)raf=requestAnimationFrame(()=>{raf=0;render();});}
+// (for the tests: look at a spot, at so many pixels a plot, and what the detail tiles hold)
+window.__wg={go(x,z,s){cx=x;cz=z;sc=s;draw();pump();},det:()=>[...DET.values()].filter(Boolean)};
 const inV=(x,z,m)=>{const X=sx(x),Y=sy(z);return X>-m&&X<vw+m&&Y>-m&&Y<vh+m;};
 function render(){
   ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle=getComputedStyle(document.body).backgroundColor;ctx.fillRect(0,0,vw,vh);
@@ -492,7 +502,7 @@ function render(){
   // (settlements as blobs their size until the detail shows their real shape)
   if(sc>=SITES){for(const s of setsAll.values()){if(!inV(s.x,s.z,s.R*sc+10))continue;if(det&&DET.get(Math.floor(s.x/DT)+','+Math.floor(s.z/DT)))continue;
     const T=TYPE[s.type]||TYPE.village;ctx.beginPath();ctx.arc(sx(s.x),sy(s.z),Math.max(2,s.R*sc),0,7);ctx.fillStyle=T.blob;ctx.fill();}}
-  if(det)for(const [i,j] of viewTiles(DT,0)){const d=DET.get(i+','+j);if(d)ctx.drawImage(ground==='plots'?d.pc:d.zc,sx(i*DT),sy(j*DT),DT*sc+.5,DT*sc+.5);}
+  if(det)for(const [i,j] of viewTiles(DT,0)){const d=DET.get(i+','+j);if(d){ctx.drawImage(ground==='plots'?d.pc:d.zc,sx(i*DT),sy(j*DT),DT*sc+.5,DT*sc+.5);if(show.coast&&d.cc)ctx.drawImage(d.cc,sx(i*DT),sy(j*DT),DT*sc+.5,DT*sc+.5);}}
   // the climate over the land, when it's shown (coarser tiles first, as for the land)
   if(clim!=='off'){ctx.imageSmoothingEnabled=clim!=='b';const L0=landLv();for(let L=LMAX;L>=L0;L--){const T=CT<<L,V=viewTiles(T,0);if(L<LMAX&&V.length>400)continue;
     for(const [i,j] of V){const e=CLIMT.get(landKey(L,i,j));if(e)ctx.drawImage(climPic(e,clim),sx(i*T),sy(j*T),T*sc+.5,T*sc+.5);}}ctx.imageSmoothingEnabled=false;}
@@ -513,6 +523,11 @@ function render(){
     for(const r of rivers){const b=r.bb;if(b&&(b[2]<x0||b[0]>x1||b[3]<z0||b[1]>z1))continue;const k=Math.max(1,Math.floor(2/(sc*(r.sp||1))));
       ctx.lineWidth=Math.max(r.w<RW0()?1:1.5,lw*r.w/9);ctx.beginPath();let on=false;for(let i=0;i<r.length;i+=(i+k<r.length||i===r.length-1?k:r.length-1-i)){const [x,z]=r[i];if(x<x0||x>x1||z<z0||z>z1){on=false;continue;}const X=sx(x),Y=sy(z);on?ctx.lineTo(X,Y):ctx.moveTo(X,Y);on=true;}ctx.stroke();}}
   if(show.grid)gridDraw();
+  // the wilds' wonders: a diamond each in its kind's colour, named closer in
+  if(show.wd&&det){ctx.lineJoin='round';for(const [i,j] of viewTiles(DT,0)){const d=DET.get(i+','+j);if(!d)continue;
+    for(const [x,z,k,nm] of d.wd){if(!inV(x,z,40))continue;const X=sx(x),Y=sy(z),r=sc>=10?8:6;
+      ctx.beginPath();ctx.moveTo(X,Y-r);ctx.lineTo(X+r,Y);ctx.lineTo(X,Y+r);ctx.lineTo(X-r,Y);ctx.closePath();ctx.fillStyle=WD_COL[k]||'#fff';ctx.fill();ctx.strokeStyle='#1a1a1a';ctx.lineWidth=1.5;ctx.stroke();
+      if(sc>=10)text(nm,X,Y-r-5,'600 12px '+FB,'#1d2318','center');}}}
   placed.clear();
   // (the territories' names claim their room first, and are drawn last, over everything)
   const terN=show.ter&&sc>=TERMIN?terNames():null;

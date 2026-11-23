@@ -36,7 +36,7 @@ self.AudioContext=undefined;self.webkitAudioContext=undefined;
 let WSEED=1;
 // (the game reads its world from its save on loading: hand it a fresh world with this seed)
 self.localStorage={getItem:k=>String(k).startsWith('goblin-city-v')?JSON.stringify({seed:WSEED,edits:{},coll:{},down:[],dest:{},test:[]}):null,setItem(){},removeItem(){},key:()=>null,length:0};
-const NAMES=['settlementLat','settlementAt','settlementRaw','setName','setKind','PLACE_KIND','zoneAt','seaPlot','seaV','SEA_T','coastType','plotType1','superOf','isRiver','riversNearBox','stMatch','cvSite','portCell','capitolPlan','climateAt','bioPick','BIOMES','reliefNat','plainsH','rlfValleys','realmOf','rlfSnow','rlfRock','RLF','CELL','SET_SP','BIGP','bigCell','MAPC','TEST_GROUPS','seed','ruggedAt','worldCfgSet','WORLD_CFG','setCache','setAtCache','nzNoise','CL_SP','bioNear','rivNode','rivWet','rivInflow','rivX','RIV_SP','terSt','terTile','terInfo','terAt','TER_N'];
+const NAMES=['settlementLat','settlementAt','settlementRaw','setName','setKind','PLACE_KIND','zoneAt','seaPlot','seaV','SEA_T','coastType','plotType1','superOf','isRiver','riversNearBox','stMatch','cvSite','portCell','capitolPlan','climateAt','bioPick','BIOMES','reliefNat','plainsH','rlfValleys','realmOf','rlfSnow','rlfRock','RLF','CELL','SET_SP','BIGP','bigCell','MAPC','TEST_GROUPS','seed','ruggedAt','worldCfgSet','WORLD_CFG','setCache','setAtCache','nzNoise','CL_SP','bioNear','rivNode','rivWet','rivInflow','rivX','RIV_SP','terSt','terTile','terInfo','terAt','TER_N','wondersIn','coastKind','WD_NAME'];
 let T=null,HTML=null,HTML_URL=null;
 function loadGame(html,seed,sea){
   WSEED=seed;self.GSG_WORLD=sea||undefined;   // (the Land & sea sliders: the game's WORLD_CFG, read by its coast.js as it loads)
@@ -126,15 +126,19 @@ function coarse(tx,tz){
 }
 // ---- the detail: 32 plots a side, each plot as the game has it ----
 function detail(tx,tz){
-  const N=32,x0=tx*N,z0=tz*N,zone=new Uint8Array(N*N),pt=new Uint8Array(N*N),n0=ptNames.length;
+  const N=32,x0=tx*N,z0=tz*N,zone=new Uint8Array(N*N),pt=new Uint8Array(N*N),cf=new Uint8Array(N*N),n0=ptNames.length;
   for(let j=0;j<N;j++)for(let i=0;i<N;i++){const px=x0+i,pz=z0+j,k=j*N+i;
     const sp=T.seaPlot(px,pz),ct=T.coastType(px,pz);let c=sp===2?1:sp===1?(ct==='beach'?4:2):3;
     if(c!==1&&T.isRiver&&T.isRiver(px,pz))c=5;
     const S=T.settlementAt(px,pz);if(S)c=ZC[T.zoneAt(px,pz)]||13;
     if(ct==='navy'||ct==='nbasin')c=20;
     zone[k]=c;
+    // (a natural shore's kind, coastKind: 1 more than it, 0 for anything else)
+    if(c===2&&ct==='shore'&&T.coastKind)cf[k]=1+T.coastKind(px*T.CELL+16,pz*T.CELL+16);
     if(c!==1){let t;const B=T.superOf&&T.superOf(px,pz);t=B?B.kind:T.plotType1(px,pz);pt[k]=Math.min(255,ptOf(t));}}
-  return {zone,pt,names:ptNames.slice(n0),n0};
+  // (the wilds' wonders whose middles are in the tile, in plots: x, z, and its kind)
+  const wd=T.wondersIn?T.wondersIn(x0*T.CELL,z0*T.CELL,(x0+N)*T.CELL,(z0+N)*T.CELL).map(([k,x,z])=>[x/T.CELL,z/T.CELL,k,T.WD_NAME[k].replace(/^\S+\s/,'')]):[];
+  return {zone,pt,cf,wd,names:ptNames.slice(n0),n0};
 }
 // ---- one plot: what it is and what place it's in ----
 function plot(px,pz){
