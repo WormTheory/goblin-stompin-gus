@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:2357da8288a864fc5be6b7d51bdd7a2e65ea72f74da8e8ec47d210ee1104339c -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:ab1158ba3dd25baaf8577f9f8616445b25107d977aff95bdda4da6e48028672a -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1646,7 +1646,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <p class="pn-web">Also on <a href="patch-notes/index.html" target="_blank" rel="noopener">their own page</a>.</p>
 <details class="pn-up pn-fold pn-new" id="version-0-5" open><summary tabindex="0"><h2>Version 0.5</h2><span class="pn-tog" aria-hidden="true"></span></summary>
 <h3>Shape your own world</h3>
-<ul><li>New world now lets you shape the world before it's made, with the World Generator's sliders: Land &amp; sea, Land shape, Rivers and Climate. Left alone, they make the world just as before.</li><li>The settings are saved with the world, so it's made the same way every time you load it, and online friends get the host's world.</li><li>New world and the World Generator have a Settlements group too: Towns (how many places there are), City size (how big cities and large towns grow), Clustering (from evenly spaced to gathered in clumps with open country between) and Country sites (how many farms, bases, airfields, mines, campsites and the like). The seed line says "custom" when a world has settings of its own.</li><li>New world has a Seed box. Leave it empty for a random world, or type a number or any word or phrase: the same seed always makes the same world. The World Generator's seed box takes words too, so a seed tried there makes the same world in the game.</li><li>The World Generator has a Noise view: just the raw maps a world is made from (land and sea, temperature, moisture, biomes, ruggedness, height, where rivers tend to rise, and where towns are likely), drawn in about a second and sharpening as you watch. The sliders change it as you drag them. Switch back to Map for everything that's built.</li></ul>
+<ul><li>New world now lets you shape the world before it's made, with the World Generator's sliders: Land &amp; sea, Land shape, Rivers and Climate. Left alone, they make the world just as before.</li><li>The settings are saved with the world, so it's made the same way every time you load it, and online friends get the host's world.</li><li>New world and the World Generator have a Settlements group too: Towns (how many places there are), City size (how big cities and large towns grow), Clustering (from evenly spaced to gathered in clumps with open country between) and Country sites (how many farms, bases, airfields, mines, campsites and the like). The seed line says "custom" when a world has settings of its own.</li><li>New world has a Seed box. Leave it empty for a random world, or type a number or any word or phrase: the same seed always makes the same world. The World Generator's seed box takes words too, so a seed tried there makes the same world in the game.</li><li>The World Generator has a Noise view: just the raw maps a world is made from (land and sea, temperature, moisture, biomes, ruggedness, height, where rivers tend to rise, and where towns are likely), drawn in about a second and sharpening as you watch. The sliders change it as you drag them. Switch back to Map for everything that's built.</li><li>The Noise view's Rivers map marks where rivers and streams really rise once you zoom in, its Towns map also shows where places come out smaller (in rugged country, and in biomes with smaller towns), and pointing at the Land map tells you how far above or below the sea it is. Height draws about three times faster zoomed far out.</li><li>The World Generator loads a new seed or new settings without loading the game again, so changes show up sooner, and it fits better on a phone.</li></ul>
 <h3>Territories</h3>
 <ul><li>The world is divided into territories now, each made up of many settlements: kingdoms, principalities, duchies, republics, free states, nations, empires, khanates, tribal lands and more, each with a name of its own and a capital.</li><li>Their borders follow the land: coastlines, rivers, lakes and mountain ranges.</li><li>The pause map draws their borders and names over what you've explored, the minimap shows a border you're near, and a banner names the territory you've come into.</li><li>New world and the World Generator have a Territories group: Size (how big territories are on average) and Variety (how much they differ). The World Generator shows them as a layer on the Map, and in the Noise view.</li></ul>
 <h3>The world</h3>
@@ -2397,7 +2397,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='f7120361cffe';
+const GAME_VER='0.5',GAME_BUILD='999fc3515479';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v109'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
 const WORLD_GEN=11;
@@ -3106,6 +3106,9 @@ function clCorner(ix,iz){
 const CL_Q=[null,null,null,null];
 function climAt(x,z){
   const fx=x/CL_SP,fz=z/CL_SP,ix=Math.floor(fx),iz=Math.floor(fz),u=fx-ix,v=fz-iz;
+  // (right on a corner, as the World Generator's far-out views ask: only that corner counts, so the others aren't worked
+  // out. The same value, a quarter of the work)
+  if(!u&&!v){const a=clCorner(ix,iz);CL_Q[0]=CL_Q[1]=CL_Q[2]=CL_Q[3]=a;CLIM.u=0;CLIM.v=0;CLIM.t=a.t;CLIM.m=a.m;return CLIM;}
   const a=CL_Q[0]=clCorner(ix,iz),b=CL_Q[1]=clCorner(ix+1,iz),c=CL_Q[2]=clCorner(ix,iz+1),d=CL_Q[3]=clCorner(ix+1,iz+1);
   CLIM.u=u;CLIM.v=v;
   CLIM.t=(a.t*(1-u)+b.t*u)*(1-v)+(c.t*(1-u)+d.t*u)*v;CLIM.m=(a.m*(1-u)+b.m*u)*(1-v)+(c.m*(1-u)+d.m*u)*v;

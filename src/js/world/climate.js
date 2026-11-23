@@ -96,6 +96,9 @@ function clCorner(ix,iz){
 const CL_Q=[null,null,null,null];
 function climAt(x,z){
   const fx=x/CL_SP,fz=z/CL_SP,ix=Math.floor(fx),iz=Math.floor(fz),u=fx-ix,v=fz-iz;
+  // (right on a corner, as the World Generator's far-out views ask: only that corner counts, so the others aren't worked
+  // out. The same value, a quarter of the work)
+  if(!u&&!v){const a=clCorner(ix,iz);CL_Q[0]=CL_Q[1]=CL_Q[2]=CL_Q[3]=a;CLIM.u=0;CLIM.v=0;CLIM.t=a.t;CLIM.m=a.m;return CLIM;}
   const a=CL_Q[0]=clCorner(ix,iz),b=CL_Q[1]=clCorner(ix+1,iz),c=CL_Q[2]=clCorner(ix,iz+1),d=CL_Q[3]=clCorner(ix+1,iz+1);
   CLIM.u=u;CLIM.v=v;
   CLIM.t=(a.t*(1-u)+b.t*u)*(1-v)+(c.t*(1-u)+d.t*u)*v;CLIM.m=(a.m*(1-u)+b.m*u)*(1-v)+(c.m*(1-u)+d.m*u)*v;

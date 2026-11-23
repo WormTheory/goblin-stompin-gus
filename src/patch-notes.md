@@ -9,6 +9,8 @@
 - New world and the World Generator have a Settlements group too: Towns (how many places there are), City size (how big cities and large towns grow), Clustering (from evenly spaced to gathered in clumps with open country between) and Country sites (how many farms, bases, airfields, mines, campsites and the like). The seed line says "custom" when a world has settings of its own.
 - New world has a Seed box. Leave it empty for a random world, or type a number or any word or phrase: the same seed always makes the same world. The World Generator's seed box takes words too, so a seed tried there makes the same world in the game.
 - The World Generator has a Noise view: just the raw maps a world is made from (land and sea, temperature, moisture, biomes, ruggedness, height, where rivers tend to rise, and where towns are likely), drawn in about a second and sharpening as you watch. The sliders change it as you drag them. Switch back to Map for everything that's built.
+- The Noise view's Rivers map marks where rivers and streams really rise once you zoom in, its Towns map also shows where places come out smaller (in rugged country, and in biomes with smaller towns), and pointing at the Land map tells you how far above or below the sea it is. Height draws about three times faster zoomed far out.
+- The World Generator loads a new seed or new settings without loading the game again, so changes show up sooner, and it fits better on a phone.
 
 ### Territories
 

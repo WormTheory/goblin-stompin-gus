@@ -22,6 +22,8 @@ const THREE={CylinderGeometry:class{translate(){return this}rotateX(){return thi
 const listeners={};
 const el=()=>({querySelectorAll:()=>[],closest:()=>null,matches:()=>false,contains:()=>false,attrs:{},kids:[],setAttribute(k,v){this.attrs[k]=v},style:{setProperty(k,v){this[k]=v}},hidden:false,textContent:'',innerHTML:'',classList:{contains(){return false},add(){},remove(){},toggle(){}},append(...k){this.kids.push(...k)},insertBefore(){},querySelector:()=>el(),focus(){},dataset:{},
  L:{},addEventListener(t,f){(this.L[t]=this.L[t]||[]).push(f)},getContext:()=>({createLinearGradient:()=>({addColorStop(){}}),clearRect(){},fillRect(){},createImageData:(w,h)=>({data:new Uint8ClampedArray(w*h*4)}),putImageData(){},fillRect(){},set fillStyle(v){}}),requestPointerLock(){}});
+// (the Play online panel's shut, made so in loadGame: open, the game's online code would join its lobby of open games
+// from in here)
 const els={};
 
 self.window=self;self.THREE=THREE;self.devicePixelRatio=1;self.innerWidth=800;self.innerHeight=600;
@@ -34,8 +36,8 @@ self.AudioContext=undefined;self.webkitAudioContext=undefined;
 let WSEED=1;
 // (the game reads its world from its save on loading: hand it a fresh world with this seed)
 self.localStorage={getItem:k=>String(k).startsWith('goblin-city-v')?JSON.stringify({seed:WSEED,edits:{},coll:{},down:[],dest:{},test:[]}):null,setItem(){},removeItem(){},key:()=>null,length:0};
-const NAMES=['settlementLat','settlementAt','settlementRaw','setName','setKind','PLACE_KIND','zoneAt','seaPlot','seaV','SEA_T','coastType','plotType1','superOf','isRiver','riversNearBox','stMatch','cvSite','portCell','capitolPlan','climateAt','bioPick','BIOMES','reliefNat','plainsH','rlfValleys','realmOf','rlfSnow','rlfRock','RLF','CELL','SET_SP','BIGP','bigCell','MAPC','TEST_GROUPS','seed','ruggedAt','worldCfgSet','WORLD_CFG','setCache','setAtCache','nzNoise','terSt','terTile','terInfo','terAt','TER_N'];
-let T=null;
+const NAMES=['settlementLat','settlementAt','settlementRaw','setName','setKind','PLACE_KIND','zoneAt','seaPlot','seaV','SEA_T','coastType','plotType1','superOf','isRiver','riversNearBox','stMatch','cvSite','portCell','capitolPlan','climateAt','bioPick','BIOMES','reliefNat','plainsH','rlfValleys','realmOf','rlfSnow','rlfRock','RLF','CELL','SET_SP','BIGP','bigCell','MAPC','TEST_GROUPS','seed','ruggedAt','worldCfgSet','WORLD_CFG','setCache','setAtCache','nzNoise','CL_SP','bioNear','rivNode','rivWet','rivInflow','rivX','RIV_SP','terSt','terTile','terInfo','terAt','TER_N'];
+let T=null,HTML=null,HTML_URL=null;
 function loadGame(html,seed,sea){
   WSEED=seed;self.GSG_WORLD=sea||undefined;   // (the Land & sea sliders: the game's WORLD_CFG, read by its coast.js as it loads)
   const a=html.indexOf('three.min.js');if(a<0)throw new Error('no game script');
@@ -45,9 +47,13 @@ function loadGame(html,seed,sea){
   const tail=/requestAnimationFrame\(frame\);\s*\}\)\(\);\s*$/;
   if(!tail.test(src))throw new Error('unexpected game script ending');
   src=src.replace(tail,ex);
-  const realFetch=self.fetch;self.fetch=()=>new Promise(()=>{});   // (the game checking for updates: not here)
-  (0,eval)(src);
-  self.fetch=realFetch;
+  // (loaded again for a new seed or new settings: a fresh game, with nothing of the last one kept alive. So its stand-in
+  // page starts empty, and what it'd leave running here, its timers and listeners, isn't started)
+  for(const k in els)delete els[k];els.onlinePanel=Object.assign(el(),{hidden:true,appendChild(){},style:{}});
+  sentRivers.clear();terIdxM.clear();terList.length=0;capKey=null;capitol=null;full=false;
+  const realFetch=self.fetch,sI=self.setInterval,aE=self.addEventListener;self.fetch=()=>new Promise(()=>{});   // (the game checking for updates: not here)
+  self.setInterval=()=>0;self.addEventListener=()=>{};
+  try{(0,eval)(src);}finally{self.fetch=realFetch;self.setInterval=sI;self.addEventListener=aE;}
   T=self.__t;
   for(const n of ['settlementLat','settlementAt','seaV','SEA_T','plotType1','coastType','seaPlot'])if(T[n]===undefined)throw new Error('missing '+n);
 }
@@ -65,7 +71,7 @@ function setAlive(S){
   return false;
 }
 function setInfo(S){return {k:S.rx+','+S.rz,name:T.setName(S),type:S.type,kind:T.PLACE_KIND?T.PLACE_KIND[T.setKind(S)]||S.type:S.type,x:S.cx+.5,z:S.cz+.5,R:S.R};}
-let capKey=null,capitol=null;
+let capKey=null,capitol=null,full=false;
 // ---- the overview: the land first (from the sea's own noise: quick), then what stands on it. Land tiles come in levels:
 // level 0 is 256 plots a side sampled every other plot, and each level up is twice as far across, sampled half as finely,
 // so a whole continent's worth costs about the same as a town's when zoomed far out ----
@@ -88,7 +94,7 @@ function clim(tx,tz,L){
   for(let j=0;j<M;j++)for(let i=0;i<M;i++){const q=j*M+i,X=(x0+i*st+h)*C,Z=(z0+j*st+h)*C,c=T.climateAt(X,Z),ct=c.t;t[q]=Math.round(ct*255);m[q]=Math.round(c.m*255);if(bp)b[q]=bp(ct,c.m,X,Z);
     if(hg&&r.land[q]===2&&T.realmOf(x0+i*st+h,z0+j*st+h)==='plains'){const v=Math.round(T.reliefNat(X,Z));hg[q]=Math.max(0,v);hk[q]=v<-0.9&&T.RLF.lake>1?3:v>T.rlfSnow(ct)?2:v>T.rlfRock(ct)?1:0;}}
   if(T.rlfValleys)T.rlfValleys(true);
-  return {land:r.land,M,st,t,m,b,hg,hk,bio:T.BIOMES?T.BIOMES.map(B=>[B.n,B.map]):null};
+  return {land:r.land,M,st,t,m,b,hg,hk,bio:T.BIOMES?T.BIOMES.map(B=>[B.n,B.map,B.k]):null};
 }
 function coarse(tx,tz){
   const N=256,x0=tx*N,z0=tz*N;
@@ -165,7 +171,7 @@ function grid(x0,z0,st,n){
 // rivers' courses or chunks. NaN is the sea, where a field is only about the land ----
 const NZ_TYPES=['city','large','small','village'];
 function noise(f,x0,z0,st,nx,j0,nj){
-  const C=T.CELL,ts=T.SEA_T,W=T.WORLD_CFG,o=new Float32Array(nx*nj),SP=T.SET_SP,tn0=terList.length;
+  const C=T.CELL,ts=T.SEA_T,W=T.WORLD_CFG,o=new Float32Array(nx*nj),SP=T.SET_SP,tn0=terList.length,cs=st*C;
   // (the territories need each of their tiles worked out: too far out, there'd be thousands, so nothing till it's closer)
   if(f==='ter'&&(!T.terSt||nx*st/T.terSt().TT*(nj*st/T.terSt().TT)>1200)){o.fill(NaN);return {v:o,far:true};}
   if(f==='h'&&T.rlfValleys)T.rlfValleys(false);   // (valleys want every river's course: the land as it lies)
@@ -173,7 +179,10 @@ function noise(f,x0,z0,st,nx,j0,nj){
     for(let i=0;i<nx;i++){const x=x0+(i+.5)*st,q=j*nx+i,v=T.seaV(x,z);
       if(f==='land'){o[q]=ts-v;continue;}   // (above 0 is land: the coastline is where the continent field crosses SEA_T)
       if(v>ts){o[q]=NaN;continue;}
-      const X=x*C,Z=z*C;let r;
+      let X=x*C,Z=z*C,r;
+      // (samples further apart than the climate's lattice share none of its corners: right on one, the game works out
+      // that corner alone, a quarter of the work, and the sample moves no more than half a lattice step)
+      if(f==='h'&&cs>=2*T.CL_SP){X=Math.round(X/T.CL_SP)*T.CL_SP;Z=Math.round(Z/T.CL_SP)*T.CL_SP;}
       if(f==='t'||f==='m'){const c=T.climateAt(X,Z);r=f==='t'?c.t:c.m;}
       else if(f==='bio'){const c=T.climateAt(X,Z);r=T.bioPick(c.t,c.m,X,Z);}
       else if(f==='rug')r=T.ruggedAt(X,Z);
@@ -185,13 +194,25 @@ function noise(f,x0,z0,st,nx,j0,nj){
       else if(f==='riv'){const g=T.ruggedAt(X,Z);let b=0.35+1.65*g;if(g<0.35)b+=0.8*T.climateAt(X,Z).m;r=Math.min(1,0.16*W.riv*b);}
       // (the places: the chance a grid point has one, as setNone in world/places.js works it out, and where the places
       // themselves stand, as negative numbers by type, while samples are close enough together to see them)
-      else if(f==='town'){let m=1;if(W.clu>0){const g=Math.max(0,Math.min(1,0.5+T.nzNoise(x/SP/3.2,z/SP/3.2,4481)*1.6));m=1-W.clu+W.clu*g;}r=W.towns*m;
+      // (and how many sizes smaller places come out here, as settlementLat steps them down: by how rugged it is and the
+      // biome's town, dn. As dn*4 plus the chance, so the page can read both back)
+      else if(f==='town'){let m=1;if(W.clu>0){const g=Math.max(0,Math.min(1,0.5+T.nzNoise(x/SP/3.2,z/SP/3.2,4481)*1.6));m=1-W.clu+W.clu*g;}
+        const g=T.ruggedAt(X,Z),bt=T.bioNear?T.bioNear(X,Z).town:null,dn=Math.min(3,(g>0.9?3:g>0.78?2:g>0.62?1:0)+(bt?bt.dn:0));r=dn*4+W.towns*m;
         if(st<=12){const rx=Math.round(x/SP),rz=Math.round(z/SP);
           for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const S=T.settlementLat(rx+a,rz+b);if(S.none)continue;
             const dx=x-S.cx-.5,dz=z-S.cz-.5;if(dx*dx+dz*dz<=S.R*S.R){const k=-1-NZ_TYPES.indexOf(S.type);if(k<r)r=k;}}}}
       o[q]=r;}}
   if(f==='h'&&T.rlfValleys)T.rlfValleys(true);
-  return {v:o,bio:f==='bio'&&T.BIOMES?T.BIOMES.map(B=>[B.n,B.map]):null,tn:f==='ter'?terList.slice(tn0):null,tn0};
+  return {v:o,bio:f==='bio'&&T.BIOMES?T.BIOMES.map(B=>[B.n,B.map,B.k]):null,tn:f==='ter'?terList.slice(tn0):null,tn0};
+}
+// (where rivers and streams really rise, in a box (in plots): the drainage lattice's nodes with water leaving them and none
+// coming in, at the point the river's drawn from (rivX), 2 a river and 1 a stream)
+function rsrc(x0,z0,x1,z1){
+  const C=T.CELL,SP=T.RIV_SP,out=[];
+  for(let k=Math.floor(x0*C/SP)-1;k<=Math.ceil(x1*C/SP)+1;k++)for(let j=Math.floor(z0*C/SP)-1;j<=Math.ceil(z1*C/SP)+1;j++){
+    const n=T.rivNode(k,j),w=T.rivWet(n);if(!w||T.rivInflow(n))continue;const X=T.rivX(n),x=X.x/C,z=X.z/C;
+    if(x>=x0&&x<x1&&z>=z0&&z<z1)out.push(x,z,w);}
+  return out;
 }
 // (the sliders, changed without loading the game again: the world's settings and everything worked out from them)
 function cfg(o){T.worldCfgSet(o||{});terIdxM.clear();terList.length=0;if(T.setCache)T.setCache.clear();if(T.setAtCache)T.setAtCache.clear();sentRivers.clear();return true;}
@@ -226,11 +247,12 @@ self.onmessage=async e=>{
   const m=e.data;
   try{
     if(m.op==='init'){
-      const t0=Date.now(),r=await fetch(m.url,{cache:'no-store'});if(!r.ok)throw new Error('game file '+r.status);
-      loadGame(await r.text(),m.seed,m.sea);
+      // (the game's file kept, so a new seed or new settings load it again without fetching it)
+      const t0=Date.now();if(HTML_URL!==m.url){const r=await fetch(m.url,{cache:'no-store'});if(!r.ok)throw new Error('game file '+r.status);HTML=await r.text();HTML_URL=m.url;}
+      loadGame(HTML,m.seed,m.sea);
       if(T.seed!==m.seed)throw new Error('seed not taken');
       if(m.lite){postMessage({id:m.id,ok:{seed:T.seed,lite:true,mapc:{},labels:{},cap:null,ms:Date.now()-t0}});return;}   // (the Noise view: none of what's built)
-      const C=T.capitolPlan?T.capitolPlan():null;capitol=C;const S=C?T.settlementAt(C.ax,C.az):T.settlementLat(0,0);capKey=S?S.rx+','+S.rz:null;
+      full=true;const C=T.capitolPlan?T.capitolPlan():null;capitol=C;const S=C?T.settlementAt(C.ax,C.az):T.settlementLat(0,0);capKey=S?S.rx+','+S.rz:null;
       const labels={};if(T.TEST_GROUPS)for(const [,L] of T.TEST_GROUPS)for(const [k,n] of L)labels[k]=n;
       postMessage({id:m.id,ok:{seed:T.seed,mapc:T.MAPC||{},labels,cap:capKey,capitol:C,ms:Date.now()-t0}});return;}
     let r;
@@ -245,6 +267,7 @@ self.onmessage=async e=>{
     else if(m.op==='noise')r=noise(m.f,m.x0,m.z0,m.st,m.nx,m.j0,m.nj);
     else if(m.op==='cfg')r=cfg(m.cfg);
     else if(m.op==='ter')r=ter(m.tx,m.tz);
+    else if(m.op==='rsrc')r=rsrc(m.x0,m.z0,m.x1,m.z1);
     else if(m.op==='search')r=search(m.q,m.cx,m.cz);
     postMessage({id:m.id,ok:r});
   }catch(err){postMessage({id:m.id,err:String(err&&err.message||err)});}

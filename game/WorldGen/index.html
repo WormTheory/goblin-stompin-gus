@@ -21,7 +21,7 @@ html,body{height:100%;margin:0}
 body{background:var(--void);color:var(--fg);font:14px/1.4 var(--body);overflow:hidden}
 #map{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab;background:var(--void)}
 #map.drag{cursor:grabbing}
-.panel{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);left:max(12px,env(safe-area-inset-left,0px));width:min(320px,calc(100vw - 24px));max-height:calc(100% - 24px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.25);padding:14px;box-sizing:border-box;display:flex;flex-direction:column;gap:12px}
+.panel{position:fixed;z-index:3;top:calc(env(safe-area-inset-top,0px) + 12px);left:max(12px,env(safe-area-inset-left,0px));width:min(320px,calc(100vw - 24px));max-height:calc(100% - 24px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.25);padding:14px;box-sizing:border-box;display:flex;flex-direction:column;gap:12px}
 .body{display:flex;flex-direction:column;gap:12px}
 .panel.min .body{display:none}
 h1{font-family:var(--display);font-weight:700;font-size:26px;line-height:1;margin:0;letter-spacing:.01em}
@@ -49,7 +49,7 @@ details[open]>summary.lbl{margin-bottom:6px}
 details[open]>summary.lbl::before{transform:rotate(90deg)}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--chip);color:var(--fg);border-radius:999px;padding:5px 10px 5px 7px;font:500 13px var(--body);cursor:pointer}
-.chip[aria-pressed="false"]{opacity:.5}
+.chip:not(.seg)[aria-pressed="false"]{opacity:.5}
 .chip.seg{padding:5px 11px}
 .chip.seg[aria-pressed="true"]{background:var(--chipOn);color:var(--chipOnFg);border-color:var(--chipOn)}
 .sw{width:14px;height:14px;flex:none;display:inline-block}
@@ -146,13 +146,20 @@ function terReset(){TERT=new Map();TERI=new Map();terTT=0;}
 let curSeed=0;
 async function start(seed){
   curSeed=seed;clearTimeout(seaT);
-  if(W)W.terminate();if(LW&&LW!==W)LW.terminate();const g=++gen;ready=false;P.forEach(p=>p[1]('stopped'));P=new Map();
+  // (workers that have loaded the game once keep a copy and load it again, with the new seed and settings: no new worker,
+  // nothing fetched. Not one still loading, though: that's thrown away and a new one started)
+  const keep=W&&W.ok&&!W.pend&&(!LW||LW===W||!LW.pend);
+  if(!keep){if(W)W.terminate();if(LW&&LW!==W)LW.terminate();W=null;LW=null;}
+  const g=++gen;ready=false;P.forEach(p=>p[1]('stopped'));P=new Map();
   LANDT=new Map();CLIMT=new Map();SITET=new Map();DET=new Map();setsAll=new Map();terReset();bases=[];navy=[];cvs=[];rivers=[];selected=null;placeEl.hidden=true;busy=0;lbusy=0;
   msg.textContent='Loading the game…';msg.hidden=false;draw();
-  W=worker();LW=NZ.on?null:worker();const lite=NZ.on;W.full=!lite;W.dirty=false;W.cfgS=JSON.stringify(seaSent()||{});NZ.layers=[];NZ.bio=null;   // (the Noise view: one worker, and nothing built worked out)
+  // (the Noise view: one worker, and nothing built worked out; the map's land worker, if there is one, kept idle meanwhile)
+  if(!W)W=worker();if(!NZ.on&&!LW)LW=worker();const lite=NZ.on;W.full=!lite;W.dirty=false;W.cfgS=JSON.stringify(seaSent()||{});NZ.layers=[];NZ.bio=null;
   W.onerror=e=>{msg.hidden=false;msg.textContent="The map couldn't be made: "+(e.message||'the game failed to load');};
-  const url=new URL('../index.html',location.href).href,sea=seaSent(),lw=LW,li=lw?call({op:'init',url,seed,sea},lw).catch(()=>null):Promise.resolve(null);
-  try{info=await call({op:'init',url,seed,sea,lite});}
+  const url=new URL('../index.html',location.href).href,sea=seaSent(),lw=NZ.on||LW===W?null:LW,w=W,
+    init=(x,o)=>{x.pend=true;return call(Object.assign({op:'init',url,seed,sea},o),x).then(r=>{x.pend=false;x.ok=true;return r;},e=>{x.pend=false;x.ok=false;throw e;});},
+    li=lw?init(lw,{}).catch(()=>null):Promise.resolve(null);
+  try{info=await init(w,{lite});}
   catch(err){if(g!==gen)return;msg.hidden=false;msg.textContent="This game build can't be read by the World Generator ("+err+").";return;}
   if(g!==gen)return;
   MAPC=info.mapc||{};LABELS=info.labels||{};ready=true;msg.hidden=true;
@@ -351,7 +358,7 @@ const HSTOPS=['#7fa860','#a9b46c','#b89a68','#8e7a66'],HRGB=HSTOPS.map(hex),HROC
 const hRamp=v=>{const f=Math.max(0,Math.min(1,v/90))*(HRGB.length-1),i=Math.min(HRGB.length-2,Math.floor(f)),u=f-i;return [0,1,2].map(c=>Math.round(HRGB[i][c]+(HRGB[i+1][c]-HRGB[i][c])*u));};
 CLIMS.h={name:'Height',ends:['Low','High'],stops:HSTOPS.concat(['#8c8a84','#f2f5f7'])};
 const clEl=document.getElementById('climate'),clKey=document.getElementById('climKey'),bioKey=document.getElementById('bioKey');
-function bioKeyFill(){bioKey.textContent='';for(const [n,c] of bioPal){const s=document.createElement('span'),i=document.createElement('i');i.style.background=c;s.append(i,n);bioKey.append(s);}}
+function bioKeyFill(){bioKey.textContent='';for(const [n,c,k] of bioPal){if(k==='alpine')continue;const s=document.createElement('span'),i=document.createElement('i');i.style.background=c;s.append(i,n);bioKey.append(s);}}
 for(const [k,t] of [['off','Off'],['b','Biomes'],['t',CLIMS.t.name],['m',CLIMS.m.name],['h',CLIMS.h.name]]){const b=document.createElement('button');b.className='chip seg';b.type='button';b.id='cl-'+k;b.textContent=t;b.setAttribute('aria-pressed',k===clim);
   b.onclick=()=>{clim=k;for(const q of clEl.children)q.setAttribute('aria-pressed',q===b);clKey.hidden=k==='off'||k==='b';bioKey.hidden=k!=='b';
     if(CLIMS[k]){const C=CLIMS[k];clKey.children[0].textContent=C.ends[0];clKey.children[2].textContent=C.ends[1];clKey.children[1].style.background='linear-gradient(90deg,'+C.stops.join(',')+')';}
@@ -360,14 +367,15 @@ for(const [k,t] of [['off','Off'],['b','Biomes'],['t',CLIMS.t.name],['m',CLIMS.m
 // that's made finer pass by pass (a sample every 16 pixels, then 8, 4 and 2), nothing built worked out. Each pass is a
 // layer drawn at its own place in the world, so panning keeps what's been made; a layer of older settings or another
 // field is dropped once the new one's first pass is in ----
-const NZ={on:false,f:'land',layers:[],tok:0,cg:0,bio:null,ms:0,ter:[]};
+const NZ={on:false,f:'land',layers:[],tok:0,cg:0,bio:null,ms:0,ter:[],src:null};
+const RSRC_SC=0.3;   // (the Rivers field's sources, from this many pixels a plot: the lattice's nodes 50 plots apart)
 const NZF=[['land','Land'],['t','Temperature'],['m','Moisture'],['bio','Biomes'],['rug','Ruggedness'],['h','Height'],['riv','Rivers'],['town','Towns'],['ter','Territories']];
 const NZK={land:{ends:['Sea','Land'],grad:'linear-gradient(90deg,#163a66,#5b8cbc 50%,#dfe2a6 50%,#7a9a4c 75%,#3f5a2a)'},
   t:{ends:CLIMS.t.ends,stops:CLIMS.t.stops},m:{ends:CLIMS.m.ends,stops:CLIMS.m.stops},
   rug:{ends:['Flat','Rugged'],stops:['#ece8d4','#cdb27a','#9a6a44','#5a3e38']},
   h:{ends:['Low','High'],stops:HSTOPS.concat(['#8c8a84','#f2f5f7'])},
-  riv:{ends:['Rare','Likely'],stops:['#efe9d2','#a9cde3','#4a8cc6','#173f86']},
-  town:{ends:['Few','Many'],stops:['#f3efe4','#dccbaa','#c4a676'],cat:[['City','#14141c'],['Large town','#46464f'],['Small town','#8c5020'],['Village','#96782f']]},
+  riv:{ends:['Rare','Likely'],stops:['#efe9d2','#a9cde3','#4a8cc6','#173f86'],cat:[['River source','#d9481f'],['Stream source','#f2a541']]},
+  town:{ends:['Few, small','Many, big'],stops:['#f3efe4','#dccbaa','#c4a676','#a07a44'],cat:[['City','#14141c'],['Large town','#46464f'],['Small town','#8c5020'],['Village','#96782f']]},
   bio:{},ter:{}};
 for(const k in NZK){const K=NZK[k];if(K.stops)K.rgb=K.stops.map(hex);if(K.cat)K.crgb=K.cat.map(c=>hex(c[1]));}
 const LANDS=['#5b8cbc','#163a66'].map(hex),LANDL=['#dfe2a6','#7a9a4c','#3f5a2a'].map(hex),SEARGB=hex(SEA);
@@ -378,7 +386,7 @@ function nzRGB(f,v){
   const K=NZK[f];
   if(f==='bio')return NZ.bio?hex(NZ.bio[v][1]):[128,128,128];
   if(f==='ter')return NZ.ter[v]?hslRGB(NZ.ter[v][1],0.62,0.55):[128,128,128];
-  if(f==='town'&&v<0)return K.crgb[-v-1];
+  if(f==='town'){if(v<0)return K.crgb[-v-1];const dn=Math.floor(v/4);return rampOf(K.rgb,(v-dn*4)*(4-dn)/4);}   // (the chance, times how big places come out)
   return rampOf(K.rgb,f==='h'?v/120:f==='riv'?v/0.32:v);}   // (a node's odds of a source are 0.32 at most at the default setting)
 function nzPaint(L,v,j0){const n=v.length/L.nx,x=L.c.getContext('2d'),im=x.createImageData(L.nx,n),D=im.data;
   for(let q=0;q<v.length;q++){const c=nzRGB(L.f,v[q]);D[q*4]=c[0];D[q*4+1]=c[1];D[q*4+2]=c[2];D[q*4+3]=255;}x.putImageData(im,0,j0);}
@@ -400,7 +408,9 @@ async function nzGo(fresh){
     // (what this pass covers no longer needs anything as coarse under it, nor anything of older settings)
     const x1=x0+nx*st,z1=z0+nz*st;
     NZ.layers=NZ.layers.filter(q=>q===L||q.cg===cg&&q.rows&&!(q.st>=st&&q.x0>=x0&&q.z0>=z0&&q.x0+q.nx*q.st<=x1&&q.z0+q.nz*q.st<=z1));
-    if(NZ.layers.length>10)NZ.layers.splice(0,NZ.layers.length-10);cv.dataset.nzp=+cv.dataset.nzp+1;}   // (passes done, for the tests)
+    if(NZ.layers.length>10)NZ.layers.splice(0,NZ.layers.length-10);cv.dataset.nzp=+cv.dataset.nzp+1;
+    // (where rivers really rise, once the first pass is in: worked out from their courses, so only zoomed in)
+    if(k===16&&f==='riv'){if(sc>=RSRC_SC){let r;try{r=await call({op:'rsrc',x0,z0,x1,z1});}catch(e){return;}if(t!==NZ.tok)return;NZ.src={cg,p:r};cv.dataset.nzs=r.length/3;draw();}else NZ.src=null;}}   // (passes done, for the tests)
   // (marked done once it's drawn: draw's own frame comes first)
   NZ.ms=performance.now()-t0;draw();requestAnimationFrame(()=>{if(t!==NZ.tok)return;busyEl.hidden=true;cv.dataset.nz='done';});}
 function nzRender(){
@@ -408,22 +418,25 @@ function nzRender(){
   const Ls=NZ.layers.filter(L=>L.rows).sort((a,b)=>a.cg-b.cg||b.st-a.st);
   for(const L of Ls){ctx.imageSmoothingEnabled=L.f!=='bio'&&L.f!=='town'&&L.f!=='land'&&L.f!=='ter';
     const h=L.rows;ctx.drawImage(L.c,0,0,L.nx,h,sx(L.x0),sy(L.z0),L.nx*L.st*sc,h*L.st*sc);}
-  ctx.imageSmoothingEnabled=false;}
+  ctx.imageSmoothingEnabled=false;
+  const S=NZ.src;if(NZ.f==='riv'&&S&&S.cg===NZ.cg&&sc>=RSRC_SC){const C=NZK.riv.cat;ctx.lineWidth=1.5;ctx.strokeStyle='#3a1a0a';
+    for(let k=0;k<S.p.length;k+=3){const X=sx(S.p[k]),Y=sy(S.p[k+1]),w=S.p[k+2];if(X<-8||Y<-8||X>vw+8||Y>vh+8)continue;
+      ctx.beginPath();ctx.arc(X,Y,w===2?5:3.5,0,7);ctx.fillStyle=C[w===2?0:1][1];ctx.fill();ctx.stroke();}}}
 // (what's under the pointer: the finest layer there)
 function nzAt(x,z){let best=null;for(const L of NZ.layers){if(L.f!==NZ.f||L.cg!==NZ.cg)continue;const i=Math.floor((x-L.x0)/L.st),j=Math.floor((z-L.z0)/L.st);
   if(i<0||j<0||i>=L.nx||j>=L.rows)continue;if(!best||L.st<best.st)best={st:L.st,v:L.v[j*L.nx+i]};}return best?best.v:null;}
 function nzTxt(v){const f=NZ.f;if(v===null)return '';
-  if(f==='land')return v<0?'Sea':'Land';if(v!==v)return 'Sea';
+  if(f==='land')return (v<0?'Sea ':'Land ')+Math.abs(v).toFixed(3);if(v!==v)return 'Sea';
   if(f==='bio')return NZ.bio?esc(NZ.bio[v][0]):'';
   if(f==='ter')return NZ.ter[v]?esc(NZ.ter[v][0]):'';
-  if(f==='town'&&v<0)return NZK.town.cat[-v-1][0];
+  if(f==='town'){if(v<0)return NZK.town.cat[-v-1][0];const dn=Math.floor(v/4);return 'Chance of a place '+(v-dn*4).toFixed(2)+(dn?'<br>Places '+dn+(dn>1?' sizes':' size')+' smaller':'');}
   if(f==='h')return 'Height '+Math.round(v);
   return esc(NZF.find(q=>q[0]===f)[1])+' '+v.toFixed(2);}
 const nzBox=document.getElementById('nzBox'),nzFEl=document.getElementById('nzF'),nzKey=document.getElementById('nzKey'),nzCat=document.getElementById('nzCat');
 function nzKeyShow(){const K=NZK[NZ.f];nzKey.hidden=!K.ends;
   if(K.ends){nzKey.children[0].textContent=K.ends[0];nzKey.children[2].textContent=K.ends[1];nzKey.children[1].style.background=K.grad||'linear-gradient(90deg,'+K.stops.join(',')+')';}
   const cat=NZ.f==='bio'?(NZ.bio||[]):K.cat||null;nzCat.hidden=!cat;nzCat.textContent='';
-  if(cat)for(const [n,c] of cat){const s=document.createElement('span'),i=document.createElement('i');i.style.background=c;s.append(i,n);nzCat.append(s);}}
+  if(cat)for(const [n,c,k] of cat){if(k==='alpine')continue;const s=document.createElement('span'),i=document.createElement('i');i.style.background=c;s.append(i,n);nzCat.append(s);}}
 for(const [k,t] of NZF){const b=document.createElement('button');b.className='chip seg';b.type='button';b.id='nz-'+k;b.textContent=t;b.setAttribute('aria-pressed',k===NZ.f);
   b.onclick=()=>{if(NZ.f===k)return;NZ.f=k;for(const q of nzFEl.children)q.setAttribute('aria-pressed',q===b);nzKeyShow();urlSet();nzGo(true);};nzFEl.append(b);}
 const viewEl=document.getElementById('viewSeg');
@@ -431,7 +444,7 @@ function setView(on){if(NZ.on===on)return;NZ.on=on;for(const q of viewEl.childre
   document.querySelectorAll('.mo').forEach(e=>e.hidden=on);nzBox.hidden=!on;tip.hidden=true;
   if(on){placeEl.hidden=true;selected=null;nzKeyShow();if(ready)nzGo(true);}
   // (back to the map: as it was, unless the settings were changed meanwhile or only the Noise view's been loaded)
-  else{NZ.tok++;NZ.layers=[];cv.dataset.nz='';busyEl.hidden=true;if(W&&(!W.full||W.dirty||!LW))start(curSeed);else pump();}
+  else{NZ.tok++;NZ.layers=[];NZ.src=null;cv.dataset.nz='';busyEl.hidden=true;if(W&&(!W.full||W.dirty||!LW))start(curSeed);else pump();}
   urlSet();draw();}
 for(const [k,t] of [['map','Map'],['noise','Noise']]){const b=document.createElement('button');b.className='chip seg';b.type='button';b.id='vw-'+k;b.textContent=t;b.setAttribute('aria-pressed',k==='map');
   b.onclick=()=>setView(k==='noise');viewEl.append(b);}

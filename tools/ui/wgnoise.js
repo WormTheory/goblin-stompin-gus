@@ -1,7 +1,8 @@
 // The World Generator's Noise view in a real browser (serving game/ itself): opened at ?seed=1&noise=land (twice, the
 // second warm) to the first pass drawn and the last done; every field in turn (timed, and what the hover reads); a
 // slider moved (redrawn live, no reload, kept in the address); zooming; back to the map (reloaded, as the settings
-// changed); and from the map to Noise and back with no reload. Then the map alone, for comparison.
+// changed: the game loaded again in the same worker); and from the map to Noise and back with no reload. Then the map's own
+// sliders (no reload, the same picture as a fresh load), the map alone for comparison, and both on a phone.
 // node wgnoise.js [shotDir]   (from tools/ui; the real graphics card when there is one)
 const {chromium}=require('playwright'),{spawn}=require('child_process'),path=require('path');
 const out=process.argv[2],port=18000+Math.floor(Math.random()*900),F=['land','t','m','bio','rug','h','riv','town'];
@@ -27,6 +28,10 @@ let bad=0;const ok=(c,t)=>{if(!c)bad++;console.log((c?'  ok   ':'  BAD  ')+t);};
       const tl=await tipAt(p,900,300),ts=await tipAt(p,450,150);   // (inland east of the start, and out at sea north-west of it, clear of the panel)
       console.log('  '+f.padEnd(5)+' first pass '+String(c).padStart(4)+' ms, sharp '+String(Date.now()-a).padStart(5)+' ms   land: '+tl+'   sea: '+ts);
       ok(/Sea/.test(ts)&&!/Sea/.test(tl.split('|')[0]),f+': land and sea read');
+      if(f==='land')ok(/^Land \d\.\d{3}/.test(tl)&&/^Sea \d\.\d{3}/.test(ts),'land: how far above or below the coastline');
+      if(f==='town'){ok(/Chance of a place/.test(tl),'town: the chance');const n=await p.evaluate(()=>{const c=document.getElementById('map'),d=c.getContext('2d').getImageData(0,0,c.width,c.height).data,s=new Set();for(let i=0;i<d.length;i+=16)s.add(d[i]<<16|d[i+1]<<8|d[i+2]);return s.size;});ok(n>40,'town: not one flat colour at the default settings ('+n+' colours)');}
+      if(f==='riv'){const n=+await p.evaluate(()=>document.getElementById('map').dataset.nzs);ok(n>0,'riv: where rivers rise marked ('+n+')');}
+      if(f==='bio')ok(await p.evaluate(()=>!/Alpine/.test(document.getElementById('nzCat').innerText)),'bio: no Alpine in the key');
       ok(await p.evaluate(f=>new URL(location.href).searchParams.get('noise')===f,f),f+': in the address');
       if(out)await p.screenshot({path:out+'/nz_'+f+'.png'});}
     await p.click('#nz-land');await done(p);
@@ -53,8 +58,9 @@ let bad=0;const ok=(c,t)=>{if(!c)bad++;console.log((c?'  ok   ':'  BAD  ')+t);};
       if(out)await p.screenshot({path:out+'/nz_'+f+'_'+k+'.png'});}
     const z=Date.now();await p.mouse.move(640,400);await p.mouse.wheel(0,-800);await p.waitForTimeout(150);await done(p);console.log('  zoomed in: sharp '+(Date.now()-z)+' ms');
     const m=Date.now();await p.click('#vw-map');await p.waitForTimeout(100);const me=await settle(p);
-    console.log('  back to Map (settings changed, so reloaded): '+(Date.now()-m)+' ms to everything in view');
+    console.log('  back to Map (settings changed, the game loaded again in the same worker): '+(Date.now()-m)+' ms to everything in view');
     ok(await p.evaluate(()=>document.getElementById('nzBox').hidden&&![...document.querySelectorAll('.mo')].some(e=>e.hidden)&&!/noise/.test(location.search)),'the map as it was');
+    ok(await p.evaluate(()=>performance.getEntriesByType('resource').filter(e=>/gen-worker/.test(e.name)).length===window.__w0+1),'the same worker, and only the land worker added');
     await p.close();}
   {const p=await page();await p.goto(base);await p.waitForFunction(()=>document.getElementById('msg').hidden,null,{timeout:300000});
     await p.waitForFunction(()=>document.getElementById('busy').hidden,null,{timeout:300000,polling:100});
@@ -62,10 +68,29 @@ let bad=0;const ok=(c,t)=>{if(!c)bad++;console.log((c?'  ok   ':'  BAD  ')+t);};
     const c=Date.now();await p.click('#vw-map');await p.waitForTimeout(150);
     ok(await p.evaluate(()=>document.getElementById('msg').hidden&&document.getElementById('busy').hidden),'and back to the map at once ('+(Date.now()-c)+' ms)');
     await p.close();}
+  // (the map's own sliders: the game loaded again in the same workers, the picture the same as a fresh load)
+  {const dig=p2=>p2.evaluate(()=>{const c=document.getElementById('map'),d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let h=0;for(let i=0;i<d.length;i+=4)h=(h*31+d[i]*7+d[i+1]*3+d[i+2])%1000000007;return h;});
+    const wn=p2=>p2.evaluate(()=>performance.getEntriesByType('resource').filter(e=>/gen-worker/.test(e.name)).length);
+    const p=await page();await p.goto(base);await settle(p);let d0=await dig(p);const w0=await wn(p);
+    for(const [k,v] of [['land',1.5],['towns',0.5],['mtn',0.4]]){const a=Date.now();
+      await p.evaluate(([k,v])=>{const i=document.getElementById('sea_'+k);i.value=v;i.dispatchEvent(new Event('input'));i.dispatchEvent(new Event('change'));},[k,v]);
+      await p.waitForFunction(()=>!document.getElementById('busy').hidden,null,{timeout:5000,polling:10}).catch(()=>{});const te=await settle(p);const d1=await dig(p);
+      const q=await page();await q.goto(p.url());await settle(q);const d2=await dig(q);await q.close();const w1=await wn(p);
+      ok(d1!==d0&&d1===d2&&w1===w0,'map '+k+' '+v+': no reload ('+(te-a)+' ms), the same as a fresh load'+(d1!==d0&&d1===d2&&w1===w0?'':' ('+[d0,d1,d2,w0,w1]+')'));
+      if(d1!==d2&&out){await p.screenshot({path:out+'/bad_map_'+k+'_live.png'});const q2=await page();await q2.goto(p.url());await settle(q2);await q2.screenshot({path:out+'/bad_map_'+k+'_fresh.png'});await q2.close();}
+      d0=d1;}
+    await p.close();}
+  // (a phone: the panel fits on the screen and scrolls, with nothing wider than it)
+  for(const u of ['','&noise=bio']){const p=await b.newPage({viewport:{width:390,height:844},deviceScaleFactor:2,isMobile:true,hasTouch:true});p.on('pageerror',e=>errs.push(String(e)));
+    await p.goto(base+u);await p.waitForFunction(()=>document.getElementById('msg').hidden,null,{timeout:300000,polling:20});
+    if(await p.evaluate(()=>document.getElementById('panel').classList.contains('min')))await p.tap('#collapse');   // (it starts folded away on a phone)
+    if(!u)await p.tap('#cl-b');await p.waitForTimeout(600);
+    const r=await p.evaluate(()=>{const P=document.getElementById('panel'),b=P.getBoundingClientRect(),y=Math.min(b.bottom-4,800);return {bot:b.bottom,right:b.right,sw:P.scrollWidth,cw:P.clientWidth,sh:P.scrollHeight,ch:P.clientHeight,top:P.contains(document.elementFromPoint(195,y))};});
+    ok(r.bot<=844&&r.right<=390&&r.sw<=r.cw&&r.top,'phone'+(u?' (Noise, Biomes)':' (Map, Biomes)')+': the panel fits, open, on top ('+Math.round(r.right)+' x '+Math.round(r.bot)+', '+r.sh+' tall in '+r.ch+')');
+    if(out)await p.screenshot({path:out+'/phone'+(u?'_noise':'_map')+'.png'});await p.close();}
   // (the map alone, as it was, to compare)
   for(let run=0;run<2;run++){const p=await page(),t0=Date.now();await p.goto(base);
     await p.waitForFunction(()=>document.getElementById('msg').hidden,null,{timeout:300000,polling:20});const t1=Date.now()-t0;
     const te=await settle(p);console.log('Map '+(run?'warm':'cold')+': ready '+t1+' ms, everything in view '+(te-t0)+' ms');await p.close();}
-  // (RTCPeerConnection: the game's online code looking for WebRTC in the map's second worker, as before)
-  const e2=errs.filter(e=>!/RTCPeerConnection/.test(e));console.log(e2.length?'errors:\n'+e2.join('\n'):'no errors');
+  console.log(errs.length?'errors:\n'+errs.join('\n'):'no errors');if(errs.length)bad++;
   console.log(bad?bad+' BAD':'all ok');await b.close();srv.kill();})().catch(e=>{console.error(e);srv.kill();process.exit(1);});
