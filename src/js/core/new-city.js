@@ -9,16 +9,17 @@ const confirmEl=document.getElementById('confirm');
  const can=document.fullscreenEnabled||document.webkitFullscreenEnabled;if(!can)for(const fb of fbs)fb.hidden=true;
  for(const fb of fbs)fb.addEventListener('click',()=>{try{if(fsEl()){(document.exitFullscreen||document.webkitExitFullscreen).call(document);}else{const el=document.documentElement,rq=el.requestFullscreen||el.webkitRequestFullscreen;const pr=rq&&rq.call(el);if(pr&&pr.catch)pr.catch(()=>{});}}catch(e){}});
  document.addEventListener('fullscreenchange',()=>{showFs();setTimeout(()=>{try{resize();}catch(e){}},50);});document.addEventListener('webkitfullscreenchange',showFs);showFs();}
-// ---- New world's settings: the World Generator's sliders (its Land & sea, Land shape, Rivers, Climate and Settlements boxes), in
+// ---- New world's settings: the World Generator's sliders (its Land & sea, Land shape, Rivers, Climate, Settlements and Territories boxes), in
 // WORLD_CFG's terms, so the defaults make the world exactly as before. Each range is as far as the World Generator's (as far
 // as the start can still always be found inland with a coast in reach). They go in the save (cfg, worldCfgSent), so the
 // world is made the same way whenever it's loaded, and online a guest's is the host's ----
-const NW_GROUPS=[['sea','Land & sea'],['shape','Land shape'],['riv','Rivers'],['clim','Climate'],['set','Settlements']];
+const NW_GROUPS=[['sea','Land & sea'],['shape','Land shape'],['riv','Rivers'],['clim','Climate'],['set','Settlements'],['ter','Territories']];
 const NW_SL=[['land','Land',-2.5,2.5,0.1,'sea'],['size','Continent size',0.4,1.8,0.05,'sea'],['rough','Coastline roughness',0,2.5,0.1,'sea'],['chan','Ocean channels',0,2.5,0.1,'sea'],['isles','Island chains',0,3,0.1,'sea'],['islz','Island size',0.6,3,0.1,'sea'],
   ['mtn','Mountains',-0.5,0.5,0.05,'shape'],['mth','Mountain height',0.3,1.2,0.05,'shape'],['hill','Hilliness',0,3,0.1,'shape'],['lakes','Lakes',0,3,0.1,'shape'],
   ['riv','How often',0,2.2,0.1,'riv'],['rmd','Meandering',0,3,0.1,'riv'],['rwd','Wandering',0,3,0.1,'riv'],['rwid','Width',0.5,2,0.05,'riv'],['rlen','Length',0.3,2.5,0.1,'riv'],['rbr','Branching',0,3,0.1,'riv'],
   ['temp','Temperature',-0.4,0.4,0.02,'clim'],['rain','Rainfall',-0.4,0.4,0.02,'clim'],['czone','Climate zone size',0.4,2.5,0.1,'clim'],['lat','Latitude bands',0,4,0.1,'clim'],
-  ['towns','Towns',0.2,1,0.05,'set'],['csize','City size',0.6,1.8,0.05,'set'],['clu','Clustering',-1,1,0.1,'set'],['sites','Country sites',0,3,0.1,'set']];
+  ['towns','Towns',0.2,1,0.05,'set'],['csize','City size',0.6,1.8,0.05,'set'],['clu','Clustering',-1,1,0.1,'set'],['sites','Country sites',0,3,0.1,'set'],
+  ['ter','Size',0.5,3,0.1,'ter'],['tvar','Variety',0,2,0.1,'ter']];
 const NW={v:Object.assign({},WORLD_DEF),inp:{},out:{},hd:{},box:{}};
 const nwFmt=(k,v)=>k==='land'||k==='temp'||k==='rain'||k==='mtn'||k==='clu'?(v>0?'+':v<0?'−':'')+Math.abs(v).toFixed(k==='land'||k==='clu'?1:2):'×'+v.toFixed(k==='size'||k==='mth'||k==='rwid'||k==='towns'||k==='csize'?2:1);
 // (only what isn't a default, as the save keeps it; undefined for the world as it's always been)

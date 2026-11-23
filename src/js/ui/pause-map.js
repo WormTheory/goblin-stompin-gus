@@ -375,6 +375,8 @@ function renderMap(){
     if(HL){x.fillStyle='rgba(8,10,14,0.74)';x.fillRect(0,0,w,h);
       for(const [a,b,ww,hh,col] of hits){x.fillStyle=col;x.fillRect(a,b,ww,hh);}
       x.strokeStyle='#ffe27a';x.lineWidth=1.2;for(const [a,b,ww,hh] of hits)x.strokeRect(a+0.5,b+0.5,Math.max(1,ww-1),Math.max(1,hh-1));}}
+  // the territories' borders and names (ui/map-territories.js)
+  if(!HL&&mapTerDraw(x,w,h,k,X,Z))more=true;
   // the places you've found: each one's name over its middle, and how much of it you've destroyed
   {x.textAlign='center';x.textBaseline='middle';x.lineJoin='round';
    for(const S of knownSets.values()){const sx=X(S.cx*CELL+CELL/2),sz=Z(S.cz*CELL+CELL/2);if(sx<-120||sx>w+120||sz<-40||sz>h+40)continue;

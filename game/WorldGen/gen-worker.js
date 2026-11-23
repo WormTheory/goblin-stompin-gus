@@ -34,7 +34,7 @@ self.AudioContext=undefined;self.webkitAudioContext=undefined;
 let WSEED=1;
 // (the game reads its world from its save on loading: hand it a fresh world with this seed)
 self.localStorage={getItem:k=>String(k).startsWith('goblin-city-v')?JSON.stringify({seed:WSEED,edits:{},coll:{},down:[],dest:{},test:[]}):null,setItem(){},removeItem(){},key:()=>null,length:0};
-const NAMES=['settlementLat','settlementAt','settlementRaw','setName','setKind','PLACE_KIND','zoneAt','seaPlot','seaV','SEA_T','coastType','plotType1','superOf','isRiver','riversNearBox','stMatch','cvSite','portCell','capitolPlan','climateAt','bioPick','BIOMES','reliefNat','plainsH','rlfValleys','realmOf','rlfSnow','rlfRock','RLF','CELL','SET_SP','BIGP','bigCell','MAPC','TEST_GROUPS','seed','ruggedAt','worldCfgSet','WORLD_CFG','setCache','setAtCache','nzNoise'];
+const NAMES=['settlementLat','settlementAt','settlementRaw','setName','setKind','PLACE_KIND','zoneAt','seaPlot','seaV','SEA_T','coastType','plotType1','superOf','isRiver','riversNearBox','stMatch','cvSite','portCell','capitolPlan','climateAt','bioPick','BIOMES','reliefNat','plainsH','rlfValleys','realmOf','rlfSnow','rlfRock','RLF','CELL','SET_SP','BIGP','bigCell','MAPC','TEST_GROUPS','seed','ruggedAt','worldCfgSet','WORLD_CFG','setCache','setAtCache','nzNoise','terSt','terTile','terInfo','terAt','TER_N'];
 let T=null;
 function loadGame(html,seed,sea){
   WSEED=seed;self.GSG_WORLD=sea||undefined;   // (the Land & sea sliders: the game's WORLD_CFG, read by its coast.js as it loads)
@@ -144,6 +144,7 @@ function point(x,z){
     if(T.climateAt&&h>0){const t=T.climateAt(X,Z).t;if(h>T.rlfSnow(t))o.snow=true;else if(h>T.rlfRock(t))o.rock=true;}}
   else o.h=0;
   if(T.climateAt&&T.bioPick&&T.BIOMES&&!o.sea){const c=T.climateAt(X,Z),B=T.BIOMES[T.bioPick(c.t,c.m,X,Z)];if(B)o.bio=B.n;}
+  if(T.terAt&&!o.sea){const I=T.terInfo(T.terAt(px,pz));if(I)o.ter=I.title;}
   return o;
 }
 // ---- a square of heights for the 3D view: n x n samples st plots apart from (x0,z0) (in plots), in blocks above the
@@ -164,7 +165,9 @@ function grid(x0,z0,st,n){
 // rivers' courses or chunks. NaN is the sea, where a field is only about the land ----
 const NZ_TYPES=['city','large','small','village'];
 function noise(f,x0,z0,st,nx,j0,nj){
-  const C=T.CELL,ts=T.SEA_T,W=T.WORLD_CFG,o=new Float32Array(nx*nj),SP=T.SET_SP;
+  const C=T.CELL,ts=T.SEA_T,W=T.WORLD_CFG,o=new Float32Array(nx*nj),SP=T.SET_SP,tn0=terList.length;
+  // (the territories need each of their tiles worked out: too far out, there'd be thousands, so nothing till it's closer)
+  if(f==='ter'&&(!T.terSt||nx*st/T.terSt().TT*(nj*st/T.terSt().TT)>1200)){o.fill(NaN);return {v:o,far:true};}
   if(f==='h'&&T.rlfValleys)T.rlfValleys(false);   // (valleys want every river's course: the land as it lies)
   for(let j=0;j<nj;j++){const z=z0+(j0+j+.5)*st;
     for(let i=0;i<nx;i++){const x=x0+(i+.5)*st,q=j*nx+i,v=T.seaV(x,z);
@@ -175,6 +178,8 @@ function noise(f,x0,z0,st,nx,j0,nj){
       else if(f==='bio'){const c=T.climateAt(X,Z);r=T.bioPick(c.t,c.m,X,Z);}
       else if(f==='rug')r=T.ruggedAt(X,Z);
       else if(f==='h')r=Math.max(0,T.reliefNat(X,Z));
+      // (the territories: an index into the list sent with the answer, tn, so the page can name and colour them)
+      else if(f==='ter')r=terIdx(T.terAt(Math.floor(x),Math.floor(z)));
       // (how likely a river is to rise here: a lattice node's odds of being a source, as rivBias and rivSrcM in
       // world/routes.js work them out, before what's built nearby rules one out)
       else if(f==='riv'){const g=T.ruggedAt(X,Z);let b=0.35+1.65*g;if(g<0.35)b+=0.8*T.climateAt(X,Z).m;r=Math.min(1,0.16*W.riv*b);}
@@ -186,10 +191,21 @@ function noise(f,x0,z0,st,nx,j0,nj){
             const dx=x-S.cx-.5,dz=z-S.cz-.5;if(dx*dx+dz*dz<=S.R*S.R){const k=-1-NZ_TYPES.indexOf(S.type);if(k<r)r=k;}}}}
       o[q]=r;}}
   if(f==='h'&&T.rlfValleys)T.rlfValleys(true);
-  return {v:o,bio:f==='bio'&&T.BIOMES?T.BIOMES.map(B=>[B.n,B.map]):null};
+  return {v:o,bio:f==='bio'&&T.BIOMES?T.BIOMES.map(B=>[B.n,B.map]):null,tn:f==='ter'?terList.slice(tn0):null,tn0};
 }
 // (the sliders, changed without loading the game again: the world's settings and everything worked out from them)
-function cfg(o){T.worldCfgSet(o||{});if(T.setCache)T.setCache.clear();if(T.setAtCache)T.setAtCache.clear();sentRivers.clear();return true;}
+function cfg(o){T.worldCfgSet(o||{});terIdxM.clear();terList.length=0;if(T.setCache)T.setCache.clear();if(T.setAtCache)T.setAtCache.clear();sentRivers.clear();return true;}
+// ---- the territories: a tile of them as the game works it out (world/territories.js), TER_N cells a side, each cell's
+// territory as an index into ids, 255 none, and which cells are land; with each territory's name, kind, colour and
+// capital ----
+const terIdxM=new Map(),terList=[];
+function terIdx(id){if(id==null)return NaN;let v=terIdxM.get(id);if(v===undefined){const I=T.terInfo(id);v=terList.length;terList.push(I?[I.title,I.hue]:['?',0]);terIdxM.set(id,v);}return v;}
+function ter(tx,tz){
+  if(!T.terTile)throw new Error('no territories in this build');
+  const R=T.terTile(tx,tz),St=T.terSt(),info={};
+  for(const id of R.ids){const I=T.terInfo(id);if(I)info[id]={title:I.title,name:I.name,sov:I.sov,hue:I.hue,cap:I.cap.rx+','+I.cap.rz,cx:I.cap.cx+.5,cz:I.cap.cz+.5,capName:T.setName(I.cap)};}
+  return {tx,tz,N:T.TER_N,TT:St.TT,lab:R.lab,land:R.land,ids:R.ids,info};
+}
 // ---- a settlement in full: how big it is and what's in it ----
 function place(k){
   const [rx,rz]=k.split(',').map(Number),S=T.settlementLat(rx,rz),r=Math.ceil(S.R*1.4)+3,counts={};let n=0;
@@ -228,6 +244,7 @@ self.onmessage=async e=>{
     else if(m.op==='grid')r=grid(m.x0,m.z0,m.st,m.n);
     else if(m.op==='noise')r=noise(m.f,m.x0,m.z0,m.st,m.nx,m.j0,m.nj);
     else if(m.op==='cfg')r=cfg(m.cfg);
+    else if(m.op==='ter')r=ter(m.tx,m.tz);
     else if(m.op==='search')r=search(m.q,m.cx,m.cz);
     postMessage({id:m.id,ok:r});
   }catch(err){postMessage({id:m.id,err:String(err&&err.message||err)});}

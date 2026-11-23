@@ -44,6 +44,7 @@ function updateMinimap(p,dt){
    const L=routesNearBox(X0,Z0,X1,Z1);draw(L,R=>R.kind==='country','#5b5f63',14);draw(L,R=>R.kind==='moto','#7a7f86',14);}
   {const RG=ruinGrid(c0x,c1x,c0z,c1z,null);if(RG.cells.length){x.fillStyle=ruinPat(x,4);for(const [a,b,c,d] of RG.cells)x.fillRect(a,b,c-a,d-b);
     x.strokeStyle='#e0503c';x.lineWidth=0.7;x.beginPath();for(const [a,b,c,d] of RG.edges){x.moveTo(a,b);x.lineTo(c,d);}x.stroke();}}
+  miniTerDraw(x,px,pz,R);   // (a territory's border, if you're near one: ui/map-territories.js)
   x.setTransform(1,0,0,1,0,0);
   const dot=(wx,wz,col,r)=>{const [sx,sy]=toS(wx,wz);if(Math.hypot(sx-C,sy-C)>RAD)return;x.fillStyle=col;x.beginPath();x.arc(sx,sy,r,0,Math.PI*2);x.fill();x.strokeStyle='rgba(0,0,0,.55)';x.lineWidth=1;x.stroke();};
   for(const c of cars)if(c.alive&&(c.hunter||c.svcPool==='police'))dot(c.pos.x,c.pos.z,'#ff3b30',3.6);

@@ -190,6 +190,7 @@ function placeBannerTick(dt){
   const p=players.find(q=>q.active);if(!p)return;
   if(PB.t>0){PB.t-=dt;if(PB.t<=0&&PB.el)PB.el.classList.remove('on');}
   if(!playing||TENV)return;
+  terBannerTick(p,dt);   // (coming into a territory: ui/map-territories.js)
   const S=settlementAt(Math.floor(p.pos.x/CELL),Math.floor(p.pos.z/CELL))||coastOwner(Math.floor(p.pos.x/CELL),Math.floor(p.pos.z/CELL));
   // (out in the open, a biome's name once you've been in a new one for a few seconds, worked out twice a second from where
   // you really are, a ship's deck included; in a place the biome's only noted, so leaving it into the same biome says nothing)

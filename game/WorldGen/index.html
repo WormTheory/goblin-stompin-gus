@@ -109,6 +109,7 @@ details[open]>summary.lbl::before{transform:rotate(90deg)}
     <details id="shapebox"><summary class="lbl">Land shape</summary><div class="sliders" id="shsliders"></div><button class="btn small" id="shapeReset" type="button">Default</button></details>
     <details id="rivbox"><summary class="lbl">Rivers</summary><div class="sliders" id="rvsliders"></div><button class="btn small" id="rivReset" type="button">Default</button></details>
     <details id="setbox"><summary class="lbl">Settlements</summary><div class="sliders" id="stsliders"></div><button class="btn small" id="setReset" type="button">Default</button></details>
+    <details id="terbox"><summary class="lbl">Territories</summary><div class="sliders" id="trsliders"></div><button class="btn small" id="terReset" type="button">Default</button></details>
     <details id="climbox"><summary class="lbl">Climate</summary><div class="sliders" id="clsliders"></div><button class="btn small" id="climReset" type="button">Default</button></details>
     <details id="keybox" class="mo" open><summary class="lbl">Key</summary><div class="legend" id="legend"></div></details>
   </div>
@@ -138,11 +139,15 @@ function call(m,w){return new Promise((a,b)=>{m.id=++wid;P.set(wid,[a,b]);(w||W)
 function worker(){const w=new Worker('gen-worker.js');w.onmessage=e=>{const p=P.get(e.data.id);if(!p)return;P.delete(e.data.id);e.data.err!==undefined?p[1](e.data.err):p[0](e.data.ok);};return w;}
 // ---- what's been worked out so far, by tile ----
 let LANDT=new Map(),CLIMT=new Map(),SITET=new Map(),DET=new Map(),setsAll=new Map(),bases=[],navy=[],cvs=[],rivers=[];
+// (the territories, by tile: each its picture and borders, from the worker's ter op; TERI each territory's name, colour,
+// capital and where its land's middle is, so far as its tiles have come in)
+let TERT=new Map(),TERI=new Map(),terTT=0;
+function terReset(){TERT=new Map();TERI=new Map();terTT=0;}
 let curSeed=0;
 async function start(seed){
   curSeed=seed;clearTimeout(seaT);
   if(W)W.terminate();if(LW&&LW!==W)LW.terminate();const g=++gen;ready=false;P.forEach(p=>p[1]('stopped'));P=new Map();
-  LANDT=new Map();CLIMT=new Map();SITET=new Map();DET=new Map();setsAll=new Map();bases=[];navy=[];cvs=[];rivers=[];selected=null;placeEl.hidden=true;busy=0;lbusy=0;
+  LANDT=new Map();CLIMT=new Map();SITET=new Map();DET=new Map();setsAll=new Map();terReset();bases=[];navy=[];cvs=[];rivers=[];selected=null;placeEl.hidden=true;busy=0;lbusy=0;
   msg.textContent='Loading the game…';msg.hidden=false;draw();
   W=worker();LW=NZ.on?null:worker();const lite=NZ.on;W.full=!lite;W.dirty=false;W.cfgS=JSON.stringify(seaSent()||{});NZ.layers=[];NZ.bio=null;   // (the Noise view: one worker, and nothing built worked out)
   W.onerror=e=>{msg.hidden=false;msg.textContent="The map couldn't be made: "+(e.message||'the game failed to load');};
@@ -157,13 +162,14 @@ async function start(seed){
   draw();pump();
 }
 
-// ---- Land & sea, Land shape, Rivers, Climate and Settlements: the game's WORLD_CFG (world/coast.js), the defaults leaving the world as the game makes it ----
+// ---- Land & sea, Land shape, Rivers, Climate, Settlements and Territories: the game's WORLD_CFG (world/coast.js), the defaults leaving the world as the game makes it ----
 // (each range is as far as the start can still always be found inland with a coast in reach)
 const SEA_S=[['land','Land',-2.5,2.5,0.1,0],['size','Continent size',0.4,1.8,0.05,1],['rough','Coastline roughness',0,2.5,0.1,1],['chan','Ocean channels',0,2.5,0.1,1],['isles','Island chains',0,3,0.1,1],['islz','Island size',0.6,3,0.1,1],
   ['temp','Temperature',-0.4,0.4,0.02,0,'clim'],['rain','Rainfall',-0.4,0.4,0.02,0,'clim'],['czone','Climate zone size',0.4,2.5,0.1,1,'clim'],['lat','Latitude bands',0,4,0.1,1,'clim'],
   ['mtn','Mountains',-0.5,0.5,0.05,0,'shape'],['mth','Mountain height',0.3,1.2,0.05,1,'shape'],['hill','Hilliness',0,3,0.1,1,'shape'],['lakes','Lakes',0,3,0.1,1,'shape'],
   ['riv','How often',0,2.2,0.1,1,'riv'],['rmd','Meandering',0,3,0.1,1,'riv'],['rwd','Wandering',0,3,0.1,1,'riv'],['rwid','Width',0.5,2,0.05,1,'riv'],['rlen','Length',0.3,2.5,0.1,1,'riv'],['rbr','Branching',0,3,0.1,1,'riv'],
-  ['towns','Towns',0.2,1,0.05,1,'set'],['csize','City size',0.6,1.8,0.05,1,'set'],['clu','Clustering',-1,1,0.1,0,'set'],['sites','Country sites',0,3,0.1,1,'set']];
+  ['towns','Towns',0.2,1,0.05,1,'set'],['csize','City size',0.6,1.8,0.05,1,'set'],['clu','Clustering',-1,1,0.1,0,'set'],['sites','Country sites',0,3,0.1,1,'set'],
+  ['ter','Size',0.5,3,0.1,1,'ter'],['tvar','Variety',0,2,0.1,1,'ter']];
 const SEAC={},seaIn={},seaOut={};
 SEA_S.forEach(([k,,lo,hi,st,d])=>SEAC[k]=d);
 const seaFmt=(k,v)=>k==='land'||k==='temp'||k==='rain'||k==='mtn'||k==='clu'?(v>0?'+':'')+v.toFixed(k==='land'||k==='clu'?1:2):'×'+v.toFixed(k==='size'||k==='mth'||k==='rwid'||k==='towns'||k==='csize'?2:1);
@@ -171,15 +177,19 @@ function seaSent(){const o={};let any=false;SEA_S.forEach(([k,,,,,d])=>{if(SEAC[
 function seaQuery(){const o=seaSent();return o?Object.keys(o).map(k=>'&'+k+'='+o[k]).join(''):'';}
 function seaSet(k,v){const s=SEA_S.find(r=>r[0]===k);if(!s||!isFinite(v))return;v=Math.round(Math.max(s[2],Math.min(s[3],v))/s[4])*s[4];SEAC[k]=+v.toFixed(2);}
 let seaT=0;
-function seaRedo(){clearTimeout(seaT);if(NZ.on){seaT=setTimeout(()=>{nzGo(true);urlSet();},120);return;}seaT=setTimeout(()=>start(curSeed),250);}
+function seaRedo(){clearTimeout(seaT);if(NZ.on){seaT=setTimeout(()=>{nzGo(true);urlSet();},120);return;}
+  // (only the territories' settings changed: the same game, told the new ones, and only the territories worked out again)
+  const noTer=t=>{const o=JSON.parse(t||'{}');delete o.ter;delete o.tvar;return JSON.stringify(o);},cur=JSON.stringify(seaSent()||{});
+  if(W&&ready&&W.full&&!W.dirty&&noTer(W.cfgS)===noTer(cur)){seaT=setTimeout(async()=>{const g=gen;W.cfgS=cur;try{await call({op:'cfg',cfg:seaSent()||{}});}catch(e){return;}if(g!==gen)return;terReset();urlSet();draw();pump();},120);return;}
+  seaT=setTimeout(()=>start(curSeed),250);}
 function urlSet(){try{history.replaceState(null,'','?seed='+curSeed+seaQuery()+(NZ.on?'&noise='+NZ.f:''));}catch(e){}}
-const slEl=document.getElementById('sliders'),clSlEl=document.getElementById('clsliders'),shSlEl=document.getElementById('shsliders'),rvSlEl=document.getElementById('rvsliders'),stSlEl=document.getElementById('stsliders');
+const slEl=document.getElementById('sliders'),clSlEl=document.getElementById('clsliders'),shSlEl=document.getElementById('shsliders'),rvSlEl=document.getElementById('rvsliders'),stSlEl=document.getElementById('stsliders'),trSlEl=document.getElementById('trsliders');
 SEA_S.forEach(([k,name,lo,hi,st,,grp])=>{
   const id='sea_'+k,l=document.createElement('label'),i=document.createElement('input'),o=document.createElement('output');
   l.htmlFor=id;l.textContent=name;i.type='range';i.id=id;i.min=lo;i.max=hi;i.step=st;o.htmlFor=id;
   i.oninput=()=>{seaSet(k,+i.value);o.textContent=seaFmt(k,SEAC[k]);if(NZ.on)seaRedo();};
   i.onchange=()=>{i.oninput();seaRedo();};
-  (grp==='clim'?clSlEl:grp==='shape'?shSlEl:grp==='riv'?rvSlEl:grp==='set'?stSlEl:slEl).append(l,i,o);seaIn[k]=i;seaOut[k]=o;
+  (grp==='clim'?clSlEl:grp==='shape'?shSlEl:grp==='riv'?rvSlEl:grp==='set'?stSlEl:grp==='ter'?trSlEl:slEl).append(l,i,o);seaIn[k]=i;seaOut[k]=o;
 });
 function seaShow(){SEA_S.forEach(([k])=>{seaIn[k].value=SEAC[k];seaOut[k].textContent=seaFmt(k,SEAC[k]);});}
 // (each box's Default puts back only its own)
@@ -189,6 +199,7 @@ document.getElementById('climReset').onclick=()=>seaDef('clim');
 document.getElementById('shapeReset').onclick=()=>seaDef('shape');
 document.getElementById('rivReset').onclick=()=>seaDef('riv');
 document.getElementById('setReset').onclick=()=>seaDef('set');
+document.getElementById('terReset').onclick=()=>seaDef('ter');
 
 // ---- view: centre (plots) and scale (CSS pixels a plot) ----
 let dpr=1,vw=0,vh=0,cx=0,cz=0,sc=0.9;
@@ -209,6 +220,7 @@ function landJobs(){const L=landLv(),T=CT<<L,out=[],V=viewTiles(T,64);for(const 
   if(climWanted())for(const [i,j] of V)if(!CLIMT.has(landKey(L,i,j)))out.push({op:'clim',tx:i,tz:j,L});return out;}
 function siteJob(count){let n=0,job=null;
   if(sc>=SITES)for(const [i,j] of viewTiles(CT,64))if(!SITET.has(i+','+j)){n++;if(!job)job={op:'coarse',tx:i,tz:j};if(!count)return job;}
+  if(show.ter&&sc>=TERMIN){const V=viewTiles(terSize(),0);if(V.length<=TERMAX)for(const [i,j] of V)if(!TERT.has(i+','+j)){n++;if(!job)job={op:'ter',tx:i,tz:j};if(!count)return job;}}
   if(sc>=DETAIL)for(const [i,j] of viewTiles(DT,0))if(!DET.has(i+','+j)){n++;if(!job)job={op:'detail',tx:i,tz:j};if(!count)return job;}
   return count?n:job;}
 function pump(){
@@ -222,11 +234,48 @@ function pump(){
   if(!busy&&(landW!==W||!lj.length)){const job=siteJob(false);
     if(job){busy=1;const g=gen,key=job.tx+','+job.tz;
       call(job).then(r=>{if(g!==gen)return;busy=0;take(job.op,key,r,job);draw();pump();},err=>{if(g!==gen)return;busy=0;
-        if(job.op==='coarse')SITET.set(key,true);else DET.set(key,null);console.warn(job.op,key,err);pump();});}}
+        if(job.op==='coarse')SITET.set(key,true);else if(job.op==='ter')TERT.set(key,null);else DET.set(key,null);console.warn(job.op,key,err);pump();});}}
   const left=lj.length+siteJob(true),op=lj.length?'land':sc>=DETAIL&&!siteJob(false)?'':siteJob(false)?siteJob(false).op:'';
-  busyEl.hidden=!left;if(left)busyEl.textContent=(op==='detail'?'Generating detail… ':'Generating the world… ')+left;
+  busyEl.hidden=!left;if(left)busyEl.textContent=(op==='detail'?'Generating detail… ':op==='ter'?'Drawing territories… ':'Generating the world… ')+left;
 }
 function hex(c){const n=parseInt(c.slice(1),16);return [n>>16&255,n>>8&255,n&255];}
+const hslRGB=(h,s,l)=>{const f=n=>{const k=(n+h*12)%12,a=s*Math.min(l,1-l);return Math.round(255*(l-a*Math.max(-1,Math.min(k-3,9-k,1))));};return [f(0),f(8),f(4)];};
+// ---- the territories: each tile's land cells coloured by whose they are, with the borders between them; zoomed further
+// out than TERMIN, or with more than TERMAX tiles in view, they're left out ----
+const TERMIN=0.02,TERMAX=1200,terSize=()=>terTT||SEAC.ter*6*36;
+function terTake(key,r){terTT=r.TT;const N=r.N,cs=r.TT/N,c=document.createElement('canvas');c.width=c.height=N;const x=c.getContext('2d'),im=x.createImageData(N,N);
+  const rgb=r.ids.map(id=>r.info[id]?hslRGB(r.info[id].hue,0.62,0.52):[128,128,128]),seg=[];
+  for(const id of r.ids){const I=r.info[id];if(I&&!TERI.has(id))TERI.set(id,Object.assign({sx:0,sz:0,n:0},I));}
+  for(let j=0;j<N;j++)for(let i=0;i<N;i++){const q=j*N+i,l=r.lab[q];if(!r.land[q]||l===255)continue;const C=rgb[l];im.data[q*4]=C[0];im.data[q*4+1]=C[1];im.data[q*4+2]=C[2];im.data[q*4+3]=255;
+    const e=TERI.get(r.ids[l]);if(e){e.sx+=(r.tx*N+i+.5)*cs;e.sz+=(r.tz*N+j+.5)*cs;e.n++;}
+    // (a border wherever two territories' land meets, within the tile; across its edges once the next tile's in)
+    if(i+1<N&&r.land[q+1]&&r.lab[q+1]!==l)seg.push(i+1,j,i+1,j+1);
+    if(j+1<N&&r.land[q+N]&&r.lab[q+N]!==l)seg.push(i,j+1,i+1,j+1);}
+  x.putImageData(im,0,0);TERT.set(key,{r,c,seg,se:null,ss:null});}
+// (the border along a tile's east or south edge, against the tile there)
+function terEdge(t,u,east){const a=t.r,b=u.r,N=a.N,out=[],id=(R,q)=>R.lab[q]===255?null:R.ids[R.lab[q]];
+  for(let k=0;k<N;k++){const p=east?k*N+N-1:(N-1)*N+k,q=east?k*N:k;if(!a.land[p]||!b.land[q]||id(a,p)===id(b,q))continue;if(east)out.push(N,k,N,k+1);else out.push(k,N,k+1,N);}
+  return out;}
+function terDraw(){const TT=terSize(),V=viewTiles(TT,0);if(V.length>TERMAX)return;
+  ctx.imageSmoothingEnabled=false;ctx.globalAlpha=sc>=DETAIL?0.16:0.34;let N=24;
+  for(const [i,j] of V){const t=TERT.get(i+','+j);if(!t)continue;N=t.r.N;ctx.drawImage(t.c,sx(i*TT),sy(j*TT),TT*sc+.5,TT*sc+.5);}
+  ctx.globalAlpha=1;const cs=TT/N,lw=Math.max(1.4,Math.min(4,cs*sc*0.05));
+  ctx.lineCap='round';ctx.beginPath();
+  for(const [i,j] of V){const t=TERT.get(i+','+j);if(!t)continue;const x0=i*TT,z0=j*TT,L=[t.seg];
+    const e=TERT.get((i+1)+','+j),s2=TERT.get(i+','+(j+1));if(e&&!t.se)t.se=terEdge(t,e,true);if(s2&&!t.ss)t.ss=terEdge(t,s2,false);
+    if(e)L.push(t.se);if(s2)L.push(t.ss);
+    for(const A of L)for(let k=0;k<A.length;k+=4){ctx.moveTo(sx(x0+A[k]*cs),sy(z0+A[k+1]*cs));ctx.lineTo(sx(x0+A[k+2]*cs),sy(z0+A[k+3]*cs));}}
+  ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=lw+2;ctx.stroke();ctx.strokeStyle='rgba(70,18,56,.9)';ctx.lineWidth=lw;ctx.stroke();}
+// (their names over the middle of their land as far as it's come in, where there's room for them: the biggest first, each
+// kept clear of those already placed; the settlements' labels then keep clear of them)
+function terNames(){const TT=terSize();if(viewTiles(TT,0).length>TERMAX)return null;const cs=TT/24,todo=[];
+  const L=[...TERI.values()].filter(e=>e.n&&inV(e.sx/e.n,e.sz/e.n,200)).sort((a,b)=>b.n-a.n);
+  for(const e of L){const ext=Math.sqrt(e.n)*cs*sc,fs=Math.round(Math.max(13,Math.min(28,ext/9)));if(ext<40)continue;
+    const t=e.title.toUpperCase(),f='700 '+fs+'px '+FD,ls=Math.round(fs*0.08);ctx.font=f;try{ctx.letterSpacing=ls+'px';}catch(err){}
+    const w=ctx.measureText(t).width;try{ctx.letterSpacing='0px';}catch(err){}
+    if(w>ext*1.6)continue;const X=sx(e.sx/e.n),Y=sy(e.sz/e.n),b=[X-w/2-2,Y-fs*0.8,X+w/2+2,Y+fs*0.25];if(hit(b))continue;placed.push(b);
+    todo.push(()=>{ctx.save();try{ctx.letterSpacing=ls+'px';}catch(err){}text(t,X,Y,f,'#4a1238','center');ctx.restore();});}
+  return ()=>{for(const f of todo)f();};}
 function paint(N,f){const c=document.createElement('canvas');c.width=c.height=N;const x=c.getContext('2d'),im=x.createImageData(N,N);
   for(let k=0;k<N*N;k++){const [r,g,b]=f(k);im.data[k*4]=r;im.data[k*4+1]=g;im.data[k*4+2]=b;im.data[k*4+3]=255;}x.putImageData(im,0,0);return c;}
 const ZRGB={};for(const k in ZCOL)ZRGB[k]=hex(ZCOL[k]);
@@ -240,6 +289,7 @@ function take(op,key,r,job){
     // when it's off screen)
     for(const o of r.rivers){const R=o.p||o;R.w=o.w||9;let x0=1e9,z0=1e9,x1=-1e9,z1=-1e9,d=0;R.forEach(([x,z],i)=>{x0=Math.min(x0,x);z0=Math.min(z0,z);x1=Math.max(x1,x);z1=Math.max(z1,z);if(i)d+=Math.hypot(x-R[i-1][0],z-R[i-1][1]);});
       R.bb=[x0,z0,x1,z1];R.sp=d/Math.max(1,R.length-1)||1;rivers.push(R);}}
+  else if(op==='ter')terTake(key,r);
   else{for(let i=0;i<r.names.length;i++)ptNames[r.n0+i]=r.names[i];
     const zc=paint(DT,k=>ZRGB[r.zone[k]]||[255,0,255]);
     const pc=paint(DT,k=>{const z=r.zone[k];if(z===1)return ZRGB[1];const n=ptNames[r.pt[k]];if(!n||n==='shore'||n==='basin'||n==='nbasin'||n==='sea'||n==='plains'||!MAPC[n])return ZRGB[z]||[255,0,255];return hex(MAPC[n]);});
@@ -248,9 +298,9 @@ function take(op,key,r,job){
 }
 
 // ---- toggles and key ----
-const show={sets:true,bases:true,navy:true,cv:true,rivers:true,grid:true,shade:false,cont:false};let ground='plots';
+const show={ter:true,sets:true,bases:true,navy:true,cv:true,rivers:true,grid:true,shade:false,cont:false};let ground='plots';
 const climWanted=()=>clim!=='off'||show.shade||show.cont;
-const LAY=[['sets','Settlements','#14141c'],['bases','Military bases',BASEC],['navy','Naval bases',NAVYC],['cv','Carriers',CVC],['rivers','Rivers','#4a86c0'],['grid','Grid','#9aa68f'],['shade','Hill shading','#7d6a55'],['cont','Contours','#8a5a2b']];
+const LAY=[['ter','Territories','#b0508a'],['sets','Settlements','#14141c'],['bases','Military bases',BASEC],['navy','Naval bases',NAVYC],['cv','Carriers',CVC],['rivers','Rivers','#4a86c0'],['grid','Grid','#9aa68f'],['shade','Hill shading','#7d6a55'],['cont','Contours','#8a5a2b']];
 const lay=document.getElementById('layers');
 for(const [k,t,c] of LAY){const b=document.createElement('button');b.className='chip';b.type='button';b.id='lay-'+k;b.setAttribute('aria-pressed',show[k]);b.innerHTML=`<i class="sw" style="background:${c};border-radius:50%"></i>${t}`;b.onclick=()=>{show[k]=!show[k];b.setAttribute('aria-pressed',show[k]);draw();pump();};lay.append(b);}
 const gr=document.getElementById('ground');
@@ -310,15 +360,15 @@ for(const [k,t] of [['off','Off'],['b','Biomes'],['t',CLIMS.t.name],['m',CLIMS.m
 // that's made finer pass by pass (a sample every 16 pixels, then 8, 4 and 2), nothing built worked out. Each pass is a
 // layer drawn at its own place in the world, so panning keeps what's been made; a layer of older settings or another
 // field is dropped once the new one's first pass is in ----
-const NZ={on:false,f:'land',layers:[],tok:0,cg:0,bio:null,ms:0};
-const NZF=[['land','Land'],['t','Temperature'],['m','Moisture'],['bio','Biomes'],['rug','Ruggedness'],['h','Height'],['riv','Rivers'],['town','Towns']];
+const NZ={on:false,f:'land',layers:[],tok:0,cg:0,bio:null,ms:0,ter:[]};
+const NZF=[['land','Land'],['t','Temperature'],['m','Moisture'],['bio','Biomes'],['rug','Ruggedness'],['h','Height'],['riv','Rivers'],['town','Towns'],['ter','Territories']];
 const NZK={land:{ends:['Sea','Land'],grad:'linear-gradient(90deg,#163a66,#5b8cbc 50%,#dfe2a6 50%,#7a9a4c 75%,#3f5a2a)'},
   t:{ends:CLIMS.t.ends,stops:CLIMS.t.stops},m:{ends:CLIMS.m.ends,stops:CLIMS.m.stops},
   rug:{ends:['Flat','Rugged'],stops:['#ece8d4','#cdb27a','#9a6a44','#5a3e38']},
   h:{ends:['Low','High'],stops:HSTOPS.concat(['#8c8a84','#f2f5f7'])},
   riv:{ends:['Rare','Likely'],stops:['#efe9d2','#a9cde3','#4a8cc6','#173f86']},
   town:{ends:['Few','Many'],stops:['#f3efe4','#dccbaa','#c4a676'],cat:[['City','#14141c'],['Large town','#46464f'],['Small town','#8c5020'],['Village','#96782f']]},
-  bio:{}};
+  bio:{},ter:{}};
 for(const k in NZK){const K=NZK[k];if(K.stops)K.rgb=K.stops.map(hex);if(K.cat)K.crgb=K.cat.map(c=>hex(c[1]));}
 const LANDS=['#5b8cbc','#163a66'].map(hex),LANDL=['#dfe2a6','#7a9a4c','#3f5a2a'].map(hex),SEARGB=hex(SEA);
 const rampOf=(S,u)=>{u=Math.max(0,Math.min(1,u));const f=u*(S.length-1),i=Math.min(S.length-2,Math.floor(f)),w=f-i;return [0,1,2].map(c=>Math.round(S[i][c]+(S[i+1][c]-S[i][c])*w));};
@@ -327,6 +377,7 @@ function nzRGB(f,v){
   if(v!==v)return SEARGB;   // (NaN: the sea)
   const K=NZK[f];
   if(f==='bio')return NZ.bio?hex(NZ.bio[v][1]):[128,128,128];
+  if(f==='ter')return NZ.ter[v]?hslRGB(NZ.ter[v][1],0.62,0.55):[128,128,128];
   if(f==='town'&&v<0)return K.crgb[-v-1];
   return rampOf(K.rgb,f==='h'?v/120:f==='riv'?v/0.32:v);}   // (a node's odds of a source are 0.32 at most at the default setting)
 function nzPaint(L,v,j0){const n=v.length/L.nx,x=L.c.getContext('2d'),im=x.createImageData(L.nx,n),D=im.data;
@@ -336,13 +387,15 @@ async function nzGo(fresh){
   if(!NZ.on||!ready)return;NZ.vk=nzView();const t=++NZ.tok;if(fresh)NZ.cg++;const cg=NZ.cg,f=NZ.f,t0=performance.now();
   cv.dataset.nz='';cv.dataset.nzp=0;busyEl.hidden=false;busyEl.textContent='Sharpening…';
   const cur=JSON.stringify(seaSent()||{});
-  if(W.cfgS!==cur){W.cfgS=cur;W.dirty=true;try{await call({op:'cfg',cfg:seaSent()||{}});}catch(e){return;}if(t!==NZ.tok)return;}
+  if(W.cfgS!==cur){W.cfgS=cur;W.dirty=true;NZ.ter=[];try{await call({op:'cfg',cfg:seaSent()||{}});}catch(e){return;}if(t!==NZ.tok)return;}
   const x0=wx(0),z0=wz(0);
   for(const k of [16,8,4,2]){const nx=Math.ceil(vw/k),nz=Math.ceil(vh/k),st=k/sc,c=document.createElement('canvas');c.width=nx;c.height=nz;
     const L={x0,z0,st,nx,nz,cg,f,c,v:new Float32Array(nx*nz),rows:0};NZ.layers.push(L);
     const nj=Math.max(1,Math.floor(6000/nx));
     for(let j0=0;j0<nz;j0+=nj){let r;try{r=await call({op:'noise',f,x0,z0,st,nx,j0,nj:Math.min(nj,nz-j0)});}catch(e){return;}
       if(t!==NZ.tok)return;if(r.bio&&!NZ.bio){NZ.bio=r.bio;nzKeyShow();}
+      if(r.tn)for(let i=0;i<r.tn.length;i++)NZ.ter[r.tn0+i]=r.tn[i];
+      if(r.far){busyEl.textContent='Zoom in to see territories';cv.dataset.nz='far';return;}
       L.v.set(r.v,j0*nx);nzPaint(L,r.v,j0);L.rows=j0+r.v.length/nx;draw();}
     // (what this pass covers no longer needs anything as coarse under it, nor anything of older settings)
     const x1=x0+nx*st,z1=z0+nz*st;
@@ -353,7 +406,7 @@ async function nzGo(fresh){
 function nzRender(){
   // (older settings under newer, and coarse under fine)
   const Ls=NZ.layers.filter(L=>L.rows).sort((a,b)=>a.cg-b.cg||b.st-a.st);
-  for(const L of Ls){ctx.imageSmoothingEnabled=L.f!=='bio'&&L.f!=='town'&&L.f!=='land';
+  for(const L of Ls){ctx.imageSmoothingEnabled=L.f!=='bio'&&L.f!=='town'&&L.f!=='land'&&L.f!=='ter';
     const h=L.rows;ctx.drawImage(L.c,0,0,L.nx,h,sx(L.x0),sy(L.z0),L.nx*L.st*sc,h*L.st*sc);}
   ctx.imageSmoothingEnabled=false;}
 // (what's under the pointer: the finest layer there)
@@ -362,6 +415,7 @@ function nzAt(x,z){let best=null;for(const L of NZ.layers){if(L.f!==NZ.f||L.cg!=
 function nzTxt(v){const f=NZ.f;if(v===null)return '';
   if(f==='land')return v<0?'Sea':'Land';if(v!==v)return 'Sea';
   if(f==='bio')return NZ.bio?esc(NZ.bio[v][0]):'';
+  if(f==='ter')return NZ.ter[v]?esc(NZ.ter[v][0]):'';
   if(f==='town'&&v<0)return NZK.town.cat[-v-1][0];
   if(f==='h')return 'Height '+Math.round(v);
   return esc(NZF.find(q=>q[0]===f)[1])+' '+v.toFixed(2);}
@@ -392,6 +446,8 @@ mk(`<i class="sw" style="background:${BASEC};border:1.5px solid #fff;box-sizing:
 mk(`<svg class="sw" viewBox="0 0 14 14"><polygon points="7,0 14,7 7,14 0,7" fill="${NAVYC}"/></svg>`,'Naval base');
 mk(`<svg class="sw" viewBox="0 0 14 14"><polygon points="0,5 11,5 14,7 11,9 0,9" fill="${CVC}" stroke="#402000"/></svg>`,'Carrier spawn');
 mk(`<svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="#fff" stroke="#b8321f" stroke-width="2.5"/></svg>`,'Spawn point');
+mk(`<svg class="sw" viewBox="0 0 14 14"><circle cx="7" cy="7" r="3" fill="#46464f"/><circle cx="7" cy="7" r="5.6" fill="none" stroke="#8a1f6a" stroke-width="2"/></svg>`,'Territory capital');
+mk(`<svg class="sw" viewBox="0 0 14 14"><rect width="7" height="14" fill="#e0a0c8"/><rect x="7" width="7" height="14" fill="#a8d890"/><line x1="7" y1="0" x2="7" y2="14" stroke="#46123a" stroke-width="2"/></svg>`,'Territory border');
 for(const [t,z] of [['City core',10],['City ring / large town',11],['Suburbs',12],['Small town',13],['Village',14],['Open country',3],['Beach',4],['Shallows',2],['Sea',1],['River',5]])mk(`<i class="sw" style="background:${ZCOL[z]};border-radius:3px"></i>`,t);
 
 // ---- drawing ----
@@ -432,6 +488,7 @@ function render(){
       if(!C&&L0<LMAX){const k=Math.floor(i/2)+','+Math.floor(j/2);if(done.has(k))continue;done.add(k);C=contours(L0+1,Math.floor(i/2),Math.floor(j/2),I);}if(!C)continue;
       for(const [A,w,col] of [[C.thin,1,'rgba(92,58,24,.45)'],[C.bold,1.6,'rgba(92,58,24,.75)']]){if(!A.length)continue;ctx.strokeStyle=col;ctx.lineWidth=w;ctx.beginPath();
         for(let k=0;k<A.length;k+=4){ctx.moveTo(sx(A[k]),sy(A[k+1]));ctx.lineTo(sx(A[k+2]),sy(A[k+3]));}ctx.stroke();}}}
+  if(show.ter&&sc>=TERMIN)terDraw();
   if(sc>=28){ctx.strokeStyle='rgba(0,0,0,.08)';ctx.lineWidth=1;ctx.beginPath();
     for(let x=Math.ceil(wx(0));x<=wx(vw);x++){const X=Math.round(sx(x))+.5;ctx.moveTo(X,0);ctx.lineTo(X,vh);}
     for(let z=Math.ceil(wz(0));z<=wz(vh);z++){const Y=Math.round(sy(z))+.5;ctx.moveTo(0,Y);ctx.lineTo(vw,Y);}ctx.stroke();}
@@ -441,9 +498,12 @@ function render(){
       ctx.lineWidth=Math.max(r.w<RW0()?1:1.5,lw*r.w/9);ctx.beginPath();let on=false;for(let i=0;i<r.length;i+=(i+k<r.length||i===r.length-1?k:r.length-1-i)){const [x,z]=r[i];if(x<x0||x>x1||z<z0||z>z1){on=false;continue;}const X=sx(x),Y=sy(z);on?ctx.lineTo(X,Y):ctx.moveTo(X,Y);on=true;}ctx.stroke();}}
   if(show.grid)gridDraw();
   placed.clear();
+  // (the territories' names claim their room first, and are drawn last, over everything)
+  const terN=show.ter&&sc>=TERMIN?terNames():null;
   spawnDraw();
   // (the settlements' markers have first claim on the space: worked out now, drawn over the rest below; zoomed far out,
   // one that would land on another already placed is left out)
+  const terCapOf=k=>{for(const e of TERI.values())if(e.cap===k)return e;return null;};
   const ORD={city:0,large:1,small:2,village:3},ms=Math.min(1.8,Math.max(1,Math.sqrt(sc/3))),vis=[];
   if(show.sets)for(const s of [...setsAll.values()].filter(s=>(s.cap||sc>=SITES&&sc>=(TYPE[s.type]||TYPE.village).min)&&inV(s.x,s.z,250)).sort((a,b)=>(b.cap?1:0)-(a.cap?1:0)||ORD[a.type]-ORD[b.type]||b.R-a.R)){
     const X=sx(s.x),Y=sy(s.z),r=(TYPE[s.type]||TYPE.village).r*ms*(s.cap?2:1),b=[X-r,Y-r,X+r,Y+r];
@@ -470,11 +530,14 @@ function render(){
     for(const s of vis){const X=sx(s.x),Y=sy(s.z),T=TYPE[s.type]||TYPE.village,r=T.r*ms;
       if(s.cap){star(X,Y,r*2);continue;}
       ctx.beginPath();s.type==='city'?ctx.rect(X-r,Y-r,2*r,2*r):ctx.arc(X,Y,r,0,7);ctx.fillStyle=T.c;ctx.fill();ctx.strokeStyle=selected&&selected.k===s.k?'#ffc800':'#fff';ctx.lineWidth=selected&&selected.k===s.k?3:1.5;ctx.stroke();}
+    // (a territory's capital: a ring round it)
+    if(show.ter)for(const s of vis){const e=terCapOf(s.k);if(!e)continue;const X=sx(s.x),Y=sy(s.z),r=(s.cap?2:1)*(TYPE[s.type]||TYPE.village).r*ms+4;
+      ctx.beginPath();ctx.arc(X,Y,r,0,7);ctx.strokeStyle='#fff';ctx.lineWidth=4;ctx.stroke();ctx.strokeStyle='#8a1f6a';ctx.lineWidth=2;ctx.stroke();}
     const kindOn=sc>=1.6;
     for(const s of vis){const X=sx(s.x),Y=sy(s.z),T=TYPE[s.type]||TYPE.village,r=(s.cap?2:1)*T.r*ms;
       const fs=Math.round((s.cap?22:s.type==='city'?18:s.type==='large'?16:s.type==='small'?14:13)*Math.min(1.35,Math.max(1,sc/12)));
       const nf=`${s.type==='city'||s.type==='large'?700:600} ${fs}px ${FD}`,kf=`500 11px ${FB}`;
-      ctx.font=nf;const nw=ctx.measureText(s.name).width;ctx.font=kf;const kt=s.kind+(s.cap?' · Capital':''),kw=kindOn?ctx.measureText(kt).width:0;
+      ctx.font=nf;const nw=ctx.measureText(s.name).width;ctx.font=kf;const tc=show.ter&&terCapOf(s.k),kt=s.kind+(s.cap?' · Capital':'')+(tc?' · Capital of '+tc.title:''),kw=kindOn?ctx.measureText(kt).width:0;
       const w=Math.max(nw,kw)+4,h=fs+(kindOn?13:0),g=r+5,C=[[X+g,Y-h/2],[X-g-w,Y-h/2],[X-w/2,Y-g-h],[X-w/2,Y+g]];let ok=null;
       for(const [lx,ly] of C){const b=[lx,ly,lx+w,ly+h];if(!hit(b)){ok=b;break;}}
       if(!ok){if(s.cap)ok=[C[0][0],C[0][1],C[0][0]+w,C[0][1]+h];else continue;}
@@ -486,6 +549,7 @@ function render(){
       let w2=1,h2=1;while(a+w2<DT&&d.pt[k+w2]===d.pt[k])w2++;while(b+h2<DT&&d.pt[k+h2*DT]===d.pt[k])h2++;
       const x=i*DT+a+w2/2,z=j*DT+b+h2/2;if(!inV(x,z,40))continue;const t=label(n),X=sx(x),Y=sy(z);
       ctx.font='600 12px '+FB;const w=ctx.measureText(t).width+6,bx=[X-w/2,Y-9,X+w/2,Y+6];if(hit(bx))continue;placed.push(bx);text(t,X,Y+3,'600 12px '+FB,'#2a2416','center');}}}
+  if(terN)terN();
   scaleBar();
 }
 function gridDraw(){let st=1;while(st*sc<160)st*=2;ctx.strokeStyle='rgba(255,255,255,.32)';ctx.lineWidth=1;ctx.beginPath();
@@ -592,7 +656,7 @@ function hover(e){if(!ready)return;const x=wx(e.clientX),z=wz(e.clientY),px=Math
   if(cvn)return show2(`<b>Aircraft carrier spawn</b><br>${coords}`);
   if(base)return show2(`<b>Military base</b><br>${coords}`);
   // (and the ground's height and biome under the pointer, at any zoom)
-  const q=++hq,g=gen,gnd=o=>!o||o.sea?'':`<br>${o.h<0?'Lake':'Height '+o.h}${o.snow?' · snow':o.rock?' · rock':''}${o.tun?' · tunnel':o.cut?' · cutting':''}${o.bio?' · '+esc(o.bio):''}`;
+  const q=++hq,g=gen,gnd=o=>!o||o.sea?'':`<br>${o.h<0?'Lake':'Height '+o.h}${o.snow?' · snow':o.rock?' · rock':''}${o.tun?' · tunnel':o.cut?' · cutting':''}${o.bio?' · '+esc(o.bio):''}${o.ter?'<br>'+esc(o.ter):''}`;
   clearTimeout(hover.t);
   if(sc<DETAIL){const s=nearestSet(e.clientX,e.clientY),top=s?`<b>${esc(s.name)}</b><br><span class="muted">${esc(s.kind)}${s.cap?' · Capital':''}</span><br>`:'';show2(top+coords);
     hover.t=setTimeout(()=>call({op:'pt',x,z}).then(o=>{if(q!==hq||g!==gen)return;show2(top+coords+gnd(o));},()=>{}),40);return;}

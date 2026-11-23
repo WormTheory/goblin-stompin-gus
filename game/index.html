@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:df90b16da3e2b217223b349ceeb95c7ca39446c76d1311a3151bdd55982a108d -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:2357da8288a864fc5be6b7d51bdd7a2e65ea72f74da8e8ec47d210ee1104339c -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1647,6 +1647,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <details class="pn-up pn-fold pn-new" id="version-0-5" open><summary tabindex="0"><h2>Version 0.5</h2><span class="pn-tog" aria-hidden="true"></span></summary>
 <h3>Shape your own world</h3>
 <ul><li>New world now lets you shape the world before it's made, with the World Generator's sliders: Land &amp; sea, Land shape, Rivers and Climate. Left alone, they make the world just as before.</li><li>The settings are saved with the world, so it's made the same way every time you load it, and online friends get the host's world.</li><li>New world and the World Generator have a Settlements group too: Towns (how many places there are), City size (how big cities and large towns grow), Clustering (from evenly spaced to gathered in clumps with open country between) and Country sites (how many farms, bases, airfields, mines, campsites and the like). The seed line says "custom" when a world has settings of its own.</li><li>New world has a Seed box. Leave it empty for a random world, or type a number or any word or phrase: the same seed always makes the same world. The World Generator's seed box takes words too, so a seed tried there makes the same world in the game.</li><li>The World Generator has a Noise view: just the raw maps a world is made from (land and sea, temperature, moisture, biomes, ruggedness, height, where rivers tend to rise, and where towns are likely), drawn in about a second and sharpening as you watch. The sliders change it as you drag them. Switch back to Map for everything that's built.</li></ul>
+<h3>Territories</h3>
+<ul><li>The world is divided into territories now, each made up of many settlements: kingdoms, principalities, duchies, republics, free states, nations, empires, khanates, tribal lands and more, each with a name of its own and a capital.</li><li>Their borders follow the land: coastlines, rivers, lakes and mountain ranges.</li><li>The pause map draws their borders and names over what you've explored, the minimap shows a border you're near, and a banner names the territory you've come into.</li><li>New world and the World Generator have a Territories group: Size (how big territories are on average) and Variety (how much they differ). The World Generator shows them as a layer on the Map, and in the Noise view.</li></ul>
 <h3>The world</h3>
 <ul><li>The world is made of continents and oceans now, about half land and half sea. Before, one side of the world was all ocean and the other all land. Now there are big continents and smaller ones, seas and oceans between them, island chains off their coasts and the odd group of islands far out at sea.</li><li>The sea is shallow over the continental shelf near the coast and deep out in the open ocean.</li><li>Continents have bold, solid coastlines, with big peninsulas, bays and gulfs. Island chains off the coasts are made of whole, rounded islands, with the sea bed rising smoothly round each one.</li><li>You now always start on a continent, never on an island off one.</li><li>The World Generator zooms out more than ten times further, far enough to see whole continents and oceans. Far out it shows just the land, the sea and the capital; settlements, bases and rivers come back as you zoom in, and markers that would pile on top of each other are thinned out.</li><li>The World Generator has Land &amp; sea sliders: how much land there is, how big the continents are, how rough their coastlines, how many ocean channels cut through them and how many island chains lie offshore. The settings go in the page's address, so a world can be shared as you've shaped it. Island size makes the islands in a chain bigger and fewer, with fewer tiny specks between them. The game's own worlds are unchanged.</li><li>This makes a new world, so a saved city starts afresh.</li><li>The World Generator can show the climate over the land, as temperature or moisture: the groundwork for biomes. It doesn't change the game's world yet.</li></ul>
 <h3>Biomes</h3>
@@ -2395,7 +2397,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='eeeec58be208';
+const GAME_VER='0.5',GAME_BUILD='f7120361cffe';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v109'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
 const WORLD_GEN=11;
@@ -2911,6 +2913,7 @@ function placeBannerTick(dt){
   const p=players.find(q=>q.active);if(!p)return;
   if(PB.t>0){PB.t-=dt;if(PB.t<=0&&PB.el)PB.el.classList.remove('on');}
   if(!playing||TENV)return;
+  terBannerTick(p,dt);   // (coming into a territory: ui/map-territories.js)
   const S=settlementAt(Math.floor(p.pos.x/CELL),Math.floor(p.pos.z/CELL))||coastOwner(Math.floor(p.pos.x/CELL),Math.floor(p.pos.z/CELL));
   // (out in the open, a biome's name once you've been in a new one for a few seconds, worked out twice a second from where
   // you really are, a ship's deck included; in a place the biome's only noted, so leaving it into the same biome says nothing)
@@ -3398,11 +3401,11 @@ let OCEAN_O=null,seaDeepK=0,seaIsl=false,seaCcSeed=null;const SEA_CC=new Map();
 // (or the older GSG_SEA) before loading the game; the game itself never changes them, so they're the defaults, which leave
 // every sum exactly as it was. A world made with others keeps them in its save (cfg: only what isn't a default, from
 // worldCfgSent), so a guest online builds it with the host's)
-const WORLD_DEF={land:0,size:1,rough:1,chan:1,isles:1,islz:1,temp:0,rain:0,czone:1,lat:1,mtn:0,mth:1,hill:1,lakes:1,riv:1,rmd:1,rwd:1,rwid:1,rlen:1,rbr:1,towns:1,csize:1,clu:0,sites:1};   // (temp, rain, czone, lat: the climate's, world/climate.js; mtn, mth, hill, lakes: the land's shape, world/relief.js; riv, rmd, rwd, rwid, rlen, rbr: the rivers', world/routes.js; towns, csize, clu: the places, world/places.js; sites: farms and the big sites, world/country-sites.js)
+const WORLD_DEF={land:0,size:1,rough:1,chan:1,isles:1,islz:1,temp:0,rain:0,czone:1,lat:1,mtn:0,mth:1,hill:1,lakes:1,riv:1,rmd:1,rwd:1,rwid:1,rlen:1,rbr:1,towns:1,csize:1,clu:0,sites:1,ter:1,tvar:1};   // (temp, rain, czone, lat: the climate's, world/climate.js; mtn, mth, hill, lakes: the land's shape, world/relief.js; riv, rmd, rwd, rwid, rlen, rbr: the rivers', world/routes.js; towns, csize, clu: the places, world/places.js; sites: farms and the big sites, world/country-sites.js; ter, tvar: the territories' size and how much it varies, world/territories.js)
 const WORLD_CFG=Object.assign({},WORLD_DEF);
 // (sets them from o, anything missing or not a number at its default: only before the world's worked out (loading), as
 // what's been worked out already isn't redone)
-function worldCfgSet(o){for(const k in WORLD_DEF)WORLD_CFG[k]=o&&typeof o[k]==='number'&&isFinite(o[k])?o[k]:WORLD_DEF[k];seaCcSeed=null;clSeed=null;seaPlotC.clear();plotCache.clear();rlfRtC.clear();rlfRvC.clear();rlfRt16.clear();rlfRv16.clear();RLF_AIR.clear();RLF_MAPC.clear();RLF_VC.clear();RLF_VL.clear();if(RIV_H){RIV_H.clear();RIV_LV.clear();}rivCfg();}
+function worldCfgSet(o){for(const k in WORLD_DEF)WORLD_CFG[k]=o&&typeof o[k]==='number'&&isFinite(o[k])?o[k]:WORLD_DEF[k];seaCcSeed=null;clSeed=null;seaPlotC.clear();plotCache.clear();rlfRtC.clear();rlfRvC.clear();rlfRt16.clear();rlfRv16.clear();RLF_AIR.clear();RLF_MAPC.clear();RLF_VC.clear();RLF_VL.clear();if(RIV_H){RIV_H.clear();RIV_LV.clear();}rivCfg();terClear();}
 const worldCfgSent=()=>{let o;for(const k in WORLD_DEF)if(WORLD_CFG[k]!==WORLD_DEF[k])(o=o||{})[k]=WORLD_CFG[k];return o;};
 if(typeof window!=='undefined'&&(window.GSG_WORLD||window.GSG_SEA))worldCfgSet(window.GSG_WORLD||window.GSG_SEA);
 function seaCont(fx,fz){
@@ -6275,6 +6278,144 @@ function seaStack(col,x,z,f){
     if(S.arch){const ax=S.x+S.tx*(S.R+3.5),az=S.z+S.tz*(S.R+3.5),qx=-2*S.tx*(S.R+3.5),qz=-2*S.tz*(S.R+3.5),L2=qx*qx+qz*qz,dx=x+0.5-ax,dz=z+0.5-az,t=Math.max(0,Math.min(1,(dx*qx+dz*qz)/L2)),ox=dx-qx*t,oz=dz-qz*t;
       if(ox*ox+oz*oz<R*R){for(let y=G+S.H-3;y<=G+S.H;y++)col(y,STONE);col(G+S.H,S.cold?SNOW:GRASS);return;}}}
 }
+// ---- territories: the land is divided into realms, each a group of settlements round a capital, with its own name and
+// kind of rule (a kingdom, a principality, a free state...). Worked out on a lattice of territory tiles, TER_N cells a
+// side, each tile TP settlement grid points across (WORLD_CFG.ter scales it; tvar is how much they vary). A tile's biggest
+// place on land is a capital (now and then none: its neighbours share the land), given a head start by tvar; every cell
+// then goes to the capital that can reach it most cheaply (Dijkstra over the cells, the tile and the eight round it):
+// open land is cheap, the sea and lakes dear, a coastline, a river or a stream dearer to cross, and climbing, height and
+// rugged ground dear too, so borders settle along coasts, rivers and mountain ridges. Nothing here touches the world:
+// only hash2 with salts of its own and questions asked of the land, so the world's the same with or without it.
+// Never asked while a chunk is being made (reliefNat shares its working state), only by maps and the banner ----
+var TER=null;   // (a var: worldCfgSet clears it, and coast.js may call that while the page loads, before this file has run)
+function terClear(){TER=null;}
+const TER_N=24;
+// (the sizes: a tile TP grid points across, cells cs plots across; remade when the seed or the settings change)
+function terSt(){
+  if(!TER||TER.seed!==seed){const W=WORLD_CFG,TP=6*W.ter,TT=TP*SET_SP;
+    TER={seed,TP,TT,cs:TT/TER_N,samp:new Map(),seeds:new Map(),tiles:new Map(),info:new Map(),job:null};}
+  return TER;}
+// ---- the land under each cell (per tile): wet 0 land, 1 sea, 2 a lake; its natural height, ruggedness, and the rivers
+// running through it (2 a river, 1 a stream). Sampled a few cells at a time if given a deadline (the banner's warming) ----
+function terSamp(tx,tz,dl){
+  const T=terSt(),k=tx+','+tz;let s=T.samp.get(k);if(s&&s.done)return s;
+  if(!s){s={done:false,n:0,wet:new Uint8Array(TER_N*TER_N),h:new Float32Array(TER_N*TER_N),g:new Float32Array(TER_N*TER_N),riv:new Uint8Array(TER_N*TER_N)};T.samp.set(k,s);}
+  const cs=T.cs,N=TER_N,vo=RLF_VON;
+  // (the river valleys left out of the heights: they'd want every river round about worked out, and the rivers count anyway)
+  RLF_VON=false;
+  try{for(;s.n<N*N;s.n++){if(dl&&(s.n&7)===0&&performance.now()>dl)return null;
+    const q=s.n,px=(tx*N+q%N+0.5)*cs,pz=(tz*N+Math.floor(q/N)+0.5)*cs;
+    if(seaV(px,pz)>SEA_T){s.wet[q]=1;continue;}
+    const X=px*CELL,Z=pz*CELL,h=reliefNat(X,Z);s.g[q]=ruggedAt(X,Z);
+    if(h<-0.9&&RLF.lake>1)s.wet[q]=2;s.h[q]=Math.max(0,h);}}finally{RLF_VON=vo;}
+  // (the rivers: each piece of a line in the tile, marked on the cells it passes through every half a cell. Read straight
+  // from the rivers' index, each piece from the square its first point's in, rather than through riversNearBox, which
+  // sorts out the repeats over so big a box far more slowly)
+  const X0=tx*N*cs*CELL,Z0=tz*N*cs*CELL,cb=cs*CELL,X1=X0+N*cb,Z1=Z0+N*cb;
+  for(let x=X0;x<=X1+511;x+=512)for(let z=Z0;z<=Z1+511;z+=512)ensureRivers(Math.min(x,X1),Math.min(z,Z1));
+  for(let bx=Math.floor(X0/RT_B)-1;bx<=Math.floor(X1/RT_B)+1;bx++)for(let bz=Math.floor(Z0/RT_B)-1;bz<=Math.floor(Z1/RT_B)+1;bz++){const l=rvIdx.get(bx*100003+bz);if(!l)continue;
+    for(let q=0;q<l.length;q+=2){const R=l[q],i=l[q+1],a=R.pts[i],b=R.pts[i+1];if(!b||Math.floor(a[0]/RT_B)!==bx||Math.floor(a[1]/RT_B)!==bz)continue;
+      const v=R.trib?1:2,dx=b[0]-a[0],dz=b[1]-a[1],n=Math.max(1,Math.ceil(Math.sqrt(dx*dx+dz*dz)/(cb*0.5)));
+      for(let t=0;t<=n;t++){const ci=Math.floor((a[0]+dx*t/n-X0)/cb),cj=Math.floor((a[1]+dz*t/n-Z0)/cb);if(ci<0||cj<0||ci>=N||cj>=N)continue;const c=cj*N+ci;if(s.riv[c]<v)s.riv[c]=v;}}}
+  s.done=true;return s;}
+// ---- a tile's capital, or null: its biggest place on land (by type, then by hash2), unless the tile's left without one
+// (more often the more the sizes vary). off is its head start, in cells' worth of cost ----
+const TER_RANK={city:3,large:2,small:1,village:0};
+function terSeed(tx,tz){
+  const T=terSt(),k=tx+','+tz;let v=T.seeds.get(k);if(v!==undefined)return v;v=null;
+  const W=WORLD_CFG,h=i=>hash2(tx*7919+i*101+4513,tz*6271+i*37+3301),TT=T.TT;
+  if(h(1)>=0.18*W.tvar){let best=null,bs=-1;
+    for(let rx=Math.floor(tx*T.TP)-1;rx<=Math.ceil((tx+1)*T.TP)+1;rx++)for(let rz=Math.floor(tz*T.TP)-1;rz<=Math.ceil((tz+1)*T.TP)+1;rz++){
+      const S=settlementLat(rx,rz);if(S.none||S.cx<tx*TT||S.cx>=(tx+1)*TT||S.cz<tz*TT||S.cz>=(tz+1)*TT||seaV(S.cx+0.5,S.cz+0.5)>SEA_T)continue;
+      const sc=TER_RANK[S.type]+hash2(rx*313+77,rz*571+19)*0.9;if(sc>bs){bs=sc;best=S;}}
+    if(best)v={id:k,tx,tz,S:best,ci:Math.floor((best.cx+0.5)/T.cs),cj:Math.floor((best.cz+0.5)/T.cs),off:(h(2)-0.5)*2*W.tvar*TER_N*0.3};}
+  T.seeds.set(k,v);return v;}
+// ---- the cells round tile (tx,tz) (it and the eight round it, M a side from its corner (x0,z0)) shared out among the
+// capitals given: each to the one it costs least to reach. own is an index into seeds per cell, -1 none ----
+function terRun(tx,tz,seeds){
+  const N=TER_N,M=N*3,n=M*M,wet=new Uint8Array(n),hh=new Float32Array(n),gg=new Float32Array(n),rv=new Uint8Array(n);
+  for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const s=terSamp(tx+a,tz+b),o=(b+1)*N*M+(a+1)*N;
+    for(let j=0;j<N;j++)for(let i=0;i<N;i++){const q=j*N+i,w=o+j*M+i;wet[w]=s.wet[q];hh[w]=s.h[q];gg[w]=s.g[q];rv[w]=s.riv[q];}}
+  const dist=new Float64Array(n).fill(Infinity),own=new Int16Array(n).fill(-1),x0=(tx-1)*N,z0=(tz-1)*N;
+  // (a binary heap of cells by cost, ties by index, so it comes out the same everywhere)
+  const H=[],less=(p,q)=>dist[p]<dist[q]||dist[p]===dist[q]&&p<q;
+  const push=c=>{H.push(c);let i=H.length-1;while(i){const pi=(i-1)>>1;if(!less(H[i],H[pi]))break;[H[i],H[pi]]=[H[pi],H[i]];i=pi;}};
+  const pop=()=>{const t=H[0],l=H.pop();if(H.length){H[0]=l;let i=0;for(;;){const a=2*i+1,b=a+1;let m=i;if(a<H.length&&less(H[a],H[m]))m=a;if(b<H.length&&less(H[b],H[m]))m=b;if(m===i)break;[H[i],H[m]]=[H[m],H[i]];i=m;}}return t;};
+  seeds.forEach((S,si)=>{const i=S.ci-x0,j=S.cj-z0;if(i<0||j<0||i>=M||j>=M)return;const c=j*M+i;if(-S.off<dist[c]){dist[c]=-S.off;own[c]=si;push(c);}});
+  const done=new Uint8Array(n),D8=[[1,0,1],[-1,0,1],[0,1,1],[0,-1,1],[1,1,1.4142],[1,-1,1.4142],[-1,1,1.4142],[-1,-1,1.4142]];
+  while(H.length){const c=pop();if(done[c])continue;done[c]=1;const ci=c%M,cj=(c-ci)/M,ha=hh[c],wa=wet[c];
+    for(const [dx,dz,L] of D8){const i=ci+dx,j=cj+dz;if(i<0||j<0||i>=M||j>=M)continue;const e=j*M+i;if(done[e])continue;
+      const we=wet[e],he=hh[e],ge=gg[e];
+      let w=we===1?10*L:we===2?6*L:L*(1+he/60+2.5*ge*ge);   // (open land cheap; the sea, lakes, height and rugged ground dear)
+      if(we!==wa)w+=we===1||wa===1?8:4;   // (a coastline, or a lakeshore)
+      if(rv[e]&&!rv[c])w+=rv[e]===2?9:4;   // (across a river or a stream)
+      w+=0.12*Math.abs(he-ha);   // (climbing or dropping)
+      const d=dist[c]+w;if(d<dist[e]){dist[e]=d;own[e]=own[c];push(e);}}}
+  return {own,x0,z0,M};}
+// (a capital only stands if, shared out with every other capital round it, it gets at least two places: one alone on
+// an island, or crowded out by its neighbours, isn't one, and its land goes to them)
+function terSeedOK(S){
+  if(S.ok!==undefined)return S.ok;const T=terSt(),seeds=[];
+  for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const Q=terSeed(S.tx+a,S.tz+b);if(Q)seeds.push(Q);}
+  const R=terRun(S.tx,S.tz,seeds),me=seeds.indexOf(S),cs=T.cs;let n=0;
+  for(let rx=Math.floor((S.tx-1)*T.TP)-1;rx<=Math.ceil((S.tx+2)*T.TP)+1&&n<2;rx++)for(let rz=Math.floor((S.tz-1)*T.TP)-1;rz<=Math.ceil((S.tz+2)*T.TP)+1&&n<2;rz++){
+    const P=settlementLat(rx,rz);if(P.none||seaV(P.cx+0.5,P.cz+0.5)>SEA_T)continue;
+    const i=Math.floor((P.cx+0.5)/cs)-R.x0,j=Math.floor((P.cz+0.5)/cs)-R.z0;if(i<0||j<0||i>=R.M||j>=R.M)continue;if(R.own[j*R.M+i]===me)n++;}
+  return S.ok=n>=2;}
+// ---- whose each cell of a tile is: ids (the capitals' tile keys) and lab (an index into ids per cell, 255 none) ----
+function terTile(tx,tz){
+  const T=terSt(),k=tx+','+tz;let r=T.tiles.get(k);if(r)return r;
+  const N=TER_N,seeds=[];
+  for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const S=terSeed(tx+a,tz+b);if(S&&terSeedOK(S))seeds.push(S);}
+  const ids=[],lab=new Uint8Array(N*N).fill(255);
+  if(seeds.length){const R=terRun(tx,tz,seeds);
+    for(let j=0;j<N;j++)for(let i=0;i<N;i++){const o=R.own[(j+N)*R.M+i+N];if(o<0)continue;const id=seeds[o].id;let x=ids.indexOf(id);if(x<0){x=ids.length;ids.push(id);}lab[j*N+i]=x;}}
+  else{   // (no capital anywhere near, far out at sea: the nearest one further off has it all)
+    let best=null,bd=1e9;for(let d=2;d<=4&&!best;d++)for(let a=-d;a<=d;a++)for(let b=-d;b<=d;b++){if(Math.max(Math.abs(a),Math.abs(b))!==d)continue;const S=terSeed(tx+a,tz+b);if(S&&a*a+b*b<bd&&terSeedOK(S)){bd=a*a+b*b;best=S;}}
+    if(best){ids.push(best.id);lab.fill(0);}}
+  const land=new Uint8Array(N*N);{const s=terSamp(tx,tz);for(let q=0;q<N*N;q++)land[q]=s.wet[q]===0?1:0;}
+  r={tx,tz,ids,lab,land};T.tiles.set(k,r);
+  if(T.tiles.size>1500)T.tiles.delete(T.tiles.keys().next().value);
+  return r;}
+// (whose cell (ix,iz) is: the territory's id, or null; terPeekCell only answers from tiles already worked out, and
+// undefined for the rest, so per-frame code never works one out)
+function terCell(ix,iz){const tx=Math.floor(ix/TER_N),tz=Math.floor(iz/TER_N),R=terTile(tx,tz),l=R.lab[(iz-tz*TER_N)*TER_N+ix-tx*TER_N];return l===255?null:R.ids[l];}
+function terPeekCell(ix,iz){const T=terSt(),tx=Math.floor(ix/TER_N),tz=Math.floor(iz/TER_N),R=T.tiles.get(tx+','+tz);if(!R)return undefined;const l=R.lab[(iz-tz*TER_N)*TER_N+ix-tx*TER_N];return l===255?null:R.ids[l];}
+// (whose plot (px,pz) is, and a settlement's: its middle's)
+const terCellOf=(px,pz)=>{const cs=terSt().cs;return [Math.floor((px+0.5)/cs),Math.floor((pz+0.5)/cs)];};
+function terAt(px,pz){const [i,j]=terCellOf(px,pz);return terCell(i,j);}
+const terOfSet=S=>terAt(S.cx,S.cz);
+// ---- names: goblin-ish bits, as places get (setName), with a realm's ending. The two halves step through their lists
+// along the lattice (by sums the seed shifts), so no two territories within a dozen tiles share a name; one that's a
+// place's name nearby takes the next ending. The kind of rule is picked by weight, and says how the whole title goes ----
+const TER_SUF=['land','ia','mark','shire','reach','march','vania','wold','fen','moor','dale','mire','gard','holm','stan','ovia','ania','realm','heath','marsh','combe','field','hollow','worth','borough'];
+const TER_SOV=[['Kingdom',14,'Kingdom of #'],['Principality',8,'Principality of #'],['Duchy',8,'Duchy of #'],['Grand Duchy',4,'Grand Duchy of #'],['Republic',11,'Republic of #'],
+  ['Free State',5,'Free State of #'],['Nation',6,'# Nation'],['Empire',4,'# Empire'],['Commonwealth',5,'Commonwealth of #'],['Confederacy',4,'# Confederacy'],['Federation',4,'Federation of #'],
+  ['Theocracy',3,'Theocracy of #'],['Tribal Lands',6,'# Tribal Lands'],['Khanate',4,'Khanate of #'],['Chiefdom',6,'Chiefdom of #'],['Dominion',4,'Dominion of #'],['Horde',3,'The # Horde']];
+const TER_SOVW=TER_SOV.reduce((s,r)=>s+r[1],0);
+function terBase(tx,tz,i){const m=(v,n)=>(v%n+n)%n,c1=Math.floor(hash2(5501,7717)*50),c2=Math.floor(hash2(8807,3323)*25);
+  return NM_A[m(tx*7+tz*17+c1+Math.floor(i/25),NM_A.length)]+TER_SUF[m(tx*3+tz*11+c2+i,TER_SUF.length)];}
+function terInfo(id){
+  if(id==null)return null;const T=terSt();let o=T.info.get(id);if(o)return o;
+  const [tx,tz]=id.split(',').map(Number),S=terSeed(tx,tz);if(!S||!terSeedOK(S))return null;
+  // (names already taken: the places round about)
+  const taken=new Set();
+  for(let rx=Math.floor((tx-2)*T.TP);rx<=Math.ceil((tx+3)*T.TP);rx++)for(let rz=Math.floor((tz-2)*T.TP);rz<=Math.ceil((tz+3)*T.TP);rz++){const P=settlementLat(rx,rz);if(!P.none)taken.add(setName(P));}
+  let name=terBase(tx,tz,0);for(let i=1;i<50&&taken.has(name);i++)name=terBase(tx,tz,i);
+  let w=hash2(tx*4421+9,tz*3301+17)*TER_SOVW,sv=TER_SOV[0];for(const r of TER_SOV){if(w<r[1]){sv=r;break;}w-=r[1];}
+  // (a colour of its own, the golden ratio along the lattice so neighbours differ)
+  const hue=((tx*0.381966+tz*0.618034+hash2(tx*97+3,tz*89+5)*0.15)%1+1)%1;
+  o={id,tx,tz,cap:S.S,name,sov:sv[0],title:sv[2].replace('#',name),hue};T.info.set(id,o);return o;}
+// ---- warming: the cells round a tile sampled a little at a time (ms a call), then the tile worked out, so per-frame
+// code and the pause map never work out a whole tile in one frame. terWarm gives the territory at a plot once known
+// (undefined till then); terLook a cell's from what's worked out already: its id, null for none, false over water ----
+function terWarmTile(tx,tz,ms){
+  const T=terSt();if(T.tiles.has(tx+','+tz))return true;const dl=performance.now()+ms;
+  for(let d=0;d<=2;d++)for(let a=-d;a<=d;a++)for(let b=-d;b<=d;b++)if(Math.max(Math.abs(a),Math.abs(b))===d&&!terSamp(tx+a,tz+b,dl))return false;
+  if(performance.now()>dl)return false;terTile(tx,tz);return true;}
+function terWarm(px,pz,ms){const [ix,iz]=terCellOf(px,pz);if(!terWarmTile(Math.floor(ix/TER_N),Math.floor(iz/TER_N),ms))return undefined;return terPeekCell(ix,iz);}
+function terLook(ix,iz){const T=terSt(),tx=Math.floor(ix/TER_N),tz=Math.floor(iz/TER_N),R=T.tiles.get(tx+','+tz);if(!R)return undefined;
+  const q=(iz-tz*TER_N)*TER_N+ix-tx*TER_N,l=R.lab[q];return R.land[q]?(l===255?null:R.ids[l]):false;}
 // ---- flying sites: the big airport (16 x 8 blocks) and the country airfield (4 x 2). Their ground, laid out in the site's
 // own coordinates (U along x, V along z, from the site's corner), and the buildings on it (airportBuildings,
 // airfieldBuildings: city-plan.js adds the ones that fall on each block). Their planes are in vehicles/airfields.js ----
@@ -19373,6 +19514,8 @@ function renderMap(){
     if(HL){x.fillStyle='rgba(8,10,14,0.74)';x.fillRect(0,0,w,h);
       for(const [a,b,ww,hh,col] of hits){x.fillStyle=col;x.fillRect(a,b,ww,hh);}
       x.strokeStyle='#ffe27a';x.lineWidth=1.2;for(const [a,b,ww,hh] of hits)x.strokeRect(a+0.5,b+0.5,Math.max(1,ww-1),Math.max(1,hh-1));}}
+  // the territories' borders and names (ui/map-territories.js)
+  if(!HL&&mapTerDraw(x,w,h,k,X,Z))more=true;
   // the places you've found: each one's name over its middle, and how much of it you've destroyed
   {x.textAlign='center';x.textBaseline='middle';x.lineJoin='round';
    for(const S of knownSets.values()){const sx=X(S.cx*CELL+CELL/2),sz=Z(S.cz*CELL+CELL/2);if(sx<-120||sx>w+120||sz<-40||sz>h+40)continue;
@@ -19435,6 +19578,59 @@ function showTab(which){
   menuMode();
 }
 const tabIndex=()=>TABS.findIndex(t=>t[0]===curTab);
+// ---- territories on the maps (world/territories.js): on the pause map, their borders across what you've explored and
+// each one's name over the middle of the part of it you've seen; on the minimap, a border you're near; and a banner
+// naming the territory you've come into. Only tiles already worked out are drawn: the map warms the rest a few
+// milliseconds a frame, and the banner the one you're in, so nothing ever works out a whole tile in one frame ----
+const TMAP={T:null,n:-1,cells:null};
+// (the territory cells you've explored any of, remade when you've explored more or the territories are new)
+function terExplored(){const T=terSt();if(TMAP.T===T&&TMAP.n===explored.size)return TMAP.cells;
+  const m=new Map();for(const k of explored){const c=k.indexOf(','),[i,j]=terCellOf(+k.slice(0,c),+k.slice(c+1));m.set(i+','+j,[i,j]);}
+  TMAP.T=T;TMAP.n=explored.size;TMAP.cells=m;return m;}
+// (k pixels a block, X and Z a block's place on the canvas; true while tiles are still to be worked out)
+function mapTerDraw(x,w,h,k,X,Z){
+  if(TENV||!explored.size||!x.setLineDash)return false;const C=terExplored(),cb=terSt().cs*CELL,t0=performance.now();let more=false;
+  const vis=[];for(const [key,c] of C){const a=X(c[0]*cb),b=Z(c[1]*cb);if(a>w+20||b>h+20||a+cb*k<-20||b+cb*k<-20)continue;vis.push(key,c);}
+  // (the tiles under what's in view, a few milliseconds' worth a frame)
+  for(let q=0;q<vis.length;q+=2){const c=vis[q+1],tx=Math.floor(c[0]/TER_N),tz=Math.floor(c[1]/TER_N);
+    for(const [a,b] of [[0,0],[1,0],[-1,0],[0,1],[0,-1]]){if(terSt().tiles.has((tx+a)+','+(tz+b)))continue;
+      const ms=10-(performance.now()-t0);if(ms<=0||!terWarmTile(tx+a,tz+b,ms)){more=true;break;}}}
+  // the borders: between two territories' land, along each side of an explored cell (once, if both sides are explored)
+  const seg=[],names=new Map();
+  for(let q=0;q<vis.length;q+=2){const [i,j]=vis[q+1],me=terLook(i,j);if(!me)continue;
+    let N=names.get(me);if(!N)names.set(me,N={x:0,z:0,n:0});N.x+=(i+0.5)*cb;N.z+=(j+0.5)*cb;N.n++;
+    for(const [di,dj] of [[1,0],[0,1],[-1,0],[0,-1]]){if((di<0||dj<0)&&C.has((i+di)+','+(j+dj)))continue;const o=terLook(i+di,j+dj);if(!o||o===me)continue;
+      const x0=(di>0?i+1:i)*cb,z0=(dj>0?j+1:j)*cb;seg.push(X(x0),Z(z0),X(di?x0:x0+cb),Z(dj?z0:z0+cb));}}
+  if(seg.length){x.lineCap='round';x.beginPath();for(let q=0;q<seg.length;q+=4){x.moveTo(seg[q],seg[q+1]);x.lineTo(seg[q+2],seg[q+3]);}
+    x.strokeStyle='rgba(10,4,14,.75)';x.lineWidth=5;x.stroke();x.setLineDash([9,6]);x.strokeStyle='#e7b8ff';x.lineWidth=2.4;x.stroke();x.setLineDash([]);}
+  // the names, over the middle of what you've seen of each (under the places' names, which are drawn after)
+  x.textAlign='center';x.textBaseline='middle';x.lineJoin='round';
+  for(const [id,N] of names){const I=terInfo(id);if(!I)continue;const sx=X(N.x/N.n),sz=Z(N.z/N.n);if(sx<-200||sx>w+200||sz<-30||sz>h+30)continue;
+    x.font='800 17px "Atkinson Hyperlegible Next", system-ui, sans-serif';try{x.letterSpacing='2px';}catch(e){}
+    const t=I.title.toUpperCase();x.lineWidth=4;x.strokeStyle='rgba(10,4,14,.85)';x.strokeText(t,sx,sz+34);x.fillStyle='#e7b8ff';x.fillText(t,sx,sz+34);try{x.letterSpacing='0px';}catch(e){}}
+  x.textAlign='start';x.textBaseline='alphabetic';
+  return more;}
+// (the minimap, drawn in blocks through its turning transform: borders of the cells round you that are worked out)
+function miniTerDraw(x,px,pz,R){
+  if(TENV||!x.setLineDash)return;const cb=terSt().cs*CELL,i0=Math.floor((px-R)/cb),i1=Math.floor((px+R)/cb),j0=Math.floor((pz-R)/cb),j1=Math.floor((pz+R)/cb);let any=false;
+  x.beginPath();
+  for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const me=terLook(i,j);if(!me)continue;
+    const o1=terLook(i+1,j),o2=terLook(i,j+1);
+    if(o1&&o1!==me){x.moveTo((i+1)*cb,j*cb);x.lineTo((i+1)*cb,(j+1)*cb);any=true;}
+    if(o2&&o2!==me){x.moveTo(i*cb,(j+1)*cb);x.lineTo((i+1)*cb,(j+1)*cb);any=true;}
+    const o3=i===i0?terLook(i-1,j):null,o4=j===j0?terLook(i,j-1):null;
+    if(o3&&o3!==me){x.moveTo(i*cb,j*cb);x.lineTo(i*cb,(j+1)*cb);any=true;}
+    if(o4&&o4!==me){x.moveTo(i*cb,j*cb);x.lineTo((i+1)*cb,j*cb);any=true;}}
+  if(any){x.strokeStyle='rgba(10,4,14,.7)';x.lineWidth=5;x.stroke();x.setLineDash([7,5]);x.strokeStyle='#e7b8ff';x.lineWidth=2.4;x.stroke();x.setLineDash([]);}}
+// (the banner: a territory's name once you've been in it a couple of seconds, after any place's banner; warming the tile
+// you're in a millisecond and a half a frame till it's known)
+const PBT={id:undefined,c:null,t:0};
+function terBannerTick(p,dt){
+  if(TENV)return;const px=Math.floor(pwx(p)/CELL),pz=Math.floor(pwz(p)/CELL),id=terWarm(px,pz,1.5);
+  if(!id)return;if(id===PBT.id){PBT.t=0;return;}
+  if(id!==PBT.c){PBT.c=id;PBT.t=0;}PBT.t+=dt;
+  if(PBT.t<2||PB.t>0||!pbEl())return;const I=terInfo(id);if(!I)return;
+  PBT.id=id;PB.el.innerHTML='<div class="pn">'+I.title+'</div><div class="pk">Capital: '+setName(I.cap)+'</div>';PB.el.classList.add('on');PB.t=3.6;}
 // ---- recording a move: a spare copy of Gus (never in the players list) performs it in a sandbox: block lookups see a
 // flat empty field far from anything, and sounds, effects and smashing are switched off, with every hit volume recorded
 // instead. Each frame of the run is recorded (every part of the model). The editor's Hippo tab plays these back
@@ -31177,6 +31373,7 @@ function updateMinimap(p,dt){
    const L=routesNearBox(X0,Z0,X1,Z1);draw(L,R=>R.kind==='country','#5b5f63',14);draw(L,R=>R.kind==='moto','#7a7f86',14);}
   {const RG=ruinGrid(c0x,c1x,c0z,c1z,null);if(RG.cells.length){x.fillStyle=ruinPat(x,4);for(const [a,b,c,d] of RG.cells)x.fillRect(a,b,c-a,d-b);
     x.strokeStyle='#e0503c';x.lineWidth=0.7;x.beginPath();for(const [a,b,c,d] of RG.edges){x.moveTo(a,b);x.lineTo(c,d);}x.stroke();}}
+  miniTerDraw(x,px,pz,R);   // (a territory's border, if you're near one: ui/map-territories.js)
   x.setTransform(1,0,0,1,0,0);
   const dot=(wx,wz,col,r)=>{const [sx,sy]=toS(wx,wz);if(Math.hypot(sx-C,sy-C)>RAD)return;x.fillStyle=col;x.beginPath();x.arc(sx,sy,r,0,Math.PI*2);x.fill();x.strokeStyle='rgba(0,0,0,.55)';x.lineWidth=1;x.stroke();};
   for(const c of cars)if(c.alive&&(c.hunter||c.svcPool==='police'))dot(c.pos.x,c.pos.z,'#ff3b30',3.6);
@@ -34345,16 +34542,17 @@ const confirmEl=document.getElementById('confirm');
  const can=document.fullscreenEnabled||document.webkitFullscreenEnabled;if(!can)for(const fb of fbs)fb.hidden=true;
  for(const fb of fbs)fb.addEventListener('click',()=>{try{if(fsEl()){(document.exitFullscreen||document.webkitExitFullscreen).call(document);}else{const el=document.documentElement,rq=el.requestFullscreen||el.webkitRequestFullscreen;const pr=rq&&rq.call(el);if(pr&&pr.catch)pr.catch(()=>{});}}catch(e){}});
  document.addEventListener('fullscreenchange',()=>{showFs();setTimeout(()=>{try{resize();}catch(e){}},50);});document.addEventListener('webkitfullscreenchange',showFs);showFs();}
-// ---- New world's settings: the World Generator's sliders (its Land & sea, Land shape, Rivers, Climate and Settlements boxes), in
+// ---- New world's settings: the World Generator's sliders (its Land & sea, Land shape, Rivers, Climate, Settlements and Territories boxes), in
 // WORLD_CFG's terms, so the defaults make the world exactly as before. Each range is as far as the World Generator's (as far
 // as the start can still always be found inland with a coast in reach). They go in the save (cfg, worldCfgSent), so the
 // world is made the same way whenever it's loaded, and online a guest's is the host's ----
-const NW_GROUPS=[['sea','Land & sea'],['shape','Land shape'],['riv','Rivers'],['clim','Climate'],['set','Settlements']];
+const NW_GROUPS=[['sea','Land & sea'],['shape','Land shape'],['riv','Rivers'],['clim','Climate'],['set','Settlements'],['ter','Territories']];
 const NW_SL=[['land','Land',-2.5,2.5,0.1,'sea'],['size','Continent size',0.4,1.8,0.05,'sea'],['rough','Coastline roughness',0,2.5,0.1,'sea'],['chan','Ocean channels',0,2.5,0.1,'sea'],['isles','Island chains',0,3,0.1,'sea'],['islz','Island size',0.6,3,0.1,'sea'],
   ['mtn','Mountains',-0.5,0.5,0.05,'shape'],['mth','Mountain height',0.3,1.2,0.05,'shape'],['hill','Hilliness',0,3,0.1,'shape'],['lakes','Lakes',0,3,0.1,'shape'],
   ['riv','How often',0,2.2,0.1,'riv'],['rmd','Meandering',0,3,0.1,'riv'],['rwd','Wandering',0,3,0.1,'riv'],['rwid','Width',0.5,2,0.05,'riv'],['rlen','Length',0.3,2.5,0.1,'riv'],['rbr','Branching',0,3,0.1,'riv'],
   ['temp','Temperature',-0.4,0.4,0.02,'clim'],['rain','Rainfall',-0.4,0.4,0.02,'clim'],['czone','Climate zone size',0.4,2.5,0.1,'clim'],['lat','Latitude bands',0,4,0.1,'clim'],
-  ['towns','Towns',0.2,1,0.05,'set'],['csize','City size',0.6,1.8,0.05,'set'],['clu','Clustering',-1,1,0.1,'set'],['sites','Country sites',0,3,0.1,'set']];
+  ['towns','Towns',0.2,1,0.05,'set'],['csize','City size',0.6,1.8,0.05,'set'],['clu','Clustering',-1,1,0.1,'set'],['sites','Country sites',0,3,0.1,'set'],
+  ['ter','Size',0.5,3,0.1,'ter'],['tvar','Variety',0,2,0.1,'ter']];
 const NW={v:Object.assign({},WORLD_DEF),inp:{},out:{},hd:{},box:{}};
 const nwFmt=(k,v)=>k==='land'||k==='temp'||k==='rain'||k==='mtn'||k==='clu'?(v>0?'+':v<0?'−':'')+Math.abs(v).toFixed(k==='land'||k==='clu'?1:2):'×'+v.toFixed(k==='size'||k==='mth'||k==='rwid'||k==='towns'||k==='csize'?2:1);
 // (only what isn't a default, as the save keeps it; undefined for the world as it's always been)

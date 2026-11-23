@@ -10,6 +10,13 @@
 - New world has a Seed box. Leave it empty for a random world, or type a number or any word or phrase: the same seed always makes the same world. The World Generator's seed box takes words too, so a seed tried there makes the same world in the game.
 - The World Generator has a Noise view: just the raw maps a world is made from (land and sea, temperature, moisture, biomes, ruggedness, height, where rivers tend to rise, and where towns are likely), drawn in about a second and sharpening as you watch. The sliders change it as you drag them. Switch back to Map for everything that's built.
 
+### Territories
+
+- The world is divided into territories now, each made up of many settlements: kingdoms, principalities, duchies, republics, free states, nations, empires, khanates, tribal lands and more, each with a name of its own and a capital.
+- Their borders follow the land: coastlines, rivers, lakes and mountain ranges.
+- The pause map draws their borders and names over what you've explored, the minimap shows a border you're near, and a banner names the territory you've come into.
+- New world and the World Generator have a Territories group: Size (how big territories are on average) and Variety (how much they differ). The World Generator shows them as a layer on the Map, and in the Noise view.
+
 ### The world
 
 - The world is made of continents and oceans now, about half land and half sea. Before, one side of the world was all ocean and the other all land. Now there are big continents and smaller ones, seas and oceans between them, island chains off their coasts and the odd group of islands far out at sea.
