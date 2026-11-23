@@ -45,6 +45,27 @@ const BIOMES=[
   {k:'alpine',n:'Alpine',map:'#a4a29c',top:STONE,sub:STONE,grass:[1.3,0.95,1.4],leaf:[1.1,0.95,1.1],trees:[],sc:0,dn:0,wood:-2,pond:0,bush:0,flower:0,rock:0.02}
 ];
 const BIO_I={};BIOMES.forEach((B,i)=>{BIO_I[B.k]=i;B.i=i;});
+// towns by biome (plan section 8): dn, how many steps smaller a place is (as ruggedness steps it down: a city becomes a
+// large town and so on); w the houses' walls and sw the little shops'; rk how steep the houses' gable roofs are (rise a
+// step: 1 is the old 45 degrees, steeper in snowy country so the snow slides off), 0 a flat roof (the desert's adobe).
+// A biome with none builds as before (so the start's grassland does)
+const BIO_TOWN={
+  ice:{dn:2,w:[PLANKS,LOG,SIDING,PAINT_RED],sw:[PLANKS,SIDING,PAINT_RED],rk:1.5},
+  tundra:{dn:1,w:[PLANKS,LOG,SIDING,PAINT_RED],sw:[PLANKS,SIDING,BRICK],rk:1.5},
+  taiga:{dn:0,w:[LOG,PLANKS,LOG,SIDING],sw:[PLANKS,BRICK,SIDING],rk:1.5},
+  desert:{dn:1,w:[STUCCO,STUCCO,SANDSTONE,STUCCO],sw:[STUCCO,SANDSTONE,STUCCO,CONCRETE],rk:0},
+  badlands:{dn:1,w:[STUCCO,TERRA,SANDSTONE,STUCCO],sw:[STUCCO,TERRA,SANDSTONE],rk:0},
+  scrub:{dn:0,w:[STUCCO,SIDING_Y,STUCCO,BRICK],sw:[STUCCO,BRICK,SIDING_Y],rk:0},
+  savanna:{dn:0,w:[STUCCO,PLANKS,STUCCO,SIDING_Y],sw:[STUCCO,PLANKS,BRICK],rk:0},
+  rainforest:{dn:1,w:[PLANKS,PLANKS,SIDING_Y,STUCCO],sw:[PLANKS,STUCCO,SIDING_Y]},
+  swamp:{dn:0,w:[PLANKS,PLANKS,SIDING,LOG],sw:[PLANKS,SIDING,BRICK]},
+  moor:{dn:0,w:[COBBLE,STONE,MOSSSTONE,COBBLE],sw:[COBBLE,STONE,BRICK],rk:1.25}};
+for(const B of BIOMES)B.town=BIO_TOWN[B.k]||null;
+// (a place's biome is the one at its middle, so a town on a biome's edge is built all one way)
+// (the biome of the climate lattice's corner nearest (x,z): for the plan's own questions (a place's size and style, which
+// sites go where, farms). Never climAt, whose CLIM and CL_Q a column's working out may be in the middle of using)
+const bioNear=(x,z)=>BIOMES[clCorner(Math.round(x/CL_SP),Math.round(z/CL_SP)).b];
+const townBio=(px,pz)=>{const S=settlementAt(px,pz);return S?bioNear(S.cx*CELL+PC,S.cz*CELL+PC).town:bioNear(px*CELL+PC,pz*CELL+PC).town;};
 const BIO_GRASS=0;
 // the table: temperature rows (frozen, cold, temperate, warm, hot) by moisture columns (arid, dry, moderate, wet, soaked)
 const BIO_T=[0.2,0.36,0.64,0.8],BIO_M=[0.22,0.4,0.62,0.8];

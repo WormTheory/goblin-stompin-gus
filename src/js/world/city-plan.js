@@ -673,9 +673,10 @@ function plotInfo(px,pz){
   } else if(type==='homes'){
     // a little residential street: two houses with gable roofs, front doors facing the road on either side. Out in the
     // suburbs, now and then, one big house takes the block. (Their rooms: see homeRoom.)
-    const walls=[SIDING,SIDING_Y,BRICK,PLANKS],sub=zoneAt(px,pz)==='suburb',two=r(53)<(sub?0.15:0.5),solo=two||sub&&r(90)<0.3;
+    // (by the biome's town record, world/climate.js: adobe with flat roofs in the desert, timber under steep roofs in the snow)
+    const TB=townBio(px,pz),walls=TB?TB.w:[SIDING,SIDING_Y,BRICK,PLANKS],sub=zoneAt(px,pz)==='suburb',two=r(53)<(sub?0.15:0.5),solo=two||sub&&r(90)<0.3;
     const mk=(z0,z1,door,n,two)=>{const b=base({x0:PL0+1,x1:PL1-1,z0,z1,style:'house',top:G+(two?2*FH:FH),wall:walls[Math.floor(r(n)*walls.length)],win:WIN_WARM,kind:'apartment',ground:'apartment',floor:PLANKS,door,ridgeX:true});
-      b.home=true;b.roof=Math.floor((z1-z0)/2);b.detailTop=b.top;
+      b.home=true;const rk=TB&&TB.rk!==undefined?TB.rk:1;b.roofK=rk;b.roofN=Math.floor((z1-z0)/2);b.roof=Math.ceil(b.roofN*rk);b.detailTop=b.top;
       if(two)b.stair=door===2?{ax:'x',c0:z1-3,c1:z1-1,r0:((b.x0+b.x1)>>1)+1,L:FH}:{ax:'x',c0:z0+1,c1:z0+3,r0:((b.x0+b.x1)>>1)+1,L:FH};
       p.b.push(b);};
     if(solo)mk(PL0+4,PL1-2,2,96,two);
@@ -683,7 +684,7 @@ function plotInfo(px,pz){
   } else if(type==='shops'){
     // a little shop filling its block, a glass front onto a paved forecourt: a bookshop, a dentist's, a dispensary, a gun
     // shop (bars over its windows), a bar or a soup kitchen. (Their rooms: see restProps and shopRoom. A bar gets tables outside.)
-    const kinds=['books','dentist','dispo','guns','bar','soup'],kd=kinds[Math.floor(r(80)*6)],walls=[BRICK,SIDING,CONCRETE,STUCCO,SIDING_Y,BRICK];
+    const kinds=['books','dentist','dispo','guns','bar','soup'],kd=kinds[Math.floor(r(80)*6)],TB=townBio(px,pz),walls=TB?TB.sw:[BRICK,SIDING,CONCRETE,STUCCO,SIDING_Y,BRICK];
     const b=base({x0:PL0+1,x1:PL1-1,z0:PL0+4,z1:PL1-1,gf:6,top:G+6,wall:kd==='guns'?BRICK:walls[Math.floor(r(84)*walls.length)],win:GLASS,kind:kd==='dentist'?'office':'apartment',ground:kd,floor:kd==='books'||kd==='bar'||kd==='dispo'?PLANKS:kd==='soup'?CHECKER:kd==='guns'?CONCRETE:FLOORT,door:2,front:true,neon:kd==='bar'?NEON_O:kd==='dispo'?NEON_G:kd==='guns'?NEON_R:NEON_B});
     if(kd==='guns')b.barred=true;if(kd==='bar'||kd==='soup')b.eat=true;
     b.detailTop=b.top-1;brandOn(b,kd,r(150));p.b.push(b);if(kd==='bar')p.patio={z0:PL0,z1:PL0+4};
@@ -744,7 +745,7 @@ function plotInfo(px,pz){
     // its rows of desks and screens, the big board, a ticker running across the back wall
     const b=base({x0:PL0+1,x1:PL1-1,z0:PL0+6,z1:PL1-1,gf:9,top:G+9,wall:MARBLE,win:WIN_WARM,band:MARBLE,kind:'office',ground:'stocks',floor:MARBLE,door:2});
     b.doorSpec={w:1,h:4,k:'wood'};b.detailTop=b.top-1;brandOn(b,'stocks',r(150));b.ticker=true;p.b.push(b);p.b.push(portico(b,4,G+8));
-  } else if(type==='nuclear'||type==='base'||type==='airport'||type==='airfield'||type==='nasa'||type==='mine'||type==='quarry'||type==='lumber'||type==='campsite'||type==='cult'||type==='tower5g'||type==='prepper'||type==='militia'||type==='ruins'||type==='thieves'){
+  } else if(type==='nuclear'||type==='base'||type==='airport'||type==='airfield'||type==='nasa'||type==='mine'||type==='quarry'||type==='lumber'||type==='campsite'||type==='cult'||type==='tower5g'||type==='prepper'||type==='militia'||type==='ruins'||type==='thieves'||BIO_SITES.has(type)){
     // the buildings of a big plains site that fall on this block (each laid out in the site's own coordinates, and
     // only the ones inside this block built here)
     const B=bigPlainsAt(px,pz),U0=(px-B.ax)*CELL,V0=(pz-B.az)*CELL;
@@ -786,6 +787,14 @@ function plotInfo(px,pz){
     else if(type==='lumber'){
       add({x0:40,x1:62,z0:14,z1:30,top:G+8,wall:PLANKS,win:PLANKS,band:LOG,kind:'shop',ground:'shop',floor:PLANKS,door:3,doorSpec:{w:1,h:4,k:'barn'}});           // the sawmill
       for(const [x0,z0] of [[10,6],[22,6]])add({x0,x1:x0+8,z0,z1:z0+7,style:'house',roof:3,top:G+FH,wall:LOG,win:WIN_WARM,kind:'apartment',ground:'apartment',floor:PLANKS,door:3,doorSpec:{w:0,h:3,k:'wood'}});}   // the loggers' cabins
+    else if(type==='derricks')add({x0:4,x1:22,z0:70,z1:84,top:G+FH,wall:STUCCO,win:WIN_BLUE,band:PAINT_RED,kind:'office',ground:'office',floor:FLOORT,door:2,doorSpec:{w:0,h:3,k:'wood'}});   // the site office
+    else if(type==='peat')add({x0:6,x1:18,z0:46,z1:58,style:'house',roof:5,top:G+FH,wall:COBBLE,win:WIN_WARM,kind:'apartment',ground:'apartment',floor:PLANKS,door:2,doorSpec:{w:0,h:3,k:'wood'}});   // the bothy
+    else if(type==='research'){
+      add({x0:4,x1:28,z0:4,z1:14,top:G+FH,wall:PAINT_RED,win:WIN_BLUE,band:PAINT_WHITE,kind:'lab',ground:'lab',floor:FLOORT,door:3,doorSpec:{w:0,h:3,k:'steel'}});   // the laboratory
+      add({x0:4,x1:24,z0:18,z1:28,top:G+FH,wall:PAINT_RED,win:WIN_WARM,band:PAINT_WHITE,kind:'apartment',ground:'apartment',floor:FLOORT,door:3,doorSpec:{w:0,h:3,k:'steel'}});}   // the living quarters
+    else if(type==='safari')add({x0:4,x1:24,z0:4,z1:18,style:'house',roof:5,top:G+FH,wall:PLANKS,win:WIN_WARM,band:LOG,kind:'apartment',ground:'apartment',floor:PLANKS,door:3,doorSpec:{w:0,h:3,k:'wood'}});   // the lodge
+    else if(type==='ski')add({x0:6,x1:30,z0:6,z1:26,style:'house',roof:9,roofK:1.5,roofN:6,top:G+FH,wall:LOG,win:WIN_WARM,band:PLANKS,kind:'apartment',ground:'apartment',floor:PLANKS,door:1,doorSpec:{w:1,h:4,k:'wood'}});   // the lodge
+    else if(type==='stilts'){}
     else if(type==='airport')airportBuildings(add,B);
     else if(type==='airfield')airfieldBuildings(add);
     else{

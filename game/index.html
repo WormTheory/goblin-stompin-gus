@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:332b26d63d599acb20b1340ea1ee454fb9c2e3595f0795e40cda2a44d734db36 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:2e95afdc5ae52af0b1429da08f617dbacf87e15ea4fc7650d84d81fb45ccda51 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1655,6 +1655,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <ul><li>The weather now depends on where you are. Rain falls as snow in the cold north and high in the mountains, the ice fields get blizzards, and the desert stays dry.</li><li>Deserts and badlands get sandstorms: the air turns ochre, dust blows past and you can hardly see.</li><li>The savanna and scrubland have dusty days, with dust devils whirling across the plain.</li><li>The rainforest gets heavier rain, and a humid haze on its drier days. Moors and swamps fog over more often.</li><li>Snow lies by temperature. The tundra and ice fields stay white all year, even on a clear summer day. Cold country keeps its snow far into spring, and it melts fast in warm places.</li><li>Winter only freezes ponds and rivers where it's cold enough, never in the desert, savanna or rainforest.</li><li>In split screen, each player sees the weather where they are.</li></ul>
 <h3>Coasts</h3>
 <ul><li>Coasts now match the land behind them. Where the country is rugged, the shore stands up out of the sea as tall rocky headlands.</li><li>Cold shores are shingle: gravel, cobbles and the odd bit of driftwood.</li><li>Frozen shores have an ice shelf you can walk out on, with floes drifting beyond its edge.</li><li>Warm, wet shores grow mangroves, trees standing on arched roots in shallow, muddy water.</li><li>Beaches in the badlands are red sand.</li><li>This makes a new world again, so a saved city starts afresh.</li></ul>
+<h3>Living in each biome</h3>
+<ul><li>Towns are built for their country. Desert and badlands towns are stucco, sandstone and banded clay with flat roofs. Taiga, tundra and ice-field towns are log and plank cabins with steep roofs for the snow. Moor villages are stone cottages.</li><li>The harsh country has fewer and smaller places: the ice fields, tundra, desert, badlands and rainforest are mostly villages, and there are no cities there.</li><li>Townsfolk and goblins dress for the weather: parkas and fur hoods in the cold, head wraps and robes in the desert, reed hats in the swamp, safari hats on the savanna, flat caps and scarves on the moor.</li><li>Coming into a new biome out in the open puts its name on screen, and a place's banner says which biome it's in.</li><li>Six new sites out in the country, each only in its own biome: - oil fields in the desert, with a drilling rig, nodding pumpjacks and storage tanks; - peat diggings on the moor; - research stations in the ice fields, with a radar dome and a helipad; - safari lodges on the savanna, with tents, a watchtower and a waterhole; - stilt villages in the swamp, joined by boardwalks; - ski slopes in cold mountains, with a chairlift up the piste.</li><li>The other country sites suit the land too: lumber camps are in the forests, more mines and ruins are in the desert, and more cult altars are in the swamp. There are no farms in the ice fields.</li><li>This makes a new world again, so a saved city starts afresh.</li></ul>
 <h3>Rivers</h3>
 <ul><li>Rivers now start somewhere and go somewhere: each one rises in the hills or mountains, or flows out of a lake, and runs downhill until it reaches the sea or joins a bigger river.</li><li>Smaller, shallower streams branch off the rivers and feed into them.</li><li>Through the hills and mountains, rivers carve valleys for themselves.</li><li>The World Generator has two more River sliders: how far rivers run inland, and how many streams branch off them. It draws streams thinner than rivers.</li><li>Each river has a width of its own, the same all the way down (the Width slider still sets the widest).</li><li>A river passing a lake now runs into it, with no strip of land left between the two, and rises to the lake's level as it reaches it.</li><li>Swamp river banks are muddy along whole stretches rather than in patches.</li><li>The map and minimap no longer draw rivers out across the sea.</li><li>This makes a new world again, so a saved city starts afresh.</li></ul>
 <h3>Co-op on two screens</h3>
@@ -2387,10 +2389,10 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='ab2ff59f2b3e';
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v107'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
+const GAME_VER='0.5',GAME_BUILD='80ee4c5f6b6a';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v108'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
-const WORLD_GEN=9;
+const WORLD_GEN=10;
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -2862,7 +2864,8 @@ function settlementLat(rx,rz){
   let type;if(rx===0&&rz===0)type='city';else{const h=hash2(rx*577+31,rz*331+17);type=h<0.14?'city':h<0.38?'large':h<0.68?'small':'village';
     // (in rugged country, world/relief.js, places are smaller: a step down for each band of ruggedness where the place
     // would be. Only that coarse field, never the land's real height, which is worked out from where the places are)
-    const g=ruggedAt(rx*SET_SP*CELL,rz*SET_SP*CELL),dn=g>0.9?3:g>0.78?2:g>0.62?1:0;
+    // (and in harsh country, world/climate.js: the ice fields, tundra, desert, badlands and rainforest have fewer big places)
+    const X=rx*SET_SP*CELL,Z=rz*SET_SP*CELL,g=ruggedAt(X,Z),bt=bioNear(X,Z).town,dn=(g>0.9?3:g>0.78?2:g>0.62?1:0)+(bt?bt.dn:0);
     if(dn){const T=['city','large','small','village'];type=T[Math.min(3,T.indexOf(type)+dn)];}}
   const [r0,rv]=SET_R[type];// (each place is nudged off its grid point on its own, up to 11 blocks either way, so they don't line up)
   S={rx,rz,type,R:rx===0&&rz===0?15:r0+hash2(rx*41+3,rz*59+5)*rv,cx:rx===0&&rz===0?0:rx*SET_SP+Math.round((hash2(rx*733+rz*97+1,rz*311+5)-0.5)*22),cz:rx===0&&rz===0?0:rz*SET_SP+Math.round((hash2(rz*733+rx*89+2,rx*271+9)-0.5)*22)};
@@ -2885,17 +2888,23 @@ function setName(S){
 }
 const PLACE_KIND={city:'City',large:'Large town',small:'Small town',village:'Village',coastcity:'Coastal city',harbortown:'Harbor town',resort:'Resort town',fishing:'Fishing village'};
 // coming into a place: its name across the screen for a few seconds (and again if you come back after a good while away)
-const PB={el:null,t:0,last:null,outT:0};
+const PB={el:null,t:0,last:null,outT:0,bio:null,bioC:-1,bioT:0,bt:0};
+function pbEl(){if(!PB.el){const host=document.body||document.documentElement;if(!host||!host.appendChild)return null;PB.el=document.createElement('div');PB.el.className='placeBanner';PB.el.setAttribute('aria-live','polite');host.appendChild(PB.el);}return PB.el;}
 function placeBannerTick(dt){
   const p=players.find(q=>q.active);if(!p)return;
   if(PB.t>0){PB.t-=dt;if(PB.t<=0&&PB.el)PB.el.classList.remove('on');}
   if(!playing||TENV)return;
   const S=settlementAt(Math.floor(p.pos.x/CELL),Math.floor(p.pos.z/CELL))||coastOwner(Math.floor(p.pos.x/CELL),Math.floor(p.pos.z/CELL));
+  // (out in the open, a biome's name once you've been in a new one for a few seconds, worked out twice a second from where
+  // you really are, a ship's deck included; in a place the biome's only noted, so leaving it into the same biome says nothing)
+  PB.bt-=dt;if(PB.bt<=0){PB.bt=0.5;const bx=Math.floor(pwx(p)/CELL),bz=Math.floor(pwz(p)/CELL),b=biomeOfPlot(bx,bz);
+    if(PB.bio===null||S)PB.bio=b;else if(b===PB.bio)PB.bioT=0;else{if(b!==PB.bioC){PB.bioC=b;PB.bioT=0;}PB.bioT+=0.5;
+      if(PB.bioT>=3&&!seaPlot(bx,bz)&&pbEl()){PB.bio=b;PB.el.innerHTML='<div class="pn">'+BIOMES[b].n+'</div>';PB.el.classList.add('on');PB.t=3;}}}
   if(!S){PB.outT+=dt;return;}
   if(S!==PB.last||PB.outT>45){
-    if(!PB.el){const host=document.body||document.documentElement;if(!host||!host.appendChild)return;PB.el=document.createElement('div');PB.el.className='placeBanner';PB.el.setAttribute('aria-live','polite');host.appendChild(PB.el);}
+    if(!pbEl())return;
     const v=setListC.has(S.rx+','+S.rz)?setDestroyed(S):null;
-    PB.el.innerHTML='<div class="pn">'+setName(S)+'</div><div class="pk">'+PLACE_KIND[setKind(S)]+'</div><div class="pr"></div>'+(v?'<div class="pd">Destroyed: '+Math.round(v*100)+'%</div>':'');
+    PB.el.innerHTML='<div class="pn">'+setName(S)+'</div><div class="pk">'+PLACE_KIND[setKind(S)]+' · '+BIOMES[biomeOfPlot(Math.floor(pwx(p)/CELL),Math.floor(pwz(p)/CELL))].n+'</div><div class="pr"></div>'+(v?'<div class="pd">Destroyed: '+Math.round(v*100)+'%</div>':'');
     PB.el.classList.add('on');PB.t=3.6;
     if(knownSets)noteKnown(Math.floor(p.pos.x/CELL),Math.floor(p.pos.z/CELL));}
   PB.last=S;PB.outT=0;
@@ -3026,6 +3035,27 @@ const BIOMES=[
   {k:'alpine',n:'Alpine',map:'#a4a29c',top:STONE,sub:STONE,grass:[1.3,0.95,1.4],leaf:[1.1,0.95,1.1],trees:[],sc:0,dn:0,wood:-2,pond:0,bush:0,flower:0,rock:0.02}
 ];
 const BIO_I={};BIOMES.forEach((B,i)=>{BIO_I[B.k]=i;B.i=i;});
+// towns by biome (plan section 8): dn, how many steps smaller a place is (as ruggedness steps it down: a city becomes a
+// large town and so on); w the houses' walls and sw the little shops'; rk how steep the houses' gable roofs are (rise a
+// step: 1 is the old 45 degrees, steeper in snowy country so the snow slides off), 0 a flat roof (the desert's adobe).
+// A biome with none builds as before (so the start's grassland does)
+const BIO_TOWN={
+  ice:{dn:2,w:[PLANKS,LOG,SIDING,PAINT_RED],sw:[PLANKS,SIDING,PAINT_RED],rk:1.5},
+  tundra:{dn:1,w:[PLANKS,LOG,SIDING,PAINT_RED],sw:[PLANKS,SIDING,BRICK],rk:1.5},
+  taiga:{dn:0,w:[LOG,PLANKS,LOG,SIDING],sw:[PLANKS,BRICK,SIDING],rk:1.5},
+  desert:{dn:1,w:[STUCCO,STUCCO,SANDSTONE,STUCCO],sw:[STUCCO,SANDSTONE,STUCCO,CONCRETE],rk:0},
+  badlands:{dn:1,w:[STUCCO,TERRA,SANDSTONE,STUCCO],sw:[STUCCO,TERRA,SANDSTONE],rk:0},
+  scrub:{dn:0,w:[STUCCO,SIDING_Y,STUCCO,BRICK],sw:[STUCCO,BRICK,SIDING_Y],rk:0},
+  savanna:{dn:0,w:[STUCCO,PLANKS,STUCCO,SIDING_Y],sw:[STUCCO,PLANKS,BRICK],rk:0},
+  rainforest:{dn:1,w:[PLANKS,PLANKS,SIDING_Y,STUCCO],sw:[PLANKS,STUCCO,SIDING_Y]},
+  swamp:{dn:0,w:[PLANKS,PLANKS,SIDING,LOG],sw:[PLANKS,SIDING,BRICK]},
+  moor:{dn:0,w:[COBBLE,STONE,MOSSSTONE,COBBLE],sw:[COBBLE,STONE,BRICK],rk:1.25}};
+for(const B of BIOMES)B.town=BIO_TOWN[B.k]||null;
+// (a place's biome is the one at its middle, so a town on a biome's edge is built all one way)
+// (the biome of the climate lattice's corner nearest (x,z): for the plan's own questions (a place's size and style, which
+// sites go where, farms). Never climAt, whose CLIM and CL_Q a column's working out may be in the middle of using)
+const bioNear=(x,z)=>BIOMES[clCorner(Math.round(x/CL_SP),Math.round(z/CL_SP)).b];
+const townBio=(px,pz)=>{const S=settlementAt(px,pz);return S?bioNear(S.cx*CELL+PC,S.cz*CELL+PC).town:bioNear(px*CELL+PC,pz*CELL+PC).town;};
 const BIO_GRASS=0;
 // the table: temperature rows (frozen, cold, temperate, warm, hot) by moisture columns (arid, dry, moderate, wet, soaked)
 const BIO_T=[0.2,0.36,0.64,0.8],BIO_M=[0.22,0.4,0.62,0.8];
@@ -4379,6 +4409,7 @@ function siteTrees(x,z){
   if(B.kind==='lumber')return lumberClear(U,V)>1.08?1.1:0;
   if(B.kind==='campsite')return (U<7||U>56||V>59)&&!(U>=28&&U<=35&&V<12)&&!(V<9)?1.1:0;
   if(B.kind==='thieves')return Math.hypot(U-16,V-16)>13?1.4:0;
+  if(B.kind==='safari')return U<3||U>61||V>56&&U>36?0.35:0;   // (acacias round the edge)
   if(B.kind==='ruins'){for(const [u0,v0,u1,v1] of RUIN_ROOMS)if(U>=u0-1&&U<=u1+1&&V>=v0-1&&V<=v1+1)return 0;
     if(Math.hypot(U-46,V-44)<7||V>=25&&V<=30&&U>=34&&U<=60||Math.abs(U-32)<=3&&Math.abs(V-30)<=3)return 0;return 0.35;}
   return 0;
@@ -5565,15 +5596,17 @@ function castleColumn(a,col,px,pz,rx,rz,lx,lz,x,z){
 // country airfield (4 x 2, a grass strip along x; last in the list, so it never moves any of the others), a
 // space agency's launch site (2 x 3) and a military base (2 x 2). Each sits on its own grid of anchor blocks, and only
 // where the whole rectangle (and a ring of a couple of blocks round it) is open country clear of everything else. ----
-const BIGP=[{kind:'airport',w:16,h:8,p:0,salt:11},{kind:'nasa',w:2,h:3,p:0.005,salt:23},{kind:'base',w:4,h:4,p:0.02,salt:37},{kind:'quarry',w:6,h:6,p:0.035,salt:67},{kind:'mine',w:3,h:3,p:0.016,salt:53},{kind:'lumber',w:4,h:3,p:0.018,salt:79},{kind:'campsite',w:2,h:2,p:0.009,salt:83},{kind:'nuclear',w:8,h:8,p:0.1,salt:131},{kind:'cult',w:1,h:1,p:0.0025,salt:97},{kind:'tower5g',w:1,h:1,p:0.004,salt:101},{kind:'prepper',w:2,h:2,p:0.006,salt:103},{kind:'militia',w:2,h:2,p:0.005,salt:107},{kind:'ruins',w:2,h:2,p:0.008,salt:109},{kind:'thieves',w:1,h:1,p:0.002,salt:113},{kind:'airfield',w:4,h:2,p:0.012,salt:127}],bigPC=new Map(),bigOK=new Map();
+const BIGP=[{kind:'airport',w:16,h:8,p:0,salt:11},{kind:'nasa',w:2,h:3,p:0.005,salt:23},{kind:'base',w:4,h:4,p:0.02,salt:37},{kind:'quarry',w:6,h:6,p:0.035,salt:67},{kind:'mine',w:3,h:3,p:0.016,salt:53},{kind:'lumber',w:4,h:3,p:0.018,salt:79},{kind:'campsite',w:2,h:2,p:0.009,salt:83},{kind:'nuclear',w:8,h:8,p:0.1,salt:131},{kind:'cult',w:1,h:1,p:0.0025,salt:97},{kind:'tower5g',w:1,h:1,p:0.004,salt:101},{kind:'prepper',w:2,h:2,p:0.006,salt:103},{kind:'militia',w:2,h:2,p:0.005,salt:107},{kind:'ruins',w:2,h:2,p:0.008,salt:109},{kind:'thieves',w:1,h:1,p:0.002,salt:113},{kind:'airfield',w:4,h:2,p:0.012,salt:127},{kind:'derricks',w:3,h:3,p:0.05,salt:137},{kind:'peat',w:2,h:2,p:0.04,salt:139},{kind:'research',w:2,h:2,p:0.05,salt:149},{kind:'safari',w:2,h:2,p:0.04,salt:151},{kind:'stilts',w:2,h:2,p:0.05,salt:157},{kind:'ski',w:3,h:4,p:0.12,salt:163}],bigPC=new Map(),bigOK=new Map();
 // is kind i's site (anchored at ax,az) there? (clear of the places, the sea, the roads, the farms... and of the
 // sites of the kinds before it in the list, which win any overlap)
 function bigCell(i,ax,az){
   const K=BIGP[i],kk=K.kind+ax+','+az;if(i===0)return false;let ok=bigOK.get(kk);if(ok!==undefined)return ok;
-  ok=hash2(ax*389+K.salt,az*211+K.salt*3)<K.p&&!TEST_OFF.has(K.kind);
+  // (the climate has its say: some kinds likelier in some country, the biome sites only in their own, biome-sites.js)
+  {const h=hash2(ax*389+K.salt,az*211+K.salt*3);ok=h<K.p*3&&!TEST_OFF.has(K.kind);if(ok)ok=h<K.p*siteBioW(K,(ax+K.w/2)*CELL,(az+K.h/2)*CELL);}
   // (not in rugged country, world/relief.js: fewer the more rugged, none in the high mountains. Only that coarse field,
   // never the land's real height, which is worked out from where the sites are)
-  if(ok){const g=ruggedAt((ax+K.w/2)*CELL,(az+K.h/2)*CELL);if(g>0.5&&hash2(ax*97+K.salt,az*53+7)<(g-0.5)/0.15)ok=false;}
+  // (mines and quarries go higher, bases, launch sites and airfields want gentler ground; the ski slope wants mountains)
+  if(ok&&K.kind!=='ski'){const g=ruggedAt((ax+K.w/2)*CELL,(az+K.h/2)*CELL),g0=K.kind==='mine'||K.kind==='quarry'?0.6:K.kind==='base'||K.kind==='nasa'||K.kind==='airfield'?0.35:0.5;if(g>g0&&hash2(ax*97+K.salt,az*53+7)<(g-g0)/0.15)ok=false;}
   if(ok)for(let a=ax-2;a<ax+K.w+2&&ok;a++)for(let b=az-2;b<az+K.h+2&&ok;b++){const inR=a>=ax&&a<ax+K.w&&b>=az&&b<az+K.h;if(settlementAt(a,b)||seaPlot(a,b)||inR&&railPlot(a,b)||inR&&(farmK(a,b)!==null||tsPlot(a,b)||plotNearLines(a,b,2)||rivPlotNear(a,b)))ok=false;}
   if(ok)for(let a=ax;a<ax+K.w&&ok;a++)for(let b=az;b<az+K.h&&ok;b++)for(let i2=0;i2<i&&ok;i2++){const K2=BIGP[i2];if(i2===0?airportAt(a,b):bigCell(i2,Math.floor(a/K2.w)*K2.w,Math.floor(b/K2.h)*K2.h))ok=false;}
   if(!apBusy)bigOK.set(kk,ok);return ok;
@@ -5586,6 +5619,7 @@ function bigPlainsAt(px,pz){
 }
 function bigColumn(col,B,U,V,x,z){
   col(G-1,DIRT);col(G,GRASS);for(let y=G+1;y<G+60;y++)col(y,AIR);
+  if(BIO_SITES.has(B.kind)){bioSiteColumn(col,B,U,V,x,z);return;}
   if(B.kind==='mine'){mineColumn(col,B,U,V,x,z);return;}
   if(B.kind==='quarry'){quarryColumn(col,B,U,V,x,z);return;}
   if(B.kind==='lumber'){lumberColumn(col,B,U,V,x,z);return;}
@@ -5780,7 +5814,9 @@ function dumpColumn(a,col,px,pz,rx,rz,lx,lz,x,z){
 }
 // ---- farms: out on the plains, a block or few to either side of a country highway, with a straight gravel lane
 // (north or south) out to it ----
-const farmC=new Map(),farmCand=(px,pz)=>hash2(px*19+5,pz*23+7)<0.1&&realmOf(px,pz)==='plains';
+// (no farms in the ice fields, and fewer where little grows: the tundra, desert and badlands)
+const farmC=new Map(),farmCand=(px,pz)=>{const h=hash2(px*19+5,pz*23+7);if(!(h<0.1)||realmOf(px,pz)!=='plains')return false;
+  const b=bioNear(px*CELL+PC,pz*CELL+PC).k;return b==='ice'?false:b==='tundra'||b==='desert'||b==='badlands'?h<0.035:true;};
 // a farm on block (px,pz): {s (-1: its road is to the north, 1: to the south), zEnd (where its lane meets the road's
 // edge)} or null. Which way is tried first is down to the farm; the lane must cross only open plains (no river, no
 // other farm, no town) and reach a country highway within four blocks.
@@ -5873,6 +5909,211 @@ function plainsRaw(x,z){
   // (the biome's ponds: a wet one lowers the ground into more of them, a dry one lifts the hollows out of them)
   if(p>0)r-=3.3*p;else if(r<0)r*=1+p;
   return r;
+}
+// ---- sites that belong to one kind of country (plan phase 4): oil derricks in the desert and badlands, peat diggings
+// on the moor, a research station in the ice fields, a safari lodge on the savanna, a stilt village in the swamp and a
+// ski slope with its chairlift in cold mountains. They're kinds in BIGP like the others (country-sites.js), placed only
+// where the climate at their middle is right (bigCell asks siteBioW), and laid out here block by block from the
+// site's corner (U along x, V along z). Their buildings are in city-plan.js, their props in SITE_FN. ----
+// how likely each kind of site is in each biome, against its usual odds (1 where a biome doesn't say). The biome sites
+// are 0 everywhere but their own country.
+const BIO_SITEW={
+  ice:{lumber:0,campsite:0.2,quarry:0.5,mine:0.6,cult:0.5,prepper:0.5,militia:0.3,thieves:0.3,ruins:0.5,airfield:0.4,base:0.6,research:1},
+  tundra:{lumber:0.2,campsite:0.4,airfield:0.6,thieves:0.6},
+  taiga:{lumber:2.5,campsite:1.3},
+  desert:{lumber:0,campsite:0.3,mine:1.5,ruins:1.8,nasa:2,base:1.5,cult:1.3,derricks:1},
+  badlands:{lumber:0,campsite:0.4,mine:2,quarry:1.6,ruins:1.5,thieves:1.5,derricks:0.7},
+  scrub:{lumber:0.3,militia:1.5,prepper:1.5},
+  savanna:{lumber:0.2,campsite:0.8,safari:1},
+  rainforest:{lumber:1.8,quarry:0.5,airfield:0.5,cult:1.5,ruins:1.6},
+  swamp:{lumber:0.6,quarry:0.3,mine:0.3,cult:2,thieves:1.6,airfield:0.4,base:0.5,stilts:1},
+  moor:{lumber:0.3,quarry:1.5,cult:1.5,ruins:1.4,peat:1}};
+const BIO_SITES=new Set(['derricks','peat','research','safari','stilts','ski']);
+// (their names where you are, render/daynight.js)
+const BIO_SITE_N={derricks:'\u{1F6E2}\uFE0F Oil field',peat:'\u{1FAA3} Peat diggings',research:'\u{1F52C} Research station',safari:'\u{1F992} Safari lodge',stilts:'\u{1F6D6} Stilt village',ski:'\u26F7\uFE0F Ski slope'};
+// the climate's say in a site of kind K at the middle (cx,cz): its biome's weight, the ski slope by temperature and
+// ruggedness alone (cold mountains, whatever the biome)
+function siteBioW(K,cx,cz){
+  const E=clCorner(Math.round(cx/CL_SP),Math.round(cz/CL_SP));
+  if(K.kind==='ski'){const g=ruggedAt(cx,cz);return E.t<0.36&&g>0.3&&g<0.7?1:0;}
+  const W=BIO_SITEW[BIOMES[E.b].k],w=W&&W[K.kind];
+  return w!==undefined?w:BIO_SITES.has(K.kind)?0:1;
+}
+// (the biome a site was put in, remembered on it: its ground)
+const bsBio=B=>B.bio||(B.bio=bioNear((B.ax+B.w/2)*CELL,(B.az+B.h/2)*CELL));
+function bioSiteColumn(col,B,U,V,x,z){
+  if(B.kind==='derricks')derrickColumn(col,B,U,V,x,z);
+  else if(B.kind==='peat')peatColumn(col,B,U,V,x,z);
+  else if(B.kind==='research')researchColumn(col,B,U,V,x,z);
+  else if(B.kind==='safari')safariColumn(col,B,U,V,x,z);
+  else if(B.kind==='stilts')stiltColumn(col,B,U,V,x,z);
+  else skiColumn(col,B,U,V,x,z);
+}
+// ---- oil derricks: a drilling rig's lattice tower in the middle, nodding-donkey pumpjacks round it, the storage tanks
+// and the site office by the track, all behind a fence ----
+const DERRICK_JACKS=[[6,8],[72,8],[6,40],[72,40],[30,84]];
+function derrickColumn(col,B,U,V,x,z){
+  const Bio=bsBio(B),top=Bio.k==='badlands'?RED_SAND:SAND,h=hash2(x*5+3,z*7+11);
+  col(G-1,Bio.k==='badlands'?TERRA:SANDSTONE);col(G,top);
+  const W=B.w*CELL;
+  if((U===1||U===W-2||V===1||V===W-2)&&U>=1&&V>=1&&U<=W-2&&V<=W-2&&!(V>=60&&V<=62)){col(G+1,CHAINLINK);col(G+2,CHAINLINK);return;}
+  // the track across the site and the spur up to the rig
+  if(V>=60&&V<=62||U>=46&&U<=49&&V>=38&&V<60){col(G,GRAVEL);return;}
+  // the rig: a pad, the drill floor four up, the tower narrowing to the crown 34 up, braced on every face
+  {const du=U-48,dv=V-24,au=Math.abs(du),av=Math.abs(dv);
+    if(au<=7&&av<=7){col(G,CONCRETE);
+      if(au<=5&&av<=5)for(let k=1;k<=34;k++){const hw=5-Math.floor(k*3/34),y=G+k;
+        if(au>hw||av>hw)continue;
+        const edgeU=au===hw,edgeV=av===hw;
+        if(edgeU&&edgeV){col(y,METAL);continue;}
+        if(k===4){col(y,PLANKS);continue;}   // the drill floor
+        if(k===34){col(y,METAL);continue;}   // the crown
+        if(edgeU||edgeV){const q=edgeU?dv:du,ph=(k%8)/8,a=Math.round(-hw+ph*2*hw);if(q===a||q===-a)col(y,METAL);}}
+      // the pipe rack and the mud tanks beside the pad
+      if(dv>=6&&dv<=7&&au<=4){col(G+1,RUST);col(G+2,RUST);}
+      return;}}
+  // the pipe from the rig to the tanks, down the side of the spur
+  if(U===51&&V>=32&&V<=72&&!(V>=59&&V<=63)){col(G+1,METAL);return;}
+  if(V===72&&U>=51&&U<=58){col(G+1,METAL);return;}
+  // the storage tanks
+  for(const cu of [62,74,86]){const du=U-cu,dv=V-78,d2=du*du+dv*dv;
+    if(d2<=20){col(G,CONCRETE);for(let y=G+1;y<=G+7;y++)col(y,y===G+5?PAINT_RED:PAINT_WHITE);col(G+8,d2<=6?METAL:PAINT_WHITE);return;}
+    if(d2<=30){col(G,CONCRETE);return;}}
+  // the pumpjacks: a gravel pad, the gearbox and its cranks, the Samson post, the walking beam and the horse's head over
+  // the well
+  for(const [u0,v0] of DERRICK_JACKS){const a=U-u0,b=V-v0;if(a<-1||a>13||b<-1||b>3)continue;
+    col(G,GRAVEL);if(a<0||a>12||b<0||b>2)return;
+    if(b===1){if(a<=3){col(G+1,METAL);col(G+2,METAL);}
+      if(a===6){for(let y=G+1;y<=G+5;y++)col(y,METAL);}
+      if(a>=2&&a<=11)col(G+6,PAINT_DARK);
+      if(a>=11){col(G+5,PAINT_YELLOW);col(G+6,PAINT_YELLOW);col(G+4,PAINT_YELLOW);}
+      if(a===12){col(G+1,METAL);col(G+2,RUST);}
+      return;}
+    // (either side: the cranks and their weights, the pitman arms up to the beam, the post's legs)
+    if(a>=1&&a<=2){col(G+2,PAINT_RED);col(G+3,PAINT_RED);}
+    if(a===2){col(G+4,METAL);col(G+5,METAL);}
+    if(a===6){for(let y=G+1;y<=G+4;y++)col(y,METAL);}
+    return;}
+  // a flare stack in the far corner
+  if(U===88&&V===10){for(let y=G+1;y<=G+14;y++)col(y,METAL);col(G+15,RUST);return;}
+  if(h<0.01)col(G+1,Bio.k==='badlands'?RUST:CACTUS);
+}
+// ---- peat diggings on the moor: stepped trenches cut into the bog, the cut turves stacked to dry beside them, a stone
+// bothy, an open shed of dried peat and the track out ----
+function peatColumn(col,B,U,V,x,z){
+  const h=hash2(x*3+17,z*11+5);col(G-2,MUD);col(G-1,MUD);
+  if(U>=54&&U<=57||V>=44&&V<=47&&U>=20&&U<54){col(G,GRAVEL);return;}
+  for(const v0 of [8,20,32]){
+    if(V>=v0&&V<=v0+4&&U>=8&&U<=50){
+      // (the first row a step down, the rest two: a bank cut back a row at a time)
+      if(V===v0){col(G,AIR);return;}
+      col(G,AIR);col(G-1,h<0.14?WATER:AIR);return;}
+    // the turves drying: rows of little stacks along the bank
+    if(V===v0-2&&U>=8&&U<=50&&U%4<2){col(G,MUD);col(G+1,MUD);if(h<0.4)col(G+2,MUD);return;}}
+  // the peat shed: log posts, a plank roof, dried peat stacked under it
+  if(U>=24&&U<=40&&V>=50&&V<=58){col(G,DIRT);
+    const post=(U===24||U===40||U===32)&&(V===50||V===58);
+    if(post){for(let y=G+1;y<=G+3;y++)col(y,LOG);}
+    else if(U>25&&U<39&&V>51&&V<57&&U%5!==0){col(G+1,MUD);col(G+2,MUD);}
+    col(G+4,PLANKS);return;}
+  if(h<0.012){col(G+1,STONE);return;}
+}
+// ---- a research station in the ice fields: red modules (the lab and the living quarters, in city-plan.js), a radar
+// dome on its tower, a radio mast, a weather screen and a helipad cleared out of the snow ----
+function researchColumn(col,B,U,V,x,z){
+  col(G-1,SNOW);col(G,SNOW);
+  // the helipad: concrete, its yellow ring and a white H
+  {const du=U-46,dv=V-22,d2=du*du+dv*dv;if(d2<=42){col(G,d2>=25?PAINT_YELLOW:CONCRETE);
+    if((Math.abs(du)===2&&Math.abs(dv)<=3)||(dv===0&&Math.abs(du)<=2))col(G,PAINT_WHITE);return;}}
+  // the radar: a lattice tower and the white dome on top
+  {const du=U-48,dv=V-48;if(Math.abs(du)<=4&&Math.abs(dv)<=4){col(G,CONCRETE);
+      if(Math.abs(du)===2&&Math.abs(dv)===2)for(let y=G+1;y<=G+8;y++)col(y,METAL);
+      if(Math.abs(du)<=3&&Math.abs(dv)<=3)col(G+9,METAL);
+      for(let y=G+10;y<=G+14;y++){const e=y-(G+10.5),r2=du*du+dv*dv+e*e;if(r2<=16.5&&e>=-0.5)col(y,PAINT_WHITE);}
+      return;}}
+  // the radio mast, red and white
+  if(U===58&&V===6){for(let k=1;k<=24;k++)col(G+k,(k>>2)%2?PAINT_RED:PAINT_WHITE);col(G+25,LAMP);return;}
+  if((U===56||U===60)&&V===6){col(G,CONCRETE);return;}
+  // the weather screen on its legs
+  if(U>=40&&U<=41&&V>=4&&V<=5){col(G+1,METAL);col(G+2,METAL);col(G+3,PAINT_WHITE);return;}
+  // the paths between, trodden into the snow
+  if(V>=30&&V<=31&&U>=4&&U<=44||U>=34&&U<=35&&V>=4&&V<=44)col(G,GRAVEL);
+}
+// ---- a safari lodge on the savanna: the lodge, tents on their decks, a watchtower over a waterhole and the track ----
+const SAFARI_TENTS=[[32,4],[42,4],[52,4],[32,16]];
+function safariColumn(col,B,U,V,x,z){
+  const h=hash2(x*13+1,z*3+9);col(G,GRASS);
+  // the waterhole: water two deep, a mud rim with reeds
+  {const du=U-26,dv=V-46,d=Math.sqrt(du*du+dv*dv);
+    if(d<6){col(G-2,MUD);col(G-1,WATER);col(G,WATER);return;}
+    if(d<8){col(G,MUD);if(h<0.3)col(G+1,REEDS);return;}}
+  if(V>=26&&V<=28||U>=12&&U<=14&&V>=18&&V<26||U>=58&&U<=60&&V>28){col(G,DIRT);return;}
+  // the tents: a deck of planks, an A-frame of canvas on it, open at the front
+  for(const [u0,v0] of SAFARI_TENTS){const a=U-u0,b=V-v0;if(a<0||a>6||b<0||b>8)continue;
+    col(G+1,PLANKS);if(a<1||a>5||b<2||b>7)return;
+    if(a===3){col(G+4,STUCCO);if(b===7){col(G+2,STUCCO);col(G+3,STUCCO);}}
+    else if(a===2||a===4){col(G+3,STUCCO);if(b===7)col(G+2,STUCCO);}
+    else{col(G+2,STUCCO);}
+    return;}
+  // the watchtower: log legs, a deck six up with a rail, a thatched roof
+  {const du=U-52,dv=V-44,au=Math.abs(du),av=Math.abs(dv);
+    if(au<=2&&av<=2){
+      if(au===2&&av===2){for(let y=G+1;y<=G+10;y++)col(y,LOG);}
+      if(!(du===0&&dv===2))col(G+7,PLANKS);if((au===2||av===2)&&!(au===2&&av===2)&&!(du===0&&dv===2))col(G+8,FENCE);
+      col(G+11,SHINGLE);if(au<=1&&av<=1)col(G+12,SHINGLE);if(au===0&&av===0)col(G+13,SHINGLE);
+      // (the ladder up its back)
+      if(du===0&&dv===2)for(let y=G+1;y<=G+6;y++)col(y,FENCE);
+      return;}
+    if(au<=3&&av<=3){col(G+11,SHINGLE);return;}}
+  if(h<0.02)col(G+1,FLOWER);
+}
+// ---- a stilt village in the swamp: huts on log stilts over the water, joined by boardwalks, one running out to dry land
+// ----
+const STILT_HUTS=[[14,14],[42,12],[14,44],[46,42],[30,28]];
+function stiltColumn(col,B,U,V,x,z){
+  const h=hash2(x*7+29,z*13+3),n=nzNoise(x/9,z/9,6113)*0.5+0.5;
+  col(G-2,MUD);col(G-1,MUD);
+  // (the open water, mud banks where the noise is high, reeds along them)
+  const bank=n>0.62||U<2||V<2||U>61||V>61;col(G,bank?MUD:WATER);if(bank&&h<0.25||!bank&&h<0.06)col(G+1,REEDS);
+  for(const [hx,hz] of STILT_HUTS){const du=U-hx,dv=V-hz,au=Math.abs(du),av=Math.abs(dv);if(au>3||av>3)continue;
+    col(G+1,AIR);
+    if((au===3||au===0)&&(av===3||av===0)){col(G,LOG);col(G+1,LOG);}   // the stilts
+    col(G+2,PLANKS);
+    if(au<=2&&av<=2&&(au===2||av===2)){const door=dv===2&&du===0;
+      for(let y=G+3;y<=G+5;y++)col(y,door&&y<=G+4?AIR:dv===-2&&du===0&&y===G+4?GLASS:PLANKS);}
+    // the roof: a pyramid of shingles over the porch
+    col(G+6,SHINGLE);if(au<=2&&av<=2)col(G+7,SHINGLE);if(au<=1&&av<=1)col(G+8,SHINGLE);if(au===0&&av===0)col(G+9,SHINGLE);
+    return;}
+  // the boardwalks: from each hut to the middle one, and from it south to the edge
+  let walk=U>=30&&U<=31&&V>=28;
+  for(const [hx,hz] of STILT_HUTS){if(V>=hz&&V<=hz+1&&U>=Math.min(hx,30)&&U<=Math.max(hx,31))walk=true;if(U>=30&&U<=31&&V>=Math.min(hz,28)&&V<=Math.max(hz,29))walk=true;}
+  if(walk){col(G+1,PLANKS);if((U+V)%4===0)col(G,LOG);}
+}
+// ---- a ski slope in cold mountains: the piste rising across the site's back two thirds, a chairlift up it on pylons with
+// its stations top and bottom, a log lodge and the car park at the foot ----
+// (how high the piste stands V blocks from the front, and the chairlift's cable)
+const skiH=V=>{const s=nzClamp01((V-36)/88);return Math.round(30*s*Math.sqrt(s));};
+const skiCab=V=>G+5+Math.round(31*(V-32)/88);
+function skiColumn(col,B,U,V,x,z){
+  const h=hash2(x*5+13,z*3+7),hs=skiH(V);col(G-1,STONE);col(G,SNOW);
+  for(let y=G;y<G+hs;y++)col(y,STONE);col(G+hs,SNOW);
+  // the car park
+  if(U>=60&&U<=92&&V>=4&&V<=24){col(G,ASPHALT);if((U-60)%5===0&&V>=6&&V<=11||(U-60)%5===0&&V>=17&&V<=22)col(G,LANE);return;}
+  if(U>=72&&U<=75&&V<4){col(G,ASPHALT);return;}
+  // the chairlift's stations: posts and a red roof over the bull wheel, bottom and top
+  for(const [v0,y0] of [[26,G],[116,G+skiH(120)]]){const dv=V-v0,du=U-70;if(dv<0||dv>8||Math.abs(du)>4)continue;
+    for(let y=G+hs+1;y<y0+1;y++)col(y,STONE);
+    if(Math.abs(du)===4&&(dv===0||dv===8))for(let y=y0+1;y<=y0+5;y++)col(y,METAL);
+    col(y0+6,PAINT_RED);if(Math.abs(du)<=1&&dv>=3&&dv<=5)col(y0+5,METAL);
+    return;}
+  // the cables up and down, the chairs hanging from them, and the pylons every 16 blocks
+  if(V>=34&&V<=116){const yc=skiCab(V);
+    if(U===68||U===72){col(yc,METAL);if((V+(U===72?4:0))%8===0){col(yc-1,METAL);col(yc-2,PAINT_DARK);}}
+    if((V-36)%16===0&&V>=44&&V<=108){if(U===70)for(let y=G+hs+1;y<yc;y++)col(y,METAL);if(U>=67&&U<=73)col(yc+1,METAL);}
+    if(U>=67&&U<=73)return;}
+  // marker poles down the sides of the piste
+  if((U===8||U===56)&&V>40&&V%12===0){col(G+hs+1,PAINT_ORANGE);col(G+hs+2,PAINT_ORANGE);return;}
+  if(hs===0&&h<0.01)col(G+1,STONE);
 }
 // ---- flying sites: the big airport (16 x 8 blocks) and the country airfield (4 x 2). Their ground, laid out in the site's
 // own coordinates (U along x, V along z, from the site's corner), and the buildings on it (airportBuildings,
@@ -6954,9 +7195,10 @@ function plotInfo(px,pz){
   } else if(type==='homes'){
     // a little residential street: two houses with gable roofs, front doors facing the road on either side. Out in the
     // suburbs, now and then, one big house takes the block. (Their rooms: see homeRoom.)
-    const walls=[SIDING,SIDING_Y,BRICK,PLANKS],sub=zoneAt(px,pz)==='suburb',two=r(53)<(sub?0.15:0.5),solo=two||sub&&r(90)<0.3;
+    // (by the biome's town record, world/climate.js: adobe with flat roofs in the desert, timber under steep roofs in the snow)
+    const TB=townBio(px,pz),walls=TB?TB.w:[SIDING,SIDING_Y,BRICK,PLANKS],sub=zoneAt(px,pz)==='suburb',two=r(53)<(sub?0.15:0.5),solo=two||sub&&r(90)<0.3;
     const mk=(z0,z1,door,n,two)=>{const b=base({x0:PL0+1,x1:PL1-1,z0,z1,style:'house',top:G+(two?2*FH:FH),wall:walls[Math.floor(r(n)*walls.length)],win:WIN_WARM,kind:'apartment',ground:'apartment',floor:PLANKS,door,ridgeX:true});
-      b.home=true;b.roof=Math.floor((z1-z0)/2);b.detailTop=b.top;
+      b.home=true;const rk=TB&&TB.rk!==undefined?TB.rk:1;b.roofK=rk;b.roofN=Math.floor((z1-z0)/2);b.roof=Math.ceil(b.roofN*rk);b.detailTop=b.top;
       if(two)b.stair=door===2?{ax:'x',c0:z1-3,c1:z1-1,r0:((b.x0+b.x1)>>1)+1,L:FH}:{ax:'x',c0:z0+1,c1:z0+3,r0:((b.x0+b.x1)>>1)+1,L:FH};
       p.b.push(b);};
     if(solo)mk(PL0+4,PL1-2,2,96,two);
@@ -6964,7 +7206,7 @@ function plotInfo(px,pz){
   } else if(type==='shops'){
     // a little shop filling its block, a glass front onto a paved forecourt: a bookshop, a dentist's, a dispensary, a gun
     // shop (bars over its windows), a bar or a soup kitchen. (Their rooms: see restProps and shopRoom. A bar gets tables outside.)
-    const kinds=['books','dentist','dispo','guns','bar','soup'],kd=kinds[Math.floor(r(80)*6)],walls=[BRICK,SIDING,CONCRETE,STUCCO,SIDING_Y,BRICK];
+    const kinds=['books','dentist','dispo','guns','bar','soup'],kd=kinds[Math.floor(r(80)*6)],TB=townBio(px,pz),walls=TB?TB.sw:[BRICK,SIDING,CONCRETE,STUCCO,SIDING_Y,BRICK];
     const b=base({x0:PL0+1,x1:PL1-1,z0:PL0+4,z1:PL1-1,gf:6,top:G+6,wall:kd==='guns'?BRICK:walls[Math.floor(r(84)*walls.length)],win:GLASS,kind:kd==='dentist'?'office':'apartment',ground:kd,floor:kd==='books'||kd==='bar'||kd==='dispo'?PLANKS:kd==='soup'?CHECKER:kd==='guns'?CONCRETE:FLOORT,door:2,front:true,neon:kd==='bar'?NEON_O:kd==='dispo'?NEON_G:kd==='guns'?NEON_R:NEON_B});
     if(kd==='guns')b.barred=true;if(kd==='bar'||kd==='soup')b.eat=true;
     b.detailTop=b.top-1;brandOn(b,kd,r(150));p.b.push(b);if(kd==='bar')p.patio={z0:PL0,z1:PL0+4};
@@ -7025,7 +7267,7 @@ function plotInfo(px,pz){
     // its rows of desks and screens, the big board, a ticker running across the back wall
     const b=base({x0:PL0+1,x1:PL1-1,z0:PL0+6,z1:PL1-1,gf:9,top:G+9,wall:MARBLE,win:WIN_WARM,band:MARBLE,kind:'office',ground:'stocks',floor:MARBLE,door:2});
     b.doorSpec={w:1,h:4,k:'wood'};b.detailTop=b.top-1;brandOn(b,'stocks',r(150));b.ticker=true;p.b.push(b);p.b.push(portico(b,4,G+8));
-  } else if(type==='nuclear'||type==='base'||type==='airport'||type==='airfield'||type==='nasa'||type==='mine'||type==='quarry'||type==='lumber'||type==='campsite'||type==='cult'||type==='tower5g'||type==='prepper'||type==='militia'||type==='ruins'||type==='thieves'){
+  } else if(type==='nuclear'||type==='base'||type==='airport'||type==='airfield'||type==='nasa'||type==='mine'||type==='quarry'||type==='lumber'||type==='campsite'||type==='cult'||type==='tower5g'||type==='prepper'||type==='militia'||type==='ruins'||type==='thieves'||BIO_SITES.has(type)){
     // the buildings of a big plains site that fall on this block (each laid out in the site's own coordinates, and
     // only the ones inside this block built here)
     const B=bigPlainsAt(px,pz),U0=(px-B.ax)*CELL,V0=(pz-B.az)*CELL;
@@ -7067,6 +7309,14 @@ function plotInfo(px,pz){
     else if(type==='lumber'){
       add({x0:40,x1:62,z0:14,z1:30,top:G+8,wall:PLANKS,win:PLANKS,band:LOG,kind:'shop',ground:'shop',floor:PLANKS,door:3,doorSpec:{w:1,h:4,k:'barn'}});           // the sawmill
       for(const [x0,z0] of [[10,6],[22,6]])add({x0,x1:x0+8,z0,z1:z0+7,style:'house',roof:3,top:G+FH,wall:LOG,win:WIN_WARM,kind:'apartment',ground:'apartment',floor:PLANKS,door:3,doorSpec:{w:0,h:3,k:'wood'}});}   // the loggers' cabins
+    else if(type==='derricks')add({x0:4,x1:22,z0:70,z1:84,top:G+FH,wall:STUCCO,win:WIN_BLUE,band:PAINT_RED,kind:'office',ground:'office',floor:FLOORT,door:2,doorSpec:{w:0,h:3,k:'wood'}});   // the site office
+    else if(type==='peat')add({x0:6,x1:18,z0:46,z1:58,style:'house',roof:5,top:G+FH,wall:COBBLE,win:WIN_WARM,kind:'apartment',ground:'apartment',floor:PLANKS,door:2,doorSpec:{w:0,h:3,k:'wood'}});   // the bothy
+    else if(type==='research'){
+      add({x0:4,x1:28,z0:4,z1:14,top:G+FH,wall:PAINT_RED,win:WIN_BLUE,band:PAINT_WHITE,kind:'lab',ground:'lab',floor:FLOORT,door:3,doorSpec:{w:0,h:3,k:'steel'}});   // the laboratory
+      add({x0:4,x1:24,z0:18,z1:28,top:G+FH,wall:PAINT_RED,win:WIN_WARM,band:PAINT_WHITE,kind:'apartment',ground:'apartment',floor:FLOORT,door:3,doorSpec:{w:0,h:3,k:'steel'}});}   // the living quarters
+    else if(type==='safari')add({x0:4,x1:24,z0:4,z1:18,style:'house',roof:5,top:G+FH,wall:PLANKS,win:WIN_WARM,band:LOG,kind:'apartment',ground:'apartment',floor:PLANKS,door:3,doorSpec:{w:0,h:3,k:'wood'}});   // the lodge
+    else if(type==='ski')add({x0:6,x1:30,z0:6,z1:26,style:'house',roof:9,roofK:1.5,roofN:6,top:G+FH,wall:LOG,win:WIN_WARM,band:PLANKS,kind:'apartment',ground:'apartment',floor:PLANKS,door:1,doorSpec:{w:1,h:4,k:'wood'}});   // the lodge
+    else if(type==='stilts'){}
     else if(type==='airport')airportBuildings(add,B);
     else if(type==='airfield')airfieldBuildings(add);
     else{
@@ -7963,12 +8213,14 @@ function mallAt(b,rx,rz,y,px,pz){
 }
 // a house's gable roof above its top floor: shingles stepping in toward the ridge, wall filling the gable ends
 function houseRoof(b,rx,rz,y){
-  const i=y-b.top-1;if(i<0||i>=b.roof)return AIR;
+  // (b.roofK: how far it rises a step in, so a snowy country's roofs are steeper: world/climate.js's BIO_TOWN. b.roof is
+  // its height in blocks, the steps' count times that)
+  const j=y-b.top-1;if(j<0||j>=b.roof)return AIR;const K=b.roofK||1,i=Math.floor(j/K),n=b.roofN||b.roof;
   const s=b.ridgeX?rz:rx,s0=b.ridgeX?b.z0:b.x0,s1=b.ridgeX?b.z1:b.x1,t=b.ridgeX?rx:rz,t0=b.ridgeX?b.x0:b.z0,t1=b.ridgeX?b.x1:b.z1;
   const d=Math.min(s-s0,s1-1-s);
   if(d===i)return SHINGLE;
   if(d>i&&(t===t0||t===t1-1)){STRUCT=true;return b.wall;}
-  if(d>i&&i===b.roof-1)return SHINGLE;
+  if(d>i&&i===n-1)return SHINGLE;
   return AIR;
 }
 // the block a building has at (rx,rz,y); STRUCT says whether it holds the building up
@@ -18204,8 +18456,8 @@ function goblinModel(parent,o={}){
   parent.netOpt=o;   // (how it was made, so a guest online can make the same)
   const out={legs:[],acc:{},snowU:o.snowU||{value:0}},roles={},matList=[];   // (o.snowU: a car's, for its driver: cars.js)
   // things worn over the head/face are drawn a hair in front of whatever they sit flush against, so they never flicker
-  const OVER={hat:1,hatdark:1,hair:1,patch:1,acc2:1,gold:1};
-  const role=(r,c)=>{if(!roles[r]){roles[r]=new THREE.MeshLambertMaterial(OVER[r]?{color:c,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-3}:{color:c});const sn=r==='skin'||r==='hat'||r==='hair'||r==='hatdark';if(sn)snowCar(roles[r],out);matList.push(roles[r]);}return roles[r];};   // (heads and hats catch the snow)
+  const OVER={hat:1,hatdark:1,hair:1,patch:1,acc2:1,gold:1,wear:1,trim:1};
+  const role=(r,c)=>{if(!roles[r]){roles[r]=new THREE.MeshLambertMaterial(OVER[r]?{color:c,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-3}:{color:c});const sn=r==='skin'||r==='hat'||r==='hair'||r==='hatdark'||r==='wear';if(sn)snowCar(roles[r],out);matList.push(roles[r]);}return roles[r];};   // (heads and hats catch the snow)
   const geo=(w,h,d)=>o.shareGeo?boxGeo(w,h,d):new THREE.BoxGeometry(w,h,d);
   const box=(w,h,d,r,c,x,y,z,p)=>{const m=new THREE.Mesh(geo(w,h,d),role(r,c));m.position.set(x,y,z);p.add(m);return m;};
   const acc=(name,list)=>{for(const m of list)m.visible=false;out.acc[name]=list;};
@@ -18264,6 +18516,15 @@ function goblinModel(parent,o={}){
   acc('apron',[box(0.4,0.4,0.03,'acc',0x884422,0,0.62,0.165,parent)]);
   acc('backpack',[box(0.36,0.4,0.16,'acc',0x884422,0,0.72,-0.23,parent)]);
   acc('pouch',[box(0.12,0.12,0.08,'belt',GC.belt,0.2,0.5,0.17,parent)]);
+  // dressed for where it lives (lookBiome): a parka and a fur-trimmed hood in the cold, a head wrap and a robe in the desert,
+  // a wide reed hat in the swamp, a safari hat on the savanna. In two colours of their own, 'wear' and 'trim'
+  acc('parka',[box(0.58,0.56,0.38,'wear',0x2a4a7a,0,0.7,0,parent),box(0.6,0.06,0.4,'trim',0xeeeae0,0,0.43,0,parent),box(0.17,0.3,0.17,'wear',0x2a4a7a,0,-0.14,0,arm),box(0.17,0.3,0.17,'wear',0x2a4a7a,0,-0.14,0,armL)]);
+  acc('hood',[box(0.58,0.1,0.52,'wear',0x2a4a7a,0,0.47,0,head),box(0.58,0.5,0.08,'wear',0x2a4a7a,0,0.22,-0.24,head),box(0.07,0.44,0.5,'wear',0x2a4a7a,-0.29,0.24,0,head),box(0.07,0.44,0.5,'wear',0x2a4a7a,0.29,0.24,0,head),
+    box(0.62,0.08,0.06,'trim',0xeeeae0,0,0.47,0.25,head),box(0.07,0.46,0.06,'trim',0xeeeae0,-0.3,0.22,0.25,head),box(0.07,0.46,0.06,'trim',0xeeeae0,0.3,0.22,0.25,head)]);
+  acc('wrap',[box(0.52,0.16,0.47,'wear',0xe8dcc0,0,0.45,0.02,head),box(0.53,0.04,0.48,'trim',0x3a2a1a,0,0.41,0.02,head),box(0.46,0.36,0.06,'wear',0xe8dcc0,0,0.2,-0.24,head)]);
+  acc('robe',[box(0.54,0.5,0.34,'wear',0xe8dcc0,0,0.7,0,parent),box(0.56,0.34,0.36,'wear',0xe8dcc0,0,0.29,0,parent),box(0.56,0.06,0.37,'trim',0x3a2a1a,0,0.52,0,parent)]);
+  acc('reedhat',[box(0.86,0.04,0.8,'wear',0xc9b06a,0,0.44,0.02,head),box(0.52,0.08,0.48,'wear',0xc9b06a,0,0.5,0.02,head),box(0.26,0.08,0.24,'wear',0xc9b06a,0,0.57,0.02,head),box(0.08,0.06,0.08,'trim',0x5a4a2a,0,0.63,0.02,head)]);
+  acc('safari',[box(0.5,0.16,0.46,'wear',0xc8b07a,0,0.5,0.02,head),box(0.74,0.03,0.7,'wear',0xc8b07a,0,0.43,0.02,head),box(0.51,0.04,0.47,'trim',0x5a3a22,0,0.46,0.02,head)]);
   out.mats=matList;out.roles=roles;return out;
 }
 // ---- who each goblin is ----
@@ -18290,12 +18551,32 @@ const hexCss=h=>'#'+h.toString(16).padStart(6,'0');
 function applyLook(t,L,base){
   const R=t.roles;
   R.skin.color.setHex(L.skin);R.dark.color.setHex(L.skin).multiplyScalar(0.72);R.tunic.color.setHex(L.tunic);R.pants.color.setHex(L.pants);
-  for(const k of ['hat','acc','acc2','hair'])if(R[k])R[k].color.setHex(L[k]);
+  for(const k of ['hat','acc','acc2','hair','wear','trim'])if(R[k]&&L[k]!==undefined)R[k].color.setHex(L[k]);
   for(const k in t.acc)for(const m of t.acc[k])m.visible=false;
   for(const k of L.show||[])if(t.acc[k])for(const m of t.acc[k])m.visible=true;
   t.root.scale.set(base*L.w,base*L.h,base*L.w);t.head.scale.setScalar(L.hs);
 }
-function dressGoblin(g){const L=lookNew(g.civ,g.vendor,Math.random);applyLook(g,L,ES);return L;}
+function dressGoblin(g,bio){const L=lookNew(g.civ,g.vendor,Math.random);if(bio)lookBiome(g,L);applyLook(g,L,ES);return L;}
+// what a townsfolk or street goblin wears where it lives (plan section 8): parkas and hoods in the cold, wraps (and often
+// robes) in the desert and badlands, wide reed hats in the swamp, safari hats on the savanna, a flat cap and a scarf on
+// the moors; about two in three of them. Chosen by the spot it's put on (biomeAt and hash2), never Math.random, so the
+// game's random numbers run as before
+const BIO_WEAR={tundra:'parka',ice:'parka',taiga:'parka',desert:'wrap',badlands:'wrap',swamp:'reedhat',savanna:'safari',moor:'moor'};
+const WEAR_C={parka:[[0xa83232,0x2a4a7a,0x3a5a3a,0x6a5a3a,0xc98a2a,0x5a3a6a],[0xeeeae0,0xd8d0c0]],wrap:[[0xe8dcc0,0xd6c49a,0x9a6a4a,0x5a6a8a,0xf0ece0,0x2a3a5a],[0x3a2a1a,0x8a2a22,0x2a2a2a]],
+  reedhat:[[0xc9b06a,0xa8945a,0x8a7a4a],[0x5a4a2a]],safari:[[0xc8b07a,0xa89060,0x8a7a50],[0x5a3a22,0x2a2a2a]]};
+const HAT_KEYS=['cap','top','beanie','hardhat','bandana','mohawk'],WEAR_KEYS=['parka','hood','wrap','robe','reedhat','safari'];
+function lookBiome(g,L){
+  if(TENV||g.pos.x>=SHIP_X0)return L;
+  const x=Math.floor(g.pos.x),z=Math.floor(g.pos.z),w=BIO_WEAR[BIOMES[biomeAt(x,z)].k];if(!w)return L;
+  const h=k=>hash2(x*31+k*977+5501,z*17+k*613+5503);if(h(1)>0.68)return L;
+  const strip=a=>{L.show=L.show.filter(k=>!a.includes(k));};strip(HAT_KEYS);
+  if(w==='moor'){L.hatType='cap';L.hat=[0x6a5a4a,0x4a4a3a,0x5a4a5a][Math.floor(h(2)*3)];L.show.push('cap');if(!L.show.includes('scarf'))L.show.push('scarf');L.hatShown=L.hat;return L;}
+  const C=WEAR_C[w];L.wear=C[0][Math.floor(h(2)*C[0].length)];L.trim=C[1][Math.floor(h(3)*C[1].length)];
+  if(w==='parka'){strip(['scarf','tie','apron']);L.show.push('parka','hood');}
+  else if(w==='wrap'){strip(['tie','apron','scarf']);L.show.push('wrap');if(h(4)<0.6)L.show.push('robe');}
+  else L.show.push(w);
+  L.hatType=w==='parka'?'hood':w;L.hatShown=L.wear;return L;
+}
 // a goblin's look, from R (Math.random, or a driver's own: makeDriver): colours, hat, face, the rest it wears, its build
 function lookNew(civ,vendor,R){
   const pk=a=>a[Math.floor(R()*a.length)];
@@ -18314,7 +18595,7 @@ function lookNew(civ,vendor,R){
   return L;
 }
 // a police officer's: all in blue, a blue cap and nothing else on top
-function lookCop(L){L.tunic=0x1c2a5a;L.pants=0x1c2a5a;L.show=L.show.filter(k=>!['cap','top','beanie','hardhat','bandana','mohawk','scarf','tie','backpack','apron','eyepatch'].includes(k));L.hatType='cap';L.hat=0x1c2a5a;L.show.push('cap');L.hatShown=L.hat;return L;}
+function lookCop(L){L.tunic=0x1c2a5a;L.pants=0x1c2a5a;L.show=L.show.filter(k=>!['cap','top','beanie','hardhat','bandana','mohawk','scarf','tie','backpack','apron','eyepatch'].includes(k)&&!WEAR_KEYS.includes(k));L.hatType='cap';L.hat=0x1c2a5a;L.show.push('cap');L.hatShown=L.hat;return L;}
 function makeIdentity(g,look){
   return{name:pick(GOB.first)+' '+pick(GOB.last),age:12+Math.floor(Math.random()*79),occ:pick(g.civ?GOB.civ:GOB.hostile),hobby:pick(GOB.hobby),quirk:pick(GOB.quirk),
     sk:hexCss(look.skin),tu:hexCss(look.tunic),ht:hexCss(look.hatShown),look};
@@ -18620,9 +18901,9 @@ function ruinGrid(c0,c1,r0,r1,ok){
     if(!inG(i-1,j))edges.push([a,b,a,d]);if(!inG(i+1,j))edges.push([c,b,c,d]);if(!inG(i,j-1))edges.push([a,b,c,b]);if(!inG(i,j+1))edges.push([a,d,c,d]);}
   return{cells,edges};
 }
-const MAPC={nuclear:'#c8c850',tower5g:'#c8c8d0',prepper:'#7a6a3a',militia:'#3a4a2a',ruins:'#8a8a78',thieves:'#2a2420',wind:'#f0f4f4',campsite:'#6a9a4a',cult:'#5a1a24',mine:'#6a5a48',quarry:'#a8a090',lumber:'#4a6a2a',base:'#5a6a3a',airport:'#8a9aa8',airfield:'#9ab878',nasa:'#e8e8f0',theme:'#f05a8a',nuclear:'#d8d03a',arena:'#e07a2a',campus:'#a03a4a',prison:'#5a5a5a',jail:'#6a6a6a',water:'#4a9ad8',power:'#8a8a3a',zoo:'#5aa83a',studio:'#d0a04a',lab:'#3ad04a',castle:'#9a9a8a',ikea:'#0058a3',cathedral:'#c8b890',museum:'#d8c8a0',aquarium:'#3aa0d8',casino:'#e04ab0',school:'#c87a4a',factory:'#7a6a5a',datacenter:'#4a5a6a',electric:'#d8c83a',dump:'#7a6a50',derelict:'#6a6258',mansion:'#d8b0a0',trailers:'#a8a078',camp:'#8a7a5a',farmers:'#d0904a',nursery:'#5aa04a',dealer:'#4a8ad0',armory:'#8a4a3a',theater:'#a0283a',stocks:'#c8c0a0',court:'#3e766c',cemetery:'#5c6e58',church:'#a89880',library:'#8a6a4a',cinema:'#b03a4a',radio:'#d05a5a',news:'#3a5a9a',bank:'#c8a84a',disco:'#b04ac8',club:'#4aa04a',shops:'#c0607a',wtower:'#b8c4cc',bell:'#9a8a70',market:'#2f9a8a',drug:'#d0506a',food:'#c86a3a',fastfood:'#e0a030',sitdown:'#a0522d',fire:'#b8302a',build:'#a89060',ramp:'#5a6a4a',plains:'#6c9448',field:'#9a8a4a',orchard:'#4c7a32',truckstop:'#e0a52e',farm:'#b0503a',road:'#3a3f45',walk:'#565b5f',tower:'#4a5a70',mid:'#7a6450',park:'#3f8a3a',plaza:'#9a9a90',police:'#3456a8',grocery:'#2f9a8a',homes:'#c8a870',
+const MAPC={derricks:'#3a3430',peat:'#5a4636',research:'#c83a3a',safari:'#c8a050',stilts:'#6a5a3a',ski:'#e0e8f0',nuclear:'#c8c850',tower5g:'#c8c8d0',prepper:'#7a6a3a',militia:'#3a4a2a',ruins:'#8a8a78',thieves:'#2a2420',wind:'#f0f4f4',campsite:'#6a9a4a',cult:'#5a1a24',mine:'#6a5a48',quarry:'#a8a090',lumber:'#4a6a2a',base:'#5a6a3a',airport:'#8a9aa8',airfield:'#9ab878',nasa:'#e8e8f0',theme:'#f05a8a',nuclear:'#d8d03a',arena:'#e07a2a',campus:'#a03a4a',prison:'#5a5a5a',jail:'#6a6a6a',water:'#4a9ad8',power:'#8a8a3a',zoo:'#5aa83a',studio:'#d0a04a',lab:'#3ad04a',castle:'#9a9a8a',ikea:'#0058a3',cathedral:'#c8b890',museum:'#d8c8a0',aquarium:'#3aa0d8',casino:'#e04ab0',school:'#c87a4a',factory:'#7a6a5a',datacenter:'#4a5a6a',electric:'#d8c83a',dump:'#7a6a50',derelict:'#6a6258',mansion:'#d8b0a0',trailers:'#a8a078',camp:'#8a7a5a',farmers:'#d0904a',nursery:'#5aa04a',dealer:'#4a8ad0',armory:'#8a4a3a',theater:'#a0283a',stocks:'#c8c0a0',court:'#3e766c',cemetery:'#5c6e58',church:'#a89880',library:'#8a6a4a',cinema:'#b03a4a',radio:'#d05a5a',news:'#3a5a9a',bank:'#c8a84a',disco:'#b04ac8',club:'#4aa04a',shops:'#c0607a',wtower:'#b8c4cc',bell:'#9a8a70',market:'#2f9a8a',drug:'#d0506a',food:'#c86a3a',fastfood:'#e0a030',sitdown:'#a0522d',fire:'#b8302a',build:'#a89060',ramp:'#5a6a4a',plains:'#6c9448',field:'#9a8a4a',orchard:'#4c7a32',truckstop:'#e0a52e',farm:'#b0503a',road:'#3a3f45',walk:'#565b5f',tower:'#4a5a70',mid:'#7a6450',park:'#3f8a3a',plaza:'#9a9a90',police:'#3456a8',grocery:'#2f9a8a',homes:'#c8a870',
   gas:'#c8433a',garage:'#6c7076',hospital:'#e8eaec',mall:'#9a52b8',stadium:'#56b04a',capitol:'#e8c35a',ghw:'#b07a3a',bigbox:'#2f7fd0',mega:'#5e7f9a',bigpark:'#3a9a3a',river:'#2f6fc8',highway:'#e8963a',empty:'#4a4f53',metro:'#3a6ad0',rail:'#3a3036',sea:'#2a5f9e',rig:'#c8c040',beach:'#d8c890',harbor:'#9a9488',yard:'#8f949a',navy:'#5c6672',lighthouse:'#e04040'};
-const MAP_LEG=[['base','Military bases'],['airport','Airports'],['airfield','Airfields'],['mine','Mines'],['quarry','Quarries'],['lumber','Lumber camps'],['campsite','Campsites'],['cult','Cult altars'],['tower5g','5G towers'],['prepper','Prepper compounds'],['militia','Militia compounds'],['ruins','Ruins'],['thieves',"Thieves' hideouts"],['wind','Wind farms'],['nasa','Launch sites'],['theme','Theme parks'],['nuclear','Nuclear plants'],['arena','Arenas'],['campus','Universities'],['prison','Prisons'],['jail','Jails'],['water','Water works'],['power','Power stations'],['zoo','Zoos'],['studio','Film studios'],['lab','Goblin labs'],['ikea','Furniture superstores'],['cathedral','Cathedrals'],['museum','Museums'],['aquarium','Aquariums'],['casino','Casinos'],['school','Schools'],['factory','Factories'],['datacenter','Data centers'],['electric','Electric company'],['dump','Garbage dumps'],['derelict','Abandoned buildings'],['mansion','Mansions'],['trailers','Trailer parks'],['camp','Encampments'],['farmers',"Farmer's markets"],['nursery','Tree nurseries'],['dealer','Car dealers'],['armory','Armories'],['theater','Theatres'],['stocks','Stock exchange'],['church','Churches'],['cemetery','Cemeteries'],['library','Libraries'],['cinema','Cinemas'],['bank','Banks'],['disco','Discos'],['club','Night clubs'],['news','TV news'],['radio','Radio stations'],['court','Basketball courts'],['shops','Little shops & bars'],['wtower','Water towers'],['bell','Bell towers'],['ramp','Interchanges'],['food','Restaurants'],['fastfood','Fast food'],['sitdown','Sit-down restaurants'],['fire','Fire stations'],['build','Building sites'],['plains','Plains'],['farm','Farms'],['truckstop','Truck stops'],['tower','Towers'],['mid','Mid-rises'],['homes','Homes'],['park','Parks'],['plaza','Plazas'],['market','Supermarkets'],['drug','Drugstores'],['gas','Gas stations'],['police','Police'],
+const MAP_LEG=[['base','Military bases'],['airport','Airports'],['airfield','Airfields'],['mine','Mines'],['quarry','Quarries'],['lumber','Lumber camps'],['campsite','Campsites'],['cult','Cult altars'],['tower5g','5G towers'],['prepper','Prepper compounds'],['militia','Militia compounds'],['ruins','Ruins'],['thieves',"Thieves' hideouts"],['derricks','Oil fields'],['peat','Peat diggings'],['research','Research stations'],['safari','Safari lodges'],['stilts','Stilt villages'],['ski','Ski slopes'],['wind','Wind farms'],['nasa','Launch sites'],['theme','Theme parks'],['nuclear','Nuclear plants'],['arena','Arenas'],['campus','Universities'],['prison','Prisons'],['jail','Jails'],['water','Water works'],['power','Power stations'],['zoo','Zoos'],['studio','Film studios'],['lab','Goblin labs'],['ikea','Furniture superstores'],['cathedral','Cathedrals'],['museum','Museums'],['aquarium','Aquariums'],['casino','Casinos'],['school','Schools'],['factory','Factories'],['datacenter','Data centers'],['electric','Electric company'],['dump','Garbage dumps'],['derelict','Abandoned buildings'],['mansion','Mansions'],['trailers','Trailer parks'],['camp','Encampments'],['farmers',"Farmer's markets"],['nursery','Tree nurseries'],['dealer','Car dealers'],['armory','Armories'],['theater','Theatres'],['stocks','Stock exchange'],['church','Churches'],['cemetery','Cemeteries'],['library','Libraries'],['cinema','Cinemas'],['bank','Banks'],['disco','Discos'],['club','Night clubs'],['news','TV news'],['radio','Radio stations'],['court','Basketball courts'],['shops','Little shops & bars'],['wtower','Water towers'],['bell','Bell towers'],['ramp','Interchanges'],['food','Restaurants'],['fastfood','Fast food'],['sitdown','Sit-down restaurants'],['fire','Fire stations'],['build','Building sites'],['plains','Plains'],['farm','Farms'],['truckstop','Truck stops'],['tower','Towers'],['mid','Mid-rises'],['homes','Homes'],['park','Parks'],['plaza','Plazas'],['market','Supermarkets'],['drug','Drugstores'],['gas','Gas stations'],['police','Police'],
   ['hospital','Hospitals'],['garage','Car parks'],['mall','Malls'],['bigbox','Superstores'],['mega','Mega-buildings'],['stadium','Stadiums'],['capitol','The capitol'],['river','Rivers'],['rail','Railways'],['sea','Ocean'],['beach','Beaches'],['yard','Shipping ports'],['navy','Naval bases'],['lighthouse','Lighthouses'],['rig','Oil rigs'],['ghw','Country highways'],['ruin','Destroyed'],['highway','Highways']];
 // the sea on the maps: each block sampled on a grid (water, beach, land), ports and harbours in their own colours
 const seaMapC=new Map();
@@ -18702,7 +18983,7 @@ function drawMapBlocks(x,k,ox,oz,c0,c1,r0,r1,o){
       if(t==='dump')rect(X0+1,Z0+1,X0+CELL-1,Z0+CELL-1,MAPC.dump,'dump');
       if(fine&&turbineAt(px,pz))rect(X0+13,Z0+13,X0+19,Z0+19,MAPC.wind,'wind');
       if(t==='castle')rect(X0+5,Z0+5,X0+CELL-5,Z0+CELL-5,MAPC.castle,'castle');
-      if(t==='nuclear'||t==='base'||t==='airport'||t==='airfield'||t==='nasa'||t==='mine'||t==='quarry'||t==='lumber'||t==='campsite'||t==='cult'||t==='tower5g'||t==='prepper'||t==='militia'||t==='ruins'||t==='thieves'){rect(X0,Z0,X0+CELL,Z0+CELL,MAPC[t],t);const P=plotInfo(px,pz);for(const b of P.b)rect(X0+b.x0,Z0+b.z0,X0+b.x1,Z0+b.z1,'#3a3f45',t);}
+      if(t==='nuclear'||t==='base'||t==='airport'||t==='airfield'||t==='nasa'||t==='mine'||t==='quarry'||t==='lumber'||t==='campsite'||t==='cult'||t==='tower5g'||t==='prepper'||t==='militia'||t==='ruins'||t==='thieves'||BIO_SITES.has(t)){rect(X0,Z0,X0+CELL,Z0+CELL,MAPC[t],t);const P=plotInfo(px,pz);for(const b of P.b)rect(X0+b.x0,Z0+b.z0,X0+b.x1,Z0+b.z1,'#3a3f45',t);}
       {const FD=t==='plains'&&farmlandOf(px,pz);if(FD)rect(X0,Z0,X0+CELL,Z0+CELL,FD.kind==='orchard'?MAPC.orchard:MAPC.field,'farm');}
       if(t==='farm'){const P=plotInfo(px,pz);if(fine){if(P.north)rect(X0+PC-1,Z0+P.field.z1,X0+PC+1,Z0+CELL,'#a89a78','farm');else rect(X0+PC-1,Z0,X0+PC+1,Z0+P.field.z0,'#a89a78','farm');}rect(X0+P.field.x0,Z0+P.field.z0,X0+P.field.x1,Z0+P.field.z1,MAPC.field,'farm');for(const b of P.b)rect(X0+b.x0,Z0+b.z0,X0+b.x1,Z0+b.z1,MAPC.farm,'farm');}
       continue;
@@ -20180,7 +20461,7 @@ function spawnCiv(g){
   if(!pos||!spawnOK(pos.x,pos.z))return false;
   g.pos.copy(pos);g.hp=g.hpMax=3;g.state='chase';g.t=0;g.sink=0;g.hurt=0;g.vy=0;g.kv.set(0,0,0);g.stun=0;g.wt=null;g.idle=0;g.screamCD=0;g.fleeing=false;g.detour=0;
   g.heading=g.vendor?-Math.PI/2:Math.random()*6.28;g.root.visible=true;g.root.rotation.set(0,0,0);g.arm.rotation.x=0;g.armL.rotation.x=0;
-  g.id=makeIdentity(g,dressGoblin(g));if(g.vendor)g.id.occ='Street vendor';
+  g.id=makeIdentity(g,dressGoblin(g,true));if(g.vendor)g.id.occ='Street vendor';
   return true;
 }
 function squeal(d){const att=Math.max(0.08,1-d/28);tone('sawtooth',950+Math.random()*350,1500+Math.random()*300,0.2,0.045*att);tone('sine',1300,900,0.22,0.03*att,0.05);}
@@ -20249,7 +20530,7 @@ function spawnGoblin(g,any){
   g.indoor=inside;
   g.pos.copy(pos);g.hp=g.hpMax=4;g.state='chase';g.t=0;g.sink=0;g.hurt=0;g.vy=0;g.atk=1;g.detour=0;
   g.root.visible=true;g.root.rotation.set(0,0,0);g.arm.rotation.x=-0.5;g.kv.set(0,0,0);g.stun=0;g.arms=null;g.aim=0;
-  g.id=makeIdentity(g,dressGoblin(g));
+  g.id=makeIdentity(g,dressGoblin(g,true));
   return true;
 }
 function damageGoblin(g,n,pt,dir,cause,by){
@@ -22072,6 +22353,7 @@ const r2=c=>c%2?'semi':'truck';
 function parkSpots0(px,pz){   // (the plan's: parkSpots, world/sites.js, puts a structure's own in place of these inside its lot)
   const P=plotInfo(px,pz),X0=px*CELL,Z0=pz*CELL,out=[];
   if(P.type==='plains')for(const o of abandonedSpots(px,pz))out.push(o);
+  if(P.type==='ski'){const B=bigPlainsAt(px,pz);for(let i=0;i<12;i++){const x=B.ax*CELL+62.5+(i%6)*5,z=B.az*CELL+(i<6?8.5:19.5);if(Math.floor(x/CELL)===px&&Math.floor(z/CELL)===pz&&hash2(B.ax*31+i,B.az*17+3)<0.6)out.push({x,z,y:G+1,h:i<6?Math.PI:0,key:px+','+pz+':sk'+i,p:0.9});}}   // (skiers' cars in the car park)
   if(P.type==='thieves')for(const [u,v,h,i] of [[8,26,0.3,0],[24,25,-1.2,1],[22,4,1.6,2]])out.push({x:X0+u,z:Z0+v,y:G+1,h,key:px+','+pz+':st'+i,p:0.9});   // (the stolen cars)   // (wrecks dumped in the fields)
   if(P.type==='super'&&P.super.kind==='garage'&&P.b.length){for(const o of garageBays(P.b[0],X0,Z0)){o.key=px+','+pz+':'+o.n+':'+o.bay+':'+o.row;o.p=0.6;out.push(o);}}
   else if(P.type==='grocery'){for(let k=4;k<=8;k++)out.push({x:X0+3*k+2,z:Z0+PL0+3,y:G+1,h:0,key:px+','+pz+':lot'+k,p:0.45});}
@@ -25092,7 +25374,7 @@ function patioProps(P,px,pz){
 // encampment's bedding and carts, a cult's book, candles and bones, a building site's barrows and bricks, a nursery's
 // pots, a trailer park's lawn chairs and junk, the flowers on the graves. (A site over more than one plot gives each plot
 // just its own, so nothing's listed twice.) Drawn out to the same distance as the benches in the street.
-const SITE_PROPS=new Set(['farmers','camp','campsite','cult','build','nursery','trailers','cemetery','mine','quarry','lumber','prepper','militia','thieves','ruins','dump','park','plaza','court','lighthouse','homes','airport','airfield']);
+const SITE_PROPS=new Set(['derricks','peat','research','safari','stilts','ski','farmers','camp','campsite','cult','build','nursery','trailers','cemetery','mine','quarry','lumber','prepper','militia','thieves','ruins','dump','park','plaza','court','lighthouse','homes','airport','airfield']);
 // (the big sites dressed the same way: the ones whose plan says where their open ground is)
 const SITE_SUPER=new Set(['power','zoo','theme','stadium','garage','bigpark']);
 // which of those a block is, if any (a bunker or a few wrecked cars out on open grass count too)
@@ -25251,6 +25533,27 @@ const SITE_FN={
   },
   // the thieves: the loot heaped outside the shack (televisions, a safe, crates, gold, a shopping cart), chairs round
   // their fire
+  // the biome sites (world/biome-sites.js): fuel and drums by the rig, tools at the peat cuttings, fuel and a flag at the
+  // research station, chairs by the waterhole and up the watchtower, each stilt hut's few things, the ski lodge's terrace
+  derricks(P,px,pz,add,putAt){const B=bigPlainsAt(px,pz);if(!B)return;const put=putAt(B.ax*CELL,B.az*CELL);
+    put('drum',40,34,0,0x3a3a3a);put('drum',41,35,0,0x3a3a3a);put('drum',40.2,36.1,0,0xa83a2a);put('jerrycans',56,30,0,P_FUEL[0],true);put('toolrack',39,18,Math.PI/2,0);put('pallet',58,66,0,0);put('pcrate',60,66,0.3,0);put('infosign',47,58.5,0,0);
+  },
+  peat(P,px,pz,add,putAt){const B=bigPlainsAt(px,pz);if(!B)return;const put=putAt(B.ax*CELL,B.az*CELL);
+    put('barrow',20,42,0.6,0x6a5a3a);put('barrow',44,30,2.2,0x4a5a3a);put('toolrack',22,51,0,0);put('bucket',30,6,0,0);put('chopblock',20,60,0,0);
+  },
+  research(P,px,pz,add,putAt){const B=bigPlainsAt(px,pz);if(!B)return;const put=putAt(B.ax*CELL,B.az*CELL);
+    put('flagmast',38,16,0,0);put('drum',56,30,0,0xc83a2a);put('drum',57,31,0,0xc83a2a);put('drum',56.2,32.1,0,0xc83a2a);put('jerrycans',54,34,0,P_FUEL[0],true);put('telescope',40,40,0.8,0);put('pcrate',30,24,0,0);
+  },
+  safari(P,px,pz,add,putAt){const B=bigPlainsAt(px,pz);if(!B)return;const put=putAt(B.ax*CELL,B.az*CELL);
+    put('campchair',35,44,Math.PI/2,0x8a6a3a);put('campchair',35,47,Math.PI/2,0x8a6a3a);put('cooler',35.6,45.5,0,0);put('telescope',52,45,Math.PI,0,false,G+8);put('campchair',51,43,Math.PI,0x8a6a3a,false,G+8);
+    put('picnic',14,22,0,0);put('umbrella',18,22,0,0xc8b07a);put('lounger',8,21,0,0);for(const [u,v] of SAFARI_TENTS)put('bedroll',u+3,v+5,0,0x8a6a3a,true,G+2);
+  },
+  stilts(P,px,pz,add,putAt){const B=bigPlainsAt(px,pz);if(!B)return;const put=putAt(B.ax*CELL,B.az*CELL);
+    for(const [hx,hz] of STILT_HUTS){const r=hash2(B.ax*7+hx,B.az*5+hz);put('bedroll',hx+0.5,hz-0.4,0,0x6a5a3a,true,G+3);put(r<0.5?'stool':'bucket',hx-1+0.5,hz+1.5,0,0,false,G+3);put(r<0.4?'bucket':'cooler',hx+3,hz+3.3,0,0,false,G+3);}
+  },
+  ski(P,px,pz,add,putAt){const B=bigPlainsAt(px,pz);if(!B)return;const put=putAt(B.ax*CELL,B.az*CELL);
+    for(let i=0;i<3;i++){put('picnic',34+i*6,10,0,0);put('umbrella',34+i*6,13,0,[0xc83a2a,0x2a5ac8,0xe0b030][i]);}put('infosign',66,36,0,0);put('flagmast',33,27,0,0);
+  },
   thieves(P,px,pz,add,putAt){const B=bigPlainsAt(px,pz);if(!B)return;const put=putAt(B.ax*CELL,B.az*CELL);
     put('tv',20.6,16.6,0.4,0);put('safe',22.2,17,0.2,0);put('pcrate',23.8,16.6,0.1,0);put('pcrate',23.8,16.6,0.3,0,false,G+1.64);put('tv',25.6,16.8,-0.3,0);
     put('trolley',21,18.8,1.2,0);put('goldbars',23.2,18.6,0.3,0,true);put('pcrate',25.4,18.8,0.6,0);put('goldbars',25.4,18.8,0.2,0,true,G+1.64);
@@ -31508,7 +31811,7 @@ function* farPlotBuildings(SB,P,px,pz){
 // dirt and leaves or flowers, an orchard's grass under its trees' crowns), and the buildings of a farm or site. A landmark
 // (a hangar, a tower, a reactor's dome, a launch tower) is drawn as columns of the height it really is, sampled every few
 // blocks, since one box round all of it would stand far too big ----
-const FAR_SITES=new Set(['farm','truckstop','nuclear','base','airport','airfield','nasa','mine','quarry','lumber','campsite','cult','tower5g','prepper','militia','ruins','thieves']);
+const FAR_SITES=new Set(['farm','truckstop','nuclear','base','airport','airfield','nasa','mine','quarry','lumber','campsite','cult','tower5g','prepper','militia','ruins','thieves','derricks','peat','research','safari','stilts','ski']);
 const farMix=(a,b,f)=>{const c=new THREE.Color(topColor(a));c.lerp(new THREE.Color(topColor(b)),f);return c;};
 // (green ones turn with the seasons as grass does: farBox gives them the grass's -1)
 const FAR_FIELD={veg:farMix(DIRT,LEAVES,0.5),flower:farMix(DIRT,FLOWER,0.5),orchard:farMix(GRASS,LEAVES,0.45)};
@@ -31671,7 +31974,7 @@ function whereLabel(){
   if(tsAt(Math.floor(p.pos.x),Math.floor(p.pos.z)))return'\u26FD Truck stop';
   if(dumpAt(px,pz)!==null)return'\u{1F5D1}\uFE0F Garbage dump';
   if(castleAt(px,pz))return'\u{1F3F0} Castle';
-  {const B=bigPlainsAt(px,pz);if(B)return B.kind==='nuclear'?'\u2622\uFE0F Nuclear plant':B.kind==='airport'?'\u2708\uFE0F Airport':B.kind==='airfield'?'\u{1F6E9}\uFE0F Airfield':B.kind==='nasa'?'\u{1F680} Launch site':B.kind==='mine'?'\u26CF\uFE0F Mine':B.kind==='quarry'?'\u{1FAA8} Quarry':B.kind==='lumber'?'\u{1FAB5} Lumber camp':B.kind==='campsite'?'\u{1F3D5}\uFE0F Campsite':B.kind==='cult'?'\u{1F56F}\uFE0F Cult altar':B.kind==='tower5g'?'\u{1F4E1} 5G tower':B.kind==='prepper'?'\u{1F6E1}\uFE0F Prepper compound':B.kind==='militia'?'\u{1F3AF} Militia compound':B.kind==='ruins'?'\u{1F3DB}\uFE0F Ruins':B.kind==='thieves'?"\u{1F977} Thieves' hideout":'\u{1FA96} Military base';}
+  {const B=bigPlainsAt(px,pz);if(B)return BIO_SITE_N[B.kind]||(B.kind==='nuclear'?'\u2622\uFE0F Nuclear plant':B.kind==='airport'?'\u2708\uFE0F Airport':B.kind==='airfield'?'\u{1F6E9}\uFE0F Airfield':B.kind==='nasa'?'\u{1F680} Launch site':B.kind==='mine'?'\u26CF\uFE0F Mine':B.kind==='quarry'?'\u{1FAA8} Quarry':B.kind==='lumber'?'\u{1FAB5} Lumber camp':B.kind==='campsite'?'\u{1F3D5}\uFE0F Campsite':B.kind==='cult'?'\u{1F56F}\uFE0F Cult altar':B.kind==='tower5g'?'\u{1F4E1} 5G tower':B.kind==='prepper'?'\u{1F6E1}\uFE0F Prepper compound':B.kind==='militia'?'\u{1F3AF} Militia compound':B.kind==='ruins'?'\u{1F3DB}\uFE0F Ruins':B.kind==='thieves'?"\u{1F977} Thieves' hideout":'\u{1FA96} Military base');}
   if(caveMouth(px,pz))return'\u{1F987} Cave';
   if(turbineAt(px,pz))return'\u{1F32C}\uFE0F Wind farm';
   return farmK(px,pz)!==null||farmlandOf(px,pz)?'\u{1F69C} Farmland':'\u{1F33E} Plains';
@@ -33927,7 +34230,7 @@ document.getElementById('confirmYes').addEventListener('click',()=>{
 const TEST_GROUPS=[
   ['Town blocks',[['courthouse','Courthouses'],['tower','Office towers'],['mid','Mid-rise blocks'],['homes','Houses'],['shops','Little shops'],['park','Parks'],['plaza','Plazas'],['gas','Gas stations'],['food','Restaurants'],['fastfood','Fast food'],['fire','Fire stations'],['police','Police stations'],['build','Construction sites'],['wtower','Water towers'],['bell','Bell towers'],['church','Churches'],['cemetery','Cemeteries'],['library','Libraries'],['bank','Banks'],['news','TV news'],['radio','Radio stations'],['disco','Discos'],['club','Night clubs'],['court','Basketball courts'],['derelict','Derelict buildings'],['mansion','Mansions'],['trailers','Trailer parks'],['camp','Encampments'],['farmers',"Farmers' markets"],['nursery','Tree nurseries'],['dealer','Car dealers'],['armory','Armories'],['theater','Theatres'],['stocks','Stock exchange'],['datacenter','Data centers'],['electric','Electric company'],['lab','Goblin labs'],['jail','Jails']]],
   ['Big sites',[['hospital','Hospitals'],['garage','Car parks'],['mega','Mega-buildings'],['market','Supermarkets'],['drug','Drugstores'],['sitdown','Sit-down restaurants'],['mall','Malls'],['bigbox','Superstores'],['ikea','Furniture superstores'],['cathedral','Cathedrals'],['museum','Museums'],['aquarium','Aquariums'],['casino','Casinos'],['school','Schools'],['factory','Factories'],['cinema','Cinemas'],['stadium','Stadiums'],['arena','Arenas'],['campus','Universities'],['prison','Prisons'],['water','Water works'],['power','Power stations'],['nuclear','Nuclear plants'],['zoo','Zoos'],['studio','Film studios'],['theme','Theme parks'],['bigpark','Big parks'],['hood','Housing estates'],['capitol','The capitol']]],
-  ['Countryside',[['farm','Farms'],['truckstop','Truck stops'],['dump','Garbage dumps'],['mine','Mines'],['quarry','Quarries'],['lumber','Lumber camps'],['campsite','Campsites'],['cult','Cult altars'],['wrecks','Abandoned cars'],['tower5g','5G towers'],['prepper','Prepper compounds'],['militia','Militia compounds'],['ruins','Ruins'],['thieves',"Thieves' hideouts"],['wind','Wind farms'],['airport','Airports'],['airfield','Airfields'],['nasa','Launch sites'],['base','Military bases'],['bunker','Bunkers'],['pylons','Power lines'],['billboards','Billboards'],['tolls','Toll plazas']]],
+  ['Countryside',[['farm','Farms'],['truckstop','Truck stops'],['dump','Garbage dumps'],['mine','Mines'],['quarry','Quarries'],['lumber','Lumber camps'],['campsite','Campsites'],['cult','Cult altars'],['wrecks','Abandoned cars'],['tower5g','5G towers'],['prepper','Prepper compounds'],['militia','Militia compounds'],['ruins','Ruins'],['thieves',"Thieves' hideouts"],['derricks','Oil fields'],['peat','Peat diggings'],['research','Research stations'],['safari','Safari lodges'],['stilts','Stilt villages'],['ski','Ski slopes'],['wind','Wind farms'],['airport','Airports'],['airfield','Airfields'],['nasa','Launch sites'],['base','Military bases'],['bunker','Bunkers'],['pylons','Power lines'],['billboards','Billboards'],['tolls','Toll plazas']]],
   ['Railways',[['rail','Railways'],['station','Train stations']]],
   ['Coast',[['sea','The ocean'],['beach','Beaches'],['harbor','Docks'],['yard','Shipping ports (coastal cities)'],['navy','Naval bases'],['lighthouse','Lighthouses'],['rig','Oil rigs'],['wreck','Shipwrecks']]],
   ['Underground',[['sewers','Sewers'],['subway','Subway'],['caves','Caves']]]];

@@ -94,8 +94,8 @@ function goblinModel(parent,o={}){
   parent.netOpt=o;   // (how it was made, so a guest online can make the same)
   const out={legs:[],acc:{},snowU:o.snowU||{value:0}},roles={},matList=[];   // (o.snowU: a car's, for its driver: cars.js)
   // things worn over the head/face are drawn a hair in front of whatever they sit flush against, so they never flicker
-  const OVER={hat:1,hatdark:1,hair:1,patch:1,acc2:1,gold:1};
-  const role=(r,c)=>{if(!roles[r]){roles[r]=new THREE.MeshLambertMaterial(OVER[r]?{color:c,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-3}:{color:c});const sn=r==='skin'||r==='hat'||r==='hair'||r==='hatdark';if(sn)snowCar(roles[r],out);matList.push(roles[r]);}return roles[r];};   // (heads and hats catch the snow)
+  const OVER={hat:1,hatdark:1,hair:1,patch:1,acc2:1,gold:1,wear:1,trim:1};
+  const role=(r,c)=>{if(!roles[r]){roles[r]=new THREE.MeshLambertMaterial(OVER[r]?{color:c,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-3}:{color:c});const sn=r==='skin'||r==='hat'||r==='hair'||r==='hatdark'||r==='wear';if(sn)snowCar(roles[r],out);matList.push(roles[r]);}return roles[r];};   // (heads and hats catch the snow)
   const geo=(w,h,d)=>o.shareGeo?boxGeo(w,h,d):new THREE.BoxGeometry(w,h,d);
   const box=(w,h,d,r,c,x,y,z,p)=>{const m=new THREE.Mesh(geo(w,h,d),role(r,c));m.position.set(x,y,z);p.add(m);return m;};
   const acc=(name,list)=>{for(const m of list)m.visible=false;out.acc[name]=list;};
@@ -154,6 +154,15 @@ function goblinModel(parent,o={}){
   acc('apron',[box(0.4,0.4,0.03,'acc',0x884422,0,0.62,0.165,parent)]);
   acc('backpack',[box(0.36,0.4,0.16,'acc',0x884422,0,0.72,-0.23,parent)]);
   acc('pouch',[box(0.12,0.12,0.08,'belt',GC.belt,0.2,0.5,0.17,parent)]);
+  // dressed for where it lives (lookBiome): a parka and a fur-trimmed hood in the cold, a head wrap and a robe in the desert,
+  // a wide reed hat in the swamp, a safari hat on the savanna. In two colours of their own, 'wear' and 'trim'
+  acc('parka',[box(0.58,0.56,0.38,'wear',0x2a4a7a,0,0.7,0,parent),box(0.6,0.06,0.4,'trim',0xeeeae0,0,0.43,0,parent),box(0.17,0.3,0.17,'wear',0x2a4a7a,0,-0.14,0,arm),box(0.17,0.3,0.17,'wear',0x2a4a7a,0,-0.14,0,armL)]);
+  acc('hood',[box(0.58,0.1,0.52,'wear',0x2a4a7a,0,0.47,0,head),box(0.58,0.5,0.08,'wear',0x2a4a7a,0,0.22,-0.24,head),box(0.07,0.44,0.5,'wear',0x2a4a7a,-0.29,0.24,0,head),box(0.07,0.44,0.5,'wear',0x2a4a7a,0.29,0.24,0,head),
+    box(0.62,0.08,0.06,'trim',0xeeeae0,0,0.47,0.25,head),box(0.07,0.46,0.06,'trim',0xeeeae0,-0.3,0.22,0.25,head),box(0.07,0.46,0.06,'trim',0xeeeae0,0.3,0.22,0.25,head)]);
+  acc('wrap',[box(0.52,0.16,0.47,'wear',0xe8dcc0,0,0.45,0.02,head),box(0.53,0.04,0.48,'trim',0x3a2a1a,0,0.41,0.02,head),box(0.46,0.36,0.06,'wear',0xe8dcc0,0,0.2,-0.24,head)]);
+  acc('robe',[box(0.54,0.5,0.34,'wear',0xe8dcc0,0,0.7,0,parent),box(0.56,0.34,0.36,'wear',0xe8dcc0,0,0.29,0,parent),box(0.56,0.06,0.37,'trim',0x3a2a1a,0,0.52,0,parent)]);
+  acc('reedhat',[box(0.86,0.04,0.8,'wear',0xc9b06a,0,0.44,0.02,head),box(0.52,0.08,0.48,'wear',0xc9b06a,0,0.5,0.02,head),box(0.26,0.08,0.24,'wear',0xc9b06a,0,0.57,0.02,head),box(0.08,0.06,0.08,'trim',0x5a4a2a,0,0.63,0.02,head)]);
+  acc('safari',[box(0.5,0.16,0.46,'wear',0xc8b07a,0,0.5,0.02,head),box(0.74,0.03,0.7,'wear',0xc8b07a,0,0.43,0.02,head),box(0.51,0.04,0.47,'trim',0x5a3a22,0,0.46,0.02,head)]);
   out.mats=matList;out.roles=roles;return out;
 }
 // ---- who each goblin is ----
@@ -180,12 +189,32 @@ const hexCss=h=>'#'+h.toString(16).padStart(6,'0');
 function applyLook(t,L,base){
   const R=t.roles;
   R.skin.color.setHex(L.skin);R.dark.color.setHex(L.skin).multiplyScalar(0.72);R.tunic.color.setHex(L.tunic);R.pants.color.setHex(L.pants);
-  for(const k of ['hat','acc','acc2','hair'])if(R[k])R[k].color.setHex(L[k]);
+  for(const k of ['hat','acc','acc2','hair','wear','trim'])if(R[k]&&L[k]!==undefined)R[k].color.setHex(L[k]);
   for(const k in t.acc)for(const m of t.acc[k])m.visible=false;
   for(const k of L.show||[])if(t.acc[k])for(const m of t.acc[k])m.visible=true;
   t.root.scale.set(base*L.w,base*L.h,base*L.w);t.head.scale.setScalar(L.hs);
 }
-function dressGoblin(g){const L=lookNew(g.civ,g.vendor,Math.random);applyLook(g,L,ES);return L;}
+function dressGoblin(g,bio){const L=lookNew(g.civ,g.vendor,Math.random);if(bio)lookBiome(g,L);applyLook(g,L,ES);return L;}
+// what a townsfolk or street goblin wears where it lives (plan section 8): parkas and hoods in the cold, wraps (and often
+// robes) in the desert and badlands, wide reed hats in the swamp, safari hats on the savanna, a flat cap and a scarf on
+// the moors; about two in three of them. Chosen by the spot it's put on (biomeAt and hash2), never Math.random, so the
+// game's random numbers run as before
+const BIO_WEAR={tundra:'parka',ice:'parka',taiga:'parka',desert:'wrap',badlands:'wrap',swamp:'reedhat',savanna:'safari',moor:'moor'};
+const WEAR_C={parka:[[0xa83232,0x2a4a7a,0x3a5a3a,0x6a5a3a,0xc98a2a,0x5a3a6a],[0xeeeae0,0xd8d0c0]],wrap:[[0xe8dcc0,0xd6c49a,0x9a6a4a,0x5a6a8a,0xf0ece0,0x2a3a5a],[0x3a2a1a,0x8a2a22,0x2a2a2a]],
+  reedhat:[[0xc9b06a,0xa8945a,0x8a7a4a],[0x5a4a2a]],safari:[[0xc8b07a,0xa89060,0x8a7a50],[0x5a3a22,0x2a2a2a]]};
+const HAT_KEYS=['cap','top','beanie','hardhat','bandana','mohawk'],WEAR_KEYS=['parka','hood','wrap','robe','reedhat','safari'];
+function lookBiome(g,L){
+  if(TENV||g.pos.x>=SHIP_X0)return L;
+  const x=Math.floor(g.pos.x),z=Math.floor(g.pos.z),w=BIO_WEAR[BIOMES[biomeAt(x,z)].k];if(!w)return L;
+  const h=k=>hash2(x*31+k*977+5501,z*17+k*613+5503);if(h(1)>0.68)return L;
+  const strip=a=>{L.show=L.show.filter(k=>!a.includes(k));};strip(HAT_KEYS);
+  if(w==='moor'){L.hatType='cap';L.hat=[0x6a5a4a,0x4a4a3a,0x5a4a5a][Math.floor(h(2)*3)];L.show.push('cap');if(!L.show.includes('scarf'))L.show.push('scarf');L.hatShown=L.hat;return L;}
+  const C=WEAR_C[w];L.wear=C[0][Math.floor(h(2)*C[0].length)];L.trim=C[1][Math.floor(h(3)*C[1].length)];
+  if(w==='parka'){strip(['scarf','tie','apron']);L.show.push('parka','hood');}
+  else if(w==='wrap'){strip(['tie','apron','scarf']);L.show.push('wrap');if(h(4)<0.6)L.show.push('robe');}
+  else L.show.push(w);
+  L.hatType=w==='parka'?'hood':w;L.hatShown=L.wear;return L;
+}
 // a goblin's look, from R (Math.random, or a driver's own: makeDriver): colours, hat, face, the rest it wears, its build
 function lookNew(civ,vendor,R){
   const pk=a=>a[Math.floor(R()*a.length)];
@@ -204,7 +233,7 @@ function lookNew(civ,vendor,R){
   return L;
 }
 // a police officer's: all in blue, a blue cap and nothing else on top
-function lookCop(L){L.tunic=0x1c2a5a;L.pants=0x1c2a5a;L.show=L.show.filter(k=>!['cap','top','beanie','hardhat','bandana','mohawk','scarf','tie','backpack','apron','eyepatch'].includes(k));L.hatType='cap';L.hat=0x1c2a5a;L.show.push('cap');L.hatShown=L.hat;return L;}
+function lookCop(L){L.tunic=0x1c2a5a;L.pants=0x1c2a5a;L.show=L.show.filter(k=>!['cap','top','beanie','hardhat','bandana','mohawk','scarf','tie','backpack','apron','eyepatch'].includes(k)&&!WEAR_KEYS.includes(k));L.hatType='cap';L.hat=0x1c2a5a;L.show.push('cap');L.hatShown=L.hat;return L;}
 function makeIdentity(g,look){
   return{name:pick(GOB.first)+' '+pick(GOB.last),age:12+Math.floor(Math.random()*79),occ:pick(g.civ?GOB.civ:GOB.hostile),hobby:pick(GOB.hobby),quirk:pick(GOB.quirk),
     sk:hexCss(look.skin),tu:hexCss(look.tunic),ht:hexCss(look.hatShown),look};

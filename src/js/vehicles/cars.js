@@ -441,6 +441,7 @@ const r2=c=>c%2?'semi':'truck';
 function parkSpots0(px,pz){   // (the plan's: parkSpots, world/sites.js, puts a structure's own in place of these inside its lot)
   const P=plotInfo(px,pz),X0=px*CELL,Z0=pz*CELL,out=[];
   if(P.type==='plains')for(const o of abandonedSpots(px,pz))out.push(o);
+  if(P.type==='ski'){const B=bigPlainsAt(px,pz);for(let i=0;i<12;i++){const x=B.ax*CELL+62.5+(i%6)*5,z=B.az*CELL+(i<6?8.5:19.5);if(Math.floor(x/CELL)===px&&Math.floor(z/CELL)===pz&&hash2(B.ax*31+i,B.az*17+3)<0.6)out.push({x,z,y:G+1,h:i<6?Math.PI:0,key:px+','+pz+':sk'+i,p:0.9});}}   // (skiers' cars in the car park)
   if(P.type==='thieves')for(const [u,v,h,i] of [[8,26,0.3,0],[24,25,-1.2,1],[22,4,1.6,2]])out.push({x:X0+u,z:Z0+v,y:G+1,h,key:px+','+pz+':st'+i,p:0.9});   // (the stolen cars)   // (wrecks dumped in the fields)
   if(P.type==='super'&&P.super.kind==='garage'&&P.b.length){for(const o of garageBays(P.b[0],X0,Z0)){o.key=px+','+pz+':'+o.n+':'+o.bay+':'+o.row;o.p=0.6;out.push(o);}}
   else if(P.type==='grocery'){for(let k=4;k<=8;k++)out.push({x:X0+3*k+2,z:Z0+PL0+3,y:G+1,h:0,key:px+','+pz+':lot'+k,p:0.45});}

@@ -82,6 +82,22 @@
 - Beaches in the badlands are red sand.
 - This makes a new world again, so a saved city starts afresh.
 
+### Living in each biome
+
+- Towns are built for their country. Desert and badlands towns are stucco, sandstone and banded clay with flat roofs. Taiga, tundra and ice-field towns are log and plank cabins with steep roofs for the snow. Moor villages are stone cottages.
+- The harsh country has fewer and smaller places: the ice fields, tundra, desert, badlands and rainforest are mostly villages, and there are no cities there.
+- Townsfolk and goblins dress for the weather: parkas and fur hoods in the cold, head wraps and robes in the desert, reed hats in the swamp, safari hats on the savanna, flat caps and scarves on the moor.
+- Coming into a new biome out in the open puts its name on screen, and a place's banner says which biome it's in.
+- Six new sites out in the country, each only in its own biome:
+  - oil fields in the desert, with a drilling rig, nodding pumpjacks and storage tanks;
+  - peat diggings on the moor;
+  - research stations in the ice fields, with a radar dome and a helipad;
+  - safari lodges on the savanna, with tents, a watchtower and a waterhole;
+  - stilt villages in the swamp, joined by boardwalks;
+  - ski slopes in cold mountains, with a chairlift up the piste.
+- The other country sites suit the land too: lumber camps are in the forests, more mines and ruins are in the desert, and more cult altars are in the swamp. There are no farms in the ice fields.
+- This makes a new world again, so a saved city starts afresh.
+
 ### Rivers
 
 - Rivers now start somewhere and go somewhere: each one rises in the hills or mountains, or flows out of a lake, and runs downhill until it reaches the sea or joins a bigger river.

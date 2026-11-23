@@ -576,12 +576,14 @@ function mallAt(b,rx,rz,y,px,pz){
 }
 // a house's gable roof above its top floor: shingles stepping in toward the ridge, wall filling the gable ends
 function houseRoof(b,rx,rz,y){
-  const i=y-b.top-1;if(i<0||i>=b.roof)return AIR;
+  // (b.roofK: how far it rises a step in, so a snowy country's roofs are steeper: world/climate.js's BIO_TOWN. b.roof is
+  // its height in blocks, the steps' count times that)
+  const j=y-b.top-1;if(j<0||j>=b.roof)return AIR;const K=b.roofK||1,i=Math.floor(j/K),n=b.roofN||b.roof;
   const s=b.ridgeX?rz:rx,s0=b.ridgeX?b.z0:b.x0,s1=b.ridgeX?b.z1:b.x1,t=b.ridgeX?rx:rz,t0=b.ridgeX?b.x0:b.z0,t1=b.ridgeX?b.x1:b.z1;
   const d=Math.min(s-s0,s1-1-s);
   if(d===i)return SHINGLE;
   if(d>i&&(t===t0||t===t1-1)){STRUCT=true;return b.wall;}
-  if(d>i&&i===b.roof-1)return SHINGLE;
+  if(d>i&&i===n-1)return SHINGLE;
   return AIR;
 }
 // the block a building has at (rx,rz,y); STRUCT says whether it holds the building up

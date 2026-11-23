@@ -149,7 +149,8 @@ function settlementLat(rx,rz){
   let type;if(rx===0&&rz===0)type='city';else{const h=hash2(rx*577+31,rz*331+17);type=h<0.14?'city':h<0.38?'large':h<0.68?'small':'village';
     // (in rugged country, world/relief.js, places are smaller: a step down for each band of ruggedness where the place
     // would be. Only that coarse field, never the land's real height, which is worked out from where the places are)
-    const g=ruggedAt(rx*SET_SP*CELL,rz*SET_SP*CELL),dn=g>0.9?3:g>0.78?2:g>0.62?1:0;
+    // (and in harsh country, world/climate.js: the ice fields, tundra, desert, badlands and rainforest have fewer big places)
+    const X=rx*SET_SP*CELL,Z=rz*SET_SP*CELL,g=ruggedAt(X,Z),bt=bioNear(X,Z).town,dn=(g>0.9?3:g>0.78?2:g>0.62?1:0)+(bt?bt.dn:0);
     if(dn){const T=['city','large','small','village'];type=T[Math.min(3,T.indexOf(type)+dn)];}}
   const [r0,rv]=SET_R[type];// (each place is nudged off its grid point on its own, up to 11 blocks either way, so they don't line up)
   S={rx,rz,type,R:rx===0&&rz===0?15:r0+hash2(rx*41+3,rz*59+5)*rv,cx:rx===0&&rz===0?0:rx*SET_SP+Math.round((hash2(rx*733+rz*97+1,rz*311+5)-0.5)*22),cz:rx===0&&rz===0?0:rz*SET_SP+Math.round((hash2(rz*733+rx*89+2,rx*271+9)-0.5)*22)};
@@ -172,17 +173,23 @@ function setName(S){
 }
 const PLACE_KIND={city:'City',large:'Large town',small:'Small town',village:'Village',coastcity:'Coastal city',harbortown:'Harbor town',resort:'Resort town',fishing:'Fishing village'};
 // coming into a place: its name across the screen for a few seconds (and again if you come back after a good while away)
-const PB={el:null,t:0,last:null,outT:0};
+const PB={el:null,t:0,last:null,outT:0,bio:null,bioC:-1,bioT:0,bt:0};
+function pbEl(){if(!PB.el){const host=document.body||document.documentElement;if(!host||!host.appendChild)return null;PB.el=document.createElement('div');PB.el.className='placeBanner';PB.el.setAttribute('aria-live','polite');host.appendChild(PB.el);}return PB.el;}
 function placeBannerTick(dt){
   const p=players.find(q=>q.active);if(!p)return;
   if(PB.t>0){PB.t-=dt;if(PB.t<=0&&PB.el)PB.el.classList.remove('on');}
   if(!playing||TENV)return;
   const S=settlementAt(Math.floor(p.pos.x/CELL),Math.floor(p.pos.z/CELL))||coastOwner(Math.floor(p.pos.x/CELL),Math.floor(p.pos.z/CELL));
+  // (out in the open, a biome's name once you've been in a new one for a few seconds, worked out twice a second from where
+  // you really are, a ship's deck included; in a place the biome's only noted, so leaving it into the same biome says nothing)
+  PB.bt-=dt;if(PB.bt<=0){PB.bt=0.5;const bx=Math.floor(pwx(p)/CELL),bz=Math.floor(pwz(p)/CELL),b=biomeOfPlot(bx,bz);
+    if(PB.bio===null||S)PB.bio=b;else if(b===PB.bio)PB.bioT=0;else{if(b!==PB.bioC){PB.bioC=b;PB.bioT=0;}PB.bioT+=0.5;
+      if(PB.bioT>=3&&!seaPlot(bx,bz)&&pbEl()){PB.bio=b;PB.el.innerHTML='<div class="pn">'+BIOMES[b].n+'</div>';PB.el.classList.add('on');PB.t=3;}}}
   if(!S){PB.outT+=dt;return;}
   if(S!==PB.last||PB.outT>45){
-    if(!PB.el){const host=document.body||document.documentElement;if(!host||!host.appendChild)return;PB.el=document.createElement('div');PB.el.className='placeBanner';PB.el.setAttribute('aria-live','polite');host.appendChild(PB.el);}
+    if(!pbEl())return;
     const v=setListC.has(S.rx+','+S.rz)?setDestroyed(S):null;
-    PB.el.innerHTML='<div class="pn">'+setName(S)+'</div><div class="pk">'+PLACE_KIND[setKind(S)]+'</div><div class="pr"></div>'+(v?'<div class="pd">Destroyed: '+Math.round(v*100)+'%</div>':'');
+    PB.el.innerHTML='<div class="pn">'+setName(S)+'</div><div class="pk">'+PLACE_KIND[setKind(S)]+' · '+BIOMES[biomeOfPlot(Math.floor(pwx(p)/CELL),Math.floor(pwz(p)/CELL))].n+'</div><div class="pr"></div>'+(v?'<div class="pd">Destroyed: '+Math.round(v*100)+'%</div>':'');
     PB.el.classList.add('on');PB.t=3.6;
     if(knownSets)noteKnown(Math.floor(p.pos.x/CELL),Math.floor(p.pos.z/CELL));}
   PB.last=S;PB.outT=0;

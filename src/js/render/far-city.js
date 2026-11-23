@@ -400,7 +400,7 @@ function* farPlotBuildings(SB,P,px,pz){
 // dirt and leaves or flowers, an orchard's grass under its trees' crowns), and the buildings of a farm or site. A landmark
 // (a hangar, a tower, a reactor's dome, a launch tower) is drawn as columns of the height it really is, sampled every few
 // blocks, since one box round all of it would stand far too big ----
-const FAR_SITES=new Set(['farm','truckstop','nuclear','base','airport','airfield','nasa','mine','quarry','lumber','campsite','cult','tower5g','prepper','militia','ruins','thieves']);
+const FAR_SITES=new Set(['farm','truckstop','nuclear','base','airport','airfield','nasa','mine','quarry','lumber','campsite','cult','tower5g','prepper','militia','ruins','thieves','derricks','peat','research','safari','stilts','ski']);
 const farMix=(a,b,f)=>{const c=new THREE.Color(topColor(a));c.lerp(new THREE.Color(topColor(b)),f);return c;};
 // (green ones turn with the seasons as grass does: farBox gives them the grass's -1)
 const FAR_FIELD={veg:farMix(DIRT,LEAVES,0.5),flower:farMix(DIRT,FLOWER,0.5),orchard:farMix(GRASS,LEAVES,0.45)};

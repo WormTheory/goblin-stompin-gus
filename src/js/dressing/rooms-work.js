@@ -433,7 +433,7 @@ function patioProps(P,px,pz){
 // encampment's bedding and carts, a cult's book, candles and bones, a building site's barrows and bricks, a nursery's
 // pots, a trailer park's lawn chairs and junk, the flowers on the graves. (A site over more than one plot gives each plot
 // just its own, so nothing's listed twice.) Drawn out to the same distance as the benches in the street.
-const SITE_PROPS=new Set(['farmers','camp','campsite','cult','build','nursery','trailers','cemetery','mine','quarry','lumber','prepper','militia','thieves','ruins','dump','park','plaza','court','lighthouse','homes','airport','airfield']);
+const SITE_PROPS=new Set(['derricks','peat','research','safari','stilts','ski','farmers','camp','campsite','cult','build','nursery','trailers','cemetery','mine','quarry','lumber','prepper','militia','thieves','ruins','dump','park','plaza','court','lighthouse','homes','airport','airfield']);
 // (the big sites dressed the same way: the ones whose plan says where their open ground is)
 const SITE_SUPER=new Set(['power','zoo','theme','stadium','garage','bigpark']);
 // which of those a block is, if any (a bunker or a few wrecked cars out on open grass count too)
@@ -592,6 +592,27 @@ const SITE_FN={
   },
   // the thieves: the loot heaped outside the shack (televisions, a safe, crates, gold, a shopping cart), chairs round
   // their fire
+  // the biome sites (world/biome-sites.js): fuel and drums by the rig, tools at the peat cuttings, fuel and a flag at the
+  // research station, chairs by the waterhole and up the watchtower, each stilt hut's few things, the ski lodge's terrace
+  derricks(P,px,pz,add,putAt){const B=bigPlainsAt(px,pz);if(!B)return;const put=putAt(B.ax*CELL,B.az*CELL);
+    put('drum',40,34,0,0x3a3a3a);put('drum',41,35,0,0x3a3a3a);put('drum',40.2,36.1,0,0xa83a2a);put('jerrycans',56,30,0,P_FUEL[0],true);put('toolrack',39,18,Math.PI/2,0);put('pallet',58,66,0,0);put('pcrate',60,66,0.3,0);put('infosign',47,58.5,0,0);
+  },
+  peat(P,px,pz,add,putAt){const B=bigPlainsAt(px,pz);if(!B)return;const put=putAt(B.ax*CELL,B.az*CELL);
+    put('barrow',20,42,0.6,0x6a5a3a);put('barrow',44,30,2.2,0x4a5a3a);put('toolrack',22,51,0,0);put('bucket',30,6,0,0);put('chopblock',20,60,0,0);
+  },
+  research(P,px,pz,add,putAt){const B=bigPlainsAt(px,pz);if(!B)return;const put=putAt(B.ax*CELL,B.az*CELL);
+    put('flagmast',38,16,0,0);put('drum',56,30,0,0xc83a2a);put('drum',57,31,0,0xc83a2a);put('drum',56.2,32.1,0,0xc83a2a);put('jerrycans',54,34,0,P_FUEL[0],true);put('telescope',40,40,0.8,0);put('pcrate',30,24,0,0);
+  },
+  safari(P,px,pz,add,putAt){const B=bigPlainsAt(px,pz);if(!B)return;const put=putAt(B.ax*CELL,B.az*CELL);
+    put('campchair',35,44,Math.PI/2,0x8a6a3a);put('campchair',35,47,Math.PI/2,0x8a6a3a);put('cooler',35.6,45.5,0,0);put('telescope',52,45,Math.PI,0,false,G+8);put('campchair',51,43,Math.PI,0x8a6a3a,false,G+8);
+    put('picnic',14,22,0,0);put('umbrella',18,22,0,0xc8b07a);put('lounger',8,21,0,0);for(const [u,v] of SAFARI_TENTS)put('bedroll',u+3,v+5,0,0x8a6a3a,true,G+2);
+  },
+  stilts(P,px,pz,add,putAt){const B=bigPlainsAt(px,pz);if(!B)return;const put=putAt(B.ax*CELL,B.az*CELL);
+    for(const [hx,hz] of STILT_HUTS){const r=hash2(B.ax*7+hx,B.az*5+hz);put('bedroll',hx+0.5,hz-0.4,0,0x6a5a3a,true,G+3);put(r<0.5?'stool':'bucket',hx-1+0.5,hz+1.5,0,0,false,G+3);put(r<0.4?'bucket':'cooler',hx+3,hz+3.3,0,0,false,G+3);}
+  },
+  ski(P,px,pz,add,putAt){const B=bigPlainsAt(px,pz);if(!B)return;const put=putAt(B.ax*CELL,B.az*CELL);
+    for(let i=0;i<3;i++){put('picnic',34+i*6,10,0,0);put('umbrella',34+i*6,13,0,[0xc83a2a,0x2a5ac8,0xe0b030][i]);}put('infosign',66,36,0,0);put('flagmast',33,27,0,0);
+  },
   thieves(P,px,pz,add,putAt){const B=bigPlainsAt(px,pz);if(!B)return;const put=putAt(B.ax*CELL,B.az*CELL);
     put('tv',20.6,16.6,0.4,0);put('safe',22.2,17,0.2,0);put('pcrate',23.8,16.6,0.1,0);put('pcrate',23.8,16.6,0.3,0,false,G+1.64);put('tv',25.6,16.8,-0.3,0);
     put('trolley',21,18.8,1.2,0);put('goldbars',23.2,18.6,0.3,0,true);put('pcrate',25.4,18.8,0.6,0);put('goldbars',25.4,18.8,0.2,0,true,G+1.64);

@@ -128,7 +128,7 @@ function spawnCiv(g){
   if(!pos||!spawnOK(pos.x,pos.z))return false;
   g.pos.copy(pos);g.hp=g.hpMax=3;g.state='chase';g.t=0;g.sink=0;g.hurt=0;g.vy=0;g.kv.set(0,0,0);g.stun=0;g.wt=null;g.idle=0;g.screamCD=0;g.fleeing=false;g.detour=0;
   g.heading=g.vendor?-Math.PI/2:Math.random()*6.28;g.root.visible=true;g.root.rotation.set(0,0,0);g.arm.rotation.x=0;g.armL.rotation.x=0;
-  g.id=makeIdentity(g,dressGoblin(g));if(g.vendor)g.id.occ='Street vendor';
+  g.id=makeIdentity(g,dressGoblin(g,true));if(g.vendor)g.id.occ='Street vendor';
   return true;
 }
 function squeal(d){const att=Math.max(0.08,1-d/28);tone('sawtooth',950+Math.random()*350,1500+Math.random()*300,0.2,0.045*att);tone('sine',1300,900,0.22,0.03*att,0.05);}
@@ -197,7 +197,7 @@ function spawnGoblin(g,any){
   g.indoor=inside;
   g.pos.copy(pos);g.hp=g.hpMax=4;g.state='chase';g.t=0;g.sink=0;g.hurt=0;g.vy=0;g.atk=1;g.detour=0;
   g.root.visible=true;g.root.rotation.set(0,0,0);g.arm.rotation.x=-0.5;g.kv.set(0,0,0);g.stun=0;g.arms=null;g.aim=0;
-  g.id=makeIdentity(g,dressGoblin(g));
+  g.id=makeIdentity(g,dressGoblin(g,true));
   return true;
 }
 function damageGoblin(g,n,pt,dir,cause,by){

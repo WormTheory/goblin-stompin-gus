@@ -183,6 +183,7 @@ function siteTrees(x,z){
   if(B.kind==='lumber')return lumberClear(U,V)>1.08?1.1:0;
   if(B.kind==='campsite')return (U<7||U>56||V>59)&&!(U>=28&&U<=35&&V<12)&&!(V<9)?1.1:0;
   if(B.kind==='thieves')return Math.hypot(U-16,V-16)>13?1.4:0;
+  if(B.kind==='safari')return U<3||U>61||V>56&&U>36?0.35:0;   // (acacias round the edge)
   if(B.kind==='ruins'){for(const [u0,v0,u1,v1] of RUIN_ROOMS)if(U>=u0-1&&U<=u1+1&&V>=v0-1&&V<=v1+1)return 0;
     if(Math.hypot(U-46,V-44)<7||V>=25&&V<=30&&U>=34&&U<=60||Math.abs(U-32)<=3&&Math.abs(V-30)<=3)return 0;return 0.35;}
   return 0;

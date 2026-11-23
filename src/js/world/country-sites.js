@@ -42,15 +42,17 @@ function castleColumn(a,col,px,pz,rx,rz,lx,lz,x,z){
 // country airfield (4 x 2, a grass strip along x; last in the list, so it never moves any of the others), a
 // space agency's launch site (2 x 3) and a military base (2 x 2). Each sits on its own grid of anchor blocks, and only
 // where the whole rectangle (and a ring of a couple of blocks round it) is open country clear of everything else. ----
-const BIGP=[{kind:'airport',w:16,h:8,p:0,salt:11},{kind:'nasa',w:2,h:3,p:0.005,salt:23},{kind:'base',w:4,h:4,p:0.02,salt:37},{kind:'quarry',w:6,h:6,p:0.035,salt:67},{kind:'mine',w:3,h:3,p:0.016,salt:53},{kind:'lumber',w:4,h:3,p:0.018,salt:79},{kind:'campsite',w:2,h:2,p:0.009,salt:83},{kind:'nuclear',w:8,h:8,p:0.1,salt:131},{kind:'cult',w:1,h:1,p:0.0025,salt:97},{kind:'tower5g',w:1,h:1,p:0.004,salt:101},{kind:'prepper',w:2,h:2,p:0.006,salt:103},{kind:'militia',w:2,h:2,p:0.005,salt:107},{kind:'ruins',w:2,h:2,p:0.008,salt:109},{kind:'thieves',w:1,h:1,p:0.002,salt:113},{kind:'airfield',w:4,h:2,p:0.012,salt:127}],bigPC=new Map(),bigOK=new Map();
+const BIGP=[{kind:'airport',w:16,h:8,p:0,salt:11},{kind:'nasa',w:2,h:3,p:0.005,salt:23},{kind:'base',w:4,h:4,p:0.02,salt:37},{kind:'quarry',w:6,h:6,p:0.035,salt:67},{kind:'mine',w:3,h:3,p:0.016,salt:53},{kind:'lumber',w:4,h:3,p:0.018,salt:79},{kind:'campsite',w:2,h:2,p:0.009,salt:83},{kind:'nuclear',w:8,h:8,p:0.1,salt:131},{kind:'cult',w:1,h:1,p:0.0025,salt:97},{kind:'tower5g',w:1,h:1,p:0.004,salt:101},{kind:'prepper',w:2,h:2,p:0.006,salt:103},{kind:'militia',w:2,h:2,p:0.005,salt:107},{kind:'ruins',w:2,h:2,p:0.008,salt:109},{kind:'thieves',w:1,h:1,p:0.002,salt:113},{kind:'airfield',w:4,h:2,p:0.012,salt:127},{kind:'derricks',w:3,h:3,p:0.05,salt:137},{kind:'peat',w:2,h:2,p:0.04,salt:139},{kind:'research',w:2,h:2,p:0.05,salt:149},{kind:'safari',w:2,h:2,p:0.04,salt:151},{kind:'stilts',w:2,h:2,p:0.05,salt:157},{kind:'ski',w:3,h:4,p:0.12,salt:163}],bigPC=new Map(),bigOK=new Map();
 // is kind i's site (anchored at ax,az) there? (clear of the places, the sea, the roads, the farms... and of the
 // sites of the kinds before it in the list, which win any overlap)
 function bigCell(i,ax,az){
   const K=BIGP[i],kk=K.kind+ax+','+az;if(i===0)return false;let ok=bigOK.get(kk);if(ok!==undefined)return ok;
-  ok=hash2(ax*389+K.salt,az*211+K.salt*3)<K.p&&!TEST_OFF.has(K.kind);
+  // (the climate has its say: some kinds likelier in some country, the biome sites only in their own, biome-sites.js)
+  {const h=hash2(ax*389+K.salt,az*211+K.salt*3);ok=h<K.p*3&&!TEST_OFF.has(K.kind);if(ok)ok=h<K.p*siteBioW(K,(ax+K.w/2)*CELL,(az+K.h/2)*CELL);}
   // (not in rugged country, world/relief.js: fewer the more rugged, none in the high mountains. Only that coarse field,
   // never the land's real height, which is worked out from where the sites are)
-  if(ok){const g=ruggedAt((ax+K.w/2)*CELL,(az+K.h/2)*CELL);if(g>0.5&&hash2(ax*97+K.salt,az*53+7)<(g-0.5)/0.15)ok=false;}
+  // (mines and quarries go higher, bases, launch sites and airfields want gentler ground; the ski slope wants mountains)
+  if(ok&&K.kind!=='ski'){const g=ruggedAt((ax+K.w/2)*CELL,(az+K.h/2)*CELL),g0=K.kind==='mine'||K.kind==='quarry'?0.6:K.kind==='base'||K.kind==='nasa'||K.kind==='airfield'?0.35:0.5;if(g>g0&&hash2(ax*97+K.salt,az*53+7)<(g-g0)/0.15)ok=false;}
   if(ok)for(let a=ax-2;a<ax+K.w+2&&ok;a++)for(let b=az-2;b<az+K.h+2&&ok;b++){const inR=a>=ax&&a<ax+K.w&&b>=az&&b<az+K.h;if(settlementAt(a,b)||seaPlot(a,b)||inR&&railPlot(a,b)||inR&&(farmK(a,b)!==null||tsPlot(a,b)||plotNearLines(a,b,2)||rivPlotNear(a,b)))ok=false;}
   if(ok)for(let a=ax;a<ax+K.w&&ok;a++)for(let b=az;b<az+K.h&&ok;b++)for(let i2=0;i2<i&&ok;i2++){const K2=BIGP[i2];if(i2===0?airportAt(a,b):bigCell(i2,Math.floor(a/K2.w)*K2.w,Math.floor(b/K2.h)*K2.h))ok=false;}
   if(!apBusy)bigOK.set(kk,ok);return ok;
@@ -63,6 +65,7 @@ function bigPlainsAt(px,pz){
 }
 function bigColumn(col,B,U,V,x,z){
   col(G-1,DIRT);col(G,GRASS);for(let y=G+1;y<G+60;y++)col(y,AIR);
+  if(BIO_SITES.has(B.kind)){bioSiteColumn(col,B,U,V,x,z);return;}
   if(B.kind==='mine'){mineColumn(col,B,U,V,x,z);return;}
   if(B.kind==='quarry'){quarryColumn(col,B,U,V,x,z);return;}
   if(B.kind==='lumber'){lumberColumn(col,B,U,V,x,z);return;}
@@ -257,7 +260,9 @@ function dumpColumn(a,col,px,pz,rx,rz,lx,lz,x,z){
 }
 // ---- farms: out on the plains, a block or few to either side of a country highway, with a straight gravel lane
 // (north or south) out to it ----
-const farmC=new Map(),farmCand=(px,pz)=>hash2(px*19+5,pz*23+7)<0.1&&realmOf(px,pz)==='plains';
+// (no farms in the ice fields, and fewer where little grows: the tundra, desert and badlands)
+const farmC=new Map(),farmCand=(px,pz)=>{const h=hash2(px*19+5,pz*23+7);if(!(h<0.1)||realmOf(px,pz)!=='plains')return false;
+  const b=bioNear(px*CELL+PC,pz*CELL+PC).k;return b==='ice'?false:b==='tundra'||b==='desert'||b==='badlands'?h<0.035:true;};
 // a farm on block (px,pz): {s (-1: its road is to the north, 1: to the south), zEnd (where its lane meets the road's
 // edge)} or null. Which way is tried first is down to the farm; the lane must cross only open plains (no river, no
 // other farm, no town) and reach a country highway within four blocks.

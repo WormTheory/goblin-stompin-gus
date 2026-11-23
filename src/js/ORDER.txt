@@ -15,6 +15,7 @@ vehicles/base-armour.js
 world/coast-columns.js
 world/routes.js
 world/country-sites.js
+world/biome-sites.js
 world/airfields.js
 world/highways.js
 world/city-plan.js
