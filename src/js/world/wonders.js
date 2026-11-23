@@ -60,6 +60,16 @@ const WD_NAME={arch:'\u{1F3DC}️ Stone arch',fall:'\u{1F4A7} Waterfall',ribs:"\
 function wonderNear(x,z,r){
   for(const [SP,fn] of [[LM_SP,wdLmAt],[ARCH_SP,wdArchAt],[FALL_SP,wdFallAt]]){const W=wdIn(x,z,SP,fn);if(W){const dx=x-W.x,dz=z-W.z;if(dx*dx+dz*dz<r*r)return W;}}
   return null;}
+// (the wonders whose middles are in the box x0..x1, z0..z1 (blocks), for the maps: [kind, x, z] each, kind a WD_NAME key)
+// (ms: work out cells not known yet for no more than that long, then leave them; WD_MORE says some were left)
+let WD_MORE=false;
+function wondersIn(x0,z0,x1,z1,ms){const out=[],t0=ms?performance.now():0;WD_MORE=false;
+  for(const [SP,fn,c] of [[LM_SP,wdLmAt,2],[ARCH_SP,wdArchAt,0],[FALL_SP,wdFallAt,1]])
+    for(let i=Math.floor(x0/SP);i<=Math.floor(x1/SP);i++)for(let j=Math.floor(z0/SP);j<=Math.floor(z1/SP);j++){
+      if(ms&&!(WD_S===seed&&WD_C.has((i*100003+j)*4+c))&&performance.now()-t0>ms){WD_MORE=true;continue;}
+      const W=wdCell(SP,fn,i,j);
+      if(W&&W.x>=x0&&W.x<x1&&W.z>=z0&&W.z<z1)out.push([W.k,W.k==='fall'?W.x+W.di*W.i0:W.x,W.k==='fall'?W.z+W.dj*W.i0:W.z]);}
+  return out;}
 // the standing stones' places round their ring (12, every 30 degrees)
 const HENGE=[[1,0],[0.866,0.5],[0.5,0.866],[0,1],[-0.5,0.866],[-0.866,0.5],[-1,0],[-0.866,-0.5],[-0.5,-0.866],[0,-1],[0.5,-0.866],[0.866,-0.5]];
 function wonderColumn(col,x,z){
@@ -81,7 +91,9 @@ function fallColumn(col,x,z,F){
   const a=F.di?(x-F.x)*F.di:(z-F.z)*F.dj,b=F.di?z-F.z:x-F.x;
   if(Math.abs(b)<=1&&a>=F.i0-7&&a<=F.i0){const g=G+Math.max(0,plainsH(x,z));col(g,WATER);if(a<F.i0-5)col(g-1,WATER);return;}   // the stream to the edge
   if(Math.abs(b)<=1&&a>F.i0&&a<F.i1+1){const g=G+Math.max(0,plainsH(x,z));for(let y=g+1;y<=G+F.top;y++)col(y,WATER);return;}   // the fall down the face
-  {const fa=a-(F.i1+2),d2=fa*fa+b*b;if(d2<=12){const g=G+Math.max(0,plainsH(x,z));col(g-2,GRAVEL);col(g-1,WATER);col(g,WATER);if(d2>=9&&hash2(x*3+1,z*5+2)<0.4)col(g+1,MOSSSTONE);}}   // the pool at its foot
+  // the plunge pool at its foot: 6 deep under the fall, shelving to 3 at its rim, deep enough to dive into
+  {const fa=a-(F.i1+2),d2=fa*fa+b*b;if(d2<=20){const g=G+Math.max(0,plainsH(x,z)),D=d2<=5?6:d2<=10?5:d2<=15?4:3;
+    col(g-D,GRAVEL);for(let y=g-D+1;y<=g;y++)col(y,WATER);if(d2>=15&&hash2(x*3+1,z*5+2)<0.4)col(g+1,MOSSSTONE);}}
 }
 function lmColumn(col,x,z,M){
   const g=wdGround(x,z),base=G+M.h0,[u,w]=wdUW(M,x,z);

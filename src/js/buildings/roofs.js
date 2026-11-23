@@ -17,6 +17,10 @@ function roofOf(b){
     else if(cat==='disco')v={k:'ball'};
     else if(cat==='club'||cat==='theater')v={k:'front',c:b.wall};
     else if(cat==='shop'&&b.top-G<=8||SHOP_ROOF.has(cat))v={k:pick(['front','mansard','gable','front']),c:pick([SHINGLE,SHINGLE,PLANKS,col||PAINT_RED])};
+    // (a town's own way of building, world/climate.js's BIO_TOWN, set by bioShops: adobe in the desert, timber in the
+    // forests and the cold, stone on the moor; a bank's dome and a disco's ball stay what they are)
+    if(b.bstyle&&!(v&&(v.k==='dome'||v.k==='ball'))){const st=b.bstyle;
+      v=st==='adobe'?{k:'adobe',c:b.wall}:st==='timber'?(h<0.55?{k:'front',c:PLANKS}:{k:'gable',c:SHINGLE}):{k:'gable',c:STONE};}
     if(v&&(v.k==='hip'||v.k==='mansard'||v.k==='gable'||v.k==='barrel'))b.neon=0;   // (the roof says it now: no neon rim as well)
   }
   return b._rf=v;
@@ -34,7 +38,14 @@ function roofColumn(put,b,rf,rx,rz){
   else if(rf.k==='mansard'){if(e<2)stack(e+1,rf.c);}
   else if(rf.k==='gable')stack(Math.min(cross+1,4),rf.c);
   else if(rf.k==='barrel'){const t=(c-(n-1)/2)/(n/2);stack(Math.round(Math.sqrt(Math.max(0,1-t*t))*Math.min(3,n/2)),rf.c);}
-  else if(rf.k==='front'){
+  else if(rf.k==='adobe'){
+    // an adobe roof: a low parapet, rounded up at the corners and stepped up over the door, the ends of the log beams
+    // (vigas) along the top of the walls under it, and a little box over the stairs at the back
+    const fd=b.door===0?rx-b.x0:b.door===1?b.x1-1-rx:b.door===2?rz-b.z0:b.z1-1-rz,al=b.door<2?rz-b.z0:rx-b.x0,L=b.door<2?D:W,q=Math.abs(al-(L-1)/2);
+    const corner=(rx===b.x0||rx===b.x1-1)&&(rz===b.z0||rz===b.z1-1);
+    if(e===0){stack(corner?2:fd===0&&q<L*0.18?3:1,rf.c);if(!corner&&((rx-b.x0)+(rz-b.z0))%3===1)put(T,LOG);}
+    else if(fd>=L-4&&fd<=L-2&&q<=1)stack(2,rf.c);
+  } else if(rf.k==='front'){
     // the false front over the doors, stepped up in the middle; air-conditioning units on the flat roof behind
     const fd=b.door===0?rx-b.x0:b.door===1?b.x1-1-rx:b.door===2?rz-b.z0:b.z1-1-rz,al=b.door<2?rz-b.z0:rx-b.x0,L=b.door<2?D:W,q=Math.abs(al-(L-1)/2);
     if(fd===0)stack(q<L*0.2?3:q<L*0.36?2:1,rf.c);
@@ -209,14 +220,14 @@ function farmlandColumn(col,F,px,pz,rx,rz,x,z){
 // (plainsH round a river, remembered, as its columns ask it of the same places again and again. A var, as worldCfgSet and
 // clearWorld empty it and may run before this file has)
 var RIV_H=new Map(),RIV_HS=null;function rivH(x,z){if(RIV_HS!==seed){RIV_HS=seed;RIV_H.clear();RIV_LV.clear();}const k=x*131072+z;let v=RIV_H.get(k);if(v===undefined){if(RIV_H.size>200000)RIV_H.clear();v=plainsH(x,z);RIV_H.set(k,v);}return v;}
-// (a river's water level by a lake, world/relief.js: up to the lake's own, G, with a lake within 4.5 blocks of its banks,
-// G-1 within 7.5, else G-2 as everywhere else. Worked out from points on its middle line, every 2 blocks along it, the
-// highest of those within 4 either way along it (so it doesn't flicker between levels where a lake runs alongside), so
-// the whole width is at one level and it steps a block at a time)
-var RIV_LV=new Map();const RIV_RR=[1.5,3,4.5,6,7.5],RIV_D8=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
-function rivLvl(cx,cz,w,tx,tz){let v=G-2;for(const s of [-4,-2,0,2,4])v=Math.max(v,rivLvl0(cx+tx*s,cz+tz*s,w));return v;}
+// (a river's water level by a lake, world/relief.js: the lake's own, G, where a lake's within 4.5 blocks of its banks,
+// and from there it eases down a block every RIV_STEP blocks along its line to G-2, as everywhere else, so it slopes
+// steadily into the lake rather than stepping up in two weirs right at its edge. Worked out from points on its middle
+// line, every 2 blocks along it, so the whole width is at one level)
+var RIV_LV=new Map();const RIV_RR=[1.5,3,4.5],RIV_D8=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]],RIV_STEP=10;
+function rivLvl(cx,cz,w,tx,tz){let v=G-2;for(let s=-2*RIV_STEP;s<=2*RIV_STEP;s+=2){const l=G-Math.floor(Math.abs(s)/RIV_STEP);if(l>v&&rivLvl0(cx+tx*s,cz+tz*s,w))v=l;}return v;}
 function rivLvl0(cx,cz,w){const X=Math.round(cx/2)*2,Z=Math.round(cz/2)*2,k=X*131072+Z;let v=RIV_LV.get(k);if(v!==undefined)return v;
-  v=G-2;out:for(const r of RIV_RR)for(const [a,b] of RIV_D8){const l=a&&b?0.7071:1;if(rivH(Math.round(X+a*l*(w+r)),Math.round(Z+b*l*(w+r)))<0){v=r<=4.5?G:G-1;break out;}}
+  v=false;out:for(const r of RIV_RR)for(const [a,b] of RIV_D8){const l=a&&b?0.7071:1;if(rivH(Math.round(X+a*l*(w+r)),Math.round(Z+b*l*(w+r)))<0){v=true;break out;}}
   if(RIV_LV.size>50000)RIV_LV.clear();RIV_LV.set(k,v);return v;}
 function plainsRiverColumn(col,d,w,trib,x,z,W){   // (w: its width; a tributary's shallower; W riverCol's answer: the nearest point on its middle and which way it runs there)
   const RB=G-11+(trib?3:0);

@@ -49,17 +49,20 @@ const BIO_I={};BIOMES.forEach((B,i)=>{BIO_I[B.k]=i;B.i=i;});
 // large town and so on); w the houses' walls and sw the little shops'; rk how steep the houses' gable roofs are (rise a
 // step: 1 is the old 45 degrees, steeper in snowy country so the snow slides off), 0 a flat roof (the desert's adobe).
 // A biome with none builds as before (so the start's grassland does)
+// (shop: how a town's small shops and eateries are built, roofs.js's roofOf by city-plan.js's bioShops; mk: a share of
+// town blocks more given over to rows of shops, a market street; pz: a share of parks paved as plazas, or below 0 of plazas
+// left green as parks: baseType0)
 const BIO_TOWN={
-  ice:{dn:2,w:[PLANKS,LOG,SIDING,PAINT_RED],sw:[PLANKS,SIDING,PAINT_RED],rk:1.5},
-  tundra:{dn:1,w:[PLANKS,LOG,SIDING,PAINT_RED],sw:[PLANKS,SIDING,BRICK],rk:1.5},
-  taiga:{dn:0,w:[LOG,PLANKS,LOG,SIDING],sw:[PLANKS,BRICK,SIDING],rk:1.5},
-  desert:{dn:1,w:[STUCCO,STUCCO,SANDSTONE,STUCCO],sw:[STUCCO,SANDSTONE,STUCCO,CONCRETE],rk:0},
-  badlands:{dn:1,w:[STUCCO,TERRA,SANDSTONE,STUCCO],sw:[STUCCO,TERRA,SANDSTONE],rk:0},
-  scrub:{dn:0,w:[STUCCO,SIDING_Y,STUCCO,BRICK],sw:[STUCCO,BRICK,SIDING_Y],rk:0},
+  ice:{dn:2,w:[PLANKS,LOG,SIDING,PAINT_RED],sw:[PLANKS,SIDING,PAINT_RED],rk:1.5,shop:'timber',pz:-0.5},
+  tundra:{dn:1,w:[PLANKS,LOG,SIDING,PAINT_RED],sw:[PLANKS,SIDING,BRICK],rk:1.5,shop:'timber',pz:-0.5},
+  taiga:{dn:0,w:[LOG,PLANKS,LOG,SIDING],sw:[PLANKS,BRICK,SIDING],rk:1.5,shop:'timber',pz:-1},
+  desert:{dn:1,w:[STUCCO,STUCCO,SANDSTONE,STUCCO],sw:[STUCCO,SANDSTONE,STUCCO,CONCRETE],rk:0,shop:'adobe',mk:0.07,pz:0.7},
+  badlands:{dn:1,w:[STUCCO,TERRA,SANDSTONE,STUCCO],sw:[STUCCO,TERRA,SANDSTONE],rk:0,shop:'adobe',shw:[STUCCO,TERRA,SANDSTONE,TERRA2],mk:0.05,pz:0.6},
+  scrub:{dn:0,w:[STUCCO,SIDING_Y,STUCCO,BRICK],sw:[STUCCO,BRICK,SIDING_Y],rk:0,shop:'adobe',pz:0.3},
   savanna:{dn:0,w:[STUCCO,PLANKS,STUCCO,SIDING_Y],sw:[STUCCO,PLANKS,BRICK],rk:0},
-  rainforest:{dn:1,w:[PLANKS,PLANKS,SIDING_Y,STUCCO],sw:[PLANKS,STUCCO,SIDING_Y]},
-  swamp:{dn:0,w:[PLANKS,PLANKS,SIDING,LOG],sw:[PLANKS,SIDING,BRICK]},
-  moor:{dn:0,w:[COBBLE,STONE,MOSSSTONE,COBBLE],sw:[COBBLE,STONE,BRICK],rk:1.25}};
+  rainforest:{dn:1,w:[PLANKS,PLANKS,SIDING_Y,STUCCO],sw:[PLANKS,STUCCO,SIDING_Y],shop:'timber',pz:-0.6},
+  swamp:{dn:0,w:[PLANKS,PLANKS,SIDING,LOG],sw:[PLANKS,SIDING,BRICK],shop:'timber',pz:-0.6},
+  moor:{dn:0,w:[COBBLE,STONE,MOSSSTONE,COBBLE],sw:[COBBLE,STONE,BRICK],rk:1.25,shop:'stone'}};
 for(const B of BIOMES)B.town=BIO_TOWN[B.k]||null;
 // (a place's biome is the one at its middle, so a town on a biome's edge is built all one way)
 // (the biome of the climate lattice's corner nearest (x,z): for the plan's own questions (a place's size and style, which

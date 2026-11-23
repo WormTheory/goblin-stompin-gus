@@ -305,7 +305,17 @@ function baseType(px,pz){
   // (the wrong part of town for one of those: whatever's usual round here)
   const z=setType(px,pz);return z==='city'?'tower':z==='large'?'mid':hash2(px*23+3,pz*41+5)<0.2?'mid':'homes';
 }
+// (a town's biome has its say, lightly: a desert town's squares are paved where a temperate one's would be lawns, and it
+// has more rows of little shops; a forest town's are left green. Only the plan's own biome, townBio, so it's the same
+// however it's asked)
 function baseType0(px,pz){
+  const t=baseTypeT(px,pz),TB=t==='park'||t==='plaza'||t==='homes'||t==='mid'?townBio(px,pz):null;if(!TB)return t;
+  if(TB.mk&&(t==='homes'||t==='mid')&&hash2(px*67+29,pz*19+31)<TB.mk)return'shops';
+  if(t==='park'&&TB.pz>0&&hash2(px*13+41,pz*89+3)<TB.pz)return'plaza';
+  if(t==='plaza'&&TB.pz<0&&hash2(px*13+41,pz*89+3)<-TB.pz)return'park';
+  return t;
+}
+function baseTypeT(px,pz){
   const t=hash2(px*31+7,pz*17+13),ty=setType(px,pz);
   // a row of two little shops (bookshop, dentist, dispensary, gun shop, bar, soup kitchen); a water tower out in the
   // smaller places and the suburbs; a bell tower on its green, mostly in the small towns and villages
@@ -959,6 +969,15 @@ function plotInfo(px,pz){
     const J=plotBounds(px,pz);
     for(const b of p.b){if(J.x0<PL0&&b.x0<=PL0+3)b.x0=J.x0;if(J.x1>PL1&&b.x1>=PL1-3)b.x1=J.x1;if(J.z0<PL0&&b.z0<=PL0+3)b.z0=J.z0;if(J.z1>PL1&&b.z1>=PL1-3)b.z1=J.z1;}
   }
-  p.b.forEach(autoStair);
+  bioShops(p,px,pz);p.b.forEach(autoStair);
   plotCache.set(k,p);return p;
 }
+// a town's small shops and eateries built its biome's way (BIO_TOWN's shop: walls from its sw, and the roof roofOf gives
+// b.bstyle): low ones with a sign, not a tall tower or a house; a brand painted its own colour keeps it
+function bioShops(p,px,pz){
+  if(!setType(px,pz))return;const TB=townBio(px,pz);if(!TB||!TB.shop)return;
+  for(const b of p.b){if(!b.signCat||b.signCat==='kiosk'||b.style!=='normal'||b.home||b.tier||b.top-G>16||b.x1-b.x0<5||b.z1-b.z0<5)continue;
+    if(b.brand&&PAINTED.has(b.brand.wall))continue;
+    const W=TB.shw||SHOP_W[TB.shop];b.wall=W[Math.floor(hash2(b.x0*13+px*7,b.z0*11+pz*5)*W.length)];b.bstyle=TB.shop;}
+}
+const SHOP_W={adobe:[STUCCO,SANDSTONE,STUCCO,STUCCO],timber:[LOG,PLANKS,PLANKS,LOG],stone:[COBBLE,STONE,MOSSSTONE]};

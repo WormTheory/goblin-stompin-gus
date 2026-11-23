@@ -207,6 +207,8 @@ function rlfAir(px,pz){const k=px*100003+pz;let L=RLF_AIR.get(k);if(L)return L;L
 // farm's or site's edge 1.2; a truck stop, farm lane or town street 1.5). Over a road or railway it's a tunnel instead,
 // once the land's higher than RLF_TUN (a motorway's deck counts too). RLF.cut: cut back, so its face is bare rock;
 // RLF.tun: left standing over a road or railway
+// (how far in from the water's edge the column plainsH is asking about is, on a block by the sea; 1e9 elsewhere)
+var RLF_SW=1e9;
 function reliefMask(x,z,px,pz,mtn,tot){
   let cap=mtn;RLF.cut=false;RLF.tun=false;RLF.ter=false;RLF.tw=false;
   const lim=Math.min(90,mtn/0.7+6),q=(d,k,v)=>{const c=Math.max(0,d-v)*k;if(c<cap)cap=c;};
@@ -220,8 +222,9 @@ function reliefMask(x,z,px,pz,mtn,tot){
   // (the edges of the blocks round about that aren't open plains, two blocks out for the taller mountains: the land's
   // graded up from them in terraces, 3 blocks high and 4 deep, each held up by a retaining wall (RLF.tw: a column on the
   // wall's top edge), rather than cut back to a rock face)
+  if(cap>0)q(RLF_SW,1.2,0);   // (rising off a natural shore no more steeply than off a town's edge)
   if(cap>0){const rx=x-px*CELL,rz=z-pz*CELL,R=mtn>36?2:1;let e=1e9;
-    for(let dx=-R;dx<=R;dx++)for(let dz=-R;dz<=R;dz++){if(!dx&&!dz||PLAINS_OPEN(px+dx,pz+dz))continue;
+    for(let dx=-R;dx<=R;dx++)for(let dz=-R;dz<=R;dz++){if(!dx&&!dz||LAND_OPEN(px+dx,pz+dz))continue;
       const ex=dx<0?rx+(-dx-1)*CELL:dx>0?(dx-1)*CELL+CELL-1-rx:0,ez=dz<0?rz+(-dz-1)*CELL:dz>0?(dz-1)*CELL+CELL-1-rz:0,d=rlfLen(ex,ez);if(d<e)e=d;}
     const u=Math.max(0,e-2),k=Math.floor(u/4);if(3*k<cap){cap=3*k;RLF.ter=true;RLF.tw=k>=1&&u-4*k<1;}}
   if(cap<mtn-2&&cap>2&&!RLF.ter)RLF.cut=true;
@@ -232,7 +235,7 @@ function reliefMask(x,z,px,pz,mtn,tot){
 const rlfSnow=t=>48+70*t,rlfRock=t=>rlfSnow(t)-20;
 // the top of the ground at (x,z) as the chunks will make it, for what moves over land that isn't made yet (a plane): the
 // open plains' height, else G
-function landTop(x,z){const px=Math.floor(x/CELL),pz=Math.floor(z/CELL);return G+1+(realmOf(px,pz)==='plains'?Math.max(0,plainsH(Math.floor(x),Math.floor(z))):0);}
+function landTop(x,z){const px=Math.floor(x/CELL),pz=Math.floor(z/CELL);return G+1+(realmOf(px,pz)==='plains'||SHORE_OPEN(px,pz)?Math.max(0,plainsH(Math.floor(x),Math.floor(z))):0);}
 // the land's relief on the maps: a plains block split n x n, each cell its biome's colour, bare rock or snow by height
 // and lake water below the datum, shaded as if lit from the north-west. A list of n*n colours, or null where it's flat
 // (just the biome's colour). Kept per block and n (the land's height is from the seed alone)

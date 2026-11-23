@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:04e0ee6899c8bdab21af08babf5215125b1d2809104acc3248202ca8a142374f -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:837fe2ee069ba25d7001578d089f77f5cd9cf959bb12f8f06e7eba263f311911 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2397,10 +2397,10 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='b64725a2055a';
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v109'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
+const GAME_VER='0.5',GAME_BUILD='4b020113543b';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v110'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
-const WORLD_GEN=11;
+const WORLD_GEN=12;
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -3059,17 +3059,20 @@ const BIO_I={};BIOMES.forEach((B,i)=>{BIO_I[B.k]=i;B.i=i;});
 // large town and so on); w the houses' walls and sw the little shops'; rk how steep the houses' gable roofs are (rise a
 // step: 1 is the old 45 degrees, steeper in snowy country so the snow slides off), 0 a flat roof (the desert's adobe).
 // A biome with none builds as before (so the start's grassland does)
+// (shop: how a town's small shops and eateries are built, roofs.js's roofOf by city-plan.js's bioShops; mk: a share of
+// town blocks more given over to rows of shops, a market street; pz: a share of parks paved as plazas, or below 0 of plazas
+// left green as parks: baseType0)
 const BIO_TOWN={
-  ice:{dn:2,w:[PLANKS,LOG,SIDING,PAINT_RED],sw:[PLANKS,SIDING,PAINT_RED],rk:1.5},
-  tundra:{dn:1,w:[PLANKS,LOG,SIDING,PAINT_RED],sw:[PLANKS,SIDING,BRICK],rk:1.5},
-  taiga:{dn:0,w:[LOG,PLANKS,LOG,SIDING],sw:[PLANKS,BRICK,SIDING],rk:1.5},
-  desert:{dn:1,w:[STUCCO,STUCCO,SANDSTONE,STUCCO],sw:[STUCCO,SANDSTONE,STUCCO,CONCRETE],rk:0},
-  badlands:{dn:1,w:[STUCCO,TERRA,SANDSTONE,STUCCO],sw:[STUCCO,TERRA,SANDSTONE],rk:0},
-  scrub:{dn:0,w:[STUCCO,SIDING_Y,STUCCO,BRICK],sw:[STUCCO,BRICK,SIDING_Y],rk:0},
+  ice:{dn:2,w:[PLANKS,LOG,SIDING,PAINT_RED],sw:[PLANKS,SIDING,PAINT_RED],rk:1.5,shop:'timber',pz:-0.5},
+  tundra:{dn:1,w:[PLANKS,LOG,SIDING,PAINT_RED],sw:[PLANKS,SIDING,BRICK],rk:1.5,shop:'timber',pz:-0.5},
+  taiga:{dn:0,w:[LOG,PLANKS,LOG,SIDING],sw:[PLANKS,BRICK,SIDING],rk:1.5,shop:'timber',pz:-1},
+  desert:{dn:1,w:[STUCCO,STUCCO,SANDSTONE,STUCCO],sw:[STUCCO,SANDSTONE,STUCCO,CONCRETE],rk:0,shop:'adobe',mk:0.07,pz:0.7},
+  badlands:{dn:1,w:[STUCCO,TERRA,SANDSTONE,STUCCO],sw:[STUCCO,TERRA,SANDSTONE],rk:0,shop:'adobe',shw:[STUCCO,TERRA,SANDSTONE,TERRA2],mk:0.05,pz:0.6},
+  scrub:{dn:0,w:[STUCCO,SIDING_Y,STUCCO,BRICK],sw:[STUCCO,BRICK,SIDING_Y],rk:0,shop:'adobe',pz:0.3},
   savanna:{dn:0,w:[STUCCO,PLANKS,STUCCO,SIDING_Y],sw:[STUCCO,PLANKS,BRICK],rk:0},
-  rainforest:{dn:1,w:[PLANKS,PLANKS,SIDING_Y,STUCCO],sw:[PLANKS,STUCCO,SIDING_Y]},
-  swamp:{dn:0,w:[PLANKS,PLANKS,SIDING,LOG],sw:[PLANKS,SIDING,BRICK]},
-  moor:{dn:0,w:[COBBLE,STONE,MOSSSTONE,COBBLE],sw:[COBBLE,STONE,BRICK],rk:1.25}};
+  rainforest:{dn:1,w:[PLANKS,PLANKS,SIDING_Y,STUCCO],sw:[PLANKS,STUCCO,SIDING_Y],shop:'timber',pz:-0.6},
+  swamp:{dn:0,w:[PLANKS,PLANKS,SIDING,LOG],sw:[PLANKS,SIDING,BRICK],shop:'timber',pz:-0.6},
+  moor:{dn:0,w:[COBBLE,STONE,MOSSSTONE,COBBLE],sw:[COBBLE,STONE,BRICK],rk:1.25,shop:'stone'}};
 for(const B of BIOMES)B.town=BIO_TOWN[B.k]||null;
 // (a place's biome is the one at its middle, so a town on a biome's edge is built all one way)
 // (the biome of the climate lattice's corner nearest (x,z): for the plan's own questions (a place's size and style, which
@@ -3339,6 +3342,8 @@ function rlfAir(px,pz){const k=px*100003+pz;let L=RLF_AIR.get(k);if(L)return L;L
 // farm's or site's edge 1.2; a truck stop, farm lane or town street 1.5). Over a road or railway it's a tunnel instead,
 // once the land's higher than RLF_TUN (a motorway's deck counts too). RLF.cut: cut back, so its face is bare rock;
 // RLF.tun: left standing over a road or railway
+// (how far in from the water's edge the column plainsH is asking about is, on a block by the sea; 1e9 elsewhere)
+var RLF_SW=1e9;
 function reliefMask(x,z,px,pz,mtn,tot){
   let cap=mtn;RLF.cut=false;RLF.tun=false;RLF.ter=false;RLF.tw=false;
   const lim=Math.min(90,mtn/0.7+6),q=(d,k,v)=>{const c=Math.max(0,d-v)*k;if(c<cap)cap=c;};
@@ -3352,8 +3357,9 @@ function reliefMask(x,z,px,pz,mtn,tot){
   // (the edges of the blocks round about that aren't open plains, two blocks out for the taller mountains: the land's
   // graded up from them in terraces, 3 blocks high and 4 deep, each held up by a retaining wall (RLF.tw: a column on the
   // wall's top edge), rather than cut back to a rock face)
+  if(cap>0)q(RLF_SW,1.2,0);   // (rising off a natural shore no more steeply than off a town's edge)
   if(cap>0){const rx=x-px*CELL,rz=z-pz*CELL,R=mtn>36?2:1;let e=1e9;
-    for(let dx=-R;dx<=R;dx++)for(let dz=-R;dz<=R;dz++){if(!dx&&!dz||PLAINS_OPEN(px+dx,pz+dz))continue;
+    for(let dx=-R;dx<=R;dx++)for(let dz=-R;dz<=R;dz++){if(!dx&&!dz||LAND_OPEN(px+dx,pz+dz))continue;
       const ex=dx<0?rx+(-dx-1)*CELL:dx>0?(dx-1)*CELL+CELL-1-rx:0,ez=dz<0?rz+(-dz-1)*CELL:dz>0?(dz-1)*CELL+CELL-1-rz:0,d=rlfLen(ex,ez);if(d<e)e=d;}
     const u=Math.max(0,e-2),k=Math.floor(u/4);if(3*k<cap){cap=3*k;RLF.ter=true;RLF.tw=k>=1&&u-4*k<1;}}
   if(cap<mtn-2&&cap>2&&!RLF.ter)RLF.cut=true;
@@ -3364,7 +3370,7 @@ function reliefMask(x,z,px,pz,mtn,tot){
 const rlfSnow=t=>48+70*t,rlfRock=t=>rlfSnow(t)-20;
 // the top of the ground at (x,z) as the chunks will make it, for what moves over land that isn't made yet (a plane): the
 // open plains' height, else G
-function landTop(x,z){const px=Math.floor(x/CELL),pz=Math.floor(z/CELL);return G+1+(realmOf(px,pz)==='plains'?Math.max(0,plainsH(Math.floor(x),Math.floor(z))):0);}
+function landTop(x,z){const px=Math.floor(x/CELL),pz=Math.floor(z/CELL);return G+1+(realmOf(px,pz)==='plains'||SHORE_OPEN(px,pz)?Math.max(0,plainsH(Math.floor(x),Math.floor(z))):0);}
 // the land's relief on the maps: a plains block split n x n, each cell its biome's colour, bare rock or snow by height
 // and lake water below the datum, shaded as if lit from the north-west. A list of n*n colours, or null where it's flat
 // (just the biome's colour). Kept per block and n (the land's height is from the seed alone)
@@ -5897,6 +5903,10 @@ function farmlandOf(px,pz){
   fieldC.set(key,v);return v;
 }
 const PLAINS_OPEN=(px,pz)=>realmOf(px,pz)==='plains'&&farmK(px,pz)===null&&!farmlandOf(px,pz)&&dumpAt(px,pz)===null&&!castleAt(px,pz)&&!bunkerAt(px,pz)&&!bigPlainsAt(px,pz)&&!caveMouth(px,pz)&&!turbineAt(px,pz);
+// a block of natural shore (no town's beach or harbour, no port, no lighthouse): its land is the wilds' own, so the hills
+// run on down to the water there rather than flattening out a block short of it (plainsH, reliefMask)
+const SHORE_OPEN=(px,pz)=>seaPlot(px,pz)===1&&coastType(px,pz)==='shore';
+const LAND_OPEN=(px,pz)=>PLAINS_OPEN(px,pz)||SHORE_OPEN(px,pz);
 // close to a highway's line or a farm lane out on the plains (keep it flat, keep the trees off)
 // (RN_RT: the highways' part of the last answer, RN_O everything else's, RN_N everything but the highways and rivers, for
 // plainsH)
@@ -5918,16 +5928,19 @@ function roadNear(x,z,pad){
 // deeper than a few blocks isn't filled in for a highway, though: it runs on under it, and the road crosses on a deck on
 // pillars (routeColumn), easing from the one to the other as the lake gets deeper
 function plainsH(x,z){
-  const px=Math.floor(x/CELL),pz=Math.floor(z/CELL);RLF.cut=RLF.tun=RLF.ter=RLF.tw=RLF.salt=RLF.face=RLF.oas=false;RLF.r=RLF.dune=0;RLF.wl=-99;if(!PLAINS_OPEN(px,pz))return 0;
-  const rx=x-px*CELL,rz=z-pz*CELL;let f=1;
+  const px=Math.floor(x/CELL),pz=Math.floor(z/CELL);RLF.cut=RLF.tun=RLF.ter=RLF.tw=RLF.salt=RLF.face=RLF.oas=false;RLF.r=RLF.dune=0;RLF.wl=-99;
+  if(!PLAINS_OPEN(px,pz)&&!SHORE_OPEN(px,pz))return 0;
+  const rx=x-px*CELL,rz=z-pz*CELL;let f=1,sw=1e9;
   roadNear(x,z);const fr=Math.min(1,Math.max(0,RN_RT)/14);
-  for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++){if(!dx&&!dz||PLAINS_OPEN(px+dx,pz+dz))continue;
+  for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++){if(!dx&&!dz||LAND_OPEN(px+dx,pz+dz))continue;
     const ex=dx<0?rx:dx>0?CELL-1-rx:0,ez=dz<0?rz:dz>0?CELL-1-rz:0;f=Math.min(f,Math.max(dx?ex:0,dz?ez:0)/14);}
+  // (down to nothing at the water's edge on a natural shore, as at any other edge; RLF_SW how far in from it, for reliefMask)
+  if(nearSea(px,pz)){sw=Math.max(0,-coastD(x,z));f=Math.min(f,sw/14);}
   f=Math.min(f,rlfLane(x,z,px,pz)/6);   // (and level with a farm's lane, which only clears its own height)
   // (a lake isn't faded out by a river: the two meet, the river running into it, buildings/roofs.js's plainsRiverColumn)
   const fn=Math.min(f,Math.max(0,RN_N)/14);f=Math.min(f,Math.max(0,RN_O)/14);
   reliefNat(x,z,true);const mtn=RLF.mtn,hill=RLF.hill,lake=RLF.lake,s=Math.max(0,Math.min(1,(lake-2)/3)),fh=Math.min(f,fr),fl=Math.min(fn,fr+(1-fr)*s);
-  const h=hill*fh-lake*fl+(mtn>0.5?reliefMask(x,z,px,pz,mtn,hill+mtn):mtn*fh);
+  RLF_SW=sw;const h=hill*fh-lake*fl+(mtn>0.5?reliefMask(x,z,px,pz,mtn,hill+mtn):mtn*fh);
   return h<-0.9?Math.max(-RLF_LAKE,Math.round(h)):Math.max(0,Math.round(h));
 }
 // the plains' rolling ground before it's flattened toward roads and other blocks (plainsH scales it down there). Below
@@ -6205,6 +6218,16 @@ const WD_NAME={arch:'\u{1F3DC}️ Stone arch',fall:'\u{1F4A7} Waterfall',ribs:"\
 function wonderNear(x,z,r){
   for(const [SP,fn] of [[LM_SP,wdLmAt],[ARCH_SP,wdArchAt],[FALL_SP,wdFallAt]]){const W=wdIn(x,z,SP,fn);if(W){const dx=x-W.x,dz=z-W.z;if(dx*dx+dz*dz<r*r)return W;}}
   return null;}
+// (the wonders whose middles are in the box x0..x1, z0..z1 (blocks), for the maps: [kind, x, z] each, kind a WD_NAME key)
+// (ms: work out cells not known yet for no more than that long, then leave them; WD_MORE says some were left)
+let WD_MORE=false;
+function wondersIn(x0,z0,x1,z1,ms){const out=[],t0=ms?performance.now():0;WD_MORE=false;
+  for(const [SP,fn,c] of [[LM_SP,wdLmAt,2],[ARCH_SP,wdArchAt,0],[FALL_SP,wdFallAt,1]])
+    for(let i=Math.floor(x0/SP);i<=Math.floor(x1/SP);i++)for(let j=Math.floor(z0/SP);j<=Math.floor(z1/SP);j++){
+      if(ms&&!(WD_S===seed&&WD_C.has((i*100003+j)*4+c))&&performance.now()-t0>ms){WD_MORE=true;continue;}
+      const W=wdCell(SP,fn,i,j);
+      if(W&&W.x>=x0&&W.x<x1&&W.z>=z0&&W.z<z1)out.push([W.k,W.k==='fall'?W.x+W.di*W.i0:W.x,W.k==='fall'?W.z+W.dj*W.i0:W.z]);}
+  return out;}
 // the standing stones' places round their ring (12, every 30 degrees)
 const HENGE=[[1,0],[0.866,0.5],[0.5,0.866],[0,1],[-0.5,0.866],[-0.866,0.5],[-1,0],[-0.866,-0.5],[-0.5,-0.866],[0,-1],[0.5,-0.866],[0.866,-0.5]];
 function wonderColumn(col,x,z){
@@ -6226,7 +6249,9 @@ function fallColumn(col,x,z,F){
   const a=F.di?(x-F.x)*F.di:(z-F.z)*F.dj,b=F.di?z-F.z:x-F.x;
   if(Math.abs(b)<=1&&a>=F.i0-7&&a<=F.i0){const g=G+Math.max(0,plainsH(x,z));col(g,WATER);if(a<F.i0-5)col(g-1,WATER);return;}   // the stream to the edge
   if(Math.abs(b)<=1&&a>F.i0&&a<F.i1+1){const g=G+Math.max(0,plainsH(x,z));for(let y=g+1;y<=G+F.top;y++)col(y,WATER);return;}   // the fall down the face
-  {const fa=a-(F.i1+2),d2=fa*fa+b*b;if(d2<=12){const g=G+Math.max(0,plainsH(x,z));col(g-2,GRAVEL);col(g-1,WATER);col(g,WATER);if(d2>=9&&hash2(x*3+1,z*5+2)<0.4)col(g+1,MOSSSTONE);}}   // the pool at its foot
+  // the plunge pool at its foot: 6 deep under the fall, shelving to 3 at its rim, deep enough to dive into
+  {const fa=a-(F.i1+2),d2=fa*fa+b*b;if(d2<=20){const g=G+Math.max(0,plainsH(x,z)),D=d2<=5?6:d2<=10?5:d2<=15?4:3;
+    col(g-D,GRAVEL);for(let y=g-D+1;y<=g;y++)col(y,WATER);if(d2>=15&&hash2(x*3+1,z*5+2)<0.4)col(g+1,MOSSSTONE);}}
 }
 function lmColumn(col,x,z,M){
   const g=wdGround(x,z),base=G+M.h0,[u,w]=wdUW(M,x,z);
@@ -7131,7 +7156,17 @@ function baseType(px,pz){
   // (the wrong part of town for one of those: whatever's usual round here)
   const z=setType(px,pz);return z==='city'?'tower':z==='large'?'mid':hash2(px*23+3,pz*41+5)<0.2?'mid':'homes';
 }
+// (a town's biome has its say, lightly: a desert town's squares are paved where a temperate one's would be lawns, and it
+// has more rows of little shops; a forest town's are left green. Only the plan's own biome, townBio, so it's the same
+// however it's asked)
 function baseType0(px,pz){
+  const t=baseTypeT(px,pz),TB=t==='park'||t==='plaza'||t==='homes'||t==='mid'?townBio(px,pz):null;if(!TB)return t;
+  if(TB.mk&&(t==='homes'||t==='mid')&&hash2(px*67+29,pz*19+31)<TB.mk)return'shops';
+  if(t==='park'&&TB.pz>0&&hash2(px*13+41,pz*89+3)<TB.pz)return'plaza';
+  if(t==='plaza'&&TB.pz<0&&hash2(px*13+41,pz*89+3)<-TB.pz)return'park';
+  return t;
+}
+function baseTypeT(px,pz){
   const t=hash2(px*31+7,pz*17+13),ty=setType(px,pz);
   // a row of two little shops (bookshop, dentist, dispensary, gun shop, bar, soup kitchen); a water tower out in the
   // smaller places and the suburbs; a bell tower on its green, mostly in the small towns and villages
@@ -7785,9 +7820,18 @@ function plotInfo(px,pz){
     const J=plotBounds(px,pz);
     for(const b of p.b){if(J.x0<PL0&&b.x0<=PL0+3)b.x0=J.x0;if(J.x1>PL1&&b.x1>=PL1-3)b.x1=J.x1;if(J.z0<PL0&&b.z0<=PL0+3)b.z0=J.z0;if(J.z1>PL1&&b.z1>=PL1-3)b.z1=J.z1;}
   }
-  p.b.forEach(autoStair);
+  bioShops(p,px,pz);p.b.forEach(autoStair);
   plotCache.set(k,p);return p;
 }
+// a town's small shops and eateries built its biome's way (BIO_TOWN's shop: walls from its sw, and the roof roofOf gives
+// b.bstyle): low ones with a sign, not a tall tower or a house; a brand painted its own colour keeps it
+function bioShops(p,px,pz){
+  if(!setType(px,pz))return;const TB=townBio(px,pz);if(!TB||!TB.shop)return;
+  for(const b of p.b){if(!b.signCat||b.signCat==='kiosk'||b.style!=='normal'||b.home||b.tier||b.top-G>16||b.x1-b.x0<5||b.z1-b.z0<5)continue;
+    if(b.brand&&PAINTED.has(b.brand.wall))continue;
+    const W=TB.shw||SHOP_W[TB.shop];b.wall=W[Math.floor(hash2(b.x0*13+px*7,b.z0*11+pz*5)*W.length)];b.bstyle=TB.shop;}
+}
+const SHOP_W={adobe:[STUCCO,SANDSTONE,STUCCO,STUCCO],timber:[LOG,PLANKS,PLANKS,LOG],stone:[COBBLE,STONE,MOSSSTONE]};
 // ---- parking: every block (and multi-block site) with buildings gets a surface car park, unless a multi-storey
 // car park is right next door. A lot is a strip along one side: a row of bays against the building, an aisle to the
 // pavement. Buildings are set back to make room. ----
@@ -8768,6 +8812,10 @@ function roofOf(b){
     else if(cat==='disco')v={k:'ball'};
     else if(cat==='club'||cat==='theater')v={k:'front',c:b.wall};
     else if(cat==='shop'&&b.top-G<=8||SHOP_ROOF.has(cat))v={k:pick(['front','mansard','gable','front']),c:pick([SHINGLE,SHINGLE,PLANKS,col||PAINT_RED])};
+    // (a town's own way of building, world/climate.js's BIO_TOWN, set by bioShops: adobe in the desert, timber in the
+    // forests and the cold, stone on the moor; a bank's dome and a disco's ball stay what they are)
+    if(b.bstyle&&!(v&&(v.k==='dome'||v.k==='ball'))){const st=b.bstyle;
+      v=st==='adobe'?{k:'adobe',c:b.wall}:st==='timber'?(h<0.55?{k:'front',c:PLANKS}:{k:'gable',c:SHINGLE}):{k:'gable',c:STONE};}
     if(v&&(v.k==='hip'||v.k==='mansard'||v.k==='gable'||v.k==='barrel'))b.neon=0;   // (the roof says it now: no neon rim as well)
   }
   return b._rf=v;
@@ -8785,7 +8833,14 @@ function roofColumn(put,b,rf,rx,rz){
   else if(rf.k==='mansard'){if(e<2)stack(e+1,rf.c);}
   else if(rf.k==='gable')stack(Math.min(cross+1,4),rf.c);
   else if(rf.k==='barrel'){const t=(c-(n-1)/2)/(n/2);stack(Math.round(Math.sqrt(Math.max(0,1-t*t))*Math.min(3,n/2)),rf.c);}
-  else if(rf.k==='front'){
+  else if(rf.k==='adobe'){
+    // an adobe roof: a low parapet, rounded up at the corners and stepped up over the door, the ends of the log beams
+    // (vigas) along the top of the walls under it, and a little box over the stairs at the back
+    const fd=b.door===0?rx-b.x0:b.door===1?b.x1-1-rx:b.door===2?rz-b.z0:b.z1-1-rz,al=b.door<2?rz-b.z0:rx-b.x0,L=b.door<2?D:W,q=Math.abs(al-(L-1)/2);
+    const corner=(rx===b.x0||rx===b.x1-1)&&(rz===b.z0||rz===b.z1-1);
+    if(e===0){stack(corner?2:fd===0&&q<L*0.18?3:1,rf.c);if(!corner&&((rx-b.x0)+(rz-b.z0))%3===1)put(T,LOG);}
+    else if(fd>=L-4&&fd<=L-2&&q<=1)stack(2,rf.c);
+  } else if(rf.k==='front'){
     // the false front over the doors, stepped up in the middle; air-conditioning units on the flat roof behind
     const fd=b.door===0?rx-b.x0:b.door===1?b.x1-1-rx:b.door===2?rz-b.z0:b.z1-1-rz,al=b.door<2?rz-b.z0:rx-b.x0,L=b.door<2?D:W,q=Math.abs(al-(L-1)/2);
     if(fd===0)stack(q<L*0.2?3:q<L*0.36?2:1,rf.c);
@@ -8960,14 +9015,14 @@ function farmlandColumn(col,F,px,pz,rx,rz,x,z){
 // (plainsH round a river, remembered, as its columns ask it of the same places again and again. A var, as worldCfgSet and
 // clearWorld empty it and may run before this file has)
 var RIV_H=new Map(),RIV_HS=null;function rivH(x,z){if(RIV_HS!==seed){RIV_HS=seed;RIV_H.clear();RIV_LV.clear();}const k=x*131072+z;let v=RIV_H.get(k);if(v===undefined){if(RIV_H.size>200000)RIV_H.clear();v=plainsH(x,z);RIV_H.set(k,v);}return v;}
-// (a river's water level by a lake, world/relief.js: up to the lake's own, G, with a lake within 4.5 blocks of its banks,
-// G-1 within 7.5, else G-2 as everywhere else. Worked out from points on its middle line, every 2 blocks along it, the
-// highest of those within 4 either way along it (so it doesn't flicker between levels where a lake runs alongside), so
-// the whole width is at one level and it steps a block at a time)
-var RIV_LV=new Map();const RIV_RR=[1.5,3,4.5,6,7.5],RIV_D8=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
-function rivLvl(cx,cz,w,tx,tz){let v=G-2;for(const s of [-4,-2,0,2,4])v=Math.max(v,rivLvl0(cx+tx*s,cz+tz*s,w));return v;}
+// (a river's water level by a lake, world/relief.js: the lake's own, G, where a lake's within 4.5 blocks of its banks,
+// and from there it eases down a block every RIV_STEP blocks along its line to G-2, as everywhere else, so it slopes
+// steadily into the lake rather than stepping up in two weirs right at its edge. Worked out from points on its middle
+// line, every 2 blocks along it, so the whole width is at one level)
+var RIV_LV=new Map();const RIV_RR=[1.5,3,4.5],RIV_D8=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]],RIV_STEP=10;
+function rivLvl(cx,cz,w,tx,tz){let v=G-2;for(let s=-2*RIV_STEP;s<=2*RIV_STEP;s+=2){const l=G-Math.floor(Math.abs(s)/RIV_STEP);if(l>v&&rivLvl0(cx+tx*s,cz+tz*s,w))v=l;}return v;}
 function rivLvl0(cx,cz,w){const X=Math.round(cx/2)*2,Z=Math.round(cz/2)*2,k=X*131072+Z;let v=RIV_LV.get(k);if(v!==undefined)return v;
-  v=G-2;out:for(const r of RIV_RR)for(const [a,b] of RIV_D8){const l=a&&b?0.7071:1;if(rivH(Math.round(X+a*l*(w+r)),Math.round(Z+b*l*(w+r)))<0){v=r<=4.5?G:G-1;break out;}}
+  v=false;out:for(const r of RIV_RR)for(const [a,b] of RIV_D8){const l=a&&b?0.7071:1;if(rivH(Math.round(X+a*l*(w+r)),Math.round(Z+b*l*(w+r)))<0){v=true;break out;}}
   if(RIV_LV.size>50000)RIV_LV.clear();RIV_LV.set(k,v);return v;}
 function plainsRiverColumn(col,d,w,trib,x,z,W){   // (w: its width; a tributary's shallower; W riverCol's answer: the nearest point on its middle and which way it runs there)
   const RB=G-11+(trib?3:0);

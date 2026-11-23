@@ -315,6 +315,10 @@ function farmlandOf(px,pz){
   fieldC.set(key,v);return v;
 }
 const PLAINS_OPEN=(px,pz)=>realmOf(px,pz)==='plains'&&farmK(px,pz)===null&&!farmlandOf(px,pz)&&dumpAt(px,pz)===null&&!castleAt(px,pz)&&!bunkerAt(px,pz)&&!bigPlainsAt(px,pz)&&!caveMouth(px,pz)&&!turbineAt(px,pz);
+// a block of natural shore (no town's beach or harbour, no port, no lighthouse): its land is the wilds' own, so the hills
+// run on down to the water there rather than flattening out a block short of it (plainsH, reliefMask)
+const SHORE_OPEN=(px,pz)=>seaPlot(px,pz)===1&&coastType(px,pz)==='shore';
+const LAND_OPEN=(px,pz)=>PLAINS_OPEN(px,pz)||SHORE_OPEN(px,pz);
 // close to a highway's line or a farm lane out on the plains (keep it flat, keep the trees off)
 // (RN_RT: the highways' part of the last answer, RN_O everything else's, RN_N everything but the highways and rivers, for
 // plainsH)
@@ -336,16 +340,19 @@ function roadNear(x,z,pad){
 // deeper than a few blocks isn't filled in for a highway, though: it runs on under it, and the road crosses on a deck on
 // pillars (routeColumn), easing from the one to the other as the lake gets deeper
 function plainsH(x,z){
-  const px=Math.floor(x/CELL),pz=Math.floor(z/CELL);RLF.cut=RLF.tun=RLF.ter=RLF.tw=RLF.salt=RLF.face=RLF.oas=false;RLF.r=RLF.dune=0;RLF.wl=-99;if(!PLAINS_OPEN(px,pz))return 0;
-  const rx=x-px*CELL,rz=z-pz*CELL;let f=1;
+  const px=Math.floor(x/CELL),pz=Math.floor(z/CELL);RLF.cut=RLF.tun=RLF.ter=RLF.tw=RLF.salt=RLF.face=RLF.oas=false;RLF.r=RLF.dune=0;RLF.wl=-99;
+  if(!PLAINS_OPEN(px,pz)&&!SHORE_OPEN(px,pz))return 0;
+  const rx=x-px*CELL,rz=z-pz*CELL;let f=1,sw=1e9;
   roadNear(x,z);const fr=Math.min(1,Math.max(0,RN_RT)/14);
-  for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++){if(!dx&&!dz||PLAINS_OPEN(px+dx,pz+dz))continue;
+  for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++){if(!dx&&!dz||LAND_OPEN(px+dx,pz+dz))continue;
     const ex=dx<0?rx:dx>0?CELL-1-rx:0,ez=dz<0?rz:dz>0?CELL-1-rz:0;f=Math.min(f,Math.max(dx?ex:0,dz?ez:0)/14);}
+  // (down to nothing at the water's edge on a natural shore, as at any other edge; RLF_SW how far in from it, for reliefMask)
+  if(nearSea(px,pz)){sw=Math.max(0,-coastD(x,z));f=Math.min(f,sw/14);}
   f=Math.min(f,rlfLane(x,z,px,pz)/6);   // (and level with a farm's lane, which only clears its own height)
   // (a lake isn't faded out by a river: the two meet, the river running into it, buildings/roofs.js's plainsRiverColumn)
   const fn=Math.min(f,Math.max(0,RN_N)/14);f=Math.min(f,Math.max(0,RN_O)/14);
   reliefNat(x,z,true);const mtn=RLF.mtn,hill=RLF.hill,lake=RLF.lake,s=Math.max(0,Math.min(1,(lake-2)/3)),fh=Math.min(f,fr),fl=Math.min(fn,fr+(1-fr)*s);
-  const h=hill*fh-lake*fl+(mtn>0.5?reliefMask(x,z,px,pz,mtn,hill+mtn):mtn*fh);
+  RLF_SW=sw;const h=hill*fh-lake*fl+(mtn>0.5?reliefMask(x,z,px,pz,mtn,hill+mtn):mtn*fh);
   return h<-0.9?Math.max(-RLF_LAKE,Math.round(h)):Math.max(0,Math.round(h));
 }
 // the plains' rolling ground before it's flattened toward roads and other blocks (plainsH scales it down there). Below
