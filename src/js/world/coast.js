@@ -17,7 +17,7 @@ const WORLD_DEF={land:0,size:1,rough:1,chan:1,isles:1,islz:1,temp:0,rain:0,czone
 const WORLD_CFG=Object.assign({},WORLD_DEF);
 // (sets them from o, anything missing or not a number at its default: only before the world's worked out (loading), as
 // what's been worked out already isn't redone)
-function worldCfgSet(o){for(const k in WORLD_DEF)WORLD_CFG[k]=o&&typeof o[k]==='number'&&isFinite(o[k])?o[k]:WORLD_DEF[k];seaCcSeed=null;clSeed=null;seaPlotC.clear();plotCache.clear();rlfRtC.clear();rlfRvC.clear();rlfRt16.clear();rlfRv16.clear();RLF_AIR.clear();RLF_MAPC.clear();RLF_VC.clear();RLF_VL.clear();if(RIV_H){RIV_H.clear();RIV_LV.clear();}rivCfg();terClear();}
+function worldCfgSet(o){for(const k in WORLD_DEF)WORLD_CFG[k]=o&&typeof o[k]==='number'&&isFinite(o[k])?o[k]:WORLD_DEF[k];seaCcSeed=null;clSeed=null;seaPlotC.clear();plotCache.clear();if(RLF_SH)RLF_SH.clear();rlfRtC.clear();rlfRvC.clear();rlfRt16.clear();rlfRv16.clear();RLF_AIR.clear();RLF_MAPC.clear();RLF_VC.clear();RLF_VL.clear();if(RIV_H){RIV_H.clear();RIV_LV.clear();}rivCfg();terClear();}
 const worldCfgSent=()=>{let o;for(const k in WORLD_DEF)if(WORLD_CFG[k]!==WORLD_DEF[k])(o=o||{})[k]=WORLD_CFG[k];return o;};
 if(typeof window!=='undefined'&&(window.GSG_WORLD||window.GSG_SEA))worldCfgSet(window.GSG_WORLD||window.GSG_SEA);
 function seaCont(fx,fz){

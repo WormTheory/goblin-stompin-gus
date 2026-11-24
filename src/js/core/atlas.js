@@ -3,9 +3,14 @@ const T=16,AC=8,AR=14;
 const atlas=document.createElement('canvas');atlas.width=T*AC;atlas.height=T*AR;
 const actx=atlas.getContext('2d');
 function mulberry(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}}
+// (each tile's average colour, as painted: the meshing blends one kind of ground into the next with them, meshing.js)
+const TILE_AVG=new Float32Array(AC*AR*3);
 function paint(idx,fn){
   const r=mulberry(idx*977+13);const img=actx.createImageData(T,T);
-  for(let y=0;y<T;y++)for(let x=0;x<T;x++){const c=fn(x,y,r),o=(y*T+x)*4;img.data[o]=c[0];img.data[o+1]=c[1];img.data[o+2]=c[2];img.data[o+3]=c.length>3?c[3]:255;}
+  let ar=0,ag=0,ab=0;
+  for(let y=0;y<T;y++)for(let x=0;x<T;x++){const c=fn(x,y,r),o=(y*T+x)*4;img.data[o]=c[0];img.data[o+1]=c[1];img.data[o+2]=c[2];img.data[o+3]=c.length>3?c[3]:255;
+    ar+=Math.max(0,Math.min(255,c[0]));ag+=Math.max(0,Math.min(255,c[1]));ab+=Math.max(0,Math.min(255,c[2]));}
+  TILE_AVG[idx*3]=ar/(T*T*255);TILE_AVG[idx*3+1]=ag/(T*T*255);TILE_AVG[idx*3+2]=ab/(T*T*255);
   actx.putImageData(img,(idx%AC)*T,Math.floor(idx/AC)*T);
 }
 const jit=(c,r,a)=>{const k=(r()-.5)*a;return[c[0]+k,c[1]+k,c[2]+k];};

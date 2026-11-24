@@ -69,4 +69,8 @@ const sites=process.env.SITES?process.env.SITES.split(';').map(q=>q.split(',').m
 let si=0;for(const [x,z] of sites){const nm='site-'+(++si);if(ONLY&&!ONLY.split(',').includes(nm))continue;
   const ty=await p.evaluate(()=>window.__G.G0);await hold(x-60,ty+45,z-60,x,ty,z);await p.waitForTimeout(22000);
   await cap('A site out in the hills ('+Math.round(x)+', '+Math.round(z)+')');await p.screenshot({path:out+'/'+nm+'.png'});console.log(nm,Math.round(x),Math.round(z));}
+// any spots asked for: SPOTS=name@x,z,dx,dz;... looked at from 50 back along -dx,-dz and 40 up, toward 40 on along dx,dz
+for(const q of (process.env.SPOTS||'').split(';').filter(Boolean)){const [nm,r]=q.split('@'),[x,z,dx,dz]=r.split(',').map(Number);
+  const ty=await p.evaluate(()=>window.__G.G0);await hold(x-dx*50,ty+40,z-dz*50,x+dx*40,ty+6,z+dz*40);await p.waitForTimeout(22000);
+  await cap(nm.replace(/-/g,' ')+' ('+x+', '+z+')');await p.screenshot({path:out+'/'+nm+'.png'});console.log(nm,x,z);}
 console.log(errs.join('\n')||'no errors');await b.close();fs.unlinkSync('t3d.html');})();

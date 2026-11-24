@@ -243,6 +243,8 @@ const FACE_T=FACES.map(f=>{const [dx,dy,dz]=f.dir,axis=dx?0:dy?1:2,ua=(axis+1)%3
   return {dx,dy,dz,dy1:dy===1,sel:dy===1?0:dy===-1?1:2,shade:f.shade*DIM,lin:lin(dx,dy,dz),wf:wl(dx,dy,dz),cn:f.c.map(c=>{const du=[0,0,0],dv=[0,0,0];du[ua]=c[ua]?1:-1;dv[va]=c[va]?1:-1;
     const s1=[dx+du[0],dy+du[1],dz+du[2]],s2=[dx+dv[0],dy+dv[1],dz+dv[2]],cc=[dx+du[0]+dv[0],dy+du[1]+dv[1],dz+du[2]+dv[2]];
     return {x:c[0],y:c[1],z:c[2],u:c[3],v:c[4],s1,s2,cc,o1:lin(...s1),o2:lin(...s2),oc:lin(...cc),w1:wl(...s1),w2:wl(...s2),wc:wl(...cc)};})};});
+// the kinds of ground that blend into each other at their edges (buildChunk's gMix)
+const G_MIX=new Uint8Array(256),GMC=[1,1,1];for(const b of [GRASS,DIRT,SAND,RED_SAND,SNOW,MUD,GRAVEL,TERRA,TERRA2,SALT,STONE,SANDSTONE])G_MIX[b]=1;
 function buildChunk(cx,cz){
   const gfx=GFX_OFF.caves||GFX_OFF.sewers||GFX_OFF.subway?new Map():null;
   const a0=gfx?gfxArr(cx,cz):chunkArr(cx,cz),x0=cx*CS,z0=cz*CS,A2=CS*CS,lf=leafFall>0;
@@ -275,6 +277,21 @@ function buildChunk(cx,cz){
   // (the biome's tint on grass and leaves, world/climate.js: asked once a column, g 0 grass, 1 leaves; 1,1,1 in grassland)
   const tnF=new Uint8Array(A2*2),tnC=new Float32Array(A2*6),tint=(lx,lz,g)=>{const i=(lz*CS+lx)*2+g;
     if(!tnF[i]){tnF[i]=1;const T=bioTint(x0+lx,z0+lz,g);tnC[i*3]=T[0];tnC[i*3+1]=T[1];tnC[i*3+2]=T[2];}return i*3;};
+  // (where one kind of ground meets another, grass and sand, sand and red sand, dirt and snow..., the top faces' colours
+  // blend from one to the other over a few blocks: each corner takes the average colour of the ground in the 4 x 4 columns
+  // round it (weights 1,3,3,1 each way; a column whose top isn't ground or is more than a block higher or lower counts as
+  // this one), as a multiple of this block's own texture's average. gK/gY/gC: each column's top ground block, its height
+  // and its colour (the texture's average times the grass's tint), for the chunk and two columns round it)
+  const GW=CS+4,gK=new Int16Array(GW*GW),gY=new Int16Array(GW*GW),gC=new Float32Array(GW*GW*3);
+  for(let j=0;j<GW;j++)for(let i=0;i<GW;i++){const lx=i-2,lz=j-2,o=j*GW+i;let y;
+    if(lx>=0&&lx<CS&&lz>=0&&lz<CS)y=tops[lz*CS+lx];else{y=-1;for(let yy=Math.min(H-1,yTop+2);yy>=0;yy--){const bb=at(lx,yy,lz);if(bb){y=BLOCK[bb].liquid?-1:yy;break;}}}
+    const bb=y<0?0:at(lx,y,lz);if(!G_MIX[bb])continue;gK[o]=bb;gY[o]=y;
+    const t=BLOCK[bb].tiles[0]*3;let r=TILE_AVG[t],g=TILE_AVG[t+1],bl=TILE_AVG[t+2];
+    if(bb===GRASS){const T=bioTint(x0+lx,z0+lz,0);r*=T[0];g*=T[1];bl*=T[2];}gC[o*3]=r;gC[o*3+1]=g;gC[o*3+2]=bl;}
+  const GMW=[1,3,3,1],gMix=(lx,lz,y,cx,cz,own)=>{let r=0,g=0,b=0;const so=((lz+2)*GW+lx+2)*3;
+    for(let dj=0;dj<4;dj++)for(let di=0;di<4;di++){const o=(lz+cz+dj)*GW+lx+cx+di,w=GMW[di]*GMW[dj],dy=gY[o]-y,u=gK[o]&&dy<=1&&dy>=-1?o*3:so;
+      r+=w*gC[u];g+=w*gC[u+1];b+=w*gC[u+2];}
+    const t=own*3,k=1/64;GMC[0]=Math.min(1.45,r*k/(TILE_AVG[t]||1));GMC[1]=Math.min(1.45,g*k/(TILE_AVG[t+1]||1));GMC[2]=Math.min(1.45,b*k/(TILE_AVG[t+2]||1));return GMC;};
   const dkC=BL_DARK.size?new Int8Array(A2).fill(-1):null,darkCol=(lx,lz)=>{const i=lz*CS+lx;if(dkC[i]<0)dkC[i]=bldgDarkAt(x0+lx,z0+lz)?1:0;return dkC[i]===1;};
   for(let y=yLo;y<=yTop;y++){
     const midY=y>=1&&y<H-1;
@@ -296,6 +313,7 @@ function buildChunk(cx,cz){
       const P=out.p.room(12),U=out.u.room(8),C=out.c.room(12),K=out.k.room(4),n=out.p.length/3,Bv=BL?out.b.room(12):null;
       let po=out.p.length,uo=out.u.length,co=out.c.length,ko=out.k.length,bo=BL?out.b.length:0;
       const wb=lit?(lx+15)+(lz+15)*BLW+(y+1)*BLA:0,wi=wb+F.wf;   // (the block, and the open one in front of the face, in block light's window)
+      const gm=F.dy1&&skyTop&&G_MIX[b]===1;
       const X=x0+lx,Z=z0+lz,sky=F.dy1&&skyTop?1+(snowBorn.get(X*65536+Z)||0):0,V0=1-(ty+1)/AR;
       for(let q=0;q<4;q++){
         const c=F.cn[q];
@@ -318,7 +336,8 @@ function buildChunk(cx,cz){
           } else if(lit){Bv[bo++]=BL_R[wi]*17;Bv[bo++]=BL_G[wi]*17;Bv[bo++]=BL_B[wi]*17;}
           else if(BL){Bv[bo++]=0;Bv[bo++]=0;Bv[bo++]=0;}
         }
-        if(ti<0||F.sel===1&&!tg){C[co++]=s;C[co++]=s;C[co++]=s;}
+        if(gm){const M=gMix(lx,lz,y,c.x,c.z,tile);C[co++]=s*M[0];C[co++]=s*M[1];C[co++]=s*M[2];}
+        else if(ti<0||F.sel===1&&!tg){C[co++]=s;C[co++]=s;C[co++]=s;}
         else if(tg||F.dy1){C[co++]=s*tnC[ti];C[co++]=s*tnC[ti+1];C[co++]=s*tnC[ti+2];}
         else{C[co++]=s*(1+tnC[ti])/2;C[co++]=s*(1+tnC[ti+1])/2;C[co++]=s*(1+tnC[ti+2])/2;}   // (a grass block's side: its green edge, half)
         K[ko++]=sky;
@@ -426,7 +445,7 @@ function routeMarks(cx,cz){
   if(BL_ON)g.setAttribute('aBlk',new THREE.BufferAttribute(Uint8Array.from(Bl),3,true));
   const mesh=new THREE.Mesh(g,matDecal);scene.add(mesh);return mesh;
 }
-function clearWorld(){rebuildQ.clear();regionsClear();planJob.S=null;for(const e of meshes.values())for(const m of e.m){if(m.parent)m.parent.remove(m);m.geometry.dispose();}meshes.clear();MESHED.fill(0);meshedDirty=true;farDirty=true;chunks.clear();FAR_BS.clear();gfxRecC.clear();plotCache.clear();plotTypeC.clear();lampSpotC.clear();blkLampC.clear();BL_PROPS.clear();blkLampOut.clear();bridgeCache.clear();superCache.clear();siteC.clear();siteI.clear();setCache.clear();setAtCache.clear();jDegC.clear();linkNearC.clear();if(RIV_H){RIV_H.clear();RIV_LV.clear();}ctlCache.clear();zoneCache.clear();farmC.clear();cloverCache.clear();clearLayout();joinCache.clear();icCache.clear();ctlCache.clear();lastK=-1;}
+function clearWorld(){rebuildQ.clear();regionsClear();planJob.S=null;for(const e of meshes.values())for(const m of e.m){if(m.parent)m.parent.remove(m);m.geometry.dispose();}meshes.clear();MESHED.fill(0);meshedDirty=true;farDirty=true;chunks.clear();FAR_BS.clear();gfxRecC.clear();plotCache.clear();if(RLF_SH)RLF_SH.clear();plotTypeC.clear();lampSpotC.clear();blkLampC.clear();BL_PROPS.clear();blkLampOut.clear();bridgeCache.clear();superCache.clear();siteC.clear();siteI.clear();setCache.clear();setAtCache.clear();jDegC.clear();linkNearC.clear();if(RIV_H){RIV_H.clear();RIV_LV.clear();}ctlCache.clear();zoneCache.clear();farmC.clear();cloverCache.clear();clearLayout();joinCache.clear();icCache.clear();ctlCache.clear();lastK=-1;}
 // ---- far chunks drawn in fours: each chunk is its own draw call or three, which at a long detail distance is the bulk of a frame's.
 // So a group of up to 4 x 4 chunks a little way off that nothing has happened to for a while is copied into one mesh per material,
 // and the chunks themselves hidden. The picture's the same. Anything changing in the group (a block smashed, a chunk dropped) simply

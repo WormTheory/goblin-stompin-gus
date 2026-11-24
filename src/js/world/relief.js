@@ -234,30 +234,37 @@ function rlfAir(px,pz){const k=px*100003+pz;let L=RLF_AIR.get(k);if(L)return L;L
     if(bigCell(RLF_AF,ax,az))L.push([ax*CELL,az*CELL,(ax+K.w)*CELL,(az+K.h)*CELL,0.25]);
   if(!apBusy){if(RLF_AIR.size>20000)RLF_AIR.clear();RLF_AIR.set(k,L);}return L;}
 // the mountains' part at (x,z) as it's let stand beside what's built: each thing nearby lets the land rise only so steeply
-// from it (a road or railway in a cutting, 2 blocks up for every block out past its verge; a river's valley 0.7; a town's,
-// farm's or site's edge 1.2; a truck stop, farm lane or town street 1.5). Over a road or railway it's a tunnel instead,
+// from it (a road or railway in a cutting, 1 block up for every block out past its verge; a river's valley 0.7; a town's,
+// farm's or site's edge in terraces, rlfShut; a truck stop, farm lane or town street 1). Over a road or railway it's a tunnel instead,
 // once the land's higher than RLF_TUN (a motorway's deck counts too). RLF.cut: cut back, so its face is bare rock;
 // RLF.tun: left standing over a road or railway
 // (how far in from the water's edge the column plainsH is asking about is, on a block by the sea; 1e9 elsewhere)
 var RLF_SW=1e9;
+// the blocks within four of plot (px,pz) that aren't open plains or shore, as [dx,dz,...]: worked out once a plot
+var RLF_SH=new Map();   // (var: worldCfgSet may clear it before this file has run)
+function rlfShut(px,pz){const k=px*100003+pz;let S=RLF_SH.get(k);if(S)return S;if(RLF_SH.size>40000)RLF_SH.clear();S=[];
+  for(let dx=-4;dx<=4;dx++)for(let dz=-4;dz<=4;dz++)if((dx||dz)&&!LAND_OPEN(px+dx,pz+dz))S.push(dx,dz);
+  RLF_SH.set(k,S);return S;}
 function reliefMask(x,z,px,pz,mtn,tot){
   let cap=mtn;RLF.cut=false;RLF.tun=false;RLF.ter=false;RLF.tw=false;
   const lim=Math.min(90,mtn/0.7+6),q=(d,k,v)=>{const c=Math.max(0,d-v)*k;if(c<cap)cap=c;};
-  {const d=rlfDist(rlfLines16(rlfRt16,rlfRtC,routesNearBox,x,z),x,z,mtn/2+12),R=RLF_NR;if(R){const tn=RLF_TUN+(R.kind==='moto'?R.HY-G:0);if(tot>tn)RLF.tun=true;else q(d-9.6,2,1);}}
-  if(cap>0){const d=railDist(x,z,mtn/2+6);if(d<mtn/2+6){if(tot>RLF_TUN)RLF.tun=true;else q(d-2.5,2,1);}}
+  {const d=rlfDist(rlfLines16(rlfRt16,rlfRtC,routesNearBox,x,z),x,z,mtn+12),R=RLF_NR;if(R){const tn=RLF_TUN+(R.kind==='moto'?R.HY-G:0);if(tot>tn)RLF.tun=true;else q(d-9.6,1,1);}}
+  if(cap>0){const d=railDist(x,z,mtn+6);if(d<mtn+6){if(tot>RLF_TUN)RLF.tun=true;else q(d-2.5,1,1);}}
   if(cap>0){const d=rlfDist(rlfLines16(rlfRv16,rlfRvC,riversNearBox,x,z),x,z,lim);if(RLF_NR)q(d-RIV_W-4,0.7,2);}
-  if(cap>0){q(rlfLane(x,z,px,pz),1.5,0);q(linkNear(x,z),1.5,1);
+  if(cap>0){q(rlfLane(x,z,px,pz),1,0);q(linkNear(x,z),1,1);
     const k=Math.floor(x/16)*100003+Math.floor(z/16);if(!tsC.has(k))tsAt(x,z);for(const T of tsC.get(k)||[]){const dx=x+0.5-T.cx,dz=z+0.5-T.cz,u=dx*T.tx+dz*T.tz,v=dx*T.nx+dz*T.nz;
-      q(rlfLen(Math.max(0,Math.abs(u)-46),Math.max(0,v-60,6.5-v))-2,1.5,1);}}
+      q(rlfLen(Math.max(0,Math.abs(u)-46),Math.max(0,v-60,6.5-v))-2,1,1);}}
   if(cap>0)for(const A of rlfAir(px,pz))q(rlfLen(Math.max(0,A[0]-x,x-A[2]),Math.max(0,A[1]-z,z-A[3])),A[4],0);
-  // (the edges of the blocks round about that aren't open plains, two blocks out for the taller mountains: the land's
-  // graded up from them in terraces, 3 blocks high and 4 deep, each held up by a retaining wall (RLF.tw: a column on the
-  // wall's top edge), rather than cut back to a rock face)
+  // (the edges of the blocks round about that aren't open plains, up to four blocks out (rlfShut): the land's graded up
+  // from them in terraces, each held up by a retaining wall (RLF.tw: a column on the wall's top edge), rather than cut
+  // back to a rock face: 2 blocks high and 4 deep for the first 48 blocks out, then 3 high, so a town's edge climbs
+  // gently into the hills)
   if(cap>0)q(RLF_SW,1.2,0);   // (rising off a natural shore no more steeply than off a town's edge)
-  if(cap>0){const rx=x-px*CELL,rz=z-pz*CELL,R=mtn>36?2:1;let e=1e9;
-    for(let dx=-R;dx<=R;dx++)for(let dz=-R;dz<=R;dz++){if(!dx&&!dz||LAND_OPEN(px+dx,pz+dz))continue;
+  if(cap>0){const rx=x-px*CELL,rz=z-pz*CELL,S=rlfShut(px,pz);let e=1e9;
+    for(let i=0;i<S.length;i+=2){const dx=S[i],dz=S[i+1];
       const ex=dx<0?rx+(-dx-1)*CELL:dx>0?(dx-1)*CELL+CELL-1-rx:0,ez=dz<0?rz+(-dz-1)*CELL:dz>0?(dz-1)*CELL+CELL-1-rz:0,d=rlfLen(ex,ez);if(d<e)e=d;}
-    const u=Math.max(0,e-2),k=Math.floor(u/4);if(3*k<cap){cap=3*k;RLF.ter=true;RLF.tw=k>=1&&u-4*k<1;}}
+    const u=Math.max(0,e-2),lo=u<48,v=lo?u:u-48,k=Math.floor(v/4),h=lo?2*k:24+3*k;
+    if(h<cap){cap=h;RLF.ter=true;RLF.tw=(lo?k>=1:true)&&v-4*k<1;}}
   if(cap<mtn-2&&cap>2&&!RLF.ter)RLF.cut=true;
   return cap;
 }
