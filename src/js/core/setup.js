@@ -1,12 +1,15 @@
 // ---- world curve (a debug toy): every vertex drops (or rises) by k times the square of its distance from the camera,
 // across the ground, so the world bends away over the horizon like a little planet (or curls up like a bowl). Done in
 // three.js's own projection step, so it applies to every material; each material gets the shared uniform on compile.
-// (The camera's position is worked out from the view matrix: three.js only fills in cameraPosition for some materials.) ----
+// (The bend is worked out from where the vertex is relative to the camera, after three.js's own modelViewMatrix, which
+// it multiplies out in double precision on the CPU. Going through world space on the graphics card instead, in 32-bit
+// floats, rounded everything to the nearest 1/256 of a block or worse tens of thousands of blocks from the start, so
+// things near the camera, the first-person weapon worst of all, shook as the view turned.) ----
 const CURVE_U={value:0};
 THREE.ShaderChunk.common='uniform float uWorldCurve;\n'+THREE.ShaderChunk.common;
 if(THREE.ShaderChunk.project_vertex.includes('mvPosition = modelViewMatrix * mvPosition;'))
   THREE.ShaderChunk.project_vertex=THREE.ShaderChunk.project_vertex.replace('mvPosition = modelViewMatrix * mvPosition;',
-    'vec4 wcP = modelMatrix * mvPosition; vec3 wcT = viewMatrix[3].xyz; vec2 wcD = wcP.xz + vec2( dot( viewMatrix[0].xyz, wcT ), dot( viewMatrix[2].xyz, wcT ) ); wcP.y -= uWorldCurve * dot( wcD, wcD ); mvPosition = viewMatrix * wcP;');
+    'mvPosition = modelViewMatrix * mvPosition; vec2 wcD = vec2( dot( viewMatrix[0].xyz, mvPosition.xyz ), dot( viewMatrix[2].xyz, mvPosition.xyz ) ); mvPosition.xyz -= viewMatrix[1].xyz * ( uWorldCurve * dot( wcD, wcD ) );');
 Object.defineProperty(THREE.Material.prototype,'onBeforeCompile',{configurable:true,
   set(f){this._obc=f;},
   get(){const f=this._obc,w=function(sh,r){sh.uniforms.uWorldCurve=CURVE_U;if(f)f.call(this,sh,r);};w.toString=()=>'wc|'+(f?f.toString():'');return w;}});

@@ -214,6 +214,7 @@
 - The rounds left in your gun, and the reload prompt, are now in the bottom right corner in big numbers, turning red when the magazine's empty.
 - As a goblin, the mouse wheel and the D-pad now go both ways through your weapons: wheel down or D-pad right for the next, wheel up or D-pad left for the one before. Both can be changed in the Controls tab.
 - Push to talk no longer has a controller button by default (D-pad left was it): give it one in the Controls tab if you play online with a controller.
+- Your weapon in first person no longer shakes as you turn when you're a long way from where you started. Everything close to you is drawn steadier out there too.
 
 ### Ruined towns
 

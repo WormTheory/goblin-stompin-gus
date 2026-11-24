@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:fbe9e5d16fdd34d001f0bc0f26c6da611463431c7c77041abf477fb1a92315f1 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:dbf58e88722b7116e70fdbe8806413da191dcf3a00f1c56a693d8ebf12afe0aa -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1688,7 +1688,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Drivers</h3>
 <ul><li>Everyone at the wheel is dressed as themselves, in their own colours, hats, glasses and the rest, instead of a plain green head, and whoever you haul out or leave in a wreck is dressed the same. Police drivers are in blue, and your own goblin shows at the wheel of whatever you drive.</li></ul>
 <h3>Switching weapons</h3>
-<ul><li>The weapon bar above your hearts now shows your weapons as a row of little pictures of each one, the one in hand lit up, with landmines and grenades showing how many you have.</li><li>R no longer switches weapons (the mouse wheel does), and the weapon bar no longer lists buttons: just your weapons and grenades.</li><li>Grenades are now a weapon like the others: switch to them and attack to throw one, overarm, with the grenade in your hand until it goes. Stomp no longer throws them. Throw your last and you're back to your next weapon.</li><li>The rounds left in your gun, and the reload prompt, are now in the bottom right corner in big numbers, turning red when the magazine's empty.</li><li>As a goblin, the mouse wheel and the D-pad now go both ways through your weapons: wheel down or D-pad right for the next, wheel up or D-pad left for the one before. Both can be changed in the Controls tab.</li><li>Push to talk no longer has a controller button by default (D-pad left was it): give it one in the Controls tab if you play online with a controller.</li></ul>
+<ul><li>The weapon bar above your hearts now shows your weapons as a row of little pictures of each one, the one in hand lit up, with landmines and grenades showing how many you have.</li><li>R no longer switches weapons (the mouse wheel does), and the weapon bar no longer lists buttons: just your weapons and grenades.</li><li>Grenades are now a weapon like the others: switch to them and attack to throw one, overarm, with the grenade in your hand until it goes. Stomp no longer throws them. Throw your last and you're back to your next weapon.</li><li>The rounds left in your gun, and the reload prompt, are now in the bottom right corner in big numbers, turning red when the magazine's empty.</li><li>As a goblin, the mouse wheel and the D-pad now go both ways through your weapons: wheel down or D-pad right for the next, wheel up or D-pad left for the one before. Both can be changed in the Controls tab.</li><li>Push to talk no longer has a controller button by default (D-pad left was it): give it one in the Controls tab if you play online with a controller.</li><li>Your weapon in first person no longer shakes as you turn when you're a long way from where you started. Everything close to you is drawn steadier out there too.</li></ul>
 <h3>Ruined towns</h3>
 <ul><li>A town you've wiped out stays dead. Traffic no longer drives into it: cars on the roads in turn back or head the other way, and none come off the motorway into it. Nobody turns up there, the shops have no staff, nothing's parked, no one's sent out to it, and anyone left wandering about slips away once you're not looking.</li></ul>
 <h3>Nuclear meltdown</h3>
@@ -2364,12 +2364,15 @@ function assetCheckHit(H,at,E){
 // ---- world curve (a debug toy): every vertex drops (or rises) by k times the square of its distance from the camera,
 // across the ground, so the world bends away over the horizon like a little planet (or curls up like a bowl). Done in
 // three.js's own projection step, so it applies to every material; each material gets the shared uniform on compile.
-// (The camera's position is worked out from the view matrix: three.js only fills in cameraPosition for some materials.) ----
+// (The bend is worked out from where the vertex is relative to the camera, after three.js's own modelViewMatrix, which
+// it multiplies out in double precision on the CPU. Going through world space on the graphics card instead, in 32-bit
+// floats, rounded everything to the nearest 1/256 of a block or worse tens of thousands of blocks from the start, so
+// things near the camera, the first-person weapon worst of all, shook as the view turned.) ----
 const CURVE_U={value:0};
 THREE.ShaderChunk.common='uniform float uWorldCurve;\n'+THREE.ShaderChunk.common;
 if(THREE.ShaderChunk.project_vertex.includes('mvPosition = modelViewMatrix * mvPosition;'))
   THREE.ShaderChunk.project_vertex=THREE.ShaderChunk.project_vertex.replace('mvPosition = modelViewMatrix * mvPosition;',
-    'vec4 wcP = modelMatrix * mvPosition; vec3 wcT = viewMatrix[3].xyz; vec2 wcD = wcP.xz + vec2( dot( viewMatrix[0].xyz, wcT ), dot( viewMatrix[2].xyz, wcT ) ); wcP.y -= uWorldCurve * dot( wcD, wcD ); mvPosition = viewMatrix * wcP;');
+    'mvPosition = modelViewMatrix * mvPosition; vec2 wcD = vec2( dot( viewMatrix[0].xyz, mvPosition.xyz ), dot( viewMatrix[2].xyz, mvPosition.xyz ) ); mvPosition.xyz -= viewMatrix[1].xyz * ( uWorldCurve * dot( wcD, wcD ) );');
 Object.defineProperty(THREE.Material.prototype,'onBeforeCompile',{configurable:true,
   set(f){this._obc=f;},
   get(){const f=this._obc,w=function(sh,r){sh.uniforms.uWorldCurve=CURVE_U;if(f)f.call(this,sh,r);};w.toString=()=>'wc|'+(f?f.toString():'');return w;}});
@@ -2399,7 +2402,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='d0565d210479';
+const GAME_VER='0.5',GAME_BUILD='00a0d3a1312c';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v110'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
 const WORLD_GEN=12;
